@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       subroutine xsetmem_ints(mem)
-      use k2_arrays, only: Sew_Scr
-      use stdalloc
-      implicit real*8 (a-h,o-z)
-#include "status.fh"
+      use k2_arrays, only: Sew_Scr, XMem
+      use stdalloc, only: mma_allocate
+      implicit none
+      integer mem, mem_, MemMax
 !
-      If (XMem_Status.eq.Active) Then
+      If (XMem) Then
          Call WarningMessage(2,
      &               'External handling of scratch already active!')
          Call Abend()
@@ -27,9 +27,9 @@
       End If
 !     Write (6,*) 'xsetmem_ints: External allocate:',Mem_
       Call mma_allocate(Sew_Scr,Mem_,Label='Sew_Scr')
-      XMem_Status=Active
+      XMem=.True.
 !     Call mma_MaxDBLE(nu)
 !     Write (6,*) 'xsetmem_ints: External allocate left to allocate:',nu
 !
       Return
-      End
+      End subroutine xsetmem_ints

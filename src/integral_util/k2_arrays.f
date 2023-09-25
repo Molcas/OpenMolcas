@@ -37,7 +37,8 @@
       Real*8, Allocatable:: Mem_DBLE(:)
       Integer, Allocatable:: Mem_INT(:)
       Real*8, Allocatable:: Aux(:)
-      Real*8, Allocatable, Target:: Sew_Scr(:)
       Integer, Allocatable:: iSOSym(:,:)
+      Logical :: XMem=.False.
+      Real*8, Allocatable, Target:: Sew_Scr(:)
 
       End Module

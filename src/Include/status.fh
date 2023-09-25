@@ -14,8 +14,7 @@
       Integer RctFld_Status
       Integer ERI_Status
       Integer Indexation_Status
-      Integer XMem_Status
       Integer Seward_Status
       Common /Status_Fields/ RctFld_Status,                             &
      &                       ERI_Status, Indexation_Status,             &
-     &                       XMem_Status, Seward_Status
+     &                       Seward_Status

@@ -91,8 +91,8 @@
       RctFld_Status=InActive
       ERI_Status=InActive
       Indexation_Status=Inactive
-      XMem_Status=Inactive
       Seward_Status=Active
+      XMem=.False.
 !
       Call Set_Binom()
       Call Set_CanInd()

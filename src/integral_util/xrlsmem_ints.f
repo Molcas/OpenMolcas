@@ -8,11 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine xRlsMem_Ints
-      implicit real*8 (a-h,o-z)
+      Subroutine xRlsMem_Ints()
+      use k2_arrays, only: XMem
+      implicit none
 #include "status.fh"
-!
-      If (XMem_Status.eq.InActive) Then
+      If (.NOT.XMem) Then
 !        Write (6,*)
 !        Write (6,*) 'xRlsMem_Ints:',
 !    &               'No external scratch handling to deactivate!'
@@ -21,10 +21,10 @@
 !        Write (6,*)
 !        Write (6,*) 'xRlsMem_Ints:','External allocation deactivate!'
 !        Write (6,*)
-         XMem_Status=InActive
+         XMem=.False.
          Call RlsMem_Ints()
 !        Write (6,*) 'xRlsMem_Ints:','External allocation released!'
       End If
 !
       Return
-      End
+      End Subroutine xRlsMem_Ints
