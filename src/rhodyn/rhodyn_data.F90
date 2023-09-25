@@ -109,10 +109,10 @@ character(len=*), parameter :: int2real = '(a,2i5,2f16.8)', &
                                slog = '(1x,a,t45,l8)'
 ! ----------------------------------------------------------------------
 ! prep, out hdf5 files (description in cre_prep, cre_out)
-integer(kind=iwp) :: out_decay_i, out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_freq, out_ham_i, &
-                     out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout, prep_ci, prep_csfsoi, prep_csfsor, prep_dipolei, &
-                     prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, &
-                     prep_vcsfr
+integer(kind=iwp) :: out_decay_i, out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdmi, out_fdmr, out_freq, &
+                     out_ham_i, out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout, prep_ci, prep_csfsoi, prep_csfsor, &
+                     prep_dipolei, prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, &
+                     prep_vcsfi, prep_vcsfr
 ! predefined units for writing output, think of more clever choice:
 integer(kind=iwp) :: lu_csf = 32, &
                      lu_dip = 34, &
@@ -138,10 +138,12 @@ complex(kind=wp) :: pulse_vec(3)
 real(kind=wp), allocatable :: amp(:), omega(:), phi(:), sigma(:), taushift(:)
 ! ----------------------------------------------------------------------
 ! for the propagation of rho in spherical tensors basis
-integer(kind=iwp) :: k_max, len_sph
+integer(kind=iwp) :: k_max, len_sph, q_max
 integer(kind=iwp), allocatable :: k_ranks(:), list_sf_mult(:), list_sf_states(:), list_so_mult(:), list_so_sf(:), q_proj(:)
 real(kind=wp), allocatable :: list_sf_spin(:), list_so_proj(:), list_so_spin(:)
+complex(kind=wp), allocatable :: mirr(:,:)
 complex(kind=wp), allocatable :: midk1(:,:,:), midk2(:,:,:), midk3(:,:,:), midk4(:,:,:), V_SO_red(:,:,:)
+complex(kind=wp), allocatable :: Y1(:,:,:), Y2(:,:,:)
 
 public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, CI, CSF2SO, d, decay, density0, densityt, dgl, &
           dipole, dipole_basis, DM0, DM_basis, dt, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, errorthreshold, finaltime, &
@@ -149,13 +151,13 @@ public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, C
           hamiltonian, hamiltoniant, HRSO, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, initialtime, int2real, ion_diss, ipglob, ispin, &
           istates, k_b, K_bar_basis, k_max, k_ranks, kab_basis, kext, len_sph, linear_chirp, list_sf_mult, list_sf_spin, &
           list_sf_states, list_so_mult, list_so_proj, list_so_sf, list_so_spin, lroots, lrootstot, lu_csf, lu_dip, lu_pls, lu_sf, &
-          lu_so, maxlroots, maxnconf, method, midk1, midk2, midk3, midk4, N, n_freq, N_L2, N_L3, N_Populated, N_pulse, n_sf, &
+          lu_so, maxlroots, maxnconf, method, midk1, midk2, midk3, midk4, mirr, N, n_freq, N_L2, N_L3, N_Populated, N_pulse, n_sf, &
           nconf, nconftot, ndet, ndet_tot, Nmode, Npop, Nstate, Nstep, Ntime_tmp_dm, Nval, omega, out2_fmt, out3_fmt, out_decay_i, &
-          out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, out_ham_i, out_ham_r, &
-          out_id, out_pulse, out_t, out_tfdm, out_tout, p_style, phi, power_shape, prep_ci, prep_csfsoi, prep_csfsor, &
+          out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdmi, out_fdmr, out_fmt, out_fmt_csf, out_freq, out_ham_i, &
+          out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout, p_style, phi, power_shape, prep_ci, prep_csfsoi, prep_csfsor, &
           prep_dipolei, prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, &
-          prep_vcsfr, pulse_type, pulse_vec, pulse_vector, q_proj, rassd_list, runmode, safety, scha, scmp, sdbl, sigma, sint, &
-          slog, SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, V_CSF, V_SO, &
-          V_SO_red
+          prep_vcsfr, pulse_type, pulse_vec, pulse_vector, q_max, q_proj, rassd_list, runmode, safety, scha, scmp, sdbl, sigma, &
+          sint, slog, SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, V_CSF, V_SO, &
+          V_SO_red, Y1, Y2
 
 end module rhodyn_data

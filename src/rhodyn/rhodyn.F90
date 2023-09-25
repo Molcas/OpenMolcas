@@ -292,11 +292,7 @@ if (runmode /= 3) then
   if (runmode /= 4) then
     ! prepare density and hamiltonian in required basis to propagate with.
     ! here supposed that these matrices are prepared in CSF basis
-    if (basis /= 'SPH') then
-      call hamdens()
-    else
-      dipole_basis(:,:,:) = dipole
-    end if
+    call hamdens()
   else
     !hamiltonian = HSOCX ! transform Hamiltonian to SO basis if requested
     if (flag_so .and. basis == 'SO') then
@@ -313,8 +309,7 @@ if (runmode /= 3) then
       end do
     end if
   end if
-  ! dynamics will be performed internally using matrices
-  ! of dimension d
+  ! dynamics will be performed internally using matrices of dimension d
   if (basis == 'CSF') then
     d = nconftot
   else if ((basis == 'SF') .or. (basis == 'SO')) then

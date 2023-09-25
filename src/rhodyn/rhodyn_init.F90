@@ -17,7 +17,7 @@ subroutine rhodyn_init()
 ! when reading input file
 !***********************************************************************
 
-use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, flag_acorrection, flag_decay, flag_dipole, &
+use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, flag_acorrection, flag_decay, flag_dipole, q_max, &
                        flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, cgamma, HRSO, initialtime, ion_diss, &
                        kext, k_max, linear_chirp, method, N_L2, N_L3, N_Populated, N_pulse, Nmode, Nval, omega, p_style, phi, &
                        pulse_type, pulse_vector, runmode, safety, sigma, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
@@ -46,6 +46,7 @@ errorthreshold = 1.0e-06_wp
 safety = 0.9_wp
 ! use spherical tensors up to rank 2
 k_max = 2
+q_max = -1
 Nval = 160
 N_L3 = 175
 tau_L3 = 0.4_wp/autoev ! Auger decay rate for Fe L3
