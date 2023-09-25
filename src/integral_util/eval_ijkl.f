@@ -62,7 +62,6 @@
 !
 #include "ndarray.fh"
 #include "setup.fh"
-#include "status.fh"
 !
 #include "ibas_ricd.fh"
       Integer::
@@ -182,7 +181,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (ERI_Status.ne.Active) Then
+      If (.Not.Allocated(iSOSym)) Then
          Call WarningMessage(2,
      &               'Eval_Ints_: Integral environment is not set up!')
          Call Abend()

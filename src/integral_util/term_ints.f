@@ -21,16 +21,13 @@
 !***********************************************************************
       use k2_arrays, only: FT, Mem_DBLE, Mem_INT, Aux, iSOSym
       use Index_arrays
-      use stdalloc
+      use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 !
 #include "setup.fh"
 #include "nsd.fh"
 #include "status.fh"
       Logical Verbose, Free_K2
-!
-      If (ERI_Status.eq.Inactive) Return
-      ERI_Status=Inactive
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -48,7 +45,7 @@
          Call mma_deallocate(Aux)
       End If
 !
-      Call mma_deallocate(iSOSym)
+      If (Allocated(iSOSym)) Call mma_deallocate(iSOSym)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -89,7 +89,6 @@
       NDDO=.False.
 !
       RctFld_Status=InActive
-      ERI_Status=InActive
       Indexation_Status=Inactive
       Seward_Status=Active
       XMem=.False.

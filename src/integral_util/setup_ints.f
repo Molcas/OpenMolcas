@@ -40,11 +40,10 @@
 !
       Logical DoFock, DoGrad, Indexation
 !
-      If (ERI_Status.eq.Active) Then
+      If (Allocated(iSOSym)) Then
         Call Nr_Shells(nSkal)
         Return
       End If
-      ERI_Status=Active
 !                                                                      *
 !***********************************************************************
 !                                                                      *
