@@ -10,6 +10,7 @@
 !***********************************************************************
       Module k2_setup
       Real*8, Allocatable :: Data_k2(:)
+      Logical :: k2_processed=.False.
       Integer, Allocatable :: IndK2(:,:)
       Integer nk2, nIndk2
       End Module k2_setup

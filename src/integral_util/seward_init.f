@@ -21,6 +21,7 @@
 !***********************************************************************
       use EFP_Module
       use k2_arrays
+      use k2_setup, only: k2_processed
       use Basis_Info
       use RICD_Info, only: iRI_Type, Do_RI
       use Constants
@@ -92,6 +93,7 @@
       Indexation_Status=Inactive
       Seward_Status=Active
       XMem=.False.
+      k2_processed=.False.
 !
       Call Set_Binom()
       Call Set_CanInd()

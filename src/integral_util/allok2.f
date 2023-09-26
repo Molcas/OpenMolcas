@@ -11,6 +11,7 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !               1995, Martin Schuetz                                   *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine AlloK2()
 !***********************************************************************
 !                                                                      *
@@ -35,23 +36,22 @@
 #include "nsd.fh"
 #include "setup.fh"
 !
-!     declaration of local vars...
-      Logical :: Debug=.False.
-!
 !---- Statement function
 !
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !
 !
-      If (Debug) Then
-         If (Allocated(Data_k2)) Then
-            Write (6,*) 'Enter Allok2, k2_Status=Active'
-         Else
-            Write (6,*) 'Enter Allok2, k2_Status=InActive'
-         End If
+#ifdef _DEBUGPRINT_
+      If (Allocated(Data_k2).and.k2_processed) Then
+         Write (6,*) 'Enter Allok2, k2_Status=Processed'
+      Else If (Allocated(Data_k2)) Then
+         Write (6,*) 'Enter Allok2, k2_Status=Active'
+      Else
+         Write (6,*) 'Enter Allok2, k2_Status=InActive'
       End If
-      If (Allocated(Data_k2)) Return
+#endif
+      If (Allocated(Data_k2) .or. k2_processed) Return
 !
       Call Nr_Shells(nSkal)
 !

@@ -32,6 +32,7 @@
 !
       Call mma_deallocate(Data_k2)
       Call mma_deallocate(Indk2)
+      k2_processed=.False.
 !
       Return
       End
