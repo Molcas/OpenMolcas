@@ -23,7 +23,7 @@ private
 
 public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, Extend_Shells, &
           Gaussian_Type, iCnttp_Dummy, Max_Shells, mGaussian_Type, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nFrag_LineWords, &
-          Nuclear_Model, PAMExp, Point_Charge, Shells
+          Nuclear_Model, PAMExp, Point_Charge, Shells, Seward_Activated
 
 #include "Molcas.fh"
 #include "itmax.fh"
@@ -159,6 +159,7 @@ end type Shell_Info
 !         1: as in MOLECULE
 !         2: as in MOLPRO
 
+logical :: Seward_Activated=.False.
 integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_Type = 2, &
                                 NumShell = 1000
 

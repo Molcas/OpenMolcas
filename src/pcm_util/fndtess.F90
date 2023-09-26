@@ -28,7 +28,6 @@ logical(kind=iwp) :: FIRST
 integer(kind=iwp), allocatable :: JTR(:,:), pIntS(:,:), pISph(:), pNewS(:,:), pNVert(:)
 real(kind=wp), allocatable :: At(:), CCC(:,:), CV(:,:), pCentr(:,:,:), pSSph(:), PTS(:,:), pVert(:,:,:), Xt(:), Yt(:), Zt(:)
 #include "rctfld.fh"
-#include "status.fh"
 
 ! Definition of solute cavity and computation of vertices,
 ! representative points and surfaces of the tesserae by the

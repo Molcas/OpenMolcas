@@ -30,7 +30,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "rctfld.fh"
-#include "status.fh"
       Logical DoRys
 #include "SysDef.fh"
 !

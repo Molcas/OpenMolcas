@@ -16,14 +16,14 @@
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
       use setup
+      use Basis_Info, only: Seward_Activated
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "nsd.fh"
-#include "status.fh"
 !
       Logical DSCF
 !
-      If (Seward_Status.eq.Active) Then
+      If (Seward_Activated) Then
          Call ClsSew()
          Call xRlsMem_Ints()
       End If

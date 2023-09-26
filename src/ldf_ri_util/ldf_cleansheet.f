@@ -18,7 +18,6 @@ C     Get a fresh start with Seward.
 C
       Implicit None
       Integer nShell_Valence, nShell_Auxiliary
-#include "status.fh"
 
       Logical Verbose, Free_K2
       Logical Indexation, DoFock, DoGrad

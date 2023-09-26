@@ -11,7 +11,6 @@
       Subroutine xRlsMem_Ints()
       use k2_arrays, only: XMem
       implicit none
-#include "status.fh"
       If (.NOT.XMem) Then
 !        Write (6,*)
 !        Write (6,*) 'xRlsMem_Ints:',

@@ -28,9 +28,8 @@
       Implicit Real*8 (A-H,O-Z)
 #include "rctfld.fh"
 #include "nsd.fh"
-#include "status.fh"
 !
-      If (Seward_Status.eq.InActive) Return
+      If (.NOT.Seward_Activated) Return
 !
       Call Term_Ints(.False.,.True.)
       Call Free_RctFld(iXPolType)
@@ -52,6 +51,6 @@
          lEFP=.FALSE.
       End If
 !
-      Seward_Status=InActive
+      Seward_Activated=.False.
       Return
       End

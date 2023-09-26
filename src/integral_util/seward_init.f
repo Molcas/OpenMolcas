@@ -29,7 +29,6 @@
       External Reduce_Prt
       Logical Reduce_Prt
 #include "pstat.fh"
-#include "status.fh"
 #include "twoswi.fh"
 #include "rmat.fh"
 #include "print.fh"
@@ -42,7 +41,7 @@
 !
 !-----Info
 !
-      Seward_Status=InActive
+      Seward_Activated=.False.
 !
 !-----LInfo
 !
@@ -89,7 +88,7 @@
 !
       NDDO=.False.
 !
-      Seward_Status=Active
+      Seward_Activated=.True.
       XMem=.False.
       k2_processed=.False.
 !

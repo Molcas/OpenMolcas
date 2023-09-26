@@ -41,7 +41,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 #include "Molcas.fh"
-#include "status.fh"
 #include "rctfld.fh"
 #include "print.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iNuc, iOption, iRc, iter_S, LuSpool, mdc, nDNA, nNuc
