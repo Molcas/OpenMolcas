@@ -14,10 +14,11 @@
        use stdalloc
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
-#include "status.fh"
 !
-       If (RctFld_Status.eq.InActive) Return
+       If (.NOT.Allocated(MM)) Return
+
        Call mma_deallocate(MM)
+
        If (lLangevin .or. (iXPolType.gt.0)) Then
           Call mma_deallocate(Field)
           Call mma_deallocate(dField)
@@ -25,11 +26,11 @@
           Call mma_deallocate(PolEf)
           Call mma_deallocate(DipEf)
           Call mma_deallocate(Grid)
-!
           Call mma_deallocate(davxyz)
           Call mma_deallocate(cavxyz)
           Call mma_deallocate(ravxyz)
        End If
+
        If (PCM) Then
           Call mma_deallocate(NewSph)
           Call mma_deallocate(IntSph)
@@ -54,7 +55,6 @@
           End If
 !
        End If
-       RctFld_Status=InActive
 !
        Return
        End

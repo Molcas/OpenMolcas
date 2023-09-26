@@ -15,11 +15,10 @@
       use stdalloc
        Implicit Real*8 (a-h,o-z)
 #include "rctfld.fh"
-#include "status.fh"
        Logical NonEq
 !
        tK=1.0D-99 ! Boltzman factor, initial set to 0 K
-       If (RctFld_Status.eq.Active) Return
+       If (Allocated(MM)) Return
        mMM = (lMax+1)*(lMax+2)*(lMax+3)/6
        nMM = 2 * mMM
        Call mma_allocate(MM,mMM,2,Label='MM')
@@ -51,7 +50,6 @@
        End If
        If (.Not.PCM) NonEq_Ref=NonEq
        Call Init_PCM(NonEq,iCharge)
-       RctFld_Status=Active
 !
        Return
        End

@@ -364,7 +364,7 @@ end if
 !***********************************************************************
 !                                                                      *
 ! Re-allocate with actual dimensioning
-if (RctFld_Status /= Active) then
+if (.NOT.Allocated(PCMSph)) Then
 
   ! Allocate PCM arrays
   call mma_allocate(PCMSph,4,NS,Label='PCMSph')
