@@ -35,7 +35,6 @@
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "Basis_Mode.fh"
-#include "status.fh"
 #include "ndarray.fh"
 !
       Logical DoFock, DoGrad, Indexation
@@ -98,7 +97,6 @@
 !     memory basepointers are declared in inftra common block
 !
       If (Indexation) Then
-         Indexation_Status=Active
          Call SOFSh1(nSkal,nIrrep,nSOs)
       End If
 !                                                                      *

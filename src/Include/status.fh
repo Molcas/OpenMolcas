@@ -12,8 +12,6 @@
      &                     Inactive=43344334,                           &
      &                     Produced=54334555
       Integer RctFld_Status
-      Integer Indexation_Status
       Integer Seward_Status
       Common /Status_Fields/ RctFld_Status,                             &
-     &                       Indexation_Status,                         &
      &                       Seward_Status

@@ -26,7 +26,6 @@
       Implicit Real*8 (A-H,O-Z)
 !
 #include "nsd.fh"
-#include "status.fh"
       Logical Verbose, Free_K2
 !                                                                      *
 !***********************************************************************
@@ -49,8 +48,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Indexation_Status.eq.Active) Then
-         Indexation_Status=Inactive
+      If (Allocated(nShBf)) Then
          Call mma_deallocate(nShBF)
          Call mma_deallocate(iShOff)
          Call mma_deallocate(iSh2Sh)

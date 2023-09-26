@@ -90,7 +90,6 @@
       NDDO=.False.
 !
       RctFld_Status=InActive
-      Indexation_Status=Inactive
       Seward_Status=Active
       XMem=.False.
       k2_processed=.False.
