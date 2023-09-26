@@ -30,6 +30,7 @@ subroutine Drvg2(Hess,nHess,l_Grd,l_Hss)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
+use setup
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD
@@ -51,7 +52,6 @@ logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 #include "Molcas.fh"
 #include "disp.fh"
 #include "etwas.fh"
-#include "setup.fh"
 integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, &
                      ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &

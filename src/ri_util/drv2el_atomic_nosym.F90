@@ -33,6 +33,7 @@ subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_
 !             Modified driver. Jan. '98                                *
 !***********************************************************************
 
+use setup
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
 use RI_glob, only: SO2Ind
@@ -53,7 +54,6 @@ integer(kind=iwp), intent(in) :: iCnttp, jCnttp, ijS_req, Keep_Shell
 real(kind=wp), allocatable, intent(out) :: TInt(:), ADiag(:)
 integer(kind=iwp), intent(out) :: nTInt, LuA
 logical(kind=iwp), intent(out) :: In_Core
-#include "setup.fh"
 integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, iWROpt_Save, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, &
                      MemLow, MemSew, MemT, mTInt, mTInt2, nBfn, nBfn_i, nBfn_j, nBfn_k, nBfn_l, nij, nIrrep_Save, nSkal, nTInt2
 logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, FreeK2, Indexation, Only_DB, Out_of_Core, Verbose

@@ -33,6 +33,7 @@
 !             Modified for reaction field calculations July  92        *
 !             Modified loop structure  99                              *
 !***********************************************************************
+      use setup
       use Real_Spherical
       use iSD_data
       use Basis_Info
@@ -44,7 +45,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "nsd.fh"
-#include "setup.fh"
       Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nOpr), CCoor(3,nOpr),
      &       RB(3), TRB(3), TA(3), Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Integer   lOper(nOpr), iStabO(0:7),

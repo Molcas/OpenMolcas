@@ -40,6 +40,7 @@
 !             Modified for gradients October '91                       *
 !             Modified to process 1st order density matrices, Dec. '92 *
 !***********************************************************************
+      use setup
       use Real_Spherical
       use iSD_data
       use Basis_Info
@@ -50,7 +51,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "nsd.fh"
-#include "setup.fh"
       Real*8 DeDe(nDeDe)
       Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Real*8 FD(nFD,mFD)

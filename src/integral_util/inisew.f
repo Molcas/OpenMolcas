@@ -15,10 +15,10 @@
 !     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
+      use setup
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "nsd.fh"
-#include "setup.fh"
 #include "status.fh"
 !
       Logical DSCF

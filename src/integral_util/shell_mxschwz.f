@@ -16,6 +16,7 @@
 !***********************************************************************
       SubRoutine Shell_MxSchwz(nSkal,Schwz_Shl)
 !----------------------------------------------------------------------
+      use setup
       use k2_setup
       use k2_arrays
       use iSD_data
@@ -28,7 +29,6 @@
 !
 #include "ndarray.fh"
 #include "nsd.fh"
-#include "setup.fh"
 !
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1

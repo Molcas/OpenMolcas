@@ -34,6 +34,7 @@ subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 !             Modified to 2-center ERIs for RI June '05                *
 !***********************************************************************
 
+use setup
 use Basis_Info, only: nBas_Aux
 use iSD_data, only: iSD
 use RI_glob, only: iOffA, Lu_A, SO2Ind
@@ -52,7 +53,6 @@ real(kind=wp), intent(in) :: ThrAO
 real(kind=wp), allocatable, intent(out) :: A_Diag(:)
 integer(kind=iwp), intent(out) :: nSO_Aux, MaxCntr
 integer(kind=iwp), allocatable, intent(out) :: SO2C(:)
-#include "setup.fh"
 integer(kind=iwp) :: i, iAddr, iAddr_AQ(0:7), iCenter, iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, &
                      lS, mB, MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
 real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2

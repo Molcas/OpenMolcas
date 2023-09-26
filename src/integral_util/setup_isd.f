@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       SubRoutine SetUp_iSD()
+      use setup
       use iSD_data
       use k2_arrays, only: MxDij, MxFT
       use Symmetry_Info, only: nIrrep
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "nsd.fh"
-#include "setup.fh"
 !
 !                                                                      *
 !***********************************************************************

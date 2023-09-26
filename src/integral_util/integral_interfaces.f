@@ -11,6 +11,7 @@
       Module Integral_Interfaces
 
       ! Dummy modules to get correct order of compilation
+      Use setup, only:
       Use Real_Spherical, only:
       Use iSD_data, only:
       Use k2_arrays, only:

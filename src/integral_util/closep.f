@@ -18,12 +18,12 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
+      use setup
       use aces_stuff
       use pso_stuff
       use Constants
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "setup.fh"
 #include "mp2alaska.fh"
       Logical DoCholesky
 !

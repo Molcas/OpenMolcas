@@ -46,6 +46,7 @@
 !             Modified for better symmetry treatement October  93      *
 !             Modified loop structure April 99                         *
 !***********************************************************************
+      use setup
       use Real_Spherical
       use iSD_data
       use Basis_Info, only: dbsc
@@ -59,7 +60,6 @@
 !     Logical Addpot
 #include "rmat_option.fh"
 #include "nsd.fh"
-#include "setup.fh"
 #include "property_label.fh"
       Real*8, Allocatable, Target:: Kern(:)
       Integer, Dimension(:,:), Allocatable :: Ind_ij

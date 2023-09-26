@@ -38,6 +38,7 @@
 !             Total rehack May '99                                     *
 !             Total rehack Aug '23                                     *
 !***********************************************************************
+      use setup
       use k2_setup
       use k2_arrays
       use iSD_data
@@ -61,7 +62,6 @@
 
 !
 #include "ndarray.fh"
-#include "setup.fh"
 !
 #include "ibas_ricd.fh"
       Integer::

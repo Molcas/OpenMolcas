@@ -20,6 +20,7 @@
 !             University of Lund, SWEDEN                               *
 !             January '92                                              *
 !***********************************************************************
+      use setup
       use iSD_data
       use aces_stuff
       use pso_stuff
@@ -42,7 +43,6 @@
 #endif
 !*********** columbus interface ****************************************
 #include "columbus_gamma.fh"
-#include "setup.fh"
 !***********************************************************************
       Integer nFro(0:7)
       Integer Columbus

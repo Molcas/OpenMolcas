@@ -27,6 +27,7 @@
 !     Purpose: compute symmetry adapted one-electron integrals for
 !              shell doublet iS, jS.
 !
+      use setup
       use Real_Spherical
       use iSD_data
       use Basis_Info
@@ -42,7 +43,6 @@
 #include "Molcas.fh"
 #include "rmat_option.fh"
 #include "nsd.fh"
-#include "setup.fh"
 #include "property_label.fh"
       Integer iS, jS, iPrint
       Logical Do_PGamma

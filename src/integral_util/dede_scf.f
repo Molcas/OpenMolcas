@@ -11,6 +11,7 @@
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
+      use setup
       use k2_arrays
       use Basis_Info, only: nBas
       use Sizes_of_Seward, only: S
@@ -18,7 +19,6 @@
       use Constants
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "setup.fh"
       Integer nDens, mDens
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Logical Special_NoSym, DFT_Storage

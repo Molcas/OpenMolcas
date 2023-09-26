@@ -9,14 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Free_DeDe(Dens,TwoHam,nDens)
+      use setup
       use k2_arrays
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Constants
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "setup.fh"
 !
+      Integer nDens
       Real*8 :: Dens(nDens), TwoHam(nDens)
 !
       Nullify(pDq)

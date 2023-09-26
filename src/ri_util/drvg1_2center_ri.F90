@@ -33,6 +33,7 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !             Modified for 2-center RI gradients, January '07          *
 !***********************************************************************
 
+use setup
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD
 use pso_stuff, only: A_PT2, nBasA, nBasASQ, nBasT
@@ -57,7 +58,6 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
-#include "setup.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

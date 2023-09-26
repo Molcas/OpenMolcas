@@ -33,6 +33,7 @@ subroutine drv_ef_PCM(FactOp,nTs,FD,nFD,CCoor,lOper,VTessera,nOrdOp)
 !             Modified loop structure  99                              *
 !***********************************************************************
 
+use setup
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
@@ -51,7 +52,6 @@ real(kind=wp), intent(inout) :: VTessera(3,nTs)
 #include "angtp.fh"
 #include "print.fh"
 #include "nsd.fh"
-#include "setup.fh"
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ipFnlc, iPrim, iPrint, iRout, iS, &
                      iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iTile, iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, &
                      jShell, jShll, kk, lDCRR, lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, &

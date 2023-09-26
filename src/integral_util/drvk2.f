@@ -27,6 +27,7 @@
 !             June '91, modified for k2 loop.                          *
 !             Modified for direct SCF, January '93                     *
 !***********************************************************************
+      use setup
       use Real_Spherical
       use k2_setup
       use iSD_data
@@ -45,7 +46,6 @@
 #include "ndarray.fh"
       External Cmpct
 #include "nsd.fh"
-#include "setup.fh"
 !     Local arrays
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)

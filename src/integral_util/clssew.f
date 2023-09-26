@@ -15,6 +15,7 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
+      use setup
       use Real_Spherical, only: Sphere_Free
       use EFP_module
       use External_Centers
@@ -27,7 +28,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "rctfld.fh"
 #include "nsd.fh"
-#include "setup.fh"
 #include "status.fh"
 !
       If (Seward_Status.eq.InActive) Return

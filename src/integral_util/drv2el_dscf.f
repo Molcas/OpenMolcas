@@ -41,6 +41,7 @@
 !             Modified by R. Lindh  @teokem.lu.se :                    *
 !             total repacking of code September '96                    *
 !***********************************************************************
+      use setup
       use IOBUF
       use Gateway_Info, only: ThrInt, CutInt
       use RICD_Info, only: Do_DCCD
@@ -54,7 +55,6 @@
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "nsd.fh"
-#include "setup.fh"
 !
       Parameter(nTInt=1)
       Real*8, Target:: Dens(nDens), TwoHam(nDens)

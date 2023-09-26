@@ -31,6 +31,7 @@ subroutine Drvg1(Grad,Temp,nGrad)
 !             Modified for SetUp_Ints. January '00                     *
 !***********************************************************************
 
+use setup
 use k2_setup, only: Data_k2
 use iSD_data, only: iSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
@@ -52,7 +53,6 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
-#include "setup.fh"
 integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iCnt, iFnc(4), ijklA, &
                      ijMax, ijS, iOpt, iost, ipEI, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipEta, &
                      ipxA, ipxB, ipxD, ipxG, ipZI, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), iSSDM, istabs(4), j, jAng, &

@@ -19,6 +19,7 @@ C              It is assumed that the proper initialization of one-el
 C              integral data is set before calling this routine
 C              (by calling LDF_SetOneEl with argument 'Mltpl  0').
 C
+      use setup
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
       Implicit None
@@ -34,7 +35,6 @@ C
 #include "rmat_option.fh"
 #include "ldf_oneel.fh"
 #include "nsd.fh"
-#include "setup.fh"
 #include "ldf_atom_pair_info.fh"
 #include "property_label.fh"
 

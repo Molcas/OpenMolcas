@@ -26,6 +26,7 @@
 !                                                                      *
 !             Modified for RI Feb. 2007                                *
 !***********************************************************************
+      use setup
       use aces_stuff
       use pso_stuff
       use Index_arrays, only: iSO2Sh
@@ -35,7 +36,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "Basis_Mode.fh"
-#include "setup.fh"
 #include "etwas.fh"
 #include "columbus_gamma.fh"
 #include "mspdft.fh"

@@ -23,6 +23,7 @@
 !     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 !             Sweden. January '98.                                     *
 !***********************************************************************
+      use setup
       use iSD_data
       use k2_arrays
       use LundIO
@@ -34,7 +35,6 @@
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "Basis_Mode.fh"
-#include "setup.fh"
 #include "status.fh"
 #include "ndarray.fh"
 !

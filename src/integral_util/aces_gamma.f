@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Aces_Gamma()
+      use setup
       use Basis_Info, only: nBas
       use Aces_Stuff
       use Index_arrays, only: iSO2Sh
@@ -16,7 +17,6 @@
       use Symmetry_Info, only: nIrrep
       use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "setup.fh"
        Integer, Allocatable:: iTable(:,:)
        Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
 !                                                                      *

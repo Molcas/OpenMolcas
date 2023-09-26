@@ -86,6 +86,7 @@ C
 C     Purpose: compute \int J(r)dr for auxiliary functions J(r) on atom
 C              A.
 C
+      use setup
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
       Implicit None
@@ -102,7 +103,6 @@ C
 #include "rmat_option.fh"
 #include "ldf_oneel.fh"
 #include "nsd.fh"
-#include "setup.fh"
 #include "property_label.fh"
       Real*8, Dimension(:), Allocatable :: Scrtch, ScrSph
       Real*8, Dimension(:), Allocatable, Target :: Final, Kern
@@ -325,6 +325,7 @@ C
 C     Purpose: compute \int J(r)dr for 2C auxiliary functions J(r) on
 C              atom pair AB.
 C
+      use setup
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
       Implicit None
@@ -342,7 +343,6 @@ C
 #include "ldf_oneel.fh"
 #include "rmat_option.fh"
 #include "nsd.fh"
-#include "setup.fh"
 #include "property_label.fh"
       Real*8, Dimension(:), Allocatable :: Final, Scrtch, ScrSph
       Real*8, Dimension(:), Allocatable, Target :: Kern

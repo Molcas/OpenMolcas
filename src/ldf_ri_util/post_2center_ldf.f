@@ -28,13 +28,13 @@
 *             Modified driver. Jan. 1998                               *
 *             Modified to 2-center ERIs for RI June 2005               *
 ************************************************************************
+      use setup
       use Basis_Info, only: nBas_Aux
       use RI_glob, only: iOffA, Lu_A, Lu_Q, nChV
       use Gateway_global, only: force_out_of_core
       use RICD_Info, only: Thrshld_CD
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "setup.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"

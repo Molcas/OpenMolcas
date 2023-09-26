@@ -9,11 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       SubRoutine Free_iSD()
+      use setup
       use iSD_data
       use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 #include "nsd.fh"
-#include "setup.fh"
 !
       If (Allocated(iSD)) Call mma_deallocate(iSD)
       nSkal_iSD=0
