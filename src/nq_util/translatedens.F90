@@ -52,15 +52,15 @@ real(kind=wp), external :: DDot_
 RhoAB(:) = Rho(1,1:mGrid)+Rho(2,1:mGrid)
 if(lmGGA1)  then
  TauAB(:) =  Tau(1,1:mGrid) +  Tau(2,1:mGrid)
+ Tau_a1 = Tau_a1 + ddot_(mGrid,Tau(1,1),2,Weights,1)
+ Tau_b1 = Tau_b1 + ddot_(mGrid,Tau(2,1),2,Weights,1)
 end if
-Tau_a1 = Tau_a1 + ddot_(mGrid,Tau(1,1),2,Weights,1)
-Tau_b1 = Tau_b1 + ddot_(mGrid,Tau(2,1),2,Weights,1)
 
 if(lmGGA2)  then
  LaplAB(:) = Lapl(1,1:mGrid) + Lapl(2,1:mGrid)
+ Lapl_a1 = Lapl_a1 + ddot_(mGrid,Lapl(1,1),2,Weights,1)
+ Lapl_b1 = Lapl_b1 + ddot_(mGrid,Lapl(2,1),2,Weights,1)
 end if
-Lapl_a1 = Lapl_a1 + ddot_(mGrid,Lapl(1,1),2,Weights,1)
-Lapl_b1 = Lapl_b1 + ddot_(mGrid,Lapl(2,1),2,Weights,1)
 
 
 
@@ -193,9 +193,9 @@ if (lmGGA1) then
       Tau(2,iGrid) = OneMZ(iGrid)*TauAB(iGrid)
     end if
   end do
+  Tau_a2 = Tau_a2 + ddot_(mGrid,Tau(1,1),2,Weights,1)
+  Tau_b2 = Tau_b2 + ddot_(mGrid,Tau(2,1),2,Weights,1)
 end if
-Tau_a2 = Tau_a2 + ddot_(mGrid,Tau(1,1),2,Weights,1)
-Tau_b2 = Tau_b2 + ddot_(mGrid,Tau(2,1),2,Weights,1)
 
 if (lmGGA2) then
  do iGrid=1,mGrid
@@ -204,9 +204,9 @@ if (lmGGA2) then
      Lapl(2,iGrid) = OneMZ(iGrid)*LaplAB(iGrid)
    end if
  end do
+ Lapl_a2 = Lapl_a2 + ddot_(mGrid,Lapl(1,1),2,Weights,1)
+ Lapl_b2 = Lapl_b2 + ddot_(mGrid,Lapl(2,1),2,Weights,1)
 end if
-Lapl_a2 = Lapl_a2 + ddot_(mGrid,Lapl(1,1),2,Weights,1)
-Lapl_b2 = Lapl_b2 + ddot_(mGrid,Lapl(2,1),2,Weights,1)
 !********************************************************************
 ! Additional terms in the tanh translation
 !********************************************************************

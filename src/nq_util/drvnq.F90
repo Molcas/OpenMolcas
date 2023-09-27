@@ -226,6 +226,7 @@ select case (Functional_type)
     ! need rho(beta), gamma(beta,beta) and tau(beta).
 
     nP2_ontop = 4
+    lGGA = .true.
     lmGGA1 = .true.
 !    write(6,*) 'nD=',nD
     !                                                                  *
@@ -260,6 +261,7 @@ select case (Functional_type)
     ! tau(beta) and laplacian(beta).
 
     nP2_ontop = 4
+    lGGA = .true.
     lmGGA1 = .true.
     lmGGA2 = .true.
 !    write(6,*) 'nD GGA_type2 =',nD
