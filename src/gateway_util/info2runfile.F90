@@ -34,10 +34,10 @@ use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use rctfld_module, only: lRF, PCM, lLangevin, nPCM_Info
 
 implicit none
 #include "Molcas.fh"
-#include "rctfld.fh"
 #include "embpcharg.fh"
 #include "localdf.fh"
 integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iLocalDF, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)

@@ -61,6 +61,7 @@
      &    nBas, nIsh, nAsh, nFro
       use OFEmbed, only: Do_OFemb, OFE_first, FMaux
       use OFEmbed, only: Rep_EN
+      use rctfld_module, only:  lRF
 
       implicit none
 #include "rasdim.fh"
@@ -69,7 +70,6 @@
       Parameter (ROUTINE='SGFCIN  ')
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"

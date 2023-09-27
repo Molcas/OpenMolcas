@@ -34,6 +34,7 @@
                         nBT, nIterP, nnB, NoProp, nSYm, PotNuc, ThrEne, ThrOcc, Tot_Charge, nBas, nOrb, nIter
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rctfld_module, only: lRF
       Implicit None
       Integer nDT,nEO,nCMO
       Real*8 Dens(nDT),TwoHam(nDT),OneHam(nDT),Ovlp(nDT),EOrb(nEO),OccNo(nEO),CMO(nCMO),MssVlc(nDT),Darwin(nDT)
@@ -41,7 +42,6 @@
       Character(LEN=80) Note
       External EFP_ON
 !
-#include "rctfld.fh"
 #include "oneswi.fh"
 !
 !---- Define local variables

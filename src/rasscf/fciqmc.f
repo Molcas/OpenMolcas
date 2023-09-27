@@ -135,7 +135,7 @@
           use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,
      &                                ReOrInp
           use fcidump, only : make_fcidumps, transform
-#include "rctfld.fh"
+          use rctfld_module, only: lRF
 
           class(fciqmc_solver_t), intent(in) :: this
           integer, intent(in) :: actual_iter, iroot(nroots), ifinal

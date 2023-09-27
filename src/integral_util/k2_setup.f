@@ -9,6 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Module k2_setup
+      Integer, Parameter:: nDArray=11,nDScalar=9
+
       Real*8, Allocatable :: Data_k2(:)
       Logical :: k2_processed=.False.
       Integer, Allocatable :: IndK2(:,:)

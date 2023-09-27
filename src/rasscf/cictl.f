@@ -64,6 +64,7 @@
 #endif
       use csfbas, only: CONF, KCFTP
       use CMS, only: iCMSOpt,CMSGiveOpt
+      use rctfld_module
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -90,7 +91,6 @@
 #include "gugx.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "rctfld.fh"
 #include "timers.fh"
 #include "casvb.fh"
 #include "wadr.fh"

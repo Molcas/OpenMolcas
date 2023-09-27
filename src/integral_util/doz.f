@@ -28,8 +28,8 @@
 !             rather than to compute them. July '91.                   *
 !***********************************************************************
       use Constants
+      use k2_setup, only: nDArray
       Implicit Real*8 (A-H,O-Z)
-#include "ndarray.fh"
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
      &       A(3),          B(3),        P(nAlpha*nBeta,3),
      &       Data(nAlpha*nBeta*(nDarray-1)), rKappa(nAlpha*nBeta),

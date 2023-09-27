@@ -25,8 +25,8 @@
       use Symmetry_Info, only: Symmetry_Info_Free
       use Constants
       use stdalloc
+      use rctfld_module
       Implicit Real*8 (A-H,O-Z)
-#include "rctfld.fh"
 !
       If (.NOT.Seward_Activated) Return
 !

@@ -47,8 +47,8 @@
 !              March 2000                                              *
 !***********************************************************************
       use Constants
+      use rctfld_module
       Implicit Real*8 (a-h,o-z)
-#include "rctfld.fh"
 !
       Real*8 Ravxyz((lMax+1)*(lMax+2)*(lMax+3)/6),
      &       Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)

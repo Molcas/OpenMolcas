@@ -82,6 +82,7 @@
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rctfld_module
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -97,7 +98,6 @@
 #include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"
-#include "rctfld.fh"
 #include "timers.fh"
 #include "casvb.fh"
 #include "rasscf_lucia.fh"

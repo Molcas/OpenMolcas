@@ -12,18 +12,19 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine molden_cvb()
-      implicit real*8 (a-h,o-z)
+      use rctfld_module, only: lRF
+      implicit None
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "rctfld.fh"
 
-      dimension Dummy(1)
+      Integer iDisk
+      Real*8 Dummy(1)
 
       call daname_cvb(JOBIPH,'JOBIPH')
       idisk=0
       call idafile(JOBIPH,2,iadr15,15,idisk)
       Dummy = 0.0D0
-      if(.not.lRf) call interf(0,Dummy,0,1)
+      if(.not.lRF) call interf(0,Dummy,0,1)
       return
       end

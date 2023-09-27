@@ -26,6 +26,7 @@
       use setup
       use iSD_data
       use k2_arrays
+      use k2_setup, only: nDArray
       use LundIO
       use Basis_Info, only: nBas, nBas_Aux
       use Gateway_Info, only: CutInt, lSchw
@@ -35,7 +36,6 @@
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "Basis_Mode.fh"
-#include "ndarray.fh"
 !
       Logical DoFock, DoGrad, Indexation
 !

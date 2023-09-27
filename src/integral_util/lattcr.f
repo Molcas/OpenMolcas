@@ -31,8 +31,8 @@
 !              March 2000                                              *
 !***********************************************************************
       use Constants
+      use rctfld_module
       Implicit Real*8 (a-h,o-z)
-#include "rctfld.fh"
 !
       Real*8 Grid(3,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
       Real*8 cord(3,maxato), atorad(maxato),XF(*)

@@ -12,8 +12,8 @@
        use PCM_arrays
        use Langevin_arrays
        use stdalloc
+       use rctfld_module
        Implicit Real*8 (a-h,o-z)
-#include "rctfld.fh"
 !
        If (.NOT.Allocated(MM)) Return
 

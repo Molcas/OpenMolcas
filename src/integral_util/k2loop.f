@@ -46,8 +46,8 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_Info, only: CutInt, RadMax, cdMax, EtMax
       use Constants
+      use k2_setup, only: nDArray, nDScalar
       Implicit Real*8 (A-H,O-Z)
-#include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
 #include "Molcas.fh"
 #include "disp.fh"

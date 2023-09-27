@@ -40,7 +40,6 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
-#include "rctfld.fh"
 #include "disp.fh"
 #include "nac.fh"
 integer(kind=iwp) :: iDFT, iEnd, iI, iJ, iIrrep, IK, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nAct(nIrrep), nDens, ng1, ng2, nRoots

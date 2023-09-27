@@ -38,6 +38,7 @@
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
       Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 
+      use rctfld_module
       Implicit Real* 8 (A-H,O-Z)
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
@@ -52,7 +53,6 @@ c     Logical Exist
       Parameter (ROUTINE='DMRGCTL ')
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "rctfld.fh"
 #include "timers.fh"
 #include "casvb.fh"
 #include "wadr.fh"

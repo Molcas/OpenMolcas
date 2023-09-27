@@ -31,6 +31,7 @@ use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
 use Symmetry_Info, only: iChBas, nIrrep
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: lRF, lLangevin, PCM, lMax, nTS, Conductor
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -39,7 +40,6 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "rctfld.fh"
 integer(kind=iwp) :: iCar, iChxyz, iCnt, iCnttp, iComp, iDCRR(0:7), iDum, iFd, igu, igv, iIrrep, iM1xp, iM2xp, ip, iPrint, iR, &
                      iRout, iStb(0:7), iTs, ix, iy, iz, jCnt, jCntMx, jCnttp, jCoSet(8,8), LmbdR, mdc, nCav, ndc, nDCRR, nDisp, &
                      nOp, nStb

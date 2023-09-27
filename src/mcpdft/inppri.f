@@ -32,6 +32,7 @@
       use mspdft, only: dogradmspd
       use mcpdft_output, only: silent, usual, lf, iPrLoc
       use Fock_util_global, only: docholesky
+      use rctfld_module
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -39,7 +40,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "ciinfo.fh"
-#include "rctfld.fh"
 #include "WrkSpc.fh"
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine

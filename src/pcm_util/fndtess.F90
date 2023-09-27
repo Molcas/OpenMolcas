@@ -15,6 +15,7 @@ use PCM_arrays, only: Centr, IntSph, MxSph, MxTs, MxVert, NewSph, NVert, PCM_N, 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half, Angstrom, deg2rad
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: rSolv, nS, nSInit, nTS, nPCM_Info, iSLPar, rSLPar
 
 implicit none
 integer(kind=iwp), intent(in) :: iPrint, m, pNs(m)
@@ -27,7 +28,6 @@ real(kind=wp) :: AREA, COSOM2, FC, FC1, Fro, HH, Omega, PP(3), PROD, R2GN, REG, 
 logical(kind=iwp) :: FIRST
 integer(kind=iwp), allocatable :: JTR(:,:), pIntS(:,:), pISph(:), pNewS(:,:), pNVert(:)
 real(kind=wp), allocatable :: At(:), CCC(:,:), CV(:,:), pCentr(:,:,:), pSSph(:), PTS(:,:), pVert(:,:,:), Xt(:), Yt(:), Zt(:)
-#include "rctfld.fh"
 
 ! Definition of solute cavity and computation of vertices,
 ! representative points and surfaces of the tesserae by the

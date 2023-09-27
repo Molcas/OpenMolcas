@@ -15,8 +15,8 @@
       SubRoutine RFmltp()
       use PCM_arrays, only: MM
       use stdalloc
+      use rctfld_module
       Implicit Real*8 (A-H,O-Z)
-#include "rctfld.fh"
       Real*8, Allocatable:: VTot(:), QTot(:)
 !
       If (.Not.lRF) Return
@@ -39,9 +39,9 @@
 !     modified by M. P. Fuelscher, 94/04/28                            *
 !***********************************************************************
       use Constants
+      use rctfld_module
       Implicit Real*8 (A-H,O-Z)
       Real*8 Qs(nComp,2), QTot(nComp), VTot(nComp)
-#include "rctfld.fh"
 !
       If ( lRF .and. .Not.PCM .and. lRFCav) then
          call dcopy_(nComp,Qs(1,1),1,QTot,1)

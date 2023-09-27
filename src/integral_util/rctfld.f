@@ -20,9 +20,9 @@
       use PCM_arrays, only: MM
       use Constants
       use stdalloc
+      use rctfld_module
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "rctfld.fh"
       Logical First, Dff, NonEq
       Real*8, Allocatable:: Vs(:,:), QV(:,:)
 !
@@ -77,13 +77,13 @@
       use Gateway_global, only: PrPrt
       use Gateway_Info, only: PotNuc
       use Constants
+      use rctfld_module
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Origin(3)
 #ifdef _DEBUGPRINT_
       Character*72 Label
 #endif
       Character*8 Label2
-#include "rctfld.fh"
       Logical First, Dff, NonEq
       Real*8 Q_solute(nComp,2), Vs(nComp,2), QV(nComp,2)
       Real*8 FactOp(1)

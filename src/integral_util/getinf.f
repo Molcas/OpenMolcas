@@ -28,8 +28,8 @@
       use Sizes_of_Seward, only: S
       use Constants
       use stdalloc
+      use rctfld_module
       Implicit Real*8 (A-H,O-Z)
-#include "rctfld.fh"
       Logical DoRys
 #include "SysDef.fh"
 !

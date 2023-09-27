@@ -37,11 +37,11 @@ use Cholesky, only: Cho_1Center
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use rctfld_module, only: lRF, PCM, lLangevin, nPCM_Info
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 #include "Molcas.fh"
-#include "rctfld.fh"
 #include "print.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iNuc, iOption, iRc, iter_S, LuSpool, mdc, nDNA, nNuc
 integer(kind=iwp), parameter :: nMamn = MaxBfn+MaxBfn_Aux

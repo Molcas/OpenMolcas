@@ -38,6 +38,7 @@
       use Fock_util_global, only: DoLocK
       use Functionals, only: Init_Funcs, Print_Info
       use KSDFT_Info, only: CoefR, CoefX
+      use rctfld_module
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -46,7 +47,6 @@
 #include "gas.fh"
 #include "output_ras.fh"
 #include "ciinfo.fh"
-#include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "splitcas.fh"
 #include "lucia_ini.fh"

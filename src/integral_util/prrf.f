@@ -19,8 +19,8 @@
 !***********************************************************************
       use External_Centers, only: nXF, iXPolType
       use Constants
+      use rctfld_module
       Implicit Real*8 (A-H,O-Z)
-#include "rctfld.fh"
       Logical DSCF, NonEq
       Integer StrnLn
 !

@@ -24,9 +24,9 @@
       use UnixInfo, only: ProgName
       use Constants
       use stdalloc
+      use rctfld_module
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "rctfld.fh"
       Character*2 Elements(MxAtom*8)
       Logical NonEq
       Real*8, Allocatable:: Coor(:,:), LcCoor(:,:)

@@ -43,7 +43,6 @@
       use Constants
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "ndarray.fh"
       External Cmpct
 !     Local arrays
       Real*8  Coor(3,4)

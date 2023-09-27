@@ -48,6 +48,7 @@
 !     RadInp: radius of spheres explicitly given in the input          *
 !                                                                      *
 !***********************************************************************
+Module Rctfld_Module
       integer, parameter :: MxPar=100,MxA=1000
       integer lRFStrt, lRFEnd
       logical lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,      &
@@ -95,8 +96,9 @@
      &              rRFEnd
 
 
-      character(32) :: Solvent
+      character(LEN=32) :: Solvent
       integer :: cRFStrt, cRFEnd
       common /cRct/ cRFStrt,                                            &
      &              Solvent,                                            &
      &              cRFEnd
+End Module Rctfld_Module

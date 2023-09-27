@@ -37,9 +37,9 @@ subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,rData,ijCmp,Alpha,nAlpha,Beta
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use k2_setup, only: nDArray, nDScalar
 
 implicit none
-#include "ndarray.fh"
 integer(kind=iwp), intent(in) :: iAnga(4), iCmpa(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003, &
                                  iStb, jStb
 real(kind=wp), intent(in) :: Coor(3,2), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn)

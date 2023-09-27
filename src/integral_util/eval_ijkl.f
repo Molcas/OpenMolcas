@@ -61,8 +61,6 @@
       External Integ_Proc
 
 !
-#include "ndarray.fh"
-!
 #include "ibas_ricd.fh"
       Integer::
      &        ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,

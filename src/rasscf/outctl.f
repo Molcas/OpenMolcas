@@ -32,6 +32,7 @@
       use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
       use OneDat, only: sNoOri, sOpSiz
+      use rctfld_module
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -43,7 +44,6 @@
       Character*16 ROUTINE
       Parameter (ROUTINE='OUTCTL  ')
 #include "ciinfo.fh"
-#include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"

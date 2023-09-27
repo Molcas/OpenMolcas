@@ -22,18 +22,18 @@
       Use KSDFT_Info, Only: ifav, ifiv
       use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
       use mcpdft_output, only: debug, lf, iPrLoc
+      use rctfld_module
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
 * Ref2: Scott, et al. JCP,  2020, 153, 014106.
       Implicit Real*8 (A-H,O-Z)
-      DIMENSION CMO(*)
+      Real*8 CMO(*)
 #include "rasdim.fh"
 #include "general.fh"
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
-#include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"

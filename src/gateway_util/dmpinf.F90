@@ -46,9 +46,9 @@ use RICD_Info, only: RICD_Info_Dmp
 use nq_Info, only: NQ_Info_Dmp
 use Gateway_Info, only: Gateway_Info_Dmp
 use Definitions, only: wp, iwp
+use rctfld_module, only: CRFEnd, CRFStrt, iRFEnd, iRFStrt, lRFEnd, lRFStrt, rRFEnd, rRFStrt
 
 implicit none
-#include "rctfld.fh"
 integer(kind=iwp) :: Length
 integer(kind=iwp), external :: ip_of_iWork, ip_of_Work
 

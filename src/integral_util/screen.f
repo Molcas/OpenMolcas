@@ -42,8 +42,8 @@
 !             January '93 modified to Direct SCF                       *
 !***********************************************************************
       use Constants
+      use k2_setup, only: nDArray
       Implicit Real*8 (A-H,O-Z)
-#include "ndarray.fh"
       Real*8, Intent(out) :: Zeta(mZeta), ZInv(mZeta), KappAB(mZeta),
      &                       P(nZeta,3), Eta(mEta), EInv(mEta),
      &                       KappCD(mEta), Q(nEta,3)

@@ -28,7 +28,7 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem1
-use k2_setup, only: Data_k2, Indk2, nk2
+use k2_setup, only: Data_k2, Indk2, nk2, nDArray, nDScalar
 use k2_arrays, only: DoGrad_, DoHess_
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
@@ -40,7 +40,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: mdede
 logical(kind=iwp), intent(in) :: New_Fock
-#include "ndarray.fh"
 integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
                      iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, jBas, &
                      jBasj, jBsInc, jCmp, jCnt, jCnttp, jpk2, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &

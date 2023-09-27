@@ -15,11 +15,11 @@ subroutine DataSol(IDSolv)
 use Solvent_Data, only: Init_Solvent_Data, SolvData
 use Constants, only: Zero, One
 use Definitions, only: iwp
+use rctfld_module, only: Eps, EpsInf, DerEPS, rSolv, vMol, TCE, MXA, EPS_USER, EpsInf_USER, kT, nTT, rDiff, rWT
 
 implicit none
 integer(kind=iwp), intent(in) :: IDSolv
 integer(kind=iwp) :: i
-#include "rctfld.fh"
 
 call Init_Solvent_Data()
 

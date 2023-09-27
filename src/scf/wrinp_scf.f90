@@ -38,8 +38,6 @@
       Implicit None
       Real*8 SIntTh
 
-#include "rctfld.fh"
-
 !---- Define local variables
       Integer i, iCharge, iDoRI, iSym, iTit, mTmp
       Character(LEN=60) Fmt, FmtR, FmtI

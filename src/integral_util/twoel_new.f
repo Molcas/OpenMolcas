@@ -53,8 +53,10 @@
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       use Breit, only: nOrdOp, nComp
       use Constants
+#ifdef _DEBUGPRINT_
+      use k2_setup, only: nDArray
+#endif
       Implicit Real*8 (A-H,O-Z)
-#include "ndarray.fh"
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
       Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),
@@ -790,8 +792,10 @@
       use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       use Breit, only: nComp
       use Constants
+#ifdef _DEBUGPRINT_
+      use k2_setup, only: nDArray
+#endif
       Implicit Real*8 (A-H,O-Z)
-#include "ndarray.fh"
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),
      &       Data1(mData1),Data2(mData2),

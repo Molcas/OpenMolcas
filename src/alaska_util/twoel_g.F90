@@ -38,9 +38,9 @@ use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
+use k2_setup, only: nDArray, nDScalar
 
 implicit none
-#include "ndarray.fh"
 integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nab, nHmab, nData1, &
                                  ncd, nHmcd, nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, &
                                  kBask, lBasl, nZeta, nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux

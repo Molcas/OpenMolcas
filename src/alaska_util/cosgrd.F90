@@ -37,6 +37,7 @@ use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: nTS
 
 implicit none
 #include "grd_interface.fh"
@@ -51,7 +52,6 @@ external :: Cff2D, Fake, TNAI1
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "rctfld.fh"
 
 #include "macros.fh"
 unused_var(rFinal)

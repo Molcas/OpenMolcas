@@ -38,6 +38,7 @@ use k2_arrays, only: DeDe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: NonEQ_Ref, iCharge_Ref
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -45,7 +46,6 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
-#include "rctfld.fh"
 #include "columbus_gamma.fh"
 #include "nac.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCnttp_Valence, ndc, nDiff, nsAtom

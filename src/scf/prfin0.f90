@@ -43,7 +43,6 @@
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
       Integer iSpn, iMult
 !
-#include "rctfld.fh"
 #include "oneswi.fh"
 
 !

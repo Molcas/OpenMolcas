@@ -85,9 +85,9 @@ use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
+use k2_setup, only: nDArray, nDScalar
 
 implicit none
-#include "ndarray.fh"
 integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
                                  nData2, nAlpha, nBeta, jPrInc, nGamma, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, nEta, &
                                  nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &

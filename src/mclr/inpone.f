@@ -11,6 +11,7 @@
       SubRoutine InpOne()
       use Arrays, only: CMO, Int1, KAIN1
       use OneDat, only: sOpSiz
+      use rctfld_module
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -18,7 +19,6 @@
 #include "Pointers.fh"
 #include "stdalloc.fh"
 #include "real.fh"
-#include "rctfld.fh"
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
       Character*8 Label
       Integer iComp, idum(1)
