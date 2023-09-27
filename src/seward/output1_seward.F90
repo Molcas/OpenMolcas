@@ -39,11 +39,11 @@ use Gateway_global, only: GS_Mode, Onenly, Run_Mode, Prprt, Test
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
 use rctfld_module, only: lRF, PCM, lLangevin
+use rmat, only: RMat_On
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
 #include "Molcas.fh"
-#include "rmat.fh"
 #include "print.fh"
 #include "localdf.fh"
 integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nTtl

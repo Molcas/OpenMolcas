@@ -22,6 +22,7 @@ C
       use setup
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
+      use rmat, only: RMat_Type_Integrals
       Implicit None
       Integer AB
       Integer l_S
@@ -32,7 +33,6 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "localdf_bas.fh"
-#include "rmat_option.fh"
 #include "ldf_oneel.fh"
 #include "ldf_atom_pair_info.fh"
 #include "property_label.fh"

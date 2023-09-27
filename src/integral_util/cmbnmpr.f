@@ -16,9 +16,9 @@
 !     Author: K.Pfingst                                                *
 !***********************************************************************
       use Constants
+      use rmat
       Implicit Real*8 (A-H,O-Z)
 !     External gammat,gammaf
-#include "rmat.fh"
 #include "gam.fh"
 #include "nrmf.fh"
       Real*8 Final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),

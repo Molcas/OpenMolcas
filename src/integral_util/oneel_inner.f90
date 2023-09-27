@@ -53,12 +53,12 @@
       use Sizes_of_Seward, only: S
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants
+      use rmat, only: RMat_Type_Integrals
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
       External Rsv_Tsk
 !     Logical Addpot
-#include "rmat_option.fh"
 #include "property_label.fh"
       Real*8, Allocatable, Target:: Kern(:)
       Integer, Dimension(:,:), Allocatable :: Ind_ij

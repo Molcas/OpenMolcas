@@ -25,12 +25,12 @@
       use Basis_Info
       use RICD_Info, only: iRI_Type, Do_RI
       use Constants
+      use rmat
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
 #include "pstat.fh"
 #include "twoswi.fh"
-#include "rmat.fh"
 #include "print.fh"
 #include "gam.fh"
 #include "nac.fh"

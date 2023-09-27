@@ -30,10 +30,10 @@ use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use rmat, only: RMat_Type_Integrals
 
 implicit none
 #include "int_interface.fh"
-#include "rmat_option.fh"
 #include "oneswi.fh"
 #include "print.fh"
 integer(kind=iwp) :: iComp, iDCRT(0:7), ii, iIC, ipAxyz, ipBxyz, ipFnl, ipQxyz, iPrint, ipRnr, ipRxyz, iRout, iStabO(0:7), lDCRT, &

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine  pgamma
+      subroutine pgamma()
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the arrays gammath and gammaph for the angular    *
@@ -16,9 +16,9 @@
 !                                                                      *
 !***********************************************************************
       use Constants
+      use rmat
       Implicit real*8 (a-h,o-z)
 !     external gammat,gammaf
-#include "rmat.fh"
 #include "gam.fh"
 !
 ! initialize arrays

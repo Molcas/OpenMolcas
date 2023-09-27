@@ -33,15 +33,13 @@
 !     epsq     : minimal value of qCoul and/or dipol1 to be considered
 !     bParm    : Bloch term parameter
 !
+Module RMat
       Real*8         RmatR,Epsabs,Epsrel,qCoul,Epsq,bParm,dipol(3),     &
-     &               Dipol1
-      Common /Rmat1/ RmatR,Epsabs,Epsrel,qCoul,Epsq,bParm,dipol,        &
      &               Dipol1
 !
 !     keyr: option to the dqag quadpack routine
 !
       Integer        keyr
-      Common /Rmat3/ keyr
 !
 !     Quadpack: logical flag to indicate use of QUADPACK routines
 !     NagInt  : logical flag to indicate use of NAG routines
@@ -51,4 +49,5 @@
 !               are to be computed.
 !
       Logical        Quadpack,nagint,testint,RMat_On
-      Common /Rmat4/ Quadpack,nagint,testint,RMat_On
+      Logical        RMat_Type_Integrals
+End Module RMat

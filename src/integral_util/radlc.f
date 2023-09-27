@@ -22,8 +22,8 @@
 ! Author: K.Pfingst 21/5/93                                            *
 !***********************************************************************
       use Constants
+      use rmat
       Implicit Real*8 (A-H,O-Z)
-#include "rmat.fh"
 #include "nrmf.fh"
       external fradf
 #ifdef _DEBUGPRINT_

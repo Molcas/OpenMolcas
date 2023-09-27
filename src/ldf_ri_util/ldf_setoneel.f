@@ -58,7 +58,6 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "real.fh"
-#include "rmat_option.fh"
 #include "ldf_oneel.fh"
 
       Character*18 SecNam

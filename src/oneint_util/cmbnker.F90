@@ -19,6 +19,7 @@ subroutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,rFinal,nComp,Alpha,nAlpha,Beta,nBe
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Three, Half
 use Definitions, only: wp, iwp, u6
+use rmat, only: RMatR, bParm, EpsQ, QCoul, Dipol, Dipol1
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp, nAlpha, nBeta
@@ -26,7 +27,6 @@ real(kind=wp), intent(in) :: Rnr(nZeta,0:la+lb+2), qC(nZeta,0:la+lb), Di(nZeta,-
 real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
 #include "print.fh"
 #include "nrmf.fh"
-#include "rmat.fh"
 #include "gam.fh"
 integer(kind=iwp) :: ia, ialpha, ib, ibeta, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, k, kc, lrs, m, n, &
                      na, nb

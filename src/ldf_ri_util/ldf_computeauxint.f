@@ -89,6 +89,7 @@ C
       use setup
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
+      use rmat, only: RMat_Type_Integrals
       Implicit None
       Integer A
       Integer l_xInt_
@@ -100,7 +101,6 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "localdf_bas.fh"
-#include "rmat_option.fh"
 #include "ldf_oneel.fh"
 #include "property_label.fh"
       Real*8, Dimension(:), Allocatable :: Scrtch, ScrSph
@@ -327,6 +327,7 @@ C
       use setup
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
+      use rmat, only: RMat_Type_Integrals
       Implicit None
       Integer AB
       Integer l_xInt_
@@ -340,7 +341,6 @@ C
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "ldf_oneel.fh"
-#include "rmat_option.fh"
 #include "property_label.fh"
       Real*8, Dimension(:), Allocatable :: Final, Scrtch, ScrSph
       Real*8, Dimension(:), Allocatable, Target :: Kern
