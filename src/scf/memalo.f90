@@ -36,7 +36,7 @@
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
-      Call Setup()
+      Call Setup_SCF()
 !
 !---- Allocate memory for TrMat, CMO and occupation numbers
 !

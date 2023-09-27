@@ -940,7 +940,7 @@
 !
 !---------- Now when nOcc is known compute standard sizes of arrays.
 !
-            Call Setup()
+            Call Setup_SCF()
 !
          End If
 !                                                                      *

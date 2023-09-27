@@ -182,7 +182,7 @@
       Call TrimEor(EOrb,EOrb,nSym,nBas,nOrb)
       Call mma_deallocate(IndT)
 !
-      Call Setup()
+      Call Setup_SCF()
 !
       Call Izero(nBD,nSym)
       Do iSym=2,nSym
