@@ -15,6 +15,7 @@
       Use Real_Spherical, only:
       Use iSD_data, only:
       Use k2_arrays, only:
+      Use rmat, only:
 
       Private
 
