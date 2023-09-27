@@ -42,7 +42,6 @@
 #include "angtp.fh"
 #include "Molcas.fh"
 #include "rmat_option.fh"
-#include "nsd.fh"
 #include "property_label.fh"
       Integer iS, jS, iPrint
       Logical Do_PGamma

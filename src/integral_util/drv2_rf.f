@@ -51,7 +51,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "nsd.fh"
       Real*8 A(3), B(3), Ccoor(3),
      &       Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
       Integer   nOp(2), iStabO(0:7),

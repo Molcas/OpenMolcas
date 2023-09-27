@@ -34,7 +34,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-#include "nsd.fh"
 !
 !---- Statement function
 !

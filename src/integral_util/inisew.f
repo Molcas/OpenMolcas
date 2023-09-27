@@ -19,7 +19,6 @@
       use Basis_Info, only: Seward_Activated
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "nsd.fh"
 !
       Logical DSCF
 !

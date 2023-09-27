@@ -27,7 +27,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "rctfld.fh"
-#include "nsd.fh"
 !
       If (.NOT.Seward_Activated) Return
 !

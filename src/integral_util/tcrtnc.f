@@ -42,7 +42,7 @@
      &       ACOut(lZeta*lEta,mabcd)
       Integer IndZet(lZeta), IndEta(lEta)
 !
-!#ifdef _DEBUGPRINT_  !yma
+#ifdef _DEBUGPRINT_
       Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
       Call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,mabcd,m1*m2*m3*m4)
       Call RecPrt(' Coef1',' ',Coef1,n1,m1)
@@ -50,7 +50,7 @@
       Call RecPrt(' Coef3',' ',Coef3,n3,m3)
       Call RecPrt(' Coef4',' ',Coef4,n4,m4)
       Write (6,*) n1, n2, n3, n4
-!#endif
+#endif
 !
 !---- Reduce for contraction matrix
       nCache = (3*lCache)/4 - n3*m3 - n4*m4

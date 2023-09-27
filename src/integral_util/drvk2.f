@@ -45,7 +45,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
-#include "nsd.fh"
 !     Local arrays
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)

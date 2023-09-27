@@ -28,7 +28,6 @@
       Real*8 Schwz_Shl(nSkal,nSkal)
 !
 #include "ndarray.fh"
-#include "nsd.fh"
 !
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1

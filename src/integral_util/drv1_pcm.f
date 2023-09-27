@@ -44,7 +44,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "nsd.fh"
       Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nTs), CCoor(4,nTs),
      &       RB(3), TRB(3), TA(3),
      &       VTessera((nOrdOp+1)*(nOrdOp+2)/2,2,nTs)

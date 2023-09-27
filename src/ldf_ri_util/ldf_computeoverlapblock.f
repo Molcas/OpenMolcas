@@ -34,7 +34,6 @@ C
 #include "localdf_bas.fh"
 #include "rmat_option.fh"
 #include "ldf_oneel.fh"
-#include "nsd.fh"
 #include "ldf_atom_pair_info.fh"
 #include "property_label.fh"
 

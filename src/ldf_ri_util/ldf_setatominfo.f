@@ -120,7 +120,6 @@ C
       Integer nShell_Valence, nShell_Auxiliary, nAtom
       Integer A_Shells(2,nAtom), A_AuxShells(2,nAtom)
 #include "WrkSpc.fh"
-#include "nsd.fh"
 
       Character*6 Label
 

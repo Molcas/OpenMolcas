@@ -28,7 +28,7 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 
 use setup
 use k2_setup, only: Data_k2
-use iSD_data, only: iSD
+use iSD_data, only: iSD, nSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
 use Basis_Info, only: nBas, nBas_Frag, Shells
 use Sizes_of_Seward, only: S
@@ -45,7 +45,6 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "nsd.fh"
 real(kind=wp) :: Coor(3,4), PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 integer(kind=iwp) :: iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), iSD4(0:nSD,4), &
                      MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, iBsInc, iCar, &

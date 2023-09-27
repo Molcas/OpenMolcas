@@ -102,7 +102,6 @@ C
 #include "localdf_bas.fh"
 #include "rmat_option.fh"
 #include "ldf_oneel.fh"
-#include "nsd.fh"
 #include "property_label.fh"
       Real*8, Dimension(:), Allocatable :: Scrtch, ScrSph
       Real*8, Dimension(:), Allocatable, Target :: Final, Kern
@@ -342,7 +341,6 @@ C
 #include "localdf_int.fh"
 #include "ldf_oneel.fh"
 #include "rmat_option.fh"
-#include "nsd.fh"
 #include "property_label.fh"
       Real*8, Dimension(:), Allocatable :: Final, Scrtch, ScrSph
       Real*8, Dimension(:), Allocatable, Target :: Kern

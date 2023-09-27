@@ -59,7 +59,6 @@
       External Rsv_Tsk
 !     Logical Addpot
 #include "rmat_option.fh"
-#include "nsd.fh"
 #include "property_label.fh"
       Real*8, Allocatable, Target:: Kern(:)
       Integer, Dimension(:,:), Allocatable :: Ind_ij

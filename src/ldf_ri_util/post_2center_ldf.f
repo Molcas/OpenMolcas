@@ -38,7 +38,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "nsd.fh"
       Character Name_Q*6
       Integer nQvec(0:7)
       Real*8 :: A_Diag(*)

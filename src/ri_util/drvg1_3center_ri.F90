@@ -39,7 +39,7 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 
 use setup
 use Index_Functions, only: iTri, nTri_Elem
-use iSD_data, only: iSD
+use iSD_data, only: iSD, nSD
 use pso_stuff, only: B_PT2, DMdiag, lPSO, lSA, n_Txy, nBasA, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k
 use k2_setup, only: Data_k2
 use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
@@ -63,7 +63,6 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "nsd.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

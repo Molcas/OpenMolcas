@@ -13,9 +13,9 @@
       Use Basis_Info
       use Gateway_Info, only: DoFMM, RPQMin
       use Gateway_global, only: FMM_shortrange
+      use iSD_data, only: nSD
       Implicit Real*8 (a-h,o-z)
 !
-#include "nsd.fh"
       Integer iSD(0:nSD,nSkal)
 !
       Real*8  Coor(3,4)

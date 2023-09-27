@@ -10,5 +10,6 @@
 !***********************************************************************
       Module iSD_data
       Integer nSkal_iSD
+      Integer, Parameter:: nSD=18
       Integer, Allocatable :: iSD(:,:)
       End Module iSD_data

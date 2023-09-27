@@ -25,7 +25,6 @@
       use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 !
-#include "nsd.fh"
       Logical Verbose, Free_K2
 !                                                                      *
 !***********************************************************************

@@ -50,7 +50,6 @@
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "nsd.fh"
       Real*8 DeDe(nDeDe)
       Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Real*8 FD(nFD,mFD)

@@ -15,7 +15,6 @@
       use Symmetry_Info, only: nIrrep
       use stdalloc
       Implicit Real*8 (A-H,O-Z)
-#include "nsd.fh"
 !
 !                                                                      *
 !***********************************************************************

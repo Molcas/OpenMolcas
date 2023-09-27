@@ -11,7 +11,6 @@
       Subroutine Shell_Copy(iFrom,iTo)
       use iSD_data
       Implicit Real*8 (a-h,o-z)
-#include "nsd.fh"
 !
       Call ICopy(nSD+1,iSD(0,iFrom),1,iSD(0,iTo),1)
 !
