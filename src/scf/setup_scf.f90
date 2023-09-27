@@ -12,7 +12,7 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine SetUp()
+      SubRoutine SetUp_SCF()
 !***********************************************************************
 !                                                                      *
 !     purpose: Set up needed parameters                                *
@@ -125,4 +125,4 @@
 !----------------------------------------------------------------------*
 !
       Return
-      End SubRoutine SetUp
+      End SubRoutine SetUp_SCF
