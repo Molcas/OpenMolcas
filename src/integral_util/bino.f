@@ -10,8 +10,8 @@
 !***********************************************************************
       Subroutine bino(lmax)
       use Constants
+      use welcom
       Implicit Real*8 (a-h,o-z)
-#include "welcom.fh"
 !
       Do 2 i=0,10
          Do 3 j=-1,10
@@ -28,4 +28,4 @@
 !
 100   Continue
       Return
-      End
+      End Subroutine bino

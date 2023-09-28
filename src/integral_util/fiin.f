@@ -10,8 +10,8 @@
 !***********************************************************************
       Subroutine fiin(lmax)
       use Constants
+      use welcom
       Implicit Real*8 (a-h,o-z)
-#include "welcom.fh"
 !
       fiint(0,0)=Pi*Two
       Do 10 i=0,lmax

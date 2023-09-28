@@ -10,8 +10,8 @@
 !***********************************************************************
       Subroutine priwel(k,alfa,beta,r0,a,gri,nz,isum,grin)
       use Constants
+      use welcom
       Implicit Real*8(A-H,O-Z)
-#include "welcom.fh"
       Real*8 gri(nz,isum), grin(nz,0:k,k/2+1,k/4+1), alfa(nz), a(nz)
       Integer iv(kmax)
 !

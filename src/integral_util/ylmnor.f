@@ -10,8 +10,8 @@
 !***********************************************************************
       Subroutine ylmnor(lmax)
       use Constants
+      use welcom
       Implicit Real*8(A-H,O-Z)
-#include "welcom.fh"
 !
       Do 10 i=0,lmax
          lm2=i/2

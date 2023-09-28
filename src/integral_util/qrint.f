@@ -10,9 +10,9 @@
 !***********************************************************************
       FUNCTION qRINT (N,A,C,EXPA)
       use Constants
+      use welcom
       Implicit Real*8(A-H,O-Z)
       Real*8 qRint
-#include "welcom.fh"
       Real*8 F(kmax+1)
 !
       qRINT=Zero

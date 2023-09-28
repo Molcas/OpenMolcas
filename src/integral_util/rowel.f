@@ -20,8 +20,8 @@
 ! Sweden                                                               *
 !***********************************************************************
       use Constants
+      use welcom
       Implicit Real*8 (A-H,O-Z)
-#include "welcom.fh"
       Real*8 gri(nZeta*jsum), alpha(nZeta), a(nZeta),
      &       grin((k+1)*(k/2+1)*(k/4+1)*nZeta), P(nZeta,3)
 !

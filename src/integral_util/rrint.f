@@ -10,8 +10,8 @@
 !***********************************************************************
       Subroutine RRINT(K,ALFA,A,BETA,R0,GRINT,lmax)
       use Constants
+      use welcom
       Implicit Real*8(A-H,O-Z)
-#include "welcom.fh"
       Real*8 grint(0:lmax,lmax),rri(0:kmax+2)
 !
       M=K+1

@@ -10,8 +10,8 @@
 !***********************************************************************
       Subroutine tetin(lmax)
       use Constants
+      use welcom
       Implicit Real*8(A-H,O-Z)
-#include "welcom.fh"
 !
       Do 100 k=0,lmax
          lm2=k/2

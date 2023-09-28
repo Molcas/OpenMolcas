@@ -10,8 +10,8 @@
 !***********************************************************************
       Subroutine binte (k,alfa,beta,r0,a,ggrin,nz)
       use Constants
+      use welcom
       Implicit Real*8(A-H,O-Z)
-#include "welcom.fh"
       Real*8 grint(0:kmax,kmax), ggrin(nz,0:k,k/2+1,k/4+1),
      &       alfa(nz), a(nz)
 !
