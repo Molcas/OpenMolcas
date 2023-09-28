@@ -12,13 +12,13 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mksymcvb2_cvb(cvb,tconstr,cvbdet)
+subroutine mksymcvb2_cvb(cvb,cvbdet)
 
 use Definitions, only: wp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: cvb(nvb), tconstr(nvb*nvb), cvbdet(ndetvb)
+real(kind=wp) :: cvb(nvb), cvbdet(ndetvb)
 #include "print_cvb.fh"
 real(kind=wp) :: psnrm
 real(kind=wp), parameter :: thresh = 1.0e-15_wp
@@ -42,7 +42,5 @@ end if
 call str2vbc_cvb(cvb,cvbdet)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(tconstr)
 
 end subroutine mksymcvb2_cvb

@@ -12,14 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine axbres_cvb(dum,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
+subroutine axbres_cvb( &
+#                     define _CALLING_
+#                     include "ddres_interface.fh"
+                     )
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: maxdav, n, itdav
-real(kind=wp) :: dum, sxc(n,maxdav), rhs(n), res(n), solp_res(maxdav), eig_res
-logical(kind=iwp) :: is_converged
+#include "ddres_interface.fh"
+
+#include "macros.fh"
+unused_var(axc)
 
 call mxatb_cvb(sxc,solp_res,n,itdav,1,res)
 call dscal_(n,-eig_res,res,1)
@@ -28,7 +32,5 @@ call addvec(res,res,rhs,n)
 is_converged = .true.
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(dum)
 
 end subroutine axbres_cvb

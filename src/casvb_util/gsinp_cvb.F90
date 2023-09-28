@@ -26,6 +26,9 @@ character(len=*), parameter :: guess(ngs) = ['ORB     ','STRUC   ','READ    ','A
 integer(kind=iwp), external :: mavailr_cvb, mheapr_cvb
 logical(kind=iwp), external :: firsttime_cvb
 
+#include "macros.fh"
+unused_var(strtvb)
+
 if (firsttime_cvb()) call touch_cvb('INPGS')
 mouse = 1
 do
@@ -193,7 +196,5 @@ do
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(strtvb)
 
 end subroutine gsinp_cvb

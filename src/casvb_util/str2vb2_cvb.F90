@@ -12,16 +12,15 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine str2vb2_cvb(bikcof,ikcoff,cvb,cvbdet,iway,idetvb,i2s,nS,nalf1,nMs,ifnss,ndetvbs,absym,mnion,mxion,nconf,ndetvb,nvb, &
-                       kbasis,nel,nalf,neltot,w,nconfion)
+subroutine str2vb2_cvb(bikcof,ikcoff,cvb,cvbdet,iway,idetvb,i2s,nS,nalf1,nMs,ifnss,ndetvbs,absym,ndetvb,nvb,kbasis,nel,neltot,w, &
+                       nconfion)
 
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: neltot, ikcoff(0:neltot,0:neltot,0:neltot), iway, ndetvb, idetvb(ndetvb), nS, i2S(nS), nMs, nalf1(nMs), &
-                     ifnss(0:neltot,0:neltot), ndetvbs(0:neltot,0:neltot), mnion, mxion, nconf, nvb, kbasis, nel, nalf, &
-                     nconfion(0:*)
+                     ifnss(0:neltot,0:neltot), ndetvbs(0:neltot,0:neltot), nvb, kbasis, nel, nconfion(0:*)
 logical(kind=iwp) :: absym
 real(kind=wp) :: bikcof(*), cvb(nvb), cvbdet(ndetvb), w(ndetvb)
 #include "WrkSpc.fh"
@@ -148,12 +147,5 @@ if (iway == 2) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(mnion)
-  call Unused_integer(mxion)
-  call Unused_integer(nconf)
-  call Unused_integer(nalf)
-end if
 
 end subroutine str2vb2_cvb

@@ -12,15 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine o10b_cvb(nparm,dxnrm,grdnrm,close2conv)
+subroutine o10b_cvb( &
+#                   define _CALLING_
+#                   include "optb_interface.fh"
+                   )
 
 use casvb_global, only: have_solved_it, ip, ix
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nparm
-real(kind=wp) :: dxnrm, grdnrm
-logical(kind=iwp) :: close2conv
+#include "optb_interface.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ioptc2, iter2
 real(kind=wp) :: fx_exp, resthr_use

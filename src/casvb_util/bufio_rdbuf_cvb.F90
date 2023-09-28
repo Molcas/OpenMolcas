@@ -27,19 +27,19 @@ if (nbuf < ibuf) then
   return
 end if
 ioffset = (ibuf-1)*lbuf/idbl
-call bufio_rdbuf_internal(ibuffer)
+call bufio_rdbuf_cvb_internal(ibuffer)
 
 return
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine bufio_rdbuf_internal(ibuffer)
+subroutine bufio_rdbuf_cvb_internal(ibuffer)
   integer(kind=iwp), target :: ibuffer(*)
   real(kind=wp), pointer :: buffer(:)
   call c_f_pointer(c_loc(ibuffer(1)),buffer,[nword])
   call rdlow_cvb(buffer,nword,file_id,ioffset+1)
   nullify(buffer)
-end subroutine bufio_rdbuf_internal
+end subroutine bufio_rdbuf_cvb_internal
 
 end subroutine bufio_rdbuf_cvb

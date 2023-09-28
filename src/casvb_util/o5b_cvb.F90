@@ -13,21 +13,23 @@
 !***********************************************************************
 
 !IFG trivial
-subroutine o5b_cvb(nparm,dxnrm,grdnrm,close2conv)
+subroutine o5b_cvb( &
+#                  define _CALLING_
+#                  include "optb_interface.fh"
+                  )
 
 use casvb_global, only: ix
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nparm
-real(kind=wp) :: dxnrm, grdnrm
-logical(kind=iwp) :: close2conv
+#include "optb_interface.fh"
 #include "WrkSpc.fh"
+
+#include "macros.fh"
+unused_var(grdnrm)
 
 call o5b2_cvb(nparm,work(ix(1)),work(ix(2)),dxnrm,close2conv)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(grdnrm)
 
 end subroutine o5b_cvb

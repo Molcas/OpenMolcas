@@ -7,23 +7,13 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-!               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mkcifree_cvb()
-
-implicit none
-#include "main_cvb.fh"
-
-if (strucopt) then
-  nfrvb = nvb
-else
-  nfrvb = 0
-end if
-nfr = nfrorb+nfrvb
-
-return
-
-end subroutine mkcifree_cvb
+#ifdef _CALLING_
+axc,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converged &
+#else
+integer(kind=iwp) :: maxdav, n, itdav
+real(kind=wp) :: axc(n,maxdav), sxc(n,maxdav), rhs(n), res(n), solp_res(maxdav), eig_res
+logical(kind=iwp) :: is_converged
+#endif
+#undef _CALLING_

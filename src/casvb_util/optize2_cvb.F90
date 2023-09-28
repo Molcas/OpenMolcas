@@ -15,6 +15,7 @@
 subroutine optize2_cvb(fx,nparm,ioptc,dx,grad,iter_is_1,opta,optb)
 
 use casvb_global, only: endwhenclose, expct, formAD, formAF, fxbest, hh, ip, maxize
+use casvb_interfaces, only: opta_sub, optb_sub
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -22,7 +23,8 @@ implicit none
 integer(kind=iwp) :: nparm, ioptc
 real(kind=wp) :: fx, dx(nparm), grad(nparm)
 logical(kind=iwp) :: iter_is_1
-external :: opta, optb
+procedure(opta_sub) :: opta
+procedure(optb_sub) :: optb
 integer(kind=iwp) :: iopth
 real(kind=wp) :: dxnrm, exp_tc, grdnrm, s11, s12, s22
 logical(kind=iwp) :: close2conv = .false., close2conv_begin, converged, first_time, opth, scalesmall1, skipupd, wrongstat

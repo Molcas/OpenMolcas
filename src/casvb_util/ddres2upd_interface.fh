@@ -7,30 +7,12 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-!               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine schmidtt_cvb(c,nvec,t,nt,sao,n,metr)
-
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp) :: nvec, nt, n, metr
-real(kind=wp) :: c(n,nvec), t(nt,nvec), sao(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstackr_cvb
-
-if (metr == 0) then
-  call schmidtt2_cvb(c,c,nvec,t,nt,sao,n,metr)
-else
-  i1 = mstackr_cvb(n*nvec)
-  call schmidtt2_cvb(c,work(i1),nvec,t,nt,sao,n,metr)
-  call mfreer_cvb(i1)
-end if
-
-return
-
-end subroutine schmidtt_cvb
+#ifdef _CALLING_
+res,c,n &
+#else
+integer(kind=iwp) :: n
+real(kind=wp) :: res(n), c(n)
+#endif
+#undef _CALLING_

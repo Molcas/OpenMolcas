@@ -12,14 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine ddres2upd10_cvb(res,c,n)
+subroutine ddres2upd10_cvb( &
+#                          define _CALLING_
+#                          include "ddres2upd_interface.fh"
+                          )
 
 use casvb_global, only: n_div
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: res(n), c(n)
+#include "ddres2upd_interface.fh"
 real(kind=wp) :: resnrm1, resnrm2
 real(kind=wp), external :: dnrm2_
 

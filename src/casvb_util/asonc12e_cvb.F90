@@ -12,14 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine asonc12e_cvb(c,axc,sxc,nvec,nprm)
+subroutine asonc12e_cvb( &
+#                       define _CALLING_
+#                       include "ddasonc_interface.fh"
+                       )
 ! Applies S and H on c vector(s).
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nvec, nprm
-real(kind=wp) :: c(nprm,nvec), axc(nprm,nvec), sxc(nprm,nvec)
+#include "ddasonc_interface.fh"
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i1

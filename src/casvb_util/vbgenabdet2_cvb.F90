@@ -52,7 +52,7 @@ do ion=0,nel/2
     call icomb_cvb(nelsing,nalfsing,nstring)
     iastr = mstacki_cvb(nalfsing*nstring)
     ibstr = mstacki_cvb(nbetsing*nstring)
-    call stringen_cvb(nelsing,nalfsing,iwork(iastr),iwork(ibstr),nstring)
+    call stringen_cvb(nelsing,nalfsing,iwork(iastr),iwork(ibstr))
     if (debug) then
       write(u6,*) ' ionicity=',ion,' nconf=',nconfion(ion)
       write(u6,*) ' check alpha strings :'

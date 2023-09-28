@@ -12,13 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine o12sa_cvb(nparm1)
+subroutine o12sa_cvb( &
+#                    define _CALLING_
+#                    include "opta_interface.fh"
+                    )
 
 use casvb_global, only: have_solved_it, ix
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nparm1
+#include "opta_interface.fh"
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i1, i2, i3, iv, ivuse, ivuse2
@@ -37,10 +40,10 @@ ivuse2 = 3
 if (ivuse == 3) ivuse2 = 2
 if (ivuse2 > nv) ivuse2 = 1
 if (ivuse /= 0) then
-  i1 = mstackr_cvb(nparm1)
-  i2 = mstackr_cvb(nparm1)
+  i1 = mstackr_cvb(nparam)
+  i2 = mstackr_cvb(nparam)
   i3 = mstackr_cvb(nvb+nprorb)
-  call o12sa2_cvb(work(i1),work(i2),nparm1,work(lc(ivuse2)),work(lc(ivuse)),work(lw(9)),work(lv(2)),work(i3))
+  call o12sa2_cvb(work(i1),work(i2),nparam,work(lc(ivuse2)),work(lc(ivuse)),work(lw(9)),work(lv(2)),work(i3))
   call mfreer_cvb(i1)
 else
   if (strucopt) then
@@ -50,9 +53,9 @@ else
   end if
 end if
 
-i1 = mstackr_cvb(nparm1)
+i1 = mstackr_cvb(nparam)
 call o12sa3_cvb(work(ix(1)),work(lv(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lc(1)),work(lc(2)),work(lc(3)), &
-                work(lw(9)),work(i1),nvb,nprorb,nparm1,strucopt)
+                work(lw(9)),work(i1),nvb,nprorb,nparam,strucopt)
 call mfreer_cvb(i1)
 
 return

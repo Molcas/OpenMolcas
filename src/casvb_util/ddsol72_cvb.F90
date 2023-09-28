@@ -12,15 +12,15 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine ddsol72_cvb(hp,eigval,eigvec,dum,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
+subroutine ddsol72_cvb(hp,eigval,eigvec,itdav,maxdav,solp,solp_res,eig,eig_res)
 ! Solve linear equation in Davidson subspace.
 
 use casvb_global, only: ifollow, ipdd, iroot, jroot, nfrdim, nroot
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: itdav, maxdav, nfrdim1
-real(kind=wp) :: hp(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav), dum, solp(maxdav), solp_res(maxdav), eig, eig_res
+integer(kind=iwp) :: itdav, maxdav
+real(kind=wp) :: hp(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav), solp(maxdav), solp_res(maxdav), eig, eig_res
 integer(kind=iwp) :: i, it
 real(kind=wp) :: del, delmin
 
@@ -77,10 +77,5 @@ if (ipdd >= 2) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(dum)
-  call Unused_integer(nfrdim1)
-end if
 
 end subroutine ddsol72_cvb

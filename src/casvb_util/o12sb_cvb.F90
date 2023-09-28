@@ -13,19 +13,20 @@
 !***********************************************************************
 
 !IFG trivial
-subroutine o12sb_cvb(nparm1,dxnrm,grdnrm,close2conv)
+subroutine o12sb_cvb( &
+#                    define _CALLING_
+#                    include "optb_interface.fh"
+                    )
 
 use casvb_global, only: ix
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nparm1
-real(kind=wp) :: dxnrm, grdnrm
-logical(kind=iwp) :: close2conv
+#include "optb_interface.fh"
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
 
-call o12sb2_cvb(work(lv(1)),work(lv(2)),nparm1,nvb,nfrorb,work(lw(4)),work(lw(5)),work(lw(6)),work(ix(1)),dxnrm,grdnrm,close2conv, &
+call o12sb2_cvb(work(lv(1)),work(lv(2)),nparm,nvb,nfrorb,work(lw(4)),work(lw(5)),work(lw(6)),work(ix(1)),dxnrm,grdnrm,close2conv, &
                 strucopt)
 
 return

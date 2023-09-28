@@ -29,7 +29,7 @@ ioffs_orbs = ihlf_cvb(10)
 ioffs_cvb = ioffs_orbs+norb1*norb1
 ioffs_orbsao = ioffs_cvb+nvb1
 ioffs_orbslao = ioffs_orbsao+norb1*nbas_mo1
-call reserv_cvb(ioffs_orbslao+norb1*nbas_mo1,recn)
+!call reserv_cvb(ioffs_orbslao+norb1*nbas_mo1,recn)
 iheader = mstackiz_cvb(10)
 iwork(iheader) = norb1
 iwork(1+iheader) = nbas_mo1

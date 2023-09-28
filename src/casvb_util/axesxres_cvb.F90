@@ -12,16 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine axesxres_cvb(axc,sxc,dum,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
+subroutine axesxres_cvb( &
+#                       define _CALLING_
+#                       include "ddres_interface.fh"
+                       )
 
 use casvb_global, only: iroot, jroot
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: maxdav, n, itdav
-real(kind=wp) :: axc(n,maxdav), sxc(n,maxdav), dum, res(n), solp_res(maxdav), eig_res
-logical(kind=iwp) :: is_converged
+#include "ddres_interface.fh"
 integer(kind=iwp) :: i, ivb
+
+#include "macros.fh"
+unused_var(rhs)
 
 call fzero(res,n)
 do i=1,itdav
@@ -33,7 +37,5 @@ end do
 is_converged = (jroot == iroot)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(dum)
 
 end subroutine axesxres_cvb

@@ -12,17 +12,22 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine asonc10_cvb(c,axc,dum1,nvec,nprm)
+subroutine asonc10_cvb( &
+#                      define _CALLING_
+#                      include "ddasonc_interface.fh"
+                      )
 
 use casvb_global, only: ipp, iter
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nvec, nprm
-real(kind=wp) :: c(nprm,nvec), axc(nprm,nvec), dum1
+#include "ddasonc_interface.fh"
 #include "main_cvb.fh"
 integer(kind=iwp) :: ivec
 real(kind=wp), external :: tim_cvb
+
+#include "macros.fh"
+unused_var(sxc)
 
 iter = iter+1
 if (ipp >= 2) then
@@ -37,7 +42,5 @@ do ivec=1,nvec
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(dum1)
 
 end subroutine asonc10_cvb

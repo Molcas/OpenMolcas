@@ -13,24 +13,24 @@
 !***********************************************************************
 
 !IFG trivial
-subroutine o123b_cvb(nparm,dxnrm,grdnrm,close2conv)
+subroutine o123b_cvb( &
+#                    define _CALLING_
+#                    include "optb_interface.fh"
+                    )
 
 use casvb_global, only: ix
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nparm
-real(kind=wp) :: dxnrm, grdnrm
-logical(kind=iwp) :: close2conv
+#include "optb_interface.fh"
 #include "WrkSpc.fh"
+
+#include "macros.fh"
+unused_var(grdnrm)
+unused_var(close2conv)
 
 call o123b2_cvb(nparm,work(ix(1)),work(ix(3)),work(ix(4)),work(ix(5)),work(ix(6)),work(ix(7)),dxnrm)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(grdnrm)
-  call Unused_logical(close2conv)
-end if
 
 end subroutine o123b_cvb

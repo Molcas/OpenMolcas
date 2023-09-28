@@ -19,7 +19,7 @@ implicit none
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
 
-call mksymcvb2_cvb(work(lv(2)),work(ls(15)),work(lv(5)))
+call mksymcvb2_cvb(work(lv(2)),work(lv(5)))
 
 return
 

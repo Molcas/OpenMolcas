@@ -13,16 +13,19 @@
 !***********************************************************************
 
 !IFG trivial
-subroutine o123a_cvb(nparm)
+subroutine o123a_cvb( &
+#                    define _CALLING_
+#                    include "opta_interface.fh"
+                    )
 
 use casvb_global, only: ix
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nparm
+#include "opta_interface.fh"
 #include "WrkSpc.fh"
 
-call o123a2_cvb(nparm,work(ix(2)),work(ix(3)),work(ix(4)),work(ix(6)))
+call o123a2_cvb(nparam,work(ix(2)),work(ix(3)),work(ix(4)),work(ix(6)))
 
 return
 

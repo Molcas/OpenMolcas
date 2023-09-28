@@ -12,12 +12,12 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mmstringen_cvb(norb,nel,locc,lunocc,nstring,nkmin,nkmax)
+subroutine mmstringen_cvb(norb,nel,locc,lunocc,nkmin,nkmax)
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: norb, nel, locc(*), lunocc(*), nstring, nkmin(0:norb), nkmax(0:norb)
+integer(kind=iwp) :: norb, nel, locc(*), lunocc(*), nkmin(0:norb), nkmax(0:norb)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i_locc, i_lunocc, i_nk, indx, rc
 integer(kind=iwp), external :: mstacki_cvb
@@ -38,7 +38,5 @@ end do
 call mfreei_cvb(i_nk)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nstring)
 
 end subroutine mmstringen_cvb

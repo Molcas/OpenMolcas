@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mkstrtgs_cvb(orbsao,irdorbs,cvb,recn,kbasis1)
+subroutine mkstrtgs_cvb(orbsao,irdorbs,cvb,recn)
 
 use casvb_global, only: nbas_mo
 use Definitions, only: wp, iwp, u6
@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: orbsao(nbas_mo,norb), cvb(*), recn
-integer(kind=iwp) :: irdorbs(norb), kbasis1
+integer(kind=iwp) :: irdorbs(norb)
 integer(kind=iwp) :: ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, nbas_mo1, norb1, nvb1
 logical(kind=iwp) :: ifmos_cvb, use_ao
 
@@ -48,7 +48,5 @@ end do
 call rdgspr_cvb(recn,cvb,1,nvb,2,ierr)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(kbasis1)
 
 end subroutine mkstrtgs_cvb

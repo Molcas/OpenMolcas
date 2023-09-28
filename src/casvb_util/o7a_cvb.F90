@@ -12,21 +12,25 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine o7a_cvb(nparm)
+subroutine o7a_cvb( &
+#                  define _CALLING_
+#                  include "opta_interface.fh"
+                  )
 
 use casvb_global, only: have_solved_it
 use Constants, only: One
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nparm
+#include "opta_interface.fh"
+
+#include "macros.fh"
+unused_var(nparam)
 
 call ddnewopt_cvb()
 have_solved_it = .false.
 call ddguess_cvb([One],1,0)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nparm)
 
 end subroutine o7a_cvb

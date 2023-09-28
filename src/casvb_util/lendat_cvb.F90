@@ -16,20 +16,17 @@
 !*******************
 
 !IFG trivial
-subroutine lendat_cvb(fileid,lenf)
+subroutine lendat_cvb(lenf)
 ! return in lenf the length of record name in file ifil
 !   lenf = -1 if record does not exist
 
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
-real(kind=wp) :: fileid
 integer(kind=iwp) :: lenf
 
 lenf = -1
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(fileid)
 
 end subroutine lendat_cvb

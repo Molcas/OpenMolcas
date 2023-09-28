@@ -13,15 +13,19 @@
 !***********************************************************************
 
 !IFG trivial
-subroutine dum_a_cvb(idum)
+subroutine dum_a_cvb( &
+#                    define _CALLING_
+#                    include "opta_interface.fh"
+                    )
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: idum
+#include "opta_interface.fh"
+
+#include "macros.fh"
+unused_var(nparam)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(idum)
 
 end subroutine dum_a_cvb

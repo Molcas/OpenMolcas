@@ -12,14 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine axexsol2_cvb(ap,eigval,eigvec,dum,itdav,maxdav,solp,solp_res,eig,eig_res)
+subroutine axexsol2_cvb(ap,eigval,eigvec,itdav,maxdav,solp,solp_res,eig,eig_res)
 
 use casvb_global, only: corenrg, ifollow, ipdd, iroot, jroot, nfrdim, nroot
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: itdav, maxdav
-real(kind=wp) :: ap(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav), dum, solp(maxdav), solp_res(maxdav), eig, eig_res
+real(kind=wp) :: ap(maxdav,maxdav), eigval(itdav), eigvec(itdav,itdav), solp(maxdav), solp_res(maxdav), eig, eig_res
 integer(kind=iwp) :: i, it
 real(kind=wp) :: del, delmin
 
@@ -90,7 +90,5 @@ if (ipdd >= 2) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(dum)
 
 end subroutine axexsol2_cvb

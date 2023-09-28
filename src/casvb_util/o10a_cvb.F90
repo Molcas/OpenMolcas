@@ -12,18 +12,24 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine o10a_cvb(nparm1)
+subroutine o10a_cvb( &
+#                   define _CALLING_
+#                   include "opta_interface.fh"
+                   )
 
 use casvb_global, only: have_solved_it, ix, n_div, nparm
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nparm1
+#include "opta_interface.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ixp
 real(kind=wp) :: cnrm1, cnrm2
 integer(kind=iwp), external :: mstackr_cvb
 real(kind=wp), external :: dnrm2_
+
+#include "macros.fh"
+unused_var(nparam)
 
 call ddnewopt_cvb()
 have_solved_it = .false.
@@ -44,7 +50,5 @@ call ddrhs_cvb(work(ixp),nparm,0)
 call mfreer_cvb(ixp)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nparm1)
 
 end subroutine o10a_cvb

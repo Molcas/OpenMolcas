@@ -12,8 +12,8 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine makedx_cvb(dx,nparm,ioptc,heigvec,heigval,dxp,gradp,w2,close2conv,converged,nposeig,scalesmall,wrongstat,nnegeig,opth, &
-                      alfastart,alfa)
+subroutine makedx_cvb(dx,nparm,ioptc,heigvec,heigval,dxp,gradp,w2,close2conv,nposeig,scalesmall,wrongstat,nnegeig,opth,alfastart, &
+                      alfa)
 
 use casvb_global, only: alftol, cnrm, cnrmtol, eigwrngtol, exp12tol, expct, form2AF, formAD, formAF, grdwrngtol, hh, ip
 use Constants, only: Zero, One
@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nparm, ioptc, nposeig, nnegeig
 real(kind=wp) :: dx(nparm), heigvec(nparm,nparm), heigval(nparm), dxp(nparm), gradp(nparm), w2(nparm), alfastart, alfa
-logical(kind=iwp) :: close2conv, converged, scalesmall, wrongstat, opth
+logical(kind=iwp) :: close2conv, scalesmall, wrongstat, opth
 integer(kind=iwp) :: i
 real(kind=wp) :: exp1, exp2
 real(kind=wp), external :: dnrm2_
@@ -83,7 +83,5 @@ end if
 call mxatb_cvb(heigvec,dxp,nparm,nparm,1,dx)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(converged)
 
 end subroutine makedx_cvb

@@ -57,7 +57,7 @@ end if
 ! -- read from file --
 if (.not. up2date_cvb('STRTGS')) then
   call setstrtvb_cvb(strtvb)
-  if (tstfile_cvb(strtvb)) call mkstrtgs_cvb(orbsao,irdorbs,cvb,strtvb,kbasiscvb)
+  if (tstfile_cvb(strtvb)) call mkstrtgs_cvb(orbsao,irdorbs,cvb,strtvb)
   call untouch_cvb('STRTGS')
 end if
 ! -- input --

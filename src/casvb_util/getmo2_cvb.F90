@@ -12,18 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine getmo2_cvb(cmo,cmo2,cmoblk,ic,ic2)
+subroutine getmo2_cvb(cmo,cmo2,cmoblk,ic)
 
 use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nsym_mo
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: cmo(nbas_mo,nbas_mo), cmo2(nbas_mo,nbas_mo), cmoblk(nbasisq_mo)
-integer(kind=iwp) :: ic, ic2
+integer(kind=iwp) :: ic
 integer(kind=iwp) :: iorb, isk, jbas
 
 ! Construct full matrix of MOs in symmetry-adapted AO basis:
-call getmoblk_cvb(cmoblk,ic2)
+call getmoblk_cvb(cmoblk)
 call fzero(cmo,nbas_mo*nbas_mo)
 do isk=1,nsym_mo
   do jbas=1,nbasi_mo(isk)

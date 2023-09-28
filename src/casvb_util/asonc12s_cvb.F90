@@ -12,18 +12,23 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine asonc12s_cvb(c,dum,sxc,nvec,nprm)
+subroutine asonc12s_cvb( &
+#                       define _CALLING_
+#                       include "ddasonc_interface.fh"
+                       )
 ! Applies S and H on c vector(s).
 
 use Definitions, only: wp, iwp
 
 implicit none
+#include "ddasonc_interface.fh"
 #include "main_cvb.fh"
-integer(kind=iwp) :: nvec, nprm
-real(kind=wp) :: c(nvb,nvec), dum, sxc(nvb,nvec)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i1
 integer(kind=iwp), external :: mstackr_cvb
+
+#include "macros.fh"
+unused_var(axc)
 
 i1 = mstackr_cvb(nvb+nprorb)
 call asonc12s2_cvb(c,sxc,nvec,nprm,work(lc(3)),work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lw(9)), &
@@ -31,7 +36,5 @@ call asonc12s2_cvb(c,sxc,nvec,nprm,work(lc(3)),work(lc(2)),work(lv(1)),work(lw(4
 call mfreer_cvb(i1)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(dum)
 
 end subroutine asonc12s_cvb

@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine getmoblk_cvb(cmoblk,ic2)
+subroutine getmoblk_cvb(cmoblk)
 
 use casvb_global, only: nbasisq_mo
 use Definitions, only: wp, iwp
@@ -20,7 +20,6 @@ use Definitions, only: wp, iwp
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: cmoblk(nbasisq_mo)
-integer(kind=iwp) :: ic2
 #include "files_cvb.fh"
 #include "io_cvb.fh"
 integer(kind=iwp) :: iad, iadr15(15), ibf, lujob
@@ -35,7 +34,5 @@ call dDaFile(lujob,2,cmoblk,nbasisq_mo,iad)
 call daclos_cvb(lujob)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ic2)
 
 end subroutine getmoblk_cvb

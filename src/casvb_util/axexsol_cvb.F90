@@ -12,27 +12,31 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine axexsol_cvb(ap,dum,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res)
+subroutine axexsol_cvb( &
+#                      define _CALLING_
+#                      include "ddsol_interface.fh"
+                      )
 ! Diagonalize Hamiltonian in Davidson subspace:
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: itdav, maxdav, nfrdim1
-real(kind=wp) :: ap(maxdav,maxdav), dum, solp(maxdav), solp_res(maxdav), eig, eig_res
+#include "ddsol_interface.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i1, i2
 integer(kind=iwp), external :: mstackr_cvb
 
+#include "macros.fh"
+unused_var(rhsp)
+unused_var(nfrdim)
+
 i1 = mstackr_cvb(itdav)
 i2 = mstackr_cvb(itdav*itdav)
 
-call axexsol2_cvb(ap,work(i1),work(i2),dum,itdav,maxdav,solp,solp_res,eig,eig_res)
+call axexsol2_cvb(ap,work(i1),work(i2),itdav,maxdav,solp,solp_res,eig,eig_res)
 
 call mfreer_cvb(i1)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nfrdim1)
 
 end subroutine axexsol_cvb

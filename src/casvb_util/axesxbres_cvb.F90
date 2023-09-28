@@ -12,15 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine axesxbres_cvb(axc,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converged)
+subroutine axesxbres_cvb( &
+#                        define _CALLING_
+#                        include "ddres_interface.fh"
+                        )
 
 use casvb_global, only: ifollow, nroot
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: maxdav, n, itdav
-real(kind=wp) :: axc(n,maxdav), sxc(n,maxdav), rhs(n), res(n), solp_res(maxdav), eig_res
-logical(kind=iwp) :: is_converged
+#include "ddres_interface.fh"
 real(kind=wp) :: alfa
 integer(kind=iwp) :: i, ivb, nnegeig, nposeig
 

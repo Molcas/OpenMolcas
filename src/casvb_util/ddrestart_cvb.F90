@@ -12,13 +12,15 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine ddrestart_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1)
+subroutine ddrestart_cvb( &
+#                        define _CALLING_
+#                        include "ddrestart_interface.fh"
+)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: maxdav, n, nvguess1, nvrestart1
-real(kind=wp) :: c(n,maxdav), axc(n,maxdav), vec(n), hp(maxdav,maxdav), solp(maxdav)
+#include "ddrestart_interface.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i1, i2
 integer(kind=iwp), external :: mstackr_cvb

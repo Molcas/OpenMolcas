@@ -55,7 +55,7 @@ end do
 do ifrag=1,nfrag
   iastr_fr(ifrag) = mstacki_cvb(nalf_fr(1,ifrag)*nda_fr(1,ifrag))
   ibstr_fr(ifrag) = mstacki_cvb(nbet_fr(1,ifrag)*ndb_fr(1,ifrag))
-  call stringen_cvb(nel_fr(ifrag),nalf_fr(1,ifrag),iwork(iastr_fr(ifrag)),iwork(ibstr_fr(ifrag)),nda_fr(1,ifrag))
+  call stringen_cvb(nel_fr(ifrag),nalf_fr(1,ifrag),iwork(iastr_fr(ifrag)),iwork(ibstr_fr(ifrag)))
 end do
 
 call izero(iwork(ll(7)),naprodvb)

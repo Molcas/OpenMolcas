@@ -13,7 +13,7 @@
 !***********************************************************************
 
 subroutine oneexc2_cvb(cfrom,cto,vij,i1alf,i1bet,iato,ibto,phato,phbto,iapr,ixapr,ibpr,ixbpr,npvb,nda,ndb,n1a,n1b,nam1,nbm1,norb, &
-                       commut,sc,absym,diag,idens,iPvb)
+                       sc,absym,diag,idens,iPvb)
 ! Calculates Cto = Pvb Eij Cfrom
 
 use Constants, only: Two, Half
@@ -23,7 +23,7 @@ implicit none
 integer(kind=iwp) :: n1a, norb, i1alf(n1a,norb), n1b, i1bet(n1b,norb), nam1, iato(norb,0:nam1), nbm1, ibto(norb,0:nbm1), npvb, &
                      iapr(npvb), nda, ixapr(nda+1), ibpr(npvb), ndb, ixbpr(ndb+1), idens, iPvb
 real(kind=wp) :: cfrom(nda,ndb), cto(nda,ndb), vij(*), phato(norb,nam1), phbto(norb,nbm1)
-logical(kind=iwp) :: commut, sc, absym, diag
+logical(kind=iwp) :: sc, absym, diag
 integer(kind=iwp) :: ia, iax, iaxtmp, ib, ibx, ibxtmp, iorb, iprm, ixa, ixb, jax, jbx, jorb, nvij
 real(kind=wp) :: tcof
 real(kind=wp), parameter :: thresh = 1.0e-10_wp
@@ -212,7 +212,5 @@ if (absym) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(commut)
 
 end subroutine oneexc2_cvb

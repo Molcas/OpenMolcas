@@ -54,7 +54,7 @@ cnrm = dnrm2_(nparm,dxp,1)
 !  safety_use = 1.0e-4_wp
 !end do
 
-call makedx_cvb(dx,nparm,0,eigvec,eigval,dxp,gradp,wrk,.false.,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
+call makedx_cvb(dx,nparm,0,eigvec,eigval,dxp,gradp,wrk,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
 dxnrm = dnrm2_(nparm,dx,1)
 
 return

@@ -42,7 +42,7 @@ subroutine wri_cvb_internal(ivec,ibuf)
   end if
   if (nrem > 0) then
     ilen = 0
-    call lendat_cvb(file_id,ilen)
+    call lendat_cvb(ilen)
     if (ilen >= 1+nreals+ioffset) then
       call c_f_pointer(c_loc(ibuf(1)),buf,[1])
       call rdlow_cvb(buf,1,file_id,nreals+ioffset)

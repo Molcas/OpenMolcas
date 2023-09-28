@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine input3_cvb(iorbrel,mxdimrel,ifxorb,ifxstr,izrstr,iorts,irots,izeta,ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
+subroutine input3_cvb(iorbrel,mxdimrel,ifxorb,ifxstr,izrstr,iorts,izeta,ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
 
 use casvb_global, only: nspinb, spinbkw
 use Constants, only: Zero
@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: mxdimrel, iorbrel(mxdimrel), ifxorb(mxorb_cvb), ifxstr, izrstr, iorts(*), irots(*), izeta(*), ip_iconfs, &
+integer(kind=iwp) :: mxdimrel, iorbrel(mxdimrel), ifxorb(mxorb_cvb), ifxstr, izrstr, iorts(*), izeta(*), ip_iconfs, &
                      irdorbs(mxorb_cvb), ip_cvb, ip_symelm, kbasiscvb_inp
 real(kind=wp) :: orbs(mxaobf,mxorb_cvb)
 #include "optze_cvb.fh"
@@ -426,7 +426,5 @@ do
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(irots)
 
 end subroutine input3_cvb

@@ -42,7 +42,7 @@
 
 subroutine str2vbf_cvb(cvb,cvbdet)
 
-use casvb_global, only: i2s_fr, mnion_fr, mxion_fr, nalf_fr, nconf_fr, nconfion_fr, ndetvb_fr, nel_fr, nfrag, nMs_fr, nS_fr, nvb_fr
+use casvb_global, only: i2s_fr, nalf_fr, nconfion_fr, ndetvb_fr, nel_fr, nfrag, nMs_fr, nS_fr, nvb_fr
 use Definitions, only: wp, iwp
 
 implicit none
@@ -68,9 +68,8 @@ ndetvbs_add = lb(6)
 do ifrag=1,nfrag
   iwrk = mstackr_cvb(max(ndetvb_fr(ifrag),nvb_fr(ifrag)))
   call str2vb2_cvb(work(lb(kab)+1),iwork(lb(3)),cvb(ioffs_cvb),cvbdet(ioffs_cvbdet),2,iwork(idetvb_add),i2s_fr(1,ifrag), &
-                   nS_fr(ifrag),nalf_fr(1,ifrag),nMs_fr(ifrag),iwork(ifnss_add),iwork(ndetvbs_add),absym(1),mnion_fr(ifrag), &
-                   mxion_fr(ifrag),nconf_fr(ifrag),ndetvb_fr(ifrag),nvb_fr(ifrag),kbs,nel_fr(ifrag),nalf_fr(1,ifrag),nel, &
-                   work(iwrk),nconfion_fr(0,ifrag))
+                   nS_fr(ifrag),nalf_fr(1,ifrag),nMs_fr(ifrag),iwork(ifnss_add),iwork(ndetvbs_add),absym(1),ndetvb_fr(ifrag), &
+                   nvb_fr(ifrag),kbs,nel_fr(ifrag),nel,work(iwrk),nconfion_fr(0,ifrag))
   call mfreer_cvb(iwrk)
   idetvb_add = idetvb_add+ndetvb_fr(ifrag)
   ioffs_cvb = ioffs_cvb+nvb_fr(ifrag)

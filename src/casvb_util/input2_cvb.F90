@@ -28,7 +28,7 @@ real(kind=wp) :: orbs(mxaobf,mxorb_cvb)
 integer(kind=iwp) :: i, i2s_min, ibase, iconf, iconf_add, idelstr, ifrag, ifrom, ifsc, ifxstr, ioffs, iorb, ip_cvb, ip_from, &
                      ip_iconfs, ip_symelm, ip_to, iS, isyme, ito, jconf, jorb, kbasiscvb_inp, need, nelcheck, nmov, noe1
 real(kind=wp) :: swap
-integer(kind=iwp), external :: ihlf_cvb, mheapiz_cvb, mheaprz_cvb, mstacki_cvb, nvb_cvb
+integer(kind=iwp), external :: mheapiz_cvb, mheaprz_cvb, mstacki_cvb, nvb_cvb
 
 ibase = mstacki_cvb(0)
 ip_iconfs = mheapiz_cvb(0)
@@ -62,7 +62,7 @@ call izero(ifxorb,mxorb_cvb)
 call izero(izeta,mxsyme)
 call fraginit_cvb()
 
-call input3_cvb(iorbrel,mxdimrel,ifxorb,ifxstr,idelstr,iorts,irots,izeta,ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
+call input3_cvb(iorbrel,mxdimrel,ifxorb,ifxstr,idelstr,iorts,izeta,ip_iconfs,orbs,irdorbs,ip_cvb,ip_symelm,kbasiscvb_inp)
 
 if (inputmode == 2) then
   ! Input parsing complete for this step ...
@@ -127,8 +127,8 @@ if (inputmode == 2) then
     end if
     call cnfcheck_cvb(iwork(iconf_add*noe+ip_iconfs),nconf_fr(ifrag),nel_fr(ifrag))
     call cnfini_cvb(iwork(iconf_add*noe+ip_iconfs),nconf_fr(ifrag),nel_fr(ifrag),nS_fr(ifrag),i2s_fr(1,ifrag),nMs_fr(ifrag), &
-                    nalf_fr(1,ifrag),nbet_fr(1,ifrag),nvbr_fr(ifrag),ndetvb_fr(ifrag),ndetvb2_fr(ifrag),mnion_fr(ifrag), &
-                    mxion_fr(ifrag),nconfion_fr(0,ifrag),ifsc)
+                    nalf_fr(1,ifrag),nvbr_fr(ifrag),ndetvb_fr(ifrag),ndetvb2_fr(ifrag),mnion_fr(ifrag),mxion_fr(ifrag), &
+                    nconfion_fr(0,ifrag),ifsc)
     iconf_add = iconf_add+nconf_fr(ifrag)
   end do
   ndetvb = 0
@@ -240,8 +240,8 @@ if (inputmode == 2) then
 
   ! Try for new record
   call rdioff1_cvb(need)
-  need = need+3*ihlf_cvb(1)+ihlf_cvb(noe*nconf)+mxaobf*norb+ihlf_cvb(norb)+nvbinp+nsyme*norb*norb+ihlf_cvb(ndimrel)+ &
-         ihlf_cvb(norb)+ihlf_cvb(nfxvb)+ihlf_cvb(nzrvb)+ihlf_cvb(2*nort)+ihlf_cvb(2*ndrot)+ihlf_cvb(2*ndrot)+ihlf_cvb(nsyme)
+  !need = need+3*ihlf_cvb(1)+ihlf_cvb(noe*nconf)+mxaobf*norb+ihlf_cvb(norb)+nvbinp+nsyme*norb*norb+ihlf_cvb(ndimrel)+ &
+  !       ihlf_cvb(norb)+ihlf_cvb(nfxvb)+ihlf_cvb(nzrvb)+ihlf_cvb(2*nort)+ihlf_cvb(2*ndrot)+ihlf_cvb(2*ndrot)+ihlf_cvb(nsyme)
   if (recinp == Zero) then
     recinp = recn_tmp01
   else if (recinp_old == Zero) then
@@ -252,7 +252,7 @@ if (inputmode == 2) then
     recinp_old = recinp
     recinp = swap
   end if
-  call reserv_cvb(need,recinp)
+  !call reserv_cvb(need,recinp)
   call rdioff1_cvb(ioffs)
   call wrioff_cvb(1,recinp,ioffs)
   call wris_cvb([noe],1,recinp,ioffs)

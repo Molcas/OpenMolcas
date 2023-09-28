@@ -38,8 +38,8 @@ else if (iform_ci(icto) /= 0) then
 end if
 
 call oneexc2_cvb(work(iaddr_ci(icfrom)),work(iaddr_ci(icto)),vij,iwork(ll(1)),iwork(ll(2)),iwork(ll(5)),iwork(ll(6)),work(ll(9)), &
-                 work(ll(10)),iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,nda,ndb,n1a,n1b,nam1,nbm1,norb,projcas, &
-                 sc,absym(3),diag,idens,iPvb)
+                 work(ll(10)),iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,nda,ndb,n1a,n1b,nam1,nbm1,norb,sc, &
+                 absym(3),diag,idens,iPvb)
 
 ! If projcas and iPvb=0 we asume the normal density/1-ex. is required:
 if (projcas .and. (iPvb /= 0)) then
@@ -57,7 +57,7 @@ if (projcas .and. (iPvb /= 0)) then
   end if
   call oneexc2_cvb(work(iaddr_ci(icfrom)),work(iaddr_ci(icto)),work(ivij2),iwork(ll(1)),iwork(ll(2)),iwork(ll(5)),iwork(ll(6)), &
                    work(ll(9)),work(ll(10)),iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,nda,ndb,n1a,n1b,nam1, &
-                   nbm1,norb,projcas,sc,absym(3),diag,idens,3-iPvb)
+                   nbm1,norb,sc,absym(3),diag,idens,3-iPvb)
   if (idens == 1) call daxpy_(nvij,-One,work(ivij2),1,vij,1)
   call mfreer_cvb(ivij2)
 end if

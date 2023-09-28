@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine axexbsol2_cvb(ap,rhsp,itdav,maxdav,nfrdim1,solp,solp_res,eig,eig_res,eigval,eigvec,dxp,gradp,w2)
+subroutine axexbsol2_cvb(ap,rhsp,itdav,maxdav,solp,solp_res,eig,eig_res,eigval,eigvec,dxp,gradp,w2)
 ! Solve linear equation in Davidson subspace.
 
 use casvb_global, only: cnrm, corenrg, ifollow, ipdd, nroot, safety, signtol
@@ -20,7 +20,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: itdav, maxdav, nfrdim1
+integer(kind=iwp) :: itdav, maxdav
 real(kind=wp) :: ap(maxdav,maxdav), rhsp(maxdav), solp(maxdav), solp_res(maxdav), eig, eig_res, eigval(itdav), &
                  eigvec(itdav,itdav), dxp(itdav), gradp(itdav), w2(itdav)
 integer(kind=iwp) :: i, it, nnegeig, nposeig
@@ -93,7 +93,7 @@ do
   safety_use = 1.0e-4_wp
 end do
 
-call makedx_cvb(solp,itdav,0,eigvec,eigval,dxp,gradp,w2,.false.,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
+call makedx_cvb(solp,itdav,0,eigvec,eigval,dxp,gradp,w2,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
 
 eig_res = eig
 call fmove_cvb(solp,solp_res,itdav)
@@ -104,7 +104,5 @@ if (ipdd >= 2) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nfrdim1)
 
 end subroutine axexbsol2_cvb

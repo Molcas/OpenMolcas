@@ -12,12 +12,12 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine stringen_cvb(norb,nel,locc,lunocc,nstring)
+subroutine stringen_cvb(norb,nel,locc,lunocc)
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: norb, nel, locc(*), lunocc(*), nstring
+integer(kind=iwp) :: norb, nel, locc(*), lunocc(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i_nkmax, i_nkmin, iorb
 integer(kind=iwp), external :: mstacki_cvb
@@ -29,7 +29,7 @@ do iorb=0,norb
   iwork(iorb+i_nkmin) = max(iorb-norb+nel,0)
   iwork(iorb+i_nkmax) = min(iorb,nel)
 end do
-call mmstringen_cvb(norb,nel,locc,lunocc,nstring,iwork(i_nkmin),iwork(i_nkmax))
+call mmstringen_cvb(norb,nel,locc,lunocc,iwork(i_nkmin),iwork(i_nkmax))
 call mfreei_cvb(i_nkmin)
 
 return

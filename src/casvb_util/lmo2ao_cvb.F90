@@ -27,7 +27,7 @@ integer(kind=iwp), external :: mstackr_cvb
 
 if (norb1 == 0) return
 i1 = mstackr_cvb(nbas_mo*norb)
-call getmo_cvb(work(i1),2,1)
+call getmo_cvb(work(i1),2)
 call mxatb_cvb(work(i1),orbs,nbas_mo,norb,norb1,orbsao)
 call mfreer_cvb(i1)
 

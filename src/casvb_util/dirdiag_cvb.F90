@@ -73,11 +73,16 @@ subroutine dirdiag_cvb(ddasonc,ddsol,ddres,ddres2upd,ddrestart,c,axc,sxc,share,v
 !***********************************************************************
 
 use casvb_global, only: formAD, formAF
+use casvb_interfaces, only: ddasonc_sub, ddsol_sub, ddres_sub, ddres2upd_sub, ddrestart_sub
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-external :: ddasonc, ddsol, ddres, ddres2upd, ddrestart
+procedure(ddasonc_sub) :: ddasonc
+procedure(ddsol_sub) :: ddsol
+procedure(ddres_sub) :: ddres
+procedure(ddres2upd_sub) :: ddres2upd
+procedure(ddrestart_sub) :: ddrestart
 integer(kind=iwp) :: maxdav, n, nprmdim, nvguess, nvrestart, isaddle, ifollow, mxiter, nortiter, ioptc, iter, ip
 real(kind=wp) :: c(n,maxdav), axc(n,maxdav), sxc(n,maxdav), vec(n), res(n), rhs(n), ap(maxdav,maxdav), rhsp(maxdav), solp(maxdav), &
                  solp_res(maxdav), resthr, orththr, corenrg, fx

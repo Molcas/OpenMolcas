@@ -12,24 +12,24 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine asonc1_cvb(c,dum,sxc,nvec,nprm)
+subroutine asonc1_cvb( &
+#                     define _CALLING_
+#                     include "ddasonc_interface.fh"
+                     )
 ! Applies S on c vector(s).
 
 use Definitions, only: wp, iwp
 
 implicit none
+#include "ddasonc_interface.fh"
 #include "main_cvb.fh"
-integer(kind=iwp) :: nvec, nprm
-real(kind=wp) :: c(nvb,nvec), dum, sxc(nvb,nvec)
 #include "WrkSpc.fh"
+
+#include "macros.fh"
+unused_var(axc)
 
 call asonc12_cvb(c,sxc,nvec,work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lw(9)))
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(dum)
-  call Unused_integer(nprm)
-end if
 
 end subroutine asonc1_cvb

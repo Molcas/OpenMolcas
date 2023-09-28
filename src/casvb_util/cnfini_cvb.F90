@@ -18,14 +18,14 @@
 !*              NCONFION, and IFSC.                                    *
 !*                                                                     *
 !***********************************************************************
-subroutine cnfini_cvb(iconfs,nconf1,nel1,nS,i2s,nMs,nalf1,nbet1,nvbr1,ndetvb1,ndetvb21,mnion1,mxion1,nconfion,ifsc1)
+subroutine cnfini_cvb(iconfs,nconf1,nel1,nS,i2s,nMs,nalf1,nvbr1,ndetvb1,ndetvb21,mnion1,mxion1,nconfion,ifsc1)
 
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1, nS, i2s(nS), nMs, nalf1(nMs), nbet1(nMs), nvbr1, ndetvb1, ndetvb21, mnion1, &
-                     mxion1, nconfion(0:*), ifsc1
+integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1, nS, i2s(nS), nMs, nalf1(nMs), nvbr1, ndetvb1, ndetvb21, mnion1, mxion1, &
+                     nconfion(0:*), ifsc1
 integer(kind=iwp) :: i, iconf, iMs, ion, iorb, iretval, iretval1, iretval2, iS
 
 ! Main loop over configurations:
@@ -64,7 +64,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(nbet1)
 
 end subroutine cnfini_cvb

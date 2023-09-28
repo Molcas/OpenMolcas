@@ -12,19 +12,24 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine asonc7_cvb(c,axc,dum1,nvec,nprm)
+subroutine asonc7_cvb( &
+#                     define _CALLING_
+#                     include "ddasonc_interface.fh"
+                     )
 
 use casvb_global, only: igrad, ipp7, iter7
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nvec, nprm
-real(kind=wp) :: c(nprm,nvec), axc(nprm,nvec), dum1
+#include "ddasonc_interface.fh"
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ivec
 real(kind=wp), parameter :: thresh = 1.0e-15_wp
 real(kind=wp), external :: ddot_, dnrm2_, tim_cvb
+
+#include "macros.fh"
+unused_var(sxc)
 
 iter7 = iter7+1
 if (ipp7 >= 2) then
@@ -47,7 +52,5 @@ do ivec=1,nvec
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(dum1)
 
 end subroutine asonc7_cvb

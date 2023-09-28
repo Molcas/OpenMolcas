@@ -12,14 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine getmo_cvb(cmo,ic,ic2)
+subroutine getmo_cvb(cmo,ic)
 
 use casvb_global, only: nbas_mo, nbasisq_mo
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: cmo(*)
-integer(kind=iwp) :: ic, ic2
+integer(kind=iwp) :: ic
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i1, i2
 integer(kind=iwp), external :: mstackr_cvb
@@ -28,10 +28,10 @@ i1 = mstackr_cvb(nbasisq_mo)
 
 if (ic <= 1) then
   i2 = mstackr_cvb(0)
-  call getmo2_cvb(cmo,work(i2),work(i1),ic,ic2)
+  call getmo2_cvb(cmo,work(i2),work(i1),ic)
 else
   i2 = mstackr_cvb(nbas_mo*nbas_mo)
-  call getmo2_cvb(work(i2),cmo,work(i1),ic,ic2)
+  call getmo2_cvb(work(i2),cmo,work(i1),ic)
 end if
 call mfreer_cvb(i1)
 

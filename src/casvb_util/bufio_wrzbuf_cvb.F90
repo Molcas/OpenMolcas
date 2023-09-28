@@ -24,7 +24,7 @@ integer(kind=iwp) :: ioffset
 
 if (ibuf == 0) return
 ioffset = (ibuf-1)*lbuf/idbl
-call bufio_wrzbuf_internal(izbuffer)
+call bufio_wrzbuf_cvb_internal(izbuffer)
 if (ibuf > nbuf) then
   nbuf = ibuf
 end if
@@ -34,12 +34,12 @@ return
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine bufio_wrzbuf_internal(izbuffer)
+subroutine bufio_wrzbuf_cvb_internal(izbuffer)
   integer(kind=iwp), target :: izbuffer(*)
   real(kind=wp), pointer :: buffer(:)
   call c_f_pointer(c_loc(izbuffer(1)),buffer,[nword])
   call wrlow_cvb(buffer,nword,file_id,ioffset+1)
   nullify(buffer)
-end subroutine bufio_wrzbuf_internal
+end subroutine bufio_wrzbuf_cvb_internal
 
 end subroutine bufio_wrzbuf_cvb
