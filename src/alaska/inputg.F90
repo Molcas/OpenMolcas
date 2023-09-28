@@ -35,6 +35,7 @@ use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use columbus_gamma, only: No_Nuc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -42,7 +43,6 @@ integer(kind=iwp), intent(in) :: LuSpool
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "columbus_gamma.fh"
 #include "nac.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &
                      j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, &

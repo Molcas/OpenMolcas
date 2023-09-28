@@ -9,23 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine bino(lmax)
-      use Constants
-      use welcom
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      use welcom, only: binom
+      Implicit None
+      Integer lMax
+
+      Integer i, j
 !
-      Do 2 i=0,10
-         Do 3 j=-1,10
-            binom(i,j)=Zero
-   3     Continue
-   2  Continue
+      binom(:,:)=Zero
       binom(0,0)=One
-      if(lmax.eq.0) go to 100
-      Do 10 i=1,lmax
-         Do 20 j=0,i
+      if(lmax.eq.0) Return
+      Do i=1,lmax
+         Do j=0,i
             binom(i,j)=binom(i-1,j-1)+binom(i-1,j)
-20       Continue
-10    Continue
+         End Do
+      End Do
 !
-100   Continue
       Return
       End Subroutine bino

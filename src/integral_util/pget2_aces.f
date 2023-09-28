@@ -39,10 +39,9 @@
       use pso_stuff
       use Symmetry_Info, only: nIrrep
       use Constants
+      use columbus_gamma
       Implicit Real*8 (A-H,O-Z)
-!*********** columbus interface ****************************************
-#include "columbus_gamma.fh"
-      parameter (exfac=1d0)
+      Real*8, parameter :: exfac=1.0d0
       Real*8 PSO(nijkl,nPSO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma),  DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)

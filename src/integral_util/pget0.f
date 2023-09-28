@@ -35,9 +35,9 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       use BasisMode
+      use columbus_gamma
       Implicit Real*8 (A-H,O-Z)
 #include "etwas.fh"
-#include "columbus_gamma.fh"
 #include "mspdft.fh"
 
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)

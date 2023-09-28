@@ -30,6 +30,7 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       use stdalloc
+      use columbus_gamma
       Implicit Real*8 (A-H,O-Z)
 #include "etwas.fh"
 #include "mp2alaska.fh"
@@ -40,9 +41,6 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-!*********** columbus interface ****************************************
-#include "columbus_gamma.fh"
-!***********************************************************************
       Integer nFro(0:7)
       Integer Columbus
       Character*8 Method, KSDFT*80

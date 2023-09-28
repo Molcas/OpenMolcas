@@ -11,5 +11,6 @@
 !
 !---- Stuff for Columbus read of Gamma file
 !
-      Logical Gamma_mrcisd, NO_NUC
-      Common /Logical_Columbus/ gamma_mrcisd,NO_NUC
+Module Columbus_Gamma
+Logical Gamma_mrcisd, NO_NUC
+End Module Columbus_Gamma
