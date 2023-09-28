@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
+      use define_af, only: iTabMx, AngTp
       Implicit Real*8 (a-h,o-z)
-#include "angtp.fh"
       Character*8 LblCBs(MxFnc), LblSBs(MxFnc)
       Character Sgn*3
 !#define _DEBUGPRINT_

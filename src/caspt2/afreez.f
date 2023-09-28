@@ -38,8 +38,8 @@
 *                                                                           *
 *****************************************************************************
       use OneDat, only: sNoNuc, sNoOri
+      use define_af, only: iTabMx
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"

@@ -28,6 +28,7 @@ subroutine Rdbsl(BasDir,BSLbl,bType,nCGTO,mCGTO,lAng,lCGTO,lUnit,iAtmNr,BasisTyp
 !***********************************************************************
 
 use Definitions, only: wp, iwp, u6
+use define_af, only: iTabMx, AngTp
 
 implicit none
 character(len=*), intent(inout) :: BasDir
@@ -37,7 +38,6 @@ integer(kind=iwp), intent(in) :: lCGTO, lUnit
 integer(kind=iwp), intent(out) :: nCGTO(0:lCGTO), mCGTO(0:lCGTO), lAng, iAtmNr, BasisTypes(4)
 character(len=*), intent(in) :: ExtBasDir
 #include "getlnqoe.fh"
-#include "angtp.fh"
 integer(kind=iwp) :: i, i1, iLast1, iLast2, iLast3, iLast4, iLast_JR, irecl, istatus, j, k, lAngm, n
 real(kind=wp) :: cg
 logical(kind=iwp) :: Do_Cycle, Exists, Hit, is_error, lStop

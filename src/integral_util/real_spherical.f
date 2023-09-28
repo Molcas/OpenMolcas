@@ -66,9 +66,8 @@
 !                     N. F. Chilton at OpenMolcas2020                  *
 !***********************************************************************
       use Constants
+      use define_af, only: iTabMx
       Implicit real*8 (a-h,o-z)
-!     find iTabMx, limiting the highest ang mom, in itmax.fh
-#include "itmax.fh"
       Logical CSPF
 !     check if required ang mom is greater than hard-coded limit
       If (lMax.gt.iTabMx) Then

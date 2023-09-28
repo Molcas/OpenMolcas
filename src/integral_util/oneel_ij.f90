@@ -37,10 +37,10 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       use rmat, only: RMat_Type_Integrals
+      use define_af
       Implicit Real*8 (a-h,o-z)
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-#include "angtp.fh"
 #include "Molcas.fh"
 #include "property_label.fh"
       Integer iS, jS, iPrint

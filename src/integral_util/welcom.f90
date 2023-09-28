@@ -10,9 +10,9 @@
 !***********************************************************************
 Module welcom
 use Constants, only: Two, Four
+use define_af, only: iTabMx
 Implicit none
 Private
-#include "itmax.fh"
       Integer, Parameter :: kMax=iTabMx+6
       Integer ipot3(0:kmax+1)
       Real*8 binom(-1:kmax,-1:kmax), fiint(0:kmax,0:kmax),tetint(0:kmax,0:int(kmax/Two)+1),      &

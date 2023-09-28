@@ -18,11 +18,11 @@ use Cholesky, only: CutInt, ThrInt
 #endif
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: ISHLA, ISHLB, LSCR
 real(kind=wp), intent(out) :: SCR(LSCR)
-#include "itmax.fh"
 #ifdef _DEBUGPRINT_
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'
 #endif

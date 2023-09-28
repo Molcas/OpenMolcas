@@ -17,6 +17,7 @@ use UnixInfo, only: ProgName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
+use define_af, only: iTabMx, AngTp
 
 implicit none
 #include "Molcas.fh"
@@ -25,7 +26,6 @@ character(len=LenIn8), intent(in) :: UBNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk
 real(kind=wp), intent(out) :: QQ(MxTyp,nNuc)
-#include "angtp.fh"
 integer(kind=iwp) :: AtomA, AtomB, i, i0, iAB, iAng, IB, iBlo, iEnd, iix, iixx, ik, ikk, iM, IMN, IMO, iNuc, IO, iPair, iPL, IS, &
                      ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, &
                      NB, nBas2, NBAST, NDIM, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC

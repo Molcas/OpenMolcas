@@ -48,8 +48,8 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Constants
       use stdalloc
+      use define_af, only: iTabMx, AngTp
       Implicit Real*8 (A-H,O-Z)
-#include "angtp.fh"
       Real*8 DeDe(nDeDe)
       Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Real*8 FD(nFD,mFD)

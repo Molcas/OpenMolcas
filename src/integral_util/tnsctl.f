@@ -30,8 +30,8 @@
       use Basis_Info
       use Breit, only: nComp
       use Constants
+      use define_af, only: iTabMx
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
       Parameter(lab=iTabMx*2+1,npMax=lab*(lab+1)*(lab+2)/6)
       Real*8 HMtrxAB(*),HMtrxCD(*)
       Real*8, Intent(inout) :: Wrk(nWrk)

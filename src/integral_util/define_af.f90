@@ -10,11 +10,15 @@
 !***********************************************************************
 !     This defines the highest angular momentum quantum number which
 !     Seward will be able to treat.
-      Integer iTabMx
+Module Define_af
 #ifndef _DEMO_
-      Parameter (iTabMx=15)
-!     See angtp.fh too
+      Integer, parameter:: iTabMx=15
+      Character(LEN=1), Parameter:: AngTp(0:iTabMx) = ['s','p','d','f','g',                          &
+     &                                                 'h','i','k','l','m',                          &
+     &                                                 'n','o','q','r','t',                          &
+     &                                                 'u']
 #else
-      Parameter (iTabMx=2)
-!     See angtp.fh too
+      Integer, parameter:: iTabMx=3
+      Character(LEN=1), Parameter:: AngTp(0:iTabMx) = ['s','p','d']
 #endif
+End Module Define_af

@@ -36,10 +36,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use columbus_gamma, only: No_Nuc
+use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-#include "itmax.fh"
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"

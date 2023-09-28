@@ -38,10 +38,10 @@ use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
 use Definitions, only: wp, iwp, u6
+use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd
-#include "itmax.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: BasisTypes(4), i, iAng, iAngMax_Proj, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, &
                      ijC, ijTri, Indx, iShll, iShll_a, iShll_Proj_r, iShll_r, iTo, jB, jBF, jShll, kEval, Last, List(0:iTabMx), &

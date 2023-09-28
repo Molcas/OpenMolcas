@@ -21,12 +21,12 @@ subroutine CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: IFCSew, iSP2F, LuPri, nBstSh, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Definitions, only: wp, iwp
+use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: IJ, KL, LINT
 real(kind=wp), intent(inout) :: XINT(LINT)
 logical(kind=iwp), intent(in) :: LOCPRT
-#include "itmax.fh"
 integer(kind=iwp) :: I, II, IIJJ, J, JJ, K, KK, KKLL, KOFF, L, LL, NUMI, NUMIJ, NUMJ, NUMK, NUML
 character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1'
 external :: Integral_WrOut_Cho

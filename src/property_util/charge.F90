@@ -19,6 +19,7 @@ use UnixInfo, only: ProgName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
+use define_af, only: iTabMx, AngTp
 
 implicit none
 #include "Molcas.fh"
@@ -55,7 +56,6 @@ logical(kind=iwp), external :: Reduce_Prt
 character(len=LenIn8), external :: Clean_BName
 !character(len=4), allocatable :: TLbl(:)
 !character(len=LenIn), allocatable :: LblCnt(:)
-#include "angtp.fh"
 #include "WrkSpc.fh"
 
 !                                                                      *

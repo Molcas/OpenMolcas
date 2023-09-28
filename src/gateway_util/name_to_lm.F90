@@ -39,13 +39,13 @@
 subroutine Name_to_lm(BName,l,m)
 
 use Definitions, only: iwp
+use define_af, only: iTabMx, AngTp
 
 implicit none
 character(len=*), intent(in) :: BName
 integer(kind=iwp), intent(out) :: l, m
 character :: Letter
 integer(kind=iwp) :: i, lx, ly, lz
-#include "angtp.fh"
 
 Letter = BName(3:3)
 call LoCase(Letter)

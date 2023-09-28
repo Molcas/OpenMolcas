@@ -21,12 +21,12 @@ use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use define_af, only: iTabMx
 
 implicit none
 #include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nMamn
 character(len=LenIn8), intent(out) :: Mamn(nMamn)
-#include "itmax.fh"
 #include "rinfo.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iAtoms, iBas, iBas_Aux, iBas_Frag, iChBs, iChxyz, iCnt, iCntrc, iCnttp, iCo, iComp, iCounter, &

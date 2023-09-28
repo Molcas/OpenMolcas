@@ -48,13 +48,13 @@ use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, 
 use Definitions, only: wp, iwp, u6
 use rctfld_module, only: lRF, PCM, lLangevin, RDS
 use rmat, only: Dipol1, RMat_On, bParm, Dipol, EpsAbs, EpsQ, EpsRel, QCoul, RMatR
+use define_af, only: iTabMx, AngTp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd_
 logical(kind=iwp), intent(inout) :: lOPTO
 logical(kind=iwp), intent(out) :: Do_OneEl
 #include "Molcas.fh"
-#include "angtp.fh"
 #include "print.fh"
 #include "embpcharg.fh"
 #include "cgetl.fh"

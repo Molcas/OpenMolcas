@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Set_CanInd
+      Subroutine Set_CanInd()
 !***********************************************************************
 !                                                                      *
 !     Object: to set up a table which resolves the canonical           *
@@ -21,8 +21,8 @@
 !             Univ. of Lund, Sweden                                    *
 !             February 1999                                            *
 !***********************************************************************
+      use define_af, only: iTabMx
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
 #include "ican.fh"
 !
       ip=0

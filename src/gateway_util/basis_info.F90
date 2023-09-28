@@ -17,6 +17,7 @@ module Basis_Info
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use define_af, only: iTabMx
 
 implicit none
 private
@@ -26,7 +27,6 @@ public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc
           Nuclear_Model, PAMExp, Point_Charge, Shells, Seward_Activated
 
 #include "Molcas.fh"
-#include "itmax.fh"
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !

@@ -26,10 +26,10 @@ use RICD_Info, only: Thrshld_CD
 use DKH_Info, only: iRELMP
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use define_af, only: iTabMx, AngTp
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
-#include "angtp.fh"
 #include "print.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iPrint, iRout, kSh, kShEnd, kShStr, lSh, mdc, nBasisk, nExpk
 character(len=4) :: DBas

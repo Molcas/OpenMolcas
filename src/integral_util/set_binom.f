@@ -21,8 +21,8 @@
 !             February 1999                                            *
 !***********************************************************************
       use Constants
+      use define_af, only: iTabMx
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
 #include "binom.fh"
 !
       Do i = 0, 2*iTabMx

@@ -25,6 +25,7 @@ subroutine Assg1(Temp,PAO,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,IfGrad,Indx,mVec)
 use Index_Functions, only: C_Ind3_Rev, nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use define_af, only: iTabMx
 
 implicit none
 real(kind=wp), intent(out) :: Temp(9)
@@ -33,7 +34,6 @@ real(kind=wp), intent(in) :: PAO(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc)
                              xyz2D0(nRys,nT,0:la+1,0:lb+1,0:lc+1,0:ld+1,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp), intent(out) :: mVec
-#include "itmax.fh"
 integer(kind=iwp) :: i, iCent, icir(3), Ind1(3,3), Ind2(3,3), ipa, ipb, ipc, ipd, ixa, ixabcd, ixb, ixbcd, ixc, ixcd, ixd, iya, &
                      iyabcd, iyb, iybcd, iyc, iycd, iyd, iza, izb, izc, izd, nVec(3)
 

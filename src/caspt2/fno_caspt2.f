@@ -21,8 +21,8 @@
 *****************************************************************************
       use InputData, only: Input
       use ChoMP2, only: DeMP2, MP2_small, shf
+      use define_af, only: iTabMx
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
