@@ -19,15 +19,15 @@ subroutine InpRct(LuSpool)
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
 
+use rctfld_module, only: aFac, CLim, Conductor, CORDSI, DampIter, DieDel, DipCutOff, DipSI, DistSparse, Eps, Eps_USER, EpsInf, &
+                         EpsInf_USER, gAtom, iSLPar, lAmberPol, LATATO, lDamping, lDipRestart, lGridAverage, lLangevin, lMax, lRF, &
+                         lRFCav, lSparse, MXA, nExpo, nGridAverage, nGridSeed, nOrdInp, nSparse, PCM, PolSI, PreFac, RadInp, &
+                         RadLat, rDS, RF_Basis, RotAlpha, RotBeta, RotGamma, rSca, rSLPar, Scaaa, Scal14, Scala, Scalb, Scalc, &
+                         Solvent, TK, TK5
+use CovRad_Data, only: CovRadT_
 use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, deg2rad, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: Eps, EpsInf, Eps_USER, EpsInf_USER, rDS, lMax, lRF, lRFCav, RF_Basis, PCM, LATATO, CORDSI, iSLPar, rSLPar,&
-                         Conductor, lAmberPol, lDamping, lDipRestart, lGridAverage, lSparse, MXA, nExpo, nGridAverage, nGridSeed,  &
-                         nOrdInp, PreFac, TK5, PolSI, DipSI, RadLat, Scala, Scalb, Scalc, Scaaa, RotAlpha, RotBeta, RotGamma,rSca, &
-                         nSparse, DipCutOff, Scal14, DieDel, TK, CLim, aFac, DampIter, lLangevin, Solvent, gAtom, RadInp,          &
-                         DistSparse
 
-use CovRad_Data, only: CovRadT_
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, iPrint, iRout, istatus, ITypRad, jRout, Last, n

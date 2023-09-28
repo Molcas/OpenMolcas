@@ -30,10 +30,10 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
+use define_af, only: AngTp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp, u6
-use define_af
 
 implicit none
 integer(kind=iwp), intent(in) :: ngrid, ncmp, nordop

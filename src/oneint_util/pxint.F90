@@ -29,9 +29,9 @@ use Symmetry_Info, only: nIrrep, iChBas
 use Index_Functions, only: nTri_Elem1
 use Integral_interfaces, only: int_kernel
 use Oneint_interfaces, only: PVInt
+use Property_Label, only: PLabel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Property_Label, only: PLabel
 
 implicit none
 #include "int_interface.fh"

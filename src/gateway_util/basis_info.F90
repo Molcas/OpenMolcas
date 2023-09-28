@@ -15,16 +15,16 @@
 
 module Basis_Info
 
+use define_af, only: iTabMx
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use define_af, only: iTabMx
 
 implicit none
 private
 
 public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, Extend_Shells, &
           Gaussian_Type, iCnttp_Dummy, Max_Shells, mGaussian_Type, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nFrag_LineWords, &
-          Nuclear_Model, PAMExp, Point_Charge, Shells, Seward_Activated
+          Nuclear_Model, PAMExp, Point_Charge, Seward_Activated, Shells
 
 #include "Molcas.fh"
 
@@ -159,14 +159,13 @@ end type Shell_Info
 !         1: as in MOLECULE
 !         2: as in MOLPRO
 
-logical :: Seward_Activated=.False.
 integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_Type = 2, &
                                 NumShell = 1000
 
 real(kind=wp), allocatable :: PAMexp(:,:)
 integer(kind=iwp) :: iCnttp_Dummy = 0, Max_Shells = 0, mFields = 11, MolWgh = 2, nBas(0:7) = 0, nBas_Aux(0:7) = 0, &
                      nBas_Frag(0:7) = 0, nCnttp = 0, nFields = 33+(1+iTabMx), nFrag_LineWords = 0, Nuclear_Model = Point_Charge
-logical(kind=iwp) :: Initiated = .false.
+logical(kind=iwp) :: Initiated = .false., Seward_Activated = .false.
 
 type(Distinct_Basis_set_centers), allocatable, target :: dbsc(:)
 type(Shell_Info), allocatable :: Shells(:)

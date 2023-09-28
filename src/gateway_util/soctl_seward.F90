@@ -18,10 +18,10 @@ use SOAO_Info, only: iAOtSO, iSOInf, iOffSO, nSOInf, SOAO_Info_Init
 use real_spherical, only: iSphCr, LblCBs, LblSBs
 use Gateway_global, only: Primitive_Pass
 use Sizes_of_Seward, only: S
+use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx
 
 implicit none
 #include "Molcas.fh"

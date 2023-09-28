@@ -12,10 +12,10 @@
 subroutine FndSph(NAt,ICharg,C,IAt,ITypRad,NSphInp,Alpha,XSph,YSph,ZSph,Rad,NOrd,m,iPrint)
 
 use Solvent_Data, only: Pauling
+use rctfld_module, only: nOrdInp, nSInit, RadInp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: nSInit, nOrdInp, RadInp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAt, ICharg, IAt(NAt), ITypRad, NSphInp, m, iPrint

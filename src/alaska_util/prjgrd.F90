@@ -31,9 +31,9 @@ use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Real_Spherical, only: ipSph, RSph
 use Symmetry_Info, only: iOper
 use Index_Functions, only: nTri_Elem1
+use Disp, only: Dirct, IndDsp
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Disp, only: Direct, IndDsp
 
 implicit none
 #include "grd_interface.fh"
@@ -102,7 +102,7 @@ do kCnttp=1,nCnttp
       iCmp = 2**iCar
       if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(kCnttp)%pChrg)) then
         nDisp = nDisp+1
-        if (Direct(nDisp)) then
+        if (Dirct(nDisp)) then
           JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
           JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
           JndGrd(iCar+1,3) = -nDisp

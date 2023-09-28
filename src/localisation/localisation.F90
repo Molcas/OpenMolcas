@@ -123,11 +123,11 @@ if ((.not. Silent) .and. PrintMOs) then
 end if
 
 #ifdef _DEBUGPRINT_
-  write(u6,'(A,A,I2)') SecNam,': debug info at start:'
-  write(u6,'(A,8I8)') 'nBas    : ',(nBas(iSym),iSym=1,nSym)
-  write(u6,'(A,8I8)') 'nOrb    : ',(nOrb(iSym),iSym=1,nSym)
-  write(u6,'(A,8I8)') 'nFro    : ',(nFro(iSym),iSym=1,nSym)
-  write(u6,'(A,8I8)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
+write(u6,'(A,A,I2)') SecNam,': debug info at start:'
+write(u6,'(A,8I8)') 'nBas    : ',(nBas(iSym),iSym=1,nSym)
+write(u6,'(A,8I8)') 'nOrb    : ',(nOrb(iSym),iSym=1,nSym)
+write(u6,'(A,8I8)') 'nFro    : ',(nFro(iSym),iSym=1,nSym)
+write(u6,'(A,8I8)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
 #endif
 
 ! Evaluate ER functional for initial orbitals.

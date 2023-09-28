@@ -44,10 +44,10 @@ use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
+use Disp, only: IndDsp, lDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Disp, only: IndDsp, lDisp
 
 implicit none
 procedure(oneeldot_mck_kernel) :: Kernel

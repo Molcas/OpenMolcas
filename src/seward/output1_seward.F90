@@ -36,10 +36,10 @@ use Gateway_Info, only: CutInt, DoFMM, EMFR, FNMC, GIAO, kVector, lAMFI, lMXTC, 
 use RICD_Info, only: Cho_OneCenter, Cholesky, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Symmetry_Info, only: nIrrep
 use Gateway_global, only: GS_Mode, Onenly, Run_Mode, Prprt, Test
+use rctfld_module, only: lLangevin, lRF, PCM
+use rmat, only: RMat_On
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: lRF, PCM, lLangevin
-use rmat, only: RMat_On
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
@@ -220,8 +220,8 @@ else
   if (allocated(OAM_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Orbital angular momentum around (',(OAM_Center(i),i=1,3),')'
   if (allocated(OMQ_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Orbital magnetic quadrupole around (',(OMQ_Center(i),i=1,3),')'
   if (Vlct .and. (S%nMltpl >= 2)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Velocity quadrupole around (',(Coor_MPM(i,3),i=1,3),')'
-  if (allocated(AMP_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') &
-                             '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
+  if (allocated(AMP_Center)) &
+    write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
   if (nWel /= 0) write(LuWr,'(15X,A,I4,A)') '   Spherical well for',nWel,' exponent(s) added to the one-electron Hamiltonian'
   if (lAMFI) write(LuWr,'(15X,A)') '   Atomic mean-field integrals'
   if (lMXTC) write(LuWr,'(15X,A)') '   Hyperfine Magnetic integrals(MAG) calculated from Gen1Int F90 library'

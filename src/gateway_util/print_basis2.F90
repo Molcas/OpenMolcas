@@ -15,8 +15,8 @@ use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp, u6
 use define_af, only: AngTp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"

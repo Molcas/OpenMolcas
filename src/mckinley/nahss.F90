@@ -30,9 +30,9 @@ use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp
 use Center_Info, only: dc
+use Disp, only: IndDsp
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
-use Disp, only: IndDsp
 
 implicit none
 #include "hss_interface.fh"

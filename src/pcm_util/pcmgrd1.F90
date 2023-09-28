@@ -182,7 +182,9 @@ do iTs=1,1
     nT = nZeta
     nDiff = 1
     mRys = (la+lb+2+nDiff+nOrdOp)/2
-    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
+    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One], &
+               Zeta,ZInv,nZeta,[One],[One],1, &
+               P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In PCMgrd1:Grad',' ',Grad,nGrad,1)

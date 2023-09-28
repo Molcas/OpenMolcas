@@ -28,8 +28,8 @@ subroutine GrdTr_Alaska(GradIn,MxAto,GradOut,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp
 use Disp, only: IndDsp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: MxAto, nGrad

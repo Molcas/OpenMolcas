@@ -30,8 +30,8 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
+use Disp, only: Dirct, IndDsp
 use Definitions, only: wp, iwp, u6
-use Disp, only: Direct, IndDsp
 
 implicit none
 #include "grd_interface.fh"
@@ -149,7 +149,7 @@ do kCnttp=1,nCnttp
           iCmp = 2**iCar
           if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(kCnttp)%pChrg)) then
             nDisp = nDisp+1
-            if (Direct(nDisp)) then
+            if (Dirct(nDisp)) then
               ! Reset flags for the basis set centers so that
               ! we will explicitly compute the derivatives
               ! with respect to those centers. Activate flag

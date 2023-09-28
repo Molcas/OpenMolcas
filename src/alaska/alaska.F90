@@ -35,13 +35,13 @@ use RICD_Info, only: Do_RI, Cholesky
 use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb
 use k2_arrays, only: DeDe
+use rctfld_module, only: iCharge_Ref, NonEQ_Ref
+use pso_stuff, only: No_Nuc
+use Disp, only: ChDisp, HF_Force, IndxEq, InxDsp, lDisp, lEQ, TRSymm
+use NAC, only: DoCSF, EDiff, isNAC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: NonEQ_Ref, iCharge_Ref
-use pso_stuff, only: No_Nuc
-use Disp, only: HF_Force, TRSymm, lEQ, ChDisp, IndxEq, InxDsp, lDisp
-use NAC, only: isNAC, DoCSF, EDiff
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool

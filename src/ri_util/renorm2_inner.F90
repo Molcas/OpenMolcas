@@ -34,10 +34,10 @@ use Basis_Info, only: dbsc, iCnttp_Dummy, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Thrshld_CD
 use Integral_interfaces, only: int_wrout
+use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: iCnttp

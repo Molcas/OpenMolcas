@@ -35,9 +35,9 @@ use Sizes_of_Seward, only: S
 use RICD_Info, only: Cho_OneCenter, Chol => Cholesky, Do_DCCD, Do_RI
 use Cholesky, only: Cho_1Center
 use Symmetry_Info, only: nIrrep, VarR, VarT
+use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use rctfld_module, only: lRF, PCM, lLangevin, nPCM_Info
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn

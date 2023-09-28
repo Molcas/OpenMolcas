@@ -35,10 +35,10 @@ subroutine COSGrd( &
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
-use Constants, only: Zero, One, Two, Pi
-use Definitions, only: wp, iwp, u6
 use rctfld_module, only: nTS
 use Disp, only: IndDsp
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
@@ -216,7 +216,9 @@ do iTs=1,nTs
     nT = nZeta
     mRys = nRys
 
-    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
+    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One], &
+               Zeta,ZInv,nZeta,[One],[One],1, &
+               P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In COSgrd:Grad',' ',Grad,nGrad,1)

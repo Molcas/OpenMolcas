@@ -14,10 +14,10 @@
 subroutine One_CHARGE(NSYM,NBAS,UBNAME,CMO,OCCN,SMAT,iCase,FullMlk,MxTyp,QQ,nNuc)
 
 use UnixInfo, only: ProgName
+use define_af, only: AngTp, iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx, AngTp
 
 implicit none
 #include "Molcas.fh"
@@ -503,8 +503,8 @@ if (DoBond) then
   write(u6,*) 'Number of electrons as sum of D and S elements = ',E
 # endif
 
-  ! In case of symmetry, we desymmetrize D and S through D_blo and S_blo
   if (nSym > 1) then
+    ! In case of symmetry, we desymmetrize D and S through D_blo and S_blo
     iBlo = 0
     iSum = 0
     do i=1,NSYM
@@ -539,9 +539,8 @@ if (DoBond) then
     call Desymmetrize(S_blo,nBas2,Scr,nScr,S,nBas,NBAST,PInv,nSym,iSyLbl)
     call mma_deallocate(Scr)
 
-  ! Otherwise we simply copy D and S tmp into D and S
-
   else
+    ! Otherwise we simply copy D and S tmp into D and S
     D(:,:) = D_tmp(:,:)
     S(:,:) = S_tmp(:,:)
   end if

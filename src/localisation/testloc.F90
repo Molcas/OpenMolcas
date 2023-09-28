@@ -42,7 +42,7 @@ real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:
 character(len=*), parameter :: SecNam = 'TestLoc'
 integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: ddot_
-logical(kind=iwp) :: debug=.false.
+logical(kind=iwp), parameter :: debug = .false.
 
 call Untested('TestLoc')
 

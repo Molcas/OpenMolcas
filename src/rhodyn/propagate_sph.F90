@@ -27,7 +27,7 @@ use rhodyn_data, only: d, densityt, dgl, dipole_basis, errorthreshold, finaltime
 use rhodyn_utils, only: check_hermicity, compare_matrices, dashes, print_c_matrix, werdm, werdm_back, werso, werso_back, W3J, W6J
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: cZero, auToFs, One
+use Constants, only: One, cZero, auToFs
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -43,7 +43,7 @@ call StatusLine('RhoDyn:','Propagation in Spherical Tensor basis starts')
 if (ipglob > 2) call print_c_matrix(densityt,Nstate,'Initial density in SO basis')
 ! parameters of spherical decomposition
 len_sph = (k_max+1)*(k_max+1)
-if (q_max==-1) q_max = k_max
+if (q_max == -1) q_max = k_max
 write(u6,'(a,i5,i5,i5,i5,a)') 'Dimension of the propagation: (',d,d,k_max+1,2*k_max+1,' )'
 call mma_allocate(k_ranks,len_sph)
 call mma_allocate(q_proj,len_sph)
@@ -96,34 +96,34 @@ i = 1
 do l=1,len_sph
   k = k_ranks(l)
   q = q_proj(l)
-  if ((q>=-q_max) .and. (q<=0)) then
-  do m=1,3
-    do K_prime=k-1,k+1,1
-      if ((K_prime < 0) .or. (K_prime > k_max)) cycle
-      if ((q-m+2 > K_prime) .or. (q-m+2 < -K_prime)) cycle
-      ! 3j symbol: (K_prime  1  k, q-m  m -q)
-      fact3j = W3J(real(K_prime,kind=wp),One,real(k,kind=wp),real(q-m+2,kind=wp),real(m-2,kind=wp),real(-q,kind=wp))
-      ! loop over spin manifolds
-      do c=1,n
-        sc = ispin(c)-1
-        if (ipglob > 2) write(u6,*)'i=',i
-        ! a loop over rows
-        do a=1,d
-          sa = nint(2*list_sf_spin(a))
-          ! b loop over columns
-          do b=1,d
-            sb = nint(2*list_sf_spin(b))
-            !if (abs(V_SO_red(a,b,m)) < threshold) cycle
-            Y1(a,b,i) = V_SO_red(a,b,m)*sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp))*W6J(2*K_prime,2,2*k,sa,sc,sb)* &
-                        fact3j*(-1)**((sa+sc)/2-q+m)
-            Y2(a,b,i) = V_SO_red(a,b,m)*sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp))*W6J(2,2*K_prime,2*k,sc,sb,sa)* &
-                        fact3j*(-1)**((sb+sc)/2-q+m+K_prime+k)
+  if ((q >= -q_max) .and. (q <= 0)) then
+    do m=1,3
+      do K_prime=k-1,k+1,1
+        if ((K_prime < 0) .or. (K_prime > k_max)) cycle
+        if ((q-m+2 > K_prime) .or. (q-m+2 < -K_prime)) cycle
+        ! 3j symbol: (K_prime  1  k, q-m  m -q)
+        fact3j = W3J(real(K_prime,kind=wp),One,real(k,kind=wp),real(q-m+2,kind=wp),real(m-2,kind=wp),real(-q,kind=wp))
+        ! loop over spin manifolds
+        do c=1,n
+          sc = ispin(c)-1
+          if (ipglob > 2) write(u6,*) 'i=',i
+          ! a loop over rows
+          do a=1,d
+            sa = nint(2*list_sf_spin(a))
+            ! b loop over columns
+            do b=1,d
+              sb = nint(2*list_sf_spin(b))
+              !if (abs(V_SO_red(a,b,m)) < threshold) cycle
+              Y1(a,b,i) = V_SO_red(a,b,m)*sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp))*W6J(2*K_prime,2,2*k,sa,sc,sb)* &
+                          fact3j*(-1)**((sa+sc)/2-q+m)
+              Y2(a,b,i) = V_SO_red(a,b,m)*sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp))*W6J(2,2*K_prime,2*k,sc,sb,sa)* &
+                          fact3j*(-1)**((sb+sc)/2-q+m+K_prime+k)
+            end do
           end do
+          i = i+1
         end do
-        i = i+1
       end do
     end do
-  end do
   end if
 end do
 

@@ -13,9 +13,9 @@ subroutine WrHDsk(Hess,nGrad)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: nIrrep
+use Disp, only: lDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Disp, only: lDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

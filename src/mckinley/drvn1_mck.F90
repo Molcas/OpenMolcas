@@ -25,9 +25,9 @@ subroutine DrvN1_mck(Grad,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChBas
+use Disp, only: IndDsp
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
-use Disp, only: IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

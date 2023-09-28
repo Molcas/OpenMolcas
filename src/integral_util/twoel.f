@@ -116,9 +116,12 @@
      &        jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4,
      &        nDCRR, lDCR1, MxDCRS, nDCRS, lDCR2,
      &        nDCRT, lDCRE_, lDCRT_, mWork3, LmbdR, LmbdS, LmbdT,
-     &        iDCRTS, lStabM, lStabN
+     &        iDCRTS, lStabM, lStabN, iZeta, iEta, lDCRR, lDCRS, lDCRT
       Integer, External:: NrOpr
       Real*8 u, v, w, x, vijij, RS_doublet, FactNd
+#ifdef _DEBUGPRINT_
+      Integer i
+#endif
 
       Interface
       Subroutine FckAcc(iAng,iCmp_, Shijij,
@@ -174,29 +177,6 @@
          Write (6,*) 'Symmetry adaptation different since the operator'
          Write (6,*) 'is not symmetric.'
       End If
-      Call TwoEl_Sym_Internal()
-!
-      Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iS_)
-         Call Unused_integer(jS_)
-         Call Unused_integer(kS_)
-         Call Unused_integer(lS_)
-         Call Unused_integer(iPrInc)
-         Call Unused_integer(kPrInc)
-         Call Unused_real_array(Dens)
-      End If
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine TwoEl_Sym_Internal()
-      Integer iZeta, iEta
-      Integer lDCRR, lDCRS, lDCRT
-#ifdef _DEBUGPRINT_
-      Integer i
-#endif
-!
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
@@ -803,7 +783,18 @@
  300        Continue
  200     Continue
  100  Continue
-      End Subroutine TwoEl_Sym_Internal
+!
+      Return
+! Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer(iS_)
+         Call Unused_integer(jS_)
+         Call Unused_integer(kS_)
+         Call Unused_integer(lS_)
+         Call Unused_integer(iPrInc)
+         Call Unused_integer(kPrInc)
+         Call Unused_real_array(Dens)
+      End If
 !
       End SubRoutine TwoEl_Sym
 !#define _DEBUGPRINT_
@@ -896,7 +887,7 @@
      &        iW3, iW4, kInts, mInts, mabMin, mabMax, mcdMin, mcdMax,
      &        mabcd, IncZet, IncEta, mWork2, nZeta_Tot, nEta_Tot, kabcd,
      &        ipAOInt_, mZeta, mEta, iOpt, i_Int, nByte,
-     &        iPer, nabcd, iW4_
+     &        iPer, nabcd, iW4_, iZeta, iEta
       Real*8 RST_Triplet, vijkl, vij, vkl, vik, vil, vjk, vjl, q4
 
 !                                                                      *
@@ -910,29 +901,6 @@
       jStb = iStabs(2)
       kStb = iStabs(3)
       lStb = iStabs(4)
-!
-      Call TwoEl_NoSym_Internal()
-!
-      Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iStb)
-         Call Unused_integer(jStb)
-         Call Unused_integer(kStb)
-         Call Unused_integer(lStb)
-         Call Unused_integer(iPrInc)
-         Call Unused_integer(kPrInc)
-         Call Unused_integer(nData1)
-         Call Unused_integer(nData2)
-         Call Unused_real_array(FckTmp)
-         Call Unused_real_array(SoInt)
-         Call Unused_real_array(Aux)
-      End If
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine TwoEl_NoSym_Internal()
-      Integer iZeta, iEta
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
@@ -1294,6 +1262,21 @@
      &                            *iCmp(3)*iCmp(4),q4,Wrk(ipAOInt),1)
       End If
   99  Continue
-      End Subroutine TwoEl_NoSym_Internal
+!
+      Return
+! Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer(iStb)
+         Call Unused_integer(jStb)
+         Call Unused_integer(kStb)
+         Call Unused_integer(lStb)
+         Call Unused_integer(iPrInc)
+         Call Unused_integer(kPrInc)
+         Call Unused_integer(nData1)
+         Call Unused_integer(nData2)
+         Call Unused_real_array(FckTmp)
+         Call Unused_real_array(SoInt)
+         Call Unused_real_array(Aux)
+      End If
 !
       End SubRoutine TwoEl_NoSym

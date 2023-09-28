@@ -33,11 +33,13 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !             Modified for 2-center RI gradients, January '07          *
 !***********************************************************************
 
-use setup
+use setup, only: mSkal, MxPrm, nAux
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: A_PT2, nBasA, nBasASQ, nBasT
-use k2_arrays, only: Aux, Sew_Scr, Destroy_BraKet
+use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
+use k2_structure, only: k2data
+use Disp, only: ChDisp, l2DI
 use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -48,8 +50,6 @@ use RI_glob, only: A, AMP2, CijK, DoCholExch, iMP2prpt, MxChVInShl, nIJR, nKvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
-use Disp, only: ChDisp, l2DI
-use k2_structure, only: k2data
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
@@ -61,12 +61,12 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ij, ijkla, &
-                     ijMax, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, &
-                     iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, &
-                     jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, &
-                     kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, LUAPT2, &
-                     mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, &
-                     nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, nRys, nSkal, nSO, nTMax, nZeta
+                     ijMax, ik2, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), &
+                     iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jk2, jlS, JndGrd(3,4), &
+                     jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, &
+                     lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, LUAPT2, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, &
+                     MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, &
+                     nQuad, nRys, nSkal, nSO, nTMax, nZeta
 real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
@@ -78,7 +78,6 @@ integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: Shij(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
 logical(kind=iwp), external :: Rsv_Tsk
-integer(kind=iwp) :: ik2, jk2
 
 !                                                                      *
 !***********************************************************************
@@ -394,10 +393,8 @@ do while (Rsv_Tsk(id,jlS))
   !*********************************************************************
   !                                                                    *
   call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
-                  k2ij,ik2,nDCRR, &
-                  k2kl,jk2,nDCRS, &
-                  mdci,mdcj,mdck,mdcl,AeqB, &
-                  CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+                  k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
+                  AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -451,13 +448,12 @@ do while (Rsv_Tsk(id,jlS))
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
           call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
-                       k2Data(:,ik2), k2Data(:,jk2), &
+                       k2Data(:,ik2),k2Data(:,jk2), &
                        nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                        Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                        Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
-                       nZeta,nEta, &
-                       Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2), &
-                       Mem2,Aux,nAux,Shijij)
+                       nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
+                       Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU2,TwoelWall2)
           Twoel2_CPU = Twoel2_CPU+TwoelCPU2-TwoelCPU1
@@ -471,7 +467,7 @@ do while (Rsv_Tsk(id,jlS))
     end do
   end do
 
-  Call Destroy_Braket()
+  call Destroy_Braket()
 
 end do
 ! End of big task loop

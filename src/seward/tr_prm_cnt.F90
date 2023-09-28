@@ -13,10 +13,10 @@ subroutine Tr_prm_cnt(idbg,nBas_Cont,nBas_Prim)
 
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
+use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: idbg, nBas_Cont(8), nBas_Prim(0:7)

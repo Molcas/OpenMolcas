@@ -11,8 +11,8 @@
 
 module Sizes_of_Seward
 
-use Definitions, only: iwp
 use define_af, only: iTabMx
+use Definitions, only: iwp
 
 implicit none
 private

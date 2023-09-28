@@ -30,12 +30,15 @@ subroutine Drvg2(Hess,nHess,l_Grd,l_Hss)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
-use setup
+use setup, only: MxPrm, nAux
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD
-use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, MxDij, ndede, nFT, Sew_Scr, &
-                     Create_BraKet_Base, Destroy_BraKet_Base, Create_Braket, Destroy_Braket
+use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipOffD, MxDij, &
+                     ndede, nFT, Sew_Scr
+use k2_structure, only: Indk2, k2Data
+use Disp, only: lDisp
+use Etwas, only: nAsh
 use pso_stuff, only: nDens
 use Basis_Info, only: dbsc, nBas, nCnttp, Shells
 use Symmetry_Info, only: iOper, nIrrep
@@ -44,32 +47,27 @@ use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
-use Disp, only: lDisp
-use k2_structure, only: k2Data, Indk2
-use etwas, only: nAsh
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
-                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, &
-                     ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
+                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ik2, ikS, ilS, iMemB, &
+                     ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
-                     ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, &
-                     ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, iPrInc, ipTmp, ipTmp2, &
-                     iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jAO, jBas, jBasAO, jBasj, jBasn, jBsInc, &
-                     jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, js, jShell, &
-                     jShll, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, &
+                     ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
+                     iPrInc, ipTmp, ipTmp2, iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jAO, jBas, jBasAO, jBasj, jBasn, &
+                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jk2, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, &
+                     js, jShell, jShll, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, &
                      kPrInc, ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, &
                      lShell, lShll, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
                      mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
-                     MemPSO, MemX, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
+                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
                      nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, nZeta
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
-Integer :: mIndij=0
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
@@ -78,7 +76,6 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
-Integer ik2, jk2
 
 !                                                                      *
 !***********************************************************************
@@ -195,7 +192,7 @@ nZeta = MxPrm*MxPrm
 nEta = MxPrm*MxPrm
 iii = nDens*10+10
 
-Call Create_BraKet_Base(MxPrm**2)
+call Create_BraKet_Base(MxPrm**2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -565,7 +562,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     nZeta = iPrimi*jPrimj
     nEta = kPrimk*lPriml
 
-    Call Create_BraKet(nZeta,nEta)
+    call Create_BraKet(nZeta,nEta)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -576,9 +573,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     jkS = iTri(jShell,kShell)
     jlS = iTri(jShell,lShell)
     nDCRR = Indk2(2,ijS)
-    ik2   = Indk2(3,ijS)
+    ik2 = Indk2(3,ijS)
     nDCRS = Indk2(2,klS)
-    jk2   = Indk2(3,klS)
+    jk2 = Indk2(3,klS)
 
     if (ltri) then
 
@@ -845,19 +842,18 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR, &
-                           nDCRS, k2data(:,ik2), k2data(:,jk2), &
-                           Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc,Shells(iShllV(1))%pCff(1,iBasAO),iBasn, &
-                           Shells(iShllV(2))%pCff(1,jBasAO),jBasn,Shells(iShllV(3))%pCff(1,kBasAO),kBasn, &
-                           Shells(iShllV(4))%pCff(1,lBasAO),lBasn, &
-                           nZeta,nEta, &
-                           Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP), &
-                           nSO,Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
+            call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
+                           k2data(:,ik2),k2data(:,jk2), &
+                           Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc, &
+                           Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
+                           Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn, &
+                           nZeta,nEta,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nSO, &
+                           Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
                            mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2), &
-                           Mem2+Mem3+MemX,nTwo2,nFT,iInt,Sew_Scr(ipBuffer),MemBuffer,lgrad, &
-                           ldot2,n8,ltri,DTemp,DInAc,moip,nAco,Sew_Scr(ipMOC),MemCMO,new_fock)
+                           Mem2+Mem3+MemX,nTwo2,nFT,iInt,Sew_Scr(ipBuffer),MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
+                           Sew_Scr(ipMOC),MemCMO,new_fock)
             Post_Process = .true.
 
             !----------------------------------------------------------*
@@ -866,7 +862,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         end do
       end do
     end do
-    Call Destroy_Braket()
+    call Destroy_Braket()
 
     !  end do ! lS
     !end do ! kS
@@ -960,7 +956,7 @@ if (.not. New_Fock) then
   end if
 end if
 
-Call Destroy_BraKet_Base()
+call Destroy_BraKet_Base()
 
 call mma_deallocate(DInAc)
 call mma_deallocate(DTemp)
@@ -968,7 +964,7 @@ call mma_deallocate(iInt)
 
 call mma_deallocate(Aux)
 
-Call Term_Ints()
+call Term_Ints()
 
 if (allocated(ipDisp)) call mma_deallocate(ipDisp)
 if (allocated(ipDisp2)) call mma_deallocate(ipDisp2)

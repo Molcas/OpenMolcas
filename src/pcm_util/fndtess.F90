@@ -12,10 +12,10 @@
 subroutine FndTess(iPrint,Xs,Ys,Zs,Rs,pNs,m)
 
 use PCM_arrays, only: Centr, IntSph, MxSph, MxTs, MxVert, NewSph, NVert, PCM_N, PCMDM, PCMiSph, PCMSph, PCMTess, PCMTess, SSph, Vert
+use rctfld_module, only: iSLPar, nPCM_Info, nS, nSInit, nTS, rSLPar, rSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half, Angstrom, deg2rad
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: rSolv, nS, nSInit, nTS, nPCM_Info, iSLPar, rSLPar
 
 implicit none
 integer(kind=iwp), intent(in) :: iPrint, m, pNs(m)
@@ -363,7 +363,7 @@ end if
 !***********************************************************************
 !                                                                      *
 ! Re-allocate with actual dimensioning
-if (.NOT.Allocated(PCMSph)) Then
+if (.not. allocated(PCMSph)) then
 
   ! Allocate PCM arrays
   call mma_allocate(PCMSph,4,NS,Label='PCMSph')

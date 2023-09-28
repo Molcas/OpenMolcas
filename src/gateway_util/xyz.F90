@@ -379,7 +379,7 @@ end function Out_Raw
 ! each atom + label
 subroutine Parse_Basis(Basis)
 
-  use fortran_strings
+  use fortran_strings, only: char_array
   use stdalloc, only: mma_allocate, mma_deallocate
 
   character(len=*), intent(in) :: Basis

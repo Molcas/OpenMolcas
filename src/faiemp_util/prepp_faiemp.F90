@@ -22,15 +22,15 @@ subroutine PrepP_FAIEMP(nBas_Valence,nBT,nBVT)
 ! Based on PrepP                                                       *
 !***********************************************************************
 
-use pso_stuff, only: CMO, D0, DVar, DS, DSVar, G1, G2, id0Lbl, kCMO, lPSO, lsa, mCMo, mDens, mG1, mG2, nDens, nG1, nG2, Gamma_On
+use pso_stuff, only: CMO, D0, DVar, DS, DSVar, G1, G2, Gamma_On, id0Lbl, kCMO, lPSO, lsa, mCMo, mDens, mG1, mG2, nDens, nG1, nG2
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Etwas, only: CoulFac, ExFac, mBas, mIrrep, nASh, nCMO, nDSO, nISh
+use NAC, only: isNAC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use Etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nISh, nASh
-use NAC, only: isNAC
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas_Valence(0:7), nBT, nBVT

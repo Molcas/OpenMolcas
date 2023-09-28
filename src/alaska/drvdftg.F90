@@ -29,12 +29,12 @@ subroutine DrvDFTg(Grad,Temp,nGrad)
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
-use stdalloc, only: mma_allocate, mma_deallocate
 use nq_Info, only: nAshT, Grid_Type, Moving_Grid
 use Disp, only: ChDisp
 use NAC, only: isNAC, NACStates
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

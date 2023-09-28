@@ -17,8 +17,8 @@ subroutine PXMem( &
                 )
 
 use Integral_interfaces, only: int_mem
-use Definitions, only: iwp, u6
 use Property_Label, only: PLabel
+use Definitions, only: iwp, u6
 
 implicit none
 #include "mem_interface.fh"
