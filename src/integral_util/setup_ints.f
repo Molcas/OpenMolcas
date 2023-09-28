@@ -33,9 +33,9 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       use stdalloc
+      use BasisMode
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
-#include "Basis_Mode.fh"
 !
       Logical DoFock, DoGrad, Indexation
 !

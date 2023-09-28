@@ -35,9 +35,9 @@
       use Index_arrays
       use Basis_Info, only: nBas, nBas_Aux
       use stdalloc
+      use BasisMode
       Implicit Real*8 (A-H,O-Z)
 !
-#include "Basis_Mode.fh"
       Integer nSkal, nSym, nSOs, nShOff(0:7)
       Integer iTmp(1 )
 !

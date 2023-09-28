@@ -12,9 +12,9 @@
        use Basis_Info
        use Sizes_of_Seward, only:S
        use stdalloc
+       use BasisMode
        Implicit Real*8 (a-h,o-z)
        Logical Primitive
-#include "Basis_Mode.fh"
 !
       S%MaxBas(:)=0
       S%MaxPrm(:)=0

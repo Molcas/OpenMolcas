@@ -12,9 +12,9 @@
       use Basis_Info
       use Center_Info
       use Sizes_of_Seward, only: S
+      use BasisMode
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-#include "Basis_Mode.fh"
 #include "disp.fh"
 !
       Integer iSD(0:nSD,mSkal)

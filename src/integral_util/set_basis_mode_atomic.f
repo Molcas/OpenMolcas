@@ -10,7 +10,11 @@
 !***********************************************************************
       Subroutine Set_Basis_Mode_Atomic(i,j)
       use Basis_Info, only: dbsc
-#include "Basis_Mode.fh"
+      use BasisMode
+      Implicit none
+      Integer i, j
+
+      Integer k
 !
       If (dbsc(i)%Aux) Then
          Basis_Mode = Auxiliary_Mode
