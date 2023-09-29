@@ -16,7 +16,7 @@ use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx, AngTp
+use define_af, only: AngTp
 
 implicit none
 #include "Molcas.fh"

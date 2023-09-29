@@ -18,7 +18,6 @@ use Cholesky, only: CutInt, ThrInt
 #endif
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: ISHLA, ISHLB, LSCR

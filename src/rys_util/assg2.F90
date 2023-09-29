@@ -25,7 +25,6 @@ subroutine Assg2(g2,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,xyz2D2,IfHss,Index1,Index2
 use Index_Functions, only: C_Ind3_Rev, nTri_Elem, nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use define_af, only: iTabMx
 
 implicit none
 real(kind=wp), intent(out) :: g2(78)

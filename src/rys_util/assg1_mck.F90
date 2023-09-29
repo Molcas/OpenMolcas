@@ -24,7 +24,6 @@ subroutine Assg1_mck(g1,nT,nRys,la,lb,lc,ld,xyz2D0,xyz2D1,IfGrad,Indx,mVec,Indx2
 use Index_Functions, only: C_Ind3_Rev, nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: nT, nRys, la, lb, lc, ld, Indx(3,4)

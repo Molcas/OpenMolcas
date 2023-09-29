@@ -27,7 +27,6 @@
 *                                                                      *
 ************************************************************************
       use OneDat, only: sNoNuc, sNoOri
-      use define_af, only: iTabMx
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"

@@ -193,7 +193,7 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx, AngTp
+use define_af, only: AngTp
 
 implicit none
 character(len=8), intent(in) :: Label

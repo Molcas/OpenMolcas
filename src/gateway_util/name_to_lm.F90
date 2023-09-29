@@ -39,7 +39,7 @@
 subroutine Name_to_lm(BName,l,m)
 
 use Definitions, only: iwp
-use define_af, only: iTabMx, AngTp
+use define_af, only: AngTp
 
 implicit none
 character(len=*), intent(in) :: BName

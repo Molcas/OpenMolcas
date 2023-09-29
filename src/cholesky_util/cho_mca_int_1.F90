@@ -21,7 +21,6 @@ subroutine CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: IFCSew, iSP2F, LuPri, nBstSh, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Definitions, only: wp, iwp
-use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: IJ, KL, LINT

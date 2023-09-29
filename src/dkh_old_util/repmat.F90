@@ -19,7 +19,6 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use define_af, only: iTabMx
 
 #include "intent.fh"
 

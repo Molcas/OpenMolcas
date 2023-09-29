@@ -44,7 +44,7 @@ use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx, AngTp
+use define_af, only: AngTp
 
 implicit none
 integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp

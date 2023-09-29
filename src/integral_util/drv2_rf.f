@@ -49,7 +49,6 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       use stdalloc
-      use define_af, only: iTabMx, AngTp
       Implicit Real*8 (A-H,O-Z)
       Real*8 A(3), B(3), Ccoor(3),
      &       Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
