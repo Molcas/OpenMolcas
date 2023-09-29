@@ -20,9 +20,13 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      use Constants
+      use Constants, only: Two
       IMPLICIT REAL*8 (A-H,O-Z)
+      integer nT, mHigh
       REAL*8 Fm(nT,0:mHigh), T(nT)
+
+      Integer i, m
+      Real*8 Ti
 !
       Call HighFm(Fm(1,mHigh),T,mHigh,nT)
 !
@@ -37,4 +41,4 @@
 !     Call RecPrt(' Fm',' ',Fm,nT,mHigh+1)
 !
       Return
-      End
+      End SUBROUTINE Auxil

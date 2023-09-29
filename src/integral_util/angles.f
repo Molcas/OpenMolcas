@@ -18,12 +18,17 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One, Pi
+      Implicit None
 #include "Molcas.fh"
-      Real*8 xyz(3,mCentr)
-      Character*(LENIN) Lbls(mCentr)
+      Integer mCentr, Max_Center
+      Real*8 xyz(3,mCentr), rtrnc
+      Character(LEN=LENIN) Lbls(mCentr)
       Logical Type
+
+      Integer Lu, ic, jc, kc
+      Real*8 x1, y1, z1, x2, y2, z2, x3, y3, z3, r1, r2, Arg, Phi
+
 !
       Lu=6
       If (mCentr.gt.Max_Center) Go To 99

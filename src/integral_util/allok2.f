@@ -22,17 +22,21 @@
 !             Martin Schuetz, Dept. of Theoretical Chemistry,          *
 !             University of Lund, Sweden. Jun '95                      *
 !***********************************************************************
-      use setup
-      use k2_setup
-      use k2_arrays
-      use iSD_data
-      use IOBUF
-      use Basis_Info
+      use k2_setup, only: k2_Processed, nk2, nDArray, nDScalar, Data_K2,
+     &                    nIndK2, IndK2
+      use k2_arrays, only: nDeDe, MaxDe, DoGrad_
+      use iSD_data, only: iSD
+      use Basis_Info, only: Shells
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate
+      Implicit None
+
+      Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll,
+     &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,
+     &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,
+     &        nZeta, ijCmp, nHm, nData, MemSO1
 !
 !---- Statement function
 !

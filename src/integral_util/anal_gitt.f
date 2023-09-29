@@ -26,9 +26,14 @@
 !                                                                      *
 !              March 2000                                              *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer latato
       Real*8 cordsi(3,latato)
+
+      Real*8 gAtom
+      Integer i, j
+      Real*8 faktor, x1, y1, z1, r2
 !
       Anal_Gitt=Zero
 !

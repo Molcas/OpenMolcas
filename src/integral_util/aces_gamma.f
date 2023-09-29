@@ -9,16 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Aces_Gamma()
-      use setup
+      use setup, only: mSkal, nSOS
       use Basis_Info, only: nBas
-      use Aces_Stuff
+      use Aces_Stuff, only: lBin, LuGamma, Bin, G_ToC, SO2CI
       use Index_arrays, only: iSO2Sh
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-       Integer, Allocatable:: iTable(:,:)
-       Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+
+      Integer, Allocatable:: iTable(:,:)
+      Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
+      Integer :: nShell, nPair, nQUad, nBlocks, nReq, iBlock, iType,
+     &           iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D,
+     &           nA, nB, nC, nD, nAB, nCD, MaxMem
+      Integer, External:: IsFreeUnit
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -51,7 +56,7 @@
       Call Gamma_Blocks(iTable,nBlocks,nIrrep)
 !                                                                      *
 !***********************************************************************
-!                                                                      *
+!                                     aces_gamma.f                                 *
 !---- Allocate memory for read buffer
 !
       Call mma_MaxDBLE(MaxMem)

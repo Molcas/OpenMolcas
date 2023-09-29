@@ -26,16 +26,25 @@
 !      Modified by: Takashi Tsuchiya, Dept. of Theoretical Chemistry,  *
 !                   University of Lund, SWEDEN. February 2004          *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One, Two
+      Implicit None
+      Integer nCoor, iAng, nRad, nElem, nCmp, nExp, nBas, mExp, nTerm,
+     &        mAO, ipx, ipy, ipz, nForm
       Real*8 xyz(nCoor,3,0:iAng+nRad-1), Coor(3,nCoor), RA(3),
      &       CffSph(nElem,nCmp), Alpha(nExp), Radial(nCoor,nRad,nBas),
      &       CffCnt(mExp,nBas), AOValue(mAO,nCoor,nBas,nCmp)
+      Real*8 px, py, pz
       Integer Angular(nTerm,5,nForm)
       Logical Transf
 #ifdef _DEBUGPRINT_
-      Character*80 Label
+      Character(LEN=80) Label
 #endif
+
+      Integer iX, iY, iZ, nDrv, iExp, iCoor, iBas, iDrv, i, ip, iF,
+     &        jDrv, jX, jY, jZ, jF, kDrv, iCmp, kForm, mForm, mTerm,
+     &        iTerm, iCoef, iRad, Ind, iForm
+      Real*8  ThrE, Thr_Rad, Exp_Min, R2, Tmp, XCff, Tmp2, Tmp3, Tmp4,
+     &        Cff, Coef
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -350,12 +359,15 @@
       Call RecPrt('AOValue','(10G20.10)',AOValue,mAO,nCoor*nBas*nCmp)
 #endif
 
-      End
+      End Subroutine AOEval
 !
       Subroutine dFdxyz(mterm,mform,N,jp,ip,ixyz,ipf,jdrv)
 !
-      Implicit real*8 (a-h,o-z)
+      Implicit None
+      Integer mTerm, mForm, jp, ip, ixyz, ipf, jdrv
       Integer N(mterm,5,mform)
+
+      Integer nTerm, iTerm, jTerm, i
 !
 !
 !     ipf: Phase factor in integer
@@ -400,4 +412,4 @@
          N(iterm,4,ip)=N(iterm,4,ip)+1
          N(iterm,5,ip)=N(iterm,5,ip)*ipf
       End do
-      End
+      End Subroutine dFdxyz

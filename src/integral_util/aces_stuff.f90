@@ -8,13 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module Aces_Stuff
+Module Aces_Stuff
 !
 !---- Stuff for Aces 2 read of Gamma file
 !
-      Logical                Gamma_On
-      Integer                LuGamma, lBin, nGamma, nSSDM
-      Real*8, Allocatable:: G_Toc(:), Bin(:,:), SSDM(:,:,:)
-      Integer, Allocatable:: SO2cI(:,:)
+Logical                Gamma_On
+Integer                LuGamma, lBin, nGamma, nSSDM
+Real*8, Allocatable:: G_Toc(:), Bin(:,:), SSDM(:,:,:)
+Integer, Allocatable:: SO2cI(:,:)
 !
-      End Module Aces_Stuff
+End Module Aces_Stuff

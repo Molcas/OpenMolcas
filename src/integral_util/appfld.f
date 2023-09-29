@@ -10,10 +10,12 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
       Subroutine AppFld(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer lMax
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)
+      Real*8 Radius, Eps, EpsInf
       Logical NonEq
 !
       Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
@@ -21,12 +23,18 @@
       Call mma_deallocate(CavSph)
 !
       Return
-      End
+      End Subroutine AppFld
+
       Subroutine AppFld_(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One, Two
+      Implicit None
+      Integer lMax
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
+      Real*8 Radius, Eps, EpsInf
       Logical NonEq
+
+      Integer l, ip
+      Real*8 RInv, Fact, rPoti, DblFac, F
 !
 !     Statement function
 !
@@ -78,12 +86,15 @@
 #endif
 !
       Return
-      End
+      End Subroutine AppFld_
+
       Subroutine AppFld_NonEq_1(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer lMax
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)
+      Real*8 Radius, Eps, EpsInf
       Logical NonEq
 !
       Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
@@ -91,12 +102,18 @@
       Call mma_deallocate(CavSph)
 !
       Return
-      End
+      End Subroutine AppFld_NonEq_1
+
       Subroutine AppFld_1(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One
+      Implicit None
+      Integer lMax
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
+      Real*8 Radius, Eps, EpsInf
       Logical NonEq
+
+      Integer l, ip
+      Real*8 f, rInv, rPoti, Fact, DblFac
 !
 !     Statement function
 !
@@ -140,10 +157,12 @@
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_logical(NonEq)
-      End
+      End Subroutine AppFld_1
+
       Subroutine AppFld_NonEq_2(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
-      use stdalloc
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
+      Integer lmax
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
@@ -153,12 +172,18 @@
       Call mma_deallocate(CavSph)
 !
       Return
-      End
+      End Subroutine AppFld_NonEq_2
+
       Subroutine AppFld_2(Cavxyz,Cavsph,radius,Eps,lmax,EpsInf,NonEq)
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One
+      Implicit None
+      Integer lMax
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6), Cavsph((lMax+1)**2)
+      Real*8 Radius, Eps, EpsInf
       Logical NonEq
+
+      Integer ip, l
+      Real*8 rInv, Fact, rPoti, DblFac, F
 !
 !     Statement function
 !
@@ -204,4 +229,4 @@
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_logical(NonEq)
-      End
+      End Subroutine AppFld_2

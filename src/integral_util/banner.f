@@ -16,10 +16,15 @@
 !             University of Lund, SWEDEN                               *
 !             May '91                                                  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Parameter(MxWdth=132)
-      Character*(*)   Lines(nLines)
-      Character*(MxWdth-2) Line, Format*72
+      Implicit None
+      Integer nLines, nWidth
+      Integer, Parameter:: MxWdth=132
+      Character(LEN=*)   Lines(nLines)
+      Character(LEN=MxWdth-2) Line
+      Character(LEN=72) Format
+
+      Integer mWidth, nChar, i, j, k, iFrst, iEnd, Length, nSplit,
+     &        jFrst, jEnd
 !
       mWidth = nWidth
       nChar = Len(Lines(1))
@@ -66,4 +71,4 @@
       Write (6,Format) Line
 !
       Return
-      End
+      End SubRoutine Banner

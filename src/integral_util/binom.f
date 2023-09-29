@@ -24,7 +24,10 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      Implicit real*8 (a-h,o-z)
+      Implicit None
+      Integer n, i, iBin
+
+      Integer Num, iDen, j
       Num = 1
       iDen = 1
       Do 10 j = 1, i
@@ -33,4 +36,4 @@
  10   Continue
       iBin = Num/iDen
       Return
-      End
+      End Subroutine Binom
