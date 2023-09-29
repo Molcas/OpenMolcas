@@ -12,18 +12,23 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine gaussj2_cvb(a,lrow,lcol,ibook,irows,ijs,oijs,n)
+subroutine gaussj2_cvb(a,lrow,irows,ijs,oijs,n)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, lrow(n), lcol(n), ibook(n), irows(n), ijs(2,n*n)
+integer(kind=iwp) :: n, lrow(n), irows(n), ijs(2,n*n)
 real(kind=wp) :: a(n,n), oijs(n*n)
 integer(kind=iwp) :: i, idum, ihad, ii, ii2, imain, imx, j, jmx, nij
 real(kind=wp) :: amx, dum, oneovamx
 logical(kind=iwp) :: done
+integer(kind=iwp), allocatable :: lcol(:), ibook(:)
 real(kind=wp), parameter :: thresh = 1.0e-10_wp
+
+call mma_allocate(lcol,n,label='lcol')
+call mma_allocate(ibook,n,label='ibook')
 
 ! initialize imx & jmx to suppress compiler warnings ...
 imx = 0
@@ -123,6 +128,9 @@ else
     end if
   end do
 end if
+
+call mma_deallocate(lcol)
+call mma_deallocate(ibook)
 
 return
 

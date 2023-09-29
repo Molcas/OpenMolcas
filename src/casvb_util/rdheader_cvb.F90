@@ -21,23 +21,18 @@ real(kind=wp) :: recn
 integer(kind=iwp) :: norb1, nbas_mo1, nvb1, kbasiscvb1, ioffs_orbs, ioffs_cvb, ioffs_orbsao, ioffs_orbslao
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iheader
+integer(kind=iwp) :: iheader(10)
 logical(kind=iwp), parameter :: debug = .false.
-integer(kind=iwp), external :: mstackiz_cvb
 
-iheader = mstackiz_cvb(10)
-call mfreei_cvb(iheader)
-iheader = mstackiz_cvb(10)
-call rdi_cvb(iwork(iheader),10,recn,0)
-norb1 = iwork(iheader)
-nbas_mo1 = iwork(1+iheader)
-nvb1 = iwork(2+iheader)
-kbasiscvb1 = iwork(3+iheader)
-ioffs_orbs = iwork(5+iheader)
-ioffs_cvb = iwork(6+iheader)
-ioffs_orbsao = iwork(7+iheader)
-ioffs_orbslao = iwork(8+iheader)
-call mfreei_cvb(iheader)
+call rdi_cvb(iheader,10,recn,0)
+norb1 = iheader(1)
+nbas_mo1 = iheader(2)
+nvb1 = iheader(3)
+kbasiscvb1 = iheader(4)
+ioffs_orbs = iheader(6)
+ioffs_cvb = iheader(7)
+ioffs_orbsao = iheader(8)
+ioffs_orbslao = iheader(9)
 if (debug) then
   write(u6,*) ' rdheader :'
   write(u6,*) ' ----------'

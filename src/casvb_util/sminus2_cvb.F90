@@ -12,16 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine sminus2_cvb(bikfrom,bikto,nel,nalffrom,ndetfrom,nalfto,ndetto,nvec,xdetto,ioccfrom,ioccto)
+subroutine sminus2_cvb(bikfrom,bikto,nel,nalffrom,ndetfrom,nalfto,ndetto,nvec)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nel, nalffrom, ndetfrom, nalfto, ndetto, nvec, xdetto(0:nel,0:nalfto), ioccfrom(nalffrom), ioccto(nalfto)
+integer(kind=iwp) :: nel, nalffrom, ndetfrom, nalfto, ndetto, nvec
 real(kind=wp) :: bikfrom(ndetfrom,nvec), bikto(ndetto,nvec)
 integer(kind=iwp) :: iexc, indfrom, indto
+integer(kind=iwp), allocatable :: ioccfrom(:), ioccto(:), xdetto(:,:)
 integer(kind=iwp), external :: minind_cvb
+
+call mma_allocate(xdetto,[0,nel],[0,nalfto],label='xdetto')
 
 call fzero(bikto,ndetto*nvec)
 
@@ -31,6 +35,9 @@ if (ndetto /= xdetto(nel,nalfto)) then
   write(u6,*) ' Discrepancy in NDET:',ndetto,xdetto(nel,nalfto)
   call abend_cvb()
 end if
+
+call mma_allocate(ioccfrom,nalffrom,label='ioccfrom')
+call mma_allocate(ioccto,nalfto,label='ioccto')
 
 call loopstr0_cvb(ioccfrom,indfrom,nalffrom,nel)
 do
@@ -43,6 +50,10 @@ do
   call loopstr_cvb(ioccfrom,indfrom,nalffrom,nel)
   if (indfrom == 1) exit
 end do
+
+call mma_deallocate(xdetto)
+call mma_deallocate(ioccfrom)
+call mma_deallocate(ioccto)
 
 return
 

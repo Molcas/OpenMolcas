@@ -14,23 +14,36 @@
 
 subroutine stringen_cvb(norb,nel,locc,lunocc)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: norb, nel, locc(*), lunocc(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i_nkmax, i_nkmin, iorb
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: i_locc, i_lunocc, indx, iorb, rc
+integer(kind=iwp), allocatable :: nk(:), nkmax(:), nkmin(:)
 
-i_nkmin = mstacki_cvb(norb+1)
-i_nkmax = mstacki_cvb(norb+1)
+call mma_allocate(nk,[0,norb],label='nk')
+call mma_allocate(nkmax,[0,norb],label='nkmax')
+call mma_allocate(nkmin,[0,norb],label='nkmin')
 ! Spin string loop initialization (use xdet as graph storage):
 do iorb=0,norb
-  iwork(iorb+i_nkmin) = max(iorb-norb+nel,0)
-  iwork(iorb+i_nkmax) = min(iorb,nel)
+  nkmin(iorb) = max(iorb-norb+nel,0)
+  nkmax(iorb) = min(iorb,nel)
 end do
-call mmstringen_cvb(norb,nel,locc,lunocc,iwork(i_nkmin),iwork(i_nkmax))
-call mfreei_cvb(i_nkmin)
+call imove_cvb(nkmax,nk,norb+1)
+! Spin string loop starts here:
+indx = 0
+do
+  indx = indx+1
+  i_locc = (indx-1)*nel+1
+  i_lunocc = (indx-1)*(norb-nel)+1
+  call occupy_cvb(nk,norb,locc(i_locc),lunocc(i_lunocc))
+  call loop_cvb(norb,nk,nkmin,nkmax,rc)
+  if (rc == 0) exit
+end do
+call mma_deallocate(nk)
+call mma_deallocate(nkmax)
+call mma_deallocate(nkmin)
 
 return
 

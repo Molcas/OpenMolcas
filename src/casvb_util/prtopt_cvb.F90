@@ -15,14 +15,14 @@
 subroutine prtopt_cvb()
 
 use casvb_global, only: ioptim, istackrep, noptim
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
 #include "files_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, i4, ioffs, ioptstep1, ioptstep2, italter, kk2, mxalter, nc_zeroed, nconvinone
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: ioffs, ioptstep1, ioptstep2, italter, kk2, mxalter, nc_zeroed, nconvinone
+integer(kind=iwp), allocatable :: idelstr(:), ifxorb(:), ifxstr(:), iorts(:,:)
 logical(kind=iwp), external :: istkprobe_cvb
 
 ! First determine if end of multi-step optimization may have been reached:
@@ -46,19 +46,23 @@ else
   italter = 0
 end if
 
-i1 = mstacki_cvb(2*norb*(norb-1)/2)
-i2 = mstacki_cvb(norb)
-i3 = mstacki_cvb(nvb)
-i4 = mstacki_cvb(nvb)
+call mma_allocate(iorts,2,norb*(norb-1)/2,label='iorts')
+call mma_allocate(ifxorb,norb,label='ifxorb')
+call mma_allocate(ifxstr,nvb,label='ifxstr')
+call mma_allocate(idelstr,nvb,label='idelstr')
 
 call rdioff_cvb(11,recinp,ioffs)
-call rdis_cvb(iwork(i2),norb,recinp,ioffs)
-call rdis_cvb(iwork(i3),nfxvb,recinp,ioffs)
-call rdis_cvb(iwork(i4),nzrvb,recinp,ioffs)
-call rdis_cvb(iwork(i1),2*nort,recinp,ioffs)
+call rdis_cvb(ifxorb,norb,recinp,ioffs)
+call rdis_cvb(ifxstr,nfxvb,recinp,ioffs)
+call rdis_cvb(idelstr,nzrvb,recinp,ioffs)
+call rdis_cvb(iorts,2*nort,recinp,ioffs)
 
-call prtopt2_cvb(ioptstep1,ioptim,italter,noptim,iwork(i1),iwork(i2),iwork(i3),iwork(i4))
-call mfreei_cvb(i1)
+call prtopt2_cvb(ioptstep1,ioptim,italter,noptim,iorts,ifxorb,ifxstr,idelstr)
+
+call mma_deallocate(iorts)
+call mma_deallocate(ifxorb)
+call mma_deallocate(ifxstr)
+call mma_deallocate(idelstr)
 
 return
 

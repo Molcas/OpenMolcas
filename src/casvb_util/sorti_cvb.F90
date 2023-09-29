@@ -14,22 +14,23 @@
 
 subroutine sorti_cvb(n,arrin)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: n, arrin(n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: i
+integer(kind=iwp), allocatable :: indx(:), tmp(:)
 
-i1 = mstacki_cvb(n)
-call sortindxi_cvb(n,arrin,iwork(i1))
-i2 = mstacki_cvb(n)
-do i=0,n-1
-  iwork(i+i2) = arrin(iwork(i+i1))
+call mma_allocate(indx,n,label='indx')
+call sortindxi_cvb(n,arrin,indx)
+call mma_allocate(tmp,n,label='tmp')
+do i=1,n
+  tmp(i) = arrin(indx(i))
 end do
-call imove_cvb(iwork(i2),arrin,n)
-call mfreei_cvb(i1)
+call imove_cvb(tmp,arrin,n)
+call mma_deallocate(indx)
+call mma_deallocate(tmp)
 
 return
 

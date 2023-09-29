@@ -20,35 +20,31 @@ implicit none
 real(kind=wp) :: bikfrom(*), bikto(*)
 integer(kind=iwp) :: nel, nalffrom, nalfto, nvec
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, i4, i5, ialffrom, ialfto, ivec, ndetfrom, ndetto
+integer(kind=iwp) :: i4, i5, ialffrom, ialfto, ivec, ndetfrom, ndetto
 real(kind=wp) :: cnrmfrom, cnrmto
-integer(kind=iwp), external :: mheapr_cvb, mstacki_cvb, ndet_cvb
+integer(kind=iwp), external :: mheapr_cvb, ndet_cvb
 real(kind=wp), external :: dnrm2_
 
-call ab2asc_cvb(bikfrom,nvec,nel,nalffrom)
+call asc2ab_cvb(bikfrom,nvec,nel,nalffrom)
 
 do ialfto=nalffrom-1,nalfto,-1
   ialffrom = ialfto+1
-  i1 = mstacki_cvb((nel+1)*(ialffrom))
-  i2 = mstacki_cvb(ialffrom)
-  i3 = mstacki_cvb(ialfto)
   ndetfrom = ndet_cvb(nel,ialffrom)
   ndetto = ndet_cvb(nel,ialfto)
   if (nalffrom == nalfto+1) then
-    call sminus2_cvb(bikfrom,bikto,nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,iwork(i1),iwork(i2),iwork(i3))
+    call sminus2_cvb(bikfrom,bikto,nel,ialffrom,ndetfrom,ialfto,ndetto,nvec)
   else if (ialfto == nalffrom-1) then
     i4 = mheapr_cvb(ndetto*nvec)
-    call sminus2_cvb(bikfrom,work(i4),nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,iwork(i1),iwork(i2),iwork(i3))
+    call sminus2_cvb(bikfrom,work(i4),nel,ialffrom,ndetfrom,ialfto,ndetto,nvec)
   else if (ialfto == nalfto) then
-    call sminus2_cvb(work(i4),bikto,nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,iwork(i1),iwork(i2),iwork(i3))
+    call sminus2_cvb(work(i4),bikto,nel,ialffrom,ndetfrom,ialfto,ndetto,nvec)
     call mhpfreer_cvb(i4)
   else
     i5 = mheapr_cvb(ndetto*nvec)
-    call sminus2_cvb(work(i4),work(i5),nel,ialffrom,ndetfrom,ialfto,ndetto,nvec,iwork(i1),iwork(i2),iwork(i3))
+    call sminus2_cvb(work(i4),work(i5),nel,ialffrom,ndetfrom,ialfto,ndetto,nvec)
     call mhpfreer_cvb(i4)
     i4 = i5
   end if
-  call mfreei_cvb(i1)
 end do
 
 call asc2ab_cvb(bikto,nvec,nel,nalfto)

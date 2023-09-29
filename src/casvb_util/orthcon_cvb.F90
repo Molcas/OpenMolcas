@@ -12,18 +12,23 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine orthcon_cvb(ipairs,ipair,igroups,ngroup,iorthlst,mxortl,mxpair)
+subroutine orthcon_cvb(ipairs,mxortl,mxpair)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp), parameter :: ncmp = 4, nstrin = 7, mxgroup = 40
-integer(kind=iwp) :: mxpair, ipairs(2,mxpair), ipair(mxorb_cvb,mxorb_cvb), igroups(mxorb_cvb,mxgroup), ngroup(mxgroup), mxortl, &
-                     iorthlst(mxortl)
+integer(kind=iwp) :: mxpair, ipairs(2,mxpair), mxortl
 integer(kind=iwp) :: i, igrp, io, ior1, ior2, ipar, isp, istr, j, jo, jor1, jor2, jsp, ngrp, npairs, nread, nsp
 character(len=3) :: glabel(mxgroup)
+integer(kind=iwp), allocatable :: igroups(:,:), iorthlst(:), ipair(:,:), ngroup(:)
 character(len=*), parameter :: string(nstrin) = ['GROUP   ','ORTH    ','PAIRS   ','STRONG  ','FULL    ','END     ','ENDORTHC']
+
+call mma_allocate(ipair,mxorb_cvb,mxorb_cvb,label='ipair')
+call mma_allocate(igroups,mxorb_cvb,mxgroup,label='igroups')
+call mma_allocate(ngroup,mxgroup,label='ngroup')
 
 call izero(ipair,mxorb_cvb*mxorb_cvb)
 ngrp = 0
@@ -62,6 +67,7 @@ do
   else if (istr == 2) then
     ! 'ORTH'
     nsp = 0
+    call mma_allocate(iorthlst,mxortl,label='iorthlst')
     do
       call int_cvb(iorthlst(1+nsp),mxortl-nsp,nread,0)
       nsp = nsp+nread
@@ -99,6 +105,7 @@ do
         end if
       end do
     end do
+    call mma_deallocate(iorthlst)
   else if (istr == 3) then
     ! 'PAIRS'
     nsp = 0
@@ -171,6 +178,10 @@ do i=1,mxorb_cvb
     end if
   end do
 end do
+
+call mma_deallocate(ipair)
+call mma_deallocate(igroups)
+call mma_deallocate(ngroup)
 
 return
 

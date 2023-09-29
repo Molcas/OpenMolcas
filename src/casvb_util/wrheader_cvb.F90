@@ -20,9 +20,8 @@ implicit none
 real(kind=wp) :: recn
 integer(kind=iwp) :: norb1, nbas_mo1, nvb1, kbasiscvb1, ioffs_orbs, ioffs_cvb, ioffs_orbsao, ioffs_orbslao
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iheader
-integer(kind=iwp), external :: ihlf_cvb, mstackiz_cvb
+integer(kind=iwp) :: iheader(10)
+integer(kind=iwp), external :: ihlf_cvb
 logical(kind=iwp), parameter :: debug = .false.
 
 ioffs_orbs = ihlf_cvb(10)
@@ -30,17 +29,16 @@ ioffs_cvb = ioffs_orbs+norb1*norb1
 ioffs_orbsao = ioffs_cvb+nvb1
 ioffs_orbslao = ioffs_orbsao+norb1*nbas_mo1
 !call reserv_cvb(ioffs_orbslao+norb1*nbas_mo1,recn)
-iheader = mstackiz_cvb(10)
-iwork(iheader) = norb1
-iwork(1+iheader) = nbas_mo1
-iwork(2+iheader) = nvb1
-iwork(3+iheader) = kbasiscvb1
-iwork(5+iheader) = ioffs_orbs
-iwork(6+iheader) = ioffs_cvb
-iwork(7+iheader) = ioffs_orbsao
-iwork(8+iheader) = ioffs_orbslao
-call wri_cvb(iwork(iheader),10,recn,0)
-call mfreei_cvb(iheader)
+iheader(:) = 0
+iheader(1) = norb1
+iheader(2) = nbas_mo1
+iheader(3) = nvb1
+iheader(4) = kbasiscvb1
+iheader(6) = ioffs_orbs
+iheader(7) = ioffs_cvb
+iheader(8) = ioffs_orbsao
+iheader(9) = ioffs_orbslao
+call wri_cvb(iheader,10,recn,0)
 if (debug) then
   write(u6,*) ' wrheader :'
   write(u6,*) ' ----------'

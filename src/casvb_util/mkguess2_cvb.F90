@@ -12,27 +12,30 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mkguess2_cvb(orbs,cvb,irdorbs,orbsao)
+subroutine mkguess2_cvb(orbs,cvb)
 
 use casvb_global, only: nbas_mo
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsao(nbas_mo,norb)
-integer(kind=iwp) :: irdorbs(norb)
+real(kind=wp) :: orbs(norb,norb), cvb(nvb)
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, idum(1), ii, ioffs, iorb, iorb_ao, ndetvb1, norb_ao
+integer(kind=iwp) :: idum(1), ii, ioffs, iorb, iorb_ao, norb_ao
 real(kind=wp) :: c, cnrm, dum(1)
-real(kind=wp) :: thresh = 1.0e-10_wp
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
+integer(kind=iwp), allocatable :: irdorbs(:), itmp(:)
+real(kind=wp), allocatable :: orbsao(:,:), tmp(:), tmp2(:,:)
+real(kind=wp), parameter :: thresh = 1.0e-10_wp
 real(kind=wp), external :: detm_cvb, dnrm2_, rand_cvb
 logical(kind=iwp), external :: tstfile_cvb, & ! ... Files/Hamiltonian available ...
                                up2date_cvb    ! ... Make: up to date? ...
 
+call mma_allocate(orbsao,nbas_mo,norb,label='orbsao')
+call mma_allocate(irdorbs,norb,label='irdorbs')
 call izero(irdorbs,norb)
 ! -- transfer from orbs if applicable -
 ! (Newly assigned memory => orbs will be zero)
@@ -45,12 +48,7 @@ end do
 ! -- restore from previous optim --
 if (.not. up2date_cvb('RESTGS')) then
   if (up2date_cvb('WRITEGS')) then
-    call rdi_cvb(idum,1,recn_tmp04,0)
-    ndetvb1 = idum(1)
-    i1 = mstacki_cvb(ndetvb1)
-    i2 = mstackr_cvb(ndetvb1)
-    call mkrestgs_cvb(orbsao,irdorbs,cvb,work(lw(9)),iwork(ll(11)),iwork(ll(12)),iwork(i1),work(i2))
-    call mfreei_cvb(i1)
+    call mkrestgs_cvb(orbsao,irdorbs,cvb,work(lw(9)),iwork(ll(11)),iwork(ll(12)))
   end if
   call untouch_cvb('RESTGS')
 end if
@@ -62,34 +60,34 @@ if (.not. up2date_cvb('STRTGS')) then
 end if
 ! -- input --
 if (.not. up2date_cvb('INPGS')) then
-  i1 = mstacki_cvb(norb)
+  call mma_allocate(itmp,norb,label='itmp')
   call rdioff_cvb(6,recinp,ioffs)
-  call rdi_cvb(iwork(i1),norb,recinp,ioffs)
+  call rdi_cvb(itmp,norb,recinp,ioffs)
   call rdioff_cvb(5,recinp,ioffs)
   do iorb=1,norb
-    if (iwork(iorb+i1-1) == 1) then
+    if (itmp(iorb) == 1) then
       ! MO basis ...
       irdorbs(iorb) = 1
       call rdr_cvb(orbsao(1,iorb),norb,recinp,ioffs)
-    else if (iwork(iorb+i1-1) == 2) then
+    else if (itmp(iorb) == 2) then
       ! AO basis ...
       irdorbs(iorb) = 2
       call rdr_cvb(orbsao(1,iorb),nbas_mo,recinp,ioffs)
     end if
     ioffs = ioffs+mxaobf
   end do
-  call mfreei_cvb(i1)
+  call mma_deallocate(itmp)
 
-  i1 = mstackr_cvb(nvbinp)
+  call mma_allocate(tmp,nvbinp,label='nvbinp')
   call rdioff_cvb(7,recinp,ioffs)
-  call rdrs_cvb(work(i1),nvbinp,recinp,ioffs)
-  if (dnrm2_(nvbinp,work(i1),1) > thresh) then
+  call rdrs_cvb(tmp,nvbinp,recinp,ioffs)
+  if (dnrm2_(nvbinp,tmp,1) > thresh) then
     call rdioff_cvb(3,recinp,ioffs)
     call rdis_cvb(idum,1,recinp,ioffs)
     kbasiscvb = idum(1)
-    call fmove_cvb(work(i1),work(lv(2)),nvbinp)
+    call fmove_cvb(tmp,work(lv(2)),nvbinp)
   end if
-  call mfreer_cvb(i1)
+  call mma_deallocate(tmp)
 
   call untouch_cvb('INPGS')
 end if
@@ -122,16 +120,18 @@ do iorb=1,norb
     if (norb_ao /= iorb) call fmove_cvb(orbsao(1,iorb),orbsao(1,norb_ao),nbas_mo)
   end if
 end do
-i1 = mstackr_cvb(norb*norb_ao)
-call ao2mo_cvb(orbsao,work(i1),norb_ao)
+call mma_allocate(tmp2,norb,norb_ao,label='tmp2')
+call ao2mo_cvb(orbsao,tmp2,norb_ao)
 iorb_ao = 0
 do iorb=1,norb
   if (irdorbs(iorb) == 2) then
     iorb_ao = iorb_ao+1
-    call fmove_cvb(work((iorb_ao-1)*norb+i1),orbs(1,iorb),norb)
+    call fmove_cvb(tmp2(1,iorb_ao),orbs(1,iorb),norb)
   end if
 end do
-call mfreer_cvb(i1)
+call mma_deallocate(tmp2)
+call mma_deallocate(orbsao)
+call mma_deallocate(irdorbs)
 
 call nize_cvb(orbs,norb,dum,norb,0,0)
 

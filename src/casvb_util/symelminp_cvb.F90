@@ -14,6 +14,7 @@
 
 subroutine symelminp_cvb(ip_symelm,nsyme,tags,izeta,mxirrep,mxorb,mxsyme,ityp)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -21,12 +22,12 @@ implicit none
 integer(kind=iwp) :: ip_symelm, nsyme, izeta(*), mxirrep, mxorb, mxsyme, ityp(mxorb)
 character(len=3) :: tags(mxsyme)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, i_dim, iaux(1), io, iorb, irrep, ishift, isgn, istr2, itmp, jor, jorb, nread
+integer(kind=iwp) :: i, i_dim, iaux(1), io, iorb, irrep, ishift, isgn, istr2, jor, jorb, nread
 real(kind=wp) :: daux(1)
+integer(kind=iwp), allocatable :: tmp(:)
 integer(kind=iwp), parameter :: ncmp = 4, nsign = 2, nsymelm = 5
 character(len=*), parameter :: sgn(nsign) = ['+       ','-       '], &
                                symelm(nsymelm) = ['IRREPS  ','COEFFS  ','TRANS   ','END     ','ENDSYMEL']
-integer(kind=iwp), external :: mstacki_cvb
 logical(kind=iwp), external :: mxorth_cvb ! ... Matrices (orthogonal/determinant) ...
 
 nsyme = nsyme+1
@@ -83,7 +84,7 @@ do
       write(u6,*) ' Illegal dimension in TRANS:',i_dim,mxorb
       call abend_cvb()
     end if
-    itmp = mstacki_cvb(i_dim)
+    call mma_allocate(tmp,i_dim,label='tmp')
     do i=1,i_dim
       call int_cvb(iaux,1,nread,0)
       iorb = iaux(1)
@@ -91,18 +92,18 @@ do
         write(u6,*) ' Illegal orbital number in TRANS:',iorb
         call abend_cvb()
       end if
-      iwork(i+itmp-1) = iorb
+      tmp(i) = iorb
     end do
     do io=1,i_dim
-      iorb = iwork(io+itmp-1)
+      iorb = tmp(io)
       do jor=1,i_dim
-        jorb = iwork(jor+itmp-1)
+        jorb = tmp(jor)
         daux = Zero
         call real_cvb(daux(1),1,nread,0)
         work(iorb+(jorb-1)*mxorb+ishift+ip_symelm-1) = daux(1)
       end do
     end do
-    call mfreei_cvb(itmp)
+    call mma_deallocate(tmp)
   end if
   ! 'END' , 'ENDSYMEL' or unrecognized keyword -- end SYMELM input:
   if ((istr2 == 4) .or. (istr2 == 5) .or. (istr2 == 0)) exit

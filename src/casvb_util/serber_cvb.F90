@@ -12,21 +12,32 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine serber_cvb(bikcof,nel,nalf,nbet,ndet,ifns,minspn,maxspn,nkspn,locca,lnocca,xspin,ialfs,ibets,ianti)
+subroutine serber_cvb(bikcof,nel,nalf,nbet,ndet,ifns)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns, minspn(0:nel), maxspn(0:nel), nkspn(0:nel), locca(nel), lnocca(nel), &
-                     xspin((nel+1)*(nalf+1)), ialfs(nalf), ibets(nbet), ianti(ifns)
+integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns
 real(kind=wp) :: bikcof(ndet,ifns)
 integer(kind=iwp) :: ia, iachek, iantival, ib, indx, iorb, k, l, nc, rc
+integer(kind=iwp), allocatable :: ialfs(:), ianti(:), ibets(:), lnocca(:), locca(:), maxspn(:), minspn(:), nkspn(:), xspin(:)
 real(kind=wp) :: dum(1)
 
 ! Serber spin functions
 
 ! For each Rumer spin function we determine (minus) the "antisymmetry"
 ! number, as explained in [Spin Eigenfunctions, R. Pauncz, Sec. 5.5].
+
+call mma_allocate(minspn,[0,nel],label='minspn')
+call mma_allocate(maxspn,[0,nel],label='maxspn')
+call mma_allocate(nkspn,[0,nel],label='nkspn')
+call mma_allocate(locca,nel,label='locca')
+call mma_allocate(lnocca,nel,label='lnocca')
+call mma_allocate(xspin,(nel+1)*(nalf+1),label='xspin')
+call mma_allocate(ialfs,nalf,label='ialfs')
+call mma_allocate(ibets,nbet,label='ibets')
+call mma_allocate(ianti,ifns,label='ianti')
 
 ! Spin function weight arrays:
 do iorb=0,nel
@@ -65,6 +76,15 @@ do
   if (rc == 0) exit
 end do
 
+call mma_deallocate(minspn)
+call mma_deallocate(maxspn)
+call mma_deallocate(nkspn)
+call mma_deallocate(locca)
+call mma_deallocate(lnocca)
+call mma_deallocate(xspin)
+call mma_deallocate(ialfs)
+call mma_deallocate(ibets)
+
 ! Sort according to decreasing values of IANTI:
 nc = 0
 do iantival=nbet,0,-1
@@ -90,6 +110,8 @@ do k=1,ifns
     ianti(k) = k
   end if
 end do
+
+call mma_deallocate(ianti)
 
 ! Orthonormalize:
 call schmidtn_cvb(bikcof,ifns,dum,ndet,0)

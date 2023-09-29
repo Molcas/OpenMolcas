@@ -15,21 +15,51 @@
 function party_cvb(iperm,n)
 ! Returns parity of permutation
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: party_cvb
 integer(kind=iwp) :: n, iperm(n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-real(kind=wp) :: party
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: i, iswp, j, ntransp
+integer(kind=iwp), allocatable :: tmp(:)
+logical(kind=iwp) :: done
 
-i1 = mstacki_cvb(n)
-call imove_cvb(iperm,iwork(i1),n)
-call party2_cvb(iwork(i1),n,party)
-call mfreei_cvb(i1)
-party_cvb = party
+call mma_allocate(tmp,n,label='tmp')
+call imove_cvb(iperm,tmp,n)
+
+! Following caters for non-contiguous integers:
+ntransp = 0
+do
+  done = .false.
+  do i=1,n-1
+    if (tmp(i) > tmp(i+1)) then
+      ntransp = ntransp+1
+      iswp = tmp(i)
+      tmp(i) = tmp(i+1)
+      tmp(i+1) = iswp
+      do j=i-1,1,-1
+        if (tmp(j) > tmp(j+1)) then
+          ntransp = ntransp+1
+          iswp = tmp(j)
+          tmp(j) = tmp(j+1)
+          tmp(j+1) = iswp
+        end if
+      end do
+      done = .true.
+      exit
+    end if
+  end do
+  if (.not. done) exit
+end do
+if (mod(ntransp-n,2) == 0) then
+  party_cvb = One
+else
+  party_cvb = -One
+end if
+
+call mma_deallocate(tmp)
 
 return
 

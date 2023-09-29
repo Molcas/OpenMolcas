@@ -17,6 +17,7 @@ subroutine reord2_cvb(cfrom,cto,imode)
 ! from SGA CSFs to split-graph-GUGA CSFs.
 
 use csfbas, only: conf, kcftp
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -26,15 +27,15 @@ integer(kind=iwp) :: imode
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-integer(kind=iwp) :: ivkcnf
+integer(kind=iwp), allocatable :: kcnf(:)
 
 ! NAC      rasscf.fh
 ! NACTEL   general.fh
 ! STSYM    general.fh
 ! IPR      rasscf.fh
-call getmem('kcnf','allo','inte',ivkcnf,nactel)
-call reord2(nac,nactel,stsym,imode,conf,iwork(kcftp),cfrom,cto,iWork(ivkcnf))
-call getmem('kcnf','free','inte',ivkcnf,nactel)
+call mma_allocate(kcnf,nactel,label='kcnf')
+call reord2(nac,nactel,stsym,imode,conf,iwork(kcftp),cfrom,cto,kcnf)
+call mma_deallocate(kcnf)
 
 return
 

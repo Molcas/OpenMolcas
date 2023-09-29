@@ -12,23 +12,30 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mkorbfree2_cvb(orbs,north,corth,irels,relorb,ifxorb,iorts,irots,trprm,owrk,owrk2,orbinv,idel)
+subroutine mkorbfree2_cvb(orbs,north,corth,irels,relorb,ifxorb,iorts,irots,trprm)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: orbs(norb,norb), corth(norb,niorth), relorb(norb,norb,nijrel), trprm(nprorb,nprorb), owrk(norb,norb), &
-                 owrk2(norb,norb), orbinv(norb,norb)
-integer(kind=iwp) :: north(norb), irels(2,nijrel), ifxorb(norb), iorts(2,nort), irots(2,ndrot), idel(nprorb)
+real(kind=wp) :: orbs(norb,norb), corth(norb,niorth), relorb(norb,norb,nijrel), trprm(nprorb,nprorb)
+integer(kind=iwp) :: north(norb), irels(2,nijrel), ifxorb(norb), iorts(2,nort), irots(2,ndrot)
 integer(kind=iwp) :: i, i2, icon, ioff, ioff2, ioffs, iorb, iprm, irel, ishift, ishift2, j, j2, jorb, nc, ncon, nl1, nl2, nrem
 real(kind=wp) :: dum(1), sum1, sum2
+integer(kind=iwp), allocatable :: idel(:)
+real(kind=wp), allocatable :: orbinv(:,:), owrk(:,:), owrk2(:,:)
 real(kind=wp), parameter :: thresh = 1.0e-7_wp
 real(kind=wp), external :: ddot_
 
 if (orbfr_is_unit) then
   nfrorb = nprorb
 else
+
+  call mma_allocate(owrk,norb,norb,label='owrk')
+  call mma_allocate(owrk2,norb,norb,label='owrk2')
+  call mma_allocate(orbinv,norb,norb,label='orbinv')
+  call mma_allocate(idel,nprorb,label='idel')
 
   call fzero(trprm,nprorb*nprorb)
   call izero(idel,nprorb)
@@ -115,6 +122,11 @@ else
   end do
   call fzero(trprm(1,nfrorb+1),(nprorb-nfrorb)*nprorb)
   call nize_cvb(trprm,nfrorb,dum,nprorb,0,0)
+
+  call mma_deallocate(owrk)
+  call mma_deallocate(owrk2)
+  call mma_deallocate(orbinv)
+  call mma_deallocate(idel)
 
 end if
 

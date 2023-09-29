@@ -20,9 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "main_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ii, incr, iqisym
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: i, ii, incr, qisym(nsym)
 logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
 if ((ip(1) >= 0) .and. (.not. up2date_cvb('CASPRINT'))) then
@@ -32,16 +30,14 @@ if ((ip(1) >= 0) .and. (.not. up2date_cvb('CASPRINT'))) then
   if (nsym == 1) then
     write(u6,'(a,i4)') ' State symmetry             :',isym
   else
-    iqisym = mstacki_cvb(nsym)
     incr = 0
     do i=1,mxirrep
       if (isymv(i) == 1) then
         incr = incr+1
-        iwork(incr+iqisym-1) = i
+        qisym(incr) = i
       end if
     end do
-    write(u6,'(a,i4,7i3)') ' State symmetries           :',(iwork(ii+iqisym-1),ii=1,nsym)
-    call mfreei_cvb(iqisym)
+    write(u6,'(a,i4,7i3)') ' State symmetries           :',(qisym(ii),ii=1,nsym)
   end if
   write(u6,'(/,a,100i3)') ' Symmetries of active MOs   : ',(ityp(ii),ii=1,norb)
   call make_cvb('CASPRINT')

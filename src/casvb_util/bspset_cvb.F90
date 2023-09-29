@@ -14,19 +14,21 @@
 
 subroutine bspset_cvb(kbasis1,ic,need)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: kbasis1, ic, need
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1
-integer(kind=iwp), external :: mstackiz_cvb
+integer(kind=iwp) :: i
+integer(kind=iwp), allocatable :: kcoff(:,:,:)
 
 if (ic == 1) then
-  i1 = mstackiz_cvb((nel+1)*(nel+1)*(nel+1))
-  call bspset2_cvb(iwork(i1),nel,kbasis1,need)
-  call mfreei_cvb(i1)
+  call mma_allocate(kcoff,[0,nel],[0,nel],[0,nel],label='kcoff')
+  kcoff(:,:,:) = 0
+  call bspset2_cvb(kcoff,nel,kbasis1,need)
+  call mma_deallocate(kcoff)
 else if (ic == 2) then
   do i=0,(nel+1)*(nel+1)*(nel+1)-1
     iwork(i+lb(3)) = -1

@@ -14,18 +14,19 @@
 
 subroutine wrcivec_cvb(detvec,fn,reord)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: detvec(*)
 character(len=*) :: fn
 logical(kind=iwp) :: reord
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "jobiph_j.fh"
-integer(kind=iwp) :: i, iDisk, idum, ipCI, ipCI2, iwr, j, k, lujob, ncix(8), ndet_j
+integer(kind=iwp) :: i, iDisk, iwr, j, k, lujob, ncix(8), ndet_j
 real(kind=wp) :: rdum(1)
+real(kind=wp), allocatable :: CI(:), CI2(:)
 logical(kind=iwp) :: debug = .false.
 
 iwr = 1
@@ -36,8 +37,8 @@ ndet_j = ncix(1)
 lujob = 15
 call daname_cvb(lujob,fn)
 ! Allocate at least NDET words for each vector, since this is required by csdtvc:
-!call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j)
-call GetMem('OCIvec','Allo','Real',ipCI,nConf_j*nroots_j+ndet_j-nconf_j)
+!call mma_allocate(CI,nConf_j*nroots_j,label='OCIvec')
+call mma_allocate(CI,nConf_j*nroots_j+ndet_j-nConf_j,label='OCIvec')
 if (iwr == 0) then
   do i=1,nroots_j
     j = iroot_j(i)
@@ -45,25 +46,25 @@ if (iwr == 0) then
     do k=1,j-1
       call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
     end do
-    call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf_j),nConf_j,iDisk)
+    call dDaFile(LuJob,2,CI(1+(i-1)*nConf_j),nConf_j,iDisk)
   end do
 
   if (reord) then
-    call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
-    call reord2_cvb(work(ipci),work(ipci2),1)
-    call fmove_cvb(work(ipci2),work(ipci),nconf_j)
-    call GetMem('ipci2','Free','Real',ipCI2,idum)
+    call mma_allocate(CI2,nConf_j,label='CI2')
+    call reord2_cvb(CI,CI2,1)
+    call fmove_cvb(CI2,CI,nconf_j)
+    call mma_deallocate(CI2)
   end if
 
-  call csf2det_cvb(work(ipci),detvec,lsym_j,1)
+  call csf2det_cvb(CI,detvec,lsym_j,1)
 else if (iwr == 1) then
-  call csf2det_cvb(work(ipci),detvec,lsym_j,2)
+  call csf2det_cvb(CI,detvec,lsym_j,2)
 
   if (reord) then
-    call GetMem('ipci2','Allo','Real',ipCI2,nConf_j)
-    call reord2_cvb(work(ipci),work(ipci2),0)
-    call fmove_cvb(work(ipci2),work(ipci),nconf_j)
-    call GetMem('ipci2','Free','Real',ipCI2,idum)
+    call mma_allocate(CI2,nConf_j,label='CI2')
+    call reord2_cvb(CI,CI2,0)
+    call fmove_cvb(CI2,CI,nconf_j)
+    call mma_deallocate(CI2)
   end if
 
   do i=1,nroots_j
@@ -72,17 +73,17 @@ else if (iwr == 1) then
     do k=1,j-1
       call dDaFile(LuJob,0,rdum,nConf_j,iDisk)
     end do
-    call dDaFile(LuJob,1,Work(ipCI+(i-1)*nconf_j),nConf_j,iDisk)
+    call dDaFile(LuJob,1,CI(1+(i-1)*nConf_j),nConf_j,iDisk)
   end do
 end if
 if (debug) then
   do i=0,nroots_j-1
     write(u6,'(a,i3,a)') ' (CSF) CI vector ',i+1,' :'
     write(u6,'(a)') ' ---------------------'
-    call mxprint_cvb(work(ipci+nconf_j*i),1,nconf_j,0)
+    call mxprint_cvb(CI(1+nconf_j*i),1,nconf_j,0)
   end do
 end if
-call GetMem('OCIvec','Free','Real',ipCI,idum)
+call mma_deallocate(CI)
 call daclos_cvb(lujob)
 
 return

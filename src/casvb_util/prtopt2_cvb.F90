@@ -15,20 +15,21 @@
 subroutine prtopt2_cvb(iopt1,ioptim,italter,noptim,iorts,ifxorb,ifxstr,idelstr)
 
 use casvb_global, only: spinb
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: iopt1, ioptim, italter, noptim, iorts(2*norb*(norb-1)/2), ifxorb(norb), ifxstr(nvb), idelstr(nvb)
+integer(kind=iwp) :: iopt1, ioptim, italter, noptim, iorts(2,norb*(norb-1)/2), ifxorb(norb), ifxstr(nvb), idelstr(nvb)
 #include "optze_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ifx, ii, io, itmp
+integer(kind=iwp) :: i, ifx, ii, io
 character(len=9) :: sbformat
 character(len=3) :: ayn
+integer(kind=iwp), allocatable :: tmp(:)
 character(len=8), parameter :: methkw(12) = ['Fletcher','    TRIM','Trustopt','Davidson','   Steep','  Vb2cas',' AugHess', &
                                              'AugHess2','   Check',' dFletch','    None','Super-CI']
-integer(kind=iwp), external :: len_trim_cvb, mstacki_cvb
+integer(kind=iwp), external :: len_trim_cvb
 
 if (ifinish == 0) then
   if ((ip(3) >= 1) .or. ((ip(3) == 0) .and. ((iopt1 == 0) .or. (italter == 1)))) then
@@ -59,23 +60,23 @@ if (ifinish == 0) then
     if (isaddle > 0) write(u6,'(/,a,i9)') ' Saddle-point optimization, order:',isaddle
     if (nort > 0) then
       write(u6,'(/,i4,a)') nort,' orthogonalization pairs defined :'
-      write(u6,6100) (io,iorts(1+(io-1)*2),iorts(2+(io-1)*2),io=1,nort)
+      write(u6,6100) (io,iorts(1,io),iorts(2,io),io=1,nort)
     end if
     if (nfxorb == norb) then
       write(u6,'(/,a)') ' All orbitals will be frozen.'
     else if (nfxorb > 0) then
       write(u6,'(/,a)') ' Following orbitals will be frozen :'
-      itmp = mstacki_cvb(nfxorb)
+      call mma_allocate(tmp,nfxorb,label='tmp')
       ifx = 0
       do i=1,norb
         if ((ifxorb(i) >= 0) .and. (ifxorb(i) <= norb)) then
           ifx = ifx+1
-          iwork(ifx+itmp-1) = i
+          tmp(ifx) = i
         end if
       end do
       nfxorb = ifx
-      write(u6,'(14i3)') (iwork(ii+itmp-1),ii=1,nfxorb)
-      call mfreei_cvb(itmp)
+      write(u6,'(14i3)') (tmp(ii),ii=1,nfxorb)
+      call mma_deallocate(tmp)
     end if
     if ((nfxvb > 0) .and. (lfxvb == 0)) then
       write(u6,'(/,a)') ' Following structures will be frozen :'

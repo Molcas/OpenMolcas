@@ -12,6 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine writegs_cvb()
 
 use Definitions, only: iwp
@@ -19,12 +20,8 @@ use Definitions, only: iwp
 implicit none
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstacki_cvb
 
-i1 = mstacki_cvb(ndetvb)
-call writegs2_cvb(work(lv(1)),work(lv(2)),work(lw(9)),iwork(ll(11)),iwork(ll(12)),iwork(i1))
-call mfreei_cvb(i1)
+call writegs2_cvb(work(lv(1)),work(lv(2)),work(lw(9)),iwork(ll(11)),iwork(ll(12)))
 
 return
 

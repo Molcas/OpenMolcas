@@ -12,15 +12,23 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine asc2ab2_cvb(detvec,nvec,nel,nalf,nbet,ndet,mindet,maxdet,nkdet,xdet,locc)
+subroutine asc2ab2_cvb(detvec,nvec,nel,nalf,nbet,ndet)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nvec, nel, nalf, nbet, ndet, mindet(0:nel), maxdet(0:nel), nkdet(0:nel), xdet(0:nel,0:nalf), locc(nel)
+integer(kind=iwp) :: nvec, nel, nalf, nbet, ndet
 real(kind=wp) :: detvec(ndet,nvec)
 integer(kind=iwp) :: inddet, iorb, rc
+integer(kind=iwp), allocatable :: locc(:), maxdet(:), mindet(:), nkdet(:), xdet(:,:)
 real(kind=wp), external :: party_cvb
+
+call mma_allocate(mindet,[0,nel],label='mindet')
+call mma_allocate(maxdet,[0,nel],label='maxdet')
+call mma_allocate(nkdet,[0,nel],label='nkdet')
+call mma_allocate(xdet,[0,nel],[0,nalf],label='xdet')
+call mma_allocate(locc,nel,label='locc')
 
 do iorb=0,nel
   mindet(iorb) = max(iorb-nbet,0)
@@ -35,6 +43,12 @@ do
   call loind_cvb(nel,nalf,nkdet,mindet,maxdet,locc,locc(nalf+1),inddet,xdet,rc)
   if (rc == 0) exit
 end do
+
+call mma_deallocate(mindet)
+call mma_deallocate(maxdet)
+call mma_deallocate(nkdet)
+call mma_deallocate(xdet)
+call mma_deallocate(locc)
 
 return
 

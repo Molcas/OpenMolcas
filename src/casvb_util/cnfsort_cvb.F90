@@ -12,14 +12,19 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine cnfsort_cvb(iconfs,nconf1,nel1,ioncty,iconfs2)
+subroutine cnfsort_cvb(iconfs,nconf1,nel1)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1, ioncty(nconf1), iconfs2(noe,nconf1)
+integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
 integer(kind=iwp) :: iconf, ion, iorb, jconf, mnion1, mxion1
+integer(kind=iwp), allocatable :: iconfs2(:,:), ioncty(:)
+
+call mma_allocate(ioncty,nconf1,label='ioncty')
+call mma_allocate(iconfs2,noe,nconf1,label='iconfs2')
 
 mnion1 = nel1/2
 mxion1 = 0
@@ -46,6 +51,9 @@ if (jconf /= nconf1) then
   call abend_cvb()
 end if
 call imove_cvb(iconfs2,iconfs,noe*nconf1)
+
+call mma_deallocate(ioncty)
+call mma_deallocate(iconfs2)
 
 return
 

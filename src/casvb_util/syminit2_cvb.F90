@@ -12,22 +12,23 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine syminit2_cvb(symelm,iorbrel,north,corth,irels,relorb,io,iorder,iorbs,a,b,rr,ri,vr,vi,intger,ifxorb,ifxstr,idelstr, &
-                        iorts,irots,izeta)
+subroutine syminit2_cvb(symelm,iorbrel,north,corth,irels,relorb,ifxorb,ifxstr,idelstr,iorts,irots,izeta)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: symelm(norb,norb,nsyme), corth(norb,*), relorb(norb,norb,*), a(norb,norb), b(norb,norb), rr(norb), ri(norb), &
-                 vr(norb,norb), vi(norb,norb)
-integer(kind=iwp) :: iorbrel(ndimrel), north(norb), irels(2,*), io(4,norbrel), iorder(norb,norbrel), iorbs(norb), intger(norb), &
-                     ifxorb(norb), ifxstr(nfxvb), idelstr(nzrvb), iorts(2,nort), irots(2,ndrot), izeta(nsyme)
+real(kind=wp) :: symelm(norb,norb,nsyme), corth(norb,*), relorb(norb,norb,*)
+integer(kind=iwp) :: iorbrel(ndimrel), north(norb), irels(2,*), ifxorb(norb), ifxstr(nfxvb), idelstr(nzrvb), iorts(2,nort), &
+                     irots(2,ndrot), izeta(nsyme)
 #include "files_cvb.fh"
 integer(kind=iwp) :: i, iaddr, icnt, ieig, ifail, ii, iior, ijrel, ijrel2, il, ioffs, iorb, iorb2, ir, irel, ishift, ishift2, j, &
                      jj, jl, jor, jorb, jorb2, korb, nciorth, ncount, nrel
 real(kind=wp) :: dum(1)
 logical(kind=iwp) :: found
+integer(kind=iwp), allocatable :: intger(:), io(:,:), iorder(:,:), iorbs(:)
+real(kind=wp), allocatable :: a(:,:), b(:,:), ri(:), rr(:), vi(:,:), vr(:,:)
 real(kind=wp), parameter :: thresh = 1.0e-8_wp
 
 ! Restore arrays:
@@ -39,6 +40,9 @@ call rdis_cvb(idelstr,nzrvb,recinp,ioffs)
 call rdis_cvb(iorts,2*nort,recinp,ioffs)
 call rdis_cvb(irots,2*ndrot,recinp,ioffs)
 call rdis_cvb(izeta,nsyme,recinp,ioffs)
+
+call mma_allocate(iorbs,norb,label='iorbs')
+call mma_allocate(intger,norb,label='intger')
 
 ! First check that minimum number of orbital relations has been given
 ! (no cycle should be complete):
@@ -80,6 +84,13 @@ do ijrel=1,nijrel
   ishift = ishift+3+iorbrel(3+ishift)
 end do
 
+call mma_allocate(a,norb,norb,label='a')
+call mma_allocate(b,norb,norb,label='b')
+call mma_allocate(rr,norb,label='rr')
+call mma_allocate(ri,norb,label='ri')
+call mma_allocate(vr,norb,norb,label='vr')
+call mma_allocate(vi,norb,norb,label='vi')
+
 ! Diagonal orbital relations:
 nciorth = 0
 call izero(north,norb)
@@ -120,6 +131,14 @@ do iorb=1,norb
   nciorth = nciorth+north(iorb)
 end do
 niorth = nciorth
+
+call mma_deallocate(rr)
+call mma_deallocate(ri)
+call mma_deallocate(vr)
+call mma_deallocate(vi)
+call mma_deallocate(intger)
+call mma_allocate(io,4,norbrel,label='io')
+call mma_allocate(iorder,norb,norbrel,label='iorder')
 
 ! Off-diagonal relations:
 call izero(io,2*norbrel)
@@ -244,6 +263,12 @@ do ijrel=1,nijrel
     end do
   end do
 end do
+
+call mma_deallocate(io)
+call mma_deallocate(iorder)
+call mma_deallocate(iorbs)
+call mma_deallocate(a)
+call mma_deallocate(b)
 
 return
 

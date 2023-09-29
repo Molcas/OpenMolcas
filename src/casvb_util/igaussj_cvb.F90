@@ -15,28 +15,30 @@
 subroutine igaussj_cvb(orbs,igjorb)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb)
 integer(kind=iwp) :: igjorb(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ioff, k1, k2, k3, k4
-integer(kind=iwp) :: idbl_cvb, mstacki_cvb, mstackr_cvb
+integer(kind=iwp) :: i, ioff
+integer(kind=iwp), allocatable :: lrow(:)
+real(kind=wp), allocatable :: a(:,:)
+integer(kind=iwp), external :: idbl_cvb
 
-k1 = mstackr_cvb(norb*norb)
-k2 = mstacki_cvb(norb)
-k3 = mstacki_cvb(norb)
-k4 = mstacki_cvb(norb)
-call fmove_cvb(orbs,work(k1),norb*norb)
+call mma_allocate(a,norb,norb,label='a')
+call mma_allocate(lrow,norb,label='lrow')
+call fmove_cvb(orbs,a,norb*norb)
 ioff = idbl_cvb(norb*norb)
 call igaussj_cvb_internal(igjorb)
-call imove_cvb(igjorb(1+ioff),iwork(k2),norb)
+call imove_cvb(igjorb(1+ioff),lrow,norb)
 do i=1,norb
-  igjorb(iwork(i+k2-1)+ioff) = i
+  igjorb(lrow(i)+ioff) = i
 end do
-call mfreer_cvb(k1)
+call mma_deallocate(a)
+call mma_deallocate(lrow)
+
 return
 
 ! This is to allow type punning without an explicit interface
@@ -46,7 +48,7 @@ subroutine igaussj_cvb_internal(igjorb)
   integer(kind=iwp), target :: igjorb(*)
   real(kind=wp), pointer :: gjorb(:)
   call c_f_pointer(c_loc(igjorb(1)),gjorb,[norb*norb])
-  call gaussj2_cvb(work(k1),iwork(k2),iwork(k3),iwork(k4),igjorb(1+ioff),igjorb(1+norb+ioff),gjorb,norb)
+  call gaussj2_cvb(a,lrow,igjorb(1+ioff),igjorb(1+norb+ioff),gjorb,norb)
   nullify(gjorb)
 end subroutine igaussj_cvb_internal
 

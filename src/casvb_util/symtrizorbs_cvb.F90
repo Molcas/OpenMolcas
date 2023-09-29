@@ -12,27 +12,17 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine symtrizorbs_cvb(orbs)
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, i4, i5, i6, i7
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
-i1 = mstacki_cvb(norb)
-i2 = mstacki_cvb(norb)
-i3 = mstacki_cvb(norb)
-i4 = mstacki_cvb(norb)
-i5 = mstacki_cvb(norb)
-i6 = mstackr_cvb(norb)
-i7 = mstackr_cvb(norb)
-call symtrizorbs2_cvb(orbs,iwork(ls(3)),work(ls(4)),iwork(ls(5)),work(ls(6)),iwork(ls(8)),iwork(ls(11)),iwork(i1),iwork(i2), &
-                      iwork(i3),iwork(i4),iwork(i5),work(i6),work(i7))
-call mfreei_cvb(i1)
+call symtrizorbs2_cvb(orbs,iwork(ls(3)),work(ls(4)),iwork(ls(5)),work(ls(6)),iwork(ls(8)),iwork(ls(11)))
 
 return
 

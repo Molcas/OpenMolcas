@@ -24,6 +24,7 @@
 subroutine permci_cvb(v1,iperm)
 ! Permutes orbitals in V1 according to IPERM.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,44 +32,31 @@ implicit none
 real(kind=wp) :: v1(*)
 integer(kind=iwp) :: iperm(norb)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: ialg, iv1, k1, k10, k11, k12, k13, k14, k15, k16, k17, k2, k5, k6, k7, k8, k9
+integer(kind=iwp) :: ialg, iv1, v2len
 logical(kind=iwp) :: vb
-integer(kind=iwp), external :: mavailr_cvb, mstacki_cvb, mstackr_cvb
+real(kind=wp), allocatable :: v2(:)
+integer(kind=iwp), external :: mavailr_cvb
 
 vb = .false.
-k1 = mstacki_cvb((norb+1)*(nalf+1))
-k2 = mstacki_cvb((norb+1)*(nbet+1))
-k5 = mstacki_cvb(norb+1)
-k6 = mstacki_cvb(norb+1)
-k7 = mstacki_cvb(norb+1)
-k8 = mstacki_cvb(norb)
-k9 = mstacki_cvb(norb)
-k10 = mstacki_cvb(norb)
-k11 = mstacki_cvb(norb)
-k12 = mstacki_cvb(norb)
-k13 = mstacki_cvb(nda)
-k14 = mstackr_cvb(nda)
-k15 = mstacki_cvb(ndb)
-k16 = mstackr_cvb(ndb)
 if (vb) then
-  k17 = mstackr_cvb(ndetvb)
+  v2len = ndetvb
 else if (mavailr_cvb() >= ndet) then
   ialg = 1
-  k17 = mstackr_cvb(ndet)
+  v2len = ndet
 else
   ialg = 2
-  k17 = mstackr_cvb(nda)
+  v2len = nda
 end if
+call mma_allocate(v2,v2len,label='v2')
 if (vb) then
-  call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),iwork(k1),iwork(k2),iwork(k5),iwork(k6),iwork(k7),iwork(k8),iwork(k9), &
-                   iwork(k10),iwork(k11),iwork(k12),iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
+  call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),v2,ialg)
 else
   iv1 = nint(v1(1))
   !DLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
-  call permvb2_cvb(work(iaddr_ci(iv1)),iperm,vb,iwork(ll(11)),iwork(ll(12)),iwork(k1),iwork(k2),iwork(k5),iwork(k6),iwork(k7), &
-                   iwork(k8),iwork(k9),iwork(k10),iwork(k11),iwork(k12),iwork(k13),work(k14),iwork(k15),work(k16),work(k17),ialg)
+  call permvb2_cvb(work(iaddr_ci(iv1)),iperm,vb,iwork(ll(11)),iwork(ll(12)),v2,ialg)
 end if
-call mfreei_cvb(k1)
+
+call mma_deallocate(v2)
 
 return
 

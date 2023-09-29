@@ -12,20 +12,37 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine projspn_cvb(bikcof,nel,nalf,nbet,ndet,ifns,minalf,maxalf,nkalf,minspn,maxspn,nkspn,locswp,lnoswp,locca,lnocca,ialfa, &
-                       xdet,xspin,iw,detphase)
+subroutine projspn_cvb(bikcof,nel,nalf,nbet,ndet,ifns)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns, minalf(0:nel), maxalf(0:nel), nkalf(0:nel), minspn(0:nel), maxspn(0:nel), &
-                     nkspn(0:nel), locswp(2*nbet), lnoswp(2*nbet), locca(nel), lnocca(nel), ialfa(nalf), xdet(0:nel,0:nalf), &
-                     xspin((nel+1)*(nalf+1)), iw(nel)
-real(kind=wp) :: bikcof(ndet,ifns), detphase(ndet)
+integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns
+real(kind=wp) :: bikcof(ndet,ifns)
 integer(kind=iwp) :: i, inddet, indx, iorb, iswp, rc
 logical(kind=iwp) :: done, first
+integer(kind=iwp), allocatable :: ialfa(:), iw(:), lnocca(:), lnoswp(:), locca(:), locswp(:), maxalf(:), maxspn(:), minalf(:), &
+                                  minspn(:), nkalf(:), nkspn(:), xdet(:,:), xspin(:)
+real(kind=wp), allocatable :: detphase(:)
 integer(kind=iwp), external :: minind_cvb
+
+call mma_allocate(minalf,[0,nel],label='minalf')
+call mma_allocate(maxalf,[0,nel],label='maxalf')
+call mma_allocate(nkalf,[0,nel],label='nkalf')
+call mma_allocate(minspn,[0,nel],label='minspn')
+call mma_allocate(maxspn,[0,nel],label='maxspn')
+call mma_allocate(nkspn,[0,nel],label='nkspn')
+call mma_allocate(locswp,2*nbet,label='locswp')
+call mma_allocate(lnoswp,2*nbet,label='lnoswp')
+call mma_allocate(locca,nel,label='locca')
+call mma_allocate(lnocca,nel,label='lnocca')
+call mma_allocate(ialfa,nalf,label='ialfa')
+call mma_allocate(xdet,[0,nel],[0,nalf],label='xdet')
+call mma_allocate(xspin,(nel+1)*(nalf+1),label='xspin')
+call mma_allocate(iw,nel,label='iw')
+call mma_allocate(detphase,ndet,label='detphase')
 
 ! Phase factors between alpha-beta separated determinants
 ! and determinants with ascending orbital numbers
@@ -51,6 +68,8 @@ end do
 call weight_cvb(xdet,minalf,maxalf,nalf,nel)
 call imove_cvb(maxalf,nkalf,nel+1)
 call occupy_cvb(nkalf,nel,locca,lnocca)
+call mma_deallocate(locca)
+call mma_deallocate(lnocca)
 ! Loop:
 indx = 1
 first = .true.
@@ -88,6 +107,20 @@ do
   call loind_cvb(nel,nalf,nkspn,minspn,maxspn,iw,iw(nalf+1),indx,xspin,rc)
   if (rc == 0) exit
 end do
+
+call mma_deallocate(minalf)
+call mma_deallocate(maxalf)
+call mma_deallocate(nkalf)
+call mma_deallocate(minspn)
+call mma_deallocate(maxspn)
+call mma_deallocate(nkspn)
+call mma_deallocate(locswp)
+call mma_deallocate(lnoswp)
+call mma_deallocate(ialfa)
+call mma_deallocate(xdet)
+call mma_deallocate(xspin)
+call mma_deallocate(iw)
+call mma_deallocate(detphase)
 
 return
 

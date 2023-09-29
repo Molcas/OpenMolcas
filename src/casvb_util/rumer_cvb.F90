@@ -12,23 +12,25 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine rumer_cvb(bikcof,nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim,minspn,maxspn,nkspn,minswp,maxswp,nkswp,ioccswp,locca, &
-                     lnocca,xdet,xspin,iw,ialfs,ibets)
+subroutine rumer_cvb(bikcof,nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns, kbasis, iprint, nswpdim, minspn(0:nel), maxspn(0:nel), nkspn(0:nel), &
-                     minswp(0:2*nbet), maxswp(0:2*nbet), nkswp(0:2*nbet), ioccswp(nbet,nswpdim), locca(nel), lnocca(nel), &
-                     xdet(0:nel,0:nalf), xspin((nel+1)*(nalf+1)), iw(nel), ialfs(nalf), ibets(nbet)
+integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns, kbasis, iprint, nswpdim
 real(kind=wp) :: bikcof(ndet,ifns)
 integer(kind=iwp) :: ia, iachek, ib, ii, indx, iorb, iswp, nbet2, rc
 real(kind=wp) :: abphase, bikvalue, scl
+integer(kind=iwp), allocatable :: ialfs(:), ibets(:), ioccswp(:,:), iw(:), locca(:), lnocca(:), maxspn(:), maxswp(:), minspn(:), &
+                                  minswp(:), nkspn(:), nkswp(:), xdet(:,:), xspin(:)
 integer(kind=iwp), external :: indget_cvb
 real(kind=wp), external :: party_cvb
 
 call fzero(bikcof,ifns*ndet)
+
+call mma_allocate(xdet,[0,nel],[0,nalf],label='xdet')
 
 ! Determinant weight array (index from alpha spin string):
 call weightfl_cvb(xdet,nalf,nel)
@@ -41,6 +43,11 @@ end if
 
 if ((iprint >= 2) .and. ((kbasis == 3) .or. (kbasis == 4))) write(u6,6100) 2**nbet
 abphase = real(1-2*mod(nbet*(nbet-1)/2,2),kind=wp)
+
+call mma_allocate(minswp,[0,2*nbet],label='minswp')
+call mma_allocate(maxswp,[0,2*nbet],label='maxswp')
+call mma_allocate(nkswp,[0,2*nbet],label='nkswp')
+call mma_allocate(ioccswp,nbet,nswpdim,label='ioccswp')
 
 ! Prepare NKs for a<->b interchanges in (ab-ba) terms:
 nbet2 = nbet+nbet
@@ -59,6 +66,16 @@ do
   if (rc == 0) exit
 end do
 
+call mma_deallocate(minswp)
+call mma_deallocate(maxswp)
+call mma_deallocate(nkswp)
+call mma_allocate(minspn,[0,nel],label='minspn')
+call mma_allocate(maxspn,[0,nel],label='maxspn')
+call mma_allocate(nkspn,[0,nel],label='nkspn')
+call mma_allocate(locca,nel,label='locca')
+call mma_allocate(lnocca,nel,label='lnocca')
+call mma_allocate(xspin,(nel+1)*(nalf+1),label='xspin')
+
 ! Spin function weight arrays:
 do iorb=0,nel
   minspn(iorb) = max(iorb-nalf,0)
@@ -71,6 +88,10 @@ if ((ifns /= xspin((nel+1)*(nbet+1))) .and. (kbasis /= 6)) then
 end if
 call imove_cvb(maxspn,nkspn,nel+1)
 call occupy_cvb(nkspn,nel,locca,lnocca)
+
+call mma_allocate(iw,nel,label='iw')
+call mma_allocate(ialfs,nalf,label='ialfs')
+call mma_allocate(ibets,nbet,label='ibets')
 
 ! Loop:
 indx = 1
@@ -124,11 +145,24 @@ do while ((kbasis /= 6) .or. (indx <= ifns))
   if (rc == 0) exit
 end do
 
+call mma_deallocate(minspn)
+call mma_deallocate(maxspn)
+call mma_deallocate(nkspn)
+call mma_deallocate(ioccswp)
+call mma_deallocate(locca)
+call mma_deallocate(lnocca)
+call mma_deallocate(xdet)
+call mma_deallocate(xspin)
+call mma_deallocate(iw)
+call mma_deallocate(ialfs)
+call mma_deallocate(ibets)
+
 ! Normalise
 scl = One/sqrt(real(2**nbet,kind=wp))
 call dscal_(ndet*ifns,scl,bikcof,1)
 
 return
+
 6100 format(/,' Number of determinants per structure:',i4)
 6200 format(2x,i3,' ==> ',8(i2,'-',i2,3x))
 

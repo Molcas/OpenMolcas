@@ -12,16 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine writegs2_cvb(orbs,cvb,cvbdet,iapr,ixapr,iabind)
+subroutine writegs2_cvb(orbs,cvb,cvbdet,iapr,ixapr)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), cvb(nvb), cvbdet(ndetvb)
-integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), iabind(ndetvb)
+integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1)
 #include "files_cvb.fh"
 integer(kind=iwp) :: ia, ib, idetvb, ioffs, ixa
+integer(kind=iwp), allocatable :: iabind(:)
+
+call mma_allocate(iabind,ndetvb,label='iabind')
 
 call str2vbc_cvb(cvb,cvbdet)
 ioffs = 0
@@ -41,6 +45,8 @@ end do
 call wris_cvb(iabind,ndetvb,recn_tmp04,ioffs)
 call wrrs_cvb(cvbdet,ndetvb,recn_tmp04,ioffs)
 call make_cvb('WRITEGS')
+
+call mma_deallocate(iabind)
 
 return
 

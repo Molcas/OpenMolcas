@@ -12,21 +12,24 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine cnfcheck2_cvb(iconfs,nconf1,nel1,iocc)
+subroutine cnfcheck2_cvb(iconfs,nconf1,nel1)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1, iocc(noe)
+integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
 integer(kind=iwp) :: i, iconf, ii, iorb, jconf, nsum
 logical(kind=iwp) :: found, locc, locc_only, lorbs, lorbs_only
+integer(kind=iwp), allocatable :: iocc(:)
 
 if (nconf1 == 0) then
   ! Special case -- iconfs will be ok and adhere to occ no definition.
   nconf1 = 1
   return
 end if
+
 ! Perform basic checks of configurations:
 ! First determine if a consistent definition (orb list or
 ! occ numbers) has been used for the configurations.
@@ -37,6 +40,8 @@ end if
 !
 ! Second run through if necessary we check again in case iconfs
 ! contains *both* types of definitions.
+
+call mma_allocate(iocc,noe,label='iocc')
 
 locc_only = .false.
 lorbs_only = .false.
@@ -148,6 +153,8 @@ do iconf=1,nconf1
     end do
   end if
 end do
+
+call mma_deallocate(iocc)
 
 return
 

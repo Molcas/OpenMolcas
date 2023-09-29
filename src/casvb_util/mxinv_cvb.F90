@@ -14,55 +14,59 @@
 
 subroutine mxinv_cvb(a,n)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: n
 real(kind=wp) :: a(n,n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2, i3, ierr
+integer(kind=iwp) :: i, ierr
 real(kind=wp) :: rms
+integer(kind=iwp), allocatable :: itmp(:)
+real(kind=wp), allocatable :: tmp1(:,:), tmp2(:,:)
 real(kind=wp), parameter :: thresh = 1.0e-10_wp
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 real(kind=wp), external :: ddot_
 
-i1 = mstackr_cvb(n*n)
-i2 = mstackr_cvb(n*n)
-i3 = mstacki_cvb(n)
+call mma_allocate(tmp1,n,n,label='tmp1')
+call mma_allocate(tmp2,n,n,label='tmp2')
+call mma_allocate(itmp,n,label='itmp')
 ierr = 0
-call fmove_cvb(a,work(i1),n*n)
-call dgetrf_(n,n,work(i1),n,iwork(i3),ierr)
+call fmove_cvb(a,tmp1,n*n)
+call dgetrf_(n,n,tmp1,n,itmp,ierr)
 if (ierr /= 0) then
   write(u6,*) ' Error in LU decomposition for inversion:',ierr
   call mxprint_cvb(a,n,n,0)
   call abend_cvb()
 end if
-call dgetri_(n,work(i1),n,iwork(i3),work(i2),n*n,ierr)
+call dgetri_(n,tmp1,n,itmp,tmp2,n*n,ierr)
 ! Check solution
-call mxatb_cvb(a,work(i1),n,n,n,work(i2))
+call mxatb_cvb(a,tmp1,n,n,n,tmp2)
 do i=1,n
-  work(i+(i-1)*n+i2-1) = work(i+(i-1)*n+i2-1)-One
+  tmp2(i,i) = tmp2(i,i)-One
 end do
-rms = sqrt(ddot_(n*n,work(i2),1,work(i2),1)/real(n*n,kind=wp))
+rms = sqrt(ddot_(n*n,tmp2,1,tmp2,1)/real(n*n,kind=wp))
 if (rms > thresh) then
   write(u6,*) ' Fatal error in matrix inversion - error:',rms
   write(u6,*) ' Singular or near-singular matrix.'
   write(u6,*) ' Matrix :'
   call mxprint_cvb(a,n,n,0)
   write(u6,*) ' Inverted matrix :'
-  call mxprint_cvb(work(i1),n,n,0)
+  call mxprint_cvb(tmp1,n,n,0)
   write(u6,*) ' Check :'
-  call mxprint_cvb(work(i2),n,n,0)
-  call mxdiag_cvb(a,work(i2),n)
+  call mxprint_cvb(tmp2,n,n,0)
+  call mxdiag_cvb(a,tmp2,n)
   write(u6,*) ' Eigenvalues :'
-  call mxprint_cvb(work(i2),1,n,0)
+  call mxprint_cvb(tmp2,1,n,0)
   write(u6,*) ' Eigenvectors :'
   call mxprint_cvb(a,1,n,0)
   call abend_cvb()
 end if
-call fmove_cvb(work(i1),a,n*n)
-call mfreer_cvb(i1)
+call fmove_cvb(tmp1,a,n*n)
+
+call mma_deallocate(tmp1)
+call mma_deallocate(tmp2)
+call mma_deallocate(itmp)
 
 return
 

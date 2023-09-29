@@ -14,19 +14,56 @@
 
 subroutine indxab_cvb(indxa,indxb,nstra,nstrb,nsa,nsb)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: nsa, indxa(nsa), nsb, indxb(nsb), nstra(mxirrep), nstrb(mxirrep)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: ia, ib, iisym, inda, indb, indx, irp
+integer(kind=iwp), allocatable :: iocc(:)
 
-i1 = mstacki_cvb(norb+1)
+call mma_allocate(iocc,norb+1,label='iocc')
 
-call indxab2_cvb(indxa,indxb,nstra,nstrb,iwork(i1),nsa,nsb)
-call mfreei_cvb(i1)
+call izero(nstra,mxirrep)
+call izero(nstrb,mxirrep)
+inda = 0
+indb = 0
+do iisym=1,mxirrep
+
+  call loopstr0_cvb(iocc,indx,nalf,norb)
+  do
+    irp = 1
+    do ia=1,nalf
+      irp = md2h(irp,ityp(iocc(ia)))
+    end do
+    if (irp == iisym) then
+      inda = inda+1
+      nstra(iisym) = nstra(iisym)+1
+      indxa(inda) = indx
+    end if
+    call loopstr_cvb(iocc,indx,nalf,norb)
+    if (indx == 1) exit
+  end do
+
+  call loopstr0_cvb(iocc,indx,nbet,norb)
+  do
+    irp = 1
+    do ib=1,nbet
+      irp = md2h(irp,ityp(iocc(ib)))
+    end do
+    if (irp == iisym) then
+      indb = indb+1
+      nstrb(iisym) = nstrb(iisym)+1
+      indxb(indb) = indx
+    end if
+    call loopstr_cvb(iocc,indx,nbet,norb)
+    if (indx == 1) exit
+  end do
+
+end do
+
+call mma_deallocate(iocc)
 
 return
 

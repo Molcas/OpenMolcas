@@ -15,21 +15,21 @@
 subroutine cnfprint_cvb()
 
 use casvb_global, only: nconf_fr, ndetvb_fr, nel_fr, nfrag, nvbr_fr
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 #include "files_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, idum(1), ifrag, ioffs, nconf_off
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: i, idum(1), ifrag, ioffs, nconf_off
+integer(kind=iwp), allocatable :: scr(:)
 logical(kind=iwp), external :: recinpcmp_cvb, up2date_cvb ! ... Make: up to date? ...
 
 if (recinpcmp_cvb(4)) call touch_cvb('CNFPRINT')
 
 if ((ip(1) >= 0) .and. (.not. up2date_cvb('CNFPRINT'))) then
-  i1 = mstacki_cvb(max(noe,noe*nconf))
+  call mma_allocate(scr,max(noe,noe*nconf),label='scr')
   call rdioff_cvb(1,recinp,ioffs)
   call rdis_cvb(idum,1,recinp,ioffs)
   !noe1 = idum(1)
@@ -37,13 +37,13 @@ if ((ip(1) >= 0) .and. (.not. up2date_cvb('CNFPRINT'))) then
   !nconf1 = idum(1)
   call rdis_cvb(idum,1,recinp,ioffs)
   !kbasiscvb1 = idum(1)
-  call rdis_cvb(iwork(i1),noe*nconf,recinp,ioffs)
+  call rdis_cvb(scr,noe*nconf,recinp,ioffs)
   if (nconf == 0) then
     do i=1,min(nel,norb)
-      iwork(i+i1-1) = 1
+      scr(i) = 1
     end do
     do i=1,nel-norb
-      iwork(i+i1-1) = 2
+      scr(i) = 2
     end do
   end if
   nconf_off = 0
@@ -52,13 +52,13 @@ if ((ip(1) >= 0) .and. (.not. up2date_cvb('CNFPRINT'))) then
     write(u6,'(/,a)') ' Spatial VB configurations'
     write(u6,'(a)') ' -------------------------'
     write(u6,'(a)') '     Conf. =>   Orbitals'
-    call cnfprt_cvb(iwork(noe*nconf_off+i1),nconf_fr(ifrag),nel_fr(ifrag))
+    call cnfprt_cvb(scr(noe*nconf_off+1),nconf_fr(ifrag),nel_fr(ifrag))
     write(u6,'(/,a,i6)') ' Number of VB configurations :',nconf_fr(ifrag)
     write(u6,'(a,i6)') '           VB structures     :',nvbr_fr(ifrag)
     write(u6,'(a,i6)') '           VB determinants   :',ndetvb_fr(ifrag)
     nconf_off = nconf_off+nconf_fr(ifrag)
   end do
-  call mfreei_cvb(i1)
+  call mma_deallocate(scr)
   call make_cvb('CNFPRINT')
 end if
 

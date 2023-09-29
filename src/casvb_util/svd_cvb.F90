@@ -12,26 +12,78 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine svd_cvb(a,val,vec,vmat,n1,n2)
+subroutine svd_cvb(ainp,val,vec,vmat,n1,n2)
 
-use Definitions, only: wp, iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: n1, n2
-real(kind=wp) :: a(n1,n2), val(n2), vec(n1,n2), vmat(n2,n2)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, i4, i5, i6, n12
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
+real(kind=wp) :: ainp(n1,n2), val(n2), vec(n1,n2), vmat(n2,n2)
+integer(kind=iwp) :: i, ierr, n12
+integer(kind=iwp), allocatable :: indx(:)
+real(kind=wp), allocatable :: a(:,:), rv1(:), u(:,:), v(:,:), w(:)
+real(kind=wp), external :: dnrm2_
 
 n12 = max(n1,n2)
-i1 = mstackr_cvb(n12*n2)
-i2 = mstackr_cvb(n2)
-i3 = mstackr_cvb(n12*n2)
-i4 = mstackr_cvb(n12*n2)
-i5 = mstackr_cvb(n2)
-i6 = mstacki_cvb(n2)
-call svd2_cvb(a,val,vec,vmat,n1,n2,n12,work(i1),work(i2),work(i3),work(i4),work(i5),iwork(i6))
-call mfreer_cvb(i1)
+call mma_allocate(a,n12,n2,label='a')
+call mma_allocate(w,n2,label='w')
+call mma_allocate(u,n12,n2,label='u')
+call mma_allocate(v,n12,n2,label='v')
+call mma_allocate(rv1,n2,label='rv1')
+call mma_allocate(indx,n2,label='indx')
+
+if (n12 == n1) then
+  call fmove_cvb(ainp,a,n1*n2)
+else
+  call fzero(a,n12*n2)
+  do i=1,n2
+    call fmove_cvb(ainp(1,i),a(1,i),n1)
+  end do
+end if
+ierr = 0
+call svd(n12,n1,n2,a,w,.true.,u,.true.,v,ierr,rv1)
+
+call mma_deallocate(rv1)
+
+if (ierr /= 0) then
+  write(u6,*) ' Fatal error in SVD_CVB!',ierr
+  call abend_cvb()
+end if
+
+! Eispack code is broken, in the following u is generated from v:
+
+! First recreate a:
+if (n12 == n1) then
+  call fmove_cvb(ainp,a,n1*n2)
+else
+  call fzero(a,n12*n2)
+  do i=1,n2
+    call fmove_cvb(ainp(1,i),a(1,i),n1)
+  end do
+end if
+
+do i=1,n2
+  call mxatb_cvb(a,v(1,i),n12,n2,1,u(1,i))
+  call dscal_(n12,One/dnrm2_(n12,u(1,i),1),u(1,i),1)
+end do
+
+call mma_deallocate(a)
+call mma_allocate(indx,n2,label='indx')
+
+! Sort singular values in ascending order:
+call sortindxr_cvb(n2,w,indx)
+do i=1,n2
+  val(i) = w(indx(i))
+  call fmove_cvb(v(1,indx(i)),vmat(1,i),n2)
+  call fmove_cvb(u(1,indx(i)),vec(1,i),n1)
+end do
+
+call mma_deallocate(w)
+call mma_deallocate(u)
+call mma_deallocate(v)
+call mma_deallocate(indx)
 
 return
 

@@ -12,6 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine mksyminit_cvb()
 
 use Definitions, only: iwp
@@ -19,24 +20,10 @@ use Definitions, only: iwp
 implicit none
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i10, i2, i3, i4, i5, i6, i7, i8, i9
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
 ! Generate symmetry information - first call gets dimensions:
-i1 = mstacki_cvb(4*norbrel)
-i2 = mstacki_cvb(norb*norbrel)
-i3 = mstacki_cvb(norb)
-i4 = mstackr_cvb(norb*norb)
-i5 = mstackr_cvb(norb*norb)
-i6 = mstackr_cvb(norb)
-i7 = mstackr_cvb(norb)
-i8 = mstackr_cvb(norb*norb)
-i9 = mstackr_cvb(norb*norb)
-i10 = mstacki_cvb(norb)
-call syminit2_cvb(work(ls(1)),iwork(ls(2)),iwork(ls(3)),work(ls(4)),iwork(ls(5)),work(ls(6)),iwork(i1),iwork(i2),iwork(i3), &
-                  work(i4),work(i5),work(i6),work(i7),work(i8),work(i9),iwork(i10),iwork(ls(8)),iwork(ls(9)),iwork(ls(10)), &
-                  iwork(ls(11)),iwork(ls(12)),iwork(ls(13)))
-call mfreei_cvb(i1)
+call syminit2_cvb(work(ls(1)),iwork(ls(2)),iwork(ls(3)),work(ls(4)),iwork(ls(5)),work(ls(6)),iwork(ls(8)),iwork(ls(9)), &
+                  iwork(ls(10)),iwork(ls(11)),iwork(ls(12)),iwork(ls(13)))
 
 return
 

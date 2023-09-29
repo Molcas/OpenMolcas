@@ -12,19 +12,31 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mkciinfo2_cvb(i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto,xalf,xbet,xalf2,xbet2,mingrph,maxgrph,nk,locc,lunocc, &
-                         inewocc,iaccm)
+subroutine mkciinfo2_cvb(i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: i1alf(n1a,norb), i1bet(n1b,norb), iafrm(norb,nda), ibfrm(norb,ndb), iato(norb,0:nam1), ibto(norb,0:nbm1), &
-                     xalf(0:norb,0:nalf), xbet(0:norb,0:nbet), xalf2(0:norb,0:nalf-1), xbet2(0:norb,0:nbet-1), mingrph(0:norb), &
-                     maxgrph(0:norb), nk(0:norb), locc(norb+1), lunocc(norb+1), inewocc(norb), iaccm(norb)
+integer(kind=iwp) :: i1alf(n1a,norb), i1bet(n1b,norb), iafrm(norb,nda), ibfrm(norb,ndb), iato(norb,0:nam1), ibto(norb,0:nbm1)
 real(kind=wp) :: phato(norb,nam1), phbto(norb,nbm1)
 integer(kind=iwp) :: i, ia, iax, iaxtmp, ib, ibx, ibxtmp, iel, indx, iorb, rc
+integer(kind=iwp), allocatable :: iaccm(:), inewocc(:), locc(:), lunocc(:), maxgrph(:), mingrph(:), nk(:), xalf(:,:), xalf2(:,:), &
+                                  xbet(:,:), xbet2(:,:)
 integer(kind=iwp), external :: indget_cvb, ip_of_iWork
+
+call mma_allocate(xalf,[0,norb],[0,nalf],label='xalf')
+call mma_allocate(xbet,[0,norb],[0,nbet],label='xbet')
+call mma_allocate(xalf2,[0,norb],[0,nalf-1],label='xalf2')
+call mma_allocate(xbet2,[0,norb],[0,nbet-1],label='xbet2')
+call mma_allocate(mingrph,[0,norb],label='mingrph')
+call mma_allocate(maxgrph,[0,norb],label='maxgrph')
+call mma_allocate(nk,[0,norb],label='nk')
+call mma_allocate(locc,norb+1,label='locc')
+call mma_allocate(lunocc,norb+1,label='lunocc')
+call mma_allocate(inewocc,norb,label='inewocc')
+call mma_allocate(iaccm,norb,label='iaccm')
 
 call izero(iafrm,nda*norb)
 call izero(ibfrm,ndb*norb)
@@ -171,6 +183,18 @@ if (nbet > 0) then
     if (rc == 0) exit
   end do
 end if
+
+call mma_deallocate(xalf)
+call mma_deallocate(xbet)
+call mma_deallocate(xalf2)
+call mma_deallocate(xbet2)
+call mma_deallocate(mingrph)
+call mma_deallocate(maxgrph)
+call mma_deallocate(nk)
+call mma_deallocate(locc)
+call mma_deallocate(lunocc)
+call mma_deallocate(inewocc)
+call mma_deallocate(iaccm)
 
 return
 

@@ -12,21 +12,23 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine dpci2vb2_cvb(civec,cvbdet,dvbdet,evbdet,ic1,ret,ic,nda,ndb,ndetvb,nfrag,nda_fr,ndb_fr,ia12ind,ib12ind,nc_facalf, &
-                        nc_facbet,ncindalf,ncindbet,istack,mxstack,coeff,idetind,iapr,ixapr,ipr_off,ixapr_off,ixbpr_off,ndetvb_fr, &
-                        ndavb)
+subroutine dpci2vb2_cvb(civec,cvbdet,dvbdet,evbdet,ic1,ret,ic,nda,ndb,ndetvb,nfrag,nda_fr,ndb_fr,ia12ind,ib12ind,mxstack,iapr, &
+                        ixapr,ndetvb_fr,ndavb)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ic1, ic, nda, ndb, ndetvb, nfrag, nda_fr(nfrag), ndb_fr(nfrag), ia12ind(*), ib12ind(*), nc_facalf(nfrag), &
-                     nc_facbet(nfrag), ncindalf(0:nfrag), ncindbet(0:nfrag), mxstack, istack(mxstack), idetind(nfrag), &
-                     iapr(ndetvb), ndavb, ixapr(ndavb), ipr_off(nfrag), ixapr_off(nfrag), ixbpr_off(nfrag), ndetvb_fr(nfrag)
-real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb), ret, coeff(0:nfrag)
+integer(kind=iwp) :: ic1, ic, nda, ndb, ndetvb, nfrag, nda_fr(nfrag), ndb_fr(nfrag), ia12ind(*), ib12ind(*), mxstack, &
+                     iapr(ndetvb), ndavb, ixapr(ndavb), ndetvb_fr(nfrag)
+real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb), ret
 integer(kind=iwp) :: i, ia, ia_ci, ib, ib_ci, idetvb, ifr, iter, ixa, jfr, kfr, mxiter, ndetvb_add, nestlevel, nloop
 real(kind=wp) :: cf, cf2, cinrm, cnrm, fac, fac1
 logical(kind=iwp) :: fail
+integer(kind=iwp), allocatable :: idetind(:), ipr_off(:), istack(:), ixapr_off(:), ixbpr_off(:), nc_facalf(:), nc_facbet(:), &
+                                  ncindalf(:), ncindbet(:)
+real(kind=wp), allocatable :: coeff(:)
 real(kind=wp), external :: ddot_
 
 if (ic == 0) then
@@ -38,6 +40,15 @@ else if (ic == 3) then
 else if (ic == 5) then
   call fzero(evbdet,ndetvb)
 end if
+
+call mma_allocate(nc_facalf,nfrag,label='nc_facalf')
+call mma_allocate(nc_facbet,nfrag,label='nc_facbet')
+call mma_allocate(ncindalf,[0,nfrag],label='ncindalf')
+call mma_allocate(ncindbet,[0,nfrag],label='ncindbet')
+call mma_allocate(coeff,[0,nfrag],label='coeff')
+call mma_allocate(ipr_off,nfrag,label='ipr_off')
+call mma_allocate(ixapr_off,nfrag,label='ixapr_off')
+call mma_allocate(ixbpr_off,nfrag,label='ixbpr_off')
 
 do ifr=1,nfrag
   if (ifr == 1) then
@@ -72,6 +83,9 @@ nloop = nfrag
 ! complication that the number of nested loops is not known at
 ! compile time, a simple integer stack is used.
 ! NESTLEVEL=1 signifies we are doing outermost loop and so on.
+
+call mma_allocate(istack,mxstack,label='istack')
+call mma_allocate(idetind,nfrag,label='idetind')
 
 nestlevel = 0
 call istkinit_cvb(istack,mxstack)
@@ -232,6 +246,17 @@ outer: do
   end if
 
 end do outer
+
+call mma_deallocate(nc_facalf)
+call mma_deallocate(nc_facbet)
+call mma_deallocate(ncindalf)
+call mma_deallocate(ncindbet)
+call mma_deallocate(istack)
+call mma_deallocate(coeff)
+call mma_deallocate(idetind)
+call mma_deallocate(ipr_off)
+call mma_deallocate(ixapr_off)
+call mma_deallocate(ixbpr_off)
 
 ! This is the end ...
 

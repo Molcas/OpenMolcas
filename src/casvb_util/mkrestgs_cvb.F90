@@ -12,17 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mkrestgs_cvb(orbsao,irdorbs,cvb,cvbdet,iapr,ixapr,iabind,cvbdet1)
+subroutine mkrestgs_cvb(orbsao,irdorbs,cvb,cvbdet,iapr,ixapr)
 
 use casvb_global, only: nbas_mo
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: orbsao(nbas_mo,norb), cvb(nvb), cvbdet(ndetvb), cvbdet1(*)
-integer(kind=iwp) :: irdorbs(norb), iapr(ndetvb), ixapr(nda+1), iabind(*)
+real(kind=wp) :: orbsao(nbas_mo,norb), cvb(nvb), cvbdet(ndetvb)
+integer(kind=iwp) :: irdorbs(norb), iapr(ndetvb), ixapr(nda+1)
 #include "files_cvb.fh"
 integer(kind=iwp) :: ia, ib, idetvb1, idum(1), ioffs, iorb, ixa, nalf1, nbet1, ndetvb1, norb1
+integer(kind=iwp), allocatable :: iabind(:)
+real(kind=wp), allocatable :: cvbdet1(:)
 
 ioffs = 0
 call rdis_cvb(idum,1,recn_tmp04,ioffs)
@@ -44,6 +47,8 @@ do iorb=1,norb
   irdorbs(iorb) = 1
   call rdrs_cvb(orbsao(1,iorb),norb,recn_tmp04,ioffs)
 end do
+call mma_allocate(iabind,ndetvb1,label='iabind')
+call mma_allocate(cvbdet1,ndetvb1,label='cvdet1')
 call rdis_cvb(iabind,ndetvb1,recn_tmp04,ioffs)
 call rdrs_cvb(cvbdet1,ndetvb1,recn_tmp04,ioffs)
 
@@ -58,6 +63,9 @@ do idetvb1=1,ndetvb1
 end do
 kbasiscvb = kbasis
 call vb2strc_cvb(cvbdet,cvb)
+
+call mma_deallocate(iabind)
+call mma_deallocate(cvbdet1)
 
 return
 

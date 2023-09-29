@@ -12,13 +12,15 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine aikcof_cvb(aikcof,bikcof,ndet,ifns,kbasis,share,sovr)
+subroutine aikcof_cvb(aikcof,bikcof,ndet,ifns,kbasis,share)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ndet, ifns, kbasis
-real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns), sovr(ifns,ifns)
+real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
+real(kind=wp), allocatable :: sovr(:,:)
 logical(kind=iwp) :: share
 
 if (kbasis == 6) return
@@ -26,9 +28,11 @@ if (kbasis == 6) return
 ! Generate mapping from determinants to spin functions
 ! (If KBASIS<=2 then AIKCOF=BIKCOF and they (probably) share memory)
 if (kbasis > 2) then
+  call mma_allocate(sovr,ifns,ifns,label='sovr')
   call mxattb_cvb(bikcof,bikcof,ifns,ndet,ifns,sovr)
   call mxinv_cvb(sovr,ifns)
   call mxatb_cvb(bikcof,sovr,ndet,ifns,ifns,aikcof)
+  call mma_deallocate(sovr)
 else if (.not. share) then
   call fmove_cvb(bikcof,aikcof,ndet*ifns)
 end if

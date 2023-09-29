@@ -22,25 +22,11 @@ implicit none
 real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), dvbdet(ndetvb), ret
 integer(kind=iwp) :: ic1, ic
 #include "WrkSpc.fh"
-integer(kind=iwp) :: k1, k10, k2, k3, k4, k5, k6, k7, k8, k9, mxstack
+integer(kind=iwp) :: mxstack
 real(kind=wp) :: dum(1)
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
-k1 = mstacki_cvb(nfrag)
-k2 = mstacki_cvb(nfrag)
-k3 = mstacki_cvb(nfrag+1)
-k4 = mstacki_cvb(nfrag+1)
-mxstack = 100
-k5 = mstacki_cvb(mxstack)
-k6 = mstackr_cvb(nfrag+1)
-k7 = mstacki_cvb(nfrag)
-k8 = mstacki_cvb(nfrag)
-k9 = mstacki_cvb(nfrag)
-k10 = mstacki_cvb(nfrag)
 call dpci2vb2_cvb(civec,cvbdet,dvbdet,dum,ic1,ret,ic,nda,ndb,ndetvb,nfrag,nda_fr(1,1),ndb_fr(1,1),iwork(ll(7)),iwork(ll(8)), &
-                  iwork(k1),iwork(k2),iwork(k3),iwork(k4),iwork(k5),mxstack,work(k6),iwork(k7),iwork(ll(20)),iwork(ll(21)), &
-                  iwork(k8),iwork(k9),iwork(k10),ndetvb_fr,ndavb)
-call mfreei_cvb(k1)
+                  mxstack,iwork(ll(20)),iwork(ll(21)),ndetvb_fr,ndavb)
 
 return
 

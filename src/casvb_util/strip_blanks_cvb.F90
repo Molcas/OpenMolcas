@@ -16,6 +16,7 @@ subroutine strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
 ! If BLANKDELIM, a given number of blanks (not leading or trailing)
 ! will be subsituted by a single blank. Otherwise all blanks are stripped.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
@@ -23,9 +24,8 @@ character(len=*) :: line
 integer(kind=iwp) :: lenline, nblank
 character :: blanks(nblank)
 logical(kind=iwp) :: blankdelim
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iblank, ich, ich2, ilv
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: iblank, ich, ich2
+integer(kind=iwp), allocatable :: lv(:)
 
 do iblank=1,nblank
   if (blanks(iblank) /= ' ') then
@@ -34,23 +34,23 @@ do iblank=1,nblank
     end do
   end if
 end do
-ilv = mstacki_cvb(lenline)
+call mma_allocate(lv,lenline,label='lv')
 ich2 = 0
 do ich=1,lenline
   if (line(ich:ich) /= ' ') then
     ich2 = ich2+1
-    iwork(ich2+ilv-1) = ich
+    lv(ich2) = ich
   else if (blankdelim .and. (ich >= 2) .and. (line(ich-1:ich-1) /= ' ') .and. (ich2 /= 0)) then
     ! (Final condition eliminates leading blanks:)
     ich2 = ich2+1
-    iwork(ich2+ilv-1) = ich
+    lv(ich2) = ich
   end if
 end do
 do ich=1,ich2
-  line(ich:ich) = line(iwork(ich+ilv-1):iwork(ich+ilv-1))
+  line(ich:ich) = line(lv(ich):lv(ich))
 end do
 lenline = ich2
-call mfreei_cvb(ilv)
+call mma_deallocate(lv)
 
 return
 

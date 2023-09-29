@@ -29,17 +29,9 @@ use Definitions, only: iwp
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, iconfs2, ioncty
-integer(kind=iwp), external :: mstacki_cvb
 
-i1 = mstacki_cvb(noe)
-call cnfcheck2_cvb(iconfs,nconf1,nel1,iwork(i1))
-call mfreei_cvb(i1)
-ioncty = mstacki_cvb(nconf1)
-iconfs2 = mstacki_cvb(noe*nconf1)
-call cnfsort_cvb(iconfs,nconf1,nel1,iwork(ioncty),iwork(iconfs2))
-call mfreei_cvb(ioncty)
+call cnfcheck2_cvb(iconfs,nconf1,nel1)
+call cnfsort_cvb(iconfs,nconf1,nel1)
 
 return
 

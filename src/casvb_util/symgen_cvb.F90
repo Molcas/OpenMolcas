@@ -12,20 +12,26 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine symgen_cvb(nalf1,nbet1,nda1,ndb1,isymalf,isymbet,iasyind,ibsyind,ialfsym,ibetsym,irpdet,irpalf,irpbet,mingrph,maxgrph, &
-                      nk,locc,lunocc,xalf,xbet,icount)
+subroutine symgen_cvb(nalf1,nbet1,nda1,ndb1,isymalf,isymbet,iasyind,ibsyind,irpdet)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: nalf1, nbet1, nda1, ndb1, isymalf(nda1), isymbet(ndb1), iasyind(0:mxirrep), ibsyind(0:mxirrep), &
-                     ialfsym(nda1), ibetsym(ndb1), irpdet(mxirrep), irpalf(mxirrep), irpbet(mxirrep), mingrph(0:norb), &
-                     maxgrph(0:norb), nk(0:norb), locc(norb+1), lunocc(norb+1), xalf(0:norb,0:nalf1), xbet(0:norb,0:nbet1), &
-                     icount(mxirrep)
-integer(kind=iwp) :: ia, ib, ida, idb, indx, iorb, irp, irrep, jrp, rc
+integer(kind=iwp) :: nalf1, nbet1, nda1, ndb1, isymalf(nda1), isymbet(ndb1), iasyind(0:mxirrep), ibsyind(0:mxirrep), irpdet(mxirrep)
+integer(kind=iwp) :: ia, ib, icount(mxirrep), ida, idb, indx, iorb, irp, irpalf(mxirrep), irpbet(mxirrep), irrep, jrp, rc
+integer(kind=iwp), allocatable :: ialfsym(:), ibetsym(:), locc(:), lunocc(:), maxgrph(:), mingrph(:), nk(:), xalf(:,:), xbet(:,:)
+
+call mma_allocate(mingrph,[0,norb],label='mingrph')
+call mma_allocate(maxgrph,[0,norb],label='maxgrph')
+call mma_allocate(nk,[0,norb],label='nk')
+call mma_allocate(locc,norb+1,label='locc')
+call mma_allocate(lunocc,norb+1,label='lunocc')
 
 ! Alpha loop:
+call mma_allocate(ialfsym,nda1,label='ialfsym')
+call mma_allocate(xalf,[0,norb],[0,nalf1],label='xalf')
 call izero(irpalf,mxirrep)
 do iorb=0,norb
   mingrph(iorb) = max(iorb-norb+nalf1,0)
@@ -55,8 +61,12 @@ do ida=1,nda1
   icount(irrep) = icount(irrep)+1
   isymalf(icount(irrep)+iasyind(irrep-1)) = ida
 end do
+call mma_deallocate(ialfsym)
+call mma_deallocate(xalf)
 
 ! Beta loop:
+call mma_allocate(ibetsym,ndb1,label='ibetsym')
+call mma_allocate(xbet,[0,norb],[0,nbet1],label='xbet')
 call izero(irpbet,mxirrep)
 do iorb=0,norb
   mingrph(iorb) = max(iorb-norb+nbet1,0)
@@ -86,6 +96,14 @@ do idb=1,ndb1
   icount(irrep) = icount(irrep)+1
   isymbet(icount(irrep)+ibsyind(irrep-1)) = idb
 end do
+call mma_deallocate(ibetsym)
+call mma_deallocate(xbet)
+
+call mma_deallocate(mingrph)
+call mma_deallocate(maxgrph)
+call mma_deallocate(nk)
+call mma_deallocate(locc)
+call mma_deallocate(lunocc)
 
 do irp=1,mxirrep
   irpdet(irp) = 0

@@ -14,39 +14,42 @@
 
 function detm_cvb(a,n)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: detm_cvb
 integer(kind=iwp) :: n
-real(kind=wp) :: a(n*n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, ierr
+real(kind=wp) :: a(n,n)
+integer(kind=iwp) :: ierr
 real(kind=wp) :: det(2)
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
+integer(kind=iwp), allocatable :: itmp(:)
+real(kind=wp), allocatable :: tmp1(:,:), tmp2(:,:)
 
 ! start linpack_determinant
 if (n == 0) then
   detm_cvb = One
   return
 end if
-i1 = mstackr_cvb(n*n)
-i2 = mstacki_cvb(n)
+call mma_allocate(tmp1,n,n,label='tmp1')
+call mma_allocate(itmp,n,label='itmp')
 ierr = 0
-call fmove_cvb(a,work(i1),n*n)
-call dgetrf_(n,n,work(i1),n,iwork(i2),ierr)
+call fmove_cvb(a,tmp1,n*n)
+call dgetrf_(n,n,tmp1,n,itmp,ierr)
 ! start linpack_determinant
-!call dgefa(work(i1),n,n,iwork(i2),ierr)
-i3 = mstackr_cvb(n*n)
+!call dgefa(tmp1,n,n,itmp,ierr)
 if (ierr /= 0) then
   detm_cvb = Zero
-  call mfreer_cvb(i1)
-  return
+else
+  call mma_allocate(tmp2,n,n,label='tmp2')
+  call dgedi(tmp1,n,n,itmp,det,tmp2,10)
+  detm_cvb = det(1)*Ten**det(2)
 end if
-call dgedi(work(i1),n,n,iwork(i2),det,work(i3),10)
-detm_cvb = det(1)*Ten**det(2)
-call mfreer_cvb(i1)
+
+call mma_deallocate(tmp1)
+call mma_deallocate(itmp)
+call mma_deallocate(tmp2)
 
 return
 

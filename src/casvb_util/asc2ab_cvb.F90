@@ -19,19 +19,11 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: detvec(*)
 integer(kind=iwp) :: nvec, nel, nalf
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, i4, i5, nbet, ndet
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: nbet, ndet
 
 call icomb_cvb(nel,nalf,ndet)
 nbet = nel-nalf
-i1 = mstacki_cvb(nel+1)
-i2 = mstacki_cvb(nel+1)
-i3 = mstacki_cvb(nel+1)
-i4 = mstacki_cvb((nel+1)*(nalf+1))
-i5 = mstacki_cvb(nel)
-call asc2ab2_cvb(detvec,nvec,nel,nalf,nbet,ndet,iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5))
-call mfreei_cvb(i1)
+call asc2ab2_cvb(detvec,nvec,nel,nalf,nbet,ndet)
 
 return
 

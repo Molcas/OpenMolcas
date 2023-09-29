@@ -12,21 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine mkguess_cvb()
-
-use casvb_global, only: nbas_mo
-use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iorbsao, irdorbs
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
-irdorbs = mstacki_cvb(norb)
-iorbsao = mstackr_cvb(nbas_mo*norb)
-call mkguess2_cvb(work(lv(1)),work(lv(2)),iwork(irdorbs),work(iorbsao))
-call mfreei_cvb(irdorbs)
+call mkguess2_cvb(work(lv(1)),work(lv(2)))
 
 return
 

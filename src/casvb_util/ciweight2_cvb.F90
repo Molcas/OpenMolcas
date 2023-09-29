@@ -11,32 +11,31 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3,vec1,vec2,vec3,vec4,vec5, &
-                         wghtion1,wghtion2,wghtion3,wghtion4,wghtion5,wghtion6,mingrph,maxgrph,xalf,xbet,iaocc,ibocc,mingion, &
-                         maxgion,nkion,xion,locion,lunion,mingsng,maxgsng,nksng,xsng,locsng,lunsng,mingasg,maxgasg,nkasg,xasg, &
-                         locasg,lunasg,gal1,gal2,indavec,indbvec,ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
+
+subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3,vec1,vec2,vec3,vec4,vec5,ionmin, &
+                         ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
 
 use casvb_global, only: form2AD, formAD
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: mingrph(0:norb), maxgrph(0:norb), xalf(0:norb,0:nalf), xbet(0:norb,0:nbet), iaocc(norb), ibocc(norb), &
-                     mingion(0:norb), maxgion(0:norb), nkion(0:norb), ionmax, xion((norb+1)*(ionmax+1)), locion(norb), &
-                     lunion(norb), mingsng(0:norb), maxgsng(0:norb), nksng(0:norb), mxrem, mxsng, xsng((mxrem+1)*(mxsng+1)), &
-                     locsng(norb), lunsng(norb), mingasg(0:norb), maxgasg(0:norb), nkasg(0:norb), mxasg, &
-                     xasg((mxsng+1)*(mxasg+1)), locasg(norb), lunasg(norb), mxdetcas, indavec(mxdetcas), indbvec(mxdetcas), &
-                     ionmin, ncnfcas
+integer(kind=iwp) :: ionmin, ionmax, mxrem, mxsng, mxasg, ncnfcas, mxdetcas
 real(kind=wp) :: civec(ndet), civbs(ndet), civb(ndet), citmp(ndet), civec5(ndet), orbs(norb,norb), sorbs(norb,norb), &
                  orbinv(norb,norb), owrk(norb,norb), gjorb(*), gjorb2(*), gjorb3(*), vec1(ndet), vec2(ndet), vec3(ndet), &
-                 vec4(ndet), vec5(ndet), wghtion1(ionmin:ionmax), wghtion2(ionmin:ionmax), wghtion3(ionmin:ionmax), &
-                 wghtion4(ionmin:ionmax), wghtion5(ionmin:ionmax), wghtion6(ionmin:ionmax), gal1(ncnfcas), gal2(ncnfcas)
+                 vec4(ndet), vec5(ndet)
 #include "print_cvb.fh"
 integer(kind=iwp) :: i, ia, iaorb, ib, ibeg, ibegt, iborb, ic, idet, ilin, inda, indab, indasg, indb, indion, indsng, ion, iorb, &
                      ix1, lenfld, mp, mrem, nalfsng, nbetsng, nc, nindasg, nprint, nsing, rc
 real(kind=wp) :: c1, c2, c3, c4, cnrm, cprint(6), fac, fac1, fac2, s11, s12, s22, sm1, sm2, sum1, sum2, total1, total2, total3, &
                  total4, total5, total6
+integer(kind=iwp), allocatable :: iaocc(:), ibocc(:), indavec(:), indbvec(:), locasg(:), locion(:), locsng(:), lunasg(:), &
+                                  lunion(:), lunsng(:), maxgasg(:), maxgion(:), maxgrph(:), maxgsng(:), mingasg(:), mingion(:), &
+                                  mingrph(:), mingsng(:), nkasg(:), nkion(:), nksng(:), xalf(:,:), xasg(:), xbet(:,:), xion(:), &
+                                  xsng(:)
+real(kind=wp), allocatable :: gal1(:), gal2(:), wghtion1(:), wghtion2(:), wghtion3(:), wghtion4(:), wghtion5(:), wghtion6(:)
 character(len=240) :: line
 integer(kind=iwp), external :: indget_cvb, len_trim_cvb
 
@@ -64,8 +63,37 @@ do idet=1,ndet
   vec4(idet) = vec3(idet)-fac*vec4(idet)
 end do
 
+call mma_allocate(mingrph,[0,norb],label='mingrph')
+call mma_allocate(maxgrph,[0,norb],label='maxgrph')
+call mma_allocate(xalf,[0,nel],[0,nalf],label='xalf')
+call mma_allocate(xbet,[0,nel],[0,nbet],label='xbet')
+call mma_allocate(iaocc,norb,label='iaocc')
+call mma_allocate(ibocc,norb,label='ibocc')
+call mma_allocate(mingion,[0,norb],label='mingion')
+call mma_allocate(maxgion,[0,norb],label='maxgion')
+call mma_allocate(nkion,[0,norb],label='nkion')
+call mma_allocate(xion,(norb+1)*(ionmax+1),label='xion')
+call mma_allocate(locion,norb,label='locion')
+call mma_allocate(lunion,norb,label='lunion')
+call mma_allocate(mingsng,[0,norb],label='mingsng')
+call mma_allocate(maxgsng,[0,norb],label='maxgsng')
+call mma_allocate(nksng,[0,norb],label='nksng')
+call mma_allocate(xsng,(mxrem+1)*(mxsng+1),label='xsng')
+call mma_allocate(locsng,norb,label='locsng')
+call mma_allocate(lunsng,norb,label='lunsng')
+call mma_allocate(mingasg,[0,norb],label='mingasg')
+call mma_allocate(maxgasg,[0,norb],label='maxgasg')
+call mma_allocate(nkasg,[0,norb],label='nkasg')
+call mma_allocate(xasg,(mxsng+1)*(mxasg+1),label='xasg')
+call mma_allocate(locasg,norb,label='locasg')
+call mma_allocate(lunasg,norb,label='lunasg')
+
 ! Inverse-overlap weights
 if (mod(iciweights,8) > 3) then
+  call mma_allocate(gal1,ncnfcas,label='gal1')
+  call mma_allocate(gal2,ncnfcas,label='gal2')
+  call mma_allocate(indavec,mxdetcas,label='indavec')
+  call mma_allocate(indbvec,mxdetcas,label='indbvec')
   call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
   call fmove_cvb(sorbs,orbinv,norb*norb)
   call mxinv_cvb(orbinv,norb)
@@ -306,7 +334,16 @@ do iorb=0,norb
 end do
 call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
 
+call mma_deallocate(mingrph)
+call mma_deallocate(maxgrph)
+
 nc = 0
+call mma_allocate(wghtion1,[ionmin,ionmax],label='wghtion1')
+call mma_allocate(wghtion2,[ionmin,ionmax],label='wghtion2')
+call mma_allocate(wghtion3,[ionmin,ionmax],label='wghtion3')
+call mma_allocate(wghtion4,[ionmin,ionmax],label='wghtion4')
+call mma_allocate(wghtion5,[ionmin,ionmax],label='wghtion5')
+call mma_allocate(wghtion6,[ionmin,ionmax],label='wghtion6')
 call fzero(wghtion1,ionmax-ionmin+1)
 call fzero(wghtion2,ionmax-ionmin+1)
 call fzero(wghtion3,ionmax-ionmin+1)
@@ -431,6 +468,33 @@ do ion=ionmin,ionmax
   end do
 end do
 
+call mma_deallocate(xalf)
+call mma_deallocate(xbet)
+call mma_deallocate(iaocc)
+call mma_deallocate(ibocc)
+call mma_deallocate(mingion)
+call mma_deallocate(maxgion)
+call mma_deallocate(nkion)
+call mma_deallocate(xion)
+call mma_deallocate(locion)
+call mma_deallocate(lunion)
+call mma_deallocate(mingsng)
+call mma_deallocate(maxgsng)
+call mma_deallocate(nksng)
+call mma_deallocate(xsng)
+call mma_deallocate(locsng)
+call mma_deallocate(lunsng)
+call mma_deallocate(mingasg)
+call mma_deallocate(maxgasg)
+call mma_deallocate(nkasg)
+call mma_deallocate(xasg)
+call mma_deallocate(locasg)
+call mma_deallocate(lunasg)
+call mma_deallocate(gal1)
+call mma_deallocate(gal2)
+call mma_deallocate(indavec)
+call mma_deallocate(indbvec)
+
 call cblank_cvb(line,240)
 line(1:21) = ' Accumulated weights:'
 ibeg = 22
@@ -520,6 +584,13 @@ if (mod(iciweights,8) > 3) then
 end if
 write(u6,formAD) ' Total all       : ',(cprint(mp),mp=1,nprint)
 write(u6,'(a)') ' '
+
+call mma_deallocate(wghtion1)
+call mma_deallocate(wghtion2)
+call mma_deallocate(wghtion3)
+call mma_deallocate(wghtion4)
+call mma_deallocate(wghtion5)
+call mma_deallocate(wghtion6)
 
 return
 

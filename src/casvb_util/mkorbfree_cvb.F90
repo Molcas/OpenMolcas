@@ -12,6 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine mkorbfree_cvb()
 
 use Definitions, only: iwp
@@ -19,16 +20,9 @@ use Definitions, only: iwp
 implicit none
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, i4
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
-i1 = mstackr_cvb(norb*norb)
-i2 = mstackr_cvb(norb*norb)
-i3 = mstackr_cvb(norb*norb)
-i4 = mstacki_cvb(nprorb)
 call mkorbfree2_cvb(work(lv(1)),iwork(ls(3)),work(ls(4)),iwork(ls(5)),work(ls(6)),iwork(ls(8)),iwork(ls(11)),iwork(ls(12)), &
-                    work(ls(14)),work(i1),work(i2),work(i3),iwork(i4))
-call mfreer_cvb(i1)
+                    work(ls(14)))
 
 return
 

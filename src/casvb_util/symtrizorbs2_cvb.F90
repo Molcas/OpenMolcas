@@ -12,20 +12,22 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine symtrizorbs2_cvb(orbs,north,corth,irels,relorb,ifxorb,iorts,ihlp,ihlp2,ihlp3,iprev,jprev,updi,updj)
+subroutine symtrizorbs2_cvb(orbs,north,corth,irels,relorb,ifxorb,iorts)
 
 use casvb_global, only: formAD
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: orbs(norb,norb), corth(norb,niorth), relorb(norb,norb,nijrel), updi(norb), updj(norb)
-integer(kind=iwp) :: north(norb), irels(2,nijrel), ifxorb(norb), iorts(2,nort), ihlp(norb), ihlp2(norb), ihlp3(norb), iprev(norb), &
-                     jprev(norb)
+real(kind=wp) :: orbs(norb,norb), corth(norb,niorth), relorb(norb,norb,nijrel)
+integer(kind=iwp) :: north(norb), irels(2,nijrel), ifxorb(norb), iorts(2,nort)
 #include "print_cvb.fh"
 integer(kind=iwp) :: i, icon, ioffs, iok, iorb, iorbmax, iort, iortorb, irel, j, jorb, jorbmax, jortorb, niprev, njprev, nortorb
 real(kind=wp) :: a, b, c, c1, c2, cnrmi, cnrmj, cpm, cpp, d, discrpm, discrpp, dum(1), faci, facj, s, s1, s2, s3, smax, sovr
+integer(kind=iwp), allocatable :: ihlp(:), ihlp2(:), ihlp3(:), iprev(:), jprev(:)
+real(kind=wp), allocatable :: updi(:), updj(:)
 real(kind=wp), parameter :: hund = 100.0_wp, thresh = 1.0e-10_wp
 real(kind=wp), external :: ddot_
 
@@ -34,6 +36,8 @@ do iorb=1,norb
   if (north(iorb) /= 0) call schmidtd_cvb(corth(1,ioffs),north(iorb),orbs(1,iorb),1,dum,norb,0)
   ioffs = ioffs+north(iorb)
 end do
+
+call mma_allocate(ihlp,norb,label='ihlp')
 
 ! Now enforce orthogonality between specified orbitals:
 ! -----------------------------------------------------
@@ -56,6 +60,8 @@ do irel=1,nijrel
   end if
 end do
 ! Set up order of orthogonalization - first help arrays:
+call mma_allocate(ihlp2,norb,label='ihlp2')
+call mma_allocate(ihlp3,norb,label='ihlp3')
 call izero(ihlp2,norb)
 call izero(ihlp3,norb)
 nortorb = 0
@@ -68,6 +74,12 @@ do icon=norb,0,-1
     end if
   end do
 end do
+
+call mma_deallocate(ihlp)
+call mma_allocate(iprev,norb,label='iprev')
+call mma_allocate(jprev,norb,label='jprev')
+call mma_allocate(updi,norb,label='updi')
+call mma_allocate(updj,norb,label='updj')
 
 ! Loop all pairs that may be orthogonalized
 do iortorb=1,nortorb
@@ -205,6 +217,13 @@ do iortorb=1,nortorb
     iprev(niprev) = jorb
   end do
 end do
+
+call mma_deallocate(ihlp2)
+call mma_deallocate(ihlp3)
+call mma_deallocate(iprev)
+call mma_deallocate(jprev)
+call mma_deallocate(updi)
+call mma_deallocate(updj)
 
 call nize_cvb(orbs,norb,dum,norb,0,0)
 smax = -one

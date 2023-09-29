@@ -21,9 +21,7 @@ implicit none
 integer(kind=iwp) :: nel, nalf, ndet, ifns, kbasis, iprint
 real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
 logical(kind=iwp) :: share
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i10, i11, i12, i13, i14, i15, i2, i3, i4, i5, i6, i7, i8, i9, nalf1, nbet, nbet2, np1, nswpdim
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
+integer(kind=iwp) :: nbet, nswpdim
 
 if ((nel == 0) .and. (kbasis /= 6)) then
   bikcof(1,1) = One
@@ -32,74 +30,17 @@ if ((nel == 0) .and. (kbasis /= 6)) then
 end if
 
 nbet = nel-nalf
-np1 = nel+1
-nalf1 = nalf+1
-nbet2 = nbet+nbet
 nswpdim = 2**nbet
 
-i1 = mstacki_cvb(np1)
-i2 = mstacki_cvb(np1)
-i3 = mstacki_cvb(np1)
-i4 = mstacki_cvb(nbet2+1)
-i5 = mstacki_cvb(nbet2+1)
-i6 = mstacki_cvb(nbet2+1)
-i7 = mstacki_cvb(nbet*nswpdim)
-i8 = mstacki_cvb(nel)
-i9 = mstacki_cvb(nel)
-i10 = mstacki_cvb(np1*nalf1)
-i11 = mstacki_cvb(np1*nalf1)
-i12 = mstacki_cvb(nel)
-i13 = mstacki_cvb(nalf)
-i14 = mstacki_cvb(nbet)
-call rumer_cvb(bikcof,nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim,iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5),iwork(i6), &
-               iwork(i7),iwork(i8),iwork(i9),iwork(i10),iwork(i11),iwork(i12),iwork(i13),iwork(i14))
-call mfreei_cvb(i1)
+call rumer_cvb(bikcof,nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim)
 
 if ((kbasis == 1) .or. (kbasis == 5)) call kotani_cvb(bikcof,ndet,ifns)
 
-if (kbasis == 5) then
-  i1 = mstacki_cvb(np1)
-  i2 = mstacki_cvb(np1)
-  i3 = mstacki_cvb(np1)
-  i4 = mstacki_cvb(np1)
-  i5 = mstacki_cvb(np1)
-  i6 = mstacki_cvb(np1)
-  i7 = mstacki_cvb(nbet2)
-  i8 = mstacki_cvb(nbet2)
-  i9 = mstacki_cvb(nel)
-  i10 = mstacki_cvb(nel)
-  i11 = mstacki_cvb(nalf)
-  i12 = mstacki_cvb(np1*nalf1)
-  i13 = mstacki_cvb(np1*nalf1)
-  i14 = mstacki_cvb(nel)
-  i15 = mstackr_cvb(ndet)
-  call projspn_cvb(bikcof,nel,nalf,nbet,ndet,ifns,iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5),iwork(i6),iwork(i7),iwork(i8), &
-                   iwork(i9),iwork(i10),iwork(i11),iwork(i12),iwork(i13),iwork(i14),work(i15))
-  call mfreei_cvb(i1)
-end if
+if (kbasis == 5) call projspn_cvb(bikcof,nel,nalf,nbet,ndet,ifns)
 
-if (kbasis == 2) then
-  i1 = mstacki_cvb(np1)
-  i2 = mstacki_cvb(np1)
-  i3 = mstacki_cvb(np1)
-  i4 = mstacki_cvb(nel)
-  i5 = mstacki_cvb(nel)
-  i6 = mstacki_cvb(np1*nalf1)
-  i7 = mstacki_cvb(nalf)
-  i8 = mstacki_cvb(nbet)
-  i9 = mstacki_cvb(ifns)
-  call serber_cvb(bikcof,nel,nalf,nbet,ndet,ifns,iwork(i1),iwork(i2),iwork(i3),iwork(i4),iwork(i5),iwork(i6),iwork(i7),iwork(i8), &
-                  iwork(i9))
-  call mfreei_cvb(i1)
-end if
+if (kbasis == 2) call serber_cvb(bikcof,nel,nalf,nbet,ndet,ifns)
 
-if ((kbasis > 2) .and. (kbasis /= 6)) then
-  i1 = mstackr_cvb(ifns*ifns)
-else
-  i1 = mstackr_cvb(0)
-end if
-call aikcof_cvb(aikcof,bikcof,ndet,ifns,kbasis,share,work(i1))
-call mfreer_cvb(i1)
+call aikcof_cvb(aikcof,bikcof,ndet,ifns,kbasis,share)
 
 return
 

@@ -12,15 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine mol2vb2_cvb(vecvb,vecmol,isyml,fac,iwr,indxa,indxb,nstra,nstrb,nsa,nsb)
+subroutine mol2vb2_cvb(vecvb,vecmol,isyml,fac,iwr,nsa,nsb)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: vecvb(ndet), vecmol(*), fac
-integer(kind=iwp) :: isyml, iwr, nsa, indxa(nsa), nsb, indxb(nsb), nstra(mxirrep), nstrb(mxirrep)
-integer(kind=iwp) :: idet, indbet, indx, ioffsa, ioffsb, is, isa, isb, isyma, isymb, nnsa, nnsb
+integer(kind=iwp) :: isyml, iwr, nsa, nsb
+integer(kind=iwp) :: idet, indbet, indx, ioffsa, ioffsb, is, isa, isb, isyma, isymb, nnsa, nnsb, nstra(mxirrep), nstrb(mxirrep)
+integer(kind=iwp), allocatable :: indxa(:), indxb(:)
+
+call mma_allocate(indxa,nsa,label='indxa')
+call mma_allocate(indxb,nsb,label='indxb')
 
 call indxab_cvb(indxa,indxb,nstra,nstrb,nsa,nsb)
 
@@ -56,6 +61,9 @@ do isyma=1,mxirrep
     end do
   end do
 end do
+
+call mma_deallocate(indxa)
+call mma_deallocate(indxb)
 
 return
 
