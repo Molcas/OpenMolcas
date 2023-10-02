@@ -14,19 +14,19 @@
 
 subroutine setiaprtot_cvb()
 
-use Definitions, only: wp, iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
 real(kind=wp) :: dum1(1), dum2(1), dum3
-integer(kind=iwp) :: k1
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp(:,:)
 
-k1 = mstackr_cvb(nda*ndb)
-call dpci2vb_cvb(work(k1),dum1,dum2,0,dum3,4)
-call setiaprtot2_cvb(work(k1),iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,nda,ndb)
-call mfreer_cvb(k1)
+call mma_allocate(tmp,nda,ndb,label='tmp')
+call dpci2vb_cvb(tmp,dum1,dum2,0,dum3,4)
+call setiaprtot2_cvb(tmp,iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,nda,ndb)
+call mma_deallocate(tmp)
 
 return
 

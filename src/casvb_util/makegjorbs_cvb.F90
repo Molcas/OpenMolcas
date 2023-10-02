@@ -16,26 +16,25 @@ subroutine makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
 ! Construct Gauss-Jordan factorizations of ORBS, ORBS transpose,
 ! and overlap matrix corresonding to ORBS:
 
-use Definitions, only: wp, iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iowrk
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: owrk(:,:)
 
-iowrk = mstackr_cvb(norb*norb)
+call mma_allocate(owrk,norb,norb,label='owrk')
 
 call gaussj_cvb(orbs,gjorb)
 
-call transp_cvb(orbs,work(iowrk),norb,norb)
-call gaussj_cvb(work(iowrk),gjorb2)
+call transp_cvb(orbs,owrk,norb,norb)
+call gaussj_cvb(owrk,gjorb2)
 
-call mxattb_cvb(orbs,orbs,norb,norb,norb,work(iowrk))
-call gaussj_cvb(work(iowrk),gjorb3)
+call mxattb_cvb(orbs,orbs,norb,norb,norb,owrk)
+call gaussj_cvb(owrk,gjorb3)
 
-call mfreer_cvb(iowrk)
+call mma_deallocate(owrk)
 
 return
 

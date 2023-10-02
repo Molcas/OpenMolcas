@@ -30,17 +30,17 @@ integer(kind=iwp) :: i, i2s_min, ibase, iconf, iconf_add, idelstr, ifrag, ifrom,
 real(kind=wp) :: swap
 integer(kind=iwp), allocatable :: ifxorb(:), iorbrel(:), iorts(:,:), irdorbs(:), irots(:,:), izeta(:)
 real(kind=wp), allocatable :: orbs(:,:)
-integer(kind=iwp), external :: mheapiz_cvb, mheaprz_cvb, mstacki_cvb, nvb_cvb
+integer(kind=iwp), external :: mheapi_cvb, mheapr_cvb, mstacki_cvb, nvb_cvb
 
 call mma_allocate(ifxorb,mxorb_cvb,label='ifxorb')
 call mma_allocate(izeta,mxsyme,label='izeta')
 
 ibase = mstacki_cvb(0)
-ip_iconfs = mheapiz_cvb(0)
-ip_cvb = mheaprz_cvb(0)
-ip_symelm = mheaprz_cvb(0)
-ifxstr = mheapiz_cvb(0)
-idelstr = mheapiz_cvb(0)
+ip_iconfs = mheapi_cvb(0)
+ip_cvb = mheapr_cvb(0)
+ip_symelm = mheapr_cvb(0)
+ifxstr = mheapi_cvb(0)
+idelstr = mheapi_cvb(0)
 noe = 2*mxorb_cvb
 mxpair = mxorb_cvb*(mxorb_cvb+1)/2
 mxdimrel = mxpair*(3+mxops)

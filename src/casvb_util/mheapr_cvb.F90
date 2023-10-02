@@ -16,7 +16,7 @@
 function mheapr_cvb(nword1)
 ! Memory allocator (heap). Returns pointer to NWORD real*8 words.
 
-use casvb_global, only: ioff_r, memdebug
+use casvb_global, only: memdebug
 use Definitions, only: iwp, u6
 
 implicit none
@@ -32,7 +32,7 @@ if (nword < 0) then
   call abend_cvb()
 end if
 call getmem('casvb','ALLO','REAL',ipoint_g,nword)
-mheapr_cvb = ipoint_g+ioff_r
+mheapr_cvb = ipoint_g
 if (memdebug) write(u6,*) '     mheapr: nword & pointer :',nword,mheapr_cvb
 
 return

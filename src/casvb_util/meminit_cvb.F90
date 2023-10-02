@@ -15,20 +15,18 @@
 ! -- Initialization of casvb memory manager ---
 subroutine meminit_cvb()
 
-use casvb_global, only: ioff_i, ioff_r, memdebug, nfieldm
+use casvb_global, only: memdebug, nfieldm
 use Definitions, only: u6
 
 implicit none
 
 memdebug = .false.
 nfieldm = 0
-ioff_r = 0
-ioff_i = 0
 call setmem('trace=off')
 call setmem('clear=off')
 if (memdebug) then
   write(u6,*) ' Casvb memory handler initialized.'
-  write(u6,*) ' Memory offsets : integer= ',ioff_i,' real= ',ioff_r
+  write(u6,*) ' Memory offsets : integer= ',0,' real= ',0
   write(u6,*) ' No. of fields in use :',nfieldm
 end if
 

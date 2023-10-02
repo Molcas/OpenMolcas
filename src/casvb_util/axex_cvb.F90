@@ -12,13 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine axex_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp)
 
 use casvb_global, only: idd
+use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
 use Definitions, only: wp, iwp
 
 implicit none
-external :: asonc, ddres2upd
+procedure(ddasonc_sub) :: asonc
+procedure(ddres2upd_sub) :: ddres2upd
 real(kind=wp) :: vec(*), resthr_inp, fx_exp
 integer(kind=iwp) :: ioptc, iter
 #include "WrkSpc.fh"

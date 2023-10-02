@@ -15,8 +15,6 @@
 !IFG trivial
 subroutine mkorbfree_cvb()
 
-use Definitions, only: iwp
-
 implicit none
 #include "main_cvb.fh"
 #include "WrkSpc.fh"

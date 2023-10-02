@@ -12,18 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine asonc12e2_cvb(c,axc,sxc,nvec,nprm,civb,civbh,civbs,orbs,gjorb,gjorb2,gjorb3,cvbdet,cvb,vec_all)
+subroutine asonc12e2_cvb(c,axc,sxc,nvec,nprm,civb,civbh,civbs,orbs,gjorb,gjorb2,gjorb3,cvbdet,cvb)
 
 use casvb_global, only: ipp12e, iter12e
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: nvec, nprm
 real(kind=wp) :: c(nprm,nvec), axc(nprm,nvec), sxc(nprm,nvec), civb(ndet), civbh(ndet), civbs(ndet), orbs(norb,norb), gjorb(*), &
-                 gjorb2(*), gjorb3(*), cvbdet(ndetvb), cvb(nvb), vec_all(npr)
+                 gjorb2(*), gjorb3(*), cvbdet(ndetvb), cvb(nvb)
 integer(kind=iwp) :: ic1, ivec
-real(kind=wp) :: ddot_, tim_cvb
+real(kind=wp), allocatable :: vec_all(:)
+real(kind=wp), external :: ddot_, tim_cvb
 
 iter12e = iter12e+1
 if (ipp12e >= 2) then
@@ -38,13 +40,14 @@ else
   ic1 = 2
 end if
 
+call mma_allocate(vec_all,npr,label='vec_all')
 do ivec=1,nvec
   call free2all_cvb(c(ic1,ivec),vec_all,1)
   if (.not. strucopt) call daxpy_(nvb,c(1,ivec),cvb,1,vec_all(nprorb+1),1)
   ! (CIVB set in O12EA :)
   call cizero_cvb(civbs)
   call oneexc_cvb(civb,civbs,vec_all,.false.,0)
-  call str2vbf_cvb(vec_all(nprorb+1),cvbdet)
+  call str2vbc_cvb(vec_all(nprorb+1),cvbdet)
   call vb2ciaf_cvb(cvbdet,civbs)
   call cicopy_cvb(civbs,civbh)
   call makecivbhs_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)
@@ -63,6 +66,7 @@ do ivec=1,nvec
   call all2free_cvb(vec_all,sxc(ic1,ivec),1)
   if (.not. strucopt) sxc(1,ivec) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
 end do
+call mma_deallocate(vec_all)
 
 return
 

@@ -14,17 +14,17 @@
 
 function recinpcmp_cvb(ifield)
 
-use Definitions, only: iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: recinpcmp_cvb
 integer(kind=iwp) :: ifield
 #include "main_cvb.fh"
 #include "files_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, ioff1, ioff2, j1, joff1, joff2
+integer(kind=iwp) :: i, ioff1, ioff2, joff1, joff2
 logical(kind=iwp) :: done
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp1(:), tmp2(:)
 logical(kind=iwp), external :: valid_cvb ! ... Files/Hamiltonian available ...
 
 if (.not. valid_cvb(recinp_old)) then
@@ -37,20 +37,21 @@ else
   if (ioff2-ioff1 /= joff2-joff1) then
     recinpcmp_cvb = .true.
   else
-    i1 = mstackr_cvb(ioff2-ioff1)
-    j1 = mstackr_cvb(joff2-joff1)
-    call rdr_cvb(work(i1),ioff2-ioff1,recinp,ioff1)
-    call rdr_cvb(work(j1),joff2-joff1,recinp_old,joff1)
+    call mma_allocate(tmp1,ioff2-ioff1,label='tmp1')
+    call mma_allocate(tmp2,joff2-joff1,label='tmp2')
+    call rdr_cvb(tmp1,ioff2-ioff1,recinp,ioff1)
+    call rdr_cvb(tmp2,joff2-joff1,recinp_old,joff1)
     done = .false.
-    do i=0,ioff2-ioff1-1
-      if (work(i+i1) /= work(i+j1)) then
+    do i=1,ioff2-ioff1
+      if (tmp1(i) /= tmp2(i)) then
         recinpcmp_cvb = .true.
         done = .true.
         exit
       end if
     end do
     if (.not. done) recinpcmp_cvb = .false.
-    call mfreer_cvb(i1)
+    call mma_deallocate(tmp1)
+    call mma_deallocate(tmp2)
   end if
 end if
 

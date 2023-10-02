@@ -15,21 +15,20 @@
 subroutine ao2mo_cvb(orbsao,orbs,norb1)
 
 use casvb_global, only: nbas_mo
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: norb1
 real(kind=wp) :: orbsao(nbas_mo,norb1), orbs(norb,norb1)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp(:,:)
 
 if (norb1 == 0) return
-i1 = mstackr_cvb(nbas_mo*norb)
-call getmo_cvb(work(i1),3)
-call mxattb_cvb(work(i1),orbsao,norb,nbas_mo,norb1,orbs)
-call mfreer_cvb(i1)
+call mma_allocate(tmp,nbas_mo,norb,label='tmp')
+call getmo_cvb(tmp,3)
+call mxattb_cvb(tmp,orbsao,norb,nbas_mo,norb1,orbs)
+call mma_deallocate(tmp)
 
 return
 

@@ -18,6 +18,7 @@ subroutine o10b_cvb( &
                    )
 
 use casvb_global, only: have_solved_it, ip, ix
+use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -26,7 +27,8 @@ implicit none
 integer(kind=iwp) :: ioptc2, iter2
 real(kind=wp) :: fx_exp, resthr_use
 real(kind=wp), external :: dnrm2_
-external :: asonc10_cvb, ddres2upd10_cvb
+procedure(ddasonc_sub) :: asonc10_cvb
+procedure(ddres2upd_sub) :: ddres2upd10_cvb
 
 if (.not. close2conv) then
   resthr_use = 1.0e-5_wp

@@ -14,14 +14,13 @@
 
 subroutine report_cvb(orbs,norb)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: norb
 real(kind=wp) :: orbs(norb,norb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp(:,:)
 
 write(u6,'(/,a)') ' Orbital coefficients :'
 write(u6,'(a)') ' ----------------------'
@@ -29,10 +28,10 @@ call mxprint_cvb(orbs,norb,norb,0)
 write(u6,'(/,a)') ' Overlap between orbitals :'
 write(u6,'(a)') ' --------------------------'
 
-i1 = mstackr_cvb(norb*norb)
-call mxattb_cvb(orbs,orbs,norb,norb,norb,work(i1))
-call mxprint_cvb(work(i1),norb,norb,0)
-call mfreer_cvb(i1)
+call mma_allocate(tmp,norb,norb,label='tmp')
+call mxattb_cvb(orbs,orbs,norb,norb,norb,tmp)
+call mxprint_cvb(tmp,norb,norb,0)
+call mma_deallocate(tmp)
 
 return
 

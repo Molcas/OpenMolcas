@@ -18,14 +18,14 @@ subroutine o10a_cvb( &
                    )
 
 use casvb_global, only: have_solved_it, ix, n_div, nparm
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "opta_interface.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: ixp
 real(kind=wp) :: cnrm1, cnrm2
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: xp(:)
 real(kind=wp), external :: dnrm2_
 
 #include "macros.fh"
@@ -34,20 +34,20 @@ unused_var(nparam)
 call ddnewopt_cvb()
 have_solved_it = .false.
 
-ixp = mstackr_cvb(nparm)
-call fmove_cvb(work(ix(2)),work(ixp),nparm)
-call ddproj_cvb(work(ixp),nparm)
-cnrm1 = dnrm2_(n_div,work(ixp),1)
-cnrm2 = dnrm2_(nparm-n_div,work(n_div+ixp),1)
+call mma_allocate(xp,nparm,label='xp')
+call fmove_cvb(work(ix(2)),xp,nparm)
+call ddproj_cvb(xp,nparm)
+cnrm1 = dnrm2_(n_div,xp(1:n_div),1)
+cnrm2 = dnrm2_(nparm-n_div,xp(n_div+1:),1)
 if (cnrm1 > cnrm2) then
-  call ddguess_cvb(work(ixp),n_div,0)
-  if (cnrm2 > 1.0e-8_wp) call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
+  call ddguess_cvb(xp,n_div,0)
+  if (cnrm2 > 1.0e-8_wp) call ddguess_cvb(xp(n_div+1:),nparm-n_div,n_div)
 else
-  call ddguess_cvb(work(n_div+ixp),nparm-n_div,n_div)
-  if (cnrm1 > 1.0e-8_wp) call ddguess_cvb(work(ixp),n_div,0)
+  call ddguess_cvb(xp(n_div+1:),nparm-n_div,n_div)
+  if (cnrm1 > 1.0e-8_wp) call ddguess_cvb(xp(1:n_div),n_div,0)
 end if
-call ddrhs_cvb(work(ixp),nparm,0)
-call mfreer_cvb(ixp)
+call ddrhs_cvb(xp,nparm,0)
+call mma_deallocate(xp)
 
 return
 

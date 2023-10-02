@@ -14,6 +14,7 @@
 
 subroutine getci_cvb(civec)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,9 +25,10 @@ real(kind=wp) :: civec(*)
 #include "WrkSpc.fh"
 #include "casinfo_cvb.fh"
 #include "io_cvb.fh"
-integer(kind=iwp) :: ibf, icivec, istate, istsym_d, isyml, iwr, lcim, nci, ncix(mxirrep)
+integer(kind=iwp) :: ibf, icivec, istate, istsym_d, isyml, iwr, nci, ncix(mxirrep)
 real(kind=wp) :: cnrm, fac
-integer(kind=iwp), external :: igetcnt2_cvb, mstackr_cvb
+real(kind=wp), allocatable :: cim(:)
+integer(kind=iwp), external :: igetcnt2_cvb
 real(kind=wp), external :: dnrm2_
 logical(kind=iwp), external :: ifcasci_cvb, & ! ... Files/Hamiltonian available ...
                                valid_cvb
@@ -59,28 +61,28 @@ do istsym_d=1,nstsym_d
   isyml = istsy_d(istsym_d)
   call getnci_cvb(ncix,istnel_d(istsym_d),istms2_d(istsym_d),istsy_d(istsym_d))
   nci = ncix(1)
-  lcim = mstackr_cvb(nci)
+  call mma_allocate(cim,nci,label='cim')
   if (iwr == 0) then
     do istate=1,nstats_d(istsym_d)
       if (abs(weight_d(istate,istsym_d)) > 1.0e-20_wp) then
         call mkfn_cvb(strtci,ibf)
-        call rdcivec_cvb(work(lcim),filename(ibf),.true.)
+        call rdcivec_cvb(cim,filename(ibf),.true.)
         fac = sqrt(weight_d(istate,istsym_d))
-        call mol2vbma_cvb(work(iaddr_ci(icivec)),work(lcim),isyml,fac)
+        call mol2vbma_cvb(work(iaddr_ci(icivec)),cim,isyml,fac)
       end if
     end do
   else if (iwr == 1) then
     do istate=1,nstats_d(istsym_d)
       if (abs(weight_d(istate,istsym_d)) > 1.0e-20_wp) then
-        call vb2mol_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
-        cnrm = one/dnrm2_(nci,work(lcim),1)
-        call dscal_(nci,cnrm,work(lcim),1)
+        call vb2mol_cvb(work(iaddr_ci(icivec)),cim,isyml)
+        cnrm = one/dnrm2_(nci,cim,1)
+        call dscal_(nci,cnrm,cim,1)
         call mkfn_cvb(savvbci,ibf)
-        call wrcivec_cvb(work(lcim),filename(ibf),.not. variat)
+        call wrcivec_cvb(cim,filename(ibf),.not. variat)
       end if
     end do
   end if
-  call mfreer_cvb(lcim)
+  call mma_deallocate(cim)
 end do
 
 return

@@ -37,6 +37,7 @@ subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,corenrg,ipinp,
 !***********************************************************************
 
 use casvb_global, only: expct, fxbest, hh, hhkeep, hhstart, ip, isaddle, ix, maxize
+use casvb_interfaces, only: opta_sub, optb_sub
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -45,11 +46,11 @@ real(kind=wp) :: fx, corenrg
 integer(kind=iwp) :: ioptc, iter, imethod, isadinp, mxiter, ipinp, ipdd1, ipdd2
 logical(kind=iwp) :: maxinp, strucopt
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, ifollow, maxd, mxit, n_div, nfrdim, nfrdim_dav, nparm, nparm_dav
+integer(kind=iwp) :: ifollow, maxd, mxit, n_div, nfrdim, nfrdim_dav, nparm, nparm_dav
 logical(kind=iwp) :: done, iter_is_1
 integer(kind=iwp), external :: mstackr_cvb
-external :: dum_a_cvb, o10a_cvb, o10b_cvb, o123a_cvb, o123b_cvb, o12ea_cvb, o12eb_cvb, o12sa_cvb, o12sb_cvb, o5b_cvb, o7a_cvb, &
-            o7b_cvb, o8b_cvb
+procedure(opta_sub) :: dum_a_cvb, o10a_cvb, o123a_cvb, o12ea_cvb, o12sa_cvb, o7a_cvb
+procedure(optb_sub) :: o10b_cvb, o123b_cvb, o12eb_cvb, o12sb_cvb, o5b_cvb, o7b_cvb, o8b_cvb
 
 if (mxiter == 0) then
   ioptc = -1
@@ -122,11 +123,7 @@ do iter=1,mxiter
     call optize2_cvb(fx,nparm,ioptc,work(ix(1)),work(ix(2)),iter_is_1,dum_a_cvb,o8b_cvb)
     call mfreer_cvb(ix(1))
   else if (imethod == 9) then
-    i1 = mstackr_cvb(nparm)
-    i2 = mstackr_cvb(nparm)
-    i3 = mstackr_cvb(nparm)
-    call optize9_cvb(fx,nparm,ioptc,work(i1),work(i2),work(i3))
-    call mfreer_cvb(i1)
+    call optize9_cvb(fx,nparm,ioptc)
   else if (imethod == 10) then
     ix(1) = mstackr_cvb(nparm)
     ix(2) = mstackr_cvb(nparm)

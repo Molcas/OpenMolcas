@@ -12,16 +12,22 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine setipermzeta_cvb(ipermzeta,orbs,symelm,izeta,orbinv,owrk,owrk2)
+subroutine setipermzeta_cvb(ipermzeta,orbs,symelm,izeta)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: ipermzeta(norb,nzeta), izeta(nsyme)
-real(kind=wp) :: orbs(norb,norb), symelm(norb*norb,nsyme), orbinv(norb,norb), owrk(norb,norb), owrk2(norb,norb)
+real(kind=wp) :: orbs(norb,norb), symelm(norb*norb,nsyme)
 integer(kind=iwp) :: iorb, isyme, izeta1, jorb
+real(kind=wp), allocatable :: orbinv(:,:), owrk(:,:), owrk2(:,:)
 real(kind=wp), parameter :: thresh = 1.0e-8_wp
+
+call mma_allocate(orbinv,norb,norb,label='orbinv')
+call mma_allocate(owrk,norb,norb,label='owrk')
+call mma_allocate(owrk2,norb,norb,label='owrk2')
 
 if (nzeta > 0) then
   call fmove_cvb(orbs,orbinv,norb*norb)
@@ -48,6 +54,10 @@ do isyme=1,nsyme
     end do
   end if
 end do
+
+call mma_deallocate(orbinv)
+call mma_deallocate(owrk)
+call mma_deallocate(owrk2)
 
 return
 

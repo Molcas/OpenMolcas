@@ -14,26 +14,22 @@
 
 subroutine getmo_cvb(cmo,ic)
 
-use casvb_global, only: nbas_mo, nbasisq_mo
+use casvb_global, only: nbas_mo
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: cmo(*)
 integer(kind=iwp) :: ic
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: cmo2(:,:)
 
-i1 = mstackr_cvb(nbasisq_mo)
-
+call mma_allocate(cmo2,nbas_mo,nbas_mo,label='cmo2')
 if (ic <= 1) then
-  i2 = mstackr_cvb(0)
-  call getmo2_cvb(cmo,work(i2),work(i1),ic)
+  call getmo2_cvb(cmo,cmo2,ic)
 else
-  i2 = mstackr_cvb(nbas_mo*nbas_mo)
-  call getmo2_cvb(work(i2),cmo,work(i1),ic)
+  call getmo2_cvb(cmo2,cmo,ic)
 end if
-call mfreer_cvb(i1)
+call mma_deallocate(cmo2)
 
 return
 

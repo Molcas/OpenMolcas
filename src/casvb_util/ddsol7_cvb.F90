@@ -16,25 +16,77 @@ subroutine ddsol7_cvb( &
 #                     define _CALLING_
 #                     include "ddsol_interface.fh"
                      )
+! Solve linear equation in Davidson subspace.
 
-use Definitions, only: wp, iwp
+use casvb_global, only: ifollow, ipdd, iroot, jroot, nfrdim1 => nfrdim, nroot
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddsol_interface.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: i, it
+real(kind=wp) :: del, delmin
+real(kind=wp), allocatable :: eigval(:), eigvec(:,:)
 
 #include "macros.fh"
 unused_var(rhsp)
 unused_var(nfrdim)
 
-i1 = mstackr_cvb(itdav)
-i2 = mstackr_cvb(itdav*itdav)
+if (ipdd >= 3) then
+  write(u6,*) ' HP matrix (b) :'
+  call mxprint2_cvb(ap,itdav,maxdav,itdav,0)
+end if
 
-call ddsol72_cvb(ap,work(i1),work(i2),itdav,maxdav,solp,solp_res,eig,eig_res)
+call mma_allocate(eigval,itdav,label='eigval')
+call mma_allocate(eigvec,itdav,itdav,label='eigvec')
+do it=1,itdav
+  call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
+end do
+call mxdiag_cvb(eigvec,eigval,itdav)
 
-call mfreer_cvb(i1)
+if (ifollow <= 2) then
+  iroot = nroot
+  jroot = mod(itdav,nroot)
+  if (jroot == 0) jroot = nroot
+  if ((itdav == maxdav) .or. (itdav == nfrdim1)) jroot = nroot
+  iroot = min(itdav,iroot)
+  jroot = min(itdav,jroot)
+  if (ifollow == 1) then
+    iroot = itdav-iroot+1
+    jroot = itdav-jroot+1
+  end if
+else if (ifollow == 3) then
+  write(u6,*) ' Overlap-based root following not yet implemented!'
+  call abend_cvb()
+else if (ifollow == 4) then
+  ! Eigenvalue-based root following -- determine closest root:
+  iroot = 1
+  delmin = abs(eigval(1)-eig)
+  do i=1,min(itdav,nroot)
+    del = abs(eigval(i)-eig)
+    if (del < delmin) then
+      delmin = del
+      iroot = i
+    end if
+  end do
+  jroot = iroot
+end if
+eig = eigval(iroot)
+call fmove_cvb(eigvec(1,iroot),solp,itdav)
+eig_res = eigval(jroot)
+call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
+if (ipdd >= 2) then
+  write(u6,'(a)') ' Eigenvalues :'
+  call vecprint_cvb(eigval,itdav)
+  write(u6,'(a,i3,a)') ' Eigenvector number',iroot,' :'
+  call vecprint_cvb(solp,itdav)
+  if (jroot /= iroot) then
+    write(u6,'(a,i3,a)') ' Eigenvector number',jroot,' :'
+    call vecprint_cvb(solp_res,itdav)
+  end if
+end if
+call mma_deallocate(eigval)
+call mma_deallocate(eigvec)
 
 return
 

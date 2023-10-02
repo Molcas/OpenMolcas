@@ -12,19 +12,25 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine optize9_cvb(fx1,nparm,ioptc,hessdx,grad,dx)
+subroutine optize9_cvb(fx1,nparm,ioptc)
 
 use casvb_global, only: formChk1, formChk2, formChk3
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+real(kind=wp) :: fx1
 integer(kind=iwp) :: nparm, ioptc
-real(kind=wp) :: fx1, hessdx(nparm), grad(nparm), dx(nparm)
 integer(kind=iwp) :: iparm, it
 real(kind=wp) :: cn, dum(1), e1, e2, fx
+real(kind=wp), allocatable :: dx(:), grad(:), hessdx(:)
 real(kind=wp), parameter :: tenth = 0.1_wp
 real(kind=wp), external :: ddot_, rand_cvb
+
+call mma_allocate(dx,nparm,label='dx')
+call mma_allocate(grad,nparm,label='grad')
+call mma_allocate(hessdx,nparm,label='hessdx')
 
 call grad_cvb(grad)
 
@@ -52,6 +58,10 @@ do it=1,10
   call dscal_(nparm,tenth,dx,1)
   cn = tenth*cn
 end do
+
+call mma_deallocate(dx)
+call mma_deallocate(grad)
+call mma_deallocate(hessdx)
 
 ioptc = 0
 

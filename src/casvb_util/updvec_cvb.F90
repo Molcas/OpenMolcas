@@ -15,18 +15,18 @@
 subroutine updvec_cvb(upd,iorb,jorb,niprev,iprev,orbs,north,corth)
 ! Find update for IORB as projection of JORB on allowed space
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: upd(norb), orbs(norb,norb), corth(norb,niorth)
 integer(kind=iwp) :: iorb, jorb, niprev, iprev(niprev), north(norb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, io, ncon, noffort
+integer(kind=iwp) :: i, io, ncon, noffort
 real(kind=wp) :: dum(1)
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp(:,:)
 
-i1 = mstackr_cvb(norb*norb)
+call mma_allocate(tmp,norb,norb,label='tmp')
 noffort = 0
 do io=1,iorb-1
   noffort = noffort+north(io)
@@ -38,12 +38,12 @@ do i=1,niprev
   call span1_cvb(orbs(1,iprev(i)),1,dum,norb,0)
 end do
 call span1_cvb(orbs(1,iorb),1,dum,norb,0)
-call span2_cvb(work(i1),ncon,dum,norb,0)
+call span2_cvb(tmp,ncon,dum,norb,0)
 
 ! Orthogonalise update to all remaining constraints
 call fmove_cvb(orbs(1,jorb),upd,norb)
-call schmidtd_cvb(work(i1),ncon,upd,1,dum,norb,0)
-call mfreer_cvb(i1)
+call schmidtd_cvb(tmp,ncon,upd,1,dum,norb,0)
+call mma_deallocate(tmp)
 
 return
 

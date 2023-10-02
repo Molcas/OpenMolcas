@@ -80,6 +80,7 @@ do i=1,n2
   call fmove_cvb(u(1,indx(i)),vec(1,i),n1)
 end do
 
+call mma_deallocate(a)
 call mma_deallocate(w)
 call mma_deallocate(u)
 call mma_deallocate(v)

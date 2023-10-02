@@ -16,22 +16,21 @@ subroutine schmidtd_cvb(c1,nvec1,c2,nvec2,sao,n,metr)
 ! Orthogonalize nvec2 vectors in C2 on nvec1 vectors in C1.
 ! C1 vectors assumed to be orthonormal.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nvec1, nvec2, n, metr
 real(kind=wp) :: c1(n,nvec1), c2(n,nvec2), sao(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp(:,:)
 
 if (metr == 0) then
   call schmidtd2_cvb(c1,c1,nvec1,c2,nvec2,n)
 else
-  i1 = mstackr_cvb(n*nvec1)
-  call saoon_cvb(c1,work(i1),nvec1,sao,n,metr)
-  call schmidtd2_cvb(c1,work(i1),nvec1,c2,nvec2,n)
-  call mfreer_cvb(i1)
+  call mma_allocate(tmp,n,nvec1,label='tmp')
+  call saoon_cvb(c1,tmp,nvec1,sao,n,metr)
+  call schmidtd2_cvb(c1,tmp,nvec1,c2,nvec2,n)
+  call mma_deallocate(tmp)
 end if
 
 return

@@ -12,6 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine reprt_cvb()
 
 use Definitions, only: iwp
@@ -19,11 +20,7 @@ use Definitions, only: iwp
 implicit none
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, lc_citmp
-integer(kind=iwp), external :: mstackr_cvb
-
-i1 = mstackr_cvb(norb*norb)
-i2 = mstackr_cvb(norb)
+integer(kind=iwp) :: lc_citmp
 
 if (lciweights) then
   lc_citmp = lc(5)
@@ -34,8 +31,7 @@ end if
 
 call reprt2_cvb(work(lv(1)),work(lv(2)),work(lc(1)),work(lc(2)),work(lc(3)),work(lc(4)),work(lc_citmp),work(lp(1)),work(lp(2)), &
                 work(lw(1)),work(lw(2)),work(lw(3)),work(lw(4)),work(lw(5)),work(lw(6)),work(lw(7)),work(lw(8)),work(lw(9)), &
-                work(lw(10)),work(lw(11)),work(i1),work(i2))
-call mfreer_cvb(i1)
+                work(lw(10)),work(lw(11)))
 
 return
 

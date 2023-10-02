@@ -14,21 +14,22 @@
 
 subroutine ortelim_cvb(trprm,iorts,irots,sorbs,nc,npr1,norbprm,nrem)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: iorts(2,nort), irots(2,ndrot), nc, npr1, norbprm, nrem
 real(kind=wp) :: trprm(npr1,npr1), sorbs(norb,norb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i1ff, iorb, iort, irot, jorb, ki, kj, korb
+integer(kind=iwp) :: i, iorb, iort, irot, jorb, ki, kj, korb
 real(kind=wp) :: dum(1)
-integer(kind=iwp), external :: mstackrz_cvb
+real(kind=wp), allocatable :: tmp(:,:)
 
-i1 = mstackrz_cvb(norbprm*max(nc+nort+ndrot,norbprm))
-i1ff = i1-1
+call mma_allocate(tmp,norbprm,max(nc+nort+ndrot,norbprm),label='tmp')
+tmp(:,:) = Zero
 do i=1,nc
-  call fmove_cvb(trprm(1,i),work(1+(i-1)*norbprm+i1ff),norbprm)
+  call fmove_cvb(trprm(1,i),tmp(1,i),norbprm)
 end do
 do iort=1,nort
   iorb = iorts(1,iort)
@@ -38,8 +39,8 @@ do iort=1,nort
     if (korb > iorb) ki = ki-1
     kj = korb+(jorb-1)*(norb-1)
     if (korb > jorb) kj = kj-1
-    if (korb /= iorb) work(ki+(iort+nc-1)*norbprm+i1ff) = sorbs(korb,jorb)
-    if (korb /= jorb) work(kj+(iort+nc-1)*norbprm+i1ff) = sorbs(korb,iorb)
+    if (korb /= iorb) tmp(ki,iort+nc) = sorbs(korb,jorb)
+    if (korb /= jorb) tmp(kj,iort+nc) = sorbs(korb,iorb)
   end do
 end do
 do irot=1,ndrot
@@ -50,19 +51,19 @@ do irot=1,ndrot
     if (korb > iorb) ki = ki-1
     kj = korb+(jorb-1)*(norb-1)
     if (korb > jorb) kj = kj-1
-    if (korb /= iorb) work(ki+(irot+nc+nort-1)*norbprm+i1ff) = sorbs(korb,jorb)
-    if (korb /= jorb) work(kj+(irot+nc+nort-1)*norbprm+i1ff) = -sorbs(korb,iorb)
+    if (korb /= iorb) tmp(ki,irot+nc+nort) = sorbs(korb,jorb)
+    if (korb /= jorb) tmp(kj,irot+nc+nort) = -sorbs(korb,iorb)
   end do
 end do
-call span_cvb(work(i1),nc+nort+ndrot,nrem,dum,norbprm,0)
-call compl_cvb(work(i1),nrem,norbprm)
+call span_cvb(tmp,nc+nort+ndrot,nrem,dum,norbprm,0)
+call compl_cvb(tmp,nrem,norbprm)
 
 call fzero(trprm,npr1*npr1)
 do i=1,norbprm
-  call fmove_cvb(work(1+(i-1)*norbprm+i1ff),trprm(1,i),norbprm)
+  call fmove_cvb(tmp(1,i),trprm(1,i),norbprm)
 end do
 
-call mfreer_cvb(i1)
+call mma_deallocate(tmp)
 
 return
 

@@ -12,18 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine update2_cvb(orbs,cvb,orbsp,cvbp,sorbs,dxorg,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,dx,iorts,nort,sorbsinv)
+subroutine update2_cvb(orbs,cvb,orbsp,cvbp,sorbs,dxorg,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,dx,iorts,nort)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ic, norb, nvb, nprorb, npr, nort, iorts(2,nort)
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsp(norb,norb), cvbp(nvb), sorbs(norb,norb), dxorg(npr), dx(npr), sorbsinv(norb,norb)
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsp(norb,norb), cvbp(nvb), sorbs(norb,norb), dxorg(npr), dx(npr)
 logical(kind=iwp) :: orbopt, strucopt, sym
 #include "print_cvb.fh"
 integer(kind=iwp) :: i, ij, iorb, iort, j, jorb, k, korb, l, lorb
 real(kind=wp) :: dum(1), fac, sdidj
+real(kind=wp), allocatable :: sorbsinv(:,:)
 
 call free2all_cvb(dxorg,dx,1)
 if ((ip(3) >= 3) .and. (ic == 1)) then
@@ -50,6 +52,7 @@ if (orbopt) then
   end do
 
   ! 2nd-order correction for orthogonality constraints:
+  call mma_allocate(sorbsinv,norb,norb,label='sorbsinv')
   call fmove_cvb(sorbs,sorbsinv,norb*norb)
   call mxinv_cvb(sorbsinv,norb)
   do iort=1,nort
@@ -73,6 +76,7 @@ if (orbopt) then
       end do
     end do
   end do
+  call mma_deallocate(sorbsinv)
 end if
 
 if (strucopt) then

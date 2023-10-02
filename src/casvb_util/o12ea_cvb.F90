@@ -24,8 +24,7 @@ implicit none
 #include "opta_interface.fh"
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, i4, iv, ivuse2, ivuse_h, ivuse_s
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: iv, ivuse2, ivuse_h, ivuse_s
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 call ddnewopt_cvb()
@@ -43,19 +42,11 @@ if ((ivuse_h == 3) .or. (ivuse_s == 3)) ivuse2 = 2
 if ((ivuse_h == 2) .or. (ivuse_s == 2)) ivuse2 = 4
 if (ivuse2 > nv) ivuse2 = 1
 if ((ivuse_s /= 0) .and. (ivuse_h /= 0)) then
-  i1 = mstackr_cvb(nparam)
-  i2 = mstackr_cvb(nparam)
-  i3 = mstackr_cvb(nparam)
-  i4 = mstackr_cvb(nvb+nprorb)
-  call o12ea2_cvb(work(i1),work(i2),work(i3),nparam,work(lc(ivuse2)),work(lc(ivuse_s)),work(lc(ivuse_h)),work(lw(9)),work(lv(2)), &
-                  work(i4))
-  call mfreer_cvb(i1)
+  call o12ea2_cvb(nparam,work(lc(ivuse2)),work(lc(ivuse_s)),work(lc(ivuse_h)),work(lw(9)),work(lv(2)))
+else if (strucopt) then
+  call ddguess_cvb(work(lv(2)),nvb,nprorb)
 else
-  if (strucopt) then
-    call ddguess_cvb(work(lv(2)),nvb,nprorb)
-  else
-    call ddguess_cvb([one],1,0)
-  end if
+  call ddguess_cvb([one],1,0)
 end if
 call str2vbc_cvb(work(lv(2)),work(lw(9)))
 call vb2cic_cvb(work(lw(9)),work(lc(3)))

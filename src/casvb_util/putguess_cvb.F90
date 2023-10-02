@@ -15,17 +15,16 @@
 subroutine putguess_cvb(orbs,cvb,recn)
 
 use casvb_global, only: nbas_mo
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,*), cvb(*), recn
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2, i3, ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, iorbsao, kbasiscvb1, nbas_mo1, &
-                     norb1, nvb1
+integer(kind=iwp) :: i, ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, kbasiscvb1, nbas_mo1, norb1, nvb1
 logical(kind=iwp) :: ifmos_cvb, use_ao
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: a(:,:), b(:,:), c(:), orbsao(:,:)
 real(kind=wp), external :: dnrm2_
 
 call wrheader_cvb(recn,norb,nbas_mo,nvb,kbasiscvb,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
@@ -36,44 +35,47 @@ end do
 call wrgspr_cvb(recn,cvb,1,nvb,2,ierr)
 use_ao = ifmos_cvb() .and. ((.not. variat) .or. (variat .and. endvar))
 if (use_ao) then
-  iorbsao = mstackr_cvb(nbas_mo*norb)
-  call mo2ao_cvb(orbs,work(iorbsao),norb)
+  call mma_allocate(orbsao,nbas_mo,norb)
+  call mo2ao_cvb(orbs,orbsao,norb)
   do iorb=1,norb
-    call wrgspr_cvb(recn,work((iorb-1)*nbas_mo+iorbsao),iorb,nbas_mo,3,ierr)
+    call wrgspr_cvb(recn,orbsao(:,iorb),iorb,nbas_mo,3,ierr)
   end do
   if (ip(5) >= 2) then
     write(u6,'(/,a)') ' VB orbitals in AO basis :'
     write(u6,'(a)') ' -------------------------'
-    call mxprint_cvb(work(iorbsao),nbas_mo,norb,0)
+    call mxprint_cvb(orbsao,nbas_mo,norb,0)
   end if
   if (ploc) then
-    i1 = mstackr_cvb(norb*norb)
-    i2 = mstackr_cvb(norb*norb)
-    i3 = mstackr_cvb(norb)
-    !call getr_plc(work(i1))
-    call transp_cvb(work(i1),work(i1),norb,norb)
-    call mxatb_cvb(work(i1),orbs,norb,norb,norb,work(i2))
-    call lmo2ao_cvb(work(i2),work(iorbsao),norb)
+    call untested('putguess_cvb: ploc')
+    call mma_allocate(a,norb,norb,label='a')
+    call mma_allocate(b,norb,norb,label='b')
+    call mma_allocate(c,norb,label='c')
+    !call getr_plc(a)
+    call transp_cvb(a,a,norb,norb)
+    call mxatb_cvb(a,orbs,norb,norb,norb,b)
+    call lmo2ao_cvb(b,orbsao,norb)
     do iorb=1,norb
-      call wrgspr_cvb(recn,work((iorb-1)*nbas_mo+iorbsao),iorb,nbas_mo,4,ierr)
+      call wrgspr_cvb(recn,orbsao(:,iorb),iorb,nbas_mo,4,ierr)
     end do
     if (ip(5) >= 2) then
       write(u6,'(/,a)') ' Original localized VB orbitals in AO basis :'
       write(u6,'(a)') ' --------------------------------------------'
-      call mxprint_cvb(work(iorbsao),nbas_mo,norb,0)
+      call mxprint_cvb(orbsao,nbas_mo,norb,0)
     end if
     do i=1,norb
-      work(i+i3-1) = dnrm2_(norb,work((i-1)*norb+i2),1)
-      call dscal_(norb,One/work(i+i3-1),work((i-1)*norb+i2),1)
+      c(i) = dnrm2_(norb,b(:,i),1)
+      call dscal_(norb,One/c(i),b(:,i),1)
     end do
     if (ip(5) >= 2) then
       write(u6,'(/,a)') ' Norms of original localized VB orbitals :'
       write(u6,'(a)') ' -----------------------------------------'
-      call mxprint_cvb(work(i3),1,norb,0)
+      call mxprint_cvb(c,1,norb,0)
     end if
-    call mfreer_cvb(i1)
+    call mma_deallocate(a)
+    call mma_deallocate(b)
+    call mma_deallocate(c)
   end if
-  call mfreer_cvb(iorbsao)
+  call mma_deallocate(orbsao)
 end if
 
 return

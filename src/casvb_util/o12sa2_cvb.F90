@@ -12,16 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine o12sa2_cvb(c,sxc,nprm,civb,civbs,cvbdet,cvb,vec_all)
+subroutine o12sa2_cvb(nprm,civb,civbs,cvbdet,cvb)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: nprm
-real(kind=wp) :: c(nprm), sxc(nprm), civb(ndet), civbs(ndet), cvbdet(ndetvb), cvb(nvb), vec_all(npr)
+real(kind=wp) :: civb(ndet), civbs(ndet), cvbdet(ndetvb), cvb(nvb)
 integer(kind=iwp) :: ic1
 real(kind=wp) :: cnrm, dum(1), ret
+real(kind=wp), allocatable :: c(:), sxc(:), vec_all(:)
 real(kind=wp), external :: ddot_
 
 ! If no optimization of structure coefficients we are doing "Augmented" calc:
@@ -36,19 +38,25 @@ call vb2cic_cvb(cvbdet,civb)
 
 call cidot_cvb(civb,civbs,ret)
 call ci2vbg_cvb(civbs,cvbdet)
+call mma_allocate(vec_all,npr,label='vec_all')
 call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
 call fzero(vec_all,nprorb)
 call onedens_cvb(civb,civbs,vec_all,.false.,0)
+call mma_allocate(sxc,nprm,label='sxc')
 call all2free_cvb(vec_all,sxc(ic1),1)
 if (.not. strucopt) sxc(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
 call fzero(vec_all,nprorb)
 call fmove_cvb(cvb,vec_all(nprorb+1),nvb)
+call mma_allocate(c,nprm,label='c')
 call all2free_cvb(vec_all,c(ic1),1)
 if (.not. strucopt) c(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+call mma_deallocate(vec_all)
 cnrm = ddot_(nprm,c,1,sxc,1)
 call dscal_(nprm,one/sqrt(cnrm),c,1)
 call dscal_(nprm,one/sqrt(cnrm),sxc,1)
 call ddrestv_cvb(c,dum,sxc,nprm,0,.false.,.true.)
+call mma_deallocate(sxc)
+call mma_deallocate(c)
 
 return
 

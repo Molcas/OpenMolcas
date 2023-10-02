@@ -26,16 +26,13 @@
 !*  VB determinants are ordered with alpha & beta indices in           *
 !*  increasing order, with alpha being the slower index.               *
 !*                                                                     *
-!*  STR2VB[CFG] : Structure-to-determinant transformation.             *
+!*  STR2VB[CG] : Structure-to-determinant transformation.              *
 !*  VB2STR[CG] : Determinant-to-structure transformation.              *
 !*                                                                     *
 !*  [C] : Transforms coefficients.                                     *
-!*  [F] : Transforms a first-order change of the coefficients.         *
 !*  [G] : Transforms a gradient-type quantity.                         *
 !*                                                                     *
-!*  At present there is no actual difference between [C] and [F].      *
-!*                                                                     *
-!*  The difference between [CF] and [G] is mainly important when       *
+!*  The difference between [C] and [G] is mainly important when        *
 !*  non-orthogonal spin functions are used (Rumer/Project.)            *
 !*                                                                     *
 !***********************************************************************
@@ -49,11 +46,9 @@ implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: cvb(nvb), cvbdet(ndetvb)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: idetvb_add, ifnss_add, ifrag, ioffs_cvb, ioffs_cvbdet, iwrk, kab, kbs, ndetvbs_add
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: idetvb_add, ifnss_add, ifrag, ioffs_cvb, ioffs_cvbdet, kab, kbs, ndetvbs_add
 
 kab = 2
-
 kbs = nint(work(lb(kab)))
 if (kbs /= kbasiscvb) then
   call mkbiks_cvb()
@@ -66,15 +61,14 @@ ifnss_add = lb(4)
 if (kbasiscvb == 6) ifnss_add = lb(5)
 ndetvbs_add = lb(6)
 do ifrag=1,nfrag
-  iwrk = mstackr_cvb(max(ndetvb_fr(ifrag),nvb_fr(ifrag)))
   call str2vb2_cvb(work(lb(kab)+1),iwork(lb(3)),cvb(ioffs_cvb),cvbdet(ioffs_cvbdet),2,iwork(idetvb_add),i2s_fr(1,ifrag), &
                    nS_fr(ifrag),nalf_fr(1,ifrag),nMs_fr(ifrag),iwork(ifnss_add),iwork(ndetvbs_add),absym(1),ndetvb_fr(ifrag), &
-                   nvb_fr(ifrag),kbs,nel_fr(ifrag),nel,work(iwrk),nconfion_fr(0,ifrag))
-  call mfreer_cvb(iwrk)
+                   nvb_fr(ifrag),kbs,nel_fr(ifrag),nel,nconfion_fr(0,ifrag))
   idetvb_add = idetvb_add+ndetvb_fr(ifrag)
   ioffs_cvb = ioffs_cvb+nvb_fr(ifrag)
   ioffs_cvbdet = ioffs_cvbdet+ndetvb_fr(ifrag)
 end do
+
 return
 
 end subroutine str2vbc_cvb

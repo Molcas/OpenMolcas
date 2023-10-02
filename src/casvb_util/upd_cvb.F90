@@ -20,17 +20,14 @@ implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: dx(*), orbs(norb,norb), cvb(nvb)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, ic
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: ic
 
 if (orbopt) call touch_cvb('ORBSTRY')
 if (strucopt) call touch_cvb('CVBTRY')
 call make_cvb('WFNTRY')
 ic = 2
-i1 = mstackr_cvb(norb*norb)
 call update2_cvb(orbs,cvb,work(lv(1)),work(lv(2)),work(lw(2)),dx,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,work(lp(6)), &
-                 iwork(ls(11)),nort,work(i1))
-call mfreer_cvb(i1)
+                 iwork(ls(11)),nort)
 
 return
 

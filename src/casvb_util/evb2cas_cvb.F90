@@ -14,6 +14,7 @@
 
 subroutine evb2cas_cvb(orbs,cvb,fx,ioptc,iter)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,20 +22,20 @@ implicit none
 real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx
 integer(kind=iwp) :: ioptc, iter
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, idum
+integer(kind=iwp) :: idum
 real(kind=wp) :: dx_amx, dxnrm
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp(:)
 real(kind=wp), external :: dnrm2_
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
 
 if (tstfile_cvb(66000.2_wp)) then
-  i1 = mstackr_cvb(norb*norb+nvb)
-  call rdr_cvb(work(i1),norb*norb+nvb,66000.2_wp,0)
-  call subvec(work(i1),orbs,work(i1),norb*norb)
-  call subvec(work(norb*norb+i1),cvb,work(norb*norb+i1),nvb)
-  dxnrm = dnrm2_(norb*norb+nvb,work(i1),1)
-  call findamx_cvb(work(i1),norb*norb+nvb,dx_amx,idum)
-  call mfreer_cvb(i1)
+  call mma_allocate(tmp,norb*norb+nvb,label='tmp')
+  call rdr_cvb(tmp,norb*norb+nvb,66000.2_wp,0)
+  call subvec(tmp,orbs,tmp,norb*norb)
+  call subvec(tmp(norb*norb+1),cvb,tmp(norb*norb+1),nvb)
+  dxnrm = dnrm2_(norb*norb+nvb,tmp,1)
+  call findamx_cvb(tmp,norb*norb+nvb,dx_amx,idum)
+  call mma_deallocate(tmp)
 end if
 call wrr_cvb(orbs,norb*norb,66000.2_wp,0)
 call wrr_cvb(cvb,nvb,66000.2_wp,norb*norb)

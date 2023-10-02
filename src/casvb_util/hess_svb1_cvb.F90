@@ -13,9 +13,10 @@
 !***********************************************************************
 
 subroutine hess_svb1_cvb(orbs,civecp,civbs,civb,citmp,orbinv,sorbs,owrk,gjorb,gjorb2,gjorb3,dvbdet,grad1,grad2,hessorb,vec1,iorts, &
-                         hessinp,hessout,owrk2,owrk3)
+                         hessinp,hessout)
 
 use casvb_global, only: aa1, aa2, nfrag, oaa2, oaa3
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
@@ -24,13 +25,12 @@ implicit none
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
 real(kind=wp) :: orbs(norb,norb), civecp(ndet), civbs(ndet), civb(ndet), citmp(ndet), orbinv(norb,norb), sorbs(norb,norb), &
                  owrk(norb,norb), gjorb(*), gjorb2(*), gjorb3(*), dvbdet(ndetvb), grad1(npr), grad2(npr), hessorb(nprorb,nprorb), &
-                 vec1(*), hessinp(npr), hessout(npr), owrk2(*), owrk3(*)
+                 vec1(*), hessinp(npr), hessout(npr)
 integer(kind=iwp) :: iorts(2,nort)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, iorb, iort, jorb, ki, kj, korb, lj, lorb
+integer(kind=iwp) :: iorb, iort, jorb, ki, kj, korb, lj, lorb
 real(kind=wp) :: corr1, fac1, fac2, g1f, g2f, hess_ci_nrm, hess_orb_nrm
 logical(kind=iwp) :: orbopt2, strucopt2
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: cvb(:), cvbdet(:), owrk2(:,:), owrk3(:,:)
 real(kind=wp), external :: ddot_, dnrm2_
 
 hess_orb_nrm = dnrm2_(nprorb,hessinp,1)
@@ -64,19 +64,23 @@ if (orbopt2 .and. strucopt) then
   call oneexc_cvb(civecp,citmp,owrk,.true.,2)
   call mkgrd_cvb(civb,citmp,vec1,dvbdet,npr,.false.)
   call daxpy_(nprvb,aa1,vec1(nprorb+1),1,hessout(nprorb+1),1)
+  call mma_allocate(owrk2,norb,norb,label='owrk2')
+  call mma_allocate(owrk3,norb,norb,label='owrk3')
   call transp_cvb(owrk,owrk2,norb,norb)
   if (.not. (proj .or. projcas)) then
     call mxatb_cvb(sorbs,owrk2,norb,norb,norb,owrk3)
     call mxatb_cvb(owrk3,orbinv,norb,norb,norb,owrk2)
     call addvec(owrk,owrk2,owrk,norb*norb)
   end if
+  call mma_deallocate(owrk2)
+  call mma_deallocate(owrk3)
   call cizero_cvb(citmp)
   call oneexc_cvb(civbs,citmp,owrk,.true.,2)
   call mkgrd_cvb(civb,citmp,vec1,dvbdet,npr,.false.)
   call daxpy_(nprvb,oaa2,vec1(nprorb+1),1,hessout(nprorb+1),1)
 end if
 if (strucopt2) then
-  call str2vbf_cvb(hessinp(1+nprorb),dvbdet)
+  call str2vbc_cvb(hessinp(1+nprorb),dvbdet)
   call vb2cif_cvb(dvbdet,citmp)
   ! Structure coeff. <-> orbital
   call mkgrd_cvb(citmp,civbs,vec1,dvbdet,nprorb,.true.)
@@ -90,16 +94,17 @@ if (strucopt2) then
   call daxpy_(npr,oaa2,vec1,1,hessout,1)
   ! 2nd-order term for structure coefficients
   if (nfrag > 1) then
-    call str2vbf_cvb(hessinp(1+nprorb),dvbdet)
-    i1 = mstackr_cvb(ndetvb)
-    i2 = mstackr_cvb(nvb)
-    call ci2ordr_cvb(civbs,dvbdet,work(i1))
-    call vb2strg_cvb(work(i1),work(i2))
-    call daxpy_(nvb,oaa2,work(i2),1,hessout(1+nprorb),1)
-    call ci2ordr_cvb(civecp,dvbdet,work(i1))
-    call vb2strg_cvb(work(i1),work(i2))
-    call daxpy_(nvb,aa1,work(i2),1,hessout(1+nprorb),1)
-    call mfreer_cvb(i1)
+    call str2vbc_cvb(hessinp(1+nprorb),dvbdet)
+    call mma_allocate(cvbdet,ndetvb,label='cvbdet')
+    call mma_allocate(cvb,nvb,label='cvb')
+    call ci2ordr_cvb(civbs,dvbdet,cvbdet)
+    call vb2strg_cvb(cvbdet,cvb)
+    call daxpy_(nvb,oaa2,cvb,1,hessout(1+nprorb),1)
+    call ci2ordr_cvb(civecp,dvbdet,cvbdet)
+    call vb2strg_cvb(cvbdet,cvb)
+    call daxpy_(nvb,aa1,cvb,1,hessout(1+nprorb),1)
+    call mma_deallocate(cvb)
+    call mma_deallocate(cvbdet)
   end if
 else if (proj .or. projcas) then
   call cizero_cvb(citmp)

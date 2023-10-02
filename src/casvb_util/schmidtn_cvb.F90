@@ -14,21 +14,20 @@
 
 subroutine schmidtn_cvb(c,nvec,sao,n,metr)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nvec, n, metr
 real(kind=wp) :: c(n,nvec), sao(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp(:,:)
 
 if (metr == 0) then
   call schmidtn2_cvb(c,c,nvec,sao,n,metr)
 else
-  i1 = mstackr_cvb(n*nvec)
-  call schmidtn2_cvb(c,work(i1),nvec,sao,n,metr)
-  call mfreer_cvb(i1)
+  call mma_allocate(tmp,n,nvec,label='tmp')
+  call schmidtn2_cvb(c,tmp,nvec,sao,n,metr)
+  call mma_deallocate(tmp)
 end if
 
 return

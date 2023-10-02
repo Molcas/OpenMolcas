@@ -24,8 +24,7 @@ implicit none
 #include "opta_interface.fh"
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3, iv, ivuse, ivuse2
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: iv, ivuse, ivuse2
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 call ddnewopt_cvb()
@@ -40,11 +39,7 @@ ivuse2 = 3
 if (ivuse == 3) ivuse2 = 2
 if (ivuse2 > nv) ivuse2 = 1
 if (ivuse /= 0) then
-  i1 = mstackr_cvb(nparam)
-  i2 = mstackr_cvb(nparam)
-  i3 = mstackr_cvb(nvb+nprorb)
-  call o12sa2_cvb(work(i1),work(i2),nparam,work(lc(ivuse2)),work(lc(ivuse)),work(lw(9)),work(lv(2)),work(i3))
-  call mfreer_cvb(i1)
+  call o12sa2_cvb(nparam,work(lc(ivuse2)),work(lc(ivuse)),work(lw(9)),work(lv(2)))
 else
   if (strucopt) then
     call ddguess_cvb(work(lv(2)),nvb,nprorb)
@@ -53,10 +48,8 @@ else
   end if
 end if
 
-i1 = mstackr_cvb(nparam)
 call o12sa3_cvb(work(ix(1)),work(lv(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lc(1)),work(lc(2)),work(lc(3)), &
-                work(lw(9)),work(i1),nvb,nprorb,nparam,strucopt)
-call mfreer_cvb(i1)
+                work(lw(9)),nvb,nprorb,nparam,strucopt)
 
 return
 

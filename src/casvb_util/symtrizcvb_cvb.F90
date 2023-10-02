@@ -14,23 +14,18 @@
 
 subroutine symtrizcvb_cvb(vecstr)
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: vecstr(nvb)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2
 real(kind=wp) :: dum(1)
-integer(kind=iwp), external :: mstackr_cvb
 
 if (iconstruc == 0) then
   return
 else if (iconstruc == 1) then
-  i1 = mstackr_cvb(ndetvb)
-  i2 = mstackr_cvb(nvb)
-  call symtrizcvb2_cvb(vecstr,iwork(ls(13)),iwork(ls(16)),work(i1),work(i2))
-  call mfreer_cvb(i1)
+  call symtrizcvb2_cvb(vecstr,iwork(ls(13)),iwork(ls(16)))
   call symtrizcvb3_cvb(vecstr,iwork(ls(10)))
 else if (iconstruc == 2) then
   call schmidtd_cvb(work(ls(15)),nconstr,vecstr,1,dum,nvb,0)

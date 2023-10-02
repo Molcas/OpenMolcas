@@ -14,6 +14,7 @@
 
 subroutine mkgrd_cvb(civb,civb2,grad,dvbdet,np,doorb)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -22,8 +23,7 @@ real(kind=wp) :: civb(ndet), civb2(ndet), grad(npr), dvbdet(ndetvb)
 integer(kind=iwp) :: np
 logical(kind=iwp) :: doorb
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstackrz_cvb
+real(kind=wp), allocatable :: tmp(:)
 
 call fzero(grad,nprorb)
 if (doorb) call onedens_cvb(civb,civb2,grad,.false.,1)
@@ -32,10 +32,10 @@ if (strucopt) then
   if (np-nprorb == nvb) then
     call vb2strg_cvb(dvbdet,grad(nprorb+1))
   else if (np-nprorb < nvb) then
-    i1 = mstackrz_cvb(nvb)
-    call vb2strg_cvb(dvbdet,work(i1))
-    call fmove_cvb(work(i1),work(lv(5)),np-nprorb)
-    call mfreer_cvb(i1)
+    call mma_allocate(tmp,nvb,label='tmp')
+    call vb2strg_cvb(dvbdet,tmp)
+    call fmove_cvb(tmp,work(lv(5)),np-nprorb)
+    call mma_deallocate(tmp)
   else
     write(u6,*) ' Error in mkgrd - np-nprorb > nvb :',np,nprorb,nvb
   end if

@@ -24,7 +24,7 @@ real(kind=wp) :: c(nvb,nvec), axc(nvb,nvec), sxc(nvb,nvec), civbh(ndet), civbs(n
 integer(kind=iwp) :: ivec
 
 do ivec=1,nvec
-  call str2vbf_cvb(c(1,ivec),cvbdet)
+  call str2vbc_cvb(c(1,ivec),cvbdet)
   call vb2cif_cvb(cvbdet,civbs)
   call vb2cif_cvb(cvbdet,civbh)
   call makecivbhs_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)

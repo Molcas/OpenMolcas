@@ -15,7 +15,7 @@
 !** EISPACK ROUTINES **
 !**********************
 
-subroutine rs(nm,n,a,w,matz,z,fv1,fv2,ierr)
+subroutine rs(nm,n,a,w,matz,z,ierr)
 ! this subroutine calls the recommended sequence of
 ! subroutines from the eigensystem subroutine package (eispack)
 ! to find the eigenvalues and eigenvectors (if desired)
@@ -45,8 +45,6 @@ subroutine rs(nm,n,a,w,matz,z,fv1,fv2,ierr)
 !       completion code described in the documentation for tqlrat
 !       and tql2.  the normal completion code is zero.
 !
-!    fv1  and  fv2  are temporary storage arrays.
-!
 ! questions and comments should be directed to burton s. garbow,
 ! mathematics and computer science div, argonne national laboratory
 !
@@ -55,28 +53,34 @@ subroutine rs(nm,n,a,w,matz,z,fv1,fv2,ierr)
 ! Updated to Fortran 90+ (Sep. 2023)
 ! ----------------------------------------------------------------------
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nm, n, matz, ierr
-real(kind=wp) :: a(nm,n), w(n), z(nm,n), fv1(n), fv2(n)
+real(kind=wp) :: a(nm,n), w(n), z(nm,n)
+real(kind=wp), allocatable :: fv1(:), fv2(:)
 
 if (n > nm) then
   ierr = 10*n
   return
 end if
 
+call mma_allocate(fv1,n,label='fv1')
 if (matz /= 0) then
   ! .......... find both eigenvalues and eigenvectors ..........
   call tred2(nm,n,a,w,fv1,z)
   call tql2(nm,n,w,fv1,z,ierr)
 else
   ! .......... find eigenvalues only ..........
+  call mma_allocate(fv2,n,label='fv2')
   call tred1(nm,n,a,w,fv1,fv2)
   ! tqlrat encounters catastrophic underflow on the Vax
   !call tqlrat(n,w,fv2,ierr)
   call tql1(n,w,fv1,ierr)
+  call mma_deallocate(fv2)
 end if
+call mma_deallocate(fv1)
 
 return
 

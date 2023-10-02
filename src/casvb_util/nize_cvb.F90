@@ -15,28 +15,28 @@
 subroutine nize_cvb(c,nnrm,s,n,metr,ierr)
 ! Normalizes NNRM vectors in C.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nnrm, n, metr, ierr
 real(kind=wp) :: c(n,nnrm), s(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1
+integer(kind=iwp) :: i
 real(kind=wp) :: cnrm
 logical(kind=iwp) :: safe
+real(kind=wp), allocatable :: c2(:)
 real(kind=wp), parameter :: thresh = 1.0e-8_wp
-integer(kind=iwp), external :: mstackr_cvb
 real(kind=wp), external :: ddot_, dnrm2_
 
-if (metr /= 0) i1 = mstackr_cvb(n)
+if (metr /= 0) call mma_allocate(c2,n,label='c2')
 safe = ierr /= 0
 do i=1,nnrm
   if (metr == 0) then
     cnrm = dnrm2_(n,c(1,i),1)
   else
-    call saoon_cvb(c(1,i),work(i1),1,s,n,metr)
-    cnrm = sqrt(ddot_(n,c(1,i),1,work(i1),1))
+    call saoon_cvb(c(1,i),c2,1,s,n,metr)
+    cnrm = sqrt(ddot_(n,c(1,i),1,c2,1))
   end if
   if (safe .and. (cnrm < thresh)) then
     ierr = ierr+1
@@ -44,7 +44,7 @@ do i=1,nnrm
     call dscal_(n,One/cnrm,c(1,i),1)
   end if
 end do
-if (metr /= 0) call mfreer_cvb(i1)
+if (metr /= 0) call mma_deallocate(c2)
 
 return
 

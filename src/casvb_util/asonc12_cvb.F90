@@ -23,7 +23,7 @@ real(kind=wp) :: c(nvb,nvec), sxc(nvb,nvec), citmp(ndet), orbs(norb,norb), gjorb
 integer(kind=iwp) :: ivec
 
 do ivec=1,nvec
-  call str2vbf_cvb(c(1,ivec),cvbdet)
+  call str2vbc_cvb(c(1,ivec),cvbdet)
   call vb2cif_cvb(cvbdet,citmp)
   call applyts_cvb(citmp,orbs,gjorb,gjorb2,gjorb3)
   call ci2vbg_cvb(citmp,cvbdet)

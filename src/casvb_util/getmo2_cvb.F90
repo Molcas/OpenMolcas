@@ -12,17 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine getmo2_cvb(cmo,cmo2,cmoblk,ic)
+subroutine getmo2_cvb(cmo,cmo2,ic)
 
 use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nsym_mo
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: cmo(nbas_mo,nbas_mo), cmo2(nbas_mo,nbas_mo), cmoblk(nbasisq_mo)
+real(kind=wp) :: cmo(nbas_mo,nbas_mo), cmo2(nbas_mo,nbas_mo)
 integer(kind=iwp) :: ic
 integer(kind=iwp) :: iorb, isk, jbas
+real(kind=wp), allocatable :: cmoblk(:)
 
 ! Construct full matrix of MOs in symmetry-adapted AO basis:
+call mma_allocate(cmoblk,nbasisq_mo,label='cmoblk')
 call getmoblk_cvb(cmoblk)
 call fzero(cmo,nbas_mo*nbas_mo)
 do isk=1,nsym_mo
@@ -30,6 +33,7 @@ do isk=1,nsym_mo
     call fmove_cvb(cmoblk(1+nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)),cmo(nbasf_mo(isk)+1,jbas+nbasf_mo(isk)),nbasi_mo(isk))
   end do
 end do
+call mma_deallocate(cmoblk)
 
 if (mod(ic,2) == 1) then
   call mxinv_cvb(cmo,nbas_mo)

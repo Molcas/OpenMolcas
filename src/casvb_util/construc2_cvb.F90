@@ -14,31 +14,31 @@
 
 subroutine construc2_cvb(tconstr)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: tconstr(nvb,nvb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iconstruc_kp, irepm, ivb
+integer(kind=iwp) :: iconstruc_kp, ivb
 real(kind=wp) :: dum(1)
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: repm(:)
 
 iconstruc_kp = iconstruc
 iconstruc = 1
-irepm = mstackr_cvb(nvb)
+call mma_allocate(repm,nvb,label='nvb')
 
 call span0_cvb(nvb,nvb)
 do ivb=1,nvb
-  call fzero(work(irepm),nvb)
-  work(ivb+irepm-1) = -One
-  call symtrizcvb_cvb(work(irepm))
-  work(ivb+irepm-1) = work(ivb+irepm-1)+One
-  call span1_cvb(work(irepm),1,dum,nvb,0)
+  call fzero(repm,nvb)
+  repm(ivb) = -One
+  call symtrizcvb_cvb(repm)
+  repm(ivb) = repm(ivb)+One
+  call span1_cvb(repm,1,dum,nvb,0)
 end do
 call span2_cvb(tconstr,nconstr,dum,nvb,0)
 
-call mfreer_cvb(irepm)
+call mma_deallocate(repm)
 iconstruc = iconstruc_kp
 
 return

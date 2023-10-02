@@ -14,25 +14,27 @@
 
 subroutine bikset_cvb(aikcof,bikcof,nel,nalf,i2s,ndet,ifns,kbasis,share,iprint)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nel, nalf, i2s, ndet, ifns, kbasis, iprint
 real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
 logical(kind=iwp) :: share
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, nalf_use, ndet_use
-integer(kind=iwp), external :: ndet_cvb, mstackr_cvb
+integer(kind=iwp) :: nalf_use, ndet_use
+integer(kind=iwp), external :: ndet_cvb
+real(kind=wp), allocatable :: atmp(:,:), btmp(:,:)
 
 if (i2s /= 2*nalf-nel) then
   nalf_use = (i2s+nel)/2
   ndet_use = ndet_cvb(nel,nalf_use)
-  i1 = mstackr_cvb(ndet_use*ifns)
-  i2 = mstackr_cvb(ndet_use*ifns)
-  call biksmain_cvb(work(i1),work(i2),nel,nalf_use,ndet_use,ifns,kbasis,.false.,iprint)
-  call sminus_cvb(work(i1),bikcof,nel,nalf_use,nalf,ifns)
-  if (.not. share) call sminus_cvb(work(i2),aikcof,nel,nalf_use,nalf,ifns)
-  call mfreer_cvb(i1)
+  call mma_allocate(atmp,ndet_use,ifns,label='atmp')
+  call mma_allocate(btmp,ndet_use,ifns,label='btmp')
+  call biksmain_cvb(atmp,btmp,nel,nalf_use,ndet_use,ifns,kbasis,.false.,iprint)
+  call sminus_cvb(atmp,bikcof,nel,nalf_use,nalf,ifns)
+  if (.not. share) call sminus_cvb(btmp,aikcof,nel,nalf_use,nalf,ifns)
+  call mma_deallocate(atmp)
+  call mma_deallocate(btmp)
 else
   call biksmain_cvb(aikcof,bikcof,nel,nalf,ndet,ifns,kbasis,share,iprint)
 end if

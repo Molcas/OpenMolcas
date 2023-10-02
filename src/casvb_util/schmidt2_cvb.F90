@@ -12,17 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine schmidt2_cvb(c,sxc,cnrm,nvec,sao,n,metr)
+subroutine schmidt2_cvb(c,sxc,nvec,sao,n,metr)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nvec, n, metr
-real(kind=wp) :: c(n,nvec), sxc(n,nvec), cnrm(nvec), sao(*)
+real(kind=wp) :: c(n,nvec), sxc(n,nvec), sao(*)
 integer(kind=iwp) :: i, j
+real(kind=wp), allocatable :: cnrm(:)
 real(kind=wp), parameter :: thresh = 1.0e-20_wp
 real(kind=wp), external :: ddot_
 
+call mma_allocate(cnrm,nvec,label='cnrm')
 do i=1,nvec
   do j=1,i-1
     if (cnrm(j) > thresh) call daxpy_(n,-ddot_(n,c(1,i),1,sxc(1,j),1)/cnrm(j),c(1,j),1,c(1,i),1)
@@ -30,6 +33,7 @@ do i=1,nvec
   if (metr /= 0) call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
   cnrm(i) = ddot_(n,c(1,i),1,sxc(1,i),1)
 end do
+call mma_deallocate(cnrm)
 
 return
 

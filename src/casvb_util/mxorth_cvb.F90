@@ -15,6 +15,7 @@
 function mxorth_cvb(a,n)
 ! Returns .TRUE. if A is orthogonal.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -22,34 +23,37 @@ implicit none
 logical(kind=iwp) :: mxorth_cvb
 integer(kind=iwp) :: n
 real(kind=wp) :: a(n,n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2, j
+integer(kind=iwp) :: i, j
 real(kind=wp) :: tst
+real(kind=wp), allocatable :: at(:,:), c(:,:)
 real(kind=wp), parameter :: thresh = 1.0e-8_wp
-integer(kind=iwp), external :: mstackr_cvb
 
-i1 = mstackr_cvb(n*n)
-i2 = mstackr_cvb(n*n)
-! Work(I1) <= A transpose
+call mma_allocate(at,n,n,label='at')
+call mma_allocate(c,n,n,label='c')
+! AT <= A transpose
 do i=1,n
   do j=1,n
-    work(i+(j-1)*n+i1-1) = a(j,i)
+    at(i,j) = a(j,i)
   end do
 end do
-call mxatb_cvb(work(i1),a,n,n,n,work(i2))
-! Work(I2) identity ??
+call mxatb_cvb(at,a,n,n,n,c)
+call mma_deallocate(at)
+! C identity ??
 mxorth_cvb = .true.
-do j=1,n
+outer: do j=1,n
   do i=1,n
     if (i /= j) then
-      tst = abs(work(i+(j-1)*n+i2-1))
-      if (tst > thresh) mxorth_cvb = .false.
+      tst = abs(c(i,j))
     else
-      tst = abs(work(i+(j-1)*n+i2-1)-One)
-      if (tst > thresh) mxorth_cvb = .false.
+      tst = abs(c(i,j)-One)
+    end if
+    if (tst > thresh) then
+      mxorth_cvb = .false.
+      exit outer
     end if
   end do
-end do
+end do outer
+call mma_deallocate(c)
 
 return
 

@@ -12,6 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
+!IFG trivial
 subroutine asonc12e_cvb( &
 #                       define _CALLING_
 #                       include "ddasonc_interface.fh"
@@ -24,13 +25,9 @@ implicit none
 #include "ddasonc_interface.fh"
 #include "main_cvb.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstackr_cvb
 
-i1 = mstackr_cvb(nvb+nprorb)
 call asonc12e2_cvb(c,axc,sxc,nvec,nprm,work(lc(3)),work(lc(4)),work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)), &
-                   work(lw(9)),work(lv(2)),work(i1))
-call mfreer_cvb(i1)
+                   work(lw(9)),work(lv(2)))
 
 return
 

@@ -14,18 +14,18 @@
 
 subroutine mxdiag_cvb(a,eigval,n)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: n
 real(kind=wp) :: a(n,n), eigval(n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ierr, itmp
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: ierr
+real(kind=wp), allocatable :: tmp(:)
 
-itmp = mstackr_cvb(n*3)
-call dsyev_('V','L',n,a,n,eigval,work(itmp),n*3,ierr)
-call mfreer_cvb(itmp)
+call mma_allocate(tmp,n*3,label='tmp')
+call dsyev_('V','L',n,a,n,eigval,tmp,n*3,ierr)
+call mma_deallocate(tmp)
 if (ierr /= 0) then
   write(u6,*) ' Fatal error in mxdiag, ierr :',ierr
   call abend_cvb()

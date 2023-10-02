@@ -16,17 +16,21 @@ subroutine axesxb2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,c,axc,sx
 
 use casvb_global, only: corenrg, ifollow, ipdd, isaddledd, maxd, mxit, nfrdim, nortiterdd, nparm, nvguess, nvrestart, orththrdd, &
                         resthrdd
+use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddrestart_sub, ddsol_sub
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-external :: asonc, ddres2upd
+procedure(ddasonc_sub) :: asonc
+procedure(ddres2upd_sub) :: ddres2upd
 real(kind=wp) :: vec(nparm), resthr_inp, fx_exp, c(nparm,maxd), axc(nparm,maxd), sxc(nparm,maxd), res(nparm), rhs(*), &
                  ap(maxd,maxd), rhsp(maxd), solp(maxd), solp_res(maxd)
 integer(kind=iwp) :: ioptc, iter
 logical(kind=iwp) :: share
 real(kind=wp) :: resthr_use
-external :: axesxbres_cvb, axexbsol_cvb, ddrestart_cvb
+procedure(ddres_sub) :: axesxbres_cvb
+procedure(ddrestart_sub) :: ddrestart_cvb
+procedure(ddsol_sub) :: axexbsol_cvb
 
 ! If RESTHR_INP unset use default:
 if (resthr_inp /= Zero) then

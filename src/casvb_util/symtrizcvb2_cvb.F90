@@ -12,16 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine symtrizcvb2_cvb(vecstr,izeta,ipermzeta,dvbdet,vecstr2)
+subroutine symtrizcvb2_cvb(vecstr,izeta,ipermzeta)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: izeta(nsyme), ipermzeta(norb,nzeta)
-real(kind=wp) :: vecstr(nvb), dvbdet(ndetvb), vecstr2(nvb)
+real(kind=wp) :: vecstr(nvb)
 integer(kind=iwp) :: isyme, izeta1
+real(kind=wp), allocatable :: dvbdet(:), vecstr2(:)
 
+call mma_allocate(dvbdet,ndetvb,label='dvbdet')
+call mma_allocate(vecstr2,nvb,label='vecstr2')
 izeta1 = 0
 do isyme=1,nsyme
   if (izeta(isyme) /= 0) then
@@ -32,6 +36,8 @@ do isyme=1,nsyme
     call daxpy_(nvb,real(izeta(isyme),kind=wp),vecstr2,1,vecstr,1)
   end if
 end do
+call mma_deallocate(dvbdet)
+call mma_deallocate(vecstr2)
 if (izeta1 > 0) call dscal_(nvb,One/real(2**izeta1,kind=wp),vecstr,1)
 
 return

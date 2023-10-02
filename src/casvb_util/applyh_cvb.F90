@@ -14,6 +14,7 @@
 
 subroutine applyh_cvb(civec)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -23,10 +24,11 @@ real(kind=wp) :: civec(*)
 #include "WrkSpc.fh"
 #include "casvb.fh"
 #include "rasscf_lucia.fh"
-integer(kind=iwp) :: icivec, isyml, isymmx, lcim, lcim2, nci
+integer(kind=iwp) :: ibase, icivec, isyml, isymmx, nci
 real(kind=wp) :: c_daxpy, cnrm
+real(kind=wp), allocatable :: cim(:), cim2(:)
 real(kind=wp), parameter :: thr2 = 1.0e-20_wp
-integer(kind=iwp), external :: mstackr_cvb, mstackrz_cvb
+integer(kind=iwp), external :: mstackr_cvb
 real(kind=wp), external :: ddot_
 
 kH0_Pointer = lw1_cvb
@@ -44,40 +46,37 @@ end if
 isymmx = nirrep
 do isyml=1,isymmx
   nci = ncivb(isyml)
-  lcim = mstackrz_cvb(nci)
+  ibase = mstackr_cvb(0)
+  call mma_allocate(cim,nci,label='cim')
+  cim(:) = Zero
   ibasemx = max(ibasemx,mstackr_cvb(0))
-  call vb2mol_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
+  call vb2mol_cvb(work(iaddr_ci(icivec)),cim,isyml)
 
   ! If only one irrep present keep down memory requirements:
   if ((isymmx > 1) .and. (nci /= ndet)) then
-    lcim2 = mstackrz_cvb(nci)
+    call mma_allocate(cim2,nci,label='cim2')
+    cim2(:) = Zero
     ibasemx = max(ibasemx,mstackr_cvb(0))
-    cnrm = ddot_(nci,work(lcim),1,work(lcim),1)
+    cnrm = ddot_(nci,cim,1,cim,1)
     ! If anything there, apply Hamiltonian to vector of this symmetry:
-    if (cnrm > thr2) then
-      call sigmadet_cvb(work(lcim),work(lcim2),isyml,nci)
-      if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(lcim2),1)
-    else
-      if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(lcim2),1)
-    end if
-    call mol2vb_cvb(work(iaddr_ci(icivec)),work(lcim2),isyml)
-    call mfreer_cvb(lcim2)
+    if (cnrm > thr2) call sigmadet_cvb(cim,cim2,isyml,nci)
+    if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,cim,1,cim2,1)
+    call mol2vb_cvb(work(iaddr_ci(icivec)),cim2,isyml)
+    call mma_deallocate(cim2)
   else
     call fzero(work(iaddr_ci(icivec)),nci)
-    cnrm = ddot_(nci,work(lcim),1,work(lcim),1)
+    cnrm = ddot_(nci,cim,1,cim,1)
     ! If anything there, apply Hamiltonian to vector of this symmetry:
     if (cnrm > thr2) then
       call fzero(work(iaddr_ci(icivec)),nci)
-      call sigmadet_cvb(work(lcim),work(iaddr_ci(icivec)),isyml,nci)
-      if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(iaddr_ci(icivec)),1)
-      call fmove_cvb(work(iaddr_ci(icivec)),work(lcim),nci)
-    else
-      if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,work(lcim),1,work(iaddr_ci(icivec)),1)
-      call fmove_cvb(work(iaddr_ci(icivec)),work(lcim),nci)
+      call sigmadet_cvb(cim,work(iaddr_ci(icivec)),isyml,nci)
     end if
-    call mol2vb_cvb(work(iaddr_ci(icivec)),work(lcim),isyml)
+    if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,cim,1,work(iaddr_ci(icivec)),1)
+    call fmove_cvb(work(iaddr_ci(icivec)),cim,nci)
+    call mol2vb_cvb(work(iaddr_ci(icivec)),cim,isyml)
   end if
-  call mfreer_cvb(lcim)
+  call mma_deallocate(cim)
+  call mfreer_cvb(ibase)
 end do
 
 return

@@ -27,14 +27,8 @@ implicit none
 real(kind=wp) :: tconstr(nvb,nvb)
 integer(kind=iwp) :: ipermzeta(norb,nzeta)
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, i3
-integer(kind=iwp), external :: mstackr_cvb
 
-i1 = mstackr_cvb(norb*norb)
-i2 = mstackr_cvb(norb*norb)
-i3 = mstackr_cvb(norb*norb)
-call setipermzeta_cvb(ipermzeta,work(lv(1)),work(ls(1)),iwork(ls(13)),work(i1),work(i2),work(i3))
-call mfreer_cvb(i1)
+call setipermzeta_cvb(ipermzeta,work(lv(1)),work(ls(1)),iwork(ls(13)))
 if (iconstruc == 2) call construc2_cvb(tconstr)
 
 return

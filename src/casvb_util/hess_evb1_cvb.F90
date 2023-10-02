@@ -15,6 +15,7 @@
 subroutine hess_evb1_cvb(orbs,civbh,citmp,civb,sorbs,owrk,gjorb,gjorb2,gjorb3,dvbdet,grad1,grad2,hessorb,vec1,iorts,hessinp,hessout)
 
 use casvb_global, only: f1, f2, f3, f4, nfrag
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
@@ -24,11 +25,10 @@ implicit none
 real(kind=wp) :: orbs(norb,norb), civbh(ndet), citmp(ndet), civb(ndet), sorbs(norb,norb), owrk(norb,norb), gjorb(*), gjorb2(*), &
                  gjorb3(*), dvbdet(ndetvb), grad1(npr), grad2(npr), hessorb(nprorb,nprorb), vec1(*), hessinp(npr), hessout(npr)
 integer(kind=iwp) :: iorts(2,nort)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2, iorb, iort, jorb, ki, kj, korb, lj, lorb
+integer(kind=iwp) :: iorb, iort, jorb, ki, kj, korb, lj, lorb
 real(kind=wp) :: corr1, fac1, fac2, g1f, g2f, hess_ci_nrm, hess_orb_nrm
 logical(kind=iwp) :: orbopt2, strucopt2
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: cvb(:), cvbdet(:)
 real(kind=wp), external :: ddot_, dnrm2_
 
 hess_orb_nrm = dnrm2_(nprorb,hessinp,1)
@@ -65,20 +65,21 @@ if (orbopt2 .and. strucopt) then
   call daxpy_(nprvb,f1,vec1(nprorb+1),1,hessout(nprorb+1),1)
 end if
 if (strucopt2) then
-  call str2vbf_cvb(hessinp(1+nprorb),dvbdet)
+  call str2vbc_cvb(hessinp(1+nprorb),dvbdet)
   call vb2cif_cvb(dvbdet,citmp)
   call mkgrd_cvb(citmp,civbh,vec1,dvbdet,nprorb,.true.)
   call daxpy_(nprorb,f1,vec1,1,hessout,1)
   call oneexc_cvb(civb,citmp,hessinp,.false.,1)
   ! 2nd-order term for structure coefficients
   if (nfrag > 1) then
-    call str2vbf_cvb(hessinp(1+nprorb),dvbdet)
-    i1 = mstackr_cvb(ndetvb)
-    i2 = mstackr_cvb(nvb)
-    call ci2ordr_cvb(civbh,dvbdet,work(i1))
-    call vb2strg_cvb(work(i1),work(i2))
-    call daxpy_(nvb,f1,work(i2),1,hessout(1+nprorb),1)
-    call mfreer_cvb(i1)
+    call str2vbc_cvb(hessinp(1+nprorb),dvbdet)
+    call mma_allocate(cvbdet,ndetvb,label='cvbdet')
+    call mma_allocate(cvb,nvb,label='cvb')
+    call ci2ordr_cvb(civbh,dvbdet,cvbdet)
+    call vb2strg_cvb(cvbdet,cvb)
+    call daxpy_(nvb,f1,cvb,1,hessout(1+nprorb),1)
+    call mma_deallocate(cvbdet)
+    call mma_deallocate(cvb)
   end if
 else
   call cizero_cvb(citmp)

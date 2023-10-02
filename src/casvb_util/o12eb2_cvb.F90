@@ -15,6 +15,7 @@
 subroutine o12eb2_cvb(orbs,cvb,nparm1,nvb,nfrorb,gjorb,gjorb2,gjorb3,dx,dxnrm,grdnrm,close2conv,strucopt)
 
 use casvb_global, only: expct, fxbest, have_solved_it, hh, ip, scalesmall
+use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -26,7 +27,8 @@ integer(kind=iwp) :: i, ioptc2, ipu, iter2
 real(kind=wp) :: cnrm2, fac, fx_exp, resthr_old = -One, resthr_use
 logical(kind=iwp) :: skip
 real(kind=wp), external :: ddot_, dnrm2_
-external :: asonc12e_cvb, ddres2upd10_cvb
+procedure(ddasonc_sub) :: asonc12e_cvb
+procedure(ddres2upd_sub) :: ddres2upd10_cvb
 
 if (.not. close2conv) then
   resthr_use = 1.0e-5_wp

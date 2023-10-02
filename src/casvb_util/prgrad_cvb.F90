@@ -14,6 +14,7 @@
 
 subroutine prgrad_cvb(grad,n)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -21,20 +22,18 @@ integer(kind=iwp) :: n
 real(kind=wp) :: grad(n)
 #include "main_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1
-integer(kind=iwp), external :: mstackr_cvb
+real(kind=wp), allocatable :: tmp(:,:)
 
 if (ip(3) < 2) return
-i1 = mstackr_cvb(norb*norb)
-call mxunfold_cvb(grad,work(i1),norb)
+call mma_allocate(tmp,norb,norb,label='tmp')
+call mxunfold_cvb(grad,tmp,norb)
 write(u6,'(/,a)') ' Orbital gradient :'
-call mxprint_cvb(work(i1),norb,norb,0)
+call mxprint_cvb(tmp,norb,norb,0)
 if (n-nprorb > 0) then
   write(u6,'(a)') ' Structure coefficient gradient :'
   call mxprint_cvb(grad(nprorb+1),1,n-nprorb,0)
 end if
-call mfreer_cvb(i1)
+call mma_deallocate(tmp)
 
 return
 

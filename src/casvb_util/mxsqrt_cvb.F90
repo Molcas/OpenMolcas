@@ -14,40 +14,40 @@
 
 subroutine mxsqrt_cvb(a,n,ipow)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: n, ipow
 real(kind=wp) :: a(n,n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2, i3, i4, i5, ifail, j, k
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: i, ifail, j, k
+real(kind=wp), allocatable :: c(:,:), w(:), z(:,:)
 
-i1 = mstackr_cvb(n)
-i2 = mstackr_cvb(n*n)
-i3 = mstackr_cvb(n)
-i4 = mstackr_cvb(n)
-i5 = mstackr_cvb(n*n)
+call mma_allocate(w,n,label='w')
+call mma_allocate(z,n,n,label='z')
+call mma_allocate(c,n,n,label='c')
 ifail = 0
-call rs(n,n,a,work(i1),1,work(i2),work(i3),work(i4),ifail)
+call rs(n,n,a,w,1,z,ifail)
 if (ifail /= 0) then
   write(u6,*) ' Fatal error in diagonalization (MXSQRT) :',ifail
   call abend_cvb()
 end if
 call fzero(a,n*n)
 do i=1,n
-  a(i,i) = sqrt(work(i+i1-1))**ipow
+  a(i,i) = sqrt(w(i))**ipow
 end do
-call mxatb_cvb(work(i2),a,n,n,n,work(i5))
+call mxatb_cvb(z,a,n,n,n,c)
 call fzero(a,n*n)
 do k=1,n
   do j=1,n
     do i=1,n
-      a(i,j) = a(i,j)+work(i+(k-1)*n+i5-1)*work(j+(k-1)*n+i2-1)
+      a(i,j) = a(i,j)+c(i,k)*z(j,k)
     end do
   end do
 end do
-call mfreer_cvb(i1)
+call mma_deallocate(w)
+call mma_deallocate(z)
+call mma_deallocate(c)
 
 return
 

@@ -29,11 +29,11 @@ integer(kind=iwp), parameter :: lbuf = 512, mxact_mo = 16, mxdep = 200, mxfield 
 
 integer(kind=iwp) :: i_dep_on_j(mxdep), i2s_fr(mxS,mxfrag), iact_mo(mxact_mo), iaddr, iaddrm(mxfield), iastr_fr(mxfrag), &
                      ibstr_fr(mxfrag), ibuf, ibuffer(lbuf), icase6, icase7, icnt, icode(mxstep), idan(mxfiles), idd(9), ifield, &
-                     ifollow, ifsc_fr(mxfrag), igrad, iline = 0, ilv(300), inp, inputmode, ioff_i, ioff_r, ioffs(mxobj+1), &
-                     iopt2step(0:30), ioptcode(30), ioptim, ioptstep, ip, ipAnchr, ipdd, ipos(mxstep), ipp, ipp12e, ipp12s, ipp7, &
-                     iprint, iprm, iroot, is_set = 0, isaddle, isaddledd, istackrep(nstackrep), iter, iter12e, iter12s, iter7, &
-                     ivrhs, ix(11), izbuffer(lbuf), j_dep_on_i(mxdep), joffs(mxobj+1), joptstep, jroot, lenline, loopstep, &
-                     loopstepmx, lstprm(mxprm), maxd, mnion_fr(mxfrag), mxdav, mxion_fr(mxfrag), mxit, mxrhs, n_div, nact_mo, &
+                     ifollow, ifsc_fr(mxfrag), igrad, iline = 0, ilv(300), inp, inputmode, ioffs(mxobj+1), iopt2step(0:30), &
+                     ioptcode(30), ioptim, ioptstep, ip, ipAnchr, ipdd, ipos(mxstep), ipp, ipp12e, ipp12s, ipp7, iprint, iprm, &
+                     iroot, is_set = 0, isaddle, isaddledd, istackrep(nstackrep), iter, iter12e, iter12s, iter7, ivrhs, ix(11), &
+                     izbuffer(lbuf), j_dep_on_i(mxdep), joffs(mxobj+1), joptstep, jroot, lenline, loopstep, loopstepmx, &
+                     lstprm(mxprm), maxd, mnion_fr(mxfrag), mxdav, mxion_fr(mxfrag), mxit, mxrhs, n_div, nact_mo, &
                      nalf_fr(mxMs,mxfrag), nbas_mo, nbasf_mo(mxirrep_mo), nbasi_mo(mxirrep_mo), nbasisq_mo, &
                      nbassqf_mo(mxirrep_mo), nbassqi_mo(mxirrep_mo), nbet_fr(mxMs,mxfrag), nbuf, ncnt, nconf_fr(mxfrag), &
                      nconfion_fr(0:mxI,mxfrag), nda_fr(mxMs,mxfrag), ndb_fr(mxMs,mxfrag), ndep_ij, ndep_ji, ndetvb_fr(mxfrag), &
@@ -63,16 +63,16 @@ public :: aa1, aa2, alftol, charobj, cnrm, cnrmtol, corenrg, cpropt, cvbnrm_fr, 
           formChk2, formChk3, formcvp, formE, formMXP1, formMXP2, formMXP3, formMXP4, formMXP5, formMXP6, formroot, formSymW, &
           formVBWnorm, fxbest, grd, grdwrngtol, have_solved_it, hh, hhaccfac, hhkeep, hhmax, hhopt, hhrejfac, hhstart, hhtol, &
           i_dep_on_j, i2s_fr, iact_mo, iaddr, iaddrm, iastr_fr, ibstr_fr, ibuf, ibuffer, icase6, icase7, icnt, icode, idan, idd, &
-          ifield, ifollow, ifsc_fr, igrad, iline, ilv, inp, inputmode, ioff_i, ioff_r, ioffs, iopt2step, ioptcode, ioptim, &
-          ioptstep, ip, ipAnchr, ipdd, ipos, ipp, ipp12e, ipp12s, ipp7, iprint, iprm, iroot, is_set, isaddle, isaddledd, &
-          istackrep, iter, iter12e, iter12s, iter7, iunset, ivrhs, ix, izbuffer, j_dep_on_i, joffs, joptstep, jroot, lbuf, &
-          lenline, line, loopstep, loopstepmx, lstprm, maxd, maxize, memdebug, mnion_fr, mustdeclare, mxact_mo, mxdav, mxdep, &
-          mxfield, mxfiles, mxfrag, mxI, mxion_fr, mxirrep_mo, mxit, mxMs, mxobj, mxopth, mxprm, mxrhs, mxS, mxstep, n_div, &
-          nact_mo, nalf_fr, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nbet_fr, nbuf, ncnt, nconf_fr, &
-          nconfion_fr, nda_fr, ndb_fr, ndep_ij, ndep_ji, ndetvb_fr, ndetvb2_fr, ndres_ok, nel_fr, nfield, nfieldm, nfold, nfrag, &
-          nfrdim, nline, nlold, nMs_fr, nobj, nopth1, nopth2, noptim, noptstep, nortiter, nortiterdd, nparm, nroot, nS_fr, nspinb, &
-          nstackrep, nsym_mo, nvb_fr, nvbr_fr, nvecmx, nvguess, nvrestart, nvrhs, nvtot, nword, oaa2, oaa3, orththr, orththrdd, &
-          ovraa_try, ovrab, ovrab_try, recn, release, resthr, resthrdd, safety, scalesmall, sgn, signtol, singul, spinb, spinbkw, &
-          up2date, ww, ww_try, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
+          ifield, ifollow, ifsc_fr, igrad, iline, ilv, inp, inputmode, ioffs, iopt2step, ioptcode, ioptim, ioptstep, ip, ipAnchr, &
+          ipdd, ipos, ipp, ipp12e, ipp12s, ipp7, iprint, iprm, iroot, is_set, isaddle, isaddledd, istackrep, iter, iter12e, &
+          iter12s, iter7, iunset, ivrhs, ix, izbuffer, j_dep_on_i, joffs, joptstep, jroot, lbuf, lenline, line, loopstep, &
+          loopstepmx, lstprm, maxd, maxize, memdebug, mnion_fr, mustdeclare, mxact_mo, mxdav, mxdep, mxfield, mxfiles, mxfrag, &
+          mxI, mxion_fr, mxirrep_mo, mxit, mxMs, mxobj, mxopth, mxprm, mxrhs, mxS, mxstep, n_div, nact_mo, nalf_fr, nbas_mo, &
+          nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nbet_fr, nbuf, ncnt, nconf_fr, nconfion_fr, nda_fr, ndb_fr, &
+          ndep_ij, ndep_ji, ndetvb_fr, ndetvb2_fr, ndres_ok, nel_fr, nfield, nfieldm, nfold, nfrag, nfrdim, nline, nlold, nMs_fr, &
+          nobj, nopth1, nopth2, noptim, noptstep, nortiter, nortiterdd, nparm, nroot, nS_fr, nspinb, nstackrep, nsym_mo, nvb_fr, &
+          nvbr_fr, nvecmx, nvguess, nvrestart, nvrhs, nvtot, nword, oaa2, oaa3, orththr, orththrdd, ovraa_try, ovrab, ovrab_try, &
+          recn, release, resthr, resthrdd, safety, scalesmall, sgn, signtol, singul, spinb, spinbkw, up2date, ww, ww_try, &
+          zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
 
 end module casvb_global

@@ -15,7 +15,7 @@
 subroutine mfreer_cvb(ipoint)
 ! Memory allocator. Releases pointer.
 
-use casvb_global, only: iaddrm, ioff_r, memdebug, nfieldm
+use casvb_global, only: iaddrm, memdebug, nfieldm
 use Definitions, only: iwp, u6
 
 implicit none
@@ -27,7 +27,7 @@ if (memdebug) write(u6,*) '     Enter mfreer: pointer :',ipoint
 do ifield=1,nfieldm
   if (iaddrm(ifield) == ipoint) then
     do jfield=ifield,nfieldm
-      ipoint_g = iaddrm(jfield)-ioff_r
+      ipoint_g = iaddrm(jfield)
       if (memdebug) write(u6,*) '     Release pointer :',iaddrm(jfield)
       call getmem('casvb','FREE','REAL',ipoint_g,nword)
     end do
@@ -36,7 +36,7 @@ do ifield=1,nfieldm
   end if
 end do
 ! Allocated through mheap:
-ipoint_g = ipoint-ioff_r
+ipoint_g = ipoint
 call getmem('casvb','FREE','REAL',ipoint_g,nword)
 
 return

@@ -17,20 +17,38 @@ subroutine ddrestart_cvb( &
 #                        include "ddrestart_interface.fh"
 )
 
+use casvb_global, only: ifollow, nroot
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "ddrestart_interface.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: ir, ir_use
+real(kind=wp), allocatable :: eigval(:), eigvec(:,:)
 
-i1 = mstackr_cvb(maxdav)
-i2 = mstackr_cvb(maxdav*maxdav)
+call mma_allocate(eigval,maxdav,label='eigval')
+call mma_allocate(eigvec,maxdav,maxdav,label='eigvec')
+call fmove_cvb(hp,eigvec,maxdav*maxdav)
+call mxdiag_cvb(eigvec,eigval,maxdav)
+call mma_deallocate(eigval)
 
-call ddrestart2_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1,work(i1),work(i2))
-
-call mfreer_cvb(i1)
+nvrestart1 = 0
+nvguess1 = 0
+call mxatb_cvb(c,solp,n,maxdav,1,vec)
+if (ifollow <= 2) then
+  ! (Put lower-lying solutions in AxC :)
+  do ir=1,nroot-1
+    if (ifollow == 1) then
+      ir_use = maxdav-ir+1
+    else
+      ir_use = ir
+    end if
+    call mxatb_cvb(c,eigvec(1,ir_use),n,maxdav,1,axc(1,ir+1))
+  end do
+  call fmove_cvb(axc(1,2),c(1,2),n*(nroot-1))
+end if
+call fmove_cvb(vec,c(1,1),n)
+call mma_deallocate(eigvec)
 
 return
 

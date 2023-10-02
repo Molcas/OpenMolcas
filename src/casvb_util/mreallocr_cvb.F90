@@ -15,7 +15,7 @@
 subroutine mreallocr_cvb(ipoint,nword)
 ! Memory allocator (heap). Reallocate pointer.
 
-use casvb_global, only: ioff_r, memdebug
+use casvb_global, only: memdebug
 use Definitions, only: iwp, u6
 
 implicit none
@@ -27,7 +27,7 @@ integer(kind=iwp), external :: mheapr_cvb
 
 if (memdebug) write(u6,*) '     Enter mreallocr: nword & pointer :',nword,ipoint
 
-ipoint_g = ipoint-ioff_r
+ipoint_g = ipoint
 
 !call getmem('casvb','CHAN','REAL',ipoint_g,nword)
 

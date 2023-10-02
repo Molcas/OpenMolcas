@@ -12,16 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine o12ea2_cvb(c,sxc,axc,nprm,civb,civbs,civbh,cvbdet,cvb,vec_all)
+subroutine o12ea2_cvb(nprm,civb,civbs,civbh,cvbdet,cvb)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: nprm
-real(kind=wp) :: c(nprm), sxc(nprm), axc(nprm), civb(ndet), civbs(ndet), civbh(ndet), cvbdet(ndetvb), cvb(nvb), vec_all(npr)
+real(kind=wp) :: civb(ndet), civbs(ndet), civbh(ndet), cvbdet(ndetvb), cvb(nvb)
 integer(kind=iwp) :: ic1
 real(kind=wp) :: cnrm
+real(kind=wp), allocatable :: axc(:), c(:), sxc(:), vec_all(:)
 real(kind=wp), external :: ddot_
 
 ! If no optimization of structure coefficients we are doing "Augmented" calc:
@@ -35,9 +37,11 @@ call str2vbc_cvb(cvb,cvbdet)
 call vb2cic_cvb(cvbdet,civb)
 
 call ci2vbg_cvb(civbh,cvbdet)
+call mma_allocate(vec_all,npr,label='vec_all')
 call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
 call fzero(vec_all,nprorb)
 call onedens_cvb(civb,civbh,vec_all,.false.,0)
+call mma_allocate(axc,nprm,label='axc')
 call all2free_cvb(vec_all,axc(ic1),1)
 if (.not. strucopt) axc(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
 
@@ -45,19 +49,25 @@ call ci2vbg_cvb(civbs,cvbdet)
 call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
 call fzero(vec_all,nprorb)
 call onedens_cvb(civb,civbs,vec_all,.false.,0)
+call mma_allocate(sxc,nprm,label='sxc')
 call all2free_cvb(vec_all,sxc(ic1),1)
 if (.not. strucopt) sxc(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
 
 call fzero(vec_all,nprorb)
 call fmove_cvb(cvb,vec_all(nprorb+1),nvb)
+call mma_allocate(c,nprm,label='c')
 call all2free_cvb(vec_all,c(ic1),1)
 if (.not. strucopt) c(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+call mma_deallocate(vec_all)
 
 cnrm = ddot_(nprm,c,1,sxc,1)
 call dscal_(nprm,one/sqrt(cnrm),c,1)
 call dscal_(nprm,one/sqrt(cnrm),sxc,1)
 call dscal_(nprm,one/sqrt(cnrm),axc,1)
 call ddrestv_cvb(c,axc,sxc,nprm,0,.true.,.true.)
+call mma_deallocate(axc)
+call mma_deallocate(sxc)
+call mma_deallocate(c)
 
 return
 

@@ -19,22 +19,19 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nmax, nread, ifc
 real(kind=wp) :: arr(nmax)
-#include "WrkSpc.fh"
 integer(kind=iwp), parameter :: nbuf = 100
-integer(kind=iwp) :: i1, nleft, nread1
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: nleft, nread1
+real(kind=wp) :: tmp(nbuf)
 
-i1 = mstackr_cvb(nbuf)
 nread = 0
 do
-  call fzero(work(i1),nbuf)
+  call fzero(tmp,nbuf)
   nleft = nmax-nread
-  call real_cvb(work(i1),min(nbuf,nleft),nread1,ifc)
-  call fmove_cvb(work(i1),arr(1+nread),nread1)
+  call real_cvb(tmp,min(nbuf,nleft),nread1,ifc)
+  call fmove_cvb(tmp,arr(1+nread),nread1)
   nread = nread+nread1
   if (nread1 <= 0) exit
 end do
-call mfreer_cvb(i1)
 
 return
 

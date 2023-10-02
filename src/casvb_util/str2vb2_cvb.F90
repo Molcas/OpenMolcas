@@ -12,26 +12,27 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine str2vb2_cvb(bikcof,ikcoff,cvb,cvbdet,iway,idetvb,i2s,nS,nalf1,nMs,ifnss,ndetvbs,absym,ndetvb,nvb,kbasis,nel,neltot,w, &
+subroutine str2vb2_cvb(bikcof,ikcoff,cvb,cvbdet,iway,idetvb,i2s,nS,nalf1,nMs,ifnss,ndetvbs,absym,ndetvb,nvb,kbasis,nel,neltot, &
                        nconfion)
 
-use Constants, only: One, Two, Half
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: neltot, ikcoff(0:neltot,0:neltot,0:neltot), iway, ndetvb, idetvb(ndetvb), nS, i2S(nS), nMs, nalf1(nMs), &
                      ifnss(0:neltot,0:neltot), ndetvbs(0:neltot,0:neltot), nvb, kbasis, nel, nconfion(0:*)
 logical(kind=iwp) :: absym
-real(kind=wp) :: bikcof(*), cvb(nvb), cvbdet(ndetvb), w(ndetvb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i1, i2s_keep, i_det, i_spin, iconfadd, idadd, idet, iMs, ioff_bikcof, ioff_i1, ion, iS, isadd, j_spin, n_det, &
+real(kind=wp) :: bikcof(*), cvb(nvb), cvbdet(ndetvb)
+integer(kind=iwp) :: i2s_keep, i_det, i_spin, iconfadd, idadd, idet, iMs, ioff, ioff_bikcof, ion, iS, isadd, j_spin, n_det, &
                      n_det_values, n_spin, n_spin_values, nalfsing, nalfsing_det, nalfsing_keep, nelsing
+real(kind=wp), allocatable :: tmp(:,:), w(:)
 real(kind=wp), parameter :: sq2 = sqrt(Two), sqp5 = sqrt(Half)
-integer(kind=iwp), external :: mstackrz_cvb
 
 i2s_keep = 0 ! dummy initialize
 nalfsing_keep = 0 ! dummy initialize
 ! Determinant to structure transformation
+call mma_allocate(w,ndetvb,label='w')
 if (iway == 1) then
   call fzero(cvb,nvb)
   do idet=1,ndetvb
@@ -105,21 +106,22 @@ do ion=0,nel/2
       call mxatbp_cvb(bikcof(1+ikcoff(nelsing,nalfsing_keep,i2s_keep)),cvb(1+isadd),n_det,n_spin,nconfion(ion),w(1+idadd))
     end if
   else
-    i1 = mstackrz_cvb(n_det*n_spin)
-    i_spin = 0
+    call mma_allocate(tmp,n_det,n_spin,label='tmp')
+    tmp(:,:) = Zero
+    i_spin = 1
     do iS=1,nS
       if (i2s(iS) <= nelsing) then
-        i_det = 0
+        i_det = 1
         do iMs=1,nMs
           nalfsing = nalf1(iMs)-ion
           if (nalfsing >= 0) then
             if (ikcoff(nelsing,nalfsing,i2s(iS)) /= -1) then
               ioff_bikcof = 1+ikcoff(nelsing,nalfsing,i2s(iS))
-              ioff_i1 = i1+i_spin*n_det+i_det
+              ioff = i_spin
               do j_spin=1,ifnss(nelsing,i2s(iS))
-                call fmove_cvb(bikcof(ioff_bikcof),work(ioff_i1),ndetvbs(nelsing,nalfsing))
+                call fmove_cvb(bikcof(ioff_bikcof),tmp(i_det,ioff),ndetvbs(nelsing,nalfsing))
                 ioff_bikcof = ioff_bikcof+ndetvbs(nelsing,nalfsing)
-                ioff_i1 = ioff_i1+n_det
+                ioff = ioff+1
               end do
             end if
             i_det = i_det+ndetvbs(nelsing,nalfsing)
@@ -130,11 +132,11 @@ do ion=0,nel/2
     end do
 
     if (iway == 1) then
-      call mxattbp_cvb(work(i1),w(1+idadd),n_spin,n_det,nconfion(ion),cvb(1+isadd))
+      call mxattbp_cvb(tmp,w(1+idadd),n_spin,n_det,nconfion(ion),cvb(1+isadd))
     else if (iway == 2) then
-      call mxatbp_cvb(work(i1),cvb(1+isadd),n_det,n_spin,nconfion(ion),w(1+idadd))
+      call mxatbp_cvb(tmp,cvb(1+isadd),n_det,n_spin,nconfion(ion),w(1+idadd))
     end if
-    call mfreer_cvb(i1)
+    call mma_deallocate(tmp)
   end if
   isadd = isadd+nconfion(ion)*n_spin
   idadd = idadd+nconfion(ion)*n_det
@@ -145,6 +147,7 @@ if (iway == 2) then
     cvbdet(idetvb(idet)) = w(idet)
   end do
 end if
+call mma_deallocate(w)
 
 return
 
