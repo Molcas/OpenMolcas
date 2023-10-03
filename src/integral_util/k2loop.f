@@ -44,7 +44,6 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use Gateway_Info, only: CutInt, RadMax, cdMax
       use Constants
       use k2_setup, only: nDArray, nDScalar
       Implicit Real*8 (A-H,O-Z)
@@ -256,8 +255,8 @@
      &                 Data(ip_Kappa(1,nZeta),lDCRR+1),
      &                 Data(ip_Pcoor(1,nZeta),lDCRR+1),
      &                 iData,iZeta-1,Jnd,
-     &                 Data(ip_ZInv (1,nZeta),lDCRR+1),CutInt,RadMax,
-     &                 cdMax,AeqB,
+     &                 Data(ip_ZInv (1,nZeta),lDCRR+1),
+     &                 AeqB,
      &                 Data(ip_ab   (1,nZeta),lDCRR+1),
      &                 Data(ip_abCon(1,nZeta),lDCRR+1),
      &                 Alpha_(iZeta),

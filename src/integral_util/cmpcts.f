@@ -12,8 +12,7 @@
 !***********************************************************************
       SubRoutine CmpctS(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,
      &                  Ind_Pair,Con,xZeta,xKapp,xP,IndZ,iOff,Jnd,
-     &                  xZInv,CutInt,RadMax,cdMax,AeqB,xab,
-     &                  xabCon,Alpha,xAlpha,Beta,xBeta)
+     &                  xZInv,AeqB,xab,xabCon,Alpha,xAlpha,Beta,xBeta)
 !***********************************************************************
 !                                                                      *
 ! Object: to find the largest value of the integrals which will be     *
@@ -28,6 +27,7 @@
 !             Modified for k2 prescreening, June '98                   *
 !***********************************************************************
       use Constants, only: Zero, One
+      use Gateway_Info, only: CutInt, cdMax
       Implicit None
       Integer mijkl, na, nb, nijkl
       Real*8 abcd(mijkl,na,nb,na,nb), Zeta(mijkl), xab(nijkl),
@@ -38,7 +38,7 @@
       Logical AeqB
 
       Integer iOff, ijkl, ijkl_, ia, ib, jnd
-      Real*8 Temp, Temp1, Temp2, RadMax, CutInt, CDMax, Test
+      Real*8 Temp, Temp1, Temp2, Test
 
 !
 #ifdef _DEBUGPRINT_
@@ -126,8 +126,4 @@
 #endif
 !
       Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real(RadMax)
-      End If
       End SubRoutine CmpctS
