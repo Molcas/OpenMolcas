@@ -50,4 +50,14 @@ Module RMat
 !
       Logical        Quadpack,nagint,testint,RMat_On
       Logical        RMat_Type_Integrals
+
+!   K.P.
+!   Dieses File enthaelt Feld fuer die theta/phi  Integration der
+!   Ein-Elektronen-Integrale fuer die R-Matrix.
+
+Integer lgamma,n_gam,m_gam
+Integer, Parameter :: lgammax=15
+Real*8 gammath(-2:2*lgammax+3,-2:2*lgammax+4),                    &
+       gammaph(-2:2*lgammax+3,-2:2*lgammax+4)
+
 End Module RMat

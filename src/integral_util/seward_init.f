@@ -32,7 +32,6 @@
 #include "pstat.fh"
 #include "twoswi.fh"
 #include "print.fh"
-#include "gam.fh"
 #include "nac.fh"
       Character(LEN=180) Env
 !                                                                      *
@@ -114,9 +113,6 @@
       nagint    = .False.
       testint   = .False.
       RMat_On   = .False.
-!
-!---- gam.fh
-!
       lgamma = 9
 !
       Call DCR_Init()

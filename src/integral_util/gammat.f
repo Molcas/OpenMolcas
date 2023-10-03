@@ -16,9 +16,9 @@
 !         (theta integration)                                          *
 !                                                                      *
 !***********************************************************************
+      use rmat
       Implicit real*8 (a-h,o-z)
 #include "nrmf.fh"
-#include "gam.fh"
 !
       lsint=m_gam
       lcost=n_gam

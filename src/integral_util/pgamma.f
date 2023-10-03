@@ -19,7 +19,6 @@
       use rmat
       Implicit real*8 (a-h,o-z)
 !     external gammat,gammaf
-#include "gam.fh"
 !
 ! initialize arrays
       do m=-2,2*lgamma+2

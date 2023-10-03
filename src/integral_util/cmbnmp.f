@@ -15,7 +15,6 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use Constants
       Implicit None
       Integer nZeta, la, lb, nComp, lr
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
