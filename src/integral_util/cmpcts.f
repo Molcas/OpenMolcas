@@ -12,7 +12,7 @@
 !***********************************************************************
       SubRoutine CmpctS(abcd,na,nb,nijkl,mijkl,Zeta,Kappab,P,
      &                  Ind_Pair,Con,xZeta,xKapp,xP,IndZ,iOff,Jnd,
-     &                  xZInv,CutInt,RadMax,cdMax,EtMax,AeqB,xab,
+     &                  xZInv,CutInt,RadMax,cdMax,AeqB,xab,
      &                  xabCon,Alpha,xAlpha,Beta,xBeta)
 !***********************************************************************
 !                                                                      *
@@ -27,14 +27,19 @@
 !                                                                      *
 !             Modified for k2 prescreening, June '98                   *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer mijkl, na, nb, nijkl
       Real*8 abcd(mijkl,na,nb,na,nb), Zeta(mijkl), xab(nijkl),
      &       KappAB(mijkl), P(nijkl,3), xZeta(nijkl), xKapp(nijkl),
      &       xP(nijkl,3), xZInv(nijkl), Con(mijkl), xabCon(nijkl),
      &       Alpha(mijkl), xAlpha(nijkl), Beta(mijkl), xBeta(nijkl)
       Integer IndZ(nijkl+1), Ind_Pair(mijkl)
       Logical AeqB
+
+      Integer iOff, ijkl, ijkl_, ia, ib, jnd
+      Real*8 Temp, Temp1, Temp2, RadMax, CutInt, CDMax, Test
+
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt('Cmpct:Zeta',' ',Zeta,mijkl,1)
@@ -124,6 +129,5 @@
 ! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real(RadMax)
-         Call Unused_real(EtMax)
       End If
-      End
+      End SubRoutine CmpctS

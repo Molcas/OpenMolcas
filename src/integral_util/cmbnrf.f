@@ -18,14 +18,19 @@
 !             University of Lund, SWEDEN                               *
 !             Modified for reaction field calculations July '92        *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Two, Three
+      Implicit None
+      Integer nZeta, la, lb, nComp, lr
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta),
      &       Rnxyz(nZeta,3,0:la,0:lb,0:lr)
 #ifdef _DEBUGPRINT_
       Integer :: nFinal
 #endif
+
+      Integer ixa, ixb, iya, iyb, iza, izb, ipa, ipb, iyaMax, iybMax,
+     &        iZeta, iy, ir, iComp
+      Integer ixyz, ix, iz, Ind, iOff
 !
 !     Statement function for Cartesian index
 !
@@ -81,4 +86,4 @@
 #endif
 !
       Return
-      End
+      End SubRoutine CmbnRF
