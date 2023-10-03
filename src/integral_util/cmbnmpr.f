@@ -11,16 +11,19 @@
 ! Copyright (C) Kurt Pfingst                                           *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine CmbnMPr(Rnr,nZeta,la,lb,lr,Zeta,Final,nComp)
+      SubRoutine CmbnMPr(Rnr,nZeta,la,lb,lr,Final,nComp)
 !***********************************************************************
 !     Author: K.Pfingst                                                *
 !***********************************************************************
-      use Constants
-      use rmat
-      Implicit Real*8 (A-H,O-Z)
-!     External gammat,gammaf
+      use rmat, only: lCosT, lSinT, lSinF, lCosF, GammaPh, GammaTh
+      Implicit None
+      Integer nZeta, nComp, la, lb, lr
       Real*8 Final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),
-     *       Zeta(nZeta), Rnr(nZeta,0:(la+lb+lr))
+     &       Rnr(nZeta,0:(la+lb+lr))
+      Integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb,
+     &        iComp, lrs, Fact, iZeta, iz
+
+      Integer ixyz, ix, iy, Ind
 !
 !     Statement function for Cartesian index
 !
@@ -48,16 +51,12 @@
                Do 42 iy = lr-ix, 0, -1
                   iz = lr-ix-iy
                   iComp=iComp+1
-!                 Write (*,*) ix, iy, iz, iComp
                   lrs=ixa+ixb+ix+iya+iyb+iy+iza+izb+iz
                   lcost=iza+izb+iz
                   lsint=ixa+ixb+ix+iya+iyb+iy
                   lsinf=iya+iyb+iy
                   lcosf=ixa+ixb+ix
                   Fact=gammath(lsint,lcost)*gammaph(lsinf,lcosf)
-!                 Fact1=gammat(x)*gammaf(x)
-!                 write(*,*) '  fact',fact
-!                 write(*,*) ' fact1',fact1
                   Do 30 iZeta = 1, nZeta
                      Final(iZeta,iComp,ipa,ipb) = Fact *
      *                       Rnr(iZeta,lrs)
@@ -71,6 +70,4 @@
 10    Continue
 !
       Return
-! Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Zeta)
       End SubRoutine CmbnMPr
