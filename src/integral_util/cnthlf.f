@@ -23,16 +23,22 @@
 ! Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2),
-     &       A1(lZeta,nVec)
+      use Constants, only: Zero
+      Implicit None
+      Integer, Intent(in) :: nPrm1, nCntr1, nPrm2, nCntr2, lZeta, nVec,
+     &                       IncVec
+      Real*8, Intent(In) ::  Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2)
+      Real*8, intent(inout) :: A1(lZeta,nVec)
       Real*8, Intent(inout) :: A2(IncVec,nprm2), A3(nVec,nCntr1,nCntr2)
-      Parameter (mxnprm=1000)   ! be aware of aCD(fat) basis sets.
-      Integer Indij(lZeta),idone(mxnprm),nnz2(mxnprm),
-     &        ifirst(mxnprm),last(mxnprm)
-      Logical First
-      ![all others are intent(in)]
+      Integer, Intent(in) :: Indij(lZeta)
+      Logical, Intent(in) :: First
+
+      Integer, Parameter :: mxnprm=1000   ! be aware of aCD(fat) basis sets.
+      Integer idone(mxnprm),nnz2(mxnprm),ifirst(mxnprm),last(mxnprm)
+
+      Integer nz2, minva, iCntr2, iPrm2, iiVec, mVec, iCntr1, iPrm1,
+     &        ic1, mPrm2, iZeta
+      Real*8 C1, C2
 !
       If (nPrm1.gt.mxnprm .or.
      &    nPrm2.gt.mxnprm) Then
@@ -103,9 +109,6 @@
      &                       1.0d0,A2,IncVec,Coeff2,nprm2,
      &                       0.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
                Else
-!                  Call mxmb(A2,1,IncVec, Coeff2,1,nprm2,
-!     &                      A3(iivec,iCntr1,1),1,nvec*ncntr1,
-!     &                       mVec,nPrm2,nz2)
                   Call DGEMM_('N','N',mVec,nz2,nPrm2,
      &                         1.0d0,A2,IncVec,Coeff2,nprm2,
      &                         1.0d0,A3(iivec,iCntr1,1),nvec*ncntr1)
@@ -116,8 +119,6 @@
             Do iCntr2=ic1,nCntr2
                If (first) Then
                   If (nnz2(icntr2).ge.minva) Then
-!                     Call mxva(A2,1,IncVec, Coeff2(1,icntr2),1,
-!     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
                       Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,
      &                            Coeff2(1,icntr2),1,0.d0,
      &                            A3(iivec,iCntr1,icntr2),1)
@@ -137,8 +138,6 @@
                   End If
                Else
                   If (nnz2(icntr2).ge.minva) Then
-!                     Call mxvb(A2,1,IncVec, Coeff2(1,icntr2),1,
-!     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
                       Call dGeMV_('N',mVec,nPrm2,1.d0,A2,IncVec,
      &                            Coeff2(1,icntr2),1,1.d0,
      &                            A3(iivec,iCntr1,icntr2),1)
@@ -158,4 +157,4 @@
       End Do    ! iiVec
 !
       Return
-      End
+      End Subroutine Cnthlf
