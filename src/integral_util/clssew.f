@@ -17,9 +17,11 @@
 !***********************************************************************
       use Real_Spherical, only: Sphere_Free
       use EFP_module, only: lEFP, FRAG_TYPE, ABC, EFP_COORS
-      use External_Centers, only: iXPolType
-      use Basis_Info, only: Seward_Activated
+      use External_Centers, only: iXPolType, external_centers_free
+      use Basis_Info, only: Seward_Activated, Basis_Info_Free
+      use Center_Info, only: Center_Info_Free
       use Symmetry_Info, only: Symmetry_Info_Free
+      use SOAO_Info, only: SOAO_Info_Free
       Implicit None
 !
       If (.NOT.Seward_Activated) Return
