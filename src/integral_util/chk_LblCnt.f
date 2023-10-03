@@ -10,8 +10,12 @@
 !***********************************************************************
       Subroutine Chk_LblCnt(Lbl,nList)
       use Center_Info
-      Character*(*) Lbl
+      Implicit None
+      Integer nList
+      Character(LEN=*) Lbl
       Character(Len=72) Warning
+
+      Integer iList
 !
       Do iList = 1, nList
          If (Lbl.Eq.dc(iList)%LblCnt) then
@@ -23,4 +27,4 @@
       End Do
 !
       Return
-      End
+      End Subroutine Chk_LblCnt

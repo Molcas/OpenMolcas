@@ -147,7 +147,7 @@
          QlBas  = .True.
          Call Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,
      &               jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,
-     &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,MaxReq,
+     &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,
      &               Fail)
          If (Fail) Then
             Call WarningMessage(2,' Allocation failed for Work1')
@@ -307,7 +307,7 @@
          MaxReq=Max(MaxReq,Mem2+1-Mem0)
          Call Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,
      &               jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,
-     &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,MaxReq,
+     &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,
      &               Fail)
          If (Fail) Then
             Call WarningMessage(2,' Allocation failed for Work2')

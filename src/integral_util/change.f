@@ -13,7 +13,7 @@
 !***********************************************************************
       SubRoutine Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,
      &                  jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,
-     &                  jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,MaxReq,
+     &                  jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,
      &                  Fail)
 !***********************************************************************
 !                                                                      *
@@ -31,7 +31,7 @@
       Implicit None
       Integer iBas, iBsInc, kBas, kBsInc,
      &        jBas, jBsInc, lBas, lBsInc,
-     &        jPrim,jPrInc, lPrim,lPrInc,MaxReq
+     &        jPrim,jPrInc, lPrim,lPrInc
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
 !
       Integer i
@@ -133,6 +133,4 @@
       End If
 !
       Return
-! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(MaxReq)
-      End
+      End SubRoutine Change

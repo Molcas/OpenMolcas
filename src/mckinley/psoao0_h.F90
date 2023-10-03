@@ -104,7 +104,7 @@ do
     QkBas = .false.
     QlBas = .true.
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) ' Allocation failed for Work1'
       write(u6,*) Mem0,Mem1
@@ -140,7 +140,7 @@ do
   if (Mem2+1 > Mem0) then
     MaxReq = max(MaxReq,Mem2+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) ' Allocation failed for Work2'
       write(u6,*) Mem0,Mem2,MemPr+MemAux,MemCon+MemAux,MemTr1,MemTr2
@@ -204,7 +204,7 @@ do
   if (Mem3+1 <= Mem0) exit
   MaxReq = max(MaxReq,Mem3+1-Mem0)
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-              MaxReq,Fail)
+              Fail)
   if (Fail) then
     write(u6,*) ' Allocation failed for Work3'
     write(u6,*) Mem0,Mem3,MemCon,MemSp1,MemSp2
