@@ -30,17 +30,18 @@
       Integer, Parameter :: mxNemoAtom = 6
       Integer, Parameter :: Mxdbsc=10
 #endif
-       Integer, Parameter :: mxact = 100
-       Integer, Parameter :: mxina = maxbfn
-       Integer, Parameter :: mxbas = maxbfn
-       Integer, Parameter :: mxOrb = maxbfn
-       Integer, Parameter :: mxSym = 8
-       Integer, Parameter :: mxGAS = 16
+      Integer, Parameter :: lCache=64*1024/8
+      Integer, Parameter :: mxact = 100
+      Integer, Parameter :: mxina = maxbfn
+      Integer, Parameter :: mxbas = maxbfn
+      Integer, Parameter :: mxOrb = maxbfn
+      Integer, Parameter :: mxSym = 8
+      Integer, Parameter :: mxGAS = 16
 #include "LenIn.fh"
-       Integer, Parameter :: LENIN1=LENIN+1
-       Integer, Parameter :: LENIN2=LENIN+2
-       Integer, Parameter :: LENIN3=LENIN+3
-       Integer, Parameter :: LENIN4=LENIN+4
-       Integer, Parameter :: LENIN5=LENIN+5
-       Integer, Parameter :: LENIN6=LENIN+6
-       Integer, Parameter :: LENIN8=LENIN+8
+      Integer, Parameter :: LENIN1=LENIN+1
+      Integer, Parameter :: LENIN2=LENIN+2
+      Integer, Parameter :: LENIN3=LENIN+3
+      Integer, Parameter :: LENIN4=LENIN+4
+      Integer, Parameter :: LENIN5=LENIN+5
+      Integer, Parameter :: LENIN6=LENIN+6
+      Integer, Parameter :: LENIN8=LENIN+8

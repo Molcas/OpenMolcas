@@ -44,7 +44,7 @@ integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), 
                                  kPrim, lPrim, ipMem1
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
                                   Mem2, Mem3, Mem4, Mend
-#include "lCache.fh"
+#include "Molcas.fh"
 #include "pstat.fh"
 #include "warnings.h"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &

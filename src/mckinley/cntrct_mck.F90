@@ -36,7 +36,7 @@ integer(kind=iwp), intent(in) :: n1, m1, n2, m2, n3, m3, n4, m4, nGr, nArr, ngr1
                                  IndEta(nEta), lEta
 real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), xpre(nt)
 real(kind=wp), intent(inout) :: g1In(nT,nGr), Array(nArr), g1Out(nGr1)
-#include "lCache.fh"
+#include "Molcas.fh"
 integer(kind=iwp) :: iabcdg, IncVec, ip, ipA2, ipA3, lsize, nCache, nVec
 
 !iRout = 18

@@ -57,7 +57,7 @@ integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCm
                      nPam(4,0:7), nTmp1, nTmp2, nVec1
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
-#include "lCache.fh"
+#include "Molcas.fh"
 #include "pstat.fh"
 
 la = iAnga(1)
