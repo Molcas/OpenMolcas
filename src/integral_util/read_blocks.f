@@ -17,7 +17,6 @@
       use Constants
       Implicit Real*8 (a-h,o-z)
 #include "SysDef.fh"
-#include "mp2alaska.fh"
       Integer iTable(6,nBlocks), nBas(0:nIrrep-1),
      &        iSO2Shell(nSOs), iSO2cI(2,nSOs)
       Real*8 Buf(nBuf), Bin(2,nBin,nQuad), G_Toc(nQuad)

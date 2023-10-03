@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine CloseP
+      SubRoutine CloseP()
 !***********************************************************************
 !                                                                      *
 ! Object: to close the handling of the 2nd order density matrix.       *
@@ -18,13 +18,11 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use setup
-      use aces_stuff
-      use pso_stuff
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
-#include "mp2alaska.fh"
+      use aces_stuff, only: Gamma_On, LuGamma, Bin, G_Toc, SO2cI
+      use pso_stuff, only: Case_MP2, LuGam, lPSO, G1, G2, CMO, DSVar,
+     &                     DS, DVar, D0
+      use stdalloc, only: mma_deallocate
+      Implicit None
       Logical DoCholesky
 !
       If(case_mp2) then
@@ -52,4 +50,4 @@
       call mma_deallocate(D0)
 !
       Return
-      End
+      End SubRoutine CloseP

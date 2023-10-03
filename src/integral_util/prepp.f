@@ -33,7 +33,6 @@
       use columbus_gamma
       Implicit Real*8 (A-H,O-Z)
 #include "etwas.fh"
-#include "mp2alaska.fh"
 #include "dmrginfo_mclr.fh"
 #include "nac.fh"
 #include "mspdft.fh"
