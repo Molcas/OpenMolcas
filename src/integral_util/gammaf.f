@@ -18,7 +18,6 @@
 !***********************************************************************
       use rmat
       Implicit real*8 (a-h,o-z)
-#include "nrmf.fh"
 !
       lcosf=n_gam
       lsinf=m_gam

@@ -16,8 +16,8 @@
 !         (theta integration)                                          *
 !                                                                      *
 !***********************************************************************
+      use rmat
       Implicit real*8 (a-h,o-z)
-#include "nrmf.fh"
 !
       fradf=x**(l+2)*exp(-expsum*x*x)
 !

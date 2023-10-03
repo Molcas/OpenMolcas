@@ -24,7 +24,6 @@
       use Constants
       use rmat
       Implicit Real*8 (A-H,O-Z)
-#include "nrmf.fh"
       external fradf
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
       Parameter(limit=200,lenw=4*limit)

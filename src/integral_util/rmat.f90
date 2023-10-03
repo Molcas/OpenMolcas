@@ -60,4 +60,10 @@ Integer, Parameter :: lgammax=15
 Real*8 gammath(-2:2*lgammax+3,-2:2*lgammax+4),                    &
        gammaph(-2:2*lgammax+3,-2:2*lgammax+4)
 
+!   K.P.
+!   Dieses File enthaelt Inputdaten fuer die Modifikation der
+!   Ein-Elektronen-Integrale fuer die R-Matrix.
+Real*8 expsum
+Integer l,lcost,lsint,lcosf,lsinf
+
 End Module RMat

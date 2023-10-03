@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) Kurt Pfingst                                           *
 !***********************************************************************
-
+!#define _DEBUGPRINT_
 subroutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,rFinal,nComp,Alpha,nAlpha,Beta,nBeta)
 !***********************************************************************
 !     Author: Kurt Pfingst                                             *
@@ -18,24 +18,24 @@ subroutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,rFinal,nComp,Alpha,nAlpha,Beta,nBe
 
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Three, Half
-use Definitions, only: wp, iwp, u6
-use rmat, only: RMatR, bParm, EpsQ, QCoul, Dipol, Dipol1
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+use rmat, only: RMatR, bParm, EpsQ, QCoul, Dipol, Dipol1, GammaPh, GammaTh, lCost, lSInt, lSInf, lCosf
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp, nAlpha, nBeta
 real(kind=wp), intent(in) :: Rnr(nZeta,0:la+lb+2), qC(nZeta,0:la+lb), Di(nZeta,-1:la+lb-1), Zeta(nZeta), Alpha(nAlpha), Beta(nBeta)
 real(kind=wp), intent(out) :: rFinal(nZeta,nComp,nTri_Elem1(la),nTri_Elem1(lb))
-#include "print.fh"
-#include "nrmf.fh"
-#include "gam.fh"
-integer(kind=iwp) :: ia, ialpha, ib, ibeta, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta, k, kc, lrs, m, n, &
+integer(kind=iwp) :: ialpha, ibeta, iComp, ipa, ipb, ixa, ixb, iya, iyb, iza, izb, iZeta, k, kc, lrs, m, n, &
                      na, nb
 real(kind=wp) :: b1, b1a, b2, b2a, b3, BBLoch, CConst1, CConst2, CConst3, ck1, const1, const2, const3, Fact, Fact1, Fact2, Fact3, &
                  ralpha, rbeta, rx1, ry1, rz1, W
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) ia, ib
 character(len=80) :: Label
-
-iRout = 134
-iPrint = nPrint(iRout)
+#endif
 
 iComp = 1
 do ixa=0,la
@@ -106,7 +106,7 @@ end do
 
 !***********************************************************************
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' Result in Cmbnker1'
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
@@ -114,7 +114,7 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',rFinal(:,:,ia,ib),nZeta,nComp)
     end do
   end do
-end if
+#endif
 
 !***********************************************************************
 
@@ -145,7 +145,7 @@ end if
 
 !***********************************************************************
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' Result in Cmbnker2'
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
@@ -153,7 +153,7 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',rFinal(:,:,ia,ib),nZeta,nComp)
     end do
   end do
-end if
+#endif
 
 !***********************************************************************
 

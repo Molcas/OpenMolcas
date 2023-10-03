@@ -24,7 +24,6 @@
       use Constants
       use rmat
       Implicit Real*8 (A-H,O-Z)
-#include "nrmf.fh"
       external fradf
 #ifdef _DEBUGPRINT_
       Character*80 Label

@@ -25,8 +25,11 @@ real(kind=wp), allocatable :: CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), D
                               U_k(:), V_k(:,:), Z_p_k(:,:), A_PT2(:,:), B_PT2(:,:,:)
 type(DSBA_Type), allocatable, target :: AOrb(:)
 
+Integer(kind=iwp) LuGam
+Character(LEN=7) FnGam
+
 public :: A_PT2, AOrb, B_PT2, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, &
           lPSO, lsa, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nG1, nG2, nnP, npos, nSOs1, nV_K, &
-          nZ_p_k, Thpkl, Txy, U_k, V_k, Z_p_k
+          nZ_p_k, Thpkl, Txy, U_k, V_k, Z_p_k, LuGam, FnGam
 
 end module PSO_Stuff
