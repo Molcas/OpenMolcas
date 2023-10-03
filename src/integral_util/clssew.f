@@ -10,23 +10,17 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine ClsSew
+      SubRoutine ClsSew()
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use setup
       use Real_Spherical, only: Sphere_Free
-      use EFP_module
-      use External_Centers
-      use Basis_Info
-      use Center_Info
-      Use SOAO_Info
+      use EFP_module, only: lEFP, FRAG_TYPE, ABC, EFP_COORS
+      use External_Centers, only: iXPolType
+      use Basis_Info, only: Seward_Activated
       use Symmetry_Info, only: Symmetry_Info_Free
-      use Constants
-      use stdalloc
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
       If (.NOT.Seward_Activated) Return
 !
@@ -52,4 +46,4 @@
 !
       Seward_Activated=.False.
       Return
-      End
+      End SubRoutine ClsSew
