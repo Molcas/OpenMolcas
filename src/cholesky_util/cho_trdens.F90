@@ -30,7 +30,6 @@ integer(kind=iwp), intent(out) :: irc
 type(DSBA_Type), intent(in) :: DLT, Salpha(1)
 integer(kind=iwp), intent(in) :: istate, jstate, iType
 logical(kind=iwp), intent(in) :: DoExch, labB
-#include "debug.fh"
 integer(kind=iwp) :: dimX, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, JSYM, &
                      JVEC, k, kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
 real(kind=wp) :: dimX_real(1), TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), &
@@ -45,11 +44,6 @@ character(len=*), parameter :: SECNAM = 'CHO_TRDENS'
 integer(kind=iwp), external :: isFreeUnit
 real(kind=wp), external :: ddot_
 
-#ifdef _DEBUGPRINT_
-Debug = .true.
-#else
-Debug = .false.
-#endif
 irc = 0
 
 IREDC = -1
@@ -212,10 +206,10 @@ do JRED=JRED1,JRED2
 
       ! sending in Salpha and then print ddot of the result
       call Cho_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,Salpha,Ya,DoRead)
-      if (Debug) then
-        write(u6,*) 'ddot Y * Y from Salpha'
-        write(u6,*) ddot_(dimX,Ya(1)%A0,1,Ya(1)%A0,1)
-      end if
+#ifdef _DEBUGPRINT_
+      write(u6,*) 'ddot Y * Y from Salpha'
+      write(u6,*) ddot_(dimX,Ya(1)%A0,1,Ya(1)%A0,1)
+#endif
       iAddr = 0
       call dDaFile(LuT1,1,Ya(1)%A0(1),dimX,iAddr)
       call Deallocate_DT(Ya(1))
@@ -260,8 +254,6 @@ end if
 
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-if (Debug) then ! to avoid double printing in SCF-debug
-
   write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
   write(u6,'(6X,A)')
   do ISYM=1,NSYM
@@ -271,8 +263,6 @@ if (Debug) then ! to avoid double printing in SCF-debug
       call TRIPRT('Coulomb Fmat',' ',FLT(1)%SB(ISYM)%A1,NB)
     end if
   end do
-
-end if
 #endif
 
 irc = 0

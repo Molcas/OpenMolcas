@@ -129,7 +129,7 @@ if (RMat_type_integrals) then
 
   ! Combine the radial and angular component to the full one electron integral.
 
-  call CmbnMPr(Array(ipRnr),nZeta,la,lb,nOrdOp,Zeta,Array(ipFnl),nComp)
+  call CmbnMPr(Array(ipRnr),nZeta,la,lb,nOrdOp,Array(ipFnl),nComp)
 
   call SOS(iStabO,nStabO,llOper)
   call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)

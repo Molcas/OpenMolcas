@@ -17,7 +17,6 @@
       use OFembed, only: Do_OFemb, OFE_KSDFT
       use Constants
       Implicit Real*8 (a-h,o-z)
-#include "debug.fh"
       Real*8 h1(nh1), TwoHam(nh1), D(nh1,2)
       Real*8 D1I(nD1),D1A(nD1)
       Logical First, Dff, lRF, NonEq, Do_Grad, Do_DFT
@@ -30,8 +29,6 @@
       Character*(*) KSDFT
       Character*4 DFTFOCK
       Character*8 Label
-!
-      Debug=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

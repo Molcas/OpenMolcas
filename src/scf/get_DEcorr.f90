@@ -107,12 +107,10 @@
       Real*8 :: F_DFT(nBT,nD), D_DS(nBT,nD)
       Real*8 Ec_AB
 
-#include "debug.fh"
       Logical Do_MO,Do_TwoEl,Do_Grad
       Real*8 dFMD_, Func
       Integer nFckDim
 
-      Debug=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

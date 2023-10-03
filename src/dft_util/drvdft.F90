@@ -27,7 +27,6 @@ character(len=*), intent(in) :: KSDFT
 real(kind=wp), intent(out) :: ExFac
 logical(kind=iwp), intent(in) :: Do_Grad
 character(len=4), intent(in) :: DFTFOCK
-#include "debug.fh"
 integer(kind=iwp) :: i, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Fact, Func, PDFT_Ratio, Vxc_ref(2), WF_Ratio
 logical(kind=iwp) :: Do_HPDFT, Do_MO, Do_TwoEl
@@ -38,7 +37,6 @@ real(kind=wp), external :: DDot_, Get_ExFac
 !***********************************************************************
 !                                                                      *
 KSDFA = KSDFT  ! Store a local copy
-Debug = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -28,13 +28,13 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 character(len=4), intent(in) :: Model
 real(kind=wp), intent(out) :: Functional
-#include "debug.fh"
 integer(kind=iwp) :: iSym
 real(kind=wp) :: Thrs_Save, xNrm
 character(len=80) :: Txt
 character(len=4) :: myModel
 logical(kind=iwp) :: Converged
 character(len=*), parameter :: SecNam = 'Localise_Iterative'
+logical(kind=iwp) :: debug=.false.
 
 irc = 0
 Functional = -huge(Functional)

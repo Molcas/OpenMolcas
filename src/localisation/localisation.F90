@@ -31,7 +31,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-#include "debug.fh"
 integer(kind=iwp) :: ibo, iCheck, icHour, icMin, IndT(7,8), iOff, iPRway, irc, iSym, iTol, iUHF, iwHour, iwMin, j, jbo, jInd, &
                      jPrt, jTyp, k, kCMO, kEor, kIndT, kOcc, lMOrig, lOff, LU_, nbo
 real(kind=wp) :: AddInfoVal, C1, C1_Loc, C2, C2_Loc, CPUtot, cSec, ERFun(2), Functional, W1, W1_Loc, W2, W2_Loc, WLLtot, wSec, &
@@ -123,13 +122,13 @@ if ((.not. Silent) .and. PrintMOs) then
   call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,BName,EOrb,Occ,CMO,iPrWay,Ind)
 end if
 
-if (Debug) then
+#ifdef _DEBUGPRINT_
   write(u6,'(A,A,I2)') SecNam,': debug info at start:'
   write(u6,'(A,8I8)') 'nBas    : ',(nBas(iSym),iSym=1,nSym)
   write(u6,'(A,8I8)') 'nOrb    : ',(nOrb(iSym),iSym=1,nSym)
   write(u6,'(A,8I8)') 'nFro    : ',(nFro(iSym),iSym=1,nSym)
   write(u6,'(A,8I8)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
-end if
+#endif
 
 ! Evaluate ER functional for initial orbitals.
 ! --------------------------------------------

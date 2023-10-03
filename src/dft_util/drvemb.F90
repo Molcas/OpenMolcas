@@ -52,7 +52,6 @@ character(len=*), intent(inout) :: KSDFT
 logical(kind=iwp), intent(in) :: Do_Grad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 character(len=4), intent(in) :: DFTFOCK
-#include "debug.fh"
 integer(kind=iwp) :: i, iSpin, j, kSpin, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Ec_A, Fact, Fact_, Fakt_, Func_A_TF, Func_B_TF, tmp, xElAB, Vxc_ref(2)
 logical(kind=iwp) :: is_rhoA_on_file
@@ -64,7 +63,6 @@ real(kind=wp) :: Func_AB_TF, TF_NAD, V_emb_x, V_emb_x_ref, Xint_Ts_A, Xint_Ts_AB
 real(kind=wp), allocatable :: D1ao_x(:), D1ao_y(:), Vemb(:)
 #endif
 
-Debug = .false.
 is_rhoA_on_file = .false.
 !                                                                      *
 !***********************************************************************

@@ -23,12 +23,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "debug.fh"
 integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, kC, nAtom, nBasT, nnOcc, nOcc
 real(kind=wp) :: Fac, ThrPD(3), Tst
 integer(kind=iwp), allocatable :: iClass(:), iDomain(:), iPairDomain(:), nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Coord(:,:), f(:), QD(:), Rmin(:)
 character(len=*), parameter :: SecNam = 'Domain_Localisation'
+logical(kind=iwp) :: debug=.false.
 
 ! Set return code.
 ! ----------------
@@ -82,7 +82,7 @@ if (irc /= 0) then
   return
 end if
 
-if (Debug) then
+#ifdef _DEBUGPRINT_
   write(u6,*) SecNam,': checking domain definitions...'
   call CheckDomain(irc,iDomain,nAtom,nOcc)
   if (irc == 0) then
@@ -92,7 +92,7 @@ if (Debug) then
     call Error(2) ! return after deallocations
     return
   end if
-end if
+#endif
 
 ! Define pair domains.
 ! Make sure that ThrPairDomain is in ascending order.
@@ -123,7 +123,7 @@ if (irc /= 0) then
   return
 end if
 
-if (Debug) then
+#ifdef _DEBUGPRINT
   write(u6,*) SecNam,': checking pair domain definitions...'
   call CheckDomain(irc,iPairDomain,nAtom,nnOcc)
   if (irc == 0) then
@@ -133,7 +133,7 @@ if (Debug) then
     call Error(3) ! return after deallocations
     return
   end if
-end if
+#endif
 
 ! Print info.
 ! -----------

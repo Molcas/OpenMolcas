@@ -76,12 +76,10 @@
       Real*8 :: D_DS(nBT,nD), F_DFT(nBT,nD)
       Character(LEN=80)  KSDFT
 
-#include "debug.fh"
       Real*8 Func
       Integer nFckDim
       Logical Do_MO,Do_TwoEl,Do_Grad
 !
-      Debug=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -32,7 +32,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "debug.fh"
 integer(kind=iwp) :: i, iComp, iOpt, ip0, iSyLbl, iSym, j, jrc, kC, kC1, kD, kOff, kSqr, kTri, kU, lOaux, lOvlp, lScr, lUmat, &
                      mErr, nB2, nErr, nTO
 real(kind=wp) :: Tol, Tst, xErr, xNrm
@@ -43,6 +42,7 @@ real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:
 character(len=*), parameter :: SecNam = 'TestLoc'
 integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: ddot_
+logical(kind=iwp) :: debug=.false.
 
 call Untested('TestLoc')
 
