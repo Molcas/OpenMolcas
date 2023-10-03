@@ -31,7 +31,7 @@
 !
 !-----Cache size
 !
-#include "lCache.fh"
+#include "Molcas.fh"
       Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),
      &      ACInt(n1*n2*n3*n4,nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
       Real*8, Intent(out) :: Scrtch(nScrtch)
@@ -121,4 +121,4 @@
 #endif
 !
       Return
-      End
+      End SubRoutine Cntrct

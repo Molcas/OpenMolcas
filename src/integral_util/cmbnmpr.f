@@ -21,7 +21,8 @@
       Real*8 Final(nZeta,nComp,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),
      &       Rnr(nZeta,0:(la+lb+lr))
       Integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb,
-     &        iComp, lrs, Fact, iZeta, iz
+     &        iComp, lrs, iZeta, iz
+      Real*8 Fact
 
       Integer ixyz, ix, iy, Ind
 !

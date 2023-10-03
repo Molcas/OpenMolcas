@@ -36,7 +36,7 @@
 !
 !---- Cache size
 !
-#include "lCache.fh"
+#include "Molcas.fh"
       Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),
      &       ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr),
      &       ACOut(lZeta*lEta,mabcd)

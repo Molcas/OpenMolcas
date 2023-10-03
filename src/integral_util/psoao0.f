@@ -49,7 +49,7 @@
       use Breit, only: nComp
       use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "lCache.fh"
+#include "Molcas.fh"
 #include "pstat.fh"
       Integer iAnga(4), iCmpa(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, DoFock, Fail
