@@ -28,10 +28,13 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-!
+      Implicit None
+      Integer iBas, iBsInc, kBas, kBsInc,
+     &        jBas, jBsInc, lBas, lBsInc,
+     &        jPrim,jPrInc, lPrim,lPrInc,MaxReq
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
 !
+      Integer i
       Fail = .False.
       If (QlPrim) Then
          If (lPrInc.eq.1) Then

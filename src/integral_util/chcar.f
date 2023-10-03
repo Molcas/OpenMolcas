@@ -9,8 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine ChCar(iChCar,iGen,nGen)
-      Implicit Integer (a-z)
+      Implicit None
+      Integer nGen
       Integer iChCar(3), iGen(nGen)
+
+      Integer iCar, iComp, i
 !
 !     Generate characteristics for x, y, and z.
 !
