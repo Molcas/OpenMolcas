@@ -21,12 +21,18 @@
 !             University of Lund, SWEDEN                               *
 !             October '91.                                             *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Two
+      Implicit None
+      Integer nZeta, la, lb, ld, nVecAC
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,4),
      &       rKappa(nZeta),
      &       Rnxyz(nZeta,3,0:la+ld,0:lb), Alpha(nZeta)
       Logical IfGrad(3)
+
+      Integer ixa, ixb, iya, iyb, iza, izb, iZeta, iyaMax, iybMax,
+     &        ipa, ipb
+      Integer ixyz, ix, iz, Ind
+      Real*8 tTwo, XA, YA, ZA
 !
 !     Statement function for Cartesian index
 !
@@ -125,4 +131,4 @@
  10   Continue
 !
       Return
-      End
+      End SubRoutine CmbnAC
