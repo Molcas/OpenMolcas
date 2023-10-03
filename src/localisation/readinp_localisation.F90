@@ -24,7 +24,6 @@ use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "debug.fh"
 !TBP Namelist /LOCALISATION/ dummy
 integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb
 character(len=180) :: Key, Line
@@ -39,7 +38,6 @@ LuSpool = 17
 LuSpool = isFreeUnit(LuSpool)
 call SpoolInp(LuSpool)
 
-Debug = .false.
 ! Locate "start of input"
 rewind(LuSpool)
 call RdNLst(LuSpool,'LOCALISATION')
@@ -62,11 +60,6 @@ Thrs_UsrDef = .false.
 nOrb2Loc_UsrDef = .false.
 nFro_UsrDef = .false.
 Freeze = .false.
-if (iPL >= 4) then
-  Debug = .true.
-else
-  Debug = .false.
-end if
 Maximisation = .true.
 ChoStart = .false.
 if (iPL < 3) then
@@ -112,11 +105,6 @@ do
   Line = Key
   call UpCase(Line)
   select case (Line(1:4))
-    case ('DEBU')
-      ! DEBUg
-
-      Debug = .true.
-
     case ('NORB')
       ! NORBitals
 
@@ -467,12 +455,14 @@ end if
 
 ! Special settings for PAO: LocModel must be 3 (i.e. Cholesky), else
 ! we cancel PAO. For PAO, special analysis may be activated by the
-! DEBUg keyword.
+! DEBUGPRINT case.
 ! ------------------------------------------------------------------
 
 LocPAO = LocPAO .and. (LocModel == 3)
 if (LocPAO) then
-  AnaPAO = AnaPAO .or. Debug
+#ifdef _DEBUGPRINT_
+  AnaPAO = .True.
+#endif
 else
   AnaPAO = .false.
 end if
@@ -539,7 +529,7 @@ else
   end if
 end if
 
-if (Debug) then
+#ifdef _DEBUGPRINT
   write(u6,'(/,A,A)') SecNam,': orbital definitions:'
   write(u6,'(A,8I9)') 'nBas    : ',(nBas(iSym),iSym=1,nSym)
   write(u6,'(A,8I9)') 'nOrb    : ',(nOrb(iSym),iSym=1,nSym)
@@ -547,7 +537,7 @@ if (Debug) then
   write(u6,'(A,8I9)') 'nVirInp : ',(nVirInp(iSym),iSym=1,nSym)
   write(u6,'(A,8I9)') 'nFro    : ',(nFro(iSym),iSym=1,nSym)
   write(u6,'(A,8I9,/)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
-end if
+#endif
 
 ! If Cholesky, reset default threshold (unless user defined).
 ! -----------------------------------------------------------
@@ -569,7 +559,7 @@ EvalER = EvalER .and. (LocModel /= 4)
 ! Turn on localisation test if debug or analysis was specified.
 ! -------------------------------------------------------------
 
-Test_Localisation = Test_Localisation .or. Debug .or. Analysis
+Test_Localisation = Test_Localisation .or. Analysis
 
 contains
 
