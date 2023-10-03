@@ -16,10 +16,16 @@
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nZeta, la, lb, nComp, lr
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), rKappa(nZeta),
      &       Rnxyz(nZeta,3,0:la,0:lb,0:lr)
+
+      Integer ixa, ixb, iya, iyb, iza, izb, iyaMax, iybMax, ipa, ipb,
+     &        ix, iy, iz
+      Integer ixyz, iComp, iZeta, Ind
+      Real*8 Fact
 !
 !     Statement function for Cartesian index
 !
@@ -65,4 +71,4 @@
  10   Continue
 !
       Return
-      End
+      End SubRoutine CmbnMP
