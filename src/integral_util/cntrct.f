@@ -26,21 +26,25 @@
 ! Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
 !-----Cache size
 !
 #include "Molcas.fh"
-      Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),
-     &      ACInt(n1*n2*n3*n4,nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
+      Integer, Intent(in):: n1, m1, n2, m2, n3, m3, n4, m4,
+     &                     mabMax, mabMin, mcdMax, mcdMin, nScrtch,
+     &                     lZeta, lEta, nComp
+      Real*8, Intent(in):: Coef1(n1,m1), Coef2(n2,m2),
+     &                     Coef3(n3,m3), Coef4(n4,m4)
+      Real*8,  Intent(inout)::
+     &     ACInt(n1*n2*n3*n4,nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
       Real*8, Intent(out) :: Scrtch(nScrtch)
       Real*8, Intent(inout) ::
      &      ACOut(nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),m1*m2*m3*m4)
       Logical, Intent(inout) :: First
-      Integer IndZet(lZeta), IndEta(lEta)
-      Integer nComp
-      ![all others are intent(in)]
+      Integer, Intent(in) :: IndZet(lZeta), IndEta(lEta)
+
+      Integer :: mabcd, ncache_, lSize, nVec, IncVec, ipA3, ipA2
 !
       mabcd=nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 #ifdef _DEBUGPRINT_
