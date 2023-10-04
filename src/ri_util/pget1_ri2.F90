@@ -35,8 +35,7 @@ subroutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,jBas,lBas,kOp,ExFac,CoulFac,PM
 use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use aces_stuff, only: Gamma_On
-use pso_stuff, only: A_PT2, DMdiag, lPSO, lSA, nnP, nPos
+use pso_stuff, only: A_PT2, DMdiag, lPSO, lSA, nnP, nPos, Gamma_On
 use RI_glob, only: A, AMP2, CijK, iAdrCVec, iMP2prpt, LuAVector, LuCVector, nAuxVe, nChOrb, nIJ1, nKvec, tavec
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6

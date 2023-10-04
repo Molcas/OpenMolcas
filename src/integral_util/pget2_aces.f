@@ -36,11 +36,12 @@
 !***********************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff
+      use pso_stuff, only: Gamma_MRCISD
       use Symmetry_Info, only: nIrrep
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
-      Real*8, parameter :: exfac=1.0d0
+      use Constants, only: Zero, Quart, One, Four
+      Implicit None
+      Real*8, parameter :: exfac=One
+      Integer nijkl, nPSO, nDSO, nGamma, nSOs
       Real*8 PSO(nijkl,nPSO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma),  DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
@@ -48,6 +49,22 @@
       Logical Shijij
 !     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
+
+      Integer i, j, iTri
+      Real*8 PMax, T14, Temp
+      Integer i1, i2, i3, i4, MemSO2, niSym, njSym, nkSym, nlSym, lOper,
+     &        iS, jS, kS, lS, j1, j2, j3, j4, j12, j123,
+     &        iSO_R, jSO_R, kSO_R, lSO_R, iSO_A, jSO_A, kSO_A, lSO_A,
+     &        iSOi, jSOj, kSOk, lSOl, iSOi_A, jSOj_A, kSOk_A, lSOl_A,
+     &        iAOi, jAOj, kAOk, lAOl, iBas, jBas, kBas, lBas, mijkl,
+     &        iShell_A, iShell_B, iShell_C, iShell_D, iShell_AB,
+     &        iShell_CD,
+     &        Index_A, Index_B, Index_C, Index_D, Index_AB, Index_CD,
+     &        Index_ABCD,
+     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,
+     &        Indi, Indj, Indk, Indl, Indij, Indkl, Indik, Indjl,
+     &        Indil, Indjk,
+     &        iPntSO, iPntij, iPntkl, iPntik, iPntil, iPntjl, iPntjk
 !                                                                      *
 !***********************************************************************
 !                                                                      *

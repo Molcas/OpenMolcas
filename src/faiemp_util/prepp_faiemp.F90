@@ -22,8 +22,7 @@ subroutine PrepP_FAIEMP(nBas_Valence,nBT,nBVT)
 ! Based on PrepP                                                       *
 !***********************************************************************
 
-use aces_stuff, only: Gamma_On
-use pso_stuff, only: CMO, D0, DVar, DS, DSVar, G1, G2, id0Lbl, kCMO, lPSO, lsa, mCMo, mDens, mG1, mG2, nDens, nG1, nG2
+use pso_stuff, only: CMO, D0, DVar, DS, DSVar, G1, G2, id0Lbl, kCMO, lPSO, lsa, mCMo, mDens, mG1, mG2, nDens, nG1, nG2, Gamma_On
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep

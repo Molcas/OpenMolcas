@@ -22,7 +22,6 @@
 !***********************************************************************
       use setup
       use iSD_data
-      use aces_stuff
       use pso_stuff
       use index_arrays, only: iSO2Sh
       use Basis_Info, only: nBas

@@ -32,8 +32,7 @@ use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use aces_stuff, only: Gamma_On
-use pso_stuff, only: AOrb, B_PT2, lPSO, lSA, Thpkl
+use pso_stuff, only: AOrb, B_PT2, lPSO, lSA, Thpkl, Gamma_On
 use Data_Structures, only: V1
 use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, LuCVector, nChOrb, nIJR, nKdens, nYmnij, tbvec, &
                    Yij, Ymnij

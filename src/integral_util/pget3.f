@@ -32,7 +32,6 @@
 !***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
-      use aces_stuff, only: Gamma_On,G_Toc
       use Constants
       Implicit Real*8 (A-H,O-Z)
       Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),

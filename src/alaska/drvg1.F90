@@ -35,7 +35,7 @@ use setup
 use k2_setup, only: Data_k2
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
-use Aces_Stuff, only: G_toc, nSSDM, SSDM
+use pso_stuff, only: G_toc, nSSDM, SSDM
 use Basis_Info, only: nBas, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt

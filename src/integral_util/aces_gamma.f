@@ -11,7 +11,7 @@
       Subroutine Aces_Gamma()
       use setup, only: mSkal, nSOS
       use Basis_Info, only: nBas
-      use Aces_Stuff, only: lBin, LuGamma, Bin, G_ToC, SO2CI
+      use PSO_Stuff, only: lBin, LuGamma, Bin, G_ToC, SO2CI
       use Index_arrays, only: iSO2Sh
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep

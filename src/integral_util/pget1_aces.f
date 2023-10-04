@@ -35,15 +35,27 @@
 !     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO
-      use pso_stuff
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
-      Real*8, parameter :: exfac=1.0d0
+      use pso_stuff, only: Gamma_MRCISD
+      use Constants, only: Zero, One, Quart, Four
+      Implicit None
+      Integer, Intent(In):: ijkl, nPAO, nDSO, nGamma, nSOs
+      Real*8, parameter :: exfac=One
       Real*8 PAO(ijkl,nPAO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma), DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij
+
+      Integer i, j, iTri
+      Integer i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl, iPAO, lSOl,
+     &        lBas, lAOl, kSOk, kBas, kAOk, jSOj, jBas, jAOj, iSOi,
+     &        iBas, iAOi, iShell_A, iShell_B, iShell_C, iShell_D,
+     &        Index_A, Index_B, Index_C, Index_D,
+     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,
+     &        iShell_AB, iShell_CD, Index_AB, Index_CD,
+     &        Indi, Indj, Indk, Indl, Indij, Indkl,
+     &        Indil, Indjk, Indik, Indjl, Index_ABCD
+      Real*8 PMax, t14, Temp
 !                                                                      *
 !***********************************************************************
 !                                                                      *

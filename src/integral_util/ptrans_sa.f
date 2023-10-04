@@ -33,7 +33,7 @@
       subroutine ptrans_sa(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2,
      &                  ScrP,nsp)
-      use aces_stuff, only: nSSDM,SSDM
+      use pso_stuff, only: nSSDM,SSDM
       use Constants
       Implicit Real*8 (a-h,o-z)
       Integer npam(4,0:*),indi(4)

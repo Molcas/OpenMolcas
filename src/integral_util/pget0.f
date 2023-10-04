@@ -27,7 +27,6 @@
 !             Modified for RI Feb. 2007                                *
 !***********************************************************************
       use setup
-      use aces_stuff
       use pso_stuff
       use Index_arrays, only: iSO2Sh
       use Sizes_of_Seward, only: S

@@ -11,16 +11,30 @@
       Subroutine Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nBuf,
      &                       iSO2Shell,nSOs,Bin,nBin,nQuad,G_Toc,
      &                       iSO2cI,CutInt)
-      use aces_stuff, only: LuGamma
-      use pso_stuff
       use SOAO_Info, only: iOffSO
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      use PSO_Stuff, only: Case_MP2, LuGam, LuGamma
+      Implicit None
 #include "SysDef.fh"
+      Integer nBlocks, nIrrep, nSOs, nBuf, nBin, nQuad
       Integer iTable(6,nBlocks), nBas(0:nIrrep-1),
      &        iSO2Shell(nSOs), iSO2cI(2,nSOs)
       Real*8 Buf(nBuf), Bin(2,nBin,nQuad), G_Toc(nQuad)
       Logical Triangular
+
+      Integer i, j, itri
+      Integer iQuad, iDisk, iWrite, iBlockAdr, iBlock, iType,
+     &        iIrrep_A, iIrrep_B, iIrrep_C, iIrrep_D,
+     &        nA, nB, nC, nD, nAB, nCD, nAB_Dist,
+     &        iSO_A_R, iSO_B_R, iSO_C_R, iSO_D_R,
+     &        iSO_A_A, iSO_B_A, iSO_C_A, iSO_D_A, iiAB,
+     &        iAB_S, iAB_E, iSize, iAdr, iBuf, iAB,
+     &        iShell_A, iShell_B, iShell_C, iShell_D,
+     &        iShell_Ab, iShell_CD, iShell_ABCD,
+     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,
+     &        Index_A, Index_B, Index_C, Index_D, Index_AB, Index_CD,
+     &        Index_ABCD, iCD, kBin
+      Real*8  ABCD, CutInt, BackChain
 !                                                                      *
 !***********************************************************************
 !                                                                      *

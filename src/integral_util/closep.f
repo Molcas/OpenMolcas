@@ -18,9 +18,9 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use aces_stuff, only: Gamma_On, LuGamma, Bin, G_Toc, SO2cI
       use pso_stuff, only: Case_MP2, LuGam, lPSO, G1, G2, CMO, DSVar,
-     &                     DS, DVar, D0
+     &                     DS, DVar, D0, Gamma_On, LuGamma, Bin, G_Toc,
+     &                     SO2cI
       use stdalloc, only: mma_deallocate
       Implicit None
       Logical DoCholesky
