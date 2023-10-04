@@ -37,7 +37,6 @@
       use SOAO_Info, only: iAOtSO
       use pso_stuff
       use Constants
-      use columbus_gamma
       Implicit Real*8 (A-H,O-Z)
       Real*8, parameter :: exfac=1.0d0
       Real*8 PAO(ijkl,nPAO), DSO(nDSO),  DSO_Var(nDSO),

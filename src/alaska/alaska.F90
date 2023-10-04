@@ -39,7 +39,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 use rctfld_module, only: NonEQ_Ref, iCharge_Ref
-use columbus_gamma, only: No_Nuc
+use pso_stuff, only: No_Nuc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool

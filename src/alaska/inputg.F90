@@ -35,7 +35,7 @@ use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use columbus_gamma, only: No_Nuc
+use pso_stuff, only: No_Nuc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
