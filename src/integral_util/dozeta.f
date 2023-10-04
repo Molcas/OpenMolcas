@@ -26,7 +26,7 @@
 !             June '91, modified for k2 loop.                          *
 !             January '92, modified for gradient calculations.         *
 !***********************************************************************
-      use Constants
+      use Constants, only: One, TwoP54
       Implicit None
       Integer nAlpha, nBeta
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
