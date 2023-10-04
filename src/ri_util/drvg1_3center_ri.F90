@@ -11,7 +11,7 @@
 ! Copyright (C) 1990,1991,1992,2000,2007, Roland Lindh                 *
 !               1990, IBM                                              *
 !***********************************************************************
-
+!#define _DEBUGPRINT_
 subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 !***********************************************************************
 !                                                                      *
@@ -56,20 +56,18 @@ use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
+use Disp, only: ChDisp, l2DI
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
-#include "print.fh"
-#include "disp.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), &
                      iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, iost, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, &
-                     ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipxA, ipxB, ipxD, ipxG, ipZI, iRout, iS, iS_, iSD4(0:nSD,4), ish, &
+                     ipQ, iPrem, iPren, iPrimi, iPrInc, ipxA, ipxB, ipxD, ipxG, ipZI, iS, iS_, iSD4(0:nSD,4), ish, &
                      iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, jBasj, jBasn, jBsInc, jjQ, &
                      JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, kBask, kBasn, kBsInc, &
                      kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, lBsInc, lCijK, lCilK, &
@@ -101,8 +99,6 @@ logical(kind=iwp), external :: Rsv_Tsk2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 9
-iPrint = nPrint(iRout)
 #ifdef _CD_TIMING_
 Twoel3_CPU = Zero
 Twoel3_Wall = Zero
@@ -654,7 +650,9 @@ do while (Rsv_Tsk2(id,klS))
       A_int = A_Int_kl*TMax_Valence(iS,jS)
     end if
     if (A_Int < CutInt) cycle
-    if (iPrint >= 15) write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+#ifdef _DEBUGPRINT_
+    write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+#endif
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -770,7 +768,9 @@ do while (Rsv_Tsk2(id,klS))
             Twoel3_Wall = Twoel3_Wall+TwoelWall2-TwoelWall1
 #           endif
 
-            if (iPrint >= 15) call PrGrad(' In Drvg1_3Center_RI: Temp',Temp,nGrad,ChDisp)
+#ifdef _DEBUGPRINT_
+            call PrGrad(' In Drvg1_3Center_RI: Temp',Temp,nGrad,ChDisp)
+#endif
 
           end do
         end do
@@ -860,9 +860,9 @@ call Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
 iPren = 3+max(1,int(log10(Pren+0.001_wp)))
 iPrem = 3+max(1,int(log10(Prem+0.001_wp)))
 write(frmt,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
-if (iPrint >= 6) then
-  write(u6,frmt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
-end if
+#ifdef _DEBUGPRINT_
+write(u6,frmt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
+#endif
 
 call Free_iSD()
 !                                                                      *

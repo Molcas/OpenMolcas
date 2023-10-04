@@ -48,6 +48,7 @@ use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Disp, only: IndDsp
 
 implicit none
 procedure(hss_kernel) :: Kernel
@@ -56,8 +57,6 @@ integer(kind=iwp), intent(in) :: nHess, nFD, nComp, lOper(nComp)
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: DiffOp
 real(kind=wp), intent(in) :: CCoor(3,nComp), FD(nFD)
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: i, iAng, iAO, iAtom, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iComp1, iComp2, iDCRR(0:7), &
                      iDCRT(0:7), ielem, iIrrep, ijS, IndGrd(0:2,0:1,0:7), IndHss(0:1,0:2,0:1,0:2,0:7), iPrim, iS, iShell, iShll, &
                      iSmLbl, iStabM(0:7), iStabO(0:7), iStop, iTmp(0:7), iuv, j, jAng, jAO, jAtom, jBas, jCar, jCmp, jCnt, jCnttp, &

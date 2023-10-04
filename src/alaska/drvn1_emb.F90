@@ -28,14 +28,13 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
+use Disp, only: ChDisp, Direct, IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iCnttp_B, iComp, iDCRR(0:7), igu, iIrrep, iM1xp, iM2xp, iPrint, iR, iRout, jCnt, jCntMx, &
                      jCnttp, LmbdR, mdc, nCnttp_B, ndc, nDCRR, nDisp
 real(kind=wp) :: A(3), B(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, df_dr, dfab, dr_da, fab, Fact, Gam, PreFct, r12, RB(3), &

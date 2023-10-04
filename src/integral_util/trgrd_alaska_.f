@@ -24,10 +24,10 @@
       Use Center_Info
       use Symmetry_Info, only: nIrrep
       use Constants
+      use Disp
       Implicit Real*8(a-h,o-z)
       Parameter (tol=1d-8)
 #include "Molcas.fh"
-#include "disp.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       Real*8 GradIn(nGrad)

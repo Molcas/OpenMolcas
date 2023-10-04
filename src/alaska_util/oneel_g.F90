@@ -47,7 +47,8 @@ use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use define_af
+use define_af, only: AngTp
+use Disp, only: ChDisp
 
 implicit none
 procedure(grd_kernel) :: Kernel
@@ -66,9 +67,7 @@ logical(kind=iwp) :: AeqB, EQ, FreeiSD, IfGrad(3,3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Krnl(:), PCoor(:,:), rFinal(:), Scr1(:), Scr2(:), Zeta(:), ZI(:)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 #include "nac.fh"
 
 iRout = 112

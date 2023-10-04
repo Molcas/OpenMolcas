@@ -29,6 +29,7 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
+use Disp, only: IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: MxAto, nGrad
@@ -37,8 +38,6 @@ real(kind=wp), intent(out) :: GradOut(nGrad)
 integer(kind=iwp) :: iCar, iCen, iCnt, iCnttp, iComp, iIrrep, mdc, nDispS
 real(kind=wp), parameter :: tol = 1.0e-8_wp
 logical(kind=iwp), external :: TF
-#include "Molcas.fh"
-#include "disp.fh"
 
 iIrrep = 0
 

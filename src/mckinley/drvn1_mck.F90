@@ -27,12 +27,11 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChBas
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
+use Disp, only: IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iDCRR(0:7), igu, igv, iIrrep, iR, jCnt, jCntMx, jCnttp, LmbdR, mdc, ndc, nDCRR, &
                      nDisp, nOp
 real(kind=wp) :: A(3), B(3), Fact, PreFct, ps, r12, RB(3), ZA, ZAZB

@@ -44,14 +44,13 @@ use Para_Info, only: nProcs, King
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp, u6
+use Disp, only: ChDisp, l2DI
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iCnt, iFnc(4), ijklA, &
                      ijMax, ijS, iOpt, iost, ipEI, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipEta, &
                      ipxA, ipxB, ipxD, ipxG, ipZI, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), iSSDM, istabs(4), j, jAng, &

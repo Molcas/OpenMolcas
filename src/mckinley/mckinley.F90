@@ -41,11 +41,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 use rctfld_module, only: iCharge_Ref
+use Disp, only: lDisp
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "Molcas.fh"
-#include "disp.fh"
 #include "print.fh"
 #include "etwas.fh"
 #include "warnings.h"

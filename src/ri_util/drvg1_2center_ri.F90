@@ -49,14 +49,13 @@ use RI_glob, only: A, AMP2, CijK, DoCholExch, iMP2prpt, MxChVInShl, nIJR, nKvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
+use Disp, only: ChDisp, l2DI
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

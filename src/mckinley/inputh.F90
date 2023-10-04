@@ -35,11 +35,11 @@ use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
+use Disp, only: TRSymm, lEQ, IndDsp, InxDsp, lDisp, nTR, ChDisp, IndXEQ
 
 implicit none
 logical(kind=iwp), intent(out) :: Run_MCLR
 #include "Molcas.fh"
-#include "disp.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idum, iDummer, iElem, iIrrep, ijSym, iOpt, ipert, iprint, iRC, iRout, &
                      istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nd(1), nDisp, &

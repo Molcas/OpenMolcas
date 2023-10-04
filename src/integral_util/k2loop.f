@@ -46,10 +46,9 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Constants
       use k2_setup, only: nDArray, nDScalar
+      use Disp
       Implicit Real*8 (A-H,O-Z)
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
-#include "Molcas.fh"
-#include "disp.fh"
       Real*8 Coor(3,4), CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
      &       Alpha(nAlpha), Beta(nBeta), Dij(nDij,nDCR),
      &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),

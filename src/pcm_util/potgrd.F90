@@ -18,6 +18,7 @@ use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Disp, only: ChDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -30,8 +31,6 @@ character(len=8) :: Method
 real(kind=wp), allocatable :: D_Var(:)
 procedure(grd_kernel) :: PCMGrd1
 procedure(grd_mem) :: PCMMmG
-#include "Molcas.fh"
-#include "disp.fh"
 #include "print.fh"
 
 ! Prologue

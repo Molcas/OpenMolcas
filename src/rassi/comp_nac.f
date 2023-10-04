@@ -34,15 +34,14 @@ C***********************************************************************C
       Use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep
+      use Disp
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='COMP_NAC')
-#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "disp.fh"
 #include "diff.fh"
 #include "symmul.fh"
 * Arguments

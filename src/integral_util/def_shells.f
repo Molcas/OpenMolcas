@@ -13,9 +13,8 @@
       use Center_Info
       use Sizes_of_Seward, only: S
       use BasisMode
+      use disp
       Implicit Real*8 (a-h,o-z)
-#include "Molcas.fh"
-#include "disp.fh"
 !
       Integer iSD(0:nSD,mSkal)
       Logical, External :: TF

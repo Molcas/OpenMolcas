@@ -25,6 +25,7 @@ use Symmetry_Info, only: iOper
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Disp, only: Direct, IndDsp
 
 implicit none
 #include "grd_interface.fh"
@@ -36,9 +37,7 @@ integer(kind=iwp) :: i, ia, iAlpha, ib, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), i
 real(kind=wp) :: C(3), ccr(imax), Fact, TC(3), zcr(imax)
 character(len=80) :: Label
 logical(kind=iwp) :: EQ, JfGrad(3,4)
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 logical(kind=iwp), external :: TF
 
 #include "macros.fh"

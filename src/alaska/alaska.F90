@@ -40,12 +40,12 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 use rctfld_module, only: NonEQ_Ref, iCharge_Ref
 use pso_stuff, only: No_Nuc
+use Disp, only: HF_Force, TRSymm, lEQ, ChDisp, IndxEq, InxDsp, lDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
-#include "disp.fh"
 #include "print.fh"
 #include "nac.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCnttp_Valence, ndc, nDiff, nsAtom

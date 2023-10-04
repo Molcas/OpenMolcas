@@ -39,6 +39,7 @@ use Index_Functions, only: nTri_Elem1
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 use k2_setup, only: nDArray, nDScalar
+use Disp, only: l2DI, CutGrd
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nab, nHmab, nData1, &
@@ -63,8 +64,6 @@ integer(kind=iwp), external :: ip_abG, ip_IndZ, ip_Z, NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ, lEmpty
 external :: ModU2, TERI1, vCff2D
-#include "Molcas.fh"
-#include "disp.fh"
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPrint, iRout
 character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz']

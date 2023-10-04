@@ -17,13 +17,12 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
+use Disp, only: Direct, IndDsp, InxDsp, Disp_Fac, Mult_Disp, ChDisp, lDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrdPt
 real(kind=wp), intent(in) :: Grid(3,nGrdPt), B(nGrdPt)
 real(kind=wp), intent(out) :: GrdI(4,nGrdPt)
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iIrrep, jOper, LuWr, mc, mdc, mDisp, nCnttp_Valence, nDiff, nDisp
 logical(kind=iwp) :: DoRys, TstFnc
 character, parameter :: xyz(0:2) = ['x','y','z']
