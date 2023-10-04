@@ -11,17 +11,20 @@
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
-      use setup
-      use k2_arrays
+      use k2_arrays, only: nDeDe, MaxDe, MxDij, ipDeDe, ipD00, ipDijS,
+     &                     DeDe, pDq, Dq, Fq, pFq, ipOffD
       use Basis_Info, only: nBas
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, Half, Two
+      use stdalloc, only: mma_allocate
+      Implicit None
       Integer nDens, mDens
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
+
       Logical Special_NoSym, DFT_Storage
+      Integer nr_of_Densities, nIndij, nField, nDeDe_Tot, ij, i
+      Integer mDeDe, mIndij
 !
       nr_of_Densities=1  ! Hardwired option
 !
