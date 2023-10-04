@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Yoshio Nishimoto                                 *
+! Copyright (C) 2023, Yoshio Nishimoto                                 *
 !***********************************************************************
 
 Subroutine GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
@@ -116,12 +116,6 @@ Subroutine GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
       CALL TIMING(CPTF12,CPE,TIOTF12,TIOE)
       CPUPT2=CPTF12-CPTF11
       TIOPT2=TIOTF12-TIOTF11
-
-      IF (ICONV .NE. 0) THEN
-! No convergence. Skip the rest of the calculation.
-        IRETURN = _RC_NOT_CONVERGED_
-        EXIT STATELOOP2
-      END IF
 
 ! Orbitals, properties:
       ! if the dens keyword is used, need accurate density and

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Yoshio Nishimoto                                 *
+! Copyright (C) 2023, Yoshio Nishimoto                                 *
 !***********************************************************************
 
 Subroutine SavGradParams(Mode,IDSAVGRD)

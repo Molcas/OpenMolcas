@@ -324,6 +324,8 @@ C
         Work(ipSLag+iloc-1) = Work(ipSLag+iloc-1) - 1.0D+00
       End If
 C
+      !! Finalize the first-order transition(-like) density matrix
+      !! for the CSF derivative term
       If (do_nac) Then
         If (do_csf) Then
           Call CnstAntiC(Work(ipDPT2Canti),UEFF,U0)

@@ -664,6 +664,7 @@ contains
         Input%SADREF = .true.
 
       case('DORT')
+        Input%DORTHO = .true.
       case('CORT') !! it is actually the canonical orthonormalization
         Input%DORTHO = .true.
 

@@ -670,6 +670,12 @@ subroutine procinp_caspt2
   if (ipea_shift /= 0.0_wp) if_invar = .false.
   if_invaria = input%IAINVAR
 
+  if (ipea_shift /= 0.0_wp .and. do_grad .and. .not.IFDORTHO) then
+    call warningMessage(2,'Analytic gradients with IPEA shift'//  &
+                          ' must use the CORT or DORT option.')
+    call quit_onUserError
+  end if
+
   !! Whether the Fock matrix (eigenvalues) is constructed with
   !! the state-averaged density matrix or not.
   !! The name of the variable is like state-specific DM,
