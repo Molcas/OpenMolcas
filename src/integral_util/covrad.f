@@ -9,10 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Real*8 Function CovRad(i)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 CovRad_(0:86)
-!     Character*144 Warning
-      Data CovRad_/
+      Implicit None
+      Real*8 :: CovRad_(0:86)=[
      &  0.0d0,
      &  0.643d0,0.643d0,2.457d0,1.909d0,1.587d0,1.436d0,1.209d0, !1-7
      &  1.096d0,1.020d0,0.945d0,2.986d0,2.646d0,2.400d0,2.192d0, !8-14
@@ -26,7 +24,8 @@
      &  3.042d0,3.005d0,3.005d0,2.986d0,2.967d0,2.948d0,2.948d0, !64-70
      &  2.948d0,2.721d0,2.532d0,2.457d0,2.419d0,2.381d0,2.400d0, !71-77
      &  2.457d0,2.532d0,2.816d0,2.797d0,2.778d0,2.759d0,2.759d0, !78-84
-     &  2.740d0,2.710d0/                                         !85-
+     &  2.740d0,2.710d0]                                         !85-
+      Integer i
 !
       If (i.gt.86) Then
 !        Write (Warning,'(2A)') 'CovRad: Warning i.gt.86!,;'//
@@ -38,4 +37,4 @@
       End If
 !
       Return
-      End
+      End Function CovRad
