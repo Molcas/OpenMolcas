@@ -42,7 +42,9 @@ type(SBA_Type), target :: Ya(1)
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_TRDENS'
 integer(kind=iwp), external :: isFreeUnit
+#ifdef _DEBUGPRINT_
 real(kind=wp), external :: ddot_
+#endif
 
 irc = 0
 

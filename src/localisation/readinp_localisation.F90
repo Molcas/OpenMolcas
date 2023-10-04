@@ -17,14 +17,16 @@ subroutine Readinp_localisation()
 
 use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
-                                nBas, nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, &
+                                nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, &
                                 Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
+#ifdef _DEBUGPRINT
+use Localisation_globals, only: nBas
+#endif
 use stdalloc, only: mma_allocate
 use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-!TBP Namelist /LOCALISATION/ dummy
 integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb
 character(len=180) :: Key, Line
 logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef, Freeze

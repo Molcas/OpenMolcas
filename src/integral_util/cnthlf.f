@@ -33,7 +33,8 @@
       Integer, Intent(in) :: Indij(lZeta)
       Logical, Intent(in) :: First
 
-      Integer, Parameter :: mxnprm=1000   ! be aware of aCD(fat) basis sets.
+      ! be aware of aCD(fat) basis sets.
+      Integer, Parameter :: mxnprm=1000
       Integer idone(mxnprm),nnz2(mxnprm),ifirst(mxnprm),last(mxnprm)
 
       Integer nz2, minva, iCntr2, iPrm2, iiVec, mVec, iCntr1, iPrm1,
