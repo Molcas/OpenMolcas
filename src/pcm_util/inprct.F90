@@ -27,6 +27,7 @@ use rctfld_module, only: Eps, EpsInf, Eps_USER, EpsInf_USER, rDS, lMax, lRF, lRF
                          nSparse, DipCutOff, Scal14, DieDel, TK, CLim, aFac, DampIter, lLangevin, Solvent, gAtom, RadInp,          &
                          DistSparse
 
+use CovRad_Data, only: CovRadT_
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, iPrint, iRout, istatus, ITypRad, jRout, Last, n
@@ -36,7 +37,6 @@ integer(kind=iwp), external :: iCLast, nToken, NumSolv
 real(kind=wp), external :: Anal_Gitt
 character(len=180), external :: Get_Ln
 #include "print.fh"
-#include "covradt_data.fh"
 
 iRout = 1
 iPrint = nPrint(iRout)

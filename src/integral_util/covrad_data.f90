@@ -8,5 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Real*8 CovRadT_(0:92)
-      Common /covradt_data/ CovRadT_
+Module CovRad_Data
+Real*8 CovRadT_(0:92)
+End Module CovRad_Data

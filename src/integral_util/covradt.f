@@ -9,8 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Real*8 Function CovRadT(i)
-      Implicit Real*8 (a-h,o-z)
-#include "covradt_data.fh"
+      use CovRad_Data, only: CovRadT_
+      Implicit None
+      Integer i
 !
       If (i.gt.92) Then
 !        Write (*,*) 'CovRadT: i.gt.92'
@@ -20,4 +21,4 @@
       End If
 !
       Return
-      End
+      End Function CovRadT
