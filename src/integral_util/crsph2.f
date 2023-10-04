@@ -25,11 +25,14 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Win(ijkl*ncd*iCar*jCar), Scrt(nScrt),
-     &       Coeff1(iCar,iCar), Coeff2(jCar,jCar),
-     &       Wout(ijkl*ncd*mab)
-      Logical Tr1, Tr2
+      Implicit None
+      Integer, Intent(in):: ijkl, ncd, iCar, jCar, iSph, jSph, mab,
+     &                      nScrt
+      Real*8, Intent(in)::  Win(ijkl*ncd*iCar*jCar),
+     &                      Coeff1(iCar,iCar), Coeff2(jCar,jCar)
+      Real*8, Intent(inout):: Scrt(nScrt)
+      Real*8, Intent(Out):: Wout(ijkl*ncd*mab)
+      Logical, Intent(In):: Tr1, Tr2
 !
       If (Tr1.and.Tr2) Then
 !        Call RecPrt(' Right contraction',' ',Coeff2,jCar,jSph)
