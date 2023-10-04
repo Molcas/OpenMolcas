@@ -12,25 +12,21 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine creatci_cvb(inumber,xident_ci,iaddr,iform,fileid)
+subroutine creatci_cvb(inumber)
 
+use casvb_global, only: civbvecs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: inumber, iaddr, iform, fileid
-real(kind=wp) :: xident_ci
+integer(kind=iwp) :: inumber
 #include "main_cvb.fh"
 logical(kind=iwp), parameter :: debug = .false.
 
-xident_ci = real(inumber,kind=wp)
-iaddr_ci(inumber) = iaddr
-iform_ci(inumber) = iform
-fileid_ci(inumber) = fileid
+civbvecs(1,inumber) = real(inumber,kind=wp)
+iform_ci(inumber) = nint(civbvecs(0,inumber))
 if (debug) then
   write(u6,*) ' Creating CI vector :',inumber
-  write(u6,*) ' Address            :',iaddr
-  write(u6,*) ' Format             :',iform
-  write(u6,*) ' File identifier    :',fileid
+  write(u6,*) ' Format             :',iform_ci(inumber)
 end if
 
 return

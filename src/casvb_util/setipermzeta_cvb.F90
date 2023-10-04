@@ -15,6 +15,7 @@
 subroutine setipermzeta_cvb(ipermzeta,orbs,symelm,izeta)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -43,7 +44,7 @@ do isyme=1,nsyme
     call mxatb_cvb(orbinv,owrk2,norb,norb,norb,owrk)
     do iorb=1,norb
       do jorb=1,norb
-        if (abs(abs(owrk(jorb,iorb))-one) < thresh) then
+        if (abs(abs(owrk(jorb,iorb))-One) < thresh) then
           ipermzeta(iorb,izeta1) = nint(owrk(jorb,iorb))*jorb
         else if (abs(owrk(jorb,iorb)) > thresh) then
           write(u6,*) ' Fatal error! Symmetry operation ',tags(isyme),' does not permute the VB orbitals!'

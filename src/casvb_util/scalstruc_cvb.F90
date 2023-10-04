@@ -14,17 +14,18 @@
 
 subroutine scalstruc_cvb(orbs,cvb)
 
-use Definitions, only: wp, iwp
+use casvb_global, only: iconfs, ifnss1, ifnss2
+use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), cvb(nvb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ifnss
 
-ifnss = lb(4)
-if (kbasis == 6) ifnss = lb(5)
-call scalstruc2_cvb(orbs,cvb,iwork(ll(15)),iwork(ifnss))
+if (kbasis == 6) then
+  call scalstruc2_cvb(orbs,cvb,iconfs,ifnss2)
+else
+  call scalstruc2_cvb(orbs,cvb,iconfs,ifnss1)
+end if
 
 return
 

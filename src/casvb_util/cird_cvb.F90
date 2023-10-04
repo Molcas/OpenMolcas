@@ -25,12 +25,12 @@ subroutine cird_cvb(cvec,recn)
 !*                                                                     *
 !***********************************************************************
 
+use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: cvec(*), recn
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: idum(1), iformat, ioffs, ivec
 
 ivec = nint(cvec(1))
@@ -45,7 +45,7 @@ if (iformat == 0) then
     call abend_cvb()
   end if
   call rdis_cvb(icnt_ci(ivec),1,recn,ioffs)
-  call rdrs_cvb(work(iaddr_ci(ivec)),ndet,recn,ioffs)
+  call rdrs_cvb(civbvec(:,ivec),ndet,recn,ioffs)
 else
   write(u6,*) ' Unsupported format in CIRD :',iformat
   call abend_cvb()

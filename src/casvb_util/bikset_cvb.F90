@@ -22,12 +22,11 @@ integer(kind=iwp) :: nel, nalf, i2s, ndet, ifns, kbasis, iprint
 real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
 logical(kind=iwp) :: share
 integer(kind=iwp) :: nalf_use, ndet_use
-integer(kind=iwp), external :: ndet_cvb
 real(kind=wp), allocatable :: atmp(:,:), btmp(:,:)
 
 if (i2s /= 2*nalf-nel) then
   nalf_use = (i2s+nel)/2
-  ndet_use = ndet_cvb(nel,nalf_use)
+  call icomb_cvb(nel,nalf_use,ndet_use)
   call mma_allocate(atmp,ndet_use,ifns,label='atmp')
   call mma_allocate(btmp,ndet_use,ifns,label='btmp')
   call biksmain_cvb(atmp,btmp,nel,nalf_use,ndet_use,ifns,kbasis,.false.,iprint)

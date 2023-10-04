@@ -14,17 +14,16 @@
 
 subroutine main_cvb()
 
+use casvb_global, only: casvb_free
 use Definitions, only: iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 #include "print_cvb.fh"
-integer(kind=iwp) :: i, ibase
-integer(kind=iwp), external :: mstackr_cvb
+integer(kind=iwp) :: i
 logical(kind=iwp), external :: loopcntr_iterate_cvb, up2date_cvb ! ... Make: up to date? ...
 
 if (service) return
-ibase = mstackr_cvb(0)
 if (variat) nmcscf = nmcscf+1
 call stat1_cvb()
 
@@ -89,7 +88,7 @@ end do
 
 call stat2_cvb()
 
-call mfreer_cvb(ibase)
+call casvb_free()
 
 return
 

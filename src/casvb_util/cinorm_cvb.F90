@@ -19,19 +19,19 @@ subroutine cinorm_cvb(cvec,cnrm)
 !*                                                                     *
 !***********************************************************************
 
+use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: cvec(*), cnrm
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iformat, ivec
 real(kind=wp) :: ddot_
 
 ivec = nint(cvec(1))
 iformat = iform_ci(ivec)
 if (iformat == 0) then
-  cnrm = ddot_(ndet,work(iaddr_ci(ivec)),1,work(iaddr_ci(ivec)),1)
+  cnrm = ddot_(ndet,civbvec(:,ivec),1,civbvec(:,ivec),1)
 else
   write(u6,*) ' Unsupported format in CINORM :',iformat
   call abend_cvb()

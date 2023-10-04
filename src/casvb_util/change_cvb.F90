@@ -14,6 +14,7 @@
 
 subroutine change_cvb()
 
+use casvb_global, only: iprm
 use Constants, only: Ten
 use Definitions, only: iwp
 
@@ -21,14 +22,14 @@ implicit none
 #include "main_cvb.fh"
 #include "files_cvb.fh"
 integer(kind=iwp) :: kbasisp
-logical(kind=iwp), external :: chpcmp_cvb, lchpcmp_cvb, & ! ... Change of dimensioning variables ...
-                               up2date_cvb ! ... Make: up to date? ...
+logical(kind=iwp), external :: chpcmp_cvb, & ! ... Change of dimensioning variables ...
+                               up2date_cvb   ! ... Make: up to date? ...
 
 ! General settings:
 proj = projsym
 
 ! Determine changes to memory assignment:
-call chpcmp0_cvb()
+iprm = 0
 
 call change1_cvb()
 call change2_cvb()
@@ -47,7 +48,7 @@ call symchk_cvb()
 if (chpcmp_cvb(nint(strtint*Ten))) call touch_cvb('RDINT')
 
 ! Redo CIVB if definition has changed (from CVB or CIVECP):
-if (lchpcmp_cvb(projcas)) then
+if (chpcmp_cvb(merge(1,0,projcas))) then
   call setcnt2_cvb(2,0)
   call setcnt2_cvb(3,0)
   call setcnt2_cvb(4,0)

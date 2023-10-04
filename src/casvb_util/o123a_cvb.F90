@@ -12,20 +12,24 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine o123a_cvb( &
 #                    define _CALLING_
 #                    include "opta_interface.fh"
                     )
 
-use casvb_global, only: ix
-use Definitions, only: iwp
+use casvb_global, only: eigval, eigvec, ip, ograd, ogradp
+use Definitions, only: iwp, u6
 
 implicit none
 #include "opta_interface.fh"
-#include "WrkSpc.fh"
 
-call o123a2_cvb(nparam,work(ix(2)),work(ix(3)),work(ix(4)),work(ix(6)))
+call gethess_cvb(eigvec)
+call mxdiag_cvb(eigvec,eigval,nparam)
+call mxatb_cvb(ograd,eigvec,1,nparam,nparam,ogradp)
+if (ip >= 2) then
+  write(u6,'(a)') ' Gradient in basis of Hessian eigenvectors :'
+  call vecprint_cvb(ogradp,nparam)
+end if
 
 return
 

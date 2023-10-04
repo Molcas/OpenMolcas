@@ -15,6 +15,7 @@
 subroutine symtrizcvb2_cvb(vecstr,izeta,ipermzeta)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none

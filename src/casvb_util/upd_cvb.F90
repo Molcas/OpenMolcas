@@ -12,22 +12,21 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine upd_cvb(dx,orbs,cvb)
+subroutine upd_cvb(dx,orbs1,cvb1)
 
+use casvb_global, only: cvb, iorts, orbs, sorbs
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: dx(*), orbs(norb,norb), cvb(nvb)
-#include "WrkSpc.fh"
+real(kind=wp) :: dx(*), orbs1(norb,norb), cvb1(nvb)
 integer(kind=iwp) :: ic
 
 if (orbopt) call touch_cvb('ORBSTRY')
 if (strucopt) call touch_cvb('CVBTRY')
 call make_cvb('WFNTRY')
 ic = 2
-call update2_cvb(orbs,cvb,work(lv(1)),work(lv(2)),work(lw(2)),dx,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,work(lp(6)), &
-                 iwork(ls(11)),nort)
+call update2_cvb(orbs1,cvb1,orbs,cvb,sorbs,dx,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,iorts,nort)
 
 return
 

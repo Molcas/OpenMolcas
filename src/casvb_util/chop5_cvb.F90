@@ -14,40 +14,72 @@
 
 subroutine chop5_cvb()
 
-use casvb_global, only: release
-use Definitions, only: iwp
+use casvb_global, only: corth, idelstr, ifxorb, ifxstr, iorbrel, iorts, ipermzeta, irels, irots, izeta, north, release, relorb, &
+                        symelm, tconstr, trprm
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
-if (release(5)) call mfreer_cvb(ls(1))
+if (release(5)) then
+  call mma_deallocate(symelm)
+  call mma_deallocate(iorbrel)
+  call mma_deallocate(north)
+  call mma_deallocate(corth)
+  call mma_deallocate(irels)
+  call mma_deallocate(relorb)
+  call mma_deallocate(ifxorb)
+  call mma_deallocate(ifxstr)
+  call mma_deallocate(idelstr)
+  call mma_deallocate(iorts)
+  call mma_deallocate(irots)
+  call mma_deallocate(izeta)
+  call mma_deallocate(trprm)
+  call mma_deallocate(tconstr)
+  call mma_deallocate(ipermzeta)
+end if
 release(5) = .true.
 release(6) = .false.
 
-ls(1) = mstackr_cvb(nsyme*norb*norb)
-ls(2) = mstacki_cvb(ndimrel)
-ls(3) = mstacki_cvb(norb)
-ls(4) = mstackr_cvb(norb*norb*norb)
-ls(5) = mstacki_cvb(2*(norb-1))
-ls(6) = mstackr_cvb(min(norb-1,norbrel)*norb*norb)
-ls(8) = mstacki_cvb(norb)
-ls(9) = mstacki_cvb(nvb)
-ls(10) = mstacki_cvb(nzrvb)
-ls(11) = mstacki_cvb(2*nort)
-ls(12) = mstacki_cvb(2*ndrot)
-ls(13) = mstacki_cvb(nsyme)
+!FIXME: These deallocations should not be needed
+if (allocated(symelm)) call mma_deallocate(symelm)
+if (allocated(iorbrel)) call mma_deallocate(iorbrel)
+if (allocated(north)) call mma_deallocate(north)
+if (allocated(corth)) call mma_deallocate(corth)
+if (allocated(irels)) call mma_deallocate(irels)
+if (allocated(relorb)) call mma_deallocate(relorb)
+if (allocated(ifxorb)) call mma_deallocate(ifxorb)
+if (allocated(ifxstr)) call mma_deallocate(ifxstr)
+if (allocated(idelstr)) call mma_deallocate(idelstr)
+if (allocated(iorts)) call mma_deallocate(iorts)
+if (allocated(irots)) call mma_deallocate(irots)
+if (allocated(izeta)) call mma_deallocate(izeta)
+if (allocated(trprm)) call mma_deallocate(trprm)
+if (allocated(tconstr)) call mma_deallocate(tconstr)
+if (allocated(ipermzeta)) call mma_deallocate(ipermzeta)
+call mma_allocate(symelm,norb,norb,nsyme,label='symelm')
+call mma_allocate(iorbrel,ndimrel,label='iorbrel')
+call mma_allocate(north,norb,label='north')
+call mma_allocate(corth,norb,norb**2,label='corth')
+call mma_allocate(irels,2,norb-1,label='irels')
+call mma_allocate(relorb,norb,norb,min(norb-1,norbrel),label='relorb')
+call mma_allocate(ifxorb,norb,label='ifxorb')
+call mma_allocate(ifxstr,nvb,label='ifxstr')
+call mma_allocate(idelstr,nzrvb,label='idelstr')
+call mma_allocate(iorts,2,nort,label='iorts')
+call mma_allocate(irots,2,ndrot,label='irots')
+call mma_allocate(izeta,nsyme,label='izeta')
 if (.not. orbfr_is_unit) then
-  ls(14) = mstackr_cvb(nprorb*nprorb)
+  call mma_allocate(trprm,nprorb,nprorb,label='trprm')
 else
-  ls(14) = mstackr_cvb(0)
+  call mma_allocate(trprm,0,0,label='trprm')
 end if
 if (iconstruc == 2) then
-  ls(15) = mstackr_cvb(nvb*nvb)
+  call mma_allocate(tconstr,nvb,nvb,label='tconstr')
 else
-  ls(15) = mstackr_cvb(0)
+  call mma_allocate(tconstr,0,0,label='tconstr')
 end if
-ls(16) = mstacki_cvb(norb*nzeta)
+call mma_allocate(ipermzeta,norb,nzeta,label='ipermzeta')
 
 return
 

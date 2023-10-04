@@ -14,17 +14,24 @@
 
 subroutine chop3_cvb()
 
-use casvb_global, only: release
+use casvb_global, only: aikcof, bikcof, cikcof, ifnss1, ifnss2, ikcoff, ndetvbs, release
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iretval1, iretval2, kmost, mxdetvb, need
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
-if (release(3)) call mfreer_cvb(lb(1))
+if (release(3)) then
+  call mma_deallocate(aikcof)
+  nullify(bikcof)
+  if (allocated(cikcof)) call mma_deallocate(cikcof)
+  call mma_deallocate(ikcoff)
+  call mma_deallocate(ifnss1)
+  call mma_deallocate(ifnss2)
+  call mma_deallocate(ndetvbs)
+end if
 release(3) = .true.
 release(4) = .false.
 
@@ -42,23 +49,24 @@ else
 end if
 call bspset_cvb(kmost,1,need)
 if (kmost == 3) then
-  lb(1) = mstackr_cvb(1+need)
-  lb(2) = mstackr_cvb(1+need)
+  call mma_allocate(aikcof,[0,need],label='aikcof')
+  call mma_allocate(cikcof,[0,need],label='cikcof')
+  bikcof => cikcof
 else if (kmost == 1) then
-  lb(1) = mstackr_cvb(1+need)
-  lb(2) = lb(1)
+  call mma_allocate(aikcof,[0,need],label='aikcof')
+  bikcof => aikcof
 else
-  lb(1) = mstackr_cvb(1)
-  lb(2) = lb(1)
+  call mma_allocate(aikcof,[0,0],label='aikcof')
+  bikcof => aikcof
 end if
 ! Flag AIKCOF/BIKCOF as unset:
-work(lb(1)) = Zero
-work(lb(2)) = Zero
+aikcof(0) = Zero
+bikcof(0) = Zero
 
-lb(3) = mstacki_cvb((nel+1)*(nel+1)*(nel+1))
-lb(4) = mstacki_cvb((nel+1)*(nel+1))
-lb(5) = mstacki_cvb((nel+1)*(nel+1))
-lb(6) = mstacki_cvb((nel+1)*(nel+1))
+call mma_allocate(ikcoff,[0,nel],[0,nel],[0,nel],label='ikcoff')
+call mma_allocate(ifnss1,[0,nel],[0,nel],label='ifnss1')
+call mma_allocate(ifnss2,[0,nel],[0,nel],label='ifnss2')
+call mma_allocate(ndetvbs,[0,nel],[0,nel],label='ndetvbs')
 call bspset_cvb(kbasiscvb,2,need)
 
 return

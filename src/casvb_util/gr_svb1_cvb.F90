@@ -15,7 +15,7 @@
 subroutine gr_svb1_cvb(civecp,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
 
 use casvb_global, only: aa1, aa2, oaa2, oaa3, ovrab
-use Constants, only: Three, Four
+use Constants, only: One, Three, Four
 use Definitions, only: wp, iwp
 
 implicit none
@@ -24,7 +24,7 @@ implicit none
 real(kind=wp) :: civecp(ndet), civbs(ndet), civb(ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), vec1(*)
 integer(kind=iwp) :: i
 
-aa1 = one/sqrt(ovraa)
+aa1 = One/sqrt(ovraa)
 aa2 = -aa1/(two*ovraa)
 oaa2 = two*ovrab*aa2
 oaa3 = Three*ovrab*aa1/(Four*ovraa*ovraa)

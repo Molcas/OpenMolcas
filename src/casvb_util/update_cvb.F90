@@ -14,15 +14,15 @@
 
 subroutine update_cvb(dx)
 
+use casvb_global, only: cvb, iorts, orbs, sorbs, vbdet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: dx(*)
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ic
-real(kind=wp), allocatable :: orbs(:,:), cvb(:)
+real(kind=wp), allocatable :: orbs1(:,:), cvb1(:)
 logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
 if (orbopt) call touch_cvb('ORBS')
@@ -33,15 +33,14 @@ if (up2date_cvb('SVBTRY')) call make_cvb('SVB')
 if (up2date_cvb('EVBTRY')) call make_cvb('EVB')
 
 ic = 1
-call mma_allocate(orbs,norb,norb,label='orbs')
-call mma_allocate(cvb,nvb,label='nvb')
-call update2_cvb(orbs,cvb,work(lv(1)),work(lv(2)),work(lw(2)),dx,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,work(lp(6)), &
-                 iwork(ls(11)),nort)
-call fmove_cvb(orbs,work(lv(1)),norb*norb)
-call fmove_cvb(cvb,work(lv(2)),nvb)
-call str2vbc_cvb(work(lv(2)),work(lv(5)))
-call mma_deallocate(orbs)
-call mma_deallocate(cvb)
+call mma_allocate(orbs1,norb,norb,label='orbs1')
+call mma_allocate(cvb1,nvb,label='cvb1')
+call update2_cvb(orbs1,cvb1,orbs,cvb,sorbs,dx,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,iorts,nort)
+call fmove_cvb(orbs1,orbs,norb*norb)
+call fmove_cvb(cvb1,cvb,nvb)
+call str2vbc_cvb(cvb,vbdet)
+call mma_deallocate(orbs1)
+call mma_deallocate(cvb1)
 
 return
 

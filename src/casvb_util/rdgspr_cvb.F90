@@ -33,7 +33,7 @@ if (ic == 1) then
     return
   end if
   ioffs = (i-1)*norb1+ioffs_orbs
-  call rdr_cvb(c,min(norb1,n),recn,ioffs)
+  call rdlow_cvb(c,min(norb1,n),recn,ioffs)
 else if (ic == 2) then
   ! >>> Structure read, I is starting structure coefficient:
   if (i > nvb1) then
@@ -41,7 +41,7 @@ else if (ic == 2) then
     return
   end if
   ioffs = i-1+ioffs_cvb
-  call rdr_cvb(c,min(nvb1,n),recn,ioffs)
+  call rdlow_cvb(c,min(nvb1,n),recn,ioffs)
 else if (ic == 3) then
   ! >>> Read of orbital in AO basis, I is orbital number:
   if (i > norb1) then
@@ -54,7 +54,7 @@ else if (ic == 3) then
     return
   end if
   ioffs = (i-1)*nbas_mo1+ioffs_orbsao
-  call rdr_cvb(c,min(nbas_mo1,n),recn,ioffs)
+  call rdlow_cvb(c,min(nbas_mo1,n),recn,ioffs)
 else if (ic == 4) then
   ! >>> Read of localized orbital in AO basis, I is orbital number:
   if (i > norb1) then
@@ -67,7 +67,7 @@ else if (ic == 4) then
     return
   end if
   ioffs = (i-1)*nbas_mo1+ioffs_orbslao
-  call rdr_cvb(c,min(nbas_mo1,n),recn,ioffs)
+  call rdlow_cvb(c,min(nbas_mo1,n),recn,ioffs)
 end if
 
 return

@@ -24,6 +24,7 @@
 subroutine permci_cvb(v1,iperm)
 ! Permutes orbitals in V1 according to IPERM.
 
+use casvb_global, only: civbvec, iapr, ixapr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -31,29 +32,29 @@ implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: v1(*)
 integer(kind=iwp) :: iperm(norb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ialg, iv1, v2len
+integer(kind=iwp) :: ialg, iv1, mavailr, v2len
 logical(kind=iwp) :: vb
 real(kind=wp), allocatable :: v2(:)
-integer(kind=iwp), external :: mavailr_cvb
 
 vb = .false.
 if (vb) then
   v2len = ndetvb
-else if (mavailr_cvb() >= ndet) then
-  ialg = 1
-  v2len = ndet
 else
-  ialg = 2
-  v2len = nda
+  call mma_maxDBLE(mavailr)
+  if (mavailr >= ndet) then
+    ialg = 1
+    v2len = ndet
+  else
+    ialg = 2
+    v2len = nda
+  end if
 end if
 call mma_allocate(v2,v2len,label='v2')
 if (vb) then
-  call permvb2_cvb(v1,iperm,vb,iwork(ll(11)),iwork(ll(12)),v2,ialg)
+  call permvb2_cvb(v1,iperm,vb,iapr,ixapr,v2,ialg)
 else
   iv1 = nint(v1(1))
-  !DLC iwork(maddr_r2i_cvb(iaddr_ci(iv1))) --> work(iaddr_ci(iv1))
-  call permvb2_cvb(work(iaddr_ci(iv1)),iperm,vb,iwork(ll(11)),iwork(ll(12)),v2,ialg)
+  call permvb2_cvb(civbvec(:,iv1),iperm,vb,iapr,ixapr,v2,ialg)
 end if
 
 call mma_deallocate(v2)

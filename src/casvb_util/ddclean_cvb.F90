@@ -12,17 +12,23 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
-subroutine ddres2updinit_cvb(n_div1)
+subroutine ddclean_cvb()
 
-use casvb_global, only: n_div
-use Definitions, only: iwp
+use casvb_global, only: ap, axc, c, res, rhs, rhsp, solp, solp_res, sxc
+use stdalloc, only: mma_deallocate
 
 implicit none
-integer(kind=iwp) :: n_div1
 
-n_div = n_div1
+if (allocated(c)) call mma_deallocate(c)
+if (allocated(axc)) call mma_deallocate(axc)
+if (allocated(sxc)) call mma_deallocate(sxc)
+if (allocated(res)) call mma_deallocate(res)
+if (allocated(rhs)) call mma_deallocate(rhs)
+if (allocated(ap)) call mma_deallocate(ap)
+if (allocated(rhsp)) call mma_deallocate(rhsp)
+if (allocated(solp)) call mma_deallocate(solp)
+if (allocated(solp_res)) call mma_deallocate(solp_res)
 
 return
 
-end subroutine ddres2updinit_cvb
+end subroutine ddclean_cvb

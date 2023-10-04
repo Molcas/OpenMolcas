@@ -17,13 +17,13 @@ subroutine asonc7_cvb( &
 #                     include "ddasonc_interface.fh"
                      )
 
-use casvb_global, only: igrad, ipp7, iter7
+use casvb_global, only: ipp7, iter7, ograd
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddasonc_interface.fh"
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ivec
 real(kind=wp), parameter :: thresh = 1.0e-15_wp
 real(kind=wp), external :: ddot_, dnrm2_, tim_cvb
@@ -38,16 +38,16 @@ if (ipp7 >= 2) then
 end if
 
 do ivec=1,nvec
-  axc(1,ivec) = ddot_(nprm-1,work(igrad),1,c(2,ivec),1)
+  axc(1,ivec) = ddot_(nprm-1,ograd,1,c(2,ivec),1)
   call fmove_cvb(c(2,ivec),axc(2,ivec),nprm-1)
   ! Save Hessian application (& DNRM2 call) whenever possible:
   ! (C assumed to be normalized)
-  if (abs(abs(c(1,ivec))-one) > thresh) then
+  if (abs(abs(c(1,ivec))-One) > thresh) then
     call hess_cvb(axc(2,ivec))
   else if (dnrm2_(nprm-1,axc(2,ivec),1) > thresh) then
     call hess_cvb(axc(2,ivec))
   end if
-  call daxpy_(nprm-1,c(1,ivec),work(igrad),1,axc(2,ivec),1)
+  call daxpy_(nprm-1,c(1,ivec),ograd,1,axc(2,ivec),1)
   call ddproj_cvb(axc(2,ivec),nprm-1)
 end do
 

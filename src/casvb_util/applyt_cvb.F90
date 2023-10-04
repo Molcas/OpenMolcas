@@ -36,25 +36,26 @@
 !***********************************************************************
 subroutine applyt_cvb(cvec,gjorb)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use Definitions, only: wp, iwp
+use casvb_global, only: civbvec, gjorb_type, i1alf, i1bet, iato, ibto, phato, phbto
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(*), gjorb(*)
+real(kind=wp) :: cvec(*)
+type(gjorb_type) :: gjorb
+#include "main_cvb.fh"
+integer(kind=iwp) :: ivec
 
-call applyt_cvb_internal(gjorb)
+ivec = nint(cvec(1))
+n_applyt = n_applyt+1
+if (iform_ci(ivec) == 0) then
+  call permci_cvb(cvec,gjorb%i1)
+  call applyt2_cvb(civbvec(:,ivec),gjorb%r,gjorb%i2,i1alf,i1bet,iato,ibto,phato,phbto)
+else
+  write(u6,*) ' Unsupported format in APPLYT :',iform_ci(ivec)
+  call abend_cvb()
+end if
+call setcnt2_cvb(ivec,0)
 
 return
-
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine applyt_cvb_internal(gjorb)
-  real(kind=wp), target :: gjorb(*)
-  integer(kind=iwp), pointer :: igjorb(:)
-  call c_f_pointer(c_loc(gjorb(1)),igjorb,[1])
-  call iapplyt_cvb(cvec,igjorb)
-  nullify(igjorb)
-end subroutine applyt_cvb_internal
 
 end subroutine applyt_cvb

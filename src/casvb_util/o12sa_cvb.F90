@@ -17,39 +17,61 @@ subroutine o12sa_cvb( &
 #                    include "opta_interface.fh"
                     )
 
-use casvb_global, only: have_solved_it, ix
-use Definitions, only: iwp
+use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, cvb, cvbdet, have_solved_it, nvguess, nvrestart, &
+                        nvrhs, odx, orbs
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
 #include "opta_interface.fh"
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iv, ivuse, ivuse2
+real(kind=wp), pointer :: vuse(:), vuse2(:)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
-call ddnewopt_cvb()
+nvrestart = 0
+nvguess = 0
+nvrhs = 0
 have_solved_it = .false.
 
 ! Find CIVBS:
-ivuse = 0
-do iv=1,nv
-  if (tstcnt_cvb(work(lc(iv)),4)) ivuse = iv
-end do
-ivuse2 = 3
-if (ivuse == 3) ivuse2 = 2
-if (ivuse2 > nv) ivuse2 = 1
-if (ivuse /= 0) then
-  call o12sa2_cvb(nparam,work(lc(ivuse2)),work(lc(ivuse)),work(lw(9)),work(lv(2)))
+nullify(vuse)
+vuse2 => civb3
+if (nv >= 1) then
+  if (tstcnt_cvb(civb1,4)) vuse => civb1
+end if
+if (nv >= 2) then
+  if (tstcnt_cvb(civb2,4)) vuse => civb2
+end if
+if (nv >= 3) then
+  if (tstcnt_cvb(civb3,4)) vuse => civb3
+end if
+if (nv >= 4) then
+  if (tstcnt_cvb(civb4,4)) vuse => civb4
+end if
+if (nv >= 5) then
+  if (tstcnt_cvb(civb5,4)) vuse => civb5
+end if
+if (nv >= 6) then
+  if (tstcnt_cvb(civb6,4)) vuse => civb6
+end if
+if (nv >= 7) then
+  if (tstcnt_cvb(civb7,4)) vuse => civb7
+end if
+if (nv >= 8) then
+  if (tstcnt_cvb(civb8,4)) vuse => civb8
+end if
+if (associated(vuse,civb3)) vuse2 => civb2
+if (associated(vuse)) then
+  call o12sa2_cvb(nparam,vuse2,vuse,cvbdet,cvb)
 else
   if (strucopt) then
-    call ddguess_cvb(work(lv(2)),nvb,nprorb)
+    call ddguess_cvb(cvb,nvb,nprorb)
   else
-    call ddguess_cvb([one],1,0)
+    call ddguess_cvb([One],1,0)
   end if
 end if
 
-call o12sa3_cvb(work(ix(1)),work(lv(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lc(1)),work(lc(2)),work(lc(3)), &
-                work(lw(9)),nvb,nprorb,nparam,strucopt)
+call o12sa3_cvb(odx,cvb,orbs,civb1,civb2,civb3,cvbdet,nvb,nprorb,nparam,strucopt)
 
 return
 

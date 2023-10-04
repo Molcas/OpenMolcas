@@ -15,6 +15,7 @@
 subroutine permvb2_cvb(v1,iperm,vb,iapr,ixapr,v2,ialg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -190,7 +191,7 @@ if (iorb <= norb) then
     ! More-or-less in-place update of V1:
     do ia=1,nda
       if (ia == inda(ia)) then
-        if (phsa(ia) == -one) then
+        if (phsa(ia) == -One) then
           ioffs = ia-nda
           do ib=1,ndb
             v1(ib*nda+ioffs) = -v1(ib*nda+ioffs)
@@ -204,7 +205,7 @@ if (iorb <= norb) then
         end do
         iat = ia
         do
-          if (phsa(iat) == one) then
+          if (phsa(iat) == One) then
             ioffs1 = iat-nda
             ioffs2 = inda(iat)-nda
             do ib=1,ndb
@@ -222,7 +223,7 @@ if (iorb <= norb) then
           inda(iatold) = 0
           if (inda(iat) == ia) exit
         end do
-        if (phsa(iat) == one) then
+        if (phsa(iat) == One) then
           ioffs = iat-nda
           do ib=1,ndb
             v1(ib*nda+ioffs) = v2(ib)
@@ -238,7 +239,7 @@ if (iorb <= norb) then
     end do
     do ib=1,ndb
       if (ib == indb(ib)) then
-        if (phsb(ib) == -one) then
+        if (phsb(ib) == -One) then
           ioffs = (ib-1)*nda
           do ia=1,nda
             v1(ia+ioffs) = -v1(ia+ioffs)
@@ -252,7 +253,7 @@ if (iorb <= norb) then
         end do
         ibt = ib
         do
-          if (phsb(ibt) == one) then
+          if (phsb(ibt) == One) then
             ioffs1 = (ibt-1)*nda
             ioffs2 = (indb(ibt)-1)*nda
             do ia=1,nda
@@ -270,7 +271,7 @@ if (iorb <= norb) then
           indb(ibtold) = 0
           if (indb(ibt) == ib) exit
         end do
-        if (phsb(ibt) == one) then
+        if (phsb(ibt) == One) then
           ioffs = (ibt-1)*nda
           do ia=1,nda
             v1(ia+ioffs) = v2(ia)

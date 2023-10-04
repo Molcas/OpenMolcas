@@ -18,9 +18,8 @@ use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
-integer(kind=iwp) :: iorbrel(ndimrel), ifxorb(mxorb_cvb), ifxstr, idelstr, iorts(*), irots(*), izeta(*)
+integer(kind=iwp) :: iorbrel(ndimrel), ifxorb(mxorb_cvb), ifxstr(nfxvb), idelstr(nzrvb), iorts(*), irots(*), izeta(*)
 #include "files_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ioffs
 
 ! Check if any molecular interaction constraints:
@@ -32,9 +31,9 @@ call wrioff_cvb(10,recinp,ioffs)
 call wrioff_cvb(11,recinp,ioffs)
 call wris_cvb(ifxorb,norb,recinp,ioffs)
 call wrioff_cvb(12,recinp,ioffs)
-call wris_cvb(iwork(ifxstr),nfxvb,recinp,ioffs)
+call wris_cvb(ifxstr,nfxvb,recinp,ioffs)
 call wrioff_cvb(13,recinp,ioffs)
-call wris_cvb(iwork(idelstr),nzrvb,recinp,ioffs)
+call wris_cvb(idelstr,nzrvb,recinp,ioffs)
 call wrioff_cvb(14,recinp,ioffs)
 call wris_cvb(iorts,2*nort,recinp,ioffs)
 call wrioff_cvb(15,recinp,ioffs)

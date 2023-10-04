@@ -36,8 +36,9 @@ subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,corenrg,ipinp,
 !*                                                                     *
 !***********************************************************************
 
-use casvb_global, only: expct, fxbest, hh, hhkeep, hhstart, ip, isaddle, ix, maxize
+use casvb_global, only: eigval, eigvec, expct, fxbest, hh, hhkeep, hhstart, ip, isaddle, maxize, odx, odxp, ograd, ogradp, owrk
 use casvb_interfaces, only: opta_sub, optb_sub
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -45,10 +46,8 @@ implicit none
 real(kind=wp) :: fx, corenrg
 integer(kind=iwp) :: ioptc, iter, imethod, isadinp, mxiter, ipinp, ipdd1, ipdd2
 logical(kind=iwp) :: maxinp, strucopt
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ifollow, maxd, mxit, n_div, nfrdim, nfrdim_dav, nparm, nparm_dav
 logical(kind=iwp) :: done, iter_is_1
-integer(kind=iwp), external :: mstackr_cvb
 procedure(opta_sub) :: dum_a_cvb, o10a_cvb, o123a_cvb, o12ea_cvb, o12sa_cvb, o7a_cvb
 procedure(optb_sub) :: o10b_cvb, o123b_cvb, o12eb_cvb, o12sb_cvb, o5b_cvb, o7b_cvb, o8b_cvb
 
@@ -92,47 +91,47 @@ do iter=1,mxiter
   end if
 
   if ((imethod == 1) .or. (imethod == 2) .or. (imethod == 3)) then
-    ix(1) = mstackr_cvb(nparm)
-    ix(2) = mstackr_cvb(nparm)
-    ix(3) = mstackr_cvb(nparm*nparm)
-    ix(4) = mstackr_cvb(nparm)
-    ix(5) = mstackr_cvb(nparm)
-    ix(6) = mstackr_cvb(nparm)
-    ix(7) = mstackr_cvb(nparm)
-    call optize2_cvb(fx,nparm,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o123a_cvb,o123b_cvb)
-    call mfreer_cvb(ix(1))
+    call mma_allocate(odx,nparm,label='odx')
+    call mma_allocate(ograd,nparm,label='ograd')
+    call mma_allocate(eigvec,nparm,nparm,label='eigvec')
+    call mma_allocate(eigval,nparm,label='eigval')
+    call mma_allocate(odxp,nparm,label='odxp')
+    call mma_allocate(ogradp,nparm,label='ogradp')
+    call mma_allocate(owrk,nparm,label='owrk')
+    call optize2_cvb(fx,nparm,ioptc,iter_is_1,o123a_cvb,o123b_cvb)
+    call mma_deallocate(odxp)
+    call mma_deallocate(ogradp)
+    call mma_deallocate(owrk)
   else if (imethod == 5) then
-    ix(1) = mstackr_cvb(nparm)
-    ix(2) = mstackr_cvb(nparm)
-    call optize2_cvb(fx,nparm,ioptc,work(ix(1)),work(ix(2)),iter_is_1,dum_a_cvb,o5b_cvb)
-    call mfreer_cvb(ix(1))
+    call mma_allocate(odx,nparm,label='odx')
+    call mma_allocate(ograd,nparm,label='ograd')
+    call optize2_cvb(fx,nparm,ioptc,iter_is_1,dum_a_cvb,o5b_cvb)
   else if (imethod == 7) then
-    ix(1) = mstackr_cvb(nparm+1)
-    ix(2) = mstackr_cvb(nparm+1)
+    call mma_allocate(odx,nparm+1,label='odx')
+    call mma_allocate(ograd,nparm+1,label='ograd')
     maxd = min(nparm+1,200)
     mxit = 500
     call ddinit_cvb('AxEx',nparm+1,nfrdim+1,maxd,mxit,ifollow,isaddle,ipdd1,Zero,n_div)
-    call asonC7init_cvb(ix(2),ipdd2)
-    call optize2_cvb(fx,nparm,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o7a_cvb,o7b_cvb)
-    call mfreer_cvb(ix(1))
+    call asonC7init_cvb(ipdd2)
+    call optize2_cvb(fx,nparm,ioptc,iter_is_1,o7a_cvb,o7b_cvb)
+    call ddclean_cvb()
   else if (imethod == 8) then
-    ix(1) = mstackr_cvb(nparm)
-    ix(2) = mstackr_cvb(nparm)
-    ix(3) = mstackr_cvb((nparm+1)*(nparm+1))
-    ix(4) = mstackr_cvb(nparm+1)
-    call optize2_cvb(fx,nparm,ioptc,work(ix(1)),work(ix(2)),iter_is_1,dum_a_cvb,o8b_cvb)
-    call mfreer_cvb(ix(1))
+    call mma_allocate(odx,nparm,label='odx')
+    call mma_allocate(ograd,nparm,label='ograd')
+    call mma_allocate(eigvec,nparm+1,nparm+1,label='eigvec')
+    call mma_allocate(eigval,nparm+1,label='eigval')
+    call optize2_cvb(fx,nparm,ioptc,iter_is_1,dum_a_cvb,o8b_cvb)
   else if (imethod == 9) then
     call optize9_cvb(fx,nparm,ioptc)
   else if (imethod == 10) then
-    ix(1) = mstackr_cvb(nparm)
-    ix(2) = mstackr_cvb(nparm)
+    call mma_allocate(odx,nparm,label='odx')
+    call mma_allocate(ograd,nparm,label='ograd')
     maxd = min(nparm,200)
     mxit = 500
     call ddinit_cvb('AxExb',nparm,nfrdim,maxd,mxit,ifollow,isaddle,ipdd1,Zero,n_div)
     call asonc10init_cvb(ipdd2)
-    call optize2_cvb(fx,nparm,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o10a_cvb,o10b_cvb)
-    call mfreer_cvb(ix(1))
+    call optize2_cvb(fx,nparm,ioptc,iter_is_1,o10a_cvb,o10b_cvb)
+    call ddclean_cvb()
   else if ((imethod == 12) .and. maxize) then
     if (strucopt) then
       nparm_dav = nparm
@@ -141,14 +140,14 @@ do iter=1,mxiter
       nparm_dav = nparm+1
       nfrdim_dav = nfrdim+1
     end if
-    ix(1) = mstackr_cvb(nparm_dav)
-    ix(2) = mstackr_cvb(nparm_dav)
+    call mma_allocate(odx,nparm_dav,label='odx')
+    call mma_allocate(ograd,nparm_dav,label='ograd')
     maxd = min(nparm_dav,200)
     mxit = 500
     call ddinit_cvb('Axb',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddle,ipdd1,Zero,0)
     call asonc12sinit_cvb(ipdd2)
-    call optize2_cvb(fx,nparm_dav,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o12sa_cvb,o12sb_cvb)
-    call mfreer_cvb(ix(1))
+    call optize2_cvb(fx,nparm_dav,ioptc,iter_is_1,o12sa_cvb,o12sb_cvb)
+    call ddclean_cvb()
   else if ((imethod == 12) .and. (.not. maxize)) then
     if (strucopt) then
       nparm_dav = nparm
@@ -157,18 +156,22 @@ do iter=1,mxiter
       nparm_dav = nparm+1
       nfrdim_dav = nfrdim+1
     end if
-    ix(1) = mstackr_cvb(nparm_dav)
-    ix(2) = mstackr_cvb(nparm_dav)
+    call mma_allocate(odx,nparm_dav,label='odx')
+    call mma_allocate(ograd,nparm_dav,label='ograd')
     maxd = min(nparm_dav,200)
     mxit = 500
     call ddinit_cvb('AxESx',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddle,ipdd1,corenrg,n_div)
     call asonc12einit_cvb(ipdd2)
-    call optize2_cvb(fx,nparm_dav,ioptc,work(ix(1)),work(ix(2)),iter_is_1,o12ea_cvb,o12eb_cvb)
-    call mfreer_cvb(ix(1))
+    call optize2_cvb(fx,nparm_dav,ioptc,iter_is_1,o12ea_cvb,o12eb_cvb)
+    call ddclean_cvb()
   else
     write(u6,*) ' Unrecognized optimization algorithm!',imethod
     call abend_cvb()
   end if
+  if (allocated(odx)) call mma_deallocate(odx)
+  if (allocated(ograd)) call mma_deallocate(ograd)
+  if (allocated(eigval)) call mma_deallocate(eigval)
+  if (allocated(eigvec)) call mma_deallocate(eigvec)
   if (ioptc <= 0) then
     done = .true.
     exit

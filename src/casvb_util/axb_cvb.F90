@@ -12,22 +12,33 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine axb_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp)
 
-use casvb_global, only: idd
-use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
+use casvb_global, only: c, corenrg, ifollow, ipdd, isaddledd, maxd, mxit, nfrdim, nortiterdd, nparm, nvguess, nvrestart, &
+                        orththrdd, res, resthrdd, rhs, rhsp, solp, solp_res, sxc
+use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddrestart_sub, ddsol_sub
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 procedure(ddasonc_sub) :: asonc
 procedure(ddres2upd_sub) :: ddres2upd
-real(kind=wp) :: vec(*), resthr_inp, fx_exp
+real(kind=wp) :: vec(nparm), resthr_inp, fx_exp
 integer(kind=iwp) :: ioptc, iter
-#include "WrkSpc.fh"
+real(kind=wp) :: dum(1), resthr_use
+procedure(ddres_sub) :: axbres_cvb
+procedure(ddrestart_sub) :: ddrestart_cvb
+procedure(ddsol_sub) :: axbsol_cvb
 
-call axb2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,work(idd(1)),work(idd(2)),work(idd(3)),work(idd(4)),work(idd(5)), &
-              work(idd(6)),work(idd(7)))
+! If RESTHR_INP unset use default:
+if (resthr_inp /= Zero) then
+  resthr_use = resthr_inp
+else
+  resthr_use = resthrdd
+end if
+call dirdiag_cvb(asonc,axbsol_cvb,axbres_cvb,ddres2upd,ddrestart_cvb,c,dum,sxc,.false.,vec,res,rhs,dum,rhsp,solp,solp_res,.false., &
+                 .false.,.true.,maxd,nparm,nfrdim,nvguess,nvrestart,isaddledd,ifollow,mxit,resthr_use,orththrdd,nortiterdd, &
+                 corenrg,ioptc,iter,fx_exp,ipdd)
 
 return
 

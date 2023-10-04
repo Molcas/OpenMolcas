@@ -16,7 +16,7 @@ subroutine scorr_cvb(cvbdet,dvbdet,evbdet)
 
 use casvb_global, only: formAD, formAF
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -39,9 +39,9 @@ ssnorm = ddot_(ndetvb,cvbdet,1,evbdet,1)
 write(u6,formAF) ' Lower triangle uses SPIN function with Snorm=',ssnorm
 write(u6,formAF) ' Upper triangle uses FULL function with Snorm=',snorm
 ! DLC
-!snorm = one/snorm
-!ssnorm = one/ssnorm
-phase = (-one)**abs(nalf-nbet)
+!snorm = One/snorm
+!ssnorm = One/ssnorm
+phase = (-One)**abs(nalf-nbet)
 snorm = phase/snorm
 ssnorm = phase/ssnorm
 !! DLC
@@ -58,8 +58,8 @@ do mu=1,norb
     iperm(nu) = mu
     call fmove_cvb(cvbdet,wvbdet,ndetvb)
     call permvb_cvb(wvbdet,iperm)
-    rsum = one-ddot_(ndetvb,wvbdet,1,dvbdet,1)*snorm
-    ssum = one-ddot_(ndetvb,wvbdet,1,evbdet,1)*ssnorm
+    rsum = One-ddot_(ndetvb,wvbdet,1,dvbdet,1)*snorm
+    ssum = One-ddot_(ndetvb,wvbdet,1,evbdet,1)*ssnorm
     tot = tot+rsum
     stot = stot+ssum
     ssq(mu,nu) = rsum
@@ -69,7 +69,7 @@ end do
 call mxprint_cvb(ssq,norb,norb,0)
 tot = tot+r3by4*real(norb-2*norb*(norb-1)/2,kind=wp)
 stot = stot+r3by4*real(norb-2*norb*(norb-1)/2,kind=wp)
-scheck = Half*real(abs(nalf-nbet),kind=wp)*(Half*real(abs(nalf-nbet),kind=wp)+one)
+scheck = Half*real(abs(nalf-nbet),kind=wp)*(Half*real(abs(nalf-nbet),kind=wp)+One)
 if ((abs(tot-scheck) > cut) .or. (abs(stot-scheck) > cut)) write(u6,formAD) 'WARNING: spins ',stot,tot,scheck
 
 call mma_deallocate(ssq)

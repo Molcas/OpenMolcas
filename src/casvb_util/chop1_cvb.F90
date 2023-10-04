@@ -14,21 +14,50 @@
 
 subroutine chop1_cvb()
 
-use casvb_global, only: nalf_fr, nbet_fr, nda_fr, ndb_fr, ndetvb_fr, nfrag, release
+use casvb_global, only: i1alf, i1bet, i1c, ia12ind, iafrm, iapr, iapr1, iato, ib12ind, ibfrm, ibpr, ibpr1, ibto, icfrm, iconfs, &
+                        icto, idetvb, ixapr, ixapr1, ixbpr, ixbpr1, nalf_fr, nbet_fr, nda_fr, ndb_fr, ndetvb_fr, nfrag, phato, &
+                        phbto, phcto, release
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: i, ifrag
-integer(kind=iwp), external :: mstacki_cvb, mstackr_cvb
 
-if (release(1)) call mfreei_cvb(ll(1))
+if (release(1)) then
+  call mma_deallocate(i1alf)
+  call mma_deallocate(iafrm)
+  call mma_deallocate(iato)
+  call mma_deallocate(phato)
+  nullify(i1bet)
+  nullify(ibfrm)
+  nullify(ibto)
+  nullify(phbto)
+  if (allocated(i1c)) call mma_deallocate(i1c)
+  if (allocated(icfrm)) call mma_deallocate(icfrm)
+  if (allocated(icto)) call mma_deallocate(icto)
+  if (allocated(phcto)) call mma_deallocate(phcto)
+  call mma_deallocate(iapr)
+  call mma_deallocate(ixapr)
+  call mma_deallocate(ibpr)
+  call mma_deallocate(ixbpr)
+  call mma_deallocate(iconfs)
+  call mma_deallocate(idetvb)
+  call mma_deallocate(ia12ind)
+  call mma_deallocate(ib12ind)
+  call mma_deallocate(iapr1)
+  call mma_deallocate(ixapr1)
+  call mma_deallocate(ibpr1)
+  call mma_deallocate(ixbpr1)
+end if
 release(1) = .true.
 release(2) = .false.
 
 ! Dimensions
 call icomb_cvb(norb,nalf,nda)
 call icomb_cvb(norb,nbet,ndb)
+!FIXME: There's some inconsistency in the *_fr indices,
+!       the fragment index is supposed to be the second one
 do i=1,nfrag
   call icomb_cvb(norb,nalf_fr(i,1),nda_fr(i,1))
   call icomb_cvb(norb,nbet_fr(i,1),ndb_fr(i,1))
@@ -41,21 +70,25 @@ ndet = nda*ndb
 ! Symmetry of determinant strings:
 call getnci_cvb(ncivb,nel,nalf-nbet,0)
 ! Identical indexing arrays may share memory:
-ll(1) = mstacki_cvb(norb*n1a)
-ll(2) = ll(1)
-if (.not. absym(4)) ll(2) = mstacki_cvb(norb*n1b)
-ll(3) = mstacki_cvb(norb*nda)
-ll(4) = ll(3)
-if (.not. absym(4)) ll(4) = mstacki_cvb(norb*ndb)
-ll(5) = mstacki_cvb(norb*(nam1+1))
-ll(6) = ll(5)
-if (.not. absym(4)) ll(6) = mstacki_cvb(norb*(nbm1+1))
-
-! 7 & 8 (PHAFRM & PHBFRM) taken out
-
-ll(9) = mstackr_cvb(norb*nam1)
-ll(10) = ll(9)
-if (.not. absym(4)) ll(10) = mstackr_cvb(norb*nbm1)
+call mma_allocate(i1alf,n1a,norb,label='i1alf')
+call mma_allocate(iafrm,norb,nda,label='iafrm')
+call mma_allocate(iato,[1,norb],[0,nam1],label='iato')
+call mma_allocate(phato,norb,nam1,label='phato')
+if (absym(4)) then
+  i1bet => i1alf
+  ibfrm => iafrm
+  ibto => iato
+  phbto => phato
+else
+  call mma_allocate(i1c,n1b,norb,label='i1c')
+  call mma_allocate(icfrm,norb,ndb,label='icfrm')
+  call mma_allocate(icto,[1,norb],[0,nbm1],label='icto')
+  call mma_allocate(phcto,norb,nbm1,label='phcto')
+  i1bet => i1c
+  ibfrm => icfrm
+  ibto => icto
+  phbto => phcto
+end if
 
 ! Determinant dimensioning for VB wavefunction:
 ndavb = 0
@@ -78,21 +111,18 @@ if (nfrag <= 1) then
   nvbprod = 0
 end if
 
-ll(11) = mstacki_cvb(npvb)
-ll(12) = mstacki_cvb(nda+1)
-ll(13) = mstacki_cvb(npvb)
-ll(14) = mstacki_cvb(ndb+1)
-ll(15) = mstacki_cvb(nconf*noe)
-! 16 obsolete (former ioncty)
-ll(17) = mstacki_cvb(ndetvb)
-! Use 7 & 8 for IA12IND / IB12IND
-ll(7) = mstacki_cvb(naprodvb)
-ll(8) = mstacki_cvb(nbprodvb)
-
-ll(20) = mstacki_cvb(ndetvb)
-ll(21) = mstacki_cvb(ndavb)
-ll(22) = mstacki_cvb(ndetvb)
-ll(23) = mstacki_cvb(ndbvb)
+call mma_allocate(iapr,npvb,label='iapr')
+call mma_allocate(ixapr,nda+1,label='ixapr')
+call mma_allocate(ibpr,npvb,label='ibpr')
+call mma_allocate(ixbpr,ndb+1,label='ixbpr')
+call mma_allocate(iconfs,noe,nconf,label='iconfs')
+call mma_allocate(idetvb,ndetvb,label='idetvb')
+call mma_allocate(ia12ind,naprodvb,label='ia12ind')
+call mma_allocate(ib12ind,nbprodvb,label='ib12ind')
+call mma_allocate(iapr1,ndetvb,label='iapr1')
+call mma_allocate(ixapr1,ndavb,label='ixapr1')
+call mma_allocate(ibpr1,ndetvb,label='ibpr1')
+call mma_allocate(ixbpr1,ndbvb,label='ixbpr1')
 
 return
 

@@ -20,12 +20,12 @@
 subroutine dev2b_cvb(v1,v2,cfrom,hessorb,hesst,oaa2,aa1,gx,grad2)
 ! Calculates V1 EijEkl CFROM and V2 EijEkl CFROM
 
+use casvb_global, only: civbvec, i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, ixapr, ixbpr, phato, phbto
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: v1(*), v2(*), cfrom(*), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb), oaa2, aa1, gx(norb,norb), grad2(nprorb)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: icfrom, iv1, iv2
 
 iv1 = nint(v1(1))
@@ -37,9 +37,8 @@ if (iform_ci(icfrom) /= 0) then
   call abend_cvb()
 end if
 
-call dev2b_2_cvb(work(iaddr_ci(iv1)),work(iaddr_ci(iv2)),work(iaddr_ci(icfrom)),hessorb,hesst,oaa2,aa1,nprorb,iwork(ll(1)), &
-                 iwork(ll(2)),iwork(ll(3)),iwork(ll(4)),iwork(ll(5)),iwork(ll(6)),work(ll(9)),work(ll(10)),iwork(ll(11)), &
-                 iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),npvb,gx,grad2,nda,ndb,n1a,n1b,nam1,nbm1,norb,projcas,sc,absym(3))
+call dev2b_2_cvb(civbvec(:,iv1),civbvec(:,iv2),civbvec(:,icfrom),hessorb,hesst,oaa2,aa1,nprorb,i1alf,i1bet,iafrm,ibfrm,iato,ibto, &
+                 phato,phbto,iapr,ixapr,ibpr,ixbpr,npvb,gx,grad2,nda,ndb,n1a,n1b,nam1,nbm1,norb,projcas,sc,absym(3))
 
 return
 

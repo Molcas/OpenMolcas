@@ -14,13 +14,12 @@
 
 subroutine span1_cvb(c,nvec,s,n,metr)
 
-use casvb_global, only: iaddr, nvecmx, nvtot
+use casvb_global, only: nvecmx, nvtot, span
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nvec, n, metr
 real(kind=wp) :: c(n,nvec), s(*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: nvmove, nvremain
 
 nvremain = nvec
@@ -30,9 +29,9 @@ do
     write(u6,*) ' Fatal error in SPAN_CVB!',nvmove,nvremain
     call abend_cvb()
   end if
-  call fmove_cvb(c(1,1+nvec-nvremain),work(nvtot*n+iaddr),n*nvmove)
+  call fmove_cvb(c(1,1+nvec-nvremain),span(:,nvtot+1:),n*nvmove)
   nvtot = nvtot+nvmove
-  if (nvtot == nvecmx) call span_cvb(work(iaddr),nvtot,nvtot,s,n,metr)
+  if (nvtot == nvecmx) call span_cvb(span,nvtot,nvtot,s,n,metr)
   nvremain = nvremain-nvmove
   if (nvremain <= 0) exit
 end do

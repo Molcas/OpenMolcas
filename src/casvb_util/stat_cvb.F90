@@ -28,9 +28,7 @@ if (ip(3) >= 1) then
   write(u6,'(a,i21)') ' Total number of Hessian applications :',n_hess
   if (n_orbhess > 0) write(u6,'(a,i8)') ' Total number of pure orbital Hessian applications :',n_orbhess
   if (n_cihess > 0) write(u6,'(a,i13)') ' Total number of pure CI Hessian applications :',n_cihess
-  write(u6,'(a,i18,/)') ' Approximate memory usage (8-byte words) :',ibasemx-ibase0
   write(u6,'(a,f10.3,a)') ' CASVB at ',tim_cvb(cpu0),' CPU seconds'
-  memused = 0
   call stat1_cvb()
 end if
 

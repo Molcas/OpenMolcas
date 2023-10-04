@@ -14,31 +14,31 @@
 
 subroutine grad_cvb(grad)
 
-use casvb_global, only: ovraa_try, ovrab, ovrab_try, ww, ww_try
+use casvb_global, only: civb2, civb3, civb4, civb6, civb7, civb8, dvbdet, grad1, grad2, gradx, ovraa_try, ovrab, ovrab_try, vec1, &
+                        ww, ww_try
 use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: grad(*)
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 
 call touch_cvb('OOHESS')
 if (dxmove .and. memplenty) then
-  call cicopy_cvb(work(lc(6)),work(lc(2)))
-  call cicopy_cvb(work(lc(7)),work(lc(3)))
-  call cicopy_cvb(work(lc(8)),work(lc(4)))
+  call cicopy_cvb(civb6,civb2)
+  call cicopy_cvb(civb7,civb3)
+  call cicopy_cvb(civb8,civb4)
 else if (dxmove) then
-  call cird_cvb(work(lc(2)),61006.2_wp)
-  call cird_cvb(work(lc(3)),61007.2_wp)
-  call cird_cvb(work(lc(4)),61008.2_wp)
+  call cird_cvb(civb2,61006.2_wp)
+  call cird_cvb(civb3,61007.2_wp)
+  call cird_cvb(civb4,61008.2_wp)
 end if
 ovraa = ovraa_try
 ovrab = ovrab_try
 ww = ww_try
 if (icrit == 1) then
-  call gr_svb1_cvb(work(lc(2)),work(lc(3)),work(lc(4)),work(lw(10)),grad,work(lq(7)),work(lq(8)),work(lq(9)),work(lq(10)))
+  call gr_svb1_cvb(civb2,civb3,civb4,dvbdet,grad,grad1,grad2,gradx,vec1)
 else if (icrit == 2) then
-  call gr_evb1_cvb(work(lc(2)),work(lc(3)),work(lc(4)),work(lw(10)),grad,work(lq(7)),work(lq(8)),work(lq(9)),work(lq(10)))
+  call gr_evb1_cvb(civb2,civb3,civb4,dvbdet,grad,grad1,grad2,gradx,vec1)
 end if
 
 return

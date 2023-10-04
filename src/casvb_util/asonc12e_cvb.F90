@@ -12,22 +12,63 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine asonc12e_cvb( &
 #                       define _CALLING_
 #                       include "ddasonc_interface.fh"
                        )
 ! Applies S and H on c vector(s).
 
-use Definitions, only: wp, iwp
+use casvb_global, only: civb2, civb3, civb4, cvb, cvbdet, ipp12e, iter12e, orbs
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddasonc_interface.fh"
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp) :: ic1, ivec
+real(kind=wp), allocatable :: vec_all(:)
+real(kind=wp), external :: ddot_, tim_cvb
 
-call asonc12e2_cvb(c,axc,sxc,nvec,nprm,work(lc(3)),work(lc(4)),work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)), &
-                   work(lw(9)),work(lv(2)))
+iter12e = iter12e+1
+if (ipp12e >= 2) then
+  write(u6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter12e,' at',tim_cvb(cpu0),' CPU seconds'
+  write(u6,'(a)') ' -----------------------------------------------'
+end if
+
+! If no optimization of structure coefficients we are doing "Augmented" calc:
+if (strucopt) then
+  ic1 = 1
+else
+  ic1 = 2
+end if
+
+call mma_allocate(vec_all,npr,label='vec_all')
+do ivec=1,nvec
+  call free2all_cvb(c(ic1,ivec),vec_all,1)
+  if (.not. strucopt) call daxpy_(nvb,c(1,ivec),cvb,1,vec_all(nprorb+1),1)
+  ! (CIVB set in O12EA :)
+  call cizero_cvb(civb2)
+  call oneexc_cvb(civb3,civb2,vec_all,.false.,0)
+  call str2vbc_cvb(vec_all(nprorb+1),cvbdet)
+  call vb2ciaf_cvb(cvbdet,civb2)
+  call cicopy_cvb(civb2,civb4)
+  call makecivbhs_cvb(civb4,civb2,orbs)
+
+  call ci2vbg_cvb(civb4,cvbdet)
+  call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
+  call fzero(vec_all,nprorb)
+  call onedens_cvb(civb3,civb4,vec_all,.false.,0)
+  call all2free_cvb(vec_all,axc(ic1,ivec),1)
+  if (.not. strucopt) axc(1,ivec) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+
+  call ci2vbg_cvb(civb2,cvbdet)
+  call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
+  call fzero(vec_all,nprorb)
+  call onedens_cvb(civb3,civb2,vec_all,.false.,0)
+  call all2free_cvb(vec_all,sxc(ic1,ivec),1)
+  if (.not. strucopt) sxc(1,ivec) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+end do
+call mma_deallocate(vec_all)
 
 return
 

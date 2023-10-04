@@ -14,8 +14,9 @@
 
 subroutine putguess_cvb(orbs,cvb,recn)
 
-use casvb_global, only: nbas_mo
+use casvb_global, only: ifmos, nbas_mo
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -23,7 +24,7 @@ implicit none
 real(kind=wp) :: orbs(norb,*), cvb(*), recn
 #include "print_cvb.fh"
 integer(kind=iwp) :: i, ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, kbasiscvb1, nbas_mo1, norb1, nvb1
-logical(kind=iwp) :: ifmos_cvb, use_ao
+logical(kind=iwp) :: use_ao
 real(kind=wp), allocatable :: a(:,:), b(:,:), c(:), orbsao(:,:)
 real(kind=wp), external :: dnrm2_
 
@@ -33,7 +34,7 @@ do iorb=1,norb
   call wrgspr_cvb(recn,orbs(1,iorb),iorb,norb,1,ierr)
 end do
 call wrgspr_cvb(recn,cvb,1,nvb,2,ierr)
-use_ao = ifmos_cvb() .and. ((.not. variat) .or. (variat .and. endvar))
+use_ao = ifmos .and. ((.not. variat) .or. (variat .and. endvar))
 if (use_ao) then
   call mma_allocate(orbsao,nbas_mo,norb)
   call mo2ao_cvb(orbs,orbsao,norb)

@@ -19,8 +19,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nel, kbasis, need, ikcoff(0:nel,0:nel,0:nel)
-integer(kind=iwp) :: i2s1, ifrag, iMs, ion, iS, nalf1, nalf1_spin, nalfsing, nel1, nelsing
-integer(kind=iwp), external :: ifns_cvb, ndet_cvb
+integer(kind=iwp) :: i2s1, ifrag, iMs, ion, iS, nalf1, nalf1_spin, nalfsing, ndet, nel1, nelsing
+integer(kind=iwp), external :: ifns_cvb
 
 do ifrag=1,nfrag
   do ion=mnion_fr(ifrag),mxion_fr(ifrag)
@@ -43,7 +43,8 @@ do nel1=0,nel
       if (ikcoff(nel1,nalf1,i2s1) == 1) then
         ikcoff(nel1,nalf1,i2s1) = need
         nalf1_spin = (nel1+i2s1)/2
-        need = need+ifns_cvb(nel1,nalf1_spin,kbasis)*ndet_cvb(nel1,nalf1)
+        call icomb_cvb(nel1,nalf1,ndet)
+        need = need+ifns_cvb(nel1,nalf1_spin,kbasis)*ndet
       end if
     end do
   end do

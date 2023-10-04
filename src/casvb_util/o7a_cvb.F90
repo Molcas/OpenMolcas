@@ -17,7 +17,7 @@ subroutine o7a_cvb( &
 #                  include "opta_interface.fh"
                   )
 
-use casvb_global, only: have_solved_it
+use casvb_global, only: have_solved_it, nvguess, nvrestart, nvrhs
 use Constants, only: One
 use Definitions, only: iwp
 
@@ -27,7 +27,9 @@ implicit none
 #include "macros.fh"
 unused_var(nparam)
 
-call ddnewopt_cvb()
+nvrestart = 0
+nvguess = 0
+nvrhs = 0
 have_solved_it = .false.
 call ddguess_cvb([One],1,0)
 

@@ -12,14 +12,31 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine mkorbperm_cvb()
+
+use casvb_global, only: cvb, cvbdet, orbs, owrk2
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
+#include "print_cvb.fh"
+integer(kind=iwp) :: iorb, jorb
+real(kind=wp) :: sgn
 
-call mkorbperm2_cvb(work(lv(1)),work(lv(2)),work(lw(3)),work(lw(9)))
+if (ip(1) >= 1) then
+  write(u6,'(/,a)') ' Permuting orbitals :'
+  write(u6,'(1x,30i4)') (iorbprm(iorb),iorb=1,norb)
+end if
+do iorb=1,norb
+  jorb = abs(iorbprm(iorb))
+  sgn = real(sign(1,iorbprm(iorb)),kind=wp)
+  call fmove_cvb(orbs(1,jorb),owrk2(1,iorb),norb)
+  call dscal_(norb,sgn,owrk2(1,iorb),1)
+end do
+call fmove_cvb(owrk2,orbs,norb*norb)
+call str2vbc_cvb(cvb,cvbdet)
+call permvb_cvb(cvbdet,iorbprm)
+call vb2strc_cvb(cvbdet,cvb)
 
 return
 

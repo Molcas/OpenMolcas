@@ -19,24 +19,29 @@
 !***********************************************************************
 subroutine gaussj_cvb(orbs,gjorb)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use casvb_global, only: gjorb_type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: orbs(norb,norb), gjorb(*)
+real(kind=wp) :: orbs(norb,norb)
+type(gjorb_type) :: gjorb
+integer(kind=iwp) :: i
+integer(kind=iwp), allocatable :: lrow(:)
+real(kind=wp), allocatable :: a(:,:)
 
-call gaussj_cvb_internal(gjorb)
+call mma_allocate(a,norb,norb,label='a')
+call mma_allocate(lrow,norb,label='lrow')
+call fmove_cvb(orbs,a,norb*norb)
+call gaussj2_cvb(a,lrow,gjorb%i1,gjorb%i2,gjorb%r,norb)
+call imove_cvb(gjorb%i1,lrow,norb)
+do i=1,norb
+  gjorb%i1(lrow(i)) = i
+end do
+call mma_deallocate(a)
+call mma_deallocate(lrow)
 
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine gaussj_cvb_internal(gjorb)
-  real(kind=wp), target :: gjorb(*)
-  integer(kind=iwp), pointer :: igjorb(:)
-  call c_f_pointer(c_loc(gjorb(1)),igjorb,[1])
-  call igaussj_cvb(orbs,igjorb)
-  nullify(igjorb)
-end subroutine gaussj_cvb_internal
+return
 
 end subroutine gaussj_cvb

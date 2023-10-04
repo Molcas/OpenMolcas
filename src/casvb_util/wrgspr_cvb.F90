@@ -33,7 +33,7 @@ if (ic == 1) then
     return
   end if
   ioffs = (i-1)*norb1+ioffs_orbs
-  call wrr_cvb(c,min(norb1,n),recn,ioffs)
+  call wrlow_cvb(c,min(norb1,n),recn,ioffs)
 else if (ic == 2) then
   ! >>> Structure write, I is starting structure coefficient:
   if (i > nvb1) then
@@ -41,7 +41,7 @@ else if (ic == 2) then
     return
   end if
   ioffs = i-1+ioffs_cvb
-  call wrr_cvb(c,min(nvb1,n),recn,ioffs)
+  call wrlow_cvb(c,min(nvb1,n),recn,ioffs)
 else if (ic == 3) then
   ! >>> Write of orbital in AO basis, I is orbital number:
   if (i > norb1) then
@@ -58,7 +58,7 @@ else if (ic == 3) then
     return
   end if
   ioffs = (i-1)*nbas_mo1+ioffs_orbsao
-  call wrr_cvb(c,min(nbas_mo1,n),recn,ioffs)
+  call wrlow_cvb(c,min(nbas_mo1,n),recn,ioffs)
 else if (ic == 4) then
   ! >>> Write of localized orbital in AO basis, I is orbital number:
   if (i > norb1) then
@@ -75,7 +75,7 @@ else if (ic == 4) then
     return
   end if
   ioffs = (i-1)*nbas_mo1+ioffs_orbslao
-  call wrr_cvb(c,min(nbas_mo1,n),recn,ioffs)
+  call wrlow_cvb(c,min(nbas_mo1,n),recn,ioffs)
 end if
 
 return

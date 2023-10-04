@@ -17,13 +17,12 @@ subroutine o10a_cvb( &
 #                   include "opta_interface.fh"
                    )
 
-use casvb_global, only: have_solved_it, ix, n_div, nparm
+use casvb_global, only: have_solved_it, n_div, nparm, nvguess, nvrestart, nvrhs, ograd
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "opta_interface.fh"
-#include "WrkSpc.fh"
 real(kind=wp) :: cnrm1, cnrm2
 real(kind=wp), allocatable :: xp(:)
 real(kind=wp), external :: dnrm2_
@@ -31,11 +30,13 @@ real(kind=wp), external :: dnrm2_
 #include "macros.fh"
 unused_var(nparam)
 
-call ddnewopt_cvb()
+nvrestart = 0
+nvguess = 0
+nvrhs = 0
 have_solved_it = .false.
 
 call mma_allocate(xp,nparm,label='xp')
-call fmove_cvb(work(ix(2)),xp,nparm)
+call fmove_cvb(ograd,xp,nparm)
 call ddproj_cvb(xp,nparm)
 cnrm1 = dnrm2_(n_div,xp(1:n_div),1)
 cnrm2 = dnrm2_(nparm-n_div,xp(n_div+1:),1)

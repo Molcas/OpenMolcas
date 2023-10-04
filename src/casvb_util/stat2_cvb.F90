@@ -28,16 +28,13 @@ if (ip(3) >= 1) then
   write(u6,'(a,i21)') ' Total number of Hessian applications :',n_hess
   if (n_orbhess > 0) write(u6,'(a,i8)') ' Total number of pure orbital Hessian applications :',n_orbhess
   if (n_cihess > 0) write(u6,'(a,i13)') ' Total number of pure CI Hessian applications :',n_cihess
-  write(u6,'(a,i18,/)') ' Approximate memory usage (8-byte words) :',ibasemx-ibase0
   if (.not. endvar) then
     call date2_cvb(tim_cvb(cpu0))
   else
     call date2_cvb(tim_cvb(cpu0)+cpu_prev)
   end if
-  memused = 0
 else
   cpu_prev = cpu_prev+tim_cvb(cpu0)
-  memused = ibasemx-ibase0
 end if
 
 return

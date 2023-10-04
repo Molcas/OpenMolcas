@@ -19,12 +19,12 @@ subroutine cidot_cvb(cvec1,cvec2,ret)
 !*                                                                     *
 !***********************************************************************
 
+use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: cvec1(*), cvec2(*), ret
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iformat1, iformat2, ivec1, ivec2
 real(kind=wp), external :: ddot_
 
@@ -37,7 +37,7 @@ if (iformat1 /= iformat2) then
   call abend_cvb()
 end if
 if (iformat1 == 0) then
-  ret = ddot_(ndet,work(iaddr_ci(ivec1)),1,work(iaddr_ci(ivec2)),1)
+  ret = ddot_(ndet,civbvec(:,ivec1),1,civbvec(:,ivec2),1)
 else
   write(u6,*) ' Unsupported format in CIDOT :',iformat1
   call abend_cvb()

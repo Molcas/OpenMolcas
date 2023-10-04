@@ -12,7 +12,6 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine dum_a_cvb( &
 #                    define _CALLING_
 #                    include "opta_interface.fh"

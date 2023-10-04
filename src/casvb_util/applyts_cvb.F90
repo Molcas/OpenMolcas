@@ -12,16 +12,17 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
+subroutine applyts_cvb(civbs,orbs)
 ! Apply T(s) to CIVBS:
 
+use casvb_global, only: gjorb, gjorb2, gjorb3
 use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civbs(ndet), orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
+real(kind=wp) :: civbs(ndet), orbs(norb,norb)
 
-call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
+call makegjorbs_cvb(orbs)
 
 if (.not. proj) then
   call applyt_cvb(civbs,gjorb3)

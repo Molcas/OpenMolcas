@@ -14,21 +14,21 @@
 
 subroutine symtrizcvb_cvb(vecstr)
 
+use casvb_global, only: idelstr, ipermzeta, izeta, tconstr
 use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: vecstr(nvb)
-#include "WrkSpc.fh"
 real(kind=wp) :: dum(1)
 
 if (iconstruc == 0) then
   return
 else if (iconstruc == 1) then
-  call symtrizcvb2_cvb(vecstr,iwork(ls(13)),iwork(ls(16)))
-  call symtrizcvb3_cvb(vecstr,iwork(ls(10)))
+  call symtrizcvb2_cvb(vecstr,izeta,ipermzeta)
+  call symtrizcvb3_cvb(vecstr,idelstr)
 else if (iconstruc == 2) then
-  call schmidtd_cvb(work(ls(15)),nconstr,vecstr,1,dum,nvb,0)
+  call schmidtd_cvb(tconstr,nconstr,vecstr,1,dum,nvb,0)
 end if
 
 return

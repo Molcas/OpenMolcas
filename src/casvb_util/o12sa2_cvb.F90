@@ -15,6 +15,7 @@
 subroutine o12sa2_cvb(nprm,civb,civbs,cvbdet,cvb)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -52,8 +53,8 @@ call all2free_cvb(vec_all,c(ic1),1)
 if (.not. strucopt) c(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
 call mma_deallocate(vec_all)
 cnrm = ddot_(nprm,c,1,sxc,1)
-call dscal_(nprm,one/sqrt(cnrm),c,1)
-call dscal_(nprm,one/sqrt(cnrm),sxc,1)
+call dscal_(nprm,One/sqrt(cnrm),c,1)
+call dscal_(nprm,One/sqrt(cnrm),sxc,1)
 call ddrestv_cvb(c,dum,sxc,nprm,0,.false.,.true.)
 call mma_deallocate(sxc)
 call mma_deallocate(c)

@@ -12,18 +12,19 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine gsinp_cvb(orbs,irdorbs,ip_cvb,nvbinp,kbasiscvb_inp,mxaobf,mxorb,kbasis,strtvb)
+subroutine gsinp_cvb(orbs,irdorbs,nvbinp,kbasiscvb_inp,mxaobf,mxorb,kbasis,strtvb)
 
+use casvb_global, only: gsinp
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mxorb, irdorbs(mxorb), ip_cvb, nvbinp, kbasiscvb_inp, mxaobf, kbasis
+integer(kind=iwp) :: mxorb, irdorbs(mxorb), nvbinp, kbasiscvb_inp, mxaobf, kbasis
 real(kind=wp) :: orbs(mxaobf,mxorb), strtvb
-#include "WrkSpc.fh"
 integer(kind=iwp) :: idum(1), iorb, istr, mouse, mxread, nread
+real(kind=wp), allocatable :: tmp(:)
 integer(kind=iwp), parameter :: ncmp = 4, ngs = 7
 character(len=*), parameter :: guess(ngs) = ['ORB     ','STRUC   ','READ    ','AOBASIS ','MOBASIS ','END     ','ENDGUESS']
-integer(kind=iwp), external :: mavailr_cvb, mheapr_cvb
 logical(kind=iwp), external :: firsttime_cvb
 
 #include "macros.fh"
@@ -51,11 +52,14 @@ do
   else if (istr == 2) then
     ! 'STRUC'
     !  If previous orb. permutation disable:
-    call mhpfreer_cvb(ip_cvb)
-    mxread = mavailr_cvb()/2
-    ip_cvb = mheapr_cvb(mxread)
-    call realz_cvb(work(ip_cvb),mxread,nvbinp,0)
-    call mreallocr_cvb(ip_cvb,nvbinp)
+    if (allocated(gsinp)) call mma_deallocate(gsinp)
+    call mma_maxDBLE(mxread)
+    mxread = mxread/2
+    call mma_allocate(tmp,mxread,label='tmp')
+    call realz_cvb(tmp,mxread,nvbinp,0)
+    call mma_allocate(gsinp,nvbinp,label='gsinp')
+    gsinp(:) = tmp(1:nvbinp)
+    call mma_deallocate(tmp)
     kbasiscvb_inp = kbasis
   !else if (istr == 3) then
   !  ! 'READ'
@@ -114,7 +118,7 @@ do
   !      end if
   !      if (istr3 == 0) exit
   !    end do
-  !    call othergs_cvb(orbs,work(ip_cvb),recordnm,1,iorb1,iorb2,jorb1,jorb2)
+  !    call othergs_cvb(orbs,gsinp,recordnm,1,iorb1,iorb2,jorb1,jorb2)
   !  else if (istr2 == 2) then
   !    ! 'STRUC'
   !    istruc1 = 0
@@ -169,7 +173,7 @@ do
   !      end if
   !      if (istr3 == 0) exit
   !    end do
-  !    call othergs_cvb(orbs,work(ip_cvb),recordnm,2,istruc1,istruc2,jstruc1,jstruc2)
+  !    call othergs_cvb(orbs,gsinp,recordnm,2,istruc1,istruc2,jstruc1,jstruc2)
   !  else if (istr2 == 3) then
   !    ! 'ALL'
   !    call setstrtvb_cvb(strtvb)
@@ -182,7 +186,7 @@ do
   !        call abend_cvb()
   !      end if
   !    end if
-  !    call getguess_cvb(orbs,work(ip_cvb),recordnm,kbasiscvb_inp)
+  !    call getguess_cvb(orbs,gsinp,recordnm,kbasiscvb_inp)
   !  end if
   else if (istr == 4) then
     ! 'AOBASIS'

@@ -18,17 +18,24 @@ subroutine asonc1_cvb( &
                      )
 ! Applies S on c vector(s).
 
+use casvb_global, only: civb2, cvbdet, orbs
 use Definitions, only: wp, iwp
 
 implicit none
 #include "ddasonc_interface.fh"
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp) :: ivec
 
 #include "macros.fh"
 unused_var(axc)
 
-call asonc12_cvb(c,sxc,nvec,work(lc(2)),work(lv(1)),work(lw(4)),work(lw(5)),work(lw(6)),work(lw(9)))
+do ivec=1,nvec
+  call str2vbc_cvb(c(1,ivec),cvbdet)
+  call vb2cif_cvb(cvbdet,civb2)
+  call applyts_cvb(civb2,orbs)
+  call ci2vbg_cvb(civb2,cvbdet)
+  call vb2strg_cvb(cvbdet,sxc(1,ivec))
+end do
 
 return
 

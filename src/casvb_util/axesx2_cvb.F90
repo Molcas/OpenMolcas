@@ -12,10 +12,10 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine axesx2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,c,axc,sxc,share,res,ap,solp,solp_res)
+subroutine axesx2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,sxc,share,solp_res)
 
-use casvb_global, only: corenrg, ifollow, ipdd, isaddledd, maxd, mxit, nfrdim, nortiterdd, nparm, nvguess, nvrestart, orththrdd, &
-                        resthrdd
+use casvb_global, only: ap, axc, c, corenrg, ifollow, ipdd, isaddledd, maxd, mxit, nfrdim, nortiterdd, nparm, nvguess, nvrestart, &
+                        orththrdd, res, resthrdd, solp
 use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddrestart_sub, ddsol_sub
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -23,8 +23,7 @@ use Definitions, only: wp, iwp
 implicit none
 procedure(ddasonc_sub) :: asonc
 procedure(ddres2upd_sub) :: ddres2upd
-real(kind=wp) :: vec(nparm), resthr_inp, fx_exp, c(nparm,maxd), axc(nparm,maxd), sxc(nparm,maxd), res(nparm), ap(maxd,maxd), &
-                 solp(maxd), solp_res(maxd)
+real(kind=wp) :: vec(nparm), resthr_inp, fx_exp, sxc(nparm,maxd), solp_res(maxd)
 integer(kind=iwp) :: ioptc, iter
 logical(kind=iwp) :: share
 real(kind=wp) :: dum(1), resthr_use

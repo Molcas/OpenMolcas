@@ -12,25 +12,26 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine update2_cvb(orbs,cvb,orbsp,cvbp,sorbs,dxorg,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,dx,iorts,nort)
+subroutine update2_cvb(orbs,cvb,orbsp,cvbp,sorbs,dxorg,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,iorts,nort)
 
+use casvb_global, only: wdx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ic, norb, nvb, nprorb, npr, nort, iorts(2,nort)
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsp(norb,norb), cvbp(nvb), sorbs(norb,norb), dxorg(npr), dx(npr)
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsp(norb,norb), cvbp(nvb), sorbs(norb,norb), dxorg(npr)
 logical(kind=iwp) :: orbopt, strucopt, sym
 #include "print_cvb.fh"
 integer(kind=iwp) :: i, ij, iorb, iort, j, jorb, k, korb, l, lorb
 real(kind=wp) :: dum(1), fac, sdidj
 real(kind=wp), allocatable :: sorbsinv(:,:)
 
-call free2all_cvb(dxorg,dx,1)
+call free2all_cvb(dxorg,wdx,1)
 if ((ip(3) >= 3) .and. (ic == 1)) then
   write(u6,'(/,a)') ' Update vector :'
-  call vecprint_cvb(dx,npr)
+  call vecprint_cvb(wdx,npr)
 end if
 
 call fmove_cvb(orbsp,orbs,norb*norb)
@@ -45,7 +46,7 @@ if (orbopt) then
       if (jorb /= iorb) then
         ij = ij+1
         do i=1,norb
-          orbs(i,iorb) = orbs(i,iorb)+dx(ij)*orbsp(i,jorb)
+          orbs(i,iorb) = orbs(i,iorb)+wdx(ij)*orbsp(i,jorb)
         end do
       end if
     end do
@@ -65,7 +66,7 @@ if (orbopt) then
       do l=1,norb-1
         lorb = l
         if (lorb >= jorb) lorb = lorb+1
-        sdidj = sdidj+sorbs(korb,lorb)*dx(k+(iorb-1)*(norb-1))*dx(l+(jorb-1)*(norb-1))
+        sdidj = sdidj+sorbs(korb,lorb)*wdx(k+(iorb-1)*(norb-1))*wdx(l+(jorb-1)*(norb-1))
       end do
     end do
     fac = -Half*sdidj
@@ -80,7 +81,7 @@ if (orbopt) then
 end if
 
 if (strucopt) then
-  call addvec(cvb,cvb,dx(nprorb+1),nvb)
+  call addvec(cvb,cvb,wdx(nprorb+1),nvb)
   call scalstruc_cvb(orbs,cvb)
   call cvbnrm_cvb(cvb)
 end if

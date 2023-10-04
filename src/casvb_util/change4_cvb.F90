@@ -14,7 +14,7 @@
 
 subroutine change4_cvb()
 
-use casvb_global, only: ndres_ok
+use casvb_global, only: ifhamil, ndres_ok
 use Constants, only: Ten
 use Definitions, only: iwp
 
@@ -22,12 +22,11 @@ implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "casinfo_cvb.fh"
-integer(kind=iwp) :: icase, icritold, ifin_old
+integer(kind=iwp) :: icase, icritold, ifin_old, mavailr
 logical(kind=iwp) :: changed
-integer(kind=iwp), external :: mavailr_cvb
-logical(kind=iwp), external :: chpcmp_cvb, &               ! ... Change of dimensioning variables ...
-                               ifcasci_cvb, ifhamil_cvb, & ! ... Files/Hamiltonian available ...
-                               up2date_cvb                 ! ... Make: up to date? ...
+logical(kind=iwp), external :: chpcmp_cvb, &  ! ... Change of dimensioning variables ...
+                               ifcasci_cvb, & ! ... Files available ...
+                               up2date_cvb    ! ... Make: up to date? ...
 
 changed = .false.
 ! CI vectors
@@ -36,7 +35,8 @@ call icomb_cvb(norb,nbet,ndb)
 ndet = nda*ndb
 ndres = 3+ndet
 
-memplenty = (mavailr_cvb() > 9*ndet)
+call mma_maxDBLE(mavailr)
+memplenty = (mavailr > 9*ndet)
 
 if (chpcmp_cvb(ndres)) changed = .true.
 ndres_ok = (.not. changed) .and. (up2date_cvb('MEM3'))
@@ -53,7 +53,7 @@ if ((ifinish == 1) .or. (ifinish == 2)) then
   !   (a) to get exact values (wfn is updated by optim in last iteration)
   !   (b) to generate ESYM (variational calculations)
   lcalcsvb = ifcasci_cvb()
-  lcalcevb = ifhamil_cvb()
+  lcalcevb = ifhamil
   lcalccivbs = .true.
   lciweights = ((npcf > -2) .and. ((.not. variat) .or. endvar) .and. (iciweights > 0))
 end if

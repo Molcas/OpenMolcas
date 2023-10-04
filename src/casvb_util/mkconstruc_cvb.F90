@@ -11,15 +11,22 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
+!*************************************************************
+!** Routines for imposing constraints on VB wfn. parameters **
+!*************************************************************
+!*********************
+!** Set-up routines **
+!*********************
 
-!IFG trivial
 subroutine mkconstruc_cvb()
+
+use casvb_global, only: ipermzeta, izeta, orbs, symelm, tconstr
 
 implicit none
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 
-call construc_cvb(work(ls(15)),iwork(ls(16)))
+call setipermzeta_cvb(ipermzeta,orbs,symelm,izeta)
+if (iconstruc == 2) call construc2_cvb(tconstr)
 
 return
 

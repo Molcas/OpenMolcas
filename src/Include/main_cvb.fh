@@ -20,12 +20,6 @@
       logical variat,endvar,service
       common /calcl_comcvb/variat,endvar,service
 
-! Addresses :
-!------------
-      integer ll,lv,lb,lc,ls,lp,lq,lw
-      common /sts_comcvb/ll(23),lv(5),lb(6),lc(8),ls(16),lp(11),lq(11), &
-     &  lw(13)
-
 ! Definition of CASSCF active space :
 !------------------------------------
       integer mxirrep,ityp,nsym,nirrep,isymv,isym,isympr,ncivb
@@ -96,12 +90,9 @@
 
 ! CI vectors :
 !-------------
-      integer mxciobj,iform_ci,iaddr_ci,icnt_ci,nv,ndres
-      real*8 fileid_ci
+      integer mxciobj,iform_ci,icnt_ci,nv,ndres
       parameter (mxciobj=20)
-      common /objr_comcvb/fileid_ci(mxciobj)
-      common /obji_comcvb/iform_ci(mxciobj),iaddr_ci(mxciobj),          &
-     &  icnt_ci(mxciobj)
+      common /obji_comcvb/iform_ci(mxciobj),icnt_ci(mxciobj)
       common/civecsi_comcvb/nv,ndres
 
 ! Symmetry information and constraints:
@@ -172,11 +163,10 @@
 
 ! Usage statistics :
 !-------------------
-      integer n_applyt,n_applyh,n_hess,n_orbhess,n_cihess,n_2el,n_iter, &
-     &        ibase0,ibasemx,memused
+      integer n_applyt,n_applyh,n_hess,n_orbhess,n_cihess,n_2el,n_iter
       real*8 cpu0,cpu_prev
       common /statsi_comcvb/n_applyt,n_applyh,n_hess,n_orbhess,n_cihess,&
-     &  n_2el,n_iter,ibase0,ibasemx,memused
+     &  n_2el,n_iter
       common /statsr_comcvb/cpu0,cpu_prev
 
 ! Save memory? :
@@ -190,7 +180,7 @@
 
 ! Ubiquitous constants (initialised in bdata.f) :
 !------------------------------------------------
-      real*8 one,two,onem,r3by4,p8,sqp5,sq2
+      real*8 two,onem,r3by4,p8,sqp5,sq2
       integer md2h
-      common/const_comcvb/one,two,onem,r3by4,p8,sqp5,sq2
+      common/const_comcvb/two,onem,r3by4,p8,sqp5,sq2
       common/d2h_comcvb/md2h(mxirrep,mxirrep)

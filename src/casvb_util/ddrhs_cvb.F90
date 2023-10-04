@@ -14,13 +14,12 @@
 
 subroutine ddrhs_cvb(vec,ndim,ioffs)
 
-use casvb_global, only: idd, ivrhs, mxrhs, nparm, nvrhs
+use casvb_global, only: mxrhs, nparm, nvrhs, rhs
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ndim, ioffs
 real(kind=wp) :: vec(ndim)
-#include "WrkSpc.fh"
 
 nvrhs = nvrhs+1
 if (nvrhs > mxrhs) then
@@ -31,9 +30,9 @@ if (ndim+ioffs > nparm) then
   write(u6,*) ' Illegal call to DDRHS :',ndim,ioffs,nparm
   call abend_cvb()
 end if
-call fzero(work(idd(ivrhs)+(nvrhs-1)*nparm),ioffs)
-call fmove_cvb(vec,work(ioffs+idd(ivrhs)+(nvrhs-1)*nparm),ndim)
-call fzero(work(ndim+ioffs+idd(ivrhs)+(nvrhs-1)*nparm),nparm-ioffs-ndim)
+call fzero(rhs(:,nvrhs),ioffs)
+call fmove_cvb(vec,rhs(ioffs+1:,nvrhs),ndim)
+call fzero(rhs(ndim+ioffs+1:,nvrhs),nparm-ioffs-ndim)
 
 return
 

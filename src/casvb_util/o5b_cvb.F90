@@ -12,23 +12,35 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine o5b_cvb( &
 #                  define _CALLING_
 #                  include "optb_interface.fh"
                   )
 
-use casvb_global, only: ix
+use casvb_global, only: hh, maxize, odx, ograd, scalesmall
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 #include "optb_interface.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp) :: ipu
+real(kind=wp), external :: dnrm2_
 
 #include "macros.fh"
 unused_var(grdnrm)
 
-call o5b2_cvb(nparm,work(ix(1)),work(ix(2)),dxnrm,close2conv)
+call fmove_cvb(ograd,odx,nparm)
+if (.not. maxize) call dscal_(nparm,-One,odx,1)
+dxnrm = dnrm2_(nparm,odx,1)
+if (.not. close2conv) then
+  ipu = 1
+else
+  ipu = 2
+end if
+if ((dxnrm > hh) .or. scalesmall(ipu)) then
+  call dscal_(nparm,hh/dxnrm,odx,1)
+  dxnrm = hh
+end if
 
 return
 

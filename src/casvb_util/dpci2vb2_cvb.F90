@@ -12,16 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine dpci2vb2_cvb(civec,cvbdet,dvbdet,evbdet,ic1,ret,ic,nda,ndb,ndetvb,nfrag,nda_fr,ndb_fr,ia12ind,ib12ind,mxstack,iapr, &
-                        ixapr,ndetvb_fr,ndavb)
+subroutine dpci2vb2_cvb(civec,cvbdet,dvbdet,evbdet,ic1,ret,ic)
 
+use casvb_global, only: ia12ind, iapr1, ib12ind, ixapr1, nda_fr, ndb_fr, ndetvb_fr, nfrag
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ic1, ic, nda, ndb, ndetvb, nfrag, nda_fr(nfrag), ndb_fr(nfrag), ia12ind(*), ib12ind(*), mxstack, &
-                     iapr(ndetvb), ndavb, ixapr(ndavb), ndetvb_fr(nfrag)
+#include "main_cvb.fh"
+integer(kind=iwp) :: ic1, ic
 real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb), ret
 integer(kind=iwp) :: i, ia, ia_ci, ib, ib_ci, idetvb, ifr, iter, ixa, jfr, kfr, mxiter, ndetvb_add, nestlevel, nloop
 real(kind=wp) :: cf, cf2, cinrm, cnrm, fac, fac1
@@ -29,6 +29,7 @@ logical(kind=iwp) :: fail
 integer(kind=iwp), allocatable :: idetind(:), ipr_off(:), istack(:), ixapr_off(:), ixbpr_off(:), nc_facalf(:), nc_facbet(:), &
                                   ncindalf(:), ncindbet(:)
 real(kind=wp), allocatable :: coeff(:)
+integer(kind=iwp), parameter :: mxstack = 100
 real(kind=wp), external :: ddot_
 
 if (ic == 0) then
@@ -50,6 +51,8 @@ call mma_allocate(ipr_off,nfrag,label='ipr_off')
 call mma_allocate(ixapr_off,nfrag,label='ixapr_off')
 call mma_allocate(ixbpr_off,nfrag,label='ixbpr_off')
 
+!FIXME: There's some inconsistency in the nd[ab]_fr indices,
+!       the fragment index is supposed to be the second one
 do ifr=1,nfrag
   if (ifr == 1) then
     ipr_off(ifr) = 0
@@ -57,8 +60,8 @@ do ifr=1,nfrag
     ixbpr_off(ifr) = 0
   else
     ipr_off(ifr) = ipr_off(ifr-1)+ndetvb_fr(ifr-1)
-    ixapr_off(ifr) = ixapr_off(ifr-1)+nda_fr(ifr-1)+1
-    ixbpr_off(ifr) = ixbpr_off(ifr-1)+ndb_fr(ifr-1)+1
+    ixapr_off(ifr) = ixapr_off(ifr-1)+nda_fr(ifr-1,1)+1
+    ixbpr_off(ifr) = ixbpr_off(ifr-1)+ndb_fr(ifr-1,1)+1
   end if
 end do
 
@@ -71,8 +74,8 @@ do i=1,nfrag
     nc_facalf(i) = 1
     nc_facbet(i) = 1
   else
-    nc_facalf(i) = nc_facalf(i-1)*nda_fr(i-1)
-    nc_facbet(i) = nc_facbet(i-1)*ndb_fr(i-1)
+    nc_facalf(i) = nc_facalf(i-1)*nda_fr(i-1,1)
+    nc_facbet(i) = nc_facbet(i-1)*ndb_fr(i-1,1)
   end if
 end do
 
@@ -119,8 +122,8 @@ outer: do
   idetvb = 0
   ixa = 0 ! dummy initialize
   fail = .true.
-  do ia=1,nda_fr(nestlevel)
-    do ixa=ixapr(ia+ixapr_off(nestlevel)),ixapr(ia+1+ixapr_off(nestlevel))-1
+  do ia=1,nda_fr(nestlevel,1)
+    do ixa=ixapr1(ia+ixapr_off(nestlevel)),ixapr1(ia+1+ixapr_off(nestlevel))-1
       idetvb = idetvb+1
       if (idetvb == iter) then
         fail = .false.
@@ -132,7 +135,7 @@ outer: do
     write(u6,*) ' Error in DPCI2VB '
     call abend_cvb()
   end if
-  ib = iapr(ixa+ipr_off(nestlevel))
+  ib = iapr1(ixa+ipr_off(nestlevel))
 
   idetind(nestlevel) = iter+ipr_off(nestlevel)
   if (((ic == 1) .and. (ic1 == 0)) .or. (ic == 3)) then

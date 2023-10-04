@@ -39,8 +39,8 @@ else
   else
     call mma_allocate(tmp1,ioff2-ioff1,label='tmp1')
     call mma_allocate(tmp2,joff2-joff1,label='tmp2')
-    call rdr_cvb(tmp1,ioff2-ioff1,recinp,ioff1)
-    call rdr_cvb(tmp2,joff2-joff1,recinp_old,joff1)
+    call rdlow_cvb(tmp1,ioff2-ioff1,recinp,ioff1)
+    call rdlow_cvb(tmp2,joff2-joff1,recinp_old,joff1)
     done = .false.
     do i=1,ioff2-ioff1
       if (tmp1(i) /= tmp2(i)) then

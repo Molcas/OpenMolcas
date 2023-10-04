@@ -12,14 +12,22 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine mktrnspn_cvb()
+
+use casvb_global, only: cvb, cvbdet, spinb
+use Definitions, only: iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
+#include "print_cvb.fh"
+integer(kind=iwp), external :: len_trim_cvb, nvb_cvb
 
-call mktrnspn2_cvb(work(lv(2)),work(lw(9)))
+if (ip(1) >= 1) write(u6,'(/,4a)') ' Changing spin basis : ',spinb(kbasiscvb)(1:len_trim_cvb(spinb(kbasiscvb))),' --> ', &
+                                   spinb(kbasis)(1:len_trim_cvb(spinb(kbasis)))
+call str2vbc_cvb(cvb,cvbdet)
+kbasiscvb = kbasis
+nvb = nvb_cvb(kbasiscvb)
+call vb2strc_cvb(cvbdet,cvb)
 
 return
 

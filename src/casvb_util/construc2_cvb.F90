@@ -15,6 +15,7 @@
 subroutine construc2_cvb(tconstr)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none

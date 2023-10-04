@@ -14,17 +14,17 @@
 
 subroutine mkiconfs_cvb()
 
+use casvb_global, only: iconfs
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
 #include "files_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ioffs
 
 ! ICONFS
 call rdioff_cvb(4,recinp,ioffs)
-call rdis_cvb(iwork(ll(15)),nconf*noe,recinp,ioffs)
+call rdis_cvb(iconfs,nconf*noe,recinp,ioffs)
 
 return
 

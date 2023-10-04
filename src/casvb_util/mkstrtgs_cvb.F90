@@ -14,7 +14,7 @@
 
 subroutine mkstrtgs_cvb(orbsao,irdorbs,cvb,recn)
 
-use casvb_global, only: nbas_mo
+use casvb_global, only: ifmos, nbas_mo
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -22,10 +22,10 @@ implicit none
 real(kind=wp) :: orbsao(nbas_mo,norb), cvb(*), recn
 integer(kind=iwp) :: irdorbs(norb)
 integer(kind=iwp) :: ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, nbas_mo1, norb1, nvb1
-logical(kind=iwp) :: ifmos_cvb, use_ao
+logical(kind=iwp) :: use_ao
 
 call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
-use_ao = ifmos_cvb() .and. ((.not. variat) .or. (variat .and. (nmcscf == 1))) .and. (nbas_mo == nbas_mo1) .and. (ioffs_orbsao > 0)
+use_ao = ifmos .and. ((.not. variat) .or. (variat .and. (nmcscf == 1))) .and. (nbas_mo == nbas_mo1) .and. (ioffs_orbsao > 0)
 do iorb=1,norb
   if (.not. use_ao) then
     irdorbs(iorb) = 1

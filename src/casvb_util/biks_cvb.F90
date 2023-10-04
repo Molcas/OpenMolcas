@@ -12,16 +12,17 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine biks_cvb(aikcof,bikcof,ikcoff,nel,kbasis,share,iprint)
+subroutine biks_cvb(aikcof,bikcof,nel,kbasis,share,iprint)
 
+use casvb_global, only: ikcoff
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: aikcof(*), bikcof(*)
-integer(kind=iwp) :: nel, ikcoff(0:nel,0:nel,0:nel), kbasis, iprint
+integer(kind=iwp) :: nel, kbasis, iprint
 logical(kind=iwp) :: share
 integer(kind=iwp) :: i2s1, ifns, nalf1, ndet, nel1
-integer(kind=iwp), external :: ifns_cvb, ndet_cvb, len_trim_cvb
+integer(kind=iwp), external :: ifns_cvb, len_trim_cvb
 character(len=*), parameter :: basis(7) = ['Kotani    ','Serber    ','Rumer     ','Rumer (LT)','projected ','Determ    ', &
                                            'Determ    ']
 
@@ -36,7 +37,7 @@ do nel1=0,nel
     do i2s1=0,nel
       if (ikcoff(nel1,nalf1,i2s1) /= -1) then
         ifns = ifns_cvb(nel1,(nel1+i2s1)/2,kbasis)
-        ndet = ndet_cvb(nel1,nalf1)
+        call icomb_cvb(nel1,nalf1,ndet)
         call bikset_cvb(aikcof(2+ikcoff(nel1,nalf1,i2s1)),bikcof(2+ikcoff(nel1,nalf1,i2s1)),nel1,nalf1,i2s1,ndet,ifns,kbasis, &
                         share,iprint)
       end if

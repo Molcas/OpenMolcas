@@ -14,9 +14,18 @@
 
 subroutine makefile_cvb()
 
+use casvb_global, only: ioffs, iprint, joffs, mustdeclare, ndep_ij, ndep_ji, nobj
+
 implicit none
 
-call makeinit_cvb()
+nobj = 0
+ndep_ij = 0
+ndep_ji = 0
+ioffs(1) = 0
+joffs(1) = 0
+mustdeclare = .false.
+iprint = 0
+
 ! Memory allocation:
 call depend_cvb('MEM1','MEM0')
 call depend_cvb('MEM2','MEM1')

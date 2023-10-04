@@ -17,8 +17,6 @@ subroutine rdjobiph_cvb(fnjob)
 use Definitions, only: iwp, u6
 
 implicit none
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "rasdim.fh"
 #include "jobiph_j.fh"
 character(len=*) :: fnjob

@@ -12,20 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine fraginp_cvb(ip_iconfs)
+subroutine fraginp_cvb()
 
-use casvb_global, only: i2s_fr, nalf_fr, nbet_fr, nconf_fr, nel_fr, nfrag, nMs_fr, nS_fr
+use casvb_global, only: confsinp, i2s_fr, nalf_fr, nbet_fr, nconf_fr, nel_fr, nfrag, nMs_fr, nS_fr
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ip_iconfs
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: istr, istr2, mxconf, nread
+integer(kind=iwp) :: istr, istr2, mavaili, mxconf, nread
 real(kind=wp) :: dum(1), Scurr
+integer(kind=iwp), allocatable :: tmp(:,:)
 integer(kind=iwp), parameter :: ncmp = 4, nstrin = 2
 character(len=*), parameter :: string(nstrin) = ['WAVE    ','CON     ']
-integer(kind=iwp), external :: mavaili_cvb
 
 do
   call fstring_cvb(string,nstrin,istr,ncmp,2)
@@ -40,10 +40,10 @@ do
     nbet_fr(1,nfrag) = 0
     i2s_fr(1,nfrag) = -1
     do
-      Scurr = -one
+      Scurr = -One
       call real_cvb(dum,1,nread,1)
       Scurr = dum(1)
-      if (Scurr == -one) exit
+      if (Scurr == -One) exit
       nS_fr(nfrag) = nS_fr(nfrag)+1
       i2s_fr(nS_fr(nfrag),nfrag) = nint(Two*Scurr)
     end do
@@ -59,23 +59,32 @@ do
       i2s_fr(1,nfrag) = -1
     end if
 
-    mxconf = max(mavaili_cvb()-1000,0)/noe
-    call mrealloci_cvb(ip_iconfs,noe*mxconf)
+    call mma_maxINT(mavaili)
+    mxconf = max(mavaili/2,0)/noe
+    call mma_allocate(tmp,noe,mxconf,label='confsinp')
+    if (allocated(confsinp)) then
+      tmp(:,1:size(confsinp,2)) = confsinp(:,:)
+      call mma_deallocate(confsinp)
+    end if
+    call move_alloc(tmp,confsinp)
     nconf_fr(nfrag) = 1
     nconf = nconf+1
     do
       if (mxconf < nconf) then
-        write(u6,*) ' Insufficient memory for configuration read',mavaili_cvb(),mxconf,nconf
+        write(u6,*) ' Insufficient memory for configuration read',mavaili,mxconf,nconf
         call abend_cvb()
       end if
-      call izero(iwork(noe*(nconf-1)+ip_iconfs),noe)
-      call int_cvb(iwork(noe*(nconf-1)+ip_iconfs),noe,nread,1)
+      call izero(confsinp(:,nconf),noe)
+      call int_cvb(confsinp(:,nconf),noe,nread,1)
       call fstring_cvb('CON',1,istr2,3,2)
       if (istr2 == 0) exit
       nconf_fr(nfrag) = nconf_fr(nfrag)+1
       nconf = nconf+1
     end do
-    call mrealloci_cvb(ip_iconfs,noe*nconf)
+    call mma_allocate(tmp,noe,nconf,label='confsinp')
+    tmp(:,:) = confsinp(:,1:nconf)
+    call mma_deallocate(confsinp)
+    call move_alloc(tmp,confsinp)
   end if
   if (istr == 0) exit
 end do

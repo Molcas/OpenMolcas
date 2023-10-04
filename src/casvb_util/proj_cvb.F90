@@ -12,16 +12,26 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
+!*********************************************************************
+!*                                                                   *
+!*  PROJ      := Project CASSCF vector onto irrep(s).                *
+!*                                                                   *
+!*********************************************************************
 subroutine proj_cvb(civec)
 
-use Definitions, only: wp
+use casvb_global, only: civbvec
+use Definitions, only: wp, iwp
 
 implicit none
+real(kind=wp) :: civec(*)
 #include "main_cvb.fh"
-real(kind=wp) :: civec(ndet)
+integer(kind=iwp) :: icivec
+real(kind=wp) :: dum(mxirrep)
 
-if (projsym) call psym_cvb(civec)
+if (projsym) then
+  icivec = nint(civec(1))
+  call psym1_cvb(civbvec(:,icivec),civbvec(:,icivec),dum,1)
+end if
 
 return
 

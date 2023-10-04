@@ -12,20 +12,19 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,gjorb,gjorb2,gjorb3,vec1,vec2,vec3,vec4,vec5,ionmin, &
-                         ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
+subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,vec1,vec2,vec3,vec4,vec5,ionmin,ionmax,mxrem,mxsng, &
+               mxasg,ncnfcas,mxdetcas)
 
-use casvb_global, only: form2AD, formAD
+use casvb_global, only: form2AD, formAD, gjorb, gjorb2, gjorb3
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: ionmin, ionmax, mxrem, mxsng, mxasg, ncnfcas, mxdetcas
 real(kind=wp) :: civec(ndet), civbs(ndet), civb(ndet), citmp(ndet), civec5(ndet), orbs(norb,norb), sorbs(norb,norb), &
-                 orbinv(norb,norb), owrk(norb,norb), gjorb(*), gjorb2(*), gjorb3(*), vec1(ndet), vec2(ndet), vec3(ndet), &
-                 vec4(ndet), vec5(ndet)
+                 orbinv(norb,norb), owrk(norb,norb), vec1(ndet), vec2(ndet), vec3(ndet), vec4(ndet), vec5(ndet)
 #include "print_cvb.fh"
 integer(kind=iwp) :: i, ia, iaorb, ib, ibeg, ibegt, iborb, ic, idet, ilin, inda, indab, indasg, indb, indion, indsng, ion, iorb, &
                      ix1, lenfld, mp, mrem, nalfsng, nbetsng, nc, nindasg, nprint, nsing, rc
@@ -243,11 +242,11 @@ if (mod(iciweights,8) > 3) then
     sum1 = sum1+gal1(ic)
     sum2 = sum2+gal2(ic)
   end do
-  fac1 = one/sum1
-  if ((abs(one-svb*svb) < 1.0e-20_wp) .and. (abs(sum2) < 1.0e-20_wp)) then
-    fac2 = one
+  fac1 = One/sum1
+  if ((abs(One-svb*svb) < 1.0e-20_wp) .and. (abs(sum2) < 1.0e-20_wp)) then
+    fac2 = One
   else
-    fac2 = (one-svb*svb)/sum2
+    fac2 = (One-svb*svb)/sum2
   end if
   do ic=1,ncnfcas
     gal1(ic) = fac1*gal1(ic)
@@ -274,8 +273,8 @@ write(u6,'(/,2a)') ' Weights of CASSCF configurations in VB basis (c_res=c_cas-S
 write(u6,'(2a)') ' ---------------------------------------------------------------------'
 if (mod(iciweights,8) > 3) then
   write(u6,'(a)') ' Sum of inverse-overlap weights :'
-  write(u6,form2AD) ' c_cas :',sum1,' expected :',one
-  write(u6,form2AD) ' c_res :',sum2,' expected :',one-svb*svb
+  write(u6,form2AD) ' c_cas :',sum1,' expected :',One
+  write(u6,form2AD) ' c_res :',sum2,' expected :',One-svb*svb
   write(u6,'(a)') ' '
 end if
 lenfld = 8+iprec

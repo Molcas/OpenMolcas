@@ -12,20 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine o12sa3_cvb(vec,cvb,orbs,gjorb,gjorb2,gjorb3,civec,civecp,civb,cvbdet,nvb,nprorb,nparm1,strucopt)
+subroutine o12sa3_cvb(vec,cvb,orbs,civec,civecp,civb,cvbdet,nvb,nprorb,nparm1,strucopt)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nvb, nprorb, nparm1
-real(kind=wp) :: vec(nparm1), cvb(nvb), orbs(*), gjorb(*), gjorb2(*), gjorb3(*), civec(*), civecp(*), civb(*), cvbdet(*)
+real(kind=wp) :: vec(nparm1), cvb(nvb), orbs(*), civec(*), civecp(*), civb(*), cvbdet(*)
 logical(kind=iwp) :: strucopt
 integer(kind=iwp) :: ic1
 real(kind=wp), allocatable :: vec_all(:)
 real(kind=wp), external :: ddot_
 
-call makegjorbs_cvb(orbs,gjorb,gjorb2,gjorb3)
+call makegjorbs_cvb(orbs)
 
 call str2vbc_cvb(cvb,cvbdet)
 call vb2cic_cvb(cvbdet,civb)

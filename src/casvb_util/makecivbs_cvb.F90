@@ -12,20 +12,20 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine makecivbs_cvb(civbs,orbs,gjorb,gjorb2,gjorb3,cvbdet)
+subroutine makecivbs_cvb(civbs,orbs,cvbdet)
 ! Construct CIVBS ( = T(s) * CIVB ):
 
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civbs(ndet), orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*), cvbdet(ndetvb)
+real(kind=wp) :: civbs(ndet), orbs(norb,norb), cvbdet(ndetvb)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 if (tstcnt_cvb(civbs,4)) return
 
 call vb2cic_cvb(cvbdet,civbs)
-call applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
+call applyts_cvb(civbs,orbs)
 call setcnt_cvb(civbs,4)
 
 return

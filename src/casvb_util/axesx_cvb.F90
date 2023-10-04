@@ -12,10 +12,9 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine axesx_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp)
 
-use casvb_global, only: idd
+use casvb_global, only: solp_res, sxc
 use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
 use Definitions, only: wp, iwp
 
@@ -24,10 +23,8 @@ procedure(ddasonc_sub) :: asonc
 procedure(ddres2upd_sub) :: ddres2upd
 real(kind=wp) :: vec(*), resthr_inp, fx_exp
 integer(kind=iwp) :: ioptc, iter
-#include "WrkSpc.fh"
 
-call axesx2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,work(idd(1)),work(idd(2)),work(idd(3)),.false.,work(idd(4)), &
-                work(idd(5)),work(idd(6)),work(idd(7)))
+call axesx2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,sxc,.false.,solp_res)
 
 return
 

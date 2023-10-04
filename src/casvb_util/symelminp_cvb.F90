@@ -12,17 +12,17 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine symelminp_cvb(ip_symelm,nsyme,tags,izeta,mxirrep,mxorb,mxsyme,ityp)
+subroutine symelminp_cvb(rsymelm,nsyme,tags,izeta,mxirrep,mxorb,mxsyme,ityp)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ip_symelm, nsyme, izeta(*), mxirrep, mxorb, mxsyme, ityp(mxorb)
+integer(kind=iwp) :: nsyme, izeta(*), mxirrep, mxorb, mxsyme, ityp(mxorb)
+real(kind=wp) :: rsymelm(mxorb,mxorb,nsyme)
 character(len=3) :: tags(mxsyme)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i_dim, iaux(1), io, iorb, irrep, ishift, isgn, istr2, jor, jorb, nread
+integer(kind=iwp) :: i, i_dim, iaux(1), io, iorb, irrep, isgn, istr2, jor, jorb, nread
 real(kind=wp) :: daux(1)
 integer(kind=iwp), allocatable :: tmp(:)
 integer(kind=iwp), parameter :: ncmp = 4, nsign = 2, nsymelm = 5
@@ -30,11 +30,6 @@ character(len=*), parameter :: sgn(nsign) = ['+       ','-       '], &
                                symelm(nsymelm) = ['IRREPS  ','COEFFS  ','TRANS   ','END     ','ENDSYMEL']
 logical(kind=iwp), external :: mxorth_cvb ! ... Matrices (orthogonal/determinant) ...
 
-nsyme = nsyme+1
-if (nsyme > mxsyme) then
-  write(u6,*) ' Too many symmetry elements found :',nsyme,mxsyme
-  call abend_cvb()
-end if
 tags(nsyme) = ' '
 call string_cvb(tags(nsyme),1,nread,1)
 call fstring_cvb(sgn,nsign,isgn,ncmp,1)
@@ -45,9 +40,7 @@ else if (isgn == 2) then
 else
   izeta(nsyme) = 0
 end if
-call mreallocr_cvb(ip_symelm,mxorb*mxorb*nsyme)
-ishift = mxorb*mxorb*(nsyme-1)
-call mxunit_cvb(work(ishift+ip_symelm),mxorb)
+call mxunit_cvb(rsymelm(:,:,nsyme),mxorb)
 
 do
   call fstring_cvb(symelm,nsymelm,istr2,ncmp,2)
@@ -59,7 +52,7 @@ do
       irrep = iaux(1)
       if (irrep /= 0) then
         do iorb=1,mxorb
-          if (irrep == ityp(iorb)) work(iorb+(iorb-1)*mxorb+ishift+ip_symelm-1) = -One
+          if (irrep == ityp(iorb)) rsymelm(iorb,iorb,nsyme) = -One
         end do
       end if
     end do
@@ -70,7 +63,7 @@ do
       call int_cvb(iaux,1,nread,0)
       iorb = iaux(1)
       if (iorb /= 0) then
-        work(iorb+(iorb-1)*mxorb+ishift+ip_symelm-1) = -One
+        rsymelm(iorb,iorb,nsyme) = -One
       else
         exit
       end if
@@ -100,7 +93,7 @@ do
         jorb = tmp(jor)
         daux = Zero
         call real_cvb(daux(1),1,nread,0)
-        work(iorb+(jorb-1)*mxorb+ishift+ip_symelm-1) = daux(1)
+        rsymelm(iorb,jorb,nsyme) = daux(1)
       end do
     end do
     call mma_deallocate(tmp)
@@ -108,7 +101,7 @@ do
   ! 'END' , 'ENDSYMEL' or unrecognized keyword -- end SYMELM input:
   if ((istr2 == 4) .or. (istr2 == 5) .or. (istr2 == 0)) exit
 end do
-if (.not. mxorth_cvb(work(ishift+ip_symelm),mxorb)) then
+if (.not. mxorth_cvb(rsymelm(:,:,nsyme),mxorb)) then
   write(u6,*) ' Symmetry element ',tags(nsyme),' not orthogonal!'
   write(u6,*) ' Check usage of TRANS keyword.'
   call abend_cvb()

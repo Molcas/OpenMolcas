@@ -14,15 +14,13 @@
 
 subroutine ddrestv_cvb(vec,avec,svec,ndim,ioffs,ause,suse)
 
-use casvb_global, only: idd, maxd, nparm, nvguess, nvrestart
+use casvb_global, only: axc, c, maxd, nparm, nvguess, nvrestart, sxc
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ndim, ioffs
 real(kind=wp) :: vec(ndim), avec(ndim), svec(ndim)
 logical(kind=iwp) :: ause, suse
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iddvec
 
 nvguess = nvguess+1
 nvrestart = nvrestart+1
@@ -34,21 +32,18 @@ if (ndim+ioffs > nparm) then
   write(u6,*) ' Illegal call to DDRESTV :',ndim,ioffs,nparm
   call abend_cvb()
 end if
-iddvec = 1
-call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-call fmove_cvb(vec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
-call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),nparm-ioffs-ndim)
+call fzero(c(:,nvrestart),ioffs)
+call fmove_cvb(vec,c(ioffs+1:,nvrestart),ndim)
+call fzero(c(ndim+ioffs+1:,nvrestart),nparm-ioffs-ndim)
 if (ause) then
-  iddvec = iddvec+1
-  call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-  call fmove_cvb(avec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
-  call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),nparm-ioffs-ndim)
+  call fzero(axc(:,nvrestart),ioffs)
+  call fmove_cvb(avec,axc(ioffs+1:,nvrestart),ndim)
+  call fzero(axc(ndim+ioffs+1:,nvrestart),nparm-ioffs-ndim)
 end if
 if (suse) then
-  iddvec = iddvec+1
-  call fzero(work(idd(iddvec)+(nvrestart-1)*nparm),ioffs)
-  call fmove_cvb(svec,work(ioffs+idd(iddvec)+(nvrestart-1)*nparm),ndim)
-  call fzero(work(ndim+ioffs+idd(iddvec)+(nvrestart-1)*nparm),nparm-ioffs-ndim)
+  call fzero(sxc(:,nvrestart),ioffs)
+  call fmove_cvb(svec,sxc(ioffs+1:,nvrestart),ndim)
+  call fzero(sxc(ndim+ioffs+1:,nvrestart),nparm-ioffs-ndim)
 end if
 
 return

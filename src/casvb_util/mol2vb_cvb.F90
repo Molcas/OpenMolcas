@@ -22,13 +22,11 @@ implicit none
 real(kind=wp) :: vecvb(ndet), vecmol(*)
 integer(kind=iwp) :: isyml
 integer(kind=iwp) :: iwr, nsa, nsb
-integer(kind=iwp), external :: mstackr_cvb
 
 iwr = 1
 call icomb_cvb(norb,nalf,nsa)
 call icomb_cvb(norb,nbet,nsb)
 call mol2vb2_cvb(vecvb,vecmol,isyml,Zero,iwr,nsa,nsb)
-ibasemx = max(ibasemx,mstackr_cvb(0))
 
 return
 

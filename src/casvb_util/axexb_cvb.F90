@@ -12,22 +12,40 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine axexb_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp)
 
-use casvb_global, only: idd
-use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
+use casvb_global, only: ap, axc, c, corenrg, ifollow, ipdd, isaddledd, maxd, mxit, nfrdim, nortiterdd, nparm, nvguess, nvrestart, &
+                        orththrdd, res, resthrdd, rhs, rhsp, solp, solp_res
+use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddrestart_sub, ddsol_sub
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 procedure(ddasonc_sub) :: asonc
 procedure(ddres2upd_sub) :: ddres2upd
-real(kind=wp) :: vec(*), resthr_inp, fx_exp
+real(kind=wp) :: vec(nparm), resthr_inp, fx_exp
 integer(kind=iwp) :: ioptc, iter
-#include "WrkSpc.fh"
+real(kind=wp) :: resthr_use
+procedure(ddres_sub) :: axesxbres_cvb
+procedure(ddrestart_sub) :: ddrestart_cvb
+procedure(ddsol_sub) :: axexbsol_cvb
 
-call axesxb2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,work(idd(1)),work(idd(2)),work(idd(1)),.true.,work(idd(3)), &
-                 work(idd(4)),work(idd(5)),work(idd(6)),work(idd(7)),work(idd(8)))
+! If RESTHR_INP unset use default:
+if (resthr_inp /= Zero) then
+  resthr_use = resthr_inp
+else
+  resthr_use = resthrdd
+end if
+!------------------------------------------
+! ASonC             ASonC10_CVB
+! AxExbSOL_CVB      DDSOL10_CVB
+! AxESxbRES_CVB     DDRES10_CVB
+! DDRES2UPD         DDRES2UPD10_CVB
+! DDRESTART_CVB     DDRESTART_CVB
+!------------------------------------------
+call dirdiag_cvb(asonc,axexbsol_cvb,axesxbres_cvb,ddres2upd,ddrestart_cvb,c,axc,c,.true.,vec,res,rhs,ap,rhsp,solp,solp_res, &
+                 .false.,.true.,.true.,maxd,nparm,nfrdim,nvguess,nvrestart,isaddledd,ifollow,mxit,resthr_use,orththrdd,nortiterdd, &
+                 corenrg,ioptc,iter,fx_exp,ipdd)
 
 return
 

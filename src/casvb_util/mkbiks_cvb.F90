@@ -12,15 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
+!IFG trivial nel, kbasiscvb, ip
 subroutine mkbiks_cvb()
+
+use casvb_global, only: aikcof, bikcof
 
 implicit none
 #include "main_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
 
-call biks_cvb(work(lb(1)),work(lb(2)),iwork(lb(3)),nel,kbasiscvb,(lb(1) == lb(2)),ip(1))
+call biks_cvb(aikcof,bikcof,nel,kbasiscvb,associated(bikcof,aikcof),ip(1))
 
 return
 

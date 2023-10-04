@@ -12,16 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine optize2_cvb(fx,nparm,ioptc,dx,grad,iter_is_1,opta,optb)
+subroutine optize2_cvb(fx,nparm,ioptc,iter_is_1,opta,optb)
 
-use casvb_global, only: endwhenclose, expct, formAD, formAF, fxbest, hh, ip, maxize
+use casvb_global, only: endwhenclose, expct, formAD, formAF, fxbest, hh, ip, maxize, odx, ograd
 use casvb_interfaces, only: opta_sub, optb_sub
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
+real(kind=wp) :: fx
 integer(kind=iwp) :: nparm, ioptc
-real(kind=wp) :: fx, dx(nparm), grad(nparm)
 logical(kind=iwp) :: iter_is_1
 procedure(opta_sub) :: opta
 procedure(optb_sub) :: optb
@@ -34,9 +34,9 @@ converged = .false.
 if (iter_is_1) close2conv = .false.
 
 ! << Initialization >>
-call grad_cvb(grad)
-call ddproj_cvb(grad,nparm)
-grdnrm = dnrm2_(nparm,grad,1)
+call grad_cvb(ograd)
+call ddproj_cvb(ograd,nparm)
+grdnrm = dnrm2_(nparm,ograd,1)
 call opta(nparm)
 
 if (ip >= 2) write(u6,'(/a)') ' *****   2. order optimizer   *****'
@@ -61,17 +61,17 @@ do
       if (.not. first_time) exit
       first_time = .false.
 
-      call testconv_cvb(fx,nparm,dx,grad,exp_tc,close2conv,converged,wrongstat)
+      call testconv_cvb(fx,nparm,odx,ograd,exp_tc,close2conv,converged,wrongstat)
 
       if ((.not. close2conv) .or. close2conv_begin) exit
     end do
     if (((ip == 2) .and. (.not. opth)) .or. (ip >= 3)) then
-      s11 = ddot_(nparm,dx,1,dx,1)
-      s22 = ddot_(nparm,grad,1,grad,1)
-      s12 = ddot_(nparm,dx,1,grad,1)
+      s11 = ddot_(nparm,odx,1,odx,1)
+      s22 = ddot_(nparm,ograd,1,ograd,1)
+      s12 = ddot_(nparm,odx,1,ograd,1)
       write(u6,formAD) ' Overlap between normalized vectors <DX|GRAD> :',s12/sqrt(s11*s22)
     end if
-    call fxdx_cvb(fx,.false.,dx)
+    call fxdx_cvb(fx,.false.,odx)
   end if
   if (.not. opth) exit
 end do
@@ -81,7 +81,7 @@ if ((ioptc >= -1) .and. (hh /= Zero)) then
     write(u6,'(a)') ' '
     write(u6,formAF) ' HH & norm of update :',hh,dxnrm
   end if
-  call update_cvb(dx)
+  call update_cvb(odx)
 end if
 if (converged) then
   ioptc = 0

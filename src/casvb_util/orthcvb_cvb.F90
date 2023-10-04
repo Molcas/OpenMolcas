@@ -14,25 +14,24 @@
 
 subroutine orthcvb_cvb(c,nparm1)
 
-use casvb_global, only: cvbnrm_fr, nfrag, nvb_fr
+use casvb_global, only: cvb, cvbnrm_fr, nfrag, nvb_fr
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: c(*)
 integer(kind=iwp) :: nparm1
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ifr_off, ifrag, ioffs
 real(kind=wp), external :: ddot_
 
 ioffs = nparm1-nprvb+1
 if (nfrag <= 1) then
-  call daxpy_(nprvb,-ddot_(nprvb,work(lv(2)),1,c(ioffs),1)/cvbnrm,work(lv(2)),1,c(ioffs),1)
+  call daxpy_(nprvb,-ddot_(nprvb,cvb,1,c(ioffs),1)/cvbnrm,cvb,1,c(ioffs),1)
 else
-  ifr_off = 0
+  ifr_off = 1
   do ifrag=1,nfrag
-    call daxpy_(nvb_fr(ifrag),-ddot_(nvb_fr(ifrag),work(ifr_off+lv(2)),1,c(ifr_off+ioffs),1)/cvbnrm_fr(ifrag),work(ifr_off+lv(2)), &
-                1,c(ifr_off+ioffs),1)
+    call daxpy_(nvb_fr(ifrag),-ddot_(nvb_fr(ifrag),cvb(ifr_off),1,c(ifr_off+ioffs-1),1)/cvbnrm_fr(ifrag),cvb(ifr_off),1, &
+                c(ifr_off+ioffs-1),1)
     ifr_off = ifr_off+nvb_fr(ifrag)
   end do
 end if

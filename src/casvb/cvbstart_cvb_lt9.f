@@ -12,6 +12,7 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine cvbstart_cvb_lt9(icode)
+      use casvb_global, only: iprm, iunset, lstprm
       implicit real*8 (a-h,o-z)
 #include "main_cvb.fh"
 #include "files_cvb.fh"
@@ -21,7 +22,8 @@
       endvar=(mod(icode,10).eq.2)
       recinp=0d0
       recinp_old=0d0
-        call chpcmpinit_cvb()
-        if(.not.variat)call casinfo1_cvb()
+      lstprm(:) = iunset
+      iprm = 0
+      if(.not.variat)call casinfo1_cvb()
       return
       end

@@ -14,6 +14,7 @@
 
 subroutine io_init_cvb()
 
+use casvb_global, only: idan, mxfiles
 use Definitions, only: wp
 
 implicit none
@@ -24,7 +25,7 @@ implicit none
 nrec = 0
 thresh_io = 1.0e-5_wp
 call izero(iorder,mxunits)
-call daninit_cvb()
+call istkinit_cvb(idan,mxfiles)
 
 ! Preassign some file names to identifiers:
 call setfn_cvb(recn_jobold,'JOBOLD')

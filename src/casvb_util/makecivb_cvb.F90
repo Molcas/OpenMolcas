@@ -17,6 +17,7 @@ subroutine makecivb_cvb(civec,civb,cvbdet,orbs,cvb,ic)
 ! IC=0 : CIVB will contain full set of structures (if PROJCAS).
 ! IC=1 : CIVB will contain only VB structures.
 
+use casvb_global, only: gjorb_type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -24,8 +25,8 @@ implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: civec(ndet), civb(ndet), cvbdet(ndetvb), orbs(norb,norb), cvb(nvb)
 integer(kind=iwp) :: ic
-real(kind=wp), allocatable :: gjorb(:), orbinv(:,:)
-integer(kind=iwp), external :: ihlf_cvb
+type(gjorb_type) :: gjorb
+real(kind=wp), allocatable :: orbinv(:,:)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 if (tstcnt_cvb(civb,3-ic)) return
@@ -35,7 +36,9 @@ if (.not. projcas) then
   call vb2cic_cvb(cvbdet,civb)
 else if (projcas) then
   call mma_allocate(orbinv,norb,norb,label='orbinv')
-  call mma_allocate(gjorb,norb*norb+ihlf_cvb(norb+2*norb*norb),label='gjorb')
+  call mma_allocate(gjorb%r,norb,norb,label='gjorb%r')
+  call mma_allocate(gjorb%i1,norb,label='gjorb%i1')
+  call mma_allocate(gjorb%i2,2,norb*norb,label='gjorb%i2')
 
   if (memplenty) then
     call getci_cvb(civec)
@@ -52,7 +55,9 @@ else if (projcas) then
   if (ic == 1) call vb2cic_cvb(cvbdet,civb)
 
   call mma_deallocate(orbinv)
-  call mma_deallocate(gjorb)
+  call mma_deallocate(gjorb%r)
+  call mma_deallocate(gjorb%i1)
+  call mma_deallocate(gjorb%i2)
 end if
 call setcnt_cvb(civb,3-ic)
 

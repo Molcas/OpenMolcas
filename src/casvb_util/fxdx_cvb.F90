@@ -14,23 +14,20 @@
 
 subroutine fxdx_cvb(fx,fast,dx)
 
+use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvbdet, cvbtry, orbstry
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: fx, dx(*)
 logical(kind=iwp) :: fast
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iwf1, iwf2
 
 dxmove = .false.
-iwf1 = lw(12)
-iwf2 = lw(13)
-call upd_cvb(dx,work(iwf1),work(iwf2))
+call upd_cvb(dx,orbstry,cvbtry)
 if (.not. memplenty) then
-  call ciwr_cvb(work(lc(2)),61002.2_wp)
-  call ciwr_cvb(work(lc(3)),61003.2_wp)
-  call ciwr_cvb(work(lc(4)),61004.2_wp)
+  call ciwr_cvb(civb2,61002.2_wp)
+  call ciwr_cvb(civb3,61003.2_wp)
+  call ciwr_cvb(civb4,61004.2_wp)
   call setcnt2_cvb(2,0)
   call setcnt2_cvb(3,0)
   call setcnt2_cvb(4,0)
@@ -39,19 +36,17 @@ call setcnt2_cvb(6,0)
 call setcnt2_cvb(7,0)
 call setcnt2_cvb(8,0)
 if (icrit == 1) then
-  call fx_svb1_cvb(fx,fast,work(iwf1),work(iwf2),work(lc(1)),work(lc(6)),work(lc(7)),work(lc(8)),work(lw(4)),work(lw(5)), &
-                   work(lw(6)),work(lw(9)))
+  call fx_svb1_cvb(fx,fast,orbstry,cvbtry,civb1,civb6,civb7,civb8,cvbdet)
 else if (icrit == 2) then
-  call fx_evb1_cvb(fx,fast,work(iwf1),work(iwf2),work(lc(1)),work(lc(6)),work(lc(7)),work(lc(8)),work(lw(4)),work(lw(5)), &
-                   work(lw(6)),work(lw(9)))
+  call fx_evb1_cvb(fx,fast,orbstry,cvbtry,civb1,civb6,civb7,civb8,cvbdet)
 end if
 if (.not. memplenty) then
-  call ciwr_cvb(work(lc(6)),61006.2_wp)
-  call ciwr_cvb(work(lc(7)),61007.2_wp)
-  call ciwr_cvb(work(lc(8)),61008.2_wp)
-  call cird_cvb(work(lc(2)),61002.2_wp)
-  call cird_cvb(work(lc(3)),61003.2_wp)
-  call cird_cvb(work(lc(4)),61004.2_wp)
+  call ciwr_cvb(civb6,61006.2_wp)
+  call ciwr_cvb(civb7,61007.2_wp)
+  call ciwr_cvb(civb8,61008.2_wp)
+  call cird_cvb(civb2,61002.2_wp)
+  call cird_cvb(civb3,61003.2_wp)
+  call cird_cvb(civb4,61004.2_wp)
 end if
 ! Figure out what we just calculated, and make it up2date:
 if (dxmove) then

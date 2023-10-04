@@ -15,7 +15,7 @@
 !IFG trivial
 subroutine main_bdata_cvb()
 
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp
 
 implicit none
@@ -93,7 +93,6 @@ md2h(6,8) = 3
 md2h(7,8) = 2
 md2h(8,8) = 1
 
-one = 1.0d0
 two = 2.0d0
 onem = -One
 r3by4 = 0.75_wp

@@ -12,15 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine fx_svb1_cvb(fx,fast,orbstry,cvbtry,civec,civecp,civbs,civb,gjorb,gjorb2,gjorb3,cvbdet)
+subroutine fx_svb1_cvb(fx,fast,orbstry,cvbtry,civec,civecp,civbs,civb,cvbdet)
 
-use casvb_global, only: formE, ovraa_try, ovrab_try
+use casvb_global, only: formE, gjorb, ovraa_try, ovrab_try
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: fx, orbstry(norb,norb), cvbtry(nvb), civec(ndet), civecp(ndet), civbs(ndet), civb(ndet), gjorb(*), gjorb2(*), &
-                 gjorb3(*), cvbdet(ndetvb)
+real(kind=wp) :: fx, orbstry(norb,norb), cvbtry(nvb), civec(ndet), civecp(ndet), civbs(ndet), civb(ndet), cvbdet(ndetvb)
 logical(kind=iwp) :: fast
 #include "print_cvb.fh"
 
@@ -40,7 +39,7 @@ if (fast) then
 else
   call makecivb_cvb(civec,civb,cvbdet,orbstry,cvbtry,0)
   call makecivecp_cvb(civec,civecp,orbstry)
-  call makecivbs_cvb(civbs,orbstry,gjorb,gjorb2,gjorb3,cvbdet)
+  call makecivbs_cvb(civbs,orbstry,cvbdet)
 
   call pvbdot_cvb(civb,civbs,ovraa_try)
   call pvbdot_cvb(civb,civecp,ovrab_try)

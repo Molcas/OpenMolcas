@@ -12,17 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine asonc7init_cvb(igradinp,ippinp)
+subroutine asonc7init_cvb(ippinp)
 
-use casvb_global, only: igrad, ipp7, iter7
+use casvb_global, only: ipp7, iter7
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: igradinp, ippinp
+integer(kind=iwp) :: ippinp
 #include "main_cvb.fh"
 
 iter7 = 0
-igrad = igradinp
 ipp7 = ippinp
 call orthcvb_init_cvb()
 

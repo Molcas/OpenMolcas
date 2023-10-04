@@ -12,24 +12,24 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine makecivbhs_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)
+subroutine makecivbhs_cvb(civbh,civbs,orbs)
 ! Construct CIVBS ( = T(s) * CIVB ) & CIVBH ( = T(O)*H*T(O) * CIVB ):
 
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civbh(ndet), civbs(ndet), orbs(norb,norb), gjorb(*), gjorb2(*), gjorb3(*)
+real(kind=wp) :: civbh(ndet), civbs(ndet), orbs(norb,norb)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 if (tstcnt_cvb(civbs,4) .and. tstcnt_cvb(civbh,5)) then
   return
 else if (tstcnt_cvb(civbs,4)) then
-  call applyth_cvb(civbh,orbs,gjorb,gjorb2,gjorb3)
+  call applyth_cvb(civbh,orbs)
 else if (tstcnt_cvb(civbs,5)) then
-  call applyts_cvb(civbs,orbs,gjorb,gjorb2,gjorb3)
+  call applyts_cvb(civbs,orbs)
 else
-  call applyths_cvb(civbh,civbs,orbs,gjorb,gjorb2,gjorb3)
+  call applyths_cvb(civbh,civbs,orbs)
 end if
 call setcnt_cvb(civbs,4)
 call setcnt_cvb(civbh,5)

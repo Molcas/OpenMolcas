@@ -39,31 +39,25 @@
 
 subroutine str2vbc_cvb(cvb,cvbdet)
 
-use casvb_global, only: i2s_fr, nalf_fr, nconfion_fr, ndetvb_fr, nel_fr, nfrag, nMs_fr, nS_fr, nvb_fr
+use casvb_global, only: bikcof, i2s_fr, idetvb, nalf_fr, nconfion_fr, ndetvb_fr, nel_fr, nfrag, nMs_fr, nS_fr, nvb_fr
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: cvb(nvb), cvbdet(ndetvb)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: idetvb_add, ifnss_add, ifrag, ioffs_cvb, ioffs_cvbdet, kab, kbs, ndetvbs_add
+integer(kind=iwp) :: idetvb_add, ifrag, ioffs_cvb, ioffs_cvbdet, kbs
 
-kab = 2
-kbs = nint(work(lb(kab)))
+kbs = nint(bikcof(0))
 if (kbs /= kbasiscvb) then
   call mkbiks_cvb()
   kbs = kbasiscvb
 end if
 ioffs_cvb = 1
 ioffs_cvbdet = 1
-idetvb_add = ll(17)
-ifnss_add = lb(4)
-if (kbasiscvb == 6) ifnss_add = lb(5)
-ndetvbs_add = lb(6)
+idetvb_add = 1
 do ifrag=1,nfrag
-  call str2vb2_cvb(work(lb(kab)+1),iwork(lb(3)),cvb(ioffs_cvb),cvbdet(ioffs_cvbdet),2,iwork(idetvb_add),i2s_fr(1,ifrag), &
-                   nS_fr(ifrag),nalf_fr(1,ifrag),nMs_fr(ifrag),iwork(ifnss_add),iwork(ndetvbs_add),absym(1),ndetvb_fr(ifrag), &
-                   nvb_fr(ifrag),kbs,nel_fr(ifrag),nel,nconfion_fr(0,ifrag))
+  call str2vb2_cvb(bikcof(1:),cvb(ioffs_cvb),cvbdet(ioffs_cvbdet),2,idetvb(idetvb_add),i2s_fr(1,ifrag),nS_fr(ifrag), &
+                   nalf_fr(1,ifrag),nMs_fr(ifrag),absym(1),ndetvb_fr(ifrag),nvb_fr(ifrag),kbs,nel_fr(ifrag),nconfion_fr(0,ifrag))
   idetvb_add = idetvb_add+ndetvb_fr(ifrag)
   ioffs_cvb = ioffs_cvb+nvb_fr(ifrag)
   ioffs_cvbdet = ioffs_cvbdet+ndetvb_fr(ifrag)

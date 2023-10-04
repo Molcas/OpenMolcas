@@ -14,25 +14,23 @@
 
 subroutine dpgendet_cvb()
 
-use casvb_global, only: iastr_fr, ibstr_fr, nalf_fr, nbet_fr, nconf_fr, nconfion_fr, nda_fr, ndb_fr, ndetvb_fr, nel_fr, nfrag
-
+use casvb_global, only: ia12ind, iapr1, ib12ind, ibpr1, iconfs, idetvb, ixapr1, ixbpr1, nalf_fr, nbet_fr, nconf_fr, nconfion_fr, &
+                        nda_fr, ndb_fr, ndetvb_fr, nel_fr, nfrag
+use Data_Structures, only: Alloc1DiArray_Type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iapr_add, ibase, ibpr_add, iconfs_add, idetvb_add, ifrag, ixapr_add, ixbpr_add, k1, k2, k3, k4, k5, k6, k7, &
-                     mxstack, nalf_l, nbet_l, nda_l, ndb_l
-integer(kind=iwp), external :: mstacki_cvb
+integer(kind=iwp) :: iapr_add, ibpr_add, iconfs_add, idetvb_add, ifrag, ixapr_add, ixbpr_add, mxstack, nalf_l, nbet_l, nda_l, ndb_l
+type(Alloc1DiArray_Type) :: astr_fr(nfrag), bstr_fr(nfrag)
 
-ibase = mstacki_cvb(0)
-
-iapr_add = ll(20)
-ixapr_add = ll(21)
-ibpr_add = ll(22)
-ixbpr_add = ll(23)
-iconfs_add = ll(15)
-idetvb_add = ll(17)
+iapr_add = 1
+ixapr_add = 1
+ibpr_add = 1
+ixbpr_add = 1
+iconfs_add = 1
+idetvb_add = 1
 do ifrag=1,nfrag
   nalf_l = nalf_fr(1,ifrag)
   nbet_l = nbet_fr(1,ifrag)
@@ -42,48 +40,32 @@ do ifrag=1,nfrag
   nda_fr(1,ifrag) = nda_l
   nda_fr(1,ifrag) = nda_l
 
-  call vbgendet_cvb(iwork(iapr_add),iwork(ixapr_add),iwork(ibpr_add),iwork(ixbpr_add),iwork(iconfs_add),iwork(idetvb_add), &
+  call vbgendet_cvb(iapr1(iapr_add),ixapr1(ixapr_add),ibpr1(ibpr_add),ixbpr1(ixbpr_add),iconfs(:,iconfs_add),idetvb(idetvb_add), &
                     nconf_fr(ifrag),nconfion_fr(0,ifrag),nda_l,ndb_l,ndetvb_fr(ifrag),nel_fr(ifrag),noe,nalf_l,nbet_l,norb)
   iapr_add = iapr_add+ndetvb_fr(ifrag)
   ibpr_add = ibpr_add+ndetvb_fr(ifrag)
   ixapr_add = ixapr_add+nda_fr(1,ifrag)+1
   ixbpr_add = ixbpr_add+ndb_fr(1,ifrag)+1
   idetvb_add = idetvb_add+ndetvb_fr(ifrag)
-  iconfs_add = iconfs_add+noe*nconf_fr(ifrag)
+  iconfs_add = iconfs_add+nconf_fr(ifrag)
 end do
 
 do ifrag=1,nfrag
-  iastr_fr(ifrag) = mstacki_cvb(nalf_fr(1,ifrag)*nda_fr(1,ifrag))
-  ibstr_fr(ifrag) = mstacki_cvb(nbet_fr(1,ifrag)*ndb_fr(1,ifrag))
-  call stringen_cvb(nel_fr(ifrag),nalf_fr(1,ifrag),iwork(iastr_fr(ifrag)),iwork(ibstr_fr(ifrag)))
+  call mma_allocate(astr_fr(ifrag)%A,nalf_fr(1,ifrag)*nda_fr(1,ifrag),label='astr_fr')
+  call mma_allocate(bstr_fr(ifrag)%A,nbet_fr(1,ifrag)*ndb_fr(1,ifrag),label='bstr_fr')
+  call stringen_cvb(nel_fr(ifrag),nalf_fr(1,ifrag),astr_fr(ifrag)%A,bstr_fr(ifrag)%A)
 end do
 
-call izero(iwork(ll(7)),naprodvb)
-call izero(iwork(ll(8)),nbprodvb)
-k1 = mstacki_cvb((norb+1)*(nalf+1))
-k2 = mstacki_cvb(nfrag)
-k3 = mstacki_cvb(nfrag)
-k4 = mstacki_cvb(nfrag)
-k5 = mstacki_cvb(nfrag+1)
-k6 = mstacki_cvb(norb*nfrag)
+call izero(ia12ind,naprodvb)
+call izero(ib12ind,nbprodvb)
 mxstack = 100
-k7 = mstacki_cvb(mxstack)
-call detsort2_cvb(iwork(k1),norb,nalf,nfrag,nda_fr(1,1),nalf_fr(1,1),iwork(k2),iwork(ll(7)),iwork(k3),iwork(k4),iwork(k5), &
-                  iwork(1),iastr_fr,iwork(k6),iwork(k7),mxstack)
-call mfreei_cvb(k1)
-k1 = mstacki_cvb((norb+1)*(nbet+1))
-k2 = mstacki_cvb(nfrag)
-k3 = mstacki_cvb(nfrag)
-k4 = mstacki_cvb(nfrag)
-k5 = mstacki_cvb(nfrag+1)
-k6 = mstacki_cvb(norb*nfrag)
-mxstack = 100
-k7 = mstacki_cvb(mxstack)
-call detsort2_cvb(iwork(k1),norb,nbet,nfrag,ndb_fr(1,1),nbet_fr(1,1),iwork(k2),iwork(ll(8)),iwork(k3),iwork(k4),iwork(k5), &
-                  iwork(1),ibstr_fr,iwork(k6),iwork(k7),mxstack)
-call mfreei_cvb(k1)
+call detsort2_cvb(norb,nalf,nfrag,nda_fr(1,1),nalf_fr(1,1),ia12ind,astr_fr,mxstack)
+call detsort2_cvb(norb,nbet,nfrag,ndb_fr(1,1),nbet_fr(1,1),ib12ind,bstr_fr,mxstack)
 
-call mfreei_cvb(ibase)
+do ifrag=1,nfrag
+  call mma_deallocate(astr_fr(ifrag)%A)
+  call mma_deallocate(bstr_fr(ifrag)%A)
+end do
 call setiaprtot_cvb()
 
 return

@@ -12,14 +12,41 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine mksymorbs_cvb()
+
+use casvb_global, only: orbs, sorbs
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
+#include "print_cvb.fh"
+integer(kind=iwp) :: nconstr_kp
+real(kind=wp) :: delorbs, dum(1)
+real(kind=wp), parameter :: thresh = 1.0e-7_wp
+real(kind=wp), external :: detm_cvb, dnrm2_
 
-call mksymorbs2_cvb(work(lv(1)),work(lw(2)))
+if (sym) then
+  call fmove_cvb(orbs,sorbs,norb*norb)
+  nconstr_kp = nconstr
+  nconstr = 0
+  call symtrizorbs_cvb(orbs)
+  nconstr = nconstr_kp
+  call subvec(sorbs,orbs,sorbs,norb*norb)
+  delorbs = dnrm2_(norb*norb,sorbs,1)
+  if ((delorbs > thresh) .and. (ip(1) >= 2)) then
+    write(u6,'(/,a)') ' Change in symmetrized orbitals:'
+    call report_cvb(sorbs,norb)
+  end if
+  call nize_cvb(orbs,norb,dum,norb,0,0)
+  if ((delorbs > thresh) .and. (ip(1) >= 2)) then
+    write(u6,'(a)') ' Orbitals after symmetrization:'
+    call report_cvb(orbs,norb)
+  end if
+  if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
+    write(u6,*) ' Fatal error - orbital matrix singular after symmetrization!'
+    call abend_cvb()
+  end if
+end if
 
 return
 

@@ -15,6 +15,7 @@
 subroutine cvbnrm_cvb(cvb)
 
 use casvb_global, only: nfrag, nvb_fr
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -24,11 +25,11 @@ integer(kind=iwp) :: ifrag, nvbadd
 real(kind=wp), external :: dnrm2_
 
 if (nfrag <= 1) then
-  call dscal_(nvb,one/dnrm2_(nvb,cvb,1),cvb,1)
+  call dscal_(nvb,One/dnrm2_(nvb,cvb,1),cvb,1)
 else
   nvbadd = 1
   do ifrag=1,nfrag
-    call dscal_(nvb_fr(ifrag),one/dnrm2_(nvb_fr(ifrag),cvb(nvbadd),1),cvb(nvbadd),1)
+    call dscal_(nvb_fr(ifrag),One/dnrm2_(nvb_fr(ifrag),cvb(nvbadd),1),cvb(nvbadd),1)
     nvbadd = nvbadd+nvb_fr(ifrag)
   end do
 end if

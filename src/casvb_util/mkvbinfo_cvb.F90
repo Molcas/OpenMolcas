@@ -14,17 +14,15 @@
 
 subroutine mkvbinfo_cvb()
 
-use casvb_global, only: nconfion_fr, nfrag
+use casvb_global, only: iapr, ibpr, iconfs, idetvb, ixapr, ixbpr, nconfion_fr, nfrag
 
 implicit none
-#include "WrkSpc.fh"
 #include "main_cvb.fh"
 
 if (nfrag > 1) then
   call dpgendet_cvb()
 else
-  call vbgendet_cvb(iwork(ll(11)),iwork(ll(12)),iwork(ll(13)),iwork(ll(14)),iwork(ll(15)),iwork(ll(17)),nconf,nconfion_fr(0,1), &
-                    nda,ndb,ndetvb,nel,noe,nalf,nbet,norb)
+  call vbgendet_cvb(iapr,ixapr,ibpr,ixbpr,iconfs,idetvb,nconf,nconfion_fr(0,1),nda,ndb,ndetvb,nel,noe,nalf,nbet,norb)
 end if
 
 return

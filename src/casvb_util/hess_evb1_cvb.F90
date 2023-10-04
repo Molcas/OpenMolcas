@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine hess_evb1_cvb(orbs,civbh,citmp,civb,sorbs,owrk,gjorb,gjorb2,gjorb3,dvbdet,grad1,grad2,hessorb,vec1,iorts,hessinp,hessout)
+subroutine hess_evb1_cvb(orbs,civbh,citmp,civb,sorbs,owrk,dvbdet,grad1,grad2,hessorb,vec1,iorts,hessinp,hessout)
 
 use casvb_global, only: f1, f2, f3, f4, nfrag
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp
 implicit none
 #include "main_cvb.fh"
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
-real(kind=wp) :: orbs(norb,norb), civbh(ndet), citmp(ndet), civb(ndet), sorbs(norb,norb), owrk(norb,norb), gjorb(*), gjorb2(*), &
-                 gjorb3(*), dvbdet(ndetvb), grad1(npr), grad2(npr), hessorb(nprorb,nprorb), vec1(*), hessinp(npr), hessout(npr)
+real(kind=wp) :: orbs(norb,norb), civbh(ndet), citmp(ndet), civb(ndet), sorbs(norb,norb), owrk(norb,norb), dvbdet(ndetvb), &
+                 grad1(npr), grad2(npr), hessorb(nprorb,nprorb), vec1(*), hessinp(npr), hessout(npr)
 integer(kind=iwp) :: iorts(2,nort)
 integer(kind=iwp) :: iorb, iort, jorb, ki, kj, korb, lj, lorb
 real(kind=wp) :: corr1, fac1, fac2, g1f, g2f, hess_ci_nrm, hess_orb_nrm
@@ -85,7 +85,7 @@ else
   call cizero_cvb(citmp)
   call oneexc_cvb(civb,citmp,hessinp,.false.,1)
 end if
-call applythmes_cvb(citmp,orbs,gjorb,gjorb2,gjorb3)
+call applythmes_cvb(citmp,orbs)
 call mkgrd_cvb(civb,citmp,vec1,dvbdet,npr,.true.)
 call daxpy_(npr,f1,vec1,1,hessout,1)
 

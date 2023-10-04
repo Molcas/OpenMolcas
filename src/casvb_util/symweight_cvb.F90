@@ -19,17 +19,17 @@
 !***********************************************************************
 subroutine symweight_cvb(civec1,civec2,osym)
 
+use casvb_global, only: civbvec
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: civec1(*), civec2(*), osym(mxirrep)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: icivec1, icivec2
 
 icivec1 = nint(civec1(1))
 icivec2 = nint(civec2(1))
-call psym1_cvb(work(iaddr_ci(icivec1)),work(iaddr_ci(icivec2)),osym,2)
+call psym1_cvb(civbvec(:,icivec1),civbvec(:,icivec2),osym,2)
 
 return
 

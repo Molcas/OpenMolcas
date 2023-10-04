@@ -14,21 +14,20 @@
 
 subroutine orthcvb_init_cvb()
 
-use casvb_global, only: cvbnrm_fr, nfrag, nvb_fr
+use casvb_global, only: cvb, cvbnrm_fr, nfrag, nvb_fr
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ifr_off, ifrag
 real(kind=wp), external :: ddot_
 
 if (nfrag <= 1) then
-  cvbnrm = ddot_(nvb,work(lv(2)),1,work(lv(2)),1)
+  cvbnrm = ddot_(nvb,cvb,1,cvb,1)
 else
-  ifr_off = 0
+  ifr_off = 1
   do ifrag=1,nfrag
-    cvbnrm_fr(ifrag) = ddot_(nvb_fr(ifrag),work(ifr_off+lv(2)),1,work(ifr_off+lv(2)),1)
+    cvbnrm_fr(ifrag) = ddot_(nvb_fr(ifrag),cvb(ifr_off:),1,cvb(ifr_off:),1)
     ifr_off = ifr_off+nvb_fr(ifrag)
   end do
 end if

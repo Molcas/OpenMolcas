@@ -12,22 +12,71 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine o12eb_cvb( &
 #                    define _CALLING_
 #                    include "optb_interface.fh"
                     )
 
-use casvb_global, only: ix
-use Definitions, only: wp, iwp
+use casvb_global, only: cvb, expct, fxbest, have_solved_it, hh, ip, odx, orbs, scalesmall
+use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "optb_interface.fh"
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp) :: i, ioptc2, ipu, iter2
+real(kind=wp) :: cnrm2, fac, fx_exp, resthr_old = -One, resthr_use
+logical(kind=iwp) :: skip
+real(kind=wp), external :: ddot_, dnrm2_
+procedure(ddasonc_sub) :: asonc12e_cvb
+procedure(ddres2upd_sub) :: ddres2upd10_cvb
 
-call o12eb2_cvb(work(lv(1)),work(lv(2)),nparm,nvb,nfrorb,work(lw(4)),work(lw(5)),work(lw(6)),work(ix(1)),dxnrm,grdnrm,close2conv, &
-                strucopt)
+if (.not. close2conv) then
+  resthr_use = 1.0e-5_wp
+else
+  resthr_use = 0.05_wp*grdnrm
+  resthr_use = max(0.5e-5_wp*0.6_wp,resthr_use)
+  resthr_use = min(1.0e-5_wp,resthr_use)
+end if
+skip = ((resthr_use == resthr_old) .and. have_solved_it)
+resthr_old = resthr_use
+
+if (.not. skip) then
+  call makegjorbs_cvb(orbs)
+
+  call axesx_cvb(asonc12e_cvb,ddres2upd10_cvb,odx,resthr_use,ioptc2,iter2,fx_exp)
+  expct = fx_exp-fxbest
+  have_solved_it = .true.
+
+  if (ip >= 2) write(u6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
+
+  if (strucopt) then
+    cnrm2 = ddot_(nvb,cvb,1,odx(nfrorb+1),1)
+    ! "Orthogonalize" on CVB to get smallest possible update norm:
+    call daxpy_(nvb,-cnrm2,cvb,1,odx(nfrorb+1),1)
+    ! Scale variables according to overlap with CVB:
+    call dscal_(nparm,One/cnrm2,odx,1)
+  else
+    ! We are doing "Augmented" calc:
+    fac = One/odx(1)
+    ! Scale variables according to overlap with CVB:
+    do i=1,nparm-1
+      odx(i) = fac*odx(i+1)
+    end do
+  end if
+end if
+
+dxnrm = dnrm2_(nparm,odx,1)
+if (.not. close2conv) then
+  ipu = 1
+else
+  ipu = 2
+end if
+if ((dxnrm > hh) .or. scalesmall(ipu)) then
+  call dscal_(nparm,hh/dxnrm,odx,1)
+  dxnrm = hh
+end if
 
 return
 

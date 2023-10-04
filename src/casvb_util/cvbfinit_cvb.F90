@@ -15,11 +15,12 @@
 subroutine cvbfinit_cvb()
 
 use casvb_global, only: is_set
-use Definitions, only: iwp
+use Definitions, only: iwp, RtoI
 
 implicit none
 #include "Molcas.fh"
 #include "main_cvb.fh"
+#include "idbl_cvb.fh"
 #include "print_cvb.fh"
 integer(kind=iwp), parameter :: iset = 1
 
@@ -27,8 +28,9 @@ mxaobf = maxbfn
 iprec = 8
 iwidth = 110
 call formats_cvb()
-call setidbl_cvb()
-call meminit_cvb()
+idbl = RtoI
+call setmem('trace=off')
+call setmem('clear=off')
 if (is_set /= iset) then
   ! Initializations below are only carried out once:
   call io_init_cvb()

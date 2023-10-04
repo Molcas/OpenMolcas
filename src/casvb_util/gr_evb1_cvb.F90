@@ -15,6 +15,7 @@
 subroutine gr_evb1_cvb(civbh,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
 
 use casvb_global, only: f1, f2, f3, f4, ww
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -23,7 +24,7 @@ implicit none
 real(kind=wp) :: civbh(ndet), civbs(ndet), civb(ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), vec1(*)
 integer(kind=iwp) :: i
 
-f1 = one/ovraa
+f1 = One/ovraa
 f2 = -two*f1*f1*ww
 f1 = two*f1
 f3 = -f1*f1

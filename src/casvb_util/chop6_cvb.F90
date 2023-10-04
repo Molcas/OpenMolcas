@@ -14,38 +14,56 @@
 
 subroutine chop6_cvb()
 
-use casvb_global, only: icase6, mxdav, release
+use casvb_global, only: grad1, grad2, gradx, hessorb, hesst, icase6, mxdav, release, sstruc, sstruc2, vec1, wdx
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
-integer(kind=iwp) :: i, idav, ir, iremain, mem_applyh, memwrk, mstackr_cvb0, ncimx, need
+integer(kind=iwp) :: idav, ir, iremain, mem_applyh, memwrk, ncimx, need
 logical(kind=iwp) :: done
-integer(kind=iwp), external :: ihlf_cvb, mavailr_cvb, mstackr_cvb
+integer(kind=iwp), external :: ihlf_cvb
 
-if (release(6)) call mfreer_cvb(lp(1))
+if (release(6)) then
+  if (allocated(sstruc)) call mma_deallocate(sstruc)
+  if (allocated(sstruc2)) call mma_deallocate(sstruc2)
+  if (allocated(hessorb)) call mma_deallocate(hessorb)
+  if (allocated(hesst)) call mma_deallocate(hesst)
+  if (allocated(wdx)) call mma_deallocate(wdx)
+  if (allocated(grad1)) call mma_deallocate(grad1)
+  if (allocated(grad2)) call mma_deallocate(grad2)
+  if (allocated(gradx)) call mma_deallocate(gradx)
+  if (allocated(vec1)) call mma_deallocate(vec1)
+end if
 release(6) = .true.
 release(7) = .false.
-lp(1) = mstackr_cvb(0)
 
 call setcnt2_cvb(6,0)
 if (icase6 == 1) then
+  !FIXME: These deallocations should not be needed
+  if (allocated(sstruc)) call mma_deallocate(sstruc)
+  if (allocated(sstruc2)) call mma_deallocate(sstruc2)
+  if (allocated(hessorb)) call mma_deallocate(hessorb)
+  if (allocated(hesst)) call mma_deallocate(hesst)
+  if (allocated(wdx)) call mma_deallocate(wdx)
+  if (allocated(grad1)) call mma_deallocate(grad1)
+  if (allocated(grad2)) call mma_deallocate(grad2)
+  if (allocated(gradx)) call mma_deallocate(gradx)
+  if (allocated(vec1)) call mma_deallocate(vec1)
   ! Standard non-linear optimization procedure:
-  lp(1) = mstackr_cvb(norb*norb+nvb+1+mxirrep)
-  lp(2) = mstackr_cvb(npr)
-  lq(3) = mstackr_cvb(nprorb*nprorb)
-  lq(4) = mstackr_cvb(norb**4)
-  lp(5) = mstackr_cvb(npr)
-  lp(6) = mstackr_cvb(npr)
-  lq(7) = mstackr_cvb(npr)
-  lq(8) = mstackr_cvb(npr)
-  lq(9) = mstackr_cvb(norb*norb)
-  ! Vec1 work array
-  lq(10) = mstackr_cvb(max(npr,ndetvb))
+  call mma_allocate(sstruc,norb*norb+nvb+1+mxirrep,1,label='sstruc')
+  call mma_allocate(sstruc2,npr,1,label='sstruc2')
+  call mma_allocate(hessorb,nprorb,nprorb,label='hessorb')
+  call mma_allocate(hesst,norb**2,norb**2,label='hesst')
+  call mma_allocate(wdx,npr,label='wdx')
+  call mma_allocate(grad1,npr,label='grad1')
+  call mma_allocate(grad2,npr,label='grad2')
+  call mma_allocate(gradx,norb,norb,label='gradx')
+  call mma_allocate(vec1,max(npr,ndetvb),label='vec1')
 else if (icase6 == 2) then
   ! Overlap-based Davidson optimization:
-  iremain = mavailr_cvb()
+  call mma_maxDBLE(iremain)
   maxdav = min(mxiter,nvb,mxdav)
 
   memwrk = ndetvb+5*norb*norb+3*ihlf_cvb(norb+2*norb*norb)
@@ -73,7 +91,7 @@ else if (icase6 == 2) then
 
 else if (icase6 == 3) then
   ! Energy-based Davidson optimization:
-  iremain = mavailr_cvb()
+  call mma_maxDBLE(iremain)
   maxdav = min(mxiter,nvb,mxdav)
 
   mem_applyh = ndet+neread
@@ -108,17 +126,13 @@ else if (icase6 == 3) then
 
 else if (icase6 == 4) then
   ! Wavefunction analysis:
-  mstackr_cvb0 = mstackr_cvb(0)
   if (((.not. variat) .or. endvar) .and. ((ivbweights > 1) .or. (ishstruc == 1))) then
-    lp(1) = mstackr_cvb(nvb*nvb)
-    lp(2) = mstackr_cvb(nvb*nvb)
-  else
-    lp(1) = mstackr_cvb0
-    lp(2) = mstackr_cvb0
+    !FIXME: These deallocations should not be needed
+    if (allocated(sstruc)) call mma_deallocate(sstruc)
+    if (allocated(sstruc2)) call mma_deallocate(sstruc2)
+    call mma_allocate(sstruc,nvb,nvb,label='sstruc')
+    call mma_allocate(sstruc2,nvb,nvb,label='sstruc2')
   end if
-  do i=3,11
-    lp(i) = mstackr_cvb0
-  end do
 end if
 
 return

@@ -12,15 +12,16 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,dxnrm,dx_amx,civec,civb,civbh,res,resh,cvbdet,gjorb)
+subroutine evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,dxnrm,dx_amx,civec,civb,civbh,res,resh)
 
-use casvb_global, only: dx, formAD, formAF, grd
+!Note: this was using "sorbs" and "owrk2" instead of "cvbdet" and "gjorb", probably a bug
+use casvb_global, only: cvbdet, dx, formAD, formAF, gjorb, grd
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, dxnrm, dx_amx, civec(ndet), civb(ndet), civbh(ndet), res(*), resh(*), &
-                 cvbdet(ndetvb), gjorb(*)
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, dxnrm, dx_amx, civec(ndet), civb(ndet), civbh(ndet), res(*), resh(*)
 integer(kind=iwp) :: ioptc, iter
 #include "print_cvb.fh"
 real(kind=wp) :: cnrm, eig(2), h(2,2), orbinv(norb,norb), ovr, rescas_ovr, resnrm
@@ -56,7 +57,7 @@ call applyt_cvb(civb,gjorb)
 call proj_cvb(civb)
 
 call cinorm_cvb(civb,cnrm)
-call ciscale_cvb(civb,one/sqrt(cnrm))
+call ciscale_cvb(civb,One/sqrt(cnrm))
 
 call cicopy_cvb(civb,civbh)
 call applyh_cvb(civbh)
@@ -71,7 +72,7 @@ if (tstfile_cvb(67123.2_wp)) then
   call cird_cvb(resh,67123.2_wp)
   call cidot_cvb(res,resh,rescas_ovr)
   !call cidot_cvb(civb,resh,civb_ovr)
-  !dxnrm_ci = sqrt(Two*(one-civb_ovr))
+  !dxnrm_ci = sqrt(Two*(One-civb_ovr))
   !write(u6,*) ' dxnrm dxnrm_ci :',dxnrm,dxnrm_ci
   !write(u6,*) ' gradient in VB basis :',Two*rescas_ovr/dxnrm
   grad_ok = (Two*rescas_ovr/dxnrm < grd(1,3))
@@ -86,12 +87,12 @@ if (ip(3) >= 2) then
   write(u6,formAD) ' Residual norm:',resnrm
   write(u6,'(a)') ' '
 end if
-call ciscale_cvb(res,one/sqrt(resnrm))
+call ciscale_cvb(res,One/sqrt(resnrm))
 call cidot_cvb(res,civb,ovr)
 ! RES()=RES()-OVR*CIVB()
 call cidaxpy_cvb(-ovr,civb,res)
 call cinorm_cvb(res,resnrm)
-call ciscale_cvb(res,one/sqrt(resnrm))
+call ciscale_cvb(res,One/sqrt(resnrm))
 call cidot_cvb(civbh,civb,h(1,1))
 call cidot_cvb(civbh,res,h(1,2))
 
@@ -129,7 +130,7 @@ else
   call cidaxpy_cvb(h(2,2),res,civb)
 end if
 call cinorm_cvb(civb,cnrm)
-call ciscale_cvb(civb,one/sqrt(cnrm))
+call ciscale_cvb(civb,One/sqrt(cnrm))
 if (memplenty) then
   !call cidot_cvb(civb,civec,ovr)
   call cicopy_cvb(civb,civec)
@@ -141,11 +142,11 @@ end if
 
 evb = evb+corenrg
 fx = evb
-ovraa = one
+ovraa = One
 iter = 1
 ioptc = 0
 !ovrcrit = 0.125e-10_wp
-!if (abs(one-abs(ovr)) > ovrcrit) iter = 2
+!if (abs(One-abs(ovr)) > ovrcrit) iter = 2
 if (.not. (dx_ok .and. grad_ok)) iter = 2
 call setcnt_cvb(civec,1)
 

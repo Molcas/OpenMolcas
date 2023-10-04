@@ -14,18 +14,18 @@
 
 subroutine free2all_cvb(vecfrom,vecto,nvec)
 
+use casvb_global, only: trprm
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: nvec
 real(kind=wp) :: vecfrom(nfr,nvec), vecto(npr,nvec)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ivec
 
 do ivec=1,nvec
   if (.not. orbfr_is_unit) then
-    call mxatb_cvb(work(ls(14)),vecfrom(1,ivec),nprorb,nfrorb,1,vecto(1,ivec))
+    call mxatb_cvb(trprm,vecfrom(1,ivec),nprorb,nfrorb,1,vecto(1,ivec))
   else
     if (nprorb > 0) call fmove_cvb(vecfrom(1,ivec),vecto(1,ivec),nprorb)
   end if

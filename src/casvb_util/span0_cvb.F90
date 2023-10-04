@@ -14,22 +14,23 @@
 
 subroutine span0_cvb(nvecmx1,n)
 
-use casvb_global, only: iaddr, nvecmx, nvtot
+use casvb_global, only: nvecmx, nvtot, span
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nvecmx1, n
+integer(kind=iwp) :: mavailr, nvecmx1, n
 integer(kind=iwp), parameter :: nmult = 5
-integer(kind=iwp), external :: mavailr_cvb, mstackr_cvb
 
-nvecmx = min(nmult*nvecmx1,mavailr_cvb()/n)
+call mma_maxDBLE(mavailr)
+nvecmx = min(nmult*nvecmx1,mavailr/n)
 if (nvecmx <= 0) then
   write(u6,*) ' Not enough vectors in SPAN0_CVB!',nvecmx
-  write(u6,*) ' Remaining memory :',mavailr_cvb()
+  write(u6,*) ' Remaining memory :',mavailr
   write(u6,*) ' Max number of vectors :',nvecmx1
   call abend_cvb()
 end if
-iaddr = mstackr_cvb(n*nvecmx)
+call mma_allocate(span,n,nvecmx,label='span')
 nvtot = 0
 
 return

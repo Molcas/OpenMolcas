@@ -14,27 +14,30 @@
 
 subroutine chop2_cvb()
 
-use casvb_global, only: release
+use casvb_global, only: cvb, orbs, release
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: nvb_alloc
-integer(kind=iwp), external :: mstackr_cvb, nvb_cvb
+integer(kind=iwp), external :: nvb_cvb
 
-if (release(2)) call mfreer_cvb(lv(1))
+if (release(2)) then
+  call mma_deallocate(orbs)
+  call mma_deallocate(cvb)
+end if
 release(2) = .true.
 release(3) = .false.
 
 ! Note zeroing of ORBS and CVB:
-lv(1) = mstackr_cvb(norb*norb)
-work(lv(1):lv(1)+norb*norb-1) = Zero
+call mma_allocate(orbs,norb,norb,label='orbs')
+orbs(:,:) = Zero
 ! (MXNVB should be upper bound on KBASIS & KBASISCVB):
 nvb_alloc = max(nvb_cvb(kbasiscvb),nvb_cvb(kbasis),mxnvb)
-lv(2) = mstackr_cvb(nvb_alloc)
-work(lv(2):lv(2)+nvb_alloc-1) = Zero
+call mma_allocate(cvb,nvb_alloc,label='cvb')
+cvb(:) = Zero
 
 return
 

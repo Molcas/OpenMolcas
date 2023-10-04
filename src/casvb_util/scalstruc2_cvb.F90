@@ -15,6 +15,7 @@
 subroutine scalstruc2_cvb(orbs,cvb,iconfs,ifnss)
 
 use casvb_global, only: i2s_fr, nconfion_fr, nfrag, nS_fr
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -26,7 +27,7 @@ real(kind=wp) :: fac, fac1, fac2
 real(kind=wp), external :: ddot_
 
 if (sc) then
-  fac = one
+  fac = One
   do iorb=1,norb
     fac2 = ddot_(norb,orbs(1,iorb),1,orbs(1,iorb),1)
     fac = fac*sqrt(fac2)

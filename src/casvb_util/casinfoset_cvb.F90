@@ -14,7 +14,7 @@
 
 subroutine casinfoset_cvb()
 
-use Constants, only: Zero, Half
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -116,7 +116,7 @@ do i=1,nstsym_d
     rsum = rsum+weight_d(j,i)
   end do
 end do
-rsum = one/rsum
+rsum = One/rsum
 call dscal_(mxstt_ci*mxstsy_ci,rsum,weight_d,1)
 nel_d = -1
 i2s_d = -1

@@ -14,14 +14,13 @@
 
 subroutine bspset_cvb(kbasis1,ic,need)
 
+use casvb_global, only: ikcoff
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: kbasis1, ic, need
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i
 integer(kind=iwp), allocatable :: kcoff(:,:,:)
 
 if (ic == 1) then
@@ -30,11 +29,9 @@ if (ic == 1) then
   call bspset2_cvb(kcoff,nel,kbasis1,need)
   call mma_deallocate(kcoff)
 else if (ic == 2) then
-  do i=0,(nel+1)*(nel+1)*(nel+1)-1
-    iwork(i+lb(3)) = -1
-  end do
-  call bspset2_cvb(iwork(lb(3)),nel,kbasis1,need)
-  call setifnss_cvb(iwork(lb(4)),iwork(lb(5)),iwork(lb(6)))
+  ikcoff(:,:,:) = -1
+  call bspset2_cvb(ikcoff,nel,kbasis1,need)
+  call setifnss_cvb()
 end if
 if (kbasis1 == 6) need = 0
 

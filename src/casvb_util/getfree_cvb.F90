@@ -14,7 +14,7 @@
 
 subroutine getfree_cvb(nfrr,n_div,nfrdim,iter,fx)
 
-use casvb_global, only: formE
+use casvb_global, only: cvb, formE, orbs
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -24,7 +24,6 @@ real(kind=wp) :: fx
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "print_cvb.fh"
-#include "WrkSpc.fh"
 real(kind=wp) :: fxlast = Zero
 logical(kind=iwp) :: orb_is_cheap
 real(kind=wp), external :: tim_cvb
@@ -43,11 +42,11 @@ if (iter >= 0) then
     if ((ip(3) >= 2) .and. (iter > 1)) write(u6,formE) ' Evb chg. : ',fx-fxlast
   end if
   if (ip(3) >= 2) then
-    call report_cvb(work(lv(1)),norb)
+    call report_cvb(orbs,norb)
     if (strucopt) then
       write(u6,'(/,a)') ' Structure coefficients :'
       write(u6,'(a)') ' ------------------------'
-      call vecprint_cvb(work(lv(2)),nvb)
+      call vecprint_cvb(cvb,nvb)
     end if
   end if
 end if

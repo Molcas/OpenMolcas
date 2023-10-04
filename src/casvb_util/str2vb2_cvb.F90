@@ -12,22 +12,28 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine str2vb2_cvb(bikcof,ikcoff,cvb,cvbdet,iway,idetvb,i2s,nS,nalf1,nMs,ifnss,ndetvbs,absym,ndetvb,nvb,kbasis,nel,neltot, &
-                       nconfion)
+subroutine str2vb2_cvb(bikcof,cvb,cvbdet,iway,idetvb,i2s,nS,nalf1,nMs,absym,ndetvb,nvb,kbasis,nel,nconfion)
 
+use casvb_global, only: ifnss1, ifnss2, ikcoff, ndetvbs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: neltot, ikcoff(0:neltot,0:neltot,0:neltot), iway, ndetvb, idetvb(ndetvb), nS, i2S(nS), nMs, nalf1(nMs), &
-                     ifnss(0:neltot,0:neltot), ndetvbs(0:neltot,0:neltot), nvb, kbasis, nel, nconfion(0:*)
+integer(kind=iwp) :: iway, ndetvb, idetvb(ndetvb), nS, i2S(nS), nMs, nalf1(nMs), nvb, kbasis, nel, nconfion(0:*)
 logical(kind=iwp) :: absym
 real(kind=wp) :: bikcof(*), cvb(nvb), cvbdet(ndetvb)
 integer(kind=iwp) :: i2s_keep, i_det, i_spin, iconfadd, idadd, idet, iMs, ioff, ioff_bikcof, ion, iS, isadd, j_spin, n_det, &
                      n_det_values, n_spin, n_spin_values, nalfsing, nalfsing_det, nalfsing_keep, nelsing
+integer(kind=iwp), pointer :: ifnss(:,:)
 real(kind=wp), allocatable :: tmp(:,:), w(:)
 real(kind=wp), parameter :: sq2 = sqrt(Two), sqp5 = sqrt(Half)
+
+if (kbasis == 6) then
+  ifnss => ifnss2
+else
+  ifnss => ifnss1
+end if
 
 i2s_keep = 0 ! dummy initialize
 nalfsing_keep = 0 ! dummy initialize
@@ -148,6 +154,7 @@ if (iway == 2) then
   end do
 end if
 call mma_deallocate(w)
+nullify(ifnss)
 
 return
 

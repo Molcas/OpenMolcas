@@ -14,22 +14,22 @@
 
 subroutine span2_cvb(c,nvec,s,n,metr)
 
-use casvb_global, only: iaddr, nvtot
+use casvb_global, only: nvtot, span
+use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nvec, n, metr
 real(kind=wp) :: c(n,nvec), s(*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: nvtot_
 
 if (nvtot /= 0) then
-  call span_cvb(work(iaddr),nvtot,nvtot_,s,n,metr)
+  call span_cvb(span,nvtot,nvtot_,s,n,metr)
   nvtot = nvtot_
-  call fmove_cvb(work(iaddr),c,n*nvtot)
+  call fmove_cvb(span,c,n*nvtot)
 end if
 nvec = nvtot
-call mfreer_cvb(iaddr)
+call mma_deallocate(span)
 
 return
 

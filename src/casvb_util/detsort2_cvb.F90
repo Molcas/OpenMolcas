@@ -12,17 +12,26 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine detsort2_cvb(xalf,norb,nalf,nfrag,nda_fr,nalf_fr,nalf_acc,ia12ind,iphase,nc_fac,ncombindex,iastr,iastr_off,iastr_acc, &
-                        istack,mxstack)
+subroutine detsort2_cvb(norb,nalf,nfrag,nda_fr,nalf_fr,ia12ind,astr_fr,mxstack)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Data_Structures, only: Alloc1DiArray_Type
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: norb, nalf, xalf(0:norb,0:nalf), nfrag, nda_fr(nfrag), nalf_fr(nfrag), nalf_acc(nfrag), ia12ind(*), &
-                     iphase(nfrag), nc_fac(nfrag), ncombindex(0:nfrag), iastr(*), iastr_off(nfrag), iastr_acc(norb,nfrag), &
-                     mxstack, istack(mxstack)
+integer(kind=iwp) :: norb, nalf, nfrag, nda_fr(nfrag), nalf_fr(nfrag), ia12ind(*), mxstack
+type(Alloc1DiArray_Type) :: astr_fr(nfrag)
 integer(kind=iwp) :: i, iatotindx, iter, mxiter, nestlevel, nloop
+integer(kind=iwp), allocatable :: iastr_acc(:,:), iphase(:), istack(:), nalf_acc(:), nc_fac(:), ncombindex(:), xalf(:,:)
 integer(kind=iwp), external :: ioemrg2_cvb, minind_cvb
+
+call mma_allocate(xalf,[0,norb],[0,nalf],label='nalf_acc')
+call mma_allocate(nalf_acc,nfrag,label='nalf_acc')
+call mma_allocate(iphase,nfrag,label='iphase')
+call mma_allocate(nc_fac,nfrag,label='nc_fac')
+call mma_allocate(ncombindex,[0,nfrag],label='ncombindex')
+call mma_allocate(iastr_acc,norb,nfrag,label='iastr_acc')
+call mma_allocate(istack,mxstack,label='istack')
 
 call weightfl_cvb(xalf,nalf,norb)
 
@@ -75,13 +84,12 @@ outer: do
 
   ! Here goes the code specific to this loop level.
   if (nestlevel == 1) then
-    call imove_cvb(iastr(1+nalf_fr(nestlevel)*(iter-1)+iastr_off(nestlevel)-1),iastr_acc(1,nestlevel),nalf_fr(nestlevel))
+    call imove_cvb(astr_fr(nestlevel)%A(1+nalf_fr(nestlevel)*(iter-1)),iastr_acc(1,nestlevel),nalf_fr(nestlevel))
     iphase(nestlevel) = 1
   else
     iphase(nestlevel) = iphase(nestlevel-1)* &
                         ioemrg2_cvb(iastr_acc(1,nestlevel-1),nalf_acc(nestlevel-1), &
-                                    iastr(1+nalf_fr(nestlevel)*(iter-1)+iastr_off(nestlevel)-1),nalf_fr(nestlevel), &
-                                    iastr_acc(1,nestlevel))
+                                    astr_fr(nestlevel)%A(1+nalf_fr(nestlevel)*(iter-1)),nalf_fr(nestlevel),iastr_acc(1,nestlevel))
     if (iphase(nestlevel) == 0) cycle outer
   end if
   ncombindex(nestlevel) = ncombindex(nestlevel-1)+nc_fac(nestlevel)*(iter-1)
@@ -91,6 +99,14 @@ outer: do
   end if
 
 end do outer
+
+call mma_deallocate(xalf)
+call mma_deallocate(nalf_acc)
+call mma_deallocate(iphase)
+call mma_deallocate(nc_fac)
+call mma_deallocate(ncombindex)
+call mma_deallocate(iastr_acc)
+call mma_deallocate(istack)
 
 ! This is the end ...
 return

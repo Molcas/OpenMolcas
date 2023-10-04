@@ -15,20 +15,23 @@
 subroutine makecivecp_cvb(civec,civecp,orbs)
 ! Construct CIVECP:
 
+use casvb_global, only: gjorb_type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
 real(kind=wp) :: civec(ndet), civecp(ndet), orbs(norb,norb)
-real(kind=wp), allocatable :: gjorb(:), owrk(:,:)
-integer(kind=iwp), external :: ihlf_cvb
+type(gjorb_type) :: gjorb
+real(kind=wp), allocatable :: owrk(:,:)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 if (tstcnt_cvb(civecp,3)) return
 
 call mma_allocate(owrk,norb,norb,label='owrk')
-call mma_allocate(gjorb,norb*norb+ihlf_cvb(norb+2*norb*norb),label='gjorb')
+call mma_allocate(gjorb%r,norb,norb,label='gjorb%r')
+call mma_allocate(gjorb%i1,norb,label='gjorb%i1')
+call mma_allocate(gjorb%i2,2,norb*norb,label='gjorb%i2')
 call transp_cvb(orbs,owrk,norb,norb)
 call gaussj_cvb(owrk,gjorb)
 if (memplenty) then
@@ -39,7 +42,9 @@ else
 end if
 call applyt_cvb(civecp,gjorb)
 call mma_deallocate(owrk)
-call mma_deallocate(gjorb)
+call mma_deallocate(gjorb%r)
+call mma_deallocate(gjorb%i1)
+call mma_deallocate(gjorb%i2)
 
 call setcnt_cvb(civecp,3)
 

@@ -14,12 +14,12 @@
 
 subroutine pvbdot_cvb(cfrom,cto,ret)
 
+use casvb_global, only: civbvec, iapr, ixapr
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: cfrom(*), cto(*), ret
 #include "main_cvb.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: icfrom, icto
 
 icfrom = nint(cfrom(1))
@@ -28,7 +28,7 @@ if ((iform_ci(icfrom) /= 0) .or. (iform_ci(icto) /= 0)) then
   write(u6,*) ' Unsupported format in PVBDOT'
   call abend_cvb()
 end if
-call pvbcopy2_cvb(work(iaddr_ci(icfrom)),work(iaddr_ci(icto)),iwork(ll(11)),iwork(ll(12)),ret,1)
+call pvbcopy2_cvb(civbvec(:,icfrom),civbvec(:,icto),iapr,ixapr,ret,1)
 
 return
 

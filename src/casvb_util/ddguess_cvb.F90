@@ -14,13 +14,12 @@
 
 subroutine ddguess_cvb(vec,ndim,ioffs)
 
-use casvb_global, only: idd, maxd, nparm, nvguess
+use casvb_global, only: c, maxd, nparm, nvguess
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ndim, ioffs
 real(kind=wp) :: vec(ndim)
-#include "WrkSpc.fh"
 
 nvguess = nvguess+1
 if (nvguess > maxd) then
@@ -31,9 +30,9 @@ if (ndim+ioffs > nparm) then
   write(u6,*) ' Illegal call to DDGUESS :',ndim,ioffs,nparm
   call abend_cvb()
 end if
-call fzero(work(idd(1)+(nvguess-1)*nparm),ioffs)
-call fmove_cvb(vec,work(ioffs+idd(1)+(nvguess-1)*nparm),ndim)
-call fzero(work(ndim+ioffs+idd(1)+(nvguess-1)*nparm),nparm-ioffs-ndim)
+call fzero(c(:,nvguess),ioffs)
+call fmove_cvb(vec,c(ioffs+1:,nvguess),ndim)
+call fzero(c(ndim+ioffs+1:,nvguess),nparm-ioffs-ndim)
 
 return
 

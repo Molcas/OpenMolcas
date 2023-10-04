@@ -21,7 +21,7 @@ implicit none
 #include "optze_cvb.fh"
 integer(kind=iwp) :: nfxvbr, nzrvbr
 logical(kind=iwp) :: changed, construc
-logical(kind=iwp), external :: chpcmp_cvb, lchpcmp_cvb ! ... Change of dimensioning variables ...
+logical(kind=iwp), external :: chpcmp_cvb ! ... Change of dimensioning variables ...
 
 ! Dimensioning for symmetry handling:
 changed = .false.
@@ -36,7 +36,7 @@ if (chpcmp_cvb(ndrot)) changed = .true.
 orbfr_is_unit = ((ndimrel == 0) .and. (nfxorb == 0) .and. (nort == 0) .and. (.not. plc_const))
 ! Set ORBFR_IS_UNIT if optimization method is 'NONE':
 if (imethod == 11) orbfr_is_unit = .true.
-if (lchpcmp_cvb(orbfr_is_unit)) changed = .true.
+if (chpcmp_cvb(merge(1,0,orbfr_is_unit))) changed = .true.
 nfxvbr = nfxvb
 if (lfxvb == 1) nfxvbr = nvb-nfxvb
 nzrvbr = nzrvb

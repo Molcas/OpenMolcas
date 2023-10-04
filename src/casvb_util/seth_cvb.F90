@@ -12,16 +12,42 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
-subroutine seth_cvb(iarr,n)
+subroutine seth_cvb(ivec,n)
+! Buffered integer IO with integer offset (ncnt)
 
-use casvb_global, only: ncnt
-use Definitions, only: iwp
+use casvb_global, only: ibuf, ibuffer, lbuf, ncnt
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, iarr(n)
+integer(kind=iwp) :: n, ivec(n)
+integer(kind=iwp) :: i_max, i_min, ibuf_max, ibuf_min, ivec_offs, jbuf
+logical(kind=iwp) :: full_buffer
+logical(kind=iwp), parameter :: debug = .false.
 
-call wrbis_cvb(iarr,n,ncnt)
+if (n <= 0) return
+
+ibuf_min = ncnt/lbuf+1
+ibuf_max = (ncnt+n-1)/lbuf+1
+ivec_offs = 1
+do jbuf=ibuf_min,ibuf_max
+  i_min = max(1,ncnt+1-(jbuf-1)*lbuf)
+  i_max = min(lbuf,ncnt+n-(jbuf-1)*lbuf)
+  full_buffer = (i_min == 1) .and. (i_max == lbuf)
+
+  if (ibuf /= jbuf) then
+    call bufio_wrbuf_cvb()
+    call bufio_chbuf_cvb(jbuf)
+    if (.not. full_buffer) call bufio_rdbuf_cvb()
+  end if
+  call imove_cvb(ivec(ivec_offs),ibuffer(i_min),i_max-i_min+1)
+  ivec_offs = ivec_offs+i_max-i_min+1
+end do
+
+if (debug) then
+  write(u6,*) ' wrbis :',n,ncnt
+  write(u6,'(40i4)') ivec
+end if
+ncnt = ncnt+n
 
 return
 

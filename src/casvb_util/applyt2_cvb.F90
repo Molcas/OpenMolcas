@@ -15,6 +15,7 @@
 subroutine applyt2_cvb(vec,gjorb,igjorb,i1alf,i1bet,iato,ibto,phato,phbto)
 ! Apply T(O) to the vector VEC. O is defined in terms of GJORB.
 
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -86,7 +87,7 @@ do ij=1,norb*norb
         end if
       end do
     end if
-  else if ((iorb == jorb) .and. (abs(scl-one) > thresh)) then
+  else if ((iorb == jorb) .and. (abs(scl-One) > thresh)) then
     ! Alpha singly occupied
     if (absym(2)) then
       do ia=1,n1a

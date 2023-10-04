@@ -12,24 +12,56 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine o123b_cvb( &
 #                    define _CALLING_
 #                    include "optb_interface.fh"
                     )
 
-use casvb_global, only: ix
+use casvb_global, only: cnrm, eigval, eigvec, isaddle, maxize, odx, odxp, ogradp, owrk, safety, signtol
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 #include "optb_interface.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp) :: nnegeig, nposeig
+real(kind=wp) :: alfastart, eig, eigmn, eigmx, safety_use
+real(kind=wp), external :: dnrm2_
 
 #include "macros.fh"
 unused_var(grdnrm)
 unused_var(close2conv)
 
-call o123b2_cvb(nparm,work(ix(1)),work(ix(3)),work(ix(4)),work(ix(5)),work(ix(6)),work(ix(7)),dxnrm)
+if (maxize) then
+  nposeig = min(isaddle,nparm)
+else
+  nposeig = max(nparm-isaddle,nparm)
+end if
+nnegeig = nparm-nposeig
+
+eigmx = -One
+eigmn = One
+if (nnegeig > 0) eigmx = eigval(nnegeig)
+if (nposeig > 0) eigmn = eigval(nnegeig+1)
+safety_use = safety
+!do
+if ((eigmx < -signtol) .and. (eigmn > signtol)) then
+  alfastart = Zero
+else
+  alfastart = max(eigmx,-eigmn,Zero)+safety_use
+end if
+call getdxp_cvb(odxp,ogradp,eigval,nnegeig,nparm,alfastart)
+cnrm = dnrm2_(nparm,odxp,1)
+!  Increased level shift not necessary when full Hessian is calculated:
+!  if (alfastart == Zero) exit
+!  gnrm = dnrm2_(nparm,ogradp,1)
+!  if ((cnrm <= 1.0e-15_wp) .or. (gnrm <= 1.0e-15_wp) .or. (safety_use == 1.0e-4_wp)) exit
+!  ovr_dx_grad = ddot_(nparm,odxp,1,ogradp,1)/(cnrm*gnrm)
+!  if (ovr_dx_grad >= 0.3_wp) exit
+!  safety_use = 1.0e-4_wp
+!end do
+
+call makedx_cvb(odx,nparm,0,eigvec,eigval,odxp,ogradp,owrk,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
+dxnrm = dnrm2_(nparm,odx,1)
 
 return
 

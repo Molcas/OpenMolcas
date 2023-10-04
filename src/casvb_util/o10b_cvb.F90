@@ -17,13 +17,12 @@ subroutine o10b_cvb( &
 #                   include "optb_interface.fh"
                    )
 
-use casvb_global, only: have_solved_it, ip, ix
+use casvb_global, only: have_solved_it, ip, odx
 use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "optb_interface.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ioptc2, iter2
 real(kind=wp) :: fx_exp, resthr_use
 real(kind=wp), external :: dnrm2_
@@ -37,7 +36,7 @@ else
   resthr_use = min(1.0e-5_wp,resthr_use)
   resthr_use = max(1.0e-9_wp,resthr_use)
 end if
-call axexb_cvb(asonc10_cvb,ddres2upd10_cvb,work(ix(1)),resthr_use,ioptc2,iter2,fx_exp)
+call axexb_cvb(asonc10_cvb,ddres2upd10_cvb,odx,resthr_use,ioptc2,iter2,fx_exp)
 have_solved_it = .true.
 
 if (ip >= 2) write(u6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter2
@@ -47,7 +46,7 @@ if (ioptc2 /= 0) then
   call abend_cvb()
 end if
 
-dxnrm = dnrm2_(nparm,work(ix(1)),1)
+dxnrm = dnrm2_(nparm,odx,1)
 
 return
 
