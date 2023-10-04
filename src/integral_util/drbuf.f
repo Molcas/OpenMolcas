@@ -9,12 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine dRBuf(Array,nArray,Copy)
-      Use dEAF
-      use IOBUF
-      Implicit Real*8 (a-h,o-z)
+      Use dEAF, Only: dEAFARead
+      use IOBUF, Only: InCore, iBuf, iPos, OnDisk, lBuf, DiskMX_Byte,
+     &                 Disk_1, Disk_2, Disk, Buffer, iD, LuTmp
+      Implicit None
       Logical Copy
-#include "SysDef.fh"
+      Integer nArray
       Real*8 Array(nArray)
+#include "SysDef.fh"
+
+      Integer iArray, mArray, jBuf, Left
+      Real*8 Temp
 !
 !     Write (6,*) 'Enter RBuf: iPos @',iPos,'iBuf=,lBuf',iBuf,lBuf
       If (InCore.and.iBuf.eq.2) Then
@@ -24,8 +29,8 @@
       End If
       iArray = 1
       mArray=nArray
-!hjw  Do While (mArray.ge.1)
-10       If (iPos.eq.1) Then
+      Do While (mArray.ge.1)
+         If (iPos.eq.1) Then
 !
 !---------- Wait for pending buffer.
 !
@@ -75,9 +80,8 @@
             iPos=iPos+mArray
             mArray=0
          End If
-      If(mArray.gt.0) goto 10
-!hjw  End Do
+      End Do
 !
 !     Write (6,*) 'Exit RBuf: iPos @',iPos,'iBuf=',iBuf
       Return
-      End
+      End Subroutine dRBuf
