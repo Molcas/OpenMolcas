@@ -20,7 +20,7 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      use Constants
+      use Constants, only: One
       Implicit None
       Integer, Intent(In):: nZeta, nHer, na
       Integer iHer, iCar, ia
@@ -75,4 +75,4 @@
       Call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
 #endif
       Return
-      End
+      End SubRoutine CrtCmp
