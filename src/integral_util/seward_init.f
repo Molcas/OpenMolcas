@@ -119,8 +119,6 @@
 !
       Call Set_Basis_Mode('Valence')
 !
-      Call CovRadT_Init()
-!
 !     nac.fh
 !
       isNAC = .False.
