@@ -10,9 +10,13 @@
 !***********************************************************************
       Subroutine CoSet(iCoSet,nCoSet,iChAtom)
       use Symmetry_Info, only: nIrrep, iOper
-      Implicit Real*8 (A-H,O-Z)
-      Integer iCoSet(0:7)
+      Implicit None
+      Integer, Intent(out):: nCoSet
+      Integer, Intent(In)::  iChAtom
+      Integer, Intent(Out)::  iCoSet(0:7)
+
       Logical Same
+      Integer iIrrep, itest, jCoSet, jtest
 !
 !     Find the coset representatives
 !
@@ -32,4 +36,4 @@
       End Do
 !
       Return
-      End
+      End Subroutine CoSet
