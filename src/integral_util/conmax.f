@@ -20,16 +20,15 @@
 !             University of Lund, SWEDEN                               *
 !             July '91                                                 *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 A(nPrim,mPrim), B(nPrim,nCont), C(mPrim,mCont)
+      Implicit None
+      Integer, Intent(In):: nPrim,nCont,mPrim,mCont
+      Real*8, Intent(In):: B(nPrim,nCont), C(mPrim,mCont)
+      Real*8, Intent(Out):: A(nPrim,mPrim)
 !
+      Integer iPrim, jPrim
+      Real*8, External:: DDot_
+      Real*8 Temp
       Do iPrim = 1, nPrim
-         Temp= Zero
-!        Do iCont = 1, nCont
-!           If (Abs(B(iPrim,iCont)).gt.Temp)
-!    &         Temp = Abs(B(iPrim,iCont))
-!        End Do
          Temp=DDot_(nCont,B(iPrim,1),nPrim,B(iPrim,1),nPrim)
          Do jPrim = 1, mPrim
             A(iPrim,jPrim) = Temp
@@ -37,17 +36,11 @@
       End Do
 !
       Do jPrim = 1, mPrim
-!        Temp = Zero
-!        Do jCont = 1, mCont
-!           If (Abs(C(jPrim,jCont)).gt.Temp)
-!    &         Temp = Abs(C(jPrim,jCont))
-!        End Do
          Temp=DDot_(mCont,C(jPrim,1),mPrim,C(jPrim,1),mPrim)
          Do iPrim = 1, nPrim
-!           A(iPrim,jPrim) = A(iPrim,jPrim)*Temp
             A(iPrim,jPrim) = Sqrt(A(iPrim,jPrim)*Temp)
          End Do
       End Do
 !
       Return
-      End
+      End SubRoutine ConMax
