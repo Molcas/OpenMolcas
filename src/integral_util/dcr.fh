@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      Integer nIndex
       Logical   Done(1275)
       Common /DCR_Done/ Done
       Common /DCR_nIndex/ nIndex

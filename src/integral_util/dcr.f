@@ -65,7 +65,7 @@
       ij = Max(Ind1,Ind2)*(Max(Ind1,Ind2)-1)/2 + Min(Ind1,Ind2)
 !
       If (.Not.Done(ij)) Then
-         Call DCR_(Lambda_all(ij),iStab1,nStab1,iStab2,nStab2,
+         Call DCR_Internal(Lambda_all(ij),iStab1,nStab1,iStab2,nStab2,
      &             iDCR_all(0,ij),mDCR_all(ij))
          Done(ij)=.True.
       End If
@@ -73,18 +73,9 @@
       mDCR  =mDCR_all(ij)
       Call ICopy(mDCR,iDCR_all(0,ij),1,iDCR,1)
 !
-      Return
-      End
-!
-      Subroutine DCR_Init
-#include "dcr.fh"
-      nindex=0
-      Do I=1,1275
-         Done(I)=.False.
-      End Do
-      Return
-      End
-      SubRoutine DCR_(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,mDCR)
+      Contains
+      SubRoutine DCR_Internal(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,
+     &                        mDCR)
 !***********************************************************************
 ! Oject: to compute the double coset representatives (DCR) and Lambda. *
 !                                                                      *
@@ -98,9 +89,12 @@
 !             January '90                                              *
 !***********************************************************************
       Use Symmetry_Info, only: nIrrep, iOper
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer Lambda, nStab1, nStab2, mDCR
       Integer   iStab1(0:nStab1-1),iStab2(0:nStab2-1),iDCR(0:7)
       Integer   iScrt(0:7,0:7)
+
+      Integer i, j, k, jik
 !
       iScrt(:,:)=0
 !
@@ -167,4 +161,12 @@
  210  Continue
 !
       Return
-      End
+      End SubRoutine DCR_Internal
+      End SubRoutine DCR
+      Subroutine DCR_Init()
+      Implicit none
+#include "dcr.fh"
+      nindex=0
+      Done(:)=.False.
+      Return
+      End Subroutine DCR_Init
