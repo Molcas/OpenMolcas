@@ -27,15 +27,18 @@
 !             of Lund, Sweden. Modified to pick up precomputed entities*
 !             rather than to compute them. July '91.                   *
 !***********************************************************************
-      use Constants
+      use Constants, only: One
       use k2_setup, only: nDArray
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nAlpha, nBeta, iphX, iphY, iphZ, IncZet
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
      &       A(3),          B(3),        P(nAlpha*nBeta,3),
      &       Data(nAlpha*nBeta*(nDarray-1)), rKappa(nAlpha*nBeta),
      &       ZInv(nAlpha*nBeta)
       Integer IndZt(nAlpha*nBeta), IndZ(nAlpha*nBeta)
       Logical SkipZt
+
+      Integer nZeta, mZeta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv, iOff
 !
 !     Transfer precomputer data
 !
