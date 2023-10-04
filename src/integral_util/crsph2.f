@@ -31,7 +31,7 @@
       Real*8, Intent(in)::  Win(ijkl*ncd*iCar*jCar),
      &                      Coeff1(iCar,iCar), Coeff2(jCar,jCar)
       Real*8, Intent(inout):: Scrt(nScrt)
-      Real*8, Intent(Out):: Wout(ijkl*ncd*mab)
+      Real*8, Intent(inout):: Wout(ijkl*ncd*mab)
       Logical, Intent(In):: Tr1, Tr2
 !
       If (Tr1.and.Tr2) Then

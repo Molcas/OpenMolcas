@@ -30,7 +30,7 @@
       Real*8, Intent(In):: Win(ijkla*kCar*lCar),
      &                     Coeff3(kCar,kCar), Coeff4(lCar,lCar)
       Real*8, Intent(inout):: Scrt(nScrt)
-      Real*8, Intent(out)::  Wout(mcd*ijkla)
+      Real*8, Intent(inout):: Wout(mcd*ijkla)
       Logical Tr3, Tr4
 !
       If (Tr3.and.Tr4) Then
