@@ -13,8 +13,8 @@
 !***********************************************************************
       SubRoutine CrSph1(Win,ijkla,
      &                  Scrt,nScrt,
-     &                  Coeff3,kCar,kSph,Tr3,Pr3,
-     &                  Coeff4,lCar,lSph,Tr4,Pr4,Wout,mcd)
+     &                  Coeff3,kCar,kSph,Tr3,
+     &                  Coeff4,lCar,lSph,Tr4,Wout,mcd)
 !***********************************************************************
 !                                                                      *
 ! Object : to transform the two-electron integrals from cartesian      *
@@ -29,7 +29,7 @@
       Real*8 Win(ijkla*kCar*lCar), Scrt(nScrt),
      &       Coeff3(kCar,kCar), Coeff4(lCar,lCar),
      &       Wout(mcd*ijkla)
-      Logical Tr3, Pr3, Tr4, Pr4
+      Logical Tr3, Tr4
 !
       If (Tr3.and.Tr4) Then
 !        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
@@ -82,9 +82,4 @@
 !
 !     Call RecPrt(' In CrSph1: (a0|CD)  ',' ',Wout,mcd,ijkla)
       Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_logical(Pr3)
-         Call Unused_logical(Pr4)
-      End If
       End

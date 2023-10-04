@@ -91,8 +91,8 @@ call HRR(la,lb,CoorM(1,1),CoorM(1,2),Work2,nijkla,nMemab,ipIn)
 ! will also put the integrals in the right position for the
 ! transfer equation.
 
-call CrSph1(Work2(ipIn),nijkla,Work3,nWork3,RSph(ipSph(la)),nTri_Elem1(la),nTri_Elem1(la),.false.,.false.,RSph(ipSph(lb)), &
-            nTri_Elem1(lb),nTri_Elem1(lb),.false.,.false.,Work2,nTri_Elem1(la)*nTri_Elem1(lb))
+call CrSph1(Work2(ipIn),nijkla,Work3,nWork3,RSph(ipSph(la)),nTri_Elem1(la),nTri_Elem1(la),.false.,RSph(ipSph(lb)), &
+            nTri_Elem1(lb),nTri_Elem1(lb),.false.,Work2,nTri_Elem1(la)*nTri_Elem1(lb))
 
 ! Apply transfer equation to generate [ab|CD], CDIJKL,a,b
 
@@ -102,7 +102,7 @@ call HRR(la,lb,CoorM(1,1),CoorM(1,2),Work2,ijklcd,nMemab,ipIn)
 ! Transform to spherical gaussians [AB|CD], IJKL,ABCD
 
 call CrSph2(Work2(ipIn),mZeta,nTri_Elem1(la)*nTri_Elem1(lb),Work3,nWork3,RSph(ipSph(la)),nTri_Elem1(la),nTri_Elem1(la),.false., &
-            .false.,RSph(ipSph(lb)),nTri_Elem1(lb),nTri_Elem1(lb),.false.,.false.,Work2,nTri_Elem1(la)*nTri_Elem1(lb))
+            RSph(ipSph(lb)),nTri_Elem1(lb),nTri_Elem1(lb),.false.,Work2,nTri_Elem1(la)*nTri_Elem1(lb))
 
 return
 
