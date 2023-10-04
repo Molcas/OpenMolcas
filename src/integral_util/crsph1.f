@@ -25,10 +25,12 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Win(ijkla*kCar*lCar), Scrt(nScrt),
-     &       Coeff3(kCar,kCar), Coeff4(lCar,lCar),
-     &       Wout(mcd*ijkla)
+      Implicit None
+      Integer, Intent(in):: ijkla, kCar, lCar, kSph, lSph, nScrt, mcd
+      Real*8, Intent(In):: Win(ijkla*kCar*lCar),
+     &                     Coeff3(kCar,kCar), Coeff4(lCar,lCar)
+      Real*8, Intent(inout):: Scrt(nScrt)
+      Real*8, Intent(out)::  Wout(mcd*ijkla)
       Logical Tr3, Tr4
 !
       If (Tr3.and.Tr4) Then
@@ -82,4 +84,4 @@
 !
 !     Call RecPrt(' In CrSph1: (a0|CD)  ',' ',Wout,mcd,ijkla)
       Return
-      End
+      End SubRoutine CrSph1
