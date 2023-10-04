@@ -27,13 +27,16 @@
 !             January '92, modified for gradient calculations.         *
 !***********************************************************************
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nAlpha, nBeta
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
      &       Alpha_(nAlpha*nBeta), Beta_(nAlpha*nBeta),
      &       ZInv(nAlpha*nBeta), A(3), B(3),
      &       P(nAlpha*nBeta,3), rKappa(nAlpha*nBeta)
       Integer Ind_Pair(nAlpha*nBeta+1)
 !
+      Integer iBeta, iAlpha, iZeta
+      Real*8 AB2, Tmp0, Tmp1
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In DoZeta:Alpha',' ',Alpha,nAlpha,1)
@@ -110,4 +113,4 @@
 #endif
 !
       Return
-      End
+      End SubRoutine DoZeta
