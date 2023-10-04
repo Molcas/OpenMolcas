@@ -26,6 +26,7 @@
       use RICD_Info, only: iRI_Type, Do_RI
       use Constants
       use rmat
+      use DCR_mod, only: DCR_Init
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
