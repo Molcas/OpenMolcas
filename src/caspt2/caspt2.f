@@ -511,9 +511,7 @@ C     transition density matrices.
           End If
           Call SavGradParams2(1,UEFF,U0,H0)
 !
-          Call GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
-!
-          IF (IRETURN.NE.0) GOTO 9000
+          Call GradLoop(Heff,Ueff,H0,U0,H0Sav)
         End If
 
 * Back-transform the effective Hamiltonian and the transformation matrix

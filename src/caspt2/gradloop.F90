@@ -11,7 +11,7 @@
 ! Copyright (C) 2023, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-Subroutine GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
+Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 
   USE SUPERINDEX
   USE PT2WFN
@@ -32,7 +32,6 @@ Subroutine GradLoop(IRETURN,Heff,Ueff,H0,U0,H0Sav)
 #include "stdalloc.fh"
 #include "caspt2_grad.fh"
 
-  Integer(kind=iwp), intent(out) :: IRETURN
   character(len=60) :: STLNE2
 
 ! Timers
