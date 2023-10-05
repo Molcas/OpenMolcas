@@ -11,7 +11,7 @@
 ! Copyright (C) 2000, Gunnar Karlstrom                                 *
 !               2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine edip(EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_,
+      Subroutine edip(EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_Eff,
      &                nPolComp,nAnisopol,nXF,iXPolType,nXMolnr,XMolnr)
 
 !***********************************************************************
@@ -52,10 +52,11 @@
       use Langevin_arrays, only: Ravxyz, Cavxyz
       Implicit None
 !
-      Integer nGrid_, nPolComp, nAnisoPol, nXF, iXPolType,
+      Integer nGrid_Eff, nPolComp, nAnisoPol, nXF, iXPolType,
      &        nXMolNr
-      Real*8 Grid(3,nGrid_), EF (4,nGrid_), DipMom   (3,nGrid_),
-     &       dEF(4,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
+      Real*8 Grid(3,nGrid_Eff), EF(4,nGrid_Eff), DipMom(3,nGrid_Eff),
+     &       dEF(4,nGrid_Eff), PolEff(nPolComp,nGrid_Eff),
+     &       DipEff(nGrid_Eff)
       Integer XMolnr(nXMolnr,nXF)
 
       Logical NonEq,lExcl
@@ -67,14 +68,16 @@
       Integer Iter, iGrid, jGrid, i
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_)
-      Call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_)
-      Call RecPrt('edip: DipEff ',' ',DipEff,1,nGrid_)
-      Call RecPrt('edip: Grid ',' ',Grid,3,nGrid_)
+      Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_Eff)
+      Call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_Eff)
+      Call RecPrt('edip: DipEff ',' ',DipEff,1,nGrid_Eff)
+      Call RecPrt('edip: Grid ',' ',Grid,3,nGrid_Eff)
       write(6,*)
-     &'nGrid_,nPolComp,nAnisopol,tk,dampIter,dipCutoff,clim,lDamping',
-     & nGrid_,nPolComp,nAnisopol,tk,dampIter,dipCutoff,clim,lDamping
-      do i=1,nGrid_
+     &'nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff,'//
+     &'clim,lDamping',
+     & nGrid_Eff,nPolComp,nAnisopol,tk,dampIter,dipCutoff,
+     & clim,lDamping
+      do i=1,nGrid_Eff
          write(6,*) 'EDOTr ', i,Grid(1,i)*dEF(1,i)+
      &        Grid(2,i)*dEF(2,i)+Grid(3,i)*dEF(3,i)
       EndDo
@@ -99,7 +102,7 @@
 !---- Loop over Langevin grid and make EF and dipol moments at the
 !     grid self consistent.
 !
-      Do iGrid = 1, nGrid_
+      Do iGrid = 1, nGrid_Eff
 
          fx=dEF(1,iGrid)+EF(1,iGrid)
          fy=dEF(2,iGrid)+EF(2,iGrid)
@@ -120,7 +123,7 @@
          dEF(4,iGrid)=Zero
 
       EndDo
-      Do iGrid = 1, nGrid_
+      Do iGrid = 1, nGrid_Eff
          fx=EF(1,iGrid)
          fy=EF(2,iGrid)
          fz=EF(3,iGrid)
@@ -213,7 +216,7 @@
      &              /Three
             EndIf
          EndIf
-         Do jGrid = 1, nGrid_
+         Do jGrid = 1, nGrid_Eff
             If (iGrid.eq.jGrid) Go To 777
             scal=One
             If(lAmberpol.and.(iXPolType.gt.0).and.(iGrid.le.nXF)
@@ -289,7 +292,7 @@
 !---- Compute EF at the grid due to the charge distribution in MM expansion
 !     for the QM system plus the dipole moments on the grid.
 !
-         Do iGrid = 1, nGrid_
+         Do iGrid = 1, nGrid_Eff
             ghx1=Grid(1,iGrid)
             ghy1=Grid(2,iGrid)
             ghz1=Grid(3,iGrid)
@@ -312,7 +315,7 @@
       EndIf ! if (lRFCav)
 
       fmax=Zero
-      Do iGrid = 1, nGrid_
+      Do iGrid = 1, nGrid_Eff
          ftest=dEF(1,iGrid)**2
      &        +dEF(2,iGrid)**2
      &        +dEF(3,iGrid)**2
@@ -324,7 +327,7 @@
 !
 !---- Check convergence
 !
-!      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
+!      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_Eff)
 
 #ifdef _DEBUGPRINT_
       Write (6,*) Iter,fmax,testa
@@ -337,11 +340,11 @@
 !
 
 #ifdef _DEBUGPRINT_
-      Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_)
+      Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_Eff)
 
 !     Write out dipoles and a pointcharge representation of the dipoles
       Write(6,*)'QREP'
-      do i=1,nGrid_
+      do i=1,nGrid_Eff
          dipabs=sqrt(DipMom(1,i)**2+DipMom(2,i)**2+DipMom(3,i)**2)
          del=0.01
          Write(6,*)Grid(1,i)+DipMom(1,i)/dipabs*del,
@@ -352,7 +355,7 @@
      &             Grid(3,i)-DipMom(3,i)/dipabs*del, -dipabs/del/2.0
       EndDo
 
-      do i=1,nGrid_
+      do i=1,nGrid_Eff
          ddotr=Grid(1,i)*DipMom(1,i)+
      &        Grid(2,i)*DipMom(2,i)+Grid(3,i)*DipMom(3,i)
          dipabs=sqrt(DipMom(1,i)*DipMom(1,i)+DipMom(2,i)*DipMom(2,i)
