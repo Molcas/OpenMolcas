@@ -19,7 +19,13 @@
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module
+      use rctfld_module, only: lGridAverage, nGridAverage, nGridSeed,
+     &                         RotAlpha, RotBeta, RotGamma,
+     &                         Done_Lattice, lFirstIter, nGrid_Eff,
+     &                         lLangevin, PolSI, DIPSI, Scala, TK,
+     &                         RadLat, nSparse, DistSparse, lDamping,
+     &                         DipCutOff, nGrid, CordSI, lDipRestart,
+     &                         lMax, nCavxyz
       Implicit None
       Integer nh1
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
