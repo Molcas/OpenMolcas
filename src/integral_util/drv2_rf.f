@@ -39,25 +39,35 @@
 !             Modified to reaction field calculations July  92         *
 !             Modified loop structure April  99                        *
 !***********************************************************************
-      use setup
-      use Real_Spherical
-      use iSD_data
-      use Basis_Info
-      use Center_Info
+      use Real_Spherical, only: ipSph, rSph
+      use iSD_data, only: iSD
+      use Basis_Info, only: Shells, DBSC, MolWgh
+      use Center_Info, only: DC
       use Gateway_global, only: PrPrt
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 A(3), B(3), Ccoor(3),
-     &       Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer llOper, nOrdOp, lMax, nh0
+      Real*8 Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
+
+      Real*8 A(3), B(3), Ccoor(3)
       Integer   nOp(2), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
       Logical AeqB
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
       Real*8, Allocatable:: Kern(:), Fnl(:,:), Scr1(:), Scr2(:),
      &                      SO_Int(:)
+      Integer ixyz, nElem
+      Integer is, js, iShll, jShll, iBas, jBas, iPrim, jPrim,
+     &        iCnt, jCnt, iAO, jAO, iShell, jShell, iCmp, jCmp,
+     &        iAng, jAng, iCnttp, jCnttp, mdci, mdcj,
+     &        nSkal, iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal,
+     &        nScr1, nScr2, iuv, nStabO, LmbdT, lDCRR, nDCRR,
+     &        lDCRT, nDCRT, nFnc, kk, mSO, nIC, iIC, LmbdR, MemSO1,
+     &        n2Tri, nOrder, NrOpr, nStabM, iDCRRT
+      Real*8 Fact
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
