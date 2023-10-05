@@ -10,20 +10,26 @@
 !***********************************************************************
       Subroutine DrvEFP(First)
 #ifdef _EFP_
-      use EFP_Module
-      use EFP
-      use iso_c_binding, only: c_int, c_char, c_ptr, c_funptr,
-     &                         c_size_t
-      Implicit Real*8 (a-h,o-z)
+      use EFP_Module, only: EFP_Instance, nEFP_FRAGMENTS, Coor_Type,
+     &                      FRAG_Type, EFP_Coors
+      use EFP, only: EFP_Add_Fragment, EFP_Add_Potential,
+     &               EFP_Create, EFP_Get_Frag_Atom_Count, EFP_Prepare,
+     &               EFP_Set_Electron_Density_Field_FN,
+     &               EFP_Set_Frag_Coordinates
+      use iso_c_binding, only: c_int, c_char, c_ptr, c_size_t, c_loc,
+     &                         c_funloc
+      Implicit None
+      Logical First
+
       External Molcas_ELECTRON_DENSITY_FIELD_FN
       Character(len=180) :: CurrDir, MolDir
-      Logical First
       Type(c_ptr) :: cptr1
       integer(c_int) :: irc
       Character(kind=c_char):: Name*180, PATH*180
       Integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
       Integer(c_size_t) :: frag_idx
       Integer(c_size_t), Target :: n_atoms
+      Integer :: iFrag, i, j, iLast
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       type(efp_energy), Target :: Energy
@@ -171,4 +177,4 @@
       If (First .or. .Not.First) Return
 #endif
       Return
-      End
+      End Subroutine DrvEFP
