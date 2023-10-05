@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE TRACHO3(CMO)
       USE CHOVEC_IO
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -20,7 +20,6 @@
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
 ************************************************************************
 *  Author : P. A. Malmqvist

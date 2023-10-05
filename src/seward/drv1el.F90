@@ -35,6 +35,7 @@ use PAM2, only: iPAMcount, iPAMPrim, kCnttpPAM
 use DKH_Info, only: BSS, DKroll
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: Do_FckInt, DoFMM, EMFR, GIAO, kVector, lAMFI, lMXTC, lRel, NEMO, PotNuc, Vlct
+use Integral_interfaces, only: int_kernel, int_mem
 #ifdef _FDE_
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
@@ -69,22 +70,25 @@ integer(kind=iwp), external :: IrrFnc, MltLbl, n2Tri
 integer(kind=iwp), allocatable :: ipList(:), OperI(:), OperC(:), iAtmNr2(:)
 real(kind=wp), allocatable :: CoorO(:), Nuc(:), KnE_Int(:), NA_Int(:), FragP(:), OneHam(:), PtEl(:), PtNuc(:), SumEl(:), &
                               SumNuc(:), Charge2(:)
-external :: MltInt, KnEInt, MVeInt, VeInt, D1Int, NAInt, EFInt, OAMInt, OMQInt, DMSInt, WelInt, XFdInt, PrjInt, QpVInt, M1Int, &
-            M2Int, SROInt, AMPInt, PXPInt, PXInt, VPInt, PPInt, CntInt, EMFInt, MltInt_GIAO, KneInt_GIAO, NAInt_GIAO, &
-            dTdmu_Int, PAM2Int, FragPint, P_Int, EPEInt
-external :: MltMem, KnEMem, MVeMem, VeMem, D1Mem, NAMem, EFMem, OAMMem, OMQMem, DMSMem, WelMem, XFdMem, PrjMem, QpVMem, M1Mem, &
-            M2Mem, SROMem, AMPMem, PXPmem, PXMem, VPMem, PPMem, CntMem, EMFMem, MltMem_GIAO, KneMem_GIAO, NAMem_GIAO, &
-            dTdmu_Mem, PAM2Mem, FragPMem, P_Mem, EPEMem
+procedure(int_kernel) :: AMPInt, CntInt, D1Int, DMSInt, dTdmu_Int, EFInt, EMFInt, FragPint, KneInt, KneInt_GIAO, M1Int, M2Int, &
+                         MltInt, MltInt_GIAO, MVeInt, NAInt, NAInt_GIAO, OAMInt, OMQInt, P_Int, PAM2Int, PPInt, PrjInt, PXInt, &
+                         PXPInt, QpVInt, SROInt, VeInt, VPInt, WelInt, XFdInt
+procedure(int_mem) :: AMPMem, CntMem, D1Mem, DMSMem, dTdmu_Mem, EFMem, EMFMem, FragPMem, KneMem, KneMem_GIAO, M1Mem, M2Mem, &
+                      MltMem, MltMem_GIAO, MVeMem, NAMem, NAMem_GIAO, OAMMem, OMQMem, P_Mem, PAM2Mem, PPMem, PrjMem, PXMem, &
+                      PXPMem, QpVMem, SROMem, VeMem, VPMem, WelMem, XFdMem
 #ifdef _FDE_
 ! Embedding
 integer(kind=iwp) :: iEMb, iunit
 real(kind=wp), allocatable :: Emb_Int(:)
 integer(kind=iwp), external :: isFreeUnit
-external :: embPotKernel, embPotMem
+procedure(int_kernel) :: embPotKernel
+procedure(int_mem) :: embPotMem
 #endif
 #ifdef _GEN1INT_
 integer(kind=iwp) :: nAtoms, jCnt
-external :: DumInt, DumMem ! These won't actually be called, but need to be passed around
+! These won't actually be called, but need to be passed around
+procedure(int_kernel) :: DumInt
+procedure(int_mem) :: DumMem
 #endif
 
 iRout = 131

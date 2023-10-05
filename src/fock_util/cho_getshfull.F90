@@ -14,10 +14,9 @@
 
 subroutine CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,SvShp,mmShl,iShp_rs,mmShl_tot)
 
-use ChoArr, only: iBasSh, iRS2F, iShlSO, iSOShl, nDimRS
-use ChoSwp, only: IndRed, IndRSh
 use Symmetry_Info, only: Mul
-use Data_Structures, only: L_Full_Type
+use Cholesky, only: iBasSh, iiBstR, IndRed, IndRSh, iRS2F, iShlSO, iSOShl, nDimRS, nnBstR, nnShl_tot
+use Cholesky_Structures, only: L_Full_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -28,7 +27,6 @@ integer(kind=iwp), intent(in) :: lLabJ, JNUM, JSYM, IREDC, mmShl, mmShl_tot, iSh
 real(kind=wp), intent(in) :: LabJ(lLabJ)
 type(L_Full_Type), intent(_OUT_) :: ChoV
 real(kind=wp), intent(out) :: SvShp(mmShl,2)
-#include "cholesky.fh"
 integer(kind=iwp) :: i1, iag, ias, iaSg, iaSh, ibg, ibs, ibSg, ibSh, iLoc, iRab, iShp, iSyma, iSymb, jRab, jShp, JVEC, kLabJ, &
                      kRab, NREAD
 integer(kind=iwp), external :: cho_isao

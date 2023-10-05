@@ -81,12 +81,10 @@ c Avoid unused argument warnings
          Call Unused_integer_array(iShell)
          Call Unused_integer_array(kOp)
          Call Unused_logical(Shijij)
-         Call Unused_logical(IJeqKL)
          Call Unused_integer_array(iAO)
          Call Unused_integer_array(iAOst)
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
-         Call Unused_integer(nSkal)
       End If
       End

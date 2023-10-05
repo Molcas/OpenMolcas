@@ -17,8 +17,7 @@ subroutine CHO_CC_drv(rc,CMO)
 !
 !***********************************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -28,9 +27,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: rc
 type(DSBA_Type), intent(in) :: CMO
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, idisk, iE, iLoc, irc, IREDC, iS, iSwap, iSymb, iSymp, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, jSym, &
                      JVC, JVEC, k, l, LREAD, LunChVF, LWORK, mTTvec, mTvec, MUSED, mvec, NAp, NAq, nBatch, nPorb(8), nRS, NUMV, &
                      nVec, nVrs

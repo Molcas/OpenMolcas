@@ -50,7 +50,7 @@ real(kind=wp), allocatable :: Fck(:), CMO(:), Ovl(:), T1(:), T2(:), T3(:), Eps(:
 character(len=180) :: Line
 character(len=80) :: Title
 character(len=8) :: Lbl
-logical(kind=iwp) :: Debug, Trace, Verify
+logical(kind=iwp) :: Debug, Trace, Vrify
 integer(kind=iwp) :: IndType(7,8), nOrb(8), nTmp(8), nBasTot, nBasMax, nTriTot, nSqrTot, iSym, iBas, jBas, kBas
 integer(kind=iwp) :: inFck, inCMO, inOvl, inEps, inT1, inT2, inT3
 integer(kind=iwp) :: Lu, iOpt, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
@@ -77,8 +77,8 @@ if (Trace) then
 end if
 iReturncode = 0
 call getenvf('MOLCAS_TEST',Line)
-Verify = LINE(1:5) == 'CHECK' .or. LINE(1:4) == 'GENE'
-Verify = .true.
+Vrify = LINE(1:5) == 'CHECK' .or. LINE(1:4) == 'GENE'
+Vrify = .true.
 !----------------------------------------------------------------------*
 ! Do some counting                                                     *
 !----------------------------------------------------------------------*
@@ -267,7 +267,7 @@ dummy: if (.true.) then
         ! In real production calculations this step could for all
         ! practical purposes be skipped.
 
-        if (Verify) call Virt_Space(CMO(ijS),CMO(ijS+nB*nC),Ovl(ijT),nB,nC,nS)
+        if (Vrify) call Virt_Space(CMO(ijS),CMO(ijS+nB*nC),Ovl(ijT),nB,nC,nS)
 
         call Square(Fck(ijT),T1,1,nB,nB)
         call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS+nB*nC),nB,Zero,T2,nB)

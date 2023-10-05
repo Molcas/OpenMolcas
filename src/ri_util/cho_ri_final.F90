@@ -11,12 +11,12 @@
 
 subroutine Cho_RI_Final(irc,nVec_RI,l_nVec_RI)
 
+use Cholesky, only: nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: l_nVec_RI, nVec_RI(l_nVec_RI)
-#include "cholesky.fh"
 
 if (l_nVec_RI < nSym) then
   irc = 1

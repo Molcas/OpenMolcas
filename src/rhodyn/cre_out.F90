@@ -19,8 +19,8 @@ subroutine cre_out()
 
 use rhodyn_data, only: basis, d, DM_basis, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, len_sph, lu_csf, lu_dip, &
                        lu_pls, lu_sf, lu_so, n_freq, nconftot, Npop, Nstate, Nstep, Ntime_tmp_dm, out2_fmt, out3_fmt, out_decay_i, &
-                       out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, &
-                       out_ham_i, out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout
+                       out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdmi, out_fdmr, out_fmt, out_fmt_csf, &
+                       out_freq, out_ham_i, out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout
 use mh5, only: mh5_create_dset_real, mh5_create_file, mh5_init_attr
 use Definitions, only: iwp
 
@@ -118,13 +118,16 @@ if (flag_fdm) then
   ! time points for stored full density matrix
   out_tfdm = mh5_create_dset_real(out_id,'TFDM',1,[Ntime_tmp_dm])
   call mh5_init_attr(out_tfdm,'description','TFDM grid')
-  ! full density matrix
+  ! full density matrix (only abs values for state multipoles in spherical basis)
   if (basis == 'SPH') then
-    out_fdm = mh5_create_dset_real(out_id,'FDM',4,[Ntime_tmp_dm,len_sph,d,d])
+    out_fdmr = mh5_create_dset_real(out_id,'SPH_MULTIPOLES',4,[Ntime_tmp_dm,len_sph,d,d])
+    call mh5_init_attr(out_fdmr,'description','Absolute values of state multipoles stored as [n_time,sph_length,d,d]')
   else
-    out_fdm = mh5_create_dset_real(out_id,'FDM',3,[Ntime_tmp_dm,d,d])
+    out_fdmr = mh5_create_dset_real(out_id,'FDM_R',3,[Ntime_tmp_dm,d,d])
+    out_fdmi = mh5_create_dset_real(out_id,'FDM_I',3,[Ntime_tmp_dm,d,d])
+    call mh5_init_attr(out_fdmr,'description','Real part of the full density matrix')
+    call mh5_init_attr(out_fdmi,'description','Imaginary part of the full density matrix')
   end if
-  call mh5_init_attr(out_fdm,'description','Full density matrix ABS')
 end if
 
 ! this file is for the TD-dipole moment data

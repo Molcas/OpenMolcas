@@ -526,9 +526,9 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
                      If (Tmax.gt.CutInt) Then
                         Call Integ_Proc(iCmpV,iShelV,
      &                                  iBasn,jBasn,kBasn,lBasn,kOp,
-     &                                  Shijij,IJeqKL,iAOV,iAOst,nijkl,
+     &                                  Shijij,iAOV,iAOst,nijkl,
      &                                  AOInt,SOInt,nSO,
-     &                                  iSOSym,mSkal,nSOs,
+     &                                  iSOSym,nSOs,
      &                                  TInt,nTInt,nIrrep)
                      Else
                         Tmax=Zero

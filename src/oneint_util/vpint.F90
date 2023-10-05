@@ -24,6 +24,7 @@ subroutine VPInt( &
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
+use Integral_interfaces, only: int_kernel
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -32,25 +33,14 @@ implicit none
 #include "print.fh"
 integer(kind=iwp) :: i, iBeta, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
 external :: Fake, TNAI, XCff2D, XRys2D
-
-    Interface
-    subroutine NAInt( &
-#                define _CALLING_
-#                include "int_interface.fh"
-              )
-    use Definitions, only: wp, iwp
-    use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-    End subroutine NAInt
-
-    End Interface
+procedure(int_kernel) :: NAint
 
 iRout = 221
 iPrint = nPrint(iRout)
 
 if (iPrint >= 99) then
-  call RecPrt(' In vpint: Alpha','(5D20.13)',Alpha,nAlpha,1)
-  call RecPrt(' In vpint: Beta','(5D20.13)',Beta,nBeta,1)
+  call RecPrt(' In VpInt: Alpha','(5D20.13)',Alpha,nAlpha,1)
+  call RecPrt(' In VpInt: Beta','(5D20.13)',Beta,nBeta,1)
 end if
 
 nRys = nHer
@@ -101,7 +91,7 @@ end if
 
 ! Assemble final integral from the derivative integrals
 
-if (iPrint >= 99) call RecPrt(' In vpint: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
+if (iPrint >= 99) call RecPrt(' In VpInt: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
 
 call Util8(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2))
 

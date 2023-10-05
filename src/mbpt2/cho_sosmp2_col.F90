@@ -16,8 +16,8 @@ subroutine Cho_SOSmp2_Col(Col,nDim,iCol,nCol,Buf,l_Buf)
 !
 ! Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
 
-use ChoMP2, only: OldVec
-use ChoMP2_dec, only: NowSym, InCore
+use Cholesky, only: NumCho
+use ChoMP2, only: Incore, lUnit_F, NowSym, nT1am, OldVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -31,8 +31,6 @@ real(kind=wp) :: Fac
 logical(kind=iwp) :: DoClose
 real(kind=wp), allocatable :: Wrk(:)
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Col'
-#include "cholesky.fh"
-#include "chomp2.fh"
 
 if ((nCol < 1) .or. (nDim < 1)) return
 
@@ -40,7 +38,7 @@ iSym = NowSym
 if (nDim /= nT1am(iSym)) then
   write(u6,*) SecNam,': inconsistent dimension. Expected: ',nT1am(iSym),'   Received: ',nDim
   write(u6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
-  call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
+  call SysAbendMsg(SecNam,'inconsistent dimension',' ')
 end if
 
 if (NumCho(iSym) < 1) then
@@ -56,7 +54,7 @@ if (InCore(iSym)) then  ! old vectors available in core
   call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,OldVec,NumCho(iSym),Buf,l_Buf,Fac,irc)
   if (irc /= 0) then
     write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
-    call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[1]')
+    call SysAbendMsg(SecNam,'ChoMP2_Col_Comp error','[1]')
   end if
 
 else ! old vectors must be read on disk
@@ -74,7 +72,7 @@ else ! old vectors must be read on disk
     nVec = min(l_Buf/(nDim+1),NumCho(iSym))
     if (nVec < 1) then
       write(u6,*) SecNam,': insufficient memory for batch!'
-      call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
+      call SysAbendMsg(SecNam,'insufficient memory','[1]')
       nBat = 0
     else
       nBat = (NumCho(iSym)-1)/nVec+1
@@ -112,7 +110,7 @@ else ! old vectors must be read on disk
       end if
       if (irc /= 0) then
         write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
-        call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[2]')
+        call SysAbendMsg(SecNam,'ChoMP2_Col_Comp error','[2]')
       end if
 
     end do
@@ -124,7 +122,7 @@ else ! old vectors must be read on disk
     nVec = min(lWrk/nDim,NumCho(iSym))
     if (nVec < 1) then
       write(u6,*) SecNam,': insufficient memory for batch!'
-      call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
+      call SysAbendMsg(SecNam,'insufficient memory','[2]')
       nBat = 0
     else
       nBat = (NumCho(iSym)-1)/nVec+1
@@ -158,7 +156,7 @@ else ! old vectors must be read on disk
       end if
       if (irc /= 0) then
         write(u6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
-        call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[3]')
+        call SysAbendMsg(SecNam,'ChoMP2_Col_Comp error','[3]')
       end if
 
     end do

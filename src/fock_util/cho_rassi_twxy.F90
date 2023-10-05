@@ -11,6 +11,7 @@
 
 subroutine CHO_rassi_twxy(irc,Scr,ChoV,TUVX,nAorb,JSYM,NUMV,DoReord)
 
+use Cholesky, only: nSym
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Data_Structures, only: SBA_Type, twxy_type
@@ -26,7 +27,6 @@ type(twxy_type), intent(inout) :: Scr
 type(SBA_Type), intent(in) :: ChoV
 real(kind=wp), intent(_OUT_) :: TUVX(*)
 logical(kind=iwp), intent(in) :: DoReord
-#include "cholesky.fh"
 integer(kind=iwp) :: iAorb(8), iRes, iSym, iSymt, iSymw, iSymx, iSymy, it, itG, itw, itwG, iw, iwG, ix, ixG, ixy, ixyG, iy, iyG, &
                      nTA, Ntw, Nxy
 

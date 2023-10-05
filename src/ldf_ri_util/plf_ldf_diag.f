@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine PLF_LDF_Diag(TInt,nTInt,
      &                AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
-     &                iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
+     &                iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 ************************************************************************
 *                                                                      *
 *  object: to sift and index the petite list format integrals.         *
@@ -38,7 +38,6 @@
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nTInt)
       Integer iShell(4), iAO(4), kOp(4),
      &        iAOst(4), iSOs(4)
-      Logical Shijij
 
       external ddot_
 *
@@ -141,6 +140,5 @@
 * Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iShell)
-         Call Unused_logical(Shijij)
       End If
       End

@@ -12,8 +12,7 @@
 ************************************************************************
       SUBROUTINE TRACHO2(CMO,DREF,FFAO,FIAO,FAAO,IF_TRNSF)
       USE CHOVEC_IO
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec, nDimRS
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -21,7 +20,6 @@
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
 ************************************************************************
 *  Author : P. A. Malmqvist

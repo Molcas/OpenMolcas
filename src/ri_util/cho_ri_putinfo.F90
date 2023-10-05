@@ -14,12 +14,11 @@ subroutine Cho_RI_PutInfo(iPass,iRed)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use Cholesky, only: LuRed, LuRed_G, LuRst, LuRst_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iPass, iRed
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iTmp
 logical(kind=iwp) :: doSwap
 

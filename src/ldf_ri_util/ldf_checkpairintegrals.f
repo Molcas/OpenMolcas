@@ -315,6 +315,7 @@ C     efficiency in mind!
 C
 C     Note: this routine uses the non-robust integral representation.
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer iAtomPair
       Integer l_C
@@ -337,7 +338,7 @@ C
       Character*32 SecNam
       Parameter (SecNam='LDF_CheckPairIntegrals_Nonrobust')
 
-      External Int_LDF_SQ
+      Procedure(int_wrout) :: Int_LDF_SQ
 
       Integer  LDF_nBas_Atom
       Integer  LDF_nShell_Atom, LDF_lShell_Atom, LDF_nBasAux_Pair

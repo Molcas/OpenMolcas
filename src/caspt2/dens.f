@@ -1984,8 +1984,7 @@ C
       Subroutine CnstAB_SSDM(DPT2AO,SSDM)
 C
       use ChoVec_io
-      use ChoSwp, only: InfVec
-      use ChoArr, only: nDimRS
+      use Cholesky, only: InfVec, nDimRS
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1996,7 +1995,6 @@ C
 C
 #include "warnings.h"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 C
       Dimension DPT2AO(*),SSDM(*)
       Character*4096 RealName
@@ -2122,7 +2120,7 @@ C
             End If
             Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,1,
-     *                      1,1,1,iSym,JREDC,2,ipWRK,
+     *                      1,1,1,iSym,JREDC,2,ipWRK,Work,
      *                      iSkip)
             ipVecL = ipVecL + lscr
 C

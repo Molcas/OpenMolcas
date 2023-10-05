@@ -46,7 +46,7 @@
       use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 !
       use SpinAV, only: Do_SpinAV
-      use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS, ChFracMem, Damping, DDnOff, DelThr, DIIS,      &
+      use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS, Damping, DDnOff, DelThr, DIIS,      &
                         DIISTh, DoCholesky, DoHLgap, DoLDF, DSCF, DThr, EThr, FThr, Falcon, FckAuf,              &
                         FlipThr, ExFac, FckAuf, HLgap, iAu_ab, iCoCo, iDKeep, InVec, iPrForm, iPrint, iPrOrb,    &
                         isHDF5, iStatPRN, Iter2run, IterPrlv, nD, ivvloop, jPrint, jVOut, kIVO, klockan,       &
@@ -55,6 +55,7 @@
                         RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac,   &
                         Thize, ThrEne, Tot_Charge, Tot_Nuc_Charge, TStop, WrOutD, nConstr, nOrb, nBas,           &
                         Tot_El_Charge, Title, nOcc, nDel, nFro, LstVec, indxc
+      use Cholesky, only: ChFracMem, timings
       use ChoSCF, only: ALGO, dmpk, nScreen, ReOrd
       use MxDM, only: MxIter, MxOptm
       use AddCorr, only: Addc_KSDFT, Do_Addc, Do_Tw
@@ -80,14 +81,12 @@
       Character(LEN=180), External :: Get_Ln
       Integer iArray(32)
       Logical lTtl, IfAufChg,OccSet,FermSet,CharSet,UHFSet,SpinSet
-      Logical Cholesky
+      Logical Chol
       Real*8  ThrRd(1)
       Integer Mode(1)
       character Method*8
       Logical TDen_UsrDef
 
-#include "chotime.fh"
-!
 !     copy input from standard input to a local scratch file
 !
       Call SpoolInp(LuSpool)
@@ -101,7 +100,7 @@
 !
 ! Some initialization
 !
-      Cholesky=.false.
+      Chol=.false.
       ALGO  = 4
       REORD =.false.
       DECO  =.true.
@@ -132,7 +131,7 @@
 ! Read Cholesky info from runfile and save in infscf.fh
       Call DecideOnCholesky(DoCholesky)
       if (DoCholesky) then
-         Cholesky=.True.
+         Chol=.True.
          Call Cho_scf_rdInp(.True.,LuSpool)
          if(ALGO.ge.2)then
             DDnOFF = .True. !do not use diffential density
@@ -519,7 +518,7 @@
 !>>>>>>>>>>>>> CHOL <<<<<<< Cholesky Default Input <<<<<<<<<<<<<<<<<
 !
 20000 Continue
-      Cholesky=.True.
+      Chol=.True.
       Call Cho_scf_rdInp(.True.,LuSpool)
        if(ALGO.ge.2)then
          DDnOFF = .True. !do not use diffential density
@@ -532,7 +531,7 @@
 !     Cholesky with user-defined settings.
 !
 20001 Continue
-      Cholesky=.True.
+      Chol=.True.
       DDnOFF = .False. ! reset to default value
       MiniDn = .True.  ! reset to default value
       Call Cho_scf_rdInp(.False.,LuSpool)
@@ -579,7 +578,7 @@
       GoTo 1000
 !>>>>>>>>>>>>> NDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21001 Continue
-      If (Cholesky) Then
+      If (Chol) Then
          call WarningMessage(1,'RdInp: NDDO and Cholesky are incompatible!!; NDDO Option ignored')
       Else
       InVec=1
@@ -869,7 +868,7 @@
  4200 Continue
       call WarningMessage(2,' Error: Keyword AUFBau is now obsolete!;Use keyword CHARge')
       Call Abend()
-      if(Cholesky)then
+      if(Chol)then
         DDnOFF = .true.
         DECO   = .true.
         MiniDn = .false.
@@ -928,7 +927,7 @@
          call WarningMessage(2,'Options OCCUpied and FERMi are mutually exclusive')
          Call Abend()
       End If
-      if(Cholesky)then
+      if(Chol)then
         DDnOFF = .true.
         DECO   = .true.
         MiniDn = .false.
@@ -1529,7 +1528,7 @@
          Call Abend
       End If
 !
-      If (InVec.eq.1 .and. Aufb .and. .not.Cholesky) Then
+      If (InVec.eq.1 .and. Aufb .and. .not.Chol) Then
          call WarningMessage(2, 'Input error!; Aufbau not compatible with NDDO option')
          Call Abend
       End If

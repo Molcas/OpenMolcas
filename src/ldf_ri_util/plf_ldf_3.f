@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine PLF_LDF_3(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
-     &                     iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
+     &                     iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
      &                     TInt,nTInt,iOff,iShlSO,nBasSh,iSOShl,
      &                     nSO,nShell,nSym,iSSOff)
 ************************************************************************
@@ -40,7 +40,7 @@
       Real*8 AOint(ijkl,jCmp,kCmp,lCmp), TInt(nTInt)
       Integer iSOShl(nSO), iShlSO(nSO), nBasSh(0:nSym-1,nShell)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4), iOff(3)
-      Logical Shijij, Shkl
+      Logical Shkl
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -198,7 +198,6 @@ C     Call RecPrt('TInt',' ',TInt,1,nTInt)
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iCmp)
-         Call Unused_logical(Shijij)
          Call Unused_integer(iBas)
       End If
       End

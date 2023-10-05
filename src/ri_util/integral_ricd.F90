@@ -14,24 +14,23 @@ subroutine Integral_RICD( &
 #                        include "int_wrout_interface.fh"
                         )
 
-use Definitions, only: wp, iwp, u6
 use Int_Options, only: iTOffs
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "int_wrout_interface.fh"
 
 #include "macros.fh"
 unused_var(iShell)
 unused_var(Shijij)
-unused_var(IJeqKL)
 unused_var(SOInt(1))
 unused_var(nSOint)
 unused_var(iSOSym)
-unused_var(nSkal)
 
 if (mSym == 1) then
   ! note that iTOffs is being abused for something else
-  call PLF_RICD(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp,TInt,iTOffs(2),iTOffs(3), &
-                iTOffs(1),iTOffs(4),iTOffs(5))
+  call PLF_RICD(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp,TInt,iTOffs(2),iTOffs(3),iTOffs(1), &
+                iTOffs(4),iTOffs(5))
 else
   write(u6,*) 'Integral_RICD: fatal error!'
   call Abend()

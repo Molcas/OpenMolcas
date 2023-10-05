@@ -49,8 +49,8 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
-      use ChoArr, only: iRS2F, nDimRS
-      use ChoSwp, only: InfVec, IndRed
+      use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas,
+     &                    nDimRS, nnBstR, nSym
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoT(8)
@@ -61,11 +61,6 @@
       Integer  cho_isao
       External cho_isao
 
-* Uses MAXVEC, NSYM, IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3) in
-* cholesky.fh commons /CHOLEV/, /CHORST/, /CHOSHL/
-#include "cholesky.fh"
-* Uses ibas(8), nbas(8) in choorb.fh common /CHOORB/
-#include "choorb.fh"
 #include "WrkSpc.fh"
 
 ************************************************************************

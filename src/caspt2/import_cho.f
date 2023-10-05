@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine import_cho(numcho_pt2,infvec_n2_pt2,maxvec_pt2)
+      use Cholesky, only: infvec_N2, MaxVec, nSym, NumCho
       implicit none
-#include "cholesky.fh"
       integer numcho_pt2(8), infvec_n2_pt2, maxvec_pt2
       integer i
       do i=1,nsym

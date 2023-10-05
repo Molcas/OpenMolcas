@@ -158,6 +158,7 @@ Juraj Raab
 Gerardo Raggi  
 Markus Reiher  
 H. Rieger  
+Thies Romig  
 Björn O. Roos  
 Ulf Ryde  
 Andrzej J. Sadlej  

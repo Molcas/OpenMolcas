@@ -57,12 +57,12 @@ C
         !! First, save A_PT2 in LuCMOPT2
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         If (IFMSCOUP.and.jState.ne.1) Then
-    !       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-    !  &                          'DIRECT','UNFORMATTED',
-    !  &                          iost,.FALSE.,
-    !  &                          1,'OLD',is_error)
+!           Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+!      &                          'DIRECT','UNFORMATTED',
+!      &                          iost,.FALSE.,
+!      &                          1,'OLD',is_error)
           Call GetMem('WRK3','ALLO','Real',ipWRK3,NumCho*NumCho)
-    !       Read (LuCMOPT2) Work(ipWRK3:ipWRK3+NumCho**2-1)
+!           Read (LuCMOPT2) Work(ipWRK3:ipWRK3+NumCho**2-1)
 
           ! read A_PT2 from LUAPT2
           id = 0
@@ -72,10 +72,10 @@ C
           Call GetMem('WRK3','FREE','Real',ipWRK3,NumCho*NumCho)
           ! REWIND LuCMOPT2
         Else
-    !       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-    !  &                         'DIRECT','UNFORMATTED',
-    !  &                          iost,.FALSE.,
-    !  &                          1,'REPLACE',is_error)
+!           Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+!      &                         'DIRECT','UNFORMATTED',
+!      &                          iost,.FALSE.,
+!      &                          1,'REPLACE',is_error)
         End If
 C       write(6,*) "write...",numcho,lucmopt2
 
@@ -830,8 +830,7 @@ C
      *                  FIFA,FIMO)
 
       use ChoVec_io
-      use ChoSwp, only: InfVec
-      use ChoArr, only: nDimRS
+      use Cholesky, only: InfVec, nDimRS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -840,7 +839,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
 
@@ -1197,8 +1195,8 @@ C
 C-----------------------------------------------------------------------
 C
       subroutine getritrfinfo(nnbstr_,maxvec_,n2_)
+      use Cholesky, only: infvec_N2, MaxVec, nnBstR
       implicit real*8(a-h,o-z)
-#include "cholesky.fh"
       dimension nnbstr_(8,3)
       maxvec_ = maxvec
       n2_     = infvec_n2
@@ -1210,10 +1208,10 @@ C
       Subroutine R2FIP(CHSPC,WRK,ipWRK,NUMV,l_NDIMRS,INFVEC,
      *                 nDimRS,nBasT,nSym0,iSym,iSkip,irc,JREDC)
 C
+      Use Cholesky, only: INFVEC_N2, MaxVec, nnBstR
       Implicit Real*8 (A-H,O-Z)
 C
-#include "cholesky.fh"
-C
+#include "WrkSpc.fh"
       Dimension CHSPC(nBasT**2,*),WRK(*),ipWRK(*)
       Dimension INFVEC(MAXVEC,INFVEC_N2,*),nDimRS(nSym0,*),iSkip(8)
 C
@@ -1242,7 +1240,7 @@ C
         ipVecL = ipVecL - lscr
         Call DCopy_(nBasT**2,[0.0D+00],0,WRK,1)
         Call Cho_ReOrdr(irc,CHSPC(ipVecL,1),lscr,1,
-     *                  1,1,1,iSym,JREDC,2,ipWRK,
+     *                  1,1,1,iSym,JREDC,2,ipWRK,Work,
      *                  iSkip)
         Call DCopy_(nBasT**2,WRK,1,CHSPC(1,jloc),1)
         jloc = jloc-1

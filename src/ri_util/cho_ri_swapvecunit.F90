@@ -14,12 +14,11 @@ subroutine Cho_RI_SwapVecUnit(iSym)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
 #endif
+use Cholesky, only: LuCho, LuCho_G
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iSym
-#include "cholesky.fh"
-#include "choglob.fh"
 integer(kind=iwp) :: iTmp
 logical(kind=iwp) :: doSwap
 

@@ -25,6 +25,7 @@
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
      &                            DoCholesky, DoLocK, Estimate, Nscreen,
      &                            Update
+      use Cholesky, only: ChFracMem, timings
       use CMS, only: iCMSOpt,CMSGiveOpt
       use UnixInfo, only: SuperName
       Implicit Real*8 (A-H,O-Z)
@@ -41,10 +42,6 @@
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
-
-#include "chotime.fh"
-#include "chopar.fh"
-
 
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*

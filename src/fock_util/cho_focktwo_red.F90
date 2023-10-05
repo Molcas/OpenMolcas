@@ -62,9 +62,10 @@ subroutine CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DSQ
 !
 !***********************************************************************
 
+use Cholesky, only: nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
-use Data_Structures, only: Deallocate_DT, DSBA_type, Integer_Pointer, Map_to_SBA, SBA_type
+use Data_Structures, only: Deallocate_DT, DSBA_type, Integer_Pointer, SBA_type
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -77,11 +78,9 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chotime.fh"
-#include "cholesky.fh"
 integer(kind=iwp) :: iBatch, iE, irc, IREDC, iS, iSkip(8), iSwap, iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, iSymq, iSymr, &
-                     iSymr_Occ, iSyms, iVec, jD, jDen, jR, jS, jSR, jSym, JVEC, k, KSQ1(8), kTOT, l, lScr, LWORK, MaxSym, Naa, nB, &
-                     nBatch, nD, nG, Nmax, np, nq, nr, NumB, NumV, nVec
+                     iSymr_Occ, iSyms, iVec, jD, jDen, jR, jS, jSR, jSym, JVEC, k, kTOT, l, lScr, LWORK, MaxSym, Naa, nB, nBatch, &
+                     nD, nG, Nmax, np, nq, nr, NumB, NumV, nVec
 real(kind=wp) :: TC1X1, TC1X2, TC2X1, TC2X2, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCREO1, TCREO2, texch(2), TOTCPU, TOTCPU1, TOTCPU2, &
                  TOTWALL, TOTWALL1, TOTWALL2, tread(2), TW1X1, TW1X2, TW2X1, TW2X2, TWC1, TWC2, TWR1, TWR2, TWREO1, TWREO2
 logical(kind=iwp) :: DoSomeC, DoSomeX
@@ -140,9 +139,6 @@ do jSym=1,MaxSym
   if (NumCho(jSym) < 1) cycle
 
   ! ------------------------------------------------------
-
-  ! Pointers to be used for the vectors
-  KSQ1(:) = -6666
 
   ! SET UP THE READING
   ! ------------------
@@ -244,8 +240,6 @@ do jSym=1,MaxSym
       end if
     end do
 
-    call Map_to_SBA(Wab,KSQ1)
-
     lScr = kTOT-iE
 
     ! Reading of the vectors is done in Reduced sets
@@ -255,7 +249,7 @@ do jSym=1,MaxSym
     call CWTIME(TCR1,TWR1)
 
     Scr(1:lScr) => Wab%A0(iE+1:iE+lScr)
-    call CHO_X_getVfull(irc,Scr,lscr,iVEC,NumV,jSym,iSwap,IREDC,KSQ1,iSkip,DoRead)
+    call CHO_X_getVfull(irc,Scr,lscr,iVEC,NumV,jSym,iSwap,IREDC,Wab,iSkip,DoRead)
     Scr => null()
 
     if (irc /= 0) then
@@ -270,7 +264,6 @@ do jSym=1,MaxSym
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
     write(u6,*) 'Total allocated :     ',kTOT
-    write(u6,*) 'Memory pointers KSQ1: ',(KSQ1(i),i=1,nSym)
     write(u6,*) 'lScr:                 ',lScr
     write(u6,*) 'JSYM:                 ',jSym
 #   endif

@@ -18,7 +18,8 @@ use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, f
                        flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, cgamma, HRSO, initialtime, ion_diss, &
                        ipglob, ispin, istates, kext, k_max, linear_chirp, lroots, method, N, N_L2, N_L3, N_Populated, N_pulse, &
                        nconf, ndet, Nmode, Nstate, Nval, omega, p_style, phi, power_shape, pulse_type, pulse_vector, runmode, &
-                       safety, scha, scmp, sdbl, sigma, sint, slog, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
+                       safety, scha, scmp, sdbl, sigma, sint, slog, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout, &
+                       q_max
 use rhodyn_utils, only: dashes
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
@@ -122,6 +123,8 @@ do
     !  V = V/auToCm
     case ('KMAX')
       read(luin,'(I8)') k_max
+    case ('QMAX')
+      read(luin,'(I8)') q_max
     case ('AUGE')
       flag_decay = .true.
     case ('NVAL')

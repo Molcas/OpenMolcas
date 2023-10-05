@@ -17,8 +17,8 @@
 *  Author : M. G. Delcey                                               *
 *                                                                      *
 ************************************************************************
-      use ChoArr, only: nBasSh, nDimRS
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec, nBas, nBasSh, nDimRS, nShell, nSym,
+     &                    NumCho
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       Implicit Real*8 (a-h,o-z)
 #include "warnings.h"
@@ -26,8 +26,6 @@
       Integer   ipLpq(8,3)
       Integer   LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
-#include "cholesky.fh"
-#include "choorb.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Type (DSBA_type) CVa, JA(1), KA, Fka, CMO, Scr

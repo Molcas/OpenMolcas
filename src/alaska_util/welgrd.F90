@@ -85,7 +85,7 @@ end if
 call Rowel(nZeta,r0,expB,k,Zeta,P,Array(iPxyz),Array(ipGri),Array(ipGrin),jsump)
 ip = ip-nZeta
 ip = ip-nZeta*(k+1)*(k/2+1)*(k/4+1)
-if (iPrint >= 99) call RecPrt(' In WelInt: Array(ipGri)l',' ',Array(ipGri),nZeta,jSumP)
+if (iPrint >= 99) call RecPrt(' In WelGrd: Array(ipGri)l',' ',Array(ipGri),nZeta,jSumP)
 
 ipAMx = ip
 ip = ip+nZeta*9
@@ -105,7 +105,7 @@ do ik=1,k
   call Traxyz(nZeta,ik,Array(iOff),Array(ipScr),Array(ipAMx))
   iOff = iOff+nZeta*3**ik
 end do
-if (iPrint >= 99) call RecPrt(' In WelInt: Array(ipGri)g',' ',Array(ipGri),nZeta,jSumP)
+if (iPrint >= 99) call RecPrt(' In WelGrd: Array(ipGri)g',' ',Array(ipGri),nZeta,jSumP)
 call dcopy_(nZeta*jsump,Array(ipGri),1,Array(ipTGri),1)
 ip = ip-nZeta*3**k
 ip = ip-nZeta*9

@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine LDF_Cho_SetLuPri(Value)
+      Use Cholesky, only: LuPri
       Implicit None
       Integer Value
-#include "cholesky.fh"
       LuPri=Value
       End

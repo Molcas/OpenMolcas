@@ -11,7 +11,6 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-!#define _DEBUGPRINT_
 
 subroutine Rys2D(xyz2D,nArg,lRys,nabMax,ncdMax,PAWP,QCWQ,B10,B00,B01)
 !***********************************************************************
@@ -37,9 +36,11 @@ integer(kind=iwp), intent(in) :: nArg, lRys, nabMax, ncdMax
 real(kind=wp), intent(inout) :: xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax)
 real(kind=wp), intent(in) :: PAWP(nArg*lRys,3), QCWQ(nArg*lRys,3), B10(nArg*lRys,3), B00(nArg*lRys,3), B01(nArg*lRys,3)
 integer(kind=iwp) :: iab, icd
+#ifdef _DEBUGPRINT_
+character(len=30) :: Label
+#endif
 
 #ifdef _DEBUGPRINT_
-character*30 Label
 if (nabMax > 0) call RecPrt('Rys2D: PAWP',' ',PAWP,nArg,lRys*3)
 if (ncdMax > 0) call RecPrt('Rys2D: QCWQ',' ',QCWQ,nArg,lRys*3)
 call RecPrt('Rys2D:  B10',' ',B10,nArg*lRys,3)

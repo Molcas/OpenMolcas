@@ -31,7 +31,7 @@ subroutine CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,MinMem,lOff1)
 !                 in the calling routine
 !*****************************************************************
 
-use ChoArr, only: nDimRS
+use Cholesky, only: nDimRS
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Integer_Pointer
 use Definitions, only: iwp

@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2015, Roland Lindh                                     *
 !***********************************************************************
-!#define _DEBUGPRINT_
+
 subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mData1,Data2,mData2,nAlpha,nBeta,nGamma,nDelta,IndZ, &
                   Zeta,ZInv,P,KappAB,IndZet,IndE,Eta,EInv,Q,KappCD,IndEta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil, &
                   vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl,nabcd,mabcd,Wrk,iW2, &
@@ -55,12 +55,12 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mDat
 !         2015                                                         *
 !***********************************************************************
 
+use Breit, only: nComp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Breit, only: nComp
 
 implicit none
 integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, &
@@ -76,10 +76,9 @@ integer(kind=iwp), intent(out) :: IndZet(nZeta), IndEta(nEta), kabcd
 logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
 logical(kind=iwp), intent(inout) :: NoInts, NoPInts, Do_TnsCtl
 integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
-integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMax, ip_ZtMaxD
-
+logical(kind=iwp), parameter :: Nospecial = .false.
 external :: TERI, ModU2, vCff2D, vRys2D
-logical(kind=iwp), parameter :: Nospecial=.false.
+integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMax, ip_ZtMaxD
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'
@@ -117,10 +116,10 @@ else
   ! Select between HRR before contraction or to contract
   ! and perform the HRR later once the complete set of
   ! contracted integrals have been generated.
-#ifdef _DEBUGPRINT_
-  Write (6,*) 'lZeta*lEta,nComp*mabcd=',lZeta*lEta,nComp,mabcd
-  Call RecPrt('DrvRys: [a0|c0]',' ',Wrk(iW2),lZeta*lEta,nComp*mabcd)
-#endif
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'lZeta*lEta,nComp*mabcd=',lZeta*lEta,nComp,mabcd
+  call RecPrt('DrvRys: [a0|c0]',' ',Wrk(iW2),lZeta*lEta,nComp*mabcd)
+# endif
 
   if ((lZeta*lEta < nijkl) .and. (mZeta == nZeta_tot) .and. (mEta == nEta_tot)) then
 
@@ -132,8 +131,8 @@ else
     iW3 = iW2+n1
     call DGeTMO(Wrk(iW2),lZeta*lEta*nComp,lZeta*lEta*nComp,mabcd,Wrk(iW3),mabcd)
     Wrk(iW2:iW2+n1-1) = Wrk(iW3:iW3+n1-1)
-    call TnsCtl(Wrk(iW2),nWork2,Coor,lZeta*lEta*nComp,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld, &
-                iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
+    call TnsCtl(Wrk(iW2),nWork2,Coor,lZeta*lEta*nComp,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
+                iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
     n2 = lZeta*lEta*nComp*nabcd
     if (i_Int /= iW2) Wrk(iW2:iW2+n2-1) = Wrk(i_Int:i_Int+n2-1)
     Do_TnsCtl = .false.
@@ -153,10 +152,10 @@ else
     n4 = mcdMax
     kabcd = mabcd
   end if
-#ifdef _DEBUGPRINT_
-  Write (6,*) 'lZeta*lEta,nComp*mabcd=',lZeta*lEta,nComp,kabcd
-  Call RecPrt('[a0|c0]',' ',Wrk(iW2),lZeta*lEta,nComp*kabcd)
-#endif
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'lZeta*lEta,nComp*mabcd=',lZeta*lEta,nComp,kabcd
+  call RecPrt('[a0|c0]',' ',Wrk(iW2),lZeta*lEta,nComp*kabcd)
+# endif
 
   ! Accumulate to the contracted integrals
 

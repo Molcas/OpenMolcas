@@ -12,6 +12,7 @@
 subroutine Cho_MOTra_Inner(CMO,nCMOs,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,Do_int,ihdf5,Do_ChoInit)
 ! Note: frozen and deleted orbitals are not included in the transformation.
 
+use Cholesky, only: timings
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -28,7 +29,6 @@ real(kind=wp) :: FracMem
 type(DSBA_Type), target :: CMOT(1)
 real(kind=wp), allocatable :: xInt(:)
 integer(kind=iwp), external :: isFreeUnit
-#include "chotime.fh"
 
 n = nBas(1)**2
 do iSym=2,nSym

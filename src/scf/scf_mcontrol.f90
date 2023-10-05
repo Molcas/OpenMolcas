@@ -13,11 +13,10 @@
       Use Para_Info, Only: MyRank
       use InfSCF, only: nIter, DThr, EThr, FThr
       use ChoSCF, only: ALGO, dmpk, nScreen
+      use Cholesky, only: timings
       use Constants, only: Zero
       Implicit None
       Integer id_call
-#include "chotime.fh"
-!
       Integer icount, icount0
       Character(LEN=512) List
       Character(LEN=32)  Value

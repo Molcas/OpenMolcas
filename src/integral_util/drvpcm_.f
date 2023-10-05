@@ -16,9 +16,11 @@
       use PCM_arrays
       use Symmetry_Info, only: nIrrep, iChBas
       use Gateway_global, only: PrPrt
-      use Integral_Interfaces, only: OneEl_Integrals
+      use Integral_Interfaces, only: int_kernel, int_mem,
+     &                               OneEl_Integrals
       Implicit Real*8 (A-H,O-Z)
-      External PCMInt, NaMem
+      Procedure(int_kernel) :: PCMInt
+      Procedure(int_mem) :: NaMem
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Z_Nuc(MaxAto),
      &       Cord(3,MaxAto), Tessera(4,nTs), DMat(nTs,nTs),
      &       VTessera(2,nTs), VSave(2,Nts), QTessera(2,nTs),

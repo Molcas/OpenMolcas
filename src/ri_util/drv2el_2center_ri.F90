@@ -41,10 +41,11 @@ use Index_arrays, only: iSO2Sh, nShBF
 use Gateway_Info, only: CutInt
 use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
+use Int_Options, only: iTOffs
+use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Int_Options, only: iTOffs
 
 implicit none
 real(kind=wp), intent(in) :: ThrAO
@@ -58,8 +59,8 @@ real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Verbose
 character(len=6) :: Name_Q
 real(kind=wp), allocatable :: TInt(:), TMax(:), Tmp(:,:)
+procedure(int_wrout) :: Integral_RI_2
 integer(kind=iwp), external :: IsFreeUnit, nMemAm
-external :: Integral_RI_2
 
 !                                                                      *
 !***********************************************************************

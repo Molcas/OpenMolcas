@@ -47,7 +47,7 @@ incomplete.
 #endif
 
 /* Bit extraction (ibits) with zero length */
-#if ( __PGI )
+#if (( __PGI ) && ( __PGIC__ < 20 ))
 #undef IBITS_LEN_ZERO
 #else
 #define IBITS_LEN_ZERO

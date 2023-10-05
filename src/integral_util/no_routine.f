@@ -8,6 +8,31 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-        Subroutine No_Routine()
-        Return
-        End
+      Subroutine No_Routine(
+#define _FIXED_FORMAT_
+#define _CALLING_
+#include "int_wrout_interface.fh"
+     &                     )
+#include "int_wrout_interface.fh"
+      Return
+c Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer_array(iCmp)
+         Call Unused_integer_array(iShell)
+         Call Unused_integer(iBas)
+         Call Unused_integer(jBas)
+         Call Unused_integer(kBas)
+         Call Unused_integer(lBas)
+         Call Unused_integer_array(kOp)
+         Call Unused_logical(Shijij)
+         Call Unused_integer_array(iAO)
+         Call Unused_integer_array(iAOst)
+         Call Unused_integer(ijkl)
+         Call Unused_real_array(AOInt)
+         Call Unused_real_array(SOInt)
+         Call Unused_integer(nSOint)
+         Call Unused_integer_array(iSOSym)
+         Call Unused_real_array(TInt)
+         Call Unused_integer(mSym)
+      End If
+      End

@@ -11,18 +11,16 @@
 ! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine FnoMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X,Y)
+subroutine FnoMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 ! Purpose: put info in MP2 common blocks.
 
-use Definitions, only: wp, iwp
+use ChoMP2, only: DoFNO, l_Dii
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-real(kind=wp), intent(in) :: X(*), Y(*)
 integer(kind=iwp) :: iSym
-integer(kind=iwp), external :: ip_of_Work
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 nSym = mSym
 
@@ -35,12 +33,8 @@ do iSym=1,nSym
 end do
 
 DoFNO = .true.
-ip_Dab = ip_of_Work(X(1))
-ip_Dii = ip_of_Work(Y(1))
-l_Dab = nExt(1)
 l_Dii = nOcc(1)
 do iSym=2,nSym
-  l_Dab = l_Dab+nExt(iSym)**2
   l_Dii = l_Dii+nOcc(iSym)
 end do
 

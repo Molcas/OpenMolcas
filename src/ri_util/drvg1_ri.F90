@@ -27,7 +27,8 @@ use RI_procedures, only: Effective_CD_Pairs
 use Basis_Info, only: nBas, nBas_Aux
 use pso_stuff, only: AOrb, Case_2C, Case_3C, DMdiag, G1, ij2K, iOff_ij2K, lPSO, lSA, m_Txy, n_ij2K, n_Txy, nG1, nnP, nV_k, nZ_p_k, &
                      Txy, U_k, V_k, Z_p_k
-use RICD_Info, only: Cholesky, Do_RI
+use RICD_Info, only: Chol => Cholesky, Do_RI
+use Cholesky, only: nSym, NumCho
 use Symmetry_Info, only: Mul, nIrrep
 use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
@@ -43,7 +44,6 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
-#include "cholesky.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -104,7 +104,7 @@ end if
 !                                                                      *
 ! In case of the Cholesky approach compute the A and Q matrices.
 
-if (Cholesky .and. (.not. Do_RI)) then
+if (Chol .and. (.not. Do_RI)) then
 
   if (nIrrep /= 1) then
     call WarningMessage(2,'Error in Drvg1_RI')
@@ -294,7 +294,7 @@ call mma_deallocate(iZk)
 !***********************************************************************
 !                                                                      *
 
-if (Cholesky .and. (.not. Do_RI)) then
+if (Chol .and. (.not. Do_RI)) then
 
   ! Map from Cholesky auxiliary basis to the full
   ! 1-center valence product basis.
@@ -429,7 +429,7 @@ if (iMp2prpt == 2) then
 end if
 
 call mma_deallocate(ij2)
-if (Cholesky .and. (.not. Do_RI)) then
+if (Chol .and. (.not. Do_RI)) then
   call mma_deallocate(ij2K)
 end if
 call CloseP()

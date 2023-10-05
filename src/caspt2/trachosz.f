@@ -13,7 +13,7 @@
       SUBROUTINE TRACHOSZ
       USE CHOVEC_IO
       USE Para_Info, ONLY: nProcs
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec
       use caspt2_gradient, only: do_grad
       IMPLICIT NONE
 * ----------------------------------------------------------------
@@ -22,7 +22,6 @@
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

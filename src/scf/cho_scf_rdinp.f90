@@ -17,7 +17,8 @@
 !
 !***********************************************************************
       Use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
-      Use CHoSCF, only: ALGO, dmpk, nScreen, ReOrd
+      Use Cholesky, only: ChFracMem, timings
+      Use ChoSCF, only: ALGO, dmpk, nScreen, ReOrd
       use Constants, only: Zero, Half
       Implicit None
       Logical  DFonly
@@ -30,10 +31,6 @@
       Real*8 dmpk_dfl
       Integer i, iChrct, iPrint, iRout, jRout, Last, n
       Integer, External::iCLast
-!
-#include "chotime.fh"
-#include "chopar.fh"
-
 !
       iRout=1
       iPrint=nPrint(iRout)

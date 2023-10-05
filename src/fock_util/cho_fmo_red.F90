@@ -65,10 +65,11 @@ subroutine CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,DLT,DSQ,FL
 !
 !***********************************************************************
 
+use Cholesky, only: nBas, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, DensityCheck
-use Data_structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, Map_to_SBA, SBA_Type
+use Data_structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -81,12 +82,9 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen), MSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
-integer(kind=iwp) :: i, iBatch, iE, irc, IREDC, iS, iSkip(8), iSwap, iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, iSymq, iSymr, &
-                     iSymr_Occ, iSyms, iVec, jB, jD, jDen, jjB, jjS, jR, jS, jSR, jSym, JVEC, k, kOcc(8), KSQ1(8), KTOT, l, lChoV, &
-                     LKV, lScr, LVK, LWORK, MaxSym, Naa, nBatch, NBL, NK, np, npp, nq, nr, NumV, nVec
+integer(kind=iwp) :: iBatch, iE, irc, IREDC, iS, iSkip(8), iSwap, iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, iSymq, iSymr, &
+                     iSymr_Occ, iSyms, iVec, jB, jD, jDen, jjB, jjS, jR, jS, jSR, jSym, JVEC, k, kOcc(8), KTOT, l, lChoV, LKV, &
+                     lScr, LVK, LWORK, MaxSym, Naa, nBatch, NBL, NK, np, npp, nq, nr, NumV, nVec
 real(kind=wp) :: TC1X1, TC1X2, TC2X1, TC2X2, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCREO1, TCREO2, texch(2), TOTCPU, TOTCPU1, TOTCPU2, &
                  TOTWALL, TOTWALL1, TOTWALL2, tread(2), TW1X1, TW1X2, TW2X1, TW2X2, TWC1, TWC2, TWR1, TWR2, TWREO1, TWREO2, xf, &
                  xnormY
@@ -174,12 +172,6 @@ do jSym=1,MaxSym
 
   if (NumCho(jSym) < 1) cycle
 
-  ! Total length of the vectors
-  do i=1,nSym
-    kSQ1(i) = -6666
-  end do
-  ! ------------------------------------------------------
-
   ! SET UP THE READING
   ! ------------------
   call mma_maxDBLE(LWORK)
@@ -266,12 +258,10 @@ do jSym=1,MaxSym
           else
             iE = iE+npp*NumV
           end if
-          Wab%SB(iSymp)%A2(1:npp,1:NumV) => Wab%A0(iS:)
+          Wab%SB(iSymp)%A2(1:npp,1:NumV) => Wab%A0(iS:iS-1+npp*NumV)
         end if
       end if
     end do
-
-    call Map_to_SBA(Wab,KSQ1)
 
     lChoV = iE
     lScr = kTOT-lChoV
@@ -282,7 +272,7 @@ do jSym=1,MaxSym
 
     call CWTIME(TCR1,TWR1)
 
-    call CHO_X_getVfull(irc,Scr,lScr,iVEC,NumV,jSym,iSwap,IREDC,KSQ1,iSkip,DoRead)
+    call CHO_X_getVfull(irc,Scr,lScr,iVEC,NumV,jSym,iSwap,IREDC,Wab,iSkip,DoRead)
 
     call CWTIME(TCR2,TWR2)
     tread(1) = tread(1)+(TCR2-TCR1)
@@ -293,7 +283,6 @@ do jSym=1,MaxSym
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
     write(u6,*) 'Total allocated :     ',kTOT
-    write(u6,*) 'Memory pointers KSQ1: ',(KSQ1(i),i=1,nSym)
     write(u6,*) 'lScr:                 ',lScr
     write(u6,*) 'lOff1:                ',lOff1
     write(u6,*) 'JSYM:                 ',jSym

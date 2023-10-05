@@ -11,7 +11,7 @@
 
 subroutine Reord_Vk(ip_V_k,nProcs,myProc,nV_k,nV_t,nA,jSym,Array)
 
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

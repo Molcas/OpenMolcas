@@ -14,7 +14,7 @@
      &        IF_CHO,I60DUMMY,NCHSPC,NHTSPC,NFTSPC,NFTSPC_TOT,          &
      &        MXNVC,MXCHARR,I61DUMMY,IL_CHO
 ! Comment: numcho_pt2, InfVec_N2_PT2, and MaxVec_PT2 are copies
-! of corresponding values in commons in file cholesky.fh
+! of corresponding values in module Cholesky.
 ! Values are transferred at the beginning of caspt2.
       COMMON / CHOCASPT2 /IF_CHO,I60DUMMY,                              &
      &   ipUnit_F,ipSp,Lsplit,nIsplit,nAsplit,                          &

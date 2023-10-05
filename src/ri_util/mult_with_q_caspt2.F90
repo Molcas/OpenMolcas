@@ -21,6 +21,7 @@ subroutine Mult_with_Q_CASPT2(nBas_aux,nBas,nIrrep,SubAux)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
+use Cholesky, only: nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -28,7 +29,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
 logical(kind=iwp), intent(in) :: SubAux
-#include "cholesky.fh"
 integer(kind=iwp) :: i, iAdrQ, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jSym, jVec, kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, &
                      l_Q, lRealName, Lu_Q, LUGAMMA, LuGamma2, LUAPT2, lVec, MaxMem, nBas2, nBasTri, nLR, nLRb(8), nseq, NumAux, &
                      NumCV, NumVecJ, NumVecK, nVec
@@ -163,7 +163,7 @@ do iSym=1,nSym
   nBasTri = nTri_Elem(nBas(1))
   nVec = MaxMem/(2*nBasTri+1) ! MaxMem/(2*nLRb(iSym)+1)
   nVec = min(max(NumCV,NumAux),nVec)
-  if (nVec < 1) call ChoMP2_Quit(SecNam,'nVec is non-positive','[1]')
+  if (nVec < 1) call SysAbendMsg(SecNam,'nVec is non-positive','[1]')
 
   l_B_t = nBasTri*nVec ! nLRb(iSym)*nVec
   ip_B = 1+l_B_t

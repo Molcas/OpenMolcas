@@ -59,6 +59,7 @@ subroutine CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,FactX,DLT,DS
 !
 !***********************************************************************
 
+use Cholesky, only: timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Lunit
@@ -75,7 +76,6 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chotime.fh"
 integer(kind=iwp) :: iBatch, iE, iS, iSkip(nSym), iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, ISYMQ, iSymr, iSymr_Occ, iSyms, iVec, &
                      jD, jDen, jE, jR, jS, jSR, jSym, JVEC, k, kRdMem, kSym, l, lu, LWORK, MaxSym, Naa, nb, nBatch, nd, ndim3, nk, &
                      Nmax, np, NumB, NumCho(nSym), NumV, nVec

@@ -28,7 +28,8 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
                         lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
                         Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
-use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use Cholesky, only: Span, ThrCom
+use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
                           iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 #ifdef _FDE_
@@ -69,7 +70,7 @@ integer(kind=iwp) :: BasisTypes(4), BasisTypes_Save(4), i, i1, i2, iAng, iAt, iA
                      LuFS, LuIn, LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, &
                      nFragment, nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
 real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, &
-                 sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp, v
+                 sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp
 
 logical(kind=iwp) :: AnyMode, APThr_UsrDef, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
                      CutInt_UsrDef, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
@@ -1694,7 +1695,7 @@ do
         !                                                              *
         ! Deactivate Cholesky decomposition.
 
-        Cholesky = .false.
+        Chol = .false.
         CholeskyWasSet = .true.
         Do_RI = .false.
 
@@ -1708,7 +1709,7 @@ do
         Do_RI = .false.
         if (.not. CholeskyWasSet) then
           CholeskyWasSet = .true.
-          Cholesky = .true.
+          Chol = .true.
           Do_RI = .false.
           DirInt = .true.
           call Cho_Inp(.true.,-1,u6)
@@ -1739,7 +1740,7 @@ do
         iChk_Ch = 1
         DirInt = .true.
         call Cho_Inp(.true.,-1,u6)
-        Cholesky = .true.
+        Chol = .true.
         call Cho_InpMod('1CCD')
         if ((iChk_RI+iChk_DC) > 0) then
           call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
@@ -1762,7 +1763,7 @@ do
 
         Do_RI = .false.
         CholeskyWasSet = .true.
-        Cholesky = .true.
+        Chol = .true.
         DirInt = .true.
         call Cho_Inp(.false.,LuRd,u6)
         iChk_CH = 1
@@ -1958,7 +1959,7 @@ do
         Do_RI = .false.
         if (.not. CholeskyWasSet) then
           CholeskyWasSet = .true.
-          Cholesky = .true.
+          Chol = .true.
           DirInt = .true.
           call Cho_Inp(.true.,-1,u6)
           call Cho_InpMod('LOW ')
@@ -1974,7 +1975,7 @@ do
         Do_RI = .false.
         if (.not. CholeskyWasSet) then
           CholeskyWasSet = .true.
-          Cholesky = .true.
+          Chol = .true.
           DirInt = .true.
           call Cho_Inp(.true.,-1,u6)
           call Cho_InpMod('MEDI')
@@ -1990,7 +1991,7 @@ do
         Do_RI = .false.
         if (.not. CholeskyWasSet) then
           CholeskyWasSet = .true.
-          Cholesky = .true.
+          Chol = .true.
           DirInt = .true.
           call Cho_Inp(.true.,-1,u6)
           call Cho_InpMod('HIGH')
@@ -3012,7 +3013,7 @@ do
         if (.not. CholeskyWasSet) then
           Do_RI = .false.
           iRI_Type = 0
-          Cholesky = .false.
+          Chol = .false.
           CholeskyWasSet = .true.
         end if
 
@@ -3434,9 +3435,9 @@ end do
 ! 6) if Cholesky threshold is specified, use it.
 ! 7) if span factor is specified, use it.
 
-if (Cholesky) then
+if (Chol) then
   if (Onenly) then
-    Cholesky = .false. ! we gotta be lazy in such cases
+    Chol = .false. ! we gotta be lazy in such cases
   else
     if (.not. CutInt_UsrDef) CutInt = Cho_CutInt
     if (.not. ThrInt_UsrDef) ThrInt = Cho_ThrInt
@@ -3455,13 +3456,9 @@ if (Cholesky) then
     end if
     if (CholeskyThr >= Zero) then
       Thrshld_CD = CholeskyThr
-      call Cho_SetDecompositionThreshold(Thrshld_CD)
-      call Put_Thr_Cho(Thrshld_CD)
+      ThrCom = Thrshld_CD
     end if
-    if (spanCD >= Zero) then
-      v = min(spanCD,One)
-      call Cho_SetSpan(v)
-    end if
+    if (spanCD >= Zero) Span = min(spanCD,One)
   end if
 end if
 !                                                                      *

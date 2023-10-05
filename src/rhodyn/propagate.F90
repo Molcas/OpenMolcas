@@ -20,7 +20,7 @@ use integrators, only: classic_rk4, rk4, rk5, rk45, rkck
 use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, ak6, d, decay, density0, densityt, dgl, DM_basis, dt, emiss, errorthreshold, &
                        finaltime, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, hamiltonian, hamiltoniant, &
                        initialtime, ipglob, lu_csf, lu_dip, lu_pls, lu_sf, lu_so, method, nconftot, Npop, Nstep, Ntime_tmp_dm, &
-                       out2_fmt, out3_fmt, out_decay_i, out_decay_r, out_fdm, out_freq, out_ham_i, out_ham_r, out_tfdm, &
+                       out2_fmt, out3_fmt, out_decay_i, out_decay_r, out_fdmi, out_fdmr, out_freq, out_ham_i, out_ham_r, out_tfdm, &
                        safety, time_fdm, timestep, tout
 use rhodyn_utils, only: check_hermicity, dashes
 use mh5, only: mh5_put_dset
@@ -67,7 +67,8 @@ if (flag_fdm) then
   jj = 1 ! counts output of full density matrix
   ! store full density matrix
   call mh5_put_dset(out_tfdm,[time*auToFs],[1],[0])
-  call mh5_put_dset(out_fdm,abs(density0),[1,d,d],[0,0,0])
+  call mh5_put_dset(out_fdmr,real(density0),[1,d,d],[0,0,0])
+  call mh5_put_dset(out_fdmi,aimag(density0),[1,d,d],[0,0,0])
 end if
 
 call mma_allocate(dgl,d,label='dgl')
@@ -138,7 +139,8 @@ if ((method == 'RKCK') .or. (method == 'RK45')) then
       ! should be moved to procedure pop
       call mh5_put_dset(out_tfdm,[time*auToFs],[1],[jj])
       ! density0 is stored as temporary storage for dm in required basis in pop
-      call mh5_put_dset(out_fdm,abs(density0),[1,d,d],[jj,0,0])
+      call mh5_put_dset(out_fdmr,real(density0),[1,d,d],[jj,0,0])
+      call mh5_put_dset(out_fdmi,aimag(density0),[1,d,d],[jj,0,0])
       jj = jj+1
     end if
     call Timing(dum(1),dum(2),timer(2),dum(3))

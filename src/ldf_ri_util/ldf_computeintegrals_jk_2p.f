@@ -142,6 +142,7 @@ C     Thomas Bondo Pedersen, September 2010.
 C
 C     Compute integrals (J_AB | kShell lShell)
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer AB
       Integer kShell, lShell
@@ -152,7 +153,7 @@ C
 #include "localdf_int2.fh"
 #include "ldf_atom_pair_info.fh"
 
-      External Int_LDF_JK_2P
+      Procedure(int_wrout) :: Int_LDF_JK_2P
 
       Integer  LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nAuxShell_Atom, LDF_lAuxShell_Atom

@@ -20,8 +20,8 @@ subroutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
 ! DelOrig: flag for deleting files with original vectors after
 !          decomposition completes.
 
-use ChoMP2, only: OldVec
-use ChoMP2_dec, only: Incore, NowSym
+use Cholesky, only: lBuf, nSym, NumCho, Span
+use ChoMP2, only: ChkDecoMP2, Incore, MxQual_Def, MxQualMP2, nMP2Vec, NowSym, nT1am, lUnit_F, OldVec, SpanMP2, ThrMP2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -37,9 +37,6 @@ real(kind=wp), allocatable :: Bin(:), Buf(:), Qual(:)
 logical(kind=iwp), parameter :: Restart = .false.
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_DecDrv'
 external :: Cho_SOSmp2_Col, ChoMP2_Vec
-#include "cholesky.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 
 ! Initializations.
 ! ----------------
@@ -205,7 +202,7 @@ do iSym=1,nSym
       call Cho_SOSmp2_DecChk(irc,iSym,Qual,nDim,MxQual,Buf,lBuf,ErrStat)
       if (irc /= 0) then
         write(u6,*) SecNam,': ChoMP2_DecChk returned ',irc,'   Symmetry block: ',iSym
-        call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
+        call SysAbendMsg(SecNam,'SOS-MP2 decomposition failed!',' ')
       else
         XMn = ErrStat(1)
         XMx = ErrStat(2)

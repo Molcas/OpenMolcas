@@ -82,13 +82,13 @@ if (.not. EQ(A,RB)) then
   end if
 
   if (iPrint >= 49) then
-    call RecPrt(' In MltInt: A',' ',A,1,3)
-    call RecPrt(' In MltInt: RB',' ',RB,1,3)
-    call RecPrt(' In MltInt: CoorO',' ',CoorO,1,3)
-    call RecPrt(' In MltInt: Kappa',' ',rKappa,nAlpha,nBeta)
-    call RecPrt(' In MltInt: Zeta',' ',Zeta,nAlpha,nBeta)
-    call RecPrt(' In MltInt: P',' ',P,nZeta,3)
-    write(u6,*) ' In MltInt: la,lb=',la,lb
+    call RecPrt(' In MltInt_GIAO: A',' ',A,1,3)
+    call RecPrt(' In MltInt_GIAO: RB',' ',RB,1,3)
+    call RecPrt(' In MltInt_GIAO: CoorO',' ',CoorO,1,3)
+    call RecPrt(' In MltInt_GIAO: Kappa',' ',rKappa,nAlpha,nBeta)
+    call RecPrt(' In MltInt_GIAO: Zeta',' ',Zeta,nAlpha,nBeta)
+    call RecPrt(' In MltInt_GIAO: P',' ',P,nZeta,3)
+    write(u6,*) ' In MltInt_GIAO: la,lb=',la,lb
   end if
 
   llOper = lOper(1)
@@ -143,7 +143,7 @@ if (.not. EQ(A,RB)) then
 end if
 
 if (iPrint >= 99) then
-  write(u6,*) ' Result in MltInt'
+  write(u6,*) ' Result in MltInt_GIAO'
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
       do iIC=1,nIC

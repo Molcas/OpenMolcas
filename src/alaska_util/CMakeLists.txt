@@ -21,6 +21,7 @@ set (sources
      csfgrad.F90
      drvh1.F90
      finfld.F90
+     grd_interface.F90
      int_parm_g.F90
      int_prep_g.F90
      knegrd.F90
@@ -63,6 +64,8 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     grd_interface.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

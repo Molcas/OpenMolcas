@@ -187,6 +187,7 @@ C
 C     Compute integrals (uv|J) where J is an auxiliary function in
 C     shell pair iShell,jShell [iShell=dummy-shell if 1-center].
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer kAtom, lAtom
       Integer iShell, jShell
@@ -198,7 +199,7 @@ C
       Character*10 SecNam
       Parameter (SecNam='LDF_CI_uvJ')
 
-      External Int_LDF_uvJ
+      Procedure(int_wrout) :: Int_LDF_uvJ
 
       Integer  LDF_nShell_Atom, LDF_lShell_Atom
       External LDF_nShell_Atom, LDF_lShell_Atom

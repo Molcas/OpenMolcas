@@ -15,10 +15,11 @@ use Index_Functions, only: nTri_Elem
 use pso_stuff, only: AOrb, CMO, D0, lPSO, lSA, n_Txy, nDens, nnP, npos, nV_k, nZ_p_k, Txy, U_k, V_k, Z_p_k
 use Basis_Info, only: nBas, nBas_Aux
 use Gateway_global, only: force_out_of_core
-use RICD_Info, only: Cholesky, Do_RI
+use RICD_Info, only: Chol => Cholesky, Do_RI
 use Symmetry_Info, only: Mul, nIrrep
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use RI_glob, only: DMLT, DoCholExch, iMP2prpt, nAdens, nAvec, nChOrb, nJdens, nKdens, nKvec
+use Cholesky, only: nSym, NumCho, timings
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -26,9 +27,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nProc, nVec, ipVk(nProc,nVec), ipZpk(nProc), myProc
 logical(kind=iwp), intent(in) :: CASPT2
-#include "cholesky.fh"
 #include "etwas.fh"
-#include "chotime.fh"
 integer(kind=iwp) :: i, iADens, iAvec, iBas, iCount, iIrrep, ij, iOff, iOff2, iOffDSQ, ipTxy(0:7,0:7,2), irc, irun, iSO, isym, j, &
                      jCount, jIrrep, jp_U_k, jp_V_k, jp_Z_p_k, jrun, k, kIrrep, kOff1, l, mAO, MemMax, NChVMx, nIOrb(0:7), nnAorb, &
                      nQMax, nQv, nQvMax, nSA, nU_l(0:7), nU_ls, nU_t(0:7), nV_l(0:7), nV_ls, nV_t(0:7)
@@ -376,7 +375,7 @@ end if
 !                                                                      *
 !***********************************************************************
 
-if (Cholesky .and. (.not. Do_RI)) then ! to cope with the calls below
+if (Chol .and. (.not. Do_RI)) then ! to cope with the calls below
   nBas_Aux(0) = nBas_Aux(0)+1
 end if
 
@@ -429,10 +428,10 @@ if (DoExchange) then
   if (iMp2prpt == 2) then
     call Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
   else if (CASPT2) then
-    call Mult_with_Q_CASPT2(nBas_aux,nBas,nIrrep,Cholesky .and. (.not. Do_RI))
+    call Mult_with_Q_CASPT2(nBas_aux,nBas,nIrrep,Chol .and. (.not. Do_RI))
   end if
 end if
-if (Cholesky .and. (.not. Do_RI)) nBas_Aux(0) = nBas_Aux(0)-1
+if (Chol .and. (.not. Do_RI)) nBas_Aux(0) = nBas_Aux(0)-1
 
 return
 

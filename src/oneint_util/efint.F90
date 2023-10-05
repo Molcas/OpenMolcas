@@ -35,20 +35,19 @@ use Definitions, only: u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), ip1, ip2, ip3, ipIn, &
-                     iStabO(0:7), kab, lab, labcd, lcd, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, &
-                     nFLOP, nMem, nOp, nStabO, nT, nzab
+integer(kind=iwp) :: i, iAnga(4), iComp, iDCRT(0:7), ip1, ip2, ip3, ipIn, iStabO(0:7), kab, lab, labcd, lcd, lDCRT, llOper, LmbdT, &
+                     mabMax, mabMin, mArr, mcdMax, mcdMin, nDCRT, nFLOP, nMem, nOp, nStabO, nT, nzab
 real(kind=wp) :: CoorAC(3,2), Coori(3,4), RR, TC(3), XX, YY
 logical(kind=iwp) :: NoSpecial
-real(kind=wp), parameter :: ThreeI = One/Three
-integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: EQ
-real(kind=wp), pointer :: EFInts(:,:)
-external :: Fake, TNAI, XCff2D, XRys2D
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iElem, ij, ip, jElem
 character(len=80) :: Label
 #endif
+real(kind=wp), pointer :: EFInts(:,:)
+real(kind=wp), parameter :: ThreeI = One/Three
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+external :: Fake, TNAI, XCff2D, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -138,34 +137,34 @@ do lDCRT=0,nDCRT-1
     nzab = nZeta*kab
     EFInts(1:nzab,1:6) => Array(ip1:ip1-1+6*nzab)
     do i=1,nzab
-      RR =     EFInts(i,1)+     EFInts(i,4) +     EFInts(i,6)
-      XX = Two*EFInts(i,1)-     EFInts(i,4) -     EFInts(i,6)
-      YY =    -EFInts(i,1)+ Two*EFInts(i,4) -     EFInts(i,6)
-      EFInts(i,1) = ThreeI * XX
-      EFInts(i,4) = ThreeI * YY
-      EFInts(i,6) =          RR
+      RR = EFInts(i,1)+EFInts(i,4)+EFInts(i,6)
+      XX = Two*EFInts(i,1)-EFInts(i,4)-EFInts(i,6)
+      YY = -EFInts(i,1)+Two*EFInts(i,4)-EFInts(i,6)
+      EFInts(i,1) = ThreeI*XX
+      EFInts(i,4) = ThreeI*YY
+      EFInts(i,6) = RR
     end do
-    Nullify(EFInts)
+    nullify(EFInts)
   end if
 
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
 
   ! Stored as nZeta,iElem,jElem,iComp
 
-    write(u6,*) ' In EFInt la,lb=',la,lb
-    nzab = nZeta*kab
-    do iElem=1,nTri_Elem1(la)
-      do jElem=1,nTri_Elem1(lb)
-        ij = (jElem-1)*nTri_Elem1(la)+iElem
-        ip = ip1+nZeta*(ij-1)
-        do iComp=1,nComp
-          write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',',iComp,') '
-          call RecPrt(Label,' ',Array(ip),nZeta,1)
-          ip = ip+nzab
-        end do
+  write(u6,*) ' In EFInt la,lb=',la,lb
+  nzab = nZeta*kab
+  do iElem=1,nTri_Elem1(la)
+    do jElem=1,nTri_Elem1(lb)
+      ij = (jElem-1)*nTri_Elem1(la)+iElem
+      ip = ip1+nZeta*(ij-1)
+      do iComp=1,nComp
+        write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,',',iComp,') '
+        call RecPrt(Label,' ',Array(ip),nZeta,1)
+        ip = ip+nzab
       end do
     end do
-#endif
+  end do
+# endif
 
   ! Accumulate contributions
 

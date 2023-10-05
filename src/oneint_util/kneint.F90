@@ -85,7 +85,7 @@ end if
 !***********************************************************************
 !                                                                      *
 if (nip-1 > nArr*nZeta) then
-  call WarningMessage(2,'KNEInt: nip-1 > nArr*nZeta')
+  call WarningMessage(2,'KnEInt: nip-1 > nArr*nZeta')
   write(u6,*) 'nip=',nip
   write(u6,*) 'nArr,nZeta=',nArr,nZeta
   call Abend()
