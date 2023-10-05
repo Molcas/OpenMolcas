@@ -46,16 +46,27 @@
 !                                                                      *
 !              March 2000                                              *
 !***********************************************************************
-      use Constants
-      use rctfld_module
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One, Three
+      use rctfld_module, only: lMax, TK, DampIter, lDamping, Scal14,
+     &                         lAmberPol, DipCutOff, lRFCav, FMax,
+     &                         cLim, EPS, EPSInF, rDS
+      Implicit None
 !
+      Integer lMax_, nGrid_, nPolComp, nAnisoPol, nXF, iXPolType,
+     &        nXMolNr
       Real*8 Ravxyz((lMax+1)*(lMax+2)*(lMax+3)/6),
      &       Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8 Grid(3,nGrid_), EF (4,nGrid_), DipMom   (3,nGrid_),
      &       dEF(4,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
       Integer XMolnr(nXMolnr,nXF)
+
       Logical NonEq,lExcl
+      Real*8 ghx, ghy, ghz, dx, dy, dz, Dip_Eff, ffTots, FTots, x,
+     &       ex, emx, aLang, QQO, fx, fy, fz, ftot, uInd, Tr1, Scal,
+     &       ghx1, ghy1, ghz1, rx, ry, rz, r2, r2I, ska, DistI,
+     &       Dist3, Temp, TR2, S, V, D1, D2, Fax, Fay, Faz, FTest,
+     &       v_Dummy
+      Integer nCavxyz_, Iter, iGrid, jGrid, i
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_)
@@ -359,4 +370,4 @@
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_integer(lMax_)
-      End
+      End Subroutine edip
