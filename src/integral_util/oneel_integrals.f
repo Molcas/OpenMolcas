@@ -25,7 +25,7 @@
       Real*8 dum(1)
       Integer idum(1)
       Real*8, Allocatable:: Integrals(:)
-      Integer, External n2Tri
+      Integer, External:: n2Tri
 !                                                                      *
 !***********************************************************************
 !                                                                      *
