@@ -64,7 +64,7 @@
      &       ghx1, ghy1, ghz1, rx, ry, rz, r2, r2I, ska, DistI,
      &       Dist3, Temp, TR2, S, V, D1, D2, Fax, Fay, Faz, FTest,
      &       v_Dummy
-      Integer nCavxyz_, Iter, iGrid, jGrid, i
+      Integer Iter, iGrid, jGrid, i
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_)
@@ -80,7 +80,6 @@
       EndDo
 #endif
 
-      nCavxyz_=(lMax+1)*(lMax+2)*(lMax+3)/6
       qqo = Zero
 
       NonEq=.False.
@@ -281,7 +280,7 @@
 !---- Compute the charge distribution on the boundary of the cavity due to the
 !     MM expansion at origin.
 !
-         call dcopy_(nCavxyz_,Cavxyz,1,Ravxyz,1)
+         Cavxyz(:)=Ravxyz(:)
 
          Call AppFld(Ravxyz,rds,Eps,lMax,EpsInf,NonEq)
 
@@ -321,7 +320,7 @@
          fmax=Max(ftest,fmax)
       End Do          ! iGrid
 !
-      Call FZero(Cavxyz,nCavxyz_)
+      Cavxyz(:)=Zero
 !
 !---- Check convergence
 !
