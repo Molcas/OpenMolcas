@@ -18,14 +18,18 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 #include "Molcas.fh"
-      Real*8 xyz(3,mCentr)
-      Character*(LENIN) Lbls(mCentr)
+      Integer mCentr, Max_Center, iCols
+      Real*8 xyz(3,mCentr), Angstr
+
+      Character(LEN=LENIN) Lbls(mCentr)
       Real*8, Allocatable:: BST(:)
       Integer, Allocatable:: iBST(:,:)
+      Integer Lu, i, iCC, jCC, iC, jC, ii, IsFirst, MoreToGo, iiBst
+      Real*8 Fact, x1, y1, z1, Thr_R, Thr_D, x2, y2, z2, r, rr
 !
       lu=6
       If (mCentr.le.Max_Center) Then
@@ -182,4 +186,4 @@
       End If
 !
       Return
-      End
+      End SubRoutine Dstncs
