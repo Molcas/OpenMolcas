@@ -11,8 +11,7 @@
 ! Copyright (C) 2000, Gunnar Karlstrom                                 *
 !               2000, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine edip(Ravxyz,Cavxyz,lMax_,
-     &                EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_,
+      Subroutine edip(EF,DipMom,dEF,PolEff,DipEff,Grid,nGrid_,
      &                nPolComp,nAnisopol,nXF,iXPolType,nXMolnr,XMolnr)
 
 !***********************************************************************
@@ -50,12 +49,11 @@
       use rctfld_module, only: lMax, TK, DampIter, lDamping, Scal14,
      &                         lAmberPol, DipCutOff, lRFCav, FMax,
      &                         cLim, EPS, EPSInF, rDS
+      use Langevin_arrays, only: Ravxyz, Cavxyz
       Implicit None
 !
-      Integer lMax_, nGrid_, nPolComp, nAnisoPol, nXF, iXPolType,
+      Integer nGrid_, nPolComp, nAnisoPol, nXF, iXPolType,
      &        nXMolNr
-      Real*8 Ravxyz((lMax+1)*(lMax+2)*(lMax+3)/6),
-     &       Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8 Grid(3,nGrid_), EF (4,nGrid_), DipMom   (3,nGrid_),
      &       dEF(4,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
       Integer XMolnr(nXMolnr,nXF)
@@ -368,6 +366,4 @@
 #endif
 
       Return
-! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(lMax_)
       End Subroutine edip

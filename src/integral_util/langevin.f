@@ -25,7 +25,7 @@
      &                         lLangevin, PolSI, DIPSI, Scala, TK,
      &                         RadLat, nSparse, DistSparse, lDamping,
      &                         DipCutOff, nGrid, CordSI, lDipRestart,
-     &                         lMax, nCavxyz
+     &                         nCavxyz
       Implicit None
       Integer nh1
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
@@ -263,8 +263,7 @@
 !     Field : total EF of the Langevin grid
 !     Dip   : dipole momement on the Langevin grid
 !
-      Call edip(Ravxyz,Cavxyz,lmax,
-     &          Field,Dip,dField,
+      Call edip(Field,Dip,dField,
      &          PolEf,DipEf,
      &          Grid,nGrid_Eff,nPolComp,nAnisopol,
      &          nXF,iXPolType,nXMolnr,XMolnr)
