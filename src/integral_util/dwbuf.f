@@ -9,11 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine dWBuf(Array,nArray)
-      Use dEAF
-      Use IOBUF
-      Implicit Real*8 (a-h,o-z)
+      Use dEAF, only: dEAFAWrite
+      Use IOBUF, only: InCore, iBuf, IODone, lBuf, iPos, Disk, OnDisk,
+     &                 DiskMx_Byte, Disk_1, Disk_2, Buffer, iD, LuTmp
+      Implicit None
 #include "SysDef.fh"
+      Integer nArray
       Real*8 Array(nArray)
+
+      Integer iArray, mArray, Left
+      Real*8 Temp
 !
 !     Write (6,*) 'Enter WBuf: iPos @',iPos,' iBuf,lBuf=',iBuf,lBuf
       If (InCore.and.iBuf.eq.2) Then
@@ -71,4 +76,4 @@
 !
 !     Write (6,*) 'Exit WBuf: iPos @',iPos,'iBuf=',iBuf
       Return
-      End
+      End Subroutine dWBuf
