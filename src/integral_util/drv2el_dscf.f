@@ -41,8 +41,7 @@
 !             Modified by R. Lindh  @teokem.lu.se :                    *
 !             total repacking of code September '96                    *
 !***********************************************************************
-      use setup
-      use IOBUF
+      use IOBUF, only: lBuf
       use Gateway_Info, only: ThrInt, CutInt
       use RICD_Info, only: Do_DCCD
       use iSD_data, only: iSD
@@ -50,20 +49,26 @@
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: Exfac, Thize, W2Disc
       use Int_Options, only: Disc_Mx, Disc, Count=>Quad_ijkl
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      External Rsv_GTList, No_Routine
-!
-      Parameter(nTInt=1)
+      use Constants, only: Zero, One, Two, Three, Four, Eight
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer nDens, nDisc
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
+      Logical FstItr
+!
+      External Rsv_GTList, No_Routine
+      Integer, Parameter :: nTInt=1
       Real*8 TInt(nTInt)
-      Logical FstItr, Semi_Direct,Rsv_GTList,
+      Logical Semi_Direct,Rsv_GTList,
      &        Free_K2, Verbose, Indexation,
      &        DoGrad, Triangular
-      Character*72 SLine
+      Character(LEN=72) SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
+      Integer iS, jS, ijS, klS, nSkal, iOpt, nIJ, kS, lS, mDens
+      Real*8 ThrAO, TskHi, TskLw, P_Eff, PP_Eff, PP_Eff_Delta,
+     &       PP_Count, TMax_All, S_Eff, T_Eff, ST_Eff, AInt, Dtst,
+     &       TCPU1, TCPU2, TWALL1, TWALL2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
