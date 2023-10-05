@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine PLF2(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
-     &                iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
+     &                iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 ************************************************************************
 *                                                                      *
 *  object: to sift and index the petite list format integrals.         *
@@ -36,7 +36,6 @@
 *
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
-      Logical Shijij
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
@@ -147,6 +146,5 @@ C                              Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iShell)
-         Call Unused_logical(Shijij)
       End If
       End

@@ -107,7 +107,7 @@
 !---- Deallocate memory
       Call mma_deallocate(FckS)
       Call mma_deallocate(FckH)
-!     Call mma_deallocate(FckT)
+      Call mma_deallocate(FckT)
 !
 !----------------------------------------------------------------------*
 !     Exit                                                             *

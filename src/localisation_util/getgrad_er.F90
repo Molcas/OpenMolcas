@@ -31,7 +31,7 @@ logical(kind=iwp), intent(in) :: Timing
 integer(kind=iwp), parameter :: nSym = 1
 integer(kind=iwp) :: i, irc, j, nOcc(nSym)
 character(len=80) :: Txt
-type(DSBA_Type) :: CMOt
+type(DSBA_Type) :: CMOt(1)
 character(len=*), parameter :: SecNam = 'GetGrad_ER'
 
 ! Initialization.
@@ -44,9 +44,9 @@ if ((nOrb2Loc < 1) .or. (nBasis < 1)) return
 ! Transpose CMO (only the part to be localised).
 ! ----------------------------------------------
 
-call Allocate_DT(CMOt,[nOrb2Loc],[nBasis],nSym)
+call Allocate_DT(CMOt(1),[nOrb2Loc],[nBasis],nSym)
 do i=1,nOrb2Loc
-  CMOt%SB(1)%A2(i,:) = CMO(:,i)
+  CMOt(1)%SB(1)%A2(i,:) = CMO(:,i)
 end do
 
 ! Compute R.
@@ -59,7 +59,7 @@ if (irc /= 0) then
   write(Txt,'(A,I6)') 'Cho_Get_Rij returned',irc
   call SysAbendMsg(SecNam,'Calculation of ER gradient failed:',Txt)
 end if
-call Deallocate_DT(CMOt)
+call Deallocate_DT(CMOt(1))
 
 ! Compute gradient norm and functional.
 ! -------------------------------------

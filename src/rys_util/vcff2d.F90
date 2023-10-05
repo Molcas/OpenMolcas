@@ -11,7 +11,6 @@
 ! Copyright (C) 1990,1991,1994, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
-!#define _DEBUGPRINT_
 
 subroutine vCff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01,nOrdOp)
 !***********************************************************************
@@ -61,13 +60,13 @@ PrintB01 = .false.
 PrintB00 = .false.
 #endif
 
-If (nOrdOp==0) Then
-nabMax_ = la+lb
-ncdMax_ = lc+ld
+if (nOrdOp == 0) then
+  nabMax_ = la+lb
+  ncdMax_ = lc+ld
 else
-nabMax_ = la+lb+2
-ncdMax_ = lc+ld+2
-endif
+  nabMax_ = la+lb+2
+  ncdMax_ = lc+ld+2
+end if
 if ((nabMax_ >= 2) .and. (ncdMax_ >= 2)) then
   B00(:,:) = Half*U2
   do iT=1,nT
@@ -179,14 +178,14 @@ else if (ncdMax_ /= 0) then
 end if
 #ifdef _DEBUGPRINT_
 if (la+lb+nOrdOp > 0) then
-   call RecPrt('vCff2D: PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
-   call RecPrt('vCff2D: PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
-   call RecPrt('vCff2D: PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
+  call RecPrt('vCff2D: PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
+  call RecPrt('vCff2D: PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
+  call RecPrt('vCff2D: PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
 end if
 if (lc+ld+nOrdOp > 0) then
-   call RecPrt('vCff2D: QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
-   call RecPrt('vCff2D: QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
-   call RecPrt('vCff2D: QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
+  call RecPrt('vCff2D: QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
+  call RecPrt('vCff2D: QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
+  call RecPrt('vCff2D: QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
 end if
 if (PrintB10) call RecPrt('vCff2D: B10',' ',B10(:,:),nRys,nT)
 if (PrintB00) call RecPrt('vCff2D: B00',' ',B00(:,:),nRys,nT)

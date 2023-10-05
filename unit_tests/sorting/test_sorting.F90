@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2020, Oskar Weser                                      *
-!               2021, Ignacio Fdez. Galvan                             *
+!               2021,2023, Ignacio Fdez. Galvan                        *
 !***********************************************************************
 
 module test_sorting_mod
@@ -20,6 +20,15 @@ module test_sorting_mod
     implicit none
     private
     public :: test_sort_ints, test_sort_isotopes, test_sort_reals
+
+    ! not using the ElementList from the isotopes module because
+    ! it is protected and proper initialization would require
+    ! access to the isotopes_data.txt file
+    ! (putting it here and not in the subroutine because of the lex_alphabet_leq problem, see below)
+    type Element
+      character(len=2) :: symbol
+    end type Element
+    type(Element), allocatable :: ElementList(:)
 
 contains
 
@@ -69,15 +78,7 @@ contains
 
     subroutine test_sort_isotopes
         integer, allocatable :: idx(:)
-
-        ! not using the ElementList from the isotopes module because
-        ! it is protected and proper initialization would require
-        ! access to the isotopes_data.txt file
         integer :: i
-        type Element
-          character(len=2) :: symbol
-        end type Element
-        type(Element), allocatable :: ElementList(:)
 
         allocate(ElementList(MaxAtomNum))
         do i=1,MaxAtomNum
@@ -94,14 +95,14 @@ contains
         call assert_true(all(elementlist(idx(: 10))%symbol &
             == ['Ac', 'Ag', 'Al', 'Am', 'Ar', 'As', 'At', 'Au', 'B ', 'Ba']))
 
-        contains
-
-        logical pure function lex_alphabet_leq(i, j)
-            integer, intent(in) :: i, j
-            lex_alphabet_leq = elementlist(i)%symbol <= elementlist(j)%symbol
-        end function
-
     end subroutine
+
+    ! this should be internal to test_sort_isotopes,
+    ! but the nvidia/pgi compiler chokes on it (segmentation fault)
+    logical pure function lex_alphabet_leq(i, j)
+        integer, intent(in) :: i, j
+        lex_alphabet_leq = elementlist(i)%symbol <= elementlist(j)%symbol
+    end function
 
 end module
 

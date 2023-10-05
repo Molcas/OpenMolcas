@@ -303,7 +303,7 @@ General keywords
   Method of integration: Runge--Kutta method of 4th order (``classic_RK4``)
   is set by default. ``RKCK`` (adaptive Runge--Kutta--Cash--Karp)
   with variable time step sometimes is better. Other available integrators are
-  ``RK4``, ``RK5``, ``RK45`` (adaptive Runge--Kutta--Fehlberg).
+  ``RK4``, ``RK5``, ``RK45`` (adaptive Runge--Kutta--Fehlberg), and ``RK4_SPH`` (for propagation in spherical tensors basis).
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="METH" APPEAR="Method of integration" KIND="CHOICE" LIST="classic_RK4,RKCK,RK4,RK5,RK45" LEVEL="BASIC" DEFAULT_VALUE="classic_RK4">
               %%Keyword: METHod <basic>
@@ -352,6 +352,7 @@ General keywords
   dipole moment or emission spectrum calculations SO basis is preferrable.
   Available options: ``CSF`` basis (could be convenient, e.g., for charge migration studies),
   ``SF`` or ``SO`` bases (could be useful to study spin dynamics).
+  ``SPH`` enables the propagation in the basis of spherical tensors.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="PROP" APPEAR="Propagation basis" KIND="CHOICE" LIST="CSF,SF,SO" LEVEL="BASIC" DEFAULT_VALUE="SF">
               %%Keyword: PROPbasis <basic>
@@ -370,6 +371,28 @@ General keywords
               %%Keyword: DMBAsis <basic>
               <HELP>
               Density matrix basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`KMAX`
+  Maximal rank of spherical tensor included in the spherical basis.
+  Employed maximal rank can be reduced only if the ``SPH`` propagation basis is activated.
+
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="KMAX" APPEAR="Maximal rank" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="0" MIN_VALUE="0">
+              %%Keyword: KMAX <basic>
+              <HELP>
+              Maximal rank in spherical tensors basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`QMAX`
+  Maximal projection of spherical tensor included in the spherical basis.
+  Employed maximal projection can be reduced only if the ``SPH`` propagation basis is activated.
+
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="QMAX" APPEAR="Maximal projection" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="0" MIN_VALUE="0">
+              %%Keyword: QMAX <basic>
+              <HELP>
+              Maximal projection of spherical tensors basis.
               </HELP>
               </KEYWORD>
 

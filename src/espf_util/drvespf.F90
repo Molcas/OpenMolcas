@@ -16,6 +16,7 @@ subroutine Drvespf(Grad,Temp,nGrad,CCoor)
 
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Basis_Info, only: nBas
+use Grd_interface, only: grd_kernel, grd_mem
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -32,7 +33,8 @@ character(len=80) :: Label
 integer(kind=iwp), allocatable :: lOper(:)
 real(kind=wp), allocatable :: D_Var(:)
 integer(kind=iwp), external :: iPL_espf
-external :: BdVGrd, NAMmG
+procedure(grd_kernel) :: BdVGrd
+procedure(grd_mem) :: NAMmG
 
 ! Prologue
 iPrint = 1

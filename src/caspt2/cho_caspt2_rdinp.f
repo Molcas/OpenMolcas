@@ -17,6 +17,7 @@
 *
 ************************************************************************
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, REORD
+      Use Cholesky, only: timings
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -26,7 +27,6 @@
       character(len=16) SECNAM
       parameter (SECNAM = 'CHO_CASPT2_RDINP')
 *
-#include "chotime.fh"
 #include "chocaspt2.fh"
 
 *

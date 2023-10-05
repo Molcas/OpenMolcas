@@ -25,8 +25,7 @@
       If (mSym==1) Then
         Call PLF_LDF_Diag(TInt,nTInt,
      &           AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &           iShell,iAO,iAOst,Shijij.and.IJeqKL,
-     &           iBas,jBas,kBas,lBas,kOp)
+     &           iShell,iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
       Else
          Call WarningMessage(2,
      &            'Symmetry not implemented in Integral_WrOut_LDF_Diag')
@@ -36,9 +35,9 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_logical(Shijij)
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
-         Call Unused_integer(nSkal)
       End If
       End

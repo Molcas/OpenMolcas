@@ -11,7 +11,7 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine prjMmH( &
+subroutine PrjMmH( &
 #                 define _CALLING_
 #                 include "mem_interface.fh"
                  )
@@ -75,4 +75,4 @@ nHer = nOrder
 
 return
 
-end subroutine prjMmH
+end subroutine PrjMmH

@@ -29,20 +29,18 @@ use Basis_Info, only: dbsc, nBas, nBas_Frag, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
 use Gateway_Info, only: ThrInt, CutInt
+use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Thize, W2Disc
 use Integral_Interfaces, only: DeDe_SCF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
-use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
-use Int_Options, only: ExFac, Thize, W2Disc, PreSch, Disc_Mx, Disc
 
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
-integer(kind=iwp) :: nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
-                     lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, &
-                     nSkal_Valence
-real(kind=wp) :: TInt(nTInt), A_int, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: FreeK2, Verbose, Indexation, DoGrad, lNoSkip, EnergyWeight
+integer(kind=iwp) :: i, iCnt, iCnttp, iComp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, j, jS, klS, kS, lOper, lS, maxDens, mdc, &
+                     mDens, nBas_Valence(0:7), nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, nSkal_Valence
+real(kind=wp) :: A_int, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TInt(nTInt), TMax_all, TWall1, TWall2
+logical(kind=iwp) :: DoGrad, EnergyWeight, FreeK2, Indexation, lNoSkip, Verbose
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable, target :: Dens(:), Fock(:)
@@ -69,7 +67,6 @@ W2Disc = .true.
 PreSch = .false.
 Disc_Mx = Zero      ! Default value
 Disc = Zero         ! Default value
-
 
 ! Handle both the valence and the fragment basis set
 
@@ -390,7 +387,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Call Init_Int_Options()
+call Init_Int_Options()
 return
 
 end subroutine Drv2El_FAIEMP

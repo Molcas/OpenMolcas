@@ -24,6 +24,7 @@ C     tau is the prescreening threshold. Note that the integral
 C     prescreening arrays must have been set up before calling this
 C     routine.
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer AB
       Integer C
@@ -40,7 +41,7 @@ C
       Character*28 SecNam
       Parameter (SecNam='LDF_Compute3IndexIntegrals_1')
 
-      External Int_LDF_3Indx_1
+      Procedure(int_wrout) :: Int_LDF_3Indx_1
 
       Integer  LDF_nBas_Atom, LDF_nBasAux_Atom
       Integer  LDF_nShell_Atom, LDF_lShell_Atom
@@ -508,6 +509,7 @@ C
 C     Compute integrals (uv|J) where J is an auxiliary function in
 C     shell pair iShell,jShell [iShell=dummy-shell if 1-center].
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer iAtomPair
       Integer iShell, jShell
@@ -522,7 +524,7 @@ C
       Character*13 SecNam
       Parameter (SecNam='LDF_CI_uvJ_PS')
 
-      External Int_LDF_uvJ
+      Procedure(int_wrout) :: Int_LDF_uvJ
 
       Integer  LDF_nShell_Atom, LDF_lShell_Atom
       External LDF_nShell_Atom, LDF_lShell_Atom

@@ -16,6 +16,7 @@
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif
       use Fock_util_global, only: DoCholesky
+      use Cholesky, only: ChFracMem
 #ifdef _HDF5_
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
@@ -52,8 +53,6 @@
       logical PCM_On
 
       Logical DBG
-
-#include "chopar.fh"
 
 #ifdef _HDF5_
 * Local NBAS_L, NORB_L .. avoid collision with items in common.

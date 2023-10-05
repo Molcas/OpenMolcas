@@ -21,6 +21,7 @@ subroutine LovMP2_Drv(irc,EMP2,CMO,EOcc,EVir,NamAct,n_Acta,Thrs,Do_MP2,allVir)
 ! Author:  F. Aquilante  (Geneva, Jun. 2008)
 
 use MBPT2_Global, only: nBas
+use ChoMP2, only: EOSMP2, shf, Wref, XEMP2
 use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -46,7 +47,6 @@ real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
 character(len=LenIn8), allocatable :: UBName(:)
 real(kind=wp), external :: ddot_
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 irc = 0
 EMP2 = Zero
@@ -54,6 +54,7 @@ EFRO = Zero
 EOSF = Zero
 iDo = 0
 jDo = 0
+shf = Zero
 
 !----------------------------------------------------------------------*
 !     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
@@ -291,10 +292,10 @@ if (min(iDo,jDo) /= 0) then
     if (iSkip > 0) then
       call mma_allocate(X,nVV+nOA,label='Dmat')
       X(:) = Zero
-      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X(1:nVV),X(nVV+1:),.true.)
-      call ChoMP2_Drv(irc,Dummy,LCMO(:,1),EOrb(:,1),EOrb(:,2))
-      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X(1:nVV),X(nVV+1:),.false.) ! compute energy and not Dab
-      call ChoMP2_Drv(irc,EFRO,LCMO(:,1),EOrb(:,1),EOrb(:,2))
+      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.true.)
+      call ChoMP2_Drv(irc,Dummy,LCMO(:,1),EOrb(:,1),EOrb(:,2),X(1:nVV),X(nVV+1:))
+      call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.false.) ! compute energy and not Dab
+      call ChoMP2_Drv(irc,EFRO,LCMO(:,1),EOrb(:,1),EOrb(:,2),X(1:nVV),X(nVV+1:))
       if (irc /= 0) then
         write(u6,*) 'Frozen region MP2 failed'
         call Abend()
@@ -392,11 +393,11 @@ if (iSkip > 0) then
 
   call mma_allocate(X,nVV+nOA,label='Dmat')
   X(:) = Zero
-  call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,X(1:nVV),X(nVV+1:),.true.)
-  call ChoMP2_Drv(irc,Dummy,CMO,EOcc,EVir)
-  call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,X(1:nVV),X(nVV+1:),.false.)
+  call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,.true.)
+  call ChoMP2_Drv(irc,Dummy,CMO,EOcc,EVir,X(1:nVV),X(nVV+1:))
+  call LovMP2_putInf(nSym,lnOrb,nOcc,nFro,nDel,nExt,.false.)
   Wref = Zero
-  call ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir)
+  call ChoMP2_Drv(irc,EMP2,CMO,EOcc,EVir,X(1:nVV),X(nVV+1:))
   if (irc /= 0) then
     write(u6,*) 'LovMP2 failed'
     call Abend()

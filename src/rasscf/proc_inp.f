@@ -27,6 +27,7 @@
 #endif
       use csfbas, only: CONF, KCFTP
       use Fock_util_global, only: DoCholesky
+      use Cholesky, only: ChFracMem
       use write_orbital_files, only: OrbFiles, write_orb_per_iter
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
@@ -93,9 +94,6 @@
 #include "nevptp.fh"
 #endif
       Logical DBG, exist
-
-#include "chotime.fh"
-#include "chopar.fh"
 
       Integer IScratch(10)
 * Label informing on what type of data is available on an INPORB file.
@@ -861,7 +859,7 @@ C   No changing about read in orbital information from INPORB yet.
       CMSStartMat='XMS'
       If (KeyCMSS.and.(iCMSP.eq.1)) Then
        If (DBG) Then
-         Write(6,*)' Reading CMS inital rotation matrix'
+         Write(6,*)' Reading CMS initial rotation matrix'
        End If
        Call SetPos(LUInput,'CMSS',Line,iRc)
        Line=Get_Ln(LUInput)

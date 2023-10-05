@@ -27,6 +27,8 @@ subroutine Cho_SOSmp2_Drv(irc,EMP2,CMO,EOcc,EVir)
 !     exit, except for error terminations (i.e. no cleanup actions
 !     are taken!)
 
+use Cholesky, only: LuPri, nSym, NumCho
+use ChoMP2, only: nMP2Vec, nT1am, set_cd_thr, ThrMP2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five
 use Definitions, only: wp, iwp, u6
@@ -45,9 +47,6 @@ real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
 logical(kind=iwp), parameter :: Delete_def = .true.
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Drv'
 real(kind=wp), external :: ddot_
-#include "cholesky.fh"
-#include "chomp2.fh"
-#include "chomp2_cfg.fh"
 
 #if defined (_DEBUGPRINT_)
 Verbose = .true.
@@ -73,7 +72,7 @@ FracMem = Zero ! no buffer allocated
 call Cho_X_Init(irc,FracMem)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_X_Init returned ',irc
-  call ChoMP2_Quit(SecNam,'Cholesky initialization error',' ')
+  call SysAbendMsg(SecNam,'Cholesky initialization error',' ')
 end if
 
 call Cho_SOSmp2_Setup(irc)
@@ -154,7 +153,7 @@ Delete = Delete_def ! delete transf. vector files after dec.
 call Cho_SOSmp2_DecDrv(irc,Delete,Diag)
 if (irc /= 0) then
   write(u6,*) SecNam,': Cho_SOSmp2_DecDrv returned ',irc
-  call ChoMP2_Quit(SecNam,'SOS-MP2 decomposition failed!',' ')
+  call SysAbendMsg(SecNam,'SOS-MP2 decomposition failed!',' ')
 end if
 if (Verbose) then
   call CWTime(CPUDec2,WallDec2)

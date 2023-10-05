@@ -420,6 +420,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine LDF_SIPI_G1C(A,l,Gmax_S,Gmax,Gsum)
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer A
       Integer l
@@ -430,7 +431,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 #include "localdf_bas.fh"
 #include "localdf_int3.fh"
 
-      External Int_LDF_Gmax_S
+      Procedure(int_wrout) :: Int_LDF_Gmax_S
 
       Integer  LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nAuxShell_Atom, LDF_lAuxShell_Atom

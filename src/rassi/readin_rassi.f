@@ -20,6 +20,7 @@
       use qcmaquis_interface_cfg
 #endif
       use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
+      use Cholesky, only: timings
 
       IMPLICIT NONE
 #include "prgm.fh"
@@ -38,7 +39,6 @@
       Real*8 tmp
       Logical lExists
 #include "chorassi.fh"
-#include "chotime.fh"
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS

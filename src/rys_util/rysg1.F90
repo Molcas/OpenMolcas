@@ -28,11 +28,11 @@ use vRys_RW, only: nMxRys
 use Symmetry_Info, only: iOper
 use Gateway_Info, only: ChiI2
 use Gateway_global, only: IsChi, NoTab
+use Breit, only: nOrdOp
 use Definitions, only: wp, iwp
 #if defined(_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
-use Breit, only: nOrdOp
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
@@ -226,7 +226,7 @@ ip = ip-nT
 ! Compute coefficients for the recurrence relations of the 2D-integrals
 
 call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC,Array(ipP), &
-           Array(ipQ),la+lab,lb,lc+lcd,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax,Array(ipB01),   &
+           Array(ipQ),la+lab,lb,lc+lcd,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax,Array(ipB01), &
            nOrdOp)
 ! Drop ipU2
 ip = ip-nT*nRys

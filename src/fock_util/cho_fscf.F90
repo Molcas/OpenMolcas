@@ -28,8 +28,7 @@ subroutine CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 !
 !*********************************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -42,9 +41,6 @@ integer(kind=iwp), intent(in) :: nDen, nForb(8,nDen), nIorb(8,nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen)
 type(DSBA_Type), intent(in) :: Porb(nDen), DLT(nDen)
 real(kind=wp), intent(in) :: ExFac
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, iDen, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymk, IVEC2, iVrs, jDen, JNUM, JRED, JRED1, &
                      JRED2, jSym, JVEC, k, kMOs, l, LREAD, LWORK, Mmax, mTvec, MUSED, nAux(8), nBatch, NK, nMat, nMOs, nRS, NUMV, &
                      nVec, nVrs

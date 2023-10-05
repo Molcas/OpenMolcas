@@ -8,56 +8,49 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine CHO_TRDENS(irc,DLT,Salpha,istate,jstate,iType,DoExch,labB)
+!
+! Author:  F. Aquilante and F. Segatta, Bologna ca. Oct 2015
+! Modified by A. Kaiser, 2022
+!     Coulomb term from TDMAT  (level 2 BLAS) from Cholesky vectors
+!
+! --- V(J) = sum_gd  TDMAT(gd) * Lgd,J
+!
+!***********************************************************************
 
-!C
-!C Author:  F. Aquilante and F. Segatta, Bologna ca. Oct 2015
-!C Modified by A. Kaiser, 2022
-!C     Coulomb term from TDMAT  (level 2 BLAS) from Cholesky vectors
-!C
-!C --- V(J) = sum_gd  TDMAT(gd) * Lgd,J
-!C
-!C*********************************************************************
-
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
-use Data_Structures, only: DSBA_Type, SBA_Type, Allocate_DT, &
-                           Deallocate_DT
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-implicit real(kind=wp) (A-H,O-Z)
-integer(kind=iwp), intent(inout) :: irc
-type(SBA_Type), target :: Ya(1)
+implicit none
+integer(kind=iwp), intent(out) :: irc
 type(DSBA_Type), intent(in) :: DLT, Salpha(1)
-
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
+integer(kind=iwp), intent(in) :: istate, jstate, iType
+logical(kind=iwp), intent(in) :: DoExch, labB
 #include "debug.fh"
-integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, nRS, &
-                     NUMV, nVec, nVrs, iSym, iCase, LuT_, LuT2, LuT1, LuT, dimX
-real(kind=wp) :: dimX_real(1)
-integer(kind=iwp), intent(in) :: iType, istate, jstate
-integer(kind=iwp), external :: isFreeUnit
-real(kind=wp) :: TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, &
-                 TWC2, TWR1, TWR2
-logical, intent(in) :: DoExch, labB
-logical :: add
+integer(kind=iwp) :: dimX, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, JSYM, &
+                     JVEC, k, kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
+real(kind=wp) :: dimX_real(1), TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), &
+                 TWC1, TWC2, TWR1, TWR2
+logical(kind=iwp) :: add, DoRead
 character(len=50) :: CFmt
+character(len=20) :: filnam1, filnam2
+character(len=13) :: filnam
+type(SBA_Type), target :: Ya(1)
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_TRDENS'
-character(len=13) :: filnam
-character(len=20) :: filnam1, filnam2
-logical :: DoRead
+integer(kind=iwp), external :: isFreeUnit
+real(kind=wp), external :: ddot_
 
 #ifdef _DEBUGPRINT_
-Debug= .true.
+Debug = .true.
 #else
-Debug= .false.
+Debug = .false.
 #endif
-irc=0
+irc = 0
 
 IREDC = -1
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -70,9 +63,9 @@ LuT = isFreeUnit(LuT_)
 call molcas_open(LuT,filnam)
 write(LuT,*) NumCho(JSYM)
 
-! C create and open file WKX for DoExch
+! Create and open file WKX for DoExch
 if (DoExch) then
-  write(filnam1,'(A,I1,I2.2,I2.2)')'X',iType,ISTATE,JSTATE
+  write(filnam1,'(A,I1,I2.2,I2.2)') 'X',iType,ISTATE,JSTATE
   LuT2 = 11
   LuT1 = isFreeUnit(LuT_)
   call DANAME(LuT1,filnam1)
@@ -83,7 +76,7 @@ if (DoExch) then
   iSym = 1
   nRS = nDimRS(JSYM,1)
   dimX = nBas(iSym)*nBas(iSym)*NumCho(JSYM)
-  dimX_real(1)=DBLE(dimX)
+  dimX_real(1) = real(dimX,kind=wp)
   iAddr = 0
   call dDaFile(LuT2,1,dimX_real,1,iAddr)
   call DACLOS(LuT2)
@@ -91,10 +84,9 @@ end if
 
 call CWTIME(TOTCPU1,TOTWALL1) ! start clock for total time
 
-do i=1,2          ! 1 --> CPU   2 --> Wall
-  tread(i) = Zero ! time for reading the vectors
-  tcoul(i) = Zero ! time for computing Coulomb
-end do
+! 1 --> CPU   2 --> Wall
+tread(:) = Zero ! time for reading the vectors
+tcoul(:) = Zero ! time for computing Coulomb
 
 iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -151,7 +143,7 @@ do JRED=JRED1,JRED2
 
   nBatch = (nVrs-1)/nVec+1
 
-    iSym = 1
+  iSym = 1
 
   do iBatch=1,nBatch
 
@@ -165,7 +157,8 @@ do JRED=JRED1,JRED2
     IVEC2 = JVEC-1+JNUM
 
     call CWTIME(TCR1,TWR1)
-    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
+    JRED_ = JRED
+    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED_,MUSED)
     if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
       irc = 77
       return
@@ -177,7 +170,7 @@ do JRED=JRED1,JRED2
 
     ! ************ BEGIN COULOMB CONTRIBUTION  ****************
     !
-    !-Computing the intermediate vector V(J)
+    ! Computing the intermediate vector V(J)
     !
     ! Contraction with the density matrix
     ! -----------------------------------
@@ -188,16 +181,15 @@ do JRED=JRED1,JRED2
 
     call DGEMV_('T',nRS,JNUM,ONE,Lrs,nRS,Drs,1,Zero,VJ,1)
 
-! Coulomb intermediate wrote to file
+    ! Coulomb intermediate wrote to file
     write(LuT,*) (VJ(k),k=1,JNUM)
 
     call CWTIME(TCC2,TWC2)
     tcoul(1) = tcoul(1)+(TCC2-TCC1)
     tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-
-! C --- Exchange term
-! C ******************  L(ps,{#J}) * G(q,s)  ****************
+    ! --- Exchange term
+    ! ******************  L(ps,{#J}) * G(q,s)  ****************
 
     if (labB) then
       iSwap = 1 ! L(k,b,J) are returned
@@ -207,8 +199,8 @@ do JRED=JRED1,JRED2
 
     if (doexch) then
 
-      iSym=1
-      iCase=0
+      iSym = 1
+      iCase = 0
       DoRead = .false.
 
       call Allocate_DT(Ya(1),nBas,nBas,JNUM,JSYM,nSYm,iCase)
@@ -216,12 +208,10 @@ do JRED=JRED1,JRED2
       kMOs = 1
       nMOs = 1
 
-!********************************************************
+      !********************************************************
 
       ! sending in Salpha and then print ddot of the result
-      call Cho_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM, &
-                         iSwap,IREDC,nMOs,kMOs,Salpha,&
-                         Ya,DoRead)
+      call Cho_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,Salpha,Ya,DoRead)
       if (Debug) then
         write(u6,*) 'ddot Y * Y from Salpha'
         write(u6,*) ddot_(dimX,Ya(1)%A0,1,Ya(1)%A0,1)
@@ -234,9 +224,7 @@ do JRED=JRED1,JRED2
 
   end do  !end batch loop
   close(LuT)
-  if (DoExch) then
-    call DACLOS(LuT1)
-  end if
+  if (DoExch) call DACLOS(LuT1)
 
   ! free memory
   call mma_deallocate(VJ)
@@ -245,7 +233,6 @@ do JRED=JRED1,JRED2
   call mma_deallocate(Drs)
 
 end do ! loop over red sets
-
 
 call CWTIME(TOTCPU2,TOTWALL2)
 TOTCPU = TOTCPU2-TOTCPU1

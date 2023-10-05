@@ -8,7 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
 
 subroutine RTSWGH(TARR,NT,U2,WGH,NRYS,nOrdOp)
 
@@ -172,13 +171,7 @@ call mma_deallocate(ROOT)
 call mma_deallocate(RYS)
 call mma_deallocate(RYSD)
 
-if (nOrdOp==1 .or. nOrdOp==2) then
-   do iT=1,nT
-      do iRoot=1,nRys
-         WGH(iRoot,iT) = ( U2(iRoot,iT) / (One-U2(iRoot,iT)) )**nOrdOp * WGH(iRoot,iT)
-      end do
-   end do
-end if
+if ((nOrdOp == 1) .or. (nOrdOp == 2)) WGH(:,:) = (U2(:,:)/(One-U2(:,:)))**nOrdOp*WGH(:,:)
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' RTSWGH: Roots',' ',U2,nRys,nT)

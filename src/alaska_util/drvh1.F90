@@ -41,6 +41,7 @@ use Symmetry_Info, only: nIrrep
 use finfld, only: force
 #endif
 use Index_Functions, only: nTri_Elem1
+use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -56,14 +57,16 @@ character(len=8) :: Method
 logical(kind=iwp) :: DiffOp, lECP, lFAIEMP, lPP
 integer(kind=iwp), allocatable :: lOper(:), lOperf(:)
 real(kind=wp), allocatable :: Coor(:,:), Coorf(:,:), D_Var(:), Fock(:)
+procedure(grd_kernel) :: COSGrd, FragPGrd, KneGrd, M1Grd, M2Grd, NAGrd, OvrGrd, PCMGrd, PPGrd, PrjGrd, RFGrd, SROGrd, WelGrd, XFdGrd
+procedure(grd_mem) :: FragPMmG, KneMmG, M1MmG, M2MmG, NAMmG, OvrMmG, PCMMmG, PPMmG, PrjMmG, RFMmg, SROMmG, WelMmg, XFdMmg
 #ifdef _NEXTFFIELD_
 !AOM<
 integer(kind=iwp) :: ncmp, nextfld
 character(len=30) :: fldname
+procedure(grd_kernel) :: MltGrd
+procedure(grd_mem) :: MltMmG
 !AOM>
 #endif
-external :: COSGrd, FragPGrd, FragPMmG, KneGrd, KneMmG, M1Grd, M1MmG, M2Grd, M2MmG, MltGrd, MltMmG, NAGrd, NAMmG, OvrGrd, OvrMmG, &
-            PCMGrd, PCMMmg, PPGrd, PPMmG, PrjGrd, PrjMmG, RFGrd, RFMmg, SROGrd, SROMmG, WelGrd, WelMmg, XFdGrd, XFdMmg
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"

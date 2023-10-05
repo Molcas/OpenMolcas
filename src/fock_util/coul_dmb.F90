@@ -11,6 +11,7 @@
 
 subroutine Coul_DMB(GetFM,nDM,Rep_EN,FM,DMA,DMB,lFDM)
 
+use Cholesky, only: nBas, nSym
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -21,8 +22,6 @@ integer(kind=iwp), intent(in) :: nDM, lFDM
 real(kind=wp), intent(out) :: Rep_EN
 real(kind=wp), intent(inout) :: FM(lFDM)
 real(kind=wp), intent(in) :: DMA(lFDM), DMB(lFDM)
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: irc
 type(DSBA_Type) :: DLT, FLT(1)
 real(kind=wp), external :: ddot_

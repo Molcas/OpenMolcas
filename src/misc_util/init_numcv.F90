@@ -11,16 +11,16 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine INIT_NumCV(NumCV,nSymm)
+subroutine INIT_NumCV(NumCV,nSym)
 
+use Cholesky, only: NumCho
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSymm
-integer(kind=iwp), intent(out) :: NumCV(nSymm)
-#include "cholesky.fh"
+integer(kind=iwp), intent(in) :: nSym
+integer(kind=iwp), intent(out) :: NumCV(nSym)
 
-NumCV(:) = NumCho(1:nSymm)
+NumCV(:) = NumCho(1:nSym)
 
 return
 

@@ -19,6 +19,9 @@ subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 !     a set of well-defined occupied orbitals.                         *
 !***********************************************************************
 
+#ifdef _DEBUGPRINT_
+use Index_Functions, onlyy: iTri
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -273,15 +276,5 @@ call RecPrt('C_Virt(New)',' ',C_Virt,nBas,nVirt)
 #endif
 
 return
-
-#ifdef _DEBUGPRINT_
-contains
-
-function iTri(i,j)
-  integer(kind=iwp) :: iTri
-  integer(kind=iwp), intent(in) :: i, j
-  iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-end function iTri
-#endif
 
 end subroutine Virt_Space

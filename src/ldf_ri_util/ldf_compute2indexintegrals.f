@@ -21,6 +21,7 @@ C     tau is the prescreening threshold. Note that the integral
 C     prescreening arrays must have been set up before calling this
 C     routine.
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer A
       Integer B
@@ -36,7 +37,7 @@ C
       Character*29 SecNam
       Parameter (SecNam='LDF_Compute2IndexIntegrals_11')
 
-      External Int_LDF_2Indx_11
+      Procedure(int_wrout) :: Int_LDF_2Indx_11
 
       Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
@@ -219,6 +220,7 @@ C     tau is the prescreening threshold. Note that the integral
 C     prescreening arrays must have been set up before calling this
 C     routine.
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer A
       Integer CD
@@ -235,7 +237,7 @@ C
       Character*29 SecNam
       Parameter (SecNam='LDF_Compute2IndexIntegrals_12')
 
-      External Int_LDF_2Indx_12
+      Procedure(int_wrout) :: Int_LDF_2Indx_12
 
       Integer  LDF_nBasAux_Pair
       Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
@@ -392,6 +394,7 @@ C     tau is the prescreening threshold. Note that the integral
 C     prescreening arrays must have been set up before calling this
 C     routine.
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer AB
       Integer CD
@@ -408,7 +411,7 @@ C
       Character*29 SecNam
       Parameter (SecNam='LDF_Compute2IndexIntegrals_22')
 
-      External Int_LDF_JK_2P
+      Procedure(int_wrout) :: Int_LDF_JK_2P
 
       Integer  LDF_nBasAux_Pair
       External LDF_nBasAux_Pair

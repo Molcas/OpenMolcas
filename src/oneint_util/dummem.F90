@@ -31,7 +31,7 @@ unused_var(la)
 unused_var(lb)
 unused_var(lr)
 
-call WarningMessage(2,'DumInt should never be called')
+call WarningMessage(2,'DumMem should never be called')
 call Abend()
 
 end subroutine DumMem

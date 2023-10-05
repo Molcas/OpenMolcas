@@ -13,12 +13,13 @@
 
 subroutine PVMem(nHer,Mem,la,lb,lr,KrnMem)
 
+use Integral_interfaces, only: int_mem
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: nHer, Mem
 integer(kind=iwp), intent(in) :: la, lb, lr
-external :: KrnMem
+procedure(int_mem) :: KrnMem
 integer(kind=iwp) :: MemNA1, MemNA2
 
 call KrnMem(nHer,MemNA1,la+1,lb,lr-1)

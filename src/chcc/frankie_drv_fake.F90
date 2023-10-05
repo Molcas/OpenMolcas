@@ -11,12 +11,12 @@
 
 subroutine frankie_drv_fake(NChHere)
 
+use Cholesky, only: NumCho
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: NChHere
-#include "cholesky.fh"
 integer(kind=iwp) :: rc
 real(kind=wp) :: FracMem
 

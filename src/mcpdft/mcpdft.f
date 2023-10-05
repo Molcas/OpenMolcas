@@ -89,11 +89,6 @@
       Logical IfOpened
       Logical Found
 
-* --------- Cholesky stuff:
-#include "chopar.fh"
-#include "chotime.fh"
-* --------- End Cholesky stuff
-
       External RasScf_Init_m
       External Scan_Inp_m
       integer iRef_E,IAD19

@@ -84,10 +84,8 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
-         Call Unused_logical(IJeqKL)
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
-         Call Unused_integer(nSkal)
       End If
       End

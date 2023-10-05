@@ -22,11 +22,11 @@ Description
             %%Description:
             <HELP>
             The SCF program of the molcas program system generates
-            closed-shell Hartree-Fock, open-shell UHF, and Kohn Sham DFT wave functions.
+            closed-shell Hartree-Fock, open-shell UHF, and Kohn-Sham DFT wave functions.
             </HELP>
 
 The :program:`SCF` program of the |molcas| program system generates
-closed-shell Hartree--Fock, open-shell UHF, and Kohn Sham DFT wave functions.
+closed-shell Hartree--Fock, open-shell UHF, and Kohn--Sham DFT wave functions.
 
 The construction of the Fock
 matrices is either done conventionally from the two-electron integral
@@ -131,12 +131,12 @@ for the latter to zero in the corresponding input card (keyword
 By default :program:`SCF` behaves in different ways depending on what
 kind of start orbitals are found according to
 
-#. No start orbitals are found. In this case the core hamiltonian
+#. No start orbitals are found. In this case the core Hamiltonian
    is diagonalized and these orbitals are used as start.
    The "Fermi aufbau" procedure is used until a stable configuration is found.
 
 #. Start orbitals from :program:`Guessorb` are found.
-   In this case the HOMO LUMO gap is analyzed and if it is small
+   In this case the HOMO--LUMO gap is analyzed and if it is small
    the "Fermi aufbau" procedure is used until a stable configuration is found.
    Otherwise the configuration suggested by :program:`Guessorb` is used.
 
@@ -341,7 +341,7 @@ Below is a list of keywords that should cover the needs of most users.
 :kword:`KSDFT`
   Use this keyword to do density functional theory calculations.
   This keyword should be followed by a functional keyword.
-  Use :command:`pymolcas help_func` to see a list of available functionals,
+  Use :command:`pymolcas help_func` to see a list of available keywords,
   you can also specify a `Libxc <https://www.tddft.org/programs/libxc/>`_ functional name, or a number :math:`N` followed
   by :math:`N` lines, each of them containing a weight factor and a Libxc
   functional name (or ``HF_X`` for exact exchange).
@@ -794,14 +794,14 @@ Below is a list of keywords that should cover the needs of most users.
 
 :kword:`HLGAp`
   This keyword is used to make the program level shift the virtual
-  orbitals in such a way that the HOMO LUMO gap is at least the value
+  orbitals in such a way that the HOMO--LUMO gap is at least the value
   specified on the next line. This will help convergence in difficult
   cases but may lead to that it converges to an excited configuration.
   A suitable value is 0.2.
 
   .. xmldoc:: %%Keyword: HLgap <basic>
               This keyword is used to make the program levelshift the virtual
-              orbitals in such a way that the HOMO LUMO gap is at least the value
+              orbitals in such a way that the HOMO-LUMO gap is at least the value
               specified on the next line. This will help convergence in difficult
               cases but may lead to that it converges to an excited configuration.
               A suitable value is 0.2.
@@ -1217,14 +1217,14 @@ Advanced general keywords
 
 :kword:`RFPErt`
   This keyword will add a constant reaction field perturbation to the
-  bare nuclei hamiltonian.
+  bare nuclei Hamiltonian.
   The perturbation is read from :file:`RUNOLD` (if not present defaults to :file:`RUNFILE`) and
   is the latest self consistent perturbation generated
   by one of the programs :program:`SCF` or :program:`RASSCF`.
 
   .. xmldoc:: %%Keyword: Rfpert <advanced>
               This keyword will add a constant reaction field perturbation to the
-              bare nuclei hamiltonian.
+              bare nuclei Hamiltonian.
               The perturbation is read from RUNOLD (if not present defaults to RUNFILE) and
               is the latest selfconsistent perturbation generated
               by one of the programs SCF or RASSCF.
@@ -1327,7 +1327,7 @@ path will be taken whenever there are no two-electron integrals available.
 Limitations
 ...........
 
-The limitations/MODULE on the number of basis functions are the same as specified
+The limitations on the number of basis functions are the same as specified
 for :program:`SEWARD`.
 
 Input examples

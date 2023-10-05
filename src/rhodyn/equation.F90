@@ -36,15 +36,9 @@ integer(kind=iwp) :: i, j
 ! if pulse is enabled, modify Hamiltonian at time t:
 if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time,-1)
 
-!!! debug !!!
-!call print_c_matrix(hamiltoniant, d, 'hamiltoniant', 6)
-!call print_c_matrix(rhot, d, 'rhot', 6)
-
 ! get right part of Liouville equation -i*(hamiltoniant*rhot - rhot*hamiltoniant)
 call zgemm_('N','N',d,d,d,-Onei,hamiltoniant,d,rhot,d,cZero,res,d)
 call zgemm_('N','N',d,d,d,Onei,rhot,d,hamiltoniant,d,cOne,res,d)
-
-!call print_c_matrix(res, d, 'res', 6)
 
 ! Auger decay part
 if (flag_decay .or. (ion_diss /= Zero)) then

@@ -17,8 +17,8 @@ subroutine read_rassisd()
 !            hamiltonian from the MOLCAS output rassisd file (SO)
 !***********************************************************************
 
-use rhodyn_data, only: dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
-                       runmode, SO_CI, V_SO, basis
+use rhodyn_data, only: basis, dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
+                       runmode, SO_CI, V_SO
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

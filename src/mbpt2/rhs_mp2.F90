@@ -13,6 +13,7 @@ subroutine RHS_MP2()
 ! The RHS for the MP2-gradients
 
 use MBPT2_Global, only: Density, EMP2, LuIntM, mAdOcc, mAdVir, VECL2
+use ChoMP2, only: NoGamma
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -27,7 +28,6 @@ integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADO
 real(kind=wp), allocatable :: Int1(:), Int1_2(:), Int2(:), Int2_2(:), Scr1(:)
 #include "trafo.fh"
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 IAD13 = 0
 LIADOUT = 3*36*36

@@ -13,9 +13,11 @@
      &                          D_tot,nDens,Property,Sig)
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
-      use Integral_Interfaces, only: OneEl_Integrals
+      use Integral_Interfaces, only: int_kernel, int_mem,
+     &                               OneEl_Integrals
       Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+      Procedure(int_kernel) :: Kernel
+      Procedure(int_mem) :: KrnlMm
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"

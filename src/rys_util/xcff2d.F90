@@ -11,7 +11,6 @@
 ! Copyright (C) 1990,1991, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-!#define _DEBUGPRINT_
 
 subroutine XCff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01,nOrdOp)
 !***********************************************************************
@@ -54,13 +53,13 @@ call RecPrt('XCff2D: U2',' ',U2,nRys,nT)
 AeqB = EQ(Coori(1,1),Coori(1,2))
 CeqD = EQ(Coori(1,3),Coori(1,4))
 
-If (nOrdOp==0) then
-nabMax_ = la+lb
-ncdMax_ = ld+lc
+if (nOrdOp == 0) then
+  nabMax_ = la+lb
+  ncdMax_ = ld+lc
 else
-nabMax_ = la+lb+2
-ncdMax_ = ld+lc+2
-endif
+  nabMax_ = la+lb+2
+  ncdMax_ = ld+lc+2
+end if
 
 ! Compute B10, B00, and B01
 

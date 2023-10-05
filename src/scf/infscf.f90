@@ -136,7 +136,7 @@
 !----------------------------------------------------------------------*
 Module InfSCF
 use MxDM, only: LenIn, LenIn8, MxDDsk, MxIter, MxKeep, MxOptm, MxSym, MxTit
-#include "chopar.fh"
+use Cholesky, only: ChFracMem
 
 Private LenIn, LenIn8, MxDDsk, MxIter, MxKeep, MxOptm, MxSym, MxTit
 

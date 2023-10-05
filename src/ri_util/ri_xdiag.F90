@@ -17,8 +17,7 @@ subroutine RI_XDiag(Diag,nDiag)
 ! Purpose: compute exact integral diagonal.
 
 use Index_Functions, only: nTri_Elem
-use ChoArr, only: iSP2F, nBstSh
-use ChoSwp, only: iiBstRSh, IndRed, nnBstRSh
+use Cholesky, only: iiBstR, iiBstRSh, IndRed, iSP2F, Mx2Sh, nBstSh, nnBstRSh, nnBstRT, nnShl, nSym, ShA, ShB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -28,7 +27,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nDiag
 real(kind=wp), intent(_OUT_) :: Diag(nDiag)
-#include "cholesky.fh"
 integer(kind=iwp) :: i, i1, i2, ID, iSAB, iShlA, iShlB, iSym, l_SewMem, NumAB
 real(kind=wp), allocatable :: Scr(:)
 logical(kind=iwp), external :: Rsv_Tsk

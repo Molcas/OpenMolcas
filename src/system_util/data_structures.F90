@@ -22,7 +22,7 @@ implicit none
 private
 
 public :: Alloc1DiArray_Type, Alloc1DArray_Type, Alloc2DArray_Type, Alloc4DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, &
-          G2_Type, Integer_Pointer, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
+          G2_Type, Integer_Pointer, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
 ! temporary subroutines for interface with old code
 public :: Map_to_DSBA, Map_to_SBA, Map_to_twxy
 
@@ -53,12 +53,6 @@ type G2_pointers
   real(kind=wp), contiguous, pointer :: A4(:,:,:,:) => null()
   real(kind=wp), contiguous, pointer :: A2(:,:) => null()
 end type G2_pointers
-
-type L_Full_Pointers
-  real(kind=wp), contiguous, pointer :: A3(:,:,:) => null()
-  real(kind=wp), contiguous, pointer :: A21(:,:) => null()
-  real(kind=wp), contiguous, pointer :: A12(:,:) => null()
-end type L_Full_Pointers
 
 type NDSBA_Type
   integer(kind=iwp) :: iCase = 0
@@ -100,24 +94,6 @@ type G2_type
   type(G2_Pointers) :: SB(8,8,8)
 end type G2_type
 
-type L_Full_Type
-  integer(kind=iwp) :: iCase = 0
-  integer(kind=iwp) :: iSym = 0
-  integer(kind=iwp) :: nSym = 0
-  integer(kind=iwp) :: nShell = 0
-  real(kind=wp), allocatable :: A0(:)
-  type(L_Full_Pointers), allocatable :: SPB(:,:,:)
-end type L_Full_Type
-
-type Lab_Type
-  integer(kind=iwp) :: nSym = 0
-  integer(kind=iwp) :: nDen = 0
-  integer(kind=iwp) :: nShell = 0
-  real(kind=wp), allocatable :: A0(:)
-  logical(kind=iwp), allocatable :: Keep(:,:)
-  type(V1), allocatable :: SB(:,:,:)
-end type Lab_Type
-
 type Alloc1DArray_Type
   real(kind=wp), allocatable :: A(:)
 end type Alloc1DArray_Type
@@ -136,25 +112,24 @@ end type Alloc1DiArray_Type
 
 ! Allocate/deallocate data types
 interface Allocate_DT
-  module procedure :: Allocate_DSBA, Allocate_SBA, Allocate_twxy, Allocate_NDSBA, Allocate_G2, Allocate_L_Full, Allocate_Lab, &
-                      Alloc_Alloc_DSBA, Alloc_Alloc1DArray, Alloc2D_Alloc1DArray, Alloc_Alloc2DArray
+  module procedure :: Allocate_DSBA, Allocate_SBA, Allocate_twxy, Allocate_NDSBA, Allocate_G2, Alloc_Alloc_DSBA, &
+                      Alloc_Alloc1DArray, Alloc2D_Alloc1DArray, Alloc_Alloc2DArray
 end interface Allocate_DT
 interface Deallocate_DT
-  module procedure :: Deallocate_DSBA, Deallocate_SBA, Deallocate_twxy, Deallocate_NDSBA, Deallocate_G2, Deallocate_L_Full, &
-                      Deallocate_Lab, Free_Alloc_DSBA, Free_Alloc1DArray, Free2D_Alloc1DArray, Free_Alloc2DArray
+  module procedure :: Deallocate_DSBA, Deallocate_SBA, Deallocate_twxy, Deallocate_NDSBA, Deallocate_G2, Free_Alloc_DSBA, &
+                      Free_Alloc1DArray, Free2D_Alloc1DArray, Free_Alloc2DArray
 end interface Deallocate_DT
 
 ! Private extensions to mma interfaces
 interface cptr2loff
-  module procedure :: lfp_cptr2loff, v1_cptr2loff, dsba_cptr2loff, a1da_cptr2loff, a2da_cptr2loff
+  module procedure :: dsba_cptr2loff, a1da_cptr2loff, a2da_cptr2loff
 end interface
 interface mma_allocate
-  module procedure :: lfp_mma_allo_3D, lfp_mma_allo_3D_lim, v1_mma_allo_3D, v1_mma_allo_3D_lim, dsba_mma_allo_1D, &
-                      dsba_mma_allo_1D_lim, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_allo_2D, a1da_mma_allo_2D_lim, &
-                      a2da_mma_allo_1D, a2da_mma_allo_1D_lim
+  module procedure :: dsba_mma_allo_1D, dsba_mma_allo_1D_lim, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_allo_2D, &
+                      a1da_mma_allo_2D_lim, a2da_mma_allo_1D, a2da_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure :: lfp_mma_free_3D, v1_mma_free_3D, dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
+  module procedure :: dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
 end interface
 
 ! Private explicit interface to work around some compiler bugs
@@ -897,221 +872,6 @@ subroutine Deallocate_G2(Adam)
 
 end subroutine Deallocate_G2
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                      !
-!                      L F u l l - T Y P E   S E C T I O N             !
-!                                                                      !
-!                      L  full storage shell-pair blocked              !
-!                                                                      !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
-
-  use ChoArr, only: nBasSh
-  use ChoSwp, only: nnBstRSh
-
-  type(L_Full_Type), target, intent(out) :: Adam
-  integer(kind=iwp) :: nShell, iShp_rs(nShell*(nShell+2)/2), JNUM, JSYM, nSym
-  integer(kind=iwp), intent(out), optional :: Memory(2)
-  integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma, iSymb, LFULL, iS, iE, MemSPB, n1, n2
-
-  LFULL = 0
-  do iaSh=1,nShell
-    do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2+ibSh
-
-      if (iShp_rs(iShp) <= 0) cycle
-
-      if (nnBstRSh(Jsym,iShp_rs(iShp),1) <= 0) cycle
-
-      do iSymb=1,nSym
-        iSyma = Mul(iSymb,Jsym)
-        if (iSyma < iSymb) cycle
-
-        LFULL = LFULL+nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
-        if (iaSh == ibSh) cycle
-
-        LFULL = LFULL+nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
-
-      end do
-
-    end do
-  end do
-  LFULL = LFULL*JNUM
-
-  if (present(Memory)) then
-    MemSPB = nSym*nShell*(nShell+1)
-    MemSPB = (MemSPB*storage_size(Adam%SPB)-1)/storage_size(Adam%A0)+1
-    Memory = [LFULL,MemSPB]
-    return
-  end if
-
-  Adam%iCase = 1
-  Adam%nSym = nSym
-  Adam%iSym = JSYM
-  Adam%nShell = nShell
-
-  call mma_allocate(Adam%A0,LFULL,Label='Adam%A0')
-
-  call mma_allocate(Adam%SPB,nSym,nShell*(nShell+1)/2,2,label='Adam%SPB')
-# include "macros.fh"
-  unused_proc(mma_allocate(Adam%SPB,[0,0],[0,0],[0,0]))
-
-  iE = 0
-  do iaSh=1,nShell
-    do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2+ibSh
-
-      if (iShp_rs(iShp) <= 0) cycle
-
-      if (nnBstRSh(Jsym,iShp_rs(iShp),1) <= 0) cycle
-
-      do iSymb=1,nSym
-        iSyma = Mul(iSymb,Jsym)
-        if (iSyma < iSymb) cycle
-
-        iS = iE+1
-
-        n1 = nBasSh(iSyma,iaSh)
-        n2 = nBasSh(iSymb,ibSh)
-
-        iE = iE+n1*JNUM*n2
-
-        Adam%SPB(iSyma,iShp_rs(iShp),1)%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
-        Adam%SPB(iSyma,iShp_rs(iShp),1)%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
-        Adam%SPB(iSyma,iShp_rs(iShp),1)%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
-
-        if (iaSh == ibSh) cycle
-
-        iS = iE+1
-
-        n1 = nBasSh(iSyma,ibSh)
-        n2 = nBasSh(iSymb,iaSh)
-
-        iE = iE+n1*JNUM*n2
-
-        Adam%SPB(iSyma,iShp_rs(iShp),2)%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
-        Adam%SPB(iSyma,iShp_rs(iShp),2)%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
-        Adam%SPB(iSyma,iShp_rs(iShp),2)%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
-
-      end do
-
-    end do
-  end do
-
-end subroutine Allocate_L_Full
-
-subroutine Deallocate_L_Full(Adam)
-
-  type(L_Full_Type), intent(inout) :: Adam
-  integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma
-
-  do iaSh=1,Adam%nShell
-    do ibSh=1,iaSh
-      iShp = iaSh*(iaSh-1)/2+ibSh
-
-      do iSyma=1,Adam%nSym
-
-        Adam%SPB(iSyma,iShp,1)%A3 => null()
-        Adam%SPB(iSyma,iShp,1)%A21 => null()
-        Adam%SPB(iSyma,iShp,1)%A12 => null()
-        Adam%SPB(iSyma,iShp,2)%A3 => null()
-        Adam%SPB(iSyma,iShp,2)%A21 => null()
-        Adam%SPB(iSyma,iShp,2)%A12 => null()
-
-      end do
-
-    end do
-  end do
-
-  call mma_deallocate(Adam%SPB)
-  call mma_deallocate(Adam%A0)
-  Adam%iCase = 0
-  Adam%nSym = 0
-  Adam%iSym = 0
-  Adam%nShell = 0
-
-end subroutine Deallocate_L_Full
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                      !
-!                      L a b - T Y P E   S E C T I O N                 !
-!                                                                      !
-!                      Lab storaged                                    !
-!                                                                      !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
-
-  type(Lab_Type), target, intent(out) :: Lab
-  integer(kind=iwp), intent(in) :: JNUM, nShell, nSym, nBasSh(nSym,nShell), nBas(nSym), nDen
-  integer(kind=iwp), intent(out), optional :: Memory(2)
-  integer(kind=iwp) :: iSym, iDen, Lab_Memory, iE, iS, iSh, MemKeep, MemSB
-
-  Lab_Memory = 0
-  do iSym=1,nSym
-    Lab_Memory = max(nBas(iSym),Lab_Memory)
-  end do
-  Lab_Memory = Lab_Memory*JNUM*nDen
-
-  if (present(Memory)) then
-    MemKeep = nShell*nDen
-    MemKeep = (MemKeep*storage_size(Lab%Keep)-1)/storage_size(Lab%A0)+1
-    MemSB = nShell*nSym*nDen
-    MemSB = (MemSB*storage_size(Lab%SB)-1)/storage_size(Lab%A0)+1
-    Memory = [Lab_Memory,MemKeep+MemSB]
-    return
-  end if
-
-  Lab%nSym = nSym
-  Lab%nDen = nDen
-  Lab%nShell = nShell
-  call mma_allocate(Lab%A0,Lab_Memory,Label='Lab%A0')
-  call mma_allocate(Lab%Keep,nShell,nDen,Label='Lab%Keep')
-  call mma_allocate(Lab%SB,nShell,nSym,nDen,Label='Lab%SB')
-# include "macros.fh"
-  unused_proc(mma_allocate(Lab%SB,[0,0],[0,0],[0,0]))
-
-  do iSym=1,nSym
-    iE = 0
-    do iDen=1,nDen
-      do iSh=1,nShell
-
-        iS = iE+1
-        iE = iE+nBasSh(iSym,iSh)*JNUM
-
-        Lab%SB(iSh,iSym,iDen)%A(1:nBasSh(iSym,iSh)*JNUM) => Lab%A0(iS:iE)
-
-      end do
-    end do
-  end do
-
-end subroutine Allocate_Lab
-
-subroutine Deallocate_Lab(Lab)
-
-  type(Lab_Type), intent(inout) :: Lab
-  integer(kind=iwp) :: iSym, iDen, iSh
-
-  do iSym=1,Lab%nSym
-    do iDen=1,Lab%nDen
-      do iSh=1,Lab%nShell
-
-        Lab%SB(iSh,iSym,iDen)%A => null()
-
-      end do
-    end do
-  end do
-
-  Lab%nSym = 0
-  Lab%nDen = 0
-  Lab%nShell = 0
-  call mma_deallocate(Lab%A0)
-  call mma_deallocate(Lab%Keep)
-  call mma_deallocate(Lab%SB)
-
-end subroutine Deallocate_Lab
-
 subroutine Alloc_Alloc_DSBA(Array,n_Array,n,m,nSym,aCase,Label)
 
   type(DSBA_Type), allocatable, intent(out) :: Array(:)
@@ -1278,37 +1038,10 @@ subroutine Free_Alloc2DArray(Array)
 
 end subroutine Free_Alloc2DArray
 
-! Define lfp_cptr2loff, lfp_mma_allo_3D, lfp_mma_allo_3D_lim, lfp_mma_free_3D
-!        v1_cptr2loff, v1_mma_allo_3D, v1_mma_allo_3D_lim, v1_mma_free_3D
-!        dsba_cptr2loff, dsba_mma_allo_1D, dsba_mma_allo_1D_lim, dsba_mma_free_1D
+! Define dsba_cptr2loff, dsba_mma_allo_1D, dsba_mma_allo_1D_lim, dsba_mma_free_1D
 !        a1da_cptr2loff, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_free_1D,
 !                        a1da_mma_allo_2D, a1da_mma_allo_2D_lim, a1da_mma_free_2D
 !        a2da_cptr2loff, a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a2da_mma_free_1D
-#define _TYPE_ type(L_Full_Pointers)
-#  define _FUNC_NAME_ lfp_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
-#  define _SUBR_NAME_ lfp_mma
-#  define _DIMENSIONS_ 3
-#  define _DEF_LABEL_ 'lfp_mma'
-#  include "mma_allo_template.fh"
-#  undef _SUBR_NAME_
-#  undef _DIMENSIONS_
-#  undef _DEF_LABEL_
-#undef _TYPE_
-
-#define _TYPE_ type(V1)
-#  define _FUNC_NAME_ v1_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
-#  define _SUBR_NAME_ v1_mma
-#  define _DIMENSIONS_ 3
-#  define _DEF_LABEL_ 'v1_mma'
-#  include "mma_allo_template.fh"
-#  undef _SUBR_NAME_
-#  undef _DIMENSIONS_
-#  undef _DEF_LABEL_
-#undef _TYPE_
 
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(DSBA_Type)

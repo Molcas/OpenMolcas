@@ -18,6 +18,7 @@
 ************************************************************************
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpK,
      &                            DoLocK, Estimate, Nscreen, Update
+      Use Cholesky, only: ChFracMem, timings
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -28,11 +29,6 @@
       Logical  DFonly
       character*16 SECNAM
       parameter (SECNAM = 'CHO_RASSCF_RDINP')
-*
-#include "chotime.fh"
-#include "chopar.fh"
-
-*
 *
 ***** Algorithms for using Cholesky vectors in RASSCF ******************
 *

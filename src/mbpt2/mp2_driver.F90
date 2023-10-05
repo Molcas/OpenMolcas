@@ -43,25 +43,25 @@ subroutine MP2_Driver(ireturn)
 
 use MBPT2_Global, only: CMO, DoCholesky, DoDF, DoLDF, EOcc, EOrb, EVir, FnIntA, FnIntM, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, &
                         LuIntM, MBPT2_Clean, NamAct, nBas
-use ChoMP2_dec, only: pEOcc => EOcc, pEVir => EVir
+use ChoMP2, only: all_Vir, C_os, ChoAlg, DoDens, DoMP2, DoT1amp, EOSMP2, FNOMP2, iOffT1, Laplace, Laplace_nGridPoints, LovMP2, &
+                  nActa, pEOcc => EOcc, pEVir => EVir, SOS_mp2, T1amp, ThrLov, vkept, Wref, XEMP2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, iTol, iTst, iType, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), nIsh(8), nOccT
-real(kind=wp) :: E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
+integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, iTol, iTst, iType, l_T1, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), &
+                     nIsh(8), nOccT
+real(kind=wp) :: Dum(2), E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
 logical(kind=iwp) :: Conventional, IsDirect, Exists, Ready
 character(len=8) :: Method, Method1
-real(kind=wp), allocatable :: T1amp(:)
 logical(kind=iwp), parameter :: Debug = .false.
-integer(kind=iwp), external :: Cho_X_GetTol, ip_of_Work
+integer(kind=iwp), external :: Cho_X_GetTol
 real(kind=wp), external :: ddot_, Seconds
 #include "Molcas.fh"
 #include "trafo.fh"
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -160,7 +160,7 @@ if (DoT1amp) then
   t1dg = sqrt(t1nrm/nOccT)
   write(u6,'(A,F8.4)') '       T1 diagnostic : ',t1dg
   write(u6,*)
-  iOffT1(1) = ip_of_Work(T1amp(1))-1
+  iOffT1(1) = 0
   do i=2,nSym
     iOffT1(i) = iOffT1(i-1)+nOcc(i-1)*nExt(i-1)
   end do
@@ -182,7 +182,7 @@ if (DoLDF) then ! LDF
 else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. FNOMP2) .and. (.not. LovMP2)) then
   Conventional = .false.
   Ready = .false.
-  call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir)
+  call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir,Dum(1),Dum(2))
   if (irc /= 0) then
     write(u6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
     call SysAbendMsg('MP2_Driver','Non-zero return code from ChoMP2_Drv',' ')
@@ -193,7 +193,7 @@ else if (DoCholesky .and. SOS_mp2) then ! CD/DF SOS-MP2
   Conventional = .false.
   Ready = .false.
   if (Laplace) then
-    call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir)
+    call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir,Dum(1),Dum(2))
     if (irc /= 0) then
       write(u6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
       call SysAbendMsg('MP2_Driver','Non-zero return code from ChoMP2_Drv',' ')

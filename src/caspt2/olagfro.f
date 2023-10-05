@@ -393,8 +393,7 @@ C
      *                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK)
 
       USE CHOVEC_IO
-      use ChoSwp, only: InfVec
-      use ChoArr, only: nDimRS
+      use Cholesky, only: InfVec, nDimRS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -403,7 +402,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
 
@@ -527,10 +525,10 @@ C           lscr  = nBasI*(nBasI+1)/2
             iSwap = 2
 C           Call Cho_ReOrdr(irc,Work(ip_CHSPC+lscr*(iVec-1)),lscr,jVref,
 C    *                      JVEC1,JNUM,NUMV,iSym,JREDC,iSwap,ipWRK,
-C    *                      iSkip)
+C    *                      Work,iSkip)
             Call DCopy_(nBasI**2,[0.0D+00],0,Work(ipWRK(iSym)),1)
             Call Cho_ReOrdr(irc,Work(ipVecL),lscr,jVref,
-     *                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,
+     *                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,Work,
      *                      iSkip)
             ipVecL = ipVecL + lscr
 C

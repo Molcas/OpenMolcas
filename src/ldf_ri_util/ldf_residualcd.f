@@ -35,6 +35,7 @@ C
 C     Note: the underlying assumption is that few two-center functions
 C     are needed so that the integrals can be stored in core.
 C
+      Use Integral_interfaces, only: int_wrout
       Implicit None
       Integer iAtomPair
       Integer ip_CBar, l_CBar
@@ -46,7 +47,7 @@ C
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 
-      External Integral_WrOut_LDF_G
+      Procedure(int_wrout) :: Integral_WrOut_LDF_G
 
 #if defined (_DEBUGPRINT_)
       Logical  isSymmetric, hasNonnegativeDiagonal, obeysCauchySchwarz

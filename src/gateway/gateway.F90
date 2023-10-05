@@ -32,7 +32,8 @@ use Center_Info, only: dc, center_info_dmp, center_info_init, center_info_get, c
 use external_centers, only: iXPolType, XF
 use Gateway_global, only: DirInt, Expert, G_Mode, Primitive_Pass, Run_Mode
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Cho_OneCenter, Cholesky, Do_DCCD, Do_RI
+use RICD_Info, only: Cho_OneCenter, Chol => Cholesky, Do_DCCD, Do_RI
+use Cholesky, only: Cho_1Center
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -46,7 +47,7 @@ integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: iCnt, iCnttp, iNuc, iOption, iRc, iter_S, LuSpool, mdc, nDNA, nNuc
 integer(kind=iwp), parameter :: nMamn = MaxBfn+MaxBfn_Aux
 character(len=LenIn) :: xLblCnt(MxAtom)
-logical(kind=iwp) :: lOPTO, Pseudo, Do_OneEl, Cho_1Center, IsBorn, Found
+logical(kind=iwp) :: lOPTO, Pseudo, Do_OneEl, IsBorn, Found
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
 character(len=LenIn8), allocatable :: Mamn(:)
@@ -240,12 +241,11 @@ if (PCM) then
 end if
 iOption = ibset(iOption,5)
 ! 2el-integrals from the Cholesky vectors
-if (Cholesky .or. Do_RI) iOption = ibset(iOption,9)
+if (Chol .or. Do_RI) iOption = ibset(iOption,9)
 ! RI-Option
 if (Do_RI) iOption = ibset(iOption,10)
 ! 1C-CD
-Cho_1Center = Get_Cho_1Center()
-if (Cholesky .and. Cho_1Center) iOption = ibset(iOption,12)
+if (Chol .and. Cho_1Center) iOption = ibset(iOption,12)
 Cho_OneCenter = Cho_1Center
 if (Do_DCCD) iOption = ibset(iOption,13)
 call Put_iScalar('System BitSwitch',iOption)
@@ -264,13 +264,5 @@ call mma_deallocate(Centr)
 !***********************************************************************
 !                                                                      *
 return
-
-contains
-
-function Get_Cho_1Center() result(res)
-  logical(kind=iwp) :: res
-# include "cholesky.fh"
-  res = Cho_1Center
-end function Get_Cho_1Center
 
 end subroutine Gateway

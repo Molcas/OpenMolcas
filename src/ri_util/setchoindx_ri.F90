@@ -15,13 +15,13 @@ subroutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,I_nSym,I_nnShl,I_
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use ChoArr, only: iSP2F, iBasSh, nBasSh, nBstSh
+use Cholesky, only: iiBstR, iSP2F, iBasSh, nBasSh, nBstSh, nnBstR, nnBstRT, nnShl, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: I_nSym, I_nnShl, I_mmBstRT, iRS2F(2,I_mmBstRT), nShij, iShij(2,nShij)
-integer(kind=iwp), intent(out) :: iiBstRSh(I_nSym,I_nnShl,3), nnBstRSh(I_nSym,I_nnShl,3), IndRed(I_mmBstRT,3), IndRsh(I_mmBstRT)
-#include "cholesky.fh"
+integer(kind=iwp), intent(in) :: I_nSym, I_nnShl, I_mmBstRT, nShij, iShij(2,nShij)
+integer(kind=iwp), intent(out) :: iiBstRSh(I_nSym,I_nnShl,3), nnBstRSh(I_nSym,I_nnShl,3), IndRed(I_mmBstRT,3), IndRsh(I_mmBstRT), &
+                                  iRS2F(2,I_mmBstRT)
 integer(kind=iwp) :: i, ia, iaa, iab, ib, ibb, iCount, iRS(8), iSh_ij, iShla, iShlab, iShlb, iSym, iSyma, iSymb, jRS, jRS1, jRS2, &
                      nErr
 integer(kind=iwp), external :: Cho_iSAOSh

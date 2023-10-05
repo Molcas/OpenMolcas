@@ -27,6 +27,7 @@ subroutine pXpInt( &
 
 use Symmetry_Info, only: iChBas, nIrrep
 use Index_Functions, only: nTri_Elem1
+use Integral_interfaces, only: int_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -38,19 +39,7 @@ integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr,
                      iSym_p2, iSym_p3, iSym_pX, iSym_pXp, iTemp, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, mArr, nip
 integer(kind=iwp), allocatable :: kChO(:,:), kOper(:,:)
 integer(kind=iwp), external :: IrrFnc
-
-    Interface
-    subroutine pXint( &
-#                define _CALLING_
-#                include "int_interface.fh"
-              )
-    use Definitions, only: wp, iwp
-    use Index_Functions, only: nTri_Elem1
-#include "int_interface.fh"
-    End subroutine pXint
-
-    End Interface
-
+procedure(int_kernel) :: pXint
 
 #include "macros.fh"
 unused_var(nHer)

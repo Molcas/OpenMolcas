@@ -127,7 +127,7 @@ C Initialize sizes, offsets etc used in equation solver.
           write(6,*) 'CASPT2: Non-zero rc in Cho_X_init'
           CALL QUIT(irc)
         endif
-* import_ch transfers some values from cholesky.fh to chocaspt2.fh
+* import_ch transfers some values from Cholesky module to chocaspt2.fh
         call import_cho(numcho_pt2,infvec_n2_pt2,maxvec_pt2)
         Call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Allo')
 * get unit numbers for Cholesky MO vectors

@@ -18,8 +18,9 @@
 !***********************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use SpinAV, only: DSC, Do_SpinAV
-      use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, ChFracMem, DoCholesky, DoLDF, E_nondyn, FileOrb_id, isHDF5, &
-                        MaxBas, MxConstr, nBB, nBT, nnB, nSym, VTitle
+      use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, DoCholesky, DoLDF, E_nondyn, FileOrb_id, isHDF5, MaxBas, &
+                        MxConstr, nBB, nBT, nnB, nSym, VTitle
+      use Cholesky, only: ChFracMem
       use DCSCF, only: Erest_xc, s2CNO
       use Constants, only: Zero, Half, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate

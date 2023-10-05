@@ -30,6 +30,7 @@ use Basis_Info, only: dbsc, nBas, nCnttp
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Integral_interfaces, only: int_kernel, int_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -47,7 +48,8 @@ logical(kind=iwp) :: Do_ESPF
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ip(:), kOper(:), lOper(:)
 real(kind=wp), allocatable :: Centr(:,:), Dens(:), Nuc(:)
-external :: PotInt, NAMem
+procedure(int_kernel) :: PotInt
+procedure(int_mem) :: NAMem
 
 !                                                                      *
 !***********************************************************************

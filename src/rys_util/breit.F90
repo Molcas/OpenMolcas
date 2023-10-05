@@ -10,7 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2023, Roland Lindh                                     *
 !***********************************************************************
-Module Breit
-Integer :: nOrdOp=0, nComp=1
-End Module Breit
+
+module Breit
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: nComp = 1, nOrdOp = 0
+
+public :: nComp, nOrdOp
+
+end module Breit
 

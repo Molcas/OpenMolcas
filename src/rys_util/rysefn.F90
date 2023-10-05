@@ -11,8 +11,6 @@
 ! Copyright (C) 1990,1991,1994, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
-!#define _DEBUGPRINT_
-!#define _CHECK_R3_TERM_
 
 subroutine RysEFn(xyz2D,xyz2Dn,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,AeqB,CeqD)
 !***********************************************************************
@@ -35,55 +33,52 @@ subroutine RysEFn(xyz2D,xyz2Dn,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMi
 ! That is it should generate the regular ERIs.
 
 use Index_Functions, only: iTri_Rev, C3_Ind
-use Definitions, only: wp, iwp
 #ifdef _CHECK_R3_TERM_
 use Constants, only: Zero
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nArg, mArg, nRys, neMin, neMax, nfMin, nfMax, meMin, meMax, mfMin, mfMax
-real(kind=wp), intent(in) :: xyz2D (nRys,mArg,3,  0:neMax+2,0:nfMax+2)
-real(kind=wp), intent(in) :: xyz2Dn(nRys,mArg,3,2,0:neMax+1,0:nfMax+1)
-real(kind=wp), intent(in) :: PreFct(mArg)
+real(kind=wp), intent(in) :: xyz2D(nRys,mArg,3,0:neMax+2,0:nfMax+2), xyz2Dn(nRys,mArg,3,2,0:neMax+1,0:nfMax+1), PreFct(mArg)
 #ifdef _CHECK_R3_TERM_
 real(kind=wp), intent(out) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
 #else
 real(kind=wp), intent(out) :: EFInt(nArg,6,meMin:meMax,mfMin:mfMax)
 #endif
 logical(kind=iwp), intent(in) :: AeqB, CeqD
-integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nzeMax, nzeMin, nzfMax, nzfMin
-integer(kind=iwp) ::  Inde, Indf, ize, izf
-integer(kind=iwp) :: iRys
+integer(kind=iwp) :: ie, ief, if_, Inde, Indf, iRys, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ize, izf, ne, nf, nzeMax, nzeMin, &
+                     nzfMax, nzfMin
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iab, icd
 character(len=80) :: Label
-integer(kind=iwp) iab, icd
 #endif
 
 #ifdef _DEBUGPRINT_
-do iab = 0, neMax+2
-   do icd = 0, nfMax+2
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(x)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2D(:,:,1,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(y)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2D(:,:,2,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(z)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2D(:,:,3,iab,icd),nRys,mArg)
+do iab=0,neMax+2
+  do icd=0,nfMax+2
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(x)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2D(:,:,1,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(y)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2D(:,:,2,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2D(z)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2D(:,:,3,iab,icd),nRys,mArg)
   end do
 end do
-do iab = 0, neMax
-   do icd = 0, nfMax
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(x)(1)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2Dn(:,:,1,1,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(y)(1)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2Dn(:,:,2,1,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(z)(1)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2Dn(:,:,3,1,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(x)(2)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2Dn(:,:,1,2,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(y)(2)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2Dn(:,:,2,2,iab,icd),nRys,mArg)
-      write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(z)(2)(',iab,',',icd,')'
-      call RECPRT(Label,' ',xyz2Dn(:,:,3,2,iab,icd),nRys,mArg)
+do iab=0,neMax
+  do icd=0,nfMax
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(x)(1)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2Dn(:,:,1,1,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(y)(1)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2Dn(:,:,2,1,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(z)(1)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2Dn(:,:,3,1,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(x)(2)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2Dn(:,:,1,2,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(y)(2)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2Dn(:,:,2,2,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: xyz2Dn(z)(2)(',iab,',',icd,')'
+    call RecPrt(Label,' ',xyz2Dn(:,:,3,2,iab,icd),nRys,mArg)
   end do
 end do
 #endif
@@ -118,48 +113,48 @@ do ief=1,ne*nf
   if (CeqD) nzfMin = nzfMax
 
   do izf=nzfMin,nzfMax
-     Indf = C3_Ind(ixyf+izf,ixf,izf)-1
-     do ize=nzeMin,nzeMax
-        Inde = C3_Ind(ixye+ize,ixe,ize)-1
-#ifdef _CHECK_R3_TERM_
-        iRys=1
-        EFInt(1:mArg,Inde,Indf) = Zero
-        do iRys=1,nRys
-           EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf) &
-                                   + xyz2Dn(iRys,:,1,2,ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
-                                   + xyz2D (iRys,:,1,  ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D (iRys,:,3,  ize,izf) &
-                                   + xyz2D (iRys,:,1,  ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2Dn(iRys,:,3,2,ize,izf)
-        end do
-        EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
-#else
-        EFInt(1:mArg,1,Inde,Indf) = xyz2Dn(1,:,1,2,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2D (1,:,3,  ize,izf)
-        EFInt(1:mArg,2,Inde,Indf) = xyz2Dn(1,:,1,1,ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2D (1,:,3,  ize,izf)
-        EFInt(1:mArg,3,Inde,Indf) = xyz2Dn(1,:,1,1,ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
-        EFInt(1:mArg,4,Inde,Indf) = xyz2D (1,:,1,  ixe,ixf)*xyz2Dn(1,:,2,2,iye,iyf)*xyz2D (1,:,3,  ize,izf)
-        EFInt(1:mArg,5,Inde,Indf) = xyz2D (1,:,1,  ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
-        EFInt(1:mArg,6,Inde,Indf) = xyz2D (1,:,1,  ixe,ixf)*xyz2D (1,:,2,  iye,iyf)*xyz2Dn(1,:,3,2,ize,izf)
-        do iRys=2,nRys
-           EFInt(1:mArg,1,Inde,Indf) = EFInt(1:mArg,1,Inde,Indf) + &
-                                       xyz2Dn(iRys,:,1,2,ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2D (iRys,:,3,  ize,izf)
-           EFInt(1:mArg,2,Inde,Indf) = EFInt(1:mArg,2,Inde,Indf) + &
-                                       xyz2Dn(iRys,:,1,1,ixe,ixf)*xyz2Dn(iRys,:,2,1,iye,iyf)*xyz2D (iRys,:,3,  ize,izf)
-           EFInt(1:mArg,3,Inde,Indf) = EFInt(1:mArg,3,Inde,Indf) + &
-                                       xyz2Dn(iRys,:,1,1,ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2Dn(iRys,:,3,1,ize,izf)
-           EFInt(1:mArg,4,Inde,Indf) = EFInt(1:mArg,4,Inde,Indf) + &
-                                       xyz2D (iRys,:,1,  ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D (iRys,:,3,  ize,izf)
-           EFInt(1:mArg,5,Inde,Indf) = EFInt(1:mArg,5,Inde,Indf) + &
-                                       xyz2D (iRys,:,1,  ixe,ixf)*xyz2Dn(iRys,:,2,1,iye,iyf)*xyz2Dn(iRys,:,3,1,ize,izf)
-           EFInt(1:mArg,6,Inde,Indf) = EFInt(1:mArg,6,Inde,Indf) + &
-                                       xyz2D (iRys,:,1,  ixe,ixf)*xyz2D (iRys,:,2,  iye,iyf)*xyz2Dn(iRys,:,3,2,ize,izf)
-        end do
-        EFInt(1:mArg,1,Inde,Indf) = EFInt(1:mArg,1,Inde,Indf)*PreFct(:)
-        EFInt(1:mArg,2,Inde,Indf) = EFInt(1:mArg,2,Inde,Indf)*PreFct(:)
-        EFInt(1:mArg,3,Inde,Indf) = EFInt(1:mArg,3,Inde,Indf)*PreFct(:)
-        EFInt(1:mArg,4,Inde,Indf) = EFInt(1:mArg,4,Inde,Indf)*PreFct(:)
-        EFInt(1:mArg,5,Inde,Indf) = EFInt(1:mArg,5,Inde,Indf)*PreFct(:)
-        EFInt(1:mArg,6,Inde,Indf) = EFInt(1:mArg,6,Inde,Indf)*PreFct(:)
-#endif
-     end do
+    Indf = C3_Ind(ixyf+izf,ixf,izf)-1
+    do ize=nzeMin,nzeMax
+      Inde = C3_Ind(ixye+ize,ixe,ize)-1
+#     ifdef _CHECK_R3_TERM_
+      iRys = 1
+      EFInt(1:mArg,Inde,Indf) = Zero
+      do iRys=1,nRys
+        EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)+ &
+                                  xyz2Dn(iRys,:,1,2,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2D(iRys,:,3,ize,izf)+ &
+                                  xyz2D(iRys,:,1,ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D(iRys,:,3,ize,izf)+ &
+                                  xyz2D(iRys,:,1,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2Dn(iRys,:,3,2,ize,izf)
+      end do
+      EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
+#     else
+      EFInt(1:mArg,1,Inde,Indf) = xyz2Dn(1,:,1,2,ixe,ixf)*xyz2D(1,:,2,iye,iyf)*xyz2D(1,:,3,ize,izf)
+      EFInt(1:mArg,2,Inde,Indf) = xyz2Dn(1,:,1,1,ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2D(1,:,3,ize,izf)
+      EFInt(1:mArg,3,Inde,Indf) = xyz2Dn(1,:,1,1,ixe,ixf)*xyz2D(1,:,2,iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
+      EFInt(1:mArg,4,Inde,Indf) = xyz2D(1,:,1,ixe,ixf)*xyz2Dn(1,:,2,2,iye,iyf)*xyz2D(1,:,3,ize,izf)
+      EFInt(1:mArg,5,Inde,Indf) = xyz2D(1,:,1,ixe,ixf)*xyz2Dn(1,:,2,1,iye,iyf)*xyz2Dn(1,:,3,1,ize,izf)
+      EFInt(1:mArg,6,Inde,Indf) = xyz2D(1,:,1,ixe,ixf)*xyz2D(1,:,2,iye,iyf)*xyz2Dn(1,:,3,2,ize,izf)
+      do iRys=2,nRys
+        EFInt(1:mArg,1,Inde,Indf) = EFInt(1:mArg,1,Inde,Indf)+ &
+                                    xyz2Dn(iRys,:,1,2,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2D(iRys,:,3,ize,izf)
+        EFInt(1:mArg,2,Inde,Indf) = EFInt(1:mArg,2,Inde,Indf)+ &
+                                    xyz2Dn(iRys,:,1,1,ixe,ixf)*xyz2Dn(iRys,:,2,1,iye,iyf)*xyz2D(iRys,:,3,ize,izf)
+        EFInt(1:mArg,3,Inde,Indf) = EFInt(1:mArg,3,Inde,Indf)+ &
+                                    xyz2Dn(iRys,:,1,1,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2Dn(iRys,:,3,1,ize,izf)
+        EFInt(1:mArg,4,Inde,Indf) = EFInt(1:mArg,4,Inde,Indf)+ &
+                                    xyz2D(iRys,:,1,ixe,ixf)*xyz2Dn(iRys,:,2,2,iye,iyf)*xyz2D(iRys,:,3,ize,izf)
+        EFInt(1:mArg,5,Inde,Indf) = EFInt(1:mArg,5,Inde,Indf)+ &
+                                    xyz2D(iRys,:,1,ixe,ixf)*xyz2Dn(iRys,:,2,1,iye,iyf)*xyz2Dn(iRys,:,3,1,ize,izf)
+        EFInt(1:mArg,6,Inde,Indf) = EFInt(1:mArg,6,Inde,Indf)+ &
+                                    xyz2D(iRys,:,1,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2Dn(iRys,:,3,2,ize,izf)
+      end do
+      EFInt(1:mArg,1,Inde,Indf) = EFInt(1:mArg,1,Inde,Indf)*PreFct(:)
+      EFInt(1:mArg,2,Inde,Indf) = EFInt(1:mArg,2,Inde,Indf)*PreFct(:)
+      EFInt(1:mArg,3,Inde,Indf) = EFInt(1:mArg,3,Inde,Indf)*PreFct(:)
+      EFInt(1:mArg,4,Inde,Indf) = EFInt(1:mArg,4,Inde,Indf)*PreFct(:)
+      EFInt(1:mArg,5,Inde,Indf) = EFInt(1:mArg,5,Inde,Indf)*PreFct(:)
+      EFInt(1:mArg,6,Inde,Indf) = EFInt(1:mArg,6,Inde,Indf)*PreFct(:)
+#     endif
+    end do
   end do
   !                                                                    *
   !*********************************************************************
@@ -172,23 +167,23 @@ end do
 #ifdef _DEBUGPRINT_
 do iab=meMin,meMax
   do icd=mfMin,mfMax
-#ifdef _CHECK_R3_TERM_
-     write(Label,'(A,I3,A,I3,A)') ' In RysEFn: [',iab,',0|',icd,',0]'
-     call RecPrt(Label,' ',EFInt(:,iab,icd),1,nArg)
-#else
-     write(Label,'(A,I3,A,I3,A)') ' In RysEFn:xx [',iab,',0|',icd,',0]'
-     call RecPrt(Label,' ',EFInt(:,1,iab,icd),1,nArg)
-     write(Label,'(A,I3,A,I3,A)') ' In RysEFn:xy [',iab,',0|',icd,',0]'
-     call RecPrt(Label,' ',EFInt(:,2,iab,icd),1,nArg)
-     write(Label,'(A,I3,A,I3,A)') ' In RysEFn:xz [',iab,',0|',icd,',0]'
-     call RecPrt(Label,' ',EFInt(:,3,iab,icd),1,nArg)
-     write(Label,'(A,I3,A,I3,A)') ' In RysEFn:yy [',iab,',0|',icd,',0]'
-     call RecPrt(Label,' ',EFInt(:,4,iab,icd),1,nArg)
-     write(Label,'(A,I3,A,I3,A)') ' In RysEFn:yz [',iab,',0|',icd,',0]'
-     call RecPrt(Label,' ',EFInt(:,5,iab,icd),1,nArg)
-     write(Label,'(A,I3,A,I3,A)') ' In RysEFn:zz [',iab,',0|',icd,',0]'
-     call RecPrt(Label,' ',EFInt(:,6,iab,icd),1,nArg)
-#endif
+#   ifdef _CHECK_R3_TERM_
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn: [',iab,',0|',icd,',0]'
+    call RecPrt(Label,' ',EFInt(:,iab,icd),1,nArg)
+#   else
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn:xx [',iab,',0|',icd,',0]'
+    call RecPrt(Label,' ',EFInt(:,1,iab,icd),1,nArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn:xy [',iab,',0|',icd,',0]'
+    call RecPrt(Label,' ',EFInt(:,2,iab,icd),1,nArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn:xz [',iab,',0|',icd,',0]'
+    call RecPrt(Label,' ',EFInt(:,3,iab,icd),1,nArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn:yy [',iab,',0|',icd,',0]'
+    call RecPrt(Label,' ',EFInt(:,4,iab,icd),1,nArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn:yz [',iab,',0|',icd,',0]'
+    call RecPrt(Label,' ',EFInt(:,5,iab,icd),1,nArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEFn:zz [',iab,',0|',icd,',0]'
+    call RecPrt(Label,' ',EFInt(:,6,iab,icd),1,nArg)
+#   endif
   end do
 end do
 #endif

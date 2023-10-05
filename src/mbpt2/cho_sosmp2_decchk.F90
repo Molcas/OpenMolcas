@@ -31,8 +31,8 @@ subroutine Cho_SOSmp2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(2) = max error
 !          ErrStat(3) = rms error
 
-use ChoMP2, only: OldVec
-use ChoMP2_dec, only: Incore
+use Cholesky, only: NumCho
+use ChoMP2, only: Incore, lUnit_F, nMP2Vec, nT1am, OldVec
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -45,8 +45,6 @@ integer(kind=iwp) :: iBatCol, ibj1, kai, kbj, lU, Nai, nBatCol, Nbj, NumCol, Num
 real(kind=wp) :: Fac, xdim
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_DecChk'
 real(kind=wp), external :: ddot_
-#include "cholesky.fh"
-#include "chomp2.fh"
 
 irc = 0
 

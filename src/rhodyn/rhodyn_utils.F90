@@ -63,6 +63,8 @@ subroutine dashes(length)
 end subroutine dashes
 
 subroutine removeLineAndColumnZ(a,remLCarray)
+  ! cut complex matrix a(n,m), i.e. delete rows and columns not given by array remLCarray(k)
+  ! thus the result is matrix a of size (k,k)
 
   complex(kind=wp), allocatable, intent(inout) :: a(:,:)
   integer(kind=iwp), intent(in) :: remLCarray(:)
@@ -99,6 +101,8 @@ subroutine removeLineAndColumnZ(a,remLCarray)
 end subroutine removeLineAndColumnZ
 
 subroutine removeLineAndColumnR(a,remLCarray)
+  ! cut real matrix a(n,m), i.e. delete rows and columns not given by array remLCarray(k)
+  ! thus the result is matrix a of size (k,k)
 
   real(kind=wp), allocatable, intent(inout) :: a(:,:)
   integer(kind=iwp), intent(in) :: remLCarray(:)
@@ -135,6 +139,8 @@ subroutine removeLineAndColumnR(a,remLCarray)
 end subroutine removeLineAndColumnR
 
 subroutine removeColumnZ(a,remCarray)
+  ! cut complex matrix a(n,m), i.e. delete columns not given by array remCarray(k)
+  ! thus the result is matrix a of size (n,k)
 
   complex(kind=wp), allocatable, intent(inout) :: a(:,:)
   integer(kind=iwp), intent(in) :: remCarray(:)
@@ -169,6 +175,8 @@ subroutine removeColumnZ(a,remCarray)
 end subroutine removeColumnZ
 
 subroutine removeColumnR(a,remCarray)
+  ! cut real matrix a(n,m), i.e. delete columns not given by array remCarray(k)
+  ! thus the result is matrix a of size (n,k)
 
   real(kind=wp), allocatable, intent(inout) :: a(:,:)
   integer(kind=iwp), intent(in) :: remCarray(:)
@@ -308,6 +316,8 @@ subroutine sortci(N1,A,WR,C,print_level)
 end subroutine sortci
 
 subroutine compare_matrices(A,B,n,header,thrs)
+  ! check if complex matrices A and B are equal within given threshold thrs
+
   integer(kind=iwp), intent(in) :: n
   complex(kind=wp), intent(in) :: A(n,n), B(n,n)
   character(len=*), intent(in) :: header
@@ -323,6 +333,7 @@ subroutine compare_matrices(A,B,n,header,thrs)
       cycle
     else
       AB_equal = .false.
+      write(u6,*) "error in", i
       exit
     end if
   end do
@@ -331,13 +342,12 @@ subroutine compare_matrices(A,B,n,header,thrs)
 
 end subroutine compare_matrices
 
-! routines for spherical tensor basis !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
   ! DCLEBS: real Clebsch-Gordan coefficients
   ! From a modification of Racah''s formula. Coded: Malmqvist 1998
   ! Note carefully: The input values XJ1..XM3 are REAL, not integers. Half-integer spins are allowed
   ! Half-integers are assumed exactly represented
+
   real(kind=wp) :: DCLEBS
   real(kind=wp), intent(in) :: XJ1, XJ2, XJ3, XM1, XM2, XM3
   integer, parameter :: MAXJ = 10, MAXF = 3*MAXJ+1
@@ -400,6 +410,7 @@ function W3J(j1,j2,j3,m1,m2,m3)
   ! Calculates a Wigner 3-j symbol in the form
   ! { j1 j2 j3 }
   ! { m1 m2 m3 }
+
   real(kind=wp) :: W3j
   real(kind=wp), intent(in) :: j1, j2, j3, m1, m2, m3
   integer(kind=iwp) :: i
@@ -414,6 +425,7 @@ end function W3J
 
 subroutine ITO(n,k,q,spins,projs,T)
   ! calculates the matrix <SM|T^K_Q|S'M'> of irreducible tensor operator
+
   integer(kind=iwp), intent(in) :: n, k, q
   real(kind=wp), intent(in) :: spins(n), projs(n)
   real(kind=wp), intent(out) :: T(n,n)
@@ -436,6 +448,7 @@ end subroutine ITO
 
 subroutine WERDM(rho,n_so,n_sf,k,q,spins,projs,so_sf,RED)
   ! calculates the elements of Wigner-Eckart reduced density matrix for fixed values of K, Q
+
   integer(kind=iwp), intent(in) :: n_so, n_sf, k, q, so_sf(n_so)
   complex(kind=wp), intent(in) :: rho(n_so,n_so)
   real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
@@ -452,10 +465,6 @@ subroutine WERDM(rho,n_so,n_sf,k,q,spins,projs,so_sf,RED)
       ii = so_sf(i)
       jj = so_sf(j)
       RED(ii,jj) = RED(ii,jj)+rho(i,j)*T(i,j)
-      !TEST
-      !write(u6,*) 'i,j,ii,jj:',i,j,ii,jj
-      !write(u6,*) 'rho, T, rho_red',rho(i,j),T(i,j),RED(ii,jj)
-      !TEST
     end do
   end do
 
@@ -465,6 +474,7 @@ subroutine WERDM_back(RED,n_so,n_sf,len_sph,k_ranks,q_proj,spins,projs,so_sf,rho
   ! calculates the density matrix in SO basis from the elements of
   ! Wigner-Eckart reduced density matrix, which are stored in 3d-matrix
   ! (len_sph,n_sf,n_sf)
+
   integer(kind=iwp), intent(in) :: n_so, n_sf, len_sph, k_ranks(len_sph), q_proj(len_sph), so_sf(n_so)
   complex(kind=wp), intent(in) :: RED(len_sph,n_sf,n_sf)
   real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
@@ -493,6 +503,7 @@ end subroutine WERDM_back
 subroutine WERSO(vso,n_so,n_sf,so_sf,spins,projs,redvso)
   ! calculates matrix elements of Wigner-Eckart reduced spin-orbit Hamiltonian
   ! <iSM|Vso|jS'M'> = sqrt(3) sum_{m=0,+-1} (-1)^{S-M+m} 3j{S1S'-MmM'} <iS||Vso||jS'>
+
   integer(kind=iwp), intent(in) :: n_so, n_sf, so_sf(n_so)
   complex(kind=wp), intent(in) :: vso(n_so,n_so)
   real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
@@ -513,6 +524,15 @@ subroutine WERSO(vso,n_so,n_sf,so_sf,spins,projs,redvso)
       do m=0,2,1
         threejsymb = W3J(s1,One,s2,-m1,real((m-1),kind=wp),m2)
         if (threejsymb /= Zero) then ! this condition should be checked carefully
+          !!!!! test
+          !if (redvso(ii,jj,m+1) /= cZero) then
+          !  write(u6,*) 'Matrix red VSOC element filled twice', redvso(ii,jj,m+1)
+          !  write(u6,*) 'ii,jj = ', ii,jj
+          !  write(u6,*) 'i,j   = ', i,j
+          !  write(u6,*) 'm     = ', m+1
+          !  write(u6,*) 's1,s2 = ', s1,s2
+          !  write(u6,*) 'now = ', (-1)**(nint(s1-m1+m-1))*vso(i,j)/sqrt(Three)/threejsymb
+          !end if
           redvso(ii,jj,m+1) = (-1)**(nint(s1-m1+m-1))*vso(i,j)/sqrt(Three)/threejsymb
         end if
       end do
@@ -524,6 +544,7 @@ end subroutine WERSO
 subroutine WERSO_back(redvso,n_so,n_sf,so_sf,spins,projs,vso)
   ! calculates matrix elements of Wigner-Eckart reduced spin-orbit Hamiltonian
   ! <iSM|Vso|jS'M'> = sqrt(3) sum_{m=0,+-1} (-1)^{S-M+m} 3j{S1S'-MmM'} <iS||Vso||jS'>
+
   integer(kind=iwp), intent(in) :: n_so, n_sf, so_sf(n_so)
   complex(kind=wp), intent(in) :: redvso(n_sf,n_sf,3)
   real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
@@ -550,6 +571,8 @@ subroutine WERSO_back(redvso,n_so,n_sf,so_sf,spins,projs,vso)
 end subroutine WERSO_back
 
 subroutine print_c_matrix(A,n,header)
+  ! prints any complex matrix
+
   integer(kind=iwp), intent(in) :: n
   complex(kind=wp), intent(in) :: A(n,n)
   character(len=*), intent(in) :: header
@@ -565,6 +588,8 @@ end subroutine print_c_matrix
 
 subroutine check_hermicity(A,n,A_name,thrs)
   ! check whether matrix A is hermitian
+  ! pops a warning only if hermicity is violated
+
   integer(kind=iwp), intent(in) :: n
   complex(kind=wp), intent(in) :: A(n,n)
   character(len=*), intent(in) :: A_name
@@ -607,6 +632,7 @@ end function get_kq_order
 
 function fct(n)
   ! this function provides correct answer till n=169 only
+
   real(kind=wp) :: fct
   integer(kind=iwp), intent(in) :: n
   integer(kind=iwp) :: i
@@ -636,10 +662,11 @@ function fct(n)
 end function fct
 
 function W6J(a,b,c,d,e,f)
-  ! Calculates a Wigner 6-j symbol. Argument a-f are positive Integer
-  ! and are twice the true value of the 6-j's arguments, in the form
+  ! Calculates Wigner 6j symbol. Arguments a-f are positive integers
+  ! and are twice the true value of 6j's arguments, in the form
   ! { a b c }
   ! { d e f }
+
   real(kind=wp) :: W6j
   integer(kind=iwp), intent(in) :: a, b, c, d, e, f
   integer(kind=iwp) :: n, nlow, nhig
@@ -680,11 +707,10 @@ end function W6J
 
 function dlt(a,b,c)
   ! calculates the delta(a,b,c) function using the formula 8.2.1. from:
-  !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-  !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
-  !
-  ! a,b,c are positive Integer numbers,
-  ! their values are double than their original value
+  ! D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
+  ! "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+  ! a,b,c are positive integers, their values are double than their original value
+
   real(kind=wp) :: dlt
   integer(kind=iwp), intent(in) :: a, b, c
 
@@ -706,6 +732,8 @@ function dlt(a,b,c)
 end function dlt
 
 function check_triangle(a,b,c)
+  ! boolean function, checks if arguments fulfill triangular rule
+
   logical :: check_triangle
   integer(kind=iwp), intent(in) :: a, b, c
 
