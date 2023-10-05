@@ -33,22 +33,36 @@
 !             Modified for reaction field calculations July  92        *
 !             Modified loop structure  99                              *
 !***********************************************************************
-      use setup
-      use Real_Spherical
-      use iSD_data
-      use Basis_Info
-      use Center_Info
+      use Real_Spherical, only: ipSph, rSph
+      use iSD_data, only: iSD
+      use Basis_Info, only: Shells, DBSC, MolWgh
+      use Center_Info, only: DC
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer nTs, nFD, nOrdOp
       Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nTs), CCoor(4,nTs),
      &       RB(3), TRB(3), TA(3),
      &       VTessera((nOrdOp+1)*(nOrdOp+2)/2,2,nTs)
       Integer   lOper(nTs), iStabO(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7), nOp(3)
+
       Logical AeqB
+      Integer ixyz, nElem, nSkal,
+     &        iS, jS, iShll, jShll,
+     &        iCmp, jCmp, iAng, jAng,
+     &        iBas, jBas, iAO, jAO,
+     &        iPrim, jPrim, iCnt, jCnt,
+     &        iShell, jShell,
+     &        iCnttp, jCnttp, mdci, mdcj,
+     &        iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal, nScr1, nScr2,
+     &        nDAO, lDCRR, nDCRR, iTile, iuv, nStabO, LmbdT, LmbdR,
+     &        lDCRT, nDCRT, kk, ipFnlC, iComp, MemSO1, n2Tri, nOrder,
+     &        NrOpr, nStabM
+      Real*8  FactND
+      Real*8, External:: DDot_
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
       Real*8, Allocatable:: Kern(:), Fnl(:), Scr1(:), Scr2(:),
      &                      DAO(:), DSOpr(:), DSO(:)

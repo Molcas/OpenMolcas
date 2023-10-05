@@ -14,6 +14,7 @@
       use Symmetry_Info, only: nIrrep
       use Disp
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "diff.fh"
 #include "WrkSpc.fh"
       Logical TstFnc
