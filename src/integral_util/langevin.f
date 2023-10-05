@@ -10,22 +10,32 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
-      Use Basis_Info
-      use Center_Info
-      Use Langevin_arrays
-      use External_Centers
-      use Phase_Info
+      Use Basis_Info, only: ncnttp, DBSC
+      use Center_Info, only: DC
+      Use Langevin_arrays, only: PolEF, Field, DIP, DAVxyz, CAVxyz,
+     &                           DField, DipEF, Grid, RAVxyz
+      use External_Centers, only: iXPOLType, nXF, nOrd_XF, XEle, XF,
+     &                            nXMolNr, XMolNr
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use stdalloc
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nh1
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-      Logical First, Dff, Exist
+      Logical First, Dff
+
+      Logical Exist
       Save nAnisopol,nPolComp
       Real*8, Allocatable:: D1ao(:)
       Real*8, Allocatable:: Cord(:,:), Chrg(:), Atom_R(:),
      &                      pField(:,:), tmpField(:,:)
+      Integer ixyz, nElem
+      Integer mdc, ndc, iCnttp, jCnttp, MaxAto, iCnt, jCnt, nC,
+     &        mCnt, i, nAV, iSeed, iAV, nAnisopol, nPolComp, Lu, j, Inc,
+     &        iOrdOp, iXF, nCnt, iEle, k
+      Real*8 Z, ATOD, SUMREPNUC, REPNUC, XA, YA, ZA, SumRepNuc2, ATRad
+      Real*8, External:: CovRadT, Random_molcas
 !
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 !                                                                      *
@@ -295,4 +305,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End SubRoutine Langevin
