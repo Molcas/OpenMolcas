@@ -11,24 +11,25 @@
       Subroutine DrvXV(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
      &                 lRF,KSDFT,ExFac,iCharge,iSpin,
      &                 D1I,D1A,nD1,DFTFOCK,Do_DFT)
-#ifdef _EFP_
-      use EFP_Module
-#endif
       use OFembed, only: Do_OFemb, OFE_KSDFT
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      Implicit None
+      Integer nh1, nD1, iCharge, iSpin
       Real*8 h1(nh1), TwoHam(nh1), D(nh1,2)
       Real*8 D1I(nD1),D1A(nD1)
+      Real*8 RepNuc, ExFac
       Logical First, Dff, lRF, NonEq, Do_Grad, Do_DFT
+      Character(LEN=*) KSDFT
+      Character(LEN=4) DFTFOCK
+
       Real*8 Grad(1),RN(1)
+      Integer nGrad
 !
       Logical Do_ESPF
 #ifdef _EFP_
       Logical EFP_On
 #endif
-      Character*(*) KSDFT
-      Character*4 DFTFOCK
-      Character*8 Label
+      Character(LEN=8) Label
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -119,4 +120,4 @@
          Call Unused_real_array(D1I)
          Call Unused_real_array(D1A)
       End If
-      End
+      End Subroutine DrvXV
