@@ -11,18 +11,22 @@
 !#define _DEBUGPRINT_
       SubRoutine DrvRF(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,iCharge)
       use External_Centers, only: iXPolType
-      use Constants
-      use stdalloc
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 h1(nh1), TwoHam(nh1), D(nh1)
+      use Constants, only: Zero, Half, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rctfld_module, only: lRF, lLangevin, PCM, lRFCav
+      Implicit None
 #include "SysDef.fh"
+      Integer nh1, iCharge
+      Real*8 h1(nh1), TwoHam(nh1), D(nh1)
       Logical First, Dff, NonEq
-      Character*8 Label
-      Real*8 RepNuc_Temp
-      Save RepNuc_Temp
+
+      Character(LEN=8) Label
+      Real*8, Save:: RepNuc_Temp
       Real*8 RepNucXX(1)
       Real*8, Allocatable:: RFld(:,:), h1_RF(:), h1_XX(:)
+      Real*8 RepNuc, ERfSelf, EEE, RepNuc_RF
+      Real*8, External:: DDot_
+      Integer iSyLbl, iOpt, iComp, iRC
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -130,4 +134,4 @@
 !                                                                      *
       Call Free_iSD()
       Return
-      End
+      End SubRoutine DrvRF
