@@ -54,6 +54,7 @@
       Real*8 FD(nFD,mFD)
       Integer    iDCRR(0:7), nOp(2), ipOffD(2+mFD,nOffD)
       Logical AeqB, Special_NoSym, DFT_Storage
+      Integer, External:: n2Tri
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/

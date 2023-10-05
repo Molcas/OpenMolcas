@@ -25,6 +25,7 @@
       Real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)
       Integer ip(nComp), lOper(nComp), iChO(nComp)
       Real*8, Allocatable:: Integrals(:)
+      Integer, External:: n2Tri
 !                                                                      *
 !***********************************************************************
 !                                                                      *

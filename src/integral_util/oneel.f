@@ -33,10 +33,10 @@
       Character L_Temp*8
       Real*8 CoorO(3,nComp), rNuc(nComp), PtChrg(nGrid)
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
+      Integer, External:: n2Tri
       Real*8 opmol(*),opnuc(*)
       Integer iopadr(ncomp,*)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
 
 !                                                                      *
 !***********************************************************************

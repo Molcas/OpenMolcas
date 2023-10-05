@@ -59,8 +59,9 @@
      &        iCnttp, jCnttp, mdci, mdcj,
      &        iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal, nScr1, nScr2,
      &        nDAO, lDCRR, nDCRR, iTile, iuv, nStabO, LmbdT, LmbdR,
-     &        lDCRT, nDCRT, kk, ipFnlC, iComp, MemSO1, n2Tri, nOrder,
+     &        lDCRT, nDCRT, kk, ipFnlC, iComp, MemSO1, nOrder,
      &        NrOpr, nStabM
+      Integer, External :: n2Tri
       Real*8  FactND
       Real*8, External:: DDot_
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)

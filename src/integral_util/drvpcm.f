@@ -10,19 +10,23 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
       SubRoutine DrvPCM(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
-      use Basis_Info
-      use Center_Info
-      use PCM_arrays, only: PCMTess, PCMDM
-      use Symmetry_Info, only: nIrrep
-      use Constants
+      use Basis_Info, only: nCnttp, DBSC, nBas
+      use Center_Info, only: DC
+      use PCM_arrays, only: PCMTess, PCMDM, DiagScale, nTiles,
+     &                      C_Tessera, Q_Tessera
+      use Symmetry_Info, only: nIrrep, iChBas
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      use rctfld_module, only: nTs, Eps, EpsInf
+      Implicit None
+      Integer nh1
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
       Logical First, Dff, NonEq
+
       Real*8, Allocatable:: Cord(:,:), Chrg(:), PCM_charge(:,:),
      &                      V_Slow(:), Q_Slow(:), V_Save(:,:),
      &                      V_Tile(:,:)
+      Integer nDC, nC, jCnttp, mCnt, jCnt, i, MaxAto
+      Real*8 Z, RepNuc
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -63,7 +67,7 @@
       Call mma_allocate(Q_Slow,nTs,Label='Q_Slow')
       Call mma_allocate(V_Slow,nTs,Label='V_Slow')
 !
-      Call DrvPCM_Internal(h1,TwoHam,D,RepNuc,nh1,First,NonEq,
+      Call DrvPCM_Internal(
      &             Chrg,Cord,MaxAto,PCMTess,PCMDM,V_Tile,
      &             V_Save,PCM_Charge,Q_Slow,V_Slow,nTs,Eps,EpsInf)
 !
@@ -93,32 +97,34 @@
       contains
 
       SubRoutine DrvPCM_Internal(
-     &                   h1,TwoHam,D,RepNuc,nh1,First,NonEq,
      &                   Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,
      &                   VSave,QTessera,QTessera_Slow,VSlow,nTs,Eps,
      &                   EpsInf)
-      use Basis_Info, only: nBas
-      use PCM_arrays
-      use Symmetry_Info, only: nIrrep, iChBas
       use Gateway_global, only: PrPrt
       use Integral_Interfaces, only: int_kernel, int_mem,
      &                               OneEl_Integrals
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
-      Procedure(int_kernel) :: PCMInt
-      Procedure(int_mem) :: NaMem
-      Real*8 h1(nh1), TwoHam(nh1), D(nh1), Z_Nuc(MaxAto),
+      use Constants, only: Zero, One, Two, Half, Pi
+      Implicit None
+      Integer MaxAto, nTs
+      Real*8 Z_Nuc(MaxAto),
      &       Cord(3,MaxAto), Tessera(4,nTs), DMat(nTs,nTs),
      &       VTessera(2,nTs), VSave(2,Nts), QTessera(2,nTs),
-     &       QTessera_Slow(nTs),VSlow(nTs), Origin(3)
+     &       QTessera_Slow(nTs),VSlow(nTs)
+      Real*8 Eps, EpsInf
+
+      Procedure(int_kernel) :: PCMInt
+      Procedure(int_mem) :: NaMem
 #include "SysDef.fh"
       Real*8, Allocatable:: FactOp(:), Integrals(:)
       Integer, Allocatable:: lOper2(:)
-      Logical First
-      Character*8 Label
-      Logical Save_tmp, NonEq
+      Character(LEN=8) Label
+      Logical Save_tmp
       Integer ip(1)
+      Integer nOrdOp, nComp, lOper, kOper, iTile, jTile, nInt
+      Integer, External:: n2Tri
+      Real*8 Origin(3), rHrmt, Xi, Yi, Zi, Dij, Xj, Yj, Zj, Rij, Fact
+      Real*8 W_or_El, W_or_Nuc, W_or_Inf, W_or_InfNuc,
+     &       W_0_or_El, W_0_or_Inf, QInf, ENN, ENE, EEN, EEE, Alpha
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -131,9 +137,7 @@
       nComp=1
       lOper=255
       kOper=iChBas(1)
-      Origin(1)=Zero
-      Origin(2)=Zero
-      Origin(3)=Zero
+      Origin(:)=Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *

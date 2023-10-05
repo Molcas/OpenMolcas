@@ -74,6 +74,7 @@
       Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor,      &
      &                                     SOInt, Scrtch, ScrSph
       Real*8, Allocatable, Target :: FArray(:)
+      Integer, External:: n2Tri
 !
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2

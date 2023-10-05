@@ -66,7 +66,8 @@
      &        nSkal, iSmLbl, nSO, MemKrn, MemKer, nComp, lFinal,
      &        nScr1, nScr2, iuv, nStabO, LmbdT, lDCRR, nDCRR,
      &        lDCRT, nDCRT, nFnc, kk, mSO, nIC, iIC, LmbdR, MemSO1,
-     &        n2Tri, nOrder, NrOpr, nStabM, iDCRRT
+     &        nOrder, NrOpr, nStabM, iDCRRT
+      Integer, External:: n2Tri
       Real*8 Fact
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3

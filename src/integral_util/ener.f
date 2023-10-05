@@ -53,6 +53,7 @@
       Integer, Allocatable:: ips(:), lOper(:), kOper(:)
       Real*8, Allocatable::  C_Coor(:,:)
       Real*8, Allocatable:: Integrals(:)
+      Integer, External:: n2Tri
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -21,11 +21,11 @@
       Character Label*8
       Real*8 CCoor(3,nComp)
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
       Real*8 dum(1)
       Integer idum(1)
       Real*8, Allocatable:: Integrals(:)
+      Integer, External n2Tri
 !                                                                      *
 !***********************************************************************
 !                                                                      *
