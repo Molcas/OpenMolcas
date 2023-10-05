@@ -9,13 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Init_RctFld(NonEq,iCharge)
-      use Langevin_arrays
+      use Langevin_arrays, only: Cavxyz, Davxyz, Ravxyz, DField, Dip,
+     &                           DipEF, Field, Grid, PolEF
       use PCM_arrays, only: MM
       use external_centers, only: nXF, iXPolType
-      use stdalloc
-      use rctfld_module
-      Implicit Real*8 (a-h,o-z)
+      use stdalloc, only: mma_allocate
+      use rctfld_module, only: TK, lMax, nMM, nGrid, lLangevin, MaxA,
+     &                         RadLat, Scala, MaxB, Scalb, MaxC,
+     &                         Scalc, nABC, lAtAto, PCM, NonEQ_Ref,
+     &                         nCavxyz
+      Implicit None
       Logical NonEq
+      Integer iCharge
+
+      Integer MMM, nPolComp
 !
       tK=1.0D-99 ! Boltzman factor, initial set to 0 K
       If (Allocated(MM)) Return
@@ -52,4 +59,4 @@
       Call Init_PCM(NonEq,iCharge)
 !
       Return
-      End
+      End Subroutine Init_RctFld
