@@ -13,7 +13,8 @@
 
 Subroutine SavGradParams(Mode,IDSAVGRD)
 
-  use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat
+  use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
+                             NBUF1_GRAD
   use definitions, only: iwp,wp,byte
   use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -58,19 +59,21 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
 
   !! 2. RDMs
   !! - NG1, NG2, NG3
-  Call mma_allocate(IWRK1,4,Label='IWRK1')
+  Call mma_allocate(IWRK1,5,Label='IWRK1')
   If (IORW.eq.1) Then
     IWRK1(1) = NG1
     IWRK1(2) = NG2
     IWRK1(3) = NG3
     IWRK1(4) = NG3TOT
-    CALL IDAFILE(LUGRAD,IORW,IWRK1,4,IDSAVGRD)
+    IWRK1(5) = NBUF1_GRAD
+    CALL IDAFILE(LUGRAD,IORW,IWRK1,5,IDSAVGRD)
   Else If (IORW.eq.2) Then
-    CALL IDAFILE(LUGRAD,IORW,IWRK1,4,IDSAVGRD)
+    CALL IDAFILE(LUGRAD,IORW,IWRK1,5,IDSAVGRD)
     NG1    = IWRK1(1)
     NG2    = IWRK1(2)
     NG3    = IWRK1(3)
     NG3TOT = IWRK1(4)
+    NBUF1_GRAD = IWRK1(5)
   End If
   Call mma_deallocate(IWRK1)
 

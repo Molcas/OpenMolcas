@@ -16,6 +16,7 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,verbose,debug
+      use caspt2_gradient, only: nbuf1_grad
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -365,13 +366,16 @@ C
 * buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
 * bufd: diagonal matrix elements to compute the F matrix
       nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+      nbuf1= nbuf1_grad
       nbuf2= 1
       nbuft= 1
       nbufd= 1
 C
       ndtu =max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+      ndtu = nbuf1
       ndyz = 1
       ndab =max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+      ndab = nbuf1
       nbuf3= 1
       nbuf4= 1
       nbufx= nlev
