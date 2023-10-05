@@ -704,6 +704,23 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`DORT`
+  Use a different (canonical) orthonormalization for internally contracted basis.
+  :kword:`CORT` is a synonym.
+  This keyword is required for analytical nuclear gradients with IPEA shift.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DORT" APPEAR="Canonical orthonormalization" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: DORT <advanced>
+              <HELP>
+              Use the canonical orthonormalization for internally contracted basis.
+              </HELP>
+              CORT is a synonym.
+              </KEYWORD>
+
+              %%Keyword: CORT <advanced>
+              Use the canonical orthonormalization for internally contracted basis.
+              Synonym of DORT.
+
 :kword:`RFPErt`
   This keyword makes the program add reaction field effects to the energy
   calculation. This is done by adding the reaction field effects to the
