@@ -30,6 +30,7 @@
       Real*8 CGrad(3,MxAtom)
       Real*8 GradIn(nGrad)
       Logical, External :: TF
+      Integer, External :: iPrmt
 !
       mdc=0
       iIrrep=0

@@ -32,6 +32,7 @@
       Character ChTemp*8, Mamn(nMamn)*(LENIN8)
       Logical TstFnc
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
+      Integer, External:: iPrmt
 !
 !     Generate list of symmetry adapted or petite list basis functions
 !

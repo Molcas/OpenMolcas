@@ -17,7 +17,10 @@
 !     character of the basis function.                                 *
 !***********************************************************************
       Use Symmetry_Info, only: iOper
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer jOper, iChct
+
+      Integer iCom, i
 #define _CHECK_
 #ifdef _CHECK_
       If (Size(iOper)<1) Then

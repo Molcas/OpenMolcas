@@ -39,6 +39,9 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
       Real*8 AOInt(ijkl,ijCmp,ijCmp), Scrtch(ijkl,ijCmp,ijCmp)
+
+      Integer, External:: iPrmt
+      Integer ixyz, iOff
 !
 !     Statement Function
 !
