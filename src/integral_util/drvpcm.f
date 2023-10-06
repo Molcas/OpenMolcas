@@ -371,5 +371,5 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
-      End
+      End SubRoutine DrvPCM_Internal
+      End SubRoutine DrvPCM
