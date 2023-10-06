@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1993,1998, Roland Lindh                                *
 !***********************************************************************
-      Subroutine FckAcc(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
+      Subroutine FckAcc(iAng,iCmp_, Shijij,
      &                  iShll, iShell, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
@@ -63,7 +63,9 @@
 #else
       Real*8 Scrt(*)
 #endif
-      Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens),FT(nFT),
+      Integer iCmp_(4)
+      Real*8 AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)),
+     &       TwoHam(nDens),FT(nFT),
      &       Dij(ij1*ij2+1,ij3,ij4),
      &       Dkl(kl1*kl2+1,kl3,kl4),
      &       Dik(ik1*ik2+1,ik3,ik4),
@@ -78,7 +80,7 @@
      &        iAO(4), iAOst(4), iCmpa(4)
 !     Local Arrays
       Integer iSym(4)
-!     Character*72 Label
+      Integer iCmp, jCmp, kCmp, lCmp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -90,24 +92,21 @@
 !***********************************************************************
 !                                                                      *
       If (.Not.DoCoul.and..Not.DoExch) Return
-!     iRout = 38
-!     iPrint = nPrint(iRout)
-!
-!     If (iPrint.ge.49) Then
-!        Write (*,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
-!    &               AOInt,1,AOInt,1), DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
-!    &               AOInt,1,One,0)
-!     End If
-!     If (iPrint.ge.99) Then
-!        Call RecPrt('FckAcc:AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
-!        Write (*,*)'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
-!        Write (*,*)'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
-!        Write (*,*)'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
-!        Write (*,*)'Dil=',XDot(Dil,il1,il2,il3,il4)
-!        Write (*,*)'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
-!        Write (*,*)'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
-!     End If
-!     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
+
+      iCmp=iCmp_(1)
+      jCmp=iCmp_(2)
+      kCmp=iCmp_(3)
+      lCmp=iCmp_(4)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('FckAcc:AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
+      Write (6,*)'Dij=',XDot(Dij,ij1,ij2,ij3,ij4)
+      Write (6,*)'Dkl=',XDot(Dkl,kl1,kl2,kl3,kl4)
+      Write (6,*)'Dik=',XDot(Dik,ik1,ik2,ik3,ik4)
+      Write (6,*)'Dil=',XDot(Dil,il1,il2,il3,il4)
+      Write (6,*)'Djk=',XDot(Djk,jk1,jk2,jk3,jk4)
+      Write (6,*)'Djl=',XDot(Djl,jl1,jl2,jl3,jl4)
+      Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
+#endif
 !
       If (iBas*jBas*kBas*lBas.gt.nScrt) Then
          Call WarningMessage(2,'FckAcc: nScrt too small!')
@@ -282,17 +281,6 @@
                   Fac_jk=Fac_jk*D_il
                   Fac_il=Fac_il*D_jk
 !
-!                 Write (*,*)
-!                 Write (*,*) 'iShell(1),iShell(2),i1,i2=',
-!    &                         iShell(1),iShell(2),i1,i2
-!                 Write (*,*) 'Dij=',Dij(1,i1,i2)
-!                 Write (*,*) 'Fac_ij,iQij=',Fac_ij,iQij
-!                 Write (*,*)
-!                 Write (*,*) 'iShell(3),iShell(4),i3,i4=',
-!    &                         iShell(3),iShell(4),i3,i4
-!                 Write (*,*) 'Dkl=',Dkl(1,i3,i4)
-!                 Write (*,*) 'Fac_kl,iQkl=',Fac_kl,iQkl
-!                 Write (*,*)
                   If (Qijij) Then
                      Fac_kl = Zero
                      Fac_jk = Zero
@@ -473,56 +461,50 @@
                      Call WarningMessage(2,'FckAcc: nScrt too small!')
                      Call Abend()
                   End If
-!                 Write (*,*) 'iOpt=',iOpt
-                  Go To ( 1, 2, 3, 4, 5, 6, 7) iOpt
-                  Go To 400
+                  Select  Case (iOpt)
 !
 !***********************************************************************
- 1                Continue
-                  Call Fck1(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,
+                  Case (1)
+                  Call Fck1(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
-     &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl,ExFac)
-                  Go To 400
- 2                Continue
-                  Call Fck2(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,
+     &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl)
+                  Case (2)
+                  Call Fck2(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
-     &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,ExFac)
-                  Go To 400
- 3                Continue
-                  Call Fck3(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,
+     &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl)
+                  Case (3)
+                  Call Fck3(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
      &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl,
      &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
-     &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,ExFac)
-                  Go To 400
- 4                Continue
-                  Call Fck4(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,
+     &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl)
+                  Case (4)
+                  Call Fck4(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
-     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
-                  Go To 400
- 5                Continue
-                  Call Fck5(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,
+     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
+                  Case (5)
+                  Call Fck5(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
      &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl,
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
-     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
-                  Go To 400
- 6                Continue
-                  Call Fck6(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,
+     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
+                  Case (6)
+                  Call Fck6(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
-     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
-                  Go To 400
- 7                Continue
-                  Call Fck7(AOInt(1,i1,i2,i3,i4),iBas,jBas,kBas,lBas,
+     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
+                  Case (7)
+                  Call Fck7(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
      &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl,
      &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
-     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk,ExFac)
-                  Go To 400
+     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
+                  Case Default
+                    Call Abend()
+                 End Select
 !***********************************************************************
 !
  400           Continue
@@ -571,22 +553,17 @@
      &            iShjk,
      &            iAO(2),iAO(3),iAOst(2),iAOst(3),
      &            Fact)
-!
-      Return
-      End
-      Subroutine Fck1(AOInt,iBas,jBas,kBas,lBas,
-     &                Dij,Fij,Cij,Dkl,Fkl,Ckl,ExFac)
+
+      Contains
+
+      Subroutine Fck1(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl)
       use Constants
       Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas)
+      Integer i, j, k, l
 !
-!     Call RecPrt('Dij',' ',Dij,iBas,jBas)
-!     Write (*,*) 'Cij=',Cij
-!     Call RecPrt('Dkl',' ',Dkl,kBas,lBas)
-!     Write (*,*) 'Ckl=',Ckl
-!     Call RecPrt('Fij(enter)',' ',Fij,iBas,jBas)
       Do l = 1, lBas
          Do k = 1, kBas
             F_kl = Zero
@@ -603,19 +580,17 @@
             Fkl(k,l) = Fkl(k,l) + Ckl*F_kl
          End Do
       End Do
-!     Call RecPrt('Fij(exit)',' ',Fij,iBas,jBas)
 !
       Return
-! Avoid unused argument warnings
-      If (.False.) Call Unused_real(ExFac)
-      End
-      Subroutine Fck2(AOInt,iBas,jBas,kBas,lBas,
-     &                Dik,Fik,Cik,Djl,Fjl,Cjl,ExFac)
+      End Subroutine Fck1
+
+      Subroutine Fck2(AOInt,Dik,Fik,Cik,Djl,Fjl,Cjl)
       use Constants
       Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dik(iBas,kBas), Fik(iBas,kBas),
      &       Djl(jBas,lBas), Fjl(jBas,lBas)
+      Integer i, j, k, l
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -635,19 +610,19 @@
       End Do
 !
       Return
-      End
-      Subroutine Fck3(AOInt,iBas,jBas,kBas,lBas,
+      End Subroutine Fck2
+
+      Subroutine Fck3(AOInt,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
-     &                Dik,Fik,Cik,Djl,Fjl,Cjl,ExFac)
+     &                Dik,Fik,Cik,Djl,Fjl,Cjl)
       use Constants
       Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
-     1       Dij(iBas,jBas), Fij(iBas,jBas),
-     2       Dkl(kBas,lBas), Fkl(kBas,lBas),
-     3       Dik(iBas,kBas), Fik(iBas,kBas),
-     4       Djl(jBas,lBas), Fjl(jBas,lBas)
-!    5       Dil(iBas,lBas), Fil(iBas,lBas),
-!    6       Djk(jBas,kBas), Fjk(jBas,kBas)
+     &       Dij(iBas,jBas), Fij(iBas,jBas),
+     &       Dkl(kBas,lBas), Fkl(kBas,lBas),
+     &       Dik(iBas,kBas), Fik(iBas,kBas),
+     &       Djl(jBas,lBas), Fjl(jBas,lBas)
+      Integer i, j, k, l
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -673,14 +648,15 @@
       End Do
 !
       Return
-      End
-      Subroutine Fck4(AOInt,iBas,jBas,kBas,lBas,
-     &                Dil,Fil,Cil,Djk,Fjk,Cjk,ExFac)
+      End Subroutine Fck3
+
+      Subroutine Fck4(AOInt,Dil,Fil,Cil,Djk,Fjk,Cjk)
       use Constants
       Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
+      Integer i, j, k, l
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -700,10 +676,11 @@
       End Do
 !
       Return
-      End
-      Subroutine Fck5(AOInt,iBas,jBas,kBas,lBas,
+      End Subroutine Fck4
+
+      Subroutine Fck5(AOInt,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
-     &                Dil,Fil,Cil,Djk,Fjk,Cjk,ExFac)
+     &                Dil,Fil,Cil,Djk,Fjk,Cjk)
       use Constants
       Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
@@ -711,6 +688,7 @@
      &       Dkl(kBas,lBas), Fkl(kBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
+      Integer i, j, k, l
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -736,10 +714,11 @@
       End Do
 !
       Return
-      End
-      Subroutine Fck6(AOInt,iBas,jBas,kBas,lBas,
+      End Subroutine Fck5
+
+      Subroutine Fck6(AOInt,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl,
-     &                Dil,Fil,Cil,Djk,Fjk,Cjk,ExFac)
+     &                Dil,Fil,Cil,Djk,Fjk,Cjk)
       use Constants
       Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
@@ -747,6 +726,7 @@
      &       Djl(jBas,lBas), Fjl(jBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
+      Integer i, j, k, l
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -772,11 +752,12 @@
       End Do
 !
       Return
-      End
-      Subroutine Fck7(AOInt,iBas,jBas,kBas,lBas,
+      End Subroutine Fck6
+
+      Subroutine Fck7(AOInt,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl,
-     &                Dil,Fil,Cil,Djk,Fjk,Cjk,ExFac)
+     &                Dil,Fil,Cil,Djk,Fjk,Cjk)
       use Constants
       Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
@@ -786,6 +767,7 @@
      &       Djl(jBas,lBas), Fjl(jBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
+      Integer i, j, k, l
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -817,4 +799,6 @@
       End Do
 !
       Return
-      End
+      End Subroutine Fck7
+
+      End Subroutine FckAcc

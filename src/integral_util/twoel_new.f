@@ -724,7 +724,7 @@
 !
                mWork3=nWork2-iW3+1
                If (DoFock)
-     &         Call FckAcc(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
+     &         Call FckAcc(iAnga,iCmp,
      &                     Shijij,iShll,iShell,kOp,nijkl/nComp,
      &                     Wrk(ipAOInt),TwoHam,Size(TwoHam),
      &                     Wrk(iW3),mWork3,
