@@ -23,22 +23,25 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             May '90                                                  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer m, n
       Real*8 Array(m,n*n)
+
+      Integer nij, i, j, ij, ji, ii
 !
       nij = n*(n+1)/2
       Do 10 i = n, 1, -1
          Do 20 j = n, i+1, -1
             ji = n*(i-1) + j
             ij = n*(j-1) + i
-            If (nij.ne.ij) call dcopy_(m,Array(1,nij),1,Array(1,ij),1)
-            If (nij.ne.ji) call dcopy_(m,Array(1,nij),1,Array(1,ji),1)
+            If (nij.ne.ij) Array(:,ij)=Array(:,nij)
+            If (nij.ne.ji) Array(:,ji)=Array(:,nij)
             nij = nij - 1
  20      Continue
          ii = n*(i-1) + i
-         If (nij.ne.ii) call dcopy_(m,Array(1,nij),1,Array(1,ii),1)
+         If (nij.ne.ii) Array(:,ii)=Array(:,nij)
          nij = nij - 1
  10   Continue
 !
       Return
-      End
+      End SubRoutine Expnd_i
