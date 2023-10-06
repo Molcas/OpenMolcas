@@ -11,6 +11,11 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
       Subroutine EFMmP(nRys,MmEFP,la,lb,lr)
+      Implicit None
+      Integer nRys, MmEFP,la,lb,lr
+
+      Integer ixyz, nElem, nabSz, labMin, labMax, lcdMin, lcdMax, lab,
+     &        kab, lcd, labcd, Mem1, Mem2, lc, ld, nMem, nFlop
 !
       Integer iAngV(4)
 !
@@ -42,5 +47,7 @@
       Mem2 = Max(Mem2,kab*lcd)
 !
       MmEFP=Mem1 + Mem2
-      Return
-      End
+
+      End Subroutine EFMmP
+
+
