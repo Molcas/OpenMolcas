@@ -21,22 +21,28 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, April '95.                                      *
 !***********************************************************************
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Chrg(nAtm), Coor(3,nAtm), ESIT((nOrdOp+1)*(nOrdOp+2)/2),
-     &       CoOp(3)
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer nAtm, nOrdOp
+      Real*8 Chrg(nAtm), Coor(3,nAtm), ESIT((nOrdOp+1)*(nOrdOp+2)/2)
+
       Integer, Allocatable:: C_ESIT(:)
+      Real*8 CoOp(3)
+      Integer nTot, iPowr, iAtom, ix, iy, iz
+      Real*8 Fact, x, y, z, r2, Thr, r, eix, eiy, eiz, temp
+#ifdef _DEBUPRINT_
+      Integer n, nElem
 !
 !---- Statement function
 !
       nElem(n)=(n+1)*(n+2)/2
+#endif
 !
 !     Compute the nuclear contribution to the electrostatic interation
 !     tensor, ESIT.
 !
-      nComp=nElem(nOrdOp)
-      call dcopy_(nComp,[Zero],0,ESIT,1)
+      ESIT(:)=Zero
 !
       nTot=(nOrdOp+1)**6
       Call mma_allocate(C_ESIT,nTot,Label='ESIT')
@@ -87,10 +93,14 @@
      &                 //' Tensor',' ',ESIT,nElem(nOrdOp),1)
 #endif
       Return
-      End
+      End SubRoutine EFNuc
+
       Subroutine InitIA(I,mDeg)
-      implicit integer (a-z)
+      implicit None
+      Integer mDeg
       Integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
+
+      Integer n, a, b, c, p, q, r, new
 !
 ! Purpose: Express the interaction tensor, defined by the
 ! quantities T(a,b,c) as functions of the vector R=(x,y,z),
@@ -109,19 +119,7 @@
 !      Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 !
 ! initialize:
-      do 10 a=0,mDeg
-      do 11 b=0,mDeg
-      do 12 c=0,mDeg
-      do 13 p=0,mDeg
-      do 14 q=0,mDeg
-      do 15 r=0,mDeg
-       I(a,b,c,p,q,r)=0
-  15  continue
-  14  continue
-  13  continue
-  12  continue
-  11  continue
-  10  continue
+      I(:,:,:,:,:,:)=0
       I(0,0,0,0,0,0)=1
       If (mDeg.gt.0) Then
          I(1,0,0,1,0,0)=-1
@@ -176,11 +174,15 @@
 !200  continue
 !
       Return
-      End
+      End Subroutine InitIA
+
       Subroutine ContEI(I,mDeg,ESIT,ix,iy,iz,temp)
-      implicit integer (a-z)
+      implicit None
+      Integer mDeg, ix, iy, iz
       Integer I(0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg,0:mDeg)
       Real*8 ESIT((mDeg+1)*(mDeg+2)/2), Temp
+
+      Integer n, ip, a, b, c
 !
 ! Purpose: Express the interaction tensor, defined by the
 ! quantities T(a,b,c) as functions of the vector R=(x,y,z),
@@ -232,4 +234,4 @@
       End Do
 !
       Return
-      End
+      End Subroutine ContEI
