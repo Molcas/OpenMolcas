@@ -9,10 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine EEMax(n,A,B)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer n
       Real*8 A(n), B(n)
+
+      Integer i
+
       Do i = 1, n
          If (B(i).gt.A(i)) A(i)=B(i)
       End Do
-      Return
-      End
+
+      End Subroutine EEMax
