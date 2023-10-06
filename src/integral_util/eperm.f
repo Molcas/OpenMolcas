@@ -28,7 +28,8 @@
 !                                                                      *
 !              March 2000                                              *
 !***********************************************************************
-      use external_centers
+      use external_centers, only: iXPolType, nOrd_XF, nXF, nXMolnr, XF,
+     &                            XMolnr
       use Symmetry_Info, only: iChBas
 #ifdef _DEBUGPRINT_
       use Symmetry_Info, only: nIrrep
@@ -36,21 +37,30 @@
 #endif
       use Integral_interfaces, only: int_kernel, int_mem
       use Gateway_global, only: PrPrt
-      use Constants
-      use stdalloc
-      use rctfld_module
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rctfld_module, only: lRFCav, lMax, nGrid, fMax, Scal14
+      Implicit None
+      Integer nDens, nCavxyz_, nGrid_, MaxAto
+      Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),
+     &       dEF(4,nGrid_), Grid(3,nGrid_),
+     &       Cord(3,MaxAto), Z_Nuc(MaxAto),xfEF(4,nGrid_)
+
+      Real*8 Origin(3), CCoor(3)
       Procedure(int_kernel) :: EFInt
       Procedure(int_mem) :: EFMem
-      Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),
-     &       dEF(4,nGrid_), Grid(3,nGrid_), Origin(3), CCoor(3),
-     &       Cord(3,MaxAto), Z_Nuc(MaxAto),xfEF(4,nGrid_)
       Logical Save_tmp
       Character*8 Label
       Real*8 FactOp(1)
       Integer l_Oper(1)
       Integer, Allocatable:: ips(:), lOper(:), kOper(:)
       Real*8, Allocatable::  C_Coor(:,:), Nuc(:)
+      Integer ixyz, iOff
+      Integer iMax, ip, iMltpl, ix, iy, iz, iSymX, iSymY, iSymZ, iTemp,
+     &        nComp, iSymXY, iSymXZ, iSymYZ, iSyXYZ, iComp, iSym, nh1,
+     &        MltLbl, nOpr, nOrdOp, iGrid, iSymC
+      Integer, external::  IrrFnc
+      Real*8 rHrmt, Sig, fTest
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -61,7 +71,7 @@
 !***********************************************************************
 !                                                                      *
       If(.not.lRFCav) Goto 99  !Skip calculation of moments if no cavity
-      Call FZero(Origin,3)
+      Origin(:)=Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -71,7 +81,7 @@
 !     Cavxyz: Multipole moments in cartesian basis
 !     Ravxyz: temporary storage
 !
-      Call FZero(Cavxyz,nCavxyz_)
+      Cavxyz(:)=Zero
 !
 !---- 1) Compute M(nuc,nl), nuclear multipole moments
 !
@@ -275,4 +285,4 @@
 !      Call RecPrt('eperm: dEF ',' ',dEF,4,nGrid_)
 !
       Return
-      End
+      End Subroutine eperm
