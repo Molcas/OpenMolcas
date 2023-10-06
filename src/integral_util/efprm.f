@@ -24,18 +24,24 @@
 !                                                                      *
 ! Modified for explicit code, R. Lindh, February '95.                  *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      Implicit None
       External TNAI, Fake, XCff2D, XRys2D
+      Integer nZeta, la, lb, nComp, nAlpha, nBeta, nRys, nArr, nOrdOp
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
      &       Array(nZeta*nArr), Ccoor(3)
+
 !---- Local Arrays
       Real*8 Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4)
+      Integer ixyz, nElem, nabSz
+      Integer mabMin, mabMax, mcdMin, mcdMax, lab, kab, lcd, labcd,
+     &        ip1, ip2, nMem, mArr, nT, ip3, ipIn, nFlop
 #ifdef _DEBUGPRINT_
+      Integer iElem, jElem
       Character*80 Label
 #endif
 !
@@ -52,7 +58,7 @@
       If (.False.) Call Unused_Real_Array(Beta)
 #endif
 !
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,[Zero],0,Final,1)
+      Final(:,:,:,:)=Zero
 !
       iAnga(1) = la
       iAnga(2) = lb
@@ -148,4 +154,4 @@
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_integer(nRys)
-      End
+      End SubRoutine EFPrm
