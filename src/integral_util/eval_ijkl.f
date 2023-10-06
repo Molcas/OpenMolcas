@@ -38,11 +38,13 @@
 !             Total rehack May '99                                     *
 !             Total rehack Aug '23                                     *
 !***********************************************************************
-      use setup
-      use k2_setup
-      use k2_arrays
-      use iSD_data
-      use Basis_Info
+      use setup, only: mSkal, nAux, nSOs
+      use k2_setup, only: nDArray, nDScalar, Data_K2, IndK2
+      use k2_arrays, only: DoGrad_, ipZeta, ipiZet, ipDijS, Sew_Scr,
+     &                     Aux, DeDe, FT, iSOSym, Mem_Dble, Mem_Int,
+     &                     nDeDe, nFT
+      use iSD_data, only: iSD
+      use Basis_Info, only: Shells
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, Map4
@@ -50,8 +52,8 @@
       use Breit, only: nOrdOp
       use UnixInfo, only: SuperName
 #endif
-      use Constants
-      use stdalloc
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate
       Implicit None
 !
 !     subroutine parameters
