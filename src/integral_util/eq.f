@@ -16,7 +16,8 @@
 ! Object: to return the value .true. if A and B are the same centers.  *
 !                                                                      *
 !***********************************************************************
+      Implicit None
       Real*8, Intent(In):: A(3),B(3)
       EQ = A(1).eq.B(1) .and. A(2).eq.B(2) .and. A(3).eq.B(3)
       Return
-      End
+      End Function EQ
