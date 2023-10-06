@@ -19,20 +19,23 @@
 !             University of Lund, SWEDEN                               *
 !             Augusti '91                                              *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      Implicit None
+      Integer lArray, nArray
       Real*8 Array(lArray,nArray)
       Integer Ind(nArray)
+
+      Integer iArray, jArray
 !
       Do 100 iArray = nArray, 1, -1
          jArray = Ind(iArray)
          If (jArray.le.0) Then
 !           Set column iArray to zero
-            call dcopy_(lArray,[Zero],0,Array(1,iArray),1)
+            Array(:,iArray)=Zero
          Else If (jArray.lt.iArray) Then
 !           Copy row jArray to position iArray
-            call dcopy_(lArray,Array(1,jArray),1,Array(1,iArray),1)
+            Array(:,iArray)=Array(:,jArray)
          End If
  100  Continue
       Return
-      End
+      End SubRoutine ExpArr
