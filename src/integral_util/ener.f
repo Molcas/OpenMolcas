@@ -38,22 +38,35 @@
       use Integral_Interfaces, only: int_kernel, int_mem,
      &                               OneEl_Integrals
       use Constants
-      use stdalloc
-      use rctfld_module
-      Implicit Real*8 (a-h,o-z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rctfld_module, only: lRFCav, TK
+      Implicit None
+      Integer nh1, nGrid_, MaxAto, nPolComp, nAnisopol
+      Real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1),
+     &       Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_),
+     &       DipEff(nGrid_), PolEff(nPolComp,nGrid_),
+     &       Cord(3,MaxAto), Z_Nuc(MaxAto),pField(4,nGrid_),
+     &       tmpF(4,nGrid_)
+      Real*8 RepNuc
+      Logical First, Dff
+
       Procedure(int_kernel) :: EFInt
       Procedure(int_mem) :: EFMem
-      Real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1), EF_Grid(3),
-     &       Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_),
-     &       DipEff(nGrid_), PolEff(nPolComp,nGrid_), CCoor(3),
-     &       Cord(3,MaxAto), Z_Nuc(MaxAto),pField(4,nGrid_),
-     &     tmpF(4,nGrid_)
-      Logical First, Dff, Save_tmp , NonEq
-      Character*8 Label
+      Logical Save_tmp , NonEq
+      Character(LEN=8) Label
       Integer, Allocatable:: ips(:), lOper(:), kOper(:)
       Real*8, Allocatable::  C_Coor(:,:)
       Real*8, Allocatable:: Integrals(:)
       Integer, External:: n2Tri
+      Real*8 EF_Grid(3), CCoor(3)
+      Real*8 EDip2, EInt, ESelf, ENucDip, ESimple, AGSum, dX, dY, dZ,
+     &       fX, fY, fZ, PFx, PFy, PFz, FDD, FTot, FTot2,
+     &       x, ag, Ex, Emx, RHrmt, Sig, RepHlp, EElDip, Alfa
+      Real*8, external:: DDOt_
+      Integer iGrid, nOrdOp, nComp, ixyz, iSymX, iSymY, iSymZ, iSymXY,
+     &        iSymXZ, iSymYZ, iSyXYZ, iSymC, iComp, ix, iy, iz, ip,
+     &        iSmLbl, MltLbl, nInt, iSym
+      Integer, External:: IrrFnc
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -313,4 +326,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End Subroutine ener
