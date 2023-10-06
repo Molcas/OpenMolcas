@@ -24,12 +24,18 @@
 !                                                                      *
 !              November 2004                                           *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One, Three
+      Implicit None
+      Integer nXF, nOrd_XF, iXPolType, nXMolnr, iGrid
       Real*8 coord(3),XF(*),dEF(3)
       Integer XMolnr(nXMolnr,nXF)
+      Real*8 Scal14
 
       Logical LExcl
+      Integer ixyz, nElem
+      Integer Inc, iOrdOp, iFD, i
+      Real*8 Scal, ZA, Dax, Day, Daz, Qaxx, Qaxy, Qaxz, Qayy, Qayz,
+     &       Qazz, x, y, z, R12, QaSum
 
 !
 !     Statement function for Cartesian index
@@ -175,4 +181,4 @@
       EndDo   !iFd
 
       Return
-      End
+      End SubRoutine EFXF
