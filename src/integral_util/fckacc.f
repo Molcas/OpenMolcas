@@ -98,7 +98,7 @@
       Integer ipFij, nFij, ipFik, nFik, ipFjl, nFjl,
      &        ipFil, nFil, ipFjk, nFjk, ipFkl, nFkl
       Integer ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
-      Integer ipFjk1, ipFjl1
+      Integer ipFjl1
       Integer i1, i2, i3, i4, i12, i34
       Integer, External:: ip_of_Work
       Real*8  pEa, pRb, pTc, pTSd
@@ -107,7 +107,7 @@
       Real*8 Vij, Vkl, Vik, Vjl, Vil, Vjk, Vijkl
       Real*8 Fact, ExFac, pFctr
       Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),
-     &                  Fil(:,:,:)
+     &                  Fil(:,:,:), Fjk(:,:,:)
       Integer nF, ipF
 !                                                                      *
 !***********************************************************************
@@ -193,6 +193,7 @@
       ipF   = ipF   + nF
       nFjk  = jBas*kBas*iCmpa(2)*iCmpa(3)
       nF    = jBas*kBas*iCmpa(2)*iCmpa(3)
+      Fjk(1:jBas*kBas,1:iCmpa(2),1:iCmpa(3)) => FT(ipF:ipF+nF-1)
 !
       FT(1:nFij+nFkl+nFik+nFjl+nFil+nFjk)=Zero
 !
@@ -202,7 +203,6 @@
       ipDil = 1
       ipDjk = 1
       ipDjl = 1
-      ipFjk1= 1
       ipFjl1= 1
 !
 !     Quadruple loop over elements of the basis functions angular
@@ -479,8 +479,6 @@
      &                             Scrt(ipDil),1)
 #endif
                      End If
-                     ipFjk1 = ((i3-1)*iCmpa(2)+i2-1)*jBas*kBas
-     &                     + ipFjk
                      If (vil*vijkl*Abs(Fac_jk) .lt. ThrInt .and.
      &                   vjk*vijkl*Abs(Fac_il) .lt. ThrInt) Then
                         iOpt = iOpt -4
@@ -513,19 +511,19 @@
                   Case (4)
                   Call Fck4(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
-     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
+     &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (5)
                   Call Fck5(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
      &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
-     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
+     &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (6)
                   Call Fck6(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,
      &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
-     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
+     &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (7)
                   Call Fck7(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
@@ -533,7 +531,7 @@
      &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,
      &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
-     &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
+     &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case Default
                End Select
 !***********************************************************************
@@ -579,13 +577,13 @@
      &            iAO(1),iAO(4),iAOst(1),iAOst(4),
      &            Fact)
       If (lFjk)
-     &Call FckDst(TwoHam,nDens,FT(ipFjk),jBas,kBas,iCmpa(2),iCmpa(3),
+     &Call FckDst(TwoHam,nDens,Fjk,jBas,kBas,iCmpa(2),iCmpa(3),
      &            kOp2(2),kOp2(3),iIrrep,
      &            iShjk,
      &            iAO(2),iAO(3),iAOst(2),iAOst(3),
      &            Fact)
 
-      Nullify(Fij,Fkl,Fik,Fil)
+      Nullify(Fij,Fkl,Fik,Fil,Fjk)
       Contains
 
       Subroutine Fck1(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl)
