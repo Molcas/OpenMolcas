@@ -1,4 +1,4 @@
-!***********************************************************************
+**********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -177,7 +177,7 @@
       iShjk = iShell(2).eq.iShell(3)
       iShjl = iShell(2).eq.iShell(4)
       mijkl=iBas*jBas*kBas*lBas
-      Do 100 i1 = 1, iCmp
+      Do i1 = 1, iCmp
          ix = 0
          Do j = 0, nIrrep-1
             If (iAOtSO(iAO(1)+i1,j)>0) ix = iEor(ix,2**j)
@@ -188,7 +188,7 @@
          iChBs = iChBas(ii+i1)
          If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = Prmt(iOper(kOp(1)),iChBs)
-         Do 200 i2 = 1, jCmpMx
+         Do i2 = 1, jCmpMx
             ix = 0
             Do j = 0, nIrrep-1
                If (iAOtSO(iAO(2)+i2,j)>0) ix = iEor(ix,2**j)
@@ -202,7 +202,7 @@
             Else
                i12 = iCmp*(i2-1) + i1
             End If
-            Do 300 i3 = 1, kCmp
+            Do i3 = 1, kCmp
                ix = 0
                Do j = 0, nIrrep-1
                   If (iAOtSO(iAO(3)+i3,j)>0) ix = iEor(ix,2**j)
@@ -214,7 +214,7 @@
                If (Shells(iShll(3))%Transf)
      &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = Prmt(iOper(kOp(3)),kChBs)
-               Do 400 i4 = 1, lCmpMx
+               Do i4 = 1, lCmpMx
                   ix = 0
                   Do j = 0, nIrrep-1
                      If (iAOtSO(iAO(4)+i4,j)>0) ix = iEor(ix,2**j)
@@ -229,14 +229,14 @@
                   Else
                      i34 = kCmp*(i4-1) + i3
                   End If
-                  If (Shijij .and. i34.gt.i12) Go To 400
+                  If (Shijij .and. i34.gt.i12) Cycle
                   vijkl=Zero
                   do ijkl=1,mijkl
                     vijkl=max(vijkl,abs(AOInt(ijkl,i1,i2,i3,i4)))
                   end do
 !                 vijkl = DNrm2_(iBas*jBas*kBas*lBas,
 !    &                          AOInt(1,i1,i2,i3,i4),1)
-                  If (vijkl.lt.CutInt) Go To 400
+                  If (vijkl.lt.CutInt) Cycle
 !
                   Qijij = Shijij .and. i12.eq.i34
                   iQij = iShij.and.i1.eq.i2
@@ -503,14 +503,13 @@
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
      &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
                   Case Default
-                    Call Abend()
-                 End Select
+               End Select
 !***********************************************************************
 !
- 400           Continue
- 300        Continue
- 200     Continue
- 100  Continue
+               End Do
+            End Do
+         End Do
+      End Do
 !
       iIrrep=0
       Fact=One
