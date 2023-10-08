@@ -45,16 +45,24 @@
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
       use Gateway_Info, only: ThrInt
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
-      Intrinsic Max
+      use Constants, only: Zero, One, Four, Half
+      Implicit None
+      Integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
+      Integer iBas, jBas, kBas, lBas
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
      &       DMat(nDens)
       Logical Shij, Shkl, Shijij, DoCoul, DoExch
-      Integer iShell(4), iAO(4), iAOst(4), nCmpx(4), nBasx(4)
+      Integer iShell(4), iAO(4), iAOst(4)
+      Real*8 Dij, Dkl, Dik, Dil, Djk, Djl, ExFac
 !
-      Parameter (nCBMax=200)
+      Intrinsic Max
+      Integer, Parameter:: nCBMax=200
       Integer Indx(3,nCBMax,4)
+      Integer nCmpx(4), nBasx(4)
+      Integer ntg, ii, jj, kk, ll, i1, i2, i3, i4, i, j, k, l,
+     &        ij, kl, ik, il, jk, jl, ij_, kl_, ijkl, ncb_Max, ic,
+     &        iSO, jSO, kSO, lSO, icb, jcb, kcb, lcb, nij
+      Real*8 DMax, Thr, Fac, Fac_C, Fac_E, AOijkl
 !
 !                                                                      *
 !***********************************************************************
