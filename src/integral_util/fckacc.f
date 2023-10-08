@@ -84,6 +84,7 @@
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
      &        iAO(4), iAOst(4), iCmpa(4)
+      Real*8 ExFac
 
 !     Local Arrays
       Integer mijkl, jCmpMx, lCmpMx, j, ix, ijkl, ip, iOpt, iIrrep
@@ -97,7 +98,7 @@
       Real*8 Fac_ij, Fac_kl, Fac_ik, Fac_jl, Fac_il, Fac_jk
       Real*8 D_ij, D_kl, D_ik, D_jl, D_il, D_jk
       Real*8 Vij, Vkl, Vik, Vjl, Vil, Vjk, Vijkl
-      Real*8 Fact, ExFac, pFctr
+      Real*8 Fact, pFctr
       Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),
      &                  Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:)
       Real*8, pointer:: pDij(:), pDkl(:), pDik(:),

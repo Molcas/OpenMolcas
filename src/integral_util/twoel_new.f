@@ -92,6 +92,46 @@
       Integer :: n
       Real*8, Target :: A(*)
       End Function iGet
+      Subroutine FckAcc(iAng,iCmp_, Shijij,
+     &                  iShll, iShell, kOp, nijkl,
+     &                  AOInt,TwoHam,nDens,Scrt,nScrt,
+     &                  iAO,iAOst,iBas,jBas,kBas,lBas,
+     &                  Dij,ij1,ij2,ij3,ij4,
+     &                  Dkl,kl1,kl2,kl3,kl4,
+     &                  Dik,ik1,ik2,ik3,ik4,
+     &                  Dil,il1,il2,il3,il4,
+     &                  Djk,jk1,jk2,jk3,jk4,
+     &                  Djl,jl1,jl2,jl3,jl4,
+     &                  FT,nFT,DoCoul,DoExch,ExFac)
+      Integer nijkl, nDens, nScrt, nFT,
+     &       ij1,ij2,ij3,ij4,
+     &       kl1,kl2,kl3,kl4,
+     &       ik1,ik2,ik3,ik4,
+     &       il1,il2,il3,il4,
+     &       jk1,jk2,jk3,jk4,
+     &       jl1,jl2,jl3,jl4
+      Integer iBas, jBas, kBas, lBas
+      Real*8, target:: Scrt(nScrt)
+      Integer iCmp_(4)
+      Real*8 AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)),
+     &       TwoHam(nDens)
+      Real*8, target::
+     &       Dij(ij1*ij2+1,ij3,ij4),
+     &       Dkl(kl1*kl2+1,kl3,kl4),
+     &       Dik(ik1*ik2+1,ik3,ik4),
+     &       Dil(il1*il2+1,il3,il4),
+     &       Djk(jk1*jk2+1,jk3,jk4),
+     &       Djl(jl1*jl2+1,jl3,jl4)
+      Real*8, Target:: FT(nFT)
+      Logical Shijij, Qijij, DoCoul, DoExch,
+     &        iShij, iShkl, iQij, iQkl,
+     &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
+     &        lFij, lFkl, lFik, lFjl, lFil, lFjk
+      Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
+     &        iAO(4), iAOst(4), iCmpa(4)
+      Real*8 ExFac
+      End Subroutine FckAcc
+
       End Interface
 !
 !     Declaration of statement functions to compute canonical index
