@@ -98,7 +98,7 @@
       Integer ipFij, nFij, ipFik, nFik, ipFjl, nFjl,
      &        ipFil, nFil, ipFjk, nFjk, ipFkl, nFkl
       Integer ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
-      Integer ipFik1, ipFil1, ipFjk1, ipFjl1
+      Integer ipFil1, ipFjk1, ipFjl1
       Integer i1, i2, i3, i4, i12, i34
       Integer, External:: ip_of_Work
       Real*8  pEa, pRb, pTc, pTSd
@@ -106,7 +106,7 @@
       Real*8 D_ij, D_kl, D_ik, D_jl, D_il, D_jk
       Real*8 Vij, Vkl, Vik, Vjl, Vil, Vjk, Vijkl
       Real*8 Fact, ExFac, pFctr
-      Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:)
+      Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:)
       Integer nF, ipF
 !                                                                      *
 !***********************************************************************
@@ -174,15 +174,23 @@
       ipFik = ipFkl + nFkl
       ipF   = ipF   + nF
       nFik  = iBas*kBas*iCmpa(1)*iCmpa(3)
+      nF    = iBas*kBas*iCmpa(1)*iCmpa(3)
+      Fik(1:iBas*kBas,1:iCmpa(1),1:iCmpa(3)) => FT(ipF:ipF+nF-1)
 !
       ipFjl = ipFik + nFik
+      ipF   = ipF   + nF
       nFjl  = jBas*lBas*iCmpa(2)*iCmpa(4)
+      nF    = jBas*lBas*iCmpa(2)*iCmpa(4)
 !
       ipFil = ipFjl + nFjl
+      ipF   = ipF   + nF
       nFil  = iBas*lBas*iCmpa(1)*iCmpa(4)
+      nF    = iBas*lBas*iCmpa(1)*iCmpa(4)
 !
       ipFjk = ipFil + nFil
+      ipF   = ipF   + nF
       nFjk  = jBas*kBas*iCmpa(2)*iCmpa(3)
+      nF    = jBas*kBas*iCmpa(2)*iCmpa(3)
 !
       FT(1:nFij+nFkl+nFik+nFjl+nFil+nFjk)=Zero
 !
@@ -192,7 +200,6 @@
       ipDil = 1
       ipDjk = 1
       ipDjl = 1
-      ipFik1= 1
       ipFil1= 1
       ipFjk1= 1
       ipFjl1= 1
@@ -402,8 +409,6 @@
      &                             Scrt(ipDjl),1)
 #endif
                      End If
-                     ipFik1 = ((i3-1)*iCmpa(1)+i1-1)*iBas*kBas
-     &                      + ipFik
                      If (iShell(1).lt.iShell(3)) Then
                         vik=Dik(iBas*kBas+1,i3,i1)
                         ipDik = ip
@@ -498,13 +503,13 @@
      &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl)
                   Case (2)
                   Call Fck2(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
+     &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl)
                   Case (3)
                   Call Fck3(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
-     &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
+     &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl)
                   Case (4)
                   Call Fck4(AOInt(:,i1,i2,i3,i4),
@@ -518,7 +523,7 @@
      &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
                   Case (6)
                   Call Fck6(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
+     &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
      &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
@@ -526,7 +531,7 @@
                   Call Fck7(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
-     &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
+     &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
      &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
@@ -556,7 +561,7 @@
      &            Fact)
 !
       If (lFik)
-     &Call FckDst(TwoHam,nDens,FT(ipFik),iBas,kBas,iCmpa(1),iCmpa(3),
+     &Call FckDst(TwoHam,nDens,Fik,iBas,kBas,iCmpa(1),iCmpa(3),
      &            kOp2(1),kOp2(3),iIrrep,
      &            iShik,
      &            iAO(1),iAO(3),iAOst(1),iAOst(3),
@@ -581,6 +586,7 @@
      &            iAO(2),iAO(3),iAOst(2),iAOst(3),
      &            Fact)
 
+      Nullify(Fij,Fkl,Fik)
       Contains
 
       Subroutine Fck1(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl)
