@@ -92,7 +92,7 @@
       Integer iSym(4)
       Integer iCmp, jCmp, kCmp, lCmp
       Integer ii, jj, kk, ll
-      Integer ipDil, ipDjk, ipDjl
+      Integer ipDjk, ipDjl
       Integer i1, i2, i3, i4, i12, i34
       Integer, External:: ip_of_Work
       Real*8  pEa, pRb, pTc, pTSd
@@ -102,7 +102,7 @@
       Real*8 Fact, ExFac, pFctr
       Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),
      &                  Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:)
-      Real*8, pointer:: pDij(:), pDkl(:), pDik(:)
+      Real*8, pointer:: pDij(:), pDkl(:), pDik(:), pDil(:)
       Integer nF, ipF
 !                                                                      *
 !***********************************************************************
@@ -182,7 +182,6 @@
       ipF   = ipF   + nF
       FT(1:ipF-1)=Zero
 !
-      ipDil = 1
       ipDjk = 1
       ipDjl = 1
 !
@@ -414,22 +413,13 @@
 #endif
                      End If
                      If (iShell(1).lt.iShell(4)) Then
-                        vil = Dil(iBas*lBas+1,i4,i1)
-                        ipDil = ip
-                        ip = ip + iBas*lBas
-                        Call DGeTMO(Dil(1,i4,i1),il1,il1,
-     &                              il2,Scrt(ipDil),il2)
+                        vil = Dil(il1*il2+1,i4,i1)
+                        pDil(1:il1*il2) => Scrt(ip:ip+il1*il2-1)
+                        Call DGeTMO(Dil(1,i4,i1),il1,il1,il2,pDil,il2)
+                        ip = ip + il1*il2
                      Else
-                        vil = Dil(iBas*lBas+1,i1,i4)
-#ifndef _BOUND_
-                        ipDil = ip_of_Work(Dil(1,i1,i4)) -
-     &                          ip_of_Work(Scrt(1)) + 1
-#else
-                        ipDil = ip
-                        ip = ip + iBas*lBas
-                        call dcopy_(il1*il2,Dil(1,i1,i4),1,
-     &                             Scrt(ipDil),1)
-#endif
+                        vil = Dil(il1*il2+1,i1,i4)
+                        pDil(1:il1*il2) => Dil(1:il1*il2,i1,i4)
                      End If
                      If (vil*vijkl*Abs(Fac_jk) .lt. ThrInt .and.
      &                   vjk*vijkl*Abs(Fac_il) .lt. ThrInt) Then
@@ -462,19 +452,19 @@
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl)
                   Case (4)
                   Call Fck4(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
+     &                      pDil,Fil(:,i1,i4),Fac_il,
      &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (5)
                   Call Fck5(AOInt(:,i1,i2,i3,i4),
      &                      pDij,Fij(:,i1,i2),Fac_ij,
      &                      pDkl,Fkl(:,i3,i4),Fac_kl,
-     &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
+     &                      pDil,Fil(:,i1,i4),Fac_il,
      &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (6)
                   Call Fck6(AOInt(:,i1,i2,i3,i4),
      &                      pDik,Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl,
-     &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
+     &                      pDil,Fil(:,i1,i4),Fac_il,
      &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (7)
                   Call Fck7(AOInt(:,i1,i2,i3,i4),
@@ -482,7 +472,7 @@
      &                      pDkl,Fkl(:,i3,i4),Fac_kl,
      &                      pDik,Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl,
-     &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
+     &                      pDil,Fil(:,i1,i4),Fac_il,
      &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case Default
                End Select
