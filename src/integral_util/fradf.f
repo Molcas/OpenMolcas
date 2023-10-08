@@ -16,10 +16,10 @@
 !         (theta integration)                                          *
 !                                                                      *
 !***********************************************************************
-      use rmat
-      Implicit real*8 (a-h,o-z)
+      use rmat, only: l, expsum
+      Implicit None
+      Real*8 x
 !
       fradf=x**(l+2)*exp(-expsum*x*x)
 !
-      Return
-      End
+      End function  fradf

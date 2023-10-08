@@ -9,16 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Free_DeDe(Dens,TwoHam,nDens)
-      use setup
-      use k2_arrays
+      use k2_arrays, only: pDq, pFq, DeDe, Dq, Fq, ipOffD
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Two, Half
+      use stdalloc, only: mma_deallocate
+      Implicit None
 !
       Integer nDens
       Real*8 :: Dens(nDens), TwoHam(nDens)
+
+      Integer nC, ijQ, jiQ, ij, i, j
 !
       Nullify(pDq)
       Nullify(pFq)
@@ -48,4 +49,4 @@
       Call mma_deallocate(DeDe)
 !
       Return
-      End
+      End Subroutine Free_DeDe
