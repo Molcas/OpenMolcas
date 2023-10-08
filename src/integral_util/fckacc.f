@@ -73,13 +73,14 @@
 #endif
       Integer iCmp_(4)
       Real*8 AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)),
-     &       TwoHam(nDens),FT(nFT),
+     &       TwoHam(nDens),
      &       Dij(ij1*ij2+1,ij3,ij4),
      &       Dkl(kl1*kl2+1,kl3,kl4),
      &       Dik(ik1*ik2+1,ik3,ik4),
      &       Dil(il1*il2+1,il3,il4),
      &       Djk(jk1*jk2+1,jk3,jk4),
      &       Djl(jl1*jl2+1,jl3,jl4)
+      Real*8, Target:: FT(nFT)
       Logical Shijij, Qijij, DoCoul, DoExch,
      &        iShij, iShkl, iQij, iQkl,
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
@@ -97,7 +98,7 @@
       Integer ipFij, nFij, ipFik, nFik, ipFjl, nFjl,
      &        ipFil, nFil, ipFjk, nFjk, ipFkl, nFkl
       Integer ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
-      Integer ipFij1, ipFkl1, ipFik1, ipFil1, ipFjk1, ipFjl1
+      Integer ipFkl1, ipFik1, ipFil1, ipFjk1, ipFjl1
       Integer i1, i2, i3, i4, i12, i34
       Integer, External:: ip_of_Work
       Real*8  pEa, pRb, pTc, pTSd
@@ -105,6 +106,8 @@
       Real*8 D_ij, D_kl, D_ik, D_jl, D_il, D_jk
       Real*8 Vij, Vkl, Vik, Vjl, Vil, Vjk, Vijkl
       Real*8 Fact, ExFac, pFctr
+      Real*8, pointer:: Fij(:,:,:)
+      Integer nF, ipF
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -156,9 +159,14 @@
       lFjk = .False.
 !
       ipFij = 1
+      ipF   = 1
       nFij  = iBas*jBas*iCmpa(1)*iCmpa(2)
+      nF    = iBas*jBas*iCmpa(1)*iCmpa(2)
+      Fij(1:iBas*jBas,1:iCmpa(1),1:iCmpa(2)) => FT(ipF:ipF+nF-1)
+
 !
       ipFkl = ipFij + nFij
+      ipF   = ipF   + nF
       nFkl  = kBas*lBas*iCmpa(3)*iCmpa(4)
 !
       ipFik = ipFkl + nFkl
@@ -181,7 +189,6 @@
       ipDil = 1
       ipDjk = 1
       ipDjl = 1
-      ipFij1= 1
       ipFkl1= 1
       ipFik1= 1
       ipFil1= 1
@@ -344,8 +351,6 @@
      &                             Scrt(ipDkl),1)
 #endif
                      End If
-                     ipFij1 = ((i2-1)*iCmpa(1)+i1-1)*iBas*jBas
-     &                      + ipFij
                      If (iShell(1).lt.iShell(2)) Then
                         vij = Dij(iBas*jBas+1,i2,i1)
                         ipDij=ip
@@ -489,7 +494,7 @@
 !***********************************************************************
                   Case (1)
                   Call Fck1(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
+     &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl)
                   Case (2)
                   Call Fck2(AOInt(:,i1,i2,i3,i4),
@@ -497,7 +502,7 @@
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl)
                   Case (3)
                   Call Fck3(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
+     &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl,
      &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl)
@@ -507,7 +512,7 @@
      &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
                   Case (5)
                   Call Fck5(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
+     &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl,
      &                      Scrt(ipDil),FT(ipFil1),Fac_il,
      &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
@@ -519,7 +524,7 @@
      &                      Scrt(ipDjk),FT(ipFjk1),Fac_jk)
                   Case (7)
                   Call Fck7(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDij),FT(ipFij1),Fac_ij,
+     &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),FT(ipFkl1),Fac_kl,
      &                      Scrt(ipDik),FT(ipFik1),Fac_ik,
      &                      Scrt(ipDjl),FT(ipFjl1),Fac_jl,
@@ -537,7 +542,7 @@
       iIrrep=0
       Fact=One
       If (lFij)
-     &Call FckDst(TwoHam,nDens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),
+     &Call FckDst(TwoHam,nDens,Fij,iBas,jBas,iCmpa(1),iCmpa(2),
      &            kOp2(1),kOp2(2),iIrrep,
      &            iShij,
      &            iAO(1),iAO(2),iAOst(1),iAOst(2),
