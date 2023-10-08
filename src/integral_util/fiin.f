@@ -9,9 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine fiin(lmax)
-      use Constants
-      use welcom
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One, Two, Pi
+      use welcom, only: fiInt, binom
+      Implicit None
+      Integer lmax
+
+      Integer i, j, k, l, iexp
+      Real*8 a, tal, al
 !
       fiint(0,0)=Pi*Two
       Do 10 i=0,lmax
@@ -33,4 +37,4 @@
  10   Continue
 !
       Return
-      End
+      End Subroutine fiin
