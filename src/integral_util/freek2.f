@@ -20,11 +20,9 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden. November '92                            *
 !***********************************************************************
-      use setup
-      use k2_setup
-      use k2_arrays
+      use k2_setup, only: Data_k2, Indk2, k2_Processed
       use stdalloc, only: mma_deallocate
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
       If (.Not.Allocated(Data_k2)) Return
 
@@ -35,4 +33,4 @@
       k2_processed=.False.
 !
       Return
-      End
+      End SubRoutine Freek2
