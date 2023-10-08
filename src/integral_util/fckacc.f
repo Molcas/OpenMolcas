@@ -92,9 +92,7 @@
       Integer iSym(4)
       Integer iCmp, jCmp, kCmp, lCmp
       Integer ii, jj, kk, ll
-      Integer ipDjl
       Integer i1, i2, i3, i4, i12, i34
-      Integer, External:: ip_of_Work
       Real*8  pEa, pRb, pTc, pTSd
       Real*8 Fac_ij, Fac_kl, Fac_ik, Fac_jl, Fac_il, Fac_jk
       Real*8 D_ij, D_kl, D_ik, D_jl, D_il, D_jk
@@ -103,7 +101,7 @@
       Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),
      &                  Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:)
       Real*8, pointer:: pDij(:), pDkl(:), pDik(:),
-     &                  pDil(:), pDjk(:)
+     &                  pDil(:), pDjk(:), pDjl(:)
       Integer nF, ipF
 !                                                                      *
 !***********************************************************************
@@ -182,8 +180,6 @@
 !
       ipF   = ipF   + nF
       FT(1:ipF-1)=Zero
-!
-      ipDjl = 1
 !
 !     Quadruple loop over elements of the basis functions angular
 !     description. Loops are reduced to just produce unique SO integrals
@@ -355,22 +351,13 @@
                      iOpt = iOpt + 2
 !
                      If (iShell(2).lt.iShell(4)) Then
-                        vjl=Djl(jBas*lBas+1,i4,i2)
-                        ipDjl=ip
-                        ip = ip + jBas*lBas
-                        Call DGeTMO(Djl(1,i4,i2),jl1,jl1,
-     &                              jl2,Scrt(ipDjl),jl2)
+                        vjl=Djl(jl1*jl2+1,i4,i2)
+                        pDjl(1:jl1*jl2) => Scrt(ip:ip+jl1*jl2-1)
+                        Call DGeTMO(Djl(1,i4,i2),jl1,jl1,jl2,pDjl,jl2)
+                        ip = ip + jl1*jl2
                      Else
-                        vjl=Djl(jBas*lBas+1,i2,i4)
-#ifndef _BOUND_
-                        ipDjl = ip_of_Work(Djl(1,i2,i4)) -
-     &                          ip_of_Work(Scrt(1)) + 1
-#else
-                        ipDjl=ip
-                        ip = ip + jBas*lBas
-                        call dcopy_(jl1*jl2,Djl(1,i2,i4),1,
-     &                             Scrt(ipDjl),1)
-#endif
+                        vjl=Djl(jl1*jl2+1,i2,i4)
+                        pDjl(1:jl1*jl2) => Djl(1:jl1*jl2,i2,i4)
                      End If
                      If (iShell(1).lt.iShell(3)) Then
                         vik=Dik(ik1*ik2+1,i3,i1)
@@ -434,13 +421,13 @@
                   Case (2)
                   Call Fck2(AOInt(:,i1,i2,i3,i4),
      &                      pDik,Fik(:,i1,i3),Fac_ik,
-     &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl)
+     &                      pDjl,Fjl(:,i2,i4),Fac_jl)
                   Case (3)
                   Call Fck3(AOInt(:,i1,i2,i3,i4),
      &                      pDij,Fij(:,i1,i2),Fac_ij,
      &                      pDkl,Fkl(:,i3,i4),Fac_kl,
      &                      pDik,Fik(:,i1,i3),Fac_ik,
-     &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl)
+     &                      pDjl,Fjl(:,i2,i4),Fac_jl)
                   Case (4)
                   Call Fck4(AOInt(:,i1,i2,i3,i4),
      &                      pDil,Fil(:,i1,i4),Fac_il,
@@ -454,7 +441,7 @@
                   Case (6)
                   Call Fck6(AOInt(:,i1,i2,i3,i4),
      &                      pDik,Fik(:,i1,i3),Fac_ik,
-     &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl,
+     &                      pDjl,Fjl(:,i2,i4),Fac_jl,
      &                      pDil,Fil(:,i1,i4),Fac_il,
      &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case (7)
@@ -462,11 +449,12 @@
      &                      pDij,Fij(:,i1,i2),Fac_ij,
      &                      pDkl,Fkl(:,i3,i4),Fac_kl,
      &                      pDik,Fik(:,i1,i3),Fac_ik,
-     &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl,
+     &                      pDjl,Fjl(:,i2,i4),Fac_jl,
      &                      pDil,Fil(:,i1,i4),Fac_il,
      &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case Default
-               End Select
+                  End Select
+                  Nullify(pDij,pDkl,pDik,pDil,pDjk,pDjl)
 !***********************************************************************
 !
                End Do
