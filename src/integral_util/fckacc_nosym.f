@@ -10,10 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine FckAcc_NoSym(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, nijkl,
-     &                  AOInt,FMat,DMat,nDens,
-     &                  iAO,iAOst,iBas,jBas,kBas,lBas,ExFac)
+      Subroutine FckAcc_NoSym(iCmp, jCmp, kCmp, lCmp, Shijij,
+     &                        iShell, nijkl, AOInt,FMat,DMat,nDens,
+     &                        iAO,iAOst,iBas,jBas,kBas,lBas,ExFac)
 !***********************************************************************
 !                                                                      *
 !  Object: to accumulate contributions from the AO integrals directly  *
@@ -40,15 +39,23 @@
 !***********************************************************************
       use SOAO_Info, only: iAOtSO
       use Gateway_Info, only: CutInt
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One, Four, Half
+      Implicit None
+      Integer nijkl, iCmp, jCmp, kCmp, lCmp, nDens
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
      &       DMat(nDens)
       Logical Shij, Shkl, Shijij
-      Integer iAng(4), iShell(4), iShll(4),
-     &        in(4), iAO(4), iAOst(4)
+      Integer iShell(4), iAO(4), iAOst(4)
+      Integer iBas, jBas, kBas, lBas
+      Real*8 ExFac
+
 !     Local Arrays
-!
+      Integer i, j, iTri
+      Real*8 Fac, Fac_C, Fac_E
+      Integer in(4)
+      Integer i1, i2, i3, i4, iSO, jSO, kSO, lSO
+      Integer k, l, kl, jk, jl, ij, ik, il
+      Real*8 D_kl, F_kl, D_jl, F_jl, D_jk, F_jk, AOijkl
 !     Statement Function
 !
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
@@ -137,10 +144,4 @@
  200     Continue
  100  Continue
 !
-      Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(iAng)
-         Call Unused_integer_array(iShll)
-      End If
-      End
+      End Subroutine FckAcc_NoSym
