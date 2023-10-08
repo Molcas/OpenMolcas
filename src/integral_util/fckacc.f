@@ -53,11 +53,19 @@
       use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
       use Gateway_Info, only: ThrInt, CutInt
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
 !     Since I sometimes use Scrt as an anchor to reach into the
 !     density matrix a check if I'm out of bounds does not work!
 !
+      Integer nijkl, nDens, nScrt, nFT,
+     &       ij1,ij2,ij3,ij4,
+     &       kl1,kl2,kl3,kl4,
+     &       ik1,ik2,ik3,ik4,
+     &       il1,il2,il3,il4,
+     &       jk1,jk2,jk3,jk4,
+     &       jl1,jl2,jl3,jl4
+      Integer iBas, jBas, kBas, lBas
 #ifndef _BOUND_
       Real*8 Scrt(nScrt)
 #else
@@ -78,16 +86,31 @@
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
      &        iAO(4), iAOst(4), iCmpa(4)
+
 !     Local Arrays
+      Integer mijkl, jCmpMx, lCmpMx, j, ix, ijkl, ip, iOpt, iIrrep
+      Integer iChBs, jChBs, kChBs, lChBs
+      Integer ixyz, iOff
       Integer iSym(4)
       Integer iCmp, jCmp, kCmp, lCmp
+      Integer ii, jj, kk, ll
+      Integer ipFij, nFij, ipFik, nFik, ipFjl, nFjl,
+     &        ipFil, nFil, ipFjk, nFjk, ipFkl, nFkl
+      Integer ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
+      Integer ipFij1, ipFkl1, ipFik1, ipFil1, ipFjk1, ipFjl1
+      Integer i1, i2, i3, i4, i12, i34
+      Integer, External:: ip_of_Work
+      Real*8  pEa, pRb, pTc, pTSd
+      Real*8 Fac_ij, Fac_kl, Fac_ik, Fac_jl, Fac_il, Fac_jk
+      Real*8 D_ij, D_kl, D_ik, D_jl, D_il, D_jk
+      Real*8 Vij, Vkl, Vik, Vjl, Vil, Vjk, Vijkl
+      Real*8 Fact, ExFac, pFctr
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     Statement Function
 !
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
-!     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -150,7 +173,7 @@
       ipFjk = ipFil + nFil
       nFjk  = jBas*kBas*iCmpa(2)*iCmpa(3)
 !
-      call dcopy_(nFij+nFkl+nFik+nFjl+nFil+nFjk,[Zero],0,FT(ipFij),1)
+      FT(1:nFij+nFkl+nFik+nFjl+nFil+nFjk)=Zero
 !
       ipDij = 1
       ipDkl = 1
@@ -556,12 +579,12 @@
       Contains
 
       Subroutine Fck1(AOInt,Dij,Fij,Cij,Dkl,Fkl,Ckl)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas)
+      Real*8 Cij, Ckl
       Integer i, j, k, l
+      Real*8 F_kl, D_kl, Vijkl
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -584,12 +607,12 @@
       End Subroutine Fck1
 
       Subroutine Fck2(AOInt,Dik,Fik,Cik,Djl,Fjl,Cjl)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dik(iBas,kBas), Fik(iBas,kBas),
      &       Djl(jBas,lBas), Fjl(jBas,lBas)
+      Real*8 Cik, Cjl
       Integer i, j, k, l
+      Real*8 F_jl, D_jl, Vijkl
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -614,14 +637,14 @@
       Subroutine Fck3(AOInt,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas),
      &       Dik(iBas,kBas), Fik(iBas,kBas),
      &       Djl(jBas,lBas), Fjl(jBas,lBas)
+      Real*8 Cij, Ckl, Cik, Cjl
       Integer i, j, k, l
+      Real*8 F_kl, D_kl, F_jl, D_jl, Vijkl
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -650,12 +673,13 @@
       End Subroutine Fck3
 
       Subroutine Fck4(AOInt,Dil,Fil,Cil,Djk,Fjk,Cjk)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
+      Real*8 Cil, Cjk
       Integer i, j, k, l
+      Real*8 F_jk, D_jk, Vijkl
+!
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -680,14 +704,14 @@
       Subroutine Fck5(AOInt,
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
      &                Dil,Fil,Cil,Djk,Fjk,Cjk)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
+      Real*8 Cij, Ckl, Cil, Cjk
       Integer i, j, k, l
+      Real*8 F_kl, D_kl, F_jk, D_jk, Vijkl
 !
       Do l = 1, lBas
          Do k = 1, kBas
@@ -718,13 +742,13 @@
       Subroutine Fck6(AOInt,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl,
      &                Dil,Fil,Cil,Djk,Fjk,Cjk)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dik(iBas,kBas), Fik(iBas,kBas),
      &       Djl(jBas,lBas), Fjl(jBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
+      Real*8 Cik, Cjl, Cil, Cjk
+      Real*8 F_jl, D_jl, F_jk, D_jk, Vijkl
       Integer i, j, k, l
 !
       Do l = 1, lBas
@@ -757,8 +781,6 @@
      &                Dij,Fij,Cij,Dkl,Fkl,Ckl,
      &                Dik,Fik,Cik,Djl,Fjl,Cjl,
      &                Dil,Fil,Cil,Djk,Fjk,Cjk)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
       Real*8 AOInt(iBas,jBas,kBas,lBas),
      &       Dij(iBas,jBas), Fij(iBas,jBas),
      &       Dkl(kBas,lBas), Fkl(kBas,lBas),
@@ -766,7 +788,9 @@
      &       Djl(jBas,lBas), Fjl(jBas,lBas),
      &       Dil(iBas,lBas), Fil(iBas,lBas),
      &       Djk(jBas,kBas), Fjk(jBas,kBas)
+      Real*8 Cij, Ckl, Cik, Cjl, Cil, Cjk
       Integer i, j, k, l
+      Real*8 F_kl, D_kl, F_jl, D_jl, F_jk, D_jk, Vijkl
 !
       Do l = 1, lBas
          Do k = 1, kBas
