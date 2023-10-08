@@ -47,12 +47,12 @@
 !                                                                      *
 !     Modified July '98 in Tokyo by R. Lindh                           *
 !***********************************************************************
-      use Basis_Info
+      use Basis_Info, only: Shells
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
       use Gateway_Info, only: ThrInt, CutInt
-      use Constants
+      use Constants, only: Zero, One, Two, Half, Quart
       Implicit None
 !
 !     Since I sometimes use Scrt as an anchor to reach into the
