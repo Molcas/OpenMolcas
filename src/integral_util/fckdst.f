@@ -16,13 +16,22 @@
       use Symmetry_Info, only: nIrrep, iChTbl, iOper
       use SOAO_Info, only: iAOtSO, nSOInf
       use Basis_Info, only: nBas
-      use Constants
-      Implicit Real*8 (a-h,o-z)
-      integer jirr(0:7)
+      use Constants, only: Two
+      Implicit None
 !
+      Integer nDens, iBas, jBas, iCmp, jCmp, ikOp1, ikOp2, Irrep,
+     &        iAO1, iAO2, iAOst1, iAOst2
       Real*8 Fij(0:iBas-1,0:jBas-1,iCmp,jCmp),TwoHam(nDens)
-      Integer iPnt(0:7)
+      Real*8 Fact
       Logical Shij
+
+      integer i, j, iTri
+      integer jirr(0:7)
+      Integer iPnt(0:7)
+      Integer iChO, iIrrep, ipntij, i1, i2, iSOj, jSOi,
+     &        iSO, jSO, iAO, jAO, iAOi, iSOi, jAOj, jSOj,
+     &        ipFij, l1, l2, ipF, NrOpr, iIR, jIrrep
+      Real*8  Fac, x1, x2, x3, x4, xr
 !
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 !
@@ -142,4 +151,4 @@
       End If
 !
       Return
-      End
+      End Subroutine FckDst
