@@ -66,14 +66,11 @@
      &       jk1,jk2,jk3,jk4,
      &       jl1,jl2,jl3,jl4
       Integer iBas, jBas, kBas, lBas
-#ifndef _BOUND_
-      Real*8 Scrt(nScrt)
-#else
-      Real*8 Scrt(*)
-#endif
+      Real*8, target:: Scrt(nScrt)
       Integer iCmp_(4)
       Real*8 AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)),
-     &       TwoHam(nDens),
+     &       TwoHam(nDens)
+      Real*8, target::
      &       Dij(ij1*ij2+1,ij3,ij4),
      &       Dkl(kl1*kl2+1,kl3,kl4),
      &       Dik(ik1*ik2+1,ik3,ik4),
@@ -95,7 +92,7 @@
       Integer iSym(4)
       Integer iCmp, jCmp, kCmp, lCmp
       Integer ii, jj, kk, ll
-      Integer ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
+      Integer ipDkl, ipDik, ipDil, ipDjk, ipDjl
       Integer i1, i2, i3, i4, i12, i34
       Integer, External:: ip_of_Work
       Real*8  pEa, pRb, pTc, pTSd
@@ -105,6 +102,7 @@
       Real*8 Fact, ExFac, pFctr
       Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),
      &                  Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:)
+      Real*8, pointer:: pDij(:)
       Integer nF, ipF
 !                                                                      *
 !***********************************************************************
@@ -184,7 +182,6 @@
       ipF   = ipF   + nF
       FT(1:ipF-1)=Zero
 !
-      ipDij = 1
       ipDkl = 1
       ipDik = 1
       ipDil = 1
@@ -348,22 +345,13 @@
 #endif
                      End If
                      If (iShell(1).lt.iShell(2)) Then
-                        vij = Dij(iBas*jBas+1,i2,i1)
-                        ipDij=ip
-                        ip = ip + iBas*jBas
-                        Call DGeTMO(Dij(1,i2,i1),ij1,ij1,
-     &                              ij2,Scrt(ipDij),ij2)
+                        vij = Dij(ij1*ij2+1,i2,i1)
+                        pDij(1:ij1*ij2) => Scrt(ip:ip+ij1*ij2-1)
+                        ip = ip + ij1*ij2
+                        Call DGeTMO(Dij(1,i2,i1),ij1,ij1,ij2,pDij,ij2)
                      Else
-                        vij = Dij(iBas*jBas+1,i1,i2)
-#ifndef _BOUND_
-                        ipDij = ip_of_Work(Dij(1,i1,i2)) -
-     &                          ip_of_Work(Scrt(1)) + 1
-#else
-                        ipDij=ip
-                        ip = ip + iBas*jBas
-                        call dcopy_(ij1*ij2,Dij(1,i1,i2),1,
-     &                             Scrt(ipDij),1)
-#endif
+                        vij = Dij(ij1*ij2+1,i1,i2)
+                        pDij(1:ij1*ij2) => Dij(1:ij1*ij2,i1,i2)
                      End  If
                      If (vkl*vijkl*Abs(Fac_ij).lt.ThrInt .and.
      &                   vij*vijkl*Abs(Fac_kl).lt.ThrInt) Then
@@ -480,7 +468,7 @@
 !***********************************************************************
                   Case (1)
                   Call Fck1(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
+     &                      pDij,Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl)
                   Case (2)
                   Call Fck2(AOInt(:,i1,i2,i3,i4),
@@ -488,7 +476,7 @@
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl)
                   Case (3)
                   Call Fck3(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
+     &                      pDij,Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
      &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl)
@@ -498,7 +486,7 @@
      &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (5)
                   Call Fck5(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
+     &                      pDij,Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
      &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
      &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
@@ -510,7 +498,7 @@
      &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (7)
                   Call Fck7(AOInt(:,i1,i2,i3,i4),
-     &                      Scrt(ipDij),Fij(:,i1,i2),Fac_ij,
+     &                      pDij,Fij(:,i1,i2),Fac_ij,
      &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
      &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl,
