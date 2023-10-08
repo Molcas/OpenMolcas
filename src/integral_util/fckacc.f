@@ -95,8 +95,6 @@
       Integer iSym(4)
       Integer iCmp, jCmp, kCmp, lCmp
       Integer ii, jj, kk, ll
-      Integer ipFij, nFij, ipFik, nFik, ipFjl, nFjl,
-     &        ipFil, nFil, ipFjk, nFjk, ipFkl, nFkl
       Integer ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
       Integer i1, i2, i3, i4, i12, i34
       Integer, External:: ip_of_Work
@@ -158,40 +156,28 @@
       lFil = .False.
       lFjk = .False.
 !
-      ipFij = 1
       ipF   = 1
-      nFij  = iBas*jBas*iCmpa(1)*iCmpa(2)
       nF    = iBas*jBas*iCmpa(1)*iCmpa(2)
       Fij(1:iBas*jBas,1:iCmpa(1),1:iCmpa(2)) => FT(ipF:ipF+nF-1)
 
 !
-      ipFkl = ipFij + nFij
       ipF   = ipF   + nF
-      nFkl  = kBas*lBas*iCmpa(3)*iCmpa(4)
       nF    = kBas*lBas*iCmpa(3)*iCmpa(4)
       Fkl(1:kBas*lBas,1:iCmpa(3),1:iCmpa(4)) => FT(ipF:ipF+nF-1)
 !
-      ipFik = ipFkl + nFkl
       ipF   = ipF   + nF
-      nFik  = iBas*kBas*iCmpa(1)*iCmpa(3)
       nF    = iBas*kBas*iCmpa(1)*iCmpa(3)
       Fik(1:iBas*kBas,1:iCmpa(1),1:iCmpa(3)) => FT(ipF:ipF+nF-1)
 !
-      ipFjl = ipFik + nFik
       ipF   = ipF   + nF
-      nFjl  = jBas*lBas*iCmpa(2)*iCmpa(4)
       nF    = jBas*lBas*iCmpa(2)*iCmpa(4)
       Fjl(1:jBas*lBas,1:iCmpa(2),1:iCmpa(4)) => FT(ipF:ipF+nF-1)
 !
-      ipFil = ipFjl + nFjl
       ipF   = ipF   + nF
-      nFil  = iBas*lBas*iCmpa(1)*iCmpa(4)
       nF    = iBas*lBas*iCmpa(1)*iCmpa(4)
       Fil(1:iBas*lBas,1:iCmpa(1),1:iCmpa(4)) => FT(ipF:ipF+nF-1)
 !
-      ipFjk = ipFil + nFil
       ipF   = ipF   + nF
-      nFjk  = jBas*kBas*iCmpa(2)*iCmpa(3)
       nF    = jBas*kBas*iCmpa(2)*iCmpa(3)
       Fjk(1:jBas*kBas,1:iCmpa(2),1:iCmpa(3)) => FT(ipF:ipF+nF-1)
 !
