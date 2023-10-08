@@ -1203,8 +1203,8 @@
 !-----Accumulate contributions directly to the Fock matrix.
 !
       If (DoFock)
-     &Call FckAcc_NoSymq(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                  Shijij, iShll, iShell, nijkl,
+     &Call FckAcc_NoSymq(iCmp(1),iCmp(2),iCmp(3),iCmp(4),
+     &                  Shijij, iShell, nijkl,
      &                  Wrk(ipAOInt),TwoHam,Dens,Size(TwoHam),
      &                  iAO,iAOst,
      &                  iBasi,jBasj,kBask,lBasl,DoCoul,DoExch,

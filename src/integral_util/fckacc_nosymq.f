@@ -11,10 +11,9 @@
 ! Copyright (C) 1993, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine FckAcc_NoSymq(iAng, iCmp, jCmp, kCmp, lCmp, Shijij,
-     &                  iShll, iShell, nijkl,
-     &                  AOInt,FMat,DMat,nDens,
-     &                  iAO,iAOst,iBas,jBas,kBas,lBas,
+      Subroutine FckAcc_NoSymq(iCmp, jCmp, kCmp, lCmp, Shijij,
+     &                         iShell, nijkl,AOInt,FMat,DMat,nDens,
+     &                         iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  DoCoul,DoExch,Dij,Dkl,Dik,Dil,Djk,Djl,ExFac)
 !***********************************************************************
 !                                                                      *
@@ -52,8 +51,7 @@
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
      &       DMat(nDens)
       Logical Shij, Shkl, Shijij, DoCoul, DoExch
-      Integer iAng(4), iShell(4), iShll(4),
-     &        iAO(4), iAOst(4), nCmpx(4), nBasx(4)
+      Integer iShell(4), iAO(4), iAOst(4), nCmpx(4), nBasx(4)
 !
       Parameter (nCBMax=200)
       Integer Indx(3,nCBMax,4)
@@ -69,8 +67,6 @@
       Write (6,*) 'iAO=',iAO
       Write (6,*) 'iAOst=',iAOst
       Write (6,*) 'iShell=',iShell
-      Write (6,*) 'iShll=',iShll
-      Write (6,*) 'iAng=',iAng
       Write (6,*) DoCoul,DoExch,Shijij
       Write (6,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,[One],0),
      &                         DDot_(nDens,DMat,1,[One],0)
@@ -269,11 +265,4 @@
 !    &                         DDot_(nDens,DMat,1,One,0)
 !
       Return
-#ifndef _DEBUGPRINT_
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(iAng)
-         Call Unused_integer_array(iShll)
-      End If
-#endif
-      End
+      End Subroutine FckAcc_NoSymq
