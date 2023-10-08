@@ -92,7 +92,7 @@
       Integer iSym(4)
       Integer iCmp, jCmp, kCmp, lCmp
       Integer ii, jj, kk, ll
-      Integer ipDjk, ipDjl
+      Integer ipDjl
       Integer i1, i2, i3, i4, i12, i34
       Integer, External:: ip_of_Work
       Real*8  pEa, pRb, pTc, pTSd
@@ -102,7 +102,8 @@
       Real*8 Fact, ExFac, pFctr
       Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),
      &                  Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:)
-      Real*8, pointer:: pDij(:), pDkl(:), pDik(:), pDil(:)
+      Real*8, pointer:: pDij(:), pDkl(:), pDik(:),
+     &                  pDil(:), pDjk(:)
       Integer nF, ipF
 !                                                                      *
 !***********************************************************************
@@ -182,7 +183,6 @@
       ipF   = ipF   + nF
       FT(1:ipF-1)=Zero
 !
-      ipDjk = 1
       ipDjl = 1
 !
 !     Quadruple loop over elements of the basis functions angular
@@ -395,22 +395,13 @@
                      iOpt = iOpt + 4
 !
                      If (iShell(2).lt.iShell(3)) Then
-                        vjk = Djk(jBas*kBas+1,i3,i2)
-                        ipDjk = ip
-                        ip = ip + jBas*kBas
-                        Call DGeTMO(Djk(1,i3,i2),jk1,jk1,
-     &                              jk2,Scrt(ipDjk),jk2)
+                        vjk = Djk(jk1*jk2+1,i3,i2)
+                        pDjk(1:jk1*jk2) => Scrt(ip:ip+jk1*jk2-1)
+                        Call DGeTMO(Djk(1,i3,i2),jk1,jk1,jk2,pDjk,jk2)
+                        ip = ip + jk1*jk2
                      Else
-                        vjk = Djk(jBas*kBas+1,i2,i3)
-#ifndef _BOUND_
-                        ipDjk = ip_of_Work(Djk(1,i2,i3)) -
-     &                          ip_of_Work(Scrt(1)) + 1
-#else
-                        ipDjk = ip
-                        ip = ip + jBas*kBas
-                        call dcopy_(jk1*jk2,Djk(1,i2,i3),1,
-     &                             Scrt(ipDjk),1)
-#endif
+                        vjk = Djk(jk1*jk2+1,i2,i3)
+                        pDjk(1:jk1*jk2) => Djk(1:jk1*jk2,i2,i3)
                      End If
                      If (iShell(1).lt.iShell(4)) Then
                         vil = Dil(il1*il2+1,i4,i1)
@@ -453,19 +444,19 @@
                   Case (4)
                   Call Fck4(AOInt(:,i1,i2,i3,i4),
      &                      pDil,Fil(:,i1,i4),Fac_il,
-     &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
+     &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case (5)
                   Call Fck5(AOInt(:,i1,i2,i3,i4),
      &                      pDij,Fij(:,i1,i2),Fac_ij,
      &                      pDkl,Fkl(:,i3,i4),Fac_kl,
      &                      pDil,Fil(:,i1,i4),Fac_il,
-     &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
+     &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case (6)
                   Call Fck6(AOInt(:,i1,i2,i3,i4),
      &                      pDik,Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl,
      &                      pDil,Fil(:,i1,i4),Fac_il,
-     &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
+     &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case (7)
                   Call Fck7(AOInt(:,i1,i2,i3,i4),
      &                      pDij,Fij(:,i1,i2),Fac_ij,
@@ -473,7 +464,7 @@
      &                      pDik,Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl,
      &                      pDil,Fil(:,i1,i4),Fac_il,
-     &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
+     &                      pDjk,Fjk(:,i2,i3),Fac_jk)
                   Case Default
                End Select
 !***********************************************************************
