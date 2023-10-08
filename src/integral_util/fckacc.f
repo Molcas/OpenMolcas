@@ -92,7 +92,7 @@
       Integer iSym(4)
       Integer iCmp, jCmp, kCmp, lCmp
       Integer ii, jj, kk, ll
-      Integer ipDkl, ipDik, ipDil, ipDjk, ipDjl
+      Integer ipDik, ipDil, ipDjk, ipDjl
       Integer i1, i2, i3, i4, i12, i34
       Integer, External:: ip_of_Work
       Real*8  pEa, pRb, pTc, pTSd
@@ -102,7 +102,7 @@
       Real*8 Fact, ExFac, pFctr
       Real*8, pointer:: Fij(:,:,:), Fkl(:,:,:), Fik(:,:,:),
      &                  Fil(:,:,:), Fjk(:,:,:), Fjl(:,:,:)
-      Real*8, pointer:: pDij(:)
+      Real*8, pointer:: pDij(:), pDkl(:)
       Integer nF, ipF
 !                                                                      *
 !***********************************************************************
@@ -182,7 +182,6 @@
       ipF   = ipF   + nF
       FT(1:ipF-1)=Zero
 !
-      ipDkl = 1
       ipDik = 1
       ipDil = 1
       ipDjk = 1
@@ -327,28 +326,19 @@
                      iOpt = iOpt + 1
 !
                      If (iShell(3).lt.iShell(4)) Then
-                        vkl = Dkl(kBas*lBas+1,i4,i3)
-                        ipDkl=ip
-                        ip = ip + kBas*lBas
-                        Call DGetMO(Dkl(1,i4,i3),kl1,kl1,
-     &                              kl2,Scrt(ipDkl),kl2)
+                        vkl = Dkl(kl1*kl2+1,i4,i3)
+                        pDkl(1:kl1*kl2) => Scrt(ip:ip+kl1*kl2-1)
+                        Call DGetMO(Dkl(1,i4,i3),kl1,kl1,kl2,pDkl,kl2)
+                        ip = ip + kl1*kl2
                      Else
-                        vkl = Dkl(kBas*lBas+1,i3,i4)
-#ifndef _BOUND_
-                        ipDkl = ip_of_Work(Dkl(1,i3,i4)) -
-     &                          ip_of_Work(Scrt(1)) + 1
-#else
-                        ipDkl=ip
-                        ip = ip + kBas*lBas
-                        call dcopy_(kl1*kl2,Dkl(1,i3,i4),1,
-     &                             Scrt(ipDkl),1)
-#endif
+                        vkl = Dkl(kl1*kl2+1,i3,i4)
+                        pDkl(1:kl1*kl2) => Dkl(1:kl1*kl2,i3,i4)
                      End If
                      If (iShell(1).lt.iShell(2)) Then
                         vij = Dij(ij1*ij2+1,i2,i1)
                         pDij(1:ij1*ij2) => Scrt(ip:ip+ij1*ij2-1)
-                        ip = ip + ij1*ij2
                         Call DGeTMO(Dij(1,i2,i1),ij1,ij1,ij2,pDij,ij2)
+                        ip = ip + ij1*ij2
                      Else
                         vij = Dij(ij1*ij2+1,i1,i2)
                         pDij(1:ij1*ij2) => Dij(1:ij1*ij2,i1,i2)
@@ -469,7 +459,7 @@
                   Case (1)
                   Call Fck1(AOInt(:,i1,i2,i3,i4),
      &                      pDij,Fij(:,i1,i2),Fac_ij,
-     &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl)
+     &                      pDkl,Fkl(:,i3,i4),Fac_kl)
                   Case (2)
                   Call Fck2(AOInt(:,i1,i2,i3,i4),
      &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
@@ -477,7 +467,7 @@
                   Case (3)
                   Call Fck3(AOInt(:,i1,i2,i3,i4),
      &                      pDij,Fij(:,i1,i2),Fac_ij,
-     &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
+     &                      pDkl,Fkl(:,i3,i4),Fac_kl,
      &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl)
                   Case (4)
@@ -487,7 +477,7 @@
                   Case (5)
                   Call Fck5(AOInt(:,i1,i2,i3,i4),
      &                      pDij,Fij(:,i1,i2),Fac_ij,
-     &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
+     &                      pDkl,Fkl(:,i3,i4),Fac_kl,
      &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
      &                      Scrt(ipDjk),Fjk(:,i2,i3),Fac_jk)
                   Case (6)
@@ -499,7 +489,7 @@
                   Case (7)
                   Call Fck7(AOInt(:,i1,i2,i3,i4),
      &                      pDij,Fij(:,i1,i2),Fac_ij,
-     &                      Scrt(ipDkl),Fkl(:,i3,i4),Fac_kl,
+     &                      pDkl,Fkl(:,i3,i4),Fac_kl,
      &                      Scrt(ipDik),Fik(:,i1,i3),Fac_ik,
      &                      Scrt(ipDjl),Fjl(:,i2,i4),Fac_jl,
      &                      Scrt(ipDil),Fil(:,i1,i4),Fac_il,
