@@ -195,7 +195,8 @@
       nF    = jBas*kBas*iCmpa(2)*iCmpa(3)
       Fjk(1:jBas*kBas,1:iCmpa(2),1:iCmpa(3)) => FT(ipF:ipF+nF-1)
 !
-      FT(1:nFij+nFkl+nFik+nFjl+nFil+nFjk)=Zero
+      ipF   = ipF   + nF
+      FT(1:ipF-1)=Zero
 !
       ipDij = 1
       ipDkl = 1
