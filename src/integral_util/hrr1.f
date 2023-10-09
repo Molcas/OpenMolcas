@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+#define _DEBUGPRINT_
       SubRoutine HRR1(ab1,nab1,a1b,na1b,cffAB,ab,nab,
      &           na,nb,na1,nb1,nPrim,la,lb)
 !***********************************************************************
@@ -17,24 +18,28 @@
 !             University of Lund, SWEDEN                               *
 !             June '91                                                 *
 !***********************************************************************
-      use Constants
+      use Constants, only: Zero
       Implicit Real*8 (A-H,O-Z)
-!     Character*72 Label
+      Integer nab1, na1b, nab, na, nb, na1, nb1, nPrim, la, lb
       Real*8 ab1(nPrim,nab1), a1b(nPrim,na1b), cffAB(3),
      &       ab(nPrim,nab)
+
+#ifdef _DEBUGPRINT_
+      Character(LEN=72) Label
+#endif
+      Integer iy, iz, ixyz, Ind, nElem
+      Integer ixa, iya, iza, ixb, iyb, izb, ixyzb1, ixyza, ipxyz
 !
       Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2 + iz + 1
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 !
-!     iRout = 99
-!     iPrint = nPrint(iRout)
-!     If (iPrint.ge.99) Then
-!        Write(Label,'(A,i1,A,i1,A)') ' Source: (',na1,',',nb,'|'
-!        Call RecPrt(Label,' ',a1b,nPrim,na1b)
-!        Call RecPrt(' Coordinates (A-B)',' ',cffAB,1,3)
-!        Write(Label,'(A,i1,A,i1,A)') ' Source: (',na,',',nb,'|'
-!        Call RecPrt(Label,' ',ab,nPrim,nab)
-!     End If
+#ifdef _DEBUGPRINT_
+      Write(Label,'(A,i1,A,i1,A)') ' Source: (',na1,',',nb,'|'
+      Call RecPrt(Label,' ',a1b,nPrim,na1b)
+      Call RecPrt(' Coordinates (A-B)',' ',cffAB,1,3)
+      Write(Label,'(A,i1,A,i1,A)') ' Source: (',na,',',nb,'|'
+      Call RecPrt(Label,' ',ab,nPrim,nab)
+#endif
 !
 !     Loop over indices of the target batch
 !
@@ -88,10 +93,10 @@
  25      Continue
  20   Continue
 !
-!     If (iPrint.ge.99) Then
-!        Write(Label,'(A,i1,A,i1,A)') ' Target: (',na,',',nb1,'|'
-!        Call RecPrt(Label,' ',ab1,nPrim,nab1)
-!     End If
+#ifdef _DEBUGPRINT_
+      Write(Label,'(A,i1,A,i1,A)') ' Target: (',na,',',nb1,'|'
+      Call RecPrt(Label,' ',ab1,nPrim,nab1)
+#endif
 !
       Return
-      End
+      End SubRoutine HRR1
