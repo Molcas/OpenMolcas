@@ -29,8 +29,13 @@
 !             Modified to not use pointers June '91                    *
 !***********************************************************************
       use Constants
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Target(nPrim,nTrgt), A(3), B(3), AB(3)
+      Implicit None
+      Integer la, lb, nPrim, nTrgt, ipIn
+      Real*8 Target(nPrim,nTrgt), A(3), B(3)
+
+      Integer ixyz, ix, iz, ib, ia, ib1, ia1, iab1, ia1b, iaMax,
+     &        ib1Max, iaMin, nElem, Ind1, ipRslt, iab
+      Real*8 AB(3), ABSqrt
 !
 !     Statement function for canonical indices
 !
@@ -44,14 +49,8 @@
          Return
       End If
 !
-      AB(1) = A(1) - B(1)
-      AB(2) = A(2) - B(2)
-      AB(3) = A(3) - B(3)
-      If (lb.gt.la) Then
-         AB(1) = -AB(1)
-         AB(2) = -AB(2)
-         AB(3) = -AB(3)
-      End If
+      AB(:) = A(:) - B(:)
+      If (lb.gt.la) AB(:) = -AB(:)
       ABSqrt=Sqrt(AB(1)**2+AB(2)**2+AB(3)**2)
       If (ABSqrt.eq.Zero) Then
          Call OCHRR(Target,nPrim,nTrgt,la,lb,ipIn)
@@ -96,4 +95,4 @@
       End If
 !
       Return
-      End
+      End SubRoutine HRR
