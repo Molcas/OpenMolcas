@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine HrrMtrx(HMtrx,np,la,lb,A,B,
      &                   Sph_a,CS_a,nSph_a,Sph_b,Cs_b,nSph_b)
 !***********************************************************************
@@ -22,43 +23,40 @@
 !             Univ. of Lund, Sweden                                    *
 !             February 1999                                            *
 !***********************************************************************
-      use Constants
-      use define_af, only: iTabMx, Binom
-      Implicit Real*8 (A-H,O-Z)
-#include "ican.fh"
+      use Constants, only: Zero, One
+      use define_af, only: iTabMx, Binom, iCan
+      Implicit None
+      Integer np, la, lb, nSph_a, nSph_b
       Real*8 A(3), B(3), HMtrx(np,nSph_a,nSph_b), AB(3,0:iTabMx),
      &       CS_a((la+1)*(la+2)/2,nSph_a), CS_b((lb+1)*(lb+2)/2,nSph_b)
-      Logical EQ, Sph_a, Sph_b
+      Logical Sph_a, Sph_b
+
+      Logical EQ
+      Integer ix, iy, iz, ixyz, iOff, jCan, i, jx, jy, jz, jOff,
+     &        ipa, ipb, ipe, iSph_a, iSph_b, ixLow, iyLow, izLow,
+     &        kx, ky, kz, jxLow, jyLow, jzLow
+      Real*8 C_A, C_B, ABx, ABy, ABz
 !
       iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
       jCan(ix,iy,iz) = iOff(ix+iy+iz) + (iy+iz)*(iy+iz+1)/2 + iz + 1
 !
-      iPrint=5
-      If (iPrint.ge.99) Then
-         Call RecPrt('A',' ',A,1,3)
-         Call RecPrt('B',' ',B,1,3)
-         Call RecPrt('CS_a',' ',CS_a,(la+1)*(la+2)/2,nSph_a)
-         Call RecPrt('CS_b',' ',CS_b,(lb+1)*(lb+2)/2,nSph_b)
-         Write (6,*) 'np=',np
-      End If
-      Call FZero(HMtrx,np*nSph_a*nSph_b)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('A',' ',A,1,3)
+      Call RecPrt('B',' ',B,1,3)
+      Call RecPrt('CS_a',' ',CS_a,(la+1)*(la+2)/2,nSph_a)
+      Call RecPrt('CS_b',' ',CS_b,(lb+1)*(lb+2)/2,nSph_b)
+      Write (6,*) 'np=',np
+#endif
+      HMtrx(:,:,:)=Zero
 !
-      AB(1,0)=One
-      AB(2,0)=One
-      AB(3,0)=One
+      AB(:,0)=One
       If (la.ge.lb) Then
-         AB(1,1)=A(1)-B(1)
-         AB(2,1)=A(2)-B(2)
-         AB(3,1)=A(3)-B(3)
+         AB(:,1)=A(:)-B(:)
       Else
-         AB(1,1)=B(1)-A(1)
-         AB(2,1)=B(2)-A(2)
-         AB(3,1)=B(3)-A(3)
+         AB(:,1)=B(:)-A(:)
       End If
       Do i = 2, Min(la,lb)
-         AB(1,i)=AB(1,i-1)*AB(1,1)
-         AB(2,i)=AB(2,i-1)*AB(2,1)
-         AB(3,i)=AB(3,i-1)*AB(3,1)
+         AB(:,i)=AB(:,i-1)*AB(:,1)
       End Do
 !
       If (la.ge.lb) Then
@@ -426,11 +424,11 @@
 !
          End If
       End If
-      If (iPrint.ge.99) Then
-         Call RecPrt('HMat ( np x (nSph_a*nSph_b) )','(30F4.1)',HMtrx,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('HMat ( np x (nSph_a*nSph_b) )','(30F4.1)',HMtrx,
      &             np,nSph_a*nSph_b)
-         Write (6,*) DDot_(np*nSph_a*nSph_b,HMtrx,1,HMtrx,1)
-      End If
+      Write (6,*) DDot_(np*nSph_a*nSph_b,HMtrx,1,HMtrx,1)
+#endif
 !
       Return
-      End
+      End Subroutine HrrMtrx

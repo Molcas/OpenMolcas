@@ -24,5 +24,9 @@ Private
 #endif
 Real*8 Binom(0:2*iTabMx,-1:2*iTabMx)
 
-Public :: iTabMx, AngTp, Binom
+Integer, Parameter :: lab=2*iTabMx+1, ipMax=lab*(lab+1)*(lab+2)/6
+Integer iCan(3,ipMax)
+
+
+Public :: iTabMx, AngTp, Binom, lab, ipMax, iCan
 End Module Define_af

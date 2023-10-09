@@ -21,9 +21,10 @@
 !             Univ. of Lund, Sweden                                    *
 !             February 1999                                            *
 !***********************************************************************
-      use define_af, only: iTabMx
-      Implicit Real*8 (a-h,o-z)
-#include "ican.fh"
+      use define_af, only: lab, iCan
+      Implicit None
+
+      Integer ip, la, ix, iy, iz
 !
       ip=0
       Do la = 0, lab-1
@@ -39,4 +40,4 @@
       End Do
 !
       Return
-      End
+      End Subroutine Set_CanInd
