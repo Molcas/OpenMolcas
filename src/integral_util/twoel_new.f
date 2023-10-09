@@ -123,12 +123,9 @@
      &       Djk(jk1*jk2+1,jk3,jk4),
      &       Djl(jl1*jl2+1,jl3,jl4)
       Real*8, Target:: FT(nFT)
-      Logical Shijij, Qijij, DoCoul, DoExch,
-     &        iShij, iShkl, iQij, iQkl,
-     &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
-     &        lFij, lFkl, lFik, lFjl, lFil, lFjk
-      Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4), iCmpa(4)
+      Logical Shijij, DoCoul, DoExch
+      Integer iAng(4), iShell(4), iShll(4), kOp(4),
+     &        iAO(4), iAOst(4)
       Real*8 ExFac
       End Subroutine FckAcc
 
