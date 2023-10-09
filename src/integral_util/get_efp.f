@@ -11,8 +11,12 @@
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
       Subroutine GET_EFP()
-      use EFP_Module
+      use EFP_Module, only: lEFP, Coor_Type, nEFP_Fragments, Frag_Type,
+     &                      ABC, C_Int, EFP_Coors, nEFP_Coor
+      Implicit None
+
       Integer CoorType
+
       Call Get_lScalar('EFP',lEFP)
       If (lEFP) Then
          Call Get_iScalar('nEFP_fragments',nEFP_fragments)
@@ -30,4 +34,4 @@
          Call Get_dArray('EFP_COORS',EFP_COORS,nEFP_Coor*nEFP_fragments)
       End If
       Return
-      End
+      End Subroutine GET_EFP

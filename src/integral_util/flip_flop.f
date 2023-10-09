@@ -22,7 +22,7 @@
 !
       Do iCnttp = 1, nCnttp
          nTest = dbsc(iCnttp)%nVal-1
-         If (Shells(iCnttp)%Aux .and.
+         If (DBSC(iCnttp)%Aux .and.
      &       iCnttp.eq.iCnttp_Dummy) nTest=-1
 !
          Do iAng=0, S%iAngMx

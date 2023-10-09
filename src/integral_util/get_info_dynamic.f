@@ -20,9 +20,10 @@
 !             January 1992                                             *
 !***********************************************************************
 !                                                                      *
-      Use Basis_Info
-      Use Center_Info
-      Use SOAO_Info
+      Use Basis_Info, only: Basis_Info_Get
+      Use Center_Info, only: Center_Info_Get
+      Use SOAO_Info, only: SOAO_Info_Get
+      Implicit None
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -33,4 +34,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End SubRoutine Get_Info_Dynamic

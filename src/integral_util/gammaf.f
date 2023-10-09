@@ -16,20 +16,26 @@
 !         (phi integration)                                            *
 !                                                                      *
 !***********************************************************************
-      use rmat
-      Implicit real*8 (a-h,o-z)
+      use rmat, only: lcosf, lsinf, n_gam, m_gam
+      use Constants, only: Zero, One, Two
+      Implicit None
+      Real*8 x
+
+      Integer k1, k2
+      Real*8, external:: dgamma_molcas
+      Real*8 arg1, arg2, arg3
 !
       lcosf=n_gam
       lsinf=m_gam
       k1=(-1)**lsinf
       k2=(-1)**lcosf
       if(k1.eq.(-1).or.k2.eq.(-1)) then
-       gammaf=0.0d0
+       gammaf=Zero
       else
-       arg1=(DBLE(lcosf)+1.0d0)/2.0d0
-       arg2=(DBLE(lsinf)+1.0d0)/2.0d0
-       arg3=(DBLE(lsinf)+DBLE(lcosf)+2.0d0)/2.0d0
-       gammaf=2.0d0*dgamma_molcas(arg1)*dgamma_molcas(arg2)/
+       arg1=(DBLE(lcosf)+One)/Two
+       arg2=(DBLE(lsinf)+One)/Two
+       arg3=(DBLE(lsinf)+DBLE(lcosf)+Two)/Two
+       gammaf=Two*dgamma_molcas(arg1)*dgamma_molcas(arg2)/
      >                                  dgamma_molcas(arg3)
       Endif
 !

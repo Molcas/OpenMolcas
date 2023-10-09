@@ -23,6 +23,7 @@
       use Gateway_Info, only: Gateway_Info_Get
       use RICD_Info, only: RICD_Info_Get
       use NQ_Info, only: NQ_Info_Get
+      Implicit None
 
       Call Symmetry_Info_Get()
       Call Size_Get()
@@ -32,4 +33,4 @@
       Call NQ_Info_Get()
 
       Return
-      End
+      End SubRoutine Get_Info_Static

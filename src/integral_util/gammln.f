@@ -8,14 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      FUNCTION gammln(xx)
-      REAL*8 gammln,xx
+      REAL*8 FUNCTION gammln(xx)
+      Implicit None
+      REAL*8 xx
+
       INTEGER j
-      REAL*8 ser,stp,tmp,x,y,cof(6)
-      SAVE cof,stp
-      DATA cof,stp/76.18009172947146d0,-86.50532032941677d0,
-     *24.01409824083091d0,-1.231739572450155d0,.1208650973866179d-2,
-     *-.5395239384953d-5,2.5066282746310005d0/
+      REAL*8 ser,tmp,x,y
+      Real*8, Parameter:: stp=2.5066282746310005d0
+      Real*8, Parameter:: cof(6)=[76.18009172947146d0,
+     &                           -86.50532032941677d0,
+     &                            24.01409824083091d0,
+     &                            -1.231739572450155d0,
+     &                              .1208650973866179d-2,
+     &                             -.5395239384953d-5]
       x=xx
       y=x
       tmp=x+5.5d0
@@ -27,4 +32,4 @@
 11    continue
       gammln=tmp+log(stp*ser/x)
       return
-      END
+      END FUNCTION gammln

@@ -9,7 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Gamma_Blocks(iTable,nBlocks,nIrrep)
-      Integer idid(8), iTable(6,nBlocks)
+      Implicit None
+      Integer nBlocks, nIrrep
+      Integer iTable(6,nBlocks)
+
+      Integer idid(8), iBlock, IND, IRREP, IRREP1, IRREP2, IRREP3,
+     &        IRREP4, IBOT, ITMP
 !
       iBlock=0
 !
@@ -101,4 +106,4 @@
 314    CONTINUE
 313   CONTINUE
 !
-      End
+      End Subroutine Gamma_Blocks

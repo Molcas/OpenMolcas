@@ -20,18 +20,21 @@
 !             January 1992                                             *
 !***********************************************************************
       Use Iso_C_Binding
-      use Real_Spherical
+      use Real_Spherical, only: lMax_Internal, Sphere
       use Her_RW, only: nPrp
-      use External_Centers
+      use External_Centers, only: nOrdEF, External_Centers_get
       use Gateway_global, only: Test
       use DKH_Info, only: DKroll
       use Sizes_of_Seward, only: S
-      use Constants
-      use stdalloc
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      use rctfld_module, only: lMax, cRFStrt,iRFStrt,lRFStrt,rRFStrt,
+     &                               cRFEnd ,iRFEnd ,lRFEnd ,rRFEnd
+      Implicit None
+      Integer nDiff
       Logical DoRys
 #include "SysDef.fh"
+
+      Integer Len
+      Integer, external:: ip_of_work, ip_of_iWork
 !
       Call GetInf_Internal(cRFStrt,iRFStrt,lRFStrt,rRFStrt)
 !
@@ -116,4 +119,4 @@
       Return
       End SubRoutine GetInf_Internal
 !
-      End
+      End SubRoutine GetInf

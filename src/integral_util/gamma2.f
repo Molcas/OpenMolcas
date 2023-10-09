@@ -10,20 +10,23 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-      Function Gamma2(m,T)
+      Real*8 Function Gamma2(m,T)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the auxiliary function in the high argument       *
 !         approximation.                                               *
 !                                                                      *
 !***********************************************************************
-      use Constants
-      Implicit real*8 (a-h,o-z)
-      Real*8 Gamma2
+      use Constants, only: Zero, One, Two
+      Implicit None
+      Integer m
+      Real*8 T
+
+      Integer i
 !
       Gamma2= Sqrt(Two*ACos(Zero)/T)/Two
-      Do 10 i = 1, m
+      Do i = 1, m
          Gamma2 = ((Two*DBLE(i)-One)/(Two*T))*Gamma2
- 10   Continue
+      End Do
       Return
-      End
+      End Function Gamma2
