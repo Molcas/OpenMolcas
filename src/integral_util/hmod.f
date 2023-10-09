@@ -15,9 +15,14 @@
 !             due to the multipole moment expansion at origin.         *
 !                                                                      *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer lmax_
+      Real*8 gx,gy,gz,V,EFx,EFy,EFz
       Real*8 Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
+
+      Integer ix, iy, iz, iOff, Index, lMax
+      Real*8 xEff, xyEff, xyzEff, aX, aY, aZ
 !
 !---- Statement function
 !
@@ -29,8 +34,6 @@
       EFy= Zero
       EFz= Zero
 !
-!     nCavxyz=(lMax_+1)*(lMax_+2)*(lMax_+3)/6
-!     Write (*,*) 'lMax_,nCavxyz=',lMax_,nCavxyz
       lmax=lmax_-1
       Do ix = 0, lmax
          If (ix.eq.0) Then
@@ -72,4 +75,4 @@
       End Do
 !
       Return
-      End
+      End Subroutine hmod
