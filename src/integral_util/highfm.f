@@ -23,9 +23,14 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One, Two
+      Implicit None
+      Integer m, n
       Real*8 F(n), T(n)
+
+      Integer i, ii, k
+      Real*8 TMax, gTmp, Sum0, Sum1, TNew, FValue, Term, Gamma2
+
 !
 !     Find T for which the asympotic formula can be used
 !
@@ -66,4 +71,4 @@
  100  Continue
 !
       Return
-      End
+      End SubRoutine HighFm
