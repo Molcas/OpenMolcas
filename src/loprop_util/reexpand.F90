@@ -14,7 +14,7 @@ subroutine ReExpand(rMP,nij,nElem,A,B,ij,lMax)
 use Index_Functions, only: nTri3_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use define_af, only: iTabMx
+use define_af, only: Binom
 
 implicit none
 integer(kind=iwp), intent(in) :: nij, nElem, ij, lMax
@@ -22,7 +22,6 @@ real(kind=wp), intent(inout) :: rMP(nij,nElem)
 real(kind=wp), intent(in) :: A(3), B(3)
 integer(kind=iwp) :: iElem, ix, iy, iz, jElem, jx, jy, jz, k, l
 real(kind=wp) :: ABx, ABx_, ABy, ABy_, ABz, ABz_, temp
-#include "binom.fh"
 
 !                                                                      *
 !***********************************************************************

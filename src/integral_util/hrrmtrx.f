@@ -23,9 +23,8 @@
 !             February 1999                                            *
 !***********************************************************************
       use Constants
-      use define_af, only: iTabMx
+      use define_af, only: iTabMx, Binom
       Implicit Real*8 (A-H,O-Z)
-#include "binom.fh"
 #include "ican.fh"
       Real*8 A(3), B(3), HMtrx(np,nSph_a,nSph_b), AB(3,0:iTabMx),
      &       CS_a((la+1)*(la+2)/2,nSph_a), CS_b((lb+1)*(lb+2)/2,nSph_b)

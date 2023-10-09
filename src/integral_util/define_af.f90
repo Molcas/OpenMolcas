@@ -11,6 +11,7 @@
 !     This defines the highest angular momentum quantum number which
 !     Seward will be able to treat.
 Module Define_af
+Private
 #ifndef _DEMO_
       Integer, parameter:: iTabMx=15
       Character(LEN=1), Parameter:: AngTp(0:iTabMx) = ['s','p','d','f','g',                          &
@@ -21,4 +22,7 @@ Module Define_af
       Integer, parameter:: iTabMx=3
       Character(LEN=1), Parameter:: AngTp(0:iTabMx) = ['s','p','d']
 #endif
+Real*8 Binom(0:2*iTabMx,-1:2*iTabMx)
+
+Public :: iTabMx, AngTp, Binom
 End Module Define_af

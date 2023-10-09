@@ -28,7 +28,7 @@
 !             of Lund, Sweden.                                         *
 !             Modified to not use pointers June '91                    *
 !***********************************************************************
-      use Constants
+      use Constants, only: Zero
       Implicit None
       Integer la, lb, nPrim, nTrgt, ipIn
       Real*8 Target(nPrim,nTrgt), A(3), B(3)
