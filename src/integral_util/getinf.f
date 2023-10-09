@@ -22,7 +22,7 @@
       Use Iso_C_Binding
       use Real_Spherical, only: lMax_Internal, Sphere
       use Her_RW, only: nPrp
-      use External_Centers, only: nOrdEF, External_Centers_get
+      use External_Centers, only: nOrdEF
       use Gateway_global, only: Test
       use DKH_Info, only: DKroll
       use Sizes_of_Seward, only: S
@@ -53,8 +53,6 @@
 !     Load the static input area.
 !
       Call Get_Info_Static()
-!                                                                      *
-      Call External_Centers_Get()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

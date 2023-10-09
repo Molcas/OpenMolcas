@@ -23,6 +23,7 @@
       use Gateway_Info, only: Gateway_Info_Get
       use RICD_Info, only: RICD_Info_Get
       use NQ_Info, only: NQ_Info_Get
+      use External_Centers, only: External_Centers_Get
       Implicit None
 
       Call Symmetry_Info_Get()
@@ -31,6 +32,7 @@
       Call Gateway_Info_Get()
       Call RICD_Info_Get()
       Call NQ_Info_Get()
+      Call External_Centers_Get()
 
       Return
       End SubRoutine Get_Info_Static
