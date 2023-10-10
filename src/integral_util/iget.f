@@ -10,10 +10,13 @@
 !***********************************************************************
       Integer Function iGet(A,n)
       Use Iso_C_Binding
+      Implicit None
+      Integer n
       Real*8, Target :: A(*)
+
       Integer, Pointer :: iA(:)
       Call C_F_Pointer(C_Loc(A),iA,[n])
       iGet=iA(n)
       Nullify(iA)
       Return
-      End
+      End Function iGet
