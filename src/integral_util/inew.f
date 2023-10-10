@@ -12,7 +12,10 @@
 !***********************************************************************
       Integer Function iNew(iTest,iIrrep)
       use Symmetry_Info
-      Integer iTest(8)
+      Implicit None
+      Integer iIrrep, iTest(8)
+
+      Integer i, iGo, j
       iNew = 0
 !-----Test iTest against all rows thus far.
       Do 10 i = 1, iIrrep
@@ -29,4 +32,4 @@
  10   Continue
       iNew = iIrrep+1
       Return
-      End
+      End Function iNew
