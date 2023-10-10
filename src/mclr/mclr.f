@@ -38,6 +38,7 @@
 ************************************************************************
       Use Basis_Info, only: Basis_Info_Free
       Use Center_Info, only: Center_Info_Free
+      Use External_Centers, only: External_Centers_Free
       use Symmetry_Info, only: Symmetry_Info_Free
       use Arrays, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
@@ -343,6 +344,7 @@ c      idp=rtoi
       Call Basis_Info_Free()
       Call Center_Info_Free()
       Call Symmetry_Info_Free()
+      Call External_Centers_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *
