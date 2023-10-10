@@ -14,8 +14,9 @@
 !                                                                      *
 !***********************************************************************
       Integer Function IcntrShl(iskal)
-      use iSD_data
-      Implicit Real*8 (A-H,O-Z)
+      use iSD_data, only: iSD
+      Implicit None
+      Integer iSkal
 !***********************************************************************
 !                                                                      *
 ! returns center number for given shell                                *
@@ -25,4 +26,4 @@
 !
       icntrshl=iSD(10,iSkal)
       return
-      end
+      end Function IcntrShl

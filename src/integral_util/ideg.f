@@ -20,19 +20,20 @@
 !             March '91                                                *
 !***********************************************************************
       use Symmetry_Info, only: nIrrep, iOper
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One
+      Implicit None
       Real*8 Coor(3), Cx(3,8), r(3)
+
       Logical New
+      Integer i, j
+      Real*8 x, y, z
 !
       iDeg = 1
       Cx(:,1) = Coor(:)
       Do i = 1, nIrrep-1
-         r(1)=One
+         r(:)=One
          If (iAnd(iOper(i),1).ne.0) r(1)=-One
-         r(2)=One
          If (iAnd(iOper(i),2).ne.0) r(2)=-One
-         r(3)=One
          If (iAnd(iOper(i),4).ne.0) r(3)=-One
          x=r(1)*Coor(1)
          y=r(2)*Coor(2)
@@ -52,4 +53,4 @@
       End Do
 !
       Return
-      End
+      End Function iDeg
