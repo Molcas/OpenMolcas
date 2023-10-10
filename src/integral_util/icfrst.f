@@ -11,11 +11,16 @@
 ! Copyright (C) 1990, IBM                                              *
 !***********************************************************************
       Integer Function iCFrst(KWord,iChrct)
-      Character KWord*(*)
-      Do 10 i = 1,iChrct
-         If (KWord(i:i).ne.' ') Go To 11
- 10   Continue
- 11   Continue
-      iCFrst = i
-      Return
-      End
+      Implicit None
+      Character(LEN=*) KWord
+      Integer iChrct
+
+      Integer i
+      Do i = 1,iChrct
+         If (KWord(i:i).ne.' ') Then
+            iCFrst = i
+            Return
+         End If
+      End Do
+
+      End Function iCFrst
