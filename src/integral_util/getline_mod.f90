@@ -12,5 +12,10 @@ Module getline_mod
 Private
 Integer igetline,myunit
 
-Public :: igetline,myunit
+integer, parameter:: Len_Line=180
+character(Len=Len_Line) Line
+integer, parameter:: mxn=Len_Line/2+1
+integer iend(mxn), istrt(mxn), ncol
+
+Public :: igetline, myunit, Line, mxn, iend, istrt, ncol
 End Module getline_mod

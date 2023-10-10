@@ -49,6 +49,7 @@ use Definitions, only: wp, iwp, u6
 use rctfld_module, only: lRF, PCM, lLangevin, RDS
 use rmat, only: Dipol1, RMat_On, bParm, Dipol, EpsAbs, EpsQ, EpsRel, QCoul, RMatR
 use define_af, only: iTabMx, AngTp
+use getline_mod, only: Line
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd_
@@ -57,7 +58,6 @@ logical(kind=iwp), intent(out) :: Do_OneEl
 #include "Molcas.fh"
 #include "print.fh"
 #include "embpcharg.fh"
-#include "cgetl.fh"
 #ifdef _HAVE_EXTRA_
 #include "hyper.fh"
 #endif

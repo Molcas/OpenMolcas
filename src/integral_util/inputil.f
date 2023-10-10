@@ -28,9 +28,9 @@
 ! number of data.                                                      *
 !                                                                      *
 !***********************************************************************
+      use getline_mod
       implicit real*8 (a-h,o-z)
-      Character*(*) In_line
-#include "cgetl.fh"
+      Character(LEN=*) In_line
       Line=In_Line
       l=len(line)
       Do i = 1, l
@@ -99,7 +99,6 @@
       use getline_mod
       implicit real*8 (a-h,o-z)
       Character(LEN=256) filename
-#include "cgetl.fh"
 #include "getlnqoe.fh"
       Quit_On_Error=.false.
       myunit=lunit
@@ -162,7 +161,6 @@
       use getline_mod
       implicit real*8 (a-h,o-z)
       Character(LEN=80) string
-#include "cgetl.fh"
       Real*8 val(n)
       ic=icol
       do i=1,n
@@ -203,7 +201,6 @@
       use getline_mod
       implicit real*8 (a-h,o-z)
       Character(LEN=80) string
-#include "cgetl.fh"
       integer ival(n)
       ic=icol
       do i=1,n
@@ -242,7 +239,6 @@
       Subroutine Get_S(icol,str,n)
       use getline_mod
       character(LEN=*) str(n)
-#include "cgetl.fh"
       ic=icol
       do i=1,n
         if(ic.le.ncol) then
@@ -281,51 +277,55 @@
 110   continue
       return
       end
-       subroutine FindErrorLine
-       use getline_mod
-       character(LEN=180) line
-       lunit=myunit
-       isave=igetline
-       rewind (lunit)
- 2     read(lunit,'(a)', end=300) Line
-       Call UpCase(Line)
-       Line = adjustl(Line)
-       if(Line(1:1).eq.'&') then
+
+      subroutine FindErrorLine
+      use getline_mod, only: MyUnit, iGetLine
+      Implicit None
+
+      character(LEN=180) line
+      Integer lunit, isave
+      lunit=myunit
+      isave=igetline
+      rewind (lunit)
+ 2    read(lunit,'(a)', end=300) Line
+      Call UpCase(Line)
+      Line = adjustl(Line)
+      if(Line(1:1).eq.'&') then
          line=line(2:)
           goto 3
+      endif
+      goto 2
+ 3    igetline=0
+      write(6,'(a,a,a)') ' >>>>> Input file for module ',
+     *  line(1:index(line,' ')),' <<<<<'
+ 1    read(lunit,'(A)',err=100,end=200) line
+       igetline=igetline+1
+       if(igetline.eq.isave) then
+        write (6,*) '******   Error  *******'
+        write (6,'(a)') line
+        write (6,'(a)')
+        Call WarningMessage(2,'Error in FindErrorLine')
+        call Quit_OnUserError()
        endif
-       goto 2
- 3      igetline=0
-        write(6,'(a,a,a)') ' >>>>> Input file for module ',
-     *   line(1:index(line,' ')),' <<<<<'
- 1     read(lunit,'(A)',err=100,end=200) line
-        igetline=igetline+1
-        if(igetline.eq.isave) then
-         write (6,*) '******   Error  *******'
-         write (6,'(a)') line
-         write (6,'(a)')
-         Call WarningMessage(2,'Error in FindErrorLine')
-         call Quit_OnUserError()
-        endif
-        if(isave-igetline.le.50) then
-         write (6,'(a)') line
-        endif
-        goto 1
-!        write(6,'(a)') ' >>>>> Input error <<<<<'
-!        rewind(lunit)
-!        igetline=0
-!        goto 1
-100    continue
-200    continue
-300    continue
-       Call WarningMessage(1,'FindErrorLine:'//
-     &  ' Error in input was not located;'//
-     &  '  Please, check it manually!')
-       return
-       end
+       if(isave-igetline.le.50) then
+        write (6,'(a)') line
+       endif
+       goto 1
+!       write(6,'(a)') ' >>>>> Input error <<<<<'
+!       rewind(lunit)
+!       igetline=0
+!       goto 1
+100   continue
+200   continue
+300   continue
+      Call WarningMessage(1,'FindErrorLine:'//
+     & ' Error in input was not located;'//
+     & '  Please, check it manually!')
+      return
+      end subroutine FindErrorLine
 
-       subroutine ResetErrorLine
-       use getline_mod
-       igetline=0
-       return
-       end
+      subroutine ResetErrorLine
+      use getline_mod, only: igetline
+      Implicit None
+      igetline=0
+      end subroutine ResetErrorLine
