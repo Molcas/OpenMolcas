@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine ijkl_inc(i,j,k,l)
+      Implicit none
       Integer i,j,k,l
       l = l + 1
       If ( i.eq.k.and.l.le.j) Return
@@ -22,4 +23,4 @@
       j=1
       i=i+1
       Return
-      End
+      End Subroutine ijkl_inc
