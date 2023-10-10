@@ -96,10 +96,10 @@
 ! number of data.                                                      *
 !                                                                      *
 !***********************************************************************
+      use getline_mod
       implicit real*8 (a-h,o-z)
-      Character*256 filename
+      Character(LEN=256) filename
 #include "cgetl.fh"
-#include "igetline.fh"
 #include "getlnqoe.fh"
       Quit_On_Error=.false.
       myunit=lunit
@@ -159,10 +159,10 @@
       end
 !
       subroutine Get_F(icol,val,n)
+      use getline_mod
       implicit real*8 (a-h,o-z)
-      Character*80 string
+      Character(LEN=80) string
 #include "cgetl.fh"
-#include "igetline.fh"
       Real*8 val(n)
       ic=icol
       do i=1,n
@@ -200,10 +200,10 @@
       end
 
       subroutine Get_I(icol,ival,n)
+      use getline_mod
       implicit real*8 (a-h,o-z)
-      Character*80 string
+      Character(LEN=80) string
 #include "cgetl.fh"
-#include "igetline.fh"
       integer ival(n)
       ic=icol
       do i=1,n
@@ -240,9 +240,9 @@
       end
 !
       Subroutine Get_S(icol,str,n)
-      character*(*) str(n)
+      use getline_mod
+      character(LEN=*) str(n)
 #include "cgetl.fh"
-#include "igetline.fh"
       ic=icol
       do i=1,n
         if(ic.le.ncol) then
@@ -282,8 +282,8 @@
       return
       end
        subroutine FindErrorLine
-       character *180 line
-#include "igetline.fh"
+       use getline_mod
+       character(LEN=180) line
        lunit=myunit
        isave=igetline
        rewind (lunit)
@@ -325,7 +325,7 @@
        end
 
        subroutine ResetErrorLine
-#include "igetline.fh"
+       use getline_mod
        igetline=0
        return
        end

@@ -8,5 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer igetline,myunit
-      common /igetline/igetline,myunit
+Module getline_mod
+Private
+Integer igetline,myunit
+
+Public :: igetline,myunit
+End Module getline_mod
