@@ -58,9 +58,9 @@
       iend(ncol)=j-1
       goto 10
       End
-      character*180 function get_ln(lunit)
-#include "getlnqoe.fh"
-      character*180 get_ln_quit
+      character(LEN=180) function get_ln(lunit)
+      use getline_mod, only: Quit_On_Error
+      character(LEN=180) get_ln_quit
       get_ln=get_ln_quit(lunit,1)
       if(Quit_On_Error) Then
         Call WarningMessage(2,'Error in Get_Ln')
@@ -69,14 +69,14 @@
       Return
       End
 
-      character*180 function get_ln_EOF(lunit)
-#include "getlnqoe.fh"
-      character*180 get_ln_quit
+      character(LEN=180) function get_ln_EOF(lunit)
+      use getline_mod, only: Quit_On_Error
+      character(LEN=180) get_ln_quit
       get_ln_EOF=get_ln_quit(lunit,0)
       if(Quit_On_Error) get_ln_EOF='EOF'
       End
 
-      character*180 function get_ln_quit(lunit,icritical)
+      character(LEN=180) function get_ln_quit(lunit,icritical)
 !***********************************************************************
 ! This function replaces function getln                                *
 !                                                                      *
@@ -99,7 +99,6 @@
       use getline_mod
       implicit real*8 (a-h,o-z)
       Character(LEN=256) filename
-#include "getlnqoe.fh"
       Quit_On_Error=.false.
       myunit=lunit
 1     read(lunit,'(A)',err=100,end=200) line

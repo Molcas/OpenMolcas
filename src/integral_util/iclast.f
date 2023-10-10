@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, IBM                                              *
 !***********************************************************************
       Integer Function iCLast(KWord,iChrct)
+      Integer None
       Character(LEN=*) KWord
       Integer iChrct
 

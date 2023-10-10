@@ -17,5 +17,7 @@ character(Len=Len_Line) Line
 integer, parameter:: mxn=Len_Line/2+1
 integer iend(mxn), istrt(mxn), ncol
 
-Public :: igetline, myunit, Line, mxn, iend, istrt, ncol
+Logical Quit_On_Error
+
+Public :: igetline, myunit, Line, mxn, iend, istrt, ncol, Quit_On_Error
 End Module getline_mod
