@@ -27,22 +27,33 @@
 !***********************************************************************
       use k2_arrays, only: Sew_Scr
       use SOAO_Info, only: iAOtSO, iOffSO
-      use lw_Info
+      use lw_Info, only: lwInt, lwSqn, lwSyb
       use Gateway_Info, only: ThrInt
       use Symmetry_Info, only: nIrrep
       use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square,
      &                     TriSyB
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
+      Integer ijkl, nSOInt, ibas, jBas, kBas, lBas, nSOs
       Real*8 SOint(ijkl,nSOint)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)
-      Logical Shijij, Shij, Shkl, qijij, qij, qkl
+      Logical Shijij
+
 !     local array
+      Logical Shij, Shkl, qijij, qij, qkl
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
+      Integer k12, k34, MemSO2, nUt, i1, i2, i3, i4, j1, j2, j3, j4,
+     &        jCmpMx, lCmpMx, iSymi, jSymj, kSymk, lSyml,
+     &        iSO, jSO, kSO, lSO, i12, i34, iSq1, iSq2, iSq3, iSq4,
+     &        iqq1, iqq2, iqq3, iqq4, iSym12, iSym34, iSyBlk, jSyBlk,
+     &        nij, nkl, ipP1, ipP2, ipP3, ipP4, iSOi, jSOj, kSOk, lSOl,
+     &        ij, kl, iSqNum, jSqNum, j, ix, j2max, j12, nijkl, ipD,
+     &        iBin, jBin
+      Real*8 AInt
       Logical dupli
 #ifdef _DEBUGPRINT_
-      Real*8, Save :: Tr1=0.0D0, Tr2=0.0D0
+      Real*8, Save :: Tr1=Zero, Tr2=Zero
+      Real*8, External:: DDot_
 #endif
 
       k12=0
@@ -324,4 +335,4 @@
       Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
       nUt=0
       Return
-      End
+      End SubRoutine IndSft2
