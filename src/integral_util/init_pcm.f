@@ -19,48 +19,58 @@
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
       Use Iso_C_Binding
-      use PCM_arrays
+      use PCM_arrays, only: MxVert, Centr, DCntr, dPnt, dRad, dTes,
+     &                      IntSph, NewSph, nVert, PCMDm, PCMiSph,
+     &                      PCMSph, PCMTess, PCM_n, PCM_SQ, SSPh, Vert
       use Isotopes, only: MaxAtomNum, PTab
       use UnixInfo, only: ProgName
-      use Constants
-      use stdalloc
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
-#include "Molcas.fh"
-      Character*2 Elements(MxAtom*8)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rctfld_module, only: PCM, DoDeriv, nTs, nPCM_Info, nS,
+     &                         iCharge_Ref, NoNEQ_Ref, iSlPar,
+     &                          cRFStrt, cRFEnd,
+     &                          iRFStrt, iRFEnd,
+     &                          rRFStrt, rRFEnd,
+     &                          lRFStrt, lRFEnd
+      Implicit None
       Logical NonEq
+      Integer iCharg
+
+#include "Molcas.fh"
+      Character(LEN=2) Elements(MxAtom*8)
       Real*8, Allocatable:: Coor(:,:), LcCoor(:,:)
       Integer, Allocatable:: ANr(:), LcANr(:)
-!
+      Integer i, j, lCnAtm, nAtoms, iPrint, Len
+      Integer, external:: ip_of_work, ip_of_iwork
+      !
       If (.Not.PCM) Return
-!
-!***********************************************************************
-!                                                                      *
-!---- Reinitialize always for gradient calculations
-!
+      !
+      !***********************************************************************
+      !                                                                      *
+      !---- Reinitialize always for gradient calculations
+      !
       DoDeriv=.False.
-!pcm_solvent
-! added mckinley for pcm in second derivatives
+      !pcm_solvent
+      ! added mckinley for pcm in second derivatives
       If (      ProgName.eq.'alaska'
      &     .or. ProgName.eq.'mckinley'
      &     .or. ProgName.eq.'mclr'    )
      &    DoDeriv=.True.
-!pcm_solvent end
+      !pcm_solvent end
       If (DoDeriv) Then
-         LcNAtm = ISlPar(42)
-         Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
-         Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
-         Call mma_allocate(dRad,nS ,lcNAtm,3,Label='dRad')
-         Call mma_allocate(dCntr,nS ,lcNAtm,3,3,Label='dCntr')
-         Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
-         Call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
-         Go To 888
+        LcNAtm = ISlPar(42)
+        Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
+        Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
+        Call mma_allocate(dRad,nS ,lcNAtm,3,Label='dRad')
+        Call mma_allocate(dCntr,nS ,lcNAtm,3,3,Label='dCntr')
+        Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
+        Call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
+        Go To 888
       End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---- Check if we have retrievable PCM data
-!
+      !                                                                      *
+      !***********************************************************************
+      !                                                                      *
+      !---- Check if we have retrievable PCM data
+      !
       Call Get_iScalar('PCM info length',nPCM_info)
       If (nPCM_info.ne.0) Then
 !
@@ -220,4 +230,4 @@
 !
       End SubRoutine Save_PCM_Info
 !
-      End
+      End SubRoutine Init_PCM
