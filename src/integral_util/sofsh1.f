@@ -32,7 +32,6 @@
 !#define _CHECK_
       use SOAO_Info, only: iAOtSO
       use iSD_data
-      use Index_arrays
       use Basis_Info, only: nBas, nBas_Aux
       use stdalloc
       use BasisMode

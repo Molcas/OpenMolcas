@@ -21,7 +21,7 @@
 !***********************************************************************
       use k2_arrays, only: FT, Mem_DBLE, Mem_INT, Aux, iSOSym
       use setup
-      use Index_arrays
+      use iSD_Data
       use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 !

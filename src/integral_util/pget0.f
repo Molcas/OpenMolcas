@@ -28,7 +28,7 @@
 !***********************************************************************
       use setup
       use pso_stuff
-      use Index_arrays, only: iSO2Sh
+      use iSD_data, only: iSO2Sh
       use Sizes_of_Seward, only: S
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep

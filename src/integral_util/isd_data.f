@@ -12,4 +12,23 @@
       Integer nSkal_iSD
       Integer, Parameter:: nSD=18
       Integer, Allocatable :: iSD(:,:)
+
+!     nSh2BF   - field with dim. nIrrep,nShlls
+!                # SO functions in irrep for shell iShell
+!     iShOff   - field with dim. nIrrep,nShlls
+!                position of 1st component of iShell in irrep
+!     iSh2Sh   - field with dim. nShlls*nIrrep
+!                pseudo shell index of iShell in irrep
+!                (not any iShell contributes to all irreps)
+!     nShIrp(0:nIrrep-1)
+!              - # of shells contributing to each irrep
+!     nShBFMx  - largest shell size (of all irrep, all shells)
+!     iSO2Sh   - field with dim. nDim
+!                shell the SO index iSO in irp belongs to
+!     icntr  - field holding center number for each shell
+!
+      Integer nShIrp(0:7),nShBFMx
+      Integer, Allocatable:: nShBF(:,:), iShOff(:,:), iSh2Sh(:,:),
+     &                       iSO2Sh(:), iCntr(:)
+
       End Module iSD_data

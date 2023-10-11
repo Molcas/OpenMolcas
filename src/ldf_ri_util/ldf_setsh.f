@@ -16,7 +16,7 @@ C     Thomas Bondo Pedersen, June 2010.
 C
 C     Set data in localdf_bas.fh
 C
-      use Index_arrays, only: iSO2Sh
+      use iSD_Data, only: iSO2Sh
       use Basis_Info, only: nBas, nBas_Aux
       Implicit Real*8 (a-h,o-z)
       Integer nShell_Val

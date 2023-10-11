@@ -12,7 +12,7 @@
       use setup, only: mSkal, nSOS
       use Basis_Info, only: nBas
       use PSO_Stuff, only: lBin, LuGamma, Bin, G_ToC, SO2CI
-      use Index_arrays, only: iSO2Sh
+      use iSD_data, only: iSO2Sh
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use stdalloc, only: mma_allocate, mma_deallocate
