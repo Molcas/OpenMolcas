@@ -9,9 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine iRBuf(Array,nArray,Copy)
-      Implicit Real*8 (a-h,o-z)
-      Logical Copy
+      Implicit None
 #include "SysDef.fh"
+      Integer nArray
+      Logical Copy
       Integer Array(nArray)
 !
       Call idRBuf(Array,nArray/RtoI,Copy)
@@ -31,4 +32,4 @@
       Nullify(dArray)
       End Subroutine idRBuf
 !
-      End
+      End Subroutine iRBuf
