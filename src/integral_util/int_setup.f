@@ -14,15 +14,18 @@
       use Gateway_Info, only: DoFMM, RPQMin
       use Gateway_global, only: FMM_shortrange
       use iSD_data, only: nSD
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 !
+      Integer nSkal, iS, jS, kS, lS
       Integer iSD(0:nSD,nSkal)
-!
       Real*8  Coor(3,4)
-      Integer iAngV(4),iCmpV(4),iShelV(4),iShllV(4),iAOV(4),iStabs(4),
-     &        jQuad(4)
       Logical Shijij
+      Integer iAngV(4),iCmpV(4),iShelV(4),iShllV(4),iAOV(4),iStabs(4)
 !
+      Integer iCnttp, iCnt, jCnttp, jCnt, kCnttp, kCnt, lCnttp, lCnt,
+     &        jQuad(4), iQuad, iSkal, i
+      Real*8 P, Q, D
+
       iCnttp=iSD(13,iS)
       iCnt  =iSD(14,iS)
       jCnttp=iSD(13,jS)
@@ -86,4 +89,4 @@
 !MAW end
 !
       Return
-      End
+      End Subroutine Int_Setup
