@@ -15,12 +15,11 @@
 !     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use setup
       use Basis_Info, only: Seward_Activated
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "SysDef.fh"
-!
       Logical DSCF
+      Integer nDiff
 !
       If (Seward_Activated) Then
          Call ClsSew()
@@ -32,4 +31,4 @@
       Call GetInf(DSCF,nDiff)
 !
       Return
-      End
+      End SubRoutine IniSew
