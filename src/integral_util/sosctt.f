@@ -27,6 +27,7 @@
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Integer kOper(nComp)
       Character Label*8
+      Integer, external:: iPntSO
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In SOSctt:SOInt',' ',SOInt,iBas*jBas,nSOInt)

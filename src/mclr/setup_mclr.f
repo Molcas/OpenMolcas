@@ -18,6 +18,7 @@
 * for the integrals needed in sigma gen
 #include "Input.fh"
       integer dsym
+      Integer, External:: iPntSO
 *                                                                      *
 ************************************************************************
 *                                                                      *

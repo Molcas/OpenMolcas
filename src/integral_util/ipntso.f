@@ -19,9 +19,11 @@
 !             University of Lund, SWEDEN                               *
 !             February '91                                             *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer j1, j2, lOper
       Integer nbas(0:7)
 !
+      Integer iSmLbl, iIrrep, jMax, jIrrep, ij
       iPntSO=0
       iSmLbl = lOper
       Do iIrrep = 0, j1
@@ -39,4 +41,4 @@
       End Do
 !
       Return
-      End
+      End Function iPntSO

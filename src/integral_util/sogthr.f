@@ -35,6 +35,7 @@
       Implicit Real*8 (A-H,O-Z)
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Logical AeqB
+      Integer, External:: iPntSO
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -18,10 +18,12 @@
 !***********************************************************************
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer lOper
+      Integer, external:: iPntSO
 !
 !
       n2Tri = iPntSO(nIrrep-1,nIrrep,lOper,nBas)
 !
       Return
-      End
+      End Function n2Tri

@@ -38,6 +38,7 @@
       Logical Shijij
 !     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
+      Integer, external:: iPntSO
 !                                                                      *
 !***********************************************************************
 !                                                                      *

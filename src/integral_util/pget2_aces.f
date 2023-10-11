@@ -64,7 +64,8 @@
      &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,
      &        Indi, Indj, Indk, Indl, Indij, Indkl, Indik, Indjl,
      &        Indil, Indjk,
-     &        iPntSO, iPntij, iPntkl, iPntik, iPntil, iPntjl, iPntjk
+     &        iPntij, iPntkl, iPntik, iPntil, iPntjl, iPntjk
+      Integer, external:: iPntSO
 !                                                                      *
 !***********************************************************************
 !                                                                      *
