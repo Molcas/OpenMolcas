@@ -25,17 +25,23 @@
 !             April '90                                                *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
-      use LundIO
+      use LundIO, only: Buf, nBuf, iDisk, lBuf, Lu_28
       use Gateway_Info, only: ThrInt
       use Symmetry_Info, only: nIrrep
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer ijkl, nSOInt, iBas, jBas, kBas, lBas
       Real*8 SOInt(ijkl,nSOInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
-      Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,
-     &        iQij, iQkl, Wijij
+      Logical Shijij
+
 !     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
+      Logical Shij, Shkl, Qijij, Qij, Qkl, iQij, iQkl, Wijij
+      Integer k12, k34, MemSO2, j, ix, i1, i2, i3, i4, jCmpMx, lCMpMx,
+     &        i12, i34, j1, j2, j3, j4, iSOi, jSOj, kSOk, lSOl,
+     &        iAOi, jAOj, kAOk, lAOl, nij, nkl, nijkl, j12,
+     &        iSO, jSO, kSO, lSO, iSOii, jSOjj, kSOkk, lSOll,
+     &        iiSOii, jjSOjj, kkSOkk, llSOll, j2Max, iSOij, iSOkl
 !
       k12=0
       k34=0
@@ -218,4 +224,4 @@
  100  Continue
 !
       Return
-      End
+      End SubRoutine IndSft
