@@ -11,8 +11,12 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
       Integer Function IrrFnc(iFnc)
-      use Symmetry_Info
-      Integer iTest(8)
+      use Symmetry_Info, only: nIrrep, iOper
+      Implicit None
+      Integer iFnc
+
+      Integer iTest(8), i, ix, iy, iz, jx, jy, jz, iCh
+      Integer, external:: iNew
       ix = iAnd(iFnc,1)
       iy = iAnd(iFnc,2)/2
       iz = iAnd(iFnc,4)/4
@@ -28,4 +32,4 @@
       End Do
       IrrFnc=iNew(iTest,nIrrep)-1
       Return
-      End
+      End Function IrrFnc

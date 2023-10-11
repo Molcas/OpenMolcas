@@ -9,8 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine iWBuf(Array,nArray)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #include "SysDef.fh"
+      Integer nArray
       Integer Array(nArray)
 !
       Call idWBuf(Array,nArray/RtoI)
@@ -29,4 +30,4 @@
       Nullify(dArray)
       End Subroutine idWBuf
 !
-      End
+      End Subroutine iWBuf
