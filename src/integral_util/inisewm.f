@@ -9,9 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine inisewm(prgnam,ndiff)
-      Implicit Real*8 (A-H,O-Z)
-      character*(*) prgnam
-      character*16 pgnm_local
+      Implicit None
+      character(LEN=*) prgnam
+      Integer nDiff
+
+      character(LEN=16) pgnm_local
       Logical DoRys
 
       pgnm_local=prgnam
@@ -40,4 +42,4 @@
       EndIf
 !
       Return
-      End
+      End Subroutine inisewm
