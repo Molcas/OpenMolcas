@@ -24,9 +24,11 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             February '90                                             *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nSet1, nSet2, nInter
       Integer iSet1(0:nSet1-1),iSet2(0:nSet2-1), iInter(0:7)
 !
+      Integer i1, i2
       nInter = 0
       Do 10 i1 = 0, nSet1-1
          Do 20 i2 = 0, nSet2-1
@@ -39,4 +41,4 @@
  10   Continue
 !
       Return
-      End
+      End SubRoutine Inter
