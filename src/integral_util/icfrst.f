@@ -16,6 +16,7 @@
       Integer iChrct
 
       Integer i
+      iCFrst = 0
       Do i = 1,iChrct
          If (KWord(i:i).ne.' ') Then
             iCFrst = i
