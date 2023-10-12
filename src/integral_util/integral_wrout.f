@@ -17,12 +17,14 @@
 !     calls the proper routines IndSft/PLF
 !     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                      else  integral order within symblk: ijkl
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
-      Real*8 AOInt(*), SOInt(*), TInt(nTInt)
+      Integer iBas, jBas, kBas, lBas, ijkl, nSOInt, nSkal, nSOs,
+     &        nTInt, nSym
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs)
       Logical Shijij,IJeqKL
+      Real*8 AOInt(*), SOInt(*), TInt(nTInt)
 !
       If (nSym.eq.1) Then
         Call PLF(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
@@ -40,4 +42,4 @@
          Call Unused_integer(nSkal)
          Call Unused_real_array(TInt)
       End If
-      End
+      End SubRoutine Integral_WrOut
