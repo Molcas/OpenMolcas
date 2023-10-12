@@ -18,10 +18,8 @@
       Integer i
       iCFrst = 0
       Do i = 1,iChrct
-         If (KWord(i:i).ne.' ') Then
-            iCFrst = i
-            Return
-         End If
+         If (KWord(i:i).ne.' ') Exit
       End Do
+      iCFrst = i
 
       End Function iCFrst
