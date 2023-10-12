@@ -16,7 +16,7 @@
 !     calls the proper routines IndSft/PLF
 !     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                      else  integral order within symblk: ijkl
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
 #include "int_wrout_interface.fh"
 !
@@ -35,4 +35,4 @@
          Call Unused_real_array(TInt)
          Call Unused_integer(mSym)
       End If
-      End
+      End SubRoutine Integral_WrOut2
