@@ -40,29 +40,44 @@
 !             Modified for direct SCF, January '93                     *
 !***********************************************************************
       use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-      use Real_Spherical
-      use Basis_Info
-      use Center_Info
+      use Real_Spherical, only: ipSph, rSph
+      use Basis_Info, only: Shells
       use Symmetry_Info, only: nIrrep, iOper
-      use Constants
+      use Constants, only: Zero, One, Four
       use k2_setup, only: nDArray, nDScalar
-      use Disp
-      Implicit Real*8 (A-H,O-Z)
+      use Disp, only: Direct, IndDsp
+      Implicit None
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
-      Real*8 Coor(3,4), CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
-     &       Alpha(nAlpha), Beta(nBeta), Dij(nDij,nDCR),
+      Integer nZeta, ijCmp,  nHm, nDCRR,
+     &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
+     &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx
+      Real*8 Coor(3,4),
      &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),
+     &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),
+     &       Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),
      &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),
-     &       Wrk(nWork2), Q(3), TA(3), TB(3), Scr(nScr,3),
-     &       Con(nZeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),
-     &       Alpha_(nZeta),Beta_(nZeta), HMtrx(nHrrMtrx,2)
-      Real*8  Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3)
-      Integer   iDCRR(0:7), iAnga(4), iCmpa(4), mStb(2),
-     &          iShll(2), IndP(nZeta)
-      Logical AeqB, EQ, NoSpecial,
-     &        DoFock, DoGrad
-      External EQ
-      Real*8 Dummy(1)
+     &       Con(nZeta), Wrk(nWork2), Dij(nDij,nDCR), Scr(nScr,3),
+     &       Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3),
+     &       HMtrx(nHrrMtrx,2)
+      Logical DoFock, DoGrad
+
+      Integer iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), IndP(nZeta)
+      Real*8 CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
+     &       Q(3), TA(3), TB(3)
+      Logical AeqB, NoSpecial
+      Logical, External:: EQ
+      Integer  mStb(2), la, lb, iSmAng, mabMin, mabMax, ne,
+     &         iCmpa_, jCmpb_, nData, iShlla, jShllb,
+     &         i13_, mcdMin, mcdMax, mabcd, mZeta, nT,
+     &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, iOff_G, nDisp,
+     &         iCmp, Inczz
+      Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
+     &       TEMP
+      Real*8, External :: EstI
+      Integer, External:: ip_AB, ip_ABCon, ip_ABg, ip_ABMax, ip_ABMaxD,
+     &                    ip_Alpha, ip_Beta, ip_EstI, ip_HrrMtrx,
+     &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_Z, ip_Zetam,
+     &                    ip_ZInv, ip_ZTMax, ip_ZTMaxD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -75,6 +90,7 @@
      &                       nDCRR)
       Integer, Pointer :: iData(:)
       Logical, External :: TF
+      Integer ixyz, nabSz, lDCRR, iIrrep, iZeta, iCnt, iComp
 #ifdef _WARNING_WORKAROUND_
       Interface
         SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,
@@ -527,4 +543,4 @@
       Return
       End Subroutine k2loop_internal
 !
-      End
+      End SubRoutine k2Loop
