@@ -9,17 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
-      Use Basis_Info
-      Use Center_Info
+      Use Basis_Info, only: nCnttp, DBSC
+      Use Center_Info, only: DC
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8(a-h,o-z)
+      Implicit None
 #include "Molcas.fh"
-      Real*8 A(3),Coor(3,*),ZNUC(*)
+      Character(LEN=LENIN) Label(*)
       integer Ibas_Lab(*)
-      Character*(LENIN) Lbl
-      Character*(LENIN) Label(*)
-      Logical DSCF
+      Real*8 Coor(3,*),ZNUC(*)
+      Integer n_Cent
 !
+      Real*8 A(3)
+      Character(LEN=LENIN) Lbl
+      Logical DSCF
+      Integer nDiff, mdc, ndc, iCnttp, iCnt, iCo, kOp
+
       DSCF=.False.
       nDiff=0
       Call IniSew(DSCF,nDiff)
@@ -51,4 +55,4 @@
       n_cent=ndc
 !
       Return
-      End
+      End Subroutine inter1
