@@ -43,14 +43,14 @@
       Integer, external:: ip_of_work, ip_of_iwork
       !
       If (.Not.PCM) Return
-      !
-      !***********************************************************************
-      !                                                                      *
-      !---- Reinitialize always for gradient calculations
+!
+!***********************************************************************
+!                                                                      *
+!---- Reinitialize always for gradient calculations
       !
       DoDeriv=.False.
-      !pcm_solvent
-      ! added mckinley for pcm in second derivatives
+!pcm_solvent
+! added mckinley for pcm in second derivatives
       If (      ProgName.eq.'alaska'
      &     .or. ProgName.eq.'mckinley'
      &     .or. ProgName.eq.'mclr'    )
@@ -66,11 +66,11 @@
         Call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
         Go To 888
       End If
-      !                                                                      *
-      !***********************************************************************
-      !                                                                      *
-      !---- Check if we have retrievable PCM data
-      !
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Check if we have retrievable PCM data
+!
       Call Get_iScalar('PCM info length',nPCM_info)
       If (nPCM_info.ne.0) Then
 !
