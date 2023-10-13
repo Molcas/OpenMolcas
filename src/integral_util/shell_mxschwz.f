@@ -68,18 +68,14 @@
           nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
           nHm=nHm*nIrrep
           If (DoHess_) nHm=0
-!         i9    = ip_abMax(nZeta)-1
-          i9    = ip_EstI(nZeta)-1
-          i10   = nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
 !         now loop over  R operator...
           If (dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass) Then
-             Schwz_tmp=Data_k2(k2ij+i9)
-             If (Schwz_tmp.ne.k2data(1,ik2)%EstI) Stop 777
-             Do lDCRR = 1, nDCRR-1
-                Schwz_tmp=Max(Schwz_tmp,Data_k2(k2ij+i10*lDCRR+i9))
+             Schwz_tmp = k2data(1,ik2)%EstI
+             Do lDCRR = 2, nDCRR
+                Schwz_tmp=Max(Schwz_tmp,k2data(lDCRR,ik2)%EstI)
              End Do
           Else
-             Schwz_tmp=0.0D0
+             Schwz_tmp=Zero
           End If
           Schwz_Shl(jS,iS)=Schwz_tmp
           Schwz_Shl(iS,jS)=Schwz_tmp

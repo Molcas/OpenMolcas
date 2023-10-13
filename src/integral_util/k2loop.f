@@ -78,7 +78,7 @@
      &       TEMP
       Real*8, External :: EstI
       Integer, External:: ip_AB, ip_ABCon, ip_ABg, ip_ABMax, ip_ABMaxD,
-     &                    ip_Alpha, ip_Beta, ip_EstI, ip_HrrMtrx,
+     &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
      &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_Z, ip_Zetam,
      &                    ip_ZInv, ip_ZTMax, ip_ZTMaxD
 !                                                                      *
@@ -289,7 +289,7 @@
 !                                                                      *
 !        Estimate the largest contracted integral.
 !
-         Data(ip_EstI(nZeta),lDCRR+1) =
+         k2Data(lDCRR+1)%EstI=
      &                      EstI(Data(ip_Z(1,nZeta),lDCRR+1),
      &                           Data(ip_Kappa(1,nZeta),lDCRR+1),
      &                           nAlpha,nBeta,
@@ -298,7 +298,6 @@
      &                           iCmpa_*jCmpb_,
      &                           Wrk,nWork2,
      &                           iData)
-         k2Data(lDCRR+1)%EstI=Data(ip_EstI(nZeta),lDCRR+1)
          Nullify(iData)
 !                                                                      *
 !***********************************************************************
@@ -538,7 +537,7 @@
      &         Data(iOff_g,               lDCRR+1),nZeta*ijCmp)
          End If
          Write (6,*)
-         Write (6,*) ' ERI(Max)=',Data(  ip_EstI(nZeta),lDCRR+1)
+         Write (6,*) ' ERI(Max)=',k2Data(lDCRR+1)%EstI
          Write (6,*) ' ZtMax   =',Data( ip_ZtMax(nZeta),lDCRR+1)
          Write (6,*) ' abMax   =',Data(ip_abMax (nZeta),lDCRR+1)
          Write (6,*) ' ZtMaxD  =',Data(ip_ZtMaxD(nZeta),lDCRR+1)
