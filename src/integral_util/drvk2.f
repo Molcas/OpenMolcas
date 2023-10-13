@@ -36,6 +36,7 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_global, only: force_part_c
       use Sizes_of_Seward, only: S
+      use k2_structure, only: k2data
 #ifdef _DEBUGPRINT_
       use Gateway_Info, only: lSchw
 #endif
@@ -282,7 +283,9 @@
             If (.Not.DoGrad_) ijCmp=0
             Call k2Loop(Coor,
      &                  iAngV,iCmpV,iShllV,
-     &                  iDCRR,nDCRR,Data_k2(jpk2),
+     &                  iDCRR,nDCRR,
+     &                  Data_k2(jpk2),
+     &                  k2data(:,ijS),
      &                  Shells(iShll)%Exp,iPrimi,
      &                  Shells(jShll)%Exp,jPrimj,
      &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),

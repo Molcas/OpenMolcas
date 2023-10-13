@@ -87,7 +87,7 @@ End type k2_data
 
 type (k2_data), Allocatable:: k2data(:,:)
 
-public :: k2data, Allocate_k2data, Free_k2data
+public :: k2_data, k2data, Allocate_k2data, Free_k2data
 
 contains
 

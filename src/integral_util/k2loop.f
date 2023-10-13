@@ -14,7 +14,8 @@
 !#define _DEBUGPRINT_
       SubRoutine k2Loop(Coor,
      &                  iAnga,iCmpa,iShll,
-     &                  iDCRR,nDCRR,Data,
+     &                  iDCRR,nDCRR,
+     &                  Data, k2data,
      &                  Alpha,nAlpha,Beta, nBeta,
      &                  Alpha_,Beta_,
      &                  Coeff1,iBasn,Coeff2,jBasn,
@@ -46,11 +47,13 @@
       use Constants, only: Zero, One, Four
       use k2_setup, only: nDArray, nDScalar
       use Disp, only: Direct, IndDsp
+      use k2_structure, only: k2_data
       Implicit None
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
       Integer nZeta, ijCmp,  nHm, nDCRR,
      &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
      &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx
+      type(k2_data) :: k2data(nDCRR)
       Real*8 Coor(3,4),
      &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),
      &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),
