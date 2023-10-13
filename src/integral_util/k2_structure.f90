@@ -137,16 +137,16 @@ type (k2_data):: k2data_1D
 k2Data%nZeta=0
 k2Data%nHm  =0
 k2Data%ijCmp=0
-Call mma_deallocate(k2Data_1D%Zeta)
-Call mma_deallocate(k2Data_1D%Kappa)
-Call mma_deallocate(k2Data_1D%Pcoor)
-Call mma_deallocate(k2Data_1D%ZInv)
-Call mma_deallocate(k2Data_1D%ab)
-Call mma_deallocate(k2Data_1D%abG)
-Call mma_deallocate(k2Data_1D%abCon)
-Call mma_deallocate(k2Data_1D%Alpha)
-Call mma_deallocate(k2Data_1D%Beta)
-Call mma_deallocate(k2Data_1D%IndZ)
+If (allocated(k2Data_1D%Zeta))  Call mma_deallocate(k2Data_1D%Zeta)
+If (allocated(k2Data_1D%Kappa)) Call mma_deallocate(k2Data_1D%Kappa)
+If (allocated(k2Data_1D%Pcoor)) Call mma_deallocate(k2Data_1D%Pcoor)
+If (allocated(k2Data_1D%ZInv)) Call mma_deallocate(k2Data_1D%ZInv)
+If (allocated(k2Data_1D%ab)) Call mma_deallocate(k2Data_1D%ab)
+If (allocated(k2Data_1D%abG)) Call mma_deallocate(k2Data_1D%abG)
+If (allocated(k2Data_1D%abCon)) Call mma_deallocate(k2Data_1D%abCon)
+If (allocated(k2Data_1D%Alpha)) Call mma_deallocate(k2Data_1D%Alpha)
+If (allocated(k2Data_1D%Beta)) Call mma_deallocate(k2Data_1D%Beta)
+If (allocated(k2Data_1D%IndZ)) Call mma_deallocate(k2Data_1D%IndZ)
 End Subroutine Free_k2data_Internal
 
 

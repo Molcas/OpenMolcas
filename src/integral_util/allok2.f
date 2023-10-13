@@ -37,12 +37,13 @@
       Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll,
      &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,
      &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,
-     &        nZeta, ijCmp, nHm, nData, MemSO1, iIrrep, ik2
+     &        nZeta, ijCmp, nHm, nData, MemSO1, iIrrep, ik2, j, iTri
 !
 !---- Statement function
 !
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
+      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 !
 !
 #ifdef _DEBUGPRINT_
@@ -58,16 +59,7 @@
 !
       Call Nr_Shells(nSkal)
 
-      ik2 = 0
-      Do iS = 1, nSkal
-         iShll  = iSD( 0,iS)
-         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Cycle
-         Do jS = 1, iS
-            jShll  = iSD( 0,jS)
-            If (Shells(jShll)%Aux .and. jS.eq.nSkal) Cycle
-            ik2 = ik2 + 1
-         End Do
-      End Do
+      ik2 = nSkal*(nSkal+2)/2
       Allocate(k2Data(1:nIrrep,1:ik2))
 !
 !     determine memory size for K2 entities
@@ -94,6 +86,7 @@
 !
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
+            If (Shells(iShll)%Aux.and..Not.Shells(jShll)%Aux) Cycle
             If (Shells(jShll)%Aux .and. jS.eq.nSkal) Cycle
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
@@ -102,7 +95,6 @@
             jAO    = iSD( 7,jS)
             jShell = iSD(11,jS)
 
-            ik2 = ik2 + 1
 !
             If (nIrrep.eq.1) Then
                iDeSiz = 1 + iPrim*jPrim +               iCmp*jCmp
@@ -121,6 +113,7 @@
             If (.Not.DoGrad_) ijCmp=0
             nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
 
+            ik2=iTri(iShell,jShell)
             Do iIrrep = 1, nIrrep
                Call Allocate_k2data(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
             End Do
