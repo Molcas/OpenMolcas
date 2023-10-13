@@ -94,6 +94,7 @@
       Logical Shijij, NoInts
       Real*8, pointer:: SOInt(:), AOInt(:)
       Integer, External :: iDAMax_
+      Integer ik2, jk2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -312,8 +313,10 @@
 
       k2ij  = IndK2(1,ijS)
       nDCRR = IndK2(2,ijS)
+      ik2   = IndK2(3,ijS)
       k2kl  = IndK2(1,klS)
       nDCRS = IndK2(2,klS)
+      jk2   = IndK2(3,klS)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -467,7 +470,7 @@
      &                          kPrimk,kPrInc,lPriml,lPrInc,
      &                          Data_k2(k2ij),mData1,nDCRR,
      &                          Data_k2(k2kl),mData2,nDCRS,
-     &                          k2Data(:,ijS),k2Data(:,klS),
+     &                          k2Data(:,ik2),k2Data(:,jk2),
      &                          IJeqKL,kOp,
      &                          DeDe(ipDDij),mDij,mDCRij,
      &                          DeDe(ipDDkl),mDkl,mDCRkl,

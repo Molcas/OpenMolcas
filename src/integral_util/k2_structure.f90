@@ -63,9 +63,12 @@
 !                                                                      *
 Module k2_structure
 
+use Constants, only: Zero
 private
 type k2_data
-Integer nZeta, ijCmp,nHm
+Integer :: nZeta=0
+Integer :: ijCmp=0
+Integer :: nHm=0
 real*8,  Allocatable:: Zeta(:)
 real*8,  Allocatable:: Kappa(:)
 real*8,  Allocatable:: PCoor(:,:)
@@ -76,12 +79,12 @@ real*8,  Allocatable:: abCon(:)
 real*8,  Allocatable:: Alpha(:)
 real*8,  Allocatable:: Beta(:)
 integer, Allocatable:: IndZ(:)
-real*8              :: EstI
-real*8              :: ZtMax
-real*8              :: abMax
-real*8              :: ZetaM
-real*8              :: ZtMaxD
-real*8              :: abMaxD
+real*8              :: EstI=Zero
+real*8              :: ZtMax=Zero
+real*8              :: abMax=Zero
+real*8              :: ZetaM=Zero
+real*8              :: ZtMaxD=Zero
+real*8              :: abMaxD=Zero
 real*8,  Allocatable:: HrrMtrx(:)
 End type k2_data
 
@@ -110,6 +113,7 @@ Call mma_allocate(k2Data%abCon,    nZeta,Label='%abCon')
 Call mma_allocate(k2Data%Alpha,    nZeta,Label='%Alpha')
 Call mma_allocate(k2Data%Beta,     nZeta,Label='%Beta')
 Call mma_allocate(k2Data%IndZ,     nZeta,Label='%IndZ')
+Call mma_allocate(k2Data%HrrMtrx,    nHm,Label='%HrrMtrx')
 End Subroutine Allocate_k2data
 
 Subroutine Free_k2data()
@@ -147,6 +151,7 @@ If (allocated(k2Data_1D%abCon)) Call mma_deallocate(k2Data_1D%abCon)
 If (allocated(k2Data_1D%Alpha)) Call mma_deallocate(k2Data_1D%Alpha)
 If (allocated(k2Data_1D%Beta)) Call mma_deallocate(k2Data_1D%Beta)
 If (allocated(k2Data_1D%IndZ)) Call mma_deallocate(k2Data_1D%IndZ)
+If (allocated(k2Data_1D%HRRMtrx)) Call mma_deallocate(k2Data_1D%HRRMtrx)
 End Subroutine Free_k2data_Internal
 
 

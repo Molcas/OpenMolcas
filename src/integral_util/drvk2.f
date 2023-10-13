@@ -52,6 +52,7 @@
       Character*8 Method
       Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
+      Integer ik2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -281,11 +282,12 @@
             nHm=nHm*nIrrep
             ijCmp=nElem(iAng)*nElem(jAng)
             If (.Not.DoGrad_) ijCmp=0
+            ik2=Indk2(3,ijS)
             Call k2Loop(Coor,
      &                  iAngV,iCmpV,iShllV,
      &                  iDCRR,nDCRR,
      &                  Data_k2(jpk2),
-     &                  k2data(:,ijS),
+     &                  k2data(:,ik2),
      &                  Shells(iShll)%Exp,iPrimi,
      &                  Shells(jShll)%Exp,jPrimj,
      &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),

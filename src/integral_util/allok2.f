@@ -37,7 +37,8 @@
       Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll,
      &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,
      &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,
-     &        nZeta, ijCmp, nHm, nData, MemSO1, iIrrep, ik2, j, iTri
+     &        nZeta, ijCmp, nHm, nData, MemSO1, iIrrep, ik2, j, iTri,
+     &        ijS
 !
 !---- Statement function
 !
@@ -59,7 +60,18 @@
 !
       Call Nr_Shells(nSkal)
 
-      ik2 = nSkal*(nSkal+2)/2
+      ik2 = 0
+      Do iS = 1, nSkal
+         iShll  = iSD( 0,iS)
+         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Cycle
+         Do jS = 1, iS
+            jShll  = iSD( 0,jS)
+            If (Shells(iShll)%Aux.and..Not.Shells(jShll)%Aux) Cycle
+            If (Shells(jShll)%Aux .and. jS.eq.nSkal) Cycle
+            ik2 = ik2 + 1
+         End Do
+      End Do
+
       Allocate(k2Data(1:nIrrep,1:ik2))
 !
 !     determine memory size for K2 entities
@@ -69,6 +81,10 @@
       nDeDe = 0
       MaxDe = 0
       nr_of_Densities=1 ! Hardwired option
+
+      nIndk2=S%nShlls*(S%nShlls+1)/2
+      call mma_allocate(Indk2,3,nIndk2,Label='Indk2')
+      Indk2(:,:)=0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -113,7 +129,9 @@
             If (.Not.DoGrad_) ijCmp=0
             nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
 
-            ik2=iTri(iShell,jShell)
+            ijS=iTri(iShell,jShell)
+            ik2=ik2+1
+            Indk2(3,ijS)=ik2
             Do iIrrep = 1, nIrrep
                Call Allocate_k2data(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
             End Do
@@ -123,11 +141,9 @@
             nk2 = nk2 + nData*nIrrep
          End Do
       End Do
-!     now ... allocate memory
+!     now ... allocate Data_k2
       Call mma_allocate(Data_k2,nk2,Label='Data_k2')
       Data_k2(:)=Zero
-      nIndk2=S%nShlls*(S%nShlls+1)/2
-      call mma_allocate(Indk2,2,nIndk2,Label='Indk2')
 !
       Return
       End SubRoutine AlloK2

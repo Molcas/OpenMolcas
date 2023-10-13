@@ -310,6 +310,7 @@
              Tst=Max(Data(ip_Z(iZeta+1,nZeta),lDCRR+1),Tst)
          End Do
          Data(ip_ZetaM(nZeta),lDCRR+1) = tst
+         k2Data(lDCRR+1)%ZetaM = tst
 !
          iOffZ = nDij-nZeta-1
          ZtMax=One
@@ -338,6 +339,10 @@
          Data(ip_abMax (nZeta),lDCRR+1) = abMax
          Data(ip_ZtMaxD(nZeta),lDCRR+1) = ZtMaxD
          Data(ip_abMaxD(nZeta),lDCRR+1) = abMaxD
+         k2Data(lDCRR+1)%ZtMax = ZtMax
+         k2Data(lDCRR+1)%abMax = abMax
+         k2Data(lDCRR+1)%ZtMaxD= ZtMaxD
+         k2Data(lDCRR+1)%abMax = abMaxD
 !                                                                      *
 !***********************************************************************
 !                                                                      *

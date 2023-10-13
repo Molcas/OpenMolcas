@@ -27,6 +27,8 @@
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
+
+      Integer i, ixyz, nElem, nabSz, ik2
 !
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
@@ -59,6 +61,7 @@
           End If
           k2ij  = Indk2(1,ijS)
           nDCRR = Indk2(2,ijS)
+          ik2   = Indk2(3,ijS)
 !         Write (*,*) 'nDCRR=',nDCRR
           ijCmp=nElem(iAng)*nElem(jAng)
           If (.Not.DoGrad_) ijCmp=0
@@ -71,7 +74,7 @@
 !         now loop over  R operator...
           If (dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass) Then
              Schwz_tmp=Data_k2(k2ij+i9)
-             If (Schwz_tmp.ne.k2data(1,ijS)%EstI) Stop 777
+             If (Schwz_tmp.ne.k2data(1,ik2)%EstI) Stop 777
              Do lDCRR = 1, nDCRR-1
                 Schwz_tmp=Max(Schwz_tmp,Data_k2(k2ij+i10*lDCRR+i9))
              End Do
