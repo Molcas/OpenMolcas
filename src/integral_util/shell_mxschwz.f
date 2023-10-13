@@ -23,6 +23,7 @@
       use Basis_Info
       use Symmetry_Info, only: nIrrep
       use Constants
+      use k2_structure, only: k2data
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
@@ -70,6 +71,7 @@
 !         now loop over  R operator...
           If (dbsc(iCnttp)%fMass.eq.dbsc(jCnttp)%fMass) Then
              Schwz_tmp=Data_k2(k2ij+i9)
+             If (Schwz_tmp.ne.k2data(1,ijS)%EstI) Stop 777
              Do lDCRR = 1, nDCRR-1
                 Schwz_tmp=Max(Schwz_tmp,Data_k2(k2ij+i10*lDCRR+i9))
              End Do
