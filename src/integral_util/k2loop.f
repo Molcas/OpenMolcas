@@ -298,6 +298,7 @@
      &                           iCmpa_*jCmpb_,
      &                           Wrk,nWork2,
      &                           iData)
+         k2Data(lDCRR+1)%EstI=Data(ip_EstI(nZeta),lDCRR+1)
          Nullify(iData)
 !                                                                      *
 !***********************************************************************
