@@ -31,12 +31,13 @@
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero
       use stdalloc, only: mma_allocate
+      use k2_structure, only: k2data, Allocate_k2data
       Implicit None
 
       Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll,
      &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,
      &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,
-     &        nZeta, ijCmp, nHm, nData, MemSO1
+     &        nZeta, ijCmp, nHm, nData, MemSO1, iIrrep, ik2
 !
 !---- Statement function
 !
@@ -56,10 +57,23 @@
       If (Allocated(Data_k2) .or. k2_processed) Return
 !
       Call Nr_Shells(nSkal)
+
+      ik2 = 0
+      Do iS = 1, nSkal
+         iShll  = iSD( 0,iS)
+         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Cycle
+         Do jS = 1, iS
+            jShll  = iSD( 0,jS)
+            If (Shells(jShll)%Aux .and. jS.eq.nSkal) Cycle
+            ik2 = ik2 + 1
+         End Do
+      End Do
+      Allocate(k2Data(1:nIrrep,1:ik2))
 !
 !     determine memory size for K2 entities
 !     for this, run dummy K2 loop...
       nk2 = 0
+      ik2 = 0
       nDeDe = 0
       MaxDe = 0
       nr_of_Densities=1 ! Hardwired option
@@ -70,7 +84,7 @@
 !
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Go To 100
+         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Cycle
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
@@ -80,13 +94,15 @@
 !
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
-            If (Shells(jShll)%Aux .and. jS.eq.nSkal) Go To 200
+            If (Shells(jShll)%Aux .and. jS.eq.nSkal) Cycle
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
             jShell = iSD(11,jS)
+
+            ik2 = ik2 + 1
 !
             If (nIrrep.eq.1) Then
                iDeSiz = 1 + iPrim*jPrim +               iCmp*jCmp
@@ -104,12 +120,15 @@
             ijCmp=nElem(iAng)*nElem(jAng)
             If (.Not.DoGrad_) ijCmp=0
             nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
+
+            Do iIrrep = 1, nIrrep
+               Call Allocate_k2data(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
+            End Do
+
             nHm=nHm*nIrrep
             nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
             nk2 = nk2 + nData*nIrrep
- 200        Continue
          End Do
- 100     Continue
       End Do
 !     now ... allocate memory
       Call mma_allocate(Data_k2,nk2,Label='Data_k2')
@@ -118,4 +137,4 @@
       call mma_allocate(Indk2,2,nIndk2,Label='Indk2')
 !
       Return
-      End
+      End SubRoutine AlloK2

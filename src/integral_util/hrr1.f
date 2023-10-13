@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
       SubRoutine HRR1(ab1,nab1,a1b,na1b,cffAB,ab,nab,
      &           na,nb,na1,nb1,nPrim,la,lb)
 !***********************************************************************

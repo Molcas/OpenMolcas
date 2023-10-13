@@ -22,12 +22,15 @@
 !***********************************************************************
       use k2_setup, only: Data_k2, Indk2, k2_Processed
       use stdalloc, only: mma_deallocate
+      use k2_structure, only: free_k2data
       Implicit None
 !
       If (.Not.Allocated(Data_k2)) Return
 
 !     Deallocate k2 entities
 !
+      Call Free_k2data()
+
       Call mma_deallocate(Data_k2)
       Call mma_deallocate(Indk2)
       k2_processed=.False.
