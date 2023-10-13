@@ -19,6 +19,7 @@
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
      &           Data1,mData1,nData1,Data2,mData2,nData2,
+     &           k2Data1,k2Data2,
      &           IJeqKL,kOp,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
@@ -56,6 +57,7 @@
 #ifdef _DEBUGPRINT_
       use k2_setup, only: nDArray
 #endif
+      use k2_structure, only: k2_data
       Implicit Real*8 (A-H,O-Z)
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
@@ -68,6 +70,7 @@
      &       Wrk(nWork2), QInd(2), Aux(nAux), FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
+      Type(k2_Data) k2data1(nData1), k2Data2(nData2)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &        iStabM(0:7), IndZet(nZeta), IndEta(nEta),
      &        iAO(4), iAnga(4), iCmp(4),
@@ -796,6 +799,7 @@
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
      &           Data1,mData1,nData1,Data2,mData2,nData2,
+     &           k2Data1,k2Data2,
      &           IJeqKL,kOp,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
@@ -832,6 +836,7 @@
 #ifdef _DEBUGPRINT_
       use k2_setup, only: nDArray
 #endif
+      use k2_structure, only: k2_data
       Implicit Real*8 (A-H,O-Z)
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),
@@ -843,6 +848,7 @@
      &       SOInt(nSOInt),Wrk(nWork2), QInd(2), Aux(nAux),FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
+      Type(k2_Data) k2Data1, k2Data2
       Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,

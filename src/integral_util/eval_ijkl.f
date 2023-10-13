@@ -54,6 +54,7 @@
 #endif
       use Constants, only: Zero
       use stdalloc, only: mma_allocate
+      use k2_structure, only: k2data
       Implicit None
 !
 !     subroutine parameters
@@ -105,6 +106,7 @@
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
      &           Data1,mData1,nData1,Data2,mData2,nData2,
+     &           k2data1, k2data2,
      &           IJeqKL,kOp,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
@@ -113,6 +115,7 @@
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
+      use k2_Structure, only: k2_data
       Implicit None
       Integer iS_,jS_,kS_,lS_
       Real*8  Coor(3,4)
@@ -122,6 +125,7 @@
       Integer iPrInc, jPrInc, kPrInc, lPrInc
       Integer mData1, nData1, mData2, nData2
       Real*8  Data1(mData1,nData1),Data2(mData2,nData2)
+      Type(k2_data) k2data1(nData1), k2data2(nData2)
       Logical IJeqKL
       Integer kOp(4)
       Integer mDij,mDCRij,mDkl,mDCRkl,mDik,mDCRik,
@@ -462,7 +466,8 @@
      &                          iPrimi,iPrInc,jPrimj,jPrInc,
      &                          kPrimk,kPrInc,lPriml,lPrInc,
      &                          Data_k2(k2ij),mData1,nDCRR,
-     *                          Data_k2(k2kl),mData2,nDCRS,
+     &                          Data_k2(k2kl),mData2,nDCRS,
+     &                          k2Data(:,ijS),k2Data(:,klS),
      &                          IJeqKL,kOp,
      &                          DeDe(ipDDij),mDij,mDCRij,
      &                          DeDe(ipDDkl),mDkl,mDCRkl,
