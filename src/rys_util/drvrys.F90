@@ -60,7 +60,7 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot, &
 use Breit, only: nComp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use k2_structure, only:k2_data
+use k2_structure, only:k2_type
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -82,7 +82,7 @@ integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2,
 logical(kind=iwp), parameter :: Nospecial = .false.
 external :: TERI, ModU2, vCff2D, vRys2D
 integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMaxD
-type(k2_data), intent(in) :: k2data1, k2data2
+type(k2_type), intent(in) :: k2data1, k2data2
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'

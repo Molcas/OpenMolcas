@@ -64,8 +64,10 @@
 Module k2_structure
 
 use Constants, only: Zero
+
 private
-type k2_data
+
+type k2_type
 Integer :: nZeta=0
 Integer :: ijCmp=0
 Integer :: nHm=0
@@ -81,16 +83,16 @@ real*8,  Allocatable:: Beta(:)
 integer, Allocatable:: IndZ(:)
 real*8              :: EstI=Zero
 real*8              :: ZtMax=Zero
-real*8              :: abMax=Zero
-real*8              :: ZetaM=Zero
 real*8              :: ZtMaxD=Zero
+real*8              :: ZetaM=Zero
+real*8              :: abMax=Zero
 real*8              :: abMaxD=Zero
 real*8,  Allocatable:: HrrMtrx(:)
-End type k2_data
+End type k2_type
 
-type (k2_data), Allocatable:: k2data(:,:)
+type (k2_type), Allocatable:: k2data(:,:)
 
-public :: k2_data, k2data, Allocate_k2data, Free_k2data
+public :: k2_type, k2data, Allocate_k2data, Free_k2data
 
 contains
 
@@ -98,7 +100,7 @@ Subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
 use stdalloc, only: mma_allocate
 Implicit None
 Integer nZeta, ijCmp,nHm
-type (k2_data):: k2data
+type (k2_type):: k2data
 
 k2Data%nZeta=nZeta
 k2Data%nHm  =nHm
@@ -136,7 +138,7 @@ End Subroutine Free_k2data
 Subroutine Free_k2data_Internal(k2data_1D)
 use stdalloc, only: mma_deallocate
 Implicit None
-type (k2_data):: k2data_1D
+type (k2_type):: k2data_1D
 
 k2Data%nZeta=0
 k2Data%nHm  =0

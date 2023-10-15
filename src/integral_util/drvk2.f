@@ -36,7 +36,7 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_global, only: force_part_c
       use Sizes_of_Seward, only: S
-      use k2_structure, only: k2data
+      use k2_structure, only: k2_type, k2data
 #ifdef _DEBUGPRINT_
       use Gateway_Info, only: lSchw
 #endif
@@ -53,6 +53,7 @@
       Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
       Integer ik2
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -286,8 +287,7 @@
             Call k2Loop(Coor,
      &                  iAngV,iCmpV,iShllV,
      &                  iDCRR,nDCRR,
-     &                  Data_k2(jpk2),
-     &                  k2data(:,ik2),
+     &                  Data_k2(jpk2), k2data(:,ik2),
      &                  Shells(iShll)%Exp,iPrimi,
      &                  Shells(jShll)%Exp,jPrimj,
      &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),

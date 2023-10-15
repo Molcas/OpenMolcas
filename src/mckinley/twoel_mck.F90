@@ -87,7 +87,7 @@ use Symmetry_Info, only: nIrrep
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 use k2_setup, only: nDArray, nDScalar
-use k2_structure, only: k2_data
+use k2_structure, only: k2_type
 
 implicit none
 integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
@@ -95,7 +95,7 @@ integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4),
                                  nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
                                  nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
                                  nFt, nBuffer, moip(0:7), naco, nMOIN
-type(k2_data), intent(in) :: k2Data1(nData1), k2Data2(nData2)
+type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
 real(kind=wp), intent(in) :: Coor(3,4), Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2), &
                              Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
                              PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &

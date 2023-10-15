@@ -53,18 +53,13 @@
           jCmp=iSD(2,jS)
           jAng=iSD(1,jS)
           jCnttp=iSD(13,jS)
-          nZeta=iPrimi*jPrimj
           If (iShell.ge.jShell) Then
             ijS = iShell*(iShell-1)/2 + jShell
           Else
             ijS = jShell*(jShell-1)/2 + iShell
           End If
-          k2ij  = Indk2(1,ijS)
           nDCRR = Indk2(2,ijS)
           ik2   = Indk2(3,ijS)
-!         Write (*,*) 'nDCRR=',nDCRR
-          ijCmp=nElem(iAng)*nElem(jAng)
-          If (.Not.DoGrad_) ijCmp=0
           nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
           nHm=nHm*nIrrep
           If (DoHess_) nHm=0

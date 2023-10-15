@@ -47,13 +47,13 @@
       use Constants, only: Zero, One, Four
       use k2_setup, only: nDArray, nDScalar
       use Disp, only: Direct, IndDsp
-      use k2_structure, only: k2_data
+      use k2_structure, only: k2_type
       Implicit None
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
       Integer nZeta, ijCmp,  nHm, nDCRR,
      &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
-     &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx
-      type(k2_data) :: k2data(nDCRR)
+     &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx, IncZZ
+      type(k2_type), intent(inout) :: k2data(nDCRR)
       Real*8 Coor(3,4),
      &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),
      &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),
@@ -73,7 +73,7 @@
      &         iCmpa_, jCmpb_, nData, iShlla, jShllb,
      &         i13_, mcdMin, mcdMax, mabcd, mZeta, nT,
      &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, iOff_G, nDisp,
-     &         iCmp, Inczz
+     &         iCmp
       Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
      &       TEMP
       Real*8, External :: EstI
@@ -84,16 +84,17 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call k2loop_internal(Data)
+      Call k2loop_internal(Data,k2data)
 !
 !     This is to allow type punning without an explicit interface
       Contains
-      Subroutine k2loop_internal(Data)
+      Subroutine k2loop_internal(Data,k2data)
       Real*8, Target :: Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),
      &                       nDCRR)
       Integer, Pointer :: iData(:)
       Logical, External :: TF
       Integer ixyz, nabSz, lDCRR, iIrrep, iZeta, iCnt, iComp
+      type(k2_type), intent(inout) :: k2data(nDCRR)
 #ifdef _WARNING_WORKAROUND_
       Interface
         SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,
@@ -339,7 +340,7 @@
          k2Data(lDCRR+1)%ZtMax = ZtMax
          k2Data(lDCRR+1)%abMax = abMax
          k2Data(lDCRR+1)%ZtMaxD= ZtMaxD
-         k2Data(lDCRR+1)%abMax = abMaxD
+         k2Data(lDCRR+1)%abMaxD= abMaxD
 !                                                                      *
 !***********************************************************************
 !                                                                      *

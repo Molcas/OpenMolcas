@@ -116,7 +116,7 @@
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
-      use k2_Structure, only: k2_data
+      use k2_Structure, only: k2_type
       Implicit None
       Integer iS_,jS_,kS_,lS_
       Real*8  Coor(3,4)
@@ -126,7 +126,7 @@
       Integer iPrInc, jPrInc, kPrInc, lPrInc
       Integer mData1, nData1, mData2, nData2
       Real*8  Data1(mData1,nData1),Data2(mData2,nData2)
-      Type(k2_data) k2data1(nData1), k2data2(nData2)
+      Type(k2_type) k2data1(nData1), k2data2(nData2)
       Logical IJeqKL
       Integer kOp(4)
       Integer mDij,mDCRij,mDkl,mDCRkl,mDik,mDCRik,
