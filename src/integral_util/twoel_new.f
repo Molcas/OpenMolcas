@@ -263,7 +263,7 @@
 !
          lDCR1=NrOpr(iDCRR(lDCRR))+1
 !
-         vijij=Data1(ip_abMax(nZeta),lDCR1)
+         vijij=k2Data1(lDCR1)%abMax
 !
 !switch (to generate better start orbitals...)
          If (NDDO .AND. .NOT.AeqB) Go To 100
@@ -282,7 +282,7 @@
 !
 !-----------Pickup estimated largest integral value (AO)
 !
-            vijkl = vijij * Data2(ip_abMax( nEta),lDCR2)
+            vijkl = vijij * k2Data2(lDCR2)%abMax
             Do 300 lDCRT = 0, nDCRT-1
                ipAOInt=1
                iW3=1+nInts
@@ -955,8 +955,7 @@
       iW3=1+nInts
       iW4=1
 !
-      vijkl = Data1(ip_abMax(nZeta))
-     &      * Data2(ip_abMax( nEta))
+      vijkl = k2Data1%abMax * k2Data2%abMax
 !
       Batch_On_Disk = (vijkl.gt.Thize) .and.
      &       (Disc+DBLE(nInts+2+2/RtoI).le.Disc_Mx)

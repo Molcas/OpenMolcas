@@ -77,7 +77,7 @@
       Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
      &       TEMP
       Real*8, External :: EstI
-      Integer, External:: ip_AB, ip_ABCon, ip_ABg, ip_ABMax, ip_ABMaxD,
+      Integer, External:: ip_AB, ip_ABCon, ip_ABg, ip_ABMaxD,
      &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
      &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_Z,
      &                    ip_ZInv, ip_ZTMaxD
@@ -334,7 +334,6 @@
                  abMaxD=Zero
             End If
          End Do
-         Data(ip_abMax (nZeta),lDCRR+1) = abMax
          Data(ip_ZtMaxD(nZeta),lDCRR+1) = ZtMaxD
          Data(ip_abMaxD(nZeta),lDCRR+1) = abMaxD
          k2Data(lDCRR+1)%ZtMax = ZtMax
@@ -538,7 +537,7 @@
          Write (6,*)
          Write (6,*) ' ERI(Max)=',k2Data(lDCRR+1)%EstI
          Write (6,*) ' ZtMax   =',k2Data(lDCRR+1)%ZtMax
-         Write (6,*) ' abMax   =',Data(ip_abMax (nZeta),lDCRR+1)
+         Write (6,*) ' abMax   =',k2Data(lDCRR+1)%abMax
          Write (6,*) ' ZtMaxD  =',Data(ip_ZtMaxD(nZeta),lDCRR+1)
          Write (6,*) ' abMaxD  =',Data(ip_abMaxD(nZeta),lDCRR+1)
          Call WrCheck(' HrrMtrx',

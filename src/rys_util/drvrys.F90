@@ -81,7 +81,7 @@ logical(kind=iwp), intent(inout) :: NoInts, NoPInts, Do_TnsCtl
 integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
 logical(kind=iwp), parameter :: Nospecial = .false.
 external :: TERI, ModU2, vCff2D, vRys2D
-integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMaxD
+integer(kind=iwp), external :: ip_abMaxD, ip_ZtMaxD
 type(k2_type), intent(in) :: k2data1, k2data2
 
 #ifdef _DEBUGPRINT_
@@ -102,8 +102,8 @@ call RecPrt('KappCD',' ',KappCD,1,nEta)
 iOffZ = mDij-nZeta
 iOffE = mDkl-nEta
 call Screen(nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,Data1(iZeta),nAlpha,nBeta,IndZ(iZeta), &
-            k2data1%ZtMax,Data1(ip_abMax(nZeta)),Data1(ip_ZtMaxD(nZeta)),Data1(ip_abMaxD(nZeta)),Eta,EInv,Q,KappCD, &
-            IndEta,Data2(iEta),nGamma,nDelta,IndE(iEta),k2Data2%ZtMax,Data2(ip_abMax(nEta)),Data2(ip_ZtMaxD(nEta)), &
+            k2data1%ZtMax,k2Data1%abMax,Data1(ip_ZtMaxD(nZeta)),Data1(ip_abMaxD(nZeta)),Eta,EInv,Q,KappCD, &
+            IndEta,Data2(iEta),nGamma,nDelta,IndE(iEta),k2Data2%ZtMax,k2Data2%abMax,Data2(ip_ZtMaxD(nEta)), &
             Data2(ip_abMaxD(nEta)),Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &
             Prescreen_On_Int_Only)
 !write(u6,*) 'lZeta,lEta:',lZeta,lEta
