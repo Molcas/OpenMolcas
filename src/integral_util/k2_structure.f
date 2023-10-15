@@ -127,13 +127,6 @@
       Return
       End
 
-      Integer Function ip_ZtMaxD(nZeta)
-      Implicit None
-      Integer nZeta
-      ip_ZtMaxD = 5 + 11*nZeta + 1
-      Return
-      End
-
       Integer Function ip_nHm(nZeta)
       Implicit None
       Integer nZeta
