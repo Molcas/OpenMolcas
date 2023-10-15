@@ -12,7 +12,8 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA,Data1,IndZ,abmax,Eta,EInv,Q,xG,xD, &
+subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA, &
+                      k2Data1, k2Data2, Data1,IndZ,abmax,Eta,EInv,Q,xG,xD, &
                       rKC,Data2,IndE,cdmax,xpre,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
 
 #define _Old_Code_
@@ -41,8 +42,10 @@ subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv
 use Constants, only: One
 use Definitions, only: wp, iwp
 use k2_setup, only: nDArray
+use k2_structure, only: k2_type
 
 implicit none
+type(k2_type), intent(in):: k2Data1, k2Data2
 integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
 real(kind=wp), intent(out) :: Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &

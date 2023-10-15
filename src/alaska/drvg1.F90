@@ -45,6 +45,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp, u6
 use Disp, only: ChDisp, l2DI
+use k2_structure, only: k2Data
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -58,6 +59,7 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lRealName, lS, luGamma, &
                      luCMOPT2, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, nab, nBasI, nBasT, nBtch, ncd, &
                      nDCRR, nDCRS, nEta, nFro(8), nHmab, nHmcd, nHrrab, nij, nijkl, nOcc(8), nPairs, nQuad, nRys, nSkal, nSO, nZeta
+integer(kind=iwp) ik2, jk2
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FreeK2, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, &
                      Shijij, Skip, Triangular, Verbose
@@ -375,7 +377,8 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl, &
+      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,ik2,nDCRR,k2kl,jk2,nDCRS, &
+                      mdci,mdcj,mdck,mdcl, &
                       AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
                       nHmcd,nIrrep)
       !                                                                *
@@ -434,7 +437,9 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #             endif
-              call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR, &
+              call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+                           k2data(:,ik2),k2data(:,jk2),  &
+                           Data_k2(k2ij),nab,nHmab,nDCRR, &
                            Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                            Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                            Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &

@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl, &
+subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+                      k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
                       AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
                       nHmcd,nIrrep)
 
@@ -22,7 +23,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), ipZeta, ipiZet, nIrrep
 integer(kind=iwp), intent(out) :: iAnga(4), iCmpa(4), iShlla(4), iShela(4), iPrimi, jPrimj, kPrimk, lPriml, k2ij, nDCRR, k2kl, &
                                   nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, ipZI, ipP, ipEta, ipEI, ipQ, ipiEta, ipxA, ipxB, &
-                                  ipxG, ipxD, nab, nHmab, ncd, nHmcd
+                                  ipxG, ipxD, nab, nHmab, ncd, nHmcd, ik2, jk2
 logical(kind=iwp), intent(out) :: AeqB, CeqD
 logical(kind=iwp), intent(in) :: l2DI
 integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
@@ -68,10 +69,12 @@ if (.not. l2DI) then
   nab = 0
   ncd = 0
 end if
-k2ij = Indk2(1,ijShll)
+k2ij  = Indk2(1,ijShll)
 nDCRR = Indk2(2,ijShll)
-k2kl = Indk2(1,klShll)
+ik2   = Indk2(2,ijShll)
+k2kl  = Indk2(1,klShll)
 nDCRS = Indk2(2,klShll)
+jk2   = Indk2(2,klShll)
 mdci = iSD4(10,1)
 mdcj = iSD4(10,2)
 mdck = iSD4(10,3)

@@ -12,7 +12,9 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys,Data1,nab,nHmab,nData1,Data2,ncd,nHmcd,nData2,Pren, &
+subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys, &
+                   k2Data1, k2Data2,  &
+                   Data1,nab,nHmab,nData1,Data2,ncd,nHmcd,nData2,Pren, &
                    Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4, &
                    lBasl,Zeta,ZInv,P,nZeta,Eta,EInv,Q,nEta,xA,xB,xG,xD,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO,Wrk2,nWrk2,Aux,nAux,Shijij)
 !***********************************************************************
@@ -40,11 +42,13 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 use k2_setup, only: nDArray, nDScalar
 use Disp, only: l2DI, CutGrd
+use k2_structure, only: k2_type
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nab, nHmab, nData1, &
                                  ncd, nHmcd, nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, &
                                  kBask, lBasl, nZeta, nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
+type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
 real(kind=wp), intent(in) :: Coor(3,4), Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), &
                              Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
                              Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), PSO(iBasi*jBasj*kBask*lBasl,nPSO)
@@ -487,7 +491,8 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
             iW3 = iW2+mZeta*mEta*mab*mcd
             nWrk3 = nWrk2-mZeta*mEta*mab*mcd
-            call Screen_g(Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,Data1(iZeta,lDCR1), &
+            call Screen_g(Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
+                          k2Data1(lDCR1),k2Data2(lDCR2),Data1(iZeta,lDCR1), &
                           nAlpha,jPrim,iData1(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,Data2(iEta,lDCR2),nGamma,lPrim, &
                           iData2(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI,Data1(iZeta+iffab,lDCR1), &
                           Data1(iZeta+iffabG,lDCR1),nab,Data2(iEta+iffcd,lDCR2),Data2(iEta+iffcdG,lDCR2),ncd,PreScr,nWrk3,IsChi, &

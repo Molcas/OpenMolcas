@@ -11,7 +11,9 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Screen_g(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,Data1,nAlpha,nBeta,IndZ,Eta,EInv,Q,xG,xD, &
+subroutine Screen_g(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
+                    k2Data1, k2Data2, &
+                    Data1,nAlpha,nBeta,IndZ,Eta,EInv,Q,xG,xD, &
                     Data2,nGamma,nDelta,IndE,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI,ab,abg,nab,cd,cdg,ncd,PreScr,nScrtch, &
                     IsChi,ChiI2)
 !***********************************************************************
@@ -34,8 +36,10 @@ subroutine Screen_g(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use k2_setup, only: nDArray
+use k2_structure, only: k2_type
 
 implicit none
+type(k2_type), intent(in):: k2Data1, k2Data2
 integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, nAlpha, nBeta, IndZ(mZeta), nGamma, nDelta, IndE(mEta), iphX1, &
                                  iphY1, iphZ1, iphX2, iphY2, iphZ2, nab, ncd, nScrtch, IsChi
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
@@ -80,6 +84,8 @@ if (PreScr .and. (.not. l2DI)) then
   call Abend()
 end if
 
+If (k2Data1%nZeta.eq.-1) Stop 123
+If (k2Data2%nZeta.eq.-1) Stop 123
 Cut2 = CutGrd
 lZeta = 0
 lEta = 0
