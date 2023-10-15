@@ -36,6 +36,7 @@ use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use k2_structure, only: k2data, allocate_k2data
 
 implicit none
 integer(kind=iwp), intent(out) :: mdede
@@ -48,6 +49,8 @@ integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), i
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Data_k2_local(:), Wrk(:)
 integer(kind=iwp), external :: MemSO1
+Integer ik2, iIrrep
+Integer, parameter:: nHm=1
 
 !                                                                      *
 !***********************************************************************
@@ -82,11 +85,13 @@ end do
 !***********************************************************************
 !                                                                      *
 call mma_MaxDBLE(MaxMem)
-call mma_allocate(Wrk,MaxMem,Label='Wrk')
+call mma_allocate(Wrk,(9*MaxMem)/10,Label='Wrk')
 ipM001 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Allocate(k2data(1:nIrrep,1:nskal*(nskal+1)/2))
+
 do iS=1,nSkal
   iShll = iSD(0,iS)
   iAng = iSD(1,iS)
@@ -117,6 +122,7 @@ do iS=1,nSkal
     jCnt = iSD(14,jS)
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
+    ik2 = iS*(iS-1)/2 + jS
     iAngV(2) = jAng
     iShllV(2) = jShll
     iCmpV(2) = nTri_Elem1(jAng)
@@ -176,12 +182,18 @@ do iS=1,nSkal
     ! entities) for all possible unique pairs of centers generated
     ! for the symmetry unique centers A and B.
 
-    call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,Data_k2_local(jpk2),ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp, &
+    Do iIrrep=1, nIrrep
+       Call Allocate_k2data(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
+    End Do
+
+    call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,Data_k2_local(jpk2),k2Data(:,ik2), &
+                    ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp, &
                     jPrimj,Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003,mdci, &
                     mdcj)
 
     Indk2(1,ijShll) = jpk2
     Indk2(2,ijShll) = nDCRR
+    Indk2(3,ijShll) = ik2
     nk2 = nk2+(nZeta*nDArray+nDScalar)*nDCRR
     mk2 = mk2+nDCRR
 

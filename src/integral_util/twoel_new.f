@@ -144,6 +144,8 @@
          Write (6,*) 'Symmetry adaptation different since the operator'
          Write (6,*) 'is not symmetric.'
       End If
+      k2data1(1)%nZeta=0
+      k2data2(1)%nZeta=0
       Call TwoEl_Sym_New_Internal(Data1,Data2)
 !
       Return
@@ -874,6 +876,8 @@
       Integer ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !
+      k2data1%nZeta=0
+      k2data2%nZeta=0
       Call TwoEl_NoSym_New_Internal(Data1,Data2)
 !
       Return

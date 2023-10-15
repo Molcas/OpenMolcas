@@ -45,6 +45,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 use Disp, only: lDisp
+use k2_structure, only: Free_k2data
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess
@@ -156,7 +157,8 @@ lpick = lgrad .and. (.not. New_Fock)
 Pren = Zero
 Prem = Zero
 nIndK2 = nTri_Elem(S%nShlls)
-call mma_allocate(IndK2,2,nIndk2)
+
+call mma_allocate(IndK2,3,nIndk2)
 call Drvk2_mck(ndede,new_Fock)
 
 call StatP(0)
@@ -985,6 +987,7 @@ call mma_deallocate(Aux)
 
 call mma_deallocate(IndK2)
 call mma_deallocate(Data_k2)
+Call Free_k2data()
 
 if (allocated(ipDisp)) call mma_deallocate(ipDisp)
 if (allocated(ipDisp2)) call mma_deallocate(ipDisp2)

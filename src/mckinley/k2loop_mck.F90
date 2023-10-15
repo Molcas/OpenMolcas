@@ -13,7 +13,8 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,rData,ijCmp,Alpha,nAlpha,Beta,nBeta,Coeff1,iBasn,Coeff2,jBasn,nMemab,Wk002, &
+subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,rData,k2data, &
+                      ijCmp,Alpha,nAlpha,Beta,nBeta,Coeff1,iBasn,Coeff2,jBasn,nMemab,Wk002, &
                       m002,Wk003,m003,iStb,jStb)
 !***********************************************************************
 !                                                                      *
@@ -38,6 +39,7 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 use k2_setup, only: nDArray, nDScalar
+use k2_structure, only: k2_data
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), iCmpa(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003, &
@@ -50,6 +52,7 @@ real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
 integer(kind=iwp), external :: ip_ab, ip_abMax, ip_Alpha, ip_Beta, ip_EstI, ip_IndZ, ip_Kappa, ip_PCoor, ip_Z, ip_ZetaM, ip_ZInv, &
                                ip_ZtMax
 real(kind=wp), external :: EstI
+type(k2_data) :: k2Data(nDCRR)
 
 call k2Loop_mck_internal(rData)
 
@@ -95,6 +98,8 @@ subroutine k2Loop_mck_internal(rData)
     call c_f_pointer(c_loc(rData(ip_IndZ(1,nZeta),lDCRR+1)),iData,[nAlpha*nBeta+1])
     rData(ip_EstI(nZeta),lDCRR+1) = EstI(rData(ip_Z(1,nZeta),lDCRR+1),rData(ip_Kappa(1,nZeta),lDCRR+1),nAlpha,nBeta,Coeff1,iBasn, &
                                          Coeff2,jBasn,rData(ip_ab(1,nZeta),lDCRR+1),iCmpa(1)*iCmpa(2),Wk002,m002,iData)
+    k2data(lDCRR+1)%EstI          = EstI(rData(ip_Z(1,nZeta),lDCRR+1),rData(ip_Kappa(1,nZeta),lDCRR+1),nAlpha,nBeta,Coeff1,iBasn, &
+                                         Coeff2,jBasn,rData(ip_ab(1,nZeta),lDCRR+1),iCmpa(1)*iCmpa(2),Wk002,m002,iData)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -105,6 +110,7 @@ subroutine k2Loop_mck_internal(rData)
       Tst = max(rData(ip_Z(iZeta+1,nZeta),lDCRR+1),Tst)
     end do
     rData(ip_ZetaM(nZeta),lDCRR+1) = tst
+    k2data(lDCRR+1)%ZetaM = tst
 
     Tst = -One
     ZtMax = Zero
@@ -119,6 +125,8 @@ subroutine k2Loop_mck_internal(rData)
     end do
     rData(ip_ZtMax(nZeta),lDCRR+1) = ZtMax
     rData(ip_abMax(nZeta),lDCRR+1) = abMax
+    k2data(lDCRR+1)%ZtMax = ZtMax
+    k2data(lDCRR+1)%abMax = abMax
   end do
 
   return
