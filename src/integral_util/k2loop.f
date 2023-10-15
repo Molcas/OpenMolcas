@@ -80,7 +80,7 @@
       Integer, External:: ip_AB, ip_ABCon, ip_ABg, ip_ABMax, ip_ABMaxD,
      &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
      &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_Z,
-     &                    ip_ZInv, ip_ZTMax, ip_ZTMaxD
+     &                    ip_ZInv, ip_ZTMaxD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -333,7 +333,6 @@
                  abMaxD=Zero
             End If
          End Do
-         Data(ip_ZtMax(nZeta),lDCRR+1) = ZtMax
          Data(ip_abMax (nZeta),lDCRR+1) = abMax
          Data(ip_ZtMaxD(nZeta),lDCRR+1) = ZtMaxD
          Data(ip_abMaxD(nZeta),lDCRR+1) = abMaxD
@@ -537,7 +536,7 @@
          End If
          Write (6,*)
          Write (6,*) ' ERI(Max)=',k2Data(lDCRR+1)%EstI
-         Write (6,*) ' ZtMax   =',Data( ip_ZtMax(nZeta),lDCRR+1)
+         Write (6,*) ' ZtMax   =',k2Data(lDCRR+1)%ZtMax
          Write (6,*) ' abMax   =',Data(ip_abMax (nZeta),lDCRR+1)
          Write (6,*) ' ZtMaxD  =',Data(ip_ZtMaxD(nZeta),lDCRR+1)
          Write (6,*) ' abMaxD  =',Data(ip_abMaxD(nZeta),lDCRR+1)
