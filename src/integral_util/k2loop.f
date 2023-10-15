@@ -79,7 +79,7 @@
       Real*8, External :: EstI
       Integer, External:: ip_AB, ip_ABCon, ip_ABg, ip_ABMax, ip_ABMaxD,
      &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
-     &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_Z, ip_Zetam,
+     &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_Z,
      &                    ip_ZInv, ip_ZTMax, ip_ZTMaxD
 !                                                                      *
 !***********************************************************************
@@ -308,7 +308,6 @@
          Do  iZeta = 0, nZeta-1
              Tst=Max(Data(ip_Z(iZeta+1,nZeta),lDCRR+1),Tst)
          End Do
-         Data(ip_ZetaM(nZeta),lDCRR+1) = tst
          k2Data(lDCRR+1)%ZetaM = tst
 !
          iOffZ = nDij-nZeta-1
