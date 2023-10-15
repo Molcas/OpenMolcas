@@ -11,7 +11,9 @@
 ! Copyright (C) 2015, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mData1,Data2,mData2,nAlpha,nBeta,nGamma,nDelta,IndZ, &
+subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot, &
+                  Data1,mData1,Data2,mData2, k2data1,k2data2,          &
+                  nAlpha,nBeta,nGamma,nDelta,IndZ, &
                   Zeta,ZInv,P,KappAB,IndZet,IndE,Eta,EInv,Q,KappCD,IndEta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil, &
                   vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl,nabcd,mabcd,Wrk,iW2, &
                   iW4,nWork2,mWork2,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp,iShll,NoPInts,Dij,mDij,Dkl,mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi, &
@@ -58,6 +60,7 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mDat
 use Breit, only: nComp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use k2_structure, only:k2_data
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -79,6 +82,7 @@ integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2,
 logical(kind=iwp), parameter :: Nospecial = .false.
 external :: TERI, ModU2, vCff2D, vRys2D
 integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMax, ip_ZtMaxD
+type(k2_data), intent(in) :: k2data1, k2data2
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'
