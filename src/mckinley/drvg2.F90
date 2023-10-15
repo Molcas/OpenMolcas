@@ -45,7 +45,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 use Disp, only: lDisp
-use k2_structure, only: Free_k2data
+use k2_structure, only: k2Data, Free_k2data
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess
@@ -77,6 +77,7 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
+Integer ik2, jk2
 
 !                                                                      *
 !***********************************************************************
@@ -593,8 +594,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     jlS = iTri(jShell,lShell)
     k2ij = Indk2(1,ijS)
     nDCRR = Indk2(2,ijS)
+    ik2   = Indk2(3,ijS)
     k2kl = Indk2(1,klS)
     nDCRS = Indk2(2,klS)
+    jk2   = Indk2(3,klS)
 
     if (ltri) then
 
@@ -862,7 +865,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ! Compute gradients of shell quadruplet
 
             call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nDCRR,Data_k2(k2kl), &
-                           nDCRS,Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc,Shells(iShllV(1))%pCff(1,iBasAO),iBasn, &
+                           nDCRS, k2data(:,ik2), k2data(:,jk2), &
+                           Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc,Shells(iShllV(1))%pCff(1,iBasAO),iBasn, &
                            Shells(iShllV(2))%pCff(1,jBasAO),jBasn,Shells(iShllV(3))%pCff(1,kBasAO),kBasn, &
                            Shells(iShllV(4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),Mem_DBLE(ipKab), &
                            nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),Mem_DBLE(ipKcd),nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB), &

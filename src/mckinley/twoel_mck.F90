@@ -12,7 +12,8 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,nRys,Data1,nData1,Data2,nData2,Pren,Prem,nAlpha, &
+subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,nRys, &
+                     Data1,nData1,Data2,nData2,k2Data1,k2Data2,Pren,Prem,nAlpha, &
                      nBeta,jPrInc,nGamma,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,Zeta,ZInv,P,rKab,nZeta, &
                      Eta,EInv,Q,rKcd,nEta,xA,xB,xG,xD,xPre,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO,Work2,nWork2,Work3, &
                      nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX,Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik, &
@@ -86,6 +87,7 @@ use Symmetry_Info, only: nIrrep
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 use k2_setup, only: nDArray, nDScalar
+use k2_structure, only: k2_data
 
 implicit none
 integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
@@ -93,6 +95,7 @@ integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4),
                                  nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
                                  nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
                                  nFt, nBuffer, moip(0:7), naco, nMOIN
+type(k2_data), intent(in) :: k2Data1(nData1), k2Data2(nData2)
 real(kind=wp), intent(in) :: Coor(3,4), Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2), &
                              Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
                              PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
@@ -112,7 +115,7 @@ integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, IncEta, 
                      nijkl, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeq, ABeqCD, AeqB, AeqC, CDeq, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, no_integrals, Tr(4)
-integer(kind=iwp), external :: ip_abMax, ip_IndZ, ip_Z, NrOpr
+integer(kind=iwp), external :: ip_IndZ, ip_Z, NrOpr
 logical(kind=iwp), external :: EQ, lEmpty
 external :: TERI1, ModU2, Cff2D
 
@@ -430,8 +433,8 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             ! Work3 Scratch
             call Timing(dum1,Time,dum2,dum3)
             call Screen_mck(Work2,Work3,mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKab, &
-                            Data1(ip_Z(iZeta,nZeta),lDCR1),iData1(iZeta:iZeta+mZeta-1),Data1(ip_abMax(nZeta),ldcr1),Eta,EInv,Q,xG, &
-                            xD,rKcd,Data2(ip_Z(iEta,nEta),lDCR2),iData2(iEta:iEta+mEta-1),Data2(ip_abMax(nEta),ldcr2),xpre,1,1,1, &
+                            Data1(ip_Z(iZeta,nZeta),lDCR1),iData1(iZeta:iZeta+mZeta-1),k2Data1(ldcr1)%abMax,Eta,EInv,Q,xG, &
+                            xD,rKcd,Data2(ip_Z(iEta,nEta),lDCR2),iData2(iEta:iEta+mEta-1),k2Data2(ldcr2)%abMax,xpre,1,1,1, &
                             ix2,iy2,iz2,CutInt,PreScr,IndZet,IndEta,ldot2)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nScreen) = CPUStat(nScreen)+Time

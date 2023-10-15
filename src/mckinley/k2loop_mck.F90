@@ -49,7 +49,7 @@ real(kind=wp), intent(out) :: rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR), Wk002(
 real(kind=wp), intent(inout) :: Wk003(m003)
 integer(kind=iwp) :: mStb(2), nZeta
 real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
-integer(kind=iwp), external :: ip_ab, ip_abMax, ip_Alpha, ip_Beta, ip_IndZ, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
+integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_IndZ, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
 real(kind=wp), external :: EstI
 type(k2_data) :: k2Data(nDCRR)
 
@@ -119,7 +119,6 @@ subroutine k2Loop_mck_internal(rData)
         abMax = rData(ip_ab(iZeta,nZeta),lDCRR+1)
       end if
     end do
-    rData(ip_abMax(nZeta),lDCRR+1) = abMax
     k2data(lDCRR+1)%ZtMax = ZtMax
     k2data(lDCRR+1)%abMax = abMax
   end do
