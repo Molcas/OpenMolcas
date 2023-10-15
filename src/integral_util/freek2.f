@@ -24,7 +24,6 @@
       use stdalloc, only: mma_deallocate
       use k2_structure, only: free_k2data
       Implicit None
-      Integer idum
 !
       If (.Not.Allocated(Data_k2)) Return
 
@@ -35,7 +34,6 @@
       Call mma_deallocate(Data_k2)
       Call mma_deallocate(Indk2)
       k2_processed=.False.
-      Call Getmem('freek2','List','Real',idum,idum)
 !
       Return
       End SubRoutine Freek2
