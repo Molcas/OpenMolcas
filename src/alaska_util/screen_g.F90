@@ -55,7 +55,7 @@ integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2
 real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
                  vMax, zMin, Zt
 logical(kind=iwp) :: ZPreScr, EPreScr
-integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_ZInv
+integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_PCoor, ip_ZInv
 real(kind=wp), external :: DNrm2_
 #include "print.fh"
 
@@ -99,10 +99,10 @@ ip = ip+mZeta*mEta
 ij = ipFac-1
 do iEta=1,mEta
   Et = k2Data2%Zeta(iOffE+iEta)
-  rKCD = Data2(ip_Kappa(iEta,nEta))
+  rKCD = k2Data2%Kappa(iOffE+iEta)
   do iZeta=1,mZeta
     Zt = k2Data1%Zeta(iOffZ+iZeta)
-    rKAB = Data1(ip_Kappa(iZeta,nZeta))
+    rKAB = k2Data1%Kappa(iOffZ+iZeta)
     ij = ij+1
     if (IsChi == 1) then
       Scrtch(ij) = rKAB*rKCD*sqrt(One/(Zt+Et+(Zt*Et*ChiI2)*real(IsChi,kind=wp)))

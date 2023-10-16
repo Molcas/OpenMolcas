@@ -80,7 +80,7 @@
       Real*8, External :: EstI
       Integer, External:: ip_AB, ip_ABCon, ip_ABg,
      &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
-     &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_ZInv
+     &                    ip_IndZ, ip_PCoor, ip_ZInv
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -271,7 +271,7 @@
      &                 Zeta(iZeta),Kappab(iZeta),
      &                 P(iZeta,1),IndP(iZeta),Con,
      &                 k2Data(lDCRR+1)%Zeta(:),
-     &                 Data(ip_Kappa(1,nZeta),lDCRR+1),
+     &                 k2Data(lDCRR+1)%Kappa(:),
      &                 Data(ip_Pcoor(1,nZeta),lDCRR+1),
      &                 iData,iZeta-1,Jnd,
      &                 Data(ip_ZInv (1,nZeta),lDCRR+1),
@@ -292,7 +292,7 @@
 !
          k2Data(lDCRR+1)%EstI=
      &                      EstI(k2Data(lDCRR+1)%Zeta(:),
-     &                           Data(ip_Kappa(1,nZeta),lDCRR+1),
+     &                           k2Data(lDCRR+1)%Kappa(:),
      &                           nAlpha,nBeta,
      &                           Coeff1,iBasn,Coeff2,jBasn,
      &                           Data(ip_ab   (1,nZeta),lDCRR+1),
@@ -354,15 +354,15 @@
                Call SchInt(CoorM,iAnga,iCmpa,lZeta,
      &                     k2Data(lDCRR+1)%Zeta(iZeta:),
      &                     Data(ip_ZInv (iZeta,nZeta),lDCRR+1),
-     &                     Data(ip_Kappa(iZeta,nZeta),lDCRR+1),
+     &                     k2Data(lDCRR+1)%Kappa(iZeta:),
      &                     Data(ip_PCoor(iZeta,nZeta),lDCRR+1),
-     &                     Data(ip_Kappa(iZeta,nZeta),lDCRR+1),
+     &                     k2Data(lDCRR+1)%Kappa(iZeta:),
      &                     Data(ip_PCoor(iZeta,nZeta),lDCRR+1),
      &                     nZeta,Wrk,nWork2,HMtrx,
      &                     nHrrMtrx,iShlla,jShllb,i_Int)
                Call PckInt(Wrk(i_Int),lZeta,ijCmp,
      &                     Data(ip_abG(nZeta,nHm)+iZeta-1,lDCRR+1),
-     &                     Data(ip_Kappa(iZeta,nZeta),lDCRR+1),.True.,
+     &                     k2Data(lDCRR+1)%Kappa(iZeta:),.True.,
      &                     k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,
      &                     Dummy)
             End Do
@@ -520,7 +520,7 @@
          Write (6,*)
          Write (6,*) 'lDCRR=',lDCRR
          Call WrCheck('Zeta ',k2Data(lDCRR+1)%Zeta(:),nZeta)
-         Call WrCheck('Kappa',Data(ip_Kappa(1,nZeta),  lDCRR+1),nZeta)
+         Call WrCheck('Kappa',k2Data(lDCRR+1)%Kappa(:),nZeta)
          Call WrCheck('P    ',Data(ip_PCoor(1,nZeta),  lDCRR+1),nZeta*3)
          Call WrCheck('xA   ',Data(ip_Alpha(1,nZeta,1),lDCRR+1),nZeta)
          Call WrCheck('xB   ',Data(ip_Beta (1,nZeta,2),lDCRR+1),nZeta)

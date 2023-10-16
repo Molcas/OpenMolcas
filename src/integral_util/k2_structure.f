@@ -62,13 +62,6 @@
 !      Converted from statement functions by A. May June 2012          *
 !***********************************************************************
 !                                                                      *
-      Integer Function ip_Kappa(iZeta,nZeta)
-      Implicit None
-      Integer iZeta,nZeta
-      ip_Kappa = iZeta + nZeta
-      Return
-      End
-
       Integer Function ip_Pcoor(iZeta,nZeta)
       Implicit None
       Integer iZeta,nZeta

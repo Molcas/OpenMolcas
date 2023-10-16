@@ -56,7 +56,7 @@ real(kind=wp), intent(in) :: Data1(nZeta*nDArray), abmax, Data2(nEta*nDArray), c
 logical(kind=iwp), intent(in) :: PreScr, ldot
 integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZeta, jEta, jPAO, jZeta
 real(kind=wp) :: abcd
-integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_ZInv
+integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_PCoor, ip_ZInv
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
@@ -87,7 +87,7 @@ if (PreScr) then
       lZeta = lZeta+1
       IndZet(jZeta) = lZeta
       Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
-      rKA(lZeta) = Data1(ip_Kappa(iZeta,nZeta))
+      rKA(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
       P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))
       P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))
       P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))
@@ -105,7 +105,7 @@ else
     jZeta = IndZ(iZeta)
     IndZet(jZeta) = lZeta
     Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
-    rKA(lZeta) = Data1(ip_Kappa(iZeta,nZeta))
+    rKA(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
     P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))
     P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))
     P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))
@@ -140,7 +140,7 @@ if (lZeta /= 0) then
         lEta = lEta+1
         IndEta(jEta) = lEta
         Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
-        rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
+        rKC(lEta) = k2Data2%Kappa(iOffE+iEta)
         Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
         Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
         Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))
@@ -158,7 +158,7 @@ if (lZeta /= 0) then
       jEta = IndE(iEta)
       IndEta(jEta) = lEta
       Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
-      rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
+      rKC(lEta) = k2Data2%Kappa(iOffE+iEta)
       Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
       Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
       Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))
@@ -237,7 +237,7 @@ real(kind=wp), intent(in) :: Data1(nZeta*nDArray), abmax, Data2(nEta*nDArray), c
 logical(kind=iwp), intent(in) :: PreScr, ldot
 integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZeta, jEta, jPAO, jZeta
 real(kind=wp) :: abcd
-integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_ZInv
+integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_PCoor, ip_ZInv
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
@@ -266,7 +266,7 @@ if (PreScr) then
       lZeta = lZeta+1
       IndZet(lZeta) = IndZ(iZeta)
       Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
-      rKA(lZeta) = Data1(ip_Kappa(iZeta,nZeta))
+      rKA(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
       P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))
       P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))
       P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))
@@ -283,7 +283,7 @@ else
     lZeta = lZeta+1
     IndZet(lZeta) = IndZ(iZeta)
     Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
-    rKA(lZeta) = Data1(ip_Kappa(iZeta,nZeta))
+    rKA(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
     P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))
     P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))
     P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))
@@ -316,7 +316,7 @@ if (lZeta /= 0) then
         lEta = lEta+1
         IndEta(lEta) = IndE(iEta)
         Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
-        rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
+        rKC(lEta) = k2Data2%Kappa(iOffE+iEta)
         Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
         Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
         Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))
@@ -333,7 +333,7 @@ if (lZeta /= 0) then
       lEta = lEta+1
       IndEta(lEta) = IndE(iEta)
       Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
-      rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
+      rKC(lEta) = k2Data2%Kappa(iOffE+iEta)
       Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
       Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
       Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))

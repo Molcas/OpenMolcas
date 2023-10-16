@@ -110,7 +110,7 @@
             If (Test.ge.CutDInt) Then
                lZeta=lZeta+1
                Zeta(lZeta)  = k2Data1%Zeta(iOffZ+iZeta)
-               KappAB(lZeta)= Data1(ip_Kappa(iZeta,nZeta))
+               KappAB(lZeta)= k2Data1%Kappa(iOffZ+iZeta)
                P(lZeta,1)   = Data1(ip_Pcoor(iZeta,        nZeta))
                P(lZeta,2)   = Data1(ip_Pcoor(iZeta+  nZeta,nZeta))
                P(lZeta,3)   = Data1(ip_Pcoor(iZeta+2*nZeta,nZeta))
@@ -125,7 +125,7 @@
             If (aaaa.ge.CutInt) Then
                lZeta=lZeta+1
                Zeta(lZeta)  = k2Data1%Zeta(iOffZ+iZeta)
-               KappAB(lZeta)= Data1(ip_Kappa(iZeta,nZeta))
+               KappAB(lZeta)= k2Data1%Kappa(iOffZ+iZeta)
                P(lZeta,1)   = Data1(ip_Pcoor(iZeta,        nZeta))
                P(lZeta,2)   = Data1(ip_Pcoor(iZeta+  nZeta,nZeta))
                P(lZeta,3)   = Data1(ip_Pcoor(iZeta+2*nZeta,nZeta))
@@ -152,7 +152,7 @@
                lEta=lEta+1
                IndEta(lEta)= IndE(iEta)
                Eta(lEta)   = k2Data2%Zeta(iOffE+iEta)
-               KappCD(lEta)= Data2(ip_Kappa(iEta,nEta))
+               KappCD(lEta)= k2Data2%Kappa(iOffE+iEta)
                Q(lEta,1)   = Data2(ip_Pcoor(iEta,       nEta))
                Q(lEta,2)   = Data2(ip_Pcoor(iEta+  nEta,nEta))
                Q(lEta,3)   = Data2(ip_PCoor(iEta+2*nEta,nEta))
@@ -167,7 +167,7 @@
                lEta=lEta+1
                IndEta(lEta)= IndE(iEta)
                Eta(lEta)   = k2Data2%Zeta(iOffE+iEta)
-               KappCD(lEta)= Data2(ip_Kappa(iEta,nEta))
+               KappCD(lEta)= k2Data2%Kappa(iOffE+iEta)
                Q(lEta,1)   = Data2(ip_Pcoor(iEta,       nEta))
                Q(lEta,2)   = Data2(ip_Pcoor(iEta+  nEta,nEta))
                Q(lEta,3)   = Data2(ip_PCoor(iEta+2*nEta,nEta))

@@ -49,7 +49,7 @@ real(kind=wp), intent(out) :: rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR), Wk002(
 real(kind=wp), intent(inout) :: Wk003(m003)
 integer(kind=iwp) :: mStb(2), nZeta
 real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
-integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_IndZ, ip_Kappa, ip_PCoor, ip_ZInv
+integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_IndZ, ip_PCoor, ip_ZInv
 real(kind=wp), external :: EstI
 type(k2_type) :: k2Data(nDCRR)
 
@@ -81,12 +81,12 @@ subroutine k2Loop_mck_internal(rData)
 
     call c_f_pointer(c_loc(rData(ip_IndZ(1,nZeta),lDCRR+1)),iData,[nAlpha*nBeta+1])
     call DoZeta(Alpha,nAlpha,Beta,nBeta,CoorM(1,1),CoorM(1,2),rData(ip_PCoor(1,nZeta),lDCRR+1),k2Data(lDCRR+1)%Zeta(:), &
-                rData(ip_Kappa(1,nZeta),lDCRR+1),rData(ip_ZInv(1,nZeta),lDCRR+1),rData(ip_Alpha(1,nZeta,1),lDCRR+1), &
+                k2Data(lDCRR+1)%Kappa(:),rData(ip_ZInv(1,nZeta),lDCRR+1),rData(ip_Alpha(1,nZeta,1),lDCRR+1), &
                 rData(ip_Beta(1,nZeta,2),lDCRR+1),iData)
     nullify(iData)
 
     call SchInt_mck(CoorM,iAnga,nAlpha,nBeta,nMemab,k2Data(lDCRR+1)%Zeta(:),rData(ip_ZInv(1,nZeta),lDCRR+1), &
-                    rData(ip_Kappa(1,nZeta),lDCRR+1),rData(ip_PCoor(1,nZeta),lDCRR+1),nZeta,Wk002,m002,Wk003,m003)
+                    k2Data(lDCRR+1)%Kappa(:),rData(ip_PCoor(1,nZeta),lDCRR+1),nZeta,Wk002,m002,Wk003,m003)
 
     call PckInt_mck(Wk002,nZeta,ijCmp,rData(ip_ab(1,nZeta),lDCRR+1))
     !                                                                  *
@@ -95,7 +95,7 @@ subroutine k2Loop_mck_internal(rData)
     ! Estimate the largest contracted integral.
 
     call c_f_pointer(c_loc(rData(ip_IndZ(1,nZeta),lDCRR+1)),iData,[nAlpha*nBeta+1])
-    k2data(lDCRR+1)%EstI          = EstI(k2Data(lDCRR+1)%Zeta(:),rData(ip_Kappa(1,nZeta),lDCRR+1),nAlpha,nBeta,Coeff1,iBasn, &
+    k2data(lDCRR+1)%EstI          = EstI(k2Data(lDCRR+1)%Zeta(:),k2Data(lDCRR+1)%Kappa(:),nAlpha,nBeta,Coeff1,iBasn, &
                                          Coeff2,jBasn,rData(ip_ab(1,nZeta),lDCRR+1),iCmpa(1)*iCmpa(2),Wk002,m002,iData)
     !                                                                  *
     !*******************************************************************
