@@ -100,7 +100,8 @@ call RecPrt('KappCD',' ',KappCD,1,nEta)
 
 iOffZ = mDij-nZeta
 iOffE = mDkl-nEta
-call Screen(nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,Data1(iZeta),nAlpha,nBeta,IndZ(iZeta), &
+call Screen(iZeta-1,iEta-1,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,  &
+            k2data1, k2data2, Data1(iZeta),nAlpha,nBeta,IndZ(iZeta), &
             k2data1%ZtMax,k2Data1%abMax,k2Data1%ZtMaxD,k2Data1%abMaxD,Eta,EInv,Q,KappCD, &
             IndEta,Data2(iEta),nGamma,nDelta,IndE(iEta),k2Data2%ZtMax,k2Data2%abMax,k2Data2%ZtMaxD, &
             k2Data2%abMaxD,Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &

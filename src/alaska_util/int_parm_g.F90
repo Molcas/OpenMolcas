@@ -71,10 +71,10 @@ if (.not. l2DI) then
 end if
 k2ij  = Indk2(1,ijShll)
 nDCRR = Indk2(2,ijShll)
-ik2   = Indk2(2,ijShll)
+ik2   = Indk2(3,ijShll)
 k2kl  = Indk2(1,klShll)
 nDCRS = Indk2(2,klShll)
-jk2   = Indk2(2,klShll)
+jk2   = Indk2(3,klShll)
 mdci = iSD4(10,1)
 mdcj = iSD4(10,2)
 mdck = iSD4(10,3)

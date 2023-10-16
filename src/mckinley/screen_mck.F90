@@ -11,8 +11,8 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
-
-subroutine Screen_mck(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA, &
+!#define _DEBUGPRINT_
+subroutine Screen_mck(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA, &
                       k2Data1, k2Data2, Data1,IndZ,abmax,Eta,EInv,Q,xG,xD, &
                       rKC,Data2,IndE,cdmax,xpre,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
 
@@ -45,6 +45,7 @@ use k2_setup, only: nDArray
 use k2_structure, only: k2_type
 
 implicit none
+integer(kind=iwp), intent(in) :: iOffZ, iOffE
 type(k2_type), intent(in):: k2Data1, k2Data2
 integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
@@ -53,25 +54,14 @@ real(kind=wp), intent(out) :: Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(n
 integer(kind=iwp), intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
 real(kind=wp), intent(in) :: Data1(nZeta*nDArray), abmax, Data2(nEta*nDArray), cdmax, CutInt
 logical(kind=iwp), intent(in) :: PreScr, ldot
-#ifdef _DEBUGPRINT_
-#include "print.fh"
-#endif
 integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZeta, jEta, jPAO, jZeta
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
-#endif
 real(kind=wp) :: abcd
-integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
+integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_ZInv
 
 #ifdef _DEBUGPRINT_
-iRout = 180
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) then
-  call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
-  call RecPrt(' Data2',' ',Data2,nEta,nDArray)
-  call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
-end if
+call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
+call RecPrt(' Data2',' ',Data2,nEta,nDArray)
+call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
 #endif
 
 ip = 1
@@ -96,7 +86,7 @@ if (PreScr) then
     if (abs(abcd) >= CutInt) then
       lZeta = lZeta+1
       IndZet(jZeta) = lZeta
-      Zeta(lZeta) = Data1(ip_Z(iZeta,nZeta))
+      Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
       rKA(lZeta) = Data1(ip_Kappa(iZeta,nZeta))
       P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))
       P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))
@@ -114,7 +104,7 @@ else
     lZeta = lZeta+1
     jZeta = IndZ(iZeta)
     IndZet(jZeta) = lZeta
-    Zeta(lZeta) = Data1(ip_Z(iZeta,nZeta))
+    Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
     rKA(lZeta) = Data1(ip_Kappa(iZeta,nZeta))
     P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))
     P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))
@@ -149,7 +139,7 @@ if (lZeta /= 0) then
       if (abs(abcd) >= CutInt) then
         lEta = lEta+1
         IndEta(jEta) = lEta
-        Eta(lEta) = Data2(ip_Z(iEta,nEta))
+        Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
         rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
         Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
         Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
@@ -167,7 +157,7 @@ if (lZeta /= 0) then
       lEta = lEta+1
       jEta = IndE(iEta)
       IndEta(jEta) = lEta
-      Eta(lEta) = Data2(ip_Z(iEta,nEta))
+      Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
       rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
       Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
       Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
@@ -206,7 +196,7 @@ if (ldot) then
   end do
 end if
 #ifdef _DEBUGPRINT_
-if (iPrint >= 39) call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
+call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 #endif
 
 return
@@ -245,25 +235,14 @@ real(kind=wp), intent(out) :: Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(n
 integer(kind=iwp), intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
 real(kind=wp), intent(in) :: Data1(nZeta*nDArray), abmax, Data2(nEta*nDArray), cdmax, CutInt
 logical(kind=iwp), intent(in) :: PreScr, ldot
-#ifdef _DEBUGPRINT_
-#include "print.fh"
-#endif
 integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZeta, jEta, jPAO, jZeta
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
-#endif
 real(kind=wp) :: abcd
-integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
+integer(kind=iwp), external :: ip_ab, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_ZInv
 
 #ifdef _DEBUGPRINT_
-iRout = 180
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) then
-  call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
-  call RecPrt(' Data2',' ',Data2,nEta,nDArray)
-  call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
-end if
+call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
+call RecPrt(' Data2',' ',Data2,nEta,nDArray)
+call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
 #endif
 
 ip = 1
@@ -286,7 +265,7 @@ if (PreScr) then
     if (abs(abcd) >= CutInt) then
       lZeta = lZeta+1
       IndZet(lZeta) = IndZ(iZeta)
-      Zeta(lZeta) = Data1(ip_Z(iZeta,nZeta))
+      Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
       rKA(lZeta) = Data1(ip_Kappa(iZeta,nZeta))
       P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))
       P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))
@@ -303,7 +282,7 @@ else
   do iZeta=1,mZeta
     lZeta = lZeta+1
     IndZet(lZeta) = IndZ(iZeta)
-    Zeta(lZeta) = Data1(ip_Z(iZeta,nZeta))
+    Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
     rKA(lZeta) = Data1(ip_Kappa(iZeta,nZeta))
     P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))
     P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))
@@ -336,7 +315,7 @@ if (lZeta /= 0) then
       if (abs(abcd) >= CutInt) then
         lEta = lEta+1
         IndEta(lEta) = IndE(iEta)
-        Eta(lEta) = Data2(ip_Z(iEta,nEta))
+        Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
         rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
         Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
         Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
@@ -353,7 +332,7 @@ if (lZeta /= 0) then
     do iEta=1,mEta
       lEta = lEta+1
       IndEta(lEta) = IndE(iEta)
-      Eta(lEta) = Data2(ip_Z(iEta,nEta))
+      Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
       rKC(lEta) = Data2(ip_Kappa(iEta,nEta))
       Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))
       Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))
@@ -392,7 +371,7 @@ if (ldot) then
   end do
 end if
 #ifdef _DEBUGPRINT_
-if (iPrint >= 39) call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
+call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 #endif
 
 return

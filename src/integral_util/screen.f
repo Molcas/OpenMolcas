@@ -11,8 +11,10 @@
 ! Copyright (C) 1992,1993, Roland Lindh                                *
 !***********************************************************************
 !define _DEBUGPRINT_
-      SubRoutine Screen(nZeta,nEta,mZeta,mEta,lZeta,lEta,
-     &                  Zeta,ZInv,P,KappAB,IndZet,Data1,nAlpha,nBeta,
+      SubRoutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,
+     &                  Zeta,ZInv,P,KappAB,IndZet,
+     &                  k2Data1,k2Data2,
+     &                  Data1,nAlpha,nBeta,
      &                  IndZ,ZtMax,abMax,ZtMaxD,abMaxD,
      &                  Eta,EInv,Q,KappCD,IndEta,Data2,nGamma,nDelta,
      &                  IndE,EtMax,cdMax,EtMaxD,cdMaxD,
@@ -43,10 +45,13 @@
 !***********************************************************************
       use Constants
       use k2_setup, only: nDArray
+      use k2_structure, only: k2_type
       Implicit Real*8 (A-H,O-Z)
+      Integer :: iOffZ, iOffE
       Real*8, Intent(out) :: Zeta(mZeta), ZInv(mZeta), KappAB(mZeta),
      &                       P(nZeta,3), Eta(mEta), EInv(mEta),
      &                       KappCD(mEta), Q(nEta,3)
+      Type(k2_type), intent(in):: k2Data1, k2Data2
       Real*8 Data1(nZeta*(nDArray-1)), Data2(nEta*(nDArray-1)),
      &       Dij(nZeta), Dkl(nEta)
       Real*8 ZtMax,EtMax,abMax,cdMax,ZtMaxD,EtMaxD,abMaxD,cdMaxD
@@ -104,7 +109,7 @@
             Test=ppaa*Dij(jZeta)+aaaa*(DMax+vkl)
             If (Test.ge.CutDInt) Then
                lZeta=lZeta+1
-               Zeta(lZeta)  = Data1(ip_Z    (iZeta,nZeta))
+               Zeta(lZeta)  = k2Data1%Zeta(iOffZ+iZeta)
                KappAB(lZeta)= Data1(ip_Kappa(iZeta,nZeta))
                P(lZeta,1)   = Data1(ip_Pcoor(iZeta,        nZeta))
                P(lZeta,2)   = Data1(ip_Pcoor(iZeta+  nZeta,nZeta))
@@ -119,7 +124,7 @@
             aaaa= Data1(ip_abCon(iZeta,nZeta)) * cdMax
             If (aaaa.ge.CutInt) Then
                lZeta=lZeta+1
-               Zeta(lZeta)  = Data1(ip_Z    (iZeta,nZeta))
+               Zeta(lZeta)  = k2Data1%Zeta(iOffZ+iZeta)
                KappAB(lZeta)= Data1(ip_Kappa(iZeta,nZeta))
                P(lZeta,1)   = Data1(ip_Pcoor(iZeta,        nZeta))
                P(lZeta,2)   = Data1(ip_Pcoor(iZeta+  nZeta,nZeta))
@@ -146,7 +151,7 @@
             If (Test.ge.CutDInt) Then
                lEta=lEta+1
                IndEta(lEta)= IndE(iEta)
-               Eta(lEta)   = Data2(ip_Z    (iEta,nEta))
+               Eta(lEta)   = k2Data2%Zeta(iOffE+iEta)
                KappCD(lEta)= Data2(ip_Kappa(iEta,nEta))
                Q(lEta,1)   = Data2(ip_Pcoor(iEta,       nEta))
                Q(lEta,2)   = Data2(ip_Pcoor(iEta+  nEta,nEta))
@@ -161,7 +166,7 @@
             If (aaaa.ge.CutInt) Then
                lEta=lEta+1
                IndEta(lEta)= IndE(iEta)
-               Eta(lEta)   = Data2(ip_Z    (iEta,nEta))
+               Eta(lEta)   = k2Data2%Zeta(iOffE+iEta)
                KappCD(lEta)= Data2(ip_Kappa(iEta,nEta))
                Q(lEta,1)   = Data2(ip_Pcoor(iEta,       nEta))
                Q(lEta,2)   = Data2(ip_Pcoor(iEta+  nEta,nEta))

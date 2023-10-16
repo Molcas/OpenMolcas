@@ -62,15 +62,6 @@
 !      Converted from statement functions by A. May June 2012          *
 !***********************************************************************
 !                                                                      *
-      Integer Function ip_Z(iZeta,nZeta)
-      Implicit None
-      Integer iZeta,nZeta
-      ip_Z = iZeta
-      Return
-! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nZeta)
-      End
-
       Integer Function ip_Kappa(iZeta,nZeta)
       Implicit None
       Integer iZeta,nZeta

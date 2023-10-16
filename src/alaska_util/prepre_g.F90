@@ -11,7 +11,8 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1,Data2,PreScr,CutGrd)
+subroutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1,Data2,PreScr,CutGrd, &
+                    iOffZ, iOffE, k2Data1, k2Data2)
 !***********************************************************************
 !                                                                      *
 ! Object: to preprescreen the integral derivatives.                    *
@@ -28,8 +29,11 @@ subroutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1,Data2,PreScr,CutGrd)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use k2_structure, only: k2_type
 
 implicit none
+integer(kind=iwp), intent(in) :: iOffZ, iOffE
+type(k2_type), intent(in) :: k2Data1, k2Data2
 integer(kind=iwp), intent(in) :: nZeta, nEta, mZeta, mEta
 integer(kind=iwp), intent(out) :: lZeta, lEta
 real(kind=wp), intent(in) :: Data1(nZeta,8), Data2(nEta,8), CutGrd
@@ -57,11 +61,11 @@ ZetaMn = Zero
 do iZeta=1,mZeta
   if (Data1(iZeta,2) > rKabMx) then
     rKabMx = Data1(iZeta,2)
-    ZetaMx = Data1(iZeta,1)
+    ZetaMx = k2Data1%Zeta(iOffZ+iZeta)
   end if
   if (Data1(iZeta,2) < rKabMn) then
     rKabMn = Data1(iZeta,2)
-    ZetaMn = Data1(iZeta,1)
+    ZetaMn = k2Data1%Zeta(iOffZ+iZeta)
   end if
 end do
 rKcdMx = Zero
@@ -71,11 +75,11 @@ EtaMn = Zero
 do iEta=1,mEta
   if (Data2(iEta,2) > rKcdMx) then
     rKcdMx = Data2(iEta,2)
-    EtaMx = Data2(iEta,1)
+    EtaMx = k2Data2%Zeta(iOffE+iEta)
   end if
   if (Data2(iEta,2) < rKcdMn) then
     rKcdMn = Data2(iEta,2)
-    EtaMn = Data2(iEta,1)
+    EtaMn = k2Data2%Zeta(iOffE+iEta)
   end if
 end do
 PreScr = .true.

@@ -49,7 +49,7 @@
       use Disp, only: Direct, IndDsp
       use k2_structure, only: k2_type
       Implicit None
-      External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
+      External Cmpct
       Integer nZeta, ijCmp,  nHm, nDCRR,
      &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
      &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx, IncZZ
@@ -63,8 +63,9 @@
      &       Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3),
      &       HMtrx(nHrrMtrx,2)
       Logical DoFock, DoGrad
-
       Integer iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), IndP(nZeta)
+
+      External TERIS, ModU2, Cff2DS, Rys2D
       Real*8 CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
      &       Q(3), TA(3), TB(3)
       Logical AeqB, NoSpecial
@@ -79,8 +80,7 @@
       Real*8, External :: EstI
       Integer, External:: ip_AB, ip_ABCon, ip_ABg,
      &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
-     &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_Z,
-     &                    ip_ZInv
+     &                    ip_IndZ, ip_Kappa, ip_PCoor, ip_ZInv
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -270,7 +270,7 @@
             Call Cmpct(Wrk(iW2),iCmpa_,jCmpb_,nZeta,mZeta,
      &                 Zeta(iZeta),Kappab(iZeta),
      &                 P(iZeta,1),IndP(iZeta),Con,
-     &                 Data(ip_Z    (1,nZeta),lDCRR+1),
+     &                 k2Data(lDCRR+1)%Zeta(:),
      &                 Data(ip_Kappa(1,nZeta),lDCRR+1),
      &                 Data(ip_Pcoor(1,nZeta),lDCRR+1),
      &                 iData,iZeta-1,Jnd,
@@ -291,7 +291,7 @@
 !        Estimate the largest contracted integral.
 !
          k2Data(lDCRR+1)%EstI=
-     &                      EstI(Data(ip_Z(1,nZeta),lDCRR+1),
+     &                      EstI(k2Data(lDCRR+1)%Zeta(:),
      &                           Data(ip_Kappa(1,nZeta),lDCRR+1),
      &                           nAlpha,nBeta,
      &                           Coeff1,iBasn,Coeff2,jBasn,
@@ -306,8 +306,8 @@
 !------- Find the largest integral estimate (AO Basis).
 !
          Tst  = -One
-         Do  iZeta = 0, nZeta-1
-             Tst=Max(Data(ip_Z(iZeta+1,nZeta),lDCRR+1),Tst)
+         Do  iZeta = 1, nZeta
+             Tst=Max(k2Data(lDCRR+1)%Zeta(iZeta),Tst)
          End Do
          k2Data(lDCRR+1)%ZetaM = tst
 !
@@ -320,14 +320,14 @@
             tmp = Data(ip_abCon(iZeta+1,nZeta),lDCRR+1)
             If (abMax.lt.tmp) Then
                abMax = tmp
-               ZtMax = Data(ip_Z    (iZeta+1,nZeta),lDCRR+1)
+               ZtMax = k2Data(lDCRR+1)%Zeta(iZeta+1)
             End If
             If (DoFock) Then
                tmp = Data(ip_ab(iZeta+1,nZeta),lDCRR+1)
      &             * Dij(iOffZ+iZeta,lDCRR+1)
                If (abMaxD.lt.tmp) Then
                  abMaxD = tmp
-                 ZtMaxD = Data(ip_Z(iZeta+1,nZeta),lDCRR+1)
+                 ZtMaxD = k2Data(lDCRR+1)%Zeta(iZeta+1)
                End If
             Else
                  ZtMaxD=-One
@@ -352,7 +352,7 @@
             Do iZeta = 1, mZeta, IncZZ
                lZeta = Min(mZeta-iZeta+1,IncZZ)
                Call SchInt(CoorM,iAnga,iCmpa,lZeta,
-     &                     Data(ip_Z    (iZeta,nZeta),lDCRR+1),
+     &                     k2Data(lDCRR+1)%Zeta(iZeta:),
      &                     Data(ip_ZInv (iZeta,nZeta),lDCRR+1),
      &                     Data(ip_Kappa(iZeta,nZeta),lDCRR+1),
      &                     Data(ip_PCoor(iZeta,nZeta),lDCRR+1),
@@ -363,7 +363,7 @@
                Call PckInt(Wrk(i_Int),lZeta,ijCmp,
      &                     Data(ip_abG(nZeta,nHm)+iZeta-1,lDCRR+1),
      &                     Data(ip_Kappa(iZeta,nZeta),lDCRR+1),.True.,
-     &                     Data(ip_Z   (iZeta,nZeta),lDCRR+1),nZeta,
+     &                     k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,
      &                     Dummy)
             End Do
 !
@@ -401,7 +401,7 @@
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
                         Call SchInt(CoorM,
      &                              iAnga,iCmpa,lZeta,
-     &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
      &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
      &                              Knew(iZeta),
      &                              Pnew(iZeta),
@@ -413,7 +413,7 @@
      &                              Scr(iZeta,1),
      &                              Knew(iZeta),
      &                              .False.,
-     &                              Data(ip_Z    (iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
      &                              nZeta,
      &                              Knew(iZeta))
                      End Do
@@ -429,7 +429,7 @@
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
                         Call SchInt(CoorM,
      &                              iAnga,iCmpa,lZeta,
-     &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
      &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
      &                              Lnew(iZeta),
      &                              Qnew(iZeta),
@@ -441,7 +441,7 @@
      &                              Scr(iZeta,2),
      &                              Lnew(iZeta),
      &                              .False.,
-     &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
      &                              nZeta,
      &                              Lnew(iZeta))
                      End Do
@@ -455,7 +455,7 @@
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
                         Call SchInt(CoorM,
      &                              iAnga,iCmpa,lZeta,
-     &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
      &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
      &                              Knew(iZeta),
      &                              Pnew(iZeta),
@@ -467,7 +467,7 @@
      &                              Scr(iZeta,3),
      &                              Knew(iZeta),
      &                              .False.,
-     &                              Data(ip_Z    (iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
      &                              nZeta,
      &                              Lnew(iZeta))
                      End Do
@@ -481,7 +481,7 @@
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
                         Call SchInt(CoorM,
      &                              iAnga,iCmpa,lZeta,
-     &                              Data(ip_Z   (iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
      &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
      &                              Lnew(iZeta),
      &                              Qnew(iZeta),
@@ -493,7 +493,7 @@
      &                              Scr(iZeta,3),
      &                              Lnew(iZeta),
      &                              .False.,
-     &                              Data(ip_Z    (iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%Zeta(iZeta:),
      &                              nZeta,
      &                              Knew(iZeta))
                      End Do
@@ -519,7 +519,7 @@
 #ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'lDCRR=',lDCRR
-         Call WrCheck('Zeta ',Data(ip_Z    (1,nZeta),  lDCRR+1),nZeta)
+         Call WrCheck('Zeta ',k2Data(lDCRR+1)%Zeta(:),nZeta)
          Call WrCheck('Kappa',Data(ip_Kappa(1,nZeta),  lDCRR+1),nZeta)
          Call WrCheck('P    ',Data(ip_PCoor(1,nZeta),  lDCRR+1),nZeta*3)
          Call WrCheck('xA   ',Data(ip_Alpha(1,nZeta,1),lDCRR+1),nZeta)

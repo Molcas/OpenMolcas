@@ -11,7 +11,7 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Screen_g(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
+subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
                     k2Data1, k2Data2, &
                     Data1,nAlpha,nBeta,IndZ,Eta,EInv,Q,xG,xD, &
                     Data2,nGamma,nDelta,IndE,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI,ab,abg,nab,cd,cdg,ncd,PreScr,nScrtch, &
@@ -39,6 +39,7 @@ use k2_setup, only: nDArray
 use k2_structure, only: k2_type
 
 implicit none
+integer(kind=iwp) iOffZ, iOffE
 type(k2_type), intent(in):: k2Data1, k2Data2
 integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, nAlpha, nBeta, IndZ(mZeta), nGamma, nDelta, IndE(mEta), iphX1, &
                                  iphY1, iphZ1, iphX2, iphY2, iphZ2, nab, ncd, nScrtch, IsChi
@@ -54,7 +55,7 @@ integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2
 real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
                  vMax, zMin, Zt
 logical(kind=iwp) :: ZPreScr, EPreScr
-integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
+integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_ZInv
 real(kind=wp), external :: DNrm2_
 #include "print.fh"
 
@@ -84,8 +85,6 @@ if (PreScr .and. (.not. l2DI)) then
   call Abend()
 end if
 
-If (k2Data1%nZeta.eq.-1) Stop 123
-If (k2Data2%nZeta.eq.-1) Stop 123
 Cut2 = CutGrd
 lZeta = 0
 lEta = 0
@@ -99,10 +98,10 @@ ipFac = ip
 ip = ip+mZeta*mEta
 ij = ipFac-1
 do iEta=1,mEta
-  Et = Data2(ip_Z(iEta,nEta))
+  Et = k2Data2%Zeta(iOffE+iEta)
   rKCD = Data2(ip_Kappa(iEta,nEta))
   do iZeta=1,mZeta
-    Zt = Data1(ip_Z(iZeta,nZeta))
+    Zt = k2Data1%Zeta(iOffZ+iZeta)
     rKAB = Data1(ip_Kappa(iZeta,nZeta))
     ij = ij+1
     if (IsChi == 1) then
@@ -221,7 +220,7 @@ if (ZPreScr) then
   do iZeta=1,mZeta
     if (Scrtch(ipZ+iZeta-1) >= Cut2/rqEta) then
       lZeta = lZeta+1
-      Zeta(lZeta) = Data1(ip_Z(iZeta,nZeta))
+      Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
       P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))*Px
       P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))*Py
       P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))*Pz
@@ -237,7 +236,7 @@ if (ZPreScr) then
 else
   do iZeta=1,mZeta
     lZeta = lZeta+1
-    Zeta(lZeta) = Data1(ip_Z(iZeta,nZeta))
+    Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
     P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))*Px
     P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))*Py
     P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))*Pz
@@ -262,7 +261,7 @@ if (EPreScr) then
   do iEta=1,mEta
     if (Scrtch(ipE+iEta-1) >= Cut2/rqZeta) then
       lEta = lEta+1
-      Eta(lEta) = Data2(ip_Z(iEta,nEta))
+      Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
       Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))*Qx
       Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))*Qy
       Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))*Qz
@@ -282,7 +281,7 @@ if (EPreScr) then
 else
   do iEta=1,mEta
     lEta = lEta+1
-    Eta(lEta) = Data2(ip_Z(iEta,nEta))
+    Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
     Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))*Qx
     Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))*Qy
     Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))*Qz

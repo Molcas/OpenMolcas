@@ -49,11 +49,45 @@
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)
       Logical DoFock, force_part_save, DoGrad, ReOrder, Rls
-      Character*8 Method
+      Character(LEN=8) Method
       Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
       Integer ik2
 
+      Interface
+      SubRoutine k2Loop(Coor,
+     &                  iAnga,iCmpa,iShll,
+     &                  iDCRR,nDCRR,
+     &                  Data, k2data,
+     &                  Alpha,nAlpha,Beta, nBeta,
+     &                  Alpha_,Beta_,
+     &                  Coeff1,iBasn,Coeff2,jBasn,
+     &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
+     &                  Wrk,nWork2,
+     &                  Cmpct,nScree,mScree,iStb,jStb,
+     &                  Dij,nDij,nDCR,nHm,ijCmp,DoFock,
+     &                  Scr,nScr,
+     &                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
+      use k2_setup, only: nDArray, nDScalar
+      use k2_structure, only: k2_type
+      Implicit None
+      External Cmpct
+      Integer nZeta, ijCmp,  nHm, nDCRR,
+     &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
+     &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx, IncZZ
+      type(k2_type), intent(inout) :: k2data(nDCRR)
+      Real*8 Coor(3,4),
+     &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),
+     &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),
+     &       Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),
+     &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),
+     &       Con(nZeta), Wrk(nWork2), Dij(nDij,nDCR), Scr(nScr,3),
+     &       Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3),
+     &       HMtrx(nHrrMtrx,2)
+      Logical DoFock, DoGrad
+      Integer iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), IndP(nZeta)
+      End SubRoutine k2Loop
+      End Interface
 !                                                                      *
 !***********************************************************************
 !                                                                      *

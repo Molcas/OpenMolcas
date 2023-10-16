@@ -115,7 +115,7 @@ integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, IncEta, 
                      nijkl, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeq, ABeqCD, AeqB, AeqC, CDeq, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, no_integrals, Tr(4)
-integer(kind=iwp), external :: ip_IndZ, ip_Z, NrOpr
+integer(kind=iwp), external :: ip_IndZ, NrOpr
 logical(kind=iwp), external :: EQ, lEmpty
 external :: TERI1, ModU2, Cff2D
 
@@ -432,10 +432,10 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             ! Work2:PAO-> Work2
             ! Work3 Scratch
             call Timing(dum1,Time,dum2,dum3)
-            call Screen_mck(Work2,Work3,mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKab, &
+            call Screen_mck(iZeta-1,iEta-1,Work2,Work3,mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKab, &
                             k2Data1(lDCR1),k2Data2(lDCR2), &
-                            Data1(ip_Z(iZeta,nZeta),lDCR1),iData1(iZeta:iZeta+mZeta-1),k2Data1(ldcr1)%abMax,Eta,EInv,Q,xG, &
-                            xD,rKcd,Data2(ip_Z(iEta,nEta),lDCR2),iData2(iEta:iEta+mEta-1),k2Data2(ldcr2)%abMax,xpre,1,1,1, &
+                            Data1(iZeta,lDCR1),iData1(iZeta:iZeta+mZeta-1),k2Data1(ldcr1)%abMax,Eta,EInv,Q,xG, &
+                            xD,rKcd,Data2(iEta,lDCR2),iData2(iEta:iEta+mEta-1),k2Data2(ldcr2)%abMax,xpre,1,1,1, &
                             ix2,iy2,iz2,CutInt,PreScr,IndZet,IndEta,ldot2)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nScreen) = CPUStat(nScreen)+Time

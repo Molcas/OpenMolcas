@@ -64,7 +64,7 @@ integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iffab, i
                      nZeta_Tot
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr
-integer(kind=iwp), external :: ip_abG, ip_IndZ, ip_Z, NrOpr
+integer(kind=iwp), external :: ip_abG, ip_IndZ, NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ, lEmpty
 external :: ModU2, TERI1, vCff2D
@@ -469,8 +469,8 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
             ! Preprescreen
 
-            call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1(ip_Z(iZeta,nZeta),lDCR1),Data2(ip_Z(iEta,nEta),lDCR2),PreScr, &
-                          CutGrd)
+            call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1(iZeta,lDCR1),Data2(iEta,lDCR2),PreScr, &
+                          CutGrd,iZeta-1,iEta-1,k2Data1(lDCR1),k2Data2(lDCR2))
             if (lZeta*lEta == 0) cycle
 
             ! Decontract the 2nd order density matrix
@@ -491,7 +491,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
             iW3 = iW2+mZeta*mEta*mab*mcd
             nWrk3 = nWrk2-mZeta*mEta*mab*mcd
-            call Screen_g(Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
+            call Screen_g(iZeta-1,iEta-1,Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
                           k2Data1(lDCR1),k2Data2(lDCR2),Data1(iZeta,lDCR1), &
                           nAlpha,jPrim,iData1(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,Data2(iEta,lDCR2),nGamma,lPrim, &
                           iData2(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI,Data1(iZeta+iffab,lDCR1), &
