@@ -33,6 +33,7 @@ module caspt2_gradient
   integer(kind=iwp) :: LUSTD           = 0_iwp
   integer(kind=iwp) :: IDSAVGRD        = 0_iwp
   integer(kind=iwp) :: idBoriMat(8,13) = 0_iwp
+  real(kind=wp)     :: ConvInvar       = 0.0_wp
 
   ! whether CASPT2 energy is invariant wrt rotations among inactive
   ! and secondary orbitals

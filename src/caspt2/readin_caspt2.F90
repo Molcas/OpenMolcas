@@ -187,6 +187,8 @@ module InputData
     !           the case with IPEA shift. Otherwise, just for debug
     !           purpose
     Logical :: INVAR  = .True.
+    ! CVIN      Convergence threshold for non-invariant CASPT2 equation
+    Real(kind=wp) :: ThrConvInvar = 1.0e-07_wp
     ! GRDT      used for single-point gradient calculation
     Logical :: GRDT = .False.
     ! NAC       compute NAC or interstate coupling vectors
@@ -670,6 +672,11 @@ contains
 
       case('INVA')
         Input%INVAR = .false.
+
+      case('CVIN')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%ThrConvInvar
+        if (iError /= 0) call IOError(Line)
 
       case('GRDT')
         Input%GRDT  = .true.

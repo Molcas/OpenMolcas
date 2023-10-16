@@ -2816,6 +2816,7 @@ C
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 C
       use caspt2_output, only:IPrGlb,verbose
+      use caspt2_gradient, only: ConvInvar
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -2828,7 +2829,7 @@ C
      *          WRK1(nBasT,nBasT),WRK2(*),U0(nState,nState)
       Dimension Eact(nState)
 C
-      Thres=1.0d-07
+      Thres = ConvInvar !! 1.0d-07
 C
       If (IPRGLB.GE.verbose) Then
         Write (6,*)
