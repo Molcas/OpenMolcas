@@ -76,20 +76,6 @@
       Return
       End
 
-      Integer Function ip_Beta(iZeta,nZeta,iAB)
-      Implicit None
-      Integer iZeta,nZeta,iAB
-      ip_Beta = iZeta + (8+iAB-1)*nZeta
-      Return
-      End
-
-      Integer Function ip_nHm(nZeta)
-      Implicit None
-      Integer nZeta
-      ip_nHm = 7 + 11*nZeta + 1
-      Return
-      End
-
       Integer Function ip_HrrMtrx(nZeta)
       Implicit None
       Integer nZeta

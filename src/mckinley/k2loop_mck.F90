@@ -48,7 +48,7 @@ real(kind=wp), intent(out) :: rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR), Wk002(
 real(kind=wp), intent(inout) :: Wk003(m003)
 integer(kind=iwp) :: mStb(2), nZeta
 real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
-integer(kind=iwp), external :: ip_Beta, ip_PCoor
+integer(kind=iwp), external :: ip_PCoor
 real(kind=wp), external :: EstI
 type(k2_type) :: k2Data(nDCRR)
 
@@ -79,7 +79,7 @@ subroutine k2Loop_mck_internal(rData)
 
     call DoZeta(Alpha,nAlpha,Beta,nBeta,CoorM(1,1),CoorM(1,2),rData(ip_PCoor(1,nZeta),lDCRR+1),k2Data(lDCRR+1)%Zeta(:), &
                 k2Data(lDCRR+1)%Kappa(:),k2Data(lDCRR+1)%ZInv(:),k2Data(lDCRR+1)%Alpha(:), &
-                rData(ip_Beta(1,nZeta,2),lDCRR+1),k2Data(lDCRR+1)%IndZ(:))
+                k2Data(lDCRR+1)%Beta(:),k2Data(lDCRR+1)%IndZ(:))
 
     call SchInt_mck(CoorM,iAnga,nAlpha,nBeta,nMemab,k2Data(lDCRR+1)%Zeta(:),k2Data(lDCRR+1)%ZInv(:), &
                     k2Data(lDCRR+1)%Kappa(:),rData(ip_PCoor(1,nZeta),lDCRR+1),nZeta,Wk002,m002,Wk003,m003)

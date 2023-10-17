@@ -78,7 +78,7 @@
      &       TEMP
       Real*8, External :: EstI
       Integer, External:: ip_ABCon, ip_ABg,
-     &                    ip_Beta, ip_HrrMtrx,
+     &                    ip_HrrMtrx,
      &                    ip_PCoor
 !                                                                      *
 !***********************************************************************
@@ -274,7 +274,7 @@
      &                 Alpha_(iZeta),
      &                 k2Data(lDCRR+1)%Alpha(:),
      &                 Beta_(iZeta),
-     &                 Data(ip_Beta (1,nZeta,2),lDCRR+1))
+     &                 k2Data(lDCRR+1)%Beta(:))
 !
          End Do ! iZeta
          mScree = mScree + Jnd
@@ -388,7 +388,7 @@
      &                          Pnew,mZeta,nZeta,
      &                          Knew,
      &                          k2Data(lDCRR+1)%Alpha(:),
-     &                          Data(ip_Beta (1,nZeta,2),lDCRR+1))
+     &                          k2Data(lDCRR+1)%Beta(:))
                      Do iZeta = 1, mZeta, IncZZ
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
                         Call SchInt(CoorM,
@@ -416,7 +416,7 @@
      &                          Qnew,mZeta,nZeta,
      &                          Lnew,
      &                          k2Data(lDCRR+1)%Alpha(:),
-     &                          Data(ip_Beta (1,nZeta,2),lDCRR+1))
+     &                          k2Data(lDCRR+1)%Beta(:))
                      Do iZeta = 1, mZeta, IncZZ
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
                         Call SchInt(CoorM,
@@ -515,7 +515,7 @@
          Call WrCheck('Kappa',k2Data(lDCRR+1)%Kappa(:),nZeta)
          Call WrCheck('P    ',Data(ip_PCoor(1,nZeta),  lDCRR+1),nZeta*3)
          Call WrCheck('xA   ',k2Data(lDCRR+1)%Alpha(:),nZeta)
-         Call WrCheck('xB   ',Data(ip_Beta (1,nZeta,2),lDCRR+1),nZeta)
+         Call WrCheck('xB   ',k2Data(lDCRR+1)%Beta(:),nZeta)
          Call WrCheck('ZInv ',k2Data(lDCRR+1)%ZInv(:),nZeta)
          If (DoGrad) Then
             Call WrCheck('ab   ',
