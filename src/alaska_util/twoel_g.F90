@@ -469,7 +469,7 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
             ! Preprescreen
 
-            call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1(iZeta,lDCR1),Data2(iEta,lDCR2),PreScr, &
+            call PrePre_g(mZeta,mEta,lZeta,lEta,PreScr, &
                           CutGrd,iZeta-1,iEta-1,k2Data1(lDCR1),k2Data2(lDCR2))
             if (lZeta*lEta == 0) cycle
 

@@ -10,14 +10,12 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-
-subroutine PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1,Data2,PreScr,CutGrd, &
+!#define _DEBUGPRINT_
+subroutine PrePre_g(mZeta,mEta,lZeta,lEta,PreScr,CutGrd, &
                     iOffZ, iOffE, k2Data1, k2Data2)
 !***********************************************************************
 !                                                                      *
 ! Object: to preprescreen the integral derivatives.                    *
-!                                                                      *
-!   nZeta, nEta : unpartitioned length of primitives.                  *
 !                                                                      *
 !   mZeta, mEta : section length due to partioning. These are usually  *
 !                 equal to nZeta and nEta.                             *
@@ -34,21 +32,12 @@ use k2_structure, only: k2_type
 implicit none
 integer(kind=iwp), intent(in) :: iOffZ, iOffE
 type(k2_type), intent(in) :: k2Data1, k2Data2
-integer(kind=iwp), intent(in) :: nZeta, nEta, mZeta, mEta
+integer(kind=iwp), intent(in) :: mZeta, mEta
 integer(kind=iwp), intent(out) :: lZeta, lEta
-real(kind=wp), intent(in) :: Data1(nZeta,8), Data2(nEta,8), CutGrd
+real(kind=wp), intent(in) :: CutGrd
 logical(kind=iwp), intent(out) :: PreScr
-integer(kind=iwp) :: iEta, iPrint, iRout, iZeta
+integer(kind=iwp) :: iEta, iZeta
 real(kind=wp) :: EtaMn, EtaMx, PreMax, PreMin, rKabMn, rKabMx, rKcdMn, rKcdMx, ZetaMn, ZetaMx
-#include "print.fh"
-
-iRout = 180
-iPrint = nPrint(iRout)
-!iQ = 0
-if (iPrint >= 99) then
-  call RecPrt(' Data1',' ',Data1,nZeta,8)
-  call RecPrt(' Data2',' ',Data2,nEta,8)
-end if
 
 ! Preprescanning
 
@@ -59,12 +48,12 @@ ZetaMx = Zero
 rKabMn = 1.0e72_wp
 ZetaMn = Zero
 do iZeta=1,mZeta
-  if (Data1(iZeta,2) > rKabMx) then
-    rKabMx = Data1(iZeta,2)
+  if (k2Data1%Kappa(iOffZ+iZeta) > rKabMx) then
+    rKabMx = k2Data1%Kappa(iOffZ+iZeta)
     ZetaMx = k2Data1%Zeta(iOffZ+iZeta)
   end if
-  if (Data1(iZeta,2) < rKabMn) then
-    rKabMn = Data1(iZeta,2)
+  if (k2Data1%Kappa(iOffZ+iZeta) < rKabMn) then
+    rKabMn = k2Data1%Kappa(iOffZ+iZeta)
     ZetaMn = k2Data1%Zeta(iOffZ+iZeta)
   end if
 end do
@@ -73,16 +62,17 @@ EtaMx = Zero
 rKcdMn = 1.0e72_wp
 EtaMn = Zero
 do iEta=1,mEta
-  if (Data2(iEta,2) > rKcdMx) then
-    rKcdMx = Data2(iEta,2)
+  if (k2Data2%Kappa(iOffE+iEta) > rKcdMx) then
+    rKcdMx = k2Data2%Kappa(iOffE+iEta)
     EtaMx = k2Data2%Zeta(iOffE+iEta)
   end if
-  if (Data2(iEta,2) < rKcdMn) then
-    rKcdMn = Data2(iEta,2)
+  if (k2Data2%Kappa(iOffE+iEta) < rKcdMn) then
+    rKcdMn = k2Data2%Kappa(iOffE+iEta)
     EtaMn = k2Data2%Zeta(iOffE+iEta)
   end if
 end do
 PreScr = .true.
+Write (6,*) rKabMx,rKcdMx, ZetaMx,EtaMx
 PreMax = rKabMx*rKcdMx*sqrt(One/(ZetaMx+EtaMx))
 PreMin = rKabMn*rKcdMn*sqrt(One/(ZetaMn+EtaMn))
 if (PreMin > CutGrd) PreScr = .false.

@@ -57,6 +57,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 use Disp, only: l2DI
+use k2_structure, only: k2Data
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
@@ -95,6 +96,7 @@ character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Rsv_Tsk2
+integer(kind=iwp) :: ik2, jk2
 
 !                                                                      *
 !***********************************************************************
@@ -694,7 +696,8 @@ do while (Rsv_Tsk2(id,klS))
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl,AeqB, &
+    call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+                    k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl,AeqB, &
                     CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd, &
                     nIrrep)
     !                                                                  *
@@ -755,7 +758,9 @@ do while (Rsv_Tsk2(id,klS))
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU1,TwoelWall1)
 #           endif
-            call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR,Data_k2(k2kl), &
+            call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+                         k2Data(:,ik2), k2Data(:,jk2), &
+                         Data_k2(k2ij),nab,nHmab,nDCRR,Data_k2(k2kl), &
                          ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &

@@ -38,6 +38,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
 use Disp, only: ChDisp, l2DI
+use k2_structure, only: k2Data
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -52,13 +53,14 @@ integer(kind=iwp) :: iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4
                      kBasAO, kBasn, kBask, kBsInc, kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, &
                      mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, &
                      nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
-logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList, &
+logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, &
                      FreeK2, Verbose, Triangular, lNoSkip
 character(len=72) :: formt
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable :: TMax(:,:)
-external :: Rsv_GTList
+logical(kind=iwp),external :: Rsv_GTList
+integer(kind=iwp) :: ik2, jk2
 
 !                                                                      *
 !***********************************************************************
@@ -264,7 +266,8 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl, &
+      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+                      k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
                       AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
                       nHmcd,nIrrep)
       !                                                                *
@@ -306,7 +309,9 @@ do
 
                 !--Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR, &
+                call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+                             k2Data(:,ik2), k2Data(:,jk2), &
+                             Data_k2(k2ij),nab,nHmab,nDCRR, &
                              Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                              Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
                              Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn, &
