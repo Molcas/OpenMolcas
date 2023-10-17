@@ -77,7 +77,6 @@
       Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
      &       TEMP
       Real*8, External :: EstI
-      Integer, External:: ip_PCoor
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -262,7 +261,7 @@
      &                 P(iZeta,1),IndP(iZeta),Con,
      &                 k2Data(lDCRR+1)%Zeta(:),
      &                 k2Data(lDCRR+1)%Kappa(:),
-     &                 Data(ip_Pcoor(1,nZeta),lDCRR+1),
+     &                 k2Data(lDCRR+1)%PCoor(:,:),
      &                 k2Data(lDCRR+1)%IndZ(:),iZeta-1,Jnd,
      &                 k2Data(lDCRR+1)%ZInv(:),
      &                 AeqB,
@@ -344,9 +343,9 @@
      &                     k2Data(lDCRR+1)%Zeta(iZeta:),
      &                     k2Data(lDCRR+1)%ZInv(iZeta:),
      &                     k2Data(lDCRR+1)%Kappa(iZeta:),
-     &                     Data(ip_PCoor(iZeta,nZeta),lDCRR+1),
+     &                     k2Data(lDCRR+1)%PCoor(iZeta,1),
      &                     k2Data(lDCRR+1)%Kappa(iZeta:),
-     &                     Data(ip_PCoor(iZeta,nZeta),lDCRR+1),
+     &                     k2Data(lDCRR+1)%PCoor(iZeta,1),
      &                     nZeta,Wrk,nWork2,HMtrx,
      &                     nHrrMtrx,iShlla,jShllb,i_Int)
                Call PckInt(Wrk(i_Int),lZeta,ijCmp,
@@ -509,7 +508,7 @@
          Write (6,*) 'lDCRR=',lDCRR
          Call WrCheck('Zeta ',k2Data(lDCRR+1)%Zeta(:),nZeta)
          Call WrCheck('Kappa',k2Data(lDCRR+1)%Kappa(:),nZeta)
-         Call WrCheck('P    ',Data(ip_PCoor(1,nZeta),  lDCRR+1),nZeta*3)
+         Call WrCheck('P    ',K2Data(lDCRR+1)%PCoor(:,:),nZeta*3)
          Call WrCheck('xA   ',k2Data(lDCRR+1)%Alpha(:),nZeta)
          Call WrCheck('xB   ',k2Data(lDCRR+1)%Beta(:),nZeta)
          Call WrCheck('ZInv ',k2Data(lDCRR+1)%ZInv(:),nZeta)

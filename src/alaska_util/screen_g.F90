@@ -55,7 +55,7 @@ integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2
 real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
                  vMax, zMin, Zt
 logical(kind=iwp) :: ZPreScr, EPreScr
-integer(kind=iwp) :: iDMin, ip_PCoor
+integer(kind=iwp) :: iDMin
 real(kind=wp), external :: DNrm2_
 #include "print.fh"
 
@@ -221,9 +221,9 @@ if (ZPreScr) then
     if (Scrtch(ipZ+iZeta-1) >= Cut2/rqEta) then
       lZeta = lZeta+1
       Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
-      P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))*Px
-      P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))*Py
-      P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))*Pz
+      P(lZeta,1) = k2Data1%PCoor(iOffZ+iZeta,1)*Px
+      P(lZeta,2) = k2Data1%PCoor(iOffZ+iZeta,2)*Py
+      P(lZeta,3) = k2Data1%PCoor(iOffZ+iZeta,3)*Pz
       xA(lZeta) = k2Data1%Alpha(iOffZ+iZeta)
       xB(lZeta) = k2Data1%Beta(iOffZ+iZeta)
       ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
@@ -237,9 +237,9 @@ else
   do iZeta=1,mZeta
     lZeta = lZeta+1
     Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
-    P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))*Px
-    P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))*Py
-    P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))*Pz
+    P(lZeta,1) = k2Data1%PCoor(iOffZ+iZeta,1)*Px
+    P(lZeta,2) = k2Data1%PCoor(iOffZ+iZeta,2)*Py
+    P(lZeta,3) = k2Data1%PCoor(iOffZ+iZeta,3)*Pz
     xA(lZeta) = k2Data1%Alpha(iOffZ+iZeta)
     xB(lZeta) = k2Data1%Beta(iOffZ+iZeta)
     ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
@@ -262,9 +262,9 @@ if (EPreScr) then
     if (Scrtch(ipE+iEta-1) >= Cut2/rqZeta) then
       lEta = lEta+1
       Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
-      Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))*Qx
-      Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))*Qy
-      Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))*Qz
+      Q(lEta,1) = k2Data2%PCoor(iOffE+iEta,1)*Qx
+      Q(lEta,2) = k2Data2%PCoor(iOffE+iEta,2)*Qy
+      Q(lEta,3) = k2Data2%PCoor(iOffE+iEta,3)*Qz
       xG(lEta) = k2Data2%Alpha(iOffE+iEta)
       xD(lEta) = k2Data2%Beta(iOffE+iEta)
       EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
@@ -282,9 +282,9 @@ else
   do iEta=1,mEta
     lEta = lEta+1
     Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
-    Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))*Qx
-    Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))*Qy
-    Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))*Qz
+    Q(lEta,1) = k2Data2%PCoor(iOffE+iEta,1)*Qx
+    Q(lEta,2) = k2Data2%PCoor(iOffE+iEta,2)*Qy
+    Q(lEta,3) = k2Data2%PCoor(iOffE+iEta,3)*Qz
     xG(lEta) = k2Data2%Alpha(iOffE+iEta)
     xD(lEta) = k2Data2%Beta(iOffE+iEta)
     EInv(lEta) = k2Data2%ZInv(iOffE+iEta)

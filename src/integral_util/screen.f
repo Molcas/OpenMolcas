@@ -111,9 +111,9 @@
                lZeta=lZeta+1
                Zeta(lZeta)  = k2Data1%Zeta(iOffZ+iZeta)
                KappAB(lZeta)= k2Data1%Kappa(iOffZ+iZeta)
-               P(lZeta,1)   = Data1(ip_Pcoor(iZeta,        nZeta))
-               P(lZeta,2)   = Data1(ip_Pcoor(iZeta+  nZeta,nZeta))
-               P(lZeta,3)   = Data1(ip_Pcoor(iZeta+2*nZeta,nZeta))
+               P(lZeta,1)   = k2Data1%Pcoor(iOffZ+iZeta,1)
+               P(lZeta,2)   = k2Data1%Pcoor(iOffZ+iZeta,2)
+               P(lZeta,3)   = k2Data1%Pcoor(iOffZ+iZeta,3)
                IndZet(lZeta)= IndZ(iZeta)
                ZInv(lZeta)  = k2Data1%ZInv(iOffZ+iZeta)
             End If
@@ -126,9 +126,9 @@
                lZeta=lZeta+1
                Zeta(lZeta)  = k2Data1%Zeta(iOffZ+iZeta)
                KappAB(lZeta)= k2Data1%Kappa(iOffZ+iZeta)
-               P(lZeta,1)   = Data1(ip_Pcoor(iZeta,        nZeta))
-               P(lZeta,2)   = Data1(ip_Pcoor(iZeta+  nZeta,nZeta))
-               P(lZeta,3)   = Data1(ip_Pcoor(iZeta+2*nZeta,nZeta))
+               P(lZeta,1)   = k2Data1%Pcoor(iOffZ+iZeta,1)
+               P(lZeta,2)   = k2Data1%Pcoor(iOffZ+iZeta,2)
+               P(lZeta,3)   = k2Data1%Pcoor(iOffZ+iZeta,3)
                IndZet(lZeta)= IndZ(iZeta)
                ZInv(lZeta)  = k2Data1%ZInv(iOffZ+iZeta)
             End If
@@ -153,9 +153,9 @@
                IndEta(lEta)= IndE(iEta)
                Eta(lEta)   = k2Data2%Zeta(iOffE+iEta)
                KappCD(lEta)= k2Data2%Kappa(iOffE+iEta)
-               Q(lEta,1)   = Data2(ip_Pcoor(iEta,       nEta))
-               Q(lEta,2)   = Data2(ip_Pcoor(iEta+  nEta,nEta))
-               Q(lEta,3)   = Data2(ip_PCoor(iEta+2*nEta,nEta))
+               Q(lEta,1)   = k2Data2%Pcoor(iOffE+iEta,1)
+               Q(lEta,2)   = k2Data2%Pcoor(iOffE+iEta,2)
+               Q(lEta,3)   = k2Data2%PCoor(iOffE+iEta,3)
                EInv(lEta)  = k2Data2%ZInv(iOffE+iEta)
             End If
          End Do
@@ -168,9 +168,9 @@
                IndEta(lEta)= IndE(iEta)
                Eta(lEta)   = k2Data2%Zeta(iOffE+iEta)
                KappCD(lEta)= k2Data2%Kappa(iOffE+iEta)
-               Q(lEta,1)   = Data2(ip_Pcoor(iEta,       nEta))
-               Q(lEta,2)   = Data2(ip_Pcoor(iEta+  nEta,nEta))
-               Q(lEta,3)   = Data2(ip_PCoor(iEta+2*nEta,nEta))
+               Q(lEta,1)   = k2Data2%Pcoor(iOffE+iEta,1)
+               Q(lEta,2)   = k2Data2%Pcoor(iOffE+iEta,2)
+               Q(lEta,3)   = k2Data2%PCoor(iOffE+iEta,3)
                EInv(lEta)  = k2Data2%ZInv(iOffE+iEta)
             End If
          End Do
