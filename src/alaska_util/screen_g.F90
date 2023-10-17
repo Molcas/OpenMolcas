@@ -55,7 +55,7 @@ integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2
 real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
                  vMax, zMin, Zt
 logical(kind=iwp) :: ZPreScr, EPreScr
-integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_PCoor
+integer(kind=iwp) :: iDMin, ip_Beta, ip_PCoor
 real(kind=wp), external :: DNrm2_
 #include "print.fh"
 
@@ -224,7 +224,7 @@ if (ZPreScr) then
       P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))*Px
       P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))*Py
       P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))*Pz
-      xA(lZeta) = Data1(ip_Alpha(iZeta,nZeta,1))
+      xA(lZeta) = k2Data1%Alpha(iOffZ+iZeta)
       xB(lZeta) = Data1(ip_Beta(iZeta,nZeta,2))
       ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
       ip2 = ipOAP+mEta*mPAO*(lZeta-1)-1
@@ -240,7 +240,7 @@ else
     P(lZeta,1) = Data1(ip_PCoor(iZeta,nZeta))*Px
     P(lZeta,2) = Data1(ip_PCoor(iZeta+nZeta,nZeta))*Py
     P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))*Pz
-    xA(lZeta) = Data1(ip_Alpha(iZeta,nZeta,1))
+    xA(lZeta) = k2Data1%Alpha(iOffZ+iZeta)
     xB(lZeta) = Data1(ip_Beta(iZeta,nZeta,2))
     ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
   end do
@@ -265,7 +265,7 @@ if (EPreScr) then
       Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))*Qx
       Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))*Qy
       Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))*Qz
-      xG(lEta) = Data2(ip_Alpha(iEta,nEta,1))
+      xG(lEta) = k2Data2%Alpha(iOffE+iEta)
       xD(lEta) = Data2(ip_Beta(iEta,nEta,2))
       EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
       ip1 = ipOAP+iEta-1
@@ -285,7 +285,7 @@ else
     Q(lEta,1) = Data2(ip_PCoor(iEta,nEta))*Qx
     Q(lEta,2) = Data2(ip_PCoor(iEta+nEta,nEta))*Qy
     Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))*Qz
-    xG(lEta) = Data2(ip_Alpha(iEta,nEta,1))
+    xG(lEta) = k2Data2%Alpha(iOffE+iEta)
     xD(lEta) = Data2(ip_Beta(iEta,nEta,2))
     EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
   end do

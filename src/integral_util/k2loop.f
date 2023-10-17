@@ -78,7 +78,7 @@
      &       TEMP
       Real*8, External :: EstI
       Integer, External:: ip_ABCon, ip_ABg,
-     &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
+     &                    ip_Beta, ip_HrrMtrx,
      &                    ip_PCoor
 !                                                                      *
 !***********************************************************************
@@ -272,7 +272,7 @@
      &                 k2Data(lDCRR+1)%ab(:),
      &                 Data(ip_abCon(1,nZeta),lDCRR+1),
      &                 Alpha_(iZeta),
-     &                 Data(ip_Alpha(1,nZeta,1),lDCRR+1),
+     &                 k2Data(lDCRR+1)%Alpha(:),
      &                 Beta_(iZeta),
      &                 Data(ip_Beta (1,nZeta,2),lDCRR+1))
 !
@@ -387,7 +387,7 @@
                      Call NewPK(CoorM(1,1),CoorM(1,2),
      &                          Pnew,mZeta,nZeta,
      &                          Knew,
-     &                          Data(ip_Alpha(1,nZeta,1),lDCRR+1),
+     &                          k2Data(lDCRR+1)%Alpha(:),
      &                          Data(ip_Beta (1,nZeta,2),lDCRR+1))
                      Do iZeta = 1, mZeta, IncZZ
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
@@ -415,7 +415,7 @@
                      Call NewPK(CoorM(1,1),CoorM(1,2),
      &                          Qnew,mZeta,nZeta,
      &                          Lnew,
-     &                          Data(ip_Alpha(1,nZeta,1),lDCRR+1),
+     &                          k2Data(lDCRR+1)%Alpha(:),
      &                          Data(ip_Beta (1,nZeta,2),lDCRR+1))
                      Do iZeta = 1, mZeta, IncZZ
                         lZeta = Min(mZeta-iZeta+1,IncZZ)
@@ -514,7 +514,7 @@
          Call WrCheck('Zeta ',k2Data(lDCRR+1)%Zeta(:),nZeta)
          Call WrCheck('Kappa',k2Data(lDCRR+1)%Kappa(:),nZeta)
          Call WrCheck('P    ',Data(ip_PCoor(1,nZeta),  lDCRR+1),nZeta*3)
-         Call WrCheck('xA   ',Data(ip_Alpha(1,nZeta,1),lDCRR+1),nZeta)
+         Call WrCheck('xA   ',k2Data(lDCRR+1)%Alpha(:),nZeta)
          Call WrCheck('xB   ',Data(ip_Beta (1,nZeta,2),lDCRR+1),nZeta)
          Call WrCheck('ZInv ',k2Data(lDCRR+1)%ZInv(:),nZeta)
          If (DoGrad) Then

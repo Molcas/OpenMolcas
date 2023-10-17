@@ -76,13 +76,6 @@
       Return
       End
 
-      Integer Function ip_Alpha(iZeta,nZeta,iAB)
-      Implicit None
-      Integer iZeta,nZeta,iAB
-      ip_Alpha = iZeta + (8+iAB-1)*nZeta
-      Return
-      End
-
       Integer Function ip_Beta(iZeta,nZeta,iAB)
       Implicit None
       Integer iZeta,nZeta,iAB
