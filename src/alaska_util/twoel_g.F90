@@ -29,7 +29,6 @@ subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys, &
 !          Lund, SWEDEN. Modified to gradients, January '92.           *
 !***********************************************************************
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
@@ -64,7 +63,7 @@ integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iffab, i
                      nZeta_Tot
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr
-integer(kind=iwp), external :: ip_abG, ip_IndZ, NrOpr
+integer(kind=iwp), external :: ip_abG, NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ, lEmpty
 external :: ModU2, TERI1, vCff2D
@@ -87,7 +86,6 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
   real(kind=wp), intent(in), target :: Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), &
                                        Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
   real(kind=wp), intent(out) :: Wrk2(nWrk2)
-  integer(kind=iwp), pointer :: iData1(:), iData2(:)
   integer(kind=iwp) :: iC, iCar, iCent, iEta, ixSh, iZeta, jCent, lDCRR, lDCRS, lDCRT
 # ifdef _WARNING_WORKAROUND_
   interface
@@ -450,10 +448,8 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
         iy2 = iPhase(2,iDCRT(lDCRT))
         iz2 = iPhase(3,iDCRT(lDCRT))
 
-        call c_f_pointer(c_loc(Data1(ip_IndZ(1,nZeta),lDCR1)),iData1,[nZeta+1])
-        call c_f_pointer(c_loc(Data2(ip_IndZ(1,nEta),lDCR2)),iData2,[nEta+1])
-        nZeta_Tot = iData1(nZeta+1)
-        nEta_Tot = iData2(nEta+1)
+        nZeta_Tot = k2Data1(lDCR1)%IndZ(nZeta+1)
+        nEta_Tot =  k2Data2(lDCR2)%IndZ(nEta +1)
 
         ! Loops to partion the primitives
 
@@ -485,7 +481,8 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
             iW3 = iW2+nW2
             nWrk3 = nWrk2-(nW4+nW2)
             call Tcrtnc(Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Wrk2(iW4),mab*mcd, &
-                        Wrk2(iW3),nWrk3,Wrk2(iW2),iData1(iZeta:iZeta+mZeta-1),mZeta,iData2(iEta:iEta+mEta-1),mEta)
+                        Wrk2(iW3),nWrk3,Wrk2(iW2),k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),mZeta, &
+                                                  k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),mEta)
 
             ! Transfer k2 data and prescreen
 
@@ -493,8 +490,8 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
             nWrk3 = nWrk2-mZeta*mEta*mab*mcd
             call Screen_g(iZeta-1,iEta-1,Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
                           k2Data1(lDCR1),k2Data2(lDCR2),Data1(iZeta,lDCR1), &
-                          nAlpha,jPrim,iData1(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,Data2(iEta,lDCR2),nGamma,lPrim, &
-                          iData2(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI,Data1(iZeta+iffab,lDCR1), &
+                          nAlpha,jPrim,k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,Data2(iEta,lDCR2),nGamma,lPrim, &
+                          k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI,Data1(iZeta+iffab,lDCR1), &
                           Data1(iZeta+iffabG,lDCR1),nab,Data2(iEta+iffcd,lDCR2),Data2(iEta+iffcdG,lDCR2),ncd,PreScr,nWrk3,IsChi, &
                           ChiI2)
             Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
@@ -516,7 +513,6 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
           end do
         end do
-        nullify(iData1,iData2)
 
 #       ifdef _DEBUGPRINT_
         if (iPrint >= 19) call PrGrad(' In TwoEl',Grad,nGrad,ChDisp)

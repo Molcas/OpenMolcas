@@ -75,7 +75,6 @@ subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,
 !                                                                      *
 !***********************************************************************
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use McKinley_global, only: CPUStat, nIntegrals, nScreen, nTrans, nTwoDens, PreScr
 use Index_Functions, only: nTri_Elem1
 use Real_Spherical, only: ipSph, RSph
@@ -115,7 +114,7 @@ integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, IncEta, 
                      nijkl, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeq, ABeqCD, AeqB, AeqC, CDeq, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, no_integrals, Tr(4)
-integer(kind=iwp), external :: ip_IndZ, NrOpr
+integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, lEmpty
 external :: TERI1, ModU2, Cff2D
 
@@ -130,7 +129,6 @@ contains
 subroutine TwoEl_mck_Internal(Data1,Data2)
 
   real(kind=wp), target :: Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2)
-  integer(kind=iwp), pointer :: iData1(:), iData2(:)
   integer(kind=iwp) :: iCar, iCNT, iEta, iIrr, iZeta, lDCRR, lDCRS, lDCRT
   !Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
 # ifdef _WARNING_WORKAROUND_
@@ -370,10 +368,8 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
         iy2 = iPhase(2,iDCRT(lDCRT))
         iz2 = iPhase(3,iDCRT(lDCRT))
 
-        call c_f_pointer(c_loc(Data1(ip_IndZ(1,nZeta),lDCR1)),iData1,[nZeta+1])
-        call c_f_pointer(c_loc(Data2(ip_IndZ(1,nEta),lDCR2)),iData2,[nEta+1])
-        nZeta_Tot = iData1(nZeta+1)
-        nEta_Tot = iData2(nEta+1)
+        nZeta_Tot = k2Data1(lDCR1)%IndZ(nZeta+1)
+        nEta_Tot  = k2Data2(lDCR2)%IndZ(nEta+ 1)
 
         no_integrals = .true.
         first = .true.
@@ -423,7 +419,8 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             ! Work4->Work2  Work3:scratch
             call Timing(dum1,Time,dum2,dum3)
             if (ldot2) call Tcrtnc_h(Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Work4,mab*mcd, &
-                                     Work3,nWork3/2,Work2,iData1(iZeta:iZeta+mZeta-1),mZeta,iData2(iEta:iEta+mEta-1),mEta)
+                                     Work3,nWork3/2,Work2,k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),mZeta, &
+                                                          k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),mEta)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
 
@@ -434,8 +431,8 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             call Timing(dum1,Time,dum2,dum3)
             call Screen_mck(iZeta-1,iEta-1,Work2,Work3,mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKab, &
                             k2Data1(lDCR1),k2Data2(lDCR2), &
-                            Data1(iZeta,lDCR1),iData1(iZeta:iZeta+mZeta-1),k2Data1(ldcr1)%abMax,Eta,EInv,Q,xG, &
-                            xD,rKcd,Data2(iEta,lDCR2),iData2(iEta:iEta+mEta-1),k2Data2(ldcr2)%abMax,xpre,1,1,1, &
+                            Data1(iZeta,lDCR1),k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),k2Data1(lDCR1)%abMax,Eta,EInv,Q,xG, &
+                            xD,rKcd,Data2(iEta,lDCR2),k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),k2Data2(lDCR2)%abMax,xpre,1,1,1, &
                             ix2,iy2,iz2,CutInt,PreScr,IndZet,IndEta,ldot2)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nScreen) = CPUStat(nScreen)+Time

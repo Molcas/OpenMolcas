@@ -90,13 +90,6 @@
       Return
       End
 
-      Integer Function ip_IndZ(iZeta,nZeta)
-      Implicit None
-      Integer iZeta,nZeta
-      ip_IndZ = iZeta + 10*nZeta
-      Return
-      End
-
       Integer Function ip_nHm(nZeta)
       Implicit None
       Integer nZeta

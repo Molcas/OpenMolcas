@@ -40,7 +40,6 @@
 !             grals for Schwartz inequality in a k2 loop.              *
 !             Modified for direct SCF, January '93                     *
 !***********************************************************************
-      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical, only: ipSph, rSph
       use Basis_Info, only: Shells
       use Symmetry_Info, only: nIrrep, iOper
@@ -80,7 +79,7 @@
       Real*8, External :: EstI
       Integer, External:: ip_ABCon, ip_ABg,
      &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
-     &                    ip_IndZ, ip_PCoor
+     &                    ip_PCoor
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -91,7 +90,6 @@
       Subroutine k2loop_internal(Data,k2data)
       Real*8, Target :: Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),
      &                       nDCRR)
-      Integer, Pointer :: iData(:)
       Logical, External :: TF
       Integer ixyz, nabSz, lDCRR, iIrrep, iZeta, iCnt, iComp
       type(k2_type), intent(inout) :: k2data(nDCRR)
@@ -260,11 +258,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),iData,
-     &                    [nAlpha*nBeta+1])
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 !-----------Store data in core
 !
             Call Cmpct(Wrk(iW2),iCmpa_,jCmpb_,nZeta,mZeta,
@@ -273,7 +266,7 @@
      &                 k2Data(lDCRR+1)%Zeta(:),
      &                 k2Data(lDCRR+1)%Kappa(:),
      &                 Data(ip_Pcoor(1,nZeta),lDCRR+1),
-     &                 iData,iZeta-1,Jnd,
+     &                 k2Data(lDCRR+1)%IndZ(:),iZeta-1,Jnd,
      &                 k2Data(lDCRR+1)%ZInv(:),
      &                 AeqB,
      &                 k2Data(lDCRR+1)%ab(:),
@@ -298,8 +291,7 @@
      &                           k2Data(lDCRR+1)%ab(:),
      &                           iCmpa_*jCmpb_,
      &                           Wrk,nWork2,
-     &                           iData)
-         Nullify(iData)
+     &                           k2Data(lDCRR+1)%IndZ(:))
 !                                                                      *
 !***********************************************************************
 !                                                                      *

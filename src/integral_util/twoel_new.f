@@ -41,7 +41,6 @@
 !          screening, July 1991.                                       *
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
-      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
@@ -91,10 +90,6 @@
       External EQ, lEmpty
 
       Interface
-      Integer Function iGet(A,n)
-      Integer :: n
-      Real*8, Target :: A(*)
-      End Function iGet
       Subroutine FckAcc(iAng,iCmp_, Shijij,
      &                  iShll, iShell, kOp, nijkl,
      &                  AOInt,TwoHam,nDens,Scrt,nScrt,
@@ -162,7 +157,6 @@
       Contains
       Subroutine TwoEl_Sym_New_Internal(Data1,Data2)
       Real*8, Target :: Data1(mData1,nData1),Data2(mData2,nData2)
-      Integer, Pointer :: iData1(:),iData2(:)
 !
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
@@ -588,8 +582,8 @@
                End If
 !
 !
-               nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta),lDCR1),nZeta+1)
-               nEta_Tot =iGet(Data2(ip_IndZ(1,nEta ),lDCR2),nEta +1)
+               nZeta_Tot=k2Data1(lDCR1)%IndZ(nZeta+1)
+               nEta_Tot =k2Data2(lDCR2)%IndZ(nEta +1)
 !
                iZ13_=ip_HrrMtrx(nZeta)+(NrOpr(lDCRE_)*nHRRAB)/nIrrep
                iE13_=ip_HrrMtrx( nEta)+(NrOpr(lDCRT_)*nHRRCD)/nIrrep
@@ -609,10 +603,6 @@
                   mEta=Min(IncEta,nEta_Tot-iEta+1)
                   If (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Cycle
 !
-                  Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
-     &                             iData1,[nZeta])
-                  Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
-     &                             iData2,[nEta])
                   Call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,
      &                        nZeta_Tot,nEta_Tot,
      &                        Data1(1,lDCR1),mData1,
@@ -620,9 +610,9 @@
      &                        k2data1(lDCR1),
      &                        k2data2(lDCR2),
      &                        nAlpha,nBeta,nGamma,nDelta,
-     &                        iData1,
+     &                        k2Data1(lDCR1)%IndZ(:),
      &                        Zeta,ZInv,P,KappAB,IndZet,
-     &                        iData2,
+     &                        k2Data2(lDCR2)%IndZ(:),
      &                        Eta,EInv,Q,KappCD,IndEta,
      &                        ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,
      &                        vij,vkl,vik,vil,vjk,vjl,
@@ -638,7 +628,6 @@
      &                        Do_TnsCtl,kabcd,
      &                        Coeff1,iBasi,Coeff2,jBasj,
      &                        Coeff3,kBask,Coeff4,lBasl)
-                  Nullify(iData1,iData2)
 !
                End Do
                End Do
@@ -823,7 +812,6 @@
 !          screening, July 1991.                                       *
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
-      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
@@ -862,12 +850,6 @@
       Data Copy/.True./, NoCopy/.False./
 #include "SysDef.fh"
       External EQ, lEmpty
-      Interface
-      Integer Function iGet(A,n)
-      Integer :: n
-      Real*8, Target :: A(*)
-      End Function iGet
-      End Interface
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -900,7 +882,6 @@
       Contains
       Subroutine TwoEl_NoSym_New_Internal(Data1,Data2)
       Real*8, Target :: Data1(*),Data2(*)
-      Integer, Pointer :: iData1(:),iData2(:)
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
@@ -1083,8 +1064,8 @@
          ipAOInt=1
       End If
 !
-      nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta)),nZeta+1)
-      nEta_Tot =iGet(Data2(ip_IndZ(1,nEta )),nEta +1)
+      nZeta_Tot=k2Data1%IndZ(nZeta+1)
+      nEta_Tot =k2Data2%IndZ(nEta +1)
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nZeta_Tot, IncZet=',nZeta_Tot, IncZet
       Write (6,*) 'nEta_Tot,  IncEta=',nEta_Tot,  IncEta
@@ -1105,10 +1086,6 @@
             mEta=Min(IncEta,nEta_Tot-iEta+1)
             If (lEmpty(Coeff4,nDelta,nDelta,lBasl)) Cycle
 !
-            Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta))),
-     &                             iData1,[nZeta])
-            Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta))),
-     &                             iData2,[nEta])
             Call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,
      &                  nZeta_Tot,nEta_Tot,
      &                  Data1,mData1,
@@ -1116,9 +1093,9 @@
      &                  k2data1,
      &                  k2data2,
      &                  nAlpha,nBeta,nGamma,nDelta,
-     &                  iData1,
+     &                  k2Data1%IndZ(:),
      &                  Zeta,ZInv,P,KappAB,IndZet,
-     &                  iData2,
+     &                  k2Data2%IndZ(:),
      &                  Eta,EInv,Q,KappCD,IndEta,
      &                  1,1,1,1,1,1,ThrInt,CutInt,
      &                  vij,vkl,vik,vil,vjk,vjl,
@@ -1134,7 +1111,6 @@
      &                  Dij(1,1),mDij,Dkl(1,1),mDkl,Do_TnsCtl,kabcd,
      &                  Coeff1,iBasi,Coeff2,jBasj,
      &                  Coeff3,kBask,Coeff4,lBasl)
-            Nullify(iData1,iData2)
 !
          End Do
       End Do
