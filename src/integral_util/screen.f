@@ -14,9 +14,10 @@
       SubRoutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,
      &                  Zeta,ZInv,P,KappAB,IndZet,
      &                  k2Data1,k2Data2,
-     &                  Data1,nAlpha,nBeta,
+     &                  nAlpha,nBeta,
      &                  IndZ,ZtMax,abMax,ZtMaxD,abMaxD,
-     &                  Eta,EInv,Q,KappCD,IndEta,Data2,nGamma,nDelta,
+     &                  Eta,EInv,Q,KappCD,IndEta,
+     &                  nGamma,nDelta,
      &                  IndE,EtMax,cdMax,EtMaxD,cdMaxD,
      &                  Dij,Dkl,
      &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutDInt,
@@ -44,7 +45,6 @@
 !             January '93 modified to Direct SCF                       *
 !***********************************************************************
       use Constants
-      use k2_setup, only: nDArray
       use k2_structure, only: k2_type
       Implicit Real*8 (A-H,O-Z)
       Integer :: iOffZ, iOffE
@@ -52,8 +52,7 @@
      &                       P(nZeta,3), Eta(mEta), EInv(mEta),
      &                       KappCD(mEta), Q(nEta,3)
       Type(k2_type), intent(in):: k2Data1, k2Data2
-      Real*8 Data1(nZeta*(nDArray-1)), Data2(nEta*(nDArray-1)),
-     &       Dij(nZeta), Dkl(nEta)
+      Real*8 Dij(nZeta), Dkl(nEta)
       Real*8 ZtMax,EtMax,abMax,cdMax,ZtMaxD,EtMaxD,abMaxD,cdMaxD
       Integer, Intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
       Integer IndZ(nZeta), IndE(nEta)

@@ -18,7 +18,7 @@
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
-     &           Data1,mData1,nData1,Data2,mData2,nData2,
+     &           nData1,nData2,
      &           k2Data1,k2Data2,
      &           IJeqKL,kOp,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
@@ -61,7 +61,6 @@
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
       Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),
-     &       Data1(mData1,nData1),Data2(mData2,nData2),
      &       Zeta(nZeta), ZInv(nZeta), KappAB(nZeta), P(nZeta,3),
      &       Eta(nEta),   EInv(nEta),  KappCD(nEta),  Q(nEta,3),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
@@ -139,7 +138,7 @@
          Write (6,*) 'Symmetry adaptation different since the operator'
          Write (6,*) 'is not symmetric.'
       End If
-      Call TwoEl_Sym_New_Internal(Data1,Data2)
+      Call TwoEl_Sym_New_Internal()
 !
       Return
 ! Avoid unused argument warnings
@@ -155,8 +154,7 @@
 !
 !     This is to allow type punning without an explicit interface
       Contains
-      Subroutine TwoEl_Sym_New_Internal(Data1,Data2)
-      Real*8, Target :: Data1(mData1,nData1),Data2(mData2,nData2)
+      Subroutine TwoEl_Sym_New_Internal()
 !
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
@@ -170,14 +168,6 @@
       kabcd=0
 !
 #ifdef _DEBUGPRINT_
-      Do iData = 1, nData1
-         Call RecPrt('Twoel: Data1',' ',
-     &                Data1(1,iData),nAlpha*nBeta,nDArray)
-      End Do
-      Do iData = 1, nData2
-         Call RecPrt('Twoel: Data2',' ',
-     &               Data2(1,iData),nGamma*nDelta,nDArray)
-      End Do
       Call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)
       Call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
       Call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
@@ -602,8 +592,6 @@
 !
                   Call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,
      &                        nZeta_Tot,nEta_Tot,
-     &                        Data1(1,lDCR1),mData1,
-     &                        Data2(1,lDCR2),mData2,
      &                        k2data1(lDCR1),
      &                        k2data2(lDCR2),
      &                        nAlpha,nBeta,nGamma,nDelta,
@@ -788,7 +776,7 @@
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
-     &           Data1,mData1,nData1,Data2,mData2,nData2,
+     &           nData1,nData2,
      &           k2Data1,k2Data2,
      &           IJeqKL,kOp,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
@@ -829,7 +817,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),
-     &       Data1(mData1),Data2(mData2),
      &       Zeta(nZeta), ZInv(nZeta), KappAB(nZeta), P(nZeta,3),
      &       Eta(nEta),   EInv(nEta),  KappCD(nEta),  Q(nEta,3),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
@@ -857,7 +844,7 @@
       Integer ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !
-      Call TwoEl_NoSym_New_Internal(Data1,Data2)
+      Call TwoEl_NoSym_New_Internal()
 !
       Return
 ! Avoid unused argument warnings
@@ -877,8 +864,7 @@
 !
 !     This is to allow type punning without an explicit interface
       Contains
-      Subroutine TwoEl_NoSym_New_Internal(Data1,Data2)
-      Real*8, Target :: Data1(*),Data2(*)
+      Subroutine TwoEl_NoSym_New_Internal()
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
@@ -886,10 +872,6 @@
      &              Shells(iShll(4))%Prjct
 !
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Twoel: Data1',' ',
-     &             Data1,nAlpha*nBeta,nDArray-1)
-      Call RecPrt('Twoel: Data2',' ',
-     &             Data2,nGamma*nDelta,nDArray-1)
       Call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)
       Call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
       Call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
@@ -1085,8 +1067,6 @@
 !
             Call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,
      &                  nZeta_Tot,nEta_Tot,
-     &                  Data1,mData1,
-     &                  Data2,mData2,
      &                  k2data1,
      &                  k2data2,
      &                  nAlpha,nBeta,nGamma,nDelta,

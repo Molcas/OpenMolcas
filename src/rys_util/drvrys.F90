@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot, &
-                  Data1,mData1,Data2,mData2, k2data1,k2data2,          &
+                  k2data1,k2data2,          &
                   nAlpha,nBeta,nGamma,nDelta,IndZ, &
                   Zeta,ZInv,P,KappAB,IndZet,IndE,Eta,EInv,Q,KappCD,IndEta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil, &
                   vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl,nabcd,mabcd,Wrk,iW2, &
@@ -66,11 +66,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, &
+integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, nAlpha, nBeta, &
                                  nGamma, nDelta, IndZ(nZeta), IndE(nEta), ix1, iy1, iz1, ix2, iy2, iz2, iAnga(4), mabMin, mabMax, &
                                  mcdMin, mcdMax, nijkl, nabcd, mabcd, iW2, iW4, nWork2, mWork2, la, lb, lc, ld, iCmp(4), iShll(4), &
                                  mDij, mDkl, iBasi, jBasj, kBask, lBasl
-real(kind=wp), intent(in) :: Data1(mData1), Data2(mData2), ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), &
+real(kind=wp), intent(in) :: ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), &
                              HMtrxAB(*), HMtrxCD(*), Dij(mDij), Dkl(mDkl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
                              Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
 real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3)
@@ -101,9 +101,10 @@ call RecPrt('KappCD',' ',KappCD,1,nEta)
 iOffZ = mDij-nZeta
 iOffE = mDkl-nEta
 call Screen(iZeta-1,iEta-1,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,  &
-            k2data1, k2data2, Data1(iZeta),nAlpha,nBeta,IndZ(iZeta), &
+            k2data1, k2data2, &
+            nAlpha,nBeta,IndZ(iZeta), &
             k2data1%ZtMax,k2Data1%abMax,k2Data1%ZtMaxD,k2Data1%abMaxD,Eta,EInv,Q,KappCD, &
-            IndEta,Data2(iEta),nGamma,nDelta,IndE(iEta),k2Data2%ZtMax,k2Data2%abMax,k2Data2%ZtMaxD, &
+            IndEta,nGamma,nDelta,IndE(iEta),k2Data2%ZtMax,k2Data2%abMax,k2Data2%ZtMaxD, &
             k2Data2%abMaxD,Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &
             Prescreen_On_Int_Only)
 !write(u6,*) 'lZeta,lEta:',lZeta,lEta

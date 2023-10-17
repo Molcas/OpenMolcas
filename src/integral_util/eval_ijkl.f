@@ -39,8 +39,8 @@
 !             Total rehack Aug '23                                     *
 !***********************************************************************
       use setup, only: mSkal, nAux, nSOs
-      use k2_setup, only: nDArray, nDScalar, Data_K2, IndK2
-      use k2_arrays, only: DoGrad_, ipZeta, ipiZet, ipDijS, Sew_Scr,
+      use k2_setup, only: IndK2
+      use k2_arrays, only: ipZeta, ipiZet, ipDijS, Sew_Scr,
      &                     Aux, DeDe, FT, iSOSym, Mem_Dble, Mem_Int,
      &                     nDeDe, nFT
       use iSD_data, only: iSD
@@ -74,13 +74,12 @@
       Integer iS_,jS_,kS_,lS_
       Real*8  Coor(3,4), Tmax
       Integer n
-      Integer nHRRAB, nHRRCD
-      Integer iTmp, ijCmp, klCmp, mData1, mData2, Nr_of_D, nIJKL,
+      Integer iTmp, Nr_of_D, nIJKL,
      &        ipDum , MemPrm, MemSO2
       Integer iAOst(4), iPrimi,jPrimj,kPrimk,lPriml,
      &        iBasi,jBasj,kBask,lBasl,
      &        iBasn,jBasn,kBasn,lBasn,
-     &        k2ij,nDCRR,k2kl,nDCRS, ipTmp,
+     &        nDCRR,nDCRS, ipTmp,
      &        mDij,mDik,mDjk,mDkl,mDil,mDjl,
      &        mDCRij,mDCRik,mDCRjk,mDCRkl,mDCRil,mDCRjl,
      &        ipDij,ipDik,ipDjk,ipDkl,ipDil,ipDjl,
@@ -106,7 +105,7 @@
      &           NoInts,iStb,jStb,kStb,lStb,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
-     &           Data1,mData1,nData1,Data2,mData2,nData2,
+     &           nData1,nData2,
      &           k2data1, k2data2,
      &           IJeqKL,kOp,
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
@@ -124,8 +123,7 @@
       Logical NoInts
       Integer iStb,jStb,kStb,lStb
       Integer iPrInc, jPrInc, kPrInc, lPrInc
-      Integer mData1, nData1, mData2, nData2
-      Real*8  Data1(mData1,nData1),Data2(mData2,nData2)
+      Integer nData1, nData2
       Type(k2_type) k2data1(nData1), k2data2(nData2)
       Logical IJeqKL
       Integer kOp(4)
@@ -161,11 +159,9 @@
 !                                                                      *
 !     Statement functions
 !
-      Integer i, j, nElem, iTri, nabSz, ixyz
+      Integer i, j, iTri
 
-      nElem(i)=(i+1)*(i+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-      nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -252,24 +248,6 @@
       nEta     = kPrimk * lPriml
       mDij=nZeta+1 ! Dummy initialize
       mDkl=nEta+1  ! Dummy initialize
-!
-      nHRRAB=iCmpV(1)*iCmpV(2)*
-     &      (nabSz(iAngV(1)+iAngV(2)) -
-     &       nabSz(Max(iAngV(1),iAngV(2))-1))
-      nHRRCD=iCmpV(3)*iCmpV(4)*
-     &      (nabSz(iAngV(3)+iAngV(4)) -
-     &       nabSz(Max(iAngV(3),iAngV(4))-1))
-      nHRRAB=nHRRAB*nIrrep
-      nHRRCD=nHRRCD*nIrrep
-      If (DoGrad_) Then
-         ijCmp=nElem(iAngV(1))*nElem(iAngV(2))
-         klCmp=nElem(iAngV(3))*nElem(iAngV(4))
-      Else
-         ijCmp=0
-         klCmp=0
-      End If
-      mData1=nZeta*(nDArray+2*ijCmp)+nDScalar+nHRRAB
-      mData2=nEta*(nDArray+2*klCmp)+nDScalar+nHRRCD
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -311,10 +289,8 @@
 !-----Pick up pointers to k2 entities.
 !
 
-      k2ij  = IndK2(1,ijS)
       nDCRR = IndK2(2,ijS)
       ik2   = IndK2(3,ijS)
-      k2kl  = IndK2(1,klS)
       nDCRS = IndK2(2,klS)
       jk2   = IndK2(3,klS)
 !                                                                      *
@@ -468,8 +444,8 @@
      &                          iStabs(3),iStabs(4),
      &                          iPrimi,iPrInc,jPrimj,jPrInc,
      &                          kPrimk,kPrInc,lPriml,lPrInc,
-     &                          Data_k2(k2ij),mData1,nDCRR,
-     &                          Data_k2(k2kl),mData2,nDCRS,
+     &                          nDCRR,
+     &                          nDCRS,
      &                          k2Data(:,ik2),k2Data(:,jk2),
      &                          IJeqKL,kOp,
      &                          DeDe(ipDDij),mDij,mDCRij,
