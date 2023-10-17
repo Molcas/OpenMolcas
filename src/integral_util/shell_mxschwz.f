@@ -28,9 +28,8 @@
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
 
-      Integer i, ixyz, nElem, nabSz, ik2
+      Integer ixyz, nElem, nabSz, ik2
 !
-      nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !
 !     loop over shell pair...

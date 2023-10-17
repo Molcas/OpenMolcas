@@ -87,7 +87,7 @@ real*8              :: ZtMaxD=Zero
 real*8              :: ZetaM=Zero
 real*8              :: abMax=Zero
 real*8              :: abMaxD=Zero
-real*8,  Allocatable:: HrrMtrx(:)
+real*8,  Allocatable:: HrrMtrx(:,:)
 End type k2_type
 
 type (k2_type), Allocatable:: k2data(:,:)
@@ -98,6 +98,7 @@ contains
 
 Subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
 use stdalloc, only: mma_allocate
+ use Symmetry_Info, only: nIrrep
 Implicit None
 Integer nZeta, ijCmp,nHm
 type (k2_type):: k2data
@@ -114,7 +115,7 @@ Call mma_allocate(k2Data%abCon,    nZeta,Label='%abCon')
 Call mma_allocate(k2Data%Alpha,    nZeta,Label='%Alpha')
 Call mma_allocate(k2Data%Beta,     nZeta,Label='%Beta')
 Call mma_allocate(k2Data%IndZ,     nZeta+1,Label='%IndZ')   ! yes +1!
-Call mma_allocate(k2Data%HrrMtrx,    nHm,Label='%HrrMtrx')
+Call mma_allocate(k2Data%HrrMtrx,nHm,nIrrep,Label='%HrrMtrx')
 Call mma_allocate(k2Data%abG,nZeta*ijCmp,2,Label='%abG')
 End Subroutine Allocate_k2data
 

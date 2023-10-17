@@ -69,11 +69,4 @@
       Return
       End
 
-      Integer Function ip_HrrMtrx(nZeta)
-      Implicit None
-      Integer nZeta
-      ip_HrrMtrx = 8 + 11*nZeta + 1
-      Return
-      End
-
 !***********************************************************************

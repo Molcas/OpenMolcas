@@ -71,13 +71,13 @@
       Logical, External:: EQ
       Integer  mStb(2), la, lb, iSmAng, mabMin, mabMax, ne,
      &         iCmpa_, jCmpb_, nData, iShlla, jShllb,
-     &         i13_, mcdMin, mcdMax, mabcd, mZeta, nT,
+     &         mcdMin, mcdMax, mabcd, mZeta, nT,
      &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, nDisp,
      &         iCmp
       Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
      &       TEMP
       Real*8, External :: EstI
-      Integer, External:: ip_HrrMtrx, ip_PCoor
+      Integer, External:: ip_PCoor
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -176,10 +176,9 @@
          mabMax=nabSz(la+lb)
          ne=(mabMax-mabMin+1)
          Do iIrrep = 0, nIrrep-1
-            i13_=ip_HrrMtrx(nZeta)+(iIrrep*nHm)/nIrrep
             Call OA(iOper(iIrrep),CoorM(1:3,1),TA)
             Call OA(iOper(iIrrep),CoorM(1:3,2),TB)
-            Call HrrMtrx(Data(i13_,lDCRR+1),
+            Call HrrMtrx(k2Data(lDCRR+1)%HrrMtrx(:,iIrrep+1),
      &                   ne,la,lb,TA,TB,
      &                   Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_,
      &                   Shells(jShllb)%Transf,RSph(ipSph(lb)),jCmpb_)
@@ -241,8 +240,8 @@
             call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
             Call TnsCtl(Wrk,nWork2,Coora,
      &                  mZeta,mabMax,mabMin,mabMax,mabMin,
-     &                  Data(ip_HrrMtrx(nZeta),lDCRR+1),
-     &                  Data(ip_HrrMtrx(nZeta),lDCRR+1),
+     &                  k2data(lDCRR+1)%HrrMtrx(:,1),
+     &                  k2data(lDCRR+1)%HrrMtrx(:,1),
      &                  la,lb,la,lb,
      &                  iCmpa_,jCmpb_,iCmpa_,jCmpb_,
      &                  iShlla,jShllb,iShlla,jShllb,i_Int)
@@ -527,7 +526,7 @@
          Write (6,*) ' ZtMaxD  =',k2Data(lDCRR+1)%ZtMaxD
          Write (6,*) ' abMaxD  =',k2Data(lDCRR+1)%abMaxD
          Call WrCheck(' HrrMtrx',
-     &        Data(ip_HrrMtrx(nZeta),lDCRR+1),
+     &        k2Data(lDCRR+1)%HrrMtrx(:,:),
      &        ne*iCmpa_*jCmpb_)
 #endif
  100  Continue ! lDCRR

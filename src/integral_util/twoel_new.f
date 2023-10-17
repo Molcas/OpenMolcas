@@ -27,7 +27,7 @@
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
-     &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
+     &           Shijij,Aux,nAux)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -585,9 +585,6 @@
                nZeta_Tot=k2Data1(lDCR1)%IndZ(nZeta+1)
                nEta_Tot =k2Data2(lDCR2)%IndZ(nEta +1)
 !
-               iZ13_=ip_HrrMtrx(nZeta)+(NrOpr(lDCRE_)*nHRRAB)/nIrrep
-               iE13_=ip_HrrMtrx( nEta)+(NrOpr(lDCRT_)*nHRRCD)/nIrrep
-!
                kabcd=0
                Do_TnsCtl=.False.
                NoInts   =.True.
@@ -621,7 +618,8 @@
      &                        mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,
      &                        nabcd,mabcd,Wrk,ipAOInt_,iW4_,
      &                        nWork2,mWork2,
-     &                        Data1(iZ13_,lDCR1),Data2(iE13_,lDCR2),
+     &                        k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),
+     &                        k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),
      &                        la,lb,lc,ld,
      &                        iCmp,iShll,NoPInts,
      &                        Dij(1,jOp(1)),mDij,Dkl(1,jOp(2)),mDkl,
@@ -673,7 +671,8 @@
                If (Do_TnsCtl) Then
                   Call TnsCtl(Wrk(iW4),nWork2,CoorM,
      &                        nijkl,mabMax,mabMin,mcdMax,mcdMin,
-     &                        Data1(iZ13_,lDCR1),Data2(iE13_,lDCR2),
+     &                        k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),
+     &                        k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),
      &                        la,lb,lc,ld,
      &                        iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &                        iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
@@ -798,7 +797,7 @@
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
-     &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
+     &           Shijij,Aux,nAux)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -873,8 +872,6 @@
          Call Unused_integer(nData2)
          Call Unused_real_array(FckTmp)
          Call Unused_real_array(SoInt)
-         Call Unused_integer(nHRRAB)
-         Call Unused_integer(nHRRCD)
          Call Unused_real_array(Aux)
       End If
 !
@@ -1104,8 +1101,8 @@
      &                  mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,
      &                  nabcd,mabcd,Wrk,ipAOInt_,iW4_,
      &                  nWork2,mWork2,
-     &                  Data1(ip_HrrMtrx(nZeta)),
-     &                  Data2(ip_HrrMtrx(nEta) ),
+     &                  k2Data1%HrrMtrx(:,1),
+     &                  k2Data2%HrrMtrx(:,1),
      &                  la,lb,lc,ld,
      &                  iCmp,iShll,NoPInts,
      &                  Dij(1,1),mDij,Dkl(1,1),mDkl,Do_TnsCtl,kabcd,
@@ -1140,8 +1137,8 @@
       If (Do_TnsCtl) Then
          Call TnsCtl(Wrk(iW4),nWork2,Coor,
      &               nijkl,mabMax,mabMin,mcdMax,mcdMin,
-     &               Data1(ip_HrrMtrx(nZeta)),
-     &               Data2(ip_HrrMtrx(nEta) ),
+     &               k2Data1%HrrMtrx(:,1),
+     &               k2Data2%HrrMtrx(:,1),
      &               la,lb,lc,ld,
      &               iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &               iShll(1),iShll(2),iShll(3),iShll(4),i_Int)

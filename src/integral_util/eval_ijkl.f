@@ -115,7 +115,7 @@
      &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
      &           Eta,EInv,IndEta,Kappcd,Q,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
-     &           Shijij,nHRRAB,nHRRCD,Aux,nAux)
+     &           Shijij,Aux,nAux)
       use k2_Structure, only: k2_type
       Implicit None
       Integer iS_,jS_,kS_,lS_
@@ -147,7 +147,7 @@
       Real*8  SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
       Real*8  Wrk(nWork2)
       Logical Shijij
-      Integer nHRRAB, nHRRCD, nAux
+      Integer nAux
       Real*8  Aux(nAux)
 
 
@@ -490,7 +490,7 @@
      &                          Mem_INT(ipiEta),Mem_DBLE(ipKcd),
      &                          Mem_DBLE(ipQ),nEta,
      &                          SOInt,nSO,AOInt,Mem2,
-     &                          Shijij,nHRRAB,nHRRCD,Aux,nAux)
+     &                          Shijij,Aux,nAux)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
