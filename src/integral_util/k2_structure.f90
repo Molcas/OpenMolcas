@@ -76,7 +76,7 @@ real*8,  Allocatable:: Kappa(:)
 real*8,  Allocatable:: PCoor(:,:)
 real*8,  Allocatable:: ZInv(:)
 real*8,  Allocatable:: ab(:)
-real*8,  Allocatable:: abG(:,:,:)
+real*8,  Allocatable:: abG(:,:)
 real*8,  Allocatable:: abCon(:)
 real*8,  Allocatable:: Alpha(:)
 real*8,  Allocatable:: Beta(:)
@@ -115,7 +115,7 @@ Call mma_allocate(k2Data%Alpha,    nZeta,Label='%Alpha')
 Call mma_allocate(k2Data%Beta,     nZeta,Label='%Beta')
 Call mma_allocate(k2Data%IndZ,     nZeta+1,Label='%IndZ')   ! yes +1!
 Call mma_allocate(k2Data%HrrMtrx,    nHm,Label='%HrrMtrx')
-Call mma_allocate(k2Data%abG,nZeta,ijCmp,2,Label='%abG')
+Call mma_allocate(k2Data%abG,nZeta*ijCmp,2,Label='%abG')
 End Subroutine Allocate_k2data
 
 Subroutine Free_k2data()

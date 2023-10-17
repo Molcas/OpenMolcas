@@ -76,11 +76,4 @@
       Return
       End
 
-      Integer Function ip_abG(nZeta,nHm)
-      Implicit None
-      Integer nZeta,nHm
-      ip_abG = 8+nHm + 11*nZeta + 1
-      Return
-      End
-!                                                                      *
 !***********************************************************************

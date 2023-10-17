@@ -55,7 +55,7 @@ real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
 real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), xA(nZeta), &
                               xB(nZeta), xG(nEta), xD(nEta), Wrk2(nWrk2), Aux(nAux)
 logical(kind=iwp), intent(in) :: IfGrad(3,4), Shijij
-integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iffab, iffabG, iffcd, iffcdG, iiCent, ijklab, ijMax, &
+integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iiCent, ijklab, ijMax, &
                      ijMin, ikl, IncEta, IncZet, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), iW2, iW3, iW4, ix1, ix2, iy1, iy2, &
                      iz1, iz2, jCmpb, jjCent, JndGrd(3,4), jPrim, jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, lc, &
                      lCent, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, lPrim, lShlld, lStabM, lStabN, lZeta, mab, mcd, &
@@ -63,7 +63,7 @@ integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iffab, i
                      nZeta_Tot
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr
-integer(kind=iwp), external :: ip_abG, NrOpr
+integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ, lEmpty
 external :: ModU2, TERI1, vCff2D
@@ -140,18 +140,6 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
     iW2 = 1
   end if
 
-  if (l2DI) then
-    iffab = ip_abG(nZeta,nHmab)-1
-    iffabG = ip_abG(nZeta,nHmab)+nab*nZeta-1
-    iffcd = ip_abG(nEta,nHmcd)-1
-    iffcdG = ip_abG(nEta,nHmcd)+ncd*nEta-1
-  else
-    ! Dummy pointer to assure that we will not be out off bounds.
-    iffab = ip_abG(nZeta,nHmab)-nZeta-1
-    iffabG = ip_abG(nZeta,nHmab)-nZeta-1
-    iffcd = ip_abG(nEta,nHmcd)-nZeta-1
-    iffcdG = ip_abG(nEta,nHmcd)-nZeta-1
-  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -491,9 +479,12 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
             call Screen_g(iZeta-1,iEta-1,Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
                           k2Data1(lDCR1),k2Data2(lDCR2),Data1(iZeta,lDCR1), &
                           nAlpha,jPrim,k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,Data2(iEta,lDCR2),nGamma,lPrim, &
-                          k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI,Data1(iZeta+iffab,lDCR1), &
-                          Data1(iZeta+iffabG,lDCR1),nab,Data2(iEta+iffcd,lDCR2),Data2(iEta+iffcdG,lDCR2),ncd,PreScr,nWrk3,IsChi, &
-                          ChiI2)
+                          k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI, &
+                          k2Data1(lDCR1)%abG(iZeta:iZeta+mZeta-1,1), &
+                          k2Data1(lDCR1)%abG(iZeta:iZeta+mZeta-1,2), nab, &
+                          k2Data2(lDCR2)%abG(iEta :iEta +mEta -1,1), &
+                          k2Data2(lDCR2)%abG(iEta :iEta +mEta -1,2), ncd, &
+                          PreScr,nWrk3,IsChi,ChiI2)
             Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
             !write(u6,*) 'Prem=',Prem
             if (lZeta*lEta == 0) cycle

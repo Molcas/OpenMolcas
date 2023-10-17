@@ -39,7 +39,6 @@
         iShll= iSD( 0,iS)
         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Go To 100
         iShell=iSD(11,iS)
-        iPrimi=iSD( 5,iS)
         iCmp=iSD(2,iS)
         iAng=iSD(1,iS)
         iCnttp=iSD(13,iS)
@@ -49,7 +48,6 @@
           If (Shells(jShll)%Aux .and. jS.eq.nSkal) Go To 200
 !         Write (*,*) 'Shell_..:iS,jS=',iS,jS
           jShell=iSD(11,jS)
-          jPrimj=iSD( 5,jS)
           jCmp=iSD(2,jS)
           jAng=iSD(1,jS)
           jCnttp=iSD(13,jS)

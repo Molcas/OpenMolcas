@@ -72,14 +72,12 @@
       Integer  mStb(2), la, lb, iSmAng, mabMin, mabMax, ne,
      &         iCmpa_, jCmpb_, nData, iShlla, jShllb,
      &         i13_, mcdMin, mcdMax, mabcd, mZeta, nT,
-     &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, iOff_G, nDisp,
+     &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, nDisp,
      &         iCmp
       Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
      &       TEMP
       Real*8, External :: EstI
-      Integer, External:: ip_ABg,
-     &                    ip_HrrMtrx,
-     &                    ip_PCoor
+      Integer, External:: ip_HrrMtrx, ip_PCoor
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -353,7 +351,7 @@
      &                     nZeta,Wrk,nWork2,HMtrx,
      &                     nHrrMtrx,iShlla,jShllb,i_Int)
                Call PckInt(Wrk(i_Int),lZeta,ijCmp,
-     &                     Data(ip_abG(nZeta,nHm)+iZeta-1,lDCRR+1),
+     &                     k2Data(lDCRR+1)%abG(iZeta:,1),
      &                     k2Data(lDCRR+1)%Kappa(iZeta:),.True.,
      &                     k2Data(lDCRR+1)%Zeta(iZeta:),nZeta,
      &                     Dummy)
@@ -366,8 +364,7 @@
 !
             iIrrep=0
             Delta = 1.0D-03
-            iOff_g=ip_abG(nZeta,nHm)+ijCmp*nZeta
-            Call FZero(Data(iOff_g,lDCRR+1),nZeta*ijCmp)
+            k2Data(lDCRR+1)%abG(:,2)=Zero
             Scr(1:nZeta*ijCmp,:)=Zero
 !
 !---------- Loop over center A and B.
@@ -495,8 +492,8 @@
 !
                      Call DScal_(nZeta*ijCmp,One/(Four*Delta**2),
      &                                           Scr(1,1),1)
-                     Call AbsAdd(nZeta*ijCmp,    Scr(1,1),1,
-     &                                   Data(iOff_g,lDCRR+1),1)
+                     Call AbsAdd(nZeta*ijCmp,    Scr(:,1),1,
+     &                                k2data(lDCRR+1)%abG(:,2),1)
 !
                      CoorM(iComp,iCnt  ) = temp
                      CoorM(iComp,iCnt+2) = temp
@@ -519,10 +516,9 @@
          Call WrCheck('ZInv ',k2Data(lDCRR+1)%ZInv(:),nZeta)
          If (DoGrad) Then
             Call WrCheck('ab   ',
-     &         Data(ip_abG  (nZeta,nHm),  lDCRR+1),nZeta*ijCmp)
-            iOff_g=ip_abG(nZeta,nHm)+ijCmp*nZeta
+     &        k2data(lDCRR+1)%abG(:,1),nZeta*ijCmp)
             Call WrCheck('abG  ',
-     &         Data(iOff_g,               lDCRR+1),nZeta*ijCmp)
+     &        k2data(lDCRR+1)%abG(:,2),nZeta*ijCmp)
          End If
          Write (6,*)
          Write (6,*) ' ERI(Max)=',k2Data(lDCRR+1)%EstI
