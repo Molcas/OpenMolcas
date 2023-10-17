@@ -104,7 +104,7 @@
          lZeta=0
          Do iZeta = 1, mZeta
             ppaa= k2Data1%ab(iOffZ+iZeta) * cdMax
-            aaaa= Data1(ip_abCon(iZeta,nZeta)) * cdMax
+            aaaa= k2Data1%abCon(iOffZ+iZeta) * cdMax
             jZeta = IndZ(iZeta)
             Test=ppaa*Dij(jZeta)+aaaa*(DMax+vkl)
             If (Test.ge.CutDInt) Then
@@ -121,7 +121,7 @@
       Else
          lZeta=0
          Do iZeta = 1, mZeta
-            aaaa= Data1(ip_abCon(iZeta,nZeta)) * cdMax
+            aaaa= k2Data1%abCon(iOffZ+iZeta) * cdMax
             If (aaaa.ge.CutInt) Then
                lZeta=lZeta+1
                Zeta(lZeta)  = k2Data1%Zeta(iOffZ+iZeta)
@@ -145,7 +145,7 @@
          lEta=0
          Do iEta = 1, mEta
             ppaa= k2Data2%ab(iOffE+iEta) * abMax
-            aaaa= Data2(ip_abCon(iEta,nEta)) * abMax
+            aaaa= k2Data2%abCon(iOffE+iEta) * abMax
             jEta = IndE(iEta)
             Test=ppaa*Dkl(jEta)+aaaa*(DMax+vij)
             If (Test.ge.CutDInt) Then
@@ -162,7 +162,7 @@
       Else
          lEta=0
          Do iEta = 1, mEta
-            aaaa= Data2(ip_abCon(iEta,nEta)) * abMax
+            aaaa= k2Data2%abCon(iOffE+iEta) * abMax
             If (aaaa.ge.CutInt) Then
                lEta=lEta+1
                IndEta(lEta)= IndE(iEta)

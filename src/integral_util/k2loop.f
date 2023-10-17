@@ -77,7 +77,7 @@
       Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
      &       TEMP
       Real*8, External :: EstI
-      Integer, External:: ip_ABCon, ip_ABg,
+      Integer, External:: ip_ABg,
      &                    ip_HrrMtrx,
      &                    ip_PCoor
 !                                                                      *
@@ -270,7 +270,7 @@
      &                 k2Data(lDCRR+1)%ZInv(:),
      &                 AeqB,
      &                 k2Data(lDCRR+1)%ab(:),
-     &                 Data(ip_abCon(1,nZeta),lDCRR+1),
+     &                 k2Data(lDCRR+1)%abCon(:),
      &                 Alpha_(iZeta),
      &                 k2Data(lDCRR+1)%Alpha(:),
      &                 Beta_(iZeta),

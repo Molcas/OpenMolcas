@@ -69,13 +69,6 @@
       Return
       End
 
-      Integer Function ip_abCon(iZeta,nZeta)
-      Implicit None
-      Integer iZeta,nZeta
-      ip_abCon = iZeta + 7*nZeta
-      Return
-      End
-
       Integer Function ip_HrrMtrx(nZeta)
       Implicit None
       Integer nZeta
