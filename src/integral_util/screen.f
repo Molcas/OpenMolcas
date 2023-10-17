@@ -103,7 +103,7 @@
       If (.Not.Prescreen_On_Int_Only) Then
          lZeta=0
          Do iZeta = 1, mZeta
-            ppaa= Data1(ip_ab   (iZeta,nZeta)) * cdMax
+            ppaa= k2Data1%ab(iOffZ+iZeta) * cdMax
             aaaa= Data1(ip_abCon(iZeta,nZeta)) * cdMax
             jZeta = IndZ(iZeta)
             Test=ppaa*Dij(jZeta)+aaaa*(DMax+vkl)
@@ -144,7 +144,7 @@
       If (.Not.Prescreen_On_Int_Only) Then
          lEta=0
          Do iEta = 1, mEta
-            ppaa= Data2(ip_ab   (iEta,nEta)) * abMax
+            ppaa= k2Data2%ab(iOffE+iEta) * abMax
             aaaa= Data2(ip_abCon(iEta,nEta)) * abMax
             jEta = IndE(iEta)
             Test=ppaa*Dkl(jEta)+aaaa*(DMax+vij)

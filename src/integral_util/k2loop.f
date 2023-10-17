@@ -78,7 +78,7 @@
       Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
      &       TEMP
       Real*8, External :: EstI
-      Integer, External:: ip_AB, ip_ABCon, ip_ABg,
+      Integer, External:: ip_ABCon, ip_ABg,
      &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
      &                    ip_IndZ, ip_PCoor, ip_ZInv
 !                                                                      *
@@ -276,7 +276,7 @@
      &                 iData,iZeta-1,Jnd,
      &                 Data(ip_ZInv (1,nZeta),lDCRR+1),
      &                 AeqB,
-     &                 Data(ip_ab   (1,nZeta),lDCRR+1),
+     &                 k2Data(lDCRR+1)%ab(:),
      &                 Data(ip_abCon(1,nZeta),lDCRR+1),
      &                 Alpha_(iZeta),
      &                 Data(ip_Alpha(1,nZeta,1),lDCRR+1),
@@ -295,7 +295,7 @@
      &                           k2Data(lDCRR+1)%Kappa(:),
      &                           nAlpha,nBeta,
      &                           Coeff1,iBasn,Coeff2,jBasn,
-     &                           Data(ip_ab   (1,nZeta),lDCRR+1),
+     &                           k2Data(lDCRR+1)%ab(:),
      &                           iCmpa_*jCmpb_,
      &                           Wrk,nWork2,
      &                           iData)
@@ -317,13 +317,13 @@
          ZtMaxD=One
          abMaxD=Zero
          Do iZeta = 0, Jnd-1
-            tmp = Data(ip_abCon(iZeta+1,nZeta),lDCRR+1)
+            tmp = k2Data(lDCRR+1)%ab(iZeta+1)
             If (abMax.lt.tmp) Then
                abMax = tmp
                ZtMax = k2Data(lDCRR+1)%Zeta(iZeta+1)
             End If
             If (DoFock) Then
-               tmp = Data(ip_ab(iZeta+1,nZeta),lDCRR+1)
+               tmp = k2Data(lDCRR+1)%ab(iZeta+1)
      &             * Dij(iOffZ+iZeta,lDCRR+1)
                If (abMaxD.lt.tmp) Then
                  abMaxD = tmp
