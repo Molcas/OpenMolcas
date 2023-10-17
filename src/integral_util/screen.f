@@ -115,7 +115,7 @@
                P(lZeta,2)   = Data1(ip_Pcoor(iZeta+  nZeta,nZeta))
                P(lZeta,3)   = Data1(ip_Pcoor(iZeta+2*nZeta,nZeta))
                IndZet(lZeta)= IndZ(iZeta)
-               ZInv(lZeta)  = Data1(ip_ZInv (iZeta,nZeta))
+               ZInv(lZeta)  = k2Data1%ZInv(iOffZ+iZeta)
             End If
          End Do
       Else
@@ -130,7 +130,7 @@
                P(lZeta,2)   = Data1(ip_Pcoor(iZeta+  nZeta,nZeta))
                P(lZeta,3)   = Data1(ip_Pcoor(iZeta+2*nZeta,nZeta))
                IndZet(lZeta)= IndZ(iZeta)
-               ZInv(lZeta)  = Data1(ip_ZInv (iZeta,nZeta))
+               ZInv(lZeta)  = k2Data1%ZInv(iOffZ+iZeta)
             End If
          End Do
       End If
@@ -156,7 +156,7 @@
                Q(lEta,1)   = Data2(ip_Pcoor(iEta,       nEta))
                Q(lEta,2)   = Data2(ip_Pcoor(iEta+  nEta,nEta))
                Q(lEta,3)   = Data2(ip_PCoor(iEta+2*nEta,nEta))
-               EInv(lEta)  = Data2(ip_ZInv (iEta,nEta))
+               EInv(lEta)  = k2Data2%ZInv(iOffE+iEta)
             End If
          End Do
       Else
@@ -171,7 +171,7 @@
                Q(lEta,1)   = Data2(ip_Pcoor(iEta,       nEta))
                Q(lEta,2)   = Data2(ip_Pcoor(iEta+  nEta,nEta))
                Q(lEta,3)   = Data2(ip_PCoor(iEta+2*nEta,nEta))
-               EInv(lEta)  = Data2(ip_ZInv (iEta,nEta))
+               EInv(lEta)  = k2Data2%ZInv(iOffE+iEta)
             End If
          End Do
       End If

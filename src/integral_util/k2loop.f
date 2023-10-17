@@ -80,7 +80,7 @@
       Real*8, External :: EstI
       Integer, External:: ip_ABCon, ip_ABg,
      &                    ip_Alpha, ip_Beta, ip_HrrMtrx,
-     &                    ip_IndZ, ip_PCoor, ip_ZInv
+     &                    ip_IndZ, ip_PCoor
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -274,7 +274,7 @@
      &                 k2Data(lDCRR+1)%Kappa(:),
      &                 Data(ip_Pcoor(1,nZeta),lDCRR+1),
      &                 iData,iZeta-1,Jnd,
-     &                 Data(ip_ZInv (1,nZeta),lDCRR+1),
+     &                 k2Data(lDCRR+1)%ZInv(:),
      &                 AeqB,
      &                 k2Data(lDCRR+1)%ab(:),
      &                 Data(ip_abCon(1,nZeta),lDCRR+1),
@@ -353,7 +353,7 @@
                lZeta = Min(mZeta-iZeta+1,IncZZ)
                Call SchInt(CoorM,iAnga,iCmpa,lZeta,
      &                     k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                     Data(ip_ZInv (iZeta,nZeta),lDCRR+1),
+     &                     k2Data(lDCRR+1)%ZInv(iZeta:),
      &                     k2Data(lDCRR+1)%Kappa(iZeta:),
      &                     Data(ip_PCoor(iZeta,nZeta),lDCRR+1),
      &                     k2Data(lDCRR+1)%Kappa(iZeta:),
@@ -402,7 +402,7 @@
                         Call SchInt(CoorM,
      &                              iAnga,iCmpa,lZeta,
      &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%ZInv(iZeta:),
      &                              Knew(iZeta),
      &                              Pnew(iZeta),
      &                              Knew(iZeta),
@@ -430,7 +430,7 @@
                         Call SchInt(CoorM,
      &                              iAnga,iCmpa,lZeta,
      &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%ZInv(iZeta:),
      &                              Lnew(iZeta),
      &                              Qnew(iZeta),
      &                              Lnew(iZeta),
@@ -456,7 +456,7 @@
                         Call SchInt(CoorM,
      &                              iAnga,iCmpa,lZeta,
      &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%ZInv(iZeta:),
      &                              Knew(iZeta),
      &                              Pnew(iZeta),
      &                              Lnew(iZeta),
@@ -482,7 +482,7 @@
                         Call SchInt(CoorM,
      &                              iAnga,iCmpa,lZeta,
      &                              k2Data(lDCRR+1)%Zeta(iZeta:),
-     &                              Data(ip_ZInv(iZeta,nZeta),lDCRR+1),
+     &                              k2Data(lDCRR+1)%ZInv(iZeta:),
      &                              Lnew(iZeta),
      &                              Qnew(iZeta),
      &                              Knew(iZeta),
@@ -524,7 +524,7 @@
          Call WrCheck('P    ',Data(ip_PCoor(1,nZeta),  lDCRR+1),nZeta*3)
          Call WrCheck('xA   ',Data(ip_Alpha(1,nZeta,1),lDCRR+1),nZeta)
          Call WrCheck('xB   ',Data(ip_Beta (1,nZeta,2),lDCRR+1),nZeta)
-         Call WrCheck('ZInv ',Data(ip_ZInv (1,nZeta),  lDCRR+1),nZeta)
+         Call WrCheck('ZInv ',k2Data(lDCRR+1)%ZInv(:),nZeta)
          If (DoGrad) Then
             Call WrCheck('ab   ',
      &         Data(ip_abG  (nZeta,nHm),  lDCRR+1),nZeta*ijCmp)

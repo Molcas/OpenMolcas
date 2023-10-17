@@ -69,13 +69,6 @@
       Return
       End
 
-      Integer Function ip_ZInv(iZeta,nZeta)
-      Implicit None
-      Integer iZeta,nZeta
-      ip_ZInv = iZeta + 5*nZeta
-      Return
-      End
-
       Integer Function ip_abCon(iZeta,nZeta)
       Implicit None
       Integer iZeta,nZeta

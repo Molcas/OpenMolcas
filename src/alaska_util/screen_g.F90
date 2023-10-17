@@ -55,7 +55,7 @@ integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2
 real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
                  vMax, zMin, Zt
 logical(kind=iwp) :: ZPreScr, EPreScr
-integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_PCoor, ip_ZInv
+integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_PCoor
 real(kind=wp), external :: DNrm2_
 #include "print.fh"
 
@@ -226,7 +226,7 @@ if (ZPreScr) then
       P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))*Pz
       xA(lZeta) = Data1(ip_Alpha(iZeta,nZeta,1))
       xB(lZeta) = Data1(ip_Beta(iZeta,nZeta,2))
-      ZInv(lZeta) = Data1(ip_ZInv(iZeta,nZeta))
+      ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
       ip2 = ipOAP+mEta*mPAO*(lZeta-1)-1
       do iEP=1,mEta*mPAO
         Scrtch(ip2+iEP) = PAO((iEP-1)*mZeta+iZeta)
@@ -242,7 +242,7 @@ else
     P(lZeta,3) = Data1(ip_PCoor(iZeta+2*nZeta,nZeta))*Pz
     xA(lZeta) = Data1(ip_Alpha(iZeta,nZeta,1))
     xB(lZeta) = Data1(ip_Beta(iZeta,nZeta,2))
-    ZInv(lZeta) = Data1(ip_ZInv(iZeta,nZeta))
+    ZInv(lZeta) = k2Data1%ZInv(iOffZ+iZeta)
   end do
   if (EPreScr) call DGeTMO(PAO,mZeta,mZeta,mEta*mPAO,Scrtch(ipOAP),mEta*mPAO)
 end if
@@ -267,7 +267,7 @@ if (EPreScr) then
       Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))*Qz
       xG(lEta) = Data2(ip_Alpha(iEta,nEta,1))
       xD(lEta) = Data2(ip_Beta(iEta,nEta,2))
-      EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
+      EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
       ip1 = ipOAP+iEta-1
       ip2 = ipPAO+(lEta-1)*mPAO*lZeta-1
       do jPZ=1,mPAO*lZeta
@@ -287,7 +287,7 @@ else
     Q(lEta,3) = Data2(ip_PCoor(iEta+2*nEta,nEta))*Qz
     xG(lEta) = Data2(ip_Alpha(iEta,nEta,1))
     xD(lEta) = Data2(ip_Beta(iEta,nEta,2))
-    EInv(lEta) = Data2(ip_ZInv(iEta,nEta))
+    EInv(lEta) = k2Data2%ZInv(iOffE+iEta)
   end do
   ipP = ipOAP
   l1 = lEta*mPAO
