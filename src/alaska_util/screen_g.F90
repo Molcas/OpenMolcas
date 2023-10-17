@@ -13,8 +13,8 @@
 
 subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
                     k2Data1, k2Data2, &
-                    Data1,nAlpha,nBeta,IndZ,Eta,EInv,Q,xG,xD, &
-                    Data2,nGamma,nDelta,IndE,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI,ab,abg,nab,cd,cdg,ncd,PreScr,nScrtch, &
+                    nAlpha,nBeta,IndZ,Eta,EInv,Q,xG,xD, &
+                    nGamma,nDelta,IndE,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI,ab,abg,nab,cd,cdg,ncd,PreScr,nScrtch, &
                     IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
@@ -35,7 +35,6 @@ subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use k2_setup, only: nDArray
 use k2_structure, only: k2_type
 
 implicit none
@@ -47,8 +46,7 @@ real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
 real(kind=wp), intent(out) :: Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), Eta(nEta), EInv(nEta), &
                               Q(nEta,3), xG(nEta), xD(nEta)
 integer(kind=iwp), intent(out) :: lZeta, lEta
-real(kind=wp), intent(in) :: Data1(nZeta*(nDArray-1)), Data2(nEta*(nDArray-1)), CutGrd, ab(nZeta,nab), abg(nZeta,nab), &
-                             cd(nEta,ncd), cdg(nEta,ncd), ChiI2
+real(kind=wp), intent(in) :: CutGrd, ab(nZeta,nab), abg(nZeta,nab), cd(nEta,ncd), cdg(nEta,ncd), ChiI2
 logical(kind=iwp), intent(in) :: l2DI, PreScr
 integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2, iPAO, ipE, ipFac, ipOAP, ipP, ipPAO, iPrint, &
                      ipZ, iRout, iZE, iZeta, jPAO, jPZ, l1, l2
@@ -70,8 +68,6 @@ unused_var(nDelta)
 iRout = 180
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
-  call RecPrt(' Data1',' ',Data1,nZeta,nDArray-1)
-  call RecPrt(' Data2',' ',Data2,nEta,nDArray-1)
   if (l2DI) then
     call RecPrt(' ab   ',' ',ab,nZeta,nab)
     call RecPrt(' cd   ',' ',cd,nEta,ncd)

@@ -32,7 +32,6 @@ subroutine Drvg1(Grad,Temp,nGrad)
 !***********************************************************************
 
 use setup
-use k2_setup, only: Data_k2
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
 use pso_stuff, only: G_toc, nSSDM, SSDM
@@ -439,8 +438,8 @@ do
 #             endif
               call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
                            k2data(:,ik2),k2data(:,jk2),  &
-                           Data_k2(k2ij),nab,nHmab,nDCRR, &
-                           Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+                           nab,nDCRR, &
+                           ncd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                            Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                            Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
                            Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,Mem_DBLE(ipxA), &

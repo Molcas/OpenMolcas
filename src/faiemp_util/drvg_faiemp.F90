@@ -27,7 +27,6 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 !***********************************************************************
 
 use setup
-use k2_setup, only: Data_k2
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
 use Basis_Info, only: nBas, nBas_Frag, Shells
@@ -311,8 +310,8 @@ do
 
                 call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
                              k2Data(:,ik2), k2Data(:,jk2), &
-                             Data_k2(k2ij),nab,nHmab,nDCRR, &
-                             Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+                             nab,nDCRR, &
+                             ncd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                              Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
                              Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn, &
                              Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ), &

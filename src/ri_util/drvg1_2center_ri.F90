@@ -37,7 +37,6 @@ use setup
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: A_PT2, nBasA, nBasASQ, nBasT
-use k2_setup, only: Data_k2
 use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
 use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
@@ -451,8 +450,7 @@ do while (Rsv_Tsk(id,jlS))
 #         endif
           call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
                        k2Data(:,ik2), k2Data(:,jk2), &
-                       Data_k2(k2ij),nab,nHmab,nDCRR,Data_k2(k2kl), &
-                       ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+                       nab,nDCRR,ncd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                        Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                        Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
                        Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,Mem_DBLE(ipxA), &
