@@ -27,31 +27,44 @@
 !             June '91, modified for k2 loop.                          *
 !             Modified for direct SCF, January '93                     *
 !***********************************************************************
-      use setup
-      use Real_Spherical
-      use iSD_data
-      use k2_arrays
-      use Basis_Info
+      use setup, only: mSkal
+      use iSD_data, only: iSD
+      use k2_arrays, only: DoGrad_, DoHess_, ipZeta, ipiZet, DeDe,
+     &                     ipOffD, Mem_DBLE, Mem_Int, Sew_Scr
+      use Basis_Info, only: Shells, DBSC
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_global, only: force_part_c
       use Sizes_of_Seward, only: S
-      use k2_structure
+      use k2_structure, only: k2_Processed, k2Data, Indk2
 #ifdef _DEBUGPRINT_
       use Gateway_Info, only: lSchw
 #endif
       use UnixInfo, only: ProgName
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
       External Cmpct
+      Logical DoFock, DoGrad
+
 !     Local arrays
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)
-      Logical DoFock, force_part_save, DoGrad, ReOrder, Rls
+      Logical force_part_save, ReOrder, Rls
       Character(LEN=8) Method
       Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
       Integer ik2
+      Integer i, j, ixyz, nElem, nabSz, iTri,
+     &        iS, jS, ipAlpha, ipBeta, iShll, jShll, iBas, jBas,
+     &        iPrim, jPrim, la_, mabMin_, mabMax_, ne_, nHrrMtrx,
+     &        nScree, mScree, mk2, ipZInv, ipKab, ipP, ipCon, ipInd,
+     &        MemTmp, iAng, jAng, MemMax, ipMem1, iCmp, jCmp,
+     &        iShell, jShell, mdci, mdcj, iCnttp, jCnttp, iCnt, jCnt,
+     &        iPrimi, jPrimj, kPrimk, lPriml, nBasi, nBasj,
+     &        iBasi, jBasj, kBask, lBasl, nZeta, ijS, nDCR, nDij, nSO,
+     &        ipDij, iPrimS, jPrimS, nDCRR, nHm, ijCmp, ipMem2,
+     &        iBsInc, jBsInc, kBsInc, lBsInc, ijInc,
+     &        iPrInc, jPrInc, kPrInc, lPrInc, Mem1, Mem2, MemPrm
+      Real*8 TCPU1, TCPU2, TWALL1, TWALL2
 
       Interface
       SubRoutine k2Loop(Coor,
@@ -304,9 +317,6 @@
 !           total of six types) for all possible unique pairs of
 !           centers generated for the symmetry unique centers A and B.
 !
-!           Write (*,*) ' Generating batches:', mk2+1,' -',
-!    &                  mk2+nDCRR
-!           Write (*,*) ' Shell index =', ijS, iShell, jShell
             nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
             nHm=nHm*nIrrep
             ijCmp=nElem(iAng)*nElem(jAng)
