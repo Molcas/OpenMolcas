@@ -15,8 +15,9 @@ subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta
                     k2Data1, k2Data2, &
                     Zeta,ZInv,P,xA,xB,&
                     Eta,EInv,Q,xG,xD, &
-                    iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI,ab,abg,nab,cd,cdg,ncd,PreScr,nScrtch, &
-                    IsChi,ChiI2)
+                    iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI, &
+                    ab,abg,nab,cd,cdg,ncd, &
+                    PreScr,nScrtch,IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
 ! Object: to prescreen the integral derivatives.                       *
@@ -40,7 +41,7 @@ use k2_structure, only: k2_type
 
 implicit none
 integer(kind=iwp) iOffZ, iOffE
-type(k2_type), intent(in):: k2Data1, k2Data2
+type(k2_type), target, intent(in):: k2Data1, k2Data2
 integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, iphX1, &
                                  iphY1, iphZ1, iphX2, iphY2, iphZ2, nab, ncd, nScrtch, IsChi
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
@@ -56,6 +57,12 @@ real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZet
 logical(kind=iwp) :: ZPreScr, EPreScr
 integer(kind=iwp) :: iDMin
 real(kind=wp), external :: DNrm2_
+real(kind=wp), pointer :: ab_(:,:), abG_(:,:), cd_(:,:), cdG_(:,:)
+
+ab_(1:nZeta,1:nab) => k2Data1%abG(1:nZeta*nab,1)
+abG_(1:nZeta,1:nab) => k2Data1%abG(1:nZeta*nab,2)
+cd_(1:nEta,1:ncd) => k2Data2%abG(1:nEta*ncd,1)
+cdG_(1:nEta,1:ncd) => k2Data2%abG(1:nEta*ncd,2)
 
 
 #ifdef _DEBUGPRINT_
@@ -146,14 +153,14 @@ if (PreScr) then
   end do
   do icd=1,ncd
     do iEta=1,mEta
-      alpha = cd(iEta,icd)
-      beta = cdg(iEta,icd)
+      alpha = cd_(iOffE+iEta,icd)
+      beta = cdg_(iOffE+iEta,icd)
       iZE = (iEta-1)*mZeta
       do iab=1,nab
         iabcd = (icd-1)*nab+iab
         iOff = (iabcd-1)*mZeta*mEta+iZE
         do iZeta=1,mZeta
-          temp = (alpha*abg(iZeta,iab)+beta*ab(iZeta,iab))*PAO(iZeta+iOff)
+          temp = (alpha*abg_(iOffZ+iZeta,iab)+beta*ab_(iOffZ+iZeta,iab))*PAO(iZeta+iOff)
           Scrtch(ipZ+iZeta-1) = Scrtch(ipZ+iZeta-1)+abs(temp)
           Scrtch(ipE+iEta-1) = Scrtch(ipE+iEta-1)+abs(temp)
         end do
@@ -306,6 +313,7 @@ end if
 call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 #endif
 
+Nullify(ab_,abG_,cd_,cdG_)
 return
 
 end subroutine Screen_g

@@ -90,7 +90,7 @@ real*8              :: abMaxD=Zero
 real*8,  Allocatable:: HrrMtrx(:,:)
 End type k2_type
 
-type (k2_type), Allocatable:: k2data(:,:)
+type (k2_type), Allocatable, Target :: k2data(:,:)
 
 Integer, Parameter:: nDArray=11,nDScalar=9
 
