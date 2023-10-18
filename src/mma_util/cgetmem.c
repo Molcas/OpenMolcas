@@ -62,9 +62,9 @@
 #define ALLOC_FLD -2
 #define MINMEMPTR -577777000306848070
 #ifdef _DEBUGPRINT_MEM_
-# define MAXREC 32768
+# define MAXREC 524288
 #else
-# define MAXREC 32768 /* 8192 */
+# define MAXREC 524288 /* 8192 */
 #endif
 
 #ifdef _MEM_PROF_
