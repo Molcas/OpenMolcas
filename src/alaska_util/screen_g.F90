@@ -10,11 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
-
+!#define _DEBUGPRINT_
 subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
                     k2Data1, k2Data2, &
-                    Zeta,ZInv,P,xA,xB,nAlpha,nBeta,IndZ, &
-                    Eta,EInv,Q,xG,xD,nGamma,nDelta,IndE, &
+                    Zeta,ZInv,P,xA,xB,&
+                    Eta,EInv,Q,xG,xD, &
                     iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI,ab,abg,nab,cd,cdg,ncd,PreScr,nScrtch, &
                     IsChi,ChiI2)
 !***********************************************************************
@@ -41,7 +41,7 @@ use k2_structure, only: k2_type
 implicit none
 integer(kind=iwp) iOffZ, iOffE
 type(k2_type), intent(in):: k2Data1, k2Data2
-integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, nAlpha, nBeta, IndZ(mZeta), nGamma, nDelta, IndE(mEta), iphX1, &
+integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, iphX1, &
                                  iphY1, iphZ1, iphX2, iphY2, iphZ2, nab, ncd, nScrtch, IsChi
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
 real(kind=wp), intent(out) :: Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), Eta(nEta), EInv(nEta), &
@@ -49,34 +49,24 @@ real(kind=wp), intent(out) :: Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta
 integer(kind=iwp), intent(out) :: lZeta, lEta
 real(kind=wp), intent(in) :: CutGrd, ab(nZeta,nab), abg(nZeta,nab), cd(nEta,ncd), cdg(nEta,ncd), ChiI2
 logical(kind=iwp), intent(in) :: l2DI, PreScr
-integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2, iPAO, ipE, ipFac, ipOAP, ipP, ipPAO, iPrint, &
-                     ipZ, iRout, iZE, iZeta, jPAO, jPZ, l1, l2
+integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2, iPAO, ipE, ipFac, ipOAP, ipP, ipPAO, &
+                     ipZ, iZE, iZeta, jPAO, jPZ, l1, l2
 real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
                  vMax, zMin, Zt
 logical(kind=iwp) :: ZPreScr, EPreScr
 integer(kind=iwp) :: iDMin
 real(kind=wp), external :: DNrm2_
-#include "print.fh"
 
-#include "macros.fh"
-unused_var(IndZ)
-unused_var(IndE)
-unused_var(nAlpha)
-unused_var(nBeta)
-unused_var(nGamma)
-unused_var(nDelta)
 
-iRout = 180
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  if (l2DI) then
-    call RecPrt(' ab   ',' ',ab,nZeta,nab)
-    call RecPrt(' cd   ',' ',cd,nEta,ncd)
-    call RecPrt(' abg  ',' ',abg,nZeta,nab)
-    call RecPrt(' cdg  ',' ',cdg,nEta,ncd)
-  end if
-  call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
+#ifdef _DEBUGPRINT_
+if (l2DI) then
+  call RecPrt(' ab   ',' ',ab,nZeta,nab)
+  call RecPrt(' cd   ',' ',cd,nEta,ncd)
+  call RecPrt(' abg  ',' ',abg,nZeta,nab)
+  call RecPrt(' cdg  ',' ',cdg,nEta,ncd)
 end if
+call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
+#endif
 if (PreScr .and. (.not. l2DI)) then
   write(u6,*) ' Screen: .not.l2DI no activated  prescr=',prescr,'  l2di=',l2di
   call Abend()
@@ -108,7 +98,9 @@ do iEta=1,mEta
     end if
   end do
 end do
-if (iPrint >= 99) call RecPrt(' Collected prefactors',' ',Scrtch(ipFac),mZeta,mEta)
+#ifdef _DEBUGPRINT_
+Call RecPrt(' Collected prefactors',' ',Scrtch(ipFac),mZeta,mEta)
+#endif
 
 ! Modify the 2nd order density matrix with the prefactor.
 
@@ -123,7 +115,9 @@ do iPAO=1,mPAO
   end do
   jPAO = jPAO+mZeta*mEta
 end do
-if (iPrint >= 49) call RecPrt(' Modified 2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Modified 2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
+#endif
 
 ! Scan the modified 2nd order density matrix for the
 ! largest absolute value.
@@ -188,7 +182,9 @@ if (PreScr) then
   if (zMin >= Cut2/rqEta) then
     ZPreScr = .false.
   end if
-  if (iPrint >= 99) call RecPrt(' Screening array(Eta)',' ',Scrtch(ipZ),mZeta,1)
+#ifdef _DEBUGPRINT_
+  call RecPrt(' Screening array(Eta)',' ',Scrtch(ipZ),mZeta,1)
+#endif
 end if
 
 rZeta = real(nZeta*mPAO,kind=wp)
@@ -201,7 +197,9 @@ if (PreScr) then
   if (eMin >= Cut2/rqZeta) then
     EPreScr = .false.
   end if
-  if (iPrint >= 99) call RecPrt(' Screening array(Zeta)',' ',Scrtch(ipE),mEta,1)
+#ifdef _DEBUGPRINT_
+  call RecPrt(' Screening array(Zeta)',' ',Scrtch(ipE),mEta,1)
+#endif
 end if
 
 ! Prescreen Zeta
@@ -304,7 +302,9 @@ if (PreScr) then
   end if
 end if
 
-if (iPrint >= 39) call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
+#ifdef _DEBUGPRINT_
+call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
+#endif
 
 return
 

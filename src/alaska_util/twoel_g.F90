@@ -55,8 +55,8 @@ real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), E
 logical(kind=iwp), intent(in) :: IfGrad(3,4), Shijij
 integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iiCent, ijklab, ijMax, &
                      ijMin, ikl, IncEta, IncZet, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), iW2, iW3, iW4, ix1, ix2, iy1, iy2, &
-                     iz1, iz2, jCmpb, jjCent, JndGrd(3,4), jPrim, jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, lc, &
-                     lCent, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, lPrim, lShlld, lStabM, lStabN, lZeta, mab, mcd, &
+                     iz1, iz2, jCmpb, jjCent, JndGrd(3,4), jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, lc, &
+                     lCent, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, lZeta, mab, mcd, &
                      mCent, mEta, mGrad, MxDCRS, mZeta, nDCRR, nDCRS, nDCRT, nEta_Tot, nIdent, nijkl, nOp(4), nW2, nW4, nWrk3, &
                      nZeta_Tot
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
@@ -474,15 +474,13 @@ subroutine TwoEl_g_Internal(Wrk2)
             nWrk3 = nWrk2-mZeta*mEta*mab*mcd
             call Screen_g(iZeta-1,iEta-1,Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
                           k2Data1(lDCR1),k2Data2(lDCR2), &
-                          Zeta,ZInv,P,xA,xB, nAlpha,jPrim, &
-                          k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1), &
-                          Eta,EInv,Q,xG,xD,nGamma,lPrim, &
-                          k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1), &
+                          Zeta,ZInv,P,xA,xB, &
+                          Eta,EInv,Q,xG,xD, &
                           ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI, &
-                          k2Data1(lDCR1)%abG(iZeta:iZeta+mZeta-1,1), &
-                          k2Data1(lDCR1)%abG(iZeta:iZeta+mZeta-1,2), nab, &
-                          k2Data2(lDCR2)%abG(iEta :iEta +mEta -1,1), &
-                          k2Data2(lDCR2)%abG(iEta :iEta +mEta -1,2), ncd, &
+                          k2Data1(lDCR1)%abG(iZeta:,1), &
+                          k2Data1(lDCR1)%abG(iZeta:,2), nab, &
+                          k2Data2(lDCR2)%abG(iEta :,1), &
+                          k2Data2(lDCR2)%abG(iEta :,2), ncd, &
                           PreScr,nWrk3,IsChi,ChiI2)
             Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
             !write(u6,*) 'Prem=',Prem
