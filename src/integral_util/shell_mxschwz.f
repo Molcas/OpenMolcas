@@ -28,7 +28,7 @@
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
 
-      Integer ixyz, nElem, nabSz, ik2
+      Integer ixyz, nabSz, ik2
 !
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !

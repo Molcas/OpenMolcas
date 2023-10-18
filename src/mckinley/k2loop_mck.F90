@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,rData,k2data, &
+subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,k2data, &
                       ijCmp,Alpha,nAlpha,Beta,nBeta,Coeff1,iBasn,Coeff2,jBasn,nMemab,Wk002, &
                       m002,Wk003,m003,iStb,jStb)
 !***********************************************************************
@@ -37,28 +37,26 @@ subroutine k2Loop_mck(Coor,iAnga,iCmpa,iDCRR,nDCRR,rData,k2data, &
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use k2_setup, only: nDArray, nDScalar
 use k2_structure, only: k2_type
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), iCmpa(4), iDCRR(0:7), nDCRR, ijCmp, nAlpha, nBeta, iBasn, jBasn, nMemab, m002, m003, &
                                  iStb, jStb
 real(kind=wp), intent(in) :: Coor(3,2), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn)
-real(kind=wp), intent(out) :: rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR), Wk002(m002)
+real(kind=wp), intent(out) :: Wk002(m002)
 real(kind=wp), intent(inout) :: Wk003(m003)
 integer(kind=iwp) :: mStb(2), nZeta
 real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
 real(kind=wp), external :: EstI
 type(k2_type) :: k2Data(nDCRR)
 
-call k2Loop_mck_internal(rData)
+call k2Loop_mck_internal()
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine k2Loop_mck_internal(rData)
+subroutine k2Loop_mck_internal()
 
-  real(kind=wp), target :: rData(nAlpha*nBeta*nDArray+nDScalar,nDCRR)
   integer(kind=iwp) :: iZeta, lDCRR
 
   nZeta = nAlpha*nBeta

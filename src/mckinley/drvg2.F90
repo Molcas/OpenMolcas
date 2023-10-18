@@ -34,7 +34,7 @@ use setup
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD
-use k2_setup, only: Data_k2, Indk2, nIndk2
+use k2_setup, only: Indk2, nIndk2
 use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, ipZeta, MemR, MxDij, Mem_INT, Mem_DBLE, ndede, nFT, Sew_Scr
 use pso_stuff, only: nDens
 use Basis_Info, only: dbsc, nBas, nCnttp, Shells
@@ -864,7 +864,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nDCRR,Data_k2(k2kl), &
+            call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR, &
                            nDCRS, k2data(:,ik2), k2data(:,jk2), &
                            Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc,Shells(iShllV(1))%pCff(1,iBasAO),iBasn, &
                            Shells(iShllV(2))%pCff(1,jBasAO),jBasn,Shells(iShllV(3))%pCff(1,kBasAO),kBasn, &
@@ -990,7 +990,6 @@ call mma_deallocate(Aux)
 ! Generate statistic of partioning
 
 call mma_deallocate(IndK2)
-call mma_deallocate(Data_k2)
 Call Free_k2data()
 
 if (allocated(ipDisp)) call mma_deallocate(ipDisp)

@@ -28,7 +28,7 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem1
-use k2_setup, only: Data_k2, Indk2, nk2, nDArray, nDScalar
+use k2_setup, only: Indk2
 use k2_arrays, only: DoGrad_, DoHess_
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
@@ -43,11 +43,11 @@ integer(kind=iwp), intent(out) :: mdede
 logical(kind=iwp), intent(in) :: New_Fock
 integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
                      iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, jBas, &
-                     jBasj, jBsInc, jCmp, jCnt, jCnttp, jpk2, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
-                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, Maxk2, MaxMem, mdci, mdcj, MemPrm, &
+                     jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
+                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, mdci, mdcj, MemPrm, &
                      MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, nZeta
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
-real(kind=wp), allocatable :: Con(:), Data_k2_local(:), Wrk(:)
+real(kind=wp), allocatable :: Con(:), Wrk(:)
 integer(kind=iwp), external :: MemSO1
 Integer ik2, iIrrep
 Integer, parameter:: nHm=1
@@ -56,11 +56,6 @@ Integer, parameter:: nHm=1
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu1,TWall1)
-call mma_MaxDBLE(Maxk2)
-maxk2 = maxk2/2
-call mma_allocate(Data_k2_local,Maxk2)
-jpk2 = 1
-nk2 = 0
 mdede = 0
 mk2 = 0
 
@@ -186,15 +181,13 @@ do iS=1,nSkal
        Call Allocate_k2data(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
     End Do
 
-    call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,Data_k2_local(jpk2),k2Data(:,ik2), &
+    call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,k2Data(:,ik2), &
                     ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp, &
                     jPrimj,Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003,mdci, &
                     mdcj)
 
-    Indk2(1,ijShll) = jpk2
     Indk2(2,ijShll) = nDCRR
     Indk2(3,ijShll) = ik2
-    nk2 = nk2+(nZeta*nDArray+nDScalar)*nDCRR
     mk2 = mk2+nDCRR
 
     if (New_Fock) then
@@ -206,8 +199,6 @@ do iS=1,nSkal
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     if (nSO > 0) mDeDe = mDeDe+iDeSiz*nDCRR
 
-    jpk2 = 1+nk2
-
   end do
 end do
 !                                                                      *
@@ -218,16 +209,10 @@ call mma_deallocate(Con)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Resize the memory to the actual size
-
-call move_alloc(Data_k2_local,Data_k2)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,'(20X,A)') ' *** The k2 entities have been precomputed ***'
-write(u6,'(I7,A,I7,A)') mk2,' blocks of k2 data were computed and',nk2,' Word(*8) of memory is used for storage.'
+write(u6,'(I7,A)') mk2,' blocks of k2 data were computed.'
 write(u6,'(A)') ' The prescreening is based on the integral estimates.'
 #endif
 

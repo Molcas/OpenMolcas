@@ -13,7 +13,7 @@
 !***********************************************************************
 
 subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,nRys, &
-                     Data1,nData1,Data2,nData2,k2Data1,k2Data2,Pren,Prem,nAlpha, &
+                     nData1,nData2,k2Data1,k2Data2,Pren,Prem,nAlpha, &
                      nBeta,jPrInc,nGamma,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,Zeta,ZInv,P,rKab,nZeta, &
                      Eta,EInv,Q,rKcd,nEta,xA,xB,xG,xD,xPre,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO,Work2,nWork2,Work3, &
                      nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX,Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik, &
@@ -22,8 +22,6 @@ subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,
 !***********************************************************************
 !                                                                      *
 !     Input:                                                           *
-!     Data1                                                            *
-!     Data2                                                            *
 !     PSO                                                              *
 !     Work2                                                            *
 !     Work3                                                            *
@@ -95,8 +93,7 @@ integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4),
                                  nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
                                  nFt, nBuffer, moip(0:7), naco, nMOIN
 type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
-real(kind=wp), intent(in) :: Coor(3,4), Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2), &
-                             Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
+real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
                              PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
                              Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), &
                              Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Dan(*), Din(*)
@@ -121,14 +118,13 @@ external :: TERI1, ModU2, Cff2D
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call TwoEl_mck_Internal(Data1,Data2)
+call TwoEl_mck_Internal()
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine TwoEl_mck_Internal(Data1,Data2)
+subroutine TwoEl_mck_Internal()
 
-  real(kind=wp), target :: Data1(nZeta*nDArray+nDScalar,nData1), Data2(nEta*nDArray+nDScalar,nData2)
   integer(kind=iwp) :: iCar, iCNT, iEta, iIrr, iZeta, lDCRR, lDCRS, lDCRT
   !Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
 # ifdef _WARNING_WORKAROUND_
@@ -431,8 +427,8 @@ subroutine TwoEl_mck_Internal(Data1,Data2)
             call Timing(dum1,Time,dum2,dum3)
             call Screen_mck(iZeta-1,iEta-1,Work2,Work3,mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKab, &
                             k2Data1(lDCR1),k2Data2(lDCR2), &
-                            Data1(iZeta,lDCR1),k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),k2Data1(lDCR1)%abMax,Eta,EInv,Q,xG, &
-                            xD,rKcd,Data2(iEta,lDCR2),k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),k2Data2(lDCR2)%abMax,xpre,1,1,1, &
+                            k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),k2Data1(lDCR1)%abMax,Eta,EInv,Q,xG, &
+                            xD,rKcd,k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),k2Data2(lDCR2)%abMax,xpre,1,1,1, &
                             ix2,iy2,iz2,CutInt,PreScr,IndZet,IndEta,ldot2)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nScreen) = CPUStat(nScreen)+Time

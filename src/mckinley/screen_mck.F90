@@ -13,8 +13,8 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
 subroutine Screen_mck(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA, &
-                      k2Data1, k2Data2, Data1,IndZ,abmax,Eta,EInv,Q,xG,xD, &
-                      rKC,Data2,IndE,cdmax,xpre,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
+                      k2Data1, k2Data2, IndZ,abmax,Eta,EInv,Q,xG,xD, &
+                      rKC,IndE,cdmax,xpre,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
 
 !***********************************************************************
 !                                                                      *
@@ -49,14 +49,12 @@ real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
 real(kind=wp), intent(out) :: Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
                               rKA(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), xpre(mZeta*mEta)
 integer(kind=iwp), intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
-real(kind=wp), intent(in) :: Data1(nZeta*nDArray), abmax, Data2(nEta*nDArray), cdmax, CutInt
+real(kind=wp), intent(in) :: abmax, cdmax, CutInt
 logical(kind=iwp), intent(in) :: PreScr, ldot
 integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZeta, jEta, jPAO, jZeta
 real(kind=wp) :: abcd
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
-call RecPrt(' Data2',' ',Data2,nEta,nDArray)
 call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
 #endif
 
