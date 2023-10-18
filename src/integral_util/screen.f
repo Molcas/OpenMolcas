@@ -12,12 +12,10 @@
 !***********************************************************************
 !define _DEBUGPRINT_
       SubRoutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,
-     &                  Zeta,ZInv,P,KappAB,IndZet,
      &                  k2Data1,k2Data2,
-     &                  nAlpha,nBeta,
+     &                  Zeta,ZInv,P,KappAB,IndZet,
      &                  IndZ,
      &                  Eta,EInv,Q,KappCD,IndEta,
-     &                  nGamma,nDelta,
      &                  IndE,
      &                  Dij,Dkl,
      &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutDInt,
@@ -57,7 +55,7 @@
       Integer IndZ(nZeta), IndE(nEta)
       Logical Prescreen_On_Int_Only
       ![all the others are intent(in)]
-      Real*8 ZtMax,EtMax,abMax,cdMax,ZtMaxD,EtMaxD,abMaxD,cdMaxD
+      Real*8 abMax,cdMax
 !
 !     decalaration of local variables...
 #ifdef _DEBUGPRINT_
@@ -66,14 +64,8 @@
       Call FZero(P,nZeta*3)
       Call FZero(Q,nEta *3)
 #endif
-      ZtMax = k2Data1%ZtMax
       abMax = k2Data1%abMax
-      ZtMaxD= k2Data1%ZtMaxD
-      abMaxD= k2Data1%abMaxD
-      EtMax = k2Data2%ZtMax
       cdMax = k2Data2%abMax
-      EtMaxD= k2Data2%ZtMaxD
-      cdMaxD= k2Data2%abMaxD
 !
       If (.Not.Prescreen_On_Int_Only) Then
 !
@@ -206,17 +198,4 @@
       Call RecPrt(' KappCD',' ',KappCD,lEta, 1)
 #endif
       Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nAlpha)
-         Call Unused_integer(nBeta)
-         Call Unused_real(ZtMax)
-         Call Unused_real(ZtMaxD)
-         Call Unused_real(abMaxD)
-         Call Unused_integer(nGamma)
-         Call Unused_integer(nDelta)
-         Call Unused_real(EtMax)
-         Call Unused_real(EtMaxD)
-         Call Unused_real(cdMaxD)
-      End If
       End
