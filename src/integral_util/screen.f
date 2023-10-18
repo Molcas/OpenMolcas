@@ -15,10 +15,10 @@
      &                  Zeta,ZInv,P,KappAB,IndZet,
      &                  k2Data1,k2Data2,
      &                  nAlpha,nBeta,
-     &                  IndZ,ZtMax,abMax,ZtMaxD,abMaxD,
+     &                  IndZ,
      &                  Eta,EInv,Q,KappCD,IndEta,
      &                  nGamma,nDelta,
-     &                  IndE,EtMax,cdMax,EtMaxD,cdMaxD,
+     &                  IndE,
      &                  Dij,Dkl,
      &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutDInt,
      &                  CutInt,vij,vkl,vik,vil,vjk,vjl,
@@ -53,11 +53,11 @@
      &                       KappCD(mEta), Q(nEta,3)
       Type(k2_type), intent(in):: k2Data1, k2Data2
       Real*8 Dij(nZeta), Dkl(nEta)
-      Real*8 ZtMax,EtMax,abMax,cdMax,ZtMaxD,EtMaxD,abMaxD,cdMaxD
       Integer, Intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
       Integer IndZ(nZeta), IndE(nEta)
       Logical Prescreen_On_Int_Only
       ![all the others are intent(in)]
+      Real*8 ZtMax,EtMax,abMax,cdMax,ZtMaxD,EtMaxD,abMaxD,cdMaxD
 !
 !     decalaration of local variables...
 #ifdef _DEBUGPRINT_
@@ -66,6 +66,14 @@
       Call FZero(P,nZeta*3)
       Call FZero(Q,nEta *3)
 #endif
+      ZtMax = k2Data1%ZtMax
+      abMax = k2Data1%abMax
+      ZtMaxD= k2Data1%ZtMaxD
+      abMaxD= k2Data1%abMaxD
+      EtMax = k2Data2%ZtMax
+      cdMax = k2Data2%abMax
+      EtMaxD= k2Data2%ZtMaxD
+      cdMaxD= k2Data2%abMaxD
 !
       If (.Not.Prescreen_On_Int_Only) Then
 !

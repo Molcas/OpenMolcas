@@ -28,7 +28,6 @@
       use Basis_Info, only: Shells
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
-      use Constants, only: Zero
       use stdalloc, only: mma_allocate
       use k2_structure, only: k2data, Allocate_k2data
       Implicit None
@@ -36,7 +35,7 @@
       Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll,
      &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,
      &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,
-     &        nZeta, ijCmp, nHm, nData, MemSO1, iIrrep, ik2, j, iTri,
+     &        nZeta, ijCmp, nHm, MemSO1, iIrrep, ik2, j, iTri,
      &        ijS
 !
 !---- Statement function

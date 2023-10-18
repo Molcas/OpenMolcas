@@ -41,4 +41,4 @@
       Logical :: XMem=.False.
       Real*8, Allocatable, Target:: Sew_Scr(:)
 
-      End Module
+      End Module k2_arrays

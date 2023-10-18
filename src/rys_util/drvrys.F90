@@ -103,9 +103,9 @@ iOffE = mDkl-nEta
 call Screen(iZeta-1,iEta-1,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,  &
             k2data1, k2data2, &
             nAlpha,nBeta,IndZ(iZeta), &
-            k2data1%ZtMax,k2Data1%abMax,k2Data1%ZtMaxD,k2Data1%abMaxD,Eta,EInv,Q,KappCD, &
-            IndEta,nGamma,nDelta,IndE(iEta),k2Data2%ZtMax,k2Data2%abMax,k2Data2%ZtMaxD, &
-            k2Data2%abMaxD,Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &
+            Eta,EInv,Q,KappCD, &
+            IndEta,nGamma,nDelta,IndE(iEta),&
+            Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &
             Prescreen_On_Int_Only)
 !write(u6,*) 'lZeta,lEta:',lZeta,lEta
 if (lZeta*lEta == 0) then
