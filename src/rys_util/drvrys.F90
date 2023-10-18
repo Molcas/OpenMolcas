@@ -13,8 +13,10 @@
 
 subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot, &
                   k2data1,k2data2,          &
-                  nAlpha,nBeta,nGamma,nDelta,IndZ, &
-                  Zeta,ZInv,P,KappAB,IndZet,IndE,Eta,EInv,Q,KappCD,IndEta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil, &
+                  nAlpha,nBeta,nGamma,nDelta, &
+                  Zeta,ZInv,P,KappAB,IndZet,  &
+                  Eta, EInv,Q,KappCD,IndEta,  &
+                  ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil, &
                   vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl,nabcd,mabcd,Wrk,iW2, &
                   iW4,nWork2,mWork2,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp,iShll,NoPInts,Dij,mDij,Dkl,mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi, &
                   Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl)
@@ -67,7 +69,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, nAlpha, nBeta, &
-                                 nGamma, nDelta, IndZ(nZeta), IndE(nEta), ix1, iy1, iz1, ix2, iy2, iz2, iAnga(4), mabMin, mabMax, &
+                                 nGamma, nDelta, ix1, iy1, iz1, ix2, iy2, iz2, iAnga(4), mabMin, mabMax, &
                                  mcdMin, mcdMax, nijkl, nabcd, mabcd, iW2, iW4, nWork2, mWork2, la, lb, lc, ld, iCmp(4), iShll(4), &
                                  mDij, mDkl, iBasi, jBasj, kBask, lBasl
 real(kind=wp), intent(in) :: ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), &
@@ -102,8 +104,8 @@ iOffZ = mDij-nZeta
 iOffE = mDkl-nEta
 call Screen(iZeta-1,iEta-1,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
             k2data1, k2data2, &
-            Zeta,ZInv,P,KappAB,IndZet, IndZ(iZeta), &
-            Eta, EInv,Q,KappCD,IndEta, IndE(iEta),  &
+            Zeta,ZInv,P,KappAB,IndZet, &
+            Eta, EInv,Q,KappCD,IndEta, &
             Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &
             Prescreen_On_Int_Only)
 !write(u6,*) 'lZeta,lEta:',lZeta,lEta

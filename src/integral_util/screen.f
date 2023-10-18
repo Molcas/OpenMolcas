@@ -14,9 +14,7 @@
       SubRoutine Screen(iOffZ,iOffE,nZeta,nEta,mZeta,mEta,lZeta,lEta,
      &                  k2Data1,k2Data2,
      &                  Zeta,ZInv,P,KappAB,IndZet,
-     &                  IndZ,
      &                  Eta,EInv,Q,KappCD,IndEta,
-     &                  IndE,
      &                  Dij,Dkl,
      &                  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutDInt,
      &                  CutInt,vij,vkl,vik,vil,vjk,vjl,
@@ -52,18 +50,12 @@
       Type(k2_type), intent(in):: k2Data1, k2Data2
       Real*8 Dij(nZeta), Dkl(nEta)
       Integer, Intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
-      Integer IndZ(nZeta), IndE(nEta)
       Logical Prescreen_On_Int_Only
       ![all the others are intent(in)]
-      Real*8 abMax,cdMax
 !
 !     decalaration of local variables...
-#ifdef _DEBUGPRINT_
-      Call RecPrt(' In Screen: Data1',' ',Data1,nZeta,nDArray-1)
-      Call RecPrt(' In Screen: Data2',' ',Data2,nEta ,nDArray-1)
-      Call FZero(P,nZeta*3)
-      Call FZero(Q,nEta *3)
-#endif
+      Real*8 abMax,cdMax
+
       abMax = k2Data1%abMax
       cdMax = k2Data2%abMax
 !
@@ -104,7 +96,7 @@
          Do iZeta = 1, mZeta
             ppaa= k2Data1%ab(iOffZ+iZeta) * cdMax
             aaaa= k2Data1%abCon(iOffZ+iZeta) * cdMax
-            jZeta = IndZ(iZeta)
+            jZeta = k2Data1%IndZ(iOffZ+iZeta)
             Test=ppaa*Dij(jZeta)+aaaa*(DMax+vkl)
             If (Test.ge.CutDInt) Then
                lZeta=lZeta+1
@@ -113,7 +105,7 @@
                P(lZeta,1)   = k2Data1%Pcoor(iOffZ+iZeta,1)
                P(lZeta,2)   = k2Data1%Pcoor(iOffZ+iZeta,2)
                P(lZeta,3)   = k2Data1%Pcoor(iOffZ+iZeta,3)
-               IndZet(lZeta)= IndZ(iZeta)
+               IndZet(lZeta)= jZeta
                ZInv(lZeta)  = k2Data1%ZInv(iOffZ+iZeta)
             End If
          End Do
@@ -128,7 +120,7 @@
                P(lZeta,1)   = k2Data1%Pcoor(iOffZ+iZeta,1)
                P(lZeta,2)   = k2Data1%Pcoor(iOffZ+iZeta,2)
                P(lZeta,3)   = k2Data1%Pcoor(iOffZ+iZeta,3)
-               IndZet(lZeta)= IndZ(iZeta)
+               IndZet(lZeta)= k2Data1%IndZ(iOffZ+iZeta)
                ZInv(lZeta)  = k2Data1%ZInv(iOffZ+iZeta)
             End If
          End Do
@@ -145,11 +137,11 @@
          Do iEta = 1, mEta
             ppaa= k2Data2%ab(iOffE+iEta) * abMax
             aaaa= k2Data2%abCon(iOffE+iEta) * abMax
-            jEta = IndE(iEta)
+            jEta = k2Data2%IndZ(iOffE+iEta)
             Test=ppaa*Dkl(jEta)+aaaa*(DMax+vij)
             If (Test.ge.CutDInt) Then
                lEta=lEta+1
-               IndEta(lEta)= IndE(iEta)
+               IndEta(lEta)= jEta
                Eta(lEta)   = k2Data2%Zeta(iOffE+iEta)
                KappCD(lEta)= k2Data2%Kappa(iOffE+iEta)
                Q(lEta,1)   = k2Data2%Pcoor(iOffE+iEta,1)
@@ -164,7 +156,7 @@
             aaaa= k2Data2%abCon(iOffE+iEta) * abMax
             If (aaaa.ge.CutInt) Then
                lEta=lEta+1
-               IndEta(lEta)= IndE(iEta)
+               IndEta(lEta)= k2Data2%IndZ(iOffE+iEta)
                Eta(lEta)   = k2Data2%Zeta(iOffE+iEta)
                KappCD(lEta)= k2Data2%Kappa(iOffE+iEta)
                Q(lEta,1)   = k2Data2%Pcoor(iOffE+iEta,1)
