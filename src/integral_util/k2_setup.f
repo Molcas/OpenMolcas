@@ -11,8 +11,7 @@
       Module k2_setup
       Integer, Parameter:: nDArray=11,nDScalar=9
 
-      Real*8, Allocatable :: Data_k2(:)
       Logical :: k2_processed=.False.
       Integer, Allocatable :: IndK2(:,:)
-      Integer nk2, nIndk2
+      Integer nIndk2
       End Module k2_setup

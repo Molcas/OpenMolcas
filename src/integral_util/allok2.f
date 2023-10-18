@@ -22,8 +22,7 @@
 !             Martin Schuetz, Dept. of Theoretical Chemistry,          *
 !             University of Lund, Sweden. Jun '95                      *
 !***********************************************************************
-      use k2_setup, only: k2_Processed, nk2, nDArray, nDScalar, Data_K2,
-     &                    nIndK2, IndK2
+      use k2_setup, only: k2_Processed, nIndK2, IndK2
       use k2_arrays, only: nDeDe, MaxDe, DoGrad_
       use iSD_data, only: iSD
       use Basis_Info, only: Shells
@@ -48,15 +47,15 @@
 !
 !
 #ifdef _DEBUGPRINT_
-      If (Allocated(Data_k2).and.k2_processed) Then
+      If (Allocated(k2Data).and.k2_processed) Then
          Write (6,*) 'Enter Allok2, k2_Status=Processed'
-      Else If (Allocated(Data_k2)) Then
+      Else If (Allocated(k2Data)) Then
          Write (6,*) 'Enter Allok2, k2_Status=Active'
       Else
          Write (6,*) 'Enter Allok2, k2_Status=InActive'
       End If
 #endif
-      If (Allocated(Data_k2) .or. k2_processed) Return
+      If (Allocated(k2Data) .or. k2_processed) Return
 !
       Call Nr_Shells(nSkal)
 
@@ -76,7 +75,6 @@
 !
 !     determine memory size for K2 entities
 !     for this, run dummy K2 loop...
-      nk2 = 0
       ik2 = 0
       nDeDe = 0
       MaxDe = 0
@@ -136,14 +134,8 @@
                Call Allocate_k2data(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
             End Do
 
-            nHm=nHm*nIrrep
-            nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
-            nk2 = nk2 + nData*nIrrep
          End Do
       End Do
-!     now ... allocate Data_k2
-      Call mma_allocate(Data_k2,nk2,Label='Data_k2')
-      Data_k2(:)=Zero
 !
       Return
       End SubRoutine AlloK2

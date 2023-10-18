@@ -83,7 +83,6 @@ use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use k2_setup, only: nDArray, nDScalar
 use k2_structure, only: k2_type
 
 implicit none

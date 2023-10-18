@@ -38,7 +38,6 @@ subroutine Screen_mck(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lE
 
 use Constants, only: One
 use Definitions, only: wp, iwp
-use k2_setup, only: nDArray
 use k2_structure, only: k2_type
 
 implicit none

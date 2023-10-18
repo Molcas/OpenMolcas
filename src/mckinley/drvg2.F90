@@ -60,7 +60,7 @@ integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ib
                      ipMem3, ipMem4, ipMemX, ipMOC, ipP, ipQ, iPrim, iPrimi, iPrInc, ipTmp, ipTmp2, ipxA, ipxB, ipxD, ipxG, &
                      ipxPre, ipZI, iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jAO, jBas, jBasAO, jBasj, jBasn, jBsInc, &
                      jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, js, jShell, &
-                     jShll, k2ij, k2kl, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, &
+                     jShll, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, &
                      kPrInc, ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, &
                      lShell, lShll, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
                      mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
@@ -592,10 +592,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ilS = iTri(iShell,lShell)
     jkS = iTri(jShell,kShell)
     jlS = iTri(jShell,lShell)
-    k2ij = Indk2(1,ijS)
     nDCRR = Indk2(2,ijS)
     ik2   = Indk2(3,ijS)
-    k2kl = Indk2(1,klS)
     nDCRS = Indk2(2,klS)
     jk2   = Indk2(3,klS)
 

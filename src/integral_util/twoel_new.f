@@ -54,7 +54,6 @@
       use Breit, only: nOrdOp, nComp
       use Constants
 #ifdef _DEBUGPRINT_
-      use k2_setup, only: nDArray
 #endif
       use k2_structure, only: k2_type
       Implicit Real*8 (A-H,O-Z)
@@ -811,7 +810,6 @@
       use Breit, only: nComp
       use Constants
 #ifdef _DEBUGPRINT_
-      use k2_setup, only: nDArray
 #endif
       use k2_structure, only: k2_type
       Implicit Real*8 (A-H,O-Z)
