@@ -29,14 +29,13 @@
 !***********************************************************************
       use setup
       use Real_Spherical
-      use k2_setup
       use iSD_data
       use k2_arrays
       use Basis_Info
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_global, only: force_part_c
       use Sizes_of_Seward, only: S
-      use k2_structure, only: k2data
+      use k2_structure
 #ifdef _DEBUGPRINT_
       use Gateway_Info, only: lSchw
 #endif

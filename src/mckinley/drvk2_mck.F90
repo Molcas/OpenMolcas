@@ -28,7 +28,6 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem1
-use k2_setup, only: Indk2
 use k2_arrays, only: DoGrad_, DoHess_
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
@@ -36,7 +35,7 @@ use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use k2_structure, only: k2data, allocate_k2data
+use k2_structure, only: k2data, allocate_k2data, Indk2
 
 implicit none
 integer(kind=iwp), intent(out) :: mdede

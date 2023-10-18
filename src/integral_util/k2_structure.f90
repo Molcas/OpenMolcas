@@ -92,7 +92,14 @@ End type k2_type
 
 type (k2_type), Allocatable:: k2data(:,:)
 
+Integer, Parameter:: nDArray=11,nDScalar=9
+
+Logical :: k2_processed=.False.
+Integer, Allocatable :: IndK2(:,:)
+Integer nIndk2
+
 public :: k2_type, k2data, Allocate_k2data, Free_k2data
+public :: nDArray, nDScalar, k2_processed, IndK2, nIndk2
 
 contains
 

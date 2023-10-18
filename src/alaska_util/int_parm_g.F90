@@ -14,7 +14,7 @@ subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lP
                       AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
                       nHmcd,nIrrep)
 
-use k2_setup, only: Indk2
+use k2_structure, only: Indk2
 use Basis_Info, only: Shells
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Definitions, only: iwp

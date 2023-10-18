@@ -34,7 +34,6 @@ use setup
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD
-use k2_setup, only: Indk2, nIndk2
 use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, ipZeta, MemR, MxDij, Mem_INT, Mem_DBLE, ndede, nFT, Sew_Scr
 use pso_stuff, only: nDens
 use Basis_Info, only: dbsc, nBas, nCnttp, Shells
@@ -45,7 +44,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 use Disp, only: lDisp
-use k2_structure, only: k2Data, Free_k2data
+use k2_structure, only: k2Data, Free_k2data, Indk2, nIndk2
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess

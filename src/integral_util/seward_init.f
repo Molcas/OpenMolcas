@@ -21,7 +21,7 @@
 !***********************************************************************
       use EFP_Module
       use k2_arrays
-      use k2_setup, only: k2_processed
+      use k2_structure, only: k2_processed
       use Basis_Info
       use RICD_Info, only: iRI_Type, Do_RI
       use Constants

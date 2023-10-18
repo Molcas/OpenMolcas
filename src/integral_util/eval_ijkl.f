@@ -39,7 +39,7 @@
 !             Total rehack Aug '23                                     *
 !***********************************************************************
       use setup, only: mSkal, nAux, nSOs
-      use k2_setup, only: IndK2
+      use k2_structure, only: IndK2
       use k2_arrays, only: ipZeta, ipiZet, ipDijS, Sew_Scr,
      &                     Aux, DeDe, FT, iSOSym, Mem_Dble, Mem_Int,
      &                     nDeDe, nFT

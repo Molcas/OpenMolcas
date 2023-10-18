@@ -22,14 +22,14 @@
 !             Martin Schuetz, Dept. of Theoretical Chemistry,          *
 !             University of Lund, Sweden. Jun '95                      *
 !***********************************************************************
-      use k2_setup, only: k2_Processed, nIndK2, IndK2
       use k2_arrays, only: nDeDe, MaxDe, DoGrad_
       use iSD_data, only: iSD
       use Basis_Info, only: Shells
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
       use stdalloc, only: mma_allocate
-      use k2_structure, only: k2data, Allocate_k2data
+      use k2_structure, only: k2data, Allocate_k2data,
+     &                        k2_Processed, nIndK2, IndK2
       Implicit None
 
       Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll,

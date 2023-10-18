@@ -20,9 +20,8 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden. November '92                            *
 !***********************************************************************
-      use k2_setup, only: Indk2, k2_Processed
       use stdalloc, only: mma_deallocate
-      use k2_structure, only: free_k2data
+      use k2_structure, only: free_k2data, Indk2, k2_Processed
       Implicit None
 !
       If (.Not.Allocated(Indk2)) Return

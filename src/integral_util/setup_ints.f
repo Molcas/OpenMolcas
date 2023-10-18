@@ -26,7 +26,7 @@
       use setup
       use iSD_data
       use k2_arrays
-      use k2_setup, only: nDArray
+      use k2_structure, only: nDArray
       use LundIO
       use Basis_Info, only: nBas, nBas_Aux
       use Gateway_Info, only: CutInt, lSchw

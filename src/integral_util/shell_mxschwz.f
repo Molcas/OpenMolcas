@@ -17,13 +17,12 @@
       SubRoutine Shell_MxSchwz(nSkal,Schwz_Shl)
 !----------------------------------------------------------------------
       use setup
-      use k2_setup
       use k2_arrays
       use iSD_data
       use Basis_Info
       use Symmetry_Info, only: nIrrep
       use Constants
-      use k2_structure, only: k2data
+      use k2_structure
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
