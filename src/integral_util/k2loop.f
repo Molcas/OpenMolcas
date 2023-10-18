@@ -299,7 +299,7 @@
          ZtMaxD=One
          abMaxD=Zero
          Do iZeta = 0, Jnd-1
-            tmp = k2Data(lDCRR+1)%ab(iZeta+1)
+            tmp = k2Data(lDCRR+1)%abCon(iZeta+1)
             If (abMax.lt.tmp) Then
                abMax = tmp
                ZtMax = k2Data(lDCRR+1)%Zeta(iZeta+1)
