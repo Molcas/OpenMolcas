@@ -472,10 +472,13 @@ subroutine TwoEl_g_Internal(Wrk2)
 
             iW3 = iW2+mZeta*mEta*mab*mcd
             nWrk3 = nWrk2-mZeta*mEta*mab*mcd
-            call Screen_g(iZeta-1,iEta-1,Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
+            call Screen_g(iZeta-1,iEta-1,Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
                           k2Data1(lDCR1),k2Data2(lDCR2), &
-                          nAlpha,jPrim,k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,nGamma,lPrim, &
-                          k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI, &
+                          Zeta,ZInv,P,xA,xB, nAlpha,jPrim, &
+                          k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1), &
+                          Eta,EInv,Q,xG,xD,nGamma,lPrim, &
+                          k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1), &
+                          ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI, &
                           k2Data1(lDCR1)%abG(iZeta:iZeta+mZeta-1,1), &
                           k2Data1(lDCR1)%abG(iZeta:iZeta+mZeta-1,2), nab, &
                           k2Data2(lDCR2)%abG(iEta :iEta +mEta -1,1), &

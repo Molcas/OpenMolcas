@@ -11,10 +11,11 @@
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB, &
+subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
                     k2Data1, k2Data2, &
-                    nAlpha,nBeta,IndZ,Eta,EInv,Q,xG,xD, &
-                    nGamma,nDelta,IndE,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI,ab,abg,nab,cd,cdg,ncd,PreScr,nScrtch, &
+                    Zeta,ZInv,P,xA,xB,nAlpha,nBeta,IndZ, &
+                    Eta,EInv,Q,xG,xD,nGamma,nDelta,IndE, &
+                    iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI,ab,abg,nab,cd,cdg,ncd,PreScr,nScrtch, &
                     IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
