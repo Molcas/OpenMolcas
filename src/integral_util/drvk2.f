@@ -36,7 +36,7 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_global, only: force_part_c
       use Sizes_of_Seward, only: S
-      use k2_structure, only: k2_type, k2data
+      use k2_structure, only: k2data
 #ifdef _DEBUGPRINT_
       use Gateway_Info, only: lSchw
 #endif
@@ -58,26 +58,24 @@
       SubRoutine k2Loop(Coor,
      &                  iAnga,iCmpa,iShll,
      &                  iDCRR,nDCRR,
-     &                  Data, k2data,
+     &                  k2data,
      &                  Alpha,nAlpha,Beta, nBeta,
      &                  Alpha_,Beta_,
      &                  Coeff1,iBasn,Coeff2,jBasn,
      &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
      &                  Wrk,nWork2,
      &                  Cmpct,nScree,mScree,iStb,jStb,
-     &                  Dij,nDij,nDCR,nHm,ijCmp,DoFock,
+     &                  Dij,nDij,nDCR,ijCmp,DoFock,
      &                  Scr,nScr,
      &                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
-      use k2_setup, only: nDArray, nDScalar
       use k2_structure, only: k2_type
       Implicit None
       External Cmpct
-      Integer nZeta, ijCmp,  nHm, nDCRR,
+      Integer nZeta, ijCmp,  nDCRR,
      &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
      &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx, IncZZ
       type(k2_type), intent(inout) :: k2data(nDCRR)
       Real*8 Coor(3,4),
-     &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),
      &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),
      &       Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),
      &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),
@@ -134,8 +132,6 @@
 !                                                                      *
       nScree = 0
       mScree = 0
-      jpk2 = 1
-      nk2 = 0
       mk2 = 0
 !
 !     Allocate memory for zeta, kappa, and P.
@@ -312,7 +308,6 @@
 !           Write (*,*) ' Generating batches:', mk2+1,' -',
 !    &                  mk2+nDCRR
 !           Write (*,*) ' Shell index =', ijS, iShell, jShell
-!           Write (*,*) ' jpk2=',jpk2
             nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
             nHm=nHm*nIrrep
             ijCmp=nElem(iAng)*nElem(jAng)
@@ -321,7 +316,7 @@
             Call k2Loop(Coor,
      &                  iAngV,iCmpV,iShllV,
      &                  iDCRR,nDCRR,
-     &                  Data_k2(jpk2), k2data(:,ik2),
+     &                  k2data(:,ik2),
      &                  Shells(iShll)%Exp,iPrimi,
      &                  Shells(jShll)%Exp,jPrimj,
      &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),
@@ -332,17 +327,13 @@
      &                  nZeta,ijInc,Mem_DBLE(ipCon),
      &                  Sew_Scr(ipMem2),Mem2,Cmpct,
      &                  nScree,mScree,mdci,mdcj,
-     &                  DeDe(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
+     &                  DeDe(ipDij),nDij,nDCR  ,ijCmp,DoFock,
      &                  Scr, MemTmp,
      &                  Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,
      &                  HrrMtrx,nHrrMtrx)
 !
-            Indk2(1,ijS) = jpk2
             Indk2(2,ijS) = nDCRR
-            nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
-            nk2 = nk2 + nData*nDCRR
             mk2 = mk2 + nDCRR
-            jpk2 = 1 + nk2
 !
  200        Continue
          End Do
@@ -368,8 +359,7 @@
 #ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' *** The k2 entities has been precomputed ***'
-      Write (6,'(I7,A)') mk2,' blocks of k2 data were computed and'
-      Write (6,'(I7,A)') nk2,' Word(*8) of memory is used for storage.'
+      Write (6,'(I7,A)') mk2,' blocks of k2 data were computed.'
       If (lSchw) Then
          Write (6,*) ' Prescreening based on primitive integrals.'
       Else

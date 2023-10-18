@@ -15,14 +15,14 @@
       SubRoutine k2Loop(Coor,
      &                  iAnga,iCmpa,iShll,
      &                  iDCRR,nDCRR,
-     &                  Data, k2data,
+     &                  k2data,
      &                  Alpha,nAlpha,Beta, nBeta,
      &                  Alpha_,Beta_,
      &                  Coeff1,iBasn,Coeff2,jBasn,
      &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
      &                  Wrk,nWork2,
      &                  Cmpct,nScree,mScree,iStb,jStb,
-     &                  Dij,nDij,nDCR,nHm,ijCmp,DoFock,
+     &                  Dij,nDij,nDCR,ijCmp,DoFock,
      &                  Scr,nScr,
      &                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
 !***********************************************************************
@@ -44,17 +44,15 @@
       use Basis_Info, only: Shells
       use Symmetry_Info, only: nIrrep, iOper
       use Constants, only: Zero, One, Four
-      use k2_setup, only: nDArray, nDScalar
       use Disp, only: Direct, IndDsp
       use k2_structure, only: k2_type
       Implicit None
       External Cmpct
-      Integer nZeta, ijCmp,  nHm, nDCRR,
+      Integer nZeta, ijCmp,  nDCRR,
      &        nAlpha, iBasn, nBeta, jBasn, nWork2, nScree, mScree,
      &        iStb, jStb, nDij, nDCR, nScr, nNew, nHRRMtrx, IncZZ
       type(k2_type), intent(inout) :: k2data(nDCRR)
       Real*8 Coor(3,4),
-     &       Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),nDCRR),
      &       Alpha(nAlpha), Beta(nBeta), Alpha_(nZeta), Beta_(nZeta),
      &       Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn),
      &       Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3),
@@ -70,7 +68,7 @@
       Logical AeqB, NoSpecial
       Logical, External:: EQ
       Integer  mStb(2), la, lb, iSmAng, mabMin, mabMax, ne,
-     &         iCmpa_, jCmpb_, nData, iShlla, jShllb,
+     &         iCmpa_, jCmpb_, iShlla, jShllb,
      &         mcdMin, mcdMax, mabcd, mZeta, nT,
      &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, nDisp,
      &         iCmp
@@ -80,13 +78,11 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call k2loop_internal(Data,k2data)
+      Call k2loop_internal(k2data)
 !
 !     This is to allow type punning without an explicit interface
       Contains
-      Subroutine k2loop_internal(Data,k2data)
-      Real*8, Target :: Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),
-     &                       nDCRR)
+      Subroutine k2loop_internal(k2data)
       Logical, External :: TF
       Integer ixyz, nabSz, lDCRR, iIrrep, iZeta, iCnt, iComp
       type(k2_type), intent(inout) :: k2data(nDCRR)
@@ -121,8 +117,6 @@
 !***********************************************************************
 !                                                                      *
       call dcopy_(3,[One],0,Q,1)
-      nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
-      call dcopy_(nData*nDCRR,[Zero],0,Data,1)
       mStb(1) = iStb
       mStb(2) = jStb
       la = iAnga(1)
