@@ -56,8 +56,6 @@ Integer, parameter:: nHm=0
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu1,TWall1)
-mdede = 0
-mk2 = 0
 
 DoGrad_ = .false.
 DoHess_ = .true.
@@ -88,7 +86,8 @@ ipM001 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
+mdede = 0
+mk2 = 0
 do iS=1,nSkal
   iShll = iSD(0,iS)
   iAng = iSD(1,iS)

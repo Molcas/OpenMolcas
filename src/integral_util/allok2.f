@@ -131,11 +131,12 @@
             jShell = iSD(11,jS)
 
 !
-            If (nIrrep.eq.1) Then
+            If (nIrrep==1) Then
                iDeSiz = 1 + iPrim*jPrim +               iCmp*jCmp
             Else
                iDeSiz = 1 + iPrim*jPrim + (iBas*jBas+1)*iCmp*jCmp
             End If
+
             MaxDe = Max(MaxDe,iDeSiz)
             iSmLbl = 1
             nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)

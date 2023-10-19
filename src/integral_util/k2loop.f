@@ -337,9 +337,9 @@
      &                     k2Data(lDCRR+1)%Zeta(iZeta:),
      &                     k2Data(lDCRR+1)%ZInv(iZeta:),
      &                     k2Data(lDCRR+1)%Kappa(iZeta:),
-     &                     k2Data(lDCRR+1)%PCoor(iZeta,1),
+     &                     k2Data(lDCRR+1)%PCoor(iZeta:,:),
      &                     k2Data(lDCRR+1)%Kappa(iZeta:),
-     &                     k2Data(lDCRR+1)%PCoor(iZeta,1),
+     &                     k2Data(lDCRR+1)%PCoor(iZeta:,:),
      &                     nZeta,Wrk,nWork2,HMtrx,
      &                     nHrrMtrx,iShlla,jShllb,i_Int)
                Call PckInt(Wrk(i_Int),lZeta,ijCmp,

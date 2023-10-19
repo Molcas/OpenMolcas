@@ -63,11 +63,12 @@ integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ib
                      kPrInc, ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, &
                      lShell, lShll, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
                      mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
-                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
+                     MemPSO, MemX, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
                      nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, nZeta
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
+Integer :: mIndij=0
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
