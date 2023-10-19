@@ -44,7 +44,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 use Disp, only: lDisp
-use k2_structure, only: k2Data, Free_k2data, Indk2, nIndk2
+use k2_structure, only: k2Data, Indk2, nIndk2
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess
@@ -156,9 +156,10 @@ lgrad = l_Grd
 lpick = lgrad .and. (.not. New_Fock)
 Pren = Zero
 Prem = Zero
-nIndK2 = nTri_Elem(S%nShlls)
 
+nIndK2 = nTri_Elem(S%nShlls)
 call mma_allocate(IndK2,3,nIndk2)
+
 call Drvk2_mck(ndede,new_Fock)
 
 call StatP(0)
@@ -984,10 +985,7 @@ call mma_deallocate(iInt)
 
 call mma_deallocate(Aux)
 
-! Generate statistic of partioning
-
-call mma_deallocate(IndK2)
-Call Free_k2data()
+Call Freek2()
 
 if (allocated(ipDisp)) call mma_deallocate(ipDisp)
 if (allocated(ipDisp2)) call mma_deallocate(ipDisp2)
