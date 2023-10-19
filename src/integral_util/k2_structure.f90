@@ -96,12 +96,17 @@ type (k2_type), Allocatable, Target :: k2data(:,:)
 
 Integer, Parameter:: nDArray=11,nDScalar=9
 
+real*8, Allocatable :: ZZZ_r(:)
+integer, Allocatable :: ZZZ_i(:)
+Integer :: iZZZ_r=1, iZZZ_i=1
+
 Logical :: k2_processed=.False.
 Integer, Allocatable :: IndK2(:,:)
 Integer nIndk2
 
 public :: k2_type, k2data, Allocate_k2data, Free_k2data
 public :: nDArray, nDScalar, k2_processed, IndK2, nIndk2
+public :: ZZZ_i, ZZZ_r
 
 contains
 
@@ -159,6 +164,7 @@ Call mma_allocate(k2Data%IndZ,     nZeta+1,Label='%IndZ')   ! yes +1!
 End Subroutine Allocate_k2data
 
 Subroutine Free_k2data()
+use stdalloc, only: mma_deallocate
 Implicit None
 Integer nIrrep, ik2, iIrrep, i
 
@@ -170,6 +176,11 @@ Do i = 1, ik2
       Call Free_k2data_Internal(k2data(iIrrep,i))
    End Do
 End Do
+
+Call mma_deallocate(ZZZ_r)
+iZZZ_r=1
+Call mma_deallocate(ZZZ_i)
+iZZZ_i=1
 
 Deallocate(k2data)
 

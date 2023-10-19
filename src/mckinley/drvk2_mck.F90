@@ -67,9 +67,6 @@ DoHess_ = .true.
 call Nr_Shells(nSkal)
 
 Call Allok2()
-!nIndK2 = nTri_Elem(S%nShlls)
-!call mma_allocate(IndK2,3,nIndk2)
-!Allocate(k2data(1:nIrrep,1:nskal*(nskal+1)/2))
 
 !                                                                      *
 !***********************************************************************

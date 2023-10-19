@@ -28,7 +28,7 @@
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
       use stdalloc, only: mma_allocate
-      use k2_structure, only: k2data, Allocate_k2data,
+      use k2_structure, only: k2data, Allocate_k2data, ZZZ_r, ZZZ_i,
      &                        k2_Processed, nIndK2, IndK2
       Implicit None
 
@@ -36,7 +36,7 @@
      &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,
      &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,
      &        nZeta, ijCmp, nHm, MemSO1, iIrrep, ik2, j, iTri,
-     &        ijS
+     &        ijS, nk2_real, nData, nk2_integer
 !
 !---- Statement function
 !
@@ -59,17 +59,39 @@
       Call Nr_Shells(nSkal)
 
       ik2 = 0
+      nk2_real=0
+      nk2_integer=0
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
          If (Shells(iShll)%Aux .and. iS.ne.nSkal) Cycle
+         iPrim  = iSD( 5,iS)
+         iAng   = iSD( 1,iS)
+         iCmp   = iSD( 2,iS)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             If (Shells(iShll)%Aux.and..Not.Shells(jShll)%Aux) Cycle
             If (Shells(jShll)%Aux .and. jS.eq.nSkal) Cycle
+            jPrim  = iSD( 5,jS)
+            jAng   = iSD( 1,jS)
+            jCmp   = iSD( 2,jS)
+
+            nZeta=iPrim*jPrim
+            ijCmp=0
+            If (DoGrad_) ijCmp=nElem(iAng)*nElem(jAng)
+            nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
+            If (DoHess_) nHm=0
+
             ik2 = ik2 + 1
+
+            nData = nZeta * (10 + ijCmp*2) + nHm*nIrrep
+            nk2_real = nk2_real + nData*nIrrep
+            nk2_integer = nk2_integer + nZeta*nIrrep
+
          End Do
       End Do
 
+      Call mma_allocate(ZZZ_r,nk2_real   ,Label='ZZZ_r')
+      Call mma_allocate(ZZZ_i,nk2_integer,Label='ZZZ_i')
       Allocate(k2Data(1:nIrrep,1:ik2))
 !
 !     determine memory size for K2 entities
@@ -125,6 +147,7 @@
             ijCmp=0
             If (DoGrad_) ijCmp=nElem(iAng)*nElem(jAng)
             nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
+            If (DoHess_) nHm=0
 
             ijS=iTri(iShell,jShell)
             ik2=ik2+1
