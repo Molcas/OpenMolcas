@@ -30,16 +30,28 @@
 !                                                                      *
 !              March 2000                                              *
 !***********************************************************************
-      use Constants
-      use rctfld_module
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, Half
+      use rctfld_module, only: MaxA, nSparse, MaxB, lSparse, Scala,
+     &                         Scalc, nGrid_Eff, LatAto, RadLat,
+     &                         lRFCav, rds, DieDel, rSca, DistSparse,
+     &                         nExpO, PreFac, Polsi, Dipsi, Cordsi,
+     &                         MaxC, RotAlpha, RotBeta, RotGamma
+      Implicit None
 !
+      Integer nGrid_, MaxAto, nPolComp, nXF, nOrd_XF,
+     &        iXPolType
       Real*8 Grid(3,nGrid_), PolEff(nPolComp,nGrid_), DipEff(nGrid_)
       Real*8 cord(3,maxato), atorad(maxato),XF(*)
       Integer XEle(nXF)
 
-
+      Integer ixyz, nElem
+      Integer Inc, iOrdOp
       Real*8 tr(3,3),co(3)
+      Integer ii, jj, kk, ni, nj, nk, nGridOld, l, m, ixf, i, j, k,
+     &        nGrid_Eff_
+      Real*8 xs, ys, zs, xp, yp, zp, rp2, rp, Ener1, Ener, xa, ya, za,
+     &       drp, rrr, dGGX, dGGY, dGGZ, rpa2, atrad, fac
+      Real*8, External:: CovRadT
 !
 !     Statement function for Cartesian index
 !
@@ -78,9 +90,9 @@
          nk=min(nSparse,maxc-kk+1)
          If(LSparse.and.(ni.eq.nSparse).and.(nj.eq.nSparse).and.
      &        (nk.eq.nSparse)) Then
-            xs=(DBLE(ii)+(DBLE(nSparse-1)*0.5D0))*scala
-            ys=(DBLE(jj)+(DBLE(nSparse-1)*0.5D0))*scala
-            zs=(DBLE(kk)+(DBLE(nSparse-1)*0.5D0))*scalc
+            xs=(DBLE(ii)+(DBLE(nSparse-1)*half))*scala
+            ys=(DBLE(jj)+(DBLE(nSparse-1)*half))*scala
+            zs=(DBLE(kk)+(DBLE(nSparse-1)*half))*scalc
             nGridOld=nGrid_Eff
             Do l=1,latato
                co(1)=xs+cordsi(1,l)
