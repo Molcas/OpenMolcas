@@ -144,9 +144,11 @@ k2Data%Alpha(1:nZeta) => k2Data%ZZZ(iS:iE)
 iS=1+iE
 iE=iE + nZeta
 k2Data%Beta(1:nZeta) => k2Data%ZZZ(iS:iE)
-iS=1+iE
-iE=iE + nHm*nIrrep
-k2Data%HrrMtrx(1:nHm,1:nIrrep) => k2Data%ZZZ(iS:iE)
+If (nHm/=0) Then
+   iS=1+iE
+   iE=iE + nHm*nIrrep
+   k2Data%HrrMtrx(1:nHm,1:nIrrep) => k2Data%ZZZ(iS:iE)
+End If
 If (ijCmp/=0) Then
    iS=1+iE
    iE=iE + nZeta*ijCmp*2

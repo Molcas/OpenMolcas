@@ -50,7 +50,7 @@ real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Wrk(:)
 integer(kind=iwp), external :: MemSO1
 Integer ik2
-Integer, parameter:: nHm=1
+Integer, parameter:: nHm=0
 
 !                                                                      *
 !***********************************************************************

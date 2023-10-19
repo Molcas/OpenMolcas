@@ -22,7 +22,7 @@
 !             Martin Schuetz, Dept. of Theoretical Chemistry,          *
 !             University of Lund, Sweden. Jun '95                      *
 !***********************************************************************
-      use k2_arrays, only: nDeDe, MaxDe, DoGrad_
+      use k2_arrays, only: nDeDe, MaxDe, DoGrad_, DoHess_
       use iSD_data, only: iSD
       use Basis_Info, only: Shells
       use Sizes_of_Seward, only: S
@@ -122,8 +122,8 @@
             End If
 !
             nZeta=iPrim*jPrim
-            ijCmp=nElem(iAng)*nElem(jAng)
-            If (.Not.DoGrad_) ijCmp=0
+            ijCmp=0
+            If (DoGrad_) ijCmp=nElem(iAng)*nElem(jAng)
             nHm=iCmp*jCmp*(nabSz(iAng+jAng)-nabSz(Max(iAng,jAng)-1))
 
             ijS=iTri(iShell,jShell)
