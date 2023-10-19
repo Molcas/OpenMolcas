@@ -427,10 +427,8 @@ subroutine TwoEl_mck_Internal()
             call Screen_mck(iZeta-1,iEta-1,Work2,Work3,mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
                             k2Data1(lDCR1),k2Data2(lDCR2), &
                             Zeta,ZInv,P,xA,xB,rKab, &
-                            k2Data1(lDCR1)%abMax, &
                             Eta,EInv,Q,xG,xD,rKcd, &
-                            k2Data2(lDCR2)%abMax,xpre,1,1,1, &
-                            ix2,iy2,iz2,CutInt,PreScr,IndZet,IndEta,ldot2)
+                            xpre,1,1,1,ix2,iy2,iz2,CutInt,PreScr,IndZet,IndEta,ldot2)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nScreen) = CPUStat(nScreen)+Time
 

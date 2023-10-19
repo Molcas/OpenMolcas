@@ -14,8 +14,8 @@
 !#define _DEBUGPRINT_
 subroutine Screen_mck(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
                       k2Data1, k2Data2, &
-                      Zeta,ZInv,P,xA,xB,rKA,abmax, &
-                      Eta,EInv,Q,xG,xD, rKC,cdmax, &
+                      Zeta,ZInv,P,xA,xB,rKA, &
+                      Eta,EInv,Q,xG,xD, rKC, &
                       xpre,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
 
 !***********************************************************************
@@ -50,14 +50,18 @@ real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
 real(kind=wp), intent(out) :: Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
                               rKA(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), xpre(mZeta*mEta)
 integer(kind=iwp), intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
-real(kind=wp), intent(in) :: abmax, cdmax, CutInt
+real(kind=wp), intent(in) :: CutInt
 logical(kind=iwp), intent(in) :: PreScr, ldot
+
 integer(kind=iwp) :: iEta, ij, ip, ip1, ip2, iPAO, ipOAP, ipPAO, iZeta, jEta, jPAO, jZeta
-real(kind=wp) :: abcd
+real(kind=wp) :: abcd, abMax, cdMax
 
 #ifdef _DEBUGPRINT_
 call RecPrt('2nd order density matrix',' ',PAO,mZeta*mEta,mPAO)
 #endif
+
+abMax=k2Data1%abMax
+cdMax=k2Data2%abMax
 
 ip = 1
 ipPAO = ip
