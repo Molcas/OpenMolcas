@@ -23,11 +23,14 @@
 !             University of Lund, SWEDEN                               *
 !             June '91                                                 *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      Implicit None
       Integer, Intent(In):: n2, ld2, m2
       Real*8, Intent(In):: Coeff(ld2,m2)
 !
+      Real*8 Temp
+      Integer i, j
+
       lEmpty = .True.
       Temp = Zero
       Do i = 1, n2
@@ -39,4 +42,4 @@
       lEmpty = Temp.eq.Zero
 !
       Return
-      End
+      End Function lEmpty
