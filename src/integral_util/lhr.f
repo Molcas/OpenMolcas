@@ -12,9 +12,14 @@
 !     LHR function: convert full Hessian indices in lower triangular index
 !
       Integer Function LHR(i,iAtom,j,jAtom)
+      Implicit None
+      Integer i, iAtom, j, jAtom
+
+      Integer ivv1, ivv2, ivv
+
       ivv1 = (iAtom-1)*3 + i
       ivv2 = (jAtom-1)*3 + j
       ivv  = Max(ivv1,ivv2)
       LHR  = ivv*(ivv-3)/2 + ivv1 + ivv2
       Return
-      End
+      End Function LHR
