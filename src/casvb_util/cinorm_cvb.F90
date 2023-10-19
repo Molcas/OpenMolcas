@@ -12,26 +12,25 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine cinorm_cvb(cvec,cnrm)
 !***********************************************************************
 !*                                                                     *
 !*  CINORM  := Finds the sum of squared vector elements                *
 !*                                                                     *
 !***********************************************************************
+subroutine cinorm_cvb(cvec,cnrm)
 
-use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(*), cnrm
 #include "main_cvb.fh"
+real(kind=wp) :: cvec(0:ndet), cnrm
 integer(kind=iwp) :: iformat, ivec
-real(kind=wp) :: ddot_
+real(kind=wp), external :: ddot_
 
-ivec = nint(cvec(1))
+ivec = nint(cvec(0))
 iformat = iform_ci(ivec)
 if (iformat == 0) then
-  cnrm = ddot_(ndet,civbvec(:,ivec),1,civbvec(:,ivec),1)
+  cnrm = ddot_(ndet,cvec(1:),1,cvec(1:),1)
 else
   write(u6,*) ' Unsupported format in CINORM :',iformat
   call abend_cvb()

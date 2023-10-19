@@ -14,16 +14,15 @@
 
 subroutine gethr_cvb(iarr,n)
 
-use Definitions, only: iwp
+use Definitions, only: iwp, RtoI
 
 implicit none
 integer(kind=iwp) :: n, iarr(n)
 integer(kind=iwp) :: iaux(1)
-#include "idbl_cvb.fh"
 
 call geth_cvb(iaux,1)
 n = iaux(1)
-call geth_cvb(iarr,idbl*n)
+call geth_cvb(iarr,RtoI*n)
 
 return
 

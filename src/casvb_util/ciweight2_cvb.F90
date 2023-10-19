@@ -12,8 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,vec1,vec2,vec3,vec4,vec5,ionmin,ionmax,mxrem,mxsng, &
-               mxasg,ncnfcas,mxdetcas)
+subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
 
 use casvb_global, only: form2AD, formAD, gjorb, gjorb2, gjorb3
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -23,8 +22,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: ionmin, ionmax, mxrem, mxsng, mxasg, ncnfcas, mxdetcas
-real(kind=wp) :: civec(ndet), civbs(ndet), civb(ndet), citmp(ndet), civec5(ndet), orbs(norb,norb), sorbs(norb,norb), &
-                 orbinv(norb,norb), owrk(norb,norb), vec1(ndet), vec2(ndet), vec3(ndet), vec4(ndet), vec5(ndet)
+real(kind=wp) :: civec(0:ndet), civbs(0:ndet), civb(0:ndet), citmp(0:ndet), civec5(0:ndet), orbs(norb,norb), sorbs(norb,norb), &
+                 orbinv(norb,norb), owrk(norb,norb)
 #include "print_cvb.fh"
 integer(kind=iwp) :: i, ia, iaorb, ib, ibeg, ibegt, iborb, ic, idet, ilin, inda, indab, indasg, indb, indion, indsng, ion, iorb, &
                      ix1, lenfld, mp, mrem, nalfsng, nbetsng, nc, nindasg, nprint, nsing, rc
@@ -52,14 +51,14 @@ if (mod(iciweights,2) == 1) then
   call gaussj_cvb(owrk,gjorb2)
   call applyt_cvb(citmp,gjorb2)
   do idet=1,ndet
-    vec2(idet) = (vec1(idet)-fac*vec2(idet))*(vec3(idet)-fac*vec4(idet))
+    civbs(idet) = (citmp(idet)-fac*civbs(idet))*(civec(idet)-fac*civb(idet))
   end do
   do idet=1,ndet
-    vec1(idet) = vec1(idet)*vec3(idet)
+    citmp(idet) = citmp(idet)*civec(idet)
   end do
 end if
 do idet=1,ndet
-  vec4(idet) = vec3(idet)-fac*vec4(idet)
+  civb(idet) = civec(idet)-fac*civb(idet)
 end do
 
 call mma_allocate(mingrph,[0,norb],label='mingrph')
@@ -147,7 +146,7 @@ if (mod(iciweights,8) > 3) then
       ! Loop singly occupied
       indsng = 1
       do
-        call fzero(vec5,ndet)
+        call fzero(civec5(1:),ndet)
         s11 = Zero
         s22 = Zero
         s12 = Zero
@@ -175,10 +174,10 @@ if (mod(iciweights,8) > 3) then
           indbvec(indasg) = indb
 
           indab = (indb-1)*nda+inda
-          vec5(indab) = vec3(indab)
-          s11 = s11+vec3(indab)*vec3(indab)
-          s22 = s22+vec4(indab)*vec4(indab)
-          s12 = s12+vec3(indab)*vec4(indab)
+          civec5(indab) = civec(indab)
+          s11 = s11+civec(indab)*civec(indab)
+          s22 = s22+civb(indab)*civb(indab)
+          s12 = s12+civec(indab)*civb(indab)
 
           call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,locasg,lunasg,indasg,xasg,rc)
           if (rc == 0) exit
@@ -192,7 +191,7 @@ if (mod(iciweights,8) > 3) then
           inda = indavec(indasg)
           indb = indbvec(indasg)
           indab = (indb-1)*nda+inda
-          sm1 = sm1+vec3(indab)*vec5(indab)
+          sm1 = sm1+civec(indab)*civec5(indab)
         end do
 
         if (abs(sm1) > 1.0e-20_wp) then
@@ -201,12 +200,12 @@ if (mod(iciweights,8) > 3) then
           sm1 = Zero
         end if
 
-        call fzero(vec5,ndet)
+        call fzero(civec5(1:),ndet)
         do indasg=1,nindasg
           inda = indavec(indasg)
           indb = indbvec(indasg)
           indab = (indb-1)*nda+inda
-          vec5(indab) = vec4(indab)
+          civec5(indab) = civb(indab)
         end do
 
         call applyt_cvb(civec5,gjorb)
@@ -216,7 +215,7 @@ if (mod(iciweights,8) > 3) then
           inda = indavec(indasg)
           indb = indbvec(indasg)
           indab = (indb-1)*nda+inda
-          sm2 = sm2+vec4(indab)*vec5(indab)
+          sm2 = sm2+civb(indab)*civec5(indab)
         end do
 
         if (abs(sm2) > 1.0e-20_wp) then
@@ -264,8 +263,8 @@ if (mod(iciweights,4) > 1) then
   call cidot_cvb(civb,civb,cnrm)
   fac = svb/sqrt(cnrm)
   do idet=1,ndet
-    vec4(idet) = vec4(idet)*vec4(idet)
-    vec3(idet) = vec3(idet)*vec3(idet)
+    civb(idet) = civb(idet)*civb(idet)
+    civec(idet) = civec(idet)*civec(idet)
   end do
 end if
 
@@ -411,10 +410,10 @@ do ion=ionmin,ionmax
         indb = indget_cvb(ibocc,nbet,norb,xbet)
 
         indab = (indb-1)*nda+inda
-        c1 = c1+vec1(indab)
-        c2 = c2+vec2(indab)
-        c3 = c3+vec3(indab)
-        c4 = c4+vec4(indab)
+        c1 = c1+citmp(indab)
+        c2 = c2+civbs(indab)
+        c3 = c3+civec(indab)
+        c4 = c4+civb(indab)
 
         call loind_cvb(nsing,nalfsng,nkasg,mingasg,maxgasg,locasg,lunasg,indasg,xasg,rc)
         if (rc == 0) exit

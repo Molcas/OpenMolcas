@@ -21,7 +21,8 @@ use Definitions, only: wp, iwp
 implicit none
 #include "main_cvb.fh"
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
-real(kind=wp) :: civbh(ndet), civbs(ndet), civb(ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), vec1(*)
+real(kind=wp) :: civbh(0:ndet), civbs(0:ndet), civb(0:ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), &
+                 vec1(*)
 integer(kind=iwp) :: i
 
 f1 = One/ovraa

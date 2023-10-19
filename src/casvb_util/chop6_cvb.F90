@@ -16,14 +16,13 @@ subroutine chop6_cvb()
 
 use casvb_global, only: grad1, grad2, gradx, hessorb, hesst, icase6, mxdav, release, sstruc, sstruc2, vec1, wdx
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: iwp, u6
+use Definitions, only: iwp, u6, RtoI
 
 implicit none
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 integer(kind=iwp) :: idav, ir, iremain, mem_applyh, memwrk, ncimx, need
 logical(kind=iwp) :: done
-integer(kind=iwp), external :: ihlf_cvb
 
 if (release(6)) then
   if (allocated(sstruc)) call mma_deallocate(sstruc)
@@ -66,7 +65,7 @@ else if (icase6 == 2) then
   call mma_maxDBLE(iremain)
   maxdav = min(mxiter,nvb,mxdav)
 
-  memwrk = ndetvb+5*norb*norb+3*ihlf_cvb(norb+2*norb*norb)
+  memwrk = ndetvb+5*norb*norb+3*(norb+2*norb*norb+RtoI-1)/RtoI
   done = .false.
   do idav=maxdav,1,-1
     ! NEED is approx req. memory:
@@ -100,7 +99,7 @@ else if (icase6 == 3) then
     ncimx = max(ncimx,ncivb(ir))
   end do
   if (ncimx /= ndet) mem_applyh = mem_applyh+ncimx
-  memwrk = ndetvb+3*norb*norb+2*ihlf_cvb(norb+2*norb*norb)
+  memwrk = ndetvb+3*norb*norb+2*(norb+2*norb*norb+RtoI-1)/RtoI
 
   done = .false.
   do idav=maxdav,1,-1

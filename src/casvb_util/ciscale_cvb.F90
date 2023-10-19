@@ -12,25 +12,24 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine ciscale_cvb(cvec,scl)
 !***********************************************************************
 !*                                                                     *
 !*  CISCALE := Analogous to the blas routine DSCAL                     *
 !*                                                                     *
 !***********************************************************************
+subroutine ciscale_cvb(cvec,scl)
 
-use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(*), scl
 #include "main_cvb.fh"
+real(kind=wp) :: cvec(0:ndet), scl
 integer(kind=iwp) :: iformat, ivec
 
-ivec = nint(cvec(1))
+ivec = nint(cvec(0))
 iformat = iform_ci(ivec)
 if (iformat == 0) then
-  call dscal_(ndet,scl,civbvec(:,ivec),1)
+  call dscal_(ndet,scl,cvec(1:),1)
 else
   write(u6,*) ' Unsupported format in CISCALE :',iformat
   call abend_cvb()

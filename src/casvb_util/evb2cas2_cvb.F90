@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, dxnrm, dx_amx, civec(ndet), civb(ndet), civbh(ndet), res(*), resh(*)
+real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, dxnrm, dx_amx, civec(0:ndet), civb(0:ndet), civbh(0:ndet), res(0:ndet), resh(0:ndet)
 integer(kind=iwp) :: ioptc, iter
 #include "print_cvb.fh"
 real(kind=wp) :: cnrm, eig(2), h(2,2), orbinv(norb,norb), ovr, rescas_ovr, resnrm

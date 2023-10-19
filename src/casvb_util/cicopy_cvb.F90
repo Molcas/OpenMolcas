@@ -19,22 +19,21 @@
 !***********************************************************************
 subroutine cicopy_cvb(cvec1,cvec2)
 
-use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec1(*), cvec2(*)
 #include "main_cvb.fh"
+real(kind=wp) :: cvec1(0:ndet), cvec2(0:ndet)
 integer(kind=iwp) :: iformat, ivec1, ivec2
 integer(kind=iwp), external :: igetcnt2_cvb
 
-ivec1 = nint(cvec1(1))
-ivec2 = nint(cvec2(1))
+ivec1 = nint(cvec1(0))
+ivec2 = nint(cvec2(0))
 iformat = iform_ci(ivec1)
 iform_ci(ivec2) = iform_ci(ivec1)
 call setcnt2_cvb(ivec2,igetcnt2_cvb(ivec1))
 if (iformat == 0) then
-  call fmove_cvb(civbvec(:,ivec1),civbvec(:,ivec2),ndet)
+  call fmove_cvb(cvec1(1:),cvec2(1:),ndet)
 else
   write(u6,*) ' Unsupported format in CICOPY :',iformat
   call abend_cvb()

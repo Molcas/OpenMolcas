@@ -14,26 +14,25 @@
 
 subroutine ciscale2_cvb(cvec,scl,iscf,cscf)
 
-use casvb_global, only: civbvec
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(*), scl, cscf
-integer(kind=iwp) :: iscf
 #include "main_cvb.fh"
+real(kind=wp) :: cvec(0:ndet), scl, cscf
+integer(kind=iwp) :: iscf
 integer(kind=iwp) :: idet, iformat, ivec
 
-ivec = nint(cvec(1))
+ivec = nint(cvec(0))
 iscf = 0
 cscf = Zero
 iformat = iform_ci(ivec)
 if (iformat == 0) then
   do idet=1,ndet
-    civbvec(idet,ivec) = scl*civbvec(idet,ivec)
-    if (abs(civbvec(idet,ivec)) > p8) then
+    cvec(idet) = scl*cvec(idet)
+    if (abs(cvec(idet)) > p8) then
       iscf = idet
-      cscf = civbvec(idet,ivec)
+      cscf = cvec(idet)
     end if
   end do
 else

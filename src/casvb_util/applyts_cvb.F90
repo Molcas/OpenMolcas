@@ -20,7 +20,7 @@ use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civbs(ndet), orbs(norb,norb)
+real(kind=wp) :: civbs(0:ndet), orbs(norb,norb)
 
 call makegjorbs_cvb(orbs)
 

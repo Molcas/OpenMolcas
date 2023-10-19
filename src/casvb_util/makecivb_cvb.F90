@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civec(ndet), civb(ndet), cvbdet(ndetvb), orbs(norb,norb), cvb(nvb)
+real(kind=wp) :: civec(0:ndet), civb(0:ndet), cvbdet(ndetvb), orbs(norb,norb), cvb(nvb)
 integer(kind=iwp) :: ic
 type(gjorb_type) :: gjorb
 real(kind=wp), allocatable :: orbinv(:,:)

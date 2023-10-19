@@ -14,14 +14,13 @@
 
 subroutine sethr_cvb(iarr,n)
 
-use Definitions, only: iwp
+use Definitions, only: iwp, RtoI
 
 implicit none
 integer(kind=iwp) :: n, iarr(n)
-#include "idbl_cvb.fh"
 
 call seth_cvb([n],1)
-call seth_cvb(iarr,idbl*n)
+call seth_cvb(iarr,RtoI*n)
 
 return
 

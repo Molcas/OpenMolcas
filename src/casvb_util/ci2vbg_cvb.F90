@@ -33,16 +33,16 @@
 
 subroutine ci2vbg_cvb(civec,cvbdet)
 
-use casvb_global, only: civbvec, iapr, ixapr, nfrag, vbdet
+use casvb_global, only: iapr, ixapr, nfrag, vbdet
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: cvbdet(ndetvb), civec(*)
+real(kind=wp) :: civec(0:ndet), cvbdet(ndetvb)
 integer(kind=iwp) :: ic, icivec
 real(kind=wp) :: dum
 
-icivec = nint(civec(1))
+icivec = nint(civec(0))
 ic = 2
 
 if (iform_ci(icivec) /= 0) then
@@ -50,9 +50,9 @@ if (iform_ci(icivec) /= 0) then
   call abend_cvb()
 end if
 if (nfrag <= 1) then
-  call ci2vb2_cvb(civbvec(:,icivec),cvbdet,iapr,ixapr,dum,0)
+  call ci2vb2_cvb(civec(1:),cvbdet,iapr,ixapr,dum,0)
 else
-  call dpci2vb_cvb(civbvec(:,icivec),cvbdet,vbdet,ic,dum,0)
+  call dpci2vb_cvb(civec(1:),cvbdet,vbdet,ic,dum,0)
 end if
 
 return

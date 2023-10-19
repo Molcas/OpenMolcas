@@ -19,19 +19,14 @@
 !*********************************************************************
 subroutine proj_cvb(civec)
 
-use casvb_global, only: civbvec
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: civec(*)
 #include "main_cvb.fh"
-integer(kind=iwp) :: icivec
+real(kind=wp) :: civec(0:ndet)
 real(kind=wp) :: dum(mxirrep)
 
-if (projsym) then
-  icivec = nint(civec(1))
-  call psym1_cvb(civbvec(:,icivec),civbvec(:,icivec),dum,1)
-end if
+if (projsym) call psym1_cvb(civec(1:),civec(1:),dum,1)
 
 return
 

@@ -20,25 +20,24 @@
 subroutine dev2b_cvb(v1,v2,cfrom,hessorb,hesst,oaa2,aa1,gx,grad2)
 ! Calculates V1 EijEkl CFROM and V2 EijEkl CFROM
 
-use casvb_global, only: civbvec, i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, ixapr, ixbpr, phato, phbto
+use casvb_global, only: i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, ixapr, ixbpr, phato, phbto
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: v1(*), v2(*), cfrom(*), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb), oaa2, aa1, gx(norb,norb), grad2(nprorb)
-integer(kind=iwp) :: icfrom, iv1, iv2
+real(kind=wp) :: v1(0:ndet), v2(0:ndet), cfrom(0:ndet), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb), oaa2, aa1, &
+                 gx(norb,norb), grad2(nprorb)
+integer(kind=iwp) :: icfrom
 
-iv1 = nint(v1(1))
-iv2 = nint(v2(1))
-icfrom = nint(cfrom(1))
+icfrom = nint(cfrom(0))
 n_2el = n_2el+2
 if (iform_ci(icfrom) /= 0) then
   write(u6,*) ' Unsupported format in DEV2B :',iform_ci(icfrom)
   call abend_cvb()
 end if
 
-call dev2b_2_cvb(civbvec(:,iv1),civbvec(:,iv2),civbvec(:,icfrom),hessorb,hesst,oaa2,aa1,nprorb,i1alf,i1bet,iafrm,ibfrm,iato,ibto, &
-                 phato,phbto,iapr,ixapr,ibpr,ixbpr,npvb,gx,grad2,nda,ndb,n1a,n1b,nam1,nbm1,norb,projcas,sc,absym(3))
+call dev2b_2_cvb(v1(1:),v2(1:),cfrom(1:),hessorb,hesst,oaa2,aa1,nprorb,i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto,iapr,ixapr, &
+                 ibpr,ixbpr,npvb,gx,grad2,nda,ndb,n1a,n1b,nam1,nbm1,norb,projcas,sc,absym(3))
 
 return
 

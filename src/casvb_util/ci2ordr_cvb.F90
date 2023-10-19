@@ -14,21 +14,19 @@
 
 subroutine ci2ordr_cvb(civec,cvbdet,evbdet)
 
-use casvb_global, only: civbvec, nfrag, vbdet
-use Definitions, only: wp, iwp
+use casvb_global, only: nfrag, vbdet
+use Definitions, only: wp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), evbdet(*)
-integer(kind=iwp) :: icivec
+real(kind=wp) :: civec(0:ndet), cvbdet(ndetvb), evbdet(*)
 real(kind=wp) :: dum
 
-icivec = nint(civec(1,1))
 if (nfrag <= 1) then
   call fzero(evbdet,ndetvb)
   return
 end if
-call dpci2vb2_cvb(civbvec(:,icivec),cvbdet,vbdet,evbdet,0,dum,5)
+call dpci2vb2_cvb(civec(1:),cvbdet,vbdet,evbdet,0,dum,5)
 
 return
 

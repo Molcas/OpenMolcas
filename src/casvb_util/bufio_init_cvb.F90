@@ -15,11 +15,10 @@
 subroutine bufio_init_cvb(file_id1)
 
 use casvb_global, only: file_id, ibuf, izbuffer, lbuf, nbuf, nword
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
 real(kind=wp) :: file_id1
-#include "idbl_cvb.fh"
 real(kind=wp) :: dnbuf(1)
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
 
@@ -33,7 +32,7 @@ else
   call rdlow_cvb(dnbuf,1,file_id,0)
   nbuf = nint(dnbuf(1))
 end if
-nword = lbuf/idbl
+nword = lbuf/RtoI
 call izero(izbuffer,lbuf)
 
 return

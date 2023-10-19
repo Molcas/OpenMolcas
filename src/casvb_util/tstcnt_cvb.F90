@@ -14,18 +14,18 @@
 ! Contents of CI vectors:
 
 !IFG trivial
-function tstcnt_cvb(xident_ci,idep1)
+function tstcnt_cvb(civec,idep1)
 
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: tstcnt_cvb
-real(kind=wp) :: xident_ci(1)
-integer(kind=iwp) :: idep1
 #include "main_cvb.fh"
+real(kind=wp) :: civec(0:ndet)
+integer(kind=iwp) :: idep1
 integer(kind=iwp) :: ident_ci
 
-ident_ci = nint(xident_ci(1))
+ident_ci = nint(civec(0))
 tstcnt_cvb = icnt_ci(ident_ci) == idep1
 
 return

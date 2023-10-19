@@ -12,24 +12,23 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine cidot_cvb(cvec1,cvec2,ret)
 !***********************************************************************
 !*                                                                     *
 !*  CIDOT  := Analogous to the blas routine DDOT                       *
 !*                                                                     *
 !***********************************************************************
+subroutine cidot_cvb(cvec1,cvec2,ret)
 
-use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec1(*), cvec2(*), ret
 #include "main_cvb.fh"
+real(kind=wp) :: cvec1(0:ndet), cvec2(0:ndet), ret
 integer(kind=iwp) :: iformat1, iformat2, ivec1, ivec2
 real(kind=wp), external :: ddot_
 
-ivec1 = nint(cvec1(1))
-ivec2 = nint(cvec2(1))
+ivec1 = nint(cvec1(0))
+ivec2 = nint(cvec2(0))
 iformat1 = iform_ci(ivec1)
 iformat2 = iform_ci(ivec2)
 if (iformat1 /= iformat2) then
@@ -37,7 +36,7 @@ if (iformat1 /= iformat2) then
   call abend_cvb()
 end if
 if (iformat1 == 0) then
-  ret = ddot_(ndet,civbvec(:,ivec1),1,civbvec(:,ivec2),1)
+  ret = ddot_(ndet,cvec1(1:),1,cvec2(1:),1)
 else
   write(u6,*) ' Unsupported format in CIDOT :',iformat1
   call abend_cvb()

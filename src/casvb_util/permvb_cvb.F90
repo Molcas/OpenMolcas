@@ -24,15 +24,15 @@
 subroutine permvb_cvb(v1,iperm)
 ! Permutes orbitals in V1 according to IPERM.
 
-use casvb_global, only: civbvec, iapr, ixapr
+use casvb_global, only: iapr, ixapr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: v1(*)
+real(kind=wp) :: v1(0:ndet)
 integer(kind=iwp) :: iperm(norb)
-integer(kind=iwp) :: ialg, iv1, mavailr, v2len
+integer(kind=iwp) :: ialg, mavailr, v2len
 logical(kind=iwp) :: vb
 real(kind=wp), allocatable :: v2(:)
 
@@ -53,8 +53,7 @@ call mma_allocate(v2,v2len,label='v2')
 if (vb) then
   call permvb2_cvb(v1,iperm,vb,iapr,ixapr,v2,ialg)
 else
-  iv1 = nint(v1(1))
-  call permvb2_cvb(civbvec(:,iv1),iperm,vb,iapr,ixapr,v2,ialg)
+  call permvb2_cvb(v1(1:),iperm,vb,iapr,ixapr,v2,ialg)
 end if
 
 call mma_deallocate(v2)

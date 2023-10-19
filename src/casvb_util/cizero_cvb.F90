@@ -19,18 +19,17 @@
 !***********************************************************************
 subroutine cizero_cvb(cvec)
 
-use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(*)
 #include "main_cvb.fh"
+real(kind=wp) :: cvec(0:ndet)
 integer(kind=iwp) :: iformat, ivec
 
-ivec = nint(cvec(1))
+ivec = nint(cvec(0))
 iformat = iform_ci(ivec)
 if (iformat == 0) then
-  call fzero(civbvec(:,ivec),ndet)
+  call fzero(cvec(1:),ndet)
 else
   write(u6,*) ' Unsupported format in CIZERO :',iformat
   call abend_cvb()

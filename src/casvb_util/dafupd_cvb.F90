@@ -14,11 +14,10 @@
 
 subroutine dafupd_cvb(lu,ioffset)
 
-use Definitions, only: iwp
+use Definitions, only: iwp, RtoI
 
 implicit none
 integer(kind=iwp) :: lu, ioffset
-#include "idbl_cvb.fh"
 integer(kind=iwp) :: ioff, mxddr, nwrite
 integer(kind=iwp), parameter :: ibuf(1000) = 0
 
@@ -30,7 +29,7 @@ call iDaFile(lu,8,ibuf,nwrite,mxddr)
 if (mxddr < ioffset) then
   ioff = mxddr
   do
-    nwrite = min((ioffset-ioff)*idbl,1000)
+    nwrite = min((ioffset-ioff)*RtoI,1000)
     call iDaFile(lu,1,ibuf,nwrite,ioff)
     if (ioff >= ioffset) exit
   end do

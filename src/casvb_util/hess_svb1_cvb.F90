@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "main_cvb.fh"
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
-real(kind=wp) :: orbs(norb,norb), civecp(ndet), civbs(ndet), civb(ndet), citmp(ndet), orbinv(norb,norb), sorbs(norb,norb), &
+real(kind=wp) :: orbs(norb,norb), civecp(0:ndet), civbs(0:ndet), civb(0:ndet), citmp(0:ndet), orbinv(norb,norb), sorbs(norb,norb), &
                  owrk(norb,norb), dvbdet(ndetvb), grad1(npr), grad2(npr), hessorb(nprorb,nprorb), vec1(*), hessinp(npr), &
                  hessout(npr)
 integer(kind=iwp) :: iorts(2,nort)

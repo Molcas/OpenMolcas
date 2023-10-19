@@ -14,22 +14,22 @@
 
 subroutine pvbcopy_cvb(cfrom,cto)
 
-use casvb_global, only: civbvec, iapr, ixapr
+use casvb_global, only: iapr, ixapr
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cfrom(*), cto(*)
 #include "main_cvb.fh"
+real(kind=wp) :: cfrom(0:ndet), cto(0:ndet)
 integer(kind=iwp) :: icfrom, icto
 real(kind=wp) :: dum
 
-icfrom = nint(cfrom(1))
-icto = nint(cto(1))
+icfrom = nint(cfrom(0))
+icto = nint(cto(0))
 if ((iform_ci(icfrom) /= 0) .or. (iform_ci(icto) /= 0)) then
   write(u6,*) ' Unsupported format in PVBCOPY'
   call abend_cvb()
 end if
-call pvbcopy2_cvb(civbvec(:,icfrom),civbvec(:,icto),iapr,ixapr,dum,0)
+call pvbcopy2_cvb(cfrom(1:),cto(1:),iapr,ixapr,dum,0)
 call setcnt2_cvb(icto,0)
 
 return

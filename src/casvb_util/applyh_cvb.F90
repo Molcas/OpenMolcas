@@ -14,14 +14,13 @@
 
 subroutine applyh_cvb(civec)
 
-use casvb_global, only: civbvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: civec(*)
 #include "main_cvb.fh"
+real(kind=wp) :: civec(0:ndet)
 #include "casvb.fh"
 #include "rasscf_lucia.fh"
 integer(kind=iwp) :: icivec, isyml, isymmx, nci
@@ -31,7 +30,7 @@ real(kind=wp), parameter :: thr2 = 1.0e-20_wp
 real(kind=wp), external :: ddot_
 
 kH0_Pointer = lw1_cvb
-icivec = nint(civec(1))
+icivec = nint(civec(0))
 c_daxpy = Zero
 
 n_applyh = n_applyh+1
@@ -47,7 +46,7 @@ do isyml=1,isymmx
   nci = ncivb(isyml)
   call mma_allocate(cim,nci,label='cim')
   cim(:) = Zero
-  call vb2mol_cvb(civbvec(:,icivec),cim,isyml)
+  call vb2mol_cvb(civec(1:),cim,isyml)
 
   ! If only one irrep present keep down memory requirements:
   if ((isymmx > 1) .and. (nci /= ndet)) then
@@ -57,19 +56,19 @@ do isyml=1,isymmx
     ! If anything there, apply Hamiltonian to vector of this symmetry:
     if (cnrm > thr2) call sigmadet_cvb(cim,cim2,isyml,nci)
     if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,cim,1,cim2,1)
-    call mol2vb_cvb(civbvec(:,icivec),cim2,isyml)
+    call mol2vb_cvb(civec(1:),cim2,isyml)
     call mma_deallocate(cim2)
   else
-    call fzero(civbvec(:,icivec),nci)
+    call fzero(civec(1:),nci)
     cnrm = ddot_(nci,cim,1,cim,1)
     ! If anything there, apply Hamiltonian to vector of this symmetry:
     if (cnrm > thr2) then
-      call fzero(civbvec(:,icivec),nci)
-      call sigmadet_cvb(cim,civbvec(:,icivec),isyml,nci)
+      call fzero(civec(1:),nci)
+      call sigmadet_cvb(cim,civec(1:),isyml,nci)
     end if
-    if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,cim,1,civbvec(:,icivec),1)
-    call fmove_cvb(civbvec(:,icivec),cim,nci)
-    call mol2vb_cvb(civbvec(:,icivec),cim,isyml)
+    if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,cim,1,civec(1:),1)
+    call fmove_cvb(civec(1:),cim,nci)
+    call mol2vb_cvb(civec(1:),cim,isyml)
   end if
   call mma_deallocate(cim)
 end do

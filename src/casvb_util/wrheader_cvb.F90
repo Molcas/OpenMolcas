@@ -14,17 +14,16 @@
 
 subroutine wrheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 real(kind=wp) :: recn
 integer(kind=iwp) :: norb1, nbas_mo1, nvb1, kbasiscvb1, ioffs_orbs, ioffs_cvb, ioffs_orbsao, ioffs_orbslao
 #include "main_cvb.fh"
 integer(kind=iwp) :: iheader(10)
-integer(kind=iwp), external :: ihlf_cvb
 logical(kind=iwp), parameter :: debug = .false.
 
-ioffs_orbs = ihlf_cvb(10)
+ioffs_orbs = (10+RtoI-1)/RtoI
 ioffs_cvb = ioffs_orbs+norb1*norb1
 ioffs_orbsao = ioffs_cvb+nvb1
 ioffs_orbslao = ioffs_orbsao+norb1*nbas_mo1

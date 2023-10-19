@@ -14,10 +14,9 @@
 
 subroutine chop4_cvb()
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, civbvec, civbvecs, ndres_ok, release
+use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, civbvecs, ndres_ok, release
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
@@ -26,7 +25,6 @@ integer(kind=iwp) :: iv
 
 if (release(4)) then
   call mma_deallocate(civbvecs)
-  nullify(civbvec)
   nullify(civb1)
   nullify(civb2)
   nullify(civb3)
@@ -42,78 +40,77 @@ release(5) = .false.
 !FIXME: This deallocation should not be needed
 if (allocated(civbvecs)) call mma_deallocate(civbvecs)
 ! CIVECP and CIVBH share memory
-call mma_allocate(civbvecs,[0,ndres],[1,nv],label='civbvecs')
+call mma_allocate(civbvecs,[0,ndres-1],[1,nv],label='civbvecs')
 if (nv >= 1) then
-  civb1 => civbvecs(1:,1)
+  civb1 => civbvecs(0:,1)
   if (nv >= 2) then
-    civb2 => civbvecs(1:,2)
+    civb2 => civbvecs(0:,2)
   else
-    civb2 => civbvecs(1:,1)
+    civb2 => civbvecs(0:,1)
   end if
   if (nv >= 3) then
-    civb3 => civbvecs(1:,3)
+    civb3 => civbvecs(0:,3)
   else
-    civb3 => civbvecs(1:,1)
+    civb3 => civbvecs(0:,1)
   end if
   if (nv >= 4) then
-    civb4 => civbvecs(1:,4)
+    civb4 => civbvecs(0:,4)
   else
-    civb4 => civbvecs(1:,1)
+    civb4 => civbvecs(0:,1)
   end if
   if (nv >= 5) then
-    civb5 => civbvecs(1:,5)
+    civb5 => civbvecs(0:,5)
   else
-    civb5 => civbvecs(1:,1)
+    civb5 => civbvecs(0:,1)
   end if
   if (nv >= 6) then
-    civb6 => civbvecs(1:,6)
+    civb6 => civbvecs(0:,6)
   else
-    civb6 => civbvecs(1:,1)
+    civb6 => civbvecs(0:,1)
   end if
   if (nv >= 7) then
-    civb7 => civbvecs(1:,7)
+    civb7 => civbvecs(0:,7)
   else
-    civb7 => civbvecs(1:,1)
+    civb7 => civbvecs(0:,1)
   end if
   if (nv >= 8) then
-    civb8 => civbvecs(1:,8)
+    civb8 => civbvecs(0:,8)
   else
-    civb8 => civbvecs(1:,1)
+    civb8 => civbvecs(0:,1)
   end if
 end if
-civbvecs(0,:) = Zero
 ! Fix to put in "objects":
-civbvec => civbvecs(2:,:)
 do iv=1,nv
-  call creatci_cvb(iv)
-  if (.not. ndres_ok) call setcnt_cvb(civbvecs(1,iv),0)
+  civbvecs(0,iv) = real(iv,kind=wp)
+  iform_ci(iv) = 0
+  if (.not. ndres_ok) call setcnt2_cvb(iv,0)
 end do
 !-- ins
 if (((ifinish == 1) .or. (ifinish == 2)) .and. (.not. lciweights)) then
   if (((.not. lcalcevb) .or. lcalccivbs) .and. ((.not. lcalcsvb) .or. lcalccivbs)) then
-    civb3 => civbvecs(1:,1)
-    civb4 => civbvecs(1:,1)
+    civb3 => civbvecs(0:,1)
+    civb4 => civbvecs(0:,1)
   else if ((.not. lcalcevb) .or. lcalccivbs) then
-    civb4 => civbvecs(1:,3)
+    civb4 => civbvecs(0:,3)
   else if ((.not. lcalcsvb) .or. lcalccivbs) then
-    civb3 => civbvecs(1:,1)
-    civb4 => civbvecs(1:,3)
+    civb3 => civbvecs(0:,1)
+    civb4 => civbvecs(0:,3)
   end if
 end if
 if (.not. memplenty) then
   select case (nv)
     case (2)
-      civb3 => civbvecs(1:,1)
+      civb3 => civbvecs(0:,1)
     case (3)
-      civb4 => civbvecs(1:,1)
+      civb4 => civbvecs(0:,1)
     case (4)
-      civb5 => civbvecs(1:,1)
+      civb5 => civbvecs(0:,1)
     case (5)
-      civb6 => civbvecs(1:,1)
+      civb6 => civbvecs(0:,1)
     case (6)
-      civb7 => civbvecs(1:,1)
+      civb7 => civbvecs(0:,1)
     case (7)
-      civb8 => civbvecs(1:,1)
+      civb8 => civbvecs(0:,1)
   end select
 end if
 if ((nv == 3) .or. (nv == 4) .or. (nv == 5)) then

@@ -19,21 +19,20 @@
 !***********************************************************************
 subroutine ciwr_cvb(cvec,recn)
 
-use casvb_global, only: civbvec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(*), recn
 #include "main_cvb.fh"
+real(kind=wp) :: cvec(0:ndet), recn
 integer(kind=iwp) :: iformat, ioffs, ivec
 
-ivec = nint(cvec(1))
+ivec = nint(cvec(0))
 iformat = iform_ci(ivec)
 if (iformat == 0) then
   ioffs = 0
   call wris_cvb(iform_ci(ivec),1,recn,ioffs)
   call wris_cvb(icnt_ci(ivec),1,recn,ioffs)
-  call wrrs_cvb(civbvec(:,ivec),ndet,recn,ioffs)
+  call wrrs_cvb(cvec(1:),ndet,recn,ioffs)
 else
   write(u6,*) ' Unsupported format in CIWR :',iformat
   call abend_cvb()

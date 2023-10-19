@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civbh(ndet), civbs(ndet), orbs(norb,norb)
+real(kind=wp) :: civbh(0:ndet), civbs(0:ndet), orbs(norb,norb)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
 if (tstcnt_cvb(civbs,4) .and. tstcnt_cvb(civbh,5)) then

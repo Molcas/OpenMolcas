@@ -71,7 +71,7 @@ else
   end if
 end if
 
-call o12sa3_cvb(odx,cvb,orbs,civb1,civb2,civb3,cvbdet,nvb,nprorb,nparam,strucopt)
+call o12sa3_cvb(odx,cvb,orbs,civb1,civb2,civb3,cvbdet,nparam)
 
 return
 

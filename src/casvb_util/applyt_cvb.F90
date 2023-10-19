@@ -36,20 +36,20 @@
 !***********************************************************************
 subroutine applyt_cvb(cvec,gjorb)
 
-use casvb_global, only: civbvec, gjorb_type, i1alf, i1bet, iato, ibto, phato, phbto
+use casvb_global, only: gjorb_type, i1alf, i1bet, iato, ibto, phato, phbto
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(*)
-type(gjorb_type) :: gjorb
 #include "main_cvb.fh"
+real(kind=wp) :: cvec(0:ndet)
+type(gjorb_type) :: gjorb
 integer(kind=iwp) :: ivec
 
-ivec = nint(cvec(1))
+ivec = nint(cvec(0))
 n_applyt = n_applyt+1
 if (iform_ci(ivec) == 0) then
   call permci_cvb(cvec,gjorb%i1)
-  call applyt2_cvb(civbvec(:,ivec),gjorb%r,gjorb%i2,i1alf,i1bet,iato,ibto,phato,phbto)
+  call applyt2_cvb(cvec(1:),gjorb%r,gjorb%i2,i1alf,i1bet,iato,ibto,phato,phbto)
 else
   write(u6,*) ' Unsupported format in APPLYT :',iform_ci(ivec)
   call abend_cvb()

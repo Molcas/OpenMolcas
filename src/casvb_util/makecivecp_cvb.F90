@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civec(ndet), civecp(ndet), orbs(norb,norb)
+real(kind=wp) :: civec(0:ndet), civecp(0:ndet), orbs(norb,norb)
 type(gjorb_type) :: gjorb
 real(kind=wp), allocatable :: owrk(:,:)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...

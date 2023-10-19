@@ -16,17 +16,16 @@ subroutine bufio_rdbuf_cvb()
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use casvb_global, only: file_id, ibuf, ibuffer, lbuf, nbuf, nword
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
-#include "idbl_cvb.fh"
 integer(kind=iwp) :: ioffset
 
 if (nbuf < ibuf) then
   call izero(ibuffer,lbuf)
   return
 end if
-ioffset = (ibuf-1)*lbuf/idbl
+ioffset = (ibuf-1)*lbuf/RtoI
 call bufio_rdbuf_cvb_internal(ibuffer)
 
 return

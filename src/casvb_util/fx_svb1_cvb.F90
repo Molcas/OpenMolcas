@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: fx, orbstry(norb,norb), cvbtry(nvb), civec(ndet), civecp(ndet), civbs(ndet), civb(ndet), cvbdet(ndetvb)
+real(kind=wp) :: fx, orbstry(norb,norb), cvbtry(nvb), civec(0:ndet), civecp(0:ndet), civbs(0:ndet), civb(0:ndet), cvbdet(ndetvb)
 logical(kind=iwp) :: fast
 #include "print_cvb.fh"
 

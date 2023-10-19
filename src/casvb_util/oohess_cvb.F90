@@ -20,8 +20,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: orbs(norb,norb), civecp(ndet), civbs(ndet), civb(ndet), orbinv(norb,norb), sorbs(norb,norb), owrk(norb,norb), &
-                 grad2(npr), gradx(norb,norb), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb)
+real(kind=wp) :: orbs(norb,norb), civecp(0:ndet), civbs(0:ndet), civb(0:ndet), orbinv(norb,norb), sorbs(norb,norb), &
+                 owrk(norb,norb), grad2(npr), gradx(norb,norb), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb)
 integer(kind=iwp) :: ifr1, ifr2, iorb, iprm, iprm1, iprm2, jorb, korb, lorb
 real(kind=wp) :: aa1_use, oaa2_use
 

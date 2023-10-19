@@ -33,7 +33,7 @@ changed = .false.
 call icomb_cvb(norb,nalf,nda)
 call icomb_cvb(norb,nbet,ndb)
 ndet = nda*ndb
-ndres = 3+ndet
+ndres = 1+ndet
 
 call mma_maxDBLE(mavailr)
 memplenty = (mavailr > 9*ndet)

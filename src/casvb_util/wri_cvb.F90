@@ -15,16 +15,15 @@
 subroutine wri_cvb(ivec,n,file_id,ioffset)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
 integer(kind=iwp) :: n, ivec(n), ioffset
 real(kind=wp) :: file_id
-#include "idbl_cvb.fh"
 integer(kind=iwp) :: ibuf(8) = 0, ilen, nreals, nrem
 
-nreals = n/idbl
-nrem = n-nreals*idbl
+nreals = n/RtoI
+nrem = n-nreals*RtoI
 call wri_cvb_internal(ivec,ibuf)
 
 return
@@ -47,10 +46,10 @@ subroutine wri_cvb_internal(ivec,ibuf)
       call rdlow_cvb(buf,1,file_id,nreals+ioffset)
       nullify(buf)
     end if
-    call imove_cvb(ivec(1+nreals*idbl),ibuf,nrem)
+    call imove_cvb(ivec(1+nreals*RtoI),ibuf,nrem)
     ! Trying for a "clean" write (unwritten integers written as zeros),
-    ! but explicit zeroing of ibuf is not necessary as long as idbl <= 2.
-    !call izero(ibuf(nrem+1),idbl-nrem)
+    ! but explicit zeroing of ibuf is not necessary as long as RtoI <= 2.
+    !call izero(ibuf(nrem+1),RtoI-nrem)
     call c_f_pointer(c_loc(ibuf(1)),buf,[1])
     call wrlow_cvb(buf,1,file_id,nreals+ioffset)
     nullify(buf)

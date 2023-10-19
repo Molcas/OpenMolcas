@@ -14,14 +14,13 @@
 
 subroutine putci_cvb(civec)
 
-use casvb_global, only: civbvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: civec(*)
 #include "main_cvb.fh"
+real(kind=wp) :: civec(0:ndet)
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 #include "casinfo_cvb.fh"
@@ -32,7 +31,7 @@ real(kind=wp), allocatable :: cim(:)
 real(kind=wp), external :: dnrm2_
 logical(kind=iwp), external :: valid_cvb ! ... Files/Hamiltonian available ...
 
-icivec = nint(civec(1))
+icivec = nint(civec(0))
 iwr = 1
 
 if (iform_ci(icivec) /= 0) then
@@ -45,7 +44,7 @@ if (iwr == 0) then
     write(u6,'(a)') ' '
     call prtfid_cvb(' Restoring CI vector from ',strtci)
   end if
-  call fzero(civbvec(:,icivec),ndet)
+  call fzero(civec(1:),ndet)
 else if (iwr == 1) then
   if ((ip(5) >= 1) .and. valid_cvb(savvbci)) then
     write(u6,'(a)') ' '
@@ -64,13 +63,13 @@ do istsym_d=1,nstsym_d
         call mkfn_cvb(strtci,ibf)
         call rdcivec_cvb(cim,filename(ibf),.true.)
         fac = sqrt(weight_d(istate,istsym_d))
-        call mol2vbma_cvb(civbvec(:,icivec),cim,isyml,fac)
+        call mol2vbma_cvb(civec(1:),cim,isyml,fac)
       end if
     end do
   else if (iwr == 1) then
     do istate=1,nstats_d(istsym_d)
       if (abs(weight_d(istate,istsym_d)) > 1.0e-20_wp) then
-        call vb2mol_cvb(civbvec(:,icivec),cim,isyml)
+        call vb2mol_cvb(civec(1:),cim,isyml)
         cnrm = One/dnrm2_(nci,cim,1)
         call dscal_(nci,cnrm,cim,1)
         call mkfn_cvb(savvbci,ibf)

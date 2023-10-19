@@ -15,16 +15,15 @@
 subroutine rdi_cvb(ivec,n,file_id,ioffset)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
 integer(kind=iwp) :: n, ivec(n), ioffset
 real(kind=wp) :: file_id
-#include "idbl_cvb.fh"
 integer(kind=iwp) :: ibuf(8), nreals, nrem
 
-nreals = n/idbl
-nrem = n-nreals*idbl
+nreals = n/RtoI
+nrem = n-nreals*RtoI
 call rdi_cvb_internal(ivec,ibuf)
 
 return
@@ -42,7 +41,7 @@ subroutine rdi_cvb_internal(ivec,ibuf)
     call c_f_pointer(c_loc(ibuf(1)),buf,[1])
     call rdlow_cvb(buf,1,file_id,nreals+ioffset)
     nullify(buf)
-    call imove_cvb(ibuf,ivec(1+nreals*idbl),nrem)
+    call imove_cvb(ibuf,ivec(1+nreals*RtoI),nrem)
   end if
 end subroutine rdi_cvb_internal
 

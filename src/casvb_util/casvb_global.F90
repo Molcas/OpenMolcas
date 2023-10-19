@@ -71,8 +71,7 @@ real(kind=wp), allocatable :: ap(:,:), axc(:,:), c(:,:), corth(:,:), cvb(:), cvb
 real(kind=wp), allocatable, target :: aikcof(:), cikcof(:), civbvecs(:,:), phato(:,:), phcto(:,:)
 integer(kind=iwp), pointer :: i1bet(:,:) => null(), ibfrm(:,:) => null(), ibto(:,:) => null()
 real(kind=wp), pointer :: bikcof(:) => null(), civb1(:) => null(), civb2(:) => null(), civb3(:) => null(), civb4(:) => null(), &
-                          civb5(:) => null(), civb6(:) => null(), civb7(:) => null(), civb8(:) => null(), civbvec(:,:) => null(), &
-                          phbto(:,:) => null()
+                          civb5(:) => null(), civb6(:) => null(), civb7(:) => null(), civb8(:) => null(), phbto(:,:) => null()
 
 integer(kind=iwp), parameter :: iunset = -1357924680
 logical(kind=iwp), parameter :: ifhamil = .true., ifmos = .true.
@@ -82,34 +81,33 @@ character(len=*), parameter :: spinb(nspinb) = ['Kotani      ','Serber      ','R
                                                   'DETERM  ']
 
 public :: aa1, aa2, aikcof, alftol, ap, axc, bikcof, c, casvb_free, charobj, cikcof,  civb1, civb2, civb3, civb4, civb5, civb6, &
-          civb7, civb8, civbvec, civbvecs, cnrm, cnrmtol, confsinp, corenrg, corth, cpropt, cvb, cvbdet, cvbnrm_fr, cvbsspn, &
-          cvbstot, cvbtry, delopth1, delopth2, dfx, dfxmin, dfxtol, dvbdet, dx, eigval, eigvec, eigwrngtol, endwhenclose, evbdet, &
-          exp12tol, expct, f1, f2, f3, f4, file_id, follow, form2AD, form2AF, formAD, formAF, formChk1, formChk2, formChk3, &
-          formcvp, formE, formMXP1, formMXP2, formMXP3, formMXP4, formMXP5, formMXP6, formroot, formSymW, formVBWnorm, fxbest, &
-          gjorb, gjorb_type, gjorb2, gjorb3, grad1, grad2, gradx, grd, grdwrngtol, gsinp, have_solved_it, hessorb, hesst, hh, &
-          hhaccfac, hhkeep, hhmax, hhopt, hhrejfac, hhstart, hhtol, i_dep_on_j, i1alf, i1bet, i1c, i2s_fr, ia12ind, iact_mo, &
-          iaddrm, iafrm, iapr, iapr1, iato, ib12ind, ibfrm, ibpr, ibpr1, ibto, ibuf, ibuffer, icase6, icase7, icfrm, icnt, icode, &
-          iconfs, icto, idan, idelstr, idetvb, ifhamil, ifield, ifmos, ifnss1, ifnss2, ifollow, ifsc_fr, ifxorb, ifxstr, ikcoff, &
-          iline, ilv, inp, inputmode, ioffs, iopt2step, ioptcode, ioptim, ioptstep, iorbrel, iorts, ip, ipAnchr, ipdd, ipermzeta, &
-          ipos, ipp, ipp12e, ipp12s, ipp7, iprint, iprm, irels, iroot, irots, is_set, isaddle, isaddledd, istackrep, iter, &
-          iter12e, iter12s, iter7, iunset, ixapr, ixapr1, ixbpr, ixbpr1, izbuffer, izeta, j_dep_on_i, joffs, joptstep, jroot, &
-          lbuf, lenline, line, loopstep, loopstepmx, lstprm, maxd, maxize, mnion_fr, mustdeclare, mxact_mo, mxdav, mxdep, mxfield, &
-          mxfiles, mxfrag, mxI, mxion_fr, mxirrep_mo, mxit, mxMs, mxobj, mxopth, mxprm, mxrhs, mxS, mxstep, n_div, nact_mo, &
-          nalf_fr, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nbet_fr, nbuf, ncnt, nconf_fr, nconfion_fr, &
-          nda_fr, ndb_fr, ndep_ij, ndep_ji, ndetvb_fr, ndetvb2_fr, ndetvbs, ndres_ok, nel_fr, nfield, nfold, nfrag, nfrdim, nline, &
-          nlold, nMs_fr, nobj, nopth1, nopth2, noptim, noptstep, north, nortiter, nortiterdd, nparm, nroot, nS_fr, nspinb, &
-          nstackrep, nsym_mo, nvb_fr, nvbr_fr, nvecmx, nvguess, nvrestart, nvrhs, nvtot, nword, oaa2, oaa3, odx, odxp, ograd, &
-          ogradp, orbinv, orbs, orbstry, orththr, orththrdd, ovraa_try, ovrab, ovrab_try, owrk, owrk2, phato, phbto, phcto, recn, &
-          release, relorb, res, resthr, resthrdd, rhs, rhsp, safety, scalesmall, sgn, signtol, singul, solp, solp_res, sorbs, &
-          span, spinb, spinbkw, sstruc, sstruc2, sxc, symelm, tconstr, trprm, up2date, vbdet, vec1, wdx, ww, ww_try, zzacclim, &
-          zzmax, zzmin, zzrejmax, zzrejmin
+          civb7, civb8, civbvecs, cnrm, cnrmtol, confsinp, corenrg, corth, cpropt, cvb, cvbdet, cvbnrm_fr, cvbsspn, cvbstot, &
+          cvbtry, delopth1, delopth2, dfx, dfxmin, dfxtol, dvbdet, dx, eigval, eigvec, eigwrngtol, endwhenclose, evbdet, exp12tol, &
+          expct, f1, f2, f3, f4, file_id, follow, form2AD, form2AF, formAD, formAF, formChk1, formChk2, formChk3, formcvp, formE, &
+          formMXP1, formMXP2, formMXP3, formMXP4, formMXP5, formMXP6, formroot, formSymW, formVBWnorm, fxbest, gjorb, gjorb_type, &
+          gjorb2, gjorb3, grad1, grad2, gradx, grd, grdwrngtol, gsinp, have_solved_it, hessorb, hesst, hh, hhaccfac, hhkeep, &
+          hhmax, hhopt, hhrejfac, hhstart, hhtol, i_dep_on_j, i1alf, i1bet, i1c, i2s_fr, ia12ind, iact_mo, iaddrm, iafrm, iapr, &
+          iapr1, iato, ib12ind, ibfrm, ibpr, ibpr1, ibto, ibuf, ibuffer, icase6, icase7, icfrm, icnt, icode, iconfs, icto, idan, &
+          idelstr, idetvb, ifhamil, ifield, ifmos, ifnss1, ifnss2, ifollow, ifsc_fr, ifxorb, ifxstr, ikcoff, iline, ilv, inp, &
+          inputmode, ioffs, iopt2step, ioptcode, ioptim, ioptstep, iorbrel, iorts, ip, ipAnchr, ipdd, ipermzeta, ipos, ipp, &
+          ipp12e, ipp12s, ipp7, iprint, iprm, irels, iroot, irots, is_set, isaddle, isaddledd, istackrep, iter, iter12e, iter12s, &
+          iter7, iunset, ixapr, ixapr1, ixbpr, ixbpr1, izbuffer, izeta, j_dep_on_i, joffs, joptstep, jroot, lbuf, lenline, line, &
+          loopstep, loopstepmx, lstprm, maxd, maxize, mnion_fr, mustdeclare, mxact_mo, mxdav, mxdep, mxfield, mxfiles, mxfrag, &
+          mxI, mxion_fr, mxirrep_mo, mxit, mxMs, mxobj, mxopth, mxprm, mxrhs, mxS, mxstep, n_div, nact_mo, nalf_fr, nbas_mo, &
+          nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nbet_fr, nbuf, ncnt, nconf_fr, nconfion_fr, nda_fr, ndb_fr, &
+          ndep_ij, ndep_ji, ndetvb_fr, ndetvb2_fr, ndetvbs, ndres_ok, nel_fr, nfield, nfold, nfrag, nfrdim, nline, nlold, nMs_fr, &
+          nobj, nopth1, nopth2, noptim, noptstep, north, nortiter, nortiterdd, nparm, nroot, nS_fr, nspinb, nstackrep, nsym_mo, &
+          nvb_fr, nvbr_fr, nvecmx, nvguess, nvrestart, nvrhs, nvtot, nword, oaa2, oaa3, odx, odxp, ograd, ogradp, orbinv, orbs, &
+          orbstry, orththr, orththrdd, ovraa_try, ovrab, ovrab_try, owrk, owrk2, phato, phbto, phcto, recn, release, relorb, res, &
+          resthr, resthrdd, rhs, rhsp, safety, scalesmall, sgn, signtol, singul, solp, solp_res, sorbs, span, spinb, spinbkw, &
+          sstruc, sstruc2, sxc, symelm, tconstr, trprm, up2date, vbdet, vec1, wdx, ww, ww_try, zzacclim, zzmax, zzmin, zzrejmax, &
+          zzrejmin
 
 contains
 
 subroutine casvb_free()
   use stdalloc, only: mma_deallocate
   if (allocated(civbvecs)) call mma_deallocate(civbvecs)
-  nullify(civbvec)
   nullify(civb1)
   nullify(civb2)
   nullify(civb3)

@@ -20,15 +20,13 @@
 !***********************************************************************
 subroutine ciweight_cvb(civec,civbs,civb,citmp,vec5,orbs,sorbs,orbinv,owrk)
 
-use casvb_global, only: civbvec
 use Definitions, only: wp, iwp
 
 implicit none
 #include "main_cvb.fh"
-real(kind=wp) :: civec(*), civbs(*), civb(*), citmp(*), vec5(*), orbs(norb,norb), sorbs(norb,norb), orbinv(norb,norb), &
-                 owrk(norb,norb)
-integer(kind=iwp) :: icitmp, icivb, icivbs, icivec, ion, ionmax, ionmin, iretval1, iretval2, ivec5, mxasg, mxdetcas, mxrem, mxsng, &
-                     ncnfcas
+real(kind=wp) :: civec(0:ndet), civbs(0:ndet), civb(0:ndet), citmp(0:ndet), vec5(0:ndet), orbs(norb,norb), sorbs(norb,norb), &
+                 orbinv(norb,norb), owrk(norb,norb)
+integer(kind=iwp) :: ion, ionmax, ionmin, iretval1, iretval2, mxasg, mxdetcas, mxrem, mxsng, ncnfcas
 
 ionmin = max(nel-norb,0)
 ionmax = nbet
@@ -44,13 +42,7 @@ do ion=ionmin,ionmax
   ncnfcas = ncnfcas+iretval1*iretval2
 end do
 
-icivec = nint(civec(1))
-icivbs = nint(civbs(1))
-icivb = nint(civb(1))
-icitmp = nint(citmp(1))
-ivec5 = nint(vec5(1))
-call ciweight2_cvb(civec,civbs,civb,citmp,vec5,orbs,sorbs,orbinv,owrk,civbvec(:,icitmp),civbvec(:,icivbs),civbvec(:,icivec), &
-                   civbvec(:,icivb),civbvec(:,ivec5),ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
+call ciweight2_cvb(civec,civbs,civb,citmp,vec5,orbs,sorbs,orbinv,owrk,ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
 
 return
 

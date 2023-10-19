@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "main_cvb.fh"
 integer(kind=iwp) :: nprm
-real(kind=wp) :: civb(ndet), civbs(ndet), cvbdet(ndetvb), cvb(nvb)
+real(kind=wp) :: civb(0:ndet), civbs(0:ndet), cvbdet(ndetvb), cvb(nvb)
 integer(kind=iwp) :: ic1
 real(kind=wp) :: cnrm, dum(1), ret
 real(kind=wp), allocatable :: c(:), sxc(:), vec_all(:)

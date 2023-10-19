@@ -18,7 +18,7 @@ use casvb_global, only: confsinp, gsinp, i2s_fr, inputmode, mnion_fr, mxion_fr, 
                         ndetvb_fr, ndetvb2_fr, nel_fr, nfrag, nMs_fr, nS_fr, nspinb, nvbr_fr, spinbkw
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 #include "main_cvb.fh"
@@ -50,7 +50,7 @@ character(len=*), parameter :: crit(ncrit) = ['OVERLAP ','ENERGY  '], &
                                                  'XXXXxxxx','STAT    ','INIT    ','NOINIT  ','TIDY    ','PLOC    ','NOPLOC  ', &
                                                  'ALTERNAT','ENDALTER'], &
                                weightkw(nwkw) = ['CHIRGWIN','LOWDIN  ','INVERSE ','NONE    ','ALL     ']
-integer(kind=iwp), external :: ihlf_cvb, nvb_cvb
+integer(kind=iwp), external :: nvb_cvb
 logical(kind=iwp), external :: firsttime_cvb, valid_cvb ! ... Files/Hamiltonian available ...
 
 call mma_allocate(ifxorb,mxorb_cvb,label='ifxorb')
@@ -675,7 +675,7 @@ if (inputmode == 2) then
     recinp = swap
   end if
   !call reserv_cvb(need,recinp)
-  ioffs = ihlf_cvb(nbuf)
+  ioffs = (nbuf+RtoI-1)/RtoI
   call wrioff_cvb(1,recinp,ioffs)
   call wris_cvb([noe],1,recinp,ioffs)
   call wrioff_cvb(2,recinp,ioffs)
