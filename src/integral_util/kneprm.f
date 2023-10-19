@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine KnEPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
      &                  Final,nZeta,nComp,la,lb,A,RB,nHer,
      &                  Array,nArr,Ccoor,nOrdOp)
@@ -25,16 +26,18 @@
 !***********************************************************************
       use Her_RW, only: HerR, HerW, iHerR, iHerW
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nAlpha, nBeta, nZeta, nComp, la, lb, nHer, nArr, nOrdOp
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
      &       Array(nZeta*nArr), Ccoor(3)
+
       Logical ABeq(3)
+      Integer nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz, ipTxyz, ipA, ipB,
+     &        ipAOff, iAlpha, ipBOff, iBeta
 !
-      ABeq(1) = A(1).eq.RB(1)
-      ABeq(2) = A(2).eq.RB(2)
-      ABeq(3) = A(3).eq.RB(3)
+      ABeq(:) = A(:).eq.RB(:)
 !
       nip = 1
       ipAxyz = nip
@@ -61,7 +64,6 @@
          Call  Abend()
       End If
 !
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In KnEPrm: A',' ',A,1,3)
       Call RecPrt(' In KnEPrm: RB',' ',RB,1,3)
