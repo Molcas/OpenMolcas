@@ -27,7 +27,7 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !              Modified 1995 for 2nd derivatives by AB                 *
 !***********************************************************************
 
-use Index_Functions, only: iTri, nTri_Elem1
+use Index_Functions, only: iTri, nTri_Elem1, nTri_Elem
 use k2_arrays, only: DoGrad_, DoHess_
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
@@ -35,7 +35,7 @@ use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use k2_structure, only: k2data, allocate_k2data, Indk2
+use k2_structure, only: k2data, allocate_k2data, Indk2, nIndK2
 
 implicit none
 integer(kind=iwp), intent(out) :: mdede
@@ -64,6 +64,11 @@ DoHess_ = .true.
 !***********************************************************************
 !                                                                      *
 call Nr_Shells(nSkal)
+
+nIndK2 = nTri_Elem(S%nShlls)
+call mma_allocate(IndK2,3,nIndk2)
+Allocate(k2data(1:nIrrep,1:nskal*(nskal+1)/2))
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -84,7 +89,6 @@ ipM001 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Allocate(k2data(1:nIrrep,1:nskal*(nskal+1)/2))
 
 do iS=1,nSkal
   iShll = iSD(0,iS)

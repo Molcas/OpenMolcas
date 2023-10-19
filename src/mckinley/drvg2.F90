@@ -44,7 +44,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 use Disp, only: lDisp
-use k2_structure, only: k2Data, Indk2, nIndk2
+use k2_structure, only: k2Data, Indk2
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess
@@ -156,9 +156,6 @@ lgrad = l_Grd
 lpick = lgrad .and. (.not. New_Fock)
 Pren = Zero
 Prem = Zero
-
-nIndK2 = nTri_Elem(S%nShlls)
-call mma_allocate(IndK2,3,nIndk2)
 
 call Drvk2_mck(ndede,new_Fock)
 
