@@ -277,4 +277,4 @@
 !     Write (*,*) 'PolEff...',PolEff(1),PolEff(101)
 !     Write (*,*) 'Lattcr: nGrid_Eff=',nGrid_Eff
       Return
-      End
+      End Subroutine lattcr

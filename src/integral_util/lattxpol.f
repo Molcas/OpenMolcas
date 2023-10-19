@@ -12,11 +12,13 @@
      &                    XF,nXF,nOrd_XF,nPolComp)
 !
       use Constants
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 !
+      Integer nGrid, nGrid_Eff, nXF, nOrd_XF, nPolComp
       Real*8 Grid(3,nGrid), PolEff(nPolComp,nGrid), DipEff(nGrid)
-      Real*8 XF(*)
+      Real*8 XF(nXF)
 
+      Integer ixyz, nElem, Inc, iOrdOp, iXF, j
 !
 !     Statement function for Cartesian index
 !
@@ -42,4 +44,4 @@
       EndDo
 
       Return
-      End
+      End Subroutine lattXPol
