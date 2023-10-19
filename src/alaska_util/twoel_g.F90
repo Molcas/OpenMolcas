@@ -14,7 +14,7 @@
 
 subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys, &
                    k2Data1, k2Data2,  &
-                   nab,nData1,ncd,nData2,Pren, &
+                   nData1,nData2,Pren, &
                    Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4, &
                    lBasl,Zeta,ZInv,P,nZeta,Eta,EInv,Q,nEta,xA,xB,xG,xD,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO,Wrk2,nWrk2,Aux,nAux,Shijij)
 !***********************************************************************
@@ -43,8 +43,8 @@ use Disp, only: l2DI, CutGrd
 use k2_structure, only: k2_type
 
 implicit none
-integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nab, nData1, &
-                                 ncd, nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, &
+integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nData1, &
+                                 nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, &
                                  kBask, lBasl, nZeta, nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
 type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
 real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
@@ -477,10 +477,6 @@ subroutine TwoEl_g_Internal(Wrk2)
                           Zeta,ZInv,P,xA,xB, &
                           Eta,EInv,Q,xG,xD, &
                           ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI, &
-                          k2Data1(lDCR1)%abG(iZeta:,1), &
-                          k2Data1(lDCR1)%abG(iZeta:,2), nab, &
-                          k2Data2(lDCR2)%abG(iEta :,1), &
-                          k2Data2(lDCR2)%abG(iEta :,2), ncd, &
                           PreScr,nWrk3,IsChi,ChiI2)
             Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
             !write(u6,*) 'Prem=',Prem

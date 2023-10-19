@@ -16,7 +16,6 @@ subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta
                     Zeta,ZInv,P,xA,xB,&
                     Eta,EInv,Q,xG,xD, &
                     iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI, &
-                    ab,abg,nab,cd,cdg,ncd, &
                     PreScr,nScrtch,IsChi,ChiI2)
 !***********************************************************************
 !                                                                      *
@@ -43,12 +42,12 @@ implicit none
 integer(kind=iwp) iOffZ, iOffE
 type(k2_type), target, intent(in):: k2Data1, k2Data2
 integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, iphX1, &
-                                 iphY1, iphZ1, iphX2, iphY2, iphZ2, nab, ncd, nScrtch, IsChi
+                                 iphY1, iphZ1, iphX2, iphY2, iphZ2, nScrtch, IsChi
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
 real(kind=wp), intent(out) :: Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), Eta(nEta), EInv(nEta), &
                               Q(nEta,3), xG(nEta), xD(nEta)
 integer(kind=iwp), intent(out) :: lZeta, lEta
-real(kind=wp), intent(in) :: CutGrd, ab(nZeta,nab), abg(nZeta,nab), cd(nEta,ncd), cdg(nEta,ncd), ChiI2
+real(kind=wp), intent(in) :: CutGrd, ChiI2
 logical(kind=iwp), intent(in) :: l2DI, PreScr
 integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2, iPAO, ipE, ipFac, ipOAP, ipP, ipPAO, &
                      ipZ, iZE, iZeta, jPAO, jPZ, l1, l2
@@ -57,12 +56,16 @@ real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZet
 logical(kind=iwp) :: ZPreScr, EPreScr
 integer(kind=iwp) :: iDMin
 real(kind=wp), external :: DNrm2_
-real(kind=wp), pointer :: ab_(:,:), abG_(:,:), cd_(:,:), cdG_(:,:)
+real(kind=wp), pointer :: ab(:,:), abG(:,:), cd(:,:), cdG(:,:)
+integer(kind=iwp) :: nab, ncd
 
-ab_(1:nZeta,1:nab) => k2Data1%abG(1:nZeta*nab,1)
-abG_(1:nZeta,1:nab) => k2Data1%abG(1:nZeta*nab,2)
-cd_(1:nEta,1:ncd) => k2Data2%abG(1:nEta*ncd,1)
-cdG_(1:nEta,1:ncd) => k2Data2%abG(1:nEta*ncd,2)
+nab=Size(k2Data1%abG,1)/nZeta
+ncd=Size(k2Data2%abG,1)/nEta
+
+ab(1:nZeta,1:nab) => k2Data1%abG(1:nZeta*nab,1)
+abG(1:nZeta,1:nab) => k2Data1%abG(1:nZeta*nab,2)
+cd(1:nEta,1:ncd) => k2Data2%abG(1:nEta*ncd,1)
+cdG(1:nEta,1:ncd) => k2Data2%abG(1:nEta*ncd,2)
 
 
 #ifdef _DEBUGPRINT_
@@ -153,14 +156,14 @@ if (PreScr) then
   end do
   do icd=1,ncd
     do iEta=1,mEta
-      alpha = cd_(iOffE+iEta,icd)
-      beta = cdg_(iOffE+iEta,icd)
+      alpha = cd(iOffE+iEta,icd)
+      beta = cdg(iOffE+iEta,icd)
       iZE = (iEta-1)*mZeta
       do iab=1,nab
         iabcd = (icd-1)*nab+iab
         iOff = (iabcd-1)*mZeta*mEta+iZE
         do iZeta=1,mZeta
-          temp = (alpha*abg_(iOffZ+iZeta,iab)+beta*ab_(iOffZ+iZeta,iab))*PAO(iZeta+iOff)
+          temp = (alpha*abg(iOffZ+iZeta,iab)+beta*ab(iOffZ+iZeta,iab))*PAO(iZeta+iOff)
           Scrtch(ipZ+iZeta-1) = Scrtch(ipZ+iZeta-1)+abs(temp)
           Scrtch(ipE+iEta-1) = Scrtch(ipE+iEta-1)+abs(temp)
         end do
@@ -313,7 +316,7 @@ end if
 call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 #endif
 
-Nullify(ab_,abG_,cd_,cdG_)
+Nullify(ab,abG,cd,cdG)
 return
 
 end subroutine Screen_g
