@@ -12,9 +12,11 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-subroutine Screen_mck(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,rKA, &
-                      k2Data1, k2Data2, IndZ,abmax,Eta,EInv,Q,xG,xD, &
-                      rKC,IndE,cdmax,xpre,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
+subroutine Screen_mck(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
+                      k2Data1, k2Data2, &
+                      Zeta,ZInv,P,xA,xB,rKA,abmax, &
+                      Eta,EInv,Q,xG,xD, rKC,cdmax, &
+                      xpre,iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutInt,PreScr,IndZet,IndEta,ldot)
 
 !***********************************************************************
 !                                                                      *
@@ -43,7 +45,7 @@ use k2_structure, only: k2_type
 implicit none
 integer(kind=iwp), intent(in) :: iOffZ, iOffE
 type(k2_type), intent(in):: k2Data1, k2Data2
-integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, IndZ(mZeta), IndE(mEta), iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2
+integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
 real(kind=wp), intent(out) :: Scrtch(mZeta*mEta*(1+mPAO*2)), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), &
                               rKA(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), xG(nEta), xD(nEta), rKC(nEta), xpre(mZeta*mEta)
@@ -73,7 +75,7 @@ lZeta = 0
 IndZet(:) = 0
 if (PreScr) then
   do iZeta=1,mZeta
-    jZeta = IndZ(iZeta)
+    jZeta = k2Data1%IndZ(iOffZ+iZeta)
     IndZet(jZeta) = -lZeta
     abcd = k2Data1%ab(iOffZ+iZeta)*cdMax
     if (abs(abcd) >= CutInt) then
@@ -95,7 +97,7 @@ if (PreScr) then
 else
   do iZeta=1,mZeta
     lZeta = lZeta+1
-    jZeta = IndZ(iZeta)
+    jZeta = k2Data1%IndZ(iOffZ+iZeta)
     IndZet(jZeta) = lZeta
     Zeta(lZeta) = k2Data1%Zeta(iOffZ+iZeta)
     rKA(lZeta) = k2Data1%Kappa(iOffZ+iZeta)
@@ -126,7 +128,7 @@ if (lZeta /= 0) then
   IndEta(:) = 0
   if (PreScr) then
     do iEta=1,mEta
-      jEta = IndE(iEta)
+      jEta = k2Data2%IndZ(iOffE+iEta)
       IndEta(jEta) = -lEta ! To be removed
       abcd = k2Data2%ab(iOffE+iEta)*abMax
       if (abs(abcd) >= CutInt) then
@@ -148,7 +150,7 @@ if (lZeta /= 0) then
   else
     do iEta=1,mEta
       lEta = lEta+1
-      jEta = IndE(iEta)
+      jEta = k2Data2%IndZ(iOffE+iEta)
       IndEta(jEta) = lEta
       Eta(lEta) = k2Data2%Zeta(iOffE+iEta)
       rKC(lEta) = k2Data2%Kappa(iOffE+iEta)
