@@ -46,7 +46,7 @@ implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nData1, &
                                  nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, &
                                  kBask, lBasl, nZeta, nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
-type(k2_type), target, intent(in) :: k2data1(nData1), k2Data2(nData2)
+type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
 real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
                              Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), PSO(iBasi*jBasj*kBask*lBasl,nPSO)
 real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)

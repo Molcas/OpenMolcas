@@ -85,7 +85,7 @@
 
             nData = nZeta * (10 + ijCmp*2) + nHm*nIrrep
             nk2_real = nk2_real + nData*nIrrep
-            nk2_integer = nk2_integer + nZeta*nIrrep
+            nk2_integer = nk2_integer + (nZeta+1)*nIrrep
 
          End Do
       End Do

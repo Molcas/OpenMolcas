@@ -71,7 +71,6 @@ type k2_type
 Integer :: nZeta=0
 Integer :: ijCmp=0
 Integer :: nHm=0
-real*8,  Allocatable:: ZZZ(:)
 real*8,  Pointer:: Zeta(:)
 real*8,  Pointer:: Kappa(:)
 real*8,  Pointer:: PCoor(:,:)
@@ -83,22 +82,22 @@ real*8,  Pointer:: Alpha(:)
 real*8,  Pointer:: Beta(:)
 real*8,  Pointer:: HrrMtrx(:,:)
 
-integer, Allocatable:: IndZ(:)
-real*8              :: EstI=Zero
-real*8              :: ZtMax=Zero
-real*8              :: ZtMaxD=Zero
-real*8              :: ZetaM=Zero
-real*8              :: abMax=Zero
-real*8              :: abMaxD=Zero
+integer, Pointer:: IndZ(:)
+real*8          :: EstI=Zero
+real*8          :: ZtMax=Zero
+real*8          :: ZtMaxD=Zero
+real*8          :: ZetaM=Zero
+real*8          :: abMax=Zero
+real*8          :: abMaxD=Zero
 End type k2_type
 
 type (k2_type), Allocatable, Target :: k2data(:,:)
 
 Integer, Parameter:: nDArray=11,nDScalar=9
 
-real*8, Allocatable :: ZZZ_r(:)
-integer, Allocatable :: ZZZ_i(:)
-Integer :: iZZZ_r=1, iZZZ_i=1
+real*8, Allocatable,Target  :: ZZZ_r(:)
+integer, Allocatable,Target :: ZZZ_i(:)
+Integer :: iZZZ_r=0, iZZZ_i=0
 
 Logical :: k2_processed=.False.
 Integer, Allocatable :: IndK2(:,:)
@@ -111,56 +110,62 @@ public :: ZZZ_i, ZZZ_r
 contains
 
 Subroutine Allocate_k2data(k2data,nZeta,ijCmp,nHm)
-use stdalloc, only: mma_allocate
- use Symmetry_Info, only: nIrrep
+use Symmetry_Info, only: nIrrep
 Implicit None
 Integer nZeta, ijCmp,nHm
 type (k2_type), target:: k2data
 
-Integer nk2, iS, iE
+Integer iS, iE
 
 k2Data%nZeta=nZeta
 k2Data%nHm  =nHm
 k2Data%ijCmp=ijCmp
 
-nk2 = nZeta*10 + nHM*nIrrep + nZeta*ijCmp*2
-Call mma_allocate(k2Data%ZZZ,nk2,Label='%ZZZ')
-iS=1
-iE=nZeta
-k2Data%Zeta(1:nZeta) => k2Data%ZZZ(iS:iE)
+iE=iZZZ_r
+
+iS=iE+1
+iE=iE + nZeta
+k2Data%Zeta(1:nZeta) => ZZZ_r(iS:iE)
 iS=1+iE
 iE=iE + nZeta
-k2Data%Kappa(1:nZeta) => k2Data%ZZZ(iS:iE)
+k2Data%Kappa(1:nZeta) => ZZZ_r(iS:iE)
 iS=1+iE
 iE=iE + nZeta * 3
-k2Data%PCoor(1:nZeta,1:3) => k2Data%ZZZ(iS:iE)
+k2Data%PCoor(1:nZeta,1:3) => ZZZ_r(iS:iE)
 iS=1+iE
 iE=iE + nZeta
-k2Data%ZInv(1:nZeta) => k2Data%ZZZ(iS:iE)
+k2Data%ZInv(1:nZeta) => ZZZ_r(iS:iE)
 iS=1+iE
 iE=iE + nZeta
-k2Data%ab(1:nZeta) => k2Data%ZZZ(iS:iE)
+k2Data%ab(1:nZeta) => ZZZ_r(iS:iE)
 iS=1+iE
 iE=iE + nZeta
-k2Data%abCon(1:nZeta) => k2Data%ZZZ(iS:iE)
+k2Data%abCon(1:nZeta) => ZZZ_r(iS:iE)
 iS=1+iE
 iE=iE + nZeta
-k2Data%Alpha(1:nZeta) => k2Data%ZZZ(iS:iE)
+k2Data%Alpha(1:nZeta) => ZZZ_r(iS:iE)
 iS=1+iE
 iE=iE + nZeta
-k2Data%Beta(1:nZeta) => k2Data%ZZZ(iS:iE)
+k2Data%Beta(1:nZeta) => ZZZ_r(iS:iE)
 If (nHm/=0) Then
    iS=1+iE
    iE=iE + nHm*nIrrep
-   k2Data%HrrMtrx(1:nHm,1:nIrrep) => k2Data%ZZZ(iS:iE)
+   k2Data%HrrMtrx(1:nHm,1:nIrrep) => ZZZ_r(iS:iE)
 End If
 If (ijCmp/=0) Then
    iS=1+iE
    iE=iE + nZeta*ijCmp*2
-   k2Data%abG(1:nZeta*ijCmp,1:2) => k2Data%ZZZ(iS:iE)
+   k2Data%abG(1:nZeta*ijCmp,1:2) => ZZZ_r(iS:iE)
 End If
+iZZZ_r = iE
 
-Call mma_allocate(k2Data%IndZ,     nZeta+1,Label='%IndZ')   ! yes +1!
+iE = iZZZ_i
+
+iS=iE+1
+iE=iE+nZeta+1
+k2Data%IndZ(1:nZeta+1) => ZZZ_i(iS:iE)
+iZZZ_i = iE
+
 End Subroutine Allocate_k2data
 
 Subroutine Free_k2data()
@@ -187,19 +192,16 @@ Deallocate(k2data)
 End Subroutine Free_k2data
 
 Subroutine Free_k2data_Internal(k2data_1D)
-use stdalloc, only: mma_deallocate
 Implicit None
 type (k2_type):: k2data_1D
 
 k2Data%nZeta=0
 k2Data%nHm  =0
 k2Data%ijCmp=0
-If (allocated(k2Data_1D%ZZZ))  Call mma_deallocate(k2Data_1D%ZZZ)
 
-Nullify(k2Data_1D%Kappa,k2Data_1D%Pcoor,k2Data_1D%ZInv,k2Data_1D%ab,k2Data_1D%abCon, &
-        k2Data_1D%Alpha,k2Data_1D%Beta,k2Data_1D%HRRMtrx,k2Data_1D%abG)
+Nullify(k2Data_1D%Zeta,k2Data_1D%Kappa,k2Data_1D%Pcoor,k2Data_1D%ZInv,k2Data_1D%ab,k2Data_1D%abCon, &
+        k2Data_1D%Alpha,k2Data_1D%Beta,k2Data_1D%HRRMtrx,k2Data_1D%abG,k2Data_1D%IndZ)
 
-If (allocated(k2Data_1D%IndZ)) Call mma_deallocate(k2Data_1D%IndZ)
 End Subroutine Free_k2data_Internal
 
 

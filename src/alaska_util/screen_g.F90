@@ -40,7 +40,7 @@ use k2_structure, only: k2_type
 
 implicit none
 integer(kind=iwp) iOffZ, iOffE
-type(k2_type), target, intent(in):: k2Data1, k2Data2
+type(k2_type),  intent(in):: k2Data1, k2Data2
 integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, iphX1, &
                                  iphY1, iphZ1, iphX2, iphY2, iphZ2, nScrtch, IsChi
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
