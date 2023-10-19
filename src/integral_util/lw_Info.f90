@@ -9,5 +9,5 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module lw_Info
-      Integer :: lwInt, lwSyB, lwSqN
+Integer :: lwInt, lwSyB, lwSqN
 End Module lw_Info

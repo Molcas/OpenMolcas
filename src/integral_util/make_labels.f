@@ -8,12 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
       use define_af, only: AngTp
-      Implicit Real*8 (a-h,o-z)
-      Character*8 LblCBs(MxFnc), LblSBs(MxFnc)
+      Implicit None
+      Integer MxFnc, lMax
+      Character(LEN=8) LblCBs(MxFnc), LblSBs(MxFnc)
+
+      Integer lxyz, ixyz, ix, iyMax, iy, iz, i, n, l, m
       Character Sgn*3
-!#define _DEBUGPRINT_
 !
 !---- Generate cartesian labels
 !
@@ -71,4 +74,4 @@
 #endif
 !
       Return
-      End
+      End Subroutine Make_Labels
