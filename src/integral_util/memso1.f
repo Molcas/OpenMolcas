@@ -30,7 +30,10 @@
 !***********************************************************************
       Use SOAO_Info, only: iAOtSO
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer lOper, iCmp, jCmp, iShell, jShell, iAO, jAO
+
+      Integer j1, i1, j2, j12, jCmpMx, i2
 !
       MemSO1 = 0
       Do j1 = 0, nIrrep-1
@@ -50,4 +53,4 @@
       End Do
 !
       Return
-      End
+      End Function MemSO1

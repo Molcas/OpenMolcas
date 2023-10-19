@@ -20,10 +20,10 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
+use etwas, only: nIsh
 
 implicit none
 real(kind=wp), intent(out) :: Dens(nDens)
-#include "etwas.fh"
 integer(kind=iwp) :: iBas, iIrr, ip, ip1, ip2, ipD, nTemp2
 real(kind=wp), allocatable :: Temp2(:)
 

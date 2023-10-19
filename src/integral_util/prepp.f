@@ -29,8 +29,8 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       use stdalloc
+      use etwas
       Implicit Real*8 (A-H,O-Z)
-#include "etwas.fh"
 #include "dmrginfo_mclr.fh"
 #include "nac.fh"
 #include "mspdft.fh"

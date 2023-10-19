@@ -23,11 +23,11 @@ use Symmetry_Info, only: iOper, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
+use etwas, only: nAsh, nIsh
 
 implicit none
 integer(kind=iwp), intent(in) :: nrIn, jDisp, iIrrep
 real(kind=wp), intent(in) :: rIn(nrIn)
-#include "etwas.fh"
 #include "print.fh"
 integer(kind=iwp) :: iii, iopt, ip(0:7), ip2(0:7), ipCC, ipCM(0:7), ipIn1, ipOut, irc, jAsh, jIrrep, kAsh, kIrrep, nA(0:7), nin, &
                      nIn2, nna

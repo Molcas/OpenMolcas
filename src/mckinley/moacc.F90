@@ -29,6 +29,7 @@ use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
 use Gateway_Info, only: CutInt
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use etwas, only: nAsh
 
 implicit none
 integer(kind=iwp), intent(in) :: nTemp, ishell(4), nCk, nCl, moip(0:7), nACO, nOp(4), ibasa(4), icmpa(4), icar, icnt, &
@@ -37,7 +38,6 @@ real(kind=wp), intent(in) :: AOInt(nkl,nij), fact
 real(kind=wp), intent(out) :: Temp1(nTemp), Temp2(naco,naco)
 real(kind=wp), intent(inout) :: Ck(nCk), Cl(nCl), Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,nTri_Elem(naco),*)
 logical(kind=iwp), intent(in) :: pert(0:7)
-#include "etwas.fh"
 integer(kind=iwp) :: i, ib, iBas, ic, iCB, iirr, ij, il, ipC, ipM, irest, iSPert, j, jb, jBas, jc, jIrr, k, kAsh, kBas, kCmp, &
                      kIrr, kIrrep, kk, kMax, l, lAsh, lBas, lCmp, lIrr, ll, nt
 real(kind=wp) :: rFact, rFact2, rk, rl, rPij, rPj, sfact, vij

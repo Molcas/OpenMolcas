@@ -29,11 +29,11 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use Etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nISh, nASh
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas_Valence(0:7), nBT, nBVT
 #include "print.fh"
-#include "etwas.fh"
 #include "nac.fh"
 integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, ipTmp1, iSpin, jBas, nAct, nDens_Valence, nsa, nTst, iRout, iPrint, iComp
 logical(kind=iwp) :: lPrint

@@ -45,12 +45,12 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 use Disp, only: lDisp
 use k2_structure, only: k2Data, Indk2
+use etwas, only: nAsh
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
-#include "etwas.fh"
 integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ikS, ilS, iMemB, ip, &
                      ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &

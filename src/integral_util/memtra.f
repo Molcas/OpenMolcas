@@ -14,7 +14,7 @@
 ! -------------------------------------------------------------------
       integer function memtra(npam)
       use pso_stuff
-#include "etwas.fh"
+      use etwas
       Integer nPam(4,0:7)
       intrinsic max
 !

@@ -22,6 +22,7 @@ use Basis_Info, only: nBas
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 use Disp, only: lDisp
+use Etwas, only: nASh
 
 #include "intent.fh"
 
@@ -31,7 +32,6 @@ real(kind=wp), intent(in) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,nTri_Elem(naco),
 real(kind=wp), intent(inout) :: rOut(*)
 real(kind=wp), intent(_OUT_) :: Temp1(ibas,icmp,*), Temp2(*), Temp3(jbas,jcmp,*), Temp6(*)
 real(kind=wp), intent(out) :: Temp4(ibas,icmp,nACO), Temp5(jbas,jcmp,nACO)
-#include "etwas.fh"
 integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, &
                      ipp(0:7), iS, iSO, j, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, &
                      lsl, lSO, mIrr, n, na(0:7), ni, nj, nnA

@@ -42,11 +42,11 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 use rctfld_module, only: iCharge_Ref
 use Disp, only: lDisp
+use Etwas, only: nIsh, nAsh
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "print.fh"
-#include "etwas.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, iCnttp, iDummer, iopt, iPrint, irc, iRout, lLine, nDiff, nGrad, nHess, nsAtom
 real(kind=wp) :: dum1, dum2, dum3, TCpu1, TCpu2, Time, TWall1, TWall2

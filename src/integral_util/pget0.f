@@ -34,8 +34,8 @@
       use Symmetry_Info, only: nIrrep
       use Constants
       use BasisMode
+      use EtWas
       Implicit Real*8 (A-H,O-Z)
-#include "etwas.fh"
 #include "mspdft.fh"
 
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)

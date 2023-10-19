@@ -35,6 +35,7 @@
      &                  ScrP,nsp)
       use pso_stuff, only: nSSDM,SSDM
       use Constants
+      use etwas
       Implicit Real*8 (a-h,o-z)
       Integer npam(4,0:*),indi(4)
       Real*8 ipam(nxpam)
@@ -43,7 +44,6 @@
      &       ScrP(nsP)
 !      logical do_pdft
 
-#include "etwas.fh"
 ! Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
 !

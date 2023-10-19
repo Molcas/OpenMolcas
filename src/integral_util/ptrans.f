@@ -33,12 +33,12 @@
       subroutine ptrans(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2)
       use Constants
+      use etwas
       Implicit Real*8 (a-h,o-z)
       Integer npam(4,0:*)
       Real*8 ipam(nxpam)
       Real*8 DSO(nDSO), PSOPam(nPSOPam), G1(nG1), G2(nG2),
      &       Cred(nC), Scr1(nS1), Scr2(nS2), Cmo(ncmo)
-#include "etwas.fh"
 ! Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
 !

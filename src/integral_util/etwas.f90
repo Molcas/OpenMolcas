@@ -7,27 +7,9 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
-
-subroutine CtrlMO(moip,nAcO)
-
-use Symmetry_Info, only: nIrrep
-use Definitions, only: Iwp
-use etwas, only: nAsh
-
-implicit none
-integer(kind=iwp), intent(out) :: moip(0:nIrrep-1), nAcO
-integer(kind=iwp) :: iIrrep, iTot
-
-iTot = 0
-do iIrrep=0,nIrrep-1
-  moip(iIrrep) = iTot
-  iTot = iTot+nAsh(iIrrep)
-end do
-nACO = iTot
-
-return
-
-end subroutine CtrlMO
+Module EtWas
+      Integer mIrrep, nISh(0:7), nASh(0:7), mBas(0:7),         &
+     &        nCMo,nDSO,nPSOP,MxPam,nCred,nScr1,nScr2
+      Real*8 ExFac,CoulFac
+End Module EtWas
