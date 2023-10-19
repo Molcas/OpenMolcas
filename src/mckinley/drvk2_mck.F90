@@ -27,7 +27,7 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !              Modified 1995 for 2nd derivatives by AB                 *
 !***********************************************************************
 
-use Index_Functions, only: iTri, nTri_Elem1, nTri_Elem
+use Index_Functions, only: iTri, nTri_Elem1
 use k2_arrays, only: DoGrad_, DoHess_
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
@@ -35,7 +35,7 @@ use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use k2_structure, only: k2data, allocate_k2data, Indk2, nIndK2
+use k2_structure, only: k2data, Indk2
 
 implicit none
 integer(kind=iwp), intent(out) :: mdede
@@ -44,11 +44,12 @@ integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), i
                      iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, jBas, &
                      jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
                      kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, mdci, mdcj, MemPrm, &
-                     MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, nZeta
+                     MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
+
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Wrk(:)
 integer(kind=iwp), external :: MemSO1
-Integer ik2, iIrrep
+Integer ik2
 Integer, parameter:: nHm=1
 
 !                                                                      *
@@ -65,9 +66,10 @@ DoHess_ = .true.
 !                                                                      *
 call Nr_Shells(nSkal)
 
-nIndK2 = nTri_Elem(S%nShlls)
-call mma_allocate(IndK2,3,nIndk2)
-Allocate(k2data(1:nIrrep,1:nskal*(nskal+1)/2))
+Call Allok2()
+!nIndK2 = nTri_Elem(S%nShlls)
+!call mma_allocate(IndK2,3,nIndk2)
+!Allocate(k2data(1:nIrrep,1:nskal*(nskal+1)/2))
 
 !                                                                      *
 !***********************************************************************
@@ -142,8 +144,6 @@ do iS=1,nSkal
     kBask = 1
     lBasl = 1
 
-    nZeta = iPrimi*jPrimj
-
     call ConMax(Con,iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
     iAngV(3:4) = iAngV(1:2)
@@ -179,10 +179,6 @@ do iS=1,nSkal
     ! beta, [nm|nm] and derivative entity, a total of ten different
     ! entities) for all possible unique pairs of centers generated
     ! for the symmetry unique centers A and B.
-
-    Do iIrrep=1, nIrrep
-       Call Allocate_k2data(k2data(iIrrep,ik2),nZeta,ijCmp,nHm)
-    End Do
 
     call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,k2Data(:,ik2), &
                     ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp, &
