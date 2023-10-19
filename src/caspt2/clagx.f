@@ -325,11 +325,6 @@ C         Call RHS_Save(nIN,nIS,lg_V1,iCase,iSym,iVecX)
           End If
         End Do
       End Do
-C     do i = 1, 625
-C     write(6,'(i4,2f20.10)') i,dg2(i),df2(i)
-C     end do
-C     call sqprt(dg2,25)
-C     call abend
 C
       Return
 C
@@ -454,8 +449,6 @@ C
      *      = -Work(LWRK1+iICB-1+nIN*(jICB-1))*(EigI+EigJ)*0.5D+00
         End Do
       End Do
-C     write(6,*) "3"
-C     call sqprt(Work(lWRK1),nin)
 C
       !! Derivative of the overlap in the IC basis.
       !! WRK1(o,p) = WRK1(o,p) - T_{o,i}^{ab}*RHS(p,i,a,b)
@@ -474,11 +467,6 @@ C
      *               -0.5D+00,VEC3,nIN,VEC2,nIN,
      *                1.0D+00,Work(LWRK1),nIN)
         End If
-C       Call DGEMM_('N','T',nIN,nIN,nIS,
-C    *              2.0D+00,VEC2,nIN,VEC1,nIN,
-C    *              0.0D+00,Work(LWRK2),nIN)
-C       write(6,*) "orbital lagrangian?"
-C       call sqprt(work(lwrk2),nin)
       End If
 C
       !! Convert the IC basis to the MO basis
@@ -2624,192 +2612,10 @@ C
      *    DEPSA(iYabs,iXabs) = DEPSA(iYabs,iXabs) - ValB*G1(iVabs,iZabs)
  101    CONTINUE
  100  CONTINUE
-C     !! Btuv,xyz
-C     !! = (EatEuv)^\dagger Ew1w2 (EbxEyz) * fw1w2
-C     !! = EvuEta Ew1w2 Ebx Eyz * fw1w2
-C     !! = v+ u t+ a w1+ w2 b+ x y+ z * fw1w2
-C     !! = v+ u t+ w1+ w2 x y+ z * fw1w2 (del(ab))
-C     !!-> v+ u t+ a+ b x y+ z fab     (a,b active here)
-
-C     !! = del(ut) del(xy) F1(vz) + del(ut) del(by) G2(vxaz) fab
-C     !! + del(ut) F2(vx,yz) + del(ua) del(xy) G2(vbtz) fab
-C     !! + del(ua) del(by) G2(vztx) fab - del(ua) G3(tbvxyz) fab
-C     !! + del(xy) F2(vutz) fab - del(by) G3(tuvxaz) fab
-C     !! + del(uy) F2(vztx) + F3(tuvxyz)
-
-
-C     !! S(iap,ibp,icp,ia,ib,ic)
-C     !! = DRDM3(ICP,IBP,IA,IAP,IB,IC)=DRDM3(ICP,IBP,IA,IAP,IB,IC) +VAL
-C     !!   IF (IB.EQ.IA) DRDM2(ICP,IBP,IAP,IC)=DRDM2(ICP,IBP,IAP,IC)+VAL
-C     !!   IF (IAP.EQ.IBP) DRDM2(ICP,IA,IB,IC)=DRDM2(ICP,IA,IB,IC) +VAL
-C     !!   IF (IAP.EQ.IA) DRDM2(IBP,ICP,IB,IC)=DRDM2(IBP,ICP,IB,IC) +VAL
-C     !!   IF (IAP.EQ.IBP.AND.IB.EQ.IA) DRDM1(ICP,IC)=DRDM1(ICP,IC) +VAL
-C     !! S(tuv,xyz)
-C     !! = v+ t u+ y x+ z
-C     !! = del(tu) del(xy) Gvz - del(tu) v+ y x+ z
-C     !! - del(yx) v+ t u+ z + v+ u+ t x+ y z
-C     !! = del(tu) del(xy) Gvz - del(tu) del(yx) Gvz + del(tu) v+ x+ y z
-C     !! - del(yx) del(tu) Gvz + del(yx) v+ u+ t z
-C     !! + del(tx) v+ u+ y z - v+ u+ x+ t y z
-C     !! = -del(yx)del(tu) Gvz + del(tu) Gvx,zy + del(yx) Gvu,zt
-C     !! + del(tx) Gvu,zy - Gvux,zyt
-C     !! = -del(yx)del(tu) Gvz - del(tu) Gvx,yz - del(yx) Gvu,tz
-C     !! - del(tx) Gvu,zy - Gvux,zyt
-
-
-C     !! S(tuvxyz)
-C     !! = v+ u t+ x y+ z
-C     !! = del(ut)del(xy) Gvz - del(ut) v+ x y+ z
-C     !! - del(xy) v+ u t+ z + v+ t+ u y+ x z
-C     !! = del(ut)del(xy) Gvz - del(ut) del(xy) Gvz + del(ut) v+ y+ x z
-C     !! - del(xy)del(ut) Gvz + del(xy) v+ t+ u z
-C     !! + del(uy) v+ t+ x z - v+ t+ y+ u x z
-C     !! = -del(ut)del(xy) Gvz + del(ut) Gvy,zx + del(xy) Gvt,zu
-C     !!   + del(uy) Gvt,zx - Gvty,zxu
-
-C     !! = t+ u v+ x y+ z
-C     !! = del(uv)del(xy)Gtz - del(uv) t+ x y+ z
-C     !! - del(xy) t+ u v+ z + t+ v+ u y+ x z
-C     !! = del(uv)del(xy)Gtz - del(uv) del(xy) Gtz + del(uv) t+ y+ x z
-C     !! - del(xy) del(uv) Gtz + del(xy) t+ v+ u z
-C     !! + del(uy) t+ v+ x z - t+ v+ y+ u x z
-C     !! = -del(u
 C
       Return
 C
       End Subroutine CLagDXC_DP
-      Subroutine cnst_SA_CLag(same,G1,G2,DG1,DG2,eee)
-C
-      Use CHOVEC_IO
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-C
-      Dimension  G1(nAshT,nAshT), G2(nAshT,nAshT,nAshT,nAshT)
-      Dimension DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT)
-      Dimension wrk1(nbast,nbast),wrk2(nbast,nbast)
-      Logical   Same
-C
-      Integer Active, Inactive, Virtual
-      Parameter (Inactive=1, Active=2, Virtual=3)
-      Character(Len=8) Label
-C
-      iSym = 1
-C
-      nBasI = nBas(iSym)
-      nFroI = nFro(iSym)
-      nIshI = nIsh(iSym)
-      nCorI = nFroI+nIshI
-      eee = 0.0d+00
-C
-C     --- One-Electron Part
-C
-      !! Read H_{\mu \nu}
-      CALL GETMEM('WFLT','ALLO','REAL',LWFLT,NBTRI)
-      IRC=-1
-      IOPT=6
-      ICOMP=1
-      ISYLBL=1
-      Label='OneHam  '
-      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LWFLT),ISYLBL)
-      !! triangular -> square transformation
-      Call Square(Work(LWFLT),WRK1,1,nBasI,nBasI)
-      !! AO -> MO transformation
-      Call DGemm_('T','N',nBasT,nBasT,nBasT,
-     *            1.0D+00,Work(LCMOPT2),nBasT,WRK1,nBasT,
-     *            0.0D+00,WRK2,nBasT)
-      Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *            1.0D+00,WRK2,nBasT,Work(LCMOPT2),nBasT,
-     *            0.0D+00,WRK1,nBasT)
-      !! Put in DG1
-      If (SAME) Then
-        Do iCorI = 1, nCorI
-          eee = eee + 2.0d+00*WRK1(iCorI,iCorI)
-        End Do
-      End If
-      Do iAshI = 1, nAsh(iSym)
-        Do jAshI = 1, nAsh(iSym)
-          Val = WRK1(nCorI+iAshI,nCorI+jAshI)
-          DG1(iAshI,jAshI) = DG1(iAshI,jAshI) + Val
-          eee = eee + Val*G1(iAshI,jAshI)
-        End Do
-      End Do
-C
-C     --- Two-Electron Part
-C
-      !! Fpq = ((pq|rs)-1/2(pr|qs))*Drs
-      iSymA = 1
-      iSymI = 1
-      iSymB = 1
-      iSymJ = 1
-      If (Same) Then
-        Do iCorI = 1, nCorI
-          iOrb = iCorI
-          jOrb = iCorI
-          Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-          Do jCorI = 1, nCorI
-            eee = eee + 2.0d+00*WRK1(jCorI,jCorI)
-          End Do
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-          Do jCorI = 1, nCorI
-            eee = eee - 1.0d+00*WRK1(jCorI,jCorI)
-          End Do
-        End Do
-      End If
-C
-      If (IfChol) Then
-        Do JSYM=1,NSYM
-C         Call Get_Cholesky_Vectors(Active,Active,JSYM,
-C    &                              Work(LBRA),nBra,
-C    &                              IBSTA,IBEND)
-        END DO
-      Else
-        Do iAshI = 1, nAsh(iSym)
-          iOrb = nCorI+iAshI
-          Do jAshI = 1, nAsh(iSym)
-            jOrb = nCorI+jAshI
-C
-            Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-            !! DG1
-C           If (Same) Then
-              Do iCorI = 1, nCorI
-                DG1(iAshI,jAshI) = DG1(iAshI,jAshI)
-     *            + 2.0d+00*WRK1(iCorI,iCorI)
-                eee = eee + 2.0d+00*WRK1(iCorI,iCorI)*G1(iAshI,jAshI)
-              End Do
-C           End If
-            !! DG2
-            Do kAshI = 1, nAsh(iSym)
-              Do lAshI = 1, nAsh(iSym)
-                DG2(iAshI,jAshI,kAshI,lAshI)
-     *        = DG2(iAshI,jAshI,kAshI,lAshI)
-     *        + WRK1(nCorI+kAshI,nCorI+lAshI)*0.5d+00
-                eee = eee + 0.5d+00*G2(iAshI,jAshI,kAshI,lAshI)
-     *                             *WRK1(nCorI+kAshI,nCorI+lAshI)
-              End Do
-            End Do
-C
-C           If (Same) Then
-              Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-              !! DG1
-              Do iCorI = 1, nCorI
-                DG1(iAshI,jAshI) = DG1(iAshI,jAshI)
-     *            - 1.0D+00*WRK1(iCorI,iCorI)
-                eee = eee - 1.0d+00*WRK1(iCorI,iCorI)*G1(iAshI,jAshI)
-              End Do
-C           End If
-          End Do
-        End Do
-      End If
-C
-      write(6,*) "energy = ", eee
-C
-      CALL GETMEM('WFLT','FREE','REAL',LWFLT,NBTRI)
-C
-      end subroutine cnst_SA_CLag
 C
 C-----------------------------------------------------------------------
 C
@@ -2846,6 +2652,12 @@ C     correct... well, it may be correct, but orbital rotations in the
 C     active space cannot be parametrized in Z-vector, so analytic
 C     derivatives cannot be computed with the existing module. So,
 C     the active density is computed in a differnt way.
+C
+C     See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
+C     Section II C 4 "Non-invariance with respect to active MOs"
+C     To be more specific, this subroutine solves the linear equation
+C     (Eq. (71)) and computes the second term in Eq. (70) later.
+C     CLag corresponds to the RHS in Eq. (71).
 C
       !! Some post-processing of CI derivative
       !! Somehow, this has to be done in the XMS basis
@@ -3016,7 +2828,8 @@ C
       CALL GETMEM('PREC','FREE','REAL',ipPre,nConf)
       Call GetMem('FANC','FREE','REAL',ipFancy,nState**3)
 C
-C     ----- Construct the true active density -----
+C     ----- Construct (a part of) the true active density -----
+C     Compute the second term in Eq. (70) = Eq. (72)
 C     The SCF, not XMS, basis is used
 C
       ID = IDCIEX !! idtcex?
@@ -3470,6 +3283,10 @@ C
 C
 C     LOGICAL   RSV_TSK
 C
+C     This subroutine computes the second term in Eq. (70) or the RHS of
+C     Eq. (72) in the CASPT2-IPEA gradient paper
+C     CIT corresponds to \overline{Q}, if I remember correctly
+C
       Call DCopy_(nAshT**2,[0.0D+00],0,G1,1)
       Call DCopy_(nAshT**4,[0.0D+00],0,G2,1)
 C
@@ -3907,7 +3724,7 @@ C
       !! mclr/dminvci_sa.f
       Subroutine DoPrec(VecIN,VecOUT,CI,Pre,Fancy)
 C
-C     Precondition CI vectors
+C     Precondition CI vectors, taken from the MCLR module
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -3969,6 +3786,7 @@ C
       Dimension OLag(*),DEPSA(nAshT,nAshT),FIFA(*)
 C
 C     This is much easier; similar to the frozen core approximation.
+C     Corresponds to the first term in Eq. (70)
 C
       iMO  = 1
       DO iSym = 1, nSym
@@ -4016,6 +3834,9 @@ C
 C
       DIMENSION WGRONK(2)
       Dimension BDer(*),SDer(*)
+C
+C     See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
+C     Section II C 3 "Non-invariance with respect to orthogonal..."
 C
       !! Obtain the X matrix
       !! First, read S
@@ -4109,6 +3930,9 @@ C
       END DO
 C
       !! Compute the partial derivative
+      !! Work(LF)  : B
+      !! BDER      : D
+      !! Work(LVEC): X^0 and X
       Call DGEMM_('N','T',NAS,NAS,NAS,
      *            2.0D+00,Work(LF),NAS,BDER,NAS,
      *            0.0D+00,Work(LLAG),NAS)
@@ -4120,6 +3944,8 @@ C
       CALL DGEMM_('T','N',NAS,NAS,NAS,
      *            1.0D+00,Work(LVEC),NAS,Work(LLAG),NAS,
      *            0.0D+00,Work(LF),NAS)
+      !! At this point,
+      !! Work(LF) = 2 \mathcal{X}^0 * B * D * \mathcal{X}
 C
       !! remove dependent part
       !! (linearly indep-indep and dep-dep)
@@ -4135,6 +3961,7 @@ C
       End Do
 C
       !! orthogonal -> non-orthogonal
+      !! Finalize Eq. (62)
       CALL DGEMM_('N','N',NAS,NAS,NAS,
      *            1.0D+00,Work(LVEC),NAS,Work(LF),NAS,
      *            0.0D+00,Work(LLAG),NAS)

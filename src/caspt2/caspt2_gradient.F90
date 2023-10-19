@@ -42,7 +42,7 @@ module caspt2_gradient
   ! natural <-> quasi-canonical transformation of frozen orbitals
   real(kind=wp),allocatable :: TraFro(:)
 
-  ! number of CI vectors in mkfg3.f and derfg3.f
+  ! number of CI vectors per batch in mkfg3.f and derfg3.f
   integer(kind=iwp) :: nbuf1_grad      = 0_iwp
 
 end module caspt2_gradient
