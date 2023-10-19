@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Drvk2_mck(mdede,New_Fock)
+subroutine Drvk2_mck(New_Fock)
 !***********************************************************************
 !                                                                      *
 !  Object: to precompute all pair entites as zeta, kappa, P.           *
@@ -28,7 +28,7 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem1
-use k2_arrays, only: DoGrad_, DoHess_
+use k2_arrays, only: DoGrad_, DoHess_, nDeDe
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
 use Symmetry_Info, only: iOper, nIrrep
@@ -38,7 +38,6 @@ use Definitions, only: wp, iwp, u6
 use k2_structure, only: k2data, Indk2
 
 implicit none
-integer(kind=iwp), intent(out) :: mdede
 logical(kind=iwp), intent(in) :: New_Fock
 integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
                      iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, jBas, &
@@ -86,7 +85,7 @@ ipM001 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-mdede = 0
+ndede = 0
 mk2 = 0
 do iS=1,nSkal
   iShll = iSD(0,iS)
@@ -192,7 +191,7 @@ do iS=1,nSkal
     end if
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-    if (nSO > 0) mDeDe = mDeDe+iDeSiz*nDCRR
+    if (nSO > 0) nDeDe = nDeDe+iDeSiz*nDCRR
 
   end do
 end do

@@ -158,7 +158,7 @@ lpick = lgrad .and. (.not. New_Fock)
 Pren = Zero
 Prem = Zero
 
-call Drvk2_mck(ndede,new_Fock)
+call Drvk2_mck(new_Fock)
 
 call StatP(0)
 !                                                                      *
