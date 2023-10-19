@@ -121,9 +121,10 @@ Call mma_allocate(k2Data%ab,       nZeta,Label='%ab')
 Call mma_allocate(k2Data%abCon,    nZeta,Label='%abCon')
 Call mma_allocate(k2Data%Alpha,    nZeta,Label='%Alpha')
 Call mma_allocate(k2Data%Beta,     nZeta,Label='%Beta')
-Call mma_allocate(k2Data%IndZ,     nZeta+1,Label='%IndZ')   ! yes +1!
 Call mma_allocate(k2Data%HrrMtrx,nHm,nIrrep,Label='%HrrMtrx')
-Call mma_allocate(k2Data%abG,nZeta*ijCmp,2,Label='%abG')
+If (ijCmp/=0) Call mma_allocate(k2Data%abG,nZeta*ijCmp,2,Label='%abG')
+
+Call mma_allocate(k2Data%IndZ,     nZeta+1,Label='%IndZ')   ! yes +1!
 End Subroutine Allocate_k2data
 
 Subroutine Free_k2data()
