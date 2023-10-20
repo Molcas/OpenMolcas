@@ -35,8 +35,9 @@
       Integer i, ixyz, nElem, nabSz, Nr_of_Densities, iS, nSkal, iShll,
      &        iAng, iCmp, iBas, iPrim, iAO, iShell, jS, jShll, jAng,
      &        jCmp, jBas, jPrim, jAO, jShell, iDeSiz, iSMLbl, nSO,
-     &        nZeta, ijCmp, nHm, MemSO1, iIrrep, ik2, j, iTri,
+     &        nZeta, ijCmp, nHm, iIrrep, ik2, j, iTri,
      &        ijS, nk2_real, nData, nk2_integer
+      Integer, external:: MemSO1
 !
 !---- Statement function
 !

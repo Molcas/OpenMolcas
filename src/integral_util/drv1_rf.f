@@ -54,8 +54,8 @@
      &        iShell, jShell, mdci, mdcj, nSkal, iSmLbl, nSO, nOrdOp,
      &        MemKrn, MemKer, nComp, lFinal, nScr1, nScr2, nDAO, lDCRR,
      &        lDCRT, nDCRR, nDCRT, iOpr, iuv, nStabO, nStabM, Lmbdt,
-     &        kk, Lmbdr, MemSO1, nOrder, NrOpr
-      Integer, External:: n2Tri
+     &        kk, Lmbdr, nOrder, NrOpr
+      Integer, External:: n2Tri, MemSO1
       Real*8 FactND
       Logical AeqB
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)

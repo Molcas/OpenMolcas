@@ -55,6 +55,7 @@
      &        iStabM(0:7), iStabO(0:7)
       Integer nKern
       Real*8, Target:: Kern(nKern)
+      Integer, external:: MemSO1
 
       Real*8      Coord(3*MxAtom)
 #ifdef _GEN1INT_
