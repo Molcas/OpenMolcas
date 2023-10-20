@@ -158,6 +158,10 @@ If (ijCmp/=0) Then
    k2Data%abG(1:nZeta*ijCmp,1:2) => ZZZ_r(iS:iE)
 End If
 iZZZ_r = iE
+If (iZZZ_r>Size(ZZZ_r)) Then
+   Write (6,*) 'iZZZ_r out for range'
+   Call Abend()
+End If
 
 iE = iZZZ_i
 
@@ -165,6 +169,10 @@ iS=iE+1
 iE=iE+nZeta+1
 k2Data%IndZ(1:nZeta+1) => ZZZ_i(iS:iE)
 iZZZ_i = iE
+If (iZZZ_i>Size(ZZZ_i)) Then
+   Write (6,*) 'iZZZ_i out for range'
+   Call Abend()
+End If
 
 End Subroutine Allocate_k2data
 
@@ -183,12 +191,13 @@ Do i = 1, ik2
 End Do
 
 Call mma_deallocate(ZZZ_r)
-iZZZ_r=1
+iZZZ_r=0
 Call mma_deallocate(ZZZ_i)
-iZZZ_i=1
+iZZZ_i=0
 
 Deallocate(k2data)
 
+Write (*,*) 'Free_k2Data'
 End Subroutine Free_k2data
 
 Subroutine Free_k2data_Internal(k2data_1D)
