@@ -42,7 +42,7 @@
       use k2_structure, only: IndK2
       use k2_arrays, only: ipZeta, ipiZet, ipDijS, Sew_Scr,
      &                     Aux, DeDe, FT, iSOSym, Mem_Dble, Mem_Int,
-     &                     nDeDe, nFT
+     &                     nDeDe, nFT, Create_BraKet, Destroy_Braket
       use iSD_data, only: iSD
       use Basis_Info, only: Shells
       use Gateway_Info, only: CutInt
@@ -261,6 +261,8 @@
       ipKcd = ipEI   + nEta
       ipQ   = ipKcd  + nEta
       ipiEta = ipiZet + nZeta + 1
+
+      Call Create_BraKet(nZeta,nEta)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -524,6 +526,7 @@
       End Do
       SOInt=>Null()
       AOInt=>Null()
+      Call Destroy_BraKet()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

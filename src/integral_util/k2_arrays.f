@@ -45,11 +45,13 @@
       Type BraKet_Type
         Real*8, Pointer:: Zeta(:)
         Real*8, Pointer:: ZInv(:)
+        Real*8, Pointer:: KappaAB(:)
         Real*8, Pointer:: P(:,:)
         Real*8, Pointer:: xA(:)
         Real*8, Pointer:: xB(:)
         Real*8, Pointer:: Eta(:)
         Real*8, Pointer:: EInv(:)
+        Real*8, Pointer:: KappaCD(:)
         Real*8, Pointer:: Q(:,:)
         Real*8, Pointer:: xG(:)
         Real*8, Pointer:: xD(:)
@@ -68,7 +70,7 @@
       Implicit None
       Integer nZeta
 
-      Call mma_allocate(BraKet_Base_R,nZeta*14,Label='Base_R')
+      Call mma_allocate(BraKet_Base_R,nZeta*16,Label='Base_R')
       Call mma_allocate(BraKet_Base_I,nZeta*2 ,Label='Base_I')
 
       End Subroutine Create_BraKet_Base
@@ -97,6 +99,9 @@
       iE=iE+nZeta
       Braket%ZInv(1:nZeta) => BraKet_Base_R(iS:iE)
       iS=iE+1
+      iE=iE+nZeta
+      Braket%KappaAB(1:nZeta) => BraKet_Base_R(iS:iE)
+      iS=iE+1
       iE=iE+3*nZeta
       Braket%P(1:nZeta,1:3) => BraKet_Base_R(iS:iE)
       iS=iE+1
@@ -112,6 +117,9 @@
       iS=iE+1
       iE=iE+nEta
       Braket%EInv(1:nEta) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+nEta
+      Braket%KappaCD(1:nEta) => BraKet_Base_R(iS:iE)
       iS=iE+1
       iE=iE+3*nEta
       Braket%Q(1:nEta,1:3) => BraKet_Base_R(iS:iE)
@@ -136,8 +144,8 @@
       Subroutine Destroy_BraKet()
       Implicit None
 
-      Nullify(Braket%Zeta,Braket%ZInv,Braket%P,Braket%xA,Braket%xB,
-     &        Braket%Eta, Braket%EInv,Braket%Q,Braket%xG,Braket%xD,
+      Nullify(Braket%Zeta,Braket%ZInv,Braket%KappaAB,Braket%P,Braket%xA,Braket%xB,
+     &        Braket%Eta, Braket%EInv,Braket%KappaCD,Braket%Q,Braket%xG,Braket%xD,
      &        Braket%iZet,Braket%iEta)
 
       End Subroutine Destroy_BraKet
