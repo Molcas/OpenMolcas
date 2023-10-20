@@ -28,7 +28,7 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 
 use setup
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr, Destroy_BraKet
 use Basis_Info, only: nBas, nBas_Frag, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -326,6 +326,8 @@ do
 
         end do
       end do
+
+      Call Destroy_BraKet()
 
     end if
     Cnt = Cnt+One

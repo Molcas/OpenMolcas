@@ -15,6 +15,7 @@ subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lP
                       nHmcd,nIrrep)
 
 use k2_structure, only: Indk2
+use k2_arrays, only: create_BraKet
 use Basis_Info, only: Shells
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Definitions, only: iwp
@@ -81,6 +82,7 @@ mdck = iSD4(10,3)
 mdcl = iSD4(10,4)
 AeqB = (iSD4(13,1) == iSD4(13,2)) .and. (mdci == mdcj)
 CeqD = (iSD4(13,3) == iSD4(13,4)) .and. (mdck == mdcl)
+
 nZeta = iPrimi*jPrimj
 nEta = kPrimk*lPriml
 ipZI = ipZeta+nZeta
@@ -94,6 +96,7 @@ ipxG = ipQ+nEta*3
 ipxD = ipxG+nEta
 
 ipiEta = ipiZet+nZeta+1
+Call Create_BraKet(nZeta,nEta)
 
 return
 

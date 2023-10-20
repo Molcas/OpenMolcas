@@ -41,7 +41,7 @@ use setup
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: B_PT2, DMdiag, lPSO, lSA, n_Txy, nBasA, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k
-use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
+use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr, Destroy_BraKet
 use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -780,6 +780,8 @@ do while (Rsv_Tsk2(id,klS))
 
       end do
     end do
+
+    Call Destroy_BraKet()
 
   end do
 

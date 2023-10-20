@@ -33,7 +33,7 @@ subroutine Drvg1(Grad,Temp,nGrad)
 
 use setup
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr, Destroy_BraKet
 use pso_stuff, only: G_toc, nSSDM, SSDM
 use Basis_Info, only: nBas, Shells
 use Sizes_of_Seward, only: S
@@ -457,6 +457,8 @@ do
 
         end do
       end do
+
+      Call Destroy_BraKet()
 
     end if
 
