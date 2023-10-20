@@ -30,10 +30,12 @@
 !***********************************************************************
       use SOAO_Info, only: iAOtSO
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Integer iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell,
      &        iAO, jAO, kAO, lAO
 
+      Integer i1, i2, i3, i4, j1, j2, j3, j4, j12, jCmpMx, kCmpMx,
+     &        lCmpMx, j2Max, j3Max
       Logical Shij, Shkl, Shik, Shjl
 !
       MemSO2 = 0
