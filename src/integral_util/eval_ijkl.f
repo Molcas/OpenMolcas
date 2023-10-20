@@ -75,7 +75,8 @@
       Real*8  Coor(3,4), Tmax
       Integer n
       Integer iTmp, Nr_of_D, nIJKL,
-     &        ipDum , MemPrm, MemSO2
+     &        ipDum , MemPrm
+      Integer, External:: MemSO2
       Integer iAOst(4), iPrimi,jPrimj,kPrimk,lPriml,
      &        iBasi,jBasj,kBask,lBasl,
      &        iBasn,jBasn,kBasn,lBasn,
@@ -265,8 +266,7 @@
 !                                                                      *
 !
 !     No SO block in direct construction of the Fock matrix.
-      nSO = MemSO2(iAngV(1),iAngV(2),iAngV(3),iAngV(4),
-     &             iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),
+      nSO = MemSO2(iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),
      &             iShelV(1),iShelV(2),iShelV(3),iShelV(4),
      &             iAOV(1),iAOV(2),iAOV(3),iAOV(4))
       If (nSO.eq.0) Then

@@ -11,8 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Integer Function MemSO2(iAng,jAng,kAng,lAng,
-     &                        iCmp,jCmp,kCmp,lCmp,
+      Integer Function MemSO2(iCmp,jCmp,kCmp,lCmp,
      &                        iShell,jShell,kShell,lShell,
      &                        iAO,jAO,kAO,lAO)
 !***********************************************************************
@@ -32,6 +31,9 @@
       use SOAO_Info, only: iAOtSO
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+      Integer iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell,
+     &        iAO, jAO, kAO, lAO
+
       Logical Shij, Shkl, Shik, Shjl
 !
       MemSO2 = 0
@@ -112,11 +114,4 @@
       End If
 !
       Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iAng)
-         Call Unused_integer(jAng)
-         Call Unused_integer(kAng)
-         Call Unused_integer(lAng)
-      End If
-      End
+      End Function MemSO2
