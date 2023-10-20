@@ -14,11 +14,11 @@
 
 subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,nRys, &
                      nData1,nData2,k2Data1,k2Data2,Pren,Prem,nAlpha, &
-                     nBeta,jPrInc,nGamma,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,Zeta,ZInv,P,rKab,nZeta, &
-                     Eta,EInv,Q,rKcd,nEta,xA,xB,xG,xD,xPre,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO,Work2,nWork2,Work3, &
+                     nBeta,jPrInc,nGamma,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,nZeta, &
+                     nEta,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO,Work2,nWork2,Work3, &
                      nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX,Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik, &
-                     Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2,mDjl,nDjl,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,IndZet, &
-                     IndEta,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din,moip,naco,rMOIN,nMOIN,new_fock)
+                     Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2,mDjl,nDjl,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt, &
+                     TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din,moip,naco,rMOIN,nMOIN,new_fock)
 !***********************************************************************
 !                                                                      *
 !     Input:                                                           *
@@ -84,6 +84,7 @@ use Symmetry_Info, only: nIrrep
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 use k2_structure, only: k2_type
+use k2_arrays, only: BraKet
 
 implicit none
 integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
@@ -97,12 +98,9 @@ real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj
                              Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), &
                              Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Dan(*), Din(*)
 real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
-real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), rKab(nZeta), Eta(nEta), EInv(nEta), Q(nEta,3), rKcd(nEta), &
-                              xA(nZeta), xB(nZeta), xG(nEta), xD(nEta), xpre(nGamma*nDelta*nAlpha*nBeta), Work2(nWork2), &
-                              Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
+real(kind=wp), intent(out) :: Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
 logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), Shijij, lgrad, ldot, n8, ltri, new_fock
 logical(kind=iwp), intent(out) :: IfG(4)
-integer(kind=iwp), intent(out) :: IndZet(nAlpha*nBeta), IndEta(nGamma*nDelta)
 integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, IncEta, IncZet, Indx(3,4), ip, ip2, ipFT, ipS1, ipS2, &
                      ipTemp, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), ix2, iy2, iz2, jCmpb, JndGrd(3,4,0:7), &
                      JndHss(4,3,4,3,0:7), jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, &
@@ -426,9 +424,9 @@ subroutine TwoEl_mck_Internal()
             call Timing(dum1,Time,dum2,dum3)
             call Screen_mck(iZeta-1,iEta-1,Work2,Work3,mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
                             k2Data1(lDCR1),k2Data2(lDCR2), &
-                            Zeta,ZInv,P,xA,xB,rKab, &
-                            Eta,EInv,Q,xG,xD,rKcd, &
-                            xpre,1,1,1,ix2,iy2,iz2,CutInt,PreScr,IndZet,IndEta,ldot2)
+                            BraKet%Zeta(:),BraKet%ZInv(:),BraKet%P(:,:),BraKet%xA(:),BraKet%xB(:),BraKet%KappaAB(:), &
+                            BraKet%Eta(:),BraKet%EInv(:),BraKet%Q(:,:),BraKet%xG(:),BraKet%xD(:),BraKet%KappaCD(:), &
+                            BraKet%xpre(:),1,1,1,ix2,iy2,iz2,CutInt,PreScr,Braket%IndZet(:),Braket%IndEta(:),ldot2)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nScreen) = CPUStat(nScreen)+Time
 
@@ -444,7 +442,10 @@ subroutine TwoEl_mck_Internal()
 
             call Timing(dum1,Time,dum2,dum3)
 
-            call Rysg2(iAngV,nRys,lZeta*lEta,xA,xB,xG,xD,Zeta,ZInv,lZeta,Eta,EInv,lEta,P,nZeta,Q,nEta,CoorM,CoorM,CoorAC,Work3, &
+            call Rysg2(iAngV,nRys,lZeta*lEta,BraKet%xA(:),BraKet%xB(:),BraKet%xG(:),BraKet%xD(:), &
+                       BraKet%Zeta(:),BraKet%ZInv(:),lZeta, &
+                       BraKet%Eta(:),BraKet%EInv(:),lEta,  &
+                       BraKet%P(:,:),nZeta,BraKet%Q(:,:),nEta,CoorM,CoorM,CoorAC,Work3, &
                        nWork3,TERI1,ModU2,Cff2D,Work2,mab*mcd,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,nOp,iuvwx,IfG,nGr,Indx,lgrad, &
                        ldot,Tr)
             call Timing(dum1,Time,dum2,dum3)
@@ -461,7 +462,8 @@ subroutine TwoEl_mck_Internal()
             ip2 = nGr*mab*mcd*lZeta*lEta+1
             call Timing(dum1,Time,dum2,dum3)
             call Cntrct_mck(First,Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Work3, &
-                            nGr*mab*mcd,Work3(ip2),nwork3-ip2,xpre,WorkX,nWorkX,lZeta*lEta,IndZet,nZeta,lZeta,IndEta,nEta,lEta)
+                            nGr*mab*mcd,Work3(ip2),nwork3-ip2,BraKet%xpre(:),WorkX,nWorkX,lZeta*lEta, &
+                            BraKet%IndZet(:),nZeta,lZeta,BraKet%IndEta(:),nEta,lEta)
           end do
         end do
 
