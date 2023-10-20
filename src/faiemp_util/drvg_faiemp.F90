@@ -28,7 +28,7 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 
 use setup
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr, Destroy_BraKet
+use k2_arrays, only: Aux, Sew_Scr, Destroy_BraKet
 use Basis_Info, only: nBas, nBas_Frag, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -47,8 +47,8 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 real(kind=wp) :: Coor(3,4), PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 integer(kind=iwp) :: iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), iSD4(0:nSD,4), &
                      MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, iBsInc, iCar, &
-                     ijklA, ijS, iOpt, ijMax, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, ipxA, ipxB, ipxG, ipxD, &
-                     ipZi, Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc, jPrInc, k2ij, k2kl, jPrimj, &
+                     ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, &
+                     Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc, jPrInc, k2ij, k2kl, jPrimj, &
                      kBasAO, kBasn, kBask, kBsInc, kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, &
                      mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, &
                      nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
@@ -267,8 +267,7 @@ do
       !                                                                *
       call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
                       k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
-                      AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
-                      nHmcd,nIrrep)
+                      AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd, nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -314,8 +313,7 @@ do
                              nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                              Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
                              Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn, &
-                             Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ), &
-                             nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd, &
+                             nZeta,nEta,Temp,nGrad,JfGrad,JndGrd, &
                              Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
 
                 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp)

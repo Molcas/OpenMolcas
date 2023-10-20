@@ -16,7 +16,7 @@ subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys, &
                    k2Data1, k2Data2,  &
                    nData1,nData2,Pren, &
                    Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4, &
-                   lBasl,Zeta,ZInv,P,nZeta,Eta,EInv,Q,nEta,xA,xB,xG,xD,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO,Wrk2,nWrk2,Aux,nAux,Shijij)
+                   lBasl,nZeta,nEta,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO,Wrk2,nWrk2,Aux,nAux,Shijij)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -41,6 +41,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 use Disp, only: l2DI, CutGrd
 use k2_structure, only: k2_type
+use k2_arrays, only: BraKet
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nData1, &
@@ -50,8 +51,7 @@ type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
 real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
                              Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), PSO(iBasi*jBasj*kBask*lBasl,nPSO)
 real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
-real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), xA(nZeta), &
-                              xB(nZeta), xG(nEta), xD(nEta), Wrk2(nWrk2), Aux(nAux)
+real(kind=wp), intent(out) :: Wrk2(nWrk2), Aux(nAux)
 logical(kind=iwp), intent(in) :: IfGrad(3,4), Shijij
 integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iiCent, ijklab, ijMax, &
                      ijMin, ikl, IncEta, IncZet, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), iW2, iW3, iW4, ix1, ix2, iy1, iy2, &
@@ -474,8 +474,8 @@ subroutine TwoEl_g_Internal(Wrk2)
             nWrk3 = nWrk2-mZeta*mEta*mab*mcd
             call Screen_g(iZeta-1,iEta-1,Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
                           k2Data1(lDCR1),k2Data2(lDCR2), &
-                          Zeta,ZInv,P,xA,xB, &
-                          Eta,EInv,Q,xG,xD, &
+                          Braket%Zeta(:),Braket%ZInv(:),Braket%P(:,:),Braket%xA(:),Braket%xB(:), &
+                          Braket%Eta(:),Braket%EInv(:),Braket%Q(:,:),Braket%xG(:),Braket%xD(:), &
                           ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI, &
                           PreScr,nWrk3,IsChi,ChiI2)
             Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
@@ -487,8 +487,11 @@ subroutine TwoEl_g_Internal(Wrk2)
             ! the PSO matrix now is stored in Wrk2(iW2).
 
             iW3 = iW2+lZeta*lEta*mab*mcd
-            call Rysg1(iAnga,nRys,lZeta*lEta,xA,xB,xG,xD,Zeta,ZInv,lZeta,Eta,EInv,lEta,P,nZeta,Q,nEta,CoorM,CoorM,CoorAC, &
-                       Wrk2(iW3),nWrk3,TERI1,ModU2,vCff2D,Wrk2(iW2),mab*mcd,Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)
+            call Rysg1(iAnga,nRys,lZeta*lEta,BraKet%xA(:),BraKet%xB(:),BraKet%xG(:),BraKet%xD(:), &
+                  BraKet%Zeta(:),BraKet%ZInv,lZeta, &
+                  BraKet%Eta(:),BraKet%EInv(:),lEta, &
+                  BraKet%P(:,:),nZeta,BraKet%Q(:,:),nEta,CoorM,CoorM,CoorAC, &
+                  Wrk2(iW3),nWrk3,TERI1,ModU2,vCff2D,Wrk2(iW2),mab*mcd,Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)
             Aha = sqrt(DDot_(nGrad,Grad,1,Grad,1))
             if (Aha > 1.0e5_wp) then
               write(u6,*) 'Norm of gradient contribution is huge!'

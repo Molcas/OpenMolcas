@@ -37,7 +37,7 @@ use setup
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: A_PT2, nBasA, nBasASQ, nBasT
-use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr, Destroy_BraKet
+use k2_arrays, only: Aux, Sew_Scr, Destroy_BraKet
 use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -61,8 +61,8 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ij, ijkla, &
-                     ijMax, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipxA, ipXB, ipXD, &
-                     ipxG, ipZI, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, &
+                     ijMax, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, &
+                     iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, &
                      jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, &
                      kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, LUAPT2, &
                      mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, &
@@ -393,9 +393,11 @@ do while (Rsv_Tsk(id,jlS))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,ik2,nDCRR, &
-                                                                                 k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl,AeqB, &
-                  CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+  call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+                  k2ij,ik2,nDCRR, &
+                  k2kl,jk2,nDCRS, &
+                  mdci,mdcj,mdck,mdcl,AeqB, &
+                  CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -452,9 +454,9 @@ do while (Rsv_Tsk(id,jlS))
                        k2Data(:,ik2), k2Data(:,jk2), &
                        nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                        Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
-                       Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
-                       Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,Mem_DBLE(ipxA), &
-                       Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2), &
+                       Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
+                       nZeta,nEta, &
+                       Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2), &
                        Mem2,Aux,nAux,Shijij)
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU2,TwoelWall2)

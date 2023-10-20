@@ -11,7 +11,7 @@
 
 subroutine Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
                       k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
-                      AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
+                      AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd, &
                       nHmcd,nIrrep)
 
 use k2_structure, only: Indk2
@@ -21,10 +21,9 @@ use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), ipZeta, ipiZet, nIrrep
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), nIrrep
 integer(kind=iwp), intent(out) :: iAnga(4), iCmpa(4), iShlla(4), iShela(4), iPrimi, jPrimj, kPrimk, lPriml, k2ij, nDCRR, k2kl, &
-                                  nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, ipZI, ipP, ipEta, ipEI, ipQ, ipiEta, ipxA, ipxB, &
-                                  ipxG, ipxD, nab, nHmab, ncd, nHmcd, ik2, jk2
+                                  nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, nab, nHmab, ncd, nHmcd, ik2, jk2
 logical(kind=iwp), intent(out) :: AeqB, CeqD
 logical(kind=iwp), intent(in) :: l2DI
 integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
@@ -85,17 +84,6 @@ CeqD = (iSD4(13,3) == iSD4(13,4)) .and. (mdck == mdcl)
 
 nZeta = iPrimi*jPrimj
 nEta = kPrimk*lPriml
-ipZI = ipZeta+nZeta
-ipP = ipZI+nZeta
-ipxA = ipP+nZeta*3
-ipxB = ipxA+nZeta
-ipEta = ipxB+nZeta
-ipEI = ipEta+nEta
-ipQ = ipEI+nEta
-ipxG = ipQ+nEta*3
-ipxD = ipxG+nEta
-
-ipiEta = ipiZet+nZeta+1
 Call Create_BraKet(nZeta,nEta)
 
 return
