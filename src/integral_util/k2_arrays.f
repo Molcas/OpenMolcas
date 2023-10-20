@@ -77,8 +77,8 @@
       use stdalloc, only: mma_deallocate
       Implicit None
 
-      Call mma_deallocate(BraKet_Base_R)
-      Call mma_deallocate(BraKet_Base_I)
+      If (Allocated(BraKet_Base_R)) Call mma_deallocate(BraKet_Base_R)
+      If (Allocated(BraKet_Base_I)) Call mma_deallocate(BraKet_Base_I)
 
       End Subroutine Destroy_BraKet_Base
 

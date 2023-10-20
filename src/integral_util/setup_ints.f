@@ -120,6 +120,8 @@
       MemI=nZeta+nEta+2
       Call mma_allocate(Mem_INT,MemI,Label='Mem_INT')
       ipiZet=1
+
+      Call Create_BraKet_Base(MxPrm**2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

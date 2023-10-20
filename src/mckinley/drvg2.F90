@@ -34,7 +34,8 @@ use setup
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD
-use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, ipZeta, MemR, MxDij, Mem_INT, Mem_DBLE, ndede, nFT, Sew_Scr
+use k2_arrays, only: Aux, DeDe, ipDijS, ipOffD, ipZeta, MemR, MxDij, Mem_INT, Mem_DBLE, ndede, nFT, Sew_Scr, &
+                     Create_BraKet_Base, Destroy_BraKet_Base
 use pso_stuff, only: nDens
 use Basis_Info, only: dbsc, nBas, nCnttp, Shells
 use Symmetry_Info, only: iOper, nIrrep
@@ -200,6 +201,8 @@ ipIndZet = 1
 ipIndEta = ipIndZet+nZeta
 call mma_allocate(Mem_DBLE,MemR,Label='Mem_DBLE')
 ipZeta = 1
+
+Call Create_BraKet_Base(MxPrm**2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -974,6 +977,7 @@ if (.not. New_Fock) then
   end if
 end if
 
+Call Destroy_BraKet_Base()
 call mma_deallocate(Mem_DBLE)
 call mma_deallocate(Mem_INT)
 
