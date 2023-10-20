@@ -811,15 +811,13 @@
       Implicit Real*8 (A-H,O-Z)
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),
-     &       Zeta(nZeta), ZInv(nZeta), KappAB(nZeta), P(nZeta,3),
-     &       Eta(nEta),   EInv(nEta),  KappCD(nEta),  Q(nEta,3),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
      &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl),
      &       SOInt(nSOInt),Wrk(nWork2), QInd(2), Aux(nAux),FckTmp(nFT),
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Type(k2_type) k2Data1, k2Data2
-      Integer IndZet(nZeta),IndEta(nEta),iAO(4), kOp(4),
+      Integer iAO(4), kOp(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy, Do_TnsCtl, IJeqKL,IeqK,JeqL,
