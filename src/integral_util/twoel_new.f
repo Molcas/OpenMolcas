@@ -24,8 +24,7 @@
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
      &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
-     &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
-     &           Eta,EInv,IndEta,Kappcd,Q,nEta,
+     &           FckTmp,nFT,nZeta,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,Aux,nAux)
 !***********************************************************************
@@ -60,8 +59,6 @@
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
       Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),
-     &       Zeta(nZeta), ZInv(nZeta), KappAB(nZeta), P(nZeta,3),
-     &       Eta(nEta),   EInv(nEta),  KappCD(nEta),  Q(nEta,3),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
      &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl),
      &       Wrk(nWork2), QInd(2), Aux(nAux), FckTmp(nFT),
@@ -69,7 +66,7 @@
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Type(k2_type) k2data1(nData1), k2Data2(nData2)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
-     &        iStabM(0:7), IndZet(nZeta), IndEta(nEta),
+     &        iStabM(0:7),
      &        iAO(4), iAnga(4), iCmp(4),
      &        iShell(4), iShll(4), kOp(4), iAOst(4), jOp(6), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
@@ -781,8 +778,7 @@
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
      &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
-     &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
-     &           Eta,EInv,IndEta,Kappcd,Q,nEta,
+     &           FckTmp,nFT,nZeta,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,Aux,nAux)
 !***********************************************************************

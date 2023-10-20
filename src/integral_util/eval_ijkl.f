@@ -40,8 +40,7 @@
 !***********************************************************************
       use setup, only: mSkal, nAux, nSOs
       use k2_structure, only: IndK2
-      use k2_arrays, only: ipZeta, ipiZet, ipDijS, Sew_Scr,
-     &                     Aux, DeDe, FT, iSOSym, Mem_Dble, Mem_Int,
+      use k2_arrays, only: ipDijS, Sew_Scr,Aux, DeDe, FT, iSOSym,
      &                     nDeDe, nFT, Create_BraKet, Destroy_Braket
       use iSD_data, only: iSD
       use Basis_Info, only: Shells
@@ -83,9 +82,7 @@
      &        nDCRR,nDCRS, ipTmp,
      &        mDij,mDik,mDjk,mDkl,mDil,mDjl,
      &        mDCRij,mDCRik,mDCRjk,mDCRkl,mDCRil,mDCRjl,
-     &        ipDij,ipDik,ipDjk,ipDkl,ipDil,ipDjl,
-     &        ipZI,ipKab,ipP,nZeta,
-     &        ipEta,ipEI,ipiEta,ipKcd,ipQ,nEta
+     &        ipDij,ipDik,ipDjk,ipDkl,ipDil,ipDjl, nZeta, nEta
       Integer nSO,iBasAO,jBasAO,kBasAO,lBasAO,
      &        iS,jS,kS,lS,ijS,klS,ikS,ilS,jkS,jlS
       Logical IJeqKL
@@ -112,8 +109,7 @@
      &           Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,
      &           Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl,mDCRjl,
      &           Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,
-     &           FckTmp,nFT,Zeta,ZInv,IndZet,Kappab,P,nZeta,
-     &           Eta,EInv,IndEta,Kappcd,Q,nEta,
+     &           FckTmp,nFT,nZeta,nEta,
      &           SOInt,nSOInt,Wrk,nWork2,
      &           Shijij,Aux,nAux)
       use k2_Structure, only: k2_type
@@ -139,9 +135,6 @@
       Integer nFT
       Real*8  FckTmp(nFT)
       Integer nZeta, nEta
-      Real*8  Zeta(nZeta), ZInv(nZeta), KappAB(nZeta), P(nZeta,3),
-     &        Eta(nEta),   EInv(nEta),  KappCD(nEta),  Q(nEta,3)
-      Integer IndZet(nZeta), IndEta(nEta)
       Integer nSOInt, nWork2
       Real*8  SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
       Real*8  Wrk(nWork2)
@@ -253,14 +246,6 @@
 !***********************************************************************
 !                                                                      *
 !     partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
-      ipZI  = ipZeta + nZeta
-      ipKab = ipZI   + nZeta
-      ipP   = ipKab  + nZeta
-      ipEta = ipP    + nZeta*3
-      ipEI  = ipEta  + nEta
-      ipKcd = ipEI   + nEta
-      ipQ   = ipKcd  + nEta
-      ipiEta = ipiZet + nZeta + 1
 
       Call Create_BraKet(nZeta,nEta)
 !                                                                      *
@@ -460,13 +445,7 @@
      &                          Shells(iShllV(2))%pCff(1,jBasAO),jBasn,
      &                          Shells(iShllV(3))%pCff(1,kBasAO),kBasn,
      &                          Shells(iShllV(4))%pCff(1,lBasAO),lBasn,
-     &                          FT,nFT,
-     &                          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),
-     &                          Mem_INT(ipiZet),Mem_DBLE(ipKab),
-     &                          Mem_DBLE(ipP),nZeta,
-     &                          Mem_DBLE(ipEta), Mem_DBLE(ipEI),
-     &                          Mem_INT(ipiEta),Mem_DBLE(ipKcd),
-     &                          Mem_DBLE(ipQ),nEta,
+     &                          FT,nFT,nZeta,nEta,
      &                          SOInt,nSO,AOInt,Mem2,
      &                          Shijij,Aux,nAux)
 !                                                                      *
