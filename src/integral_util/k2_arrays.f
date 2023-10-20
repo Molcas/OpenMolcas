@@ -34,11 +34,112 @@
       Real*8, Target, Allocatable:: Fq(:), Dq(:)
       Real*8, Pointer:: pFq(:)=>Null(), pDq(:)=>Null()
       Integer MemR, MemI, ipZeta, ipiZet
-      Real*8, Allocatable:: Mem_DBLE(:)
-      Integer, Allocatable:: Mem_INT(:)
       Real*8, Allocatable:: Aux(:)
       Integer, Allocatable:: iSOSym(:,:)
       Logical :: XMem=.False.
       Real*8, Allocatable, Target:: Sew_Scr(:)
+
+      Real*8, Allocatable:: Mem_DBLE(:)
+      Integer, Allocatable:: Mem_INT(:)
+
+      Type BraKet_Type
+        Real*8, Pointer:: Zeta(:)
+        Real*8, Pointer:: ZInv(:)
+        Real*8, Pointer:: P(:,:)
+        Real*8, Pointer:: xA(:)
+        Real*8, Pointer:: xB(:)
+        Real*8, Pointer:: Eta(:)
+        Real*8, Pointer:: EInv(:)
+        Real*8, Pointer:: Q(:,:)
+        Real*8, Pointer:: xG(:)
+        Real*8, Pointer:: xD(:)
+        Integer, Pointer:: iZet(:)
+        Integer, Pointer:: iEta(:)
+      End Type BraKet_Type
+
+      Type(BraKet_Type) BraKet
+      Real*8, Allocatable, Target:: BraKet_Base_R(:)
+      Integer, Allocatable, Target:: BraKet_Base_I(:)
+
+      Contains
+
+      Subroutine Create_BraKet_Base(nZeta)
+      use stdalloc, only: mma_allocate
+      Implicit None
+      Integer nZeta
+
+      Call mma_allocate(BraKet_Base_R,nZeta*14,Label='Base_R')
+      Call mma_allocate(BraKet_Base_I,nZeta*2 ,Label='Base_I')
+
+      End Subroutine Create_BraKet_Base
+
+      Subroutine Destroy_BraKet_Base()
+      use stdalloc, only: mma_deallocate
+      Implicit None
+
+      Call mma_deallocate(BraKet_Base_R)
+      Call mma_deallocate(BraKet_Base_I)
+
+      End Subroutine Destroy_BraKet_Base
+
+      Subroutine Create_BraKet(nZeta,nEta)
+      Implicit None
+      Integer nZeta, nEta
+
+      Integer iS, iE
+
+      iE=0
+
+      iS=iE+1
+      iE=iE+nZeta
+      Braket%Zeta(1:nZeta) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+nZeta
+      Braket%ZInv(1:nZeta) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+3*nZeta
+      Braket%P(1:nZeta,1:3) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+nZeta
+      Braket%xA(1:nZeta) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+nZeta
+      Braket%xB(1:nZeta) => BraKet_Base_R(iS:iE)
+
+      iS=iE+1
+      iE=iE+nEta
+      Braket%Eta(1:nEta) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+nEta
+      Braket%EInv(1:nEta) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+3*nEta
+      Braket%Q(1:nEta,1:3) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+nEta
+      Braket%xG(1:nEta) => BraKet_Base_R(iS:iE)
+      iS=iE+1
+      iE=iE+nEta
+      Braket%xD(1:nEta) => BraKet_Base_R(iS:iE)
+
+      iE=0
+
+      iS=iE+1
+      iE=iE+nZeta
+      Braket%iZet(1:nZeta) => BraKet_Base_I(iS:iE)
+      iS=iE+1
+      iE=iE+nEta
+      Braket%iEta(1:nEta) => BraKet_Base_I(iS:iE)
+
+      End Subroutine Create_BraKet
+
+      Subroutine Destroy_BraKet()
+      Implicit None
+
+      Nullify(Braket%Zeta,Braket%ZInv,Braket%P,Braket%xA,Braket%xB,
+     &        Braket%Eta, Braket%EInv,Braket%Q,Braket%xG,Braket%xD,
+     &        Braket%iZet,Braket%iEta)
+
+      End Subroutine Destroy_BraKet
 
       End Module k2_arrays
