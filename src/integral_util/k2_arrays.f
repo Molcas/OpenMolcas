@@ -55,8 +55,8 @@
         Real*8, Pointer:: Q(:,:)
         Real*8, Pointer:: xG(:)
         Real*8, Pointer:: xD(:)
-        Integer, Pointer:: iZet(:)
-        Integer, Pointer:: iEta(:)
+        Integer, Pointer:: IndZet(:)
+        Integer, Pointer:: IndEta(:)
       End Type BraKet_Type
 
       Type(BraKet_Type) BraKet
@@ -71,7 +71,7 @@
       Integer nZeta
 
       Call mma_allocate(BraKet_Base_R,nZeta*16,Label='Base_R')
-      Call mma_allocate(BraKet_Base_I,nZeta*2 ,Label='Base_I')
+      Call mma_allocate(BraKet_Base_I,(nZeta+1)*2 ,Label='Base_I')
 
       End Subroutine Create_BraKet_Base
 
@@ -133,11 +133,11 @@
       iE=0
 
       iS=iE+1
-      iE=iE+nZeta
-      Braket%iZet(1:nZeta) => BraKet_Base_I(iS:iE)
+      iE=iE+nZeta+1
+      Braket%IndZet(1:nZeta+1) => BraKet_Base_I(iS:iE)
       iS=iE+1
-      iE=iE+nEta
-      Braket%iEta(1:nEta) => BraKet_Base_I(iS:iE)
+      iE=iE+nEta+1
+      Braket%IndEta(1:nEta+1) => BraKet_Base_I(iS:iE)
 
       End Subroutine Create_BraKet
 
@@ -146,7 +146,7 @@
 
       Nullify(Braket%Zeta,Braket%ZInv,Braket%KappaAB,Braket%P,Braket%xA,Braket%xB,
      &        Braket%Eta, Braket%EInv,Braket%KappaCD,Braket%Q,Braket%xG,Braket%xD,
-     &        Braket%iZet,Braket%iEta)
+     &        Braket%IndZet,Braket%IndEta)
 
       End Subroutine Destroy_BraKet
 
