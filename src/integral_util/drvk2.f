@@ -30,7 +30,8 @@
       use setup, only: mSkal
       use iSD_data, only: iSD
       use k2_arrays, only: DoGrad_, DoHess_, ipZeta, ipiZet, DeDe,
-     &                     ipOffD, Mem_DBLE, Mem_Int, Sew_Scr
+     &                     ipOffD, Mem_DBLE, Mem_Int, Sew_Scr,
+     &                      Create_BraKet, Destroy_BraKet
       use Basis_Info, only: Shells, DBSC
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_global, only: force_part_c
@@ -154,6 +155,8 @@
       ipAlpha= ipCon  + S%m2Max
       ipBeta = ipAlpha+ S%m2Max
       ipInd  = ipiZet
+
+      Call Create_BraKet(S%m2Max,0)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -348,6 +351,8 @@
          End Do
  100     Continue
       End Do
+
+      Call Destroy_Braket()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
