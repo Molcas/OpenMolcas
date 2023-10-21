@@ -11,6 +11,7 @@
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       USE RASSI_aux
       USE kVectors
+      use rassi_aux, only: ipglob
       USE rassi_global_arrays, only: JBNUM
       USE do_grid, only: Do_Lebedev_Sym
       use frenkel_global_vars, only: iTyp
@@ -23,9 +24,6 @@
       USE ISO_C_Binding
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='EIGCTL')
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
@@ -305,7 +303,7 @@ C especially for already diagonal Hamiltonian matrix.
       call mh5_put_dset(wfn_sfs_coef, EIGVEC)
 #endif
 
-      if (IPGLOB >= TERSE) then
+      if (IPGLOB >= 1) then
         write(filnam,'(A,I1)') 'stE', iTyp
         LuT2 = 11
         LuT1 = isFreeUnit(LuT2)
@@ -424,7 +422,7 @@ C within the basis formed by the states.
 *                                                                      *
 C REPORT ON SECULAR EQUATION RESULT:
       CALL MMA_ALLOCATE(ESFS,NSTATE)
-      IF(IPGLOB.ge.TERSE) THEN
+      IF(IPGLOB.ge.1) THEN
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)
@@ -510,12 +508,12 @@ c LU: save esfs array
        CALL MMA_DEALLOCATE(ESFS)
 c
 
-      IF((IPGLOB.ge.VERBOSE).or.(.not.diagonal)) THEN
+      IF((IPGLOB.ge.3).or.(.not.diagonal)) THEN
        WRITE(6,*)
        WRITE(6,*)'  Spin-free eigenstates in basis of input states:'
        WRITE(6,*)'  -----------------------------------------------'
        WRITE(6,*)
-       IF(IPGLOB.ge.VERBOSE) THEN
+       IF(IPGLOB.ge.3) THEN
         DO L=1,NSTATE
            I=IndexE(L)
           Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
@@ -554,7 +552,7 @@ c
        END DO
        CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
        CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
-       IF(IPGLOB.ge.VERBOSE) THEN
+       IF(IPGLOB.ge.3) THEN
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
@@ -669,7 +667,7 @@ C                                                                      C
       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
      &          /CONST_AU_TIME_IN_SI_
 *
-      IF(IPGLOB.le.SILENT) GOTO 900
+      IF(IPGLOB.le.0) GOTO 900
 !
 * CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
 !
@@ -684,7 +682,7 @@ C                                                                      C
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 !
-      IF(IPGLOB.ge.TERSE) THEN
+      IF(IPGLOB.ge.1) THEN
 
        IPRDX=0
        IPRDY=0

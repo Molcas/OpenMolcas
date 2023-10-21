@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl,HAM)
+      use rassi_aux, only: ipglob
+
       Implicit Real*8(A-H,O-Z)
 *
 *     Approximate derivative couplings:         <\Psi_I|\nabla H|\Psi_J>
@@ -17,9 +19,7 @@
 *
 *     If the wfn are real-valued: f_II = 0 ; f_JI = - f_IJ -> lower triangular storage
 *
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='AppDerCpl')
+
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -55,7 +55,7 @@
                SumY = SumY + DerCpl(iST,2,lAt)
                SumZ = SumZ + DerCpl(iST,3,lAt)
             End Do
-            If(IPGLOB .ge. DEBUG) Write(6,1200) SumX,SumY,SumZ
+            If(IPGLOB .ge. 4) Write(6,1200) SumX,SumY,SumZ
          End Do
       End Do
 1000  Format(/,' Approximate derivative couplings for states ',2i3,/,

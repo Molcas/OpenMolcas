@@ -12,16 +12,10 @@
      &                  iSGStruct)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SGINIT')
       dimension nRas(8,nRasPrt),nRasEl(nRasPrt)
 #include "Struct.fh"
       Dimension iSGStruct(nSGSize)
 #include "WrkSpc.fh"
-
-
-
 
       NLEV=NASHT
 C Allocate Level to Symmetry table ISm:

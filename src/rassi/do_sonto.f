@@ -27,9 +27,6 @@
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DO_SONTO')
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
       Real*8 IDENTMAT(3,3)
 

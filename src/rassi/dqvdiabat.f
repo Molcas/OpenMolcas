@@ -29,10 +29,6 @@
 ************************************************************************
       SUBROUTINE DQVDiabat(PROP,HAM)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DQVDiabat')
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"

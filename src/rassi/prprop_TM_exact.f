@@ -25,9 +25,6 @@
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='PRPROP_TM')
       parameter (THRSH=1.0D-10)
       parameter (ZERO=0.0D0)
 #include "symmul.fh"

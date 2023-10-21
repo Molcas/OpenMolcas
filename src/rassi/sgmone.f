@@ -11,9 +11,6 @@
       SUBROUTINE SGMONE(ISGSTRUCT,ICISTRUCT,IXSTRUCT,
      &                  IP,IQ,CPQ,ISYCI,CI,SGM)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SGMONE')
       DIMENSION CI(*),SGM(*)
 #include "Struct.fh"
       Dimension iSGStruct(nSGSize)

@@ -10,10 +10,8 @@
 ************************************************************************
       SUBROUTINE SYG2SGU(IMODE,ISGSTRUCT,ICISTRUCT,LSYM,
      &                   ICNFTAB,ISPNTAB,CIOLD,CINEW)
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SYG2SGU')
 #include "Struct.fh"
 #include "WrkSpc.fh"
 
@@ -552,7 +550,7 @@ C      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
 
       CALL GETMEM('MWS2W','FREE','INTE',LMWS2W,NWALK)
 
-      IF( IPGLOB.GE.INSANE ) THEN
+      IF( IPGLOB.GE.5 ) THEN
         WRITE(6,*)
         WRITE(6,*)' CI vector reordered in SYG2SGU'
         IF(IMODE.EQ.0) THEN

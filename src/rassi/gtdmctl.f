@@ -11,6 +11,8 @@
       SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDDET1,
      &                   IDDET2,IDISK)
 
+      use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3,
+     &                  NRS3T, NRSPRT
 #ifdef _DMRG_
       use rassi_global_arrays, only: HAM, SFDYS, LROOT
 #else
@@ -26,20 +28,16 @@
 #endif
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
-      use rassi_aux, only : AO_Mode, jDisk_TDM, iDisk_TDM
+      use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
       use frenkel_global_vars, only: DoCoul
-      use Constants, only: auToEV
+      use Constants, only: auToEV, Half, One, Zero
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='GTDMCTL')
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
@@ -129,7 +127,7 @@ C WF parameters for ISTATE and JSTATE
       NHOL12=NHOLE1(JOB2)
       NELE32=NELE3(JOB2)
       WFTP2=RASTYP(JOB2)
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
         WRITE(6,*)' Entered GTDMCTL.'
         WRITE(6,'(1X,A,I3,A,I3)')'  JOB1:',  JOB1,'        JOB2:',  JOB2
         WRITE(6,'(1X,A,I3,A,I3)')'NACTE1:',NACTE1,'      NACTE2:',NACTE2
@@ -185,7 +183,7 @@ C WF parameters for ISTATE and JSTATE
       !> except when used for the scalar two-body Hamiltonian matrix:
       IF22 = IF22.AND.IFTWO.AND.(MPLET1.EQ.MPLET2).AND.(LSYM1.EQ.LSYM2)
 
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
         IF(IF00) WRITE(6,*)' Overlap will be computed.'
         IF(IF10.or.IF01) WRITE(6,*)' Dyson orbital will be computed.'
         IF(IF20.or.IF02) WRITE(6,*)' Pair amplitudes will be computed.'
@@ -253,7 +251,7 @@ C ZZ  = atomic (basis function) base
         ! Number of atomic / basis functions
         NDYSZZ = NZ
         Call mma_allocate(DYSZZ,nDYSZZ,Label='DYSZZ')
-        DYSZZ(:)=0.0D0
+        DYSZZ(:) = Zero
       END IF
 ! +++
 
@@ -344,11 +342,11 @@ C       put original orbitals to hdf5 file
 
 C OBTAIN CORE ENERGY, FOCK MATRIX, AND TWO-ELECTRON INTEGRALS
 C IN THE MIXED ACTIVE MO BASIS:
-      ECORE=0.0D0
+      ECORE = Zero
       IF (IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
        Call mma_allocate(FMO,nTDM1,Label='FMO')
        Call mma_allocate(TUVX,nTDM2,Label='TUVX')
-       TUVX(:)=0.0D0
+       TUVX(:) = Zero
 CTEST       write(*,*)'GTDMCTL calling TRINT.'
        CALL TRINT(CMO1,CMO2,ECORE,nTDM1,FMO,nTDM2,TUVX)
        ECORE=ENUC+ERFNUC+ECORE
@@ -390,13 +388,13 @@ C IWORK(LPART)
 C IWORK(LORBTAB)
 C IWORK(LSSTAB)
       LPART=NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
-      IF(IPGLOB.GE.DEBUG) CALL PRPRTTAB(IWORK(LPART))
+      IF(IPGLOB.GE.4) CALL PRPRTTAB(IWORK(LPART))
 
       LORBTAB=NEWORBTAB(IWORK(LPART))
-      IF(IPGLOB.GE.DEBUG) CALL PRORBTAB(LORBTAB)
+      IF(IPGLOB.GE.4) CALL PRORBTAB(LORBTAB)
 
       LSSTAB=NEWSSTAB(LORBTAB)
-      IF(IPGLOB.GE.DEBUG) CALL PRSSTAB(LSSTAB)
+      IF(IPGLOB.GE.4) CALL PRSSTAB(LSSTAB)
 
 C Mapping from active spin-orbital to active orbital in external order.
 C Note that these differ, not just because of the existence of two
@@ -451,7 +449,7 @@ C the SGUGA space of JOB1. General RAS:
 
         if(.not.doDMRG)then
           CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1)
-          IF(IPGLOB.GT.DEBUG) THEN
+          IF(IPGLOB.GT.4) THEN
             WRITE(6,*)'Split-graph structure for JOB1=',JOB1
             CALL SGPRINT(ISGSTR1)
           END IF
@@ -542,21 +540,21 @@ C IWORK(LSPNTAB1)
         IFORM=1
         MINOP=0
         LREST1=NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM)
-        IF(IPGLOB.GE.DEBUG) CALL PRGASTAB(LREST1)
+        IF(IPGLOB.GE.4) CALL PRGASTAB(LREST1)
 
 C At present, we will only annihilate, at most 2 electrons will
 C be removed. This limits the possible MAXOP:
         MAXOP=MIN(MAXOP+1,NACTE1,NASHT)
         LCNFTAB1=NEWCNFTAB(NACTE1,NASHT,MINOP,MAXOP,LSYM1,NGAS,
      &                     NGASORB,NGASLIM,IFORM)
-        IF(IPGLOB.GE.DEBUG) CALL PRCNFTAB(LCNFTAB1,100)
+        IF(IPGLOB.GE.4) CALL PRCNFTAB(LCNFTAB1,100)
 
         LFSBTAB1=NEWFSBTAB(NACTE1,MSPROJ1,LSYM1,LREST1,LSSTAB)
-        IF(IPGLOB.GE.DEBUG) CALL PRFSBTAB(IWORK(LFSBTAB1))
+        IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB1))
         NDET1=IWORK(LFSBTAB1+4)
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
         LSPNTAB1=NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1)
-        IF (IPGLOB.GT.DEBUG) THEN
+        IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
           CALL PRSCTAB(LSPNTAB1)
@@ -584,7 +582,7 @@ C the SGUGA space of JOB1. General RAS:
 
         IF(.not.doDMRG)then
           CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,ISGSTR2)
-          IF(IPGLOB.GT.DEBUG) THEN
+          IF(IPGLOB.GT.4) THEN
             WRITE(6,*)'Split-graph structure for JOB2=',JOB2
             CALL SGPRINT(ISGSTR2)
           END IF
@@ -668,7 +666,7 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
 
       if(.not.dodmrg)then
         LREST2=NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM)
-        IF(IPGLOB.GE.DEBUG) CALL PRGASTAB(LREST2)
+        IF(IPGLOB.GE.4) CALL PRGASTAB(LREST2)
 
         IFORM=1
         MINOP=0
@@ -676,14 +674,14 @@ C At present, we will only annihilate. This limits the possible MAXOP:
         MAXOP=MIN(MAXOP+1,NACTE2,NASHT)
         LCNFTAB2=NEWCNFTAB(NACTE2,NASHT,MINOP,MAXOP,LSYM2,NGAS,
      &                     NGASORB,NGASLIM,IFORM)
-        IF(IPGLOB.GE.DEBUG) CALL PRCNFTAB(LCNFTAB2,100)
+        IF(IPGLOB.GE.4) CALL PRCNFTAB(LCNFTAB2,100)
 
         LFSBTAB2=NEWFSBTAB(NACTE2,MSPROJ2,LSYM2,LREST2,LSSTAB)
-        IF(IPGLOB.GE.DEBUG) CALL PRFSBTAB(IWORK(LFSBTAB2))
+        IF(IPGLOB.GE.4) CALL PRFSBTAB(IWORK(LFSBTAB2))
         NDET2=IWORK(LFSBTAB2+4)
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2
         LSPNTAB2=NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2)
-        IF (IPGLOB.GT.DEBUG) THEN
+        IF (IPGLOB.GT.4) THEN
 *PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
 * do not get their knickers into a twist.
           CALL PRSCTAB(LSPNTAB2)
@@ -709,9 +707,9 @@ C Read ISTATE wave function
           IF(WFTP1.EQ.'GENERAL ') THEN
             CALL READCI(ISTATE,ISGSTR1,ICISTR1,NCONF1,WORK(LCI1))
           ELSE
-            WORK(LCI1)=1.0D0
+            WORK(LCI1) = One
           END IF
-          CALL DCOPY_(NDET1,[0.0D0],0,WORK(LDET1),1)
+          CALL DCOPY_(NDET1,[Zero],0,WORK(LDET1),1)
 C         Transform to bion basis, Split-Guga format
           If (TrOrb) CALL CITRA (WFTP1,ISGSTR1,ICISTR1,IXSTR1,LSYM1,
      &                           TRA1,NCONF1,Work(LCI1))
@@ -780,7 +778,7 @@ C Write the determinant expansion to LDETTOT1 position
 
       If (DoGSOR) Then
         CALL GETMEM('Theta1','ALLO','REAL',LTheta1,NCONF2)
-        CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LTheta1),1)
+        CALL DCOPY_(NCONF2,[Zero],0,WORK(LTheta1),1)
       End If
 
 C-------------------------------------------------------------
@@ -794,12 +792,12 @@ C Read JSTATE wave function
           IF(WFTP2.EQ.'GENERAL ') THEN
             CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
           ELSE
-            WORK(LCI2)=1.0D0
+            WORK(LCI2) = One
           END IF
           If(DoGSOR) Then
             CALL DCOPY_(NCONF2,Work(LCI2),1,WORK(LCI2_o),1)
           End If
-          CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
+          CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
 C         Transform to bion basis, Split-Guga format
           If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
      &                           TRA2,NCONF2,Work(LCI2))
@@ -943,12 +941,12 @@ C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
 
 C Calculate whatever type of GTDM that was requested, unless
 C it is known to be zero.
-      HZERO=0.0D0
-      HONE =0.0D0
-      HTWO =0.0D0
+      HZERO = Zero
+      HONE = Zero
+      HTWO = Zero
 
-      SIJ=0.0D0
-      DYSAMP=0.0D0
+      SIJ = Zero
+      DYSAMP = Zero
 ! +++ J. Norell 12/7 - 2018
 C +++ Modified by Bruno Tenorio, 2020
 C Dyson amplitudes:
@@ -965,7 +963,7 @@ C Write Dyson orbital coefficients in AO basis to disk.
 C In full biorthonormal basis:
          CALL MKDYSAB(DYSCOF,DYSAB)
 C Correct Dyson norms, for a biorth. basis. Add by Bruno
-         DYNORM=0.0D0
+         DYNORM = Zero
          CALL DYSNORM(CMO2,DYSAB,DYNORM) !do not change CMO2
        IF (DYNORM.GT.1.0D-5) THEN
 C In AO basis:
@@ -974,7 +972,7 @@ C In AO basis:
           SFDYS(:,JSTATE,ISTATE)=DYSZZ(:)
           SFDYS(:,ISTATE,JSTATE)=DYSZZ(:)
         END IF
-        DYSZZ(:)=0.0D0
+        DYSZZ(:) = Zero
 C DYSAMPS corresponds to the Dyson norms corrected
 C for a MO biorth. basis
          DYSAMPS(ISTATE,JSTATE)=SQRT(DYNORM)
@@ -987,9 +985,9 @@ C This part computes the needed densities for Auger.
 C (DOI:10.1021/acs.jctc.2c00252)
       IF ((IF21.or.IF12).and.TDYS.and.DYSO) THEN
        Call mma_allocate(RT2M,nRT2M,Label='RT2M')
-       RT2M(:)=0.0D0
+       RT2M(:) = Zero
        Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
-       RT2MAB(:)=0.0D0
+       RT2MAB(:) = Zero
 C     Defining the Binding energy Ei-Ej
        BEi=HAM(ISTATE,ISTATE)
        BEj=HAM(JSTATE,JSTATE)
@@ -1044,7 +1042,7 @@ C     Defining the Binding energy Ei-Ej
       BEj=HAM(JSTATE,JSTATE)
       BEij=ABS(BEi-BEj)*auToEV
       Call mma_allocate(DCHSM,nDCHSM,Label='DCHSM')
-      DCHSM(:)=0.0D0
+      DCHSM(:) = Zero
       CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
@@ -1102,13 +1100,13 @@ C             Write density 1-matrices in AO basis to disk.
               If (iRC.eq.1) iEmpty=1
 
               !> spin-TDM
-              CALL MKTDAB(0.0D0,TRASD,TSDMAB,iRC)
+              CALL MKTDAB(Zero,TRASD,TSDMAB,iRC)
               !> transform to AO basis
               CALL MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ,iRC)
               If (iRC.eq.1) iEmpty=iEmpty+2
 
               !> WE-reduced TDM''s of triplet type:
-              CALL MKTDAB(0.0D0,WERD,WDMAB,iRC)
+              CALL MKTDAB(Zero,WERD,WDMAB,iRC)
               !> transform to AO basis
               CALL MKTDZZ(CMO1,CMO2,WDMAB,WDMZZ,iRC)
               If (iRC.eq.1) iEmpty=iEmpty+4
@@ -1130,17 +1128,17 @@ C             Write density 1-matrices in AO basis to disk.
                      iEmpty=0
                      TRAD(nTrad+1)=SIJ
                      iRC=0
-                     If(DDot_(nTRAD+1,TRAD,1,TRAD,1).gt.0.0D0) iRC=1
+                     If(DDot_(nTRAD+1,TRAD,1,TRAD,1) > Zero) iRC=1
                      If (iRC.eq.1) iEmpty=1
 *
-                     TRASD(nTrad+1)=0.0D0
+                     TRASD(nTrad+1) = Zero
                      iRC=0
-                     If(DDot_(nTRAD+1,TRASD,1,TRASD,1).gt.0.0D0) iRC=1
+                     If(DDot_(nTRAD+1,TRASD,1,TRASD,1) > Zero) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+2
 *
-                     WERD(nTrad+1)=0.0D0
+                     WERD(nTrad+1) = Zero
                      iRC=0
-                     If(DDot_(nTRAD+1,WERD,1,WERD,1).gt.0.0D0) iRC=1
+                     If(DDot_(nTRAD+1,WERD,1,WERD,1) > Zero) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+4
 *
                      CALL dens2file(TRAD,TRASD,WERD,nTRAD+1,LUTDM,
@@ -1252,7 +1250,7 @@ C             Write density 1-matrices in AO basis to disk.
 
             !SI-PDFT related code for "second_time" case
             if(second_time) then
-              Energies(:) =0.0d0
+              Energies(:) = Zero
               CALL DANAME(LUIPH,'JOBGS')
               IAD = 0
               Call IDAFILE(LUIPH,2,ITOC15,30,IAD)
@@ -1264,7 +1262,7 @@ C             Write density 1-matrices in AO basis to disk.
               Call DACLOS(LUIPH)
             end if
 
-            IF(IPGLOB.GE.DEBUG) THEN
+            IF(IPGLOB.GE.4) THEN
               WRITE(6,'(1x,a,2I5)')' ISTATE, JSTATE:',ISTATE,JSTATE
               WRITE(6,'(1x,a,f16.8)')' HZERO=',HZERO
               WRITE(6,'(1x,a,f16.8)')' HONE =',HONE
@@ -1307,17 +1305,17 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
             SIJ=HAM(ISTATE,JSTATE)
             HII=HAM(ISTATE,ISTATE)
             HJJ=HAM(JSTATE,JSTATE)
-            HAM(ISTATE,JSTATE) = SIJ*(HII+HJJ)*0.5D0
-            HAM(JSTATE,ISTATE) = SIJ*(HII+HJJ)*0.5D0
+            HAM(ISTATE,JSTATE) = SIJ*(HII+HJJ)*Half
+            HAM(JSTATE,ISTATE) = SIJ*(HII+HJJ)*Half
           END DO
         END DO
       END IF
 
       IF(DoGSOR) then
         if(job1.ne.job2) then
-        Norm_Fac = 0.0d0
+        Norm_Fac = Zero
         dot_prod = DDOT_(NCONF2,Work(LTheta1),1,Work(LTheta1),1)
-        Norm_Fac = 1d0/sqrt(dot_prod)
+        Norm_Fac = One/sqrt(dot_prod)
         Call DSCAL_(NCONF2,Norm_Fac,Work(LTheta1),1)
 
       !Write theta1 to file.
@@ -1336,7 +1334,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           JSTATE=ISTAT(JOB2)-1+JST
           CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
-          CALL DCOPY_(NDET2,[0.0D0],0,WORK(LDET2),1)
+          CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
           If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,
      &                           TRA2,NCONF2,Work(LCI2))
           CALL PREPSD(WFTP2,ISGSTR2,ICISTR2,LSYM2,
@@ -1359,7 +1357,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           end if
           CALL GETMEM('ThetaM','ALLO','REAL',LThetaM,NCONF2)
           DO IST=2,JST-1
-            CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
+            CALL DCOPY_(NCONF2,[Zero],0,WORK(LThetaM),1)
             !Read in previous theta vectors
             do i=1,NCONF2
               Read(LUCITH,*) Work(LThetaM-1+i)
@@ -1372,7 +1370,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           Close(LUCITH)
           !Normalize
           dot_prod = DDOT_(NCONF2,Work(LThetaN),1,Work(LThetaN),1)
-          Norm_Fac = 1d0/sqrt(dot_prod)
+          Norm_Fac = One/sqrt(dot_prod)
           Call DSCAL_(NCONF2,Norm_Fac,Work(LThetaN),1)
 
         !dot_prod = DDOT_(NCONF2,Work(LTheta1),1,Work(LTheta1),1)
@@ -1402,7 +1400,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         Call IDAFILE(LUIPHn,2,ITOC15,30,IAD)
         IAD=ITOC15(4)
         do i=1,ISTAT(JOB1)-1
-         CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
+         CALL DCOPY_(NCONF2,[Zero],0,WORK(LThetaM),1)
          do j=1,nCONF2
            read(LUCITH,*) Work(LThetaM-1+i)
          end do
@@ -1410,7 +1408,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         end do
 
        IAD = ITOC15(4)
-       CALL DCOPY_(NCONF2,[0.0D0],0,WORK(LThetaM),1)
+       CALL DCOPY_(NCONF2,[Zero],0,WORK(LThetaM),1)
        Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
        Call DDAFILE(LUIPHn,2,Work(LThetaM),nCONF2,IAD)
 
@@ -1424,7 +1422,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
 
 
 #ifdef _DMRG_
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
          write(6,*) 'full SF-HAMILTONIAN '
          write(6,*) 'dimension: ',nstate**2
          call pretty_print_util(HAM,1,nstate,1,nstate,

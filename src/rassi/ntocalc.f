@@ -45,7 +45,6 @@
 
       use fortran_strings, only : str
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
@@ -463,7 +462,6 @@ C     Putting particle-hole pairs in the output
       SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LNTO,
      &NTOType,STATENAME,LEigVal,UsetoReal,RealtoUse,Spin,LSym,LInd)
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"

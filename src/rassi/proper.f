@@ -12,9 +12,6 @@
       use rassi_global_arrays, only : JBNUM
       use RASSI_AUX
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='PROPER')
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"

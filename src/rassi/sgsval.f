@@ -11,16 +11,10 @@
       SUBROUTINE SGSVAL(ISGS,NSYM,NLEV,LISM,NVERT,LDRT,
      &              LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SGSVAL')
 #include "Struct.fh"
       Dimension ISGS(nSGSize)
 C Purpose: Dereference the Split Graph structure array
 C and return values and pointers.
-
-
-
 
       NSYM  =ISGS(1)
       NLEV  =ISGS(2)

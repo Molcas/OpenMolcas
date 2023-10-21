@@ -10,9 +10,6 @@
 ************************************************************************
       SUBROUTINE SSOTRA(ISGS,ICIS,IXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SSOTRA')
       DIMENSION TRA(NO,NO),CI(NCO),TMP(NCO)
 #include "rassi.fh"
 #include "Struct.fh"

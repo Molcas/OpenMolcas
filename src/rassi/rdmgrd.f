@@ -9,15 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RDMGRD(JOB,IDISP,LABEL,STYPE,ISYMP,NARRAY,ARRAY)
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
 C Purpose: Read in the derivatives of 1-electron integrals
 C of some operator, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RDMGRD')
 #include "rasdim.fh"
-
 #include "SysDef.fh"
 #include "cntrl.fh"
 #include "Files.fh"
@@ -37,7 +34,7 @@ C ISYMP is the symmetry irrep label of the derivatives.
         CALL ABEND()
       END IF
 
-      IF(IPGLOB.GT.VERBOSE) THEN
+      IF(IPGLOB.GT.3) THEN
         WRITE(6,*)' RDMGRD called for JOB=',JOB
         WRITE(6,*)' perturbed by displacement nr.',IDISP
         WRITE(6,*)' MckInt file name:',MINAME(JOB)

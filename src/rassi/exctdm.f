@@ -19,9 +19,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nIrrep
       IMPLICIT REAL(kind=wp) (A-H,O-Z)
-#include "prgm.fh"
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"

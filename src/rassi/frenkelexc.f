@@ -23,8 +23,6 @@
 #include "Struct.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "prgm.fh"
-#include "rasdef.fh"
 #include "jobin.fh"
 #include "symmul.fh"
 

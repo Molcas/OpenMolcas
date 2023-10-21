@@ -11,10 +11,8 @@
 * Copyright (C) 1999, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE PROTOT(NPORB,NPSDSZ,IPSDMS,NPCSFSZ,IPCSFCP,PCSFTOSD)
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='ProtoT')
 #include "WrkSpc.fh"
       DIMENSION IPSDMS(NPORB,NPSDSZ),IPCSFCP(NPORB,NPCSFSZ)
       DIMENSION PCSFTOSD(NPSDSZ,NPCSFSZ)
@@ -37,7 +35,7 @@
 
 
       DO JCSF = 1, NPCSFSZ
-       IF( IPGLOB .GE. INSANE ) WRITE(6,*) ' ....Output for P-CSF ',JCSF
+       IF( IPGLOB .GE. 5 ) WRITE(6,*) ' ....Output for P-CSF ',JCSF
        DO JDET = 1, NPSDSZ
 C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR P-CSF JCSF
         COEF1=1.0D0

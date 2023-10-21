@@ -42,9 +42,6 @@
 ************************************************************************
       SUBROUTINE CITRA(WFTP,ISGS,ICIS,IXS,LSM,TRA,NCO,CI)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='CITRA')
       DIMENSION TRA(NTRA),CI(NCO)
 #include "WrkSpc.fh"
 #include "rassi.fh"

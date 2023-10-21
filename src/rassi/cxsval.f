@@ -13,9 +13,6 @@
      &                 MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &           LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='CXSVAL')
 #include "Struct.fh"
       Dimension ICIS(nCISize)
       Dimension IXS(nXSize)

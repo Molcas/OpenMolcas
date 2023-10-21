@@ -8,21 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module RASSI_AUX
-      Logical :: AO_Mode=.False.
-      Integer, Allocatable:: TocM(:), jDisk_TDM(:,:), JOB_INDEX(:)
-      Real*8, Allocatable:: CMO1(:), CMO2(:), DMAB(:)
-      Integer NASHT_Save, mTRA
-      Integer :: JOB1_old=-1, JOB2_old=-1
-      integer :: ipglob
 
-      Contains
+program main
+#ifdef _FPE_TRAP_
+use, intrinsic :: IEEE_Exceptions, only IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
+#endif
+use Definitions, only: iwp
 
-      Integer Function iDisk_TDM(I,J,K)
-         Integer I, J, I_Max, J_Min, K
-         I_Max=Max(I,J)
-         J_Min=Min(I,J)
-         iDisk_TDM=jDisk_TDM(K,I_Max*(I_Max-1)/2+J_Min)
-      End Function iDisk_TDM
+implicit none
+integer(kind=iwp) :: rc
 
-      End Module RASSI_AUX
+#ifdef _FPE_TRAP_
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
+#endif
+
+call start('rassi')
+call rassi(rc)
+call finish(rc)
+
+end program Main

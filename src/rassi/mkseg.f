@@ -10,11 +10,8 @@
 ************************************************************************
       SUBROUTINE MKSEG(ISGSTRUCT,NLEV,NVERT,NMIDV,IDRT,IDOWN,
      &                 LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='MKSEG')
-
 #include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       CHARACTER*26 CC1,CC2,CTVPT,CBVPT,CSVC
@@ -94,7 +91,7 @@ C CONSTRUCT THE MVL AND MVR TABLES:
         IF(MVR(MV,1).NE.0) MVL(MVR(MV,1),1)=MV
         IF(MVR(MV,2).NE.0) MVL(MVR(MV,2),2)=MV
 31    CONTINUE
-      IF(IPGLOB.GE.INSANE) THEN
+      IF(IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' MIDVERT PAIR TABLES MVL,MVR IN MKSEG:'
         WRITE(6,*)' MVL TABLE:'
@@ -103,7 +100,7 @@ C CONSTRUCT THE MVL AND MVR TABLES:
         WRITE(6,1234)(MV,MVR(MV,1),MVR(MV,2),MV=1,NMIDV)
 1234    FORMAT(3(3(1X,I4),4X))
       END IF
-      IF(IPGLOB.GE.INSANE) THEN
+      IF(IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' VERTEX PAIR TABLE IVR IN MKSEG:'
         WRITE(6,1234)(IVL,IVR(IVL,1),IVR(IVL,2),IVL=1,NVERT)
@@ -145,7 +142,7 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
 99        VSGMNT(IVLT,ISGT)=V
 101     CONTINUE
 100   CONTINUE
-      IF(IPGLOB.GE.INSANE) THEN
+      IF(IPGLOB.GE.5) THEN
         WRITE(6,*)' SEGMENT TABLE IN MKSEG.'
         WRITE(6,*)' VLT SGT ICL ICR VLB       SEGMENT TYPE    ',
      *            '     FORMULA'

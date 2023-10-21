@@ -25,9 +25,6 @@
       use rassi_aux, only : idisk_TDM
       use rassi_global_arrays, only: JBNUM
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='MAKETDMAO')
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"

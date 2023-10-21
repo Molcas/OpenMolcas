@@ -37,7 +37,11 @@ C The FS blocks of the two wave functions:
       OVERLAP_RASSI=0.0D0
       IF (NFSB1.EQ.0) RETURN
       IF (NFSB2.EQ.0) RETURN
-      IF (NASPRT1.NE.NASPRT2) GOTO 901
+      IF (NASPRT1.NE.NASPRT2) then
+        WRITE(6,*)' OVERLAP Error: The two wave function structures'
+        WRITE(6,*)' have different nr of subpartitions!'
+        CALL ABEND()
+      end if
       IF (NDETS1.EQ.0) RETURN
       IF (NDETS2.EQ.0) RETURN
 
@@ -52,7 +56,7 @@ C Loop over FS blocks of the PSI1 wave function
 C Find this block in the PSI2 structure.
         CALL HSHGET(ISSTARR,NASPRT2,NASPRT2+2,IFSBTAB2(KSTARR2),
      &                NHSH2,IFSBTAB2(KHSH2),IFSB2)
-        IF(IFSB2.EQ.0) GOTO 100
+        IF(IFSB2.EQ.0) cycle
         KPOS2=KSTARR2+(NASPRT2+2)*(IFSB2-1)
         NBLKSIZ2 =IFSBTAB2(KPOS2+NASPRT2  )
         IF(NBLKSIZ1.NE.NBLKSIZ2) THEN
@@ -63,11 +67,6 @@ C Find this block in the PSI2 structure.
         IBLKPOS2 =IFSBTAB2(KPOS2+NASPRT2+1)
         OVERLAP_RASSI=OVERLAP_RASSI+
      &         DDOT_(NBLKSIZ1,PSI1(IBLKPOS1),1,PSI2(IBLKPOS2),1)
- 100    CONTINUE
       END DO
       RETURN
- 901  CONTINUE
-      WRITE(6,*)' OVERLAP Error: The two wave function structures'
-      WRITE(6,*)' have different nr of subpartitions!'
-      CALL ABEND()
       END

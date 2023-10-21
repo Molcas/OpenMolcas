@@ -13,10 +13,9 @@
      &                  ISGMNT,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,NCSF,
      &                  NRL,MVL,MVR)
 
+      use rassi_aux, only: ipglob
+
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='NRCOUP')
 #include "segtab.fh"
 C INPUT PARAMETERS:
 CAR   ADD MVR MVL
@@ -275,7 +274,7 @@ C
 550   CONTINUE
       NSUMTOT=2*NSGMX+NT1MX+NT2MX+NT3MX+NT4MX+NT5MX
 C
-      IF (IPGLOB.GT.INSANE)
+      IF (IPGLOB.GT.5)
      *WRITE(6,555)MXUP,MXDWN,
      *            NSGMX,NSGMX,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX,NSUMTOT
 555   FORMAT(/,' MAXIMUM NUMBER OF WALKS',
@@ -291,7 +290,7 @@ C
      *       /,' TOTAL          ',I7)
 C
 CAR   END OF INSERT
-      IF (IPGLOB.GE.INSANE) THEN
+      IF (IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' TOTAL NR OF WALKS: UPPER ',NUW
         WRITE(6,*)'                    LOWER ',NLW
@@ -304,7 +303,7 @@ CAR   END OF INSERT
         WRITE(6,'(8(1X,I8))')(NCSF(IS),IS=1,NSYM)
         WRITE(6,*)
       END IF
-      IF (IPGLOB.GE.INSANE) THEN
+      IF (IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
         WRITE(6,*)' BY MIDVERTEX AND SYMMETRY.'

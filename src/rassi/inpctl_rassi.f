@@ -18,16 +18,12 @@
 #endif
       use mspt2_eigenvectors
       IMPLICIT NONE
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='INPCTL')
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "centra.fh"
-#include "rasdef.fh"
 #include "cntrl.fh"
 
       LOGICAL READ_STATES

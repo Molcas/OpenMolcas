@@ -9,13 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RDMCCI(JOB,IDISP,LABEL,ISYMP,NARRAY,ARRAY)
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
 C Purpose: Read in the derivatives of CI array derivatives
 C from MCKINT file, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RDMCCI')
 #include "rasdim.fh"
 #include "SysDef.fh"
 #include "cntrl.fh"
@@ -35,7 +33,7 @@ C ISYMP is the symmetry irrep label of the derivatives.
         CALL ABEND()
       END IF
 
-      IF(IPGLOB.GE.VERBOSE) THEN
+      IF(IPGLOB.GE.3) THEN
         WRITE(6,*)' RDMCCI called for JOB=',JOB
         WRITE(6,*)' perturbed by displacement nr.',IDISP
         WRITE(6,*)' MckInt file name:',MINAME(JOB)

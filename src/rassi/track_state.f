@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Track_State(OVLP)
+      use rassi_aux, only: ipglob
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "real.fh"
-#include "prgm.fh"
       INTEGER iState,initState,newState
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -49,7 +49,7 @@
         WRITE(6,'(5(1X,F15.8))')(Ovlp(iState,j),j=1,iState)
       END DO
 #endif
-      IF (IPGLOB.ge.USUAL) THEN
+      IF (IPGLOB.ge.2) THEN
         WRITE(6,*)
         WRITE(6,*) 'Initial root: ',initState
         WRITE(6,*) 'Overlaps with current states:'
@@ -58,7 +58,7 @@
       newState=0
       DO iState=1,nStat(1)
         ThisOv=Ovlp(iState,initState+nStat(1))
-        IF (IPGLOB.ge.USUAL) THEN
+        IF (IPGLOB.ge.2) THEN
           WRITE(6,'(I5,1X,F15.8)') iState,ThisOv
         END IF
         IF (ABS(ThisOv).gt.MaxOv) THEN
@@ -66,7 +66,7 @@
           newState=iState
         END IF
       END DO
-      IF (IPGLOB.ge.USUAL) THEN
+      IF (IPGLOB.ge.2) THEN
         WRITE(6,*) 'New root: ',newState
       END IF
 

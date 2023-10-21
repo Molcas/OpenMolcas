@@ -10,9 +10,6 @@
 ************************************************************************
       Subroutine CXInit(iSGStruct,iCIstruct,iXStruct)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='CXINIT')
 #include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
