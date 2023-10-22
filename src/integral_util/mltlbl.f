@@ -17,7 +17,7 @@
 !             February '91                                             *
 !***********************************************************************
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Integer Lbl1, Lbl2
 !
       Integer iIrrep, jIrrep, ijSym
@@ -33,4 +33,4 @@
       End Do
 !
       Return
-      End
+      End Function MltLbl
