@@ -15,7 +15,7 @@
      &                                          user_field)
       use EFP
       use iso_c_binding, only: c_int, c_size_t, c_double, c_ptr
-      use stdalloc
+      use stdalloc, only: mma_allocate, mma_deallocate
 !***********************************************************************
 !                                                                      *
 !     This is a callback routine for the computation of the electric   *
@@ -23,13 +23,17 @@
 !     them, coordinates stored in the variable xyz).                   *
 !                                                                      *
 !***********************************************************************
+      Implicit  None
       integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
       integer(c_size_t), intent(in) :: n_pt
       real(c_double), intent(in):: xyz(3,n_pt)
       real(c_double), intent(out):: field(3,n_pt)
+      type(c_ptr) :: user_field
+
       type(c_ptr) :: user_field, Dummy
       real*8, Allocatable:: D1ao(:)
       Logical Found
+      integer(c_size_t) :: nCmp, nOrdOp
 !
       Dummy=user_field
 !
@@ -59,4 +63,4 @@
       Molcas_ELECTRON_DENSITY_FIELD_FN=1
 #endif
       Return
-      End
+      End Function Molcas_ELECTRON_DENSITY_FIELD_FN
