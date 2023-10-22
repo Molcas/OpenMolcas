@@ -21,15 +21,28 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             January '90                                              *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 ExpA(nPrim), ExpB(mPrim), rKappa(nPrim,mPrim),
-     &       Pcoor(nPrim,mPrim,3),  ZInv(nPrim,mPrim), A(3), B(3)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer nPrim, mPrim
+      Real*8, Intent(In):: ExpA(nPrim), ExpB(mPrim), ZInv(nPrim,mPrim),
+     &                     A(3), B(3)
+      Real*8, Intent(Out):: rKappa(nPrim,mPrim), Pcoor(nPrim,mPrim,3)
+
+      Real*8 ab
+      Integer iPrim, jPrim
 !
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' *** ExpA ***',' ',ExpA,1,nPrim)
+      Call RecPrt(' *** ExpB ***',' ',ExpB,1,mPrim)
+      Call RecPrt(' *** ZInv ***',' ',ZInv,nPrim,mPrim)
+      Write (6,*) 'A(:)=',A(:)
+      Write (6,*) 'B(:)=',B(:)
+#endif
       ab  = (A(1)-B(1))**2 + (A(2)-B(2))**2 + (A(3)-B(3))**2
+
       If (ab.ne.Zero) Then
-      Do 10 iPrim = 1, nPrim
-         Do 20 jPrim = 1, mPrim
+      Do jPrim = 1, mPrim
+         Do iPrim = 1, nPrim
             rKappa(iPrim,jPrim) = Exp(- ExpA(iPrim) * ExpB(jPrim) * ab *
      &                            ZInv(iPrim,jPrim))
             Pcoor(iPrim,jPrim,1)=(ExpA(iPrim)*A(1)+ExpB(jPrim)*B(1)) *
@@ -38,13 +51,13 @@
      &                            ZInv(iPrim,jPrim)
             Pcoor(iPrim,jPrim,3)=(ExpA(iPrim)*A(3)+ExpB(jPrim)*B(3)) *
      &                            ZInv(iPrim,jPrim)
- 20      Continue
- 10   Continue
+         End Do
+      End Do
       Else
-        call dcopy_(nPrim*mPrim,[One],0,rKappa,1)
-        call dcopy_(nPrim*mPrim,A(1),0,Pcoor(1,1,1),1)
-        call dcopy_(nPrim*mPrim,A(2),0,Pcoor(1,1,2),1)
-        call dcopy_(nPrim*mPrim,A(3),0,Pcoor(1,1,3),1)
+        rKappa(:,:)=One
+        PCoor(:,:,1)=A(1)
+        PCoor(:,:,2)=A(2)
+        PCoor(:,:,3)=A(3)
       End If
 #ifdef _DEBUGPRINT_
       Call RecPrt(' *** Kappa ***',' ',rKappa, nPrim, mPrim)
@@ -54,4 +67,4 @@
 #endif
 !
       Return
-      End
+      End SubRoutine Setup1
