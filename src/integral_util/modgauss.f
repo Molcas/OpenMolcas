@@ -9,11 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine ModGauss(Z,A,Xi,w)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: rBohr
+      Implicit None
+      Real*8 Z, Xi, w
+      Integer A
+
       Real*8 Facts(2,0:12), Errors(0:12), g(2), H(2,2), HInv(2,2),
      &       Step(2)
-      Integer A
       Data Facts/ 0.0D0, 0.0D0,
      &            1.0D0, 0.0D0,
      &           -1.0D0, 0.0D0,
@@ -27,6 +29,9 @@
      &           -1.0D0, 1.0D0,
      &            1.0D0,-1.0D0,
      &           -1.0D0,-1.0D0/
+      Real*8 A3, RMS, T, r_90, Thr, X, Delta_W, Delta_R, W0, R0, Det,
+     &       e, f, r, x1, x2
+      Integer MaxIter, Iter, i, iNeg
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -149,13 +154,18 @@
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_real(Z)
-      End
+      End Subroutine ModGauss
+
       Subroutine DiagMtrx_x(H,nH,iNeg)
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      Real*8, Allocatable :: EVal(:), EVec(:,:), Diag(:,:), HU(:,:)
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer nH, iNeg
       Real*8 H(nH,nH)
+
+      Real*8, Allocatable :: EVal(:), EVec(:,:), Diag(:,:), HU(:,:)
+      Real*8 SumHii, Temp
+      Integer i, j, ij, ii
 !
 !     Lu=6
 !
@@ -220,4 +230,4 @@
       Call mma_deallocate(EVal)
 !
       Return
-      End
+      End Subroutine DiagMtrx_x
