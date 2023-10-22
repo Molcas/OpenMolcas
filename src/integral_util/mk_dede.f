@@ -40,22 +40,35 @@
 !             Modified for gradients October '91                       *
 !             Modified to process 1st order density matrices, Dec. '92 *
 !***********************************************************************
-      use setup
-      use Real_Spherical
-      use iSD_data
-      use Basis_Info
-      use Center_Info
+      use iSD_data, only: iSD
+      use Basis_Info, only: MolWgh, Shells
+      use Center_Info, only: DC
       use Symmetry_Info, only: nIrrep, iOper
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer nDeDe, nFD, mFD, nOffD
       Real*8 DeDe(nDeDe)
-      Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Real*8 FD(nFD,mFD)
-      Integer    iDCRR(0:7), nOp(2), ipOffD(2+mFD,nOffD)
-      Logical AeqB, Special_NoSym, DFT_Storage
+      Integer ipOffD(2+mFD,nOffD)
+      Logical Special_NoSym, DFT_Storage
+
+      Integer iDCRR(0:7), nOp(2)
+      Logical AeqB
+      Real*8, Dimension (:), Allocatable :: Scrt, DAO, DSOp, DSOc, DSO
       Integer, External:: n2Tri, MemSO1
+      Integer i, j, iTri
+      Integer mIndij, jOffD, Inc, ipD00, MaxDe, iS, jS, nSkal, iAng,
+     &        jAng, iShll, jShll, iCmp, jCMp, iBas, jBas, iPrim, jPrim,
+     &        iShell, jShell, mdci, mdcj, iAOi, jAOj, ijShll, iSmLbl,
+     &        nSO, nDCRR, LmbdR, iuv, iSh, jSh, iAO, jAO, iBasi, jBasj,
+     &        iPrimi, jPrimj, iAngi, jAngj, iCmpi, jCmpj, iFD, ipDeDe,
+     &        lDCRR, ipStart, jpDAO, ijCmp, iShlli, jShllj, iHigh, ij,
+     &        mDeDe
+      Integer, external :: iDAMax_, NrOpr
+      Real*8 FactND, Temp
 #ifdef _DEBUGPRINT_
+      Integer iFD, iIrrep, jFD
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 #endif
@@ -68,8 +81,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call CWTime(TCpu1,TWall1)
-!
 #ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' Differential 1st order density matrix'
@@ -409,8 +420,5 @@
          Call Abend
       End If
 !
-      Call CWTime(TCpu2,TWall2)
       Return
-! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nDInf)
-      End
+      End SubRoutine mk_DeDe
