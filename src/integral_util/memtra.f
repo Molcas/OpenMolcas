@@ -13,10 +13,13 @@
 ! temporaries. It also puts into common some offsets and stuff.
 ! -------------------------------------------------------------------
       integer function memtra(npam)
-      use pso_stuff
-      use etwas
+      use etwas, only: mIrrep, nCred, nScr1, nScr2, nAsh
+      Implicit None
       Integer nPam(4,0:7)
+
       intrinsic max
+      Integer mxact,mxS1,mxS2,mxS3,mxS4, isym, mxS, mxa2, mxa3, mxa4,
+     &        mxS34, mxS234, nscr3, nscr4, nscr5, na
 !
 !     iQ = 1
       mxact=0
@@ -52,4 +55,4 @@
       memtra=nCred+2*nScr1+nScr2+3
 !
       Return
-      End
+      End function memtra
