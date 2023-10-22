@@ -11,7 +11,10 @@
 ! Copyright (C) 1990, IBM                                              *
 !***********************************************************************
       Subroutine  mHrr(la,lb,nSize,nMem)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer la, lb, nSize, nMem
+
+      Integer ixyz, nElem, nMem2, ib, nMem1, ia
 !
 !     Statement function for canonical indices
 !
@@ -34,4 +37,4 @@
  100  Continue
 !
       Return
-      End
+      End Subroutine  mHrr
