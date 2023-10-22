@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE SGSVAL(ISGS,NSYM,NLEV,LISM,NVERT,LDRT,
      &              LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
+      use Struct, only: nSGSize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Struct.fh"
       Dimension ISGS(nSGSize)
 C Purpose: Dereference the Split Graph structure array
 C and return values and pointers.
@@ -29,5 +29,4 @@ C and return values and pointers.
       LMAW  =ISGS(11)
       LLTV  =ISGS(12)
 
-      RETURN
       END

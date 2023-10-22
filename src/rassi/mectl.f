@@ -239,5 +239,5 @@ cnf
       CALL Put_dArray('SFS_OVLP',OVLP,NSTATE**2)
 
       WRITE(6,*)
-      RETURN
+
       END

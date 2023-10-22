@@ -23,7 +23,6 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "stdalloc.fh"
       INTEGER ISTATE, JSTATE, SYM12
       INTEGER NDYSAB,NRT2MAB,AUGSPIN

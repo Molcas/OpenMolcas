@@ -85,5 +85,4 @@
         CALL ABEND()
       END IF
 
-      RETURN
       END

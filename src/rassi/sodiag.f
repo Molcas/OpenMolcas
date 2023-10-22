@@ -15,7 +15,6 @@
 #include "cntrl.fh"
 #include "Files.fh"
 #include "Morsel.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"

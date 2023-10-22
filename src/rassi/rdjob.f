@@ -12,6 +12,7 @@
       use rasdef, only: NRS1, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
+      use Struct, only: LEVEL, mxlev
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names,
@@ -32,7 +33,6 @@
 #include "rassi.fh"
 #include "jobin.fh"
 #include "WrkSpc.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
@@ -466,10 +466,9 @@ C table of energies/iteration is the last one with not all zeroes.
             E=WORK(LEJOB+MXROOT*(IT-1)+(I-1))
             AEMAX=MAX(AEMAX,ABS(E))
           END DO
-          IF(ABS(AEMAX).LE.1.0D-12) GOTO 11
+          IF(ABS(AEMAX).LE.1.0D-12) exit
           NMAYBE=IT
         END DO
-  11    CONTINUE
         IF(NMAYBE.EQ.0) THEN
           WRITE(6,*)' Sorry. Keyword ''EJOB'' has been used'
           WRITE(6,*)' but there are no energies available on'

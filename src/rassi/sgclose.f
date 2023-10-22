@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SGClose(iSGStruct)
-#include "Struct.fh"
+      use Struct, only: nSGSize
       Dimension iSGStruct(nSGSize)
 C Unpack structure iSGStruct:
       nLev   =iSGStruct(2)
@@ -26,5 +26,4 @@ C Unpack structure iSGStruct:
       Call GetMem('Up','Free','Inte',lUp,4*nVert)
       Call GetMem('MAW','Free','Inte',lMAW,4*nVert)
       Call GetMem('LTV','Free','Inte',lLTV,nLev+2)
-      return
       end

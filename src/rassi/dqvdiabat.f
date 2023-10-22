@@ -35,7 +35,6 @@
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "tshcntrl.fh"
 #include "constants2.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)

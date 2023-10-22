@@ -11,8 +11,8 @@
       SUBROUTINE SYG2SGU(IMODE,ISGSTRUCT,ICISTRUCT,LSYM,
      &                   ICNFTAB,ISPNTAB,CIOLD,CINEW)
       use rassi_aux, only: ipglob
+      use Struct, only: mxlev, nSGSize, nCISize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Struct.fh"
 #include "WrkSpc.fh"
 
       PARAMETER (NBUFFER=600,MXCPI=15)
@@ -26,10 +26,6 @@
       DIMENSION ICISTRUCT(NCISIZE)
       INTEGER ICNFTAB(*),ISPNTAB(*)
       DATA IFUP2CS / 2,1 /
-
-
-
-
 C Input:
 C ISGSTRUCT : Data that define a Split Graph
 C ICISTRUCT : Data that define a CI array structure
@@ -615,11 +611,13 @@ C call parameter.
       END DO
       RETURN
       END
+
+
       SUBROUTINE W2SGORD(ISGSTRUCT,ICISTRUCT,MWS2W,
      &                 NLIST,KWALK,ICNUM)
+      use Struct, only: nSGSize, nCISize
       PARAMETER (MXCPI=15)
       DIMENSION MWS2W(*),KWALK(*),ICNUM(NLIST)
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
@@ -732,12 +730,13 @@ C Leading dimension=nr of upwalks in this block.
         LDIM=NOW(1,ISYUP,MV)
         ICNUM(ICONF)=IOFF+IUW+LDIM*(IDW-1)
       END DO
-      RETURN
       END
+
+
       SUBROUTINE MSTOW(ISGSTRUCT,ICISTRUCT,MWS2W)
+      use Struct, only: nSGSize, nCISize
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION MWS2W(*)
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
@@ -822,5 +821,4 @@ C Unpack lower walk to ICS()
         END DO
       END DO
 
-      RETURN
       END

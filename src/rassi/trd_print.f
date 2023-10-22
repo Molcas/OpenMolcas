@@ -24,7 +24,6 @@
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE

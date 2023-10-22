@@ -12,6 +12,7 @@
      &                 NMIDV,MXEO,NVTAB,NICOUP,ISM,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,
      &                 IOW,NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
+      use Struct, only: nSGSize, nCISize, nXSize
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ISM(*)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -21,7 +22,6 @@
       DIMENSION ICOUP(3,NICOUP)
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
       DIMENSION CI(*),SGM(*)
-#include "Struct.fh"
 #include "symmul.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
@@ -92,10 +92,10 @@ CPAM96            ICS=IAND(ISHFT(JC,-IPSHFT),3)
 1200  CONTINUE
 C SPECIAL CASE: WEIGHT OPERATOR, IP=IQ.
 C IP=IQ>MIDLEV
-      DO 200 MVSGM=1,NMIDV
-        DO 201 ISYUSG=1,NSYM
+      DO MVSGM=1,NMIDV
+        DO ISYUSG=1,NSYM
           NS1=NOCSF(ISYUSG,MVSGM,ISYSGM)
-          IF(NS1.EQ.0) GOTO 201
+          IF(NS1.EQ.0) CYCLE
           ISGSTA=1+IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG=NOW(1,ISYUSG,MVSGM)
           ISYDSG=MUL(ISYUSG,ISYSGM)
@@ -105,17 +105,17 @@ C IP=IQ>MIDLEV
           LUW=LICASE+IOUW-NIPWLK+IPSHFT/30
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
-          DO 202 I=1,NUPSG
+          DO I=1,NUPSG
             IC=IWORK(LUW+I*NIPWLK)
 CPAM96            ICS=IAND(ISHFT(IC,-IPSHFT),3)
             ICS=MOD(IC/IPPOW,4)
-            IF(ICS.EQ.0) GOTO 202
+            IF(ICS.EQ.0) cycle
             X=CPQ*DBLE((1+ICS)/2)
             ISTA=ISGSTA-1+I
             CALL DAXPY_(NDWNSG,X,CI(ISTA),NUPSG,SGM(ISTA),NUPSG)
-202       CONTINUE
-201     CONTINUE
-200   CONTINUE
+          END DO
+        END DO
+      END DO
       GOTO 999
 1300  CONTINUE
 C DEEXCITING OPERATOR, IP<IQ<=MIDLEV.

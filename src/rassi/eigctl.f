@@ -3084,8 +3084,6 @@ C                 Why do it when we don't do the L.S-term!
       end if
       Call mma_DeAllocate(IndexE)
 
-      RETURN
-
 222    FORMAT (5X,2(1X,I4),5X,3(1X,E18.8))
 30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)

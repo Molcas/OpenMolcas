@@ -16,6 +16,8 @@
 ************************************************************************
       SUBROUTINE DYSNORM(CMOA,DYSCMO,NORM)
 
+      use stdalloc, only: mma_allocate, mma_deallocate
+
       Implicit Integer (A-Z)
 
       integer :: isym
@@ -36,7 +38,6 @@
 #include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "stdalloc.fh"
 
 C============================================================
       nbast=0
@@ -136,7 +137,5 @@ C============================================================
 
       Call mma_deallocate(IAO)
       call mma_deallocate(DYSAB)
-
-      RETURN
 
       END

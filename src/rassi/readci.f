@@ -11,6 +11,7 @@
       SUBROUTINE READCI(ISTATE,ISGS,ICIS,NCI,CI)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
+      use Struct, only: nSGSize, nCISize
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
@@ -22,7 +23,6 @@
 #include "WrkSpc.fh"
 #include "rassi.fh"
 #include "jobin.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
@@ -99,5 +99,4 @@
         CALL PRWF(ISGS,ICIS,LSYM,CI,CITHR)
       END IF
 
-      RETURN
       END

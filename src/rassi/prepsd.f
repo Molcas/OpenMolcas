@@ -39,5 +39,5 @@ C Transform SymmG to Slater Dets:
       ELSE
         DET(1)=CI(1)
       END IF
-      RETURN
-      END
+
+      END SUBROUTINE PREPSD

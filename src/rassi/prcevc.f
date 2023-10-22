@@ -135,6 +135,4 @@ C Addition of UMATR and UMATI on RunFile
       call mma_deallocate(weight)
       call mma_deallocate(sstate)
 
-
-      RETURN
-      END
+      END SUBROUTINE PRCEVC

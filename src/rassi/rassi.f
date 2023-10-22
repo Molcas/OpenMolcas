@@ -42,15 +42,12 @@ C RAS state interaction.
 #include "cntrl.fh"
 #include "Files.fh"
 #include "Morsel.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
 #include "jobin.fh"
 #include "symmul.fh"
 #include "rassiwfn.fh"
 #include "stdalloc.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RASSI')
       Logical CLOSEONE
       INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),

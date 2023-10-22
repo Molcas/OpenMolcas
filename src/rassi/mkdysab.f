@@ -25,6 +25,10 @@
 **********************************************************************
 
       SUBROUTINE MKDYSAB(DYSCOF,DYSAB)
+
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSCOF(*),DYSAB(*)
       INTEGER :: IOFFA(8)
@@ -36,7 +40,6 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
 !Alpha and beta contributions are added up here
       Call mma_allocate(DYSCOF2,NASHT,Label='DYSCOF2')
@@ -65,7 +68,7 @@ C transformation.)
           DO I=1,NISH(ISY)
             II=II+1
             IPOS=IOFFTD+II
-            DYSAB(IPOS)=0.0D0
+            DYSAB(IPOS)=Zero
           END DO
           IOFFTD=IOFFTD+NOSH(ISY)
          END IF
@@ -89,5 +92,5 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
         IOFFTD=IOFFTD+NO1
       END DO
       Call mma_deallocate(DYSCOF2)
-      RETURN
-      END
+
+      END SUBROUTINE MKDYSAB

@@ -29,6 +29,7 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
+      use Struct, only: nSGSize, nCISize, nXSize
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
@@ -44,7 +45,6 @@ C      use para_info, only: nProcs, is_real_par, king
 #include "WrkSpc.fh"
 #include "rassiwfn.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "stdalloc.fh"
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)

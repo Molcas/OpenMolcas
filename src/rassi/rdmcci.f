@@ -20,7 +20,6 @@ C ISYMP is the symmetry irrep label of the derivatives.
 #include "Files.fh"
 #include "rassi.fh"
 #include "jobin.fh"
-#include "Struct.fh"
 #include "symmul.fh"
 #include "WrkSpc.fh"
       DIMENSION ARRAY(NARRAY)

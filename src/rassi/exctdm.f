@@ -24,7 +24,6 @@
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
       type(DSBA_Type) :: DLT, SDLT(1), Salpha(1), Sbeta(1)
       integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),

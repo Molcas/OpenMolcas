@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl,HAM)
       use rassi_aux, only: ipglob
+      use Constants, only: Zero
 
       Implicit Real*8(A-H,O-Z)
 *
@@ -23,7 +24,6 @@
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "real.fh"
       Dimension ChgNuc(natom),Prop(nState,nState,NProp),
      &          DerCpl(nST,3,natom),Ham(Nstate,Nstate)
       Character*3 Label
@@ -64,5 +64,5 @@
 1100  Format(i7,3f15.8)
 1200  Format('   Sum:',3f15.8)
 *
-      Return
+
       End

@@ -146,5 +146,5 @@ c O for old
       END DO
       Call mma_deallocate(SCR)
       CALL GETMEM('      ','FREE','REAL',LIP,NIP)
-      RETURN
-      END
+
+      END SUBROUTINE PROPER

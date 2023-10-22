@@ -10,10 +10,10 @@
 ************************************************************************
       Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,
      &                  iSGStruct)
+      use Struct, only: LEVEL, nSGSize
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
       dimension nRas(8,nRasPrt),nRasEl(nRasPrt)
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
 #include "WrkSpc.fh"
 
@@ -134,5 +134,4 @@ C Put sizes and addresses in structure iSGStruct:
       iSGStruct(11)=lMAW
       iSGStruct(12)=lLTV
 
-      return
       end
