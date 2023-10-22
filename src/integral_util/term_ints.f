@@ -19,8 +19,7 @@
 !     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 !             Sweden. January '98.                                     *
 !***********************************************************************
-      use k2_arrays, only: FT, Mem_DBLE, Mem_INT, Aux, iSOSym,
-     &                     Destroy_BraKet_Base
+      use k2_arrays, only: FT, Aux, iSOSym, Destroy_BraKet_Base
       use setup
       use iSD_Data
       use stdalloc, only: mma_deallocate
@@ -40,11 +39,7 @@
 !
       Call  Destroy_Braket_base()
 
-      If (Allocated(Mem_INT)) Then
-         Call mma_deallocate(Mem_INT)
-         Call mma_deallocate(Mem_DBLE)
-         Call mma_deallocate(Aux)
-      End If
+      If (Allocated(Aux)) Call mma_deallocate(Aux)
 !
       If (Allocated(iSOSym)) Call mma_deallocate(iSOSym)
 !                                                                      *

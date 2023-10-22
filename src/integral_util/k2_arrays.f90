@@ -35,14 +35,10 @@ Integer  nDeDe, nDeDe_DFT, MaxDe, MxDij, MxFT, nFT
 Logical  :: DoGrad_=.False., DoHess_=.False.
 Real*8, Target, Allocatable:: Fq(:), Dq(:)
 Real*8, Pointer:: pFq(:)=>Null(), pDq(:)=>Null()
-Integer MemR, MemI, ipZeta, ipiZet
 Real*8, Allocatable:: Aux(:)
 Integer, Allocatable:: iSOSym(:,:)
 Logical :: XMem=.False.
 Real*8, Allocatable, Target:: Sew_Scr(:)
-
-Real*8, Allocatable:: Mem_DBLE(:)
-Integer, Allocatable:: Mem_INT(:)
 
 Type BraKet_Type
   Real*8, Pointer:: Zeta(:)

@@ -26,7 +26,6 @@
       use setup
       use iSD_data
       use k2_arrays
-      use k2_structure, only: nDArray
       use LundIO
       use Basis_Info, only: nBas, nBas_Aux
       use Gateway_Info, only: CutInt, lSchw
@@ -96,9 +95,7 @@
 !     allocate Integer memory for resulting SO info...
 !     memory basepointers are declared in inftra common block
 !
-      If (Indexation) Then
-         Call SOFSh1(nSkal,nIrrep,nSOs)
-      End If
+      If (Indexation) Call SOFSh1(nSkal,nIrrep,nSOs)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -112,15 +109,6 @@
 !                                                                      *
 !     Preallocate memory for k2 entities
 !
-      nZeta = MxPrm * MxPrm
-      nEta  = MxPrm * MxPrm
-      MemR=(nDArray-1)*nZeta + (nDArray-1)*nEta
-      Call mma_allocate(Mem_DBLE,MemR,Label='Mem_DBLE')
-      ipZeta=1
-      MemI=nZeta+nEta+2
-      Call mma_allocate(Mem_INT,MemI,Label='Mem_INT')
-      ipiZet=1
-
       Call Create_BraKet_Base(MxPrm**2)
 !                                                                      *
 !***********************************************************************
