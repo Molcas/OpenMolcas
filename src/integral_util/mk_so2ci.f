@@ -9,8 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Mk_SO2cI(SO2cI,iSO2Shell,nSOs)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer nSOs
       Integer SO2cI(2,nSOs), iSO2Shell(nSOs)
+
+      Integer nShell, iShell, Index, iSO
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -44,4 +47,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End Subroutine Mk_SO2cI
