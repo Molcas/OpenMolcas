@@ -9,9 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine ylmnor(lmax)
-      use Constants
-      use welcom
-      Implicit Real*8(A-H,O-Z)
+      use Constants, only: One
+      use welcom, only: aNorm, FiInt, TetInt
+      Implicit None
+      Integer lmax
+
+      Integer i, lm2, j, k
+      Real*8 Tal
 !
       Do 10 i=0,lmax
          lm2=i/2
@@ -32,4 +36,4 @@
  20   Continue
 !
       Return
-      End
+      End Subroutine ylmnor
