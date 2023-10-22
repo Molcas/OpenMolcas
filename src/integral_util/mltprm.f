@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine MltPrm(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
      &                  Final,nZeta,nComp,la,lb,A,RB,nHer,
      &                  Array,nArr,Ccoor,nOrdOp)
@@ -25,12 +26,15 @@
 !***********************************************************************
       use Her_RW, only: HerR, HerW, iHerR, iHerw
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nZeta, la, lb, nComp, nAlpha, nBeta, nArr, nHer, nOrdOp
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
      &       Array(nZeta*nArr), Ccoor(3)
+
       Logical ABeq(3)
+      Integer nip, ipAxyz, ipBxyz, ipRxyz, ipQxyz
 !
 !     Statement function for Cartesian index
 !
@@ -39,9 +43,7 @@
 !     iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
 !     Index(ixyz,ix,iz) = Ind(ixyz,ix,iz) + iOff(ixyz)
 !
-      ABeq(1) = A(1).eq.RB(1)
-      ABeq(2) = A(2).eq.RB(2)
-      ABeq(3) = A(3).eq.RB(3)
+      ABeq(:) = A(:).eq.RB(:)
 !
       nip = 1
       ipAxyz = nip
@@ -59,7 +61,6 @@
          Call Abend()
       End If
 !
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In MltPrm: A',' ',A,1,3)
       Call RecPrt(' In MltPrm: RB',' ',RB,1,3)
@@ -79,9 +80,7 @@
 !
 !     Compute the contribution from the multipole moment operator
 !
-      ABeq(1) = .False.
-      ABeq(2) = .False.
-      ABeq(3) = .False.
+      ABeq(:) = .False.
       Call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),
      &            nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 !
@@ -107,4 +106,4 @@
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)
       End If
-      End
+      End SubRoutine MltPrm
