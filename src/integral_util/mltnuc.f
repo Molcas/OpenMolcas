@@ -20,9 +20,13 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer nAtm, ir, nComp
       Real*8 Chrg(nAtm), Coor(3,nAtm), rNucMm((ir+1)*(ir+2)/2), CoOp(3)
+
+      Integer ip, ix, iy, iz, iAtom
+      Real*8 Temp, CCoMx, CCoMy, CCoMz
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In MltNuc:Coor',' ',Coor,3,nAtm)
@@ -67,4 +71,4 @@
 #endif
       Return
       If (.False.) Call Unused_integer(nComp)
-      End
+      End SubRoutine MltNuc
