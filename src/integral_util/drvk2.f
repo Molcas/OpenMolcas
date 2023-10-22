@@ -29,9 +29,9 @@
 !***********************************************************************
       use setup, only: mSkal
       use iSD_data, only: iSD
-      use k2_arrays, only: DoGrad_, DoHess_, ipZeta, ipiZet, DeDe,
-     &                     ipOffD, Mem_DBLE, Mem_Int, Sew_Scr,
-     &                      Create_BraKet, Destroy_BraKet
+      use k2_arrays, only: DoGrad_, DoHess_, DeDe,
+     &                     ipOffD, Sew_Scr,
+     &                      Create_BraKet, Destroy_BraKet, BraKet
       use Basis_Info, only: Shells, DBSC
       use Symmetry_Info, only: nIrrep, iOper
       use Gateway_global, only: force_part_c
@@ -55,9 +55,9 @@
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
       Integer ik2
       Integer i, j, ixyz, nElem, nabSz, iTri,
-     &        iS, jS, ipAlpha, ipBeta, iShll, jShll, iBas, jBas,
+     &        iS, jS, iShll, jShll, iBas, jBas,
      &        iPrim, jPrim, la_, mabMin_, mabMax_, ne_, nHrrMtrx,
-     &        nScree, mScree, mk2, ipZInv, ipKab, ipP, ipCon, ipInd,
+     &        nScree, mScree, mk2,
      &        MemTmp, iAng, jAng, MemMax, ipMem1, iCmp, jCmp,
      &        iShell, jShell, mdci, mdcj, iCnttp, jCnttp, iCnt, jCnt,
      &        iPrimi, jPrimj, kPrimk, lPriml, nBasi, nBasj,
@@ -148,15 +148,7 @@
       mk2 = 0
 !
 !     Allocate memory for zeta, kappa, and P.
-      ipZInv = ipZeta + S%m2Max
-      ipKab  = ipZInv + S%m2Max
-      ipP    = ipKab  + S%m2Max
-      ipCon  = ipP    + S%m2Max*3
-      ipAlpha= ipCon  + S%m2Max
-      ipBeta = ipAlpha+ S%m2Max
-      ipInd  = ipiZet
-
-      Call Create_BraKet(S%m2Max,0)
+      Call Create_BraKet(S%m2Max,S%m2Max)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -246,7 +238,7 @@
 !
             nZeta = iPrimi * jPrimj
 !
-            Call ConMax(Mem_DBLE(ipCon),iPrimi,jPrimj,
+            Call ConMax(BraKet%Eta(:),iPrimi,jPrimj,
      &                  Shells(iShll)%pCff,nBasi,
      &                  Shells(jShll)%pCff,nBasj)
 !
@@ -331,12 +323,13 @@
      &                  k2data(:,ik2),
      &                  Shells(iShll)%Exp,iPrimi,
      &                  Shells(jShll)%Exp,jPrimj,
-     &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),
+     &                  BraKet%xA(:),BraKet%xB(:),
      &                  Shells(iShll)%pCff,nBasi,
      &                  Shells(jShll)%pCff,nBasj,
-     &                  Mem_DBLE(ipZeta),Mem_DBLE(ipZInv),
-     &                  Mem_DBLE(ipKab),Mem_DBLE(ipP),Mem_INT(ipInd),
-     &                  nZeta,ijInc,Mem_DBLE(ipCon),
+     &                  BraKet%Zeta(:),BraKet%ZInv(:),
+     &                  BraKet%KappaAB(:),BraKet%P(:,:),
+     &                  BraKet%IndZet(:),
+     &                  nZeta,ijInc,BraKet%Eta(:),
      &                  Sew_Scr(ipMem2),Mem2,Cmpct,
      &                  nScree,mScree,mdci,mdcj,
      &                  DeDe(ipDij),nDij,nDCR  ,ijCmp,DoFock,
