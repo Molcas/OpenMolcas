@@ -17,9 +17,13 @@
 !                                                                      *
 !***********************************************************************
       Use Symmetry_Info, only: nIrrep, iOper
+      Implicit None
+      Integer iOp
+
+      Integer iIrrep
       NrOpr=-1
       Do iIrrep = 0, nIrrep - 1
          If (iOp.eq.iOper(iIrrep)) NrOpr=iIrrep
       End Do
       Return
-      End
+      End Function NrOpr
