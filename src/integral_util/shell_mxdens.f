@@ -18,7 +18,11 @@
 !----------------------------------------------------------------------
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+      Integer nSkal
       Real*8 dmax(nskal,nskal),dens(*)
+
+      Integer, external:: nbfshl
+
       ijoff=0
       call fzero(dmax,nskal*nskal)
       Do irp=0,nirrep-1
@@ -45,4 +49,4 @@
         ijoff=ijoff+ie*(ie+1)/2
       End Do
       return
-      end
+      end subroutine Shell_MxDens

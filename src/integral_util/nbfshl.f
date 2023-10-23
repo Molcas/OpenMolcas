@@ -15,10 +15,13 @@
 !***********************************************************************
 !----------------------------------------------------------------------
       Integer Function nbfshl(iSkal,irp)
-      use iSD_data
+      use iSD_data, only: iSD
       use SOAO_Info, only: iAOtSO
 !----------------------------------------------------------------------
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer iSkal, irp
+
+      Integer iAO, iCmp, i
 !
 !  returns number of basis functions for given shell and symmetry
 !
@@ -31,4 +34,4 @@
       End Do
 
       return
-      End
+      End Function nbfshl
