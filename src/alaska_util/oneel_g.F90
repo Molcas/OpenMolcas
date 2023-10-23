@@ -49,6 +49,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use define_af, only: AngTp
 use Disp, only: ChDisp
+use NAC, only: IsCSF
 
 implicit none
 procedure(grd_kernel) :: Kernel
@@ -68,7 +69,6 @@ real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Krnl(:), PCoor
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 #include "print.fh"
-#include "nac.fh"
 
 iRout = 112
 iPrint = nPrint(iRout)

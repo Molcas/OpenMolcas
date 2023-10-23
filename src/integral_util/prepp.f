@@ -30,9 +30,9 @@
       use Constants
       use stdalloc
       use etwas
+      use NAC
       Implicit Real*8 (A-H,O-Z)
 #include "dmrginfo_mclr.fh"
-#include "nac.fh"
 #include "mspdft.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_

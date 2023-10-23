@@ -27,13 +27,13 @@
       use Constants
       use rmat
       use DCR_mod, only: DCR_Init
+      use NAC
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
 #include "pstat.fh"
 #include "twoswi.fh"
 #include "print.fh"
-#include "nac.fh"
       Character(LEN=180) Env
 !                                                                      *
 !***********************************************************************

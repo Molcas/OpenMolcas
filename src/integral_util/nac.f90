@@ -8,9 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical isNAC, DoCSF, isCSF
-      Common /lNAC/ isNAC, DoCSF, isCSF
-      Real*8 Ediff
-      Common /dNAC/ Ediff
-      Integer NACstates(2)
-      Common /iNAC/ NACstates
+Module NAC
+Logical isNAC, DoCSF, isCSF
+Real*8 Ediff
+Integer NACstates(2)
+End Module NAC

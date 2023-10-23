@@ -20,11 +20,11 @@ use Data_Structures, only: Alloc1DArray_Type, Alloc2DArray_Type, Alloc4DArray_Ty
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use NAC, only: isNAC
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 logical(kind=iwp), intent(in) :: StandAlone
-#include "nac.fh"
 integer(kind=iwp) :: iComp, idum(1), iGrdTyp, iOpt, iOption, iPL, iRc, iRMax, iSyLbl, MltOrd, nAtMM, natom, nAtQM, nBas0, nGrdPt, &
                      nInts, nMult, nSize, nSym
 real(kind=wp) :: DeltaR, EnergyCl, RepNuc
