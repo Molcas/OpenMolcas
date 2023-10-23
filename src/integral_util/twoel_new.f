@@ -49,7 +49,7 @@
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: ExFac, Thize, W2Disc, IntOnly=>PreSch
       use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
-      use k2_arrays, only: TwoHam=>pFq, Dens=>pDq, BraKet
+      use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       use Breit, only: nOrdOp, nComp
       use Constants
 #ifdef _DEBUGPRINT_
@@ -591,10 +591,6 @@
      &                        k2data1(lDCR1),
      &                        k2data2(lDCR2),
      &                        nAlpha,nBeta,nGamma,nDelta,
-     &                     Braket%Zeta(:),Braket%ZInv(:),Braket%P(:,:),
-     &                     Braket%KappaAB(:),BraKet%IndZet(:),
-     &                     BraKet%Eta(:),BraKet%EInv(:),Braket%Q(:,:),
-     &                     BraKet%KappaCD(:),BraKet%IndEta(:),
      &                        ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,
      &                        vij,vkl,vik,vil,vjk,vjl,
      &                        Prescreen_On_Int_Only,NoInts,iAnga,
@@ -802,7 +798,7 @@
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: ExFac, Thize, W2Disc, IntOnly=>PreSch
       use Int_Options, only: Disc_Mx, Disc, Quad_ijkl
-      use k2_arrays, only: TwoHam=>pFq, Dens=>pDq, BraKet
+      use k2_arrays, only: TwoHam=>pFq, Dens=>pDq
       use Breit, only: nComp
       use Constants
 #ifdef _DEBUGPRINT_
@@ -1062,10 +1058,6 @@
      &                  k2data1,
      &                  k2data2,
      &                  nAlpha,nBeta,nGamma,nDelta,
-     &                  Braket%Zeta(:),Braket%ZInv(:),Braket%P(:,:),
-     &                  Braket%KappaAB(:),BraKet%IndZet(:),
-     &                  BraKet%Eta(:),BraKet%EInv(:),Braket%Q(:,:),
-     &                  BraKet%KappaCD(:),BraKet%IndEta(:),
      &                  1,1,1,1,1,1,ThrInt,CutInt,
      &                  vij,vkl,vik,vil,vjk,vjl,
      &                  Prescreen_On_Int_Only,NoInts,iAnga,

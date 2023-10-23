@@ -14,8 +14,6 @@
 subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot, &
                   k2data1,k2data2,          &
                   nAlpha,nBeta,nGamma,nDelta, &
-                  Zeta,ZInv,P,KappAB,IndZet,  &
-                  Eta, EInv,Q,KappCD,IndEta,  &
                   ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil, &
                   vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl,nabcd,mabcd,Wrk,iW2, &
                   iW4,nWork2,mWork2,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp,iShll,NoPInts,Dij,mDij,Dkl,mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi, &
@@ -66,6 +64,7 @@ use k2_structure, only:k2_type
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+use k2_arrays, only: BraKet
 
 implicit none
 integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, nAlpha, nBeta, &
@@ -75,9 +74,8 @@ integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_To
 real(kind=wp), intent(in) :: ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), &
                              HMtrxAB(*), HMtrxCD(*), Dij(mDij), Dkl(mDkl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
                              Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
-real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3)
-real(kind=wp), intent(inout) :: KappAB(nZeta), KappCD(nEta), Wrk(nWork2)
-integer(kind=iwp), intent(out) :: IndZet(nZeta), IndEta(nEta), kabcd
+real(kind=wp), intent(inout) :: Wrk(nWork2)
+integer(kind=iwp), intent(out) :: kabcd
 logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
 logical(kind=iwp), intent(inout) :: NoInts, NoPInts, Do_TnsCtl
 integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
@@ -85,6 +83,8 @@ logical(kind=iwp), parameter :: Nospecial = .false.
 external :: TERI, ModU2, vCff2D, vRys2D
 type(k2_type), intent(in) :: k2data1, k2data2
 
+associate( Zeta => BraKet%Zeta, ZInv => BraKet%ZInv, P => BraKet%P, KappAB => BraKet%KappaAB, IndZet => BraKet%IndZet,  &
+           Eta  => BraKet%Eta,  EInv => BraKet%Einv, Q => BraKet%Q, KappCD => BraKet%KappaCD, IndEta => BraKet%IndEta )
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'
 write(u6,*) 'iZeta, nZeta, mZeta, nZeta_Tot=',iZeta,nZeta,mZeta,nZeta_Tot
@@ -185,6 +185,7 @@ write(u6,*) 'nComp,kabcd,iBasi*jBasj*kBask*lBasl=',nComp,kabcd,iBasi*jBasj*kBask
 call RecPrt('DrvRys:(e0|0f)',' ',Wrk(iW4),nComp*kabcd,iBasi*jBasj*kBask*lBasl)
 #endif
 
+end associate
 return
 
 end subroutine DrvRys
