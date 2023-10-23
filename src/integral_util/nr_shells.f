@@ -20,7 +20,10 @@
 !***********************************************************************
       use Basis_Info
       use BasisMode
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer, Intent(Out):: nSkal
+
+      Integer iCnttp, nTest, iCnt, iAng, iShll, nExpi, nBasisi
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -37,7 +40,7 @@
          Call Abend()
       End If
 !
-      If (Atomic) Go To 300
+      Select Case (Atomic)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -47,11 +50,12 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
+      Case (.False.)
       Do iCnttp = 1, nCnttp
          nTest = dbsc(iCnttp)%nVal-1
          Do iCnt = 1, dbsc(iCnttp)%nCntr
 !
-            Do 200 iAng=0, nTest
+            Do iAng=0, nTest
                iShll = dbsc(iCnttp)%iVal + iAng
                nExpi=Shells(iShll)%nExp
                If (nExpi.eq.0) Cycle
@@ -59,22 +63,20 @@
                If (nBasisi.eq.0) Cycle
 !
                If (Basis_Mode.eq.Valence_Mode .and.
-     &             (Shells(iShll)%Aux.or.Shells(iShll)%Frag)) Go To 200
+     &             (Shells(iShll)%Aux.or.Shells(iShll)%Frag)) Cycle
                If (Basis_Mode.eq.Auxiliary_Mode .and.
-     &             .Not.Shells(iShll)%Aux) Go To 200
+     &             .Not.Shells(iShll)%Aux) Cycle
                If (Basis_Mode.eq.Fragment_Mode .and.
-     &             .Not.Shells(iShll)%Frag) Go To 200
+     &             .Not.Shells(iShll)%Frag) Cycle
                If (Basis_Mode.eq.With_Auxiliary_Mode .and.
-     &             Shells(iShll)%Frag) Go To 200
+     &             Shells(iShll)%Frag) Cycle
                If (Basis_Mode.eq.With_Fragment_Mode .and.
-     &             Shells(iShll)%Aux) Go To 200
+     &             Shells(iShll)%Aux) Cycle
                nSkal = nSkal + 1
-!
- 200        Continue                     ! iAng
+              End Do                     ! iAng
          End Do                          ! iCnt
       End Do                             ! iCnttp
 !
-      Return
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -84,25 +86,26 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
- 300  Continue
+      Case (.True.)
 !
       Do iCnttp = kCnttp, lCnttp
       nTest = dbsc(iCnttp)%nVal-1
-      Do 400 iAng=0, nTest
+      Do iAng=0, nTest
          iShll = dbsc(iCnttp)%iVal + iAng
          nExpi=Shells(iShll)%nExp
          If (nExpi.eq.0) Cycle
          nBasisi=Shells(iShll)%nBasis
          If (nBasisi.eq.0) Cycle
 !
-         If (Shells(iShll)%Frag) Go To 400
+         If (Shells(iShll)%Frag) Cycle
          nSkal = nSkal + 1
 !
- 400  Continue                     ! iAng
+      End Do                     ! iAng
       End Do
       If (dbsc(kCnttp)%Aux) nSkal=nSkal+1 ! Add dummy shell
+      End Select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End Subroutine Nr_Shells
