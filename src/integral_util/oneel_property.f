@@ -16,16 +16,21 @@
       use Symmetry_Info, only: nIrrep
       use Integral_Interfaces, only: int_kernel, int_mem,
      &                               OneEl_Integrals
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One
+      use stdalloc, only: mma_deallocate
+      Implicit None
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-      Character Label*8
+      Character(LEN=8) Label
+      Integer nComp, nDens, nOrdOp
       Real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)
       Integer ip(nComp), lOper(nComp), iChO(nComp)
+      Real*8 rHrmt, Sig
+
       Real*8, Allocatable:: Integrals(:)
       Integer, External:: n2Tri
+      Integer LenTot, iComp, iSmLbl, nInt
+      Real*8, external:: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -92,4 +97,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End SubRoutine OneEl_Property

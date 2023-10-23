@@ -19,11 +19,14 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             April '90                                                *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer, Intent(InOut):: i, j
+
+      Integer iTemp
 !
       iTemp = i
       i = j
       j = iTemp
 !
       Return
-      End
+      End Subroutine Swap_Seward

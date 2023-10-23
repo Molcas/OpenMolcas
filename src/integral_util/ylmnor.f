@@ -12,7 +12,7 @@
       use Constants, only: One
       use welcom, only: aNorm, FiInt, TetInt
       Implicit None
-      Integer lmax
+      Integer, Intent(In):: lmax
 
       Integer i, lm2, j, k
       Real*8 Tal
