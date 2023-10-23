@@ -21,9 +21,12 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             June '90                                                 *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nU, nV, iR, nM
       Integer iU(nU), iV(nV), iM(8)
+
       Logical UeqV, RinT_
+      Integer i, iRU
 !
 !     See if U and V are the same
 !
@@ -56,4 +59,4 @@
       End If
 !
       Return
-      End
+      End SubRoutine Stblzr
