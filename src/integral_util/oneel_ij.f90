@@ -38,11 +38,11 @@
       use Constants
       use rmat, only: RMat_Type_Integrals
       use define_af
+      use property_label, only: PLabel
       Implicit Real*8 (a-h,o-z)
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
 #include "Molcas.fh"
-#include "property_label.fh"
       Integer iS, jS, iPrint
       Logical Do_PGamma
       Integer nFinal, nScrtch, nScrSph

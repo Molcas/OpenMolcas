@@ -23,6 +23,7 @@ C
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
       use rmat, only: RMat_Type_Integrals
+      use Property_Label, only: PLabel
       Implicit None
       Integer AB
       Integer l_S
@@ -35,7 +36,6 @@ C
 #include "localdf_bas.fh"
 #include "ldf_oneel.fh"
 #include "ldf_atom_pair_info.fh"
-#include "property_label.fh"
 
       Real*8, Dimension(:), Allocatable :: Scrtch, ScrSph
       Real*8, Dimension(:), Allocatable, Target :: Final, Kern

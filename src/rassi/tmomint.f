@@ -23,6 +23,7 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
 #endif
+      use Property_Label, only: PLabel
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: EMFInt
       Procedure(int_mem) :: EMFMem
@@ -44,7 +45,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "wldata.fh"
-#include "property_label.fh"
 #include "oneswi.fh"
 #include "warnings.h"
       Character*8 Label

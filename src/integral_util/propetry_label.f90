@@ -8,5 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Character*(6) PLabel
-       Common /PLBL/ PLabel
+Module Property_Label
+Character(LEN=6) PLabel
+End Module Property_Label
+
+

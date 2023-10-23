@@ -54,12 +54,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants
       use rmat, only: RMat_Type_Integrals
+      use property_label, only: PLabel
       Implicit Real*8 (A-H,O-Z)
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
       External Rsv_Tsk
-!     Logical Addpot
-#include "property_label.fh"
       Real*8, Allocatable, Target:: Kern(:)
       Integer, Dimension(:,:), Allocatable :: Ind_ij
       Real*8 CoorO(3,nComp), PtChrg(nGrid)
