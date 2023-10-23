@@ -10,8 +10,11 @@
 !***********************************************************************
       Subroutine Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
       use Symmetry_Info, only: iOper, nIrrep
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer iChxyz, nStab, MaxDCR
       Integer jStab(0:7), iCoSet(0:7,0:7)
+
+      Integer iStab, i, j, nMax, iTest, ielem, iTmp, iOpMn, ip
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -85,4 +88,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End Subroutine Stblz
