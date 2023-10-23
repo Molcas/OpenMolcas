@@ -16,27 +16,38 @@
      &                 opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                 PtChrg,nGrid,iAddPot)
       use Basis_Info, only: nBas
-      use PrpPnt
+      use PrpPnt, only: nOcc, nDen, nVec, Occ, Vec
       use Gateway_global, only: PrPrt, Short, IfAllOrb
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: Thrs
       use Symmetry_Info, only: nIrrep
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_inner
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only:  Zero
+      Implicit None
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-      Real*8, Dimension(:), Allocatable :: Out, Nuc, El
-      Real*8, Dimension(:), Allocatable :: Array
-      Character Label*8, LBL*4
-      Character L_Temp*8
+      Character(LEN=8) Label
+      Integer nComp, nOrdOp, nGrid
       Real*8 CoorO(3,nComp), rNuc(nComp), PtChrg(nGrid)
-      Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
-      Integer, External:: n2Tri
+      Real*8 rHrmt
+      Integer ip(nComp), lOper(nComp), iChO(nComp)
       Real*8 opmol(*),opnuc(*)
       Integer iopadr(ncomp,*)
+      Integer idirect, isyop, iAddPot
+
+      Real*8, Dimension(:), Allocatable :: Out, Nuc, El
+      Real*8, Dimension(:), Allocatable :: Array
+      Character(LEN=8) L_Temp
+      Character(LEN=4) LBL
+      Integer iStabO(0:7)
+      Integer, External:: n2Tri
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
+      Integer nIC, llOper, iIrrep, LenTot, LenInt, iAdr, ipAd, mDim,
+     &        ipOut, nInt, ii, lPole, ipC2, iComp, iSmLbl, ipNuc, ipEl,
+     &        jComp, iInd2, iOcc, iEF, iDIsk, iOpt, iRC, iPAMCount,
+     &        iComp_, iInd1, LuTmp, nStabO
+      Real*8 Sum
 
 !                                                                      *
 !***********************************************************************
@@ -328,4 +339,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End SubRoutine OneEl
