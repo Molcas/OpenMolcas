@@ -27,9 +27,14 @@
 !                                                                      *
 !              March 2000                                              *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One
+      Implicit None
+      Integer lmax_
       Real*8 Cavxyz((lMax_+1)*(lMax_+2)*(lMax_+3)/6)
+      Real*8 gx,gy,gz,qa,dax,day,daz
+
+      Integer ix, iy, iz, iOff, Index, lMax
+      Real*8 xeff, xyeff, xyzeff, ax, ay, az
 !
 !---- Statement function
 !
@@ -79,4 +84,4 @@
       End Do
 !
       Return
-      End
+      End Subroutine qlm
