@@ -13,6 +13,7 @@
 #define _CALLING_
 #include "int_wrout_interface.fh"
      &                     )
+      Implicit None
 #include "int_wrout_interface.fh"
       Return
 ! Avoid unused argument warnings
@@ -35,4 +36,4 @@
          Call Unused_real_array(TInt)
          Call Unused_integer(mSym)
       End If
-      End
+      End Subroutine No_Routine
