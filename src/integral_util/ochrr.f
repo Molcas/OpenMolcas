@@ -19,8 +19,14 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             May '90                                                  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Target(nPrim,nTrgt)
+      Implicit None
+      Integer, Intent(In) :: nPrim, nTrgt, la, lb
+      Integer, Intent(Out):: ipRs
+      Real*8, Intent(InOut):: Target(nPrim,nTrgt)
+
+      Integer i, ixyz, ix, iz, nElem, Ind
+      Integer iout, ixb, iyb, izb, ixyzb, iybMax, ixa, iyaMax, ixab,
+     &        iya, iza, izab, ixyza, iTo, iFrom, iab
 !
 !     Statment functions
 !
@@ -50,7 +56,7 @@
                   iTo = iout + nElem(la)*(ixyzb-1) + ixyza
                   iFrom = iab + Ind(la+lb,ixab,izab)
 !
-                  call dcopy_(nPrim,Target(1,iFrom),1,Target(1,iTo),1)
+                  Target(:,iTo) = Target(:,iFrom)
 !
  210           Continue
  200        Continue
@@ -58,4 +64,4 @@
  100  Continue
 !
       Return
-      End
+      End SubRoutine OCHRR
