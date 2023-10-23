@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
       Module Real_Spherical
-      use stdalloc
+      use stdalloc, only: mma_allocate, mma_deallocate
       Private
       Public :: ipSph, RSph, Sphere, Sphere_Free,
      &          Condon_Shortley_phase_factor, lmax_internal,

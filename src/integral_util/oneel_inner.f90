@@ -48,32 +48,42 @@
 !***********************************************************************
       use setup
       use Real_Spherical
-      use iSD_data
+      use iSD_data, only: iSD
       use Basis_Info, only: dbsc
       use Sizes_of_Seward, only: S
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants
       use rmat, only: RMat_Type_Integrals
       use property_label, only: PLabel
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+
+      Implicit None
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-      External Rsv_Tsk
-      Real*8, Allocatable, Target:: Kern(:)
-      Integer, Dimension(:,:), Allocatable :: Ind_ij
+      Character(LEN=8) Label
+      Integer nComp, nOrdOp, ipad, idirect, isyop, nIC, iAddPot, LenTot
+      Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7), nGrid
       Real*8 CoorO(3,nComp), PtChrg(nGrid)
       Real*8 opmol(*),opnuc(*)
+      Real*8 rHrmt
       Integer iopadr(nComp,*)
-      Character Label*8
-      Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
-      Logical Do_PGamma, Rsv_Tsk
-      Integer LenTot
       Real*8 Array(LenTot)
+
+      Logical, External ::Rsv_Tsk
+      Real*8, Allocatable, Target:: Kern(:)
+      Integer, Allocatable :: Ind_ij(:,:)
+      Logical Do_PGamma
 
       Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor,      &
      &                                     SOInt, Scrtch, ScrSph
       Real*8, Allocatable, Target :: FArray(:)
       Integer, External:: n2Tri, MemSO1
+      Integer ixyz, nElem, iPrint, nSkal, nIJS, iS, jS, i, lFinal,      &
+     &        lScrt1, lScrt2, MemKrn, ijS, iPrim, jPrim, iBas, jBas,    &
+     &        iAng, jAng, mFinal, mScrt1, mScrt2, lA0, lB0, MemBux,     &
+     &        MemCux, MemKer, ijSh, iCmp, iAO, iShell, iCnttp, jCmp,    &
+     &        jAO, jShell, jCnttp, nSO, iComp, iSmLbl, ipSO, nStabO,    &
+     &        iSOBlk, mSO, MemAux, lA1, lB1, l_SOInt, id_Tsk, nOrder
+      Real*8 rHrmt_Save
 !
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
