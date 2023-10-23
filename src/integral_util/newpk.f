@@ -26,11 +26,14 @@
 !             June '91, modified for k2 loop.                          *
 !             January '92, modified for gradient calculations.         *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One, TwoP54
+      Implicit None
+      Integer mZeta, nZeta
       Real*8 Alpha(nZeta), Beta(nZeta), A(3), B(3), P(nZeta,3),
      &       rKappa(nZeta)
 !
+      Real*8 AB2, Tmp0, Tmp1
+      Integer iZeta
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In NewPK:Alpha',' ',Alpha,mZeta,1)
       Call RecPrt(' In NewPK:Beta',' ',Beta,mZeta,1)
@@ -61,4 +64,4 @@
 #endif
 !
       Return
-      End
+      End SubRoutine NewPK
