@@ -22,22 +22,29 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, Sweden, January 1991                            *
 !***********************************************************************
-      use Basis_Info
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Basis_Info, only: Nuclear_Model, Gaussian_Type,
+     &                      mGaussian_Type, DBSC, Point_Charge
+      use Constants, only: Zero, One, Two, Three, Pi, TwoP54
+      Implicit None
 !     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
 !     Used for finite nuclei
       External TERI, ModU2, vCff2D, vRys2D
 #include "oneswi.fh"
+      Integer nZeta, la, lb, nComp, nAlpha, nBeta, nArr, nRys, nOrdOp
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,2),
      &       Array(nZeta*nArr)
+
 !-----Local arrys
       Real*8 C(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4)
+      Integer ixyz, nElem, nabSz, lc, ld, mabMin, mabMax, iZeta,
+     &        iCnttp, nT, mcdMin, mcdMax, ipOff, mArr, ipIn, nFlop,
+     &        nMem
+      Real*8 Q_Nuc, Eta, EInv, rKappCD
 !
 !     Statement function for Cartesian index
 !
@@ -219,4 +226,4 @@
          Call Unused_integer(nRys)
          Call Unused_integer(nOrdOp)
       End If
-      End
+      End SubRoutine NAPrm
