@@ -9,8 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine poti(k,ipot3)
-      Implicit Real*8(A-H,O-Z)
+      Implicit None
       Integer ipot3(0:15)
+      Integer k
+
+      Integer iSum, i
 !
       isum=1
       ipot3(0)=1
@@ -21,4 +24,4 @@
       ipot3(k+1)=isum
 !
       Return
-      End
+      End Subroutine poti
