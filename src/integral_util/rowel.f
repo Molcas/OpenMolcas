@@ -19,11 +19,15 @@
 ! Lund                                                                 *
 ! Sweden                                                               *
 !***********************************************************************
-      use Constants
-      use welcom
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, Only: One
+      use welcom, only: Fac, ipot3
+      Implicit None
+      Integer nZeta, jSum, k
       Real*8 gri(nZeta*jsum), alpha(nZeta), a(nZeta),
      &       grin((k+1)*(k/2+1)*(k/4+1)*nZeta), P(nZeta,3)
+      Real*8 r0, Beta
+
+      Integer iZeta, i, iSum
 !
 !
       Call poti(k,ipot3)
@@ -48,4 +52,4 @@
       Call priwel(k,alpha,beta,r0,a,gri,nZeta,isum,grin)
 !     Call RecPrt('Internal well integrals',' ',gri,nZeta,isum)
       Return
-      End
+      End Subroutine Rowel
