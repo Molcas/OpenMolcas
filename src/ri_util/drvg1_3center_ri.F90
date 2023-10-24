@@ -86,7 +86,7 @@ character(len=80) :: KSDFT
 character(len=72) :: frmt
 character(len=50) :: CFmt
 character(len=8) :: Method
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, FreeK2, Indexation, JfGrad(3,4), No_Batch, Shijij, &
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, Indexation, JfGrad(3,4), No_Batch, Shijij, &
                      is_error, ReadBPT2
 integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
@@ -853,8 +853,7 @@ call mma_deallocate(TMax_Valence)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-FreeK2 = .true.
-call Term_Ints(FreeK2)
+call Term_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

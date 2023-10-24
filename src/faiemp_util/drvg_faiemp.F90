@@ -53,7 +53,7 @@ integer(kind=iwp) :: iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4
                      mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, &
                      nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
 logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, &
-                     FreeK2, Triangular, lNoSkip
+                     Triangular, lNoSkip
 character(len=72) :: formt
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: ij(:)
@@ -359,8 +359,7 @@ call mma_deallocate(TMax)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-FreeK2 = .true.
-call Term_Ints(FreeK2)
+call Term_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

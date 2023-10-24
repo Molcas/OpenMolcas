@@ -19,15 +19,13 @@ C
       Implicit None
       Integer nShell_Valence, nShell_Auxiliary
 
-      Logical Free_K2
       Logical Indexation, DoFock, DoGrad
       Integer nShell_Tot
       Real*8  ThrAO
 
       Call Free_iSD()
       ! Essentially close seward
-      Free_K2=.True.
-      Call Term_Ints(Free_K2)
+      Call Term_Ints()
       Call Free_iSD()
 
       ! Get number of valence shells
@@ -38,8 +36,7 @@ C
       DoFock=.False.
       DoGrad=.False.
       Call Setup_Ints(nShell_Valence,Indexation,ThrAO,DoFock,DoGrad)
-      Free_K2=.True.
-      Call Term_Ints(Free_K2)
+      Call Term_Ints()
       Call Free_iSD()
 
       ! Set up seward for val+aux shells w. indexation

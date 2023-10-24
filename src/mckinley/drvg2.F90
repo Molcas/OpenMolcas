@@ -968,7 +968,7 @@ call mma_deallocate(iInt)
 
 call mma_deallocate(Aux)
 
-Call Term_Ints(.True.)
+Call Term_Ints()
 
 if (allocated(ipDisp)) call mma_deallocate(ipDisp)
 if (allocated(ipDisp2)) call mma_deallocate(ipDisp2)

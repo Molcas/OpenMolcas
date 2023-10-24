@@ -75,7 +75,7 @@ C
 
       ! Terminate integral setup and free shell tables
       If (TermInts) Then
-         Call Term_Ints(.True.)
+         Call Term_Ints()
          Call Free_iSD()
       End If
 

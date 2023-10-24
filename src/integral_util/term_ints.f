@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1998, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Term_Ints(Free_K2)
+      Subroutine Term_Ints()
 !***********************************************************************
 !                                                                      *
 !     Object: to deallocate memory in association with two-electron    *
@@ -24,8 +24,6 @@
       use iSD_Data
       use stdalloc, only: mma_deallocate
       Implicit Real*8 (A-H,O-Z)
-!
-      Logical Free_K2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -57,7 +55,7 @@
 !                                                                      *
 !---- Free memory for K2 data
 !
-      If (Free_K2) Call FreeK2()
+      Call FreeK2()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

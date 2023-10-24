@@ -26,7 +26,7 @@
 !
       If (.NOT.Seward_Activated) Return
 !
-      Call Term_Ints(.True.)
+      Call Term_Ints()
       Call Free_RctFld(iXPolType)
       Call Free_HerRW()
       Call Sphere_Free()

@@ -86,8 +86,6 @@ call mma_deallocate(Den)
 call mma_deallocate(CSh)
 call mma_deallocate(DSh)
 call mma_deallocate(XSh)
-DoF = .false.
-DoG = .false.
-call Term_Ints(DoF,DoG)
+call Term_Ints()
 
 end subroutine BitMap_Localisation

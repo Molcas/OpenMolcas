@@ -41,7 +41,7 @@ real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
 real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, TMax_all, TskHi, TskLw, TWall1, &
                  Twall2
-logical(kind=iwp) :: Indexation, FreeK2, DoGrad, Triangular
+logical(kind=iwp) :: Indexation, DoGrad, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1
@@ -214,8 +214,7 @@ call mma_deallocate(TMax)
 !                                                                      *
 ! Terminate integral environment.
 
-FreeK2 = .true.
-call Term_Ints(FreeK2)
+call Term_Ints()
 call Free_iSD()
 call Init_Int_Options()
 

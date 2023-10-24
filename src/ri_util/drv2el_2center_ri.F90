@@ -55,7 +55,7 @@ integer(kind=iwp), allocatable, intent(out) :: SO2C(:)
 integer(kind=iwp) :: i, iAddr, iAddr_AQ(0:7), iCenter, iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, &
                      lS, mB, MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
 real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation
+logical(kind=iwp) :: DoFock, DoGrad, Indexation
 character(len=6) :: Name_Q
 real(kind=wp), allocatable :: TInt(:), TMax(:), Tmp(:,:)
 procedure(int_wrout) :: Integral_RI_2
@@ -248,8 +248,7 @@ call mma_deallocate(SO2Ind)
 !                                                                      *
 ! Terminate integral environment.
 
-FreeK2 = .true.
-call Term_Ints(FreeK2)
+call Term_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

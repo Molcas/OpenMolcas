@@ -56,7 +56,7 @@ integer(kind=iwp), intent(out) :: nTInt, LuA
 logical(kind=iwp), intent(out) :: In_Core
 integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, iWROpt_Save, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, &
                      MemLow, MemSew, MemT, mTInt, mTInt2, nBfn, nBfn_i, nBfn_j, nBfn_k, nBfn_l, nij, nIrrep_Save, nSkal, nTInt2
-logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, FreeK2, Indexation, Only_DB, Out_of_Core
+logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, Indexation, Only_DB, Out_of_Core
 integer(kind=iwp), allocatable :: IJInd(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -336,8 +336,7 @@ call mma_deallocate(IJInd)
 !                                                                      *
 ! Terminate integral environment.
 
-FreeK2 = .true.
-call Term_Ints(FreeK2)
+call Term_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

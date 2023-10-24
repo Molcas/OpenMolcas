@@ -40,7 +40,7 @@ integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp) :: i, iCnt, iCnttp, iComp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, j, jS, klS, kS, lOper, lS, maxDens, mdc, &
                      mDens, nBas_Valence(0:7), nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, nSkal_Valence
 real(kind=wp) :: A_int, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TInt(nTInt), TMax_all, TWall1, TWall2
-logical(kind=iwp) :: DoGrad, EnergyWeight, FreeK2, Indexation, lNoSkip
+logical(kind=iwp) :: DoGrad, EnergyWeight, Indexation, lNoSkip
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable, target :: Dens(:), Fock(:)
@@ -301,8 +301,7 @@ call mma_deallocate(TMax)
 !                                                                      *
 !     Terminate integral environment.
 
-FreeK2 = .true.
-call Term_Ints(FreeK2)
+call Term_Ints()
 
 call Free_DeDe(Dens,Fock,nBT)
 
