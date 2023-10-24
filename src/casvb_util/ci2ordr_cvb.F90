@@ -14,11 +14,10 @@
 
 subroutine ci2ordr_cvb(civec,cvbdet,evbdet)
 
-use casvb_global, only: nfrag, vbdet
+use casvb_global, only: ndet, ndetvb, nfrag, vbdet
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet), cvbdet(ndetvb), evbdet(*)
 real(kind=wp) :: dum
 

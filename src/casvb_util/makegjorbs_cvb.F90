@@ -16,12 +16,11 @@ subroutine makegjorbs_cvb(orbs)
 ! Construct Gauss-Jordan factorizations of ORBS, ORBS transpose,
 ! and overlap matrix corresonding to ORBS:
 
-use casvb_global, only: gjorb, gjorb2, gjorb3
+use casvb_global, only: gjorb, gjorb2, gjorb3, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb)
 real(kind=wp), allocatable :: owrk(:,:)
 

@@ -19,12 +19,11 @@
 !***********************************************************************
 subroutine gaussj_cvb(orbs,gjorb)
 
-use casvb_global, only: gjorb_type
+use casvb_global, only: gjorb_type, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb)
 type(gjorb_type) :: gjorb
 integer(kind=iwp) :: i

@@ -23,7 +23,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "ddasonc_interface.fh"
-#include "main_cvb.fh"
 integer(kind=iwp) :: ivec
 
 #include "macros.fh"

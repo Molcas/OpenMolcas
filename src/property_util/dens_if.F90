@@ -18,6 +18,7 @@ subroutine Dens_IF(i_root,CA,CB,OCCA,OCCB)
 !
 ! EAW 990118
 
+use casvb_global, only: ifvb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -33,7 +34,6 @@ real(kind=wp), allocatable :: AM1(:,:), AM2(:,:), C(:), DA(:), DB(:), DS(:), DT(
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "casvb.fh"
 
 call mma_allocate(DS,NACPAR,label='DS')
 call mma_allocate(DT,NACPAR,label='DT')

@@ -14,10 +14,10 @@
 
 subroutine mkvbinfo_cvb()
 
-use casvb_global, only: iapr, ibpr, iconfs, idetvb, ixapr, ixbpr, nconfion_fr, nfrag
+use casvb_global, only: iapr, ibpr, iconfs, idetvb, ixapr, ixbpr, nalf, nbet, nconf, nconfion_fr, nda, ndb, ndetvb, nel, nfrag, &
+                        noe, norb
 
 implicit none
-#include "main_cvb.fh"
 
 if (nfrag > 1) then
   call dpgendet_cvb()

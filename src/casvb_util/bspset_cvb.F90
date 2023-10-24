@@ -14,13 +14,12 @@
 
 subroutine bspset_cvb(kbasis1,ic,need)
 
-use casvb_global, only: ikcoff
+use casvb_global, only: ikcoff, nel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: kbasis1, ic, need
-#include "main_cvb.fh"
 integer(kind=iwp), allocatable :: kcoff(:,:,:)
 
 if (ic == 1) then

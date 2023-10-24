@@ -14,10 +14,10 @@
 
 subroutine change1_cvb()
 
+use casvb_global, only: kbasis, mnion, mxion, nalf, nbet, nconf, ndetvb, nel, norb, nvb
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 logical(kind=iwp) :: changed
 integer(kind=iwp), external :: nvb_cvb
 logical(kind=iwp), external :: chpcmp_cvb ! ... Change of dimensioning variables ...

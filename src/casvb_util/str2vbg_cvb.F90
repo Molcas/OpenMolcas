@@ -39,11 +39,11 @@
 
 subroutine str2vbg_cvb(cvb,cvbdet)
 
-use casvb_global, only: aikcof, i2s_fr, idetvb, nalf_fr, nconfion_fr, ndetvb_fr, nel_fr, nfrag, nMs_fr, nS_fr, nvb_fr
+use casvb_global, only: absym, aikcof, i2s_fr, idetvb, kbasiscvb, nalf_fr, nconfion_fr, ndetvb, ndetvb_fr, nel_fr, nfrag, nMs_fr, &
+                        nS_fr, nvb, nvb_fr
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvb(nvb), cvbdet(ndetvb)
 integer(kind=iwp) :: idetvb_add, ifrag, ioffs_cvb, ioffs_cvbdet, kbs
 

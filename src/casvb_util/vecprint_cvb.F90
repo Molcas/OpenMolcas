@@ -15,13 +15,12 @@
 subroutine vecprint_cvb(a,n)
 ! Prints vector A
 
-use casvb_global, only: formMXP5, formMXP6
+use casvb_global, only: formMXP5, formMXP6, iprec, iwidth
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: n
 real(kind=wp) :: a(n)
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, ibegin, iend, iform, nbuf
 integer(kind=iwp), parameter :: mxbuf = 8
 

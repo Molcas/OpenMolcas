@@ -15,11 +15,11 @@
 subroutine updvec_cvb(upd,iorb,jorb,niprev,iprev,orbs,north,corth)
 ! Find update for IORB as projection of JORB on allowed space
 
+use casvb_global, only: niorth, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: upd(norb), orbs(norb,norb), corth(norb,niorth)
 integer(kind=iwp) :: iorb, jorb, niprev, iprev(niprev), north(norb)
 integer(kind=iwp) :: i, io, ncon, noffort

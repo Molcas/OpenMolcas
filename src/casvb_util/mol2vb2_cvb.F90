@@ -14,11 +14,12 @@
 
 subroutine mol2vb2_cvb(vecvb,vecmol,isyml,fac,iwr,nsa,nsb)
 
+use Symmetry_Info, only: Mul
+use casvb_global, only: mxirrep, nda, ndet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: vecvb(ndet), vecmol(*), fac
 integer(kind=iwp) :: isyml, iwr, nsa, nsb
 integer(kind=iwp) :: idet, indbet, indx, ioffsa, ioffsb, is, isa, isb, isyma, isymb, nnsa, nnsb, nstra(mxirrep), nstrb(mxirrep)
@@ -32,7 +33,7 @@ call indxab_cvb(indxa,indxb,nstra,nstrb,nsa,nsb)
 ! Now loop casvb -> molcas
 idet = 0
 do isyma=1,mxirrep
-  isymb = md2h(isyma,isyml)
+  isymb = Mul(isyma,isyml)
   nnsa = nstra(isyma)
   nnsb = nstrb(isymb)
   if ((nnsa <= 0) .or. (nnsb <= 0)) cycle

@@ -14,20 +14,19 @@
 
 subroutine gr_evb1_cvb(civbh,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
 
-use casvb_global, only: f1, f2, f3, f4, ww
-use Constants, only: One
+use casvb_global, only: f1, f2, f3, f4, ndet, ndetvb, norb, npr, ovraa, ww
+use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
 real(kind=wp) :: civbh(0:ndet), civbs(0:ndet), civb(0:ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), &
                  vec1(*)
 integer(kind=iwp) :: i
 
 f1 = One/ovraa
-f2 = -two*f1*f1*ww
-f1 = two*f1
+f2 = -Two*f1*f1*ww
+f1 = Two*f1
 f3 = -f1*f1
 f4 = -f1*f3*ww
 

@@ -14,12 +14,10 @@
 
 subroutine main_cvb()
 
-use casvb_global, only: casvb_free
+use casvb_global, only: casvb_free, endvar, ifinish, ioptc_new, ipr, nmcscf, nort, service, variat
 use Definitions, only: iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: i
 logical(kind=iwp), external :: loopcntr_iterate_cvb, up2date_cvb ! ... Make: up to date? ...
 
@@ -40,17 +38,17 @@ call loopcntr_init_cvb(2,.false.)
 do while (loopcntr_iterate_cvb())
   call input_cvb()
 
-  if (variat .and. (.not. endvar) .and. (ip(6) < 2)) then
+  if (variat .and. (.not. endvar) .and. (ipr(6) < 2)) then
     ! Reduce output level for main variational iterations:
     do i=1,10
-      ip(i) = -1
+      ipr(i) = -1
     end do
   end if
 
   if (endvar .and. (.not. up2date_cvb('PRTSUM'))) then
     ! End of variational calculation
-    if (ip(1) >= 0) write(u6,'(/,a)') ' CASVB -- summary of results :'
-    if (ip(1) >= 0) write(u6,'(a)') ' -----------------------------'
+    if (ipr(1) >= 0) write(u6,'(/,a)') ' CASVB -- summary of results :'
+    if (ipr(1) >= 0) write(u6,'(a)') ' -----------------------------'
     call make_cvb('PRTSUM')
   end if
 

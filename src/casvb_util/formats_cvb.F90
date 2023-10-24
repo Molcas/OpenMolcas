@@ -15,12 +15,10 @@
 subroutine formats_cvb()
 
 use casvb_global, only: form2AD, form2AF, formAD, formAF, formChk1, formChk2, formChk3, formcvp, formE, formMXP1, formMXP2, &
-                        formMXP3, formMXP4, formMXP5, formMXP6, formroot, formSymW, formVBWnorm
+                        formMXP3, formMXP4, formMXP5, formMXP6, formroot, formSymW, formVBWnorm, iprec
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: ix1, ix2, lenfld
 
 lenfld = 4+iprec

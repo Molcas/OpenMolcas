@@ -14,13 +14,12 @@
 
 subroutine mxprintd_cvb(a,nrow,ncol,itype)
 
-use casvb_global, only: formMXP1, formMXP2, formMXP3, formMXP4
+use casvb_global, only: formMXP1, formMXP2, formMXP3, formMXP4, iprec, iwidth
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: a(*)
 integer(kind=iwp) :: nrow, ncol, itype
-#include "print_cvb.fh"
 integer(kind=iwp), parameter :: mxbuf = 8
 integer(kind=iwp) :: i, ibuf(mxbuf), iform, ii, ind, j, jend, jin, k, nbuf
 real(kind=wp) :: buffer(mxbuf)

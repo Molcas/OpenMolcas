@@ -14,14 +14,13 @@
 
 subroutine stat2_cvb()
 
+use casvb_global, only: cpu0, cpu_prev, endvar, ipr, n_2el, n_applyh, n_applyt, n_cihess, n_hess, n_orbhess
 use Definitions, only: wp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 real(kind=wp), external :: tim_cvb
 
-if (ip(3) >= 1) then
+if (ipr(3) >= 1) then
   write(u6,'(/,a,i16)') ' Total number of structure transformations :',n_applyt
   write(u6,'(a,i17)') ' Total number of Hamiltonian applications :',n_applyh
   write(u6,'(a,i11)') ' Total number of 2-electron density evaluations :',n_2el

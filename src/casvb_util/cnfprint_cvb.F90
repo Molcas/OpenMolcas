@@ -14,21 +14,18 @@
 
 subroutine cnfprint_cvb()
 
-use casvb_global, only: nconf_fr, ndetvb_fr, nel_fr, nfrag, nvbr_fr
+use casvb_global, only: ipr, nconf, nconf_fr, ndetvb_fr, nel, nel_fr, nfrag, noe, norb, nvbr_fr, recinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, idum(1), ifrag, ioffs, nconf_off
 integer(kind=iwp), allocatable :: scr(:)
 logical(kind=iwp), external :: recinpcmp_cvb, up2date_cvb ! ... Make: up to date? ...
 
 if (recinpcmp_cvb(4)) call touch_cvb('CNFPRINT')
 
-if ((ip(1) >= 0) .and. (.not. up2date_cvb('CNFPRINT'))) then
+if ((ipr(1) >= 0) .and. (.not. up2date_cvb('CNFPRINT'))) then
   call mma_allocate(scr,max(noe,noe*nconf),label='scr')
   call rdioff_cvb(1,recinp,ioffs)
   call rdis_cvb(idum,1,recinp,ioffs)

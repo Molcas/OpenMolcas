@@ -14,15 +14,13 @@
 
 subroutine symtrizorbs_cvb(orbs)
 
-use casvb_global, only: corth, formAD, ifxorb, iorts, irels, north, relorb
+use casvb_global, only: corth, formAD, ifxorb, iorts, ipr, irels, nijrel, norb, nort, north, relorb
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Four
+use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb)
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, icon, ioffs, iok, iorb, iorbmax, iort, iortorb, irel, j, jorb, jorbmax, jortorb, niprev, njprev, nortorb
 real(kind=wp) :: a, b, c, c1, c2, cnrmi, cnrmj, cpm, cpp, d, discrpm, discrpp, dum(1), faci, facj, s, s1, s2, s3, smax, sovr
 integer(kind=iwp), allocatable :: ihlp(:), ihlp2(:), ihlp3(:), iprev(:), jprev(:)
@@ -150,8 +148,8 @@ do iortorb=1,nortorb
           c = sovr
           discrpp = b*b-four*a*c
           if (discrpp >= Zero) then
-            c1 = (-b+sqrt(discrpp))/(two*a)
-            c2 = (-b-sqrt(discrpp))/(two*a)
+            c1 = (-b+sqrt(discrpp))/(Two*a)
+            c2 = (-b-sqrt(discrpp))/(Two*a)
             if (abs(c1) < abs(c2)) cpp = c1
             if (abs(c2) <= abs(c1)) cpp = c2
           else
@@ -161,8 +159,8 @@ do iortorb=1,nortorb
           b = s1-s2
           discrpm = b*b-four*a*c
           if (discrpm >= Zero) then
-            c1 = (-b+sqrt(discrpm))/(two*a)
-            c2 = (-b-sqrt(discrpm))/(two*a)
+            c1 = (-b+sqrt(discrpm))/(Two*a)
+            c2 = (-b-sqrt(discrpm))/(Two*a)
             if (abs(c1) < abs(c2)) cpm = c1
             if (abs(c2) <= abs(c1)) cpm = c2
           else
@@ -236,7 +234,7 @@ do iort=1,nort
     jorbmax = jorb
   end if
 end do
-if ((ip(3) >= 2) .and. (smax > 1.0e-10_wp)) then
+if ((ipr(3) >= 2) .and. (smax > 1.0e-10_wp)) then
   write(u6,'(a,2i3)') ' Maximum overlap for orthogonalized orbitals :',iorbmax,jorbmax
   write(u6,formAD) ' Value : ',ddot_(norb,orbs(1,iorbmax),1,orbs(1,jorbmax),1)
 end if

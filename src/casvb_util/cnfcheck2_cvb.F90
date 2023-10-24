@@ -14,11 +14,11 @@
 
 subroutine cnfcheck2_cvb(iconfs,nconf1,nel1)
 
+use casvb_global, only: noe, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
 integer(kind=iwp) :: i, iconf, ii, iorb, jconf, nsum
 logical(kind=iwp) :: found, locc, locc_only, lorbs, lorbs_only

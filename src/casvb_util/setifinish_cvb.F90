@@ -14,11 +14,11 @@
 
 subroutine setifinish_cvb(icode)
 
+use casvb_global, only: ifinish
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: icode
-#include "main_cvb.fh"
 
 if (icode == 1) then
   ifinish = 0

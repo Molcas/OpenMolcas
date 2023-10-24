@@ -14,13 +14,12 @@
 
 subroutine chop4_cvb()
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, civbvecs, ndres_ok, release
+use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, civbvecs, ifinish, iform_ci, lcalccivbs, lcalcevb, &
+                        lcalcsvb, lciweights, memplenty, ndres, ndres_ok, nv, release
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "casinfo_cvb.fh"
 integer(kind=iwp) :: iv
 
 if (release(4)) then

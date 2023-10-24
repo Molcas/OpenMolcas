@@ -16,11 +16,11 @@
 !IFG trivial
 subroutine setcnt2_cvb(ident_ci,idep1)
 
+use casvb_global, only: icnt_ci
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ident_ci, idep1
-#include "main_cvb.fh"
 
 icnt_ci(ident_ci) = idep1
 

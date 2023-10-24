@@ -14,10 +14,10 @@
 
 subroutine change2_cvb()
 
+use casvb_global, only: kbasis, kbasiscvb, mxnvb, norb
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: nvb_alloc
 logical(kind=iwp) :: changed
 integer(kind=iwp), external :: nvb_cvb

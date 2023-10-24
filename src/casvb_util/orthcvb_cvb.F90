@@ -14,13 +14,12 @@
 
 subroutine orthcvb_cvb(c,nparm1)
 
-use casvb_global, only: cvb, cvbnrm_fr, nfrag, nvb_fr
+use casvb_global, only: cvb, cvbnrm, cvbnrm_fr, nfrag, nprvb, nvb_fr
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: c(*)
 integer(kind=iwp) :: nparm1
-#include "main_cvb.fh"
 integer(kind=iwp) :: ifr_off, ifrag, ioffs
 real(kind=wp), external :: ddot_
 

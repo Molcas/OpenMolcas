@@ -20,10 +20,10 @@
 !***********************************************************************
 subroutine ciweight_cvb(civec,civbs,civb,citmp,vec5,orbs,sorbs,orbinv,owrk)
 
+use casvb_global, only: nalf, nbet, ndet, nel, norb
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet), civbs(0:ndet), civb(0:ndet), citmp(0:ndet), vec5(0:ndet), orbs(norb,norb), sorbs(norb,norb), &
                  orbinv(norb,norb), owrk(norb,norb)
 integer(kind=iwp) :: ion, ionmax, ionmin, iretval1, iretval2, mxasg, mxdetcas, mxrem, mxsng, ncnfcas

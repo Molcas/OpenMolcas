@@ -33,11 +33,10 @@
 
 subroutine vb2cic_cvb(cvbdet,civec)
 
-use casvb_global, only: iapr, ixapr, nfrag, vbdet
+use casvb_global, only: iapr, iform_ci, ixapr, ndet, ndetvb, nfrag, vbdet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvbdet(ndetvb), civec(0:ndet)
 integer(kind=iwp) :: ic, icivec
 real(kind=wp) :: dum

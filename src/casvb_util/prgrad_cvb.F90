@@ -14,17 +14,16 @@
 
 subroutine prgrad_cvb(grad,n)
 
+use casvb_global, only: ipr, norb, nprorb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: n
 real(kind=wp) :: grad(n)
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 real(kind=wp), allocatable :: tmp(:,:)
 
-if (ip(3) < 2) return
+if (ipr(3) < 2) return
 call mma_allocate(tmp,norb,norb,label='tmp')
 call mxunfold_cvb(grad,tmp,norb)
 write(u6,'(/,a)') ' Orbital gradient :'

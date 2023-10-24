@@ -24,12 +24,11 @@
 subroutine permvb_cvb(v1,iperm)
 ! Permutes orbitals in V1 according to IPERM.
 
-use casvb_global, only: iapr, ixapr
+use casvb_global, only: iapr, ixapr, nda, ndet, ndetvb, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: v1(0:ndet)
 integer(kind=iwp) :: iperm(norb)
 integer(kind=iwp) :: ialg, mavailr, v2len

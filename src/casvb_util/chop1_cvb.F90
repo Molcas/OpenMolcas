@@ -14,15 +14,15 @@
 
 subroutine chop1_cvb()
 
-use casvb_global, only: i1alf, i1bet, i1c, ia12ind, iafrm, iapr, iapr1, iato, ib12ind, ibfrm, ibpr, ibpr1, ibto, icfrm, iconfs, &
-                        icto, idetvb, ixapr, ixapr1, ixbpr, ixbpr1, nalf_fr, nbet_fr, nda_fr, ndb_fr, ndetvb_fr, nfrag, phato, &
-                        phbto, phcto, release
+use casvb_global, only: absym, i1alf, i1bet, i1c, ia12ind, iafrm, iapr, iapr1, iato, ib12ind, ibfrm, ibpr, ibpr1, ibto, icfrm, &
+                        iconfs, icto, idetvb, ixapr, ixapr1, ixbpr, ixbpr1, n1a, n1b, nalf, nalf_fr, nam1, naprodvb, nbet, &
+                        nbet_fr, nbm1, nbprodvb, ncivb, nconf, nda, nda_fr, ndb, ndb_fr, ndet, ndetvb, ndetvb_fr, nel, nfrag, noe, &
+                        norb, npvb, phato, phbto, phcto, release
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-integer(kind=iwp) :: i, ifrag
+integer(kind=iwp) :: i, ifrag, ndavb, ndbvb
 
 if (release(1)) then
   call mma_deallocate(i1alf)
@@ -95,20 +95,17 @@ ndavb = 0
 ndbvb = 0
 naprodvb = 1
 nbprodvb = 1
-nvbprod = 1
 npvb = 1
 do ifrag=1,nfrag
   ndavb = ndavb+nda_fr(1,ifrag)+1
   ndbvb = ndbvb+ndb_fr(1,ifrag)+1
   naprodvb = naprodvb*nda_fr(1,ifrag)
   nbprodvb = nbprodvb*ndb_fr(1,ifrag)
-  nvbprod = nvbprod*ndetvb_fr(ifrag)
   npvb = npvb*ndetvb_fr(ifrag)
 end do
 if (nfrag <= 1) then
   naprodvb = 0
   nbprodvb = 0
-  nvbprod = 0
 end if
 
 call mma_allocate(iapr,npvb,label='iapr')

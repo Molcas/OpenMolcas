@@ -14,19 +14,21 @@
 
 subroutine change4_cvb()
 
-use casvb_global, only: ifhamil, ndres_ok
+use casvb_global, only: endvar, iciweights, icrit, ifhamil, ifinish, imethod, lcalccivbs, lcalcevb, lcalcsvb, lciweights, &
+                        memplenty, nalf, nbet, nda, ndb, ndet, ndres, ndres_ok, norb, npcf, nv, variat
 use Constants, only: Ten
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "casinfo_cvb.fh"
 integer(kind=iwp) :: icase, icritold, ifin_old, mavailr
+real(kind=wp) :: strtcas
 logical(kind=iwp) :: changed
 logical(kind=iwp), external :: chpcmp_cvb, &  ! ... Change of dimensioning variables ...
                                ifcasci_cvb, & ! ... Files available ...
                                up2date_cvb    ! ... Make: up to date? ...
+
+! This was in a common block, but never initialized or used elsewhere
+strtcas = 0
 
 changed = .false.
 ! CI vectors

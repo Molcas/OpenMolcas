@@ -25,10 +25,10 @@ subroutine cird_cvb(cvec,recn)
 !*                                                                     *
 !***********************************************************************
 
+use casvb_global, only: icnt_ci, iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvec(0:ndet), recn
 integer(kind=iwp) :: idum(1), iformat, ioffs, ivec
 

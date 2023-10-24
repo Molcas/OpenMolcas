@@ -14,20 +14,19 @@
 
 subroutine gr_svb1_cvb(civecp,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
 
-use casvb_global, only: aa1, aa2, oaa2, oaa3, ovrab
-use Constants, only: One, Three, Four
+use casvb_global, only: aa1, aa2, ndet, ndetvb, norb, npr, oaa2, oaa3, ovraa, ovrab
+use Constants, only: One, Two, Three, Four
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
 real(kind=wp) :: civecp(0:ndet), civbs(0:ndet), civb(0:ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), &
                  vec1(*)
 integer(kind=iwp) :: i
 
 aa1 = One/sqrt(ovraa)
-aa2 = -aa1/(two*ovraa)
-oaa2 = two*ovrab*aa2
+aa2 = -aa1/(Two*ovraa)
+oaa2 = Two*ovrab*aa2
 oaa3 = Three*ovrab*aa1/(Four*ovraa*ovraa)
 
 call fzero(gradx,norb*norb)
@@ -38,7 +37,7 @@ call mkgrd_cvb(civb,civecp,grad2,dvbdet,npr,.true.)
 
 do i=1,npr
   vec1(i) = aa1*grad2(i)+oaa2*grad1(i)
-  grad1(i) = two*grad1(i)
+  grad1(i) = Two*grad1(i)
 end do
 call prgrad_cvb(vec1,npr)
 

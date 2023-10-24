@@ -17,12 +17,11 @@ subroutine asonc10_cvb( &
 #                      include "ddasonc_interface.fh"
                       )
 
-use casvb_global, only: ipp, iter
+use casvb_global, only: cpu0, ipp, iter
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddasonc_interface.fh"
-#include "main_cvb.fh"
 integer(kind=iwp) :: ivec
 real(kind=wp), external :: tim_cvb
 

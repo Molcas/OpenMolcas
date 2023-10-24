@@ -14,13 +14,12 @@
 
 subroutine hess_evb1_cvb(orbs,civbh,citmp,civb,sorbs,owrk,dvbdet,grad1,grad2,hessorb,vec1,iorts,hessinp,hessout)
 
-use casvb_global, only: f1, f2, f3, f4, nfrag
+use casvb_global, only: f1, f2, f3, f4, n_cihess, n_orbhess, ndet, ndetvb, nfrag, norb, nort, npr, nprorb, nprvb, nvb, strucopt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
 real(kind=wp) :: orbs(norb,norb), civbh(0:ndet), citmp(0:ndet), civb(0:ndet), sorbs(norb,norb), owrk(norb,norb), dvbdet(ndetvb), &
                  grad1(npr), grad2(npr), hessorb(nprorb,nprorb), vec1(*), hessinp(npr), hessout(npr)

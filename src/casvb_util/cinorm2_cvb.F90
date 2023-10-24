@@ -14,10 +14,10 @@
 
 subroutine cinorm2_cvb(cvec,cnrm)
 
+use casvb_global, only: iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvec(0:ndet), cnrm
 integer(kind=iwp) :: iformat, ivec
 real(kind=wp), external :: dnrm2_

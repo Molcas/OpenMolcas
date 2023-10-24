@@ -14,12 +14,10 @@
 
 subroutine mkiconfs_cvb()
 
-use casvb_global, only: iconfs
+use casvb_global, only: iconfs, nconf, noe, recinp
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
 integer(kind=iwp) :: ioffs
 
 ! ICONFS

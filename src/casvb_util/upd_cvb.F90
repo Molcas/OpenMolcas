@@ -14,11 +14,10 @@
 
 subroutine upd_cvb(dx,orbs1,cvb1)
 
-use casvb_global, only: cvb, iorts, orbs, sorbs
+use casvb_global, only: cvb, iorts, norb, nort, npr, nprorb, nvb, orbopt, orbs, sorbs, strucopt, sym
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: dx(*), orbs1(norb,norb), cvb1(nvb)
 integer(kind=iwp) :: ic
 

@@ -14,13 +14,12 @@
 
 subroutine fraginp_cvb()
 
-use casvb_global, only: confsinp, i2s_fr, nalf_fr, nbet_fr, nconf_fr, nel_fr, nfrag, nMs_fr, nS_fr
+use casvb_global, only: confsinp, i2s_fr, nalf_fr, nbet_fr, nconf, nconf_fr, nel_fr, nfrag, nMs_fr, noe, nS_fr
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: istr, istr2, mavaili, mxconf, nread
 real(kind=wp) :: dum(1), Scurr
 integer(kind=iwp), allocatable :: tmp(:,:)

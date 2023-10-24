@@ -14,14 +14,13 @@
 
 subroutine applyh_cvb(civec)
 
+use casvb_global, only: iform_ci, lw1_cvb, n_applyh, ncivb, ndet, nirrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet)
-#include "casvb.fh"
 #include "rasscf_lucia.fh"
 integer(kind=iwp) :: icivec, isyml, isymmx, nci
 real(kind=wp) :: c_daxpy, cnrm

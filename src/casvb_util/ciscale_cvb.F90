@@ -19,10 +19,10 @@
 !***********************************************************************
 subroutine ciscale_cvb(cvec,scl)
 
+use casvb_global, only: iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvec(0:ndet), scl
 integer(kind=iwp) :: iformat, ivec
 

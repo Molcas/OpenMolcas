@@ -14,14 +14,13 @@
 
 function recinpcmp_cvb(ifield)
 
+use casvb_global, only: recinp, recinp_old
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: recinpcmp_cvb
 integer(kind=iwp) :: ifield
-#include "main_cvb.fh"
-#include "files_cvb.fh"
 integer(kind=iwp) :: i, ioff1, ioff2, joff1, joff2
 logical(kind=iwp) :: done
 real(kind=wp), allocatable :: tmp1(:), tmp2(:)

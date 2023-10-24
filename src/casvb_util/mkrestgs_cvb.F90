@@ -14,15 +14,13 @@
 
 subroutine mkrestgs_cvb(orbsao,irdorbs,cvb,cvbdet,iapr,ixapr)
 
-use casvb_global, only: nbas_mo
+use casvb_global, only: kbasis, kbasiscvb, nalf, nbas_mo, nbet, nda, ndetvb, norb, nvb, recn_tmp04
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbsao(nbas_mo,norb), cvb(nvb), cvbdet(ndetvb)
 integer(kind=iwp) :: irdorbs(norb), iapr(ndetvb), ixapr(nda+1)
-#include "files_cvb.fh"
 integer(kind=iwp) :: ia, ib, idetvb1, idum(1), ioffs, iorb, ixa, nalf1, nbet1, ndetvb1, norb1
 integer(kind=iwp), allocatable :: iabind(:)
 real(kind=wp), allocatable :: cvbdet1(:)

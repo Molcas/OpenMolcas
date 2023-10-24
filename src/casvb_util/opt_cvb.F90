@@ -14,14 +14,12 @@
 
 subroutine opt_cvb()
 
-use casvb_global, only: cvb, formE, orbs
+use casvb_global, only: convinone, cvb, endvar, evb, formE, icrit, imethod, ioptc_new, ipr, isaddle, mxiter, n_iter, norb, nvb, &
+                        orbs, strucopt, svb
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: ioptc, iter
 real(kind=wp) :: fx
 
@@ -44,11 +42,11 @@ else
 
   fx = Zero
 
-  call optize_cvb(fx,ioptc,iter,imethod,isaddle,mxiter,icrit == 1,corenrg,ip(3),ip(4)-2,ip(4)-2,strucopt)
+  call optize_cvb(fx,ioptc,iter,imethod,isaddle,mxiter,icrit == 1,ipr(3),ipr(4)-2,ipr(4)-2,strucopt)
 
   if ((ioptc == -1) .and. (mxiter > 0)) then
-    if (ip(3) >= 0) write(u6,'(a,i4)') ' Maximum number of iterations reached:',mxiter
-    if (ip(3) >= 0) write(u6,'(a)') ' Calculation NOT converged!!!'
+    if (ipr(3) >= 0) write(u6,'(a,i4)') ' Maximum number of iterations reached:',mxiter
+    if (ipr(3) >= 0) write(u6,'(a)') ' Calculation NOT converged!!!'
   end if
 end if
 if (icrit == 1) then
@@ -56,14 +54,14 @@ if (icrit == 1) then
 else
   evb = fx
 end if
-if (ip(5) >= 0) then
+if (ipr(5) >= 0) then
   if (imethod /= 11) then
     if (icrit == 1) write(u6,formE) ' Final Svb :',svb
     if (icrit == 2) write(u6,formE) ' Final Evb :',evb
   end if
-  if ((ip(3) <= 1) .and. (ioptc /= -1)) write(u6,'(a,i4)') ' Number of iterations used:',iter
+  if ((ipr(3) <= 1) .and. (ioptc /= -1)) write(u6,'(a,i4)') ' Number of iterations used:',iter
 end if
-if (ip(5) >= 2) then
+if (ipr(5) >= 2) then
   call report_cvb(orbs,norb)
   write(u6,'(/,a)') ' Structure coefficients :'
   write(u6,'(a)') ' ------------------------'

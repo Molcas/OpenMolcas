@@ -14,10 +14,9 @@
 
 subroutine hini_cvb()
 
-use casvb_global, only: icnt, inputmode, joptstep, loopstep, ncnt, recn
+use casvb_global, only: icnt, inputmode, joptstep, loopstep, ncnt, recn, recn_tmp03
 
 implicit none
-#include "files_cvb.fh"
 
 loopstep = 0
 joptstep = 0

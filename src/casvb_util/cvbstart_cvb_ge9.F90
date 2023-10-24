@@ -14,13 +14,12 @@
 
 subroutine cvbstart_cvb_ge9(icode)
 
+use casvb_global, only: endvar, nmcscf, recinp, recinp_old, variat
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: icode
-#include "main_cvb.fh"
-#include "files_cvb.fh"
 
 if (icode >= 9) then
   call cvbfinit_cvb()

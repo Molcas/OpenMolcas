@@ -14,11 +14,10 @@
 
 subroutine mkstrtgs_cvb(orbsao,irdorbs,cvb,recn)
 
-use casvb_global, only: ifmos, nbas_mo
+use casvb_global, only: ifmos, kbasiscvb, nbas_mo, nmcscf, norb, nvb, variat
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbsao(nbas_mo,norb), cvb(*), recn
 integer(kind=iwp) :: irdorbs(norb)
 integer(kind=iwp) :: ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, nbas_mo1, norb1, nvb1

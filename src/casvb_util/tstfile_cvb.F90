@@ -14,12 +14,12 @@
 
 function tstfile_cvb(fileid)
 
+use casvb_global, only: ifilio, filename
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: tstfile_cvb
 real(kind=wp) :: fileid
-#include "io_cvb.fh"
 integer(kind=iwp) :: ibf
 logical(kind=iwp) :: ex
 

@@ -20,7 +20,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: i, n, ic, ierr
 real(kind=wp) :: recn, c(n)
-#include "main_cvb.fh"
 integer(kind=iwp) :: ioffs, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, kbasiscvb1, nbas_mo1, norb1, nvb1
 
 ! Read header:

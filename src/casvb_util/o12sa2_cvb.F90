@@ -14,12 +14,12 @@
 
 subroutine o12sa2_cvb(nprm,civb,civbs,cvbdet,cvb)
 
+use casvb_global, only: ndet, ndetvb, npr, nprorb, nvb, strucopt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: nprm
 real(kind=wp) :: civb(0:ndet), civbs(0:ndet), cvbdet(ndetvb), cvb(nvb)
 integer(kind=iwp) :: ic1

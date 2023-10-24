@@ -17,10 +17,10 @@
 !****************
 subroutine abend_cvb()
 
+use casvb_global, only: cpu0
 use Definitions, only: wp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp), external :: tim_cvb
 
 write(u6,'(a)') ' Error exit CASVB.'

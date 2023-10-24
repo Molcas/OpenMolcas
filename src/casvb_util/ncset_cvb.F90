@@ -18,7 +18,6 @@ use casvb_global, only: istackrep
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: ic, nc_zeroed, nconvinone
 logical(kind=iwp), external :: istkprobe_cvb
 

@@ -14,12 +14,11 @@
 
 subroutine ppgs_cvb(cvb)
 
-use casvb_global, only: i2s_fr, ifnss1, mnion_fr, nconf_fr, nel_fr, nfrag, nS_fr, nvb_fr, vbdet
+use casvb_global, only: i2s_fr, ifnss1, kbasiscvb, mnion_fr, nconf_fr, nel_fr, nfrag, nS_fr, nvb, nvb_fr, vbdet
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvb(nvb)
 integer(kind=iwp) :: icoffs_nconf, ifrag, ioffs_cvb, iS, kbasiscvb_kp, nelsing
 

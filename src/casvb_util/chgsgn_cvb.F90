@@ -14,13 +14,12 @@
 
 subroutine chgsgn_cvb(fx)
 
-use casvb_global, only: cvb, nfrag, nvb_fr, ndetvb_fr, vbdet
+use casvb_global, only: cvb, ndetvb, ndetvb_fr, nfrag, nvb, nvb_fr, vbdet
 use Constants, only: One
 use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: fx
-#include "main_cvb.fh"
 
 if (nfrag <= 1) then
   call dscal_(nvb,-One,cvb,1)

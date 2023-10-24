@@ -20,10 +20,9 @@
 
 subroutine mkconstruc_cvb()
 
-use casvb_global, only: ipermzeta, izeta, orbs, symelm, tconstr
+use casvb_global, only: iconstruc, ipermzeta, izeta, orbs, symelm, tconstr
 
 implicit none
-#include "main_cvb.fh"
 
 call setipermzeta_cvb(ipermzeta,orbs,symelm,izeta)
 if (iconstruc == 2) call construc2_cvb(tconstr)

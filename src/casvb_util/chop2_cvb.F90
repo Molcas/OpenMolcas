@@ -14,13 +14,12 @@
 
 subroutine chop2_cvb()
 
-use casvb_global, only: cvb, orbs, release
+use casvb_global, only: cvb, kbasis, kbasiscvb, mxnvb, norb, orbs, release
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: nvb_alloc
 integer(kind=iwp), external :: nvb_cvb
 

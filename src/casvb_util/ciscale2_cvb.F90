@@ -14,11 +14,11 @@
 
 subroutine ciscale2_cvb(cvec,scl,iscf,cscf)
 
+use casvb_global, only: iform_ci, ndet
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvec(0:ndet), scl, cscf
 integer(kind=iwp) :: iscf
 integer(kind=iwp) :: idet, iformat, ivec
@@ -30,7 +30,7 @@ iformat = iform_ci(ivec)
 if (iformat == 0) then
   do idet=1,ndet
     cvec(idet) = scl*cvec(idet)
-    if (abs(cvec(idet)) > p8) then
+    if (abs(cvec(idet)) > 0.8_wp) then
       iscf = idet
       cscf = cvec(idet)
     end if

@@ -14,12 +14,11 @@
 
 subroutine dset_cvb(iorbrel,ifxorb,ifxstr,idelstr,iorts,irots,izeta)
 
+use casvb_global, only: mxorb_cvb, ndimrel, ndrot, nfxvb, norb, norbrel, nort, nsyme, nzrvb, plc_const, recinp, sym
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: iorbrel(ndimrel), ifxorb(mxorb_cvb), ifxstr(nfxvb), idelstr(nzrvb), iorts(*), irots(*), izeta(*)
-#include "files_cvb.fh"
 integer(kind=iwp) :: ioffs
 
 ! Check if any molecular interaction constraints:

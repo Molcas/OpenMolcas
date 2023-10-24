@@ -14,12 +14,10 @@
 
 subroutine mksymorbs_cvb()
 
-use casvb_global, only: orbs, sorbs
+use casvb_global, only: ipr, nconstr, norb, orbs, sorbs, sym
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: nconstr_kp
 real(kind=wp) :: delorbs, dum(1)
 real(kind=wp), parameter :: thresh = 1.0e-7_wp
@@ -33,12 +31,12 @@ if (sym) then
   nconstr = nconstr_kp
   call subvec(sorbs,orbs,sorbs,norb*norb)
   delorbs = dnrm2_(norb*norb,sorbs,1)
-  if ((delorbs > thresh) .and. (ip(1) >= 2)) then
+  if ((delorbs > thresh) .and. (ipr(1) >= 2)) then
     write(u6,'(/,a)') ' Change in symmetrized orbitals:'
     call report_cvb(sorbs,norb)
   end if
   call nize_cvb(orbs,norb,dum,norb,0,0)
-  if ((delorbs > thresh) .and. (ip(1) >= 2)) then
+  if ((delorbs > thresh) .and. (ipr(1) >= 2)) then
     write(u6,'(a)') ' Orbitals after symmetrization:'
     call report_cvb(orbs,norb)
   end if

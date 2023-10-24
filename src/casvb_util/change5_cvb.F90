@@ -14,11 +14,11 @@
 
 subroutine change5_cvb()
 
+use casvb_global, only: iconstruc, imethod, lfxvb, lzrvb, ndimrel, ndrot, nfxorb, nfxvb, norbrel, nort, nsyme, nvb, nzeta, nzrvb, &
+                        orbfr_is_unit, plc_const, strucopt
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
 integer(kind=iwp) :: nfxvbr, nzrvbr
 logical(kind=iwp) :: changed, construc
 logical(kind=iwp), external :: chpcmp_cvb ! ... Change of dimensioning variables ...

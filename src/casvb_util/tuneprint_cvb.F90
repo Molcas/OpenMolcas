@@ -15,16 +15,13 @@
 subroutine tuneprint_cvb()
 
 use casvb_global, only: alftol, cnrmtol, delopth1, delopth2, dfx, dfxmin, dfxtol, dx, eigwrngtol, endwhenclose, exp12tol, follow, &
-                        grd, grdwrngtol, hhaccfac, hhmax, hhrejfac, hhstart, hhtol, mxdav, nopth1, nopth2, nortiter, orththr, &
-                        resthr, safety, scalesmall, sgn, signtol, singul, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
-
+                        grd, grdwrngtol, hhaccfac, hhmax, hhrejfac, hhstart, hhtol, imethod, ipr, mxdav, nopth1, nopth2, nortiter, &
+                        orththr, resthr, safety, scalesmall, sgn, signtol, singul, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
 use Definitions, only: u6
 
 implicit none
-#include "optze_cvb.fh"
-#include "print_cvb.fh"
 
-if (ip(3) < 3) return
+if (ipr(3) < 3) return
 if (imethod /= 4) then
   write(u6,'(/,a)') ' -------- Details of parameters used by 2nd-order optimizer: -------------'
   write(u6,'(/,a,/)') ' General parameters:'

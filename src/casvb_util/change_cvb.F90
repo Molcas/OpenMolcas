@@ -14,13 +14,11 @@
 
 subroutine change_cvb()
 
-use casvb_global, only: iprm
+use casvb_global, only: iprm, kbasis, kbasiscvb, proj, projcas, projsym, strtint
 use Constants, only: Ten
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
 integer(kind=iwp) :: kbasisp
 logical(kind=iwp), external :: chpcmp_cvb, & ! ... Change of dimensioning variables ...
                                up2date_cvb   ! ... Make: up to date? ...

@@ -14,16 +14,14 @@
 
 subroutine mkorbperm_cvb()
 
-use casvb_global, only: cvb, cvbdet, orbs, owrk2
+use casvb_global, only: cvb, cvbdet, iorbprm, ipr, norb, orbs, owrk2
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: iorb, jorb
 real(kind=wp) :: sgn
 
-if (ip(1) >= 1) then
+if (ipr(1) >= 1) then
   write(u6,'(/,a)') ' Permuting orbitals :'
   write(u6,'(1x,30i4)') (iorbprm(iorb),iorb=1,norb)
 end if

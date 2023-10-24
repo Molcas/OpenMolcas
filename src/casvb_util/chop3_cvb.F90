@@ -14,14 +14,13 @@
 
 subroutine chop3_cvb()
 
-use casvb_global, only: aikcof, bikcof, cikcof, ifnss1, ifnss2, ikcoff, ndetvbs, release
+use casvb_global, only: aikcof, bikcof, cikcof, ifnss1, ifnss2, ikcoff, kbasis, kbasiscvb, nalf, nbet, ndetvbs, nel, release
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-integer(kind=iwp) :: iretval1, iretval2, kmost, mxdetvb, need
+integer(kind=iwp) :: iretval1, iretval2, kmost, mxdetvb, mxfns, need
 
 if (release(3)) then
   call mma_deallocate(aikcof)

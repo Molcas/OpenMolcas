@@ -19,10 +19,10 @@
 !*********************************************************************
 subroutine proj_cvb(civec)
 
+use casvb_global, only: mxirrep, ndet, projsym
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet)
 real(kind=wp) :: dum(mxirrep)
 

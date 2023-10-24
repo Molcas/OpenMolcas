@@ -14,12 +14,11 @@
 
 subroutine evb2cas_cvb(orbs,cvb,fx,ioptc,iter)
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb5
+use casvb_global, only: civb1, civb2, civb3, civb4, civb5, norb, nvb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx
 integer(kind=iwp) :: ioptc, iter
 integer(kind=iwp) :: idum

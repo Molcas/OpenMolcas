@@ -14,12 +14,11 @@
 
 subroutine cvbnrm_cvb(cvb)
 
-use casvb_global, only: nfrag, nvb_fr
+use casvb_global, only: nfrag, nvb, nvb_fr
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvb(nvb)
 integer(kind=iwp) :: ifrag, nvbadd
 real(kind=wp), external :: dnrm2_

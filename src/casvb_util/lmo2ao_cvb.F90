@@ -14,12 +14,11 @@
 
 subroutine lmo2ao_cvb(orbs,orbsao,norb1)
 
-use casvb_global, only: nbas_mo
+use casvb_global, only: nbas_mo, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: norb1
 real(kind=wp) :: orbs(norb,norb1), orbsao(nbas_mo,norb1)
 real(kind=wp), allocatable :: tmp(:,:)

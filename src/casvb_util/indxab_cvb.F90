@@ -14,11 +14,12 @@
 
 subroutine indxab_cvb(indxa,indxb,nstra,nstrb,nsa,nsb)
 
+use Symmetry_Info, only: Mul
+use casvb_global, only: ityp, mxirrep, nalf, nbet, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: nsa, indxa(nsa), nsb, indxb(nsb), nstra(mxirrep), nstrb(mxirrep)
 integer(kind=iwp) :: ia, ib, iisym, inda, indb, indx, irp
 integer(kind=iwp), allocatable :: iocc(:)
@@ -35,7 +36,7 @@ do iisym=1,mxirrep
   do
     irp = 1
     do ia=1,nalf
-      irp = md2h(irp,ityp(iocc(ia)))
+      irp = Mul(irp,ityp(iocc(ia)))
     end do
     if (irp == iisym) then
       inda = inda+1
@@ -50,7 +51,7 @@ do iisym=1,mxirrep
   do
     irp = 1
     do ib=1,nbet
-      irp = md2h(irp,ityp(iocc(ib)))
+      irp = Mul(irp,ityp(iocc(ib)))
     end do
     if (irp == iisym) then
       indb = indb+1

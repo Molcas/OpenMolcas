@@ -17,11 +17,11 @@ subroutine clearcnt_cvb(icode)
 ! ICODE=2 : CI coefficients changed
 ! ICODE=3 : Everything changed
 
+use casvb_global, only: icnt_ci, mxciobj
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: icode
-#include "main_cvb.fh"
 integer(kind=iwp) :: i, ichg, ipow1, ipow2
 
 if (icode == 3) then

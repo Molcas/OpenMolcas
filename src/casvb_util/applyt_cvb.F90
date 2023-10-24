@@ -36,11 +36,10 @@
 !***********************************************************************
 subroutine applyt_cvb(cvec,gjorb)
 
-use casvb_global, only: gjorb_type, i1alf, i1bet, iato, ibto, phato, phbto
+use casvb_global, only: gjorb_type, i1alf, i1bet, iato, ibto, iform_ci, n_applyt, ndet, phato, phbto
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvec(0:ndet)
 type(gjorb_type) :: gjorb
 integer(kind=iwp) :: ivec

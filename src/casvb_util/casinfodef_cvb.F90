@@ -14,13 +14,11 @@
 
 subroutine casinfodef_cvb()
 
-use casvb_global, only: inputmode
+use casvb_global, only: inputmode, iorclos_d, iorcore_d, iorocc_d, mxorb_cvb, mxstsy_ci, noe, nstsym_d, recn_jobiph, recn_jobold, &
+                        recn_oneint, recn_vbwfn, strtci, strtint, strtmo, strtvb, savvb, savvbci, variat
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
-#include "casinfo_cvb.fh"
 integer(kind=iwp) :: i
 
 ! Counters

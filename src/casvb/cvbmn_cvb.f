@@ -12,9 +12,8 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine cvbmn_cvb(icode)
+      use casvb_global, only: esym, n_iter
       implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-
       dimension Dummy(1)
 
 c  ICODE=0 standard casvb calculation

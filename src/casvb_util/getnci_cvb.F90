@@ -19,12 +19,12 @@
 !***********************************************************************
 subroutine getnci_cvb(nciloc,nelloc,i2sloc,isymloc)
 
+use casvb_global, only: mxirrep, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nciloc(*), nelloc, i2sloc, isymloc
-#include "main_cvb.fh"
 integer(kind=iwp) :: iasyind(0:mxirrep), ibsyind(0:mxirrep), irpdet(mxirrep), nalf1, nbet1, nda1, ndb1
 integer(kind=iwp), allocatable :: isymalf(:), isymbet(:)
 

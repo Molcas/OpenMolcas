@@ -16,6 +16,7 @@ subroutine Interf(i_root,Ene,isuseene,iscasvb)
 !                                                                      *
 !***********************************************************************
 
+use casvb_global, only: ifvb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -30,7 +31,6 @@ real(kind=wp), allocatable :: AdCMOA(:), AdCMOB(:), CA(:,:), CB(:,:), EAB(:,:), 
 integer(kind=iwp), external :: isFreeUnit
 #include "rasdim.fh"
 #include "general.fh"
-#include "casvb.fh"
 
 !                                                                      *
 !***********************************************************************

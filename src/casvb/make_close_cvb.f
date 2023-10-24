@@ -12,13 +12,15 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine make_close_cvb(it)
+      use casvb_global, only: ipfocc_cvb, lcmo_cvb, ld1a_cvb, ld1i_cvb,
+     &                        ld1tot_cvb, ldiaf_cvb, ldmat_cvb,
+     &                        ldspn_cvb, lfa_cvb, lfi_cvb, loccn_cvb,
+     &                        lpa_cvb, lpmat_cvb, ltuvx_cvb, lw1_cvb,
+     &                        variat
       implicit real*8(a-h,o-z)
       integer find_lu
       external find_lu
-#include "main_cvb.fh"
-#include "casvb.fh"
 
-#include "io_cvb.fh"
       character*8 vec(11)
       vec(1)='TMP01'
       vec(2)='TMP02'

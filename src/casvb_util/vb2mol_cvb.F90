@@ -14,11 +14,11 @@
 
 subroutine vb2mol_cvb(vecvb,vecmol,isyml)
 
+use casvb_global, only: nalf, nbet, ndet, norb
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: vecvb(ndet), vecmol(*)
 integer(kind=iwp) :: isyml
 integer(kind=iwp) :: iwr, nsa, nsb

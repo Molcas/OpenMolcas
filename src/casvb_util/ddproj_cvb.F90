@@ -14,13 +14,12 @@
 
 subroutine ddproj_cvb(c,nparm1)
 
+use casvb_global, only: imethod, nprvb
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: c(*)
 integer(kind=iwp) :: nparm1
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
 integer(kind=iwp) :: ioffs
 
 if (.not. ((imethod == 4) .or. (imethod == 12))) call orthcvb_cvb(c,nparm1)

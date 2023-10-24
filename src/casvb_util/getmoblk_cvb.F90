@@ -14,14 +14,11 @@
 
 subroutine getmoblk_cvb(cmoblk)
 
-use casvb_global, only: nbasisq_mo
+use casvb_global, only: filename, nbasisq_mo, strtmo
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cmoblk(nbasisq_mo)
-#include "files_cvb.fh"
-#include "io_cvb.fh"
 integer(kind=iwp) :: iad, iadr15(15), ibf, lujob
 
 call mkfn_cvb(strtmo,ibf)

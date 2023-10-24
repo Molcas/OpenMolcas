@@ -15,11 +15,11 @@
 subroutine dev2c_cvb(v1,cfrom,hessorb,oaa2)
 ! Calculate V1 EijEkl CFROM
 
-use casvb_global, only: i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, ixapr, ixbpr, phato, phbto
+use casvb_global, only: absym, i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, iform_ci, ixapr, ixbpr, n1a, n1b, n_2el, nam1, &
+                        nbm1, nda, ndb, ndet, norb, nprorb, npvb, phato, phbto, projcas, sc
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: v1(0:ndet), cfrom(0:ndet), hessorb(nprorb,nprorb), oaa2
 integer(kind=iwp) :: icfrom
 

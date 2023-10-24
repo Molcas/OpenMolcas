@@ -14,11 +14,12 @@
 
 subroutine symgen_cvb(nalf1,nbet1,nda1,ndb1,isymalf,isymbet,iasyind,ibsyind,irpdet)
 
+use Symmetry_Info, only: Mul
+use casvb_global, only: ityp, mxirrep, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: nalf1, nbet1, nda1, ndb1, isymalf(nda1), isymbet(ndb1), iasyind(0:mxirrep), ibsyind(0:mxirrep), irpdet(mxirrep)
 integer(kind=iwp) :: ia, ib, icount(mxirrep), ida, idb, indx, iorb, irp, irpalf(mxirrep), irpbet(mxirrep), irrep, jrp, rc
 integer(kind=iwp), allocatable :: ialfsym(:), ibetsym(:), locc(:), lunocc(:), maxgrph(:), mingrph(:), nk(:), xalf(:,:), xbet(:,:)
@@ -44,7 +45,7 @@ indx = 1
 do
   irp = 1
   do ia=1,nalf1
-    irp = md2h(irp,ityp(locc(ia)))
+    irp = Mul(irp,ityp(locc(ia)))
   end do
   irpalf(irp) = irpalf(irp)+1
   ialfsym(indx) = irp
@@ -79,7 +80,7 @@ indx = 1
 do
   irp = 1
   do ib=1,nbet1
-    irp = md2h(irp,ityp(locc(ib)))
+    irp = Mul(irp,ityp(locc(ib)))
   end do
   irpbet(irp) = irpbet(irp)+1
   ibetsym(indx) = irp
@@ -108,7 +109,7 @@ call mma_deallocate(lunocc)
 do irp=1,mxirrep
   irpdet(irp) = 0
   do jrp=1,mxirrep
-    irpdet(irp) = irpdet(irp)+irpalf(jrp)*irpbet(md2h(irp,jrp))
+    irpdet(irp) = irpdet(irp)+irpalf(jrp)*irpbet(Mul(irp,jrp))
   end do
 end do
 

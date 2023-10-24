@@ -14,12 +14,12 @@
 
 subroutine rdlow_cvb(vec,n,fileid,ioffset)
 
+use casvb_global, only: filename
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: n, ioffset
 real(kind=wp) :: vec(n), fileid
-#include "io_cvb.fh"
 integer(kind=iwp) :: ibf, ioffs, lu
 logical(kind=iwp) :: newfile
 logical(kind=iwp), parameter :: debug = .false.

@@ -15,13 +15,12 @@
 subroutine mxprint2_cvb(a,nrow,nrow2,ncol,itype)
 ! Prints matrix A, stored according to ITYPE
 
-use casvb_global, only: formMXP1, formMXP3
+use casvb_global, only: formMXP1, formMXP3, iprec, iwidth
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: a(*)
 integer(kind=iwp) :: nrow, nrow2, ncol, itype
-#include "print_cvb.fh"
 integer(kind=iwp), parameter :: mxbuf = 8
 integer(kind=iwp) :: i, ibuf(mxbuf), ii, ind, j, jend, jin, k, nbuf
 real(kind=wp) :: buffer(mxbuf)

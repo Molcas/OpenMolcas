@@ -71,6 +71,10 @@
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
+      use casvb_global, only: ifvb, invec_cvb, ipfocc_cvb, lcmo_cvb,
+     &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
+     &                        ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb,
+     &                        loccn_cvb, lpa_cvb, lpmat_cvb, ltuvx_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
      &    embPotPath, embWriteEsp
@@ -99,7 +103,6 @@
 #include "bk_approx.fh"
 #include "output_ras.fh"
 #include "timers.fh"
-#include "casvb.fh"
 #include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
 #include "gugx.fh"

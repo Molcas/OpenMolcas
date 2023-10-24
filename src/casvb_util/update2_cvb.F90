@@ -14,7 +14,7 @@
 
 subroutine update2_cvb(orbs,cvb,orbsp,cvbp,sorbs,dxorg,ic,norb,nvb,nprorb,npr,orbopt,strucopt,sym,iorts,nort)
 
-use casvb_global, only: wdx
+use casvb_global, only: ipr, wdx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -23,13 +23,12 @@ implicit none
 integer(kind=iwp) :: ic, norb, nvb, nprorb, npr, nort, iorts(2,nort)
 real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsp(norb,norb), cvbp(nvb), sorbs(norb,norb), dxorg(npr)
 logical(kind=iwp) :: orbopt, strucopt, sym
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, ij, iorb, iort, j, jorb, k, korb, l, lorb
 real(kind=wp) :: dum(1), fac, sdidj
 real(kind=wp), allocatable :: sorbsinv(:,:)
 
 call free2all_cvb(dxorg,wdx,1)
-if ((ip(3) >= 3) .and. (ic == 1)) then
+if ((ipr(3) >= 3) .and. (ic == 1)) then
   write(u6,'(/,a)') ' Update vector :'
   call vecprint_cvb(wdx,npr)
 end if

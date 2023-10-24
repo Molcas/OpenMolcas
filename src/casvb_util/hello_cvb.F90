@@ -14,10 +14,10 @@
 
 subroutine hello_cvb()
 
+use casvb_global, only: variat
 use Definitions, only: u6
 
 implicit none
-#include "main_cvb.fh"
 
 if (variat) write(u6,'(a)') ' '
 write(u6,10)

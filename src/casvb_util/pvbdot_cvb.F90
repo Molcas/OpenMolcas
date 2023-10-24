@@ -14,11 +14,10 @@
 
 subroutine pvbdot_cvb(cfrom,cto,ret)
 
-use casvb_global, only: iapr, ixapr
+use casvb_global, only: iapr, iform_ci, ixapr, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cfrom(0:ndet), cto(0:ndet), ret
 integer(kind=iwp) :: icfrom, icto
 

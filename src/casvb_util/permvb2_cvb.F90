@@ -14,12 +14,12 @@
 
 subroutine permvb2_cvb(v1,iperm,vb,iapr,ixapr,v2,ialg)
 
+use casvb_global, only: nalf, nbet, nda, ndb, ndet, ndetvb, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 ! V1 is dimensioned either NDET or NDETVB according to CI/VB
 ! V2 is dimensioned NDET/NDA or NDETVB according to CI/VB
 real(kind=wp) :: v1(*), v2(*)

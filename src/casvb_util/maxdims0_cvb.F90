@@ -14,15 +14,11 @@
 
 subroutine maxdims0_cvb()
 
-use casvb_global, only: inputmode
+use casvb_global, only: inputmode, mxnvb
 
 implicit none
-#include "main_cvb.fh"
 
-if (inputmode == 1) then
-  mxnvb = 0
-  mxnvb = 1000
-end if
+if (inputmode == 1) mxnvb = 1000
 
 return
 

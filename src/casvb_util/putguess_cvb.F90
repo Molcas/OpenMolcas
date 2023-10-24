@@ -14,15 +14,13 @@
 
 subroutine putguess_cvb(orbs,cvb,recn)
 
-use casvb_global, only: ifmos, nbas_mo
+use casvb_global, only: endvar, ifmos, ipr, kbasiscvb, nbas_mo, norb, nvb, ploc, variat
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,*), cvb(*), recn
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, kbasiscvb1, nbas_mo1, norb1, nvb1
 logical(kind=iwp) :: use_ao
 real(kind=wp), allocatable :: a(:,:), b(:,:), c(:), orbsao(:,:)
@@ -41,7 +39,7 @@ if (use_ao) then
   do iorb=1,norb
     call wrgspr_cvb(recn,orbsao(:,iorb),iorb,nbas_mo,3,ierr)
   end do
-  if (ip(5) >= 2) then
+  if (ipr(5) >= 2) then
     write(u6,'(/,a)') ' VB orbitals in AO basis :'
     write(u6,'(a)') ' -------------------------'
     call mxprint_cvb(orbsao,nbas_mo,norb,0)
@@ -58,7 +56,7 @@ if (use_ao) then
     do iorb=1,norb
       call wrgspr_cvb(recn,orbsao(:,iorb),iorb,nbas_mo,4,ierr)
     end do
-    if (ip(5) >= 2) then
+    if (ipr(5) >= 2) then
       write(u6,'(/,a)') ' Original localized VB orbitals in AO basis :'
       write(u6,'(a)') ' --------------------------------------------'
       call mxprint_cvb(orbsao,nbas_mo,norb,0)
@@ -67,7 +65,7 @@ if (use_ao) then
       c(i) = dnrm2_(norb,b(:,i),1)
       call dscal_(norb,One/c(i),b(:,i),1)
     end do
-    if (ip(5) >= 2) then
+    if (ipr(5) >= 2) then
       write(u6,'(/,a)') ' Norms of original localized VB orbitals :'
       write(u6,'(a)') ' -----------------------------------------'
       call mxprint_cvb(c,1,norb,0)

@@ -19,7 +19,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: recn
-#include "main_cvb.fh"
 integer(kind=iwp) :: iadd, jadd
 real(kind=wp), parameter :: recdef = 3200.2_wp
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...

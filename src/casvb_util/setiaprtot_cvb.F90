@@ -14,12 +14,11 @@
 
 subroutine setiaprtot_cvb()
 
-use casvb_global, only: iapr, ibpr, ixapr, ixbpr
+use casvb_global, only: iapr, ibpr, ixapr, ixbpr, nda, ndb, npvb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: dum1(1), dum2(1), dum3
 real(kind=wp), allocatable :: tmp(:,:)
 

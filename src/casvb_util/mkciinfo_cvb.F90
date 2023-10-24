@@ -14,13 +14,13 @@
 
 subroutine mkciinfo_cvb()
 
-use casvb_global, only: i1alf, i1bet, iafrm, iato, ibfrm, ibto, phato, phbto
+use casvb_global, only: absym, i1alf, i1bet, iafrm, iato, ibfrm, ibto, n1a, n1b, nalf, nam1, nbet, nbm1, nda, ndb, norb, phato, &
+                        phbto
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: i, ia, iax, iaxtmp, ib, ibx, ibxtmp, iel, indx, iorb, rc
 integer(kind=iwp), allocatable :: iaccm(:), inewocc(:), locc(:), lunocc(:), maxgrph(:), mingrph(:), nk(:), xalf(:,:), xalf2(:,:), &
                                   xbet(:,:), xbet2(:,:)

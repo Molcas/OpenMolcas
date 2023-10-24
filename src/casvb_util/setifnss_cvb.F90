@@ -14,11 +14,10 @@
 
 subroutine setifnss_cvb()
 
-use casvb_global, only: ifnss1, ifnss2, ndetvbs
+use casvb_global, only: ifnss1, ifnss2, ndetvbs, nel
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: iretval1, iretval2, n, nalfa, nbeta
 
 call izero(ifnss1,(nel+1)*(nel+1))

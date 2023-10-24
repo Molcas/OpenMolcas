@@ -14,12 +14,12 @@
 
 subroutine construc2_cvb(tconstr)
 
+use casvb_global, only: iconstruc, nconstr, nvb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: tconstr(nvb,nvb)
 integer(kind=iwp) :: iconstruc_kp, ivb
 real(kind=wp) :: dum(1)

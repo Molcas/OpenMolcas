@@ -14,13 +14,12 @@
 
 subroutine chop6_cvb()
 
-use casvb_global, only: grad1, grad2, gradx, hessorb, hesst, icase6, mxdav, release, sstruc, sstruc2, vec1, wdx
+use casvb_global, only: endvar, grad1, grad2, gradx, hessorb, hesst, icase6, ishstruc, ivbweights, maxdav, mxdav, mxirrep, mxiter, &
+                        ncivb, ndet, ndetvb, nirrep, norb, npr, nprorb, nvb, release, sstruc, sstruc2, variat, vec1, wdx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
 integer(kind=iwp) :: idav, ir, iremain, mem_applyh, memwrk, ncimx, need
 logical(kind=iwp) :: done
 
@@ -93,7 +92,9 @@ else if (icase6 == 3) then
   call mma_maxDBLE(iremain)
   maxdav = min(mxiter,nvb,mxdav)
 
-  mem_applyh = ndet+neread
+  ! neread is uninitialized
+  !mem_applyh = ndet+neread
+  mem_applyh = ndet
   ncimx = 0
   do ir=1,nirrep
     ncimx = max(ncimx,ncivb(ir))

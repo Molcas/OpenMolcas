@@ -14,13 +14,12 @@
 
 subroutine cvbfinit_cvb()
 
-use casvb_global, only: is_set
+use casvb_global, only: corenrg, iprec, is_set, iwidth, mxaobf
+use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 #include "Molcas.fh"
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp), parameter :: iset = 1
 
 mxaobf = maxbfn
@@ -32,7 +31,7 @@ call setmem('clear=off')
 if (is_set /= iset) then
   ! Initializations below are only carried out once:
   call io_init_cvb()
-  call main_bdata_cvb()
+  corenrg = Zero
 end if
 is_set = iset
 

@@ -14,11 +14,11 @@
 
 subroutine ci2vb2_cvb(civec,cvbdet,iapr,ixapr,ret,ic)
 
+use casvb_global, only: nda, ndb, ndetvb
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), ret
 integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), ic
 integer(kind=iwp) :: ia, ib, idetvb, ixa

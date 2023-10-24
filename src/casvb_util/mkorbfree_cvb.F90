@@ -14,13 +14,13 @@
 
 subroutine mkorbfree_cvb()
 
-use casvb_global, only: corth, ifxorb, iorts, irels, irots, north, orbs, relorb, trprm
+use casvb_global, only: corth, ifxorb, iorts, irels, irots, nfr, nfrorb, nfrvb, nijrel, norb, north, nprorb, orbfr_is_unit, &
+                        orbopt, orbs, relorb, trprm
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: i, i2, icon, ioff, ioff2, ioffs, iorb, iprm, irel, ishift, ishift2, j, j2, jorb, nc, ncon, nl1, nl2, nrem
 real(kind=wp) :: dum(1), sum1, sum2
 integer(kind=iwp), allocatable :: idel(:)

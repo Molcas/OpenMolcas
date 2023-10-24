@@ -14,18 +14,25 @@
 
 subroutine casinfoset_cvb()
 
+use casvb_global, only: iorclos_c, iorclos_d, iorcore_c, iorcore_d, iorocc_c, iorocc_d, istms2_c, istms2_d, istnel_c, istnel_d, &
+                        istsy_c, istsy_d, isym, isymv, ityp, mcore_c, mcore_d, mxirrep, mxorb_cvb, mxstsy_ci, mxstt_ci, nalf, &
+                        nbet, nel, nirrep, noe, norb, nstats_c, nstats_d, nstsym_c, nstsym_d, nsym, strtci, strtint, strtmo, &
+                        weight_c, weight_d
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
-#include "casinfo_cvb.fh"
-integer(kind=iwp) :: i, incr, ioc, irrep, is, j, mcore
-real(kind=wp) :: rsum
+integer(kind=iwp) :: i, i2s_d, incr, ioc, irrep, is, isym_d, j, mcore, nel_d
+real(kind=wp) :: rsum, strtci_c, strtci_d, strtint_c, strtint_d, strtmo_c, strtmo_d
 logical(kind=iwp) :: hadinput
 logical(kind=iwp), parameter :: debug = .false.
 logical(kind=iwp), external :: valid_cvb ! ... Files/Hamiltonian available ...
+
+! These were in a common block, but never initialized or used elsewhere
+strtint_c = 0
+strtci_c = 0
+strtmo_c = 0
+isym_d = 0
 
 if (debug) then
   write(u6,*) ' casinfoset :'

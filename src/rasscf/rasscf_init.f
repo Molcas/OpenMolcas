@@ -25,6 +25,7 @@
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
      &                            DoCholesky, DoLocK, Estimate, Nscreen,
      &                            Update
+      use casvb_global, only: ifvb
       use Cholesky, only: ChFracMem, timings
       use CMS, only: iCMSOpt,CMSGiveOpt
       use UnixInfo, only: SuperName
@@ -32,7 +33,6 @@
 #include "rasdim.fh"
 #include "output_ras.fh"
 #include "rasscf.fh"
-#include "casvb.fh"
 #include "general_mul.fh"
 #include "gas.fh"
 #include "timers.fh"

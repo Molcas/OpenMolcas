@@ -14,13 +14,12 @@
 
 subroutine grad_cvb(grad)
 
-use casvb_global, only: civb2, civb3, civb4, civb6, civb7, civb8, dvbdet, grad1, grad2, gradx, ovraa_try, ovrab, ovrab_try, vec1, &
-                        ww, ww_try
+use casvb_global, only: civb2, civb3, civb4, civb6, civb7, civb8, dvbdet, dxmove, grad1, grad2, gradx, icrit, memplenty, ovraa, &
+                        ovraa_try, ovrab, ovrab_try, vec1, ww, ww_try
 use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: grad(*)
-#include "main_cvb.fh"
 
 call touch_cvb('OOHESS')
 if (dxmove .and. memplenty) then

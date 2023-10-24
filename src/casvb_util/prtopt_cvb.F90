@@ -14,13 +14,11 @@
 
 subroutine prtopt_cvb()
 
-use casvb_global, only: ioptim, istackrep, noptim
+use casvb_global, only: ioptim, istackrep, nfxvb, noptim, norb, nort, nvb, nzrvb, recinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
 integer(kind=iwp) :: ioffs, ioptstep1, ioptstep2, italter, kk2, mxalter, nc_zeroed, nconvinone
 integer(kind=iwp), allocatable :: idelstr(:), ifxorb(:), ifxstr(:), iorts(:,:)
 logical(kind=iwp), external :: istkprobe_cvb

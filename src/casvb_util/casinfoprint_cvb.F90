@@ -14,16 +14,15 @@
 
 subroutine casinfoprint_cvb()
 
+use casvb_global, only: ipr, isym, isymv, ityp, mxirrep, nalf, nbet, nel, norb, nsym
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, ii, incr, qisym(nsym)
 logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
-if ((ip(1) >= 0) .and. (.not. up2date_cvb('CASPRINT'))) then
+if ((ipr(1) >= 0) .and. (.not. up2date_cvb('CASPRINT'))) then
   write(u6,'(/,a,i4)') ' Number of active electrons :',nel
   write(u6,'(a,i4)') ' Number of active orbitals  :',norb
   write(u6,'(a,f4.1)') ' Total spin                 :',real(nalf-nbet,kind=wp)*Half

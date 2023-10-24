@@ -14,8 +14,9 @@
 
 subroutine mkcifree_cvb()
 
+use casvb_global, only: nfr, nfrorb, nfrvb, nvb, strucopt
+
 implicit none
-#include "main_cvb.fh"
 
 if (strucopt) then
   nfrvb = nvb

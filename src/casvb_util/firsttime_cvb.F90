@@ -14,13 +14,12 @@
 
 function firsttime_cvb()
 
-use casvb_global, only: icode, inputmode, iopt2step, ioptim, ioptstep, istackrep, joptstep, loopstep
+use casvb_global, only: icode, inputmode, iopt2step, ioptim, ioptstep, istackrep, joptstep, loopstep, nmcscf
 
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: firsttime_cvb
-#include "main_cvb.fh"
 integer(kind=iwp) :: italter_l, nc_zeroed_l, nconvinone_l
 logical(kind=iwp) :: begbracket, second_time_round
 logical(kind=iwp), external :: istkprobe_cvb

@@ -14,13 +14,13 @@
 
 subroutine onedens_cvb(cfrom,cto,vij,diag,iPvb)
 
-use casvb_global, only: i1alf, i1bet, iapr, iato, ibpr, ibto, ixapr, ixbpr, phato, phbto
+use casvb_global, only: absym, i1alf, i1bet, iapr, iato, ibpr, ibto, iform_ci, ixapr, ixbpr, n1a, n1b, nam1, nbm1, nda, ndb, ndet, &
+                        norb, npvb, phato, phbto, projcas, sc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cfrom(0:ndet), cto(0:ndet), vij(*)
 logical(kind=iwp) :: diag
 integer(kind=iwp) :: iPvb

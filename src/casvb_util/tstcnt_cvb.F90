@@ -16,11 +16,11 @@
 !IFG trivial
 function tstcnt_cvb(civec,idep1)
 
+use casvb_global, only: icnt_ci, ndet
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: tstcnt_cvb
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet)
 integer(kind=iwp) :: idep1
 integer(kind=iwp) :: ident_ci

@@ -19,13 +19,12 @@ subroutine fx_cvb(fx,fast)
 !                   but with reusable quantities
 !                   (CIVECP/CIVBH & CIVBS)
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvb, cvbdet, orbs
+use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvb, cvbdet, dxmove, icrit, memplenty, orbs
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: fx
 logical(kind=iwp) :: fast
-#include "main_cvb.fh"
 
 dxmove = .true.
 if (.not. memplenty) then

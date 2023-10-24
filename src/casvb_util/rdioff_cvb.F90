@@ -19,7 +19,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: ifield, ioffset
 real(kind=wp) :: file_id
-#include "main_cvb.fh"
 integer(kind=iwp), parameter :: nbuf = 50
 integer(kind=iwp) :: ioff(nbuf)
 

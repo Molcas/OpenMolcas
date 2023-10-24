@@ -14,12 +14,10 @@
 
 subroutine change7_cvb()
 
-use casvb_global, only: icase7
+use casvb_global, only: icase7, icrit, ifinish, imethod
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
 logical(kind=iwp) :: changed
 logical(kind=iwp), external :: chpcmp_cvb ! ... Change of dimensioning variables ...
 

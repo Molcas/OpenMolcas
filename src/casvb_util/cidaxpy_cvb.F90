@@ -19,10 +19,10 @@
 !***********************************************************************
 subroutine cidaxpy_cvb(fac,cvec1,cvec2)
 
+use casvb_global, only: iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvec1(0:ndet), cvec2(0:ndet)
 integer(kind=iwp) :: iformat, ivec1, ivec2
 real(kind=wp) :: fac

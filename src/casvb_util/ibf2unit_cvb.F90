@@ -14,12 +14,12 @@
 
 subroutine ibf2unit_cvb(ibf,lu,newfile)
 
+use casvb_global, only: ifilio, iorder, mxunits
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: ibf, lu
 logical(kind=iwp) :: newfile
-#include "io_cvb.fh"
 integer(kind=iwp) :: i, ifil
 logical(kind=iwp), parameter :: debug = .false.
 

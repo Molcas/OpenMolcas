@@ -14,11 +14,11 @@
 
 subroutine pvbcopy2_cvb(cfrom,cto,iapr,ixapr,ret,ic)
 
+use casvb_global, only: nda, ndb, ndetvb
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cfrom(nda,ndb), cto(nda,ndb), ret
 integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), ic
 integer(kind=iwp) :: ia, ib, idetvb, ixa

@@ -14,11 +14,10 @@
 
 subroutine maxdims_cvb()
 
-use casvb_global, only: inputmode
+use casvb_global, only: inputmode, kbasis, mxnvb
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp), external :: nvb_cvb
 
 if (inputmode == 1) then

@@ -14,15 +14,13 @@
 
 subroutine mkguess_cvb()
 
-use casvb_global, only: cvb, cvbdet, iapr, ixapr, nbas_mo, orbs
+use casvb_global, only: cvb, cvbdet, endvar, iapr, ipr, ixapr, kbasis, kbasiscvb, mxaobf, nbas_mo, norb, nvb, nvbinp, orbs, &
+                        recinp, strtvb
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: idum(1), ii, ioffs, iorb, iorb_ao, norb_ao
 real(kind=wp) :: c, cnrm, dum(1)
 integer(kind=iwp), allocatable :: irdorbs(:), itmp(:)
@@ -76,7 +74,7 @@ if (.not. up2date_cvb('INPGS')) then
   end do
   call mma_deallocate(itmp)
 
-  call mma_allocate(tmp,nvbinp,label='nvbinp')
+  call mma_allocate(tmp,nvbinp,label='tmp')
   call rdioff_cvb(7,recinp,ioffs)
   call rdrs_cvb(tmp,nvbinp,recinp,ioffs)
   if (dnrm2_(nvbinp,tmp,1) > thresh) then
@@ -138,11 +136,11 @@ if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
   c = 0.1_wp
   do iorb=1,norb
     do ii=1,norb
-      orbs(ii,iorb) = orbs(ii,iorb)+c*(One-two*rand_cvb(Zero))
+      orbs(ii,iorb) = orbs(ii,iorb)+c*(One-Two*rand_cvb(Zero))
     end do
   end do
   if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
-    if (ip(1) >= 0) write(u6,'(a)') ' Starting orbital guess was near-singular - using semi-random guess instead.'
+    if (ipr(1) >= 0) write(u6,'(a)') ' Starting orbital guess was near-singular - using semi-random guess instead.'
     dum = rand_cvb(0.777_wp)
     c = 0.1_wp
     do iorb=1,norb
@@ -152,7 +150,7 @@ if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
       end do
     end do
   else
-    if (ip(1) >= 0) write(u6,'(a)') ' Starting orbital guess was near-singular - scrambling orbital coefficients.'
+    if (ipr(1) >= 0) write(u6,'(a)') ' Starting orbital guess was near-singular - scrambling orbital coefficients.'
   end if
   call nize_cvb(orbs,norb,dum,norb,0,0)
 end if
@@ -176,9 +174,9 @@ if (kbasiscvb /= kbasis) then
   call untouch_cvb('TRNSPN')
 end if
 
-!if(ploc) call rtransf_plc(orbs,cvb)
+!if (ploc) call rtransf_plc(orbs,cvb)
 
-if ((ip(1) >= 2) .and. (.not. endvar)) then
+if ((ipr(1) >= 2) .and. (.not. endvar)) then
   write(u6,'(/,a)') ' Wavefunction guess :'
   call report_cvb(orbs,norb)
   write(u6,'(/,a)') ' Structure coefficients :'

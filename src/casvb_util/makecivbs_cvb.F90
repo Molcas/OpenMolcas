@@ -15,10 +15,10 @@
 subroutine makecivbs_cvb(civbs,orbs,cvbdet)
 ! Construct CIVBS ( = T(s) * CIVB ):
 
+use casvb_global, only: ndet, ndetvb, norb
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civbs(0:ndet), orbs(norb,norb), cvbdet(ndetvb)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 

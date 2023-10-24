@@ -14,11 +14,10 @@
 
 subroutine scalstruc_cvb(orbs,cvb)
 
-use casvb_global, only: iconfs, ifnss1, ifnss2
+use casvb_global, only: iconfs, ifnss1, ifnss2, kbasis, norb, nvb
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), cvb(nvb)
 
 if (kbasis == 6) then

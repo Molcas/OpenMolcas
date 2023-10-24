@@ -12,10 +12,11 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine casinfo1_cvb()
+      use casvb_global, only: iorclos_c, iorcore_c, iorocc_c, istms2_c,
+     &                        istnel_c, istsy_c, mcore_c, mxirrep,
+     &                        mxstsy_ci, mxstt_ci, nstats_c, nstsym_c,
+     &                        weight_c
       implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-
-#include "casinfo_cvb.fh"
       logical iphex,oldex
 
 c  Information from molcas interface file 'JOBIPH' :

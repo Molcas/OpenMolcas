@@ -14,12 +14,12 @@
 
 subroutine chop5_cvb()
 
-use casvb_global, only: corth, idelstr, ifxorb, ifxstr, iorbrel, iorts, ipermzeta, irels, irots, izeta, north, release, relorb, &
-                        symelm, tconstr, trprm
+use casvb_global, only: corth, iconstruc, idelstr, ifxorb, ifxstr, iorbrel, iorts, ipermzeta, irels, irots, izeta, ndimrel, ndrot, &
+                        norb, norbrel, nort, north, nprorb, nsyme, nvb, nzeta, nzrvb, orbfr_is_unit, release, relorb, symelm, &
+                        tconstr, trprm
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
-#include "main_cvb.fh"
 
 if (release(5)) then
   call mma_deallocate(symelm)

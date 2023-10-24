@@ -14,19 +14,16 @@
 
 subroutine svbd_cvb(orbs,cvb,fx,ioptc,iter)
 
-use casvb_global, only: civb1, civb2, cvbdet, gjorb2, ifollow, ipdd, isaddledd, follow, have_solved_it, n_div, nortiter, nroot, &
-                        orththr, resthr
+use casvb_global, only: civb1, civb2, cvbdet, gjorb2, ifollow, ipdd, ipr, isaddle, isaddledd, follow, have_solved_it, maxdav, &
+                        memplenty, mxiter, n_div, norb, nortiter, nroot, nvb, orththr, ovraa, resthr, svb
 use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddrestart_sub, ddsol_sub
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx
 integer(kind=iwp) :: ioptc, iter
-#include "optze_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: ifollow1, nvguess, nvrestart
 real(kind=wp), allocatable :: c(:,:), dum(:,:), res(:), rhs(:), rhsp(:), solp(:), solp_res(:), sxc(:,:)
 procedure(ddasonc_sub) :: asonc1_cvb
@@ -61,7 +58,7 @@ end if
 ifollow = ifollow1
 isaddledd = isaddle
 nroot = max(1,isaddledd+1)
-ipdd = ip(3)
+ipdd = ipr(3)
 n_div = 0
 call mma_allocate(sxc,nvb,maxdav,label='sxc')
 call mma_allocate(res,nvb,label='res')
@@ -71,7 +68,7 @@ call mma_allocate(solp_res,maxdav,label='solp_res')
 call mma_allocate(dum,max(nvb,maxdav),maxdav,label='dum')
 call dirdiag_cvb(asonc1_cvb,ddsolsvb_cvb,ddressvb_cvb,ddres2upd10_cvb,ddrestart_cvb,c,dum,sxc,.false.,cvb,res,rhs,dum,rhsp,solp, &
                  solp_res,.false.,.false.,.true.,maxdav,nvb,nvb,nvguess,nvrestart,isaddle,ifollow1,mxiter,resthr,orththr,nortiter, &
-                 Zero,ioptc,iter,fx,ip(3))
+                 Zero,ioptc,iter,fx,ipr(3))
 call mma_deallocate(c)
 call mma_deallocate(sxc)
 call mma_deallocate(res)

@@ -14,13 +14,12 @@
 
 subroutine defs2_cvb(ifxorb)
 
-use casvb_global, only: iunset, nfrag
+use casvb_global, only: iciweights, icrit, imethod, isaddle, ishstruc, iunset, ivbweights, lfxvb, lzrvb, mxiter, mxorb_cvb, nfrag, &
+                        nfxorb, nfxvb, norb, npcf, nvb, nzrvb, projcas, strucopt, variat
 use Definitions, only: iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: ifxorb(mxorb_cvb)
-#include "optze_cvb.fh"
 integer(kind=iwp) :: i, nfxvbr, nzrvbr
 
 if (icrit == iunset) then

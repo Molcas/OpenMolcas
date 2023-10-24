@@ -17,7 +17,7 @@ subroutine o123b_cvb( &
 #                    include "optb_interface.fh"
                     )
 
-use casvb_global, only: cnrm, eigval, eigvec, isaddle, maxize, odx, odxp, ogradp, owrk, safety, signtol
+use casvb_global, only: cnrm, eigval, eigvec, isaddleo, maxize, odx, odxp, ogradp, owrk, safety, signtol
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -32,9 +32,9 @@ unused_var(grdnrm)
 unused_var(close2conv)
 
 if (maxize) then
-  nposeig = min(isaddle,nparm)
+  nposeig = min(isaddleo,nparm)
 else
-  nposeig = max(nparm-isaddle,nparm)
+  nposeig = max(nparm-isaddleo,nparm)
 end if
 nnegeig = nparm-nposeig
 

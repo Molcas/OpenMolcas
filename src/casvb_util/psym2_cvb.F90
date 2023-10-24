@@ -14,11 +14,12 @@
 
 subroutine psym2_cvb(civec1,civec2,isymalf,isymbet,iasyind,ibsyind,osym,ips)
 
+use Symmetry_Info, only: Mul
+use casvb_global, only: isympr, mxirrep, nda, ndb, nirrep
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec1(nda,ndb), civec2(nda,ndb), osym(mxirrep)
 integer(kind=iwp) :: isymalf(nda), isymbet(ndb), iasyind(0:mxirrep), ibsyind(0:mxirrep), ips
 integer(kind=iwp) :: ida, idb, inda, irp, jrpa, jrpb
@@ -27,7 +28,7 @@ if (ips == 1) then
   do irp=1,nirrep
     if (isympr(irp) == 1) cycle
     do jrpa=1,nirrep
-      jrpb = md2h(irp,jrpa)
+      jrpb = Mul(irp,jrpa)
       do ida=iasyind(jrpa-1)+1,iasyind(jrpa)
         inda = isymalf(ida)
         do idb=ibsyind(jrpb-1)+1,ibsyind(jrpb)
@@ -40,7 +41,7 @@ else if (ips == 2) then
   do irp=1,nirrep
     osym(irp) = Zero
     do jrpa=1,nirrep
-      jrpb = md2h(irp,jrpa)
+      jrpb = Mul(irp,jrpa)
       do ida=iasyind(jrpa-1)+1,iasyind(jrpa)
         inda = isymalf(ida)
         do idb=ibsyind(jrpb-1)+1,ibsyind(jrpb)

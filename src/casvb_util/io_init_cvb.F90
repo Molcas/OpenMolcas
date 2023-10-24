@@ -14,13 +14,11 @@
 
 subroutine io_init_cvb()
 
-use casvb_global, only: idan, mxfiles
+use casvb_global, only: idan, iorder, mxfiles, mxunits, nrec, thresh_io, recn_jobiph, recn_jobold, recn_oneint, recn_tmp01, &
+                        recn_tmp02, recn_tmp03, recn_tmp04, recn_vbwfn
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
-#include "io_cvb.fh"
 
 nrec = 0
 thresh_io = 1.0e-5_wp
@@ -36,11 +34,6 @@ call setfn_cvb(recn_tmp01,'TMP01')
 call setfn_cvb(recn_tmp02,'TMP02')
 call setfn_cvb(recn_tmp03,'TMP03')
 call setfn_cvb(recn_tmp04,'TMP04')
-call setfn_cvb(recn_tmp05,'TMP05')
-call setfn_cvb(recn_tmp06,'TMP06')
-call setfn_cvb(recn_tmp07,'TMP07')
-call setfn_cvb(recn_tmp08,'TMP08')
-call setfn_cvb(recn_tmp09,'TMP09')
 
 return
 

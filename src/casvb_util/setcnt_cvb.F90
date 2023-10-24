@@ -16,10 +16,10 @@
 !IFG trivial
 subroutine setcnt_cvb(civec,idep1)
 
+use casvb_global, only: ndet
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet)
 integer(kind=iwp) :: idep1
 integer(kind=iwp) :: ident_ci

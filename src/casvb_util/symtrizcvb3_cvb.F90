@@ -14,11 +14,11 @@
 
 subroutine symtrizcvb3_cvb(vecstr,idelstr)
 
+use casvb_global, only: lzrvb, nvb, nzrvb
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: vecstr(nvb)
 integer(kind=iwp) :: idelstr(nzrvb)
 integer(kind=iwp) :: i, ikeep

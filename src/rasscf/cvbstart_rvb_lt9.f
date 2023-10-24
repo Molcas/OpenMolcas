@@ -9,11 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine cvbstart_rvb_lt9(icode)
-      use casvb_global, only: iprm, iunset, lstprm
+      use casvb_global, only: endvar, iprm, iunset, lstprm, recinp,
+     &                        recinp_old, variat
       implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-#include "files_cvb.fh"
-
 
       variat=(mod(icode,10).ne.0)
       endvar=(mod(icode,10).eq.2)

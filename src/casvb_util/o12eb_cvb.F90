@@ -17,14 +17,13 @@ subroutine o12eb_cvb( &
 #                    include "optb_interface.fh"
                     )
 
-use casvb_global, only: cvb, expct, fxbest, have_solved_it, hh, ip, odx, orbs, scalesmall
+use casvb_global, only: cvb, expct, fxbest, have_solved_it, hh, ip, nfrorb, nvb, odx, orbs, scalesmall, strucopt
 use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "optb_interface.fh"
-#include "main_cvb.fh"
 integer(kind=iwp) :: i, ioptc2, ipu, iter2
 real(kind=wp) :: cnrm2, fac, fx_exp, resthr_old = -One, resthr_use
 logical(kind=iwp) :: skip

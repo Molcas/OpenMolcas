@@ -14,12 +14,11 @@
 
 subroutine parse_init_cvb(luinp)
 
-use casvb_global, only: inp
+use casvb_global, only: inp, variat
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: luinp
-#include "main_cvb.fh"
 
 inp = luinp
 call rdline_init_cvb(variat)

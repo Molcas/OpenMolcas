@@ -17,14 +17,13 @@ subroutine o12sa_cvb( &
 #                    include "opta_interface.fh"
                     )
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, cvb, cvbdet, have_solved_it, nvguess, nvrestart, &
-                        nvrhs, odx, orbs
+use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, cvb, cvbdet, have_solved_it, nprorb, nv, nvb, &
+                        nvguess, nvrestart, nvrhs, odx, orbs, strucopt
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 #include "opta_interface.fh"
-#include "main_cvb.fh"
 real(kind=wp), pointer :: vuse(:), vuse2(:)
 logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 

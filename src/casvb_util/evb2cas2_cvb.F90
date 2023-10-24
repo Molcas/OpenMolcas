@@ -15,20 +15,18 @@
 subroutine evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,dxnrm,dx_amx,civec,civb,civbh,res,resh)
 
 !Note: this was using "sorbs" and "owrk2" instead of "cvbdet" and "gjorb", probably a bug
-use casvb_global, only: cvbdet, dx, formAD, formAF, gjorb, grd
-use Constants, only: One
+use casvb_global, only: corenrg, cvbdet, dx, evb, formAD, formAF, gjorb, grd, ipr, memplenty, ndet, norb, nvb, ovraa, projcas
+use Constants, only: One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, dxnrm, dx_amx, civec(0:ndet), civb(0:ndet), civbh(0:ndet), res(0:ndet), resh(0:ndet)
 integer(kind=iwp) :: ioptc, iter
-#include "print_cvb.fh"
 real(kind=wp) :: cnrm, eig(2), h(2,2), orbinv(norb,norb), ovr, rescas_ovr, resnrm
 logical(kind=iwp) :: dx_ok, grad_ok
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
 
-if (ip(3) >= 0) then
+if (ipr(3) >= 0) then
   write(u6,'(/,a)') ' Starting VB2CAS optimization.'
   write(u6,'(a)') ' -----------------------------'
 end if
@@ -63,7 +61,7 @@ call cicopy_cvb(civb,civbh)
 call applyh_cvb(civbh)
 
 call cidot_cvb(civb,civbh,evb)
-if (ip(3) >= 2) write(u6,formAF) ' Residual calculation based on Evb :',evb+corenrg
+if (ipr(3) >= 2) write(u6,formAF) ' Residual calculation based on Evb :',evb+corenrg
 ! RES()=CIVBH()-EVB*CIVB()
 call cicopy_cvb(civbh,res)
 call cidaxpy_cvb(-evb,civb,res)
@@ -82,7 +80,7 @@ end if
 call ciwr_cvb(civb,67123.2_wp)
 
 call cinorm_cvb(res,resnrm)
-if (ip(3) >= 2) then
+if (ipr(3) >= 2) then
   write(u6,'(a)') ' '
   write(u6,formAD) ' Residual norm:',resnrm
   write(u6,'(a)') ' '
@@ -102,7 +100,7 @@ call applyh_cvb(resh)
 call cidot_cvb(resh,civb,h(2,1))
 call cidot_cvb(resh,res,h(2,2))
 
-if (ip(3) >= 2) then
+if (ipr(3) >= 2) then
   write(u6,*) ' 2x2 Hamiltonian matrix :'
   eig(1) = h(1,1)
   eig(2) = h(2,2)
@@ -114,18 +112,18 @@ if (ip(3) >= 2) then
 end if
 
 call mxdiag_cvb(h,eig,2)
-if (ip(3) >= 2) then
+if (ipr(3) >= 2) then
   write(u6,*) ' Eigenvalues :',eig(1)+corenrg,eig(2)+corenrg
   write(u6,*) ' Eigenvectors :'
   call mxprint_cvb(h,2,2,0)
 end if
 
 if (abs(h(1,1)) > abs(h(1,2))) then
-  if (ip(3) >= 2) write(u6,*) ' Using root 1 :'
+  if (ipr(3) >= 2) write(u6,*) ' Using root 1 :'
   call ciscale_cvb(civb,h(1,1))
   call cidaxpy_cvb(h(2,1),res,civb)
 else
-  if (ip(3) >= 2) write(u6,*) ' Using root 2 :'
+  if (ipr(3) >= 2) write(u6,*) ' Using root 2 :'
   call ciscale_cvb(civb,h(1,2))
   call cidaxpy_cvb(h(2,2),res,civb)
 end if

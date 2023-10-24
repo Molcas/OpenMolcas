@@ -14,15 +14,14 @@
 
 subroutine loopcntr_init_cvb(inputmode1,initfalse)
 
-use casvb_global, only: icode, inputmode, iopt2step, ioptcode, ioptim, ioptstep, istackrep, joptstep, loopstep, loopstepmx, &
-                        noptim, noptstep, nstackrep
-
+use casvb_global, only: icode, icrit, initial, inputmode, iopt2step, ioptcode, ioptim, ioptstep, istackrep, joptstep, lfxvb, &
+                        loopstep, loopstepmx, lzrvb, ndrot, nfxorb, nfxvb, nmcscf, noptim, noptstep, norb, norbrel, nort, &
+                        nstackrep, nzrvb, ploc, strucopt
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: inputmode1
 logical(kind=iwp) :: initfalse
-#include "main_cvb.fh"
 integer(kind=iwp) :: i, lll, noptkw, nrepkw
 logical(kind=iwp) :: constrained_opt, guess_available, initial_opts, svbfirst
 logical(kind=iwp), external :: ifcasci_cvb, & ! ... Files/Hamiltonian available ...

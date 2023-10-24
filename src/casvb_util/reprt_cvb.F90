@@ -14,24 +14,23 @@
 
 subroutine reprt_cvb()
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb5, cvb, cvbdet, cvbsspn, cvbstot, dvbdet, evbdet, formE, formroot, &
-                        formSymW, formVBWnorm, gjorb, gjorb2, gjorb3, ifhamil, orbinv, orbs, owrk2, sorbs, sstruc, sstruc2
+use casvb_global, only: civb1, civb2, civb3, civb4, civb5, corenrg, cvb, cvbdet, cvbsspn, cvbstot, dvbdet, endvar, esym, evb, &
+                        evbdet, formE, formroot, formSymW, formVBWnorm, gjorb, gjorb2, gjorb3, icrit, ifhamil, ipr, ishstruc, &
+                        ivbweights, lcalccivbs, lcalcevb, lcalcsvb, lciweights, mxirrep, ndetvb, nel, nirrep, norb, nvb, orbinv, &
+                        orbs, owrk2, proj, savvb, sc, sij, sorbs, sstruc, sstruc2, svb, variat
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, ii, iimx, iorb, iroot, k, l, nr_print
-real(kind=wp) :: cnrm, fac, occ_nel, rsum, sum1, sum2, swp
+real(kind=wp) :: cnrm, fac, occ_nel, rsum, sum1, sum2, swp, wsym(mxirrep)
 logical(kind=iwp) :: make_sstruc
 real(kind=wp), allocatable :: dmat(:,:), occ(:)
 real(kind=wp), external :: ddot_
 logical(kind=iwp), external :: valid_cvb, ifcasci_cvb ! ... Files available ...
 
-if (ip(5) >= 1) then
+if (ipr(5) >= 1) then
   call report_cvb(orbs,norb)
   write(u6,'(/,a)') ' Structure coefficients :'
   write(u6,'(a)') ' ------------------------'
@@ -51,7 +50,7 @@ call symweight_cvb(civb2,civb2,wsym)
 ! Save VB wavefunction
 call setsavvb_cvb(savvb)
 if (valid_cvb(savvb)) then
-  if (ip(5) >= 1) then
+  if (ipr(5) >= 1) then
     write(u6,'(a)') ' '
     call prtfid_cvb(' Saving VB wavefunction to ',savvb)
   end if
@@ -82,12 +81,12 @@ if (lcalcevb) then
     end if
   end do
 end if
-if (lcalcsvb .and. (ip(5) >= 1)) then
+if (lcalcsvb .and. (ipr(5) >= 1)) then
   write(u6,'(a)') ' '
   write(u6,formE) ' Svb :      ',svb
-  if ((lcalcevb .and. (ip(5) >= 1)) .or. ((icrit == 2) .and. (ip(3) < 0) .and. (ip(5) >= 1))) write(6,formE) ' Evb :      ',evb
+  if ((lcalcevb .and. (ipr(5) >= 1)) .or. ((icrit == 2) .and. (ipr(3) < 0) .and. (ipr(5) >= 1))) write(6,formE) ' Evb :      ',evb
 else
-  if ((lcalcevb .and. (ip(5) >= 1)) .or. ((icrit == 2) .and. (ip(3) < 0) .and. (ip(5) >= 1))) then
+  if ((lcalcevb .and. (ipr(5) >= 1)) .or. ((icrit == 2) .and. (ipr(3) < 0) .and. (ipr(5) >= 1))) then
     write(u6,'(a)') ' '
     write(u6,formE) ' Evb :      ',evb
   end if
@@ -118,7 +117,7 @@ if ((.not. variat) .or. endvar) then
   sum1 = ddot_(nvb,cvb,1,cvbstot,1)
   call vb2strg_cvb(cvbdet,cvbsspn)
   sum2 = ddot_(nvb,cvb,1,cvbsspn,1)
-  if (((ip(5) >= 1) .and. (ivbweights < 0)) .or. ((ivbweights >= 0) .and. (mod(ivbweights,2) == 1))) then
+  if (((ipr(5) >= 1) .and. (ivbweights < 0)) .or. ((ivbweights >= 0) .and. (mod(ivbweights,2) == 1))) then
     write(u6,'(/,a)') ' Chirgwin-Coulson weights of structures :'
     write(u6,'(a)') ' ----------------------------------------'
     write(u6,formVBWnorm) ' VB spin+space (norm ',sum1,') :'
@@ -282,7 +281,7 @@ if ((.not. variat) .or. endvar) then
 
   call dscal_(nvb,cnrm,cvb,1)
 
-  if ((ip(5) >= 1) .and. (nirrep > 1)) then
+  if ((ipr(5) >= 1) .and. (nirrep > 1)) then
     write(u6,'(/,a)') ' Symmetry contributions to total VB wavefunction :'
     write(u6,'(a)') ' -------------------------------------------------'
     iimx = min(4,nirrep)
@@ -302,7 +301,7 @@ if ((.not. variat) .or. endvar) then
       end if
     end if
   end if
-  if (ip(5) >= 1) then
+  if (ipr(5) >= 1) then
     write(u6,'(/,a)') ' One-electron density :'
     write(u6,'(a)') ' ----------------------'
     call mxprint_cvb(dmat,norb,norb,0)

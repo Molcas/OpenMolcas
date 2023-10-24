@@ -17,13 +17,12 @@ subroutine asonc7_cvb( &
 #                     include "ddasonc_interface.fh"
                      )
 
-use casvb_global, only: ipp7, iter7, ograd
+use casvb_global, only: cpu0, ipp7, iter7, ograd
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddasonc_interface.fh"
-#include "main_cvb.fh"
 integer(kind=iwp) :: ivec
 real(kind=wp), parameter :: thresh = 1.0e-15_wp
 real(kind=wp), external :: ddot_, dnrm2_, tim_cvb

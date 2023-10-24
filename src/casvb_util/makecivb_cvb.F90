@@ -17,12 +17,11 @@ subroutine makecivb_cvb(civec,civb,cvbdet,orbs,cvb,ic)
 ! IC=0 : CIVB will contain full set of structures (if PROJCAS).
 ! IC=1 : CIVB will contain only VB structures.
 
-use casvb_global, only: gjorb_type
+use casvb_global, only: gjorb_type, memplenty, ndet, ndetvb, norb, nvb, projcas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet), civb(0:ndet), cvbdet(ndetvb), orbs(norb,norb), cvb(nvb)
 integer(kind=iwp) :: ic
 type(gjorb_type) :: gjorb

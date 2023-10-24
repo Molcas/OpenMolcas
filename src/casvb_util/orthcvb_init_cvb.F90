@@ -14,11 +14,10 @@
 
 subroutine orthcvb_init_cvb()
 
-use casvb_global, only: cvb, cvbnrm_fr, nfrag, nvb_fr
+use casvb_global, only: cvb, cvbnrm, cvbnrm_fr, nfrag, nvb, nvb_fr
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: ifr_off, ifrag
 real(kind=wp), external :: ddot_
 

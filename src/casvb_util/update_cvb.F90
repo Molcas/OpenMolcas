@@ -14,13 +14,12 @@
 
 subroutine update_cvb(dx)
 
-use casvb_global, only: cvb, iorts, orbs, sorbs, vbdet
+use casvb_global, only: cvb, iorts, norb, nort, npr, nprorb, nvb, orbopt, orbs, sorbs, strucopt, sym, vbdet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: dx(*)
-#include "main_cvb.fh"
 integer(kind=iwp) :: ic
 real(kind=wp), allocatable :: orbs1(:,:), cvb1(:)
 logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...

@@ -18,8 +18,6 @@ use casvb_global, only: is_set
 use Definitions, only: iwp
 
 implicit none
-#include "Molcas.fh"
-#include "main_cvb.fh"
 integer(kind=iwp), parameter :: iset = 1
 
 if (is_set == iset) return

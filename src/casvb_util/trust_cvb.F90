@@ -14,9 +14,8 @@
 
 subroutine trust_cvb(iopth,opth,maxize,fx,fxbest,expc,hh,dxnrm,ioptc,scalesmall1,close2conv,converged,skipupd)
 
-use casvb_global, only: cpropt, delopth1, delopth2, dfxmin, formAD, hhaccfac, hhkeep, hhmax, hhopt, hhrejfac, hhtol, nopth1, &
+use casvb_global, only: cpropt, delopth1, delopth2, dfxmin, formAD, hhaccfac, hhkeep, hhmax, hhopt, hhrejfac, hhtol, ipr, nopth1, &
                         nopth2, scalesmall, zzacclim, zzrejmax, zzrejmin
-
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -24,7 +23,6 @@ implicit none
 integer(kind=iwp) :: iopth, ioptc
 real(kind=wp) :: fx, fxbest, expc, hh, dxnrm
 logical(kind=iwp) :: opth, maxize, scalesmall1, close2conv, converged, skipupd
-#include "print_cvb.fh"
 integer(kind=iwp) :: icprbst, icprbst2, idum, iop, ioptst, ipu, nopth
 real(kind=wp) :: cprbst, dfx, dum, gap2, hh_min, hhlargest, oldstep, scl, zz
 logical(kind=iwp) :: dfx_ok, zz_ok
@@ -113,7 +111,7 @@ do
         hh = Zero
         return
       end if
-      if (ip(3) >= 1) write(u6,'(a)') ' Rejecting step.'
+      if (ipr(3) >= 1) write(u6,'(a)') ' Rejecting step.'
       call findmn_cvb(hhopt,nopth,hh_min,idum)
       hhkeep = min(hh_min,hhkeep)*hhrejfac(ipu)
       gap2 = hhkeep*delopth1(ipu)*delopth2(ipu)
@@ -121,7 +119,7 @@ do
       hhlargest = hhkeep*(One+(real(nopth1(ipu),kind=wp)-Half*real(nopth1(ipu)+1,kind=wp))*delopth1(ipu))+ &
                   gap2*(real(nopth-nopth1(ipu),kind=wp)-Half*real(nopth2(ipu)+1,kind=wp))
       if (hhlargest < hhtol(ipu)) then
-        if (ip(3) >= 0) then
+        if (ipr(3) >= 0) then
           write(u6,formAD) ' Trust region size smaller than tolerance !',hhlargest,hhtol(ipu)
           write(u6,'(a)') ' Calculation NOT converged!'
         end if
@@ -130,7 +128,7 @@ do
       end if
     end if
   else
-    if ((iopth == 0) .and. (nopth > 1) .and. (ip(3) >= 2)) write(u6,'(/,a)') ' Optimising trust region size :'
+    if ((iopth == 0) .and. (nopth > 1) .and. (ipr(3) >= 2)) write(u6,'(/,a)') ' Optimising trust region size :'
     opth = .true.
     iopth = iopth+1
     ioptst = mod(iopth,nopth)

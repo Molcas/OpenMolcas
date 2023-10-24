@@ -14,12 +14,11 @@
 
 subroutine mkgrd_cvb(civb,civb2,grad,dvbdet,np,doorb)
 
-use casvb_global, only: vbdet
+use casvb_global, only: ndet, ndetvb, npr, nprorb, nvb, strucopt, vbdet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civb(0:ndet), civb2(0:ndet), grad(npr), dvbdet(ndetvb)
 integer(kind=iwp) :: np
 logical(kind=iwp) :: doorb

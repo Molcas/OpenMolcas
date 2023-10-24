@@ -14,12 +14,12 @@
 
 subroutine setipermzeta_cvb(ipermzeta,orbs,symelm,izeta)
 
+use casvb_global, only: norb, nsyme, nzeta, tags
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: ipermzeta(norb,nzeta), izeta(nsyme)
 real(kind=wp) :: orbs(norb,norb), symelm(norb*norb,nsyme)
 integer(kind=iwp) :: iorb, isyme, izeta1, jorb

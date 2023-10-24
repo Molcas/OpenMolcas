@@ -14,10 +14,10 @@
 
 subroutine symtriz_cvb(orbs,cvb)
 
+use casvb_global, only: norb, nvb
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), cvb(nvb)
 
 call symtrizorbs_cvb(orbs)

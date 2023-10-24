@@ -14,13 +14,11 @@
 
 subroutine writegs_cvb()
 
-use casvb_global, only: cvb, cvbdet, iapr, ixapr, orbs
+use casvb_global, only: cvb, cvbdet, iapr, ixapr, nalf, nbet, nda, ndetvb, norb, orbs, recn_tmp04
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
 integer(kind=iwp) :: ia, ib, idetvb, ioffs, ixa
 integer(kind=iwp), allocatable :: iabind(:)
 

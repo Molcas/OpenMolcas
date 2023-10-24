@@ -19,7 +19,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ippinp
-#include "main_cvb.fh"
 
 iter7 = 0
 ipp7 = ippinp

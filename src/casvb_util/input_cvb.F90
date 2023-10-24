@@ -14,17 +14,18 @@
 
 subroutine input_cvb()
 
-use casvb_global, only: confsinp, gsinp, i2s_fr, inputmode, mnion_fr, mxion_fr, nalf_fr, nbet_fr, nconf_fr, nconfion_fr, &
-                        ndetvb_fr, ndetvb2_fr, nel_fr, nfrag, nMs_fr, nS_fr, nspinb, nvbr_fr, spinbkw
+use casvb_global, only: absym, confsinp, gsinp, i2s_fr, iciweights, icrit, imethod, initial, inputmode, iorbprm, ipr, iprec, &
+                        isaddle, ishstruc, isympr, isymv, ityp, ivbweights, iwidth, kbasis, lfxvb, lzrvb, mnion, mnion_fr, mxaobf, &
+                        mxion, mxion_fr, mxirrep, mxiter, mxorb_cvb, mxops, mxsyme, nalf, nalf_fr, nbet, nbet_fr, nconf, nconf_fr, &
+                        nconfion_fr, ndetvb, ndetvb_fr, ndetvb2_fr, ndimrel, ndrot, nel, nel_fr, nfrag, nfxorb, nfxvb, nijrel, &
+                        nMs_fr, noe, norb, norbrel, nort, npcf, nS_fr, nspinb, nsyme, nvb, nvbinp, nvbr_fr, nzrvb, ploc, projcas, &
+                        projsym, recinp, recinp_old, recn_tmp01, recn_tmp02, savvb, savvbci, sc, service, sij, spinbkw, strtci, &
+                        strtint, strtmo, strtvb, tags
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, i2s_min, iconf_add, idum(1), ifrag, ifrom, ifsc, igroup, io, ioffs, iorb, ip_from, ip_to, iS, istr, istr2, &
                      isyme, isymput, itag, ito, jconf, jorb, kbasis_old, kbasiscvb_inp, mxalter, mxdimrel, mxortl, mxpair, mxread, &
                      nelcheck, nfrorb1, nfxorb1, nmov, nops, nread
@@ -168,7 +169,7 @@ else
         call gsinp_cvb(orbs,irdorbs,nvbinp,kbasiscvb_inp,mxaobf,mxorb_cvb,kbasis,strtvb)
       else if (istr == 4) then
         ! 'PRINT'
-        call int_cvb(ip,10,nread,1)
+        call int_cvb(ipr,10,nread,1)
       else if (istr == 5) then
         ! 'PREC'
         call int_cvb(idum,1,nread,1)
@@ -417,9 +418,7 @@ else
     else if (istr == 32) then
       ! 'METHOD'
       call fstring_cvb(methkw,nmeth,istr2,ncmp,1)
-      if (istr2 /= 0) then
-        imethod = istr2
-      end if
+      if (istr2 /= 0) imethod = istr2
     else if ((istr == 33) .or. (istr == 34)) then
       ! 'OPTIM' or 'OPT'
       call maxdims_cvb()
@@ -441,7 +440,8 @@ else
       call tuneinp_cvb()
     else if (istr == 41) then
       ! 'OPPOSITE'
-      opposite = .true.
+      ! very good, but useless because this variable is unused
+      !opposite = .true.
     else if (istr == 44) then
       ! 'STAT'
       if (firsttime_cvb()) call touch_cvb('STAT')
@@ -553,13 +553,9 @@ if (inputmode == 2) then
     iconf_add = iconf_add+nconf_fr(ifrag)
   end do
   ndetvb = 0
-  ndetvb2 = 0
-  nvbr = 0
   nelcheck = 0
   do i=1,nfrag
     ndetvb = ndetvb+ndetvb_fr(i)
-    ndetvb2 = ndetvb2+ndetvb2_fr(i)
-    nvbr = nvbr+nvbr_fr(i)
     nelcheck = nelcheck+nel_fr(i)
   end do
   if (nelcheck /= nel) then

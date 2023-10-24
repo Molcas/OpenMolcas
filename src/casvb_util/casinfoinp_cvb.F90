@@ -14,11 +14,12 @@
 
 subroutine casinfoinp_cvb()
 
+use casvb_global, only: iorclos_d, iorcore_d, iorocc_d, istms2_d, istnel_d, istsy_d, mxirrep_ci, mxstsy_ci, mxstt_ci, nstats_d, &
+                        nstsym_d, weight_d
 use Constants, only: One
 use Definitions, only: iwp, u6
 
 implicit none
-#include "casinfo_cvb.fh"
 integer(kind=iwp), parameter :: ncmp = 4, nstrin = 6
 integer(kind=iwp) :: istr, nactel(3), nread
 character(len=8), parameter :: string(nstrin) = ['RAS2    ','INACTIVE','FROZEN  ','NACTEL  ','SPIN    ','SYMMETRY']

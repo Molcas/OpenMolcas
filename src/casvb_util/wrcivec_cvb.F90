@@ -21,7 +21,6 @@ implicit none
 real(kind=wp) :: detvec(*)
 character(len=*) :: fn
 logical(kind=iwp) :: reord
-#include "SysDef.fh"
 #include "rasdim.fh"
 #include "jobiph_j.fh"
 integer(kind=iwp) :: i, iDisk, iwr, j, k, lujob, ncix(8), ndet_j

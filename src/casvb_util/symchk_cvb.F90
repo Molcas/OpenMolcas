@@ -17,7 +17,6 @@ subroutine symchk_cvb()
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 logical(kind=iwp), external :: recinpcmp_cvb, up2date_cvb ! ... Make: up to date? ...
 
 if (up2date_cvb('SYMINIT')) then

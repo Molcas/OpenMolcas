@@ -15,11 +15,10 @@
 subroutine applythmes_cvb(civbh,orbs)
 ! Apply T(O) (H - E) T(O) to CIVBH:
 
-use casvb_global, only: gjorb, gjorb2, ww
+use casvb_global, only: gjorb, gjorb2, ndet, norb, ovraa, ww
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civbh(0:ndet), orbs(norb,norb)
 
 call makegjorbs_cvb(orbs)

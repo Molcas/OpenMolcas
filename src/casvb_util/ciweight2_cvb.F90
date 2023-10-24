@@ -14,17 +14,15 @@
 
 subroutine ciweight2_cvb(civec,civbs,civb,citmp,civec5,orbs,sorbs,orbinv,owrk,ionmin,ionmax,mxrem,mxsng,mxasg,ncnfcas,mxdetcas)
 
-use casvb_global, only: form2AD, formAD, gjorb, gjorb2, gjorb3
+use casvb_global, only: form2AD, formAD, gjorb, gjorb2, gjorb3, iciweights, iprec, nalf, nbet, nda, ndet, nel, norb, npcf, svb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: ionmin, ionmax, mxrem, mxsng, mxasg, ncnfcas, mxdetcas
 real(kind=wp) :: civec(0:ndet), civbs(0:ndet), civb(0:ndet), citmp(0:ndet), civec5(0:ndet), orbs(norb,norb), sorbs(norb,norb), &
                  orbinv(norb,norb), owrk(norb,norb)
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, ia, iaorb, ib, ibeg, ibegt, iborb, ic, idet, ilin, inda, indab, indasg, indb, indion, indsng, ion, iorb, &
                      ix1, lenfld, mp, mrem, nalfsng, nbetsng, nc, nindasg, nprint, nsing, rc
 real(kind=wp) :: c1, c2, c3, c4, cnrm, cprint(6), fac, fac1, fac2, s11, s12, s22, sm1, sm2, sum1, sum2, total1, total2, total3, &

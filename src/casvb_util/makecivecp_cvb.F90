@@ -15,12 +15,11 @@
 subroutine makecivecp_cvb(civec,civecp,orbs)
 ! Construct CIVECP:
 
-use casvb_global, only: gjorb_type
+use casvb_global, only: gjorb_type, memplenty, ndet, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet), civecp(0:ndet), orbs(norb,norb)
 type(gjorb_type) :: gjorb
 real(kind=wp), allocatable :: owrk(:,:)

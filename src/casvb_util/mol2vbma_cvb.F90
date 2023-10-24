@@ -14,10 +14,10 @@
 
 subroutine mol2vbma_cvb(vecvb,vecmol,isyml,fac)
 
+use casvb_global, only: nalf, nbet, ndet, norb
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: vecvb(ndet), vecmol(*), fac
 integer(kind=iwp) :: isyml
 integer(kind=iwp) :: iwr, nsa, nsb

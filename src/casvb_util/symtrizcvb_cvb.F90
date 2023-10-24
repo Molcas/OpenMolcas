@@ -14,11 +14,10 @@
 
 subroutine symtrizcvb_cvb(vecstr)
 
-use casvb_global, only: idelstr, ipermzeta, izeta, tconstr
+use casvb_global, only: iconstruc, idelstr, ipermzeta, izeta, nconstr, nvb, tconstr
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: vecstr(nvb)
 real(kind=wp) :: dum(1)
 

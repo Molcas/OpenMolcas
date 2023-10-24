@@ -14,14 +14,13 @@
 
 subroutine mksyminit_cvb()
 
-use casvb_global, only: corth, idelstr, ifxorb, ifxstr, iorbrel, iorts, irels, irots, izeta, north, relorb, symelm
+use casvb_global, only: corth, idelstr, ifxorb, ifxstr, iorbrel, iorts, irels, irots, izeta, ndimrel, ndrot, nfxvb, nijrel, &
+                        niorth, norb, norbrel, nort, north, nsyme, nzrvb, recinp, relorb, symelm
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "files_cvb.fh"
 integer(kind=iwp) :: i, iaddr, icnt, ieig, ifail, ii, iior, ijrel, ijrel2, il, ioffs, iorb, iorb2, ir, irel, ishift, ishift2, j, &
                      jj, jl, jor, jorb, jorb2, korb, nciorth, ncount, nrel
 real(kind=wp) :: dum(1)

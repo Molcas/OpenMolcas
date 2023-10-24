@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,corenrg,ipinp,ipdd1,ipdd2,strucopt)
+subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,ipinp,ipdd1,ipdd2,strucopt)
 !***********************************************************************
 !*                                                                     *
 !*  Routine for second-order optimization.                             *
@@ -36,14 +36,15 @@ subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,corenrg,ipinp,
 !*                                                                     *
 !***********************************************************************
 
-use casvb_global, only: eigval, eigvec, expct, fxbest, hh, hhkeep, hhstart, ip, isaddle, maxize, odx, odxp, ograd, ogradp, owrk
+use casvb_global, only: corenrg, eigval, eigvec, expct, fxbest, hh, hhkeep, hhstart, ip, isaddleo, maxize, odx, odxp, ograd, &
+                        ogradp, owrk
 use casvb_interfaces, only: opta_sub, optb_sub
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: fx, corenrg
+real(kind=wp) :: fx
 integer(kind=iwp) :: ioptc, iter, imethod, isadinp, mxiter, ipinp, ipdd1, ipdd2
 logical(kind=iwp) :: maxinp, strucopt
 integer(kind=iwp) :: ifollow, maxd, mxit, n_div, nfrdim, nfrdim_dav, nparm, nparm_dav
@@ -57,7 +58,7 @@ if (mxiter == 0) then
 end if
 
 ! Initialize for new optimization - input parameters:
-isaddle = isadinp
+isaddleo = isadinp
 maxize = maxinp
 ip = ipinp
 
@@ -111,7 +112,7 @@ do iter=1,mxiter
     call mma_allocate(ograd,nparm+1,label='ograd')
     maxd = min(nparm+1,200)
     mxit = 500
-    call ddinit_cvb('AxEx',nparm+1,nfrdim+1,maxd,mxit,ifollow,isaddle,ipdd1,Zero,n_div)
+    call ddinit_cvb('AxEx',nparm+1,nfrdim+1,maxd,mxit,ifollow,isaddleo,ipdd1,Zero,n_div)
     call asonC7init_cvb(ipdd2)
     call optize2_cvb(fx,nparm,ioptc,iter_is_1,o7a_cvb,o7b_cvb)
     call ddclean_cvb()
@@ -128,7 +129,7 @@ do iter=1,mxiter
     call mma_allocate(ograd,nparm,label='ograd')
     maxd = min(nparm,200)
     mxit = 500
-    call ddinit_cvb('AxExb',nparm,nfrdim,maxd,mxit,ifollow,isaddle,ipdd1,Zero,n_div)
+    call ddinit_cvb('AxExb',nparm,nfrdim,maxd,mxit,ifollow,isaddleo,ipdd1,Zero,n_div)
     call asonc10init_cvb(ipdd2)
     call optize2_cvb(fx,nparm,ioptc,iter_is_1,o10a_cvb,o10b_cvb)
     call ddclean_cvb()
@@ -144,7 +145,7 @@ do iter=1,mxiter
     call mma_allocate(ograd,nparm_dav,label='ograd')
     maxd = min(nparm_dav,200)
     mxit = 500
-    call ddinit_cvb('Axb',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddle,ipdd1,Zero,0)
+    call ddinit_cvb('Axb',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddleo,ipdd1,Zero,0)
     call asonc12sinit_cvb(ipdd2)
     call optize2_cvb(fx,nparm_dav,ioptc,iter_is_1,o12sa_cvb,o12sb_cvb)
     call ddclean_cvb()
@@ -160,7 +161,7 @@ do iter=1,mxiter
     call mma_allocate(ograd,nparm_dav,label='ograd')
     maxd = min(nparm_dav,200)
     mxit = 500
-    call ddinit_cvb('AxESx',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddle,ipdd1,corenrg,n_div)
+    call ddinit_cvb('AxESx',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddleo,ipdd1,corenrg,n_div)
     call asonc12einit_cvb(ipdd2)
     call optize2_cvb(fx,nparm_dav,ioptc,iter_is_1,o12ea_cvb,o12eb_cvb)
     call ddclean_cvb()

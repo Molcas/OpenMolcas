@@ -19,10 +19,10 @@
 !***********************************************************************
 subroutine cidot_cvb(cvec1,cvec2,ret)
 
+use casvb_global, only: iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvec1(0:ndet), cvec2(0:ndet), ret
 integer(kind=iwp) :: iformat1, iformat2, ivec1, ivec2
 real(kind=wp), external :: ddot_

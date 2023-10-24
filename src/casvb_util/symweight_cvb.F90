@@ -19,10 +19,10 @@
 !***********************************************************************
 subroutine symweight_cvb(civec1,civec2,osym)
 
+use casvb_global, only: mxirrep, ndet
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec1(0:ndet), civec2(0:ndet), osym(mxirrep)
 
 call psym1_cvb(civec1(1:),civec2(1:),osym,2)

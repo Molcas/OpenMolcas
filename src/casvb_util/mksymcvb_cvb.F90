@@ -14,26 +14,24 @@
 
 subroutine mksymcvb_cvb()
 
-use casvb_global, only: cvb, vbdet
+use casvb_global, only: cvb, iconstruc, ipr, nvb, vbdet
 use Definitions, only: wp, u6
 
 implicit none
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 real(kind=wp) :: psnrm
 real(kind=wp), parameter :: thresh = 1.0e-15_wp
 real(kind=wp), external :: ddot_
 
 ! Constraints on struc coeffs - either symmetry or deleted
 if (iconstruc > 0) then
-  if (ip(1) >= 0) write(u6,'(/,a)') ' Imposing constraints on the structure coefficients.'
+  if (ipr(1) >= 0) write(u6,'(/,a)') ' Imposing constraints on the structure coefficients.'
   call symtrizcvb_cvb(cvb)
   psnrm = ddot_(nvb,cvb,1,cvb,1)
   if (psnrm < thresh) then
     write(u6,*) ' Fatal error - structure coefficients null after symmetrization!'
     call abend_cvb()
   end if
-  if (ip(1) >= 0) then
+  if (ipr(1) >= 0) then
     write(u6,'(/,a)') ' Constrained structure coefficients :'
     write(u6,'(a)') ' ------------------------------------'
     call vecprint_cvb(cvb,nvb)

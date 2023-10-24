@@ -15,11 +15,10 @@
 subroutine oohess_cvb(orbs,civecp,civbs,civb,orbinv,sorbs,owrk,grad2,gradx,hessorb,hesst)
 ! Evaluate "cheap" orbital <-> orbital part of hessian:
 
-use casvb_global, only: aa1, oaa2, f1, f2, ww
+use casvb_global, only: aa1, f1, f2, icrit, ndet, norb, npr, nprorb, oaa2, ovraa, proj, projcas, ww
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), civecp(0:ndet), civbs(0:ndet), civb(0:ndet), orbinv(norb,norb), sorbs(norb,norb), &
                  owrk(norb,norb), grad2(npr), gradx(norb,norb), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb)
 integer(kind=iwp) :: ifr1, ifr2, iorb, iprm, iprm1, iprm2, jorb, korb, lorb

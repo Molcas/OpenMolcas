@@ -14,14 +14,13 @@
 
 subroutine dpgendet_cvb()
 
-use casvb_global, only: ia12ind, iapr1, ib12ind, ibpr1, iconfs, idetvb, ixapr1, ixbpr1, nalf_fr, nbet_fr, nconf_fr, nconfion_fr, &
-                        nda_fr, ndb_fr, ndetvb_fr, nel_fr, nfrag
+use casvb_global, only: ia12ind, iapr1, ib12ind, ibpr1, iconfs, idetvb, ixapr1, ixbpr1, nalf, nalf_fr, naprodvb, nbet, nbet_fr, &
+                        nbprodvb, nconf_fr, nconfion_fr, nda_fr, ndb_fr, ndetvb_fr, nel_fr, noe, norb, nfrag
 use Data_Structures, only: Alloc1DiArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: iapr_add, ibpr_add, iconfs_add, idetvb_add, ifrag, ixapr_add, ixbpr_add, mxstack, nalf_l, nbet_l, nda_l, ndb_l
 type(Alloc1DiArray_Type) :: astr_fr(nfrag), bstr_fr(nfrag)
 

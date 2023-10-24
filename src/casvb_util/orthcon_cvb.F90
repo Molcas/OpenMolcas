@@ -14,11 +14,11 @@
 
 subroutine orthcon_cvb(ipairs,mxortl,mxpair)
 
+use casvb_global, only: mxorb_cvb, nort
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp), parameter :: ncmp = 4, nstrin = 7, mxgroup = 40
 integer(kind=iwp) :: mxpair, ipairs(2,mxpair), mxortl
 integer(kind=iwp) :: i, igrp, io, ior1, ior2, ipar, isp, istr, j, jo, jor1, jor2, jsp, ngrp, npairs, nread, nsp

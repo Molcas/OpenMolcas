@@ -14,11 +14,10 @@
 
 subroutine all2free_cvb(vecfrom,vecto,nvec)
 
-use casvb_global, only: trprm
+use casvb_global, only: nfr, nfrorb, npr, nprorb, nprvb, orbfr_is_unit, trprm
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: nvec
 real(kind=wp) :: vecfrom(npr,nvec), vecto(nfr,nvec)
 integer(kind=iwp) :: ivec

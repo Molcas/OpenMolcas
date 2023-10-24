@@ -14,13 +14,12 @@
 
 subroutine dpci2vb2_cvb(civec,cvbdet,dvbdet,evbdet,ic1,ret,ic)
 
-use casvb_global, only: ia12ind, iapr1, ib12ind, ixapr1, nda_fr, ndb_fr, ndetvb_fr, nfrag
+use casvb_global, only: ia12ind, iapr1, ib12ind, ixapr1, nda, nda_fr, ndb, ndb_fr, ndetvb, ndetvb_fr, nfrag
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: ic1, ic
 real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb), ret
 integer(kind=iwp) :: i, ia, ia_ci, ib, ib_ci, idetvb, ifr, iter, ixa, jfr, kfr, mxiter, ndetvb_add, nestlevel, nloop

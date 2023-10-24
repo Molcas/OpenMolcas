@@ -14,15 +14,13 @@
 
 subroutine prtopt2_cvb(iopt1,ioptim,italter,noptim,iorts,ifxorb,ifxstr,idelstr)
 
-use casvb_global, only: spinb
+use casvb_global, only: icrit, ifinish, imethod, ipr, isaddle, kbasis, lfxvb, lzrvb, mxiter, nfxorb, nfxvb, norb, nort, nvb, &
+                        nzrvb, projcas, projsym, spinb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: iopt1, ioptim, italter, noptim, iorts(2,norb*(norb-1)/2), ifxorb(norb), ifxstr(nvb), idelstr(nvb)
-#include "optze_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: i, ifx, ii, io
 character(len=9) :: sbformat
 character(len=3) :: ayn
@@ -32,14 +30,14 @@ character(len=8), parameter :: methkw(12) = ['Fletcher','    TRIM','Trustopt','D
 integer(kind=iwp), external :: len_trim_cvb
 
 if (ifinish == 0) then
-  if ((ip(3) >= 1) .or. ((ip(3) == 0) .and. ((iopt1 == 0) .or. (italter == 1)))) then
+  if ((ipr(3) >= 1) .or. ((ipr(3) == 0) .and. ((iopt1 == 0) .or. (italter == 1)))) then
     if (noptim == 1) then
       write(u6,'(/,a)') ' -- Starting optimization ------------------'
     else
       write(u6,'(/,a,i3,a)') ' -- Starting optimization - step',ioptim,' --------'
     end if
   end if
-  if ((ip(3) >= 1) .and. ((iopt1 == 0) .or. (italter == 1))) then
+  if ((ipr(3) >= 1) .and. ((iopt1 == 0) .or. (italter == 1))) then
     if (icrit == 1) then
       write(u6,'(/,a)') ' Overlap-based optimization (Svb).'
     else if (icrit == 2) then
@@ -100,7 +98,7 @@ if (ifinish == 0) then
   end if
   if ((iopt1 == 0) .or. (italter == 1)) call tuneprint_cvb()
 else if (ifinish < 3) then
-  if ((ip(3) >= 1) .or. ((ip(3) == 0) .and. ((iopt1 == 0) .or. (italter == 1)))) then
+  if ((ipr(3) >= 1) .or. ((ipr(3) == 0) .and. ((iopt1 == 0) .or. (italter == 1)))) then
     if (noptim == 1) then
       write(u6,'(/,a)') ' -- Wavefunction summary -------------------'
     else

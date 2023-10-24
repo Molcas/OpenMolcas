@@ -24,10 +24,10 @@
 !***********************************************************************
 subroutine cnfcheck_cvb(iconfs,nconf1,nel1)
 
+use casvb_global, only: noe
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
 
 call cnfcheck2_cvb(iconfs,nconf1,nel1)

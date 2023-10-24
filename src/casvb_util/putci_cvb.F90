@@ -14,17 +14,14 @@
 
 subroutine putci_cvb(civec)
 
+use casvb_global, only: filename, iform_ci, ipr, istms2_d, istnel_d, istsy_d, mxirrep, ndet, nstats_d, nstsym_d, savvbci, strtci, &
+                        variat, weight_d
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: civec(0:ndet)
-#include "files_cvb.fh"
-#include "print_cvb.fh"
-#include "casinfo_cvb.fh"
-#include "io_cvb.fh"
 integer(kind=iwp) :: ibf, icivec, istate, istsym_d, isyml, iwr, nci, ncix(mxirrep)
 real(kind=wp) :: cnrm, fac
 real(kind=wp), allocatable :: cim(:)
@@ -40,13 +37,13 @@ if (iform_ci(icivec) /= 0) then
 end if
 
 if (iwr == 0) then
-  if (ip(1) >= 1) then
+  if (ipr(1) >= 1) then
     write(u6,'(a)') ' '
     call prtfid_cvb(' Restoring CI vector from ',strtci)
   end if
   call fzero(civec(1:),ndet)
 else if (iwr == 1) then
-  if ((ip(5) >= 1) .and. valid_cvb(savvbci)) then
+  if ((ipr(5) >= 1) .and. valid_cvb(savvbci)) then
     write(u6,'(a)') ' '
     call prtfid_cvb(' Saving VB CI vector to ',savvbci)
   end if

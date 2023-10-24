@@ -14,12 +14,12 @@
 
 subroutine ortelim_cvb(trprm,iorts,irots,sorbs,nc,npr1,norbprm,nrem)
 
+use casvb_global, only: ndrot, norb, nort
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: iorts(2,nort), irots(2,ndrot), nc, npr1, norbprm, nrem
 real(kind=wp) :: trprm(npr1,npr1), sorbs(norb,norb)
 integer(kind=iwp) :: i, iorb, iort, irot, jorb, ki, kj, korb

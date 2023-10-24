@@ -16,12 +16,12 @@
 !IFG trivial
 function igetcnt2_cvb(ident_ci)
 
+use casvb_global, only: icnt_ci
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: igetcnt2_cvb
 integer(kind=iwp) :: ident_ci
-#include "main_cvb.fh"
 
 igetcnt2_cvb = icnt_ci(ident_ci)
 

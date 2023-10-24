@@ -14,12 +14,12 @@
 
 subroutine symtrizcvb2_cvb(vecstr,izeta,ipermzeta)
 
+use casvb_global, only: ndetvb, norb, nsyme, nvb, nzeta
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: izeta(nsyme), ipermzeta(norb,nzeta)
 real(kind=wp) :: vecstr(nvb)
 integer(kind=iwp) :: isyme, izeta1

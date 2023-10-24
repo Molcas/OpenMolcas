@@ -14,13 +14,12 @@
 
 subroutine fxdx_cvb(fx,fast,dx)
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvbdet, cvbtry, orbstry
+use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvbdet, cvbtry, dxmove, icrit, memplenty, orbstry
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: fx, dx(*)
 logical(kind=iwp) :: fast
-#include "main_cvb.fh"
 
 dxmove = .false.
 call upd_cvb(dx,orbstry,cvbtry)

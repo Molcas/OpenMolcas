@@ -14,16 +14,15 @@
 
 subroutine stat1_cvb()
 
+use casvb_global, only: cpu0, cpu_prev, endvar, ipr, n_2el, n_applyh, n_applyt, n_cihess, n_hess, n_iter, n_orbhess, nmcscf, variat
 use Constants, only: Zero
 use Definitions, only: wp
 
 implicit none
-#include "main_cvb.fh"
-#include "print_cvb.fh"
 real(kind=wp), external :: tim_cvb
 
 cpu0 = tim_cvb(0)
-if (((.not. variat) .or. (nmcscf == 1)) .or. ((ip(3) >= 1) .and. ((.not. endvar) .or. (ip(6) >= 2)))) then
+if (((.not. variat) .or. (nmcscf == 1)) .or. ((ipr(3) >= 1) .and. ((.not. endvar) .or. (ipr(6) >= 2)))) then
   cpu_prev = Zero
   n_applyt = 0
   n_applyh = 0

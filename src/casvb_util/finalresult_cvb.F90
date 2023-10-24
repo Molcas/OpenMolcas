@@ -17,10 +17,10 @@
 !************************************
 subroutine finalresult_cvb()
 
+use casvb_global, only: evb, svb, variat
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
 if ((.not. variat) .and. up2date_cvb('SVB')) then

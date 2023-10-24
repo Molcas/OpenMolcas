@@ -14,14 +14,12 @@
 
 subroutine fx_svb1_cvb(fx,fast,orbstry,cvbtry,civec,civecp,civbs,civb,cvbdet)
 
-use casvb_global, only: formE, gjorb, ovraa_try, ovrab_try
+use casvb_global, only: formE, gjorb, ipr, memplenty, ndet, ndetvb, norb, nvb, ovraa_try, ovrab_try, svb
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: fx, orbstry(norb,norb), cvbtry(nvb), civec(0:ndet), civecp(0:ndet), civbs(0:ndet), civb(0:ndet), cvbdet(ndetvb)
 logical(kind=iwp) :: fast
-#include "print_cvb.fh"
 
 call str2vbc_cvb(cvbtry,cvbdet)
 if (fast) then
@@ -46,7 +44,7 @@ else
 end if
 svb = ovrab_try/sqrt(ovraa_try)
 fx = svb
-if (fast .and. (ip(3) >= 2)) write(u6,formE) ' Svb :      ',svb
+if (fast .and. (ipr(3) >= 2)) write(u6,formE) ' Svb :      ',svb
 
 return
 

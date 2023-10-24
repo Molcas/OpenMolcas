@@ -14,7 +14,7 @@
 
 subroutine testconv_cvb(fx,npr,dx,w2,exp_tc,close2conv,converged,wrongstat)
 
-use casvb_global, only: fxbest, ip, isaddle, maxize
+use casvb_global, only: fxbest, ip, isaddleo, maxize
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -26,9 +26,9 @@ integer(kind=iwp) :: nnegeig, nposeig
 real(kind=wp) :: act, eigmn, eigmna, eigmx, zz
 
 if (maxize) then
-  nposeig = min(isaddle,npr)
+  nposeig = min(isaddleo,npr)
 else
-  nposeig = max(npr-isaddle,npr)
+  nposeig = max(npr-isaddleo,npr)
 end if
 nnegeig = npr-nposeig
 

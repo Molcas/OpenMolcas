@@ -19,10 +19,10 @@
 !***********************************************************************
 subroutine cizero_cvb(cvec)
 
+use casvb_global, only: iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvec(0:ndet)
 integer(kind=iwp) :: iformat, ivec
 

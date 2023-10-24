@@ -14,12 +14,12 @@
 
 subroutine prtfid_cvb(chr,fileid)
 
+use casvb_global, only: filename
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*) :: chr
 real(kind=wp) :: fileid
-#include "io_cvb.fh"
 integer(kind=iwp) :: ibf
 character(len=200) :: line
 integer(kind=iwp), external :: len_trim_cvb

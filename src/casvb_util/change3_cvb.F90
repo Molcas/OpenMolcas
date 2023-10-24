@@ -14,10 +14,10 @@
 
 subroutine change3_cvb()
 
+use casvb_global, only: kbasis, kbasiscvb
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 integer(kind=iwp) :: kmost
 logical(kind=iwp) :: changed
 logical(kind=iwp), external :: chpcmp_cvb ! ... Change of dimensioning variables ...

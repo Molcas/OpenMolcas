@@ -14,12 +14,11 @@
 
 subroutine chop7_cvb()
 
-use casvb_global, only: cvbdet, cvbsspn, cvbstot, cvbtry, dvbdet, evbdet, gjorb, gjorb2, gjorb3, icase7, orbinv, orbstry, owrk2, &
-                        release, sorbs, vbdet
+use casvb_global, only: cvbdet, cvbsspn, cvbstot, cvbtry, dvbdet, evbdet, gjorb, gjorb2, gjorb3, icase7, ndetvb, norb, nvb, &
+                        orbinv, orbstry, owrk2, release, sorbs, vbdet
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
-#include "main_cvb.fh"
 
 if (release(7)) then
   if (allocated(orbinv)) call mma_deallocate(orbinv)

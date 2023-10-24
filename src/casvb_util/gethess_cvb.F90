@@ -14,10 +14,10 @@
 
 subroutine gethess_cvb(hess)
 
+use casvb_global, only: nfr
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: hess(nfr,nfr)
 integer(kind=iwp) :: ivar
 

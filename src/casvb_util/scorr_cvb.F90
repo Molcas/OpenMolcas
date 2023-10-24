@@ -14,13 +14,12 @@
 
 subroutine scorr_cvb(cvbdet,dvbdet,evbdet)
 
-use casvb_global, only: formAD, formAF
+use casvb_global, only: formAD, formAF, nalf, nbet, ndetvb, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb)
 real(kind=wp), parameter :: cut = 1.0e-10_wp
 integer(kind=iwp) :: i, mu, nu
@@ -67,8 +66,8 @@ do mu=1,norb
   end do
 end do
 call mxprint_cvb(ssq,norb,norb,0)
-tot = tot+r3by4*real(norb-2*norb*(norb-1)/2,kind=wp)
-stot = stot+r3by4*real(norb-2*norb*(norb-1)/2,kind=wp)
+tot = tot+0.75_wp*real(norb-2*norb*(norb-1)/2,kind=wp)
+stot = stot+0.75_wp*real(norb-2*norb*(norb-1)/2,kind=wp)
 scheck = Half*real(abs(nalf-nbet),kind=wp)*(Half*real(abs(nalf-nbet),kind=wp)+One)
 if ((abs(tot-scheck) > cut) .or. (abs(stot-scheck) > cut)) write(u6,formAD) 'WARNING: spins ',stot,tot,scheck
 

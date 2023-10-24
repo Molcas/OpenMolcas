@@ -20,7 +20,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ippinp
-#include "main_cvb.fh"
 
 iter12s = 0
 ipp12s = ippinp

@@ -14,12 +14,11 @@
 
 subroutine scalstruc2_cvb(orbs,cvb,iconfs,ifnss)
 
-use casvb_global, only: i2s_fr, nconfion_fr, nfrag, nS_fr
+use casvb_global, only: i2s_fr, nconf, nconfion_fr, nel, nfrag, noe, norb, nS_fr, nvb, sc
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: orbs(norb,norb), cvb(nvb)
 integer(kind=iwp) :: iconfs(noe,nconf), ifnss(0:nel,0:nel)
 integer(kind=iwp) :: i, iconf_off, ifrag, ion, iorb, iS, istr, nelsing

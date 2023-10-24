@@ -17,7 +17,6 @@ subroutine cnfchk_cvb()
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
 logical(kind=iwp), external :: recinpcmp_cvb
 
 if (recinpcmp_cvb(4)) call touch_cvb('ICONFS')

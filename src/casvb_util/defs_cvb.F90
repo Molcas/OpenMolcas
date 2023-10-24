@@ -14,15 +14,13 @@
 
 subroutine defs_cvb()
 
-use casvb_global, only: iunset
+use casvb_global, only: iciweights, icrit, imethod, initial, ipr, isaddle, ishstruc, iunset, ivbweights, kbasis, lfxvb, lzrvb, &
+                        mxiter, ndimrel, nfxorb, nfxvb, norbrel, nort, npcf, nzrvb, ploc, projcas, projsym, savvb, savvbci, &
+                        service, sij, strtvb, variat
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-#include "main_cvb.fh"
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 integer(kind=iwp) :: i
 logical(kind=iwp), parameter :: ifploc = .false.
 
@@ -36,7 +34,6 @@ icrit = iunset
 imethod = iunset
 isaddle = iunset
 initial = -1
-opposite = .false.
 projcas = .false.
 projsym = .false.
 npcf = iunset
@@ -44,14 +41,10 @@ ishstruc = iunset
 ! +1=CHIRGWIN +2=LOWDIN +4=INVERSE
 ivbweights = iunset
 iciweights = iunset
-opposite = .false.
-projcas = .false.
-projsym = .false.
 sij = .false.
-anyslater = .false.
 service = .false.
 do i=1,10
-  ip(i) = 1
+  ipr(i) = 1
 end do
 
 call tunedefs_cvb()

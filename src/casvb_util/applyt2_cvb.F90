@@ -15,11 +15,11 @@
 subroutine applyt2_cvb(vec,gjorb,igjorb,i1alf,i1bet,iato,ibto,phato,phbto)
 ! Apply T(O) to the vector VEC. O is defined in terms of GJORB.
 
+use casvb_global, only: absym, n1a, n1b, nam1, nbm1, nda, ndb, norb
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "main_cvb.fh"
 real(kind=wp) :: vec(nda,ndb), gjorb(norb*norb), phato(norb,nam1), phbto(norb,nbm1)
 integer(kind=iwp) :: igjorb(2,norb*norb), i1alf(n1a,norb), i1bet(n1b,norb), iato(norb,0:nam1), ibto(norb,0:nbm1)
 integer(kind=iwp) :: ia, iak, iax, iaxtmp, ib, ibk, ibx, ibxtmp, ij, iorb, jax, jbx, jorb

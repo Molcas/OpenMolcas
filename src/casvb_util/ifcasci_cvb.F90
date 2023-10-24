@@ -14,12 +14,11 @@
 
 function ifcasci_cvb()
 
+use casvb_global, only: invec_cvb, nmcscf, variat
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: ifcasci_cvb
-#include "main_cvb.fh"
-#include "casvb.fh"
 
 call f_inquire('JOBOLD',ifcasci_cvb)
 ! In variational calculations, CI vectors will be of no use

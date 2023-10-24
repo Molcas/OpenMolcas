@@ -18,13 +18,12 @@ subroutine asonc12s_cvb( &
                        )
 ! Applies S and H on c vector(s).
 
-use casvb_global, only: civb2, civb3, cvb, cvbdet, ipp12s, iter12s, orbs
+use casvb_global, only: civb2, civb3, cpu0, cvb, cvbdet, ipp12s, iter12s, npr, nprorb, nvb, orbs, strucopt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddasonc_interface.fh"
-#include "main_cvb.fh"
 integer(kind=iwp) :: ic1, ivec
 real(kind=wp), allocatable :: vec_all(:)
 real(kind=wp), external :: ddot_, tim_cvb
