@@ -9,11 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine TTMul(A,B,C,nRowA,nColA,nRowB)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      Implicit None
+      Integer nRowA, nColA, nRowB
       Real*8 A(nRowA,nColA), B(nRowB,nRowA),
      &       C(nColA,nRowB)
 !
+      Integer nCache_, mCache, Incj, jj, njVec, i, j, k
       nCache_=(64/8)*1024
       mCache=(nCache_*3)/4 - nRowA*nColA
       Incj=mCache/(nRowA+nColA)
@@ -40,4 +42,4 @@
       End Do    ! End of sectioning
 !
       Return
-      End
+      End Subroutine TTMul
