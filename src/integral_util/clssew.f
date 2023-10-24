@@ -36,7 +36,6 @@
       Call Center_Info_Free()
       Call External_Centers_Free()
       Call Free_iSD()
-      Call Freek2()
       Call CloseR()
 !
       If (lEFP) Then
