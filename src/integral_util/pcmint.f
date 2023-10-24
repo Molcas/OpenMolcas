@@ -25,29 +25,37 @@
 !                                                                      *
 !             Modified to PCM-integrals, by RL June '01, Napoli, Italy.*
 !***********************************************************************
-      use PCM_arrays
+      use PCM_arrays, only: nTiles, C_Tessera, q_Tessera
       use Index_Functions, only: nTri_Elem1
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      Implicit None
 #include "int_interface.fh"
+
 !     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
 !-----Local arrys
       Real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4), iDCRT(0:7)
+      Integer mabMin, mabMax, nStab_, iTile, lDCRT, nDCRT, nT, nOp,
+     &        ipIn, LmbdT, nFlop, nMem, NrOpr
+      Real*8 qTessera, Fact
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+      Integer nElem
 #endif
       Integer jStab_(0:0)
+      Integer ixyz, nabSz
 !
 !     Statement function for Cartesian index
 !
+#ifdef _DEBUGPRINT_
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+#endif
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,rFinal,1)
+      rFinal(:,:,:,:)=Zero
 !
       iAnga(1) = la
       iAnga(2) = lb
@@ -154,4 +162,4 @@
          Call Unused_integer(iAddPot)
       End If
 #endif
-      End
+      End SubRoutine PCMInt
