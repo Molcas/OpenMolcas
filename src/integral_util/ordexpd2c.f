@@ -10,8 +10,16 @@
 !***********************************************************************
       SubRoutine OrdExpD2C(nExp,Exp,nCntrc,Cff)
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nExp, nCntrc
       Real*8 Exp(nExp), Cff(nExp,nCntrc)
+
+      Integer iExp, kExp, jExp
+      Real*8 Exp1, Exp2
+#ifdef _ORDER_BAS_
+      Integer iCntrc, kCntrc, jCntrc
+      Real*8 Bas1, Bas2
+#endif
 !
 !     Order exponents diffuse to compact
 !     Make the subsequent change in the contraction
@@ -53,4 +61,4 @@
 #endif
 !
       Return
-      End
+      End SubRoutine OrdExpD2C
