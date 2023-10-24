@@ -28,17 +28,29 @@
 !             January '92.                                             *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO
-      use pso_stuff
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, Quart
+      Implicit None
+      Integer iBas, jBas, kBas, lBas, nijkl, nPSO, nDSO
       Real*8 PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
+      Real*8 ExFac, CoulFac, PMax
+
 !     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
       Integer, external:: iPntSO
+      Integer lOper, MemSO2, i1, i2, i3, i4, j, niSym, njSym, nkSym,
+     &        nlSym, iS, jS, kS, lS, j1, j2, j3, j123, j4, iSO, jSO,
+     &        kSO, lSO, iSOi, jSOj, kSOk, lSOl, IndI, IndJ, IndK, IndL,
+     &        j12, mijkl, iAOi, jAOj, kAOk, lAOl, ipntIJ, ipntKL,
+     &        ipntIK, ipntIL, ipntJK, ipntJL, IndIJ, IndKL, IndIK,
+     &        IndIL, IndJK, IndJL
+      Real*8 t14, Temp
+#ifdef _DEBUGPRINT_
+      Integer iComp
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -212,4 +224,4 @@
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)
-      End
+      End SubRoutine PGet2
