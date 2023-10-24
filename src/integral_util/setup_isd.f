@@ -9,12 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       SubRoutine SetUp_iSD()
-      use setup
-      use iSD_data
+      use setup, only: mSkal, MxPrm
+      use iSD_data, only: iSD, nSD, nSkal_iSD
       use k2_arrays, only: MxDij, MxFT
       use Symmetry_Info, only: nIrrep
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+
+      Integer nSkal, iS, iCmp, iBas, iPrim
 !
 !                                                                      *
 !***********************************************************************
@@ -51,4 +53,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End SubRoutine SetUp_iSD
