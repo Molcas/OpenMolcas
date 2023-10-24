@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Free_RctFld(iXPolType)
+      Subroutine Free_RctFld()
       use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph,
      &                      MM, NewSph, nVert, PCMDm, PCMiSph, PCMTess,
      &                      PCMSph, PCM_N, PCM_SQ, Vert, SSph
@@ -16,8 +16,8 @@
      &                           DipEF, Field, Grid, PolEF
       use stdalloc, only: mma_deallocate
       use rctfld_module, only: lLangevin, PCM, DoDeriv
+      use External_Centers, only: iXPolType
       Implicit None
-      Integer iXPolType
 !
       If (.NOT.Allocated(MM)) Return
 

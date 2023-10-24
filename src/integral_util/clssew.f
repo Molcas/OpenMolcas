@@ -17,7 +17,7 @@
 !***********************************************************************
       use Real_Spherical, only: Sphere_Free
       use EFP_module, only: lEFP, FRAG_TYPE, ABC, EFP_COORS
-      use External_Centers, only: iXPolType, external_centers_free
+      use External_Centers, only: external_centers_free
       use Basis_Info, only: Seward_Activated, Basis_Info_Free
       use Center_Info, only: Center_Info_Free
       use Symmetry_Info, only: Symmetry_Info_Free
@@ -27,7 +27,7 @@
       If (.NOT.Seward_Activated) Return
 !
       Call Term_Ints()
-      Call Free_RctFld(iXPolType)
+      Call Free_RctFld()
       Call Free_HerRW()
       Call Sphere_Free()
       Call SOAO_Info_Free()
