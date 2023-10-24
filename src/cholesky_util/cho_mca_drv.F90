@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: ICODE, irc
 real(kind=wp) :: THRAO
-logical(kind=iwp) :: DOFOCK, DOGRAD, FREEK2, INDEXATION, VERBOSE
+logical(kind=iwp) :: DOFOCK, DOGRAD, FREEK2, INDEXATION
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DRV'
 
 call STATUSLINE('Seward: ','Cholesky decomposition of ERIs')
@@ -70,9 +70,8 @@ end if
 ! Finalize integral program.
 ! --------------------------
 
-VERBOSE = .false.
 FREEK2 = .true.
-call TERM_INTS(VERBOSE,FREEK2)
+call TERM_INTS(FREEK2)
 
 ! Halt execution if requested.
 ! ----------------------------

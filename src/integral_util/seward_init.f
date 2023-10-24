@@ -1,4 +1,4 @@
-!***********************************************************************
+***********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -31,7 +31,6 @@
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
-#include "pstat.fh"
 #include "twoswi.fh"
 #include "print.fh"
       Character(LEN=180) Env
@@ -51,21 +50,6 @@
          Do_RI=.True.
          iRI_Type=4
       End If
-!
-!-----PStat
-!
-      r1=0.d0
-      r2=0.d0
-      r3=0.d0
-      r4=0.d0
-      q1=0.d0
-      q2=0.d0
-      q3=0.d0
-      q4=0.d0
-      MaxReq=0
-      MinXtr=0
-      iTotal=0
-      MaxMem=0
 !
       iPL=iPrintLevel(-1)
       If (iPL.eq.2) Then

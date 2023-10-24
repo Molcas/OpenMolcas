@@ -64,7 +64,7 @@ integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iAdr_AB, iCase, iCenter, iChoVec, i
                      nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
 real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all, TW0, TW1, TWall1, Twall2
 character(len=6) :: Name_R
-logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Out_of_Core, Skip, Verbose
+logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Out_of_Core, Skip
 integer(kind=iwp), allocatable :: AB(:,:), Addr(:), iRv(:), LBList(:), NuMu(:,:), SO2C(:), TmpList(:)
 real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Local_A(:,:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:)
@@ -497,9 +497,8 @@ end if
 !                                                                      *
 ! Terminate integral environment.
 
-Verbose = .false.
 FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints(FreeK2)
 
 call mma_deallocate(iSSOff)
 call mma_deallocate(ShlSO)
@@ -675,9 +674,8 @@ call Cho_RI_PutInfo(iPass,iRed)
 !                                                                      *
 ! Terminate integral environment.
 
-Verbose = .false.
 FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints(FreeK2)
 !
 if (iPrint >= 6) then
   write(u6,'(A)') ' Block-transpose:'

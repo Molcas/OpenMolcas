@@ -61,7 +61,7 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
 integer(kind=iwp) ik2, jk2
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FreeK2, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, &
-                     Shijij, Skip, Triangular, Verbose
+                     Shijij, Skip, Triangular
 character(len=4096) :: RealName
 character(len=72) :: formt
 character(len=8) :: Method_chk
@@ -543,9 +543,8 @@ write(u6,*) 'Derivative check:'
 write(u6,*) 'Wall/CPU',Total_Der_Wall,Total_Der_CPU
 write(u6,*) '-------------------------'
 #endif
-Verbose = .false.
 FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints(FreeK2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

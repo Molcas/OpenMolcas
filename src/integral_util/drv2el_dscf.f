@@ -60,7 +60,7 @@
       Integer, Parameter :: nTInt=1
       Real*8 TInt(nTInt)
       Logical Semi_Direct,Rsv_GTList,
-     &        Free_K2, Verbose, Indexation,
+     &        Free_K2, Indexation,
      &        DoGrad, Triangular
       Character(LEN=72) SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
@@ -313,9 +313,8 @@
       Call mma_deallocate(DMax)
       Call mma_deallocate(TMax)
 !
-      Verbose=.False.
       Free_K2=.False. ! Call to freek2 is external to the driver.
-      Call Term_Ints(Verbose,Free_K2)
+      Call Term_Ints(Free_K2)
 !
       Call Free_DeDe(Dens,TwoHam,nDens)
 !

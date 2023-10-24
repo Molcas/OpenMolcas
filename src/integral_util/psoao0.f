@@ -50,7 +50,6 @@
       use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "pstat.fh"
       Integer iAnga(4), iCmpa(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, DoFock, Fail
 #include "SysDef.fh"
@@ -70,7 +69,6 @@
       kCmp = iCmpa(3)
       lCmp = iCmpa(4)
       ncd=kCmp*lCmp
-      iTotal = iTotal + 1
       mabMin=nabSz(Max(la,lb)-1)+1
       mabMax=nabSz(la+lb)
       ne=(mabMax-mabMin+1)
@@ -138,7 +136,6 @@
       If (Mem1.eq.0) Mem1 = 1
       If (nIrrep.eq.1) Mem1 = 1 + (iFact-1) * nabcd*nijkl
       If (Mem1+1.gt.Mem0) Then
-         MaxReq=Max(MaxReq,Mem1+1-Mem0)
          QjPrim = .False.
          QlPrim = .False.
          QiBas  = .False.
@@ -304,7 +301,6 @@
      &           MemFck,
      &           MemPck)
       If (Mem2+1.gt.Mem0) Then
-         MaxReq=Max(MaxReq,Mem2+1-Mem0)
          Call Change(iBas, iBsInc,QiBas, kBas, kBsInc,QkBas,
      &               jBas, jBsInc,QjBas, lBas, lBsInc,QlBas,
      &               jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim,
@@ -341,13 +337,5 @@
          lwSqN  = 0
       End If
 !
-      r1 = r1 + DBLE(iBsInc)/DBLE(iBas)
-      r2 = r2 + DBLE(jBsInc)/DBLE(jBas)
-      r3 = r3 + DBLE(kBsInc)/DBLE(kBas)
-      r4 = r4 + DBLE(lBsInc)/DBLE(lBas)
-      q1 = q1 + DBLE(iPrInc)/DBLE(iPrim)
-      q2 = q2 + DBLE(jPrInc)/DBLE(jPrim)
-      q3 = q3 + DBLE(kPrInc)/DBLE(kPrim)
-      q4 = q4 + DBLE(lPrInc)/DBLE(lPrim)
       Return
       End

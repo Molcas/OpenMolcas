@@ -45,7 +45,6 @@ integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), 
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
                                   Mem2, Mem3, Mem4, Mend
 #include "Molcas.fh"
-#include "pstat.fh"
 #include "warnings.h"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &
                      Mem0, MemAux, MemCon, MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2
@@ -60,7 +59,6 @@ iCmp = iCmpa(1)
 jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
-iTotal = iTotal+1
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
 mcdMin = nTri3_Elem1(max(lc,ld)-1)
@@ -96,7 +94,6 @@ do
   if (Mem1 == 0) Mem1 = 1
   if (nIrrep == 1) Mem1 = 1+(iFact-1)*iCmp*jCmp*kCmp*lCmp*iBsInc*jBsInc*kBsInc*lBsInc
   if (Mem1+1 > Mem0) then
-    MaxReq = max(MaxReq,Mem1+1-Mem0)
     QjPrim = .false.
     QlPrim = .false.
     QiBas = .false.
@@ -138,7 +135,6 @@ do
   MemTr2 = kCmp*lCmp*nMemab*iBsInc*jBsInc*kBsInc*lBsInc
   Mem2 = max(MemPr+MemAux,MemCon+MemAux,MemTr1,MemTr2)
   if (Mem2+1 > Mem0) then
-    MaxReq = max(MaxReq,Mem2+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 Fail)
     if (Fail) then
@@ -202,7 +198,6 @@ do
   MemTr3 = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
   Mem3 = max(MemCon,MemSp1,MemSp2,MemTr3)
   if (Mem3+1 <= Mem0) exit
-  MaxReq = max(MaxReq,Mem3+1-Mem0)
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
               Fail)
   if (Fail) then
@@ -213,21 +208,11 @@ do
   end if
 end do
 Mem0 = Mem0-Mem3-1
-MinXtr = min(MinXtr,Mem0)
 
 ipMem2 = ipMem1+Mem1
 ipMem3 = ipMem2+Mem2
 ipMem4 = ipMem2+Mem2-Mem4
 Mend = 0
-
-r1 = r1+real(iBsInc,kind=wp)/real(iBas,kind=wp)
-r2 = r2+real(jBsInc,kind=wp)/real(jBas,kind=wp)
-r3 = r3+real(kBsInc,kind=wp)/real(kBas,kind=wp)
-r4 = r4+real(lBsInc,kind=wp)/real(lBas,kind=wp)
-q1 = q1+real(iPrInc,kind=wp)/real(iPrim,kind=wp)
-q2 = q2+real(jPrInc,kind=wp)/real(jPrim,kind=wp)
-q3 = q3+real(kPrInc,kind=wp)/real(kPrim,kind=wp)
-q4 = q4+real(lPrInc,kind=wp)/real(lPrim,kind=wp)
 
 return
 

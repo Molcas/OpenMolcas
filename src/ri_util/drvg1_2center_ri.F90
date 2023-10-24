@@ -71,7 +71,7 @@ real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWa
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
 #endif
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FreeK2, Indexation, JfGrad(3,4), No_Batch, Shijij, Verbose
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FreeK2, Indexation, JfGrad(3,4), No_Batch, Shijij
 character(len=72) :: frmt
 character(len=8) :: Method_chk
 integer(kind=iwp), save :: MemPrm
@@ -491,9 +491,8 @@ if (allocated(TMax2)) call mma_deallocate(TMax2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Verbose = .false.
 FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints(FreeK2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
