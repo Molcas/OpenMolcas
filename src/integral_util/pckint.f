@@ -25,11 +25,14 @@
 !             University of Lund, SWEDEN                               *
 !             April '92                                                *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Two
+      Implicit None
+      Integer nab, mZeta, nZeta
       Real*8 abab(mZeta,nab,nab), ab(nZeta,nab), rKappa(mZeta),
      &       Zeta(mZeta), qKappa(mZeta)
       Logical Mode
+
+      Integer iab, iZeta
 !
       If (Mode) Then
 !--------Integrals
@@ -61,4 +64,4 @@
 #endif
 !
       Return
-      End
+      End SubRoutine PckInt
