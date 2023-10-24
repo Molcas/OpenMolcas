@@ -31,15 +31,23 @@
 !             Modified from PGet1, June '92                            *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use pso_stuff, only: lSA, Gamma_On, CMO, G1, G2, G_ToC, nG1, nG2
+      use Constants, only: Zero
+      Implicit None
+      Integer ijkl, nPAO, iBas, jBas, kBas, lBas, n1, n2, n3, n4, mDim,
+     &        nCred, nScr1, nScr2, nDAO
       Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-      Integer iAO(4), kOp(4), iAOst(4), nPam(4), iiBas(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), nPam(4), iCmp(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
+      Real*8 PMax
 !
+      Integer iiBas(4), in1, jPAM, in2, i1, iSO, iAOi, iSOi,
+     &        nPSOPam, i2, i3, i4, jSO, kSO, lSO, nijkl,
+     &        jAOj, kAOk, lAOl, k1, k2, k3, k4, loc, ipAO,
+     &        jSOj, kSOk, lSOl
+      Real*8 Val
 #ifdef _DEBUGPRINT_
       Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
 #endif
@@ -150,4 +158,4 @@
       If (.False.) Then
          Call Unused_logical(Shijij)
       End If
-      End
+      End SubRoutine PGet3
