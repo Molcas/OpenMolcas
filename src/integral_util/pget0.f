@@ -27,20 +27,28 @@
 !             Modified for RI Feb. 2007                                *
 !***********************************************************************
       use setup
-      use pso_stuff
+      use pso_stuff, only: lPSO, lSA, Case_2C, Case_3C, Gamma_On,
+     &                     nGamma, Gamma_MRCISD, Bin, D0, DS, DVar,
+     &                     G_Toc, lBin, LuGamma, nDens, nNP, nV_k,
+     &                     nZ_p_k, SO2CI, U_K, V_K, Z_P_K, DSVar
       use iSD_data, only: iSO2Sh
       use Sizes_of_Seward, only: S
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use BasisMode
-      use EtWas
+      use Constants, only: One
+      use EtWas, only: nCRED, nScr1, nScr2, CoulFac, ExFac, nAsh
       use mspdft_grad, only: DoGradMSPD
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
+      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4,
+     &        MemPSO, nMem2, iShell_A, iShell_B, iShell_C, iShell_D,
+     &        nQuad
+      Real*8 PMax
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)
       Integer iAO(4), iCmp(4), kOp(4), iAOst(4)
       Logical Shijij
+
+      Integer nSA, ipPAM, ipiPam, ipC, ipS1, ipS2, i, j, ipMAP
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -321,4 +329,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End SubRoutine PGet0
