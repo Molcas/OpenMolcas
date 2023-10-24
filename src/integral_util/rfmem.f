@@ -9,6 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine RFMem(nHer,MemRF,la,lb,lr)
+      Implicit None
+      Integer, Intent(Out):: nHer, MemRF
+      Integer, Intent(In):: la, lb, lr
 !
       nHer=(la+lb+lr+2)/2
       MemRF = 3*nHer*(la+1) +
@@ -17,4 +20,4 @@
      &         3*(la+1)*(lb+1)*(lr+1) + 2 + 3*nHer
 !
       Return
-      End
+      End Subroutine RFMem
