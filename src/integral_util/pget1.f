@@ -28,12 +28,19 @@
 !             January '92.                                             *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO
-      use pso_stuff
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, Only: Zero, Quart
+      Implicit None
+      Integer ijkl, nPAO, iBas, jBas, kBas, lBas, nDSO
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij
+      Real*8 ExFac, CoulFac, PMax
+
+      Integer iPAO, i1, i2, i3, i4, iSO, jSO, kSO, lSO, nijkl,
+     &        iSOi, jSOj, kSOk, lSOl, iAOi, jAOj, kAOk, lAOl,
+     &        IndI, IndJ, IndK, IndL, IndIJ, IndKL, IndIK, IndIL,
+     &        IndJL, IndJK
+      Real*8 t14, Temp
 !
 #ifdef _DEBUGPRINT_
       iComp = 1
@@ -135,4 +142,4 @@
       If (.False.) Then
          Call Unused_logical(Shijij)
       End If
-      End
+      End SubRoutine PGet1
