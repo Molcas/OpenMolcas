@@ -100,7 +100,7 @@
       SubRoutine TwoEl(iS_,jS_,kS_,lS_,
      &           Coor,
      &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
-     &           NoInts,iStb,jStb,kStb,lStb,
+     &           NoInts, iStabs,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
      &           nData1,nData2,
@@ -118,7 +118,7 @@
       Real*8  Coor(3,4)
       Integer iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4)
       Logical NoInts
-      Integer iStb,jStb,kStb,lStb
+      Integer iStabs(4)
       Integer iPrInc, jPrInc, kPrInc, lPrInc
       Integer nData1, nData2
       Type(k2_type) k2data1(nData1), k2data2(nData2)
@@ -426,9 +426,7 @@
 !
                   Call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,
      &                          iAngV,iCmpV,iShelV,iShllV,
-     &                          iAOV,iAOst,NoInts,
-     &                          iStabs(1),iStabs(2),
-     &                          iStabs(3),iStabs(4),
+     &                          iAOV,iAOst,NoInts,iStabs,
      &                          iPrimi,iPrInc,jPrimj,jPrInc,
      &                          kPrimk,kPrInc,lPriml,lPrInc,
      &                          nDCRR,

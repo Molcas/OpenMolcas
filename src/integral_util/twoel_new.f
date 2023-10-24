@@ -15,7 +15,7 @@
       SubRoutine TwoEl_Sym_New(iS_,jS_,kS_,lS_,
      &           Coor,
      &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
-     &           NoInts,iStb,jStb,kStb,lStb,
+     &           NoInts,iStabs,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
      &           nData1,nData2,
@@ -65,6 +65,7 @@
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Type(k2_type) k2data1(nData1), k2Data2(nData2)
+      Integer iStabs(4)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &        iStabM(0:7),
      &        iAO(4), iAnga(4), iCmp(4),
@@ -76,6 +77,7 @@
      &        Scrij, Scrkl, Scrik, Scril, Scrjk, Scrjl,
      &        Batch_On_Disk,
      &        NoInts, DoAOBatch, All_Spherical
+      Integer iStb, jStb, kStb, lStb
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
@@ -129,6 +131,10 @@
       Integer :: ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !
+      iStb = iStabs(1)
+      jStb = iStabs(2)
+      kStb = iStabs(3)
+      lStb = iStabs(4)
       If (nOrdOp/=0) Then
          Write (6,*) 'Breit two-electron integrals not implemented yet'
          Write (6,*) 'Symmetry adaptation different since the operator'
@@ -765,7 +771,7 @@
       SubRoutine TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
      &           Coor,
      &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
-     &           NoInts,iStb,jStb,kStb,lStb,
+     &           NoInts,iStabs,
      &           nAlpha,iPrInc, nBeta,jPrInc,
      &           nGamma,kPrInc,nDelta,lPrInc,
      &           nData1,nData2,
@@ -813,7 +819,7 @@
      &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
      &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
       Type(k2_type) k2Data1, k2Data2
-      Integer iAO(4), kOp(4),
+      Integer iAO(4), kOp(4), iStabs(4),
      &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
       Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, Copy, NoCopy, Do_TnsCtl, IJeqKL,IeqK,JeqL,
@@ -824,6 +830,7 @@
       Data Copy/.True./, NoCopy/.False./
 #include "SysDef.fh"
       External EQ, lEmpty
+      Integer iStb, jStb, kStb, lStb
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -831,6 +838,10 @@
 !
       Integer ixyz, nabSz
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
+      iStb = iStabs(1)
+      jStb = iStabs(2)
+      kStb = iStabs(3)
+      lStb = iStabs(4)
 !
       Call TwoEl_NoSym_New_Internal()
 !
