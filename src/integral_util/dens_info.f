@@ -11,7 +11,11 @@
       Subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,
      &                     nr_of_Densities)
       use k2_arrays
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer ijS, ipDij, ipDSij, mDCRij, ipDDij, ipTmp,
+     &        nr_of_Densities
+
+      Integer nDij
 !
       ipDij = ipOffD(1,ijS)
       mDCRij= ipOffD(2,ijS)
@@ -30,4 +34,4 @@
       End If
 !
       Return
-      End
+      End Subroutine Dens_Info
