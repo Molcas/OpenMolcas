@@ -15,21 +15,18 @@
 !         integration within a R-matrix run                            *
 !                                                                      *
 !***********************************************************************
-      use Constants
-      use rmat
-      Implicit real*8 (a-h,o-z)
-!     external gammat,gammaf
+      use Constants, only: Pi, Two, Zero
+      use rmat, only: gammath, gammaph, lgamma
+      Implicit None
+
+      Integer m, n
 !
 ! initialize arrays
-      do m=-2,2*lgamma+2
-       do n=-2,2*lgamma+2
-        gammath(m,n)=0.0d0
-        gammaph(m,n)=0.0d0
-       End Do
-      End Do
+      gammath(:,:)=Zero
+      gammaph(:,:)=Zero
 !
 !   Set intitial values for recursion of gammath
-      gammath(0,0)=2.0d0
+      gammath(0,0)=Two
       gammath(1,0)=Pi/two
 !
 !  m=0
@@ -68,9 +65,9 @@
 !
 !
 !   Set intitial values for recursion of gammaph
-      gammaph(0,0)=2.0d0*pi
-      gammaph(1,0)=0.0d0
-      gammaph(0,1)=0.0d0
+      gammaph(0,0)=Two*pi
+      gammaph(1,0)=Zero
+      gammaph(0,1)=Zero
 !
 !  m=0
       m=0
@@ -98,4 +95,4 @@
 !                                                                      *
 
       Return
-      End
+      End subroutine pgamma
