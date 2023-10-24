@@ -16,23 +16,25 @@
 !***********************************************************************
       SubRoutine Shell_MxSchwz(nSkal,Schwz_Shl)
 !----------------------------------------------------------------------
-      use setup
-      use k2_arrays
-      use iSD_data
-      use Basis_Info
+      use iSD_data, only: iSD
+      use Basis_Info, only: Shells, DBSC
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use k2_structure
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      use k2_structure, only: k2Data, IndK2
+      use k2_arrays, only: DoHess_
+      Implicit None
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
 
-      Integer ixyz, nabSz, ik2
+      Integer ixyz, nabSz, ik2, iS, iShll, iShell, iCmp, iAng, iCnttp,
+     &                          jS, jShll, jShell, jCmp, jAng, jCnttp,
+     &        ijS, nDCRR, nHm, lDCRR
+      Real*8 Schwz_Tmp
 !
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 !
 !     loop over shell pair...
-      call dcopy_(nSkal*nSkal,[Zero],0,Schwz_Shl,1)
+      Schwz_Shl(:,:)=Zero
       Do iS = 1, nSkal
         iShll= iSD( 0,iS)
         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Go To 100
@@ -76,4 +78,4 @@
       End Do
 !     Call RecPrt('Schwz_shl',' ',Schwz_Shl,nSkal,nSkal)
       return
-      end
+      end SubRoutine Shell_MxSchwz
