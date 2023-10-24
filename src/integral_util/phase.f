@@ -25,9 +25,14 @@
       use Real_Spherical, only: iSphCr
       use Symmetry_Info, only: iChBas
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer iCmp, jCmp, kCmp, lCmp, kOp, ijkl
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iAng(4), iShll(4)
+
+      Integer ixyz, iOff, ii, jj, kk, ll, i1, i2, i3, i4,
+     &        iChBs, jChBs, kChBs, lChBs
+      Real*8 pa1T, pb1T, pa2T, pb2T, Factor
       Integer, External:: iPrmt
 !
 !     Statement Function
@@ -38,7 +43,7 @@
 !
 !     Change phase factor. This is only necessary if T=/=E.
 !
-      If (kOp.eq.0 .or. iCmp*jCmp*kCmp*lCmp.eq.0) Go To 14
+      If (kOp.eq.0 .or. iCmp*jCmp*kCmp*lCmp.eq.0) Return
       ii = iOff(iAng(1))
       jj = iOff(iAng(2))
       kk = iOff(iAng(3))
@@ -67,9 +72,8 @@
  12     Continue
  11    Continue
  10   Continue
- 14   Continue
 !
 !     Call RecPrt(' Exit Phase: AOInt ',' ',AOInt,ijkl,
 !    &            iCmp*jCmp*kCmp*lCmp)
       Return
-      End
+      End Subroutine Phase
