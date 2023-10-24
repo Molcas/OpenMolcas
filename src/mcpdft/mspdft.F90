@@ -15,8 +15,6 @@ module mspdft
   implicit none
   private
 
-#include "mspdft.fh"
-
   character(len=8) :: mspdftmethod
   logical :: do_rotate = .False.
   integer :: iF1MS,iF2MS,iFxyMS,iFocMS,iIntS,iDIDA,IP2MOt
@@ -26,7 +24,7 @@ module mspdft
   logical :: DoNacMSPD, DoMeciMSPD, isCMSNAC
   integer :: cmsNACStates(2)
 
-  public :: dogradmspd, mspdftmethod, do_rotate, iF1MS, iF2MS
+  public :: mspdftmethod, do_rotate, iF1MS, iF2MS
   public :: iFxyMS, iFocMS, iIntS, iDIDA, IP2MOt, D1AOMS, D1SAOMS
 
   public :: DoNacMSPD, DoMeciMSPD, isCMSNAC, cmsNACStates
@@ -61,6 +59,7 @@ module mspdft
                            print_mspdft_vectors
     use write_pdft_job, only: iwjob, writejob
     use hybridpdft, only: do_hybrid
+    use mspdft_grad, only: DoGradMSPD
 
     integer, intent(in) :: nroots, irlxroot
     real(kind=wp), dimension(nroots**2), intent(in) :: heff

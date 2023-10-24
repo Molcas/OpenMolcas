@@ -31,9 +31,9 @@
       use stdalloc
       use etwas
       use NAC
+      use mspdft_grad, only: DoGradMSPD
       Implicit Real*8 (A-H,O-Z)
 #include "dmrginfo_mclr.fh"
-#include "mspdft.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"

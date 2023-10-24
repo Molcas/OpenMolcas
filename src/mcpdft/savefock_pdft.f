@@ -40,7 +40,6 @@
 #include "gugx.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
-#include "mspdft.fh"
 !      Logical TraOnly
 
 

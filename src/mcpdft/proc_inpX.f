@@ -11,7 +11,8 @@
       Subroutine Proc_InpX(DSCF,iRc)
 
 ! module dependencies
-      use mspdft, only: dogradmspd, cmsNACstates, doNACMSPD, doMECIMSPD
+      use mspdft_grad, only: dogradmspd
+      use mspdft, only: cmsNACstates, doNACMSPD, doMECIMSPD
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif

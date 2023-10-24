@@ -54,7 +54,8 @@
       use Fock_util_global, only: DoCholesky
       use write_pdft_job, only: iwjob, writejob
       use sxci_pdft, only: idxsx
-      use mspdft, only: dogradmspd, mspdftmethod, do_rotate, iF1MS,
+      use mspdft_grad, only: dogradmspd
+      use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS, doNACMSPD, cmsNACstates, doMECIMSPD,
      &                  mspdft_finalize

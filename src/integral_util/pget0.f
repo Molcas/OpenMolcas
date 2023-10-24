@@ -35,8 +35,8 @@
       use Constants
       use BasisMode
       use EtWas
+      use mspdft_grad, only: DoGradMSPD
       Implicit Real*8 (A-H,O-Z)
-#include "mspdft.fh"
 
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)
       Integer iAO(4), iCmp(4), kOp(4), iAOst(4)

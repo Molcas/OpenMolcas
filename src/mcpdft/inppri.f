@@ -29,7 +29,7 @@
       use OneDat, only: sNoOri
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
-      use mspdft, only: dogradmspd
+      use mspdft_grad, only: dogradmspd
       use mcpdft_output, only: silent, usual, lf, iPrLoc
       use Fock_util_global, only: docholesky
       use rctfld_module

@@ -31,7 +31,8 @@
       use OneDat, only: sNoNuc, sNoOri
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
-      use mspdft, only: dogradmspd, do_rotate, iIntS, iDIDA, IP2MOt,
+      use mspdft_grad, only: dogradmspd
+      use mspdft, only: do_rotate, iIntS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
