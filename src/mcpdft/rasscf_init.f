@@ -21,6 +21,7 @@
 *> Sets values in common blocks in rasscf.fh, general.fh, timers.fh
 ************************************************************************
       Subroutine RasScf_Init_m()
+      use pdft_ext_param, only: do_ext_param
       Use Fock_util_global, only: DoCholesky
       Use KSDFT_Info, Only: CoefR, CoefX
       use mcpdft_output, only:  set_print_level
@@ -167,6 +168,7 @@ C
 * Initial guess for starting orbital file:
       StartOrbFile='INPORB'
 *
+      do_ext_param=.false.
 * Initialize speed options (turn everything that's working on)
 *
       Do i = 1,nSpeed

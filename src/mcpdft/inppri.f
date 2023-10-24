@@ -32,6 +32,7 @@
       use mspdft, only: dogradmspd
       use mcpdft_output, only: silent, usual, lf, iPrLoc
       use Fock_util_global, only: docholesky
+      use pdft_ext_param, only: do_ext_param, File_Ext_Param
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -364,6 +365,11 @@ C.. for RAS
             Write(6,*)
          END IF
        End If
+
+       IF(Do_Ext_Param) THEN
+         CALL FuncParam_PDFT(KSDFT2, File_Ext_Param)
+       END IF
+
   900 CONTINUE
       Call XFlush(LF)
 *----------------------------------------------------------------------*

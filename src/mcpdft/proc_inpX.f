@@ -12,6 +12,7 @@
 
 ! module dependencies
       use mspdft, only: dogradmspd, cmsNACstates, doNACMSPD, doMECIMSPD
+      use pdft_ext_param, only: do_ext_param, file_ext_param
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif
@@ -314,6 +315,23 @@ C   No changing about read in orbital information from INPORB yet.
         Call WarningMessage(2,'GRAD currently not compatible with HPDF')
         GoTo 9810
        End If
+      End If
+
+*---  Process LAMB command --------------------------------------------*
+      If (KeyEXPM) Then
+       If (DBG) Write(6,*) 'Check if external parameter case'
+       Call SetPos_m(LUInput,'LAMB',Line,iRc)
+       ReadStatus=' Failure reading data following EXPM keyword.'
+       Read(LUInput,*,End=9910,Err=9920) File_Ext_Param
+       ReadStatus=' O.K. reading data following EXPM keyword.'
+       CALL f_inquire(File_Ext_Param,lexists)
+       if(.not.lExists) then
+        write(LF,*)'ERROR LOCATING FILE ', File_Ext_Param
+        call Quit(_RC_INPUT_ERROR_)
+       else
+        Do_Ext_Param = .true.
+       end if
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
       End If
 
 *---  Process HDF5 file --------------------------------------------*

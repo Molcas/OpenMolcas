@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=13)
+      Parameter (NKeys=14)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -22,13 +22,13 @@
      &     KeyEND , KeyFILE, KeyIPHN, KeyKSDF,
      &     KeyMSPD, KeyGrad, KeyNOGR, KeyGSOR,
      &     KeyDFCF, KeyWJOB, KeyLAMB, KeyNAC ,
-     &     KeyMECI
+     &     KeyMECI, KeyEXPM
 
       Common /InputFlags_M/ KeyAAAA,
      &     KeyEND , KeyFILE, KeyIPHN, KeyKSDF,
      &     KeyMSPD, KeyGrad, KeyNOGR, KeyGSOR,
      &     KeyDFCF, KeyWJOB, KeyLAMB, KeyNAC ,
-     &     KeyMECI
+     &     KeyMECI, KeyEXPM
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -37,7 +37,7 @@
       Parameter (CMD = ['END ','FILE','IPHN','KSDF',
      &                  'MSPD','GRAD','NOGR','GSOR',
      &                  'DFCF','WJOB','LAMB','NAC ',
-     &                  'MECI'])
+     &                  'MECI','EXPM'])
 
 *------------------------------------------------------
 * Input data sets:
