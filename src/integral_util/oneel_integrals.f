@@ -14,18 +14,23 @@
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
       use Symmetry_Info, only: nIrrep
       use stdalloc, only: mma_allocate
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      Implicit None
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-      Character Label*8
+      Character(LEN=8) Label
+      Integer nComp, nOrdOp
       Real*8 CCoor(3,nComp)
-      Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
+      Integer ip(nComp), lOper(nComp), iChO(nComp)
+      Real*8 rHrmt
+
+      Integer iStabO(0:7)
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
       Real*8 dum(1)
       Integer idum(1)
       Real*8, Allocatable:: Integrals(:)
       Integer, External:: n2Tri
+      Integer iComp, iIrrep, LenInt, LenTot, llOper, nIC, nStabO
 !                                                                      *
 !***********************************************************************
 !                                                                      *
