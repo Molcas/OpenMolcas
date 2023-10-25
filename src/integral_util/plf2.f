@@ -28,10 +28,10 @@
 !***********************************************************************
       use SOAO_Info, only: iAOtSO
       use k2_arrays, only: Sew_Scr
-      use lw_Info
+      use lw_Info, only: lwSyB, lwInt, lwSqn
       use Gateway_Info, only: ThrInt
       use sort_data, only: DimSyB, lSll
-      use Constants
+      use Constants, only: One
       Implicit None
 !
       Integer ijkl,iCmp,jCmp,kCmp,lCmp,iBas,jBas,kBas,lBas
