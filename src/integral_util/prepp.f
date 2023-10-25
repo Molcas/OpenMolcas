@@ -20,19 +20,23 @@
 !             University of Lund, SWEDEN                               *
 !             January '92                                              *
 !***********************************************************************
-      use setup
-      use iSD_data
-      use pso_stuff
+      use setup, only: mSkal, nSOs
+      use pso_stuff, only: lSA, Gamma_On, Gamma_MRCISD, lPSO, Case_2C,
+     &                     Case_3C, Case_MP2, nDens, mCMO, LuGam,
+     &                     FnGam, lBin, LuGamma, mDens, D0, DS, iD0Lbl,
+     &                     DSVar, KCMO, nG1, mG1, G1, nG2, mG2, G2,
+     &                     CMO, DVar, SO2CI, G_ToC, Bin
       use iSD_data, only: iSO2Sh
       use Basis_Info, only: nBas
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use stdalloc
-      use etwas
-      use NAC
+      use Constants, only: Zero, Half, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use etwas, only: nCMO, ExFac, CoulFac, nDSO, mIrrep, mBas, nAsh,
+     &                 nIsh
+      use NAC, only: IsNAC
       use mspdft_grad, only: DoGradMSPD
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "dmrginfo_mclr.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
@@ -40,7 +44,8 @@
 #endif
       Integer nFro(0:7)
       Integer Columbus
-      Character*8 Method, KSDFT*80
+      Character(Len=8) Method
+      Character(Len=80) KSDFT
       Logical DoCholesky
       Real*8 CoefX,CoefR
       Real*8, Allocatable:: D1ao(:), D1AV(:), Tmp(:,:)
@@ -48,10 +53,15 @@
       Logical Do_Hybrid
       Real*8  WF_Ratio,PDFT_Ratio
 #ifdef _DEBUGPRINT_
-      Character*8 RlxLbl
-      Character Fmt*60
+      Character(Len=8) RlxLbl
+      Character(LEN=60) Fmt
       Integer :: iComp=1
 #endif
+      Integer iIrrep, iSpin, iSeed, nShell, nPair, nQUad, LgToC, iDisk,
+     &        n, nAct, iGo, nSA, ij, iBas, jBas, nTsT, nDim1, i, nDim0,
+     &        nDim2
+      Real*8, External:: Get_ExFac
+      Integer, External:: IsFreeUnit
 !
 !...  Prologue
 
@@ -600,13 +610,17 @@
 #endif
 
       Return
-      End
+      End SubRoutine PrepP
 
       Subroutine Get_D1I(CMO,D1It,D1I,nish,nbas,nsym)
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, Two
+      Implicit None
+      Integer nSym
       Real*8 CMO(*), D1I(*),D1It(*)
       Integer nbas(nsym),nish(nsym)
+
+      Integer iOff1, iSym, iBas, iOrb, iOff2, i, j, k
+      Real*8 Sum
 
       iOff1 = 0
       Do iSym = 1,nSym
@@ -630,16 +644,20 @@
       End Do
       Call Fold2(nsym,nBas,D1I,D1It)
       Return
-      End
+      End Subroutine Get_D1I
 
       Subroutine Get_D1A(CMO,D1A_MO,D1A_AO,
      &                    nsym,nbas,nish,nash,ndens)
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer nSym, nDens
       Real*8 CMO(*) , D1A_MO(*) , D1A_AO(*)
       Integer nbas(nsym),nish(nsym),nash(nsym)
+
+      Integer i, j, iTri
       Real*8, Allocatable:: Scr1(:), Tmp1(:,:), Tmp2(:,:)
+      Integer iOff2, iOff3, ii, iSym, iBas, iAsh, iIsh
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -681,15 +699,16 @@
       Call Fold2(nSym,nBas,Scr1,D1A_AO)
       Call mma_deallocate(Scr1)
       Return
-      End
-
+      End Subroutine Get_D1A
 
       Subroutine Fold2(nSym,nBas,A,B)
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
-      Integer nBas(*)
+      Integer nSym,nBas(*)
       Real*8 A(*) , B(*)
+
+      Integer iOff1, iOff2, iSym, mBas, iBas, jBas
 
       iOff1 = 0
       iOff2 = 0
@@ -706,13 +725,14 @@
       End Do
 
       Return
-      end
+      end Subroutine Fold2
 !*********** columbus interface ****************************************
 !read table of contents for gamma file
 
-        subroutine read_lgtoc(lgtoc,gtoc,n)
-        integer n,lgtoc
-        real*8 gtoc(n)
-          read(lgtoc) gtoc
-        return
-         end
+      subroutine read_lgtoc(lgtoc,gtoc,n)
+      Implicit None
+      integer n,lgtoc
+      real*8 gtoc(n)
+      read(lgtoc) gtoc
+      return
+      end subroutine read_lgtoc
