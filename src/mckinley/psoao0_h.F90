@@ -37,7 +37,7 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Gateway_global, only: iWROpt
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp, u6, RtoI
+use Definitions, only: iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, &
