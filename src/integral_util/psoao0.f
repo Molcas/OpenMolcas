@@ -42,16 +42,29 @@
 !                                                                      *
 !             Modified for unified Work2 and Work3 block. Febr. 2015   *
 !***********************************************************************
-      use lw_Info
+      use lw_Info, only: lwInt, lwSyb, lwSqn
       use Gateway_global, only: force_part_c, force_part_p, iWROpt
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       use Breit, only: nComp
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "Molcas.fh"
+      Integer nSO,MemPrm,MemMax,
+     &        iBas,  iBsInc, jBas,  jBsInc,
+     &        kBas,  kBsInc, lBas,  lBsInc,
+     &        iPrim, iPrInc, jPrim, jPrInc,
+     &        kPrim, kPrInc, lPrim, lPrInc,
+     &        ipMem1,ipMem2, Mem1,  Mem2
+      Logical DoFock
+
       Integer iAnga(4), iCmpa(4)
-      Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, DoFock, Fail
+      Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
+      Integer la, lb, lc, ld, iCmp, jCmp, nab, kCmp, lCmp, ncd,
+     &        mabMin, mabMax, mcdMin, mcdMax, nf, mabcd, nabcd,
+     &        ne, Mem0, mijkl, nijkl, kSOInt, MemPr, MemAux, nCache_,
+     &        lSize, IncVec, na1a, na2a, na3a, nVec1, na1b,
+     &        na2b, na3b, MemCon, MemSp1, MemFck, MemPck, lPack,
+     &        iFact, nVec2
 #include "SysDef.fh"
 !
 !     Statement function to compute canonical index
@@ -338,4 +351,4 @@
       End If
 !
       Return
-      End
+      End SubRoutine PSOAO0
