@@ -9,13 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine priwel(k,alfa,beta,r0,a,gri,nz,isum,grin)
-      use Constants
-      use welcom
-      Implicit Real*8(A-H,O-Z)
+      use Constants, only: Zero
+      use welcom, only: kMax, iPot3
+      Implicit None
+      Integer nz, iSum, k
       Real*8 gri(nz,isum), grin(nz,0:k,k/2+1,k/4+1), alfa(nz), a(nz)
+
+      Integer indst, i, j, l, ix, iy, iz, iPot3i, jj, iDiv, ixyz, ix2,
+     &        iy2, ixS, iyS, ixyS, mZ
       Integer iv(kmax)
+      Real*8 Beta, r0
 !
-!     iQ = 1
       Call binte(k,alfa,beta,r0,a,grin,nz)
 !     Call RecPrt(' In PriWel: Grin',' ',Grin,nz,(k+1)*(k/2+1)*(k/4+1))
 !
@@ -68,4 +72,4 @@
 !     Call RecPrt(' In PriWel:gri',' ',gri,nz,isum)
 !
       Return
-      End
+      End Subroutine priwel
