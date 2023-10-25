@@ -30,18 +30,25 @@
 !             Modified from PGet2, October '92.                        *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff
+      use pso_stuff, only: lSA, CMO, G1, G2, nG1, nG2
       use Symmetry_Info, only: nIrrep
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      Implicit None
+      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, nDSO, n1, n2, n3, n4,
+     &        mDim, nCred, nScr1, nScr2
       Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-      Integer nPam(4,0:7), iiBas(4),
-     &          iCmp(4), iAO(4), iAOst(4)
+      Integer nPam(4,0:7), iCmp(4), iAO(4), iAOst(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
+      Real*8 PMax
+
 !     Local Array
-      Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
+      Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7), iiBas(4)
+      Integer nPSOPam, in1, in2, jPam, j, i1, iSO, iSOi, MemSO2,
+     &        i2, i3, i4, iS, jS, kS, lS, j1, j2, j12, j3, j123, j4,
+     &        niSym, njSym, nkSym, nlSym, jSO, kSO, lSO, iAOi, jAOj,
+     &        kAOk, lAOl, jSOj, kSOk, lSOl, k1, k2, k3, k4, nijkl
 !
 !     Prepare some data for Pam
 !
@@ -81,12 +88,12 @@
 !
       If (LSA) Then
 
-      Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+      Call PTrans_sa(CMO(:,1),nPam,iPam,n1+n2+n3+n4,
      &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,
-     &            Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),
+     &            Cred,nCred/2,Scr1(:,1),nScr1,Scr2,nScr2,Scr1(:,2),
      &            nScr1)
       Else
-      Call PTrans(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+      Call PTrans(CMO(:,1),nPam,iPam,n1+n2+n3+n4,
      &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If
@@ -200,4 +207,4 @@
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)
-      End
+      End SubRoutine PGet4
