@@ -13,8 +13,15 @@
      &                 iCmpi,jCmpj,iShell,jShell,
      &                 mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer iBasi,iBsInc,iPrimi,iBasAO,iBasn,
+     &        jBasj,jBsInc,jPrimj,jBasAO,jBasn,
+     &        iCmpi,jCmpj,iShell,jShell,
+     &        mDCRij,ipDij,ipDDij,mDij,nDeDe
       Real*8 DeDe(nDeDe)
+
+      Integer ii1, ii2, ii3,  jj1, jj2, jj3,
+     &        i1, i2, i3, j1, j2, j3
 !
       If (nIrrep.eq.1) Then
          ii1=0
@@ -58,4 +65,4 @@
       mDij = (ii3*jj3+1)*iCmpi*jCmpj + iPrimi*jPrimj + 1
 !
       Return
-      End
+      End Subroutine Picky_
