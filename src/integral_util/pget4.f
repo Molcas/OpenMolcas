@@ -12,7 +12,7 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
       SubRoutine PGet4(iCmp,iBas,jBas,kBas,lBas,
-     &                 Shijij, iAO, iAOst, ijkl,PSO,nPSO,DSO,nDSO,
+     &                 Shijij, iAO, iAOst, ijkl,PSO,nPSO,
      &                 PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 !***********************************************************************
@@ -30,13 +30,13 @@
 !             Modified from PGet2, October '92.                        *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff, only: lSA, CMO, G1, G2, nG1, nG2
+      use pso_stuff, only: lSA, CMO, G1, G2, nG1, nG2, DSO=>D0
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero
       Implicit None
-      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, nDSO, n1, n2, n3, n4,
+      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4,
      &        mDim, nCred, nScr1, nScr2
-      Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),
+      Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer nPam(4,0:7), iCmp(4), iAO(4), iAOst(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)

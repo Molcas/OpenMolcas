@@ -13,7 +13,6 @@
 !#define _DEBUGPRINT_
       SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
-     &                 DAO,nDAO,
      &                 PAOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 !***********************************************************************
@@ -31,12 +30,13 @@
 !             Modified from PGet1, June '92                            *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff, only: lSA, Gamma_On, CMO, G1, G2, G_ToC, nG1, nG2
+      use pso_stuff, only: lSA, Gamma_On, CMO, G1, G2, G_ToC, nG1, nG2,
+     &                     DAO=>D0
       use Constants, only: Zero
       Implicit None
       Integer ijkl, nPAO, iBas, jBas, kBas, lBas, n1, n2, n3, n4, mDim,
-     &        nCred, nScr1, nScr2, nDAO
-      Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),
+     &        nCred, nScr1, nScr2
+      Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer iAO(4), kOp(4), iAOst(4), nPam(4), iCmp(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)

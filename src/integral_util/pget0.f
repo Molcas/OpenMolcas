@@ -115,7 +115,7 @@
             Else
                Call PGet3(PSO,ijkl,nPSO,iCmp,
      &                    iAO,iAOst,Shijij,
-     &                    iBas,jBas,kBas,lBas,kOp,D0,nDens,
+     &                    iBas,jBas,kBas,lBas,kOp,
      &                    Mem2(ipPam),n1,n2,n3,n4,
      &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,
      &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
@@ -163,7 +163,6 @@
 
                Call PGet4(iCmp,iBas,jBas,kBas,lBas,
      &                    Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                    D0,nDens,
      &                    Mem2(ipPam),n1,n2,n3,n4,
      &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,
      &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
