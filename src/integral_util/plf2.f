@@ -32,10 +32,21 @@
       use Gateway_Info, only: ThrInt
       use sort_data, only: DimSyB, lSll
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
+      Integer ijkl,iCmp,jCmp,kCmp,lCmp,iBas,jBas,kBas,lBas
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
+
+      Integer i, j, iTri, nUt, iAOSti, iAOStj, iAOStk, iAOStl,
+     &        iAOi, iAOj, iAOk, iAOl, i1, i2, i3, i4, nij, mij,
+     &        iSO, jSO, kSO, lSO, iSOi, jSOj, kSOk, lSOl, nijkl,
+     &        iSOij, iSOkl, ijklCmp, iBin
+      Real*8 AInt
+#ifdef _DEBUGPRINT_
+      Real*8 r1, r2
+      Real*8, External:: DDot_
+#endif
 !
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 !
@@ -142,4 +153,4 @@
       If (.False.) Then
          Call Unused_integer_array(iShell)
       End If
-      End
+      End Subroutine PLF2
