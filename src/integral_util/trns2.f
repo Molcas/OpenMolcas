@@ -23,14 +23,16 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             June '90                                                 *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nVec, nc
       Real*8 Win(nvec,nc,nc), Wout(nvec,nc,nc)
 !
-!     Write (*,*) ' In Trns2, nvec,nc=',nVec,nc
+      Integer ic, id
+
       Do 10 ic = 1, nc
          Do 20 id = 1, nc
             call dcopy_(nvec,Win(1,ic,id),1,Wout(1,id,ic),1)
  20      Continue
  10   Continue
       Return
-      End
+      End SubRoutine Trns2
