@@ -32,13 +32,31 @@
 !#define _DEBUGPRINT_
       subroutine ptrans(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2)
-      use Constants
-      use etwas
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, Quart
+      use etwas, only: nDSO, nCMO, npSOp, CoulFac, mBas, nAsh, nIsh,
+     &                 mIrrep
+      Implicit None
+      Integer nxpam, nPSOPam, nG1, nG2, nC, nS1, nS2
       Integer npam(4,0:*)
       Real*8 ipam(nxpam)
       Real*8 DSO(nDSO), PSOPam(nPSOPam), G1(nG1), G2(nG2),
      &       Cred(nC), Scr1(nS1), Scr2(nS2), Cmo(ncmo)
+
+      Integer i, j, i3adr
+      Real*8 t14
+      Integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym,
+     &        ioPam1, ioPam2, ioPam3, ioPam4, iEnd, jEnd, kEnd, lEnd,
+     &        ni, nj, nk, nl, ip, iq, is, it, ir, ipq, irs, ipr, ips,
+     &        irq, isq, nbi, nbj, nbk, nbl, nx, nkl, nv, nxv, njkl,
+     &        nu, nxvu, nt, nxvut, ix, iv, iu, itu, ituvx,
+     &        itx, ivu, itv, iScr, ixEnd, iOCMOL, iods, lSta, ixSta,
+     &        iOCMOX, iVEnd, iOCMOK, ioDR, klSym, kSta, ivSta,
+     &        iOCMOV, iuEnd, iOCMOJ, ioDQ, jSta, iuSta, iOCMOU, itEnd,
+     &        iOCMOI, iSta, nijkl, iOCMOT, ijSym, Ind, ivx,
+     &        ixu, nCopy, nSkip1, iOff2, nSkip2, nTUV, l, nLTU,
+     &        k, nKLT, lOff, lOf1, klOff, klOf1, jklOff, jklOf1,
+     &        itSta, iOff1, ipSO
+      Real*8 Fact
 ! Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
 !
@@ -317,4 +335,4 @@
 #endif
 !
       return
-      end
+      end subroutine ptrans
