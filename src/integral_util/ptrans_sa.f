@@ -16,8 +16,6 @@
 !   npam(indpos,isym)= Nr of SO indices at index position 1..4,
 !       with symmetry label isym=0..7.
 !   ipam()= A consecutive list of SO indices.
-!   G1()=Active MO 1-el density matrix (unused).
-!   G2()=d:o,   MO 2-el density matrix.
 ! Also:
 !   mxpam=Similar, ipam array
 !   mxSO=Largest batch of SO indices in one single symmetry
@@ -27,17 +25,15 @@
 ! -------------------------------------------------------------------
 !#define _DEBUGPRINT_
       subroutine ptrans_sa(npam,ipam,nxpam,PSOPam,nPSOPam,
-     &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2,
-     &                  ScrP,nsp)
-      use pso_stuff, only: nSSDM,SSDM, DSO=>D0, CMO
+     &                     Cred,nC,Scr1,nS1,Scr2,nS2,ScrP,nsp)
+      use pso_stuff, only: nSSDM,SSDM, DSO=>D0, CMO, G2
       use Constants, only: Zero, Quart
       use etwas, only: mIrrep, npSOp, mBas, nAsh, nIsh
       Implicit None
-      Integer nxpam, nPSOPam, nG1, nG2, nC, nS1, nS2, nSP
+      Integer nxpam, nPSOPam, nC, nS1, nS2, nSP
       Integer npam(4,0:*),indi(4)
       Real*8 ipam(nxpam)
-      Real*8 PSOPam(nPSOPam), G1(nG1,*), G2(nG2,*),
-     &       Cred(*), Scr1(nS1), Scr2(nS2), ScrP(nsP)
+      Real*8 PSOPam(nPSOPam), Cred(*), Scr1(nS1), Scr2(nS2), ScrP(nsP)
 
       Integer i, j, i3adr
       Integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym,
@@ -525,7 +521,6 @@
       return
 ! Avoid unused argument warnings
       if (.false.) then
-         call Unused_real_array(G1)
          call Unused_integer(nC)
       end if
       end subroutine ptrans_sa

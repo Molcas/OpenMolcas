@@ -16,8 +16,6 @@
 !   npam(indpos,isym)= Nr of SO indices at index position 1..4,
 !       with symmetry label isym=0..7.
 !   ipam()= A consecutive list of SO indices.
-!   G1()=Active MO 1-el density matrix.
-!   G2()=d:o,   MO 2-el density matrix.
 ! Also:
 !   mxpam=Similar, ipam array
 !   mxSO=Largest batch of SO indices in one single symmetry
@@ -27,17 +25,16 @@
 ! -------------------------------------------------------------------
 !#define _DEBUGPRINT_
       subroutine ptrans(npam,ipam,nxpam,PSOPam,nPSOPam,
-     &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2)
+     &                  Cred,nC,Scr1,nS1,Scr2,nS2)
       use Constants, only: Zero, Quart
       use etwas, only: npSOp, CoulFac, mBas, nAsh, nIsh,
      &                 mIrrep
-      use pso_stuff, only: DSO=>D0, CMO
+      use pso_stuff, only: DSO=>D0, CMO, G1, G2
       Implicit None
-      Integer nxpam, nPSOPam, nG1, nG2, nC, nS1, nS2
+      Integer nxpam, nPSOPam, nC, nS1, nS2
       Integer npam(4,0:*)
       Real*8 ipam(nxpam)
-      Real*8 PSOPam(nPSOPam), G1(nG1), G2(nG2),
-     &       Cred(nC), Scr1(nS1), Scr2(nS2)
+      Real*8 PSOPam(nPSOPam), Cred(nC), Scr1(nS1), Scr2(nS2)
 
       Integer i, j, i3adr
       Real*8 t14
@@ -157,25 +154,25 @@
             itu=i3adr(it,iu)
             ituvx=i3adr(itu,ivx)
             ind=ind+1
-            scr1(ind)=G2(ituvx)
+            scr1(ind)=G2(ituvx,1)
             if(isym.eq.jsym) then
               fact=1.0d00
               if(itu.ge.ivx .and. iv.eq.ix) fact=2.0d00
               if(itu.lt.ivx .and. it.eq.iu) fact=2.0d00
               scr1(ind)=fact*scr1(ind)
 !hjw multiplying the G1 product with coulfac gives wrong result
-              scr1(ind)=scr1(ind)-G1(itu)*G1(ivx)
+              scr1(ind)=scr1(ind)-G1(itu,1)*G1(ivx,1)
             end if
             if(isym.eq.lsym) then
               itx=i3adr(it,ix)
               ivu=i3adr(iv,iu)
 !hjw t14 includes exfac, why not coulfac above? What are these terms?
-              scr1(ind)=scr1(ind)+t14*G1(itx)*G1(ivu)
+              scr1(ind)=scr1(ind)+t14*G1(itx,1)*G1(ivu,1)
             end if
             if(isym.eq.ksym) then
               itv=i3adr(it,iv)
               ixu=i3adr(ix,iu)
-              scr1(ind)=scr1(ind)+t14*G1(itv)*G1(ixu)
+              scr1(ind)=scr1(ind)+t14*G1(itv,1)*G1(ixu,1)
             end if
  110     continue
  120    continue
