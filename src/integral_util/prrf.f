@@ -18,11 +18,16 @@
 !             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
 !***********************************************************************
       use External_Centers, only: nXF, iXPolType
-      use Constants
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      use rctfld_module, only: lRF, PCM, lRFCav, Eps, EpsInf, rds, lMax,
+     &    lLangevin, latato, RadLat, ScalA, ScalB, ScalC, ScaAA, PolSI,
+     &    DipSI, gAtom, DieDel, TK, cLim, aFac, nExpo, PreFac, Solvent,
+     &    Conductor, CordSI, RslPar
+      Implicit None
       Logical DSCF, NonEq
-      Integer StrnLn
+      Integer iCharge, jPrint
+
+      Integer StrnLn, i, j, nSolvent
+      Real*8 AArea, R_Min_Sphere
 !
 !
       IF (jPrint.GE.2) THEN
@@ -113,8 +118,8 @@
       ENDIF
 
       If (lRF) Call Init_RctFld(NonEq,iCharge)
-      If (DSCF) Call Allok2
+      If (DSCF) Call Allok2()
 !
       Return
 !
-      End
+      End SubRoutine PrRF
