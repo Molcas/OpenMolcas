@@ -87,5 +87,4 @@
 
       END DO ! JSTATE
 
-      RETURN
-      END
+      END SUBROUTINE WRITEDYS

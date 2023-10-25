@@ -4262,8 +4262,7 @@ C backtransformation in two steps, -phi and -theta
 44    FORMAT (20X,6(1X,A15))
 49    FORMAT (5X,A,1X,ES15.8,1X,A)
 
-      RETURN
-      END
+      END SUBROUTINE PRPROP
 
       SUBROUTINE SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
 !      IMPLICIT NONE
@@ -4451,11 +4450,9 @@ C backtransformation in two steps, -phi and -theta
        !!enddo
       !!enddo
 
-
-      RETURN
 c Avoid unused argument warnings
       unused_var(DIPSOm_SA)
-      END
+      END SUBROUTINE SINANI
 
       SUBROUTINE ADARASSI(N,A,D,DROT)
 
@@ -4477,8 +4474,7 @@ C actual multiplication
       call ZGEMM('N','N',N,N,N,(1.0D0,0.0D0),TEMP,N,A,N,(0.0D0,0.0D0),
      &DROT,N)
 
-      RETURN
-      END
+      END SUBROUTINE ADARASSI
 
       SUBROUTINE ZECON(NSTATE,N,UR,UI,AR,AI,ZEKL,IXYZ,ISTATE,ISS,JSS)
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -4504,5 +4500,4 @@ C actual multiplication
      $     CMPLX(UR(ISS,2)*TMPR2+UI(ISS,2)*TMPI2,
      $     UR(ISS,2)*TMPI2-UI(ISS,2)*TMPR2,kind=8)
 
-      RETURN
-      END
+      END SUBROUTINE ZECON

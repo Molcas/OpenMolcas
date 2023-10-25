@@ -218,5 +218,4 @@ c This is only allocated if SODIAGNSTATE.GT.0
       CALL GETMEM('UMATI2','FREE','REAL',LUMATI,NSS**2)
       CALL GETMEM('EIGVEC2','FREE','REAL',LVMAT,NSS**2)
 
-      RETURN
       END

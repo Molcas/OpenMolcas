@@ -148,5 +148,4 @@ C Additional input processing. Start writing report.
       Call GetMem('REFENE','Free','Real',LREFENE,NSTATE)
       Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)
 C
-      RETURN
       END

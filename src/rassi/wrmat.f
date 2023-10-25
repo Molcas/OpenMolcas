@@ -37,5 +37,5 @@
       END DO
       WRITE(6,*)
       WRITE(6,*)('*',I=1,80)
-      RETURN
-      END
+
+      END SUBROUTINE WRMAT

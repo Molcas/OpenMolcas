@@ -21,4 +21,4 @@ C Change print level when in an optimization loop
         IPGLOB=MAX(IPGLOB-2,0)
       END IF
 
-      END
+      END SUBROUTINE GETPRINTLEVEL

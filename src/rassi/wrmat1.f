@@ -22,4 +22,4 @@ C     NCOL=NR OF PRINTING COLUMNS.
           WRITE(6,'(1X,I3,5(1X,G16.9))')I,(XMAT(I,J),J=JSTA,JEND)
         END DO
       END DO
-      END
+      END SUBROUTINE WRMAT1

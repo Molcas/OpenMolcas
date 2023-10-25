@@ -68,5 +68,4 @@ C Mapping from spin states to spin-free state:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
       End Subroutine USOTRANS

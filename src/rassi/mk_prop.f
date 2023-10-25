@@ -42,7 +42,7 @@
       NSIZ=0
       CALL iRDONE(IRC,IOPT,LABEL,IC,IDUM,ISCHK)
       IF(IRC.eq.0) NSIZ=IDUM(1)
-      IF(MOD(ISCHK/MASK,2).EQ.0) GOTO 300
+      IF(MOD(ISCHK/MASK,2).EQ.0) RETURN
       IOPT=0
 C Rulin: The 'spin-dependent' part of hyperfine contribution
       IF (LABEL(1:5).eq.'MAGXP') THEN
@@ -59,7 +59,7 @@ C Rulin: The 'spin-dependent' part of hyperfine contribution
          WRITE(6,'(6X,A,A)')'  LABEL     = ',LABEL
          WRITE(6,'(6X,A,I2)')'  COMPONENT = ',IC
          WRITE(6,*)
-         GO TO 300
+         RETURN
       END IF
       IPUSED(IPROP)=1
 C IF THIS IS THE FIRST CALL TO THE SUBROUTINE, PICK UP SOME DATA:
@@ -112,7 +112,5 @@ C while the AMFI authors used Pauli matrices.
       ELSE
          PROP(JSTATE,ISTATE,IPROP)=-PSUM
       END IF
-*
-300   CONTINUE
 *
       END SUBROUTINE MK_PROP

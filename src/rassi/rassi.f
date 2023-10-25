@@ -409,5 +409,5 @@ C Plot SO-Natural Transition Orbitals if requested
 
       Call StatusLine('RASSI:','Finished.')
       IRETURN=0
-      RETURN
-      END
+
+      END SUBROUTINE RASSI

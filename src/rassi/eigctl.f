@@ -119,7 +119,7 @@ C Make a list of interacting sets of states:
       END DO
       ISET=0
       DO I=1,NSTATE
-        IF(IWORK(LLIST-1+I).GT.0) GOTO 20
+        IF(IWORK(LLIST-1+I).GT.0) cycle
         ISET=ISET+1
         IWORK(LLIST-1+I)=ISET
         JOB1=JBNUM(I)
@@ -127,18 +127,16 @@ C Make a list of interacting sets of states:
         MPLET1=MLTPLT(JOB1)
         LSYM1=IRREP(JOB1)
         DO J=I+1,NSTATE
-          IF(IWORK(LLIST-1+J).GT.0) GOTO 10
+          IF(IWORK(LLIST-1+J).GT.0) cycle
           JOB2=JBNUM(J)
           NACTE2=NACTE(JOB2)
-          IF(NACTE2.NE.NACTE1) GOTO 10
+          IF(NACTE2.NE.NACTE1) cycle
           MPLET2=MLTPLT(JOB2)
-          IF(MPLET2.NE.MPLET1) GOTO 10
+          IF(MPLET2.NE.MPLET1) cycle
           LSYM2=IRREP(JOB2)
-          IF(LSYM2.NE.LSYM1) GOTO 10
+          IF(LSYM2.NE.LSYM1) cycle
           IWORK(LLIST-1+J)=ISET
-  10      CONTINUE
         END DO
-  20    CONTINUE
       END DO
       NSETS=ISET
 CTEST      write(*,*)' EIGCTL. There are NSETS sets of interacting states.'

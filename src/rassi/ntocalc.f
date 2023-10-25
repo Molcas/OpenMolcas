@@ -41,7 +41,7 @@
 *                  in Depart. of Chemistry, University of Minnesota, USA
 *                                             2018/08/09
 
-      SUBROUTINE   NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
+      SUBROUTINE NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
 
       use fortran_strings, only : str
 #include "rasdim.fh"
@@ -453,8 +453,8 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM ('SupCMO2','Free','Real',LSUPCMO2,NSUPCMO)
       CALL GETMEM ('ONTO','Free','Real',LONTO,NSUPCMO)
       CALL GETMEM ('UNTO','Free','Real',LUNTO,NSUPCMO)
-      RETURN
-      END
+
+      END SUBROUTINE NTOCalc
 
 
 
@@ -630,8 +630,8 @@ C Recording Printed NTO (PCMO)
       CALL Molden_interface(0,trim(FILENAME),trim(molden_name))
 
       deallocate(PCMO)
-      RETURN
-      END
+
+      END SUBROUTINE  NTOSymAnalysis
 
 
 

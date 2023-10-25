@@ -634,6 +634,5 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
 
       call mma_deallocate(HAMSOR)
       call mma_deallocate(HAMSOI)
-      RETURN
 
-      END
+      END SUBROUTINE SOEIG

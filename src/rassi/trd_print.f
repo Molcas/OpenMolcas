@@ -148,4 +148,4 @@
         END DO
       END IF
       CLOSE (LU)
-      END SUBROUTINE
+      END SUBROUTINE TRD_PRINT

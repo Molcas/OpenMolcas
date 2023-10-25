@@ -1074,5 +1074,5 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for TMOM(SO) : ',TCpu2-TCpu1,TWall2-TWall1
 #endif
-      RETURN
+
       END Subroutine PRPROP_TM_Exact

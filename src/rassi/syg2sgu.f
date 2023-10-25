@@ -564,8 +564,8 @@ C      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
 C
       CALL GETMEM('OrbArr','Free','Inte',LORBARR,NACTEL)
 
-      RETURN
-      END
+      END SUBROUTINE SYG2SGU
+
       SUBROUTINE PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
       DIMENSION IWALK(*),ICASE(N,NWALK)
 C PURPOSE: PACK THE GUGA STEP NUMBERS INTO THE ARRAY IWALK.
@@ -589,8 +589,8 @@ C call parameter.
           IWALK(IPOS)=IWORD
         END DO
       END DO
-      RETURN
-      END
+      END SUBROUTINE PKWLK
+
       SUBROUTINE UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
       DIMENSION IWALK(*),ICASE(N,NWALK)
 * See companion subroutine PKWLK.
@@ -609,8 +609,7 @@ C call parameter.
           END DO
         END DO
       END DO
-      RETURN
-      END
+      END SUBROUTINE UPKWLK
 
 
       SUBROUTINE W2SGORD(ISGSTRUCT,ICISTRUCT,MWS2W,
@@ -647,8 +646,8 @@ C Allocate scratch space for case numbers:
      &            IWORK(LDOWN),IWORK(LMAW),IWORK(LICS),
      &            MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
-      RETURN
-      END
+      END SUBROUTINE W2SGORD
+
       SUBROUTINE W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,ISM,MIDLEV,
      &                  MVSTA,IOCSF,NOW,IOW,IDOWN,MAW,ICS,
      &                  MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
@@ -730,8 +729,7 @@ C Leading dimension=nr of upwalks in this block.
         LDIM=NOW(1,ISYUP,MV)
         ICNUM(ICONF)=IOFF+IUW+LDIM*(IDW-1)
       END DO
-      END
-
+      END SUBROUTINE W2SGORD1
 
       SUBROUTINE MSTOW(ISGSTRUCT,ICISTRUCT,MWS2W)
       use Struct, only: nSGSize, nCISize
@@ -760,8 +758,8 @@ C Leading dimension=nr of upwalks in this block.
      &            IWORK(LICASE),IWORK(LUP),IWORK(LDOWN),
      &            IWORK(LMAW),MWS2W)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
-      RETURN
-      END
+      END SUBROUTINE MSTOW
+
       SUBROUTINE MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,
      &                  MIDLEV,ICS,NOW,IOW,IWALK,
      &                  IUP,IDOWN,MAW,MWS2W)
@@ -821,4 +819,4 @@ C Unpack lower walk to ICS()
         END DO
       END DO
 
-      END
+      END SUBROUTINE MSTOW1

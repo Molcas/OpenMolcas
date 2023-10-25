@@ -625,4 +625,4 @@
       call mma_deallocate(DipFrintermz)
       call mma_deallocate(DipFrintermz2)
 
-      end subroutine
+      end subroutine frenkelexc

@@ -307,6 +307,5 @@ C      END IF
         CALL SGCLOSE(ISGSTR1)
       END IF
       CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCI1)
-      RETURN
 *
-      END
+      END SUBROUTINE TSHinit

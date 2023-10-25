@@ -1067,5 +1067,5 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
       End If
 *
       CALL XFLUSH(6)
-      RETURN
+
       END

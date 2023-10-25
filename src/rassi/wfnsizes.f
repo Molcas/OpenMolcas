@@ -46,4 +46,4 @@ C The structure of the orbital space:
         NBST=NBST+NBASF(ISYM)
       END DO
       nasht_save=nasht
-      end
+      end subroutine wfnsizes_rassi

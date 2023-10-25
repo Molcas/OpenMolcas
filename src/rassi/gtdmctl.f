@@ -1548,5 +1548,5 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for GTDM : ',TCpu2-TCpu1,TWall2-TWall1
 #endif
-      RETURN
-      END
+
+      END SUBROUTINE GTDMCTL

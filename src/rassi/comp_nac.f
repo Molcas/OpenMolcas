@@ -172,8 +172,6 @@ C***********************************************************************C
 * Arguments
       DIMENSION TDMZZ(*), CISTATJ(*), IOFF(*)
 * Local Variables
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='COMP_NAC')
       CHARACTER*8 LABEL, STYPE
 * Subroutine Statements
 

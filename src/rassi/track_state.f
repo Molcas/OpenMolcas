@@ -10,10 +10,10 @@
 ************************************************************************
       SUBROUTINE Track_State(OVLP)
       use rassi_aux, only: ipglob
+      use Constants, only: Zero
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "real.fh"
       INTEGER iState,initState,newState
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -21,9 +21,6 @@
 #endif
       REAL*8 MaxOv,ThisOv
       REAL*8 ovlp(nstate,nstate)
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='Track_State')
-
 
 
 *     Check that there are 2 JOB files, with the same number of states
@@ -72,8 +69,7 @@
 
 *     If no state is found, something wrong has happened
       IF (newState.eq.0) THEN
-        Call SysAbendMsg('Track_State',
-     &  'No overlaps!','')
+        Call SysAbendMsg('Track_State','No overlaps!','')
       END IF
 
 *     Store the new state for geometry optimization
@@ -83,4 +79,4 @@
         CALL Put_iScalar('NumGradRoot',newState)
       END IF
 
-      END
+      END SUBROUTINE Track_State

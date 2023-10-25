@@ -67,5 +67,4 @@ CPAM98     *                 WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
       END DO
       CALL GETMEM('ILEV','FREE','INTE',LILEV,NA)
 
-      RETURN
-      END
+      END SUBROUTINE SSOTRA

@@ -52,12 +52,12 @@ C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR P-CSF JCSF
             INDSPM=INDSPM-1
             COEF1=COEF1*SQRT(DBLE(INDSPM+1))
 * If COEF1 has gone down to 0 exactly.
-            IF (INDSPM+1.eq.0) GO TO 100
+            IF (INDSPM+1.eq.0) exit
           ELSE
             INDSMM=INDSMM-1
             COEF1=-COEF1*SQRT(DBLE(INDSMM+1))
 * If COEF1 has gone down to 0 exactly.
-            IF (INDSMM+1.eq.0) GO TO 100
+            IF (INDSMM+1.eq.0) exit
           END IF
           COEF2=COEF2*SQRT(DBLE(INDSPM+INDSMM+2))
          ELSE
@@ -71,10 +71,10 @@ C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR P-CSF JCSF
           COEF2=COEF2*SQRT(DBLE(INDSPM+INDSMM))
          END IF
         END DO
-  100   CONTINUE
+
         PCSFTOSD(JDET,JCSF)=COEF1/COEF2
 
        END DO
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE PROTOT
