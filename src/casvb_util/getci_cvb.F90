@@ -14,8 +14,8 @@
 
 subroutine getci_cvb(civec)
 
-use casvb_global, only: filename, iform_ci, ipr, istms2_d, istnel_d, istsy_d, mxirrep, ndet, nstats_d, nstsym_d, savvbci, strtci, &
-                        variat, weight_d
+use casvb_global, only: filename, icnt_ci, iform_ci, ipr, istms2_d, istnel_d, istsy_d, mxirrep, ndet, nstats_d, nstsym_d, savvbci, &
+                        strtci, variat, weight_d
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -25,15 +25,14 @@ real(kind=wp) :: civec(0:ndet)
 integer(kind=iwp) :: ibf, icivec, istate, istsym_d, isyml, iwr, nci, ncix(mxirrep)
 real(kind=wp) :: cnrm, fac
 real(kind=wp), allocatable :: cim(:)
-integer(kind=iwp), external :: igetcnt2_cvb
 real(kind=wp), external :: dnrm2_
 logical(kind=iwp), external :: ifcasci_cvb, & ! ... Files/Hamiltonian available ...
                                valid_cvb
 
 icivec = nint(civec(0))
-if (igetcnt2_cvb(icivec) == 1) return
+if (icnt_ci(icivec) == 1) return
 if (.not. ifcasci_cvb()) return
-call setcnt2_cvb(icivec,1)
+icnt_ci(icivec) = 1
 iwr = 0
 
 if (iform_ci(icivec) /= 0) then

@@ -15,24 +15,26 @@
 subroutine makecivbhs_cvb(civbh,civbs,orbs)
 ! Construct CIVBS ( = T(s) * CIVB ) & CIVBH ( = T(O)*H*T(O) * CIVB ):
 
-use casvb_global, only: ndet, norb
+use casvb_global, only: icnt_ci, ndet, norb
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: civbh(0:ndet), civbs(0:ndet), orbs(norb,norb)
-logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
+integer(kind=iwp) :: icivbh, icivbs
 
-if (tstcnt_cvb(civbs,4) .and. tstcnt_cvb(civbh,5)) then
+icivbh = nint(civbh(0))
+icivbs = nint(civbs(0))
+if ((icnt_ci(icivbs) == 4) .and. (icnt_ci(icivbh) == 5)) then
   return
-else if (tstcnt_cvb(civbs,4)) then
+else if (icnt_ci(icivbs) == 4) then
   call applyth_cvb(civbh,orbs)
-else if (tstcnt_cvb(civbs,5)) then
+else if (icnt_ci(icivbs) == 5) then
   call applyts_cvb(civbs,orbs)
 else
   call applyths_cvb(civbh,civbs,orbs)
 end if
-call setcnt_cvb(civbs,4)
-call setcnt_cvb(civbh,5)
+icnt_ci(icivbs) = 4
+icnt_ci(icivbh) = 5
 
 return
 

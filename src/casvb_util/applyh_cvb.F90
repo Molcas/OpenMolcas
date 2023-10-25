@@ -14,7 +14,7 @@
 
 subroutine applyh_cvb(civec)
 
-use casvb_global, only: iform_ci, lw1_cvb, n_applyh, ncivb, ndet, nirrep
+use casvb_global, only: icnt_ci, iform_ci, lw1_cvb, n_applyh, ncivb, ndet, nirrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -29,11 +29,11 @@ real(kind=wp), parameter :: thr2 = 1.0e-20_wp
 real(kind=wp), external :: ddot_
 
 kH0_Pointer = lw1_cvb
-icivec = nint(civec(0))
 c_daxpy = Zero
 
 n_applyh = n_applyh+1
-call setcnt2_cvb(icivec,0)
+icivec = nint(civec(0))
+icnt_ci(icivec) = 0
 if (iform_ci(icivec) /= 0) then
   write(u6,*) ' Unsupported format in APPLYH :',iform_ci(icivec)
   call abend_cvb()

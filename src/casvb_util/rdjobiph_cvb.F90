@@ -22,7 +22,6 @@ implicit none
 character(len=*) :: fnjob
 integer(kind=iwp) :: idisk, ii, lujob
 logical(kind=iwp), parameter :: debug = .false.
-integer(kind=iwp), external :: len_trim_cvb
 
 ! Output parameters (in jobiph_j):
 ! --------------------------------
@@ -71,7 +70,7 @@ if (debug) then
   write(u6,*) ' header :',header_j
   write(u6,*) ' title  :'
   do ii=1,mxtit
-    if (len_trim_cvb(title_j(ii)) > 0) write(u6,*) title_j(ii)
+    if (len_trim(title_j(ii)) > 0) write(u6,*) trim(title_j(ii))
   end do
   write(u6,*) ' potnuc :',potnuc_j
   write(u6,*) ' lroots :',lroots_j

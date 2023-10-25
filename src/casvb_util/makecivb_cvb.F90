@@ -17,18 +17,18 @@ subroutine makecivb_cvb(civec,civb,cvbdet,orbs,cvb,ic)
 ! IC=0 : CIVB will contain full set of structures (if PROJCAS).
 ! IC=1 : CIVB will contain only VB structures.
 
-use casvb_global, only: gjorb_type, memplenty, ndet, ndetvb, norb, nvb, projcas
+use casvb_global, only: gjorb_type, icnt_ci, memplenty, ndet, ndetvb, norb, nvb, projcas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: civec(0:ndet), civb(0:ndet), cvbdet(ndetvb), orbs(norb,norb), cvb(nvb)
-integer(kind=iwp) :: ic
+integer(kind=iwp) :: ic, icivb
 type(gjorb_type) :: gjorb
 real(kind=wp), allocatable :: orbinv(:,:)
-logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
-if (tstcnt_cvb(civb,3-ic)) return
+icivb = nint(civb(0))
+if (icnt_ci(icivb) == 3-ic) return
 
 if (.not. projcas) then
   call str2vbc_cvb(cvb,cvbdet)
@@ -58,7 +58,7 @@ else if (projcas) then
   call mma_deallocate(gjorb%i1)
   call mma_deallocate(gjorb%i2)
 end if
-call setcnt_cvb(civb,3-ic)
+icnt_ci(icivb) = 3-ic
 
 return
 

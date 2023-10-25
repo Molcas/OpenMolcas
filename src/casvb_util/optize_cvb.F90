@@ -36,8 +36,8 @@ subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,ipinp,ipdd1,ip
 !*                                                                     *
 !***********************************************************************
 
-use casvb_global, only: corenrg, eigval, eigvec, expct, fxbest, hh, hhkeep, hhstart, ip, isaddleo, maxize, odx, odxp, ograd, &
-                        ogradp, owrk
+use casvb_global, only: corenrg, eigval, eigvec, expct, fxbest, hh, hhkeep, hhstart, ip, ipp12e, ipp12s, isaddleo, iter12e, &
+                        iter12s, maxize, odx, odxp, ograd, ogradp, owrk
 use casvb_interfaces, only: opta_sub, optb_sub
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -146,7 +146,8 @@ do iter=1,mxiter
     maxd = min(nparm_dav,200)
     mxit = 500
     call ddinit_cvb('Axb',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddleo,ipdd1,Zero,0)
-    call asonc12sinit_cvb(ipdd2)
+    iter12s = 0
+    ipp12s = ipdd2
     call optize2_cvb(fx,nparm_dav,ioptc,iter_is_1,o12sa_cvb,o12sb_cvb)
     call ddclean_cvb()
   else if ((imethod == 12) .and. (.not. maxize)) then
@@ -162,7 +163,8 @@ do iter=1,mxiter
     maxd = min(nparm_dav,200)
     mxit = 500
     call ddinit_cvb('AxESx',nparm_dav,nfrdim_dav,maxd,mxit,ifollow,isaddleo,ipdd1,corenrg,n_div)
-    call asonc12einit_cvb(ipdd2)
+    iter12e = 0
+    ipp12e = ipdd2
     call optize2_cvb(fx,nparm_dav,ioptc,iter_is_1,o12ea_cvb,o12eb_cvb)
     call ddclean_cvb()
   else

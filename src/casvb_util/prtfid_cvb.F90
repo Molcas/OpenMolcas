@@ -22,14 +22,13 @@ character(len=*) :: chr
 real(kind=wp) :: fileid
 integer(kind=iwp) :: ibf
 character(len=200) :: line
-integer(kind=iwp), external :: len_trim_cvb
 
 line = chr
 call mkfn_cvb(fileid,ibf)
 call appendchr_cvb(line,' file ',0)
 call appendchr_cvb(line,filename(ibf),1)
 call appendchr_cvb(line,'.',0)
-write(u6,'(a)') line(1:len_trim_cvb(line))
+write(u6,'(a)') trim(line)
 
 return
 

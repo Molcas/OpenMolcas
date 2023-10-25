@@ -14,8 +14,9 @@
 
 subroutine chop6_cvb()
 
-use casvb_global, only: endvar, grad1, grad2, gradx, hessorb, hesst, icase6, ishstruc, ivbweights, maxdav, mxdav, mxirrep, mxiter, &
-                        ncivb, ndet, ndetvb, nirrep, norb, npr, nprorb, nvb, release, sstruc, sstruc2, variat, vec1, wdx
+use casvb_global, only: endvar, grad1, grad2, gradx, hessorb, hesst, icase6, icnt_ci, ishstruc, ivbweights, maxdav, mxdav, &
+                        mxirrep, mxiter, ncivb, ndet, ndetvb, nirrep, norb, npr, nprorb, nvb, release, sstruc, sstruc2, variat, &
+                        vec1, wdx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6, RtoI
 
@@ -37,7 +38,7 @@ end if
 release(6) = .true.
 release(7) = .false.
 
-call setcnt2_cvb(6,0)
+icnt_ci(6) = 0
 if (icase6 == 1) then
   !FIXME: These deallocations should not be needed
   if (allocated(sstruc)) call mma_deallocate(sstruc)

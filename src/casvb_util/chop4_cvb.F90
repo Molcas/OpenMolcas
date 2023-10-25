@@ -14,8 +14,8 @@
 
 subroutine chop4_cvb()
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, civbvecs, ifinish, iform_ci, lcalccivbs, lcalcevb, &
-                        lcalcsvb, lciweights, memplenty, ndres, ndres_ok, nv, release
+use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, civbvecs, icnt_ci, ifinish, iform_ci, lcalccivbs, &
+                        lcalcevb, lcalcsvb, lciweights, memplenty, ndres, ndres_ok, nv, release
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -82,7 +82,7 @@ end if
 do iv=1,nv
   civbvecs(0,iv) = real(iv,kind=wp)
   iform_ci(iv) = 0
-  if (.not. ndres_ok) call setcnt2_cvb(iv,0)
+  if (.not. ndres_ok) icnt_ci(iv) = 0
 end do
 !-- ins
 if (((ifinish == 1) .or. (ifinish == 2)) .and. (.not. lciweights)) then

@@ -27,13 +27,13 @@ integer(kind=iwp) :: i, ia, iaorb, ib, ibeg, ibegt, iborb, ic, idet, ilin, inda,
                      ix1, lenfld, mp, mrem, nalfsng, nbetsng, nc, nindasg, nprint, nsing, rc
 real(kind=wp) :: c1, c2, c3, c4, cnrm, cprint(6), fac, fac1, fac2, s11, s12, s22, sm1, sm2, sum1, sum2, total1, total2, total3, &
                  total4, total5, total6
+character(len=240) :: line
 integer(kind=iwp), allocatable :: iaocc(:), ibocc(:), indavec(:), indbvec(:), locasg(:), locion(:), locsng(:), lunasg(:), &
                                   lunion(:), lunsng(:), maxgasg(:), maxgion(:), maxgrph(:), maxgsng(:), mingasg(:), mingion(:), &
                                   mingrph(:), mingsng(:), nkasg(:), nkion(:), nksng(:), xalf(:,:), xasg(:), xbet(:,:), xion(:), &
                                   xsng(:)
 real(kind=wp), allocatable :: gal1(:), gal2(:), wghtion1(:), wghtion2(:), wghtion3(:), wghtion4(:), wghtion5(:), wghtion6(:)
-character(len=240) :: line
-integer(kind=iwp), external :: indget_cvb, len_trim_cvb
+integer(kind=iwp), external :: indget_cvb
 
 call cidot_cvb(civb,civbs,cnrm)
 fac = svb/sqrt(cnrm)
@@ -276,7 +276,7 @@ if (mod(iciweights,8) > 3) then
 end if
 lenfld = 8+iprec
 ix1 = max(0,min(3,2*lenfld-16))
-call cblank_cvb(line,240)
+line = ''
 if ((npcf > 0) .or. (npcf == -1)) then
   line(1:21) = '  Conf. =>  Orbitals '
   ibeg = max(14+3*nel,22)
@@ -293,8 +293,8 @@ if ((npcf > 0) .or. (npcf == -1)) then
     line(ibegt+ix1:ibegt+2*lenfld-1) = 'Inverse'
     ibegt = ibegt+2*lenfld
   end if
-  write(u6,'(a)') line(1:len_trim_cvb(line))
-  call cblank_cvb(line,240)
+  write(u6,'(a)') trim(line)
+  line = ''
   if (mod(iciweights,2) == 1) then
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
     ibeg = ibeg+lenfld
@@ -313,9 +313,9 @@ if ((npcf > 0) .or. (npcf == -1)) then
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
     ibeg = ibeg+lenfld
   end if
-  write(u6,'(a)') line(1:len_trim_cvb(line))
+  write(u6,'(a)') trim(line)
 end if
-call cblank_cvb(line,240)
+line = ''
 
 ! Alpha weight array:
 do iorb=0,norb
@@ -491,8 +491,7 @@ call mma_deallocate(gal2)
 call mma_deallocate(indavec)
 call mma_deallocate(indbvec)
 
-call cblank_cvb(line,240)
-line(1:21) = ' Accumulated weights:'
+line = ' Accumulated weights:'
 ibeg = 22
 if (mod(iciweights,2) == 1) then
   line(ibeg+ix1:ibeg+2*lenfld-1) = 'Chirgwin-Coulson'
@@ -506,8 +505,8 @@ if (mod(iciweights,8) > 3) then
   line(ibeg+ix1:ibeg+2*lenfld-1) = 'Inverse'
   ibeg = ibeg+2*lenfld
 end if
-write(u6,'(/,a)') line(1:len_trim_cvb(line))
-call cblank_cvb(line,240)
+write(u6,'(/,a)') trim(line)
+line = ''
 ibeg = 22
 if (mod(iciweights,2) == 1) then
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
@@ -527,8 +526,8 @@ if (mod(iciweights,8) > 3) then
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
   ibeg = ibeg+lenfld
 end if
-write(u6,'(a)') line(1:len_trim_cvb(line))
-call cblank_cvb(line,240)
+write(u6,'(a)') trim(line)
+line = ''
 total1 = Zero
 total2 = Zero
 total3 = Zero

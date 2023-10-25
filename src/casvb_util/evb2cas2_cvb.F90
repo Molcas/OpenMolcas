@@ -15,13 +15,14 @@
 subroutine evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,dxnrm,dx_amx,civec,civb,civbh,res,resh)
 
 !Note: this was using "sorbs" and "owrk2" instead of "cvbdet" and "gjorb", probably a bug
-use casvb_global, only: corenrg, cvbdet, dx, evb, formAD, formAF, gjorb, grd, ipr, memplenty, ndet, norb, nvb, ovraa, projcas
+use casvb_global, only: corenrg, cvbdet, dx, evb, formAD, formAF, gjorb, grd, icnt_ci, ipr, memplenty, ndet, norb, nvb, ovraa, &
+                        projcas
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, dxnrm, dx_amx, civec(0:ndet), civb(0:ndet), civbh(0:ndet), res(0:ndet), resh(0:ndet)
-integer(kind=iwp) :: ioptc, iter
+integer(kind=iwp) :: icivec, ioptc, iter
 real(kind=wp) :: cnrm, eig(2), h(2,2), orbinv(norb,norb), ovr, rescas_ovr, resnrm
 logical(kind=iwp) :: dx_ok, grad_ok
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
@@ -146,7 +147,8 @@ ioptc = 0
 !ovrcrit = 0.125e-10_wp
 !if (abs(One-abs(ovr)) > ovrcrit) iter = 2
 if (.not. (dx_ok .and. grad_ok)) iter = 2
-call setcnt_cvb(civec,1)
+icivec = nint(civec(0))
+icnt_ci(icivec) = 1
 
 return
 

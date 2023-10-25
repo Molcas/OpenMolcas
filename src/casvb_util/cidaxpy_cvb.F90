@@ -19,7 +19,7 @@
 !***********************************************************************
 subroutine cidaxpy_cvb(fac,cvec1,cvec2)
 
-use casvb_global, only: iform_ci, ndet
+use casvb_global, only: icnt_ci, iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -36,7 +36,7 @@ else
   write(u6,*) ' Unsupported format in CIDAXPY :',iformat
   call abend_cvb()
 end if
-call setcnt2_cvb(ivec2,0)
+icnt_ci(ivec2) = 0
 
 return
 

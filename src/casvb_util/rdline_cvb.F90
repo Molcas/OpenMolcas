@@ -30,7 +30,6 @@ character(len=*), parameter :: alias(nalias,2) = reshape(['={   ',';    ','}    
                                eofield(neofield) = [' '], &
                                eol(neol) = [';','=','{','}']
 logical(kind=iwp), parameter :: blankdelim = .true. ! BLANKDELIM signifies whether blanks are used to delimit fields
-integer(kind=iwp), external :: len_trim_cvb
 
 do
   if (nline == -1) then
@@ -49,35 +48,35 @@ do
         nfield = -1
         return
       end if
-      lenline = len_trim_cvb(line)
-      call strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
-      call upper_case_cvb(line,lenline)
+      call strip_blanks_cvb(line,blanks,nblank,blankdelim)
+      call upcase(line)
       ! Check for "end-of-file" character sequence:
       do ieof=1,neof
-        ilength = len_trim_cvb(eof(ieof))
-        if (line(1:ilength) == eof(ieof)(1:ilength)) then
+        ilength = len_trim(eof(ieof))
+        if (line(1:ilength) == trim(eof(ieof))) then
           nline = -1
           nfield = -1
           return
         end if
       end do
       ! Comment strings (skip rest of line):
+      lenline = len_trim(line)
       indmin = lenline+1
       do icom=1,ncomeol
-        ind = index(line(1:lenline),comeol(icom)(1:len_trim_cvb(comeol(icom))))
+        ind = index(line(1:lenline),trim(comeol(icom)))
         if (ind /= 0) indmin = min(indmin,ind)
       end do
-      lenline = len_trim_cvb(line(1:indmin-1))
+      lenline = len_trim(line(1:indmin-1))
       if (lenline /= 0) then
         ! Aliases:
         do ialias=1,nalias
           do
-            ind = index(line(1:lenline),alias(ialias,1)(1:len_trim_cvb(alias(ialias,1))))
+            ind = index(line(1:lenline),trim(alias(ialias,1)))
             if (ind == 0) exit
-            call charinsert_cvb(alias(ialias,2),len_trim_cvb(alias(ialias,2)),line,lenline,ind,len_trim_cvb(alias(ialias,1)))
+            call charinsert_cvb(alias(ialias,2),len_trim(alias(ialias,2)),line,lenline,ind,len_trim(alias(ialias,1)))
           end do
         end do
-        lenline = len_trim_cvb(line(1:indmin-1))
+        lenline = len_trim(line(1:indmin-1))
         if (lenline /= 0) exit
       end if
     end do
@@ -85,9 +84,8 @@ do
     call izero(ilv,lenline)
     do ieol=1,neol
       iff = 0
-      ilength = len_trim_cvb(eol(ieol))
       do
-        ind = index(line(iff+1:lenline),eol(ieol)(1:ilength))
+        ind = index(line(iff+1:lenline),trim(eol(ieol)))
         if (ind == 0) exit
         ilv(ind+iff) = 1
         iff = ind+iff
@@ -101,7 +99,7 @@ do
     ! Split into fields:
     do ieofield=1,neofield
       iff = 0
-      ilength = max(1,len_trim_cvb(eofield(ieofield)))
+      ilength = max(1,len_trim(eofield(ieofield)))
       do
         ind = index(line(iff+1:lenline),eofield(ieofield)(1:ilength))
         if (ind == 0) exit
@@ -117,7 +115,7 @@ do
           ihadchar = 0
         else if (ilv(ich) == 2) then
           if (ihadchar == 0) ilv(ich) = 0
-          ilength = len_trim_cvb(eofield(ieofield))
+          ilength = len_trim(eofield(ieofield))
           do i=0,ilength-1
             line(i+ich:i+ich) = ' '
           end do
@@ -144,7 +142,7 @@ do
   if (ilineend == -1) ilineend = lenline
   ! Go back and read a new line if this one is empty:
   if (ilinebeg <= ilineend) then
-    if (len_trim_cvb(line(ilinebeg:ilineend)) /= 0) exit
+    if (len_trim(line(ilinebeg:ilineend)) /= 0) exit
   end if
 end do
 

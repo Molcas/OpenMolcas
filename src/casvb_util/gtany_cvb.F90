@@ -26,7 +26,6 @@ logical(kind=iwp) :: done
 integer(kind=iwp), parameter :: nempty = 1
 logical(kind=iwp), parameter :: debug = .false.
 character(len=*), parameter :: empty(nempty) = ['--']
-integer(kind=iwp), external :: len_trim_cvb
 logical(kind=iwp), external :: isitanint_cvb, isitareal_cvb
 
 if (ic > 1) ierr = 0
@@ -47,7 +46,7 @@ do ich=1,lenline
     ! Special character strings to signify empty field?
     done = .false.
     do iempty=1,nempty
-      if (line(ifirst:jch-1) == empty(iempty)(1:len_trim_cvb(empty(iempty)))) then
+      if (line(ifirst:jch-1) == trim(empty(iempty))) then
         done = .true.
         exit
       end if

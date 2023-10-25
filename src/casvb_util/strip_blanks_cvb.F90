@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
+subroutine strip_blanks_cvb(line,blanks,nblank,blankdelim)
 ! If BLANKDELIM, a given number of blanks (not leading or trailing)
 ! will be subsituted by a single blank. Otherwise all blanks are stripped.
 
@@ -21,12 +21,13 @@ use Definitions, only: iwp
 
 implicit none
 character(len=*) :: line
-integer(kind=iwp) :: lenline, nblank
+integer(kind=iwp) :: nblank
 character :: blanks(nblank)
 logical(kind=iwp) :: blankdelim
-integer(kind=iwp) :: iblank, ich, ich2
+integer(kind=iwp) :: iblank, ich, ich2, lenline
 integer(kind=iwp), allocatable :: lv(:)
 
+lenline = len_trim(line)
 do iblank=1,nblank
   if (blanks(iblank) /= ' ') then
     do ich=1,lenline

@@ -21,9 +21,8 @@ character(len=*) :: c
 integer(kind=iwp) :: nmbr, iskip
 integer(kind=iwp) :: ibegin, iend, itens, limit, mnumber
 character(len=10) :: frmt
-integer(kind=iwp), external :: len_trim_cvb
 
-ibegin = len_trim_cvb(c)+1+iskip
+ibegin = len_trim(c)+1+iskip
 iend = len(c)
 
 frmt = ' '

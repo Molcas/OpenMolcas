@@ -14,7 +14,7 @@
 
 subroutine change_cvb()
 
-use casvb_global, only: iprm, kbasis, kbasiscvb, proj, projcas, projsym, strtint
+use casvb_global, only: icnt_ci, iprm, kbasis, kbasiscvb, proj, projcas, projsym, strtint
 use Constants, only: Ten
 use Definitions, only: iwp
 
@@ -46,12 +46,7 @@ call symchk_cvb()
 if (chpcmp_cvb(nint(strtint*Ten))) call touch_cvb('RDINT')
 
 ! Redo CIVB if definition has changed (from CVB or CIVECP):
-if (chpcmp_cvb(merge(1,0,projcas))) then
-  call setcnt2_cvb(2,0)
-  call setcnt2_cvb(3,0)
-  call setcnt2_cvb(4,0)
-  call setcnt2_cvb(5,0)
-end if
+if (chpcmp_cvb(merge(1,0,projcas))) icnt_ci(2:5) = 0
 
 return
 

@@ -33,7 +33,7 @@
 
 subroutine vb2cif_cvb(cvbdet,civec)
 
-use casvb_global, only: iapr, iform_ci, ixapr, ndet, ndetvb, nfrag, vbdet
+use casvb_global, only: iapr, icnt_ci, iform_ci, ixapr, ndet, ndetvb, nfrag, vbdet
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -53,7 +53,7 @@ if (nfrag <= 1) then
 else
   call dpci2vb_cvb(civec(1:),cvbdet,vbdet,ic,dum,1)
 end if
-call setcnt2_cvb(icivec,0)
+icnt_ci(icivec) = 0
 
 return
 

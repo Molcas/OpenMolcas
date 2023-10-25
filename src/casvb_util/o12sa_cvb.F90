@@ -17,15 +17,15 @@ subroutine o12sa_cvb( &
 #                    include "opta_interface.fh"
                     )
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, cvb, cvbdet, have_solved_it, nprorb, nv, nvb, &
-                        nvguess, nvrestart, nvrhs, odx, orbs, strucopt
+use casvb_global, only: civb1, civb2, civb3, civb4, civb5, civb6, civb7, civb8, cvb, cvbdet, have_solved_it, icnt_ci, nprorb, nv, &
+                        nvb, nvguess, nvrestart, nvrhs, odx, orbs, strucopt
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 #include "opta_interface.fh"
 real(kind=wp), pointer :: vuse(:), vuse2(:)
-logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
+integer(kind=iwp) :: icivb
 
 nvrestart = 0
 nvguess = 0
@@ -36,31 +36,39 @@ have_solved_it = .false.
 nullify(vuse)
 vuse2 => civb3
 if (nv >= 1) then
-  if (tstcnt_cvb(civb1,4)) vuse => civb1
+  icivb = nint(civb1(0))
+  if (icnt_ci(icivb) == 4) vuse => civb1
 end if
 if (nv >= 2) then
-  if (tstcnt_cvb(civb2,4)) vuse => civb2
+  icivb = nint(civb2(0))
+  if (icnt_ci(icivb) == 4) vuse => civb2
 end if
 if (nv >= 3) then
-  if (tstcnt_cvb(civb3,4)) vuse => civb3
+  icivb = nint(civb3(0))
+  if (icnt_ci(icivb) == 4) vuse => civb3
 end if
 if (nv >= 4) then
-  if (tstcnt_cvb(civb4,4)) vuse => civb4
+  icivb = nint(civb4(0))
+  if (icnt_ci(icivb) == 4) vuse => civb4
 end if
 if (nv >= 5) then
-  if (tstcnt_cvb(civb5,4)) vuse => civb5
+  icivb = nint(civb5(0))
+  if (icnt_ci(icivb) == 4) vuse => civb5
 end if
 if (nv >= 6) then
-  if (tstcnt_cvb(civb6,4)) vuse => civb6
+  icivb = nint(civb6(0))
+  if (icnt_ci(icivb) == 4) vuse => civb6
 end if
 if (nv >= 7) then
-  if (tstcnt_cvb(civb7,4)) vuse => civb7
+  icivb = nint(civb7(0))
+  if (icnt_ci(icivb) == 4) vuse => civb7
 end if
 if (nv >= 8) then
-  if (tstcnt_cvb(civb8,4)) vuse => civb8
+  icivb = nint(civb8(0))
+  if (icnt_ci(icivb) == 4) vuse => civb8
 end if
-if (associated(vuse,civb3)) vuse2 => civb2
 if (associated(vuse)) then
+  if (associated(vuse,civb3)) vuse2 => civb2
   call o12sa2_cvb(nparam,vuse2,vuse,cvbdet,cvb)
 else
   if (strucopt) then

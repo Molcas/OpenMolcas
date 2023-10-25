@@ -14,7 +14,7 @@
 
 subroutine pvbcopy_cvb(cfrom,cto)
 
-use casvb_global, only: iapr, iform_ci, ixapr, ndet
+use casvb_global, only: iapr, icnt_ci, iform_ci, ixapr, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -29,7 +29,7 @@ if ((iform_ci(icfrom) /= 0) .or. (iform_ci(icto) /= 0)) then
   call abend_cvb()
 end if
 call pvbcopy2_cvb(cfrom(1:),cto(1:),iapr,ixapr,dum,0)
-call setcnt2_cvb(icto,0)
+icnt_ci(icto) = 0
 
 return
 

@@ -23,7 +23,6 @@ integer(kind=iwp) :: ibf
 integer(kind=iwp) :: i, ifile, irec
 logical(kind=iwp) :: done
 character(len=20) :: fn_tmp
-integer(kind=iwp), external :: len_trim_cvb
 logical(kind=iwp), parameter :: debug = .false.
 
 done = .false.
@@ -48,7 +47,7 @@ if (.not. done) then
   ifile = nint(10*(fileid-irec))
   call appendint_cvb(fn_tmp,irec,0)
   call appendint_cvb(fn_tmp,ifile,0)
-  filename(ibf) = fn_tmp(1:len_trim_cvb(fn_tmp))
+  filename(ibf) = trim(fn_tmp)
   fileids(ibf) = fileid
   ifilio(ibf) = 0
 end if

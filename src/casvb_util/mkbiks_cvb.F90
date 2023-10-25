@@ -12,15 +12,39 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial nel, kbasiscvb
 subroutine mkbiks_cvb()
 
-use casvb_global, only: aikcof, bikcof, ipr, kbasiscvb, nel
+use casvb_global, only: aikcof, bikcof, ikcoff, ipr, kbasiscvb, nel
+use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp) :: i2s1, ifns, nalf1, ndet, nel1
+logical(kind=iwp) :: share
+character(len=*), parameter :: basis(7) = ['Kotani    ','Serber    ','Rumer     ','Rumer (LT)','projected ','Determ    ', &
+                                           'Determ    ']
+integer(kind=iwp), external :: ifns_cvb
 
-call biks_cvb(aikcof,bikcof,nel,kbasiscvb,associated(bikcof,aikcof),ipr(1))
+aikcof(0) = real(kbasiscvb,kind=wp)
+bikcof(0) = real(kbasiscvb,kind=wp)
+if (kbasiscvb == 6) return
+
+if (ipr(1) >= 1) write(6,6100) trim(basis(kbasiscvb))
+
+share = associated(bikcof,aikcof)
+do nel1=0,nel
+  do nalf1=0,nel
+    do i2s1=0,nel
+      if (ikcoff(nel1,nalf1,i2s1) /= -1) then
+        ifns = ifns_cvb(nel1,(nel1+i2s1)/2,kbasiscvb)
+        call icomb_cvb(nel1,nalf1,ndet)
+        call bikset_cvb(aikcof(1+ikcoff(nel1,nalf1,i2s1)),bikcof(1+ikcoff(nel1,nalf1,i2s1)),nel1,nalf1,i2s1,ndet,ifns,kbasiscvb, &
+                        share,ipr(1))
+      end if
+    end do
+  end do
+end do
 
 return
+6100 format(/,' Generate ',a,' spin functions.')
 
 end subroutine mkbiks_cvb

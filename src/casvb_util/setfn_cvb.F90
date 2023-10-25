@@ -23,9 +23,8 @@ character(len=*) :: fn
 real(kind=wp) :: fileid_try
 integer(kind=iwp) :: i, itry, lenfn
 logical(kind=iwp), parameter :: debug = .false.
-integer(kind=iwp), external :: len_trim_cvb
 
-lenfn = len_trim_cvb(fn)
+lenfn = len_trim(fn)
 do i=1,nrec
   if (fn(1:lenfn) == filename(i)) then
     fileid = fileids(i)

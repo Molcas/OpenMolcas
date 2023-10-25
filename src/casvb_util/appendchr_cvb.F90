@@ -20,11 +20,10 @@ implicit none
 character(len=*) :: c, string
 integer(kind=iwp) :: iskip
 integer(kind=iwp) :: ibegin, iend
-integer(kind=iwp), external :: len_trim_cvb
 
-ibegin = len_trim_cvb(c)+1+iskip
-iend = min(len(c),ibegin+len_trim_cvb(string)-1)
-c(ibegin:iend) = string(1:len_trim_cvb(string))
+ibegin = len_trim(c)+1+iskip
+iend = min(len(c),ibegin+len_trim(string)-1)
+c(ibegin:iend) = trim(string)
 
 return
 

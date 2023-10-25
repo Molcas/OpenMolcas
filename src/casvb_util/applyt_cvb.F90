@@ -36,7 +36,7 @@
 !***********************************************************************
 subroutine applyt_cvb(cvec,gjorb)
 
-use casvb_global, only: gjorb_type, i1alf, i1bet, iato, ibto, iform_ci, n_applyt, ndet, phato, phbto
+use casvb_global, only: gjorb_type, i1alf, i1bet, iato, ibto, icnt_ci, iform_ci, n_applyt, ndet, phato, phbto
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -53,7 +53,7 @@ else
   write(u6,*) ' Unsupported format in APPLYT :',iform_ci(ivec)
   call abend_cvb()
 end if
-call setcnt2_cvb(ivec,0)
+icnt_ci(ivec) = 0
 
 return
 

@@ -15,17 +15,18 @@
 subroutine makecivecp_cvb(civec,civecp,orbs)
 ! Construct CIVECP:
 
-use casvb_global, only: gjorb_type, memplenty, ndet, norb
+use casvb_global, only: gjorb_type, icnt_ci, memplenty, ndet, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: civec(0:ndet), civecp(0:ndet), orbs(norb,norb)
+integer(kind=iwp) :: icivecp
 type(gjorb_type) :: gjorb
 real(kind=wp), allocatable :: owrk(:,:)
-logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
 
-if (tstcnt_cvb(civecp,3)) return
+icivecp = nint(civecp(0))
+if (icnt_ci(icivecp) == 3) return
 
 call mma_allocate(owrk,norb,norb,label='owrk')
 call mma_allocate(gjorb%r,norb,norb,label='gjorb%r')
@@ -45,7 +46,7 @@ call mma_deallocate(gjorb%r)
 call mma_deallocate(gjorb%i1)
 call mma_deallocate(gjorb%i2)
 
-call setcnt_cvb(civecp,3)
+icnt_ci(icivecp) = 3
 
 return
 

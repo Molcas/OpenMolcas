@@ -19,7 +19,7 @@ subroutine fx_cvb(fx,fast)
 !                   but with reusable quantities
 !                   (CIVECP/CIVBH & CIVBS)
 
-use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvb, cvbdet, dxmove, icrit, memplenty, orbs
+use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvb, cvbdet, dxmove, icnt_ci, icrit, memplenty, orbs
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,13 +31,9 @@ if (.not. memplenty) then
   call ciwr_cvb(civb2,61002.2_wp)
   call ciwr_cvb(civb3,61003.2_wp)
   call ciwr_cvb(civb4,61004.2_wp)
-  call setcnt2_cvb(2,0)
-  call setcnt2_cvb(3,0)
-  call setcnt2_cvb(4,0)
+  icnt_ci(2:4) = 0
 end if
-call setcnt2_cvb(6,0)
-call setcnt2_cvb(7,0)
-call setcnt2_cvb(8,0)
+icnt_ci(6:8) = 0
 if (icrit == 1) then
   call fx_svb1_cvb(fx,fast,orbs,cvb,civb1,civb6,civb7,civb8,cvbdet)
 else if (icrit == 2) then

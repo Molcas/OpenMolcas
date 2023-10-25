@@ -12,7 +12,6 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 function valid_cvb(fileid)
 
 use Definitions, only: wp, iwp

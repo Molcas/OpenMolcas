@@ -23,7 +23,6 @@ integer(kind=iwp) :: istatus
 logical(kind=iwp), parameter :: blankdelim = .true. ! BLANKDELIM signifies whether blanks are used to delimit fields
 integer(kind=iwp), parameter :: nblank = 2
 character(len=*), parameter :: blanks(nblank) = [' ',',']
-integer(kind=iwp), external :: len_trim_cvb
 
 if (variat) return
 rewind(inp)
@@ -33,9 +32,9 @@ do
     write(u6,*) ' WARNING: Initiation string not found in input file.'
     return
   end if
-  lenline = len_trim_cvb(line)
-  call strip_blanks_cvb(line,lenline,blanks,nblank,blankdelim)
-  call upper_case_cvb(line,lenline)
+  call strip_blanks_cvb(line,blanks,nblank,blankdelim)
+  call upcase(line)
+  lenline = len_trim(line)
   if (line(1:6) == '&CASVB') exit
   !if (((.not. blankdelim) .and. (line(1:10) == '&CASVB&END')) .or. (blankdelim .and. (line(1:11) == '&CASVB &END'))) exit
 end do

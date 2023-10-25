@@ -27,7 +27,6 @@ character(len=3) :: ayn
 integer(kind=iwp), allocatable :: tmp(:)
 character(len=8), parameter :: methkw(12) = ['Fletcher','    TRIM','Trustopt','Davidson','   Steep','  Vb2cas',' AugHess', &
                                              'AugHess2','   Check',' dFletch','    None','Super-CI']
-integer(kind=iwp), external :: len_trim_cvb
 
 if (ifinish == 0) then
   if ((ipr(3) >= 1) .or. ((ipr(3) == 0) .and. ((iopt1 == 0) .or. (italter == 1)))) then
@@ -53,8 +52,8 @@ if (ifinish == 0) then
     if (projsym) write(u6,'(a,31x,a)') ' Symproj:',ayn
     ayn = ' No'
     sbformat = '(a,19x,a)'
-    write(sbformat(4:5),'(i2)') 31-len_trim_cvb(spinb(kbasis))
-    write(u6,sbformat) ' Spin basis:',spinb(kbasis)(1:len_trim_cvb(spinb(kbasis)))
+    write(sbformat(4:5),'(i2)') 31-len_trim(spinb(kbasis))
+    write(u6,sbformat) ' Spin basis:',trim(spinb(kbasis))
     if (isaddle > 0) write(u6,'(/,a,i9)') ' Saddle-point optimization, order:',isaddle
     if (nort > 0) then
       write(u6,'(/,i4,a)') nort,' orthogonalization pairs defined :'

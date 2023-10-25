@@ -45,7 +45,7 @@
 *---  process TITLE    command ----------------------------------------*
       ntit=0
       do ii=1,mxtit
-        if(len_trim_cvb(title_j(ii)).gt.0)then
+        if(len_trim(title_j(ii)).gt.0)then
           ntit=ntit+1
           title(ntit)=title_j(ii)
         endif

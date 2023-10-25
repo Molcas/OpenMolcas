@@ -15,18 +15,19 @@
 subroutine makecivbs_cvb(civbs,orbs,cvbdet)
 ! Construct CIVBS ( = T(s) * CIVB ):
 
-use casvb_global, only: ndet, ndetvb, norb
+use casvb_global, only: icnt_ci, ndet, ndetvb, norb
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: civbs(0:ndet), orbs(norb,norb), cvbdet(ndetvb)
-logical(kind=iwp), external :: tstcnt_cvb ! ... Content of CI vectors ...
+integer(kind=iwp) :: icivbs
 
-if (tstcnt_cvb(civbs,4)) return
+icivbs = nint(civbs(0))
+if (icnt_ci(icivbs) == 4) return
 
 call vb2cic_cvb(cvbdet,civbs)
 call applyts_cvb(civbs,orbs)
-call setcnt_cvb(civbs,4)
+icnt_ci(icivbs) = 4
 
 return
 
