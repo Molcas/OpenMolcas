@@ -9,9 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-program main
+program Main
+
 #ifdef _FPE_TRAP_
-use, intrinsic :: IEEE_Exceptions, only IEEE_Set_Halting_Mode, IEEE_Usual
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
 use Definitions, only: DefInt
 #endif
 use Definitions, only: iwp
