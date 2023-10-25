@@ -25,13 +25,20 @@
 !             May '90                                                  *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO
-      use LundIO
+      use LundIO, only: Buf, nBuf, iDisk, lBuf, Lu_28
       use Gateway_Info, only: ThrInt
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer ijkl,iCmp,jCmp,kCmp,lCmp,iBas,jBas,kBas,lBas
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4)
-      Logical Shijij, Shij, Shkl, Qijij, iShij, iShkl, iQij, iQkl
+      Logical Shijij
+
+      Logical Shij, Shkl, Qijij, iShij, iShkl, iQij, iQkl
+      Integer i1, i2, i3, i4, jCmpMx, lCmpMx, i12, i34,
+     &        iSO, jSO, kSO, lSO, iAOi, jAOj, kAOk, lAOl,
+     &        iSOi, jSOj, kSOk, lSOl, nkl, nijkl,
+     &        iiSOii, jjSOjj, kkSOkk, llSOll,
+     &        iSOii, jSOjj, kSOkk, lSOll, iSOij, iSOkl
 !
       iShij = iShell(1).eq.iShell(2)
       iShkl = iShell(3).eq.iShell(4)
@@ -142,4 +149,4 @@
  100  Continue
 !
       Return
-      End
+      End SubRoutine PLF
