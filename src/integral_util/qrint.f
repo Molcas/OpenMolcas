@@ -8,12 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      FUNCTION qRINT (N,A,C,EXPA)
+      REAL*8 FUNCTION qRINT (N,A,C,EXPA)
       use Constants
       use welcom
-      Implicit Real*8(A-H,O-Z)
-      Real*8 qRint
+      Implicit None
+      Integer N
+      Real*8 A, C, EXPA
+
       Real*8 F(kmax+1)
+      Integer NN, nT, I, J, K
+      Real*8 BP, START, PRSUM, ALF, ARG, GINT, Dac, TAL, FACT, FACT2,
+     &       GAL, HINT
 !
       qRINT=Zero
       NN=N/2+1
@@ -52,4 +57,4 @@
  10   Continue
 !
       Return
-      End
+      End FUNCTION qRINT
