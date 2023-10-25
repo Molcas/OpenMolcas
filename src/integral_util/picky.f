@@ -16,10 +16,14 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only:
+      Implicit None
+      Integer n,m,nijPrm,nijCmp,nDCR,nSt,nEnd,mSt,mEnd
       Real*8 Din(((n*m+1)*nijCmp)+nijPrm+1,nDCR),
      &       Dout((((nEnd-nSt+1)*(mEnd-mSt+1)+1)*nijCmp)+nijPrm+1, nDCR)
+
+      Integer i, j, k, ij1, ij2, iIn, iOut, iDCR, ijCmp, jm, im, jn,
+     &        in, jIn, jOut
 !
 !-----Statement function
 !
@@ -52,8 +56,6 @@
  20            Continue
 !--------------Move the largest density matrix element for
 !              this angular combination
-!              jIn = nijCmp*(n*m+1)
-!              jOut= nijCmp*((nEnd-nSt+1)*(mEnd-mSt+1)+1)
                jIn = ij1(n,m,ijCmp)+1
                jOut= ij2(nEnd-nSt+1,mEnd-mSt+1,ijCmp)+1
                Dout(jOut,iDCR) = Din(jIn,iDCR)
@@ -66,4 +68,4 @@
       End If
 !
       Return
-      End
+      End SubRoutine Picky
