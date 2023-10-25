@@ -27,7 +27,8 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             June '90                                                 *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer na, nb, nVec,nc
       Real*8 Win(na,nb), Wout(nb,na)
 !
 !     Write (*,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
@@ -47,4 +48,4 @@
 !        Call RecPrt(' After second DGeTMO',' ',Wout,na,nb)
       End If
       Return
-      End
+      End SubRoutine Trns1
