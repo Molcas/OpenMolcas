@@ -13,15 +13,12 @@
 ! density matrix elements in SO basis.
 ! Need to know:
 !   nish(),nash(),nbas()
-!   cmo()
 !   npam(indpos,isym)= Nr of SO indices at index position 1..4,
 !       with symmetry label isym=0..7.
 !   ipam()= A consecutive list of SO indices.
-!   DSO()=Density matrix in SO basis, symmetry blocked.
 !   G1()=Active MO 1-el density matrix.
 !   G2()=d:o,   MO 2-el density matrix.
 ! Also:
-!   ncmo=Size of cmo array (for dimensioning only)
 !   mxpam=Similar, ipam array
 !   mxSO=Largest batch of SO indices in one single symmetry
 ! Returns:
@@ -29,18 +26,18 @@
 !         elements.
 ! -------------------------------------------------------------------
 !#define _DEBUGPRINT_
-      subroutine ptrans(cmo,npam,ipam,nxpam,PSOPam,nPSOPam,
+      subroutine ptrans(npam,ipam,nxpam,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2)
       use Constants, only: Zero, Quart
-      use etwas, only: nCMO, npSOp, CoulFac, mBas, nAsh, nIsh,
+      use etwas, only: npSOp, CoulFac, mBas, nAsh, nIsh,
      &                 mIrrep
-      use pso_stuff, only: DSO=>D0
+      use pso_stuff, only: DSO=>D0, CMO
       Implicit None
       Integer nxpam, nPSOPam, nG1, nG2, nC, nS1, nS2
       Integer npam(4,0:*)
       Real*8 ipam(nxpam)
       Real*8 PSOPam(nPSOPam), G1(nG1), G2(nG2),
-     &       Cred(nC), Scr1(nS1), Scr2(nS2), Cmo(ncmo)
+     &       Cred(nC), Scr1(nS1), Scr2(nS2)
 
       Integer i, j, i3adr
       Real*8 t14
@@ -199,7 +196,7 @@
       do 210 l=lsta,lend
         ioff1=iocmox+INT(ipam(iopam4+l))
         ioff2=ioff2+1
-        call dcopy_(ncopy,CMO(ioff1),nskip1,Cred(ioff2),nskip2)
+        call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
  210  continue
       call DGEMM_('N','T',
      &            nskip2,ntuv,ncopy,
@@ -216,7 +213,7 @@
       do 220 k=ksta,kend
         ioff1=iocmov+INT(ipam(iopam3+k))
         ioff2=ioff2+1
-        call dcopy_(ncopy,CMO(ioff1),nskip1,Cred(ioff2),nskip2)
+        call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
  220  continue
       call DGEMM_('N','T',
      &            nskip2,nltu,ncopy,
@@ -233,7 +230,7 @@
       do 230 j=jsta,jend
         ioff1=iocmou+INT(ipam(iopam2+j))
         ioff2=ioff2+1
-        call dcopy_(ncopy,CMO(ioff1),nskip1,Cred(ioff2),nskip2)
+        call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
  230  continue
       call DGEMM_('N','T',
      &            nskip2,nklt,ncopy,
@@ -250,7 +247,7 @@
       do 240 i=ista,iend
         ioff1=iocmot+INT(ipam(iopam1+i))
         ioff2=ioff2+1
-        call dcopy_(ncopy,CMO(ioff1),nskip1,Cred(ioff2),nskip2)
+        call dcopy_(ncopy,CMO(ioff1,1),nskip1,Cred(ioff2),nskip2)
  240  continue
       call DGEMM_('N','T',
      &            nskip2,njkl,ncopy,

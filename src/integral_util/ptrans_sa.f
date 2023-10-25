@@ -13,16 +13,12 @@
 ! density matrix elements in SO basis.
 ! Need to know:
 !   nish(),nash(),nbas()
-!   cmo()
 !   npam(indpos,isym)= Nr of SO indices at index position 1..4,
 !       with symmetry label isym=0..7.
 !   ipam()= A consecutive list of SO indices.
-!   DSO()=Density matrix in SO basis, symmetry blocked.
 !   G1()=Active MO 1-el density matrix (unused).
 !   G2()=d:o,   MO 2-el density matrix.
 ! Also:
-!   ncmo=Size of cmo array (for dimensioning only)
-!   nDSO=Similar, DSO matrix
 !   mxpam=Similar, ipam array
 !   mxSO=Largest batch of SO indices in one single symmetry
 ! Returns:
@@ -30,19 +26,18 @@
 !         elements.
 ! -------------------------------------------------------------------
 !#define _DEBUGPRINT_
-      subroutine ptrans_sa(cmo,npam,ipam,nxpam,PSOPam,nPSOPam,
+      subroutine ptrans_sa(npam,ipam,nxpam,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2,
      &                  ScrP,nsp)
-      use pso_stuff, only: nSSDM,SSDM, DSO=>D0
+      use pso_stuff, only: nSSDM,SSDM, DSO=>D0, CMO
       use Constants, only: Zero, Quart
-      use etwas, only: nCMO, mIrrep, npSOp, mBas, nAsh, nIsh
+      use etwas, only: mIrrep, npSOp, mBas, nAsh, nIsh
       Implicit None
       Integer nxpam, nPSOPam, nG1, nG2, nC, nS1, nS2, nSP
       Integer npam(4,0:*),indi(4)
       Real*8 ipam(nxpam)
       Real*8 PSOPam(nPSOPam), G1(nG1,*), G2(nG2,*),
-     &       Cred(*), Scr1(nS1), Scr2(nS2), Cmo(ncmo,*),
-     &       ScrP(nsP)
+     &       Cred(*), Scr1(nS1), Scr2(nS2), ScrP(nsP)
 
       Integer i, j, i3adr
       Integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym,

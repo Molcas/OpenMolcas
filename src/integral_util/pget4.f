@@ -30,7 +30,7 @@
 !             Modified from PGet2, October '92.                        *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff, only: lSA, CMO, G1, G2, nG1, nG2
+      use pso_stuff, only: lSA, G1, G2, nG1, nG2
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero
       Implicit None
@@ -88,12 +88,12 @@
 !
       If (LSA) Then
 
-      Call PTrans_sa(CMO(:,1),nPam,iPam,n1+n2+n3+n4,
+      Call PTrans_sa(nPam,iPam,n1+n2+n3+n4,
      &            PSOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred/2,Scr1(:,1),nScr1,Scr2,nScr2,Scr1(:,2),
      &            nScr1)
       Else
-      Call PTrans(CMO(:,1),nPam,iPam,n1+n2+n3+n4,
+      Call PTrans(nPam,iPam,n1+n2+n3+n4,
      &            PSOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If

@@ -30,7 +30,7 @@
 !             Modified from PGet1, June '92                            *
 !***********************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff, only: lSA, Gamma_On, CMO, G1, G2, G_ToC, nG1, nG2
+      use pso_stuff, only: lSA, Gamma_On, G1, G2, G_ToC, nG1, nG2
       use Constants, only: Zero
       Implicit None
       Integer ijkl, nPAO, iBas, jBas, kBas, lBas, n1, n2, n3, n4, mDim,
@@ -83,12 +83,12 @@
 !     Get the scrambled 2nd order density matrix
 !
       If (LSA) Then
-      Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+      Call PTrans_sa(nPam,iPam,n1+n2+n3+n4,
      &               PAOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),
      &            nScr1)
       Else
-       Call PTrans(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+       Call PTrans(nPam,iPam,n1+n2+n3+n4,
      &             PAOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If
