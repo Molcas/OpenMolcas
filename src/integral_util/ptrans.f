@@ -22,7 +22,6 @@
 !   G2()=d:o,   MO 2-el density matrix.
 ! Also:
 !   ncmo=Size of cmo array (for dimensioning only)
-!   nDSO=Similar, DSO matrix
 !   mxpam=Similar, ipam array
 !   mxSO=Largest batch of SO indices in one single symmetry
 ! Returns:
@@ -30,16 +29,17 @@
 !         elements.
 ! -------------------------------------------------------------------
 !#define _DEBUGPRINT_
-      subroutine ptrans(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
+      subroutine ptrans(cmo,npam,ipam,nxpam,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2)
       use Constants, only: Zero, Quart
-      use etwas, only: nDSO, nCMO, npSOp, CoulFac, mBas, nAsh, nIsh,
+      use etwas, only: nCMO, npSOp, CoulFac, mBas, nAsh, nIsh,
      &                 mIrrep
+      use pso_stuff, only: DSO=>D0
       Implicit None
       Integer nxpam, nPSOPam, nG1, nG2, nC, nS1, nS2
       Integer npam(4,0:*)
       Real*8 ipam(nxpam)
-      Real*8 DSO(nDSO), PSOPam(nPSOPam), G1(nG1), G2(nG2),
+      Real*8 PSOPam(nPSOPam), G1(nG1), G2(nG2),
      &       Cred(nC), Scr1(nS1), Scr2(nS2), Cmo(ncmo)
 
       Integer i, j, i3adr
@@ -299,15 +299,16 @@
           if(isym.eq.lsym) then
            ips=i3adr(ip,is)
            irq=i3adr(ir,iq)
-           PSOPam(ipso)=PSOPam(ipso)-t14*DSO(ioDs+ips)*DSO(ioDr+irq)
+           PSOPam(ipso)=PSOPam(ipso)-t14*DSO(ioDs+ips,1)*DSO(ioDr+irq,1)
           end if
           if(isym.eq.ksym) then
            ipr=i3adr(ip,ir)
            isq=i3adr(is,iq)
-           PSOPam(ipso)=PSOPam(ipso)-t14*DSO(ioDr+ipr)*DSO(ioDs+isq)
+           PSOPam(ipso)=PSOPam(ipso)-t14*DSO(ioDr+ipr,1)*DSO(ioDs+isq,1)
           end if
           if(isym.eq.jsym) then
-           PSOPam(ipso)=PSOPam(ipso)+DSO(ioDq+ipq)*DSO(ioDs+irs)*coulfac
+           PSOPam(ipso)=PSOPam(ipso)
+     &                 +DSO(ioDq+ipq,1)*DSO(ioDs+irs,1)*coulfac
           end if
  310     continue
  320    continue

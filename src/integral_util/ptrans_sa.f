@@ -30,17 +30,17 @@
 !         elements.
 ! -------------------------------------------------------------------
 !#define _DEBUGPRINT_
-      subroutine ptrans_sa(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
+      subroutine ptrans_sa(cmo,npam,ipam,nxpam,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2,
      &                  ScrP,nsp)
-      use pso_stuff, only: nSSDM,SSDM
+      use pso_stuff, only: nSSDM,SSDM, DSO=>D0
       use Constants, only: Zero, Quart
-      use etwas, only: nDSO, nCMO, mIrrep, npSOp, mBas, nAsh, nIsh
+      use etwas, only: nCMO, mIrrep, npSOp, mBas, nAsh, nIsh
       Implicit None
       Integer nxpam, nPSOPam, nG1, nG2, nC, nS1, nS2, nSP
       Integer npam(4,0:*),indi(4)
       Real*8 ipam(nxpam)
-      Real*8 DSO(nDSO,*), PSOPam(nPSOPam), G1(nG1,*), G2(nG2,*),
+      Real*8 PSOPam(nPSOPam), G1(nG1,*), G2(nG2,*),
      &       Cred(*), Scr1(nS1), Scr2(nS2), Cmo(ncmo,*),
      &       ScrP(nsP)
 
