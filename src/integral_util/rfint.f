@@ -28,17 +28,18 @@
 !             Modified to reaction field calculations July '92         *
 !***********************************************************************
       use Her_RW, only: HerR, HerW, iHerR, iHerw
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nAlpha,nBeta,nZeta,nComp,la,lb,nHer,nArr,nOrdOp
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
      &       Array(nZeta*nArr), Ccoor(3)
+
       Logical ABeq(3)
+      Integer nip, ipAxyz, ipBxyz, ipRnxyz, ipTemp1, ipTemp2, ipTemp3,
+     &        iZeta, ipRxyz
 !
-      ABeq(1) = A(1).eq.B(1)
-      ABeq(2) = A(2).eq.B(2)
-      ABeq(3) = A(3).eq.B(3)
+      ABeq(:) = A(:).eq.B(:)
 !
       nip = 1
       ipAxyz = nip
@@ -84,9 +85,7 @@
 !
 !     Compute the contribution from the multipole moment operator
 !
-      ABeq(1) = .False.
-      ABeq(2) = .False.
-      ABeq(3) = .False.
+      ABeq(:) = .False.
       Call vCrtCmp(Array(ipTemp1),P,nZeta,Ccoor,Array(ipRxyz),
      &            nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 !
