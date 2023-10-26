@@ -22,17 +22,20 @@
 !             University of Lund, SWEDEN                               *
 !              October '92.                                            *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer nZeta
       Real*8  A(nZeta,3,3), Pxyz(nZeta,3)
 !
+      Integer iZeta
+      Real*8 x, y, z, r, sgn
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In SetupA: Pxyz',' ',Pxyz,nZeta,3)
 #endif
 !
 !-----Set up the transformation matrix
 !
-      Do 100 iZeta = 1, nZeta
+      Do iZeta = 1, nZeta
          x=Pxyz(iZeta,1)
          y=Pxyz(iZeta,2)
          z=Pxyz(iZeta,3)
@@ -65,10 +68,9 @@
             A(iZeta,3,2) = A(iZeta,2,3)
             A(iZeta,3,3) = sgn*(- z/r)
          End If
- 100  Continue
+      End Do
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
 #endif
-      Return
-      End
+      End SubRoutine SetUpA
