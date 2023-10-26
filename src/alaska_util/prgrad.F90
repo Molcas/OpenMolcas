@@ -39,7 +39,7 @@ write(u6,*)
 call Banner(Label,1,len(Label)+30)
 write(u6,*)
 if (.true.) then
-  call TrGrd_Alaska_(CGrad,CNames,Grad,nGrad,iCen)
+  call TrGrd_Alaska(CGrad,CNames,Grad,nGrad,iCen)
   write(u6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
   write(u6,'(1x,A)') repeat('-',90)
   write(u6,'(7x,3(23x,A))') 'X','Y','Z'

@@ -363,7 +363,7 @@ if (Columbus == 1) then
   ! integer lcartgrd, iatom,icen,j
   call mma_allocate(CGrad,3,MxAtom,label='CGrad')
   call mma_allocate(CNames,MxAtom,label='CNames')
-  call TrGrd_Alaska_(CGrad,CNames,Grad,lDisp(0),iCen)
+  call TrGrd_Alaska(CGrad,CNames,Grad,lDisp(0),iCen)
   lcartgrd = 60
   lcartgrd = isFreeUnit(lcartgrd)
   call Molcas_Open(lcartgrd,'cartgrd')
