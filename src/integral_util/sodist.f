@@ -15,13 +15,16 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Constants
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer mAO, nCoor, mBas, nCmp, nDeg, nCMO, nMOs
       Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &       MOValue(mAO*nCoor,nMOs),CMOs(nCMO)
       Integer DoIt(nMOs)
+
       Integer   iOff_MO(0:7), iOff_CMO(0:7)
+      Integer iIrrep, itmp1, itmp2, i1, iDeg, iSO, iOff, iMO, iCMO, iAO
 #ifdef _DEBUGPRINT_
-      Character*80 Label
+      Character(LEN=80) Label
 #endif
 !
 #ifdef _DEBUGPRINT_
@@ -74,12 +77,13 @@
       Call RecPrt(Label,' ',MOValue(1,1),mAO*nCoor,nMOs)
 #endif
 !
-      Return
-      End
+      End Subroutine SODist
 
       SUBROUTINE MYDGEMM ( DoIt, M, N, K,
      $                     A, LDA, B, LDB,
      $                     C, LDC )
+      Use Constants, only: Zero
+      Implicit None
 !     .. Scalar Arguments ..
       INTEGER            M, N, K, LDA, LDB, LDC
       Integer DoIt(*)
@@ -94,10 +98,6 @@
 !
 !     .. Local Scalars ..
       INTEGER            J, L
-!     .. Parameters ..
-      REAL*8   ZERO
-      PARAMETER        ( ZERO = 0.0D+0 )
-!     ..
 !
 !     Form  C := A*B + C.
 !
@@ -109,5 +109,4 @@
          End Do
       End Do
 !
-      RETURN
-      END
+      END SUBROUTINE MYDGEMM
