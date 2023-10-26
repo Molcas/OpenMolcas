@@ -8,11 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine WLBuf
-      Use dEAF
-      Use IOBUF
-      Implicit Real*8 (a-h,o-z)
+      Subroutine WLBuf()
+      Use dEAF, only: dEAFWrite
+      Use IOBUF, only: iStatIO, Mode_Read, OnDisk, InCore, iBuf, iPos,
+     &                 Disk, lBuf, DiskMx_Byte, Disk_1, Disk_2, Buffer,
+     &                 ID, LuTmp
+      use Constants, only: Zero
+      Implicit None
 #include "SysDef.fh"
+      Real*8 Temp
 !
       If (iStatIO.eq.Mode_Read) Then
 !        Write (6,*) 'In WLbuf'
@@ -48,7 +52,6 @@
 !           Write (6,*) 'temp,DiskMx_Byte=',temp,DiskMx_Byte
             If (temp.le.DiskMx_Byte.and.OnDisk) Then
 !              Write (6,*) 'WLBuf write on disk @',Disk,'iBuf=',iBuf
-               Zero=0.0D0
                Call dCopy_(lBuf,[Zero],0,Buffer(1,iBuf),1)
                Call dEAFWrite(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk)
             End If
@@ -67,5 +70,4 @@
 !        Write (6,*) 'Exit  WLBuf: Disk @:',Disk
 !     End If
 !     Write (*,*) 'Exit WLBuf: Disk,iPos,iBuf=',Disk,iPos,iBuf
-      Return
-      End
+      End Subroutine WLBuf
