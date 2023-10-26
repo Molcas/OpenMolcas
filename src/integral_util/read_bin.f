@@ -10,14 +10,20 @@
 !***********************************************************************
       Subroutine Read_Bin(iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,
      &                    nQuad,Gamma,nGamma,LuGamma,Bin,lBin)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      Implicit None
 #include "SysDef.fh"
+      Integer iShell_A,iShell_B,iShell_C,iShell_D,
+     &        nQuad,nGamma,LuGamma,lBin
       Real*8 G_Toc(nQuad), Bin(2,lBin), Gamma(nGamma)
 !
+      Integer iDisk, lGamma, iGamma, jGamma
+      Integer iShell_AB, iShell_CD, iShell_ABCD
+      Integer, Parameter:: iRead=2
+      Integer i, j, iTri
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 !
-      Call FZero(Gamma,nGamma)
+      Gamma(:)=Zero
 !
       iShell_AB=iTri(iShell_A,iShell_B)
       iShell_CD=iTri(iShell_C,iShell_D)
@@ -26,38 +32,43 @@
 !     Write (*,*) 'Reading Gammas for shell quadruplet ', iShell_ABCD
 !
       iDisk=Int(G_Toc(iShell_ABCD))
-      iRead=2
-99    Call dDaFile(LuGamma,iRead,Bin,2*lBin,iDisk)
-      lGamma=Int(Bin(1,lBin))
-      iDisk =Int(Bin(2,lBin))
+      Do While (iDisk>=0)
+         Call dDaFile(LuGamma,iRead,Bin,2*lBin,iDisk)
+         lGamma=Int(Bin(1,lBin))
+         iDisk =Int(Bin(2,lBin))
 !
-      Do iGamma = 1, lGamma
-         jGamma=Int(Bin(2,iGamma))
-         If (jGamma.gt.nGamma) Then
-            Call WarningMessage(2,'Read_Bin: jGamma.gt.nGamma')
-            Call Abend()
-         End If
-         Gamma(jGamma)=Bin(1,iGamma)
-!        Write (*,*) Gamma(jGamma), jGamma
+         Do iGamma = 1, lGamma
+            jGamma=Int(Bin(2,iGamma))
+            If (jGamma.gt.nGamma) Then
+               Call WarningMessage(2,'Read_Bin: jGamma.gt.nGamma')
+               Call Abend()
+            End If
+            Gamma(jGamma)=Bin(1,iGamma)
+!           Write (*,*) Gamma(jGamma), jGamma
+         End Do
+!
       End Do
 !
-      If (iDisk.ge.0) Go To 99
-!
-      Return
-      End
+      End Subroutine Read_Bin
 
       Subroutine Read_Bin_Columbus
      &              (iShell_A,iShell_B,iShell_C,iShell_D,G_Toc,
      &                    nQuad,Gamma,nGamma,LuGamma,Bin,lBin)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      Implicit None
 #include "SysDef.fh"
+      Integer iShell_A,iShell_B,iShell_C,iShell_D,
+     &        nQuad,nGamma,LuGamma,lBin
       Real*8 G_Toc(nQuad), Bin(2,lBin), Gamma(nGamma)
+
+      Integer iShell_AB, iShell_CD, iShell_ABCD
+      Integer, Parameter:: iRead=2
       Integer idisk_save
-!
+      Integer iDisk, lGamma, iGamma, jGamma
+      Integer i, j, iTri
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 !
-      Call FZero(Gamma,nGamma)
+      Gamma(:)=Zero
 !
       iShell_AB=iTri(iShell_A,iShell_B)
       iShell_CD=iTri(iShell_C,iShell_D)
@@ -66,35 +77,30 @@
 !     Write (*,*) 'Reading Gammas for shell quadruplet ', iShell_ABCD
 !
       iDisk=Int(G_Toc(iShell_ABCD))
-!     write(6,'(a,i6,a,i6)') ' Reading gtoc for ',ishell_abcd,'=',iDisk
-      iRead=2
-! ddafile overwrites idisk
-99    idisk_save=idisk
-      Call dDaFile(LuGamma,iRead,Bin,2,iDisk)
-      lGamma=Int(Bin(1,1))
-!98    format(a,'got header1=',i10,i10)
-!     Write (*,98) '1st:',lgamma,Int(Bin(2,1))
-      If (lGamma.gt.lBin) Then
-            Call WarningMessage(2,'Read_Bin_Columbus: lGamma.gt.lbin')
-            Call Abend()
-      End If
-      iDisk=idisk_save
-!     write(*,'(a,i6)') ' second read from idisk=',iDisk
-      Call dDaFile(LuGamma,iRead,Bin,2*lGamma,iDisk)
-      iDisk =Int(Bin(2,1))
-!     Write (*,98) '2nd:',Int(Bin(1,1)),Int(Bin(2,1))
-!
-      Do iGamma = 2, lGamma
-         jGamma=Int(Bin(2,iGamma))
-         If (jGamma.gt.nGamma) Then
-            Call WarningMessage(2,'Read_Bin_Columbus: jGamma.gt.nGamma')
-            Call Abend()
+      Do While (iDisk>=0)
+         idisk_save=idisk
+         Call dDaFile(LuGamma,iRead,Bin,2,iDisk)
+         lGamma=Int(Bin(1,1))
+         If (lGamma.gt.lBin) Then
+               Call WarningMessage(2,
+     &                        'Read_Bin_Columbus: lGamma.gt.lbin')
+               Call Abend()
          End If
-         Gamma(jGamma)=Bin(1,iGamma)
+         iDisk=idisk_save
+         Call dDaFile(LuGamma,iRead,Bin,2*lGamma,iDisk)
+         iDisk =Int(Bin(2,1))
+!
+         Do iGamma = 2, lGamma
+            jGamma=Int(Bin(2,iGamma))
+            If (jGamma.gt.nGamma) Then
+               Call WarningMessage(2,
+     &                     'Read_Bin_Columbus: jGamma.gt.nGamma')
+               Call Abend()
+            End If
+            Gamma(jGamma)=Bin(1,iGamma)
 !        Write (*,*) Gamma(jGamma), jGamma
+         End Do
+!
       End Do
 !
-      If (iDisk.ge.0) Go To 99
-!
-      Return
-      End
+      End Subroutine Read_Bin_Columbus
