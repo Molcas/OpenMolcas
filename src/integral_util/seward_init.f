@@ -114,5 +114,4 @@
       lEFP=.False.
       nEFP_fragments=0
 !
-      Return
       End Subroutine Seward_Init

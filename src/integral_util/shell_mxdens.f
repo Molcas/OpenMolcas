@@ -17,11 +17,12 @@
       subroutine Shell_MxDens(Dens,DMax,nSkal)
 !----------------------------------------------------------------------
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Integer nSkal
       Real*8 dmax(nskal,nskal),dens(*)
 
       Integer, external:: nbfshl
+      Integer ijOff, irp, ie, iSh, n, ia, je, jSh, m, ja, i, ij, j
 
       ijoff=0
       call fzero(dmax,nskal*nskal)
@@ -48,5 +49,4 @@
         End Do
         ijoff=ijoff+ie*(ie+1)/2
       End Do
-      return
       end subroutine Shell_MxDens
