@@ -21,9 +21,11 @@
 !***********************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl, iOper
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nStabO, lOper
       Integer iStabO(8)
 !
+      Integer iS, iIrrep
 #ifdef _DEBUGPRINT_
       Write (6,*) ' In SOS'
       Write (6,*) ' lOper=',lOper
@@ -37,14 +39,13 @@
          Call Abend()
       End If
       nStabO = 0
-      Do 10 iS = 0, nIrrep-1
-         Do 20 iIrrep = 0, nIrrep-1
-            If (iAnd(lOper,2**iIrrep).eq.0) Go To 20
-            If (iChTbl(iIrrep,iS).ne.1) Go To 10
- 20      Continue
+      outer: Do iS = 0, nIrrep-1
+         inner: Do iIrrep = 0, nIrrep-1
+            If (iAnd(lOper,2**iIrrep)==0) Cycle inner
+            If (iChTbl(iIrrep,iS)/=1) Cycle outer
+         End Do inner
          nStabO = nStabO + 1
          iStabO(nStabO) = iOper(iS)
- 10   Continue
+      End Do outer
 !
-      Return
-      End
+      End SubRoutine SOS
