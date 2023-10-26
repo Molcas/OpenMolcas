@@ -22,10 +22,15 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer iBas, jBas, nSOInt, nPrp, lOper,
+     &                  iCmp,jCmp,iShell,jShell,iAO,jAO
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Logical AeqB
+
       Integer, external:: iPntSO
+      Integer i, j, iTri, lSO, j1, i1, j2, j12, i2, iSO1, iSO2, iPnt,
+     &        iSO, jSO, Indij, nRow, IndAO1, IndAO2, ip
 !                                                                      *
 !***********************************************************************
 !                                                                      *

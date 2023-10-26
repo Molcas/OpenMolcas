@@ -77,5 +77,4 @@
  100    Continue
       End Do
 !     Call RecPrt('Schwz_shl',' ',Schwz_Shl,nSkal,nSkal)
-      return
       end SubRoutine Shell_MxSchwz

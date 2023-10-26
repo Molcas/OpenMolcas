@@ -28,5 +28,4 @@
          nSO = 0
       End If
 !
-      Return
       End Subroutine Size_SOb
