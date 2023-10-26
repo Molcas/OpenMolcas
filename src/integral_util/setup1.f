@@ -66,5 +66,4 @@
       Call RecPrt(' ***   Pz  ***',' ',Pcoor(1,1,3),nPrim,mPrim)
 #endif
 !
-      Return
       End SubRoutine Setup1
