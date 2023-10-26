@@ -18,13 +18,14 @@
 !                                                                      *
 !***********************************************************************
       use PCM_arrays, only: MM
-      use Constants
-      use stdalloc
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rctfld_module, only: lMax
+      Implicit None
       Integer nh1
-      Real*8 h1(nh1), TwoHam(nh1), D(nh1)
+      Real*8 h1(nh1), TwoHam(nh1), D(nh1), RepNuc
       Logical First, Dff, NonEq
+
+      Integer nComp
       Real*8, Allocatable:: Vs(:,:), QV(:,:)
 !
       nComp=(lMax+1)*(lMax+2)*(lMax+3)/6
@@ -74,17 +75,22 @@
       use External_Centers, only: XF
       use Gateway_global, only: PrPrt
       use Gateway_Info, only: PotNuc
-      use Constants
-      use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Half, One, Zero
+      use rctfld_module, only: EPS, EPSINF, rds
+      Implicit None
       Real*8 Origin(3)
 #ifdef _DEBUGPRINT_
       Character(LEN=72) Label
 #endif
-      Character(LEN=8) Label2
+      Integer nComp
       Real*8 Q_solute(nComp,2)
-      Real*8 FactOp(1)
-      Integer lOper(1)
+
+      Character(LEN=8) Label2
+      Real*8 FactOp(1), E_0_NN
+      Integer lOper(1), ixyz, iOff, nOrdOp, iMax, ip, ix, iy, iz,
+     &                  iSymX, iSymY, iSymZ, iTemp, nOpr, iMltpl
+      Integer, External:: IrrFnc, MltLbl
+      Real*8, External:: DDot_
 !
 !-----Statement Functions
 !
@@ -94,7 +100,7 @@
       nOrdOp=lMax
 !-----Set flag so only the diagonal blocks are computed
       Prprt=.True.
-      Call FZero(Origin,3)
+      Origin(:)=Zero
 !
 !-----Generate local multipoles in the primitive basis and accumulate to
 !     global multipoles.
