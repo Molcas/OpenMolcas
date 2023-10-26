@@ -19,18 +19,20 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose      *
 !             January 1990                                             *
 !***********************************************************************
-      use EFP_Module
-      use k2_arrays
+      use EFP_Module, only: lEFP, nEFP_fragments
+      use k2_arrays, only: XMem
       use k2_structure, only: k2_processed
-      use Basis_Info
+      use Basis_Info, only: Seward_Activated
       use RICD_Info, only: iRI_Type, Do_RI
-      use Constants
-      use rmat
+      use rmat, only: RmatR, Epsabs, Epsrel, qCoul, Epsq, bParm, dipol,
+     &                Dipol1, keyr, Quadpack, nagint, testint,
+     &                RMat_On, lgamma
       use DCR_mod, only: DCR_Init
-      use NAC
-      implicit real*8 (a-h,o-z)
-      External Reduce_Prt
-      Logical Reduce_Prt
+      use NAC, only: isNAC, isCSF
+      Implicit None
+      Logical, External:: Reduce_Prt
+      Integer, External:: iPrintLevel
+      Integer iPL
 #include "twoswi.fh"
 #include "print.fh"
       Character(LEN=180) Env
@@ -61,9 +63,7 @@
       Else If (iPL.eq.5) Then
          iPL=49  ! 99 would be just too much
       End If
-      Do i = 1, nRout
-         nPrint(i)=iPL
-      End Do
+      nPrint(:)=iPL
       If ((Reduce_Prt().and.iPL.lt.6).or.iPL.eq.0) Then
          Show=.False.
       Else
@@ -115,4 +115,4 @@
       nEFP_fragments=0
 !
       Return
-      End
+      End Subroutine Seward_Init
