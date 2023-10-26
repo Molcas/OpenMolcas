@@ -8,10 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine UnNrmlz(Exp,nPrim,Coeff,nCntrc,iang)
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      SubRoutine UnNrmlz(Exp,nPrim,Coeff,nCntrc,iAng)
+      use Constants, only: TwoP34, Two, Three, Four
+      Implicit None
+      Integer nPrim, nCntrc, iAng
       Real*8 Exp(nPrim), Coeff(nPrim,nCntrc)
+
+      Integer i, j
 !
       Do  i = 1, nCntrc
          Do  j = 1, nPrim
@@ -19,5 +22,5 @@
      &                (Four*Exp(j))**((Two*DBLE(iAng)+Three)/Four))
          End Do
       End Do
-      Return
-      End
+
+      End SubRoutine UnNrmlz
