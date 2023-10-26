@@ -39,5 +39,4 @@
          End Do
       End Do
 !
-      Return
       End Subroutine Set_CanInd
