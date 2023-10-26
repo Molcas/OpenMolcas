@@ -14,34 +14,41 @@
 !#define _DEBUGPRINT_
       SubRoutine RFmltp()
       use PCM_arrays, only: MM
-      use stdalloc
+      use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+
       Real*8, Allocatable:: VTot(:), QTot(:)
+      Integer nComp
 !
       If (.Not.lRF) Return
       nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
       Call mma_allocate(VTot,nComp,Label='VTot')
       Call mma_allocate(QTot,nComp,Label='QTot')
 !
-      Call RFmltp_(MM,VTot,QTot,nComp)
+      Call RFmltp_Internal(MM,nComp)
 !
       Call mma_deallocate(VTot)
       Call mma_deallocate(QTot)
 !
-      Return
-      End
-      Subroutine RFmltp_(Qs,QTot,VTot,nComp)
+      Contains
+
+      Subroutine RFmltp_Internal(Qs,nComp)
 !***********************************************************************
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !                                                                      *
 !     modified by M. P. Fuelscher, 94/04/28                            *
 !***********************************************************************
-      use Constants
+      use Constants, only: Zero, One, Half
       use rctfld_module
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Qs(nComp,2), QTot(nComp), VTot(nComp)
+      Implicit None
+      Integer nComp
+      Real*8 Qs(nComp,2)
+
+      Integer l, nElem, iM, jM, iElem, iOff, i, nM
+      Real*8 ESolv, dESolv
+      Real*8, External:: DDot_
 !
       If ( lRF .and. .Not.PCM .and. lRFCav) then
          call dcopy_(nComp,Qs(1,1),1,QTot,1)
@@ -111,5 +118,6 @@
          Write (6,*)
       End If
 !
-      Return
-      End
+      End SubRoutine RFmltp_Internal
+
+      End SubRoutine RFmltp
