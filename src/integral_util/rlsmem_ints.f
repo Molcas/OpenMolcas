@@ -9,10 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       subroutine rlsmem_ints()
-      use setup
       use k2_arrays, only: Sew_Scr, XMem
-      use stdalloc
-      implicit real*8 (a-h,o-z)
+      use stdalloc, only: mma_deallocate
+      implicit None
 !
       If (XMem) Then
 !        Write (6,*) 'RlsMem_Ints: External scratch handling active!'

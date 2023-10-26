@@ -23,14 +23,13 @@
 !             University of Lund, SWEDEN                               *
 !             September '00.                                           *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Two, Three
+      Implicit None
+      Integer nZeta
       Real*8 Zeta(nZeta), rKappa(nZeta)
+
+      Real*8, Parameter:: exp32 = -Three/Two
 !
-      exp32 = -Three/Two
-      Do iZeta = 1, nZeta
-         rKappa(iZeta) = rKappa(iZeta) * Zeta(iZeta)**exp32
-      End Do
+      rKappa(:) = rKappa(:) * Zeta(:)**exp32
 !
-      Return
-      End
+      End SubRoutine rKappa_Zeta
