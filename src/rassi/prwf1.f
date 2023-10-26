@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE PRWF1(ISGSTRUCT,ICISTRUCT,NLEV,NMIDV,ISM,ICS,
      &                 NOCSF,IOCSF,NOW,IOW,ISYCI,CI,CITHR)
+      use Struct, only: nSGSize, nCISize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Struct.fh"
 #include "symmul.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
@@ -42,7 +42,7 @@ C Size of occup/spin coupling part of line:
       WRITE(LINE,'(20A4)')('    ',I=1,20)
       K=0
       ISY=0
-      DO  LEV=1,NLEV
+      DO LEV=1,NLEV
         IF(ISY.NE.ISM(LEV)) THEN
           ISY=ISM(LEV)
           K=K+1
@@ -70,10 +70,10 @@ C Size of occup/spin coupling part of line:
 
 C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-      DO 40 MV=1,NMIDV
-        DO 41 ISYUP=1,NSYM
+      DO MV=1,NMIDV
+        DO ISYUP=1,NSYM
           NCI=NOCSF(ISYUP,MV,ISYCI)
-          IF(NCI.EQ.0) GOTO 41
+          IF(NCI.EQ.0) cycle
           NUP=NOW(1,ISYUP,MV)
           ISYDWN=MUL(ISYUP,ISYCI)
           NDWN=NOW(2,ISYDWN,MV)
@@ -81,18 +81,18 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
           IUW0=LICASE-NIPWLK+IOW(1,ISYUP,MV)
           IDW0=LICASE-NIPWLK+IOW(2,ISYDWN,MV)
           IDWNSV=0
-          DO 30 IDWN=1,NDWN
-            DO 31 IUP=1,NUP
+          DO IDWN=1,NDWN
+            DO IUP=1,NUP
               ICONF=ICONF+1
               COEF=CI(ICONF)
 C -- SKIP OR PRINT IT OUT?
-              IF(ABS(COEF).LT.CITHR) GOTO  31
+              IF(ABS(COEF).LT.CITHR) cycle
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=IWORK(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
-                DO 10 LEV=1,MIDLEV
+                DO LEV=1,MIDLEV
                   NNN=NNN+1
                   IF(NNN.EQ.16) THEN
                     NNN=1
@@ -102,14 +102,14 @@ C -- UNPACK LOWER WALK.
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
                   ICDWN=IC1
-10              CONTINUE
+                END DO
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
               ICUP=IWORK(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
-              DO 20 LEV=MIDLEV+1,NLEV
+              DO LEV=MIDLEV+1,NLEV
                 NNN=NNN+1
                 IF(NNN.EQ.16) THEN
                   NNN=1
@@ -119,7 +119,7 @@ C -- UNPACK UPPER WALK:
                 IC1=ICUP/4
                 ICS(LEV)=ICUP-4*IC1
                 ICUP=IC1
-20            CONTINUE
+              END DO
 C -- PRINT IT!
               WRITE(LINE(1:7),'(I6,1X)') ICONF
               K=7
@@ -157,11 +157,11 @@ C -- PRINT IT!
               K=K+5
               WRITE(LINE(K:K+7),'(F8.5)') COEF**2
               WRITE(6,*)LINE(1:K+7)
-31          CONTINUE
-30        CONTINUE
-41      CONTINUE
-40    CONTINUE
+            END DO
+          END DO
+        END DO
+      END DO
       WRITE(6,*)
       WRITE(6,*)('*',I=1,80)
-      RETURN
-      END
+
+      END SUBROUTINE PRWF1

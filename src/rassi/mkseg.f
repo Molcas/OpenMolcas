@@ -10,12 +10,9 @@
 ************************************************************************
       SUBROUTINE MKSEG(ISGSTRUCT,NLEV,NVERT,NMIDV,IDRT,IDOWN,
      &                 LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
+      use rassi_aux, only: ipglob
+      use Struct, only: nSGSize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='MKSEG')
-
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       CHARACTER*26 CC1,CC2,CTVPT,CBVPT,CSVC
       CHARACTER*20 FRML(7),TEXT
@@ -56,17 +53,17 @@ C Dereference ISGSTRUCT
       READ(CTVPT,'(26I1)') ITVPT
       READ(CBVPT,'(26I1)') IBVPT
       READ(CSVC,'(26I1)') ISVC
-      DO 5 IV=1,NVERT
+      DO IV=1,NVERT
         IVR(IV,1)=0
         IVR(IV,2)=0
-5     CONTINUE
-      DO 20 LEV=1,NLEV
+      END DO
+      DO LEV=1,NLEV
         IV1=LTV(LEV)
         IV2=LTV(LEV-1)-1
-        DO 21 IVL=IV1,IV2
+        DO IVL=IV1,IV2
           IAL=IDRT(IVL,IATAB)
           IBL=IDRT(IVL,IBTAB)
-          DO 10 IV=IVL+1,IV2
+          DO IV=IVL+1,IV2
             IA=IDRT(IV,IATAB)
             IF(IA.EQ.IAL) THEN
               IB=IDRT(IV,IBTAB)
@@ -75,11 +72,11 @@ C Dereference ISGSTRUCT
               IB=IDRT(IV,IBTAB)
               IF(IB.EQ.(IBL+1)) IVR(IVL,2)=IV
             END IF
-10        CONTINUE
-21      CONTINUE
-20    CONTINUE
+          END DO
+        END DO
+      END DO
 C CONSTRUCT THE MVL AND MVR TABLES:
-      DO 30 IVL=MVSTA,MVEND
+      DO IVL=MVSTA,MVEND
         MVLL=IVL-MVSTA+1
         MVRR=0
         IF(IVR(IVL,1).NE.0) MVRR=IVR(IVL,1)-MVSTA+1
@@ -89,12 +86,12 @@ C CONSTRUCT THE MVL AND MVR TABLES:
         MVR(MVLL,2)=MVRR
         MVL(MVLL,1)=0
         MVL(MVLL,2)=0
-30    CONTINUE
-      DO 31 MV=1,NMIDV
+      END DO
+      DO MV=1,NMIDV
         IF(MVR(MV,1).NE.0) MVL(MVR(MV,1),1)=MV
         IF(MVR(MV,2).NE.0) MVL(MVR(MV,2),2)=MV
-31    CONTINUE
-      IF(IPGLOB.GE.INSANE) THEN
+      END DO
+      IF(IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' MIDVERT PAIR TABLES MVL,MVR IN MKSEG:'
         WRITE(6,*)' MVL TABLE:'
@@ -103,28 +100,28 @@ C CONSTRUCT THE MVL AND MVR TABLES:
         WRITE(6,1234)(MV,MVR(MV,1),MVR(MV,2),MV=1,NMIDV)
 1234    FORMAT(3(3(1X,I4),4X))
       END IF
-      IF(IPGLOB.GE.INSANE) THEN
+      IF(IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' VERTEX PAIR TABLE IVR IN MKSEG:'
         WRITE(6,1234)(IVL,IVR(IVL,1),IVR(IVL,2),IVL=1,NVERT)
       END IF
 C INITIALIZE SEGMENT TABLES, AND MARK VERTICES AS UNUSABLE:
-      DO 40 IVLT=1,NVERT
-        DO 41 ISGT=1,26
+      DO IVLT=1,NVERT
+        DO ISGT=1,26
           ISGMNT(IVLT,ISGT)=0
           VSGMNT(IVLT,ISGT)=ZERO
-41      CONTINUE
-40    CONTINUE
-      DO 100 IVLT=1,NVERT
-        DO 101 ISGT=1,26
+        END DO
+      END DO
+      DO IVLT=1,NVERT
+        DO ISGT=1,26
           ITT=ITVPT(ISGT)
           IVRT=IVLT
           IF((ITT.EQ.1).OR.(ITT.EQ.2)) IVRT=IVR(IVLT,ITT)
-          IF(IVRT.EQ.0) GOTO 101
+          IF(IVRT.EQ.0) cycle
           IVLB=IDOWN(IVLT,IC1(ISGT))
-          IF(IVLB.EQ.0) GOTO 101
+          IF(IVLB.EQ.0) cycle
           IVRB=IDOWN(IVRT,IC2(ISGT))
-          IF(IVRB.EQ.0) GOTO 101
+          IF(IVRB.EQ.0) cycle
 C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
           ISGMNT(IVLT,ISGT)=IVLB
           IB=IDRT(IVLT,IBTAB)
@@ -143,16 +140,16 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
           GOTO 99
 1007      V=SQRT(DBLE(IB*(2+IB)))/DBLE(1+IB)
 99        VSGMNT(IVLT,ISGT)=V
-101     CONTINUE
-100   CONTINUE
-      IF(IPGLOB.GE.INSANE) THEN
+        END DO
+      END DO
+      IF(IPGLOB.GE.5) THEN
         WRITE(6,*)' SEGMENT TABLE IN MKSEG.'
         WRITE(6,*)' VLT SGT ICL ICR VLB       SEGMENT TYPE    ',
      *            '     FORMULA'
-        DO 200 IV=1,NVERT
-          DO 201 ISGT=1,26
+        DO IV=1,NVERT
+          DO ISGT=1,26
             ID=ISGMNT(IV,ISGT)
-            IF(ID.EQ.0) GOTO 201
+            IF(ID.EQ.0) cycle
             ICL=IC1(ISGT)
             ICR=IC2(ISGT)
             IF(ISGT.LE.4) TEXT='  WALK SECTION.'
@@ -162,9 +159,8 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
             IF(ISGT.GT.22) TEXT=' DOWN-WALK SECTION.'
             WRITE(6,2345) IV,ISGT,ICL,ICR,ID,TEXT,FRML(ISVC(ISGT))
 2345        FORMAT(1X,5I4,5X,A20,5X,A20)
-201       CONTINUE
-200     CONTINUE
+          END DO
+        END DO
       END IF
 
-      RETURN
       END

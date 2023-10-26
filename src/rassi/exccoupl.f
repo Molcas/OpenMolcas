@@ -20,11 +20,8 @@
 #include "cntrl.fh"
 #include "Files.fh"
 #include "Morsel.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "prgm.fh"
-#include "rasdef.fh"
 #include "jobin.fh"
 #include "symmul.fh"
       integer(kind=iwp) :: nstat1, nstat2,

@@ -20,11 +20,8 @@
 #include "cntrl.fh"
 #include "Files.fh"
 #include "Morsel.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "prgm.fh"
-#include "rasdef.fh"
 #include "jobin.fh"
 #include "symmul.fh"
 
@@ -628,4 +625,4 @@
       call mma_deallocate(DipFrintermz)
       call mma_deallocate(DipFrintermz2)
 
-      end subroutine
+      end subroutine frenkelexc

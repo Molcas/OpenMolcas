@@ -8,21 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module RASSI_AUX
-      Logical :: AO_Mode=.False.
-      Integer, Allocatable:: TocM(:), jDisk_TDM(:,:), JOB_INDEX(:)
-      Real*8, Allocatable:: CMO1(:), CMO2(:), DMAB(:)
-      Integer NASHT_Save, mTRA
-      Integer :: JOB1_old=-1, JOB2_old=-1
-      integer :: ipglob
+SUBROUTINE MKCXA(NSYM,NOSH,NCXA,TRA,CXA)
+IMPLICIT REAL*8 (A-H,O-Z)
+DIMENSION TRA(NCXA),CXA(NCXA)
+DIMENSION NOSH(NSYM)
+ISTA=1
+DO I=1,NSYM
+  NDIMEN=NOSH(I)
+  IF(NDIMEN.GT.0) THEN
+    CALL MKCXAL(NDIMEN,TRA(ISTA),CXA(ISTA))
+    ISTA=ISTA+NDIMEN**2
+  END IF
+END DO
 
-      Contains
-
-      Integer Function iDisk_TDM(I,J,K)
-         Integer I, J, I_Max, J_Min, K
-         I_Max=Max(I,J)
-         J_Min=Min(I,J)
-         iDisk_TDM=jDisk_TDM(K,I_Max*(I_Max-1)/2+J_Min)
-      End Function iDisk_TDM
-
-      End Module RASSI_AUX
+END SUBROUTINE MKCXA

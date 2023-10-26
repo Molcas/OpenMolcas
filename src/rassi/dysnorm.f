@@ -16,6 +16,9 @@
 ************************************************************************
       SUBROUTINE DYSNORM(CMOA,DYSCMO,NORM)
 
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: One, Zero
+
       Implicit Integer (A-Z)
 
       integer :: isym
@@ -36,7 +39,6 @@
 #include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-#include "stdalloc.fh"
 
 C============================================================
       nbast=0
@@ -54,7 +56,7 @@ C============================================================
 
       call mma_allocate(SAO,NBAST1)
       call mma_allocate(IAO,NBAST2)
-      IAO=0.0D0
+      IAO=Zero
 
       iRc=-1
       iOpt=6
@@ -68,7 +70,7 @@ C============================================================
         nb = nBasf(iSym)
         If ( nb.gt.0 ) then
           call mma_allocate(Scr,nb*nb)
-          scr=0.0D0
+          scr=Zero
           Call Square(SAO(1+iOff1),Scr,1,nb,nb)
           CALL DCOPY_(nb*nb,Scr,1,IAO(iOff2+1),1)
           call mma_deallocate(Scr)
@@ -105,25 +107,25 @@ C============================================================
 
         call mma_allocate(scr,nscr)
         call mma_allocate(scr2,nscr)
-        Scr=0.0D0
-        Scr2=0.0D0
+        Scr=Zero
+        Scr2=Zero
 
-        CALL DGEMM_('N','N', NB1, NO1, NB1, 1.0D0,
+        CALL DGEMM_('N','N', NB1, NO1, NB1, One,
      &                 IAO(ISTCA),NB1, CMOA(ISTCB), NB1,
-     &         0.0D0, Scr(ISTCB), NB1)
+     &         Zero, Scr(ISTCB), NB1)
 
-        CALL DGEMM_('T','N', NO1, NO1, NB1, 1.0D0,
+        CALL DGEMM_('T','N', NO1, NO1, NB1, One,
      &                 CMOA(ISTCB),NB1, Scr(ISTCB), NB1,
-     &         0.0D0, Scr2(ISTC), NO1)
+     &         Zero, Scr2(ISTC), NO1)
 
 ! Src2 is the M matrix
 ! Proceed to compute norm=Dab*(Dab*M)
 ! Where Dab*M=Dysab2
 
         call mma_allocate(DYSAB2,NO1)
-        DYSAB2=0.0D0
-        CALL DGEMV_('N', NO1, NO1, 1.0D0, Scr2(ISTC), NO1,
-     &              DYSAB(NDYS),1, 0.0D0, DYSAB2, 1)
+        DYSAB2=Zero
+        CALL DGEMV_('N', NO1, NO1, One, Scr2(ISTC), NO1,
+     &              DYSAB(NDYS),1, Zero, DYSAB2, 1)
 
         normscr= DDOT_(NO1, DYSAB(NDYS), 1, DYSAB2, 1)
         norm=norm+normscr
@@ -136,7 +138,5 @@ C============================================================
 
       Call mma_deallocate(IAO)
       call mma_deallocate(DYSAB)
-
-      RETURN
 
       END

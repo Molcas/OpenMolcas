@@ -17,17 +17,12 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
      &                 NRT2MAB , RT2M , CMO1, CMO2, AUGSPIN)
 
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RTDM2_PRINT')
 #include "rasdim.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "stdalloc.fh"
       INTEGER ISTATE, JSTATE, SYM12
       INTEGER NDYSAB,NRT2MAB,AUGSPIN

@@ -25,16 +25,17 @@
 #include "rassi.fh"
       ISTA=1
       WRITE(6,'(/,1X,A,/)') TEXT
-      DO 10 ISY1=1,NSYM
+      DO ISY1=1,NSYM
         ISY2=MUL(ISY1,ISY12)
         NN=NDIM1(ISY1)*NDIM2(ISY2)
-        IF(NN.EQ.0) GOTO 11
-        WRITE(6,*)
-        WRITE(6,'(A,2I2)')' SYMMETRY LABELS OF ROWS/COLS:',ISY1,ISY2
-        CALL WRMAT1(NDIM1(ISY1),NDIM2(ISY2),XMAT(ISTA))
-11      ISTA=ISTA+NN
-10    CONTINUE
+        IF (NN /= 0) THEN
+          WRITE(6,*)
+          WRITE(6,'(A,2I2)')' SYMMETRY LABELS OF ROWS/COLS:',ISY1,ISY2
+          CALL WRMAT1(NDIM1(ISY1),NDIM2(ISY2),XMAT(ISTA))
+        END IF
+        ISTA=ISTA+NN
+      END DO
       WRITE(6,*)
       WRITE(6,*)('*',I=1,80)
-      RETURN
-      END
+
+      END SUBROUTINE WRMAT

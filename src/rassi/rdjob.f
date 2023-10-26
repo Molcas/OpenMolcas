@@ -9,7 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RDJOB(JOB,READ_STATES)
+      use rasdef, only: NRS1, NRS2, NRS3
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
+      use Struct, only: LEVEL, mxlev
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names,
@@ -23,18 +26,13 @@
      &               mh5_close_file
 #endif
       IMPLICIT NONE
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RDJOB')
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
 #include "symmul.fh"
-#include "rasdef.fh"
 #include "rassi.fh"
 #include "jobin.fh"
 #include "WrkSpc.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
@@ -82,7 +80,7 @@
 ************************************************************************
       If (mh5_is_hdf5(jbname(job))) Then
 
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         IF (JOB.EQ.1) THEN
           WRITE(6,*)
           WRITE(6,'(6X,80A1)') ('*',i=1,80)
@@ -360,7 +358,7 @@
       IF(ref_nactel.EQ.0) WFTYPE='EMPTY   '
       RASTYP(JOB)=WFTYPE
 
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         WRITE(6,*)'  STATE IRREP:        ',IRREP(JOB)
         WRITE(6,*)'  SPIN MULTIPLICITY:  ',MLTPLT(JOB)
         WRITE(6,*)'  ACTIVE ELECTRONS:   ',NACTE(JOB)
@@ -374,7 +372,7 @@
         end if
 #endif
       END IF
-      IF(IPGLOB.GE.VERBOSE)
+      IF(IPGLOB.GE.3)
      &          WRITE(6,*)'  Wave function type WFTYPE=',WFTYPE
 
       call mma_deallocate(ref_rootid)
@@ -395,7 +393,7 @@
           call abend()
       end if
 #endif
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         IF (JOB.EQ.1) THEN
           WRITE(6,*)
           WRITE(6,'(6X,80A1)') ('*',i=1,80)
@@ -468,10 +466,9 @@ C table of energies/iteration is the last one with not all zeroes.
             E=WORK(LEJOB+MXROOT*(IT-1)+(I-1))
             AEMAX=MAX(AEMAX,ABS(E))
           END DO
-          IF(ABS(AEMAX).LE.1.0D-12) GOTO 11
+          IF(ABS(AEMAX).LE.1.0D-12) exit
           NMAYBE=IT
         END DO
-  11    CONTINUE
         IF(NMAYBE.EQ.0) THEN
           WRITE(6,*)' Sorry. Keyword ''EJOB'' has been used'
           WRITE(6,*)' but there are no energies available on'
@@ -606,7 +603,7 @@ C CHECK THAT DATA IS CONSISTENT WITH EARLIER:
       END IF
 
 C DATA PARTICULAR TO THIS JOBIPH:
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)'  Header from SEWARD:'
         WRITE(6,'(7X,36A2)')(HEAD1(I),I=1,36)
@@ -637,7 +634,7 @@ C AMOUNT OF TITLE LINES.
       IF(NACTE1.EQ.2*SUM(NASH(1:NSYM))) WFTYPE='CLOSED  '
       IF(NACTE1.EQ.0) WFTYPE='EMPTY   '
       RASTYP(JOB)=WFTYPE
-      IF(IPGLOB.GE.VERBOSE)
+      IF(IPGLOB.GE.3)
      &          WRITE(6,*)'  Wave function type WFTYPE=',WFTYPE
       NACTE(JOB)=NACTE1
       MLTPLT(JOB)=MPLET1

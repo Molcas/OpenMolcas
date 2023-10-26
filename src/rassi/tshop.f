@@ -9,14 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TSHop(CI1,CI2)
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='TSHOP')
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "rasdef.fh"
 #include "rassi.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
@@ -34,7 +31,7 @@ C  (this should happen when testing for state n+1
 C  right after a hop to state n-1)
       CALL Get_iScalar('Relax CASSCF root',I)
       IF (I.NE.ISTATE1) THEN
-         IF (IPGLOB.GE.USUAL) WRITE(6,'(6X,A)')
+         IF (IPGLOB.GE.2) WRITE(6,'(6X,A)')
      &        'A hop has just been detected, skipping this state.'
          RETURN
       ENDIF
@@ -88,12 +85,12 @@ C Check if it is a hop up or hop down
 C
       I=ISTATE1-ISTATE2
       IF (I.GT.0) THEN
-         IF (IPGLOB.GE.USUAL)
+         IF (IPGLOB.GE.2)
      &      WRITE(6,*) 'Checking for a hop to a root lower in energy.'
          filnam='CIVECTOR'
          filother='CIVECTUP'
       ELSEIF (I.LT.0) THEN
-         IF (IPGLOB.GE.USUAL)
+         IF (IPGLOB.GE.2)
      &      WRITE(6,*) 'Checking for a hop to a root higher in energy.'
          filnam='CIVECTUP'
          filother='CIVECTOR'
@@ -108,7 +105,7 @@ C
       CALL f_inquire(filnam,fexist)
       IF (fexist) THEN
          CALL DANAME(file,filnam)
-         IF (IPGLOB.GE.VERBOSE)
+         IF (IPGLOB.GE.3)
      &      WRITE(6,*) trim(filnam)//' file exists.'
       ELSE
 C If the file does not exist, create a new one with the
@@ -129,7 +126,7 @@ C Current CI coefficients are written
 C Write the real table of contents
          IAD3=0
          CALL IDAFILE(file,1,IADR3,3,IAD3)
-         IF (IPGLOB.GE.VERBOSE)
+         IF (IPGLOB.GE.3)
      &      WRITE(6,*) trim(filnam)//' file created.'
       ENDIF
 C
@@ -153,17 +150,17 @@ C Calculate the scalar product of the CI coefficient vectors.
          prdct(1,2)=0.0d0
          prdct(2,1)=0.0d0
          prdct(2,2)=0.0d0
-         IF (IPGLOB.GE.VERBOSE)
+         IF (IPGLOB.GE.3)
      &      WRITE(6,'(4(A16))') "CI1","CI1pr","CI2","CI2pr"
          DO i=1, NCI1
-            IF (IPGLOB.GE.VERBOSE)
+            IF (IPGLOB.GE.3)
      &         WRITE(6,'(4(3X,E13.6))') CI1(i),CI1pr(i),CI2(i),CI2pr(i)
             prdct(1,1) = prdct(1,1) + CI1pr(i) * CI1(i)
             prdct(1,2) = prdct(1,2) + CI1pr(i) * CI2(i)
             prdct(2,1) = prdct(2,1) + CI2pr(i) * CI1(i)
             prdct(2,2) = prdct(2,2) + CI2pr(i) * CI2(i)
          END DO
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
             WRITE(6,'(6X,A)')'The scalar products of the CI-vectors:'
             WRITE(6,3000)'CIpr(state1) * CI(state1) =',prdct(1,1)
             WRITE(6,3000)'CIpr(state1) * CI(state2) =',prdct(1,2)
@@ -218,7 +215,7 @@ C Set the numbers of Hops
             END IF
          END IF
       END IF
-      IF (IPGLOB.GE.VERBOSE) THEN
+      IF (IPGLOB.GE.3) THEN
          WRITE(6,'(2(6X,A8,I3))')'ISTATE1=',ISTATE1,'ISTATE2=',ISTATE2
          DO i=1, NCI1
             WRITE(6,'(6X,E12.5,8X,E12.5)') CI1(i),CI2(i)

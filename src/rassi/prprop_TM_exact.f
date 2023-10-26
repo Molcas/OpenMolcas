@@ -25,9 +25,6 @@
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='PRPROP_TM')
       parameter (THRSH=1.0D-10)
       parameter (ZERO=0.0D0)
 #include "symmul.fh"
@@ -1077,5 +1074,5 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for TMOM(SO) : ',TCpu2-TCpu1,TWall2-TWall1
 #endif
-      RETURN
+
       END Subroutine PRPROP_TM_Exact

@@ -110,5 +110,5 @@ C
         B(JPIV(I),J)=BUF(I)
        END DO
       END DO
-      RETURN
+
       END

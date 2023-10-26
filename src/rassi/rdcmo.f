@@ -13,10 +13,8 @@
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,
      &               mh5_close_file
 #endif
+      use rassi_aux, only: ipglob
       IMPLICIT NONE
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RDCMO_RASSI')
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
@@ -39,7 +37,7 @@
         WRITE(6,*)' JOB, NJOB:',JOB,NJOB
         CALL ABEND()
       END IF
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
         WRITE(6,*)' RDCMO_RASSI called for file '//TRIM(JBNAME(JOB))
       END IF
 C READ ORBITAL COEFFICIENTS FROM INTERFACE. ORIGINALLY ALL
@@ -79,7 +77,7 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
       End If
 #endif
 
-      IF(IPGLOB.GE.INSANE) THEN
+      IF(IPGLOB.GE.5) THEN
         write(6,*)' Reading CMO'
         write(6,*)' NBUF=',NBUF
         write(6,*)' Array read in:'
@@ -94,14 +92,14 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
         L2=L2+LEN
         L1=L1+NB**2
       END DO
-      IF(IPGLOB.GE.INSANE) THEN
+      IF(IPGLOB.GE.5) THEN
         write(6,*)' Gathered CMO from array.'
         write(6,*)' NCMO=',NCMO
         write(6,'(1x,5f16.8)')(CMO(i),i=1,ncmo)
       END IF
       CALL GETMEM('      ','FREE','REAL',LBUF,NBUF)
 
-      IF (IPGLOB.gt.SILENT .and. PRORB) THEN
+      IF (IPGLOB.gt.0 .and. PRORB) THEN
         WRITE(6,*)
         CALL WRMAT('MO ORBITAL COEFFICIENTS:',
      *               1,NBASF,NOSH,NCMO,CMO)

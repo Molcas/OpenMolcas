@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SGPrint(iSGStruct)
+      use Struct, only: nSGSize
       implicit real*8 (a-h,o-z)
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
 #include "WrkSpc.fh"
 
@@ -52,5 +52,4 @@ C Unpack structure iSGStruct:
         Write(6,'(1x,i4,5x,4i5)')
      &             iv,(IWork(lMAW-1+iv+nVert*ic),ic=0,3)
       End Do
-      return
       end

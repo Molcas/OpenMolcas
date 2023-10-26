@@ -23,5 +23,5 @@ C in a triangular format.
      &           ')',JSS=JSTA,MIN(ISS,JEND))
        END DO
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE PRCHAM

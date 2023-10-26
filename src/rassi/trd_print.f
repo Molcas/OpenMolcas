@@ -18,17 +18,12 @@
       SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
      &                     CMO1, CMO2, SIJ)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='TRD_PRINT')
 #include "rasdim.fh"
-!#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
@@ -153,4 +148,4 @@
         END DO
       END IF
       CLOSE (LU)
-      END SUBROUTINE
+      END SUBROUTINE TRD_PRINT

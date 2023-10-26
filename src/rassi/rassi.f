@@ -14,7 +14,8 @@
       use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS, EIGVEC,
      &                               SODYSAMPSR, SODYSAMPSI,
      &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
-      use rassi_aux
+      use rassi_aux, only: CMO1, CMO2, DMAB, ipglob, jDisk_TDM,
+     &                     Job_Index, TocM
       use kVectors
       use frenkel_global_vars, only: doCoul, eNucB, vNucB, nh1, aux2,
      &                               doExcitonics
@@ -41,17 +42,12 @@ C RAS state interaction.
 #include "cntrl.fh"
 #include "Files.fh"
 #include "Morsel.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "rassi.fh"
-#include "prgm.fh"
-#include "rasdef.fh"
 #include "jobin.fh"
 #include "symmul.fh"
 #include "rassiwfn.fh"
 #include "stdalloc.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RASSI')
       Logical CLOSEONE
       INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),
@@ -160,7 +156,7 @@ C Compute generalized transition density matrices, as needed:
       IF(TRACK.OR.ONLY_OVERLAPS) THEN
 
 C       Print the overlap matrix here, since MECTL is skipped
-        IF(IPGLOB.GE.USUAL) THEN
+        IF(IPGLOB.GE.2) THEN
           WRITE(6,*)
           WRITE(6,*)'     OVERLAP MATRIX FOR THE ORIGINAL STATES:'
           WRITE(6,*)
@@ -413,5 +409,5 @@ C Plot SO-Natural Transition Orbitals if requested
 
       Call StatusLine('RASSI:','Finished.')
       IRETURN=0
-      RETURN
-      END
+
+      END SUBROUTINE RASSI

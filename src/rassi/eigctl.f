@@ -11,6 +11,7 @@
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       USE RASSI_aux
       USE kVectors
+      use rassi_aux, only: ipglob
       USE rassi_global_arrays, only: JBNUM
       USE do_grid, only: Do_Lebedev_Sym
       use frenkel_global_vars, only: iTyp
@@ -23,9 +24,6 @@
       USE ISO_C_Binding
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='EIGCTL')
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
@@ -121,7 +119,7 @@ C Make a list of interacting sets of states:
       END DO
       ISET=0
       DO I=1,NSTATE
-        IF(IWORK(LLIST-1+I).GT.0) GOTO 20
+        IF(IWORK(LLIST-1+I).GT.0) cycle
         ISET=ISET+1
         IWORK(LLIST-1+I)=ISET
         JOB1=JBNUM(I)
@@ -129,18 +127,16 @@ C Make a list of interacting sets of states:
         MPLET1=MLTPLT(JOB1)
         LSYM1=IRREP(JOB1)
         DO J=I+1,NSTATE
-          IF(IWORK(LLIST-1+J).GT.0) GOTO 10
+          IF(IWORK(LLIST-1+J).GT.0) cycle
           JOB2=JBNUM(J)
           NACTE2=NACTE(JOB2)
-          IF(NACTE2.NE.NACTE1) GOTO 10
+          IF(NACTE2.NE.NACTE1) cycle
           MPLET2=MLTPLT(JOB2)
-          IF(MPLET2.NE.MPLET1) GOTO 10
+          IF(MPLET2.NE.MPLET1) cycle
           LSYM2=IRREP(JOB2)
-          IF(LSYM2.NE.LSYM1) GOTO 10
+          IF(LSYM2.NE.LSYM1) cycle
           IWORK(LLIST-1+J)=ISET
-  10      CONTINUE
         END DO
-  20    CONTINUE
       END DO
       NSETS=ISET
 CTEST      write(*,*)' EIGCTL. There are NSETS sets of interacting states.'
@@ -305,7 +301,7 @@ C especially for already diagonal Hamiltonian matrix.
       call mh5_put_dset(wfn_sfs_coef, EIGVEC)
 #endif
 
-      if (IPGLOB >= TERSE) then
+      if (IPGLOB >= 1) then
         write(filnam,'(A,I1)') 'stE', iTyp
         LuT2 = 11
         LuT1 = isFreeUnit(LuT2)
@@ -424,7 +420,7 @@ C within the basis formed by the states.
 *                                                                      *
 C REPORT ON SECULAR EQUATION RESULT:
       CALL MMA_ALLOCATE(ESFS,NSTATE)
-      IF(IPGLOB.ge.TERSE) THEN
+      IF(IPGLOB.ge.1) THEN
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)
@@ -510,12 +506,12 @@ c LU: save esfs array
        CALL MMA_DEALLOCATE(ESFS)
 c
 
-      IF((IPGLOB.ge.VERBOSE).or.(.not.diagonal)) THEN
+      IF((IPGLOB.ge.3).or.(.not.diagonal)) THEN
        WRITE(6,*)
        WRITE(6,*)'  Spin-free eigenstates in basis of input states:'
        WRITE(6,*)'  -----------------------------------------------'
        WRITE(6,*)
-       IF(IPGLOB.ge.VERBOSE) THEN
+       IF(IPGLOB.ge.3) THEN
         DO L=1,NSTATE
            I=IndexE(L)
           Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
@@ -554,7 +550,7 @@ c
        END DO
        CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
        CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
-       IF(IPGLOB.ge.VERBOSE) THEN
+       IF(IPGLOB.ge.3) THEN
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
@@ -669,7 +665,7 @@ C                                                                      C
       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
      &          /CONST_AU_TIME_IN_SI_
 *
-      IF(IPGLOB.le.SILENT) GOTO 900
+      IF(IPGLOB.le.0) GOTO 900
 !
 * CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
 !
@@ -684,7 +680,7 @@ C                                                                      C
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 !
-      IF(IPGLOB.ge.TERSE) THEN
+      IF(IPGLOB.ge.1) THEN
 
        IPRDX=0
        IPRDY=0
@@ -3085,8 +3081,6 @@ C                 Why do it when we don't do the L.S-term!
         end do
       end if
       Call mma_DeAllocate(IndexE)
-
-      RETURN
 
 222    FORMAT (5X,2(1X,I4),5X,3(1X,E18.8))
 30    FORMAT (5X,A,1X,ES15.8)

@@ -9,11 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CXInit(iSGStruct,iCIstruct,iXStruct)
+      use Struct, only: nSGSize, nCISize, nXSize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='CXINIT')
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
@@ -139,5 +136,4 @@ C nVTab has now been updated to the true size. Allocate final array:
       Call GetMem('VSGM','Free','Real',lVSgm,nSgmnt)
       Call GetMem('IVR','Free','Inte',lIVR,2*nVert)
 
-      return
       end

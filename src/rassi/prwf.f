@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PRWF(ISGSTRUCT,ICISTRUCT,ISYCI,CI,CITHR)
+      use Struct, only: nSGSize, nCISize
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CI(*)
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
@@ -29,5 +29,5 @@
      &           IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &           ISYCI,CI,CITHR)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
-      RETURN
-      END
+
+      END SUBROUTINE PRWF

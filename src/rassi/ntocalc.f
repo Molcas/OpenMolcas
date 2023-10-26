@@ -41,17 +41,15 @@
 *                  in Depart. of Chemistry, University of Minnesota, USA
 *                                             2018/08/09
 
-      SUBROUTINE   NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
+      SUBROUTINE NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
 
       use fortran_strings, only : str
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
@@ -455,21 +453,19 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM ('SupCMO2','Free','Real',LSUPCMO2,NSUPCMO)
       CALL GETMEM ('ONTO','Free','Real',LONTO,NSUPCMO)
       CALL GETMEM ('UNTO','Free','Real',LUNTO,NSUPCMO)
-      RETURN
-      END
+
+      END SUBROUTINE NTOCalc
 
 
 
       SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LNTO,
      &NTOType,STATENAME,LEigVal,UsetoReal,RealtoUse,Spin,LSym,LInd)
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 
 C     input variables
       INTEGER NUseSym,LNTO,LEigVal
@@ -634,8 +630,8 @@ C Recording Printed NTO (PCMO)
       CALL Molden_interface(0,trim(FILENAME),trim(molden_name))
 
       deallocate(PCMO)
-      RETURN
-      END
+
+      END SUBROUTINE  NTOSymAnalysis
 
 
 

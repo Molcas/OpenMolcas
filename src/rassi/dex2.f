@@ -35,5 +35,5 @@ C CHOSE DAXPY IF LARGE LENGTH.
           END DO
         END DO
       END IF
-      RETURN
+
       END

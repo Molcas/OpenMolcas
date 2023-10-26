@@ -11,6 +11,7 @@
 #include "macros.fh"
       SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,
      &                  EigVec)
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: SODYSAMPS
       USE kVectors
 #ifdef _HDF5_
@@ -18,9 +19,6 @@
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='PRPROP')
       parameter (THRSH=1.0D-10)
       parameter (ZERO=0.0D0)
 #include "symmul.fh"
@@ -108,7 +106,7 @@
 * printout of properties over the spin-free states
 ******************************************************
 
-      IF(IPGLOB.LE.SILENT) GOTO 400
+      IF(IPGLOB.LE.0) GOTO 400
 
       IF( PRXVE.OR.PRMEE ) THEN
       WRITE(6,*)
@@ -472,7 +470,7 @@ C prpr keyword: Print selected spin-orbit properties to ext. data files
        AFACTOR = 2.0D0/CONST_C_IN_AU_**3
      &           /CONST_AU_TIME_IN_SI_
 
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)
         WRITE(6,'(6X,100A1)') ('*',i=1,100)
@@ -491,10 +489,10 @@ C Compute transition strengths for spin-orbit states:
 * Initial setup for both dipole, quadrupole etc. and exact operator
 *
 C printing threshold
-!     IF(IPGLOB.eq.USUAL) OSTHR=1.0D-8 ! first order
-!     IF(IPGLOB.eq.USUAL) OSTHR2=1.0D-12 ! second order (weaker)
-!     IF(IPGLOB.gt.USUAL) OSTHR=0.0D0
-!     IF(IPGLOB.gt.USUAL) OSTHR2=0.0D0
+!     IF(IPGLOB.eq.2) OSTHR=1.0D-8 ! first order
+!     IF(IPGLOB.eq.2) OSTHR2=1.0D-12 ! second order (weaker)
+!     IF(IPGLOB.gt.2) OSTHR=0.0D0
+!     IF(IPGLOB.gt.2) OSTHR2=0.0D0
       OSTHR=1.0D-5
       OSTHR2=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
@@ -530,7 +528,7 @@ C printing threshold
         JSTART = 1
       END IF
 !
-      IF (IPGLOB.GE.TERSE) THEN
+      IF (IPGLOB.GE.1) THEN
 !
 !     Initialize arrays for indentifying problematic transitions
 !     These stores all dipole oscillator strengths in
@@ -3068,7 +3066,7 @@ C start loop over the states ISTATE:
       END IF
 
 C print seperate contributions if verbose
-      IF (IPGLOB.GE.VERBOSE) THEN
+      IF (IPGLOB.GE.3) THEN
        WRITE(6,*)
        WRITE(6,*) 'contributions from the SOS expansion'//
      &            ' to delta(g_pq) in *ppt* (p,q=x,y,z)'
@@ -3763,7 +3761,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
           GOTO 780
       ENDIF
 
-      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.VERBOSE)) THEN
+      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
        WRITE(6,'(a6,9(5x,a2,5x))')
@@ -3799,7 +3797,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        END DO
       END DO
 
-      IF(IPGLOB.GT.VERBOSE) THEN
+      IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
        WRITE(6,'(6x,3(6x,a2,4x))')
@@ -4049,7 +4047,7 @@ C initialization same as G-tensor, construct L+gS matrix elements
          RMAGM(2)=0.0D0
          RMAGM(3)=0.0D0
          RPART=0.0D0
-         IF(IPGLOB.GT.USUAL) THEN
+         IF(IPGLOB.GT.2) THEN
           WRITE(6,*)
           WRITE(6,'(2x,a14,3(4x,a4,4x),2x,a6)') "Energy (cm^-1)",
      &     "mu_x", "mu_y", "mu_z","weight"
@@ -4063,14 +4061,14 @@ C initialization same as G-tensor, construct L+gS matrix elements
           RMAGM(2)=RMAGM(2)+WORK(IZMR(2)-1+IISS)*FACT
           RMAGM(3)=RMAGM(3)+WORK(IZMR(3)-1+IISS)*FACT
           RPART=RPART+FACT
-          IF(IPGLOB.GT.USUAL) THEN
+          IF(IPGLOB.GT.2) THEN
            WRITE(6,'(2x,f14.3,3(1x,f10.6,1x),2x,f6.3)')
      &      (WORK(LZR-1+IISS)-WORK(LZR))*AU2CM,
      &      WORK(IZMR(1)-1+IISS),WORK(IZMR(2)-1+IISS),
      &      WORK(IZMR(3)-1+IISS),FACT
           ENDIF
          ENDDO
-         IF(IPGLOB.GT.USUAL) THEN
+         IF(IPGLOB.GT.2) THEN
           WRITE(6,*)
          ENDIF
          RMAGM(1)=(RMAGM(1)/RPART)*AU2JTM
@@ -4264,8 +4262,7 @@ C backtransformation in two steps, -phi and -theta
 44    FORMAT (20X,6(1X,A15))
 49    FORMAT (5X,A,1X,ES15.8,1X,A)
 
-      RETURN
-      END
+      END SUBROUTINE PRPROP
 
       SUBROUTINE SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
 !      IMPLICIT NONE
@@ -4453,11 +4450,9 @@ C backtransformation in two steps, -phi and -theta
        !!enddo
       !!enddo
 
-
-      RETURN
 c Avoid unused argument warnings
       unused_var(DIPSOm_SA)
-      END
+      END SUBROUTINE SINANI
 
       SUBROUTINE ADARASSI(N,A,D,DROT)
 
@@ -4479,8 +4474,7 @@ C actual multiplication
       call ZGEMM('N','N',N,N,N,(1.0D0,0.0D0),TEMP,N,A,N,(0.0D0,0.0D0),
      &DROT,N)
 
-      RETURN
-      END
+      END SUBROUTINE ADARASSI
 
       SUBROUTINE ZECON(NSTATE,N,UR,UI,AR,AI,ZEKL,IXYZ,ISTATE,ISS,JSS)
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -4506,5 +4500,4 @@ C actual multiplication
      $     CMPLX(UR(ISS,2)*TMPR2+UI(ISS,2)*TMPI2,
      $     UR(ISS,2)*TMPI2-UI(ISS,2)*TMPR2,kind=8)
 
-      RETURN
-      END
+      END SUBROUTINE ZECON

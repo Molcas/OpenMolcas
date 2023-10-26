@@ -19,14 +19,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nIrrep
       IMPLICIT REAL(kind=wp) (A-H,O-Z)
-#include "prgm.fh"
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
       type(DSBA_Type) :: DLT, SDLT(1), Salpha(1), Sbeta(1)
       integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),
