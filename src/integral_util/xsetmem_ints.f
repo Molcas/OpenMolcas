@@ -31,5 +31,4 @@
 !     Call mma_MaxDBLE(nu)
 !     Write (6,*) 'xsetmem_ints: External allocate left to allocate:',nu
 !
-      Return
       End subroutine xsetmem_ints

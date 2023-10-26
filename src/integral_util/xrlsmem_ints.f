@@ -25,5 +25,4 @@
 !        Write (6,*) 'xRlsMem_Ints:','External allocation released!'
       End If
 !
-      Return
       End Subroutine xRlsMem_Ints

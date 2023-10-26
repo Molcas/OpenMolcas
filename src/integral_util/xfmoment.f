@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2004, Par Soderhjelm                                   *
 !***********************************************************************
-      Subroutine XFMoment(lMax,Cavxyz,Tmom,nCavxyz_,Org)
 
+      Subroutine XFMoment(lMax,Cavxyz,Tmom,nCavxyz_,Org)
 !***********************************************************************
 !                                                                      *
 !     Object:  Calculate total moment of XF multipoles, add to Cavxyz  *
@@ -21,16 +21,18 @@
 !                                                                      *
 !              November 2004                                           *
 !***********************************************************************
-      use External_Centers
-      use Phase_Info
+      use External_Centers, only: nOrd_XF, nXF, XF
+      use Phase_Info, only: iPhase
       use Symmetry_Info, only: nIrrep
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One
+      Implicit None
 
+      Integer lmax, nCavxyz_
       Real*8 Cavxyz(nCavxyz_),Tmom(nCavxyz_),Org(3)
 
       Real*8 Tco(3),A(3)
       Integer iStb(0:7), jCoSet(0:7,0:7)
+      Integer nInp, i, iChxyz, iDum, j, nStb, iChAtm
 
       If(nOrd_XF.lt.0) Return
       If(nOrd_XF.gt.lMax) Then
@@ -73,5 +75,4 @@
          EndDo
       EndDo
 
-      Return
-      End
+      End Subroutine XFMoment
