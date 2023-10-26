@@ -9,9 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine tetin(lmax)
-      use Constants
-      use welcom
-      Implicit Real*8(A-H,O-Z)
+      use Constants, only: Zero, One
+      use welcom, only: tetint, binom
+      Implicit None
+      Integer lmax
+
+      Integer k, lm2, l, m, i
 !
       Do 100 k=0,lmax
          lm2=k/2
@@ -25,5 +28,4 @@
 110      Continue
 100   Continue
 !
-      Return
-      End
+      End Subroutine tetin
