@@ -9,10 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine RRINT(K,ALFA,A,BETA,R0,GRINT,lmax)
-      use Constants
+      use Constants, only: Zero, One, Two, Three, Pi, Four
       use welcom
-      Implicit Real*8(A-H,O-Z)
-      Real*8 grint(0:lmax,lmax),rri(0:kmax+2)
+      Implicit None
+      Integer K, lMax
+      Real*8 Alfa, A, Beta, R0
+      Real*8 grint(0:lmax,lmax)
+
+      Real*8 rri(0:kmax+2)
+      Integer M, i, mMax, n, Ind, kk, l, ll, mm
+      Real*8 ExpA, AExp, bExp1, bExp2, Test, Al, FiIntM, Bi, ggg,
+     &       Exp1, bExp, AA, AA2, AA3, AA4, AA5, Tmp1, Tmp2, Tmp3,
+     &       Tmp4, Pi4, Tmp
+      Real*8, External:: QRint
 !
       M=K+1
       EXPA=-A*A*ALFA-BETA*R0*R0
@@ -28,8 +37,10 @@
             TEST=A*ALFA
          End If
       End If
-!FUE  IF(TEST.LT..02D+00)GO TO 900
-      IF(TEST.LT..005D+00)GO TO 900
+      Select Case (TEST.LT..005D+00)
+
+      Case (.False.)
+
 !     Write (*,*) ' Large A'
 !.....K=0 ONE CONTRIBUTION SS-INTEGRAL
       Do 40 i=0,k
@@ -54,8 +65,9 @@
 43          Continue
 42       Continue
 41    Continue
-      go to 100
-900   Continue
+
+      Case (.True.)
+
 !     Write (*,*) ' SERIES EXPANSION FOR SMALL A'
 !
 !.....SERIES EXPANSION FOR SMALL A
@@ -77,7 +89,7 @@
       GRINT(0,1) = pi4*(               rri(0)
      &           +      AA2/Three    * rri(1)
      &           +      AA4/15.0D+00 * rri(2)  )
-      IF(K.EQ.0)  go to 100
+      IF(K.EQ.0)  Return
       Do 20 ll=1,l
          Do kk = 1, ll+1
 !
@@ -110,8 +122,7 @@
 !
          End Do
  20   Continue
- 100  Continue
+      End Select
 !
 !     Call RecPrt(' In RRint:grint',' ',grint,1+lmax,lmax)
-      Return
-      End
+      End Subroutine RRINT
