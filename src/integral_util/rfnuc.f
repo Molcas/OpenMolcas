@@ -27,12 +27,19 @@
 #endif
       use Phase_Info
       use Symmetry_Info, only: nIrrep
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
-      Real*8  rNucMm((ir+1)*(ir+2)/2), CoOp(3), A(3), RA(3)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer ir
+      Real*8  rNucMm((ir+1)*(ir+2)/2), CoOp(3)
+
+      Real*8  A(3), RA(3)
+      Integer iq, ix, iy, iz, ndc, iCnttp, iCnt, i, mdc
+      Real*8 temp, ZA, CCoMx, CCoMy, CComZ
 #ifdef _OBSOLETE_
-     &        ,rRMy(3)
+      Real*8 rRMy(3)
       Integer iStb(0:7), jCoSet(0:7,0:7)
+      Real*8 DAx, DAy, DAz, Qxx, Qxy, Qxz, Qyy, Qyz, Qzz
+      Real*8 QRAxx, QRAyy, QRAzz, QRAxy, QRAxz, QRAyz
 #endif
 !                                                                      *
 !***********************************************************************
@@ -245,4 +252,4 @@
 !***********************************************************************
 !                                                                      *
       Return
-      End
+      End SubRoutine RFNuc
