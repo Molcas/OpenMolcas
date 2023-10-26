@@ -34,5 +34,4 @@
       kCnttp = i
       lCnttp = j
 !
-      Return
-      End
+      End Subroutine Set_Basis_Mode_Atomic

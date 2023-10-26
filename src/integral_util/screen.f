@@ -42,19 +42,23 @@
 !***********************************************************************
       use Constants
       use k2_structure, only: k2_type
-      Implicit Real*8 (A-H,O-Z)
-      Integer :: iOffZ, iOffE
+      Implicit None
+      Integer :: iOffZ, iOffE, mZeta, nZeta, mEta, nEta
       Real*8, Intent(out) :: Zeta(mZeta), ZInv(mZeta), KappAB(mZeta),
-     &                       P(nZeta,3), Eta(mEta), EInv(mEta),
-     &                       KappCD(mEta), Q(nEta,3)
+     &                       P(nZeta,3),
+     &                       Eta(mEta),EInv(mEta), KappCD(mEta),
+     &                       Q(nEta,3)
       Type(k2_type), intent(in):: k2Data1, k2Data2
       Real*8 Dij(nZeta), Dkl(nEta)
       Integer, Intent(out) :: lZeta, lEta, IndZet(nZeta), IndEta(nEta)
+      Integer  iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2
+      Real*8 CutDInt,CutInt,vij,vkl,vik,vil,vjk,vjl
       Logical Prescreen_On_Int_Only
       ![all the others are intent(in)]
 !
 !     decalaration of local variables...
-      Real*8 abMax,cdMax
+      Integer iZeta, jZeta, iEta, jEta
+      Real*8 abMax,cdMax, DMax, Cut, vMax, ppaa, aaaa, test
 
       abMax = k2Data1%abMax
       cdMax = k2Data2%abMax
@@ -189,5 +193,4 @@
       Call RecPrt(' KappAB',' ',KappAB,lZeta,1)
       Call RecPrt(' KappCD',' ',KappCD,lEta, 1)
 #endif
-      Return
-      End
+      End SubRoutine Screen
