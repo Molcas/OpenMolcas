@@ -23,8 +23,11 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             June '90                                                 *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nOpT, iOpR
       Integer iOpT(nOpT)
+
+      Integer i
       RinT_ = .False.
       Do 10 i = 1, nOpT
          If (iOpT(i).eq.iOpR) Then
@@ -32,5 +35,4 @@
             Return
          End If
  10   Continue
-      Return
-      End
+      End Function RinT_
