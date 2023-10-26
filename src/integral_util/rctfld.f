@@ -22,6 +22,7 @@
       use stdalloc
       use rctfld_module
       Implicit Real*8 (A-H,O-Z)
+      Integer nh1
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
       Logical First, Dff, NonEq
       Real*8, Allocatable:: Vs(:,:), QV(:,:)
@@ -30,16 +31,13 @@
       call mma_Allocate(Vs,nComp,2,Label='Vs')
       call mma_Allocate(QV,nComp,2,Label='QV')
 !
-      Call RctFld_(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
-     &             MM,nComp,Vs,QV)
+      Call RctFld_Internal(MM,nComp)
 !
       Call mma_deallocate(Vs)
       Call mma_deallocate(QV)
 !
-      Return
-      End
-      SubRoutine RctFld_(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
-     &                   Q_solute,nComp,Vs,QV)
+      Contains
+      SubRoutine RctFld_Internal(Q_solute,nComp)
 !***********************************************************************
 !                                                                      *
 ! Object: to apply a modification to the one-electron hamiltonian due  *
@@ -79,13 +77,12 @@
       use Constants
       use rctfld_module
       Implicit Real*8 (A-H,O-Z)
-      Real*8 h1(nh1), TwoHam(nh1), D(nh1), Origin(3)
+      Real*8 Origin(3)
 #ifdef _DEBUGPRINT_
-      Character*72 Label
+      Character(LEN=72) Label
 #endif
-      Character*8 Label2
-      Logical First, Dff, NonEq
-      Real*8 Q_solute(nComp,2), Vs(nComp,2), QV(nComp,2)
+      Character(LEN=8) Label2
+      Real*8 Q_solute(nComp,2)
       Real*8 FactOp(1)
       Integer lOper(1)
 !
@@ -347,7 +344,8 @@
 !***********************************************************************
 !                                                                      *
 !
-      Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_logical(Dff)
-      End
+      End SubRoutine RctFld_Internal
+
+      End SubRoutine RctFld
