@@ -14,6 +14,7 @@
 
 subroutine realz_cvb(arr,nmax,nread,ifc)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -25,10 +26,10 @@ real(kind=wp) :: tmp(nbuf)
 
 nread = 0
 do
-  call fzero(tmp,nbuf)
+  tmp(:) = Zero
   nleft = nmax-nread
   call real_cvb(tmp,min(nbuf,nleft),nread1,ifc)
-  call fmove_cvb(tmp,arr(1+nread),nread1)
+  arr(nread+1:nread+nread1) = tmp(1:nread1)
   nread = nread+nread1
   if (nread1 <= 0) exit
 end do

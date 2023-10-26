@@ -34,7 +34,7 @@ if ((cnrm < hh) .and. scalesmall) then
   if (wrongstat) then
     if (dnrm2_(nparm,gradp,1) < grdwrngtol) then
       write(u6,*) ' Gradient too small - not using information!'
-      call fzero(w2,nparm)
+      w2(:) = Zero
       do i=1,nnegeig
         if (heigval(i) >= eigwrngtol) w2(i) = sign(One,gradp(i))
       end do
@@ -47,7 +47,7 @@ if ((cnrm < hh) .and. scalesmall) then
   else
     if ((.not. opth) .and. (ip >= 2)) write(u6,form2AF) ' Scaling update from :',cnrm,' to :',hh
   end if
-  call dscal_(nparm,hh/cnrm,dxp,1)
+  dxp(:) = hh/cnrm*dxp(:)
   cnrm = hh
 else if (cnrm >= hh) then
   call optalf_cvb(heigval,gradp,nparm,hh,alfa,nnegeig,alfastart,alftol)
@@ -68,7 +68,7 @@ end if
 do
   call expec_cvb(dxp,gradp,heigval,nnegeig,nparm,expct,exp1,exp2)
   if ((exp1 >= -exp12tol) .and. (exp2 <= exp12tol)) exit
-  call dscal_(nparm,0.9_wp,dxp,1)
+  dxp(:) = 0.9_wp*dxp(:)
   cnrm = dnrm2_(nparm,dxp,1)
   if (cnrm < cnrmtol) then
     write(u6,formAD) ' Norm of update too small :',cnrm,cnrmtol

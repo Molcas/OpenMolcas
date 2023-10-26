@@ -24,7 +24,7 @@ real(kind=wp), external :: ddot_
 
 do i=1,nvec2
   do j=1,nvec1
-    call daxpy_(n,-ddot_(n,c2(1,i),1,sxc1(1,j),1),c1(1,j),1,c2(1,i),1)
+    c2(:,i) = c2(:,i)-ddot_(n,c2(:,i),1,sxc1(:,j),1)*c1(:,j)
   end do
 end do
 

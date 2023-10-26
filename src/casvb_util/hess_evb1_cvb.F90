@@ -44,7 +44,7 @@ if (strucopt2 .and. (.not. orbopt2)) n_cihess = n_cihess+1
 call transp_cvb(orbs,owrk,norb,norb)
 call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
 
-call fzero(hessout,npr)
+hessout(:) = Zero
 if (orbopt2) call mxatb_cvb(hessorb,hessinp,nprorb,nprorb,1,hessout)
 
 ! Combinations of gradients:
@@ -52,8 +52,7 @@ g1f = ddot_(npr,grad1,1,hessinp,1)
 g2f = ddot_(npr,grad2,1,hessinp,1)
 fac1 = g1f*f4+g2f*f3
 fac2 = g1f*f3
-call daxpy_(npr,fac1,grad1,1,hessout,1)
-call daxpy_(npr,fac2,grad2,1,hessout,1)
+hessout(:) = hessout(:)+fac1*grad1(:)+fac2*grad2(:)
 
 if (orbopt2 .and. strucopt) then
   call mxunfold_cvb(hessinp(1),owrk,norb)
@@ -61,13 +60,13 @@ if (orbopt2 .and. strucopt) then
   call cizero_cvb(citmp)
   call oneexc_cvb(civbh,citmp,owrk,.true.,2)
   call mkgrd_cvb(civb,citmp,vec1,dvbdet,npr,.false.)
-  call daxpy_(nprvb,f1,vec1(nprorb+1),1,hessout(nprorb+1),1)
+  hessout(nprorb+1:nprorb+nprvb) = hessout(nprorb+1:nprorb+nprvb)+f1*vec1(nprorb+1:nprorb+nprvb)
 end if
 if (strucopt2) then
   call str2vbc_cvb(hessinp(1+nprorb),dvbdet)
   call vb2cif_cvb(dvbdet,citmp)
   call mkgrd_cvb(citmp,civbh,vec1,dvbdet,nprorb,.true.)
-  call daxpy_(nprorb,f1,vec1,1,hessout,1)
+  hessout(1:nprorb) = hessout(1:nprorb)+f1*vec1(1:nprorb)
   call oneexc_cvb(civb,citmp,hessinp,.false.,1)
   ! 2nd-order term for structure coefficients
   if (nfrag > 1) then
@@ -76,7 +75,7 @@ if (strucopt2) then
     call mma_allocate(cvb,nvb,label='cvb')
     call ci2ordr_cvb(civbh,dvbdet,cvbdet)
     call vb2strg_cvb(cvbdet,cvb)
-    call daxpy_(nvb,f1,cvb,1,hessout(1+nprorb),1)
+    hessout(nprorb+1:nprorb+nvb) = hessout(nprorb+1:nprorb+nvb)+f1*cvb(:)
     call mma_deallocate(cvbdet)
     call mma_deallocate(cvb)
   end if
@@ -86,11 +85,11 @@ else
 end if
 call applythmes_cvb(citmp,orbs)
 call mkgrd_cvb(civb,citmp,vec1,dvbdet,npr,.true.)
-call daxpy_(npr,f1,vec1,1,hessout,1)
+hessout(:) = hessout(:)+f1*vec1(1:npr)
 
 if (orbopt2 .and. (nort > 0)) then
   ! Non-linear correction for orthogonality constraints:
-  call fmove_cvb(sorbs,owrk,norb*norb)
+  owrk(:,:) = sorbs(:,:)
   call mxinv_cvb(owrk,norb)
   do iort=1,nort
     iorb = iorts(1,iort)

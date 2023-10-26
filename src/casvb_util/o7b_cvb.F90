@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "optb_interface.fh"
-integer(kind=iwp) :: i, ioptc2, ipu, iter2
+integer(kind=iwp) :: ioptc2, ipu, iter2
 real(kind=wp) :: fac1, fx_exp, resthr_old = -One, resthr_use
 logical(kind=iwp) :: skip
 real(kind=wp), external :: dnrm2_
@@ -61,10 +61,8 @@ if (.not. skip) then
   else
     fac1 = sign(one,odx(1))
   end if
-  call dscal_(nparm,fac1,odx(1),1)
-  do i=1,nparm
-    odx(i) = odx(i+1)
-  end do
+  odx(1:nparm) = fac1*odx(1:nparm)
+  odx(1:nparm) = odx(2:nparm+1)
 end if
 dxnrm = dnrm2_(nparm,odx,1)
 if (.not. close2conv) then
@@ -73,7 +71,7 @@ else
   ipu = 2
 end if
 if ((dxnrm > hh) .or. scalesmall(ipu)) then
-  call dscal_(nparm,hh/dxnrm,odx,1)
+  odx(1:nparm) = hh/dxnrm*odx(1:nparm)
   dxnrm = hh
 end if
 

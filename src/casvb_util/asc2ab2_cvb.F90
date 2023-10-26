@@ -35,11 +35,11 @@ do iorb=0,nel
   maxdet(iorb) = min(iorb,nalf)
 end do
 call weight_cvb(xdet,mindet,maxdet,nalf,nel)
-call imove_cvb(maxdet,nkdet,nel+1)
+nkdet(:) = maxdet(:)
 call occupy_cvb(nkdet,nel,locc,locc(nalf+1))
 inddet = 1
 do
-  call dscal_(nvec,party_cvb(locc,nel),detvec(inddet,1),ndet)
+  detvec(inddet,:) = party_cvb(locc,nel)*detvec(inddet,:)
   call loind_cvb(nel,nalf,nkdet,mindet,maxdet,locc,locc(nalf+1),inddet,xdet,rc)
   if (rc == 0) exit
 end do

@@ -19,14 +19,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nnegeig, npr
 real(kind=wp) :: dxp(npr), gradp(npr), heigval(npr), alfa
-integer(kind=iwp) :: i
 
-do i=1,nnegeig
-  dxp(i) = -gradp(i)/(heigval(i)-alfa)
-end do
-do i=nnegeig+1,npr
-  dxp(i) = -gradp(i)/(heigval(i)+alfa)
-end do
+dxp(1:nnegeig) = -gradp(1:nnegeig)/(heigval(1:nnegeig)-alfa)
+dxp(nnegeig+1:) = -gradp(nnegeig+1:)/(heigval(nnegeig+1:)+alfa)
 
 return
 

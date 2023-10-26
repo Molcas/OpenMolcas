@@ -20,7 +20,7 @@ use Definitions, only: iwp, u6
 implicit none
 character(len=*) :: chr1, chr2
 integer(kind=iwp) :: ic1
-integer(kind=iwp) :: i, ic, ii, iobj, j, jobj, m_cancelled, n_cancelled
+integer(kind=iwp) :: i, ic, iobj, jobj, m_cancelled, n_cancelled
 logical(kind=iwp) :: done
 
 ic = ic1
@@ -56,12 +56,8 @@ if (mod(ic,2) == 1) then
     done = .false.
     do i=ioffs(iobj)+1,ioffs(iobj+1)
       if (i_dep_on_j(i) == jobj) then
-        do j=i,ioffs(nobj+1)-1
-          i_dep_on_j(j) = i_dep_on_j(j+1)
-        end do
-        do ii=iobj+1,nobj+1
-          ioffs(ii) = ioffs(ii)-1
-        end do
+        i_dep_on_j(i:ioffs(nobj+1)-1) = i_dep_on_j(i+1:ioffs(nobj+1))
+        ioffs(iobj+1:nobj+1) = ioffs(iobj+1:nobj+1)-1
         n_cancelled = n_cancelled+1
         done = .true.
         exit
@@ -77,12 +73,8 @@ if (ic >= 2) then
     done = .false.
     do i=joffs(jobj)+1,joffs(jobj+1)
       if (j_dep_on_i(i) == iobj) then
-        do j=i,joffs(nobj+1)-1
-          j_dep_on_i(j) = j_dep_on_i(j+1)
-        end do
-        do ii=jobj+1,nobj+1
-          joffs(ii) = joffs(ii)-1
-        end do
+        j_dep_on_i(i:joffs(nobj+1)-1) = j_dep_on_i(i+1:joffs(nobj+1))
+        joffs(jobj+1:nobj+1) = joffs(jobj+1:nobj+1)-1
         m_cancelled = m_cancelled+1
         done = .true.
         exit

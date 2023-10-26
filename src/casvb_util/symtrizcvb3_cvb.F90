@@ -30,9 +30,9 @@ if (lzrvb == 0) then
   end do
 else
   ! if here, idelstr specifies which structures to *keep*:
-  if (nzrvb >= 1) call fzero(vecstr,idelstr(1)-1)
+  if (nzrvb >= 1) vecstr(1:idelstr(1)-1) = Zero
   do ikeep=1,nzrvb-1
-    call fzero(vecstr(idelstr(ikeep)+1),idelstr(ikeep+1)-idelstr(ikeep)-1)
+    vecstr(idelstr(ikeep)+1:idelstr(ikeep+1)-1) = Zero
   end do
 end if
 

@@ -16,8 +16,8 @@ subroutine reprt_cvb()
 
 use casvb_global, only: civb1, civb2, civb3, civb4, civb5, corenrg, cvb, cvbdet, cvbsspn, cvbstot, dvbdet, endvar, esym, evb, &
                         evbdet, formE, formroot, formSymW, formVBWnorm, gjorb, gjorb2, gjorb3, icrit, ifhamil, ipr, ishstruc, &
-                        ivbweights, lcalccivbs, lcalcevb, lcalcsvb, lciweights, mxirrep, ndetvb, nel, nirrep, norb, nvb, orbinv, &
-                        orbs, owrk2, proj, savvb, sc, sij, sorbs, sstruc, sstruc2, svb, variat
+                        ivbweights, lcalccivbs, lcalcevb, lcalcsvb, lciweights, mxirrep, nel, nirrep, norb, nvb, orbinv, orbs, &
+                        owrk2, proj, savvb, sc, sij, sorbs, sstruc, sstruc2, svb, variat
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -58,7 +58,7 @@ if (valid_cvb(savvb)) then
 end if
 call putci_cvb(civb2)
 call mma_allocate(dmat,norb,norb,label='dmat')
-call fzero(dmat,norb*norb)
+dmat(:,:) = Zero
 call onedens_cvb(civb2,civb2,dmat,.true.,0)
 ! Before overwriting CIVB/CIVEC get SVB:
 if (lcalcsvb) then
@@ -98,8 +98,8 @@ if ((.not. variat) .or. endvar) then
   call makecivbs_cvb(civb3,orbs,cvbdet)
 
   call ciscale_cvb(civb3,One/cnrm)
-  call dscal_(nvb,One/cnrm,cvb,1)
-  call dscal_(ndetvb,One/cnrm,cvbdet,1)
+  cvb(1:nvb) = cvb(1:nvb)/cnrm
+  cvbdet(:) = cvbdet(:)/cnrm
   call finalresult_cvb()
   ! -- Analysis
   if (.not. lcalccivbs) then
@@ -148,7 +148,7 @@ if ((.not. variat) .or. endvar) then
       call gaussj_cvb(owrk2,gjorb2)
     end if
     do k=1,nvb
-      call fzero(sstruc(1,k),nvb)
+      sstruc(:,k) = Zero
       sstruc(k,k) = One
       call str2vbc_cvb(sstruc(1,k),dvbdet)
       call vb2cif_cvb(dvbdet,civb2)
@@ -175,7 +175,7 @@ if ((.not. variat) .or. endvar) then
     if (mod(ivbweights,8) > 3) then
       write(u6,'(/,a)') ' Inverse-overlap weights of structures :'
       write(u6,'(a)') ' ---------------------------------------'
-      call fmove_cvb(sstruc,sstruc2,nvb*nvb)
+      sstruc2(:,:) = sstruc(:,:)
       call mxinv_cvb(sstruc2,nvb)
       ! Use DVBDET for weights:
       rsum = Zero
@@ -184,23 +184,22 @@ if ((.not. variat) .or. endvar) then
         rsum = rsum+dvbdet(k)
       end do
       write(u6,formVBWnorm) ' VB spin+space (norm ',rsum,') :'
-      call dscal_(nvb,One/rsum,dvbdet,1)
+      dvbdet(1:nvb) = dvbdet(1:nvb)/rsum
       call vecprint_cvb(dvbdet,nvb)
     end if
 
     if (mod(ivbweights,4) > 1) then
       write(u6,'(/,a)') ' Weights of Lowdin-orthogonalized structures :'
       write(u6,'(a)') ' ---------------------------------------------'
-      call fmove_cvb(sstruc,sstruc2,nvb*nvb)
+      sstruc2(:,:) = sstruc(:,:)
       ! Normalise overlap matrix before square root:
       ! Use CVBDET for normalized structure coefficients:
-      call fmove_cvb(cvb,cvbdet,nvb)
+      cvbdet(1:nvb) = cvb(1:nvb)
       do k=1,nvb
         fac = sqrt(sstruc2(k,k))
         cvbdet(k) = fac*cvbdet(k)
-        fac = One/fac
-        call dscal_(nvb,fac,sstruc2(1,k),1)
-        call dscal_(nvb,fac,sstruc2(k,1),nvb)
+        sstruc2(:,k) = sstruc2(:,k)/fac
+        sstruc2(k,:) = sstruc2(k,:)/fac
         sstruc2(k,k) = One
       end do
 
@@ -213,7 +212,7 @@ if ((.not. variat) .or. endvar) then
         rsum = rsum+dvbdet(k)
       end do
       write(u6,formVBWnorm) ' VB spin+space (norm ',rsum,') :'
-      call dscal_(nvb,One/rsum,dvbdet,1)
+      dvbdet(1:nvb) = dvbdet(1:nvb)/rsum
       call vecprint_cvb(dvbdet,nvb)
     end if
   end if
@@ -248,7 +247,7 @@ if ((.not. variat) .or. endvar) then
       call transp_cvb(orbs,owrk2,norb,norb)
       call gaussj_cvb(owrk2,gjorb2)
       do k=1,nvb
-        call fzero(sstruc2(1,k),nvb)
+        sstruc2(:,k) = Zero
         sstruc2(k,k) = One
         call str2vbc_cvb(sstruc2(1,k),dvbdet)
         call vb2cif_cvb(dvbdet,civb2)
@@ -279,7 +278,7 @@ if ((.not. variat) .or. endvar) then
     end if
   end if
 
-  call dscal_(nvb,cnrm,cvb,1)
+  cvb(1:nvb) = cnrm*cvb(1:nvb)
 
   if ((ipr(5) >= 1) .and. (nirrep > 1)) then
     write(u6,'(/,a)') ' Symmetry contributions to total VB wavefunction :'
@@ -324,6 +323,7 @@ if ((.not. variat) .or. endvar) then
     do i=1,norb
       occ_nel = occ_nel+occ(i)
     end do
+    occ_nel = sum(occ(:))
     if (abs(occ_nel-real(nel,kind=wp)) > 0.1_wp) then
       write(u6,*) ' Error, sum of occupation numbers not equal to number of electrons :',occ_nel,nel
       call abend_cvb()

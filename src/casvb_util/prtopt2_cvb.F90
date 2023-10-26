@@ -14,13 +14,14 @@
 
 subroutine prtopt2_cvb(iopt1,ioptim,italter,noptim,iorts,ifxorb,ifxstr,idelstr)
 
+use Index_Functions, only: nTri_Elem
 use casvb_global, only: icrit, ifinish, imethod, ipr, isaddle, kbasis, lfxvb, lzrvb, mxiter, nfxorb, nfxvb, norb, nort, nvb, &
                         nzrvb, projcas, projsym, spinb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iopt1, ioptim, italter, noptim, iorts(2,norb*(norb-1)/2), ifxorb(norb), ifxstr(nvb), idelstr(nvb)
+integer(kind=iwp) :: iopt1, ioptim, italter, noptim, iorts(2,nTri_Elem(norb-1)), ifxorb(norb), ifxstr(nvb), idelstr(nvb)
 integer(kind=iwp) :: i, ifx, ii, io
 character(len=9) :: sbformat
 character(len=3) :: ayn

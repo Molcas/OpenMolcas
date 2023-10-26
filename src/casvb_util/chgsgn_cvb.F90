@@ -14,19 +14,18 @@
 
 subroutine chgsgn_cvb(fx)
 
-use casvb_global, only: cvb, ndetvb, ndetvb_fr, nfrag, nvb, nvb_fr, vbdet
-use Constants, only: One
+use casvb_global, only: cvb, ndetvb_fr, nfrag, nvb, nvb_fr, vbdet
 use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: fx
 
 if (nfrag <= 1) then
-  call dscal_(nvb,-One,cvb,1)
-  call dscal_(ndetvb,-One,vbdet,1)
+  cvb(1:nvb) = -cvb(1:nvb)
+  vbdet(:) = -vbdet(:)
 else
-  call dscal_(nvb_fr(1),-One,cvb,1)
-  call dscal_(ndetvb_fr(1),-One,vbdet,1)
+  cvb(1:nvb_fr(1)) = -cvb(1:nvb_fr(1))
+  vbdet(1:ndetvb_fr(1)) = -vbdet(1:ndetvb_fr(1))
 end if
 call touch_cvb('CVB')
 call fx_cvb(fx,.false.)

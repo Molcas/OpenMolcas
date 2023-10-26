@@ -73,7 +73,7 @@ do
         write(u6,*) ' Insufficient memory for configuration read',mavaili,mxconf,nconf
         call abend_cvb()
       end if
-      call izero(confsinp(:,nconf),noe)
+      confsinp(:,nconf) = 0
       call int_cvb(confsinp(:,nconf),noe,nread,1)
       call fstring_cvb('CON',1,istr2,3,2)
       if (istr2 == 0) exit

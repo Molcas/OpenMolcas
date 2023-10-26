@@ -49,7 +49,7 @@ do ijrel=1,nijrel
   iorb = abs(iorbrel(1+ishift))
   jorb = abs(iorbrel(2+ishift))
   if (iorb /= jorb) then
-    call izero(iorbs,norb)
+    iorbs(:) = 0
     iorbs(iorb) = 1
     iorbs(jorb) = 1
     ishift2 = 0
@@ -91,7 +91,7 @@ call mma_allocate(vi,norb,norb,label='vi')
 
 ! Diagonal orbital relations:
 nciorth = 0
-call izero(north,norb)
+north(:) = 0
 do iorb=1,norb
   ! Orbital conditions on IORB:
   call span0_cvb(norb,norb)
@@ -101,11 +101,11 @@ do iorb=1,norb
     jor = iorbrel(2+ishift)
     nrel = iorbrel(3+ishift)
     if ((iorb == iior) .and. (iorb == jor)) then
-      call mxunit_cvb(b,norb)
+      call unitmat(b,norb)
       do ir=nrel,1,-1
         irel = iorbrel(ir+3+ishift)
-        call mxatb_cvb(symelm(1,1,irel),b,norb,norb,norb,a)
-        call fmove_cvb(a,b,norb*norb)
+        call mxatb_cvb(symelm(:,:,irel),b,norb,norb,norb,a)
+        b(:,:) = a(:,:)
       end do
       ! Everything that hasn't got eigenvalue +1 will be orthogonalised away
       ! Unsymmetric diagonalisation:
@@ -117,7 +117,7 @@ do iorb=1,norb
       end if
       do ieig=1,norb
         if ((abs(rr(ieig)-One) > thresh) .or. (abs(ri(ieig)) > thresh)) then
-          call addvec(vr(1,ieig),vr(1,ieig),vi(1,ieig),norb)
+          vr(:,ieig) = vr(:,ieig)+vi(:,ieig)
           call span1_cvb(vr(1,ieig),1,dum,norb,0)
         end if
       end do
@@ -139,8 +139,8 @@ call mma_allocate(io,4,norbrel,label='io')
 call mma_allocate(iorder,norb,norbrel,label='iorder')
 
 ! Off-diagonal relations:
-call izero(io,2*norbrel)
-call izero(iorder,norb*norbrel)
+io(:,:) = 0
+iorder(:,:) = 0
 ijrel = 0
 ishift = 0
 do i=1,norbrel
@@ -212,7 +212,7 @@ do
           iorder(2,jj) = jorb
         end if
         iorder(3,jj) = iorder(2,jj)
-        call imove_cvb(iorder(3,ii),iorder(4,jj),norb-3)
+        iorder(4:,jj) = iorder(3:norb-1,ii)
         ! KORB will be generated from IORB (via JORB):
         iorder(2,jj) = iorder(2,ii)
       end do loop3
@@ -222,12 +222,9 @@ do
   if (i > norb) exit
 end do
 ! Generate transformation matrix for each relation:
-do i=1,nijrel
-  irels(1,i) = iorder(1,i)
-  irels(2,i) = iorder(2,i)
-end do
+irels(1:2,1:nijrel) = iorder(1:2,1:nijrel)
 do ijrel=1,nijrel
-  call mxunit_cvb(relorb(1,1,ijrel),norb)
+  call unitmat(relorb(:,:,ijrel),norb)
   do i=1,norb-1
     il = norb+2-i
     if (i == 1) il = 2
@@ -251,11 +248,11 @@ do ijrel=1,nijrel
         do ir=nrel,1,-1
           irel = iorbrel(ir+iaddr)
           if (jorb == io(1,ii)) then
-            call mxatb_cvb(symelm(1,1,irel),relorb(1,1,ijrel),norb,norb,norb,a)
+            call mxatb_cvb(symelm(:,:,irel),relorb(:,:,ijrel),norb,norb,norb,a)
           else
-            call mxattb_cvb(symelm(1,1,irel),relorb(1,1,ijrel),norb,norb,norb,a)
+            call mxattb_cvb(symelm(:,:,irel),relorb(:,:,ijrel),norb,norb,norb,a)
           end if
-          call fmove_cvb(a,relorb(1,1,ijrel),norb*norb)
+          relorb(:,:,ijrel) = a(:,:)
         end do
       end if
     end do

@@ -43,7 +43,7 @@ else if (projcas) then
   else
     call cird_cvb(civbh,61001.2_wp)
   end if
-  call fmove_cvb(orbs,orbinv,norb*norb)
+  orbinv(:,:) = orbs(:,:)
   call mxinv_cvb(orbinv,norb)
   call gaussj_cvb(orbinv,gjorb)
   call applyt_cvb(civbh,gjorb)

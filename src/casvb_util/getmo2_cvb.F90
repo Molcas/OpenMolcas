@@ -16,6 +16,7 @@ subroutine getmo2_cvb(cmo,cmo2,ic)
 
 use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nsym_mo
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -27,10 +28,11 @@ real(kind=wp), allocatable :: cmoblk(:)
 ! Construct full matrix of MOs in symmetry-adapted AO basis:
 call mma_allocate(cmoblk,nbasisq_mo,label='cmoblk')
 call getmoblk_cvb(cmoblk)
-call fzero(cmo,nbas_mo*nbas_mo)
+cmo(:,:) = Zero
 do isk=1,nsym_mo
   do jbas=1,nbasi_mo(isk)
-    call fmove_cvb(cmoblk(1+nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)),cmo(nbasf_mo(isk)+1,jbas+nbasf_mo(isk)),nbasi_mo(isk))
+    cmo(nbasf_mo(isk)+1:nbasf_mo(isk)+nbasi_mo(isk),jbas+nbasf_mo(isk)) = &
+      cmoblk(nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)+1:nbassqf_mo(isk)+jbas*nbasi_mo(isk))
   end do
 end do
 call mma_deallocate(cmoblk)
@@ -42,7 +44,7 @@ end if
 
 if (ic >= 2) then
   do iorb=1,nact_mo
-    call fmove_cvb(cmo(1,iact_mo(iorb)),cmo2(1,iorb),nbas_mo)
+    cmo2(:,iorb) = cmo(:,iact_mo(iorb))
   end do
 end if
 

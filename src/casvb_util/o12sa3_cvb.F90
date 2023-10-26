@@ -16,6 +16,7 @@ subroutine o12sa3_cvb(vec,cvb,orbs,civec,civecp,civb,cvbdet,nparm1)
 
 use casvb_global, only: ndet, ndetvb, norb, nprorb, nvb, strucopt
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -34,7 +35,7 @@ call makecivecp_cvb(civec,civecp,orbs)
 call ci2vbg_cvb(civecp,cvbdet)
 call mma_allocate(vec_all,nparm1,label='vec_all')
 call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
-call fzero(vec_all,nprorb)
+vec_all(1:nprorb) = Zero
 call onedens_cvb(civb,civecp,vec_all,.false.,0)
 ! If no optimization of structure coefficients we are doing "Augmented" calc:
 if (strucopt) then
@@ -43,7 +44,7 @@ else
   ic1 = 2
 end if
 call all2free_cvb(vec_all,vec(ic1),1)
-if (.not. strucopt) vec(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+if (.not. strucopt) vec(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1:),1)
 call mma_deallocate(vec_all)
 call ddrhs_cvb(vec,nparm1,0)
 

@@ -42,13 +42,9 @@ if (ndep_ij > mxdep) then
   write(u6,*) ' Too many make dependencies, max :',mxdep
   call abend_cvb()
 end if
-do i=ioffs(nobj+1),ioffs(iobj+1)+1,-1
-  i_dep_on_j(i+1) = i_dep_on_j(i)
-end do
+i_dep_on_j(ioffs(iobj+1)+2:ioffs(nobj+1)+1) = i_dep_on_j(ioffs(iobj+1)+1:ioffs(nobj+1))
 i_dep_on_j(ioffs(iobj+1)+1) = jobj
-do i=iobj+1,nobj+1
-  ioffs(i) = ioffs(i)+1
-end do
+ioffs(iobj+1:nobj+1) = ioffs(iobj+1:nobj+1)+1
 
 return
 

@@ -14,6 +14,7 @@
 
 subroutine scorr_cvb(cvbdet,dvbdet,evbdet)
 
+use Index_Functions, only: nTri_Elem
 use casvb_global, only: formAD, formAF, nalf, nbet, ndetvb, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -44,7 +45,7 @@ phase = (-One)**abs(nalf-nbet)
 snorm = phase/snorm
 ssnorm = phase/ssnorm
 !! DLC
-call fzero(ssq,norb*norb)
+ssq(:,:) = Zero
 tot = Zero
 stot = Zero
 do mu=1,norb
@@ -55,7 +56,7 @@ do mu=1,norb
     end do
     iperm(mu) = nu
     iperm(nu) = mu
-    call fmove_cvb(cvbdet,wvbdet,ndetvb)
+    wvbdet(:) = cvbdet(:)
     call permvb_cvb(wvbdet,iperm)
     rsum = One-ddot_(ndetvb,wvbdet,1,dvbdet,1)*snorm
     ssum = One-ddot_(ndetvb,wvbdet,1,evbdet,1)*ssnorm
@@ -66,8 +67,8 @@ do mu=1,norb
   end do
 end do
 call mxprint_cvb(ssq,norb,norb,0)
-tot = tot+0.75_wp*real(norb-2*norb*(norb-1)/2,kind=wp)
-stot = stot+0.75_wp*real(norb-2*norb*(norb-1)/2,kind=wp)
+tot = tot+0.75_wp*real(norb-2*nTri_Elem(norb-1),kind=wp)
+stot = stot+0.75_wp*real(norb-2*nTri_Elem(norb-1),kind=wp)
 scheck = Half*real(abs(nalf-nbet),kind=wp)*(Half*real(abs(nalf-nbet),kind=wp)+One)
 if ((abs(tot-scheck) > cut) .or. (abs(stot-scheck) > cut)) write(u6,formAD) 'WARNING: spins ',stot,tot,scheck
 

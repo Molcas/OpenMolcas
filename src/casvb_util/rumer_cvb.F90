@@ -14,8 +14,9 @@
 
 subroutine rumer_cvb(bikcof,nel,nalf,nbet,ndet,ifns,kbasis,iprint,nswpdim)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -28,7 +29,7 @@ integer(kind=iwp), allocatable :: ialfs(:), ibets(:), ioccswp(:,:), iw(:), locca
 integer(kind=iwp), external :: indget_cvb
 real(kind=wp), external :: party_cvb
 
-call fzero(bikcof,ifns*ndet)
+bikcof(:,:) = Zero
 
 call mma_allocate(xdet,[0,nel],[0,nalf],label='xdet')
 
@@ -42,7 +43,7 @@ end if
 ! Rumer spin functions
 
 if ((iprint >= 2) .and. ((kbasis == 3) .or. (kbasis == 4))) write(u6,6100) 2**nbet
-abphase = real(1-2*mod(nbet*(nbet-1)/2,2),kind=wp)
+abphase = real(1-2*mod(nTri_Elem(nbet-1),2),kind=wp)
 
 call mma_allocate(minswp,[0,2*nbet],label='minswp')
 call mma_allocate(maxswp,[0,2*nbet],label='maxswp')
@@ -50,12 +51,12 @@ call mma_allocate(nkswp,[0,2*nbet],label='nkswp')
 call mma_allocate(ioccswp,nbet,nswpdim,label='ioccswp')
 
 ! Prepare NKs for a<->b interchanges in (ab-ba) terms:
-nbet2 = nbet+nbet
+nbet2 = 2*nbet
 do iorb=0,nbet2
   minswp(iorb) = iorb/2
   maxswp(iorb) = (iorb+1)/2
 end do
-call imove_cvb(maxswp,nkswp,nbet2+1)
+nkswp(:) = maxswp(:)
 iswp = 0
 do
   iswp = iswp+1
@@ -86,7 +87,7 @@ if ((ifns /= xspin((nel+1)*(nbet+1))) .and. (kbasis /= 6)) then
   write(u6,*) ' Discrepancy in IFNS:',ifns,xspin((nel+1)*(nbet+1))
   call abend_cvb()
 end if
-call imove_cvb(maxspn,nkspn,nel+1)
+nkspn(:) = maxspn(:)
 call occupy_cvb(nkspn,nel,locca,lnocca)
 
 call mma_allocate(iw,nel,label='iw')
@@ -128,7 +129,7 @@ do while ((kbasis /= 6) .or. (indx <= ifns))
   end if
 
   do iswp=1,nswpdim
-    call izero(iw,nel)
+    iw(:) = 0
     do ia=1,nalf
       iw(ialfs(ia)) = 1
     end do
@@ -159,7 +160,7 @@ call mma_deallocate(ibets)
 
 ! Normalise
 scl = One/sqrt(real(2**nbet,kind=wp))
-call dscal_(ndet*ifns,scl,bikcof,1)
+bikcof(:,:) = scl*bikcof(:,:)
 
 return
 

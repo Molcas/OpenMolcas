@@ -51,19 +51,16 @@ do isyml=1,isymmx
     cnrm = ddot_(nci,cim,1,cim,1)
     ! If anything there, apply Hamiltonian to vector of this symmetry:
     if (cnrm > thr2) call sigmadet_cvb(cim,cim2,isyml,nci)
-    if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,cim,1,cim2,1)
+    if (c_daxpy /= Zero) cim2(:) = cim2(:)+c_daxpy*cim(:)
     call mol2vb_cvb(civec(1:),cim2,isyml)
     call mma_deallocate(cim2)
   else
-    call fzero(civec(1:),nci)
+    civec(1:nci) = Zero
     cnrm = ddot_(nci,cim,1,cim,1)
     ! If anything there, apply Hamiltonian to vector of this symmetry:
-    if (cnrm > thr2) then
-      call fzero(civec(1:),nci)
-      call sigmadet_cvb(cim,civec(1:),isyml,nci)
-    end if
-    if (c_daxpy /= Zero) call daxpy_(nci,c_daxpy,cim,1,civec(1:),1)
-    call fmove_cvb(civec(1:),cim,nci)
+    if (cnrm > thr2) call sigmadet_cvb(cim,civec(1:),isyml,nci)
+    if (c_daxpy /= Zero) civec(1:nci) = civec(1:nci)+c_daxpy*cim(:)
+    cim(:) = civec(1:nci)
     call mol2vb_cvb(civec(1:),cim,isyml)
   end if
   call mma_deallocate(cim)

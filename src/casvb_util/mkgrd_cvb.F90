@@ -16,6 +16,7 @@ subroutine mkgrd_cvb(civb,civb2,grad,dvbdet,np,doorb)
 
 use casvb_global, only: ndet, ndetvb, npr, nprorb, nvb, strucopt, vbdet
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,7 +25,7 @@ integer(kind=iwp) :: np
 logical(kind=iwp) :: doorb
 real(kind=wp), allocatable :: tmp(:)
 
-call fzero(grad,nprorb)
+grad(1:nprorb) = Zero
 if (doorb) call onedens_cvb(civb,civb2,grad,.false.,1)
 if (strucopt) then
   call ci2vbg_cvb(civb2,dvbdet)
@@ -33,7 +34,7 @@ if (strucopt) then
   else if (np-nprorb < nvb) then
     call mma_allocate(tmp,nvb,label='tmp')
     call vb2strg_cvb(dvbdet,tmp)
-    call fmove_cvb(tmp,vbdet,np-nprorb)
+    vbdet(1:np-nprorb) = tmp(1:np-nprorb)
     call mma_deallocate(tmp)
   else
     write(u6,*) ' Error in mkgrd - np-nprorb > nvb :',np,nprorb,nvb

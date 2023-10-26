@@ -30,7 +30,7 @@ call mma_allocate(ipair,mxorb_cvb,mxorb_cvb,label='ipair')
 call mma_allocate(igroups,mxorb_cvb,mxgroup,label='igroups')
 call mma_allocate(ngroup,mxgroup,label='ngroup')
 
-call izero(ipair,mxorb_cvb*mxorb_cvb)
+ipair(:,:) = 0
 ngrp = 0
 do
   call fstring_cvb(string,nstrin,istr,ncmp,2)
@@ -159,15 +159,13 @@ do
   else if (istr == 5) then
     ! 'FULL'
     do i=1,mxorb_cvb
-      do j=i+1,mxorb_cvb
-        ipair(i,j) = 1
-      end do
+      ipair(i,i+1:) = 1
     end do
   end if
   ! 'END' , 'ENDORTHC' or unrecognized keyword -- end of ORTHCON input:
   if ((istr == 6) .or. (istr == 7) .or. (istr == 0)) exit
 end do
-call izero(ipairs,2*mxpair)
+ipairs(:,:) = 0
 nort = 0
 do i=1,mxorb_cvb
   do j=i+1,mxorb_cvb

@@ -16,6 +16,7 @@ subroutine gsinp_cvb(orbs,irdorbs,nvbinp,kbasiscvb_inp,mxaobf,mxorb,kbasis,strtv
 
 use casvb_global, only: gsinp
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -47,7 +48,7 @@ do
       call abend_cvb()
     end if
     irdorbs(iorb) = mouse
-    call fzero(orbs(1,iorb),mxaobf)
+    orbs(:,iorb) = Zero
     call real_cvb(orbs(1,iorb),mxaobf,nread,0)
   else if (istr == 2) then
     ! 'STRUC'

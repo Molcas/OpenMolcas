@@ -22,15 +22,13 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: iorts(2,nort), irots(2,ndrot), nc, npr1, norbprm, nrem
 real(kind=wp) :: trprm(npr1,npr1), sorbs(norb,norb)
-integer(kind=iwp) :: i, iorb, iort, irot, jorb, ki, kj, korb
+integer(kind=iwp) :: iorb, iort, irot, jorb, ki, kj, korb
 real(kind=wp) :: dum(1)
 real(kind=wp), allocatable :: tmp(:,:)
 
 call mma_allocate(tmp,norbprm,max(nc+nort+ndrot,norbprm),label='tmp')
 tmp(:,:) = Zero
-do i=1,nc
-  call fmove_cvb(trprm(1,i),tmp(1,i),norbprm)
-end do
+tmp(:,1:nc) = trprm(1:norbprm,1:nc)
 do iort=1,nort
   iorb = iorts(1,iort)
   jorb = iorts(2,iort)
@@ -58,10 +56,8 @@ end do
 call span_cvb(tmp,nc+nort+ndrot,nrem,dum,norbprm,0)
 call compl_cvb(tmp,nrem,norbprm)
 
-call fzero(trprm,npr1*npr1)
-do i=1,norbprm
-  call fmove_cvb(tmp(1,i),trprm(1,i),norbprm)
-end do
+trprm(:,:) = Zero
+trprm(1:norbprm,1:norbprm) = tmp(1:norbprm,1:norbprm)
 
 call mma_deallocate(tmp)
 

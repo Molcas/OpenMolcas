@@ -28,7 +28,7 @@ call mma_allocate(tmp,n,label='tmp')
 do i=1,n
   tmp(i) = arrin(indx(i))
 end do
-call imove_cvb(tmp,arrin,n)
+arrin(:) = tmp(:)
 call mma_deallocate(indx)
 call mma_deallocate(tmp)
 

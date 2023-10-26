@@ -37,8 +37,8 @@ jmx = 0
 nij = n*n
 do i=1,n
   irows(i) = i
-  ibook(i) = 0
 end do
+ibook(:) = 0
 done = .false.
 do imain=1,n
   amx = Zero
@@ -82,16 +82,12 @@ do imain=1,n
   nij = nij-1
   oneovamx = One/a(jmx,jmx)
   a(jmx,jmx) = One
-  do ii=1,n
-    a(jmx,ii) = oneovamx*a(jmx,ii)
-  end do
+  a(jmx,:) = oneovamx*a(jmx,:)
   do ii2=1,n
     if (ii2 /= jmx) then
       dum = a(ii2,jmx)
       a(ii2,jmx) = Zero
-      do ii=1,n
-        a(ii2,ii) = a(ii2,ii)-dum*a(jmx,ii)
-      end do
+      a(ii2,:) = a(ii2,:)-dum*a(jmx,:)
       ijs(1,nij) = irows(ii2)
       ijs(2,nij) = irows(jmx)
       oijs(nij) = dum

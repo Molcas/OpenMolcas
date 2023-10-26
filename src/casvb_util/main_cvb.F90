@@ -18,7 +18,6 @@ use casvb_global, only: casvb_free, endvar, ifinish, ioptc_new, ipr, nmcscf, nor
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: i
 logical(kind=iwp), external :: loopcntr_iterate_cvb, up2date_cvb ! ... Make: up to date? ...
 
 if (service) return
@@ -40,9 +39,7 @@ do while (loopcntr_iterate_cvb())
 
   if (variat .and. (.not. endvar) .and. (ipr(6) < 2)) then
     ! Reduce output level for main variational iterations:
-    do i=1,10
-      ipr(i) = -1
-    end do
+    ipr(:) = -1
   end if
 
   if (endvar .and. (.not. up2date_cvb('PRTSUM'))) then

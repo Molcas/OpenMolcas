@@ -41,11 +41,8 @@ if (iamax > iform) then
   write(u6,*) ' Integer too large in int2char_cvb:',intx,iform
   call abend_cvb()
 end if
-ia = 0
-do i=1,iform-iamax
-  ia = ia+1
-  a(ia:ia) = blnk
-end do
+a(1:iform-iamax) = ''
+ia = iform-iamax
 if (intx < 0) then
   ia = ia+1
   a(ia:ia) = minus

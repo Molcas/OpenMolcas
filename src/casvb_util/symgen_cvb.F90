@@ -33,13 +33,13 @@ call mma_allocate(lunocc,norb+1,label='lunocc')
 ! Alpha loop:
 call mma_allocate(ialfsym,nda1,label='ialfsym')
 call mma_allocate(xalf,[0,norb],[0,nalf1],label='xalf')
-call izero(irpalf,mxirrep)
+irpalf(:) = 0
 do iorb=0,norb
   mingrph(iorb) = max(iorb-norb+nalf1,0)
   maxgrph(iorb) = min(iorb,nalf1)
 end do
 call weight_cvb(xalf,mingrph,maxgrph,nalf1,norb)
-call imove_cvb(maxgrph,nk,norb+1)
+nk(:) = maxgrph(:)
 call occupy_cvb(nk,norb,locc,lunocc)
 indx = 1
 do
@@ -56,7 +56,7 @@ iasyind(0) = 0
 do irp=1,mxirrep
   iasyind(irp) = iasyind(irp-1)+irpalf(irp)
 end do
-call izero(icount,mxirrep)
+icount(:) = 0
 do ida=1,nda1
   irrep = ialfsym(ida)
   icount(irrep) = icount(irrep)+1
@@ -68,13 +68,13 @@ call mma_deallocate(xalf)
 ! Beta loop:
 call mma_allocate(ibetsym,ndb1,label='ibetsym')
 call mma_allocate(xbet,[0,norb],[0,nbet1],label='xbet')
-call izero(irpbet,mxirrep)
+irpbet(:) = 0
 do iorb=0,norb
   mingrph(iorb) = max(iorb-norb+nbet1,0)
   maxgrph(iorb) = min(iorb,nbet1)
 end do
 call weight_cvb(xbet,mingrph,maxgrph,nbet1,norb)
-call imove_cvb(maxgrph,nk,norb+1)
+nk(:) = maxgrph(:)
 call occupy_cvb(nk,norb,locc,lunocc)
 indx = 1
 do
@@ -91,7 +91,7 @@ ibsyind(0) = 0
 do irp=1,mxirrep
   ibsyind(irp) = ibsyind(irp-1)+irpbet(irp)
 end do
-call izero(icount,mxirrep)
+icount(:) = 0
 do idb=1,ndb1
   irrep = ibetsym(idb)
   icount(irrep) = icount(irrep)+1

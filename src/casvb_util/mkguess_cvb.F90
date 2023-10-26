@@ -32,20 +32,18 @@ logical(kind=iwp), external :: tstfile_cvb, & ! ... Files/Hamiltonian available 
 
 call mma_allocate(orbsao,nbas_mo,norb,label='orbsao')
 call mma_allocate(irdorbs,norb,label='irdorbs')
-call izero(irdorbs,norb)
+irdorbs(:) = 0
 ! -- transfer from orbs if applicable -
 ! (Newly assigned memory => orbs will be zero)
 do iorb=1,norb
-  if (dnrm2_(norb,orbs(1,iorb),1) > thresh) then
+  if (dnrm2_(norb,orbs(:,iorb),1) > thresh) then
     irdorbs(iorb) = 1
-    call fmove_cvb(orbs(1,iorb),orbsao(1,iorb),norb)
+    orbsao(1:norb,iorb) = orbs(:,iorb)
   end if
 end do
 ! -- restore from previous optim --
 if (.not. up2date_cvb('RESTGS')) then
-  if (up2date_cvb('WRITEGS')) then
-    call mkrestgs_cvb(orbsao,irdorbs,cvb,cvbdet,iapr,ixapr)
-  end if
+  if (up2date_cvb('WRITEGS')) call mkrestgs_cvb(orbsao,irdorbs,cvb,cvbdet,iapr,ixapr)
   call untouch_cvb('RESTGS')
 end if
 ! -- read from file --
@@ -81,7 +79,7 @@ if (.not. up2date_cvb('INPGS')) then
     call rdioff_cvb(3,recinp,ioffs)
     call rdis_cvb(idum,1,recinp,ioffs)
     kbasiscvb = idum(1)
-    call fmove_cvb(tmp,cvb,nvbinp)
+    cvb(1:nvbinp) = tmp(:)
   end if
   call mma_deallocate(tmp)
 
@@ -110,10 +108,10 @@ end do
 norb_ao = 0
 do iorb=1,norb
   if (irdorbs(iorb) == 1) then
-    call fmove_cvb(orbsao(1,iorb),orbs(1,iorb),norb)
+    orbs(:,iorb) = orbsao(1:norb,iorb)
   else if (irdorbs(iorb) == 2) then
     norb_ao = norb_ao+1
-    if (norb_ao /= iorb) call fmove_cvb(orbsao(1,iorb),orbsao(1,norb_ao),nbas_mo)
+    if (norb_ao /= iorb) orbsao(:,norb_ao) = orbsao(:,iorb)
   end if
 end do
 call mma_allocate(tmp2,norb,norb_ao,label='tmp2')
@@ -122,7 +120,7 @@ iorb_ao = 0
 do iorb=1,norb
   if (irdorbs(iorb) == 2) then
     iorb_ao = iorb_ao+1
-    call fmove_cvb(tmp2(1,iorb_ao),orbs(1,iorb),norb)
+    orbs(:,iorb) = tmp2(:,iorb_ao)
   end if
 end do
 call mma_deallocate(tmp2)

@@ -15,10 +15,9 @@
 subroutine casinfoset_cvb()
 
 use casvb_global, only: iorclos_c, iorclos_d, iorcore_c, iorcore_d, iorocc_c, iorocc_d, istms2_c, istms2_d, istnel_c, istnel_d, &
-                        istsy_c, istsy_d, isym, isymv, ityp, mcore_c, mcore_d, mxirrep, mxorb_cvb, mxstsy_ci, mxstt_ci, nalf, &
-                        nbet, nel, nirrep, noe, norb, nstats_c, nstats_d, nstsym_c, nstsym_d, nsym, strtci, strtint, strtmo, &
-                        weight_c, weight_d
-use Constants, only: Zero, One, Half
+                        istsy_c, istsy_d, isym, isymv, ityp, mcore_c, mcore_d, mxirrep, mxstsy_ci, nalf, nbet, nel, nirrep, noe, &
+                        norb, nstats_c, nstats_d, nstsym_c, nstsym_d, nsym, strtci, strtint, strtmo, weight_c, weight_d
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -64,9 +63,10 @@ if (debug) then
 end if
 hadinput = .false.
 do i=1,mxstsy_ci
-  if (iorocc_d(i) /= -1) hadinput = .true.
-  if (iorclos_d(i) /= -1) hadinput = .true.
-  if (iorcore_d(i) /= -1) hadinput = .true.
+  if ((iorocc_d(i) /= -1) .or. (iorclos_d(i) /= -1) .or. (iorcore_d(i) /= -1)) then
+    hadinput = .true.
+    exit
+  end if
 end do
 if (hadinput) then
   do i=1,mxstsy_ci
@@ -75,28 +75,26 @@ if (hadinput) then
     if (iorcore_d(i) == -1) iorcore_d(i) = 0
   end do
 else
-  call imove_cvb(iorcore_c,iorcore_d,mxstsy_ci)
-  call imove_cvb(iorclos_c,iorclos_d,mxstsy_ci)
-  call imove_cvb(iorocc_c,iorocc_d,mxstsy_ci)
+  iorcore_d(:) = iorcore_c(:)
+  iorclos_d(:) = iorclos_c(:)
+  iorocc_d(:) = iorocc_c(:)
 end if
 
 mcore_d = 0
-!  Ensure no negative number of orbitals:
-do i=1,mxirrep
-  iorclos_d(i) = iorclos_d(i)+iorcore_d(i)
-  iorocc_d(i) = iorocc_d(i)+iorclos_d(i)
-  mcore_d = mcore_d+iorclos_d(i)
-end do
+! Ensure no negative number of orbitals:
+iorclos_d(:) = iorclos_d(:)+iorcore_d(:)
+iorocc_d(:) = iorocc_d(:)+iorclos_d(:)
+mcore_d = sum(iorclos_d(:))
 
 if (nstsym_d == 0) then
   nstsym_d = nstsym_c
-  call imove_cvb(nstats_c,nstats_d,mxstsy_ci)
-  call imove_cvb(istnel_c,istnel_d,mxstsy_ci)
-  call imove_cvb(istsy_c,istsy_d,mxstsy_ci)
-  call imove_cvb(istms2_c,istms2_d,mxstsy_ci)
-  call fmove_cvb(weight_c,weight_d,mxstt_ci*mxstsy_ci)
+  nstats_d(:) = nstats_c(:)
+  istnel_d(:) = istnel_c(:)
+  istsy_d(:) = istsy_c(:)
+  istms2_d(:) = istms2_c(:)
+  weight_d(:,:) = weight_c(:,:)
   if (mcore_d /= mcore_c) then
-!  Different number of core orbitals input -> assume NELTOT the same:
+    ! Different number of core orbitals input -> assume NELTOT the same:
     do i=1,mxstsy_ci
       if (istnel_d(i) /= 0) istnel_d(i) = istnel_d(i)+2*(mcore_c-mcore_d)
     end do
@@ -112,7 +110,7 @@ strtint = strtint_d
 strtmo = strtmo_d
 strtci = strtci_d
 
-!  Set active space information
+! Set active space information
 rsum = Zero
 do i=1,nstsym_d
   do j=1,nstats_d(i)
@@ -123,11 +121,10 @@ do i=1,nstsym_d
     rsum = rsum+weight_d(j,i)
   end do
 end do
-rsum = One/rsum
-call dscal_(mxstt_ci*mxstsy_ci,rsum,weight_d,1)
+weight_d(:,:) = weight_d(:,:)/rsum
 nel_d = -1
 i2s_d = -1
-call izero(isymv,mxirrep)
+isymv(:) = 0
 do i=1,nstsym_d
   do j=1,nstats_d(i)
     if (weight_d(j,i) > 1.0e-20_wp) then
@@ -155,7 +152,7 @@ end do
 nel = nel_d
 isym = isym_d
 
-call izero(ityp,mxorb_cvb)
+ityp(:) = 0
 mcore = 0
 norb = 0
 incr = 0
@@ -163,12 +160,10 @@ do i=1,mxirrep
   ioc = iorocc_d(i)-iorclos_d(i)
   norb = norb+ioc
   mcore = mcore+iorclos_d(i)
-  do j=1,ioc
-    ityp(j+incr) = i
-  end do
+  ityp(incr+1:incr+ioc) = i
   incr = incr+ioc
 end do
-!  Set NIRREP:
+! Set NIRREP:
 nirrep = 1
 do irrep=1,mxirrep
   if ((iorcore_d(irrep) > 0) .or. (iorclos_d(irrep) > 0) .or. (iorocc_d(irrep) > 0)) nirrep = irrep
@@ -190,8 +185,8 @@ if (isym == 0) then
   write(u6,*) ' WARNING: State symmetry not found - assuming A1.'
   isym = 1
   nsym = 1
-  call izero(isymv,mxirrep)
   isymv(1) = 1
+  isymv(2:) = 0
 end if
 
 return

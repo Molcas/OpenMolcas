@@ -31,7 +31,7 @@ call mma_allocate(owrk,norb,norb,label='owrk')
 call mma_allocate(owrk2,norb,norb,label='owrk2')
 
 if (nzeta > 0) then
-  call fmove_cvb(orbs,orbinv,norb*norb)
+  orbinv(:,:) = orbs(:,:)
   call mxinv_cvb(orbinv,norb)
 end if
 
@@ -40,7 +40,7 @@ do isyme=1,nsyme
   if (izeta(isyme) /= 0) then
     izeta1 = izeta1+1
     ! Determine orbital permutation for sym. operation ISYME:
-    call mxatb_cvb(symelm(1,isyme),orbs,norb,norb,norb,owrk2)
+    call mxatb_cvb(symelm(:,isyme),orbs,norb,norb,norb,owrk2)
     call mxatb_cvb(orbinv,owrk2,norb,norb,norb,owrk)
     do iorb=1,norb
       do jorb=1,norb

@@ -32,13 +32,13 @@ integer(kind=iwp), parameter :: mxstack = 100
 real(kind=wp), external :: ddot_
 
 if (ic == 0) then
-  call fzero(cvbdet,ndetvb)
+  cvbdet(:) = Zero
 else if ((ic == 1) .or. (ic == 4)) then
-  call fzero(civec,nda*ndb)
+  civec(:,:) = Zero
 else if (ic == 3) then
   ret = Zero
 else if (ic == 5) then
-  call fzero(evbdet,ndetvb)
+  evbdet(:) = Zero
 end if
 
 call mma_allocate(nc_facalf,nfrag,label='nc_facalf')
@@ -265,11 +265,11 @@ call mma_deallocate(ixbpr_off)
 if ((ic == 0) .and. (ic1 == 0)) then
   ! "Normalize" the coefficients for each fragment:
   fac = One/sqrt(cinrm**(One/real(nfrag,kind=wp)))
-  ndetvb_add = 1
+  ndetvb_add = 0
   do ifr=1,nfrag
-    cnrm = ddot_(ndetvb_fr(ifr),cvbdet(ndetvb_add),1,cvbdet(ndetvb_add),1)
+    cnrm = ddot_(ndetvb_fr(ifr),cvbdet(ndetvb_add+1),1,cvbdet(ndetvb_add+1),1)
     fac1 = fac*cnrm
-    call dscal_(ndetvb_fr(ifr),fac1*sqrt(cnrm),cvbdet(ndetvb_add),1)
+    cvbdet(ndetvb_add+1:ndetvb_add+ndetvb_fr(ifr)) = fac1*sqrt(cnrm)*cvbdet(ndetvb_add+1:ndetvb_add+ndetvb_fr(ifr))
     ndetvb_add = ndetvb_add+ndetvb_fr(ifr)
   end do
 end if

@@ -24,11 +24,11 @@ integer(kind=iwp) :: ivec
 
 do ivec=1,nvec
   if (.not. orbfr_is_unit) then
-    call mxatb_cvb(trprm,vecfrom(1,ivec),nprorb,nfrorb,1,vecto(1,ivec))
+    call mxatb_cvb(trprm,vecfrom(:,ivec),nprorb,nfrorb,1,vecto(:,ivec))
   else
-    if (nprorb > 0) call fmove_cvb(vecfrom(1,ivec),vecto(1,ivec),nprorb)
+    if (nprorb > 0) vecto(1:nprorb,ivec) = vecfrom(1:nprorb,ivec)
   end if
-  if (nprvb > 0) call fmove_cvb(vecfrom(nfrorb+1,ivec),vecto(nprorb+1,ivec),nprvb)
+  if (nprvb > 0) vecto(nprorb+1:nprorb+nprvb,ivec) = vecfrom(nfrorb+1:nfrorb+nprvb,ivec)
 end do
 
 return

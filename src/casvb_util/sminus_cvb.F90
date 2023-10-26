@@ -52,9 +52,9 @@ call asc2ab_cvb(bikto,nvec,nel,nalfto)
 call icomb_cvb(nel,nalffrom,ndetfrom)
 call icomb_cvb(nel,nalfto,ndetto)
 do ivec=1,nvec
-  cnrmfrom = dnrm2_(ndetfrom,bikfrom(1+(ivec-1)*ndetfrom),1)
-  cnrmto = dnrm2_(ndetto,bikto(1+(ivec-1)*ndetto),1)
-  if (cnrmto > 1.0e-10_wp) call dscal_(ndetto,cnrmfrom/cnrmto,bikto(1+(ivec-1)*ndetto),1)
+  cnrmfrom = dnrm2_(ndetfrom,bikfrom((ivec-1)*ndetfrom+1:ivec*ndetfrom),1)
+  cnrmto = dnrm2_(ndetto,bikto((ivec-1)*ndetto+1:ivec*ndetto),1)
+  if (cnrmto > 1.0e-10_wp) bikto((ivec-1)*ndetto+1:ivec*ndetto) = cnrmfrom/cnrmto*bikto((ivec-1)*ndetto+1:ivec*ndetto)
 end do
 
 return

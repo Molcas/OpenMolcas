@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: orbs(norb,norb)
-integer(kind=iwp) :: i, icon, ioffs, iok, iorb, iorbmax, iort, iortorb, irel, j, jorb, jorbmax, jortorb, niprev, njprev, nortorb
+integer(kind=iwp) :: icon, ioffs, iok, iorb, iorbmax, iort, iortorb, irel, j, jorb, jorbmax, jortorb, niprev, njprev, nortorb
 real(kind=wp) :: a, b, c, c1, c2, cnrmi, cnrmj, cpm, cpp, d, discrpm, discrpp, dum(1), faci, facj, s, s1, s2, s3, smax, sovr
 integer(kind=iwp), allocatable :: ihlp(:), ihlp2(:), ihlp3(:), iprev(:), jprev(:)
 real(kind=wp), allocatable :: updi(:), updj(:)
@@ -38,9 +38,7 @@ call mma_allocate(ihlp,norb,label='ihlp')
 
 ! Now enforce orthogonality between specified orbitals:
 ! -----------------------------------------------------
-do i=1,norb
-  ihlp(i) = -1
-end do
+ihlp(:) = -1
 do iort=1,nort
   do j=1,2
     iorb = iorts(j,iort)
@@ -59,8 +57,8 @@ end do
 ! Set up order of orthogonalization - first help arrays:
 call mma_allocate(ihlp2,norb,label='ihlp2')
 call mma_allocate(ihlp3,norb,label='ihlp3')
-call izero(ihlp2,norb)
-call izero(ihlp3,norb)
+ihlp2(:) = 0
+ihlp3(:) = 0
 nortorb = 0
 do icon=norb,0,-1
   do iorb=1,norb
@@ -119,7 +117,7 @@ do iortorb=1,nortorb
       end if
     end do
     if (iok == 0) cycle
-    sovr = ddot_(norb,orbs(1,iorb),1,orbs(1,jorb),1)
+    sovr = ddot_(norb,orbs(:,iorb),1,orbs(:,jorb),1)
     if (abs(sovr) >= thresh) then
       ! Now ready to orthogonalise
       ! Update vectors
@@ -132,11 +130,11 @@ do iortorb=1,nortorb
 
       if ((cnrmi > thresh) .and. (cnrmj > thresh)) then
         faci = One/sqrt(cnrmi)
-        call dscal_(norb,faci,updi,1)
+        updi(:) = faci*updi(:)
         facj = One/sqrt(cnrmj)
-        call dscal_(norb,facj,updj,1)
-        s1 = ddot_(norb,updi,1,orbs(1,jorb),1)
-        s2 = ddot_(norb,updj,1,orbs(1,iorb),1)
+        updj(:) = facj*updj(:)
+        s1 = ddot_(norb,updi,1,orbs(:,jorb),1)
+        s2 = ddot_(norb,updj,1,orbs(:,iorb),1)
         s3 = ddot_(norb,updi,1,updj,1)
         ! Initialize cpp & cpm to suppress compiler warning ...
         cpp = Zero
@@ -178,32 +176,35 @@ do iortorb=1,nortorb
             cpm = hund
           end if
         end if
-        if (abs(cpp) < abs(cpm)) c = cpp
-        if (abs(cpm) <= abs(cpp)) c = cpm
+        if (abs(cpp) < abs(cpm)) then
+          c = cpp
+        else
+          c = cpm
+        end if
         if ((c == hund) .or. (abs(s2+c*s3) < thresh)) then
           write(u6,'(a,2i3)') ' Could not orthogonalize orbitals',iorb,jorb
           write(u6,'(a)') ' Please simplify orthogonality constraints.'
           call abend_cvb()
         end if
         d = -(sovr+c*s1)/(s2+c*s3)
-        call dscal_(norb,c,updi,1)
-        call addvec(orbs(1,iorb),orbs(1,iorb),updi,norb)
-        call dscal_(norb,d,updj,1)
-        call addvec(orbs(1,jorb),orbs(1,jorb),updj,norb)
+        updi(:) = c*updi(:)
+        orbs(:,iorb) = orbs(:,iorb)+updi(:)
+        updj(:) = d*updj(:)
+        orbs(:,jorb) = orbs(:,jorb)+updj(:)
       else if (cnrmi > thresh) then
         faci = One/sqrt(cnrmi)
-        call dscal_(norb,faci,updi,1)
-        s1 = ddot_(norb,updi,1,orbs(1,jorb),1)
+        updi(:) = faci*updi(:)
+        s1 = ddot_(norb,updi,1,orbs(:,jorb),1)
         c = -sovr/s1
-        call dscal_(norb,c,updi,1)
-        call addvec(orbs(1,iorb),orbs(1,iorb),updi,norb)
+        updi(:) = c*updi(:)
+        orbs(:,iorb) = orbs(:,iorb)+updi(:)
       else if (cnrmj > thresh) then
         facj = One/sqrt(cnrmj)
-        call dscal_(norb,facj,updj,1)
-        s2 = ddot_(norb,updj,1,orbs(1,iorb),1)
+        updj(:) = facj*updj(:)
+        s2 = ddot_(norb,updj,1,orbs(:,iorb),1)
         d = -sovr/s2
-        call dscal_(norb,d,updj,1)
-        call addvec(orbs(1,jorb),orbs(1,jorb),updj,norb)
+        updj(:) = d*updj(:)
+        orbs(:,jorb) = orbs(:,jorb)+updj(:)
       else
         write(u6,'(a,2i3)') ' Could not orthogonalize orbitals',iorb,jorb
         write(u6,'(a)') ' Please simplify orthogonality constraints.'
@@ -227,7 +228,7 @@ smax = -One
 do iort=1,nort
   iorb = iorts(1,iort)
   jorb = iorts(2,iort)
-  s = abs(ddot_(norb,orbs(1,iorb),1,orbs(1,jorb),1))
+  s = abs(ddot_(norb,orbs(:,iorb),1,orbs(:,jorb),1))
   if (s > smax) then
     smax = s
     iorbmax = iorb
@@ -236,13 +237,13 @@ do iort=1,nort
 end do
 if ((ipr(3) >= 2) .and. (smax > 1.0e-10_wp)) then
   write(u6,'(a,2i3)') ' Maximum overlap for orthogonalized orbitals :',iorbmax,jorbmax
-  write(u6,formAD) ' Value : ',ddot_(norb,orbs(1,iorbmax),1,orbs(1,jorbmax),1)
+  write(u6,formAD) ' Value : ',ddot_(norb,orbs(:,iorbmax),1,orbs(:,jorbmax),1)
 end if
 
 do irel=1,nijrel
   iorb = irels(1,irel)
   jorb = irels(2,irel)
-  call mxatb_cvb(relorb(1,1,irel),orbs(1,jorb),norb,norb,1,orbs(1,iorb))
+  call mxatb_cvb(relorb(:,:,irel),orbs(:,jorb),norb,norb,1,orbs(:,iorb))
 end do
 
 return

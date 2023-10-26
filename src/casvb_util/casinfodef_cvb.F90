@@ -14,12 +14,10 @@
 
 subroutine casinfodef_cvb()
 
-use casvb_global, only: inputmode, iorclos_d, iorcore_d, iorocc_d, mxorb_cvb, mxstsy_ci, noe, nstsym_d, recn_jobiph, recn_jobold, &
+use casvb_global, only: inputmode, iorclos_d, iorcore_d, iorocc_d, mxorb_cvb, noe, nstsym_d, recn_jobiph, recn_jobold, &
                         recn_oneint, recn_vbwfn, strtci, strtint, strtmo, strtvb, savvb, savvbci, variat
-use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i
 
 ! Counters
 nstsym_d = 0
@@ -37,11 +35,9 @@ savvb = recn_vbwfn
 savvbci = recn_jobiph
 
 if (inputmode == 2) then
-  do i=1,mxstsy_ci
-    iorcore_d(i) = -1
-    iorclos_d(i) = -1
-    iorocc_d(i) = -1
-  end do
+  iorcore_d(:) = -1
+  iorclos_d(:) = -1
+  iorocc_d(:) = -1
 end if
 
 return

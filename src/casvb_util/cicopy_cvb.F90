@@ -32,7 +32,7 @@ iformat = iform_ci(ivec1)
 iform_ci(ivec2) = iform_ci(ivec1)
 icnt_ci(ivec2) = icnt_ci(ivec1)
 if (iformat == 0) then
-  call fmove_cvb(cvec1(1:),cvec2(1:),ndet)
+  cvec2(1:) = cvec1(1:)
 else
   write(u6,*) ' Unsupported format in CICOPY :',iformat
   call abend_cvb()

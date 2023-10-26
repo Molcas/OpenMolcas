@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddsol_interface.fh"
-integer(kind=iwp) :: i, it
+integer(kind=iwp) :: i
 real(kind=wp) :: del, delmin
 real(kind=wp), allocatable :: eigval(:), eigvec(:,:)
 
@@ -39,9 +39,7 @@ end if
 
 call mma_allocate(eigval,itdav,label='eigval')
 call mma_allocate(eigvec,itdav,itdav,label='eigvec')
-do it=1,itdav
-  call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
-end do
+eigvec(:,:) = ap(1:itdav,1:itdav)
 call mxdiag_cvb(eigvec,eigval,itdav)
 
 if (ifollow <= 2) then
@@ -72,9 +70,9 @@ else if (ifollow == 4) then
   jroot = iroot
 end if
 eig = eigval(iroot)
-call fmove_cvb(eigvec(1,iroot),solp,itdav)
+solp(1:itdav) = eigvec(:,iroot)
 eig_res = eigval(jroot)
-call fmove_cvb(eigvec(1,jroot),solp_res,itdav)
+solp_res(1:itdav) = eigvec(:,jroot)
 if (ipdd >= 2) then
   write(u6,'(a)') ' Eigenvalues :'
   call vecprint_cvb(eigval,itdav)

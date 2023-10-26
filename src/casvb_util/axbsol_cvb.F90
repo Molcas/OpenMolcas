@@ -17,7 +17,6 @@ subroutine axbsol_cvb( &
 #                     include "ddsol_interface.fh"
                      )
 
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -28,11 +27,10 @@ real(kind=wp), external :: dnrm2_
 unused_var(ap)
 unused_var(nfrdim)
 
-call fmove_cvb(rhsp,solp,itdav)
-eig = dnrm2_(itdav,solp,1)
-call dscal_(itdav,One/eig,solp,1)
+eig = dnrm2_(itdav,rhsp,1)
+solp(1:itdav) = rhsp(1:itdav)/eig
 eig_res = eig
-call fmove_cvb(solp,solp_res,itdav)
+solp_res(1:itdav) = solp(1:itdav)
 
 return
 

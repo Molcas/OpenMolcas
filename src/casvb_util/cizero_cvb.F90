@@ -20,6 +20,7 @@
 subroutine cizero_cvb(cvec)
 
 use casvb_global, only: icnt_ci, iform_ci, ndet
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -29,7 +30,7 @@ integer(kind=iwp) :: iformat, ivec
 ivec = nint(cvec(0))
 iformat = iform_ci(ivec)
 if (iformat == 0) then
-  call fzero(cvec(1:),ndet)
+  cvec(1:) = Zero
 else
   write(u6,*) ' Unsupported format in CIZERO :',iformat
   call abend_cvb()

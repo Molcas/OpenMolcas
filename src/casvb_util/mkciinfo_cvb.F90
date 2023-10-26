@@ -14,8 +14,7 @@
 
 subroutine mkciinfo_cvb()
 
-use casvb_global, only: absym, i1alf, i1bet, iafrm, iato, ibfrm, ibto, n1a, n1b, nalf, nam1, nbet, nbm1, nda, ndb, norb, phato, &
-                        phbto
+use casvb_global, only: absym, i1alf, i1bet, iafrm, iato, ibfrm, ibto, n1a, n1b, nalf, nbet, norb, phato, phbto
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: iwp
@@ -38,24 +37,24 @@ call mma_allocate(lunocc,norb+1,label='lunocc')
 call mma_allocate(inewocc,norb,label='inewocc')
 call mma_allocate(iaccm,norb,label='iaccm')
 
-call izero(iafrm,nda*norb)
-call izero(ibfrm,ndb*norb)
-call izero(iato,(nam1+1)*norb)
-call izero(ibto,(nbm1+1)*norb)
-call fzero(phato,nam1*norb)
-call fzero(phbto,nbm1*norb)
+iafrm(:,:) = 0
+ibfrm(:,:) = 0
+iato(:,:) = 0
+ibto(:,:) = 0
+phato(:,:) = 0
+phbto(:,:) = 0
 ! Alpha loop:
-call izero(iaccm,norb)
+iaccm(:) = 0
 do iorb=0,norb
   mingrph(iorb) = max(iorb-norb+nalf,0)
   maxgrph(iorb) = min(iorb,nalf)
 end do
 call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
-call imove_cvb(maxgrph,nk,norb+1)
+nk(:) = maxgrph(:)
 call occupy_cvb(nk,norb,locc,lunocc)
 indx = 1
 do
-  call izero(inewocc,norb)
+  inewocc(:) = 0
   do i=1,nalf
     inewocc(locc(i)) = 1
   end do
@@ -75,17 +74,17 @@ do
   if (rc == 0) exit
 end do
 ! Beta loop:
-call izero(iaccm,norb)
+iaccm(:) = 0
 do iorb=0,norb
   mingrph(iorb) = max(iorb-norb+nbet,0)
   maxgrph(iorb) = min(iorb,nbet)
 end do
 call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
-call imove_cvb(maxgrph,nk,norb+1)
+nk(:) = maxgrph(:)
 call occupy_cvb(nk,norb,locc,lunocc)
 indx = 1
 do
-  call izero(inewocc,norb)
+  inewocc(:) = 0
   do i=1,nbet
     inewocc(locc(i)) = 1
   end do
@@ -115,7 +114,7 @@ do iorb=1,norb
 end do
 if (absym(4)) then
   ! I1ALF & I1BET may share memory:
-  if (.not. associated(i1bet,i1alf)) call imove_cvb(i1alf,i1bet,norb*n1a)
+  if (.not. associated(i1bet,i1alf)) i1bet(:,:) = i1alf(:,:)
 else
   do iorb=1,norb
     do ib=1,n1b
@@ -132,11 +131,11 @@ do iorb=0,norb
   maxgrph(iorb) = min(iorb,nalf-1)
 end do
 call weight_cvb(xalf2,mingrph,maxgrph,nalf-1,norb)
-call imove_cvb(maxgrph,nk,norb+1)
+nk(:) = maxgrph(:)
 call occupy_cvb(nk,norb,locc,lunocc)
 indx = 1
 do
-  call izero(inewocc,norb)
+  inewocc(:) = 0
   do i=1,nalf-1
     inewocc(locc(i)) = 1
   end do
@@ -161,11 +160,11 @@ if (nbet > 0) then
     maxgrph(iorb) = min(iorb,nbet-1)
   end do
   call weight_cvb(xbet2,mingrph,maxgrph,nbet-1,norb)
-  call imove_cvb(maxgrph,nk,norb+1)
+  nk(:) = maxgrph(:)
   call occupy_cvb(nk,norb,locc,lunocc)
   indx = 1
   do
-    call izero(inewocc,norb)
+    inewocc(:) = 0
     do i=1,nbet-1
       inewocc(locc(i)) = 1
     end do

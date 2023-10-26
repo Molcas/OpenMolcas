@@ -14,15 +14,15 @@
 
 subroutine io_init_cvb()
 
-use casvb_global, only: idan, iorder, mxfiles, mxunits, nrec, thresh_io, recn_jobiph, recn_jobold, recn_oneint, recn_tmp01, &
-                        recn_tmp02, recn_tmp03, recn_tmp04, recn_vbwfn
+use casvb_global, only: idan, iorder, mxfiles, nrec, thresh_io, recn_jobiph, recn_jobold, recn_oneint, recn_tmp01, recn_tmp02, &
+                        recn_tmp03, recn_tmp04, recn_vbwfn
 use Definitions, only: wp
 
 implicit none
 
 nrec = 0
 thresh_io = 1.0e-5_wp
-call izero(iorder,mxunits)
+iorder(:) = 0
 call istkinit_cvb(idan,mxfiles)
 
 ! Preassign some file names to identifiers:

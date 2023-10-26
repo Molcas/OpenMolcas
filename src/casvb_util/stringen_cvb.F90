@@ -30,7 +30,7 @@ do iorb=0,norb
   nkmin(iorb) = max(iorb-norb+nel,0)
   nkmax(iorb) = min(iorb,nel)
 end do
-call imove_cvb(nkmax,nk,norb+1)
+nk(:) = nkmax(:)
 ! Spin string loop starts here:
 indx = 0
 do

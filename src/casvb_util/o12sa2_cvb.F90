@@ -16,7 +16,7 @@ subroutine o12sa2_cvb(nprm,civb,civbs,cvbdet,cvb)
 
 use casvb_global, only: ndet, ndetvb, npr, nprorb, nvb, strucopt
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -41,20 +41,20 @@ call cidot_cvb(civb,civbs,ret)
 call ci2vbg_cvb(civbs,cvbdet)
 call mma_allocate(vec_all,npr,label='vec_all')
 call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
-call fzero(vec_all,nprorb)
+vec_all(1:nprorb) = Zero
 call onedens_cvb(civb,civbs,vec_all,.false.,0)
 call mma_allocate(sxc,nprm,label='sxc')
 call all2free_cvb(vec_all,sxc(ic1),1)
 if (.not. strucopt) sxc(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
-call fzero(vec_all,nprorb)
-call fmove_cvb(cvb,vec_all(nprorb+1),nvb)
+vec_all(1:nprorb) = Zero
+vec_all(nprorb+1:nprorb+nvb) = cvb(:)
 call mma_allocate(c,nprm,label='c')
 call all2free_cvb(vec_all,c(ic1),1)
-if (.not. strucopt) c(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+if (.not. strucopt) c(1) = ddot_(nvb,cvb,1,vec_all(nprorb+1:),1)
 call mma_deallocate(vec_all)
 cnrm = ddot_(nprm,c,1,sxc,1)
-call dscal_(nprm,One/sqrt(cnrm),c,1)
-call dscal_(nprm,One/sqrt(cnrm),sxc,1)
+c(:) = c(:)/sqrt(cnrm)
+sxc(:) = sxc(:)/sqrt(cnrm)
 call ddrestv_cvb(c,dum,sxc,nprm,0,.false.,.true.)
 call mma_deallocate(sxc)
 call mma_deallocate(c)

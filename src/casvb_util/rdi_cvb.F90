@@ -33,6 +33,7 @@ contains
 
 subroutine rdi_cvb_internal(ivec,ibuf)
   integer(kind=iwp), target :: ivec(*), ibuf(*)
+  integer(kind=iwp) :: ioff
   real(kind=wp), pointer :: buf(:), vec(:)
   call c_f_pointer(c_loc(ivec(1)),vec,[nreals])
   call rdlow_cvb(vec,nreals,file_id,ioffset)
@@ -41,7 +42,8 @@ subroutine rdi_cvb_internal(ivec,ibuf)
     call c_f_pointer(c_loc(ibuf(1)),buf,[1])
     call rdlow_cvb(buf,1,file_id,nreals+ioffset)
     nullify(buf)
-    call imove_cvb(ibuf,ivec(1+nreals*RtoI),nrem)
+    ioff = nreals*RtoI
+    ivec(ioff+1:ioff+nrem) = ibuf(1:nrem)
   end if
 end subroutine rdi_cvb_internal
 

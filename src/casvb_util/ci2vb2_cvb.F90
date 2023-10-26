@@ -33,7 +33,7 @@ if (ic == 0) then
     end do
   end do
 else if (ic == 1) then
-  call fzero(civec,nda*ndb)
+  civec(:,:) = Zero
   idetvb = 0
   do ia=1,nda
     do ixa=ixapr(ia),ixapr(ia+1)-1

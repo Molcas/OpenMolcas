@@ -18,7 +18,6 @@ subroutine o5b_cvb( &
                   )
 
 use casvb_global, only: hh, maxize, odx, ograd, scalesmall
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,8 +28,8 @@ real(kind=wp), external :: dnrm2_
 #include "macros.fh"
 unused_var(grdnrm)
 
-call fmove_cvb(ograd,odx,nparm)
-if (.not. maxize) call dscal_(nparm,-One,odx,1)
+odx(:) = ograd(:)
+if (.not. maxize) odx(1:nparm) = -odx(1:nparm)
 dxnrm = dnrm2_(nparm,odx,1)
 if (.not. close2conv) then
   ipu = 1
@@ -38,7 +37,7 @@ else
   ipu = 2
 end if
 if ((dxnrm > hh) .or. scalesmall(ipu)) then
-  call dscal_(nparm,hh/dxnrm,odx,1)
+  odx(1:nparm) = hh/dxnrm*odx(1:nparm)
   dxnrm = hh
 end if
 

@@ -26,8 +26,7 @@ implicit none
 unused_var(axc)
 
 call mxatb_cvb(sxc,solp_res,n,itdav,1,res)
-call dscal_(n,-eig_res,res,1)
-call addvec(res,res,rhs,n)
+res(:) = rhs(:)-eig_res*res(:)
 
 is_converged = .true.
 

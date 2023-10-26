@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "optb_interface.fh"
-integer(kind=iwp) :: i, ioptc, ipu, iter
+integer(kind=iwp) :: ioptc, ipu, iter
 real(kind=wp) :: cnrm2, fac, fx_exp, resthr_old = -One, resthr_use
 logical(kind=iwp) :: skip
 real(kind=wp), external :: ddot_, dnrm2_
@@ -51,18 +51,16 @@ if (.not. skip) then
   if (ip >= 2) write(u6,'(a,i4)') ' Number of iterations for direct diagonalization :',iter
 
   if (strucopt) then
-    cnrm2 = ddot_(nvb,cvb,1,odx(nfrorb+1),1)
+    cnrm2 = ddot_(nvb,cvb,1,odx(nfrorb+1:),1)
     ! "Orthogonalize" on CVB to get smallest possible update norm:
-    call daxpy_(nvb,-cnrm2,cvb,1,odx(nfrorb+1),1)
+    odx(nfrorb+1:nfrorb+nvb) = odx(nfrorb+1:nfrorb+nvb)-cnrm2*cvb(1:nvb)
     ! Scale variables according to overlap with CVB:
-    call dscal_(nparm,One/cnrm2,odx,1)
+    odx(1:nparm) = odx(1:nparm)/cnrm2
   else
     ! We are doing "Augmented" calc:
     fac = One/odx(1)
     ! Scale variables according to overlap with CVB:
-    do i=1,nparm-1
-      odx(i) = fac*odx(i+1)
-    end do
+    odx(1:nparm-1) = fac*odx(2:nparm)
   end if
 end if
 
@@ -73,7 +71,7 @@ else
   ipu = 2
 end if
 if ((dxnrm > hh) .or. scalesmall(ipu)) then
-  call dscal_(nparm,hh/dxnrm,odx,1)
+  odx(1:nparm) = hh/dxnrm*odx(1:nparm)
   dxnrm = hh
 end if
 

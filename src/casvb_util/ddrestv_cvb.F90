@@ -15,6 +15,7 @@
 subroutine ddrestv_cvb(vec,avec,svec,ndim,ioffs,ause,suse)
 
 use casvb_global, only: axc, c, maxd, nparm, nvguess, nvrestart, sxc
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -32,18 +33,18 @@ if (ndim+ioffs > nparm) then
   write(u6,*) ' Illegal call to DDRESTV :',ndim,ioffs,nparm
   call abend_cvb()
 end if
-call fzero(c(:,nvrestart),ioffs)
-call fmove_cvb(vec,c(ioffs+1:,nvrestart),ndim)
-call fzero(c(ndim+ioffs+1:,nvrestart),nparm-ioffs-ndim)
+c(1:ioffs,nvrestart) = Zero
+c(ioffs+1:ioffs+ndim,nvrestart) = vec(:)
+c(ioffs+ndim+1:,nvrestart) = Zero
 if (ause) then
-  call fzero(axc(:,nvrestart),ioffs)
-  call fmove_cvb(avec,axc(ioffs+1:,nvrestart),ndim)
-  call fzero(axc(ndim+ioffs+1:,nvrestart),nparm-ioffs-ndim)
+  axc(1:ioffs,nvrestart) = Zero
+  axc(ioffs+1:ioffs+ndim,nvrestart) = avec(:)
+  axc(ioffs+ndim+1:,nvrestart) = Zero
 end if
 if (suse) then
-  call fzero(sxc(:,nvrestart),ioffs)
-  call fmove_cvb(svec,sxc(ioffs+1:,nvrestart),ndim)
-  call fzero(sxc(ndim+ioffs+1:,nvrestart),nparm-ioffs-ndim)
+  sxc(1:ioffs,nvrestart) = Zero
+  sxc(ioffs+1:ioffs+ndim,nvrestart) = svec(:)
+  sxc(ioffs+ndim+1:,nvrestart) = Zero
 end if
 
 return

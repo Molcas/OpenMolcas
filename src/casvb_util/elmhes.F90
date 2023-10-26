@@ -105,13 +105,9 @@ do m=kp1,la
     y = y/x
     a(i,mm1) = y
 
-    do j=m,n
-      a(i,j) = a(i,j)-y*a(m,j)
-    end do
+    a(i,m:) = a(i,m:)-y*a(m,m:)
 
-    do j=1,igh
-      a(j,m) = a(j,m)+y*a(j,i)
-    end do
+    a(1:igh,m) = a(1:igh,m)+y*a(1:igh,i)
 
   end do
 

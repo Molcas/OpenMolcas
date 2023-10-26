@@ -84,7 +84,7 @@ outer: do
 
   ! Here goes the code specific to this loop level.
   if (nestlevel == 1) then
-    call imove_cvb(astr_fr(nestlevel)%A(1+nalf_fr(nestlevel)*(iter-1)),iastr_acc(1,nestlevel),nalf_fr(nestlevel))
+    iastr_acc(1:nalf_fr(nestlevel),nestlevel) = astr_fr(nestlevel)%A(nalf_fr(nestlevel)*(iter-1)+1:nalf_fr(nestlevel)*iter)
     iphase(nestlevel) = 1
   else
     iphase(nestlevel) = iphase(nestlevel-1)* &

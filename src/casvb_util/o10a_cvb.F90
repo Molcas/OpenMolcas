@@ -36,7 +36,7 @@ nvrhs = 0
 have_solved_it = .false.
 
 call mma_allocate(xp,nparm,label='xp')
-call fmove_cvb(ograd,xp,nparm)
+xp(:) = ograd(:)
 call ddproj_cvb(xp,nparm)
 cnrm1 = dnrm2_(n_div,xp(1:n_div),1)
 cnrm2 = dnrm2_(nparm-n_div,xp(n_div+1:),1)

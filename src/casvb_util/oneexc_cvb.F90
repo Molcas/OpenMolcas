@@ -17,7 +17,7 @@ subroutine oneexc_cvb(cfrom,cto,vij,diag,iPvb)
 use casvb_global, only: absym, i1alf, i1bet, iapr, iato, ibpr, ibto, iform_ci, ixapr, ixbpr, n1a, n1b, nam1, nbm1, nda, ndb, ndet, &
                         norb, npvb, phato, phbto, projcas, sc
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -51,14 +51,13 @@ if (projcas .and. (iPvb /= 0)) then
   end if
   call mma_allocate(vij2,nvij,label='vij2')
   if (idens == 0) then
-    call fmove_cvb(vij,vij2,nvij)
-    call dscal_(nvij,-One,vij2,1)
+    vij2(:) = -vij(1:nvij)
   else
-    call fzero(vij2,nvij)
+    vij2(:) = Zero
   end if
   call oneexc2_cvb(cfrom(1:),cto(1:),vij2,i1alf,i1bet,iato,ibto,phato,phbto,iapr,ixapr,ibpr,ixbpr,npvb,nda,ndb,n1a,n1b,nam1,nbm1, &
                    norb,sc,absym(3),diag,idens,3-iPvb)
-  if (idens == 1) call daxpy_(nvij,-One,vij2,1,vij,1)
+  if (idens == 1) vij(1:nvij) = vij(1:nvij)-vij2(:)
   call mma_deallocate(vij2)
 end if
 

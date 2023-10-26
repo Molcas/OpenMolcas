@@ -66,7 +66,7 @@ subroutine DGEDI(A,LDA,N,IPVT,DET,W,JOB)
 !
 ! SUBROUTINES AND FUNCTIONS
 !
-! BLAS DAXPY,DSCAL,DSWAP
+! BLAS DSWAP
 ! FORTRAN ABS,MOD
 !
 ! Updated to Fortran 90+ (Sep. 2023)
@@ -109,13 +109,13 @@ if (mod(JOB,10) /= 0) then
   do K=1,N
     A(K,K) = One/A(K,K)
     T = -A(K,K)
-    call DSCAL_(K-1,T,A(1,K),1)
+    A(1:K-1,K) = T*A(1:K-1,K)
     KP1 = K+1
     if (N < KP1) cycle
     do J=KP1,N
       T = A(K,J)
       A(K,J) = Zero
-      call DAXPY_(K,T,A(1,K),1,A(1,J),1)
+      A(1:K,J) = A(1:K,J)+T*A(1:K,K)
     end do
   end do
 
@@ -126,16 +126,14 @@ if (mod(JOB,10) /= 0) then
     do KB=1,NM1
       K = N-KB
       KP1 = K+1
-      do I=KP1,N
-        W(I) = A(I,K)
-        A(I,K) = Zero
-      end do
+      W(KP1:N) = A(KP1:N,K)
+      A(KP1:N,K) = Zero
       do J=KP1,N
         T = W(J)
-        call DAXPY_(N,T,A(1,J),1,A(1,K),1)
+        A(1:N,K) = A(1:N,K)+T*A(1:N,J)
       end do
       L = IPVT(K)
-      if (L /= K) call DSWAP_(N,A(1,K),1,A(1,L),1)
+      if (L /= K) call DSWAP_(N,A(1:N,K),1,A(1:N,L),1)
     end do
   end if
 end if

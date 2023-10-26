@@ -16,7 +16,6 @@ subroutine nize_cvb(c,nnrm,s,n,metr,ierr)
 ! Normalizes NNRM vectors in C.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -33,15 +32,15 @@ if (metr /= 0) call mma_allocate(c2,n,label='c2')
 safe = ierr /= 0
 do i=1,nnrm
   if (metr == 0) then
-    cnrm = dnrm2_(n,c(1,i),1)
+    cnrm = dnrm2_(n,c(:,i),1)
   else
     call saoon_cvb(c(1,i),c2,1,s,n,metr)
-    cnrm = sqrt(ddot_(n,c(1,i),1,c2,1))
+    cnrm = sqrt(ddot_(n,c(:,i),1,c2,1))
   end if
   if (safe .and. (cnrm < thresh)) then
     ierr = ierr+1
   else
-    call dscal_(n,One/cnrm,c(1,i),1)
+    c(:,i) = c(:,i)/cnrm
   end if
 end do
 if (metr /= 0) call mma_deallocate(c2)

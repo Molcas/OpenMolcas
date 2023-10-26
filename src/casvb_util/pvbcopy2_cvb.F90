@@ -24,7 +24,7 @@ integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), ic
 integer(kind=iwp) :: ia, ib, idetvb, ixa
 
 if (ic == 0) then
-  call fzero(cto,nda*ndb)
+  cto(:,:) = Zero
   idetvb = 0
   do ia=1,nda
     do ixa=ixapr(ia),ixapr(ia+1)-1

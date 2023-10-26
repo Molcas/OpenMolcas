@@ -26,8 +26,8 @@ integer(kind=iwp), allocatable :: iocc(:)
 
 call mma_allocate(iocc,norb+1,label='iocc')
 
-call izero(nstra,mxirrep)
-call izero(nstrb,mxirrep)
+nstra(:) = 0
+nstrb(:) = 0
 inda = 0
 indb = 0
 do iisym=1,mxirrep

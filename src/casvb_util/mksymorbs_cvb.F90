@@ -24,12 +24,12 @@ real(kind=wp), parameter :: thresh = 1.0e-7_wp
 real(kind=wp), external :: detm_cvb, dnrm2_
 
 if (sym) then
-  call fmove_cvb(orbs,sorbs,norb*norb)
+  sorbs(:,:) = orbs(:,:)
   nconstr_kp = nconstr
   nconstr = 0
   call symtrizorbs_cvb(orbs)
   nconstr = nconstr_kp
-  call subvec(sorbs,orbs,sorbs,norb*norb)
+  sorbs(:,:) = orbs(:,:)-sorbs(:,:)
   delorbs = dnrm2_(norb*norb,sorbs,1)
   if ((delorbs > thresh) .and. (ipr(1) >= 2)) then
     write(u6,'(/,a)') ' Change in symmetrized orbitals:'

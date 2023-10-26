@@ -18,6 +18,7 @@ subroutine ddres2upd7_cvb( &
                          )
 
 use casvb_global, only: n_div
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -26,17 +27,17 @@ real(kind=wp) :: resnrm1, resnrm2
 real(kind=wp), external :: dnrm2_
 
 if (n_div == 0) then
-  call fmove_cvb(res,c,n)
+  c(:) = res(:)
 else
   resnrm1 = dnrm2_(n_div-1,res(2),1)
-  resnrm2 = dnrm2_(n-n_div,res(n_div+1),1)
+  resnrm2 = dnrm2_(n-n_div,res(n_div+1:),1)
   if (resnrm1 > resnrm2) then
-    call fmove_cvb(res,c,n_div)
-    call fzero(c(n_div+1),n-n_div)
+    c(1:n_div) = res(1:n_div)
+    c(n_div+1:) = Zero
   else
-    call fzero(c,n_div)
     c(1) = res(1)
-    call fmove_cvb(res(n_div+1),c(n_div+1),n-n_div)
+    c(2:n_div) = Zero
+    c(n_div+1:) = res(n_div+1:)
   end if
 end if
 call ddproj_cvb(c,n)

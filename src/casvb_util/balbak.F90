@@ -66,9 +66,7 @@ if (igh /= low) then
     s = scl(i)
     ! .......... left hand eigenvectors are back transformed if the
     !            foregoing statement is replaced by s=1.0/scl(i). ..........
-    do j=1,m
-      z(i,j) = z(i,j)*s
-    end do
+    z(i,:) = z(i,:)*s
 
   end do
 end if

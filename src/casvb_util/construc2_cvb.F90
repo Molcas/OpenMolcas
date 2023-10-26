@@ -16,7 +16,7 @@ subroutine construc2_cvb(tconstr)
 
 use casvb_global, only: iconstruc, nconstr, nvb
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,7 +31,7 @@ call mma_allocate(repm,nvb,label='nvb')
 
 call span0_cvb(nvb,nvb)
 do ivb=1,nvb
-  call fzero(repm,nvb)
+  repm(:) = Zero
   repm(ivb) = -One
   call symtrizcvb_cvb(repm)
   repm(ivb) = repm(ivb)+One

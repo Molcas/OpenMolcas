@@ -29,12 +29,12 @@ integer(kind=iwp) :: i, j
 real(kind=wp) :: wgt
 
 ! Orbitals  --  OCC, CLOSED and CORE cards
-call imove_cvb(nfro_j,iorcore_c,mxirrep)
-call imove_cvb(nish_j,iorclos_c,mxirrep)
-call imove_cvb(nrs2_j,iorocc_c,mxirrep)
+iorcore_c(:) = nfro_j(:)
+iorclos_c(:) = nish_j(:)
+iorocc_c(:) = nrs2_j(:)
 ! States  --  WF, STATE and WEIGHT cards
 nstsym_c = 1
-call fzero(weight_c,mxstt_ci*mxstsy_ci)
+weight_c(:,:) = Zero
 do i=1,lroots_j
   wgt = Zero
   do j=1,nroots_j
@@ -57,12 +57,8 @@ nstats_c(1) = lroots_j
 nel_c = nactel_j
 i2s_c = ispin_j-1
 isym_c = lsym_j
-norb_c = 0
-mcore_c = 0
-do i=1,mxstsy_ci
-  norb_c = norb_c+nrs2_j(i)
-  mcore_c = mcore_c+nfro_j(i)+nish_j(i)
-end do
+norb_c = sum(nrs2_j(:))
+mcore_c = sum(nfro_j(:)+nish_j(:))
 neltot_c = nel_c+2*mcore_c
 ! MO common block:
 call setmocom_cvb()

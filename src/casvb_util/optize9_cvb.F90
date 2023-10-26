@@ -39,7 +39,7 @@ do iparm=1,nparm
   dx(iparm) = rand_cvb(Zero)-Half
 end do
 call nize_cvb(dx,1,dum,nparm,0,0)
-call fmove_cvb(dx,hessdx,nparm)
+hessdx(:) = dx(:)
 call hess_cvb(hessdx)
 
 write(u6,'(a)') ' Simple check of gradient and Hessian using a random update vector :'
@@ -55,7 +55,7 @@ cn = One
 do it=1,10
   call fxdx_cvb(fx,.false.,dx)
   write(u6,formChk3) cn,fx-fx1,cn*e1+cn*cn*Half*e2,(fx-fx1)/(cn*e1+cn*cn*Half*e2),(fx-fx1-cn*e1)/(cn*cn*Half)
-  call dscal_(nparm,tenth,dx,1)
+  dx(:) = tenth*dx(:)
   cn = tenth*cn
 end do
 

@@ -17,7 +17,7 @@ subroutine putci_cvb(civec)
 use casvb_global, only: filename, iform_ci, ipr, istms2_d, istnel_d, istsy_d, mxirrep, ndet, nstats_d, nstsym_d, savvbci, strtci, &
                         variat, weight_d
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -41,7 +41,7 @@ if (iwr == 0) then
     write(u6,'(a)') ' '
     call prtfid_cvb(' Restoring CI vector from ',strtci)
   end if
-  call fzero(civec(1:),ndet)
+  civec(1:) = Zero
 else if (iwr == 1) then
   if ((ipr(5) >= 1) .and. valid_cvb(savvbci)) then
     write(u6,'(a)') ' '
@@ -68,7 +68,7 @@ do istsym_d=1,nstsym_d
       if (abs(weight_d(istate,istsym_d)) > 1.0e-20_wp) then
         call vb2mol_cvb(civec(1:),cim,isyml)
         cnrm = One/dnrm2_(nci,cim,1)
-        call dscal_(nci,cnrm,cim,1)
+        cim(:) = cnrm*cim(:)
         call mkfn_cvb(savvbci,ibf)
         call wrcivec_cvb(cim,filename(ibf),.not. variat)
       end if

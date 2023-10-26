@@ -21,20 +21,20 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp) :: orbs(norb,norb), cvb(nvb)
 integer(kind=iwp) :: iconfs(noe,nconf), ifnss(0:nel,0:nel)
-integer(kind=iwp) :: i, iconf_off, ifrag, ion, iorb, iS, istr, nelsing
+integer(kind=iwp) :: i, iconf_off, ifrag, ion, iorb, iS, istr, nelsing, nss
 real(kind=wp) :: fac, fac1, fac2
 real(kind=wp), external :: ddot_
 
 if (sc) then
   fac = One
   do iorb=1,norb
-    fac2 = ddot_(norb,orbs(1,iorb),1,orbs(1,iorb),1)
+    fac2 = ddot_(norb,orbs(:,iorb),1,orbs(:,iorb),1)
     fac = fac*sqrt(fac2)
   end do
-  call dscal_(nvb,fac,cvb,1)
+  cvb(:) = fac*cvb(:)
 else
   do iorb=1,norb
-    fac2 = ddot_(norb,orbs(1,iorb),1,orbs(1,iorb),1)
+    fac2 = ddot_(norb,orbs(:,iorb),1,orbs(:,iorb),1)
     fac1 = sqrt(fac2)
     istr = 0
     iconf_off = 0
@@ -42,13 +42,14 @@ else
       do iS=1,nS_fr(ifrag)
         do ion=0,nel/2
           nelsing = nel-2*ion
+          nss = ifnss(nelsing,i2s_fr(iS,ifrag))
           do i=iconf_off+1,iconf_off+nconfion_fr(ion,ifrag)
             if (iconfs(iorb,i) == 1) then
-              call dscal_(ifnss(nelsing,i2s_fr(iS,ifrag)),fac1,cvb(istr+1),1)
+              cvb(istr+1:istr+nss) = fac1*cvb(istr+1:istr+nss)
             else if (iconfs(iorb,i) == 2) then
-              call dscal_(ifnss(nelsing,i2s_fr(iS,ifrag)),fac2,cvb(istr+1),1)
+              cvb(istr+1:istr+nss) = fac2*cvb(istr+1:istr+nss)
             end if
-            istr = istr+ifnss(nelsing,i2s_fr(iS,ifrag))
+            istr = istr+nss
           end do
           iconf_off = iconf_off+nconfion_fr(ion,ifrag)
         end do

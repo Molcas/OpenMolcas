@@ -33,7 +33,7 @@ else
   nbuf = nint(dnbuf(1))
 end if
 nword = lbuf/RtoI
-call izero(izbuffer,lbuf)
+izbuffer(:) = 0
 
 return
 

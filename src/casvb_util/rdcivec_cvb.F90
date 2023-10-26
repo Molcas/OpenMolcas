@@ -57,7 +57,7 @@ if (iwr == 0) then
   if (reord) then
     call mma_allocate(CI2,nConf_j,label='CI2')
     call reord2_cvb(CI,CI2,1)
-    call fmove_cvb(CI2,CI,nconf_j)
+    CI(1:nConf_j) = CI2(:)
     call mma_deallocate(CI2)
   end if
 
@@ -68,7 +68,7 @@ else if (iwr == 1) then
   if (reord) then
     call mma_allocate(CI2,nConf_j,label='CI2')
     call reord2_cvb(CI,CI2,0)
-    call fmove_cvb(CI2,CI,nconf_j)
+    CI(1:nConf_j) = CI2(:)
     call mma_deallocate(CI2)
   end if
 

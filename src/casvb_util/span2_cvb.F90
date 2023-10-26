@@ -26,7 +26,7 @@ integer(kind=iwp) :: nvtot_
 if (nvtot /= 0) then
   call span_cvb(span,nvtot,nvtot_,s,n,metr)
   nvtot = nvtot_
-  call fmove_cvb(span,c,n*nvtot)
+  c(:,1:nvtot) = span(:,1:nvtot)
 end if
 nvec = nvtot
 call mma_deallocate(span)

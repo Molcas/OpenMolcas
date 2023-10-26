@@ -34,7 +34,7 @@ nfxorb = 0
 do i=1,norb
   if (ifxorb(i) == 1) nfxorb = nfxorb+1
 end do
-call izero(ifxorb(norb+1),mxorb_cvb-norb)
+ifxorb(norb+1:) = 0
 
 ! Set STRUCOPT:
 if (projcas) then

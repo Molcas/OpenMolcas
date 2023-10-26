@@ -17,26 +17,20 @@ subroutine clearcnt_cvb(icode)
 ! ICODE=2 : CI coefficients changed
 ! ICODE=3 : Everything changed
 
-use casvb_global, only: icnt_ci, mxciobj
+use casvb_global, only: icnt_ci
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: icode
-integer(kind=iwp) :: i, ichg, ipow1, ipow2
+integer(kind=iwp) :: ichg, ipow1, ipow2
 
 if (icode == 3) then
-  do i=1,mxciobj
-    icnt_ci(i) = 0
-  end do
+  icnt_ci(:) = 0
 else
   ipow1 = 2
   ipow2 = 1
   do ichg=1,2
-    if (mod(icode,ipow1) >= ipow2) then
-      do i=2,mxciobj
-        icnt_ci(i) = 0
-      end do
-    end if
+    if (mod(icode,ipow1) >= ipow2) icnt_ci(2:) = 0
     ipow1 = 2*ipow1
     ipow2 = 2*ipow2
   end do

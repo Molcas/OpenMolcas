@@ -15,7 +15,7 @@
 subroutine svd_cvb(ainp,val,vec,vmat,n1,n2)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -35,12 +35,10 @@ call mma_allocate(rv1,n2,label='rv1')
 call mma_allocate(indx,n2,label='indx')
 
 if (n12 == n1) then
-  call fmove_cvb(ainp,a,n1*n2)
+  a(:,:) = ainp(:,:)
 else
-  call fzero(a,n12*n2)
-  do i=1,n2
-    call fmove_cvb(ainp(1,i),a(1,i),n1)
-  end do
+  a(1:n1,:) = ainp(:,:)
+  a(n1+1:,:) = Zero
 end if
 ierr = 0
 call svd(n12,n1,n2,a,w,.true.,u,.true.,v,ierr,rv1)
@@ -56,17 +54,15 @@ end if
 
 ! First recreate a:
 if (n12 == n1) then
-  call fmove_cvb(ainp,a,n1*n2)
+  a(:,:) = ainp(:,:)
 else
-  call fzero(a,n12*n2)
-  do i=1,n2
-    call fmove_cvb(ainp(1,i),a(1,i),n1)
-  end do
+  a(1:n1,:) = ainp(:,:)
+  a(n1+1:,:) = Zero
 end if
 
 do i=1,n2
-  call mxatb_cvb(a,v(1,i),n12,n2,1,u(1,i))
-  call dscal_(n12,One/dnrm2_(n12,u(1,i),1),u(1,i),1)
+  call mxatb_cvb(a,v(:,i),n12,n2,1,u(:,i))
+  u(:,i) = u(:,i)/dnrm2_(n12,u(:,i),1)
 end do
 
 call mma_deallocate(a)
@@ -76,8 +72,8 @@ call mma_allocate(indx,n2,label='indx')
 call sortindxr_cvb(n2,w,indx)
 do i=1,n2
   val(i) = w(indx(i))
-  call fmove_cvb(v(1,indx(i)),vmat(1,i),n2)
-  call fmove_cvb(u(1,indx(i)),vec(1,i),n1)
+  vmat(:,i) = v(1:n2,indx(i))
+  vec(:,i) = u(1:n1,indx(i))
 end do
 
 call mma_deallocate(a)

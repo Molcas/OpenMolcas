@@ -19,10 +19,9 @@ use casvb_global, only: alftol, cnrmtol, delopth1, delopth2, dfx, dfxmin, dfxtol
                         resthr, safety, scalesmall, sgn, signtol, singul, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
 
 use Constants, only: One
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
-integer(kind=iwp) :: i, j
 real(kind=wp), parameter :: hge = 1.0e20_wp, smallest = 1.0e-10_wp
 
 ! General defaults
@@ -47,16 +46,12 @@ endwhenclose = .false.
 singul(1) = -hge
 singul(2) = -hge
 singul(3) = -hge
-do j=1,6
-  dfx(j) = hge
-  sgn(j) = hge
-  zzmax(j) = hge
-  zzmin(j) = -hge
-  do i=1,3
-    dx(i,j) = hge
-    grd(i,j) = hge
-  end do
-end do
+dfx(:) = hge
+sgn(:) = hge
+zzmax(:) = hge
+zzmin(:) = -hge
+dx(:,:) = hge
+grd(:,:) = hge
 ! << TRST_CVB common block: >>
 scalesmall(1) = .false.
 nopth1(1) = 1

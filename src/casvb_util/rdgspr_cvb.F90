@@ -14,6 +14,7 @@
 
 subroutine rdgspr_cvb(recn,c,i,n,ic,ierr)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -22,7 +23,7 @@ real(kind=wp) :: recn, c(n)
 integer(kind=iwp) :: ioffs, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, kbasiscvb1, nbas_mo1, norb1, nvb1
 
 ierr = 0
-call fzero(c,n)
+c(:) = Zero
 ! Read header:
 call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
 

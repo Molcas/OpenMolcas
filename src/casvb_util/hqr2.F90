@@ -391,9 +391,7 @@ do nn=1,n
       tst1 = t
       tst2 = tst1+One/tst1
       if (tst2 > tst1) cycle
-      do j=i,en
-        h(j,en) = h(j,en)/t
-      end do
+      h(i:en,en) = h(i:en,en)/t
 
     end do
     ! .......... end real vector ..........
@@ -461,10 +459,8 @@ do nn=1,n
         tst1 = t
         tst2 = tst1+One/tst1
         if (tst2 > tst1) cycle
-        do j=i,en
-          h(j,na) = h(j,na)/t
-          h(j,en) = h(j,en)/t
-        end do
+        h(i:en,na) = h(i:en,na)/t
+        h(i:en,en) = h(i:en,en)/t
       end if
 
     end do
@@ -475,9 +471,7 @@ end do
 do i=1,n
   if ((i >= low) .and. (i <= igh)) cycle
 
-  do j=i,n
-    z(i,j) = h(i,j)
-  end do
+  z(i,:) = h(i,:)
 
 end do
 ! .......... multiply by transformation matrix to give vectors of original full matrix.

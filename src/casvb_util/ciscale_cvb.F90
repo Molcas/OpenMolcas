@@ -29,7 +29,7 @@ integer(kind=iwp) :: iformat, ivec
 ivec = nint(cvec(0))
 iformat = iform_ci(ivec)
 if (iformat == 0) then
-  call dscal_(ndet,scl,cvec(1:),1)
+  cvec(1:) = scl*cvec(1:)
 else
   write(u6,*) ' Unsupported format in CISCALE :',iformat
   call abend_cvb()

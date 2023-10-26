@@ -30,13 +30,9 @@ subroutine dirdiag_cvb(ddasonc,ddsol,ddres,ddres2upd,ddrestart,c,axc,sxc,share,v
 !*                                                                     *
 !*  Other :                                                            *
 !*     ABEND:      Error exit                                          *
-!*     FMOVE:      Vector copy                                         *
-!*     FZERO:      Vector zero                                         *
 !*     MXATB:      Matrix multiply                                     *
-!*     DAXPY:      Level 1 BLAS                                        *
 !*     DDOT:       Level 1 BLAS                                        *
 !*     DNRM2:      Level 1 BLAS                                        *
-!*     DSCAL:      Level 1 BLAS                                        *
 !*                                                                     *
 !*  If no metric is used (S=1), C and SxC may share memory. If they    *
 !*  do, SHARE should be set true.                                      *
@@ -116,15 +112,15 @@ end if
 do ivres=1,nvrestart
   if (use_a) then
     do i=1,ivres
-      ap(i,ivres) = ddot_(n,c(1,i),1,axc(1,ivres),1)
+      ap(i,ivres) = ddot_(n,c(:,i),1,axc(:,ivres),1)
       if (.not. symm) then
-        ap(ivres,i) = ddot_(n,c(1,ivres),1,axc(1,i),1)
+        ap(ivres,i) = ddot_(n,c(:,ivres),1,axc(:,i),1)
       else
         ap(ivres,i) = ap(i,ivres)
       end if
     end do
   end if
-  if (use_rhs) rhsp(ivres) = ddot_(n,c(1,ivres),1,rhs,1)
+  if (use_rhs) rhsp(ivres) = ddot_(n,c(:,ivres),1,rhs,1)
 end do
 
 iter = 0
@@ -134,13 +130,13 @@ outer: do imacro=1,mxiter
     if (itdav > nvrestart) then
       iter = iter+1
       ! Ensure accurate orthogonalization:
-      facn = dnrm2_(n,c(1,itdav),1)
+      facn = dnrm2_(n,c(:,itdav),1)
       done = .false.
       do iorth=1,nortiter
-        call dscal_(n,One/facn,c(1,itdav),1)
-        call schmidtd2_cvb(c,sxc,itdav-1,c(1,itdav),1,n)
-        call ddproj_cvb(c(1,itdav),n)
-        facn = dnrm2_(n,c(1,itdav),1)
+        c(:,itdav) = c(:,itdav)/facn
+        call schmidtd2_cvb(c,sxc,itdav-1,c(:,itdav),1,n)
+        call ddproj_cvb(c(:,itdav),n)
+        facn = dnrm2_(n,c(:,itdav),1)
         if (abs(One-facn) < orththr) then
           done = .true.
           exit
@@ -150,27 +146,27 @@ outer: do imacro=1,mxiter
         write(u6,*) ' Not able to achieve orthonormality in max number of attempts:',nortiter
         call abend_cvb()
       end if
-      call dscal_(n,One/facn,c(1,itdav),1)
+      c(:,itdav) = c(:,itdav)/facn
 
-      call ddasonc(c(1,itdav),axc(1,itdav),sxc(1,itdav),1,n)
+      call ddasonc(c(:,itdav),axc(:,itdav),sxc(:,itdav),1,n)
 
-      facn = sqrt(ddot_(n,c(1,itdav),1,sxc(1,itdav),1))
-      call dscal_(n,One/facn,c(1,itdav),1)
-      if (.not. share) call dscal_(n,One/facn,sxc(1,itdav),1)
-      if (use_a) call dscal_(n,One/facn,axc(1,itdav),1)
-
+      facn = sqrt(ddot_(n,c(:,itdav),1,sxc(:,itdav),1))
+      c(:,itdav) = c(:,itdav)/facn
+      if (.not. share) sxc(:,itdav) = sxc(:,itdav)/facn
       if (use_a) then
+        axc(:,itdav) = axc(:,itdav)/facn
+
         do i=1,itdav
-          ap(i,itdav) = ddot_(n,c(1,i),1,axc(1,itdav),1)
+          ap(i,itdav) = ddot_(n,c(:,i),1,axc(:,itdav),1)
           if (.not. symm) then
-            ap(itdav,i) = ddot_(n,c(1,itdav),1,axc(1,i),1)
+            ap(itdav,i) = ddot_(n,c(:,itdav),1,axc(:,i),1)
           else
             ap(itdav,i) = ap(i,itdav)
           end if
         end do
       end if
     end if
-    if (use_rhs) rhsp(itdav) = ddot_(n,c(1,itdav),1,rhs,1)
+    if (use_rhs) rhsp(itdav) = ddot_(n,c(:,itdav),1,rhs,1)
 
     call ddsol(ap,rhsp,itdav,maxdav,nprmdim,solp,solp_res,eig,eig_res)
 
@@ -179,7 +175,7 @@ outer: do imacro=1,mxiter
 
     if ((ip >= 3) .or. ((n <= 100) .and. (ip == 2))) then
       write(u6,'(a)') ' Current vector :'
-      call vecprint_cvb(c(1,itdav),n)
+      call vecprint_cvb(c(:,itdav),n)
     end if
     if (.not. (itdav < nvguess)) then
       call ddres(axc,sxc,rhs,res,solp_res,maxdav,n,itdav,eig_res,is_converged)

@@ -66,8 +66,8 @@ real(kind=wp) :: a(nm,n), d(n), e(n), e2(n)
 integer(kind=iwp) :: i, ii, j, jp1, k, l
 real(kind=wp) :: f, g, h, scl
 
+d(:) = a(n,:)
 do i=1,n
-  d(i) = a(n,i)
   a(n,i) = a(i,i)
 end do
 ! .......... for i=n step -1 until 1 do -- ..........
@@ -75,11 +75,8 @@ do ii=1,n
   i = n+1-ii
   l = i-1
   h = Zero
-  scl = Zero
   ! .......... scale row (algol tol then not needed) ..........
-  do k=1,l
-    scl = scl+abs(d(k))
-  end do
+  scl = sum(abs(d(1:l)))
 
   if (scl == Zero) then
 
@@ -107,43 +104,31 @@ do ii=1,n
     d(l) = f-g
     if (l /= 1) then
       ! .......... form a*u ..........
-      do j=1,l
-        e(j) = Zero
-      end do
+      e(1:l) = Zero
 
       do j=1,l
         f = d(j)
         g = e(j)+a(j,j)*f
         jp1 = j+1
 
-        do k=jp1,l
-          g = g+a(k,j)*d(k)
-          e(k) = e(k)+a(k,j)*f
-        end do
+        g = g+sum(a(jp1:l,j)*d(jp1:l))
+        e(jp1:l) = e(jp1:l)+a(jp1:l,j)*f
 
         e(j) = g
       end do
       ! .......... form p ..........
-      f = Zero
-
-      do j=1,l
-        e(j) = e(j)/h
-        f = f+e(j)*d(j)
-      end do
+      e(1:l) = e(1:l)/h
+      f = sum(e(1:l)*d(1:l))
 
       h = f/(h+h)
       ! .......... form q ..........
-      do j=1,l
-        e(j) = e(j)-h*d(j)
-      end do
+      e(1:l) = e(1:l)-h*d(1:l)
       ! .......... form reduced a ..........
       do j=1,l
         f = d(j)
         g = e(j)
 
-        do k=j,l
-          a(k,j) = a(k,j)-f*e(k)-g*d(k)
-        end do
+        a(j:l,j) = a(j:l,j)-f*e(j:l)-g*d(j:l)
 
       end do
     end if

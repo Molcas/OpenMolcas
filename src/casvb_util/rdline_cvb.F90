@@ -19,7 +19,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nfield
-integer(kind=iwp) :: i, ialias, ich, icom, ieof, ieofield, ieol, iff, ihadchar, ilength, ilinebeg, ilineend, ind, indmin, istatus, &
+integer(kind=iwp) :: ialias, ich, icom, ieof, ieofield, ieol, iff, ihadchar, ilength, ilinebeg, ilineend, ind, indmin, istatus, &
                      jline
 integer(kind=iwp), parameter :: nalias = 2, nblank = 2, ncomeol = 3, neof = 2, neofield = 1, neol = 4
 character(len=*), parameter :: alias(nalias,2) = reshape(['={   ',';    ','}    ',';END;'],[nalias,2]), &
@@ -81,7 +81,7 @@ do
       end if
     end do
     ! Split into lines:
-    call izero(ilv,lenline)
+    ilv(1:lenline) = 0
     do ieol=1,neol
       iff = 0
       do
@@ -116,9 +116,7 @@ do
         else if (ilv(ich) == 2) then
           if (ihadchar == 0) ilv(ich) = 0
           ilength = len_trim(eofield(ieofield))
-          do i=0,ilength-1
-            line(i+ich:i+ich) = ' '
-          end do
+          line(ich:ich+ilength-1) = ''
           ihadchar = 1
         else
           ihadchar = 1

@@ -34,7 +34,7 @@ if (kbasis > 2) then
   call mxatb_cvb(bikcof,sovr,ndet,ifns,ifns,aikcof)
   call mma_deallocate(sovr)
 else if (.not. share) then
-  call fmove_cvb(bikcof,aikcof,ndet*ifns)
+  aikcof(:,:) = bikcof(:,:)
 end if
 
 return

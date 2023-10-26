@@ -15,6 +15,7 @@
 subroutine mxsqrt_cvb(a,n,ipow)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -32,17 +33,15 @@ if (ifail /= 0) then
   write(u6,*) ' Fatal error in diagonalization (MXSQRT) :',ifail
   call abend_cvb()
 end if
-call fzero(a,n*n)
+a(:,:) = Zero
 do i=1,n
   a(i,i) = sqrt(w(i))**ipow
 end do
 call mxatb_cvb(z,a,n,n,n,c)
-call fzero(a,n*n)
+a(:,:) = Zero
 do k=1,n
   do j=1,n
-    do i=1,n
-      a(i,j) = a(i,j)+c(i,k)*z(j,k)
-    end do
+    a(:,j) = a(:,j)+c(:,k)*z(j,k)
   end do
 end do
 call mma_deallocate(w)

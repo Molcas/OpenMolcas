@@ -14,6 +14,7 @@
 
 subroutine prtopt_cvb()
 
+use Index_Functions, only: nTri_Elem
 use casvb_global, only: ioptim, istackrep, nfxvb, noptim, norb, nort, nvb, nzrvb, recinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
@@ -44,7 +45,7 @@ else
   italter = 0
 end if
 
-call mma_allocate(iorts,2,norb*(norb-1)/2,label='iorts')
+call mma_allocate(iorts,2,nTri_Elem(norb-1),label='iorts')
 call mma_allocate(ifxorb,norb,label='ifxorb')
 call mma_allocate(ifxstr,nvb,label='ifxstr')
 call mma_allocate(idelstr,nvb,label='idelstr')

@@ -15,6 +15,7 @@
 subroutine ci2ordr_cvb(civec,cvbdet,evbdet)
 
 use casvb_global, only: ndet, ndetvb, nfrag, vbdet
+use Constants, only: Zero
 use Definitions, only: wp
 
 implicit none
@@ -22,7 +23,7 @@ real(kind=wp) :: civec(0:ndet), cvbdet(ndetvb), evbdet(*)
 real(kind=wp) :: dum
 
 if (nfrag <= 1) then
-  call fzero(evbdet,ndetvb)
+  evbdet(1:ndetvb) = Zero
   return
 end if
 call dpci2vb2_cvb(civec(1:),cvbdet,vbdet,evbdet,0,dum,5)

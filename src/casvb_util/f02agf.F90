@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: ia, n, ivr, ivi, intger(*), ifail
 real(kind=wp) :: a(ia,*), rr(*), ri(*), vr(ivr,*), vi(ivi,*)
-integer(kind=iwp) :: info, k, l
+integer(kind=iwp) :: info, k
 logical(kind=iwp) :: pair
 real(kind=wp), parameter :: thresh = 1.0e-8_wp
 
@@ -29,7 +29,7 @@ if (ifail /= 0) call SysHalt('ifail f02agf')
 if ((ia /= ivr) .or. (ia /= ivi)) call SysHalt('f02agf dim')
 call rg(ia,n,a,rr,ri,1,vr,intger,vi,info)
 if (info /= 0) call SysHalt('info f02agf')
-call fzero(vi,n*ivi)
+vi(:,1:n) = Zero
 pair = .false.
 do k=1,n-1
   if ((ri(k) /= Zero) .and. (.not. pair)) then
@@ -41,13 +41,9 @@ do k=1,n-1
       ri(k) = Zero
       ri(k+1) = Zero
     else
-      do l=1,n
-        vi(l,k) = vr(l,k+1)
-        vi(l,k+1) = -vr(l,k+1)
-      end do
-      do l=1,n
-        vr(l,k+1) = vr(l,k)
-      end do
+      vi(1:n,k) = vr(1:n,k+1)
+      vi(1:n,k+1) = -vr(1:n,k+1)
+      vr(1:n,k+1) = vr(1:n,k)
     end if
   else
     pair = .false.

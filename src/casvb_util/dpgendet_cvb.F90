@@ -14,8 +14,8 @@
 
 subroutine dpgendet_cvb()
 
-use casvb_global, only: ia12ind, iapr1, ib12ind, ibpr1, iconfs, idetvb, ixapr1, ixbpr1, nalf, nalf_fr, naprodvb, nbet, nbet_fr, &
-                        nbprodvb, nconf_fr, nconfion_fr, nda_fr, ndb_fr, ndetvb_fr, nel_fr, noe, norb, nfrag
+use casvb_global, only: ia12ind, iapr1, ib12ind, ibpr1, iconfs, idetvb, ixapr1, ixbpr1, nalf, nalf_fr, nbet, nbet_fr, nconf_fr, &
+                        nconfion_fr, nda_fr, ndb_fr, ndetvb_fr, nel_fr, noe, norb, nfrag
 use Data_Structures, only: Alloc1DiArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
@@ -55,8 +55,8 @@ do ifrag=1,nfrag
   call stringen_cvb(nel_fr(ifrag),nalf_fr(1,ifrag),astr_fr(ifrag)%A,bstr_fr(ifrag)%A)
 end do
 
-call izero(ia12ind,naprodvb)
-call izero(ib12ind,nbprodvb)
+ia12ind(:) = 0
+ib12ind(:) = 0
 mxstack = 100
 call detsort2_cvb(norb,nalf,nfrag,nda_fr(1,1),nalf_fr(1,1),ia12ind,astr_fr,mxstack)
 call detsort2_cvb(norb,nbet,nfrag,ndb_fr(1,1),nbet_fr(1,1),ib12ind,bstr_fr,mxstack)

@@ -26,19 +26,21 @@ integer(kind=iwp) :: nvec, n
 real(kind=wp) :: a(n,n)
 integer(kind=iwp) :: i, imx, j
 real(kind=wp) :: cmx, dum(1)
-real(kind=wp), allocatable :: awrk(:,:), bwrk(:,:), cwrk(:)
+real(kind=wp), allocatable :: awrk(:,:), bwrk(:,:), cwrk(:), dwrk(:,:)
 real(kind=wp), external :: ddot_
 
-call mma_allocate(awrk,n,nvec+n,label='awrk')
-call fmove_cvb(a,awrk,n*nvec)
-call mxunit_cvb(awrk(1,1+nvec),n)
+call mma_allocate(awrk,n,nvec,label='awrk')
+call mma_allocate(dwrk,n,n,label='dwrk')
+awrk(:,:) = a(:,1:nvec)
+call unitmat(dwrk,n)
 call schmidt_cvb(awrk,nvec,dum,n,0)
-call schmidtd_cvb(awrk,nvec,awrk(1,nvec+1),n,dum,n,0)
+call schmidtd_cvb(awrk,nvec,dwrk,n,dum,n,0)
+call mma_deallocate(awrk)
 ! Sort N vectors in order of decreasing norms
 call mma_allocate(bwrk,n,n,label='bwrk')
 call mma_allocate(cwrk,n,label='cwrk')
 do i=1,n
-  cwrk(i) = ddot_(n,awrk(1,i+nvec),1,awrk(1,i+nvec),1)
+  cwrk(i) = ddot_(n,dwrk(:,i),1,dwrk(:,i),1)
 end do
 do j=1,n
   cmx = cwrk(1)
@@ -50,13 +52,13 @@ do j=1,n
     end if
   end do
   cwrk(imx) = -real(j,kind=wp)
-  call fmove_cvb(awrk(1,imx+nvec),bwrk(1,j),n)
+  bwrk(:,j) = dwrk(:,imx)
 end do
-call mma_deallocate(awrk)
+call mma_deallocate(dwrk)
 call schmidt_cvb(bwrk,n,dum,n,0)
 ! Extract N-NVEC remaining vectors with largest norms
 do i=1,n
-  cwrk(i) = ddot_(n,bwrk(1,i),1,bwrk(1,i),1)
+  cwrk(i) = ddot_(n,bwrk(:,i),1,bwrk(:,i),1)
 end do
 do j=1,n-nvec
   cmx = cwrk(1)
@@ -68,7 +70,7 @@ do j=1,n-nvec
     end if
   end do
   cwrk(imx) = -real(j,kind=wp)
-  call fmove_cvb(bwrk(1,imx),a(1,nvec+j),n)
+  a(:,nvec+j) = bwrk(:,imx)
 end do
 call nize_cvb(a(1,nvec+1),n-nvec,dum,n,0,0)
 call mma_deallocate(bwrk)

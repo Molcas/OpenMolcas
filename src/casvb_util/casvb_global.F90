@@ -222,8 +222,8 @@ public :: aa1, aa2, absym, aikcof, alftol, ap, axc, bikcof, c, casvb_free, charo
           lcalccivbs, lcalcevb, lcalcsvb, lciweights, lcmo_cvb, ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, &
           lenline, lfa_cvb, lfi_cvb, lfxvb, line, loccn_cvb, loopstep, loopstepmx, lpa_cvb, lpmat_cvb, lstprm, ltuvx_cvb, lw1_cvb, &
           lzrvb, max_rec, maxd, maxdav, maxize, mcore_c, mcore_d, memplenty, mnion, mnion_fr, mustdeclare, mxact_mo, mxaobf, &
-          mxciobj, mxdav, mxdep, mxfield, mxfiles, mxfrag, mxI, mxion, mxion_fr, mxirrep, mxirrep_ci, mxirrep_mo, mxit, mxiter, &
-          mxMs, mxnvb, mxobj, mxopth, mxops, mxorb_cvb, mxprm, mxrhs, mxS, mxstep, mxstsy_ci, mxstt_ci, mxsyme, mxunits, n1a, n1b, &
+          mxdav, mxdep, mxfield, mxfiles, mxfrag, mxI, mxion, mxion_fr, mxirrep, mxirrep_ci, mxirrep_mo, mxit, mxiter, mxMs, &
+          mxnvb, mxobj, mxopth, mxops, mxorb_cvb, mxprm, mxrhs, mxS, mxstep, mxstsy_ci, mxstt_ci, mxsyme, mxunits, n1a, n1b, &
           n_2el, n_applyh, n_applyt, n_cihess, n_div, n_hess, n_iter, n_orbhess, nact_mo, nalf, nalf_fr, nam1, naprodvb, nbas_mo, &
           nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nbet, nbet_fr, nbm1, nbprodvb, nbuf, ncivb, ncnt, nconf, &
           nconf_fr, nconfion_fr, nconstr, nda, nda_fr, ndb, ndb_fr, ndep_ij, ndep_ji, ndet, ndetvb, ndetvb_fr, ndetvb2_fr, &

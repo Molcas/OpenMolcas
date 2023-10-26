@@ -15,6 +15,7 @@
 subroutine ddguess_cvb(vec,ndim,ioffs)
 
 use casvb_global, only: c, maxd, nparm, nvguess
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,9 +31,9 @@ if (ndim+ioffs > nparm) then
   write(u6,*) ' Illegal call to DDGUESS :',ndim,ioffs,nparm
   call abend_cvb()
 end if
-call fzero(c(:,nvguess),ioffs)
-call fmove_cvb(vec,c(ioffs+1:,nvguess),ndim)
-call fzero(c(ndim+ioffs+1:,nvguess),nparm-ioffs-ndim)
+c(1:ioffs,nvguess) = Zero
+c(ioffs+1:ioffs+ndim,nvguess) = vec(:)
+c(ioffs+ndim+1:,nvguess) = Zero
 
 return
 

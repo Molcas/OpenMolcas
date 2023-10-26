@@ -55,7 +55,7 @@ do i=1,ndb
   do j=1,ixbpr(i+1)-ixbpr(i)
     iwrk1(j) = ibpr(iwrk2(j)+ixbpr(i)-1)
   end do
-  call imove_cvb(iwrk1,ibpr(ixbpr(i)),ixbpr(i+1)-ixbpr(i))
+  ibpr(ixbpr(i):ixbpr(i+1)-1) = iwrk1(1:ixbpr(i+1)-ixbpr(i))
 end do
 if (debug) then
   write(u6,*) ' ixbpr='
@@ -81,11 +81,11 @@ do i=1,nda
   do j=1,ixapr(i+1)-ixapr(i)
     iwrk1(j) = iapr(iwrk2(j)+ixapr(i)-1)
   end do
-  call imove_cvb(iwrk1,iapr(ixapr(i)),ixapr(i+1)-ixapr(i))
+  iapr(ixapr(i):ixapr(i+1)-1) = iwrk1(1:ixapr(i+1)-ixapr(i))
   do j=1,ixapr(i+1)-ixapr(i)
     iwrk1(j) = idetvb(iwrk2(j)+ixapr(i)-1)
   end do
-  call imove_cvb(iwrk1,idetvb(ixapr(i)),ixapr(i+1)-ixapr(i))
+  idetvb(ixapr(i):ixapr(i+1)-1) = iwrk1(1:ixapr(i+1)-ixapr(i))
 end do
 if (debug) then
   write(u6,*) ' ixapr='
@@ -96,7 +96,7 @@ end if
 do i=1,ndetvb
   idetavb(idetvb(i)) = i
 end do
-call imove_cvb(idetavb,idetvb,ndetvb)
+idetvb(:) = idetavb(:)
 if (debug) then
   write(u6,*) ' idetvb='
   write(u6,'(10i6)') idetvb

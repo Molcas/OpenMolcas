@@ -18,20 +18,19 @@ subroutine axesxres_cvb( &
                        )
 
 use casvb_global, only: iroot, jroot
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 #include "ddres_interface.fh"
-integer(kind=iwp) :: i, ivb
+integer(kind=iwp) :: i
 
 #include "macros.fh"
 unused_var(rhs)
 
-call fzero(res,n)
+res(:) = Zero
 do i=1,itdav
-  do ivb=1,n
-    res(ivb) = res(ivb)+(axc(ivb,i)-eig_res*sxc(ivb,i))*solp_res(i)
-  end do
+  res(:) = res(:)+(axc(:,i)-eig_res*sxc(:,i))*solp_res(i)
 end do
 
 is_converged = (jroot == iroot)

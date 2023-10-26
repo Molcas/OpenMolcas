@@ -24,7 +24,7 @@ integer(kind=iwp) :: i, ii, j
 logical(kind=iwp), parameter :: debug = .false.
 
 nsym_mo = nsym_j
-call imove_cvb(nbas_j,nbasi_mo,8)
+nbasi_mo(:) = nbas_j(:)
 
 nbas_mo = 0
 nbasisq_mo = 0

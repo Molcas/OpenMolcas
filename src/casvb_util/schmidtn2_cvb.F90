@@ -27,17 +27,17 @@ real(kind=wp), external :: ddot_
 
 do i=1,nvec
   do j=1,i-1
-    call daxpy_(n,-ddot_(n,c(1,i),1,sxc(1,j),1),c(1,j),1,c(1,i),1)
+    c(:,i) = c(:,i)-ddot_(n,c(:,i),1,sxc(:,j),1)*c(:,j)
   end do
-  if (metr /= 0) call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
-  cnrm = ddot_(n,c(1,i),1,sxc(1,i),1)
+  if (metr /= 0) call saoon_cvb(c(:,i),sxc(:,i),1,sao,n,metr)
+  cnrm = ddot_(n,c(:,i),1,sxc(:,i),1)
   if (cnrm < thresh) then
     write(u6,*) ' Warning : near-singularity in orthonormalization.'
     write(u6,*) ' Vector norm :',cnrm
   end if
   fac = One/sqrt(cnrm)
-  call dscal_(n,fac,c(1,i),1)
-  if (metr /= 0) call dscal_(n,fac,sxc(1,i),1)
+  c(:,i) = fac*c(:,i)
+  if (metr /= 0) sxc(:,i) = fac*sxc(:,i)
 end do
 
 return

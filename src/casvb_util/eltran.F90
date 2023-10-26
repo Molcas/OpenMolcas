@@ -68,9 +68,7 @@ integer(kind=iwp) :: i, j, kl, mm, mp, mp1
 ! .......... initialize z to identity matrix ..........
 do j=1,n
 
-  do i=1,n
-    z(i,j) = Zero
-  end do
+  z(1:n,j) = Zero
 
   z(j,j) = One
 end do
@@ -81,19 +79,15 @@ do mm=1,kl
   mp = igh-mm
   mp1 = mp+1
 
-  do i=mp1,igh
-    z(i,mp) = a(i,mp-1)
-  end do
+  z(mp1:igh,mp) = a(mp1:igh,mp-1)
 
   i = intx(mp)
   if (i == mp) cycle
 
-  do j=mp,igh
-    z(mp,j) = z(i,j)
-    z(i,j) = Zero
-  end do
-
+  z(mp,mp:igh) = z(i,mp:igh)
   z(i,mp) = One
+  z(i,mp+1:igh) = Zero
+
 end do
 
 return

@@ -51,9 +51,7 @@ if (.not. done) then
   istring = 0
   call pushfield_cvb()
 end if
-if (inputmode == 1) then
-  call seth_cvb([istring],1)
-end if
+if (inputmode == 1) call seth_cvb([istring],1)
 if (debug) then
   write(u6,*) ' fstring :',istring
   if (istring /= 0) write(u6,*) ' fstring :',strings(istring)

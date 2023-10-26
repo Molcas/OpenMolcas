@@ -21,7 +21,6 @@ use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i
 logical(kind=iwp), parameter :: ifploc = .false.
 
 ! Default settings:
@@ -43,9 +42,7 @@ ivbweights = iunset
 iciweights = iunset
 sij = .false.
 service = .false.
-do i=1,10
-  ipr(i) = 1
-end do
+ipr(:) = 1
 
 call tunedefs_cvb()
 if (variat) then

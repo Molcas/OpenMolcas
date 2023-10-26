@@ -16,7 +16,6 @@ subroutine putguess_cvb(orbs,cvb,recn)
 
 use casvb_global, only: endvar, ifmos, ipr, kbasiscvb, nbas_mo, norb, nvb, ploc, variat
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -29,7 +28,7 @@ real(kind=wp), external :: dnrm2_
 call wrheader_cvb(recn,norb,nbas_mo,nvb,kbasiscvb,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
 call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
 do iorb=1,norb
-  call wrgspr_cvb(recn,orbs(1,iorb),iorb,norb,1,ierr)
+  call wrgspr_cvb(recn,orbs(:,iorb),iorb,norb,1,ierr)
 end do
 call wrgspr_cvb(recn,cvb,1,nvb,2,ierr)
 use_ao = ifmos .and. ((.not. variat) .or. (variat .and. endvar))
@@ -63,7 +62,7 @@ if (use_ao) then
     end if
     do i=1,norb
       c(i) = dnrm2_(norb,b(:,i),1)
-      call dscal_(norb,One/c(i),b(:,i),1)
+      b(:,i) = b(:,i)/c(i)
     end do
     if (ipr(5) >= 2) then
       write(u6,'(/,a)') ' Norms of original localized VB orbitals :'

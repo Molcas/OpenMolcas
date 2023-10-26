@@ -39,12 +39,12 @@ call cidot_cvb(civb,civbs,cnrm)
 fac = svb/sqrt(cnrm)
 
 call cicopy_cvb(civec,citmp)
-call fmove_cvb(orbs,orbinv,norb*norb)
+orbinv(:,:) = orbs(:,:)
 call mxinv_cvb(orbinv,norb)
 call gaussj_cvb(orbinv,gjorb)
 call applyt_cvb(civec,gjorb)
 ! Chirgwin-Coulson weights
-if (mod(iciweights,2) == 1) then
+if (btest(iciweights,0)) then
   call transp_cvb(orbs,owrk,norb,norb)
   call gaussj_cvb(owrk,gjorb2)
   call applyt_cvb(citmp,gjorb2)
@@ -85,13 +85,13 @@ call mma_allocate(locasg,norb,label='locasg')
 call mma_allocate(lunasg,norb,label='lunasg')
 
 ! Inverse-overlap weights
-if (mod(iciweights,8) > 3) then
+if (btest(iciweights,2)) then
   call mma_allocate(gal1,ncnfcas,label='gal1')
   call mma_allocate(gal2,ncnfcas,label='gal2')
   call mma_allocate(indavec,mxdetcas,label='indavec')
   call mma_allocate(indbvec,mxdetcas,label='indbvec')
   call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
-  call fmove_cvb(sorbs,orbinv,norb*norb)
+  orbinv(:,:) = sorbs(:,:)
   call mxinv_cvb(orbinv,norb)
   call gaussj_cvb(orbinv,gjorb)
   ! Alpha weight array:
@@ -119,7 +119,7 @@ if (mod(iciweights,8) > 3) then
       maxgion(iorb) = min(iorb,ion)
     end do
     call weight_cvb(xion,mingion,maxgion,ion,norb)
-    call imove_cvb(maxgion,nkion,norb+1)
+    nkion(:) = maxgion(:)
     call occupy_cvb(nkion,norb,locion,lunion)
     ! Initialise loop for singly occupied orbitals
     do iorb=0,mrem
@@ -127,7 +127,7 @@ if (mod(iciweights,8) > 3) then
       maxgsng(iorb) = min(iorb,nsing)
     end do
     call weight_cvb(xsng,mingsng,maxgsng,nsing,mrem)
-    call imove_cvb(maxgsng,nksng,mrem+1)
+    nksng(:) = maxgsng(:)
     call occupy_cvb(nksng,mrem,locsng,lunsng)
     ! Initialise loop for singly occupied alpha orbitals
     do iorb=0,nsing
@@ -135,7 +135,7 @@ if (mod(iciweights,8) > 3) then
       maxgasg(iorb) = min(iorb,nalfsng)
     end do
     call weight_cvb(xasg,mingasg,maxgasg,nalfsng,nsing)
-    call imove_cvb(maxgasg,nkasg,nsing+1)
+    nkasg(:) = maxgasg(:)
     call occupy_cvb(nkasg,nsing,locasg,lunasg)
 
     ! Loop ionic
@@ -144,7 +144,7 @@ if (mod(iciweights,8) > 3) then
       ! Loop singly occupied
       indsng = 1
       do
-        call fzero(civec5(1:),ndet)
+        civec5(1:) = Zero
         s11 = Zero
         s22 = Zero
         s12 = Zero
@@ -152,8 +152,8 @@ if (mod(iciweights,8) > 3) then
         indasg = 1
 
         do
-          call izero(iaocc,norb)
-          call izero(ibocc,norb)
+          iaocc(:) = 0
+          ibocc(:) = 0
           do i=1,ion
             iaocc(locion(i)) = 1
             ibocc(locion(i)) = 1
@@ -198,7 +198,7 @@ if (mod(iciweights,8) > 3) then
           sm1 = Zero
         end if
 
-        call fzero(civec5(1:),ndet)
+        civec5(1:) = Zero
         do indasg=1,nindasg
           inda = indavec(indasg)
           indb = indbvec(indasg)
@@ -252,7 +252,7 @@ if (mod(iciweights,8) > 3) then
 end if
 
 ! Weights of Lowdin orthonormalized structures
-if (mod(iciweights,4) > 1) then
+if (btest(iciweights,1)) then
   call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
   call mxsqrt_cvb(sorbs,norb,1)
   call gaussj_cvb(sorbs,gjorb3)
@@ -260,15 +260,13 @@ if (mod(iciweights,4) > 1) then
   call applyt_cvb(civb,gjorb3)
   call cidot_cvb(civb,civb,cnrm)
   fac = svb/sqrt(cnrm)
-  do idet=1,ndet
-    civb(idet) = civb(idet)*civb(idet)
-    civec(idet) = civec(idet)*civec(idet)
-  end do
+  civb(1:) = civb(1:)**2
+  civec(1:) = civec(1:)**2
 end if
 
 write(u6,'(/,2a)') ' Weights of CASSCF configurations in VB basis (c_res=c_cas-Svb*c_vb) :'
 write(u6,'(2a)') ' ---------------------------------------------------------------------'
-if (mod(iciweights,8) > 3) then
+if (btest(iciweights,2)) then
   write(u6,'(a)') ' Sum of inverse-overlap weights :'
   write(u6,form2AD) ' c_cas :',sum1,' expected :',One
   write(u6,form2AD) ' c_res :',sum2,' expected :',One-svb*svb
@@ -281,33 +279,33 @@ if ((npcf > 0) .or. (npcf == -1)) then
   line(1:21) = '  Conf. =>  Orbitals '
   ibeg = max(14+3*nel,22)
   ibegt = ibeg
-  if (mod(iciweights,2) == 1) then
+  if (btest(iciweights,0)) then
     line(ibegt+ix1:ibegt+2*lenfld-1) = 'Chirgwin-Coulson'
     ibegt = ibegt+2*lenfld
   end if
-  if (mod(iciweights,4) > 1) then
+  if (btest(iciweights,1)) then
     line(ibegt+ix1:ibegt+2*lenfld-1) = 'Lowdin'
     ibegt = ibegt+2*lenfld
   end if
-  if (mod(iciweights,8) > 3) then
+  if (btest(iciweights,2)) then
     line(ibegt+ix1:ibegt+2*lenfld-1) = 'Inverse'
     ibegt = ibegt+2*lenfld
   end if
   write(u6,'(a)') trim(line)
   line = ''
-  if (mod(iciweights,2) == 1) then
+  if (btest(iciweights,0)) then
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
     ibeg = ibeg+lenfld
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
     ibeg = ibeg+lenfld
   end if
-  if (mod(iciweights,4) > 1) then
+  if (btest(iciweights,1)) then
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
     ibeg = ibeg+lenfld
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
     ibeg = ibeg+lenfld
   end if
-  if (mod(iciweights,8) > 3) then
+  if (btest(iciweights,2)) then
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
     ibeg = ibeg+lenfld
     line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
@@ -340,12 +338,12 @@ call mma_allocate(wghtion3,[ionmin,ionmax],label='wghtion3')
 call mma_allocate(wghtion4,[ionmin,ionmax],label='wghtion4')
 call mma_allocate(wghtion5,[ionmin,ionmax],label='wghtion5')
 call mma_allocate(wghtion6,[ionmin,ionmax],label='wghtion6')
-call fzero(wghtion1,ionmax-ionmin+1)
-call fzero(wghtion2,ionmax-ionmin+1)
-call fzero(wghtion3,ionmax-ionmin+1)
-call fzero(wghtion4,ionmax-ionmin+1)
-call fzero(wghtion5,ionmax-ionmin+1)
-call fzero(wghtion6,ionmax-ionmin+1)
+wghtion1(:) = Zero
+wghtion2(:) = Zero
+wghtion3(:) = Zero
+wghtion4(:) = Zero
+wghtion5(:) = Zero
+wghtion6(:) = Zero
 do ion=ionmin,ionmax
   nsing = nel-2*ion
   mrem = norb-ion
@@ -357,7 +355,7 @@ do ion=ionmin,ionmax
     maxgion(iorb) = min(iorb,ion)
   end do
   call weight_cvb(xion,mingion,maxgion,ion,norb)
-  call imove_cvb(maxgion,nkion,norb+1)
+  nkion(:) = maxgion(:)
   call occupy_cvb(nkion,norb,locion,lunion)
   ! Initialise loop for singly occupied orbitals
   do iorb=0,mrem
@@ -365,7 +363,7 @@ do ion=ionmin,ionmax
     maxgsng(iorb) = min(iorb,nsing)
   end do
   call weight_cvb(xsng,mingsng,maxgsng,nsing,mrem)
-  call imove_cvb(maxgsng,nksng,mrem+1)
+  nksng(:) = maxgsng(:)
   call occupy_cvb(nksng,mrem,locsng,lunsng)
   ! Initialise loop for singly occupied alpha orbitals
   do iorb=0,nsing
@@ -373,7 +371,7 @@ do ion=ionmin,ionmax
     maxgasg(iorb) = min(iorb,nalfsng)
   end do
   call weight_cvb(xasg,mingasg,maxgasg,nalfsng,nsing)
-  call imove_cvb(maxgasg,nkasg,nsing+1)
+  nkasg(:) = maxgasg(:)
   call occupy_cvb(nkasg,nsing,locasg,lunasg)
 
   ! Loop ionic
@@ -390,8 +388,8 @@ do ion=ionmin,ionmax
       indasg = 1
 
       do
-        call izero(iaocc,norb)
-        call izero(ibocc,norb)
+        iaocc(:) = 0
+        ibocc(:) = 0
         do i=1,ion
           iaocc(locion(i)) = 1
           ibocc(locion(i)) = 1
@@ -439,17 +437,17 @@ do ion=ionmin,ionmax
         end do
         ilin = max(ilin,19)
         nprint = 0
-        if (mod(iciweights,2) == 1) then
+        if (btest(iciweights,0)) then
           cprint(nprint+1) = c1
           cprint(nprint+2) = c2
           nprint = nprint+2
         end if
-        if (mod(iciweights,4) > 1) then
+        if (btest(iciweights,1)) then
           cprint(nprint+1) = c3
           cprint(nprint+2) = c4
           nprint = nprint+2
         end if
-        if (mod(iciweights,8) > 3) then
+        if (btest(iciweights,2)) then
           cprint(nprint+1) = gal1(nc)
           cprint(nprint+2) = gal2(nc)
           nprint = nprint+2
@@ -493,34 +491,34 @@ call mma_deallocate(indbvec)
 
 line = ' Accumulated weights:'
 ibeg = 22
-if (mod(iciweights,2) == 1) then
+if (btest(iciweights,0)) then
   line(ibeg+ix1:ibeg+2*lenfld-1) = 'Chirgwin-Coulson'
   ibeg = ibeg+2*lenfld
 end if
-if (mod(iciweights,4) > 1) then
+if (btest(iciweights,1)) then
   line(ibeg+ix1:ibeg+2*lenfld-1) = 'Lowdin'
   ibeg = ibeg+2*lenfld
 end if
-if (mod(iciweights,8) > 3) then
+if (btest(iciweights,2)) then
   line(ibeg+ix1:ibeg+2*lenfld-1) = 'Inverse'
   ibeg = ibeg+2*lenfld
 end if
 write(u6,'(/,a)') trim(line)
 line = ''
 ibeg = 22
-if (mod(iciweights,2) == 1) then
+if (btest(iciweights,0)) then
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
   ibeg = ibeg+lenfld
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
   ibeg = ibeg+lenfld
 end if
-if (mod(iciweights,4) > 1) then
+if (btest(iciweights,1)) then
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
   ibeg = ibeg+lenfld
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
   ibeg = ibeg+lenfld
 end if
-if (mod(iciweights,8) > 3) then
+if (btest(iciweights,2)) then
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_cas'
   ibeg = ibeg+lenfld
   line(ibeg+ix1:ibeg+lenfld-1) = 'c_res'
@@ -544,17 +542,17 @@ do ion=ionmin,ionmax
   line(1:19) = ' For ionicity    : '
   call int2char_cvb(line(14:16),ion,3)
   nprint = 0
-  if (mod(iciweights,2) == 1) then
+  if (btest(iciweights,0)) then
     cprint(nprint+1) = wghtion1(ion)
     cprint(nprint+2) = wghtion2(ion)
     nprint = nprint+2
   end if
-  if (mod(iciweights,4) > 1) then
+  if (btest(iciweights,1)) then
     cprint(nprint+1) = wghtion3(ion)
     cprint(nprint+2) = wghtion4(ion)
     nprint = nprint+2
   end if
-  if (mod(iciweights,8) > 3) then
+  if (btest(iciweights,2)) then
     cprint(nprint+1) = wghtion5(ion)
     cprint(nprint+2) = wghtion6(ion)
     nprint = nprint+2
@@ -562,17 +560,17 @@ do ion=ionmin,ionmax
   write(u6,formAD) line(1:19),(cprint(mp),mp=1,nprint)
 end do
 nprint = 0
-if (mod(iciweights,2) == 1) then
+if (btest(iciweights,0)) then
   cprint(nprint+1) = total1
   cprint(nprint+2) = total2
   nprint = nprint+2
 end if
-if (mod(iciweights,4) > 1) then
+if (btest(iciweights,1)) then
   cprint(nprint+1) = total3
   cprint(nprint+2) = total4
   nprint = nprint+2
 end if
-if (mod(iciweights,8) > 3) then
+if (btest(iciweights,2)) then
   cprint(nprint+1) = total5
   cprint(nprint+2) = total6
   nprint = nprint+2

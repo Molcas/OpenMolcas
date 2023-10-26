@@ -40,7 +40,7 @@ else if (isgn == 2) then
 else
   izeta(nsyme) = 0
 end if
-call mxunit_cvb(rsymelm(:,:,nsyme),mxorb)
+call unitmat(rsymelm(:,:,nsyme),mxorb)
 
 do
   call fstring_cvb(symelm,nsymelm,istr2,ncmp,2)

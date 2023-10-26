@@ -20,18 +20,22 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: c(*)
 integer(kind=iwp) :: nparm1
-integer(kind=iwp) :: ifr_off, ifrag, ioffs
+integer(kind=iwp) :: ifr_off, ifrag, ioff2, ioffs, nprvb2
+real(kind=wp) :: f
 real(kind=wp), external :: ddot_
 
-ioffs = nparm1-nprvb+1
+ioffs = nparm1-nprvb
 if (nfrag <= 1) then
-  call daxpy_(nprvb,-ddot_(nprvb,cvb,1,c(ioffs),1)/cvbnrm,cvb,1,c(ioffs),1)
+  f = ddot_(nprvb,cvb(1:nprvb),1,c(ioffs+1:ioffs+nprvb),1)/cvbnrm
+  c(ioffs+1:ioffs+nprvb) = c(ioffs+1:ioffs+nprvb)-f*cvb(1:nprvb)
 else
-  ifr_off = 1
+  ifr_off = 0
   do ifrag=1,nfrag
-    call daxpy_(nvb_fr(ifrag),-ddot_(nvb_fr(ifrag),cvb(ifr_off),1,c(ifr_off+ioffs-1),1)/cvbnrm_fr(ifrag),cvb(ifr_off),1, &
-                c(ifr_off+ioffs-1),1)
-    ifr_off = ifr_off+nvb_fr(ifrag)
+    nprvb2 = nvb_fr(ifrag)
+    ioff2 = ifr_off+ioffs
+    f = ddot_(nprvb2,cvb(ifr_off+1:ifr_off+nprvb2),1,c(ioff2+1:ioff2+nprvb2),1)/cvbnrm_fr(ifrag)
+    c(ioff2+1:ioff2+nprvb2) = c(ioff2+1:ioff2+nprvb2)-f*cvb(ifr_off+1:ifr_off+nprvb2)
+    ifr_off = ifr_off+nprvb2
   end do
 end if
 

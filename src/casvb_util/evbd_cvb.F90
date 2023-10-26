@@ -38,7 +38,7 @@ ioptc = 1
 nvguess = 1
 nvrestart = 0
 call mma_allocate(c,nvb,maxdav,label='c')
-call fmove_cvb(cvb,c,nvb)
+c(:,1) = cvb(:)
 if (.not. follow) then
   ifollow1 = 2
 else

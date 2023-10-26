@@ -23,7 +23,7 @@ implicit none
 integer(kind=iwp) :: ic, norb, nvb, nprorb, npr, nort, iorts(2,nort)
 real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsp(norb,norb), cvbp(nvb), sorbs(norb,norb), dxorg(npr)
 logical(kind=iwp) :: orbopt, strucopt, sym
-integer(kind=iwp) :: i, ij, iorb, iort, j, jorb, k, korb, l, lorb
+integer(kind=iwp) :: ij, iorb, iort, j, jorb, k, korb, l, lorb
 real(kind=wp) :: dum(1), fac, sdidj
 real(kind=wp), allocatable :: sorbsinv(:,:)
 
@@ -33,8 +33,8 @@ if ((ipr(3) >= 3) .and. (ic == 1)) then
   call vecprint_cvb(wdx,npr)
 end if
 
-call fmove_cvb(orbsp,orbs,norb*norb)
-call fmove_cvb(cvbp,cvb,nvb)
+orbs(:,:) = orbsp(:,:)
+cvb(:) = cvbp(:)
 
 if (orbopt) then
   call mxattb_cvb(orbsp,orbsp,norb,norb,norb,sorbs)
@@ -44,16 +44,14 @@ if (orbopt) then
     do jorb=1,norb
       if (jorb /= iorb) then
         ij = ij+1
-        do i=1,norb
-          orbs(i,iorb) = orbs(i,iorb)+wdx(ij)*orbsp(i,jorb)
-        end do
+        orbs(:,iorb) = orbs(:,iorb)+wdx(ij)*orbsp(:,jorb)
       end if
     end do
   end do
 
   ! 2nd-order correction for orthogonality constraints:
   call mma_allocate(sorbsinv,norb,norb,label='sorbsinv')
-  call fmove_cvb(sorbs,sorbsinv,norb*norb)
+  sorbsinv(:,:) = sorbs(:,:)
   call mxinv_cvb(sorbsinv,norb)
   do iort=1,nort
     iorb = iorts(1,iort)
@@ -69,18 +67,16 @@ if (orbopt) then
       end do
     end do
     fac = -Half*sdidj
-    do i=1,norb
-      do j=1,norb
-        orbs(i,iorb) = orbs(i,iorb)+fac*orbsp(i,j)*sorbsinv(j,jorb)
-        orbs(i,jorb) = orbs(i,jorb)+fac*orbsp(i,j)*sorbsinv(j,iorb)
-      end do
+    do j=1,norb
+      orbs(:,iorb) = orbs(:,iorb)+fac*orbsp(:,j)*sorbsinv(j,jorb)
+      orbs(:,jorb) = orbs(:,jorb)+fac*orbsp(:,j)*sorbsinv(j,iorb)
     end do
   end do
   call mma_deallocate(sorbsinv)
 end if
 
 if (strucopt) then
-  call addvec(cvb,cvb,wdx(nprorb+1),nvb)
+  cvb(:) = cvb(:)+wdx(nprorb+1:nprorb+nvb)
   call scalstruc_cvb(orbs,cvb)
   call cvbnrm_cvb(cvb)
 end if

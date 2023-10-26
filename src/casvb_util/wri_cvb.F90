@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, RtoI
 implicit none
 integer(kind=iwp) :: n, ivec(n), ioffset
 real(kind=wp) :: file_id
-integer(kind=iwp) :: ibuf(8) = 0, ilen, nreals, nrem
+integer(kind=iwp) :: ibuf(8) = 0, ilen, ioff, nreals, nrem
 
 nreals = n/RtoI
 nrem = n-nreals*RtoI
@@ -46,10 +46,11 @@ subroutine wri_cvb_internal(ivec,ibuf)
       call rdlow_cvb(buf,1,file_id,nreals+ioffset)
       nullify(buf)
     end if
-    call imove_cvb(ivec(1+nreals*RtoI),ibuf,nrem)
+    ioff = nreals*RtoI
+    ibuf(1:nrem) = ivec(ioff+1:ioff+nrem)
     ! Trying for a "clean" write (unwritten integers written as zeros),
     ! but explicit zeroing of ibuf is not necessary as long as RtoI <= 2.
-    !call izero(ibuf(nrem+1),RtoI-nrem)
+    !ibuf(nrem+1:nrem+RtoI-nrem) = 0
     call c_f_pointer(c_loc(ibuf(1)),buf,[1])
     call wrlow_cvb(buf,1,file_id,nreals+ioffset)
     nullify(buf)

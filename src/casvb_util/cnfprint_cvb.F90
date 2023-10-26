@@ -19,7 +19,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, idum(1), ifrag, ioffs, nconf_off
+integer(kind=iwp) :: idum(1), ifrag, ioffs, nconf_off
 integer(kind=iwp), allocatable :: scr(:)
 logical(kind=iwp), external :: recinpcmp_cvb, up2date_cvb ! ... Make: up to date? ...
 
@@ -36,12 +36,8 @@ if ((ipr(1) >= 0) .and. (.not. up2date_cvb('CNFPRINT'))) then
   !kbasiscvb1 = idum(1)
   call rdis_cvb(scr,noe*nconf,recinp,ioffs)
   if (nconf == 0) then
-    do i=1,min(nel,norb)
-      scr(i) = 1
-    end do
-    do i=1,nel-norb
-      scr(i) = 2
-    end do
+    scr(1:min(nel,norb)) = 1
+    scr(1:nel-norb) = 2
   end if
   nconf_off = 0
   do ifrag=1,nfrag

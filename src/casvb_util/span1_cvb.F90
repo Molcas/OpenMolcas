@@ -29,7 +29,7 @@ do
     write(u6,*) ' Fatal error in SPAN_CVB!',nvmove,nvremain
     call abend_cvb()
   end if
-  call fmove_cvb(c(1,1+nvec-nvremain),span(:,nvtot+1:),n*nvmove)
+  span(:,nvtot+1:nvtot+nvmove) = c(:,nvec-nvremain+1:nvec-nvremain+nvmove)
   nvtot = nvtot+nvmove
   if (nvtot == nvecmx) call span_cvb(span,nvtot,nvtot,s,n,metr)
   nvremain = nvremain-nvmove

@@ -28,10 +28,10 @@ end if
 do iorb=1,norb
   jorb = abs(iorbprm(iorb))
   sgn = real(sign(1,iorbprm(iorb)),kind=wp)
-  call fmove_cvb(orbs(1,jorb),owrk2(1,iorb),norb)
-  call dscal_(norb,sgn,owrk2(1,iorb),1)
+  owrk2(:,iorb) = orbs(:,jorb)
+  owrk2(:,iorb) = sgn*owrk2(:,iorb)
 end do
-call fmove_cvb(owrk2,orbs,norb*norb)
+orbs(:,:) = owrk2(:,:)
 call str2vbc_cvb(cvb,cvbdet)
 call permvb_cvb(cvbdet,iorbprm)
 call vb2strc_cvb(cvbdet,cvb)

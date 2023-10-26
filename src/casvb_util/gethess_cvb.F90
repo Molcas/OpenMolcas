@@ -21,9 +21,9 @@ implicit none
 real(kind=wp) :: hess(nfr,nfr)
 integer(kind=iwp) :: ivar
 
-call mxunit_cvb(hess,nfr)
+call unitmat(hess,nfr)
 do ivar=1,nfr
-  call hess_cvb(hess(1,ivar))
+  call hess_cvb(hess(:,ivar))
 end do
 
 return

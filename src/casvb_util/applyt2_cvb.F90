@@ -40,11 +40,10 @@ do ij=1,norb*norb
           iax = iato(iorb,iaxtmp)
           tcof = scl*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
           if (jax > iax) then
-            call daxpy_(ndb-jax+1,tcof,vec(iax,jax),nda,vec(jax,jax),nda)
+            vec(jax,jax:) = vec(jax,jax:)+tcof*vec(iax,jax:)
           else
-            call daxpy_(iax-jax,tcof,vec(jax,iax),1,vec(jax,jax),nda)
-            vec(jax,iax) = vec(jax,iax)+tcof*vec(iax,iax)
-            if (ndb-iax > 0) call daxpy_(ndb-iax,tcof,vec(iax,iax+1),nda,vec(jax,iax+1),nda)
+            vec(jax,jax:iax) = vec(jax,jax:iax)+tcof*vec(jax:iax,iax)
+            if (iax < ndb) vec(jax,iax+1:) = vec(jax,iax+1:)+tcof*vec(iax,iax+1:)
           end if
         end if
       end do
@@ -55,7 +54,7 @@ do ij=1,norb*norb
         if (jax /= 0) then
           iax = iato(iorb,iaxtmp)
           tcof = scl*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
-          call daxpy_(ndb,tcof,vec(iax,1),nda,vec(jax,1),nda)
+          vec(jax,:) = vec(jax,:)+tcof*vec(iax,:)
         end if
       end do
     end if
@@ -68,11 +67,10 @@ do ij=1,norb*norb
           ibx = ibto(iorb,ibxtmp)
           tcof = scl*phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
           if (jbx > ibx) then
-            call daxpy_(ibx-1,tcof,vec(1,ibx),1,vec(1,jbx),1)
-            vec(ibx,jbx) = vec(ibx,jbx)+tcof*vec(ibx,ibx)
-            if (jbx-ibx > 0) call daxpy_(jbx-ibx,tcof,vec(ibx,ibx+1),nda,vec(ibx+1,jbx),1)
+            vec(1:ibx,jbx) = vec(1:ibx,jbx)+tcof*vec(1:ibx,ibx)
+            vec(ibx+1:jbx,jbx) = vec(ibx+1:jbx,jbx)+tcof*vec(ibx,ibx+1:jbx)
           else
-            call daxpy_(jbx,tcof,vec(1,ibx),1,vec(1,jbx),1)
+            vec(1:jbx,jbx) = vec(1:jbx,jbx)+tcof*vec(1:jbx,ibx)
           end if
         end if
       end do
@@ -83,7 +81,7 @@ do ij=1,norb*norb
         if (jbx /= 0) then
           ibx = ibto(iorb,ibxtmp)
           tcof = scl*phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
-          call daxpy_(nda,tcof,vec(1,ibx),1,vec(1,jbx),1)
+          vec(:,jbx) = vec(:,jbx)+tcof*vec(:,ibx)
         end if
       end do
     end if
@@ -92,33 +90,31 @@ do ij=1,norb*norb
     if (absym(2)) then
       do ia=1,n1a
         iak = iato(iorb,i1alf(ia,iorb))
-        call dscal_(ndb-iak+1,scl,vec(iak,iak),nda)
+        vec(iak,iak:) = scl*vec(iak,iak:)
       end do
     else
       do ia=1,n1a
         iak = iato(iorb,i1alf(ia,iorb))
-        call dscal_(ndb,scl,vec(iak,1),nda)
+        vec(iak,:) = scl*vec(iak,:)
       end do
     end if
     ! Beta singly occupied
     if (absym(2)) then
       do ib=1,n1b
         ibk = ibto(iorb,i1bet(ib,iorb))
-        call dscal_(ibk,scl,vec(1,ibk),1)
+        vec(1:ibk,ibk) = scl*vec(1:ibk,ibk)
       end do
     else
       do ib=1,n1b
         ibk = ibto(iorb,i1bet(ib,iorb))
-        call dscal_(nda,scl,vec(1,ibk),1)
+        vec(:,ibk) = scl*vec(:,ibk)
       end do
     end if
   end if
 end do
 if (absym(2)) then
   do ia=1,nda
-    do ib=ia+1,ndb
-      vec(ib,ia) = vec(ia,ib)
-    end do
+    vec(ia+1:ndb,ia) = vec(ia,ia+1:ndb)
   end do
 end if
 

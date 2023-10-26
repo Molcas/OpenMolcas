@@ -36,10 +36,10 @@ call nize_cvb(a,nvect,s,n,metr,ierr)
 call schmidt_cvb(a,nvect,s,n,metr)
 nlin = 0
 do i=1,nvect
-  cnrm = dnrm2_(n,a(1,i),1)
+  cnrm = dnrm2_(n,a(:,i),1)
   if (cnrm > thresh) then
     nlin = nlin+1
-    call fmove_cvb(a(1,i),a(1,nlin),n)
+    a(:,nlin) = a(:,i)
   end if
 end do
 ierr = 1

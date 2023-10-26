@@ -20,9 +20,9 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: iretval1, iretval2, n, nalfa, nbeta
 
-call izero(ifnss1,(nel+1)*(nel+1))
-call izero(ifnss2,(nel+1)*(nel+1))
-call izero(ndetvbs,(nel+1)*(nel+1))
+ifnss1(:,:) = 0
+ifnss2(:,:) = 0
+ndetvbs(:,:) = 0
 
 do n=0,nel
   do nalfa=(n+1)/2,n

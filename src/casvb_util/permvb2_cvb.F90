@@ -16,7 +16,7 @@ subroutine permvb2_cvb(v1,iperm,vb,iapr,ixapr,v2,ialg)
 
 use casvb_global, only: nalf, nbet, nda, ndb, ndet, ndetvb, norb
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -37,7 +37,7 @@ call mma_allocate(negs,norb,label='negs')
 
 ! Some tests of permutation
 ! Valid?
-call izero(negs,norb)
+negs(:) = 0
 do i=1,norb
   iprm = abs(iperm(i))
   if ((iprm < 1) .or. (iprm > norb)) then
@@ -75,23 +75,23 @@ if (iorb <= norb) then
     if (abs(iperm(iorb)) /= iorb) exit
   end do
   if (iorb > norb) ialg = 2
-  call izero(negs,norb)
+  negs(:) = 0
   do i=1,norb
     if (iperm(i) < 0) negs(abs(iperm(i))) = 1
   end do
   ! Alpha loop:
-  call izero(inocc2,norb)
+  inocc2(:) = 0
   do iorb=0,norb
     mingrph(iorb) = max(iorb-norb+nalf,0)
     maxgrph(iorb) = min(iorb,nalf)
   end do
   call mma_allocate(xalf,[0,norb],[0,nalf],label='xalf')
   call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
-  call imove_cvb(maxgrph,nk,norb+1)
+  nk(:) = maxgrph(:)
   call occupy_cvb(nk,norb,locc,lunocc)
   indx = 1
   do
-    call izero(inewocc,norb)
+    inewocc(:) = 0
     do ialf=1,nalf
       inewocc(abs(iperm(locc(ialf)))) = ialf
     end do
@@ -117,18 +117,18 @@ if (iorb <= norb) then
   end do
   call mma_deallocate(xalf)
   ! Beta loop:
-  call izero(inocc2,norb)
+  inocc2(:) = 0
   do iorb=0,norb
     mingrph(iorb) = max(iorb-norb+nbet,0)
     maxgrph(iorb) = min(iorb,nbet)
   end do
   call mma_allocate(xbet,[0,norb],[0,nbet],label='xbet')
   call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
-  call imove_cvb(maxgrph,nk,norb+1)
+  nk(:) = maxgrph(:)
   call occupy_cvb(nk,norb,locc,lunocc)
   indx = 1
   do
-    call izero(inewocc,norb)
+    inewocc(:) = 0
     do ibet=1,nbet
       inewocc(abs(iperm(locc(ibet)))) = ibet
     end do
@@ -155,7 +155,7 @@ if (iorb <= norb) then
   call mma_deallocate(xbet)
 
   if (vb) then
-    call fzero(v2,ndetvb)
+    v2(1:ndetvb) = Zero
     do ia=1,nda
       iato = inda(ia)
       do ixa=ixapr(ia),ixapr(ia+1)-1
@@ -176,7 +176,7 @@ if (iorb <= norb) then
         v2(ixa) = phsa(ia)*phsb(ib)*v1(ixato)
       end do
     end do
-    call fmove_cvb(v2,v1,ndetvb)
+    v1(1:ndetvb) = v2(1:ndetvb)
   else if (ialg == 1) then
     ! Brute force strategy if enough memory (x1.5 faster):
     do ib=1,ndb
@@ -186,7 +186,7 @@ if (iorb <= norb) then
         v2(ia+iboff) = phsa(ia)*phsb(ib)*v1(inda(ia)+inboff)
       end do
     end do
-    call fmove_cvb(v2,v1,ndet)
+    v1(1:ndet) = v2(1:ndet)
   else if (ialg == 2) then
     ! More-or-less in-place update of V1:
     do ia=1,nda
@@ -241,30 +241,22 @@ if (iorb <= norb) then
       if (ib == indb(ib)) then
         if (phsb(ib) == -One) then
           ioffs = (ib-1)*nda
-          do ia=1,nda
-            v1(ia+ioffs) = -v1(ia+ioffs)
-          end do
+          v1(ioffs+1:ioffs+nda) = -v1(ioffs+1:ioffs+nda)
         end if
       else if (indb(ib) /= 0) then
         ! Cyclic permutation involving IB:
         ioffs = (ib-1)*nda
-        do ia=1,nda
-          v2(ia) = v1(ia+ioffs)
-        end do
+        v2(1:nda) = v1(ioffs+1:ioffs+nda)
         ibt = ib
         do
           if (phsb(ibt) == One) then
             ioffs1 = (ibt-1)*nda
             ioffs2 = (indb(ibt)-1)*nda
-            do ia=1,nda
-              v1(ia+ioffs1) = v1(ia+ioffs2)
-            end do
+            v1(ioffs1+1:ioffs1+nda) = v1(ioffs2+1:ioffs2+nda)
           else
             ioffs1 = (ibt-1)*nda
             ioffs2 = (indb(ibt)-1)*nda
-            do ia=1,nda
-              v1(ia+ioffs1) = -v1(ia+ioffs2)
-            end do
+            v1(ioffs1+1:ioffs1+nda) = -v1(ioffs2+1:ioffs2+nda)
           end if
           ibtold = ibt
           ibt = indb(ibt)
@@ -273,14 +265,10 @@ if (iorb <= norb) then
         end do
         if (phsb(ibt) == One) then
           ioffs = (ibt-1)*nda
-          do ia=1,nda
-            v1(ia+ioffs) = v2(ia)
-          end do
+          v1(ioffs+1:ioffs+nda) = v2(1:nda)
         else
           ioffs = (ibt-1)*nda
-          do ia=1,nda
-            v1(ia+ioffs) = -v2(ia)
-          end do
+          v1(ioffs+1:ioffs+nda) = -v2(1:nda)
         end if
         indb(ibt) = 0
       end if

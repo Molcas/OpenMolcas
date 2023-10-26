@@ -32,7 +32,7 @@ call mma_allocate(tmp1,n,n,label='tmp1')
 call mma_allocate(tmp2,n,n,label='tmp2')
 call mma_allocate(itmp,n,label='itmp')
 ierr = 0
-call fmove_cvb(a,tmp1,n*n)
+tmp1(:,:) = a(:,:)
 call dgetrf_(n,n,tmp1,n,itmp,ierr)
 if (ierr /= 0) then
   write(u6,*) ' Error in LU decomposition for inversion:',ierr
@@ -62,7 +62,7 @@ if (rms > thresh) then
   call mxprint_cvb(a,1,n,0)
   call abend_cvb()
 end if
-call fmove_cvb(tmp1,a,n*n)
+a(:,:) = tmp1(:,:)
 
 call mma_deallocate(tmp1)
 call mma_deallocate(tmp2)

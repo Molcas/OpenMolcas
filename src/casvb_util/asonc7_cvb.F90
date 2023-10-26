@@ -37,17 +37,17 @@ if (ipp7 >= 2) then
 end if
 
 do ivec=1,nvec
-  axc(1,ivec) = ddot_(nprm-1,ograd,1,c(2,ivec),1)
-  call fmove_cvb(c(2,ivec),axc(2,ivec),nprm-1)
+  axc(1,ivec) = ddot_(nprm-1,ograd,1,c(2:,ivec),1)
+  axc(2:,ivec) = c(2:,ivec)
   ! Save Hessian application (& DNRM2 call) whenever possible:
   ! (C assumed to be normalized)
   if (abs(abs(c(1,ivec))-One) > thresh) then
-    call hess_cvb(axc(2,ivec))
-  else if (dnrm2_(nprm-1,axc(2,ivec),1) > thresh) then
-    call hess_cvb(axc(2,ivec))
+    call hess_cvb(axc(2:,ivec))
+  else if (dnrm2_(nprm-1,axc(2:,ivec),1) > thresh) then
+    call hess_cvb(axc(2:,ivec))
   end if
-  call daxpy_(nprm-1,c(1,ivec),ograd,1,axc(2,ivec),1)
-  call ddproj_cvb(axc(2,ivec),nprm-1)
+  axc(2:,ivec) = axc(2:,ivec)+c(1,ivec)*ograd(1:nprm-1)
+  call ddproj_cvb(axc(2:,ivec),nprm-1)
 end do
 
 return

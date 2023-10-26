@@ -88,9 +88,7 @@ c3 = Zero ! dummy initialize
 s2 = Zero ! dummy initialize
 if (n == 1) return
 
-do i=2,n
-  e(i-1) = e(i)
-end do
+e(1:n-1) = e(2:)
 
 f = Zero
 tst1 = Zero
@@ -126,9 +124,7 @@ do l=1,n
       dl1 = d(l1)
       h = g-d(l)
 
-      do i=l2,n
-        d(i) = d(i)-h
-      end do
+      d(l2:) = d(l2:)-h
 
       f = f+h
       ! .......... ql transformation ..........

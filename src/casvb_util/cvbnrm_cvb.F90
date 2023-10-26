@@ -21,14 +21,17 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: cvb(nvb)
 integer(kind=iwp) :: ifrag, nvbadd
+real(kind=wp) :: f
 real(kind=wp), external :: dnrm2_
 
 if (nfrag <= 1) then
-  call dscal_(nvb,One/dnrm2_(nvb,cvb,1),cvb,1)
+  f = One/dnrm2_(nvb,cvb,1)
+  cvb(:) = f*cvb(:)
 else
-  nvbadd = 1
+  nvbadd = 0
   do ifrag=1,nfrag
-    call dscal_(nvb_fr(ifrag),One/dnrm2_(nvb_fr(ifrag),cvb(nvbadd),1),cvb(nvbadd),1)
+    f = One/dnrm2_(nvb_fr(ifrag),cvb(nvbadd+1:nvbadd+nvb_fr(ifrag)),1)
+    cvb(nvbadd+1:nvbadd+nvb_fr(ifrag)) = f*cvb(nvbadd+1:nvbadd+nvb_fr(ifrag))
     nvbadd = nvbadd+nvb_fr(ifrag)
   end do
 end if

@@ -42,7 +42,7 @@ do ion=mnion1,mxion1
   do iconf=1,nconf1
     if (ioncty(iconf) == ion) then
       jconf = jconf+1
-      call imove_cvb(iconfs(1,iconf),iconfs2(1,jconf),noe)
+      iconfs2(:,jconf) = iconfs(:,iconf)
     end if
   end do
 end do
@@ -50,7 +50,7 @@ if (jconf /= nconf1) then
   write(u6,*) ' Error in cnfsort - jconf not same as nconf1 :',jconf,nconf1
   call abend_cvb()
 end if
-call imove_cvb(iconfs2,iconfs,noe*nconf1)
+iconfs(:,:) = iconfs2(:,:)
 
 call mma_deallocate(ioncty)
 call mma_deallocate(iconfs2)

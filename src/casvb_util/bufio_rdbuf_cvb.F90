@@ -22,7 +22,7 @@ implicit none
 integer(kind=iwp) :: ioffset
 
 if (nbuf < ibuf) then
-  call izero(ibuffer,lbuf)
+  ibuffer(:) = 0
   return
 end if
 ioffset = (ibuf-1)*lbuf/RtoI

@@ -14,6 +14,7 @@
 
 subroutine mxunfold_cvb(avec,a,n)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,7 +22,7 @@ integer(kind=iwp) :: n
 real(kind=wp) :: avec(n*(n-1)), a(n,n)
 integer(kind=iwp) :: i, iprm, j
 
-call fzero(a,n*n)
+a(:,:) = Zero
 iprm = 0
 do i=1,n
   do j=1,n

@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nel, n, nk(0:nel), nkmin(0:nel), nkmax(0:nel), locc(n), lunocc(nel-n), indx, ix(0:nel,0:n), rc
-integer(kind=iwp) :: iel, ik, jel
+integer(kind=iwp) :: iel, ik
 integer(kind=iwp), external :: minind_cvb
 
 rc = 0
@@ -28,10 +28,8 @@ do iel=1,nel-1
   if (.not. ((nk(iel+1)-ik == 1) .or. (ik == nk(iel-1)) .or. (ik == nkmin(iel)))) then
     ! SITUATION IS :  IEL       \     <= NOT MINIMAL
     !                 IEL+1     |
+    nk(1:iel-1) = min(nkmax(1:iel-1),ik-1)
     nk(iel) = ik-1
-    do jel=1,iel-1
-      nk(jel) = min(nkmax(jel),ik-1)
-    end do
     call occupy_cvb(nk,nel,locc,lunocc)
     indx = minind_cvb(locc,n,nel,ix)
     rc = 1
@@ -39,7 +37,7 @@ do iel=1,nel-1
   end if
 end do
 ! Maximize the loop on exit
-call imove_cvb(nkmax,nk,nel)
+nk(0:nel-1) = nkmax(0:nel-1)
 call occupy_cvb(nk,nel,locc,lunocc)
 indx = minind_cvb(locc,n,nel,ix)
 

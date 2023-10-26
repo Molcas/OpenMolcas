@@ -107,13 +107,11 @@ if (inputmode == 2) then
     ioptcode(noptim) = 1
 
     iopt2step(0) = 0
-    do i=1,noptim
-      iopt2step(i) = 1
-    end do
+    iopt2step(1:noptim) = 1
     iopt2step(noptim+1) = noptstep+1
   else
     noptim = noptstep
-    call izero(ioptcode,noptim)
+    ioptcode(1:noptim) = 0
     do i=0,noptim
       iopt2step(i) = i
     end do

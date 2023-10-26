@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddsol_interface.fh"
-integer(kind=iwp) :: i, it, nnegeig, nposeig
+integer(kind=iwp) :: i, nnegeig, nposeig
 real(kind=wp) :: alfastart, eigmn, eigmx, gnrm, ovr_dx_grad, safety_use
 real(kind=wp), allocatable :: dxp(:), eigval(:), eigvec(:,:), gradp(:), w2(:)
 real(kind=wp), external :: ddot_, dnrm2_
@@ -35,9 +35,7 @@ unused_var(nfrdim)
 
 call mma_allocate(eigval,itdav,label='eigval')
 call mma_allocate(eigvec,itdav,itdav,label='eigvec')
-do it=1,itdav
-  call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
-end do
+eigvec(:,:) = ap(1:itdav,1:itdav)
 
 if (ipdd >= 3) then
   write(u6,*) ' AP matrix :'
@@ -57,13 +55,9 @@ call mxdiag_cvb(eigvec,eigval,itdav)
 
 if (ipdd >= 2) then
   write(u6,'(a)') ' Eigenvalues :'
-  do i=1,itdav
-    eigval(i) = eigval(i)+corenrg
-  end do
+  eigval(1:itdav) = eigval(1:itdav)+corenrg
   call vecprint_cvb(eigval,itdav)
-  do i=1,itdav
-    eigval(i) = eigval(i)-corenrg
-  end do
+  eigval(1:itdav) = eigval(1:itdav)-corenrg
 end if
 
 call mma_allocate(gradp,itdav,label='gradp')
@@ -112,7 +106,7 @@ call mma_deallocate(dxp)
 call mma_deallocate(w2)
 
 eig_res = eig
-call fmove_cvb(solp,solp_res,itdav)
+solp_res(1:itdav) = solp(1:itdav)
 if (ipdd >= 2) then
   write(u6,'(a,f15.8)') ' Eigenvalue :',eig
   write(u6,'(a)') ' Solution vector :'

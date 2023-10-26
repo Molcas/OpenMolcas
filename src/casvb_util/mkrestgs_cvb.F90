@@ -16,6 +16,7 @@ subroutine mkrestgs_cvb(orbsao,irdorbs,cvb,cvbdet,iapr,ixapr)
 
 use casvb_global, only: kbasis, kbasiscvb, nalf, nbas_mo, nbet, nda, ndetvb, norb, nvb, recn_tmp04
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -50,7 +51,7 @@ call mma_allocate(cvbdet1,ndetvb1,label='cvdet1')
 call rdis_cvb(iabind,ndetvb1,recn_tmp04,ioffs)
 call rdrs_cvb(cvbdet1,ndetvb1,recn_tmp04,ioffs)
 
-call fzero(cvbdet,ndetvb)
+cvbdet(:) = Zero
 do idetvb1=1,ndetvb1
   ! NDA & string definitions assumed the same:
   ib = (iabind(idetvb1)-1)/nda+1

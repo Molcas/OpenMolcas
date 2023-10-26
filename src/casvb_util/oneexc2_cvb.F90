@@ -33,12 +33,14 @@ if (diag) then
   nvij = norb*norb
 else if (idens == 1) then
   nvij = norb*(norb-1)
+else
+  nvij = 0
 end if
 if (absym) then
   if (idens == 0) then
-    call dscal_(nda*ndb,Half,cto,1)
+    cto(:,:) = Half*cto(:,:)
   else
-    call dscal_(nvij,Half,vij,1)
+    vij(1:nvij) = Half*vij(1:nvij)
   end if
 end if
 iprm = 0
@@ -57,7 +59,7 @@ do jorb=1,norb
           if (idens == 0) then
             tcof = vij(iprm)*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
             if (iPvb == 0) then
-              call daxpy_(ndb,tcof,cfrom(jax,1),nda,cto(iax,1),nda)
+              cto(iax,:) = cto(iax,:)+tcof*cfrom(jax,:)
             else if (iPvb == 1) then
               do ixa=ixapr(jax),ixapr(jax+1)-1
                 ibx = iapr(ixa)
@@ -98,7 +100,7 @@ do jorb=1,norb
             if (idens == 0) then
               tcof = vij(iprm)*phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
               if (iPvb == 0) then
-                call daxpy_(nda,tcof,cfrom(1,jbx),1,cto(1,ibx),1)
+                cto(:,ibx) = cto(:,ibx)+tcof*cfrom(:,jbx)
               else if (iPvb == 1) then
                 do ixb=ixbpr(jbx),ixbpr(jbx+1)-1
                   iax = ibpr(ixb)
@@ -113,7 +115,7 @@ do jorb=1,norb
             else
               tcof = phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
               if (iPvb == 0) then
-                vij(iprm) = vij(iprm)+tcof*ddot_(nda,cto(1,ibx),1,cfrom(1,jbx),1)
+                vij(iprm) = vij(iprm)+tcof*ddot_(nda,cto(:,ibx),1,cfrom(:,jbx),1)
               else if (iPvb == 1) then
                 do ixb=ixbpr(jbx),ixbpr(jbx+1)-1
                   iax = ibpr(ixb)
@@ -139,7 +141,7 @@ do jorb=1,norb
           if (idens == 0) then
             tcof = vij(iprm)*phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
             if (iPvb == 0) then
-              call daxpy_(ndb,tcof,cfrom(jax,1),nda,cto(iax,1),nda)
+              cto(iax,:) = cto(iax,:)+tcof*cfrom(jax,:)
             else if (iPvb == 1) then
               ibx = ndb-jax+1
               cto(iax,ibx) = cto(iax,ibx)+tcof*cfrom(jax,ibx)
@@ -172,7 +174,7 @@ do jorb=1,norb
             if (idens == 0) then
               tcof = vij(iprm)*phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
               if (iPvb == 0) then
-                call daxpy_(nda,tcof,cfrom(1,jbx),1,cto(1,ibx),1)
+                cto(:,ibx) = cto(:,ibx)+tcof*cfrom(:,jbx)
               else if (iPvb == 1) then
                 iax = nda-jbx+1
                 cto(iax,ibx) = cto(iax,ibx)+tcof*cfrom(iax,jbx)
@@ -183,7 +185,7 @@ do jorb=1,norb
             else
               tcof = phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
               if (iPvb == 0) then
-                vij(iprm) = vij(iprm)+tcof*ddot_(nda,cto(1,ibx),1,cfrom(1,jbx),1)
+                vij(iprm) = vij(iprm)+tcof*ddot_(nda,cto(:,ibx),1,cfrom(:,jbx),1)
               else if (iPvb == 1) then
                 iax = nda-jbx+1
                 vij(iprm) = vij(iprm)+tcof*cto(iax,ibx)*cfrom(iax,jbx)
@@ -207,7 +209,7 @@ if (absym) then
       end do
     end do
   else
-    call dscal_(nvij,Two,vij,1)
+    vij(1:nvij) = Two*vij(1:nvij)
   end if
 end if
 

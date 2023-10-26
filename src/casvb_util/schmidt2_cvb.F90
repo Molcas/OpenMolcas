@@ -28,10 +28,10 @@ real(kind=wp), external :: ddot_
 call mma_allocate(cnrm,nvec,label='cnrm')
 do i=1,nvec
   do j=1,i-1
-    if (cnrm(j) > thresh) call daxpy_(n,-ddot_(n,c(1,i),1,sxc(1,j),1)/cnrm(j),c(1,j),1,c(1,i),1)
+    if (cnrm(j) > thresh) c(:,i) = c(:,i)-ddot_(n,c(:,i),1,sxc(:,j),1)/cnrm(j)*c(:,j)
   end do
-  if (metr /= 0) call saoon_cvb(c(1,i),sxc(1,i),1,sao,n,metr)
-  cnrm(i) = ddot_(n,c(1,i),1,sxc(1,i),1)
+  if (metr /= 0) call saoon_cvb(c(:,i),sxc(:,i),1,sao,n,metr)
+  cnrm(i) = ddot_(n,c(:,i),1,sxc(:,i),1)
 end do
 call mma_deallocate(cnrm)
 

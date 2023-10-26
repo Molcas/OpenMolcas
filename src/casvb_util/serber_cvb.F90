@@ -49,7 +49,7 @@ if (ifns /= xspin((nel+1)*(nbet+1))) then
   write(u6,*) ' Discrepancy in IFNS:',ifns,xspin((nel+1)*(nbet+1))
   call abend_cvb()
 end if
-call imove_cvb(maxspn,nkspn,nel+1)
+nkspn(:) = maxspn(:)
 call occupy_cvb(nkspn,nel,locca,lnocca)
 ! Loop:
 indx = 1

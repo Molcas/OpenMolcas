@@ -12,7 +12,6 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-!IFG trivial
 subroutine mxatbp_cvb(a,b,n1,n2,n3,c)
 
 use Constants, only: One

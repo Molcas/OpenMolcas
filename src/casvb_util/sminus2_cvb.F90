@@ -15,7 +15,7 @@
 subroutine sminus2_cvb(bikfrom,bikto,nel,nalffrom,ndetfrom,nalfto,ndetto,nvec)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -27,7 +27,7 @@ integer(kind=iwp), external :: minind_cvb
 
 call mma_allocate(xdetto,[0,nel],[0,nalfto],label='xdetto')
 
-call fzero(bikto,ndetto*nvec)
+bikto(:,:) = Zero
 
 ! Determinant (to) weight array:
 call weightfl_cvb(xdetto,nalfto,nel)
@@ -41,10 +41,10 @@ call mma_allocate(ioccto,nalfto,label='ioccto')
 
 call loopstr0_cvb(ioccfrom,indfrom,nalffrom,nel)
 do
-  call imove_cvb(ioccfrom(2),ioccto,nalfto)
+  ioccto(1:nalfto) = ioccfrom(2:nalfto+1)
   do iexc=1,nalffrom
     indto = minind_cvb(ioccto,nalfto,nel,xdetto)
-    call daxpy_(nvec,One,bikfrom(indfrom,1),ndetfrom,bikto(indto,1),ndetto)
+    bikto(indto,:) = bikto(indto,:)+bikfrom(indfrom,:)
     if (iexc < nalffrom) ioccto(iexc) = ioccfrom(iexc)
   end do
   call loopstr_cvb(ioccfrom,indfrom,nalffrom,nel)

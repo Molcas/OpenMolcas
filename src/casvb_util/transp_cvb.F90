@@ -22,16 +22,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: n1, n2
 real(kind=wp) :: a(n1,n2), b(n2,n1)
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i
 real(kind=wp), allocatable :: tmp(:,:)
 
 call mma_allocate(tmp,n2,n1,label='tmp')
 do i=1,n1
-  do j=1,n2
-    tmp(j,i) = a(i,j)
-  end do
+  tmp(:,i) = a(i,:)
 end do
-call fmove_cvb(tmp,b,n2*n1)
+b(:,:) = tmp(:,:)
 call mma_deallocate(tmp)
 
 return

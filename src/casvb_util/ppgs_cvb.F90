@@ -24,7 +24,7 @@ integer(kind=iwp) :: icoffs_nconf, ifrag, ioffs_cvb, iS, kbasiscvb_kp, nelsing
 
 ! First applicable configuration with first possible spin in
 ! each fragment is set to perfect-pairing:
-call dcopy_(nvb,[1.0e-2_wp],0,cvb,1)
+cvb(:) = 1.0e-2_wp
 ioffs_cvb = 0
 icoffs_nconf = 0
 do ifrag=1,nfrag

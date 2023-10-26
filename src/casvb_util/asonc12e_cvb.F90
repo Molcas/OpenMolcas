@@ -20,6 +20,7 @@ subroutine asonc12e_cvb( &
 
 use casvb_global, only: civb2, civb3, civb4, cpu0, cvb, cvbdet, ipp12e, iter12e, npr, nprorb, nvb, orbs, strucopt
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -44,7 +45,7 @@ end if
 call mma_allocate(vec_all,npr,label='vec_all')
 do ivec=1,nvec
   call free2all_cvb(c(ic1,ivec),vec_all,1)
-  if (.not. strucopt) call daxpy_(nvb,c(1,ivec),cvb,1,vec_all(nprorb+1),1)
+  if (.not. strucopt) vec_all(nprorb+1:nprorb+nvb) = vec_all(nprorb+1:nprorb+nvb)+c(1,ivec)*cvb(1:nvb)
   ! (CIVB set in O12EA :)
   call cizero_cvb(civb2)
   call oneexc_cvb(civb3,civb2,vec_all,.false.,0)
@@ -55,17 +56,17 @@ do ivec=1,nvec
 
   call ci2vbg_cvb(civb4,cvbdet)
   call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
-  call fzero(vec_all,nprorb)
+  vec_all(1:nprorb) = Zero
   call onedens_cvb(civb3,civb4,vec_all,.false.,0)
   call all2free_cvb(vec_all,axc(ic1,ivec),1)
-  if (.not. strucopt) axc(1,ivec) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+  if (.not. strucopt) axc(1,ivec) = ddot_(nvb,cvb,1,vec_all(nprorb+1:nprorb+nvb),1)
 
   call ci2vbg_cvb(civb2,cvbdet)
   call vb2strg_cvb(cvbdet,vec_all(nprorb+1))
-  call fzero(vec_all,nprorb)
+  vec_all(1:nprorb) = Zero
   call onedens_cvb(civb3,civb2,vec_all,.false.,0)
   call all2free_cvb(vec_all,sxc(ic1,ivec),1)
-  if (.not. strucopt) sxc(1,ivec) = ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+  if (.not. strucopt) sxc(1,ivec) = ddot_(nvb,cvb,1,vec_all(nprorb+1:nprorb+nvb),1)
 end do
 call mma_deallocate(vec_all)
 

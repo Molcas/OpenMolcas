@@ -15,7 +15,6 @@
 !** Time and date routines **
 !****************************
 
-!IFG trivial
 function tim_cvb(cpu0)
 
 use Definitions, only: wp

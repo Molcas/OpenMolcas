@@ -31,7 +31,7 @@ integer(kind=iwp) :: i, iconf, iMs, ion, iorb, iretval, iretval1, iretval2, iS
 ! Main loop over configurations:
 mnion1 = nel1/2
 mxion1 = 0
-call izero(nconfion,1+nel1/2)
+nconfion(0:nel1/2) = 0
 ndetvb1 = 0
 ndetvb21 = 0
 nvbr1 = 0
@@ -57,7 +57,10 @@ end do
 if ((norb == nel1) .and. (nconf1 == 1)) then
   ifsc1 = 1
   do i=1,nel1
-    if (iconfs(i,nconf1) /= 1) ifsc1 = 0
+    if (iconfs(i,nconf1) /= 1) then
+      ifsc1 = 0
+      exit
+    end if
   end do
 else
   ifsc1 = 0

@@ -23,12 +23,8 @@ use Definitions, only: iwp
 implicit none
 logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 
-if ((.not. variat) .and. up2date_cvb('SVB')) then
-  call add_info('SVB',[abs(svb)],1,7)
-end if
-if ((.not. variat) .and. up2date_cvb('EVB')) then
-  call add_info('EVB',[evb],1,7)
-end if
+if ((.not. variat) .and. up2date_cvb('SVB')) call add_info('SVB',[abs(svb)],1,7)
+if ((.not. variat) .and. up2date_cvb('EVB')) call add_info('EVB',[evb],1,7)
 
 return
 

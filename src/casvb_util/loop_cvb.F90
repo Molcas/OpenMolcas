@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nel, nk(0:nel), nkmin(0:nel), nkmax(0:nel), rc
-integer(kind=iwp) :: iel, ik, jel
+integer(kind=iwp) :: iel, ik
 
 rc = 0
 do iel=1,nel-1
@@ -27,16 +27,14 @@ do iel=1,nel-1
   if (.not. ((nk(iel+1)-ik == 1) .or. (ik == nk(iel-1)) .or. (ik == nkmin(iel)))) then
     ! SITUATION IS :  IEL       \     <= NOT MINIMAL
     !                 IEL+1     |
+    nk(1:iel-1) = min(nkmax(1:iel-1),ik-1)
     nk(iel) = ik-1
-    do jel=1,iel-1
-      nk(jel) = min(nkmax(jel),ik-1)
-    end do
     rc = 1
     return
   end if
 end do
 ! Maximize the loop on exit
-call imove_cvb(nkmax,nk,nel)
+nk(0:nel-1) = nkmax(0:nel-1)
 
 return
 

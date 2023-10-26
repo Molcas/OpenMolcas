@@ -61,14 +61,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nm, n
 real(kind=wp) :: a(nm,n), d(n), e(n), z(nm,n)
-integer(kind=iwp) :: i, ii, j, jp1, k, l
+integer(kind=iwp) :: i, ii, j, jp1, l
 real(kind=wp) :: f, g, h, hh, scl
 
 do i=1,n
 
-  do j=i,n
-    z(j,i) = a(j,i)
-  end do
+  z(i:n,i) = a(i:n,i)
 
   d(i) = a(n,i)
 end do
@@ -78,29 +76,20 @@ do ii=2,n
   i = n+2-ii
   l = i-1
   h = Zero
-  scl = Zero
-  if (l >= 2) then
-    ! .......... scale row (algol tol then not needed) ..........
-    do k=1,l
-      scl = scl+abs(d(k))
-    end do
-  end if
+  ! .......... scale row (algol tol then not needed) ..........
+  scl = sum(abs(d(1:l)))
 
   if (scl == Zero) then
     e(i) = d(l)
 
-    do j=1,l
-      d(j) = z(l,j)
-      z(i,j) = Zero
-      z(j,i) = Zero
-    end do
+    d(1:l) = z(l,1:l)
+    z(i,1:l) = Zero
+    z(1:l,i) = Zero
 
   else
 
-    do k=1,l
-      d(k) = d(k)/scl
-      h = h+d(k)*d(k)
-    end do
+    d(1:l) = d(1:l)/scl
+    h = h+sum(d(1:l)**2)
 
     f = d(l)
     g = -sign(sqrt(h),f)
@@ -108,9 +97,7 @@ do ii=2,n
     h = h-f*g
     d(l) = f-g
     ! .......... form a*u ..........
-    do j=1,l
-      e(j) = Zero
-    end do
+    e(1:l) = Zero
 
     do j=1,l
       f = d(j)
@@ -118,34 +105,24 @@ do ii=2,n
       g = e(j)+z(j,j)*f
       jp1 = j+1
 
-      do k=jp1,l
-        g = g+z(k,j)*d(k)
-        e(k) = e(k)+z(k,j)*f
-      end do
+      g = g+sum(z(jp1:l,j)*d(jp1:l))
+      e(jp1:l) = e(jp1:l)+z(jp1:l,j)*f
 
       e(j) = g
     end do
     ! .......... form p ..........
-    f = Zero
-
-    do j=1,l
-      e(j) = e(j)/h
-      f = f+e(j)*d(j)
-    end do
+    e(1:l) = e(1:l)/h
+    f = sum(e(1:l)*d(1:l))
 
     hh = f/(h+h)
     ! .......... form q ..........
-    do j=1,l
-      e(j) = e(j)-hh*d(j)
-    end do
+    e(1:l) = e(1:l)-hh*d(1:l)
     ! .......... form reduced a ..........
     do j=1,l
       f = d(j)
       g = e(j)
 
-      do k=j,l
-        z(k,j) = z(k,j)-f*e(k)-g*d(k)
-      end do
+      z(j:l,j) = z(j:l,j)-f*e(j:l)-g*d(j:l)
 
       d(j) = z(l,j)
       z(i,j) = Zero
@@ -163,33 +140,23 @@ do i=2,n
   h = d(i)
 
   if (h /= Zero) then
-    do k=1,l
-      d(k) = z(k,i)/h
-    end do
+    d(1:l) = z(1:l,i)/h
 
     do j=1,l
       g = Zero
 
-      do k=1,l
-        g = g+z(k,i)*z(k,j)
-      end do
+      g = sum(z(1:l,i)*z(1:l,j))
 
-      do k=1,l
-        z(k,j) = z(k,j)-g*d(k)
-      end do
+      z(1:l,j) = z(1:l,j)-g*d(1:l)
     end do
   end if
 
-  do k=1,l
-    z(k,i) = Zero
-  end do
+  z(1:l,i) = Zero
 
 end do
 
-do i=1,n
-  d(i) = z(n,i)
-  z(n,i) = Zero
-end do
+d(:) = z(n,:)
+z(n,:) = Zero
 
 z(n,n) = One
 e(1) = Zero

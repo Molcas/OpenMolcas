@@ -75,7 +75,7 @@ do ion=0,nel/2
     end if
 
     do iconf=ioff_nconf+1,ioff_nconf+nconfion(ion)
-      call imove_cvb(iconfs(1,iconf),inewocc,norb)
+      inewocc(:) = iconfs(1:norb,iconf)
       incr = 0
       do iorb=1,norb
         if (inewocc(iorb) == 1) then

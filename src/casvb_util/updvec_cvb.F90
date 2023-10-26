@@ -22,26 +22,23 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: upd(norb), orbs(norb,norb), corth(norb,niorth)
 integer(kind=iwp) :: iorb, jorb, niprev, iprev(niprev), north(norb)
-integer(kind=iwp) :: i, io, ncon, noffort
+integer(kind=iwp) :: i, ncon, noffort
 real(kind=wp) :: dum(1)
 real(kind=wp), allocatable :: tmp(:,:)
 
 call mma_allocate(tmp,norb,norb,label='tmp')
-noffort = 0
-do io=1,iorb-1
-  noffort = noffort+north(io)
-end do
+noffort = sum(north(1:iorb-1))
 ! Collect all constraints and find span:
 call span0_cvb(norb,norb)
-if (north(iorb) > 0) call span1_cvb(corth(1,1+noffort),north(iorb),dum,norb,0)
+if (north(iorb) > 0) call span1_cvb(corth(:,1+noffort),north(iorb),dum,norb,0)
 do i=1,niprev
-  call span1_cvb(orbs(1,iprev(i)),1,dum,norb,0)
+  call span1_cvb(orbs(:,iprev(i)),1,dum,norb,0)
 end do
-call span1_cvb(orbs(1,iorb),1,dum,norb,0)
+call span1_cvb(orbs(:,iorb),1,dum,norb,0)
 call span2_cvb(tmp,ncon,dum,norb,0)
 
 ! Orthogonalise update to all remaining constraints
-call fmove_cvb(orbs(1,jorb),upd,norb)
+upd(:) = orbs(:,jorb)
 call schmidtd_cvb(tmp,ncon,upd,1,dum,norb,0)
 call mma_deallocate(tmp)
 

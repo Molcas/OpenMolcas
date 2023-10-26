@@ -14,9 +14,8 @@
 
 subroutine casinfoinp_cvb()
 
-use casvb_global, only: iorclos_d, iorcore_d, iorocc_d, istms2_d, istnel_d, istsy_d, mxirrep_ci, mxstsy_ci, mxstt_ci, nstats_d, &
-                        nstsym_d, weight_d
-use Constants, only: One
+use casvb_global, only: iorclos_d, iorcore_d, iorocc_d, istms2_d, istnel_d, istsy_d, mxirrep_ci, nstats_d, nstsym_d, weight_d
+use Constants, only: Zero, One
 use Definitions, only: iwp, u6
 
 implicit none
@@ -29,25 +28,25 @@ do
 
   if (istr == 1) then
     ! 'RAS2'
-    call izero(iorocc_d,mxirrep_ci)
+    iorocc_d(:) = 0
     call int_cvb(iorocc_d,mxirrep_ci,nread,1)
   else if (istr == 2) then
     ! 'INACTIVE'
-    call izero(iorclos_d,mxirrep_ci)
+    iorclos_d(:) = 0
     call int_cvb(iorclos_d,mxirrep_ci,nread,1)
   else if (istr == 3) then
     ! 'FROZEN'
-    call izero(iorcore_d,mxirrep_ci)
+    iorcore_d(:) = 0
     call int_cvb(iorcore_d,mxirrep_ci,nread,1)
   end if
   if ((istr == 4) .or. (istr == 5) .or. (istr == 6)) then
     ! 'NACTEL' or 'SPIN' or 'SYMMETRY'
     if (nstsym_d == 0) then
-      call izero(istnel_d,mxstsy_ci)
-      call izero(istsy_d,mxstsy_ci)
-      call izero(istms2_d,mxstsy_ci)
-      call izero(nstats_d,mxstsy_ci)
-      call fzero(weight_d,mxstt_ci*mxstsy_ci)
+      istnel_d(:) = 0
+      istsy_d(:) = 0
+      istms2_d(:) = 0
+      nstats_d(:) = 0
+      weight_d(:,:) = Zero
       nstsym_d = 1
       istsy_d(nstsym_d) = 1
       nstats_d(nstsym_d) = 1
@@ -56,7 +55,7 @@ do
   end if
   if (istr == 4) then
     ! 'NACTEL'
-    call izero(nactel,3)
+    nactel(:) = 0
     call int_cvb(nactel,3,nread,1)
     if ((nactel(2) /= 0) .or. (nactel(3) /= 0)) then
       write(u6,*) ' Illegal NACTEL read :',nactel

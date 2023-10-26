@@ -35,7 +35,7 @@ end if
 call mma_allocate(tmp1,n,n,label='tmp1')
 call mma_allocate(itmp,n,label='itmp')
 ierr = 0
-call fmove_cvb(a,tmp1,n*n)
+tmp1(:,:) = a(:,:)
 call dgetrf_(n,n,tmp1,n,itmp,ierr)
 ! start linpack_determinant
 !call dgefa(tmp1,n,n,itmp,ierr)

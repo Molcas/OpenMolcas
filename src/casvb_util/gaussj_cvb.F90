@@ -32,9 +32,9 @@ real(kind=wp), allocatable :: a(:,:)
 
 call mma_allocate(a,norb,norb,label='a')
 call mma_allocate(lrow,norb,label='lrow')
-call fmove_cvb(orbs,a,norb*norb)
+a(:,:)= orbs(:,:)
 call gaussj2_cvb(a,lrow,gjorb%i1,gjorb%i2,gjorb%r,norb)
-call imove_cvb(gjorb%i1,lrow,norb)
+lrow(:) = gjorb%i1(:)
 do i=1,norb
   gjorb%i1(lrow(i)) = i
 end do

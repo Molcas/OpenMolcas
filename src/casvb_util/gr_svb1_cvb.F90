@@ -15,30 +15,27 @@
 subroutine gr_svb1_cvb(civecp,civbs,civb,dvbdet,grad,grad1,grad2,gradx,vec1)
 
 use casvb_global, only: aa1, aa2, ndet, ndetvb, norb, npr, oaa2, oaa3, ovraa, ovrab
-use Constants, only: One, Two, Three, Four
-use Definitions, only: wp, iwp
+use Constants, only: Zero, One, Two, Three, Four
+use Definitions, only: wp
 
 implicit none
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
 real(kind=wp) :: civecp(0:ndet), civbs(0:ndet), civb(0:ndet), dvbdet(ndetvb), grad(npr), grad1(npr), grad2(npr), gradx(norb,norb), &
                  vec1(*)
-integer(kind=iwp) :: i
 
 aa1 = One/sqrt(ovraa)
 aa2 = -aa1/(Two*ovraa)
 oaa2 = Two*ovrab*aa2
 oaa3 = Three*ovrab*aa1/(Four*ovraa*ovraa)
 
-call fzero(gradx,norb*norb)
+gradx(:,:) = Zero
 call onedens_cvb(civb,civbs,gradx,.true.,1)
 
 call mkgrd_cvb(civb,civbs,grad1,dvbdet,npr,.true.)
 call mkgrd_cvb(civb,civecp,grad2,dvbdet,npr,.true.)
 
-do i=1,npr
-  vec1(i) = aa1*grad2(i)+oaa2*grad1(i)
-  grad1(i) = Two*grad1(i)
-end do
+vec1(1:npr) = aa1*grad2(:)+oaa2*grad1(:)
+grad1(:) = Two*grad1(:)
 call prgrad_cvb(vec1,npr)
 
 call make_cvb('ORBFREE')

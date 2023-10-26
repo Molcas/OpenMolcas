@@ -16,6 +16,7 @@ subroutine oohess_cvb(orbs,civecp,civbs,civb,orbinv,sorbs,owrk,grad2,gradx,hesso
 ! Evaluate "cheap" orbital <-> orbital part of hessian:
 
 use casvb_global, only: aa1, f1, f2, icrit, ndet, norb, npr, nprorb, oaa2, ovraa, proj, projcas, ww
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -32,19 +33,19 @@ else if (icrit == 2) then
   aa1_use = f1
 end if
 
-call fzero(hessorb,nprorb*nprorb)
+hessorb(:,:) = Zero
 if ((icrit == 1) .and. (.not. (proj .or. projcas))) then
   call dev2b_cvb(civbs,civecp,civb,hessorb,hesst,oaa2_use,aa1_use,gradx,grad2)
 
   call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
-  call fmove_cvb(sorbs,orbinv,norb*norb)
+  orbinv(:,:) = sorbs(:,:)
   call mxinv_cvb(orbinv,norb)
 
   do jorb=1,norb
     do iorb=1,norb
       iprm = iorb+(jorb-1)*norb
-      call mxatb_cvb(orbinv,hesst(1,iprm),norb,norb,norb,owrk)
-      call mxatb_cvb(owrk,sorbs,norb,norb,norb,hesst(1,iprm))
+      call mxatb_cvb(orbinv,hesst(:,iprm),norb,norb,norb,owrk)
+      call mxatb_cvb(owrk,sorbs,norb,norb,norb,hesst(:,iprm))
     end do
   end do
   iprm1 = 0

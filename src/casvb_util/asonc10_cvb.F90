@@ -34,10 +34,10 @@ if (ipp >= 2) then
   write(u6,'(a)') ' -----------------------------------------------'
 end if
 
+axc(:,:) = c(:,:)
 do ivec=1,nvec
-  call fmove_cvb(c(1,ivec),axc(1,ivec),nprm)
-  call hess_cvb(axc(1,ivec))
-  call ddproj_cvb(axc(1,ivec),nprm)
+  call hess_cvb(axc(:,ivec))
+  call ddproj_cvb(axc(:,ivec),nprm)
 end do
 
 return

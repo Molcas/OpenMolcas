@@ -104,11 +104,7 @@ ierr = 0
 l = 0 ! dummy initialize
 l1 = 0 ! dummy initialize
 
-do i=1,m
-  do j=1,n
-    u(i,j) = a(i,j)
-  end do
-end do
+u(1:m,1:n) = a(1:m,1:n)
 ! .......... householder reduction to bidiagonal form ..........
 g = Zero
 scl = Zero
@@ -122,15 +118,11 @@ do i=1,n
   scl = Zero
 
   if (i <= m) then
-    do k=i,m
-      scl = scl+abs(u(k,i))
-    end do
+    scl = scl+sum(abs(u(i:m,i)))
 
     if (abs(scl) >= thresh) then
-      do k=i,m
-        u(k,i) = u(k,i)/scl
-        s = s+u(k,i)**2
-      end do
+      u(i:m,i) = u(i:m,i)/scl
+      s = s+sum(u(i:m,i)**2)
 
       f = u(i,i)
       g = -sign(sqrt(s),f)
@@ -139,23 +131,16 @@ do i=1,n
 
       if (i /= n) then
         do j=l,n
-          s = Zero
 
-          do k=i,m
-            s = s+u(k,i)*u(k,j)
-          end do
+          s = sum(u(i:m,i)*u(i:m,j))
 
           f = s/h
 
-          do k=i,m
-            u(k,j) = u(k,j)+f*u(k,i)
-          end do
+          u(i:m,j) = u(i:m,j)+f*u(i:m,i)
         end do
       end if
 
-      do k=i,m
-        u(k,i) = scl*u(k,i)
-      end do
+      u(i:m,i) = scl*u(i:m,i)
     end if
   end if
 
@@ -165,42 +150,28 @@ do i=1,n
   scl = Zero
 
   if ((i <= m) .and. (i /= n)) then
-    do k=l,n
-      scl = scl+abs(u(i,k))
-    end do
+    scl = scl+sum(abs(u(i,l:)))
 
     if (abs(scl) >= thresh) then
-      do k=l,n
-        u(i,k) = u(i,k)/scl
-        s = s+u(i,k)**2
-      end do
+      u(i,l:) = u(i,l:)/scl
+      s = s+sum(u(i,l:)**2)
 
       f = u(i,l)
       g = -sign(sqrt(s),f)
       h = f*g-s
       u(i,l) = f-g
 
-      do k=l,n
-        rv1(k) = u(i,k)/h
-      end do
+      rv1(l:) = u(i,l:)/h
 
       if (i /= m) then
         do j=l,m
-          s = Zero
+          s = sum(u(j,l:)*u(i,l:))
 
-          do k=l,n
-            s = s+u(j,k)*u(i,k)
-          end do
-
-          do k=l,n
-            u(j,k) = u(j,k)+s*rv1(k)
-          end do
+          u(j,l:) = u(j,l:)+s*rv1(l:)
         end do
       end if
 
-      do k=l,n
-        u(i,k) = scl*u(i,k)
-      end do
+      u(i,l:) = scl*u(i,l:)
     end if
   end if
 
@@ -214,28 +185,18 @@ if (matv) then
 
     if (i /= n) then
       if (abs(g) >= thresh) then
-        do j=l,n
-          ! .......... double division avoids possible underflow ..........
-          v(j,i) = (u(i,j)/u(i,l))/g
-        end do
+        ! .......... double division avoids possible underflow ..........
+        v(l:n,i) = (u(i,l:n)/u(i,l))/g
 
         do j=l,n
-          s = Zero
+          s = sum(u(i,l:)*v(l:n,j))
 
-          do k=l,n
-            s = s+u(i,k)*v(k,j)
-          end do
-
-          do k=l,n
-            v(k,j) = v(k,j)+s*v(k,i)
-          end do
+          v(l:n,j) = v(l:n,j)+s*v(l:n,i)
         end do
       end if
 
-      do j=l,n
-        v(i,j) = Zero
-        v(j,i) = Zero
-      end do
+      v(i,l:n) = Zero
+      v(l:n,i) = Zero
     end if
 
     v(i,i) = One
@@ -254,36 +215,22 @@ if (matu) then
     l = i+1
     g = w(i)
 
-    if (i /= n) then
-      do j=l,n
-        u(i,j) = Zero
-      end do
-    end if
+    if (i /= n) u(i,l:) = Zero
 
     if (abs(g) < thresh) then
-      do j=i,m
-        u(j,i) = Zero
-      end do
+      u(i:m,i) = Zero
     else
       if (i /= mn) then
         do j=l,n
-          s = Zero
-
-          do k=l,m
-            s = s+u(k,i)*u(k,j)
-          end do
+          s = sum(u(l:m,i)*u(l:m,j))
           ! .......... double division avoids possible underflow ..........
           f = (s/u(i,i))/g
 
-          do k=i,m
-            u(k,j) = u(k,j)+f*u(k,i)
-          end do
+          u(i:m,j) = u(i:m,j)+f*u(i:m,i)
         end do
       end if
 
-      do j=i,m
-        u(j,i) = u(j,i)/g
-      end do
+      u(i:m,i) = u(i:m,i)/g
     end if
 
     u(i,i) = u(i,i)+One
@@ -347,11 +294,7 @@ do kk=1,n
       ! .......... w(k) is made non-negative ..........
       w(k) = -z
 
-      if (matv) then
-        do j=1,n
-          v(j,k) = -v(j,k)
-        end do
-      end if
+      if (matv) v(1:n,k) = -v(1:n,k)
       exit
     else
       ! .......... shift from bottom 2 by 2 minor ..........

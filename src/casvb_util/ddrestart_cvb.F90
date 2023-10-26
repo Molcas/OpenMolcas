@@ -28,7 +28,7 @@ real(kind=wp), allocatable :: eigval(:), eigvec(:,:)
 
 call mma_allocate(eigval,maxdav,label='eigval')
 call mma_allocate(eigvec,maxdav,maxdav,label='eigvec')
-call fmove_cvb(hp,eigvec,maxdav*maxdav)
+eigvec(:,:) = hp(:,:)
 call mxdiag_cvb(eigvec,eigval,maxdav)
 call mma_deallocate(eigval)
 
@@ -43,11 +43,11 @@ if (ifollow <= 2) then
     else
       ir_use = ir
     end if
-    call mxatb_cvb(c,eigvec(1,ir_use),n,maxdav,1,axc(1,ir+1))
+    call mxatb_cvb(c,eigvec(:,ir_use),n,maxdav,1,axc(:,ir+1))
   end do
-  call fmove_cvb(axc(1,2),c(1,2),n*(nroot-1))
+  c(:,2:nroot) = axc(:,2:nroot)
 end if
-call fmove_cvb(vec,c(1,1),n)
+c(:,1) = vec(:)
 call mma_deallocate(eigvec)
 
 return

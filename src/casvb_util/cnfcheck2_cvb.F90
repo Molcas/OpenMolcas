@@ -49,7 +49,10 @@ do iconf=1,nconf1
   ! Consistency with occ no definition?
   locc = .true.
   do i=norb+1,noe
-    if (iconfs(i,iconf) /= 0) locc = .false.
+    if (iconfs(i,iconf) /= 0) then
+      locc = .false.
+      exit
+    end if
   end do
   nsum = 0
   do i=1,norb
@@ -60,9 +63,12 @@ do iconf=1,nconf1
   ! Consistency with orb list definition?
   lorbs = .true.
   do i=nel1+1,noe
-    if (iconfs(i,iconf) /= 0) lorbs = .false.
+    if (iconfs(i,iconf) /= 0) then
+      lorbs = .false.
+      exit
+    end if
   end do
-  call izero(iocc,norb)
+  iocc(1:norb) = 0
   do i=1,nel1
     if ((iconfs(i,iconf) >= 1) .and. (iconfs(i,iconf) <= norb)) then
       iocc(iconfs(i,iconf)) = iocc(iconfs(i,iconf))+1
@@ -71,7 +77,10 @@ do iconf=1,nconf1
     end if
   end do
   do i=1,norb
-    if (iocc(i) > 2) lorbs = .false.
+    if (iocc(i) > 2) then
+      lorbs = .false.
+      exit
+    end if
   end do
 
   if (locc .and. (.not. lorbs)) then
@@ -93,7 +102,10 @@ do iconf=1,nconf1
     ! Consistency with occ no definition?
     locc = .true.
     do i=norb+1,noe
-      if (iconfs(i,iconf) /= 0) locc = .false.
+      if (iconfs(i,iconf) /= 0) then
+        locc = .false.
+        exit
+      end if
     end do
     nsum = 0
     do i=1,norb
@@ -104,9 +116,12 @@ do iconf=1,nconf1
     ! Consistency with orb list definition?
     lorbs = .true.
     do i=nel1+1,noe
-      if (iconfs(i,iconf) /= 0) lorbs = .false.
+      if (iconfs(i,iconf) /= 0) then
+        lorbs = .false.
+        exit
+      end if
     end do
-    call izero(iocc,norb)
+    iocc(1:norb) = 0
     do i=1,nel1
       if ((iconfs(i,iconf) >= 1) .and. (iconfs(i,iconf) <= norb)) then
         iocc(iconfs(i,iconf)) = iocc(iconfs(i,iconf))+1
@@ -115,24 +130,27 @@ do iconf=1,nconf1
       end if
     end do
     do i=1,norb
-      if (iocc(i) > 2) lorbs = .false.
+      if (iocc(i) > 2) then
+        lorbs = .false.
+        exit
+      end if
     end do
   end if
   if (locc .and. lorbs) then
     ! Comment out following 5 lines if default should be occ no definition:
-    call izero(iocc,norb)
+    iocc(1:norb) = 0
     do i=1,nel1
       iocc(iconfs(i,iconf)) = iocc(iconfs(i,iconf))+1
     end do
-    call imove_cvb(iocc,iconfs(1,iconf),norb)
-    if (noe-norb > 0) call izero(iconfs(norb+1,iconf),noe-norb)
+    iconfs(1:norb,iconf) = iocc(1:norb)
+    if (noe-norb > 0) iconfs(norb+1:,iconf) = 0
   else if (lorbs) then
-    call izero(iocc,norb)
+    iocc(1:norb) = 0
     do i=1,nel1
       iocc(iconfs(i,iconf)) = iocc(iconfs(i,iconf))+1
     end do
-    call imove_cvb(iocc,iconfs(1,iconf),norb)
-    if (noe-norb > 0) call izero(iconfs(norb+1,iconf),noe-norb)
+    iconfs(1:norb,iconf) = iocc(1:norb)
+    if (noe-norb > 0) iconfs(norb+1:,iconf) = 0
   end if
   if (iconf <= 500) then
     ! Test for repeated configurations:

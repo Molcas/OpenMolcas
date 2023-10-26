@@ -16,7 +16,6 @@ subroutine symtrizcvb2_cvb(vecstr,izeta,ipermzeta)
 
 use casvb_global, only: ndetvb, norb, nsyme, nvb, nzeta
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -34,12 +33,12 @@ do isyme=1,nsyme
     call str2vbc_cvb(vecstr,dvbdet)
     call permvb_cvb(dvbdet,ipermzeta(1,izeta1))
     call vb2strc_cvb(dvbdet,vecstr2)
-    call daxpy_(nvb,real(izeta(isyme),kind=wp),vecstr2,1,vecstr,1)
+    vecstr(:) = vecstr(:)+real(izeta(isyme),kind=wp)*vecstr2(:)
   end if
 end do
 call mma_deallocate(dvbdet)
 call mma_deallocate(vecstr2)
-if (izeta1 > 0) call dscal_(nvb,One/real(2**izeta1,kind=wp),vecstr,1)
+if (izeta1 > 0) vecstr(:) = vecstr(:)/real(2**izeta1,kind=wp)
 
 return
 

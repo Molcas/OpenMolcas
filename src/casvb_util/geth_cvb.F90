@@ -23,7 +23,7 @@ integer(kind=iwp) :: n, iarr(n)
 if (icnt < ncnt) then
   call rdbis_cvb(iarr,n,icnt)
 else
-  call izero(iarr,n)
+  iarr(:) = 0
 end if
 
 return

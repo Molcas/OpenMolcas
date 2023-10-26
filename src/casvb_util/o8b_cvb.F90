@@ -18,7 +18,7 @@ subroutine o8b_cvb( &
                   )
 
 use casvb_global, only: eigval, eigvec, hh, ip, odx, ograd, scalesmall
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,12 +30,12 @@ real(kind=wp), external :: dnrm2_
 #include "macros.fh"
 unused_var(grdnrm)
 
-call fzero(eigvec,(nparm+1)*(nparm+1))
-do iprm=1,nparm
-  eigvec(iprm+1,1) = ograd(iprm)
-  eigvec(1,iprm+1) = ograd(iprm)
-  eigvec(iprm+1,iprm+1) = One
-  call hess_cvb(eigvec(2,iprm+1))
+eigvec(1:nparm+1,1:nparm+1) = Zero
+eigvec(2:nparm+1,1) = ograd(1:nparm)
+eigvec(1,2:nparm+1) = ograd(1:nparm)
+do iprm=2,nparm+1
+  eigvec(iprm,iprm) = One
+  call hess_cvb(eigvec(2,iprm))
 end do
 write(u6,*) ' Augmented Hessian matrix :'
 call mxprint_cvb(eigvec,nparm+1,nparm+1,0)
@@ -48,13 +48,13 @@ if (ip >= 2) then
   call vecprint_cvb(eigvec(1,iroot),nparm+1)
 end if
 write(u6,*) ' Following root no :',iroot
-call fmove_cvb(eigvec(2,iroot),odx,nparm)
+odx(:) = eigvec(2:,iroot)
 if (abs(eigvec(1,iroot)) > 1.0e-8_wp) then
   fac1 = One/eigvec(1,iroot)
 else
   fac1 = sign(One,eigvec(1,iroot))
 end if
-call dscal_(nparm,fac1,odx,1)
+odx(1:nparm) = fac1*odx(1:nparm)
 dxnrm = dnrm2_(nparm,odx,1)
 if (.not. close2conv) then
   ipu = 1
@@ -62,7 +62,7 @@ else
   ipu = 2
 end if
 if ((dxnrm > hh) .or. scalesmall(ipu)) then
-  call dscal_(nparm,hh/dxnrm,odx,1)
+  odx(1:nparm) = hh/dxnrm*odx(1:nparm)
   dxnrm = hh
 end if
 

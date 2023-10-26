@@ -20,9 +20,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), external :: nvb_cvb
 
-if (inputmode == 1) then
-  mxnvb = max(mxnvb,nvb_cvb(kbasis))
-end if
+if (inputmode == 1) mxnvb = max(mxnvb,nvb_cvb(kbasis))
 
 return
 

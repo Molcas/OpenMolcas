@@ -14,6 +14,7 @@
 
 subroutine mxprintd_cvb(a,nrow,ncol,itype)
 
+use Index_Functions, only: iTri
 use casvb_global, only: formMXP1, formMXP2, formMXP3, formMXP4, iprec, iwidth
 use Definitions, only: wp, iwp, u6
 
@@ -50,11 +51,7 @@ do
       if (itype == 0) then
         ind = (j-1)*nrow+i
       else if (itype == 1) then
-        if (i >= j) then
-          ind = i*(i-1)/2+j
-        else
-          ind = j*(j-1)/2+i
-        end if
+        ind = iTri(i,j)
       else
         ind = (i-1)*ncol+j
       end if

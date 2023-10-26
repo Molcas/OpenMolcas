@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: vecvb(ndet), vecmol(*), fac
 integer(kind=iwp) :: isyml, iwr, nsa, nsb
-integer(kind=iwp) :: idet, indbet, indx, ioffsa, ioffsb, is, isa, isb, isyma, isymb, nnsa, nnsb, nstra(mxirrep), nstrb(mxirrep)
+integer(kind=iwp) :: idet, indbet, indx, ioffsa, ioffsb, isa, isb, isyma, isymb, nnsa, nnsb, nstra(mxirrep), nstrb(mxirrep)
 integer(kind=iwp), allocatable :: indxa(:), indxb(:)
 
 call mma_allocate(indxa,nsa,label='indxa')
@@ -38,14 +38,8 @@ do isyma=1,mxirrep
   nnsb = nstrb(isymb)
   if ((nnsa <= 0) .or. (nnsb <= 0)) cycle
 
-  ioffsa = 0
-  do is=1,isyma-1
-    ioffsa = ioffsa+nstra(is)
-  end do
-  ioffsb = 0
-  do is=1,isymb-1
-    ioffsb = ioffsb+nstrb(is)
-  end do
+  ioffsa = sum(nstra(1:isyma-1))
+  ioffsb = sum(nstrb(1:isymb-1))
 
   do isb=1,nnsb
     indbet = indxb(isb+ioffsb)

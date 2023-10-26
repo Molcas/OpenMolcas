@@ -143,9 +143,7 @@ if (first .or. (l /= 1)) then
     end do
   end do
   ! .......... now balance the submatrix in rows k to l ..........
-  do i=k,l
-    scl(i) = One
-  end do
+  scl(k:l) = One
   ! .......... iterative loop for norm reduction ..........
   do
     noconv = .false.
@@ -164,14 +162,12 @@ if (first .or. (l /= 1)) then
       g = r/rdx
       f = One
       s = c+r
-      do
-        if (c >= g) exit
+      do while (c < g)
         f = f*rdx
         c = c*b2
       end do
       g = r*rdx
-      do
-        if (c < g) exit
+      do while (c >= g)
         f = f/rdx
         c = c/b2
       end do
@@ -181,13 +177,9 @@ if (first .or. (l /= 1)) then
       scl(i) = scl(i)*f
       noconv = .true.
 
-      do j=k,n
-        a(i,j) = a(i,j)*g
-      end do
+      a(i,k:) = a(i,k:)*g
 
-      do j=1,l
-        a(j,i) = a(j,i)*f
-      end do
+      a(1:l,i) = a(1:l,i)*f
 
     end do
 

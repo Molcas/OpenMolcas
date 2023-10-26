@@ -30,7 +30,7 @@ end if
 if (tstfile_cvb(file_id)) then
   call rdi_cvb(ioff,nbuf,file_id,0)
 else
-  call izero(ioff,nbuf)
+  ioff(:) = 0
 end if
 ioff(ifield) = ioffset
 call wri_cvb(ioff,nbuf,file_id,0)

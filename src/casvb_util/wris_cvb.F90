@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, RtoI
 implicit none
 integer(kind=iwp) :: n, ivec(n), ioffset
 real(kind=wp) :: file_id
-integer(kind=iwp) :: ibuf(8), ilen, nreals, nrem
+integer(kind=iwp) :: ibuf(8), ilen, ioff, nreals, nrem
 
 nreals = n/RtoI
 nrem = n-nreals*RtoI
@@ -51,7 +51,8 @@ subroutine wris_cvb_internal(ivec,ibuf)
       call rdlow_cvb(buf,1,file_id,nreals+ioffset)
       nullify(buf)
     end if
-    call imove_cvb(ivec(1+nreals*RtoI),ibuf,nrem)
+    ioff = nreals*RtoI
+    ibuf(1:nrem) = ivec(ioff+1:ioff+nrem)
     call c_f_pointer(c_loc(ibuf(1)),buf,[1])
     call wrlow_cvb(buf,1,file_id,nreals+ioffset)
     nullify(buf)

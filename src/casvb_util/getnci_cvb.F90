@@ -38,7 +38,7 @@ call mma_allocate(isymbet,ndb1,label='isymbet')
 call symgen_cvb(nalf1,nbet1,nda1,ndb1,isymalf,isymbet,iasyind,ibsyind,irpdet)
 
 if (isymloc == 0) then
-  call imove_cvb(irpdet,nciloc,mxirrep)
+  nciloc(1:mxirrep) = irpdet(:)
 else
   nciloc(1) = irpdet(isymloc)
 end if

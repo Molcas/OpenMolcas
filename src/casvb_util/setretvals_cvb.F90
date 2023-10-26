@@ -22,14 +22,11 @@ real(kind=wp) :: esym(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-integer(kind=iwp) :: jroot
 
 if (nac == 0) then
   ener(1,iter) = emy
 else
-  do jroot=1,lroots
-    ener(jroot,iter) = esym(stsym)
-  end do
+  ener(1:lroots,iter) = esym(stsym)
 end if
 iterci = n_iter
 

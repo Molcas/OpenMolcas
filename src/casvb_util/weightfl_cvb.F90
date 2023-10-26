@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp) :: n, nel, ix(0:nel,0:n)
 integer(kind=iwp) :: iel, ik
 
-call izero(ix,(n+1)*(nel+1))
+ix(:,:) = 0
 ix(0,0) = 1
 do iel=1,nel
   do ik=max(iel-nel+n,0),min(iel,n)

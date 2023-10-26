@@ -31,7 +31,7 @@ ivec1 = nint(cvec1(0))
 ivec2 = nint(cvec2(0))
 iformat = iform_ci(ivec1)
 if (iformat == 0) then
-  call daxpy_(ndet,fac,cvec1(1:),1,cvec2(1:),1)
+  cvec2(1:) = cvec2(1:)+fac*cvec1(1:)
 else
   write(u6,*) ' Unsupported format in CIDAXPY :',iformat
   call abend_cvb()

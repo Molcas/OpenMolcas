@@ -30,8 +30,8 @@ logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
 if (tstfile_cvb(66000.2_wp)) then
   call mma_allocate(tmp,norb*norb+nvb,label='tmp')
   call rdlow_cvb(tmp,norb*norb+nvb,66000.2_wp,0)
-  call subvec(tmp,orbs,tmp,norb*norb)
-  call subvec(tmp(norb*norb+1),cvb,tmp(norb*norb+1),nvb)
+  tmp(1:norb*norb) = pack(orbs(:,:),.true.)-tmp(1:norb*norb)
+  tmp(norb*norb+1:) = cvb(:)-tmp(norb*norb+1:)
   dxnrm = dnrm2_(norb*norb+nvb,tmp,1)
   call findamx_cvb(tmp,norb*norb+nvb,dx_amx,idum)
   call mma_deallocate(tmp)

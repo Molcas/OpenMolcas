@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "ddres_interface.fh"
 real(kind=wp) :: alfa
-integer(kind=iwp) :: i, ivb, nnegeig, nposeig
+integer(kind=iwp) :: i, nnegeig, nposeig
 
 if (ifollow == 1) then
   nposeig = nroot-1
@@ -37,16 +37,14 @@ else
   write(u6,*) ' Error in IFOLLOW with direct Fletcher!',ifollow
   call abend_cvb()
 end if
-call fmove_cvb(rhs,res,n)
+res(:) = rhs(:)
 do i=1,itdav
   if (i <= nnegeig) then
     alfa = eig_res
   else
     alfa = -eig_res
   end if
-  do ivb=1,n
-    res(ivb) = res(ivb)+(axc(ivb,i)-alfa*sxc(ivb,i))*solp_res(i)
-  end do
+  res(:) = res(:)+(axc(:,i)-alfa*sxc(:,i))*solp_res(i)
 end do
 
 is_converged = .true.

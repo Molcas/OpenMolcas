@@ -27,7 +27,7 @@ integer(kind=iwp), allocatable :: tmp(:)
 logical(kind=iwp) :: done
 
 call mma_allocate(tmp,n,label='tmp')
-call imove_cvb(iperm,tmp,n)
+tmp(:) = iperm(:)
 
 ! Following caters for non-contiguous integers:
 ntransp = 0

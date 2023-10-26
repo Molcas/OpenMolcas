@@ -24,9 +24,7 @@ integer(kind=iwp) :: ioffset
 if (ibuf == 0) return
 ioffset = (ibuf-1)*lbuf/RtoI
 call bufio_wrzbuf_cvb_internal(izbuffer)
-if (ibuf > nbuf) then
-  nbuf = ibuf
-end if
+if (ibuf > nbuf) nbuf = ibuf
 
 return
 

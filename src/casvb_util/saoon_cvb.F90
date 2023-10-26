@@ -15,29 +15,26 @@
 subroutine saoon_cvb(c1,c2,n2,s,n,metr)
 ! Put matrix product S*C1 in C2:
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: n2, n, metr
 real(kind=wp) :: c1(n,n2), c2(n,n2), s(*)
-integer(kind=iwp) :: i, ik, j, k
+integer(kind=iwp) :: ik, j, k
 
 if (metr == 0) then
-  call fmove_cvb(c1,c2,n*n2)
+  c2(:,:) = c1(:,:)
 else if (metr == 1) then
   call mxatb_cvb(s,c1,n,n,n2,c2)
 else if (metr == 2) then
-  call fzero(c2,n*n2)
+  c2(:,:) = Zero
   do j=1,n2
     ik = 0
     do k=1,n
-      do i=1,k-1
-        ik = ik+1
-        c2(i,j) = c2(i,j)+s(ik)*c1(k,j)
-        c2(k,j) = c2(k,j)+s(ik)*c1(i,j)
-      end do
-      ik = ik+1
-      c2(k,j) = c2(k,j)+s(ik)*c1(k,j)
+      c2(1:k-1,j) = c2(1:k-1,j)+s(ik+1:ik+k-1)*c1(k,j)
+      c2(k,j) = c2(k,j)+sum(s(ik+1:ik+k)*c1(1:k,j))
+      ik = ik+k
     end do
   end do
 end if

@@ -14,6 +14,7 @@
 
 subroutine input_cvb()
 
+use Index_Functions, only: nTri_Elem
 use casvb_global, only: absym, confsinp, gsinp, i2s_fr, iciweights, icrit, imethod, initial, inputmode, iorbprm, ipr, iprec, &
                         isaddle, ishstruc, isympr, isymv, ityp, ivbweights, iwidth, kbasis, lfxvb, lzrvb, mnion, mnion_fr, mxaobf, &
                         mxion, mxion_fr, mxirrep, mxiter, mxorb_cvb, mxops, mxsyme, nalf, nalf_fr, nbet, nbet_fr, nconf, nconf_fr, &
@@ -27,7 +28,7 @@ use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp) :: i, i2s_min, iconf_add, idum(1), ifrag, ifrom, ifsc, igroup, io, ioffs, iorb, ip_from, ip_to, iS, istr, istr2, &
-                     isyme, isymput, itag, ito, jconf, jorb, kbasis_old, kbasiscvb_inp, mxalter, mxdimrel, mxortl, mxpair, mxread, &
+                     isyme, isymput, itag, ito, jorb, kbasis_old, kbasiscvb_inp, mxalter, mxdimrel, mxortl, mxpair, mxread, &
                      nelcheck, nfrorb1, nfxorb1, nmov, nops, nread
 real(kind=wp) :: swap
 logical(kind=iwp) :: DoCholesky
@@ -58,7 +59,7 @@ call mma_allocate(ifxorb,mxorb_cvb,label='ifxorb')
 call mma_allocate(izeta,mxsyme,label='izeta')
 
 noe = 2*mxorb_cvb
-mxpair = mxorb_cvb*(mxorb_cvb+1)/2
+mxpair = nTri_Elem(mxorb_cvb)
 mxdimrel = mxpair*(3+mxops)
 
 call hini_cvb()
@@ -81,8 +82,8 @@ ndrot = 0
 lfxvb = 0
 lzrvb = 0
 call maxdims0_cvb()
-call izero(ifxorb,mxorb_cvb)
-call izero(izeta,mxsyme)
+ifxorb(:) = 0
+izeta(:) = 0
 nfrag = 0
 
 call mma_allocate(iorbrel,mxdimrel,label='iorbrel')
@@ -285,7 +286,7 @@ else
     else if (istr == 18) then
       ! 'SYMPROJ'
       projsym = .true.
-      call izero(isympr,mxirrep)
+      isympr(:) = 0
       call int_cvb(idum,1,nread,1)
       isymput = idum(1)
       if (nread == 1) then
@@ -297,7 +298,7 @@ else
           isympr(isymput) = 1
         end do
       else
-        call imove_cvb(isymv,isympr,mxirrep)
+        isympr(:) = isymv(:)
       end if
     else if (istr == 19) then
       ! 'NOSYMPROJ'
@@ -306,7 +307,7 @@ else
       ! 'FIXORB'
       call mma_allocate(itmp,mxorb_cvb,label='itmp')
       call intchk_cvb(itmp,mxorb_cvb,nfxorb,0,'FIXORB',-1)
-      call izero(ifxorb,mxorb_cvb)
+      ifxorb(:) = 0
       do i=1,nfxorb
         ifxorb(itmp(i)) = 1
       end do
@@ -395,15 +396,15 @@ else
       do
         call fstring_cvb(weightkw,nwkw,istr2,ncmp,1)
         if (istr2 == 1) then
-          if (mod(iciweights,2) == 0) iciweights = iciweights+1
+          iciweights = ibset(iciweights,0)
         else if (istr2 == 2) then
-          if (mod(iciweights,4) <= 1) iciweights = iciweights+2
+          iciweights = ibset(iciweights,1)
         else if (istr2 == 3) then
-          if (mod(iciweights,8) <= 3) iciweights = iciweights+4
+          iciweights = ibset(iciweights,2)
         else if (istr2 == 4) then
           iciweights = 0
         else if (istr2 == 5) then
-          iciweights = 7
+          iciweights = ibset(ibset(ibset(0,0),1),2)
         end if
         if (istr2 <= 0) exit
       end do
@@ -498,11 +499,9 @@ if (inputmode == 2) then
     nalf_fr(1,1) = nalf
     nbet_fr(1,1) = nbet
   else
-    do ifrag=1,nfrag
-      nMs_fr(ifrag) = 1
-      nalf_fr(1,ifrag) = (nel_fr(ifrag)+i2s_fr(1,ifrag))/2
-      nbet_fr(1,ifrag) = nel_fr(ifrag)-nalf_fr(1,ifrag)
-    end do
+    nMs_fr(1:nfrag) = 1
+    nalf_fr(1,1:nfrag) = (nel_fr(1:nfrag)+i2s_fr(1,1:nfrag))/2
+    nbet_fr(1,1:nfrag) = nel_fr(1:nfrag)-nalf_fr(1,1:nfrag)
   end if
   if (nfrag == 0) then
     nfrag = 1
@@ -535,16 +534,10 @@ if (inputmode == 2) then
       itmp3(:,1:nconf-1) = confsinp(:,:)
       call mma_deallocate(confsinp)
       call move_alloc(itmp3,confsinp)
-      do jconf=nconf,iconf_add+2,-1
-        call imove_cvb(confsinp(:,jconf-1),confsinp(:,jconf),noe)
-      end do
-      call izero(confsinp(:,iconf_add+1),noe)
-      do i=1,min(nel_fr(ifrag),norb)
-        confsinp(i,iconf_add+1) = 1
-      end do
-      do i=1,nel_fr(ifrag)-norb
-        confsinp(i,iconf_add+1) = 2
-      end do
+      confsinp(:,iconf_add+2:) = confsinp(:,iconf_add+1:nconf-1)
+      confsinp(:,iconf_add+1) = 0
+      confsinp(1:min(nel_fr(ifrag),norb),iconf_add+1) = 1
+      confsinp(1:nel_fr(ifrag)-norb,iconf_add+1) = 2
     end if
     call cnfcheck_cvb(confsinp(:,iconf_add+1),nconf_fr(ifrag),nel_fr(ifrag))
     call cnfini_cvb(confsinp(:,iconf_add+1),nconf_fr(ifrag),nel_fr(ifrag),nS_fr(ifrag),i2s_fr(1,ifrag),nMs_fr(ifrag), &
@@ -568,16 +561,17 @@ if (inputmode == 2) then
   do ifrag=1,nfrag
     i2s_min = nel_fr(ifrag)
     do iS=1,nS_fr(ifrag)
-      if (i2s_fr(iS,ifrag) /= 0) absym(1) = .false.
+      if (i2s_fr(iS,ifrag) /= 0) then
+        absym(1) = .false.
+        exit
+      end if
     end do
     if (kbasis == 6) then
       nS_fr(ifrag) = 1
       i2s_fr(1,ifrag) = i2s_min
     end if
   end do
-  do i=2,5
-    absym(i) = absym(1)
-  end do
+  absym(2:5) = absym(1)
   nvb = nvb_cvb(kbasis)
   mnion = mnion_fr(1)
   mxion = mxion_fr(1)
@@ -591,7 +585,7 @@ if (inputmode == 2) then
   ip_to = 1
   do isyme=1,nsyme
     do iorb=1,norb
-      if (ip_from /= ip_to) call fmove_cvb(symelm(ip_from),symelm(ip_to),norb)
+      if (ip_from /= ip_to) symelm(ip_to:ip_to+norb-1) = symelm(ip_from:ip_from+norb-1)
       ip_from = ip_from+mxorb_cvb
       ip_to = ip_to+norb
     end do
@@ -605,7 +599,7 @@ if (inputmode == 2) then
     jorb = iorbrel(ifrom+1)
     nmov = 3+iorbrel(ifrom+2)
     if ((iorb <= norb) .and. (jorb <= norb)) then
-      if (ifrom /= ito) call imove_cvb(iorbrel(ifrom),iorbrel(ito),nmov)
+      if (ifrom /= ito) iorbrel(ito:ito+nmov-1) = iorbrel(ifrom:ifrom+nmov-1)
       ito = ito+nmov
     end if
     ifrom = ifrom+nmov

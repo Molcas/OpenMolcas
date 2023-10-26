@@ -32,9 +32,7 @@ call mma_allocate(at,n,n,label='at')
 call mma_allocate(c,n,n,label='c')
 ! AT <= A transpose
 do i=1,n
-  do j=1,n
-    at(i,j) = a(j,i)
-  end do
+  at(i,:) = a(:,i)
 end do
 call mxatb_cvb(at,a,n,n,n,c)
 call mma_deallocate(at)

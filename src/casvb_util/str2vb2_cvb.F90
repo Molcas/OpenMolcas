@@ -40,12 +40,12 @@ nalfsing_keep = 0 ! dummy initialize
 ! Determinant to structure transformation
 call mma_allocate(w,ndetvb,label='w')
 if (iway == 1) then
-  call fzero(cvb,nvb)
+  cvb(:) = Zero
   do idet=1,ndetvb
     w(idet) = cvbdet(idetvb(idet))
   end do
 else if (iway == 2) then
-  call fzero(w,ndetvb)
+  w(:) = Zero
 end if
 idadd = 0
 isadd = 0
@@ -87,7 +87,7 @@ do ion=0,nel/2
                 if ((i2s(iS) == 0) .and. absym .and. (ndetvbs(nelsing,nalfsing) /= 1)) then
                   call daxpy_(nconfion(ion),sq2,w(idet+idadd),n_det,cvb(idet+isadd),n_spin)
                 else
-                  call daxpy_(nconfion(ion),one,w(idet+idadd),n_det,cvb(idet+isadd),n_spin)
+                  call daxpy_(nconfion(ion),One,w(idet+idadd),n_det,cvb(idet+isadd),n_spin)
                 end if
               end do
             else if (iway == 2) then
@@ -96,7 +96,7 @@ do ion=0,nel/2
                   call daxpy_(nconfion(ion),sqp5,cvb(idet+isadd),n_spin,w(idet+idadd),n_det)
                   call daxpy_(nconfion(ion),sqp5,cvb(idet+isadd),n_spin,w(ndetvbs(nelsing,nalfsing)-idet+1+idadd),n_det)
                 else
-                  call daxpy_(nconfion(ion),one,cvb(idet+isadd),n_spin,w(idet+idadd),n_det)
+                  call daxpy_(nconfion(ion),One,cvb(idet+isadd),n_spin,w(idet+idadd),n_det)
                 end if
               end do
             end if
@@ -125,7 +125,7 @@ do ion=0,nel/2
               ioff_bikcof = 1+ikcoff(nelsing,nalfsing,i2s(iS))
               ioff = i_spin
               do j_spin=1,ifnss(nelsing,i2s(iS))
-                call fmove_cvb(bikcof(ioff_bikcof),tmp(i_det,ioff),ndetvbs(nelsing,nalfsing))
+                tmp(i_det:idet+ndetvbs(nelsing,nalfsing)-1,ioff) = bikcof(ioff_bikcof:ioff_bikcof+ndetvbs(nelsing,nalfsing)-1)
                 ioff_bikcof = ioff_bikcof+ndetvbs(nelsing,nalfsing)
                 ioff = ioff+1
               end do

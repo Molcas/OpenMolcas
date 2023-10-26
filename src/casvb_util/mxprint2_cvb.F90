@@ -15,6 +15,7 @@
 subroutine mxprint2_cvb(a,nrow,nrow2,ncol,itype)
 ! Prints matrix A, stored according to ITYPE
 
+use Index_Functions, only: iTri
 use casvb_global, only: formMXP1, formMXP3, iprec, iwidth
 use Definitions, only: wp, iwp, u6
 
@@ -46,11 +47,7 @@ do
       if (itype == 0) then
         ind = (j-1)*nrow2+i
       else if (itype == 1) then
-        if (i >= j) then
-          ind = i*(i-1)/2+j
-        else
-          ind = j*(j-1)/2+i
-        end if
+        ind = iTri(i,j)
       else
         ind = (i-1)*nrow2+j
       end if

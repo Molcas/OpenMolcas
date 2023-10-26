@@ -19,7 +19,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: ioemrg2_cvb
 integer(kind=iwp) :: na1, ia1(na1), na2, ia2(na2), ia12(*)
-integer(kind=iwp) :: i, ioe, n1, n12, n2
+integer(kind=iwp) :: ioe, n1, n12, n2
 
 n1 = 1
 n2 = 1
@@ -28,18 +28,12 @@ n12 = 1
 do
   if (n1 > na1) then
     ioemrg2_cvb = 1-2*mod(ioe,2)
-    do i=n2,na2
-      ia12(n12) = ia2(i)
-      n12 = n12+1
-    end do
+    ia12(n12:n12+na2-n2) = ia2(n2:na2)
     exit
   else if (n2 > na2) then
     ioe = ioe+(na1-n1+1)*na2
     ioemrg2_cvb = 1-2*mod(ioe,2)
-    do i=n1,na1
-      ia12(n12) = ia1(i)
-      n12 = n12+1
-    end do
+    ia12(n12:n12+na1-n1) = ia1(n1:na1)
     exit
   end if
   if (ia1(n1) < ia2(n2)) then
