@@ -36,5 +36,4 @@
          Call Abend()
       End If
 !
-      Return
-      End
+      End Subroutine Set_Basis_Mode
