@@ -43,8 +43,6 @@ IF (istat /= 0) THEN
   CALL WarningMessage(2, 'Error Reading NParam in External Parameter File!')
   CALL Quit_OnUserError()
 END IF
-write(u6, *) 'Number of External Parameters in each functional'
-write(u6, *) nParam
 
 MaxParam = 0
 DO iFunc = 1,  nFuncs
@@ -63,9 +61,6 @@ DO iFunc = 1,  nFuncs
   END IF
 END DO
 CLOSE(LUFile)
-
-write(u6,'(A12,10(F9.6,1A))') 'Parameters:'
-CALL RecPrt(' ','(10(F9.6))', FuncExtParams, MaxParam, nFuncs)
 
 CALL check_n_ext_params(nFuncs, nParam)
 

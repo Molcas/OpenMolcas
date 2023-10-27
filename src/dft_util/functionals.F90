@@ -312,32 +312,41 @@ subroutine check_n_ext_params(nrequired, nparam)
                           xc_f03_func_info_t, xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_get_n_ext_params, &
                           xc_f03_func_set_ext_params, XC_UNPOLARIZED
   use Definitions, only: u6
+  use libxc_parameters, only: FuncExtParams
 
   integer(kind=iwp),intent(in) :: nrequired
   integer(kind=iwp),dimension(nrequired) :: nparam
-  integer(kind=iwp) :: i, nExt
+  integer(kind=iwp) :: i, j, nExt
   type(xc_f03_func_t) :: func
   type(xc_f03_func_info_t) :: info
 
   if (nrequired > Def_nFuncs) then
      call WarningMessage(2,' Set_Ext_Params: More functionals setting external parameters!')
-     write(u6,*) ' functionals requested in the input  : ', nRequired
-     write(u6,*) ' functionals with external parameters: ', Def_nFuncs
+     write(u6,'(A39, I5)') ' functionals requested in the input  : ', nRequired
+     write(u6,'(A39, I5)') ' functionals with external parameters: ', Def_nFuncs
   end if
-
+  write(u6,'(5x,80A)') ('=', i=1, 80)
+  write(u6,'(5X,A)') 'EXTERNAL PARAMETER INFORMATION'
+  write(u6,'(5x,80A)') ('-', i=1, 80)
+  write(u6,'(7X,4(A13,2X))') 'FuncIndex  ', '   Func_ID   ',' N_Ext_Params', ' N_Req_Params'
   DO i = 1, nRequired
     CALL xc_f03_func_init(func,Def_func_id(i),XC_UNPOLARIZED)
-    write(u6,*) 'processing functional, index, func_id ', I, Def_func_id(i)
     info = xc_f03_func_get_info(func)
-    write(u6,*) 'obtaining n_ext_param for func ', I
     nExt = xc_f03_func_info_get_n_ext_params(info)
-    write(u6,*) 'n_ext_param for func ', I, nExt
+    write(u6,'(4X,4(5X,I5,5X))') I, Def_Func_ID(I), nExt, nParam(i)
     IF (nExt /= nParam(i)) THEN
        CALL WarningMessage(2,' Set_Ext_Params: Number of parameters not equal to n_ext_params!')
-       write(u6,*) ' iFunc, nExtParam in File, nExtParam in LibXC', I, nParam(i), nExt
+       CALL Quit_OnUserError()
     END IF
     CALL xc_f03_func_end(func)
-   END DO
+  END DO
+  write(u6,'(5x,80A)') ('-', i=1, 80)
+  write(u6,'(8X,A13,4X,A42)') 'FuncIndex   ', 'Parameters (5 digits after deicimal point)'
+  DO i = 1, nRequired
+    write(u6,'(9X,I5,11X,5(F9.5,2X))') I, (FuncExtParams(j, i), j=1, nParam(i))
+  END DO
+  write(u6,'(5x,80A)') ('=', i=1, 80)
+  write(u6,*)
 end subroutine check_n_ext_params
 
 end module Functionals

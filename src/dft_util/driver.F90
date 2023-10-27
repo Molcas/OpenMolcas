@@ -22,7 +22,7 @@ use KSDFT_Info, only: Do_PDFTPOT
 use OFembed, only: dFMD, Do_Core, KEOnly
 use libxc, only: Only_exc
 use nq_Grid, only: l_casdft
-use nq_Info, only: Functional_type, GGA_Type, LDA_Type
+use nq_Info, only: Functional_type, GGA_Type, LDA_Type, meta_GGA_Type1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -149,10 +149,12 @@ end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. l_CasDFT) then
-  write(u6,*) ' MC-PDFT combined with invalid functional class'
-  write(u6,*) Functional_type
-!  call Abend()
+if (l_CasDFT) then
+  if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. (Functional_type /= meta_GGA_type1)) then
+    write(u6,*) ' MC-PDFT combined with invalid functional class'
+    write(u6,*) Functional_type
+    call Abend()
+  end if
 end if
 !                                                                      *
 !***********************************************************************

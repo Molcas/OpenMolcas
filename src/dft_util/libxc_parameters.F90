@@ -144,7 +144,6 @@ subroutine Set_External_Params()
 
   IF(allocated(FuncExtParams)) THEN
     do iFunc = 1, nFuncs
-      write(6,*) 'setting parameters for ', iFunc
       call xc_f03_func_set_ext_params(xc_func(iFunc), FuncExtParams(:, iFunc))
     end do
     CALL mma_deallocate(FuncExtParams)
