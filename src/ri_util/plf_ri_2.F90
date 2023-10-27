@@ -32,6 +32,10 @@ use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: nBas
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Constants, only: One
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -40,21 +44,20 @@ integer(kind=iwp), intent(in) :: ijkl, jCmp, lCmp, iAO(4), iAOst(4), jBas, lBas,
 real(kind=wp), intent(in) :: AOint(ijkl,jCmp,lCmp)
 real(kind=wp), intent(_OUT_) :: TInt(nTInt)
 integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, kSO, lSO, lSOl, mm_, mx, nijkl, nn
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: r1, r2
+real(kind=wp), external :: ddot_
+#endif
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-irout = 109
-iPrint = nPrint(irout)
-iPrint = 99
-if (iPrint >= 49) then
-  r1 = DDot_(ijkl*jCmp*lCmp,AOInt,1,[One],0)
-  r2 = DDot_(ijkl*jCmp*lCmp,AOInt,1,AOInt,1)
-  write(u6,*) ' Sum=',r1
-  write(u6,*) ' Dot=',r2
-end if
-if (iPrint >= 99) call RecPrt(' In Plf_RI_2: AOInt',' ',AOInt,ijkl,jCmp*lCmp)
+r1 = DDot_(ijkl*jCmp*lCmp,AOInt,1,[One],0)
+r2 = DDot_(ijkl*jCmp*lCmp,AOInt,1,AOInt,1)
+write(u6,*) ' Sum=',r1
+write(u6,*) ' Dot=',r2
+call RecPrt(' In Plf_RI_2: AOInt',' ',AOInt,ijkl,jCmp*lCmp)
 #endif
 
 iAOstj = iAOst(2)

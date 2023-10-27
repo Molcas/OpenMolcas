@@ -60,7 +60,7 @@
 !                                                                      *
 !     Default  parameters
 
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       ChFracMem=0.3d0
 #else
       ChFracMem=half

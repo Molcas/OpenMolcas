@@ -30,6 +30,9 @@ subroutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,DS
 
 use Index_Functions, only: iTri
 use pso_stuff, only: ij2K, iOff_ij2K
+#ifdef _DEBUGPRINT_
+use pso_stuff, only: D0, iD0Lbl
+#endif
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, LuCVector, nChOrb, nIJR, tbvec
@@ -49,8 +52,7 @@ real(kind=wp), external :: Compute_B
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-iComp = 1
-call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+call PrMtrx('DSO     ',[iD0Lbl],1,[1],D0)
 #endif
 !                                                                      *
 !***********************************************************************

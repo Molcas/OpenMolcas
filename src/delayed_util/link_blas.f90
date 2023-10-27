@@ -31,7 +31,7 @@ module link_blas
 
 contains
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 
 !===============================================================================
 

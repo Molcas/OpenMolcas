@@ -258,23 +258,6 @@ if (timings) then
 
 end if
 
-! Print the Fock-matrix
-#ifdef _DEBUGPRINT_
-if (Debug) then ! to avoid double printing in SCF-debug
-
-  write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
-  write(u6,'(6X,A)')
-  do ISYM=1,NSYM
-    NB = NBAS(ISYM)
-    if (NB > 0) then
-      write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
-      call TRIPRT('Coulomb Fmat',' ',FLT(1)%SB(ISYM)%A1,NB)
-    end if
-  end do
-
-end if
-#endif
-
 irc = 0
 
 return

@@ -65,7 +65,7 @@ real(kind=wp), parameter :: Mnt = 60.0_wp
 character(len=*), parameter :: SecNam = 'Cho_X_CompVec'
 integer(kind=iwp), external :: Cho_F2SP
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: nBlock_Max, nnB, nTot, nTot2
+integer(kind=iwp) :: i, nBlock_Max, nnB, nTot, nTot2
 integer(kind=iwp), parameter :: myDebugInfo = 100
 real(kind=wp), parameter :: Tol = 1.0e-14_wp
 #endif

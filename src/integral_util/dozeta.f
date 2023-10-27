@@ -63,7 +63,7 @@
 *     Sort from Large to Small
 *
 *define _New_Code_
-#if defined(_New_Code_) || defined(_DEBUGPRINT_)
+#if defined (_New_Code_) || defined (_DEBUGPRINT_)
       nZeta=nAlpha*nBeta
 #endif
 #ifdef _New_Code_

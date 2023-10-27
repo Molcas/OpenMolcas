@@ -230,7 +230,7 @@ module fciqmc_interface
         real(wp) :: f3_temp(nLev,nLev,nLev,nLev,nLev,nLev), &
                     g3_temp(nLev,nLev,nLev,nLev,nLev,nLev)
 #ifdef _DEBUGPRINT_
-        real(wp) :: cpu, tio, cpu0, tio0, cpu1, tio1, start, finish, trace
+        real(wp) :: cpu, tio, cpu0, tio0, cpu1, tio1, trace
 #endif
 
         if (myRank /= 0) then

@@ -30,6 +30,9 @@ subroutine Nrmlx(rExp,nPrim,Coeff,nCntrc,Scrt1,nScrt1,Scrt2,nScrt2,iAng)
 
 use Constants, only: Zero, One, Two, Three, Three
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nPrim, nCntrc, nScrt1, nScrt2, iAng

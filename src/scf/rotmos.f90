@@ -41,11 +41,14 @@
 !
 !---- Define local variables
       Integer iSym,iSyBlpt,nOF,nVrt,nOccmF,iCMOpt, nSize, nOfNBA, iEnd, iD, iSt
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Integer nCMO
+#endif
       Real*8, Dimension(:), Allocatable:: RoM, Scratch
       Real*8 Cpu1,CPU2,Tim1,Tim2,Tim3, WhatEver
 !
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-!define _DEBUGPRINT_
 !
       Call mma_allocate(RoM,nOFS,Label='RoM')
       nSize=0
@@ -104,6 +107,7 @@
       Call mma_deallocate(RoM)
 !
 #ifdef _DEBUGPRINT_
+      nCMO = Size(CMO,1)
       Call NrmClc(Delta,nDelta,'RotMos','Delta')
       Call NrmClc(CMO,nCMO*nD,'RotMos','CMO')
       Call RecPrt('RotMOs: Delta',' ',Delta,1,nDelta)

@@ -8,8 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
+
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
       use k2_arrays
       use Basis_Info, only: nBas
@@ -79,7 +81,7 @@
 
       End Subroutine DeDe_SCF
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

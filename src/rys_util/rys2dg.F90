@@ -41,16 +41,12 @@ real(kind=wp) :: Fact
 logical(kind=iwp), external :: EQ
 
 #ifdef _DEBUGPRINT_
-iRout = 249
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' In Rys2Dg: Alpha',' ',Alpha,1,nZeta)
-  call RecPrt(' In Rys2Dg: Beta ',' ',Beta,1,nZeta)
-  call RecPrt(' In Rys2Dg: Gamma',' ',Gmma,1,nEta)
-  call RecPrt(' In Rys2Dg: Delta',' ',Delta,1,nEta)
-  write(u6,*) ' IfGrad=',IfGrad
-  write(u6,*) ' IndGrd=',IndGrd
-end if
+call RecPrt(' In Rys2Dg: Alpha',' ',Alpha,1,nZeta)
+call RecPrt(' In Rys2Dg: Beta ',' ',Beta,1,nZeta)
+call RecPrt(' In Rys2Dg: Gamma',' ',Gmma,1,nEta)
+call RecPrt(' In Rys2Dg: Delta',' ',Delta,1,nEta)
+write(u6,*) ' IfGrad=',IfGrad
+write(u6,*) ' IndGrd=',IndGrd
 #endif
 nx = 0
 ny = 0
@@ -62,7 +58,7 @@ Indx(:,:) = 0
 if (IfGrad(1,1) .or. IfGrad(2,1) .or. IfGrad(3,1)) then
   call ExpX(Temp,mZeta,mEta,Alpha,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
-  !if (iPrint >= 99) call RecPrt('Expanded exponents (alpha)',' ',Scrtch,nT,nRys)
+  !call RecPrt('Expanded exponents (alpha)',' ',Scrtch,nT,nRys)
 end if
 nVec = 0
 if (IfGrad(1,1)) then
@@ -143,7 +139,7 @@ end if
 if (IfGrad(1,2) .or. IfGrad(2,2) .or. IfGrad(3,2)) then
   call ExpX(Temp,mZeta,mEta,Beta,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
-  !if (iPrint >= 99) call RecPrt('Expanded exponents (beta) ',' ',Scrtch,nT,nRys)
+  !call RecPrt('Expanded exponents (beta) ',' ',Scrtch,nT,nRys)
 end if
 nVec = 0
 if (IfGrad(1,2)) then
@@ -224,7 +220,7 @@ end if
 if (IfGrad(1,3) .or. IfGrad(2,3) .or. IfGrad(3,3)) then
   call ExpY(Temp,mZeta,mEta,Gmma,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
-  !if (iPrint >= 99) call RecPrt('Expanded exponents (Gamma)',' ',Scrtch,nT,nRys)
+  !call RecPrt('Expanded exponents (Gamma)',' ',Scrtch,nT,nRys)
 end if
 nVec = 0
 if (IfGrad(1,3)) then
@@ -305,7 +301,7 @@ end if
 if (IfGrad(1,4) .or. IfGrad(2,4) .or. IfGrad(3,4)) then
   call ExpY(Temp,mZeta,mEta,Delta,One)
   call Exp_2(Scrtch,nRys,nT,Temp,One)
-  !if (iPrint >= 99) call RecPrt('Expanded exponents (delta)',' ',Scrtch,nT,nRys)
+  !call RecPrt('Expanded exponents (delta)',' ',Scrtch,nT,nRys)
 end if
 nVec = 0
 if (IfGrad(1,4)) then
@@ -403,30 +399,30 @@ do iCent=1,3
   end do
 end do
 
-!if (iPrint >= 49) then
-!  do iCn=1,4
-!    do iCar=1,3
-!      if (IfGrad(iCar,iCn)) then
-!        ij = Indx(iCar,iCn)
-!        do ia=0,la
-!          do ib=0,lb
-!            do ic=0,lc
-!              do id=0,ld
-!                write(Label,'(A,4(I2,'',''),A,'','',I2,A)') ' xyz2D1(',ia,ib,ic,id,ch(iCar),iCn,')'
-!                if (iPrint >= 99) then
-!                  call RecPrt(Label,' ',xyz2d1(1,ia,ib,ic,id,iCar,ij),nT,nRys)
-!                else
-!                  write(u6,'(A)') Label
-!                  write(u6,*) DDot_(nT*nRys,xyz2d1(1,ia,ib,ic,id,iCar,ij),1,xyz2d1(1,ia,ib,ic,id,iCar,ij),1)
-!                end if
-!              end do
+!#ifdef _DEBUGPRINT_
+!do iCn=1,4
+!  do iCar=1,3
+!    if (IfGrad(iCar,iCn)) then
+!      ij = Indx(iCar,iCn)
+!      do ia=0,la
+!        do ib=0,lb
+!          do ic=0,lc
+!            do id=0,ld
+!              write(Label,'(A,4(I2,'',''),A,'','',I2,A)') ' xyz2D1(',ia,ib,ic,id,ch(iCar),iCn,')'
+!              if (iPrint >= 99) then
+!                call RecPrt(Label,' ',xyz2d1(1,ia,ib,ic,id,iCar,ij),nT,nRys)
+!              else
+!                write(u6,'(A)') Label
+!                write(u6,*) DDot_(nT*nRys,xyz2d1(1,ia,ib,ic,id,iCar,ij),1,xyz2d1(1,ia,ib,ic,id,iCar,ij),1)
+!              end if
 !            end do
 !          end do
 !        end do
-!      end if
-!    end do
+!      end do
+!    end if
 !  end do
-!end if
+!end do
+!#endif
 
 return
 

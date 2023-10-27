@@ -48,7 +48,7 @@ integer(kind=iwp), parameter :: byte = int8
 integer(kind=iwp), parameter :: DefInt = int32
 
 ! Types for BLAS/LAPACK calls
-#if defined(LINALG_I4) && defined(_I8_)
+#if defined (LINALG_I4) && defined (_I8_)
 integer(kind=iwp), parameter :: BLASInt = int32
 #else
 integer(kind=iwp), parameter :: BLASInt = iwp
@@ -81,7 +81,7 @@ integer(kind=iwp), parameter :: &
                                 RtoB = storage_size(1.0_wp)/storage_size('a'), &
                                 RtoI = storage_size(1.0_wp)/storage_size(1_iwp), &
                                 CtoR = storage_size((1.0_wp,0.0_wp))/storage_size(1.0_wp)
-#elif defined(_I8_)
+#elif defined (_I8_)
                                 ItoB = 8, RtoB = 8, RtoI = 1, CtoR = 2
 #else
                                 ItoB = 4, RtoB = 8, RtoI = 2, CtoR = 2

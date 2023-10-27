@@ -37,7 +37,6 @@ logical(kind=iwp) :: Too_Small
 #ifdef _DEBUGPRINT_
 write(u6,*) 'AnalHess=',AnalHess
 call RecPrt('FixHess: H(Start)',' ',H,nH,nH)
-Lu = u6
 Too_Small = .false.
 #endif
 
@@ -58,7 +57,7 @@ do i=1,nH
 end do
 
 #ifdef _DEBUGPRINT_
-write(Lu,*) 'FixHess: SumHii=',SumHii
+write(u6,*) 'FixHess: SumHii=',SumHii
 call RecPrt('FixHess: Hessian',' ',H,nH,nH)
 call TriPrt('FixHess: H',' ',EVal,nH)
 #endif
@@ -180,9 +179,9 @@ end if
 !                                                                      *
 #ifdef _DEBUGPRINT_
 if (Too_Small) then
-  write(Lu,*)
-  write(Lu,*) ' Some too small eigenvalues has been corrected'
-  write(Lu,*)
+  write(u6,*)
+  write(u6,*) ' Some too small eigenvalues has been corrected'
+  write(u6,*)
 end if
 #endif
 !                                                                      *
@@ -197,9 +196,9 @@ if (btest(iOptC,7)) then
   if ((iNeg(1) /= 0) .and. (.not. btest(iOptC,8))) then
     Corrected = .true.
 #   ifdef _DEBUGPRINT_
-    write(Lu,*) ' Some negative eigenvalues has been corrected'
-    write(Lu,*) 'iNeg=',iNeg(1)
-    write(Lu,*)
+    write(u6,*) ' Some negative eigenvalues has been corrected'
+    write(u6,*) 'iNeg=',iNeg(1)
+    write(u6,*)
 #   endif
   end if
 !                                                                      *
@@ -224,7 +223,7 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
       Mode = jNeg
       call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #     ifdef _DEBUGPRINT_
-      write(Lu,'(A,I3)') ' Store Original mode:',Mode
+      write(u6,'(A,I3)') ' Store Original mode:',Mode
       call RecPrt(' Reaction mode',' ',MF,3,nsAtom)
 #     endif
 
@@ -258,14 +257,14 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
         Mode = jNeg
       else
 #       ifdef _DEBUGPRINT_
-        write(Lu,*) ' Warning: wrong eigenvector has negative eigenvalue.'
+        write(u6,*) ' Warning: wrong eigenvector has negative eigenvalue.'
 #       endif
         ! Keep the old vector if there is significant overlap
         ! Note: there could be a better vector not in the computed set
         if ((.not. AnalHess) .and. (Test > Half)) then
           Mode = iTest
 #         ifdef _DEBUGPRINT_
-          write(Lu,*) 'Keep old eigenvector!',Mode
+          write(u6,*) 'Keep old eigenvector!',Mode
 #         endif
           FixVal(jNeg) = abs(FixVal(jNeg))
           Corrected = .true.
@@ -274,7 +273,7 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
         else
           Mode = jNeg
 #         ifdef _DEBUGPRINT_
-          write(Lu,*) 'Take new eigenvector!',Mode
+          write(u6,*) 'Take new eigenvector!',Mode
 #         endif
         end if
       end if
@@ -282,7 +281,7 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
       FixVal(Mode) = -abs(FixVal(Mode))
       call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #     ifdef _DEBUGPRINT_
-      write(Lu,'(A,1X,I3)') ' Store mode:',Mode
+      write(u6,'(A,1X,I3)') ' Store mode:',Mode
       call RecPrt(' New Reaction mode',' ',MF,3,nsAtom)
 #     endif
 
@@ -301,7 +300,7 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
       Mode = iLow
       call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #     ifdef _DEBUGPRINT_
-      write(Lu,'(A,I3)') ' Store Original mode:',Mode
+      write(u6,'(A,I3)') ' Store Original mode:',Mode
       call RecPrt(' Reaction mode',' ',MF,3,nsAtom)
 #     endif
 
@@ -338,13 +337,13 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
       else
         Mode = iLow
 #       ifdef _DEBUGPRINT_
-        write(Lu,*) ' Warning: no good overlap among the computed set of eigenvectors.'
+        write(u6,*) ' Warning: no good overlap among the computed set of eigenvectors.'
 #       endif
       end if
 
       call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #     ifdef _DEBUGPRINT_
-      write(Lu,'(A,1X,I3)') ' Store mode:',Mode
+      write(u6,'(A,1X,I3)') ' Store mode:',Mode
       call RecPrt(' New Reaction mode',' ',MF,3,nsAtom)
 #     endif
 
@@ -353,8 +352,8 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
     FixVal(Mode) = -Half*abs(FixVal(Mode))
     Corrected = .true.
 #   ifdef _DEBUGPRINT_
-    write(Lu,'(A,I2,A)') ' No negative eigenvalue, correction: mode ',Mode,' was changed to negative'
-    write(Lu,*)
+    write(u6,'(A,I2,A)') ' No negative eigenvalue, correction: mode ',Mode,' was changed to negative'
+    write(u6,*)
 #   endif
   !                                                                    *
   !*********************************************************************
@@ -370,7 +369,7 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
       Mode = iLow
       call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #     ifdef _DEBUGPRINT_
-      write(Lu,'(A,I3)') ' Store Original mode:',Mode
+      write(u6,'(A,I3)') ' Store Original mode:',Mode
       call RecPrt(' Reaction mode',' ',MF,3,nsAtom)
 #     endif
 
@@ -407,13 +406,13 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
       else
         Mode = iLow
 #       ifdef _DEBUGPRINT_
-        write(Lu,*) ' Warning: no good overlap among the computed set of eigenvectors.'
+        write(u6,*) ' Warning: no good overlap among the computed set of eigenvectors.'
 #       endif
       end if
 
       call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #     ifdef _DEBUGPRINT_
-      write(Lu,'(A,1X,I3)') ' Store mode:',Mode
+      write(u6,'(A,1X,I3)') ' Store mode:',Mode
       call RecPrt(' New Reaction mode',' ',MF,3,nsAtom)
 #     endif
 
@@ -435,8 +434,8 @@ else if (btest(iOptC,3) .or. btest(iOptC,13)) then
     end do
     Corrected = .true.
 #   ifdef _DEBUGPRINT_
-    write(Lu,'(A,I2,A)') ' Too many negative eigenvalue, correction: mode ',Mode,' was kept'
-    write(Lu,*)
+    write(u6,'(A,I2,A)') ' Too many negative eigenvalue, correction: mode ',Mode,' was kept'
+    write(u6,*)
 #   endif
 
   end if
@@ -452,9 +451,9 @@ end if
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(Lu,*)
-write(Lu,*) ' Analysis of the Hessian'
-write(Lu,*)
+write(u6,*)
+write(u6,*) ' Analysis of the Hessian'
+write(u6,*)
 call RecPrt(' Eigenvalues',' ',FixVal,1,NumVal)
 call RecPrt(' Eigenvectors',' ',LowVec,nH,NumVal)
 #endif

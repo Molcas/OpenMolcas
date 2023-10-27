@@ -12,6 +12,10 @@
 subroutine Sort_to_Box(Coor,nAtoms,iTab,nMax,nx,ny,nz,iBox,iANr,xmin,ymin,zmin,Box_Size)
 
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nMax, nx, ny, nz, iANr(nAtoms)
@@ -21,10 +25,6 @@ integer(kind=iwp) :: iAtom, ix, iy, iz, Nr
 real(kind=wp) :: x, y, z
 integer(kind=iwp), external :: iTabRow
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

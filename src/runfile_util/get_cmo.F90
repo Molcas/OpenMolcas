@@ -19,9 +19,6 @@ integer(kind=iwp), intent(in) :: nCMO
 real(kind=wp), intent(out) :: CMO(nCMO)
 integer(kind=iwp) :: mCMO
 logical(kind=iwp) :: Found
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: nBas(0:7) = -1, nSym = -1
-#endif
 character(len=lw) :: Label
 
 Label = 'Last orbitals'

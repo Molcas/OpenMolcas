@@ -28,7 +28,7 @@ C
 #include "ldf_integral_prescreening_info.fh"
 #include "ldf_atom_pair_info.fh"
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Character*31 SecNam
       Parameter (SecNam='LDF_SetIntegralPrescreeningInfo')
 #endif
@@ -108,7 +108,7 @@ C
             ip=iWork(ip_GDiag_1C+2*(A-1)+1)
             Call LDF_SIPI_G1C(A,l,Work(ip),Work(ip_GDiag_1C_Mx-1+A),
      &                                     Work(ip_GDiag_1C_Sm-1+A))
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
             If (Work(ip_GDiag_1C_Sm-1+A).lt.0.0d0) Then
                Call WarningMessage(2,SecNam//': [1] sum < 0')
                Call LDF_Quit(1)
@@ -262,7 +262,7 @@ C
                   Tmax=max(Tmax,Work(ip+ijS))
                End Do
                Work(ip_GDiag_2C_Mx-1+AB)=Tmax
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
                If (Tsum.lt.0.0d0) Then
                   Call WarningMessage(2,SecNam//': [2] sum < 0')
                   Call LDF_Quit(1)
@@ -363,7 +363,7 @@ C
                Tmax=max(Tmax,Work(ip+ijS))
             End Do
             Work(ip_IDiag_Mx-1+AB)=Tmax
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
             If (Tsum.lt.0.0d0) Then
                Call WarningMessage(2,SecNam//': [3] sum < 0')
                Call LDF_Quit(1)

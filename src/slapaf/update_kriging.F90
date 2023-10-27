@@ -27,6 +27,10 @@ use Kriging_procedures, only: Setup_Kriging
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Four, Six, Ten, Half, OneHalf
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nWndw
@@ -44,7 +48,6 @@ real(kind=wp), external :: DDot_
 !                                                                      *
 !     Different hardwired kriging options
 !
-!#define _DEBUGPRINT_
 !#define _OVERSHOOT_
 #ifdef _OVERSHOOT_
 real(kind=wp) :: OS_Disp(1), OS_Energy(1)

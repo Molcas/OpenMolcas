@@ -35,6 +35,9 @@
 !
 !---- Define local variables
       Integer iC, iCol, iD, iM, iMat, iR, iRow, iStart, jCol, jRow
+#ifdef _DEBUGPRINT_
+      Integer i
+#endif
       Real*8 XC
       Real*8 BVec(MxIter,2)
       Real*8, Dimension(:,:,:), Allocatable :: AMat
@@ -171,6 +174,9 @@
 !
       Real*8 Dummy
       Integer i, iDum, iErr, ij, lthS, nFound, lthT
+#ifdef _DEBUGPRINT_
+      Integer j
+#endif
       Real*8, Dimension(:), Allocatable:: ATri, EVec, EVal, Scr
 !
 !----------------------------------------------------------------------*

@@ -43,6 +43,9 @@ implicit none
 integer(kind=iwp), intent(in) :: LuRd
 #include "itmax.fh"
 #include "Molcas.fh"
+#ifdef _DEBUGPRINT_
+#include "print.fh"
+#endif
 integer(kind=iwp) :: BasisTypes(4), i, iAng, iAngMax_Proj, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, &
                      ijC, ijTri, Indx, iShll, iShll_a, iShll_Proj_r, iShll_r, iTo, jB, jBF, jShll, kEval, Last, List(0:iTabMx), &
                      List_Add(0:iTabMx), List_AE(0:iTabMx), lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, naa, nBF, nCntrc_a, &

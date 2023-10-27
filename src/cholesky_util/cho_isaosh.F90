@@ -15,7 +15,7 @@ function CHO_ISAOSH(IAO,ISHL)
 
 use Cholesky, only: iBasSh, nSym
 #ifdef _DEBUGPRINT_
-use Cholesky, only: nBstSh
+use Cholesky, only: LuPri, nBstSh, nShell
 #endif
 use Definitions, only: iwp
 

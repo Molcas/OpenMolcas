@@ -14,6 +14,10 @@ subroutine ValANM(nAtom,nInter,nIter,Bmx,Degen,rInt,Cx,Label,nWndw)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtom, nInter, nIter, nWndw
@@ -23,10 +27,6 @@ character(len=*), intent(in) :: Label
 integer(kind=iwp) :: iEnd, iIter, ij, iSt, j, NRHS
 real(kind=wp), allocatable :: ScrC(:)
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

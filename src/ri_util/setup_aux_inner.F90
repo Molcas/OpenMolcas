@@ -14,6 +14,9 @@ subroutine Setup_Aux_Inner(iSOShl,nSO,iShlSO,nBasSh,nShell,nIrrep,nBas,iSSOff,ni
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, iSOShl(nSO), nShell, nIrrep, nBas(0:nIrrep-1), nij_Shell, iShij(2,nij_Shell), &
@@ -22,6 +25,9 @@ integer(kind=iwp), intent(out) :: iShlSO(nSO), nBasSh(0:nIrrep-1,nShell), iSSOff
                                   iTOffs(3,0:nIrrep-1)
 integer(kind=iwp) :: iAcc, iBas, iIrrep, ijIrrep, ijShell, iOff_V12, iShell, iSO, iSO_Shl, iTtmp(0:7), jIrrep, jShell, nA, nab, &
                      nAux, nB, nI
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i, j, jSO
+#endif
 
 !                                                                      *
 !***********************************************************************

@@ -52,6 +52,10 @@ integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDC
                      iNQ_MBC, iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, &
                      mdcj, mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, &
                      nSO, nTerm, nxyz
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: kR
+#endif
 real(kind=wp) :: A_high, A_low, Alpha(2), Box_Size, C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, &
                  ValExp, x_max, XYZ(3), y_max, z_max
 logical(kind=iwp) :: PMode
@@ -63,7 +67,6 @@ logical(kind=iwp), external :: EQ
 !***********************************************************************
 !                                                                      *
 Maps2p(:,:) = -99999999
-!define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

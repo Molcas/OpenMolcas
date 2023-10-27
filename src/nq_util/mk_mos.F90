@@ -28,6 +28,7 @@ real(kind=wp), intent(in) :: SOValue(mAO*nCoor,nMOs), CMOs(nCMO)
 real(kind=wp), intent(out) :: MOValue(mAO*nCoor,nMOs)
 integer(kind=iwp) :: iCMO, iIrrep, iSO
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iOff
 character(len=80) :: Label
 #endif
 

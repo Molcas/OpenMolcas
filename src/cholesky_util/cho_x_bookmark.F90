@@ -41,6 +41,9 @@
 subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
 
 use Cholesky, only: BkmThr, BkmVec, Cho_Real_Par, nRow_BkmThr, nSym, ThrCom
+#ifdef _DEBUGPRINT_
+use Cholesky, only: NumCho
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

@@ -20,6 +20,9 @@
 !                                                                      *
 !***********************************************************************
       use InfSCF, only: MaxBas, MaxOrb, DMOMax, nSym, TEEE, nDens, TimFld, MaxBXO, nBas, nOcc, nOrb, nD
+#ifdef _DEBUGPRINT_
+      Use InfSCF, only: nBO, nBT
+#endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Use SCF_Arrays, only: Dens, CMO, Ovrlp

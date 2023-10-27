@@ -27,11 +27,9 @@ C
       External LDF_AtomPair_DiagDim
 
       Integer ip_D, nuv, uv
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer nClean
-#endif
 
-#if defined (_DEBUGPRINT_)
       Write(6,'(A,A,I9)')
      & 'LDF_CleanDiagonal: zeroing negative diagonals for ',
      & 'atom pair',iAtomPair
@@ -54,13 +52,13 @@ C
                Call LDF_Quit(1)
             End If
             Work(ip_D+uv)=0.0d0
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
             nClean=nClean+1
 #endif
          End If
       End Do
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Write(6,'(A,I9,A)')
      & '   - zeroed ',nClean,' diagonals.'
       Call xFlush(6)

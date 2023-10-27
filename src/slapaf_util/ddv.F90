@@ -15,6 +15,10 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: mTtAtm, nHidden, iANr(mTtAtm+nHidden), nBonds, iTabBonds(3,nBonds), nMax, &
@@ -26,10 +30,6 @@ logical(kind=iwp) :: VRSave, VTSave
 real(kind=wp), allocatable :: HBig(:)
 
 ! Temporary big hessian
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

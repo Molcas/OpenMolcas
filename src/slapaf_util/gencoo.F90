@@ -15,6 +15,10 @@ use Symmetry_Info, only: nIrrep, iOper
 use Slapaf_Info, only: ANr, Degen, Smmtrc
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nsAtom, mTtAtm, nDim
@@ -25,10 +29,6 @@ integer(kind=iwp) :: i_Dim, iAtom, iElem, iEnd, ig, iGo, iSt, ix, jDim
 real(kind=wp) :: Fact, r(3), x, y, z
 logical(kind=iwp) :: New
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

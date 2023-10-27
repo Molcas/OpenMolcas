@@ -171,7 +171,7 @@ contains
     function construct_CC_CI_solver_t() result(res)
         type(CC_CI_solver_t) :: res
         unused_var(res)
-#if defined(_WARNING_WORKAROUND_) && !defined(EMPTY_TYPE_INIT)
+#if defined (_WARNING_WORKAROUND_) && ! defined (EMPTY_TYPE_INIT)
         res = res
 #endif
 ! Due to possible size of active space arrays of nConf

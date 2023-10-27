@@ -33,14 +33,10 @@ integer(kind=iwp) :: iT
 real(kind=wp) :: PQ2, Rho, tmp
 
 #ifdef _DEBUGPRINT_
-iRout = 56
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' Zeta in TERI1',' ',Zeta,nT,1)
-  call RecPrt(' Eta in TERI1',' ',Eta,nT,1)
-  call RecPrt(' P in TERI1',' ',P,nT,3)
-  call RecPrt(' Q in TERI1',' ',Q,nT,3)
-end if
+call RecPrt(' Zeta in TERI1',' ',Zeta,nT,1)
+call RecPrt(' Eta in TERI1',' ',Eta,nT,1)
+call RecPrt(' P in TERI1',' ',P,nT,3)
+call RecPrt(' Q in TERI1',' ',Q,nT,3)
 #endif
 
 do iT=1,nT
@@ -52,9 +48,7 @@ do iT=1,nT
 end do
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt('Tvalue',' ',T,nT,1)
-end if
+call RecPrt('Tvalue',' ',T,nT,1)
 #endif
 
 return

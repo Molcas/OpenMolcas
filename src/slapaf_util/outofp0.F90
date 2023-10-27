@@ -11,6 +11,7 @@
 
 #include "compiler_features.h"
 #ifdef _Test_Numerical_
+
 subroutine OutofP0(xyz,nCent,Teta,ldB)
 
 use Constants, only: deg2rad
@@ -31,7 +32,7 @@ real(kind=wp), external :: ArCos
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -139,7 +140,8 @@ Teta = Teta-Half*Pi
 return
 
 end subroutine OutofP0
-#elif !defined (EMPTY_FILES)
+
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

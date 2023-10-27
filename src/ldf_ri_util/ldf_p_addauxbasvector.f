@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       Subroutine LDF_P_AddAuxBasVector(ip_V)
 C
 C     Thomas Bondo Pedersen, September 2010.

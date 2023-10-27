@@ -8,8 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
+
       SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
       use Symmetry_Info, only: nIrrep
@@ -97,7 +99,7 @@
       Return
       End Subroutine OneEl_Integrals
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

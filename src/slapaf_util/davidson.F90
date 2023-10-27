@@ -36,6 +36,10 @@ use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: n, k
@@ -52,8 +56,6 @@ real(kind=wp), allocatable :: Ab(:), Diag(:), Eig_old(:), EVal(:), EVec(:), Proj
 integer(kind=iwp), parameter :: maxiter = 300
 real(kind=wp), parameter :: Thr = 1.0e-7_wp, Thr2 = 1.0e-16_wp, Thr3 = 1.0e-16_wp
 real(kind=wp), external :: ddot_
-
-!#define _DEBUGPRINT_
 
 ! Diagonal preconditioned residue (Davidson)
 #define DAV_DPR 1

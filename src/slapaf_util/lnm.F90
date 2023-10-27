@@ -30,8 +30,6 @@ real(kind=wp), allocatable :: HTanVec(:), TanVec(:)
 
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-iRout = 120
-iPrint = nPrint(iRout)
 call RecPrt('In LNM: Cart',' ',Cart,3,mTtAtm)
 if (nHidden /= 0) call RecPrt('In LNM: Cart(hidden atoms)',' ',Cart(1,mTtAtm+1),3,nHidden)
 call RecPrt('In LNM: Vctrs',' ',Vctrs,3*mTtAtm,nDim)
@@ -126,7 +124,7 @@ else   ! Use the Hessian Model Function
   !                                                                    *
   call ddV(Cart,mTtAtm,Hess,iANr,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 19) call TriPrt(' The Model Hessian','(12f9.5)',Hess,3*mTtAtm)
+  call TriPrt(' The Model Hessian','(12f9.5)',Hess,3*mTtAtm)
 # endif
   !                                                                    *
   !*********************************************************************
@@ -147,7 +145,7 @@ else   ! Use the Hessian Model Function
   !*********************************************************************
   !                                                                    *
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 19) call RecPrt(' Scrt1',' ',Scrt1,3*mTtAtm,3*mTtAtm)
+  call RecPrt(' Scrt1',' ',Scrt1,3*mTtAtm,3*mTtAtm)
 # endif
   if (nIrrep /= 1) then
 
@@ -155,11 +153,11 @@ else   ! Use the Hessian Model Function
 
     call DGEMM_('N','N',3*mTtAtm,nDim,3*mTtAtm,One,Scrt1,3*mTtAtm,Vctrs,3*mTtAtm,Zero,Scrt2,3*mTtAtm)
 #   ifdef _DEBUGPRINT_
-    if (iPrint >= 19) call RecPrt(' Scrt2',' ',Scrt2,3*mTtAtm,nDim)
+    call RecPrt(' Scrt2',' ',Scrt2,3*mTtAtm,nDim)
 #   endif
     call DGEMM_('T','N',nDim,nDim,3*mTtAtm,One,Vctrs,3*mTtAtm,Scrt2,3*mTtAtm,Zero,Scrt1,nDim)
 #   ifdef _DEBUGPRINT_
-    if (iPrint >= 19) call RecPrt(' The Symmetrized Hessian',' ',Scrt1,nDim,nDim)
+    call RecPrt(' The Symmetrized Hessian',' ',Scrt1,nDim,nDim)
 #   endif
   end if
   !                                                                    *

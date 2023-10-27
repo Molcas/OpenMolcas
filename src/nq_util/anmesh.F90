@@ -16,7 +16,7 @@ subroutine AnMesh(nscheme,pa,rPt,wPt)
 
 use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

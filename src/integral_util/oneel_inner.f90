@@ -11,8 +11,10 @@
 ! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
+
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
+
       Subroutine OneEl_Inner                                            &
      &                 (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,       &
      &                  nOrdOp,rHrmt,iChO,                              &
@@ -290,7 +292,7 @@
       End If
       End Subroutine OneEl_Inner
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

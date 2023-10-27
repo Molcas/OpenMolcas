@@ -24,7 +24,7 @@ real(kind=wp), intent(out) :: dMdx(3,3)
 integer(kind=iwp) :: i, j, jAtom
 real(kind=wp) :: RTx, RTy, RTz, tmp, ZB
 #ifdef _DEBUGPRINT_
-real(kind=wp) :: M(3,3)
+real(kind=wp) :: delta, M(3,3)
 real(kind=wp), allocatable :: dRA(:,:)
 #endif
 real(kind=wp), parameter :: Thrs = 1.0e-14_wp

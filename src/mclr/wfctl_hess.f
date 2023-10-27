@@ -642,10 +642,10 @@ C         iDisp=iDisp+1
            Write (LuWr,*) 'Sc2=',DDot_(nDens,Sc2,1,Sc2,1)
            If (CI) Then
               Write (LuWr,*) 'Sc3=',DDot_(nDens,Sc3,1,Sc3,1)
-              irc=pin1(ipS2,nconf1)
+              irc=ipin1(ipS2,nconf1)
               Write(LuWr,*)'S2=',DDot_(nConf1,W(ipS2)%Vec,1,
      &                                        W(ipS2)%Vec,1)
-              irc=pin1(ipS1,nconf1)
+              irc=ipin1(ipS1,nconf1)
               Write(LuWr,*)'S1=',DDot_(nConf1,W(ipS1)%Vec,1,
      &                                        W(ipS1)%Vec,1)
            End If

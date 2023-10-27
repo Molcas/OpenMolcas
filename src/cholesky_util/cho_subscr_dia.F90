@@ -22,6 +22,9 @@ subroutine Cho_SubScr_Dia(ChoVec,nVec,iSym,iLoc,DSPNorm)
 !          Any other norm is taken to be 'Max'.
 
 use Cholesky, only: DSPNm, DSubScr, iiBstRSh, LuPri, nnBstR, nnBstRSh, nnShl
+#ifdef _DEBUGPRINT_
+use Cholesky, only: Cho_SScreen, nSym
+#endif
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

@@ -15,7 +15,7 @@ subroutine Numerical_Gradient(ireturn)
 use Prgm, only: PrgmFree
 #endif
 use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
-#if defined (_MOLCAS_MPP_) && !defined(_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 use Para_Info, only: King
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -48,7 +48,7 @@ real(kind=wp), parameter :: ToHartree = One/auTokcalmol
 integer(kind=iwp), external :: Read_Grad, IsFreeUnit, iPrintLevel, iChAtm, iDeg
 character(len=180), external :: Get_Ln
 logical(kind=iwp), external :: Rsv_Tsk, Reduce_Prt
-#if defined (_MOLCAS_MPP_) && !defined(_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 character(len=80) :: SSTMNGR
 integer(kind=iwp) :: SSTMODE
 logical(kind=iwp), external :: Rsv_Tsk_Even
@@ -490,7 +490,7 @@ end if
 ! Parallel loop over the nDisp displacements.
 ! Reserve task on global task list and get task range in return.
 ! Function will be false if no more tasks to execute.
-#if !defined(_GA_) && defined(_MOLCAS_MPP_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 call getenvf('MOLCAS_SSTMNGR',SSTMNGR)
 if (SSTMNGR(1:1) == 'Y') then
   SSTMODE = 1
@@ -507,7 +507,7 @@ call Init_Tsk(id_Tsk,mDisp-2*nLambda)
 #endif
 call mma_allocate(C,3,nAtoms,Label='C')
 do
-# if defined (_MOLCAS_MPP_) && !defined(_GA_)
+# if defined (_MOLCAS_MPP_) && ! defined (_GA_)
   if (SSTMODE == 1) then
     if (.not. Rsv_Tsk(id_Tsk,iDisp)) exit
   else
@@ -727,12 +727,12 @@ do
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-# if defined (_MOLCAS_MPP_) && !defined(_GA_)
+# if defined (_MOLCAS_MPP_) && ! defined (_GA_)
   if (King() .and. (nProcs > 1) .and. (SSTMODE == 1)) exit
 # endif
 end do
 !_MPP End Do
-#if !defined(_GA_) && defined(_MOLCAS_MPP_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 if (SSTMODE == 1) then
   call Free_Tsk(id_Tsk)
 else

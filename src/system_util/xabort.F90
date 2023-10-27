@@ -38,7 +38,7 @@ if (is_real_par()) then
 else
 #endif
 
-#if defined (__GNUC__) || defined(__INTEL_COMPILER)
+#if defined (__GNUC__) || defined (__INTEL_COMPILER)
   call abort()
 #else
   stop 'Molcas aborted...'

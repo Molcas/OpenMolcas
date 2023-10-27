@@ -14,6 +14,9 @@
 subroutine covarVector(gh)
 
 use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, Index_PGEK, l, nD, nInter, nInter_Eff, nPoints, rl, x, x0
+#ifdef _DEBUGPRINT_
+use kriging_mod, only: m_t
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp, u6

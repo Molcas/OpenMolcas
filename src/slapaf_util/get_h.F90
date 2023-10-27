@@ -36,7 +36,7 @@ real(kind=wp) :: tmp_ij
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: BMtrx(:,:), H(:,:), Tmp2(:)
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 nDoF = nDimBC
 nInter = nDimBC-mTROld
 nAtom = size(Coor,2)

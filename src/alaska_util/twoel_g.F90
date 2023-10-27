@@ -66,7 +66,7 @@ external :: ModU2, TERI1, vCff2D
 #include "Molcas.fh"
 #include "disp.fh"
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
+integer(kind=iwp) :: i, iPrint, iRout
 character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz']
 #include "print.fh"
 #endif

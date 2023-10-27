@@ -75,7 +75,7 @@ logical(kind=iwp), external :: EQ, TF
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -91,9 +91,6 @@ LabDsk = Lab_Dsk
 nOrdOp = 0
 IndGrd(0:nIrrep-1) = 0
 loper = 0
-#ifdef _DEBUGPRINT_
-iprint = 99
-#endif
 nnIrrep = nIrrep
 if (sIrrep) nnIrrep = 1
 do iIrrep=0,nnIrrep-1
@@ -251,7 +248,7 @@ do iS=1,nSkal
         end if
       end do
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 29) write(u6,*) ' nSO=',nSO
+      write(u6,*) ' nSO=',nSO
 #     endif
       if (nSO /= 0) then
         call mma_Allocate(SO,nSO*iBas*jBas,Label='SO')
@@ -335,9 +332,7 @@ do iS=1,nSkal
           ! final symmetry adapted integrals.
 
 #         ifdef _DEBUGPRINT_
-          if (iPrint >= 99) then
-            call RecPrt(' Accumulated SO integrals, so far...',' ',SO,iBas*jBas,nSO)
-          end if
+          call RecPrt(' Accumulated SO integrals, so far...',' ',SO,iBas*jBas,nSO)
 #         endif
 
           ! Symmetry adapt component by component
