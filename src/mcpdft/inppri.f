@@ -367,7 +367,7 @@ C.. for RAS
        End If
 
        IF(Do_Ext_Param) THEN
-         CALL FuncParam_PDFT(KSDFT2, File_Ext_Param)
+         CALL CheckFuncParam(File_Ext_Param)
        END IF
 
   900 CONTINUE

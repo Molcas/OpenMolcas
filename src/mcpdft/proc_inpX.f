@@ -320,7 +320,7 @@ C   No changing about read in orbital information from INPORB yet.
 *---  Process LAMB command --------------------------------------------*
       If (KeyEXPM) Then
        If (DBG) Write(6,*) 'Check if external parameter case'
-       Call SetPos_m(LUInput,'LAMB',Line,iRc)
+       Call SetPos_m(LUInput,'EXPM',Line,iRc)
        ReadStatus=' Failure reading data following EXPM keyword.'
        Read(LUInput,*,End=9910,Err=9920) File_Ext_Param
        ReadStatus=' O.K. reading data following EXPM keyword.'

@@ -29,8 +29,11 @@ integer(kind=LibxcInt) :: func_id(nFuncs_Max) = 0_LibxcInt
 real(kind=wp) :: Coeffs(nFuncs_Max) = Zero
 type(xc_f03_func_t) :: xc_func(nFuncs_Max)      ! xc functional
 type(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
+Real(kind=wp),DIMENSION(:,:),Allocatable:: FuncExtParams
+Logical(kind=iwp) :: lExtParams = .false.
 
-public :: Coeffs, func_id, Initiate_Libxc_Functionals, libxc_functionals, nFuncs, nFuncs_max, Remove_Libxc_Functionals
+public :: Coeffs, func_id, Initiate_Libxc_Functionals, libxc_functionals, nFuncs, nFuncs_max, Remove_Libxc_Functionals, &
+          FuncExtParams, lExtParams, Set_External_Params
 
 !                                                                      *
 !***********************************************************************
@@ -130,6 +133,26 @@ subroutine libxc_functionals(mGrid,nD)
   return
 
 end subroutine libxc_functionals
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+subroutine Set_External_Params()
+  use xc_f03_lib_m, only: xc_f03_func_set_ext_params
+  use Definitions, only: iwp, u6
+  use stdalloc,       only: mma_deallocate
+  integer(kind=iwp) :: iFunc
+
+  IF(allocated(FuncExtParams)) THEN
+    do iFunc = 1, nFuncs
+      write(6,*) 'setting parameters for ', iFunc
+      call xc_f03_func_set_ext_params(xc_func(iFunc), FuncExtParams(:, iFunc))
+    end do
+    CALL mma_deallocate(FuncExtParams)
+  ELSE
+    CALL WarningMessage(2, 'External Parameter Arrays Not Initialized!')
+    CALL Quit_OnUserError()
+  END IF
+end subroutine Set_External_Params
 !                                                                      *
 !***********************************************************************
 !                                                                      *

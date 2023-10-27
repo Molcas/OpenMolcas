@@ -30,7 +30,8 @@ real(kind=wp) :: Def_Coeffs(nFuncs_max) = Zero, Def_ExFac = Zero
 character(len=80) :: Def_Label = ''
 character(len=*), parameter :: Custom_File = 'CUSTFUNC', Custom_Func = '-999_CUSTOM_FUNCTIONAL'
 
-public :: Custom_File, Custom_Func, Get_Func_ExFac, Get_Funcs, Init_Funcs, Print_Info
+public :: Custom_File, Custom_Func, Get_Func_ExFac, Get_Funcs, Init_Funcs, Print_Info, &
+          Check_N_Ext_Params
 
 contains
 
@@ -141,6 +142,7 @@ subroutine Find_Functional(Label)
   else
 
     ! If not, we have to read the database file, or the custom functional file
+    write(6,*) 'doing Custom_Func in Find_Functional'
     Lu = IsFreeUnit(11)
     if (Label == Custom_Func) then
       call molcas_open(Lu,Custom_File)
@@ -304,5 +306,38 @@ subroutine check_supported(Label,flags)
   if (maxlev > 1) call Quit_OnUserError()
 
 end subroutine check_supported
+
+subroutine check_n_ext_params(nrequired, nparam)
+  use xc_f03_lib_m, only: xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_name, xc_f03_func_info_get_references, &
+                          xc_f03_func_info_t, xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_get_n_ext_params, &
+                          xc_f03_func_set_ext_params, XC_UNPOLARIZED
+  use Definitions, only: u6
+
+  integer(kind=iwp),intent(in) :: nrequired
+  integer(kind=iwp),dimension(nrequired) :: nparam
+  integer(kind=iwp) :: i, nExt
+  type(xc_f03_func_t) :: func
+  type(xc_f03_func_info_t) :: info
+
+  if (nrequired > Def_nFuncs) then
+     call WarningMessage(2,' Set_Ext_Params: More functionals setting external parameters!')
+     write(u6,*) ' functionals requested in the input  : ', nRequired
+     write(u6,*) ' functionals with external parameters: ', Def_nFuncs
+  end if
+
+  DO i = 1, nRequired
+    CALL xc_f03_func_init(func,Def_func_id(i),XC_UNPOLARIZED)
+    write(u6,*) 'processing functional, index, func_id ', I, Def_func_id(i)
+    info = xc_f03_func_get_info(func)
+    write(u6,*) 'obtaining n_ext_param for func ', I
+    nExt = xc_f03_func_info_get_n_ext_params(info)
+    write(u6,*) 'n_ext_param for func ', I, nExt
+    IF (nExt /= nParam(i)) THEN
+       CALL WarningMessage(2,' Set_Ext_Params: Number of parameters not equal to n_ext_params!')
+       write(u6,*) ' iFunc, nExtParam in File, nExtParam in LibXC', I, nParam(i), nExt
+    END IF
+    CALL xc_f03_func_end(func)
+   END DO
+end subroutine check_n_ext_params
 
 end module Functionals
