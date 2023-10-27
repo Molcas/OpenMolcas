@@ -232,6 +232,7 @@
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (DEBUG_DEFS "_DEBUGPRINT_" CACHE STRING "print debug info (insane)")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
