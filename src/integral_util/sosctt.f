@@ -23,11 +23,17 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer iBas,jBas,nSOInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,
+     &                  iAO,jAO,nComp
+      Real*8 rHrmt
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Integer kOper(nComp)
-      Character Label*8
+      Character(LEN=8) Label
+
       Integer, external:: iPntSO
+      Integer lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2, iPnt,
+     &        indAO1, indAO2, jBsMax, ip, Indi, Indj, nRow
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In SOSctt:SOInt',' ',SOInt,iBas*jBas,nSOInt)
