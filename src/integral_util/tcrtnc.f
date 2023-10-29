@@ -31,16 +31,18 @@
 !             of Lund, SWEDEN.                                         *
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !
 !---- Cache size
 !
 #include "Molcas.fh"
+      Integer n1,m1,n2,m2,n3,m3,n4,m4,mabcd,nScr,lZeta,lEta
       Real*8 Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4),
      &       ACInt(m1*m2*m3*m4,mabcd), Scrtch(nScr),
      &       ACOut(lZeta*lEta,mabcd)
       Integer IndZet(lZeta), IndEta(lEta)
+
+      Integer nCache, lsize, nVec, IncVec, ipA2, ipA3
 !
 #ifdef _DEBUGPRINT_
       Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
@@ -101,8 +103,7 @@
       Call WrCheck('Tcrtnc:P(ab|cd)',ACOut,lZeta*lEta*mabcd)
 #endif
 !
-      Return
-      End
+      End SubRoutine Tcrtnc
       Subroutine Tnchlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,
      &                  lZeta,nVec,IncVec,A1,A2,A3,Indij)
 !***********************************************************************
@@ -117,13 +118,16 @@
 !                                                                      *
 !             Modified to decontraction May 1996, by R. Lindh          *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      Implicit None
+      Integer nCntr1,nPrm1,nCntr2,nPrm2,lZeta,nVec,IncVec
       Real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2),
      &       A1(nVec,nCntr1,nCntr2), A2(nPrm2,IncVec,nCntr1),
      &       A3(lZeta,nVec)
-      Logical Seg1, Seg2
       Integer Indij(lZeta)
+
+      Logical Seg1, Seg2
+      Integer iPrm1, iCntr1, iPrm2, iCntr2, iiVec, mVec, iVec, iZeta
 !
 !-----Check if the basis set is segmented
 !
@@ -237,4 +241,4 @@
       End Do
 !
       Return
-      End
+      End Subroutine Tnchlf
