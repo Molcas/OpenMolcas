@@ -231,8 +231,7 @@
             iW3=1+mZeta*mabcd
             Call DGeTMO(Wrk,mZeta,mZeta,mabcd,Wrk(iW3),mabcd)
             call dcopy_(mabcd*mZeta,Wrk(iW3),1,Wrk,1)
-            Call TnsCtl(Wrk,nWork2,Coora,
-     &                  mZeta,mabMax,mabMin,mabMax,mabMin,
+            Call TnsCtl(Wrk,nWork2,mZeta,mabMax,mabMin,mabMax,mabMin,
      &                  k2data(lDCRR+1)%HrrMtrx(:,1),
      &                  k2data(lDCRR+1)%HrrMtrx(:,1),
      &                  la,lb,la,lb,

@@ -137,7 +137,7 @@ else
     iW3 = iW2+n1
     call DGeTMO(Wrk(iW2),lZeta*lEta*nComp,lZeta*lEta*nComp,mabcd,Wrk(iW3),mabcd)
     Wrk(iW2:iW2+n1-1) = Wrk(iW3:iW3+n1-1)
-    call TnsCtl(Wrk(iW2),nWork2,Coor,lZeta*lEta*nComp,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
+    call TnsCtl(Wrk(iW2),nWork2,lZeta*lEta*nComp,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
                 iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
     n2 = lZeta*lEta*nComp*nabcd
     if (i_Int /= iW2) Wrk(iW2:iW2+n2-1) = Wrk(i_Int:i_Int+n2-1)

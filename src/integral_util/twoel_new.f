@@ -655,7 +655,7 @@
 !              harmonic gaussian.
 !
                If (Do_TnsCtl) Then
-                  Call TnsCtl(Wrk(iW4),nWork2,CoorM,
+                  Call TnsCtl(Wrk(iW4),nWork2,
      &                        nijkl,mabMax,mabMin,mcdMax,mcdMin,
      &                        k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),
      &                        k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),
@@ -1110,7 +1110,7 @@
 !     harmonic gaussian.
 !
       If (Do_TnsCtl) Then
-         Call TnsCtl(Wrk(iW4),nWork2,Coor,
+         Call TnsCtl(Wrk(iW4),nWork2,
      &               nijkl,mabMax,mabMin,mcdMax,mcdMin,
      &               k2Data1%HrrMtrx(:,1),
      &               k2Data2%HrrMtrx(:,1),

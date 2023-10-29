@@ -10,11 +10,14 @@
 !***********************************************************************
       Subroutine Tranca(Cavxyz,Cavsph,lMax,CarSph)
       use Real_Spherical
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer lMax
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6),
      &          Cavsph( (lMax+1)**2 )
       Logical CarSph
+
+      Integer iOff1, iOff2, m, nElem
 !
       iOff1 = 1
       iOff2 = 1
@@ -42,5 +45,4 @@
          iOff2 = iOff2 + 2*m+1
  100  Continue
 !
-      Return
-      End
+      End Subroutine Tranca

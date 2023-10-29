@@ -10,8 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1993,1999, Roland Lindh                                *
 !***********************************************************************
-      Subroutine TnsCtl(Wrk,nWrk,Coora,
-     &                  nijkl,mabMax,mabMin,mcdMax,mcdMin,
+      Subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,
      &                  HMtrxAB,HMtrxCD,la,lb,lc,ld,
      &                  iCmpa,jCmpb,kCmpc,lCmpd,
      &                  iShlla,jShllb,kShllc,lShlld,i_out)
@@ -31,15 +30,17 @@
       use Breit, only: nComp
       use Constants
       use define_af, only: iTabMx
-      Implicit Real*8 (A-H,O-Z)
-      Parameter(lab=iTabMx*2+1,npMax=lab*(lab+1)*(lab+2)/6)
+      Implicit None
+      Integer nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,la,lb,lc,ld,
+     &        iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb,kShllc,lShlld
+      Integer, Parameter :: lab=iTabMx*2+1, npMax=lab*(lab+1)*(lab+2)/6
       Real*8 HMtrxAB(*),HMtrxCD(*)
       Real*8, Intent(inout) :: Wrk(nWrk)
-      Real*8 Coora(3,4)
       Integer, Intent(out) :: i_out
       ![all others are intent(in)]
 
-      Integer :: nDim
+      Integer :: nDim, ne, nf, nab, ncd, iW2, iW3, i_In, nfijkl,
+     &           nijklab
 !
 !     If nComp==1
 !---- Integral are stored as e,f,IJKL in Wrk
@@ -128,9 +129,4 @@
      &               kCmpc*lCmpd)
       End If
 !
-      Return
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Coora)
-      End If
-      End
+      End Subroutine TnsCtl
