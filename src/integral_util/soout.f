@@ -9,15 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine SOOUT(label,cnt_ico,phase_ico)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #include "Molcas.fh"
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
-      Character Label(MaxBfn+MaxBfn_Aux)*(LENIN8)
+      Character(LEN=LENIN8) Label(MaxBfn+MaxBfn_Aux)
 !
       Call SOCtl_mod(Label,Maxbfn+MaxBfn_Aux,Cnt_ico,Phase_ico)
 !
-      Return
-      End
+      End Subroutine SOOUT
 !
       Subroutine SOCtl_mod(Mamn,nMamn,Cnt_ico,Phase_ico)
       use Basis_Info
@@ -25,14 +24,20 @@
       use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       use Real_Spherical, only: iSphCr, LblCBs, LblSBs
       use Constants
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 !
 #include "Molcas.fh"
 !
-      Character ChTemp*8, Mamn(nMamn)*(LENIN8)
-      Logical TstFnc
+      Integer nMamn
+      Character(LEN=LENIN8) Mamn(nMamn)
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
+
       Integer, External:: iPrmt
+      Character(LEN=8) ChTemp
+      Logical, External:: TstFnc
+      Integer iSO, iIrrep, mdc, mc, iCnttp, kComp, iSh, iAng, nExpi,
+     &        nBasisi, jComp, iCnt, iComp, iChBs, iCntrc, NrOpr, lComp,
+     &        iCo
 !
 !     Generate list of symmetry adapted or petite list basis functions
 !
@@ -111,5 +116,4 @@
  201     Continue
  200  Continue
 !
-      Return
-      End
+      End Subroutine SOCtl_mod
