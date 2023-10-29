@@ -30,7 +30,8 @@
 !             Modified to back projection to cartesian gaussians,      *
 !             January '92.                                             *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer ijkl,ncd,nScrt,iCar,iSph,jCar,jSph,mab
       Real*8 Win(ijkl*ncd*iSph*jSph), Scrt(nScrt),
      &       Coeff1(iCar,iCar), Coeff2(jCar,jCar),
      &       Wout(ijkl*ncd*mab)
@@ -99,4 +100,4 @@
          Call Unused_logical(Pr1)
          Call Unused_logical(Pr2)
       End If
-      End
+      End SubRoutine SphCr2
