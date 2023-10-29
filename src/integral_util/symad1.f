@@ -29,11 +29,17 @@
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       use Constants
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 AOInt(iBas*jBas,iCmp,jCmp,nIC), SOInt(iBas*jBas,nSOInt)
+      Implicit None
+      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
+     &        iShll,jShll,iAO,jAO,iBas,jBas,nIC,iIC,nSOInt
       Integer nOp(2)
-      Integer iTwoj(0:7), jIC(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Real*8 AOInt(iBas*jBas,iCmp,jCmp,nIC), SOInt(iBas*jBas,nSOInt)
+
+      Integer jIC(0:7)
+      Integer :: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
+      Integer iIrrep, ii, jj, lSO, j1, i1, iChBs, j2, j12, kIC, jMx,
+     &        i2, jChBs
+      Real*8 xa, pae, xb, pbr
 !
 #ifdef _DEBUGPRINT_
       Write (6,*) ' lOper=',lOper
@@ -95,4 +101,4 @@
       Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
 #endif
       Return
-      End
+      End Subroutine SymAd1
