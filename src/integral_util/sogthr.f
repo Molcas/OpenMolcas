@@ -32,10 +32,16 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer iBas,jBas,nSOInt,lOper,iCmp,jCmp,iShell,jShell,iAO,jAO,
+     &         nPrp
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Logical AeqB
+
       Integer, External:: iPntSO
+      Integer i, j, iTri, lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2,
+     &        indAO1, indAO2, ipij, Indi, Indj, iPnt, nRow
+      Real*8 Fact
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -105,4 +111,4 @@
       Return
 ! Avoid unused argument warnings
       If (.False.) Call Unused_logical(AeqB)
-      End
+      End SubRoutine SOGthr
