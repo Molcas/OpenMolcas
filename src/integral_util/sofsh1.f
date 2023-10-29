@@ -31,14 +31,16 @@
 !***********************************************************************
 !#define _CHECK_
       use SOAO_Info, only: iAOtSO
-      use iSD_data
+      use iSD_data, only: iSD, nShBf, iShOff, nShBfMx, iCntr, iSh2Sh,
+     &                    nShIrp, iSO2Sh
       use Basis_Info, only: nBas, nBas_Aux
-      use stdalloc
-      use BasisMode
-      Implicit Real*8 (A-H,O-Z)
-!
-      Integer nSkal, nSym, nSOs, nShOff(0:7)
-      Integer iTmp(1 )
+      use stdalloc, only: mma_allocate
+      use BasisMode, only: Basis_Mode, Auxiliary_Mode
+      Implicit None
+      Integer nSkal, nSym, nSOs
+
+      Integer nShOff(0:7), iTmp(1), iSkal, iAO, iCmp, iSO, iPtr,
+     &        i, iRP, nShBfi, iSOB
 !
 !     Allocate all memory
 !
@@ -153,4 +155,4 @@
       Write(6,'(50I4)') (iSO2Sh(iSO),iSO=1,nSOs)
 #endif
       Return
-      End
+      End SubRoutine SOFSh1
