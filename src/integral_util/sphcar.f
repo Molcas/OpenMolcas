@@ -35,13 +35,16 @@
 !             of Lund, SWEDEN                                          *
 !             Modified spherical harmonics to cartesians October '91.  *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nab,nijx,nScrt,n1,n2,mab
       Real*8 Win(nab*nijx), Scrt(nScrt),
      &       Coeff1((n1+1)*(n1+2)/2,(n1+1)*(n1+2)/2),
      &       Coeff2((n2+1)*(n2+2)/2,(n2+1)*(n2+2)/2),
      &       Wout(mab*nijx)
       Logical Tr1, Pr1, Tr2, Pr2
 !
+      Integer l1, k1, l2, k2
+
       l1=(n1+1)*(n1+2)/2
       k1=l1
       If (Pr1) k1 = 2*n1 + 1
@@ -101,4 +104,4 @@
       End If
 !
       Return
-      End
+      End SubRoutine SphCar
