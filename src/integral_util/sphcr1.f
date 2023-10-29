@@ -30,13 +30,13 @@
 !             Modified to back projection to cartesian gaussians,      *
 !             January '92.                                             *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer ijkla, nScrt, kCar,kSph,lCar,lSph,mcd
       Real*8 Win(ijkla*kSph*lSph), Scrt(nScrt),
      &       Coeff3(kCar,kCar), Coeff4(lCar,lCar),
      &       Wout(mcd*ijkla)
       Logical Tr3, Pr3, Tr4, Pr4
 !
-!     iQ = 0
 !     Call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
       If (Tr3.and.Tr4) Then
 !        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
@@ -94,14 +94,16 @@
          Call Unused_logical(Pr3)
          Call Unused_logical(Pr4)
       End If
-      End
+      End SubRoutine SphCr1
 #ifdef _OLD_CODE_
       Subroutine NTMul(A,B,C,nRowA,nColA,nRowB)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      Implicit None
+      Integer nRowA,nColA,nRowB
       Real*8 A(nRowA,nColA), B(nRowB,nColA),
      &       C(nRowA,nRowB)
 !
+      Integer nCache, mCache, Indj, jj, njVec, i, j, k
       nCache=(64/8)*1024
       mCache=(nCache*3)/4 - nRowA*nColA
       Incj=mCache/(nRowA+nColA)
@@ -128,15 +130,20 @@
       End Do    ! End of sectioning
 !
       Return
-      End
+      End Subroutine NTMul
 #else
 !--------------------------------------------------------------------
       subroutine ntmul(a,b,r,ncol,nlink,nrow)
 !--------------------------------------------------------------------
-      implicit real*8 (a-h,o-z)
-      parameter (mxind=2000)
+      Implicit None
+      Integer nCol, nRow, nLink
       Real*8 r(ncol,*),a(ncol,*),b(nrow,*)
+
+      Integer, parameter :: mxind=2000
       Integer ind(mxind)
+      Integer i, nnot, k, j, nr1
+      Real*8 S1, S2, S3, S4, S5, S6, S7, S8,
+     &       T1, T2, T3, T4, T5, T6, T7, T8
 !
       do 100 i=1,ncol
 !
@@ -293,5 +300,5 @@
       Write (6,*) 'mxind,nlink=',mxind,nlink
       Call Abend()
       Return
-      End
+      End subroutine ntmul
 #endif
