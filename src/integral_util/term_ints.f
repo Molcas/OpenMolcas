@@ -20,10 +20,9 @@
 !             Sweden. January '98.                                     *
 !***********************************************************************
       use k2_arrays, only: FT, Aux, iSOSym, Destroy_BraKet_Base
-      use setup
-      use iSD_Data
+      use iSD_Data, only: iCntr, iSh2Sh, iSO2Sh, iCntr, nShBf, iShOff
       use stdalloc, only: mma_deallocate
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -59,5 +58,4 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+      End Subroutine Term_Ints
