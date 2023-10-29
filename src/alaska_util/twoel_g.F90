@@ -42,6 +42,9 @@ use Definitions, only: wp, iwp, u6
 use Disp, only: l2DI, CutGrd
 use k2_structure, only: k2_type
 use k2_arrays, only: BraKet
+#ifdef _DEBUGPRINT_
+use Disp, only: ChDisp
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nData1, &
