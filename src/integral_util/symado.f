@@ -12,11 +12,17 @@
      &                  lOper,iChO,Factor)
       use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nZeta,la,lb,nComp,nIC,iDCRT
       Real*8 ArrIn (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC)
-      Integer iDCRT ,iTwoj(0:7), lOper(nComp), iChO(nComp)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer lOper(nComp), iChO(nComp)
+      Real*8 Factor
+
+      Integer :: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
+      Integer ixyz, nElem
+      Integer iIC, iComp, iIrrep
+      Real*8 pO, Xg
 !
 !     Statement function for Cartesian index
 !
@@ -46,5 +52,4 @@
       End If
 !     Call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB, nIC)
 !
-      Return
-      End
+      End SubRoutine SymAdO
