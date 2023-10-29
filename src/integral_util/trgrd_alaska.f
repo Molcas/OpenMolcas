@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !               2006, Giovanni Ghigo                                   *
 !***********************************************************************
-      SubRoutine TrGrd_Alaska_(CGrad,CNames,GradIn,nGrad,iCen)
+      SubRoutine TrGrd_Alaska(CGrad,CNames,GradIn,nGrad,iCen)
 !***********************************************************************
 !                                                                      *
 !      Transforms a symmetry adapted gradient to unsymmetric form.     *
