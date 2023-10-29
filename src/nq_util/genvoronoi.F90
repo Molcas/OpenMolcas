@@ -29,6 +29,9 @@ integer(kind=iwp), intent(out) :: nR_Eff
 real(kind=wp), intent(inout) :: Alpha(2), rm(2)
 integer(kind=iwp), intent(in) :: iNQ
 integer(kind=iwp) :: iANr, l_Max, mR
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iR
+#endif
 real(kind=wp) :: Dum(2,1), Radius_Max, RBS
 logical(kind=iwp) :: Process
 real(kind=wp), external :: Bragg_Slater, Eval_RMax

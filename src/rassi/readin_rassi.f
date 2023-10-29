@@ -55,7 +55,7 @@ C --- Default settings for Cholesky
       Update = .true.
       Deco = .true.
       PseudoChoMOs = .false.
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       ChFracMem=0.3d0
 #else
       ChFracMem=0.0d0

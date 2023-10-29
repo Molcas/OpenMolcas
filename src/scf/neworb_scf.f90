@@ -382,7 +382,7 @@
             Do i = 1, nBas(iSym)
                call VecPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))
             End Do
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
             Call NrmClc(Fcks,nbas(iSym)*nOrb(iSym),'NewOrb','Old CMOs')
             Call NrmClc(CMO(iCMO,iD),nbas(iSym)*nOrb(iSym),'NewOrb','New CMOs')

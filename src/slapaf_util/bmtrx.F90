@@ -25,6 +25,9 @@ implicit none
 integer(kind=iwp), intent(in) :: nsAtom, nIter, mTtAtm, nWndw
 real(kind=wp), intent(in) :: Coor(3,nsAtom)
 integer(kind=iwp) :: i, iAtom, ix, ixyz, Lu, mTR, mTtAtm_, nBonds, nHidden, nMax, nQQ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iInter
+#endif
 integer(kind=iwp), allocatable :: AN(:), TabA(:,:,:), TabAI(:,:), TabB(:,:)
 real(kind=wp), allocatable :: Coor2(:,:), EVal(:), Hss_X(:), Scr2(:), TR(:), TRNew(:), TROld(:), Vec(:,:)
 

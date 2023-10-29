@@ -25,6 +25,9 @@ use ChoMP2, only: AdrR1, AdrR2, iAdrOff, iFro, iOcc, iT1am, kFLagr, kLagr, kPab,
                   lWaK, lWij, lWiK, lWJK, nFro, nMoMo, nMP2Vec, nOcc, nVir
 use Constants, only: Zero, One, Two, Four, Eight, Half
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: irc

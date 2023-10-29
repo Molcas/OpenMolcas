@@ -37,7 +37,7 @@ integer(kind=iwp) :: I, ia1, ia2, ia3, ib1, ib2, ib3, ic1, ic2, ic3, iCar, iCent
                      ipd, iRys, it, ix1, ix2, jCar, jCent, jDer, kCar
 real(kind=wp) :: tmp
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !iRout = 248
 !iPrint = nPrint(iRout)
 g2(:) = Zero

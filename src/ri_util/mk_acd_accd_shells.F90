@@ -48,15 +48,16 @@ integer(kind=iwp) :: i, iAng, iAngMax, iAngMin, iAO, iBS, iCho_c, iCho_p, iCmp, 
                      nSO_p, nTest, nTheta, nTheta_All, nTheta_Full, nTInt_c, nTInt_p, nTri, NumCho_c, NumCho_p
 real(kind=wp) :: Coeff_, Coeff_k, Coeff_kk, Coeff_kl, Coeff_l, Coeff_lk, Coeff_ll, Dummy(1), Exp_i, Exp_j, Fact, Thr_aCD, ThrAO, &
                  Thrs, Thrshld_CD_p
+logical(kind=iwp) :: Diagonal, Found, Hit, In_Core, Keep_Basis
+character(len=80) :: atom, author, Aux, basis, BSLbl, btype, CGTO, Label
 integer(kind=iwp), allocatable :: Con(:), ConR(:,:), iD_c(:), iD_p(:), iList2_c(:,:), iList2_p(:,:), Indkl(:), Indkl_p(:), &
                                   LTP(:,:), Prm(:)
 real(kind=wp), allocatable :: A(:), ADiag(:), C(:), Q(:), QTmp(:), Scr(:), Temp(:), TInt_c(:), TInt_p(:), Tmp(:), TP(:), tVp(:), &
                               tVt(:), tVtF(:), Vec(:), Wg(:), Z(:)
 #ifdef _DEBUGPRINT_
+real(kind=wp) :: Det
 real(kind=wp), allocatable :: H(:), tVtInv(:), U(:)
 #endif
-logical(kind=iwp) :: Diagonal, Found, Hit, In_Core, Keep_Basis
-character(len=80) :: atom, author, Aux, basis, BSLbl, btype, CGTO, Label
 procedure(int_wrout) :: Integral_RICD
 integer(kind=iwp), external :: IsFreeUnit
 

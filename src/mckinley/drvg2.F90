@@ -930,7 +930,7 @@ end if
 #ifdef _DEBUGPRINT_
 call GADSum_SCAL(Pren)
 call GADSum_SCAL(Prem)
-write(frmt,'(A,I2,A,I2,A)') '(A,F',3+iInt(log10(Pren)),'.0,A,F',3+iInt(log10(Prem)),'.0,A)'
+write(frmt,'(A,I2,A,I2,A)') '(A,F',3+int(log10(Pren)),'.0,A,F',3+int(log10(Prem)),'.0,A)'
 write(u6,frmt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
 #endif
 call mma_deallocate(Sew_Scr)

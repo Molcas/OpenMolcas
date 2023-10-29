@@ -17,7 +17,7 @@ subroutine Angular_Grid()
 !***********************************************************************
 
 use nq_Info, only: iOpt_Angular, L_Quad, nAngularGrids
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use nq_Structure, only: Info_Ang
 use Definitions, only: iwp, u6

@@ -31,6 +31,10 @@ real(kind=wp), intent(in) :: Thr
 #include "warnings.h"
 integer(kind=iwp) :: i, iAddr, iD_Col, ij, is, istart, js, k, kAddr, kCol, ks, kScr, lindep, lmax, nMem_Col
 real(kind=wp) :: Acc, XMax
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: n_NegInpDiag
+real(kind=wp) :: d_NegInpDiag
+#endif
 integer(kind=iwp), allocatable :: list(:)
 
 #ifdef _DEBUGPRINT_

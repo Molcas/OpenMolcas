@@ -92,7 +92,7 @@ return
 
 end subroutine VEMB_Exc_states
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

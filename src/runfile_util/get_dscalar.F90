@@ -41,6 +41,9 @@ subroutine Get_dScalar(Label,rData)
 
 use RunFile_data, only: DS_cache, nTocDS, lw, num_DS_init
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 character(len=*), intent(in) :: Label

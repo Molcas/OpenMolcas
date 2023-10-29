@@ -40,7 +40,7 @@ subroutine DaName_Main(Lu,String,mf,wa)
 !                                                                      *
 !***********************************************************************
 
-#if defined(_I8_) || defined(_OPENMP)
+#if defined (_I8_) || defined (_OPENMP)
 #define NO_SPLITTING
 #endif
 

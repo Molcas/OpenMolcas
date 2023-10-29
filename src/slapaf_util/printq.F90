@@ -33,11 +33,10 @@ real(kind=wp), external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-#ifdef _DEBUGPRINT_
-iPrint = 99
-#else
 iRout = 122
 iPrint = nPrint(iRout)
+#ifdef _DEBUGPRINT_
+iPrint = 99
 #endif
 
 Lu = u6

@@ -24,7 +24,7 @@ subroutine CHO_FOCK_DFT_RED(irc,DLT,FLT)
 
 use Cholesky, only: InfVec, nDimRS, NumCho, timings
 #ifdef _DEBUGPRINT_
-use Cholesky, only: nBas
+use Cholesky, only: nBas, nSym
 #endif
 use Data_Structures, only: DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -40,10 +40,11 @@ integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRE
 real(kind=wp) :: FactC, TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, &
                  TWC2, TWR1, TWR2, xfac
 logical(kind=iwp) :: add
+character(len=50) :: CFmt
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISYM, NB
 logical(kind=iwp) :: Debug
 #endif
-character(len=50) :: CFmt
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_DFT_RED'
 

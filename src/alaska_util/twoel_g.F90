@@ -66,7 +66,7 @@ real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ, lEmpty
 external :: ModU2, TERI1, vCff2D
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
+integer(kind=iwp) :: i, iPrint, iRout
 character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz']
 #include "print.fh"
 #endif

@@ -1586,7 +1586,7 @@ C           G1(IU,IT)=GTU
 *     needed to achieve better load balancing. So it exits from the task
 *      list. It has to do it here since each process gets at least one
 *      task.
-! #if defined (_MOLCAS_MPP_) && !defined (_GA_)
+! #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 !       IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
 ! #endif
 
@@ -3378,7 +3378,7 @@ C               CALL GETSGM2(LV,LX,ISSG,Work(LSGM1),Work(LSGM2))
             END DO
 
 C
-! #if defined (_MOLCAS_MPP_) && !defined (_GA_)
+! #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 !         IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
 ! #endif
 C

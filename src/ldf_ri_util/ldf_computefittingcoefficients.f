@@ -19,7 +19,7 @@ C
 C     Atom and Atom Pair data must have been set up before calling this
 C     routine.
 C
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit None
@@ -32,7 +32,7 @@ C
       Character*30 SecNam
       Parameter (SecNam='LDF_ComputeFittingCoefficients')
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Logical  LDF_AtomInfoIsSet, LDF_AtomPairInfoIsSet
       External LDF_AtomInfoIsSet, LDF_AtomPairInfoIsSet
 #endif
@@ -75,7 +75,7 @@ C
       ! Init return code
       irc=0
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (.not.LDF_AtomInfoIsSet() .or.
      &    .not.LDF_AtomPairInfoIsSet()) Then
          irc=-1
@@ -392,7 +392,7 @@ C
 
       ! Check overlap integrals
       If (CheckOverlapIntegrals) Then
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
          If (nProcs.gt.1 .and. Is_Real_Par()) Then
             ! Start coefficient IO utility
             Call LDF_CIO_SetUnit(0)
@@ -424,7 +424,7 @@ C
                Call LDF_Quit(1)
             End If
          End If
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
          If (nProcs.gt.1 .and. Is_Real_Par()) Then
             ! Shut down coefficient IO utility
             Call LDF_CIO_Final()

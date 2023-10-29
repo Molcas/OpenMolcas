@@ -38,6 +38,9 @@ subroutine Cho_X_nVecRS(iRed,iSym,iVec,nVec)
 
 use Cholesky, only: InfVec, MaxVec, nSym, NumCho
 use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iRed, iSym

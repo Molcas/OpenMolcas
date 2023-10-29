@@ -37,6 +37,7 @@ use Data_Structures, only: V1
 use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, LuCVector, nChOrb, nIJR, nKdens, nYmnij, tbvec, &
                    Yij, Ymnij
 #ifdef _DEBUGPRINT_
+use pso_stuff, only: D0, iD0Lbl
 use RI_glob, only: iOff_Ymnij
 #endif
 use Constants, only: Zero, One, Two, Half, Quart
@@ -50,6 +51,9 @@ integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ijBas, ijk, ik, ik1, ik2, il, il1,
                      indexB, Indkl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, jSkip(4), &
                      jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, Kth, lAct, lAOl, lBVec, lCVec, lda, lda1, &
                      lda2, lSO, lSOl, lSym, Lth, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iSym
+#endif
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, fact, Factor, temp, tmp, Wall, Wall1, Wall2
 logical(kind=iwp) :: Found
 real(kind=wp), pointer :: Xki(:), Xli(:)
@@ -60,8 +64,7 @@ real(kind=wp), external :: Compute_B, dDot_
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-iComp = 1
-call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+call PrMtrx('DSO     ',[iD0Lbl],1,[1],D0)
 write(u6,*)
 write(u6,*) 'Distribution of Ymnij'
 iSym = 1

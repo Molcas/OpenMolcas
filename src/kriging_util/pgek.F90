@@ -19,7 +19,7 @@ use Constants, only: Zero, One, Two, Four, Pi
 use Definitions, only: wp, iwp
 
 !#define _MI_SORT_
-#if (defined(_DEBUGPRINT_) || defined(_MI_SORT_))
+#if defined (_DEBUGPRINT_) || defined (_MI_SORT_)
 use Definitions, only: u6
 #endif
 

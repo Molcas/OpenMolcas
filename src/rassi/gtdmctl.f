@@ -1276,7 +1276,7 @@ CCSVC: The master node now continues to only handle task scheduling,
 CC     needed to achieve better load balancing. So it exits from the task
 CC     list.  It has to do it here since each process gets at least one
 CC     task.
-C#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+C#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 C      if (IS_REAL_PAR().and.KING().and.(NPROCS>1)) goto 401
 C#endif
 C      goto 400

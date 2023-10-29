@@ -101,6 +101,9 @@
       use Constants, only: Zero, One
       Implicit None
       Integer nh1, nGrad, nBT, nD
+#ifdef _DEBUGPRINT_
+      Integer i
+#endif
       Real*8  Grad(nGrad)
       Character(LEN=4) DFTFOCK
       Character(LEN=80)  KSDFT

@@ -670,11 +670,9 @@
             ENDIF
 #ifdef _DEBUGPRINT_
           ISF=(JQ-1)*IB
-          write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv,',1)=',FSQ(ISF+ivv,1),ivv=1,Ib)
+          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',1)=',FSQ(ISF+ivv,1),ivv=1,Ib)
           if(nD==2) then
-          write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
+          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
           endif
 #endif
 

@@ -11,7 +11,7 @@
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
       Integer Function LDF_CloseC(LuC)
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit None
@@ -20,7 +20,7 @@
          LDF_CloseC=-1
          Return
       End If
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       If (nProcs.gt.1 .and. Is_Real_Par()) Then
          Call DAEras(LuC)
       Else

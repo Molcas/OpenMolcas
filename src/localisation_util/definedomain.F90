@@ -70,7 +70,7 @@ integer(kind=iwp) :: i, iAt, iAtom, iCount, nB(1), nErr, nSrt
 real(kind=wp) :: Charge, Chrg, Diff
 integer(kind=iwp), allocatable :: iPivot(:)
 real(kind=wp), allocatable :: absQ(:), Q(:,:), S(:,:), T(:,:)
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
 #define DBG .true.
 #else
 #define DBG .false.

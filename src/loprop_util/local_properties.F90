@@ -16,6 +16,9 @@ use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nElem, nBas1, iCenter(nBas1), nij, nPert, lMax, iANr(nAtoms), nTemp, iPlot, iPrint, nSym

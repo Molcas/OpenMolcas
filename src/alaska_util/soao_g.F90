@@ -45,10 +45,7 @@ write(u6,*) ' ************** Memory partioning **************'
 write(u6,*) ' ipMem1=',ipMem1
 write(u6,*) ' Mem1=',Mem1
 write(u6,*) ' Mem2=',Mem2
-write(u6,*) ' Mem3=',Mem3
 write(u6,*) ' MemPSO=',MemPSO
-write(u6,*) ' MemScr=',MemScr
-write(u6,*) ' Mend=',Mend
 
 write(u6,*) ' iBasi,iBsInc=',iBasi,iBsInc
 write(u6,*) ' jBasj,jBsInc=',jBasj,jBsInc

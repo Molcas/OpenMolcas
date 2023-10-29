@@ -20,6 +20,7 @@ subroutine Cho_PTS_WrRst(irc,NVT,l_NVT)
 use Cholesky, only: InfRed, InfVec, LuCho, LuMap, LuRed, LuRst, MaxVec, nnBstR, NumCho, nSym
 use Cholesky_procedures, only: Cho_X_GetIP_InfVec
 #ifdef _DEBUGPRINT_
+use Cholesky, only: LuPri
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use Definitions, only: iwp

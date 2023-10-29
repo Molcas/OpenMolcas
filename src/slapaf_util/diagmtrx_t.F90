@@ -11,6 +11,7 @@
 
 #include "compiler_features.h"
 #ifdef _DEBUGPRINT_
+
 subroutine DiagMtrx_T(H,nH,iNeg)
 
 use Index_Functions, only: nTri_Elem
@@ -113,7 +114,8 @@ call mma_deallocate(EVal)
 return
 
 end subroutine DiagMtrx_T
-#elif !defined (EMPTY_FILES)
+
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

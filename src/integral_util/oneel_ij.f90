@@ -11,8 +11,10 @@
 ! Copyright (C) 2011, Thomas Bondo Pedersen                            *
 !               2011, Roland Lindh                                     *
 !***********************************************************************
+
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
+
       Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,                       &
      &                    xZeta,xZI,xKappa,xPCoor,                      &
      &                    Kernel,KrnlMm,Label,lOper,nComp,CoorO,        &
@@ -586,7 +588,7 @@
       Return
       End Subroutine OneEl_IJ
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

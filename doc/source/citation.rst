@@ -30,7 +30,7 @@ The recommended citation for |openmolcas| is:
   Veryazov, Torben Arne Voß, Oskar Weser, Dihua Wu, Xuchun Yang, David Yarkony,
   Chen Zhou, J. Patrick Zobel, Roland Lindh. "The OpenMolcas *Web*: A
   Community-Driven Approach to Advancing Computational Chemistry." *Journal of
-  Chemical Theory and Computation*, **??** (2023), ??--??.
+  Chemical Theory and Computation*, **19** (2023), 6933--6991.
   `doi:10.1021/acs.jctc.3c00182 <https://doi.org/10.1021/acs.jctc.3c00182>`_
 
 Earlier citations for |openmolcas| and |molcas| are:

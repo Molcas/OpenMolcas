@@ -52,7 +52,7 @@ call f_inquire('SYMINFO',EX)
 if (.not. EX) call SysAbendMsg('systrafo','SYMINFO not present','Sorry')
 call molcas_open(isymunit,'SYMINFO')
 rewind(isymunit)
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Symmetry adapation of the SO-integrals'
 #endif

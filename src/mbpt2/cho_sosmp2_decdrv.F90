@@ -117,7 +117,7 @@ do iSym=1,nSym
         MxQual = max(min(nDim,MxQualMP2),1)
       end if
     end if
-#   if !defined (_I8_)
+#   ifndef _I8_
     lTstBuf = (nDim+MxQual)*MxQual
     lTstQua = nDim*(MxQual+1)
     do while (((lTstBuf < 0) .or. (lTstQua < 0)) .and. (MxQual > 0))

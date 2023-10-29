@@ -15,6 +15,9 @@ subroutine CHO_FINAL(WriteBookmarks)
 
 use Cholesky, only: BkmThr, BkmVec, Cho_AdrVec, Cho_Reord, CHOINICHECK, iSOShl, nBasT, nCol_BkmThr, nCol_BkmVec, nRow_BkmThr, &
                     nRow_BkmVec, nSym, ThrCom
+#ifdef _DEBUGPRINT_
+use Cholesky, only: Cho_1Center
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

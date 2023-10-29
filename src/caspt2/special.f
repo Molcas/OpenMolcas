@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3)
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -155,7 +155,7 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
 #endif
 

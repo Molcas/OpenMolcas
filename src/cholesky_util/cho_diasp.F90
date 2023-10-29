@@ -19,6 +19,9 @@ subroutine Cho_DiaSP()
 
 use Index_Functions, only: iTri
 use Cholesky, only: Cho_PreScreen, iSP2F, nnShl, nnShl_tot, nShell, Thr_PreScreen
+#ifdef _DEBUGPRINT_
+use Cholesky, only: LuPri
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -72,9 +75,8 @@ else ! no prescreening, include all shell pairs.
 end if
 
 #ifdef _DEBUGPRINT_
-if (.not. Cho_PreScreen) Tau = Zero
 write(LuPri,*) '>>> Exit from Cho_DiaSP:'
-write(LuPri,*) '    Screening threshold               : ',Tau
+if (Cho_PreScreen) write(LuPri,*) '    Screening threshold               : ',Tau
 write(LuPri,*) '    Total number of shell pairs       : ',nnShl_Tot
 write(LuPri,*) '    Contributing number of shell pairs: ',nnShl
 if (nnShl_Tot /= 0) write(LuPri,*) '    Screening-%: ',1.0e2_wp*real(nnShl_Tot-nnShl,kind=wp)/real(nnShl_Tot,kind=wp)

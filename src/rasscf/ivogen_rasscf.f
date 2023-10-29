@@ -64,7 +64,7 @@
       Real*8, Dimension(:), Allocatable:: FckS, FckH, FckT, OneHam,
      &                                    Scratch
 *
-      ! clocal variables:
+      ! local variables:
       Integer  iSym, ij, nOrbi, iCMO, iEOr, iDum, nFound, iErr
       Integer  nOcc(nSym)
       Integer  MaxBas, MaxBOO, MaxOrO, nBT
@@ -88,7 +88,9 @@
          MaxBOO = Max(MaxBOO,nBas(iSym)*(nBas(iSym)-nOcc(iSym)))
       End Do
 #ifdef _DEBUGPRINT_
+      iCMO = 1
       Do iSym=1, nSym
+         iCMO = iCMO + nBas(iSym)**2
          Call RecPrt('IvoGen: CMO(in)',' ',CMO(iCMO),nBas(iSym),
      &                                               nBas(iSym) )
       End Do

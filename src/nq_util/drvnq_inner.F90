@@ -53,6 +53,7 @@ integer(kind=iwp) :: id, iIrrep, iSB, ix, iy, iyz, iz, jx, jxyz, jy, jyz, jz
 logical(kind=iwp) :: l_tgga
 real(kind=wp), allocatable :: EG_OT(:), FA_V(:), FI_V(:), OE_OT(:), PDFTFocA(:), PDFTFocI(:), PDFTPot1(:)
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iOff, lB, nB
 logical(kind=iwp) :: Exists
 #endif
 logical(kind=iwp), external :: Rsv_Tsk

@@ -73,6 +73,8 @@ integer(kind=iwp) :: ChoIsIni, iErr, ijShl, iLoc, iRed, iShl, iSym, jShl, l, Num
 real(kind=wp) :: Frac
 logical(kind=iwp) :: DidCholesky, DoDummy, FirstCall = .true., isDF, isLocalDF
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: is1CCD, l_Max
+real(kind=wp) :: Byte
 character(len=2) :: Unt
 #endif
 integer(kind=iwp), allocatable :: BkmDim(:)

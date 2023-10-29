@@ -35,6 +35,10 @@ integer(kind=iwp), intent(out) :: iP(nIter)
 character, intent(inout) :: Step_Trunc
 #include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, Lu, MinWdw
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iSave, ix
+#endif
 real(kind=wp) :: Beta_New
 real(kind=wp), allocatable :: t_dq(:), t_g(:), t_q(:)
 real(kind=wp), external :: DDot_
@@ -42,7 +46,6 @@ real(kind=wp), external :: DDot_
 Lu = u6
 iRout = 113
 iPrint = nPrint(iRout)
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(Lu,*) ' Newq: nIter,Beta=',nIter,Beta
 call RecPrt(' Newq (Enter): q',' ',q,nInter,nIter+1)

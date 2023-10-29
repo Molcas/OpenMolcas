@@ -11,6 +11,7 @@
 
 #include "compiler_features.h"
 #ifdef _Test_Numerical_
+
 subroutine OutofP1(xyz,nCent,Teta,Bt,ldB)
 
 use Constants, only: Zero, One, Two, Pi, deg2rad
@@ -31,7 +32,7 @@ real(kind=wp), external :: ArCos
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -163,7 +164,8 @@ call RecPrt('Outofp: B matrix',' ',Bt,3,nCent)
 return
 
 end subroutine OutofP1
-#elif !defined (EMPTY_FILES)
+
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

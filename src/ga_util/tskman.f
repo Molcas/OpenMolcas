@@ -60,11 +60,11 @@
         if (.not.ga_create(MT_INT,1,1,'gltskl',0,0,task_counter(id)))
      &    call sysabendmsg ('init_tsk',
      &      'failed to create global task list',' ')
-#  if !defined (_GA_)
+#  ifdef _GA_
+        call ga_fill(task_counter(id),1)
+#  else
         call ga_zero(task_counter(id))
         call gtsk_setup(id,task_counter(id))
-#  else
-        call ga_fill(task_counter(id),1)
 #  endif
       else
         task_counter(id) = 1
@@ -104,7 +104,7 @@
         if (.not.ga_destroy(task_counter(id)))
      &    call sysabendmsg ('free_tsk',
      &      'failed to destroy global task list.',' ')
-#  if !defined (_GA_)
+#  ifndef _GA_
         call gtsk_reset(id)
 #  endif
       end if
@@ -129,10 +129,10 @@
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
 * (atomically) read+increment next task number
-#  if !defined (_GA_)
-        task = gtsk_nxtval(id,1)
-#  else
+#  ifdef _GA_
         task = ga_read_inc(task_counter(id),1,1,1)
+#  else
+        task = gtsk_nxtval(id,1)
 #  endif
       else
         task = task_counter(id)

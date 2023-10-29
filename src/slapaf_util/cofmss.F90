@@ -18,6 +18,9 @@ subroutine CofMss(Coor,nsAtom,cMass)
 use Slapaf_Info, only: dMass, Smmtrc
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nsAtom
@@ -58,7 +61,7 @@ cMass(:) = cMass(:)/TMass
 if ((iCOM >= 1) .and. (iCOM <= nsAtom)) cMass(:) = Coor(:,iCom)
 
 #ifdef _DEBUGPRINT_
-if (LWrite) write(u6,100) cMass(:),TMass
+write(u6,100) cMass(:),TMass
 100 format(//,' Center of Mass (Bohr) ',3F10.5,/,' Molecular Mass   (au) ',1F15.5)
 #endif
 

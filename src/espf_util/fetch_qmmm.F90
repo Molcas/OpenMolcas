@@ -208,7 +208,7 @@ end function mmslave_copyx_wrapper
 
 end subroutine Fetch_QMMM
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

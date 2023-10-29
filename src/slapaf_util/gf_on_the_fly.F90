@@ -24,7 +24,7 @@ real(kind=wp) :: DipM(3)
 real(kind=wp), allocatable :: dDipM(:), EVal(:,:), EVec(:,:), IRInt(:), NMod(:), RedMas(:), Temp(:)
 integer(kind=iwp), external :: IsFreeUnit
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

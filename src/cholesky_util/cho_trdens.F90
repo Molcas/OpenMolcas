@@ -266,7 +266,6 @@ end if
     end if
   end do
 #endif
-
 irc = 0
 
 return

@@ -244,7 +244,7 @@ end function mmslave_calc_energy_wrapper
 
 end subroutine Opt_MMO
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

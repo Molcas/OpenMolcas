@@ -10,6 +10,7 @@
 !***********************************************************************
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
+
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
       use k2_arrays, only: nDeDe, MaxDe, MxDij, ipDeDe, ipD00, ipDijS,
      &                     DeDe, pDq, Dq, Fq, pFq, ipOffD
@@ -82,7 +83,7 @@
 
       End Subroutine DeDe_SCF
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

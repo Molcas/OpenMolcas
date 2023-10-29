@@ -16,10 +16,10 @@ implicit none
 
 ! use backtrace intrinsic (introduced since gfortran 4.8)
 #include "compiler_features.h"
-#if defined(__GNUC__) && (GCC_VERSION >= 40800)
+#if defined (__GNUC__) && (GCC_VERSION >= 40800)
 call backtrace()
 ! use tracebackqq intrinsic for ifort
-#elif defined(__INTEL_COMPILER)
+#elif defined (__INTEL_COMPILER)
 call tracebackqq()
 #endif
 

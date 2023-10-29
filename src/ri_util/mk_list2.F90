@@ -15,12 +15,19 @@ use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, Shells
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nTheta_All, mData, nSO_Tot, iCnttp, nTest, ijS_req
 integer(kind=iwp), intent(out) :: List2(2*mData,nTheta_All)
 integer(kind=iwp) :: iAng, iAng_, iCmp, iCmp_, iCont, iCont_, iiSO, ijS, ijSO, iShll, iShll_, iSO, iSO_, jAng, jAng_, jCmp_, &
                      jCont_, jjSO, jShll, jShll_, jSO, jSO_Max, mCmp, mSO, nCmp, nCont, nSO
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 logical(kind=iwp) :: Only_DB
 integer(kind=iwp), allocatable :: iList(:,:)
 
@@ -98,7 +105,6 @@ do iAng=0,nTest
   iiSO = iiSO+nSO
 end do           ! iAng
 
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(u6,*) 'List2'
 write(u6,*) '  iAng,  jAng,  iCmp,  jCmp, iCont, jCont, iShll, jShll'
