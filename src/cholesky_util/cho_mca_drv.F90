@@ -26,6 +26,9 @@ integer(kind=iwp) :: ICODE, irc
 real(kind=wp) :: THRAO
 logical(kind=iwp) :: DOFOCK, DOGRAD, INDEXATION
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DRV'
+#ifdef _DEBUGPRINT_
+real(kind_wp) :. CUTINT1, THRINT1, CUTINT2, THRINT2
+#endif
 
 call STATUSLINE('Seward: ','Cholesky decomposition of ERIs')
 
