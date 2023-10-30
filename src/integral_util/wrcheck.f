@@ -10,7 +10,7 @@
 !***********************************************************************
       Subroutine WrCheck(Label,Arr,n)
       use Constants, only: One
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
       Integer n
       Real*8 Arr(n)
       Character(LEN=*) Label
