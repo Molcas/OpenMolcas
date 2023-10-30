@@ -21,17 +21,22 @@
 !                                                                      *
 ! Author: K.Pfingst 21/5/93                                            *
 !***********************************************************************
-      use Constants
-      use rmat
-      Implicit Real*8 (A-H,O-Z)
-      external fradf
-#ifdef _DEBUGPRINT_
-      Character*80 Label
-#endif
+      use Constants, only: Zero
+      use rmat, only: l, ExpSum, QuadPack, TestInt, NagInt, EpsAbs,
+     &                EpsRel, KeyR, RMatR
+      Implicit None
+      Integer nZeta, lSum
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
-      Parameter(limit=200,lenw=4*limit)
+
+      external fradf
+      Integer, Parameter :: limit=200, lenw=4*limit
+#ifdef _DEBUGPRINT_
+      Character(LEN=80) Label
+#endif
       Integer iScrt(limit)
       Real*8 Scrt(lenw)
+      Real*8 Result, Result2, AbsEr
+      Integer ir, iZeta, ier2, nEval, Last
 !
 !     Statement function for Cartesian index
 !
@@ -155,5 +160,4 @@
       Call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
 #endif
 !
-      Return
-      End
+      End SubRoutine Radlc
