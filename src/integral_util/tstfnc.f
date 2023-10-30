@@ -22,9 +22,12 @@
 !             September 1991                                           *
 !***********************************************************************
       use Symmetry_Info, only: nIrrep, iOper, iChTbl
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer iIrrep, iBsFnc, nStab
       Integer iCoSet(0:7,0:7), iAcc(0:7)
-      Integer iBsFnc
+
+      Integer nCoSet, i, j, k, n, iCom
+      Integer, External :: iPrmt_
 !
       TstFnc = .True.
       nCoSet=nIrrep/nStab
@@ -82,7 +85,8 @@
 !
       Logical Function TF(mdc,iIrrep,iComp)
       Use Center_Info, Only : dc
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer mdc,iIrrep,iComp
       Logical, External :: TstFnc
       TF = TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)
       End Function TF
@@ -93,8 +97,10 @@
 !     operation, jOper. iChct contains the information about the       *
 !     character of the basis function.                                 *
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
-      Integer i, iCom
+      Implicit None
+      Integer iCom
+
+      Integer i
       iPrmt_= 1
       Do i = 1, 3
          If (iAnd(iCom,2**(i-1)).ne.0) iPrmt_= iPrmt_*(-1)
