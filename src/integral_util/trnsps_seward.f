@@ -33,15 +33,20 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             May '90                                                  *
 !***********************************************************************
-      use Basis_Info
+      use Basis_Info, only: Shells
       use Real_Spherical, only: iSphCr
       use Symmetry_Info, only: iChBas
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: One
+      Implicit None
+      Integer ijCmp, iCmp, jCmp, iAng, jAng, iShll, jShll, kOp, ijkl,
+     &        ij
       Real*8 AOInt(ijkl,ijCmp,ijCmp), Scrtch(ijkl,ijCmp,ijCmp)
 
       Integer, External:: iPrmt
       Integer ixyz, iOff
+      Integer ii, jj, i1, i2, i3, i4, iChBs, jChBs, kChBs, lChBs,
+     &        ij2, i12, i34, ij1
+      Real*8 pa1T, pb1T, pa2T, pb2T, Factor
 !
 !     Statement Function
 !
@@ -97,5 +102,4 @@
       End If
 !
 !     Call RecPrt(' Exit Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
-      Return
-      End
+      End Subroutine Trnsps_Seward
