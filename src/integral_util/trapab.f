@@ -17,11 +17,22 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero
+      Implicit None
+      Integer nZeta,la,lb,jSum
       Real*8 AB(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),GInt(nZeta,jSum),
      &       rKappa(nZeta), Fac1(nZeta), Fac2(nZeta), Fac3(nZeta),
      &       Fac4(nZeta), Fac5(nZeta), A(3), B(3), P(nZeta,3)
+
+      Integer ix, iy, iz, iad, iOff
+      Integer kOff, i, jx, jy, jz, lOff, ia, iTrgt, ixa, iya, iza, ipa,
+     &        ixb, iyb, izb, ipb, iyaMax, iybMax, ixas, iyas, izas,
+     &        igx, igy, igz, ipg, iax, iay, iaz, ibx, iby, ibz, iZeta,
+     &        ixbs, iybs, izbs
+      Real*8 Ax, Ay, Az, Bx, By, Bz
+#ifdef _DEBUGPRINT_
+      Integer nElem
+#endif
 !
 !-----Statement function
 !
@@ -29,16 +40,14 @@
       iOff(ix,iy,iz) = (ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
 #ifdef _DEBUGPRINT_
       nElem(i) = (i+1)*(i+2)/2
-#endif
 !
-#ifdef _DEBUGPRINT_
       Call RecPrt(' In TraPAB: GInt',' ',GInt,nZeta,jSum)
       Call RecPrt(' In TraPAB: P   ',' ',P   ,nZeta,3)
 #endif
 !
 !-----Initilize
 !
-      call dcopy_(nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2,[Zero],0,AB,1)
+      AB(:,:,:)=Zero
 !
 !-----Remove redundant elements in GInt. This is done in place.
 !
@@ -201,5 +210,4 @@
       Call RecPrt(' In TraPAB: AB',' ', AB, nZeta,nElem(la)*nElem(lb))
 #endif
 !
-      Return
-      End
+      End SubRoutine TraPAB
