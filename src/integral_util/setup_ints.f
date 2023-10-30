@@ -23,20 +23,24 @@
 !     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 !             Sweden. January '98.                                     *
 !***********************************************************************
-      use setup
-      use iSD_data
-      use k2_arrays
-      use LundIO
+      use setup, only: nSOs, nAux, MxPrm
+      use k2_arrays, only: nFT, MxFT, iSOSym, Aux, FT,
+     &                     create_braket_base
+      use LundIO, only: Buf, iDisk
       use Basis_Info, only: nBas, nBas_Aux
       use Gateway_Info, only: CutInt, lSchw
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use stdalloc
-      use BasisMode
-      Implicit Real*8 (a-h,o-z)
-      External CmpctR, CmpctS
-!
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate
+      use BasisMode, only: Basis_Mode, Valence_Mode, Auxiliary_Mode,
+     &                     With_Auxiliary_Mode
+      Implicit None
       Logical DoFock, DoGrad, Indexation
+      Integer nSkal
+      Real*8 ThrAO
+
+      External CmpctR, CmpctS
+      Integer iIrrep, iSOs, nBas_iIrrep, i
 !
       If (Allocated(iSOSym)) Then
         Call Nr_Shells(nSkal)
@@ -142,10 +146,13 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Function iPD(iSO_,jSO_,iSOSym,nSOs)
+      Integer Function iPD(iSO_,jSO_,iSOSym,nSOs)
       use Basis_Info, only: nBas
-      Integer iPD
+      Implicit None
+      Integer iSO_, jSO_, nSOs
       Integer iSOSym(2,nSOs)
+
+      Integer iSO, jSO, iSym, iSOr, jSym, jSOr, ij
 !
       iPD = -999999
 !
@@ -164,4 +171,4 @@
       iPD=ij
 !
       Return
-      End
+      End Function iPD
