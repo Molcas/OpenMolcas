@@ -57,34 +57,51 @@
       use k2_structure, only: k2_type
       Implicit Real*8 (A-H,O-Z)
 #include "twoswi.fh"
-      Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
-      Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),
+      Integer iS_,jS_,kS_,lS_,
+     &        nAlpha,iPrInc, nBeta,jPrInc,
+     &        nGamma,kPrInc,nDelta,lPrInc,
+     &        nData1,nData2,
+     &        mDij,mDCRij,mDkl,mDCRkl,mDik,mDCRik,
+     &        mDil,mDCRil,mDjk,mDCRjk,mDjl,mDCRjl,
+     &        iBasi,jBasj,kBask,lBasl,
+     &        nFT,nZeta,nEta,
+     &        nSOInt,nWork2,
+     &        nAux
+      Real*8 Coor(3,4)
+      Integer iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4)
+      Logical NoInts
+      Integer iStabs(4)
+      Type(k2_type) k2data1(nData1), k2Data2(nData2)
+      Logical IJeqKL
+      Integer kOp(4)
+      Real*8 Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
+     &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
      &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl),
-     &       Wrk(nWork2), QInd(2), Aux(nAux), FckTmp(nFT),
-     &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
-     &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
-      Type(k2_type) k2data1(nData1), k2Data2(nData2)
-      Integer iStabs(4)
+     &       FckTmp(nFT)
+      Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt),
+     &       Wrk(nWork2)
+      Logical Shijij
+      Real*8 Aux(nAux)
+
+      Real*8 CoorM(3,4), CoorAC(3,2), QInd(2)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
-     &        iStabM(0:7),
-     &        iAO(4), iAnga(4), iCmp(4),
-     &        iShell(4), iShll(4), kOp(4), iAOst(4), jOp(6), iWR(2)
-      Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
-     &        EQ, Copy, NoCopy,Do_TnsCtl,
-     &        IJeqKL,IeqK,JeqL,
-     &        lEmpty, Prescreen_On_Int_Only, DoCoul, DoExch,
+     &        iStabM(0:7), iWR(2)
+      Logical NoPInts, AeqB, CeqD, AeqC, ABeqCD,
+     &        Do_TnsCtl, IeqK,JeqL,
+     &        Prescreen_On_Int_Only, DoCoul, DoExch,
      &        Scrij, Scrkl, Scrik, Scril, Scrjk, Scrjl,
      &        Batch_On_Disk,
-     &        NoInts, DoAOBatch, All_Spherical
+     &         DoAOBatch, All_Spherical
       Integer iStb, jStb, kStb, lStb
 #ifdef _DEBUGPRINT_
-      Character ChOper(0:7)*3
-      Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
+      Character(LEN=3) :: ChOper(0:7)=[' E ',' x ',' y ',' xy',' z ',
+     &                                 ' xz',' yz','xyz']
 #endif
-      Data Copy/.True./, NoCopy/.False./, jOp/0,0,0,0,0,0/
+      Logical :: Copy=.True., NoCopy=.False.
+      Integer :: jOp(6)=[0,0,0,0,0,0]
 #include "SysDef.fh"
-      External EQ, lEmpty
+      Logical, External :: EQ, lEmpty
 
       Interface
       Subroutine FckAcc(iAng,iCmp_, Shijij,
@@ -766,7 +783,7 @@
  100  Continue
       End Subroutine TwoEl_Sym_Internal
 !
-      End
+      End SubRoutine TwoEl_Sym
 !#define _DEBUGPRINT_
       SubRoutine TwoEl_NoSym(iS_,jS_,kS_,lS_,
      &           Coor,
@@ -812,22 +829,42 @@
       use k2_structure, only: k2_type
       Implicit Real*8 (A-H,O-Z)
 #include "twoswi.fh"
-      Real*8 Coor(3,4), CoorAC(3,2),
+      Integer iS_,jS_,kS_,lS_,
+     &        nAlpha,iPrInc, nBeta,jPrInc,
+     &        nGamma,kPrInc,nDelta,lPrInc,
+     &        nData1,nData2,
+     &        mDij,mDCRij,mDkl,mDCRkl,mDik,mDCRik,
+     &        mDil,mDCRil,mDjk,mDCRjk,mDjl,mDCRjl,
+     &        iBasi,jBasj,kBask,lBasl,
+     &        nFT,nZeta,nEta,
+     &        nSOInt,nWork2,
+     &        nAux
+      Real*8 Coor(3,4)
+      Integer iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4)
+      Logical NoInts
+      Integer iStabs(4)
+      Type(k2_type) k2data1(nData1), k2Data2(nData2)
+      Logical IJeqKL
+      Integer kOp(4)
+      Real*8 Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
+     &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
      &       Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl),
-     &       SOInt(nSOInt),Wrk(nWork2), QInd(2), Aux(nAux),FckTmp(nFT),
-     &       Dij(mDij,mDCRij),Dkl(mDkl,mDCRkl),Dik(mDik,mDCRik),
-     &       Dil(mDil,mDCRil),Djk(mDjk,mDCRjk),Djl(mDjl,mDCRjl)
-      Type(k2_type) k2Data1, k2Data2
-      Integer iAO(4), kOp(4), iStabs(4),
-     &        iAnga(4), iCmp(4), iShell(4), iShll(4), iAOst(4), iWR(2)
-      Logical NoPInts, Shijij, AeqB, CeqD, AeqC, ABeqCD,
-     &        EQ, Copy, NoCopy, Do_TnsCtl, IJeqKL,IeqK,JeqL,
+     &       FckTmp(nFT)
+      Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt),
+     &       Wrk(nWork2)
+      Logical Shijij
+      Real*8 Aux(nAux)
+
+      Real*8 CoorAC(3,2), QInd(2)
+      Integer iWR(2)
+      Logical NoPInts, AeqB, CeqD, AeqC, ABeqCD,
+     &        EQ, Do_TnsCtl, IeqK,JeqL,
      &        Pij, Pkl, Pijkl, Pik, Pjl,
      &        lEmpty, Prescreen_On_Int_Only, DoCoul, DoExch,
      &        Scrij, Scrkl, Scrik, Scril, Scrjk, Scrjl,
-     &        Batch_On_Disk, DoAOBatch, All_Spherical, NoInts
-      Data Copy/.True./, NoCopy/.False./
+     &        Batch_On_Disk, DoAOBatch, All_Spherical
+      Logical ::  Copy=.True., NoCopy=.False.
 #include "SysDef.fh"
       External EQ, lEmpty
       Integer iStb, jStb, kStb, lStb
@@ -914,7 +951,7 @@
       iW3=1+nInts
       iW4=1
 !
-      vijkl = k2Data1%abMax * k2Data2%abMax
+      vijkl = k2Data1(1)%abMax * k2Data2(1)%abMax
 !
       Batch_On_Disk = (vijkl.gt.Thize) .and.
      &       (Disc+DBLE(nInts+2+2/RtoI).le.Disc_Mx)
@@ -1042,8 +1079,8 @@
          ipAOInt=1
       End If
 !
-      nZeta_Tot=k2Data1%IndZ(nZeta+1)
-      nEta_Tot =k2Data2%IndZ(nEta +1)
+      nZeta_Tot=k2Data1(1)%IndZ(nZeta+1)
+      nEta_Tot =k2Data2(1)%IndZ(nEta +1)
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nZeta_Tot, IncZet=',nZeta_Tot, IncZet
       Write (6,*) 'nEta_Tot,  IncEta=',nEta_Tot,  IncEta
@@ -1066,8 +1103,8 @@
 !
             Call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,
      &                  nZeta_Tot,nEta_Tot,
-     &                  k2data1,
-     &                  k2data2,
+     &                  k2data1(1),
+     &                  k2data2(1),
      &                  nAlpha,nBeta,nGamma,nDelta,
      &                  1,1,1,1,1,1,ThrInt,CutInt,
      &                  vij,vkl,vik,vil,vjk,vjl,
@@ -1076,8 +1113,8 @@
      &                  mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,
      &                  nabcd,mabcd,Wrk,ipAOInt_,iW4_,
      &                  nWork2,mWork2,
-     &                  k2Data1%HrrMtrx(:,1),
-     &                  k2Data2%HrrMtrx(:,1),
+     &                  k2Data1(1)%HrrMtrx(:,1),
+     &                  k2Data2(1)%HrrMtrx(:,1),
      &                  la,lb,lc,ld,
      &                  iCmp,iShll,NoPInts,
      &                  Dij(1,1),mDij,Dkl(1,1),mDkl,Do_TnsCtl,kabcd,
@@ -1112,8 +1149,8 @@
       If (Do_TnsCtl) Then
          Call TnsCtl(Wrk(iW4),nWork2,
      &               nijkl,mabMax,mabMin,mcdMax,mcdMin,
-     &               k2Data1%HrrMtrx(:,1),
-     &               k2Data2%HrrMtrx(:,1),
+     &               k2Data1(1)%HrrMtrx(:,1),
+     &               k2Data2(1)%HrrMtrx(:,1),
      &               la,lb,lc,ld,
      &               iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &               iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
@@ -1227,4 +1264,4 @@
   99  Continue
       End Subroutine TwoEl_NoSym_Internal
 !
-      End
+      End SubRoutine TwoEl_NoSym
