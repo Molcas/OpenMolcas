@@ -32,10 +32,11 @@
       Real*8 CGrad(3,MxAtom)
       Real*8 GradIn(nGrad)
       Character(LEN=LENIN5)  CNames(MxAtom)
+      Integer iCen
 
       Real*8, Parameter :: tol=1d-8
       Logical, External :: TF
-      Integer mdc, iIrrep, iCen, iCnttp, iCnt, iCo, kOp, nDisps, iCar,
+      Integer mdc, iIrrep, iCnttp, iCnt, iCo, kOp, nDisps, iCar,
      &        iComp
       Integer, External :: iPrmt, NrOpr
       Real*8 Xr

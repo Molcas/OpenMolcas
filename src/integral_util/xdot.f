@@ -22,7 +22,7 @@
       XDot=Zero
       Do ik= 1, k
          Do il = 1, l
-            XDot=XDot+DDot_(n*m,One,0,A(1,ik,il),1)
+            XDot=XDot+DDot_(n*m,[One],0,A(1:n*m,ik,il),1)
          End Do
       End Do
 !

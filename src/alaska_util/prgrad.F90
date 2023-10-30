@@ -35,6 +35,18 @@ integer(kind=iwp) :: iCen, iGrad, mGrad
 real(kind=wp) :: CGrad(3,MxAtom), Temp, TempX, TempY, TempZ
 character(len=LenIn5) :: CNames(MxAtom), Namei
 
+Interface
+SubRoutine TrGrd_Alaska(CGrad,CNames,GradIn,nGrad,iCen)
+Implicit None
+#include "Molcas.fh"
+Integer nGrad
+Real*8 CGrad(3,MxAtom)
+Real*8 GradIn(nGrad)
+Character(LEN=LENIN5)  CNames(MxAtom)
+Integer iCen
+End SubRoutine TrGrd_Alaska
+End Interface
+
 write(u6,*)
 call Banner(Label,1,len(Label)+30)
 write(u6,*)
