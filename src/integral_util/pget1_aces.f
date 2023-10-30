@@ -37,6 +37,9 @@
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: Gamma_MRCISD
       use Constants, only: Zero, One, Quart, Four
+#ifdef _DEBUGPRINT_
+      use pso_stuff, only: iD0Lbl, DVar, D0
+#endif
       Implicit None
       Integer, Intent(In):: ijkl, nPAO, nDSO, nGamma, nSOs
       Real*8, parameter :: exfac=One
@@ -56,6 +59,10 @@
      &        Indi, Indj, Indk, Indl, Indij, Indkl,
      &        Indil, Indjk, Indik, Indjl, Index_ABCD
       Real*8 PMax, t14, Temp
+#ifdef _DEBUGPRINT_
+      Integer iComp
+      Real*8, External:: DDOt_
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -29,6 +29,9 @@
       Logical ABeq(3)
 
       Integer iHer, iCar, iZeta, ia
+#ifdef _DEBUGPRINT_
+      Character(LEN=80) Label
+#endif
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)

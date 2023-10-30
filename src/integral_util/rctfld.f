@@ -81,6 +81,7 @@
       Real*8 Origin(3)
 #ifdef _DEBUGPRINT_
       Character(LEN=72) Label
+      Integer lOff, iIrrep, n
 #endif
       Integer nComp
       Real*8 Q_solute(nComp,2)

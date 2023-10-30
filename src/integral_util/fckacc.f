@@ -104,6 +104,9 @@
       Real*8, pointer:: pDij(:), pDkl(:), pDik(:),
      &                  pDil(:), pDjk(:), pDjl(:)
       Integer nF, ipF
+#ifdef _DEBUGPRINT_
+      Real*8, External:: XDot
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

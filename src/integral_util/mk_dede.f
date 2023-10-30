@@ -46,6 +46,10 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifdef _DEBUGPRINT_
+      use define_af, only: AngTp
+      use Basis_Info, only: nBas
+#endif
       Implicit None
       Integer nDeDe, nFD, mFD, nOffD
       Real*8 DeDe(nDeDe)
@@ -68,7 +72,7 @@
       Integer, external :: iDAMax_, NrOpr
       Real*8 FactND, Temp
 #ifdef _DEBUGPRINT_
-      Integer iFD, iIrrep, jFD
+      Integer iIrrep, jFD
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 #endif
@@ -270,8 +274,8 @@
      &                  iPrimi*jPrimj)
 !
 #ifdef _DEBUGPRINT_
-            RecPrt(' Decontracted 1st order density/Fock matrix',' ',
-     &                     DSOp,iPrimi*jPrimj,nSO)
+            Call RecPrt(' Decontracted 1st order density/Fock matrix',
+     &                  ' ',DSOp,iPrimi*jPrimj,nSO)
 #endif
 !                                                                      *
 !***********************************************************************

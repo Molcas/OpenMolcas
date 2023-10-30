@@ -49,6 +49,9 @@
       use rctfld_module, only: lMax, TK, DampIter, lDamping, Scal14,
      &                         lAmberPol, DipCutOff, lRFCav, FMax,
      &                         cLim, EPS, EPSInF, rDS
+#ifdef _DEBUGPRINT_
+      use rctfld_module, only: ScalA, ScalB, ScalC, AFac
+#endif
       use Langevin_arrays, only: Ravxyz, Cavxyz
       Implicit None
 !
@@ -66,6 +69,9 @@
      &       Dist3, Temp, TR2, S, V, D1, D2, Fax, Fay, Faz, FTest,
      &       v_Dummy
       Integer Iter, iGrid, jGrid, i
+#ifdef _DEBUGPRINT_
+      Real*8 TestA, DipAbs, Del, DDotR, RadAbs
+#endif
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_Eff)

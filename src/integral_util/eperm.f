@@ -61,6 +61,9 @@
      &        MltLbl, nOpr, nOrdOp, iGrid, iSymC
       Integer, external::  IrrFnc
       Real*8 rHrmt, Sig, fTest
+#ifdef _DEBUGPRINT_
+      Integer lOff, iIrrep, n
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

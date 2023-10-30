@@ -41,6 +41,9 @@
       Real*8 DAx, DAy, DAz, Qxx, Qxy, Qxz, Qyy, Qyz, Qzz
       Real*8 QRAxx, QRAyy, QRAzz, QRAxy, QRAxz, QRAyz
 #endif
+#ifdef _DEBUGPRINT_
+      Integer ip
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -41,6 +41,9 @@
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifdef _DEBUGPRINT_
+      use define_af, only: Angtp
+#endif
       Implicit None
       Integer nOpr, nFD, lMax
       Real*8 A(3), B(3), C(3), FD(nFD), FactOp(nOpr), CCoor(3,nOpr),
@@ -64,6 +67,7 @@
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+      Integer i
 #endif
 !
 !     Statement functions
@@ -213,7 +217,7 @@
             Call mma_deallocate(DSO)
 !
 #ifdef _DEBUGPRINT_
-            RecPrt(' Decontracted 1st order density/Fock matrix',
+            Call RecPrt(' Decontracted 1st order density/Fock matrix',
      &                ' ',DSOpr,iPrim*jPrim,nSO)
 #endif
 !

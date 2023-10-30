@@ -193,6 +193,9 @@
       Subroutine TwoEl_Sym_Internal()
       Integer iZeta, iEta
       Integer lDCRR, lDCRS, lDCRT
+#ifdef _DEBUGPRINT_
+      Integer i
+#endif
 !
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.

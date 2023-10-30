@@ -67,6 +67,9 @@
      &        iSymXZ, iSymYZ, iSyXYZ, iSymC, iComp, ix, iy, iz, ip,
      &        iSmLbl, MltLbl, nInt, iSym
       Integer, External:: IrrFnc
+#ifdef _DEBUGPRINT_
+      Real*8 tmp_RepNuc
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

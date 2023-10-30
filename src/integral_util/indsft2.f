@@ -32,6 +32,9 @@
       use Symmetry_Info, only: nIrrep
       use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square,
      &                     TriSyB
+#ifdef _DEBUGPRINT_
+      use Constants, only: Zero, One
+#endif
       Implicit None
 !
       Integer ijkl, nSOInt, ibas, jBas, kBas, lBas, nSOs
@@ -54,6 +57,7 @@
 #ifdef _DEBUGPRINT_
       Real*8, Save :: Tr1=Zero, Tr2=Zero
       Real*8, External:: DDot_
+      Real*8 r1, r2
 #endif
 
       k12=0

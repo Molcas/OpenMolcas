@@ -63,6 +63,9 @@
      &        ij, kl, ik, il, jk, jl, ij_, kl_, ijkl, ncb_Max, ic,
      &        iSO, jSO, kSO, lSO, icb, jcb, kcb, lcb, nij
       Real*8 DMax, Thr, Fac, Fac_C, Fac_E, AOijkl
+#ifdef _DEBUGPRINT_
+      Real*8, External :: DDot_
+#endif
 !
 !                                                                      *
 !***********************************************************************

@@ -43,7 +43,7 @@
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-      Integer nElem
+      Integer nElem, ii
 #endif
       Integer jStab_(0:0)
       Integer ixyz, nabSz

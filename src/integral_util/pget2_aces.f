@@ -39,6 +39,9 @@
       use pso_stuff, only: Gamma_MRCISD
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero, Quart, One, Four
+#ifdef _DEBUGPRINT_
+      use pso_stuff, only: iD0Lbl, D0, DVar
+#endif
       Implicit None
       Real*8, parameter :: exfac=One
       Integer nijkl, nPSO, nDSO, nGamma, nSOs
@@ -66,6 +69,9 @@
      &        Indil, Indjk,
      &        iPntij, iPntkl, iPntik, iPntil, iPntjl, iPntjk
       Integer, external:: iPntSO
+#ifdef _DEBUGPRINT_
+      Integer iComp
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

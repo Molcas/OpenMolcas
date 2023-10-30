@@ -29,6 +29,9 @@
 !***********************************************************************
       use SOAO_Info, only: iAOtSO
       use Constants, Only: Zero, Quart
+#ifdef _DEBUGPRINT_
+      use pso_stuff, only: D0, iD0Lbl
+#endif
       Implicit None
       Integer ijkl, nPAO, iBas, jBas, kBas, lBas, nDSO
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO)
@@ -41,6 +44,10 @@
      &        IndI, IndJ, IndK, IndL, IndIJ, IndKL, IndIK, IndIL,
      &        IndJL, IndJK
       Real*8 t14, Temp
+#ifdef _DEBUGPRINT_
+      Integer iComp, i
+      Real*8, External:: DDot_
+#endif
 !
 #ifdef _DEBUGPRINT_
       iComp = 1

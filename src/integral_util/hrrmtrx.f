@@ -36,6 +36,10 @@
      &        ipa, ipb, ipe, iSph_a, iSph_b, ixLow, iyLow, izLow,
      &        kx, ky, kz, jxLow, jyLow, jzLow
       Real*8 C_A, C_B, ABx, ABy, ABz
+#ifdef _DEBUGPRINT_
+      Real*8, External :: DDot_
+#endif
+
 !
       iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
       jCan(ix,iy,iz) = iOff(ix+iy+iz) + (iy+iz)*(iy+iz+1)/2 + iz + 1

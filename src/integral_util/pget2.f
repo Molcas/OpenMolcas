@@ -31,6 +31,9 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero, Quart
+#ifdef _DEBUGPRINT_
+      use pso_stuff, only: iD0Lbl, D0
+#endif
       Implicit None
       Integer iBas, jBas, kBas, lBas, nijkl, nPSO, nDSO
       Real*8 PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO)

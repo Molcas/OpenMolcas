@@ -48,6 +48,9 @@
       use Symmetry_Info, only: nIrrep
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifdef _DEBUGPRINT_
+      use define_af, only: Angtp
+#endif
       Implicit None
       Integer llOper, nOrdOp, lMax, nh0
       Real*8 Fldxyz((lMax+1)*(lMax+2)*(lMax+3)/6), h0(nh0)
@@ -72,6 +75,7 @@
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+      Integer i, ii
 #endif
 !
 !     Statement functions
@@ -343,7 +347,7 @@
 !            At this point accumulate the batch of integrals onto the
 !            final symmetry adapted integrals.
 !
-              all RecPrt (' Accumulated SO integrals, so far...',
+             Call RecPrt (' Accumulated SO integrals, so far...',
      &                               ' ',SO_Int,iBas*jBas,nSO)
 #endif
 !

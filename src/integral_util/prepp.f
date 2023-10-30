@@ -55,7 +55,7 @@
 #ifdef _DEBUGPRINT_
       Character(Len=8) RlxLbl
       Character(LEN=60) Fmt
-      Integer :: iComp=1
+      Integer :: iComp=1, ipTmp1
 #endif
       Integer iIrrep, iSpin, iSeed, nShell, nPair, nQUad, LgToC, iDisk,
      &        n, nAct, iGo, nSA, ij, iBas, jBas, nTsT, nDim1, i, nDim0,

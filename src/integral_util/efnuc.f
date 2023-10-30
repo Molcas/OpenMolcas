@@ -31,7 +31,7 @@
       Real*8 CoOp(3)
       Integer nTot, iPowr, iAtom, ix, iy, iz
       Real*8 Fact, x, y, z, r2, Thr, r, eix, eiy, eiz, temp
-#ifdef _DEBUPRINT_
+#ifdef _DEBUGPRINT_
       Integer n, nElem
 !
 !---- Statement function
