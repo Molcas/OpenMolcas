@@ -22,10 +22,13 @@
 !             November '90                                             *
 !***********************************************************************
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nZeta, na, nHer
       Real*8 Zeta12(nZeta), P(nZeta,3), A(3), HerR(nHer),
      &       Axyz(nZeta,3,nHer,0:na)
       Logical ABeq(3)
+
+      Integer iHer, iCar, iZeta, ia
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)
@@ -72,5 +75,4 @@
 110      Continue
 100   Continue
 #endif
-      Return
-      End
+      End SubRoutine vCrtCmp
