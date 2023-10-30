@@ -330,13 +330,20 @@
 !     Call Init_Int_Options()    ?
       Return
       End
+
       Subroutine Init_SemiDSCF(FstItr,Thize,Cutint)
       use dEAF
-      use IOBUF
-      implicit real*8 (a-h,o-z)
+      use IOBUF, only: IODone, Disk, iBuf, ipos, iStatIO, Mode_Write,
+     &                 OnDisk, Mode_Read, Disk_1, Disk_2, lBuf, nBuf,
+     &                 Buffer, ID, LuTmp
+      implicit None
 #include "SysDef.fh"
-      real*8 control(4)
       Logical FstItr
+      Real*8 Thize, CutInt
+
+      Integer lBufOld, nBufOld
+      Real*8 ThizeOld, CutIntOld
+      real*8 control(4)
 !     Write (6,*) 'Enter: Init_SemiDSCF'
 !     Write (6,*) 'Ondisk=',Ondisk
 !     Write (6,*) 'lBuf=',lBuf
@@ -404,10 +411,11 @@
       End If
 !
 !     Write (*,*) 'Exit: Init_SemiDSCF'
-      Return
-      End
+      End Subroutine Init_SemiDSCF
+
       Subroutine Close_SemiDSCF()
-      use IOBUF
+      use IOBUF, only: iPos, OnDisk, iStatIO, iBuf, lStRec, Mode_None
+      Implicit None
 !     Write (6,*) 'Enter: Close_SemiDSCF'
 !
 !---- If data was transfered to the I/O buffer write buffer on disc.
@@ -421,10 +429,11 @@
       iBuf = -99
 !     Write (6,*) 'Exit: Close_SemiDSCF'
 !
-      Return
-      End
+      End Subroutine Close_SemiDSCF
+
       Subroutine Mode_SemiDSCF(Wr_Mode)
-      use IOBUF
+      use IOBUF, only: iStatIO, Mode_Read, Disk, Disk_2, Mode_Write
+      Implicit None
       Logical Wr_Mode
 !
 !     Write (6,*) 'Mode_SemiDSCF: Wr_Mode=',Wr_Mode
@@ -441,5 +450,4 @@
          End If
       End If
 !
-      Return
-      End
+      End Subroutine Mode_SemiDSCF

@@ -23,14 +23,16 @@
 !             November '90                                             *
 !***********************************************************************
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer la,lr,lb,nZeta,nHer
       Real*8 Rnxyz(nZeta*3,0:la,0:lb,0:lr), HerW(nHer),
      &       Axyz(nZeta*3,nHer,0:la),
      &       Rxyz(nZeta*3,nHer,0:lr),
      &       Bxyz(nZeta*3,nHer,0:lb), Temp(nZeta*3,nHer)
 #ifdef _DEBUGPRINT_
-      Character*80 Label
+      Character(LEN=80) Label
 #endif
+      Integer ia, ib, iHer, iZCar, ir
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In vAssmbl:HerW',' ',HerW,1,nHer)
@@ -40,8 +42,7 @@
 #endif
 !
 !
-      call dcopy_(3*nZeta*(la+1)*(lb+1)*(lr+1),[Zero],0,
-     &           Rnxyz,1)
+      rnxyz(:,:,:,:)=Zero
       Do 100 ia = 0, la
          Do 110 ib = 0, lb
             Do 111 iHer = 1, nHer
@@ -73,5 +74,4 @@
  110     Continue
  100  Continue
 !
-      Return
-      End
+      End SubRoutine vAssmbl
