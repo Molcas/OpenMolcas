@@ -21,7 +21,7 @@
 !             March '90                                                *
 !***********************************************************************
       use Constants, only: Two
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       integer nT, mHigh
       REAL*8 Fm(nT,0:mHigh), T(nT)
 
