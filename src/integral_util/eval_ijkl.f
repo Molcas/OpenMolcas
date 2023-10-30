@@ -146,7 +146,7 @@
       End SubRoutine TwoEl
       End Interface
 
-      Procedure(Twoel) :: TwoEl_NoSym_New, TwoEl_Sym_New
+      Procedure(Twoel) :: TwoEl_NoSym, TwoEl_Sym
       Procedure(Twoel), pointer :: Do_TwoEl=>Null()
 !                                                                      *
 !***********************************************************************
@@ -169,9 +169,9 @@
       mDCRij=1
       mDCRkl=1
       If (nIrrep==1) Then
-         Do_TwoEl => TwoEl_NoSym_New
+         Do_TwoEl => TwoEl_NoSym
       Else
-         Do_TwoEl => TwoEl_Sym_New
+         Do_TwoEl => TwoEl_Sym
       End If
 !                                                                      *
 !***********************************************************************

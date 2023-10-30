@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SubRoutine TwoEl_Sym_New(iS_,jS_,kS_,lS_,
+      SubRoutine TwoEl_Sym(iS_,jS_,kS_,lS_,
      &           Coor,
      &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
      &           NoInts,iStabs,
@@ -140,7 +140,7 @@
          Write (6,*) 'Symmetry adaptation different since the operator'
          Write (6,*) 'is not symmetric.'
       End If
-      Call TwoEl_Sym_New_Internal()
+      Call TwoEl_Sym_Internal()
 !
       Return
 ! Avoid unused argument warnings
@@ -156,7 +156,7 @@
 !
 !     This is to allow type punning without an explicit interface
       Contains
-      Subroutine TwoEl_Sym_New_Internal()
+      Subroutine TwoEl_Sym_Internal()
 !
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
@@ -764,11 +764,11 @@
  300        Continue
  200     Continue
  100  Continue
-      End Subroutine TwoEl_Sym_New_Internal
+      End Subroutine TwoEl_Sym_Internal
 !
       End
 !#define _DEBUGPRINT_
-      SubRoutine TwoEl_NoSym_New(iS_,jS_,kS_,lS_,
+      SubRoutine TwoEl_NoSym(iS_,jS_,kS_,lS_,
      &           Coor,
      &           iAnga,iCmp,iShell,iShll,iAO,iAOst,
      &           NoInts,iStabs,
@@ -843,7 +843,7 @@
       kStb = iStabs(3)
       lStb = iStabs(4)
 !
-      Call TwoEl_NoSym_New_Internal()
+      Call TwoEl_NoSym_Internal()
 !
       Return
 ! Avoid unused argument warnings
@@ -863,7 +863,7 @@
 !
 !     This is to allow type punning without an explicit interface
       Contains
-      Subroutine TwoEl_NoSym_New_Internal()
+      Subroutine TwoEl_NoSym_Internal()
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
@@ -1225,6 +1225,6 @@
      &                            *iCmp(3)*iCmp(4),q4,Wrk(ipAOInt),1)
       End If
   99  Continue
-      End Subroutine TwoEl_NoSym_New_Internal
+      End Subroutine TwoEl_NoSym_Internal
 !
       End
