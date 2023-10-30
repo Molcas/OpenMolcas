@@ -27,7 +27,7 @@
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
 
       Integer, Parameter :: limit=200, lenw=4*limit
-      external fradf
+      Real*8, external :: fradf
       Integer iScrt(limit)
       Real*8 Scrt(lenw)
       Integer ir, iZeta, ier, nEval, Last
