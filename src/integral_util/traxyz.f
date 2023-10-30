@@ -23,9 +23,12 @@
 !              October '92.                                            *
 !***********************************************************************
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nZeta, la
       Real*8 WInt(nZeta*3**(la-1),3), Scr(nZeta*3**la),
      &       A(nZeta,3,3)
+
+      Integer nLen, mLen, kLen, i, iVec, iLen, iOff, jVec, iZeta
 !
 #ifdef _DEBUGPRINT_
       Call RecPrt(' Enter Traxyz: WInt',' ',Wint,nZeta,3**la)
@@ -69,5 +72,4 @@
       Call RecPrt('Exit Traxyz :Global well integrals',' ',
      &                WInt,nZeta,kLen)
 #endif
-      Return
-      End
+      End SubRoutine Traxyz
