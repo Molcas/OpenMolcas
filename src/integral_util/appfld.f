@@ -161,10 +161,11 @@
 
       Subroutine AppFld_NonEq_2(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Integer lmax
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)
+      Real*8 radius, EPS, EPSInf
       Logical NonEq
 !
       Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
