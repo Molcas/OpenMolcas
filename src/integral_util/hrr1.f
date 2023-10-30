@@ -19,7 +19,7 @@
 !             June '91                                                 *
 !***********************************************************************
       use Constants, only: Zero
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Integer nab1, na1b, nab, na, nb, na1, nb1, nPrim, la, lb
       Real*8 ab1(nPrim,nab1), a1b(nPrim,na1b), cffAB(3),
      &       ab(nPrim,nab)
@@ -27,9 +27,10 @@
 #ifdef _DEBUGPRINT_
       Character(LEN=72) Label
 #endif
-      Integer iy, iz, ixyz, Ind, nElem
-      Integer ixa, iya, iza, ixb, iyb, izb, ixyzb1, ixyza, ipxyz
+      Integer ixa, iya, iza, ixb, iyb, izb, ixyzb1, ixyza, ipxyz,
+     &        ixyza1, ixyzb, ipAB1, ipA1B, ipAB, i
 !
+      Integer iy, iz, ixyz, Ind, nElem
       Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2 + iz + 1
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 !
