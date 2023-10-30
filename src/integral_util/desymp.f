@@ -55,6 +55,10 @@
      &        kChBs, lChBs, niSym, njSym, nkSym, nlSym, iAux, j,
      &        is, js, ks, ls, j1, j2, j3, j12, j123, j4
       Real*8 Fact, pa, pb, pc, FactNs, Xa, Xb, Xg
+#ifdef _DEBUGPRINT_
+      Integer i
+      Real*8, External :: DDot_
+#endif
 !
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
