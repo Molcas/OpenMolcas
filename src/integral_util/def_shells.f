@@ -14,10 +14,14 @@
       use Sizes_of_Seward, only: S
       use BasisMode
       use disp
-      Implicit Real*8 (a-h,o-z)
-!
+      Implicit None
+      Integer nSD, mSkal
       Integer iSD(0:nSD,mSkal)
+!
       Logical, External :: TF
+      Integer iIrrep, nSkal, iAOttp, iCnttp, mdc, iShell, jCnttp, ntest,
+     &        mdci, iCnt, iShell_Set, iAng, iShll, nExpi, nBasisi, iCmp,
+     &        kSh, iTemp, nDIsp, iTmp, iCar, nFunctions, iComp, iCase
 !                                                                      *
 !***********************************************************************
 !                                                                      *
