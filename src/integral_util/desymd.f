@@ -22,11 +22,11 @@
 !             University of Lund, SWEDEN                               *
 !             October '91                                              *
 !***********************************************************************
-      Use Basis_Info
+      Use Basis_Info, only: Shells
       use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
-      use Constants
+      use Constants, only: Zero, One, Two
       Implicit None
       Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
      &        iShll,jShll,iAO,jAO,iBas,jBas,nDSO
