@@ -14,11 +14,14 @@
       SubRoutine DCR(Lambda,iStab1,nStab1,iStab2,nStab2,iDCR,mDCR)
       Use Symmetry_Info, only: nIrrep, iOper
       use dcr_mod, only: nIndex, Done
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nStab1, nStab2
       Integer   iStab1(0:nStab1-1),iStab2(0:nStab2-1), iDCR(0:7)
-      Integer   Index(50), Lambda_all(1275), mDCR_all(1275),
-     &          iDCR_all(0:7,1275)
-      Save   Index, Lambda_all, mDCR_all, iDCR_all
+      Integer, Save ::   Index(50), Lambda_all(1275), mDCR_all(1275),
+     &                   iDCR_all(0:7,1275)
+      Integer mDCR
+
+      Integer Ind1, i, iIrrep, k, Ind2, ij, Lambda
 !
       Ind1=0
       Do i = 1, nStab1-1
