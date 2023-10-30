@@ -20,19 +20,25 @@
 !       Adapted by Giovanni Ghigo                                      *
 !       University of Torino, July 2006                                *
 !***********************************************************************
-      Use Basis_Info
-      Use Center_Info
+      Use Basis_Info, only: nCnttp, DBSC
+      Use Center_Info, only: DC
       use Symmetry_Info, only: nIrrep
-      use Constants
-      use Disp
-      Implicit Real*8(a-h,o-z)
-      Parameter (tol=1d-8)
+      use Constants, only: Zero
+      use Disp, only: IndDsp
+      Implicit None
 #include "Molcas.fh"
 #include "SysDef.fh"
+      Integer nGrad
       Real*8 CGrad(3,MxAtom)
       Real*8 GradIn(nGrad)
-      Character CNames(MxAtom)*(LENIN5)
+      Character(LEN=LENIN5)  CNames(MxAtom)
+
+      Real*8, Parameter :: tol=1d-8
       Logical, External :: TF
+      Integer mdc, iIrrep, iCen, iCnttp, iCnt, iCo, kOp, nDisps, iCar,
+     &        iComp
+      Integer, External :: iPrmt, NrOpr
+      Real*8 Xr
 !
       mdc=0
       iIrrep=0
@@ -70,5 +76,4 @@
          End If
       End Do
 !
-      Return
-      End
+      End SubRoutine TrGrd_Alaska
