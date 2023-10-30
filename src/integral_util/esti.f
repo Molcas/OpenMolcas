@@ -18,12 +18,18 @@
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Real*8 EstI
+      Integer nAlpha,nBeta,niBas,njBas,nab,nScrt
       Real*8 Zeta(nAlpha*nBeta), rKapAB(nAlpha,nBeta),
      &       Coeff1(nAlpha,niBas), Coeff2(nBeta,njBas),
      &       xab(nAlpha*nBeta), Scrt(nScrt)
       Integer IndZ(nAlpha*nBeta+1)
+
+      Integer mZeta, iZeta, iAlpha, iBeta, iEta, iDelta, iGamma, iBas,
+     &        jBas, ijBas, iHigh
+      Integer, External:: iDAMax_
+      Real*8 rab, rcd, AInt
 !
 #ifdef _DEBUGPRINT_
       Write (6,*) 'Esti:mZeta=',IndZ(nAlpha*nBeta)
@@ -64,4 +70,4 @@
          Call Unused_real_array(rKapAB)
          Call Unused_integer(nab)
       End If
-      End
+      End Function EstI
