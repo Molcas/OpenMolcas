@@ -55,7 +55,7 @@
 #ifdef _DEBUGPRINT_
 #endif
       use k2_structure, only: k2_type
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "twoswi.fh"
       Integer iS_,jS_,kS_,lS_,
      &        nAlpha,iPrInc, nBeta,jPrInc,
@@ -84,6 +84,7 @@
       Logical Shijij
       Real*8 Aux(nAux)
 
+!Local variables
       Real*8 CoorM(3,4), CoorAC(3,2), QInd(2)
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &        iStabM(0:7), iWR(2)
@@ -102,6 +103,22 @@
       Integer :: jOp(6)=[0,0,0,0,0,0]
 #include "SysDef.fh"
       Logical, External :: EQ, lEmpty
+
+      Integer la, lb, lc, ld, ISMAng, nab, ncd, nijkl, nInts, ipAOInt,
+     &        iW3, iW4, kInts, mInts, mabMin, mabMax, mcdMin, mcdMax,
+     &        mabcd, IncZet, IncEta, mWork2, nZeta_Tot, nEta_Tot, kabcd,
+     &        ipAOInt_, mZeta, mEta, iOpt, i_Int, nByte,
+     &        nabcd, iW4_
+      Real*8 RST_Triplet, vijkl, vij, vkl, vik, vil, vjk, vjl
+      Integer ix1, iy1, iz1, ix2, iy2, iz2, iR, iS, iT, iTS, iRT, iRTS,
+     &        ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4,
+     &        ik1, ik2, ik3, ik4, il1, il2, il3, il4,
+     &        jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4,
+     &        nDCRR, lDCR1, MxDCRS, nDCRS, lDCR2,
+     &        nDCRT, lDCRE_, lDCRT_, mWork3, LmbdR, LmbdS, LmbdT,
+     &        iDCRTS, lStabM, lStabN
+      Integer, External:: NrOpr
+      Real*8 u, v, w, x, vijij, RS_doublet, FactNd
 
       Interface
       Subroutine FckAcc(iAng,iCmp_, Shijij,
@@ -174,6 +191,8 @@
 !     This is to allow type punning without an explicit interface
       Contains
       Subroutine TwoEl_Sym_Internal()
+      Integer iZeta, iEta
+      Integer lDCRR, lDCRS, lDCRT
 !
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
@@ -827,7 +846,7 @@
 #ifdef _DEBUGPRINT_
 #endif
       use k2_structure, only: k2_type
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "twoswi.fh"
       Integer iS_,jS_,kS_,lS_,
      &        nAlpha,iPrInc, nBeta,jPrInc,
@@ -856,6 +875,7 @@
       Logical Shijij
       Real*8 Aux(nAux)
 
+!Local variables
       Real*8 CoorAC(3,2), QInd(2)
       Integer iWR(2)
       Logical NoPInts, AeqB, CeqD, AeqC, ABeqCD,
@@ -868,6 +888,14 @@
 #include "SysDef.fh"
       External EQ, lEmpty
       Integer iStb, jStb, kStb, lStb
+
+      Integer la, lb, lc, ld, ISMAng, nab, ncd, nijkl, nInts, ipAOInt,
+     &        iW3, iW4, kInts, mInts, mabMin, mabMax, mcdMin, mcdMax,
+     &        mabcd, IncZet, IncEta, mWork2, nZeta_Tot, nEta_Tot, kabcd,
+     &        ipAOInt_, mZeta, mEta, iOpt, i_Int, nByte,
+     &        iPer, nabcd, iW4_
+      Real*8 RST_Triplet, vijkl, vij, vkl, vik, vil, vjk, vjl, q4
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -901,6 +929,7 @@
 !     This is to allow type punning without an explicit interface
       Contains
       Subroutine TwoEl_NoSym_Internal()
+      Integer iZeta, iEta
 !
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
