@@ -24,7 +24,7 @@
 !***********************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info, only: iAOtSO
-      use Constants
+      use Constants, only: Zero, Two, One
       Implicit None
       Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,
      &        iAO,jAO,iBas,jBas,nDSO
@@ -41,7 +41,7 @@
       Call RecPrt(' In Desym1: DSO',' ',DSO,iBas*jBas,nDSO)
 #endif
 !
-      call dcopy_(iBas*jBas*iCmp*jCmp,[Zero],0,DAO,1)
+      DAO(:,:,:)=Zero
 !
 !     D(P,Q)_ij = Sum(iSym,jSym) X(iSym,P) X(jSym,Q) D(iSym,jSym)_ij
 !
