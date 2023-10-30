@@ -13,10 +13,11 @@
 !***********************************************************************
       Module Real_Spherical
       use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
       Private
       Public :: ipSph, RSph, Sphere, Sphere_Free,
      &          Condon_Shortley_phase_factor, lmax_internal,
-     &          Sphere_Dmp, iSphCr, LblCBs, LblSBs
+     &          iSphCr, LblCBs, LblSBs
       Integer, Allocatable:: iSphCr(:)
       Integer, Dimension(:), Allocatable :: ipSph
       Integer :: lmax_internal=-1
@@ -67,8 +68,12 @@
 !***********************************************************************
       use Constants
       use define_af, only: iTabMx
-      Implicit real*8 (a-h,o-z)
+      Implicit None
+      Integer lMax
+
       Logical CSPF
+      Integer nSphCr, nSphr, MxFnc, iAng, iii, jjj, n, nElem, ii,
+     &        m, l, iElem
 !     check if required ang mom is greater than hard-coded limit
       If (lMax.gt.iTabMx) Then
          Call WarningMessage(2,' Sphere: Increase iTabMx!')
@@ -167,12 +172,15 @@
       End Do
 #endif
 !
-      Return
       End Subroutine Sphere
+
       Subroutine Real_Sphere(ipSph,lMax,RSph,nSphr)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer lMax, nSphr
       Real*8 RSph(nSphr)
       Integer ipSph(0:lMax)
+
+      Integer i00, i10, i, i2, nElem, i20, j, iCont, iOff, mElem, l
 !
       i00 = ipSph(0)
       i10 = ipSph(0)
@@ -209,8 +217,8 @@
          Call NrmSph(RSph(ipSph(i)),i)
       End Do
 !
-      Return
       End Subroutine Real_Sphere
+
       Subroutine Recurse(P0,P1,P2,n2)
 !***********************************************************************
 !                                                                      *
@@ -219,9 +227,13 @@
 !     factor to consider.                                              *
 !                                                                      *
 !***********************************************************************
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer n2
       Real*8 P0((n2-1)*n2/2), P1(n2*(n2+1)/2),P2((n2+1)*(n2+2)/2)
+
+      Integer ix, iy, iz, iad, n1, n0
+      Real*8 Fact_1, Fact_2
 !     Define statement function:
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
 !
@@ -267,12 +279,17 @@
 !
       End if
 
-      Return
       End Subroutine Recurse
+
       Subroutine Ladder(P0,n)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One, Two
+      Implicit None
+      Integer n
       Real*8 P0((n+1)*(n+2)/2,-n:n)
+
+      Integer ix, iy, iz, iad
+      Integer m, m_p, m_m
+      Real*8 Fact
 !     Define statement function:
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
 !
@@ -359,14 +376,18 @@
 !
       End Do ! m
 !
-      Return
       End Subroutine Ladder
+
       Subroutine Contaminant(P0,i,Px,j,l)
 !     This subroutine generates the lower ang mom contaminants for the
 !     given ang mom
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      Implicit None
+      Integer i, j, l
       Real*8 P0((i+1)*(i+2)/2,-l:l), Px((j+1)*(j+2)/2,-l:l)
+
+      Integer ix, iy, iz, iad
+      Integer m
 !     Declare statement function
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
 !
@@ -387,13 +408,18 @@
          End Do
       End Do
 !
-      Return
       End Subroutine Contaminant
+
       Subroutine NrmSph(P,n)
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer n
       Real*8 P((n+1)*(n+2)/2,(n+1)*(n+2)/2)
+      Integer m, k, ijx, ijy, ijz, jx, jy, jz
+      Real*8 tmp, rMax, DF, temp
+      Real*8, External:: DblFac
 !
+      Integer ix, iy, iz, iad
       iad(ix,iy,iz)=(iy+iz)*(iy+iz+1)/2+iz+1
 !
       Do m = 1, (n+1)*(n+2)/2
@@ -424,7 +450,6 @@
          End Do
          Call DScal_((n+1)*(n+2)/2,One/Sqrt(tmp),P(1,m),1)
       End Do
-      Return
       End Subroutine NrmSph
 !
 !***********************************************************************
