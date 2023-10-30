@@ -18,7 +18,7 @@ use casvb_global, only: filename, nbasisq_mo, strtmo
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: cmoblk(nbasisq_mo)
+real(kind=wp), intent(out) :: cmoblk(nbasisq_mo)
 integer(kind=iwp) :: iad, iadr15(15), ibf, lujob
 
 call mkfn_cvb(strtmo,ibf)

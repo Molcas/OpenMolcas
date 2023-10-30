@@ -17,9 +17,13 @@ subroutine f02agf(a,ia,n,rr,ri,vr,ivr,vi,ivi,intger,ifail)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ia, n, ivr, ivi, intger(*), ifail
-real(kind=wp) :: a(ia,*), rr(*), ri(*), vr(ivr,*), vi(ivi,*)
+integer(kind=iwp), intent(in) :: ia, n, ivr, ivi, ifail
+real(kind=wp), intent(inout) :: a(ia,*)
+real(kind=wp), intent(_OUT_) :: rr(*), ri(*), vr(ivr,*), vi(ivi,*)
+integer(kind=iwp), intent(_OUT_) :: intger(*)
 integer(kind=iwp) :: info, k
 logical(kind=iwp) :: pair
 real(kind=wp), parameter :: thresh = 1.0e-8_wp

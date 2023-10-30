@@ -20,9 +20,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ionmin, ionmax, mxrem, mxsng, mxasg, ncnfcas, mxdetcas
-real(kind=wp) :: civec(0:ndet), civbs(0:ndet), civb(0:ndet), citmp(0:ndet), civec5(0:ndet), orbs(norb,norb), sorbs(norb,norb), &
-                 orbinv(norb,norb), owrk(norb,norb)
+real(kind=wp), intent(inout) :: civec(0:ndet), civbs(0:ndet), civb(0:ndet), citmp(0:ndet), civec5(0:ndet)
+real(kind=wp), intent(in) :: orbs(norb,norb)
+real(kind=wp), intent(out) :: sorbs(norb,norb), orbinv(norb,norb), owrk(norb,norb)
+integer(kind=iwp), intent(in) :: ionmin, ionmax, mxrem, mxsng, mxasg, ncnfcas, mxdetcas
 integer(kind=iwp) :: i, ia, iaorb, ib, ibeg, ibegt, iborb, ic, idet, ilin, inda, indab, indasg, indb, indion, indsng, ion, iorb, &
                      ix1, lenfld, mp, mrem, nalfsng, nbetsng, nc, nindasg, nprint, nsing, rc
 real(kind=wp) :: c1, c2, c3, c4, cnrm, cprint(6), fac, fac1, fac2, s11, s12, s22, sm1, sm2, sum1, sum2, total1, total2, total3, &
@@ -45,7 +46,7 @@ call gaussj_cvb(orbinv,gjorb)
 call applyt_cvb(civec,gjorb)
 ! Chirgwin-Coulson weights
 if (btest(iciweights,0)) then
-  call transp_cvb(orbs,owrk,norb,norb)
+  call trnsps(norb,norb,orbs,owrk)
   call gaussj_cvb(owrk,gjorb2)
   call applyt_cvb(citmp,gjorb2)
   do idet=1,ndet

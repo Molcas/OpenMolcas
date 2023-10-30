@@ -18,8 +18,9 @@ use casvb_global, only: ifmos, kbasiscvb, nbas_mo, nmcscf, norb, nvb, variat
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: orbsao(nbas_mo,norb), cvb(*), recn
-integer(kind=iwp) :: irdorbs(norb)
+real(kind=wp), intent(out) :: orbsao(nbas_mo,norb), cvb(nvb)
+integer(kind=iwp), intent(out) :: irdorbs(norb)
+real(kind=wp), intent(in) :: recn
 integer(kind=iwp) :: ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, nbas_mo1, norb1, nvb1
 logical(kind=iwp) :: use_ao
 
@@ -28,10 +29,10 @@ use_ao = ifmos .and. ((.not. variat) .or. (variat .and. (nmcscf == 1))) .and. (n
 do iorb=1,norb
   if (.not. use_ao) then
     irdorbs(iorb) = 1
-    call rdgspr_cvb(recn,orbsao(1,iorb),iorb,norb,1,ierr)
+    call rdgspr_cvb(recn,orbsao(:,iorb),iorb,norb,1,ierr)
   else
     irdorbs(iorb) = 2
-    call rdgspr_cvb(recn,orbsao(1,iorb),iorb,nbas_mo,3,ierr)
+    call rdgspr_cvb(recn,orbsao(:,iorb),iorb,nbas_mo,3,ierr)
   end if
   if (ierr /= 0) then
     call prtfid_cvb(' Error in orbital read from ',recn)

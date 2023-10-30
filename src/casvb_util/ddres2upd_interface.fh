@@ -12,7 +12,8 @@
 #ifdef _CALLING_
 res,c,n &
 #else
-integer(kind=iwp) :: n
-real(kind=wp) :: res(n), c(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: res(n)
+real(kind=wp), intent(out) :: c(n)
 #endif
 #undef _CALLING_

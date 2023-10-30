@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ddsol_interface.fh"
-integer(kind=iwp) :: i, nnegeig, nposeig
+integer(kind=iwp) :: i, ioptc, nnegeig, nposeig
 real(kind=wp) :: alfastart, eigmn, eigmx, gnrm, ovr_dx_grad, safety_use
 real(kind=wp), allocatable :: dxp(:), eigval(:), eigvec(:,:), gradp(:), w2(:)
 real(kind=wp), external :: ddot_, dnrm2_
@@ -98,7 +98,8 @@ do
 end do
 
 call mma_allocate(w2,itdav,label='w2')
-call makedx_cvb(solp,itdav,0,eigvec,eigval,dxp,gradp,w2,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
+ioptc = 0
+call makedx_cvb(solp,itdav,ioptc,eigvec,eigval,dxp,gradp,w2,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
 call mma_deallocate(eigval)
 call mma_deallocate(eigvec)
 call mma_deallocate(gradp)
@@ -106,7 +107,7 @@ call mma_deallocate(dxp)
 call mma_deallocate(w2)
 
 eig_res = eig
-solp_res(1:itdav) = solp(1:itdav)
+solp_res(:) = solp(:)
 if (ipdd >= 2) then
   write(u6,'(a,f15.8)') ' Eigenvalue :',eig
   write(u6,'(a)') ' Solution vector :'

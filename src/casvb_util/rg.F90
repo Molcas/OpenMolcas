@@ -67,8 +67,10 @@ subroutine rg(nm,n,a,wr,wi,matz,z,iv1,fv1,ierr)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n, matz, iv1(n), ierr
-real(kind=wp) :: a(nm,n), wr(n), wi(n), z(nm,n), fv1(n)
+integer(kind=iwp), intent(in) :: nm, n, matz
+real(kind=wp), intent(inout) :: a(nm,n), z(nm,n)
+real(kind=wp), intent(out) :: wr(n), wi(n), fv1(n)
+integer(kind=iwp), intent(out) :: iv1(n), ierr
 integer(kind=iwp) :: is1, is2
 
 if (n > nm) then

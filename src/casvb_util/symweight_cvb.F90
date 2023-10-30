@@ -23,7 +23,9 @@ use casvb_global, only: mxirrep, ndet
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: civec1(0:ndet), civec2(0:ndet), osym(mxirrep)
+real(kind=wp), intent(inout) :: civec1(0:ndet)
+real(kind=wp), intent(in) :: civec2(0:ndet)
+real(kind=wp), intent(out) :: osym(mxirrep)
 
 call psym1_cvb(civec1(1:),civec2(1:),osym,2)
 

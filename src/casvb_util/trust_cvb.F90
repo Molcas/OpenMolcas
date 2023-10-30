@@ -20,9 +20,12 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iopth, ioptc
-real(kind=wp) :: fx, fxbest, expc, hh, dxnrm
-logical(kind=iwp) :: opth, maxize, scalesmall1, close2conv, converged, skipupd
+integer(kind=iwp), intent(inout) :: iopth, ioptc
+logical(kind=iwp), intent(inout) :: opth
+logical(kind=iwp), intent(in) :: maxize, close2conv, converged
+real(kind=wp), intent(in) :: fx, fxbest, expc, dxnrm
+real(kind=wp), intent(out) :: hh
+logical(kind=iwp), intent(out) :: scalesmall1, skipupd
 integer(kind=iwp) :: icprbst, icprbst2, idum, iop, ioptst, ipu, nopth
 real(kind=wp) :: cprbst, dfx, dum, gap2, hh_min, hhlargest, oldstep, scl, zz
 logical(kind=iwp) :: dfx_ok, zz_ok

@@ -18,9 +18,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nel, nalf, i2s, ndet, ifns, kbasis, iprint
-real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
-logical(kind=iwp) :: share
+integer(kind=iwp), intent(in) :: nel, nalf, i2s, ndet, ifns, kbasis, iprint
+real(kind=wp), intent(inout) :: aikcof(ndet,ifns)
+real(kind=wp), intent(out) :: bikcof(ndet,ifns)
+logical(kind=iwp), intent(in) :: share
 integer(kind=iwp) :: nalf_use, ndet_use
 real(kind=wp), allocatable :: atmp(:,:), btmp(:,:)
 

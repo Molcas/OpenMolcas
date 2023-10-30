@@ -17,9 +17,9 @@ subroutine rdjobiph_cvb(fnjob)
 use Definitions, only: iwp, u6
 
 implicit none
+character(len=*), intent(in) :: fnjob
 #include "rasdim.fh"
 #include "jobiph_j.fh"
-character(len=*) :: fnjob
 integer(kind=iwp) :: idisk, ii, lujob
 logical(kind=iwp), parameter :: debug = .false.
 

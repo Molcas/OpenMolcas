@@ -18,8 +18,8 @@ use casvb_global, only: cvb, cvbnrm, cvbnrm_fr, nfrag, nprvb, nvb_fr
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: c(*)
-integer(kind=iwp) :: nparm1
+real(kind=wp), intent(inout) :: c(*)
+integer(kind=iwp), intent(in) :: nparm1
 integer(kind=iwp) :: ifr_off, ifrag, ioff2, ioffs, nprvb2
 real(kind=wp) :: f
 real(kind=wp), external :: ddot_

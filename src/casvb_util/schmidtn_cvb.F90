@@ -18,8 +18,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nvec, n, metr
-real(kind=wp) :: c(n,nvec), sao(*)
+integer(kind=iwp), intent(in) :: nvec, n, metr
+real(kind=wp), intent(inout) :: c(n,nvec)
+real(kind=wp), intent(in) :: sao(*)
 real(kind=wp), allocatable :: tmp(:,:)
 
 if (metr == 0) then

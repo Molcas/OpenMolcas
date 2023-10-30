@@ -19,8 +19,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns
-real(kind=wp) :: bikcof(ndet,ifns)
+integer(kind=iwp), intent(in) :: nel, nalf, nbet, ndet, ifns
+real(kind=wp), intent(inout) :: bikcof(ndet,ifns)
 integer(kind=iwp) :: i, inddet, indx, iorb, iswp, rc
 logical(kind=iwp) :: done, first
 integer(kind=iwp), allocatable :: ialfa(:), iw(:), lnocca(:), lnoswp(:), locca(:), locswp(:), maxalf(:), maxspn(:), minalf(:), &

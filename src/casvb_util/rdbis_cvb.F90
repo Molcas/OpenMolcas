@@ -19,7 +19,9 @@ use casvb_global, only: ibuf, ibuffer, lbuf
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, ivec(n), ioffset
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(out) :: ivec(n)
+integer(kind=iwp), intent(inout) :: ioffset
 integer(kind=iwp) :: i_max, i_min, ibuf_max, ibuf_min, ivec_max, ivec_offs, jbuf
 logical(kind=iwp), parameter :: debug = .false.
 

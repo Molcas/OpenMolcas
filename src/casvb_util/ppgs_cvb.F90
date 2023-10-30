@@ -19,7 +19,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: cvb(nvb)
+real(kind=wp), intent(out) :: cvb(nvb)
 integer(kind=iwp) :: icoffs_nconf, ifrag, ioffs_cvb, iS, kbasiscvb_kp, nelsing
 
 ! First applicable configuration with first possible spin in

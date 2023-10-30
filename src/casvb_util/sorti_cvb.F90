@@ -18,7 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, arrin(n)
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(inout) :: arrin(n)
 integer(kind=iwp) :: i
 integer(kind=iwp), allocatable :: indx(:), tmp(:)
 

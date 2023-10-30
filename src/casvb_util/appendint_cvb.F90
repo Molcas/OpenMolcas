@@ -17,8 +17,8 @@ subroutine appendint_cvb(c,nmbr,iskip)
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: c
-integer(kind=iwp) :: nmbr, iskip
+character(len=*), intent(inout) :: c
+integer(kind=iwp), intent(in) :: nmbr, iskip
 integer(kind=iwp) :: ibegin, iend, itens, limit, mnumber
 character(len=10) :: frmt
 

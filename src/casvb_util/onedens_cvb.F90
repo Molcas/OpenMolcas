@@ -14,16 +14,16 @@
 
 subroutine onedens_cvb(cfrom,cto,vij,diag,iPvb)
 
-use casvb_global, only: absym, i1alf, i1bet, iapr, iato, ibpr, ibto, iform_ci, ixapr, ixbpr, n1a, n1b, nam1, nbm1, nda, ndb, ndet, &
-                        norb, npvb, phato, phbto, projcas, sc
+use casvb_global, only: iform_ci, ndet, norb, projcas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cfrom(0:ndet), cto(0:ndet), vij(*)
-logical(kind=iwp) :: diag
-integer(kind=iwp) :: iPvb
+real(kind=wp), intent(in) :: cfrom(0:ndet)
+real(kind=wp), intent(inout) :: cto(0:ndet), vij(*)
+logical(kind=iwp), intent(in) :: diag
+integer(kind=iwp), intent(in) :: iPvb
 integer(kind=iwp) :: icfrom, icto, idens, nvij
 real(kind=wp), allocatable :: vij2(:)
 
@@ -39,8 +39,7 @@ else if (iform_ci(icto) /= 0) then
   call abend_cvb()
 end if
 
-call oneexc2_cvb(cfrom(1:),cto(1:),vij,i1alf,i1bet,iato,ibto,phato,phbto,iapr,ixapr,ibpr,ixbpr,npvb,nda,ndb,n1a,n1b,nam1,nbm1, &
-                 norb,sc,absym(3),diag,idens,iPvb)
+call oneexc2_cvb(cfrom(1:),cto(1:),vij,diag,idens,iPvb)
 
 ! If projcas and iPvb=0 we asume the normal density/1-ex. is required:
 if (projcas .and. (iPvb /= 0)) then
@@ -55,8 +54,7 @@ if (projcas .and. (iPvb /= 0)) then
   else
     vij2(:) = Zero
   end if
-  call oneexc2_cvb(cfrom(1:),cto(1:),vij2,i1alf,i1bet,iato,ibto,phato,phbto,iapr,ixbpr,ibpr,ixbpr,npvb,nda,ndb,n1a,n1b,nam1,nbm1, &
-                   norb,sc,absym(3),diag,idens,3-iPvb)
+  call oneexc2_cvb(cfrom(1:),cto(1:),vij2,diag,idens,3-iPvb)
   if (idens == 1) vij(1:nvij) = vij(1:nvij)-vij2(:)
   call mma_deallocate(vij2)
 end if

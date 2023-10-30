@@ -18,8 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns
-real(kind=wp) :: bikcof(ndet,ifns)
+integer(kind=iwp), intent(in) :: nel, nalf, nbet, ndet, ifns
+real(kind=wp), intent(inout) :: bikcof(ndet,ifns)
 integer(kind=iwp) :: ia, iachek, iantival, ib, indx, iorb, k, l, nc, rc
 integer(kind=iwp), allocatable :: ialfs(:), ianti(:), ibets(:), lnocca(:), locca(:), maxspn(:), minspn(:), nkspn(:), xspin(:)
 real(kind=wp) :: dum(1)
@@ -105,7 +105,7 @@ do k=1,ifns
       write(u6,*) ' Error - swap function not found!',k,ianti(k)
       call abend_cvb()
     end if
-    call dswap_(ndet,bikcof(1,k),1,bikcof(1,l),1)
+    call dswap_(ndet,bikcof(:,k),1,bikcof(:,l),1)
     ianti(l) = ianti(k)
     ianti(k) = k
   end if

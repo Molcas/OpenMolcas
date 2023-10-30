@@ -17,19 +17,18 @@
 !*  DEV2B  := calculate two-electron Hessian                           *
 !*                                                                     *
 !***********************************************************************
-subroutine dev2b_2_cvb(v1,v2,cfrom,hessorb,hesst,oaa2,aa1,nprorb,i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto,iapr,ixapr,ibpr, &
-                       ixbpr,npvb,gx,grad2,nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,absym)
+subroutine dev2b_2_cvb(v1,v2,cfrom,hessorb,hesst,oaa2,aa1,gx,grad2)
 ! Calculates V1 EijEkl CFROM and V2 EijEkl CFROM
 
+use casvb_global, only: absym, i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, ixapr, ixbpr, n1a, n1b, nda, ndb, norb, nprorb, &
+                        phato, phbto, projcas, sc
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nprorb, n1a, norb, i1alf(n1a,norb), n1b, i1bet(n1b,norb), nda, iafrm(norb,nda), ndb, ibfrm(norb,ndb), nam1, &
-                     iato(norb,0:nam1), nbm1, ibto(norb,0:nbm1), npvb, iapr(npvb), ixapr(nda+1), ibpr(npvb), ixbpr(ndb+1)
-real(kind=wp) :: v1(nda,ndb), v2(nda,ndb), cfrom(nda,ndb), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb), oaa2, aa1, &
-                 phato(norb,nam1), phbto(norb,nbm1), gx(norb,norb), grad2(nprorb)
-logical(kind=iwp) :: commut, sc, absym
+real(kind=wp), intent(in) :: v1(nda,ndb), v2(nda,ndb), cfrom(nda,ndb), oaa2, aa1, gx(norb,norb), grad2(nprorb)
+real(kind=wp), intent(inout) :: hessorb(nprorb,nprorb)
+real(kind=wp), intent(out) :: hesst(norb*norb,norb*norb)
 integer(kind=iwp) :: ia, iax, iaxtmp, ib, ibx, ibxtmp, iorb, ip1, ip2, itmp, ixa, ixb, jax, jbx, ji, jorb, kax, kbx, korb, lax, &
                      lbx, li, lk, lorb
 real(kind=wp) :: phase, res1, res2, t1, t2, tcof, term
@@ -42,7 +41,7 @@ do ip1=1,norb*norb
     lorb = ip2-(korb-1)*norb
     res1 = Zero
     res2 = Zero
-    if (commut .and. (.not. sc)) then
+    if (projcas .and. (.not. sc)) then
       ! 1) Alpha excitation
       do ia=1,n1a
         iaxtmp = i1alf(ia,iorb)
@@ -133,7 +132,7 @@ do ip1=1,norb*norb
         end if
       end do
 
-      if (absym) then
+      if (absym(3)) then
         res1 = Two*res1
         res2 = Two*res2
       else
@@ -227,7 +226,7 @@ do ip1=1,norb*norb
           end if
         end do
       end if
-    else if ((.not. commut) .and. (.not. sc)) then
+    else if ((.not. projcas) .and. (.not. sc)) then
       ! 1) Alpha excitation
       do ia=1,n1a
         iaxtmp = i1alf(ia,iorb)
@@ -260,7 +259,7 @@ do ip1=1,norb*norb
         end if
       end do
 
-      if (absym) then
+      if (absym(3)) then
         res1 = Two*res1
         res2 = Two*res2
       else
@@ -296,7 +295,7 @@ do ip1=1,norb*norb
           end if
         end do
       end if
-    else if (commut .and. sc) then
+    else if (projcas .and. sc) then
       ! 1) Alpha excitation
       do ia=1,n1a
         iaxtmp = i1alf(ia,iorb)
@@ -383,7 +382,7 @@ do ip1=1,norb*norb
         end if
       end do
 
-      if (absym) then
+      if (absym(3)) then
         res1 = Two*res1
         res2 = Two*res2
       else
@@ -473,7 +472,7 @@ do ip1=1,norb*norb
           end if
         end do
       end if
-    else if ((.not. commut) .and. sc) then
+    else if ((.not. projcas) .and. sc) then
       ! 1) Alpha excitation
       do ia=1,n1a
         iaxtmp = i1alf(ia,iorb)
@@ -504,7 +503,7 @@ do ip1=1,norb*norb
         end if
       end do
 
-      if (absym) then
+      if (absym(3)) then
         res1 = Two*res1
         res2 = Two*res2
       else

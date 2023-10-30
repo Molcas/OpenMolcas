@@ -20,7 +20,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nsa, indxa(nsa), nsb, indxb(nsb), nstra(mxirrep), nstrb(mxirrep)
+integer(kind=iwp), intent(in) :: nsa, nsb
+integer(kind=iwp), intent(out) :: indxa(nsa), indxb(nsb), nstra(mxirrep), nstrb(mxirrep)
 integer(kind=iwp) :: ia, ib, iisym, inda, indb, indx, irp
 integer(kind=iwp), allocatable :: iocc(:)
 

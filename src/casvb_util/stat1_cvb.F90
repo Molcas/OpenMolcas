@@ -21,7 +21,7 @@ use Definitions, only: wp
 implicit none
 real(kind=wp), external :: tim_cvb
 
-cpu0 = tim_cvb(0)
+cpu0 = tim_cvb(Zero)
 if (((.not. variat) .or. (nmcscf == 1)) .or. ((ipr(3) >= 1) .and. ((.not. endvar) .or. (ipr(6) >= 2)))) then
   cpu_prev = Zero
   n_applyt = 0

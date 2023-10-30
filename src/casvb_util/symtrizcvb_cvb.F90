@@ -18,7 +18,7 @@ use casvb_global, only: iconstruc, idelstr, ipermzeta, izeta, nconstr, nvb, tcon
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: vecstr(nvb)
+real(kind=wp), intent(inout) :: vecstr(nvb)
 real(kind=wp) :: dum(1)
 
 if (iconstruc == 0) then

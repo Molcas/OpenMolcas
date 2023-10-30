@@ -43,8 +43,11 @@ use casvb_global, only: absym, bikcof, i2s_fr, idetvb, kbasiscvb, nalf_fr, nconf
                         nS_fr, nvb, nvb_fr
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: cvb(nvb), cvbdet(ndetvb)
+real(kind=wp), intent(_IN_) :: cvb(nvb)
+real(kind=wp), intent(out) :: cvbdet(ndetvb)
 integer(kind=iwp) :: idetvb_add, ifrag, ioffs_cvb, ioffs_cvbdet, kbs
 
 kbs = nint(bikcof(0))

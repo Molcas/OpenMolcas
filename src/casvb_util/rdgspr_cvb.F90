@@ -18,8 +18,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i, n, ic, ierr
-real(kind=wp) :: recn, c(n)
+real(kind=wp), intent(in) :: recn
+integer(kind=iwp), intent(in) :: i, n, ic
+real(kind=wp), intent(out) :: c(n)
+integer(kind=iwp), intent(out) :: ierr
 integer(kind=iwp) :: ioffs, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, kbasiscvb1, nbas_mo1, norb1, nvb1
 
 ierr = 0

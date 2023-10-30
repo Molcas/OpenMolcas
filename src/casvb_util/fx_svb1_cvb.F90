@@ -18,8 +18,10 @@ use casvb_global, only: formE, gjorb, ipr, memplenty, ndet, ndetvb, norb, nvb, o
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: fx, orbstry(norb,norb), cvbtry(nvb), civec(0:ndet), civecp(0:ndet), civbs(0:ndet), civb(0:ndet), cvbdet(ndetvb)
-logical(kind=iwp) :: fast
+real(kind=wp), intent(out) :: fx, cvbdet(ndetvb)
+logical(kind=iwp), intent(in) :: fast
+real(kind=wp), intent(in) :: orbstry(norb,norb)
+real(kind=wp), intent(inout) :: cvbtry(nvb), civec(0:ndet), civecp(0:ndet), civbs(0:ndet), civb(0:ndet)
 
 call str2vbc_cvb(cvbtry,cvbdet)
 if (fast) then

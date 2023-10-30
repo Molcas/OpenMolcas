@@ -18,8 +18,8 @@ use casvb_global, only: charobj, i_dep_on_j, ioffs, iprint, j_dep_on_i, joffs, m
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: chr1, chr2
-integer(kind=iwp) :: ic1
+character(len=*), intent(in) :: chr1, chr2
+integer(kind=iwp), intent(in) :: ic1
 integer(kind=iwp) :: i, ic, iobj, jobj, m_cancelled, n_cancelled
 logical(kind=iwp) :: done
 

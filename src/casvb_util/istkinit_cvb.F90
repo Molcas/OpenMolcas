@@ -20,7 +20,8 @@ subroutine istkinit_cvb(iarr,n)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, iarr(n)
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(out) :: iarr(2)
 
 if (n < 2) then
   write(u6,*) ' Too small dimension in ISTKINIT_CVB :',n

@@ -16,9 +16,13 @@ subroutine wrrs_cvb(vec,n,file_id,ioffset)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n, ioffset
-real(kind=wp) :: vec(n), file_id
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(_IN_) :: vec(n)
+real(kind=wp), intent(in) :: file_id
+integer(kind=iwp), intent(inout) :: ioffset
 
 call wrlow_cvb(vec,n,file_id,ioffset)
 ioffset = ioffset+n

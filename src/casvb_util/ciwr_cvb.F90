@@ -22,8 +22,11 @@ subroutine ciwr_cvb(cvec,recn)
 use casvb_global, only: icnt_ci, iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: cvec(0:ndet), recn
+real(kind=wp), intent(_IN_) :: cvec(0:ndet)
+real(kind=wp), intent(in) :: recn
 integer(kind=iwp) :: iformat, ioffs, ivec
 
 ivec = nint(cvec(0))

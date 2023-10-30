@@ -20,10 +20,10 @@ use casvb_global, only: formMXP1, formMXP3, iprec, iwidth
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: a(*)
-integer(kind=iwp) :: nrow, nrow2, ncol, itype
+real(kind=wp), intent(in) :: a(*)
+integer(kind=iwp), intent(in) :: nrow, nrow2, ncol, itype
 integer(kind=iwp), parameter :: mxbuf = 8
-integer(kind=iwp) :: i, ibuf(mxbuf), ii, ind, j, jend, jin, k, nbuf
+integer(kind=iwp) :: i, ibuf(mxbuf), ind, j, jend, jin, k, nbuf
 real(kind=wp) :: buffer(mxbuf)
 
 nbuf = min((iwidth-4)/(iprec+4),mxbuf)
@@ -39,7 +39,7 @@ do
     k = k+1
     ibuf(k) = j
   end do
-  write(u6,formMXP1) (ibuf(i),i=1,jend-jin+1)
+  write(u6,formMXP1) ibuf(1:jend-jin+1)
   do i=1,nrow
     k = 0
     do j=jin,jend
@@ -53,7 +53,7 @@ do
       end if
       buffer(k) = a(ind)
     end do
-    write(u6,formMXP3) i,(buffer(ii),ii=1,jend-jin+1)
+    write(u6,formMXP3) i,buffer(1:jend-jin+1)
   end do
   jin = jend+1
   if (ncol <= nbuf) exit

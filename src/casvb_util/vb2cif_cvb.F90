@@ -37,12 +37,11 @@ use casvb_global, only: iapr, icnt_ci, iform_ci, ixapr, ndet, ndetvb, nfrag, vbd
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvbdet(ndetvb), civec(0:ndet)
-integer(kind=iwp) :: ic, icivec
+real(kind=wp), intent(inout) :: cvbdet(ndetvb), civec(0:ndet)
+integer(kind=iwp) :: icivec
 real(kind=wp) :: dum
 
 icivec = nint(civec(0))
-ic = 1
 
 if (iform_ci(icivec) /= 0) then
   write(u6,*) ' Unsupported format in VB2CI :',iform_ci(icivec)
@@ -51,7 +50,7 @@ end if
 if (nfrag <= 1) then
   call ci2vb2_cvb(civec(1:),cvbdet,iapr,ixapr,dum,1)
 else
-  call dpci2vb_cvb(civec(1:),cvbdet,vbdet,ic,dum,1)
+  call dpci2vb_cvb(civec(1:),cvbdet,vbdet,1,dum,1)
 end if
 icnt_ci(icivec) = 0
 

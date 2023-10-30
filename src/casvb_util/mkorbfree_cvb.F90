@@ -21,7 +21,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, i2, icon, ioff, ioff2, ioffs, iorb, irel, ishift, ishift2, j, j2, jorb, nc, ncon, nl1, nl2, nrem
+integer(kind=iwp) :: i, i2, icon, ierr, ioff, ioff2, ioffs, iorb, irel, ishift, ishift2, j, j2, jorb, nc, ncon, nl1, nl2, nrem
 real(kind=wp) :: dum(1), sum1, sum2
 integer(kind=iwp), allocatable :: idel(:)
 real(kind=wp), allocatable :: orbinv(:,:), owrk(:,:), owrk2(:,:)
@@ -117,7 +117,8 @@ else
     end if
   end do
   trprm(:,nfrorb+1:) = Zero
-  call nize_cvb(trprm,nfrorb,dum,nprorb,0,0)
+  ierr = 0
+  call nize_cvb(trprm,nfrorb,dum,nprorb,0,ierr)
 
   call mma_deallocate(owrk)
   call mma_deallocate(owrk2)

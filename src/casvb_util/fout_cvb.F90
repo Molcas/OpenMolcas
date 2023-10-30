@@ -17,8 +17,8 @@ subroutine fout_cvb(f,a1,a2)
 use Definitions, only: wp, u6
 
 implicit none
-real(kind=wp) :: f
-character(len=*) :: a1, a2
+real(kind=wp), intent(in) :: f
+character(len=*), intent(in) :: a1, a2
 character(len=46) :: b2
 character(len=15) :: b1
 character(len=12) :: b3

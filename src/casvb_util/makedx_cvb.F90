@@ -20,9 +20,12 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nparm, ioptc, nposeig, nnegeig
-real(kind=wp) :: dx(nparm), heigvec(nparm,nparm), heigval(nparm), dxp(nparm), gradp(nparm), w2(nparm), alfastart, alfa
-logical(kind=iwp) :: close2conv, scalesmall, wrongstat, opth
+integer(kind=iwp), intent(in) :: nparm, nposeig, nnegeig
+real(kind=wp), intent(out) :: dx(nparm), w2(nparm), alfa
+integer(kind=iwp), intent(inout) :: ioptc
+real(kind=wp), intent(in) :: heigvec(nparm,nparm), heigval(nparm), gradp(nparm), alfastart
+real(kind=wp), intent(inout) :: dxp(nparm)
+logical(kind=iwp), intent(in) :: close2conv, scalesmall, wrongstat, opth
 integer(kind=iwp) :: i
 real(kind=wp) :: exp1, exp2
 real(kind=wp), external :: dnrm2_

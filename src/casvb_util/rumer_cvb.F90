@@ -20,8 +20,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nel, nalf, nbet, ndet, ifns, kbasis, iprint, nswpdim
-real(kind=wp) :: bikcof(ndet,ifns)
+integer(kind=iwp), intent(in) :: nel, nalf, nbet, ndet, ifns, kbasis, iprint, nswpdim
+real(kind=wp), intent(out) :: bikcof(ndet,ifns)
 integer(kind=iwp) :: ia, iachek, ib, ii, indx, iorb, iswp, nbet2, rc
 real(kind=wp) :: abphase, bikvalue, scl
 integer(kind=iwp), allocatable :: ialfs(:), ibets(:), ioccswp(:,:), iw(:), locca(:), lnocca(:), maxspn(:), maxswp(:), minspn(:), &

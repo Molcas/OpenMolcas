@@ -14,8 +14,6 @@
 
 subroutine casinfo2_cvb()
 
-use casvb_global, only: iorclos_c, iorcore_c, iorocc_c, istms2_c, istnel_c, istsy_c, mcore_c, mxirrep, mxstsy_ci, mxstt_ci, &
-                        nstats_c, nstsym_c, weight_c
 use Definitions, only: iwp
 
 implicit none
@@ -23,8 +21,7 @@ integer(kind=iwp) :: i2s_c, isym_c, nel_c, neltot_c, norb_c
 
 ! Information from molcas interface file "JOBIPH":
 call rdjobiph_cvb('JOBIPH')
-call setjobiph_cvb(iorcore_c,iorclos_c,iorocc_c,mxirrep,nstsym_c,weight_c,istnel_c,istsy_c,istms2_c,nstats_c,mxstt_ci,mxstsy_ci, &
-                   nel_c,norb_c,i2s_c,isym_c,mcore_c,neltot_c)
+call setjobiph_cvb(nel_c,norb_c,i2s_c,isym_c,neltot_c)
 
 return
 

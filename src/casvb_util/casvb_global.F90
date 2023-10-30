@@ -144,10 +144,10 @@ integer(kind=iwp) :: i_dep_on_j(mxdep), i2s_fr(mxS,mxfrag), iact_mo(mxact_mo), i
                      initial, inp, inputmode, invec_cvb, ioffs(mxobj+1), iopt2step(0:30), ioptc_new, ioptcode(30), ioptim, &
                      ioptstep, iorbprm(mxorb_cvb), iorclos_c(mxirrep_ci), iorclos_d(mxirrep_ci), iorcore_c(mxirrep_ci), &
                      iorcore_d(mxirrep_ci), iorder(mxunits), iorocc_c(mxirrep_ci), iorocc_d(mxirrep_ci), ip, ipAnchr, ipdd, &
-                     ipfocc_cvb, ipos(mxstep), ipp, ipp12e, ipp12s, ipp7, ipr(10), iprec, iprint, iprm, iroot, is_set = 0, &
+                     ipfocc_cvb, ipos(mxstep), ipp10, ipp12e, ipp12s, ipp7, ipr(10), iprec, iprint, iprm, iroot, is_set = 0, &
                      isaddle, isaddledd, isaddleo, ishstruc, istackrep(nstackrep), istms2_c(mxstsy_ci), istms2_d(mxstsy_ci), &
                      istnel_c(mxstsy_ci), istnel_d(mxstsy_ci), istsy_c(mxstsy_ci), istsy_d(mxstsy_ci), isym, isympr(mxirrep), &
-                     isymv(mxirrep), iter, iter12e, iter12s, iter7, ityp(mxorb_cvb), ivbweights, iwidth, izbuffer(lbuf), &
+                     isymv(mxirrep), iter10, iter12e, iter12s, iter7, ityp(mxorb_cvb), ivbweights, iwidth, izbuffer(lbuf), &
                      j_dep_on_i(mxdep), joffs(mxobj+1), joptstep, jroot, kbasis, kbasiscvb, lcmo_cvb, ld1a_cvb, ld1i_cvb, &
                      ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, lenline, lfa_cvb, lfi_cvb, lfxvb, loccn_cvb, loopstep, &
                      loopstepmx, lpa_cvb, lpmat_cvb, lstprm(mxprm), ltuvx_cvb, lw1_cvb, lzrvb, maxd, maxdav, mcore_c, mcore_d, &
@@ -203,7 +203,7 @@ character(len=*), parameter :: spinb(nspinb) = ['Kotani      ','Serber      ','R
                                spinbkw(nspinb) = ['KOTANI  ','SERBER  ','RUMER   ','LTRUMER ','PROJECT ','DET     ', &
                                                   'DETERM  ']
 
-public :: aa1, aa2, absym, aikcof, alftol, ap, axc, bikcof, c, casvb_free, charobj, cikcof,  civb1, civb2, civb3, civb4, civb5, &
+public :: aa1, aa2, absym, aikcof, alftol, ap, axc, bikcof, c, casvb_free, charobj, cikcof, civb1, civb2, civb3, civb4, civb5, &
           civb6, civb7, civb8, civbvecs, cnrm, cnrmtol, confsinp, convinone, corenrg, corth, cpropt, cpu0, cpu_prev, cvb, cvbdet, &
           cvbnrm, cvbnrm_fr, cvbsspn, cvbstot, cvbtry, delopth1, delopth2, dfx, dfxmin, dfxtol, dvbdet, dx, dxmove, eigval, &
           eigvec, eigwrngtol, endvar, endwhenclose, esym, evb, evbdet, exp12tol, expct, f1, f2, f3, f4, file_id, fileids, &
@@ -215,9 +215,9 @@ public :: aa1, aa2, absym, aikcof, alftol, ap, axc, bikcof, c, casvb_free, charo
           iconstruc, icrit, icto, idan, idelstr, idetvb, ifhamil, ifield, ifilio, ifinish, ifmos, ifnss1, ifnss2, ifollow, &
           iform_ci, ifsc_fr, ifvb, ifxorb, ifxstr, ikcoff, iline, ilv, imethod, initial, inp, inputmode, invec_cvb, ioffs, &
           iopt2step, ioptc_new, ioptcode, ioptim, ioptstep, iorbprm, iorbrel, iorclos_c, iorclos_d, iorcore_c, iorcore_d, iorder, &
-          iorocc_c, iorocc_d, iorts, ip, ipAnchr, ipdd, ipermzeta, ipfocc_cvb, ipos, ipp, ipp12e, ipp12s, ipp7, ipr, iprec, &
+          iorocc_c, iorocc_d, iorts, ip, ipAnchr, ipdd, ipermzeta, ipfocc_cvb, ipos, ipp10, ipp12e, ipp12s, ipp7, ipr, iprec, &
           iprint, iprm, irels, iroot, irots, is_set, isaddle, isaddledd, isaddleo, ishstruc, istackrep, istms2_c, istms2_d, &
-          istnel_c, istnel_d, istsy_c, istsy_d, isym, isympr, isymv, iter, iter12e, iter12s, iter7, ityp, iunset, ivbweights, &
+          istnel_c, istnel_d, istsy_c, istsy_d, isym, isympr, isymv, iter10, iter12e, iter12s, iter7, ityp, iunset, ivbweights, &
           iwidth, ixapr, ixapr1, ixbpr, ixbpr1, izbuffer, izeta, j_dep_on_i, joffs, joptstep, jroot, kbasis, kbasiscvb, lbuf, &
           lcalccivbs, lcalcevb, lcalcsvb, lciweights, lcmo_cvb, ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, &
           lenline, lfa_cvb, lfi_cvb, lfxvb, line, loccn_cvb, loopstep, loopstepmx, lpa_cvb, lpmat_cvb, lstprm, ltuvx_cvb, lw1_cvb, &

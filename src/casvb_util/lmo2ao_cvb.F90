@@ -19,8 +19,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: norb1
-real(kind=wp) :: orbs(norb,norb1), orbsao(nbas_mo,norb1)
+integer(kind=iwp), intent(in) :: norb1
+real(kind=wp), intent(in) :: orbs(norb,norb1)
+real(kind=wp), intent(out) :: orbsao(nbas_mo,norb1)
 real(kind=wp), allocatable :: tmp(:,:)
 
 if (norb1 == 0) return

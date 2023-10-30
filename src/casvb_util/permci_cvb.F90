@@ -29,8 +29,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: v1(0:*)
-integer(kind=iwp) :: iperm(norb)
+real(kind=wp), intent(inout) :: v1(0:*)
+integer(kind=iwp), intent(in) :: iperm(norb)
 integer(kind=iwp) :: ialg, iv1, mavailr, v2len
 logical(kind=iwp) :: vb
 real(kind=wp), allocatable :: v2(:)

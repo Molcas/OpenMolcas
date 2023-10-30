@@ -19,8 +19,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: vecstr(nvb)
-integer(kind=iwp) :: idelstr(nzrvb)
+real(kind=wp), intent(inout) :: vecstr(nvb)
+integer(kind=iwp), intent(in) :: idelstr(nzrvb)
 integer(kind=iwp) :: i, ikeep
 
 ! Zero coefficients specified by idelstr:

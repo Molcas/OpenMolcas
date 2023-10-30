@@ -21,8 +21,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iopt1, ioptim, italter, noptim, iorts(2,nTri_Elem(norb-1)), ifxorb(norb), ifxstr(nvb), idelstr(nvb)
-integer(kind=iwp) :: i, ifx, ii, io
+integer(kind=iwp), intent(in) :: iopt1, ioptim, italter, noptim, iorts(2,nTri_Elem(norb-1)), ifxorb(norb), ifxstr(nvb), idelstr(nvb)
+integer(kind=iwp) :: i, ifx, io
 character(len=9) :: sbformat
 character(len=3) :: ayn
 integer(kind=iwp), allocatable :: tmp(:)
@@ -73,26 +73,26 @@ if (ifinish == 0) then
         end if
       end do
       nfxorb = ifx
-      write(u6,'(14i3)') (tmp(ii),ii=1,nfxorb)
+      write(u6,'(14i3)') tmp(1:nfxorb)
       call mma_deallocate(tmp)
     end if
     if ((nfxvb > 0) .and. (lfxvb == 0)) then
       write(u6,'(/,a)') ' Following structures will be frozen :'
-      write(u6,'(14i3)') (ifxstr(ii),ii=1,nfxvb)
+      write(u6,'(14i3)') ifxstr(1:nfxvb)
     else if ((nfxvb == 0) .and. (lfxvb == 1)) then
       write(u6,'(/,a)') ' All structures will be frozen.'
     else if ((nfxvb > 0) .and. (lfxvb == 1)) then
       write(u6,'(/,a)') ' Following structures coefficients will be optimized :'
-      write(u6,'(14i3)') (ifxstr(ii),ii=1,nfxvb)
+      write(u6,'(14i3)') ifxstr(1:nfxvb)
     end if
     if ((nzrvb > 0) .and. (lzrvb == 0)) then
       write(u6,'(/,a)') ' Following structures will be deleted :'
-      write(u6,'(14i3)') (idelstr(ii),ii=1,nzrvb)
+      write(u6,'(14i3)') idelstr(1:nzrvb)
     else if ((nzrvb == 0) .and. (lzrvb == 1)) then
       write(u6,'(/,a)') ' All structures will be deleted.'
     else if ((nzrvb > 0) .and. (lzrvb == 1)) then
       write(u6,'(/,a)') ' Following structures will not be deleted :'
-      write(u6,'(14i3)') (idelstr(ii),ii=1,nzrvb)
+      write(u6,'(14i3)') idelstr(1:nzrvb)
     end if
     write(u6,'(/,a)') ' -------------------------------------------'
   end if

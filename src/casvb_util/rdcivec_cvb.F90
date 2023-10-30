@@ -23,8 +23,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: detvec(*)
-character(len=*) :: fn
+real(kind=wp), intent(inout) :: detvec(*)
+character(len=*), intent(in) :: fn
 logical(kind=iwp) :: reord
 #include "rasdim.fh"
 #include "jobiph_j.fh"

@@ -20,9 +20,9 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: method
-integer(kind=iwp) :: nparm1, nfrdim1, maxd1, mxit1, ifollow1, isaddle1, ip1, n_div1
-real(kind=wp) :: corenrg1
+character(len=*), intent(in) :: method
+integer(kind=iwp), intent(in) :: nparm1, nfrdim1, maxd1, mxit1, ifollow1, isaddle1, ip1, n_div1
+real(kind=wp), intent(in) :: corenrg1
 
 ! Input parameters:
 nparm = nparm1

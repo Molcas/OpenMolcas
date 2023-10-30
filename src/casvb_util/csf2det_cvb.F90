@@ -18,8 +18,8 @@ use csfbas, only: cts, kdtoc
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: vec(*), detvec(*)
-integer(kind=iwp) :: isym_loc, iWay
+real(kind=wp), intent(inout) :: vec(*), detvec(*)
+integer(kind=iwp), intent(in) :: isym_loc, iWay
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"

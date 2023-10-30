@@ -18,8 +18,9 @@ use casvb_global, only: inputmode
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nstring, istring, ncmp, ifc
-character(len=*) :: strings(nstring)
+integer(kind=iwp), intent(in) :: nstring, ncmp, ifc
+character(len=*), intent(in) :: strings(nstring)
+integer(kind=iwp), intent(inout) :: istring
 integer(kind=iwp) :: ierr
 logical(kind=iwp) :: done
 character(len=8) :: string

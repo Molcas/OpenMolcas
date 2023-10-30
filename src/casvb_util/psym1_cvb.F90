@@ -19,8 +19,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: civec1(nda,ndb), civec2(nda,ndb), osym(mxirrep)
-integer(kind=iwp) :: ientry
+real(kind=wp), intent(inout) :: civec1(nda,ndb), osym(mxirrep)
+real(kind=wp), intent(in) :: civec2(nda,ndb)
+integer(kind=iwp), intent(in) :: ientry
 integer(kind=iwp) :: iasyind(0:mxirrep), ibsyind(0:mxirrep), irpdet(mxirrep)
 integer(kind=iwp), allocatable :: isymalf(:), isymbet(:)
 

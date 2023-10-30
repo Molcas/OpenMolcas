@@ -18,8 +18,8 @@ use casvb_global, only: imethod, nprvb
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: c(*)
-integer(kind=iwp) :: nparm1
+real(kind=wp), intent(inout) :: c(*)
+integer(kind=iwp), intent(in) :: nparm1
 integer(kind=iwp) :: ioffs
 
 if (.not. ((imethod == 4) .or. (imethod == 12))) call orthcvb_cvb(c,nparm1)

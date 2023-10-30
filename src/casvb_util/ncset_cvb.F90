@@ -18,7 +18,8 @@ use casvb_global, only: istackrep
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ic, nc_zeroed, nconvinone
+integer(kind=iwp), intent(in) :: ic
+integer(kind=iwp) :: nc_zeroed, nconvinone
 logical(kind=iwp), external :: istkprobe_cvb
 
 if (istkprobe_cvb(istackrep)) then

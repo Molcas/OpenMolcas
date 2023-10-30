@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: minind_cvb
-integer(kind=iwp) :: i_dim, iminor(i_dim), nel, ixmin(0:nel,0:i_dim)
+integer(kind=iwp), intent(in) :: i_dim, iminor(i_dim), nel, ixmin(0:nel,0:i_dim)
 integer(kind=iwp) :: i
 
 minind_cvb = 1

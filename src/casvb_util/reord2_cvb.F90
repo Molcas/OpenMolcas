@@ -20,9 +20,12 @@ use csfbas, only: conf, kcftp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: cfrom(*), cto(*)
-integer(kind=iwp) :: imode
+real(kind=wp), intent(in) :: cfrom(*)
+real(kind=wp), intent(_OUT_) :: cto(*)
+integer(kind=iwp), intent(in) :: imode
 #include "WrkSpc.fh"
 #include "rasdim.fh"
 #include "rasscf.fh"

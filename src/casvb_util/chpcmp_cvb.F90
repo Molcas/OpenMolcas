@@ -19,7 +19,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 logical(kind=iwp) :: chpcmp_cvb
-integer(kind=iwp) :: itst
+integer(kind=iwp), intent(in) :: itst
 
 iprm = iprm+1
 if (iprm > mxprm) then

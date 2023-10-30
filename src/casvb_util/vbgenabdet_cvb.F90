@@ -18,7 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndetvb, idetavb(ndetvb), idetbvb(ndetvb), nconf, noe, iconfs(noe,nconf), nel, nconfion(0:nel), nalf, nbet, norb
+integer(kind=iwp), intent(in) :: nconf, noe, iconfs(noe,nconf), nel, nconfion(0:nel), ndetvb, nalf, nbet, norb
+integer(kind=iwp), intent(out) :: idetavb(ndetvb), idetbvb(ndetvb)
 integer(kind=iwp) :: i, iaind, iaocc, ibind, ibocc, iconf, incr, incrdet, indx, ioff_nconf, ion, iorb, nalfsing, nbetsing, &
                      nelsing, nstring
 integer(kind=iwp), allocatable :: astr(:,:), bstr(:,:), iaccm(:), inewocc(:), maxgrph(:), mingrph(:), xalf(:,:), xbet(:,:)

@@ -19,7 +19,7 @@ use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: icode
+integer(kind=iwp), intent(in) :: icode
 
 if (icode >= 9) then
   call cvbfinit_cvb()

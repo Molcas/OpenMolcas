@@ -15,8 +15,7 @@
 subroutine dev2c_cvb(v1,cfrom,hessorb,oaa2)
 ! Calculate V1 EijEkl CFROM
 
-use casvb_global, only: absym, i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, iform_ci, ixapr, ixbpr, n1a, n1b, n_2el, nam1, &
-                        nbm1, nda, ndb, ndet, norb, nprorb, npvb, phato, phbto, projcas, sc
+use casvb_global, only: iform_ci, n_2el, ndet, nprorb
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,8 +29,7 @@ if (iform_ci(icfrom) /= 0) then
   call abend_cvb()
 end if
 
-call dev2c_2_cvb(v1(1:),cfrom(1:),hessorb,oaa2,nprorb,i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto,iapr,ixapr,ibpr,ixbpr,npvb, &
-                 nda,ndb,n1a,n1b,nam1,nbm1,norb,projcas,sc,absym(3))
+call dev2c_2_cvb(v1(1:),cfrom(1:),hessorb,oaa2)
 
 return
 

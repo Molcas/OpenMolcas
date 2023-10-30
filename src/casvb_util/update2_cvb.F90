@@ -20,10 +20,11 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ic, norb, nvb, nprorb, npr, nort, iorts(2,nort)
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), orbsp(norb,norb), cvbp(nvb), sorbs(norb,norb), dxorg(npr)
-logical(kind=iwp) :: orbopt, strucopt, sym
-integer(kind=iwp) :: ij, iorb, iort, j, jorb, k, korb, l, lorb
+integer(kind=iwp), intent(in) :: ic, norb, nvb, nprorb, npr, nort, iorts(2,nort)
+real(kind=wp), intent(out) :: orbs(norb,norb), cvb(nvb), sorbs(norb,norb)
+real(kind=wp), intent(in) :: orbsp(norb,norb), cvbp(nvb), dxorg(npr)
+logical(kind=iwp), intent(in) :: orbopt, strucopt, sym
+integer(kind=iwp) :: ierr, ij, iorb, iort, j, jorb, k, korb, l, lorb
 real(kind=wp) :: dum(1), fac, sdidj
 real(kind=wp), allocatable :: sorbsinv(:,:)
 
@@ -81,7 +82,8 @@ if (strucopt) then
   call cvbnrm_cvb(cvb)
 end if
 
-call nize_cvb(orbs,norb,dum,norb,0,0)
+ierr = 0
+call nize_cvb(orbs,norb,dum,norb,0,ierr)
 if (sym) call symtriz_cvb(orbs,cvb)
 
 return

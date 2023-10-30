@@ -17,8 +17,9 @@ subroutine getdxp_cvb(dxp,gradp,heigval,nnegeig,npr,alfa)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nnegeig, npr
-real(kind=wp) :: dxp(npr), gradp(npr), heigval(npr), alfa
+integer(kind=iwp), intent(in) :: nnegeig, npr
+real(kind=wp), intent(out) :: dxp(npr)
+real(kind=wp), intent(in) :: gradp(npr), heigval(npr), alfa
 
 dxp(1:nnegeig) = -gradp(1:nnegeig)/(heigval(1:nnegeig)-alfa)
 dxp(nnegeig+1:) = -gradp(nnegeig+1:)/(heigval(nnegeig+1:)+alfa)

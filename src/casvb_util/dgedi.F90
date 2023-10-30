@@ -75,8 +75,9 @@ use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LDA, N, IPVT(N), JOB
-real(kind=wp) :: A(LDA,N), DET(2), W(*)
+integer(kind=iwp), intent(in) :: LDA, N, IPVT(N), JOB
+real(kind=wp), intent(inout) :: A(LDA,N)
+real(kind=wp), intent(out) :: DET(2), W(N)
 integer(kind=iwp) :: I, J, K, KB, KP1, L, NM1
 real(kind=wp) :: T
 

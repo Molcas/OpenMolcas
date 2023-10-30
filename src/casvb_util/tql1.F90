@@ -61,8 +61,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, ierr
-real(kind=wp) :: d(n), e(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: d(n), e(n)
+integer(kind=iwp), intent(out) :: ierr
 integer(kind=iwp) :: i, ii, j, l, l1, l2, m, mml
 real(kind=wp) :: c, c2, c3, dl1, el1, f, g, h, p, r, s, s2, tst1, tst2
 logical(kind=iwp) :: skip

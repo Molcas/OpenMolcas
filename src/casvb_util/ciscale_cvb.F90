@@ -23,7 +23,8 @@ use casvb_global, only: iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(0:ndet), scl
+real(kind=wp), intent(inout) :: cvec(0:ndet)
+real(kind=wp), intent(in) :: scl
 integer(kind=iwp) :: iformat, ivec
 
 ivec = nint(cvec(0))

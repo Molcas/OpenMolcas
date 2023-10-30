@@ -18,9 +18,10 @@ use casvb_global, only: iline, ilv, lenline, line
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: string
-integer(kind=iwp) :: intx, ic, ifield, ierr
-real(kind=wp) :: realx
+character(len=*), intent(inout) :: string
+integer(kind=iwp), intent(inout) :: intx, ierr
+real(kind=wp), intent(inout) :: realx
+integer(kind=iwp), intent(in) :: ic, ifield
 integer(kind=iwp) :: ich, iempty, ifirst, istatus, jch, jfield, jline
 logical(kind=iwp) :: done
 integer(kind=iwp), parameter :: nempty = 1

@@ -18,7 +18,7 @@ use casvb_global, only: cvb, ndetvb_fr, nfrag, nvb, nvb_fr, vbdet
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: fx
+real(kind=wp), intent(out) :: fx
 
 if (nfrag <= 1) then
   cvb(1:nvb) = -cvb(1:nvb)

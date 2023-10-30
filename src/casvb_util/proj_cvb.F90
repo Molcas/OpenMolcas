@@ -23,7 +23,7 @@ use casvb_global, only: mxirrep, ndet, projsym
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: civec(0:ndet)
+real(kind=wp), intent(inout) :: civec(0:ndet)
 real(kind=wp) :: dum(mxirrep)
 
 if (projsym) call psym1_cvb(civec(1:),civec(1:),dum,1)

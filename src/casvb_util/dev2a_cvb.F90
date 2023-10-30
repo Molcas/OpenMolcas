@@ -20,12 +20,12 @@
 subroutine dev2a_cvb(v1,v2,cfrom,hessorb,oaa2,aa1)
 ! Calculates V1 EijEkl CFROM and V2 EijEkl CFROM
 
-use casvb_global, only: absym, i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, iform_ci, ixapr, ixbpr, n1a, n1b, n_2el, nam1, &
-                        nbm1, nda, ndb, ndet, norb, nprorb, npvb, phato, phbto, projcas, sc
+use casvb_global, only: iform_ci, n_2el, ndet, nprorb
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: v1(0:ndet), v2(0:ndet), cfrom(0:ndet), hessorb(nprorb,nprorb), oaa2, aa1
+real(kind=wp), intent(in) :: v1(0:ndet), v2(0:ndet), cfrom(0:ndet), oaa2, aa1
+real(kind=wp), intent(inout) :: hessorb(nprorb,nprorb)
 integer(kind=iwp) :: icfrom
 
 icfrom = nint(cfrom(0))
@@ -35,8 +35,7 @@ if (iform_ci(icfrom) /= 0) then
   call abend_cvb()
 end if
 
-call dev2a_2_cvb(v1(1:),v2(1:),cfrom(1:),hessorb,oaa2,aa1,nprorb,i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto,iapr,ixapr,ibpr, &
-                 ixbpr,npvb,nda,ndb,n1a,n1b,nam1,nbm1,norb,projcas,sc,absym(3))
+call dev2a_2_cvb(v1(1:),v2(1:),cfrom(1:),hessorb,oaa2,aa1)
 
 return
 

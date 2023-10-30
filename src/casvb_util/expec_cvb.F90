@@ -18,8 +18,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nnegeig, npr
-real(kind=wp) :: dxp(npr), gradp(npr), heigval(npr), expc, exp1, exp2
+integer(kind=iwp), intent(in) :: nnegeig, npr
+real(kind=wp), intent(in) :: dxp(npr), gradp(npr), heigval(npr)
+real(kind=wp), intent(out) :: expc, exp1, exp2
 integer(kind=iwp) :: i
 real(kind=wp) :: exp1l, exp2l
 

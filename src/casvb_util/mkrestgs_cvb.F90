@@ -20,8 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: orbsao(nbas_mo,norb), cvb(nvb), cvbdet(ndetvb)
-integer(kind=iwp) :: irdorbs(norb), iapr(ndetvb), ixapr(nda+1)
+real(kind=wp), intent(out) :: orbsao(nbas_mo,norb), cvb(nvb), cvbdet(ndetvb)
+integer(kind=iwp), intent(out) :: irdorbs(norb)
+integer(kind=iwp), intent(in) :: iapr(ndetvb), ixapr(nda+1)
 integer(kind=iwp) :: ia, ib, idetvb1, idum(1), ioffs, iorb, ixa, nalf1, nbet1, ndetvb1, norb1
 integer(kind=iwp), allocatable :: iabind(:)
 real(kind=wp), allocatable :: cvbdet1(:)
@@ -42,9 +43,9 @@ if ((norb1 /= norb) .or. (nalf1 /= nalf) .or. (nbet1 /= nbet)) then
   write(u6,*) ' NBET now ',nbet,' before ',nbet1
   call abend_cvb()
 end if
+irdorbs(:) = 1
 do iorb=1,norb
-  irdorbs(iorb) = 1
-  call rdrs_cvb(orbsao(1,iorb),norb,recn_tmp04,ioffs)
+  call rdrs_cvb(orbsao(:,iorb),norb,recn_tmp04,ioffs)
 end do
 call mma_allocate(iabind,ndetvb1,label='iabind')
 call mma_allocate(cvbdet1,ndetvb1,label='cvdet1')

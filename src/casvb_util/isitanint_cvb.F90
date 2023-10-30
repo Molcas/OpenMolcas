@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: isitanint_cvb
-character(len=*) :: a
+character(len=*), intent(in) :: a
 integer(kind=iwp) :: ich, j
 logical(kind=iwp) :: done
 integer(kind=iwp), parameter :: nallowed = 12

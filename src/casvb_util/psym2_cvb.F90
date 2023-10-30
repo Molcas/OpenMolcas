@@ -20,8 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: civec1(nda,ndb), civec2(nda,ndb), osym(mxirrep)
-integer(kind=iwp) :: isymalf(nda), isymbet(ndb), iasyind(0:mxirrep), ibsyind(0:mxirrep), ips
+real(kind=wp), intent(inout) :: civec1(nda,ndb), osym(mxirrep)
+real(kind=wp), intent(in) :: civec2(nda,ndb)
+integer(kind=iwp), intent(in) :: isymalf(nda), isymbet(ndb), iasyind(0:mxirrep), ibsyind(0:mxirrep), ips
 integer(kind=iwp) :: ida, idb, inda, irp, jrpa, jrpb
 
 if (ips == 1) then

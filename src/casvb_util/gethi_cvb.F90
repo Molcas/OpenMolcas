@@ -17,7 +17,8 @@ subroutine gethi_cvb(iarr,n)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, iarr(n)
+integer(kind=iwp), intent(inout) :: n
+integer(kind=iwp), intent(out) :: iarr(n)
 integer(kind=iwp) :: iaux(1)
 
 call geth_cvb(iaux,1)

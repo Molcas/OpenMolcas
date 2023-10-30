@@ -18,10 +18,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ndet, ifns, kbasis
-real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
+integer(kind=iwp), intent(in) :: ndet, ifns, kbasis
+real(kind=wp), intent(inout) :: aikcof(ndet,ifns)
+real(kind=wp), intent(in) :: bikcof(ndet,ifns)
+logical(kind=iwp), intent(in) :: share
 real(kind=wp), allocatable :: sovr(:,:)
-logical(kind=iwp) :: share
 
 if (kbasis == 6) return
 

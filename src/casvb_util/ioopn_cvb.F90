@@ -17,8 +17,8 @@ subroutine ioopn_cvb(fn,lu)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: fn
-integer(kind=iwp) :: lu
+character(len=*), intent(in) :: fn
+integer(kind=iwp), intent(inout) :: lu
 logical(kind=iwp) :: isopen
 
 ! Close first in case file is 'hanging' from previous session:

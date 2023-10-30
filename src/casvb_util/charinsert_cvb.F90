@@ -17,8 +17,10 @@ subroutine charinsert_cvb(cinsert,linsert,c,lc,ipos,idel)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: cinsert, c
-integer(kind=iwp) :: linsert, lc, ipos, idel
+character(len=*), intent(in) :: cinsert
+integer(kind=iwp), intent(in) :: linsert, ipos, idel
+character(len=*), intent(inout) :: c
+integer(kind=iwp), intent(inout) :: lc
 character(len=300) :: buff
 
 buff(1:lc-(ipos+idel)+1) = c(ipos+idel:lc)

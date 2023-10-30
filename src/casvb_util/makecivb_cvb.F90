@@ -22,8 +22,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: civec(0:ndet), civb(0:ndet), cvbdet(ndetvb), orbs(norb,norb), cvb(nvb)
-integer(kind=iwp) :: ic, icivb
+real(kind=wp), intent(inout) :: civec(0:ndet), civb(0:ndet), cvb(nvb)
+real(kind=wp), intent(out) :: cvbdet(ndetvb)
+real(kind=wp), intent(in) :: orbs(norb,norb)
+integer(kind=iwp), intent(in) :: ic
+integer(kind=iwp) :: icivb
 type(gjorb_type) :: gjorb
 real(kind=wp), allocatable :: orbinv(:,:)
 

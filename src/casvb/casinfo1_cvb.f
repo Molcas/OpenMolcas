@@ -12,10 +12,6 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine casinfo1_cvb()
-      use casvb_global, only: iorclos_c, iorcore_c, iorocc_c, istms2_c,
-     &                        istnel_c, istsy_c, mcore_c, mxirrep,
-     &                        mxstsy_ci, mxstt_ci, nstats_c, nstsym_c,
-     &                        weight_c
       implicit real*8 (a-h,o-z)
       logical iphex,oldex
 
@@ -36,9 +32,7 @@ c  Information from molcas interface file 'JOBIPH' :
       endif
 
       call rdjobiph_cvb('JOBIPH')
-      call setjobiph_cvb(iorcore_c,iorclos_c,iorocc_c,mxirrep,
-     >  nstsym_c,weight_c,istnel_c,istsy_c,istms2_c,nstats_c,
-     >  mxstt_ci,mxstsy_ci,nel_c,norb_c,i2s_c,isym_c,mcore_c,neltot_c)
+      call setjobiph_cvb(nel_c,norb_c,i2s_c,isym_c,neltot_c)
       call rasscf(ireturn_rasscf)
       call clsfls_rasscf()
 c  rasscf will have overwritten jobiph ...

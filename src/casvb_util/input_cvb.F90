@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp) :: i, i2s_min, iconf_add, idum(1), ifrag, ifrom, ifsc, igroup, io, ioffs, iorb, ip_from, ip_to, iS, istr, istr2, &
-                     isyme, isymput, itag, ito, jorb, kbasis_old, kbasiscvb_inp, mxalter, mxdimrel, mxortl, mxpair, mxread, &
+                     isyme, isymput, itag, ito, jorb, kbasis_old, kbasiscvb_inp, ltmp, mxalter, mxdimrel, mxortl, mxpair, mxread, &
                      nelcheck, nfrorb1, nfxorb1, nmov, nops, nread
 real(kind=wp) :: swap
 logical(kind=iwp) :: DoCholesky
@@ -306,7 +306,8 @@ else
     else if (istr == 20) then
       ! 'FIXORB'
       call mma_allocate(itmp,mxorb_cvb,label='itmp')
-      call intchk_cvb(itmp,mxorb_cvb,nfxorb,0,'FIXORB',-1)
+      ltmp = -1
+      call intchk_cvb(itmp,mxorb_cvb,nfxorb,0,'FIXORB',ltmp)
       ifxorb(:) = 0
       do i=1,nfxorb
         ifxorb(itmp(i)) = 1
@@ -335,7 +336,8 @@ else
     else if (istr == 23) then
       ! 'FREORB' - not implemented
       call mma_allocate(itmp,mxorb_cvb,label='itmp')
-      call intchk_cvb(itmp,mxorb_cvb,nfrorb1,0,'FREORB',-1)
+      ltmp = -1
+      call intchk_cvb(itmp,mxorb_cvb,nfrorb1,0,'FREORB',ltmp)
       call mma_allocate(itmp2,mxorb_cvb,label='itmp2')
       itmp2(:) = 0
       do i=1,nfrorb1

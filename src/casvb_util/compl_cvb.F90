@@ -22,9 +22,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nvec, n
-real(kind=wp) :: a(n,n)
-integer(kind=iwp) :: i, imx, j
+integer(kind=iwp), intent(in) :: nvec, n
+real(kind=wp), intent(inout) :: a(n,n)
+integer(kind=iwp) :: i, ierr, imx, j
 real(kind=wp) :: cmx, dum(1)
 real(kind=wp), allocatable :: awrk(:,:), bwrk(:,:), cwrk(:), dwrk(:,:)
 real(kind=wp), external :: ddot_
@@ -72,7 +72,8 @@ do j=1,n-nvec
   cwrk(imx) = -real(j,kind=wp)
   a(:,nvec+j) = bwrk(:,imx)
 end do
-call nize_cvb(a(1,nvec+1),n-nvec,dum,n,0,0)
+ierr = 0
+call nize_cvb(a(:,nvec+1:),n-nvec,dum,n,0,ierr)
 call mma_deallocate(bwrk)
 call mma_deallocate(cwrk)
 

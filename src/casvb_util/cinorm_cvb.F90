@@ -23,7 +23,8 @@ use casvb_global, only: iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(0:ndet), cnrm
+real(kind=wp), intent(in) :: cvec(0:ndet)
+real(kind=wp), intent(out) :: cnrm
 integer(kind=iwp) :: iformat, ivec
 real(kind=wp), external :: ddot_
 

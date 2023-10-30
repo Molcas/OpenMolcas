@@ -17,7 +17,8 @@ subroutine touchord_cvb(itouch,iorder,n)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: itouch, n, iorder(n)
+integer(kind=iwp), intent(in) :: itouch, n
+integer(kind=iwp), intent(inout) :: iorder(n)
 integer(kind=iwp) :: i, itchord
 logical(kind=iwp), parameter :: debug = .false.
 

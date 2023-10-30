@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "optb_interface.fh"
-integer(kind=iwp) :: nnegeig, nposeig
+integer(kind=iwp) :: ioptc, nnegeig, nposeig
 real(kind=wp) :: alfastart, eig, eigmn, eigmx, safety_use
 real(kind=wp), external :: dnrm2_
 
@@ -60,7 +60,8 @@ cnrm = dnrm2_(nparm,odxp,1)
 !  safety_use = 1.0e-4_wp
 !end do
 
-call makedx_cvb(odx,nparm,0,eigvec,eigval,odxp,ogradp,owrk,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
+ioptc = 0
+call makedx_cvb(odx,nparm,ioptc,eigvec,eigval,odxp,ogradp,owrk,.false.,nposeig,.false.,.false.,nnegeig,.false.,alfastart,eig)
 dxnrm = dnrm2_(nparm,odx,1)
 
 return

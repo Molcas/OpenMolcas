@@ -19,7 +19,7 @@ subroutine Copy_JobIph(InFile,OutFile)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: InFile, OutFile
+character(len=*), intent(in) :: InFile, OutFile
 integer(kind=iwp) :: ierr
 
 call fcopy(InFile,OutFile,ierr)

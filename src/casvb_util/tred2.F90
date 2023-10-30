@@ -59,8 +59,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n
-real(kind=wp) :: a(nm,n), d(n), e(n), z(nm,n)
+integer(kind=iwp), intent(in) :: nm, n
+real(kind=wp), intent(inout) :: a(nm,n)
+real(kind=wp), intent(out) :: d(n), e(n), z(nm,n)
 integer(kind=iwp) :: i, ii, j, jp1, l
 real(kind=wp) :: f, g, h, hh, scl
 

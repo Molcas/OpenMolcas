@@ -18,7 +18,7 @@ use casvb_global, only: iline, ilv, inp, lenline, line, nline, nlold
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nfield
+integer(kind=iwp), intent(out) :: nfield
 integer(kind=iwp) :: ialias, ich, icom, ieof, ieofield, ieol, iff, ihadchar, ilength, ilinebeg, ilineend, ind, indmin, istatus, &
                      jline
 integer(kind=iwp), parameter :: nalias = 2, nblank = 2, ncomeol = 3, neof = 2, neofield = 1, neol = 4

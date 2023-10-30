@@ -20,8 +20,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: vec(nda,ndb), gjorb(norb*norb), phato(norb,nam1), phbto(norb,nbm1)
-integer(kind=iwp) :: igjorb(2,norb*norb), i1alf(n1a,norb), i1bet(n1b,norb), iato(norb,0:nam1), ibto(norb,0:nbm1)
+real(kind=wp), intent(inout) :: vec(nda,ndb)
+real(kind=wp), intent(in) :: gjorb(norb*norb), phato(norb,nam1), phbto(norb,nbm1)
+integer(kind=iwp), intent(in) :: igjorb(2,norb*norb), i1alf(n1a,norb), i1bet(n1b,norb), iato(norb,0:nam1), ibto(norb,0:nbm1)
 integer(kind=iwp) :: ia, iak, iax, iaxtmp, ib, ibk, ibx, ibxtmp, ij, iorb, jax, jbx, jorb
 real(kind=wp) :: scl, tcof
 real(kind=wp), parameter :: thresh = 1.0e-10_wp

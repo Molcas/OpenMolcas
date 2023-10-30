@@ -18,28 +18,29 @@ use casvb_global, only: ioptcode, ioptim
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: icrit, lfxvb, nfxvb, iorts(2,*), nort, norb
+integer(kind=iwp), intent(inout) :: icrit, lfxvb, nfxvb, iorts(2,*), nort
+integer(kind=iwp), intent(in) :: norb
 integer(kind=iwp) :: iorb, jorb
 
-! IOPTCODE    +1  = REPORT
-!             +2  = OPTIM
-!             +4  = Svb
-!             +8  = freeze structure coefficients
-!             +16 = strong-orthogonality constraints
+! IOPTCODE bit 0 = REPORT
+!              1 = OPTIM
+!              2 = Svb
+!              3 = freeze structure coefficients
+!              4 = strong-orthogonality constraints
 
 if (ioptim == 0) return
 
-if (mod(ioptcode(ioptim),4) >= 2) then
+if (btest(ioptcode(ioptim),1)) then
   call setifinish_cvb(1)
-else if (mod(ioptcode(ioptim),2) == 1) then
+else if (btest(ioptcode(ioptim),0)) then
   call setifinish_cvb(3)
 end if
-if (mod(ioptcode(ioptim),8) >= 4) icrit = 1
-if (mod(ioptcode(ioptim),16) >= 8) then
+if (btest(ioptcode(ioptim),2)) icrit = 1
+if (btest(ioptcode(ioptim),3)) then
   lfxvb = 1
   nfxvb = 0
 end if
-if (mod(ioptcode(ioptim),32) >= 16) then
+if (btest(ioptcode(ioptim),4)) then
   nort = 0
   do iorb=1,norb
     do jorb=iorb+1,norb

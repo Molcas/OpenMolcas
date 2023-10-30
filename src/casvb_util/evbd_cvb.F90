@@ -16,20 +16,21 @@ subroutine evbd_cvb(orbs,cvb,fx,ioptc,iter)
 
 use casvb_global, only: corenrg, evb, ifollow, isaddle, isaddledd, ipdd, ipr, follow, have_solved_it, maxdav, mxiter, n_div, &
                         norb, nortiter, nroot, nvb, orththr, ovraa, resthr
-use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddrestart_sub, ddsol_sub
+use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddsol_sub
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx
-integer(kind=iwp) :: ioptc, iter
+real(kind=wp), intent(in) :: orbs(norb,norb)
+real(kind=wp), intent(inout) :: cvb(nvb)
+real(kind=wp), intent(out) :: fx
+integer(kind=iwp), intent(out) :: ioptc, iter
 integer(kind=iwp) :: ifollow1, nvguess, nvrestart
 real(kind=wp), allocatable :: axc(:,:), c(:,:), dum(:), hp(:,:), res(:), solp(:), solp_res(:), sxc(:,:)
 procedure(ddasonc_sub) :: asonc_cvb
 procedure(ddres_sub) :: ddres7_cvb
 procedure(ddres2upd_sub) :: ddres2upd10_cvb
-procedure(ddrestart_sub) :: ddrestart_cvb
 procedure(ddsol_sub) :: ddsol7_cvb
 
 call makegjorbs_cvb(orbs)
@@ -57,9 +58,9 @@ call mma_allocate(hp,maxdav,maxdav,label='hp')
 call mma_allocate(solp,maxdav,label='solp')
 call mma_allocate(solp_res,maxdav,label='solp_res')
 call mma_allocate(dum,max(nvb,maxdav),label='dum')
-call dirdiag_cvb(asonc_cvb,ddsol7_cvb,ddres7_cvb,ddres2upd10_cvb,ddrestart_cvb,c,axc,sxc,.false.,cvb,res,dum,hp,dum,solp,solp_res, &
-                 .false.,.true.,.false.,maxdav,nvb,nvb,nvguess,nvrestart,isaddle,ifollow1,mxiter,resthr,orththr,nortiter,corenrg, &
-                 ioptc,iter,fx,ipr(3))
+call dirdiag_cvb(asonc_cvb,ddsol7_cvb,ddres7_cvb,ddres2upd10_cvb,c,axc,sxc,.false.,cvb,res,dum,hp,dum,solp,solp_res,.false., &
+                 .true.,.false.,maxdav,nvb,nvb,nvguess,nvrestart,isaddle,ifollow1,mxiter,resthr,orththr,nortiter,corenrg,ioptc, &
+                 iter,fx,ipr(3))
 call mma_deallocate(c)
 call mma_deallocate(axc)
 call mma_deallocate(sxc)

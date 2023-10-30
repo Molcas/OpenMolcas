@@ -18,7 +18,7 @@ use casvb_global, only: mxorb_cvb, ndimrel, ndrot, nfxvb, norb, norbrel, nort, n
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iorbrel(ndimrel), ifxorb(mxorb_cvb), ifxstr(nfxvb), idelstr(nzrvb), iorts(*), irots(*), izeta(*)
+integer(kind=iwp), intent(in) :: iorbrel(ndimrel), ifxorb(mxorb_cvb), ifxstr(nfxvb), idelstr(nzrvb), iorts(*), irots(*), izeta(*)
 integer(kind=iwp) :: ioffs
 
 ! Check if any molecular interaction constraints:

@@ -21,7 +21,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb)
+real(kind=wp), intent(in) :: cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb)
 real(kind=wp), parameter :: cut = 1.0e-10_wp
 integer(kind=iwp) :: i, mu, nu
 real(kind=wp) :: phase, rsum, scheck, snorm, ssnorm, ssum, stot, tot

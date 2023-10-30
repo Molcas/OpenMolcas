@@ -19,8 +19,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(0:ndet), scl, cscf
-integer(kind=iwp) :: iscf
+real(kind=wp), intent(inout) :: cvec(0:ndet)
+real(kind=wp), intent(in) :: scl
+integer(kind=iwp), intent(out) :: iscf
+real(kind=wp), intent(out) :: cscf
 integer(kind=iwp) :: idet, iformat, ivec
 
 ivec = nint(cvec(0))

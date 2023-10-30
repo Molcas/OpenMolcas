@@ -17,8 +17,12 @@ subroutine int_cvb(iarr,nmax,nread,ifc)
 use casvb_global, only: inputmode
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iarr(*), nmax, nread, ifc
+integer(kind=iwp), intent(_OUT_) :: iarr(*)
+integer(kind=iwp), intent(in) :: nmax, ifc
+integer(kind=iwp), intent(inout) :: nread
 logical(kind=iwp) :: done
 integer(kind=iwp) :: i, ierr, ifcuse
 

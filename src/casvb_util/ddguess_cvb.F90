@@ -19,8 +19,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndim, ioffs
-real(kind=wp) :: vec(ndim)
+integer(kind=iwp), intent(in) :: ndim, ioffs
+real(kind=wp), intent(in) :: vec(ndim)
 
 nvguess = nvguess+1
 if (nvguess > maxd) then

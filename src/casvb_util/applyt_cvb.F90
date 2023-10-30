@@ -40,8 +40,8 @@ use casvb_global, only: gjorb_type, i1alf, i1bet, iato, ibto, icnt_ci, iform_ci,
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(0:ndet)
-type(gjorb_type) :: gjorb
+real(kind=wp), intent(inout) :: cvec(0:ndet)
+type(gjorb_type), intent(in) :: gjorb
 integer(kind=iwp) :: ivec
 
 ivec = nint(cvec(0))

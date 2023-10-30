@@ -17,8 +17,10 @@ subroutine intchk_cvb(iarr,nmax,nread,ifc,a,lflag)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iarr(*), nmax, nread, ifc, lflag
-character(len=*) :: a
+integer(kind=iwp), intent(inout) :: iarr(*), lflag
+integer(kind=iwp), intent(in) :: nmax, ifc
+integer(kind=iwp), intent(out) :: nread
+character(len=*), intent(in) :: a
 integer(kind=iwp) :: i, ifrom, istr, ito(1), lf, ncnt, nr
 integer(kind=iwp), parameter :: ncmp = 4, nkeyw = 3
 character(len=*), parameter :: keyword(nkeyw) = ['NONE    ','ALL     ','TO      ']

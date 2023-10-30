@@ -17,7 +17,8 @@ subroutine istkpush_cvb(iarr,ival)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iarr(*), ival
+integer(kind=iwp), intent(inout) :: iarr(*)
+integer(kind=iwp), intent(in) :: ival
 
 iarr(2) = iarr(2)+1
 if (iarr(2) > iarr(1)) then

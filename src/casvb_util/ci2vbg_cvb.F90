@@ -36,8 +36,11 @@ subroutine ci2vbg_cvb(civec,cvbdet)
 use casvb_global, only: iapr, iform_ci, ixapr, ndet, ndetvb, nfrag, vbdet
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: civec(0:ndet), cvbdet(ndetvb)
+real(kind=wp), intent(_IN_) :: civec(0:ndet)
+real(kind=wp), intent(out) :: cvbdet(ndetvb)
 integer(kind=iwp) :: ic, icivec
 real(kind=wp) :: dum
 

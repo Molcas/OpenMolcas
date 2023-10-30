@@ -20,7 +20,7 @@ use casvb_global, only: ibuf, nbuf
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: jbuf
+integer(kind=iwp), intent(in) :: jbuf
 integer(kind=iwp) :: kbuf
 
 ! Dummy writes so that we don't exceed end-of-file:

@@ -18,8 +18,9 @@ use casvb_global, only: filename
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, ioffset
-real(kind=wp) :: vec(n), fileid
+integer(kind=iwp), intent(in) :: n, ioffset
+real(kind=wp), intent(out) :: vec(n)
+real(kind=wp), intent(in) :: fileid
 integer(kind=iwp) :: ibf, ioffs, lu
 logical(kind=iwp) :: newfile
 logical(kind=iwp), parameter :: debug = .false.

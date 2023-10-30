@@ -18,9 +18,10 @@ use casvb_global, only: dx, dfx, formAD, grd, ipr, sgn, singul, zzmin, zzmax
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: close2conv, converged, wrongstat
-integer(kind=iwp) :: npr, nposeig, nnegeig
-real(kind=wp) :: act, zz, step(npr), grad(npr), eigmn, eigmx, eigmna
+logical(kind=iwp), intent(inout) :: close2conv
+logical(kind=iwp), intent(out) :: converged, wrongstat
+integer(kind=iwp), intent(in) :: npr, nposeig, nnegeig
+real(kind=wp), intent(in) :: act, zz, step(npr), grad(npr), eigmn, eigmx, eigmna
 integer(kind=iwp) :: idum, mm
 real(kind=wp) :: grad_amx, grad_nrm, grad_rms, step_amx, step_nrm, step_rms
 logical(kind=iwp) :: close_old, correct_index, dfx_is_small, grad_is_small, step_is_small, zz_ok

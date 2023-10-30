@@ -19,9 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndim, ioffs
-real(kind=wp) :: vec(ndim), avec(ndim), svec(ndim)
-logical(kind=iwp) :: ause, suse
+integer(kind=iwp), intent(in) :: ndim, ioffs
+real(kind=wp), intent(in) :: vec(ndim), avec(ndim), svec(ndim)
+logical(kind=iwp), intent(in) :: ause, suse
 
 nvguess = nvguess+1
 nvrestart = nvrestart+1

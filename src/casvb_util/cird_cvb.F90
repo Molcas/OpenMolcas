@@ -29,7 +29,8 @@ use casvb_global, only: icnt_ci, iform_ci, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(0:ndet), recn
+real(kind=wp), intent(inout) :: cvec(0:ndet)
+real(kind=wp), intent(in) :: recn
 integer(kind=iwp) :: idum(1), iformat, ioffs, ivec
 
 ivec = nint(cvec(0))

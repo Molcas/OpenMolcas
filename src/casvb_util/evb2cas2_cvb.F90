@@ -20,9 +20,15 @@ use casvb_global, only: corenrg, cvbdet, dx, evb, formAD, formAF, gjorb, grd, ic
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx, dxnrm, dx_amx, civec(0:ndet), civb(0:ndet), civbh(0:ndet), res(0:ndet), resh(0:ndet)
-integer(kind=iwp) :: icivec, ioptc, iter
+real(kind=wp), intent(in) :: orbs(norb,norb), dxnrm, dx_amx
+real(kind=wp), intent(_IN_) :: cvb(nvb)
+integer(kind=iwp), intent(out) :: ioptc, iter
+real(kind=wp), intent(out) :: fx
+real(kind=wp), intent(inout) :: civec(0:ndet), civb(0:ndet), civbh(0:ndet), res(0:ndet), resh(0:ndet)
+integer(kind=iwp) :: icivec
 real(kind=wp) :: cnrm, eig(2), h(2,2), orbinv(norb,norb), ovr, rescas_ovr, resnrm
 logical(kind=iwp) :: dx_ok, grad_ok
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...

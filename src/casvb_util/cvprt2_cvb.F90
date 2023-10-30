@@ -18,9 +18,9 @@ use casvb_global, only: formcvp
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16) :: a1
-real(kind=wp) :: f1, f2
-integer(kind=iwp) :: ic
+character(len=16), intent(in) :: a1
+real(kind=wp), intent(in) :: f1, f2
+integer(kind=iwp), intent(in) :: ic
 real(kind=wp), parameter :: hge = 1.0e20_wp
 
 if (abs(f2) /= hge) then

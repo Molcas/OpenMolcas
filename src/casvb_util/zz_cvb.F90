@@ -19,8 +19,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: act1, zz1, fx, fxbest1, exp1
-integer(kind=iwp) :: ip1
+real(kind=wp), intent(out) :: act1, zz1
+real(kind=wp), intent(in) :: fx, fxbest1, exp1
+integer(kind=iwp), intent(in) :: ip1
 real(kind=wp), parameter :: thous = 1.0e3_wp
 
 act1 = fx-fxbest1

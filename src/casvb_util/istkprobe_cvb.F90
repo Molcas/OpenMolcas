@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: istkprobe_cvb
-integer(kind=iwp) :: iarr(*)
+integer(kind=iwp), intent(in) :: iarr(*)
 
 istkprobe_cvb = (iarr(2) > 2)
 

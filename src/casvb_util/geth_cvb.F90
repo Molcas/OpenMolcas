@@ -18,7 +18,8 @@ use casvb_global, only: icnt, ncnt
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, iarr(n)
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(out) :: iarr(n)
 
 if (icnt < ncnt) then
   call rdbis_cvb(iarr,n,icnt)

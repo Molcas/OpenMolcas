@@ -18,7 +18,7 @@ use casvb_global, only: inp, lenline, line
 use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) :: variat
+logical(kind=iwp), intent(in) :: variat
 integer(kind=iwp) :: istatus
 logical(kind=iwp), parameter :: blankdelim = .true. ! BLANKDELIM signifies whether blanks are used to delimit fields
 integer(kind=iwp), parameter :: nblank = 2

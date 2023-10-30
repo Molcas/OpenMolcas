@@ -18,8 +18,9 @@ use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nparm, nnegeig
-real(kind=wp) :: heigval(nparm), gradp(nparm), hh, alfa, alfastart, alftol
+integer(kind=iwp), intent(in) :: nparm, nnegeig
+real(kind=wp), intent(in) :: heigval(nparm), gradp(nparm), hh, alfastart, alftol
+real(kind=wp), intent(out) :: alfa
 integer(kind=iwp) :: i
 real(kind=wp) :: alfmax, alfmin, alfmx1, cnrm, cnrmax, cnrmin, olf, relfac
 

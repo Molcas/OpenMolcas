@@ -20,10 +20,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: line
-integer(kind=iwp) :: nblank
-character :: blanks(nblank)
-logical(kind=iwp) :: blankdelim
+character(len=*), intent(inout) :: line
+integer(kind=iwp), intent(in) :: nblank
+character, intent(in) :: blanks(nblank)
+logical(kind=iwp), intent(in) :: blankdelim
 integer(kind=iwp) :: iblank, ich, ich2, lenline
 integer(kind=iwp), allocatable :: lv(:)
 

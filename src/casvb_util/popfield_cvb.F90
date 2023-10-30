@@ -24,7 +24,7 @@ use casvb_global, only: ifield, nfield, nfold
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ifc
+integer(kind=iwp), intent(in) :: ifc
 integer(kind=iwp) :: initpop = 0
 
 if (initpop == 0) then

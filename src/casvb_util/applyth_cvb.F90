@@ -19,7 +19,8 @@ use casvb_global, only: gjorb, gjorb2, ndet, norb
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: civbh(0:ndet), orbs(norb,norb)
+real(kind=wp), intent(inout) :: civbh(0:ndet)
+real(kind=wp), intent(in) :: orbs(norb,norb)
 
 call makegjorbs_cvb(orbs)
 

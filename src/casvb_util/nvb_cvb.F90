@@ -19,7 +19,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nvb_cvb
-integer(kind=iwp) :: kbasis_loc
+integer(kind=iwp), intent(in) :: kbasis_loc
 integer(kind=iwp) :: ifrag, ndetvb2, nvb_loc, nvbr
 
 ndetvb = 0

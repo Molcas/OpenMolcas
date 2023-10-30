@@ -17,8 +17,9 @@ subroutine appendchr_cvb(c,string,iskip)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: c, string
-integer(kind=iwp) :: iskip
+character(len=*), intent(inout) :: c
+character(len=*), intent(in) :: string
+integer(kind=iwp), intent(in) :: iskip
 integer(kind=iwp) :: ibegin, iend
 
 ibegin = len_trim(c)+1+iskip

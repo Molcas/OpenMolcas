@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nel, nalffrom, ndetfrom, nalfto, ndetto, nvec
-real(kind=wp) :: bikfrom(ndetfrom,nvec), bikto(ndetto,nvec)
+integer(kind=iwp), intent(in) :: nel, nalffrom, ndetfrom, nalfto, ndetto, nvec
+real(kind=wp), intent(in) :: bikfrom(ndetfrom,nvec)
+real(kind=wp), intent(out) :: bikto(ndetto,nvec)
 integer(kind=iwp) :: iexc, indfrom, indto
 integer(kind=iwp), allocatable :: ioccfrom(:), ioccto(:), xdetto(:,:)
 integer(kind=iwp), external :: minind_cvb

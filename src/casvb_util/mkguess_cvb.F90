@@ -21,7 +21,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: idum(1), ii, ioffs, iorb, iorb_ao, norb_ao
+integer(kind=iwp) :: idum(1), ierr, ii, ioffs, iorb, iorb_ao, norb_ao
 real(kind=wp) :: c, cnrm, dum(1)
 integer(kind=iwp), allocatable :: irdorbs(:), itmp(:)
 real(kind=wp), allocatable :: orbsao(:,:), tmp(:), tmp2(:,:)
@@ -127,7 +127,8 @@ call mma_deallocate(tmp2)
 call mma_deallocate(orbsao)
 call mma_deallocate(irdorbs)
 
-call nize_cvb(orbs,norb,dum,norb,0,0)
+ierr = 0
+call nize_cvb(orbs,norb,dum,norb,0,ierr)
 
 if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
   dum = rand_cvb(0.777_wp)
@@ -150,10 +151,12 @@ if (abs(detm_cvb(orbs,norb)) < 1.0e-8_wp) then
   else
     if (ipr(1) >= 0) write(u6,'(a)') ' Starting orbital guess was near-singular - scrambling orbital coefficients.'
   end if
-  call nize_cvb(orbs,norb,dum,norb,0,0)
+  ierr = 0
+  call nize_cvb(orbs,norb,dum,norb,0,ierr)
 end if
 
-call nize_cvb(orbs,norb,dum,norb,0,0)
+ierr = 0
+call nize_cvb(orbs,norb,dum,norb,0,ierr)
 
 ! Perfect-pairing spin function(s):
 if (dnrm2_(nvb,cvb,1) < thresh) then

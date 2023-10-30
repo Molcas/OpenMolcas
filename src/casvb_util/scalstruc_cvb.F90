@@ -18,7 +18,8 @@ use casvb_global, only: iconfs, ifnss1, ifnss2, kbasis, norb, nvb
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: orbs(norb,norb), cvb(nvb)
+real(kind=wp), intent(in) :: orbs(norb,norb)
+real(kind=wp), intent(inout) :: cvb(nvb)
 
 if (kbasis == 6) then
   call scalstruc2_cvb(orbs,cvb,iconfs,ifnss2)

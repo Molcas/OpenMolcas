@@ -18,7 +18,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ifns_cvb
-integer(kind=iwp) :: nel1, nalf1, kbasis1
+integer(kind=iwp), intent(in) :: nel1, kbasis1
+integer(kind=iwp), intent(inout) :: nalf1
 integer(kind=iwp) :: ifn, iretval1, iretval2, nbet1, nsw
 
 nbet1 = nel1-nalf1

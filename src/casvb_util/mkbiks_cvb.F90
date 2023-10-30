@@ -18,7 +18,7 @@ use casvb_global, only: aikcof, bikcof, ikcoff, ipr, kbasiscvb, nel
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i2s1, ifns, nalf1, ndet, nel1
+integer(kind=iwp) :: i2s1, ibeg, iend, ifns, nalf1, ndet, nel1, ntmp
 logical(kind=iwp) :: share
 character(len=*), parameter :: basis(7) = ['Kotani    ','Serber    ','Rumer     ','Rumer (LT)','projected ','Determ    ', &
                                            'Determ    ']
@@ -34,11 +34,13 @@ share = associated(bikcof,aikcof)
 do nel1=0,nel
   do nalf1=0,nel
     do i2s1=0,nel
-      if (ikcoff(nel1,nalf1,i2s1) /= -1) then
-        ifns = ifns_cvb(nel1,(nel1+i2s1)/2,kbasiscvb)
+      ibeg = ikcoff(nel1,nalf1,i2s1)+1
+      if (ibeg /= 0) then
+        ntmp = (nel1+i2s1)/2
+        ifns = ifns_cvb(nel1,ntmp,kbasiscvb)
         call icomb_cvb(nel1,nalf1,ndet)
-        call bikset_cvb(aikcof(1+ikcoff(nel1,nalf1,i2s1)),bikcof(1+ikcoff(nel1,nalf1,i2s1)),nel1,nalf1,i2s1,ndet,ifns,kbasiscvb, &
-                        share,ipr(1))
+        iend = ibeg+ndet*ifns-1
+        call bikset_cvb(aikcof(ibeg:iend),bikcof(ibeg:iend),nel1,nalf1,i2s1,ndet,ifns,kbasiscvb,share,ipr(1))
       end if
     end do
   end do

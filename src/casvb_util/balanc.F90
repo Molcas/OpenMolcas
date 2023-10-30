@@ -74,8 +74,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n, low, igh
-real(kind=wp) :: a(nm,n), scl(n)
+integer(kind=iwp), intent(in) :: nm, n
+real(kind=wp), intent(inout) :: a(nm,n)
+integer(kind=iwp), intent(out) :: low, igh
+real(kind=wp), intent(out) :: scl(n)
 integer(kind=iwp) :: i, j, k, l, m
 real(kind=wp) :: b2, c, f, g, r, s
 logical(kind=iwp) :: first, noconv, skip

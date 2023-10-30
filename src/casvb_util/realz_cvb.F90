@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nmax, nread, ifc
-real(kind=wp) :: arr(nmax)
+integer(kind=iwp), intent(in) :: nmax, ifc
+real(kind=wp), intent(out) :: arr(nmax)
+integer(kind=iwp), intent(out) :: nread
 integer(kind=iwp), parameter :: nbuf = 100
 integer(kind=iwp) :: nleft, nread1
 real(kind=wp) :: tmp(nbuf)

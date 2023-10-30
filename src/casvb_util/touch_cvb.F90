@@ -18,7 +18,7 @@ use casvb_global, only: charobj, iprint, j_dep_on_i, joffs, mustdeclare, nobj, u
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: chr
+character(len=*), intent(in) :: chr
 integer(kind=iwp) :: i, iobj, n_touched
 
 do

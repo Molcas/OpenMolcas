@@ -17,8 +17,10 @@ subroutine rdrs_cvb(vec,n,file_id,ioffset)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, ioffset
-real(kind=wp) :: vec(n), file_id
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(out) :: vec(n)
+real(kind=wp), intent(in) :: file_id
+integer(kind=iwp), intent(inout) :: ioffset
 
 call rdlow_cvb(vec,n,file_id,ioffset)
 ioffset = ioffset+n

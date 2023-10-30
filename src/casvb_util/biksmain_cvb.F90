@@ -18,8 +18,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nel, nalf, ndet, ifns, kbasis, iprint
-real(kind=wp) :: aikcof(ndet,ifns), bikcof(ndet,ifns)
+integer(kind=iwp), intent(in) :: nel, nalf, ndet, ifns, kbasis, iprint
+real(kind=wp), intent(inout) :: aikcof(ndet,ifns)
+real(kind=wp), intent(out) :: bikcof(ndet,ifns)
 logical(kind=iwp) :: share
 integer(kind=iwp) :: nbet, nswpdim
 

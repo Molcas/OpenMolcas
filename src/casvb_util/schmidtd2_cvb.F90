@@ -17,8 +17,9 @@ subroutine schmidtd2_cvb(c1,sxc1,nvec1,c2,nvec2,n)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nvec1, nvec2, n
-real(kind=wp) :: c1(n,nvec1), sxc1(n,nvec1), c2(n,nvec2)
+integer(kind=iwp), intent(in) :: nvec1, nvec2, n
+real(kind=wp), intent(in) :: c1(n,nvec1), sxc1(n,nvec1)
+real(kind=wp), intent(inout) :: c2(n,nvec2)
 integer(kind=iwp) :: i, j
 real(kind=wp), external :: ddot_
 

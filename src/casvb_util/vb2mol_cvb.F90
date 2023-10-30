@@ -19,8 +19,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: vecvb(ndet), vecmol(*)
-integer(kind=iwp) :: isyml
+real(kind=wp), intent(inout) :: vecvb(ndet), vecmol(*)
+integer(kind=iwp), intent(in) :: isyml
 integer(kind=iwp) :: iwr, nsa, nsb
 
 iwr = 0

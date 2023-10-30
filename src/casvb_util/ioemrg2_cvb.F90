@@ -16,9 +16,12 @@ function ioemrg2_cvb(ia1,na1,ia2,na2,ia12)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp) :: ioemrg2_cvb
-integer(kind=iwp) :: na1, ia1(na1), na2, ia2(na2), ia12(*)
+integer(kind=iwp), intent(in) :: na1, ia1(na1), na2, ia2(na2)
+integer(kind=iwp), intent(_OUT_) :: ia12(*)
 integer(kind=iwp) :: ioe, n1, n12, n2
 
 n1 = 1

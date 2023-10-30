@@ -18,9 +18,12 @@ use casvb_global, only: civb1, civb2, civb3, civb4, civb5, norb, nvb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: orbs(norb,norb), cvb(nvb), fx
-integer(kind=iwp) :: ioptc, iter
+real(kind=wp), intent(_IN_) :: orbs(norb,norb), cvb(nvb)
+real(kind=wp), intent(out) :: fx
+integer(kind=iwp), intent(out) :: ioptc, iter
 integer(kind=iwp) :: idum
 real(kind=wp) :: dx_amx, dxnrm
 real(kind=wp), allocatable :: tmp(:)

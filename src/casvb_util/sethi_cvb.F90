@@ -17,7 +17,7 @@ subroutine sethi_cvb(iarr,n)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, iarr(n)
+integer(kind=iwp), intent(in) :: n, iarr(n)
 
 call seth_cvb([n],1)
 call seth_cvb(iarr,n)

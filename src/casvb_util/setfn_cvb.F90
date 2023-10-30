@@ -18,8 +18,8 @@ use casvb_global, only: fileids, filename, ifilio, max_rec, nrec
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: fileid
-character(len=*) :: fn
+real(kind=wp), intent(out) :: fileid
+character(len=*), intent(in) :: fn
 real(kind=wp) :: fileid_try
 integer(kind=iwp) :: i, itry, lenfn
 logical(kind=iwp), parameter :: debug = .false.

@@ -61,8 +61,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n
-real(kind=wp) :: a(nm,n), d(n), e(n), e2(n)
+integer(kind=iwp), intent(in) :: nm, n
+real(kind=wp), intent(inout) :: a(nm,n)
+real(kind=wp), intent(out) :: d(n), e(n), e2(n)
 integer(kind=iwp) :: i, ii, j, jp1, k, l
 real(kind=wp) :: f, g, h, scl
 

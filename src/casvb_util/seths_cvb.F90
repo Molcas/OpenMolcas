@@ -17,12 +17,12 @@ subroutine seths_cvb(arr,n)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n
-character(len=*) :: arr(n)
+integer(kind=iwp), intent(in) :: n
+character(len=*), intent(in) :: arr(n)
 integer(kind=iwp) :: i, j, lenarr
 
 call seth_cvb([n],1)
-lenarr = len(arr(1))
+lenarr = len(arr)
 do i=1,n
   do j=1,lenarr
     call seth_cvb([ichar(arr(i)(j:j))],1)

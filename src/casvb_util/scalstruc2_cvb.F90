@@ -19,8 +19,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: orbs(norb,norb), cvb(nvb)
-integer(kind=iwp) :: iconfs(noe,nconf), ifnss(0:nel,0:nel)
+real(kind=wp), intent(in) :: orbs(norb,norb)
+real(kind=wp), intent(inout) :: cvb(nvb)
+integer(kind=iwp), intent(in) :: iconfs(noe,nconf), ifnss(0:nel,0:nel)
 integer(kind=iwp) :: i, iconf_off, ifrag, ion, iorb, iS, istr, nelsing, nss
 real(kind=wp) :: fac, fac1, fac2
 real(kind=wp), external :: ddot_

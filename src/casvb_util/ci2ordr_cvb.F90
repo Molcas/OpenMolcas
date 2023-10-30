@@ -18,8 +18,11 @@ use casvb_global, only: ndet, ndetvb, nfrag, vbdet
 use Constants, only: Zero
 use Definitions, only: wp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: civec(0:ndet), cvbdet(ndetvb), evbdet(*)
+real(kind=wp), intent(_IN_) :: civec(0:ndet), cvbdet(ndetvb)
+real(kind=wp), intent(_OUT_) :: evbdet(*)
 real(kind=wp) :: dum
 
 if (nfrag <= 1) then

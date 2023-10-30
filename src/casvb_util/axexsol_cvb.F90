@@ -78,9 +78,9 @@ else if (ifollow == 4) then
   jroot = iroot
 end if
 eig = eigval(iroot)
-solp(1:itdav) = eigvec(:,iroot)
+solp(:) = eigvec(:,iroot)
 eig_res = eigval(jroot)
-solp_res(1:itdav) = eigvec(:,jroot)
+solp_res(:) = eigvec(:,jroot)
 if (ipdd >= 2) then
   write(u6,'(a)') ' Eigenvalues :'
   eigval(1:itdav) = eigval(1:itdav)+corenrg

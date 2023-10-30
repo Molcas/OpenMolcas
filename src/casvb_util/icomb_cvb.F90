@@ -18,11 +18,10 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i1, i2, icomb_cvbval
+integer(kind=iwp), intent(in) :: i1, i2
+integer(kind=iwp), intent(out) :: icomb_cvbval
 integer(kind=iwp) :: i3, j
 real(kind=wp) :: comb
-
-icomb_cvbval = 0
 
 ! Special cases - return ICOMB_CVB=0:
 if ((i1 < 0) .or. (i2 < 0) .or. (i1 < i2)) then

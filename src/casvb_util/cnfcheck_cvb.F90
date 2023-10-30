@@ -28,7 +28,8 @@ use casvb_global, only: noe
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
+integer(kind=iwp), intent(inout) :: nconf1, iconfs(noe,nconf1)
+integer(kind=iwp), intent(in) :: nel1
 
 call cnfcheck2_cvb(iconfs,nconf1,nel1)
 call cnfsort_cvb(iconfs,nconf1,nel1)

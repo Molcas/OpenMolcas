@@ -17,7 +17,9 @@ subroutine loind_cvb(nel,n,nk,nkmin,nkmax,locc,lunocc,indx,ix,rc)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nel, n, nk(0:nel), nkmin(0:nel), nkmax(0:nel), locc(n), lunocc(nel-n), indx, ix(0:nel,0:n), rc
+integer(kind=iwp), intent(in) :: nel, n, nkmin(0:nel), nkmax(0:nel), ix(0:nel,0:n)
+integer(kind=iwp), intent(inout) :: nk(0:nel)
+integer(kind=iwp), intent(out) :: locc(n), lunocc(nel-n), indx, rc
 integer(kind=iwp) :: iel, ik
 integer(kind=iwp), external :: minind_cvb
 

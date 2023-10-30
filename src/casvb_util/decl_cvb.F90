@@ -18,7 +18,7 @@ use casvb_global, only: charobj, ioffs, iprint, joffs, mxobj, nobj, up2date
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: chr
+character(len=*), intent(in) :: chr
 integer(kind=iwp) :: i, ii, iobj
 
 iobj = 0

@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: tstfile_cvb
-real(kind=wp) :: fileid
+real(kind=wp), intent(in) :: fileid
 integer(kind=iwp) :: ibf
 logical(kind=iwp) :: ex
 

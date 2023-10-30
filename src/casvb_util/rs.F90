@@ -57,8 +57,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n, matz, ierr
-real(kind=wp) :: a(nm,n), w(n), z(nm,n)
+integer(kind=iwp), intent(in) :: nm, n, matz
+real(kind=wp), intent(inout) :: a(nm,n)
+real(kind=wp), intent(out) :: w(n), z(nm,n)
+integer(kind=iwp), intent(out) :: ierr
 real(kind=wp), allocatable :: fv1(:), fv2(:)
 
 if (n > nm) then

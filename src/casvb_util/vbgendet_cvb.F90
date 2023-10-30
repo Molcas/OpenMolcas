@@ -18,8 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndetvb, iapr(ndetvb), nda, ixapr(nda+1), ibpr(ndetvb), ndb, ixbpr(ndb+1), nconf, noe, iconfs(noe,nconf), &
-                     idetvb(ndetvb), nel, nconfion(0:nel), nalf, nbet, norb
+integer(kind=iwp), intent(in) :: nconf, noe, iconfs(noe,nconf), nel, nconfion(0:nel), nda, ndb, ndetvb, nalf, nbet, norb
+integer(kind=iwp), intent(out) :: iapr(ndetvb), ixapr(nda+1), ibpr(ndetvb), ixbpr(ndb+1), idetvb(ndetvb)
 integer(kind=iwp) :: i, j
 integer(kind=iwp), allocatable :: idetavb(:), idetbvb(:), iwrk1(:), iwrk2(:)
 logical(kind=iwp), parameter :: debug = .false.

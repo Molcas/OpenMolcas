@@ -18,7 +18,8 @@ use casvb_global, only: cvb, iorts, norb, nort, npr, nprorb, nvb, orbopt, orbs, 
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: dx(*), orbs1(norb,norb), cvb1(nvb)
+real(kind=wp), intent(in) :: dx(*)
+real(kind=wp), intent(out) :: orbs1(norb,norb), cvb1(nvb)
 integer(kind=iwp) :: ic
 
 if (orbopt) call touch_cvb('ORBSTRY')

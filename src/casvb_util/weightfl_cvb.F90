@@ -17,7 +17,8 @@ subroutine weightfl_cvb(ix,n,nel)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, nel, ix(0:nel,0:n)
+integer(kind=iwp), intent(in) :: n, nel
+integer(kind=iwp), intent(out) :: ix(0:nel,0:n)
 integer(kind=iwp) :: iel, ik
 
 ix(:,:) = 0

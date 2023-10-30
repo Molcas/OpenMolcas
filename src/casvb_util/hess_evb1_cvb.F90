@@ -19,11 +19,15 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
+real(kind=wp), intent(in) :: orbs(norb,norb), civb(0:ndet), grad1(npr), grad2(npr), hessorb(nprorb,nprorb)
+real(kind=wp), intent(inout) :: civbh(0:ndet), citmp(0:ndet), dvbdet(ndetvb), hessinp(npr)
+real(kind=wp), intent(out) :: sorbs(norb,norb), owrk(norb,norb), hessout(npr)
 ! VEC1 dimension is MAX(NPRORB,NDETVB)
-real(kind=wp) :: orbs(norb,norb), civbh(0:ndet), citmp(0:ndet), civb(0:ndet), sorbs(norb,norb), owrk(norb,norb), dvbdet(ndetvb), &
-                 grad1(npr), grad2(npr), hessorb(nprorb,nprorb), vec1(*), hessinp(npr), hessout(npr)
-integer(kind=iwp) :: iorts(2,nort)
+real(kind=wp), intent(_OUT_) :: vec1(*)
+integer(kind=iwp), intent(in) :: iorts(2,nort)
 integer(kind=iwp) :: iorb, iort, jorb, ki, kj, korb, lj, lorb
 real(kind=wp) :: corr1, fac1, fac2, g1f, g2f, hess_ci_nrm, hess_orb_nrm
 logical(kind=iwp) :: orbopt2, strucopt2
@@ -41,7 +45,7 @@ strucopt2 = strucopt .and. (hess_ci_nrm > 1.0e-10_wp)
 if (orbopt2 .and. (.not. strucopt2)) n_orbhess = n_orbhess+1
 if (strucopt2 .and. (.not. orbopt2)) n_cihess = n_cihess+1
 
-call transp_cvb(orbs,owrk,norb,norb)
+call trnsps(norb,norb,orbs,owrk)
 call mxattb_cvb(orbs,orbs,norb,norb,norb,sorbs)
 
 hessout(:) = Zero
@@ -55,22 +59,22 @@ fac2 = g1f*f3
 hessout(:) = hessout(:)+fac1*grad1(:)+fac2*grad2(:)
 
 if (orbopt2 .and. strucopt) then
-  call mxunfold_cvb(hessinp(1),owrk,norb)
-  call transp_cvb(owrk,owrk,norb,norb)
+  call mxunfold_cvb(hessinp,owrk,norb)
+  call dgetmi(owrk,norb,norb)
   call cizero_cvb(citmp)
   call oneexc_cvb(civbh,citmp,owrk,.true.,2)
   call mkgrd_cvb(civb,citmp,vec1,dvbdet,npr,.false.)
   hessout(nprorb+1:nprorb+nprvb) = hessout(nprorb+1:nprorb+nprvb)+f1*vec1(nprorb+1:nprorb+nprvb)
 end if
 if (strucopt2) then
-  call str2vbc_cvb(hessinp(1+nprorb),dvbdet)
+  call str2vbc_cvb(hessinp(1+nprorb:),dvbdet)
   call vb2cif_cvb(dvbdet,citmp)
   call mkgrd_cvb(citmp,civbh,vec1,dvbdet,nprorb,.true.)
   hessout(1:nprorb) = hessout(1:nprorb)+f1*vec1(1:nprorb)
   call oneexc_cvb(civb,citmp,hessinp,.false.,1)
   ! 2nd-order term for structure coefficients
   if (nfrag > 1) then
-    call str2vbc_cvb(hessinp(1+nprorb),dvbdet)
+    call str2vbc_cvb(hessinp(1+nprorb:),dvbdet)
     call mma_allocate(cvbdet,ndetvb,label='cvbdet')
     call mma_allocate(cvb,nvb,label='cvb')
     call ci2ordr_cvb(civbh,dvbdet,cvbdet)

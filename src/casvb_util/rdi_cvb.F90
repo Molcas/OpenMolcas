@@ -18,8 +18,9 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp, RtoI
 
 implicit none
-integer(kind=iwp) :: n, ivec(n), ioffset
-real(kind=wp) :: file_id
+integer(kind=iwp), intent(in) :: n, ioffset
+integer(kind=iwp), intent(out) :: ivec(n)
+real(kind=wp), intent(in) :: file_id
 integer(kind=iwp) :: ibuf(8), nreals, nrem
 
 nreals = n/RtoI
@@ -31,13 +32,15 @@ return
 ! This is to allow type punning without an explicit interface
 contains
 
+#include "intent.fh"
+
 subroutine rdi_cvb_internal(ivec,ibuf)
-  integer(kind=iwp), target :: ivec(*), ibuf(*)
+  integer(kind=iwp), target, intent(_OUT_) :: ivec(*), ibuf(*)
   integer(kind=iwp) :: ioff
   real(kind=wp), pointer :: buf(:), vec(:)
   call c_f_pointer(c_loc(ivec(1)),vec,[nreals])
   call rdlow_cvb(vec,nreals,file_id,ioffset)
-  nullify(buf)
+  nullify(vec)
   if (nrem > 0) then
     call c_f_pointer(c_loc(ibuf(1)),buf,[1])
     call rdlow_cvb(buf,1,file_id,nreals+ioffset)

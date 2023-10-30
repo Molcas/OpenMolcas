@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: party_cvb
-integer(kind=iwp) :: n, iperm(n)
+integer(kind=iwp), intent(in) :: n, iperm(n)
 integer(kind=iwp) :: i, iswp, j, ntransp
 integer(kind=iwp), allocatable :: tmp(:)
 logical(kind=iwp) :: done

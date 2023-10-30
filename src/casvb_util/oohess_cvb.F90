@@ -20,8 +20,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: orbs(norb,norb), civecp(0:ndet), civbs(0:ndet), civb(0:ndet), orbinv(norb,norb), sorbs(norb,norb), &
-                 owrk(norb,norb), grad2(npr), gradx(norb,norb), hessorb(nprorb,nprorb), hesst(norb*norb,norb*norb)
+real(kind=wp), intent(in) :: orbs(norb,norb), civb(0:ndet), grad2(npr), gradx(norb,norb)
+real(kind=wp), intent(inout) :: civecp(0:ndet), civbs(0:ndet)
+real(kind=wp), intent(out) :: orbinv(norb,norb), sorbs(norb,norb), owrk(norb,norb), hessorb(nprorb,nprorb), &
+                              hesst(norb*norb,norb*norb)
 integer(kind=iwp) :: ifr1, ifr2, iorb, iprm, iprm1, iprm2, jorb, korb, lorb
 real(kind=wp) :: aa1_use, oaa2_use
 

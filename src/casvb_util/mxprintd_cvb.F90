@@ -19,10 +19,10 @@ use casvb_global, only: formMXP1, formMXP2, formMXP3, formMXP4, iprec, iwidth
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: a(*)
-integer(kind=iwp) :: nrow, ncol, itype
+real(kind=wp), intent(in) :: a(*)
+integer(kind=iwp), intent(in) :: nrow, ncol, itype
 integer(kind=iwp), parameter :: mxbuf = 8
-integer(kind=iwp) :: i, ibuf(mxbuf), iform, ii, ind, j, jend, jin, k, nbuf
+integer(kind=iwp) :: i, ibuf(mxbuf), iform, ind, j, jend, jin, k, nbuf
 real(kind=wp) :: buffer(mxbuf)
 
 nbuf = min((iwidth-4)/(iprec+8),mxbuf)
@@ -40,9 +40,9 @@ do
     ibuf(k) = j
   end do
   if (iform == 0) then
-    write(u6,formMXP1) (ibuf(i),i=1,jend-jin+1)
+    write(u6,formMXP1) ibuf(1:jend-jin+1)
   else
-    write(u6,formMXP2) (ibuf(i),i=1,jend-jin+1)
+    write(u6,formMXP2) ibuf(1:jend-jin+1)
   end if
   do i=1,nrow
     k = 0
@@ -58,9 +58,9 @@ do
       buffer(k) = a(ind)
     end do
     if (iform == 0) then
-      write(u6,formMXP3) i,(buffer(ii),ii=1,jend-jin+1)
+      write(u6,formMXP3) i,buffer(1:jend-jin+1)
     else
-      write(u6,formMXP4) i,(buffer(ii),ii=1,jend-jin+1)
+      write(u6,formMXP4) i,buffer(1:jend-jin+1)
     end if
   end do
   jin = jend+1

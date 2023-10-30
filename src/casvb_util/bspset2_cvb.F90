@@ -18,7 +18,9 @@ use casvb_global, only: i2s_fr, mnion_fr, mxion_fr, nalf_fr, nel_fr, nfrag, nMs_
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nel, kbasis, need, ikcoff(0:nel,0:nel,0:nel)
+integer(kind=iwp), intent(in) :: nel, kbasis
+integer(kind=iwp), intent(inout) :: ikcoff(0:nel,0:nel,0:nel)
+integer(kind=iwp), intent(out) :: need
 integer(kind=iwp) :: i2s1, ifrag, iMs, ion, iS, nalf1, nalf1_spin, nalfsing, ndet, nel1, nelsing
 integer(kind=iwp), external :: ifns_cvb
 

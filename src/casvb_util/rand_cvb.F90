@@ -108,7 +108,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: rand_cvb
-real(kind=wp) :: r
+real(kind=wp), intent(in) :: r
 integer(kind=iwp) :: ix0 = 0, ix1 = 0, iy0, iy1
 real(kind=wp) :: rand
 integer(kind=iwp), parameter :: ia0 = 1029, ia1 = 1536, ia1ma0 = ia1-ia0, ic = 1731, sc = 2048

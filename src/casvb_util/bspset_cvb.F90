@@ -19,7 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: kbasis1, ic, need
+integer(kind=iwp), intent(in) :: kbasis1, ic
+integer(kind=iwp), intent(out) :: need
 integer(kind=iwp), allocatable :: kcoff(:,:,:)
 
 if (ic == 1) then

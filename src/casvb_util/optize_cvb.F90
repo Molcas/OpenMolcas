@@ -36,17 +36,18 @@ subroutine optize_cvb(fx,ioptc,iter,imethod,isadinp,mxiter,maxinp,ipinp,ipdd1,ip
 !*                                                                     *
 !***********************************************************************
 
-use casvb_global, only: corenrg, eigval, eigvec, expct, fxbest, hh, hhkeep, hhstart, ip, ipp12e, ipp12s, isaddleo, iter12e, &
-                        iter12s, maxize, odx, odxp, ograd, ogradp, owrk
+use casvb_global, only: corenrg, eigval, eigvec, expct, fxbest, hh, hhkeep, hhstart, ip, ipp10, ipp12e, ipp12s, ipp7, isaddleo, &
+                        iter10, iter12e, iter12s, iter7, maxize, odx, odxp, ograd, ogradp, owrk
 use casvb_interfaces, only: opta_sub, optb_sub
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: fx
-integer(kind=iwp) :: ioptc, iter, imethod, isadinp, mxiter, ipinp, ipdd1, ipdd2
-logical(kind=iwp) :: maxinp, strucopt
+real(kind=wp), intent(out) :: fx
+integer(kind=iwp), intent(out) :: ioptc, iter
+integer(kind=iwp), intent(in) :: imethod, isadinp, mxiter, ipinp, ipdd1, ipdd2
+logical(kind=iwp), intent(in) :: maxinp, strucopt
 integer(kind=iwp) :: ifollow, maxd, mxit, n_div, nfrdim, nfrdim_dav, nparm, nparm_dav
 logical(kind=iwp) :: done, iter_is_1
 procedure(opta_sub) :: dum_a_cvb, o10a_cvb, o123a_cvb, o12ea_cvb, o12sa_cvb, o7a_cvb
@@ -113,7 +114,9 @@ do iter=1,mxiter
     maxd = min(nparm+1,200)
     mxit = 500
     call ddinit_cvb('AxEx',nparm+1,nfrdim+1,maxd,mxit,ifollow,isaddleo,ipdd1,Zero,n_div)
-    call asonC7init_cvb(ipdd2)
+    iter7 = 0
+    ipp7 = ipdd2
+    call orthcvb_init_cvb()
     call optize2_cvb(fx,nparm,ioptc,iter_is_1,o7a_cvb,o7b_cvb)
     call ddclean_cvb()
   else if (imethod == 8) then
@@ -130,7 +133,9 @@ do iter=1,mxiter
     maxd = min(nparm,200)
     mxit = 500
     call ddinit_cvb('AxExb',nparm,nfrdim,maxd,mxit,ifollow,isaddleo,ipdd1,Zero,n_div)
-    call asonc10init_cvb(ipdd2)
+    iter10 = 0
+    ipp10 = ipdd2
+    call orthcvb_init_cvb()
     call optize2_cvb(fx,nparm,ioptc,iter_is_1,o10a_cvb,o10b_cvb)
     call ddclean_cvb()
   else if ((imethod == 12) .and. maxize) then

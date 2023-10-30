@@ -18,7 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: norb, nel, locc(*), lunocc(*)
+integer(kind=iwp), intent(in) :: norb, nel
+integer(kind=iwp), intent(inout) :: locc(*), lunocc(*)
 integer(kind=iwp) :: i_locc, i_lunocc, indx, iorb, rc
 integer(kind=iwp), allocatable :: nk(:), nkmax(:), nkmin(:)
 

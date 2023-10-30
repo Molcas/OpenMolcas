@@ -21,7 +21,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: tim_cvb
-real(kind=wp) :: cpu0
+real(kind=wp), intent(in) :: cpu0
 real(kind=wp) :: cpu, cpusince, wall, wallsince
 
 call timing(cpu,cpusince,wall,wallsince)

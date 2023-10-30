@@ -20,9 +20,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: civb(0:ndet), civb2(0:ndet), grad(npr), dvbdet(ndetvb)
-integer(kind=iwp) :: np
-logical(kind=iwp) :: doorb
+real(kind=wp), intent(in) :: civb(0:ndet)
+real(kind=wp), intent(inout) :: civb2(0:ndet)
+real(kind=wp), intent(out) :: grad(npr), dvbdet(ndetvb)
+integer(kind=iwp), intent(in) :: np
+logical(kind=iwp), intent(in) :: doorb
 real(kind=wp), allocatable :: tmp(:)
 
 grad(1:nprorb) = Zero

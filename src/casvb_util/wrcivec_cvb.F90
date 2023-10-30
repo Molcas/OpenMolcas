@@ -18,9 +18,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: detvec(*)
-character(len=*) :: fn
-logical(kind=iwp) :: reord
+real(kind=wp), intent(inout) :: detvec(*)
+character(len=*), intent(in) :: fn
+logical(kind=iwp), intent(in) :: reord
 #include "rasdim.fh"
 #include "jobiph_j.fh"
 integer(kind=iwp) :: i, iDisk, iwr, j, k, lujob, ncix(8), ndet_j

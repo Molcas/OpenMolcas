@@ -19,7 +19,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: cvb(nvb)
+real(kind=wp), intent(inout) :: cvb(nvb)
 integer(kind=iwp) :: ifrag, nvbadd
 real(kind=wp) :: f
 real(kind=wp), external :: dnrm2_

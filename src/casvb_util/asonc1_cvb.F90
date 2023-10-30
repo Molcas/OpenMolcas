@@ -29,11 +29,11 @@ integer(kind=iwp) :: ivec
 unused_var(axc)
 
 do ivec=1,nvec
-  call str2vbc_cvb(c(1,ivec),cvbdet)
+  call str2vbc_cvb(c(:,ivec),cvbdet)
   call vb2cif_cvb(cvbdet,civb2)
   call applyts_cvb(civb2,orbs)
   call ci2vbg_cvb(civb2,cvbdet)
-  call vb2strg_cvb(cvbdet,sxc(1,ivec))
+  call vb2strg_cvb(cvbdet,sxc(:,ivec))
 end do
 
 return

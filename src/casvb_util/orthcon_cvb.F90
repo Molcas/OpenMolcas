@@ -19,8 +19,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: mxpair, mxortl
+integer(kind=iwp), intent(out) :: ipairs(2,mxpair)
 integer(kind=iwp), parameter :: ncmp = 4, nstrin = 7, mxgroup = 40
-integer(kind=iwp) :: mxpair, ipairs(2,mxpair), mxortl
 integer(kind=iwp) :: i, igrp, io, ior1, ior2, ipar, isp, istr, j, jo, jor1, jor2, jsp, ngrp, npairs, nread, nsp
 character(len=3) :: glabel(mxgroup)
 integer(kind=iwp), allocatable :: igroups(:,:), iorthlst(:), ipair(:,:), ngroup(:)

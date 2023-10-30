@@ -37,7 +37,7 @@ use casvb_global, only: iapr, icnt_ci, iform_ci, ixapr, ndet, ndetvb, nfrag, vbd
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvbdet(ndetvb), civec(0:ndet)
+real(kind=wp), intent(inout) :: cvbdet(ndetvb), civec(0:ndet)
 integer(kind=iwp) :: icivec
 real(kind=wp) :: dum
 

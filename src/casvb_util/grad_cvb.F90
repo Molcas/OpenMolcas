@@ -18,8 +18,10 @@ use casvb_global, only: civb2, civb3, civb4, civb6, civb7, civb8, dvbdet, dxmove
                         ovraa_try, ovrab, ovrab_try, vec1, ww, ww_try
 use Definitions, only: wp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: grad(*)
+real(kind=wp), intent(_OUT_) :: grad(*)
 
 call touch_cvb('OOHESS')
 if (dxmove .and. memplenty) then

@@ -20,9 +20,10 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: fx1
-integer(kind=iwp) :: nparm, ioptc
-integer(kind=iwp) :: iparm, it
+real(kind=wp), intent(in) :: fx1
+integer(kind=iwp), intent(in) :: nparm
+integer(kind=iwp), intent(out) :: ioptc
+integer(kind=iwp) :: ierr, iparm, it
 real(kind=wp) :: cn, dum(1), e1, e2, fx
 real(kind=wp), allocatable :: dx(:), grad(:), hessdx(:)
 real(kind=wp), parameter :: tenth = 0.1_wp
@@ -38,7 +39,8 @@ dum(1) = rand_cvb(0.777_wp)
 do iparm=1,nparm
   dx(iparm) = rand_cvb(Zero)-Half
 end do
-call nize_cvb(dx,1,dum,nparm,0,0)
+ierr = 0
+call nize_cvb(dx,1,dum,nparm,0,ierr)
 hessdx(:) = dx(:)
 call hess_cvb(hessdx)
 

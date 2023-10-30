@@ -19,9 +19,9 @@ use casvb_global, only: formMXP5, formMXP6, iprec, iwidth
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: a(n)
-integer(kind=iwp) :: i, ibegin, iend, iform, nbuf
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: a(n)
+integer(kind=iwp) :: ibegin, iend, iform, nbuf
 integer(kind=iwp), parameter :: mxbuf = 8
 
 nbuf = min((iwidth-4)/(iprec+4),mxbuf)
@@ -30,9 +30,9 @@ iform = 0
 do ibegin=1,n,nbuf
   iend = min(ibegin+nbuf-1,n)
   if (iform == 0) then
-    write(u6,formMXP5) (a(i),i=ibegin,iend)
+    write(u6,formMXP5) a(ibegin:iend)
   else
-    write(u6,formMXP6) (a(i),i=ibegin,iend)
+    write(u6,formMXP6) a(ibegin:iend)
   end if
 end do
 

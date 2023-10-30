@@ -19,9 +19,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nprm
-real(kind=wp) :: civb(0:ndet), civbs(0:ndet), cvbdet(ndetvb), cvb(nvb)
+integer(kind=iwp), intent(in) :: nprm
+real(kind=wp), intent(inout) :: civb(0:ndet), civbs(0:ndet)
+real(kind=wp), intent(out) :: cvbdet(ndetvb)
+real(kind=wp), intent(_IN_) :: cvb(nvb)
 integer(kind=iwp) :: ic1
 real(kind=wp) :: cnrm, dum(1), ret
 real(kind=wp), allocatable :: c(:), sxc(:), vec_all(:)

@@ -77,8 +77,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n, ierr
-real(kind=wp) :: d(n), e(n), z(nm,n)
+integer(kind=iwp), intent(in) :: nm, n
+real(kind=wp), intent(inout) :: d(n), e(n), z(nm,n)
+integer(kind=iwp), intent(out) :: ierr
 integer(kind=iwp) :: i, ii, j, k, l, l1, l2, m, mml
 real(kind=wp) :: c, c2, c3, dl1, el1, f, g, h, p, r, s, s2, tst1, tst2
 real(kind=wp), external :: pythag

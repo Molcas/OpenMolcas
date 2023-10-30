@@ -19,9 +19,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nsyme, izeta(*), mxirrep, mxorb, mxsyme, ityp(mxorb)
-real(kind=wp) :: rsymelm(mxorb,mxorb,nsyme)
-character(len=3) :: tags(mxsyme)
+integer(kind=iwp), intent(in) :: nsyme, mxirrep, mxorb, mxsyme, ityp(mxorb)
+real(kind=wp), intent(inout) :: rsymelm(mxorb,mxorb,nsyme)
+character(len=3), intent(inout) :: tags(mxsyme)
+integer(kind=iwp), intent(inout) :: izeta(*)
 integer(kind=iwp) :: i, i_dim, iaux(1), io, iorb, irrep, isgn, istr2, jor, jorb, nread
 real(kind=wp) :: daux(1)
 integer(kind=iwp), allocatable :: tmp(:)

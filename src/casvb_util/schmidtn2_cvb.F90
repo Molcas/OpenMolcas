@@ -18,8 +18,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nvec, n, metr
-real(kind=wp) :: c(n,nvec), sxc(n,nvec), sao(*)
+integer(kind=iwp), intent(in) :: nvec, n, metr
+real(kind=wp), intent(inout) :: c(n,nvec), sxc(n,nvec)
+real(kind=wp), intent(in) :: sao(*)
 integer(kind=iwp) :: i, j
 real(kind=wp) :: cnrm, fac
 real(kind=wp), parameter :: thresh = 1.0e-20_wp

@@ -18,8 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nvec, nel, nalf, nbet, ndet
-real(kind=wp) :: detvec(ndet,nvec)
+integer(kind=iwp), intent(in) :: nvec, nel, nalf, nbet, ndet
+real(kind=wp), intent(inout) :: detvec(ndet,nvec)
 integer(kind=iwp) :: inddet, iorb, rc
 integer(kind=iwp), allocatable :: locc(:), maxdet(:), mindet(:), nkdet(:), xdet(:,:)
 real(kind=wp), external :: party_cvb

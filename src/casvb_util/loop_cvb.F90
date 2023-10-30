@@ -17,7 +17,9 @@ subroutine loop_cvb(nel,nk,nkmin,nkmax,rc)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nel, nk(0:nel), nkmin(0:nel), nkmax(0:nel), rc
+integer(kind=iwp), intent(in) :: nel, nkmin(0:nel), nkmax(0:nel)
+integer(kind=iwp), intent(inout) :: nk(0:nel)
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: iel, ik
 
 rc = 0

@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: recinpcmp_cvb
-integer(kind=iwp) :: ifield
+integer(kind=iwp), intent(in) :: ifield
 integer(kind=iwp) :: i, ioff1, ioff2, joff1, joff2
 logical(kind=iwp) :: done
 real(kind=wp), allocatable :: tmp1(:), tmp2(:)

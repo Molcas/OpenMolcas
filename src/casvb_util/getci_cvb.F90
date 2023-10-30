@@ -21,7 +21,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: civec(0:ndet)
+real(kind=wp), intent(inout) :: civec(0:ndet)
 integer(kind=iwp) :: ibf, icivec, istate, istsym_d, isyml, iwr, nci, ncix(mxirrep)
 real(kind=wp) :: cnrm, fac
 real(kind=wp), allocatable :: cim(:)

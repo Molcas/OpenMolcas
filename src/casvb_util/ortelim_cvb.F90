@@ -20,8 +20,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iorts(2,nort), irots(2,ndrot), nc, npr1, norbprm, nrem
-real(kind=wp) :: trprm(npr1,npr1), sorbs(norb,norb)
+integer(kind=iwp), intent(in) :: iorts(2,nort), irots(2,ndrot), nc, npr1, norbprm
+real(kind=wp), intent(inout) :: trprm(npr1,npr1)
+real(kind=wp), intent(in) :: sorbs(norb,norb)
+integer(kind=iwp), intent(out) :: nrem
 integer(kind=iwp) :: iorb, iort, irot, jorb, ki, kj, korb
 real(kind=wp) :: dum(1)
 real(kind=wp), allocatable :: tmp(:,:)

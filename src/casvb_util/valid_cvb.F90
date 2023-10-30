@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: valid_cvb
-real(kind=wp) :: fileid
+real(kind=wp), intent(in) :: fileid
 
 valid_cvb = (fileid >= 1.0e-2_wp)
 

@@ -23,8 +23,8 @@ use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvb, cv
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: fx
-logical(kind=iwp) :: fast
+real(kind=wp), intent(out) :: fx
+logical(kind=iwp), intent(in) :: fast
 
 dxmove = .true.
 if (.not. memplenty) then

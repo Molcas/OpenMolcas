@@ -18,8 +18,9 @@ use casvb_global, only: civb1, civb2, civb3, civb4, civb6, civb7, civb8, cvbdet,
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: fx, dx(*)
-logical(kind=iwp) :: fast
+real(kind=wp), intent(out) :: fx
+logical(kind=iwp), intent(in) :: fast
+real(kind=wp), intent(in) :: dx(*)
 
 dxmove = .false.
 call upd_cvb(dx,orbstry,cvbtry)

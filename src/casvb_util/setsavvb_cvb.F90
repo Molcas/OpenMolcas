@@ -18,7 +18,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: recn
+real(kind=wp), intent(inout) :: recn
 integer(kind=iwp) :: iadd
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
 real(kind=wp), parameter :: recdef = 3200.2_wp

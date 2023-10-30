@@ -17,8 +17,8 @@ subroutine asc2ab_cvb(detvec,nvec,nel,nalf)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: detvec(*)
-integer(kind=iwp) :: nvec, nel, nalf
+real(kind=wp), intent(inout) :: detvec(*)
+integer(kind=iwp), intent(in) :: nvec, nel, nalf
 integer(kind=iwp) :: nbet, ndet
 
 call icomb_cvb(nel,nalf,ndet)

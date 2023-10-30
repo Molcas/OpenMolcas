@@ -18,7 +18,7 @@ use casvb_global, only: file_id, ibuf, izbuffer, lbuf, nbuf, nword
 use Definitions, only: wp, iwp, RtoI
 
 implicit none
-real(kind=wp) :: file_id1
+real(kind=wp), intent(in) :: file_id1
 real(kind=wp) :: dnbuf(1)
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
 

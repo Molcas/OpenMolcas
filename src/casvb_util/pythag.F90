@@ -20,7 +20,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: PYTHAG
-real(kind=wp) :: A, B
+real(kind=wp), intent(in) :: A, B
 real(kind=wp) :: P, R, S, T, U
 
 P = max(abs(A),abs(B))

@@ -47,14 +47,6 @@ abstract interface
 #   include "ddres2upd_interface.fh"
   end subroutine ddres2upd_sub
 
-  subroutine ddrestart_sub( &
-#                          define _CALLING_
-#                          include "ddrestart_interface.fh"
-                          )
-    use Definitions, only: wp, iwp
-#   include "ddrestart_interface.fh"
-  end subroutine ddrestart_sub
-
   subroutine opta_sub( &
 #                     define _CALLING_
 #                     include "opta_interface.fh"
@@ -72,6 +64,6 @@ abstract interface
   end subroutine optb_sub
 end interface
 
-public :: ddasonc_sub, ddsol_sub, ddres_sub, ddres2upd_sub, ddrestart_sub, opta_sub, optb_sub
+public :: ddasonc_sub, ddsol_sub, ddres_sub, ddres2upd_sub, opta_sub, optb_sub
 
 end module casvb_interfaces

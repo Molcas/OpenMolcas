@@ -20,8 +20,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: vecvb(ndet), vecmol(*), fac
-integer(kind=iwp) :: isyml, iwr, nsa, nsb
+real(kind=wp), intent(inout) :: vecvb(ndet), vecmol(*)
+integer(kind=iwp), intent(in) :: isyml, iwr, nsa, nsb
+real(kind=wp), intent(in) :: fac
 integer(kind=iwp) :: idet, indbet, indx, ioffsa, ioffsb, isa, isb, isyma, isymb, nnsa, nnsb, nstra(mxirrep), nstrb(mxirrep)
 integer(kind=iwp), allocatable :: indxa(:), indxb(:)
 

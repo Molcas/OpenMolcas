@@ -16,13 +16,16 @@ subroutine sortindxr_cvb(n,arrin,indx)
 ! -- purpose: indexing arrin so that arrin(indx(j)), j=1..n is in
 !    ascending numerical order.
 !    method is heapsort, see also subroutine hpsort.
-! -- taken from numerical recipies, p 233.
+! -- taken from numerical recipes, p 233.
 
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, arrin(n), indx(n)
-integer(kind=iwp) :: i, indxt, ir, j, l, q
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: arrin(n)
+integer(kind=iwp), intent(out) :: indx(n)
+integer(kind=iwp) :: i, indxt, ir, j, l
+real(kind=wp) :: q
 
 do j=1,n
   indx(j) = j

@@ -19,8 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: izeta(nsyme), ipermzeta(norb,nzeta)
-real(kind=wp) :: vecstr(nvb)
+real(kind=wp), intent(inout) :: vecstr(nvb)
+integer(kind=iwp), intent(in) :: izeta(nsyme), ipermzeta(norb,nzeta)
 integer(kind=iwp) :: isyme, izeta1
 real(kind=wp), allocatable :: dvbdet(:), vecstr2(:)
 
@@ -31,7 +31,7 @@ do isyme=1,nsyme
   if (izeta(isyme) /= 0) then
     izeta1 = izeta1+1
     call str2vbc_cvb(vecstr,dvbdet)
-    call permvb_cvb(dvbdet,ipermzeta(1,izeta1))
+    call permvb_cvb(dvbdet,ipermzeta(:,izeta1))
     call vb2strc_cvb(dvbdet,vecstr2)
     vecstr(:) = vecstr(:)+real(izeta(isyme),kind=wp)*vecstr2(:)
   end if

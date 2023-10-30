@@ -19,8 +19,10 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nvec, n, metr
-real(kind=wp) :: c(n,nvec), s(*)
+integer(kind=iwp), intent(inout) :: nvec
+integer(kind=iwp), intent(in) :: n, metr
+real(kind=wp), intent(inout) :: c(n,nvec)
+real(kind=wp), intent(in) :: s(*)
 integer(kind=iwp) :: nvtot_
 
 if (nvtot /= 0) then

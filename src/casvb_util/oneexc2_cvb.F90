@@ -12,18 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine oneexc2_cvb(cfrom,cto,vij,i1alf,i1bet,iato,ibto,phato,phbto,iapr,ixapr,ibpr,ixbpr,npvb,nda,ndb,n1a,n1b,nam1,nbm1,norb, &
-                       sc,absym,diag,idens,iPvb)
+subroutine oneexc2_cvb(cfrom,cto,vij,diag,idens,iPvb)
 ! Calculates Cto = Pvb Eij Cfrom
 
+use casvb_global, only: absym, i1alf, i1bet, iapr, iato, ibpr, ibto, ixapr, ixbpr, n1a, n1b, nda, ndb, norb, phato, phbto, sc
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n1a, norb, i1alf(n1a,norb), n1b, i1bet(n1b,norb), nam1, iato(norb,0:nam1), nbm1, ibto(norb,0:nbm1), npvb, &
-                     iapr(npvb), nda, ixapr(nda+1), ibpr(npvb), ndb, ixbpr(ndb+1), idens, iPvb
-real(kind=wp) :: cfrom(nda,ndb), cto(nda,ndb), vij(*), phato(norb,nam1), phbto(norb,nbm1)
-logical(kind=iwp) :: sc, absym, diag
+real(kind=wp), intent(in) :: cfrom(nda,ndb)
+real(kind=wp), intent(inout) :: cto(nda,ndb), vij(*)
+logical(kind=iwp), intent(in) :: diag
+integer(kind=iwp), intent(in) :: idens, iPvb
 integer(kind=iwp) :: ia, iax, iaxtmp, ib, ibx, ibxtmp, iorb, iprm, ixa, ixb, jax, jbx, jorb, nvij
 real(kind=wp) :: tcof
 real(kind=wp), parameter :: thresh = 1.0e-10_wp
@@ -36,7 +36,7 @@ else if (idens == 1) then
 else
   nvij = 0
 end if
-if (absym) then
+if (absym(3)) then
   if (idens == 0) then
     cto(:,:) = Half*cto(:,:)
   else
@@ -90,7 +90,7 @@ do jorb=1,norb
         end if
       end do
 
-      if (.not. absym) then
+      if (.not. absym(3)) then
         ! c) Beta excitation
         do ib=1,n1b
           ibxtmp = i1bet(ib,iorb)
@@ -164,7 +164,7 @@ do jorb=1,norb
         end if
       end do
 
-      if (.not. absym) then
+      if (.not. absym(3)) then
         ! c) Beta excitation
         do ib=1,n1b
           ibxtmp = i1bet(ib,iorb)
@@ -200,7 +200,7 @@ do jorb=1,norb
     end if
   end do
 end do
-if (absym) then
+if (absym(3)) then
   if (idens == 0) then
     do ia=1,nda
       do ib=ia,nda

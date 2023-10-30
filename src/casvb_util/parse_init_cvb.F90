@@ -18,7 +18,7 @@ use casvb_global, only: inp, variat
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: luinp
+integer(kind=iwp), intent(in) :: luinp
 
 inp = luinp
 call rdline_init_cvb(variat)

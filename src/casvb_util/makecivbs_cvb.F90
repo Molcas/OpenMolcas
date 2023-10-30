@@ -19,7 +19,8 @@ use casvb_global, only: icnt_ci, ndet, ndetvb, norb
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: civbs(0:ndet), orbs(norb,norb), cvbdet(ndetvb)
+real(kind=wp), intent(inout) :: civbs(0:ndet), cvbdet(ndetvb)
+real(kind=wp), intent(in) :: orbs(norb,norb)
 integer(kind=iwp) :: icivbs
 
 icivbs = nint(civbs(0))

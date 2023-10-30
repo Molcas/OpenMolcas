@@ -18,8 +18,10 @@ use casvb_global, only: endvar, ifmos, ipr, kbasiscvb, nbas_mo, norb, nvb, ploc,
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
 implicit none
-real(kind=wp) :: orbs(norb,*), cvb(*), recn
+real(kind=wp), intent(_IN_) :: orbs(norb,*), cvb(*)
+real(kind=wp), intent(in) :: recn
 integer(kind=iwp) :: i, ierr, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, kbasiscvb1, nbas_mo1, norb1, nvb1
 logical(kind=iwp) :: use_ao
 real(kind=wp), allocatable :: a(:,:), b(:,:), c(:), orbsao(:,:)
@@ -49,7 +51,7 @@ if (use_ao) then
     call mma_allocate(b,norb,norb,label='b')
     call mma_allocate(c,norb,label='c')
     !call getr_plc(a)
-    call transp_cvb(a,a,norb,norb)
+    call dgetmi(a,norb,norb)
     call mxatb_cvb(a,orbs,norb,norb,norb,b)
     call lmo2ao_cvb(b,orbsao,norb)
     do iorb=1,norb

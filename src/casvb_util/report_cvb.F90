@@ -18,8 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: norb
-real(kind=wp) :: orbs(norb,norb)
+integer(kind=iwp), intent(in) :: norb
+real(kind=wp), intent(in) :: orbs(norb,norb)
 real(kind=wp), allocatable :: tmp(:,:)
 
 write(u6,'(/,a)') ' Orbital coefficients :'

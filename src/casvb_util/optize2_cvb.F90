@@ -20,9 +20,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: fx
-integer(kind=iwp) :: nparm, ioptc
-logical(kind=iwp) :: iter_is_1
+real(kind=wp), intent(inout) :: fx
+integer(kind=iwp), intent(in) :: nparm
+integer(kind=iwp), intent(inout) :: ioptc
+logical(kind=iwp), intent(in) :: iter_is_1
 procedure(opta_sub) :: opta
 procedure(optb_sub) :: optb
 integer(kind=iwp) :: iopth

@@ -19,7 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
+integer(kind=iwp), intent(inout) :: nconf1, iconfs(noe,nconf1)
+integer(kind=iwp), intent(in) :: nel1
 integer(kind=iwp) :: i, iconf, ii, iorb, jconf, nsum
 logical(kind=iwp) :: found, locc, locc_only, lorbs, lorbs_only
 integer(kind=iwp), allocatable :: iocc(:)
@@ -89,7 +90,7 @@ do iconf=1,nconf1
     lorbs_only = .true.
   else if ((.not. lorbs) .and. (.not. locc)) then
     write(u6,*) ' Illegal configuration read ',iconf
-    write(u6,*) (iconfs(ii,iconf),ii=1,noe)
+    write(u6,*) iconfs(1:noe,iconf)
     call abend_cvb()
   end if
 end do

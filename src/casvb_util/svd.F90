@@ -88,9 +88,12 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, m, n, ierr
-real(kind=wp) :: a(nm,n), w(n), u(nm,n), v(nm,n), rv1(n)
-logical(kind=iwp) :: matu, matv
+integer(kind=iwp), intent(in) :: nm, m, n
+real(kind=wp), intent(in) :: a(nm,n)
+real(kind=wp), intent(out) :: w(n), u(nm,n), rv1(n)
+real(kind=wp), intent(inout) :: v(nm,n)
+logical(kind=iwp), intent(in) :: matu, matv
+integer(kind=iwp), intent(out) :: ierr
 integer(kind=iwp) :: i, i1, ii, its, j, k, k1, kk, l, l1, ll, mn
 real(kind=wp) :: c, f, g, h, pythag, s, scl, tst1, tst2, x, y, z
 logical(kind=iwp) :: skip

@@ -18,8 +18,8 @@ use casvb_global, only: filename
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: chr
-real(kind=wp) :: fileid
+character(len=*), intent(in) :: chr
+real(kind=wp), intent(in) :: fileid
 integer(kind=iwp) :: ibf
 character(len=200) :: line
 

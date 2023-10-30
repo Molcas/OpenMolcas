@@ -19,7 +19,7 @@ use casvb_global, only: iciweights, icrit, imethod, isaddle, ishstruc, iunset, i
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ifxorb(mxorb_cvb)
+integer(kind=iwp), intent(inout) :: ifxorb(mxorb_cvb)
 integer(kind=iwp) :: i, nfxvbr, nzrvbr
 
 if (icrit == iunset) then

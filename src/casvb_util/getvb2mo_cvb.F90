@@ -17,8 +17,10 @@ subroutine getvb2mo_cvb(orbs)
 use casvb_global, only: ifvb, recn_vbwfn
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: orbs(*)
+real(kind=wp), intent(_OUT_) :: orbs(*)
 integer(kind=iwp) :: ierr, ioff, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, iorb, kbasiscvb1, nbas_mo1, norb1, nvb1
 
 if (ifvb == 1) call cvbinit_cvb()

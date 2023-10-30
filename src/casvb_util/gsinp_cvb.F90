@@ -19,9 +19,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: mxorb, irdorbs(mxorb), nvbinp, kbasiscvb_inp, mxaobf, kbasis
-real(kind=wp) :: orbs(mxaobf,mxorb), strtvb
+integer(kind=iwp), intent(in) :: mxorb, mxaobf, kbasis
+real(kind=wp), intent(_OUT_) :: orbs(mxaobf,mxorb)
+integer(kind=iwp), intent(_OUT_) :: irdorbs(mxorb), nvbinp, kbasiscvb_inp
+real(kind=wp), intent(in) :: strtvb
 integer(kind=iwp) :: idum(1), iorb, istr, mouse, mxread, nread
 real(kind=wp), allocatable :: tmp(:)
 integer(kind=iwp), parameter :: ncmp = 4, ngs = 7
@@ -49,7 +53,7 @@ do
     end if
     irdorbs(iorb) = mouse
     orbs(:,iorb) = Zero
-    call real_cvb(orbs(1,iorb),mxaobf,nread,0)
+    call real_cvb(orbs(:,iorb),mxaobf,nread,0)
   else if (istr == 2) then
     ! 'STRUC'
     !  If previous orb. permutation disable:

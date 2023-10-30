@@ -18,7 +18,7 @@ use casvb_global, only: ifinish
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: icode
+integer(kind=iwp), intent(in) :: icode
 
 if (icode == 1) then
   ifinish = 0

@@ -19,8 +19,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: a(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: a(n,n)
 integer(kind=iwp) :: i, ierr
 real(kind=wp) :: rms
 integer(kind=iwp), allocatable :: itmp(:)

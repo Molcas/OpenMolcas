@@ -14,13 +14,13 @@
 
 subroutine hess_cvb(vec)
 
-use casvb_global, only: civb2, civb3, civb4, civb5, dvbdet, grad1, grad2, gradx, hessorb, hesst, icrit, iorts, n_hess, npr, &
+use casvb_global, only: civb2, civb3, civb4, civb5, dvbdet, grad1, grad2, gradx, hessorb, hesst, icrit, iorts, n_hess, nfr, npr, &
                         orbinv, orbs, owrk2, sorbs, vec1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: vec(*)
+real(kind=wp), intent(inout) :: vec(nfr)
 real(kind=wp), allocatable :: hess1(:), hess2(:)
 logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...
 

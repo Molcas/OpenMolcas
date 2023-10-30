@@ -17,7 +17,7 @@ subroutine asonc10_cvb( &
 #                      include "ddasonc_interface.fh"
                       )
 
-use casvb_global, only: cpu0, ipp, iter
+use casvb_global, only: cpu0, ipp10, iter10
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -28,9 +28,9 @@ real(kind=wp), external :: tim_cvb
 #include "macros.fh"
 unused_var(sxc)
 
-iter = iter+1
-if (ipp >= 2) then
-  write(u6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter,' at',tim_cvb(cpu0),' CPU seconds'
+iter10 = iter10+1
+if (ipp10 >= 2) then
+  write(u6,'(/,a,i5,a,f10.3,a)') ' Davidson iteration',iter10,' at',tim_cvb(cpu0),' CPU seconds'
   write(u6,'(a)') ' -----------------------------------------------'
 end if
 

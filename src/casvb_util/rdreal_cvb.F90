@@ -22,8 +22,8 @@ use casvb_global, only: ifield, nfield
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: realval
-integer(kind=iwp) :: ierr
+real(kind=wp), intent(inout) :: realval
+integer(kind=iwp), intent(out) :: ierr
 integer(kind=iwp) :: idi, jerr
 character(len=8) :: string
 

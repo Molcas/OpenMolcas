@@ -19,14 +19,19 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
 ! V1 is dimensioned either NDET or NDETVB according to CI/VB
 ! V2 is dimensioned NDET/NDA or NDETVB according to CI/VB
-real(kind=wp) :: v1(*), v2(*)
-integer(kind=iwp) :: iperm(norb), iapr(ndetvb), ixapr(nda+1), ialg
+real(kind=wp), intent(inout) :: v1(*)
+integer(kind=iwp), intent(in) :: iperm(norb), iapr(ndetvb), ixapr(nda+1)
+logical(kind=iwp), intent(in) :: vb
+real(kind=wp), intent(_OUT_) :: v2(*)
+integer(kind=iwp), intent(inout) :: ialg
 integer(kind=iwp) :: i, ia, ialf, iat, iato, iatold, ib, ibet, iboff, ibt, ibto, ibtold, inboff, indx, ineg, ioffs, ioffs1, &
                      ioffs2, iorb, iprm, ixa, ixato, rc
-logical(kind=iwp) :: done, vb
+logical(kind=iwp) :: done
 integer(kind=iwp), allocatable :: inda(:), indb(:), inewocc(:), inocc2(:), locc(:), lunocc(:), maxgrph(:), mingrph(:), negs(:), &
                                   nk(:), xalf(:,:), xbet(:,:)
 real(kind=wp), allocatable :: phsa(:), phsb(:)

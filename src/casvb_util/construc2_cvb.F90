@@ -20,7 +20,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: tconstr(nvb,nvb)
+real(kind=wp), intent(inout) :: tconstr(nvb,nvb)
 integer(kind=iwp) :: iconstruc_kp, ivb
 real(kind=wp) :: dum(1)
 real(kind=wp), allocatable :: repm(:)

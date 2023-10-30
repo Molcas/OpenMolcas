@@ -17,7 +17,7 @@ subroutine date2_cvb(delcpu)
 use Definitions, only: wp, u6
 
 implicit none
-real(kind=wp) :: delcpu
+real(kind=wp), intent(in) :: delcpu
 character(len=120) :: line
 
 line = ' '

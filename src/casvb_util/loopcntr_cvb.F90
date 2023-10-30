@@ -18,7 +18,7 @@ use casvb_global, only: icnt, icode, inputmode, ioptstep, ipos, joptstep, loopst
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: icode1
+integer(kind=iwp), intent(in) :: icode1
 logical(kind=iwp) :: begbracket
 
 loopstep = loopstep+1

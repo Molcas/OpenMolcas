@@ -18,7 +18,7 @@ use casvb_global, only: norb, nvb
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: orbs(norb,norb), cvb(nvb)
+real(kind=wp), intent(inout) :: orbs(norb,norb), cvb(nvb)
 
 call symtrizorbs_cvb(orbs)
 call symtrizcvb_cvb(cvb)

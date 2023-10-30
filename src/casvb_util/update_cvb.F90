@@ -19,7 +19,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: dx(*)
+real(kind=wp), intent(in) :: dx(*)
 integer(kind=iwp) :: ic
 real(kind=wp), allocatable :: orbs1(:,:), cvb1(:)
 logical(kind=iwp), external :: up2date_cvb ! ... Make: up to date? ...

@@ -17,7 +17,7 @@ subroutine gethfs_cvb(istring)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: istring
+integer(kind=iwp), intent(out) :: istring
 integer(kind=iwp) :: istr(1)
 
 call geth_cvb(istr,1)

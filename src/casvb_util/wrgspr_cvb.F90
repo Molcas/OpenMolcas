@@ -17,9 +17,13 @@ subroutine wrgspr_cvb(recn,c,i,n,ic,ierr)
 use casvb_global, only: nbas_mo
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: i, n, ic, ierr
-real(kind=wp) :: recn, c(n)
+real(kind=wp), intent(in) :: recn
+integer(kind=iwp), intent(in) :: i, n, ic
+real(kind=wp), intent(_IN_) :: c(n)
+integer(kind=iwp), intent(inout) :: ierr
 integer(kind=iwp) :: ioffs, ioffs_cvb, ioffs_orbs, ioffs_orbsao, ioffs_orbslao, kbasiscvb1, nbas_mo1, norb1, nvb1
 
 ! Read header:

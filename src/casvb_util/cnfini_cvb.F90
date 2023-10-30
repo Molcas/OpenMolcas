@@ -23,9 +23,12 @@ subroutine cnfini_cvb(iconfs,nconf1,nel1,nS,i2s,nMs,nalf1,nvbr1,ndetvb1,ndetvb21
 use casvb_global, only: noe, norb
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1, nS, i2s(nS), nMs, nalf1(nMs), nvbr1, ndetvb1, ndetvb21, mnion1, mxion1, &
-                     nconfion(0:*), ifsc1
+integer(kind=iwp), intent(in) :: nconf1, iconfs(noe,nconf1), nel1, nS, i2s(nS), nMs, nalf1(nMs)
+integer(kind=iwp), intent(out) :: nvbr1, ndetvb1, ndetvb21, mnion1, mxion1, ifsc1
+integer(kind=iwp), intent(_OUT_) :: nconfion(0:*)
 integer(kind=iwp) :: i, iconf, iMs, ion, iorb, iretval, iretval1, iretval2, iS
 
 ! Main loop over configurations:

@@ -17,8 +17,10 @@ subroutine findmx_cvb(vec,n,vmx,imx)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, imx
-real(kind=wp) :: vec(n), vmx
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: vec(n)
+real(kind=wp), intent(out) :: vmx
+integer(kind=iwp), intent(out) :: imx
 integer(kind=iwp) :: i
 
 if (n > 0) then

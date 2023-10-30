@@ -19,9 +19,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: npr
-real(kind=wp) :: fx, dx(npr), w2(npr), exp_tc
-logical(kind=iwp) :: close2conv, converged, wrongstat
+integer(kind=iwp), intent(in) :: npr
+real(kind=wp), intent(in) :: fx, dx(npr), w2(npr), exp_tc
+logical(kind=iwp), intent(inout) :: close2conv
+logical(kind=iwp), intent(out) :: converged, wrongstat
 integer(kind=iwp) :: nnegeig, nposeig
 real(kind=wp) :: act, eigmn, eigmna, eigmx, zz
 

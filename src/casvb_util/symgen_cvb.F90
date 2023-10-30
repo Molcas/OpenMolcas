@@ -20,7 +20,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nalf1, nbet1, nda1, ndb1, isymalf(nda1), isymbet(ndb1), iasyind(0:mxirrep), ibsyind(0:mxirrep), irpdet(mxirrep)
+integer(kind=iwp), intent(in) :: nalf1, nbet1, nda1, ndb1
+integer(kind=iwp), intent(out) :: isymalf(nda1), isymbet(ndb1), iasyind(0:mxirrep), ibsyind(0:mxirrep), irpdet(mxirrep)
 integer(kind=iwp) :: ia, ib, icount(mxirrep), ida, idb, indx, iorb, irp, irpalf(mxirrep), irpbet(mxirrep), irrep, jrp, rc
 integer(kind=iwp), allocatable :: ialfsym(:), ibetsym(:), locc(:), lunocc(:), maxgrph(:), mingrph(:), nk(:), xalf(:,:), xbet(:,:)
 
@@ -106,8 +107,8 @@ call mma_deallocate(nk)
 call mma_deallocate(locc)
 call mma_deallocate(lunocc)
 
+irpdet(:) = 0
 do irp=1,mxirrep
-  irpdet(irp) = 0
   do jrp=1,mxirrep
     irpdet(irp) = irpdet(irp)+irpalf(jrp)*irpbet(Mul(irp,jrp))
   end do

@@ -23,7 +23,7 @@ real(kind=wp) :: sgn
 
 if (ipr(1) >= 1) then
   write(u6,'(/,a)') ' Permuting orbitals :'
-  write(u6,'(1x,30i4)') (iorbprm(iorb),iorb=1,norb)
+  write(u6,'(1x,30i4)') iorbprm(1:norb)
 end if
 do iorb=1,norb
   jorb = abs(iorbprm(iorb))

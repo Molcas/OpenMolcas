@@ -18,8 +18,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n1, n2, n3
-real(kind=wp) :: a(n2,n1), b(n2,n3), c(n1,n3)
+integer(kind=iwp), intent(in) :: n1, n2, n3
+real(kind=wp), intent(in) :: a(n2,n1), b(n2,n3)
+real(kind=wp), intent(out) :: c(n1,n3)
 
 call DGEMM_('T','N',n1,n3,n2,One,a,n2,b,n2,Zero,c,n1)
 

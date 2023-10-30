@@ -18,8 +18,8 @@ use casvb_global, only: idan
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lu
-character(len=*) :: fname
+integer(kind=iwp), intent(inout) :: lu
+character(len=*), intent(in) :: fname
 integer(kind=iwp) :: i_open, ilu
 logical(kind=iwp) :: find_unused
 integer(kind=iwp), external :: isfreeunit, find_lu

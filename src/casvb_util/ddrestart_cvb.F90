@@ -12,17 +12,18 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine ddrestart_cvb( &
-#                        define _CALLING_
-#                        include "ddrestart_interface.fh"
-)
+subroutine ddrestart_cvb(c,axc,vec,hp,solp,maxdav,n,nvguess1,nvrestart1)
 
 use casvb_global, only: ifollow, nroot
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "ddrestart_interface.fh"
+integer(kind=iwp), intent(in) :: maxdav, n
+real(kind=wp), intent(inout) :: c(n,maxdav), axc(n,maxdav)
+real(kind=wp), intent(out) :: vec(n)
+real(kind=wp), intent(in) :: hp(maxdav,maxdav), solp(maxdav)
+integer(kind=iwp), intent(out) :: nvguess1, nvrestart1
 integer(kind=iwp) :: ir, ir_use
 real(kind=wp), allocatable :: eigval(:), eigvec(:,:)
 

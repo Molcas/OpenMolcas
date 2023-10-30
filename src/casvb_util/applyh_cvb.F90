@@ -20,7 +20,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: civec(0:ndet)
+real(kind=wp), intent(inout) :: civec(0:ndet)
 #include "rasscf_lucia.fh"
 integer(kind=iwp) :: icivec, isyml, isymmx, nci
 real(kind=wp) :: c_daxpy, cnrm

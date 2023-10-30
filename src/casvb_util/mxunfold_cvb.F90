@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: avec(n*(n-1)), a(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: avec(n*(n-1))
+real(kind=wp), intent(out) :: a(n,n)
 integer(kind=iwp) :: i, iprm, j
 
 a(:,:) = Zero

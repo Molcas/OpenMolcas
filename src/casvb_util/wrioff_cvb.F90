@@ -17,8 +17,8 @@ subroutine wrioff_cvb(ifield,file_id,ioffset)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ifield, ioffset
-real(kind=wp) :: file_id
+integer(kind=iwp), intent(in) :: ifield, ioffset
+real(kind=wp), intent(in) :: file_id
 integer(kind=iwp), parameter :: nbuf = 50
 integer(kind=iwp) :: ioff(nbuf)
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...

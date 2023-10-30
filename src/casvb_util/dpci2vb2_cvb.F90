@@ -19,9 +19,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ic1, ic
-real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), dvbdet(ndetvb), evbdet(ndetvb), ret
+real(kind=wp), intent(inout) :: civec(nda,ndb), cvbdet(ndetvb), evbdet(ndetvb)
+real(kind=wp), intent(in) :: dvbdet(ndetvb)
+integer(kind=iwp), intent(in) :: ic1, ic
+real(kind=wp), intent(_OUT_) :: ret
 integer(kind=iwp) :: i, ia, ia_ci, ib, ib_ci, idetvb, ifr, iter, ixa, jfr, kfr, mxiter, ndetvb_add, nestlevel, nloop
 real(kind=wp) :: cf, cf2, cinrm, cnrm, fac, fac1
 logical(kind=iwp) :: fail

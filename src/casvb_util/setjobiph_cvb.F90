@@ -12,17 +12,14 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine setjobiph_cvb(iorcore_c,iorclos_c,iorocc_c,mxirrep,nstsym_c,weight_c,istnel_c,istsy_c,istms2_c,nstats_c,mxstt_ci, &
-                         mxstsy_ci,nel_c,norb_c,i2s_c,isym_c,mcore_c,neltot_c)
+subroutine setjobiph_cvb(nel_c,norb_c,i2s_c,isym_c,neltot_c)
 
+use casvb_global, only: iorclos_c, iorcore_c, iorocc_c, istms2_c, istnel_c, istsy_c, mcore_c, mxstt_ci, nstats_c, nstsym_c, weight_c
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: mxirrep, iorcore_c(mxirrep), iorclos_c(mxirrep), iorocc_c(mxirrep), nstsym_c, mxstsy_ci, istnel_c(mxstsy_ci), &
-                     istsy_c(mxstsy_ci), istms2_c(mxstsy_ci), nstats_c(mxstsy_ci), mxstt_ci, nel_c, norb_c, i2s_c, isym_c, &
-                     mcore_c, neltot_c
-real(kind=wp) :: weight_c(mxstt_ci,mxstsy_ci)
+integer(kind=iwp) :: nel_c, norb_c, i2s_c, isym_c, neltot_c
 #include "rasdim.fh"
 #include "jobiph_j.fh"
 integer(kind=iwp) :: i, j

@@ -17,8 +17,8 @@ subroutine lout_cvb(l,a1,a2)
 use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) :: l
-character(len=*) :: a1, a2
+logical(kind=iwp), intent(in) :: l
+character(len=*), intent(in) :: a1, a2
 character(len=46) :: b2
 character(len=15) :: b1
 character(len=12) :: b3

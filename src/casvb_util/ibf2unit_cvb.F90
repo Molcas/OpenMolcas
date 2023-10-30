@@ -18,8 +18,9 @@ use casvb_global, only: ifilio, iorder, mxunits
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ibf, lu
-logical(kind=iwp) :: newfile
+integer(kind=iwp), intent(in) :: ibf
+integer(kind=iwp), intent(out) :: lu
+logical(kind=iwp), intent(out) :: newfile
 integer(kind=iwp) :: i, ifil
 logical(kind=iwp), parameter :: debug = .false.
 

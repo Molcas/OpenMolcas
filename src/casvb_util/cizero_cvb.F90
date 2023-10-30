@@ -24,7 +24,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cvec(0:ndet)
+real(kind=wp), intent(inout) :: cvec(0:ndet)
 integer(kind=iwp) :: iformat, ivec
 
 ivec = nint(cvec(0))

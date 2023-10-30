@@ -61,15 +61,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n, low, igh, intx(igh)
-real(kind=wp) :: a(nm,igh), z(nm,n)
+integer(kind=iwp), intent(in) :: nm, n, low, igh, intx(igh)
+real(kind=wp), intent(in) :: a(nm,igh)
+real(kind=wp), intent(out) :: z(nm,n)
 integer(kind=iwp) :: i, j, kl, mm, mp, mp1
 
 ! .......... initialize z to identity matrix ..........
+z(1:n,:) = Zero
 do j=1,n
-
-  z(1:n,j) = Zero
-
   z(j,j) = One
 end do
 

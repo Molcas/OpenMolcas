@@ -19,8 +19,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, lrow(n), irows(n), ijs(2,n*n)
-real(kind=wp) :: a(n,n), oijs(n*n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: a(n,n)
+integer(kind=iwp), intent(out) :: lrow(n), irows(n), ijs(2,n*n)
+real(kind=wp), intent(out) :: oijs(n*n)
 integer(kind=iwp) :: i, idum, ihad, ii, ii2, imain, imx, j, jmx, nij
 real(kind=wp) :: amx, dum, oneovamx
 logical(kind=iwp) :: done

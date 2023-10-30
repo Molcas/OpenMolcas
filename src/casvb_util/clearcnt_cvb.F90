@@ -21,7 +21,7 @@ use casvb_global, only: icnt_ci
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: icode
+integer(kind=iwp), intent(in) :: icode
 integer(kind=iwp) :: ichg, ipow1, ipow2
 
 if (icode == 3) then

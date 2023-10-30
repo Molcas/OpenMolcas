@@ -19,8 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: grad(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: grad(n)
 real(kind=wp), allocatable :: tmp(:,:)
 
 if (ipr(3) < 2) return

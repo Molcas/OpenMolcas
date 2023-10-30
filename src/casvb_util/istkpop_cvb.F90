@@ -17,7 +17,8 @@ subroutine istkpop_cvb(iarr,ival)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iarr(*), ival
+integer(kind=iwp), intent(inout) :: iarr(*)
+integer(kind=iwp), intent(out) :: ival
 
 if (iarr(2) == 2) then
   write(u6,*) ' Trying to pop off empty stack!'

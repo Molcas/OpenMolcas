@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n1, n2
-real(kind=wp) :: ainp(n1,n2), val(n2), vec(n1,n2), vmat(n2,n2)
+integer(kind=iwp), intent(in) :: n1, n2
+real(kind=wp), intent(in) :: ainp(n1,n2)
+real(kind=wp), intent(out) :: val(n2), vec(n1,n2), vmat(n2,n2)
 integer(kind=iwp) :: i, ierr, n12
 integer(kind=iwp), allocatable :: indx(:)
 real(kind=wp), allocatable :: a(:,:), rv1(:), u(:,:), v(:,:), w(:)

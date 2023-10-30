@@ -23,8 +23,11 @@ use casvb_global, only: mxirrep, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nciloc(*), nelloc, i2sloc, isymloc
+integer(kind=iwp), intent(_OUT_) :: nciloc(*)
+integer(kind=iwp), intent(in) :: nelloc, i2sloc, isymloc
 integer(kind=iwp) :: iasyind(0:mxirrep), ibsyind(0:mxirrep), irpdet(mxirrep), nalf1, nbet1, nda1, ndb1
 integer(kind=iwp), allocatable :: isymalf(:), isymbet(:)
 

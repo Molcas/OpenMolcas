@@ -28,9 +28,9 @@ unused_var(ap)
 unused_var(nfrdim)
 
 eig = dnrm2_(itdav,rhsp,1)
-solp(1:itdav) = rhsp(1:itdav)/eig
+solp(:) = rhsp(1:itdav)/eig
 eig_res = eig
-solp_res(1:itdav) = solp(1:itdav)
+solp_res(:) = solp(:)
 
 return
 

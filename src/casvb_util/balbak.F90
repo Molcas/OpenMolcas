@@ -55,8 +55,9 @@ subroutine balbak(nm,n,low,igh,scl,m,z)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n, low, igh, m
-real(kind=wp) :: scl(n), z(nm,m)
+integer(kind=iwp), intent(in) :: nm, n, low, igh, m
+real(kind=wp), intent(in) :: scl(n)
+real(kind=wp), intent(inout) :: z(nm,m)
 integer(kind=iwp) :: i, ii, j, k
 real(kind=wp) :: s
 

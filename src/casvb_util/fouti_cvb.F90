@@ -17,9 +17,9 @@ subroutine fouti_cvb(fi,ni,a1,a2)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ni
-real(kind=wp) :: fi(ni)
-character(len=*) :: a1, a2
+integer(kind=iwp), intent(in) :: ni
+real(kind=wp), intent(in) :: fi(ni)
+character(len=*), intent(in) :: a1, a2
 character(len=46) :: b2
 character(len=15) :: b1
 character(len=12) :: b3

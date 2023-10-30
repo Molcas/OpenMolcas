@@ -21,7 +21,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: civec(0:ndet), c_daxpy
+real(kind=wp), intent(inout) :: civec(0:ndet)
+real(kind=wp), intent(in) :: c_daxpy
 integer(kind=iwp) :: icivec, isyml, isymmx, nci
 real(kind=wp) :: cnrm
 real(kind=wp), allocatable :: cim(:), cim2(:)

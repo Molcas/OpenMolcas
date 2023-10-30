@@ -12,9 +12,8 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine dirdiag_cvb(ddasonc,ddsol,ddres,ddres2upd,ddrestart,c,axc,sxc,share,vec,res,rhs,ap,rhsp,solp,solp_res,symm,use_a, &
-                       use_rhs,maxdav,n,nprmdim,nvguess,nvrestart,isaddle,ifollow,mxiter,resthr,orththr,nortiter,corenrg,ioptc, &
-                       iter,fx,ip)
+subroutine dirdiag_cvb(ddasonc,ddsol,ddres,ddres2upd,c,axc,sxc,share,vec,res,rhs,ap,rhsp,solp,solp_res,symm,use_a,use_rhs,maxdav, &
+                       n,nprmdim,nvguess,nvrestart,isaddle,ifollow,mxiter,resthr,orththr,nortiter,corenrg,ioptc,iter,fx,ip)
 !***********************************************************************
 !*                                                                     *
 !*  Routine for "direct" diagonalization.                              *
@@ -69,7 +68,7 @@ subroutine dirdiag_cvb(ddasonc,ddsol,ddres,ddres2upd,ddrestart,c,axc,sxc,share,v
 !***********************************************************************
 
 use casvb_global, only: formAD, formAF
-use casvb_interfaces, only: ddasonc_sub, ddsol_sub, ddres_sub, ddres2upd_sub, ddrestart_sub
+use casvb_interfaces, only: ddasonc_sub, ddsol_sub, ddres_sub, ddres2upd_sub
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -78,11 +77,13 @@ procedure(ddasonc_sub) :: ddasonc
 procedure(ddsol_sub) :: ddsol
 procedure(ddres_sub) :: ddres
 procedure(ddres2upd_sub) :: ddres2upd
-procedure(ddrestart_sub) :: ddrestart
-integer(kind=iwp) :: maxdav, n, nprmdim, nvguess, nvrestart, isaddle, ifollow, mxiter, nortiter, ioptc, iter, ip
-real(kind=wp) :: c(n,maxdav), axc(n,maxdav), sxc(n,maxdav), vec(n), res(n), rhs(n), ap(maxdav,maxdav), rhsp(maxdav), solp(maxdav), &
-                 solp_res(maxdav), resthr, orththr, corenrg, fx
-logical(kind=iwp) :: share, symm, use_a, use_rhs
+integer(kind=iwp), intent(in) :: maxdav, n, nprmdim, isaddle, ifollow, mxiter, nortiter, ip
+real(kind=wp), intent(inout) :: c(n,maxdav), axc(n,maxdav), sxc(n,maxdav)
+logical(kind=iwp), intent(in) :: share, symm, use_a, use_rhs
+real(kind=wp), intent(out) :: vec(n), res(n), ap(maxdav,maxdav), rhsp(maxdav), solp(maxdav), solp_res(maxdav), fx
+real(kind=wp), intent(in) :: rhs(n), resthr, orththr, corenrg
+integer(kind=iwp), intent(inout) :: nvguess, nvrestart
+integer(kind=iwp), intent(out) :: ioptc, iter
 integer(kind=iwp) :: i, ifail, imacro, iorth, itdav, ivres, ndavvec, nroot
 real(kind=wp) :: e1, eig, eig_res, facn, resnrm
 logical(kind=iwp) :: done, is_converged
@@ -124,6 +125,7 @@ do ivres=1,nvrestart
 end do
 
 iter = 0
+itdav = 0
 ! MXITER max possible no of macro iterations, normally opt will skip
 outer: do imacro=1,mxiter
   do itdav=max(nvrestart,1),min(maxdav,mxiter-iter)
@@ -202,7 +204,7 @@ outer: do imacro=1,mxiter
         ioptc = 0
         exit outer
       end if
-      if (itdav <= maxdav-1) call ddres2upd(res,c(1,itdav+1),n)
+      if (itdav <= maxdav-1) call ddres2upd(res,c(:,itdav+1),n)
     end if
   end do
   if (iter >= mxiter) then
@@ -210,7 +212,7 @@ outer: do imacro=1,mxiter
     ioptc = -1
     exit outer
   end if
-  call ddrestart(c,axc,vec,ap,solp,maxdav,n,nvguess,nvrestart)
+  call ddrestart_cvb(c,axc,vec,ap,solp,maxdav,n,nvguess,nvrestart)
 end do outer
 ndavvec = min(itdav,maxdav)
 call mxatb_cvb(c,solp,n,ndavvec,1,vec)

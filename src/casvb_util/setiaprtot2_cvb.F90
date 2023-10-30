@@ -18,8 +18,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: npvb, iapr(npvb), nda, ixapr(nda+1), ibpr(npvb), ndb, ixbpr(ndb+1)
-real(kind=wp) :: civec(nda,ndb)
+integer(kind=iwp), intent(in) :: npvb, nda, ndb
+real(kind=wp), intent(in) :: civec(nda,ndb)
+integer(kind=iwp), intent(out) :: iapr(npvb), ixapr(nda+1), ibpr(npvb), ixbpr(ndb+1)
 integer(kind=iwp) :: ia, ib, idetvb
 
 idetvb = 0

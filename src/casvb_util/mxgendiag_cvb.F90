@@ -18,8 +18,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: a(n,n), s(n,n), eigval(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: a(n,n), s(n,n)
+real(kind=wp), intent(out) :: eigval(n)
 integer(kind=iwp) :: info, lwrk
 real(kind=wp) :: dum(1)
 real(kind=wp), allocatable :: wrk(:)

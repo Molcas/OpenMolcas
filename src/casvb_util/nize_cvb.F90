@@ -19,8 +19,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nnrm, n, metr, ierr
-real(kind=wp) :: c(n,nnrm), s(*)
+integer(kind=iwp), intent(in) :: nnrm, n, metr
+real(kind=wp), intent(inout) :: c(n,nnrm)
+real(kind=wp), intent(in) :: s(*)
+integer(kind=iwp), intent(inout) :: ierr
 integer(kind=iwp) :: i
 real(kind=wp) :: cnrm
 logical(kind=iwp) :: safe
@@ -34,7 +36,7 @@ do i=1,nnrm
   if (metr == 0) then
     cnrm = dnrm2_(n,c(:,i),1)
   else
-    call saoon_cvb(c(1,i),c2,1,s,n,metr)
+    call saoon_cvb(c(:,i),c2,1,s,n,metr)
     cnrm = sqrt(ddot_(n,c(:,i),1,c2,1))
   end if
   if (safe .and. (cnrm < thresh)) then

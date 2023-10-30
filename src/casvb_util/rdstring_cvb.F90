@@ -22,8 +22,8 @@ use casvb_global, only: ifield, nfield
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=8) :: string
-integer(kind=iwp) :: ierr
+character(len=8), intent(inout) :: string
+integer(kind=iwp), intent(out) :: ierr
 integer(kind=iwp) :: idi
 real(kind=wp) :: rdr
 
@@ -32,10 +32,10 @@ if (nfield == -1) ierr = 1
 if (ifield > nfield) ierr = 2
 if (ierr /= 0) then
   string = '        '
-  return
+else
+  !call gtstring_cvb(string,ifield)
+  call gtany_cvb(string,idi,rdr,1,ifield,ierr)
 end if
-!call gtstring_cvb(string,ifield)
-call gtany_cvb(string,idi,rdr,1,ifield,ierr)
 
 return
 

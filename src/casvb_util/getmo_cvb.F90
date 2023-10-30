@@ -18,9 +18,11 @@ use casvb_global, only: nbas_mo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: cmo(*)
-integer(kind=iwp) :: ic
+real(kind=wp), intent(_OUT_) :: cmo(*)
+integer(kind=iwp), intent(in) :: ic
 real(kind=wp), allocatable :: cmo2(:,:)
 
 call mma_allocate(cmo2,nbas_mo,nbas_mo,label='cmo2')

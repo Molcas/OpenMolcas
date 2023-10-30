@@ -17,7 +17,8 @@ subroutine loopstr0_cvb(iocc,indx,nel,norb)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nel, iocc(nel), indx, norb
+integer(kind=iwp), intent(in) :: nel, norb
+integer(kind=iwp), intent(out) :: iocc(nel), indx
 integer(kind=iwp) :: iel
 
 if (nel > norb) then

@@ -14,15 +14,16 @@
 
 subroutine axesx_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp)
 
-use casvb_global, only: solp_res, sxc
+use casvb_global, only: nparm, solp_res, sxc
 use casvb_interfaces, only: ddasonc_sub, ddres2upd_sub
 use Definitions, only: wp, iwp
 
 implicit none
 procedure(ddasonc_sub) :: asonc
 procedure(ddres2upd_sub) :: ddres2upd
-real(kind=wp) :: vec(*), resthr_inp, fx_exp
-integer(kind=iwp) :: ioptc, iter
+real(kind=wp), intent(out) :: vec(nparm), fx_exp
+real(kind=wp), intent(in) :: resthr_inp
+integer(kind=iwp), intent(out) :: ioptc, iter
 
 call axesx2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,sxc,.false.,solp_res)
 

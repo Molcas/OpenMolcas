@@ -20,7 +20,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: civec(0:ndet), civecp(0:ndet), orbs(norb,norb)
+real(kind=wp), intent(inout) :: civec(0:ndet), civecp(0:ndet)
+real(kind=wp), intent(in) :: orbs(norb,norb)
 integer(kind=iwp) :: icivecp
 type(gjorb_type) :: gjorb
 real(kind=wp), allocatable :: owrk(:,:)
@@ -32,7 +33,7 @@ call mma_allocate(owrk,norb,norb,label='owrk')
 call mma_allocate(gjorb%r,norb,norb,label='gjorb%r')
 call mma_allocate(gjorb%i1,norb,label='gjorb%i1')
 call mma_allocate(gjorb%i2,2,norb*norb,label='gjorb%i2')
-call transp_cvb(orbs,owrk,norb,norb)
+call trnsps(norb,norb,orbs,owrk)
 call gaussj_cvb(owrk,gjorb)
 if (memplenty) then
   call getci_cvb(civec)

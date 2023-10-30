@@ -19,7 +19,8 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: mavailr, nvecmx1, n
+integer(kind=iwp), intent(in) :: nvecmx1, n
+integer(kind=iwp) :: mavailr
 integer(kind=iwp), parameter :: nmult = 5
 
 call mma_maxDBLE(mavailr)

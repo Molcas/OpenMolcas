@@ -17,12 +17,12 @@ subroutine dafupd_cvb(lu,ioffset)
 use Definitions, only: iwp, RtoI
 
 implicit none
-integer(kind=iwp) :: lu, ioffset
-integer(kind=iwp) :: ioff, mxddr, nwrite
-integer(kind=iwp), parameter :: ibuf(1000) = 0
+integer(kind=iwp), intent(in) :: lu, ioffset
+integer(kind=iwp) :: ibuf(1000), ioff, mxddr, nwrite
 
 mxddr = 1000
 nwrite = 1000
+ibuf(:) = 0
 
 call iDaFile(lu,8,ibuf,nwrite,mxddr)
 

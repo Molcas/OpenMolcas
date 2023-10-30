@@ -15,7 +15,7 @@
 subroutine rules_cvb(chr)
 
 implicit none
-character(len=*) :: chr
+character(len=*), intent(in) :: chr
 
 select case (chr)
   case ('MEM1')

@@ -20,8 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: cmo(nbas_mo,nbas_mo), cmo2(nbas_mo,nbas_mo)
-integer(kind=iwp) :: ic
+real(kind=wp), intent(out) :: cmo(nbas_mo,nbas_mo)
+real(kind=wp), intent(inout) :: cmo2(nbas_mo,nbas_mo)
+integer(kind=iwp), intent(in) :: ic
 integer(kind=iwp) :: iorb, isk, jbas
 real(kind=wp), allocatable :: cmoblk(:)
 
@@ -39,7 +40,7 @@ call mma_deallocate(cmoblk)
 
 if (mod(ic,2) == 1) then
   call mxinv_cvb(cmo,nbas_mo)
-  call transp_cvb(cmo,cmo,nbas_mo,nbas_mo)
+  call dgetmi(cmo,nbas_mo,nbas_mo)
 end if
 
 if (ic >= 2) then

@@ -18,7 +18,7 @@ use casvb_global, only: i_dep_on_j, ioffs, iprint, j_dep_on_i, joffs, ndep_ij, n
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: chr1, chr2
+character(len=*), intent(in) :: chr1, chr2
 integer(kind=iwp) :: ii
 
 call mkafter_cvb(chr1,chr2)

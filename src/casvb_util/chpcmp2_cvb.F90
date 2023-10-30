@@ -18,7 +18,8 @@ use casvb_global, only: iprm, lstprm, mxprm
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: itst, iret
+integer(kind=iwp), intent(in) :: itst
+integer(kind=iwp), intent(out) :: iret
 
 iprm = iprm+1
 if (iprm > mxprm) then

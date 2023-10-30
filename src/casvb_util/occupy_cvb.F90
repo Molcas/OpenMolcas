@@ -16,8 +16,11 @@ subroutine occupy_cvb(nk,nel,locc,lunocc)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nel, nk(0:nel), locc(*), lunocc(*)
+integer(kind=iwp), intent(in) :: nel, nk(0:nel)
+integer(kind=iwp), intent(_OUT_) :: locc(*), lunocc(*)
 integer(kind=iwp) :: iel, iocc, iunocc
 
 iocc = 0

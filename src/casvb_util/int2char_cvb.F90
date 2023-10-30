@@ -18,8 +18,8 @@ subroutine int2char_cvb(a,intx,iform)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: a
-integer(kind=iwp) :: intx, iform
+character(len=*), intent(out) :: a
+integer(kind=iwp), intent(in) :: intx, iform
 real(kind=wp) :: dum
 integer(kind=iwp) :: i, ia, iamax, idum, int2, la, numb
 character, parameter :: blnk = ' ', cnumb(0:9) = ['0','1','2','3','4','5','6','7','8','9'], minus = '-'

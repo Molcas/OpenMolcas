@@ -21,14 +21,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: orbs(norb,norb)
+real(kind=wp), intent(in) :: orbs(norb,norb)
 real(kind=wp), allocatable :: owrk(:,:)
 
 call mma_allocate(owrk,norb,norb,label='owrk')
 
 call gaussj_cvb(orbs,gjorb)
 
-call transp_cvb(orbs,owrk,norb,norb)
+call trnsps(norb,norb,orbs,owrk)
 call gaussj_cvb(owrk,gjorb2)
 
 call mxattb_cvb(orbs,orbs,norb,norb,norb,owrk)

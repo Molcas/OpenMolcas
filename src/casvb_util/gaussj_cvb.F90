@@ -23,16 +23,18 @@ use casvb_global, only: gjorb_type, norb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: orbs(norb,norb)
-type(gjorb_type) :: gjorb
+real(kind=wp), intent(in) :: orbs(norb,norb)
+type(gjorb_type), intent(_OUT_) :: gjorb
 integer(kind=iwp) :: i
 integer(kind=iwp), allocatable :: lrow(:)
 real(kind=wp), allocatable :: a(:,:)
 
 call mma_allocate(a,norb,norb,label='a')
 call mma_allocate(lrow,norb,label='lrow')
-a(:,:)= orbs(:,:)
+a(:,:) = orbs(:,:)
 call gaussj2_cvb(a,lrow,gjorb%i1,gjorb%i2,gjorb%r,norb)
 lrow(:) = gjorb%i1(:)
 do i=1,norb

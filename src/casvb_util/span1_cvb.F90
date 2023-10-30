@@ -18,8 +18,8 @@ use casvb_global, only: nvecmx, nvtot, span
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nvec, n, metr
-real(kind=wp) :: c(n,nvec), s(*)
+integer(kind=iwp), intent(in) :: nvec, n, metr
+real(kind=wp), intent(in) :: c(n,nvec), s(*)
 integer(kind=iwp) :: nvmove, nvremain
 
 nvremain = nvec

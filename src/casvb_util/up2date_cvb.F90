@@ -19,7 +19,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 logical(kind=iwp) :: up2date_cvb
-character(len=*) :: chr
+character(len=*), intent(in) :: chr
 integer(kind=iwp) :: i, iobj
 
 iobj = 0

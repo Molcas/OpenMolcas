@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nfrr, n_div, nfrdim, iter
-real(kind=wp) :: fx
+integer(kind=iwp), intent(out) :: nfrr, n_div, nfrdim
+integer(kind=iwp), intent(in) :: iter
+real(kind=wp), intent(in) :: fx
 real(kind=wp) :: fxlast = Zero
 logical(kind=iwp) :: orb_is_cheap
 real(kind=wp), external :: tim_cvb

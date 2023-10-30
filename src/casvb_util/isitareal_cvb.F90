@@ -17,8 +17,8 @@ function isitareal_cvb(a)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: a
 logical(kind=iwp) :: isitareal_cvb
+character(len=*), intent(in) :: a
 integer(kind=iwp) :: ich, j
 logical(kind=iwp) :: done
 integer(kind=iwp), parameter :: nallowed = 17

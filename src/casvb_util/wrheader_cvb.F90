@@ -17,8 +17,9 @@ subroutine wrheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,ioffs_orbs,ioffs_cvb
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-real(kind=wp) :: recn
-integer(kind=iwp) :: norb1, nbas_mo1, nvb1, kbasiscvb1, ioffs_orbs, ioffs_cvb, ioffs_orbsao, ioffs_orbslao
+real(kind=wp), intent(in) :: recn
+integer(kind=iwp), intent(in) :: norb1, nbas_mo1, nvb1, kbasiscvb1
+integer(kind=iwp), intent(out) :: ioffs_orbs, ioffs_cvb, ioffs_orbsao, ioffs_orbslao
 integer(kind=iwp) :: iheader(10)
 logical(kind=iwp), parameter :: debug = .false.
 

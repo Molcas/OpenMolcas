@@ -73,8 +73,10 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nm, n, low, igh, ierr
-real(kind=wp) :: h(nm,n), wr(n), wi(n)
+integer(kind=iwp), intent(in) :: nm, n, low, igh
+real(kind=wp), intent(inout) :: h(nm,n)
+real(kind=wp), intent(out) :: wr(n), wi(n)
+integer(kind=iwp), intent(out) :: ierr
 integer(kind=iwp) :: en, enm2, i, itn, its, j, k, l, ll, m, mm, mp2, na, nroot
 real(kind=wp) :: norm, p, q, r, s, t, tst1, tst2, w, x, y, zz
 logical(kind=iwp) :: notlas

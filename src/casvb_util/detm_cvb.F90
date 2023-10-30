@@ -20,8 +20,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: detm_cvb
-integer(kind=iwp) :: n
-real(kind=wp) :: a(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: a(n,n)
 integer(kind=iwp) :: ierr
 real(kind=wp) :: det(2)
 integer(kind=iwp), allocatable :: itmp(:)

@@ -20,8 +20,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ipermzeta(norb,nzeta), izeta(nsyme)
-real(kind=wp) :: orbs(norb,norb), symelm(norb*norb,nsyme)
+integer(kind=iwp), intent(out) :: ipermzeta(norb,nzeta)
+real(kind=wp), intent(in) :: orbs(norb,norb), symelm(norb*norb,nsyme)
+integer(kind=iwp), intent(in) :: izeta(nsyme)
 integer(kind=iwp) :: iorb, isyme, izeta1, jorb
 real(kind=wp), allocatable :: orbinv(:,:), owrk(:,:), owrk2(:,:)
 real(kind=wp), parameter :: thresh = 1.0e-8_wp

@@ -15,7 +15,7 @@
 subroutine touchrules_cvb(chr)
 
 implicit none
-character(len=*) :: chr
+character(len=*), intent(in) :: chr
 
 select case (chr)
   case ('CI-ORBS')

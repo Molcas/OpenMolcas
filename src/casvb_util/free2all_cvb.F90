@@ -18,8 +18,9 @@ use casvb_global, only: nfr, nfrorb, npr, nprorb, nprvb, orbfr_is_unit, trprm
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nvec
-real(kind=wp) :: vecfrom(nfr,nvec), vecto(npr,nvec)
+integer(kind=iwp), intent(in) :: nvec
+real(kind=wp), intent(in) :: vecfrom(nfr,nvec)
+real(kind=wp), intent(out) :: vecto(npr,nvec)
 integer(kind=iwp) :: ivec
 
 do ivec=1,nvec

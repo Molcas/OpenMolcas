@@ -16,19 +16,20 @@ subroutine axesx2_cvb(asonc,ddres2upd,vec,resthr_inp,ioptc,iter,fx_exp,sxc,share
 
 use casvb_global, only: ap, axc, c, corenrg, ifollow, ipdd, isaddledd, maxd, mxit, nfrdim, nortiterdd, nparm, nvguess, nvrestart, &
                         orththrdd, res, resthrdd, solp
-use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddrestart_sub, ddsol_sub
+use casvb_interfaces, only: ddasonc_sub, ddres_sub, ddres2upd_sub, ddsol_sub
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 procedure(ddasonc_sub) :: asonc
 procedure(ddres2upd_sub) :: ddres2upd
-real(kind=wp) :: vec(nparm), resthr_inp, fx_exp, sxc(nparm,maxd), solp_res(maxd)
-integer(kind=iwp) :: ioptc, iter
-logical(kind=iwp) :: share
+real(kind=wp), intent(out) :: vec(nparm), fx_exp, solp_res(maxd)
+real(kind=wp), intent(in) :: resthr_inp
+integer(kind=iwp), intent(out) :: ioptc, iter
+real(kind=wp), intent(inout) :: sxc(nparm,maxd)
+logical(kind=iwp), intent(in) :: share
 real(kind=wp) :: dum(1), resthr_use
 procedure(ddres_sub) :: axesxres_cvb
-procedure(ddrestart_sub) :: ddrestart_cvb
 procedure(ddsol_sub) :: axexsol_cvb
 
 ! If RESTHR_INP unset use default:
@@ -38,9 +39,9 @@ else
   resthr_use = resthrdd
 end if
 
-call dirdiag_cvb(asonc,axexsol_cvb,axesxres_cvb,ddres2upd,ddrestart_cvb,c,axc,sxc,share,vec,res,dum,ap,dum,solp,solp_res,.false., &
-                 .true.,.false.,maxd,nparm,nfrdim,nvguess,nvrestart,isaddledd,ifollow,mxit,resthr_use,orththrdd,nortiterdd, &
-                 corenrg,ioptc,iter,fx_exp,ipdd)
+call dirdiag_cvb(asonc,axexsol_cvb,axesxres_cvb,ddres2upd,c,axc,sxc,share,vec,res,dum,ap,dum,solp,solp_res,.false.,.true.,.false., &
+                 maxd,nparm,nfrdim,nvguess,nvrestart,isaddledd,ifollow,mxit,resthr_use,orththrdd,nortiterdd,corenrg,ioptc,iter, &
+                 fx_exp,ipdd)
 
 return
 

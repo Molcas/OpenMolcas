@@ -17,8 +17,8 @@ subroutine setretvals_cvb(esym,n_iter)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n_iter
-real(kind=wp) :: esym(*)
+integer(kind=iwp), intent(in) :: n_iter
+real(kind=wp), intent(in) :: esym(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

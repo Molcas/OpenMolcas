@@ -17,8 +17,8 @@ subroutine kotani_cvb(bikcof,ndet,ifns)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ndet, ifns
-real(kind=wp) :: bikcof(ndet,ifns)
+integer(kind=iwp), intent(in) :: ndet, ifns
+real(kind=wp), intent(inout) :: bikcof(ndet,ifns)
 integer(kind=iwp) :: k
 real(kind=wp) :: dum(1)
 

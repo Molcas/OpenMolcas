@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n2, n, metr
-real(kind=wp) :: c1(n,n2), c2(n,n2), s(*)
+integer(kind=iwp), intent(in) :: n2, n, metr
+real(kind=wp), intent(in) :: c1(n,n2), s(*)
+real(kind=wp), intent(out) :: c2(n,n2)
 integer(kind=iwp) :: ik, j, k
 
 if (metr == 0) then

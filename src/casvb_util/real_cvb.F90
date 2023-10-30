@@ -19,8 +19,9 @@ use casvb_global, only: inputmode
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nmax, nread, ifc
-real(kind=wp) :: arr(nmax)
+integer(kind=iwp), intent(in) :: nmax, ifc
+real(kind=wp), intent(inout) :: arr(nmax)
+integer(kind=iwp), intent(inout) :: nread
 logical(kind=iwp) :: done
 
 call real_cvb_internal(arr)
@@ -30,8 +31,10 @@ return
 ! This is to allow type punning without an explicit interface
 contains
 
+#include "intent.fh"
+
 subroutine real_cvb_internal(arr)
-  real(kind=wp), target :: arr(*)
+  real(kind=wp), target, intent(_OUT_) :: arr(*)
   integer(kind=iwp), pointer :: iarr(:)
   integer(kind=iwp) :: i, ierr, ifcuse
   if (inputmode == 2) then

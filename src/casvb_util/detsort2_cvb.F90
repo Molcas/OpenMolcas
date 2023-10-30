@@ -18,9 +18,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Data_Structures, only: Alloc1DiArray_Type
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: norb, nalf, nfrag, nda_fr(nfrag), nalf_fr(nfrag), ia12ind(*), mxstack
-type(Alloc1DiArray_Type) :: astr_fr(nfrag)
+integer(kind=iwp), intent(in) :: norb, nalf, nfrag, nda_fr(nfrag), nalf_fr(nfrag), mxstack
+integer(kind=iwp), intent(_OUT_) :: ia12ind(*)
+type(Alloc1DiArray_Type), intent(in) :: astr_fr(nfrag)
 integer(kind=iwp) :: i, iatotindx, iter, mxiter, nestlevel, nloop
 integer(kind=iwp), allocatable :: iastr_acc(:,:), iphase(:), istack(:), nalf_acc(:), nc_fac(:), ncombindex(:), xalf(:,:)
 integer(kind=iwp), external :: ioemrg2_cvb, minind_cvb

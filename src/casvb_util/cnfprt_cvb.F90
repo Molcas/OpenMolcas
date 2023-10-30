@@ -24,7 +24,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nconf1, iconfs(noe,nconf1), nel1
+integer(kind=iwp), intent(in) :: nconf1, iconfs(noe,nconf1), nel1
 integer(kind=iwp) :: iconf, ii, ioffs, iorb
 integer(kind=iwp), allocatable :: tmp(:)
 

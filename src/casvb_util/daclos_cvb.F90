@@ -18,7 +18,7 @@ use casvb_global, only: idan
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lu
+integer(kind=iwp), intent(in) :: lu
 integer(kind=iwp) :: iwasopen
 
 call istkpop_cvb(idan,iwasopen)

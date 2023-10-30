@@ -17,8 +17,8 @@ subroutine cvprt_cvb(a,l)
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=20) :: a
-logical(kind=iwp) :: l
+character(len=20), intent(in) :: a
+logical(kind=iwp), intent(in) :: l
 
 if (l) then
   write(u6,'(2a)') a,'     Converged.'

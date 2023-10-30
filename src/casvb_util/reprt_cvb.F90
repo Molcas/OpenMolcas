@@ -108,7 +108,7 @@ if ((.not. variat) .or. endvar) then
     call ci2vbg_cvb(civb3,dvbdet)
   else
     call cicopy_cvb(civb2,civb3)
-    call transp_cvb(orbs,owrk2,norb,norb)
+    call trnsps(norb,norb,orbs,owrk2)
     call gaussj_cvb(owrk2,gjorb2)
     call applyt_cvb(civb3,gjorb2)
     call ci2vbg_cvb(civb3,dvbdet)
@@ -144,7 +144,7 @@ if ((.not. variat) .or. endvar) then
       call gaussj_cvb(sorbs,gjorb3)
     else
       call gaussj_cvb(orbs,gjorb)
-      call transp_cvb(orbs,owrk2,norb,norb)
+      call trnsps(norb,norb,orbs,owrk2)
       call gaussj_cvb(owrk2,gjorb2)
     end if
     do k=1,nvb
@@ -244,7 +244,7 @@ if ((.not. variat) .or. endvar) then
     call mxprintd_cvb(sstruc,nvb,nvb,0)
     if (ifhamil) then
       call gaussj_cvb(orbs,gjorb)
-      call transp_cvb(orbs,owrk2,norb,norb)
+      call trnsps(norb,norb,orbs,owrk2)
       call gaussj_cvb(owrk2,gjorb2)
       do k=1,nvb
         sstruc2(:,k) = Zero

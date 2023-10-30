@@ -18,7 +18,7 @@ use casvb_global, only: nfr
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: hess(nfr,nfr)
+real(kind=wp), intent(out) :: hess(nfr,nfr)
 integer(kind=iwp) :: ivar
 
 call unitmat(hess,nfr)

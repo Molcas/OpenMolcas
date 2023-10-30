@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: cfrom(nda,ndb), cto(nda,ndb), ret
-integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), ic
+real(kind=wp), intent(in) :: cfrom(nda,ndb)
+real(kind=wp), intent(inout) :: cto(nda,ndb), ret
+integer(kind=iwp), intent(in) :: iapr(ndetvb), ixapr(nda+1), ic
 integer(kind=iwp) :: ia, ib, idetvb, ixa
 
 if (ic == 0) then

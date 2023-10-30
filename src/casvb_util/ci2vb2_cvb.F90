@@ -18,9 +18,12 @@ use casvb_global, only: nda, ndb, ndetvb
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: civec(nda,ndb), cvbdet(ndetvb), ret
-integer(kind=iwp) :: iapr(ndetvb), ixapr(nda+1), ic
+real(kind=wp), intent(inout) :: civec(nda,ndb), cvbdet(ndetvb)
+integer(kind=iwp), intent(in) :: iapr(ndetvb), ixapr(nda+1), ic
+real(kind=wp), intent(_OUT_) :: ret
 integer(kind=iwp) :: ia, ib, idetvb, ixa
 
 if (ic == 0) then

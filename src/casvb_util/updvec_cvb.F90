@@ -20,8 +20,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: upd(norb), orbs(norb,norb), corth(norb,niorth)
-integer(kind=iwp) :: iorb, jorb, niprev, iprev(niprev), north(norb)
+real(kind=wp), intent(out) :: upd(norb)
+integer(kind=iwp), intent(in) :: iorb, jorb, niprev, iprev(niprev), north(norb)
+real(kind=wp), intent(in) :: orbs(norb,norb), corth(norb,niorth)
 integer(kind=iwp) :: i, ncon, noffort
 real(kind=wp) :: dum(1)
 real(kind=wp), allocatable :: tmp(:,:)

@@ -18,11 +18,11 @@ use casvb_global, only: file_id, nbuf
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: dnbuf
+real(kind=wp) :: dnbuf(1)
 
 call bufio_wrbuf_cvb()
-dnbuf = real(nbuf,kind=wp)
-call wrlow_cvb([dnbuf],1,file_id,0)
+dnbuf(1) = real(nbuf,kind=wp)
+call wrlow_cvb(dnbuf,1,file_id,0)
 
 return
 

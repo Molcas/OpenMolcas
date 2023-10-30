@@ -17,9 +17,12 @@ subroutine sminus_cvb(bikfrom,bikto,nel,nalffrom,nalfto,nvec)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: bikfrom(*), bikto(*)
-integer(kind=iwp) :: nel, nalffrom, nalfto, nvec
+real(kind=wp), intent(inout) :: bikfrom(*)
+real(kind=wp), intent(_OUT_) :: bikto(*)
+integer(kind=iwp), intent(in) :: nel, nalffrom, nalfto, nvec
 integer(kind=iwp) :: ialffrom, ialfto, ivec, ndetfrom, ndetto
 real(kind=wp) :: cnrmfrom, cnrmto
 real(kind=wp), allocatable :: b4(:,:), b5(:,:)

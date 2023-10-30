@@ -18,8 +18,9 @@ use casvb_global, only: inputmode
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nmax, nread, ifc
-character(len=*) :: arr(nmax)
+integer(kind=iwp), intent(in) :: nmax, ifc
+character(len=*), intent(inout) :: arr(nmax)
+integer(kind=iwp), intent(inout) :: nread
 integer(kind=iwp) :: i, ierr, ifcuse
 character(len=100) :: string
 logical(kind=iwp) :: done

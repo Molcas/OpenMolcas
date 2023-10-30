@@ -21,8 +21,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: mxorth_cvb
-integer(kind=iwp) :: n
-real(kind=wp) :: a(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: a(n,n)
 integer(kind=iwp) :: i, j
 real(kind=wp) :: tst
 real(kind=wp), allocatable :: at(:,:), c(:,:)

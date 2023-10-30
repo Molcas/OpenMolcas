@@ -12,18 +12,17 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine dev2a_2_cvb(v1,v2,cfrom,hessorb,oaa2,aa1,nprorb,i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto,iapr,ixapr,ibpr,ixbpr, &
-                       npvb,nda,ndb,n1a,n1b,nam1,nbm1,norb,commut,sc,absym)
+subroutine dev2a_2_cvb(v1,v2,cfrom,hessorb,oaa2,aa1)
 ! Calculates V1 EijEkl CFROM and V2 EijEkl CFROM
 
+use casvb_global, only: absym, i1alf, i1bet, iafrm, iapr, iato, ibfrm, ibpr, ibto, ixapr, ixbpr, n1a, n1b, nda, ndb, norb, nprorb, &
+                        phato, phbto, projcas, sc
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nprorb, n1a, norb, i1alf(n1a,norb), n1b, i1bet(n1b,norb), nda, iafrm(norb,nda), ndb, ibfrm(norb,ndb), nam1, &
-                     iato(norb,0:nam1), nbm1, ibto(norb,0:nbm1), npvb, iapr(npvb), ixapr(nda+1), ibpr(npvb), ixbpr(ndb+1)
-real(kind=wp) :: v1(nda,ndb), v2(nda,ndb), cfrom(nda,ndb), hessorb(nprorb,nprorb), oaa2, aa1, phato(norb,nam1), phbto(norb,nbm1)
-logical(kind=iwp) :: commut, sc, absym
+real(kind=wp), intent(in) :: v1(nda,ndb), v2(nda,ndb), cfrom(nda,ndb), oaa2, aa1
+real(kind=wp), intent(inout) :: hessorb(nprorb,nprorb)
 integer(kind=iwp) :: i1, i2, i3, i4, ia, iax, iaxtmp, ib, ibx, ibxtmp, iorb, iprm1, iprm2, itmp, ixa, ixb, jax, jbx, jorb, kax, &
                      kbx, korb, lax, lbx, lorb
 real(kind=wp) :: phase, res1, res2, tcof, term
@@ -49,7 +48,7 @@ do iprm1=1,nprorb
     end if
     res1 = Zero
     res2 = Zero
-    if (commut .and. (.not. sc)) then
+    if (projcas .and. (.not. sc)) then
       ! 1) Alpha excitation
       do ia=1,n1a
         iaxtmp = i1alf(ia,iorb)
@@ -140,7 +139,7 @@ do iprm1=1,nprorb
         end if
       end do
 
-      if (absym) then
+      if (absym(3)) then
         res1 = Two*res1
         res2 = Two*res2
       else
@@ -234,7 +233,7 @@ do iprm1=1,nprorb
           end if
         end do
       end if
-    else if ((.not. commut) .and. (.not. sc)) then
+    else if ((.not. projcas) .and. (.not. sc)) then
       ! 1) Alpha excitation
       do ia=1,n1a
         iaxtmp = i1alf(ia,iorb)
@@ -267,7 +266,7 @@ do iprm1=1,nprorb
         end if
       end do
 
-      if (absym) then
+      if (absym(3)) then
         res1 = Two*res1
         res2 = Two*res2
       else
@@ -303,7 +302,7 @@ do iprm1=1,nprorb
           end if
         end do
       end if
-    else if (commut .and. sc) then
+    else if (projcas .and. sc) then
       ! 1) Alpha excitation
       do ia=1,n1a
         iaxtmp = i1alf(ia,iorb)
@@ -390,7 +389,7 @@ do iprm1=1,nprorb
         end if
       end do
 
-      if (absym) then
+      if (absym(3)) then
         res1 = Two*res1
         res2 = Two*res2
       else
@@ -480,7 +479,7 @@ do iprm1=1,nprorb
           end if
         end do
       end if
-    else if ((.not. commut) .and. sc) then
+    else if ((.not. projcas) .and. sc) then
       ! 1) Alpha excitation
       do ia=1,n1a
         iaxtmp = i1alf(ia,iorb)
@@ -511,7 +510,7 @@ do iprm1=1,nprorb
         end if
       end do
 
-      if (absym) then
+      if (absym(3)) then
         res1 = Two*res1
         res2 = Two*res2
       else

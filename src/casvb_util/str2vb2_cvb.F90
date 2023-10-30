@@ -20,9 +20,10 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iway, ndetvb, idetvb(ndetvb), nS, i2S(nS), nMs, nalf1(nMs), nvb, kbasis, nel, nconfion(0:*)
-logical(kind=iwp) :: absym
-real(kind=wp) :: bikcof(*), cvb(nvb), cvbdet(ndetvb)
+real(kind=wp), intent(in) :: bikcof(*)
+integer(kind=iwp), intent(in) :: iway, ndetvb, idetvb(ndetvb), nS, i2S(nS), nMs, nalf1(nMs), nvb, kbasis, nel, nconfion(0:*)
+real(kind=wp), intent(inout) :: cvb(nvb), cvbdet(ndetvb)
+logical(kind=iwp), intent(in) :: absym
 integer(kind=iwp) :: i2s_keep, i_det, i_spin, iconfadd, idadd, idet, iMs, ioff, ioff_bikcof, ion, iS, isadd, j_spin, n_det, &
                      n_det_values, n_spin, n_spin_values, nalfsing, nalfsing_det, nalfsing_keep, nelsing
 integer(kind=iwp), pointer :: ifnss(:,:)

@@ -21,8 +21,8 @@ use Constants, only: Zero, One, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: imethod
-logical(kind=iwp) :: endwhenclose1
+integer(kind=iwp), intent(in) :: imethod
+logical(kind=iwp), intent(in) :: endwhenclose1
 real(kind=wp), parameter :: small = 1.0e-3_wp, small2 = 1.0e-5_wp, smaller = 1.0e-6_wp
 
 ! << TUNE_CVB common block: >>

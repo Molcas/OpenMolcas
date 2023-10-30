@@ -15,7 +15,8 @@ subroutine cdiv(ar,ai,br,bi,cr,ci)
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: ar, ai, br, bi, cr, ci
+real(kind=wp), intent(in) :: ar, ai, br, bi
+real(kind=wp), intent(out) :: cr, ci
 real(kind=wp) :: ais, ars, bis, brs, s
 
 s = abs(br)+abs(bi)

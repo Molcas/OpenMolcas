@@ -18,9 +18,12 @@ use casvb_global, only: nalf, nbet, ndet, norb
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: vecvb(ndet), vecmol(*)
-integer(kind=iwp) :: isyml
+real(kind=wp), intent(inout) :: vecvb(ndet)
+real(kind=wp), intent(_IN_) :: vecmol(*)
+integer(kind=iwp), intent(in) :: isyml
 integer(kind=iwp) :: iwr, nsa, nsb
 
 iwr = 1

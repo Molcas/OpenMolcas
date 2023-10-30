@@ -18,7 +18,9 @@ use casvb_global, only: iapr, iform_ci, ixapr, ndet
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: cfrom(0:ndet), cto(0:ndet), ret
+real(kind=wp), intent(in) :: cfrom(0:ndet)
+real(kind=wp), intent(inout) :: cto(0:ndet)
+real(kind=wp), intent(out) :: ret
 integer(kind=iwp) :: icfrom, icto
 
 icfrom = nint(cfrom(0))

@@ -18,7 +18,7 @@ use casvb_global, only: charobj, i_dep_on_j, ioffs, mxdep, ndep_ij, nobj
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: chr1, chr2
+character(len=*), intent(in) :: chr1, chr2
 integer(kind=iwp) :: i, iobj, jobj
 
 call undepend2_cvb(chr1,chr2,1)
