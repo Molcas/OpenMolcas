@@ -16,8 +16,13 @@
 !         (theta integration)                                          *
 !                                                                      *
 !***********************************************************************
-      use rmat
-      Implicit real*8 (a-h,o-z)
+      use rmat, only: m_Gam, n_Gam
+      Implicit None
+      Real*8 x
+
+      Integer lSinT, lCosT, k
+      Real*8 arg1, arg2, arg3
+      Real*8, External:: dGamma_Molcas
 !
       lsint=m_gam
       lcost=n_gam
