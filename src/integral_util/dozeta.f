@@ -11,6 +11,7 @@
 ! Copyright (C) 1990-1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine DoZeta(Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,rKappa,
      &                  ZInv,Alpha_,Beta_,Ind_Pair)
 !***********************************************************************
@@ -37,7 +38,9 @@
 !
       Integer iBeta, iAlpha, iZeta
       Real*8 AB2, Tmp0, Tmp1
-!#define _DEBUGPRINT_
+#if defined(_New_Code_) || defined(_DEBUGPRINT_)
+      Integer nZeta
+#endif
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In DoZeta:Alpha',' ',Alpha,nAlpha,1)
       Call RecPrt(' In DoZeta:Beta',' ',Beta,nBeta,1)

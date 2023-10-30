@@ -28,7 +28,7 @@
       Integer nZeta, lSum
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
 
-      external fradf
+      Real*8, external :: fradf
       Integer, Parameter :: limit=200, lenw=4*limit
 #ifdef _DEBUGPRINT_
       Character(LEN=80) Label
