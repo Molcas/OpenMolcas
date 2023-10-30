@@ -18,11 +18,17 @@
       use Basis_Info, only: nBas
       use Gateway_global, only: PrPrt
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-!     Local arrays
+      Implicit None
+      Integer nComp
       Real*8 Matrix(*)
-      Character Label*(*), Line*80, Status
+      Character(LEN=*) Label
       Integer ip(nComp), lOper(nComp)
+!     Local arrays
+      Character(LEN=80)  Line
+      Character(LEN=1)  Status
+      Integer iComp, ip1, iSmLbl, iIrrep, n2, jIrrep
+      Real*8 VrfSum
+      Real*8, External :: DDot_
 !
       Call GetEnvf('MOLCAS_TEST_not_yet_here',Status)
       If (Status.eq.' ') Return
@@ -54,5 +60,4 @@
          Call Add_info(Line,[VrfSum],1,8)
  10   Continue
 !
-      Return
-      End
+      End SubRoutine VrfMtrx
