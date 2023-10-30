@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       Subroutine Def_Shells(iSD,nSD,mSkal)
       use Basis_Info
       use Center_Info
@@ -22,6 +23,9 @@
       Integer iIrrep, nSkal, iAOttp, iCnttp, mdc, iShell, jCnttp, ntest,
      &        mdci, iCnt, iShell_Set, iAng, iShll, nExpi, nBasisi, iCmp,
      &        kSh, iTemp, nDIsp, iTmp, iCar, nFunctions, iComp, iCase
+#ifdef _DEBUGPRINT_
+      Integer i, j
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
