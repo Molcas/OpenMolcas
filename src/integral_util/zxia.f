@@ -17,7 +17,7 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             January 1990                                             *
 !***********************************************************************
-      use Constants
+      use Constants, only: One
       Implicit None
       Integer, Intent(In):: N,M
       Real*8, Intent(In):: Alpha(N), Beta(M)
