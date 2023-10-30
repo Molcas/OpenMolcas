@@ -27,9 +27,15 @@
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
+     &        iShll,jShll,iAO,jAO,iBas,jBas,nDSO
       Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO)
       Integer nOp(2)
+      Real*8 FactNd
+
+      Integer lSO, ii, jj, j1, i1, j2, j12, i2, iChBs, jMx, jChBs
+      Real*8 Xa, pa, Xb, FactNs, Deg
 !
 #ifdef _DEBUGPRINT_
       Write (6,*) ' lOper=',lOper
@@ -81,5 +87,4 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In DesymD: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
 #endif
-      Return
-      End
+      End Subroutine DesymD
