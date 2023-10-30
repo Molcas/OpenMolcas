@@ -21,16 +21,19 @@
 !                                                                      *
 ! Author: K.Pfingst 21/5/93                                            *
 !***********************************************************************
-      use Constants
-      use rmat
-      Implicit Real*8 (A-H,O-Z)
-      external fradf
+      use rmat, only: ExpSum, l, EpsAbs, EpsRel, RMatR
+      Implicit None
+      Integer nZeta, lSum, icop
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
-      Parameter(limit=200,lenw=4*limit)
+
+      Integer, Parameter :: limit=200, lenw=4*limit
+      external fradf
       Integer iScrt(limit)
       Real*8 Scrt(lenw)
+      Integer ir, iZeta, ier, nEval, Last
+      Real*8 Result, AbsEr
 #ifdef _DEBUGPRINT_
-      Character*80 Label
+      Character(LEN=80) Label
 #endif
 !
       Call Untested('Radlq')
@@ -67,5 +70,4 @@
       Call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
 #endif
 !
-      Return
-      End
+      End SubRoutine Radlq
