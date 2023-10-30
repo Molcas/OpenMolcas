@@ -57,6 +57,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 use Disp, only: l2DI
 use k2_structure, only: k2Data
+#ifdef _DEBUGPRINT_
+use Disp, only: ChDisp
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
