@@ -17,7 +17,7 @@
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
-      use Constants
+      use Constants, only: Zero
       Implicit None
       Real*8 EstI
       Integer nAlpha,nBeta,niBas,njBas,nab,nScrt
