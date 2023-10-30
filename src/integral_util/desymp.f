@@ -43,12 +43,18 @@
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer iCmp, jCmp, kCmp, lCmp, ijkl, nAux, nPSO
       Real*8 PAO(ijkl,iCmp,jCmp,kCmp,lCmp), PSO(ijkl,nPSO), Aux(nAux)
-      Logical Shij, Shkl, Shijij
+      Logical Shijij
       Integer iAng(4), iShell(4), kOp(4), iShll(4), iAO(4)
 !     Local Array
+      Logical Shij, Shkl
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
+      Integer MemSO2, ii, jj, kk, ll, i1, i2, i3, i4, iChBs, jChBs,
+     &        kChBs, lChBs, niSym, njSym, nkSym, nlSym, iAux, j,
+     &        is, js, ks, ls, j1, j2, j3, j12, j123, j4
+      Real*8 Fact, pa, pb, pc, FactNs, Xa, Xb, Xg
 !
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
@@ -195,9 +201,8 @@
      &               PAO(i,1,1,1,1),ijkl,
      &               PAO(i,1,1,1,1),ijkl)
  3333 Continue
-      all WrCheck('DesymP: PAO ',PAO,ijkl*iCmp*jCmp*kCmp*lCmp)
-      rite (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
-      rite (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
+      Call WrCheck('DesymP: PAO ',PAO,ijkl*iCmp*jCmp*kCmp*lCmp)
+      Write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,[One],0)
+      Write (6,*) ddot_(ijkl*iCmp*jCmp*kCmp*lCmp,PAO,1,PAO,1)
 #endif
-      Return
-      End
+      End Subroutine DesymP
