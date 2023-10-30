@@ -25,10 +25,16 @@
       use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info, only: iAOtSO
       use Constants
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,
+     &        iAO,jAO,iBas,jBas,nDSO
       Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO),
      &       Scrt(iBas*jBas)
       Integer nOp(2)
+      Real*8 FactNd
+
+      Integer lSO, j1, j2, j12, jMx, i1, i2
+      Real*8 Xa, Xb, Deg
 !
 #ifdef _DEBUGPRINT_
       Write (6,*) ' lOper=',lOper
@@ -92,4 +98,4 @@
          Call Unused_integer(jShll)
          Call Unused_real(FactNd)
       End If
-      End
+      End Subroutine Desym1
