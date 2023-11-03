@@ -72,7 +72,6 @@ do iEta=1,mEta
   end if
 end do
 PreScr = .true.
-Write (6,*) rKabMx,rKcdMx, ZetaMx,EtaMx
 PreMax = rKabMx*rKcdMx*sqrt(One/(ZetaMx+EtaMx))
 PreMin = rKabMn*rKcdMn*sqrt(One/(ZetaMn+EtaMn))
 if (PreMin > CutGrd) PreScr = .false.
