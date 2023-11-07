@@ -11,8 +11,10 @@
 ! Copyright (C) 2015, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mData1,Data2,mData2,nAlpha,nBeta,nGamma,nDelta,IndZ, &
-                  Zeta,ZInv,P,KappAB,IndZet,IndE,Eta,EInv,Q,KappCD,IndEta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil, &
+subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot, &
+                  k2data1,k2data2,          &
+                  nAlpha,nBeta,nGamma,nDelta, &
+                  ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil, &
                   vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl,nabcd,mabcd,Wrk,iW2, &
                   iW4,nWork2,mWork2,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp,iShll,NoPInts,Dij,mDij,Dkl,mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi, &
                   Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl)
@@ -58,28 +60,31 @@ subroutine DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,Data1,mDat
 use Breit, only: nComp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use k2_structure, only:k2_type
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+use k2_arrays, only: BraKet
 
 implicit none
-integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, mData1, mData2, nAlpha, nBeta, &
-                                 nGamma, nDelta, IndZ(nZeta), IndE(nEta), ix1, iy1, iz1, ix2, iy2, iz2, iAnga(4), mabMin, mabMax, &
+integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_Tot, nEta_Tot, nAlpha, nBeta, &
+                                 nGamma, nDelta, ix1, iy1, iz1, ix2, iy2, iz2, iAnga(4), mabMin, mabMax, &
                                  mcdMin, mcdMax, nijkl, nabcd, mabcd, iW2, iW4, nWork2, mWork2, la, lb, lc, ld, iCmp(4), iShll(4), &
                                  mDij, mDkl, iBasi, jBasj, kBask, lBasl
-real(kind=wp), intent(in) :: Data1(mData1), Data2(mData2), ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), &
+real(kind=wp), intent(in) :: ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), &
                              HMtrxAB(*), HMtrxCD(*), Dij(mDij), Dkl(mDkl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
                              Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl)
-real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3)
-real(kind=wp), intent(inout) :: KappAB(nZeta), KappCD(nEta), Wrk(nWork2)
-integer(kind=iwp), intent(out) :: IndZet(nZeta), IndEta(nEta), kabcd
+real(kind=wp), intent(inout) :: Wrk(nWork2)
+integer(kind=iwp), intent(out) :: kabcd
 logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
 logical(kind=iwp), intent(inout) :: NoInts, NoPInts, Do_TnsCtl
 integer(kind=iwp) :: i_Int, iOffE, iOffZ, iW3, lEta, lZeta, n1, n2, n3, n4, nW2, nWork3
 logical(kind=iwp), parameter :: Nospecial = .false.
 external :: TERI, ModU2, vCff2D, vRys2D
-integer(kind=iwp), external :: ip_abMax, ip_abMaxD, ip_ZtMax, ip_ZtMaxD
+type(k2_type), intent(in) :: k2data1, k2data2
 
+associate( Zeta => BraKet%Zeta, ZInv => BraKet%ZInv, P => BraKet%P, KappAB => BraKet%KappaAB, IndZet => BraKet%IndZet,  &
+           Eta  => BraKet%Eta,  EInv => BraKet%Einv, Q => BraKet%Q, KappCD => BraKet%KappaCD, IndEta => BraKet%IndEta )
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'
 write(u6,*) 'iZeta, nZeta, mZeta, nZeta_Tot=',iZeta,nZeta,mZeta,nZeta_Tot
@@ -97,10 +102,11 @@ call RecPrt('KappCD',' ',KappCD,1,nEta)
 
 iOffZ = mDij-nZeta
 iOffE = mDkl-nEta
-call Screen(nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,KappAB,IndZet,Data1(iZeta),nAlpha,nBeta,IndZ(iZeta), &
-            Data1(ip_ZtMax(nZeta)),Data1(ip_abMax(nZeta)),Data1(ip_ZtMaxD(nZeta)),Data1(ip_abMaxD(nZeta)),Eta,EInv,Q,KappCD, &
-            IndEta,Data2(iEta),nGamma,nDelta,IndE(iEta),Data2(ip_ZtMax(nEta)),Data2(ip_abMax(nEta)),Data2(ip_ZtMaxD(nEta)), &
-            Data2(ip_abMaxD(nEta)),Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &
+call Screen(iZeta-1,iEta-1,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
+            k2data1, k2data2, &
+            Zeta,ZInv,P,KappAB,IndZet, &
+            Eta, EInv,Q,KappCD,IndEta, &
+            Dij(iOffZ),Dkl(iOffE),ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl, &
             Prescreen_On_Int_Only)
 !write(u6,*) 'lZeta,lEta:',lZeta,lEta
 if (lZeta*lEta == 0) then
@@ -131,7 +137,7 @@ else
     iW3 = iW2+n1
     call DGeTMO(Wrk(iW2),lZeta*lEta*nComp,lZeta*lEta*nComp,mabcd,Wrk(iW3),mabcd)
     Wrk(iW2:iW2+n1-1) = Wrk(iW3:iW3+n1-1)
-    call TnsCtl(Wrk(iW2),nWork2,Coor,lZeta*lEta*nComp,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
+    call TnsCtl(Wrk(iW2),nWork2,lZeta*lEta*nComp,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmp(1),iCmp(2), &
                 iCmp(3),iCmp(4),iShll(1),iShll(2),iShll(3),iShll(4),i_Int)
     n2 = lZeta*lEta*nComp*nabcd
     if (i_Int /= iW2) Wrk(iW2:iW2+n2-1) = Wrk(i_Int:i_Int+n2-1)
@@ -179,6 +185,7 @@ write(u6,*) 'nComp,kabcd,iBasi*jBasj*kBask*lBasl=',nComp,kabcd,iBasi*jBasj*kBask
 call RecPrt('DrvRys:(e0|0f)',' ',Wrk(iW4),nComp*kabcd,iBasi*jBasj*kBask*lBasl)
 #endif
 
+end associate
 return
 
 end subroutine DrvRys

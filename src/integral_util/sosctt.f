@@ -1,46 +1,53 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine SOSctt(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
      &                  iCmp,jCmp,iShell,jShell,
      &                  iAO,jAO,nComp,Label,kOper,rHrmt)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             January '91                                              *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             January '91                                              *
+!***********************************************************************
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
+      use Constants
+      Implicit None
+      Integer iBas,jBas,nSOInt,nPrp,lOper,iCmp,jCmp,iShell,jShell,
+     &                  iAO,jAO,nComp
+      Real*8 rHrmt
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Integer kOper(nComp)
-      Character Label*8
-*
-*#define _DEBUGPRINT_
+      Character(LEN=8) Label
+
+      Integer, external:: iPntSO
+      Integer lSO, j1, i1, j2, j12, jjMx, i2, iSO1, iSO2, iPnt,
+     &        indAO1, indAO2, jBsMax, ip, Indi, Indj, nRow
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In SOSctt:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       Call RecPrt(' In SOSctt:PrpInt',' ',PrpInt,1,nPrp)
 #endif
-*
+!
       lSO = 0
       Do 100 j1 = 0, nIrrep-1
        Do 200 i1 = 1, iCmp
         If (iAOtSO(iAO+i1,j1)<0) Cycle
-*
-*       Scatter the SO's onto lower rectangular blocks and triangular
-*       diagonal blocks.
-*
+!
+!       Scatter the SO's onto lower rectangular blocks and triangular
+!       diagonal blocks.
+!
         Do 300 j2 = 0, nIrrep-1
          j12 = iEor(j1,j2)
          If (iAnd(lOper,2**j12).eq.0) Go To 300
@@ -51,20 +58,20 @@
           lSO = lSO + 1
           iSO1=iAOtSO(iAO+i1,j1)
           iSO2=iAOtSO(jAO+i2,j2)
-*         Write (*,*) iSO1,iAO,i1,j1,iSO2,jAO,i2,j2
-*
+!         Write (*,*) iSO1,iAO,i1,j1,iSO2,jAO,i2,j2
+!
           iPnt = iPntSO(Max(j1,j2),Min(j1,j2),lOper,nbas)
           Do 500 indAO1 = 0, iBas-1
-*         Diagonal block. Store only unique elements
+!         Diagonal block. Store only unique elements
            jBsMax = jBas - 1
            If (j1.eq.j2 .and. iSO1.eq.iSO2) jBsMax=indAO1
            Do 600 indAO2 = 0, jBsMax
               ip = indAO2*iBas + indAO1 + 1
-*
-*           Move one-electron integral.
-*
+!
+!           Move one-electron integral.
+!
             If (j1.eq.j2) Then
-*------------Diagonal symmetry block
+!------------Diagonal symmetry block
              If (iSO1+indAO1.ge.iSO2+indAO2) Then
               Indi = iSO1+indAO1
               Indj = iSO2+indAO2
@@ -75,7 +82,7 @@
               PrpInt(iPnt+(Indi-1)*Indi/2+Indj)=rHrmt*SOInt(ip,lSO)
              End If
             Else
-*------------Off-diagonal symmetry block j1>j2
+!------------Off-diagonal symmetry block j1>j2
              If(j1.gt.j2) Then
               Indi = iSO1+indAO1
               Indj = iSO2+indAO2
@@ -88,18 +95,18 @@
               PrpInt(iPnt+nRow*(Indj-1)+Indi)=rHrmt*SOInt(ip,lSO)
              End If
             End If
-*
+!
  600       Continue
  500      Continue
-*
+!
  400     Continue
  300    Continue
-*
+!
  200   Continue
  100  Continue
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
        Call Unused_integer_array(kOper)
        Call Unused_character(Label)

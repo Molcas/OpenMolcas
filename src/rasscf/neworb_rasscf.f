@@ -1,51 +1,51 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE NEWORB_RASSCF(CMOO,CMON,FP,FTR,VEC,WO,SQ,CMOX,D,OCCN)
-C
-C     RASSCF program, version IBM-3090: SX section
-C
-C     Purpose: To diagonalize the inactive,
-C              and external parts of the Fock matrix FP=(FI+FA)
-C              and order the eigenvalues and eigenvectors after energy.
-C              The active orbitals are obtained by diagonalising the
-C              corresponding RAS subspaces.
-C              The new MO's are written onto JOBIPH
-C              in address IADR15(2), and are used to produce the final
-C              wave function. These are the orbitals printed in the
-C              output section.
-C     Called from SXCTL if IFINAL=1 (after last MC iteration)
-C
-C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
-C
-C     Calling arguments:
-*     D       : array of real, input
-*               one body density matrix in MO-space
-*     FP      : array of real, input
-*               MCSCF-Fock matrix
-*     FTR     : array of real
-*               scratch array (local copy of FP, one sym. block only)
-*     SQ      : array of real
-*               scratch array (keep in sym block of Fock)
-*     WO      : array of real
-*               scratch array (keep in sym block of Fock)
-*     VEC     : array of real
-*               scratch array (eigenvectors of FTR)
-*     CMOX    : array of real, input
-*               scratch array (local copy of CMOO)
-*     CMOO    : array of real, input
-*               old MO-coefficients
-*     CMON    : array of real, output
-*               new MO-coefficients
-*     OCNN    : array of real, input/output
-*               MO occupation numbers
+!
+!     RASSCF program, version IBM-3090: SX section
+!
+!     Purpose: To diagonalize the inactive,
+!              and external parts of the Fock matrix FP=(FI+FA)
+!              and order the eigenvalues and eigenvectors after energy.
+!              The active orbitals are obtained by diagonalising the
+!              corresponding RAS subspaces.
+!              The new MO's are written onto JOBIPH
+!              in address IADR15(2), and are used to produce the final
+!              wave function. These are the orbitals printed in the
+!              output section.
+!     Called from SXCTL if IFINAL=1 (after last MC iteration)
+!
+!          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+!
+!     Calling arguments:
+!     D       : array of real, input
+!               one body density matrix in MO-space
+!     FP      : array of real, input
+!               MCSCF-Fock matrix
+!     FTR     : array of real
+!               scratch array (local copy of FP, one sym. block only)
+!     SQ      : array of real
+!               scratch array (keep in sym block of Fock)
+!     WO      : array of real
+!               scratch array (keep in sym block of Fock)
+!     VEC     : array of real
+!               scratch array (eigenvectors of FTR)
+!     CMOX    : array of real, input
+!               scratch array (local copy of CMOO)
+!     CMOO    : array of real, input
+!               old MO-coefficients
+!     CMON    : array of real, output
+!               new MO-coefficients
+!     OCNN    : array of real, input/output
+!               MO occupation numbers
 
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -53,6 +53,7 @@ C     Calling arguments:
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use rctfld_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -64,9 +65,8 @@ C     Calling arguments:
       Parameter (ROUTINE='NEWORB  ')
 #include "SysDef.fh"
 #include "raswfn.fh"
-#include "rctfld.fh"
 
-      DIMENSION CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
+      Real*8 CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
      *          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
 
 C Local print level (if any)

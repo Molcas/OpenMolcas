@@ -36,7 +36,7 @@
       Integer ijkl, iCmp, jCmp, kCmp, lCmp
       Real*8  AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iBas, jBas, kBas, lBas
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
 #include "localdf_bas.fh"
 #include "localdf_int3.fh"
 #include "WrkSpc.fh"
@@ -49,7 +49,7 @@
       Integer lSOl
       Integer nijkl
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer i
       Integer nBasSh
       nBasSh(i)=iWork(ip_nBasSh-1+i)

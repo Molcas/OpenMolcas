@@ -20,7 +20,7 @@ subroutine Cho_SetShP2Q(irc,iLoc,iShlAB,nAB)
 use Index_Functions, only: nTri_Elem
 use Cholesky, only: IndRed, iOffq, iQuAB, iShP2Q, iSP2F, nBstSh, nSym
 #ifdef _DEBUGPRINT_
-use Cholesky, only: IndRSh
+use Cholesky, only: iiBstR, IndRSh, LuPri
 #endif
 use Definitions, only: iwp
 
@@ -29,6 +29,7 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: iLoc, iShlAB, nAB(8)
 integer(kind=iwp) :: iAB, iShlA, iShlB, iSym, jAB, kAB, l_iShP2Q, lAB, lTst, NumAB
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: nErr
 character(len=*), parameter :: SecNam = 'Cho_SetShP2Q'
 #endif
 
@@ -73,21 +74,21 @@ do iSym=1,nSym
 #   ifdef _DEBUGPRINT_
     nErr = 0
     if (IndRSh(jAB) /= iSP2F(iShlAB)) then
-      write(Lupri,*) SecNam,': inconsistent shell pairs!'
-      write(Lupri,*) SecNam,': from input: ',iSP2F(iShlAB),'  from IndRsh: ',IndRSh(jAB)
+      write(LuPri,*) SecNam,': inconsistent shell pairs!'
+      write(LuPri,*) SecNam,': from input: ',iSP2F(iShlAB),'  from IndRsh: ',IndRSh(jAB)
       nErr = nErr+1
     end if
     if ((kAB < 1) .or. (kAB > NumAB)) then
-      write(Lupri,*) SecNam,': shell pair address error!'
-      write(Lupri,*) SecNam,': kAB = ',kAB
-      write(Lupri,*) SecNam,': min and max allowed: 1 ',NumAB
+      write(LuPri,*) SecNam,': shell pair address error!'
+      write(LuPri,*) SecNam,': kAB = ',kAB
+      write(LuPri,*) SecNam,': min and max allowed: 1 ',NumAB
       nErr = nErr+1
     end if
     if (nErr /= 0) then
-      write(Lupri,*) SecNam,': Shell A, B, AB: ',iShlA,iShlB,iShlAB
-      write(Lupri,*) SecNam,': iLoc: ',iLoc
-      write(Lupri,*) SecNam,': symmetry block: ',iSym
-      write(Lupri,*) SecNam,': red. set address, first and current: ',jAB,iiBstR(iSym,iLoc)+iAB
+      write(LuPri,*) SecNam,': Shell A, B, AB: ',iShlA,iShlB,iShlAB
+      write(LuPri,*) SecNam,': iLoc: ',iLoc
+      write(LuPri,*) SecNam,': symmetry block: ',iSym
+      write(LuPri,*) SecNam,': red. set address, first and current: ',jAB,iiBstR(iSym,iLoc)+iAB
       call Cho_Quit('Error detected in '//SecNam,104)
     end if
 #   endif

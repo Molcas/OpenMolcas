@@ -28,7 +28,7 @@ real(kind=wp), parameter :: ThrD = 1.0e-10_wp
 !                                                                      *
 ! Compute the eigenvalues and the eigenvectors of the Hessian
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 
 ! Set up a unit matrix
 

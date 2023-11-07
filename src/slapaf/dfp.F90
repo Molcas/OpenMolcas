@@ -13,6 +13,10 @@ subroutine DFP(B,nDim,Bd,Delta,rGamma)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nDim
@@ -27,7 +31,6 @@ real(kind=wp), external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('DFP: B',' ',B,nDim,nDim)
 !call RecPrt('DFP: Bd',' ',Bd,1,nDim)

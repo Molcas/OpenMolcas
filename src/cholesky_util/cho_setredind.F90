@@ -20,6 +20,9 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: IRED
 integer(kind=iwp) :: ISHLAB, ISYM, J
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: mmShl, mSym
+#endif
 character(len=*), parameter :: SECNAM = 'CHO_SETREDIND'
 
 J = IRED

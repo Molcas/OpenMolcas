@@ -18,9 +18,8 @@
 
       Integer iD, iOff1, iOff2, iOrb, iSym, jOrb, kOrb, nOcc, iTmp
       Real*8 Occ_i, Occ_j
-#ifdef _DEBUGPRINT_a
+#ifdef _DEBUGPRINT_
       Integer iOff, jOff
-      Real*8 Occ_i, Occ_j
       Do iD = 1, nD
          iOff=1
          jOff=1

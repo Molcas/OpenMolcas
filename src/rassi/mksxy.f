@@ -75,5 +75,5 @@ C  SXY:=(CMO1(TRANSP))*PROD
       CALL GETMEM('      ','FREE','REAL',LSZZ,NSZZ)
       CALL GETMEM('      ','FREE','REAL',LSSQ,NSSQ)
       CALL GETMEM('      ','FREE','REAL',LPROD,NPROD)
-      RETURN
-      END
+
+      END SUBROUTINE MKSXY

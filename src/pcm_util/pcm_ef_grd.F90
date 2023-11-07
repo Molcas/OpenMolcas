@@ -19,6 +19,7 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: nTS, nS
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -28,7 +29,6 @@ real(kind=wp) :: EF_Temp(3), Z
 logical(kind=iwp) :: Save_tmp, Found
 integer(kind=iwp), allocatable :: lOper(:)
 real(kind=wp), allocatable :: Chrg(:), Cord(:,:), D1ao(:), EF(:,:,:), FactOp(:)
-#include "rctfld.fh"
 
 !                                                                      *
 !***********************************************************************

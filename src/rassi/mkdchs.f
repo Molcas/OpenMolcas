@@ -14,6 +14,9 @@
      &                  MAPORB,DET1,DET2,
      &                  IF20,IF02,NDCHSM,DCHSM)
 
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
       INTEGER ISSTAB(*),MAPORB(*),NDCHSM
@@ -28,7 +31,6 @@
       INTEGER NSDCHSM
       LOGICAL IF20,IF02
 #include "symmul.fh"
-#include "stdalloc.fh"
 #include "WrkSpc.fh"
       Real*8, Allocatable:: SDCHSM(:)
 
@@ -44,7 +46,7 @@ C Pick out nr of active orbitals from orbital table:
       NASHT=NASORB/2
       NSDCHSM= NASORB*(NASORB-1)/2
       Call mma_allocate(SDCHSM,nSDCHSM,Label='SDCHSM')
-      SDCHSM(:)=0.0D0
+      SDCHSM(:)=Zero
 
         CALL SDCHS(IWORK(LORBTB),ISSTAB,
      &              IFSBTAB1,IFSBTAB2,DET1,DET2,
@@ -67,7 +69,7 @@ C spin orbitals are grouped by subpartition.
         JORBA=2*JORB-1
         JORBB=2*JORB
         JTABS=MAPORB(JORBA)
-        GVAL=0.0D0
+        GVAL=Zero
         IF(IORB.GT.JORB) THEN
          IAJB=((IORBA-1)*(IORBA-2)/2)+JORBB
          IBJA=((IORBB-1)*(IORBB-2)/2)+JORBA
@@ -88,5 +90,4 @@ C spin orbitals are grouped by subpartition.
 
       CALL mma_deallocate(SDCHSM)
 
-      RETURN
-      END
+      END SUBROUTINE MKDCHS

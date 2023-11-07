@@ -25,6 +25,10 @@
 **********************************************************************
 
       SUBROUTINE MKDYSAB(DYSCOF,DYSAB)
+
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSCOF(*),DYSAB(*)
       INTEGER :: IOFFA(8)
@@ -36,7 +40,6 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
 !Alpha and beta contributions are added up here
       Call mma_allocate(DYSCOF2,NASHT,Label='DYSCOF2')
@@ -59,34 +62,35 @@ C (By definition 0 for Dyson orbitals,
 C but we need to fill out the full vector for easier
 C transformation.)
         IOFFTD=0
-        DO 50 ISY=1,NSYM
+        DO ISY=1,NSYM
          IF(NISH(ISY).NE.0) THEN
           II=0
-          DO 40 I=1,NISH(ISY)
+          DO I=1,NISH(ISY)
             II=II+1
             IPOS=IOFFTD+II
-            DYSAB(IPOS)=0.0D0
-40        CONTINUE
+            DYSAB(IPOS)=Zero
+          END DO
           IOFFTD=IOFFTD+NOSH(ISY)
          END IF
-50      CONTINUE
+      END DO
 C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
       IOFFTD=0
       ICOFF=1
-      DO 120 ISY1=1,NSYM
+      DO ISY1=1,NSYM
         NO1=NOSH(ISY1)
-        IF(NO1.EQ.0) GOTO 120
+        IF(NO1.EQ.0) cycle
         NA1=NASH(ISY1)
-        IF(NA1.EQ.0) GOTO 110
-        NI1=NISH(ISY1)
-        DO 100 I=1,NA1
-          II=NI1+I
-          IPOS=IOFFTD+II
-          DYSAB(IPOS)=DYSCOF2(ICOFF)
-          ICOFF=ICOFF+1
-100     CONTINUE
-110     IOFFTD=IOFFTD+NO1
-120   CONTINUE
+        IF(NA1 /= 0) THEN
+          NI1=NISH(ISY1)
+          DO I=1,NA1
+            II=NI1+I
+            IPOS=IOFFTD+II
+            DYSAB(IPOS)=DYSCOF2(ICOFF)
+            ICOFF=ICOFF+1
+          END DO
+        END IF
+        IOFFTD=IOFFTD+NO1
+      END DO
       Call mma_deallocate(DYSCOF2)
-      RETURN
-      END
+
+      END SUBROUTINE MKDYSAB

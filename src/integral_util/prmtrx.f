@@ -1,42 +1,45 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine PrMtrx(Label,lOper,nComp,ip,Matrix)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, Sweden, January '91                  *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, Sweden, January '91                  *
+!***********************************************************************
       Use Basis_Info, only: nBas
       use Gateway_global, only: PrPrt
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-*     Local arrays
+      Implicit None
+      Integer nComp
+      Character(LEN=*) Label
       Real*8 Matrix(*)
-      Character Label*(*), Line*80
       Integer ip(nComp), lOper(nComp)
+
+!     Local variables
+      Character(LEN=80) Line
       Logical Type
-*
-*
-      Do 10 iComp = 1, nComp
+      Integer iComp, ip1, iSmLbl, iIrrep, jIrrep
+!
+!
+      Do iComp = 1, nComp
          ip1 = ip(iComp)
          iSmLbl = lOper(iComp)
          If (Prprt) iSmLbl = iAnd(1,iSmLbl)
          Type = .True.
-         Do 30 iIrrep = 0, nIrrep - 1
-            If (nBas(iIrrep).le.0) Go To 30
-            Do 40 jIrrep = 0, iIrrep
-               If (nBas(jIrrep).le.0) Go To 40
-               If (iAnd(iSmLbl,2**iEor(iIrrep,jIrrep)).eq.0)
-     &            Go To 40
+         Do iIrrep = 0, nIrrep - 1
+            If (nBas(iIrrep).le.0) Cycle
+            Do jIrrep = 0, iIrrep
+               If (nBas(jIrrep).le.0) Cycle
+               If (iAnd(iSmLbl,2**iEor(iIrrep,jIrrep)).eq.0) Cycle
                If (Type) Then
                   Type = .False.
                   Write (6,*)
@@ -60,9 +63,9 @@
      &                        Matrix(ip1),nBas(iIrrep),nBas(jIrrep))
                   ip1 = ip1 + nBas(iIrrep)*nBas(jIrrep)
                End If
- 40         Continue
- 30      Continue
- 10   Continue
-*
+            End Do
+         End Do
+      End Do
+!
       Return
-      End
+      End SubRoutine PrMtrx

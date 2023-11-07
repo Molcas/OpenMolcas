@@ -18,6 +18,7 @@ use Data_Structures, only: Alloc2DArray_Type, Alloc4DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Angstrom
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: DoDeriv, PCM, nPCM_Info, nTS
 
 implicit none
 integer(kind=iwp), intent(in) :: natom, iRMax, IsMM(natom), iGrdTyp, nAtQM
@@ -26,7 +27,6 @@ type(Alloc2DArray_Type), intent(out) :: Grid
 integer(kind=iwp), intent(inout) :: nGrdPt
 logical(kind=iwp), intent(in) :: Forces
 type(Alloc4DArray_Type), intent(out) :: DGrid
-#include "rctfld.fh"
 integer(kind=iwp) :: ibla, iPL, iPnt, iPrint, iPt, J, jPnt, New_nGrdPt, nGrdPt_old, nTmp
 real(kind=wp) :: Dum(1), R, X, Y, Z
 logical(kind=iwp) :: Dirty, Process

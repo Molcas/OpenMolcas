@@ -33,6 +33,7 @@ subroutine drv_ef_PCM(FactOp,nTs,FD,nFD,CCoor,lOper,VTessera,nOrdOp)
 !             Modified loop structure  99                              *
 !***********************************************************************
 
+use setup
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
@@ -43,15 +44,13 @@ use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use define_af, only: AngTp
 
 implicit none
 integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp
 real(kind=wp), intent(in) :: FactOp(nTs), FD(nFD), CCoor(4,nTs)
 real(kind=wp), intent(inout) :: VTessera(3,nTs)
-#include "angtp.fh"
 #include "print.fh"
-#include "nsd.fh"
-#include "setup.fh"
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ipFnlc, iPrim, iPrint, iRout, iS, &
                      iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iTile, iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, &
                      jShell, jShll, kk, lDCRR, lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, &

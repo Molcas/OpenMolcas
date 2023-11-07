@@ -1,24 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, IBM                                              *
+!***********************************************************************
       Subroutine  mHrr(la,lb,nSize,nMem)
-      Implicit Real*8 (a-h,o-z)
-*
-*     Statement function for canonical indices
-*
+      Implicit None
+      Integer la, lb, nSize, nMem
+
+      Integer ixyz, nElem, nMem2, ib, nMem1, ia
+!
+!     Statement function for canonical indices
+!
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
-*     First find the size of the working array.
-*
+!
+!     First find the size of the working array.
+!
       nMem  = 0
       nMem2 = 0
       nSize = 0
@@ -32,6 +35,6 @@
          nMem2 = nMem1
          If (ib.eq.0) nSize = 0
  100  Continue
-*
+!
       Return
-      End
+      End Subroutine  mHrr

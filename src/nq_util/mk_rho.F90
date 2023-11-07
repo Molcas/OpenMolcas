@@ -21,9 +21,6 @@ use iSD_data, only: iSD
 use k2_arrays, only: DeDe, ipDijS
 use nq_Grid, only: Dens_AO, dRho_dR, GradRho, Grid_AO, iBfn_Index, kAO, Lapl, List_G, Rho, TabAO, TabAO_Short, Tau
 use nq_Info, only: Functional_type, GGA_Type, LDA_Type, meta_GGA_Type1, meta_GGA_Type2
-#ifdef _DEBUGPRINT_
-use nq_Grid, only: nRho
-#endif
 use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Half
@@ -38,6 +35,9 @@ integer(kind=iwp) :: i1, i2, i_R, iAO, iBas, iBas_Eff, iBfn, iCar, iCB, iCmp, iD
                      ip_Tmp, ipD(2), ipDDij, ipDij, ipDSij, iShell, iSkal, iT, ix, iy, iz, j, j1, j2, j_R, jBas, jBas_Eff, jBfn, &
                      jCB, jCmp, jlist_s, jShell, jSkal, kDCRE, kDCRR, lDCRER, mAO, mdci, mdcj, mDCRij, mDij, mGrid, nAO, nBfn, nD, &
                      nFunc_i, nFunc_j
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: nGrad_Eff
+#endif
 real(kind=wp) :: DAij, Factor
 integer(kind=iwp), parameter :: Index_d2(3,3) = reshape([5,6,7,6,8,9,7,9,10],[3,3]), &
                                 Index_d3(3,3) = reshape([11,14,16,12,17,19,13,18,20],[3,3])

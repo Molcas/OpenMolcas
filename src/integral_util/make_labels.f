@@ -1,22 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
-      Implicit Real*8 (a-h,o-z)
-#include "angtp.fh"
-      Character*8 LblCBs(MxFnc), LblSBs(MxFnc)
-      Character Sgn*3
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !#define _DEBUGPRINT_
-*
-*---- Generate cartesian labels
-*
+      Subroutine Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
+      use define_af, only: AngTp
+      Implicit None
+      Integer MxFnc, lMax
+      Character(LEN=8) LblCBs(MxFnc), LblSBs(MxFnc)
+
+      Integer lxyz, ixyz, ix, iyMax, iy, iz, i, n, l, m
+      Character Sgn*3
+!
+!---- Generate cartesian labels
+!
       lxyz=0
       Do ixyz = 0, lMax
          Do ix = ixyz, 0, -1
@@ -24,7 +27,7 @@
             Do iy = iyMax, 0 , -1
                lxyz=lxyz+1
                iz=ixyz-ix-iy
-*              Form labels for cartesian basis functions
+!              Form labels for cartesian basis functions
                Write (LblCBs(lxyz),'(A,3I2.2)') AngTp(ixyz),ix,iy,iz
             End Do
          End Do
@@ -35,9 +38,9 @@
          LblCBs(3) = '02py    '
          LblCBs(4) = '02pz    '
       End If
-*
-*     Do the same for the spherical gaussians.
-*
+!
+!     Do the same for the spherical gaussians.
+!
       i = 0
       Do n = 0, lMax
          Do l = n, 0, -2
@@ -69,6 +72,6 @@
       End Do
       Write (6,*)
 #endif
-*
+!
       Return
-      End
+      End Subroutine Make_Labels

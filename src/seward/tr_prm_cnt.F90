@@ -16,11 +16,11 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: idbg, nBas_Cont(8), nBas_Prim(0:7)
 #include "Molcas.fh"
-#include "itmax.fh"
 #include "rinfo.fh"
 integer(kind=iwp) :: i, ia, iBas, iBasL, ic, icnt, iCnttp, iCont, idx, iOff, ip, ipbasL, iPrim, iPrint, iSym, j, k, ka, kbias, la, &
                      nBas_Cont_Tot, ncnt, nSize, nSym, numck, numcl

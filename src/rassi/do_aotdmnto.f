@@ -31,9 +31,6 @@
       SUBROUTINE DO_AOTDMNTO(TDMZZ,TSDMZZ,ANTSIN,ISTATE,JSTATE,nb,nb2)
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       IMPLICIT None
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DO_AOTDMNTO')
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"

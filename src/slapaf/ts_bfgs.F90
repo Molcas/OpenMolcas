@@ -34,6 +34,10 @@ subroutine ts_bfgs(dq,y,H,nH)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nH
@@ -59,7 +63,6 @@ call mma_allocate(u,nH,label='u')
 ! ,     u = y^T*dq*y + (dq^T|B|dq)|B|dq = a*y + b|B|dq
 ! and   v = y - B*dq (quasi-Newton condition)
 
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 ! Make a comment in logfile
 write(u6,*) 'hello from ts_bfgs'

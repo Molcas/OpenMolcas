@@ -23,7 +23,7 @@ real(kind=wp), intent(out) :: tVt(nTheta,nTheta)
 integer(kind=iwp) :: iA, ik, il, im, in_, iTheta, iTheta_All, iTheta_Full, jA, jTheta, jTheta_All, jTheta_Full, kComp, lComp, &
                      mComp, nComp
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('Mk_tVt: TInt',' ',TInt,nTheta_All,nTheta_All)
 call iVcPrt('iPrm',' ',iPrm,nPrm)

@@ -15,9 +15,6 @@
       use rassi_global_arrays, only: JBNUM
       use OneDat, only: sOpSiz
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SONATORBM_INT')
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
@@ -182,7 +179,6 @@ c in SONATORB.F from the symmetric/antisymmetric equations
         End If
       END IF
 
-*      IF(IPGLOB.GE.VERBOSE) THEN
       WRITE(6,*)
       WRITE(6,*) "************************************"
       WRITE(6,*) "SONATORB EXPECTATION VALUES"
@@ -197,7 +193,6 @@ c in SONATORB.F from the symmetric/antisymmetric equations
       WRITE(6,*) "Property: Im(Y): ",PROPVALYI
       WRITE(6,*) "Property: Im(Z): ",PROPVALZI
       WRITE(6,*) "************************************"
-*      END IF
 
 c Free up un-needed space
       CALL GETMEM('IP    ','FREE','REAL',LIP,NIP)

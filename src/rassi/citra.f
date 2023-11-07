@@ -41,15 +41,12 @@
 *> @param[in,out] CI   CI Array
 ************************************************************************
       SUBROUTINE CITRA(WFTP,ISGS,ICIS,IXS,LSM,TRA,NCO,CI)
+      use Struct, only: nSGSize, nCISize, nXSize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='CITRA')
       DIMENSION TRA(NTRA),CI(NCO)
 #include "WrkSpc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Struct.fh"
       CHARACTER*8 WFTP
       DIMENSION ISGS(NSGSIZE),ICIS(NCISIZE),IXS(NXSIZE)
 
@@ -119,5 +116,5 @@ C The general case:
 !     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 
       end if
-      RETURN
+
       END

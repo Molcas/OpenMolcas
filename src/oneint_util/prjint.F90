@@ -32,6 +32,10 @@ use Symmetry_Info, only: iChTbl, nIrrep
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"
@@ -39,7 +43,6 @@ integer(kind=iwp) :: ia, iaC, iAng, ib, iBk, iC, iCb, iCnt, iCnttp, iComp, iDCRT
                      ipK1, ipK2, ipOff, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iShll, lDCRT, llOper, LmbdT, mArr, mdc, nac, &
                      nBasisi, ncb, nDCRT, nExpi, nOp
 real(kind=wp) :: C(3), Fact, Factor, TC(3), Xg
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif

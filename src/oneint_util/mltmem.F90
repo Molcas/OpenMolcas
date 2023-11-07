@@ -16,10 +16,10 @@ subroutine MltMem( &
 
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
+use rmat, only: RMat_Type_Integrals
 
 implicit none
 #include "mem_interface.fh"
-#include "rmat_option.fh"
 integer(kind=iwp) :: nComp
 
 nHer = (la+lb+lr+2)/2

@@ -85,5 +85,5 @@ CTEST       write(*,*)' Their overlap:',OVLP
        CALL GETMEM('ANN1','Free','Real',LANN1,NDETS1)
        CALL KILLOBJ(LFSBANN1)
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE SPIND

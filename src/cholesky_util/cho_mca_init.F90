@@ -14,7 +14,7 @@ subroutine CHO_MCA_INIT(SKIP_PRESCREEN)
 ! Purpose: initialization of Cholesky decomposition in MOLCAS.
 
 use Index_Functions, only: nTri_Elem
-use index_arrays, only: iSO2Sh
+use iSD_data, only: iSO2Sh
 use Cholesky, only: iBas, iBasSh, IFCSew, iShlSO, iShP2Q, iShP2RS, iSOShl, iSP2F, LuPri, Mx2Sh, MxOrSh, nBas, nBasSh, nBasT, &
                     nBstSh, nnShl, nnShl_Tot, nShell, nSym
 use stdalloc, only: mma_allocate

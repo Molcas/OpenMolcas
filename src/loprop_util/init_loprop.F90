@@ -20,6 +20,9 @@ integer(kind=iwp), intent(out) :: nSym, nBas(8), nOrb(8), nAtoms, nSize, nBas1, 
 real(kind=wp), intent(out) :: CoC(3)
 type(LP_context_type), intent(out) :: LP_context
 integer(kind=iwp) :: i, iDum, iSym
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iBas
+#endif
 real(kind=wp) :: DET
 logical(kind=iwp) :: lOrb
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0

@@ -55,7 +55,7 @@ do iX=1,nDoF
   end do
   EVec(1,:,iX) = EVec(1,:,iX)/sqrt(r2)
 end do
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('EVal',' ',EVal,2,nDoF)
 call RecPrt('EVec',' ',EVec,nDoF*2,nDoF)

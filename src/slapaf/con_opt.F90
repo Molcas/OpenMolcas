@@ -64,6 +64,10 @@ character(len=8), intent(inout) :: Lbl(nInter+nLambda)
 logical(kind=iwp), intent(in) :: First_MicroIteration
 integer(kind=iwp) :: i, iCount, iCount_Max, iInter, iIter, iLambda, iMEP, iOff_Iter, iOptC_Temp, ipTb, ipTti, iSt, j, jLambda, &
                      nTrans
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iNeg
+#endif
 real(kind=wp) :: Beta, Beta_Disp, Beta_Disp_Save = Zero, Det, disp(nSet), disp_long, Disp_Save = Zero, disp_short, Dummy, dxdx, &
                  dxdx_last, dydy, dydy_last, dydymax, Fact, Fact_long, Fact_short, gBeta, gg, gg_last, RG, RR_, Sf, StpMax_Save, &
                  tBeta, Thr, tmp, xBeta, yBeta
@@ -79,7 +83,6 @@ real(kind=wp), external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*) '****************************************************'

@@ -17,6 +17,10 @@ use RI_glob, only: iShij, iSSOff, nBasSh, ShlSO, SOShl
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nShell, nShell_Aux, nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1)
@@ -25,10 +29,6 @@ real(kind=wp), intent(in) :: TMax(nShell,nShell), CutOff
 integer(kind=iwp) :: iAng, iCnt, iCnttp, iIrrep, ij_Shell, iSkal, iSO, jAng, jCnt, jCnttp, jSkal, nSO_Aux
 real(kind=wp) :: TMax_ij
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

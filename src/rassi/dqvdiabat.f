@@ -29,17 +29,12 @@
 ************************************************************************
       SUBROUTINE DQVDiabat(PROP,HAM)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DQVDiabat')
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "tshcntrl.fh"
 #include "constants2.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
@@ -388,5 +383,4 @@
        CALL Add_Info('DQVHam33',HDIA(3,3),1,4)
 *End Molcas verify calls
 
-       RETURN
        END

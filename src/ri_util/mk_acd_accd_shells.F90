@@ -32,12 +32,12 @@ use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: iCnttp
 logical(kind=iwp), intent(in) :: W2L
 #include "Molcas.fh"
-#include "itmax.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAngMax, iAngMin, iAO, iBS, iCho_c, iCho_p, iCmp, iCntrc, iDum, iExp_k, iExp_l, ijS, ijS_req, ijSO, &
                      ijT, ik, ikl, il, Indx, iOff, iOff_Ak, iOff_Qk, ip_Exp, iRC, iSeed, iShell, iShll, iShll_, iSO, iSph, &
@@ -48,15 +48,16 @@ integer(kind=iwp) :: i, iAng, iAngMax, iAngMin, iAO, iBS, iCho_c, iCho_p, iCmp, 
                      nSO_p, nTest, nTheta, nTheta_All, nTheta_Full, nTInt_c, nTInt_p, nTri, NumCho_c, NumCho_p
 real(kind=wp) :: Coeff_, Coeff_k, Coeff_kk, Coeff_kl, Coeff_l, Coeff_lk, Coeff_ll, Dummy(1), Exp_i, Exp_j, Fact, Thr_aCD, ThrAO, &
                  Thrs, Thrshld_CD_p
+logical(kind=iwp) :: Diagonal, Found, Hit, In_Core, Keep_Basis
+character(len=80) :: atom, author, Aux, basis, BSLbl, btype, CGTO, Label
 integer(kind=iwp), allocatable :: Con(:), ConR(:,:), iD_c(:), iD_p(:), iList2_c(:,:), iList2_p(:,:), Indkl(:), Indkl_p(:), &
                                   LTP(:,:), Prm(:)
 real(kind=wp), allocatable :: A(:), ADiag(:), C(:), Q(:), QTmp(:), Scr(:), Temp(:), TInt_c(:), TInt_p(:), Tmp(:), TP(:), tVp(:), &
                               tVt(:), tVtF(:), Vec(:), Wg(:), Z(:)
 #ifdef _DEBUGPRINT_
+real(kind=wp) :: Det
 real(kind=wp), allocatable :: H(:), tVtInv(:), U(:)
 #endif
-logical(kind=iwp) :: Diagonal, Found, Hit, In_Core, Keep_Basis
-character(len=80) :: atom, author, Aux, basis, BSLbl, btype, CGTO, Label
 procedure(int_wrout) :: Integral_RICD
 integer(kind=iwp), external :: IsFreeUnit
 

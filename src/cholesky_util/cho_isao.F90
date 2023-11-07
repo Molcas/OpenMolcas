@@ -14,6 +14,9 @@ function CHO_ISAO(IAO)
 ! Purpose: return symmetry of AO number IAO (in global list).
 
 use Cholesky, only: IBAS, nSym
+#ifdef _DEBUGPRINT_
+use Cholesky, only: LuPri, nBasT
+#endif
 use Definitions, only: iwp
 
 implicit none

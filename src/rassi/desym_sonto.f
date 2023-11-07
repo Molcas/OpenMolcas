@@ -27,8 +27,6 @@
 #include "WrkSpc.fh"
 #include "symmul.fh"
 #include "rassi.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DESYM_SONTO')
       INTEGER SIZA,SYMLAB
       REAL*8 ME
       REAL*8 A(SIZA)
@@ -106,5 +104,4 @@ c Expand into C1
       Enddo
       Call GETMEM('SCR','FREE','REAL',LSCR,SIZA)
 
-      RETURN
       END

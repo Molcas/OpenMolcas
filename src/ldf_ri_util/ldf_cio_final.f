@@ -42,7 +42,7 @@ C
          Lu_LDFC=0
       End If
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Write(6,'(/,A)')
      & 'LDF_CIO_Final: coefficient I/O has been shut down!'
       Call xFlush(6)

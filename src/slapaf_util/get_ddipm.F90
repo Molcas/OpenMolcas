@@ -20,6 +20,10 @@ use Slapaf_Info, only: Coor, Cx, Degen, mTR => mTROld, Smmtrc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nDoF, nInter
@@ -31,10 +35,6 @@ logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: BMtrx(:,:), Tmp2(:), TRVec(:,:)
 real(kind=wp), parameter :: thr = 1.0e-12_wp
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

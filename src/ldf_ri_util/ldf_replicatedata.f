@@ -17,13 +17,13 @@ C
 C     Purpose: replicate all local DF data on all nodes in a real
 C     parallel run. Do nothing in serial runs.
 C
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit None
       Integer LuC_Local
       Integer irc
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PARALLEL CODE
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -31,7 +31,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 #include "ldf_atom_pair_info.fh"
 #include "localdf_print.fh"
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Character*17 SecNam
       Parameter (SecNam='LDF_ReplicateData')
 #endif
@@ -84,7 +84,7 @@ C==========================
                If (n(1).gt.0) Then
                   l=3*n(1)
                   If (AP_1CLinDep(1,iAtomPair).gt.0) Then
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
                      If (LDF_DiskAddressOfC(iAtomPair).lt.0) Then
                         Call WarningMessage(1,
      &                            SecNam//': Parallelization error [1]')
@@ -93,7 +93,7 @@ C==========================
                      End If
 #endif
                      ip=AP_1CLinDep(2,iAtomPair)
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
                      If (ip.lt.1) Then
                         Call WarningMessage(1,
      &                            SecNam//': Parallelization error [2]')
@@ -130,7 +130,7 @@ C=============================
                If (n(1).gt.0) Then
                   l=4*n(1)
                   If (AP_2CFunctions(1,iAtomPair).gt.0) Then
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
                      If (LDF_DiskAddressOfC(iAtomPair).lt.0) Then
                         Call WarningMessage(1,
      &                            SecNam//': Parallelization error [3]')
@@ -139,7 +139,7 @@ C=============================
                      End If
 #endif
                      ip=AP_2CFunctions(2,iAtomPair)
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
                      If (ip.lt.1) Then
                         Call WarningMessage(1,
      &                            SecNam//': Parallelization error [4]')

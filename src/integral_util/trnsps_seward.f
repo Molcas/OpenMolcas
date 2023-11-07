@@ -1,54 +1,61 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Roland Lindh                                     *
+!               1990, IBM                                              *
+!***********************************************************************
       Subroutine Trnsps_Seward(ijCmp, iCmp, jCmp, iAng, jAng, iShll,
      &                         jShll, kOp, ijkl, ij, AOInt, Scrtch)
-************************************************************************
-*                                                                      *
-*  Object: to transpose the integrals in order to resolve the          *
-*          redundancy (faA,fbB)=(fcC,fdD). In this case both sides will*
-*          have the same DCR, i.e. (R)=(S). In this case we will only  *
-*          need the unique combinations. For the off diagonal comb-    *
-*          inations (R=/=S) we will pick up two terms. The terms are   *
-*          (faA,fbR(B)|faT(A),fbTS(B)) and                             *
-*          (faA,fbS(B)|faT(A),fbTR(B)). Since T and T-1 are the same   *
-*          in D2h it is simple to see that after applying T on the     *
-*          second integral we will end up with the first one.          *
-*                                                                      *
-*          However, since we compute the integrals in batches there    *
-*          will not be a simple one to one correspondes between the    *
-*          integrals in batch one and two. But after transposing the   *
-*          pair arguments we will achive that one to one correspondens.*
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             May '90                                                  *
-************************************************************************
-      use Basis_Info
+!***********************************************************************
+!                                                                      *
+!  Object: to transpose the integrals in order to resolve the          *
+!          redundancy (faA,fbB)=(fcC,fdD). In this case both sides will*
+!          have the same DCR, i.e. (R)=(S). In this case we will only  *
+!          need the unique combinations. For the off diagonal comb-    *
+!          inations (R=/=S) we will pick up two terms. The terms are   *
+!          (faA,fbR(B)|faT(A),fbTS(B)) and                             *
+!          (faA,fbS(B)|faT(A),fbTR(B)). Since T and T-1 are the same   *
+!          in D2h it is simple to see that after applying T on the     *
+!          second integral we will end up with the first one.          *
+!                                                                      *
+!          However, since we compute the integrals in batches there    *
+!          will not be a simple one to one correspondes between the    *
+!          integrals in batch one and two. But after transposing the   *
+!          pair arguments we will achive that one to one correspondens.*
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             May '90                                                  *
+!***********************************************************************
+      use Basis_Info, only: Shells
       use Real_Spherical, only: iSphCr
       use Symmetry_Info, only: iChBas
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+      use Constants, only: One
+      Implicit None
+      Integer ijCmp, iCmp, jCmp, iAng, jAng, iShll, jShll, kOp, ijkl,
+     &        ij
       Real*8 AOInt(ijkl,ijCmp,ijCmp), Scrtch(ijkl,ijCmp,ijCmp)
-*
-*     Statement Function
-*
+
+      Integer, External:: iPrmt
+      Integer ixyz, iOff
+      Integer ii, jj, i1, i2, i3, i4, iChBs, jChBs, kChBs, lChBs,
+     &        ij2, i12, i34, ij1
+      Real*8 pa1T, pb1T, pa2T, pb2T, Factor
+!
+!     Statement Function
+!
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
-*
-*     Call RecPrt(' In Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
-*
-*     Change phase factor. This is only nessecary if T=/=E.
-*
+!
+!     Call RecPrt(' In Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
+!
+!     Change phase factor. This is only nessecary if T=/=E.
+!
       If (kOp.eq.0 .or. ijCmp.eq.0) Go To 14
       ii = iOff(iAng)
       jj = iOff(jAng)
@@ -61,7 +68,7 @@
         If (Shells(jShll)%Transf) jChBs = iChBas(iSphCr(jj+i2))
         pb1T = DBLE(iPrmt(kOp,jChBs))
         ij1 = iCmp*(i2-1)+i1
-*
+!
         Do 12 i3 = 1, iCmp
          kChBs = iChBas(ii+i3)
          If (Shells(iShll)%Transf) kChBs = iChBas(iSphCr(ii+i3))
@@ -78,9 +85,9 @@
  11    Continue
  10   Continue
  14   Continue
-*
-*     Transpose ijkl,abcd to klij,cdab
-*
+!
+!     Transpose ijkl,abcd to klij,cdab
+!
       If (ijCmp.eq.1 .or. ij.eq.1) Then
          Call DGeTMI(AOInt,ijCmp*ij,ijCmp*ij)
       Else
@@ -88,12 +95,11 @@
             Do 200 i34 = 1, ijCmp
                Call DGeTMO(AOInt(1,i12,i34),ij,ij,
      &                     ij,Scrtch(1,i34,i12),ij)
-*
+!
  200        Continue
  100     Continue
          call dcopy_(ijkl*ijCmp*ijCmp,Scrtch,1,AOInt,1)
       End If
-*
-*     Call RecPrt(' Exit Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
-      Return
-      End
+!
+!     Call RecPrt(' Exit Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
+      End Subroutine Trnsps_Seward

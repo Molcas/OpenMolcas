@@ -17,6 +17,9 @@ use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, v
 use ddvdt, only: A_Bend, aAV, f_Const_Min, rAV, rkf
 use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, iRef, LuIC, iGlow, iGhi, iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
@@ -26,15 +29,15 @@ real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter), Thr_small
 logical(kind=iwp), intent(in) :: Process, Proc_dB
 real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), dBM(ndB_Tot)
 character(len=14), intent(inout) :: qLbl(nB)
-#ifdef _DEBUGPRINT_
-#include "print.fh"
-#endif
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 3*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iDCR(3), iDCRR(0:7), iDCRT(0:7), ideg, iE1, iE2, iE3, iF1, iF2, iF3, Ind(3), &
                      iNeighbor, ir, iStabM(0:7), iStabN(0:7), jAtom, jAtom_, jBond, jBondType, jNeighbor, jr, k, kDCR, kDCRR, &
                      kDCRT, Lambda, mAtom, mAtom_, mi, mr, nCent, nCoBond_i, nCoBond_j, nCoBond_m, nDCRR, nDCRT, nk, nNeighbor_m, &
                      nqA, nStabM, nStabN
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 real(kind=wp) :: A(3,3), Alpha, Axis(3), BB, Deg, delta, f_Const, f_Const_Ref, Fact, Grad(mB), Grad_Ref(9), Hess(mB**2), &
                  Perp_Axis(3,2), Prv(3,3), r0, Ref(3,3), rim2, rim2_Ref, rmj2, rmj2_Ref, Val, Val_Ref
 logical(kind=iwp) :: Help, MinBas
@@ -49,21 +52,15 @@ logical(kind=iwp), external :: R_Stab_A
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (nBonds < 2) return
 
-#ifdef _DEBUGPRINT_
-iRout = 150
-iPrint = nPrint(iRout)
-iPrint = 99
-#endif
-
 nqA = 0
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) write(u6,*) ' Enter Bends.'
+write(u6,*) ' Enter Bends.'
 #endif
 Hess(:) = Zero
 
@@ -142,11 +139,9 @@ do mAtom_=1,mAtoms
       write(Label,'(A,I2,A,I2,A,I2,A)') 'A(',iAtom,',',mAtom,',',jAtom,')'
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) then
-        call RecPrt('A',' ',Cx(:,iAtom,iIter),1,3)
-        call RecPrt('B',' ',Cx(:,mAtom,iIter),1,3)
-        call RecPrt('C',' ',Cx(:,jAtom,iIter),1,3)
-      end if
+      call RecPrt('A',' ',Cx(:,iAtom,iIter),1,3)
+      call RecPrt('B',' ',Cx(:,mAtom,iIter),1,3)
+      call RecPrt('C',' ',Cx(:,jAtom,iIter),1,3)
 #     endif
 
       ! Form double coset representatives for (iAtom,jAtom)
@@ -158,12 +153,10 @@ do mAtom_=1,mAtoms
       kDCRT = iDCR(3)
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) then
-        write(u6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
-        write(u6,'(10A)') 'V={',(ChOp(jStab(i,mAtom)),i=0,nStab(mAtom)-1),'}  '
-        write(u6,'(10A)') 'X={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
-        write(u6,'(2A)') 'T=',ChOp(kDCRT)
-      end if
+      write(u6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
+      write(u6,'(10A)') 'V={',(ChOp(jStab(i,mAtom)),i=0,nStab(mAtom)-1),'}  '
+      write(u6,'(10A)') 'X={',(ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
+      write(u6,'(2A)') 'T=',ChOp(kDCRT)
 #     endif
 
       call OA(kDCRT,Cx(:,jAtom,iIter),A(:,3))
@@ -179,7 +172,7 @@ do mAtom_=1,mAtoms
       end if
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
+      write(u6,'(10A)') 'N={',(ChOp(iStabN(i)),i=0,nStabN-1),'}  '
 #     endif
 
       ! Form double coset representatives for ((iAtom,mAtom),jAtom)
@@ -188,10 +181,8 @@ do mAtom_=1,mAtoms
       kDCRR = iDCR(2)
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) then
-        write(u6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
-        write(u6,'(2A)') 'R=',ChOp(kDCRR)
-      end if
+      write(u6,'(10A)') 'R={',(ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
+      write(u6,'(2A)') 'R=',ChOp(kDCRR)
 #     endif
 
       call OA(kDCRR,Cx(:,mAtom,iIter),A(:,2))
@@ -203,7 +194,7 @@ do mAtom_=1,mAtoms
       call Inter(jStab(0,mAtom),nStab(mAtom),iStabN,nStabN,iStabM,nStabM)
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
+      write(u6,'(10A)') 'M={',(ChOp(iStabM(i)),i=0,nStabM-1),'}  '
 #     endif
 
       ! Compute the degeneracy of the angle
@@ -211,7 +202,7 @@ do mAtom_=1,mAtoms
       ideg = nIrrep/nStabM
       Deg = sqrt(real(iDeg,kind=wp))
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) write(u6,*) ' nIrrep,nStabM=',nIrrep,nStabM
+      write(u6,*) ' nIrrep,nStabM=',nIrrep,nStabM
 #     endif
 
       ! Test if coordinate should be included
@@ -314,8 +305,7 @@ do mAtom_=1,mAtoms
           end if
           write(LuIC,'(A,I3.3,A,I1.1,6A)') 'a',nqA,' = LAngle(',k,') ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
 #         ifdef _DEBUGPRINT_
-          if (iPrint >= 49) write(u6,'(A,I3.3,A,I1.1,6A)') 'a',nqA,' = LAngle(',k,') ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ', &
-                                                           Lbls(3)(iF3:iE3)
+          write(u6,'(A,I3.3,A,I1.1,6A)') 'a',nqA,' = LAngle(',k,') ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
           write(u6,*) 'iDeg=',iDeg
 #         endif
           Label = ' '
@@ -383,7 +373,7 @@ do mAtom_=1,mAtoms
         end if
         write(LuIC,'(A,I3.3,6A)') 'a',nqA,' = Angle ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
 #       ifdef _DEBUGPRINT_
-        if (iPrint >= 49) write(u6,'(A,I3.3,6A)') 'a',nqA,' = Angle ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
+        write(u6,'(A,I3.3,6A)') 'a',nqA,' = Angle ',Lbls(1)(iF1:iE1),' ',Lbls(2)(iF2:iE2),' ',Lbls(3)(iF3:iE3)
 #       endif
         Label = ' '
         write(Label,'(A,I3.3)') 'a',nqA

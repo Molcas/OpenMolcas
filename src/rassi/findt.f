@@ -74,5 +74,5 @@ C print transformed MOs
         call WRMAT('TRANSFORMED MO COEFFICIENTS FOR STATE TWO (CMO2):',
      &               1,NBASF,NOSH,NCMO,CMO2)
       end if
-      RETURN
-      END
+
+      END SUBROUTINE FINDT

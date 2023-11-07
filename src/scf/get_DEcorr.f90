@@ -101,18 +101,19 @@
       use Constants, only: Zero, One
       Implicit None
       Integer nh1, nGrad, nBT, nD
+#ifdef _DEBUGPRINT_
+      Integer i
+#endif
       Real*8  Grad(nGrad)
       Character(LEN=4) DFTFOCK
       Character(LEN=80)  KSDFT
       Real*8 :: F_DFT(nBT,nD), D_DS(nBT,nD)
       Real*8 Ec_AB
 
-#include "debug.fh"
       Logical Do_MO,Do_TwoEl,Do_Grad
       Real*8 dFMD_, Func
       Integer nFckDim
 
-      Debug=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

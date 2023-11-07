@@ -18,7 +18,7 @@ integer(kind=iwp), intent(in) :: nkl, Indkl_OnOff(nkl)
 integer(kind=iwp), intent(out) :: Indkl(nkl)
 integer(kind=iwp) :: ikl, jkl
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call iVcPrt('Mk_Indkl: Indkl_OnOff',' ',Indkl_OnOff,nkl)
 #endif

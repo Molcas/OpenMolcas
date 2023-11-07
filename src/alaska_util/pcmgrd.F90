@@ -32,6 +32,7 @@ use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: nTS
 
 implicit none
 #include "grd_interface.fh"
@@ -44,7 +45,6 @@ logical(kind=iwp) :: JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
 external :: Fake, TNAI1, XCff2D
 #include "print.fh"
-#include "rctfld.fh"
 integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 

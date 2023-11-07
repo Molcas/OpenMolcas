@@ -19,10 +19,10 @@ use External_Centers, only: DMS_Centers, Dxyz, EF_Centers, iXPolType, nData_XF, 
 use Symmetry_Info, only: nIrrep
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use rmat, only: RMat_On, RMatR, EPSABS, EPSREL, QCoul, EPSQ, bParm, Dipol
 
 implicit none
 #include "print.fh"
-#include "rmat.fh"
 integer(kind=iwp) :: i, iChxyz, iDum, iPrint, iRout, iStb(0:7), iWel, iXF, j, jCoSet(8,8), nSTab_iXF
 #ifdef _EFP_
 integer(kind=iwp) :: k

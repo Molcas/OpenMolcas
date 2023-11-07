@@ -41,7 +41,7 @@ real(kind=wp), parameter :: Prmt(0:7) = [One,-One,-One,One,-One,One,One,-One]
 !                                                                      *
 !iRout = 239
 !iPrint = nPrint(iRout)
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call recprt('Distg2: g2(raw) ',' ',g2,1,78)
 call recprt('Distg2: Hess(raw) ',' ',Hess,1,nHess)

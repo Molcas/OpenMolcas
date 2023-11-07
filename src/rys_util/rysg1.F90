@@ -30,7 +30,7 @@ use Gateway_Info, only: ChiI2
 use Gateway_global, only: IsChi, NoTab
 use Breit, only: nOrdOp
 use Definitions, only: wp, iwp
-#if defined(_DEBUGPRINT_) || defined (_CHECK_)
+#if defined (_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
 
@@ -145,7 +145,7 @@ ip = ip+nT
 ! Allocate memory for the arguments.
 ipTv = ip
 ip = ip+nT
-!define _CHECK_
+!#define _CHECK_
 #ifdef _CHECK_
 if (ip-1 > nArray) then
   call WarningMessage(2,'Rysg1: ip-1 =/= nArray (pos.1)')

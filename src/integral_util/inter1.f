@@ -1,29 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
-      Use Basis_Info
-      Use Center_Info
+      Use Basis_Info, only: nCnttp, DBSC
+      Use Center_Info, only: DC
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8(a-h,o-z)
+      Implicit None
 #include "Molcas.fh"
-      Real*8 A(3),Coor(3,*),ZNUC(*)
+      Character(LEN=LENIN) Label(*)
       integer Ibas_Lab(*)
-      Character*(LENIN) Lbl
-      Character*(LENIN) Label(*)
+      Real*8 Coor(3,*),ZNUC(*)
+      Integer n_Cent
+!
+      Real*8 A(3)
+      Character(LEN=LENIN) Lbl
       Logical DSCF
-*
+      Integer nDiff, mdc, ndc, iCnttp, iCnt, iCo, kOp
+
       DSCF=.False.
       nDiff=0
       Call IniSew(DSCF,nDiff)
-*
+!
       mdc=0
       ndc=0
       Do iCnttp=1,nCnttp
@@ -49,6 +53,6 @@
  99      Continue
       End Do
       n_cent=ndc
-*
+!
       Return
-      End
+      End Subroutine inter1

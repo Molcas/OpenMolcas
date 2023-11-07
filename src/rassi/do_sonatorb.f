@@ -9,15 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE DO_SONATORB(NSS, USOR, USOI)
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, EIGVEC
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DO_SONATORB')
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
       Real*8 IDENTMAT(3,3)
 
@@ -105,7 +103,7 @@ C Calculate overall density, store in WORK(LDMATTMP)
 
 
 C Integrate for the expectation value
-        IF(IPGLOB.ge.VERBOSE) THEN
+        IF(IPGLOB.ge.3) THEN
           IC=1
           iOpt=0
           CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMSING',
@@ -120,7 +118,7 @@ C Create SONATTDENS total density orbital file for this (I,I) state
         CALL SONATORB_PLOT(WORK(LDMATTMP),'SONATTDENS','HERMSING',
      &                     INATSTATE,INATSTATE)
 
-        IF(IPGLOB.ge.DEBUG) THEN
+        IF(IPGLOB.ge.4) THEN
           CALL SONATORB_CPLOT(WORK(LDMATTMP),'TDENSTESTX','HERMSING',
      &                       INATSTATE,INATSTATE)
         END IF
@@ -136,7 +134,7 @@ C Calculate spin density, store in LDMATTMP
 
 
 C Integrate for the expectation value
-        IF(IPGLOB.ge.VERBOSE) THEN
+        IF(IPGLOB.ge.3) THEN
           IC=1
           iOpt=0
           CALL SONATORBM_INT(WORK(LDMATTMP),'MLTPL  0',IC,'HERMTRIP',
@@ -151,7 +149,7 @@ C Create SONATSDENS spin density orbital file for this (I,I) state
         CALL SONATORB_PLOT(WORK(LDMATTMP),'SONATSDENS','HERMTRIP',
      &                     INATSTATE,INATSTATE)
 
-        IF(IPGLOB.ge.DEBUG) THEN
+        IF(IPGLOB.ge.4) THEN
           CALL SONATORB_CPLOT(WORK(LDMATTMP),'SDENSTESTX','HERMTRIP',
      &                       INATSTATE,INATSTATE)
         END IF
@@ -165,7 +163,7 @@ c Type 2 - current density
      &                   WORK(LDMATTMP))
 
 
-          IF(IPGLOB.ge.VERBOSE) THEN
+          IF(IPGLOB.ge.3) THEN
             IC=1
             iOpt=0
             CALL SONATORBM_INT(WORK(LDMATTMP),'ANGMOM  ',IC,'ANTISING',
@@ -220,5 +218,4 @@ c This is only allocated if SODIAGNSTATE.GT.0
       CALL GETMEM('UMATI2','FREE','REAL',LUMATI,NSS**2)
       CALL GETMEM('EIGVEC2','FREE','REAL',LVMAT,NSS**2)
 
-      RETURN
       END

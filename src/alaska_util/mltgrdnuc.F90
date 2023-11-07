@@ -16,6 +16,7 @@ use finfld, only: force
 use Index_Functions, only: C_Ind
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Disp, only: Direct, IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nOrdOp
@@ -23,8 +24,6 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 integer(kind=iwp) :: iCar, icomp, iIrrep, ixop, iyop, izop, kCnt, kCnttp, kdc, ndc, nDisp
 real(kind=wp) :: C(3), Fact, ff, XGrad
 logical(kind=iwp), external :: TF
-#include "Molcas.fh"
-#include "disp.fh"
 
 iIrrep = 0
 do ixop=0,nOrdOp

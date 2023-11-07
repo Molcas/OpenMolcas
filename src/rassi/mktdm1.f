@@ -241,5 +241,5 @@ c Avoid unused argument warnings
         call mma_deallocate(TDMBB)
       end if
 #endif
-      RETURN
+
       END

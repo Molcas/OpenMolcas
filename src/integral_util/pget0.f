@@ -1,84 +1,86 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992,2007, Roland Lindh                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992,2007, Roland Lindh                                *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine PGet0(iCmp,iBas,jBas,kBas,lBas,
      &                 Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                 n1,n2,n3,n4,MemPSO,Mem2,nMem2,
      &                 iShell_A,iShell_B,iShell_C,iShell_D,nQuad,PMax)
-************************************************************************
-*                                                                      *
-* Object: to act as a shell towards the manipulations of generating or *
-*         accessing the 2nd order density matrix.                      *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             January '92.                                             *
-*                                                                      *
-*             Modified for RI Feb. 2007                                *
-************************************************************************
-      use aces_stuff
-      use pso_stuff
-      use Index_arrays, only: iSO2Sh
+!***********************************************************************
+!                                                                      *
+! Object: to act as a shell towards the manipulations of generating or *
+!         accessing the 2nd order density matrix.                      *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             January '92.                                             *
+!                                                                      *
+!             Modified for RI Feb. 2007                                *
+!***********************************************************************
+      use setup
+      use pso_stuff, only: lPSO, lSA, Case_2C, Case_3C, Gamma_On,
+     &                     nGamma, Gamma_MRCISD, Bin, D0, DS, DVar,
+     &                     G_Toc, lBin, LuGamma, nDens, nNP, nV_k,
+     &                     nZ_p_k, SO2CI, U_K, V_K, Z_P_K, DSVar
+      use iSD_data, only: iSO2Sh
       use Sizes_of_Seward, only: S
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-#include "Basis_Mode.fh"
-#include "print.fh"
-#include "real.fh"
-#include "setup.fh"
-#include "etwas.fh"
-#include "columbus_gamma.fh"
-#include "mspdft.fh"
+      use Constants, only: One
+      use EtWas, only: nCRED, nScr1, nScr2, CoulFac, ExFac, nAsh
+      use mspdft_grad, only: DoGradMSPD
+      Implicit None
 
+      Integer iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4,
+     &        MemPSO, nMem2, iShell_A, iShell_B, iShell_C, iShell_D,
+     &        nQuad
+      Real*8 PMax
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)
       Integer iAO(4), iCmp(4), kOp(4), iAOst(4)
       Logical Shijij
-*                                                                      *
-************************************************************************
-*                                                                      *
-#ifdef _DEBUGPRINT_
-      iRout = 248
-      iPrint = nPrint(iRout)
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+
+      Integer nSA, ipPAM, ipiPam, ipC, ipS1, ipS2, i, j, ipMAP
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
 !     write(*,*)"Print out in integral_util/pget0 starting"
 !     Call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
       PMax=One
       nSA=1
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     RASSCF wavefunction
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     RASSCF wavefunction
+!
       If (lPSO) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
          ipPam=1
          ipiPam = ipPam + MemPSO
          ipMap = ipiPam + n1+n2+n3+n4
          ipC = ipMap + 4*S%nDim
          ipS1 = ipC + nCred
          ipS2 = ipS1 + 2*nScr1
-*
+!
          If (lSA) nSA=4
          If (DoGradMSPD) nSA=5
-*
+!
          If (nIrrep.eq.1) Then
             kOp(1) = 0
             kOp(2) = 0
@@ -94,7 +96,7 @@
      &                           Z_p_k,nSA)
 !                  write(*,*)"PGet1_RI2 ===========" yma
                Else
-*Not modified yet
+!Not modified yet
                   Call Abend()
                End If
             Else If (Case_3C) Then
@@ -107,13 +109,13 @@
      &                           V_K,U_K,nV_K,
      &                           Z_p_k,nnP(0),nSA,nAsh)
                Else
-*Not modified yet
+!Not modified yet
                   Call Abend()
                End If
             Else
                Call PGet3(PSO,ijkl,nPSO,iCmp,
      &                    iAO,iAOst,Shijij,
-     &                    iBas,jBas,kBas,lBas,kOp,D0,nDens,
+     &                    iBas,jBas,kBas,lBas,kOp,
      &                    Mem2(ipPam),n1,n2,n3,n4,
      &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,
      &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
@@ -131,7 +133,7 @@
      &                           Z_p_k,nSA,nZ_p_k)
 !yma                  write(*,*)"PGet2_RI2 ==========="
                Else
-*Not modified yet
+!Not modified yet
                   Call Abend()
                EndIf
             Else If (Case_3C) Then
@@ -144,7 +146,7 @@
      &                           Z_p_k,nSA,nAsh)
 
                Else
-*Not modified yet
+!Not modified yet
                   Call Abend()
                EndIf
             Else
@@ -161,7 +163,6 @@
 
                Call PGet4(iCmp,iBas,jBas,kBas,lBas,
      &                    Shijij, iAO, iAOst, ijkl, PSO, nPSO,
-     &                    D0,nDens,
      &                    Mem2(ipPam),n1,n2,n3,n4,
      &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,
      &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
@@ -169,20 +170,20 @@
 !yma                  write(*,*)"PGet4 ============"
             End If
          End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Else
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        SCF and DFT wavefunction
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        SCF and DFT wavefunction
+!
          If (Gamma_On .and. nGamma.gt.nMem2) Then
             Write (6,*) 'pGet0: nGamma.lt.nMem2'
             Call abend()
          End If
-*
+!
          If (nIrrep.eq.1) Then
             kOp(1) = 0
             kOp(2) = 0
@@ -302,7 +303,7 @@
      &                              D0,nDens,
      &                              CoulFac,PMax,V_K,nV_K)
                   End If
-*
+!
                Else
                   Call PGet2(iCmp,
      &                       iBas,jBas,kBas,lBas,
@@ -312,20 +313,19 @@
                End If
             End If
          End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End If
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
+!
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Call RecPrt('PSO in PGet0',' ',
-     &                               PSO,ijkl,nPSO)
+      Call RecPrt('PSO in PGet0',' ',PSO,ijkl,nPSO)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
-      End
+      End SubRoutine PGet0

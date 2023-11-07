@@ -10,9 +10,6 @@
 ************************************************************************
       SUBROUTINE RMVERT(NLEV,NVERT,IDRT,IDOWN,NLIM,NWVERT)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RMVERT')
 #include "WrkSpc.fh"
       DIMENSION IDRT(NVERT,5),IDOWN(NVERT,0:3)
       DIMENSION NWVERT(NVERT)

@@ -11,8 +11,10 @@
 ! Copyright (C) 2011, Thomas Bondo Pedersen                            *
 !               2011, Roland Lindh                                     *
 !***********************************************************************
+
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
+
       Subroutine OneEl_IJ(iS,jS,iPrint,Do_PGamma,                       &
      &                    xZeta,xZI,xKappa,xPCoor,                      &
      &                    Kernel,KrnlMm,Label,lOper,nComp,CoorO,        &
@@ -27,46 +29,59 @@
 !     Purpose: compute symmetry adapted one-electron integrals for
 !              shell doublet iS, jS.
 !
-      use Real_Spherical
-      use iSD_data
-      use Basis_Info
-      use Center_Info
+      use Real_Spherical, only: ipSph, rSph
+      use iSD_data, only: iSD
+      use Basis_Info, only: DBSC, Shells, MolWgh
+      use Center_Info, only: DC
       use Sizes_of_Seward, only:S
       use Gateway_Info, only: FNMC
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      use rmat, only: RMat_Type_Integrals
+      use define_af, only: AngTp
+      use property_label, only: PLabel
+      Implicit None
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-#include "angtp.fh"
 #include "Molcas.fh"
-#include "real.fh"
-#include "rmat_option.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "property_label.fh"
-      Integer iS, jS, iPrint
+      Integer iS, jS, iPrint, nComp, nOrdOp, nStabO, nIC, nGrid,
+     &        iAddPot, l_SOInt
       Logical Do_PGamma
       Integer nFinal, nScrtch, nScrSph
       Real*8, target :: Final(nFinal)
-      Real*8 Scrtch(nScrtch), ScrSph(nScrSph)
+      Real*8 Scrtch(nScrtch), ScrSph(nScrSph), SOInt(l_SOInt)
       Real*8 xZeta(*),xZI(*),xKappa(*),xPCoor(*)
-      Real*8 A(3), B(3), RB(3), CoorO(3,nComp), PtChrg(nGrid)
-      Character ChOper(0:7)*3, Label*8, dbas*(LENIN)
-      Integer nOp(2), lOper(nComp), iChO(nComp), iDCRR(0:7), iDCRT(0:7),&
-     &        iStabM(0:7), iStabO(0:7)
+      Real*8 CoorO(3,nComp), PtChrg(nGrid)
+      Integer lOper(nComp), iChO(nComp), iStabO(0:7)
+
+
+      Real*8 A(3), B(3), RB(3)
+      Character(LEN=8) Label
+      Character(LEN=LENIN) dbas
+      Integer nOp(2), iDCRR(0:7), iDCRT(0:7), iStabM(0:7)
       Integer nKern
       Real*8, Target:: Kern(nKern)
+      Integer, external:: MemSO1
 
       Real*8      Coord(3*MxAtom)
 #ifdef _GEN1INT_
       Logical NATEST, DO_TRAN
 #endif
-      Real*8  SOInt(l_SOInt)
-      Integer iTwoj(0:7), i
-      Data iTwoj/1,2,4,8,16,32,64,128/
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+      Integer i, iCmp, iBas, iAO, iShell, jCmp, jBas, jAO, jShell, nSO,
+     &        iComp, iSmLbl, iShll, iAng, iPrim, mdci, iCnttp,
+     &        iCnt, jShll, jAng, jPrim, mdcj, jCnttp, lFinal, ii,
+     &        Lmbdr, nDCRR, nStabM, lDCRR, l_Coord, nAtoms, iSOBlk, iiC,
+     &        mSO, iIrrep, lA0, lA1, lB0, lB1, MemAux, MemBux, MemCux,
+     &        MemKer, MemKrn, lScrtch, lScrSph, iuv, LambdT, kk, ipFnl,
+     &        nij, nijab, iab, ipX, ipY, ipZ, jj, iAtom, nDCRT,
+     &        nOrder, NrOpr, jCnt
+      Real*8 Fact, xFactor, xMass
+      Integer :: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
+      Character(LEN=3) :: ChOper(0:7)= ['E  ','x  ','y  ','xy ','z  ',
+     &                                  'xz ','yz ','xyz']
 !
 !     Statement functions
+      Integer ixyz, nElem
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 !                                                                      *
 !***********************************************************************
@@ -586,7 +601,7 @@
       Return
       End Subroutine OneEl_IJ
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

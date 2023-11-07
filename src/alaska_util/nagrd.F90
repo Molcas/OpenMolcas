@@ -29,6 +29,7 @@ use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Three, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
+use Disp, only: Direct, IndDsp
 
 implicit none
 #include "grd_interface.fh"
@@ -43,8 +44,6 @@ logical(kind=iwp), external :: TF
 external :: Cff2D, Fake, TNAI1
 ! Finite nuclei
 external :: ModU2, TERI1, vCff2D
-#include "Molcas.fh"
-#include "disp.fh"
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPrint, iRout
 #include "print.fh"

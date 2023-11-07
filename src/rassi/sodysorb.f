@@ -23,7 +23,6 @@
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
-#include "prgm.fh"
 #include "symmul.fh"
 #include "Files.fh"
 
@@ -132,13 +131,13 @@ C Compute the magnitude of the complex amplitudes as an approximation
       NSZZ=0
       NSSQ=0
       NPROD=0
-      DO 10 ISY=1,NSYM
+      DO ISY=1,NSYM
         NO=NOSH(ISY)
         NB=NBASF(ISY)
         NSZZ=NSZZ+(NB*(NB+1))/2
         NSSQ=MAX(NSSQ,NB**2)
         NPROD=MAX(NPROD,NO*NB)
-10    CONTINUE
+      END DO
       CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NSZZ)
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
@@ -308,5 +307,4 @@ C Free all the allocated memory
       CALL GETMEM('SO2SF','FREE','INTE',SO2SFNUM,NSS)
       CALL GETMEM('MSPROJS','FREE','REAL',MSPROJS,NSS)
 
-      RETURN
-      END
+      END SUBROUTINE SODYSORB

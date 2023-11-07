@@ -20,7 +20,6 @@ C
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "caspt2_grad.fh"
-#include "nsd.fh"
 C
       DIMENSION DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),T2AO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*),A_PT2(*)

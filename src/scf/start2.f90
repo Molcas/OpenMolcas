@@ -93,7 +93,7 @@
          Call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
          Call TrimEor(EOrb(1,1),EOrb(1,1),nSym,nBas,nOrb)
 
-         Call Setup
+         Call Setup_SCF()
          If(.not.Aufb .and. .not.OnlyProp) Then
             iOff=0
             Do iSym=1,nSym
@@ -142,7 +142,7 @@
             Call TrimEor(EOrb(1,1),EOrb(1,2),nSym,nBas,nOrb)
             Call TrimCMO(CMO(1,2),CMO(1,2),nSym,nBas,nOrb)
             Call TrimEor(EOrb(1,2),EOrb(1,2),nSym,nBas,nOrb)
-            Call Setup
+            Call Setup_SCF()
          Else
             If (isHDF5) Then
               Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,CMO,OccNo,EOrb,IndT)
@@ -165,7 +165,7 @@
             End Do
             Call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
             Call TrimEor(EOrb(1,1),EOrb(1,1),nSym,nBas,nOrb)
-            Call Setup
+            Call Setup_SCF()
             Call dCopy_(nBO,CMO(1,1),1,CMO(1,2),1)
             Call dCopy_(nnB,OccNo(1,1),1,OccNo(1,2),1)
             Call dCopy_(nnB,EOrb(1,1),1,EOrb(1,2),1)

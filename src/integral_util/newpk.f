@@ -1,44 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990-1992,1999, Roland Lindh                           *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990-1992,1999, Roland Lindh                           *
+!               1990, IBM                                              *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine NewPK(A,B,P,mZeta,nZeta,rKappa,Alpha,Beta)
-************************************************************************
-*                                                                      *
-* Object : to compute P and kappa.                                     *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-*             May '90, modified for integral cutoff.                   *
-*                                                                      *
-*             Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN.                              *
-*             June '91, modified for k2 loop.                          *
-*             January '92, modified for gradient calculations.         *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
+!***********************************************************************
+!                                                                      *
+! Object : to compute P and kappa.                                     *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!             May '90, modified for integral cutoff.                   *
+!                                                                      *
+!             Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN.                              *
+!             June '91, modified for k2 loop.                          *
+!             January '92, modified for gradient calculations.         *
+!***********************************************************************
+      use Constants, only: Zero, One, TwoP54
+      Implicit None
+      Integer mZeta, nZeta
       Real*8 Alpha(nZeta), Beta(nZeta), A(3), B(3), P(nZeta,3),
      &       rKappa(nZeta)
-*
-      iRout = 243
-      iPrint = nPrint(iRout)
-*
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In NewPK:Alpha',' ',Alpha,mZeta,1)
-         Call RecPrt(' In NewPK:Beta',' ',Beta,mZeta,1)
-      End If
-*
+!
+      Real*8 AB2, Tmp0, Tmp1
+      Integer iZeta
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In NewPK:Alpha',' ',Alpha,mZeta,1)
+      Call RecPrt(' In NewPK:Beta',' ',Beta,mZeta,1)
+#endif
+!
       AB2=(A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
       Do iZeta = 1, mZeta
          Tmp0=One/(Alpha(iZeta)+Beta(iZeta))
@@ -55,13 +55,13 @@
          P(iZeta,2) = Zero
          P(iZeta,3) = Zero
       End Do
-*
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In NewPK: Kappa',' ',rKappa,mZeta,1)
-         Call RecPrt(' In NewPK: Px',' ',P(1,1),mZeta,1)
-         Call RecPrt(' In NewPK: Py',' ',P(1,2),mZeta,1)
-         Call RecPrt(' In NewPK: Px',' ',P(1,3),mZeta,1)
-      End If
-*
+!
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In NewPK: Kappa',' ',rKappa,mZeta,1)
+      Call RecPrt(' In NewPK: Px',' ',P(1,1),mZeta,1)
+      Call RecPrt(' In NewPK: Py',' ',P(1,2),mZeta,1)
+      Call RecPrt(' In NewPK: Px',' ',P(1,3),mZeta,1)
+#endif
+!
       Return
-      End
+      End SubRoutine NewPK

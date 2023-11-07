@@ -11,10 +11,8 @@
 * Copyright (C) 1999, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE PROTOT(NPORB,NPSDSZ,IPSDMS,NPCSFSZ,IPCSFCP,PCSFTOSD)
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='ProtoT')
 #include "WrkSpc.fh"
       DIMENSION IPSDMS(NPORB,NPSDSZ),IPCSFCP(NPORB,NPCSFSZ)
       DIMENSION PCSFTOSD(NPSDSZ,NPCSFSZ)
@@ -37,7 +35,7 @@
 
 
       DO JCSF = 1, NPCSFSZ
-       IF( IPGLOB .GE. INSANE ) WRITE(6,*) ' ....Output for P-CSF ',JCSF
+       IF( IPGLOB .GE. 5 ) WRITE(6,*) ' ....Output for P-CSF ',JCSF
        DO JDET = 1, NPSDSZ
 C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR P-CSF JCSF
         COEF1=1.0D0
@@ -54,12 +52,12 @@ C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR P-CSF JCSF
             INDSPM=INDSPM-1
             COEF1=COEF1*SQRT(DBLE(INDSPM+1))
 * If COEF1 has gone down to 0 exactly.
-            IF (INDSPM+1.eq.0) GO TO 100
+            IF (INDSPM+1.eq.0) exit
           ELSE
             INDSMM=INDSMM-1
             COEF1=-COEF1*SQRT(DBLE(INDSMM+1))
 * If COEF1 has gone down to 0 exactly.
-            IF (INDSMM+1.eq.0) GO TO 100
+            IF (INDSMM+1.eq.0) exit
           END IF
           COEF2=COEF2*SQRT(DBLE(INDSPM+INDSMM+2))
          ELSE
@@ -73,10 +71,10 @@ C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR P-CSF JCSF
           COEF2=COEF2*SQRT(DBLE(INDSPM+INDSMM))
          END IF
         END DO
-  100   CONTINUE
+
         PCSFTOSD(JDET,JCSF)=COEF1/COEF2
 
        END DO
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE PROTOT

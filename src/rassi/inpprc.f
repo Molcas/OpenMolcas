@@ -9,20 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INPPRC
+      use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
-     &                      DMAB, mTRA
+     &                      DMAB, mTRA, ipglob
       use kVectors
       use OneDat, only: sOpSiz, sRdFst, sRdNxt
       USE do_grid, only: Do_Lebedev_Sym
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='INPPRC')
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
@@ -50,13 +47,13 @@
 * negative value that was set in init_rassi:
       IF(SOTHR_PRT.lt.0.0D0) THEN
 * Assign default settings. SOTHR_PRT is in cm-1:
-       IF(IPGLOB.ge.DEBUG) THEN
+       IF(IPGLOB.ge.4) THEN
         NSOTHR_PRT=10000
         SOTHR_PRT=0.0001D0
-      ELSE IF (IPGLOB.ge.VERBOSE) THEN
+      ELSE IF (IPGLOB.ge.3) THEN
         NSOTHR_PRT=100
         SOTHR_PRT=0.01D0
-      ELSE IF(IPGLOB.ge.USUAL) THEN
+      ELSE IF(IPGLOB.ge.2) THEN
         NSOTHR_PRT=20
         SOTHR_PRT=1.00D0
        ELSE
@@ -896,7 +893,7 @@ C Write out various input data:
         end if
       end if
 *
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)'  The following data are common to all the states:'
         WRITE(6,*)'  ------------------------------------------------'
@@ -991,7 +988,7 @@ C Write out various input data:
      &            ' WILL BE COMPUTED'
         END IF
       END IF
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
         WRITE(6,*)'Initial default flags are:'
         WRITE(6,*)'     PRSXY :',PRSXY
         WRITE(6,*)'     PRORB :',PRORB
@@ -1015,7 +1012,7 @@ C Write out various input data:
         WRITE(6,*)'     PRMEE :',PRMEE
         WRITE(6,*)'     PRMES :',PRMES
       END IF
-      IF(IPGLOB.GE.USUAL) THEN
+      IF(IPGLOB.GE.2) THEN
        IF(NATO.AND.(NRNATO.GT.0)) THEN
         WRITE(6,*)' Natural orbitals will be computed for the'
         WRITE(6,*)' lowest eigenstates. NRNATO=',NRNATO
@@ -1070,5 +1067,5 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
       End If
 *
       CALL XFLUSH(6)
-      RETURN
+
       END

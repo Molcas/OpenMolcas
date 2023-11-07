@@ -20,6 +20,9 @@ subroutine CHO_RESTART(DIAG,WRK,LWRK,DSKDIA,LCONV)
 use Cholesky, only: Cho_1Center, Cho_DecAlg, Cho_MinChk, Cho_SimRI, IABMNZ, iAtomShl, iiBstR, iiBstRSh, IndRed, IndRSh, INF_PASS, &
                     IPRINT, iSimRI, iSP2F, LuPri, MaxRed, MySP, nDimRS, nnBstR, nnBstRSh, nnBstRT, nnShl, nSym, NumCho, ScDiag, &
                     Thr_SimRI, ThrCom, XnPass
+#ifdef _DEBUGPRINT_
+use Cholesky, only: nShell
+#endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

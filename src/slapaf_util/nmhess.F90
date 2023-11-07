@@ -52,7 +52,7 @@ do iInter=1,nInter
   !write(u6,*) kIter1,kIter2
   dDipM(:,iInter) = (DipM(:,kIter1)-DipM(:,kIter2))/(Two*Delta)
 end do
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('DipM',' ',DipM,3,nIter)
 call RecPrt('dDipM',' ',dDipM,3,nInter)

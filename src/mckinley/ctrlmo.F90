@@ -15,9 +15,9 @@ subroutine CtrlMO(moip,nAcO)
 
 use Symmetry_Info, only: nIrrep
 use Definitions, only: Iwp
+use etwas, only: nAsh
 
 implicit none
-#include "etwas.fh"
 integer(kind=iwp), intent(out) :: moip(0:nIrrep-1), nAcO
 integer(kind=iwp) :: iIrrep, iTot
 

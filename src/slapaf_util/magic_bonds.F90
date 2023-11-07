@@ -26,7 +26,7 @@ real(kind=wp) :: CosFi, CosFi_limit, Fi_limit, rij, rkj, xij, xkj, yij, ykj, zij
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

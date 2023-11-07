@@ -13,6 +13,8 @@
       SUBROUTINE MKDYSORB(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
      &                 PSI1,PSI2,IF10,IF01,DYSAMP,DYSCOF)
 
+      use Constants, only: One, Zero
+
       IMPLICIT NONE
       REAL*8 PSI1(*),PSI2(*),DYSCOF(*)
       REAL*8 COEFF,OVERLAP_RASSI,OVLP,DYSAMP
@@ -38,9 +40,9 @@ C D = < N | anni_left | N-1 >
 
 C Nr of active spin-orbitals
       NASORB= IORBTAB(4)
-      DYSAMP=0.0D0
+      DYSAMP=Zero
       DO ISORB=1,NASORB
-       DYSCOF(ISORB)=0.0D0
+       DYSCOF(ISORB)=Zero
       END DO
 
 C IF10 = Eliminate to the left (state 1)
@@ -48,15 +50,15 @@ C IF10 = Eliminate to the left (state 1)
 
 C Loop over all spin orbitals ISORB:
        DO ISORB=1,NASORB
-        OVLP=0.0
+        OVLP=Zero
 
 C Annihilate a single orbital:
-        COEFF=1.0D0
+        COEFF=One
         IMODE=-1
         LFSBANN1=FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1)
         NDETS1=IWORK(LFSBANN1+4)
         CALL GETMEM('ANN1','Allo','Real',LANN1,NDETS1)
-        CALL DCOPY_(NDETS1,[0.0D0],0,WORK(LANN1),1)
+        CALL DCOPY_(NDETS1,[Zero],0,WORK(LANN1),1)
         CALL PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,IWORK(LFSBANN1),
      &                   IFSBTAB1,COEFF,WORK(LANN1),PSI1)
 
@@ -77,16 +79,16 @@ C IF01 = Eliminate to the right (state 2)
 
 C Loop over all spin orbitals JSORB:
        DO JSORB=1,NASORB
-         OVLP=0.0
+         OVLP=Zero
 
 C Annihilate a single orbital:
-         COEFF=1.0D0
+         COEFF=One
          IMODE=-1
          LFSBANN2=FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2)
          NDETS2=IWORK(LFSBANN2+4)
 C BRN
          CALL GETMEM('ANN2','Allo','Real',LANN2,NDETS2)
-         CALL DCOPY_(NDETS2,[0.0D0],0,WORK(LANN2),1)
+         CALL DCOPY_(NDETS2,[Zero],0,WORK(LANN2),1)
          CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,IWORK(LFSBANN2),
      &                   IFSBTAB2,COEFF,WORK(LANN2),PSI2)
 
@@ -112,6 +114,5 @@ C The eventual PES amplitude is given by the squared norm,
 C but for transformation of the D_ij elements we need to remove the
 C square for now
       DYSAMP = SQRT(DYSAMP)
-      RETURN
 
-      END
+      END SUBROUTINE MKDYSORB

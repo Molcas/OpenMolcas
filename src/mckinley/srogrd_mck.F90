@@ -119,9 +119,8 @@ do kCnttp=1,nCnttp
         iShll = dbsc(kCnttp)%iSRO+iAng
         nExpi = Shells(iShll)%nExp
 #       ifdef _DEBUGPRINT_
-        nBasisi = Shells(iShll)%nBasis
         write(u6,*) 'nExpi=',nExpi
-        write(u6,*) 'nBasis(iShll)=',nBasisi
+        write(u6,*) 'Shells(iShll)%nBasis=',Shells(iShll)%nBasis
         write(u6,*) ' iAng=',iAng
         call RecPrt('TC',' ',TC,1,3)
 #       endif

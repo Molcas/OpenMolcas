@@ -113,7 +113,7 @@ C
             n=n+nBasSh(iShell)*nBasSh(jShell)
          End Do
       End Do
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (n.ne.nRow_uvJ) Then
          Call WarningMessage(2,SecNam//': row dimension problem!')
          Call LDF_Quit(1)

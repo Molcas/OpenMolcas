@@ -1,84 +1,83 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990,1992, Roland Lindh                                *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,1992, Roland Lindh                                *
+!               1990, IBM                                              *
+!***********************************************************************
       SubRoutine SphCr1(Win,ijkla,
      &                  Scrt,nScrt,
      &                  Coeff3,kCar,kSph,Tr3,Pr3,
      &                  Coeff4,lCar,lSph,Tr4,Pr4,Wout,mcd)
-************************************************************************
-*                                                                      *
-* Object : to transform the two-electron integrals from cartesian      *
-*          gaussians to real spherical harmonic gaussians.             *
-*                                                                      *
-*          Observe that most of the time Win and Wout will overlap.    *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-*                                                                      *
-*             Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, SWEDEN.                                         *
-*             Modified to back projection to cartesian gaussians,      *
-*             January '92.                                             *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
+!***********************************************************************
+!                                                                      *
+! Object : to transform the two-electron integrals from cartesian      *
+!          gaussians to real spherical harmonic gaussians.             *
+!                                                                      *
+!          Observe that most of the time Win and Wout will overlap.    *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!                                                                      *
+!             Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, SWEDEN.                                         *
+!             Modified to back projection to cartesian gaussians,      *
+!             January '92.                                             *
+!***********************************************************************
+      Implicit None
+      Integer ijkla, nScrt, kCar,kSph,lCar,lSph,mcd
       Real*8 Win(ijkla*kSph*lSph), Scrt(nScrt),
      &       Coeff3(kCar,kCar), Coeff4(lCar,lCar),
      &       Wout(mcd*ijkla)
       Logical Tr3, Pr3, Tr4, Pr4
-*
-*     iQ = 0
-*     Call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
+!
+!     Call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
       If (Tr3.and.Tr4) Then
-*        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
-*--------Starting with IJKL,AB,CD transforming to d,IJKL,AB,C
-*        Call xxDGeMul(Coeff4,lCar,'N',
-*    &               Win,ijkla*kSph,'T',
-*    &               Scrt,lCar,
-*    &               lCar,lSph,ijkla*kSph)
+!        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
+!--------Starting with IJKL,AB,CD transforming to d,IJKL,AB,C
+!        Call xxDGeMul(Coeff4,lCar,'N',
+!    &               Win,ijkla*kSph,'T',
+!    &               Scrt,lCar,
+!    &               lCar,lSph,ijkla*kSph)
          Call NTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kSph)
-*
-*        Call RecPrt(' In SphCr: P(AB|Cd) ',' ',Scrt,lCar*ijkla,kSph)
-*        Call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
-*--------Transform d,IJKL,AB,C to cd,IJKL,AB
-*        Call xxDGeMul(Coeff3,kCar,'N',
-*    &               Scrt,lCar*ijkla,'T',
-*    &               Wout,kCar,
-*    &               kCar,kSph,lCar*ijkla)
+!
+!        Call RecPrt(' In SphCr: P(AB|Cd) ',' ',Scrt,lCar*ijkla,kSph)
+!        Call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
+!--------Transform d,IJKL,AB,C to cd,IJKL,AB
+!        Call xxDGeMul(Coeff3,kCar,'N',
+!    &               Scrt,lCar*ijkla,'T',
+!    &               Wout,kCar,
+!    &               kCar,kSph,lCar*ijkla)
          Call NTMul(Coeff3,Scrt,Wout,kCar,kSph,lCar*ijkla)
       Else If (Tr4) Then
-*        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
-*--------Starting with IJKL,AB,cD transforming to d,IJKL,AB,c
-*        Call xxDGeMul(Coeff4,lCar,'N',
-*    &               Win,ijkla*kCar,'T',
-*    &               Scrt,lCar,
-*    &               lCar,lSph,ijkla*kCar)
+!        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
+!--------Starting with IJKL,AB,cD transforming to d,IJKL,AB,c
+!        Call xxDGeMul(Coeff4,lCar,'N',
+!    &               Win,ijkla*kCar,'T',
+!    &               Scrt,lCar,
+!    &               lCar,lSph,ijkla*kCar)
          Call NTMul(Coeff4,Win,Scrt,lCar,lSph,ijkla*kCar)
-*--------Transpose d,IJKL,AB,c to cd,IJKL,AB
+!--------Transpose d,IJKL,AB,c to cd,IJKL,AB
          Call DGeTMO(Scrt,lCar*ijkla,lCar*ijkla,kCar,Wout,kCar)
       Else If (Tr3) Then
-*--------Transpose IJKL,AB,C,d to d,IJKL,AB,C
+!--------Transpose IJKL,AB,C,d to d,IJKL,AB,C
          Call DGeTMO(Win,ijkla*kSph,ijkla*kSph,lCar,Scrt,lCar)
-*
-*        Call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
-*        Transform d,IJKL,AB,c to cd,IJKL,AB
-*        Call xxDGeMul(Coeff3,kCar,'N',
-*    &               Scrt,lCar*ijkla,'T',
-*    &               Wout,kCar,
-*    &               kCar,kSph,lCar*ijkla)
+!
+!        Call RecPrt(' Left contraction',' ',Coeff3,kCar,kSph)
+!        Transform d,IJKL,AB,c to cd,IJKL,AB
+!        Call xxDGeMul(Coeff3,kCar,'N',
+!    &               Scrt,lCar*ijkla,'T',
+!    &               Wout,kCar,
+!    &               kCar,kSph,lCar*ijkla)
          Call NTMul(Coeff3,Scrt,Wout,kCar,kSph,lCar*ijkla)
       Else
-*---------Transpose IJKL,AB,cd to cd,IJKL,AB
+!---------Transpose IJKL,AB,cd to cd,IJKL,AB
           If (kCar*lCar.ne.1) Then
              call dcopy_(ijkla*kCar*lCar,Win,1,Scrt,1)
              Call DGeTMO(Scrt,ijkla,ijkla,kCar*lCar,Wout,kCar*lCar)
@@ -87,33 +86,35 @@
              call dcopy_(ijkla*kCar*lCar,Scrt,1,Wout,1)
           End If
       End If
-*
-*     Call RecPrt(' In SphCr1: P(AB|cd)  ',' ',Wout,mcd,ijkla)
+!
+!     Call RecPrt(' In SphCr1: P(AB|cd)  ',' ',Wout,mcd,ijkla)
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_logical(Pr3)
          Call Unused_logical(Pr4)
       End If
-      End
+      End SubRoutine SphCr1
 #ifdef _OLD_CODE_
       Subroutine NTMul(A,B,C,nRowA,nColA,nRowB)
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+      use Constants, only: Zero
+      Implicit None
+      Integer nRowA,nColA,nRowB
       Real*8 A(nRowA,nColA), B(nRowB,nColA),
      &       C(nRowA,nRowB)
-*
+!
+      Integer nCache, mCache, Indj, jj, njVec, i, j, k
       nCache=(64/8)*1024
       mCache=(nCache*3)/4 - nRowA*nColA
       Incj=mCache/(nRowA+nColA)
-*
-*-----Sectioning of long index
-*
+!
+!-----Sectioning of long index
+!
       Do jj = 1, nRowB, Incj
          njVec=Min(Incj,nRowB-jj+1)
-*
+!
          Do i = 1, nRowA
-*-----------Set target to zero
+!-----------Set target to zero
             Do j = jj, jj+njVec-1
                C(i,j) = Zero
             End Do
@@ -125,21 +126,27 @@ c Avoid unused argument warnings
                End If
             End Do
          End Do
-*
+!
       End Do    ! End of sectioning
-*
+!
       Return
-      End
+      End Subroutine NTMul
 #else
-c--------------------------------------------------------------------
+!--------------------------------------------------------------------
       subroutine ntmul(a,b,r,ncol,nlink,nrow)
-c--------------------------------------------------------------------
-      implicit real*8 (a-h,o-z)
-      parameter (mxind=2000)
-      dimension r(ncol,*),a(ncol,*),b(nrow,*),ind(mxind)
-c
+!--------------------------------------------------------------------
+      Implicit None
+      Integer nCol, nRow, nLink
+      Real*8 r(ncol,*),a(ncol,*),b(nrow,*)
+
+      Integer, parameter :: mxind=2000
+      Integer ind(mxind)
+      Integer i, nnot, k, j, nr1
+      Real*8 S1, S2, S3, S4, S5, S6, S7, S8,
+     &       T1, T2, T3, T4, T5, T6, T7, T8
+!
       do 100 i=1,ncol
-c
+!
       nnot=0
       do k=1,min(nlink,mxind)
         if ( a(i,k) .ne. 0.0d0 ) then
@@ -147,7 +154,7 @@ c
           ind(nnot) = k
         end if
       end do
-c
+!
       do 20 j=1,nrow-15,16
       s1=0.0D0
       s2=0.0D0
@@ -200,11 +207,11 @@ c
       r(i,j+14)=t7
       r(i,j+15)=t8
 20    continue
-c
+!
       nr1=mod(nrow,16)
       if(nr1.eq.0) goto 100
       j=nrow-nr1+1
-c
+!
       if(nr1.ge.8) then
       s1=0.0D0
       s2=0.0D0
@@ -235,7 +242,7 @@ c
       nr1=nr1-8
       j=j+8
       end if
-c
+!
       if(nr1.ge.4) then
       s1=0.0D0
       s2=0.0D0
@@ -254,7 +261,7 @@ c
       nr1=nr1-4
       j=j+4
       end if
-c
+!
       If (nr1.eq.1) Then
          s1=0.0D0
          do 45 k=1,nnot
@@ -287,11 +294,11 @@ c
          Call Abend()
       End If
  100  Continue
-*
+!
       if(mxind.ge.nlink) return
       Call WarningMessage(2,'MxInd.lt.nLink')
       Write (6,*) 'mxind,nlink=',mxind,nlink
       Call Abend()
       Return
-      End
+      End subroutine ntmul
 #endif

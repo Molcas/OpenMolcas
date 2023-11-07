@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SOEIG(PROP,USOR,USOI,ENSOR,NSS,ENERGY)
       !> module dependencies
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM
       use sorting, only : argsort
       use sorting_funcs, only : leq_r
@@ -22,7 +23,6 @@
       use qcmaquis_interface_cfg
 #endif
       IMPLICIT NONE
-#include "prgm.fh"
 #include "SysDef.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -33,9 +33,6 @@
 #include "constants.fh"
 #include "stdalloc.fh"
 #include "rassiwfn.fh"
-
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SOEIG')
 
       INTEGER NSS
       REAL*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
@@ -124,7 +121,7 @@ C Complex hamiltonian matrix elements over spin states:
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LHTOTR),1)
       CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LHTOTI),1)
 
-      IF(IPGLOB.GE.TERSE) THEN
+      IF(IPGLOB.GE.1) THEN
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)
@@ -275,7 +272,7 @@ C  is multiplied by imaginary unit to keep its hermicity
       END DO
 
 
-      IF(IPGLOB.GE.VERBOSE) THEN
+      IF(IPGLOB.GE.3) THEN
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)'Complex Hamiltonian matrix including SO-coupling'
@@ -490,7 +487,7 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
 * Jump here to skip computing omega and/or J:
 C910  CONTINUE
 
-      IF(IPGLOB.GE.TERSE) THEN
+      IF(IPGLOB.GE.1) THEN
        WRITE(6,*)
        WRITE(6,'(6X,A)')' Total energies including SO-coupling:'
        DO ISS=1,NSS
@@ -501,7 +498,7 @@ C910  CONTINUE
       END IF
 
 * Find E0=lowest energy, to use for printing table:
-      IF(IPGLOB.GE.TERSE) THEN
+      IF(IPGLOB.GE.1) THEN
        E0=ENSOR(1)
        DO ISS=2,NSS
          E=ENSOR(ISS)
@@ -598,12 +595,12 @@ C Put energy onto info file for automatic verification runs:
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
       Call Add_Info('ESO_LOW',ENSOR+EMIN,NSS,iTol)
 
-      IF(IPGLOB.GE.VERBOSE) THEN
+      IF(IPGLOB.GE.3) THEN
        WRITE(6,*)
        WRITE(6,*)' Complex eigenvectors in basis of non-so eigenstates:'
        WRITE(6,*)'-----------------------------------------------------'
        WRITE(6,*)
-       IF(IPGLOB.GE.DEBUG) THEN
+       IF(IPGLOB.GE.4) THEN
          FRAC=0.0D0
        ELSE
          FRAC=0.25D0
@@ -637,6 +634,5 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
 
       call mma_deallocate(HAMSOR)
       call mma_deallocate(HAMSOI)
-      RETURN
 
-      END
+      END SUBROUTINE SOEIG

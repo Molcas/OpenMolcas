@@ -46,18 +46,18 @@ use Para_Info, only: Is_Real_Par
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, UtoAU
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: lRF, PCM, lLangevin, RDS
+use rmat, only: Dipol1, RMat_On, bParm, Dipol, EpsAbs, EpsQ, EpsRel, QCoul, RMatR
+use define_af, only: iTabMx, AngTp
+use getline_mod, only: Line
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd_
 logical(kind=iwp), intent(inout) :: lOPTO
 logical(kind=iwp), intent(out) :: Do_OneEl
 #include "Molcas.fh"
-#include "angtp.fh"
-#include "rctfld.fh"
-#include "rmat.fh"
 #include "print.fh"
 #include "embpcharg.fh"
-#include "cgetl.fh"
 #ifdef _HAVE_EXTRA_
 #include "hyper.fh"
 #endif

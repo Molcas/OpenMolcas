@@ -31,6 +31,10 @@ real(kind=wp), intent(in) :: S(ISIZE), V(ISIZE), VELIT
 real(kind=wp), intent(inout) :: H(ISIZE), PVP(ISIZE)
 integer(kind=iwp) :: I, IJ, ILL, J, K, M
 real(kind=wp) :: CON, CON2, PREA, RATIO, SR, TV1, TV2, TV3, TV4
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: icontr, iex
+real(kind=wp) :: det, dtol
+#endif
 
 !write(u6,*) ' in SCFCLI', N, iSize
 PREA = One/(VELIT*VELIT)

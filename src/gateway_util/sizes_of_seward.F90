@@ -12,13 +12,13 @@
 module Sizes_of_Seward
 
 use Definitions, only: iwp
+use define_af, only: iTabMx
 
 implicit none
 private
 
 public :: S, Size_Dmp, Size_Get
 
-#include "itmax.fh"
 integer(kind=iwp), parameter :: nLen = 16+2*iTabMx ! number of elements
 type Sizes_of_Stuff
   integer(kind=iwp) :: m2Max = 0

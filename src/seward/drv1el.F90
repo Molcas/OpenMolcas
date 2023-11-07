@@ -42,11 +42,11 @@ use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use Property_Label, only: PLabel
 
 implicit none
 #include "print.fh"
 #include "wldata.fh"
-#include "property_label.fh"
 #include "oneswi.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &

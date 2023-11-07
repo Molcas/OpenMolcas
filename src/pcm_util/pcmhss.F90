@@ -34,6 +34,7 @@ use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: nTS
 
 implicit none
 #include "hss_interface.fh"
@@ -46,7 +47,6 @@ logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), NoLoop, T
 integer(kind=iwp), external :: NrOpr
 external :: Fake, TNAI1, XCff2D
 #include "print.fh"
-#include "rctfld.fh"
 
 #include "macros.fh"
 unused_var(rFinal)

@@ -10,7 +10,7 @@
 !***********************************************************************
 
 ! Template used in PGet2_RI3
-#if !(defined(_COULOMB_) || defined(_EXCHANGE_) || defined(_ACTIVE_))
+#if ! defined (_COULOMB_) && ! defined (_EXCHANGE_) && ! defined (_ACTIVE_)
   ! This should be an error at compile time!
   'At least one of _COULOMB_, _EXCHANGE_, _ACTIVE_ should be defined'
 #endif

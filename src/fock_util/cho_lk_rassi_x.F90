@@ -80,6 +80,9 @@ type(Lab_Type) :: Lab
 integer(kind=iwp), allocatable :: Indx(:,:,:), iShp_rs(:), kOffSh(:,:), nnBfShp(:,:)
 real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:), Faa(:), Fia(:), Frs(:), Lrs(:,:), MLk(:,:,:), SumAClk(:,:,:), SvShp(:,:), &
                               VJ(:), Ylk(:,:,:)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iErr
+#endif
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: i, myJRED1, NNBSTMX, ntv0
 real(kind=wp), allocatable :: DiagJ(:)
@@ -1181,8 +1184,8 @@ if (timings) then
 
 end if
 
-! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
+! Print the Fock-matrix
 !if (Debug) then ! to avoid double printing in RASSI-debug
 write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM
 write(u6,'(6X,A)')

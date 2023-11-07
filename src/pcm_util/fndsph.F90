@@ -15,6 +15,7 @@ use Solvent_Data, only: Pauling
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: nSInit, nOrdInp, RadInp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAt, ICharg, IAt(NAt), ITypRad, NSphInp, m, iPrint
@@ -24,7 +25,6 @@ real(kind=wp), intent(out) :: XSph(m), YSph(m), ZSph(m), Rad(m)
 integer(kind=iwp), intent(out) :: NOrd(m)
 integer(kind=iwp) :: I
 real(kind=wp), allocatable :: Chg(:)
-#include "rctfld.fh"
 
 ! Assign GEPOL sphere positions and radii according to solute atoms nature
 select case (ITypRad)

@@ -203,5 +203,5 @@ CPAM00 OK -- Now add Coulomb contributions:
       CALL GETMEM('      ','FREE','REAL',LSQBUF,NSQBUF)
 *
       Call GADSum(FOCKAO,NBSQ)
-      RETURN
-      END
+
+      END SUBROUTINE FOCK_RASSI

@@ -37,10 +37,10 @@ use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: iCnttp
-#include "itmax.fh"
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCase, iCmp, iDisk, ij, ijF, ijS, ijS_req, ijT, iSeed, iShll, iShll_, iSO, j, jBas, jCmp, &
                      jiS, Keep_Shell, Lu_A, Lu_Q, m, nBasisi, nCmp, nExpi, nSO, nTest, nTInt_c
 real(kind=wp) :: Thr_CB, ThrAO

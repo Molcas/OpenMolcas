@@ -62,9 +62,9 @@
 #define ALLOC_FLD -2
 #define MINMEMPTR -577777000306848070
 #ifdef _DEBUGPRINT_MEM_
-# define MAXREC 32768
+# define MAXREC 524288
 #else
-# define MAXREC 32768 /* 8192 */
+# define MAXREC 524288 /* 8192 */
 #endif
 
 #ifdef _MEM_PROF_
@@ -932,7 +932,7 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
     if (MlM.nmentry == 0) {
       break;
     } else {
-#     if defined(_DEBUGPRINT_MEM_) || !defined(_DEVEL_)
+#     if defined (_DEBUGPRINT_MEM_) || ! defined (_DEVEL_)
       printf("MEMORY ERROR: some memory allocations are not released!\n");
       rc = -1;
 #     else

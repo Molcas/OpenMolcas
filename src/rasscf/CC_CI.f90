@@ -34,6 +34,7 @@ module CC_CI_mod
     use index_symmetry, only: one_el_idx, two_el_idx_flatten
     use CI_solver_util, only: wait_and_read, RDM_to_runfile, &
         CleanMat, inv_triang_number, write_RDM
+    use rctfld_module, only: lRF
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
     use CI_solver_util, only: triangular_number
 #endif
@@ -43,8 +44,6 @@ module CC_CI_mod
     private
     public :: Do_CC_CI, CC_CI_solver_t, write_RDM
     logical :: Do_CC_CI = .false.
-
-#include "rctfld.fh"
 
     interface
         integer function isfreeunit(iseed)
@@ -171,7 +170,7 @@ contains
     function construct_CC_CI_solver_t() result(res)
         type(CC_CI_solver_t) :: res
         unused_var(res)
-#if defined(_WARNING_WORKAROUND_) && !defined(EMPTY_TYPE_INIT)
+#if defined (_WARNING_WORKAROUND_) && ! defined (EMPTY_TYPE_INIT)
         res = res
 #endif
 ! Due to possible size of active space arrays of nConf

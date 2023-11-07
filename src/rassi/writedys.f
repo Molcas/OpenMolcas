@@ -24,7 +24,6 @@
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
-#include "prgm.fh"
 #include "symmul.fh"
 #include "Files.fh"
 
@@ -88,5 +87,4 @@
 
       END DO ! JSTATE
 
-      RETURN
-      END
+      END SUBROUTINE WRITEDYS

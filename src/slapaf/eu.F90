@@ -49,6 +49,11 @@ use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Constants, only: Two, Pi
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nH
@@ -58,7 +63,6 @@ integer(kind=iwp) :: i, ij, j
 real(kind=wp) :: lim, WorkR
 real(kind=wp), allocatable :: E(:,:), Eval(:), EVec(:,:), f(:), M(:,:), p(:), u(:), v(:), WorkM(:,:), WorkV(:)
 real(kind=wp), external :: ddot_
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ii
 real(kind=wp) :: de, mi

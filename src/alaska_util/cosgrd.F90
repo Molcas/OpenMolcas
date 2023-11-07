@@ -37,6 +37,8 @@ use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: nTS
+use Disp, only: IndDsp
 
 implicit none
 #include "grd_interface.fh"
@@ -48,10 +50,7 @@ logical(kind=iwp) :: JfGrad(3,4)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 external :: Cff2D, Fake, TNAI1
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
-#include "rctfld.fh"
 
 #include "macros.fh"
 unused_var(rFinal)

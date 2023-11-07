@@ -61,7 +61,7 @@ integer(kind=iwp), external :: NrOpr
 !real(kind=wp), external :: DNRM2_
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ia, ib
+integer(kind=iwp) :: i, ia, ib
 character(len=24) :: Label
 #endif
 
@@ -97,7 +97,7 @@ write(u6,*) ' In FragPInt: nTri_Elem1(la)=',' ',nTri_Elem1(la)
 write(u6,*) ' In FragPInt: nTri_Elem1(lb)=',' ',nTri_Elem1(lb)
 call RecPrt(' In FragPInt: A     ',' ',A,1,3)
 call RecPrt(' In FragPInt: RB    ',' ',RB,1,3)
-call RecPrt(' In FragPInt: Ccoor ',' ',Ccoor,1,3)
+call RecPrt(' In FragPInt: CoorO ',' ',CoorO,1,3)
 call RecPrt(' In FragPInt: P     ',' ',P,nZeta,3)
 call RecPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
 call TrcPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)

@@ -13,7 +13,6 @@
 !               1992, Piotr Borowski                                   *
 !               2011, Francesco Aquilante                              *
 !***********************************************************************
-!define _DEBUGPRINT_
       SubRoutine DOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
 !***********************************************************************
 !                                                                      *
@@ -49,6 +48,10 @@
       Integer i, j, Ind
       Integer iCol, iDSc, iOff, iOffD, ipCMO, ipDlt, ipDScc, ipOcc, iROw, iSym, ji, jj, lOff
       Integer lth, nBs, nFr, nOr
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Integer nOcc
+#endif
       Real*8  Sum, xsign
 !
 !---- Statement function for triangular storage

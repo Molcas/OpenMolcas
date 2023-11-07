@@ -309,7 +309,8 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
-      use mspdft, only: dogradmspd, iFxyMS, iIntS
+      use mspdft, only: iFxyMS, iIntS
+      use mspdft_grad, only: dogradmspd
       use mcpdft_output, only: debug, lf, iPrLoc
 
       IMPLICIT REAL*8 (A-H,O-Z)

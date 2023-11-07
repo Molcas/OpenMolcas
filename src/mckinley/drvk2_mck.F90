@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Drvk2_mck(mdede,New_Fock)
+subroutine Drvk2_mck(New_Fock)
 !***********************************************************************
 !                                                                      *
 !  Object: to precompute all pair entites as zeta, kappa, P.           *
@@ -28,46 +28,38 @@ subroutine Drvk2_mck(mdede,New_Fock)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem1
-use k2_setup, only: Data_k2, Indk2, nk2
-use k2_arrays, only: DoGrad_, DoHess_
+use k2_arrays, only: DoGrad_, DoHess_, nDeDe
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use k2_structure, only: k2data, Indk2
 
 implicit none
-integer(kind=iwp), intent(out) :: mdede
 logical(kind=iwp), intent(in) :: New_Fock
-#include "ndarray.fh"
 integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
                      iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, jBas, &
-                     jBasj, jBsInc, jCmp, jCnt, jCnttp, jpk2, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
-                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, Maxk2, MaxMem, mdci, mdcj, MemPrm, &
-                     MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, nZeta
+                     jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
+                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, mdci, mdcj, MemPrm, &
+                     MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
+
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
-real(kind=wp), allocatable :: Con(:), Data_k2_local(:), Wrk(:)
+real(kind=wp), allocatable :: Con(:), Wrk(:)
 integer(kind=iwp), external :: MemSO1
+Integer ik2
+Integer, parameter:: nHm=0
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu1,TWall1)
-call mma_MaxDBLE(Maxk2)
-maxk2 = maxk2/2
-call mma_allocate(Data_k2_local,Maxk2)
-jpk2 = 1
-nk2 = 0
-mdede = 0
-mk2 = 0
 
 DoGrad_ = .false.
 DoHess_ = .true.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 call Nr_Shells(nSkal)
+Call Allok2()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -83,11 +75,13 @@ end do
 !***********************************************************************
 !                                                                      *
 call mma_MaxDBLE(MaxMem)
-call mma_allocate(Wrk,MaxMem,Label='Wrk')
+call mma_allocate(Wrk,(9*MaxMem)/10,Label='Wrk')
 ipM001 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+ndede = 0
+mk2 = 0
 do iS=1,nSkal
   iShll = iSD(0,iS)
   iAng = iSD(1,iS)
@@ -118,6 +112,7 @@ do iS=1,nSkal
     jCnt = iSD(14,jS)
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
+    ik2 = iS*(iS-1)/2 + jS
     iAngV(2) = jAng
     iShllV(2) = jShll
     iCmpV(2) = nTri_Elem1(jAng)
@@ -138,8 +133,6 @@ do iS=1,nSkal
     jBasj = jPrimj
     kBask = 1
     lBasl = 1
-
-    nZeta = iPrimi*jPrimj
 
     call ConMax(Con,iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
@@ -177,13 +170,13 @@ do iS=1,nSkal
     ! entities) for all possible unique pairs of centers generated
     ! for the symmetry unique centers A and B.
 
-    call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,Data_k2_local(jpk2),ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp, &
+    call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,k2Data(:,ik2), &
+                    ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp, &
                     jPrimj,Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003,mdci, &
                     mdcj)
 
-    Indk2(1,ijShll) = jpk2
     Indk2(2,ijShll) = nDCRR
-    nk2 = nk2+(nZeta*nDArray+nDScalar)*nDCRR
+    Indk2(3,ijShll) = ik2
     mk2 = mk2+nDCRR
 
     if (New_Fock) then
@@ -193,9 +186,7 @@ do iS=1,nSkal
     end if
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-    if (nSO > 0) mDeDe = mDeDe+iDeSiz*nDCRR
-
-    jpk2 = 1+nk2
+    if (nSO > 0) nDeDe = nDeDe+iDeSiz*nDCRR
 
   end do
 end do
@@ -207,16 +198,10 @@ call mma_deallocate(Con)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Resize the memory to the actual size
-
-call move_alloc(Data_k2_local,Data_k2)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,'(20X,A)') ' *** The k2 entities have been precomputed ***'
-write(u6,'(I7,A,I7,A)') mk2,' blocks of k2 data were computed and',nk2,' Word(*8) of memory is used for storage.'
+write(u6,'(I7,A)') mk2,' blocks of k2 data were computed.'
 write(u6,'(A)') ' The prescreening is based on the integral estimates.'
 #endif
 

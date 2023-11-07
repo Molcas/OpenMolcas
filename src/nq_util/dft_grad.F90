@@ -27,7 +27,7 @@ use nq_Info, only: Functional_type, GGA_Type, Grid_Type, LDA_Type, meta_GGA_type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -51,10 +51,9 @@ call RecPrt('Grid',' ',Grid,3,mGrid)
 call RecPrt('Weights',' ',Weights,1,mGrid)
 call RecPrt('dW_dR',' ',dW_dR,nGrad_Eff,mGrid)
 call RecPrt('dRho_dR(1)',' ',dRho_dR,ndRho_dR,mGrid)
-call RecPrt('dF_dRho',' ',dF_dRho,ndF_dRho,mGrid)
-do iEff=1,nGrad_Eff
-  write(u6,*) 'iTab=',iTab(1,iEff),iTab(2,iEff),iTab(3,iEff),iTab(3,iEff)
-  write(u6,*) 'IndGrd=',IndGrd(iEff)
+do i_Eff=1,nGrad_Eff
+  write(u6,*) 'iTab=',iTab(1,i_Eff),iTab(2,i_Eff),iTab(3,i_Eff),iTab(3,i_Eff)
+  write(u6,*) 'IndGrd=',IndGrd(i_Eff)
 end do
 #endif
 !                                                                      *

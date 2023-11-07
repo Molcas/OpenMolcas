@@ -38,6 +38,7 @@
       use Fock_util_global, only: DoLocK
       use Functionals, only: Init_Funcs, Print_Info
       use KSDFT_Info, only: CoefR, CoefX
+      use rctfld_module
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -46,7 +47,6 @@
 #include "gas.fh"
 #include "output_ras.fh"
 #include "ciinfo.fh"
-#include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "splitcas.fh"
 #include "lucia_ini.fh"
@@ -222,7 +222,7 @@ C.. for GAS
       Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
 
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       If(.Not.DoBlockDMRG) GoTo 113
 
 #ifdef _ENABLE_DICE_SHCI_
@@ -411,7 +411,7 @@ C.. for GAS
       end if
       Call CollapseOutput(0,'CI expansion specifications:')
 
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
  114  Continue
 #endif
 

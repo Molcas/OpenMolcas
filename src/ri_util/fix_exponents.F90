@@ -27,7 +27,7 @@ integer(kind=iwp) :: i, iC, iP, jP, iSkip
 real(kind=wp) :: Temp, Thr_Skip
 real(kind=wp), allocatable :: Scr1(:), Scr2(:,:,:)
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('Fix_Exponents: Expn',' ',Expn,1,nP)
 call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(:,:,1),nP,nC)

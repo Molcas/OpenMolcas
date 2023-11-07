@@ -19,7 +19,7 @@ real(kind=wp), intent(out) :: D1ao(nD1ao)
 integer(kind=iwp) :: nDens
 logical(kind=iwp) :: Found
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: nBas(0:7) = -1, nSym = -1
+integer(kind=iwp) :: ii, iIrrep, nBas(0:7) = -1, nSym = -1
 #endif
 character(len=*), parameter :: Label = 'D1aoVar'
 

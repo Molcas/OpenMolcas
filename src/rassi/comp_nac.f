@@ -33,16 +33,14 @@ C                                                                       C
 C***********************************************************************C
       Use Basis_Info
       use Center_Info
+      use rassi_aux, only: ipglob
       use Symmetry_Info, only: nIrrep
+      use Disp
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='COMP_NAC')
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "disp.fh"
 #include "diff.fh"
 #include "symmul.fh"
 * Arguments
@@ -118,7 +116,7 @@ C***********************************************************************C
          End Do
       End Do
 * Print Some Stuff related to the computation of NACs
-      IF (IPGLOB.ge.TERSE) THEN
+      IF (IPGLOB.ge.1) THEN
       WRITE(6,'(/,"NONADIABATIC COUPLINGS BETWEEN STATE",'//
      &          'I5,"AND STATE",I5," .",/)')ISTATE, JSTATE
       Do I = 1, nAlCnt*3
@@ -128,7 +126,6 @@ C***********************************************************************C
 *
       CALL GETMEM('NACS','FREE','REAL',NNACS,NTEMP)
 *
-      RETURN
 C     ******************************************************************C
       END
 C     ******************************************************************C
@@ -162,12 +159,12 @@ C                       2) KAPPA   - "ORBITAL ROTATION MATRIX "         C
 C                       3) CI      - "CI ARRAY DERIVATIVES    "         C
 C                                                                       C
 C***********************************************************************C
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "prgm.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
@@ -175,8 +172,6 @@ C***********************************************************************C
 * Arguments
       DIMENSION TDMZZ(*), CISTATJ(*), IOFF(*)
 * Local Variables
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='COMP_NAC')
       CHARACTER*8 LABEL, STYPE
 * Subroutine Statements
 
@@ -252,7 +247,7 @@ C     END IF
          END IF
       END DO
 * Compute CI contribution to NACs
-      IF(IPGLOB.ge.DEBUG) THEN
+      IF(IPGLOB.ge.4) THEN
       write(6,*)
       write(6,*)'PSUM, CIcon',PSUM,
      &  DDOT_(NCONF1, CISTATJ, 1, WORK(N_DCIVEC), 1)
@@ -272,5 +267,4 @@ C     END IF
 *
 * Now you can leave...
 *
-      RETURN
       END

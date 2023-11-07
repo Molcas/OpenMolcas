@@ -19,8 +19,9 @@ subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 !     a set of well-defined occupied orbitals.                         *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-use Index_Functions, onlyy: iTri
+use Index_Functions, only: iTri
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -35,9 +36,8 @@ logical(kind=iwp) :: Polished
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: P(:,:), Ovrlp_Sq(:,:), EVe(:,:), C_tmp(:,:), PNew(:), EVa(:)
 real(kind=wp), parameter :: thr = 1.0e-14_wp
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i, j, ij
+integer(kind=iwp) :: ij
 
 write(u6,*) 'nBas,nOcc,nVirt=',nBas,nOcc,nVirt
 call RecPrt('C_Occ',' ',C_Occ,nBas,nOcc)

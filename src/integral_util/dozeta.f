@@ -1,45 +1,51 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990-1992, Roland Lindh                                *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990-1992, Roland Lindh                                *
+!               1990, IBM                                              *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine DoZeta(Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,rKappa,
      &                  ZInv,Alpha_,Beta_,Ind_Pair)
-************************************************************************
-*                                                                      *
-* Object : to compute P and kappa.                                     *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-*             May '90, modified for integral cutoff.                   *
-*                                                                      *
-*             Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN.                              *
-*             June '91, modified for k2 loop.                          *
-*             January '92, modified for gradient calculations.         *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
+!***********************************************************************
+!                                                                      *
+! Object : to compute P and kappa.                                     *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!             May '90, modified for integral cutoff.                   *
+!                                                                      *
+!             Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN.                              *
+!             June '91, modified for k2 loop.                          *
+!             January '92, modified for gradient calculations.         *
+!***********************************************************************
+      use Constants, only: One, TwoP54
+      Implicit None
+      Integer nAlpha, nBeta
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
      &       Alpha_(nAlpha*nBeta), Beta_(nAlpha*nBeta),
      &       ZInv(nAlpha*nBeta), A(3), B(3),
      &       P(nAlpha*nBeta,3), rKappa(nAlpha*nBeta)
       Integer Ind_Pair(nAlpha*nBeta+1)
-*
-!#define _DEBUGPRINT_
+!
+      Integer iBeta, iAlpha, iZeta
+      Real*8 AB2, Tmp0, Tmp1
+#if defined(_New_Code_) || defined(_DEBUGPRINT_)
+      Integer nZeta
+#endif
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In DoZeta:Alpha',' ',Alpha,nAlpha,1)
       Call RecPrt(' In DoZeta:Beta',' ',Beta,nBeta,1)
 #endif
-*
+!
       AB2=(A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
       Do iBeta = 1, nBeta
          Do iAlpha = 1, nAlpha
@@ -59,10 +65,10 @@
          End Do
       End Do
       Ind_Pair(nAlpha*nBeta+1)=nAlpha*nBeta
-*
-*     Sort from Large to Small
-*
-*define _New_Code_
+!
+!     Sort from Large to Small
+!
+!define _New_Code_
 #if defined(_New_Code_) || defined(_DEBUGPRINT_)
       nZeta=nAlpha*nBeta
 #endif
@@ -103,11 +109,11 @@
          End Do
       End Do
 #endif
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In DoZeta: Kappa',' ',rKappa,nZeta,1)
       Call RecPrt(' In DoZeta: P',' ',P,nZeta,3)
 #endif
-*
+!
       Return
-      End
+      End SubRoutine DoZeta

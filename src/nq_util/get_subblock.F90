@@ -39,7 +39,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 !#define _DEBUGPRINT_
 !#define _ANALYSIS_
-#if defined(_DEBUGPRINT_) || defined(_ANALYSIS_)
+#if defined (_DEBUGPRINT_) || defined (_ANALYSIS_)
 use Definitions, only: u6
 #endif
 

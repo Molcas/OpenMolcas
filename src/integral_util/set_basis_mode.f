@@ -1,18 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Set_Basis_Mode(Label)
-#include "Basis_Mode.fh"
-      Character*(*) Label
-      Character*7 Lbl
-*
+      use BasisMode
+      Implicit none
+      Character(LEN=*) Label
+      Character(LEN=7) Lbl
+!
       Atomic=.False.
       kCnttp=0
       Lbl=Label(1:7)
@@ -34,6 +35,5 @@
      &               'Label='//Lbl)
          Call Abend()
       End If
-*
-      Return
-      End
+!
+      End Subroutine Set_Basis_Mode

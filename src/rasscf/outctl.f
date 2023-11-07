@@ -32,6 +32,7 @@
       use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
       use OneDat, only: sNoOri, sOpSiz
+      use rctfld_module
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -43,7 +44,6 @@
       Character*16 ROUTINE
       Parameter (ROUTINE='OUTCTL  ')
 #include "ciinfo.fh"
-#include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
@@ -174,7 +174,7 @@ C Local print level (if any)
       Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
 
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       If(.Not.DoBlockDMRG) GoTo 113
 
 #ifdef _ENABLE_DICE_SHCI_
@@ -361,7 +361,7 @@ C Local print level (if any)
       If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Call Print_NQ_Info()
       Call CollapseOutput(0,'CI expansion specifications:')
 
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
  114  Continue
 #endif
 

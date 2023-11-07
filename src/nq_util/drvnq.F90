@@ -37,6 +37,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
+use KSDFT_Info, only: KSDFA
 use Definitions, only: u6
 #endif
 
@@ -48,7 +49,6 @@ real(kind=wp), intent(in) :: Density(nFckInt,nD)
 logical(kind=iwp), intent(in) :: Do_Grad, Do_TwoEl, IsFT
 logical(kind=iwp), intent(inout) :: Do_MO
 character(len=4), intent(in) :: DFTFOCK
-#include "status.fh"
 integer(kind=iwp) :: i, iDum(1), iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, jIrrep, kAsh, kIrrep, kl_Orb_pairs, lAsh, mAO, &
                      mdRho_dr, mGrad, nBas(8), nCMO, nD1MO, nDel(8), nGradRho, nLapl, nNQ, nP2, nP2_ontop, nSigma, nTau, NQNAC, &
                      NQNACPAR, NQNACPR2, nShell, nTmpPUVX
@@ -73,7 +73,6 @@ call Nr_Shells(nShell)
 call mma_allocate(Maps2p,nShell,nIrrep,Label='Maps2p')
 call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 
-NQ_Status = Inactive
 call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,PThr,PMode,R_Min,LMax_NQ)
 
 call mma_deallocate(R_Min)
@@ -460,7 +459,6 @@ call mma_deallocate(Mem)
 call mma_deallocate(Angular)
 call mma_deallocate(Fact)
 call mma_deallocate(Maps2p)
-NQ_Status = Inactive
 !                                                                      *
 !***********************************************************************
 !                                                                      *

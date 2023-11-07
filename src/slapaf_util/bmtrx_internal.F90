@@ -53,11 +53,10 @@ integer(kind=iwp), external :: isfreeunit
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-#ifdef _DEBUGPRINT_
-iPrint = 99
-#else
 iRout = 128
 iPrint = nPrint(iRout)+1
+#ifdef _DEBUGPRINT_
+iPrint = 99
 #endif
 !                                                                      *
 !***********************************************************************

@@ -88,7 +88,6 @@ integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, iAnga(4), iCmpa(4), iAO(4), 
                                  lPrim, nAco, iMemB
 integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, Mem1, Mem2, Mem3, Mem4, &
                                   MemX, MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer
-#include "pstat.fh"
 integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, mabcd, Mem0, MemAux, &
                      MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, nijkl, nMax, nMaxC, &
                      nPam(4,0:7), nTmp1, nTmp2
@@ -105,7 +104,6 @@ iCmp = iCmpa(1)
 jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
-iTotal = iTotal+1
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
 
@@ -156,10 +154,9 @@ do
 
   MemFin = 9*nijkl*nabcd
   if (MemFin+ncmo+1 > Mem0) then
-    MaxReq = max(MaxReq,nCMO+MemFin+1-Mem0)
     QlPrim = .false.
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) 'PSOAO2: memory partitioning failed!'
       write(u6,*) '        Restart with more memory!'
@@ -220,7 +217,6 @@ do
   end if
   MemAux = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
   if (Mem1+1+MemAux > Mem0) then
-    MaxReq = max(MaxReq,Mem1+1+MemAux-Mem0)
     QjPrim = .false.
     QlPrim = .false.
     QiBas = .false.
@@ -228,7 +224,7 @@ do
     QkBas = .false.
     QlBas = .true.
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) 'PSOAO2: memory partitioning failed!'
       write(u6,*) '        Restart with more memory!'
@@ -293,9 +289,8 @@ do
   MemFck = MemFck-Mem2
   MemMO = MemMo-Mem2
   if (Mem2+1 > Mem0) then
-    MaxReq = max(MaxReq,Mem2+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) 'PSOAO2: memory partitioning failed!'
       write(u6,*) '        Restart with more memory!'
@@ -309,9 +304,8 @@ do
   MemFck = MemFck-MemX
   MemMO = MemMo-MemX
   if (MemX+1 > Mem0) then
-    MaxReq = max(MaxReq,MemX+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) 'PSOAO2: memory partitioning failed!'
       write(u6,*) '        Restart with more memory!'
@@ -344,9 +338,8 @@ do
   MemMo = max(0,MemMo)
   Mem3 = max(MemMO,MemFck,MemTrn,MemRys,2*MemF,MemF+MemCntrct)
   if (Mem3+1 <= Mem0) exit
-  MaxReq = max(MaxReq,Mem3+1-Mem0)
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-              MaxReq,Fail)
+              Fail)
   if (Fail) then
     write(u6,*) 'PSOAO2: memory partitioning failed!'
     write(u6,*) '        Restart with more memory!'

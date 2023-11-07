@@ -86,8 +86,11 @@ C
 C     Purpose: compute \int J(r)dr for auxiliary functions J(r) on atom
 C              A.
 C
+      use setup
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
+      use rmat, only: RMat_Type_Integrals
+      use Property_Label, only: PLabel
       Implicit None
       Integer A
       Integer l_xInt_
@@ -99,11 +102,7 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "localdf_bas.fh"
-#include "rmat_option.fh"
 #include "ldf_oneel.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "property_label.fh"
       Real*8, Dimension(:), Allocatable :: Scrtch, ScrSph
       Real*8, Dimension(:), Allocatable, Target :: Final, Kern
       Character*19 SecNam
@@ -238,7 +237,7 @@ C
          jCmp=iSD(2,jShell)
          jBas=iSD(3,jShell)
          jAO=iSD(7,jShell)
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
          If (jBas*jCmp.ne.nBasSh(jShell)) Then
             Call WarningMessage(2,SecNam//': jBas*jCmp != nBasSh')
             Write(6,'(A,5(1X,I10))')
@@ -257,7 +256,7 @@ C
       Call mma_deallocate(ScrSph)
       Call mma_deallocate(Kern)
 *
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If ((ipInt-1).ne.l_xInt) Then
          Call WarningMessage(2,
      &                    SecNam//': integral array dimension problem!')
@@ -289,7 +288,7 @@ C
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Character*16 SecNam
       Parameter (SecNam='LDF_SortAuxInt_1')
 #endif
@@ -303,7 +302,7 @@ C
       Do jComp=1,jCmp
          jSO0=iAOtSO(jAO+jComp,0)-1
          Do j=1,jBas
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
             If (iShlSO(jSO0+j).lt.1 .or. iShlSO(jSO0+j).gt.nPrp) Then
                Call WarningMessage(2,
      &                          SecNam//': PrpInt index out of bounds!')
@@ -325,8 +324,11 @@ C
 C     Purpose: compute \int J(r)dr for 2C auxiliary functions J(r) on
 C              atom pair AB.
 C
+      use setup
       use iSD_data
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_ij
+      use rmat, only: RMat_Type_Integrals
+      use Property_Label, only: PLabel
       Implicit None
       Integer AB
       Integer l_xInt_
@@ -340,10 +342,6 @@ C
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "ldf_oneel.fh"
-#include "rmat_option.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "property_label.fh"
       Real*8, Dimension(:), Allocatable :: Final, Scrtch, ScrSph
       Real*8, Dimension(:), Allocatable, Target :: Kern
       Character*19 SecNam
@@ -542,7 +540,7 @@ C
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Character*16 SecNam
       Parameter (SecNam='LDF_SortAuxInt_2')
       Character*53 Str
@@ -554,7 +552,7 @@ C
       iShlSO(i)=iWork(ip_iShlSO-1+i)
       IndxG2(i,j)=iWork(ip_IndxG2-1+l_IndxG2_1*(j-1)+i)
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       nErr=0
       Do iComp=1,iCmp
          Do ii=0,iBas-1
@@ -605,7 +603,7 @@ C
                      iSOi=iShlSO(iSO0+ii)
                      i_j=i_j_0+iSOi
                      If (IndxG2(i_j,SPAB).gt.0) Then
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
                         If (IndxG2(i_j,SPAB).gt.nPrp) Then
                            Call WarningMessage(2,
      &                              SecNam//': index out of bounds [1]')
@@ -634,7 +632,7 @@ C
                   iSOi=iShlSO(iSO0+ii)
                   i_j=i_j_0+iSOi
                   If (IndxG2(i_j,SPAB).gt.0) Then
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
                      If (IndxG2(i_j,SPAB).gt.nPrp) Then
                         Call WarningMessage(2,
      &                            SecNam//': index out of bounds [1.2]')
@@ -667,7 +665,7 @@ C
                      iSOi=iShlSO(iSO0+ii)
                      i_j=i_j_0+iSOi
                      If (IndxG2(i_j,SPAB).gt.0) Then
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
                         If (IndxG2(i_j,SPAB).gt.nPrp) Then
                            Call WarningMessage(2,
      &                              SecNam//': index out of bounds [2]')
@@ -690,7 +688,7 @@ C
          End Do
       End If
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Call GetMem('PrpSav','Free','Real',ipPrpInt,lPrpInt)
 #endif
 

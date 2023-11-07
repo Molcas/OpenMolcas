@@ -85,7 +85,7 @@ if (info /= 0) then
 # endif
 else
 
-# if defined(_ACML_) && defined(__PGI)
+# if defined (_ACML_) && defined (__PGI)
   call ILAENVSET(10,'X','X',0,0,0,0,1,INFO)
   call ILAENVSET(11,'X','X',0,0,0,0,1,INFO)
 # endif

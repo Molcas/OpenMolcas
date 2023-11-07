@@ -1,24 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Gamma_Blocks(iTable,nBlocks,nIrrep)
-      Integer idid(8), iTable(6,nBlocks)
-*
+      Implicit None
+      Integer nBlocks, nIrrep
+      Integer iTable(6,nBlocks)
+
+      Integer idid(8), iBlock, IND, IRREP, IRREP1, IRREP2, IRREP3,
+     &        IRREP4, IBOT, ITMP
+!
       iBlock=0
-*
-*----- Observe the loop ordering straight from GAMSRT in Aces 2.
-*      THIS LOOP ORDER DOES NOT COMPLY WITH THE MANUAL!
-*
-*----- AAAA
-*
-c     Write (*,*) 'AAAA'
+!
+!----- Observe the loop ordering straight from GAMSRT in Aces 2.
+!      THIS LOOP ORDER DOES NOT COMPLY WITH THE MANUAL!
+!
+!----- AAAA
+!
+!     Write (*,*) 'AAAA'
       IND=0
       DO 11 IRREP=1,NIRREP
        IND=IND+1
@@ -29,12 +34,12 @@ c     Write (*,*) 'AAAA'
        iTable(4,iBlock)=IRREP-1
        iTable(5,iBlock)=IRREP-1
        iTable(6,iBlock)=IND
-c      Write (*,*) IND,IRREP-1,IRREP-1,IRREP-1,IRREP-1
+!      Write (*,*) IND,IRREP-1,IRREP-1,IRREP-1,IRREP-1
  11   CONTINUE
-*
-*----- AABB
-*
-c     Write (*,*) 'AABB'
+!
+!----- AABB
+!
+!     Write (*,*) 'AABB'
       IND=0
       DO 12 IRREP1=2,NIRREP
       DO 120 IRREP2=1,IRREP1-1
@@ -46,13 +51,13 @@ c     Write (*,*) 'AABB'
        iTable(4,iBlock)=IRREP1-1
        iTable(5,iBlock)=IRREP1-1
        iTable(6,iBlock)=IND
-c      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
+!      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
 120    CONTINUE
 12    CONTINUE
-*
-*----- ABAB
-*
-*     Write (*,*) 'ABAB'
+!
+!----- ABAB
+!
+!     Write (*,*) 'ABAB'
       IND=0
       DO 13 IRREP=2,NIRREP
       DO 130 IRREP1=1,NIRREP
@@ -66,14 +71,14 @@ c      Write (*,*) IND,IRREP2-1,IRREP2-1,IRREP1-1,IRREP1-1
         iTable(4,iBlock)=IRREP1-1
         iTable(5,iBlock)=IRREP2-1
         iTable(6,iBlock)=IND
-*       Write (*,*) IND,IRREP1-1,IRREP2-1,IRREP1-1,IRREP2-1
+!       Write (*,*) IND,IRREP1-1,IRREP2-1,IRREP1-1,IRREP2-1
        ENDIF
 130    CONTINUE
 13    CONTINUE
-*
-*----- ABCD
-*
-c     Write (*,*) 'ABCD'
+!
+!----- ABCD
+!
+!     Write (*,*) 'ABCD'
       IND=0
       DO 313 IRREP=2,NIRREP
        DO 314 IRREP1=1,NIRREP
@@ -96,9 +101,9 @@ c     Write (*,*) 'ABCD'
          iTable(4,iBlock)=IRREP1-1
          iTable(5,iBlock)=IRREP2-1
          iTable(6,iBlock)=IND
-c        Write (*,*) IND,IRREP3-1,IRREP4-1,IRREP1-1,IRREP2-1
+!        Write (*,*) IND,IRREP3-1,IRREP4-1,IRREP1-1,IRREP2-1
 315     CONTINUE
 314    CONTINUE
 313   CONTINUE
-*
-      End
+!
+      End Subroutine Gamma_Blocks

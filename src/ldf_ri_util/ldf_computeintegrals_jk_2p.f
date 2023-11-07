@@ -29,7 +29,7 @@ C
       Character*26 SecNam
       Parameter (SecNam='LDF_ComputeIntegrals_JK_2P')
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Logical  isSymmetric
       External isSymmetric
 #endif
@@ -121,7 +121,7 @@ C
          Call LDF_UnsetIndx_JK_2P()
       End If
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       ! Check symmetry
       If (AB.eq.CD) Then
          If (.not.isSymmetric(xInt,MAB,1.0d-14)) Then

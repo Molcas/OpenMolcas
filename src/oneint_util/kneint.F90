@@ -29,11 +29,10 @@ subroutine KnEInt( &
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
+use rmat, only: RMat_Type_Integrals, EpsQ, Dipol1, QCoul
 
 implicit none
 #include "int_interface.fh"
-#include "rmat_option.fh"
-#include "rmat.fh"
 #include "print.fh"
 integer(kind=iwp) :: iBeta, icop, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipDi, ipqC, ipQxyz, iPrint, ipRnr, ipRxyz, ipTxyz, &
                      iRout, lsum, nip

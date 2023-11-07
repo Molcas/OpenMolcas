@@ -288,7 +288,7 @@ C
       Logical  LDF_isLinDep
       External LDF_isLinDep
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer  LDF_nBasAux_Pair
       External LDF_nBasAux_Pair
 #endif
@@ -394,7 +394,7 @@ C
          Call GetMem('iOff','Free','Inte',ip_iOff,l_iOff)
       End If
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       ! Check dimension
       ipn=ipn-1
       If (ipn.ne.LDF_nBasAux_Pair(AB) .or. ipn.ne.M) Then

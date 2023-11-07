@@ -1,41 +1,57 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Langevin(h1,TwoHam,D,RepNuc,nh1,First,Dff)
-      Use Basis_Info
-      use Center_Info
-      Use Langevin_arrays
-      use External_Centers
-      use Phase_Info
+      Use Basis_Info, only: ncnttp, DBSC
+      use Center_Info, only: DC
+      Use Langevin_arrays, only: PolEF, Field, DIP, DAVxyz, CAVxyz,
+     &                           DField, DipEF, Grid, RAVxyz
+      use External_Centers, only: iXPOLType, nXF, nOrd_XF, XEle, XF,
+     &                            nXMolNr, XMolNr
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use rctfld_module, only: lGridAverage, nGridAverage, nGridSeed,
+     &                         RotAlpha, RotBeta, RotGamma,
+     &                         Done_Lattice, lFirstIter, nGrid_Eff,
+     &                         lLangevin, PolSI, DIPSI, Scala, TK,
+     &                         RadLat, nSparse, DistSparse, lDamping,
+     &                         DipCutOff, nGrid, CordSI, lDipRestart,
+     &                         nCavxyz
+      Implicit None
+      Integer nh1
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "print.fh"
-#include "real.fh"
-#include "rctfld.fh"
-#include "stdalloc.fh"
-      Logical First, Dff, Exist
+      Logical First, Dff
+
+      Logical Exist
       Save nAnisopol,nPolComp
       Real*8, Allocatable:: D1ao(:)
       Real*8, Allocatable:: Cord(:,:), Chrg(:), Atom_R(:),
      &                      pField(:,:), tmpField(:,:)
-*
+      Integer ixyz, nElem
+      Integer mdc, ndc, iCnttp, jCnttp, MaxAto, iCnt, jCnt, nC,
+     &        mCnt, i, nAV, iSeed, iAV, nAnisopol, nPolComp, Lu, j, Inc,
+     &        iOrdOp, iXF, nCnt, iEle, k
+      Real*8 Z, ATOD, SUMREPNUC, REPNUC, XA, YA, ZA, SumRepNuc2, ATRad
+      Real*8, External:: CovRadT, Random_molcas
+!
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Generate list of all atoms
-*
-*     Cord: list of all atoms
-*     Atom_R: associated effective atomic radius
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Generate list of all atoms
+!
+!     Cord: list of all atoms
+!     Atom_R: associated effective atomic radius
+!
 
       mdc = 0
       MaxAto=0
@@ -47,11 +63,11 @@
             MaxAto = MaxAto + nIrrep/dc(mdc)%nStab
          End Do
       End Do
-*
+!
       Call mma_allocate(Cord,3,MaxAto,Label='Cord')
       Call mma_allocate(Chrg,MaxAto,Label='Chrg')
       Call mma_allocate(Atom_R,MaxAto,Label='Atom_R')
-*
+!
       ndc = 0
       nc = 0
       Do jCnttp = 1, nCnttp
@@ -59,7 +75,7 @@
          Z = dbsc(jCnttp)%Charge
          mCnt = dbsc(jCnttp)%nCntr
          If (dbsc(jCnttp)%AtmNr.ge.1) Then
-*            Atod = CovRad (dbsc(jCnttp)%AtmNr)
+!            Atod = CovRad (dbsc(jCnttp)%AtmNr)
              Atod = CovRadT(dbsc(jCnttp)%AtmNr)
          Else
              Atod = Zero
@@ -72,19 +88,19 @@
      &                 Cord(:,nc))
                Atom_R(nc) = Atod
                Chrg(nc) = Z
-*              Write (*,*) 'Z=',Z
+!              Write (*,*) 'Z=',Z
             End Do
          End Do
       End Do
-*
+!
       If(LGridAverage) Then
          nAv=nGridAverage
          If(nGridSeed.eq.0) Then
             iSeed=0
          ElseIf(nGridSeed.eq.-1) Then
             iSeed=0
-*     Use system_clock only for some systems
-c            Call System_clock(iSeed,j,k)
+!     Use system_clock only for some systems
+!            Call System_clock(iSeed,j,k)
          Else
             iSeed=nGridSeed
          EndIf
@@ -118,49 +134,49 @@ c            Call System_clock(iSeed,j,k)
             nAnisopol = 0
             nPolComp = 1
          EndIf
-*
-*
-*------- Compute Effective Polarizabilities on the Langevin grid,
-*        flag also if points on the grid are excluded.
-*        This information is computed once!
-*
-*        Grid : The Langevin grid
-*        PolEf: Effective Polarizability on grid
-*        DipEf: Effective Dipole moment on grid
-*
+!
+!
+!------- Compute Effective Polarizabilities on the Langevin grid,
+!        flag also if points on the grid are excluded.
+!        This information is computed once!
+!
+!        Grid : The Langevin grid
+!        PolEf: Effective Polarizability on grid
+!        DipEf: Effective Dipole moment on grid
+!
          nGrid_Eff=0
-*        Both these subroutines can increase nGrid_Eff
+!        Both these subroutines can increase nGrid_Eff
          If(iXPolType.gt.0) Then
             Call lattXPol(Grid,nGrid,nGrid_Eff,PolEf,DipEf,XF,
      &                    nXF,nOrd_XF,nPolComp)
          EndIf
          If(lLangevin) Then
-*            Note: Gen_Grid is now a part of the lattcr subroutine
+!            Note: Gen_Grid is now a part of the lattcr subroutine
             Call lattcr(Grid,nGrid,nGrid_Eff,PolEf,DipEf,
      &                  Cord,maxato,Atom_R,nPolComp,
      &                  XF,nXF,nOrd_XF,XEle,iXPolType)
          EndIf
-c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
+!        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 
-*
+!
       End If
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Compute Electric Field from the Quantum Chemical System on the
-*     Langevin grid.
-*
-*     cavxyz: MM expansion of the total charge of the QM system
-*     ravxyz: scratch
-*     dField: EF on Langevin grid due to QM system
-*
-*     Get the total 1st order AO density matrix
-*
+!
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Compute Electric Field from the Quantum Chemical System on the
+!     Langevin grid.
+!
+!     cavxyz: MM expansion of the total charge of the QM system
+!     ravxyz: scratch
+!     dField: EF on Langevin grid due to QM system
+!
+!     Get the total 1st order AO density matrix
+!
       Call mma_allocate(D1ao,nh1,Label='D1ao')
       Call Get_dArray_chk('D1ao',D1ao,nh1)
-*
-*     Save field from permanent multipoles for use in ener
+!
+!     Save field from permanent multipoles for use in ener
       Call mma_allocate(pField,4,nGrid_Eff,Label='pField')
       Call mma_allocate(tmpField,4,nGrid_Eff,Label='tmpField')
 
@@ -169,10 +185,10 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
       Call eperm(D1ao,nh1,Ravxyz,Cavxyz,nCavxyz,
      &           dField,Grid,nGrid_Eff,Cord,MaxAto,Chrg,pField)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Save system info, to be used by visualisation program            *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Save system info, to be used by visualisation program            *
 
       Lu=21
       Call OpnFl('LANGINFO',Lu,Exist)
@@ -225,48 +241,47 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
          Davxyz(:)=Zero
       EndIf
 
-*---- Subtract the static MM from the previous iteration
-*     from the static MM of this iteration, and save the
-*     untouched static MM of this iteration into Davxyz
-*     for use in the next iteration. Ravxyz is
-*     just a temporary array
+!---- Subtract the static MM from the previous iteration
+!     from the static MM of this iteration, and save the
+!     untouched static MM of this iteration into Davxyz
+!     for use in the next iteration. Ravxyz is
+!     just a temporary array
 
       call dcopy_(nCavxyz,Cavxyz,1,Ravxyz,1)
       Call DaXpY_(nCavxyz,-One,Davxyz,1,Cavxyz,1)
       call dcopy_(nCavxyz,Ravxyz,1,Davxyz,1)
 
-*     Ravxyz(:)=Cavxyz(:)
-*     Cavxyz(:)=Cavxyz(:)-Davxyz(:)
-*     Davxyz(:)=Ravxyz(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Equation solver: compute the Langevin dipole moments and the
-*                      counter charge on the boundary of the cavity.
-*
-*     Field : total EF of the Langevin grid
-*     Dip   : dipole momement on the Langevin grid
-*
-      Call edip(Ravxyz,Cavxyz,lmax,
-     &          Field,Dip,dField,
+!     Ravxyz(:)=Cavxyz(:)
+!     Cavxyz(:)=Cavxyz(:)-Davxyz(:)
+!     Davxyz(:)=Ravxyz(:)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Equation solver: compute the Langevin dipole moments and the
+!                      counter charge on the boundary of the cavity.
+!
+!     Field : total EF of the Langevin grid
+!     Dip   : dipole momement on the Langevin grid
+!
+      Call edip(Field,Dip,dField,
      &          PolEf,DipEf,
      &          Grid,nGrid_Eff,nPolComp,nAnisopol,
      &          nXF,iXPolType,nXMolnr,XMolnr)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Compute contributions to RepNuc, h1, and TwoHam
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Compute contributions to RepNuc, h1, and TwoHam
+!
       Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,D1ao,Grid,
      &          nGrid_Eff,Dip, Field,DipEf,PolEf,Cord,MaxAto,
      &          Chrg,nPolComp,nAnisopol,pField,tmpField)
 
 
-*     Subtract the static field from the self-consistent field
-*     This gives the field from the induced dipoles (saved
-*     in Field, to be used in the next iteration if
-*     not DRES has been requested
+!     Subtract the static field from the self-consistent field
+!     This gives the field from the induced dipoles (saved
+!     in Field, to be used in the next iteration if
+!     not DRES has been requested
 
       Call DaXpY_(nGrid*4,-One,tmpField,1,Field,1)
       lFirstIter=.False.
@@ -291,8 +306,8 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
       Call mma_deallocate(D1ao)
       Call mma_deallocate(Chrg)
       Call mma_deallocate(Cord)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
-      End
+      End SubRoutine Langevin

@@ -17,6 +17,9 @@ use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, iOptC, jStab, Magic_Bond, n
 use ddvdt, only: A_StrH, aAV, alpha_vdW, f_Const_Min, r_ref_vdW, rAV, rkr, rkr_vdW
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, LuIC, nBonds, iTabBonds(3,nBonds), mAtoms, iTabAI(2,mAtoms), nB_Tot, &
@@ -30,6 +33,9 @@ character(len=14), intent(inout) :: qLbl(nB)
 integer(kind=iwp), parameter :: mB = 2*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDeg, iDCR(2), iDCRR(0:7), iE1, iE2, iF1, iF2, Ind(2), iRow, &
                      iStabM(0:7), jAtom, jAtom_, jRow, kDCRR, Lambda, nCent, nDCRR, nqB, nStabM
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 real(kind=wp) :: A(3,2), Alpha, Deg, f_Const, Grad(mB), Hess(mB**2), r0, Rab, RabCov, Rij2, Val
 logical(kind=iwp) :: Help
 character(len=14) :: Label
@@ -42,7 +48,7 @@ logical(kind=iwp), external :: R_Stab_A
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

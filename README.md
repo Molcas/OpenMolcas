@@ -25,7 +25,7 @@ therefore not included in OpenMolcas.
   [doi:10.1063/5.0004835](https://doi.org/10.1063/5.0004835)
 
 * "The OpenMolcas *Web*: A Community-Driven Approach to Advancing Computational Chemistry."
-  *J. Chem. Theory Comput.* **??** (2023) ??-??.
+  *J. Chem. Theory Comput.* **19** (2023) 6933-6991.
   [doi:10.1021/acs.jctc.3c00182](https://doi.org/10.1021/acs.jctc.3c00182)
 
 Installation

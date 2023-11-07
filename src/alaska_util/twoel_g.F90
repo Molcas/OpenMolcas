@@ -12,9 +12,11 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys,Data1,nab,nHmab,nData1,Data2,ncd,nHmcd,nData2,Pren, &
+subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys, &
+                   k2Data1, k2Data2,  &
+                   nData1,nData2,Pren, &
                    Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4, &
-                   lBasl,Zeta,ZInv,P,nZeta,Eta,EInv,Q,nEta,xA,xB,xG,xD,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO,Wrk2,nWrk2,Aux,nAux,Shijij)
+                   lBasl,nZeta,nEta,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO,Wrk2,nWrk2,Aux,nAux,Shijij)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -27,7 +29,6 @@ subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys,Dat
 !          Lund, SWEDEN. Modified to gradients, January '92.           *
 !***********************************************************************
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
@@ -38,35 +39,37 @@ use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
+use Disp, only: l2DI, CutGrd
+use k2_structure, only: k2_type
+use k2_arrays, only: BraKet
+#ifdef _DEBUGPRINT_
+use Disp, only: ChDisp
+#endif
 
 implicit none
-#include "ndarray.fh"
-integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nab, nHmab, nData1, &
-                                 ncd, nHmcd, nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, &
+integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nData1, &
+                                 nData2, nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, &
                                  kBask, lBasl, nZeta, nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
-real(kind=wp), intent(in) :: Coor(3,4), Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), &
-                             Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
+type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
+real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), &
                              Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), PSO(iBasi*jBasj*kBask*lBasl,nPSO)
 real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
-real(kind=wp), intent(out) :: Zeta(nZeta), ZInv(nZeta), P(nZeta,3), Eta(nEta), EInv(nEta), Q(nEta,3), xA(nZeta), &
-                              xB(nZeta), xG(nEta), xD(nEta), Wrk2(nWrk2), Aux(nAux)
+real(kind=wp), intent(out) :: Wrk2(nWrk2), Aux(nAux)
 logical(kind=iwp), intent(in) :: IfGrad(3,4), Shijij
-integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iffab, iffabG, iffcd, iffcdG, iiCent, ijklab, ijMax, &
+integer(kind=iwp) :: iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iiCent, ijklab, ijMax, &
                      ijMin, ikl, IncEta, IncZet, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), iW2, iW3, iW4, ix1, ix2, iy1, iy2, &
-                     iz1, iz2, jCmpb, jjCent, JndGrd(3,4), jPrim, jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, lc, &
-                     lCent, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, lPrim, lShlld, lStabM, lStabN, lZeta, mab, mcd, &
+                     iz1, iz2, jCmpb, jjCent, JndGrd(3,4), jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, lc, &
+                     lCent, lCmpd, ld, lDCR1, lDCR2, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, lZeta, mab, mcd, &
                      mCent, mEta, mGrad, MxDCRS, mZeta, nDCRR, nDCRS, nDCRT, nEta_Tot, nIdent, nijkl, nOp(4), nW2, nW4, nWrk3, &
                      nZeta_Tot
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr
-integer(kind=iwp), external :: ip_abG, ip_IndZ, ip_Z, NrOpr
+integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ, lEmpty
 external :: ModU2, TERI1, vCff2D
-#include "Molcas.fh"
-#include "disp.fh"
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
+integer(kind=iwp) :: i, iPrint, iRout
 character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz']
 #include "print.fh"
 #endif
@@ -75,16 +78,13 @@ character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz
 unused_var(iPrInc)
 unused_var(kPrInc)
 
-call TwoEl_g_Internal(Data1,Data2,Wrk2)
+call TwoEl_g_Internal(Wrk2)
 
 contains
 
-subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
+subroutine TwoEl_g_Internal(Wrk2)
 
-  real(kind=wp), intent(in), target :: Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1), &
-                                       Data2(nEta*(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
   real(kind=wp), intent(out) :: Wrk2(nWrk2)
-  integer(kind=iwp), pointer :: iData1(:), iData2(:)
   integer(kind=iwp) :: iC, iCar, iCent, iEta, ixSh, iZeta, jCent, lDCRR, lDCRS, lDCRT
 # ifdef _WARNING_WORKAROUND_
   interface
@@ -139,18 +139,6 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
     iW2 = 1
   end if
 
-  if (l2DI) then
-    iffab = ip_abG(nZeta,nHmab)-1
-    iffabG = ip_abG(nZeta,nHmab)+nab*nZeta-1
-    iffcd = ip_abG(nEta,nHmcd)-1
-    iffcdG = ip_abG(nEta,nHmcd)+ncd*nEta-1
-  else
-    ! Dummy pointer to assure that we will not be out off bounds.
-    iffab = ip_abG(nZeta,nHmab)-nZeta-1
-    iffabG = ip_abG(nZeta,nHmab)-nZeta-1
-    iffcd = ip_abG(nEta,nHmcd)-nZeta-1
-    iffcdG = ip_abG(nEta,nHmcd)-nZeta-1
-  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -447,10 +435,8 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
         iy2 = iPhase(2,iDCRT(lDCRT))
         iz2 = iPhase(3,iDCRT(lDCRT))
 
-        call c_f_pointer(c_loc(Data1(ip_IndZ(1,nZeta),lDCR1)),iData1,[nZeta+1])
-        call c_f_pointer(c_loc(Data2(ip_IndZ(1,nEta),lDCR2)),iData2,[nEta+1])
-        nZeta_Tot = iData1(nZeta+1)
-        nEta_Tot = iData2(nEta+1)
+        nZeta_Tot = k2Data1(lDCR1)%IndZ(nZeta+1)
+        nEta_Tot =  k2Data2(lDCR2)%IndZ(nEta +1)
 
         ! Loops to partion the primitives
 
@@ -466,8 +452,8 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
             ! Preprescreen
 
-            call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,Data1(ip_Z(iZeta,nZeta),lDCR1),Data2(ip_Z(iEta,nEta),lDCR2),PreScr, &
-                          CutGrd)
+            call PrePre_g(mZeta,mEta,lZeta,lEta,PreScr, &
+                          CutGrd,iZeta-1,iEta-1,k2Data1(lDCR1),k2Data2(lDCR2))
             if (lZeta*lEta == 0) cycle
 
             ! Decontract the 2nd order density matrix
@@ -482,17 +468,19 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
             iW3 = iW2+nW2
             nWrk3 = nWrk2-(nW4+nW2)
             call Tcrtnc(Coeff1,nAlpha,iBasi,Coeff2,nBeta,jBasj,Coeff3,nGamma,kBask,Coeff4,nDelta,lBasl,Wrk2(iW4),mab*mcd, &
-                        Wrk2(iW3),nWrk3,Wrk2(iW2),iData1(iZeta:iZeta+mZeta-1),mZeta,iData2(iEta:iEta+mEta-1),mEta)
+                        Wrk2(iW3),nWrk3,Wrk2(iW2),k2Data1(lDCR1)%IndZ(iZeta:iZeta+mZeta-1),mZeta, &
+                                                  k2Data2(lDCR2)%IndZ(iEta:iEta+mEta-1),mEta)
 
             ! Transfer k2 data and prescreen
 
             iW3 = iW2+mZeta*mEta*mab*mcd
             nWrk3 = nWrk2-mZeta*mEta*mab*mcd
-            call Screen_g(Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P,xA,xB,Data1(iZeta,lDCR1), &
-                          nAlpha,jPrim,iData1(iZeta:iZeta+mZeta-1),Eta,EInv,Q,xG,xD,Data2(iEta,lDCR2),nGamma,lPrim, &
-                          iData2(iEta:iEta+mEta-1),ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI,Data1(iZeta+iffab,lDCR1), &
-                          Data1(iZeta+iffabG,lDCR1),nab,Data2(iEta+iffcd,lDCR2),Data2(iEta+iffcdG,lDCR2),ncd,PreScr,nWrk3,IsChi, &
-                          ChiI2)
+            call Screen_g(iZeta-1,iEta-1,Wrk2(iW2),Wrk2(iW3),mab*mcd,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
+                          k2Data1(lDCR1),k2Data2(lDCR2), &
+                          Braket%Zeta(:),Braket%ZInv(:),Braket%P(:,:),Braket%xA(:),Braket%xB(:), &
+                          Braket%Eta(:),Braket%EInv(:),Braket%Q(:,:),Braket%xG(:),Braket%xD(:), &
+                          ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI, &
+                          PreScr,nWrk3,IsChi,ChiI2)
             Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
             !write(u6,*) 'Prem=',Prem
             if (lZeta*lEta == 0) cycle
@@ -502,8 +490,11 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
             ! the PSO matrix now is stored in Wrk2(iW2).
 
             iW3 = iW2+lZeta*lEta*mab*mcd
-            call Rysg1(iAnga,nRys,lZeta*lEta,xA,xB,xG,xD,Zeta,ZInv,lZeta,Eta,EInv,lEta,P,nZeta,Q,nEta,CoorM,CoorM,CoorAC, &
-                       Wrk2(iW3),nWrk3,TERI1,ModU2,vCff2D,Wrk2(iW2),mab*mcd,Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)
+            call Rysg1(iAnga,nRys,lZeta*lEta,BraKet%xA(:),BraKet%xB(:),BraKet%xG(:),BraKet%xD(:), &
+                  BraKet%Zeta(:),BraKet%ZInv,lZeta, &
+                  BraKet%Eta(:),BraKet%EInv(:),lEta, &
+                  BraKet%P(:,:),nZeta,BraKet%Q(:,:),nEta,CoorM,CoorM,CoorAC, &
+                  Wrk2(iW3),nWrk3,TERI1,ModU2,vCff2D,Wrk2(iW2),mab*mcd,Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)
             Aha = sqrt(DDot_(nGrad,Grad,1,Grad,1))
             if (Aha > 1.0e5_wp) then
               write(u6,*) 'Norm of gradient contribution is huge!'
@@ -512,7 +503,6 @@ subroutine TwoEl_g_Internal(Data1,Data2,Wrk2)
 
           end do
         end do
-        nullify(iData1,iData2)
 
 #       ifdef _DEBUGPRINT_
         if (iPrint >= 19) call PrGrad(' In TwoEl',Grad,nGrad,ChDisp)

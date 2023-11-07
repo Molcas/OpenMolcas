@@ -31,20 +31,21 @@
       use OneDat, only: sNoNuc, sNoOri
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
-      use mspdft, only: dogradmspd, do_rotate, iIntS, iDIDA, IP2MOt,
+      use mspdft_grad, only: dogradmspd
+      use mspdft, only: do_rotate, iIntS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
+      use rctfld_module
 
       Implicit Real*8 (A-H,O-Z)
 
-      Dimension CMO(*), FI(*), FA(*), Ref_Ener(*)
+      Real*8 CMO(*), FI(*), FA(*), Ref_Ener(*)
 *
 #include "rasdim.fh"
 #include "general.fh"
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
-#include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"

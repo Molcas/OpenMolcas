@@ -41,7 +41,7 @@ C
 
       Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer  LDF_nAtom
       External LDF_nAtom
 #endif
@@ -58,7 +58,7 @@ C
       Integer jShell, kShell
       Integer JK, KJ
       Integer J, K
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer M
 #endif
 
@@ -69,7 +69,7 @@ C
       Gmax_A(i)=Work(iWork(ip_GDiag_1C+2*(A-1)+1)-1+i)
       Gmax_B(i)=Work(iWork(ip_GDiag_1C+2*(B-1)+1)-1+i)
 
-#if defined (_USE_APD_INTEGRALS_)
+#ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
          Call WarningMessage(0,SecNam//': Using APD integrals!')
          Call LDF_APD2IndexIntegrals_11(A,B,l_xInt_,xInt)
@@ -77,7 +77,7 @@ C
       End If
 #endif
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (A.lt.1 .or. A.gt.LDF_nAtom()) Then
          Call WarningMessage(2,SecNam//': A out of bounds!')
          Call LDF_Quit(1)
@@ -243,7 +243,7 @@ C
       Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nBasAux_Pair
       External LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer  LDF_nAtom
       External LDF_nAtom
 #endif
@@ -257,7 +257,7 @@ C
       Integer ip_SewWrk, l_SewWrk
       Integer klS, kShell, lShell
       Integer jS, jShell
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer M
 #endif
 
@@ -273,7 +273,7 @@ C
       Gmax_A(i)=Work(iWork(ip_GDiag_1C+2*(A-1)+1)-1+i)
       Gmax_CD(i)=Work(iWork(ip_GDiag_2C+2*(CD-1)+1)-1+i)
 
-#if defined (_USE_APD_INTEGRALS_)
+#ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
          Call WarningMessage(0,SecNam//': Using APD integrals!')
          Call LDF_APD2IndexIntegrals_12(A,CD,l_xInt_,xInt)
@@ -281,7 +281,7 @@ C
       End If
 #endif
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (A.lt.1 .or. A.gt.LDF_nAtom()) Then
          Call WarningMessage(2,SecNam//': A out of bounds!')
          Call LDF_Quit(1)
@@ -442,7 +442,7 @@ C
       Gmax_AB(i)=Work(iWork(ip_GDiag_2C+2*(AB-1)+1)-1+i)
       Gmax_CD(i)=Work(iWork(ip_GDiag_2C+2*(CD-1)+1)-1+i)
 
-#if defined (_USE_APD_INTEGRALS_)
+#ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
          Call WarningMessage(0,SecNam//': Using APD integrals!')
          Call LDF_APD2IndexIntegrals_22(AB,CD,l_xInt_,xInt)
@@ -450,7 +450,7 @@ C
       End If
 #endif
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (AB.lt.1 .or. AB.gt.NumberOfAtomPairs) Then
          Call WarningMessage(2,SecNam//': AB out of bounds!')
          Call LDF_Quit(1)

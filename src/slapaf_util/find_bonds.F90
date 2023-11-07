@@ -11,10 +11,12 @@
 
 subroutine Find_Bonds(Coor,nAtoms,iTab,nMax,nx,ny,nz,iBox,iANr,iTabBonds,nBonds,nBondMax,iTabAtoms,ThrB)
 
+use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Slapaf_Info, only: BondType
+use Definitions, only: u6
 #endif
-use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nMax, nx, ny, nz, iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms), nBondMax
@@ -23,11 +25,11 @@ integer(kind=iwp), intent(out) :: iTabBonds(3,nBondMax), nBonds, iTabAtoms(2,0:n
 integer(kind=iwp) :: iAtom, iRow, ix, iy, iz, jx, jy, jz
 real(kind=wp) :: ThrB_vdW
 integer(kind=iwp), external :: iTabRow
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i, iBond, nn
+integer(kind=iwp), external :: nCoBond
+#endif
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -38,7 +38,7 @@ C
       Integer A
       Integer nS
       Integer j
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer ip
       Integer iS
       Integer ii
@@ -79,7 +79,7 @@ C
             Do j=1,4
                AtomicLabels(A)(j:j) = Temp(LenIn8*iSB(iShell)+j)
             End Do
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
             ip=LDF_lShell_Atom(A)-1
             Do iS=1,nS
                iShell=iWork(ip+iS)

@@ -45,7 +45,7 @@
 
 ! Specify if integer (and logical) conversion will be needed.
 ! (real conversion is not implemented yet)
-#if defined(LINALG_I4) && defined(_I8_)
+#if defined (LINALG_I4) && defined (_I8_)
 # define MOLCAS_TO_BLAS_INT
 # define _BLAS_INT_use_ use Definitions, only: BLASInt
 # define _BLAS_INT_stdalloc_ \

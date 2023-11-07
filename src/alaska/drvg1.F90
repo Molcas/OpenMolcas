@@ -31,10 +31,10 @@ subroutine Drvg1(Grad,Temp,nGrad)
 !             Modified for SetUp_Ints. January '00                     *
 !***********************************************************************
 
-use k2_setup, only: Data_k2
-use iSD_data, only: iSD
-use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
-use Aces_Stuff, only: G_toc, nSSDM, SSDM
+use setup
+use iSD_data, only: iSD, nSD
+use k2_arrays, only: Aux, Sew_Scr, Destroy_BraKet
+use pso_stuff, only: G_toc, nSSDM, SSDM
 use Basis_Info, only: nBas, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -43,26 +43,25 @@ use Para_Info, only: nProcs, King
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp, u6
+use Disp, only: ChDisp, l2DI
+use k2_structure, only: k2Data
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
-#include "nsd.fh"
-#include "setup.fh"
 integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iCnt, iFnc(4), ijklA, &
-                     ijMax, ijS, iOpt, iost, ipEI, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipEta, &
-                     ipxA, ipxB, ipxD, ipxG, ipZI, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), iSSDM, istabs(4), j, jAng, &
+                     ijMax, ijS, iOpt, iost, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, &
+                     iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), iSSDM, istabs(4), j, jAng, &
                      jBAsAO, jBasj, jBasn, jBsInc, jPrimj, jPrInc, jS, JndGrd(3,4), k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, &
                      kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lRealName, lS, luGamma, &
                      luCMOPT2, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, nab, nBasI, nBasT, nBtch, ncd, &
                      nDCRR, nDCRS, nEta, nFro(8), nHmab, nHmcd, nHrrab, nij, nijkl, nOcc(8), nPairs, nQuad, nRys, nSkal, nSO, nZeta
+integer(kind=iwp) ik2, jk2
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FreeK2, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, &
-                     Shijij, Skip, Triangular, Verbose
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, &
+                     Shijij, Skip, Triangular
 character(len=4096) :: RealName
 character(len=72) :: formt
 character(len=8) :: Method_chk
@@ -377,9 +376,9 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl, &
-                      AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
-                      nHmcd,nIrrep)
+      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,ik2,nDCRR,k2kl,jk2,nDCRS, &
+                      mdci,mdcj,mdck,mdcl, &
+                      AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd, nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -436,12 +435,13 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #             endif
-              call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR, &
-                           Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+              call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+                           k2data(:,ik2),k2data(:,jk2),  &
+                           nDCRR, &
+                           nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                            Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
-                           Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
-                           Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,Mem_DBLE(ipxA), &
-                           Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
+                           Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
+                           nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                            Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU2,TwoelWall2)
@@ -455,6 +455,8 @@ do
 
         end do
       end do
+
+      Call Destroy_BraKet()
 
     end if
 
@@ -541,9 +543,7 @@ write(u6,*) 'Derivative check:'
 write(u6,*) 'Wall/CPU',Total_Der_Wall,Total_Der_CPU
 write(u6,*) '-------------------------'
 #endif
-Verbose = .false.
-FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

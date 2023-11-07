@@ -34,6 +34,9 @@ integer(kind=iwp), intent(in) :: nSym, nBas(8), nD
 logical(kind=iwp), intent(in) :: DoExchange(*)
 type(DSBA_Type), intent(inout) :: FLT(*), FSQ(*)
 integer(kind=iwp) :: IB, IJB, ISYM, JB, NB, nDen
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: jDen
+#endif
 
 !*************************************************
 nDen = nD*(nD+1)/2

@@ -1,35 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990,2020, Roland Lindh                                *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,2020, Roland Lindh                                *
+!               1990, IBM                                              *
+!***********************************************************************
       Module Real_Spherical
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
       Private
-#include "stdalloc.fh"
       Public :: ipSph, RSph, Sphere, Sphere_Free,
      &          Condon_Shortley_phase_factor, lmax_internal,
-     &          Sphere_Dmp, iSphCr, LblCBs, LblSBs
+     &          iSphCr, LblCBs, LblSBs
       Integer, Allocatable:: iSphCr(:)
       Integer, Dimension(:), Allocatable :: ipSph
       Integer :: lmax_internal=-1
       Real*8, Dimension(:), Allocatable :: RSph
       Logical :: Condon_Shortley_phase_factor=.False.
       Character(LEN=8), Allocatable :: LblCBs(:), LblSBs(:)
-*
-************************************************************************
-*
+!
+!***********************************************************************
+!
       Contains
-*
-************************************************************************
-*
+!
+!***********************************************************************
+!
       SubRoutine Sphere_Free()
       If (Allocated(RSph)) Call mma_deallocate(RSph)
       If (Allocated(ipSph)) Call mma_deallocate(ipSph)
@@ -38,44 +39,47 @@
       If (Allocated(LblSBs)) Call mma_deallocate(LblSBs)
       lmax_internal=-1
       End SubRoutine Sphere_Free
-*
-************************************************************************
-*
+!
+!***********************************************************************
+!
       SubRoutine Sphere(lMax)
-************************************************************************
-*                                                                      *
-* Object: create the transformation matrices from cartesian gaussians  *
-*         to spherical gaussians. By having these matricies being      *
-*         defined dynamical we ensure that any extension of the        *
-*         program to higher angular momentum is simply done by chang-  *
-*         ing iTabMx to the appropiate value.                          *
-*         In addition, this will also allow us to have any order of    *
-*         vectors in the matrix, i.e. we can have our own format or    *
-*         any other odd order (MOLECULE).                              *
-*                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : Real_Sphere                                             *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March 1990                                               *
-************************************************************************
-*               Credits.                                               *
-*               2020, R. Lindh; P. R. Taylor; L. Birnoschi; A. Dzubak; *
-*                     M. Navarrete; C. Gonzalez-Espinoza; G. Raggi;    *
-*                     N. F. Chilton at OpenMolcas2020                  *
-************************************************************************
-      Implicit real*8 (a-h,o-z)
-*     find iTabMx, limiting the highest ang mom, in itmax.fh
-#include "itmax.fh"
-#include "real.fh"
+!***********************************************************************
+!                                                                      *
+! Object: create the transformation matrices from cartesian gaussians  *
+!         to spherical gaussians. By having these matricies being      *
+!         defined dynamical we ensure that any extension of the        *
+!         program to higher angular momentum is simply done by chang-  *
+!         ing iTabMx to the appropiate value.                          *
+!         In addition, this will also allow us to have any order of    *
+!         vectors in the matrix, i.e. we can have our own format or    *
+!         any other odd order (MOLECULE).                              *
+!                                                                      *
+! Called from: Input                                                   *
+!                                                                      *
+! Calling    : Real_Sphere                                             *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March 1990                                               *
+!***********************************************************************
+!               Credits.                                               *
+!               2020, R. Lindh; P. R. Taylor; L. Birnoschi; A. Dzubak; *
+!                     M. Navarrete; C. Gonzalez-Espinoza; G. Raggi;    *
+!                     N. F. Chilton at OpenMolcas2020                  *
+!***********************************************************************
+      use Constants
+      use define_af, only: iTabMx
+      Implicit None
+      Integer lMax
+
       Logical CSPF
-*     check if required ang mom is greater than hard-coded limit
+      Integer nSphCr, nSphr, MxFnc, iAng, iii, jjj, n, nElem, ii,
+     &        m, l, iElem
+!     check if required ang mom is greater than hard-coded limit
       If (lMax.gt.iTabMx) Then
          Call WarningMessage(2,' Sphere: Increase iTabMx!')
          Call Abend()
       End If
-*
+!
       If (lmax.lt.0) Then
          Write (6,*) 'Sphere: lmax<0'
          Call Abend()
@@ -88,26 +92,26 @@
       End If
       Call Get_lScalar('CSPF',CSPF)
       Condon_Shortley_phase_factor=CSPF
-*
+!
       nSphCr=(lmax+1)*(lmax+2)*(lmax+3)/6
       Call mma_allocate(iSphCr,nSphCr,Label='iSphCr')
       iSphCr(:)=0
 
-*     Write (*,*) 'C&S',Condon_Shortley_phase_factor
-*
-*     Make the labels
-*     Gives info on basis function angular momenta
-*     n, l, ml or assigns it as a diffuse/polarising function with '*'
-*
+!     Write (*,*) 'C&S',Condon_Shortley_phase_factor
+!
+!     Make the labels
+!     Gives info on basis function angular momenta
+!     n, l, ml or assigns it as a diffuse/polarising function with '*'
+!
       MxFnc=(lMax+1)*(lMax+2)*(lMax+3)/6
       Call mma_allocate(LblCBs,MxFnc,Label='LblCBs')
       Call mma_allocate(LblSBs,MxFnc,Label='LblSBs')
-*
+!
       Call Make_Labels(LblCbs,LblSbs,MxFnc,lMax)
-*
-*     Allocate memory for transformation matrices
-*     Here, ipSph are the pointers to memory locations in RSph, for the
-*     transformation matrices of given ang mom
+!
+!     Allocate memory for transformation matrices
+!     Here, ipSph are the pointers to memory locations in RSph, for the
+!     transformation matrices of given ang mom
       nSphr = 0
       Do iAng = 0, lMax
          nSphr = nSphr + (iAng*(iAng+1)/2 + iAng + 1)**2
@@ -119,11 +123,11 @@
          ipSph(iAng+1) = ipSph(iAng) + (iAng*(iAng+1)/2 + iAng + 1)**2
  2    Continue
 
-*     Here the transformation matrices from cartesian to spherical are
-*     made
+!     Here the transformation matrices from cartesian to spherical are
+!     made
       Call Real_Sphere(ipSph,lMax,RSph,nSphr)
-*
-*     Set up the symmetry properties of the spherical gaussians
+!
+!     Set up the symmetry properties of the spherical gaussians
       iii = 0
       jjj = 0
       Do 50 n = 0, lMax
@@ -141,8 +145,8 @@
 55       Continue
         jjj = jjj + nElem
 50    Continue
-*
-*#define _DEBUGPRINT_
+!
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' Spherical Harmonic expansions '
@@ -167,27 +171,30 @@
          Write (6,*)
       End Do
 #endif
-*
-      Return
+!
       End Subroutine Sphere
+
       Subroutine Real_Sphere(ipSph,lMax,RSph,nSphr)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer lMax, nSphr
       Real*8 RSph(nSphr)
       Integer ipSph(0:lMax)
-*
+
+      Integer i00, i10, i, i2, nElem, i20, j, iCont, iOff, mElem, l
+!
       i00 = ipSph(0)
       i10 = ipSph(0)
       Do i = 0, lMax
          i2  = ipSph(i)
          nElem = (i+1)*(i+2)/2
          i20= i2 + i*nElem
-*        First generate the coefficients for Y(i,0) -- always real
+!        First generate the coefficients for Y(i,0) -- always real
          Call Recurse(RSph(i00),RSph(i10),RSph(i20),i)
-*        Use ladder operators to generate Y(i,m)
+!        Use ladder operators to generate Y(i,m)
          Call Ladder(RSph(i2),i)
-*
-*        Now do the contaminant, by simply multiply with r**2
-*
+!
+!        Now do the contaminant, by simply multiply with r**2
+!
          j = i-2
          If (j.ge.0) Then
             iCont = i2 + (2*i+1)*nElem
@@ -199,47 +206,51 @@
                iOff  = iOff  + (2*l+1)*mElem
             End Do
          End If
-*
+!
          i00=i10
          i10=i20
       End Do
-*
-*.... Normalize
-*
+!
+!.... Normalize
+!
       Do i = 0, lMax
          Call NrmSph(RSph(ipSph(i)),i)
       End Do
-*
-      Return
+!
       End Subroutine Real_Sphere
+
       Subroutine Recurse(P0,P1,P2,n2)
-************************************************************************
-*                                                                      *
-*     The Legendre polynomial is identical to Y(l,0).                  *
-*     Note that it is real and that there is no Condon-Shortley phase  *
-*     factor to consider.                                              *
-*                                                                      *
-************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+!***********************************************************************
+!                                                                      *
+!     The Legendre polynomial is identical to Y(l,0).                  *
+!     Note that it is real and that there is no Condon-Shortley phase  *
+!     factor to consider.                                              *
+!                                                                      *
+!***********************************************************************
+      use Constants, only: Zero, One
+      Implicit None
+      Integer n2
       Real*8 P0((n2-1)*n2/2), P1(n2*(n2+1)/2),P2((n2+1)*(n2+2)/2)
-*     Define statement function:
+
+      Integer ix, iy, iz, iad, n1, n0
+      Real*8 Fact_1, Fact_2
+!     Define statement function:
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
-*
+!
       P2(:)=Zero
-*
-*---- Use recurrence relation for Legendre polynomials
-*
-*     (n+1) P_{n+1} = (2n+1) z P_n - n r^2 P_{n-1}
-*
+!
+!---- Use recurrence relation for Legendre polynomials
+!
+!     (n+1) P_{n+1} = (2n+1) z P_n - n r^2 P_{n-1}
+!
       If (n2.eq.0) then
-*
+!
          P2(1)=One
-*
+!
       Else
-*
-*        P_{n+1} = (2n+1)/(n+1) z P_n
-*
+!
+!        P_{n+1} = (2n+1)/(n+1) z P_n
+!
          Fact_1=DBLE(2*n2-1)/DBLE(n2)
          n1=n2-1
          Do ix = n1, 0, -1
@@ -249,9 +260,9 @@
      &            + Fact_1*P1(iad(ix,iy,iz))
            End Do
          End Do
-*
-*        P_{n+1} = - n/(n+1) (x^2+y^2+z^2) P_{n-1}
-*
+!
+!        P_{n+1} = - n/(n+1) (x^2+y^2+z^2) P_{n-1}
+!
          Fact_2=DBLE(n2-1)/DBLE(n2)
          n0=n1-1
          Do ix = n0, 0, -1
@@ -265,53 +276,58 @@
      &                             - Fact_2*P0(iad(ix,iy,iz))
             End Do
          End Do
-*
+!
       End if
 
-      Return
       End Subroutine Recurse
+
       Subroutine Ladder(P0,n)
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+      use Constants, only: Zero, One, Two
+      Implicit None
+      Integer n
       Real*8 P0((n+1)*(n+2)/2,-n:n)
-*     Define statement function:
+
+      Integer ix, iy, iz, iad
+      Integer m, m_p, m_m
+      Real*8 Fact
+!     Define statement function:
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
-*
-*     Generate Y(l,m) from Y(l,m-1), starting the process from Y(l,0)
-*
+!
+!     Generate Y(l,m) from Y(l,m-1), starting the process from Y(l,0)
+!
       Do m = 0, n-1
          m_p=  m+1
          m_m=-(m+1)
          P0(:,m_p)=Zero
          P0(:,m_m)=Zero
          Fact=One/(Two*Sqrt(DBLE(n*(n+1)-m*(m-1))))
-*
-*        The spherical harmonic is a two component (real,imaginary)
-*        function.
-*
-*....... Y(n, m) =(-1)**  m  x (S(+,m), S(-,m)) and
-*        Y(n,-m) =(-1)**(-m) x (S(+,m),-S(-,m))
-*
-*        with S(-,0)=0
-*
-*        The ladder operator is subdivided in a similar way
-*
-*        L(+)=(Lr,Li),  L(-)=(Lr,-Li)
-*
-*        Hence
-*
-*        L(+) Y(n,m)= C x Y(n,m+1)
-*
-*        or
-*
-*        C(S(+,m+1),S(-,m+1))=(Lr S(+,m)-Li S(-,m),Li S(+,m)+Lr S(-,m))
-*
+!
+!        The spherical harmonic is a two component (real,imaginary)
+!        function.
+!
+!....... Y(n, m) =(-1)**  m  x (S(+,m), S(-,m)) and
+!        Y(n,-m) =(-1)**(-m) x (S(+,m),-S(-,m))
+!
+!        with S(-,0)=0
+!
+!        The ladder operator is subdivided in a similar way
+!
+!        L(+)=(Lr,Li),  L(-)=(Lr,-Li)
+!
+!        Hence
+!
+!        L(+) Y(n,m)= C x Y(n,m+1)
+!
+!        or
+!
+!        C(S(+,m+1),S(-,m+1))=(Lr S(+,m)-Li S(-,m),Li S(+,m)+Lr S(-,m))
+!
          Do ix = n, 0, -1
             Do iy = n-ix, 0, -1
                iz = n-ix-iy
-*
-*............. Generating the real part
-*
+!
+!............. Generating the real part
+!
                If (iz.ge.1)
      &         P0(iad(ix+1,iy,iz-1),m_p)= P0(iad(ix+1,iy,iz-1),m_p)
      &                            + Fact*DBLE(iz)*P0(iad(ix,iy,iz),m)
@@ -326,9 +342,9 @@
      &            P0(iad(ix,iy-1,iz+1),m_p)= P0(iad(ix,iy-1,iz+1),m_p)
      &                            + Fact*DBLE(iy)*P0(iad(ix,iy,iz),-m)
                End If
-*
-*............. Generating the imaginary part
-*
+!
+!............. Generating the imaginary part
+!
                If (iz.ge.1)
      &         P0(iad(ix,iy+1,iz-1),m_m)= P0(iad(ix,iy+1,iz-1),m_m)
      &                            + Fact*DBLE(iz)*P0(iad(ix,iy,iz),m)
@@ -343,36 +359,40 @@
      &            P0(iad(ix-1,iy,iz+1),m_m)= P0(iad(ix-1,iy,iz+1),m_m)
      &                            - Fact*DBLE(ix)*P0(iad(ix,iy,iz),-m)
                End If
-*
+!
             End Do
          End Do
-*
-*        Up to this point we have been operating on the Legendre and
-*        associated Legendre polynomials. Let us now put in the
-*        Condon-Shortley phase factor
-*
+!
+!        Up to this point we have been operating on the Legendre and
+!        associated Legendre polynomials. Let us now put in the
+!        Condon-Shortley phase factor
+!
          If (Condon_Shortley_phase_factor .and.
      &       MOD(m+1,2).ne.0) Then
-*           Write (6,*) 'C&S phase factor included.'
+!           Write (6,*) 'C&S phase factor included.'
             P0(:,m_p)=-P0(:,m_p)
             P0(:,m_m)=-P0(:,m_m)
          End If
-*
+!
       End Do ! m
-*
-      Return
+!
       End Subroutine Ladder
+
       Subroutine Contaminant(P0,i,Px,j,l)
-*     This subroutine generates the lower ang mom contaminants for the
-*     given ang mom
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+!     This subroutine generates the lower ang mom contaminants for the
+!     given ang mom
+      use Constants, only: Zero
+      Implicit None
+      Integer i, j, l
       Real*8 P0((i+1)*(i+2)/2,-l:l), Px((j+1)*(j+2)/2,-l:l)
-*     Declare statement function
+
+      Integer ix, iy, iz, iad
+      Integer m
+!     Declare statement function
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
-*
-*     Px = (x^2+y^2+z^2) x P0
-*
+!
+!     Px = (x^2+y^2+z^2) x P0
+!
       Do m = -l, l
          P0(:,m)=Zero
          Do ix = j, 0, -1
@@ -387,16 +407,21 @@
             End Do
          End Do
       End Do
-*
-      Return
+!
       End Subroutine Contaminant
+
       Subroutine NrmSph(P,n)
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      Implicit None
+      Integer n
       Real*8 P((n+1)*(n+2)/2,(n+1)*(n+2)/2)
-#include "real.fh"
-*
+      Integer m, k, ijx, ijy, ijz, jx, jy, jz
+      Real*8 tmp, rMax, DF, temp
+      Real*8, External:: DblFac
+!
+      Integer ix, iy, iz, iad
       iad(ix,iy,iz)=(iy+iz)*(iy+iz+1)/2+iz+1
-*
+!
       Do m = 1, (n+1)*(n+2)/2
          rMax=Zero
          Do k = 1, (n+1)*(n+2)/2
@@ -425,9 +450,8 @@
          End Do
          Call DScal_((n+1)*(n+2)/2,One/Sqrt(tmp),P(1,m),1)
       End Do
-      Return
       End Subroutine NrmSph
-*
-************************************************************************
-*
+!
+!***********************************************************************
+!
       End Module Real_Spherical

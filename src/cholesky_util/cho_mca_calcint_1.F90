@@ -27,6 +27,9 @@ implicit none
 integer(kind=iwp), intent(in) :: ISHLAB
 integer(kind=iwp) :: IAB, IADR, ICD, IOPT, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, JAB, JCD, JCD0, JCDS, KAB, KOFF, KOFF1, &
                      KOFF2, L4SH, L4SHMX, LCOL, LINT, LTOT, MAXCD, NAB(8), NUMAB, NUMCD
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: MEM_END, MEM_START, LEAK
+#endif
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
 logical(kind=iwp) :: DOINTS
 real(kind=wp), allocatable :: Int4Sh(:), IntCol(:)
@@ -34,8 +37,7 @@ logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT_1'
 
 #ifdef _DEBUGPRINT_
-call mma_maxDBLE(LLEAK)
-MEM_START = LLEAK
+call mma_maxDBLE(MEM_START)
 #endif
 
 ! Initializations.
@@ -221,8 +223,7 @@ if (IPRINT >= INF_IN2) then
 end if
 
 #ifdef _DEBUGPRINT_
-call mma_maxDBLE(LLEAK)
-MEM_END = LLEAK
+call mma_maxDBLE(MEM_END)
 LEAK = MEM_END-MEM_START
 if (LEAK /= 0) then
   write(LUPRI,'(//,A,A,I9)') SECNAM,': Memory leak:',LEAK

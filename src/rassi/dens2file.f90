@@ -12,12 +12,12 @@
 !***********************************************************************
   subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo, &
                        iState,jState)
-  use rassi_aux, Only : AO_Mode, Job_Index, nasht_save, CMO1, CMO2,      &
+  use rassi_aux, only : AO_Mode, Job_Index, nasht_save, CMO1, CMO2,      &
                         DMAB, mTRA, Job1_Old, Job2_Old
+  use stdalloc, only: mma_Allocate, mma_deallocate
   implicit none
 ! External DDot_
 ! Real*8 DDot_
-#include "stdalloc.fh"
   integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
   integer, intent(inout) :: adr
   real*8 , intent(inout) :: array1(adim),array2(adim),array3(adim)

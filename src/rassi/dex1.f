@@ -34,5 +34,5 @@ C CHOSE DAXPY IF LARGE VECTOR LENGTH:
           END DO
         END DO
       END IF
-      RETURN
+
       END

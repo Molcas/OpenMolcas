@@ -1,44 +1,48 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine CmbnAC(Rnxyz,nZeta,la,lb,rKappa,Final,Alpha,
      &                  IfGrad,ld,nVecAC)
-************************************************************************
-*                                                                      *
-* Object: compute the gradient of the overlap matrix.                  *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             October '91.                                             *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
+!***********************************************************************
+!                                                                      *
+! Object: compute the gradient of the overlap matrix.                  *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             October '91.                                             *
+!***********************************************************************
+      use Constants, only: Two
+      Implicit None
+      Integer nZeta, la, lb, ld, nVecAC
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,4),
      &       rKappa(nZeta),
      &       Rnxyz(nZeta,3,0:la+ld,0:lb), Alpha(nZeta)
       Logical IfGrad(3)
-*
-*     Statement function for Cartesian index
-*
+
+      Integer ixa, ixb, iya, iyb, iza, izb, iZeta, iyaMax, iybMax,
+     &        ipa, ipb
+      Integer ixyz, ix, iz, Ind
+      Real*8 tTwo, XA, YA, ZA
+!
+!     Statement function for Cartesian index
+!
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-*
-      iRout = 134
-      iPrint = nPrint(iRout)
-*
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In CmbnAC: rKappa',' ',rKappa,1,nZeta)
-         Call RecPrt(' In CmbnAC: Alpha ',' ',Alpha ,1,nZeta)
-      End If
+!
+!
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In CmbnAC: rKappa',' ',rKappa,1,nZeta)
+      Call RecPrt(' In CmbnAC: Alpha ',' ',Alpha ,1,nZeta)
+#endif
       Do 10 ixa = 0, la
          iyaMax=la-ixa
       Do 11 ixb = 0, lb
@@ -49,9 +53,9 @@
          Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
-*
-*           Combine overlap integral gradients
-*
+!
+!           Combine overlap integral gradients
+!
             nVecAC = 1
             Do 35 iZeta = 1, nZeta
                Final(iZeta,ipa,ipb,nVecAC) = rKappa(iZeta)*
@@ -120,11 +124,11 @@
  51               Continue
                End If
             End If
-*
+!
  21      Continue
  20      Continue
  11   Continue
  10   Continue
-*
+!
       Return
-      End
+      End SubRoutine CmbnAC

@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PRCEVC(NSS,FRAC,SOENE,MAPST,MAPSP,MAPMS,UMATR,UMATI)
+
+      use rassi_aux, only: ipglob
+
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "cntrl.fh"
-#include "prgm.fh"
 #include "stdalloc.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='PRCEVC')
 
       INTEGER NSS
       REAL*8 FRAC,SOENE(NSS),UMATR(NSS,NSS),UMATI(NSS,NSS)
@@ -41,7 +41,7 @@ C a certain fraction (FRAC) of the largest such value for the
 C foursome of states.
 
 
-      If(IPGLOB.ge.verbose) then
+      If(IPGLOB.ge.3) then
       DO JSTA=1,NSS,4
        JEND=MIN(NSS,JSTA+3)
        WRITE(6,*)
@@ -75,7 +75,7 @@ C foursome of states.
         END IF
        END DO
       END DO
-      else If(IPGLOB.ge.usual) then
+      else If(IPGLOB.ge.2) then
 *     Write out the weights of the five most important spin-free states
 *     For each spin-orbit state (BOR in Krapperup 070226)
 *
@@ -135,6 +135,4 @@ C Addition of UMATR and UMATI on RunFile
       call mma_deallocate(weight)
       call mma_deallocate(sstate)
 
-
-      RETURN
-      END
+      END SUBROUTINE PRCEVC

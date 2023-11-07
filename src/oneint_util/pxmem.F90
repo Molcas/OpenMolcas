@@ -18,10 +18,10 @@ subroutine PXMem( &
 
 use Integral_interfaces, only: int_mem
 use Definitions, only: iwp, u6
+use Property_Label, only: PLabel
 
 implicit none
 #include "mem_interface.fh"
-#include "property_label.fh"
 procedure(int_mem) :: CntMem, EFMem, MltMem, NAMem
 
 if (PLabel == 'NAInt ') then

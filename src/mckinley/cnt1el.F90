@@ -47,6 +47,7 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Disp, only: IndDsp
 
 implicit none
 procedure(grd_mck_kernel) :: Kernel
@@ -56,9 +57,7 @@ integer(kind=iwp), intent(in) :: iDCnt, iDCar, iadd
 integer(kind=iwp), intent(out) :: loper
 real(kind=wp), intent(in) :: rHrmt, dens(*)
 logical(kind=iwp), intent(in) :: DiffOp
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iI, iIC, iIrrep, IndGrd(0:7), iopt, &
                      ip(8), iPrim, irc, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iStabO(0:7), iStart, iuv, jAng, jAO, jBas, &
                      jCmp, jCnt, jCnttp, jdisp, jIrrep, jPrim, jS, jShell, jShll, kk, kOper, lDCRR, LenInt, LenInt_Tot, lFinal, &
@@ -75,7 +74,7 @@ logical(kind=iwp), external :: EQ, TF
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -91,9 +90,6 @@ LabDsk = Lab_Dsk
 nOrdOp = 0
 IndGrd(0:nIrrep-1) = 0
 loper = 0
-#ifdef _DEBUGPRINT_
-iprint = 99
-#endif
 nnIrrep = nIrrep
 if (sIrrep) nnIrrep = 1
 do iIrrep=0,nnIrrep-1
@@ -251,7 +247,7 @@ do iS=1,nSkal
         end if
       end do
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 29) write(u6,*) ' nSO=',nSO
+      write(u6,*) ' nSO=',nSO
 #     endif
       if (nSO /= 0) then
         call mma_Allocate(SO,nSO*iBas*jBas,Label='SO')
@@ -335,9 +331,7 @@ do iS=1,nSkal
           ! final symmetry adapted integrals.
 
 #         ifdef _DEBUGPRINT_
-          if (iPrint >= 99) then
-            call RecPrt(' Accumulated SO integrals, so far...',' ',SO,iBas*jBas,nSO)
-          end if
+          call RecPrt(' Accumulated SO integrals, so far...',' ',SO,iBas*jBas,nSO)
 #         endif
 
           ! Symmetry adapt component by component

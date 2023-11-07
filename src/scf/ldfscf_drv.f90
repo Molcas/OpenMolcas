@@ -38,7 +38,7 @@
       Real*8, External::   LDF_Charge, LDF_FittedCharge, dDot_
 
       Integer, External::  ip_of_Work, iPrintLevel
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Logical, External:: LDF_X_IsSet
 #endif
 
@@ -94,13 +94,13 @@
 
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       ! Enter
 #endif
       Call Untested('LDF-SCF')
 
       ! Get print level
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       iPrint=max(iPrintLevel(-1),4)
 #else
       iPrint=iPrintLevel(-1)
@@ -120,7 +120,7 @@
       Call Set_Basis_Mode('WithAuxiliaryr')
       Call Setup_iSD()
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (.not.LDF_X_IsSet()) Then
          Call WarningMessage(2,SecNam//': LDF info not set!')
          Call LDF_Quit(1)
@@ -604,7 +604,7 @@
       End If
       Call Free_iSD()
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       ! Exit
 #endif
 ! Avoid unused argument warnings

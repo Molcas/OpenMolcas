@@ -37,22 +37,19 @@ logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp) :: iCar, iCent, iCn, iGrad, ij, jCn, kl, nVec
 real(kind=wp) :: Fact, PAOg1(12), ps, Temp(9)
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iVec
 character(len=80) :: Label
 #endif
 real(kind=wp), parameter :: Prmt(0:7) = [One,-One,-One,One,-One,One,One,-One]
 
 #ifdef _DEBUGPRINT_
-iRout = 239
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt('PAO',' ',PAO,nT,mPAO)
-  do iVec=1,mVec
-    write(Label,'(A,I2,A)') ' g1(',iVec,')'
-    call RecPrt(Label,' ',g1(:,:,iVec),nT,mPAO)
-  end do
-  call RecPrt('Accumulated gradient on entrance',' ',Grad,nGrad,1)
-end if
-if (iPrint >= 49) write(u6,*) IndGrd
+call RecPrt('PAO',' ',PAO,nT,mPAO)
+do iVec=1,mVec
+  write(Label,'(A,I2,A)') ' g1(',iVec,')'
+  call RecPrt(Label,' ',g1(:,:,iVec),nT,mPAO)
+end do
+call RecPrt('Accumulated gradient on entrance',' ',Grad,nGrad,1)
+write(u6,*) IndGrd
 #endif
 
 ! Trace the integral derivatives with the second order density matrix.
@@ -88,7 +85,7 @@ do iCn=1,4
   end do
 end do
 #ifdef _DEBUGPRINT_
-if (iPrint >= 49) call RecPrt('PAOg1',' ',PAOg1,12,1)
+call RecPrt('PAOg1',' ',PAOg1,12,1)
 #endif
 
 ! Distribute contribution to the gradient.
@@ -106,9 +103,7 @@ do iCn=1,4
   end do
 end do
 #ifdef _DEBUGPRINT_
-if (iPrint >= 49) then
-  call RecPrt('Accumulated gradient on exit',' ',Grad,nGrad,1)
-end if
+call RecPrt('Accumulated gradient on exit',' ',Grad,nGrad,1)
 #endif
 
 return

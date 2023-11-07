@@ -72,7 +72,7 @@ call mh5_close_dset(dsetid)
 
 end subroutine one2h5_ovlmat
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

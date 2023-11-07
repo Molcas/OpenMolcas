@@ -11,8 +11,10 @@
 ! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
 !               1990, IBM                                              *
 !***********************************************************************
+!#define _DEBUGPRINT_
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
+
       Subroutine OneEl_Inner                                            &
      &                 (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,       &
      &                  nOrdOp,rHrmt,iChO,                              &
@@ -45,43 +47,55 @@
 !             Modified for better symmetry treatement October  93      *
 !             Modified loop structure April 99                         *
 !***********************************************************************
+      use setup
       use Real_Spherical
-      use iSD_data
+      use iSD_data, only: iSD
       use Basis_Info, only: dbsc
       use Sizes_of_Seward, only: S
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (A-H,O-Z)
+      use rmat, only: RMat_Type_Integrals
+      use property_label, only: PLabel
+      use Constants, only: Zero, One
+
+      Implicit None
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-      External Rsv_Tsk
-!     Logical Addpot
-#include "real.fh"
-#include "rmat_option.fh"
-#include "print.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "property_label.fh"
-      Real*8, Allocatable, Target:: Kern(:)
-      Integer, Dimension(:,:), Allocatable :: Ind_ij
+      Character(LEN=8) Label
+      Integer nComp, nOrdOp, ipad, idirect, isyop, nIC, iAddPot, LenTot
+      Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7), nGrid
       Real*8 CoorO(3,nComp), PtChrg(nGrid)
-      dimension opmol(*),opnuc(*),iopadr(nComp,*)
-      Character Label*8
-      Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
-      Logical Do_PGamma, Rsv_Tsk
-      Integer LenTot
+      Real*8 opmol(*),opnuc(*)
+      Real*8 rHrmt
+      Integer iopadr(nComp,*)
       Real*8 Array(LenTot)
+
+      Logical, External ::Rsv_Tsk
+      Real*8, Allocatable, Target:: Kern(:)
+      Integer, Allocatable :: Ind_ij(:,:)
+      Logical Do_PGamma
 
       Real*8, Dimension(:), Allocatable :: Zeta, ZI, Kappa, PCoor,      &
      &                                     SOInt, Scrtch, ScrSph
       Real*8, Allocatable, Target :: FArray(:)
+      Integer, External:: n2Tri, MemSO1
+      Integer ixyz, nElem, iPrint, nSkal, nIJS, iS, jS, i, lFinal,      &
+     &        lScrt1, lScrt2, MemKrn, ijS, iPrim, jPrim, iBas, jBas,    &
+     &        iAng, jAng, mFinal, mScrt1, mScrt2, lA0, lB0, MemBux,     &
+     &        MemCux, MemKer, ijSh, iCmp, iAO, iShell, iCnttp, jCmp,    &
+     &        jAO, jShell, jCnttp, nSO, iComp, iSmLbl, ipSO, nStabO,    &
+     &        iSOBlk, mSO, MemAux, lA1, lB1, l_SOInt, id_Tsk, nOrder
+      Real*8 rHrmt_Save
 !
 !     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout = 112
-      iPrint = nPrint(iRout)
+#ifdef _DEBUGPRINT_
+      iPrint=99
+#else
+      iPrint=5
+#endif
       RMat_type_integrals=.False.
       Do_PGamma = .True.
 !
@@ -209,7 +223,9 @@
          iSmLbl=lOper(iComp)
          nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
       End Do
-      If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' nSO=',nSO
+#endif
 !
 !     Do not compute matrix elements in which electronic and
 !     muonic basis sets are mixed.
@@ -290,7 +306,7 @@
       End If
       End Subroutine OneEl_Inner
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

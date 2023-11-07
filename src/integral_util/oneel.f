@@ -1,45 +1,57 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,1991,1993,1999, Roland Lindh                      *
+!               1990, IBM                                              *
+!***********************************************************************
       SubRoutine OneEl(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,
      &                 nOrdOp,rNuc,rHrmt,iChO,
      &                 opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                 PtChrg,nGrid,iAddPot)
       use Basis_Info, only: nBas
-      use PrpPnt
+      use PrpPnt, only: nOcc, nDen, nVec, Occ, Vec
       use Gateway_global, only: PrPrt, Short, IfAllOrb
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: Thrs
       use Symmetry_Info, only: nIrrep
       use Integral_interfaces, only: int_kernel, int_mem, OneEl_inner
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only:  Zero
+      Implicit None
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
-#include "real.fh"
+      Character(LEN=8) Label
+      Integer nComp, nOrdOp, nGrid
+      Real*8 CoorO(3,nComp), rNuc(nComp), PtChrg(nGrid)
+      Real*8 rHrmt
+      Integer ip(nComp), lOper(nComp), iChO(nComp)
+      Real*8 opmol(*),opnuc(*)
+      Integer iopadr(ncomp,*)
+      Integer idirect, isyop, iAddPot
+
       Real*8, Dimension(:), Allocatable :: Out, Nuc, El
       Real*8, Dimension(:), Allocatable :: Array
-      Character Label*8, LBL*4
-      Character L_Temp*8
-      Real*8 CoorO(3,nComp), rNuc(nComp), PtChrg(nGrid)
-      Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
-      dimension opmol(*),opnuc(*),iopadr(ncomp,*)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Character(LEN=8) L_Temp
+      Character(LEN=4) LBL
+      Integer iStabO(0:7)
+      Integer, External:: n2Tri
+      Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
+      Integer nIC, llOper, iIrrep, LenTot, LenInt, iAdr, ipAd, mDim,
+     &        ipOut, nInt, ii, lPole, ipC2, iComp, iSmLbl, ipNuc, ipEl,
+     &        jComp, iInd2, iOcc, iEF, iDIsk, iOpt, iRC, iPAMCount,
+     &        iComp_, iInd1, LuTmp, nStabO
+      Real*8 Sum
 
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) ' In OneEl: Label', Label
@@ -54,12 +66,12 @@
       Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
       Call RecPrt(' CoorO',' ',CoorO,3,nComp)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Compute the number of blocks from each component of the operator
-*     and the irreps it will span.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Compute the number of blocks from each component of the operator
+!     and the irreps it will span.
+!
       nIC = 0
       llOper = 0
       Do iComp = 1, nComp
@@ -71,17 +83,17 @@
 #ifdef _DEBUGPRINT_
       Write (6,*) ' nIC =',nIC
 #endif
-*
+!
       If (nIC.eq.0) Return
-*
+!
       Call SOS(iStabO,nStabO,llOper)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Allocate memory for symmetry adapted one electron integrals.
-*     Will just store the unique elements, i.e. low triangular blocks
-*     and lower triangular elements in the diagonal blocks.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Allocate memory for symmetry adapted one electron integrals.
+!     Will just store the unique elements, i.e. low triangular blocks
+!     and lower triangular elements in the diagonal blocks.
+!
       Call ICopy(nComp,[-1],0,ip,1)
       LenTot=0
       Do iComp = 1, nComp
@@ -96,52 +108,52 @@
          LenInt=n2Tri(lOper(iComp))
          ip(icomp)=iadr
          iadr=iadr+LenInt+4
-*        Copy center of operator to work area.
+!        Copy center of operator to work area.
          call dcopy_(3,CoorO(1,iComp),1,Array(ip(iComp)+LenInt),1)
-*        Copy nuclear contribution to work area.
+!        Copy nuclear contribution to work area.
          Array(ip(iComp)+LenInt+3) = rNuc(iComp)
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Compute all SO integrals for all components of the operator.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Compute all SO integrals for all components of the operator.
+!
       Call OneEl_Inner
      &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,
      &            nOrdOp,rHrmt,iChO,
      &            opmol,opnuc,ipad,iopadr,idirect,isyop,
      &            iStabO,nStabO,nIC,
      &            PtChrg,nGrid,iAddPot,Array,LenTot)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                    P O S T P R O C E S S I N G                       *
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                    P O S T P R O C E S S I N G                       *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
       Call PrMtrx(Label,lOper,nComp,ip,Array)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Make a square sum on all the integrals for verification
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Make a square sum on all the integrals for verification
       Call VrfMtrx(Label,lOper,nComp,ip,Array)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Compute properties or write integrals to disc.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Compute properties or write integrals to disc.
+!
       Do iComp = 1, nComp
          iSmLbl = lOper(iComp)
          If (Prprt) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---------- Compute properties directly from integrals
-*
-*---------- Allocate some memory
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---------- Compute properties directly from integrals
+!
+!---------- Allocate some memory
+!
             If (iComp.eq.1) Then
                If (short) Then
                   mDim = 1
@@ -164,9 +176,9 @@
      &                 nIrrep,nBas,nVec,Vec,nOcc,Occ,
      &                 nDen,Array(ip(iComp)),
      &                 Out(ipOut+(iComp-1)*mDim))
-*
+!
             If (Label(1:3).eq.'PAM') Then
-c               Open(unit=28,file='R_vect',access='append')
+!               Open(unit=28,file='R_vect',access='append')
                EndFile(28)
                If(Short) Then
                   write(28,'(a8,2x,f20.14)')
@@ -178,11 +190,11 @@ c               Open(unit=28,file='R_vect',access='append')
                   End Do
                   write(28,'(a8,2x,f20.14)') Label,-Sum
                End If
-c               Close(28)
+!               Close(28)
              End If
-*
-*---------- Once all components have been computed print them.
-*
+!
+!---------- Once all components have been computed print them.
+!
             If (iComp.eq.nComp) Then
                LBL=Label(1:4)
                Call UpCase(LBL)
@@ -208,16 +220,16 @@ c               Close(28)
                Call Prop(Short,Label,CoorO(1,1),CoorO(1,ipC2),
      &                   nIrrep,nBas,mDim,Occ,Thrs,
      &                   Out,Nuc,lpole,ifallorb)
-*
-* For a properties calculation, save the values of EF or CNT operators,
-* they will be used to write the sum through Add_Info in Drv1El
-*
+!
+! For a properties calculation, save the values of EF or CNT operators,
+! they will be used to write the sum through Add_Info in Drv1El
+!
                If (PrPrt.and.
      &             (LBL(1:2).eq.'EF'.or.LBL(1:3).eq.'CNT')) Then
                  Call mma_allocate(El,nComp,label='El')
                  ipEl=1
                  Call FZero(El,nComp)
-*                Compute the sum of all orbital components
+!                Compute the sum of all orbital components
                  Do jComp=0,nComp-1
                    iInd1=ipEl+jComp
                    iInd2=ipOut+jComp*mDim
@@ -225,7 +237,7 @@ c               Close(28)
                      El(iInd1)=El(iInd1)+Out(iInd2+iOcc)
                    End Do
                  End Do
-*                Write electronic and nuclear components in temp file
+!                Write electronic and nuclear components in temp file
                  LuTmp=10
                  Call DaName(LuTmp,'TMPPRP')
                  Read(Label(4:8),*) iEF
@@ -235,16 +247,16 @@ c               Close(28)
                  Call DaClos(LuTmp)
                  Call mma_deallocate(El)
                End If
-*
+!
                Call mma_deallocate(Nuc)
                Call mma_deallocate(Out)
             End If
          Else
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---------- Write integrals to disc
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---------- Write integrals to disc
+!
             iOpt = 0
             iRC = -1
             If (Label(1:3).eq.'PAM') Then
@@ -310,21 +322,21 @@ c               Close(28)
             End If
          End If
       End Do  ! iComp
-*
+!
       if (Label.eq.'Attract ')
      &   Call Add_info('SEWARD_ATTRACT',Array(ip(1)),1,5)
       if (Label.eq.'Kinetic ')
      &   Call Add_info('SEWARD_KINETIC',Array(ip(1)),1,5)
       if (Label.eq.'Mltpl  1')
      &   Call Add_info('SEWARD_MLTPL1X',Array(ip(1)),1,5)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Deallocate memory for integral
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Deallocate memory for integral
+!
       Call mma_deallocate(Array)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
-      End
+      End SubRoutine OneEl

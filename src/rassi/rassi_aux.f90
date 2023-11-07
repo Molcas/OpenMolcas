@@ -14,6 +14,7 @@
       Real*8, Allocatable:: CMO1(:), CMO2(:), DMAB(:)
       Integer NASHT_Save, mTRA
       Integer :: JOB1_old=-1, JOB2_old=-1
+      integer :: ipglob
 
       Contains
 

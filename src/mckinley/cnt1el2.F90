@@ -47,6 +47,7 @@ use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Disp, only: IndDsp
 
 implicit none
 procedure(oneel_mck_kernel) :: Kernel
@@ -56,8 +57,6 @@ integer(kind=iwp), intent(in) :: iDCnt, iDCar, iadd, isym, kcar, nordop
 integer(kind=iwp), intent(out) :: loper
 real(kind=wp), intent(in) :: rHrmt
 logical(kind=iwp), intent(in) :: DiffOp
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iI, iIC, iIrrep, IndGrd(0:7), iopt, &
                      ip(8), iPrim, irc, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iStabO(0:7), iStart, iuv, jAng, jAO, jBas, &
                      jCmp, jCnt, jCnttp, jdisp, jIrrep, jPrim, jS, jShell, jShll, kk, kOper, lDCRR, LenInt, LenInt_Tot, lFinal, &

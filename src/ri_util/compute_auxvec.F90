@@ -23,11 +23,11 @@ use Cholesky, only: nSym, NumCho, timings
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
+use etwas, only: ExFac, nASh
 
 implicit none
 integer(kind=iwp), intent(in) :: nProc, nVec, ipVk(nProc,nVec), ipZpk(nProc), myProc
 logical(kind=iwp), intent(in) :: CASPT2
-#include "etwas.fh"
 integer(kind=iwp) :: i, iADens, iAvec, iBas, iCount, iIrrep, ij, iOff, iOff2, iOffDSQ, ipTxy(0:7,0:7,2), irc, irun, iSO, isym, j, &
                      jCount, jIrrep, jp_U_k, jp_V_k, jp_Z_p_k, jrun, k, kIrrep, kOff1, l, mAO, MemMax, NChVMx, nIOrb(0:7), nnAorb, &
                      nQMax, nQv, nQvMax, nSA, nU_l(0:7), nU_ls, nU_t(0:7), nV_l(0:7), nV_ls, nV_t(0:7)

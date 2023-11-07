@@ -149,7 +149,7 @@ else
   Mem(:) = Zero
   ipxyz = 1
 
-! define _ANALYSIS_
+!# define _ANALYSIS_
 # ifdef _ANALYSIS_
   Thr = T_Y
   write(u6,*)

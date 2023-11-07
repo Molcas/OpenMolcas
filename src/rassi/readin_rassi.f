@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE READIN_RASSI()
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
       use frenkel_global_vars, only: excl, iTyp, valst, corest, nesta,
      &                               nestb, nestla, nestlb, doexch,
@@ -23,9 +24,6 @@
       use Cholesky, only: timings
 
       IMPLICIT NONE
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='READIN')
 #include "rasdim.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
@@ -57,7 +55,7 @@ C --- Default settings for Cholesky
       Update = .true.
       Deco = .true.
       PseudoChoMOs = .false.
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       ChFracMem=0.3d0
 #else
       ChFracMem=0.0d0
@@ -118,7 +116,7 @@ C ------------------------------------------
       END IF
 C ------------------------------------------
       IF (LINE(1:4).EQ.'EXTR') THEN
-        IF(IPGLOB.GT.SILENT) THEN
+        IF(IPGLOB.GT.0) THEN
          Call WarningMessage(1,'Obsolete EXTRACT keyword used.')
          WRITE(6,*)' Please remove it from the input.'
         END IF

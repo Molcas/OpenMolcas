@@ -9,22 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SODIAG(UMATR, UMATI, NSS)
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
 #include "Morsel.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
-#include "prgm.fh"
-#include "rasdef.fh"
 #include "jobin.fh"
 #include "symmul.fh"
 #include "constants.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SODIAG')
 
 C subroutine arguments
       REAL*8 UMATR(NSS,NSS),UMATI(NSS,NSS)
@@ -194,7 +190,7 @@ c  apply the magnetic field along the main iDir axis
         enddo
       enddo
 
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
         WRITE(6,*) "BP: H_ZEE: "
         WRITE(6,*) H_ZEE
         WRITE(6,*) "BP: PROP: "
@@ -237,7 +233,7 @@ c DIAGONALIZE
       END IF
 
 
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
         WRITE(6,*) "EIGENVALUES OF L+ge*S in direction: ",IDIR
         WRITE(6,*) DEIGVAL
         WRITE(6,*) "EIGENVECTORS OF L+ge*S: "
@@ -271,7 +267,7 @@ CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCC
 C END testing the eigenvectors
 CCCCCCCCCCCCCCCC
-      END IF ! IPGLOB >= DEBUG
+      END IF ! IPGLOB >= 4
 
 
 C CALL SPIN_PHASE FROM THE OTHER CODE (at the bottom of this file)

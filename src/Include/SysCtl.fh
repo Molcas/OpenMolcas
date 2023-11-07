@@ -16,14 +16,14 @@
 !----------------------------------------------------------------------*
       Integer ON,OFF
 ! #ifdef _I8_
-! #if defined(_NECSX_) || defined(NAGFOR)
+! #if defined (_NECSX_) || defined (NAGFOR)
 !       Data ON/8hON      /,OFF/8hOFF     /
 ! #else
 !       Parameter(ON =8hON      )
 !       Parameter(OFF=8hOFF     )
 ! #endif
 ! #else
-! #if defined(_NECSX_) || defined(NAGFOR)
+! #if defined (_NECSX_) || defined (NAGFOR)
 !       Data ON/4hON      /,OFF/4hOFF     /
 ! #else
 !       Parameter(ON =4hON  )
@@ -44,7 +44,7 @@
 !----------------------------------------------------------------------*
 #ifdef _GA_
       Integer mxFld
-      Parameter ( mxFld    = 8192       )
+      Parameter ( mxFld    = 524288     )
 #endif
 !
       Integer ipClear,ipCheck

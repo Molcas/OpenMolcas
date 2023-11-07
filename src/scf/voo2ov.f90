@@ -77,6 +77,9 @@
 !     declaration local variables
       Integer iSym,ii,ia,ioffs,ivoffs
       Integer nia1, nia2, nii1, nii2, nv1, nv2
+#ifdef _DEBUGPRINT_
+      Integer iOff, nO, nV
+#endif
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *

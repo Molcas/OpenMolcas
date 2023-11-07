@@ -28,11 +28,17 @@
       use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
       use InfSCF, only: nBT, Tot_Nuc_Charge
+#ifdef _DEBUGPRINT_
+      use InfSCF, only: nBas, nSym
+#endif
       use stdalloc, only: mma_allocate
       Implicit None
 !
 !---- Define local variables
       Integer iComp, iOpt, iRC, iSyLbl
+#ifdef _DEBUGPRINT_
+      Integer ist1Hm, istOvl, iSym
+#endif
       Character(LEN=8) Label
 #ifdef _FDE_
       Integer iDummyEmb, iEmb, iUnit

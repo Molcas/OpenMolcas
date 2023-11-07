@@ -19,6 +19,9 @@ use ddvdt, only: A_Bend, A_Str, A_StrH, A_Trsn, aAV, alpha_vdW, B_Str, f_Const_M
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Ten, Half, Angstrom, deg2rad
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: mTtAtm, iANr(mTtAtm), nBonds, iTabBonds(3,nBonds), nMax, iTabAtoms(2,0:nMax,mTtAtm), nHidden
@@ -27,6 +30,9 @@ real(kind=wp), intent(out) :: Hess(nTri_Elem(3*mTtAtm))
 integer(kind=iwp) :: i, iAtom, iBond, iBondType, icoor, ij, iNb0, iNb1, iNb2, iNeighbor, ir, iSym, iTest, ixyz, jAtom, jBond, &
                      jBondType, jCoor, jNeighbor, jr, kAtom, kBond, kBondType, kNeighbor, kr, lAtom, lBond, lBondType, lr, mAtom, &
                      mr, nCoBond_j, nNeighbor, nNeighbor_i, nNeighbor_j, nNeighbor_k, nOrder
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iNeg, n3, nqB, nqO, nqR, nqT
+#endif
 real(kind=wp) :: A35, aij, aik, ail, ajk, akl, alpha, ami, amj, beta, C(3,4), CosFi2, CosFi3, CosFi4, CosFi_Max, CosPhi, &
                  cosThetax, cosThetay, cosThetaz, Diff, dO1_dx1, dO1_dx2, dO1_dy1, dO1_dy2, dO1_dz1, dO1_dz2, dO2_dx1, dO2_dx2, &
                  dO2_dy1, dO2_dy2, dO2_dz1, dO2_dz2, dO3_dx1, dO3_dx2, dO3_dy1, dO3_dy2, dO3_dz1, dO3_dz2, Dum(1), f1, &

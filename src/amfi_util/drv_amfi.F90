@@ -19,13 +19,13 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use define_af
 
 implicit none
 #include "Molcas.fh"
 character(len=8), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nComp, lOper(nComp), iAtmNr2(mxdbsc)
 real(kind=wp), intent(in) :: Charge2(mxdbsc)
-#include "angtp.fh"
 integer(kind=iwp) :: i, iCase, iCenter, iCff_x, iCnt, iCnttp, id_Tsk, iExp_x, iShll, iSkal, jCnt, jCnttp, l, l_max, lDel, &
                      Lu_AMFI, LUPROP, mdci, nBas_x, nCenter, nCenter_node, nCore, nExp_x, nSkal
 real(kind=wp) :: charge_x, Coor(3), Eta_Nuc

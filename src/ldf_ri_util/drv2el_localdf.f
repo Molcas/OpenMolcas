@@ -38,7 +38,7 @@ C
 *
 
       Call StatusLine('Seward: ','local density fitting')
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Write(6,'(A,A)') '>>> Enter ',SecNam
 #endif
       Call Untested('Local Density Fitting')
@@ -172,7 +172,7 @@ C==================
      &                   tCPU1,tCPU0,tWall1,tWall0,1)
       End If
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Write(6,'(A,A)') '>>> Exit ',SecNam
 #endif
       Return

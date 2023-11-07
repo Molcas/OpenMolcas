@@ -13,14 +13,13 @@
      &                  ISGMNT,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,NCSF,
      &                  NRL,MVL,MVR)
 
+      use rassi_aux, only: ipglob
+      use Struct, only: nSGSize, nCISize, nXSize
+
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='NRCOUP')
 #include "segtab.fh"
 C INPUT PARAMETERS:
 CAR   ADD MVR MVL
-#include "Struct.fh"
 #include "symmul.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
@@ -37,90 +36,88 @@ C OUTPUT PARAMETERS:
 C SCRATCH PARAMETERS:
       DIMENSION NRL(NSYM,NVERT,0:MXEO)
 
-
-
-
 C Dereference ISGSTRUCT, ICISTRUCT for some other data
       NLEV  =ISGSTRUCT(2)
       MVSTA =ISGSTRUCT(9)
       MVEND =ISGSTRUCT(10)
       NIPWLK=ICISTRUCT(2)
-      DO 10 INDEO=0,MXEO
-        DO 11 IV=1,MVEND
-          DO 12 LFTSYM=1,NSYM
+      DO INDEO=0,MXEO
+        DO IV=1,MVEND
+          DO LFTSYM=1,NSYM
             NRL(LFTSYM,IV,INDEO)=0
-12        CONTINUE
-11      CONTINUE
-10    CONTINUE
+          end do
+        end do
+      end do
       NRL(1,1,0)=1
-      DO 101 IVLT=1,MVSTA-1
+      DO IVLT=1,MVSTA-1
         LEV=IDRT(IVLT,LTAB)
-        DO 102 ISGT=1,26
+        DO ISGT=1,26
           IVLB=ISGMNT(IVLT,ISGT)
-          IF(IVLB.EQ.0) GOTO 102
+          IF (IVLB.EQ.0) CYCLE
           ICL=IC1(ISGT)
           ISYM=1
           IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
-          DO 100 ITSYM=1,NSYM
+          DO ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
-      IF(ISGT.LE.4) THEN
+            IF (ISGT.LE.4) THEN
 C THIS IS AN UPPER WALK.
-        NRL(IBSYM,IVLB,0)=NRL(IBSYM,IVLB,0)+NRL(ITSYM,IVLT,0)
-        GOTO 100
-      END IF
-      IF(ISGT.LE.8) THEN
+              NRL(IBSYM,IVLB,0)=NRL(IBSYM,IVLB,0)+NRL(ITSYM,IVLT,0)
+              CYCLE
+            END IF
+            IF(ISGT.LE.8) THEN
 C THIS IS AN TOP SEGMENT.
-        INDEO=LEV+(IBVPT(ISGT)-1)*NLEV
-        NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+NRL(ITSYM,IVLT,0)
-        GOTO 100
-      END IF
-      IF(ISGT.LE.18) THEN
+              INDEO=LEV+(IBVPT(ISGT)-1)*NLEV
+              NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) +
+     *                                NRL(ITSYM,IVLT,0)
+              CYCLE
+            END IF
+            IF (ISGT.LE.18) THEN
 C THIS IS A MID-SEGMENT.
-        DO 110 IP=LEV+1,NLEV
-          INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
-          INDEOB=IP+(IBVPT(ISGT)-1)*NLEV
-          NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB)+
-     *            NRL(ITSYM,IVLT,INDEOT)
-110     CONTINUE
-        GOTO 100
-      END IF
-      IF(ISGT.LE.22) THEN
+              DO IP=LEV+1,NLEV
+                INDEOT = IP+(ITVPT(ISGT)-1)*NLEV
+                INDEOB = IP+(IBVPT(ISGT)-1)*NLEV
+                NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) +
+     *                                   NRL(ITSYM,IVLT,INDEOT)
+              END DO
+              CYCLE
+            END IF
+            IF (ISGT.LE.22) THEN
 C THIS IS A BOTTOM SEGMENT.
-        DO 120 IP=LEV+1,NLEV
-          INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
-          IPQ=(IP*(IP-1))/2 + LEV
-          INDEOB=IPQ+2*NLEV
-          NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB) +
-     *          NRL(ITSYM,IVLT,INDEOT)
-120     CONTINUE
-        GOTO 100
-      END IF
+              DO IP=LEV+1,NLEV
+                INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
+                IPQ=(IP*(IP-1))/2 + LEV
+                INDEOB=IPQ+2*NLEV
+                NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) +
+     *                                   NRL(ITSYM,IVLT,INDEOT)
+              END DO
+              CYCLE
+            END IF
 C THIS IS A LOWER WALK.
-      DO 130 INDEO=2*NLEV+1,MXEO
-        NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+
-     *         NRL(ITSYM,IVLT,INDEO)
-130   CONTINUE
-100   CONTINUE
-102   CONTINUE
-101   CONTINUE
+            DO INDEO=2*NLEV+1,MXEO
+              NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) +
+     *                                NRL(ITSYM,IVLT,INDEO)
+            END DO
+          END DO
+        END DO
+      END DO
       MXUP=0
-      DO 140 MV=1,NMIDV
+      DO MV=1,NMIDV
         IVLT=MV+MVSTA-1
-        DO 141 LFTSYM=1,NSYM
+        DO LFTSYM=1,NSYM
           NOW(1,LFTSYM,MV)=NRL(LFTSYM,IVLT,0)
           MXUP=MAX(MXUP,NOW(1,LFTSYM,MV))
-          DO 142 INDEO=1,MXEO
+          DO INDEO=1,MXEO
             NOCP(INDEO,LFTSYM,MV)=NRL(LFTSYM,IVLT,INDEO)
-142       CONTINUE
-141     CONTINUE
-140   CONTINUE
-      DO 150 INDEO=0,MXEO
-        DO 151 IV=MVSTA,NVERT
-          DO 152 LFTSYM=1,NSYM
+          END DO
+        END DO
+      END DO
+      DO INDEO=0,MXEO
+        DO IV=MVSTA,NVERT
+          DO LFTSYM=1,NSYM
             NRL(LFTSYM,IV,INDEO)=0
-152       CONTINUE
-151     CONTINUE
-150   CONTINUE
+          END DO
+        END DO
+      END DO
       NRL(1,NVERT,0)=1
       DO 201 IVLT=NVERT-1,MVSTA,-1
         LEV=IDRT(IVLT,LTAB)
@@ -174,53 +171,53 @@ C THIS IS AN UPPER WALK.
 202   CONTINUE
 201   CONTINUE
       MXDWN=0
-      DO 240 MV=1,NMIDV
+      DO MV=1,NMIDV
         IVLT=MV+MVSTA-1
-        DO 241 LFTSYM=1,NSYM
+        DO LFTSYM=1,NSYM
           NOW(2,LFTSYM,MV)=NRL(LFTSYM,IVLT,0)
           MXDWN=MAX(MXDWN,NOW(2,LFTSYM,MV))
-          DO 242 INDEO=1,MXEO
+          DO INDEO=1,MXEO
             N=NRL(LFTSYM,IVLT,INDEO)
             IF(N.NE.0) NOCP(INDEO,LFTSYM,MV)=N
-242       CONTINUE
-241     CONTINUE
-240   CONTINUE
+          END DO
+        END DO
+      END DO
       NUW=0
-      DO 251 MV=1,NMIDV
-        DO 252 ISYM=1,NSYM
+      DO MV=1,NMIDV
+        DO ISYM=1,NSYM
           IOW(1,ISYM,MV)=NUW*NIPWLK
           NUW=NUW+NOW(1,ISYM,MV)
-252     CONTINUE
-251   CONTINUE
+        END DO
+      END DO
       NWALK=NUW
-      DO 253 MV=1,NMIDV
-        DO 254 ISYM=1,NSYM
+      DO MV=1,NMIDV
+        DO ISYM=1,NSYM
           IOW(2,ISYM,MV)=NWALK*NIPWLK
           NWALK=NWALK+NOW(2,ISYM,MV)
-254   CONTINUE
-253   CONTINUE
+        END DO
+      END DO
       NLW=NWALK-NUW
       NICOUP=0
-      DO 260 INDEO=1,MXEO
-        DO 261 MV=1,NMIDV
-          DO 262 LFTSYM=1,NSYM
+      DO INDEO=1,MXEO
+        DO MV=1,NMIDV
+          DO LFTSYM=1,NSYM
             IOCP(INDEO,LFTSYM,MV)=NICOUP
             NICOUP=NICOUP+NOCP(INDEO,LFTSYM,MV)
-262       CONTINUE
-261     CONTINUE
-260   CONTINUE
-      DO 270 ISYTOT=1,NSYM
+          END DO
+        END DO
+      END DO
+      DO ISYTOT=1,NSYM
         NCSF(ISYTOT)=0
-        DO 271 MV=1,NMIDV
-          DO 272 ISYUP=1,NSYM
+        DO MV=1,NMIDV
+          DO ISYUP=1,NSYM
             ISYDWN=MUL(ISYTOT,ISYUP)
             N=NOW(1,ISYUP,MV)*NOW(2,ISYDWN,MV)
             NOCSF(ISYUP,MV,ISYTOT)=N
             IOCSF(ISYUP,MV,ISYTOT)=NCSF(ISYTOT)
             NCSF(ISYTOT)=NCSF(ISYTOT)+N
-272       CONTINUE
-271     CONTINUE
-270   CONTINUE
+          END DO
+        END DO
+      END DO
 CAR   INSERT FOR US IN SIGMA ROUTINE
 C
       NSGMX=1
@@ -275,7 +272,7 @@ C
 550   CONTINUE
       NSUMTOT=2*NSGMX+NT1MX+NT2MX+NT3MX+NT4MX+NT5MX
 C
-      IF (IPGLOB.GT.INSANE)
+      IF (IPGLOB.GT.5)
      *WRITE(6,555)MXUP,MXDWN,
      *            NSGMX,NSGMX,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX,NSUMTOT
 555   FORMAT(/,' MAXIMUM NUMBER OF WALKS',
@@ -291,7 +288,7 @@ C
      *       /,' TOTAL          ',I7)
 C
 CAR   END OF INSERT
-      IF (IPGLOB.GE.INSANE) THEN
+      IF (IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' TOTAL NR OF WALKS: UPPER ',NUW
         WRITE(6,*)'                    LOWER ',NLW
@@ -304,7 +301,7 @@ CAR   END OF INSERT
         WRITE(6,'(8(1X,I8))')(NCSF(IS),IS=1,NSYM)
         WRITE(6,*)
       END IF
-      IF (IPGLOB.GE.INSANE) THEN
+      IF (IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
         WRITE(6,*)' BY MIDVERTEX AND SYMMETRY.'
@@ -368,5 +365,4 @@ C Put sizes in structures iCIStruct, iXStruct:
       IXSTRUCT(13)=NT4MX
       IXSTRUCT(14)=NT5MX
 
-      RETURN
       END

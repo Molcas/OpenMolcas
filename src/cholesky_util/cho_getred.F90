@@ -14,6 +14,9 @@ subroutine CHO_GETRED(IPASS,ILOC,LRSH)
 ! Purpose: read index arrays for current reduced set (reduced set IPASS).
 
 use Cholesky, only: IndRed, IndRSh, InfRed, iSP2F, LuRed, LuPri, nnBstRSh, nnShl, nSym
+#ifdef _DEBUGPRINT_
+use Cholesky, only: nnBstRT
+#endif
 use Definitions, only: iwp
 
 implicit none
@@ -33,7 +36,7 @@ if (size(nnBstRSh,2) /= NNSHL) call CHO_QUIT('NNSHL error in '//SECNAM,104)
 
 if (size(IndRed,1) /= NNBSTRT(1)) call CHO_QUIT('NNBSTRT(1) error in '//SECNAM,104)
 
-if ((IPASS < 1) .or. (IPASS > size(InfRed)) call CHO_QUIT('IPASS error in '//SECNAM,104)
+if ((IPASS < 1) .or. (IPASS > size(InfRed))) call CHO_QUIT('IPASS error in '//SECNAM,104)
 #endif
 
 ! Get first address.

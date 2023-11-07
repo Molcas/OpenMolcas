@@ -49,7 +49,7 @@ C
       External LDF_nBas_Atom, LDF_nBasAux_Atom
       External LDF_nShell_Atom, LDF_lShell_Atom
       External LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer  LDF_nAtom
       External LDF_nAtom
 #endif
@@ -84,7 +84,7 @@ C
       Imax(i,j)=Work(iWork(ip_IDiag+2*(AB-1)+1)-1+nShellA*(j-1)+i)
       Gmax(i)=Work(iWork(ip_GDiag_1C+2*(C-1)+1)-1+i)
 
-#if defined (_USE_APD_INTEGRALS_)
+#ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
          Call WarningMessage(0,SecNam//': Using APD integrals!')
          Call LDF_APD3IndexIntegrals_1(AB,C,l_xInt_,xInt)
@@ -92,7 +92,7 @@ C
       End If
 #endif
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (AB.lt.1 .or. AB.gt.NumberOfAtomPairs) Then
          Call WarningMessage(2,SecNam//': AB out of bounds!')
          Call LDF_Quit(1)
@@ -159,7 +159,7 @@ C
             n=n+nBasSh(iShell)*nBasSh(jShell)
          End Do
       End Do
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (n.ne.nRow) Then
          Call WarningMessage(2,SecNam//': row dimension problem!')
          Call LDF_Quit(1)
@@ -184,7 +184,7 @@ C
          kShell=iWork(ipC+kS)
          n=n+nBasSh(kShell)
       End Do
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (n.ne.M) Then
          Call WarningMessage(2,SecNam//': column dimension problem!')
          Call LDF_Quit(1)
@@ -338,7 +338,7 @@ C
       i2CList(i,j)=iWork(ip_2CList-1+l_2CList_1*(j-1)+i)
       Gmax(i)=Work(iWork(ip_GDiag_2C+2*(CD-1)+1)-1+i)
 
-#if defined (_USE_APD_INTEGRALS_)
+#ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
          Call WarningMessage(0,SecNam//': Using APD integrals!')
          Call LDF_APD3IndexIntegrals_2(AB,CD,l_xInt_,xInt)
@@ -346,7 +346,7 @@ C
       End If
 #endif
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (AB.lt.1 .or. AB.gt.NumberOfAtomPairs) Then
          Call WarningMessage(2,SecNam//': AB out of bounds!')
          Call LDF_Quit(1)
@@ -414,7 +414,7 @@ C
             n=n+nBasSh(iShell)*nBasSh(jShell)
          End Do
       End Do
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (n.ne.nRow_uvJ) Then
          Call WarningMessage(2,SecNam//': row dimension problem!')
          Call LDF_Quit(1)
@@ -534,7 +534,7 @@ C
       Integer kS, lS
       Integer kShell, lShell
       Integer ipk, ipl
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Integer M
 #endif
 
@@ -545,7 +545,7 @@ C
       Imax(i,j)=Work(iWork(ip_IDiag+2*(iAtomPair-1)+1)-1
      &                             +nShell_kAtom*(j-1)+i)
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (iAtomPair.lt.1 .or. iAtomPair.gt.NumberOfAtomPairs) Then
          Call WarningMessage(2,SecNam//': iAtomPair out of bounds!')
          Call LDF_Quit(1)

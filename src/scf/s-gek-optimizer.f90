@@ -68,7 +68,7 @@ Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
 Integer :: nWindow=8
-#if defined(_KRYLOV_)
+#ifdef _KRYLOV_
 Integer :: nKrylov=20
 #endif
 Logical :: Converged=.FALSE., Terminate=.False.
@@ -125,7 +125,7 @@ Call RecPrt('g',' ',g,mOV,nDIIS)
 Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
 
-#if defined(_FULL_SPACE_)
+#ifdef _FULL_SPACE_
 
 ! Set up the full space
 nExplicit = mOV
@@ -135,7 +135,7 @@ Do k = 1, nExplicit
    e_diis(k,k)=One
 End Do
 
-#elif defined(_KRYLOV_)
+#elif defined (_KRYLOV_)
 
 ! Set up unit vectors corresponding to a Krylov subspace for Adx=g
 nExplicit = Min(nKrylov,mOV)
@@ -157,7 +157,7 @@ end do
 Call mma_deallocate(Aux_b)
 Call mma_deallocate(Aux_a)
 
-#elif defined(_HYBRID_)
+#elif defined (_HYBRID_)
 
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
 nExplicit = Min(2 * (nDIIS-1) + nKrylov,mOV)
@@ -202,7 +202,7 @@ end do
 Call mma_deallocate(Aux_b)
 Call mma_deallocate(Aux_a)
 
-#elif defined(_HYBRID2_)
+#elif defined (_HYBRID2_)
 
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
 nExplicit = Min(2 * nDIIS - 1 + nKrylov,mOV)
@@ -251,7 +251,7 @@ end do
 Call mma_deallocate(Aux_b)
 Call mma_deallocate(Aux_a)
 
-#elif defined(_HYBRID3_)
+#elif defined (_HYBRID3_)
 
 !nExplicit = 2 * (nDIIS - 1) + mOV + 2
 nExplicit = 2 * (nDIIS - 1) + 2
@@ -321,9 +321,9 @@ End Do
 mDIIS=j
 #ifdef _DEBUGPRINT_
 Write (6,*) '      mOV:',mOV
-#if defined(_HYBRID_)
+#ifdef _HYBRID_
 Write (6,*) 'nExplicit:',nExplicit,'=', 2*(nDIIS-1), '+',nKrylov
-#elif defined(_HYBRID2_)
+#elif defined (_HYBRID2_)
 Write (6,*) 'nExplicit:',nExplicit,'=', 2*nDIIS-1, '+',nKrylov
 #else
 Write (6,*) 'nExplicit:',nExplicit

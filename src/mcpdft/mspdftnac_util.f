@@ -24,7 +24,6 @@
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "mspdft.fh"
 
       real(kind=wp), dimension(lroots**2), intent(in) :: si_pdft
       INTEGER ij,iS,jRoot,iBas,jBas

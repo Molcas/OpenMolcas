@@ -11,7 +11,7 @@
 
       SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
       USE Fock_util_global, only: Fake_CMO2
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: nProcs
 #endif
       use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
@@ -194,7 +194,7 @@ C which is the RF contribution to the nuclear repulsion
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO
          If ( IfTest ) Write (6,*) '      FAKE_CMO2=',FAKE_CMO2
 
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
          If (nProcs.gt.1) Then
              scx=1.0/dble(nProcs)
 C --- to avoid double counting when using gadsum

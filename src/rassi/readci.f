@@ -9,22 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE READCI(ISTATE,ISGS,ICIS,NCI,CI)
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
+      use Struct, only: nSGSize, nCISize
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
 #endif
       IMPLICIT NONE
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='READCI')
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
 #include "jobin.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
@@ -89,7 +87,7 @@
       End If
 #endif
 
-      IF(IPGLOB.gt.SILENT .and. PRCI) THEN
+      IF(IPGLOB.gt.0 .and. PRCI) THEN
         WRITE(6,*)' READCI called for state ',ISTATE
         WRITE(6,*)' This is on JobIph nr.',JOB
         WRITE(6,*)' JobIph file name:',JBNAME(JOB)
@@ -101,5 +99,4 @@
         CALL PRWF(ISGS,ICIS,LSYM,CI,CITHR)
       END IF
 
-      RETURN
       END

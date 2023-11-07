@@ -26,6 +26,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: ISHLAB
 integer(kind=iwp) :: IADR, ILOC, IOPT, IRC, ISCD, ISHLA, ISHLB, ISHLC, ISHLCD, ISHLD, ISYM, KOFF, LCOL, LINT, LTOT, NAB(8)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: MEM_END, MEM_START, LEAK
+#endif
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
 logical(kind=iwp) :: DOINTS
 real(kind=wp), allocatable :: IntCol(:)

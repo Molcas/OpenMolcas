@@ -14,6 +14,10 @@ subroutine G_Nrm(nInter,GNrm,Iter,Grad,mIntEff)
 use Slapaf_Info, only: Degen, Gx
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter, Iter
@@ -34,7 +38,6 @@ do i=1,size(Gx,2)
   end do
 end do
 Fabs = sqrt(Fabs)
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(u6,42) Fabs
 42 format(/,' Norm of the force vector',F20.15)

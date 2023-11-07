@@ -34,6 +34,7 @@ use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
+use Disp, only: Direct, IndDsp
 
 implicit none
 #include "grd_interface.fh"
@@ -45,9 +46,7 @@ logical(kind=iwp) :: EQ, JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: TF
 external :: TNAI1, Fake, Cff2D
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 
 #include "macros.fh"
 unused_var(ZInv)

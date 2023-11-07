@@ -18,11 +18,9 @@
 *
       SUBROUTINE HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,
      &                 ESO,XYZCHR,BOLTZ_K)
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='HFCTS')
       parameter (THRSH=1.0D-10)
       parameter (ZERO=0.0D0)
 #include "rassi.fh"
@@ -945,7 +943,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
           GOTO 1780
       ENDIF
 
-      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.VERBOSE)) THEN
+      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
        WRITE(6,'(a6,9(5x,a2,5x))')
@@ -981,7 +979,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        END DO
       END DO
 
-      !IF(IPGLOB.GT.VERBOSE) THEN
+      !IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
        WRITE(6,'(6x,3(6x,a2,4x))')
@@ -1476,7 +1474,7 @@ c
           GOTO 2780
       ENDIF
 
-      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.VERBOSE)) THEN
+      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
        WRITE(6,'(a6,9(5x,a2,5x))')
@@ -1512,7 +1510,7 @@ c
        END DO
       END DO
 
-      !IF(IPGLOB.GT.VERBOSE) THEN
+      !IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
        WRITE(6,'(6x,3(6x,a2,4x))')
@@ -1947,7 +1945,7 @@ c
           GOTO 3780
       ENDIF
 
-      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.VERBOSE)) THEN
+      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
        WRITE(6,'(a6,9(5x,a2,5x))')
@@ -1983,7 +1981,7 @@ c
        END DO
       END DO
 
-      !IF(IPGLOB.GT.VERBOSE) THEN
+      !IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
        WRITE(6,'(6x,3(6x,a2,4x))')
@@ -2436,7 +2434,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
           GOTO 4780
       ENDIF
 
-      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.VERBOSE)) THEN
+      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
        WRITE(6,'(a6,9(5x,a2,5x))')
@@ -2470,7 +2468,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
        END DO
       END DO
 
-      !IF(IPGLOB.GT.VERBOSE) THEN
+      !IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
        WRITE(6,'(6x,3(6x,a2,4x))')
@@ -2841,7 +2839,7 @@ c
       ENDIF
 
 
-      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.VERBOSE)) THEN
+      IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
        WRITE(6,'(a6,9(5x,a2,5x))')
@@ -2881,7 +2879,7 @@ c
        END DO
       END DO
 
-!      IF(IPGLOB.GT.VERBOSE) THEN
+!      IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
        WRITE(6,'(6x,3(6x,a2,4x))')

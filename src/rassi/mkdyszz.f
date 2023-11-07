@@ -56,6 +56,4 @@ C *** biorth orbitals in ZZ basis
         SYMOFF=(NO1*NB1)+SYMOFF
       END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKDYSZZ

@@ -95,6 +95,10 @@ integer(kind=iwp), allocatable :: ANr(:), BondAtomA(:), BondAtomB(:), center(:),
 real(kind=wp), allocatable :: Allc(:,:), Bonds(:), CM(:), DNAO(:,:), DS(:,:), DS_orig(:,:), DS_tmp(:,:), P(:,:), PInv(:,:), &
                               S(:,:), S_blo(:), S_orig(:), S_tmp(:,:), Scr(:), SingEl(:), SubDNAO(:,:), SubIVal(:), SubVal(:), &
                               SubVec(:,:), Tmp(:), Tripl(:)
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: E
+#endif
 character(len=LenIn4), allocatable :: LblCnt4(:)
 character(len=LenIn), allocatable :: CNAME(:), TLbl(:) !, LblCnt(:)
 character, parameter :: cSign = '-'
@@ -102,7 +106,6 @@ integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: Covrad
 logical(kind=iwp), external :: Reduce_Prt
 
-!define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

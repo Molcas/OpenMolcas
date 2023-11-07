@@ -14,13 +14,12 @@
       NCOL=5
 C     NCOL=NR OF PRINTING COLUMNS.
       NBL=(ND2+NCOL-1)/NCOL
-      DO 20 IBL=1,NBL
+      DO IBL=1,NBL
         JSTA=1+NCOL*(IBL-1)
         JEND=MIN(NCOL*IBL,ND2)
         WRITE(6,'(//,5(8X,I8),/)')(J,J=JSTA,JEND)
-        DO 10 I=1,ND1
+        DO I=1,ND1
           WRITE(6,'(1X,I3,5(1X,G16.9))')I,(XMAT(I,J),J=JSTA,JEND)
-10      CONTINUE
-20    CONTINUE
-      RETURN
-      END
+        END DO
+      END DO
+      END SUBROUTINE WRMAT1

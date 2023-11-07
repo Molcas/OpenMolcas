@@ -33,11 +33,11 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !             Modified for 2-center RI gradients, January '07          *
 !***********************************************************************
 
+use setup
 use Index_Functions, only: nTri_Elem
-use iSD_data, only: iSD
+use iSD_data, only: iSD, nSD
 use pso_stuff, only: A_PT2, nBasA, nBasASQ, nBasT
-use k2_setup, only: Data_k2
-use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
+use k2_arrays, only: Aux, Sew_Scr, Destroy_BraKet
 use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -48,23 +48,21 @@ use RI_glob, only: A, AMP2, CijK, DoCholExch, iMP2prpt, MxChVInShl, nIJR, nKvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
+use Disp, only: ChDisp, l2DI
+use k2_structure, only: k2data
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
-#include "nsd.fh"
-#include "setup.fh"
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ij, ijkla, &
-                     ijMax, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipxA, ipXB, ipXD, &
-                     ipxG, ipZI, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, &
+                     ijMax, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, &
+                     iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, &
                      jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, &
                      kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, LUAPT2, &
                      mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, &
@@ -73,13 +71,14 @@ real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWa
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
 #endif
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FreeK2, Indexation, JfGrad(3,4), No_Batch, Shijij, Verbose
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), No_Batch, Shijij
 character(len=72) :: frmt
 character(len=8) :: Method_chk
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: Shij(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
 logical(kind=iwp), external :: Rsv_Tsk
+integer(kind=iwp) :: ik2, jk2
 
 !                                                                      *
 !***********************************************************************
@@ -394,8 +393,11 @@ do while (Rsv_Tsk(id,jlS))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl,AeqB, &
-                  CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+  call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+                  k2ij,ik2,nDCRR, &
+                  k2kl,jk2,nDCRS, &
+                  mdci,mdcj,mdck,mdcl,AeqB, &
+                  CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -448,12 +450,13 @@ do while (Rsv_Tsk(id,jlS))
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
-          call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR,Data_k2(k2kl), &
-                       ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+          call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+                       k2Data(:,ik2), k2Data(:,jk2), &
+                       nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                        Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
-                       Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,Mem_DBLE(ipZeta), &
-                       Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,Mem_DBLE(ipxA), &
-                       Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2), &
+                       Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
+                       nZeta,nEta, &
+                       Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2), &
                        Mem2,Aux,nAux,Shijij)
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU2,TwoelWall2)
@@ -467,6 +470,8 @@ do while (Rsv_Tsk(id,jlS))
 
     end do
   end do
+
+  Call Destroy_Braket()
 
 end do
 ! End of big task loop
@@ -486,9 +491,7 @@ if (allocated(TMax2)) call mma_deallocate(TMax2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Verbose = .false.
-FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

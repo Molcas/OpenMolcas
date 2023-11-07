@@ -31,6 +31,7 @@ use Center_Info, only: dc
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
+use Disp, only: Direct, IndDsp
 
 implicit none
 #include "grd_interface.fh"
@@ -41,9 +42,7 @@ real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 logical(kind=iwp) :: ABeq(3), EQ, JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: TF
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 
 #include "macros.fh"
 unused_var(ZInv)

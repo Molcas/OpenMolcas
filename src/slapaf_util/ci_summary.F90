@@ -127,7 +127,7 @@ write(Lu,'(3X,A)') '-------------------------------------'
 write(Lu,*)
 write(Lu,*) 'See: J. Chem. Theory Comput. 12 (2016) 3636-3653'
 write(Lu,*)
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('Gradient difference','',Gx0(1,1,iter),n,1)
 call RecPrt('Coupling vector','',NAC(1,1,iter),n,1)

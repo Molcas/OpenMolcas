@@ -27,6 +27,7 @@ integer(kind=iwp) :: Active = 0, iC, iCar, iChAtom, iChCar(3), iCo, iComp, iCoSe
                      nStab
 real(kind=wp) :: Vec, XR, XY
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
 logical(kind=iwp) :: Temp
 #endif
 real(kind=wp), allocatable :: Coor(:,:)
@@ -35,7 +36,7 @@ integer(kind=iwp), external :: iChxyz, iPrmt, NrOpr
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('Vectors',' ',Vectors,1,nVectors)
 #endif

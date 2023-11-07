@@ -1,39 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2000, Gunnar Karlstrom                                 *
-*               2000, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2000, Gunnar Karlstrom                                 *
+!               2000, Roland Lindh                                     *
+!***********************************************************************
       Real*8 Function Anal_Gitt(cordsi,latato)
-************************************************************************
-*                                                                      *
-*     Object:                                                          *
-*                                                                      *
-*     Authors: G. Karlstroem                                           *
-*              Dept. of Theor. Chem., Univ. of Lund, Sweden.           *
-*                                                                      *
-*              and                                                     *
-*                                                                      *
-*              R. Lindh                                                *
-*              Dept. of Chem. Phys., Univ. of Lund, Sweden.            *
-*                                                                      *
-*              March 2000                                              *
-************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+!***********************************************************************
+!                                                                      *
+!     Object:                                                          *
+!                                                                      *
+!     Authors: G. Karlstroem                                           *
+!              Dept. of Theor. Chem., Univ. of Lund, Sweden.           *
+!                                                                      *
+!              and                                                     *
+!                                                                      *
+!              R. Lindh                                                *
+!              Dept. of Chem. Phys., Univ. of Lund, Sweden.            *
+!                                                                      *
+!              March 2000                                              *
+!***********************************************************************
+      use Constants, only: Zero, One
+      Implicit None
+      Integer latato
       Real*8 cordsi(3,latato)
-*
+
+      Real*8 gAtom
+      Integer i, j
+      Real*8 faktor, x1, y1, z1, r2
+!
       Anal_Gitt=Zero
-*
-*.....analyze the lattice
-*
+!
+!.....analyze the lattice
+!
       gatom=Zero
       Do i=1,latato
          faktor=One
@@ -99,6 +104,6 @@
          gatom=gatom+One/faktor
       End Do
       Anal_Gitt=gatom
-*
+!
       Return
       End

@@ -47,11 +47,12 @@ integer(kind=iwp) :: i, iBatch, iDen, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, 
 real(kind=wp) :: Fact, FactCI, FactXI, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCR3, TCR4, TCX1, TCX2, texch(2), TOTCPU, TOTCPU1, &
                  TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, TWR1, TWR2, TWR3, TWR4, TWX1, TWX2
 logical(kind=iwp) :: add, DoRead
-#ifdef _DEBUGPRINT_
-logical(kind=iwp) :: Debug
-#endif
 character(len=50) :: CFmt
 type(SBA_Type) :: Laq(2)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISYM
+logical(kind=iwp) :: Debug
+#endif
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_FSCF'
 

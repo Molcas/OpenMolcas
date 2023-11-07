@@ -27,6 +27,9 @@ logical(kind=iwp) :: Process
 integer(kind=iwp) :: i, iR, k, l_Max, n_High
 real(kind=wp) :: a, Alpha_Max, Alpha_Min, C1, C2, Correction, D_m, Dr, Gmma, ggg, h, h_, ln_rn, r1, R_D_0, Relative_Max_Error, rk, &
                  rn
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: h0
+#endif
 real(kind=wp), external :: G
 
 ! Last point at infinity is eliminated

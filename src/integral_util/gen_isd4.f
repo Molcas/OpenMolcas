@@ -1,17 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-      Implicit Real*8 (a-h,o-z)
-      Integer iSD(0:nSD,1024), iSD4(0:nSD,4), jQuad(4)
-*
+      Implicit None
+      Integer iS, jS, kS, lS, nSD
+      Integer iSD(0:nSD,1024), iSD4(0:nSD,4)
+
+      Integer jQuad(4), i, j, iSkal
+!
       jQuad(1)=iS
       jQuad(2)=jS
       jQuad(3)=kS
@@ -22,6 +25,6 @@
             iSD4(j,i)=iSD(j,iSkal)
          End Do
       End Do
-*
+!
       Return
-      End
+      End Subroutine Gen_iSD4

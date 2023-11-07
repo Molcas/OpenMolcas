@@ -35,6 +35,10 @@ use Slapaf_Info, only: BMx, Curvilinear, Degen, dqInt, Energy, FindTS, GNrm, GNr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Five, Ten, Half
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: kIter, nWndw, mIter, iOpt_RS, Iter
@@ -73,10 +77,8 @@ nsAtom = size(Degen,2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-Lu = u6
-write(Lu,*) 'Update_inner:iOpt_RS,Beta,Beta_Disp=',iOpt_RS,Beta,Beta_Disp
+write(u6,*) 'Update_inner:iOpt_RS,Beta,Beta_Disp=',iOpt_RS,Beta,Beta_Disp
 call RecPrt('Update_inner: qInt',' ',qInt,nQQ,kIter)
 call RecPrt('Update_inner: Shift',' ',Shift,nQQ,kIter-1)
 call RecPrt('Update_inner: GNrm',' ',GNrm,kIter,1)
@@ -115,10 +117,10 @@ call Get_dArray('Hss_Q',Hessian,nQQ**2)
 ! optimization towards a minimum or a TS.
 
 #ifdef _DEBUGPRINT_
-write(Lu,*)
-write(Lu,*)
-write(Lu,*) ' *** Updating the molecular Hessian ***'
-write(Lu,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) ' *** Updating the molecular Hessian ***'
+write(u6,*)
 jPrint = 99
 #else
 jPrint = 5
@@ -381,7 +383,7 @@ else
 
     dRdq(:,:,lIter) = Zero
 #   ifdef _DEBUGPRINT_
-    write(Lu,*) 'Update_inner: lIter=',lIter
+    write(u6,*) 'Update_inner: lIter=',lIter
     call RecPrt('Update_inner: dQ/dx(BMx)',' ',BMx,n1,nQQ)
     call RecPrt('Update_inner: dC/dx(BM)',' ',BM,n1,nLambda)
 #   endif
@@ -465,7 +467,7 @@ else
   QC(:,:,:) = Zero
   if (Curvilinear) call dBMult(dRdq(:,:,kIter),QC,nQQ,nDimBC,nLambda)
 # ifdef _DEBUGPRINT_
-  write(Lu,*) 'Update_inner: kIter=',kIter
+  write(u6,*) 'Update_inner: kIter=',kIter
   call RecPrt('dRdq(:,1,kIter)',' ',dRdq(:,1,kIter),nQQ,1)
   do iLambda=1,nLambda
     write(u6,*) 'Update_inner: iLambda=',iLambda
@@ -610,12 +612,12 @@ else
   call mma_deallocate(Tmp)
 
 # ifdef _DEBUGPRINT_
-  write(Lu,*)
-  write(Lu,*) '********************************************'
-  write(Lu,*) '* Lagrange multipliers for the constraints *'
-  write(Lu,*) '********************************************'
-  write(Lu,'(1X,A,2X,ES13.6)') (Lbl(nQQ+iInt),-One*Lambda(iInt,mIter),iInt=1,nLambda)
-  write(Lu,*)
+  write(u6,*)
+  write(u6,*) '********************************************'
+  write(u6,*) '* Lagrange multipliers for the constraints *'
+  write(u6,*) '********************************************'
+  write(u6,'(1X,A,2X,ES13.6)') (Lbl(nQQ+iInt),-One*Lambda(iInt,mIter),iInt=1,nLambda)
+  write(u6,*)
 # endif
 
   call mma_deallocate(d2L)

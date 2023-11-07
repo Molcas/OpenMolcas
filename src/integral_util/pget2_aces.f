@@ -1,84 +1,102 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992,2000, Roland Lindh                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992,2000, Roland Lindh                                *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,
      &                      Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,
      &                      Gamma,nGamma,iSO2cI,nSOs,
      &                      iSO2Sh,PMax)
-************************************************************************
-*                                                                      *
-*  Object: to assemble the 2nd order density matrix of a SCF wave      *
-*          function from the 1st order density matrix.                 *
-*                                                                      *
-*          The indices has been scrambled before calling this routine. *
-*          Hence we must take special care in order to regain the can- *
-*          onical order.                                               *
-*                                                                      *
-*          DSO: HF 1st order density                                   *
-*          DSO_Var: 1st order density of correlated wf.                *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, SWEDEN.                                         *
-*             January '92.                                             *
-*                                                                      *
-*     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!  Object: to assemble the 2nd order density matrix of a SCF wave      *
+!          function from the 1st order density matrix.                 *
+!                                                                      *
+!          The indices has been scrambled before calling this routine. *
+!          Hence we must take special care in order to regain the can- *
+!          onical order.                                               *
+!                                                                      *
+!          DSO: HF 1st order density                                   *
+!          DSO_Var: 1st order density of correlated wf.                *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, SWEDEN.                                         *
+!             January '92.                                             *
+!                                                                      *
+!     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
+!***********************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO, iOffSO
-      use pso_stuff
+      use pso_stuff, only: Gamma_MRCISD
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "print.fh"
-************ columbus interface ****************************************
-#include "columbus_gamma.fh"
-      parameter (exfac=1d0)
+      use Constants, only: Zero, Quart, One, Four
+#ifdef _DEBUGPRINT_
+      use pso_stuff, only: iD0Lbl, D0, DVar
+#endif
+      Implicit None
+      Real*8, parameter :: exfac=One
+      Integer nijkl, nPSO, nDSO, nGamma, nSOs
       Real*8 PSO(nijkl,nPSO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma),  DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
-*     Local Array
+!     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement Function
-*
-      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
+
+      Integer i, j, iTri
+      Real*8 PMax, T14, Temp
+      Integer i1, i2, i3, i4, MemSO2, niSym, njSym, nkSym, nlSym, lOper,
+     &        iS, jS, kS, lS, j1, j2, j3, j4, j12, j123,
+     &        iSO_R, jSO_R, kSO_R, lSO_R, iSO_A, jSO_A, kSO_A, lSO_A,
+     &        iSOi, jSOj, kSOk, lSOl, iSOi_A, jSOj_A, kSOk_A, lSOl_A,
+     &        iAOi, jAOj, kAOk, lAOl, iBas, jBas, kBas, lBas, mijkl,
+     &        iShell_A, iShell_B, iShell_C, iShell_D, iShell_AB,
+     &        iShell_CD,
+     &        Index_A, Index_B, Index_C, Index_D, Index_AB, Index_CD,
+     &        Index_ABCD,
+     &        nDim_A, nDim_B, nDim_C, nDim_D, nDim_AB, nDim_CD,
+     &        Indi, Indj, Indk, Indl, Indij, Indkl, Indik, Indjl,
+     &        Indil, Indjk,
+     &        iPntij, iPntkl, iPntik, iPntil, iPntjl, iPntjk
+      Integer, external:: iPntSO
 #ifdef _DEBUGPRINT_
-      iRout = 39
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Write (6,*) 'nSOs=',nSOs
-         Write (6,*) 'iSO2Sh=',iSO2Sh
-         iComp = 1
-         Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
-         Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,1,DVar)
-      End If
+      Integer iComp
+#endif
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement Function
+!
+      iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'nSOs=',nSOs
+      Write (6,*) 'iSO2Sh=',iSO2Sh
+      iComp = 1
+      Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
+      Call PrMtrx(' In PGet2:DSO_Var ',[iD0Lbl],iComp,1,DVar)
 #endif
       lOper = 1
       t14 = Quart * ExFac
       PMax=Zero
-*
-*-----Quadruple loop over elements of the basis functions angular
-*     description.
-*     Observe that we will walk through the memory in AOInt in a
-*     sequential way.
-*
+!
+!-----Quadruple loop over elements of the basis functions angular
+!     description.
+!     Observe that we will walk through the memory in AOInt in a
+!     sequential way.
+!
       MemSO2 = 0
       Do 100 i1 = 1, iCmp(1)
          niSym = 0
@@ -112,26 +130,26 @@
                         nlSym = nlSym + 1
                      End If
 401               Continue
-*
-*------Loop over irreps which are spanned by the basis function.
-*
+!
+!------Loop over irreps which are spanned by the basis function.
+!
        Do 110 is = 0, niSym-1
           j1 = iSym(is)
-*
+!
           Do 210 js = 0, njSym-1
              j2 = jSym(js)
              j12 = iEor(j1,j2)
-*
+!
              Do 310 ks = 0, nkSym-1
                 j3 = kSym(ks)
                 j123 = iEor(j12,j3)
                 Do 410 ls = 0, nlSym-1
                    j4 = lSym(ls)
                    If (j123.ne.j4) Go To 410
-*
+!
                 MemSO2 = MemSO2 + 1
-*
-*               Unfold the way the eight indices have been reordered.
+!
+!               Unfold the way the eight indices have been reordered.
                 iSO_r = iAOtSO(iAO(1)+i1,j1)+iAOst(1)
                 jSO_r = iAOtSO(iAO(2)+i2,j2)+iAOst(2)
                 kSO_r = iAOtSO(iAO(3)+i3,j3)+iAOst(3)
@@ -140,7 +158,7 @@
                 jSO_a = jSO_r+iOffSO(j2)
                 kSO_a = kSO_r+iOffSO(j3)
                 lSO_a = lSO_r+iOffSO(j4)
-*
+!
                 mijkl = 0
                 Do 120 lAOl = 0, lBas-1
                    lSOl   = lSO_r + lAOl
@@ -192,16 +210,16 @@
                                Index_ABCD=(Index_AB-1)*nDim_CD+Index_CD
                             End If
                             mijkl = mijkl + 1
-*
-************ columbus interface ****************************************
-*do not reconstruct the two-particle density from the one-particle
-*density or partial two-particle densities but simply read them from
-*file
+!
+!*********** columbus interface ****************************************
+!do not reconstruct the two-particle density from the one-particle
+!density or partial two-particle densities but simply read them from
+!file
 
                             if (gamma_mrcisd) goto 95
-*---------------------------Contribution D(ij)*D(kl) to P(ijkl)
+!---------------------------Contribution D(ij)*D(kl) to P(ijkl)
                             If (j1.eq.j2) Then
-*------------------------------j3.eq.j4 also
+!------------------------------j3.eq.j4 also
                                Indi=Max(iSOi,jSOj)
                                Indj=iSOi+jSOj-Indi
                                Indk=Max(kSOk,lSOl)
@@ -216,10 +234,10 @@
                             Else
                                temp = Zero
                             End If
-*
-*---------------------------Contribution -1/4*D(ik)*D(jl) to P(ijkl)
+!
+!---------------------------Contribution -1/4*D(ik)*D(jl) to P(ijkl)
                             If (j1.eq.j3) Then
-*------------------------------j2.eq.j4 also
+!------------------------------j2.eq.j4 also
                                Indi=Max(iSOi,kSOk)
                                Indk=iSOi+kSOk-Indi
                                Indj=Max(jSOj,lSOl)
@@ -237,10 +255,10 @@
      &                        +DSSO(Indik)*(DSSO_Var(Indjl)-DSSO(Indjl))
      &                                       )
                             End If
-*
-*---------------------------Contribution -1/4*D(il)*D(jk) to P(ijkl)
+!
+!---------------------------Contribution -1/4*D(il)*D(jk) to P(ijkl)
                             If (j1.eq.j4) Then
-*------------------------------j2.eq.j3 also
+!------------------------------j2.eq.j3 also
                                Indi=Max(iSOi,lSOl)
                                Indl=iSOi+lSOl-Indi
                                Indj=Max(jSOj,kSOk)
@@ -258,34 +276,34 @@
      &                        +DSSO(Indil)*(DSSO_Var(Indjk)-DSSO(Indjk))
      &                                       )
                             End If
-*
-*                           Write (*,*) 'iSO:',
-*    &                                  iSOi_a,jSOj_a,kSOk_a,lSOl_a
-*                           Write (*,*) 'iShell:',iShell_A,iShell_B,
-*    &                                            iShell_C,iShell_D
-*                           Write (*,*) 'nDim:',nDim_A,nDim_B,
-*    &                                          nDim_C,nDim_D
-*                           Write (*,*)  temp , Gamma(Index_ABCD),
-*    &                                   Index_ABCD
+!
+!                           Write (*,*) 'iSO:',
+!    &                                  iSOi_a,jSOj_a,kSOk_a,lSOl_a
+!                           Write (*,*) 'iShell:',iShell_A,iShell_B,
+!    &                                            iShell_C,iShell_D
+!                           Write (*,*) 'nDim:',nDim_A,nDim_B,
+!    &                                          nDim_C,nDim_D
+!                           Write (*,*)  temp , Gamma(Index_ABCD),
+!    &                                   Index_ABCD
                             temp = temp + Four*Gamma(Index_ABCD)
  95                         If(gamma_mrcisd) Then
                                temp=Gamma(Index_ABCD)
                             End If
-*
+!
                             PMax=Max(PMax,Abs(Temp))
                             PSO(mijkl,MemSO2) =  temp
-*
+!
  420                     Continue
  320                  Continue
  220               Continue
  120            Continue
-*
+!
  410            Continue
  310         Continue
  210      Continue
  110   Continue
-*
-*
+!
+!
  400           Continue
  300        Continue
  200     Continue
@@ -295,13 +313,11 @@
          Write (6,*) nPSO, MemSO2
          Call Abend()
       End If
-*
+!
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
-      End If
+      Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
 #endif
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)
       End

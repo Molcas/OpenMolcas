@@ -15,6 +15,10 @@ use Slapaf_Info, only: mRowH
 use NewH_mod, only: DiagMM, UpdMask
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nWndw, nIter, nInter, iOptH
@@ -23,7 +27,6 @@ real(kind=wp), intent(in) :: dq(nInter,nIter), g(nInter,nIter+1)
 integer(kind=iwp), intent(inout) :: IterHess
 integer(kind=iwp) :: i, iSt, lIter
 logical(kind=iwp) :: DoMask, Found
-!#define _DEBUGPRINT_
 
 !                                                                      *
 !***********************************************************************
@@ -38,20 +41,19 @@ else
 end if
 if (allocated(mRowH)) iSt = max(iSt,size(mRowH)+2)
 #ifdef _DEBUGPRINT_
-Lu = u6
-write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
+write(u6,*) 'DrvUpH: iSt,kIter=',iSt,nIter
 call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (.not. btest(iOptH,3)) then
-  write(Lu,*)
+  write(u6,*)
   if (nIter < iSt) then
-    write(Lu,*) 'No update of Hessian on the first iteration'
+    write(u6,*) 'No update of Hessian on the first iteration'
   else
-    write(Lu,'(A,30I3)') 'Hessian update from points:',(lIter,lIter=iSt-1,nIter)
+    write(u6,'(A,30I3)') 'Hessian update from points:',(lIter,lIter=iSt-1,nIter)
   end if
-  write(Lu,*)
+  write(u6,*)
 end if
 #endif
 !                                                                      *
@@ -80,7 +82,7 @@ call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
 #endif
 do lIter=iSt,nIter
 # ifdef _DEBUGPRINT_
-  write(Lu,*) 'DrvUpH: Call NewH, lIter=',lIter
+  write(u6,*) 'DrvUpH: Call NewH, lIter=',lIter
 # endif
   call NewH(nInter,lIter,dq,g,H,iOptH,nIter)
 end do

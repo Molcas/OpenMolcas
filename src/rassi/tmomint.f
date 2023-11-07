@@ -44,7 +44,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "wldata.fh"
-#include "property_label.fh"
 #include "oneswi.fh"
 #include "warnings.h"
       Character*8 Label

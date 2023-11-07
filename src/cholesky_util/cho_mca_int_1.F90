@@ -26,7 +26,6 @@ implicit none
 integer(kind=iwp), intent(in) :: IJ, KL, LINT
 real(kind=wp), intent(inout) :: XINT(LINT)
 logical(kind=iwp), intent(in) :: LOCPRT
-#include "itmax.fh"
 integer(kind=iwp) :: I, II, IIJJ, J, JJ, K, KK, KKLL, KOFF, L, LL, NUMI, NUMIJ, NUMJ, NUMK, NUML
 character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1'
 external :: Integral_WrOut_Cho

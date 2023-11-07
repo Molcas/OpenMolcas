@@ -45,7 +45,7 @@
 !---- Define local variables
       Real*8 Eline(MxOptm,2),Equad(MxOptm**2,2),DD(MxOptm**2,2)
       Integer Ind(MxOptm)
-!define _NEW_CODE_
+!#define _NEW_CODE_
 #ifdef _NEW_CODE_
       Logical Ignore
 #endif

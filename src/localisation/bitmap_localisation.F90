@@ -12,7 +12,7 @@
 subroutine BitMap_Localisation(PreFix)
 
 use Localisation_globals, only: AnaNrm, CMO, MOrig, nBas, nFro, nOrb2Loc, nSym
-use Index_arrays, only: iSO2Sh
+use iSD_Data, only: iSO2Sh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -86,8 +86,6 @@ call mma_deallocate(Den)
 call mma_deallocate(CSh)
 call mma_deallocate(DSh)
 call mma_deallocate(XSh)
-DoF = .false.
-DoG = .false.
-call Term_Ints(DoF,DoG)
+call Term_Ints()
 
 end subroutine BitMap_Localisation

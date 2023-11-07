@@ -21,11 +21,17 @@ subroutine ChoLSOSMP2_Energy_Srt(N,w,t,EOcc,EVir,Delete,EMP2,irc)
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Cholesky, only: nSym, NumCho
+#if ! defined (_I8_) || defined (_DEBUGPRINT_)
+use Cholesky, only: LuPri
+#endif
 use ChoMP2, only: DecoMP2, iFirstS, iOcc, iVir, Laplace_BlockSize, Laplace_nGridPoints, LiT1am, LnOcc, LnT1am, lUnit, nBatch, &
                   nMP2Vec, nT1am, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: N
@@ -36,7 +42,7 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: a, blast, bsize, i, iAddr, iBatch, iBlock, ii, iOpt, ip0, ip1, ipi, ipj, ipX, iSym, iSyma, iSymi, iVec, &
                      jBlock, l_Tot, l_X, lenX, Nai, nBlock, nEnrVec(8), nVeci, nVecj, q
 real(kind=wp) :: Eq, lX, tq, wq, xb, xbp, xM, xn
-#if !defined (_I8_) || defined (_DEBUGPRINT_)
+#if ! defined (_I8_) || defined (_DEBUGPRINT_)
 real(kind=wp) :: Byte
 character(len=2) :: Unt
 #endif
@@ -86,10 +92,10 @@ do iSym=1,nSym
   end if
 end do
 l_X = int(lX)
-#if !defined (_I8_) || defined (_DEBUGPRINT_)
+#if ! defined (_I8_) || defined (_DEBUGPRINT_)
 if (l_X < 0) then
-  write(Lupri,'(A,A)') SecNam,': dimension of X matrix is negative!'
-  write(Lupri,'(A,I15)') 'l_X=',l_X
+  write(LuPri,'(A,A)') SecNam,': dimension of X matrix is negative!'
+  write(LuPri,'(A,I15)') 'l_X=',l_X
   if (lX > Zero) then
     write(LuPri,'(A)') 'This seems to be an integer overflow!'
     call Cho_RWord2Byte(lX,Byte,Unt)

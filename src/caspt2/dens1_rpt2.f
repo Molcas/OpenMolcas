@@ -19,7 +19,7 @@
       SUBROUTINE DENS1_RPT2 (CI,SGM1,G1)
       use caspt2_output, only:iPrGlb,debug
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       IMPLICIT NONE
@@ -129,7 +129,7 @@
 *      needed to achieve better load balancing. So it exits from the task
 *      list. It has to do it here since each process gets at least one
 *      task.
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
 #endif
 

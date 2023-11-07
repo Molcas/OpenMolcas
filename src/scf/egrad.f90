@@ -49,21 +49,6 @@
 !
 !----------------------------------------------------------------------*
 !     Start
-#ifdef _DEBUGPRINT_
-      Write (6,*) 'EGrad: input arrays'
-      Write (6,*) '==================================================='
-      Call NrmClc(O,nOTSD   ,'EGrad','O')
-      Call NrmClc(S,nOTSD   ,'EGrad','S')
-      Call NrmClc(D,nOTSD*nD,'EGrad','D')
-      Call NrmClc(T,nOTSD*nD,'EGrad','T')
-      Call NrmClc(V,nOTSD*nD,'EGrad','V')
-      Call NrmClc(C,nC   *nD,'EGrad','C')
-!     Do iD = 1, nD
-!        Write (*,*) 'OrbType(:,iD)', OrbType(:,iD)
-!     End Do ! iD
-      Write (6,*) '==================================================='
-      Write (6,*)
-#endif
       jDT=MapDns(iOpt)
       If (jDT<0) Then
          Call mma_allocate(AuxD,nOTSD,nD,Label='AuxD')
@@ -82,6 +67,21 @@
          T(1:nOTSD,1:nD) => TwoHam(:,:,jDT)
          V(1:nOTSD,1:nD) =>    Vxc(:,:,jDT)
       End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'EGrad: input arrays'
+      Write (6,*) '==================================================='
+      Call NrmClc(O,nOTSD   ,'EGrad','O')
+      Call NrmClc(S,nOTSD   ,'EGrad','S')
+      Call NrmClc(D,nOTSD*nD,'EGrad','D')
+      Call NrmClc(T,nOTSD*nD,'EGrad','T')
+      Call NrmClc(V,nOTSD*nD,'EGrad','V')
+      Call NrmClc(C,nC   *nD,'EGrad','C')
+!     Do iD = 1, nD
+!        Write (*,*) 'OrbType(:,iD)', OrbType(:,iD)
+!     End Do ! iD
+      Write (6,*) '==================================================='
+      Write (6,*)
+#endif
 !----------------------------------------------------------------------*
 !
 !---- Allocate memory for modified fock matrix

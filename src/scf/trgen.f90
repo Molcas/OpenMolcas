@@ -49,18 +49,18 @@
       End Do
 !
 !---- Set up certain parameters (nOrb(i) may be changed)
-      Call SetUp()
+      Call SetUp_SCF()
 !
 !---- Move frozen atomic orbitals to the begining
       If (nnFr.gt.0) Then
          Call Freeze(TrMat,nBO,OneHam,mBT)
-         Call SetUp()
+         Call SetUp_SCF()
       End If
 !
 !---- Remove near linear dependencies from basis set
       If (DelThr.ne.Zero) Then
          Call OvlDel(Ovrlp,nBT,TrMat,nBO)
-         Call SetUp()
+         Call SetUp_SCF()
       End If
 !
 !---- Orthogonalize final orbitals

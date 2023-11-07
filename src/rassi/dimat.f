@@ -38,5 +38,5 @@
        ISTD=ISTD+NB**2
       END DO
       CALL DSCAL_(NBSQ,2.0D00,DINAO,1)
-      RETURN
+
       END

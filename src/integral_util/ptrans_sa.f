@@ -1,55 +1,58 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c -------------------------------------------------------------------
-c The following subroutine calculates a batch of 2-electron
-c density matrix elements in SO basis.
-c Need to know:
-c   nish(),nash(),nbas()
-c   cmo()
-c   npam(indpos,isym)= Nr of SO indices at index position 1..4,
-c       with symmetry label isym=0..7.
-c   ipam()= A consecutive list of SO indices.
-c   DSO()=Density matrix in SO basis, symmetry blocked.
-c   G1()=Active MO 1-el density matrix (unused).
-c   G2()=d:o,   MO 2-el density matrix.
-c Also:
-c   ncmo=Size of cmo array (for dimensioning only)
-c   nDSO=Similar, DSO matrix
-c   mxpam=Similar, ipam array
-c   mxSO=Largest batch of SO indices in one single symmetry
-c Returns:
-c   PSOPam()=a four-index array containing the selected matrix
-c         elements.
-c -------------------------------------------------------------------
-      subroutine ptrans_sa(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
-     &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2,
-     &                  ScrP,nsp)
-      use aces_stuff, only: nSSDM,SSDM
-      Implicit Real*8 (a-h,o-z)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! -------------------------------------------------------------------
+! The following subroutine calculates a batch of 2-electron
+! density matrix elements in SO basis.
+! Need to know:
+!   nish(),nash(),nbas()
+!   npam(indpos,isym)= Nr of SO indices at index position 1..4,
+!       with symmetry label isym=0..7.
+!   ipam()= A consecutive list of SO indices.
+! Also:
+!   mxpam=Similar, ipam array
+!   mxSO=Largest batch of SO indices in one single symmetry
+! Returns:
+!   PSOPam()=a four-index array containing the selected matrix
+!         elements.
+! -------------------------------------------------------------------
+!#define _DEBUGPRINT_
+      subroutine ptrans_sa(npam,ipam,nxpam,PSOPam,nPSOPam,
+     &                     Cred,nC,Scr1,nS1,Scr2,nS2,ScrP,nsp)
+      use pso_stuff, only: nSSDM,SSDM, DSO=>D0, CMO, G2
+      use Constants, only: Zero, Quart
+      use etwas, only: mIrrep, npSOp, mBas, nAsh, nIsh
+      Implicit None
+      Integer nxpam, nPSOPam, nC, nS1, nS2, nSP
       Integer npam(4,0:*),indi(4)
       Real*8 ipam(nxpam)
-      Real*8 DSO(nDSO,*), PSOPam(nPSOPam), G1(nG1,*), G2(nG2,*),
-     &       Cred(*), Scr1(nS1), Scr2(nS2), Cmo(ncmo,*),
-     &       ScrP(nsP)
-!      logical do_pdft
+      Real*8 PSOPam(nPSOPam), Cred(*), Scr1(nS1), Scr2(nS2), ScrP(nsP)
 
-#include "real.fh"
-#include "print.fh"
-#include "etwas.fh"
-c Triangular addressing without symmetry:
+      Integer i, j, i3adr
+      Integer nnPam1, nnPam2, nnPam3, nnPam4, iSym, jSym, kSym, lSym,
+     &        ioPam1, ioPam2, ioPam3, ioPam4, iEnd, jEnd, kEnd, lEnd,
+     &        ni, nj, nk, nl, ip, iq, is, it, ir, ipq, irs, ipr, ips,
+     &        irq, isq, nbi, nbj, nbk, nbl, nx, nkl, nv, nxv, njkl,
+     &        nu, nxvu, nt, nxvut, ix, iv, iu, itu, ituvx,
+     &        iScr, ixEnd, iOCMOL, iods, lSta, ixSta,
+     &        iOCMOX, iVEnd, iOCMOK, ioDR, klSym, kSta, ivSta,
+     &        iOCMOV, iuEnd, iOCMOJ, ioDQ, jSta, iuSta, iOCMOU, itEnd,
+     &        iOCMOI, iSta, nijkl, iOCMOT, ijSym, Ind, ivx,
+     &        nCopy, nSkip1, iOff2, nSkip2, nTUV, l, nLTU,
+     &        k, nKLT, lOff, lOf1, klOff, klOf1, jklOff, jklOf1,
+     &        itSta, iOff1, ipSO, ioIT, isSDM
+      Real*8 Fact
+! Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
-*
-      iRout = 251
-      iPrint = nPrint(iRout)
-c Offsets into the ipam array:
+!
+! Offsets into the ipam array:
       nnpam1=0
       nnpam2=0
       nnpam3=0
@@ -66,7 +69,7 @@ c Offsets into the ipam array:
       iopam2=nnpam1
       iopam3=iopam2+nnpam2
       iopam4=iopam3+nnpam3
-c Loop over all possible symmetry combinations.
+! Loop over all possible symmetry combinations.
       lend=0
       ixend=0
       iocmol=0
@@ -121,16 +124,18 @@ c Loop over all possible symmetry combinations.
         itend=itend+nt
         nxvut=nxvu*nt
         iocmot=iocmoi+nish(isym)*mbas(isym)
-c Break loop if not acceptable symmetry combination.
+! Break loop if not acceptable symmetry combination.
         ijsym=ieor(isym,jsym)
         if(klsym.ne.ijsym) goto 1005
-c Break loop if no such symmetry block:
+! Break loop if no such symmetry block:
         if(nijkl.eq.0) goto 1005
-        If (iPrint.ge.99) Write (6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
-c Bypass transformation if no active orbitals:
+#ifdef _DEBUGPRINT_
+        Write (6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
+#endif
+! Bypass transformation if no active orbitals:
         if(nxvut.eq.0) goto 300
-c Pick up matrix elements and put in a full symmetry block:
-* State-average 2-DM
+! Pick up matrix elements and put in a full symmetry block:
+! State-average 2-DM
         ind=0
         do  ix=ixsta,ixend
          do  iv=ivsta,ivend
@@ -151,9 +156,9 @@ c Pick up matrix elements and put in a full symmetry block:
         End do
        End do
       End do
-c
-c Transform:
-c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
+!
+! Transform:
+!  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
       Do 777 ioit=1,4
       Call icopy(4,[1],0,indi,1)
       indi(ioit)=2
@@ -173,8 +178,8 @@ c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
      &            1.0d0,Cred,nskip2,
      &            ScrP,ntuv,
      &            0.0d0,Scr2,nskip2)
-c Transform:
-c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
+! Transform:
+!  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
       ncopy=nash(ksym)
       nskip1=mbas(ksym)
       ioff2=0
@@ -191,8 +196,8 @@ c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
      &            1.0d0,Cred,nskip2,
      &            Scr2,nltu,
      &            0.0d0,Scr1,nskip2)
-c Transform:
-c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
+! Transform:
+!  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
       ncopy=nash(jsym)
       nskip1=mbas(jsym)
       ioff2=0
@@ -210,8 +215,8 @@ c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
      &            1.0d0,Cred,nskip2,
      &            Scr1,nklt,
      &            0.0d0,Scr2,nskip2)
-c Transform:
-c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
+! Transform:
+!  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
       ncopy=nash(isym)
       nskip1=mbas(isym)
       ioff2=0
@@ -228,15 +233,15 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
      &            1.0d0,Cred,nskip2,
      &            Scr2,njkl,
      &            0.0d0,Scr1,nskip2)
-      If (iPrint.ge.99) Call RecPrt('G2(SO1)',' ',
-     &                              Scr1,
-     &                              nPam(1,iSym)*nPam(2,jSym),
-     &                              nPam(3,kSym)*nPam(4,lSym))
+#ifdef _DEBUGPRINT_
+      Call RecPrt('G2(SO1)',' ',Scr1,
+     &            nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
+#endif
 
 
-*======================================================================*
-c
-c Put results into correct positions in PSOPam:
+!======================================================================*
+!
+! Put results into correct positions in PSOPam:
       do  l=lsta,lend
        loff=nnpam3*(l-1)
        lof1=nPam(3,ksym)*(l-lsta)
@@ -255,13 +260,13 @@ c Put results into correct positions in PSOPam:
        End Do
       End Do
  777  Continue
-*======================================================================*
-* State-specific 2-DM
+!======================================================================*
+! State-specific 2-DM
         ind=0
         do  ix=ixsta,ixend
          do  iv=ivsta,ivend
           ivx=i3adr(iv,ix)
-*
+!
           do  iu=iusta,iuend
            do  it=itsta,itend
             itu=i3adr(it,iu)
@@ -278,14 +283,14 @@ c Put results into correct positions in PSOPam:
         End do
        End do
       End do
-      If (iPrint.ge.99) Call RecPrt('G2(MO)',' ',
-     &                              Scr1,
-     &                              nash(iSym)*nash(jSym),
-     &                              nash(kSym)*nash(lsym))
+#ifdef _DEBUGPRINT_
+      Call RecPrt('G2(MO)',' ',Scr1,
+     &            nash(iSym)*nash(jSym),nash(kSym)*nash(lsym))
+#endif
 
-c
-c Transform:
-c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
+!
+! Transform:
+!  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
       ncopy=nash(lsym)
       nskip1=mbas(lsym)
       ioff2=0
@@ -301,8 +306,8 @@ c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
      &            1.0d0,Cred,nskip2,
      &            Scr1,ntuv,
      &            0.0d0,Scr2,nskip2)
-c Transform:
-c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
+! Transform:
+!  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
       ncopy=nash(ksym)
       nskip1=mbas(ksym)
       ioff2=0
@@ -318,8 +323,8 @@ c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
      &            1.0d0,Cred,nskip2,
      &            Scr2,nltu,
      &            0.0d0,Scr1,nskip2)
-c Transform:
-c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
+! Transform:
+!  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
       ncopy=nash(jsym)
       nskip1=mbas(jsym)
       ioff2=0
@@ -336,8 +341,8 @@ c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
      &            1.0d0,Cred,nskip2,
      &            Scr1,nklt,
      &            0.0d0,Scr2,nskip2)
-c Transform:
-c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
+! Transform:
+!  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
       ncopy=nash(isym)
       nskip1=mbas(isym)
       ioff2=0
@@ -353,17 +358,16 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
      &            1.0d0,Cred,nskip2,
      &            Scr2,njkl,
      &            0.0d0,Scr1,nskip2)
-      If (iPrint.ge.99) Call RecPrt('G2(SO2)',' ',
-     &                              Scr1,
-     &                              nPam(1,iSym)*nPam(2,jSym),
-     &                              nPam(3,kSym)*nPam(4,lSym))
+#ifdef _DEBUGPRINT_
+      Call RecPrt('G2(SO2)',' ',Scr1,
+     &            nPam(1,iSym)*nPam(2,jSym),nPam(3,kSym)*nPam(4,lSym))
+      Call RecPrt('PSOPam 0',' ',PSOPam,nnPam1*nnPam2,nnPam3*nnPam4)
+#endif
 
 
-      If (iPrint.ge.89) Call RecPrt('PSOPam 0',' ',PSOPam,
-     &                     nnPam1*nnPam2,nnPam3*nnPam4)
-*======================================================================*
-c
-c Put results into correct positions in PSOPam:
+!======================================================================*
+!
+! Put results into correct positions in PSOPam:
       do  l=lsta,lend
        loff=nnpam3*(l-1)
        lof1=nPam(3,ksym)*(l-lsta)
@@ -381,13 +385,15 @@ c Put results into correct positions in PSOPam:
         End Do
        End Do
       End Do
-      If (iPrint.ge.89) Call RecPrt('PSOPam no 1-el',' ',PSOPam,
+#ifdef _DEBUGPRINT_
+      Call RecPrt('PSOPam no 1-el',' ',PSOPam,
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
-*
+#endif
+!
 
-*======================================================================*
+!======================================================================*
 
-c Add contributions from 1-el density matrix:
+! Add contributions from 1-el density matrix:
 
 !      write(*,*)"information before introducing 1-el density matrix" yma
 !      write(*,*)"lsta,lend",lsta,lend
@@ -419,12 +425,12 @@ c Add contributions from 1-el density matrix:
           ip=INT(ipam(iopam1+i))
           ipq=i3adr(ip,iq)
           ipso=i+jkloff
-*
-C   ANDERS HAS ADDED LAGRANGIAN HERE
-C   BY USING A VECTOR OF DENSITIES, THIS CAN EASILY BE
-C   GENERALIZED TO CALCULATE FOR EXAMPLE THE E_2 CONTRIBUTION
-C   FOR RAMAN SPECTRA
-*
+!
+!   ANDERS HAS ADDED LAGRANGIAN HERE
+!   BY USING A VECTOR OF DENSITIES, THIS CAN EASILY BE
+!   GENERALIZED TO CALCULATE FOR EXAMPLE THE E_2 CONTRIBUTION
+!   FOR RAMAN SPECTRA
+!
           if(isym.eq.lsym) then
            ips=i3adr(ip,is)
            irq=i3adr(ir,iq)
@@ -487,12 +493,12 @@ C   FOR RAMAN SPECTRA
              End Do
            End If
           end if
-C    IT STOPS HERE
+!    IT STOPS HERE
  310     continue
  320    continue
  330   continue
  340  continue
-c End of loop over symmetry labels.
+! End of loop over symmetry labels.
  1005     continue
           nbi=mbas(isym)
           iocmoi=iocmoi+nbi**2
@@ -509,12 +515,12 @@ c End of loop over symmetry labels.
        iocmol=iocmol+nbl**2
        ioDs=ioDs+(nbl*(nbl+1))/2
  1040 continue
-      If (iPrint.ge.89) Call RecPrt('PSOPam',' ',PSOPam,
-     &                     nnPam1*nnPam2,nnPam3*nnPam4)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('PSOPam',' ',PSOPam,nnPam1*nnPam2,nnPam3*nnPam4)
+#endif
       return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) then
-         call Unused_real_array(G1)
          call Unused_integer(nC)
       end if
-      end
+      end subroutine ptrans_sa

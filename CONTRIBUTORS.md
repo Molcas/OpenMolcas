@@ -25,7 +25,7 @@ General citations
 =================
 
 * **OpenMolcas v23.02**:
-  *J. Chem. Theory Comput.* **??** (2023) ??-??. [doi:10.1021/acs.jctc.3c00182](https://doi.org/10.1021/acs.jctc.3c00182)
+  *J. Chem. Theory Comput.* **19** (2023) 6933-6991. [doi:10.1021/acs.jctc.3c00182](https://doi.org/10.1021/acs.jctc.3c00182)
 
 * **OpenMolcas v19.11**:
   *J. Chem. Theory Comput.* **15** (2019) 5925-5964. [doi:10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)

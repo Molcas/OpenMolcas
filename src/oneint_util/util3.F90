@@ -27,6 +27,10 @@ subroutine Util3(Beta,nZeta,rFinal,la,lb,Slalbp,Slalb,Slalbm)
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 ! Notice CmbnMP has just 6 components instead of 9!!! (automatically assumes symmetry) Well fuck you CmbnMP
 ! This means Slalbp and Slalbm in reality only have 6 components....
@@ -39,8 +43,8 @@ real(kind=wp), intent(in) :: Beta(nZeta), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1
                              Slalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),6)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9)
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, iElem, jElem
 character(len=80) :: Label
 #endif
 

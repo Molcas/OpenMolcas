@@ -26,6 +26,9 @@
       Real*8, Target::  CMO(mBB,nD)
 
       Integer iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, k, MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
+#ifdef _DEBUGPRINT_
+      Integer i
+#endif
       Real*8 Tmp
       Real*8, Pointer, Dimension(:,:):: pCMO
       Real*8, Dimension(:), Allocatable:: OccTmp
@@ -223,7 +226,6 @@
 !     they are virtual.
 !
       Do iD = 1, nD
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
          Write (6,*) 'iD=',iD
          Write (6,*) 'nOccs(original):'
@@ -293,7 +295,6 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
          iOff=1

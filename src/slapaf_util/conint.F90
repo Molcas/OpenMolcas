@@ -23,13 +23,16 @@ logical(kind=iwp), intent(in) :: lWrite_, ldB
 character(len=8), intent(in) :: Label
 real(kind=wp), intent(inout) :: dBf(3*nCent,3*nCent)
 integer(kind=iwp) :: i, iCar, iCent, iOpt, ix, iy, j, jCent
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: nAtoms
+#endif
 real(kind=wp) :: E0, E1, Fact, XX
 integer(kind=iwp), external :: iDeg
 real(kind=wp), external :: DDot_
 
 E1 = Energy(lIter)
 E0 = Energy0(lIter)
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 nAtoms = size(Gx0,2)
 write(u6,*) 'ConInt: lIter=',lIter

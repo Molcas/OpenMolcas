@@ -21,7 +21,6 @@
 ! The larger size is needed here, and the allocated size is nBB.
       Character(LEN=80) Note
 !
-#include "rctfld.fh"
 #include "oneswi.fh"
 !
 !---- Define local variables
@@ -77,7 +76,7 @@
          Do iSym = 1, nSym
             nOrb(iSym) = nBas(iSym)
          End Do
-         Call SetUp()
+         Call SetUp_SCF()
 !
 !------- Orthogonalize vectors
          Call Ortho(CMO,nCMO,Ovlp,nBT)

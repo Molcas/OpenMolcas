@@ -1,18 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Roland Lindh                                     *
+!***********************************************************************
       Integer Function IrrFnc(iFnc)
-      use Symmetry_Info
-      Integer iTest(8)
+      use Symmetry_Info, only: nIrrep, iOper
+      Implicit None
+      Integer iFnc
+
+      Integer iTest(8), i, ix, iy, iz, jx, jy, jz, iCh
+      Integer, external:: iNew
       ix = iAnd(iFnc,1)
       iy = iAnd(iFnc,2)/2
       iz = iAnd(iFnc,4)/4
@@ -28,4 +32,4 @@
       End Do
       IrrFnc=iNew(iTest,nIrrep)-1
       Return
-      End
+      End Function IrrFnc

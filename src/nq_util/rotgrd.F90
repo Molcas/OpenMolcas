@@ -41,7 +41,7 @@ real(kind=wp), parameter :: Thrs = 1.0e-3_wp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('RotGrd: RA',' ',RA,3,nAtoms)
 call RecPrt('RotGrd: ZA',' ',ZA,1,nAtoms)

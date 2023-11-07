@@ -48,7 +48,7 @@ logical(kind=iwp), parameter :: Delete_def = .true.
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Drv'
 real(kind=wp), external :: ddot_
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
 Verbose = .true.
 #endif
 if (Verbose) then

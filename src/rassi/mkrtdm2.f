@@ -205,6 +205,4 @@ C For low spin density it'll keep only alpha,beta,alpha.
 
       CALL mma_deallocate(SRT2M)
 
-      RETURN
-
-      END
+      END SUBROUTINE MKRTDM2

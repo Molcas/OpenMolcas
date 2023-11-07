@@ -36,19 +36,26 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March '90                                                *
 !***********************************************************************
-      use Basis_Info
+      use Basis_Info, only: Shells
       use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       Integer, Intent(In) :: ijkl,iCmp,jCmp,kCmp,lCmp, nSOInt, nAux
       Real*8, Intent(In) :: AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Real*8, Intent(InOut) :: SOInt(ijkl,nSOInt), Aux(nAux)
+      Logical, Intent(In) :: Shijij
+      Integer, Intent(In) :: iAng(4), iShell(4), iShll(4), kOp(4),
+     &                       iAO(4)
+      Logical, Intent(Out) :: Done
 
-      Logical Shij, Shkl, Shijij, Qij, Qkl, Qijij, Done
-      Integer iAng(4), iShell(4), iShll(4), kOp(4), iAO(4)
 !     Local Array
+      Logical Shij, Shkl, Qij, Qkl, Qijij
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
+      Integer k12, k34, ii, jj, kk, ll, i1, j, ix, jCmpMx,
+     &        i2, jChBs, iChBs, MemSO2, i12, i3, lCmpMx, kChBs, i4,
+     &        iAux, j1, j2Max, j2, j12, j3, j4, lChBs, i34
+      Real*8 pEa, pRb, pTc, pTSd, Xb, Xg, Xa
 !
 !     Statement Function
 !
@@ -195,14 +202,13 @@
           End If
           MemSO2 = MemSO2 + iAux
        End If
-*
+!
  400           Continue
  300        Continue
  200     Continue
  100  Continue
-*
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt(' On exit from SymAdp: SOInt ',' ',SOInt,ijkl,nSOInt)
 #endif
-      Return
-      End
+      End Subroutine SymAdp

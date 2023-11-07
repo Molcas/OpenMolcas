@@ -30,6 +30,9 @@ subroutine PGet2_RI3(iCmp,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,nDSO,ExFac
 use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: AOrb, lPSO, nnP, Thpkl
+#ifdef _DEBUGPRINT_
+use pso_stuff, only: D0, iD0Lbl
+#endif
 use Basis_Info, only: nBas, nBas_Aux
 use Symmetry_Info, only: Mul, nIrrep
 use RI_glob, only: BklK, CijK, CilK, CMOi, iAdrCVec, iOff_Ymnij, LuCVector, nAvec, nChOrb, nIJR, nYmnij, tbvec, Yij, Ymnij
@@ -44,6 +47,9 @@ integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indkl, iS
                      jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), l, lAct, lAOl, &
                      lCVec, lda, lmo, lOper, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, n2j, nCumnnP(0:7), nCumnnP2(0:7), nJ, njSym, &
                      nk, nkSym, nl, nlSym, ntmp
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iSym
+#endif
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, temp, tmp, Wall, Wall1, Wall2
 real(kind=wp), pointer :: Xki(:), Xli(:)
 integer(kind=iwp), external :: iPntSO
@@ -53,8 +59,7 @@ real(kind=wp), external :: ddot_
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-iComp = 1
-call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,1,D0)
+call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],1,[1],D0)
 call RecPrt('V_K',' ',V_K,1,mV_K)
 write(u6,*)
 write(u6,*) 'Distribution of Ymnij'

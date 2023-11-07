@@ -45,6 +45,8 @@ use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use rctfld_module, only: lRF, lLangevin, PCM, lMax
+use Disp, only: HF_Force, ChDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -67,11 +69,8 @@ procedure(grd_kernel) :: MltGrd
 procedure(grd_mem) :: MltMmG
 !AOM>
 #endif
-#include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
 #include "wldata.fh"
-#include "rctfld.fh"
 
 ! Prologue
 iRout = 131

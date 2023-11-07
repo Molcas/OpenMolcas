@@ -38,14 +38,13 @@ subroutine PSOAO1(nSO,MemPrm,MemMax,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc
 !             Modified to first order derivatives. January '92         *
 !***********************************************************************
 
-use aces_stuff, only: nGamma, Gamma_On
-use PSO_Stuff, only: lPSO
+use PSO_Stuff, only: lPSO, nGamma, Gamma_On
 use SOAO_Info, only: iAOtSO
 use Gateway_global, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
-use Definitions, only: wp, iwp, u6
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iAO(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
@@ -57,8 +56,7 @@ integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCm
                      nPam(4,0:7), nTmp1, nTmp2, nVec1
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
-#include "lCache.fh"
-#include "pstat.fh"
+#include "Molcas.fh"
 
 la = iAnga(1)
 lb = iAnga(2)
@@ -68,7 +66,6 @@ iCmp = iCmpa(1)
 jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
-iTotal = iTotal+1
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
 
@@ -148,7 +145,6 @@ do
   end if
   MemAux0 = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
   if (Mem1+1+MemAux0 > Mem0) then
-    MaxReq = max(MaxReq,Mem1+1+MemAux0-Mem0)
     QjPrim = .false.
     QlPrim = .false.
     QiBas = .false.
@@ -156,7 +152,7 @@ do
     QkBas = .false.
     QlBas = .true.
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) ' Memory allocation failed for Work1'
       write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
@@ -217,9 +213,8 @@ do
   MemSph = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
   Mem2 = max(MemTrn+MemAux,MemDeP,MemSph,nGamma+MemAux0)
   if (Mem2+1 > Mem0) then
-    MaxReq = max(MaxReq,Mem2+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) ' Memory allocation failed for Work2'
       write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
@@ -285,9 +280,8 @@ do
   MemScr = (2*mabcd+1)*iPrInc*jPrInc*kPrInc*lPrInc+iPrInc*jPrInc+kPrInc*lPrInc
   Mem3 = max(MemTrn,MemRys,MemScr)
   if (Mem3+1 > Mem0) then
-    MaxReq = max(MaxReq,Mem3+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) ' Memory allocation failed for Work3'
       write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
@@ -303,20 +297,10 @@ do
 end do
 ! Subtract one additional word (?)
 Mem0 = Mem0-Mem3-1
-MinXtr = min(MinXtr,Mem0)
 
 Mem2 = Mem2+Mem3
 
 ipMem2 = ipMem1+Mem1
-
-r1 = r1+real(iBsInc,kind=wp)/real(iBas,kind=wp)
-r2 = r2+real(jBsInc,kind=wp)/real(jBas,kind=wp)
-r3 = r3+real(kBsInc,kind=wp)/real(kBas,kind=wp)
-r4 = r4+real(lBsInc,kind=wp)/real(lBas,kind=wp)
-q1 = q1+real(iPrInc,kind=wp)/real(iPrim,kind=wp)
-q2 = q2+real(jPrInc,kind=wp)/real(jPrim,kind=wp)
-q3 = q3+real(kPrInc,kind=wp)/real(kPrim,kind=wp)
-q4 = q4+real(lPrInc,kind=wp)/real(lPrim,kind=wp)
 
 return
 

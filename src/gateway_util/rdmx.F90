@@ -25,17 +25,11 @@ implicit none
 real(kind=wp), intent(inout) :: RadMax, cdMax, EtMax
 integer(kind=iwp), intent(in) :: nExp, nCff
 real(kind=wp), intent(in) :: rExp(nExp), Cff(nExp,nCff)
-#ifdef _DEBUGPRINT_
-#include "print.fh"
-#endif
 integer(kind=iwp) :: iExp
 real(kind=wp) :: Alpha, Beta, c, cc, Eta, Rho, ssss, Zeta
 real(kind=wp), external :: DDot_
 
 #ifdef _DEBUGPRINT_
-iRout = 201
-iPrint = nPrint(iRout)
-
 call RecPrt('rExp',' ',rExp,nExp,1)
 call RecPrt('Cff',' ',Cff,nExp,nCff)
 #endif

@@ -20,6 +20,9 @@ implicit none
 #include "embpcharg.fh"
 character(len=8) :: Label
 integer(kind=iwp) :: i, iComp, iOpt, irc, iSyLbl, nC, nLT, nSym, nBas(8)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iAttr
+#endif
 real(kind=wp), allocatable :: Attr(:,:)
 
 call Get_iScalar('nSym',nSym)

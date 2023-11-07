@@ -25,6 +25,9 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADOUT, nDelTot, nMaxOrb, nVirTot
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iDel, iExt, iFro, iOcc, nA, nB, nI
+#endif
 real(kind=wp), allocatable :: Int1(:), Int1_2(:), Int2(:), Int2_2(:), Scr1(:)
 #include "trafo.fh"
 #include "corbinf.fh"

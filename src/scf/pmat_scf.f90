@@ -36,9 +36,9 @@
       use RICD_Info, only: Do_DCCD
       use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO, EDFT
       use Int_Options, only: FckNoClmb, Exfac_Int=>ExFac, Thize_Int=>Thize, PreSch_Int=>PreSch
+      use rctfld_module, only: lRF
       Implicit None
       External EFP_On
-#include "rctfld.fh"
 !
       Integer nD, nXCf
       Real*8 XCf(nXCf,nD)

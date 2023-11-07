@@ -10,16 +10,10 @@
 ************************************************************************
       SUBROUTINE DRT0_RASSI(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
       IMPLICIT INTEGER (A-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DRT0_RASSI')
       DIMENSION DRT(NVERT,5),DOWN(NVERT,0:3),TMP(NTMP)
       PARAMETER(LTAB=1,NTAB=2,ATAB=3,BTAB=4,CTAB=5)
       DIMENSION DA(0:3),DB(0:3),DC(0:3)
       DATA DA /0,0,1,1/, DB /0,1,-1,0/, DC /1,0,1,0/
-
-
-
 
       NACTEL=2*A0+B0
       NLEV=A0+B0+C0
@@ -91,5 +85,4 @@
         CALL ABEND()
       END IF
 
-      RETURN
       END

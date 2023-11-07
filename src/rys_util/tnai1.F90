@@ -41,14 +41,10 @@ unused_var(IsChi)
 unused_var(ChiI2)
 
 #ifdef _DEBUGPRINT_
-iRout = 57
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' Zeta in TNAI1',' ',Zeta,nT,1)
-  call RecPrt(' Eta in TNAI1',' ',Eta,nT,1)
-  call RecPrt(' P in TNAI1',' ',P,nT,3)
-  call RecPrt(' Q in TNAI1',' ',Q,nT,3)
-end if
+call RecPrt(' Zeta in TNAI1',' ',Zeta,nT,1)
+call RecPrt(' Eta in TNAI1',' ',Eta,nT,1)
+call RecPrt(' P in TNAI1',' ',P,nT,3)
+call RecPrt(' Q in TNAI1',' ',Q,nT,3)
 #endif
 do iT=1,nT
   PQ2 = (P(iT,1)-Q(iT,1))**2+(P(iT,2)-Q(iT,2))**2+(P(iT,3)-Q(iT,3))**2
@@ -57,9 +53,7 @@ end do
 ZEInv(:) = One/Zeta
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt('Tvalue',' ',T,nT,1)
-end if
+call RecPrt('Tvalue',' ',T,nT,1)
 #endif
 
 return

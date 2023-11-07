@@ -1,31 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992,2000, Roland Lindh                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992,2000, Roland Lindh                                *
+!***********************************************************************
       SubRoutine PrRF(DSCF,NonEq,iCharge,jPrint)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*                                                                      *
-*             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!                                                                      *
+!             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
+!***********************************************************************
       use External_Centers, only: nXF, iXPolType
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-#include "rctfld.fh"
+      use rctfld_module, only: lRF, PCM, lRFCav, Eps, EpsInf, rds, lMax,
+     &    lLangevin, latato, RadLat, ScalA, ScalB, ScalC, ScaAA, PolSI,
+     &    DipSI, gAtom, DieDel, TK, cLim, aFac, nExpo, PreFac, Solvent,
+     &    Conductor, CordSI, RslPar
+      Implicit None
       Logical DSCF, NonEq
-      Integer StrnLn
-*
-*
+      Integer iCharge, jPrint
+
+      Integer StrnLn, i, j, nSolvent
+      Real*8 AArea, R_Min_Sphere
+!
+!
       IF (jPrint.GE.2) THEN
       If (lRF.and..Not.PCM.and.lRFCav) Then
          Write (6,*)
@@ -114,8 +118,8 @@
       ENDIF
 
       If (lRF) Call Init_RctFld(NonEq,iCharge)
-      If (DSCF) Call Allok2
-*
+      If (DSCF) Call Allok2()
+!
       Return
-*
-      End
+!
+      End SubRoutine PrRF

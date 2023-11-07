@@ -26,6 +26,7 @@
 *     GLM, Minneapolis,   May 2013
 *
       use OneDat, only: sNoNuc, sNoOri
+      use rctfld_module
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
@@ -37,7 +38,6 @@
 #include "output_ras.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
-#include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"

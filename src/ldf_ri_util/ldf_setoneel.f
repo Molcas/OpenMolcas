@@ -58,7 +58,6 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "real.fh"
-#include "rmat_option.fh"
 #include "ldf_oneel.fh"
 
       Character*18 SecNam
@@ -171,7 +170,7 @@ C
       Character*8 ucLabel
 
       If (OperatorLabel.eq.'IS_UNSET') Then
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
          Call WarningMessage(0,SecNam//': nothing to do, returning')
          Call xFlush(6)
 #endif

@@ -336,5 +336,5 @@ C End of very long loop over eigenstate pairs.
       CALL GETMEM('TDMAO','FREE','REAL',LTDMAO,NBSQ)
       CALL GETMEM('BRABNO','FREE','REAL',LBRABNO,NBSQ)
       CALL GETMEM('KETBNO','FREE','REAL',LKETBNO,NBSQ)
-      RETURN
+
       END

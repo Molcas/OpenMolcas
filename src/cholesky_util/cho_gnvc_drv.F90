@@ -28,6 +28,9 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(inout) :: Diag(*)
 integer(kind=iwp) :: i, iAB, iPass, iPass1, iPass2, iSym, iV, iV1, iV2, iVec1, jAB, jPass, jRed, kAB, l_Int, l_Wrk, l_WrkT, &
                      LastRed(8), lThis, nBatch, nPass, nScrV(8), nTotVec, NumInt, NumPass, NumSP, nVec
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: lNdMx, lNeed
+#endif
 real(kind=wp) :: dl_Int, dl_WrkT, tCPU1, tCPU2, TlDec, TlDec1, TlDec2, TlInt, TlInt1, TlInt2, TlTot, TlTot1, TlTot2, tWall1, &
                  tWall2, WlDec, WlDec1, WlDec2, WlInt, WlInt1, WlInt2, WlTot, WlTot1, WlTot2
 character(len=26) :: String

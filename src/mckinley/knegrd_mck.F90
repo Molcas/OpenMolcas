@@ -72,7 +72,7 @@ end if
 
 #ifdef _DEBUGPRINT_
 call RecPrt(' In KnEGrd_McK: A',' ',A,1,3)
-call RecPrt(' In KnEGrd_McK: B',' ',B,1,3)
+call RecPrt(' In KnEGrd_McK: RB',' ',RB,1,3)
 call RecPrt(' In KnEGrd_McK: Ccoor',' ',Ccoor,1,3)
 call RecPrt(' In KnEGrd_McK: P',' ',P,nZeta,3)
 write(u6,*) ' In KnEGrd_McK: la,lb=',la,lb

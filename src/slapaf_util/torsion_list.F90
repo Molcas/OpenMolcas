@@ -14,12 +14,14 @@ subroutine Torsion_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fcons
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
-#ifdef _DEBUGPRINT_
-use Slapaf_Info, only: BondType
-#endif
 use ddvdt, only: A_Trsn, aAV, f_Const_Min, rAV, rkt
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom, deg2rad
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Slapaf_Info, only: BondType
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, iRef, LuIC, iPrv, nBonds, iTabBonds(3,nBonds), mAtoms, &
@@ -36,6 +38,9 @@ integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDCR(4), iDCRR(0:7)
                      iStabN(0:7), iStabO(0:7), jAtom, jAtom_, jBond, jBondType, jr, kAtom, kAtom_, kBond, kBondType, kDCRR, kDCRS, &
                      kDCRT, kDCRTS, kl, kr, Lambda, lAtom, lAtom_, lNeighbor, lr, mCent, mE, nCent, nCoBond_j, nCoBond_k, nDCRR, &
                      nDCRS, nDCRT, nDCRX, nDCRY, nE, nFgBond_j, nFgBond_k, nNeighbor_j, nNeighbor_k, nqT, nStabM, nStabN, nStabO
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 real(kind=wp) :: A(3,4), Alpha, CosFact, CosFi, CosThr, Deg, delta, Diff, f_Const, f_Const_ij, f_Const_ij_Ref, f_Const_ijk, &
                  f_Const_ijk_Ref, f_Const_Ref, Fact, Fi2, Fi3, Grad(mB), Grad_ref(9), Hess(mB**2), Prv(3,4), r0, Range1, Range2, &
                  Range3, Rbc, RbcCov, Ref(3,4), rij2, rij2_Ref, rjk2, rjk2_Ref, rkl2, rkl2_Ref, Val, Val_Prv
@@ -49,10 +54,6 @@ integer(kind=iwp), external :: iTabRow, nCoBond, nFgBond
 real(kind=wp), external :: CovRadT
 logical(kind=iwp), external :: R_Stab_A, Torsion_Check
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

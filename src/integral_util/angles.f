@@ -1,36 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine Angles(Lbls,xyz,mCentr,rtrnc,Max_Center)
-************************************************************************
-*                                                                      *
-* Object: to compute angles from a list of coordinates.                *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
+!***********************************************************************
+!                                                                      *
+! Object: to compute angles from a list of coordinates.                *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!***********************************************************************
+      use Constants, only: Zero, One, Pi
+      Implicit None
 #include "Molcas.fh"
-      Real*8 xyz(3,mCentr)
-      Character*(LENIN) Lbls(mCentr)
+      Integer mCentr, Max_Center
+      Real*8 xyz(3,mCentr), rtrnc
+      Character(LEN=LENIN) Lbls(mCentr)
       Logical Type
-*
+
+      Integer Lu, ic, jc, kc
+      Real*8 x1, y1, z1, x2, y2, z2, x3, y3, z3, r1, r2, Arg, Phi
+
+!
       Lu=6
       If (mCentr.gt.Max_Center) Go To 99
-*
+!
       Type = .False.
-*-----The center atom
+!-----The center atom
       Do 52 ic = 1, mCentr
          x1 = xyz(1,ic)
          y1 = xyz(2,ic)
@@ -70,7 +74,7 @@
  54         Continue
  53      Continue
  52   Continue
-*
+!
  99   Continue
       Return
       End

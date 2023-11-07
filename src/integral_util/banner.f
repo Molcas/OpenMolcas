@@ -1,26 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine Banner(Lines,nLines,nWidth)
-************************************************************************
-*     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
-*             University of Lund, SWEDEN                               *
-*             May '91                                                  *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Parameter(MxWdth=132)
-      Character*(*)   Lines(nLines)
-      Character*(MxWdth-2) Line, Format*72
-*
+!***********************************************************************
+!     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
+!             University of Lund, SWEDEN                               *
+!             May '91                                                  *
+!***********************************************************************
+      Implicit None
+      Integer nLines, nWidth
+      Integer, Parameter:: MxWdth=132
+      Character(LEN=*)   Lines(nLines)
+      Character(LEN=MxWdth-2) Line
+      Character(LEN=72) Format
+
+      Integer mWidth, nChar, i, j, k, iFrst, iEnd, Length, nSplit,
+     &        jFrst, jEnd
+!
       mWidth = nWidth
       nChar = Len(Lines(1))
       If (nChar+2.gt.mWidth) mWidth = nChar + 2
@@ -55,7 +60,7 @@
          Line(jFrst:jEnd) = Lines(i)(iFrst:iEnd)
          Write (6,Format) Line
  10   Continue
-*
+!
       Do 130 k = 2, mWidth-1
          Line(k:k) = ' '
  130  Continue
@@ -64,6 +69,6 @@
          Line(k:k) = '*'
  140  Continue
       Write (6,Format) Line
-*
+!
       Return
-      End
+      End SubRoutine Banner

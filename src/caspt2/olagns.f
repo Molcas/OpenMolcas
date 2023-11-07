@@ -91,7 +91,6 @@ C
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "caspt2_grad.fh"
-#include "nsd.fh"
       DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),T2AO(*)

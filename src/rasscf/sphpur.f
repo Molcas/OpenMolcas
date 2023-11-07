@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SPHPUR(CMO)
+      use define_af, only: iTabMx, AngTp
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CMO(*)
       CHARACTER*1 LCHAR
@@ -20,8 +21,6 @@
 #include "general.fh"
 * rasscf.fh defines NAME:
 #include "rasscf.fh"
-* angtp.fh defines ITABMX,ANGTP
-#include "angtp.fh"
 
 #include "WrkSpc.fh"
 

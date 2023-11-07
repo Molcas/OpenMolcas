@@ -2897,7 +2897,7 @@ c       write(6,*)          '  --------------------------------------'
        Call SetPos(LUInput,'FCID',Line,iRc)
        Call ChkIfKey()
       End If
-#if !defined _ENABLE_BLOCK_DMRG_ && !defined _ENABLE_CHEMPS2_DMRG_
+#if ! defined (_ENABLE_BLOCK_DMRG_) && ! defined (_ENABLE_CHEMPS2_DMRG_)
 *
 * ======================================================================
 *          start of QCMaquis DMRG input section
@@ -3053,7 +3053,7 @@ c       write(6,*)          '  --------------------------------------'
       End If
 *
 *---  Process DMRG command --------------------------------------------*
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       If (KeyDMRG) Then
 * NN.14 FIXME: When DMRG option is disabled at compilation,
 *       this should give an error, but just ignored for the time.

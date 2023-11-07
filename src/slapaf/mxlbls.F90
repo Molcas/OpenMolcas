@@ -14,6 +14,9 @@ subroutine MxLbls(nInter,Grad,Shift,Lbl)
 use Slapaf_Info, only: GrdLbl, StpLbl, GrdMax, StpMax
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter

@@ -26,7 +26,7 @@ C
 #include "localdf_int.fh"
 #include "ldf_atom_pair_info.fh"
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Character*24 SecNam
       Parameter (SecNam='LDF_ComputeIntegrals_uvJ')
 #endif
@@ -70,7 +70,7 @@ C
 
       ! Set row dimension
       nRow_uvJ=LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (l_xInt.ne.nRow_uvJ*LDF_nBasAux_Pair(iAtomPair)) Then
          Call WarningMessage(2,SecNam//': integral dimension problem')
          Write(6,'(A,I9)')
@@ -105,7 +105,7 @@ C
             n=n+nBasSh(iShell)*nBasSh(jShell)
          End Do
       End Do
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       If (n.ne.nRow_uvJ) Then
          Call WarningMessage(2,SecNam//': row dimension problem!')
          Call LDF_Quit(1)

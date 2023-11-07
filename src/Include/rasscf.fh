@@ -140,7 +140,7 @@
      &                 max_sweep,chemps2_lrestart,max_canonical,        &
      &                 chemps2_restart
 #endif
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       LOGICAL          Do3RDM
       Common /B_OR_C/  Do3RDM
 #endif

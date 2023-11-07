@@ -89,11 +89,12 @@ real(kind=wp) :: TC1X1, TC1X2, TC2X1, TC2X2, TCC1, TCC2, tcoul(2), TCR1, TCR2, T
                  TOTWALL, TOTWALL1, TOTWALL2, tread(2), TW1X1, TW1X2, TW2X1, TW2X2, TWC1, TWC2, TWR1, TWR2, TWREO1, TWREO2, xf, &
                  xnormY
 logical(kind=iwp) :: DoSomeC, DoSomeX, Square
-#ifdef _DEBUGPRINT_
-logical(kind=iwp) :: Debug
-#endif
 character(len=50) :: CFmt
 type(SBA_Type), target :: Wab
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NB
+logical(kind=iwp) :: Debug
+#endif
 real(kind=wp), allocatable :: DChk(:)
 real(kind=wp), pointer :: LrJs(:,:,:) => null(), Scr(:) => null(), VJ(:) => null(), XgJk(:) => null(), XkJb(:) => null(), &
                           XkJs(:) => null()
@@ -601,8 +602,8 @@ if (timings) then
 
 end if
 
-! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
+! Print the Fock-matrix
 if (Debug) then ! to avoid double printing in SCF-debug
 
   write(u6,'(6X,A)') 'TEST PRINT FROM '//SECNAM

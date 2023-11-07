@@ -43,6 +43,9 @@
       Real*8 Tmp, Tmp0, Tmp1
       Integer ioFckM,iCMO,jEOr,iptr,iptr2,nOrbmF,nOccmF, nVrt,ia, iD, iSym, iDiag, iDum, iErr, iiCMO,     &
               iiEigV, iiScratch, iOff, jjEOr, kk, kOcc, kOff, n2Sort, n2Zero, nFound
+#ifdef _DEBUGPRINT_
+      Integer jCMO
+#endif
       Integer, External:: iDaMax_
       Real*8, External:: DDot_
 !

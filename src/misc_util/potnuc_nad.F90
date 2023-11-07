@@ -21,6 +21,10 @@ subroutine PotNuc_nad(nSym,nAtoms,ReCharge,ZRE_nad)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Constants, only: Angstrom
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nAtoms
@@ -140,7 +144,7 @@ write(u6,'(6X,A)') 'No.  Charge A/B      X         Y         Z     '
 write(u6,'(6X,A)') '-----------------------------------------------'
 do iAt=0,iAll_Atom-1
   kAt = mod(iAt+1,nAtoms)
-  write(u6,'(4X,I4,2X,F4.0,1X,F4.0,2X,3F10.5)') iAt+1,Charge(1+iAt),ReCharge(kAt),Angstr*Coor(:,iAt+1)
+  write(u6,'(4X,I4,2X,F4.0,1X,F4.0,2X,3F10.5)') iAt+1,Charge(1+iAt),ReCharge(kAt),Angstrom*Coor(:,iAt+1)
 end do
 write(u6,'(6X,A)') '-----------------------------------------------'
 write(u6,'(6X,A,F12.6)') 'Nuclear repulsion energy (NAD) =',ZRE_nad

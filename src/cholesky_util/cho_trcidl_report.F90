@@ -19,11 +19,17 @@ subroutine Cho_TrcIdl_Report()
 
 use Para_Info, only: nProcs
 use Cholesky, only: Cho_Real_Par, Idle, LuPri
+#ifdef _DEBUGPRINT_
+use Cholesky, only: Trace_Idle
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: i, nIdle
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: l_Idle
+#endif
 integer(kind=iwp), allocatable :: TIloc(:)
 
 #ifdef _DEBUGPRINT_

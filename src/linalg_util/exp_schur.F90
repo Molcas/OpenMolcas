@@ -29,7 +29,7 @@
 
 subroutine Exp_Schur(N,X,maxtheta)
 
-!define _USE_LAPACK_
+!#define _USE_LAPACK_
 #ifdef _USE_LAPACK_
 use sorting_funcs, only: geq_r
 #endif

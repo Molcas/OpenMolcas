@@ -33,12 +33,11 @@ real(kind=wp), intent(in) :: xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2
                              xyz2D2(nRys,nT,0:la,0:lb,0:lc,0:ld,18), &
                              PAO(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc),nTri_Elem1(ld))
 logical(kind=iwp), intent(in) :: IfHss(4,3,4,3)
-#include "itmax.fh"
 integer(kind=iwp) :: I, ia1, ia2, ia3, ib1, ib2, ib3, ic1, ic2, ic3, iCar, iCent, icir(3), id1, id2, id3, iDer, ipa, ipb, ipc, &
                      ipd, iRys, it, ix1, ix2, jCar, jCent, jDer, kCar
 real(kind=wp) :: tmp
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !iRout = 248
 !iPrint = nPrint(iRout)
 g2(:) = Zero

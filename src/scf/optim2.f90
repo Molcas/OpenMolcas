@@ -264,9 +264,7 @@
                   C(i)=C(i) - Step_mi
 !
 #ifdef _DEBUGPRINT_
-                  Write(6,'(a,3I3,4F20.10)')
-     &                  'i,j,k,Es(i),i=1,4)=',
-     &                   i,j,k,(Es(l),l=1,4)
+                  Write(6,'(a,3I3,4F20.10)') 'i,j,k,Es(i),i=1,4)=',i,j,k,(Es(l),l=1,4)
 #endif
                   nLow=0
                   Do l = 1, 4
