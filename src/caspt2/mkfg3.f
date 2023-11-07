@@ -59,7 +59,7 @@ C>                   to active indices
       use caspt2_output, only: iPrGlb, verbose, debug
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
       use caspt2_gradient, only: do_grad, nbuf1_grad, nStpGrd
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+#if defined (_MOLCAS_MPP_) && !defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       IMPLICIT NONE
