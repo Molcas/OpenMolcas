@@ -3515,7 +3515,7 @@ C
       DIMENSION PRE(*)
       dimension ci(*)
       REAL*8 INT1(NLEV,NLEV),INT2(NLEV,NLEV,NLEV,NLEV)
-      CHARACTER(LEN=256) LINE
+C     CHARACTER(LEN=256) LINE
       CHARACTER(LEN=1) CODE(0:3)
       REAL*8 Fancy(nRoots,nRoots,nRoots)
 
@@ -3531,7 +3531,7 @@ C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
 C -- THE   U P P E R   PART OF THE WALK.
 
 C SVC: set up a CSF string length as LENCSF
-      LINE=' '
+C     LINE=' '
       LENCSF=0
       ISY=0
       DO LEV=1,NLEV
@@ -3563,7 +3563,7 @@ C     allocate scratch memory for determinant expansion
         CALL GETMEM ('LEX','ALLO','INTEGER',LLEX,NLEV)
       END IF
 
-      LINE=' '
+C     LINE=' '
 
 C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
@@ -3625,16 +3625,16 @@ C -- PRINT IT!
                 IF(ISY.NE.ISM(LEV)) THEN
                   ISY=ISM(LEV)
                   K=K+1
-                  LINE(K:K)=' '
+C                 LINE(K:K)=' '
                 END IF
                 K=K+1
-                LINE(K:K)=CODE(ICS(LEV))
+C               LINE(K:K)=CODE(ICS(LEV))
                 IF (ICS(LEV).EQ.0) THEN
                   VAL = 0.0D+00
                 ELSE IF (ICS(LEV).EQ.3) THEN
                   VAL = 2.0D+00*INT1(LEV,LEV)
-                  L=0
-                  JSY=0
+C                 L=0
+C                 JSY=0
                   DO LEV2=1,NLEV
                     IF (ICS(LEV2).EQ.0) THEN
                     val = val + 0.0d+00
@@ -3653,8 +3653,8 @@ C -- PRINT IT!
                 ELSE
 C       write (*,*) "singly occupied"
                   VAL = INT1(LEV,LEV)
-                  L=0
-                  JSY=0
+C                 L=0
+C                 JSY=0
                   DO LEV2=1,NLEV
                     IF (ICS(LEV2).EQ.0.OR.LEV.EQ.LEV2) THEN
                     ELSE IF (ICS(LEV2).EQ.3) THEN

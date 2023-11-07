@@ -15,7 +15,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 
   USE SUPERINDEX
   USE PT2WFN
-  use caspt2_output, only: iPrGlb, terse, usual, verbose
+  use caspt2_output, only: iPrGlb, usual, verbose
   use caspt2_gradient, only: do_grad, IDSAVGRD, iStpGrd
   use definitions, only: iwp,wp
 

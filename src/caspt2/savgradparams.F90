@@ -236,38 +236,38 @@ Contains
 
     Implicit None
 
-    integer(kind=iwp) :: lg_V1,NVEC
+    integer(kind=iwp) :: lg_V1,NVEC,ICASE_,ISYM_
 
     IVECX = 2
 
-    Do ICASE = 1, NCASES
-      Do ISYM = 1, NSYM
-        NIN = NINDEP(ISYM,ICASE)
+    Do ICASE_ = 1, NCASES
+      Do ISYM_ = 1, NSYM
+        NIN = NINDEP(ISYM_,ICASE_)
         If (NIN.EQ.0) Cycle
-        NIS = NISUP(ISYM,ICASE)
-        NAS = NASUP(ISYM,ICASE)
+        NIS = NISUP(ISYM_,ICASE_)
+        NAS = NASUP(ISYM_,ICASE_)
         NVEC = NIN*NIS
-        If (ICASE.EQ.12.OR.ICASE.EQ.13) NVEC = NAS*NIS
+        If (ICASE_.EQ.12.OR.ICASE_.EQ.13) NVEC = NAS*NIS
         If (NVEC.EQ.0) Cycle
         !! lg_V1 = T (solution; not quasi-variational)
-        If (ICASE.EQ.12.OR.ICASE.EQ.13) Then
+        If (ICASE_.EQ.12.OR.ICASE_.EQ.13) Then
           Call RHS_ALLO(NAS,NIS,lg_V1)
           If (IORW.EQ.1) Then
-            Call RHS_READ_SR(lg_V1,ICASE,ISYM,IVECX)
+            Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
             CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NAS*NIS,IDSAVGRD)
           Else If (IORW.EQ.2) Then
             CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NAS*NIS,IDSAVGRD)
-            CALL RHS_SAVE_SR(lg_V1,ICASE,ISYM,IVECX)
+            CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
           CALL RHS_FREE(NAS,NIS,lg_V1)
         Else
           Call RHS_ALLO(NIN,NIS,lg_V1)
           If (IORW.EQ.1) Then
-            Call RHS_READ_SR(lg_V1,ICASE,ISYM,IVECX)
+            Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
             CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NIN*NIS,IDSAVGRD)
           Else If (IORW.EQ.2) Then
             CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NIN*NIS,IDSAVGRD)
-            CALL RHS_SAVE_SR(lg_V1,ICASE,ISYM,IVECX)
+            CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
           CALL RHS_FREE(NIN,NIS,lg_V1)
         End If

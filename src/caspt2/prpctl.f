@@ -119,9 +119,7 @@ C This density matrix may be approximated in several ways, see DENS.
         DO ISYM=1,NSYM
           NO=NBAS(ISYM)
           DO II = 1, NO
-            IACT = II-NFRO(ISYM)-NISH(ISYM)
             DO IJ = 1, II
-              JACT = IJ-NFRO(ISYM)-NISH(ISYM)
               WORK(LDMAT+IDMAT) = WORK(IPDPT2 +IDMOFF+II-1+NO*(IJ-1))
      *                 + WORK(IPDPT2C+IDMOFF+II-1+NO*(IJ-1))*0.25d+00
               IF (.NOT.DO_NAC) THEN
