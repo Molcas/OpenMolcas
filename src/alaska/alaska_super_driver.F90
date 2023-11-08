@@ -239,7 +239,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
     call Put_iScalar('SA ready',iGo)
     if (Method == 'CASPT2  ')  then
       !! Reset MCLR Root so as not to use leftover states
-      write(mstate2,'(1X,"      0",1X,"      0")')
+      write(mstate2,'(1X,7I,1X,7I)') 0,0
       call Put_cArray('MCLR Root',mstate2,16)
     end if
   else if (iGO == -1) then
