@@ -611,7 +611,7 @@ subroutine procinp_caspt2
 
         ! check weaker constraints, if not met, revert to numerical gradients
         if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
-        if (ipea_shift /= 0.0_wp .and. (.not. ifChol)) do_grad = .false.
+        if ((ipea_shift /= 0.0_wp) .and. (.not. ifChol)) do_grad = .false.
         if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
       end if
 #ifdef _MOLCAS_MPP_
@@ -650,8 +650,8 @@ subroutine procinp_caspt2
 !   write (*,*) "roots after MCLR Root:",iRoot1,iRoot2
 
     !! If nothing is specified by ALASKA, use the states in &CASPT2
-    if (iRoot1 == 0 .and. iRoot2 == 0) then
-      if (input%iNACRoot1 == 0 .and. input%iNACRoot2 == 0) then
+    if ((iRoot1 == 0) .and. (iRoot2 == 0)) then
+      if ((input%iNACRoot1 == 0) .and. (input%iNACRoot2 == 0)) then
         iRoot1 = iRlxRoot
         iRoot2 = iRlxRoot
       else
@@ -672,7 +672,7 @@ subroutine procinp_caspt2
   if_invaria = input%IAINVAR
   ConvInvar  = input%ThrConvInvar
 
-  if (ipea_shift /= 0.0_wp .and. do_grad .and. .not.IFDORTHO) then
+  if ((ipea_shift /= 0.0_wp) .and. do_grad .and. (.not.IFDORTHO)) then
     call warningMessage(2,'Analytic gradients with IPEA shift'//  &
                           ' must use the CORT or DORT option.')
     call quit_onUserError
@@ -687,7 +687,7 @@ subroutine procinp_caspt2
   !! state-specific DM, XDW-CASPT2, and RMS-CASPT2, while it is an
   !! array for SS- and MS-CASPT2 with state-averaged DM (with SADREF
   !! option) and XMS-CASPT2.
-  if (IFSADREF .or. nRoots == 1 .or. (IFXMS .and. .not.IFDW)) then
+  if (IFSADREF .or. (nRoots == 1) .or. (IFXMS .and. (.not.IFDW))) then
     IFSSDM = .false.
   else
     IFSSDM = .true.

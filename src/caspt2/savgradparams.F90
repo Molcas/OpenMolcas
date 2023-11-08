@@ -39,12 +39,12 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
 ! character(len=80) :: Label
 
   !! Shift the address due to SavGradParams2
-  If (IDSAVGRD==0) IDSAVGRD = NSTATE + 3*NSTATE**2
+  If (IDSAVGRD == 0) IDSAVGRD = NSTATE + 3*NSTATE**2
 
   !! Decide what to do
-  If (Mode.eq.1) Then
+  If (Mode == 1) Then
     IORW = 1 !! Write
-  Else If (Mode.eq.2) Then
+  Else If (Mode == 2) Then
     IORW = 2 !! Read
   End If
 
@@ -60,14 +60,14 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   !! 2. RDMs
   !! - NG1, NG2, NG3
   Call mma_allocate(IWRK1,5,Label='IWRK1')
-  If (IORW.eq.1) Then
+  If (IORW == 1) Then
     IWRK1(1) = NG1
     IWRK1(2) = NG2
     IWRK1(3) = NG3
     IWRK1(4) = NG3TOT
     IWRK1(5) = NBUF1_GRAD
     CALL IDAFILE(LUGRAD,IORW,IWRK1,5,IDSAVGRD)
-  Else If (IORW.eq.2) Then
+  Else If (IORW == 2) Then
     CALL IDAFILE(LUGRAD,IORW,IWRK1,5,IDSAVGRD)
     NG1    = IWRK1(1)
     NG2    = IWRK1(2)
@@ -100,7 +100,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   Call mma_allocate(WRK1,NMAX,Label='WRK1')
 
   CALL mma_allocate(idxG3,6,NG3,label='idxG3')
-  If (IORW.eq.1) Then
+  If (IORW == 1) Then
     !! NG3 index
     iLUID = 0
     CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
@@ -124,7 +124,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
     !! EASUM
     WRK1(1) = EASUM
     CALL DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
-  Else If (IORW.eq.2) Then
+  Else If (IORW == 2) Then
     !! NG3 index
     CALL I1DAFILE(LUGRAD,2,idxG3,6*NG3,IDSAVGRD)
     iLUID = 0
@@ -159,7 +159,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
       NIN = NINDEP(ISYM,ICASE)
       NAS = NASUP(ISYM,ICASE)
       NIS = NISUP(ISYM,ICASE)
-      If (IORW.eq.1) Then
+      If (IORW == 1) Then
         !! Active overlap
         ID = IDSMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,2,WRK1,NAS*(NAS+1)/2,ID)
@@ -184,7 +184,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
           CALL DDAFILE(LUSTD,2,WRK1,NAS*(NAS+1)/2,ID)
           CALL DDAFILE(LUGRAD,1,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
         end if
-      Else If (IORW.eq.2) Then
+      Else If (IORW == 2) Then
         !! Active overlap
         CALL DDAFILE(LUGRAD,2,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
         ID = IDSMAT(ISYM,ICASE)
@@ -214,10 +214,10 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   End Do
 
   !! 4. E2TOT
-  If (IORW.eq.1) Then
+  If (IORW == 1) Then
     WRK1(1) = E2TOT
     CALL DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
-  Else
+  Else If (IORW == 2) Then
     CALL DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
     E2TOT = WRK1(1)
   End If
@@ -243,29 +243,29 @@ Contains
     Do ICASE_ = 1, NCASES
       Do ISYM_ = 1, NSYM
         NIN = NINDEP(ISYM_,ICASE_)
-        If (NIN.EQ.0) Cycle
+        If (NIN == 0) Cycle
         NIS = NISUP(ISYM_,ICASE_)
         NAS = NASUP(ISYM_,ICASE_)
         NVEC = NIN*NIS
-        If (ICASE_.EQ.12.OR.ICASE_.EQ.13) NVEC = NAS*NIS
-        If (NVEC.EQ.0) Cycle
+        If ((ICASE_ == 12) .OR. (ICASE_ == 13)) NVEC = NAS*NIS
+        If (NVEC == 0) Cycle
         !! lg_V1 = T (solution; not quasi-variational)
-        If (ICASE_.EQ.12.OR.ICASE_.EQ.13) Then
+        If ((ICASE_ == 12) .OR. (ICASE_ == 13)) Then
           Call RHS_ALLO(NAS,NIS,lg_V1)
-          If (IORW.EQ.1) Then
+          If (IORW == 1) Then
             Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
             CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NAS*NIS,IDSAVGRD)
-          Else If (IORW.EQ.2) Then
+          Else If (IORW == 2) Then
             CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NAS*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
           CALL RHS_FREE(NAS,NIS,lg_V1)
         Else
           Call RHS_ALLO(NIN,NIS,lg_V1)
-          If (IORW.EQ.1) Then
+          If (IORW == 1) Then
             Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
             CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NIN*NIS,IDSAVGRD)
-          Else If (IORW.EQ.2) Then
+          Else If (IORW == 2) Then
             CALL DDAFILE(LUGRAD,IORW,WORK(lg_V1),NIN*NIS,IDSAVGRD)
             CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
           End If
@@ -294,9 +294,9 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
   integer(kind=iwp) :: IORW,ID
 
   !! Decide what to do
-  If (Mode.eq.1) Then
+  If (Mode == 1) Then
     IORW = 1 !! Write
-  Else If (Mode.eq.2) Then
+  Else If (Mode == 2) Then
     IORW = 2 !! Read
   End If
 

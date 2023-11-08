@@ -220,7 +220,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
   mstate1(1:1) = mstate2(1:1)
   MCLR_Ready = (iGO == 1) .and. (mstate1 == mstate2)
 
-  if (MCLR_Ready .or. (iGO == 1 .or. iGo == 2)) then
+  if (MCLR_Ready .or. ((iGO == 1) .or. (iGo == 2))) then
     call Alaska(LuSpool,iRC)
 
     ! Add ESPF contribution
@@ -305,7 +305,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
     if (Method == 'CASPT2  ') then
       !! if states computed in CASPT2 and MCLR are inconsistent,
       !! do CASPT2 again
-      if (iGo == 1 .and. mstate1/=mstate2) then
+      if ((iGo == 1) .and. (mstate1 /= mstate2)) then
         iGo = 0
         call Put_iScalar('SA ready',iGo)
       end if

@@ -11,6 +11,7 @@
 !
 subroutine caspt2_grad_invaria1(DPT2)
 !
+  use Constants, only: Zero
   use definitions, only: iwp,wp
 !
   implicit none
@@ -18,40 +19,39 @@ subroutine caspt2_grad_invaria1(DPT2)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
-#include "real.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)
   integer(kind=iwp) :: IOFDIJ(8),IOFDAB(8)
 !
   integer(kind=iwp) :: idij,is,ni,na,ns,no,idtu,idab,isym,ii,ij,ia,ib
 !
-  IDIJ=0
-  DO IS=1,NSYM
-    NI=NISH(IS)
-    NA=NASH(IS)
-    NO=NORB(IS)
-    IDTU=IDIJ+NO*NI+NI
-    IDAB=IDTU+NO*NA+NA
-    IOFDIJ(IS)=IDIJ
-    IOFDAB(IS)=IDAB
-    IDIJ=IDIJ+NO*NO
+  IDIJ = 0
+  DO IS = 1,NSYM
+    NI = NISH(IS)
+    NA = NASH(IS)
+    NO = NORB(IS)
+    IDTU = IDIJ+NO*NI+NI
+    IDAB = IDTU+NO*NA+NA
+    IOFDIJ(IS) = IDIJ
+    IOFDAB(IS) = IDAB
+    IDIJ = IDIJ+NO*NO
   END DO
 !
   do isym = 1, nsym
-    NI=NISH(ISYM)
-    NS=NSSH(ISYM)
-    NO=NORB(ISYM)
+    NI = NISH(ISYM)
+    NS = NSSH(ISYM)
+    NO = NORB(ISYM)
     do ii = 1, ni
       do ij = 1, ni
-        if (ii.eq.ij) cycle
-        IDIJ=IOFDIJ(ISYM)+II+NO*(IJ-1)
+        if (ii == ij) cycle
+        IDIJ = IOFDIJ(ISYM)+II+NO*(IJ-1)
         DPT2(IDIJ) = Zero
       end do
     end do
     do ia = 1, ns
       do ib = 1, ns
-        if (ia.eq.ib) cycle
-        IDAB=IOFDAB(ISYM)+IA+NO*(IB-1)
+        if (ia == ib) cycle
+        IDAB = IOFDAB(ISYM)+IA+NO*(IB-1)
         DPT2(IDAB) = Zero
       end do
     end do
@@ -63,6 +63,7 @@ end subroutine caspt2_grad_invaria1
 !
 subroutine caspt2_grad_invaria2(DPT2,OLag)
 !
+  use Constants, only: Half
   use definitions, only: iwp,wp
 !
   implicit none
@@ -83,11 +84,11 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
     nOrbI = nBas(iSym)-nDel(iSym)
     nFroI = nFro(iSym)
     nIshI = nIsh(iSym)
-    If (nOrbI.gt.0.and.nIshI.gt.0) Then
+    If ((nOrbI > 0) .and. (nIshI > 0)) Then
       Do iOrb = nFroI+1, nFroI+nIshI
         Do jOrb = iOrb+1, nFroI+nIshI
-          Tmp = -0.5D+00*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))  &
-                         -OLag(iMO+jOrb-1+nOrbI*(iOrb-1))) &
+          Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))  &
+                      -OLag(iMO+jOrb-1+nOrbI*(iOrb-1))) &
               /(EPSI(iOrb-nFroI)-EPSI(jOrb-nFroI))
 !           write (*,*) epsi(iorb-nfroi),epsi(jorb-nfroi)
           DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) = Tmp
@@ -97,11 +98,11 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
     End If
     nSshI = nSsh(iSym)
     nAshI = nAsh(iSym)
-    If (nOrbI.gt.0.and.nSshI.gt.0) Then
+    If ((nOrbI > 0) .and. (nSshI > 0)) Then
       Do iOrb = nOrbI-nSshI+1, nOrbI
         Do jOrb = iOrb+1, nOrbI
-          Tmp = -0.5D+00*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))  &
-                         -OLag(iMO+jOrb-1+nOrbI*(iOrb-1))) &
+          Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))  &
+                      -OLag(iMO+jOrb-1+nOrbI*(iOrb-1))) &
               /(EPSE(iOrb-nFroI-nIshI-nAshI)-EPSE(jOrb-nFroI-nIshI-nAshI))
           DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) = Tmp
           DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) = Tmp

@@ -64,7 +64,7 @@ C
         read(mstate1,'(1X,I7,1X,I7)') NACStates(1),NACStates(2)
         if (NACStates(1) /= 0) isNAC = .true.
         if (NACStates(1) == 0) iRlxRoot = NACStates(2)
-      else if (iGo == 3 .and. iRlxRoot /= iRlxRootPT2) then
+      else if ((iGo == 3) .and. (iRlxRoot /= iRlxRootPT2)) then
         !! This means CASPT2 density has been computed for the states
         !! specified by NAC in &CASPT2.
         !! In this case, perform MCLR anyway(?)
@@ -93,10 +93,10 @@ C     endif
         iRoot2req = MIN(NACStates(1),NACStates(2))
         iRoot1com = MAX(iRlxRoot,iRlxRootPT2)
         iRoot2com = MIN(iRlxRoot,iRlxRootPT2)
-        if (iGo /= 0 .and. iRoot1req == iRoot1com
-     *               .and. iRoot2req == iRoot2com)   return
+        if ((iGo /= 0) .and. (iRoot1req == iRoot1com)
+     *                 .and. (iRoot2req == iRoot2com))   return
       else
-        if (iGo /= 0 .and. iRlxRoot  == iRlxRootPT2) return
+        if ((iGo /= 0) .and. (iRlxRoot  == iRlxRootPT2)) return
       end if
 
       !! Otherwise, compute CASPT2 density for the state specified
@@ -119,7 +119,7 @@ C     endif
         LuSpool2 = IsFreeUnit(LuSpool2)
         call Molcas_Open(LuSpool2,Filename)
 
-        NeedGrdt = isStructure() /= 1
+        NeedGrdt = (isStructure() /= 1)
         do
           read(LuSpool2,'(A)',iostat=istatus) Line
 C         write (*,'(a)') line

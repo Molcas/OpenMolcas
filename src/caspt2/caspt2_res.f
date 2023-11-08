@@ -210,14 +210,14 @@ C
      *                                    delta_ps
 
       epsilon = 0.0_wp
-      if (sigma_p_epsilon .ne. 0.0_wp) then
+      if (sigma_p_epsilon /= 0.0_wp) then
         epsilon = sigma_p_epsilon
       end if
 
       do j = 1, nCol
         do i = 1, nRow
           scal = 0.0_wp
-          if (Mode.eq.1) then
+          if (Mode == 1) then
             ! energy denominator plus real shift
             delta = dIn(i) + dIs(j) + real_shift
             ! inverse denominator plus imaginary shift
@@ -237,12 +237,12 @@ C
 !
             W1(i,j) = scal*W1(i,j)
             W2(i,j) = scal*W2(i,j)
-          else if (Mode.eq.2) then
-            if (imag_shift .ne. 0.0_wp) then
+          else if (Mode == 2) then
+            if (imag_shift /= 0.0_wp) then
               scal = imag_shift/(dIn(i)+dIs(j))
               W1(i,j) = scal*W1(i,j)
               W2(i,j) = scal*W2(i,j)
-            else if (epsilon.ne.0.0_wp) then
+            else if (epsilon /= 0.0_wp) then
               ! derivative of the denominator of sigma-p CASPT2
               ! always real_shift = imag_shift = 0
               delta   = dIn(i)+dIs(j)
@@ -260,7 +260,7 @@ C             W2(i,j) = delta_inv*p*(delta_ps)*expscal*W2(i,j)
 C    *                  *(SIGN(1.0_wp,delta)**p)
 C             W1(i,j) = delta_inv*W1(i,j)
             end if
-          else if (Mode.eq.3) then
+          else if (Mode == 3) then
             ! derivative of the numerator of sigma-p CASPT2
             ! always real_shift = imag_shift = 0
             delta     = dIn(i)+dIs(j)

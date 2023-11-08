@@ -713,7 +713,7 @@ C    *              0.0D+00,Work(ipRDMEIG),nAshT)
           CALL GETMEM('EigT ','ALLO','REAL',ipEigT ,nAshT**2)
           Call DCopy_(nConf*nState,Work(ipCLag),1,Work(ipCLagT),1)
           Call DCopy_(nAshT**2,Work(ipRDMEIG),1,Work(ipEigT),1)
-          If (IFDW .and .zeta >= 0.0d+00) then
+          If (IFDW .and. zeta >= 0.0d+00) then
             CALL GETMEM('OMGT ','ALLO','REAL',ipOMGT ,nState*nState)
             Call DCopy_(nState**2,Work(ipOMGDER),1,Work(ipOMGT),1)
           end if
@@ -781,7 +781,7 @@ C
           call DCopy_(nState*nState,[0.0D+00],0,Work(ipSLag),1)
           CALL GETMEM('CLagT','FREE','REAL',ipCLagT,nConf*nState)
           CALL GETMEM('EigT ','FREE','REAL',ipEigT ,nAshT**2)
-          if (IFDW .and .zeta >= 0.0d+00) then
+          if (IFDW .and. zeta >= 0.0d+00) then
             Call DCopy_(nState*nState,Work(ipOMGT),1,Work(ipOMGDER),1)
             CALL GETMEM('OMGT ','FREE','REAL',ipOMGT ,nState*nState)
           end if

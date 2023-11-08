@@ -162,7 +162,7 @@ C     write (*,*) "iflindep = ", iflindeplag
         End Do
       End If
 C
-      If (MAXIT.NE.0) Then
+      If (MAXIT /= 0) Then
         Do iCase = 1, 11
           Do iSym = 1, nSym
             idSDMat(iSym,iCase) = idSD
@@ -176,7 +176,7 @@ C
       End If
       Call GETMEM('WRK','FREE','REAL',ipWRK,MaxLen)
 C
-      if (nFroT.ne.0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
+      if (nFroT /= 0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
 C
       Return
 
@@ -349,7 +349,7 @@ C
       End If
 C
       !! Compute true unrelaxed properties for MS-CASPT2
-      if (.not.do_nac .and. ifmscoup) CALL PRPCTL(1,UEFF,U0)
+      if ((.not.do_nac) .and. ifmscoup) CALL PRPCTL(1,UEFF,U0)
 C
       Call Molcas_Open(LuPT2,'PT2_Lag')
 
@@ -455,7 +455,7 @@ C       write (*,*) "CASSCF/Original = ", iRoot1,iRoot2
         call Qpg_cArray('MCLR Root',Found,I)
         if (Found) then
           Call Get_cArray('MCLR Root',mstate1,16)
-          if (mstate1(8:8).eq.'0' .and. mstate1(16:16).eq.'0') then
+          if ((mstate1(8:8).eq.'0') .and. (mstate1(16:16).eq.'0')) then
             !! NAC states have not been specified
             write (mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
             Call Put_cArray('MCLR Root',mstate1,16)
@@ -476,7 +476,7 @@ C
       !! Close files
       Call DaClos(LUSTD)
 C
-      if (nFroT.ne.0) call mma_deallocate(TraFro)
+      if (nFroT /= 0) call mma_deallocate(TraFro)
 C
       Return
 C
@@ -521,10 +521,10 @@ C
 #include "caspt2.fh"
 #include "caspt2_grad.fh"
 C
-      If (.not.if_invar .and. IPRGLB.GE.USUAL) Then
+      If ((.not.if_invar) .and. (IPRGLB >= USUAL)) Then
         Write (6,*)
         Write (6,'(3X,"This is a non-invariant CASPT2 calculation")')
-        If (ipea_shift.NE.0.0D+00)
+        If (ipea_shift /= 0.0D+00)
      *    Write (6,'(3X,"- IPEA shift is employed")')
         Write (6,'(3X,"A linear equation will be solved to obtain ",
      *                "the off-diagonal active density")')
@@ -538,7 +538,7 @@ C
      *    "This keyword is recommended with state-averaged reference"
         End If
       End If
-      If (.not.IFDORTHO .and. ipea_shift.ne.0.0D+00) Then
+      If ((.not.IFDORTHO) .and. (ipea_shift /= 0.0D+00)) Then
         write(6,*)
      *    "It seems that DORT keyword is not used, ",
      *    "even though this calculation uses the IPEA shift"
@@ -759,7 +759,7 @@ C             write (*,*) "fifa in MO"
 C             call sqprt(work(ipfifa+isq),nbasi)
               !! canonicalize frozen orbitals
               !! still under investigation
-              If (nFroT.ne.0) Then
+              If (nFroT /= 0) Then
                 CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK2),1)
                 CALL DIAFCK(NBAS(ISYM),WORK(ipFIFA),1,NFRO(ISYM),
      &                      TraFro,NBAS(ISYM),WORK(LCMOPT2),

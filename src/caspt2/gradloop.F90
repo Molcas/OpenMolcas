@@ -17,7 +17,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   USE PT2WFN
   use caspt2_output, only: iPrGlb, usual, verbose
   use caspt2_gradient, only: do_grad, IDSAVGRD, iStpGrd
-  use definitions, only: iwp,wp
+  use definitions, only: iwp,wp,u6
 
   Implicit None
 
@@ -62,7 +62,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
     Call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)
   end if
 
-  iStpGrd = 2_iwp
+  iStpGrd = 2
 
 ! For (X)Multi-State, a long loop over root states.
 ! The states are ordered by group, with each group containing a number
@@ -70,10 +70,10 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
     JSTATE_OFF=0
     STATELOOP2: DO IGROUP=1,NGROUP
 
-    IF (IPRGLB.GE.USUAL) THEN
+    IF (IPRGLB >= USUAL) THEN
       WRITE(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
       CALL CollapseOutput(1,TRIM(STLNE2))
-      WRITE(6,*)
+      WRITE(u6,*)
     END IF
 
     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -93,16 +93,16 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       CALL RHS_INIT !! somehow
       Call SavGradParams(2,IDSAVGRD)
       Call SavGradParams2(2,UEFF,U0,H0)
-      If ((IFXMS.and.IFDW).OR.IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
+      If ((IFXMS .and. IFDW) .OR. IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
       CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
       CPUSIN=CPTF11-CPTF0
       TIOSIN=TIOTF11-TIOTF0
 
 ! Solve CASPT2 equation system and compute corr energies.
-      IF (IPRGLB.GE.USUAL) THEN
-         WRITE(6,'(20A4)')('****',I=1,20)
-         WRITE(6,*)' CASPT2 EQUATION SOLUTION (SECOND RUN)'
-         WRITE(6,'(20A4)')('----',I=1,20)
+      IF (IPRGLB >= USUAL) THEN
+         WRITE(u6,'(20A4)')('****',I=1,20)
+         WRITE(u6,*)' CASPT2 EQUATION SOLUTION (SECOND RUN)'
+         WRITE(u6,'(20A4)')('----',I=1,20)
       END IF
 
       Write(STLNE2,'(A27,I3)')'Solve CASPT2 eqs for state ', MSTATE(JSTATE)
@@ -131,16 +131,16 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 
       IF (IFPROP.OR.(do_grad.and.(IRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP))) THEN
         IF (IPRGLB.GE.USUAL) THEN
-          WRITE(6,*)
-          WRITE(6,'(20A4)')('****',I=1,20)
-          WRITE(6,*)' CASPT2 PROPERTY SECTION'
+          WRITE(u6,*)
+          WRITE(u6,'(20A4)')('****',I=1,20)
+          WRITE(u6,*)' CASPT2 PROPERTY SECTION'
         END IF
         CALL PRPCTL(0,UEFF,U0)
       ELSE
         IF (IPRGLB.GE.USUAL) THEN
-          WRITE(6,*)
-          WRITE(6,*)'  (Skipping property calculation,'
-          WRITE(6,*)'   use PROP keyword to activate)'
+          WRITE(u6,*)
+          WRITE(u6,*)'  (Skipping property calculation,'
+          WRITE(u6,*)'   use PROP keyword to activate)'
         END IF
       END IF
 
@@ -155,7 +155,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       CPUTOT=CPTF14-CPTF0
       TIOTOT=TIOTF14-TIOTF0
 
-      IF (ISTATE.EQ.1) THEN
+      IF (ISTATE == 1) THEN
         CPUTOT=CPUTOT+CPUGIN
         TIOTOT=TIOTOT+TIOGIN
       ELSE
@@ -167,46 +167,46 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
         TIOINT=0.0D0
       END IF
 
-      IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,*)
-        WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',MSTATE(JSTATE)
-        WRITE(6,*)
-        WRITE(6,'(A)')       '                        '// &
-     &                       ' cpu time  (s) '// &
-     &                       ' wall time (s) '
-        WRITE(6,'(A)')       '                        '// &
-     &                       ' ------------- '// &
-     &                       ' ------------- '
-        WRITE(6,*)
-        WRITE(6,'(A,2F14.2)')'  Group initialization  ',CPUGIN,TIOGIN
-        WRITE(6,'(A,2F14.2)')'  - Fock matrix build   ',CPUFMB,TIOFMB
-        WRITE(6,'(A,2F14.2)')'  - integral transforms ',CPUINT,TIOINT
-        WRITE(6,'(A,2F14.2)')'  State initialization  ',CPUSIN,TIOSIN
-        WRITE(6,'(A,2F14.2)')'  - density matrices    ',CPUFG3,TIOFG3
-        WRITE(6,'(A,2F14.2)')'  CASPT2 equations      ',CPUPT2,TIOPT2
-        WRITE(6,'(A,2F14.2)')'  - H0 S/B matrices     ',CPUSBM,TIOSBM
-        WRITE(6,'(A,2F14.2)')'  - H0 S/B diag         ',CPUEIG,TIOEIG
-        WRITE(6,'(A,2F14.2)')'  - H0 NA diag          ',CPUNAD,TIONAD
-        WRITE(6,'(A,2F14.2)')'  - RHS construction    ',CPURHS,TIORHS
-        WRITE(6,'(A,2F14.2)')'  - PCG solver          ',CPUPCG,TIOPCG
-        WRITE(6,'(A,2F14.2)')'    - scaling           ',CPUSCA,TIOSCA
-        WRITE(6,'(A,2F14.2)')'    - lin. comb.        ',CPULCS,TIOLCS
-        WRITE(6,'(A,2F14.2)')'    - inner products    ',CPUOVL,TIOOVL
-        WRITE(6,'(A,2F14.2)')'    - basis transforms  ',CPUVEC,TIOVEC
-        WRITE(6,'(A,2F14.2)')'    - sigma routines    ',CPUSGM,TIOSGM
-        WRITE(6,'(A,2F14.2)')'  - array collection    ',CPUSER,TIOSER
-        WRITE(6,'(A,2F14.2)')'  Properties            ',CPUPRP,TIOPRP
-        WRITE(6,'(A,2F14.2)')'  MS coupling           ',CPUGRD,TIOGRD
-        WRITE(6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
-        WRITE(6,*)
+      IF (IPRGLB >= VERBOSE) THEN
+        WRITE(u6,*)
+        WRITE(u6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',MSTATE(JSTATE)
+        WRITE(u6,*)
+        WRITE(u6,'(A)')       '                        '// &
+     &                        ' cpu time  (s) '// &
+     &                        ' wall time (s) '
+        WRITE(u6,'(A)')       '                        '// &
+     &                        ' ------------- '// &
+     &                        ' ------------- '
+        WRITE(u6,*)
+        WRITE(u6,'(A,2F14.2)')'  Group initialization  ',CPUGIN,TIOGIN
+        WRITE(u6,'(A,2F14.2)')'  - Fock matrix build   ',CPUFMB,TIOFMB
+        WRITE(u6,'(A,2F14.2)')'  - integral transforms ',CPUINT,TIOINT
+        WRITE(u6,'(A,2F14.2)')'  State initialization  ',CPUSIN,TIOSIN
+        WRITE(u6,'(A,2F14.2)')'  - density matrices    ',CPUFG3,TIOFG3
+        WRITE(u6,'(A,2F14.2)')'  CASPT2 equations      ',CPUPT2,TIOPT2
+        WRITE(u6,'(A,2F14.2)')'  - H0 S/B matrices     ',CPUSBM,TIOSBM
+        WRITE(u6,'(A,2F14.2)')'  - H0 S/B diag         ',CPUEIG,TIOEIG
+        WRITE(u6,'(A,2F14.2)')'  - H0 NA diag          ',CPUNAD,TIONAD
+        WRITE(u6,'(A,2F14.2)')'  - RHS construction    ',CPURHS,TIORHS
+        WRITE(u6,'(A,2F14.2)')'  - PCG solver          ',CPUPCG,TIOPCG
+        WRITE(u6,'(A,2F14.2)')'    - scaling           ',CPUSCA,TIOSCA
+        WRITE(u6,'(A,2F14.2)')'    - lin. comb.        ',CPULCS,TIOLCS
+        WRITE(u6,'(A,2F14.2)')'    - inner products    ',CPUOVL,TIOOVL
+        WRITE(u6,'(A,2F14.2)')'    - basis transforms  ',CPUVEC,TIOVEC
+        WRITE(u6,'(A,2F14.2)')'    - sigma routines    ',CPUSGM,TIOSGM
+        WRITE(u6,'(A,2F14.2)')'  - array collection    ',CPUSER,TIOSER
+        WRITE(u6,'(A,2F14.2)')'  Properties            ',CPUPRP,TIOPRP
+        WRITE(u6,'(A,2F14.2)')'  MS coupling           ',CPUGRD,TIOGRD
+        WRITE(u6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
+        WRITE(u6,*)
       END IF
 
 ! End of long loop over states in the group
     END DO
 
-    IF (IPRGLB.GE.USUAL) THEN
+    IF (IPRGLB >= USUAL) THEN
       CALL CollapseOutput(0,'CASPT2 computation for group ')
-      WRITE(6,*)
+      WRITE(u6,*)
     END IF
 ! End of long loop over groups
     JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)

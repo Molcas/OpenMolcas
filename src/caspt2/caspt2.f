@@ -198,12 +198,12 @@ C
         End IF
       End If
 
-      If (iStpGrd==0) Then
+      If (iStpGrd == 0) Then
         Call SavGradParams2(2,UEFF,U0,H0)
         Call DCopy_(Nstate,ENERGY,1,Esav,1)
         Call DCopy_(Nstate*Nstate,UEFF,1,UEFFSav,1)
         Call DCopy_(Nstate*Nstate,U0,1,U0Sav,1)
-        If ((IFXMS.and.IFDW) .or. IFRMS)
+        If ((IFXMS .and. IFDW) .or. IFRMS)
      *    Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
         iStpGrd = 2
 C       Call EQCTL2(ICONV)
@@ -295,7 +295,7 @@ C       Call EQCTL2(ICONV)
              WRITE(6,*)' CASPT2 PROPERTY SECTION'
            END IF
            CALL PRPCTL(0,UEFF,U0)
-           If (nStpGrd==2) Call SavGradParams(1,IDSAVGRD)
+           If (nStpGrd == 2) Call SavGradParams(1,IDSAVGRD)
          ELSE
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)
@@ -487,7 +487,7 @@ C     transition density matrices.
 
 ! Beginning of second step, in case gradient of (X)MS
 
-        If (nStpGrd.eq.2) Then
+        If (nStpGrd == 2) Then
           IF (IPRGLB.GE.TERSE) THEN
             WRITE(6,'(20A4)')('****',I=1,20)
             WRITE(6,'(A)')
@@ -504,8 +504,8 @@ C     transition density matrices.
           !!Somehow H0 is wrong for XDW-CASPT2
           !!Maybe, H0(1,1) is computed with rotated basis with
           !!DW-density, while the true value is computed with SA-density
-          If (do_grad.AND.IFMSCOUP) Then
-            If ((IFXMS.and.IFDW) .or. IFRMS) Then
+          If (do_grad .AND. IFMSCOUP) Then
+            If ((IFXMS .and. IFDW) .or. IFRMS) Then
               Call DCopy_(nState*nState,H0Sav,1,H0,1)
             End If
           End If
@@ -516,7 +516,7 @@ C     transition density matrices.
 
 * Back-transform the effective Hamiltonian and the transformation matrix
 * to the basis of original CASSCF states
-        If (nStpGrd.eq.2) Then
+        If (nStpGrd == 2) Then
           CALL Backtransform(Heff,UeffSav,U0sav)
           Call DCopy_(nState*nState,UeffSav,1,Ueff,1)
           Call DCopy_(nState,ESav,1,ENERGY,1)
@@ -532,7 +532,7 @@ C     transition density matrices.
         CALL PT2WFN_ESTORE(HEFF)
 
 * Store rotated states if XMUL + NOMUL
-        IF ((IFXMS.or.IFRMS).AND.(.NOT.IFMSCOUP)) CALL PT2WFN_DATA
+        IF ((IFXMS .or. IFRMS) .AND. (.NOT.IFMSCOUP)) CALL PT2WFN_DATA
 
 * store information on runfile for geometry optimizations
         Call Put_iScalar('NumGradRoot',iRlxRoot)
