@@ -44,7 +44,7 @@
       Procedure(int_kernel) :: Kernel
       Procedure(int_mem) :: KrnlMm
 #include "Molcas.fh"
-      Integer iS, jS, iPrint, nComp, nOrdOp, nStabO, nIC, nGrid,
+      Integer iS, jS, iPrint, nComp, nOrdOp, nStabO, nIC, nGrid,        &
      &        iAddPot, l_SOInt
       Logical Do_PGamma
       Integer nFinal, nScrtch, nScrSph
@@ -67,17 +67,17 @@
 #ifdef _GEN1INT_
       Logical NATEST, DO_TRAN
 #endif
-      Integer i, iCmp, iBas, iAO, iShell, jCmp, jBas, jAO, jShell, nSO,
-     &        iComp, iSmLbl, iShll, iAng, iPrim, mdci, iCnttp,
-     &        iCnt, jShll, jAng, jPrim, mdcj, jCnttp, lFinal, ii,
-     &        Lmbdr, nDCRR, nStabM, lDCRR, l_Coord, nAtoms, iSOBlk, iiC,
-     &        mSO, iIrrep, lA0, lA1, lB0, lB1, MemAux, MemBux, MemCux,
-     &        MemKer, MemKrn, lScrtch, lScrSph, iuv, LambdT, kk, ipFnl,
-     &        nij, nijab, iab, ipX, ipY, ipZ, jj, iAtom, nDCRT,
+      Integer i, iCmp, iBas, iAO, iShell, jCmp, jBas, jAO, jShell, nSO, &
+     &        iComp, iSmLbl, iShll, iAng, iPrim, mdci, iCnttp,          &
+     &        iCnt, jShll, jAng, jPrim, mdcj, jCnttp, lFinal, ii,       &
+     &        Lmbdr, nDCRR, nStabM, lDCRR, l_Coord, nAtoms, iSOBlk, iiC,&
+     &        mSO, iIrrep, lA0, lA1, lB0, lB1, MemAux, MemBux, MemCux,  &
+     &        MemKer, MemKrn, lScrtch, lScrSph, iuv, LambdT, kk, ipFnl, &
+     &        nij, nijab, iab, ipX, ipY, ipZ, jj, iAtom, nDCRT,         &
      &        nOrder, NrOpr, jCnt
       Real*8 Fact, xFactor, xMass
       Integer :: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
-      Character(LEN=3) :: ChOper(0:7)= ['E  ','x  ','y  ','xy ','z  ',
+      Character(LEN=3) :: ChOper(0:7)= ['E  ','x  ','y  ','xy ','z  ',  &
      &                                  'xz ','yz ','xyz']
 !
 !     Statement functions

@@ -44,7 +44,6 @@ use MpmC, only: Coor_MPM
 use Basis_Info, only: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, nBas
 use Center_Info, only: Center_Info_Dmp, Center_Info_Free, Center_Info_Get, Center_Info_Init
 use Symmetry_Info, only: nIrrep, lIrrep
-use LundIO, only: Buf, iDisk, lBuf, Lu_28
 use DKH_Info, only: DKroll
 use OneDat, only: sNew
 use Gateway_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post, PkAcc

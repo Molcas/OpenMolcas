@@ -23,12 +23,12 @@
 
       Procedure(int_wrout), Pointer :: Int_postprocess=>Null()
 
-      Public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij,
+      Public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij,     &
      &          OneEl_Inner, OneEl_Integrals, Int_postprocess
 
 #define _FIXED_FORMAT_
       Abstract interface
-        Subroutine int_kernel(
+        Subroutine int_kernel(                                          &
 #                             define _CALLING_
 #                             include "int_interface.fh"
      &                       )
@@ -36,14 +36,14 @@
 #       include "int_interface.fh"
         End Subroutine int_kernel
 
-        Subroutine int_mem(
+        Subroutine int_mem(                                             &
 #                          define _CALLING_
 #                          include "mem_interface.fh"
      &                    )
 #       include "mem_interface.fh"
         End Subroutine int_mem
 
-        Subroutine int_wrout(
+        Subroutine int_wrout(                                           &
 #                            define _CALLING_
 #                            include "int_wrout_interface.fh"
      &                      )
