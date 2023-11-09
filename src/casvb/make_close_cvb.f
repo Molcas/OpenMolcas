@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-*               1996-2006, David L. Cooper                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
       subroutine make_close_cvb(it)
-      use casvb_global, only: ipfocc_cvb, lcmo_cvb, ld1a_cvb, ld1i_cvb,
-     &                        ld1tot_cvb, ldiaf_cvb, ldmat_cvb,
-     &                        ldspn_cvb, lfa_cvb, lfi_cvb, loccn_cvb,
-     &                        lpa_cvb, lpmat_cvb, ltuvx_cvb, lw1_cvb,
+      use casvb_global, only: ipfocc_cvb, lcmo_cvb, ld1a_cvb, ld1i_cvb, &
+     &                        ld1tot_cvb, ldiaf_cvb, ldmat_cvb,         &
+     &                        ldspn_cvb, lfa_cvb, lfi_cvb, loccn_cvb,   &
+     &                        lpa_cvb, lpmat_cvb, ltuvx_cvb, lw1_cvb,   &
      &                        variat
       implicit real*8(a-h,o-z)
       integer find_lu
@@ -36,7 +36,7 @@
       il=10
       if(it.eq.0) il=10
       if(it.eq.1) il=11
-c  Preassign some file names to identifiers :
+!  Preassign some file names to identifiers :
       do i=1,il
         n=find_lu(vec(i))
         if(n.gt.0)call daclos(n)
