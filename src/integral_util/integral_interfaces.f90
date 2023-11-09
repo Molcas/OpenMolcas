@@ -28,7 +28,7 @@
      &          OneEl_Inner, OneEl_Integrals, Int_postprocess,          &
      &          Integral_WrOut2, Integral_RI_3, Integral_RICD,          &
      &          Integral_RI_2, Integral_WrOut_Cho,                      &
-     &          Integral_WrOut_Cho_Diag
+     &          Integral_WrOut_Cho_Diag, Integral_WrOut_LDF_diag
 
 #define _FIXED_FORMAT_
       Abstract interface
@@ -68,5 +68,6 @@
 #include "../ri_util/integral_ricd.F90"
 #include "../cholesky_util/integral_wrout_cho.F90"
 #include "../cholesky_util/integral_wrout_cho_diag.F90"
+#include "../ldf_ri_util/integral_wrout_ldf_diag.f90"
 
       End Module Integral_Interfaces
