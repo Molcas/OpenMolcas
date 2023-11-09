@@ -18,7 +18,7 @@ use casvb_global, only: esym, n_iter
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: icode
+integer(kind=iwp), intent(in) :: icode
 integer(kind=iwp) :: iDummy
 real(kind=wp) :: Dummy(1)
 

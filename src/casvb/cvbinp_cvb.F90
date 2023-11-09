@@ -17,7 +17,7 @@ subroutine cvbinp_cvb(icode,luinp)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: icode, luinp
+integer(kind=iwp), intent(in) :: icode, luinp
 
 call cvbstart_cvb_ge9(icode+10)
 call hello_cvb()

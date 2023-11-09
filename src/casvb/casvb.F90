@@ -20,7 +20,7 @@ subroutine casvb(ireturn)
 use Definitions, only: iwp, u5
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 
 call cvbinp_cvb(0,u5)
 call cvbmn_cvb(0)
