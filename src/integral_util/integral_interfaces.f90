@@ -18,6 +18,7 @@
       Use rmat, only:
       Use define_af, only:
       use Property_Label, only:
+      use ri_glob, only:
 
       Private
 
