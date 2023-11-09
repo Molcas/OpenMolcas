@@ -8,6 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
 
 subroutine Integral_WrOut_Cho_diag( &
 #                                  define _CALLING_
@@ -16,8 +18,6 @@ subroutine Integral_WrOut_Cho_diag( &
 ! calls the proper routines IndSft/PLF
 !    if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                     else  integral order within symblk: ijkl
-
-use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
@@ -36,3 +36,13 @@ end if
 return
 
 end subroutine Integral_WrOut_Cho_diag
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(Integral_WrOut_Cho_diag)
+
+#endif
+
+

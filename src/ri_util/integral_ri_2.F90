@@ -21,7 +21,6 @@ subroutine Integral_RI_2( &
 !                   else  integral order within symblk: ijkl
 
 use RI_glob, only: iOffA, SO2Ind
-use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"

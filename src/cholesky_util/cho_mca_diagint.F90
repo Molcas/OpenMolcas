@@ -19,6 +19,7 @@ use Gateway_Info, only: CutInt, ThrInt
 #endif
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Integral_interfaces, only: Int_PostProcess, Integral_WrOut_Cho_diag
 
 implicit none
 integer(kind=iwp), intent(in) :: ISHLA, ISHLB, LSCR
@@ -27,9 +28,9 @@ real(kind=wp), intent(out) :: SCR(LSCR)
 real(kind=wp) :: CUTINT1, CUTINT2, THRINT1, THRINT2
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'
 #endif
-external :: Integral_WrOut_Cho_diag
 
 SCR(:) = Zero
+Int_PostProcess =>  Integral_Wrout_Cho_Diag
 
 #ifdef _DEBUGPRINT_
 CUTINT1 = CutInt
@@ -38,6 +39,7 @@ THRINT1 = ThrInt
 
 call EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR,Integral_WrOut_Cho_diag)
 
+Int_PostProcess =>  Null()
 #ifdef _DEBUGPRINT_
 CUTINT2 = CutInt
 THRINT2 = ThrInt

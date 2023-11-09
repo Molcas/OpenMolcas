@@ -22,7 +22,7 @@ subroutine Integral_WrOut_Cho( &
 !                  else  integral order within symblk: ijkl
 
 use Cholesky, only: IfcSew, nSym
-use Definitions, only: wp, iwp, u6
+use Definitions, only: u6
 
 implicit none
 #include "int_wrout_interface.fh"
