@@ -27,7 +27,7 @@
       Public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij,     &
      &          OneEl_Inner, OneEl_Integrals, Int_postprocess,          &
      &          Integral_WrOut2, Integral_RI_3, Integral_RICD,          &
-     &          Integral_RI_2, Integral_WrOut_Cho,                      &
+     &          Integral_RI_2, Integral_WrOut_Cho, No_Routine,          &
      &          Integral_WrOut_Cho_Diag, Integral_WrOut_LDF_diag
 
 #define _FIXED_FORMAT_
@@ -63,6 +63,7 @@
 #include "oneel_integrals.f90"
 #include "dede_scf.f90"
 #include "integral_wrout2.f90"
+#include "no_routine.f90"
 #include "../ri_util/integral_ri_3.F90"
 #include "../ri_util/integral_ri_2.F90"
 #include "../ri_util/integral_ricd.F90"

@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
       Subroutine No_Routine(                                            &
 #define _FIXED_FORMAT_
 #define _CALLING_
@@ -36,3 +39,12 @@
          Call Unused_integer(mSym)
       End If
       End Subroutine No_Routine
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(No_Routine)
+
+#endif
+
