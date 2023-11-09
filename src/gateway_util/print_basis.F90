@@ -24,9 +24,9 @@ use Basis_Info, only: dbsc, Gaussian_type, iCnttp_Dummy, mGaussian_type, nCnttp,
 use Center_Info, only: dc
 use RICD_Info, only: Thrshld_CD
 use DKH_Info, only: iRELMP
+use define_af, only: AngTp
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use define_af, only: AngTp
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO

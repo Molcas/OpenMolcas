@@ -34,7 +34,7 @@ real(kind=wp), intent(in) :: Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), El
 #include "print.fh"
 integer(kind=iwp) :: ia, ib, ib_max, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta
 real(kind=wp) :: xyTmp, xzTmp, yxTmp, yzTmp, zxTmp, zyTmp
-character(len=80) Label
+character(len=80) :: Label
 
 iRout = 231
 iPrint = nPrint(iRout)

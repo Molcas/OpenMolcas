@@ -140,7 +140,7 @@
                   If (TF(mdci,iIrrep,iComp).and.
      &                .Not.dbsc(iCnttp)%pChrg) Then
                      nDisp = nDisp + 1
-                     If (Direct(nDisp)) Then
+                     If (Dirct(nDisp)) Then
                         iSD(iCar+16,nSkal) = nDisp
                         iTmp=iOr(iTmp,2**iCar)
                      Else

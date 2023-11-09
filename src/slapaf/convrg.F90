@@ -34,7 +34,7 @@ logical(kind=iwp) :: BadConstraint, Conv1, Conv2, ConvTmp, eTest, Found, IRCRest
 character(len=80) :: Point_Desc
 character(len=16) :: MEP_Text, StdIn
 character(len=5) :: ConLbl(5)
-character(len=8) Temp
+character(len=8) :: Temp
 integer(kind=iwp), allocatable :: Information(:)
 real(kind=wp), allocatable :: C_IRC(:,:,:), C_P(:,:), C_R(:,:), C_S(:,:,:), Coor1(:,:), Coor2(:,:), Cu_MEP(:), E_IRC(:), E_MEP(:), &
                               E_P(:), E_R(:), E_S(:), G_IRC(:,:,:), G_MEP(:,:,:), G_P(:,:), G_R(:,:), G_S(:,:,:), L_MEP(:), Tmp(:)

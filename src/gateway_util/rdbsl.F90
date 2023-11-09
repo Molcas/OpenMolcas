@@ -27,9 +27,9 @@ subroutine Rdbsl(BasDir,BSLbl,bType,nCGTO,mCGTO,lAng,lCGTO,lUnit,iAtmNr,BasisTyp
 ! Patched: Valera Veryazov                                             *
 !***********************************************************************
 
-use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx, AngTp
+use define_af, only: AngTp, iTabMx
 use getline_mod, only: quit_on_error
+use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*), intent(inout) :: BasDir

@@ -14,37 +14,24 @@ module PSO_Stuff
 use Data_structures, only: DSBA_Type
 use Definitions, only: wp, iwp
 
+! --- Stuff for Aces 2 read of Gamma file:
+! Bin G_Toc Gamma_On lBin LuGamma nGamma nSSDM SO2cI SSDM
+
 implicit none
 private
 
-integer(kind=iwp) :: iD0Lbl, iOff_ij2K(8), kCMO, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nG1, &
-                     nG2, nnP(0:7), npos(0:7,3), nSOs1, nV_K, nZ_p_k
-logical(kind=iwp) :: lPSO, lsa, Case_3C, Case_2C, Case_mp2
-integer(kind=iwp), allocatable :: ij2K(:)
-real(kind=wp), allocatable :: CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:,:), G1(:,:), G2(:,:), Thpkl(:), Txy(:,:), &
-                              U_k(:), V_k(:,:), Z_p_k(:,:), A_PT2(:,:), B_PT2(:,:,:)
+integer(kind=iwp) :: iD0Lbl, iOff_ij2K(8), kCMO, lBin, LuGam, LuGamma, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nBasA, &
+                     nBasASQ, nBasT, nDens, nG1, nG2, nGamma, nnP(0:7), npos(0:7,3), nSOs1, nSSDM, nV_K, nZ_p_k
+logical(kind=iwp) :: lPSO, lsa, Case_3C, Case_2C, Case_mp2, Gamma_mrcisd, Gamma_On, NO_NUC
+character(len=7) :: FnGam
+integer(kind=iwp), allocatable :: ij2K(:), SO2ci(:,:)
+real(kind=wp), allocatable :: A_PT2(:,:), B_PT2(:,:,:), Bin(:,:), CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:,:), &
+                              G1(:,:), G2(:,:), G_Toc(:), SSDM(:,:,:), Thpkl(:), Txy(:,:), U_k(:), V_k(:,:), Z_p_k(:,:)
 type(DSBA_Type), allocatable, target :: AOrb(:)
 
-Integer(kind=iwp) LuGam
-Character(LEN=7) FnGam
-
-Logical Gamma_mrcisd, NO_NUC
-
-!
-!---- Stuff for Aces 2 read of Gamma file
-!
-Logical                Gamma_On
-Integer                LuGamma, lBin, nGamma, nSSDM
-Real*8, Allocatable:: G_Toc(:), Bin(:,:), SSDM(:,:,:)
-Integer, Allocatable:: SO2cI(:,:)
-
-
-public :: A_PT2, AOrb, B_PT2, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, &
-          lPSO, lsa, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nG1, nG2, nnP, npos, nSOs1, nV_K, &
-          nZ_p_k, Thpkl, Txy, U_k, V_k, Z_p_k
-
-public :: LuGam, FnGam
-public :: Gamma_mrcisd, NO_NUC
-public :: Gamma_On, LuGamma, lBin, nGamma, nSSDM, G_Toc, Bin, SSDM, SO2cI
+public :: A_PT2, AOrb, B_PT2, Bin, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, FnGam, G1, G2, G_Toc, &
+          Gamma_mrcisd, Gamma_On, iD0Lbl, ij2K, iOff_ij2K, kCMO, lBin, lPSO, lsa, LuGam, LuGamma, m_Txy, mCMO, mDens, mG1, mG2, &
+          n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nG1, nG2, nGamma, nnP, NO_NUC, npos, nSOs1, nSSDM, nV_K, nZ_p_k, SO2cI, &
+          SSDM, Thpkl, Txy, U_k, V_k, Z_p_k
 
 end module PSO_Stuff

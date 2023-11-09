@@ -14,8 +14,8 @@ subroutine NucInd(coor,kdc,ifgrd,ifhss,indgrd,indhss,jfgrd,jfhss,jndgrd,jndhss,t
 use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp
 use Disp, only: IndDsp
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: Coor(3,4)

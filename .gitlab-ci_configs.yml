@@ -172,7 +172,7 @@
       # Preprocessing with fpp introduces long filename paths, so ignore these messages for now
       sed -E '/Line longer than 132 characters/d' nag.log > nag2.log ; mv nag2.log nag.log
       # More reasonable paths
-      sed -E 's%/[^ ]*OpenMolcas/src%src%' nag.log > nag2.log ; mv nag2.log nag.log
+      sed -E 's%/[^ ]*(OpenMolcas|cloned_project)/src%src%' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove annoying notes from cmake
       sed -E '/^Note: switching to/d' nag.log > nag2.log ; mv nag2.log nag.log
       cp nag.log ${install_path}

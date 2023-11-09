@@ -64,7 +64,7 @@ integer(kind=iwp) :: CmpTmp, Comp, CurrOp = 1, i, iBas, icpi, iDisk, idx, iIrr, 
                      jS, k, Len_, Length, LuMck, na, SymLab, tBuf, TmpCmp
 logical(kind=iwp) :: Debug, NoGo, NoOpSiz
 character(len=16), parameter :: TheName = 'RdMck'
-character(len=8) TmpLab, Label
+character(len=8) :: TmpLab, Label
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *

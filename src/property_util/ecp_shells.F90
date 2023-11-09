@@ -11,8 +11,8 @@
 
 subroutine ECP_shells(iAtmNr,List)
 
-use Definitions, only: iwp, u6
 use define_af, only: iTabMx
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iAtmNr

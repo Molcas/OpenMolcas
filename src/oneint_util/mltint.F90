@@ -28,9 +28,9 @@ subroutine MltInt( &
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
+use rmat, only: RMat_Type_Integrals
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rmat, only: RMat_Type_Integrals
 
 implicit none
 #include "int_interface.fh"

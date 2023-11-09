@@ -30,9 +30,9 @@ subroutine PCMgrd( &
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
+use rctfld_module, only: nTS
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: nTS
 
 implicit none
 #include "grd_interface.fh"
@@ -171,7 +171,9 @@ do iTs=1,nTs
     mRys = (la+lb+2+nDiff+nOrdOp)/2
     Eta = One
     EInv = One
-    call Rysg1(iAnga,mRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
+    call Rysg1(iAnga,mRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+               Zeta,ZInv,nZeta,[Eta],[EInv],1, &
+               P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nElem(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In PCMgrd:Grad',' ',Grad,nGrad,1)

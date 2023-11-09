@@ -20,10 +20,10 @@ use Symmetry_Info, only: Mul, nIrrep
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use RI_glob, only: DMLT, DoCholExch, iMP2prpt, nAdens, nAvec, nChOrb, nJdens, nKdens, nKvec
 use Cholesky, only: nSym, NumCho, timings
+use Etwas, only: ExFac, nASh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-use etwas, only: ExFac, nASh
 
 implicit none
 integer(kind=iwp), intent(in) :: nProc, nVec, ipVk(nProc,nVec), ipZpk(nProc), myProc

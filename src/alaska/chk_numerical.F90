@@ -12,8 +12,8 @@
 subroutine Chk_Numerical(LuSpool,Numerical)
 
 use Alaska_Info, only: Auto, DefRoot, ForceNAC, iRlxRoot
-use Definitions, only: wp, iwp, u6
 use NAC, only: isNAC, NACStates
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool

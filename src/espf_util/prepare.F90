@@ -15,9 +15,9 @@ subroutine Prepare(nGrdPt,Grid,B,GrdI)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl
+use Disp, only: ChDisp, Dirct, Disp_Fac, IndDsp, InxDsp, lDisp, Mult_Disp
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use Disp, only: Direct, IndDsp, InxDsp, Disp_Fac, Mult_Disp, ChDisp, lDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrdPt
@@ -62,9 +62,9 @@ do iCnttp=1,nCnttp_Valence
   end if
 end do
 
-! Initialize the Direct array. Why? I don't know.
+! Initialize the Dirct array. Why? I don't know.
 
-Direct(:) = .true.
+Dirct(:) = .true.
 
 ! Generate symmetry adapted cartesian displacements
 

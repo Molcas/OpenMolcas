@@ -27,9 +27,9 @@ subroutine MOAcc(AOInt,Temp1,Temp2,nTemp,ishell,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
 use Gateway_Info, only: CutInt
+use Etwas, only: nAsh
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use etwas, only: nAsh
 
 implicit none
 integer(kind=iwp), intent(in) :: nTemp, ishell(4), nCk, nCl, moip(0:7), nACO, nOp(4), ibasa(4), icmpa(4), icar, icnt, &

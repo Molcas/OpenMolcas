@@ -26,7 +26,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
 #include "pamint.fh"

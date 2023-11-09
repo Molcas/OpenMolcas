@@ -32,12 +32,12 @@ use Gateway_Info, only: CutInt
 use RI_glob, only: Timings_default
 use Cholesky, only: timings
 use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
+use pso_stuff, only: No_Nuc
+use Disp, only: ChDisp, CutGrd, Dirct, Disp_Fac, HF_Force, IndDsp, IndxEQ, InxDsp, l2DI, lDisp, lEQ, Mult_Disp, nTR, TRSymm
+use NAC, only: DoCSF, EDiff, isCSF, isNAC, NACStates
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use pso_stuff, only: No_Nuc
-use Disp, only: TRSymm, lEQ, l2DI, HF_Force, CutGrd, IndDsp, InxDsp, Disp_Fac, Mult_Disp, nTR, Direct, ChDisp, lDisp, IndxEQ
-use NAC, only: isNAC, DoCSF, isCSF, EDiff, NACStates
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -113,7 +113,7 @@ do i=1,3*MxAtom
   IndxEq(i) = i
 end do
 do ldsp=1,3*MxAtom
-  Direct(ldsp) = .true.
+  Dirct(ldsp) = .true.
 end do
 !                                                                      *
 !***********************************************************************
@@ -196,7 +196,7 @@ do
         read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
         do iElem=2,nElem
           IndxEq(iTemp(iElem)) = iTemp(1)
-          Direct(iTemp(iElem)) = .false.
+          Dirct(iTemp(iElem)) = .false.
         end do
       end do
     case ('CUTO')
@@ -247,7 +247,7 @@ do
         call Quit_OnUserError()
       end if
       do i=1,3*MxAtom
-        Direct(i) = .false.
+        Dirct(i) = .false.
       end do
       do
         read(LuSpool,'(A)',iostat=istatus) KWord
@@ -263,7 +263,7 @@ do
       end do
       read(KWord,*) (iTemp(iElem),iElem=1,nSlct)
       do iElem=1,nSlct
-        Direct(iTemp(iElem)) = .true.
+        Dirct(iTemp(iElem)) = .true.
       end do
     case ('2DOP')
       !                                                                *
@@ -639,7 +639,7 @@ if (TRSymm) then
           iComp = 2**(iCar-1)
           if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
             ldsp = ldsp+1
-            Direct(lDsp) = .true.
+            Dirct(lDsp) = .true.
             ! Transfer the coordinates
             C(:,ldsp) = dbsc(iCnttp)%Coor(1:3,iCnt)
             ! Transfer the multiplicity factor
@@ -730,7 +730,7 @@ if (TRSymm) then
             kTR = ldsp
             ovlp = alpha
           end if
-          if ((.not. Direct(ldsp)) .and. (alpha > 1.0e-2_wp)) then
+          if ((.not. Dirct(ldsp)) .and. (alpha > 1.0e-2_wp)) then
             kTR = ldsp
             ovlp = huge(ovlp)
           end if
@@ -789,14 +789,14 @@ if (TRSymm) then
     call mma_deallocate(Temp)
     do iTR=1,nTR
       ldsp = iTemp(iTR)
-      Direct(ldsp) = .false.
+      Dirct(ldsp) = .false.
     end do
 
     write(LuWr,*)
     write(LuWr,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'
     write(LuWr,*)
     do i=1,lDisp(0)
-      if (Direct(i)) then
+      if (Dirct(i)) then
         write(LuWr,'(25X,A,A)') Chdisp(i),' is independent'
       else
         write(LuWr,'(25X,A,A)') Chdisp(i),' is dependent'
@@ -821,7 +821,7 @@ if (Slct .and. (.not. Skip)) then
   write(LuWr,'(20X,A)') ' The Selection option is used'
   write(LuWr,*)
   do i=1,lDisp(0)
-    if (Direct(i)) then
+    if (Dirct(i)) then
       write(LuWr,'(25X,A,A)') Chdisp(i),' is computed'
     else
       write(LuWr,'(25X,A,A)') Chdisp(i),' is set to zero'

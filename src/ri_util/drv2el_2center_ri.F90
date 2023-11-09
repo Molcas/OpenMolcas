@@ -35,7 +35,7 @@ subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 !             Modified to 2-center ERIs for RI June '05                *
 !***********************************************************************
 
-use setup
+use setup, only: nSOs
 use Basis_Info, only: nBas_Aux
 use iSD_data, only: iSD, iSO2Sh, nShBF
 use RI_glob, only: iOffA, Lu_A, SO2Ind

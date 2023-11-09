@@ -12,9 +12,9 @@
 subroutine PCM_Cav_grd(Grad,nGrad)
 
 use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMiSph, PCMSph, PCMTess
+use rctfld_module, only: Conductor, Eps, iSLPar, nS, nTS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use rctfld_module, only: Conductor, Eps, iSLPar, nS, nTS
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

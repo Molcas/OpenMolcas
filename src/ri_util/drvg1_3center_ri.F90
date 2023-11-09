@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991,1992,2000,2007, Roland Lindh                 *
 !               1990, IBM                                              *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
 subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 !***********************************************************************
@@ -37,11 +38,16 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 !             Modified for 3-center RI gradients, March '07            *
 !***********************************************************************
 
-use setup
+use setup, only: mSkal, MxPrm, nAux
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: B_PT2, DMdiag, lPSO, lSA, n_Txy, nBasA, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k
-use k2_arrays, only: Aux, Sew_Scr, Destroy_BraKet
+use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
+use k2_structure, only: k2Data
+use Disp, only: l2DI
+#ifdef _DEBUGPRINT_
+use Disp, only: ChDisp
+#endif
 use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -55,11 +61,6 @@ use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
-use Disp, only: l2DI
-use k2_structure, only: k2Data
-#ifdef _DEBUGPRINT_
-use Disp, only: ChDisp
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
@@ -69,15 +70,15 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), &
-                     iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, iost, ipMem1, ipMem2, &
-                     iPrem, iPren, iPrimi, iPrInc, iS, iS_, iSD4(0:nSD,4), ish, &
-                     iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, jBasj, jBasn, jBsInc, jjQ, &
-                     JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, kBask, kBasn, kBsInc, &
-                     kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, lBsInc, lCijK, lCilK, &
-                     lMaxDens, lPriml, lPrInc, lRealName, lS, LuGAMMA2, maxnAct, maxnnP, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
-                     Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nDCRR, nDCRS, nEta, &
-                     nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nPrev, nQuad, nRys, &
-                     nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
+                     iiQ, ij, ijklA, ijMax, ijQ, ijS, ik2, iMOleft, iMOright, iOpt, iost, ipMem1, ipMem2, iPrem, iPren, iPrimi, &
+                     iPrInc, iS, iS_, iSD4(0:nSD,4), ish, iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, &
+                     jBasj, jBasn, jBsInc, jjQ, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, &
+                     kBasAO, kBask, kBasn, kBsInc, kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, &
+                     lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lRealName, lS, LuGAMMA2, maxnAct, maxnnP, mBtch, mdci, &
+                     mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, &
+                     nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, &
+                     nPrev, nQuad, nRys, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, &
+                     NumOrb_i, nXki, nZeta
 real(kind=wp) :: A_int, A_int_ij, A_int_kl, Coor(3,4), Dm_ij, ExFac, PMax, Prem, Pren, PZmnij, SDGmn, ThrAO, TMax_all, TotCPU, &
                  TotWall, XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, Xik, Xil, Xjk, Xjl
 #ifdef _CD_TIMING_
@@ -98,7 +99,6 @@ character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Rsv_Tsk2
-integer(kind=iwp) :: ik2, jk2
 
 !                                                                      *
 !***********************************************************************
@@ -654,9 +654,9 @@ do while (Rsv_Tsk2(id,klS))
       A_int = A_Int_kl*TMax_Valence(iS,jS)
     end if
     if (A_Int < CutInt) cycle
-#ifdef _DEBUGPRINT_
+#   ifdef _DEBUGPRINT_
     write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-#endif
+#   endif
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -699,8 +699,8 @@ do while (Rsv_Tsk2(id,klS))
     !*******************************************************************
     !                                                                  *
     call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
-                    k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl,AeqB, &
-                    CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+                    k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
+                    AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -760,12 +760,11 @@ do while (Rsv_Tsk2(id,klS))
             call CWTIME(TwoelCPU1,TwoelWall1)
 #           endif
             call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
-                         k2Data(:,ik2), k2Data(:,jk2), &
+                         k2Data(:,ik2),k2Data(:,jk2), &
                          nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
-                         nZeta,nEta, &
-                         Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
+                         nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                          Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU2,TwoelWall2)
@@ -773,9 +772,9 @@ do while (Rsv_Tsk2(id,klS))
             Twoel3_Wall = Twoel3_Wall+TwoelWall2-TwoelWall1
 #           endif
 
-#ifdef _DEBUGPRINT_
+#           ifdef _DEBUGPRINT_
             call PrGrad(' In Drvg1_3Center_RI: Temp',Temp,nGrad,ChDisp)
-#endif
+#           endif
 
           end do
         end do
@@ -783,7 +782,7 @@ do while (Rsv_Tsk2(id,klS))
       end do
     end do
 
-    Call Destroy_BraKet()
+    call Destroy_BraKet()
 
   end do
 

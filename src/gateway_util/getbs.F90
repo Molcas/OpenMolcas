@@ -33,10 +33,10 @@ subroutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,L_
 
 use Basis_Info, only: dbsc, Extend_Shells, nCnttp, Shells
 use DKH_Info, only: iRELMP
+use define_af, only: AngTp, iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
-use define_af
 
 implicit none
 #include "Molcas.fh"

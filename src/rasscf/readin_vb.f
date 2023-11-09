@@ -45,7 +45,7 @@
 *---  process TITLE    command ----------------------------------------*
       ntit=0
       do ii=1,mxtit
-        if(len_trim_cvb(title_j(ii)).gt.0)then
+        if(len_trim(title_j(ii)).gt.0)then
           ntit=ntit+1
           title(ntit)=title_j(ii)
         endif
@@ -59,17 +59,17 @@
 *---  process SYMM command --------------------------------------------*
       stsym=lsym_j
 *---  process FROZ command --------------------------------------------*
-      call imove_cvb(nfro_j,nfro,mxsym)
+      nfro(:)=nfro_j(:)
 *---  process INAC command --------------------------------------------*
-      call imove_cvb(nish_j,nish,mxsym)
+      nish(:)=nish_j(:)
 *---  process RAS1 command --------------------------------------------*
-      call imove_cvb(nrs1_j,nrs1,mxsym)
+      nrs1(:)=nrs1_j(:)
 *---  process RAS2 command --------------------------------------------*
-      call imove_cvb(nrs2_j,nrs2,mxsym)
+      nrs2(:)=nrs2_j(:)
 *---  process RAS3 command --------------------------------------------*
-      call imove_cvb(nrs3_j,nrs3,mxsym)
+      nrs3(:)=nrs3_j(:)
 *---  process DELE command --------------------------------------------*
-      call imove_cvb(ndel_j,ndel,mxsym)
+      ndel(:)=ndel_j(:)
 *---
       If (nroots.gt.1.and.irlxroot.eq.0) iRlxRoot=iroot(nroots)
       If (nroots.eq.1) iRlxRoot=0

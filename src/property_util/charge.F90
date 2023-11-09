@@ -16,10 +16,10 @@ subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 
 use SpinAV, only: Do_SpinAV, DSc
 use UnixInfo, only: ProgName
+use define_af, only: AngTp, iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx, AngTp
 
 implicit none
 #include "Molcas.fh"

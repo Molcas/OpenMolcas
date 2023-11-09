@@ -63,6 +63,7 @@
       use mh5, only: mh5_put_dset
 #endif
       use csfbas, only: CONF, KCFTP
+      use casvb_global, only: ifvb, lw1_cvb
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module
       Implicit Real* 8 (A-H,O-Z)
@@ -92,7 +93,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
 #include "pamint.fh"

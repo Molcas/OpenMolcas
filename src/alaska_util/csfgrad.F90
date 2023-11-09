@@ -22,10 +22,10 @@ subroutine CSFGRad(Grad,nGrad)
 
 !use Basis_Info, only: nBas
 use Grd_interface, only: grd_kernel, grd_mem
+use NAC, only: IsCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use NAC, only: IsCSF
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

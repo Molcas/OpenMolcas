@@ -19,10 +19,10 @@ use pso_stuff, only: G2
 use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: iOper, nIrrep
 use Basis_Info, only: nBas
-use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp
 use Disp, only: lDisp
 use Etwas, only: nASh
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 

@@ -11,8 +11,7 @@
 
 subroutine Drvel1(Grad)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 

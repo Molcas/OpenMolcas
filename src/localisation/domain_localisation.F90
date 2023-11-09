@@ -27,8 +27,8 @@ integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, kC, nAtom, nBasT, nnOcc, n
 real(kind=wp) :: Fac, ThrPD(3), Tst
 integer(kind=iwp), allocatable :: iClass(:), iDomain(:), iPairDomain(:), nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Coord(:,:), f(:), QD(:), Rmin(:)
+logical(kind=iwp), parameter :: debug = .false.
 character(len=*), parameter :: SecNam = 'Domain_Localisation'
-logical(kind=iwp) :: debug=.false.
 
 ! Set return code.
 ! ----------------
@@ -83,15 +83,15 @@ if (irc /= 0) then
 end if
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) SecNam,': checking domain definitions...'
-  call CheckDomain(irc,iDomain,nAtom,nOcc)
-  if (irc == 0) then
-    write(u6,*) '....OK!'
-  else
-    write(u6,*) '....Ooops. Buggy domain definition!'
-    call Error(2) ! return after deallocations
-    return
-  end if
+write(u6,*) SecNam,': checking domain definitions...'
+call CheckDomain(irc,iDomain,nAtom,nOcc)
+if (irc == 0) then
+  write(u6,*) '....OK!'
+else
+  write(u6,*) '....Ooops. Buggy domain definition!'
+  call Error(2) ! return after deallocations
+  return
+end if
 #endif
 
 ! Define pair domains.
@@ -124,15 +124,15 @@ if (irc /= 0) then
 end if
 
 #ifdef _DEBUGPRINT
-  write(u6,*) SecNam,': checking pair domain definitions...'
-  call CheckDomain(irc,iPairDomain,nAtom,nnOcc)
-  if (irc == 0) then
-    write(u6,*) '....OK!'
-  else
-    write(u6,*) '....Ooops. Buggy pair domain definition!'
-    call Error(3) ! return after deallocations
-    return
-  end if
+write(u6,*) SecNam,': checking pair domain definitions...'
+call CheckDomain(irc,iPairDomain,nAtom,nnOcc)
+if (irc == 0) then
+  write(u6,*) '....OK!'
+else
+  write(u6,*) '....Ooops. Buggy pair domain definition!'
+  call Error(3) ! return after deallocations
+  return
+end if
 #endif
 
 ! Print info.

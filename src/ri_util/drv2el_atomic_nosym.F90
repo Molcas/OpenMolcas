@@ -33,7 +33,7 @@ subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_
 !             Modified driver. Jan. '98                                *
 !***********************************************************************
 
-use setup
+use setup, only: nSOs
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
 use RI_glob, only: SO2Ind

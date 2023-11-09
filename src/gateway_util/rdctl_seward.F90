@@ -32,6 +32,10 @@ use Cholesky, only: Span, ThrCom
 use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
                           NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+use rctfld_module, only: lLangevin, lRF, PCM, RDS
+use rmat, only: bParm, Dipol, Dipol1, EpsAbs, EpsQ, EpsRel, QCoul, RMat_On, RMatR
+use define_af, only: AngTp, iTabMx
+use getline_mod, only: Line
 #ifdef _FDE_
 use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
                             embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
@@ -46,10 +50,6 @@ use Para_Info, only: Is_Real_Par
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, UtoAU
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: lRF, PCM, lLangevin, RDS
-use rmat, only: Dipol1, RMat_On, bParm, Dipol, EpsAbs, EpsQ, EpsRel, QCoul, RMatR
-use define_af, only: iTabMx, AngTp
-use getline_mod, only: Line
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd_
@@ -1191,7 +1191,7 @@ do
         !**** DCCD *****************************************************
         !                                                              *
 
-        Do_DCCD = .True.
+        Do_DCCD = .true.
 
         ! RICD
         Do_RI = .true. !ORDINT ERROR
@@ -2134,7 +2134,7 @@ do
         ! Local Douglas-Kroll-Hess/X2C/BSS
 
         LDKroll = .true.
-        !GWInput = .True.
+        !GWInput = .true.
         nCtrLD = 0
         radiLD = 5.5_wp
 

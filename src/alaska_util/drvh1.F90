@@ -42,11 +42,11 @@ use finfld, only: force
 #endif
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
+use rctfld_module, only: lLangevin, lMax, lRF, PCM
+use Disp, only: ChDisp, HF_Force
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: lRF, lLangevin, PCM, lMax
-use Disp, only: HF_Force, ChDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

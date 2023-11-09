@@ -12,10 +12,10 @@
 subroutine PCM_Cavity(iPrint,ICharg,NAtm,AtmC,IAtm,IsAtMM,LcAtmC,LcIAtm,JSurf)
 
 use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, MxSph, NewSph, NVert, PCM_N, PCM_SQ, PCMiSph, PCMSph, PCMTess, Vert
+use rctfld_module, only: DoDeriv, ISlPar, nPCM_Info, nS, nSInit, nTS, RSlPar, RSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: nSInit, DoDeriv, RSolv, nPCM_Info, nS, nTS, ISlPar, RSlPar
 
 implicit none
 integer(kind=iwp), intent(in) :: iPrint, ICharg, NAtm, IAtm(NAtm), IsAtMM(NAtm), JSurf

@@ -17,8 +17,8 @@ subroutine Readinp_localisation()
 
 use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
-                                nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, &
-                                Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
+                                nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
+                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -462,9 +462,9 @@ end if
 
 LocPAO = LocPAO .and. (LocModel == 3)
 if (LocPAO) then
-#ifdef _DEBUGPRINT_
-  AnaPAO = .True.
-#endif
+# ifdef _DEBUGPRINT_
+  AnaPAO = .true.
+# endif
 else
   AnaPAO = .false.
 end if
@@ -532,13 +532,13 @@ else
 end if
 
 #ifdef _DEBUGPRINT
-  write(u6,'(/,A,A)') SecNam,': orbital definitions:'
-  write(u6,'(A,8I9)') 'nBas    : ',(nBas(iSym),iSym=1,nSym)
-  write(u6,'(A,8I9)') 'nOrb    : ',(nOrb(iSym),iSym=1,nSym)
-  write(u6,'(A,8I9)') 'nOccInp : ',(nOccInp(iSym),iSym=1,nSym)
-  write(u6,'(A,8I9)') 'nVirInp : ',(nVirInp(iSym),iSym=1,nSym)
-  write(u6,'(A,8I9)') 'nFro    : ',(nFro(iSym),iSym=1,nSym)
-  write(u6,'(A,8I9,/)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
+write(u6,'(/,A,A)') SecNam,': orbital definitions:'
+write(u6,'(A,8I9)') 'nBas    : ',(nBas(iSym),iSym=1,nSym)
+write(u6,'(A,8I9)') 'nOrb    : ',(nOrb(iSym),iSym=1,nSym)
+write(u6,'(A,8I9)') 'nOccInp : ',(nOccInp(iSym),iSym=1,nSym)
+write(u6,'(A,8I9)') 'nVirInp : ',(nVirInp(iSym),iSym=1,nSym)
+write(u6,'(A,8I9)') 'nFro    : ',(nFro(iSym),iSym=1,nSym)
+write(u6,'(A,8I9,/)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
 #endif
 
 ! If Cholesky, reset default threshold (unless user defined).

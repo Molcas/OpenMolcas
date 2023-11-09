@@ -14,8 +14,9 @@ subroutine KnEMem( &
 #                 include "mem_interface.fh"
                  )
 
-use Definitions, only: iwp
 use rmat, only: RMat_Type_Integrals
+use Definitions, only: iwp
+
 implicit none
 #include "mem_interface.fh"
 

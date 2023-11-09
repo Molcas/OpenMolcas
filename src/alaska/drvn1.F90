@@ -28,11 +28,11 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: PCM_SQ, PCMTess, MM
 use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
+use rctfld_module, only: Conductor, lLangevin, lMax, lRF, nTS, PCM
+use Disp, only: ChDisp, Dirct, IndDsp
 use Symmetry_Info, only: iChBas, nIrrep
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: lRF, lLangevin, PCM, lMax, nTS, Conductor
-use Disp, only: ChDisp, Direct, IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -172,7 +172,7 @@ do iCnttp=1,nCnttp
               iComp = 2**iCar
               if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
                 nDisp = nDisp+1
-                if (Direct(nDisp)) then
+                if (Dirct(nDisp)) then
                   Temp(nDisp) = Temp(nDisp)+One/real(igu,kind=wp)*PreFct*dr_dA*df_dr
                 end if
               end if
@@ -187,7 +187,7 @@ do iCnttp=1,nCnttp
               iComp = 2**iCar
               if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
                 nDisp = nDisp+1
-                if (Direct(nDisp)) then
+                if (Dirct(nDisp)) then
                   ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
                   Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct*dr_dB*df_dr
                 end if
@@ -301,7 +301,7 @@ if (allocated(XF)) then
             iComp = 2**iCar
             if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
               nDisp = nDisp+1
-              if (Direct(nDisp)) then
+              if (Dirct(nDisp)) then
                 ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
                 Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct* &
                               (ZAZB*fab0*(A(iCar+1)-RB(iCar+1))/(r12**3)+ &
@@ -409,7 +409,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
               iComp = 2**iCar
               if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
                 nDisp = nDisp+1
-                if (Direct(nDisp)) then
+                if (Dirct(nDisp)) then
                   Temp(nDisp) = Temp(nDisp)-Tempd(iCar+1)
                 end if
               end if
@@ -514,7 +514,7 @@ else if (lRF .and. PCM) then
             iComp = 2**iCar
             if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
               nDisp = nDisp+1
-              if (Direct(nDisp)) then
+              if (Dirct(nDisp)) then
                 ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
                 Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct*dr_dB*df_dr
               end if

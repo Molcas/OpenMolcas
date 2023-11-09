@@ -68,6 +68,7 @@
      &  nDel, nBas, nOrb,
      &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
      &  JobIph, nSSH, maxbfn, mXAct
+      use casvb_global, only: ifvb
 
       use orthonormalization, only : t_ON_scheme, ON_scheme_values,
      &  orthonormalize
@@ -87,7 +88,6 @@
 #include "SysDef.fh"
 #include "warnings.h"
 #include "wadr.fh"
-#include "casvb.fh"
 #include "sxci.fh"
 
       real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)

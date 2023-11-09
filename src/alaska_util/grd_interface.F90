@@ -21,7 +21,6 @@ abstract interface
                        )
     use Index_Functions, only: nTri_Elem1
     use Definitions, only: wp, iwp
-    use rctfld_module, only:
 #   include "grd_interface.fh"
   end subroutine grd_kernel
 
@@ -30,7 +29,6 @@ abstract interface
 #                    include "mem_interface.fh"
                     )
     use Definitions, only: iwp
-    use rctfld_module, only:
 #   include "mem_interface.fh"
   end subroutine grd_mem
 end interface

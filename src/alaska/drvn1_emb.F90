@@ -25,10 +25,10 @@ subroutine DrvN1_EMB(Grad,Temp,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Disp, only: ChDisp, Dirct, IndDsp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-use Disp, only: ChDisp, Direct, IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -188,7 +188,7 @@ do iCnttp=1,nCnttp
               iComp = 2**iCar
               if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
                 nDisp = nDisp+1
-                if (Direct(nDisp)) then
+                if (Dirct(nDisp)) then
                   Temp(nDisp) = Temp(nDisp)+One/real(igu,kind=wp)*PreFct*dr_dA*df_dr
                 end if
               end if

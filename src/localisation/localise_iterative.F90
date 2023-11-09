@@ -33,8 +33,8 @@ real(kind=wp) :: Thrs_Save, xNrm
 character(len=80) :: Txt
 character(len=4) :: myModel
 logical(kind=iwp) :: Converged
+logical(kind=iwp), parameter :: debug = .false.
 character(len=*), parameter :: SecNam = 'Localise_Iterative'
-logical(kind=iwp) :: debug=.false.
 
 irc = 0
 Functional = -huge(Functional)

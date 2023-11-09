@@ -9,4 +9,14 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     casinfo1_cvb.F90
+     casvb.F90
+     cvbinp_cvb.F90
+     cvbmn_cvb.F90
+     cvbstart_cvb_lt9.F90
+     make_close_cvb.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

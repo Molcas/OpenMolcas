@@ -33,7 +33,6 @@ subroutine drv_ef_PCM(FactOp,nTs,FD,nFD,CCoor,lOper,VTessera,nOrdOp)
 !             Modified loop structure  99                              *
 !***********************************************************************
 
-use setup
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
@@ -41,10 +40,10 @@ use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
+use define_af, only: AngTp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use define_af, only: AngTp
 
 implicit none
 integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp

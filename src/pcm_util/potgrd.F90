@@ -15,10 +15,10 @@ use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
+use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Disp, only: ChDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

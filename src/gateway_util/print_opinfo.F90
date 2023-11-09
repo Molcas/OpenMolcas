@@ -17,9 +17,9 @@ use EFP, only: EFP_PRINT_BANNER
 #endif
 use External_Centers, only: DMS_Centers, Dxyz, EF_Centers, iXPolType, nData_XF, nDMS, nEF, nOrd_XF, nOrdEF, nWel, nXF, Wel_Info, XF
 use Symmetry_Info, only: nIrrep
+use rmat, only: bParm, Dipol, EPSABS, EPSQ, EPSREL, QCoul, RMat_On, RMatR
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rmat, only: RMat_On, RMatR, EPSABS, EPSREL, QCoul, EPSQ, bParm, Dipol
 
 implicit none
 #include "print.fh"
