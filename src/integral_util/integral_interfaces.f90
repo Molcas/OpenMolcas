@@ -24,7 +24,8 @@
       Procedure(int_wrout), Pointer :: Int_postprocess=>Null()
 
       Public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij,     &
-     &          OneEl_Inner, OneEl_Integrals, Int_postprocess
+     &          OneEl_Inner, OneEl_Integrals, Int_postprocess,          &
+     &          Integral_WrOut2
 
 #define _FIXED_FORMAT_
       Abstract interface
@@ -58,5 +59,6 @@
 #include "oneel_inner.f90"
 #include "oneel_integrals.f90"
 #include "dede_scf.f90"
+#include "integral_wrout2.f90"
 
       End Module Integral_Interfaces

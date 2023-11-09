@@ -53,7 +53,7 @@ use k2_arrays, only: DeDe
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
-use Integral_interfaces, only: int_wrout
+use Integral_interfaces, only: int_wrout, Integral_WrOut2, Int_PostProcess
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -68,7 +68,7 @@ logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
 logical(kind=iwp), external :: Reduce_Prt
-procedure(int_wrout) :: Integral_WrOut2, Integral_RI_3
+procedure(int_wrout) :: Integral_RI_3
 interface
   subroutine get_genome(cDNA,nDNA) bind(C,name='get_genome_')
     use, intrinsic :: iso_c_binding, only: c_char
@@ -367,7 +367,9 @@ if (.not. Test) then
       else
         call Sort0()
 
-        call Drv2El(Integral_WrOut2,Zero)
+        Int_PostProcess => Integral_WrOut2
+        call Drv2El(Int_PostProcess,Zero)
+        Int_PostProcess => Null()
 
         call Sort1B()
         call Sort2()
