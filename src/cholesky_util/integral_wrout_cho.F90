@@ -8,6 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
+
 
 subroutine Integral_WrOut_Cho( &
 #                             define _CALLING_
@@ -58,3 +62,12 @@ end if
 return
 
 end subroutine Integral_WrOut_Cho
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(Integral_WrOut_Cho)
+
+#endif
+
