@@ -284,6 +284,7 @@ character(len=lw), parameter :: LabelsDS(nTocDS) = [ &
 !> - '``NumCho``'               Number of Cholesky vectors.
 !> - '``nFroPT``'               Number of Frozen for PT.
 !> - '``nDelPT``'               Number of Deleted for PT.
+!> - '``CASPT2 GradUnits``'     Units numbers (3) for CASPT2 gradient
 
 character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
                                 'Center Index    ','nAsh            ','nBas            ','nDel            ', & !   1-  4
@@ -306,7 +307,7 @@ character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
                                 'Un_cen Charge   ','PCM_N           ','PCMiSph         ','NVert           ', & !  69- 72
                                 'IntSph          ','NewSph          ','XMolnr          ','XEle            ', & !  73- 76
                                 'iDmp            ','iDmp:S          ','NSTAT_SINGLE    ','cmsNACstates    ', & !  77- 80
-                                'NACstatesOpt    ','                ','                ','                ', & !  81- 84
+                                'NACstatesOpt    ','CASPT2 GradUnits','                ','                ', & !  81- 84
                                 '                ','                ','                ','                ', & !  85- 88
                                 '                ','                ','                ','                ', & !  89- 92
                                 '                ','                ','                ','                ', & !  93- 96

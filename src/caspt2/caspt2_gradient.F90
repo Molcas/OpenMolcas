@@ -15,6 +15,14 @@ module caspt2_gradient
 
   use definitions, only: iwp,wp
 
+  ! unit numbers
+  integer(kind=iwp) :: LuPT2           = 0_iwp
+  integer(kind=iwp) :: LuGAMMA         = 0_iwp
+  integer(kind=iwp) :: LuCMOPT2        = 0_iwp
+  integer(kind=iwp) :: LuSTD           = 0_iwp
+  integer(kind=iwp) :: LuAPT2          = 0_iwp
+  integer(kind=iwp) :: LuPT2GRD        = 0_iwp
+
   ! gradients and NAC switches
   logical(kind=iwp) :: do_grad         = .false.
   logical(kind=iwp) :: do_nac          = .false.
@@ -30,12 +38,11 @@ module caspt2_gradient
   ! for IPEA
   logical(kind=iwp) :: do_lindep       = .false.
   logical(kind=iwp) :: if_invar        = .true. ! active invariance
-  integer(kind=iwp) :: LUSTD           = 0_iwp
   integer(kind=iwp) :: IDSAVGRD        = 0_iwp
   integer(kind=iwp) :: idBoriMat(8,13) = 0_iwp
   real(kind=wp)     :: ConvInvar       = 0.0_wp
 
-  ! whether CASPT2 energy is invariant wrt rotations among inactive
+  ! whether PT2 energy is invariant wrt rotations among inactive
   ! and secondary orbitals
   logical(kind=iwp) :: if_invaria      = .true.
 

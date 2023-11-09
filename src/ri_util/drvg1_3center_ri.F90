@@ -77,7 +77,8 @@ integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iB
                      lMaxDens, lPriml, lPrInc, lRealName, lS, LuGAMMA2, maxnAct, maxnnP, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
                      Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nDCRR, nDCRS, nEta, &
                      nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nPrev, nQuad, nRys, &
-                     nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
+                     nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta, &
+                     unit_tmp(3)
 real(kind=wp) :: A_int, A_int_ij, A_int_kl, Coor(3,4), Dm_ij, ExFac, PMax, Prem, Pren, PZmnij, SDGmn, ThrAO, TMax_all, TotCPU, &
                  TotWall, XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, Xik, Xil, Xjk, Xjl
 #ifdef _CD_TIMING_
@@ -546,7 +547,8 @@ if (Method == 'CASPT2') then
   call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
 
   call PrgmTranslate('GAMMA2',RealName,lRealName)
-  LuGAMMA2 = 67
+  call Get_iArray('CASPT2 GradUnits',unit_tmp,3)
+  LuGamma2 = unit_tmp(3)
   call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBasA*8,'OLD',is_error)
 end if
 !                                                                      *

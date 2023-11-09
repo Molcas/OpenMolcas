@@ -12,7 +12,8 @@
 ************************************************************************
       Subroutine GrdIni
 C
-      use caspt2_gradient, only: do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
+      use caspt2_gradient, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,LuPT2GRD,
+     *                           do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
      *                           idBoriMat,TraFro
       use stdalloc, only: mma_allocate
 C
@@ -25,11 +26,12 @@ C
 #include "pt2_guga.fh"
 C
       character(len=128) :: FileName
-      Logical Exists
+      character(len=4096) :: RealName
+      Logical is_error,Exists
 
       iStpGrd = 1
 
-      ! Define logical unit numbers for gradients files
+      ! Define (initial) logical unit numbers for gradients files
       LUPT2    = 17 ! MCLR
       LUGAMMA  = 65 ! ERI derivatives ALASKA or 3-center RI/CD
       LUCMOPT2 = 66 ! Back-transform ALASKA
@@ -37,8 +39,27 @@ C
       LUAPT2   = 68 ! A_PT2, 2-center derivatives for RI/CD
       LUPT2GRD = 69 ! CASPT2 gradient and property
 
+      Call PrgmTranslate('GAMMA',RealName,lRealName)
+      LuGAMMA  = isFreeUnit(LuGAMMA)
+      If (IfChol) Then
+        LENGTH = nBas(1)
+      Else
+        LENGTH = nIsh(1) + nAsh(1)
+      End If
+      Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                     'DIRECT','UNFORMATTED',
+     &                      iost,.TRUE.,
+     &                      LENGTH**2*8,'REPLACE',is_error)
+      If (.not.IfChol) Then
+C       CALL DANAME_MF_wa(LuCMOPT2,'LUCMOPT2')
+        Call PrgmTranslate('CMOPT2',RealName,lRealName)
+        LuCMOPT2 = isFreeUnit(LuCMOPT2)
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT',
+     &                       'UNFORMATTED',iost,.FALSE.,1,'REPLACE',
+     &                        is_error)
+      End If
       CALL DANAME_MF_wa(LUSTD,'LUSTD')
-      If (IfChol) CALL DANAME_MF_wa(LUAPT2,'A_PT2')
+      If (IfChol) CALL DANAME_MF_wa(LUAPT2,'LUAPT2')
 
       !! LUPT2GRD is the global name (in Include/caspt2.fh)
       !! LUGRAD is the local name in the CASPT2 module
@@ -53,7 +74,7 @@ C
       Call f_inquire(FileName,Exists)
       If (Exists) iStpGrd = 0
       ! Not sure none/mf/mf_wa
-      CALL DANAME_MF_wa(LUGRAD,'PT2GRD')
+      CALL DANAME_MF_wa(LUGRAD,'LUPT2GRD')
 
       !! nStLag is the number of states involved in the Lagrangian
       !! nStLag = nState for (X)MS/XDW/RMS-CASPT2
@@ -187,7 +208,8 @@ C-----------------------------------------------------------------------
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
       use caspt2_output, only: iPrGlb, verbose
-      use caspt2_gradient, only: do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
+      use caspt2_gradient, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,
+     *                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
      *                           LUSTD,TraFro
       use stdalloc, only: mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -200,6 +222,7 @@ C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
       LOGICAL DEB,Found
+      integer :: unit_tmp(3)
 C
       Dimension HEFF1(nState,nState),WRK1(nState,nState),
      *          WRK2(nState,nState)
@@ -412,9 +435,6 @@ C
       ! close gradient files
       Close (LuPT2)
 C
-      If (IfChol) Call DaClos(LUAPT2)
-      Call DaClos(LUGRAD)
-C
  9000 CONTINUE
 C
       Call GETMEM('DPT2   ','FREE','REAL',ipDPT2   ,nBasSq)
@@ -474,7 +494,21 @@ C       write (*,*) "CASSCF/Original = ", irlxroot,irlxroot
       end if
 C
       !! Close files
+      Close (LuGAMMA)
+C     If (.not.IfChol) Close (LuCMOPT2)
       Call DaClos(LUSTD)
+      If (IfChol) Call DaClos(LUAPT2)
+      Call DaClos(LUGRAD)
+C
+      !! Unit numbers to be used in ALASKA
+      unit_tmp(1) = LuGAMMA
+      If (IfChol) Then
+        unit_tmp(2) = LuAPT2
+      Else
+        unit_tmp(2) = LuCMOPT2
+      End If
+      unit_tmp(3) = 0
+      Call Put_iArray('CASPT2 GradUnits',unit_tmp,3)
 C
       if (nFroT /= 0) call mma_deallocate(TraFro)
 C

@@ -66,7 +66,7 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, &
                      kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, LUAPT2, &
                      mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, &
-                     nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, nRys, nSkal, nSO, nTMax, nZeta
+                     nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, nRys, nSkal, nSO, nTMax, nZeta, unit_tmp(3)
 real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
@@ -265,8 +265,11 @@ if (Method_chk == 'CASPT2  ') then
   !call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
   !read(LuCMOPT2) A_PT2(1:nBasASQ,1)
   !close(LuCMOPT2)
+
+
   ! Read A_PT2 from LUAPT2
-  LUAPT2 = 68
+  call Get_iArray('CASPT2 GradUnits',unit_tmp,3)
+  LuAPT2 = unit_tmp(2)
   call daname_mf_wa(LUAPT2,'A_PT2')
   id = 0
   call ddafile(LUAPT2,2,A_PT2,nBasASq,id)

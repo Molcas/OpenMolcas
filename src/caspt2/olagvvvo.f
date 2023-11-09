@@ -14,6 +14,7 @@
      *                    DIA,DI,FIFA,FIMO,A_PT2,NumCho)
       USE iSD_data
       USE CHOVEC_IO
+      use caspt2_gradient, only: LuGAMMA,LuCMOPT2,LuAPT2
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -27,8 +28,8 @@ C
       DIMENSION nBasX(8),KEEP(8)
       logical dorys
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
-      Character*4096 RealName
-      Logical DoCholesky,is_error,Square
+C     Character*4096 RealName
+      Logical DoCholesky,Square
 C
 C     ----- (VV|VO)
 C
@@ -54,14 +55,8 @@ C
       If (DoCholesky) Then
         !! No need to save CMOPT2. Just save A_PT2 and B_PT2.
         !! First, save A_PT2 in LuCMOPT2
-        Call PrgmTranslate('CMOPT2',RealName,lRealName)
         If (IFMSCOUP.and.jState.ne.1) Then
-!           Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-!      &                          'DIRECT','UNFORMATTED',
-!      &                          iost,.FALSE.,
-!      &                          1,'OLD',is_error)
           Call GetMem('WRK3','ALLO','Real',ipWRK3,NumCho*NumCho)
-!           Read (LuCMOPT2) Work(ipWRK3:ipWRK3+NumCho**2-1)
 
           ! read A_PT2 from LUAPT2
           id = 0
@@ -69,45 +64,18 @@ C
 
           Call DaXpY_(NumCho*NumCho,1.0D+00,Work(ipWRK3),1,A_PT2,1)
           Call GetMem('WRK3','FREE','Real',ipWRK3,NumCho*NumCho)
-          ! REWIND LuCMOPT2
-        Else
-!           Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-!      &                         'DIRECT','UNFORMATTED',
-!      &                          iost,.FALSE.,
-!      &                          1,'REPLACE',is_error)
         End If
-C       write(6,*) "write...",numcho,lucmopt2
 
         ! For SS-CASPT2 I should write A_PT2 on disk only
         ! for the correct iRlxRoot
         if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
-          ! Write (LuCMOPT2) A_PT2(1:NumCho**2)
-
           ! write A_PT2 in LUAPT2
           id = 0
           call ddafile(LUAPT2,1,A_PT2,NumCho**2,id)
-
         end if
-        ! Close (LuCMOPT2)
 
-        !! Prepare for saving B_PT2. B_PT2 is saved in VVVOX2
-        Call PrgmTranslate('GAMMA',RealName,lRealName)
-
-        ! open LuGamma here, as we will write on it in vvvo_drv
-        If (IFMSCOUP.and.jState.ne.1) Then
-          Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                         'DIRECT','UNFORMATTED',
-     &                          iost,.TRUE.,
-     &                          nBas(iSym)**2*8,'OLD',is_error)
-        Else
-          ! open only for the correct root
-          if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
-            Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                           'DIRECT','UNFORMATTED',
-     &                            iost,.TRUE.,
-     &                            nBas(iSym)**2*8,'REPLACE',is_error)
-          end if
-        End If
+        ! rewind LuGamma
+        REWIND(LuGamma)
       End If
       !! 2) Compute ERI (mu rho | nu sigma)
       !! 3) Quarter-transformation of ERI
@@ -132,40 +100,24 @@ C     nocc = nfro(1)+nish(1)+nash(1)
      *              Work(LCMOPT2+nBasT*nFro(iSymA)),
      *              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *              DIA,DI,FIFA,FIMO)
-C     write(6,*) "fpt2cao"
-C     call sqprt(fpt2cao,12)
 C
       !! Save the half transformed integrals on disk.
       !! It will be used in drvg1.f etc for gradient.
-C     write(6,*) "1"
-C     write(6,*) "lugamma = ", lugamma
-C     !! MP2: DaName_MF_MA, MRCI: DaName_MF
-C     Call DaName_MF(LuGamma,'GAMMA')
-C     iDisk = 0
-C     write(6,*) "2"
-C     write(6,*) "nbast = ", nbast
-C     CALL DaName_MF_WA(LuGamma,'GAMMA')
-C     Call Molcas_BinaryOpen_Vanilla(LuGamma,'GAMMA')
-C     write(6,*) "lugamma mod = ", lugamma
-C     write(6,*) "aa"
-C     Call dDaFile(LuGamma,1,Work(LCMOPT2),nBasT*nBasT,iDisk)
       If (DoCholesky) Then
-        if (jState.eq.iRlxRoot .or. nStLag.gt.1) then
-          Close (LuGamma)
-        end if
+        !! Do nothing
       Else
         !! This is only for conventional calculations!!
-        Call PrgmTranslate('CMOPT2',RealName,lRealName)
-        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                       'DIRECT','UNFORMATTED',
-     &                        iost,.FALSE.,
-     &                        1,'REPLACE',is_error)
+C       Call PrgmTranslate('CMOPT2',RealName,lRealName)
+C       LuCMOPT2 = isFreeUnit(LuCMOPT2)
+C       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+C    &                       'DIRECT','UNFORMATTED',
+C    &                        iost,.FALSE.,
+C    &                        1,'REPLACE',is_error)
+        REWIND (LuCMOPT2)
         !! First, CMOPT2 has to be saved. The MO coefficient matrix in
         !! grvg1.f may be different from CMOPT2.
-C       Write (LuCMOPT2) (Work(LCMOPT2+i-1),i=1,nBasT*nBasT)
         Do i = 1, nBasT*nBasT
           Write (LuCMOPT2) Work(LCMOPT2+i-1)
-C         Write (LuCMOPT2) Work(LCMO+i-1)
         End Do
         write (LuCMOPT2) (nIsh(1)+nAsh(1))
         write (LuCMOPT2) (nIsh(2)+nAsh(2))
@@ -206,41 +158,11 @@ C         Write (LuCMOPT2) Work(LCMO+i-1)
         End If
         write (LuCMOPT2) nSSDM
 C
-        !! Write the number of occupied orbitals
-C       write (LuCMOPT2) (dble(nIsh(iSym)+nAsh(iSym)),iSym=1,8)
-C       write (LuCMOPT2) (dble(nFro(iSym)),iSym=1,8)
-C       do isym = 1, 8
-C       write (LuCMOPT2) dble(nIsh(iSym)+nAsh(iSym))
-C       end do
-C       do isym = 1, 8
-C       write (LuCMOPT2) dble(nFro(iSym))
-C       end do
         Close (LuCMOPT2)
 C       write(6,*) "mo saved"
 C       call sqprt(Work(LCMOPT2),nbast)
 C
-C       write(6,*) "going to open LuGamma"
-        Call PrgmTranslate('GAMMA',RealName,lRealName)
-        if (ifmscoup.and.jstate.ne.1) then
-          Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                         'DIRECT','UNFORMATTED',
-     &                          iost,.TRUE.,
-     &                          nOcc*nOcc*8,'OLD',is_error)
-        else
-          Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                         'DIRECT','UNFORMATTED',
-     &                          iost,.TRUE.,
-     &                          nOcc*nOcc*8,'REPLACE',is_error)
-        end if
-        if (is_error) then
-         write (6,*) "Something is wrong in opening LuGamma in olagvvvo"
-          call abend
-        end if
-C       Call dDaFile(LuGamma,1,Work(LCMOPT2),nBasT*nBasT,iDisk)
-C       write(6,*) "Idisk = ", idisk
-C       Call dDaFile(LuGamma,1,1.0d+00,1,iDisk)
-C       write(6,*) "Idisk = ", idisk
-C       write(6,*) "3"
+        REWIND (LuGAMMA)
         !  Setup for shell. Why do I have to call IniSew damn here?
         !  The number of shells should be able to be referred globally.
         nDiff=1
@@ -248,10 +170,7 @@ C       write(6,*) "3"
         Call IniSew(DoRys,nDiff)
         Call Nr_Shells(nSkal)
         Call Setup_iSD()
-C       write(6,*) "4"
-C       write(6,*) "nskal = ", nskal
         !! see Include/info.fh
-C       call bbbb
         Allocate (iOffAO(nSkal+1))
         MaxShlAO = 0
         iOffAO(1) = 0
@@ -261,16 +180,12 @@ C       call bbbb
           iOffAO(iSh+1) = iOffAO(iSh)+nBasI
         End Do
         ! nMax = MaxShlAO*MaxShlAO*nOcc*nOcc
-C       write(6,*) "maxshlao = ", maxshlao
 
         Allocate (T_hbf(nOcc,nOcc,MaxShlAO,MaxShlAO))
-C       write(6,*) "nocc = ", nocc
         Do iSh = 1, nSkal
           !! iSD(2,iSh): number of AOs of the shell
           !! iSD(3,iSh): number of cont. func. of the shell
           nBasI = iSD(2,iSh)*iSD(3,iSh)
-C         write(6,*) isd(2,ish),isd(3,ish),nbasi
-C         write(6,*) "ioffao = ", ioffao(ish)
           Do jSh = 1, nSkal
             nBasJ = iSD(2,jSh)*iSD(3,jSh)
             Do iBas0 = 1, nBasI
@@ -287,9 +202,6 @@ C         write(6,*) "ioffao = ", ioffao(ish)
      *                   + (jBas-1)*nOcc*nBasT*nOcc
                     T_hbf(iOcc,jOcc,iBas0,jBas0)
      *                = T2AO(loc1+1)+T2AO(loc2+1)
-C       if (nocc.eq.10.and.(iocc.le.2.or.jocc.le.2)) then
-C                   T_hbf(iOcc,jOcc,iBas0,jBas0)=0.0d+00
-C       end if
                   End Do
                 End Do
                 iRec = iBas+nBasT*(jBas-1)
@@ -302,21 +214,11 @@ C       end if
      *            (T_hbf(i,1,iBas0,jBas0),i=1,nOcc*nOcc)
               End Do
             End Do
-C           write(6,*) "nbasi,nbasj = ", nbasi,nbasj
-C           Call dDaFile(LuGamma,1,T_hbf,nOcc*nOcc*nBasI*nBasJ,iDisk)
           End Do
         End Do
-C       call abend
-C       Call DaClos(LuGamma)
-        Close (LuGamma)
-C       write(6,*) "end"
         Deallocate (iOffAO)
         Deallocate (T_hbf)
-C       write(6,*) "end1"
-C       call abend
-C       Call DaClos(LuGamma)
         Call Free_iSD()
-C       write(6,*) "end2"
         call clssew
       End If
 C
@@ -830,6 +732,7 @@ C
 
       use ChoVec_io
       use Cholesky, only: InfVec, nDimRS
+      use caspt2_gradient, only: LuGAMMA
 
       IMPLICIT REAL*8 (A-H,O-Z)
 

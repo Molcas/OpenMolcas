@@ -3516,7 +3516,7 @@ C
       dimension ci(*)
       REAL*8 INT1(NLEV,NLEV),INT2(NLEV,NLEV,NLEV,NLEV)
 C     CHARACTER(LEN=256) LINE
-      CHARACTER(LEN=1) CODE(0:3)
+C     CHARACTER(LEN=1) CODE(0:3)
       REAL*8 Fancy(nRoots,nRoots,nRoots)
 
 #include "rasdim.fh"
@@ -3524,7 +3524,7 @@ C     CHARACTER(LEN=256) LINE
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
       DIMENSION ICS(MXLEV)
-      DATA CODE /'0','u','d','2'/
+C     DATA CODE /'0','u','d','2'/
 
 C -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO

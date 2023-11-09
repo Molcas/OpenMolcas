@@ -1985,22 +1985,20 @@ C
 C
       use ChoVec_io
       use Cholesky, only: InfVec, nDimRS
+      use caspt2_gradient, only: LuGAMMA,LuAPT2
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "caspt2_grad.fh"
 C
 #include "warnings.h"
 #include "chocaspt2.fh"
 C
       Dimension DPT2AO(*),SSDM(*)
-      Character*4096 RealName
       Integer iSkip(8),ipWRK(8)
       integer nnbstr(8,3)
-      Logical is_error
 C
       ! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       call getritrfinfo(nnbstr,maxvec,n2)
@@ -2018,24 +2016,13 @@ C
       nBasI  = nBas(iSym)
 C
       Call GetMem('A_PT2 ','ALLO','REAL',ipA_PT2,NumChoTot**2)
-      !! Read A_PT2
-    !   Call PrgmTranslate('CMOPT2',RealName,lRealName)
-    !   Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-    !  &                      'DIRECT','UNFORMATTED',
-    !  &                      iost,.FALSE.,
-    !  &                        1,'OLD',is_error)
-    !   Read (LuCMOPT2) Work(ipA_PT2:ipA_PT2+NumChoTot**2-1)
 
       ! Read A_PT2 from LUAPT2
       id = 0
       call ddafile(LUAPT2, 2, work(ipA_PT2), numChoTot**2, id)
 
       !! Open B_PT2
-      Call PrgmTranslate('GAMMA',RealName,lRealName)
-      Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                      'DIRECT','UNFORMATTED',
-     &                      iost,.TRUE.,
-     &                      nBas(iSym)**2*8,'OLD',is_error)
+      REWIND(LuGamma)
 C
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTVEC','ALLO','REAL',ipHTVec,nBasT*nBasT)
@@ -2184,19 +2171,12 @@ C
         End Do
       End Do
 C
-      Close (LuGamma)
-C
       !! Coulomb for A_PT2
       !! Consider using DGER?
       Call DGEMM_('N','T',NumCho,NumCho,1,
      *            2.0D+00,Work(ipV1),NumCho,Work(ipV2),NumCho,
      *            1.0D+00,Work(ipA_PT2),NumCho)
 C
-      !! Write A_PT2
-      ! REWIND LuCMOPT2
-      ! Write (LuCMOPT2) Work(ipA_PT2:ipA_PT2+NumChoTot**2-1)
-      ! Close (LuCMOPT2)
-
       ! write to A_PT2 in LUAPT2
       id = 0
       call ddafile(LUAPT2, 1, Work(ipA_PT2), NumChoTot**2, id)
