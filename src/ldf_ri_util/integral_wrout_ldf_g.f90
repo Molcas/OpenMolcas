@@ -17,14 +17,16 @@
 !     calls the proper routines IndSft/PLF
 !     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                      else  integral order within symblk: ijkl
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 !
 #include "localdf_int.fh"
 !
 #include "int_wrout_interface.fh"
 !
-      External LDF_nShell, LDF_nAuxShell
+      Integer, External:: LDF_nShell, LDF_nAuxShell
+      Integer nS_Val, nS_Aux, iS_Dum
 !
+      Integer i, j, iTri
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 !
 ! check that shells have not been re-ordered

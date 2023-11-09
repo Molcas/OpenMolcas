@@ -16,7 +16,7 @@
 !     calls the proper routines IndSft/PLF
 !     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                      else  integral order within symblk: ijkl
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 !
 #include "int_wrout_interface.fh"
 !
