@@ -367,8 +367,6 @@ if (.not. Test) then
           end if
         end if
       else
-        iWrOpt_Save = iWrOpt
-        iWrOpt = 0
         call Sort0()
 
         call Drv2El(Integral_WrOut2,Zero)
@@ -388,7 +386,6 @@ if (.not. Test) then
           end if
           write(u6,'(A)') ' Diagonal and subdiagonal, symmetry allowed 2-el integral blocks are stored on Disk'
         end if
-        iWrOpt = iWrOpt_Save
       end if
       call mma_deallocate(DeDe)
 

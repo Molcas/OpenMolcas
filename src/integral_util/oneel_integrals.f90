@@ -11,7 +11,7 @@
 #include "compiler_features.h"
 #ifdef _IN_MODULE_
 
-      SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
+      SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,    &
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
       use Symmetry_Info, only: nIrrep
       use stdalloc, only: mma_allocate
@@ -92,11 +92,11 @@
 !                                                                      *
 !---- Compute all SO integrals for all components of the operator.
 !
-      Call OneEl_Inner
-     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
-     &            nOrdOp,rHrmt,iChO,
-     &            dum,dum,1,idum,0,0,
-     &            iStabO,nStabO,nIC,
+      Call OneEl_Inner                                                  &
+     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,             &
+     &            nOrdOp,rHrmt,iChO,                                    &
+     &            dum,dum,1,idum,0,0,                                   &
+     &            iStabO,nStabO,nIC,                                    &
      &            Dum,1,0,Integrals,LenTot)
 !                                                                      *
 !***********************************************************************

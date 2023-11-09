@@ -12,7 +12,7 @@
 #ifdef _IN_MODULE_
 
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
-      use k2_arrays, only: nDeDe, MaxDe, MxDij, ipDeDe, ipD00, ipDijS,
+      use k2_arrays, only: nDeDe, MaxDe, MxDij, ipDeDe, ipD00, ipDijS,  &
      &                     DeDe, pDq, Dq, Fq, pFq, ipOffD
       use Basis_Info, only: nBas
       use Sizes_of_Seward, only: S
@@ -48,8 +48,8 @@
 !
       Special_NoSym=.True.
       DFT_Storage=.False.
-      Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
-     &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
+      Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,     &
+     &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,  &
      &             DeDe,nDeDe)
 !                                                                      *
 !***********************************************************************
