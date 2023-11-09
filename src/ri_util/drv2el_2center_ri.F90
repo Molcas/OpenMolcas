@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifndef _IN_MODULE_
 #error "This file must be compiled inside a module"
@@ -42,7 +43,7 @@ use Gateway_Info, only: CutInt
 use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: iTOffs
-use Integral_interfaces, only: int_wrout
+use Integral_interfaces, only: Int_PostProcess, Integral_RI_2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -58,13 +59,8 @@ real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 character(len=6) :: Name_Q
 real(kind=wp), allocatable :: TInt(:), TMax(:), Tmp(:,:)
-procedure(int_wrout) :: Integral_RI_2
 integer(kind=iwp), external :: IsFreeUnit, nMemAm
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -85,6 +81,8 @@ DoGrad = .false.
 DoFock = .false.
 Indexation = .true.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
+Int_PostProcess => Integral_RI_2
+
 
 call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
 call Mk_iSO2Ind(iSO2Sh,SO2Ind,nSOs,nSkal)
@@ -194,7 +192,7 @@ do jS=1,nSkal-1
   do lS=1,jS
 
     A_int = TMax(jS)*TMax(lS)
-    if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
+    if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Int_PostProcess)
 
   end do ! lS
   !                                                                    *
@@ -243,6 +241,7 @@ call xRlsMem_Ints()
 call mma_deallocate(TInt)
 call mma_deallocate(TMax)
 call mma_deallocate(SO2Ind)
+Int_PostProcess => Null()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -256,6 +255,4 @@ call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
-
 end subroutine Drv2El_2Center_RI

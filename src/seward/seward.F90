@@ -53,7 +53,7 @@ use k2_arrays, only: DeDe
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
-use Integral_interfaces, only: int_wrout, Integral_WrOut2, Integral_ri_3, Int_PostProcess
+use Integral_interfaces, only: Integral_WrOut2, Integral_ri_3, Int_PostProcess
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

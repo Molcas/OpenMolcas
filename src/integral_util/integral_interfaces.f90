@@ -26,7 +26,8 @@
 
       Public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij,     &
      &          OneEl_Inner, OneEl_Integrals, Int_postprocess,          &
-     &          Integral_WrOut2, Integral_RI_3, Integral_RICD
+     &          Integral_WrOut2, Integral_RI_3, Integral_RICD,          &
+     &          Integral_RI_2
 
 #define _FIXED_FORMAT_
       Abstract interface
@@ -62,6 +63,7 @@
 #include "dede_scf.f90"
 #include "integral_wrout2.f90"
 #include "../ri_util/integral_ri_3.F90"
+#include "../ri_util/integral_ri_2.F90"
 #include "../ri_util/integral_ricd.F90"
 
       End Module Integral_Interfaces
