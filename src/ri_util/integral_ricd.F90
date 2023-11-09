@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 
 subroutine Integral_RICD( &
 #                        define _CALLING_
@@ -15,7 +18,7 @@ subroutine Integral_RICD( &
                         )
 
 use Int_Options, only: iTOffs
-use Definitions, only: wp, iwp, u6
+use Definitions, only: u6
 
 implicit none
 #include "int_wrout_interface.fh"
@@ -39,3 +42,12 @@ end if
 return
 
 end subroutine Integral_RICD
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(Integral_RICD)
+
+#endif
+

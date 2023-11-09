@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
 
 subroutine Integral_RI_3( &
 #                        define _CALLING_
@@ -20,7 +23,6 @@ subroutine Integral_RI_3( &
 use RICD_Info, only: LDF
 use RI_glob, only: iSSOff, nBasSh, klS, nSkal_Valence, nSO, SOShl, ShlSO
 use Int_Options, only: iTOffs
-use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
@@ -69,3 +71,11 @@ end if
 return
 
 end subroutine Integral_RI_3
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(Integral_RI_3)
+
+#endif
