@@ -35,7 +35,8 @@ C
 C     Note: the underlying assumption is that few two-center functions
 C     are needed so that the integrals can be stored in core.
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_PostProcess,
+     &                               Integral_WrOut_LDF_G
       Implicit None
       Integer iAtomPair
       Integer ip_CBar, l_CBar
@@ -47,7 +48,6 @@ C
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 
-      Procedure(int_wrout) :: Integral_WrOut_LDF_G
 
 #ifdef _DEBUGPRINT_
       Logical  isSymmetric, hasNonnegativeDiagonal, obeysCauchySchwarz
@@ -95,6 +95,7 @@ C
       L2C(i,j)=iWork(ip_2CList-1+l_2CList_1*(j-1)+i)
       kOff(i,j)=iWork(ip_kOff-1+nShell_iAtom*(j-1)+i)
 
+      Int_PostProcess => Integral_WrOut_LDF_G
       ! Init return code
       irc=0
 
@@ -133,7 +134,7 @@ C
                SHB=L2C(2,uvS)
                SPAB=L2C(3,uvS)
                Call Eval_IJKL(SHA,SHB,SHC,SHD,Work(ip_Int),l_Int,
-     &                        Integral_WrOut_LDF_G)
+     &                        Int_PostProcess)
             End Do
          End Do
          Call xRlsMem_Ints()
@@ -261,6 +262,7 @@ C
          ! Unset index arrays for G matrix
          Call LDF_UnsetIndxG()
       End If
+      Int_PostProcess => Null()
 
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(l_CBar)

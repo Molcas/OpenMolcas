@@ -25,7 +25,8 @@ C     M is the total number of auxiliary functions (1C and 2C) minus the
 C     number of linearly dependent functions, as computed by the
 C     function LDF_nBasAux_Pair(iAtomPair).
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_PostProcess,
+     &                               Integral_WrOut_LDF_G
       Implicit None
       Integer iAtomPair
       Integer M
@@ -55,12 +56,8 @@ C
 
       Logical IndxG_Here
 
-      Integer  LDF_nAuxShell_Atom
-      Integer  LDF_lAuxShell_Atom
-      External LDF_nAuxShell_Atom
-      External LDF_lAuxShell_Atom
-
-      Procedure(int_wrout) :: Integral_WrOut_LDF_G
+      Integer, External :: LDF_nAuxShell_Atom
+      Integer, External :: LDF_lAuxShell_Atom
 
       Integer i, j
       Integer AP_Atoms
@@ -68,6 +65,7 @@ C
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
       AP_2CFunctions(i,j)=iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
 
+      Int_PostProcess => Integral_WrOut_LDF_G
       ! Check if G indexation needs to be done; if so, do it.
       l_IndxG=l_IndxG_1*l_IndxG_2
       l_IndxG2=l_IndxG2_1*l_IndxG2_2
@@ -102,7 +100,7 @@ C
             iShell=iWork(ipi+iS)
             SHB=iShell
             Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G,
-     &                     Integral_WrOut_LDF_G)
+     &                     Int_PostProcess)
          End Do
       End Do
       If (jAtom.ne.iAtom) Then
@@ -115,7 +113,7 @@ C
                iShell=iWork(ipi+iS)
                SHB=iShell
                Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G,
-     &                        Integral_WrOut_LDF_G)
+     &                        Int_PostProcess)
             End Do
          End Do
          Do jS=1,nAuxShell_j
@@ -125,7 +123,7 @@ C
                iShell=iWork(ipj+iS)
                SHB=iShell
                Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G,
-     &                        Integral_WrOut_LDF_G)
+     &                        Int_PostProcess)
             End Do
          End Do
       End If
@@ -141,7 +139,7 @@ C
                iShell=iWork(ipi+iS)
                SHB=iShell
                Call Eval_IJKL(dShell,iShell,uShell,vShell,G,l_G,
-     &                        Integral_WrOut_LDF_G)
+     &                        Int_PostProcess)
             End Do
          End Do
          If (jAtom.ne.iAtom) Then
@@ -157,7 +155,7 @@ C
                   jShell=iWork(ipj+jS)
                   SHB=jShell
                   Call Eval_IJKL(dShell,jShell,uShell,vShell,G,l_G,
-     &                           Integral_WrOut_LDF_G)
+     &                           Int_PostProcess)
                End Do
             End Do
          End If
@@ -174,11 +172,12 @@ C
                SHA=uShell
                SHB=vShell
                Call Eval_IJKL(uShell,vShell,kShell,lShell,G,l_G,
-     &                        Integral_WrOut_LDF_G)
+     &                        Int_PostProcess)
             End Do
          End Do
       End If
 
+      Int_PostProcess => Null()
       ! Release Seward memory
       Call xRlsMem_Ints()
 

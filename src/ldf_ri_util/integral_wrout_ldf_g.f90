@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+
       SubRoutine Integral_WrOut_LDF_G(                                  &
 #define _FIXED_FORMAT_
 #define _CALLING_
@@ -103,3 +106,12 @@
          Call Unused_integer_array(iSOSym)
       End If
       End SubRoutine Integral_WrOut_LDF_G
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(Integral_WrOut_LDF_G)
+
+#endif
+
