@@ -35,7 +35,6 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas
 !***********************************************************************
 
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
-use Gateway_global, only: iWROpt
 use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6, RtoI
 
@@ -74,7 +73,7 @@ jPrInc = jPrim
 kPrInc = kPrim
 lPrInc = lPrim
 iFact = 1
-if (iWropt == 0) iFact = 4/RtoI+3
+iFact = 4/RtoI+3
 
 do
   QjPrim = .false.

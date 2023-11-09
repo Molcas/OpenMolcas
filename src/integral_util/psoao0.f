@@ -43,7 +43,7 @@
 !             Modified for unified Work2 and Work3 block. Febr. 2015   *
 !***********************************************************************
       use lw_Info, only: lwInt, lwSyb, lwSqn
-      use Gateway_global, only: force_part_c, force_part_p, iWROpt
+      use Gateway_global, only: force_part_c, force_part_p
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       use Breit, only: nComp
@@ -118,8 +118,7 @@
       kPrInc = kPrim
 !
       iFact = 1
-      If (iWropt.eq.0 .and.
-     &   .Not.(Cholesky.or.Do_RI)) iFact = 4 + 3
+      If (.Not.(Cholesky.or.Do_RI)) iFact = 4 + 3
 !
  999  Continue
 !
@@ -303,7 +302,7 @@
 !
 !     Memory for integral packing.
 !
-      If (iWROpt.eq.0 .and. .Not.(Cholesky.or.Do_RI)) Then
+      If (.Not.(Cholesky.or.Do_RI)) Then
          MemPck= 2 * nabcd*nijkl
       Else
          MemPck = 0
@@ -333,7 +332,7 @@
 !
 !     Auxiliary memory for integral packing
 !
-      If (iWropt.eq.0 .and. .Not.(Cholesky.or.Do_RI)) Then
+      If (.Not.(Cholesky.or.Do_RI)) Then
          If (nIrrep.eq.1) Then
             lPack = nabcd*nijkl
             lwInt = ipMem1

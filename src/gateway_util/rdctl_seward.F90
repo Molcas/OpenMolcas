@@ -31,7 +31,7 @@ use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radi
 use Cholesky, only: Span, ThrCom
 use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
-                          iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+                          NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 #ifdef _FDE_
 use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
                             embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
@@ -122,7 +122,7 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
                                             'DK1H','DK2H','DK3H','DK3F','RESC','RA0H','RA0F','RAIH','RX2C','RBSS','DCCD','BSSM', &
                                             'AMFI','AMF1','AMF2','AMF3','FAKE','FINI','MGAU','PART','FPCO','FPPR','NOTA','WELL', &
                                             'NODK','ONEO','TEST','SDIP','EPOT','EFLD','FLDG','ANGM','UPON','DOWN','OMQI','AMPR', &
-                                            'DSHD','NOPA','STDO','PKTH','SKIP','EXTR','RF-I','GRID','CLIG','NEMO','RMAT','RMEA', &
+                                            'DSHD','NOPA','    ','PKTH','SKIP','EXTR','RF-I','GRID','CLIG','NEMO','RMAT','RMEA', &
                                             'RMER','RMQC','RMDI','RMEQ','RMBP','GIAO','NOCH','CHOL','FCD ','THRC','1CCD','1C-C', &
                                             'CHOI','RP-C','SADD','CELL','SPAN','SPRE','LOW ','MEDI','HIGH','DIAG','RIC ','RIJ ', &
                                             'RIJK','RICD','XRIC','NOGU','RELA','RLOC','FOOC','CDTH','SHAC','KHAC','ACD ','FAT-', &
@@ -1519,31 +1519,16 @@ do
         !***** NOPA ****************************************************
         !                                                              *
         ! Set integral packing flag
-        ! Note      : this flag is only active if iWRopt=0
         ! iPack=0   : pack 2el integrals (= Default)
         ! iPack=1   : do not pack 2el integrals
 
         iPack = 1
-
-      case (KeyW(87))
-        !                                                              *
-        !***** STDO ****************************************************
-        !                                                              *
-        ! Set integral write option for 2 el integrals
-        ! iWRopt=0  : 2 el integrals are written in the MOLCAS2 format,
-        !             i.e., in canonical order, no labels and packed format
-        !             (= Default)
-        ! iWRopt=1  : 2 el integrals are written in a format identical
-        !             to MOLECULE, i.e., values and labels
-
-        iWRopt = 1
 
       case (KeyW(88))
         !                                                              *
         !***** PKTH ****************************************************
         !                                                              *
         ! Read desired packing accuracy ( Default = 1.0e-14 )
-        ! Note      : this flag is only active if iWRopt=0
 
         KWord = Get_Ln(LuRd)
         call Get_F1(1,PkAcc)
@@ -1558,7 +1543,6 @@ do
         ! will not be needed in subsequent calculations their computation
         ! ans storage can be omitted.
         ! ( Default = 0,0,0,0,0,0,0,0 )
-        ! Note      : this flag is only activ if iWRopt=0
 
         KWord = Get_Ln(LuRd)
         lSkip = .true.
@@ -3430,8 +3414,7 @@ end do
 !    keyword. Thus, specifying Cholesky will force 2-el. int.
 !    processing even with Direct specifed as well!
 ! 4) Turn off Dist flag (makes no sense with Cholesky).
-! 5) Integral format on disk is irrelevant, except that Aces II is
-!    not allowed. So, reset iWrOpt or quit (for Aces II).
+! 5) Integral format on disk is irrelevant.
 ! 6) if Cholesky threshold is specified, use it.
 ! 7) if span factor is specified, use it.
 
@@ -3447,12 +3430,6 @@ if (Chol) then
       else
         MolWgh = Cho_MolWgh
       end if
-    end if
-    if (iWrOpt == 2) then
-      write(u6,*) 'Acess II format not allowed with Cholesky!!'
-      call Quit_OnUserError()
-    else if ((iWrOpt /= 0) .and. (iWrOpt /= 3)) then
-      iWrOpt = 0
     end if
     if (CholeskyThr >= Zero) then
       Thrshld_CD = CholeskyThr

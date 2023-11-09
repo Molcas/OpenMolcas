@@ -921,18 +921,6 @@ Keywords for two-electron integrals
               algorithm, the default is 1.0d-14.
               </KEYWORD>
 
-:kword:`STDOut`
-  Generate a two-electron integral file according to the standard of
-  version 1 of |molcas|. The default is to generate the
-  two-electron integrals according to the standard used since version 2 of
-  |molcas|.
-
-  .. xmldoc:: %%Keyword: Stdout <advanced>
-              Generate a two-electron integral file according to the standard of
-              version 1 of MOLCAS. The default is to generate the
-              two-electron integrals according to the standard used since version 2 of
-              MOLCAS.
-
 :kword:`THREshold`
   Threshold for writing integrals to disk follows. The default is 1.0d-14.
 

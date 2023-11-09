@@ -39,7 +39,7 @@ use iSD_data, only: iSD
 use RI_glob, only: SO2Ind
 use k2_arrays, only: DeDe, Sew_Scr
 use Basis_Info, only: dbsc, nBas
-use Gateway_global, only: force_out_of_core, iWROpt
+use Gateway_global, only: force_out_of_core
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: iTOffs
 use Integral_interfaces, only: int_wrout
@@ -54,7 +54,7 @@ integer(kind=iwp), intent(in) :: iCnttp, jCnttp, ijS_req, Keep_Shell
 real(kind=wp), allocatable, intent(out) :: TInt(:), ADiag(:)
 integer(kind=iwp), intent(out) :: nTInt, LuA
 logical(kind=iwp), intent(out) :: In_Core
-integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, iWROpt_Save, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, &
+integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, &
                      MemLow, MemSew, MemT, mTInt, mTInt2, nBfn, nBfn_i, nBfn_j, nBfn_k, nBfn_l, nij, nIrrep_Save, nSkal, nTInt2
 logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, Indexation, Only_DB, Out_of_Core
 integer(kind=iwp), allocatable :: IJInd(:,:)
@@ -67,8 +67,6 @@ integer(kind=iwp), external :: IsFreeUnit
 
 nIrrep_Save = nIrrep
 nIrrep = 1
-iWROpt_Save = iWROpt
-iWROpt = 1
 
 Do_RI_Basis = dbsc(iCnttp)%Aux
 
@@ -365,7 +363,6 @@ end if
 !                                                                      *
 call Free_iSD()
 nIrrep = nIrrep_Save
-iWROpt = iWROpt_Save
 !                                                                      *
 !***********************************************************************
 !                                                                      *
