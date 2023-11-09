@@ -11,16 +11,20 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-!  *******************************************
-!  ** Front-end routines for INPUT and MAIN **
-!  *******************************************
-      subroutine casvb(ireturn)
-      implicit real*8 (a-h,o-z)
+! *******************************************
+! ** Front-end routines for INPUT and MAIN **
+! *******************************************
+
+subroutine casvb(ireturn)
+
+implicit real*8(a-h,o-z)
 #include "rasscf_lucia.fh"
-!
-      call cvbinp_cvb(0,5)
-      call cvbmn_cvb(0)
-      call make_close_cvb(1)
-      ireturn=0
-      return
-      end
+
+call cvbinp_cvb(0,5)
+call cvbmn_cvb(0)
+call make_close_cvb(1)
+ireturn = 0
+
+return
+
+end subroutine casvb

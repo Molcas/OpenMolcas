@@ -11,12 +11,16 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cvbinp_cvb(icode,luinp)
-      implicit real*8 (a-h,o-z)
 
-      call cvbstart_cvb_ge9(icode+10)
-      call hello_cvb()
-      call parse_init_cvb(luinp)
-      call input_cvb()
-      return
-      end
+subroutine cvbinp_cvb(icode,luinp)
+
+implicit real*8(a-h,o-z)
+
+call cvbstart_cvb_ge9(icode+10)
+call hello_cvb()
+call parse_init_cvb(luinp)
+call input_cvb()
+
+return
+
+end subroutine cvbinp_cvb

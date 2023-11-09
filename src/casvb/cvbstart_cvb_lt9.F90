@@ -11,17 +11,21 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cvbstart_cvb_lt9(icode)
-      use casvb_global, only: endvar, iprm, iunset, lstprm, recinp,     &
-     &                        recinp_old, variat
-      implicit real*8 (a-h,o-z)
 
-      variat=(mod(icode,10).ne.0)
-      endvar=(mod(icode,10).eq.2)
-      recinp=0d0
-      recinp_old=0d0
-      lstprm(:) = iunset
-      iprm = 0
-      if(.not.variat)call casinfo1_cvb()
-      return
-      end
+subroutine cvbstart_cvb_lt9(icode)
+
+use casvb_global, only: endvar, iprm, iunset, lstprm, recinp, recinp_old, variat
+
+implicit real*8(a-h,o-z)
+
+variat = (mod(icode,10) /= 0)
+endvar = (mod(icode,10) == 2)
+recinp = 0d0
+recinp_old = 0d0
+lstprm(:) = iunset
+iprm = 0
+if (.not. variat) call casinfo1_cvb()
+
+return
+
+end subroutine cvbstart_cvb_lt9

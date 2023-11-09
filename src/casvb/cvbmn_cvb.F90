@@ -11,18 +11,23 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine cvbmn_cvb(icode)
-      use casvb_global, only: esym, n_iter
-      implicit real*8 (a-h,o-z)
-      dimension Dummy(1)
 
-!  ICODE=0 standard casvb calculation
-!  ICODE=1 variational calculation
-!  ICODE=2 end of variational calculation (print summary)
+subroutine cvbmn_cvb(icode)
 
-      call cvbstart_cvb_lt9(icode)
-      call main_cvb()
-      call setretvals_cvb(esym,n_iter)
-      Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      return
-      end
+use casvb_global, only: esym, n_iter
+
+implicit real*8(a-h,o-z)
+dimension Dummy(1)
+
+! ICODE=0 standard casvb calculation
+! ICODE=1 variational calculation
+! ICODE=2 end of variational calculation (print summary)
+
+call cvbstart_cvb_lt9(icode)
+call main_cvb()
+call setretvals_cvb(esym,n_iter)
+call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+
+return
+
+end subroutine cvbmn_cvb

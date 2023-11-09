@@ -11,33 +11,35 @@
 ! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      subroutine casinfo1_cvb()
-      implicit real*8 (a-h,o-z)
-      logical iphex,oldex
 
-!  Information from molcas interface file 'JOBIPH' :
-      write(6,'(2a)')' ------- Recover RASSCF-related information',     &
-     &              ' --------------------------------------'
-      call f_inquire('JOBIPH',iphex)
-      call f_inquire('JOBOLD',oldex)
-      if(iphex)then
-        write(6,'(/,a)')' Using JOBIPH interface file.'
-       Call Copy_JobIph("JOBIPH","JOBOLD")
-      elseif(oldex)then
-        write(6,'(/,a)')' Using JOBOLD interface file.'
-       Call Copy_JobIph("JOBOLD","JOBIPH")
-      else
-        write(6,'(/,a)')' Error: need either JOBOLD or JOBIPH file!'
-        call abend_cvb()
-      endif
+subroutine casinfo1_cvb()
 
-      call rdjobiph_cvb('JOBIPH')
-      call setjobiph_cvb(nel_c,norb_c,i2s_c,isym_c,neltot_c)
-      call rasscf(ireturn_rasscf)
-      call clsfls_rasscf()
-!  rasscf will have overwritten jobiph ...
-       Call Copy_JobIph("JOBOLD","JOBIPH")
-      write(6,'(2a)')' ------- RASSCF-related information recovered',   &
-     &              ' ------------------------------------'
-      return
-      end
+implicit real*8(a-h,o-z)
+logical iphex, oldex
+
+! Information from molcas interface file 'JOBIPH' :
+write(6,'(a)') ' ------- Recover RASSCF-related information --------------------------------------'
+call f_inquire('JOBIPH',iphex)
+call f_inquire('JOBOLD',oldex)
+if (iphex) then
+  write(6,'(/,a)') ' Using JOBIPH interface file.'
+  call Copy_JobIph('JOBIPH','JOBOLD')
+elseif (oldex) then
+  write(6,'(/,a)') ' Using JOBOLD interface file.'
+  call Copy_JobIph('JOBOLD','JOBIPH')
+else
+  write(6,'(/,a)') ' Error: need either JOBOLD or JOBIPH file!'
+  call abend_cvb()
+end if
+
+call rdjobiph_cvb('JOBIPH')
+call setjobiph_cvb(nel_c,norb_c,i2s_c,isym_c,neltot_c)
+call rasscf(ireturn_rasscf)
+call clsfls_rasscf()
+! rasscf will have overwritten jobiph ...
+call Copy_JobIph('JOBOLD','JOBIPH')
+write(6,'(a)') ' ------- RASSCF-related information recovered ------------------------------------'
+
+return
+
+end subroutine casinfo1_cvb

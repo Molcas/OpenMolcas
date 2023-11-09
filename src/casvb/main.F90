@@ -7,22 +7,25 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-!               1996-2006, David L. Cooper                             *
 !***********************************************************************
-      program main
+
+program Main
+
 #ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
 #endif
-      implicit real*8 (a-h,o-z)
-      Character*20 Module_Name
-      Parameter (Module_Name = 'casvb')
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
+
 #ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
-      Call Start(Module_Name)
-      Call casvb(ireturn)
-      Call Finish(ireturn)
-      end
+call Start('casvb')
+call casvb(rc)
+call Finish(rc)
+
+end program Main
