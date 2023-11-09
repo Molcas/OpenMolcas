@@ -67,9 +67,8 @@ real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), TCpu1, TCpu2, TWall1, Twall2
 logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
-integer(kind=iwp), external :: ip_of_Work, isFreeUnit
 logical(kind=iwp), external :: Reduce_Prt
-procedure(int_wrout) :: Integral_WrOut, Integral_WrOut2, Integral_RI_3
+procedure(int_wrout) :: Integral_WrOut2, Integral_RI_3
 interface
   subroutine get_genome(cDNA,nDNA) bind(C,name='get_genome_')
     use, intrinsic :: iso_c_binding, only: c_char
