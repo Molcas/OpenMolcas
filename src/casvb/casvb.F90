@@ -17,10 +17,12 @@
 
 subroutine casvb(ireturn)
 
-implicit real*8(a-h,o-z)
-#include "rasscf_lucia.fh"
+use Definitions, only: iwp, u5
 
-call cvbinp_cvb(0,5)
+implicit none
+integer(kind=iwp) :: ireturn
+
+call cvbinp_cvb(0,u5)
 call cvbmn_cvb(0)
 call make_close_cvb(1)
 ireturn = 0

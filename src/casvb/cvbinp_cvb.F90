@@ -14,7 +14,10 @@
 
 subroutine cvbinp_cvb(icode,luinp)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: icode, luinp
 
 call cvbstart_cvb_ge9(icode+10)
 call hello_cvb()

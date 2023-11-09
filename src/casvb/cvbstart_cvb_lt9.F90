@@ -15,13 +15,16 @@
 subroutine cvbstart_cvb_lt9(icode)
 
 use casvb_global, only: endvar, iprm, iunset, lstprm, recinp, recinp_old, variat
+use Constants, only: Zero
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: icode
 
 variat = (mod(icode,10) /= 0)
 endvar = (mod(icode,10) == 2)
-recinp = 0d0
-recinp_old = 0d0
+recinp = Zero
+recinp_old = Zero
 lstprm(:) = iunset
 iprm = 0
 if (.not. variat) call casinfo1_cvb()

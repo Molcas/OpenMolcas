@@ -16,11 +16,13 @@ subroutine make_close_cvb(it)
 
 use casvb_global, only: ipfocc_cvb, lcmo_cvb, ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb, &
                         loccn_cvb, lpa_cvb, lpmat_cvb, ltuvx_cvb, lw1_cvb, variat
+use Definitions, only: iwp
 
-implicit real*8(a-h,o-z)
-integer find_lu
-external find_lu
-character*8 vec(11)
+implicit none
+integer(kind=iwp) :: it
+integer(kind=iwp) :: i, il, n
+character(len=8) :: vec(11)
+integer(kind=iwp), external :: find_lu
 
 vec(1) = 'TMP01'
 vec(2) = 'TMP02'
