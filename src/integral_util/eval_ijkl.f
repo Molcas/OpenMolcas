@@ -47,6 +47,7 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, Map4
+      use Integral_Interfaces, only: Int_PostProcess
 #ifdef _DEBUGBREIT_
       use Breit, only: nOrdOp
       use UnixInfo, only: SuperName
@@ -486,12 +487,13 @@
      &                        abs(SOInt(iDAMax_(n,SOInt,1))))
                      End If
                      If (Tmax.gt.CutInt) Then
-                        Call Integ_Proc(iCmpV,iShelV,
-     &                                  iBasn,jBasn,kBasn,lBasn,kOp,
-     &                                  Shijij,iAOV,iAOst,nijkl,
-     &                                  AOInt,SOInt,nSO,
-     &                                  iSOSym,nSOs,
-     &                                  TInt,nTInt,nIrrep)
+                        Call Int_PostProcess(iCmpV,iShelV,
+     &                                       iBasn,jBasn,kBasn,lBasn,
+     &                                       kOp,
+     &                                       Shijij,iAOV,iAOst,nijkl,
+     &                                       AOInt,SOInt,nSO,
+     &                                       iSOSym,nSOs,
+     &                                       TInt,nTInt,nIrrep)
                      Else
                         Tmax=Zero
                      End If
