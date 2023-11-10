@@ -420,7 +420,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine LDF_SIPI_G1C(A,l,Gmax_S,Gmax,Gsum)
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_GMax_S,
+     &                               Int_PostProcess
       Implicit None
       Integer A
       Integer l
@@ -431,7 +432,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 #include "localdf_bas.fh"
 #include "localdf_int3.fh"
 
-      Procedure(int_wrout) :: Int_LDF_Gmax_S
 
       Integer  LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
@@ -443,6 +443,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Integer nAuxShellA, ipA
       Integer iS, iShell, dShell
 
+      Int_PostProcess => Int_LDF_GMax_s
       nAuxShellA=LDF_nAuxShell_Atom(A)
       If (l.ne.nAuxShellA) Then
          Call WarningMessage(2,'LDF_SIPI_G1C: dimension error!')
@@ -461,12 +462,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          SHB=iShell
          SHD=iShell
          Call Eval_IJKL(dShell,iShell,dShell,iShell,Res,l_Res,
-     &                  Int_LDF_Gmax_S)
+     &                  Int_PostProcess)
          Gmax_S(iS)=Res(1)
          Gmax=max(Gmax,Res(1))
          Gsum=Gsum+Res(2)
       End Do
 
+      Int_PostProcess => Null()
       SHA=0
       SHB=0
       SHC=0

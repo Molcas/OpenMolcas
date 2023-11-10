@@ -30,7 +30,8 @@
      &          Integral_RI_2, Integral_WrOut_Cho, No_Routine,          &
      &          Integral_WrOut_Cho_Diag, Integral_WrOut_LDF_diag,       &
      &          Integral_WrOut_LDF_G, Int_LDF_2Indx_11,                 &
-     &          Int_LDF_2Indx_12,  Int_LDF_3Indx_1
+     &          Int_LDF_2Indx_12,  Int_LDF_3Indx_1,                     &
+     &          Int_LDF_GMax_S
 
 #define _FIXED_FORMAT_
       Abstract interface
@@ -76,5 +77,6 @@
 #include "../ldf_ri_util/int_ldf_2indx_11.f90"
 #include "../ldf_ri_util/int_ldf_2indx_12.f90"
 #include "../ldf_ri_util/int_ldf_3indx_1.f90"
+#include "../ldf_ri_util/int_ldf_gmax_s.f90"
 
       End Module Integral_Interfaces
