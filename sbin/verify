@@ -706,8 +706,14 @@ if opt['module'] or opt['word'] or opt['grep']:
   filtered_filelist = []
   for filename in filelist:
     with open(filename, 'rb') as f:
+      in_file = False
       for line in f:
-        if re.match(filter_pattern.encode(), line, re.IGNORECASE):
+        # ignore lines between >FILE and >EOF
+        if (not in_file) and re.match(r'>* *FILE '.encode(), line, re.IGNORECASE):
+          in_file = True
+        if in_file and re.match(r'>* *EOF'.encode(), line, re.IGNORECASE):
+          in_file = False
+        if (not in_file) and re.match(filter_pattern.encode(), line, re.IGNORECASE):
           filtered_filelist.append(filename)
           break
   filelist = filtered_filelist
