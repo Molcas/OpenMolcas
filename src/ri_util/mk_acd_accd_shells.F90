@@ -28,7 +28,7 @@ use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
 use Basis_Info, only: dbsc, Extend_Shells, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
-use Integral_interfaces, only: Integral_RICD, Int_PostProcess
+use Integral_interfaces, only: Int_PostProcess, Integral_RICD
 use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -236,7 +236,7 @@ else
   ijS_req = 0
   Int_PostProcess => Integral_RICD
   call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
-  Int_PostProcess => Null()
+  Int_PostProcess => null()
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -466,7 +466,7 @@ do iBS=0,nBS-1
 
         Int_PostProcess => Integral_RICD
         call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_p,nTInt_p,In_Core,ADiag,Lu_A,ijS_Req,Keep_Shell)
-        Int_PostProcess => Null()
+        Int_PostProcess => null()
 
         if (.not. In_Core) then
           call WarningMessage(2,'Error in Mk_RICD_Shells')

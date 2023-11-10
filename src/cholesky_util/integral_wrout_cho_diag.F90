@@ -8,8 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-#include "compiler_features.h"
-#ifdef _IN_MODULE_
+
+! This subroutine should be in a module
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Integral_WrOut_Cho_diag( &
 #                                  define _CALLING_
@@ -36,13 +39,3 @@ end if
 return
 
 end subroutine Integral_WrOut_Cho_diag
-
-#elif ! defined (EMPTY_FILES)
-
-! Some compilers do not like empty files
-#include "macros.fh"
-      dummy_empty_procedure(Integral_WrOut_Cho_diag)
-
-#endif
-
-
