@@ -142,7 +142,8 @@ C     Thomas Bondo Pedersen, September 2010.
 C
 C     Compute integrals (J_AB | kShell lShell)
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_JK_2P,
+     &                               Int_PostProcess
       Implicit None
       Integer AB
       Integer kShell, lShell
@@ -153,10 +154,8 @@ C
 #include "localdf_int2.fh"
 #include "ldf_atom_pair_info.fh"
 
-      Procedure(int_wrout) :: Int_LDF_JK_2P
 
-      Integer  LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
-      External LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
+      Integer, External ::  LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
 
       Integer dShell
       Integer A, B
@@ -172,6 +171,8 @@ C
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
       AP_2CFunctions(i,j)=iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
 
+
+      Int_PostProcess => Int_LDF_JK_2P
       dShell=nShell_Valence+nShell_Auxiliary+1
 
       SHC=kShell
@@ -190,14 +191,14 @@ C
          jShell=iWork(ipA+jS)
          SHB=jShell
          Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                  xInt,l_xInt,Int_LDF_JK_2P)
+     &                  xInt,l_xInt,Int_PostProcess)
       End Do
       If (B.ne.A) Then
          Do jS=1,nAuxShell_B
             jShell=iWork(ipB+jS)
             SHB=jShell
             Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                     xInt,l_xInt,Int_LDF_JK_2P)
+     &                     xInt,l_xInt,Int_PostProcess)
          End Do
       End If
       If (AP_2CFunctions(1,AB).gt.0) Then
@@ -209,8 +210,9 @@ C
             SHA=iShell
             SHB=jShell
             Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                     xInt,l_xInt,Int_LDF_JK_2P)
+     &                     xInt,l_xInt,Int_PostProcess)
          End Do
       End If
 
+      Int_PostProcess => Null()
       End

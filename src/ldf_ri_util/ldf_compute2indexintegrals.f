@@ -392,7 +392,8 @@ C     tau is the prescreening threshold. Note that the integral
 C     prescreening arrays must have been set up before calling this
 C     routine.
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_JK_2P,
+     &                               Int_PostProcess
       Implicit None
       Integer AB
       Integer CD
@@ -409,10 +410,8 @@ C
       Character*29 SecNam
       Parameter (SecNam='LDF_Compute2IndexIntegrals_22')
 
-      Procedure(int_wrout) :: Int_LDF_JK_2P
 
-      Integer  LDF_nBasAux_Pair
-      External LDF_nBasAux_Pair
+      Integer, External ::  LDF_nBasAux_Pair
 
       Real*8 tau2
 
@@ -440,6 +439,7 @@ C
       Gmax_AB(i)=Work(iWork(ip_GDiag_2C+2*(AB-1)+1)-1+i)
       Gmax_CD(i)=Work(iWork(ip_GDiag_2C+2*(CD-1)+1)-1+i)
 
+      Int_PostProcess => Int_LDF_JK_2P
 #ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
          Call WarningMessage(0,SecNam//': Using APD integrals!')
@@ -514,7 +514,7 @@ C
                   SHA=iShell
                   SHB=jShell
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,
-     &                           l_xInt,Int_LDF_JK_2P)
+     &                           l_xInt,Int_PostProcess)
                End If
             End Do
          End Do
@@ -564,12 +564,13 @@ C
                   SHA=iShell
                   SHB=jShell
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,
-     &                           l_xInt,Int_LDF_JK_2P)
+     &                           l_xInt,Int_PostProcess)
                End If
             End Do
          End Do
       End If
 
+      Int_PostProcess => Null()
       ! Release Seward memory
       Call xRlsMem_Ints()
 
