@@ -461,8 +461,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          iShell=iWork(ipA+iS)
          SHB=iShell
          SHD=iShell
-         Call Eval_IJKL(dShell,iShell,dShell,iShell,Res,l_Res,
-     &                  Int_PostProcess)
+         Call Eval_IJKL(dShell,iShell,dShell,iShell,Res,l_Res)
          Gmax_S(iS)=Res(1)
          Gmax=max(Gmax,Res(1))
          Gsum=Gsum+Res(2)

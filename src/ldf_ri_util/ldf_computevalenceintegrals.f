@@ -183,8 +183,7 @@ C
                   SHC=kShell
                   SHD=lShell
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                           Work(ip_SQ),nijkl,
-     &                           Int_PostProcess)
+     &                           Work(ip_SQ),nijkl)
                   Do l=1,nBasSh(lShell)
                      kl0=nBasSh(kShell)*(l-1)
                      Do k=1,nBasSh(kShell)

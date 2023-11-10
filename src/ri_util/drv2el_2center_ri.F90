@@ -192,7 +192,7 @@ do jS=1,nSkal-1
   do lS=1,jS
 
     A_int = TMax(jS)*TMax(lS)
-    if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Int_PostProcess)
+    if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_)
 
   end do ! lS
   !                                                                    *

@@ -99,8 +99,7 @@ C
          Do iS=jS,nAuxShell_i
             iShell=iWork(ipi+iS)
             SHB=iShell
-            Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G,
-     &                     Int_PostProcess)
+            Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G)
          End Do
       End Do
       If (jAtom.ne.iAtom) Then
@@ -112,8 +111,7 @@ C
             Do iS=1,nAuxShell_i
                iShell=iWork(ipi+iS)
                SHB=iShell
-               Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G,
-     &                        Int_PostProcess)
+               Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G)
             End Do
          End Do
          Do jS=1,nAuxShell_j
@@ -122,8 +120,7 @@ C
             Do iS=jS,nAuxShell_j
                iShell=iWork(ipj+iS)
                SHB=iShell
-               Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G,
-     &                        Int_PostProcess)
+               Call Eval_IJKL(dShell,iShell,dShell,jShell,G,l_G)
             End Do
          End Do
       End If
@@ -138,8 +135,7 @@ C
             Do iS=1,nAuxShell_i
                iShell=iWork(ipi+iS)
                SHB=iShell
-               Call Eval_IJKL(dShell,iShell,uShell,vShell,G,l_G,
-     &                        Int_PostProcess)
+               Call Eval_IJKL(dShell,iShell,uShell,vShell,G,l_G)
             End Do
          End Do
          If (jAtom.ne.iAtom) Then
@@ -154,8 +150,7 @@ C
                Do jS=1,nAuxShell_j
                   jShell=iWork(ipj+jS)
                   SHB=jShell
-                  Call Eval_IJKL(dShell,jShell,uShell,vShell,G,l_G,
-     &                           Int_PostProcess)
+                  Call Eval_IJKL(dShell,jShell,uShell,vShell,G,l_G)
                End Do
             End Do
          End If
@@ -171,8 +166,7 @@ C
                SPAB=iWork(ip_2CList+3*uvS+2)
                SHA=uShell
                SHB=vShell
-               Call Eval_IJKL(uShell,vShell,kShell,lShell,G,l_G,
-     &                        Int_PostProcess)
+               Call Eval_IJKL(uShell,vShell,kShell,lShell,G,l_G)
             End Do
          End Do
       End If

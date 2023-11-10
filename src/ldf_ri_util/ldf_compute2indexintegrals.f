@@ -150,7 +150,7 @@ C
                If (Gmax_A(jS)*Gmax_B(kS).ge.tau2) Then
                   SHB=jShell
                   Call Eval_IJKL(dShell,jShell,dShell,kShell,xInt,
-     &                           l_xInt,Int_PostProcess)
+     &                           l_xInt)
                End If
                iRow0=iRow0+nBasSh(jShell)
             End Do
@@ -184,7 +184,7 @@ C
                If (Gmax_A(jS)*Gmax_B(kS).ge.tau2) Then
                   SHB=jShell
                   Call Eval_IJKL(dShell,jShell,dShell,kShell,xInt,
-     &                           l_xInt,Int_PostProcess)
+     &                           l_xInt)
                End If
                iRow0=iRow0+nBasSh(jShell)
             End Do
@@ -352,8 +352,7 @@ C
             jShell=iWork(ipA+jS)
             If (Gmax_A(jS)*Gmax_CD(klS).ge.tau2) Then
                SHB=jShell
-               Call Eval_IJKL(dShell,jShell,kShell,lShell,xInt,l_xInt,
-     &                        Int_PostProcess)
+               Call Eval_IJKL(dShell,jShell,kShell,lShell,xInt,l_xInt)
             End If
             iOffuv=iOffuv+nBasSh(jShell)
          End Do
@@ -514,7 +513,7 @@ C
                   SHA=iShell
                   SHB=jShell
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,
-     &                           l_xInt,Int_PostProcess)
+     &                           l_xInt)
                End If
             End Do
          End Do
@@ -564,7 +563,7 @@ C
                   SHA=iShell
                   SHB=jShell
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,
-     &                           l_xInt,Int_PostProcess)
+     &                           l_xInt)
                End If
             End Do
          End Do

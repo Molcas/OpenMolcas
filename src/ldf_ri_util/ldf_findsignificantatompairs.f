@@ -433,7 +433,7 @@ C
       SHD=jS
 
       Int_PostProcess => Integral_WrOut_LDF_Diag
-      Call Eval_IJKL(iS,jS,iS,jS,Diag,l_Diag,Int_PostProcess)
+      Call Eval_IJKL(iS,jS,iS,jS,Diag,l_Diag)
       Int_PostProcess => Null()
 
       End

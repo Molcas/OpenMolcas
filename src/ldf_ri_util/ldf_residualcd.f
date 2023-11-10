@@ -133,8 +133,7 @@ C
                SHA=L2C(1,uvS)
                SHB=L2C(2,uvS)
                SPAB=L2C(3,uvS)
-               Call Eval_IJKL(SHA,SHB,SHC,SHD,Work(ip_Int),l_Int,
-     &                        Int_PostProcess)
+               Call Eval_IJKL(SHA,SHB,SHC,SHD,Work(ip_Int),l_Int)
             End Do
          End Do
          Call xRlsMem_Ints()

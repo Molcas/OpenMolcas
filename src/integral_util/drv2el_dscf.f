@@ -268,7 +268,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,Int_PostProcess)
+         Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
  14      Continue
          Count=Count+One

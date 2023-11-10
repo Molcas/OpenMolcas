@@ -27,7 +27,7 @@
 !
 #include "int_wrout_interface.fh"
 !
-      Integer, External :: LDF_nShell, LDF_nAuxShell
+      Integer, External :: LDF_nShell
       Integer nS_Val
       Integer i, j, iTri
 !

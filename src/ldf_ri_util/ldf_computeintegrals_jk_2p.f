@@ -191,14 +191,14 @@ C
          jShell=iWork(ipA+jS)
          SHB=jShell
          Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                  xInt,l_xInt,Int_PostProcess)
+     &                  xInt,l_xInt)
       End Do
       If (B.ne.A) Then
          Do jS=1,nAuxShell_B
             jShell=iWork(ipB+jS)
             SHB=jShell
             Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                     xInt,l_xInt,Int_PostProcess)
+     &                     xInt,l_xInt)
          End Do
       End If
       If (AP_2CFunctions(1,AB).gt.0) Then
@@ -210,7 +210,7 @@ C
             SHA=iShell
             SHB=jShell
             Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                     xInt,l_xInt,Int_PostProcess)
+     &                     xInt,l_xInt)
          End Do
       End If
 

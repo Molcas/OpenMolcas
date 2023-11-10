@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Drv2El_3Center_RI(Integral_WrOut,ThrAO)
+subroutine Drv2El_3Center_RI(ThrAO)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for the 3 center integrals in the RI approach.       *
@@ -45,13 +45,12 @@ use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
 use RI_glob, only: iShij, iSSOff, klS, Lu_Q, nBasSh, nChV, nSkal_Valence, nSO, ShlSO, SOShl
 use Int_Options, only: iTOffs
-use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Integral_Interfaces, only: Integral_RI_3, Int_PostProcess
 
 implicit none
-procedure(int_wrout) :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 #include "Molcas.fh"
 #include "print.fh"
@@ -164,6 +163,7 @@ call StatusLine(' Seward:',' Computing 3-center RI integrals')
 
 ! Handle both the valence and the auxiliary basis set
 
+Int_PostProcess => Integral_RI_3
 call Set_Basis_Mode('WithAuxiliary')
 call SetUp_iSD()
 !                                                                      *
@@ -406,7 +406,7 @@ do while (Rsv_Tsk(id,klS))
       write(u6,*) 'A_Int,CutInt=',A_Int,CutInt
       write(u6,*)
 #     endif
-      if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C,Integral_WrOut)
+      if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C)
     end if
 
   end do    ! jS
@@ -497,6 +497,7 @@ end if
 !                                                                      *
 ! Terminate integral environment.
 
+Int_PostProcess => Null()
 call Term_Ints()
 
 call mma_deallocate(iSSOff)

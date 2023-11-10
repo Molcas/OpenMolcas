@@ -47,7 +47,7 @@ SHB = L
 ! --------------------
 
 Int_PostProcess => Integral_WrOut_Cho
-call EVAL_IJKL(I,J,K,L,XINT,LINT,Int_PostProcess)
+call EVAL_IJKL(I,J,K,L,XINT,LINT)
 Int_PostProcess => Null()
 
 ! Print integrals.

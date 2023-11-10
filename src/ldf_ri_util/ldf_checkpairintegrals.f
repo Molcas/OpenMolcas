@@ -559,8 +559,7 @@ C
                      SHD=lShell
                      Call FZero(Work(ip_Int),nij*nkl)
                      Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                              Work(ip_Int),l_Int,
-     &                              Int_PostProcess)
+     &                              Work(ip_Int),l_Int)
                      Call dGeMM_('N','N',nij,nkl,M,
      &                           -1.0d0,Work(ip_C_),nij,Work(ip_V),Mm,
      &                           1.0d0,Work(ip_Int),nij)

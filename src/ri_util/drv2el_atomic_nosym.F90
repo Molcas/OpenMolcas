@@ -17,7 +17,7 @@
 #error "This file must be compiled inside a module"
 #endif
 
-subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
+subroutine Drv2El_Atomic_NoSym(ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals.                          *
@@ -42,13 +42,11 @@ use Basis_Info, only: dbsc, nBas
 use Gateway_global, only: force_out_of_core
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: iTOffs
-use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-procedure(int_wrout) :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp), intent(in) :: iCnttp, jCnttp, ijS_req, Keep_Shell
 real(kind=wp), allocatable, intent(out) :: TInt(:), ADiag(:)
@@ -285,7 +283,7 @@ do ijS=1,nij
     Do_ERIs = Do_ERIs .and. (ijAng <= Keep_Shell) .and. (klAng <= Keep_Shell)
 
     if (Do_ERIs) then
-      call Eval_IJKL(iS,jS,kS,lS,TInt,mTInt2,Integral_WrOut)
+      call Eval_IJKL(iS,jS,kS,lS,TInt,mTInt2)
     end if
 
     if (.not. Only_DB) then

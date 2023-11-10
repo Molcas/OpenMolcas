@@ -13,7 +13,7 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
 !#define _DEBUGBREIT_
-      SubRoutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt,Integ_Proc)
+      SubRoutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals, parallel region          *
@@ -47,6 +47,7 @@
       use Gateway_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       use Int_Options, only: DoIntegrals, DoFock, Map4
+      use Integral_interfaces, only: Int_PostProcess
 #ifdef _DEBUGBREIT_
       use Breit, only: nOrdOp
       use UnixInfo, only: SuperName
@@ -60,8 +61,6 @@
       Integer iiS,jjS,kkS,llS
       Integer nTInt
       Real*8  TInt(nTInt)
-      External Integ_Proc
-
 !
 #include "ibas_ricd.fh"
       Integer::
@@ -173,6 +172,7 @@
       Else
          Do_TwoEl => TwoEl_Sym
       End If
+!     If (.NOT.Associated(Int_PostProcess)) Stop 124
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -486,7 +486,7 @@
      &                        abs(SOInt(iDAMax_(n,SOInt,1))))
                      End If
                      If (Tmax.gt.CutInt) Then
-                        Call Integ_Proc(iCmpV,iShelV,
+                        Call Int_PostProcess(iCmpV,iShelV,
      &                                       iBasn,jBasn,kBasn,lBasn,
      &                                       kOp,
      &                                       Shijij,iAOV,iAOst,nijkl,

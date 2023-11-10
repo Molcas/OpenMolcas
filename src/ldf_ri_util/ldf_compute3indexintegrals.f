@@ -216,7 +216,7 @@ C
                      SHA=iShell
                      iRow0=iOffRow(iS,jS)
                      Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                              xInt,l_xInt,Int_PostProcess)
+     &                              xInt,l_xInt)
                   End If
                End Do
             End Do
@@ -253,7 +253,7 @@ C
                      SHA=iShell
                      iRow0=iOffRow(iS,jS)
                      Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                              xInt,l_xInt,Int_PostProcess)
+     &                              xInt,l_xInt)
                   End If
                End Do
             End Do
@@ -582,7 +582,7 @@ C
                   ! iOffuv = row offset
                   iOffuv=iWork(ip_iOff-1+nShell_kAtom*(lS-1)+kS)
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,
-     &                           l_xInt,Int_PostProcess)
+     &                           l_xInt)
                End If
             End Do
          End Do
@@ -597,7 +597,7 @@ C
                   ! iOffuv = row offset
                   iOffuv=iWork(ip_iOff-1+nShell_kAtom*(lS-1)+kS)
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,
-     &                           l_xInt,Int_PostProcess)
+     &                           l_xInt)
                End If
             End Do
          End Do

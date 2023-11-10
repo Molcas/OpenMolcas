@@ -235,7 +235,7 @@ else
 
   ijS_req = 0
   Int_PostProcess => Integral_RICD
-  call Drv2El_Atomic_NoSym(Int_PostProcess,ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
+  call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_c,nTInt_c,In_Core,ADiag,Lu_A,ijS_req,Keep_Shell)
   Int_PostProcess => Null()
   !                                                                    *
   !*********************************************************************
@@ -465,7 +465,7 @@ do iBS=0,nBS-1
         ! Generate atomic two-electron integrals
 
         Int_PostProcess => Integral_RICD
-        call Drv2El_Atomic_NoSym(Int_PostProcess,ThrAO,iCnttp,iCnttp,TInt_p,nTInt_p,In_Core,ADiag,Lu_A,ijS_Req,Keep_Shell)
+        call Drv2El_Atomic_NoSym(ThrAO,iCnttp,iCnttp,TInt_p,nTInt_p,In_Core,ADiag,Lu_A,ijS_Req,Keep_Shell)
         Int_PostProcess => Null()
 
         if (.not. In_Core) then
