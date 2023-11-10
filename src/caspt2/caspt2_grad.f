@@ -792,7 +792,11 @@ C             call sqprt(work(ipfifasa+isq),nbasi)
 C             write (*,*) "fifa in MO"
 C             call sqprt(work(ipfifa+isq),nbasi)
               !! canonicalize frozen orbitals
-              !! still under investigation
+              !! still under investigation, but this is something we
+              !! should do to obtain "better" orbital enegies for
+              !! methods using state-dependent Fock operators.
+              !! We actually need to canonicalize frozen and inactive
+              !! orbitals simultaneously?
               If (nFroT /= 0) Then
                 CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK2),1)
                 CALL DIAFCK(NBAS(ISYM),WORK(ipFIFA),1,NFRO(ISYM),

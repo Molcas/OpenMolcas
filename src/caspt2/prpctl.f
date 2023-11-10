@@ -104,7 +104,10 @@ C This density matrix may be approximated in several ways, see DENS.
         CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
       ELSE
         !! Density matrix for the target adiabatic state
-        !! Called after gradient calculations, only
+        !! MODE = 1 is called after gradient stuff only for MS, so
+        !! the density computed here is what we call a correct unrelaxed
+        !! correlated CASPT2 density
+        !! Called after gradient calculations, only, from GrdCls
         DO ISYM=1,NSYM
           NO=NBAS(ISYM)
           NDMAT=NDMAT+(NO**2+NO)/2
@@ -120,6 +123,7 @@ C This density matrix may be approximated in several ways, see DENS.
           NO=NBAS(ISYM)
           DO II = 1, NO
             DO IJ = 1, II
+              !! second-order (DPT2) and first-order (DPT2C)
               WORK(LDMAT+IDMAT) = WORK(IPDPT2 +IDMOFF+II-1+NO*(IJ-1))
      *                 + WORK(IPDPT2C+IDMOFF+II-1+NO*(IJ-1))*0.25d+00
               IF (.NOT.DO_NAC) THEN
@@ -202,6 +206,7 @@ C Backtransform density matrix to original MO basis before storing
       CALL PT2WFN_DENSSTORE(WORK(LDMAT),NDMAT)
       CALL GETMEM('DMAT','FREE','REAL',LDMAT,NDMAT)
       IF (MODE.EQ.1) THEN
+        !! Restore with frozen orbitals
         CALL ICOPY(NSYM,NFROSAV,1,NFRO,1)
         CALL ICOPY(NSYM,NORBSAV,1,NORB,1)
       END IF

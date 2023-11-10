@@ -10,7 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2023, Yoshio Nishimoto                                 *
 !***********************************************************************
-
+!
+! Save and restore many quantities that are used in CASPT2 gradient
+! calculations using disk at present (hopefully)
+! Save with Mode = 1, and restore with Mode = 2
+!
 Subroutine SavGradParams(Mode,IDSAVGRD)
 
   use caspt2_gradient, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
@@ -238,6 +242,7 @@ Contains
 
     integer(kind=iwp) :: lg_V1,NVEC,ICASE_,ISYM_
 
+    !! IVECX = T (solution; not quasi-variational, before lambda-eq)
     IVECX = 2
 
     Do ICASE_ = 1, NCASES
@@ -249,7 +254,6 @@ Contains
         NVEC = NIN*NIS
         If ((ICASE_ == 12) .OR. (ICASE_ == 13)) NVEC = NAS*NIS
         If (NVEC == 0) Cycle
-        !! lg_V1 = T (solution; not quasi-variational)
         If ((ICASE_ == 12) .OR. (ICASE_ == 13)) Then
           Call RHS_ALLO(NAS,NIS,lg_V1)
           If (IORW == 1) Then
@@ -279,7 +283,12 @@ Contains
 End Subroutine SavGradParams
 
 Subroutine SavGradParams2(Mode,UEFF,U0,H0)
-
+!
+! It seems that values that are unchanged during the gradient loop
+! have to be separately saved and restored
+! If this subroutine is updated, the shift at the beginning of
+! the SavGradParams subroutine should also be updated
+!
   use caspt2_gradient, only: LUGRAD
   use definitions, only: iwp,wp
 

@@ -13,6 +13,8 @@
 
       subroutine check_caspt2(mode)
 C
+C     Check the roots to be considered in CASPT2 gradient
+C
 C     With mode = 0, this subroutine should first try to decide the root
 C     for which CASPT2 density and MCLR are performed. If we do not have
 C     CASPT2 density, i.e. iGo /= 3, call CASPT2 using the root
@@ -52,9 +54,6 @@ C
         !! Check the root of the density
         Call Get_iScalar('Relax original root',iRlxRootPT2)
       end if
-C     write (*,*) "iGo = ", iGo
-C     write (*,*) "irlxroot = ", irlxroot
-C     write (*,*) "irlxrootPT2 = ", irlxrootPT2
 C
       !! Check this is NAC or not
       isNAC = .false.
@@ -66,15 +65,19 @@ C
         if (NACStates(1) == 0) iRlxRoot = NACStates(2)
       else if ((iGo == 3) .and. (iRlxRoot /= iRlxRootPT2)) then
         !! This means CASPT2 density has been computed for the states
-        !! specified by NAC in &CASPT2.
+        !! specified by the NAC option in &CASPT2 (either specified by
+        !! the original input or the call below).
         !! In this case, perform MCLR anyway(?)
         !! The states can be different from those ALASKA requests.
+        !! If different, ALASKA will call MCLR then CASPT2 again with
+        !! the correct states.
         NACStates(1) = iRlxRoot
         NACStates(2) = iRlxRootPT2
         isNAC = .true.
         override = .true.
       end if
 
+      !! With mode = 1, just set NACStates
       if (mode == 1) return
 
 C     write (*,*) "isnac = ", isnac

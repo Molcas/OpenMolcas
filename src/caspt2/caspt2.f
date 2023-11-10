@@ -198,6 +198,9 @@ C
         End IF
       End If
 
+      !! iStpGrd = 0 means PT2GRD is found and program requests gradient
+      !! for the second root or NAC vectors. Skip the energy calculation
+      !! and directly goes to the gradient part
       If (iStpGrd == 0) Then
         Call SavGradParams2(2,UEFF,U0,H0)
         Call DCopy_(Nstate,ENERGY,1,Esav,1)
@@ -295,16 +298,15 @@ C       Call EQCTL2(ICONV)
              WRITE(6,*)' CASPT2 PROPERTY SECTION'
            END IF
            CALL PRPCTL(0,UEFF,U0)
-           If (nStpGrd == 2) Call SavGradParams(1,IDSAVGRD)
          ELSE
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)
              WRITE(6,*)'  (Skipping property calculation,'
              WRITE(6,*)'   use PROP keyword to activate)'
            END IF
-           !! Save many quantities needed for gradient calculations
-           IF (nStpGrd == 2) Call SavGradParams(1,IDSAVGRD)
          END IF
+         !! Save many quantities needed for gradient calculations
+         If (nStpGrd == 2) Call SavGradParams(1,IDSAVGRD)
 
          CALL TIMING(CPTF13,CPE,TIOTF13,TIOE)
          CPUPRP=CPTF13-CPTF12

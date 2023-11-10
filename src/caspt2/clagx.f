@@ -2871,6 +2871,8 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagFinalOffC(SLag)
 C
+C     Orthogonalize the partial derivative with respect to CI coeff
+C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       Dimension SLag(*)
@@ -3525,7 +3527,11 @@ C     CHARACTER(LEN=1) CODE(0:3)
 #include "WrkSpc.fh"
       DIMENSION ICS(MXLEV)
 C     DATA CODE /'0','u','d','2'/
-
+C
+C     Construct (approximate?) preconditioner for the active linear
+C     equation that should be solved for non-invariant CASPT2 methods
+C     (with IPEA shift)
+C
 C -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
 C -- THE   U P P E R   PART OF THE WALK.
@@ -3724,7 +3730,7 @@ C
       !! mclr/dminvci_sa.f
       Subroutine DoPrec(VecIN,VecOUT,CI,Pre,Fancy)
 C
-C     Precondition CI vectors, taken from the MCLR module
+C     Apply precondition to CI vectors, taken from the MCLR module
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -3835,6 +3841,8 @@ C
       DIMENSION WGRONK(2)
       Dimension BDer(*),SDer(*)
 C
+C     Compute contributions that arise from the non-invariance effect
+C     in non-orthogonal -> orthogonal ICB rotations
 C     See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
 C     Section II C 3 "Non-invariance with respect to orthogonal..."
 C

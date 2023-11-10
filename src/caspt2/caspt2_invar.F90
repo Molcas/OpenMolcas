@@ -11,6 +11,8 @@
 !
 subroutine caspt2_grad_invaria1(DPT2)
 !
+! Put zero to wrong (incomplete) density matrix elements
+!
   use Constants, only: Zero
   use definitions, only: iwp,wp
 !
@@ -62,6 +64,11 @@ end subroutine caspt2_grad_invaria1
 !-----------------------------------------------------------------------
 !
 subroutine caspt2_grad_invaria2(DPT2,OLag)
+!
+! Compute pseudo-density in the inactive and secondary orbital blocks
+! for MRPT2 methods that are not invariant with respect to orbital
+! rotations among inactive and secondary orbitals using the canonical
+! condition of MOs
 !
   use Constants, only: Half
   use definitions, only: iwp,wp

@@ -12,7 +12,13 @@
 !***********************************************************************
 
 Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
-
+!
+! Gradient loop for MS-CASPT2 variants
+! Usually, we do not solve the CASPT2 equation again; the excitation
+! amplitude etc. have been stored on disk (should be avoided, though)
+! in the first loop (for energy) and are restored in the second loop
+! below (by calling SavGradParams)
+!
   USE SUPERINDEX
   USE PT2WFN
   use caspt2_output, only: iPrGlb, usual, verbose
