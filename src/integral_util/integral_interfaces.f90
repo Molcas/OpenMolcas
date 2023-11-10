@@ -29,7 +29,8 @@
      &          Integral_WrOut2, Integral_RI_3, Integral_RICD,          &
      &          Integral_RI_2, Integral_WrOut_Cho, No_Routine,          &
      &          Integral_WrOut_Cho_Diag, Integral_WrOut_LDF_diag,       &
-     &          Integral_WrOut_LDF_G, Int_LDF_2Indx_11
+     &          Integral_WrOut_LDF_G, Int_LDF_2Indx_11,                 &
+     &          Int_LDF_2Indx_12
 
 #define _FIXED_FORMAT_
       Abstract interface
@@ -73,5 +74,6 @@
 #include "../ldf_ri_util/integral_wrout_ldf_diag.f90"
 #include "../ldf_ri_util/integral_wrout_ldf_g.f90"
 #include "../ldf_ri_util/int_ldf_2indx_11.f90"
+#include "../ldf_ri_util/int_ldf_2indx_12.f90"
 
       End Module Integral_Interfaces

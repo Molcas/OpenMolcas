@@ -220,7 +220,8 @@ C     tau is the prescreening threshold. Note that the integral
 C     prescreening arrays must have been set up before calling this
 C     routine.
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_2Indx_12,
+     &                               Int_PostProcess
       Implicit None
       Integer A
       Integer CD
@@ -237,15 +238,10 @@ C
       Character*29 SecNam
       Parameter (SecNam='LDF_Compute2IndexIntegrals_12')
 
-      Procedure(int_wrout) :: Int_LDF_2Indx_12
-
-      Integer  LDF_nBasAux_Pair
-      Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
-      External LDF_nBasAux_Pair
-      External LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
+      Integer, External::  LDF_nBasAux_Pair,
+     &         LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
 #ifdef _DEBUGPRINT_
-      Integer  LDF_nAtom
-      External LDF_nAtom
+      Integer, External::  LDF_nAtom
 #endif
 
       Real*8 tau2
@@ -272,6 +268,7 @@ C
       i2CList(i,j)=iWork(ip_2CList-1+l_2CList_1*(j-1)+i)
       Gmax_A(i)=Work(iWork(ip_GDiag_1C+2*(A-1)+1)-1+i)
       Gmax_CD(i)=Work(iWork(ip_GDiag_2C+2*(CD-1)+1)-1+i)
+      Int_PostProcess => Int_LDF_2Indx_12
 
 #ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
@@ -356,12 +353,13 @@ C
             If (Gmax_A(jS)*Gmax_CD(klS).ge.tau2) Then
                SHB=jShell
                Call Eval_IJKL(dShell,jShell,kShell,lShell,xInt,l_xInt,
-     &                        Int_LDF_2Indx_12)
+     &                        Int_PostProcess)
             End If
             iOffuv=iOffuv+nBasSh(jShell)
          End Do
       End Do
 
+      Int_PostProcess => Null()
       ! Release Seward memory
       Call xRlsMem_Ints()
 
