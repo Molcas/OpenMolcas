@@ -97,7 +97,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.25'
+  version = 'py2.26'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -347,10 +347,10 @@ class Molcas_wrapper(object):
     if (get_utf8('GeoDir', default='') == ''):
       set_utf8('GeoDir', join(self.scratch, self.project+'.GEO'))
     self.save_mode = get_utf8('MOLCAS_SAVE', default='repl').lower()
-    self._is_empty = self._is_scratch_empty()
+    self._is_empty = self._is_scratch_empty() and self.is_serial
     if ((get_utf8('MOLCAS_NEW_WORKDIR', default='NO').upper() == 'YES') and not self._is_empty):
       self.delete_scratch(force=True)
-    self._is_empty = self._is_scratch_empty()
+    self._is_empty = self._is_scratch_empty() or self._created_scratch
     self._ready = True
 
   def rc_to_name(self, rc):
@@ -589,7 +589,10 @@ class Molcas_wrapper(object):
       print(fmt2.format(key, lines[key]))
     print(ini)
     if (self._is_empty):
-      print(ini+' Scratch area is empty')
+      if (self.is_serial):
+        print(ini+' Scratch area is empty')
+      else:
+        print(ini+' Scratch area is empty (for the master process)')
     else:
       print(ini+' Scratch area is NOT empty')
     print(ini)
@@ -957,10 +960,10 @@ class Molcas_wrapper(object):
       if (realpath(self.scratch) == realpath(self.currdir)):
         line = '*** WorkDir and CurrDir are the same, not cleaned! ***'
       else:
-        self.parallel_task(['w'])
+        flag = 'remove' if remove_it else 'none'
+        self.parallel_task(['w', flag])
         action = 'cleaned'
-        if (remove_it):
-          rmdir(self.scratch)
+        if (remove_it and (not exists(self.scratch))):
           action = 'removed'
         line = '*** WorkDir at {0} {1} ***'.format(self.scratch, action)
       print('*'*len(line))

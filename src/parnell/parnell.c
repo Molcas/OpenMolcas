@@ -98,7 +98,7 @@ parnell_status_t parnell(int argc, char *argv[]) {
       if ((MyRank == 0) && (nProcs > 1))
         MPI_Barrier(MPI_COMM_WORLD);
 #     endif
-      status = parnell_wipe();
+      status = parnell_wipe(argc, argv);
 #     ifdef _MOLCAS_MPP_
       if (MyRank != 0)
         MPI_Barrier(MPI_COMM_WORLD);

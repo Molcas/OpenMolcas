@@ -18,7 +18,7 @@
  *       Date:         Spring 2010
  *
  *       parnell_rmlist - delete files specified in a colon-separated list from
- *                       the main work directory and all subdirectories
+ *                        the main work directory and all subdirectories
  *
  */
 
