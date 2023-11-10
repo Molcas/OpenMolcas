@@ -21,7 +21,8 @@ C     tau is the prescreening threshold. Note that the integral
 C     prescreening arrays must have been set up before calling this
 C     routine.
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_2Indx_11,
+     &                               Int_PostProcess
       Implicit None
       Integer A
       Integer B
@@ -37,13 +38,10 @@ C
       Character*29 SecNam
       Parameter (SecNam='LDF_Compute2IndexIntegrals_11')
 
-      Procedure(int_wrout) :: Int_LDF_2Indx_11
-
-      Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
-      External LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
+      Integer, External ::  LDF_nBasAux_Atom, LDF_nAuxShell_Atom,
+     &                     LDF_lAuxShell_Atom
 #ifdef _DEBUGPRINT_
-      Integer  LDF_nAtom
-      External LDF_nAtom
+      Integer, External ::  LDF_nAtom
 #endif
 
       Real*8 tau2
@@ -69,6 +67,7 @@ C
       Gmax_A(i)=Work(iWork(ip_GDiag_1C+2*(A-1)+1)-1+i)
       Gmax_B(i)=Work(iWork(ip_GDiag_1C+2*(B-1)+1)-1+i)
 
+      Int_PostProcess => Int_LDF_2Indx_11
 #ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
          Call WarningMessage(0,SecNam//': Using APD integrals!')
@@ -151,7 +150,7 @@ C
                If (Gmax_A(jS)*Gmax_B(kS).ge.tau2) Then
                   SHB=jShell
                   Call Eval_IJKL(dShell,jShell,dShell,kShell,xInt,
-     &                           l_xInt,Int_LDF_2Indx_11)
+     &                           l_xInt,Int_PostProcess)
                End If
                iRow0=iRow0+nBasSh(jShell)
             End Do
@@ -185,7 +184,7 @@ C
                If (Gmax_A(jS)*Gmax_B(kS).ge.tau2) Then
                   SHB=jShell
                   Call Eval_IJKL(dShell,jShell,dShell,kShell,xInt,
-     &                           l_xInt,Int_LDF_2Indx_11)
+     &                           l_xInt,Int_PostProcess)
                End If
                iRow0=iRow0+nBasSh(jShell)
             End Do
@@ -193,6 +192,7 @@ C
          End Do
       End If
 
+      Int_PostProcess => Null()
       ! Release Seward memory
       Call xRlsMem_Ints()
 

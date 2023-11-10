@@ -197,7 +197,6 @@ iZZZ_i=0
 
 Deallocate(k2data)
 
-Write (*,*) 'Free_k2Data'
 End Subroutine Free_k2data
 
 Subroutine Free_k2data_Internal(k2data_1D)
