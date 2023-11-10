@@ -24,7 +24,8 @@ C     tau is the prescreening threshold. Note that the integral
 C     prescreening arrays must have been set up before calling this
 C     routine.
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_3Indx_1,
+     &                               Int_PostProcess
       Implicit None
       Integer AB
       Integer C
@@ -40,8 +41,6 @@ C
 
       Character*28 SecNam
       Parameter (SecNam='LDF_Compute3IndexIntegrals_1')
-
-      Procedure(int_wrout) :: Int_LDF_3Indx_1
 
       Integer  LDF_nBas_Atom, LDF_nBasAux_Atom
       Integer  LDF_nShell_Atom, LDF_lShell_Atom
@@ -83,6 +82,8 @@ C
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
       Imax(i,j)=Work(iWork(ip_IDiag+2*(AB-1)+1)-1+nShellA*(j-1)+i)
       Gmax(i)=Work(iWork(ip_GDiag_1C+2*(C-1)+1)-1+i)
+
+      Int_PostProcess => Int_LDF_3Indx_1
 
 #ifdef _USE_APD_INTEGRALS_
       If (.True.) Then
@@ -215,7 +216,7 @@ C
                      SHA=iShell
                      iRow0=iOffRow(iS,jS)
                      Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                              xInt,l_xInt,Int_LDF_3Indx_1)
+     &                              xInt,l_xInt,Int_PostProcess)
                   End If
                End Do
             End Do
@@ -252,7 +253,7 @@ C
                      SHA=iShell
                      iRow0=iOffRow(iS,jS)
                      Call Eval_IJKL(iShell,jShell,kShell,lShell,
-     &                              xInt,l_xInt,Int_LDF_3Indx_1)
+     &                              xInt,l_xInt,Int_PostProcess)
                   End If
                End Do
             End Do
@@ -262,6 +263,7 @@ C
          Call LDF_Quit(1)
       End If
 
+      Int_PostProcess => Null()
       ! Deallocate
       Call xRlsMem_Ints()
       Call GetMem('3IiOffC','Free','Inte',ip_iOffCol,l_iOffCol)
