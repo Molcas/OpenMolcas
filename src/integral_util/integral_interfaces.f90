@@ -22,17 +22,15 @@
 
       Private
 
-      Procedure(int_wrout), Pointer :: Int_postprocess=>Null()
-
       Public :: DeDe_SCF, int_kernel, int_mem, int_wrout, OneEl_ij,     &
-     &          OneEl_Inner, OneEl_Integrals, Int_postprocess,          &
+     &          OneEl_Inner, OneEl_Integrals,                           &
      &          Integral_WrOut2, Integral_RI_3, Integral_RICD,          &
      &          Integral_RI_2, Integral_WrOut_Cho, No_Routine,          &
      &          Integral_WrOut_Cho_Diag, Integral_WrOut_LDF_diag,       &
      &          Integral_WrOut_LDF_G, Int_LDF_2Indx_11,                 &
      &          Int_LDF_2Indx_12,  Int_LDF_3Indx_1,                     &
      &          Int_LDF_GMax_S, Int_LDF_JK_2P,                          &
-     &          Int_LDF_SQ
+     &          Int_LDF_SQ, Int_LDF_uvJ
 
 #define _FIXED_FORMAT_
       Abstract interface
@@ -59,6 +57,8 @@
         End Subroutine int_wrout
       End interface
 
+      Procedure(int_wrout), Pointer, Public :: Int_postprocess=>Null()
+
       Contains
 
 #define _IN_MODULE_
@@ -81,5 +81,6 @@
 #include "../ldf_ri_util/int_ldf_gmax_s.f90"
 #include "../ldf_ri_util/int_ldf_jk_2p.f90"
 #include "../ldf_ri_util/int_ldf_sq.f90"
+#include "../ldf_ri_util/int_ldf_uvj.f90"
 
       End Module Integral_Interfaces

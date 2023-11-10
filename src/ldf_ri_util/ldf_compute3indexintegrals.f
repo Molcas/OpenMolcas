@@ -511,7 +511,8 @@ C
 C     Compute integrals (uv|J) where J is an auxiliary function in
 C     shell pair iShell,jShell [iShell=dummy-shell if 1-center].
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_uvJ,
+     &                               Int_PostProcess
       Implicit None
       Integer iAtomPair
       Integer iShell, jShell
@@ -525,8 +526,6 @@ C
 
       Character*13 SecNam
       Parameter (SecNam='LDF_CI_uvJ_PS')
-
-      Procedure(int_wrout) :: Int_LDF_uvJ
 
       Integer  LDF_nShell_Atom, LDF_lShell_Atom
       External LDF_nShell_Atom, LDF_lShell_Atom
@@ -547,6 +546,7 @@ C
       Imax(i,j)=Work(iWork(ip_IDiag+2*(iAtomPair-1)+1)-1
      &                             +nShell_kAtom*(j-1)+i)
 
+      Int_PostProcess => Int_LDF_uvJ
 #ifdef _DEBUGPRINT_
       If (iAtomPair.lt.1 .or. iAtomPair.gt.NumberOfAtomPairs) Then
          Call WarningMessage(2,SecNam//': iAtomPair out of bounds!')
@@ -582,7 +582,7 @@ C
                   ! iOffuv = row offset
                   iOffuv=iWork(ip_iOff-1+nShell_kAtom*(lS-1)+kS)
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,
-     &                           l_xInt,Int_LDF_uvJ)
+     &                           l_xInt,Int_PostProcess)
                End If
             End Do
          End Do
@@ -597,7 +597,7 @@ C
                   ! iOffuv = row offset
                   iOffuv=iWork(ip_iOff-1+nShell_kAtom*(lS-1)+kS)
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,
-     &                           l_xInt,Int_LDF_uvJ)
+     &                           l_xInt,Int_PostProcess)
                End If
             End Do
          End Do
@@ -605,5 +605,6 @@ C
          Call WarningMessage(2,SecNam//': kAtom<lAtom')
          Call LDF_Quit(1)
       End If
+      Int_PostProcess => Null()
 
-      End
+      End Subroutine LDF_CI_uvJ_PS

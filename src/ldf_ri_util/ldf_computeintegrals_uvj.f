@@ -187,7 +187,8 @@ C
 C     Compute integrals (uv|J) where J is an auxiliary function in
 C     shell pair iShell,jShell [iShell=dummy-shell if 1-center].
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_uvJ,
+     &                               Int_PostProcess
       Implicit None
       Integer kAtom, lAtom
       Integer iShell, jShell
@@ -199,16 +200,14 @@ C
       Character*10 SecNam
       Parameter (SecNam='LDF_CI_uvJ')
 
-      Procedure(int_wrout) :: Int_LDF_uvJ
-
-      Integer  LDF_nShell_Atom, LDF_lShell_Atom
-      External LDF_nShell_Atom, LDF_lShell_Atom
+      Integer, External ::  LDF_nShell_Atom, LDF_lShell_Atom
 
       Integer nShell_kAtom, nShell_lAtom
       Integer kS, lS
       Integer kShell, lShell
       Integer ipk, ipl
 
+      Int_PostProcess => Int_LDF_uvJ
       nShell_kAtom=LDF_nShell_Atom(kAtom)
       nShell_lAtom=LDF_nShell_Atom(lAtom)
       ipk=LDF_lShell_Atom(kAtom)-1
@@ -228,7 +227,7 @@ C
                ! iOffuv = row offset
                iOffuv=iWork(ip_iOff-1+nShell_kAtom*(lS-1)+kS)
                Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,l_xInt,
-     &                        Int_LDF_uvJ)
+     &                        Int_PostProcess)
             End Do
          End Do
       Else If (kAtom.gt.lAtom) Then
@@ -241,12 +240,13 @@ C
                ! iOffuv = row offset
                iOffuv=iWork(ip_iOff-1+nShell_kAtom*(lS-1)+kS)
                Call Eval_IJKL(iShell,jShell,kShell,lShell,xInt,l_xInt,
-     &                        Int_LDF_uvJ)
+     &                        Int_PostProcess)
             End Do
          End Do
       Else
          Call WarningMessage(2,SecNam//': kAtom<lAtom')
          Call LDF_Quit(1)
       End If
+      Int_PostProcess => Null()
 
       End
