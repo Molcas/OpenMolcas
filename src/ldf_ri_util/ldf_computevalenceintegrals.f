@@ -17,7 +17,8 @@ C
 C     Purpose: Compute valence integrals (u_A v_B | k_C l_D) for atom
 C              pairs AB and CD.
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_SQ,
+     &                               Int_PostProcess
       Implicit None
       Integer AB
       Integer CD
@@ -37,8 +38,6 @@ C
       External isSymmetric
       Integer  ji, lk
 #endif
-
-      Procedure(int_wrout) :: Int_LDF_SQ
 
       Integer  LDF_nBas_Atom, LDF_nShell_Atom, LDF_lShell_Atom
       External LDF_nBas_Atom, LDF_nShell_Atom, LDF_lShell_Atom
@@ -154,6 +153,7 @@ C
       Call GetMem('Max','Max ','Real',ip_SewWrk,l_SewWrk)
       l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
+      Int_PostProcess => Int_LDF_SQ
 
       ! Compute integrals
       Do lS=1,nShell_D
@@ -184,7 +184,7 @@ C
                   SHD=lShell
                   Call Eval_IJKL(iShell,jShell,kShell,lShell,
      &                           Work(ip_SQ),nijkl,
-     &                           Int_LDF_SQ)
+     &                           Int_PostProcess)
                   Do l=1,nBasSh(lShell)
                      kl0=nBasSh(kShell)*(l-1)
                      Do k=1,nBasSh(kShell)
@@ -317,6 +317,7 @@ C
       End If
 #endif
 
+      Int_PostProcess => Null()
       ! Deallocation
       Call xRlsMem_Ints()
       Call GetMem('CVISQ','Free','Real',ip_SQ,l_SQ)

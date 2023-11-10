@@ -315,7 +315,8 @@ C     efficiency in mind!
 C
 C     Note: this routine uses the non-robust integral representation.
 C
-      Use Integral_interfaces, only: int_wrout
+      Use Integral_interfaces, only: Int_LDF_SQ,
+     &                               Int_PostProcess
       Implicit None
       Integer iAtomPair
       Integer l_C
@@ -338,12 +339,8 @@ C
       Character*32 SecNam
       Parameter (SecNam='LDF_CheckPairIntegrals_Nonrobust')
 
-      Procedure(int_wrout) :: Int_LDF_SQ
-
-      Integer  LDF_nBas_Atom
-      Integer  LDF_nShell_Atom, LDF_lShell_Atom, LDF_nBasAux_Pair
-      External LDF_nBas_Atom
-      External LDF_nShell_Atom, LDF_lShell_Atom, LDF_nBasAux_Pair
+      Integer, External ::  LDF_nBas_Atom,
+     &         LDF_nShell_Atom, LDF_lShell_Atom, LDF_nBasAux_Pair
 
       Real*8 tC0, tC1, tW0, tW1
       Real*8 Err_max, Err_min, Err_amx, Err_amn, Err_ave, Err_aav
@@ -508,6 +505,7 @@ C
       Call GetMem('MaxMem','Max ','Real',ip_SewWrk,l_SewWrk)
       l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
+      Int_PostProcess => Int_LDF_SQ
 
       ! Compare integrals one shell quadruple at a time
       nErr_CS=0
@@ -562,7 +560,7 @@ C
                      Call FZero(Work(ip_Int),nij*nkl)
                      Call Eval_IJKL(iShell,jShell,kShell,lShell,
      &                              Work(ip_Int),l_Int,
-     &                              Int_LDF_SQ)
+     &                              Int_PostProcess)
                      Call dGeMM_('N','N',nij,nkl,M,
      &                           -1.0d0,Work(ip_C_),nij,Work(ip_V),Mm,
      &                           1.0d0,Work(ip_Int),nij)
@@ -676,6 +674,7 @@ C
       End If
       Call xFlush(6)
 
+      Int_PostProcess => Null()
       ! Deallocate seward memory
       Call xRlsMem_Ints()
 
