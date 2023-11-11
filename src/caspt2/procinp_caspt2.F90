@@ -583,6 +583,13 @@ subroutine procinp_caspt2
                             'with density fitting or Cholesky decomposition.')
       call quit_onUserError
     end if
+
+    ! CASPT2 analytic gradients with state-dependent density available only with DF or CD
+    if ((.not. ifChol) .and. (.not.input%SADREF) .and. (nRoots.ne.1)) then
+      call warningMessage(2,'Analytic gradients with state-dependent density available only '//  &
+                            'with density fitting or Cholesky decomposition.')
+      call quit_onUserError
+    end if
 #ifdef _MOLCAS_MPP_
     ! for the time being no gradients with MPI
     if (nProcs > 1) then
