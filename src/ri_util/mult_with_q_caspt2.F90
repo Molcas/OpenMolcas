@@ -34,7 +34,7 @@ integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
 logical(kind=iwp), intent(in) :: SubAux
 integer(kind=iwp) :: i, iAdrQ, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jSym, jVec, kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, &
                      l_Q, lRealName, Lu_Q, LUGAMMA, LuGamma2, LUAPT2, lVec, MaxMem, nBas2, nBasTri, nLR, nLRb(8), nseq, NumAux, &
-                     NumCV, NumVecJ, NumVecK, nVec, unit_tmp(3)
+                     NumCV, NumVecJ, NumVecK, nVec
 real(kind=wp) :: aaa, Fac, TotCPU0, TotCPU1, TotWall0, TotWall1
 logical(kind=iwp) :: is_error
 character(len=4096) :: RealName
@@ -108,12 +108,8 @@ do iSym=1,nSym
   !  call abend()
   !end if
 
-  !! Read LuAPT2 and LuGAMMA
-  call Get_iArray('CASPT2 GradUnits',unit_tmp,3)
-  LuGAMMA = unit_tmp(1)
-  LuAPT2  = unit_tmp(2)
-
   ! Read A_PT2 from LUAPT2
+  LuAPT2 = isFreeUnit(68)
   call daname_mf_wa(LUAPT2,'A_PT2')
   id = 0
   call ddafile(LUAPT2,2,A_t,l_A_t,id)
@@ -176,16 +172,13 @@ do iSym=1,nSym
   ip_B = 1+l_B_t
   ip_B2 = ip_B+l_B_t
 
+  LuGAMMA  = IsFreeUnit(65)
   call PrgmTranslate('GAMMA',RealName,lRealName)
   call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBas2*8,'OLD',is_error)
 
   LuGamma2 = IsFreeUnit(67)
   call PrgmTranslate('GAMMA2',RealName,lRealName)
   call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,NumAux*8,'REPLACE',is_error)
-
-  call Get_iArray('CASPT2 GradUnits',unit_tmp,3)
-  unit_tmp(3) = LuGamma2
-  call Put_iArray('CASPT2 GradUnits',unit_tmp,3)
 
   ! The B-vectors should be read one batch at the time
   ! --------------------------------------------------

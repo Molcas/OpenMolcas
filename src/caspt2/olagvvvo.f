@@ -28,8 +28,8 @@ C
       DIMENSION nBasX(8),KEEP(8)
       logical dorys
       Allocatable :: T_hbf(:,:,:,:),iOffAO(:)
-C     Character*4096 RealName
-      Logical DoCholesky,Square
+      Character*4096 RealName
+      Logical DoCholesky,is_error,Square
 C
 C     ----- (VV|VO)
 C
@@ -75,7 +75,12 @@ C
         end if
 
         ! rewind LuGamma
-        REWIND(LuGamma)
+        Call PrgmTranslate('GAMMA',RealName,lRealName)
+        LuGAMMA = isFreeUnit(LuGAMMA)
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                       'DIRECT','UNFORMATTED',
+     &                        iost,.TRUE.,
+     &                        nBas(iSym)**2*8,'OLD',is_error)
       End If
       !! 2) Compute ERI (mu rho | nu sigma)
       !! 3) Quarter-transformation of ERI
@@ -105,15 +110,14 @@ C
       !! It will be used in drvg1.f etc for gradient.
       If (DoCholesky) Then
         !! Do nothing
+        Close (LuGAMMA)
       Else
         !! This is only for conventional calculations!!
-C       Call PrgmTranslate('CMOPT2',RealName,lRealName)
-C       LuCMOPT2 = isFreeUnit(LuCMOPT2)
-C       Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-C    &                       'DIRECT','UNFORMATTED',
-C    &                        iost,.FALSE.,
-C    &                        1,'REPLACE',is_error)
-        REWIND (LuCMOPT2)
+        Call PrgmTranslate('CMOPT2',RealName,lRealName)
+        LuCMOPT2 = isFreeUnit(LuCMOPT2)
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
+     &                       'DIRECT','UNFORMATTED',
+     &                        iost,.FALSE.,1,'OLD',is_error)
         !! First, CMOPT2 has to be saved. The MO coefficient matrix in
         !! grvg1.f may be different from CMOPT2.
         Do i = 1, nBasT*nBasT
@@ -157,12 +161,22 @@ C    &                        1,'REPLACE',is_error)
           End If
         End If
         write (LuCMOPT2) nSSDM
-C
+
         Close (LuCMOPT2)
+
 C       write(6,*) "mo saved"
 C       call sqprt(Work(LCMOPT2),nbast)
 C
-        REWIND (LuGAMMA)
+        Call PrgmTranslate('GAMMA',RealName,lRealName)
+        LuGAMMA = isFreeUnit(LuGAMMA)
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                       'DIRECT','UNFORMATTED',
+     &                        iost,.TRUE.,
+     &                        nOcc*nOcc*8,'OLD',is_error)
+        if (is_error) then
+         write (6,*) "Something is wrong in opening LuGamma in olagvvvo"
+          call abend
+        end if
         !  Setup for shell. Why do I have to call IniSew damn here?
         !  The number of shells should be able to be referred globally.
         nDiff=1
@@ -218,6 +232,7 @@ C
         End Do
         Deallocate (iOffAO)
         Deallocate (T_hbf)
+        Close (LuGAMMA)
         Call Free_iSD()
         call clssew
       End If

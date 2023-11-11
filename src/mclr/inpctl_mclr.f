@@ -186,7 +186,10 @@ C        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
 ************************************************************************
 *                                                                      *
          If (ngp) Call rdciv()
-         If (PT2) Call Molcas_Open(LuPT2,'PT2_Lag')
+         If (PT2) Then
+           LuPT2 = isFreeUnit(LuPT2)
+           Call Molcas_Open(LuPT2,'PT2_Lag')
+         End If
       End If
 *                                                                      *
 ************************************************************************

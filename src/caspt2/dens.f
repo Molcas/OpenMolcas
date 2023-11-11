@@ -1999,6 +1999,8 @@ C
       Dimension DPT2AO(*),SSDM(*)
       Integer iSkip(8),ipWRK(8)
       integer nnbstr(8,3)
+      Character*4096 RealName
+      Logical is_error
 C
       ! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       call getritrfinfo(nnbstr,maxvec,n2)
@@ -2022,7 +2024,12 @@ C
       call ddafile(LUAPT2, 2, work(ipA_PT2), numChoTot**2, id)
 
       !! Open B_PT2
-      REWIND(LuGamma)
+      Call PrgmTranslate('GAMMA',RealName,lRealName)
+      LuGAMMA = isFreeUnit(LuGAMMA)
+      Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                     'DIRECT','UNFORMATTED',
+     &                      iost,.TRUE.,
+     &                      nBas(iSym)**2*8,'OLD',is_error)
 C
       CALL GETMEM('CHSPC','ALLO','REAL',IP_CHSPC,NCHSPC)
       CALL GETMEM('HTVEC','ALLO','REAL',ipHTVec,nBasT*nBasT)
@@ -2180,6 +2187,9 @@ C
       ! write to A_PT2 in LUAPT2
       id = 0
       call ddafile(LUAPT2, 1, Work(ipA_PT2), NumChoTot**2, id)
+C
+      !! close B_PT2
+      Close (LuGAMMA)
 
       Call GetMem('A_PT2 ','FREE','REAL',ipA_PT2,NumChoTot**2)
 C

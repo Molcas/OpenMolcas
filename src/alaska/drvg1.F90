@@ -58,7 +58,7 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lRealName, lS, luGamma, &
                      luCMOPT2, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, nab, nBasI, nBasT, nBtch, ncd, &
                      nDCRR, nDCRS, nEta, nFro(8), nHmab, nHmcd, nHrrab, nij, nijkl, nOcc(8), nPairs, nQuad, nRys, nSkal, nSO, &
-                     nZeta, unit_tmp(3)
+                     nZeta
 integer(kind=iwp) ik2, jk2
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, &
@@ -70,6 +70,7 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:), iOffAO(:)
 real(kind=wp), allocatable :: CMOPT2(:), TMax(:,:), WRK1(:), WRK2(:)
 integer(kind=iwp), save :: MemPrm
 logical(kind=iwp), external :: Rsv_GTList
+integer(kind=iwp), external :: IsFreeUnit
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus
 !#define _CD_TIMING_
@@ -143,16 +144,13 @@ if (Method_chk == 'CASPT2  ') then
   end do
   nSSDM = 0
 
-  !! Read LuCMOPT2 and LuGAMMA
-  call Get_iArray('CASPT2 GradUnits',unit_tmp,3)
-  LuGAMMA  = unit_tmp(1)
-  LuCMOPT2 = unit_tmp(2)
-
   !! The two MO indices in the half-transformed amplitude are
   !! not CASSCF but quasi-canonical orbitals.
   call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
+  LuCMOPT2 = isFreeUnit(66)
   call PrgmTranslate('CMOPT2',RealName,lRealName)
   call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
+
   do i=1,nBasT*nBasT
     read(LuCMOPT2) CMOPT2(i)
   end do
@@ -182,7 +180,9 @@ if (Method_chk == 'CASPT2  ') then
       end do
     end do
   end if
+
   close(LuCMOPT2)
+
   write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
   write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
 
@@ -196,6 +196,7 @@ if (Method_chk == 'CASPT2  ') then
   end do
   call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
 
+  LuGAMMA = isFreeUnit(65)
   call PrgmTranslate('GAMMA',RealName,lRealName)
   call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
 

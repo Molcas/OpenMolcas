@@ -50,14 +50,17 @@ C
      &                     'DIRECT','UNFORMATTED',
      &                      iost,.TRUE.,
      &                      LENGTH**2*8,'REPLACE',is_error)
+      Close (LuGAMMA)
+
       If (.not.IfChol) Then
-C       CALL DANAME_MF_wa(LuCMOPT2,'LUCMOPT2')
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         LuCMOPT2 = isFreeUnit(LuCMOPT2)
         Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT',
      &                       'UNFORMATTED',iost,.FALSE.,1,'REPLACE',
      &                        is_error)
+        Close (LuCMOPT2)
       End If
+
       CALL DANAME_MF_wa(LUSTD,'LUSTD')
       If (IfChol) CALL DANAME_MF_wa(LUAPT2,'LUAPT2')
 
@@ -208,7 +211,7 @@ C-----------------------------------------------------------------------
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
       use caspt2_output, only: iPrGlb, verbose
-      use caspt2_gradient, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,
+      use caspt2_gradient, only: LuPT2,LuAPT2,
      *                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
      *                           LUSTD,TraFro
       use stdalloc, only: mma_deallocate
@@ -222,7 +225,6 @@ C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
       LOGICAL DEB,Found
-      integer :: unit_tmp(3)
 C
       Dimension HEFF1(nState,nState),WRK1(nState,nState),
      *          WRK2(nState,nState)
@@ -374,6 +376,7 @@ C
       !! Compute true unrelaxed properties for MS-CASPT2
       if ((.not.do_nac) .and. ifmscoup) CALL PRPCTL(1,UEFF,U0)
 C
+      LuPT2 = isFreeUnit(LuPT2)
       Call Molcas_Open(LuPT2,'PT2_Lag')
 
       DEB = .false.
@@ -494,21 +497,9 @@ C       write (*,*) "CASSCF/Original = ", irlxroot,irlxroot
       end if
 C
       !! Close files
-      Close (LuGAMMA)
-C     If (.not.IfChol) Close (LuCMOPT2)
       Call DaClos(LUSTD)
       If (IfChol) Call DaClos(LUAPT2)
       Call DaClos(LUGRAD)
-C
-      !! Unit numbers to be used in ALASKA
-      unit_tmp(1) = LuGAMMA
-      If (IfChol) Then
-        unit_tmp(2) = LuAPT2
-      Else
-        unit_tmp(2) = LuCMOPT2
-      End If
-      unit_tmp(3) = 0
-      Call Put_iArray('CASPT2 GradUnits',unit_tmp,3)
 C
       if (nFroT /= 0) call mma_deallocate(TraFro)
 C
