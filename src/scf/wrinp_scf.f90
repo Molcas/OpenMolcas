@@ -32,7 +32,6 @@
       use ChoSCF, only: dmpk, Algo, ReOrd
       use Fock_util_global, only: Deco
       use RICD_Info, only: Do_DCCD
-      use Constants, only: Zero
 !
       Implicit None
       Real*8 SIntTh
