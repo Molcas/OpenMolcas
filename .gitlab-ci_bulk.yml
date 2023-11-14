@@ -242,4 +242,7 @@ test:mpi:
   needs:
     - !reference [.use-clone]
     - build:mpi
-  parallel: 8
+  parallel: 4
+  tags:
+    #- docker
+    - saas-linux-medium-amd64
