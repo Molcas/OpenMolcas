@@ -44,10 +44,10 @@ use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use RI_glob, only: iShij, iSSOff, klS, Lu_Q, nBasSh, nChV, nSkal_Valence, nSO, ShlSO, SOShl
 use Int_Options, only: iTOffs
+use Integral_Interfaces, only: Int_PostProcess, Integral_RI_3
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Integral_Interfaces, only: Integral_RI_3, Int_PostProcess
 
 implicit none
 real(kind=wp), intent(in) :: ThrAO
@@ -427,7 +427,7 @@ call mma_deallocate(TMax_Valence)
 !                                                                      *
 ! Terminate integral environment.
 
-Int_PostProcess => Null()
+Int_PostProcess => null()
 call Term_Ints()
 
 call mma_deallocate(iSSOff)

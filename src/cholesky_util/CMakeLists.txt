@@ -410,8 +410,6 @@ set (sources
      indsft_cho_3.F90
      indsft_cho_diag.F90
      initt.F90
-     integral_wrout_cho.F90
-     integral_wrout_cho_diag.F90
      laplace_prsq.F90
      minimaxlaplace.F90
      onecenter_chkdiag.F90

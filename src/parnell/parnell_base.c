@@ -18,8 +18,8 @@
  *       Date:         Spring 2010
  *
  *       parnell_base - create a work directory and then set up a subdirectory
- *                       for each slave under the main work directory called
- *                       tmp_$n, where $n is the rank number of the process.
+ *                      for each slave under the main work directory called
+ *                      tmp_$n, where $n is the rank number of the process.
  *
  */
 

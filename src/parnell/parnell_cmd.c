@@ -18,8 +18,7 @@
  *       Author:       Victor Vysotskiy
  *       Date:         2013
  *
- *       parnell_cmd - parse a '?'-delimited
- *                     command line
+ *       parnell_cmd - parse a '?'-delimited command line
  *
  *       History:
  *       Steven Vancoillie, University of Lund, September 2015

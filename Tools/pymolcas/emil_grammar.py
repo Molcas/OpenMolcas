@@ -15,6 +15,13 @@
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
+try:
+  u = unicode
+  del u
+  py2 = True
+except NameError:
+  pass
+
 from re import sub
 from pyparsing import *
 
@@ -24,6 +31,8 @@ def chomp(s):
 
 def chompAction(s, l, t):
   try:
+    if (py2):
+      pass
     return list(map(lambda s: chomp(unicode(s)), t))
   except NameError:
     return list(map(chomp, t))
@@ -33,6 +42,8 @@ def removeEMILEnd(s):
 
 def removeEMILEndAction(s, l, t):
   try:
+    if (py2):
+      pass
     return list(map(lambda s: removeEMILEnd(unicode(s)), t))
   except NameError:
     return list(map(removeEMILEnd, t))

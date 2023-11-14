@@ -228,7 +228,7 @@ call xRlsMem_Ints()
 call mma_deallocate(TInt)
 call mma_deallocate(TMax)
 call mma_deallocate(SO2Ind)
-Int_PostProcess => Null()
+Int_PostProcess => null()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

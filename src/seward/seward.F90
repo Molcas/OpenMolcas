@@ -53,7 +53,7 @@ use k2_arrays, only: DeDe
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
-use Integral_interfaces, only: Integral_WrOut2, Int_PostProcess
+use Integral_interfaces, only: Int_PostProcess, Integral_WrOut2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -366,7 +366,7 @@ if (.not. Test) then
 
         Int_PostProcess => Integral_WrOut2
         call Drv2El(Zero)
-        Int_PostProcess => Null()
+        Int_PostProcess => null()
 
         call Sort1B()
         call Sort2()

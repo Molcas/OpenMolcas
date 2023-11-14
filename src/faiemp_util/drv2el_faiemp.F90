@@ -30,7 +30,7 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
 use Gateway_Info, only: ThrInt, CutInt
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Thize, W2Disc
-use Integral_Interfaces, only: DeDe_SCF, No_Routine, Int_PostProcess
+use Integral_Interfaces, only: DeDe_SCF, Int_PostProcess, No_Routine
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
@@ -309,7 +309,7 @@ call Term_Ints()
 call Free_DeDe(Dens,Fock,nBT)
 
 call mma_deallocate(Dens)
-Int_PostProcess => Null()
+Int_PostProcess => null()
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*)
