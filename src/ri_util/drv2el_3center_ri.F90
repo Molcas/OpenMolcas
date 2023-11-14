@@ -55,7 +55,7 @@ real(kind=wp), intent(in) :: ThrAO
 #include "print.fh"
 integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,0:7), IncVec, &
                      iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSym, &
-                     iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, kCenter, kCnttp, klS_, kQv, kS, lCenter, &
+                     iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, kCnttp, klS_, kQv, kS, &
                      lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, mMuNu, mQv, &
                      MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
                      nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
@@ -293,8 +293,6 @@ end do
 !                                                                      *
 call CWTime(TCpu1,TWall1)
 
-kCenter = 0  ! dummy initialize
-lCenter = 0  ! dummy initialize
 iS = nSkal ! point to dummy shell
 ! Save this field for the time being!
 iTtmp(0:nIrrep-1) = iTOffs(3:3*nIrrep:3)
