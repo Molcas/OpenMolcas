@@ -71,7 +71,7 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: BufFrac
 integer(kind=iwp) :: ChoIsIni, iErr, ijShl, iLoc, iRed, iShl, iSym, jShl, l, Numij
 real(kind=wp) :: Frac
-logical(kind=iwp) :: DidCholesky, DoDummy, FirstCall = .true., isDF, isLocalDF
+logical(kind=iwp) :: DidCholesky, DoDummy, FirstCall = .true., isDF
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: is1CCD, l_Max
 real(kind=wp) :: Byte
@@ -113,13 +113,6 @@ end if
 ! --------------------------------------
 
 call DecideOnDF(isDF)
-if (isDF) then
-  call DecideOnLocalDF(isLocalDF)
-  if (isLocalDF) then
-    call Finish_this(-2)
-    return
-  end if
-end if
 
 ! Define entries in Cholesky module.
 ! ----------------------------------
@@ -434,11 +427,6 @@ subroutine Finish_this(num)
   ! Error branches.
   ! ===============
   select case (num)
-    case (-2)
-      ! Local DF not implemented
-      ! TODO/FIXME: compute Cholesky vectors from LDF coefficients here?
-      irc = -2
-      write(u6,'(//,A,A,//)') SecNam,': Local DF not implemented!'
     case (-1)
       ! Cholesky flag not found on runfile
       irc = -1

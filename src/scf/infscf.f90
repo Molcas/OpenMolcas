@@ -215,8 +215,6 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
 !----------------------------------------------------------------------*
 ! DSCF       - T   = Perform direct SCF (see Subroutine OpnFls)        *
 ! DoCholesky - T   = Perform Cholesky SCF                              *
-! DoLDF      - T   = Use Local DF fitting coefficients to construct    *
-!                    Fock matrix                                       *
 ! LKon       - T   = Perform Local-K screening in Cholesky SCF         *
 ! lRel       - T   = Relativistic integrals are available              *
 ! PreSch     - T   = Conventional prescreening                         *
@@ -248,7 +246,7 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
 Logical DSCF,lRel,PreSch,MiniDn,WrOutD,c1Diis,Scrmbl,RFpert,Aufb,Teee,  &
         Damping,Diis,One_Grid,DoCholesky,DDnOFF,Two_Thresholds,         &
         PmTime,EmConv,WarnCfg,DoHLgap,AddFragments,WarnPocc,            &
-        DoFMM,LKon,OnlyProp,DoLDF,NoExchange,WarnSlow,NoProp,           &
+        DoFMM,LKon,OnlyProp,NoExchange,WarnSlow,NoProp,           &
         FckAuf,Falcon
 Logical :: RSRFO=.False., RGEK=.False.
 

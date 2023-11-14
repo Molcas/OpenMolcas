@@ -47,7 +47,7 @@ use Symmetry_Info, only: nIrrep, lIrrep
 use DKH_Info, only: DKroll
 use OneDat, only: sNew
 use Gateway_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post, PkAcc
-use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
+use RICD_Info, only: Do_RI, Cholesky, DiagCheck
 use k2_arrays, only: DeDe
 #ifdef _FDE_
 use Embedding_Global, only: embPot, embPotInBasis
@@ -347,23 +347,19 @@ if (.not. Test) then
           write(u6,*)
         end if
       else if (Do_RI) then
-        if (LocalDF) then
-          call Drv2El_LocalDF()
-        else
-          if (nPrint(iRout) >= 6) then
-            write(u6,*)
-            write(u6,'(A)') 'Seward processing 2-center and 3-center ERIs'
-            write(u6,*)
-          end if
+        if (nPrint(iRout) >= 6) then
+          write(u6,*)
+          write(u6,'(A)') 'Seward processing 2-center and 3-center ERIs'
+          write(u6,*)
+        end if
 
-          call Drv2El_3Center_RI(Zero)
+        call Drv2El_3Center_RI(Zero)
 
-          call Get_iArray('NumCho',nChoV,nIrrep)
-          if (nPrint(iRout) >= 6) then
-            write(u6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
-            write(u6,*)
-            write(u6,*)
-          end if
+        call Get_iArray('NumCho',nChoV,nIrrep)
+        if (nPrint(iRout) >= 6) then
+          write(u6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
+          write(u6,*)
+          write(u6,*)
         end if
       else
         call Sort0()

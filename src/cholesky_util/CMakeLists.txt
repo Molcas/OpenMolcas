@@ -400,7 +400,6 @@ set (sources
      findmx.F90
      funcla.F90
      funcle.F90
-     get_ldfaccuracy.F90
      getdr1.F90
      getdr2.F90
      glasum.F90

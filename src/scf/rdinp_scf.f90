@@ -47,7 +47,7 @@
 !
       use SpinAV, only: Do_SpinAV
       use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS, Damping, DDnOff, DelThr, DIIS,      &
-                        DIISTh, DoCholesky, DoHLgap, DoLDF, DSCF, DThr, EThr, FThr, Falcon, FckAuf,              &
+                        DIISTh, DoCholesky, DoHLgap, DSCF, DThr, EThr, FThr, Falcon, FckAuf,              &
                         FlipThr, ExFac, FckAuf, HLgap, iAu_ab, iCoCo, iDKeep, InVec, iPrForm, iPrint, iPrOrb,    &
                         isHDF5, iStatPRN, Iter2run, IterPrlv, nD, ivvloop, jPrint, jVOut, kIVO, klockan,       &
                         kOptim_Max, KSDFT, LKon, MaxFlip, MiniDn, MSYMON, MxConstr, nCore, nDisc, Neg2_Action,   &
@@ -60,11 +60,6 @@
       use MxDM, only: MxIter, MxOptm
       use AddCorr, only: Addc_KSDFT, Do_Addc, Do_Tw
       use ChoAuf, only: Cho_Aufb
-      use LDFSCF, only: LDF_IntegralMode, LDF_Timing, LDFracMem, LDF_IntegralPrescreening, LDF_ContributionPrescreening, &
-                        LDF_UseConventionalIntegrals, LDF_UseLDFIntegrals, LDF_UsePSDIntegrals,                          &
-                        LDF_UseExactIntegralDiagonal, LDF_IntegralCheck, LDF_FitVerification,                            &
-                        LDF_CoefficientCheck, LDF_UBCNorm, LDF_CoulombCheck, LDF_OverlapCheck,                           &
-                        LDF_ChargeCheck, LDF_ChargePrint, LDF_ModeCheck, LDF_IntegralPSDCheck, LDF_UseExactIntegrals
       use Constants, only: Zero, Half, One, Two
       use stdalloc, only: mma_allocate
       Implicit None
@@ -82,7 +77,6 @@
       Integer iArray(32)
       Logical lTtl, IfAufChg,OccSet,FermSet,CharSet,UHFSet,SpinSet
       Logical Chol
-      Real*8  ThrRd(1)
       Integer Mode(1)
       character Method*8
       Logical TDen_UsrDef
@@ -145,46 +139,6 @@
          MiniDn = .true.
       endif
       TDen_UsrDef=.False.
-! Decide on LDF (stored in infscf.fh)
-      Call DecideOnLocalDF(DoLDF)
-! LDF defaults - ldfscf.fh
-      LDF_IntegralMode=1 ! robust integral representation
-      LDF_Timing=.False. ! do not time Fock build
-      LDFracMem=0.2d0 ! at most 20% of memory used as coef. buffer
-      ! integral prescreening threshold (negative => based on LDF target
-      ! accuracy
-      LDF_IntegralPrescreening=Zero  ! TODO/FIXME: should be neg
-      ! contribution prescreening threshold (negative => based on LDF
-      ! target accuracy
-      LDF_ContributionPrescreening=Zero  ! TODO/FIXME: should be neg
-      ! Debug options: integrals used for building Coulomb Fock matrix
-      LDF_UseConventionalIntegrals=.False. ! conventional integrals
-      LDF_UseLDFIntegrals=.False. ! integrals computed from LDF coeffs
-      LDF_UsePSDIntegrals=.False. ! integrals selected based on PSD
-      LDF_UseExactIntegralDiagonal=.False. ! use exact integral diagonal
-      ! Debug option: check all integrals
-      LDF_IntegralCheck=.False.
-      ! Debug option: verify fit
-      LDF_FitVerification=.False.
-      ! Debug option: check coefficients
-      LDF_CoefficientCheck=.False.
-      ! Debug option: Compute norm of upper bound Fock matrix error
-      ! (Coulomb only)
-      LDF_UBCNorm=.False.
-      ! Debug option: check Coulomb Fock matrix error (Coulomb only)
-      LDF_CoulombCheck=.False.
-      ! Debug option: check overlap integrals
-      LDF_OverlapCheck=.False.
-      ! Debug option: check charge
-      LDF_ChargeCheck=.False.
-      ! Debug option: print charge and fitted charge
-      LDF_ChargePrint=.False.
-      ! Debug option: check integral representatons (consistency)
-      LDF_ModeCheck=.False.
-      ! Debug option: check that full integral matrix is PSD
-      LDF_IntegralPSDCheck=-1 ! do not check
-      ! Debug option: use exact diagonal blocks when checking PSD
-      LDF_UseExactIntegrals=0
 
 !---- Set up number of orbitals
       Do iSym = 1, nSym
@@ -328,7 +282,6 @@
       If (Line(1:4).eq.'ONEG') Go To 4901
       If (Line(1:4).eq.'ROTP') Go To 5000
       If (Line(1:4).eq.'HLGA') Go To 5002
-      If (Line(1:4).eq.'CLOC') Go To 5001
       If (Line(1:4).eq.'FLIP') Go To 5020
       If (Line(1:4).eq.'PMTI') Go To 6000
       If (Line(1:4).eq.'STAT') Go To 6010
@@ -337,31 +290,9 @@
       If (Line(1:4).eq.'ITPR') Go To 7100
       If (Line(1:4).eq.'PROP') Go To 7200
       If (Line(1:4).eq.'NOPR') Go To 7201
-      If (Line(1:4).eq.'NONR') Go To 7300
-      If (Line(1:4).eq.'NR-2') Go To 7300
-      If (Line(1:4).eq.'ROBU') Go To 7301
-      If (Line(1:4).eq.'HALF') Go To 7302
-      If (Line(1:4).eq.'NR-3') Go To 7302
-      If (Line(1:4).eq.'INTM') Go To 7303
-      If (Line(1:4).eq.'CBUF') Go To 7400
-      If (Line(1:4).eq.'INTE') Go To 7500
-      If (Line(1:4).eq.'CONT') Go To 7600
-      If (Line(1:4).eq.'USEC') Go To 7700
-      If (Line(1:4).eq.'USEL') Go To 7800
-      If (Line(1:4).eq.'USEP') Go To 7801
-      If (Line(1:4).eq.'CHEC') Go To 7900
-      If (Line(1:4).eq.'VERI') Go To 8000
-      If (Line(1:4).eq.'CCHE') Go To 8100
-      If (Line(1:4).eq.'UBNO') Go To 8200
-      If (Line(1:4).eq.'COUL') Go To 8300
-      If (Line(1:4).eq.'OVER') Go To 8400
-      If (Line(1:4).eq.'QCHE') Go To 8500
-      If (Line(1:4).eq.'QPRI') Go To 8600
       If (Line(1:4).eq.'NOX ') Go To 8700
-      If (Line(1:4).eq.'MCHE') Go To 8800
       If (Line(1:4).eq.'PSDC') Go To 8900
       If (Line(1:4).eq.'USEX') Go To 8901
-      If (Line(1:4).eq.'XIDI') Go To 8902
       If (Line(1:4).eq.'NEG2') Go To 8903
       If (Line(1:4).eq.'MSYM') Go To 8904
       If (Line(1:4).eq.'ITDI') Go To 8905
@@ -1158,11 +1089,6 @@
       Write(6,'(a,E15.3)') 'Fock matrix scaling      ',RotFac
       Write(6,'(a,E15.3)') 'Fock matrix max rotation ',RotMax
       GoTo 1000
-!>>>>>>>>>>>>> CLOC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 5001 Continue
-      timings=.True.
-      LDF_Timing=.True.
-      GoTo 1000
 !>>>>>>>>>>>>> HLGA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  5002 Continue
       Line=Get_Ln(LuSpool)
@@ -1214,155 +1140,10 @@
  7201 Continue
       NoProp=.true.
       Goto 1000
-!>>>>>>>>>>>>> NONR or NR-2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: non-robust integral representation
- 7300 Continue
-      LDF_IntegralMode=2
-      Goto 1000
-!>>>>>>>>>>>>> ROBU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: robust integral representation
- 7301 Continue
-      LDF_IntegralMode=1
-      Goto 1000
-!>>>>>>>>>>>>> HALF or NR-3 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: half-and-half integral representation
- 7302 Continue
-      LDF_IntegralMode=3
-      Goto 1000
-!>>>>>>>>>>>>> INTM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: set integral mode
- 7303 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_I(1,Mode,1)
-      LDF_IntegralMode=max(0,min(3,Mode(1)))
-      If (LDF_IntegralMode.eq.0) Then
-         LDF_UseConventionalIntegrals=.True.
-         If (LDF_UseLDFIntegrals .or. LDF_UsePSDIntegrals) Then
-            Call WarningMessage(2,'Conv. and LDF/PSD integrals cannot be used simultaneously')
-            Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
-            Write(6,'(1X,A)') 'Illegal input: INTM=0'
-            Call Quit_OnUserError()
-         End If
-      End If
-      Goto 1000
-!>>>>>>>>>>>>> CBUF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: fraction of memory to use for coefficient buffer
- 7400 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_F1(1,LDFracMem)
-      Goto 1000
-!>>>>>>>>>>>>> INTE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: integral prescreening threshold
- 7500 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_F(1,ThrRd,1)
-      LDF_IntegralPrescreening=max(ThrRd(1),Zero)
-      Goto 1000
-!>>>>>>>>>>>>> CONT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: contribution prescreening threshold
-! (i.e. contributions to Fock matrix and intermediates)
- 7600 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_F(1,ThrRd,1)
-      LDF_ContributionPrescreening=max(ThrRd(1),Zero)
-      Goto 1000
-!>>>>>>>>>>>>> USEC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: use conventional integrals to compute Coulomb
-!          Fock matrix
- 7700 Continue
-      If (LDF_UseLDFIntegrals .or. LDF_UsePSDIntegrals) Then
-         Call WarningMessage(2,'Conv. and LDF/PSD integrals cannot be used simultaneously')
-         Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
-         Call Quit_OnUserError()
-      End If
-      LDF_UseConventionalIntegrals=.True.
-      Call WarningMessage(0,'You have specified a debug option (USEC) which will slow down execution')
-      Call xFlush(6)
-      Goto 1000
-!>>>>>>>>>>>>> USEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: use integrals computed from LDF coefficients to
-!          calculate Coulomb Fock matrix
- 7800 Continue
-      If (LDF_UseConventionalIntegrals .or. LDF_UsePSDIntegrals) Then
-         Call WarningMessage(2,'LDF and PSD/conv. integrals cannot be used simultaneously')
-         Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
-         Call Quit_OnUserError()
-      End If
-      LDF_UseLDFIntegrals=.True.
-      Call WarningMessage(0,'You have specified a debug option (USEL) which will slow down execution')
-      Call xFlush(6)
-      Goto 1000
-!>>>>>>>>>>>>> USEP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: use integrals computed from LDF coefficients or
-!          conventional integrals, depending on positivity
-!          of the LDF integrals, to calculate Coulomb Fock matrix
- 7801 Continue
-      If (LDF_UseConventionalIntegrals .or. LDF_UseLDFIntegrals) Then
-         Call WarningMessage(2,'PSD and LDF/conv. integrals cannot be used simultaneously')
-         Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
-         Call Quit_OnUserError()
-      End If
-      LDF_UsePSDIntegrals=.True.
-      Call WarningMessage(0,'You have specified a debug option (USEP) which will slow down execution')
-      Call xFlush(6)
-      Goto 1000
-!>>>>>>>>>>>>> CHEC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: check all integrals (in first iteration)
- 7900 Continue
-      LDF_IntegralCheck=.True.
-      Call WarningMessage(0,'You have specified a debug option (CHEC) which will slow down execution')
-      Call xFlush(6)
-      Goto 1000
-!>>>>>>>>>>>>> VERI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: verify fit for each atom pair (in first iteration)
- 8000 Continue
-      LDF_FitVerification=.True.
-      Call WarningMessage(0,'You have specified a debug option (VERI) which will slow down execution')
-      Call xFlush(6)
-      Goto 1000
-!>>>>>>>>>>>>> CCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: check fitting coefficients (in first iteration)
- 8100 Continue
-      LDF_CoefficientCheck=.True.
-      Goto 1000
-!>>>>>>>>>>>>> UBNO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: compute norm of upper bound Fock matrix error
-!          (Coulomb only)
- 8200 Continue
-      LDF_UBCNorm=.True.
-      Goto 1000
-!>>>>>>>>>>>>> COUL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: Check Coulomb Fock matrix error
-!          (Coulomb only)
- 8300 Continue
-      LDF_CoulombCheck=.True.
-      Call WarningMessage(0,'You have specified a debug option (COUL) which will slow down execution')
-      Call xFlush(6)
-      Goto 1000
-!>>>>>>>>>>>>> OVER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: Check overlap integrals
- 8400 Continue
-      LDF_OverlapCheck=.True.
-      Goto 1000
-!>>>>>>>>>>>>> QCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: Check charge
- 8500 Continue
-      LDF_ChargeCheck=.True.
-      Goto 1000
-!>>>>>>>>>>>>> QPRI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! For LDF: Print charge
- 8600 Continue
-      LDF_ChargePrint=.True.
-      Goto 1000
 !>>>>>>>>>>>>> NOX  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ! Debug option: skip exchange in Fock matrix build
  8700 Continue
       NoExchange=.True.
-      Goto 1000
-!>>>>>>>>>>>>> MCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! Debug option: Check integral representations (modes)
- 8800 Continue
-      LDF_ModeCheck=.True.
       Goto 1000
 !>>>>>>>>>>>>> PSDC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ! Debug option: check that full integral matrix is PSD
@@ -1371,7 +1152,6 @@
  8900 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,Mode,1)
-      LDF_IntegralPSDCheck=max(1,min(2,Mode(1)))
       Goto 1000
 !>>>>>>>>>>>>> USEX <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ! Debug option: use exact diagonal (1) or off-dagonal (2) blocks when
@@ -1379,14 +1159,6 @@
  8901 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,Mode,1)
-      LDF_UseExactIntegrals=max(0,min(2,Mode(1)))
-      Goto 1000
-!>>>>>>>>>>>>> XIDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-! Use exact integral diagonal to (partially) avoid problems
-! associated with non-positive definite integrals. Used in
-! Fock matrix build.
- 8902 Continue
-      LDF_UseExactIntegralDiagonal=.True.
       Goto 1000
 !>>>>>>>>>>>>> NEG2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ! Specify action when negative two-electron energies are
@@ -1646,8 +1418,7 @@
 !
       ExFac=Get_ExFac(KSDFT)
       If (ExFac.eq.Zero .and. .not.TDen_UsrDef   &
-                         .and. .not.Do_OFemb      &
-                         .and. .not.DoLDF) Then
+                         .and. .not.Do_OFemb ) Then
          DDnOFF = .false. ! use always differential density
       EndIf
 !     DDnOFF = .True.

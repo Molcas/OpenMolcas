@@ -18,7 +18,7 @@
 !***********************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use SpinAV, only: DSC, Do_SpinAV
-      use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, DoCholesky, DoLDF, E_nondyn, FileOrb_id, isHDF5, MaxBas, &
+      use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, DoCholesky, E_nondyn, FileOrb_id, isHDF5, MaxBas, &
                         MxConstr, nBB, nBT, nnB, nSym, VTitle
       use Cholesky, only: ChFracMem
       use DCSCF, only: Erest_xc, s2CNO
@@ -52,7 +52,7 @@
 !
       Erest_xc=Zero
 !
-      If(.not.DoCholesky .or. DoLDF) then
+      If(.not.DoCholesky) then
        write(6,*)
        write(6,*) ' ERROR in Constrained SCF: problem in start6.'
        write(6,*) '*** Constrained NOs implemented only with CD or RI.'

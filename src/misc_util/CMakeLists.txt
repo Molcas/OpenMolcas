@@ -31,7 +31,6 @@ set (sources
      decideondf.F90
      decideondirect.F90
      decideonespf.F90
-     decideonlocaldf.F90
      dgemm_tri.F90
      diag_driver.F90
      disable_spool.F90

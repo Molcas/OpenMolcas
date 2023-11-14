@@ -20,9 +20,5 @@
  (file)  CHRDL         "$WorkDir/$Project".ChRdL           rwp
  (file)  CHVCL         "$WorkDir/$Project".ChVcL           rw*p
  (file)  VTMP          "$WorkDir/$Project."Vtmp            rw*p
-#ifdef _LDF_
- (file)  LDFC          "$WorkDir/$Project".LDFC            rw*
- (file)  LDFAP         "$WorkDir/$Project".LDFAP           rw*
-#endif
 #define _CHOINTS_
 #endif

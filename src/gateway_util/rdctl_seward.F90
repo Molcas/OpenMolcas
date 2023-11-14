@@ -29,7 +29,7 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
                         Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
 use Cholesky, only: Span, ThrCom
-use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
                           NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 use rctfld_module, only: lLangevin, lRF, PCM, RDS
@@ -63,16 +63,16 @@ logical(kind=iwp), intent(out) :: Do_OneEl
 #endif
 integer(kind=iwp), parameter :: MAX_XBAS = 20
 integer(kind=iwp) :: BasisTypes(4), BasisTypes_Save(4), i, i1, i2, iAng, iAt, iAtom_Number, ib, ibla, iBSSE, iChk_CH, iChk_DC, &
-                     iChk_RI, iChrct, iChxyz, iCLDF, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, &
+                     iChk_RI, iChrct, iChxyz, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, &
                      ifnr, iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
                      iOpt_XYZ, iOptimType, iPrint, iprop_ord, iRout, iShll, ist, istatus, isxbas, isXfield, iTemp, ITkQMMM, iTtl, &
                      itype, iUnique, iWel, ix, j, jAtmNr, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, lSTDINP, Lu_UDC, &
                      LuFS, LuIn, LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, &
                      nFragment, nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
-real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, &
-                 sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp
+real(kind=wp) :: CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, &
+                 sDel, spanCD, stepFac1, SymThr, tDel, Temp
 
-logical(kind=iwp) :: AnyMode, APThr_UsrDef, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
+logical(kind=iwp) :: AnyMode, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
                      CutInt_UsrDef, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
                      FragSet, GroupSet, GWInput, HyperParSet, Invert, isnumber, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, &
                      lOAM = .false., lOMQ = .false., lPP, lSkip, lTtl, lXF = .false., MolWgh_UsrDef, nmwarn, NoAMFI, NoDKroll, &
@@ -126,8 +126,8 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
                                             'RMER','RMQC','RMDI','RMEQ','RMBP','GIAO','NOCH','CHOL','FCD ','THRC','1CCD','1C-C', &
                                             'CHOI','RP-C','SADD','CELL','SPAN','SPRE','LOW ','MEDI','HIGH','DIAG','RIC ','RIJ ', &
                                             'RIJK','RICD','XRIC','NOGU','RELA','RLOC','FOOC','CDTH','SHAC','KHAC','ACD ','FAT-', &
-                                            'ACCD','SLIM','    ','DOFM','NOAM','RPQM','CONS','NGEX','LOCA','LDF ','LDF1','LDF2', &
-                                            'TARG','THRL','APTH','CHEC','VERI','OVER','CLDF','UNCO','WRUC','UNIQ','NOUN','RLDF', &
+                                            'ACCD','SLIM','    ','DOFM','NOAM','RPQM','CONS','NGEX','LOCA','    ','    ','    ', &
+                                            '    ','    ','    ','    ','    ','    ','    ','    ','    ','    ','    ','    ', &
                                             'NOAL','WEIG','ALIG','TINK','ORIG','HYPE','ZCON','SCAL','DOAN','GEOE','OLDZ','OPTH', &
                                             'NOON','GEO ','MXTC','FRGM','TRAN','ROT ','ZONL','BASL','NUME','VART','VARR','SHAK', &
                                             'PAMF','GROM','LINK','EMFR','NOCD','FNMC','ISOT','EFP ']
@@ -174,7 +174,6 @@ if (Found) call Get_cArray('Align_Weights',Align_Weights,512)
 CutInt_UsrDef = .false.
 ThrInt_UsrDef = .false.
 MolWgh_UsrDef = .false.
-APThr_UsrDef = .false.
 NoAMFI = .false.
 
 iChk_RI = 0
@@ -292,8 +291,6 @@ lthCell = 0
 Cell_l = .false.
 ispread(:) = 0
 VCell(:,:) = Zero
-! Set local DF variables (dummy)
-call LDF_SetInc()
 rewind(LuRd)
 ! Count the number of calls to coord to set the number of fragments
 ! for a geo/hyper-calculation
@@ -2314,143 +2311,6 @@ do
         endfile(Lu_UDC)
         close(Lu_UDC)
 
-      case (KeyW(141),KeyW(142),KeyW(143))
-        !                                                              *
-        !**** LOCA or LDF1 or LDF  *************************************
-        !                                                              *
-        ! Activate Local Density Fitting.
-
-        LocalDF = .true.
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(144))
-        !                                                              *
-        !**** LDF2 *****************************************************
-        !                                                              *
-        ! Activate Local Density Fitting with 2-center functions included
-        ! when needed to achieve target accuracy.
-
-        LocalDF = .true.
-        call LDF_SetLDF2(.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(145),KeyW(146))
-        !                                                              *
-        !**** TARG or THRL *********************************************
-        !                                                              *
-        ! Set target accuracy for Local Density Fitting.
-        ! This implies inclusion of 2-center functions (the only way we can
-        ! affect accuracy).
-
-        Key = Get_Ln(LuRd)
-        call Get_F1(1,Target_Accuracy)
-        call LDF_SetThrs(Target_Accuracy)
-        LocalDF = .true.
-        call LDF_SetLDF2(.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(147))
-        !                                                              *
-        !**** APTH *****************************************************
-        !                                                              *
-        ! Set screening threshold for LDF - i.e. threshold for defining
-        ! significant atom pairs.
-
-        Key = Get_Ln(LuRd)
-        call Get_F1(1,APThr)
-        call LDF_SetPrescreen(APThr)
-        LocalDF = .true.
-        APThr_UsrDef = .true.
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(148))
-        !                                                              *
-        !**** CHEC *****************************************************
-        !                                                              *
-        ! LDF debug option: check pair integrals.
-
-        call LDF_SetOptionFlag('CHEC',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(149))
-        !                                                              *
-        !**** VERI *****************************************************
-        !                                                              *
-        ! LDF debug option: verify fit for each atom pair.
-
-        call LDF_SetOptionFlag('VERI',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(150))
-        !                                                              *
-        !**** OVER *****************************************************
-        !                                                              *
-        ! LDF debug option: check overlap integrals (i.e. charge)
-
-        call LDF_SetOptionFlag('OVER',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(151))
-        !                                                              *
-        !**** CLDF *****************************************************
-        !                                                              *
-        ! Constrained LDF - read constraint order
-        ! order=-1 --- unconstrained
-        ! order=0  --- charge (i.e. overlap)
-
-        Key = Get_Ln(LuRd)
-        call Get_I1(1,iCLDF)
-        call LDF_AddConstraint(iCLDF)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(152))
-        !                                                              *
-        !**** UNCO *****************************************************
-        !                                                              *
-        ! Unconstrained LDF (same as CLDF=-1)
-
-        call LDF_AddConstraint(-1)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(153))
-        !                                                              *
-        !**** WRUC *****************************************************
-        !                                                              *
-        ! Write unconstrained coefficients to disk.
-        ! Only meaningful along with constrained fitting.
-        ! For debugging purposes: enables constrained fit verification in
-        ! modules other than Seward.
-
-        call LDF_SetOptionFlag('WRUC',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(154))
-        !                                                              *
-        !**** UNIQ *****************************************************
-        !                                                              *
-        ! LDF: use unique atom pairs.
-
-        call LDF_SetOptionFlag('UNIQ',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(155))
-        !                                                              *
-        !**** NOUN *****************************************************
-        !                                                              *
-        ! LDF: do not use unique atom pairs.
-
-        call LDF_SetOptionFlag('UNIQ',.false.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(156))
-        !                                                              *
-        !**** RLDF *****************************************************
-        !                                                              *
-        ! Activate local DF/RI, Roland's original LDF test implementation
-
-        LDF = .true.
-        GWInput = .true.
-
       case (KeyW(157))
         !                                                              *
         !**** NOAL *****************************************************
@@ -3259,12 +3119,6 @@ lAMFI = lAMFI .and. (.not. NoAMFI)
 ! Disable the RI flag if only one-electron integrals are requested
 
 Do_RI = (.not. Onenly) .and. Do_RI
-if (Do_RI) then
-  if (LDF .and. LocalDF) then
-    call WarningMessage(2,'LDF and LocalDF are incompatible')
-    call Quit_OnUserError()
-  end if
-end if
 
 iPrint = nPrint(iRout)
 
@@ -3471,14 +3325,6 @@ if (Do_RI .and. (Run_Mode /= S_Mode)) then
     call Mk_RI_Shells(LuRd)
 
   end if
-end if
-if (Do_RI .and. LocalDF .and. (Run_Mode == S_Mode)) then
-  call SetTargetAccuracy_LDF()
-  if (CutInt_UsrDef .and. (.not. APThr_UsrDef)) then
-    call LDF_SetPrescreen(CutInt)
-    call LDF_CheckThrs()
-  end if
-  call LDF_CheckConfig()
 end if
 !                                                                      *
 !***********************************************************************

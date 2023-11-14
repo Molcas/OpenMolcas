@@ -33,7 +33,7 @@ use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nX
 use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, iRELMP, LDKroll, nCtrLD, radiLD
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt, DoFMM, EMFR, FNMC, GIAO, kVector, lAMFI, lMXTC, lRel, RPQMin, ThrInt, Vlct
-use RICD_Info, only: Cho_OneCenter, Cholesky, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use RICD_Info, only: Cho_OneCenter, Cholesky, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, Skip_High_AC, Thrshld_CD
 use Symmetry_Info, only: nIrrep
 use Gateway_global, only: GS_Mode, Onenly, Run_Mode, Prprt, Test
 use rctfld_module, only: lLangevin, lRF, PCM
@@ -45,7 +45,6 @@ implicit none
 logical(kind=iwp), intent(in) :: lOPTO
 #include "Molcas.fh"
 #include "print.fh"
-#include "localdf.fh"
 integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nTtl
 real(kind=wp) :: temp
 logical(kind=iwp) :: l_aCD_Thr, Found, lNoPair, lPam2, lECP, lPP
@@ -247,30 +246,7 @@ else
         write(LuWr,'(17X,A,G10.2)') '  - CD Threshold: ',Thrshld_CD
       end if
     else if (Do_RI) then
-      if (LocalDF) then
-        if (LDF_Constraint == -1) then
-          write(LuWr,'(15X,A)') '   Local Density Fitting coefficients'
-        else
-          write(LuWr,'(15X,A)') '   Constrained Local Density Fitting coefficients'
-          if (LDF_Constraint == 0) then
-            write(LuWr,'(17X,A)') '  - constraint type: charge'
-          else
-            call WarningMessage(2,'Unknown constraint!')
-            write(LuWr,'(A,I10)') 'LDF_Constraint=',LDF_Constraint
-            call LDF_Quit(-1)
-          end if
-        end if
-        if (LDF2) then
-          write(LuWr,'(17X,A,G10.2)') '  - two-center auxiliary functions included (when needed); target accuracy: ',Thr_Accuracy
-        else
-          write(LuWr,'(17X,A)') '  - two-center auxiliary functions not included'
-        end if
-      else if (LDF) then
-        write(LuWr,'(15X,A)') '   LDF decomposed two-electron repulsion integrals stored Cholesky style'
-        write(LuWr,'(15X,A)') '    Concept demonstration only!'
-      else
-        write(LuWr,'(15X,A)') '   RI decomposed two-electron repulsion integrals stored Cholesky style'
-      end if
+      write(LuWr,'(15X,A)') '   RI decomposed two-electron repulsion integrals stored Cholesky style'
       if (iRI_Type == 1) then
         write(LuWr,'(17X,A)') '  - RIJ auxiliary basis'
       else if (iRI_Type == 2) then

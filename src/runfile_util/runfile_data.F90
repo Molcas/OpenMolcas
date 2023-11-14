@@ -254,7 +254,7 @@ character(len=lw), parameter :: LabelsDS(nTocDS) = [ &
                                 'E_0_NN          ','W_or_el         ','W_or_Inf        ','EThr            ', & ! 11-16
                                 'Cholesky Thresho','Total Nuclear Ch','Numerical Gradie','MpProp Energy   ', & ! 17-20
                                 'UHFSPIN         ','S delete thr    ','T delete thr    ','MD_Etot0        ', & ! 21-24
-                                'MD_Time         ','LDF Accuracy    ','NAD dft energy  ','GradLim         ', & ! 25-28
+                                'MD_Time         ','                ','NAD dft energy  ','GradLim         ', & ! 25-28
                                 'Average energy  ','Timestep        ','MD_Etot         ','Max error       ', & ! 29-32
                                 'Total Charge    ','DFT exch coeff  ','DFT corr coeff  ','Value_l         ', & ! 33-36
                                 'R_WF_HMC        ','                ','                ','                ', & ! 37-40
@@ -342,9 +342,7 @@ character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
 !> - '``Seed``'                       The seed number for random number generator used in surface hoping.
 !> - '``Rotational Symmetry Number``'
 !> - '``mp2prpt``'                    True(=1) if mbpt2 was run with prpt
-!> - '``LDF Status``'                 Initialized or not
 !> - '``DF Mode``'                    Local (1) or non-local (0) DF
-!> - '``LDF Constraint``'             Constraint type for LDF
 !> - '``OptimType``'                  Optimization type in hyper
 !> - '``STSYM``'                      symmetry of the CAS root(s)
 !> - '``nCoordFiles``'                number of xyz-files in gateway
@@ -370,7 +368,7 @@ character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'ColGradMode     ','IRC             ','MaxHops         ','nRasHole        ', & !  33- 36
                                 'nRasElec        ','Rotational Symme','Saddle Iter     ','iMass           ', & !  37- 40
                                 'mp2prpt         ','NJOB_SINGLE     ','MXJOB_SINGLE    ','NSS_SINGLE      ', & !  41- 44
-                                'NSTATE_SINGLE   ','LDF Status      ','DF Mode         ','LDF Constraint  ', & !  45- 48
+                                'NSTATE_SINGLE   ','                ','DF Mode         ','                ', & !  45- 48
                                 'OptimType       ','STSYM           ','RF CASSCF root  ','RF0CASSCF root  ', & !  49- 52
                                 'nCoordFiles     ','nLambda         ','DNG             ','HessIter        ', & !  53- 56
                                 'CHCCLarge       ','TS Search       ','Number of Hops  ','hopped          ', & !  57- 60

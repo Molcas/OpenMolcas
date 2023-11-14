@@ -995,50 +995,6 @@ Advanced general keywords
          about the efficiency of the integral prescreening (subroutine 9). This
          option is certainly not used in production calculations.
 
-:kword:`ROBU`
-  Robust LDF integral representation (non-hybrid KS-DFT only).
-  Requires Local Density Fitting (LDF) in SEWARD. This is the default for LDF.
-
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="ROBU" APPEAR="Robust LDF integral representation" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: ROBU <advanced>
-              <HELP>
-              Robust LDF integral representation (non-hybrid KS-DFT only). Requires Local Density Fitting (LDF) in SEWARD. This is the default for LDF.
-              </HELP>
-              </KEYWORD>
-
-:kword:`NR-2`
-  Nonrobust LDF integral representation with 2-index integrals only (non-hybrid KS-DFT only).
-  Requires Local Density Fitting (LDF) in SEWARD. Default is robust integral representation.
-
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="NR-2" APPEAR="Nonrobust LDF integral representation with 2-index integrals only" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: NR-2 <advanced>
-              <HELP>
-              Nonrobust LDF integral representation with 2-index integrals only (non-hybrid KS-DFT only). Requires Local Density Fitting (LDF) in SEWARD. Default is robust integral representation.
-              </HELP>
-              </KEYWORD>
-
-:kword:`NR-3`
-  Nonrobust LDF integral representation with 3-index integrals only (non-hybrid KS-DFT only).
-  Requires Local Density Fitting (LDF) in SEWARD. Default is robust integral representation.
-
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="NR-3" APPEAR="Nonrobust LDF integral representation with 3-index integrals only" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: NR-3 <advanced>
-              <HELP>
-              Nonrobust LDF integral representation with 3-index integrals only (non-hybrid KS-DFT only). Requires Local Density Fitting (LDF) in SEWARD. Default is robust integral representation.
-              </HELP>
-              </KEYWORD>
-
-:kword:`XIDI`
-  Use exact integral diagonal blocks with LDF.
-  Reduces the risk of negative eigenvalues of the approximate integral matrix.
-  Default is to not use exact integral diagonal blocks.
-
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="XIDI" APPEAR="Use exact integral diagonal blocks with LDF" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: XIDI <advanced>
-              <HELP>
-              Use exact integral diagonal blocks with LDF. Reduces the risk of negative eigenvalues of the approximate integral matrix. Default is to not use exact integral diagonal blocks.
-              </HELP>
-              </KEYWORD>
 
 :kword:`THREsholds`
   Specifies convergence thresholds. Four individual thresholds are specified
@@ -1362,11 +1318,9 @@ electron configuration :math:`\text{1a}_1^2 \text{2a}_1^2 \text{3a}_1^2 \text{1b
   Disk= 1 0
   Ivo
 
-.. xmldoc:: <KEYWORD MODULE="SCF" NAME="USELDF" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="SCF" NAME="USECONVENTIONAL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
-.. xmldoc:: <KEYWORD MODULE="SCF" NAME="QPRINT" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FCKAUF" KIND="CHOICE" LIST="True,False" LEVEL="UNDOCUMENTED" />
 

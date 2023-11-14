@@ -41,7 +41,6 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, nBas, nBas_Aux
 use Gateway_global, only: force_out_of_core
 use Gateway_Info, only: CutInt
-use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
 use RI_glob, only: iShij, iSSOff, klS, Lu_Q, nBasSh, nChV, nSkal_Valence, nSO, ShlSO, SOShl
 use Int_Options, only: iTOffs
@@ -54,30 +53,20 @@ implicit none
 real(kind=wp), intent(in) :: ThrAO
 #include "Molcas.fh"
 #include "print.fh"
-#include "lRI.fh"
-integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iAdr_AB, iCase, iCenter, iChoVec, id, iIrrep, iLB, iLO, iMax_R(2,0:7), IncVec, &
-                     iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSO_Aux, iSym, &
-                     iTask, iTtmp(0:7), iVec, j_e, j_s, jCenter, jS, jS_, kCenter, kCnttp, klCenter, klS_, kQv, kS, lCenter, &
-                     lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_AB, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, mMuNu, mQv, &
-                     MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nCase, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
+integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,0:7), IncVec, &
+                     iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSym, &
+                     iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, kCenter, kCnttp, klS_, kQv, kS, lCenter, &
+                     lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, mMuNu, mQv, &
+                     MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
                      nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
 real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all, TW0, TW1, TWall1, Twall2
 character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, Out_of_Core, Skip
-integer(kind=iwp), allocatable :: AB(:,:), Addr(:), iRv(:), LBList(:), NuMu(:,:), SO2C(:), TmpList(:)
-real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Local_A(:,:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
+integer(kind=iwp), allocatable :: Addr(:), iRv(:), LBList(:), NuMu(:,:), TmpList(:)
+real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:)
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
 logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
-interface
-  subroutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,SO2C,nSO_Aux)
-    import :: wp, iwp
-    real(kind=wp) :: A_Diag(*)
-    real(kind=wp), allocatable :: Local_A(:,:)
-    integer(kind=iwp), allocatable :: SO2C(:), AB(:,:)
-    integer(kind=iwp) :: MaxCntr, Lu_AB, nSO_Aux
-  end subroutine Post_2Center_LDF
-end interface
 
 !                                                                      *
 !***********************************************************************
@@ -121,23 +110,15 @@ if (iPrint >= 6) call CWTime(TC0,TW0)
 !                                                                      *
 ! Compute the two-center integrals over the auxiliary basis
 
-call Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
+call Drv2El_2Center_RI(ThrAO,A_Diag,MaxCntr)
 
 ! Post processing to generate the Q-vectors.
 
-if (LDF) then
 
-  ! Local RI
+! Standard RI
 
-  call Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,SO2C,nSO_Aux)
+call Post_2Center_RI(A_Diag)
 
-else
-
-  ! Standard RI
-
-  call Post_2Center_RI(A_Diag)
-
-end if
 
 call mma_deallocate(A_Diag)
 
@@ -336,46 +317,6 @@ do while (Rsv_Tsk(id,klS))
   kCnttp = iSD(13,kS)
   lCnttp = iSD(13,lS)
 
-  if (LDF) then
-
-    ! Pick up the corresponding (K|L)^{-1} block
-
-    kCenter = iSD(10,kS)
-    lCenter = iSD(10,lS)
-    !write(u6,*) 'kCenter, lCenter=',kCenter, lCenter
-    klCenter = nTri_Elem(kCenter-1)+lCenter
-    iAdr_AB = AB(1,klCenter)
-    nAB = AB(2,klCenter)
-    call dDaFile(Lu_AB,2,Local_A(:,2),nAB**2,iAdr_AB)
-    !call RecPrt('A^-1',' ',Local_A,nAB,nAB)
-
-    ! Now I need some lookup tables to be used below. I need to
-    ! go from SO index to lO index and from a given lO index
-    ! back to the SO index.
-
-    ISO2LO(:,:) = 0
-    iLO = 0
-    nCase = 1
-    if (kCenter /= lCenter) nCase = 2
-    do iCase=1,nCase
-      if (iCase == 1) then
-        jCenter = kCenter
-      else
-        jCenter = lCenter
-      end if
-      do iSO_Aux=1,nSO_Aux
-        iCenter = SO2C(iSO_Aux)
-        !write(u6,*) 'iCenter=',iCenter
-        if (iCenter == jCenter) then
-          iLO = iLO+1
-          !write(u6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
-          iSO2LO(1,iSO_Aux) = iLO
-          iSO2LO(2,iLO) = iSO_Aux
-        end if
-      end do
-    end do
-  end if
-
   A_int_kl = TMax_Valence(kS,lS)
   if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) A_int_kl = Zero
 
@@ -391,11 +332,6 @@ do while (Rsv_Tsk(id,klS))
   do jS=nSkal_Valence+1,nSkal-1
     !write(u6,*) 'jS,kS,lS=',jS,kS,lS
     Skip = .false.
-    if (LDF) then
-      jCenter = iSD(10,jS)
-      if ((jCenter /= kCenter) .and. (jCenter /= lCenter)) Skip = .true.
-      !write(u6,*) 'jCenter=',jCenter
-    end if
 
     if (.not. Skip) then
       A_int = A_int_kl*TMax_Auxiliary(jS-nSkal_Valence)
@@ -482,12 +418,6 @@ call mma_deallocate(Qv)
 call xRlsMem_Ints()
 call mma_deallocate(TMax_Auxiliary)
 call mma_deallocate(TMax_Valence)
-if (LDF) then
-  call mma_deallocate(SO2C)
-  call mma_deallocate(AB)
-  call mma_deallocate(Local_A)
-  call DaClos(Lu_AB)
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *

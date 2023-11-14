@@ -27,7 +27,7 @@ use Center_Info, only: dc
 use External_Centers, only: iXPolType, XF, nXF
 use Gateway_global, only: Expert, DirInt
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Cho_OneCenter, Chol => Cholesky, Do_DCCD, Do_RI, LocalDF
+use RICD_Info, only: Cho_OneCenter, Chol => Cholesky, Do_DCCD, Do_RI
 use Cholesky, only: Cho_1Center
 use Gateway_Info, only: CoC, CoM, DoFMM
 use Symmetry_Info, only: nIrrep, VarR, VarT
@@ -39,8 +39,7 @@ use Definitions, only: wp, iwp
 implicit none
 #include "Molcas.fh"
 #include "embpcharg.fh"
-#include "localdf.fh"
-integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iLocalDF, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)
+integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)
 logical(kind=iwp) :: Found, Pseudo
 integer(kind=iwp), allocatable :: ICh(:), IsMM(:), nStab(:), NTC(:)
 real(kind=wp), allocatable :: DCh(:), DCh_Eff(:), DCo(:,:)
@@ -92,15 +91,6 @@ if (Chol .or. Do_RI) iOption = ibset(iOption,9)
 ! RI-Option
 if (Do_RI) then
   iOption = ibset(iOption,10)
-  ! Local or non-local
-  if (LocalDF) then
-    call Put_dScalar('LDF Accuracy',Thr_Accuracy)
-    call Put_iScalar('LDF Constraint',LDF_Constraint)
-    iLocalDF = 1
-  else
-    iLocalDF = 0
-  end if
-  call Put_iScalar('DF Mode',iLocalDF)
 end if
 ! 1C-CD
 if (Chol .and. Cho_1Center) iOption = ibset(iOption,12)

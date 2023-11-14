@@ -41,12 +41,11 @@
       use LnkLst, only: SCF_V, LLGrad, LLDelt, LLx
       use InfSO, only: DltNrm, DltnTh, IterSO, IterSO_Max,qNRTh, Energy
       use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter, TrDD, TrDh, TrDP
-      use k2_arrays, only: DeDe
       use InfSCF, only: AccCon, Aufb, CPUItr, Damping, TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,    &
                         Two_Thresholds, TStop, TemFac, Teee, Scrmbl, S2Uhf, rTemp, RGEK, One_Grid,nSym, nnB,      &
                         nIterP, nIter, RSRFO, Neg2_Action, nBT, nBB, nAufb, mOV, MiniDn, MinDMX, kOV, FckAuf,     &
                         MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref, Iter, idKeep, iDMin, kOptim_Max, nD,          &
-                        FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF, DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,   &
+                        FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF, DoCholesky, DIISTh, DIIS, DMOMax,   &
                         FMOMax, MSYMON, Iter_Start, nnB, nBB
       use Cholesky, only: ChFracMem
       Use Constants, only: Zero, One, Ten, Pi
@@ -54,7 +53,6 @@
       use Files, only: LuOut
       Use Constants, only: Zero, One, Two, Ten, Pi
       use stdalloc, only: mma_allocate, mma_deallocate
-      use LDFSCF, only: LDFracMem
       Implicit None
       Integer iTerm
       Character(Len=*) Meth
@@ -152,23 +150,10 @@
 !---  Initialize Cholesky information if requested
 !
       If (DoCholesky) Then
-         If (DoLDF) Then ! Local DF
-            ! Dummy allocation
-            Call mma_allocate(DeDe,[-1,-1],label='Dede')
-            Call LDF_X_Init(.True.,0,LDFracMem,irc)
-            If (irc.ne.0) Then
-               Call WarningMessage(2,'WfCtl: non-zero return code from LDF_X_Init')
-               Call LDF_Quit(1)
-            End If
-            Call LDF_SetIntegralPrescreeningInfo()
-            Call Free_iSD()
-            Call mma_deallocate(DeDe)
-         Else ! Cholesky or RI/DF
-            Call Cho_X_init(irc,ChFracMem)
-            If (irc.ne.0) Then
-               Call WarningMessage(2,'WfCtl. Non-zero rc in Cho_X_init.')
-               Call Abend
-            End If
+         Call Cho_X_init(irc,ChFracMem)
+         If (irc.ne.0) Then
+            Call WarningMessage(2,'WfCtl. Non-zero rc in Cho_X_init.')
+            Call Abend
          End If
       End If
 !                                                                      *
@@ -814,7 +799,7 @@
 !----------------------------------------------------------------------*
 !
 !------- Check that two-electron energy is positive.
-!        The LDF integrals may not be positive definite, leading to
+!        The integrals may not be positive definite, leading to
 !        negative eigenvalues of the ERI matrix - i.e. attractive forces
 !        between the electrons! When that occurs the SCF iterations
 !        still might find a valid SCF solution, but it will obviously be
@@ -1044,19 +1029,10 @@
 !----------------------------------------------------------------------*
 !                                                                      *
       If (DoCholesky) Then
-         If (DoLDF) Then
-            Call LDF_UnsetIntegralPrescreeningInfo()
-            Call LDF_X_Final(.True.,irc)
-            If (irc.ne.0) Then
-               Call WarningMessage(2,'WfCtl: non-zero return code from LDF_X_Final')
-               Call LDF_Quit(1)
-            End If
-         Else
-            Call Cho_X_Final(irc)
-            If (irc.ne.0) Then
-               Call WarningMessage(2,'WfCtl. Non-zero rc in Cho_X_Final.')
-               Call Abend
-            End If
+         Call Cho_X_Final(irc)
+         If (irc.ne.0) Then
+            Call WarningMessage(2,'WfCtl. Non-zero rc in Cho_X_Final.')
+            Call Abend
          End If
       End If
 !                                                                      *
