@@ -33,19 +33,19 @@ unused_var(Shijij)
 unused_var(iSOSym)
 unused_var(iBas)
 
-!                                                                    *
-!*********************************************************************
-!                                                                    *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 if (mSym == 1) then
   call PLF_RI_3(AOInt,ijkl,iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,jBas,kBas,lBas,kOp,TInt,nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO, &
                 nSkal_Valence,mSym,iSSOff(0,0,klS))
 else
-  call IndSft_RI_3(iCmp,iShell,jBas,kBas,lBas,iAO,iAOst,ijkl,SOInt,nSOint,TInt,nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO, &
-                   nSkal_Valence,mSym,iSSOff(:,:,klS))
+  call IndSft_RI_3(iCmp,iShell,jBas,kBas,lBas,iAO,iAOst,ijkl,SOInt,nSOint,TInt,nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO,nSkal_Valence, &
+                   mSym,iSSOff(:,:,klS))
 end if
-!                                                                    *
-!*********************************************************************
-!                                                                    *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 return
 
 end subroutine Integral_RI_3

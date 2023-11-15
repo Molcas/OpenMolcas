@@ -35,8 +35,7 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 #include "intent.fh"
 
 use Para_Info, only: Is_Real_Par, nProcs
-use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
-                        Thr_ghs, Title
+use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, Thr_ghs, Title
 use ChoMP2, only: all_vir, C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoDens, DoFNO, DoGrdt, DoMP2, DoT1amp, EOSMP2, FNOMP2, &
                   ForceBatch, Laplace, Laplace_BlockSize, Laplace_BlockSize_Def, Laplace_mGridPoints, Laplace_nGridPoints, LovMP2, &
                   MxQual_Def, MxQualMP2, nActa, NoGamma, OED_Thr, set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrLov, ThrMP2, vkept, &

@@ -53,18 +53,16 @@ implicit none
 real(kind=wp), intent(in) :: ThrAO
 #include "Molcas.fh"
 #include "print.fh"
-integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,0:7), IncVec, &
-                     iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSym, &
-                     iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, kCnttp, klS_, kQv, kS, &
-                     lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, mMuNu, mQv, &
-                     MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
+integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,0:7), IncVec, iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, &
+                     iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, &
+                     kCnttp, klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, &
+                     mMuNu, mQv, MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
                      nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
 real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all, TW0, TW1, TWall1, Twall2
 character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, Out_of_Core, Skip
 integer(kind=iwp), allocatable :: Addr(:), iRv(:), LBList(:), NuMu(:,:), TmpList(:)
-real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
-                              Tmp(:,:)
+real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), Tmp(:,:)
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
 logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 
@@ -114,11 +112,7 @@ call Drv2El_2Center_RI(ThrAO,A_Diag,MaxCntr)
 
 ! Post processing to generate the Q-vectors.
 
-
-! Standard RI
-
 call Post_2Center_RI(A_Diag)
-
 
 call mma_deallocate(A_Diag)
 

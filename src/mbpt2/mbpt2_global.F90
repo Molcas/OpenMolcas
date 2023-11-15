@@ -33,9 +33,9 @@ character(len=LenIn), allocatable :: NamAct(:)
 integer(kind=iwp) :: LuHLF1 = 40, LuHLF2 = 41, LuHLF3 = 42, LuIntA = 43, LuIntM = 44
 character(len=8) :: FnHLF1 = 'LUHLF1', FnHLF2 = 'LUHLF2', FnHLF3 = 'LUHLF3', FnIntA = 'ORDINT', FnIntM = 'MOLINT'
 
-public :: CMO, DelGhost, Density, DiaA, DoCholesky, DoDF, EMP2, EOcc, EOrb, EVir, FnHLF1, FnHLF2, FnHLF3, FnIntA, FnIntM, &
-          iDel, iFro, iPL, iPoVec, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, mAdDel, mAdFro, mAdOcc, mAdVir, MBPT2_Clean, MP2Lagr, &
-          NamAct, nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nnB, nTit, Title, Thr_ghs, VECL2, WDensity
+public :: CMO, DelGhost, Density, DiaA, DoCholesky, DoDF, EMP2, EOcc, EOrb, EVir, FnHLF1, FnHLF2, FnHLF3, FnIntA, FnIntM, iDel, &
+          iFro, iPL, iPoVec, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, mAdDel, mAdFro, mAdOcc, mAdVir, MBPT2_Clean, MP2Lagr, NamAct, &
+          nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nnB, nTit, Title, Thr_ghs, VECL2, WDensity
 
 contains
 

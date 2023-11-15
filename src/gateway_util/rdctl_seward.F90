@@ -63,14 +63,14 @@ logical(kind=iwp), intent(out) :: Do_OneEl
 #endif
 integer(kind=iwp), parameter :: MAX_XBAS = 20
 integer(kind=iwp) :: BasisTypes(4), BasisTypes_Save(4), i, i1, i2, iAng, iAt, iAtom_Number, ib, ibla, iBSSE, iChk_CH, iChk_DC, &
-                     iChk_RI, iChrct, iChxyz, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, &
-                     ifnr, iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
+                     iChk_RI, iChrct, iChxyz, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, ifnr, &
+                     iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
                      iOpt_XYZ, iOptimType, iPrint, iprop_ord, iRout, iShll, ist, istatus, isxbas, isXfield, iTemp, ITkQMMM, iTtl, &
                      itype, iUnique, iWel, ix, j, jAtmNr, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, lSTDINP, Lu_UDC, &
                      LuFS, LuIn, LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, &
                      nFragment, nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
-real(kind=wp) :: CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, &
-                 sDel, spanCD, stepFac1, SymThr, tDel, Temp
+real(kind=wp) :: CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, sDel, &
+                 spanCD, stepFac1, SymThr, tDel, Temp
 
 logical(kind=iwp) :: AnyMode, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
                      CutInt_UsrDef, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
