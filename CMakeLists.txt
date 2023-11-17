@@ -583,7 +583,7 @@ if (MPI)
     OUTPUT_VARIABLE MPIEXEC_VERSION
     ERROR_VARIABLE MPIEXEC_VERSION
   )
-  if (MPIEXEC_VERSION MATCHES "OpenRTE")
+  if (MPIEXEC_VERSION MATCHES "OpenRTE" OR MPIEXEC_VERSION MATCHES "Open MPI")
     set (MPI_IMPLEMENTATION "openmpi")
   elseif (MPIEXEC_VERSION MATCHES "Intel\\(R\\) MPI")
     set (MPI_IMPLEMENTATION "impi")
@@ -1230,9 +1230,28 @@ if (GA AND MPI)
           -D ENABLE_CXX=OFF
           -D ENABLE_TESTS=OFF
           -D ENABLE_BLAS=ON
-          -D LINALG_PREFIX=${PROJECT_BINARY_DIR}
-          -D BLAS_LIBRARIES=${LINALG_LIBRARIES_FILES}
     )
+    if (LINALG STREQUAL "MKL")
+      list (APPEND GACMakeArgs
+            -D LINALG_VENDOR=IntelMKL
+            -D LINALG_PREFIX=${MKLROOT}
+      )
+    elseif (LINALG STREQUAL "OpenBLAS")
+      list (APPEND GACMakeArgs
+            -D LINALG_VENDOR=OpenBLAS
+            -D LINALG_PREFIX=${OPENBLASROOT}
+      )
+    elseif (LINALG STREQUAL "Internal")
+      list (APPEND GACMakeArgs
+            -D LINALG_VENDOR=ReferenceBLAS
+            -D LINALG_PREFIX=${PROJECT_BINARY_DIR}
+            -D BLAS_LIBRARIES=${LINALG_LIBRARIES_FILES}
+      )
+    else ()
+      message (FATAL_ERROR
+               "LINALG version not supported by built-in Global Arrays."
+               "Use a different LINALG or an externally compiled Global Arrays.")
+    endif ()
     if (ADDRMODE EQUAL 64)
       list (APPEND GACMakeArgs
             -D ENABLE_I8=ON
