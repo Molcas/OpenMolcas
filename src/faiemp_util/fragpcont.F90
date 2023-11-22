@@ -56,7 +56,7 @@ if (DBG) then
     do iK=1,mK
       do ia=1,ma
         do iC=1,mC
-          write(u6,'(4(a,i3),a,e22.14)') 'FragpCont: F1(',ii,',',iK,',',ia,',',iC,')=',F1(ii,iK,ia,iC)
+          write(u6,'(4(a,i3),a,es22.14)') 'FragpCont: F1(',ii,',',iK,',',ia,',',iC,')=',F1(ii,iK,ia,iC)
         end do
       end do
     end do
@@ -67,7 +67,7 @@ if (DBG) then
     do ij=1,mj
       do iD=1,mD
         do ib=1,mb
-          write(u6,'(4(a,i3),a,e22.14)') 'FragpCont: F2(',iL,',',ij,',',iD,',',ib,')=',F2(iL,ij,iD,ib)
+          write(u6,'(4(a,i3),a,es22.14)') 'FragpCont: F2(',iL,',',ij,',',iD,',',ib,')=',F2(iL,ij,iD,ib)
         end do
       end do
     end do
@@ -78,7 +78,7 @@ if (DBG) then
     do iC=1,mC
       do iL=1,mL
         do iD=1,mD
-          write(u6,'(4(a,i3),a,e22.14)') 'FragpCont:  W(',iK,',',iC,',',iL,',',iD,')=',W(iK,iC,iL,iD)
+          write(u6,'(4(a,i3),a,es22.14)') 'FragpCont:  W(',iK,',',iC,',',iL,',',iD,')=',W(iK,iC,iL,iD)
         end do
       end do
     end do

@@ -201,7 +201,7 @@
             End If
          End If
 #ifdef _DEBUGPRINT_
-         Write (Lu,'(I5,4E11.3)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
+         Write (Lu,'(I5,4ES11.3)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
 #endif
 !                                                                      *
 !***********************************************************************

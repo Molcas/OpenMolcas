@@ -281,7 +281,7 @@
          II=0
          NO1=IB+NFO+NIO
          DO NT=1,NR1
-           write(LuFCK,'(1X,E23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
+           write(LuFCK,'(1X,ES23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
            ifock = ifock + 1
          END DO
 #endif
@@ -387,7 +387,7 @@
          II=0
          NO1=IB+NFO+NIO+NR1
          DO NT=1,NR2
-           write(LuFCK,'(1X,E23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
+           write(LuFCK,'(1X,ES23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
            ifock = ifock + 1
          END DO
 #endif
@@ -454,7 +454,7 @@
          II=0
          NO1=IB+NFO+NIO+NR1+NR2
          DO NT=1,NR3
-           write(LuFCK,'(1X,E23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
+           write(LuFCK,'(1X,ES23.16E2,I4,I4)') FDIAG(NO1+NT),ifock,ifock
            ifock = ifock + 1
          END DO
 #endif

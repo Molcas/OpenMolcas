@@ -502,8 +502,8 @@ c /// -------------------------------------------------------------------
      &           + SVEC(iDir,iH,iT,2)*dHY(iDir)
      &           + SVEC(iDir,iH,iT,3)*dHZ(iDir)
 
-              Write(6,'(F7.3,1x,A, 3(E13.6,1x,A),E14.7,1x,A,1x,A, '//
-     &                            '3(E13.6,1x,A),E14.7,1x,A)')
+              Write(6,'(F7.3,1x,A, 3(ES13.6,1x,A),ES14.7,1x,A,1x,A, '//
+     &                            '3(ES13.6,1x,A),ES14.7,1x,A)')
      &                   H(iH),'|', MVEC(iDir,iH,iT,1),' ',
      &                              MVEC(iDir,iH,iT,2),' ',
      &                              MVEC(iDir,iH,iT,3),'|', mv,'|','|',
@@ -551,7 +551,8 @@ c /// -------------------------------------------------------------------
               mv = MVEC(iDir,iH,iT,1)*dHX(iDir)
      &           + MVEC(iDir,iH,iT,2)*dHY(iDir)
      &           + MVEC(iDir,iH,iT,3)*dHZ(iDir)
-              Write(6,'(F7.3,1x,A,3(E13.6,1x,A),E14.7,1x,A)') H(iH),'|',
+              Write(6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') H(iH),
+     &                '|',
      &                MVEC(iDir,iH,iT,1),' ',
      &                MVEC(iDir,iH,iT,2),' ',
      &                MVEC(iDir,iH,iT,3),'|', mv,'|'

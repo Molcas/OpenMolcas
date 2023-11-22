@@ -275,14 +275,14 @@ C     Print out transition density matrix
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(5(2X,E10.4E2))')
+        write (LU,'(5(1X,ES11.4E2))')
      &    (TRAD(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       write (LU,*)
       write (LU,*)
       write (LU,*)
       DO I=1,NASHT
-        write (LU,'(5(2X,E10.4E2))')
+        write (LU,'(5(1X,ES11.4E2))')
      &    (TRASD(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
@@ -298,7 +298,7 @@ C     Writing Particle Matrix
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(10(2X,E10.4E2))')
+        write (LU,'(10(1X,ES11.4E2))')
      &    (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
@@ -310,7 +310,7 @@ C     Calculating T*T_transpose
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(10(2X,E10.4E2))')
+        write (LU,'(10(1X,ES11.4E2))')
      &    (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
@@ -337,7 +337,7 @@ C     Printing some matrices
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (LU,'(5(2X,E10.4E2))')
+         write (LU,'(5(1X,ES11.4E2))')
      &     (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
        END DO
        close (LU)
@@ -346,7 +346,7 @@ C     Printing some matrices
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (LU,'(5(2X,E10.4E2))')
+         write (LU,'(5(1X,ES11.4E2))')
      &     (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
        END DO
        close (LU)
@@ -532,7 +532,7 @@ C
           write(6,'(a,a)')'There are at least two symmetries that have',
      &    ' a sum of coefficient**2 larger than the threshold'
        write(6,'(5A10)')'Threshold','Sum1','Sum2','Sym1','Sym2'
-       write(6,'(3E10.6E2,2I10)')Threshold,SquareSum(iPrintSym),
+       write(6,'(3ES10.3E2,2I10)')Threshold,SquareSum(iPrintSym),
      & SquareSum(IUseSym),iPrintSym,IUseSym
           If (SquareSum(iPrintSym).lt.SquareSum(IUseSym)) THEN
            iPrintSym=IUseSym

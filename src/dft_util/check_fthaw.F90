@@ -83,12 +83,12 @@ else
   write(u6,*) '*******************************************************************************'
 
   if ((abs(DEneA) < ThrFThaw) .and. (abs(DEneB) < ThrFThaw)) then
-    write(u6,'(A,E9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
+    write(u6,'(A,ES9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
     write(u6,*)
     iRC = _RC_ALL_IS_WELL_
     close(Lu,status='delete')
   else
-    write(u6,'(A,E9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
+    write(u6,'(A,ES9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
     write(u6,*)
     close(Lu,status='keep')
   end if

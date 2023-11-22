@@ -81,7 +81,7 @@ do I=1,IDimEnd
       XXMax = XNew
     else
       write(IW,'(A)') '*************** Max Iteration in FdExtr'
-      write(IW,'(A,I3,A,E23.15E3)') 'I =',I,' Max DifX. =',DifX
+      write(IW,'(A,I3,A,ES23.15E3)') 'I =',I,' Max DifX. =',DifX
       !StpBA = .true.
       !return
 

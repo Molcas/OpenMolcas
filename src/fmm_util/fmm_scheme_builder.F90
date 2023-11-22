@@ -237,7 +237,7 @@ subroutine fmm_print_scheme()
   write(LUPRI,'(A,F8.4)') ' Smallest box dimension =',scheme%grain
 
   !if (scheme%job_type == MD4_FMM) then
-  !   write(LUPRI,'(A,E12.4)') 'Short-range threshold =',exp(-fmm_ThrInt)
+  !   write(LUPRI,'(A,ES12.4)') 'Short-range threshold =',exp(-fmm_ThrInt)
   !   write(LUPRI,'(A,F9.4)') 'Extent X0 parameter   =',fmm_X0
   !end if
   !if (scheme%job_type == FE_FMM) then

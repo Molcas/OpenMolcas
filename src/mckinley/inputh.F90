@@ -353,7 +353,7 @@ do iCnttp=1,nCnttp
 end do
 
 write(u6,*)
-write(u6,'(20X,A,E10.3)') ' Threshold for contributions to the gradient or Hessian:',CutInt
+write(u6,'(20X,A,ES10.3)') ' Threshold for contributions to the gradient or Hessian:',CutInt
 write(u6,*)
 
 if (Nona) then

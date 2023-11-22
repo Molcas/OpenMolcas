@@ -405,6 +405,6 @@ return
 628 format(4x,'ALF fails to find level   v=',i3,', J=',i3)
 630 format(' Highest calculated level found by ALF is   E(v=',I3,')=',1PD17.9/)
 632 format(' Zero point energy (measured from VLIM) approximated using a harmonic osccilator:        ',8F11.3)
-634 format(' Mult. V(R) by this factor (BFCT) for solving the SE in dimensionless units: ',E20.13)
+634 format(' Mult. V(R) by this factor (BFCT) for solving the SE in dimensionless units: ',ES20.13)
 
 end subroutine ALFas

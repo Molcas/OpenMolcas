@@ -36,7 +36,7 @@ do icartleft=1,norbsum
 end do
 !write(u6,*) 'effective integrals'
 !do jrun=1,ncontmf
-!  write(u6,'(4E20.14)') (onecart(irun,jrun),irun=1,ncontmf)
+!  write(u6,'(4ES21.14)') (onecart(irun,jrun),irun=1,ncontmf)
 !end do
 
 return

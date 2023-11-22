@@ -616,7 +616,7 @@
       Rewind(LU)
  55   READ(LU,'(A80)',END=888,ERR=888) Line
       If(Line(1:22).ne.'* ACTIVE TWO-EL ENERGY') goto 55
-      READ(LU,'(E19.12)',err=888,end=888) E2act
+      READ(LU,'(ES19.12)',err=888,end=888) E2act
 
       Close(LU)
       Return

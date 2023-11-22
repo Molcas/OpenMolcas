@@ -674,8 +674,8 @@ C printing threshold
 
 ! Print full COMPLEX transition dipole moment vectors?
 137      IF(PRDIPCOM) THEN
-             WRITE(6,'(5X,I5,I5,A,A,E12.3,A,E12.3,A,E12.3,A,E12.3,A,
-     &       E12.3,A,E12.3)')
+             WRITE(6,'(5X,I5,I5,A,A,ES12.3,A,ES12.3,A,ES12.3,A,ES12.3,A,
+     &       ES12.3,A,ES12.3)')
      &       ISS,JSS,'   ',
      &       ' ',REAL(T0(1)),' ',AIMAG(T0(1)),
      &       ' ',REAL(T0(2)),' ',AIMAG(T0(2)),
@@ -2829,7 +2829,7 @@ C printing threshold
           EDIFF=AU2EV*(ENSOR(J)-ENSOR(I))
           IF (F.GT.0.00001) THEN
            IF (EDIFF.GT.0.0D0) THEN
-            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+            WRITE(6,'(A,I8,I8,F15.3,ES22.5)') '    ',I,J,EDIFF,F
            END IF
           END IF
          END DO ! J
@@ -4085,10 +4085,10 @@ C initialization same as G-tensor, construct L+gS matrix elements
           ENDIF
          ENDDO
           IF(IBSTEP.EQ.1) THEN
-         WRITE(6,'(1x,f6.2,5(1x,e12.5,1x))')
+         WRITE(6,'(1x,f6.2,5(1x,es12.5,1x))')
      &    T,B,RMAGMO,RMAGM(1),RMAGM(2),RMAGM(3)
           ELSE
-         WRITE(6,'(1x,f6.2,8(1x,e12.5,1x))')
+         WRITE(6,'(1x,f6.2,8(1x,es12.5,1x))')
      &    T,B,RMAGMO,RMAGM(1),RMAGM(2),RMAGM(3),Chi(1),Chi(2),Chi(3)
           ENDIF
         ENDDO
@@ -4183,7 +4183,7 @@ C scale number of points on phi via sin(theta)
          RMAGM(1)=(RMAGM(1)/RPART)*AU2JTM
          RMAGM(2)=(RMAGM(2)/RPART)*AU2JTM
          RMAGM(3)=(RMAGM(3)/RPART)*AU2JTM
-*        WRITE(6,'(6(1x,e12.5,1x))')
+*        WRITE(6,'(6(1x,es12.5,1x))')
 *    &    B,THE,PHI,RMAGM(1),RMAGM(2),RMAGM(3)
 C backtransformation in two steps, -phi and -theta
          A=RMAGM(1)
@@ -4216,7 +4216,7 @@ C backtransformation in two steps, -phi and -theta
         ENDDO
         RMAGM2=RMAGM(1)*RMAGM(1)+RMAGM(2)*RMAGM(2)+RMAGM(3)*RMAGM(3)
         RMAGMO=SQRT(RMAGM2)
-        WRITE(6,'(1x,f6.2,5(1x,e12.5,1x))')
+        WRITE(6,'(1x,f6.2,5(1x,es12.5,1x))')
      &   T,B,RMAGMO,RMAGM(1),RMAGM(2),RMAGM(3)
        ENDDO
       ENDDO

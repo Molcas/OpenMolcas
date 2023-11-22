@@ -402,7 +402,7 @@ C Acceptable, only if it is very close to zero. Else, quit.
        End iF
        XNORM=sqrt(MAX(0.0D0,XNORM))
        IF(IPRLEV.GE.INSANE) THEN
-         Write(LF,'(1X,A,I3,A,I3,A,E16.8)') 'Pass ',IPASS,
+         Write(LF,'(1X,A,I3,A,I3,A,ES16.8)') 'Pass ',IPASS,
      &                 ' New orthogonal vector ',I,' has norm ',XNORM
        END IF
 

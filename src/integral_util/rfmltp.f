@@ -93,7 +93,7 @@
             jM = iM
             Do iElem = 1, nElem, 7
                nM=Min(7,nElem-iElem+1)
-               Write (6,'(8X,7E14.5)') (QTot(i),i=jM,jM+nM-1)
+               Write (6,'(8X,7ES14.5)') (QTot(i),i=jM,jM+nM-1)
                jM = jM + nM
             End Do
             iM = iM + nElem
@@ -109,7 +109,7 @@
             jM = iM
             Do iElem = 1, nElem, 7
                nM=Min(7,nElem-iElem+1)
-               Write (6,'(8X,7E14.5)') (VTot(i),i=jM,jM+nM-1)
+               Write (6,'(8X,7ES14.5)') (VTot(i),i=jM,jM+nM-1)
                jM = jM + nM
             End Do
             iM = iM + nElem

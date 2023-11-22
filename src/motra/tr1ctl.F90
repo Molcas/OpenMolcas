@@ -70,7 +70,7 @@ call mma_deallocate(FSQ)
 
 ECOR = POTNUC+ECOR
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(u6,'(6X,A,E20.10)') 'TOTAL CORE ENERGY:',ECOR
+  write(u6,'(6X,A,ES20.10)') 'TOTAL CORE ENERGY:',ECOR
 end if
 
 ! Transform one-electron Fock matrix

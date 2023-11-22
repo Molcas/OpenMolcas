@@ -154,7 +154,7 @@ C Calculate the scalar product of the CI coefficient vectors.
      &      WRITE(6,'(4(A16))') "CI1","CI1pr","CI2","CI2pr"
          DO i=1, NCI1
             IF (IPGLOB.GE.3)
-     &         WRITE(6,'(4(3X,E13.6))') CI1(i),CI1pr(i),CI2(i),CI2pr(i)
+     &         WRITE(6,'(4(3X,ES13.6))') CI1(i),CI1pr(i),CI2(i),CI2pr(i)
             prdct(1,1) = prdct(1,1) + CI1pr(i) * CI1(i)
             prdct(1,2) = prdct(1,2) + CI1pr(i) * CI2(i)
             prdct(2,1) = prdct(2,1) + CI2pr(i) * CI1(i)
@@ -218,7 +218,7 @@ C Set the numbers of Hops
       IF (IPGLOB.GE.3) THEN
          WRITE(6,'(2(6X,A8,I3))')'ISTATE1=',ISTATE1,'ISTATE2=',ISTATE2
          DO i=1, NCI1
-            WRITE(6,'(6X,E12.5,8X,E12.5)') CI1(i),CI2(i)
+            WRITE(6,'(6X,ES12.5,8X,ES12.5)') CI1(i),CI2(i)
          END DO
       END IF
 C

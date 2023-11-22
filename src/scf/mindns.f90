@@ -203,10 +203,10 @@
 #ifdef _DEBUGPRINT_
       Write(6,*)' Squared A-matrix in RmLDep:'
       Do i = 1, lth
-         Write(6,'(5(2x,e12.6))')(AMat(i,j),j=1,lth)
+         Write(6,'(5(1x,es13.6))')(AMat(i,j),j=1,lth)
       End Do
       Write(6,*)' Triangular A-matrix:'
-      Write(6,'(5(2x,e12.6))')(ATri(i),i=1,lthT)
+      Write(6,'(5(1x,es13.6))')(ATri(i),i=1,lthT)
 #endif
 !
 !---- Diagonalize
@@ -219,7 +219,7 @@
       Call mma_deallocate(Scr)
 #ifdef _DEBUGPRINT_
       Write(6,*)' Eigenvalues of A-matrix in RLnDep:'
-      Write(6,'(5(2x,e12.6))')(EVal(i),i=1,lth)
+      Write(6,'(5(1x,es13.6))')(EVal(i),i=1,lth)
 #endif
 !
 !---- Form the inverse

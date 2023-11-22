@@ -35,9 +35,9 @@
          Write (6,*)
          Write (6,'(5X,A)')
      &       'Reaction Field calculation: the Kirkwood model'
-         Write (6,'(5X,A,E10.3)') ' Dielectric Constant :',Eps
-         Write (6,'(5X,A,E10.3)') ' Eps_opt             :',EpsInf
-         Write (6,'(5X,A,E10.3)') ' Radius of Cavity(au):',rds
+         Write (6,'(5X,A,ES10.3)') ' Dielectric Constant :',Eps
+         Write (6,'(5X,A,ES10.3)') ' Eps_opt             :',EpsInf
+         Write (6,'(5X,A,ES10.3)') ' Radius of Cavity(au):',rds
          Write (6,'(5X,A,I2)')    ' l_Max               :',lMax
          If (NonEq) Then
             Write (6,'(5X,A)')
@@ -69,7 +69,7 @@
          Do i = 1, latato
             Write (6,'(3(5x,F10.4))') (Cordsi(j,i),j=1,3)
          End Do
-         Write (6,'(5X,A,E10.3)')  ' Max. Latt. Extn(au) :',radlat
+         Write (6,'(5X,A,ES10.3)')  ' Max. Latt. Extn(au) :',radlat
          Write (6,'(5X,A,F10.4)')  ' Cell dimensions     :',scala
          Write (6,'(5X,A,F10.4)')  '                      ',scalb
          Write (6,'(5X,A,F10.4)')  '                      ',scalc
@@ -79,7 +79,7 @@
          Write (6,'(5X,A,F10.4)')  ' Atoms in the latt.  :',gAtom
          Write (6,'(5X,A,F10.4)')  ' Diel. delete param. :',diedel
          Write (6,'(5X,A,F10.4)')  ' Inverse Boltzman f. :',tK
-         Write (6,'(5X,A,E10.1)')  ' clim                :',clim
+         Write (6,'(5X,A,ES10.1)')  ' clim                :',clim
          Write (6,'(5X,A,F10.4)')  ' afac                :',afac
          Write (6,'(5X,A,I10  )')  ' nexp                :',nexpo
          Write (6,'(5X,A,F10.4)')  ' prefac              :',prefac

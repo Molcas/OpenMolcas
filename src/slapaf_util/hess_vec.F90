@@ -53,7 +53,7 @@ end do
 !                                                                      *
 #ifdef _DEBUGPRINT_
 call RecPrt(' Eigenvectors','(12f6.2)',EVec,nDim,nDim)
-call TriPrt(' Eigenvalues','(12E8.2)',Hess,nDim)
+call TriPrt(' Eigenvalues','(12ES9.2)',Hess,nDim)
 #endif
 !                                                                      *
 !***********************************************************************

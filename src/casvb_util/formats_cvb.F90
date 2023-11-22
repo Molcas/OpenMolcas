@@ -81,7 +81,7 @@ call appendint_cvb(formE,iprec+8,0)
 call appendchr_cvb(formE,'.',0)
 call appendint_cvb(formE,iprec+2,0)
 call appendchr_cvb(formE,')',0)
-! iprec=8 => formSymW='(a,i2,a,4e16.8)'
+! iprec=8 => formSymW='(a,i2,a,4es16.8)'
 formSymW = '(a,i2,a,4e'
 call appendint_cvb(formSymW,iprec+8,0)
 call appendchr_cvb(formSymW,'.',0)

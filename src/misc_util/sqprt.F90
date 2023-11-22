@@ -28,9 +28,9 @@ do I=1,N
   end do
 end do
 if ((0.1_wp < BIG) .and. (BIG < 1.0e4_wp)) then
-  FRMT = '(8(1X,F12.6))'
+  FRMT = '(8(1X,F13.6))'
 else
-  FRMT = '(8(1X,E12.6))'
+  FRMT = '(8(1X,ES13.6))'
 end if
 do I=1,N
   write(u6,FRMT) A(I,:)

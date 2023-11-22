@@ -576,7 +576,7 @@ if (isAtom) then
     write(u6,'(a5,3a10,a20)') 'Atom','x','y','z','Density'
   end if
   do i=1,nAtoms
-    write(u6,'(a5,3f10.3,e20.10)') AtomLbl(i),Coor(:,i),DOut(i)
+    write(u6,'(a5,3f10.3,es20.10)') AtomLbl(i),Coor(:,i),DOut(i)
   end do
   call Add_Info('GRIDIT_ATOM',DOut(1:nAtoms),nAtoms,6)
 

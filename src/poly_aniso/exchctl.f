@@ -1346,7 +1346,7 @@ c  results of projection of the exchange interaction on the Ising Hamiltonian:
 c      open (76,file='eigenstates.txt')
 c      Do i=1,EXCH
 c        Do j=1,EXCH
-c      Write(76,'(2E24.14)') Z(i,j)
+c      Write(76,'(2ES24.14)') Z(i,j)
 c        End Do
 c      End Do
 c      close(76)
@@ -1356,7 +1356,7 @@ c      ZZR=0.0_wp
 c      ZZI=0.0_wp
 c      Do i=1,EXCH
 c        Do j=1,EXCH
-c      read(77,'(2E24.14)') ZZR(i,j),ZZI(i,j)
+c      read(77,'(2ES24.14)') ZZR(i,j),ZZI(i,j)
 c        End Do
 c      End Do
 c      close(77)

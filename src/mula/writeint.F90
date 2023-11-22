@@ -341,17 +341,17 @@ do i=0,nval
   Intensity = IntMat(iOrd,jOrd)/const
   if ((MatEl) .and. (.not. ForceField)) then
     if (m_plot_max < n_plot_max) then
-      write(u6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,e12.3)') ' ',mMatChar(iOrd),'---> ','(',OccNumMat2(jOrd,1),',', &
-                                                                         OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
-                                                                         ivee_cm,' ',Intensity
+      write(u6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,es12.3)') ' ',mMatChar(iOrd),'---> ','(',OccNumMat2(jOrd,1),',', &
+                                                                          OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
+                                                                          ivee_cm,' ',Intensity
       if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee_cm],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
       end if
     else
-      write(u6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,e12.3)') ' ',mMatChar(iOrd),'<--- ','(',OccNumMat2(jOrd,1),',', &
-                                                                         OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
-                                                                         ivee_cm,' ',Intensity
+      write(u6,'(a1,a15,a5,a1,f5.2,a1,f5.2,a1,f5.2,a1,a5,i7,a10,es12.3)') ' ',mMatChar(iOrd),'<--- ','(',OccNumMat2(jOrd,1),',', &
+                                                                          OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ', &
+                                                                          ivee_cm,' ',Intensity
       if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee_cm],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
@@ -359,15 +359,15 @@ do i=0,nval
     end if
   else
     if (m_plot_max < n_plot_max) then
-      write(u6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,e12.3)') ' ',mMatChar(iOrd),' --->  ',nMatChar(jOrd),' ',ivee_cm,'/',vee_eV, &
-                                                               '/',ivee_nm,'  ',Intensity
+      write(u6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,es12.3)') ' ',mMatChar(iOrd),' --->  ',nMatChar(jOrd),' ',ivee_cm,'/', &
+                                                                vee_eV,'/',ivee_nm,'  ',Intensity
       if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
       end if
     else
-      write(u6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,e12.3)') ' ',mMatChar(iOrd),' <---  ',nMatChar(jOrd),' ',ivee_cm,'/',vee_eV, &
-                                                               '/',ivee_nm,'  ',Intensity
+      write(u6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,es12.3)') ' ',mMatChar(iOrd),' <---  ',nMatChar(jOrd),' ',ivee_cm,'/', &
+                                                                vee_eV,'/',ivee_nm,'  ',Intensity
       if (Intensity > 1.0e-6_wp) then
         call Add_Info('Energy',[vee],1,5)
         call Add_Info('Intensity',[Intensity],1,5)
@@ -427,9 +427,9 @@ if (broadplot) then
   do ipoint=TermMin,TermMax
     if (plotVec(ipoint) > Zero) then
       if (.not. Use_nm) then
-        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,plotVec(ipoint)
+        write(plotUnit,'(f12.6,es15.6)') ipoint*conv,plotVec(ipoint)
       else
-        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,plotVec(ipoint)
+        write(plotUnit,'(f12.6,es15.6)') conv/ipoint,plotVec(ipoint)
       end if
     end if
   end do
@@ -445,13 +445,13 @@ else
   do ipoint=TermMin,TermMax
     if (plotVec(ipoint) > Zero) then
       if (.not. Use_nm) then
-        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Zero
-        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,plotVec(ipoint)
-        write(plotUnit,'(f12.6,e15.6)') ipoint*conv,Zero
+        write(plotUnit,'(f12.6,es15.6)') ipoint*conv,Zero
+        write(plotUnit,'(f12.6,es15.6)') ipoint*conv,plotVec(ipoint)
+        write(plotUnit,'(f12.6,es15.6)') ipoint*conv,Zero
       else
-        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Zero
-        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,plotVec(ipoint)
-        write(plotUnit,'(f12.6,e15.6)') conv/ipoint,Zero
+        write(plotUnit,'(f12.6,es15.6)') conv/ipoint,Zero
+        write(plotUnit,'(f12.6,es15.6)') conv/ipoint,plotVec(ipoint)
+        write(plotUnit,'(f12.6,es15.6)') conv/ipoint,Zero
       end if
     end if
   end do

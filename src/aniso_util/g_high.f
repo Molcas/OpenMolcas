@@ -320,13 +320,13 @@ C  Obtain the b3m and c3m coefficients:
           If (M.ne.0)
      &      Write(6,'(A)') '     |-----|---|-----------------------|'//
      &                     '-----------------------|'
-            Write(6,'(2(1x,I2,2x,A),1x,A,1x,A,2(E22.14,1x,A))')
+            Write(6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))')
      &                N,'|',M,'|','X','|', DBLE(BNMC(1,N,M)),'|',
      &                                     DBLE(BNMS(1,N,M)),'|'
-            Write(6,'(2(1x,I2,2x,A),1x,A,1x,A,2(E22.14,1x,A))')
+            Write(6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))')
      &                N,'|',M,'|','Y','|', DBLE(BNMC(2,N,M)),'|',
      &                                     DBLE(BNMS(2,N,M)),'|'
-            Write(6,'(2(1x,I2,2x,A),1x,A,1x,A,2(E22.14,1x,A))')
+            Write(6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))')
      &                N,'|',M,'|','Z','|', DBLE(BNMC(3,N,M)),'|',
      &                                     DBLE(BNMS(3,N,M)),'|'
         End Do
@@ -375,32 +375,32 @@ c decomposition of the magnetic moment in Extended Stevens Operators
         Do M=-N,N
           If (M<0) Then
             Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),1x,A,1x,A,12x,A,'//
-     &              '2(E22.14,1x,A))')
+     &              '2(ES22.14,1x,A))')
      &               N,'|',M,'|','X','|','|',
      &               DBLE(BNMS(1,N,ABS(M)))*knm(n,ABS(m)),'|'
             Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),1x,A,1x,A,1x,'//
-     &              'F10.3,1x,A,2(E22.14,1x,A))')
+     &              'F10.3,1x,A,2(ES22.14,1x,A))')
      &               N,'|',M,'|','Y','|',
      &               knm(n,ABS(m))*knm(n,ABS(m)),'|',
      &               DBLE(BNMS(2,N,ABS(M)))*knm(n,ABS(m)),'|'
             Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),1x,A,1x,A,12x,A,'//
-     &              '2(E22.14,1x,A))')
+     &              '2(ES22.14,1x,A))')
      &               N,'|',M,'|','Z','|','|',
      &               DBLE(BNMS(3,N,ABS(M)))*knm(n,ABS(m)),'|'
             Write(6,'(A)') '    |-----|---|------------|'//
      &                     '-----------------------|'
           Else
             Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),1x,A,1x,A,12x,A,'//
-     &              '2(E22.14,1x,A))')
+     &              '2(ES22.14,1x,A))')
      &               N,'|',M,'|','X','|','|',
      &               DBLE(BNMC(1,N,ABS(M)))*knm(n,ABS(m)),'|'
             Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),1x,A,1x,A,1x,'//
-     &              'F10.3,1x,A,2(E22.14,1x,A))')
+     &              'F10.3,1x,A,2(ES22.14,1x,A))')
      &               N,'|',M,'|','Y','|',
      &               knm(n,ABS(m))*knm(n,ABS(m)),'|',
      &               DBLE(BNMC(2,N,ABS(M)))*knm(n,ABS(m)),'|'
             Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),1x,A,1x,A,12x,A,'//
-     &              '2(E22.14,1x,A))')
+     &              '2(ES22.14,1x,A))')
      &               N,'|',M,'|','Z','|','|',
      &               DBLE(BNMC(3,N,ABS(M)))*knm(n,ABS(m)),'|'
              If (M.ne.N)
@@ -494,13 +494,13 @@ C  Calculation of the ZFS tensors and the coefficients of the higher order spin-
             Write(6,'(5x,a,i3,3x,A,I3)') 'DIP_STEWENS_O  N = ',N,'M =',M
             Write(6,*)
             Do i=1,dim
-              Write(6,'(20(2X,2E20.10))') (DIP_O(i,j), j=1,dim)
+              Write(6,'(20(2X,2ES20.10))') (DIP_O(i,j), j=1,dim)
             End Do
             Write(6,'(/)')
             Write(6,'(5x,a,i3,3x,A,I3)') 'DIP_STEWENS_W  N = ',N,'M =',M
             Write(6,*)
             Do i=1,dim
-              Write(6,'(20(2X,2E20.10))') (DIP_W(i,j), j=1,dim)
+              Write(6,'(20(2X,2ES20.10))') (DIP_W(i,j), j=1,dim)
             End Do
           End If
 
@@ -577,7 +577,7 @@ C  Calculation of the ZFS tensors and the coefficients of the higher order spin-
           Write(6,'(A)') '-----|-----|-----------------------|'//
      &                   '-----------------------|'
           Do M=0,N
-            Write(6,'(2(1x,I2,2x,A),2(E22.14,1x,A))') N,'|',M,'|',
+            Write(6,'(2(1x,I2,2x,A),2(ES22.14,1x,A))') N,'|',M,'|',
      &                    DBLE(CNMC(N,M)),'|',DBLE(CNMS(N,M)),'|'
           End Do
         End Do
@@ -623,12 +623,12 @@ c decomposition of the ZFS matrix in ExtEnded Stevens Operators
           Do M=-N,N
             If (M<0) Then
               Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),'//
-     &                                 'F11.2,2x,A,2(E22.14,1x,A))')
+     &                                 'F11.2,2x,A,2(ES22.14,1x,A))')
      &                 N,'|',M,'|',knm(n,ABS(m))*knm(n,ABS(m)),'|',
      &                 DBLE(CNMS(N,ABS(M)))*knm(n,ABS(m)),'|'
             Else
               Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),'//
-     &                                 'F11.2,2x,A,2(E22.14,1x,A))')
+     &                                 'F11.2,2x,A,2(ES22.14,1x,A))')
      &                 N,'|',M,'|',knm(n,ABS(m))*knm(n,ABS(m)),'|',
      &                 DBLE(CNMC(N,ABS(M)))*Knm(n,ABS(m)),'|'
             End If
@@ -645,10 +645,10 @@ c decomposition of the ZFS matrix in ExtEnded Stevens Operators
      &                    '-----------------------|'
            Do M=-N,N
              If (M.lt.0) Then
-               Write(LuDgrad,'(I4,I4,1x,2(E25.15))')
+               Write(LuDgrad,'(I4,I4,1x,2(ES25.15))')
      &                   N,M, DBLE(CNMS(n,ABS(n)))*knm(n,ABS(m))
              Else
-               Write(LuDgrad,'(I4,I4,1x,2(E25.15))')
+               Write(LuDgrad,'(I4,I4,1x,2(ES25.15))')
      &                   N,M, DBLE(CNMC(n,ABS(m)))*Knm(n,ABS(m))
              End If
            End Do

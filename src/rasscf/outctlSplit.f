@@ -167,7 +167,7 @@ C Local print level (if any)
         write(LF,Fmt2//'A,T42,I9,A,F5.1,A)')'A-Block Size in '//
      &                          'SplitCAS (CSFs)',iDimBlockA,' (',
      &                          percent,' %)'
-        Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for SplitCAS',
+        Write(LF,Fmt2//'A,T45,ES10.3)')'Threshold for SplitCAS',
      &                            ThrSplit
         write(LF,Fmt2//'A,T47,I4)') 'Maximum number of SplitCAS '//
      &                     'iterations', MxIterSplit
@@ -242,14 +242,14 @@ C Local print level (if any)
         Write(LF,Fmt2//'A,T45,F20.8)') 'SplitCAS RAS-energy',ECAS
         Write(LF,Fmt2//'A,T45,F20.8)') 'Super-CI energy',ESX
         Write(LF,Fmt2//'A,T45,F20.8)') 'RASSCF energy change',DE
-        Write(LF,Fmt2//'A,T50,E10.3)')'Max change in MO coeff.',CMAX
-        Write(LF,Fmt2//'A,T50,E10.3)')
+        Write(LF,Fmt2//'A,T50,ES10.3)')'Max change in MO coeff.',CMAX
+        Write(LF,Fmt2//'A,T50,ES10.3)')
      &          'Max non-diagonal density matrix element',ROTMAX
-        Write(LF,Fmt2//'A,T50,E10.3)') 'Max. BLB matrix element',CBLBM
+        Write(LF,Fmt2//'A,T50,ES10.3)') 'Max. BLB matrix element',CBLBM
         Write(LF,Fmt2//'A,I4,A,I4,A,I4,A)')
      &     '(orbital pair',IBLBM,',',JBLBM,' in symmetry',ISYMBB,')'
         If (irlxRoot.ne.0)
-     &    Write(LF,Fmt2//'A,T45,E10.3)')
+     &    Write(LF,Fmt2//'A,T45,ES10.3)')
      &         'Norm of electronic gradient',RLXGRD
 
         If ( ISUPSM.ne.0 ) then

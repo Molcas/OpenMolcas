@@ -347,10 +347,10 @@ C
         Do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
           If((ms1==0).AND.(NPAR==0)) Go To 158
           If(NPAR==1)
-     &      Write(6,'(16(2X,2E12.3))') (ITO_PLUS(ms1,ms2),
+     &      Write(6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),
      &                            ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
           If(NPAR==0)
-     &      Write(6,'(16(2X,2E12.3))')
+     &      Write(6,'(16(2X,2ES12.3))')
      &                    (ITO_PLUS(ms1,ms2),ms2=-dim/2,    -1),
      &                    (ITO_PLUS(ms1,ms2),ms2=     1, dim/2)
   158     Continue
@@ -362,10 +362,10 @@ C
         Do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
           If((ms1==0).AND.(NPAR==0)) Go To 159
           If(NPAR==1)
-     &      Write(6,'(16(2X,2E12.3))') (ITO_MINUS(ms1,ms2),
+     &      Write(6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),
      &                            ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
           If(NPAR==0)
-     &      Write(6,'(16(2X,2E12.3))')
+     &      Write(6,'(16(2X,2ES12.3))')
      &                    (ITO_MINUS(ms1,ms2),ms2=-dim/2,   -1),
      &                    (ITO_MINUS(ms1,ms2),ms2=     1,dim/2)
   159     Continue
@@ -376,13 +376,13 @@ C
         Write(6,'(5X,A,2I3)') 'ITO_O',N,M
         Write(6,*)
         Do i=1,dim
-          Write(6,'(16(2X,2E12.3))') (ITO_O(i,j),j=1,dim)
+          Write(6,'(16(2X,2ES12.3))') (ITO_O(i,j),j=1,dim)
         End Do   ! i
         Write(6,'(/)')
         Write(6,'(5X,A,2I3)') 'ITO_W',N,M
         Write(6,*)
         Do i=1,dim
-          Write(6,'(16(2X,2E12.3))') (ITO_W(i,j),j=1,dim)
+          Write(6,'(16(2X,2ES12.3))') (ITO_W(i,j),j=1,dim)
         End Do   ! i
       End If ! iPrint
 

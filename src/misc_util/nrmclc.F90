@@ -53,7 +53,7 @@ S = Zero
 do i=1,lth
   S = S+Vec(i)*real(i,kind=wp)
 end do
-write(u6,'(5A,3E24.16,I8)') ' Norm of ',MatNam,' in ',SubNam,' = ',R,Q,S,lth
+write(u6,'(5A,3ES24.16,I8)') ' Norm of ',MatNam,' in ',SubNam,' = ',R,Q,S,lth
 
 return
 

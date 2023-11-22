@@ -1407,15 +1407,15 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
         imm=int(Certina_3-ihh*3600)/60
         iss=int(Certina_3-ihh*3600-imm*60)
         if (DoSplitCAS) then
-         Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
-     &            'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+         Write(LF,'(6X,I3,I4,I5,I5,F15.8,ES12.2,A1,ES10.2,A1,2I4,I2,'//
+     &            'ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
      &        ITER,iterSplit,
      &        ITERSX,IROT,EAV,
      &        DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
         else if(DoBKAP) then
-      Write(LF,'(3X,I3,I4,I2,I2,F15.8,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
-     &            'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+      Write(LF,'(3X,I3,I4,I2,I2,F15.8,F15.8,ES12.2,A1,ES10.2,A1,2I4,'//
+     &         'I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
      &        ITER,ITERCI,
      &        ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,EAV,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
@@ -1436,16 +1436,18 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
               IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)
               maxtrR = MAXLOC(dmrg_energy%max_truncW,nroots)
-         Write(LF,'(6X,I3,I3,I4,E12.2,I4,I5,F15.8,E12.2,A1,E9.2,A1,'//
-     &   '2I4,I2,E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)')
+         Write(LF,'(6X,I3,I3,I4,ES12.2,I4,I5,F15.8,ES12.2,A1,ES9.2,'//
+     &            'A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,'//
+     &            'I2.2,A1,I2.2)')
      &        ITER,ITERCI,IROT,maxtrW,maxtrR,
      &        ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
 #endif
             else
-            Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
-     &          'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+            Write(LF,'(6X,I3,I4,I5,I5,F15.8,ES12.2,A1,ES10.2,A1,2I4,'//
+     &               'I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,'//
+     &               'A1,I2.2)')
      &          ITER,ITERCI,
      &          ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &          ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,

@@ -559,7 +559,7 @@
       Call Get_F1(4,DltNTh)
 !tbp, may 2013: no thr modification with Cholesky
 !tbp  If (DoCholesky) then
-!tbp     write(ww,'(a,e20.8)')'Detected Cholesky or RI/DF calculation BUT user specified EThr will be used. Ethr = ',EThr
+!tbp     write(ww,'(a,es20.8)')'Detected Cholesky or RI/DF calculation BUT user specified EThr will be used. Ethr = ',EThr
 !tbp     call WarningMessage(1,ww)
 !tbp  EndIf
 !     If (  DThr*1.D-2.gt.EThr) Then
@@ -1085,15 +1085,15 @@
       Call Get_F1(1,RotLev)
       Call Get_F1(2,RotFac)
       Call Get_F1(3,RotMax)
-      Write(6,'(a,E15.3)') 'Fock matrix levelshift   ',RotLev
-      Write(6,'(a,E15.3)') 'Fock matrix scaling      ',RotFac
-      Write(6,'(a,E15.3)') 'Fock matrix max rotation ',RotMax
+      Write(6,'(a,ES15.3)') 'Fock matrix levelshift   ',RotLev
+      Write(6,'(a,ES15.3)') 'Fock matrix scaling      ',RotFac
+      Write(6,'(a,ES15.3)') 'Fock matrix max rotation ',RotMax
       GoTo 1000
 !>>>>>>>>>>>>> HLGA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  5002 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,HLgap)
-      Write(6,'(a,E15.3)') 'Minimum HOMO-LUMO gap    ',HLgap
+      Write(6,'(a,ES15.3)') 'Minimum HOMO-LUMO gap    ',HLgap
       DoHLgap=.true.
       QNRTh    = Zero
       GoTo 1000

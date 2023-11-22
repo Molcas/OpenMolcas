@@ -187,9 +187,10 @@ C --------------------------------------
          VIA=dDot_(nTot1,FI,1,Work(iDA),1)
          ECAS=EMY+VIA
          If ( IPRLEV.ge.DEBUG ) then
-           Write(LF,'(A,E20.10)') ' Total core energy:            ',EMY
-           Write(LF,'(A,E20.10)') ' inactive-active interaction:  ',VIA
-           Write(LF,'(A,E20.10)') ' CAS energy (core+interaction):',ECAS
+           Write(LF,'(A,ES20.10)') ' Total core energy:            ',EMY
+           Write(LF,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
+           Write(LF,'(A,ES20.10)') ' CAS energy (core+interaction):',
+     &                             ECAS
          End If
          Call GetMem('DALT','Free','Real',iDA,nTot1)
 
