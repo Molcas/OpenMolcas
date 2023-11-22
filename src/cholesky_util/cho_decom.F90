@@ -252,8 +252,8 @@ do ISYM=1,NSYM
         ! Print progress report.
         ! ----------------------
 
-        if (IPRINT >= INF_PROGRESS) write(LUPRI,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)') ISYM,IVEC,IVECT,IABG,XC,OLDIAG, &
-                                                                                               NCONV,NNEG,XM
+        if (IPRINT >= INF_PROGRESS) write(LUPRI,'(I3,3(1X,I9),2(1X,ES11.3),2(1X,I4),1X,ES11.3)') ISYM,IVEC,IVECT,IABG,XC,OLDIAG, &
+                                                                                                 NCONV,NNEG,XM
 
       end if
 

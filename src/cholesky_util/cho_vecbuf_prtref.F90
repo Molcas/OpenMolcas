@@ -32,8 +32,8 @@ if (allocated(CHVBFI)) then
     do jVec=1,nVec_in_Buf(iSym)
       jRed = InfVec(jVec,2,iSym)
       nDim = nDimRS(iSym,jRed)
-      write(LuPri,'(A,A,I6,A,I2,A,I9,1P,2(A,D25.16))') Txt,' Cholesky vector',jVec,' sym.',iSym,' dim.',nDim,'  Norm=', &
-                                                       CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec),' Sum=',CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec)
+      write(LuPri,'(A,A,I6,A,I2,A,I9,2(A,ES25.16))') Txt,' Cholesky vector',jVec,' sym.',iSym,' dim.',nDim,'  Norm=', &
+                                                     CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec),' Sum=',CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec)
     end do
   end do
 else

@@ -62,7 +62,7 @@ do j=1,nj
     if (abs(fij(i,j)) /= hge) then
       write(b1(ipos:ipos),'(i1)') i
       write(b1(jpos:jpos),'(i1)') j
-      write(b3,'(d12.4)') fij(i,j)
+      write(b3,'(es12.4)') fij(i,j)
       write(u6,'(1x,3a)') b1,b2,b3
     end if
   end do

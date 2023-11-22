@@ -62,7 +62,7 @@ call Sogr(idbg,NA,S,SINVA,P,BU6,EW4)
 call Diagr(H,NA,EIG4,EW4,SINVA,BU6,EV4)
 
 !if (idbg > 0) write(idbg,*) '--- EIGENVALUES OF H MATRIX ---'
-!if (idbg > 0) write(idbg,'(4D20.12)') EW4
+!if (idbg > 0) write(idbg,'(4ES20.12)') EW4
 
 !write(u6,*) 'END OF SCFCLI4 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 

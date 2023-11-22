@@ -51,8 +51,8 @@ do iShlAB=1,nnShl
 end do
 
 if (iPrint > Inf_SimRI) then
-  write(LuPri,'(/,A,I7,A,1P,D10.2,A)') 'Simulating RI:',n,' 1-center diagonals < ',Thr,' have been zeroed'
-  if (n > 0) write(LuPri,'(A,1P,D15.7)') 'Largest zeroed diagonal: ',zmx
+  write(LuPri,'(/,A,I7,A,ES10.2,A)') 'Simulating RI:',n,' 1-center diagonals < ',Thr,' have been zeroed'
+  if (n > 0) write(LuPri,'(A,ES15.7)') 'Largest zeroed diagonal: ',zmx
 end if
 
 end subroutine Cho_SimRI_Z1CDia

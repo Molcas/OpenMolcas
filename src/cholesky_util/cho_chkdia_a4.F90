@@ -57,11 +57,11 @@ do j=j1,j2
     if (Diag(i) < ThrNeg) then
       nNeg = nNeg+1
       if (Diag(i) < TooNeg) then
-        write(Lupri,'(A,A,I12,1X,1P,D16.8)') SecNam,': diagonal too negative: ',i,Diag(i)
+        write(Lupri,'(A,A,I12,1X,ES16.8)') SecNam,': diagonal too negative: ',i,Diag(i)
         write(Lupri,'(A,A)') SecNam,': shutting down Cholesky decomposition!'
         call Cho_Quit('Diagonal too negative in '//SecNam,104)
       end if
-      if (Diag(i) < WarNeg) write(Lupri,'(A,A,I12,1X,1P,D16.8,A)') SecNam,': Negative diagonal: ',i,Diag(i),' (zeroed)'
+      if (Diag(i) < WarNeg) write(Lupri,'(A,A,I12,1X,ES16.8,A)') SecNam,': Negative diagonal: ',i,Diag(i),' (zeroed)'
       Diag(i) = Zero
     end if
   end if

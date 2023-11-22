@@ -46,9 +46,9 @@ if (abs(emax-xmax) > Tol) irc = irc+2
 
 !-tbp:
 if (irc /= 0) then
-  write(u6,'(A,1P,2D25.16)') 'xmin,xmax=',xmin,xmax
-  write(u6,'(A,1P,2D25.16)') 'emin,emax=',emin,emax
-  write(u6,'(A,1P,2D25.16)') 'diff=     ',xmin-emin,xmax-emax
+  write(u6,'(A,2ES25.16)') 'xmin,xmax=',xmin,xmax
+  write(u6,'(A,2ES25.16)') 'emin,emax=',emin,emax
+  write(u6,'(A,2ES25.16)') 'diff=     ',xmin-emin,xmax-emax
 end if
 
 CheckDenomRange = irc

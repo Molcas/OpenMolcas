@@ -98,7 +98,7 @@ C
            Call WarningMessage(1,'Problems in orbital optimization.')
            JustOne=JustOne+1
           End If
-          Write(LF,'(1x,a,i2,a,i4,a,d14.6)')' Warning: In symmetry ',
+          Write(LF,'(1x,a,i2,a,i4,a,es14.6)')' Warning: In symmetry ',
      &     ISYM,', orbital p=',NP,' has diagonal density matrix ' //
      &     'element D(p,p) close to zero. D(p,p)=',DDIAG(NP)
           End If
@@ -107,7 +107,7 @@ C
            Call WarningMessage(1,'Problems in orbital optimization.')
            JustOne=JustOne+1
           End If
-          Write(LF,'(1x,a,i2,a,i4,a,d14.6)')' Warning: In symmetry ',
+          Write(LF,'(1x,a,i2,a,i4,a,es14.6)')' Warning: In symmetry ',
      &     ISYM,', orbital p=',NP,' has diagonal density matrix ' //
      &     'element D(p,p) close to two. (2 - D(p,p))=',2.0D0-DDIAG(NP)
          End If

@@ -224,11 +224,11 @@ if (nTot2 > 0) then
 
     write(u6,*) SecNam//': Warning! (nChk /= nTot2); could be due to the presence of ghost atoms.'
   end if
-  write(Lupri,'(/,A,1P,3D15.5)') 'Min, average, and max center distance: ',Rmin,Rave,Rmax
-  write(Lupri,'(A,D12.2,A,I9)') '#vectors with center distance                R <= ',RClass(1),': ',iClass(1)
-  write(Lupri,'(A,D12.2,A,D12.2,A,I9)') '#vectors with center distance ',RClass(1),' < R <= ',RClass(2),': ',iClass(2)
-  write(Lupri,'(A,D12.2,A,D12.2,A,I9)') '#vectors with center distance ',RClass(2),' < R <= ',RClass(3),': ',iClass(3)
-  write(Lupri,'(A,D12.2,A,12X,A,I9)') '#vectors with center distance ',RClass(3),' < R    ',': ',iClass(4)
+  write(Lupri,'(/,A,3ES15.5)') 'Min, average, and max center distance: ',Rmin,Rave,Rmax
+  write(Lupri,'(A,ES12.2,A,I9)') '#vectors with center distance                R <= ',RClass(1),': ',iClass(1)
+  write(Lupri,'(A,ES12.2,A,ES12.2,A,I9)') '#vectors with center distance ',RClass(1),' < R <= ',RClass(2),': ',iClass(2)
+  write(Lupri,'(A,ES12.2,A,ES12.2,A,I9)') '#vectors with center distance ',RClass(2),' < R <= ',RClass(3),': ',iClass(3)
+  write(Lupri,'(A,ES12.2,A,12X,A,I9)') '#vectors with center distance ',RClass(3),' < R    ',': ',iClass(4)
 end if
 
 ! Deallocations.

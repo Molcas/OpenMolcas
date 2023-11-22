@@ -435,8 +435,8 @@ if (irc /= 0) then
 end if
 if (Err(2) > ThrCom) then
   write(LuPri,'(/,A)') 'Cholesky decomposition failed!'
-  write(LuPri,'(3X,A,1P,D15.6)') 'Largest integral diagonal..',Err(2)
-  write(LuPri,'(3X,A,1P,D15.6)') 'Decomposition threshold....',ThrCom
+  write(LuPri,'(3X,A,ES15.6)') 'Largest integral diagonal..',Err(2)
+  write(LuPri,'(3X,A,ES15.6)') 'Decomposition threshold....',ThrCom
   irc = 1
   ! release memory and return
   call Finish_this

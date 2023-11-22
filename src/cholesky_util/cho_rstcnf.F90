@@ -35,29 +35,29 @@ end if
 
 ERR = abs(THRCOM-XTHRCOM)
 if (ERR > ERRTOL) then
-  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: decomposition threshold from restart file: ',XTHRCOM, &
-                                     '         decomposition threshold from input       : ',THRCOM
+  write(LUPRI,'(A,ES16.8,/,A,ES16.8)') 'RESTART: decomposition threshold from restart file: ',XTHRCOM, &
+                                       '         decomposition threshold from input       : ',THRCOM
   NERR = NERR+1
 end if
 
 ERR = abs(THRDIAG-XTHRDIAG)
 if (ERR > ERRTOL) then
-  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: init. diag. screening from restart file: ',XTHRDIAG, &
-                                     '         init. diag. screening from input       : ',THRDIAG
+  write(LUPRI,'(A,ES16.8,/,A,ES16.8)') 'RESTART: init. diag. screening from restart file: ',XTHRDIAG, &
+                                       '         init. diag. screening from input       : ',THRDIAG
   NERR = NERR+1
 end if
 
 ERR = abs(DAMP(1)-XDAMP(1))
 if (ERR > ERRTOL) then
-  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: 1st screening damping from restart file: ',XDAMP(1), &
-                                     '         1st screening damping from input       : ',DAMP(1)
+  write(LUPRI,'(A,ES16.8,/,A,ES16.8)') 'RESTART: 1st screening damping from restart file: ',XDAMP(1), &
+                                       '         1st screening damping from input       : ',DAMP(1)
   NERR = NERR+1
 end if
 
 ERR = abs(DAMP(2)-XDAMP(2))
 if (ERR > ERRTOL) then
-  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: 2nd screening damping from restart file: ',XDAMP(2), &
-                                     '         2nd screening damping from input       : ',DAMP(2)
+  write(LUPRI,'(A,ES16.8,/,A,ES16.8)') 'RESTART: 2nd screening damping from restart file: ',XDAMP(2), &
+                                       '         2nd screening damping from input       : ',DAMP(2)
   NERR = NERR+1
 end if
 
@@ -79,29 +79,29 @@ end if
 
 ERR = abs(THRNEG-XTHRNEG)
 if (ERR > ERRTOL) then
-  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: neg. diag. threshold from restart file: ',XTHRNEG, &
-                                     '         neg. diag. threshold from input       : ',THRNEG
+  write(LUPRI,'(A,ES16.8,/,A,ES16.8)') 'RESTART: neg. diag. threshold from restart file: ',XTHRNEG, &
+                                       '         neg. diag. threshold from input       : ',THRNEG
   NERR = NERR+1
 end if
 
 ERR = abs(WARNEG-XWARNEG)
 if (ERR > ERRTOL) then
-  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: neg. diag. warn thr. from restart file: ',XWARNEG, &
-                                     '         neg. diag. warn thr. from input       : ',WARNEG
+  write(LUPRI,'(A,ES16.8,/,A,ES16.8)') 'RESTART: neg. diag. warn thr. from restart file: ',XWARNEG, &
+                                       '         neg. diag. warn thr. from input       : ',WARNEG
   NERR = NERR+1
 end if
 
 ERR = abs(TOONEG-XTOONEG)
 if (ERR > ERRTOL) then
-  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: too neg. diag. thr. from restart file: ',XTOONEG, &
-                                     '         too neg. diag. thr. from input       : ',TOONEG
+  write(LUPRI,'(A,ES16.8,/,A,ES16.8)') 'RESTART: too neg. diag. thr. from restart file: ',XTOONEG, &
+                                       '         too neg. diag. thr. from input       : ',TOONEG
   NERR = NERR+1
 end if
 
 ERR = abs(SPAN-XSPAN)
 if (ERR > ERRTOL) then
-  write(LUPRI,'(A,D16.8,/,A,D16.8)') 'RESTART: span factor from restart file: ',XSPAN, &
-                                     '         span factor from input       : ',SPAN
+  write(LUPRI,'(A,ES16.8,/,A,ES16.8)') 'RESTART: span factor from restart file: ',XSPAN, &
+                                       '         span factor from input       : ',SPAN
   NERR = NERR+1
 end if
 

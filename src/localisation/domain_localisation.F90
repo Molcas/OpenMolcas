@@ -150,12 +150,12 @@ end do
 write(u6,'(/,A)') 'Definition:'
 if (iChange /= 0) then
   write(u6,'(A)') 'Notice: the input thresholds were re-ordered to ascending order'
-  write(u6,'(A,1P,3(1X,D15.5))') 'Your input order was:',(ThrPairDomain(i),i=1,3)
+  write(u6,'(A,3(1X,ES15.5))') 'Your input order was:',(ThrPairDomain(i),i=1,3)
 end if
-write(u6,'(A,1P,D15.5)') 'Strong       pairs:                   R <= ',ThrPD(1)
-write(u6,'(A,1P,D15.5,A,D15.5)') 'Weak         pairs: ',ThrPD(1),' < R <= ',ThrPD(2)
-write(u6,'(A,1P,D15.5,A,D15.5)') 'Distant      pairs: ',ThrPD(2),' < R <= ',ThrPD(3)
-write(u6,'(A,1P,D15.5,A)') 'Very distant pairs: ',ThrPD(3),' < R'
+write(u6,'(A,ES15.5)') 'Strong       pairs:                   R <= ',ThrPD(1)
+write(u6,'(A,ES15.5,A,ES15.5)') 'Weak         pairs: ',ThrPD(1),' < R <= ',ThrPD(2)
+write(u6,'(A,ES15.5,A,ES15.5)') 'Distant      pairs: ',ThrPD(2),' < R <= ',ThrPD(3)
+write(u6,'(A,ES15.5,A)') 'Very distant pairs: ',ThrPD(3),' < R'
 write(u6,'(/,A)') 'Classification:'
 Fac = 100.0_wp/real(nnOcc,kind=wp)
 write(u6,'(A,I9,3X,F7.2,A)') 'Number of strong       pairs: ',iCount(0),Fac*iCount(0),'%'

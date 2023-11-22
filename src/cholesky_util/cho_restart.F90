@@ -159,12 +159,12 @@ do ISYM=1,NSYM
     ! ------
 
     if (IPRINT >= INF_PASS) then
-      write(LUPRI,'(A,1P,D18.8)') 'Minimum diagonal          : ',XMIN
-      write(LUPRI,'(A,1P,D18.8)') 'Maximum diagonal          : ',XMAX
-      write(LUPRI,'(A,1P,D18.8,1X,D18.8)') 'Minimum absolute error    : ',ERRMN,EXAMN
-      write(LUPRI,'(A,1P,D18.8,1X,D18.8)') 'Maximum absolute error    : ',ERRMX,EXAMX
-      write(LUPRI,'(A,1P,D18.8)') 'Average error             : ',AVEERR
-      write(LUPRI,'(A,1P,D18.8)') 'Root-mean-square error    : ',RMSERR
+      write(LUPRI,'(A,ES18.8)') 'Minimum diagonal          : ',XMIN
+      write(LUPRI,'(A,ES18.8)') 'Maximum diagonal          : ',XMAX
+      write(LUPRI,'(A,ES18.8,1X,ES18.8)') 'Minimum absolute error    : ',ERRMN,EXAMN
+      write(LUPRI,'(A,ES18.8,1X,ES18.8)') 'Maximum absolute error    : ',ERRMX,EXAMX
+      write(LUPRI,'(A,ES18.8)') 'Average error             : ',AVEERR
+      write(LUPRI,'(A,ES18.8)') 'Root-mean-square error    : ',RMSERR
       write(LUPRI,'(A,6X,I12)') 'Converged diagonals       : ',NCONV
       write(LUPRI,'(A,6X,I12)') 'Unconverged diagonals     : ',NDIM-NCONV
       write(LUPRI,'(A,6X,I12)') 'Zeroed negative diagonals : ',NNEG

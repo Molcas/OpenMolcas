@@ -131,12 +131,12 @@ return
 
 600 format(' Coupling   E(v=',I3,', J=',I3,')=',F12.4,'   to   E(v=',I3,', J=',I3,')=',F12.4)
 602 format(5x,'Moment matrix elements:',2('   <X**',I2,'>=',F14.10:),1x/(3x,3('   <X**',I2,'>=',F14.10:),1x))
-604 format(' FCF=',1PD11.4,'   <M>=',D12.5,'   d(E)=',0PF10.2,'   A(Einst)=',1PD11.4,' s-1')
+604 format(' FCF=',ES11.4,'   <M>=',ES12.5,'   d(E)=',F10.2,'   A(Einst)=',ES11.4,' s-1')
 606 format(1X,79('+'))
 701 format(4I4,F12.4,4F12.8:/(4X,6F12.8))
 !701 format(4I4,6F12.8:/(16X,6F12.8))
-801 format(1x,A1,'(',I3,')  ',I3,' -',I3,F10.2,F11.2,3(1PD14.5))
-802 format(i2,'(',I3,')  ',I3,' -',I3,F10.2,F11.2,3(1PD14.5))
-!811 format(F12.4,2I4,I6,I4,3f12.4,1PD15.6)
+801 format(1x,A1,'(',I3,')  ',I3,' -',I3,F10.2,F11.2,3(ES14.5))
+802 format(i2,'(',I3,')  ',I3,' -',I3,F10.2,F11.2,3(ES14.5))
+!811 format(F12.4,2I4,I6,I4,3F12.4,ES15.6)
 
 end subroutine MATXEL

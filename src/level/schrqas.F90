@@ -568,30 +568,30 @@ if ((E > DSOC) .and. (KVIN > -10)) call WIDTHas(KV,JROT,E,EO,DSOC,VBZ,WF,SDRDY,V
 
 return
 
-601 format(/' Solve for  v=',I3,'   J=',I3,'   ETRIAL=',1PD15.7,'  INNER=',i2,'   WF(1st)  WF(NEND)')
+601 format(/' Solve for  v=',I3,'   J=',I3,'   ETRIAL=',ES15.7,'  INNER=',i2,'   WF(1st)  WF(NEND)')
 602 format('ITER    ETRIAL',8X,'F(E)      DF(E)     D(E)',5X,'M    yp(M)   /WF(M)    /WF(M)  NBEG  ITP1'/1X,96('-'))
-603 format(I3,1PD15.7,3d10.2,0P,I6,F7.3,1P2D9.1,0P,I5,I6)
+603 format(I3,ES15.7,3es10.2,I6,F7.3,2ES9.1,I5,I6)
 604 format('   NOTE:  for  J=',I3,'   EO=',F12.4,' >= V(',i3,')=',F12.4)
-607 format('E(v=',I3,',J=',I3,')=',F15.8,I3,' iterations  yp(M)=',F6.3,'  WF(NBEG)/WF(M)=',1PD8.1,0P,'   NBEG=',i5/40x,'R(NEND)=', &
-           f9.2,'   WF(NEND)/WF(M)=',1PD8.1,0P,'   NEND=',i5)
+607 format('E(v=',I3,',J=',I3,')=',F15.8,I3,' iterations  yp(M)=',F6.3,'  WF(NBEG)/WF(M)=',ES8.1,'   NBEG=',i5/40x,'R(NEND)=', &
+           f9.2,'   WF(NEND)/WF(M)=',ES8.1,'   NEND=',i5)
 608 format(' *** SCHRQ Error:  E=',F9.2,' > V(',I5,')=',F9.2,'  at  Rmax=',F6.2,'  for  IT=',I2)
-6609 format(' *** For  J=',I3,'   E=',1PD15.7,"  integration can't start till inside"/21x,'mesh point',I6,' (yp=',0pf8.4, &
+6609 format(' *** For  J=',I3,'   E=',ES15.7,"  integration can't start till inside"/21x,'mesh point',I6,' (yp=',f8.4, &
             '),  so YMAX larger than needed')
-609 format(' *** For  J=',I3,'   E=',1PD15.7,"  integration can't start till past"/23x,'mesh point',I5,' (yp=',0pf6.2, &
+609 format(' *** For  J=',I3,'   E=',ES15.7,"  integration can't start till past"/23x,'mesh point',I5,' (yp=',f6.2, &
            '),  so YMIN smaller than needed')
-610 format(/' Seek highest bound level:   ETRIAL =',1PD9.2,17x,'WF(1st)  WF(NEND)')
+610 format(/' Seek highest bound level:   ETRIAL =',ES9.2,17x,'WF(1st)  WF(NEND)')
 611 format(' *** SCHRQ inward search at   J=',i3,'   E=',f11.2,' finds no classical region')
 612 format(/' *** ERROR *** for   v =',I3,'   J =',I3,'   E =',F12.4,'  Innermost turning point not found by   M = MSAVE =',I5)
 613 format(/' *** ERROR in potential array ... V(I) everywhere too big to integrate with given  increment')
-614 format(' *** CAUTION *** For  J=',I3,'  E=',G15.8/16x,'WF(first)/WF(Max)=',D9.2,'  suggests  YMIN  may be too large')
-615 format(' ** CAUTION ** For  J=',I3,'  E=',1PD13.6,'  WF(NEND)/WF(Max)=',D8.1,' >',D8.1/4X,' initialization quality test ', &
-           1PD8.1,' > 1.D-3   so RMAX may be too small')
+614 format(' *** CAUTION *** For  J=',I3,'  E=',G15.8/16x,'WF(first)/WF(Max)=',ES9.2,'  suggests  YMIN  may be too large')
+615 format(' ** CAUTION ** For  J=',I3,'  E=',ES13.6,'  WF(NEND)/WF(Max)=',ES8.1,' >',ES8.1/4X,' initialization quality test ', &
+           ES8.1,' > 1.D-3   so RMAX may be too small')
 616 format(' ** WARNING *** For  v=',I2,', J=',I3,' at  E=',G14.7, &
            ':  inward propagation finds no turning point ... v=-2 means: Trial energy is too low (!), or potential is too weak')
-617 format(' *** SCHRQ has a convergence problem, so for  IT=',I2,'  cut  DE=',1PD10.2,'  in HALF')
-618 format(' *** For  J=',I3,'  E=',F9.2,'  JWKB start gives  SB/SI=',1PD10.3,'  so use a node.')
+617 format(' *** SCHRQ has a convergence problem, so for  IT=',I2,'  cut  DE=',ES10.2,'  in HALF')
+618 format(' *** For  J=',I3,'  E=',F9.2,'  JWKB start gives  SB/SI=',ES10.3,'  so use a node.')
 619 format(1X,96('-'))
-620 format(' *** CAUTION for  v=',I3,'  J=',I3,"  SCHRQ doesn't converge by  ITER=",I2,'  DE=',1PD9.2)
+620 format(' *** CAUTION for  v=',I3,'  J=',I3,"  SCHRQ doesn't converge by  ITER=",I2,'  DE=',ES9.2)
 701 format(/2x,'Level  v=',I3,'   J=',I3,'   E=',F12.4,' ,  wave function at',I6,' points.'/7x,'R(1-st)=',F12.8,'   mesh=',F12.8, &
            '   NBEG=',I4,'   |LPRWF|=',I3)
 702 format((4(f10.6,f11.7)))

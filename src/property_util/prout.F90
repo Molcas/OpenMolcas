@@ -94,7 +94,7 @@ write(Format3(12:12),'(I1)') nDec
 write(Format4(10:10),'(I1)') nDec
 
 if ((.not. Short) .and. (.not. ifallorb)) then
-  write(u6,'(A,D9.2/)') ' orbital contributions printed for occupation numbers >',ThrSV
+  write(u6,'(A,ES9.2/)') ' orbital contributions printed for occupation numbers >',ThrSV
 else if ((.not. Short) .and. ifallorb) then
   write(u6,'(A)') ' orbital properties printed for all occupation numbers'
 end if

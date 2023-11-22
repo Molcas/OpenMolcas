@@ -68,6 +68,6 @@ end if
 
 return
 
-1234 format(I6,3d13.6)
+1234 format(I6,3es13.6)
 
 end subroutine CalcDB

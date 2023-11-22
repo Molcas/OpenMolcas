@@ -412,6 +412,6 @@ end if
 
 return
 
-1010 format(3d15.6)
+1010 format(3es15.6)
 
 end subroutine Alaska

@@ -226,7 +226,7 @@ end if
 
 return
 
-601 format('    Lifetime=',1PD10.3,'(s)   Width=',D10.3,'   dG/dv=',0PF7.2,'   V(max)=',F9.2)
+601 format('    Lifetime=',ES10.3,'(s)   Width=',ES10.3,'   dG/dv=',F7.2,'   V(max)=',F9.2)
 602 format(' *** WARNING ***  For   v =',I3,'   J =',I3,'   cannot calculate width since barrier maximum beyond range')
 603 format(' *** For  J=',I3,'  E=',F9.2,'  R(3-rd) beyond range so approx. tunneling calc. uses'/8X, &
            'pure centrifugal potential with  J(app)=',F7.2,'  for  R > R(max)=',F7.2)

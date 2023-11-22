@@ -150,11 +150,11 @@ write(u6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' Kelvin, Pressure =',P,' atm'
 write(u6,'(A)') ' -----------------------------------------------------'
 write(u6,'(A)') ' Molecular Partition Function and Molar Entropy:'
 write(u6,'(A)') '                        q/V (M**-3)    S(kcal/mol*K)'
-write(u6,'(A,D17.6,F13.3)') ' Electronic       ',q_e,dS_e
-write(u6,'(A,D17.6,F13.3)') ' Translational    ',q_tr,dS_tr
-write(u6,'(A,D17.6,F13.3)') ' Rotational       ',q_rot,dS_rot
-write(u6,'(A,D17.6,F13.3)') ' Vibrational      ',q_vib_Tot,dS_vib_Tot
-write(u6,'(A,D17.6,F13.3)') ' TOTAL            ',q_TOT,dS_TOT
+write(u6,'(A,ES17.6,F13.3)') ' Electronic       ',q_e,dS_e
+write(u6,'(A,ES17.6,F13.3)') ' Translational    ',q_tr,dS_tr
+write(u6,'(A,ES17.6,F13.3)') ' Rotational       ',q_rot,dS_rot
+write(u6,'(A,ES17.6,F13.3)') ' Vibrational      ',q_vib_Tot,dS_vib_Tot
+write(u6,'(A,ES17.6,F13.3)') ' TOTAL            ',q_TOT,dS_TOT
 
 write(u6,*)
 write(u6,'(A)') ' Thermal contributions to INTERNAL ENERGY:'

@@ -808,7 +808,7 @@
          If (Neg2_Action.ne.'CONT') Then
             If (E2V.lt.E2VTolerance) Then
                Call WarningMessage(2, 'WfCtl_SCF: negative two-electron energy')
-               Write(6,'(A,1P,D25.10)') 'Two-electron energy E2V=',E2V
+               Write(6,'(A,ES25.10)') 'Two-electron energy E2V=',E2V
                Call xFlush(6)
                If (Neg2_Action.eq.'STOP') Call Abend()
             End If

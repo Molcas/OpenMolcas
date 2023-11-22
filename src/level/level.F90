@@ -1301,7 +1301,7 @@ call mma_deallocate(RM22)
 RC = 0
 
 601 format(1x,79('=')////)
-602 format(' Coefficients of expansion for radial matrix element/expectation value argument:'/(5X,5(1PD14.6)))
+602 format(' Coefficients of expansion for radial matrix element/expectation value argument:'/(5X,5(ES14.6)))
 603 format(/' Expectation value/matrix element arguments are powers of a radial function'/5x, &
            'defined by interpolating over read-in points'//' Transition moment function:'/1x,9('==='))
 6604 format(/' !!! NOTE:  array dimension limit   NDIMR=',i5/'    prevents preliminary mesh   YH=',f9.6, &
@@ -1310,12 +1310,12 @@ RC = 0
            'based on radial variable  yp(r;a)= (r^p - a^p)/(r^p + a^p)'/5x,'for   p=',f6.3,'    and   a=',F9.6/ &
            ' Range corresponds to   Rmin=',f7.3,' [Angst]    to    Rmax= infinity (!!)'/5x,'and   RH=',F10.7,' [Angst]   at   R=', &
            f11.8//' Potential #1 for ',A2,'(',I3,')-',A2,'(',I3,')'/1x,32('='))
-605 format(/A78/40('=='):/' Generate   ZMU=',F15.11,'(u)','   &   BZ=',1PD16.9,'((1/cm-1)(1/Ang**2))'/10x,'from atomic masses:', &
-           0Pf16.11,'  & ',F16.11,'(u)')
-606 format(' E(v=',i3,', J=',i3,')=',f10.3,'   Bv=',F11.7,'  -Dv=',1PD12.4,'   Hv=',D12.4/8x,'   Lv=',D12.4,'   Mv=',D12.4, &
-           '   Nv=',D12.4,'   Ov=',D12.4)
-6065 format(' E(v=',i3,', J=',i3,')=',f11.7,'  Bv=',1PD11.4,'  -Dv=',D12.4,'   Hv=',D12.4/8x,'   Lv=',D12.4,'   Mv=',D12.4, &
-           '   Nv=',D12.4,'   Ov=',D12.4)
+605 format(/A78/40('=='):/' Generate   ZMU=',F15.11,'(u)','   &   BZ=',ES16.9,'((1/cm-1)(1/Ang**2))'/10x,'from atomic masses:', &
+           f16.11,'  & ',F16.11,'(u)')
+606 format(' E(v=',i3,', J=',i3,')=',f10.3,'   Bv=',F11.7,'  -Dv=',ES12.4,'   Hv=',ES12.4/8x,'   Lv=',ES12.4,'   Mv=',ES12.4, &
+           '   Nv=',ES12.4,'   Ov=',ES12.4)
+6065 format(' E(v=',i3,', J=',i3,')=',f11.7,'  Bv=',ES11.4,'  -Dv=',ES12.4,'   Hv=',ES12.4/8x,'   Lv=',ES12.4,'   Mv=',ES12.4, &
+           '   Nv=',ES12.4,'   Ov=',ES12.4)
 607 format(/' Solve for the',i4,' vibration-rotation levels of Potential-1:'/'   (v,J) =',6('  (',i3,',',i3,')':)/(10x,6('  (',i3, &
            ',',i3,')':)))
 6607 format(/' Solve for',i4,' vibration-rotation levels of Potential-1 using Trial energies:'/(3x,3('   E(',I3,',',I3,')=', &
@@ -1325,7 +1325,7 @@ RC = 0
 609 format('  Use centrifugal potential for rotation in two dimensions:   (J**2 - 1/4)/r**2')
 610 format(5X,'where DREF defined by requiring  <X**1> = 0  for first level considered')
 611 format(/' Matrix element argument expansion vble is   X = ((r^',i1,' - DREF^',i1,')/(r^',i1,' + DREF^',i1,'))')
-612 format(/' Eigenvalue convergence criterion is   EPS=',1PD8.1,'(cm-1)'/ &
+612 format(/' Eigenvalue convergence criterion is   EPS=',ES8.1,'(cm-1)'/ &
            ' Airy function at 3-rd turning point is quasibound outer boundary condition')
 613 format(5X,'where reference length is held fixed at   DREF =',F13.10,'(Angstroms)')
 614 format(/' Matrix element arguments are powers of the distance  r (in Angstroms)')
@@ -1336,12 +1336,12 @@ RC = 0
 619 format(/' Find the',i4,' vibration-rotation levels:'/3('     v   J      E(v)   ')/3(2x,7('---')))
 620 format(/' An  n=',I2,'  N-D theory extrapolation from last 2 levels implies   vD =',F8.3)
 621 format(5X,'with the',I4,' missing level(s) predicted to be:'/4('     v     E(v)   ')/4(4x,7('--')))
-622 format(/' Search for highest bound  J=',i3,'  level finds  E(v=',i3,') = VLIM -',1PD12.5/)
+622 format(/' Search for highest bound  J=',i3,'  level finds  E(v=',i3,') = VLIM -',ES12.5/)
 623 format(/' Find',I4,' Potential-1 vibrational levels with  J=',i3/4('     v     E(v)   ')/4(4x,7('--')))
 624 format(4x,'Since the molecule is an ion with charge',SP,I3/6x, &
            "use Watson's charge-adjusted reduced mass   mu = M1*M2/[M1 + M2 - (",i2,')*me]')
 625 format(' For  J=',i3,', try to find the first',i4,' vibrational levels of Potential-1')
-626 format(/' *** FAIL to find highest bound J=',i3,'  level from trial   E = VLIM -',1PD11.4)
+626 format(/' *** FAIL to find highest bound J=',i3,'  level from trial   E = VLIM -',ES11.4)
 627 format(/' For vibrational level  v =',I3,'   of Potential-1'/1X,5('  J',6X,'E',7X)/1X,5(7('--'),2X))
 628 format((1X,5(I3,F11.3,2X)))
 629 format(/' *** Note that Radial variable power \alpha optimal for NLR=',f5.2,' > NCN=',i2)
@@ -1365,7 +1365,7 @@ RC = 0
 686 format(' Potential-',i1,' uses inner boundary condition of  zero value  at  RMIN')
 688 format(' Potential-',i1,' uses symmetric-well inner boundary condition  of zero slope at RMIN')
 !703 format(1X,I4,I5,F13.4,G13.5)
-703 format(1X,I4,I5,1PD20.11,D13.5)
+703 format(1X,I4,I5,ES20.11,ES13.5)
 723 format(/A78/1x,'Output values of:  v, J, E (Level Width)')
 724 format(//A78//'   v   J    E(v,J)     Width       <KE>',6x,'<M(r)>  &  <XI**k>  for k=1 to',i3/2x,38('=='))
 725 format(//A78//"   v'  J'",'  v"  J"     FREQ',"    <v',J'| XI**k",' |v",J">  for  k=0  to  MORDR=',i2/2x,37('=='))
@@ -1373,8 +1373,8 @@ RC = 0
            'and approaching the asymptotic value',f12.6)
 812 format(' Perform',I3,'-point piecewise polynomial interpolation over',I5,' input points')
 814 format(' Perform cubic spline interpolation over the',I5,' input points')
-816 format('- Beyond read-in points extrapolate to limiting asymptoticbehaviour:'/20x,'Y(R)  =  Y(lim) - (',D16.7,')/R**',I2)
-818 format(' Scale input points:  (distance)*',1PD16.9,'     (moment)*',D16.9/4x,'to get required units  [Angstroms & debye]'/ &
+816 format('- Beyond read-in points extrapolate to limiting asymptoticbehaviour:'/20x,'Y(R)  =  Y(lim) - (',ES16.7,')/R**',I2)
+818 format(' Scale input points:  (distance)*',ES16.9,'     (moment)*',ES16.9/4x,'to get required units  [Angstroms & debye]'/ &
            3('      R(i)         Y(i)  ')/3(3X,11('--')))
 820 format((3(F12.6,F13.6)))
 !824 format(//A78/30('==')/" Note that (v',J') &",' (v",J") strictly label the upper and lower levels, resp.,'/6x, &
@@ -1383,7 +1383,7 @@ RC = 0
 !           '   -------'),'  --------',3x,4('--'),3x,11('-'),3x,11('-'),3x,11('-') )
 !811 format(//A78/30('==')//12x,"   v'","  J'",'    v"','  J"   position    E(upper)    E(lower)',16h   <v'j'|M|v"j">/1x,68('-') )
 !901 format(//A78/1x,62('==')/'   v    J',7x,'E',10x,'Bv',11x,'-Dv',13x,'Hv',13x,'Lv',13x,'Mv',13x,'Nv',13x,'Ov'/1x,62('=='))
-!902 format(I4,I5,f25.15,f14.10,6(1PD15.7))
-!904 format(I4,I5,f25.15,1PD14.7,6(D15.7))
+!902 format(I4,I5,f25.15,f14.10,6(ES15.7))
+!904 format(I4,I5,f25.15,ES14.7,6(ES15.7))
 
 end subroutine LEVEL

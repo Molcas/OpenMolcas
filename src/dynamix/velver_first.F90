@@ -233,9 +233,9 @@ irc = _RC_ALL_IS_WELL_
 return
 
 400 format(5x,a,f8.1,a)
-402 format(5x,a14,8x,d11.4,1x,a)
+402 format(5x,a14,8x,es11.4,1x,a)
 403 format(/,i5)
 404 format(6f12.7)
-405 format(5x,a22,d11.4,1x,a)
+405 format(5x,a22,es11.4,1x,a)
 
 end subroutine VelVer_First

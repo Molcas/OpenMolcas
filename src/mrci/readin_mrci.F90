@@ -537,7 +537,7 @@ write(u6,'(A,I12)') '      WORKSPACE WORDS, (Re(wp)) ',MEMTOT
 write(u6,'(A,I8)') '      MAXIMUM NR OF ORBITALS        ',IOM
 write(u6,'(A,I8)') '      MAX NR OF STORED CI/SGM ARR.  ',MXVC
 write(u6,'(A,I8)') '      MAX NR OF ITERATIONS          ',MAXIT
-write(u6,'(A,D9.2)') '      ENERGY CONVERGENCE THRESHOLD ',ETHRE
+write(u6,'(A,ES9.2)') '      ENERGY CONVERGENCE THRESHOLD ',ETHRE
 write(u6,'(A,F8.1)') '      SPIN QUANTUM NUMBER           ',SPIN
 write(u6,'(A,I8)') '      CORRELATED ELECTRONS          ',NELEC
 write(u6,'(A,I8)') '      WAVE FUNCTION SYMMETRY LABEL  ',LSYM

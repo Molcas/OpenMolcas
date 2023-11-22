@@ -278,7 +278,7 @@ end if
 
 600 format(' Single well  ICOR=',I2,':  E(v=',i3,',J=',I3,')=',f10.2,'  v(SC)=',F8.3,'  dGdv=',f8.3)
 602 format(/' *** ERROR ***  V(1) < E(J=',i3,')=',f10.2)
-604 format(10x,'Find highest bound level is   E(v=',i3,')=',1PD18.10)
+604 format(10x,'Find highest bound level is   E(v=',i3,')=',ES18.10)
 610 format(' Double well   E(v=',i3,', J=',I3,')=',f9.3,':   v1(SC)=',F7.3,'   dGdv1=',f8.2/8x,'seeking  v=',I3,' (ICOR=',I2,')', &
            8x,':   v2(SC)=',F7.3,'   dGdv2=',f8.2)
 

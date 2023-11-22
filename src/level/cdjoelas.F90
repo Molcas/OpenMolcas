@@ -292,7 +292,7 @@ return
 
 601 format(' *** ERROR in CDJOEL *** for input energy  E =',f12.4,'  never reach outer turning point')
 602 format(/' *** Dimensioning PROBLEM in CDJOEL ***   NEND=',i6,' > NDIMR=',i6)
-603 format(' ** CAUTION ** Comparison tests for Hv, Lv & Mv give:',3(1Pd9.1))
-604 format(' ** CAUTION ** CDJOEL orthogonality tests OV01,OV02 & OV03:',3(1Pd9.1))
+603 format(' ** CAUTION ** Comparison tests for Hv, Lv & Mv give:',3(es9.1))
+604 format(' ** CAUTION ** CDJOEL orthogonality tests OV01,OV02 & OV03:',3(es9.1))
 
 end subroutine CDJOELas

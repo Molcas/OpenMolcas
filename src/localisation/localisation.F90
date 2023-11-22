@@ -233,8 +233,8 @@ end if
 if (EvalER) then
   ERFun(2) = Zero
   call ComputeFuncER(ERFun(2),CMO,nBas,nOrb2Loc,nFro,nSym,Timing)
-  write(u6,'(/,1X,A,1P,D15.8,/,1X,A,D15.8,/)') 'ER functional for initial orbitals: ',ERFun(1), &
-                                               'ER functional for local   orbitals: ',ERFun(2)
+  write(u6,'(/,1X,A,ES15.8,/,1X,A,ES15.8,/)') 'ER functional for initial orbitals: ',ERFun(1), &
+                                              'ER functional for local   orbitals: ',ERFun(2)
 end if
 
 ! Test section.

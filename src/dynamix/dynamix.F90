@@ -163,7 +163,7 @@ if (.not. Found) then
         call RandomGauss(mean,Sigma,iseed,nflag,buffer,Val)
         vel(3*(i-1)+j) = Val
 
-        !write(u6,'(5x,a,t55,d16.8)') 'Vel = ',Val
+        !write(u6,'(5x,a,t55,es16.8)') 'Vel = ',Val
 
       end do
     end do
@@ -196,7 +196,7 @@ if (.not. Found) then
   else
     Ekin = Zero
   end if
-  write(u6,'(5x,a,6x,d19.12,1x,a)') 'Kinetic energy',Ekin,'a.u.'
+  write(u6,'(5x,a,6x,es19.12,1x,a)') 'Kinetic energy',Ekin,'a.u.'
   ! Save the velocities on RUNFILE
   call Put_Velocity(vel,3*natom)
   ! Save the total energy on RUNFILE if the total energy should be conserved.
@@ -210,7 +210,7 @@ if (.not. Found) then
   call mh5_put_dset(dyn_etot,Etot0)
 # endif
   call DxEnergies(time,Epot,Ekin,Etot0)
-  write(u6,'(5x,a,8x,d19.12,1x,a)') 'Total Energy',Etot0,'a.u.'
+  write(u6,'(5x,a,8x,es19.12,1x,a)') 'Total Energy',Etot0,'a.u.'
   call mma_deallocate(atom)
   call mma_deallocate(Mass)
   call mma_deallocate(vel)

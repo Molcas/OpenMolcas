@@ -27,7 +27,7 @@ real(kind=wp), parameter :: hge = 1.0e20_wp
 b1 = a1
 b2 = a2
 if (abs(f) /= hge) then
-  write(b3,'(d12.4)') f
+  write(b3,'(es12.4)') f
 else
   b3 = '    Disabled'
 end if

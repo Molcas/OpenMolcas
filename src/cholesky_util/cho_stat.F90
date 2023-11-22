@@ -416,9 +416,9 @@ end if
 if (CHO_SSCREEN) then
   call CHO_HEAD('Screening Statistics from Vector Subtraction','-',80,LUPRI)
   write(LUPRI,'(/,A,12X,A)') 'Norm used for diagonals      : ',SSNORM
-  write(LUPRI,'(A,1P,D15.4)') 'Screening threshold          : ',SSTAU
-  write(LUPRI,'(A,1P,D15.4)') 'Maximum possible #DGEMV calls: ',SUBSCRSTAT(1)
-  write(LUPRI,'(A,1P,D15.4)') 'Actual #DGEMV calls          : ',SUBSCRSTAT(2)
+  write(LUPRI,'(A,ES15.4)') 'Screening threshold          : ',SSTAU
+  write(LUPRI,'(A,ES15.4)') 'Maximum possible #DGEMV calls: ',SUBSCRSTAT(1)
+  write(LUPRI,'(A,ES15.4)') 'Actual #DGEMV calls          : ',SUBSCRSTAT(2)
   if (SUBSCRSTAT(1) > Zero) then
     SSCRPCT = 1.0e2_wp*(SUBSCRSTAT(1)-SUBSCRSTAT(2))/SUBSCRSTAT(1)
     write(LUPRI,'(A,8X,F7.2,A)') 'Screening percent            : ',SSCRPCT,'%'
@@ -513,12 +513,12 @@ if (CHO_TSTSCREEN .and. (.not. (CHO_FAKE_PAR .and. (NPROCS > 1) .and. Is_Real_Pa
               write(LUPRI,'(1X,A,I6,A,I6)') '    Batch no.',IBATCH,' of',NBATCH
               write(LUPRI,'(1X,A,9X,I6)') '       No. vectors     : ',NUMV
               write(LUPRI,'(1X,A,9X,I6,9X,I6)') '       Vector range    : ',JVEC1,JVEC2
-              write(LUPRI,'(1X,A,1P,D15.7)') '       Shell quadruples: ',XT
+              write(LUPRI,'(1X,A,ES15.7)') '       Shell quadruples: ',XT
               if (XT < One) call CHO_QUIT('XT non-positive in '//SECNAM,103)
               FAC = 1.0e2_wp/XT
               do ITAU=1,NTAU
                 PCT = FAC*(XT-XC(ITAU))
-                write(LUPRI,'(1X,A,1P,D15.7,A,D15.7,A)') '       Threshold: ',TAU(ITAU),'  Screening percent: ',PCT,'%'
+                write(LUPRI,'(1X,A,ES15.7,A,ES15.7,A)') '       Threshold: ',TAU(ITAU),'  Screening percent: ',PCT,'%'
               end do
               call XFLUSH(LUPRI)
 

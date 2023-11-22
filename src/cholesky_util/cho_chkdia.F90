@@ -67,11 +67,11 @@ do JAB=JAB1,JAB2
     if (DIAG(IAB) < THRNEG) then
       NNEG = NNEG+1
       if (DIAG(IAB) < TOONEG) then
-        write(LUPRI,'(A,A,I12,1X,1P,D16.8)') SECNAM,': diagonal too negative: ',IAB,DIAG(IAB)
+        write(LUPRI,'(A,A,I12,1X,ES16.8)') SECNAM,': diagonal too negative: ',IAB,DIAG(IAB)
         write(LUPRI,'(A,A)') SECNAM,': shutting down Cholesky decomposition!'
         call CHO_QUIT('Diagonal too negative in '//SECNAM,104)
       end if
-      if (DIAG(IAB) < WARNEG) write(LUPRI,'(A,A,I12,1X,1P,D16.8,A)') SECNAM,': Negative diagonal: ',IAB,DIAG(IAB),' (zeroed)'
+      if (DIAG(IAB) < WARNEG) write(LUPRI,'(A,A,I12,1X,ES16.8,A)') SECNAM,': Negative diagonal: ',IAB,DIAG(IAB),' (zeroed)'
       if (DIAG(IAB) < DIAMNZ) then
         DIAMNZ = DIAG(IAB)
         IABMNZ = IAB

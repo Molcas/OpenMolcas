@@ -49,7 +49,7 @@ end if
 do i=1,ni
   if (abs(fi(i)) /= hge) then
     write(b1(ipos:ipos),'(i1)') i
-    write(b3,'(d12.4)') fi(i)
+    write(b3,'(es12.4)') fi(i)
     write(u6,'(1x,3a)') b1,b2,b3
   end if
 end do
