@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cre_locwfn()
+subroutine cre_expwfn()
 
 ! Create a wavefunction file.
-! If another .local.h5 file already exists, it will be overwritten.
+! If another .expbas.h5 file already exists, it will be overwritten.
 #ifdef _HDF5_
-use Localisation_globals, only: nBas, nSym, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+use info_expbas_mod, only: nBas2, nSym2, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_real, mh5_create_dset_str
 use Definitions, only: iwp
 
@@ -22,18 +22,18 @@ implicit none
 integer(kind=iwp) :: nBasTot, nSqrTot
 
 ! create a new wavefunction file!
-wfn_fileid = mh5_create_file('LOCWFN')
+wfn_fileid = mh5_create_file('EXPWFN')
 
 ! set module type
-call mh5_init_attr(wfn_fileid,'MOLCAS_MODULE','LOCALISATION')
+call mh5_init_attr(wfn_fileid,'MOLCAS_MODULE','EXPBAS')
 
 ! copy basic molecular information to the HDF5 file
 call run2h5_molinfo(wfn_fileid)
-call one2h5_ovlmat(wfn_fileid,nsym,nbas)
-call one2h5_fckint(wfn_fileid,nsym,nbas)
+call one2h5_ovlmat(wfn_fileid,nsym2,nbas2)
+call one2h5_fckint(wfn_fileid,nsym2,nbas2)
 
-nBasTot = sum(nBas(1:nSym))
-nSqrTot = sum(nBas(1:nSym)**2)
+nBasTot = sum(nBas2(1:nSym2))
+nSqrTot = sum(nBas2(1:nSym2)**2)
 
 ! typestring
 wfn_tpidx = mh5_create_dset_str(wfn_fileid,'MO_TYPEINDICES',1,[nBasTot],1)
@@ -53,14 +53,14 @@ call mh5_init_attr(wfn_orbene,'DESCRIPTION', &
                    'Orbital energies of the molecular orbitals arranged as blocks of size [NBAS(i)], i=1,#irreps')
 #endif
 
-end subroutine cre_locwfn
+end subroutine cre_expwfn
 
 !-----------------------------------------------------------------------
 
-subroutine cls_locwfn()
+subroutine cls_expwfn()
 
 #ifdef _HDF5_
-use Localisation_globals, only: wfn_fileid
+use info_expbas_mod, only: wfn_fileid
 use mh5, only: mh5_close_file
 
 implicit none
@@ -68,4 +68,4 @@ implicit none
 call mh5_close_file(wfn_fileid)
 #endif
 
-end subroutine cls_locwfn
+end subroutine cls_expwfn

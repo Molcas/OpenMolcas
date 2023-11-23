@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) Yannick Carissan                                       *
 !               2005, Thomas Bondo Pedersen                            *
+!               2023, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 subroutine Localisation(iReturn)
@@ -21,6 +22,8 @@ subroutine Localisation(iReturn)
 !      localisations.
 !    - December 2005 / January 2006 (Thomas Bondo Pedersen):
 !      Edmiston-Ruedenberg, PAO, and pair domain analysis included.
+!    - November 2023 (Ignacio Fdez. Galvan)
+!      HDF5 support
 
 use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, BName, CMO, DoCNOs, DoDomain, EOrb, EvalER, Ind, iWave, &
                                 LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, MOrig, NamAct, nBas, nCMO, nFro, &

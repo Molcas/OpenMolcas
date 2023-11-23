@@ -17,5 +17,6 @@
  (file)  RASSIWFN  "$WorkDir/$Project$SubProject."rassi.h5    rws
  (file)  SCFWFN    "$WorkDir/$Project$SubProject."scf.h5      rws
  (file)  LOCWFN    "$WorkDir/$Project$SubProject."local.h5    rws
+ (file)  EXPWFN    "$WorkDir/$Project$SubProject."expbas.h5   rws
 #define _WFNFILES_
 #endif

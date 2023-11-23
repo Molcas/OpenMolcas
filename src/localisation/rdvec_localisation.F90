@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!               2023, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,FName)
