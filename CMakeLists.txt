@@ -2304,6 +2304,7 @@ if (HDF5 AND HDF5_FOUND)
     caspt2
     dynamix
     guessorb
+    localisation
     mcpdft
     nevpt2
     poly_aniso

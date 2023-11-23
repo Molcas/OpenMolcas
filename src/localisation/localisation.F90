@@ -25,6 +25,10 @@ subroutine Localisation(iReturn)
 use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, BName, CMO, DoCNOs, DoDomain, EOrb, EvalER, Ind, iWave, &
                                 LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, MOrig, NamAct, nBas, nCMO, nFro, &
                                 nOrb, nOrb2Loc, nSym, Occ, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
+#ifdef _HDF5_
+use Localisation_globals, only: fileorb_id, isHDF5, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_put_dset
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -48,6 +52,10 @@ character(len=*), parameter :: SecNam = 'Localisation'
 integer(kind=iwp), external :: isFreeUnit !vv , LocUtil_Models
 real(kind=wp), external :: ddot_
 character(len=180), external :: Get_Ln
+#ifdef _HDF5_
+integer(kind=iwp) :: IndTypeT(8,7)
+character(len=1), allocatable :: typestring(:)
+#endif
 
 ! Start timing.
 ! -------------
@@ -81,6 +89,12 @@ do
   end if
 end do
 call Close_LuSpool(LuSpool)
+#ifdef _HDF5_
+if (mh5_is_hdf5(LC_FileOrb)) then
+  isHDF5 = .true.
+  fileorb_id = mh5_open_file_r(LC_FileOrb)
+end if
+#endif
 
 call GetInfo_Localisation_0()
 
@@ -450,6 +464,23 @@ call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Tit
 if (.not. Silent) then
   write(u6,'(1X,A)') 'The LOCORB file has been written.'
 end if
+
+! Write local.h5 file.
+! --------------------
+
+#ifdef _HDF5_
+call cre_locwfn()
+IndTypeT(:,:) = transpose(IndT(:,:))
+call mma_allocate(typestring,sum(nBas(1:nSym)))
+call orb2tpstr(nSym,nBas,IndTypeT(:,1),IndTypeT(:,2),IndTypeT(:,3),IndTypeT(:,4),IndTypeT(:,5),IndTypeT(:,6),IndTypeT(:,7), &
+               typestring)
+call mh5_put_dset(wfn_tpidx,typestring)
+call mma_deallocate(typestring)
+call mh5_put_dset(wfn_mocoef,CMO)
+call mh5_put_dset(wfn_occnum,Occ)
+call mh5_put_dset(wfn_orbene,EOrb)
+call cls_locwfn()
+#endif
 
 ! Write MOLDEN file.
 ! ------------------
