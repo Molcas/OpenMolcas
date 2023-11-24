@@ -35,8 +35,8 @@ module fciqmc_interface
 #include "SysDef.fh"
 
     private
-    public :: DoFCIQMC, NonDiagonal, mkfg3fciqmc, load_fciqmc_g1
-    logical :: DoFCIQMC = .false., NonDiagonal = .false.
+    public :: DoFCIQMC, NonDiagonal, TransformToNormalOrder, mkfg3fciqmc, load_fciqmc_g1
+    logical :: DoFCIQMC = .false., NonDiagonal = .false., TransformToNormalOrder = .false.
 
     contains
 
@@ -316,10 +316,20 @@ module fciqmc_interface
             t = indices(1,i) + 1; u = indices(4,i) + 1
             v = indices(2,i) + 1; x = indices(5,i) + 1
             y = indices(3,i) + 1; z = indices(6,i) + 1
+            ! is this call really required?
             call apply_12fold_symmetry(f3_temp, t, u, v, x, y, z, values(i))
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
+
+        if (TransformToNormalOrder) then
+            ! In M7 histogrammed F.4RDM is computed as
+            !   \sum_{ab} f_{ab} e_{tu,vx,yz} E_{ab}
+            ! instead of
+            !   \sum_{ab} f_{ab} e_{tu,vx,yz,ab}
+            call transform_f4rdm_normal_order(f3_temp, g3_temp, nLev)
+            write(u6,'(a)') "Transformed F.4RDM from factorised to normal order."
+        end if
 
         if (NonDiagonal) then
             call transform_six_index(f3_temp, nLev)
@@ -405,6 +415,76 @@ module fciqmc_interface
                 end do
                 call mh5_close_file(hdf5_file)
             end subroutine transform_six_index
+
+            subroutine transform_f4rdm_normal_order(f3, g3, fock)
+                ! The transformation should be
+                ! \sum_{ab} f_{ab} e_{tu,vx,yz,ab} =
+                !   \sum_{ab} f_{ab} [ e_{tu,vx,yz} E_{ab} \
+                !                      - \delta_{az} e_{tu,vx,yb} \ (1)
+                !                      - \delta_{ax} e_{tu,vb,yz} \ (2)
+                !                      - \delta_{au} e_{tb,vx,yz} ].(3)
+                real(wp), intent(inout) :: f3(nLev, nLev, nLev, nLev, nLev, nLev)
+                real(wp), intent(in) :: g3(nLev, nLev, nLev, nLev, nLev, nLev), fock(nLev, nLev)
+                real(wp) :: tmp(nLev, nLev, nLev, nLev, nLev, nLev)
+                integer(iwp) :: t, u, v, x, y, z
+
+                ! (1)
+                tmp(:, :, :, :, :, :) = 0.0_wp
+                do b = 1, nLev
+                    do z = 1, nLev
+                        do y = 1, nLev
+                            do x = 1, nLev
+                                do v = 1, nLev
+                                    do u = 1, nLev
+                                        do t = 1, nLev
+                                            tmp(t, u, v, x, y, z) = fock(z, b) * g3(t, u, v, x, y, b)
+                                        end do
+                                    end do
+                                end do
+                            end do
+                        end do
+                    end do
+                end do
+                f3(:, :, :, :, :, :) = f3(:, :, :, :, :, :) - tmp(:, :, :, :, :, :)
+
+                ! (2) loop indices reordered for contiguous array access
+                tmp(:, :, :, :, :, :) = 0.0_wp
+                do z = 1, nLev
+                    do y = 1, nLev
+                        do b = 1, nLev
+                            do x = 1, nLev
+                                do v = 1, nLev
+                                    do u = 1, nLev
+                                        do t = 1, nLev
+                                            tmp(t, u, v, x, y, z) = fock(x, b) * g3(t, u, v, b, y, z)
+                                        end do
+                                    end do
+                                end do
+                            end do
+                        end do
+                    end do
+                end do
+                f3(:, :, :, :, :, :) = f3(:, :, :, :, :, :) - tmp(:, :, :, :, :, :)
+
+                ! (3) again indices reordered...
+                tmp(:, :, :, :, :, :) = 0.0_wp
+                do z = 1, nLev
+                    do y = 1, nLev
+                        do x = 1, nLev
+                            do v = 1, nLev
+                                do b = 1, nLev
+                                    do u = 1, nLev
+                                        do t = 1, nLev
+                                            tmp(t, u, v, x, y, z) = fock(u, b) * g3(t, b, v, x, y, z)
+                                        end do
+                                    end do
+                                end do
+                            end do
+                        end do
+                    end do
+                end do
+                f3(:, :, :, :, :, :) = f3(:, :, :, :, :, :) - tmp(:, :, :, :, :, :)
+            end subroutine
 
             pure subroutine apply_12fold_symmetry(array, t, u, v, x, y, z, val)
                 ! G3 has 12 permutational symmetries, since the spin indices of

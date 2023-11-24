@@ -1016,6 +1016,23 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`NormalORDer`
+  If CASPT2 intermediates are computed from a time--averaged determinant set,
+  one of the 4RDM excitation operators is pre-contracted with the zeroth order
+  wave function. This keyword enables the transformation back to normal order
+  as required for CASPT2. Should histogramming ever reach production, the
+  meaning of this keyword will be reversed, i.e. if used, the F4RDM will be assumed to
+  already be in normal order (in case someone wants to extend the previous
+  FCIQMC on-the-fly RDM sampling).
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NORD" APPEAR="Normal order F.4RDM (M7)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NORD <basic>
+              <HELP>
+              Transform the F.4RDM computed from a factorised 4RDM to normal
+              order.
+              </HELP>
+              </KEYWORD>
+
 :kword:`CHEMps2`
   Activate DMRG-CASPT2 calculation with |molcas|--CheMPS2 interface.
   The keyword :kword:`3RDM` must be used in :program:`RASSCF`.
