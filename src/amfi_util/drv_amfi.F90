@@ -16,10 +16,10 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Gaussian_Type, MolWgh, nBas, nCnttp, Nuclear_Model, Shells
 use DKH_Info, only: DKroll
 use Symmetry_Info, only: nIrrep
+use define_af, only: Angtp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use define_af
 
 implicit none
 #include "Molcas.fh"

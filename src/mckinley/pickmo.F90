@@ -15,9 +15,9 @@ use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: CMO
 use Symmetry_Info, only: nIrrep
+use Etwas, only: nAsh, nIsh
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use etwas, only: nAsh, nIsh
 
 #include "intent.fh"
 

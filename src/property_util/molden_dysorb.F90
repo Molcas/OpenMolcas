@@ -315,7 +315,7 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
             coeff = Shells(ishell)%pCff(iprim,icontr)
             prim = Shells(ishell)%Exp(iprim)
             if (coeff /= Zero) then
-              write(MF,'(E17.9,E17.9)') prim,coeff
+              write(MF,'(ES17.9,ES17.9)') prim,coeff
             end if
           end do
 

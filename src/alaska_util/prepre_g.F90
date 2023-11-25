@@ -10,9 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-subroutine PrePre_g(mZeta,mEta,lZeta,lEta,PreScr,CutGrd, &
-                    iOffZ, iOffE, k2Data1, k2Data2)
+subroutine PrePre_g(mZeta,mEta,lZeta,lEta,PreScr,CutGrd,iOffZ,iOffE,k2Data1,k2Data2)
 !***********************************************************************
 !                                                                      *
 ! Object: to preprescreen the integral derivatives.                    *
@@ -25,17 +25,16 @@ subroutine PrePre_g(mZeta,mEta,lZeta,lEta,PreScr,CutGrd, &
 !             July '92.                                                *
 !***********************************************************************
 
+use k2_structure, only: k2_type
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use k2_structure, only: k2_type
 
 implicit none
-integer(kind=iwp), intent(in) :: iOffZ, iOffE
-type(k2_type), intent(in) :: k2Data1, k2Data2
-integer(kind=iwp), intent(in) :: mZeta, mEta
+integer(kind=iwp), intent(in) :: mZeta, mEta, iOffZ, iOffE
 integer(kind=iwp), intent(out) :: lZeta, lEta
-real(kind=wp), intent(in) :: CutGrd
 logical(kind=iwp), intent(out) :: PreScr
+real(kind=wp), intent(in) :: CutGrd
+type(k2_type), intent(in) :: k2Data1, k2Data2
 integer(kind=iwp) :: iEta, iZeta
 real(kind=wp) :: EtaMn, EtaMx, PreMax, PreMin, rKabMn, rKabMx, rKcdMn, rKcdMx, ZetaMn, ZetaMx
 

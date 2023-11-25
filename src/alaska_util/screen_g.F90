@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
 subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
-                    k2Data1, k2Data2, &
-                    Zeta,ZInv,P,xA,xB,&
+                    k2Data1,k2Data2, &
+                    Zeta,ZInv,P,xA,xB, &
                     Eta,EInv,Q,xG,xD, &
                     iphX1,iphY1,iphZ1,iphX2,iphY2,iphZ2,CutGrd,l2DI, &
                     PreScr,nScrtch,IsChi,ChiI2)
@@ -34,39 +35,35 @@ subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta
 !             April '92 modified for gradient estimate                 *
 !***********************************************************************
 
+use k2_structure, only: k2_type
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use k2_structure, only: k2_type
 
 implicit none
-integer(kind=iwp) iOffZ, iOffE
-type(k2_type),  intent(in):: k2Data1, k2Data2
-integer(kind=iwp), intent(in) :: mPAO, nZeta, nEta, mZeta, mEta, iphX1, &
-                                 iphY1, iphZ1, iphX2, iphY2, iphZ2, nScrtch, IsChi
+integer(kind=iwp), intent(in) :: iOffZ, iOffE, mPAO, nZeta, nEta, mZeta, mEta, iphX1, iphY1, iphZ1, iphX2, iphY2, iphZ2, nScrtch, &
+                                 IsChi
 real(kind=wp), intent(inout) :: PAO(mZeta*mEta*mPAO)
 real(kind=wp), intent(out) :: Scrtch(nScrtch), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), xA(nZeta), xB(nZeta), Eta(nEta), EInv(nEta), &
                               Q(nEta,3), xG(nEta), xD(nEta)
 integer(kind=iwp), intent(out) :: lZeta, lEta
+type(k2_type), intent(in) :: k2Data1, k2Data2
 real(kind=wp), intent(in) :: CutGrd, ChiI2
 logical(kind=iwp), intent(in) :: l2DI, PreScr
-integer(kind=iwp) :: i, iab, iabcd, icd, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2, iPAO, ipE, ipFac, ipOAP, ipP, ipPAO, &
-                     ipZ, iZE, iZeta, jPAO, jPZ, l1, l2
+integer(kind=iwp) :: i, iab, iabcd, icd, iDMin, iEP, iEta, ij, iMin, iOff, ip, ip1, ip2, iPAO, ipE, ipFac, ipOAP, ipP, ipPAO, &
+                     ipZ, iZE, iZeta, jPAO, jPZ, l1, l2, nab, ncd
 real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZeta, rEta, rKAB, rKCD, rqEta, rqZeta, rZeta, temp, &
                  vMax, zMin, Zt
 logical(kind=iwp) :: ZPreScr, EPreScr
-integer(kind=iwp) :: iDMin
-real(kind=wp), external :: DNrm2_
 real(kind=wp), pointer :: ab(:,:), abG(:,:), cd(:,:), cdG(:,:)
-integer(kind=iwp) :: nab, ncd
+real(kind=wp), external :: DNrm2_
 
-nab=Size(k2Data1%abG,1)/nZeta
-ncd=Size(k2Data2%abG,1)/nEta
+nab = size(k2Data1%abG,1)/nZeta
+ncd = size(k2Data2%abG,1)/nEta
 
 ab(1:nZeta,1:nab) => k2Data1%abG(1:nZeta*nab,1)
 abG(1:nZeta,1:nab) => k2Data1%abG(1:nZeta*nab,2)
 cd(1:nEta,1:ncd) => k2Data2%abG(1:nEta*ncd,1)
 cdG(1:nEta,1:ncd) => k2Data2%abG(1:nEta*ncd,2)
-
 
 #ifdef _DEBUGPRINT_
 if (l2DI) then
@@ -109,7 +106,7 @@ do iEta=1,mEta
   end do
 end do
 #ifdef _DEBUGPRINT_
-Call RecPrt(' Collected prefactors',' ',Scrtch(ipFac),mZeta,mEta)
+call RecPrt(' Collected prefactors',' ',Scrtch(ipFac),mZeta,mEta)
 #endif
 
 ! Modify the 2nd order density matrix with the prefactor.
@@ -175,6 +172,8 @@ else
   ipE = 1
 end if
 
+nullify(ab,abG,cd,cdG)
+
 if (ip-1 > nScrtch) then
   write(u6,*) ' Screen: ip-1 > nScrtch'
   write(u6,*) 'ip-1=',ip-1
@@ -192,9 +191,9 @@ if (PreScr) then
   if (zMin >= Cut2/rqEta) then
     ZPreScr = .false.
   end if
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call RecPrt(' Screening array(Eta)',' ',Scrtch(ipZ),mZeta,1)
-#endif
+# endif
 end if
 
 rZeta = real(nZeta*mPAO,kind=wp)
@@ -207,9 +206,9 @@ if (PreScr) then
   if (eMin >= Cut2/rqZeta) then
     EPreScr = .false.
   end if
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call RecPrt(' Screening array(Zeta)',' ',Scrtch(ipE),mEta,1)
-#endif
+# endif
 end if
 
 ! Prescreen Zeta
@@ -316,7 +315,6 @@ end if
 call RecPrt(' PAO',' ',PAO,lZeta*lEta,mPAO)
 #endif
 
-Nullify(ab,abG,cd,cdG)
 return
 
 end subroutine Screen_g

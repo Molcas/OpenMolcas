@@ -9,13 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 subroutine Integral_RICD( &
 #                        define _CALLING_
 #                        include "int_wrout_interface.fh"
                         )
 
 use Int_Options, only: iTOffs
-use Definitions, only: wp, iwp, u6
+use Definitions, only: u6
 
 implicit none
 #include "int_wrout_interface.fh"

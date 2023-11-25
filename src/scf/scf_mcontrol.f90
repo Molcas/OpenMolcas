@@ -151,10 +151,10 @@
 100   FORMAT(A21,              &
       ',Cho_ALGO=',I2,         &
       ',Chotime=',L2,          &
-      ',dmpK=',E11.4,          &
-      ',En_thr=',E11.4,        &
-      ',D_thr=',E11.4,         &
-      ',F_thr=',E11.4,         &
+      ',dmpK=',ES11.4,         &
+      ',En_thr=',ES11.4,       &
+      ',D_thr=',ES11.4,        &
+      ',F_thr=',ES11.4,        &
       ',MaxIter=',I4,          &
       ',nScreen=',I4)
 

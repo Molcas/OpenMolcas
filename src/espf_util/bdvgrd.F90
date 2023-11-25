@@ -203,7 +203,9 @@ do iPnt=1,nGrdPt
     nT = nZeta
     nDiff = 1
     mRys = (la+lb+2+nDiff+iOrdOp)/2
-    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
+    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One], &
+               Zeta,ZInv,nZeta,[One],[One],1, &
+               P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(iOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In BdVGrd:Grad',' ',Grad,nGrad,1)

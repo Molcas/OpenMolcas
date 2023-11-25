@@ -14,6 +14,7 @@ set (sources
      bitmap_localisation_atom.F90
      bitmap_localisation.F90
      chk_input.F90
+     cre_locwfn.F90
      domain_localisation.F90
      genbmp_localisation.F90
      gengnu_localisation.F90

@@ -74,6 +74,6 @@ call mma_deallocate(RCMI)
 
 return
 
-!EB 96 format(I5,3E15.8)
+!EB 96 format(I5,3ES15.8)
 
 end subroutine Get_OrbCen

@@ -165,7 +165,7 @@ do A1=1,NUAB(ISP),vblock
         !mp call dcopy_(NUAB(isp),G(KADT),1,G(IJS),1)
         x(IJS:IJS+NUAB(isp)-1) = t2_exp(KADT:KADT+NUAB(isp)-1)
         !mp write(u6,*) (t2_exp(KADT+a_tmp),a_tmp=0,NUAB(isp)-1)
-        !!write(u6,'(A,2I3,11D10.4)') 'OT',K,a,(G(r),r=IJS-noab(isp),IJS+nuab(isp)-1)
+        !!write(u6,'(A,2I3,11ES11.4)') 'OT',K,a,(G(r),r=IJS-noab(isp),IJS+nuab(isp)-1)
 
         KADT = KADT+NUAB(ISP)
         IJS = IJS+N
@@ -173,7 +173,7 @@ do A1=1,NUAB(ISP),vblock
     end do       !J
   end do         !I
   !!end do         !K
-  !!write(u6,'(A,2I5,4x,5D15.10)') 'block-m:a1,IAS,ddot',a1,ias,ddot_(N*adim*nnoab(ISP),G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
+  !!write(u6,'(A,2I5,4x,5ES15.8)') 'block-m:a1,IAS,ddot',a1,ias,ddot_(N*adim*nnoab(ISP),G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
   !mp call multi_wridir(G(IX),n*adim*nnoab(isp),LU,IAS,last)
   !mp
   !mpn do jjj=1,n*adim*nnoab(isp)
@@ -375,13 +375,13 @@ do nga=1,nug
             end do
             !mpn
             !mpn x2(IJS:IJS+NSTEP-1) = x2(IJS:IJS+NSTEP-1)-t2_exp(KADT:KADT+NSTEP-1)
-            !!write(u6,'(A,2I3,8D15.8)')'T',nTri_Elem(I-2)+j,a,(G(r),r=IJS,IJS+NSTEP-1)
+            !!write(u6,'(A,2I3,8ES15.8)')'T',nTri_Elem(I-2)+j,a,(G(r),r=IJS,IJS+NSTEP-1)
             IJS = IJS+maxdim2
           end do       ! RI
         end do         ! RJ
       end if
     end do             ! a1
-    !!write(u6,'(A,4I5,4x,5D15.10)') 'block-m: a1,b1,IAS,ddot',a1,b1,ias,maxdim2,ddot_(nnoab(isp)*maxdim2,G(IX),1,G(IX),1), &
+    !!write(u6,'(A,4I5,4x,5ES15.8)') 'block-m: a1,b1,IAS,ddot',a1,b1,ias,maxdim2,ddot_(nnoab(isp)*maxdim2,G(IX),1,G(IX),1), &
     !!                               (G(I),I=IX,IX+3)
     if (maxdim2 == 0) then
       maxdim2 = 1
@@ -565,7 +565,7 @@ do A1=1,NUAB(ISP),vblock
         end do    ! A
       end do      ! I
     end do        ! K
-    !!write(u6,'(A,3I5,4x,5D15.10)') 'block-v: a1,b1,IAS,ddot',a1/vblock+1,b1/vblock+1,ias, &
+    !!write(u6,'(A,3I5,4x,5ES15.8)') 'block-v: a1,b1,IAS,ddot',a1/vblock+1,b1/vblock+1,ias, &
     !!                               ddot_(NNOAB(3)*adim*nstep,G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
     !mp call multi_wridir(G(IX),NNOAB(3)*adim*nstep,LU,IAS,last)
     !mp

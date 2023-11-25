@@ -24,9 +24,9 @@ use Basis_Info, only: dbsc, Gaussian_type, iCnttp_Dummy, mGaussian_type, nCnttp,
 use Center_Info, only: dc
 use RICD_Info, only: Thrshld_CD
 use DKH_Info, only: iRELMP
+use define_af, only: AngTp
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use define_af, only: AngTp
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
@@ -115,11 +115,11 @@ do iCnttp=1,nCnttp
           write(u6,'(6X,A)') 'Nuclear Model: Point charge'
         else if (Nuclear_Model == Gaussian_type) then
           write(u6,'(6X,A)') 'Nuclear Model: Finite nucleus - Gaussian distribution'
-          write(u6,'(6X,A,E12.5)') '  Gaussian exponent, Xi/bohr**(-2): ',dbsc(iCnttp)%ExpNuc
+          write(u6,'(6X,A,ES12.5)') '  Gaussian exponent, Xi/bohr**(-2): ',dbsc(iCnttp)%ExpNuc
         else if (Nuclear_Model == mGaussian_type) then
           write(u6,'(6X,A)') 'Nuclear Model: Finite nucleus - Modified Gaussian distribution'
-          write(u6,'(6X,A,E12.5,A,E12.5)') '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',dbsc(iCnttp)%ExpNuc,', ', &
-                                           dbsc(iCnttp)%w_mGauss
+          write(u6,'(6X,A,ES12.5,A,ES12.5)') '  Parameters, Xi/bohr**(-2), w/bohr**(-2): ',dbsc(iCnttp)%ExpNuc,', ', &
+                                             dbsc(iCnttp)%w_mGauss
         else
           call WarningMessage(2,'Illegal Nuclear Model!')
           call Abend()

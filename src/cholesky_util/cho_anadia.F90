@@ -90,7 +90,7 @@ if (NNZTOT > 0) then
   if (IABMNZ < 1) then
     write(LUPRI,'(1X,A)') 'WARNING: most negative zeroed diagonal has not been stored!'
   else
-    write(LUPRI,'(1X,A,1P,D15.6)') '- most negative zeroed diagonal          : ',DIAMNZ
+    write(LUPRI,'(1X,A,ES15.6)') '- most negative zeroed diagonal          : ',DIAMNZ
   end if
 end if
 
@@ -98,11 +98,11 @@ end if
 ! -----------------
 
 call STATISTICS(DIAG,NNBSTRT(1),STAT,1,2,3,4,5,6,7)
-write(LUPRI,'(/,1X,A,1P,D15.6)') 'Minimum diagonal: ',STAT(3)
-write(LUPRI,'(1X,A,1P,D15.6)') 'Maximum diagonal: ',STAT(4)
-write(LUPRI,'(1X,A,1P,D15.6)') 'Mean value      : ',STAT(1)
-write(LUPRI,'(1X,A,1P,D15.6)') 'Mean abs. value : ',STAT(2)
-write(LUPRI,'(1X,A,1P,D15.6)') 'Biased variance : ',STAT(6)
-write(LUPRI,'(1X,A,1P,D15.6,A)') 'Standard dev.   : ',STAT(7),' (unbiased variance)'
+write(LUPRI,'(/,1X,A,ES15.6)') 'Minimum diagonal: ',STAT(3)
+write(LUPRI,'(1X,A,ES15.6)') 'Maximum diagonal: ',STAT(4)
+write(LUPRI,'(1X,A,ES15.6)') 'Mean value      : ',STAT(1)
+write(LUPRI,'(1X,A,ES15.6)') 'Mean abs. value : ',STAT(2)
+write(LUPRI,'(1X,A,ES15.6)') 'Biased variance : ',STAT(6)
+write(LUPRI,'(1X,A,ES15.6,A)') 'Standard dev.   : ',STAT(7),' (unbiased variance)'
 
 end subroutine CHO_ANADIA

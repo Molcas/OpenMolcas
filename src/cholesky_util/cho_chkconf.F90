@@ -153,7 +153,7 @@ end if
 ! ------------------------
 
 if (THRCOM < Zero) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6,A,D15.6,A)') 'Decomposition threshold not positive: ',THRCOM,' (default value: ',THRDEF,')'
+  if (REPORT) write(LUPRI,'(A,ES15.6,A,ES15.6,A)') 'Decomposition threshold not positive: ',THRCOM,' (default value: ',THRDEF,')'
   NCONFL = NCONFL+1
 end if
 
@@ -162,8 +162,8 @@ end if
 
 if (CHO_PRESCREEN) then
   if (THR_PRESCREEN > THRCOM) then
-    if (REPORT) write(LUPRI,'(A,1P,D15.6,A,D15.6)') 'Diagonal prescreening threshold is greater than decomposition threshold: ', &
-                                                    THR_PRESCREEN,' > ',THRCOM
+    if (REPORT) write(LUPRI,'(A,ES15.6,A,ES15.6)') 'Diagonal prescreening threshold is greater than decomposition threshold: ', &
+                                                   THR_PRESCREEN,' > ',THRCOM
     NCONFL = NCONFL+1
   end if
 end if
@@ -173,7 +173,7 @@ end if
 
 if (CHO_SSCREEN) then
   if (SSTAU < Zero) then
-    if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Screening threshold for vector subtraction not positive: ',SSTAU
+    if (REPORT) write(LUPRI,'(A,ES15.6)') 'Screening threshold for vector subtraction not positive: ',SSTAU
     NCONFL = NCONFL+1
   end if
 end if
@@ -226,10 +226,10 @@ end if
 ! ---------------------------------------
 
 if (FRAC_CHVBUF < Zero) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,' resetting value to 0.0'
+  if (REPORT) write(LUPRI,'(A,ES15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,' resetting value to 0.0'
   FRAC_CHVBUF = Zero
 else if (FRAC_CHVBUF > 0.9_wp) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,' resetting value to 0.9'
+  if (REPORT) write(LUPRI,'(A,ES15.6,A)') 'FRAC_CHVBUF=',FRAC_CHVBUF,' resetting value to 0.9'
   FRAC_CHVBUF = 0.9_wp
 end if
 
@@ -238,8 +238,8 @@ end if
 
 if (THRDIAG > THRCOM) then
   if (REPORT) then
-    write(LUPRI,'(A,A,1P,D15.6)') 'Threshold for discarding initial diagonals',': ',THRDIAG
-    write(LUPRI,'(A,1P,D15.6)') 'is larger than decomposition threshold: ',THRCOM
+    write(LUPRI,'(A,A,ES15.6)') 'Threshold for discarding initial diagonals',': ',THRDIAG
+    write(LUPRI,'(A,ES15.6)') 'is larger than decomposition threshold: ',THRCOM
   end if
   NCONFL = NCONFL+1
 end if
@@ -248,11 +248,11 @@ end if
 ! ----------------
 
 if (DAMP(1) < One) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'First damping factor < 1: ',DAMP(1)
+  if (REPORT) write(LUPRI,'(A,ES15.6)') 'First damping factor < 1: ',DAMP(1)
   NCONFL = NCONFL+1
 end if
 if (DAMP(2) < One) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Second damping factor < 1: ',DAMP(2)
+  if (REPORT) write(LUPRI,'(A,ES15.6)') 'Second damping factor < 1: ',DAMP(2)
   NCONFL = NCONFL+1
 end if
 
@@ -260,7 +260,7 @@ end if
 ! ------------
 
 if (SPAN > One) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Span factor > 1: ',SPAN
+  if (REPORT) write(LUPRI,'(A,ES15.6)') 'Span factor > 1: ',SPAN
   NCONFL = NCONFL+1
 else if (abs(One-SPAN) < 1.0e-4_wp) then
   if (REPORT) write(LUPRI,'(A)') 'Span factor is too close to 1. Will use 0.9999 instead.'
@@ -301,29 +301,29 @@ end if
 
 INEGRR = 0
 if (THRNEG > Zero) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Threshold for zeroing neg. diag. > 0: ',THRNEG
+  if (REPORT) write(LUPRI,'(A,ES15.6)') 'Threshold for zeroing neg. diag. > 0: ',THRNEG
   INEGRR = INEGRR+1
   NCONFL = NCONFL+1
 end if
 if (WARNEG > Zero) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Threshold for warning about neg. diag.  > 0: ',WARNEG
+  if (REPORT) write(LUPRI,'(A,ES15.6)') 'Threshold for warning about neg. diag.  > 0: ',WARNEG
   INEGRR = INEGRR+1
   NCONFL = NCONFL+1
 end if
 if (TOONEG > Zero) then
-  if (REPORT) write(LUPRI,'(A,1P,D15.6)') 'Threshold for shutdown due to neg. diag.  > 0: ',TOONEG
+  if (REPORT) write(LUPRI,'(A,ES15.6)') 'Threshold for shutdown due to neg. diag.  > 0: ',TOONEG
   INEGRR = INEGRR+1
   NCONFL = NCONFL+1
 end if
 if (INEGRR == 0) then
   if (THRNEG < WARNEG) then
-    if (REPORT) write(LUPRI,'(A,1P,D15.6,D15.6)') 'Threshold for zeroing neg. diag. > threshold for warning about neg. diag.: ', &
-                                                  THRNEG,WARNEG
+    if (REPORT) write(LUPRI,'(A,ES15.6,ES15.6)') 'Threshold for zeroing neg. diag. > threshold for warning about neg. diag.: ', &
+                                                 THRNEG,WARNEG
     NCONFL = NCONFL+1
   end if
   if (WARNEG < TOONEG) then
-    if (REPORT) write(LUPRI,'(A,1P,D15.6,D15.6)') 'Threshold for warning about neg. diag. > threshold for shutdown due to neg. '// &
-                                                  'diag.: ',WARNEG,TOONEG
+    if (REPORT) write(LUPRI,'(A,ES15.6,ES15.6)') 'Threshold for warning about neg. diag. > threshold for shutdown due to neg. '// &
+                                                 'diag.: ',WARNEG,TOONEG
     NCONFL = NCONFL+1
   end if
 end if

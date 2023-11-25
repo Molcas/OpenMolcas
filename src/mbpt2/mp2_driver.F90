@@ -34,15 +34,15 @@ subroutine MP2_Driver(ireturn)
 !         Dept. of Theoretical Chemistry                               *
 !         University of Lund, Sweden                                   *
 !                                                                      *
-!       - code for Laplace-SOS-MP2 for Cholesky/DF and LDF             *
+!       - code for Laplace-SOS-MP2 for Cholesky/DF                     *
 !         November-December 2012, T. B. Pedersen                       *
 !         Centre for Theoretical and Computational Chemistry           *
 !         Dept. of Chemistry                                           *
 !         University of Oslo, Norway                                   *
 !***********************************************************************
 
-use MBPT2_Global, only: CMO, DoCholesky, DoDF, DoLDF, EOcc, EOrb, EVir, FnIntA, FnIntM, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, &
-                        LuIntM, MBPT2_Clean, NamAct, nBas
+use MBPT2_Global, only: CMO, DoCholesky, DoDF, EOcc, EOrb, EVir, FnIntA, FnIntM, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, &
+                        MBPT2_Clean, NamAct, nBas
 use ChoMP2, only: all_Vir, C_os, ChoAlg, DoDens, DoMP2, DoT1amp, EOSMP2, FNOMP2, iOffT1, Laplace, Laplace_nGridPoints, LovMP2, &
                   nActa, pEOcc => EOcc, pEVir => EVir, SOS_mp2, T1amp, ThrLov, vkept, Wref, XEMP2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -83,13 +83,11 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Figure out if it's a cholesky run, DF run, LDF run
+! Figure out if it's a cholesky run, DF run
 DoCholesky = .false.
 DoDF = .false.
-DoLDF = .false.
 call DecideOnCholesky(DoCholesky)
 call DecideOnDF(DoDF)
-call DecideOnLocalDF(DoLDF)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -169,17 +167,7 @@ end if
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-if (DoLDF) then ! LDF
-  Conventional = .false.
-  Ready = .false.
-  if (Laplace .and. SOS_MP2) then
-    call WarningMessage(2,'LDF-Laplace-SOS-MP2 not implemented yet!')
-    call SysHalt('mp2_driver')
-  else
-    call WarningMessage(2,'Only LDF-Laplace-SOS-MP2 implemented!')
-    call SysHalt('mp2_driver')
-  end if
-else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. FNOMP2) .and. (.not. LovMP2)) then
+if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. FNOMP2) .and. (.not. LovMP2)) then
   Conventional = .false.
   Ready = .false.
   call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir,Dum(1),Dum(2))
@@ -359,10 +347,7 @@ if (Ready) then
 
   Wref = One/(One+Wref)   ! Note: this is Cref**2
 
-  if (DoLDF) then
-    call WarningMessage(2,'LDF should not be implemented....')
-    call SysHalt('mp2_driver')
-  else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. LovMP2) .and. (.not. FNOMP2)) then
+  if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. LovMP2) .and. (.not. FNOMP2)) then
     if (iPL >= 2) write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &

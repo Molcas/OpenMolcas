@@ -13,7 +13,7 @@
 #                                                                      *
 # Copyright (C) 2000-2012, Valera Veryazov                             *
 #               2015, Steven Vancoillie                                *
-#               2017-2020, Ignacio Fdez. Galván                        *
+#               2017-2020,2023, Ignacio Fdez. Galván                   *
 #***********************************************************************
 #
 # verify
@@ -46,10 +46,15 @@
 #
 # Translate from Perl to Python, include updatetest and chkunprint
 # Ignacio Fdez. Galván, November 2020
+#
+# Add --jobs option
+# Ignacio Fdez. Galván, November 2023
 
 import sys
 import os
 import subprocess as sp
+import multiprocessing
+import concurrent.futures
 import re
 
 import locale
@@ -335,12 +340,21 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
 thisfile = os.path.basename(__file__)
 
 # trap interrupt
-active_pid = None
+shared = {'active_pids': []}
 def killexit(*args):
+  # attempt to cancel parallel processes
   try:
-    os.kill(-active_pid, signal.SIGKILL)
-  except:
+    for pid in pool._processes:
+      os.kill(pid, signal.SIGKILL)
+    pool.shutdown(wait=True, cancel_futures=True)
+  except AttributeError:
     pass
+  # kill active processes
+  for pid in shared['active_pids']:
+    try:
+      os.kill(-active_pid, signal.SIGKILL)
+    except:
+      pass
   error('\nSTOP: user has terminated {}'.format(thisfile))
 signal.signal(signal.SIGINT, killexit)
 
@@ -445,18 +459,19 @@ try:
   parser.add_argument('--grep', help='filter test files containing WORD (anywhere but comments)', metavar='WORD')
   parser.add_argument('--grouplist', action='store_true', help='list the groups (see below)')
   parser.add_argument('--keep', '-k', action='store_true', help='keep the work directory after running a test')
+  parser.add_argument('--jobs', '-j', type=int, help='run N simultaneous jobs (0: auto, considering NPROCS and NTHREADS)', metavar='N', default=1)
   parser.add_argument('--list', '-l', action='store_true', help='only list matching tests')
   parser.add_argument('--module', '-m', help='filter test files containing MODULE', metavar='MODULE')
   parser.add_argument('--parallel', type=int, help='double cycles: one with 1 process, and one with N processes', metavar='N')
   parser.add_argument('--pass', action='store_true', help='ignore checkfile failures')
   parser.add_argument('--path', help='run with PATH as temporary directory', metavar='PATH')
   parser.add_argument('--postproc', help='postprocessing command to run before cleaning up the work directory', metavar='CMD')
-  parser.add_argument('--tmp', help='run with TMP as parent scratch directory', metavar='TMP')
   parser.add_argument('--quiet', '-q', action='store_true', help='do not print any messages to the screen')
   parser.add_argument('--rawlist', action='store_true', help='only list matching tests (as a list of input files)')
   parser.add_argument('--reset', action='store_true', help='clean up any results and tmp/log directories and exit')
   parser.add_argument('--status', action='store_true', help='print status of the verification (useful for redirecting the output)')
   parser.add_argument('--timest', action='store_true', help='write time estimates (for split_tests)')
+  parser.add_argument('--tmp', help='run with TMP as parent scratch directory', metavar='TMP')
   parser.add_argument('--trap', action='store_true', help='stop immediately after a failed test')
   parser.add_argument('--validate', action='store_true', help='only validate the input')
   parser.add_argument('--word', '-w', help='filter test files containing keyword WORD', metavar='WORD')
@@ -706,8 +721,14 @@ if opt['module'] or opt['word'] or opt['grep']:
   filtered_filelist = []
   for filename in filelist:
     with open(filename, 'rb') as f:
+      in_file = False
       for line in f:
-        if re.match(filter_pattern.encode(), line, re.IGNORECASE):
+        # ignore lines between >FILE and >EOF
+        if (not in_file) and re.match(r'>* *FILE '.encode(), line, re.IGNORECASE):
+          in_file = True
+        if in_file and re.match(r'>* *EOF'.encode(), line, re.IGNORECASE):
+          in_file = False
+        if (not in_file) and re.match(filter_pattern.encode(), line, re.IGNORECASE):
           filtered_filelist.append(filename)
           break
   filelist = filtered_filelist
@@ -892,37 +913,26 @@ print('''\
 # loop over tests and run verification
 #-------------------------------------
 
-# counters
-failed_tests = 0
-failed_critical_tests = 0
-skipped_tests = 0
-
-n_tests = len(filelist)
-index = 0
-
-if opt['cover']:
-  msg('WARNING: you are running tests with code coverage,\n'
-      '         this can add up to 1 min of time per test\n')
-  msg('running code coverage startup... ')
-  process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--start'])
-  active_pid = process.pid
-  process.wait()
-  msg('done\n')
-
-prev_group = '.none'
-endloop = False
-
-for filename in filelist:
-  group = filegroup[filename]
-  name = os.path.splitext(os.path.basename(filename))[0]
-  project = '{}__{}'.format(group, name)
-  workdir = os.path.join(tmpdir, project)
-  infile = os.path.join(workdir, project + '.input')
-  outfile = os.path.join(tmpdir, project + '.out')
-  errfile = os.path.join(tmpdir, project + '.err')
-  status = os.path.join(tmpdir, project + '.status')
-  index += 1
-  pc = int(index / n_tests * 100)
+# worker function to allow running simultaneous jobs
+def run_test(filename, shared):
+  endloop = False
+  with shared['lock']:
+    # after the loop is interrupted, new tasks will do nothing
+    if shared['endloop']:
+      return
+    group = filegroup[filename]
+    name = os.path.splitext(os.path.basename(filename))[0]
+    project = '{}__{}'.format(group, name)
+    workdir = os.path.join(tmpdir, project)
+    infile = os.path.join(workdir, project + '.input')
+    outfile = os.path.join(tmpdir, project + '.out')
+    errfile = os.path.join(tmpdir, project + '.err')
+    status = os.path.join(tmpdir, project + '.status')
+    shared['index'] += 1
+    pc = int(shared['index'] / n_tests * 100)
+    if group != shared['prev_group'] and group != 'external':
+      print('----------\ngroup {} from: {}'.format(group, location[group]), file=RESULT)
+      shared['prev_group'] = group
   mark = '4'
   if group in official:
     mark = '3'
@@ -940,15 +950,15 @@ for filename in filelist:
   else:
     os.environ['MOLCAS_TIMELIM'] = os.environ.get('MOLCAS_TIMELIM', '600')
   if opt['cover']:
-    process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--prep'])
-    active_pid = process.pid
-    process.wait()
+    with shared['lock']:
+      process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--prep'])
+      shared['active_pids'].append(process.pid)
+      process.wait()
+      shared['active_pids'].remove(process.pid)
   # start repeated cycles (e.g. when tests fail randomly)
   cycles = opt['cycles']
   if opt['parallel']:
     cycles *= 2
-  if group != prev_group and group != 'external':
-    print('----------\ngroup {} from: {}'.format(group, location[group]), file=RESULT)
   while cycles > 0:
     cycles -= 1
     sttime = time.time()
@@ -968,17 +978,28 @@ for filename in filelist:
     if not os.path.isdir(workdir):
       os.mkdir(workdir)
     shutil.copyfile(filename, infile)
-    if interactive or opt['status']:
-      prompt = 'Running test {}: {}... ({}%)'.format(group, name, pc)
-      msg(prompt)
+    with shared['lock']:
+      text = 'Running test {}: {}... ({}%)'.format(group, name, pc)
+      if interactive:
+        time.sleep(0.1)
+        msg_overwrite(text, shared['prompt'])
+        shared['prompt'] = text
+      elif opt['status']:
+        if opt['jobs'] > 1:
+          msg(text+'\n')
+        else:
+          msg(text)
     # run pymolcas and capture the return code.
     if opt['debug']:
       process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=sys.stdout, stderr=sys.stderr)
     else:
       with open(outfile, 'w+', encoding='utf-8') as fo, open(errfile, 'w+', encoding='utf-8') as fe:
         process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=fo, stderr=fe)
-    active_pid = process.pid
+    with shared['lock']:
+      shared['active_pids'].append(process.pid)
     rc = process.wait()
+    with shared['lock']:
+      shared['active_pids'].remove(process.pid)
     special = False
     if not opt['debug']:
       # check for special cases where the return code might be 0
@@ -986,71 +1007,85 @@ for filename in filelist:
       special = special_failure(outfile)
       if special:
         rc = 30
-    result = ''
-    if rc:
-      cycles = 0
-      if not opt['debug']:
-        shutil.copyfile(outfile, os.path.join(log_failed, project + '.out'))
-        shutil.copyfile(errfile, os.path.join(log_failed, project + '.err'))
-      # skip the test if a program is not available (RC_NOT_AVAILABLE)
-      if rc == 36:
-        result = ' S'
-        # print results
-        print('{}:{}:{} Skipped!'.format(mark, group, name), file=RESULT)
-        if interactive:
-          msg_overwrite('{}:{} Skipped!\n'.format(group, name), prompt)
-        if opt['status']:
-          msg(' Skipped!\n')
-        # update counters
-        skipped_tests += 1
-        # pretend to be fine for the remainder of this test
-        rc = 0
-      else:
-        result = ' F'
-        # gather extra info
-        mod = ''
+    with shared['lock']:
+      result = ''
+      if rc:
+        cycles = 0
         if not opt['debug']:
-          mod = failed_module(outfile)
-        if special:
-          mod = ', '.join([mod, special])
-        # print results
-        print('{}:{}:{} Failed! ({})'.format(mark, group, name, mod), file=RESULT)
+          shutil.copyfile(outfile, os.path.join(log_failed, project + '.out'))
+          shutil.copyfile(errfile, os.path.join(log_failed, project + '.err'))
+        # skip the test if a program is not available (RC_NOT_AVAILABLE)
+        if rc == 36:
+          result = ' S'
+          # print results
+          print('{}:{}:{} Skipped!'.format(mark, group, name), file=RESULT)
+          text = '{}:{} Skipped!\n'.format(group, name)
+          if interactive:
+            msg_overwrite(text, shared['prompt'])
+            shared['prompt'] = text
+          elif opt['status']:
+            if opt['jobs'] > 1:
+              msg(text)
+            else:
+              msg(' Skipped!\n')
+          # update counters
+          shared['skipped_tests'] += 1
+          # pretend to be fine for the remainder of this test
+          rc = 0
+        else:
+          result = ' F'
+          # gather extra info
+          mod = ''
+          if not opt['debug']:
+            mod = failed_module(outfile)
+          if special:
+            mod = ', '.join([mod, special])
+          # print results
+          print('{}:{}:{} Failed! ({})'.format(mark, group, name, mod), file=RESULT)
+          text = '{}:{} Failed! ({})\n'.format(group, name, mod)
+          if interactive:
+            msg_overwrite(text, shared['prompt'])
+            shared['prompt'] = text
+          elif opt['status']:
+            if opt['jobs'] > 1:
+              msg(text)
+            else:
+              msg(' Failed! ({})\n'.format(mod))
+          # update counters
+          shared['failed_tests'] += 1
+          if group in critical:
+            shared['failed_critical_tests'] += 1
+          # update list of failed input files
+          print(filename, file=FAILED_LIST)
+      else:
+        print('{}:{}:{} OK'.format(mark, group, name), file=RESULT)
         if interactive:
-          msg_overwrite('{}:{} Failed! ({})\n'.format(group, name, mod), prompt)
-        if opt['status']:
-          msg(' Failed! ({})\n'.format(mod))
-        # update counters
-        failed_tests += 1
-        if group in critical:
-          failed_critical_tests += 1
-        # update list of failed input files
-        print(filename, file=FAILED_LIST)
-    else:
-      print('{}:{}:{} OK'.format(mark, group, name), file=RESULT)
-      if interactive:
-        msg_overwrite('', prompt)
-      if opt['status']:
-        msg(' OK\n')
-      if opt['generate']:
-        rc = updatetest(filename, os.path.join(workdir, 'checkfile'))
-        if rc:
-          print_stdout('rc={}\n'.format(rc))
-    # save timing info
-    if opt['timest']:
-      runtime = time.time() - sttime
-      print('--- {}:{}{}'.format(group, name, result), file=TIMING)
-      print(int(round(runtime)), file=TIMING)
-    elif not opt['debug']:
-      print('--- Run: {}'.format(project), file=TIMING)
-      try:
-        with open(errfile, 'r', encoding='utf-8') as f:
-          for line in f:
-            print(line, end='', file=TIMING)
-      except:
-        error('could not open {}'.format(errfile))
-    if opt['postproc']:
-      os.environ['project'] = project
-      sp.call(opt['postproc'], shell=True)
+          pass
+        elif opt['status']:
+          if opt['jobs'] > 1:
+            msg('{}:{} OK\n'.format(group, name))
+          else:
+            msg(' OK\n')
+        if opt['generate']:
+          rc = updatetest(filename, os.path.join(workdir, 'checkfile'))
+          if rc:
+            print_stdout('rc={}\n'.format(rc))
+      # save timing info
+      if opt['timest']:
+        runtime = time.time() - sttime
+        print('--- {}:{}{}'.format(group, name, result), file=TIMING)
+        print(int(round(runtime)), file=TIMING)
+      elif not opt['debug']:
+        print('--- Run: {}'.format(project), file=TIMING)
+        try:
+          with open(errfile, 'r', encoding='utf-8') as f:
+            for line in f:
+              print(line, end='', file=TIMING)
+        except:
+          error('could not open {}'.format(errfile))
+      if opt['postproc']:
+        os.environ['project'] = project
+        sp.call(opt['postproc'], shell=True)
     # clean up
     if not (rc or opt['keep']):
       if os.path.exists(infile):
@@ -1065,26 +1100,98 @@ for filename in filelist:
     if rc and opt['trap']:
       endloop = True
       break
-  if endloop:
-    break
-  if opt['cover']:
-    if interactive:
-      prompt = 'Capturing coverage data for test {}: {}... ({}%)'.format(group, name, pc)
-      msg(prompt)
-    process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--measure', '--name', project])
-    active_pid = process.pid
-    process.wait()
-    if interactive:
-      msg_overwrite('', prompt)
-  prev_group = group
-if prev_group != '.none':
-  print('----------', file=RESULT)
-print('\n*Failed critical tests* {}'.format(failed_critical_tests), file=RESULT)
+  with shared['lock']:
+    if endloop:
+        shared['endloop'] = True
+    elif opt['cover']:
+      if interactive:
+        text = 'Capturing coverage data for test {}: {}... ({}%)'.format(group, name, pc)
+        msg_overwrite('', shared['prompt'])
+        shared['prompt'] = text
+      process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--measure', '--name', project])
+      shared['active_pids'].append(process.pid)
+      process.wait()
+      shared['active_pids'].remove(process.pid)
+
+# dummy context manager to replace locks with 1 job (compatible with older Python versions)
+class NullContextManager(object):
+  def __init__(self, dummy_resource=None):
+    self.dummy_resource = dummy_resource
+  def __enter__(self):
+    return self.dummy_resource
+  def __exit__(self, *args):
+    pass
+
+# get automatic number of jobs
+if opt['jobs'] < 1:
+  try:
+    n_cpu = len(os.sched_getaffinity(0))
+    n_procs = int(os.environ.get('MOLCAS_NPROCS','1'))
+    n_threads = int(os.environ.get('MOLCAS_THREADS','1'))
+    opt['jobs'] = max(1, n_cpu//(n_procs*n_threads))
+  except:
+    opt['jobs'] = 1
+
+n_tests = len(filelist)
+
+if opt['cover']:
+  msg('WARNING: you are running tests with code coverage,\n'
+      '         this can add up to 1 min of time per test\n')
+  msg('running code coverage startup... ')
+  process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--start'])
+  shared['active_pids'].append(process.pid)
+  process.wait()
+  shared['active_pids'].remove(process.pid)
+  msg('done\n')
+
+with multiprocessing.Manager() as manager:
+  # set up shared data for the simultaneous jobs
+  if opt['jobs'] > 1:
+    shared = manager.dict()
+    shared['lock'] = manager.Lock()
+    shared['active_pids'] = manager.list()
+  else:
+    shared = {}
+    shared['lock'] = NullContextManager()
+    shared['active_pids'] = []
+  shared['index'] = 0
+  shared['prompt'] = ''
+  shared['prev_group'] = '.none'
+  shared['skipped_tests'] = 0
+  shared['failed_tests'] = 0
+  shared['failed_critical_tests'] = 0
+  shared['endloop'] = False
+  if opt['jobs'] > 1:
+    msg_nl(['Running {} simultaneous jobs, output may appear in wrong order'.format(opt['jobs'])])
+    with concurrent.futures.ProcessPoolExecutor(max_workers=opt['jobs']) as pool:
+      tasks = [pool.submit(run_test, filename, shared) for filename in filelist]
+      for task in concurrent.futures.as_completed(tasks):
+        # this doesn't work as intended, though
+        if shared['endloop']:
+          pool.shutdown(wait=True, cancel_futures=True)
+          break
+  else:
+    for filename in filelist:
+      run_test(filename, shared)
+      if shared['endloop']:
+        break
+  if interactive:
+    msg_overwrite('', shared['prompt'])
+  if shared['prev_group'] != '.none':
+    print('----------', file=RESULT)
+  print('\n*Failed critical tests* {}'.format(shared['failed_critical_tests']), file=RESULT)
+  # fetch necessary info before the manager is destroyed
+  active_pids = shared['active_pids'][:]
+  skipped_tests = shared['skipped_tests']
+  failed_tests = shared['failed_tests']
+  failed_critical_tests = shared['failed_critical_tests']
+shared = {'active_pids': active_pids}
 
 if opt['cover']:
   process = sp.Popen([MOLCAS_DRIVER, 'codecov', '--html'])
-  active_pid = process.pid
+  shared['active_pids'].append(process.pid)
   process.wait()
+  shared['active_pids'].remove(process.pid)
 
 RESULT.close()
 TIMING.close()

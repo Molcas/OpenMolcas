@@ -37,12 +37,12 @@ use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nCnttp
 use Gateway_global, only: Onenly, Test
 use Symmetry_Info, only: nIrrep
+use rctfld_module, only: iCharge_Ref
+use Disp, only: lDisp
+use Etwas, only: nAsh, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: iCharge_Ref
-use Disp, only: lDisp
-use Etwas, only: nIsh, nAsh
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

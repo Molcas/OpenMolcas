@@ -20,10 +20,10 @@ use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, G1
 use Symmetry_Info, only: iOper, nIrrep
+use Etwas, only: nAsh, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-use etwas, only: nAsh, nIsh
 
 implicit none
 integer(kind=iwp), intent(in) :: nrIn, jDisp, iIrrep

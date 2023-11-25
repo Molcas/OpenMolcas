@@ -46,7 +46,8 @@ C        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
 C     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
 C       Else
         if (NCMSScale.gt.0) then
-      write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,I1)')
+      write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,'//
+     &        'I1)')
      &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,'1E-',NCMSScale
         else
        write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)')

@@ -36,13 +36,13 @@ use DKH_Info, only: BSS, DKroll
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: Do_FckInt, DoFMM, EMFR, GIAO, kVector, lAMFI, lMXTC, lRel, NEMO, PotNuc, Vlct
 use Integral_interfaces, only: int_kernel, int_mem
+use Property_Label, only: PLabel
 #ifdef _FDE_
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use Property_Label, only: PLabel
 
 implicit none
 #include "print.fh"
@@ -1572,15 +1572,15 @@ end if
 !***********************************************************************
 !***********************************************************************
 !!!MXTC
-if (lMXTC.and.DKroll.and.Primitive_Pass) then
+if (lMXTC .and. DKroll .and. Primitive_Pass) then
 # ifdef _GEN1INT_
   nOrdOp = 0
   ! Assume symmetric
   rHrmt = One
   nComp = 9
   call Get_nAtoms_All(nAtoms)
-  do iCnt = 1, nAtoms
-    do jCnt = 1, 2
+  do iCnt=1,nAtoms
+    do jCnt=1,2
       if (jCnt == 1) then
         ! Label for lower triangular portion
         write(Label,'(A,I3)') 'MAGXP',iCnt

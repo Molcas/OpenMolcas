@@ -29,9 +29,13 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
                         Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
 use Cholesky, only: Span, ThrCom
-use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
-                          iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+                          NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+use rctfld_module, only: lLangevin, lRF, PCM, RDS
+use rmat, only: bParm, Dipol, Dipol1, EpsAbs, EpsQ, EpsRel, QCoul, RMat_On, RMatR
+use define_af, only: AngTp, iTabMx
+use getline_mod, only: Line
 #ifdef _FDE_
 use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
                             embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
@@ -46,10 +50,6 @@ use Para_Info, only: Is_Real_Par
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, UtoAU
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: lRF, PCM, lLangevin, RDS
-use rmat, only: Dipol1, RMat_On, bParm, Dipol, EpsAbs, EpsQ, EpsRel, QCoul, RMatR
-use define_af, only: iTabMx, AngTp
-use getline_mod, only: Line
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd_
@@ -63,16 +63,16 @@ logical(kind=iwp), intent(out) :: Do_OneEl
 #endif
 integer(kind=iwp), parameter :: MAX_XBAS = 20
 integer(kind=iwp) :: BasisTypes(4), BasisTypes_Save(4), i, i1, i2, iAng, iAt, iAtom_Number, ib, ibla, iBSSE, iChk_CH, iChk_DC, &
-                     iChk_RI, iChrct, iChxyz, iCLDF, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, &
-                     ifnr, iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
+                     iChk_RI, iChrct, iChxyz, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, ifnr, &
+                     iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
                      iOpt_XYZ, iOptimType, iPrint, iprop_ord, iRout, iShll, ist, istatus, isxbas, isXfield, iTemp, ITkQMMM, iTtl, &
                      itype, iUnique, iWel, ix, j, jAtmNr, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, lSTDINP, Lu_UDC, &
                      LuFS, LuIn, LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, &
                      nFragment, nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
-real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, &
-                 sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp
+real(kind=wp) :: CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, sDel, &
+                 spanCD, stepFac1, SymThr, tDel, Temp
 
-logical(kind=iwp) :: AnyMode, APThr_UsrDef, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
+logical(kind=iwp) :: AnyMode, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
                      CutInt_UsrDef, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
                      FragSet, GroupSet, GWInput, HyperParSet, Invert, isnumber, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, &
                      lOAM = .false., lOMQ = .false., lPP, lSkip, lTtl, lXF = .false., MolWgh_UsrDef, nmwarn, NoAMFI, NoDKroll, &
@@ -122,12 +122,12 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
                                             'DK1H','DK2H','DK3H','DK3F','RESC','RA0H','RA0F','RAIH','RX2C','RBSS','DCCD','BSSM', &
                                             'AMFI','AMF1','AMF2','AMF3','FAKE','FINI','MGAU','PART','FPCO','FPPR','NOTA','WELL', &
                                             'NODK','ONEO','TEST','SDIP','EPOT','EFLD','FLDG','ANGM','UPON','DOWN','OMQI','AMPR', &
-                                            'DSHD','NOPA','STDO','PKTH','SKIP','EXTR','RF-I','GRID','CLIG','NEMO','RMAT','RMEA', &
+                                            'DSHD','NOPA','    ','PKTH','SKIP','EXTR','RF-I','GRID','CLIG','NEMO','RMAT','RMEA', &
                                             'RMER','RMQC','RMDI','RMEQ','RMBP','GIAO','NOCH','CHOL','FCD ','THRC','1CCD','1C-C', &
                                             'CHOI','RP-C','SADD','CELL','SPAN','SPRE','LOW ','MEDI','HIGH','DIAG','RIC ','RIJ ', &
                                             'RIJK','RICD','XRIC','NOGU','RELA','RLOC','FOOC','CDTH','SHAC','KHAC','ACD ','FAT-', &
-                                            'ACCD','SLIM','    ','DOFM','NOAM','RPQM','CONS','NGEX','LOCA','LDF ','LDF1','LDF2', &
-                                            'TARG','THRL','APTH','CHEC','VERI','OVER','CLDF','UNCO','WRUC','UNIQ','NOUN','RLDF', &
+                                            'ACCD','SLIM','    ','DOFM','NOAM','RPQM','CONS','NGEX','LOCA','    ','    ','    ', &
+                                            '    ','    ','    ','    ','    ','    ','    ','    ','    ','    ','    ','    ', &
                                             'NOAL','WEIG','ALIG','TINK','ORIG','HYPE','ZCON','SCAL','DOAN','GEOE','OLDZ','OPTH', &
                                             'NOON','GEO ','MXTC','FRGM','TRAN','ROT ','ZONL','BASL','NUME','VART','VARR','SHAK', &
                                             'PAMF','GROM','LINK','EMFR','NOCD','FNMC','ISOT','EFP ']
@@ -174,7 +174,6 @@ if (Found) call Get_cArray('Align_Weights',Align_Weights,512)
 CutInt_UsrDef = .false.
 ThrInt_UsrDef = .false.
 MolWgh_UsrDef = .false.
-APThr_UsrDef = .false.
 NoAMFI = .false.
 
 iChk_RI = 0
@@ -292,8 +291,6 @@ lthCell = 0
 Cell_l = .false.
 ispread(:) = 0
 VCell(:,:) = Zero
-! Set local DF variables (dummy)
-call LDF_SetInc()
 rewind(LuRd)
 ! Count the number of calls to coord to set the number of fragments
 ! for a geo/hyper-calculation
@@ -1191,7 +1188,7 @@ do
         !**** DCCD *****************************************************
         !                                                              *
 
-        Do_DCCD = .True.
+        Do_DCCD = .true.
 
         ! RICD
         Do_RI = .true. !ORDINT ERROR
@@ -1519,31 +1516,16 @@ do
         !***** NOPA ****************************************************
         !                                                              *
         ! Set integral packing flag
-        ! Note      : this flag is only active if iWRopt=0
         ! iPack=0   : pack 2el integrals (= Default)
         ! iPack=1   : do not pack 2el integrals
 
         iPack = 1
-
-      case (KeyW(87))
-        !                                                              *
-        !***** STDO ****************************************************
-        !                                                              *
-        ! Set integral write option for 2 el integrals
-        ! iWRopt=0  : 2 el integrals are written in the MOLCAS2 format,
-        !             i.e., in canonical order, no labels and packed format
-        !             (= Default)
-        ! iWRopt=1  : 2 el integrals are written in a format identical
-        !             to MOLECULE, i.e., values and labels
-
-        iWRopt = 1
 
       case (KeyW(88))
         !                                                              *
         !***** PKTH ****************************************************
         !                                                              *
         ! Read desired packing accuracy ( Default = 1.0e-14 )
-        ! Note      : this flag is only active if iWRopt=0
 
         KWord = Get_Ln(LuRd)
         call Get_F1(1,PkAcc)
@@ -1558,7 +1540,6 @@ do
         ! will not be needed in subsequent calculations their computation
         ! ans storage can be omitted.
         ! ( Default = 0,0,0,0,0,0,0,0 )
-        ! Note      : this flag is only activ if iWRopt=0
 
         KWord = Get_Ln(LuRd)
         lSkip = .true.
@@ -2150,7 +2131,7 @@ do
         ! Local Douglas-Kroll-Hess/X2C/BSS
 
         LDKroll = .true.
-        !GWInput = .True.
+        !GWInput = .true.
         nCtrLD = 0
         radiLD = 5.5_wp
 
@@ -2329,143 +2310,6 @@ do
         ! compilers behave like the others when detecting EOF
         endfile(Lu_UDC)
         close(Lu_UDC)
-
-      case (KeyW(141),KeyW(142),KeyW(143))
-        !                                                              *
-        !**** LOCA or LDF1 or LDF  *************************************
-        !                                                              *
-        ! Activate Local Density Fitting.
-
-        LocalDF = .true.
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(144))
-        !                                                              *
-        !**** LDF2 *****************************************************
-        !                                                              *
-        ! Activate Local Density Fitting with 2-center functions included
-        ! when needed to achieve target accuracy.
-
-        LocalDF = .true.
-        call LDF_SetLDF2(.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(145),KeyW(146))
-        !                                                              *
-        !**** TARG or THRL *********************************************
-        !                                                              *
-        ! Set target accuracy for Local Density Fitting.
-        ! This implies inclusion of 2-center functions (the only way we can
-        ! affect accuracy).
-
-        Key = Get_Ln(LuRd)
-        call Get_F1(1,Target_Accuracy)
-        call LDF_SetThrs(Target_Accuracy)
-        LocalDF = .true.
-        call LDF_SetLDF2(.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(147))
-        !                                                              *
-        !**** APTH *****************************************************
-        !                                                              *
-        ! Set screening threshold for LDF - i.e. threshold for defining
-        ! significant atom pairs.
-
-        Key = Get_Ln(LuRd)
-        call Get_F1(1,APThr)
-        call LDF_SetPrescreen(APThr)
-        LocalDF = .true.
-        APThr_UsrDef = .true.
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(148))
-        !                                                              *
-        !**** CHEC *****************************************************
-        !                                                              *
-        ! LDF debug option: check pair integrals.
-
-        call LDF_SetOptionFlag('CHEC',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(149))
-        !                                                              *
-        !**** VERI *****************************************************
-        !                                                              *
-        ! LDF debug option: verify fit for each atom pair.
-
-        call LDF_SetOptionFlag('VERI',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(150))
-        !                                                              *
-        !**** OVER *****************************************************
-        !                                                              *
-        ! LDF debug option: check overlap integrals (i.e. charge)
-
-        call LDF_SetOptionFlag('OVER',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(151))
-        !                                                              *
-        !**** CLDF *****************************************************
-        !                                                              *
-        ! Constrained LDF - read constraint order
-        ! order=-1 --- unconstrained
-        ! order=0  --- charge (i.e. overlap)
-
-        Key = Get_Ln(LuRd)
-        call Get_I1(1,iCLDF)
-        call LDF_AddConstraint(iCLDF)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(152))
-        !                                                              *
-        !**** UNCO *****************************************************
-        !                                                              *
-        ! Unconstrained LDF (same as CLDF=-1)
-
-        call LDF_AddConstraint(-1)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(153))
-        !                                                              *
-        !**** WRUC *****************************************************
-        !                                                              *
-        ! Write unconstrained coefficients to disk.
-        ! Only meaningful along with constrained fitting.
-        ! For debugging purposes: enables constrained fit verification in
-        ! modules other than Seward.
-
-        call LDF_SetOptionFlag('WRUC',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(154))
-        !                                                              *
-        !**** UNIQ *****************************************************
-        !                                                              *
-        ! LDF: use unique atom pairs.
-
-        call LDF_SetOptionFlag('UNIQ',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(155))
-        !                                                              *
-        !**** NOUN *****************************************************
-        !                                                              *
-        ! LDF: do not use unique atom pairs.
-
-        call LDF_SetOptionFlag('UNIQ',.false.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(156))
-        !                                                              *
-        !**** RLDF *****************************************************
-        !                                                              *
-        ! Activate local DF/RI, Roland's original LDF test implementation
-
-        LDF = .true.
-        GWInput = .true.
 
       case (KeyW(157))
         !                                                              *
@@ -3275,12 +3119,6 @@ lAMFI = lAMFI .and. (.not. NoAMFI)
 ! Disable the RI flag if only one-electron integrals are requested
 
 Do_RI = (.not. Onenly) .and. Do_RI
-if (Do_RI) then
-  if (LDF .and. LocalDF) then
-    call WarningMessage(2,'LDF and LocalDF are incompatible')
-    call Quit_OnUserError()
-  end if
-end if
 
 iPrint = nPrint(iRout)
 
@@ -3430,8 +3268,7 @@ end do
 !    keyword. Thus, specifying Cholesky will force 2-el. int.
 !    processing even with Direct specifed as well!
 ! 4) Turn off Dist flag (makes no sense with Cholesky).
-! 5) Integral format on disk is irrelevant, except that Aces II is
-!    not allowed. So, reset iWrOpt or quit (for Aces II).
+! 5) Integral format on disk is irrelevant.
 ! 6) if Cholesky threshold is specified, use it.
 ! 7) if span factor is specified, use it.
 
@@ -3447,12 +3284,6 @@ if (Chol) then
       else
         MolWgh = Cho_MolWgh
       end if
-    end if
-    if (iWrOpt == 2) then
-      write(u6,*) 'Acess II format not allowed with Cholesky!!'
-      call Quit_OnUserError()
-    else if ((iWrOpt /= 0) .and. (iWrOpt /= 3)) then
-      iWrOpt = 0
     end if
     if (CholeskyThr >= Zero) then
       Thrshld_CD = CholeskyThr
@@ -3494,14 +3325,6 @@ if (Do_RI .and. (Run_Mode /= S_Mode)) then
     call Mk_RI_Shells(LuRd)
 
   end if
-end if
-if (Do_RI .and. LocalDF .and. (Run_Mode == S_Mode)) then
-  call SetTargetAccuracy_LDF()
-  if (CutInt_UsrDef .and. (.not. APThr_UsrDef)) then
-    call LDF_SetPrescreen(CutInt)
-    call LDF_CheckThrs()
-  end if
-  call LDF_CheckConfig()
 end if
 !                                                                      *
 !***********************************************************************

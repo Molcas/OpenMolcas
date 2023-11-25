@@ -23,7 +23,7 @@
       Integer nOcc(lOcc,nD)
       Real*8 ExFac
 
-      Logical DoCholesky,GenInt,DoLDF
+      Logical DoCholesky,GenInt
       Character(LEN=50) CFmt
       Integer iRC, lBuf
       Real*8 TotCPU, TotCPU1, TotCPU2
@@ -37,8 +37,6 @@
       DoCholesky=.false.
       if(ALGO.eq.0) GenInt=.true. !use GenInt to regenerate integrals
       Call DecideOnCholesky(DoCholesky)
-      Call DecideOnLocalDF(DoLDF)
-      If (DoLDF) GenInt=.false. ! regenerate ints not impl. for LDF
 
 !      write(6,*)'*************************'
 !      write(6,*)'ONLY COULOMB CONTRIBUTION'

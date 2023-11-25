@@ -333,7 +333,7 @@ subroutine compare_matrices(A,B,n,header,thrs)
       cycle
     else
       AB_equal = .false.
-      write(u6,*) "error in", i
+      write(u6,*) "error in",i
       exit
     end if
   end do

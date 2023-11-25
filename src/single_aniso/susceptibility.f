@@ -275,7 +275,8 @@ C
 
       Do iT=1,nT
         jT=iT+nTempMagn
-        Write(6,'(A,F11.6,A,E12.5,A,F12.8,A,F12.8,A,E12.5,A,E12.5,A)')
+        Write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,ES12.5,A,ES12.5,'//
+     &          'A)')
      &   '     |',         T(jT),       ' |',     zstat1(jT),
      &       ' |',      chiT(jT),       ' |', chiT_theta(jT),
      &       ' |',chiT_theta(jT)/T(jT), ' |',chi_theta_1(jT),' |'

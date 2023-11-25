@@ -255,7 +255,7 @@ C -------------------------------------------------------------------
      &                             'rotation in the XZ plane          |'
         Write(6,'(10A)') '--------|', '-- torque along Y --|'
          Do iM=1,AngPoints
-            Write(6,'(F7.3,1x,A,E18.10)') Ang(iM),'|',ty(iM)
+            Write(6,'(F7.3,1x,A,ES18.10)') Ang(iM),'|',ty(iM)
          End Do
         Write(6,'(10A)') '--------|','---------------------------|'
 

@@ -31,12 +31,11 @@
       use Embedding_Global, only: Eemb, embPot
 #endif
       use SpinAV, only: Do_SpinAV
-      use InfSCF, only: DMOMax, doLDF, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, nD, jPrint, KSDFT, lPaper, &
+      use InfSCF, only: DMOMax, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, nD, jPrint, KSDFT, lPaper, &
                         MxConstr, nBas, nBT, nIterP, nOrb, nSym, PotNuc, s2UHF, WarnCfg, WarnPocc, WarnSlow, nIter, &
                         nOcc
       use AddCorr, only: DE_KSDFT_c, Do_Addc, Do_Tw, Addc_KSDFT
       use DCSCF, only: Erest_xc, s2CNO
-      use LDFSCF, only: ldf_integralmode, ldf_useconventionalintegrals
       use Constants, only: Zero, Half
       Implicit None
       Integer nDT, nEO, nCMO
@@ -117,17 +116,6 @@
       suhf=-Half+sqrt(0.25d0+s2uhf)
       Call put_dscalar('UHFSPIN',SUHF)
       iTol = min(Cho_X_GetTol(8),8)
-      If (doLDF) Then
-         ! the non-robust integral representations are numerically
-         ! unstable and may give much larger errors, depending on
-         ! machine and compiler options. Be more tolerant in those
-         ! cases.
-         If (LDF_IntegralMode.ne.1) Then
-            If (.not.LDF_UseConventionalIntegrals) Then
-               iTol=max(iTol-4,2)
-            End If
-         End If
-      End If
       If (jPrint.ge.2) Then
          If (MxConstr.gt.0) Then
             DE_KSDFT_c=Zero

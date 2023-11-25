@@ -325,17 +325,17 @@ call Diagr(H,N,TMPF,EW,TMPE,TMPB,TMP2)
 if (idbg > 0) then
   call PRMAT(IDBG,h,n,0,'h   oper(final)')
   write(idbg,*) '--- EIGENVALUES OF H MATRIX ---'
-  write(idbg,'(4D20.12)') EW
+  write(idbg,'(4ES20.12)') EW
 end if
 
 return
 
-100 format(1X,I4,7(1X,D15.8))
+100 format(1X,I4,7(1X,ES15.8))
 556 format(//,7X,'- NREL. ENERG.  -  DIVIDED BY C - REL.  ENERG.  -  MOMENTUM    - TERMS OF POWER SERIES (LOW ENERGY ONLY)'//)
 #ifdef _DEBUGPRINT_
 2012 format('  relsew|****** '/,'        |****** WARNING - OVERLAP MATRIX SINGULAR '/, &
-            '        |****** PIVOTAL ELEMENT LESS THAN ',D20.4,' FOUND'/,'        |******'//)
-2016 format('  relsew| DCOPIV rc=',I2,', |S|=',D20.6,'x 10**(',I4,') ')
+            '        |****** PIVOTAL ELEMENT LESS THAN ',ES20.4,' FOUND'/,'        |******'//)
+2016 format('  relsew| DCOPIV rc=',I2,', |S|=',ES20.6,'x 10**(',I4,') ')
 #endif
 
 end subroutine SCFCLI

@@ -44,17 +44,16 @@ use MpmC, only: Coor_MPM
 use Basis_Info, only: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, nBas
 use Center_Info, only: Center_Info_Dmp, Center_Info_Free, Center_Info_Get, Center_Info_Init
 use Symmetry_Info, only: nIrrep, lIrrep
-use LundIO, only: Buf, iDisk, lBuf, Lu_28
 use DKH_Info, only: DKroll
 use OneDat, only: sNew
 use Gateway_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post, PkAcc
-use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
+use RICD_Info, only: Do_RI, Cholesky, DiagCheck
 use k2_arrays, only: DeDe
 #ifdef _FDE_
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
-use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, iWROpt, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
-use Integral_interfaces, only: int_wrout
+use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
+use Integral_interfaces, only: Int_PostProcess, Integral_WrOut2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -63,14 +62,12 @@ implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "warnings.h"
 #include "print.fh"
-integer(kind=iwp) :: i, iOpt, iRC, iRout, iWrOpt_Save, Lu_One, LuSpool, MaxDax, nChoV(8), nDiff, nDNA
+integer(kind=iwp) :: i, iOpt, iRC, iRout, Lu_One, LuSpool, MaxDax, nChoV(8), nDiff, nDNA
 real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), TCpu1, TCpu2, TWall1, Twall2
 logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
-integer(kind=iwp), external :: ip_of_Work, isFreeUnit
 logical(kind=iwp), external :: Reduce_Prt
-procedure(int_wrout) :: Integral_WrOut, Integral_WrOut2, Integral_RI_3
 interface
   subroutine get_genome(cDNA,nDNA) bind(C,name='get_genome_')
     use, intrinsic :: iso_c_binding, only: c_char
@@ -340,88 +337,52 @@ if (.not. Test) then
       !*****************************************************************
       !                                                                *
       call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
-      if (iWRopt == 0) then
 
-        !----- Molcas format
-
-        if (Cholesky) then ! Cholesky decomposition
-          call Cho_MCA_Drv()
-          call Get_iArray('NumCho',nChoV,nIrrep)
-          if (nPrint(iRout) >= 6) then
-            write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
-            write(u6,*)
-            write(u6,*)
-          end if
-        else if (Do_RI) then
-          if (LocalDF) then
-            call Drv2El_LocalDF()
-          else
-            if (nPrint(iRout) >= 6) then
-              write(u6,*)
-              write(u6,'(A)') 'Seward processing 2-center and 3-center ERIs'
-              write(u6,*)
-            end if
-            call Drv2El_3Center_RI(Integral_RI_3,Zero)
-            call Get_iArray('NumCho',nChoV,nIrrep)
-            if (nPrint(iRout) >= 6) then
-              write(u6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
-              write(u6,*)
-              write(u6,*)
-            end if
-          end if
-        else
-          iWrOpt_Save = iWrOpt
-          iWrOpt = 0
-          call Sort0()
-
-          call Drv2El(Integral_WrOut2,Zero)
-
-          call Sort1B()
-          call Sort2()
-          call Sort3(MaxDax)
-
-          if ((.not. Reduce_Prt()) .and. (nPrint(iRout) >= 6)) then
-            write(u6,*)
-            write(u6,'(A)') ' Integrals are written in MOLCAS2 format'
-            if (iPack /= 0) then
-              write(u6,'(A)') ' No packing of integrals has been applied'
-            else
-              write(u6,'(A,G11.4)') ' Packing accuracy =',PkAcc
-              write(u6,'(A,I10)') ' Highest disk address written',MaxDax
-            end if
-            write(u6,'(A)') ' Diagonal and subdiagonal, symmetry allowed 2-el integral blocks are stored on Disk'
-          end if
-          iWrOpt = iWrOpt_Save
+      if (Cholesky) then ! Cholesky decomposition
+        call Cho_MCA_Drv()
+        call Get_iArray('NumCho',nChoV,nIrrep)
+        if (nPrint(iRout) >= 6) then
+          write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
+          write(u6,*)
+          write(u6,*)
         end if
-        !                                                              *
-        !***************************************************************
-        !                                                              *
-      else if (iWRopt == 1) then
+      else if (Do_RI) then
+        if (nPrint(iRout) >= 6) then
+          write(u6,*)
+          write(u6,'(A)') 'Seward processing 2-center and 3-center ERIs'
+          write(u6,*)
+        end if
 
-        !----- Molecule format (Molcas 1.0)
+        call Drv2El_3Center_RI(Zero)
 
-        Lu_28 = 28
-        Lu_28 = isfreeunit(Lu_28)
-        call DaName_MF(Lu_28,'BASINT')
-        iDisk = 0
-        lBuf = ip_of_Work(Buf%r_End)-ip_of_Work(Buf%Buf(1))
-
-        call Drv2El(Integral_WrOut,Zero)
-
-        call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
-        Buf%nUt = -1
-        call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
-        write(u6,*)
-        write(u6,'(A)') ' Integrals are written in MOLCAS1 format'
-        !write(u6,'(I10,A)') IntTot,' Integrals written on Disk'
-        !                                                              *
-        !***************************************************************
-        !                                                              *
+        call Get_iArray('NumCho',nChoV,nIrrep)
+        if (nPrint(iRout) >= 6) then
+          write(u6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
+          write(u6,*)
+          write(u6,*)
+        end if
       else
+        call Sort0()
 
-        call WarningMessage(2,'Seward: Invalid value of iWRopt!')
-        call Abend()
+        Int_PostProcess => Integral_WrOut2
+        call Drv2El(Zero)
+        Int_PostProcess => null()
 
+        call Sort1B()
+        call Sort2()
+        call Sort3(MaxDax)
+
+        if ((.not. Reduce_Prt()) .and. (nPrint(iRout) >= 6)) then
+          write(u6,*)
+          write(u6,'(A)') ' Integrals are written in MOLCAS2 format'
+          if (iPack /= 0) then
+            write(u6,'(A)') ' No packing of integrals has been applied'
+          else
+            write(u6,'(A,G11.4)') ' Packing accuracy =',PkAcc
+            write(u6,'(A,I10)') ' Highest disk address written',MaxDax
+          end if
+          write(u6,'(A)') ' Diagonal and subdiagonal, symmetry allowed 2-el integral blocks are stored on Disk'
+        end if
       end if
       call mma_deallocate(DeDe)
 

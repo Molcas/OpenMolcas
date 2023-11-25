@@ -15,10 +15,10 @@ use PCM_arrays, only: Centr, dCntr, DPnt, dRad, dTes, IntSph, NewSph, NVert, PCM
                       Vert
 use external_centers, only: iXPolType
 use Data_Structures, only: Alloc2DArray_Type, Alloc4DArray_Type
+use rctfld_module, only: DoDeriv, nPCM_Info, nTS, PCM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Angstrom
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: DoDeriv, PCM, nPCM_Info, nTS
 
 implicit none
 integer(kind=iwp), intent(in) :: natom, iRMax, IsMM(natom), iGrdTyp, nAtQM

@@ -27,9 +27,9 @@ subroutine NAGrd( &
 use Basis_Info, only: dbsc, Gaussian_Type, iCnttp_Dummy, nCnttp, Nuclear_Model, Point_Charge
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
+use Disp, only: Dirct, IndDsp
 use Constants, only: Zero, One, Two, Three, Pi, TwoP54
 use Definitions, only: wp, iwp, u6
-use Disp, only: Direct, IndDsp
 
 implicit none
 #include "grd_interface.fh"
@@ -174,7 +174,7 @@ do kCnttp=1,nCnttp
       iComp = 2**iCar
       if (TF(kdc+kCnt,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%Frag) .and. (.not. dbsc(kCnttp)%pChrg)) then
         nDisp = nDisp+1
-        if (Direct(nDisp)) then
+        if (Dirct(nDisp)) then
           ! Reset flags for the basis set centers so that we
           ! will explicitly compute the derivatives with
           ! respect to those centers. Activate flag for the
@@ -220,11 +220,15 @@ do kCnttp=1,nCnttp
       if (Nuclear_Model == Gaussian_Type) then
         Eta = dbsc(kCnttp)%ExpNuc
         EInv = One/Eta
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori, &
-                   CoorAC,Array(nip),nArray,TERI1,ModU2,vCff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+                   Zeta,ZInv,nZeta,[Eta],[EInv],1, &
+                   P,nZeta,TC,1,Coori,Coori,CoorAC, &
+                   Array(nip),nArray,TERI1,ModU2,vCff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
       else if (Nuclear_Model == Point_Charge) then
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori, &
-                   CoorAC,Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+                   Zeta,ZInv,nZeta,[One],[One],1, &
+                   P,nZeta,TC,1,Coori,Coori,CoorAC, &
+                   Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
       else
         ! more to come...
       end if

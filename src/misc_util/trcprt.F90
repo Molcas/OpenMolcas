@@ -128,7 +128,7 @@ end if
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
 write(LuWr,*)
-write(LuWr,'(E24.17)') DDot_(nCol*nRow,A,1,A,1),DDot_(nCol*nRow,A,1,[One],0)
+write(LuWr,'(ES24.17)') DDot_(nCol*nRow,A,1,A,1),DDot_(nCol*nRow,A,1,[One],0)
 #else
 write(LuWr,*)
 write(LuWr,'(2X,A)') 'row norms'

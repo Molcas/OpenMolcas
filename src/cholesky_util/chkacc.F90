@@ -222,9 +222,9 @@ end select
 
 if (.not. Skip) then
   write(IW,'(/A/)') ' Check the accuracy of the convergence'
-  write(IW,'(A,F10.3,2X,A,E18.9E2)') ' R =',RList(InitR),'Maximum error = ',ErrMin
-  write(IW,'(A,F10.3,2X,A,E18.9E2)') ' R =',R,'Maximum error = ',Error
-  write(IW,'(A,F10.3,2X,A,E18.9E2/)') ' R =',RList(InitR+1),'Maximum error = ',ErrMax
+  write(IW,'(A,F10.3,2X,A,ES18.9E2)') ' R =',RList(InitR),'Maximum error = ',ErrMin
+  write(IW,'(A,F10.3,2X,A,ES18.9E2)') ' R =',R,'Maximum error = ',Error
+  write(IW,'(A,F10.3,2X,A,ES18.9E2/)') ' R =',RList(InitR+1),'Maximum error = ',ErrMax
   if ((Error > ErrMin) .and. (Error < ErrMax)) then
     write(IW,'(A)') ' Convergence is GOOD.'
     Change = .false.

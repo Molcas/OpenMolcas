@@ -12,8 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
-                 Tvalue,ModU2,Cff2D,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
+subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta, &
+                 Zeta,ZInv,nZeta,Eta,EInv,nEta, &
+                 P,lP,Q,lQ,Coori,Coora,CoorAC, &
+                 Array,nArray,Tvalue,ModU2,Cff2D,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradient of the two-electron integrals.       *

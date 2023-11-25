@@ -257,7 +257,7 @@ do J1=J1A,JEndA
         Sw(iwr) = Osc(nv1,nv2)
       end do
     end do
-    write(u6,'(6(2X,I3,1X,I3,1X,E12.5))') (nv1w(i),nv2w(i),Sw(i),i=1,iwr)
+    write(u6,'(6(2X,I3,1X,I3,1X,ES12.5))') (nv1w(i),nv2w(i),Sw(i),i=1,iwr)
 
     ! Print lifetime
     write(u6,*)
@@ -271,7 +271,7 @@ do J1=J1A,JEndA
         Sw(iwr) = Taui(nv1,nv2)
       end do
     end do
-    write(u6,'(6(2X,I3,1X,I3,1X,E12.5))') (nv1w(i),nv2w(i),Sw(i),i=1,iwr)
+    write(u6,'(6(2X,I3,1X,I3,1X,ES12.5))') (nv1w(i),nv2w(i),Sw(i),i=1,iwr)
     ! Compute lifetimes for upper state
     write(u6,1600)
     do nv2=1,ne2
@@ -402,7 +402,7 @@ call Add_Info('VIBROT_VIBTRM',[ChkSum],1,6)
 return
 
 !PAM97
-!1001 format('1',1x,'Matrix elements of observables'/1x,e80//1x,'Asymtotic energy difference (au):',e14.6)
+!1001 format('1',1x,'Matrix elements of observables'/1x,a80//1x,'Asymtotic energy difference (au):',es14.6)
 1002 format('Rotational quantum number for potential 1: ',i3,', for potential 2: ',i3)
 1003 format(1x,80('-'))
 1200 format(/1x,'*****Warning: non-orthogonality between vibrational',1x,'wave functions for potential',i2 &

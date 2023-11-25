@@ -43,7 +43,7 @@ real(kind=wp), allocatable :: ZFd(:), ZRFd(:)
 character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: iChAtm, NrOpr
 logical(kind=iwp), external :: EQ
-external TNAI, Fake, XCff2D, XRys2D
+external :: TNAI, Fake, XCff2D, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)

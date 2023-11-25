@@ -17,10 +17,10 @@ use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, nDens
 use Symmetry_Info, only: nIrrep
+use Etwas, only: nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
-use etwas, only: nIsh
 
 implicit none
 real(kind=wp), intent(out) :: Dens(nDens)

@@ -120,9 +120,9 @@ do while (.not. LAST)
       if (lod39) then
         qdet = coef*sqrt(real(icoef(1),kind=wp)/real(icoef(2),kind=wp))
         if (LPHASE) then
-          write(LuVecDet,'(e15.8,6x,a)') qdet,LINE(27:K)
+          write(LuVecDet,'(es15.8,6x,a)') qdet,LINE(27:K)
         else
-          write(LuVecDet,'(e15.8,6x,a)') -qdet,LINE(27:K)
+          write(LuVecDet,'(es15.8,6x,a)') -qdet,LINE(27:K)
         end if
       end if
     end if

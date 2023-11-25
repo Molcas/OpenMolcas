@@ -42,7 +42,7 @@ real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:
 character(len=*), parameter :: SecNam = 'TestLoc'
 integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: ddot_
-logical(kind=iwp) :: debug=.false.
+logical(kind=iwp), parameter :: debug = .false.
 
 call Untested('TestLoc')
 
@@ -122,7 +122,7 @@ do iSym=1,nSym
   call dAXPY_(nB2,-One,DenX(kD),1,Ddff(kD),1)
   xNrm = sqrt(dDot_(nB2,Ddff(kD),1,Ddff(kD),1))
   if (xNrm > Tol) then
-    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||CC^T - XX^T|| = ',xNrm,' (sym.',iSym,')'
+    write(u6,'(A,A,ES16.8,A,I2,A)') SecNam,': ERROR: ||CC^T - XX^T|| = ',xNrm,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kD = kD+nB2
@@ -155,7 +155,7 @@ do iSym=1,nSym
     end do
   end do
   if (xErr > Tol) then
-    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: max. U^TU off-diag. = ',xErr,' (sym.',iSym,')'
+    write(u6,'(A,A,ES16.8,A,I2,A)') SecNam,': ERROR: max. U^TU off-diag. = ',xErr,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   nB2 = nBas(iSym)**2
@@ -210,7 +210,7 @@ do iSym=1,nSym
       end do
     end do
     if (xErr > Tol) then
-      write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: max. X^TSX off-diag. = ',xErr,' (sym.',iSym,')'
+      write(u6,'(A,A,ES16.8,A,I2,A)') SecNam,': ERROR: max. X^TSX off-diag. = ',xErr,' (sym.',iSym,')'
       mErr = mErr+1
     end if
     if (mErr /= 0) nErr = nErr+1

@@ -9,6 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 subroutine Integral_RI_2( &
 #                        define _CALLING_
 #                        include "int_wrout_interface.fh"
@@ -18,7 +23,6 @@ subroutine Integral_RI_2( &
 !                   else  integral order within symblk: ijkl
 
 use RI_glob, only: iOffA, SO2Ind
-use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"

@@ -167,12 +167,12 @@ if (ltri) then
 
         else
           ip = ipDisp(abs(indgrd(iCar,iCent,0)))
-          call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,rFinal(ipFin),TwoHam(ip),dan, &
-                            ndens,iAO,iAOst,iBasi,jBasj,kBask,lBasl,ExFac)
+          call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,rFinal(ipFin),TwoHam(ip),dan,ndens,iAO,iAOst, &
+                            iBasi,jBasj,kBask,lBasl,ExFac)
           if (nMethod == RASSCF) then
             ip = ipDisp2(abs(indgrd(iCar,iCent,0)))
-            call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,rFinal(ipFin),TwoHam(ip),din, &
-                              nDens,iAO,iAOst,iBasi,jBasj,kBask,lBasl,ExFac)
+            call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,rFinal(ipFin),TwoHam(ip),din,nDens,iAO, &
+                              iAOst,iBasi,jBasj,kBask,lBasl,ExFac)
           end if
         end if
 
@@ -201,12 +201,12 @@ if (ltri) then
 
         else
           ip = ipDisp(abs(indgrd(iCar,iCent,0)))
-          call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,Temp,TwoHam(ip),dan,nDens,iAO, &
-                            iAOst,iBasi,jBasj,kBask,lBasl,ExFac)
+          call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,Temp,TwoHam(ip),dan,nDens,iAO,iAOst,iBasi, &
+                            jBasj,kBask,lBasl,ExFac)
           if (nMethod == RASSCF) then
             ip = ipDisp2(abs(indgrd(iCar,iCent,0)))
-            call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,Temp,TwoHam(ip),din,nDens,iAO, &
-                              iAOst,iBasi,jBasj,kBask,lBasl,ExFac)
+            call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,Temp,TwoHam(ip),din,nDens,iAO,iAOst,iBasi, &
+                              jBasj,kBask,lBasl,ExFac)
           end if
         end if
 

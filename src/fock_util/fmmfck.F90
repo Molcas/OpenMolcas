@@ -144,7 +144,7 @@ do J=1,nBasTot
     do L=0,LMAX
       do M=-L,L
         iM = M+L+1
-        !write (u6,'(5I3,2X,3F10.6,2E15.4)') L,M,ij,1,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
+        !write (u6,'(5I3,2X,3F10.6,2ES15.4)') L,M,ij,1,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
         write(98) L,M,I,J,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
       end do
     end do

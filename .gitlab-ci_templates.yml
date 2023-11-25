@@ -147,10 +147,11 @@
         cp timing.data ${PROJECT_DIR}/Tools/verify/ || true
         ./pymolcas verify --flatlist ${tests} > filelist
         ${PROJECT_DIR}/Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
-        ./pymolcas verify --status --timest --postproc "${PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
+        test_this="--fromfile fl"
       else
-        ./pymolcas verify --status --timest --postproc "${PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
+        test_this=${tests}
       fi
+      ./pymolcas verify -j 0 --status --timest --postproc "${PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" ${test_this}
   after_script:
     - |
       if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi

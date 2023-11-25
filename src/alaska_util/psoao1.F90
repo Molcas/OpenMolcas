@@ -38,7 +38,7 @@ subroutine PSOAO1(nSO,MemPrm,MemMax,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc
 !             Modified to first order derivatives. January '92         *
 !***********************************************************************
 
-use PSO_Stuff, only: lPSO, nGamma, Gamma_On
+use PSO_Stuff, only: Gamma_On, lPSO, nGamma
 use SOAO_Info, only: iAOtSO
 use Gateway_global, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S

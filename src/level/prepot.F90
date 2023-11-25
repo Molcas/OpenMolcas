@@ -342,17 +342,17 @@ return
 604 format(' Perform',I3,'-point piecewise polynomial interpolation over',I5,' input points')
 606 format(' Perform cubic spline interpolation over the',I5,' input points')
 608 format(' Interpolation actually performed over modified input array:   Y(I) * r(I)**2')
-610 format(' Beyond read-in points extrapolate to limiting asymptotic behaviour:'/20x,'Y(r)  =  Y(lim) - (',D16.7,')/r**',I2)
+610 format(' Beyond read-in points extrapolate to limiting asymptotic behaviour:'/20x,'Y(r)  =  Y(lim) - (',ES16.7,')/r**',I2)
 612 format(' To make input points Y(i) consistent with  Y(lim),  add  Y(shift)=',F12.4/' Scale input points:  (distance)*', &
-           1PD16.9,'    (energy)*',D16.9/13x,'to get required internal units  [Angstroms & cm-1 for potentials]'/ &
+           ES16.9,'    (energy)*',ES16.9/13x,'to get required internal units  [Angstroms & cm-1 for potentials]'/ &
            3('      r(i)         Y(i)  ')/3(3X,11('--')))
 614 format((3(F13.8,F12.4)))
 616 format((3(F12.6,F13.8)))
 618 format(/' !!! CAUTION !!! Last two mesh point  YI  values are equal'/17x, &
            'so extrapolation to large  r  will be unreliable !!!'/)
 620 format(/'  Function and first 2 derivatives by differences'/2('     r       Y(r)     d1Y/dr1    d2Y/dr2')/2(2X,19('--')))
-622 format(2(0PF8.3,F11.3,1PD11.3,D10.2))
-!622 format(2(0PF7.2,F12.5,1PD11.3,D10.2))
+622 format(2(F8.3,F11.3,ES11.3,ES10.2))
+!622 format(2(F7.2,F12.5,ES11.3,ES10.2))
 624 format(1x,38('--'))
 800 format(/I7,' function values with asymptotic value:',F14.6)
 802 format((1X,1(F12.8,F14.6)))

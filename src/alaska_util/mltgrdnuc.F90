@@ -14,9 +14,9 @@ subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
 use Basis_Info, only: dbsc, nCnttp
 use finfld, only: force
 use Index_Functions, only: C_Ind
+use Disp, only: Dirct, IndDsp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Disp, only: Direct, IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nOrdOp
@@ -45,7 +45,7 @@ do ixop=0,nOrdOp
           iComp = 2**iCar
           if (TF(ndc,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%pChrg)) then
             nDisp = nDisp+1
-            if (Direct(nDisp)) then
+            if (Dirct(nDisp)) then
               XGrad = Zero
               if (iCar == 0) then
                 if (ixop > 0) XGrad = Fact*real(ixop,kind=wp)*C(1)**(ixop-1)*C(2)**iyop*C(3)**izop

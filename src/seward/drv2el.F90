@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Drv2El(Integral_WrOut,ThrAO)
+subroutine Drv2El(ThrAO)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals.                          *
@@ -30,18 +30,16 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Thize, TskCount => Quad_ijkl, W2Disc
-use Integral_interfaces, only: int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
 
 implicit none
-procedure(int_wrout) :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
 real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, TMax_all, TskHi, TskLw, TWall1, &
                  Twall2
-logical(kind=iwp) :: Indexation, DoGrad, Triangular
+logical(kind=iwp) :: DoGrad, Indexation, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1
@@ -175,7 +173,7 @@ do
 
         A_int = TMax(iS,jS)*TMax(kS,lS)
         if (A_Int >= CutInt) then
-          call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,Integral_WrOut)
+          call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
         end if
       end if
     end if

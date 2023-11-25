@@ -22,7 +22,7 @@ private
 integer(kind=iwp) :: iPL, iPoVec(9), mAdDel(8), mAdFro(8), mAdOcc(8), mAdVir(8), nBas(8), nDel1(8), nDel2(8), nDsto(8), nFro1(8), &
                      nFro2(8), nnB, nTit
 real(kind=wp) :: EMP2, Thr_ghs, VECL2
-logical(kind=iwp) :: DelGhost, DoCholesky, DoDF, DoLDF
+logical(kind=iwp) :: DelGhost, DoCholesky, DoDF
 character(len=80) :: Title(10)
 type(DSBA_Type) :: Density, DiaA, Mp2Lagr, WDensity
 integer(kind=iwp), allocatable :: iDel(:,:), iFro(:,:)
@@ -33,9 +33,9 @@ character(len=LenIn), allocatable :: NamAct(:)
 integer(kind=iwp) :: LuHLF1 = 40, LuHLF2 = 41, LuHLF3 = 42, LuIntA = 43, LuIntM = 44
 character(len=8) :: FnHLF1 = 'LUHLF1', FnHLF2 = 'LUHLF2', FnHLF3 = 'LUHLF3', FnIntA = 'ORDINT', FnIntM = 'MOLINT'
 
-public :: CMO, DelGhost, Density, DiaA, DoCholesky, DoDF, DoLDF, EMP2, EOcc, EOrb, EVir, FnHLF1, FnHLF2, FnHLF3, FnIntA, FnIntM, &
-          iDel, iFro, iPL, iPoVec, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, mAdDel, mAdFro, mAdOcc, mAdVir, MBPT2_Clean, MP2Lagr, &
-          NamAct, nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nnB, nTit, Title, Thr_ghs, VECL2, WDensity
+public :: CMO, DelGhost, Density, DiaA, DoCholesky, DoDF, EMP2, EOcc, EOrb, EVir, FnHLF1, FnHLF2, FnHLF3, FnIntA, FnIntM, iDel, &
+          iFro, iPL, iPoVec, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, mAdDel, mAdFro, mAdOcc, mAdVir, MBPT2_Clean, MP2Lagr, NamAct, &
+          nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nnB, nTit, Title, Thr_ghs, VECL2, WDensity
 
 contains
 

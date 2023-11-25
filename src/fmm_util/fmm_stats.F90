@@ -193,34 +193,34 @@ subroutine fmm_print_stats()
 
   if (stat_T_total_NF > 0) then
     write(LUPRI,'(/,A)') ' NF contraction pairs'
-    write(LUPRI,'(A,E17.9)') ' total interactions     =',stat_T_total_NF
-    write(LUPRI,'(A,E17.9)') ' total directions       =',stat_T_direction_NF
-    write(LUPRI,'(A,E17.9)') ' total buffer chunks    =',stat_T_chunks_NF
-    write(LUPRI,'(A,E17.9)') ' T matrices built       =',stat_T_matrix_NF
+    write(LUPRI,'(A,ES17.9)') ' total interactions     =',stat_T_total_NF
+    write(LUPRI,'(A,ES17.9)') ' total directions       =',stat_T_direction_NF
+    write(LUPRI,'(A,ES17.9)') ' total buffer chunks    =',stat_T_chunks_NF
+    write(LUPRI,'(A,ES17.9)') ' T matrices built       =',stat_T_matrix_NF
   end if
   write(LUPRI,'(/,A)') ' FF contraction pairs'
-  write(LUPRI,'(A,E17.9)') ' total interactions     =',stat_T_total_FF
-  write(LUPRI,'(A,E17.9)') ' total directions       =',stat_T_direction_FF
-  write(LUPRI,'(A,E17.9)') ' total buffer chunks    =',stat_T_chunks_FF
-  write(LUPRI,'(A,E17.9)') ' T matrices built       =',stat_T_matrix_FF
+  write(LUPRI,'(A,ES17.9)') ' total interactions     =',stat_T_total_FF
+  write(LUPRI,'(A,ES17.9)') ' total directions       =',stat_T_direction_FF
+  write(LUPRI,'(A,ES17.9)') ' total buffer chunks    =',stat_T_chunks_FF
+  write(LUPRI,'(A,ES17.9)') ' T matrices built       =',stat_T_matrix_FF
 
   write(LUPRI,'(/,A)') ' raw-box translations'
-  write(LUPRI,'(A,E17.9)') ' total number         =',stat_W_total_RB
-  write(LUPRI,'(A,E17.9)') ' total directions     =',stat_W_direction_RB
-  write(LUPRI,'(A,E17.9)') ' total buffer chunks  =',stat_W_chunks_RB
-  write(LUPRI,'(A,E17.9)') ' W matrices built     =',stat_W_matrix_RB
+  write(LUPRI,'(A,ES17.9)') ' total number         =',stat_W_total_RB
+  write(LUPRI,'(A,ES17.9)') ' total directions     =',stat_W_direction_RB
+  write(LUPRI,'(A,ES17.9)') ' total buffer chunks  =',stat_W_chunks_RB
+  write(LUPRI,'(A,ES17.9)') ' W matrices built     =',stat_W_matrix_RB
 
   write(LUPRI,'(/,A)') ' box-box translations'
-  write(LUPRI,'(A,E17.9)') ' total number         =',stat_W_total_BB
-  write(LUPRI,'(A,E17.9)') ' total directions     =',stat_W_direction_BB
-  write(LUPRI,'(A,E17.9)') ' total buffer chunks  =',stat_W_chunks_BB
-  write(LUPRI,'(A,E17.9)') ' W matrices built     =',stat_W_matrix_BB
+  write(LUPRI,'(A,ES17.9)') ' total number         =',stat_W_total_BB
+  write(LUPRI,'(A,ES17.9)') ' total directions     =',stat_W_direction_BB
+  write(LUPRI,'(A,ES17.9)') ' total buffer chunks  =',stat_W_chunks_BB
+  write(LUPRI,'(A,ES17.9)') ' W matrices built     =',stat_W_matrix_BB
 
   write(LUPRI,'(/,A)') ' box-raw translations'
-  write(LUPRI,'(A,E17.9)') ' total number         =',stat_W_total_BR
-  write(LUPRI,'(A,E17.9)') ' total directions     =',stat_W_direction_BR
-  write(LUPRI,'(A,E17.9)') ' total buffer chunks  =',stat_W_chunks_BR
-  write(LUPRI,'(A,E17.9)') ' W matrices built     =',stat_W_matrix_BR
+  write(LUPRI,'(A,ES17.9)') ' total number         =',stat_W_total_BR
+  write(LUPRI,'(A,ES17.9)') ' total directions     =',stat_W_direction_BR
+  write(LUPRI,'(A,ES17.9)') ' total buffer chunks  =',stat_W_chunks_BR
+  write(LUPRI,'(A,ES17.9)') ' W matrices built     =',stat_W_matrix_BR
 
   write(LUPRI,'(/,A,/)') ' ------------------------------------------'
 

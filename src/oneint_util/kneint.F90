@@ -28,8 +28,8 @@ subroutine KnEInt( &
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
+use rmat, only: Dipol1, EpsQ, QCoul, RMat_Type_Integrals
 use Definitions, only: wp, iwp, u6
-use rmat, only: RMat_Type_Integrals, EpsQ, Dipol1, QCoul
 
 implicit none
 #include "int_interface.fh"

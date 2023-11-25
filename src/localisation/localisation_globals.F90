@@ -33,11 +33,14 @@ private
 
 #include "Molcas.fh"
 
-integer(kind=iwp) :: nBas(MxSym), nOrb(MxSym), nSym, nCMO, LuSpool, nOrb2Loc(MxSym), nFro(MxSym), nAtoms, nMxIter, nOccInp(MxSym), &
-                     nVirInp(MxSym), LocModel, nActa, iWave, MxConstr, nConstr(MxSym)
+integer(kind=iwp) :: fileorb_id, iWave, LocModel, LuSpool, MxConstr, nActa, nAtoms, nBas(MxSym), nCMO, nConstr(MxSym), &
+                     nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), nOrb2Loc(MxSym), nSym, nVirInp(MxSym)
+#ifdef _HDF5_
+integer(kind=iwp) :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+#endif
 real(kind=wp) :: Thrs, ThrRot, ThrGrad, ThrDomain(2), ThrPairDomain(3), ThrSel
-logical(kind=iwp) :: LocNatOrb, LocCanOrb, Wave, Maximisation, ChoStart, DoCNOs, Silent, Test_Localisation, Analysis, PrintMOs, &
-                     Timing, AnaAtom, EvalER, Order, LocPAO, AnaPAO, AnaPAO_Save, DoDomain, AnaDomain, Skip !, LocVir
+logical(kind=iwp) :: AnaAtom, AnaDomain, Analysis, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, isHDF5 = .false., &
+                     LocCanOrb, LocNatOrb, LocPAO, Maximisation, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
 character(len=512) :: LC_FileOrb
 character(len=3) :: AnaNrm
 integer(kind=iwp), allocatable :: Ind(:)
@@ -45,10 +48,13 @@ character(len=LenIn8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: NamAct(:)
 real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:)
 
-public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoStart, CMO, DoCNOs, DoDomain, EOrb, EvalER, Ind, &
-          iWave, LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MOrig, MxConstr, nActa, NamAct, &
-          nAtoms, nBas, nCMO, nConstr, nFro, nMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Occ, Order, PrintMOs, Silent, Skip, &
-          Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
+public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoStart, CMO, DoCNOs, DoDomain, EOrb, EvalER, &
+          fileorb_id, Ind, isHDF5, iWave, LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MOrig, &
+          MxConstr, nActa, NamAct, nAtoms, nBas, nCMO, nConstr, nFro, nMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Occ, Order, &
+          PrintMOs, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
+#ifdef _HDF5_
+public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+#endif
 
 end module Localisation_globals
 

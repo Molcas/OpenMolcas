@@ -129,7 +129,7 @@ return
 602 format(' E(v=',i3,', J=',i3,')=',f11.3,'   <M(r)>=',G18.10,'   <KE>=',F11.3/'   Tunneling predissociation  Width(FWHM)=', &
            G13.6,'    <X**',I2,'>=',F13.8)
 604 format((8x,3('   <X**',I2,'>=',F13.8:)))
-603 format(' On iteration #',I2,'  change DREF by',1PD10.2,'  to   DREF=',0PF13.10,' [Angstroms]')
+603 format(' On iteration #',I2,'  change DREF by',ES10.2,'  to   DREF=',F13.10,' [Angstroms]')
 701 format(2I4,F11.3,G11.4,F11.3,3(F12.7)/(5X,6F12.7))
 
 end subroutine LEVXPC

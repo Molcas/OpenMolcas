@@ -29,27 +29,25 @@ subroutine Drvk2_mck(New_Fock)
 
 use Index_Functions, only: iTri, nTri_Elem1
 use k2_arrays, only: DoGrad_, DoHess_, nDeDe
+use k2_structure, only: Indk2, k2data
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use k2_structure, only: k2data, Indk2
 
 implicit none
 logical(kind=iwp), intent(in) :: New_Fock
 integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
-                     iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, jBas, &
-                     jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
-                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, mdci, mdcj, MemPrm, &
-                     MemTmp, mk2, nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
-
+                     ik2, iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
+                     jBas, jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
+                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
+                     nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Wrk(:)
+integer(kind=iwp), parameter :: nHm = 0
 integer(kind=iwp), external :: MemSO1
-Integer ik2
-Integer, parameter:: nHm=0
 
 !                                                                      *
 !***********************************************************************
@@ -59,7 +57,7 @@ call CWTime(TCpu1,TWall1)
 DoGrad_ = .false.
 DoHess_ = .true.
 call Nr_Shells(nSkal)
-Call Allok2()
+call Allok2()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -89,7 +87,6 @@ do iS=1,nSkal
   iBas = iSD(3,iS)
   iPrim = iSD(5,iS)
   iAO = iSD(7,iS)
-  mdci = iSD(10,iS)
   iShell = iSD(11,iS)
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
@@ -106,13 +103,12 @@ do iS=1,nSkal
     jBas = iSD(3,jS)
     jPrim = iSD(5,jS)
     jAO = iSD(7,jS)
-    mdcj = iSD(10,jS)
     jShell = iSD(11,jS)
     jCnttp = iSD(13,jS)
     jCnt = iSD(14,jS)
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
-    ik2 = iS*(iS-1)/2 + jS
+    ik2 = iTri(iS,jS)
     iAngV(2) = jAng
     iShllV(2) = jShll
     iCmpV(2) = nTri_Elem1(jAng)
@@ -171,9 +167,8 @@ do iS=1,nSkal
     ! for the symmetry unique centers A and B.
 
     call k2Loop_mck(Coor,iAngV,iCmpV,iDCRR,nDCRR,k2Data(:,ik2), &
-                    ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp, &
-                    jPrimj,Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003,mdci, &
-                    mdcj)
+                    ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp,jPrimj, &
+                    Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
 
     Indk2(2,ijShll) = nDCRR
     Indk2(3,ijShll) = ik2

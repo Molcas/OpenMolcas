@@ -627,7 +627,7 @@ C -------------------------------------------------------------------
         Write(6,'(10A)') '--------|',
      & ('-- torque X --|','-- torque Y --|','-- torque Z --|',i=1,3)
          Do iM=1,AngPoints
-         Write(6,'(F7.3,1x,A,3(E13.6,1x,A,E13.6,1x,A,E13.6,1x,A))')
+         Write(6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))')
      &   Ang(iM),'|',
      &   ( tx(iPl,iM,iH,iT),' ',
      &     ty(iPl,iM,iH,iT),' ',
@@ -684,7 +684,7 @@ C -------------------------------------------------------------------
         Write(6,'(10A)') '--------|',
      & ('Spin torque X |','Spin torque Y |','Spin torque Z |',i=1,3)
          Do iM=1,AngPoints
-         Write(6,'(F7.3,1x,A,3(E13.6,1x,A,E13.6,1x,A,E13.6,1x,A))')
+         Write(6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))')
      &   Ang(iM),'|',
      &   ( sx(iPl,iM,iH,iT),' ',
      &     sy(iPl,iM,iH,iT),' ',

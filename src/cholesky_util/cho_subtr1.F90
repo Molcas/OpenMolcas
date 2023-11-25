@@ -413,7 +413,7 @@ if (LOCDBG .or. (IPRINT >= INF_SUBTR1)) then
   write(LUPRI,'(A,I12)') 'Number of batches needed for reading vectors         : ',NUMRD
   if (CHO_SSCREEN) then
     write(LUPRI,'(A,F12.2)') 'Number of calls to DGEMV                             : ',XDON
-    write(LUPRI,'(A,1P,D12.2)') 'Screening threshold                                  : ',SSTAU
+    write(LUPRI,'(A,ES12.2)') 'Screening threshold                                  : ',SSTAU
     if (XTOT > Zero) then
       SCRPCT = 1.0e2_wp*(XTOT-XDON)/XTOT
     else

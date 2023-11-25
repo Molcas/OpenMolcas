@@ -81,20 +81,20 @@ end do
 TOPCT = 1.0e2_wp/real(LVEC,kind=wp)
 
 JCOUNT = ICOUNT(1)
-write(LUPRI,'(/,1X,A,11X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Larger than ',BIN(1),':',ICOUNT(1),real(ICOUNT(1),kind=wp)*TOPCT, &
-                                                              '%','Accumulated: ',real(JCOUNT,kind=wp)*TOPCT,'%'
+write(LUPRI,'(/,1X,A,11X,ES11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Larger than ',BIN(1),':',ICOUNT(1),real(ICOUNT(1),kind=wp)*TOPCT, &
+                                                               '%','Accumulated: ',real(JCOUNT,kind=wp)*TOPCT,'%'
 do IBIN=2,NBIN
   JCOUNT = JCOUNT+ICOUNT(IBIN)
-  write(LUPRI,'(1X,A,D11.4,A,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Between ',BIN(IBIN-1),' and ',BIN(IBIN),':',ICOUNT(IBIN), &
-                                                                  real(ICOUNT(IBIN),kind=wp)*TOPCT,'%','Accumulated: ', &
-                                                                  real(JCOUNT,kind=wp)*TOPCT,'%'
+  write(LUPRI,'(1X,A,ES11.4,A,ES11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Between ',BIN(IBIN-1),' and ',BIN(IBIN),':',ICOUNT(IBIN), &
+                                                                    real(ICOUNT(IBIN),kind=wp)*TOPCT,'%','Accumulated: ', &
+                                                                    real(JCOUNT,kind=wp)*TOPCT,'%'
 end do
 JCOUNT = JCOUNT+NLOW
-write(LUPRI,'(1X,A,10X,D11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Smaller than ',BIN(NBIN),':',NLOW,real(NLOW,kind=wp)*TOPCT,'%', &
-                                                            'Accumulated: ',real(JCOUNT,kind=wp)*TOPCT,'%'
+write(LUPRI,'(1X,A,10X,ES11.4,A,I12,1X,F7.2,A,3X,A,F7.2,A)') 'Smaller than ',BIN(NBIN),':',NLOW,real(NLOW,kind=wp)*TOPCT,'%', &
+                                                             'Accumulated: ',real(JCOUNT,kind=wp)*TOPCT,'%'
 
 write(LUPRI,'(/,1X,A,I12,1X,F7.2,A)') 'Number of elements exactly 0.0   :',NZER,real(NZER,kind=wp)*TOPCT,'%'
 write(LUPRI,'(1X,A,I12,1X,F7.2,A)') 'Number of negative elements      :',NNEG,real(NNEG,kind=wp)*TOPCT,'%'
-if (NNEG > 0) write(LUPRI,'(1X,A,D12.4)') ' - numerically largest           :',XNEG
+if (NNEG > 0) write(LUPRI,'(1X,A,ES12.4)') ' - numerically largest           :',XNEG
 
 end subroutine CHO_ANASIZE

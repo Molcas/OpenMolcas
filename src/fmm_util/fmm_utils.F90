@@ -105,7 +105,7 @@ end subroutine TIMTXT
 
 subroutine fmm_quit(msg)
   implicit none
-  character(len=*) msg
+  character(len=*), intent(in) :: msg
   write(LUPRI,*) msg
   write(LUPRI,*) '>>> FATAL ERROR'
   call Abend()

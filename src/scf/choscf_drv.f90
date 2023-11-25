@@ -16,8 +16,7 @@
 !     Thomas Bondo Pedersen, September 2010.
 !
 !     This routine calls the original ChoSCF_Drv routine (now
-!     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
-!     is called in case of local DF (LDF).
+!     ChoSCF_Drv_) in case of Cholesky or full DF.
 !
       Implicit None
 
@@ -28,7 +27,6 @@
       Real*8  FLT(*), FLT_ab(*)
       Real*8  FSQ(nBSQT,nD)
       Real*8  ExFac
-      Logical DoLDF
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -55,16 +53,11 @@
 
 #define ChoCorr
 
-      Call DecideOnLocalDF(DoLDF)
-      If (DoLDF) Then
-         Call LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,ExFac,nOcc,nOcc_ab)
-      Else
-         Call ChoSCF_Drv_Internal(nD,nSym,nBas,DSQ,DLT,                 &
-                                  DSQ_ab,DLT_ab,FLT,                    &
-                                  FLT_ab,nFLT,ExFac,                    &
-                                  FSQ(:,1),FSQ(:,2),                    &
-                                  nOcc,nOcc_ab)
-      End If
+      Call ChoSCF_Drv_Internal(nD,nSym,nBas,DSQ,DLT,                 &
+                               DSQ_ab,DLT_ab,FLT,                    &
+                               FLT_ab,nFLT,ExFac,                    &
+                               FSQ(:,1),FSQ(:,2),                    &
+                               nOcc,nOcc_ab)
 
       End Subroutine ChoSCF_Drv
 

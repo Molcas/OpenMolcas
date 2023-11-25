@@ -44,7 +44,7 @@
       use Basis_Info, only: Shells
       use Symmetry_Info, only: nIrrep, iOper
       use Constants, only: Zero, One, Four
-      use Disp, only: Direct, IndDsp
+      use Disp, only: Dirct, IndDsp
       use k2_structure, only: k2_type
       Implicit None
       External Cmpct
@@ -66,47 +66,15 @@
       Real*8 CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),
      &       Q(3), TA(3), TB(3)
       Logical AeqB, NoSpecial
-      Logical, External:: EQ
+      Logical, External:: EQ, TF
       Integer  mStb(2), la, lb, iSmAng, mabMin, mabMax, ne,
      &         iCmpa_, jCmpb_, iShlla, jShllb,
      &         mcdMin, mcdMax, mabcd, mZeta, nT,
      &         iw3, i_Int, iw2, Jnd, iOffZ, lZeta, nDisp,
-     &         iCmp
+     &         iCmp, ixyz, nabSz, lDCRR, iIrrep, iZeta, iCnt, iComp
       Real*8 Dummy(1), Tst, ZtMax, abMax, ZtMaxD, abMaxD, Tmp, Delta,
      &       TEMP
       Real*8, External :: EstI
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call k2loop_internal(k2data)
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine k2loop_internal(k2data)
-      Logical, External :: TF
-      Integer ixyz, nabSz, lDCRR, iIrrep, iZeta, iCnt, iComp
-      type(k2_type), intent(inout) :: k2data(nDCRR)
-#ifdef _WARNING_WORKAROUND_
-      Interface
-        SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,
-     &                 rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,
-     &                 mcdMin,mcdMax,Array,nArray,Tvalue,ModU2,Cff2D,
-     &                 Rys2D,NoSpecial)
-        use Definitions, only: wp, iwp
-        integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP,
-     &                                   lQ, mabMin, mabMax, mcdMin,
-     &                                   mcdMax, nArray
-        real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta),
-     &                               Eta(nEta), EInv(nEta), P(lP,3),
-     &                               Q(lQ,3), rKapab(nZeta),
-     &                               rKapcd(nEta), Coori(3,4),
-     &                               Coora(3,4), CoorAC(3,2)
-        real(kind=wp), intent(inout) :: Array(nArray)
-        external :: Tvalue, ModU2, Cff2D, Rys2D
-        logical(kind=iwp), intent(in) :: NoSpecial
-         End Subroutine Rys
-      End Interface
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -366,7 +334,7 @@
                Do iComp = 1, 3
                   iCmp=2**(iComp-1)
                   If (TF(mStb(iCnt),iIrrep,iCmp) .and.
-     &                Direct(nDisp+1)) Then
+     &                Dirct(nDisp+1)) Then
                      nDisp = nDisp + 1
                      temp = CoorM(iComp,iCnt)
 !
@@ -524,6 +492,5 @@
  100  Continue ! lDCRR
 !
       Return
-      End Subroutine k2loop_internal
 !
       End SubRoutine k2Loop

@@ -48,7 +48,7 @@ real(kind=wp) :: sum_
 ! icaddr(i): adresses in coeff for a symmetry adapted function
 
 !do i=1,12640
-!  write(67,'(d25.14)') bint(i)
+!  write(67,'(es25.14)') bint(i)
 !end do
 nSym = nIrrep
 iPrint = 0
@@ -207,7 +207,7 @@ if (donorm) then
           end do  ! jprim
         end do    ! iprim
         sint(kc) = sum_
-        !write(66,'(d25.14)') sum_
+        !write(66,'(es25.14)') sum_
       end do
     end do
     kcL = kcL+nrBas(iSym)

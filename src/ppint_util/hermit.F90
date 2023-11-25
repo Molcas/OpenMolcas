@@ -61,7 +61,7 @@ do i=1,n2
   call hroot(xt,nn,dpn,pn1,eps)
   x(i) = xt
   a(i) = cc/dpn/pn1
-  !write (u6,'(2i4,2d25.17)') nn,i,xt,a(i)
+  !write (u6,'(2i4,2es25.17)') nn,i,xt,a(i)
   ni = nn-i+1
   x(ni) = -xt
   a(ni) = a(i)

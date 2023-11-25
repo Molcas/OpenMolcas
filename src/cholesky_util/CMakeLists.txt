@@ -400,7 +400,6 @@ set (sources
      findmx.F90
      funcla.F90
      funcle.F90
-     get_ldfaccuracy.F90
      getdr1.F90
      getdr2.F90
      glasum.F90
@@ -411,8 +410,6 @@ set (sources
      indsft_cho_3.F90
      indsft_cho_diag.F90
      initt.F90
-     integral_wrout_cho.F90
-     integral_wrout_cho_diag.F90
      laplace_prsq.F90
      minimaxlaplace.F90
      onecenter_chkdiag.F90

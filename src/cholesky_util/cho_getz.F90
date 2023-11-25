@@ -262,9 +262,9 @@ do iSym=1,nSym
     kOffZ = ip_Z(iTri(jBlock,jBlock),iSym)-1
     do J_inBlock=1,nV(jBlock,iSym)
       if (iPrint >= myDebugInfo) then
-        write(LuPri,'(A,I2,A,I6,A,1P,D15.6,A,D15.6)') 'Sym=',iSym,'  J=',iV1(jBlock,iSym)+J_inBlock-1,'  Z(J,J)=', &
-                                                      Z(kOffZ+iTri(J_inBlock,J_inBlock)),'  Squared=', &
-                                                      Z(kOffZ+iTri(J_inBlock,J_inBlock))**2
+        write(LuPri,'(A,I2,A,I6,A,ES15.6,A,ES15.6)') 'Sym=',iSym,'  J=',iV1(jBlock,iSym)+J_inBlock-1,'  Z(J,J)=', &
+                                                     Z(kOffZ+iTri(J_inBlock,J_inBlock)),'  Squared=', &
+                                                     Z(kOffZ+iTri(J_inBlock,J_inBlock))**2
       end if
       if ((abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))) < Tol) .or. (Z(kOffZ+iTri(J_inBlock,J_inBlock)) < -Tol)) then
         n = n+1

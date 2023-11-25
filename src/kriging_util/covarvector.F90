@@ -49,7 +49,7 @@ if (gh == 0) then
     cv(i0:i1,1,1) = cvMatFder(1+nD:nPoints)*diffxi(1+nD:nPoints)
   end do
 # ifdef _DEBUGPRINT_
-  call RecPrt(' The covector for energies','(12(2x,E9.3))',cv(:,1,1),m_t,1)
+  call RecPrt(' The covector for energies','(12(1x,ES10.3))',cv(:,1,1),m_t,1)
 # endif
 
 ! Covariant vector in Gradient Enhanced Kriging
@@ -73,7 +73,7 @@ else if (gh == 1) then
     end do
   end do
 # ifdef _DEBUGPRINT_
-  call RecPrt(' The covector for gradients','(12(2x,E9.3))',cv(:,:,1),m_t,nInter)
+  call RecPrt(' The covector for gradients','(12(1x,ES10.3))',cv(:,:,1),m_t,nInter)
 # endif
 
 else if (gh == 2) then

@@ -13,6 +13,7 @@
 >> IF ( -FILE TEST_HDF5 )
 >>   EXIT 36
 >> ENDIF
+
  &GATEWAY
 Title
 Benzene, STO-3g Basis set

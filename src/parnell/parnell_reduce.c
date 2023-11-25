@@ -19,7 +19,7 @@
  *
  *       parnell_reduce - reads a number from the file with name "src_name"
  *                        on each slave and write the global maximum to
- *                         "dst_name" on the master (use e.g. for return code)
+ *                        "dst_name" on the master (use e.g. for return code)
  *
  */
 

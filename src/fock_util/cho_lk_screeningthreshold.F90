@@ -40,7 +40,7 @@ if ((delta >= Zero) .and. (delta <= One)) then
 end if
 Cho_LK_ScreeningThreshold = max(thr,1.0e-15_wp)
 #ifdef _DEBUGPRINT_
-write(u6,'(1P,4(A,ES15.6))') 'ThrCom=',ThrCom,' thr0=',thr0,' delta=',delta,' Cho_LK_ScreeningThreshold=',Cho_LK_ScreeningThreshold
+write(u6,'(4(A,ES15.6))') 'ThrCom=',ThrCom,' thr0=',thr0,' delta=',delta,' Cho_LK_ScreeningThreshold=',Cho_LK_ScreeningThreshold
 #endif
 
 end function Cho_LK_ScreeningThreshold

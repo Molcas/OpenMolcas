@@ -18,7 +18,7 @@
  *       Date:         Spring 2010
  *
  *       parnell_remove - delete files specified in as an argument list from
- *                       the main work directory and all subdirectories
+ *                        the main work directory and all subdirectories
  *
  */
 

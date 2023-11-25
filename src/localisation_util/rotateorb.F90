@@ -87,7 +87,7 @@ do iMO1=1,nOrb2Loc-1
     Tst = abs(cos4alpha)-One
     if (Tst > Zero) then
       if (Tst > 1.0e-10_wp) then
-        write(Txt,'(A,D18.10)') 'Actual: cos4alpha = ',cos4alpha
+        write(Txt,'(A,ES18.10)') 'Actual: cos4alpha = ',cos4alpha
         call SysAbendMsg('RotateOrb','-1.0 < cos4alpha < 1.0',Txt)
       else
         if (cos4alpha < Zero) then

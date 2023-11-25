@@ -32,10 +32,10 @@ use Center_Info, only: dc
 use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep
 use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
+use Disp, only: ChDisp, IndDsp, IndXEQ, InxDsp, lDisp, lEQ, nTR, TRSymm
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
-use Disp, only: TRSymm, lEQ, IndDsp, InxDsp, lDisp, nTR, ChDisp, IndXEQ
 
 implicit none
 logical(kind=iwp), intent(out) :: Run_MCLR
@@ -353,7 +353,7 @@ do iCnttp=1,nCnttp
 end do
 
 write(u6,*)
-write(u6,'(20X,A,E10.3)') ' Threshold for contributions to the gradient or Hessian:',CutInt
+write(u6,'(20X,A,ES10.3)') ' Threshold for contributions to the gradient or Hessian:',CutInt
 write(u6,*)
 
 if (Nona) then

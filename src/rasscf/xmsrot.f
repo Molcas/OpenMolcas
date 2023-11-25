@@ -358,15 +358,15 @@ C       END DO
       END IF
 
       IF(Trans.eq.'N') THEN
-       WRITE(PrtFmt,'(A1,I5,A14)')
-     & '(',NCol,'(E24.14E4,1X))'
+       WRITE(PrtFmt,'(A,I5,A)')
+     & '(',NCol,'(ES24.14E4,1X))'
        DO IRow=1,NRow
         write(LU,PrtFmt)
      &  (Matrix(IRow,ICol),ICol=1,NCol)
        END DO
       ELSE
-       WRITE(PrtFmt,'(A1,I5,A14)')
-     & '(',NRow,'(E24.14E4,1X))'
+       WRITE(PrtFmt,'(A,I5,A)')
+     & '(',NRow,'(ES24.14E4,1X))'
        DO ICol=1,NCol
         write(LU,PrtFmt)
      &  (Matrix(IRow,ICol),IRow=1,NRow)

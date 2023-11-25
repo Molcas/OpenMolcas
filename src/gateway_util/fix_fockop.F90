@@ -35,10 +35,10 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: UnNorm, Do_FckInt, FNMC
 use Isotopes, only: PTab
 use Index_Functions, only: nTri_Elem1
+use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
 use Definitions, only: wp, iwp, u6
-use define_af, only: iTabMx
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd

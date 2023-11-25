@@ -49,13 +49,9 @@ if (mh5_exists_attr(fileid,'MOLCAS_MODULE')) then
     ! caspt2 input file:
     i_rasscf = 3
     !call mh5_fetch_dset(fileid,'H_EFF',H_CSF(1:nconf(nfile),1:nconf(nfile),nfile))
-    if (mh5_exists_dset(fileid,'CI_VECTORS')) then
-      call mh5_fetch_dset(fileid,'CI_VECTORS',CI(1:nconf(nfile),1:lroots(nfile),nfile))
-    end if
+    if (mh5_exists_dset(fileid,'CI_VECTORS')) call mh5_fetch_dset(fileid,'CI_VECTORS',CI(1:nconf(nfile),1:lroots(nfile),nfile))
     if (runmode /= 4) then
-      if (mh5_exists_dset(fileid,'STATE_PT2_ENERGIES')) then
-        call mh5_fetch_dset(fileid,'STATE_PT2_ENERGIES',E(1:lroots(nfile),nfile))
-      end if
+      if (mh5_exists_dset(fileid,'STATE_PT2_ENERGIES')) call mh5_fetch_dset(fileid,'STATE_PT2_ENERGIES',E(1:lroots(nfile),nfile))
     end if
   end if
 end if
@@ -65,9 +61,7 @@ if (mh5_exists_dset(fileid,'HCSF')) then
   call mh5_fetch_dset(fileid,'HCSF',H_CSF(1:nconf(nfile),1:nconf(nfile),nfile))
   i_rasscf = 1
 end if
-if (mh5_exists_dset(fileid,'DTOC')) then
-  call mh5_fetch_dset(fileid,'DTOC',DTOC(1:NDET(nfile),1:nconf(nfile),nfile))
-end if
+if (mh5_exists_dset(fileid,'DTOC')) call mh5_fetch_dset(fileid,'DTOC',DTOC(1:NDET(nfile),1:nconf(nfile),nfile))
 
 call mh5_close_file(fileid)
 

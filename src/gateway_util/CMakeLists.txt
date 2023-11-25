@@ -43,9 +43,6 @@ set (sources
      index_nosym.F90
      info2runfile.F90
      lbl2nr.F90
-     ldf_checkconfig.F90
-     ldf_checkthrs.F90
-     ldf_setoptionflag.F90
      mergebs.F90
      merge_lists.F90
      misc.F90
@@ -78,7 +75,6 @@ set (sources
      rigrot.F90
      saddle.F90
      set_fake_eris.F90
-     settargetaccuracy_ldf.F90
      setup_offao.F90
      sizes_of_seward.F90
      soao_info.F90

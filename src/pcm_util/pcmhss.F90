@@ -32,9 +32,9 @@ subroutine PCMHss( &
 use Index_Functions, only: nTri_Elem1
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
+use rctfld_module, only: nTS
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: nTS
 
 implicit none
 #include "hss_interface.fh"

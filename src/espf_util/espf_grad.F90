@@ -14,11 +14,11 @@ subroutine espf_grad(natom,nGrdPt,nAtQM,Ext,Grid,B,DB,IsMM,GradCl,DoTinker,DoGro
 
 use espf_global, only: MxExtPotComp
 use Index_Functions, only: nTri_Elem
+use Disp, only: ChDisp, lDisp
+use NAC, only: isNAC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
-use Disp, only: ChDisp, lDisp
-use NAC, only: isNAC
 
 implicit none
 integer(kind=iwp), intent(in) :: natom, nGrdPt, nAtQM, IsMM(natom)

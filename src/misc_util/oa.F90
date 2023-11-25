@@ -16,7 +16,7 @@
 ! RA is the Cartesian Coordinate in 3D after the operator R has operated on A.
 subroutine OA(R,A,RA)
 
-use Phase_Info
+use Phase_Info, only: iPhase
 use Definitions, only: wp, iwp
 
 implicit none

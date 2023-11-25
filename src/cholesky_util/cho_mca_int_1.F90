@@ -19,6 +19,7 @@ subroutine CHO_MCA_INT_1(IJ,KL,XINT,LINT,LOCPRT)
 !            output format differs depending on IFCSEW.
 
 use Index_Functions, only: iTri, nTri_Elem
+use Integral_Interfaces, only: Int_PostProcess, Integral_WrOut_Cho
 use Cholesky, only: IFCSew, iSP2F, LuPri, nBstSh, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Definitions, only: wp, iwp
 
@@ -28,7 +29,6 @@ real(kind=wp), intent(inout) :: XINT(LINT)
 logical(kind=iwp), intent(in) :: LOCPRT
 integer(kind=iwp) :: I, II, IIJJ, J, JJ, K, KK, KKLL, KOFF, L, LL, NUMI, NUMIJ, NUMJ, NUMK, NUML
 character(len=*), parameter :: SECNAM = 'CHO_MCA_INT_1'
-external :: Integral_WrOut_Cho
 
 ! Initializations.
 ! ----------------
@@ -46,7 +46,9 @@ SHB = L
 ! Calculate integrals.
 ! --------------------
 
-call EVAL_IJKL(I,J,K,L,XINT,LINT,Integral_WrOut_Cho)
+Int_PostProcess => Integral_WrOut_Cho
+call EVAL_IJKL(I,J,K,L,XINT,LINT)
+Int_PostProcess => null()
 
 ! Print integrals.
 ! ----------------

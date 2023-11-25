@@ -107,16 +107,16 @@ write(LUDICEIN,'(a3)') 'end'
 write(LUDICEIN,'(a6,i3)') 'nroots',lroots
 write(LUDICEIN,*)
 write(LUDICEIN,'(a8)') 'schedule'
-write(LUDICEIN,'(a1,e12.5)') '0',dice_eps1*Ten
-write(LUDICEIN,'(a1,e12.5)') '3',dice_eps1*Ten
-write(LUDICEIN,'(a1,e12.5)') '6',dice_eps1
+write(LUDICEIN,'(a1,es12.5)') '0',dice_eps1*Ten
+write(LUDICEIN,'(a1,es12.5)') '3',dice_eps1*Ten
+write(LUDICEIN,'(a1,es12.5)') '6',dice_eps1
 write(LUDICEIN,'(a3)') 'end'
 write(LUDICEIN,'(a7,i6)') 'maxiter',dice_iter
 write(LUDICEIN,'(a5)') 'DoRDM'
 write(LUDICEIN,'(a8)') 'dE 1.e-8'
 write(LUDICEIN,*)
 write(LUDICEIN,'(a7,i6)') 'SampleN',dice_sampleN
-write(LUDICEIN,'(a8,e12.5)') 'epsilon2',dice_eps2
+write(LUDICEIN,'(a8,es12.5)') 'epsilon2',dice_eps2
 write(LUDICEIN,'(a18)') 'targetError 8.0e-5'
 if (IRST > 0 .or. dice_restart) then
   write(LUDICEIN,'(a11)') 'fullrestart'
@@ -125,7 +125,7 @@ end if
 if (.not. dice_stoc) then
   write(LUDICEIN,'(a13)') 'deterministic'
 else
-  write(LUDICEIN,'(a13,e12.5)') 'epsilon2Large',dice_eps2*Ten
+  write(LUDICEIN,'(a13,es12.5)') 'epsilon2Large',dice_eps2*Ten
 end if
 
 close(LUDICEIN)

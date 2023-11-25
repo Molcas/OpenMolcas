@@ -279,7 +279,7 @@
         i = 1
         do curr_line = 1, n_lines
           do j = i, i + curr_line - 1
-            write(i_unit, '(E25.15)', advance='no', iostat=io_err)
+            write(i_unit, '(ES25.15)', advance='no', iostat=io_err)
      &                  RDM(j)
             call verify_(io_err == 0, 'Error on writing RDM.')
           end do

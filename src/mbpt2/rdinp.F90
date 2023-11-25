@@ -35,8 +35,7 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 #include "intent.fh"
 
 use Para_Info, only: Is_Real_Par, nProcs
-use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, DoLDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
-                        Thr_ghs, Title
+use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, Thr_ghs, Title
 use ChoMP2, only: all_vir, C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoDens, DoFNO, DoGrdt, DoMP2, DoT1amp, EOSMP2, FNOMP2, &
                   ForceBatch, Laplace, Laplace_BlockSize, Laplace_BlockSize_Def, Laplace_mGridPoints, Laplace_nGridPoints, LovMP2, &
                   MxQual_Def, MxQualMP2, nActa, NoGamma, OED_Thr, set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrLov, ThrMP2, vkept, &
@@ -141,11 +140,6 @@ NoGamma = .false.
 Laplace = .false.
 Laplace_nGridPoints = 0
 Laplace_BlockSize = Laplace_BlockSize_Def
-! LDF settings
-if (DoLDF) then
-  SOS_MP2 = .true.
-  Laplace = .true.
-end if
 
 nTit = 0
 iTst = 0
@@ -475,12 +469,10 @@ outer: do
     case ('SOSM')
       !---- Process the "SOSMp2" input card ---------------------------*
       SOS_MP2 = .true.
-      if (.not. DoLDF) then
-        DecoMP2 = .true.
-        if ((nProcs > 1) .and. Is_Real_Par()) then
-          call WarningMessage(2,'SOS-MP2 is not implemented for parallel runs. !! SORRY !!')
-          call Quit(_RC_NOT_AVAILABLE_)
-        end if
+      DecoMP2 = .true.
+      if ((nProcs > 1) .and. Is_Real_Par()) then
+        call WarningMessage(2,'SOS-MP2 is not implemented for parallel runs. !! SORRY !!')
+        call Quit(_RC_NOT_AVAILABLE_)
       end if
 
     case ('OEDT')
@@ -590,18 +582,18 @@ if (.not. allocated(iDel)) call mma_allocate(iDel,8,0,label='iDel')
 
 ! Postprocessing for SOS-MP2 and Laplace
 if (SOS_MP2) then
-  if (.not. (DoCholesky .or. DoDF .or. DoLDF)) then
-    call WarningMessage(2,'SOS-MP2 only implemented for CD/DF/LDF')
+  if (.not. (DoCholesky .or. DoDF)) then
+    call WarningMessage(2,'SOS-MP2 only implemented for CD/DF')
     call Quit(_RC_INPUT_ERROR_)
   end if
 end if
 if (Laplace) then
-  if (.not. (DoCholesky .or. DoDF .or. DoLDF)) then
-    call WarningMessage(2,'Laplace transformation only implemented for CD/DF/LDF')
+  if (.not. (DoCholesky .or. DoDF)) then
+    call WarningMessage(2,'Laplace transformation only implemented for CD/DF')
     call Quit(_RC_INPUT_ERROR_)
   end if
   if (.not. SOS_MP2) then
-    call WarningMessage(2,'Laplace transformation only implemented for CD/DF/LDF-SOS-MP2')
+    call WarningMessage(2,'Laplace transformation only implemented for CD/DF-SOS-MP2')
     call Quit(_RC_INPUT_ERROR_)
   end if
   if (.not. DecoMP2_UsrDef) then

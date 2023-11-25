@@ -26,7 +26,6 @@
       use setup, only: nSOs, nAux, MxPrm
       use k2_arrays, only: nFT, MxFT, iSOSym, Aux, FT,
      &                     create_braket_base
-      use LundIO, only: Buf, iDisk
       use Basis_Info, only: nBas, nBas_Aux
       use Gateway_Info, only: CutInt, lSchw
       use Symmetry_Info, only: nIrrep
@@ -133,11 +132,6 @@
       Else
          Call Drvk2(CmpctR,DoFock,DoGrad)
       End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Buf%nUt=0
-      iDisk=0
 !                                                                      *
 !***********************************************************************
 !                                                                      *

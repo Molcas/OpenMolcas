@@ -207,7 +207,7 @@ do iPass=iPass1,iPass2
 
         if (iPrint >= INF_PROGRESS) then
           iVecT = NumChT+iV
-          write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)') iSym,iVec,iVecT,iAB,XC,olDiag,nConv,nNeg,xM
+          write(Lupri,'(I3,3(1X,I9),2(1X,ES11.3),2(1X,I4),1X,ES11.3)') iSym,iVec,iVecT,iAB,XC,olDiag,nConv,nNeg,xM
         end if
 
       end do

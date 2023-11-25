@@ -328,7 +328,7 @@ C=========== End of default settings====================================
                Call quit(_RC_INPUT_ERROR_)
             End If
 
-            If(DBG) write(6,'(A,2E15.7,i6)') 'Tmin, Tmax, nT: ',
+            If(DBG) write(6,'(A,2ES15.7,i6)') 'Tmin, Tmax, nT: ',
      &                                    Tmin, Tmax, nT
          Else
             goto 590
@@ -367,7 +367,7 @@ C=========== End of default settings====================================
             End If
 
 
-            If(DBG) write(6,'(A,2E15.7,i6)') 'Hmin, Hmax, nH: ',
+            If(DBG) write(6,'(A,2ES15.7,i6)') 'Hmin, Hmax, nH: ',
      &                                    Hmin, Hmax, nH
          Else
             Go To 591
@@ -389,7 +389,7 @@ C=========== End of default settings====================================
             Write(6,'(A)') 'Set to default thrs=1d-10'
          End If
 
-         If(DBG) write(6,'(A,E15.7)') 'THRS: ', THRS
+         If(DBG) write(6,'(A,ES15.7)') 'THRS: ', THRS
          LINENR=LINENR+1
          Go To 100
       End If
@@ -413,7 +413,7 @@ C=========== End of default settings====================================
          Else
             Xfield=tmp
          End If
-         If(DBG) write(6,'(A,E15.7)') 'XFIE: ',xField
+         If(DBG) write(6,'(A,ES15.7)') 'XFIE: ',xField
 
          LINENR=LINENR+1
          Go To 100
@@ -615,7 +615,7 @@ C=========== End of default settings====================================
 *---  process ZJPR command --------------------------------------------*
       If (LINE(1:4).eq.'ZJPR') Then
          READ(Input,*,ERR=997) ZJ
-         If(DBG) write(6,'(A,E18.10)') 'zJ    =',zJ
+         If(DBG) write(6,'(A,ES18.10)') 'zJ    =',zJ
          LINENR=LINENR+1
          Go To 100
       End If
@@ -634,7 +634,8 @@ C=========== End of default settings====================================
          If(DBG) write(6,'(A)') 'isite   MagnCoords:'
          Do i=1,nneq
             READ(Input,*,ERR=997) (MagnCoords(i,l),l=1,3)
-            If(DBG) write(6,'(i3,5x,3E18.10)') i,(MagnCoords(i,l),l=1,3)
+            If(DBG) write(6,'(i3,5x,3ES18.10)')
+     &              i,(MagnCoords(i,l),l=1,3)
          End Do
          LINENR=LINENR+nneq
          Go To 100
@@ -650,7 +651,8 @@ C=========== End of default settings====================================
 
          Do i=1,nDir
             READ(Input,*,ERR=997) DirX(i), DirY(i), DirZ(i)
-            If(DBG) write(6,'(i3,5x,3E18.10)') i,DirX(i),DirY(i),DirZ(i)
+            If(DBG) write(6,'(i3,5x,3ES18.10)')
+     &              i,DirX(i),DirY(i),DirZ(i)
          End Do
 c  some processing:
          Do i=1,nDir
@@ -861,7 +863,7 @@ c         End Do
                   icount_B_sites=icount_B_sites+1
                   READ(Input,*,ERR=997) (gtens_input(l,i),l=1,3),
      &                                   D_fact(i), EoverD_fact(i)
-                  If(DBG) Write(6,'(A,i4,A,3E20.10, 2(A,E20.10) )')
+                  If(DBG) Write(6,'(A,i4,A,3ES20.10, 2(A,ES20.10) )')
      &                   'gtens_input(',i,')=',(gtens_input(l,i),l=1,3),
      &                   ' D = ', D_fact(i),' E/D =', EoverD_fact(i)
                   If( (itype(i).eq.'C').AND.(
@@ -1026,7 +1028,7 @@ c         End Do
             i_pair(i,2)=0
 
             READ(Input,*,ERR=997) i_pair(i,1), i_pair(i,2), Jex(i)
-            If(DBG) Write(6,'(i4,2x,2I4,2x,E18.10)')
+            If(DBG) Write(6,'(i4,2x,2I4,2x,ES18.10)')
      &                         i, i_pair(i,1), i_pair(i,2), Jex(i)
 
          End Do
@@ -1142,7 +1144,7 @@ c      End If
                Do m=1,3
                   ll=ll+1
                   READ(Input,*,ERR=997) (R_lg(i,j,m,n),n=1,3)
-                  If(DBG) Write(6,'(3E20.12)') (R_lg(i,j,m,n),n=1,3)
+                  If(DBG) Write(6,'(3ES20.12)') (R_lg(i,j,m,n),n=1,3)
                End Do
             End Do
 
@@ -1156,7 +1158,7 @@ c      End If
                End Do
 
                detR=FindDetR( tmpR(1:3,1:3), 3)
-               If(DBG) Write(6,'(A,3E20.12)')'SYMM:  detR=',detR
+               If(DBG) Write(6,'(A,3ES20.12)')'SYMM:  detR=',detR
 
                If ((abs(detR).lt.0.999).OR.(abs(detR).gt.1.001)) Then
                   Write(6,'(A)') 'The rotation matrices must be '//

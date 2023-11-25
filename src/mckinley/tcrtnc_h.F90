@@ -12,7 +12,9 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Scrtch,nScr,ACOut,IndZet,lZeta,IndEta,lEta)
+subroutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4, &
+                    ACInt,mabcd,Scrtch,nScr,ACOut, &
+                    IndZet,lZeta,IndEta,lEta)
 !***********************************************************************
 !                                                                      *
 ! Object: to transform the integrals from primitives to contracted     *

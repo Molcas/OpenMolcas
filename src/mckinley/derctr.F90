@@ -16,13 +16,13 @@ subroutine DerCtr(mdci,mdcj,mdck,mdcl,ldot,JfGrd,IndGrd,JfHss,IndHss,JfG)
 !#define _OLD_CODE_
 use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri
+use Disp, only: IndDsp
 use Symmetry_Info, only: nIrrep
 #ifdef _OLD_CODE_
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper
 #endif
 use Definitions, only: iwp
-use Disp, only: IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: mdci, mdcj, mdck, mdcl

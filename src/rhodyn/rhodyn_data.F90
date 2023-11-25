@@ -141,9 +141,8 @@ real(kind=wp), allocatable :: amp(:), omega(:), phi(:), sigma(:), taushift(:)
 integer(kind=iwp) :: k_max, len_sph, q_max
 integer(kind=iwp), allocatable :: k_ranks(:), list_sf_mult(:), list_sf_states(:), list_so_mult(:), list_so_sf(:), q_proj(:)
 real(kind=wp), allocatable :: list_sf_spin(:), list_so_proj(:), list_so_spin(:)
-complex(kind=wp), allocatable :: mirr(:,:)
-complex(kind=wp), allocatable :: midk1(:,:,:), midk2(:,:,:), midk3(:,:,:), midk4(:,:,:), V_SO_red(:,:,:)
-complex(kind=wp), allocatable :: Y1(:,:,:), Y2(:,:,:)
+complex(kind=wp), allocatable :: midk1(:,:,:), midk2(:,:,:), midk3(:,:,:), midk4(:,:,:), mirr(:,:), V_SO_red(:,:,:), Y1(:,:,:), &
+                                 Y2(:,:,:)
 
 public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, CI, CSF2SO, d, decay, density0, densityt, dgl, &
           dipole, dipole_basis, DM0, DM_basis, dt, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, errorthreshold, finaltime, &

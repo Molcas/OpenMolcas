@@ -403,7 +403,7 @@
          End Do
 !
 #ifdef _DEBUGPRINT_
-         Fmt  = '(6e16.8)'
+         Fmt  = '(6es16.8)'
          Text = 'B-matrix after scaling :'
          Call TriPrt(Text,Fmt,BijTri,kOptim)
          Text = 'EigenValues after scaling :'
@@ -500,7 +500,7 @@
 !
          If (ipBst.lt.1 .or. ipBst.gt.kOptim) Then
             Write(6,*)' No proper solution found in C2-DIIS !'
-            Fmt  = '(6e16.8)'
+            Fmt  = '(6es16.8)'
             Text = 'EigenValues :'
             Call RecPrt(Text,Fmt,EValue,1,kOptim)
             Text = 'EigenVectors :'
@@ -595,7 +595,7 @@
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      Fmt  = '(6e16.8)'
+      Fmt  = '(6es16.8)'
       Text = 'The solution vector :'
       Call RecPrt(Text,Fmt,CInter(1,1),1,kOptim)
 #endif

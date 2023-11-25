@@ -215,7 +215,7 @@ subroutine prinp_caspt2()
     if (IFDW) then
       write(6,fmt2//'A,T45,I6)') 'DW Type', DWType
       if (zeta >= 0) then
-        write(6,fmt2//'A,T50,E10.4)') 'DW exponent', zeta
+        write(6,fmt2//'A,T50,ES10.4)') 'DW exponent', zeta
       else
         write(6,fmt2//'A,T50,A)') 'DW exponent','infinity'
       end if

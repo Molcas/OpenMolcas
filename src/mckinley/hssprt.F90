@@ -13,9 +13,9 @@ subroutine HssPrt(Hess,nHess)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: lIrrep, nIrrep
+use Disp, only: lDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Disp, only: lDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess

@@ -151,7 +151,7 @@ return
 
 602 format(' *** QBOUND fails for   E(J=',i3,')=',f9.3,'  Find no turning point')
 604 format(' For J=',I3,'  ETRY=',F11.4,' > VMAX=',F11.4,'  find onee turn point:  R=',F6.2)
-606 format(' *** CAUTION ***  v=',I3,'   J=',I3,'   E=',1PD13.6,'   IT=',I2/5x, &
+606 format(' *** CAUTION ***  v=',I3,'   J=',I3,'   E=',ES13.6,'   IT=',I2/5x, &
            'Airy initialization unstable so place node just past  R(3-rd)')
 608 format(' *** For  J=',I3,'  E=',F9.2,'  R(3-rd) > RMAX  & E < V(N)  so try WKB B.C. @ RMAX')
 610 format(" **** QBOUND doesn't work ... no classically allowed region accessible at this energy.")

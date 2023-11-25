@@ -112,7 +112,7 @@ ULR = -W(L)
 EIGVEC(:,1) = Q(:,L)
 write(u6,*) EIGVEC
 !write(25,600) RDIST,ULR
-!600 format(2D16.7)
+!600 format(2ES16.7)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !Modulus = SQRABS(Z)
 !Modulus = real(Z,kind=wp)**2

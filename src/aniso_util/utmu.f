@@ -56,7 +56,7 @@ c  local variables:
          Write(6,'(A)') 'UTMU :: input moment'
          Do i=1,EXCH
             Do j=1,EXCH
-               Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
+               Write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))')
      &                         '<',i,'|M1_l|',j,'>',(M1(l,i,j),l=1,3)
             End Do
          End Do
@@ -120,21 +120,21 @@ c  local variables:
          Write(6,'(A)') 'UTMU :: input moment'
          Do i=1,EXCH
             Do j=1,EXCH
-               Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
+               Write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))')
      &                         '<',i,'|M_l|',j,'>',(M1(l,i,j),l=1,3)
             End Do
          End Do
          Write(6,'(A)') 'UTMU :: unitary transformtion matrix'
          Do i=1,N
             Do j=1,N
-               Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
+               Write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))')
      &                         '<',i,'| U |',j,'>',(Z(i,j),l=1,3)
             End Do
          End Do
          Write(6,'(A)') 'UTMU :: output moment'
          Do i=1,EXCH
             Do j=1,EXCH
-               Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
+               Write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))')
      &                         '<',i,'|M_l|',j,'>',(M2(l,i,j),l=1,3)
             End Do
          End Do
@@ -199,7 +199,7 @@ c  local variables:
          write(6,'(a)') 'utmu2 :: input moment'
          do i=1,exch
             do j=1,exch
-               write(6,'(a,i3,a,i3,a,3(2e16.8,2x))')
+               write(6,'(a,i3,a,i3,a,3(2es16.8,2x))')
      &                         '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
             end do
          end do
@@ -278,14 +278,14 @@ c  local variables:
          write(6,'(a)') 'utmu2 :: unitary transformtion matrix'
          do i=1,n
             do j=1,n
-               write(6,'(a,i3,a,i3,a,3(2e16.8,2x))')
+               write(6,'(a,i3,a,i3,a,3(2es16.8,2x))')
      &                         '<',i,'| u |',j,'>',z(i,j)
             end do
          end do
          write(6,'(a)') 'utmu2 :: output moment'
          do i=1,exch
             do j=1,exch
-               write(6,'(a,i3,a,i3,a,3(2e16.8,2x))')
+               write(6,'(a,i3,a,i3,a,3(2es16.8,2x))')
      &                         '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
             end do
          end do
@@ -354,7 +354,7 @@ c  local variables:
          Write(6,'(A)') 'UTMU :: input moment'
          Do i=1,EXCH
             Do j=1,EXCH
-               Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
+               Write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))')
      &                         '<',i,'|ML|',j,'>',ML(i,j)
             End Do
          End Do
@@ -427,14 +427,14 @@ c  local variables:
          Write(6,'(A)') 'UTMU :: unitary transformtion matrix'
          Do i=1,N
             Do j=1,N
-               Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
+               Write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))')
      &                         '<',i,'| U |',j,'>',Z(i,j)
             End Do
          End Do
          Write(6,'(A)') 'UTMU :: output moment'
          Do i=1,EXCH
             Do j=1,EXCH
-               Write(6,'(A,i3,A,i3,A,3(2E16.8,2x))')
+               Write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))')
      &                         '<',i,'|ML|',j,'>',ML(i,j)
             End Do
          End Do

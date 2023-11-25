@@ -164,7 +164,7 @@ do Lrun=0,Lhigh
   ! End of reading for the current L-value
 
   if (IfTest) then
-    write(u6,'(5E18.8)') (exponents(ILINE,Lrun),ILINE=1,nprimit(Lrun))
+    write(u6,'(5ES18.8)') (exponents(ILINE,Lrun),ILINE=1,nprimit(Lrun))
     do Irun=1,ncontrac(Lrun)
       write(u6,*) ' orbital : ',irun
       write(u6,'(6(1X,F12.7))') (cntscrtch(I,Irun,Lrun),I=1,nprimit(Lrun))

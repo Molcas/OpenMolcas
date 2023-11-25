@@ -171,7 +171,7 @@
         write(u6,*) 'TDMZZ:'
         k = int(sqrt(dble(nTDMZZ)))
         do i=1,k
-          write(u6,'(100E18.8)') (TDMZZ(i+(j-1)*k),j=1,k)
+          write(u6,'(100ES18.8)') (TDMZZ(i+(j-1)*k),j=1,k)
         end do
 
         write(u6,*) 'TDMZZ_new vector:'
@@ -183,11 +183,11 @@
         write(u6,*) 'TDMZZ_new:'
         k = nbas_tot(1)
         do i=1,k
-          write(u6,'(1000E18.8)') (TDMZZ_new(i+(j-1)*k),j=1,k)
+          write(u6,'(1000ES18.8)') (TDMZZ_new(i+(j-1)*k),j=1,k)
         end do
         write(u6,*) 'TDMZZ_mtx:'
         do i=1,k
-          write(u6,'(1000E18.8)') (TDMZZ_mtx(i,j),j=1,k)
+          write(u6,'(1000ES18.8)') (TDMZZ_mtx(i,j),j=1,k)
         end do
 
         write(u6,*) 'DLT:'
@@ -195,7 +195,7 @@
         write(u6,*) 'DLT as mtx:'
         k = 0
         do i=1,nbas_tot(1)
-          write(u6,'(1000E18.8)')  (DLT%SB(1)%A1(j+k),j=1,i)
+          write(u6,'(1000ES18.8)')  (DLT%SB(1)%A1(j+k),j=1,i)
           k=k+i
         end do
       endif
@@ -315,7 +315,7 @@
           write(u6,*) 'TDMZZ:'
           a = int(sqrt(dble(nTDMZZ)))
           do i=1,a
-            write(u6,'(100E18.8)') (TDMZZ(i+(j-1)*a),j=1,a)
+            write(u6,'(100ES18.8)') (TDMZZ(i+(j-1)*a),j=1,a)
           end do
 
           write(u6,*) 'TDMZZ_new vector:'
@@ -327,12 +327,12 @@
           write(u6,*) 'TDMZZ_new:'
           a = nbas_tot(1)
           do i=1,a
-            write(u6,'(1000E18.8)') (TDMZZ_new(i+(j-1)*a),j=1,a)
+            write(u6,'(1000ES18.8)') (TDMZZ_new(i+(j-1)*a),j=1,a)
           end do
 
           write(u6,*) 'TDMZZ_mtx:'
           do i=1,a
-            write(u6,'(1000E18.8)') (TDMZZ_mtx(i,j),j=1,a)
+            write(u6,'(1000ES18.8)') (TDMZZ_mtx(i,j),j=1,a)
           end do
 
           write(u6,*) 'DLT:'

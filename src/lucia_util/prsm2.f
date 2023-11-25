@@ -20,5 +20,5 @@ C
      &  (A((J-1)*NDIM-J*(J-1)/2+I),J=1,I)
   100 CONTINUE
       RETURN
- 1010 FORMAT('0',2X,I3,5(E14.7),/,(1X,5X,5(E14.7)))
+ 1010 FORMAT('0',2X,I3,5(ES14.7),/,(1X,5X,5(ES14.7)))
       END

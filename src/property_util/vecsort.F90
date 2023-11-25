@@ -130,11 +130,11 @@ do ISYM=1,NSYM
     end do
     !write(u6,*) 'sorted:'
     !write(u6,'(10i2)') (IndT(i+iii),i=1,NORB(ISYM))
-    !write(u6,'(4E18.12)') (Occ(i+KOCC),i=1,NORB(ISYM))
+    !write(u6,'(4ES19.12)') (Occ(i+KOCC),i=1,NORB(ISYM))
 
     !do ii=1,NBAS(ISYM)
     !  write(u6,*)
-    !  write(u6,'(4E18.12)') (CMO(i+KOCC+(ii-1)*NBAS(ISYM)),i=1,NORB(ISYM))
+    !  write(u6,'(4ES19.12)') (CMO(i+KOCC+(ii-1)*NBAS(ISYM)),i=1,NORB(ISYM))
     !end do
 
     ! End sort

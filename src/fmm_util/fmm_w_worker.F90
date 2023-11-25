@@ -105,7 +105,7 @@ subroutine fmm_generate_R(LMAX,point,R_sh)
   r_minus2 = one/(r_2)
 
   if (r_2 < ZERO_VECT_TOL*ZERO_VECT_TOL) then
-    write(LUPRI,'(3E25.15)') point
+    write(LUPRI,'(3ES25.15)') point
     call fmm_quit('ERROR: Why do we try to do zero W-vector.')
   end if
 

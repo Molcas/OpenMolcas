@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!               2023, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,FName)
@@ -29,6 +30,10 @@ subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,FName)
 
 #include "intent.fh"
 
+use Localisation_globals, only: fileorb_id, isHDF5
+#ifdef _HDF5_
+use mh5, only: mh5_close_file
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -61,23 +66,30 @@ call mma_allocate(Occ_,nOrbT,label='Occ_')
 call mma_allocate(EOr_,nOrbT,label='EOr_')
 call mma_allocate(Ind_,nBasT,label='Ind_')
 
-Lu = 75
-iUHF = 0  ! restricted HF
-iWarn = 2 ! abend if nBas/nOrb info is inconsistent
-iErr = -1 ! init return code
-iWFType = -1 ! init wave function type
-Dummy(1) = huge(Dummy) ! dummy variable
-call RdVec_(FName,Lu,'COEI',iUHF,nSym,nBas,nOrb,CMO_,Dummy,Occ_,Dummy,EOr_,Dummy,Ind_,VTitle,iWarn,iErr,iWFType)
-if (iErr /= 0) then
-  call WarningMessage(2,SecNam//': Non-zero return code from RdVec_')
-  write(u6,'(A,A,I9)') SecNam,': RdVec_ returned code',iErr
-  call xFlush(u6)
-  call xQuit(_RC_IO_ERROR_READ_)
+if (isHDF5) Then
+  call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,CMO_,Occ_,EOr_,Ind_)
+# ifdef _HDF5_
+  call mh5_close_file(fileorb_id)
+# endif
+else
+  Lu = 75
+  iUHF = 0  ! restricted HF
+  iWarn = 2 ! abend if nBas/nOrb info is inconsistent
+  iErr = -1 ! init return code
+  iWFType = -1 ! init wave function type
+  Dummy(1) = huge(Dummy) ! dummy variable
+  call RdVec_(FName,Lu,'COEI',iUHF,nSym,nBas,nOrb,CMO_,Dummy,Occ_,Dummy,EOr_,Dummy,Ind_,VTitle,iWarn,iErr,iWFType)
+  if (iErr /= 0) then
+    call WarningMessage(2,SecNam//': Non-zero return code from RdVec_')
+    write(u6,'(A,A,I9)') SecNam,': RdVec_ returned code',iErr
+    call xFlush(u6)
+    call xQuit(_RC_IO_ERROR_READ_)
+  end if
+  write(u6,*)
+  write(u6,'(A)') ' Header from vector file:'
+  write(u6,*)
+  write(u6,'(A)') trim(VTitle)
 end if
-write(u6,*)
-write(u6,'(A)') ' Header from vector file:'
-write(u6,*)
-write(u6,'(A)') trim(VTitle)
 write(u6,*)
 
 k1 = 1

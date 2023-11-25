@@ -331,7 +331,7 @@ c proceed to print
             If( (abs(H1(nb2)).gt.0.0_wp).or.(abs(H2(nb2)).gt.0.0_wp).or.
      &          (abs(H3(nb2)).gt.0.0_wp).or.(abs(HTOT(nb2)).gt.0.0_wp) )
      &                                                            Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H1(nb2), H2(nb2), H3(nb2), HTOT(nb2)
             End If
@@ -342,7 +342,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H1(nb2)).gt.0.0_wp).or.(abs(H2(nb2)).gt.0.0_wp).or.
      &          (abs(HTOT(nb2)).gt.0.0_wp) ) Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H1(nb2), H2(nb2), HTOT(nb2)
             End If
@@ -353,7 +353,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H1(nb2)).gt.0.0_wp).or.(abs(H3(nb2)).gt.0.0_wp).or.
      &          (abs(HTOT(nb2)).gt.0.0_wp) ) Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H1(nb2), H3(nb2), HTOT(nb2)
             End If
@@ -364,7 +364,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H2(nb2)).gt.0.0_wp).or.(abs(H3(nb2)).gt.0.0_wp).or.
      &          (abs(HTOT(nb2)).gt.0.0_wp) ) Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H2(nb2), H3(nb2), HTOT(nb2)
             End If
@@ -375,7 +375,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H1(nb2)).gt.0.0_wp).or.(abs(HTOT(nb2)).gt.0.0_wp) )
      &                                                            Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H1(nb2), HTOT(nb2)
             End If
@@ -386,7 +386,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H2(nb2)).gt.0.0_wp).or.(abs(HTOT(nb2)).gt.0.0_wp) )
      &                                                            Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H2(nb2), HTOT(nb2)
             End If
@@ -397,7 +397,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H3(nb2)).gt.0.0_wp).or.(abs(HTOT(nb2)).gt.0.0_wp) )
      &                                                            Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H3(nb2), HTOT(nb2)
             End If
@@ -408,7 +408,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H4(nb2)).gt.0.0_wp).or.(abs(HTOT(nb2)).gt.0.0_wp) )
      &                                                            Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H4(nb2), HTOT(nb2)
             End If
@@ -418,7 +418,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H2(nb2)).gt.0.0_wp).or.(abs(H4(nb2)).gt.0.0_wp).or.
      &          (abs(HTOT(nb2)).gt.0.0_wp) ) Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H2(nb2), H4(nb2), HTOT(nb2)
             End If
@@ -428,7 +428,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H3(nb2)).gt.0.0_wp).or.(abs(H4(nb2)).gt.0.0_wp).or.
      &          (abs(HTOT(nb2)).gt.0.0_wp) ) Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H3(nb2), H4(nb2), HTOT(nb2)
             End If
@@ -439,7 +439,7 @@ c proceed to print
             If( (abs(H2(nb2)).gt.0.0_wp).or.(abs(H3(nb2)).gt.0.0_wp).or.
      &          (abs(H4(nb2)).gt.0.0_wp).or.(abs(HTOT(nb2)).gt.0.0_wp) )
      &                                                              Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H2(nb2), H3(nb2), H4(nb2), HTOT(nb2)
             End If
@@ -449,7 +449,7 @@ c proceed to print
           Do nb2=nb1,exch
             If( (abs(H1(nb2)).gt.0.0_wp).or.(abs(H4(nb2)).gt.0.0_wp).or.
      &          (abs(HTOT(nb2)).gt.0.0_wp) ) Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H1(nb2), H4(nb2), HTOT(nb2)
             End If
@@ -460,7 +460,7 @@ c proceed to print
             If( (abs(H1(nb2)).gt.0.0_wp).or.(abs(H2(nb2)).gt.0.0_wp).or.
      &          (abs(H4(nb2)).gt.0.0_wp).or.(abs(HTOT(nb2)).gt.0.0_wp) )
      &                                                              Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H1(nb2), H2(nb2), H4(nb2), HTOT(nb2)
             End If
@@ -471,7 +471,7 @@ c proceed to print
             If( (abs(H1(nb2)).gt.0.0_wp).or.(abs(H3(nb2)).gt.0.0_wp).or.
      &          (abs(H4(nb2)).gt.0.0_wp).or.(abs(HTOT(nb2)).gt.0.0_wp) )
      &                                                              Then
-               Write(6,'(A,i4,A,i4,A,4(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H1(nb2), H3(nb2), H4(nb2), HTOT(nb2)
             End If
@@ -482,7 +482,7 @@ c proceed to print
             If( (abs(H1(nb2)).gt.0.0_wp).or.(abs(H2(nb2)).gt.0.0_wp).or.
      &          (abs(H3(nb2)).gt.0.0_wp).or.(abs(H4(nb2)).gt.0.0_wp).or.
      &          (abs(HTOT(nb2)).gt.0.0_wp) ) Then
-               Write(6,'(A,i4,A,i4,A,5(2E19.11,2x))')
+               Write(6,'(A,i4,A,i4,A,5(2ES19.11,2x))')
      &                  '<',nb1,'| H |',nb2,'> =',
      &                  H1(nb2), H2(nb2), H3(nb2), H4(nb2), HTOT(nb2)
             End If

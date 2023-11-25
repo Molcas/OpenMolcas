@@ -65,12 +65,12 @@ do AB=1,nAB
       iCD = iShP2RS(1,CD)
       if (iCD > 0) then
         if (iShP2RS(2,CD) == iSym) then
-          write(Lupri,'(2X,A,I4,A,I4,A,1P,D15.6)') '(',CD,'|',AB,') =',xInt(kOffI+iCD)
+          write(Lupri,'(2X,A,I4,A,I4,A,ES15.6)') '(',CD,'|',AB,') =',xInt(kOffI+iCD)
           xNorm = xNorm+xInt(kOffI+iCD)**2
         end if
       end if
     end do
-    write(Lupri,'(A,I4,A,1P,D15.6)') '**Norm of column',AB,':',sqrt(xNorm)
+    write(Lupri,'(A,I4,A,ES15.6)') '**Norm of column',AB,':',sqrt(xNorm)
   end if
 end do
 

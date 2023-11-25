@@ -12,12 +12,13 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifndef _IN_MODULE_
 #error "This file must be compiled inside a module"
 #endif
 
-subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
+subroutine Drv2El_2Center_RI(ThrAO,A_Diag,MaxCntr)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals.                          *
@@ -34,15 +35,14 @@ subroutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 !             Modified to 2-center ERIs for RI June '05                *
 !***********************************************************************
 
-use setup
+use setup, only: nSOs
 use Basis_Info, only: nBas_Aux
-use iSD_data, only: iSD, iSO2Sh, nShBF
+use iSD_data, only: iSO2Sh, nShBF
 use RI_glob, only: iOffA, Lu_A, SO2Ind
 use Gateway_Info, only: CutInt
-use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: iTOffs
-use Integral_interfaces, only: int_wrout
+use Integral_interfaces, only: Int_PostProcess, Integral_RI_2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -50,21 +50,15 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: ThrAO
 real(kind=wp), allocatable, intent(out) :: A_Diag(:)
-integer(kind=iwp), intent(out) :: nSO_Aux, MaxCntr
-integer(kind=iwp), allocatable, intent(out) :: SO2C(:)
-integer(kind=iwp) :: i, iAddr, iAddr_AQ(0:7), iCenter, iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, &
-                     lS, mB, MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
+integer(kind=iwp), intent(out) :: MaxCntr
+integer(kind=iwp) :: iAddr, iAddr_AQ(0:7), iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, lS, mB, &
+                     MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
 real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 character(len=6) :: Name_Q
 real(kind=wp), allocatable :: TInt(:), TMax(:), Tmp(:,:)
-procedure(int_wrout) :: Integral_RI_2
 integer(kind=iwp), external :: IsFreeUnit, nMemAm
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -85,22 +79,12 @@ DoGrad = .false.
 DoFock = .false.
 Indexation = .true.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
+Int_PostProcess => Integral_RI_2
 
 call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
 call Mk_iSO2Ind(iSO2Sh,SO2Ind,nSOs,nSkal)
 
-nSO_Aux = nSOs-1
-if (LDF) then
-  call mma_allocate(SO2C,nSO_Aux,Label='SO2C')
-  MaxCntr = 0
-  do i=1,nSO_Aux
-    iCenter = iSD(10,iSO2Sh(i))
-    MaxCntr = max(MaxCntr,iCenter)
-    SO2C(i) = iCenter
-  end do
-else
-  MaxCntr = 0
-end if
+MaxCntr = 0
 
 nBfn2 = 0
 nBfnTot = 0
@@ -194,7 +178,7 @@ do jS=1,nSkal-1
   do lS=1,jS
 
     A_int = TMax(jS)*TMax(lS)
-    if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
+    if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_)
 
   end do ! lS
   !                                                                    *
@@ -243,6 +227,7 @@ call xRlsMem_Ints()
 call mma_deallocate(TInt)
 call mma_deallocate(TMax)
 call mma_deallocate(SO2Ind)
+Int_PostProcess => null()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -256,6 +241,4 @@ call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
-
 end subroutine Drv2El_2Center_RI

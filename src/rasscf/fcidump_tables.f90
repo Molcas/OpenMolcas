@@ -121,7 +121,7 @@ contains
     type(OrbitalTable), intent(in) :: table
     integer :: i
     do i = 1, length(table)
-      write(6, '(E15.7, I7)') table%values(i), table%index(i)
+      write(6, '(ES15.7, I7)') table%values(i), table%index(i)
     end do
   end subroutine OrbitalTable_print
 
@@ -191,7 +191,7 @@ contains
     type(FockTable), intent(in) :: table
     integer :: i, j
     do j = 1, length(table)
-      write(6, '(E15.7, I7, I7)') table%values(j), (table%index(i, j), i=1, 2)
+      write(6, '(ES15.7, I7, I7)') table%values(j), (table%index(i, j), i=1, 2)
     end do
   end subroutine FockTable_print
 
@@ -267,7 +267,7 @@ contains
     type(TwoElIntTable), intent(in) :: table
     integer :: i, j
     do j = 1, length(table)
-      write(6, '(E15.7, I7, I7, I7, I7)') &
+      write(6, '(ES15.7, I7, I7, I7, I7)') &
         table%values(j), (table%index(i, j), i=1, 4)
     end do
   end subroutine TwoElIntTable_print

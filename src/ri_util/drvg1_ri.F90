@@ -33,10 +33,10 @@ use Symmetry_Info, only: Mul, nIrrep
 use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
 use RI_glob, only: DoCholExch, iMP2prpt, LuAVector, LuBVector, LuCVector, nAdens, nAvec, nJdens, nKdens, nKvec, tavec, tbvec
+use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
-use Disp, only: ChDisp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

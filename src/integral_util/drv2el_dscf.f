@@ -45,7 +45,8 @@
       use Gateway_Info, only: ThrInt, CutInt
       use RICD_Info, only: Do_DCCD
       use iSD_data, only: iSD
-      use Integral_Interfaces, only: DeDe_SCF
+      use Integral_Interfaces, only: DeDe_SCF, No_routine,
+     &                               Int_PostProcess
       use Int_Options, only: DoIntegrals, DoFock, FckNoClmb, FckNoExch
       use Int_Options, only: Exfac, Thize, W2Disc
       use Int_Options, only: Disc_Mx, Disc, Count=>Quad_ijkl
@@ -56,7 +57,7 @@
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Logical FstItr
 !
-      External Rsv_GTList, No_Routine
+      External Rsv_GTList
       Integer, Parameter :: nTInt=1
       Real*8 TInt(nTInt)
       Logical Semi_Direct,Rsv_GTList, Indexation,
@@ -78,6 +79,7 @@
 !                                                                      *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
+      Int_PostProcess => No_Routine
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -266,7 +268,7 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,No_Routine)
+         Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
  14      Continue
          Count=Count+One
@@ -315,6 +317,7 @@
       Call Term_Ints()
 !
       Call Free_DeDe(Dens,TwoHam,nDens)
+      Int_PostProcess => Null()
 !
 !
 !     Broadcast contributions to the Fock matrix
@@ -328,7 +331,6 @@
 !MAW end
       Call Free_iSD()
 !     Call Init_Int_Options()    ?
-      Return
       End
 
       Subroutine Init_SemiDSCF(FstItr,Thize,Cutint)

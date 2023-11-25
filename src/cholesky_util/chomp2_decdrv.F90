@@ -125,8 +125,8 @@ if (Verbose) then
   write(u6,*)
   call Cho_Head('Cholesky decomposition of '//Option,'=',80,u6)
   write(u6,'(/,1X,A)') 'Configuration of decomposition:'
-  write(u6,'(1X,A,1P,D15.6)') 'Threshold: ',ThrMP2
-  write(u6,'(1X,A,1P,D15.6)') 'Span     : ',SpanMP2
+  write(u6,'(1X,A,ES15.6)') 'Threshold: ',ThrMP2
+  write(u6,'(1X,A,ES15.6)') 'Span     : ',SpanMP2
   if (ChkDecoMP2) write(u6,'(1X,A)') 'Full decomposition check activated.'
 end if
 
@@ -244,7 +244,7 @@ do iSym=1,nSym
       write(u6,'(1X,A,I9,A,I9,A)') 'Number of vectors needed: ',nMP2Vec(iSym),' (number of AO vectors: ',NumCho(iSym),')'
       if (.not. ConventionalCD) write(u6,'(1X,A,I9)') 'Max. number of vectors allowed: ',MxCDVec(iSym)
       write(u6,'(1X,A)') 'Error statistics for diagonal [min,max,rms]:'
-      write(u6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
+      write(u6,'(1X,3(ES15.6,1X))') XMn,XMx,RMS
     end if
     if (ConventionalCD) then
       Failed = (abs(Xmn) > Thr) .or. (abs(XMx) > thr) .or. (RMS > Thr)
@@ -254,7 +254,7 @@ do iSym=1,nSym
     if (Failed) then
       if (.not. Verbose) then
         write(u6,'(1X,A)') 'Error statistics for diagonal [min,max,rms]:'
-        write(u6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
+        write(u6,'(1X,3(ES15.6,1X))') XMn,XMx,RMS
       end if
       write(u6,'(A,A,A,A)') SecNam,': decomposition of ',Option,' failed!'
       irc = -9999

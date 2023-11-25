@@ -15,8 +15,8 @@ use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp, u6
 use define_af, only: AngTp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
@@ -253,7 +253,7 @@ do iCnttp=1,nCnttp
         write(u6,*)
         write(u6,*) ' M1 operator       Exponent    Contraction Coefficients'
         do irow=1,dbsc(iCnttp)%nM1
-          write(u6,'(14X,D16.9,1X,D19.9)') dbsc(iCnttp)%M1xp(irow),dbsc(iCnttp)%M1cf(irow)
+          write(u6,'(14X,ES16.9,1X,ES19.9)') dbsc(iCnttp)%M1xp(irow),dbsc(iCnttp)%M1cf(irow)
         end do
       end if ! if (dbsc(iCnttp)%nM1 /= 0) then
 
@@ -261,7 +261,7 @@ do iCnttp=1,nCnttp
         write(u6,*)
         write(u6,*) ' M2 operator       Exponent    Contraction Coefficients'
         do irow=1,dbsc(iCnttp)%nM2
-          write(u6,'(14X,D16.9,1X,D19.9)') dbsc(iCnttp)%M2xp(irow),dbsc(iCnttp)%M2cf(irow)
+          write(u6,'(14X,ES16.9,1X,ES19.9)') dbsc(iCnttp)%M2xp(irow),dbsc(iCnttp)%M2cf(irow)
         end do
       end if ! if (dbsc(iCnttp)%nM2 /= 0) then
     end if ! if (iPrint >= 10) then
@@ -357,8 +357,8 @@ do iCnttp=1,nCnttp
           write(u6,'(19X,A,A)') '        Angular Type: ',AngTp(iAng)
           call RecPrt(' Exponents',' ',Shells(iSh)%Exp,nExpi,1)
           if (iPrint >= 11) then
-            call RecPrt(' The Akl matrix','(5D20.13)',Shells(iSh)%Akl(1,1,1),nExpi,nExpi)
-            call RecPrt(' The Adl matrix','(5D20.13)',Shells(iSh)%Akl(1,1,2),nExpi,nExpi)
+            call RecPrt(' The Akl matrix','(5ES20.13)',Shells(iSh)%Akl(1,1,1),nExpi,nExpi)
+            call RecPrt(' The Adl matrix','(5ES20.13)',Shells(iSh)%Akl(1,1,2),nExpi,nExpi)
           end if
         end if
         iSh = iSh+1
@@ -377,9 +377,9 @@ end if
 
 return
 
-100 format(9X,I4,1X,D16.9,10(1X,F10.6),1X,3(/,30X,10(1X,F10.6)))
+100 format(9X,I4,1X,ES16.9,10(1X,F10.6),1X,3(/,30X,10(1X,F10.6)))
 200 format(i4,1x,f18.12,1x,12(1x,f12.8))
-300 format(14X,D16.9,8(G12.5),3(/,30X,8(G12.5)))
-400 format(14X,D16.9,10(1X,F10.6),3(/,30X,10(1X,F10.6)))
+300 format(14X,ES16.9,8(G12.5),3(/,30X,8(G12.5)))
+400 format(14X,ES16.9,10(1X,F10.6),3(/,30X,10(1X,F10.6)))
 
 end subroutine Print_Basis2

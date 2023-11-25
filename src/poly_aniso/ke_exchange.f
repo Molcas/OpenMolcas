@@ -91,7 +91,7 @@ c local variables
                      End Do
                   End Do
       If ( ABS(Jfinal(iK,ika,iP,iph)).gt.1.d-13 ) Then
-         Write(6,'(4i4,4x,2E24.14)') iK,ika,iP,iph,
+         Write(6,'(4i4,4x,2ES24.14)') iK,ika,iP,iph,
      &                              Jfinal(iK,ika,iP,iph),
      &                              Jfinal(iK,ika,iP,iph)*0.123984193_wp
       End If

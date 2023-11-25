@@ -24,7 +24,7 @@
       Use Functionals, only: Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
       Use InfSO, only: DltNth, QNRTh, IterSO_Max
-      use InfSCF, only: Aufb, DDnoff, DelThr, DIIS, DIISTh, DoCholesky,DoLDF, DSCF, DThr, EThr, FThr, iAU_ab,        &
+      use InfSCF, only: Aufb, DDnoff, DelThr, DIIS, DIISTh, DoCholesky, DSCF, DThr, EThr, FThr, iAU_ab,        &
                         InVec, isHDF5, nD, jPrint, jVOut, kIVO,kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nCore,     &
                         nDIsc, nMem, NoExchange, nSym, nTit, One_Grid,PreSch, RFPert, rTemp, Scrmbl, StVec, Teee,    &
                         TemFac, Thize, Tot_Charge, Tot_El_Charge,Tot_Nuc_Charge, TStop, VTitle, Header, Title,       &
@@ -32,8 +32,6 @@
       use ChoSCF, only: dmpk, Algo, ReOrd
       use Fock_util_global, only: Deco
       use RICD_Info, only: Do_DCCD
-      use LDFSCF, only: ldf_contributionprescreening, ldf_integralmode, ldf_integralprescreening
-      use Constants, only: Zero
 !
       Implicit None
       Real*8 SIntTh
@@ -175,7 +173,7 @@
          Write(6,'(6X,A)')'Reaction field specifications:'
          Write(6,'(6X,A)')'------------------------------'
          Write(6,*)
-         Write(6,'(6X,A)')'The Reaction field is added as a perturbation and has been determined in a previos calculation'
+         Write(6,'(6X,A)')'The Reaction field is added as a perturbation and has been determined in a previous calculation'
          Write(6,*)
       End If
 !
@@ -201,9 +199,9 @@
          End If
       End If
 !
-!---- Print out informations concerning Direct/Conventional scheeme
-      FmtI= '(6X,A,T50,I8)'
-      FmtR= '(6X,A,T50,E8.2)'
+!---- Print out informations concerning Direct/Conventional scheme
+      FmtI= '(6X,A,T50,I9)'
+      FmtR= '(6X,A,T50,ES9.2)'
       If (jPrint.ge.2) Then
          Call CollapseOutput(1,'   Optimization specifications:')
          Write(6,'(3X,A)')     '   ----------------------------'
@@ -237,134 +235,84 @@
             if(.not.DoCholesky)then
               Write(6,'(6X,A)')'SCF Algorithm: Conventional'
             else
-              If (DoLDF) Then
-                 If (LDF_IntegralMode.eq.0) Then
-                    Write(6,'(6X,A)') 'SCF Algorithm: Direct LDF using conventional integrals'
-                 Else If (LDF_IntegralMode.eq.1) Then
-                    Write(6,'(6X,A)') 'SCF Algorithm: Direct robust LDF'
-                 Else If (LDF_IntegralMode.eq.2) Then
-                    Write(6,'(6X,A)') 'SCF Algorithm: Direct nonrobust LDF'
-                 Else If (LDF_IntegralMode.eq.3) Then
-                    Write(6,'(6X,A)') 'SCF Algorithm: Direct half-and-half LDF'
-                 Else
-                    Write(6,'(6X,A,I6)') 'Unknown LDF integral mode:', LDF_IntegralMode
-                    Call LDF_NotImplemented()
-                 End If
-                 If (LDF_IntegralPrescreening.lt.Zero) Then
-                    Write(6,'(6X,A,A)') 'Integral prescreening threshold determined from',' target accuracy'
-                 Else
-                    Write(6,FmtR) 'Integral prescreening threshold', LDF_IntegralPrescreening
-                 End If
-                 If (LDF_ContributionPrescreening.lt.Zero) Then
-                    Write(6,'(6X,A,A)') 'Contribution prescreening threshold determined',' from target accuracy'
-                 Else
-                    Write(6,FmtR) 'Contribution prescreening threshold', LDF_ContributionPrescreening
-                 End If
-              Else
-                 Call Get_iScalar('System BitSwitch',iDoRI)
-                 if (Iand(iDoRI,1024).Eq.1024) then
-                    if (LKon) then
-                       Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF'
-                       Write(6,FmtR) 'LK screening threshold:',dmpk
-                    else
-                       Write(6,'(6X,A)')'SCF Algorithm: RI/DF'
-                    endif
+              Call Get_iScalar('System BitSwitch',iDoRI)
+              if (Iand(iDoRI,1024).Eq.1024) then
+                 if (LKon) then
+                    Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF'
+                    Write(6,FmtR) 'LK screening threshold:',dmpk
                  else
-                    if (LKon) then
-                       Write(6,'(6X,A)')'SCF Algorithm: LK-Cholesky'
-                       Write(6,FmtR) 'LK screening threshold:',dmpk
-                    else
-                       Write(6,'(6X,A,I1)') 'SCF Algorithm: Cholesky'
-                    endif
+                    Write(6,'(6X,A)')'SCF Algorithm: RI/DF'
                  endif
-
-                if(ALGO.eq.0)then
-                 if (Iand(iDoRI,1024).Eq.1024) then
-                  Write(6,'(6X,A)') 'Integral regeneration from RI vectors reordered on disk'
+              else
+                 if (LKon) then
+                    Write(6,'(6X,A)')'SCF Algorithm: LK-Cholesky'
+                    Write(6,FmtR) 'LK screening threshold:',dmpk
                  else
-                  Write(6,'(6X,A)') 'Integral regeneration from Cholesky vectors reordered on disk'
+                    Write(6,'(6X,A,I1)') 'SCF Algorithm: Cholesky'
                  endif
-                elseif(ALGO.eq.1)then
-                  Write(6,'(6X,A)') 'Density-based Cholesky. Default reorder: on the fly'
-                elseif(ALGO.eq.2)then
-                  Write(6,'(6X,A)') 'MO-based-Exchange Cholesky. Default reorder: on the fly'
-                elseif(ALGO.eq.3)then
-                  Write(6,'(6X,A)') 'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
-                elseif(ALGO.eq.4)then
-                  Write(6,'(6X,A)') 'Local-Exchange (LK) algorithm.'
-                endif
+              endif
 
-                If (Do_DCCD) Write (6,'(6X,A)') ' - Corrected with exact 1-center two-electron integrals'
-                If (ReOrd) Write (6,'(6X,A)')   ' - the Cholesky vectors are reordered'
-                If (DeCo) Write (6,'(6X,A)')    ' - the density matrix is decomposed'
-                If (DSCF.and.nDisc==0.and.nCore==0) Write (6,'(6X,A)') ' - SCF Algorithm: Direct'
-              End If
+             if(ALGO.eq.0)then
+              if (Iand(iDoRI,1024).Eq.1024) then
+               Write(6,'(6X,A)') 'Integral regeneration from RI vectors reordered on disk'
+              else
+               Write(6,'(6X,A)') 'Integral regeneration from Cholesky vectors reordered on disk'
+              endif
+             elseif(ALGO.eq.1)then
+               Write(6,'(6X,A)') 'Density-based Cholesky. Default reorder: on the fly'
+             elseif(ALGO.eq.2)then
+               Write(6,'(6X,A)') 'MO-based-Exchange Cholesky. Default reorder: on the fly'
+             elseif(ALGO.eq.3)then
+               Write(6,'(6X,A)') 'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
+             elseif(ALGO.eq.4)then
+               Write(6,'(6X,A)') 'Local-Exchange (LK) algorithm.'
+             endif
+
+             If (Do_DCCD) Write (6,'(6X,A)') ' - Corrected with exact 1-center two-electron integrals'
+             If (ReOrd) Write (6,'(6X,A)')   ' - the Cholesky vectors are reordered'
+             If (DeCo) Write (6,'(6X,A)')    ' - the density matrix is decomposed'
+             If (DSCF.and.nDisc==0.and.nCore==0) Write (6,'(6X,A)') ' - SCF Algorithm: Direct'
             endif
          else
             if(.not.DoCholesky)then
               Write(6,'(6X,A)')'SCF Algorithm: Conventional USCF'
             else
-              If (DoLDF) Then
-                 If (LDF_IntegralMode.eq.0) Then
-                    Write(6,'(6X,A)') 'SCF Algorithm: Direct LDF using conventional integrals'
-                 Else If (LDF_IntegralMode.eq.1) Then
-                    Write(6,'(6X,A)') 'SCF Algorithm: Direct robust LDF USCF'
-                 Else If (LDF_IntegralMode.eq.2) Then
-                    Write(6,'(6X,A)') 'SCF Algorithm: Direct nonrobust LDF USCF'
-                 Else If (LDF_IntegralMode.eq.3) Then
-                    Write(6,'(6X,A)') 'SCF Algorithm: Direct half-and-half LDF USCF'
-                 Else
-                    Write(6,'(6X,A,I6)') 'Unknown LDF integral mode:', LDF_IntegralMode
-                    Call LDF_NotImplemented()
-                 End If
-                 If (LDF_IntegralPrescreening.lt.Zero) Then
-                    Write(6,'(6X,A,A)') 'Integral prescreening threshold determined from',' target accuracy'
-                 Else
-                    Write(6,FmtR) 'Integral prescreening threshold', LDF_IntegralPrescreening
-                 End If
-                 If (LDF_ContributionPrescreening.lt.Zero) Then
-                    Write(6,'(6X,A,A)') 'Contribution prescreening threshold determined',' from target accuracy'
-                 Else
-                    Write(6,FmtR) 'Contribution prescreening threshold', LDF_ContributionPrescreening
-                 End If
-              Else
-                 Call Get_iScalar('System BitSwitch',iDoRI)
-                 if (Iand(iDoRI,1024).Eq.1024) then
-                    if (LKon) then
-                       Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF USCF'
-                       Write(6,FmtR) 'LK screening threshold:',dmpk
-                    else
-                       Write(6,'(6X,A)')'SCF Algorithm: RI/DF USCF'
-                    endif
+              Call Get_iScalar('System BitSwitch',iDoRI)
+              if (Iand(iDoRI,1024).Eq.1024) then
+                 if (LKon) then
+                    Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF USCF'
+                    Write(6,FmtR) 'LK screening threshold:',dmpk
                  else
-                    if (LKon) then
-                       Write(6,'(6X,A)') 'SCF Algorithm: LK-Cholesky USCF'
-                       Write(6,FmtR) 'LK screening threshold:',dmpk
-                    else
-                       Write(6,'(6X,A)')'SCF Algorithm: Cholesky USCF'
-                    endif
+                    Write(6,'(6X,A)')'SCF Algorithm: RI/DF USCF'
                  endif
-
-                if(ALGO.eq.0)then
-                 if (Iand(iDoRI,1024).Eq.1024) then
-                  Write(6,'(6X,A)') 'Integral regeneration from RI vectors reordered on disk'
+              else
+                 if (LKon) then
+                    Write(6,'(6X,A)') 'SCF Algorithm: LK-Cholesky USCF'
+                    Write(6,FmtR) 'LK screening threshold:',dmpk
                  else
-                  Write(6,'(6X,A)') 'Integral regeneration from Cholesky vectors reordered on disk'
+                    Write(6,'(6X,A)')'SCF Algorithm: Cholesky USCF'
                  endif
-                elseif(ALGO.eq.1)then
-                  Write(6,'(6X,A)') 'Density-based Cholesky. Default reorder: on the fly'
-                elseif(ALGO.eq.2)then
-                  Write(6,'(6X,A)') 'MO-based-Exchange Cholesky. Default reorder: on the fly'
-                elseif(ALGO.eq.3)then
-                  Write(6,'(6X,A)') 'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
-                elseif(ALGO.eq.4)then
-                  Write(6,'(6X,A)') 'Local-Exchange (LK) algorithm.'
-                endif
+              endif
 
-                If (Do_DCCD) Write (6,'(6X,A)') ' - Corrected with exact 1-center two-electron integrals'
-                If (ReOrd) Write (6,'(6X,A)')   ' - the Cholesky vectors are reordered'
-                If (DeCo) Write (6,'(6X,A)')    ' - the density matrix is decomposed'
-              End If
+              if(ALGO.eq.0)then
+               if (Iand(iDoRI,1024).Eq.1024) then
+                Write(6,'(6X,A)') 'Integral regeneration from RI vectors reordered on disk'
+               else
+                Write(6,'(6X,A)') 'Integral regeneration from Cholesky vectors reordered on disk'
+               endif
+              elseif(ALGO.eq.1)then
+                Write(6,'(6X,A)') 'Density-based Cholesky. Default reorder: on the fly'
+              elseif(ALGO.eq.2)then
+                Write(6,'(6X,A)') 'MO-based-Exchange Cholesky. Default reorder: on the fly'
+              elseif(ALGO.eq.3)then
+                Write(6,'(6X,A)') 'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
+              elseif(ALGO.eq.4)then
+                Write(6,'(6X,A)') 'Local-Exchange (LK) algorithm.'
+              endif
+
+              If (Do_DCCD) Write (6,'(6X,A)') ' - Corrected with exact 1-center two-electron integrals'
+              If (ReOrd) Write (6,'(6X,A)')   ' - the Cholesky vectors are reordered'
+              If (DeCo) Write (6,'(6X,A)')    ' - the density matrix is decomposed'
             endif
          endif
       End If
@@ -456,15 +404,6 @@
 !
       End If
 !
-!     LDF: print a warning message if nonrobust or half-n-half is used
-!
-      If (DoLDF) Then
-         If (LDF_IntegralMode.eq.2 .or. LDF_IntegralMode.eq.3) Then
-            Call WarningMessage(0,'WARNING: nonrobust and half-n-half LDF integral representations may lead to large errors and ' &
-     &                          //'provide inferior numerical stability compared to the robust representation')
-         End If
-      End If
-
 
       Call XFlush(6)
       End

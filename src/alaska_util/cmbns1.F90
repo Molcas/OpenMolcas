@@ -23,9 +23,9 @@ subroutine CmbnS1(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,Grad,nGrad,DAO
 
 use Symmetry_Info, only: iChBas, nIrrep
 use Index_Functions, only: C_Ind
+use NAC, only: IsCSF
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp
-use NAC, only: IsCSF
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)

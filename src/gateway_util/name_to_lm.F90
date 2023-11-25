@@ -38,8 +38,8 @@
 
 subroutine Name_to_lm(BName,l,m)
 
-use Definitions, only: iwp
 use define_af, only: AngTp
+use Definitions, only: iwp
 
 implicit none
 character(len=*), intent(in) :: BName

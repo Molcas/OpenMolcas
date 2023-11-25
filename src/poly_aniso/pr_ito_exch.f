@@ -896,7 +896,7 @@ c        Do q1=-k1,k1
 c          Do k2=1,N2-1,2
 c            Do q2=-k2,k2
 c                  If(ABS(JLinG(lp,k1,q1,k2,q2)) .gt. 0.5d-14 ) Then
-c      Write(6,'(4(i4,2x,A),2(1x,E17.10),1x,A)')
+c      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)')
 c     & k1,'|',q1,'|',k2,'|',q2,'|',JLinG(lp,k1,q1,k2,q2),'|'
 c                  End If
 c            End Do
@@ -917,7 +917,7 @@ c        Do q1=-k1,k1
 c          Do k2=1,N2-1,2
 c            Do q2=-k2,k2
 c                  If(ABS(JDipG(lp,k1,q1,k2,q2)) .gt. 0.5d-14 ) Then
-c      Write(6,'(4(i4,2x,A),2(1x,E17.10),1x,A)')
+c      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)')
 c     & k1,'|',q1,'|',k2,'|',q2,'|',JDipG(lp,k1,q1,k2,q2),'|'
 c                  End If
 c            End Do
@@ -939,7 +939,7 @@ c          Do k2=1,N2-1,2
 c            Do q2=-k2,k2
 c                  If ( (ABS(JLinG(lp,k1,q1,k2,q2)) .gt. 0.5d-14) .OR.
 c     &                 (ABS(JDipG(lp,k1,q1,k2,q2)) .gt. 0.5d-14) )  Then
-c      Write(6,'(4(i4,2x,A),2(1x,E17.10),1x,A,2(1x,E17.10),1x,A)')
+c      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A,2(1x,ES17.10),1x,A)')
 c     & k1,'|',q1,'|',k2,'|',q2,'|',JLinG(lp,k1,q1,k2,q2),'|',
 c     & JDipG(lp,k1,q1,k2,q2),'|'
 c                  End If

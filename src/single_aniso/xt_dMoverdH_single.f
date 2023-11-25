@@ -112,7 +112,7 @@ cccc-------------------------------------------------------cccc
          Write(6,'(A,F12.5)') '        zJ =',zJ
          Write(6,'(A,F12.5)') '    Xfield =',Xfield
          Write(6,'(A,F12.5)') '        EM =',EM
-         Write(6,'(A,E12.5)') '      THRS =',THRS
+         Write(6,'(A,ES12.5)') '      THRS =',THRS
          Write(6,          *) '     smagn =',smagn
          Write(6,          *) '    tinput =',tinput
          If (tinput) Then
@@ -317,28 +317,28 @@ c ///  opening the loop over different directions of the magnetic field
 
       If(DBG) Then
         Do iT=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex1(',iT,')=',(MT1(l,iT),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex1(',iT,')=',(MT1(l,iT),l=1,3)
         End Do
         Do iT=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex2(',iT,')=',(MT2(l,iT),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex2(',iT,')=',(MT2(l,iT),l=1,3)
         End Do
         Do iT=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex3(',iT,')=',(MT3(l,iT),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex3(',iT,')=',(MT3(l,iT),l=1,3)
         End Do
         Do iT=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex4(',iT,')=',(MT4(l,iT),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex4(',iT,')=',(MT4(l,iT),l=1,3)
         End Do
         Do iT=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex5(',iT,')=',(MT5(l,iT),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex5(',iT,')=',(MT5(l,iT),l=1,3)
         End Do
         Do iT=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex6(',iT,')=',(MT6(l,iT),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex6(',iT,')=',(MT6(l,iT),l=1,3)
         End Do
         Do iT=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex7(',iT,')=',(MT7(l,iT),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex7(',iT,')=',(MT7(l,iT),l=1,3)
         End Do
         Do iT=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex 7-1 (',iT,')=',
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex 7-1 (',iT,')=',
      &                                (MT7(l,iT)-MT1(l,iT),l=1,3)
         End Do
       End If !DBG
@@ -430,7 +430,7 @@ C -------------------------------------------------------------------
       FLUSH(6)
       Do iT=1,nT
          jT=iT+nTempMagn
-         Write(6,'(A,F11.6,A,E12.5,A,F12.8,A,F12.8,A,F12.7,A)')
+         Write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,F12.7,A)')
      & '     |',T(jT),' |', ZT3(jT),' |',XT_no_field(jT),' |',
      &          XTM_dMdH(jT),' |', XTM_MH(jT), ' |'
       End Do

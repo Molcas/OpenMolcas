@@ -18,7 +18,7 @@
  *       Date:         Spring 2010
  *
  *       parnell_translate - get correct relative source and destination names
- *                            for a subsequent copy operation
+ *                           for a subsequent copy operation
  *
  */
 

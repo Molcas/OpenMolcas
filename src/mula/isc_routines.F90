@@ -106,7 +106,7 @@ if (iPrint >= 2) then
   write(u6,'(a,f11.6,a)') '  T_0  = ',T0,' (au)'
   write(u6,'(a,f11.3,a)') '  T_0  = ',T0*auTocm,' (cm-1)'
   write(u6,'(a,f11.3,a)') '  T_0  = ',T0*auToeV,' (eV)'
-  write(u6,'(a,d14.3,a)') '  State Density (dRho) = ',dRho,' (au-1)'
+  write(u6,'(a,es14.3,a)') '  State Density (dRho) = ',dRho,' (au-1)'
   write(u6,'(a,g14.3,a)') '  State Density (dRho) = ',dRho/auTocm,' (cm)'
   write(u6,'(a,g17.9,a)') '  1/dRho = ',auTocm/dRho,' (cm-1)'
   write(u6,'(a,f7.3,a)') '  Expansion factor =',dMinWind
@@ -343,8 +343,8 @@ if (iPrint >= 1) then
   write(u6,*)
   write(u6,*) ' InterSystem Crossing rate constant:'
   write(u6,*) ' ===================================='
-  write(u6,'(a,e10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
-  write(u6,'(a,e10.2,a)') '  Lifetime           ',dLT,' sec'
+  write(u6,'(a,es10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
+  write(u6,'(a,es10.2,a)') '  Lifetime           ',dLT,' sec'
   dLT = dLT*1.0e3_wp
   if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' msec'
   dLT = dLT*1.0e3_wp
@@ -597,7 +597,7 @@ do ii=1,nYes
     do j=1,nOsc
       loc_n_max = loc_n_max+nMat(jOrd,j)
     end do
-    write(u6,'(a2,i5,i9,e15.6,a2,i4)') ' ',ii,jOrd,FCWind2(ii),' ',loc_n_max
+    write(u6,'(a2,i5,i9,es15.6,a2,i4)') ' ',ii,jOrd,FCWind2(ii),' ',loc_n_max
   end if
 end do
 if (iPrint >= 3) then
@@ -618,7 +618,7 @@ if (iPrint >= 4) then
       loc_n_max = loc_n_max+nMat(jOrd,j)
     end do
     dFC = FC00*L(0,0)*U(jOrd,0)
-    write(u6,'(a,i8,e15.6,a2,i4,a2,24i3)') ' ',jOrd,dFC,' ',loc_n_max,' ',(nMat(jOrd,j),j=1,nOsc)
+    write(u6,'(a,i8,es15.6,a2,i4,a2,24i3)') ' ',jOrd,dFC,' ',loc_n_max,' ',(nMat(jOrd,j),j=1,nOsc)
   end do
   write(u6,*) ' --------------------------------------------------'
 end if

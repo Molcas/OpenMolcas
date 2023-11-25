@@ -71,6 +71,10 @@
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
+      use casvb_global, only: ifvb, invec_cvb, ipfocc_cvb, lcmo_cvb,
+     &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
+     &                        ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb,
+     &                        loccn_cvb, lpa_cvb, lpmat_cvb, ltuvx_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
      &    embPotPath, embWriteEsp
@@ -99,7 +103,6 @@
 #include "bk_approx.fh"
 #include "output_ras.fh"
 #include "timers.fh"
-#include "casvb.fh"
 #include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
 #include "gugx.fh"
@@ -1404,15 +1407,15 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
         imm=int(Certina_3-ihh*3600)/60
         iss=int(Certina_3-ihh*3600-imm*60)
         if (DoSplitCAS) then
-         Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
-     &            'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+         Write(LF,'(6X,I3,I4,I5,I5,F15.8,ES12.2,A1,ES10.2,A1,2I4,I2,'//
+     &            'ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
      &        ITER,iterSplit,
      &        ITERSX,IROT,EAV,
      &        DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
         else if(DoBKAP) then
-      Write(LF,'(3X,I3,I4,I2,I2,F15.8,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
-     &            'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+      Write(LF,'(3X,I3,I4,I2,I2,F15.8,F15.8,ES12.2,A1,ES10.2,A1,2I4,'//
+     &         'I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
      &        ITER,ITERCI,
      &        ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,EAV,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
@@ -1433,16 +1436,18 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
               IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)
               maxtrR = MAXLOC(dmrg_energy%max_truncW,nroots)
-         Write(LF,'(6X,I3,I3,I4,E12.2,I4,I5,F15.8,E12.2,A1,E9.2,A1,'//
-     &   '2I4,I2,E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)')
+         Write(LF,'(6X,I3,I3,I4,ES12.2,I4,I5,F15.8,ES12.2,A1,ES9.2,'//
+     &            'A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,'//
+     &            'I2.2,A1,I2.2)')
      &        ITER,ITERCI,IROT,maxtrW,maxtrR,
      &        ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
 #endif
             else
-            Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
-     &          'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
+            Write(LF,'(6X,I3,I4,I5,I5,F15.8,ES12.2,A1,ES10.2,A1,2I4,'//
+     &               'I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,'//
+     &               'A1,I2.2)')
      &          ITER,ITERCI,
      &          ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &          ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,

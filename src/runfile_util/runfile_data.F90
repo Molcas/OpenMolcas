@@ -200,18 +200,18 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'ONTOPO          ','ONTOPT          ','OE_OT           ','TEG_OT          ', & ! 149-152
                                 'FI_V            ','FA_V            ','FOCK_PDFT       ','AMFI_SINGLE     ', & ! 153-156
                                 'HAMSOR_SINGLE   ','HAMSOI_SINGLE   ','Last Dipole Mome','Un_cen Effective', & ! 157-160
-                                'Un_cen Coordinat','                ','                ','                ', & ! 161-164
-                                '                ','                ','                ','Proj_Coord      ', & ! 165-168
-                                'd1activeao      ','Keep_Coord      ','PCMSph          ','PCMTess         ', & ! 169-172
-                                'Vert            ','Centr           ','SSph            ','PCMDM           ', & ! 173-176
-                                'EF_Centers      ','OAM_Center      ','OMQ_Center      ','DMS_Centers     ', & ! 177-180
-                                'Wel_Info        ','AMP_Center      ','RP_Centers      ','XF              ', & ! 181-184
-                                'rDmp            ','rDmp:A          ','rDmp:S          ','D1saoVar        ', & ! 185-188
-                                'ESFS_SINGLEAU   ','ESO_LOW         ','SFS_HAM         ','SFS_OVLP        ', & ! 189-192
-                                'FocMS           ','MSPDFTD5        ','MSPDFTD6        ','TwoEIntegral    ', & ! 193-196
-                                'D1MOt           ','D1INTER         ','P2INTER         ','D1AO_MS         ', & ! 297-200
-                                'D1SAO_MS        ','MS_FINAL_ROT    ','F1MS            ','F2MS            ', & ! 201-204
-                                'FxyMS           ','SH_Ovlp_Save    ','Old_Phase       ','<rhoB|VnucA>    ', & ! 205-208
+                                'Un_cen Coordinat','Proj_Coord      ','d1activeao      ','Keep_Coord      ', & ! 161-164
+                                'PCMSph          ','PCMTess         ','Vert            ','Centr           ', & ! 165-168
+                                'SSph            ','PCMDM           ','EF_Centers      ','OAM_Center      ', & ! 169-172
+                                'OMQ_Center      ','DMS_Centers     ','Wel_Info        ','AMP_Center      ', & ! 173-176
+                                'RP_Centers      ','XF              ','rDmp            ','rDmp:A          ', & ! 177-180
+                                'rDmp:S          ','D1saoVar        ','ESFS_SINGLEAU   ','ESO_LOW         ', & ! 181-184
+                                'SFS_HAM         ','SFS_OVLP        ','FocMS           ','MSPDFTD5        ', & ! 185-188
+                                'MSPDFTD6        ','TwoEIntegral    ','D1MOt           ','D1INTER         ', & ! 189-192
+                                'P2INTER         ','D1AO_MS         ','D1SAO_MS        ','MS_FINAL_ROT    ', & ! 193-196
+                                'F1MS            ','F2MS            ','FxyMS           ','SH_Ovlp_Save    ', & ! 297-200
+                                'Old_Phase       ','<rhoB|VnucA>    ','                ','                ', & ! 201-204
+                                '                ','                ','                ','                ', & ! 205-208
                                 '                ','                ','                ','                ', & ! 209-212
                                 '                ','                ','                ','                ', & ! 213-216
                                 '                ','                ','                ','                ', & ! 217-220
@@ -254,10 +254,10 @@ character(len=lw), parameter :: LabelsDS(nTocDS) = [ &
                                 'E_0_NN          ','W_or_el         ','W_or_Inf        ','EThr            ', & ! 11-16
                                 'Cholesky Thresho','Total Nuclear Ch','Numerical Gradie','MpProp Energy   ', & ! 17-20
                                 'UHFSPIN         ','S delete thr    ','T delete thr    ','MD_Etot0        ', & ! 21-24
-                                'MD_Time         ','LDF Accuracy    ','NAD dft energy  ','GradLim         ', & ! 25-28
-                                'Average energy  ','Timestep        ','MD_Etot         ','Max error       ', & ! 29-32
-                                'Total Charge    ','DFT exch coeff  ','DFT corr coeff  ','Value_l         ', & ! 33-36
-                                'R_WF_HMC        ','                ','                ','                ', & ! 37-40
+                                'MD_Time         ','NAD dft energy  ','GradLim         ','Average energy  ', & ! 25-28
+                                'Timestep        ','MD_Etot         ','Max error       ','Total Charge    ', & ! 29-32
+                                'DFT exch coeff  ','DFT corr coeff  ','Value_l         ','R_WF_HMC        ', & ! 33-36
+                                '                ','                ','                ','                ', & ! 37-40
                                 '                ','                ','                ','                ', & ! 41-44
                                 '                ','                ','                ','                ', & ! 45-48
                                 '                ','                ','                ','                ', & ! 49-52
@@ -342,9 +342,7 @@ character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
 !> - '``Seed``'                       The seed number for random number generator used in surface hoping.
 !> - '``Rotational Symmetry Number``'
 !> - '``mp2prpt``'                    True(=1) if mbpt2 was run with prpt
-!> - '``LDF Status``'                 Initialized or not
 !> - '``DF Mode``'                    Local (1) or non-local (0) DF
-!> - '``LDF Constraint``'             Constraint type for LDF
 !> - '``OptimType``'                  Optimization type in hyper
 !> - '``STSYM``'                      symmetry of the CAS root(s)
 !> - '``nCoordFiles``'                number of xyz-files in gateway
@@ -370,16 +368,16 @@ character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'ColGradMode     ','IRC             ','MaxHops         ','nRasHole        ', & !  33- 36
                                 'nRasElec        ','Rotational Symme','Saddle Iter     ','iMass           ', & !  37- 40
                                 'mp2prpt         ','NJOB_SINGLE     ','MXJOB_SINGLE    ','NSS_SINGLE      ', & !  41- 44
-                                'NSTATE_SINGLE   ','LDF Status      ','DF Mode         ','LDF Constraint  ', & !  45- 48
-                                'OptimType       ','STSYM           ','RF CASSCF root  ','RF0CASSCF root  ', & !  49- 52
-                                'nCoordFiles     ','nLambda         ','DNG             ','HessIter        ', & !  53- 56
-                                'CHCCLarge       ','TS Search       ','Number of Hops  ','hopped          ', & !  57- 60
-                                'Invert constrain','Keep old gradien','embpot          ','nPrim           ', & !  61- 64
-                                'Seed            ','Track Done      ','MaxHopsTully    ','EFP             ', & !  65- 68
-                                'nEFP_fragments  ','Coor_Type       ','nEFP_Coor       ','Relax Original r', & !  69- 72
-                                'Unique centers  ','nXF             ','CSPF            ','NCONF           ', & !  73- 76
-                                'SH RASSI run    ','isCMSNAC        ','isMECIMSPD      ','CalcNAC_Opt     ', & !  77- 80
-                                'MECI_via_SLAPAF ','                ','                ','                ', & !  81- 84
+                                'NSTATE_SINGLE   ','DF Mode         ','OptimType       ','STSYM           ', & !  45- 48
+                                'RF CASSCF root  ','RF0CASSCF root  ','nCoordFiles     ','nLambda         ', & !  49- 52
+                                'DNG             ','HessIter        ','CHCCLarge       ','TS Search       ', & !  53- 56
+                                'Number of Hops  ','hopped          ','Invert constrain','Keep old gradien', & !  57- 60
+                                'embpot          ','nPrim           ','Seed            ','Track Done      ', & !  61- 64
+                                'MaxHopsTully    ','EFP             ','nEFP_fragments  ','Coor_Type       ', & !  65- 68
+                                'nEFP_Coor       ','Relax Original r','Unique centers  ','nXF             ', & !  69- 72
+                                'CSPF            ','NCONF           ','SH RASSI run    ','isCMSNAC        ', & !  73- 76
+                                'isMECIMSPD      ','CalcNAC_Opt     ','MECI_via_SLAPAF ','                ', & !  77- 80
+                                '                ','                ','                ','                ', & !  81- 84
                                 '                ','                ','                ','                ', & !  85- 88
                                 '                ','                ','                ','                ', & !  89- 92
                                 '                ','                ','                ','                ', & !  93- 96

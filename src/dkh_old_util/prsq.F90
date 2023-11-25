@@ -29,6 +29,6 @@ return
 
 1001 format(' MATRIX PRINTED:',2X,A8)
 1002 format(' ',4X,4(6X,I4,6X),/)
-1003 format(' ',I4,4d16.8)
+1003 format(' ',I4,4es16.8)
 
 end subroutine prsq

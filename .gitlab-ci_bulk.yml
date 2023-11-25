@@ -243,3 +243,5 @@ test:mpi:
     - !reference [.use-clone]
     - build:mpi
   parallel: 8
+  tags:
+    - docker

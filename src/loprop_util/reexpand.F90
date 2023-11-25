@@ -12,9 +12,9 @@
 subroutine ReExpand(rMP,nij,nElem,A,B,ij,lMax)
 
 use Index_Functions, only: nTri3_Elem
+use define_af, only: Binom
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use define_af, only: Binom
 
 implicit none
 integer(kind=iwp), intent(in) :: nij, nElem, ij, lMax

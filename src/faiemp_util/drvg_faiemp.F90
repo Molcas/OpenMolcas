@@ -26,9 +26,11 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 !     based on Drvg1                                                   *
 !***********************************************************************
 
-use setup
+use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Aux, Sew_Scr, Destroy_BraKet
+use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
+use k2_structure, only: k2Data
+use Disp, only: ChDisp, l2DI
 use Basis_Info, only: nBas, nBas_Frag, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -36,8 +38,6 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
-use Disp, only: ChDisp, l2DI
-use k2_structure, only: k2Data
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -45,21 +45,19 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 real(kind=wp) :: Coor(3,4), PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
-integer(kind=iwp) :: iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), iSD4(0:nSD,4), &
-                     MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, iBsInc, iCar, &
-                     ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, &
-                     Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc, jPrInc, k2ij, k2kl, jPrimj, &
-                     kBasAO, kBasn, kBask, kBsInc, kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, &
-                     mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, &
-                     nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
-logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, &
-                     Triangular, lNoSkip
+integer(kind=iwp) :: iAnga(4), iCmpa(4), ik2, iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), &
+                     iSD4(0:nSD,4), MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, &
+                     iBsInc, iCar, ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, &
+                     jBasAO, jBasj, jBasn, jBsInc, jk2, jPrInc, k2ij, k2kl, jPrimj, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, &
+                     kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, &
+                     nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, &
+                     nSkal_Valence, nSO, nZeta, nBtch
+logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Triangular, lNoSkip
 character(len=72) :: formt
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable :: TMax(:,:)
-logical(kind=iwp),external :: Rsv_GTList
-integer(kind=iwp) :: ik2, jk2
+logical(kind=iwp), external :: Rsv_GTList
 
 !                                                                      *
 !***********************************************************************
@@ -180,7 +178,7 @@ if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',Grad,nGrad,ChDis
 !***********************************************************************
 !                                                                      *
 call mma_MaxDBLE(MemMax)
-if (MemMax > 1000) MemMax=MemMax-1000
+if (MemMax > 1000) MemMax = MemMax-1000
 call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 ipMem1 = 1
 !                                                                      *
@@ -267,7 +265,7 @@ do
       !                                                                *
       call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
                       k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
-                      AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd, nHmcd,nIrrep)
+                      AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -307,14 +305,11 @@ do
 
                 !--Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
-                             k2Data(:,ik2), k2Data(:,jk2), &
-                             nDCRR, &
-                             nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+                call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,k2Data(:,ik2),k2Data(:,jk2),nDCRR,nDCRS, &
+                             Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                              Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
-                             Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn, &
-                             nZeta,nEta,Temp,nGrad,JfGrad,JndGrd, &
-                             Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
+                             Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn,nZeta,nEta, &
+                             Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
 
                 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp)
 
@@ -325,7 +320,7 @@ do
         end do
       end do
 
-      Call Destroy_BraKet()
+      call Destroy_BraKet()
 
     end if
     Cnt = Cnt+One

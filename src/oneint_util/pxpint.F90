@@ -143,7 +143,7 @@ do iBeta=1,nBeta
 end do
 
 if (iPrint >= 99) then
-  call RecPrt(' In pXpint: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
+  call RecPrt(' In pXpint: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
 end if
 !                                                                      *
 !***********************************************************************

@@ -128,7 +128,7 @@ if ((iPrint >= 6) .and. (nQQ <= 12)) then
   write(Lu,*)
 end if
 if ((iPrint >= 10) .and. (nQQ <= 12)) then
-  write(Lu,'(A,E10.3)') ' Threshold for printout:',Thr
+  write(Lu,'(A,ES10.3)') ' Threshold for printout:',Thr
   IncQQ = 8
   do iiQQ=1,nQQ,IncQQ
     mQQ = min(nQQ,iiQQ+IncQQ-1)

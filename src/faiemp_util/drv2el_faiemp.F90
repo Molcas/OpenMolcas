@@ -30,7 +30,7 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
 use Gateway_Info, only: ThrInt, CutInt
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Thize, W2Disc
-use Integral_Interfaces, only: DeDe_SCF
+use Integral_Interfaces, only: DeDe_SCF, Int_PostProcess, No_Routine
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
@@ -45,7 +45,6 @@ character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable, target :: Dens(:), Fock(:)
 real(kind=wp), allocatable :: DMax(:,:), FragDensSO(:), OneHam(:), TMax(:,:)
-external :: No_Routine
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iFD, nFD
@@ -67,6 +66,7 @@ W2Disc = .true.
 PreSch = .false.
 Disc_Mx = Zero      ! Default value
 Disc = Zero         ! Default value
+Int_PostProcess => No_Routine
 
 ! Handle both the valence and the fragment basis set
 
@@ -262,7 +262,7 @@ do
   lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
   if (lNoSkip) then
-    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt,No_Routine)
+    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
     if (nIrrep == 1) then
@@ -309,6 +309,7 @@ call Term_Ints()
 call Free_DeDe(Dens,Fock,nBT)
 
 call mma_deallocate(Dens)
+Int_PostProcess => null()
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*)

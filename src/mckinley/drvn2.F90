@@ -32,11 +32,11 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess
 use Symmetry_Info, only: iChTbl, nIrrep, Prmt
+use rctfld_module, only: Eps, nS, nTS, PCM
+use Disp, only: IndDsp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Six, Half
 use Definitions, only: wp, iwp
-use rctfld_module, only: PCM, nTS, Eps, nS
-use Disp, only: IndDsp
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
