@@ -367,6 +367,7 @@ contains
             v = indices(2,i) + 1; x = indices(5,i) + 1
             y = indices(3,i) + 1; z = indices(6,i) + 1
             tensor(t, u, v, x, y, z) = values(i)
+            ! pre-contracted F4RDM is no longer hermitian
             ! call apply_12fold_symmetry(tensor, t, u, v, x, y, z, values(i))
         end do
 
