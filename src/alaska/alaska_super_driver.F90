@@ -237,7 +237,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
     ! Reset iGO to 0 to allow for new MCLR/ALASKA calculations
     if (iGo == 1) iGo = 0
     call Put_iScalar('SA ready',iGo)
-    if (Method == 'CASPT2  ')  then
+    if (Method == 'CASPT2  ') then
       !! Reset MCLR Root so as not to use leftover states
       write(mstate2,'(1X,I7,1X,I7)') 0,0
       call Put_cArray('MCLR Root',mstate2,16)

@@ -172,7 +172,7 @@ do iSym=1,nSym
   ip_B = 1+l_B_t
   ip_B2 = ip_B+l_B_t
 
-  LuGAMMA  = IsFreeUnit(65)
+  LuGAMMA = IsFreeUnit(65)
   call PrgmTranslate('GAMMA',RealName,lRealName)
   call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBas2*8,'OLD',is_error)
 

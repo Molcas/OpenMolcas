@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: LuGAMMA,iS, jS, kS, lS, nBasI, nBasJ, nBasK, nBasL, iOffAO(*), nBasT, nOcc
+integer(kind=iwp), intent(in) :: iS, jS, kS, lS, LuGAMMA, nBasI, nBasJ, nBasK, nBasL, iOffAO(*), nBasT, nOcc
 real(kind=wp), intent(in) :: CMOPT2(*)
 real(kind=wp), intent(_OUT_) :: WRK1(*), WRK2(*), G_toc(*)
 integer(kind=iwp) :: iBas, iBas0, iRec, jBas, jBas0, kBas, kBas0, lBas, lBas0, Loc

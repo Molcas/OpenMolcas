@@ -98,8 +98,8 @@ real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhal
 character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
-logical(kind=iwp), external :: Rsv_Tsk2
 integer(kind=iwp), external :: IsFreeUnit
+logical(kind=iwp), external :: Rsv_Tsk2
 
 !                                                                      *
 !***********************************************************************
