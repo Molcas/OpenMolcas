@@ -37,8 +37,8 @@ H  1.35873  1.43374  0.00036
   FileOrb = $Project.ScfOrb
   Charge = 0
   RAS2 = 4
-  NActElectrons = 6 0 0
-  CIRoot = 3 3 1
+  NActElectrons = 6
+  StAverage = 3
 
 >>> COPY $Project.JobIph MYJOB
 >>> RM   $Project.JobIph

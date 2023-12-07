@@ -1146,6 +1146,39 @@ C         call fileorb(Line,CMSStartMat)
         end if
       call ChkIfKey()
       end if
+*---  Process STAV command --------------------------------------------*
+      If(KeySTAV.and.KeyCIRO) Then
+        call WarningMessage(1,
+     &    'STAVERAGE and CIROOT are incompatible.;'//
+     &    'The STAVERAGE command will be ignored.')
+        KeySTAV=.false.
+      End If
+      If(KeySTAV) Then
+       If (DBG) Write(6,*) ' STAVERAGE command was given.'
+       Call SetPos(LUInput,'STAV',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       Line=Get_Ln(LUInput)
+       ReadStatus=' Failure reading spin after STAVERAGE keyword.'
+       Read(Line,*,Err=9920) NROOTS
+       If (NROOTS.GT.MXROOT) Then
+         WRITE(6,*) "Error: number of roots exceeds maximum"
+         WRITE(6,*) "NROOTS = ", NROOTS
+         WRITE(6,*) "MXROOT = ", MXROOT
+         CALL AbEnd()
+       End If
+       ReadStatus=' O.K. reading spin after STAVERAGE keyword.'
+       LROOTS=NROOTS
+       Do i=1,NROOTS
+        iroot(i)=i
+        WEIGHT(i)=1.d0/DBLE(NROOTS)
+       END DO
+       If (DBG) Then
+        Write(6,*) ' Nr of roots in CI: LROOTS=',LROOTS
+        Write(6,*) ' Nr of roots optimized by super-CI: NROOTS=',NROOTS
+        Write(6,*) ' (Equal-weighted)'
+       End If
+       Call ChkIfKey()
+      End If
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
       IF(KeyCIRO) Then
