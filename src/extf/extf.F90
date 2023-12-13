@@ -22,20 +22,15 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, j, atomNumberx3, nsAtom, efatom1, efatom2, ext, LuSpool
-integer(kind=iwp) :: efatom3, efatom4
-real(kind=wp) :: efmodul, efmodulAU, norm, posvect12(3)
-real(kind=wp), allocatable :: gradient(:,:), ExtGrad(:,:), modgrad(:,:), coord(:,:)
+integer(kind=iwp) :: atomNumberx3, efatom1, efatom2, efatom3, efatom4, ext, i, j, LuSpool, nCent, nsAtom
+real(kind=wp) :: Bt(3,4), dBt(3,4,3,4), efmodul, efmodulAU, fourAtoms(3,4), gau_sigma, gau_t0, mdtime, norm, posvect12(3), Tau, &
+                 time_scaling
+logical(kind=iwp) :: Found, gaussian_force, ldB, linear, lWarn, lWrite, torsional
+character(len=180) :: Key, Label, Line
+real(kind=wp), allocatable :: coord(:,:), ExtGrad(:,:), gradient(:,:), modgrad(:,:)
 real(kind=wp), parameter :: nnewt = auToN*1.0e9_wp
-logical(kind=iwp) :: linear, Found
-character(len=180) :: Key, Line
+integer(kind=iwp), external :: isfreeunit
 character(len=180), external :: Get_Ln
-integer(kind=iwp) :: isfreeunit
-integer(kind=iwp) :: nCent
-real(kind=wp) :: Tau, gau_sigma, gau_t0, mdtime, time_scaling
-real(kind=wp) :: Bt(3,4), dBt(3,4,3,4), fourAtoms(3,4)
-logical(kind=iwp) :: torsional, lWrite, lWarn, ldB, gaussian_force
-character(len=180) :: Label
 
 ! get initial values
 
@@ -56,8 +51,9 @@ call Get_dArray('Unique Coordinates',coord,atomNumberx3)
 LuSpool = isfreeunit(21)
 call SpoolInp(LuSpool)
 
-linear=.false.
-torsional=.false.
+linear = .false.
+torsional = .false.
+gaussian_force = .false.
 
 rewind(LuSpool)
 call RdNLst(LuSpool,'extf')
@@ -65,9 +61,10 @@ do
   Key = Get_Ln(LuSpool)
   Line = Key
   call UpCase(Line)
-  if (Line(1:3) == 'END') exit
-  if (Line(1:4) == 'LINE') then
-    !>>> LINEAR FORCe <<<
+  if (Line(1:3) == 'END') then
+    exit
+  else if (Line(1:4) == 'LINE') then
+    !>>> LINEAR FORCE <<<
     linear = .true.
     write(u6,*) 'Linear forces between two atoms selected'
     Line = Get_Ln(LuSpool)
@@ -86,10 +83,8 @@ do
     else
       write(u6,*) 'Extension force'
     end if
-  end if
-!>>>>>>>>>>>>>>>>>>>> LINEAR END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- if (Line(1:4) == 'TORS') then
-!>>>>>>>>>>>>>>>>>>>> torsional FORCE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  else if (Line(1:4) == 'TORS') then
+    !>>> TORSIONAL FORCE <<<
     torsional = .true.
     write(u6,*) 'Torsional force on a dihedral selected'
     Line = Get_Ln(LuSpool)
@@ -114,28 +109,24 @@ do
     else
       write(u6,*) 'Opening force'
     end if
- end if
-
- if (Line(1:4) == 'GAUS') then
+  else if (Line(1:4) == 'GAUS') then
     gaussian_force = .true.
     Line = Get_Ln(LuSpool)
     call Get_F1(1,gau_sigma)
     Line = Get_Ln(LuSpool)
     call Get_F1(1,gau_t0)
- end if
-!
-!>>>>>>>>>>>>>>>>>>>> torsional END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  end if
 end do
 
 write(u6,*) 'Coordinates Found:'
 do i=1,nsAtom
-write(u6,*) i, coord(:,i)
+  write(u6,*) i,coord(:,i)
 end do
 write(u6,*)
 
 write(u6,*) 'Gradient Found:'
 do i=1,nsAtom
-write(u6,*) i, gradient(:,i)
+  write(u6,*) i,gradient(:,i)
 end do
 write(u6,*)
 
@@ -173,13 +164,12 @@ if (linear) then
   end do
   write(u6,*)
 
-
-
 end if
 !>>>>>>>>>>>>>>>>>>>>> end of linear code <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+!>>>>>>>>>>>>>>>>>>>>> TORSIONAL CODE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if (torsional) then
-  write(u6, *) 'Torsional force applied'
+  write(u6,*) 'Torsional force applied'
   ! from nN to atomic units
   efmodulAU = efmodul/nnewt
 
@@ -193,29 +183,28 @@ if (torsional) then
   fourAtoms(:,4) = coord(:,efatom4)
 
   nCent = 4
-  Tau = 0.0
+  Tau = Zero
   Bt(:,:) = Zero ! initialization matrix
   lWrite = .true. ! write something in output file
   lWarn = .true. ! write warnings in output file
   Label = 'Dihedral'
   dBt(:,:,:,:) = Zero ! second derivative
   ldB = .false. ! this will NOT calculate the second derivative
-  Call Trsn(fourAtoms,nCent,Tau,Bt,lWrite,lWarn,Label,dBt,ldB)
+  call Trsn(fourAtoms,nCent,Tau,Bt,lWrite,lWarn,Label,dBt,ldB)
 
   write(u6,*) "Bt vector:"
   do i=1,4
-    write(u6,*) i, Bt(:,i)
+    write(u6,*) i,Bt(:,i)
   end do
 
-  norm = 0.0
+  norm = Zero
   do i=1,4
     do j=1,3
-      norm = norm + Bt(j,i)**2
+      norm = norm+Bt(j,i)**2
     end do
   end do
   norm = sqrt(norm)
-  write(u6, *) 'Bt norm before normalization:', norm
-
+  write(u6,*) 'Bt norm before normalization:',norm
 
   do i=1,4
     do j=1,3
@@ -229,26 +218,28 @@ if (torsional) then
   ExtGrad(:,efatom4) = Bt(:,4)*efmodulAU
 
 end if
+!>>>>>>>>>>>>>>>>>>>>> end of torsional code <<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+!>>>>>>>>>>>>>>>>>>>>> GAUSSIAN CODE <<<<_<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if (gaussian_force) then
-
   ! AV: This is called before dynamix, so at fist step it would not find
   ! the time value in the runfile
   call Qpg_dScalar('MD_Time',Found)
   if (found) then
-    call Get_dScalar('MD_Time', mdtime)
+    call Get_dScalar('MD_Time',mdtime)
   else
-    mdtime = 0.0
+    mdtime = Zero
   end if
 
   write(u6,*) 'Gaussian shaped force'
-  write(u6,*) 'sigma', gau_sigma, 't0', gau_t0
+  write(u6,*) 'sigma',gau_sigma,'t0',gau_t0
   time_scaling = exp(-(mdtime-gau_t0)**2/(2*(gau_sigma**2)))
-  write(u6,*) 'gaussian:', mdtime, time_scaling
+  write(u6,*) 'gaussian:',mdtime,time_scaling
 
-  ExtGrad(:,:) = ExtGrad(:,:) * time_scaling
+  ExtGrad(:,:) = ExtGrad(:,:)*time_scaling
 
 end if
+!>>>>>>>>>>>>>>>>>>>>> end of gaussian code <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ! Creating the final modified external gradient vector (modgrad)
 modgrad(:,:) = gradient(:,:)+ExtGrad(:,:)
