@@ -19,7 +19,7 @@ o. index::
             This module calculates the contribution of an external force that is acting on the system.
             </HELP>
 
-This module calculates the contribution of an external force that is acting on the system. It applies the modification directly on the gradient and it needs to be called after the execution of :program:`ALASKA`, in an optimization or molecular dynamics calculation. At present time, just the :kword:`LINEAR` keyword is present, that applies a constant linear force between two atoms :cite:`valentini2017optomechanical`.
+This module calculates the contribution of an external force that is acting on the system. It applies the modification directly on the gradient and it needs to be called after the execution of :program:`ALASKA`, in an optimization or molecular dynamics calculation. The keyword :kword:`LINEAR` applies a constant linear force between two atoms :cite:`valentini2017optomechanical`.
 
 .. _UG\:sec\:extf_inp:
 
@@ -31,21 +31,60 @@ General keywords
 
 .. class:: keywordlist
 
-:kword:`LINEAR`
-  This keyword works by specifying 4 parameters, each one in its own line after the keyword itself. First parameter (Integer) is the first atom number following the numeration of the geometry. Second parameter (Integer) is the second atom number. Third parameter is the force (Float) in nanonewton applied along the vector between the two atoms. Fourth parameter is 0 or 1 (Bool), where 0 indicates a repulsive force, and 1 is for an attractive force.
+:kword:`MODULE`
+  Module of the force to apply, in nanonewton. If it's negative, the force is applied in opposite direction. See the other keywords for what is the direction of positive and negative forces. Note that this is the module of the total force, so for example, in the case of a force pair between two atoms, the force applied on each atom will be a factor of :math:`\sqrt{2}` smaller than this value.
 
-  .. xmldoc:: <KEYWORD MODULE="EXTF" NAME="LINEAR" APPEAR="Linear external force" KIND="CUSTOM" LEVEL="BASIC">
-              %%Keyword: LINEar <basic>
-              This keyword enables the linear external force between two atoms.
+  .. xmldoc:: <KEYWORD MODULE="EXTF" NAME="MODULE" APPEAR="Force module" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: MODUle <basic>
               <HELP>
-              This keyword works by specifying 4 parameters, each one in its own line after the keyword itself. First parameter (Integer) is the first atom number following the numeration of the geometry. Second parameter (Integer) is the second atom number. Third parameter is the force (Float) in nanonewton applied along the vector between the two atoms. Fourth parameter is 0 or 1 (Bool), where 0 indicates a repulsive force, and 1 is for an attractive force.
+              Module of the force to apply, in nanonewton. If it's negative, the force is applied in opposite direction. See the other keywords for what is the direction of positive and negative forces.
+              </HELP>
+              </KEYWORD>
+
+:kword:`LINEAR`
+  This keyword is followed by two integer values, specifying the atom numbers (following the numbering of the geometry) between which a force is applied along the vector joining them. A positive force (see the :kword:`MODULE` keyword) means an attractive (compression) force, a negative force is a repulsive (extension) force.
+
+  .. xmldoc:: <KEYWORD MODULE="EXTF" NAME="LINEAR" APPEAR="Linear external force" KIND="INTS" SIZE="2" LEVEL="BASIC" EXCLUSIVE="BENDING,TORSIONAL">
+              %%Keyword: LINEar <basic>
+              <HELP>
+              This keyword is followed by two integer values, specifying the atom numbers (following the numbering of the geometry) between which a force is applied along the vector joining them. A positive force (see the MODULE keyword) means an attractive (compression) force, a negative force is a repulsive (extension) force.
+              </HELP>
+              </KEYWORD>
+
+:kword:`BENDING`
+  This keyword is followed by three integer values, specifying the atom numbers (following the numbering of the geometry) between which a force is applied to open or close their planar angle. A positive force (see the :kword:`MODULE` keyword) tends to close the angle, a negative force opens it.
+
+  .. xmldoc:: <KEYWORD MODULE="EXTF" NAME="BENDING" APPEAR="Bending external force" KIND="INTS" SIZE="3" LEVEL="BASIC" EXCLUSIVE="LINEAR,TORSIONAL">
+              %%Keyword: BENDing <basic>
+              <HELP>
+              This keyword is followed by three integer values, specifying the atom numbers (following the numbering of the geometry) between which a force is applied to open or close their planar angle. A positive force (see the MODULE keyword) tends to close the angle, a negative force opens it.
+              </HELP>
+              </KEYWORD>
+
+:kword:`TORSIONAL`
+  This keyword is followed by four integer values, specifying the atom numbers (following the numbering of the geometry) between which a force is applied to open or close their dihedral angle. A positive force (see the :kword:`MODULE` keyword) tends to close positive dihedrals (i.e. towards less positive values), a negative force opens positive dihedrals (towards more positive values).
+
+  .. xmldoc:: <KEYWORD MODULE="EXTF" NAME="TORSIONAL" APPEAR="Torsional external force" KIND="INTS" SIZE="3" LEVEL="BASIC" EXCLUSIVE="LINEAR,BENDING">
+              %%Keyword: TORSional <basic>
+              <HELP>
+              This keyword is followed by three integer values, specifying the atom numbers (following the numbering of the geometry) between which a force is applied to open or close their planar angle. A positive force (see the MODULE keyword) tends to close the angle, a negative force opens it.
+              </HELP>
+              </KEYWORD>
+
+:kword:`GAUSSIAN`
+  This keyword modulates the applied force with a Gaussian time profile. It is followed by two real values, indicating the time at which the force is maximum (i.e. the value specified by :kword:`MODULE`) and a sigma value for the Gaussian decay.
+
+  .. xmldoc:: <KEYWORD MODULE="EXTF" NAME="GAUSSIAN" APPEAR="Gaussian temporal profile" KIND="REALS" SIZE="2" LEVEL="BASIC">
+              %%Keyword: GAUSsian <basic>
+              <HELP>
+              This keyword modulates the applied force with a Gaussian time profile. It is followed by two real values, indicating the time at which the force is maximum (i.e. the value specified by MODULE) and a sigma value for the Gaussian decay.
               </HELP>
               </KEYWORD>
 
 Input examples
 ..............
 
-The following input example is a semiclassical molecular dynamics with tully surface hop, where a linear force of 2.9 nN is applied between atom 1 and atom 2. ::
+The following input example is a semiclassical molecular dynamics with tully surface hop, where a linear force of about 2.9 nN is applied between atom 1 and atom 2. ::
 
   &Gateway
   coord=$Project.xyz
@@ -74,10 +113,9 @@ The following input example is a semiclassical molecular dynamics with tully sur
 
   &Extf
    LINEAR
-   1
-   2
-   2.9
-   0
+   1 2
+   MODULE
+   -4.1
 
   &Dynamix
    velver
@@ -87,12 +125,8 @@ The following input example is a semiclassical molecular dynamics with tully sur
   >>> End Do
 
 This example shows an excited state CASSCF MD simulation
-of a methaniminium cation using the Tully Surface Hop algorithm. In the simulation, the carbon and the nitrogen are pulled apart with a constant force of 1.5 nN (nanonewton).
-Within the :program:`Extf` module the keyword :kword:`LINEAR` is used. Note :program:`Extf` needs to be called after the execution of :program:`ALASKA`, inside the loop. The options are:
-``1``: the atom number corresponding to the C atom,
-``2``: the atom number corresponding to the N atom,
-``1.5``: the force intensity,
-``0``: to indicate a repulsive force.
+of a methaniminium cation using the Tully Surface Hop algorithm. In the simulation, the carbon and the nitrogen are pulled apart with a constant force of 1.5 nN (nanonewton) on each atom.
+Within the :program:`Extf` module the keyword :kword:`LINEAR` is used. Note :program:`Extf` needs to be called after the execution of :program:`ALASKA`, inside the loop.
 
 .. extractfile:: ug/extf.input
 
@@ -152,10 +186,9 @@ Within the :program:`Extf` module the keyword :kword:`LINEAR` is used. Note :pro
 
   &extf
    LINEAR
-   1
-   2
-   1.5
-   0
+   1 2
+   MODULE
+   -2.12132
 
   &Dynamix
    VELVer
