@@ -36,7 +36,7 @@
      &            /(4.0d0*rpi*diel)*elcharge**2/atokg/1000.D0)
       Parameter (auToHz = CONV_AU_TO_HZ_)
       Parameter (auTofs = CONST_AU_TIME_IN_SI_*1.0D15)
-      Parameter (auToN = CONV_AU_TO_KJ_/CONST_BOHR_RADIUS_IN_SI_)
+      Parameter (auToN = CONV_AU_TO_KJ_/CONST_BOHR_RADIUS_IN_SI_*1.0D3)
       Parameter (auToeV = CONV_AU_TO_EV_)
       Parameter (auTokJ = CONV_AU_TO_KJ_)
       Parameter (auTokJmol = CONV_AU_TO_KJ_PER_MOLE_)
