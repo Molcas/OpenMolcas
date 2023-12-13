@@ -20,21 +20,22 @@ subroutine RdInp_Motra()
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, iRFpert, iVecTyp, nBas, nDel, nFro, &
-                        nOrb, nOrbt, nOrbtt, nSym, nTit, Title
+use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iortho, iPrint, iRFpert, iVecTyp, nBas, &
+                        nDel, nFro, nOrb, nOrbt, nOrbtt, nSym, nTit, Title
+use Cholesky, only: tv2disk
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
-#include "chotraw.fh"
 integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, mxTit, nDel2(nSym)
 character(len=180) :: Line
 logical(kind=iwp) :: Skip
-integer(kind=iwp), parameter :: nCmd = 16, lCmd = 4
+integer(kind=iwp), parameter :: nCmd = 17, lCmd = 4
 character(len=lCmd), parameter :: CmdTab(nCmd) = ['TITL','FROZ','DELE','PRIN','MOLO','LUMO','JOBI','ONEL','FILE','AUTO', &
-                                                  'EXTR','RFPE','CTON','DIAG','HDF5','END ']
+                                                  'EXTR','RFPE','CTON','DIAG','HDF5','NOOR','END ']
 character(len=180), external :: Get_Ln
 
+iortho = 0
 iCTonly = 0
 iDoInt = 0
 ihdf5 = 0
@@ -170,7 +171,7 @@ input: do
       !---  Process the "CTonly" to perform exclusively CD vectors transform-*
       Line = Get_Ln(LuSpool)
       call UpCase(Line)
-      call LeftAd(Line)
+      Line = adjustl(Line)
       tv2disk = Line(1:3)
       if ((tv2disk /= 'PQK') .and. (tv2disk /= 'KPQ')) tv2disk = 'PQK' !def
       iCTonly = 1
@@ -181,6 +182,9 @@ input: do
       !---  Process the "HDF5 output file" command --------------------*
       ihdf5 = 1
     case (16)
+      !---  Process the "NOORthogonalization" command -----------------*
+      iortho = 1
+    case (17)
       !---  Process the "END of input" command ------------------------*
       exit
     case default
@@ -221,6 +225,8 @@ do iSym=1,nSym
   nOrbtt = nOrbtt+nOrb(iSym)*(nOrb(iSym)+1)/2
 end do
 call Put_iArray('nFro',nFro,nSym)
+! Bug in original code?? (tps/cdg 20210430)
+call Put_iArray('nDel',nDel,nSym)
 close(LuSpool)
 
 return
@@ -231,6 +237,6 @@ subroutine Error()
   write(u6,*) 'RdInp: error readin input file!'
   write(u6,*) 'Command=',CmdTab(jCmd)
   call Abend()
-end subroutine
+end subroutine Error
 
 end subroutine RdInp_Motra

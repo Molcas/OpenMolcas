@@ -16,20 +16,17 @@
 *             in CASPt2
 *
 ************************************************************************
+      Use Fock_util_global, only: ALGO, Deco, DensityCheck, REORD
+      Use Cholesky, only: timings
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Character(Len=180) KWord, Key, Get_Ln
       External Get_Ln
       Logical  DFonly
       character(len=16) SECNAM
       parameter (SECNAM = 'CHO_CASPT2_RDINP')
 *
-#include "choras.fh"
-#include "chotime.fh"
-#include "chodensity.fh"
-
 #include "chocaspt2.fh"
 
 *
@@ -45,6 +42,7 @@
 *                      transformed Cholesky vectors. Both "Coulomb" and
 *                      "Exchange(1,2)" integrals are computed and stored
 *                      on disk
+         !! Is iALGO = 0 really working?
 *
 *               1  --> Only the "Exchange" integrals are computed and
 *                      combined directly in order to compute the RHS
@@ -129,7 +127,6 @@
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
       WRITE(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      Call ErrTra
       WRITE(6,*) SECNAM, ' Error in keyword.'
       CALL ABEND()
 *                                                                      *

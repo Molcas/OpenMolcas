@@ -91,7 +91,7 @@ if (indx == -1) then
 else
   val = ds_value(indx)
 end if
-!write(u6,'(a,e20.8)') 'peek_dscalar: Val is ',Val
+!write(u6,'(a,es20.8)') 'peek_dscalar: Val is ',Val
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*

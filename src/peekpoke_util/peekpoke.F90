@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer, parameter :: nTabDS = 32, nTabIS = 32
+integer(kind=iwp), parameter :: nTabDS = 32, nTabIS = 32
 character(len=24) :: ds_label(nTabDS), is_label(nTabIS)
 real(kind=wp) :: ds_value(nTabIS)
 integer(kind=iwp) :: is_value(nTabDS)

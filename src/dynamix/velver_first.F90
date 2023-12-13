@@ -44,7 +44,7 @@ logical(kind=iwp) :: hybrid, qmmm
 real(kind=wp), allocatable :: Coord(:), vel(:), xyz(:), force(:), Mass(:), tstxyz(:), force2(:), xyz2(:)
 character(len=2), allocatable :: atom(:), atom2(:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "warnings.fh"
+#include "warnings.h"
 
 if (IPRINT == INSANE) write(u6,*) ' Entering VelVer_First'
 
@@ -88,7 +88,7 @@ call GetMassDx(Mass,natom)
 ! Check if reduced dimensionality
 if (POUT /= 0) then
   call project_out_for(force,natom)
-elseif (PIN /= natom*3) then
+else if (PIN /= natom*3) then
   call project_in_for(force,natom)
 end if
 !--------------------------------------------------------------------C
@@ -138,7 +138,7 @@ end do
 ! Check if reduced dimensionality (should not be needed)
 if (POUT /= 0) then
   call project_out_vel(vel,natom)
-elseif (PIN /= natom*3) then
+else if (PIN /= natom*3) then
   call project_in_vel(vel,natom)
 end if
 
@@ -233,9 +233,9 @@ irc = _RC_ALL_IS_WELL_
 return
 
 400 format(5x,a,f8.1,a)
-402 format(5x,a14,8x,d11.4,1x,a)
+402 format(5x,a14,8x,es11.4,1x,a)
 403 format(/,i5)
 404 format(6f12.7)
-405 format(5x,a22,d11.4,1x,a)
+405 format(5x,a22,es11.4,1x,a)
 
 end subroutine VelVer_First

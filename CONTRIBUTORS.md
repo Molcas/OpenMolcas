@@ -13,7 +13,7 @@ General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 1989-2021, The OpenMolcas Authors
+Copyright (C) 1989-2023, The OpenMolcas Authors
 
 
 NOTE: Some of the files distributed with OpenMolcas may be subject to a more
@@ -24,7 +24,10 @@ sources may be subject to a more restrictive or otherwise incompatible license.
 General citations
 =================
 
-* **OpenMolcas**:
+* **OpenMolcas v23.02**:
+  *J. Chem. Theory Comput.* **19** (2023) 6933-6991. [doi:10.1021/acs.jctc.3c00182](https://doi.org/10.1021/acs.jctc.3c00182)
+
+* **OpenMolcas v19.11**:
   *J. Chem. Theory Comput.* **15** (2019) 5925-5964. [doi:10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
 
 * **Molcas 8**:
@@ -61,18 +64,24 @@ Eugeniusz Bednarz
 Nelson H. F. Beebe  
 Anders Bernhardsson  
 Margareta R. A. Blomberg  
+Sergey I. Bokarev  
 Piotr Borowski  
 Jonas Boström  
 Per Boussard  
 John Burkardt  
+Paul B. Calio  
 Yannick Carissan  
 Liviu Chibotaru  
 Christophe Chipot  
+Jonathan R. Church  
 Aron Cohen  
 David L. Cooper  
+Sonia Coriani  
 Maurizio Cossi  
 Joel Creutzberg  
 Oleh Danyliv  
+Nike Dattani  
+Danjo De Chavez  
 Mickaël G. Delcey  
 Ajitha Devarajan  
 Luca De Vico  
@@ -80,8 +89,10 @@ Michael Diedenhofen
 Werner Dobrautz  
 Sijia S. Dong  
 Thomas Dresselhaus  
+Thomas J. Duignan  
 Daniel Fairhead  
 Ignacio Fdez. Galván  
+Rulin Feng  
 Nicolas Ferré  
 Timo Fleig  
 Niclas Forsberg  
@@ -93,6 +104,7 @@ Laura Gagliardi
 Walter Gautschi  
 Giovanni Ghigo  
 Coen de Graaf  
+Joseph Golab  
 Gene H. Golub  
 Sergey Gusarov  
 Daniel Hagberg  
@@ -104,11 +116,14 @@ Asbjørn Holt
 Chad E. Hoyer  
 Denis Jelovina  
 Marcus Johansson  
+Andy Kaiser  
 Erik Källman  
 Gunnar Karlström  
 Stefan Knecht  
+Vladislav Kochetov  
 Jesper Wisborg Krogh  
 Teodoro Laino  
+Susi Lehtola  
 Giovanni Li Manni  
 Roland Lindh  
 Johan Lorentzon  
@@ -118,12 +133,15 @@ Per Åke Malmqvist
 Neil Martinsen-Burrell  
 Andy May  
 Manuela Merchán  
+Isabella C. D. Merritt  
+Deyan Mihaylov  
 Samuel Mikes  
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
 Takahito Nakajima  
 Naoki Nakatani  
 Pavel Neogrády  
+Yoshio Nishimoto  
 Jesper Norell  
 Anders Öhrn  
 Jeppe Olsen  
@@ -140,8 +158,11 @@ Juraj Raab
 Gerardo Raggi  
 Markus Reiher  
 H. Rieger  
+Thies Romig  
 Björn O. Roos  
 Ulf Ryde  
+Andrzej J. Sadlej  
+Arta Safari  
 Pawel Salek  
 Andrew M. Sand  
 Michael A. Saunders  
@@ -159,9 +180,11 @@ Pär Söderhjelm
 Lasse Kragh Sørensen  
 Jonna Stålring  
 Hermann Stoll  
+Tjerk P. Straatsma  
 Bingbing Suo  
 Ben Swerts  
 Akio Takatsuka  
+Bruno N. C. Tenorio  
 Thorstein Thorsteinsson  
 Takashi Tsuchiya  
 Liviu Ungur  
@@ -185,4 +208,3 @@ Alexander Zech
 Yan Zhao  
 Chen Zhou  
 J. Patrick Zobel  
-

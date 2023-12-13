@@ -4,7 +4,7 @@ Core AIMP's
 ...........
 
 The list of core potentials and valence basis sets
-available in the :file:`ECP` library follows.
+available in the AIMP library follows.
 Although AIMP's exist in the literature for different core
 sizes, this library includes only those recommended by
 the authors after numerical experimentation.
@@ -15,4 +15,4 @@ The NP-AIMP basis sets are given explicitly in the recommended contraction patte
 For the third-row transition metals two NP-AIMP basis sets are provided which differ
 in the number of primitive and contracted f GTFs. For further details, please refer to
 the literature :cite:`Rakowitz:99b`.
-For more information about a particular entry consult the :file:`ECP` library.
+For more information about a particular entry consult the AIMP library.

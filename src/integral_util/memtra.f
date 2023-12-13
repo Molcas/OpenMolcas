@@ -1,24 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-c -------------------------------------------------------------------
-c The following function returns the size needed by ptrans for
-c temporaries. It also puts into common some offsets and stuff.
-c -------------------------------------------------------------------
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! -------------------------------------------------------------------
+! The following function returns the size needed by ptrans for
+! temporaries. It also puts into common some offsets and stuff.
+! -------------------------------------------------------------------
       integer function memtra(npam)
-      use pso_stuff
-#include "etwas.fh"
+      use etwas, only: mIrrep, nCred, nScr1, nScr2, nAsh
+      Implicit None
       Integer nPam(4,0:7)
+
       intrinsic max
-*
-*     iQ = 1
+      Integer mxact,mxS1,mxS2,mxS3,mxS4, isym, mxS, mxa2, mxa3, mxa4,
+     &        mxS34, mxS234, nscr3, nscr4, nscr5, na
+!
+!     iQ = 1
       mxact=0
       mxS1=0
       mxS2=0
@@ -39,7 +42,7 @@ c -------------------------------------------------------------------
       mxa4=mxa3*mxact
       mxS34=mxS3*mxS4
       mxS234=mxS2*mxS34
-c Max sizes, in common, needed for certain temporaries:
+! Max sizes, in common, needed for certain temporaries:
       ncred=Max(1,mxS*mxact)
 
       nscr1=mxa4
@@ -50,6 +53,6 @@ c Max sizes, in common, needed for certain temporaries:
       nScr1=max(1,nscr1,nscr3,nscr5)
       nScr2=max(1,nscr2,nscr4)
       memtra=nCred+2*nScr1+nScr2+3
-*
+!
       Return
-      End
+      End function memtra

@@ -167,7 +167,7 @@ do j=1,m_t
 end do
 
 #ifdef _DEBUGPRINT_
-call RecPrt('The covariance matrix:','(12(2x,E9.3))',full_R,m_t,m_t)
+call RecPrt('The covariance matrix:','(12(1x,ES10.3))',full_R,m_t,m_t)
 #endif
 
 call mma_deallocate(diffx_j)

@@ -18,7 +18,6 @@
 *--------------------------------------------*
       SUBROUTINE MKPREF_RPT2(N,G2,PREF)
       IMPLICIT NONE
-#include "WrkSpc.fh"
 
       INTEGER, INTENT(IN) :: N
       REAL*8, INTENT(IN) ::  G2(N,N,N,N)

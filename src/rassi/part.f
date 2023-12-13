@@ -11,6 +11,8 @@
 * Copyright (C) 1984,1989, Per Ake Malmqvist                           *
 ************************************************************************
       SUBROUTINE PART(SXY,TRA1,TRA2)
+      use rasdef, only: NRS1, NRS2, NRS3
+
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION SXY(NSXY),TRA1(NTRA),TRA2(NTRA)
       DIMENSION NSIZE(4)
@@ -21,20 +23,19 @@ C  TO BIORTHONORMAL ORBITALS. SXY, TRA1 AND TRA2 ARE SYMMETRY-BLOCKED.
 C  ORIGINAL VERSION, MALMQUIST 84-04-04
 C  RASSCF VERSION,   MALMQUIST 89-11-15
 #include "WrkSpc.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
       NOMAX=0
-      DO 5 ISY=1,NSYM
+      DO ISY=1,NSYM
         NOMAX=MAX(NOSH(ISY),NOMAX)
-5     CONTINUE
+      ENDDO
       CALL GETMEM('SCRMAT','ALLO','REAL',LSCRMAT,NOMAX*NOMAX)
       CALL GETMEM('SCRPIV','ALLO','INTE',LSCRPIV,2*NOMAX)
       CALL GETMEM('SCRBUF','ALLO','REAL',LSCRBUF,NOMAX)
       II=1
-      DO 10 ISY=1,NSYM
+      DO ISY=1,NSYM
         NDIMEN=NOSH(ISY)
-        IF(NDIMEN.EQ.0) GOTO 10
+        IF(NDIMEN.EQ.0) cycle
         NBLOCK=0
         N=NISH(ISY)
         IF(N.GT.0) THEN
@@ -59,9 +60,9 @@ C  RASSCF VERSION,   MALMQUIST 89-11-15
         CALL PART1(NDIMEN,NBLOCK,NSIZE,SXY(II),TRA1(II),TRA2(II),
      *             WORK(LSCRMAT),IWORK(LSCRPIV),WORK(LSCRBUF))
         II=II+NDIMEN**2
-10      CONTINUE
+      ENDDO
       CALL GETMEM('SCRMAT','FREE','REAL',LSCRMAT,NOMAX*NOMAX)
       CALL GETMEM('SCRPIV','FREE','INTE',LSCRPIV,2*NOMAX)
       CALL GETMEM('SCRBUF','FREE','REAL',LSCRBUF,NOMAX)
-      RETURN
-      END
+
+      END SUBROUTINE PART

@@ -24,6 +24,7 @@ set (sources
      hessian_kriging_layer.F90
      kriging_model.F90
      kriging_mod.F90
+     kriging_procedures.F90
      matderiv.F90
      matern.F90
      pgek.F90
@@ -33,6 +34,7 @@ set (sources
      trans_k.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list
      kriging_mod.F90
 )

@@ -69,16 +69,16 @@ Important application areas for the CASPT2 method are potential energy
 surfaces for chemical reactions, photochemistry, transition metal chemistry, and
 heavy element chemistry.
 
-A multi-state version of CASPT2 is available, which allows for the simultaneous
+Several quasi-degenerate versions of CASPT2 are available, which allow for the simultaneous
 study of several electronic states, including their interaction to second order.
 This code is especially useful in cases where two or more energy surfaces are
-close in energy. An analytical CASPT2 gradient code is in the process of development,
-but this work is as yet unfinished. In place of the analytical gradient capability,
-|molcas| includes a numerical procedure, which allows
-automatic geometry optimization at the CASPT2 level of theory. It is applicable
-to all states and systems for which the CASPT2 energy can be computed including the
-calculation of vibrational frequencies. It is important to note that the CASPT2
-method is under constant development.
+close in energy. An analytical CASPT2 gradient code (nuclear energy gradients and
+derivative coupling vector) supporting all these variants is available, allowing
+automatic geometry optimization at the CASPT2 level of theory.
+It is applicable to all states and systems for which the CASPT2 energy can be computed,
+whereas the calculation of vibrational frequencies can be carried out with the
+numerical procedure. It is important to note that the CASPT2 method is under constant
+development.
 
 Since |molcasviii| the Multiconfiguration Pair-Density Functional Theory, MC-PDFT,
 is also available to treat dynamical correlation.

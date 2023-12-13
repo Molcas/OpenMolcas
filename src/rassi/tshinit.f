@@ -9,19 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TSHinit(Energy)
+      use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
+      use Struct, only: nSGSize, nCISize, nXSize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='TSHINIT')
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "tshcntrl.fh"
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
@@ -30,12 +28,10 @@
       CHARACTER*8  WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT
 *
-
-
 C
 C Print a banner
 C
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)
         WRITE(6,'(6X,100A1)') ('*',i=1,100)
@@ -54,10 +50,10 @@ C
 C Get the current state and print it's energy
 C
       CALL Get_iScalar('Relax CASSCF root',iRlxRoot)
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         WRITE(6,'(6X,A,I14)')'The current state is:',iRlxRoot
-        WRITE(6,'(6X,A,6X,E15.6,A,/)')'Its energy is:',ENERGY(iRlxRoot),
-     &                              ' a.u.'
+        WRITE(6,'(6X,A,6X,ES15.6,A,/)')'Its energy is:',
+     &                                 ENERGY(iRlxRoot),' a.u.'
       END IF
 C
 C Get wave function parameters for current state
@@ -84,7 +80,7 @@ C
           NRASEL(2)=NACTE1-NELE31
           NRASEL(3)=NACTE1
           CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1)
-          IF(IPGLOB.GT.DEBUG) THEN
+          IF(IPGLOB.GT.4) THEN
              WRITE(6,*)'Split-graph structure for JOB1=',JOB1
              CALL SGPRINT(ISGSTR1)
           END IF
@@ -109,13 +105,13 @@ C Check for the possibility to hop to a lower root
 C
       IF ((ISTATE1-1).GE.1) THEN
          LOWROOT=.TRUE.
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,I2)') "There is a lower root, which is: "
      &     ,LROOT(ISTATE1-1)
          END IF
       ELSE
          LOWROOT=.FALSE.
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A)') "There is no lower root"
          END IF
       END IF
@@ -124,13 +120,13 @@ C Check for the possibility to hop to an upper root
 C
       IF ((ISTATE1+1).LE.NSTATE) THEN
          UPROOT=.TRUE.
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,I2,/)') "There is an upper root, which is: "
      &     ,LROOT(ISTATE1+1)
          END IF
       ELSE
          UPROOT=.FALSE.
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,/)') "There is no upper root"
          END IF
       END IF
@@ -139,11 +135,11 @@ C Check surface hopping to a root lower than the current one
 C
       IF (LOWROOT) THEN
          ISTATE2=ISTATE1-1
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,I3)') 'The lower state is:',ISTATE2
-           WRITE(6,'(6X,A,6X,E15.6,A)') 'Its energy is:',
+           WRITE(6,'(6X,A,6X,ES15.6,A)') 'Its energy is:',
      &          ENERGY(ISTATE2),' a.u.'
-           WRITE(6,'(6X,A,12X,E15.6,A,/)') 'Ediff = ',
+           WRITE(6,'(6X,A,12X,ES15.6,A,/)') 'Ediff = ',
      &          ENERGY(iRlxRoot)-ENERGY(ISTATE2),' a.u.'
          END IF
 *---------------------------------------------------------------------*
@@ -158,7 +154,7 @@ C Get wave function parameters for ISTATE2
          NELE32=NELE3(JOB2)
          WFTYP2=RASTYP(JOB2)
          LPART=NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
-         IF(IPGLOB.GE.DEBUG) CALL PRPRTTAB(IWORK(LPART))
+         IF(IPGLOB.GE.4) CALL PRPRTTAB(IWORK(LPART))
 C For the second wave function
          IF(WFTYP2.EQ.'GENERAL ') THEN
             NRSPRT=3
@@ -172,7 +168,7 @@ C For the second wave function
             NRASEL(3)=NACTE2
             CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,
      &           NRASEL,ISGSTR2)
-            IF(IPGLOB.GT.DEBUG) THEN
+            IF(IPGLOB.GT.4) THEN
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
                CALL SGPRINT(ISGSTR2)
             END IF
@@ -198,7 +194,7 @@ C     Check if the Energy gap is smaller than the threshold.
          ELSE
             ChkHop=.FALSE.
          END IF
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,I8,4X,A,I8)')'ISTATE1=',iRlxRoot,'ISTATE2=',
      &          ISTATE2
            WRITE(6,'(6X,A,I11,4X,A,I11)')'NCI1=',NCI1,'NCI2=',NCI2
@@ -222,11 +218,11 @@ C Check surface hopping to a root higher than the current one
 C
       IF (UPROOT) THEN
          ISTATE2=ISTATE1+1
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,I3)') 'The upper state is:',ISTATE2
-           WRITE(6,'(6X,A,6X,E15.6,A)') 'Its energy is:',
+           WRITE(6,'(6X,A,6X,ES15.6,A)') 'Its energy is:',
      &          ENERGY(ISTATE2),' a.u.'
-           WRITE(6,'(6X,A,12X,E15.6,A,/)') 'Ediff = ',
+           WRITE(6,'(6X,A,12X,ES15.6,A,/)') 'Ediff = ',
      &          ENERGY(ISTATE2)-ENERGY(iRlxRoot),' a.u.'
          END IF
 *---------------------------------------------------------------------*
@@ -241,7 +237,7 @@ C Get wave function parameters for ISTATE2
          NELE32=NELE3(JOB2)
          WFTYP2=RASTYP(JOB2)
          LPART=NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
-         IF(IPGLOB.GE.DEBUG) CALL PRPRTTAB(IWORK(LPART))
+         IF(IPGLOB.GE.4) CALL PRPRTTAB(IWORK(LPART))
 C For the second wave function
          IF(WFTYP2.EQ.'GENERAL ') THEN
             NRSPRT=3
@@ -255,7 +251,7 @@ C For the second wave function
             NRASEL(3)=NACTE2
             CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,
      &           NRASEL,ISGSTR2)
-            IF(IPGLOB.GT.DEBUG) THEN
+            IF(IPGLOB.GT.4) THEN
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
                CALL SGPRINT(ISGSTR2)
             END IF
@@ -281,7 +277,7 @@ C     Check if the Energy gap is smaller than the threshold.
          ELSE
             ChkHop=.FALSE.
          END IF
-         IF (IPGLOB.GE.USUAL) THEN
+         IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,I8,4X,A,I8)')'ISTATE1=',iRlxRoot,'ISTATE2=',
      &          ISTATE2
            WRITE(6,'(6X,A,I11,4X,A,I11)')'NCI1=',NCI1,'NCI2=',NCI2
@@ -311,6 +307,5 @@ C      END IF
         CALL SGCLOSE(ISGSTR1)
       END IF
       CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCI1)
-      RETURN
 *
-      END
+      END SUBROUTINE TSHinit

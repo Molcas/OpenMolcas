@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2021, Ignacio Fdez. Galván                        *
+#               2014-2023, Ignacio Fdez. Galván                        *
 #               2015, Stefan Knecht                                    *
 #               2020, Gerardo Raggi                                    *
 #***********************************************************************
@@ -20,7 +20,7 @@
 # Gerardo Raggi - AppleClang
 
 cmake_minimum_required (VERSION 3.12)
-cmake_policy (VERSION 3.12...3.13)
+cmake_policy (VERSION 3.12...3.21)
 
 project (OpenMolcas
          LANGUAGES Fortran C
@@ -48,10 +48,7 @@ find_program (GIT "git")
 find_program (PERL "perl")
 mark_as_advanced (FORCE GIT PERL)
 
-FIND_PACKAGE (PythonInterp 3.0)
-if (NOT PYTHONINTERP_FOUND)
-  FIND_PACKAGE (PythonInterp 2.7)
-endif ()
+FIND_PACKAGE (Python COMPONENTS Interpreter)
 
 ################################################################################
 #                                                                              #
@@ -73,6 +70,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif ()
 set (EXTRA_INSTALL_TARGETS "")
 set (EXTRA_INSTALL_DIRS "")
+set (EXTRA_INSTALL_IMPORTED_LIBS "")
 
 option (INSTALL_TESTS "Install the test files and verify script." OFF)
 
@@ -91,6 +89,7 @@ option (MPI "Enable MPI parallellization." OFF)
 option (GA "Use Global Arrays library." OFF)
 
 option (OPENMP "Enable multi-threading." OFF)
+option (IPO "Enable interprocedural optimization (if supported)." OFF)
 
 option (BOUNDS "Enable bounds checking (only GNU Fortran)." OFF)
 
@@ -98,24 +97,27 @@ option (EXPERT "Show advanced compiler flags in CMake GUI)." OFF)
 
 option (BIGOT "Do not allow any compiler warning (treat them as errors)." OFF)
 
-set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, OpenBLAS, AOCL, Accelerate.")
+set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, OpenBLAS, AOCL, Accelerate, Manual.")
 if (DEFINED LINALG)
   set (LINALG "${LINALG}" CACHE STRING "${LINALG_OPTIONS}")
-  if (NOT ";Internal;Runtime;MKL;OpenBLAS;AOCL;Accelerate;" MATCHES ";${LINALG};")
+  if (NOT ";Internal;Runtime;MKL;OpenBLAS;AOCL;Accelerate;Manual;" MATCHES ";${LINALG};")
       message (FATAL_ERROR "Unsuported LINALG: ${LINALG}")
   endif ()
 else ()
   set (LINALG "Internal" CACHE STRING "${LINALG_OPTIONS}")
 endif ()
-set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS AOCL Accelerate)
+set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS AOCL Accelerate Manual)
 
 option (CUBLAS "Enable CUDA BLAS library." OFF)
 option (NVBLAS "Enable NVidia BLAS library." OFF)
+
+set (EXTERNAL_LIBXC "" CACHE STRING "Location for an external Libxc build")
 
 option (FDE "Enable Frozen-density-embedding (FDE) interface." OFF)
 option (GROMACS "Compile Gromacs interface." OFF)
 option (BLOCK "Activate BLOCK-DMRG support." OFF)
 option (CHEMPS2 "Activate CheMPS2-DMRG support." OFF)
+option (DICE "Activate Dice-SHCI support." OFF)
 
 option (GPERFTOOLS "Activate gperftools CPU profiling." OFF)
 option (GCOV "Activate code coverage profiling (use with Debug/-O0)." OFF)
@@ -136,16 +138,15 @@ if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR
 endif ()
 
 # External projects
-option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
-option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
-option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
-option (GA_BUILD   "Build Global Arrays (requires External/ga submodule)."                                      OFF)
-option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
-option (MolGUI     "Enable the Molcas Graphical User Interface."                                                OFF)
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
-option (NECI       "Activate NECI support (requires External/NECI submodule)."                                  OFF)
-option (NEVPT2     "Activate (DMRG)-NEVPT2 support."                                                            OFF)
-option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
+option (DMRG     "Activate QCMaquis DMRG driver and library."                                                 OFF)
+option (EFPLIB   "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
+option (GA_BUILD "Build Global Arrays."                                                                       OFF)
+option (GEN1INT  "Enable Gen1Int library for 1-electron integrals."                                           OFF)
+option (MolGUI   "Enable the Molcas Graphical User Interface."                                                OFF)
+option (MSYM     "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
+option (NECI     "Activate NECI support (requires External/NECI submodule)."                                  OFF)
+option (NEVPT2   "Activate (DMRG)-NEVPT2 support."                                                            OFF)
+option (WFA      "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
 
 ################################################################################
 #                                                                              #
@@ -165,7 +166,7 @@ if (WFA OR MolGUI OR DMRG)
 endif ()
 
 #avoid using CXX compiler for linking
-set (CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES FALSE)
+set (CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES "FALSE")
 
 add_compile_definitions (_MOLCAS_)
 
@@ -456,449 +457,20 @@ endif ()
 #                                                                              #
 ################################################################################
 
-# Set the default compiler flags to pick from
-#================================================
-# For new compilers, check for the proper compiler ID on the following web page:
-# http://www.cmake.org/cmake/help/v2.8.12/cmake.html#variable:CMAKE_LANG_COMPILER_ID
-# The regular compiler options have to be compatible with other flags (so they
-# might be added or removed depending on certain options), while the flags for
-# build targets are mutually exclusive (only one of them will be active).
-
-# Ideally, build targets should accomplish the features in the table below.
-# legend: opt = optimizations; bt = backtrace (call stack); trap = catch
-# floating point exceptions; warn = produce warnings during compilation
-#                    opt  bt   trap  warn
-#                    ===  ===  ====  ====
-# - Debug            NO   YES  NO    YES
-# - Garble           YES  YES  YES   YES
-# - RelWithDebInfo   YES  YES  NO    YES
-# - Release          YES  NO   NO    NO
-# - Fast             YES  NO   NO    NO
-#
-# Note: trapping floating point exceptions is not compatible with LAPACK
-# (which produces and handles the exceptions), so a better alternative
-# has to be found
-
-#======================================#
-# GNU Compiler Collection (GCC)
-#======================================#
-# defines __GNUC__
-# C++ compiler
-list (APPEND SUPPORTED_CXX_COMPILERS "GNU")
-set (CXXFLAGS_GNU_BASIC "")
-set (CXXFLAGS_GNU_OPENMP "-fopenmp")
-# build targets
-set (CXXFLAGS_GNU_DEBUG "-O0 -g -Wall")
-set (CXXFLAGS_GNU_GARBLE "-O2 -g -Wall")
-set (CXXFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
-set (CXXFLAGS_GNU_RELEASE "-O2")
-set (CXXFLAGS_GNU_FAST "-O2")
-# C compiler
-list (APPEND SUPPORTED_C_COMPILERS "GNU")
-set (CFLAGS_GNU_BASIC "-std=gnu99")
-set (CFLAGS_GNU_OPENMP "-fopenmp")
-# build targets
-set (CFLAGS_GNU_DEBUG "-O0 -g -Wall")
-set (CFLAGS_GNU_GARBLE "-O2 -g -Wall")
-set (CFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
-set (CFLAGS_GNU_RELEASE "-O2")
-set (CFLAGS_GNU_FAST "-O2")
-# Fortran compiler
-list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # Or Work is assumed to be 8 elements long
-set (FFLAGS_GNU_PREPROCESS "-cpp")
-set (FFLAGS_GNU_OPENMP "-fopenmp")
-set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
-set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
-# build targets
-set (FFLAGS_GNU_DEBUG "-O0 -g -Wall")
-set (FFLAGS_GNU_GARBLE "-O2 -g -Wall -finit-real=snan -finit-integer=730432726 -frounding-math -fsignaling-nans")
-set (FFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
-set (FFLAGS_GNU_RELEASE "-O2")
-set (FFLAGS_GNU_FAST "-O3")
-set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
-
-set (MIN_GCC_VERSION "4.8")
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
-    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS ${MIN_GCC_VERSION})
-  message (FATAL_ERROR "At least version ${MIN_GCC_VERSION} is required for the GNU Fortran compiler.")
-endif ()
-
-# Add runtime checks
-# (No boundary checks because of the Work arrays)
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "6")
-    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=array-temps,do,mem,pointer,recursion")
-  else ()
-    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=all,no-bounds")
-  endif ()
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "8")
-    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -finit-derived")
-  endif ()
-endif ()
-
-set (CXXFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
-set (CFLAGS_GNU_BIGOT "-Wall -Wextra -Wpedantic -Werror")
-set (FFLAGS_GNU_BIGOT "-Wall -Wrealloc-lhs -Werror")
-set (GNU_TRAP "-ffpe-trap=invalid,zero,overflow")
-
-#======================================#
-# LLVM C frontend (Clang)
-#======================================#
-# defines __clang__
-# C++ compiler
-list (APPEND SUPPORTED_CXX_COMPILERS "Clang")
-set (CXXFLAGS_Clang_BASIC "-std=gnu99")
-set (CXXFLAGS_Clang_OPENMP "-fopenmp")
-# build targets
-set (CXXFLAGS_Clang_DEBUG "-O0 -g -Wall")
-set (CXXFLAGS_Clang_GARBLE "-O2 -g -Wall")
-set (CXXFLAGS_Clang_RELWITHDEBINFO "-O2 -g -Wall")
-set (CXXFLAGS_Clang_RELEASE "-O2")
-set (CXXFLAGS_Clang_FAST "-O2")
-# C compiler
-list (APPEND SUPPORTED_C_COMPILERS "Clang")
-set (CFLAGS_Clang_BASIC "-std=gnu99")
-set (CFLAGS_Clang_OPENMP "-fopenmp")
-# build targets
-set (CFLAGS_Clang_DEBUG "-O0 -g -Wall")
-set (CFLAGS_Clang_GARBLE "-O2 -g -Wall")
-set (CFLAGS_Clang_RELWITHDEBINFO "-O2 -g -Wall")
-set (CFLAGS_Clang_RELEASE "-O2")
-set (CFLAGS_Clang_FAST "-O2")
-
-set (CXXFLAGS_Clang_BIGOT "-Wall -Werror")
-set (CFLAGS_Clang_BIGOT "-Wall -Werror")
-#set (Clang_TRAP "???")
-
-#======================================#
-# LLVM C frontend CMake 3.0 (AppleClang)
-#======================================#
-# defines __clang__ and __apple_build_version__
-# C++ compiler
-list (APPEND SUPPORTED_CXX_COMPILERS "AppleClang")
-set (CXXFLAGS_AppleClang_BASIC "-std=gnu99")
-set (CXXFLAGS_AppleClang_OPENMP "-fopenmp")
-# build targets
-set (CXXFLAGS_AppleClang_DEBUG "-O0 -g -Wall")
-set (CXXFLAGS_AppleClang_GARBLE "-O2 -g -Wall")
-set (CXXFLAGS_AppleClang_RELWITHDEBINFO "-O2 -g -Wall")
-set (CXXFLAGS_AppleClang_RELEASE "-O2")
-set (CXXFLAGS_AppleClang_FAST "-O2")
-# C compiler
-list (APPEND SUPPORTED_C_COMPILERS "AppleClang")
-set (CFLAGS_AppleClang_BASIC "-std=gnu99")
-set (CFLAGS_AppleClang_OPENMP "-fopenmp")
-# build targets
-set (CFLAGS_AppleClang_DEBUG "-O0 -g -Wall")
-set (CFLAGS_AppleClang_GARBLE "-O2 -g -Wall")
-set (CFLAGS_AppleClang_RELWITHDEBINFO "-O2 -g -Wall")
-set (CFLAGS_AppleClang_RELEASE "-O2")
-set (CFLAGS_AppleClang_FAST "-O2")
-
-set (CXXFLAGS_AppleClang_BIGOT "-Wall -Werror")
-set (CFLAGS_AppleClang_BIGOT "-Wall -Werror")
-#set (AppleClang_TRAP "???")
-
-#======================================#
-# Intel C++/C/Fortran Compilers
-#======================================#
-# defines __INTEL_COMPILER
-# C++ compiler
-list (APPEND SUPPORTED_CXX_COMPILERS "Intel")
-set (CXXFLAGS_Intel_BASIC "")
-set (CXXFLAGS_Intel_OPENMP "-qopenmp")
-# build targets
-set (CXXFLAGS_Intel_DEBUG "-debug -w3")
-set (CXXFLAGS_Intel_GARBLE "-O2 -debug -w3")
-set (CXXFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -w3")
-set (CXXFLAGS_Intel_RELEASE "-O2")
-set (CXXFLAGS_Intel_FAST "-O2")
-# C compiler
-list (APPEND SUPPORTED_C_COMPILERS "Intel")
-set (CFLAGS_Intel_BASIC "-std=gnu99")
-set (CFLAGS_Intel_OPENMP "-qopenmp")
-# build targets
-set (CFLAGS_Intel_DEBUG "-debug -w3")
-set (CFLAGS_Intel_GARBLE "-O2 -debug -w3")
-set (CFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -w3")
-set (CFLAGS_Intel_RELEASE "-O2")
-set (CFLAGS_Intel_FAST "-O2")
-# Fortran compiler
-list (APPEND SUPPORTED_Fortran_COMPILERS "Intel")
-set (FFLAGS_Intel_BASIC "")
-set (FFLAGS_Intel_PREPROCESS "-fpp")
-set (FFLAGS_Intel_OPENMP "-qopenmp")
-set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
-# build targets
-set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nodeclarations")
-set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
-set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -fno-alias -debug -traceback -warn all,nodeclarations")
-set (FFLAGS_Intel_RELEASE "-O2 -fno-alias -traceback")
-set (FFLAGS_Intel_FAST "-Ofast -fno-alias")
-
-set (MIN_IFORT_VERSION "13")
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
-    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS ${MIN_IFORT_VERSION})
-  message (FATAL_ERROR "At least version ${MIN_IFORT_VERSION} is required for the Intel Fortran compiler.")
-endif ()
-
-# Intel versions prior to 15 used -openmp
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS "15.0.0.20140528")
-  set (CXXFLAGS_Intel_OPENMP "-openmp")
-endif ()
-if (CMAKE_C_COMPILER_ID STREQUAL "Intel" AND
-    CMAKE_C_COMPILER_VERSION VERSION_LESS "15.0.0.20140528")
-  set (CFLAGS_Intel_OPENMP "-openmp")
-endif ()
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
-    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "15.0.0.20140528")
-  set (FFLAGS_Intel_OPENMP "-openmp")
-endif ()
-
-#fix for MAC OS X
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-  set (CXXFLAGS_Intel_BASIC "-headerpad_max_install_names ${CXXFLAGS_Intel_BASIC}")
-  set (CFLAGS_Intel_BASIC "-headerpad_max_install_names ${CFLAGS_Intel_BASIC}")
-  set (FFLAGS_Intel_BASIC "-headerpad_max_install_names ${FFLAGS_Intel_BASIC}")
-endif ()
-
-#note that "declarations" means "implicit none", which we don't want (yet)
-#          "externals" means "implicit none (external)", ditto (only 19.1 and later)
-#v.13 puts the full path of included files as a comment and then complains about truncated source lines
-set (CXXFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
-set (CFLAGS_Intel_BIGOT "-w3 -Werror -diag-disable remark")
-set (warnings "all,nodeclarations")
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")
-    set (warnings "${warnings},notruncated_source")
-  elseif (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "19.1")
-    set (warnings "${warnings},noexternals")
-  endif ()
-endif ()
-set (FFLAGS_Intel_BIGOT "-warn ${warnings} -warn errors -diag-disable remark")
-set (Intel_TRAP "-fpe0")
-
-#======================================#
-# Oracle Developer Studio (Sun Studio)
-#======================================#
-# defines __SUNPRO_F90
-# C compiler
-list (APPEND SUPPORTED_C_COMPILERS "SunPro")
-set (CFLAGS_SunPro_BASIC "-std=gnu99")
-set (CFLAGS_SunPro_OPENMP "-xopenmp")
-# build targets
-set (CFLAGS_SunPro_DEBUG "-g -traceback -ftrap=%none")
-set (CFLAGS_SunPro_GARBLE "-O -g -traceback -ftrap=%none -xcheck=init_local")
-set (CFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
-set (CFLAGS_SunPro_RELEASE "-O -ftrap=%none")
-set (CFLAGS_SunPro_FAST "-O -ftrap=%none")
-# Fortran compiler
-list (APPEND SUPPORTED_Fortran_COMPILERS "SunPro")
-set (FFLAGS_SunPro_BASIC "") # 32bit: -ftrap=common,no%division,%none
-set (FFLAGS_SunPro_PREPROCESS "-fpp")
-set (FFLAGS_SunPro_OPENMP "-xopenmp")
-set (FFLAGS_SunPro_ILP64 "-dalign -xtypemap=real:64,double:64,integer:64")
-# build targets
-set (FFLAGS_SunPro_DEBUG "-g -traceback -ftrap=%none")
-set (FFLAGS_SunPro_GARBLE "-O -g -traceback ftrap=%none -xcheck=init_local")
-set (FFLAGS_SunPro_RELWITHDEBINFO "-O -g -traceback -ftrap=%none")
-set (FFLAGS_SunPro_RELEASE "-O -ftrap=%none")
-set (FFLAGS_SunPro_FAST "-fast -dbl_align_all=yes -ftrap=%none")
-
-# older versions do not suport gnu99
-if (CMAKE_C_COMPILER_ID STREQUAL "SunPro" AND
-    CMAKE_C_COMPILER_VERSION VERSION_LESS "5.15.0")
-  set (CFLAGS_SunPro_BASIC "-std=c99")
-endif ()
-
-set (CFLAGS_SunPro_BIGOT "-errwarn=%all")
-set (FFLAGS_SunPro_BIGOT "-errwarn=%all")
-set (SunPro_TRAP "-ftrap=common")
-
-#======================================#
-# Portland Group (PGI) Compilers
-#======================================#
-# defines __PGI
-# C++ compiler
-list (APPEND SUPPORTED_CXX_COMPILERS "PGI")
-set (CXXFLAGS_PGI_BASIC "-c99 -pgf90libs")
-set (CXXFLAGS_PGI_OPENMP "-mp")
-# build targets
-set (CXXFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
-set (CXXFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
-set (CXXFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
-set (CXXFLAGS_PGI_RELEASE "-O2")
-set (CXXFLAGS_PGI_FAST "-O2")
-# C compiler
-list (APPEND SUPPORTED_C_COMPILERS "PGI")
-set (CFLAGS_PGI_BASIC "-c99 -pgf90libs")
-set (CFLAGS_PGI_OPENMP "-mp")
-# build targets
-set (CFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
-set (CFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
-set (CFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
-set (CFLAGS_PGI_RELEASE "-O2")
-set (CFLAGS_PGI_FAST "-O2")
-# Fortran compiler
-list (APPEND SUPPORTED_Fortran_COMPILERS "PGI")
-set (FFLAGS_PGI_BASIC "-Mbackslash")
-set (FFLAGS_PGI_PREPROCESS "-Mpreprocess")
-set (FFLAGS_PGI_OPENMP "-mp")
-set (FFLAGS_PGI_ILP64 "-i8")
-# build targets
-set (FFLAGS_PGI_DEBUG "-O0 -g -Minform=warn")
-set (FFLAGS_PGI_GARBLE "-O2 -gopt -Minform=warn")
-set (FFLAGS_PGI_RELWITHDEBINFO "-O2 -gopt -Minform=warn")
-set (FFLAGS_PGI_RELEASE "-O2")
-set (FFLAGS_PGI_FAST "-fast")
-
-# The option does not exist, or I cannot find it
-#set (CXXFLAGS_PGI_BIGOT "???")
-#set (CFLAGS_PGI_BIGOT "???")
-#set (FFLAGS_PGI_BIGOT "???")
-#set (PGI_TRAP "???")
-
-#======================================#
-# Numerical Algorithms Group (NAG)
-#======================================#
-# defines NAGFOR
-# Fortran compiler
-list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
-set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte")
-set (FFLAGS_NAG_PREPROCESS "-fpp")
-set (FFLAGS_NAG_OPENMP "-openmp")
-set (FFLAGS_NAG_ILP64 "-i8")
-# build targets
-set (FFLAGS_NAG_DEBUG "-O0 -g -gline -ieee=full")
-set (FFLAGS_NAG_GARBLE "-O2 -g -gline -nan")
-set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
-set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
-set (FFLAGS_NAG_FAST "-O4 -ieee=full")
-
-# Add runtime checks
-# (No boundary checks because of the Work arrays)
-#set (FFLAGS_NAG_GARBLE "${FFLAGS_GNU_GARBLE} -C=alias -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion")
-
-# Fix for NAG compiler (similar to GNU Fortran)
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  set (FFLAGS_NAG_BASIC "${FFLAGS_NAG_BASIC} -Wc,-fno-aggressive-loop-optimizations")
-endif ()
-
-# The option does not exist, or I cannot find it
-#set (FFLAGS_NAG_BIGOT "???")
-set (NAG_TRAP "-ieee=stop") # not compatible with -ieee=full
+include (${PROJECT_SOURCE_DIR}/cmake/compilers.cmake)
 
 # Generate the actual flags used in the build
 #============================================
 
 if (DMRG OR WFA)
-  # C++ compiler required for DMRG and WFA projects
-  foreach (CXX_COMPILER ${SUPPORTED_CXX_COMPILERS})
-    if (CXX_COMPILER STREQUAL "${CMAKE_CXX_COMPILER_ID}")
-      set (CXXCID ${CMAKE_CXX_COMPILER_ID})
-    endif ()
-  endforeach ()
-
   if (NOT CXXCID)
     message (FATAL_ERROR "unsupported CXX compiler: ${CMAKE_CXX_COMPILER_ID}")
   endif ()
 endif ()
 
-# C compiler
-foreach (C_COMPILER ${SUPPORTED_C_COMPILERS})
-  if (C_COMPILER STREQUAL "${CMAKE_C_COMPILER_ID}")
-    set (CCID ${CMAKE_C_COMPILER_ID})
-  endif ()
-endforeach ()
-
 if (NOT CCID)
   message (FATAL_ERROR "unsupported C compiler: ${CMAKE_C_COMPILER_ID}")
 endif ()
-
-# overwrite any CMake defaults (some are strange, so we set our own)
-if (NOT CMAKE_CXX_FLAGS_USER)
-  set (CMAKE_CXX_FLAGS_DEFAULT "$ENV{CXXFLAGS} ${CXXFLAGS_${CXXCID}_BASIC}"
-       CACHE STRING "C++ compiler flags." FORCE)
-  set (CMAKE_CXX_FLAGS_DEBUG ${CXXFLAGS_${CXXCID}_DEBUG}
-       CACHE STRING "C++ compiler flags used for debug builds." FORCE)
-  set (CMAKE_CXX_FLAGS_GARBLE ${CXXFLAGS_${CXXCID}_GARBLE}
-       CACHE STRING "C++ compiler flags used for garble builds." FORCE)
-  set (CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CXXFLAGS_${CXXCID}_RELWITHDEBINFO}
-       CACHE STRING "C++ compiler flags used for release builds with debug info." FORCE)
-  set (CMAKE_CXX_FLAGS_RELEASE ${CXXFLAGS_${CXXCID}_RELEASE}
-       CACHE STRING "C++ compiler flags used for release builds." FORCE)
-  set (CMAKE_CXX_FLAGS_FAST ${CXXFLAGS_${CXXCID}_FAST}
-       CACHE STRING "C++ compiler flags used for fast release builds." FORCE)
-  set (CMAKE_CXX_FLAGS_USER "TRUE"
-       CACHE INTERNAL "set to FALSE to reset to default C++ flags" FORCE)
-endif ()
-if (EXPERT)
-  mark_as_advanced (CLEAR
-    CMAKE_CXX_FLAGS_DEFAULT
-    CMAKE_CXX_FLAGS_DEBUG
-    CMAKE_CXX_FLAGS_GARBLE
-    CMAKE_CXX_FLAGS_RELWITHDEBINFO
-    CMAKE_CXX_FLAGS_RELEASE
-    CMAKE_CXX_FLAGS_FAST
-  )
-else ()
-  mark_as_advanced (FORCE
-    CMAKE_CXX_FLAGS_DEFAULT
-    CMAKE_CXX_FLAGS_DEBUG
-    CMAKE_CXX_FLAGS_GARBLE
-    CMAKE_CXX_FLAGS_RELWITHDEBINFO
-    CMAKE_CXX_FLAGS_RELEASE
-    CMAKE_CXX_FLAGS_FAST
-  )
-endif ()
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEFAULT}")
-
-# overwrite any CMake defaults (some are strange, so we set our own)
-if (NOT CMAKE_C_FLAGS_USER)
-  set (CMAKE_C_FLAGS_DEFAULT "$ENV{CFLAGS} ${CFLAGS_${CCID}_BASIC}"
-       CACHE STRING "C compiler flags." FORCE)
-  set (CMAKE_C_FLAGS_DEBUG ${CFLAGS_${CCID}_DEBUG}
-       CACHE STRING "C compiler flags used for debug builds." FORCE)
-  set (CMAKE_C_FLAGS_GARBLE ${CFLAGS_${CCID}_GARBLE}
-       CACHE STRING "C compiler flags used for garble builds." FORCE)
-  set (CMAKE_C_FLAGS_RELWITHDEBINFO ${CFLAGS_${CCID}_RELWITHDEBINFO}
-       CACHE STRING "C compiler flags used for release builds with debug info." FORCE)
-  set (CMAKE_C_FLAGS_RELEASE ${CFLAGS_${CCID}_RELEASE}
-       CACHE STRING "C compiler flags used for release builds." FORCE)
-  set (CMAKE_C_FLAGS_FAST ${CFLAGS_${CCID}_FAST}
-       CACHE STRING "C compiler flags used for fast release builds." FORCE)
-  set (CMAKE_C_FLAGS_USER "TRUE"
-       CACHE INTERNAL "set to FALSE to reset to default C flags" FORCE)
-endif ()
-if (EXPERT)
-  mark_as_advanced (CLEAR
-    CMAKE_C_FLAGS_DEFAULT
-    CMAKE_C_FLAGS_DEBUG
-    CMAKE_C_FLAGS_GARBLE
-    CMAKE_C_FLAGS_RELWITHDEBINFO
-    CMAKE_C_FLAGS_RELEASE
-    CMAKE_C_FLAGS_FAST
-  )
-else ()
-  mark_as_advanced (FORCE
-    CMAKE_C_FLAGS_DEFAULT
-    CMAKE_C_FLAGS_DEBUG
-    CMAKE_C_FLAGS_GARBLE
-    CMAKE_C_FLAGS_RELWITHDEBINFO
-    CMAKE_C_FLAGS_RELEASE
-    CMAKE_C_FLAGS_FAST
-  )
-endif ()
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEFAULT}")
-
-# Fortran compiler
-foreach (Fortran_COMPILER ${SUPPORTED_Fortran_COMPILERS})
-  if (Fortran_COMPILER STREQUAL "${CMAKE_Fortran_COMPILER_ID}")
-    set (FCID ${CMAKE_Fortran_COMPILER_ID})
-  endif ()
-endforeach ()
 
 if (NOT FCID)
   message (FATAL_ERROR "unsupported Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
@@ -931,44 +503,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Garble")
     set (FFLAGS_${FCID}_GARBLE "${FFLAGS_${FCID}_GARBLE} ${${FCID}_TRAP}")
   endif ()
 endif ()
-
-# overwrite any CMake defaults (some are strange, so we set our own)
-if (NOT CMAKE_Fortran_FLAGS_USER)
-  set (CMAKE_Fortran_FLAGS_DEFAULT "$ENV{FFLAGS} ${FFLAGS_${FCID}_BASIC}"
-       CACHE STRING "Fortran compiler flags." FORCE)
-  set (CMAKE_Fortran_FLAGS_DEBUG ${FFLAGS_${FCID}_DEBUG}
-       CACHE STRING "Fortran compiler flags used for debug builds." FORCE)
-  set (CMAKE_Fortran_FLAGS_GARBLE ${FFLAGS_${FCID}_GARBLE}
-       CACHE STRING "Fortran compiler flags used for garble builds." FORCE)
-  set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO ${FFLAGS_${FCID}_RELWITHDEBINFO}
-       CACHE STRING "Fortran compiler flags used for release builds with debug info." FORCE)
-  set (CMAKE_Fortran_FLAGS_RELEASE ${FFLAGS_${FCID}_RELEASE}
-       CACHE STRING "Fortran compiler flags used for release builds." FORCE)
-  set (CMAKE_Fortran_FLAGS_FAST ${FFLAGS_${FCID}_FAST}
-       CACHE STRING "Fortran compiler flags used for fast release builds." FORCE)
-  set (CMAKE_Fortran_FLAGS_USER "TRUE"
-       CACHE INTERNAL "set to FALSE to reset to default Fortran flags" FORCE)
-endif ()
-if (EXPERT)
-  mark_as_advanced (CLEAR
-    CMAKE_Fortran_FLAGS_DEFAULT
-    CMAKE_Fortran_FLAGS_DEBUG
-    CMAKE_Fortran_FLAGS_GARBLE
-    CMAKE_Fortran_FLAGS_RELWITHDEBINFO
-    CMAKE_Fortran_FLAGS_RELEASE
-    CMAKE_Fortran_FLAGS_FAST
-  )
-else ()
-  mark_as_advanced (FORCE
-    CMAKE_Fortran_FLAGS_DEFAULT
-    CMAKE_Fortran_FLAGS_DEBUG
-    CMAKE_Fortran_FLAGS_GARBLE
-    CMAKE_Fortran_FLAGS_RELWITHDEBINFO
-    CMAKE_Fortran_FLAGS_RELEASE
-    CMAKE_Fortran_FLAGS_FAST
-  )
-endif ()
-set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_DEFAULT}")
 
 if (NOT CMAKE_GENERATOR STREQUAL "Ninja")
   set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FFLAGS_${FCID}_PREPROCESS}")
@@ -1014,8 +548,11 @@ endif ()
 
 if ((BLOCK AND CHEMPS2) OR
     (BLOCK AND DMRG) OR
-    (CHEMPS2 AND DMRG))
-  message (FATAL_ERROR "BLOCK, CHEMPS2 and DMRG options are not compatible.")
+    (BLOCK AND DICE) OR
+    (CHEMPS2 AND DMRG) OR
+    (CHEMPS2 AND DICE) OR
+    (DICE AND DMRG))
+  message (FATAL_ERROR "BLOCK, CHEMPS2, DICE, and DMRG options are not compatible.")
 endif ()
 
 # Install directory
@@ -1046,7 +583,7 @@ if (MPI)
     OUTPUT_VARIABLE MPIEXEC_VERSION
     ERROR_VARIABLE MPIEXEC_VERSION
   )
-  if (MPIEXEC_VERSION MATCHES "OpenRTE")
+  if (MPIEXEC_VERSION MATCHES "OpenRTE" OR MPIEXEC_VERSION MATCHES "Open MPI")
     set (MPI_IMPLEMENTATION "openmpi")
   elseif (MPIEXEC_VERSION MATCHES "Intel\\(R\\) MPI")
     set (MPI_IMPLEMENTATION "impi")
@@ -1068,10 +605,11 @@ if (MPI)
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
-  # GCC > 10.0 requires explicit MPI interface
-  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+  # MPICH and GCC > 10.0 requires explicit MPI interface
+  if (MPI_IMPLEMENTATION STREQUAL "mpich" AND
+      CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
       CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
-    add_compile_definitions(_NEED_EXPLICIT_MPI_INTERFACE_)
+    add_compile_definitions (_NEED_EXPLICIT_MPI_INTERFACE_)
   endif ()
 
   list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
@@ -1236,12 +774,12 @@ if (LINALG STREQUAL "MKL")
     find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   elseif (MPI_IMPLEMENTATION STREQUAL "mpich")
-    find_library (LIBMKL_BLACS NAMES "mkl_blacs_ilp64"
+    find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   endif ()
 
   # generate actual library list with paths
-  if (MPI)
+  if (MPI AND LIBMKL_SCALAPACK)
     add_compile_definitions (_SCALAPACK_)
     list (APPEND MKL_LIBRARIES ${LIBMKL_SCALAPACK})
   endif ()
@@ -1257,7 +795,7 @@ if (LINALG STREQUAL "MKL")
   else ()
     list (APPEND MKL_LIBRARIES ${LIBMKL_SEQUENTIAL})
   endif ()
-  if (MPI)
+  if (MPI AND LIBMKL_BLACS)
     list (APPEND MKL_LIBRARIES ${LIBMKL_BLACS})
   endif ()
 
@@ -1420,10 +958,41 @@ if (LINALG STREQUAL "Accelerate")
   set (LINALG_LIBRARIES "-framework Accelerate")
 endif ()
 
+# Internal or Runtime: a git submodule is required
+if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
+  set (proj ${extprojsdir}/lapack)
+  if (EXISTS ${proj}/BLAS/SRC/ddot.f)
+    set (internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
+  else ()
+    # Note: initial space causes line not to break in output
+    message (FATAL_ERROR " LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
+  endif ()
+endif ()
+
 # Internal LAPACK+BLAS libraries from source code
+set (INTERNAL_LINALG "lapack" "blas")
+find_source (LinAlg_internal ${source_roots})
 if (LINALG STREQUAL "Internal")
   message ("-- Using internal LAPACK+BLAS libraries (SLOW!)")
-  set (LINALG_LIBRARIES "blas" "lapack")
+  set (LINALG_LIBRARIES ${INTERNAL_LINALG})
+  # create the BLAS+LAPACK targets
+  set (util "LinAlg_internal")
+  if (NOT DEFINED ${util}_src)
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
+  endif ()
+  set (linalgmod "${${util}_src}/la_constants_.F90" "${${util}_src}/la_xisnan_.F90")
+  foreach (lib ${LINALG_LIBRARIES})
+    set (source ${${util}_src}/${lib}.f ${${util}_src}/${lib}_f90.F90 ${linalgmod})
+    add_library (${lib} ${source})
+    list (APPEND ALL_SOURCES ${source})
+    list (APPEND ${util}_incs ${internal_linalg})
+    foreach (inc ${${util}_incs})
+      target_include_directories (${lib} PRIVATE ${inc})
+    endforeach ()
+    if (BUILD_SHARED_LIBS)
+      set_target_properties (${lib} PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
+    endif ()
+  endforeach ()
 endif ()
 
 # Runtime loading of LAPACK+BLAS libraries (experimental)
@@ -1432,6 +1001,14 @@ if (LINALG STREQUAL "Runtime")
   set (LINALG_LIBRARIES "dl")
 
   list (APPEND system_util_defs "_DELAYED_")
+endif ()
+
+if (LINALG STREQUAL "Manual")
+  message ("-- Manual linear algebra libraries, using LINALG_LIBRARIES as specified")
+  string (REPLACE ":" ";" LINALG_LIBRARIES "${LINALG_LIBRARIES}")
+  set (LINALG_LIBRARIES "${LINALG_LIBRARIES}" CACHE STRING "Manual linear algebra libraries." FORCE)
+else ()
+  unset (LINALG_LIBRARIES CACHE)
 endif ()
 
 list (APPEND EXTERNAL_LIBRARIES ${LINALG_LIBRARIES})
@@ -1510,6 +1087,119 @@ else ()
   mark_as_advanced (FORCE CUDAROOT)
 endif ()
 
+# Libxc settings
+#===============
+message ("Configuring Libxc:")
+
+if (EXTERNAL_LIBXC)
+  message ("-- External Libxc root specified at: ${EXTERNAL_LIBXC}")
+  find_library (xc xc PATHS ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
+  find_library (xcf03 xcf03 PATHS ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
+  if (NOT xc OR NOT xcf03)
+    message (FATAL_ERROR "Libxc could not be found in ${EXTERNAL_LIBXC}.")
+  endif ()
+  # find Libxc version
+  file (READ ${EXTERNAL_LIBXC}/include/xc_version.h header)
+  string (REGEX MATCH "#define XC_VERSION \"[0-9.]+\"" macrodef "${header}")
+  string (REGEX MATCH "[0-9.]+" LIBXC_VERSION "${macrodef}")
+  if (LIBXC_VERSION VERSION_LESS "5.2.0")
+    message (FATAL_ERROR "Libxc version >= 5.2.0 is required (found ${LIBXC_VERSION})")
+  endif ()
+  set (Libxc_INCLUDE_DIRS ${EXTERNAL_LIBXC}/include)
+  set (Libxc_LIBRARIES ${xcf03} ${xc})
+else ()
+  message ("-- Configuring built-in Libxc")
+  include (ExternalProject)
+  set (EP_PROJECT Libxc)
+  set (EP_PATH ${PROJECT_BINARY_DIR}/External/${EP_PROJECT})
+  set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
+
+  set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
+  set (Libxc_HASH 0a19bedb) # Release 6.2.2
+
+  if (";Debug;Release;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};")
+    set (LIBXC_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+  elseif (";Garble;" MATCHES ";${CMAKE_BUILD_TYPE};")
+    set (LIBXC_BUILD_TYPE "Debug")
+  else ()
+    set (LIBXC_BUILD_TYPE "Release")
+  endif ()
+
+  # Note shared libraries won't work here because of installation issues.
+  # TODO: Solving this will require creating a wrapper main project that includes
+  #       both Libxc and OpenMolcas as ExternalProject. This could also simplify
+  #       the handling of other codes like GlobalArrays or QCMaquis.
+  list (APPEND LibxcCMakeArgs
+        -D CMAKE_BUILD_TYPE=${LIBXC_BUILD_TYPE}
+        -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
+        -D BUILD_SHARED_LIBS=NO
+        -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+        -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS_DEFAULT}
+        -D CMAKE_INSTALL_LIBDIR=lib
+        -D ENABLE_FORTRAN=ON
+        -D ENABLE_PYTHON=OFF
+        -D DISABLE_FXC=ON
+        -D DISABLE_KXC=ON
+        -D DISABLE_LXC=ON
+        -D BUILD_TESTING=NO
+  )
+  # "Hidden" option to pass extra arguments to Libxc CMake
+  list (APPEND LibxcCMakeArgs ${Libxc_EXTRA_CMakeArgs})
+
+  # Workaround for ExternalProject's shortcoming
+  # (see https://gitlab.kitware.com/cmake/cmake/-/issues/16419)
+  # UPDATE_DISCONNECTED is ON if the current commit has already
+  # been built, and OFF when the commit changes, but it requires
+  # to run cmake for detection
+  set (last_hash "None")
+  set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
+  if (EXISTS ${hash_file})
+    file (READ ${hash_file} last_hash)
+    string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+  endif ()
+  if (last_hash STREQUAL ${Libxc_HASH})
+    set (LibxcSkipUpdate ON)
+  else ()
+    set (LibxcSkipUpdate OFF)
+  endif ()
+
+  ExternalProject_Add (${EP_PROJECT}
+                       PREFIX ${EP_PATH}
+                       GIT_REPOSITORY ${Libxc_REPO}
+                       GIT_TAG ${Libxc_HASH}
+                       CMAKE_ARGS ${LibxcCMakeArgs}
+                       UPDATE_DISCONNECTED ${LibxcSkipUpdate}
+  )
+
+  ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                            COMMAND echo ${Libxc_HASH} > ${hash_file}
+                            DEPENDEES build
+  )
+
+  link_directories(${EP_INSTALL}/lib)
+
+  set (Libxc_INCLUDE_DIRS ${EP_INSTALL}/include)
+  set (Libxc_LIBRARIES xcf03 xc)
+
+endif ()
+message ("-- Libxc_INCLUDE_DIRS: ${Libxc_INCLUDE_DIRS}")
+message ("-- Libxc_LIBRARIES: ${Libxc_LIBRARIES}")
+list (APPEND EXTERNAL_LIBRARIES ${Libxc_LIBRARIES})
+
+# Some compilers seem to have issues with nested modules
+set (_comp_list PGI NAG)
+if (${FCID} IN_LIST _comp_list)
+  include_directories (${Libxc_INCLUDE_DIRS})
+else ()
+  foreach (prog
+    dft_util
+    nq_util
+  )
+    list (APPEND ${prog}_incs ${Libxc_INCLUDE_DIRS})
+  endforeach ()
+endif ()
+
 # Global Arrays settings
 #=======================
 
@@ -1518,82 +1208,112 @@ if (GA AND MPI)
   if (GA_BUILD)
     message ("Configuring built-in Global Arrays library:")
 
-    set (proj ${extprojsdir}/ga)
-    set (proj_bin ${PROJECT_BINARY_DIR}/External/ga)
-    if (EXISTS ${proj}/CMakeLists.txt)
-      # set default GA options when built from OpenMolcas
-      # and hide them from the OpenMolcas CMake GUI
-      make_internal (ENABLE_FORTRAN               ON)
-      make_internal (ENABLE_CXX                   OFF)
-      make_internal (ENABLE_TESTS                 OFF)
-      if (ADDRMODE EQUAL 64)
-        make_internal (ENABLE_I8                  ON)
-        make_internal (LINALG_REQUIRED_COMPONENTS ilp64)
-      else ()
-        make_internal (ENABLE_I8                  OFF)
-        make_internal (LINALG_REQUIRED_COMPONENTS lp64)
-      endif ()
-      if (LINALG STREQUAL "MKL")
-        make_internal (ENABLE_BLAS                ON)
-        make_internal (LINALG_VENDOR              IntelMKL)
-        make_internal (LINALG_PREFIX              ${MKLROOT})
-      elseif (LINALG STREQUAL "OpenBLAS")
-        make_internal (ENABLE_BLAS                ON)
-        make_internal (LINALG_VENDOR              OpenBLAS)
-        make_internal (LINALG_PREFIX              ${OPENBLASROOT})
-      elseif (";Internal;Runtime;" MATCHES ";${LINALG};")
-        message (FATAL_ERROR "GA_BUILD requires an external LINALG library.")
-      else ()
-        message (FATAL_ERROR "GA_BUILD: unsupported LINALG: ${LINALG}")
-      endif ()
-
-      add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
-
-      # hide other variables set by GA
-      if (LINALG STREQUAL "MKL")
-        make_internal (IntelMKL_CORE_LIBRARY)
-        make_internal (IntelMKL_ILP64_BLACS_LIBRARY)
-        make_internal (IntelMKL_ILP64_LIBRARY)
-        make_internal (IntelMKL_ILP64_ScaLAPACK_LIBRARY)
-        make_internal (IntelMKL_INCLUDE_DIR)
-        make_internal (IntelMKL_LP64_BLACS_LIBRARY)
-        make_internal (IntelMKL_LP64_LIBRARY)
-        make_internal (IntelMKL_LP64_ScaLAPACK_LIBRARY)
-        make_internal (IntelMKL_THREAD_LIBRARY)
-      elseif (LINALG STREQUAL "OpenBLAS")
-        make_internal (OpenBLAS_INCLUDE_DIR)
-        make_internal (OpenBLAS_LIBRARIES)
-      endif ()
-      make_internal (CHECK_COMPILATION_ONLY)
-      make_internal (COMEX_NETWORK_MPI3)
-      make_internal (COMEX_NETWORK_MPI_MT)
-      make_internal (COMEX_NETWORK_MPI_PR)
-      make_internal (COMEX_NETWORK_MPI_PT)
-      make_internal (COMEX_NETWORK_MPI_TS)
-      make_internal (ENABLE_ARMCI_MEM_OPTION)
-      make_internal (F2C_HIDDEN_STRING_LENGTH_AFTER_ARGS)
-      make_internal (GLOBALARRAYS_TEST_TIMEOUT)
-      make_internal (MPI_TS)
-      make_internal (MSG_COMMS_MPI)
-
-      set (GA_INCLUDE_PATH ${proj_bin}/inc)
-      set (GA_LIBRARIES ga armci)
-      list (APPEND EXTRA_INSTALL_TARGETS ${GA_LIBRARIES})
-
-      # Since we are not "installing" the target, we have to find the include files
-      file (COPY ${proj}/global/src/ga.h          DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj}/global/src/gacommon.h    DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj}/ma/macommon.h            DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj}/pario/eaf/eaf.h          DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj}/pario/eaf/eaf.fh         DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj_bin}/global/src/global.fh DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj_bin}/ma/mafdecls.fh       DESTINATION ${GA_INCLUDE_PATH})
-      file (COPY ${proj_bin}/gaf2c/typesf2c.h     DESTINATION ${GA_INCLUDE_PATH})
-
-    else ()
-      # Note: initial space causes line not to break in output
-      message (FATAL_ERROR " Global Arrays sources not available, run \"${GIT} submodule update --init ${proj}\"")
+    if (LINALG STREQUAL "Runtime")
+      message (FATAL_ERROR "GA_BUILD does not support LINALG=Runtime.")
     endif ()
+
+    include (ExternalProject)
+    set (EP_PROJECT GlobalArrays)
+    set (EP_PATH ${PROJECT_BINARY_DIR}/External/${EP_PROJECT})
+    set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
+
+    set (GA_REPO https://github.com/GlobalArrays/ga.git)
+    set (GA_HASH da7a53ff)
+
+    target_files (LINALG_LIBRARIES_FILES ${LINALG_LIBRARIES})
+    string (REPLACE ";" "|" LINALG_LIBRARIES_FILES "${LINALG_LIBRARIES_FILES}")
+    list (APPEND GACMakeArgs
+          -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
+          -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
+          -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+          -D ENABLE_FORTRAN=ON
+          -D ENABLE_CXX=OFF
+          -D ENABLE_TESTS=OFF
+          -D ENABLE_BLAS=ON
+    )
+    if (LINALG STREQUAL "MKL")
+      list (APPEND GACMakeArgs
+            -D LINALG_VENDOR=IntelMKL
+            -D LINALG_PREFIX=${MKLROOT}
+      )
+    elseif (LINALG STREQUAL "OpenBLAS")
+      list (APPEND GACMakeArgs
+            -D LINALG_VENDOR=OpenBLAS
+            -D LINALG_PREFIX=${OPENBLASROOT}
+      )
+    elseif (LINALG STREQUAL "Internal")
+      list (APPEND GACMakeArgs
+            -D LINALG_VENDOR=ReferenceBLAS
+            -D LINALG_PREFIX=${PROJECT_BINARY_DIR}
+            -D BLAS_LIBRARIES=${LINALG_LIBRARIES_FILES}
+      )
+    else ()
+      message (FATAL_ERROR
+               "LINALG version not supported by built-in Global Arrays."
+               "Use a different LINALG or an externally compiled Global Arrays.")
+    endif ()
+    if (ADDRMODE EQUAL 64)
+      list (APPEND GACMakeArgs
+            -D ENABLE_I8=ON
+            -D LINALG_REQUIRED_COMPONENTS=ilp64
+      )
+    else ()
+      list (APPEND GACMakeArgs
+            -D ENABLE_I8=OFF
+            -D LINALG_REQUIRED_COMPONENTS=lp64
+      )
+    endif ()
+
+    # Same workaround as for Libxc (see above)
+    set (last_hash "None")
+    set (hash_file ${EP_PATH}/${EP_PROJECT}.hash)
+    if (EXISTS ${hash_file})
+      file (READ ${hash_file} last_hash)
+      string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+    endif ()
+    if (last_hash STREQUAL ${GA_HASH})
+      set (GASkipUpdate ON)
+    else ()
+      set (GASkipUpdate OFF)
+    endif ()
+
+    ExternalProject_Add (${EP_PROJECT}
+                         PREFIX ${EP_PATH}
+                         GIT_REPOSITORY ${GA_REPO}
+                         GIT_TAG ${GA_HASH}
+                         CMAKE_ARGS ${GACMakeArgs}
+                         UPDATE_DISCONNECTED ${GASkipUpdate}
+                         LIST_SEPARATOR "|"
+    )
+
+    if (NOT GASkipUpdate)
+      ExternalProject_add_patches (${EP_PROJECT} "cmake/custom/ga.patch")
+    endif ()
+
+    ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                              COMMAND echo ${GA_HASH} > ${hash_file}
+                              DEPENDEES build
+    )
+
+    if (LINALG STREQUAL "Internal")
+      add_dependencies (${EP_PROJECT} ${LINALG_LIBRARIES})
+    endif ()
+
+    set (GA_INCLUDE_PATH ${EP_INSTALL}/include/ga)
+    set (GA_LIBRARIES ga armci)
+    # This is not a very portable way of finding and installing
+    # the library files, but I can't find anything better
+    if (BUILD_SHARED_LIBS)
+      set (lib_ext ".so")
+    else ()
+      set (lib_ext ".a")
+    endif ()
+    foreach (lib ${GA_LIBRARIES})
+      set (${lib}_file ${EP_INSTALL}/lib/lib${lib}${lib_ext})
+      add_library (${lib} UNKNOWN IMPORTED)
+      set_target_properties (${lib} PROPERTIES IMPORTED_LOCATION ${${lib}_file})
+    endforeach ()
+    list (APPEND EXTRA_INSTALL_IMPORTED_LIBS ${GA_LIBRARIES})
 
   # External precompiled GA library
   else ()
@@ -1648,17 +1368,16 @@ if (GA AND MPI)
         target_link_libraries (armci INTERFACE ${LIBIBVERBS})
       endif ()
     endif ()
-    set (GA_FOUND TRUE)
+    set (GA_FOUND "TRUE")
   endif ()
 
   # Final common settings
 
   foreach (lib ${GA_LIBRARIES})
-    target_link_libraries (${lib} INTERFACE ${MPI_LIBRARIES})
+    target_link_libraries (${lib} INTERFACE ${MPI_LIBRARIES} ${LINALG_LIBRARIES})
   endforeach ()
 
   add_compile_definitions (_GA_)
-  include_directories (${GA_INCLUDE_PATH})
 
   message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
   message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
@@ -1808,6 +1527,32 @@ else ()
   message ("CHEMPS2 interface DISABLED")
 endif ()
 
+# Dice-SHCI support
+#==================
+
+if (DICE)
+  mark_as_advanced (CLEAR DICE_DIR)
+
+  message ("Configuring Dice-SHCI support:")
+
+  find_program (DICE_EXE Dice)
+  if (NOT DICE_EXE)
+    message (WARNING "No Dice installation found, you will have to make sure it is available at run time.")
+  endif ()
+
+  foreach (prog
+    wfn_util
+    rasscf
+  )
+    list (APPEND ${prog}_defs "_ENABLE_DICE_SHCI_")
+  endforeach ()
+  message ("-- DICE_EXE: ${DICE_EXE}")
+  unset (DICE_EXE CACHE)
+else ()
+  mark_as_advanced (FORCE DICE_DIR)
+  message ("DICE interface DISABLED")
+endif ()
+
 # GPerfTools: CPU profiling
 #==========================
 
@@ -1854,16 +1599,6 @@ if (BIGOT AND CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
 endif ()
 include_directories (${MAIN_MOD_DIR})
 
-if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
-  set (proj ${extprojsdir}/lapack)
-  if (EXISTS ${proj}/BLAS/SRC/ddot.f)
-    set (internal_linalg ${proj}/SRC ${proj}/INSTALL ${proj}/BLAS/SRC)
-  else ()
-    # Note: initial space causes line not to break in output
-    message (FATAL_ERROR " LAPACK+BLAS sources not available, run \"${GIT} submodule update --init ${proj}\"")
-  endif ()
-endif ()
-
 if (MSYM)
   message ("Configuring MSYM support:")
 
@@ -1875,10 +1610,15 @@ if (MSYM)
     # set and hide from the OpenMolcas CMake GUI
     make_internal (MSYM_BUILD_EXAMPLES OFF)
     make_internal (MSYM_BUILD_PYTHON   OFF)
+    get_cmake_property (_in_vars VARIABLES)
     add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
-    make_internal (INSTALL_LIB_DIR)
-    make_internal (INSTALL_INCLUDE_DIR)
-    make_internal (INSTALL_CMAKE_DIR)
+    get_cmake_property (_out_vars VARIABLES)
+    foreach (var ${_out_vars})
+      get_property (in_cache CACHE ${var} PROPERTY TYPE)
+      if (in_cache AND NOT var IN_LIST _in_vars)
+        make_internal (${var})
+      endif ()
+    endforeach ()
 
     set (MSYM_INCLUDE ${proj}/src ${proj_bin})
     set (MSYM_LIBRARIES msym)
@@ -1903,21 +1643,38 @@ if (DMRG)
     set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
   endif ()
   if (QCMaquis_ROOT)
-    message (STATUS "External QCMaquis root specified at: ${QCMaquis_ROOT}")
+    message ("-- External QCMaquis root specified at: ${QCMaquis_ROOT}")
     set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of QCMaquis.")
     set (MAQUIS_DMRG_DIR ${QCMaquis_ROOT}/share/cmake)
     find_package (MAQUIS_DMRG PATHS ${QCMaquis_ROOT} NO_DEFAULT_PATH)
   endif ()
 
-  add_compile_definitions (_DMRG_)
+  foreach (prog
+    dmrgscf
+    last_energy
+    mclr
+    mcpdft
+    mpssi
+    nevpt2
+    rasscf
+    rassi
+    wfn_util
+  )
+    list (APPEND ${prog}_defs "_DMRG_")
+  endforeach ()
 
   set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis)
 
   configure_file (${custom_dir}/qcmaquis.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
 
-  ## Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
+  # Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
   add_subdirectory (${proj_bin} ${proj_bin})
+
+  # Make sure GlobalArrays is built first if we're building both
+  if (TARGET GlobalArrays)
+    add_dependencies (qcmaquis GlobalArrays)
+  endif ()
 
   foreach (lib ${HDF5_QCM_LIBRARIES})
     get_filename_component (name ${lib} NAME_WE)
@@ -1944,6 +1701,10 @@ endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
 if (NECI)
+  message(FATAL_ERROR "At the moment the embedded NECI does not work. "
+    "Please use external NECI instead and contact the developers. "
+    "If https://gitlab.com/Molcas/OpenMolcas/-/issues/346 is resolved we can enable it again."
+  )
   if (NOT MPI)
     message (FATAL_ERROR "NECI requires MPI (-DMPI=ON).")
   endif ()
@@ -1960,8 +1721,17 @@ if (NECI)
     make_internal (ENABLE_SHARED        ON)
     # make_internal (ENABLE_BUILD_HDF5    OFF)
 
-    list (APPEND rasscf_defs "_NECI_")
+    get_cmake_property (_in_vars VARIABLES)
     add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
+    get_cmake_property (_out_vars VARIABLES)
+    foreach (var ${_out_vars})
+      get_property (in_cache CACHE ${var} PROPERTY TYPE)
+      if (in_cache AND NOT var IN_LIST _in_vars)
+        make_internal (${var})
+      endif ()
+    endforeach ()
+
+    list (APPEND rasscf_defs "_NECI_")
     set (NECI_LIBRARIES libdneci)
 
     message ("-- NECI_INCLUDE_PATH: ${NECI_INCLUDE}")
@@ -2035,7 +1805,7 @@ if (GEN1INT)
   message ("Configuring Gen1Int:")
 
   set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
-  set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
+  set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int)
 
   configure_file (${custom_dir}/gen1int.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
   add_subdirectory (${proj_bin} ${proj_bin})
@@ -2068,10 +1838,19 @@ if (WFA)
     set (ARMADILLO_INC ${ARMADILLO_INC} CACHE PATH "Directory with armadillo header files")
     make_internal (MOLCAS_LIB ON)
 
+    get_cmake_property (_in_vars VARIABLES)
     add_subdirectory (${proj}/libwfa)
+    get_cmake_property (_out_vars VARIABLES)
+    foreach (var ${_out_vars})
+      get_property (in_cache CACHE ${var} PROPERTY TYPE)
+      if (in_cache AND NOT var IN_LIST _in_vars)
+        make_internal (${var})
+      endif ()
+    endforeach ()
+
     target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC} ${HDF5_INCLUDE_DIRS})
     target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
-    target_link_libraries (wfa_molcas INTERFACE ${HDF5_CXX_LIBRARIES})
+    target_link_libraries (wfa_molcas INTERFACE ${HDF5_CXX_LIBRARIES} ${LINALG_LIBRARIES})
     list (APPEND wfa_libs wfa_molcas)
 
     message ("-- wfa_libs: ${wfa_libs}")
@@ -2103,7 +1882,15 @@ if (NEVPT2)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/nevpt2_ext)
   configure_file (${custom_dir}/nevpt2.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
 
+  get_cmake_property (_in_vars VARIABLES)
   add_subdirectory (${proj_bin} ${proj_bin})
+  get_cmake_property (_out_vars VARIABLES)
+  foreach (var ${_out_vars})
+    get_property (in_cache CACHE ${var} PROPERTY TYPE)
+    if (in_cache AND NOT var IN_LIST _in_vars)
+      make_internal (${var})
+    endif ()
+  endforeach ()
 
   get_directory_property (${NEVPT2_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_INCLUDE})
   get_directory_property (${NEVPT2_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_LIBRARIES})
@@ -2126,7 +1913,7 @@ if (MolGUI)
   include (ExternalProject)
   ExternalProject_Add (${projname}
                        GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
-                       GIT_TAG 2667899eac1195c28e1a33c6f3ae28b6350fe52c
+                       GIT_TAG 599b75e79fab49501adb313f3e2dfab9d8211795
                        PREFIX ${projdir}
                        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
                                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -2252,6 +2039,14 @@ message ("-- Debug definitions: ${DEBUG_DEFS}")
 #                                                                              #
 ################################################################################
 
+# Enable interprocedural optimization, if requested and supported, from now on
+set (set_IPO OFF)
+if (IPO AND ";RelWithDebInfo;Release;Fast;" MATCHES ";${CMAKE_BUILD_TYPE};")
+  include (CheckIPOSupported)
+  check_ipo_supported (RESULT set_IPO)
+endif ()
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ${set_IPO})
+
 # generate utility list
 #======================
 # FIXME: this should be split in several sublists, e.g. core, blas, etc.
@@ -2292,6 +2087,7 @@ list (REMOVE_DUPLICATES progs)
 list (REMOVE_ITEM utils
   block_dmrg_util
   chemps2_util
+  dice_util
   delayed_util
   dga_util
   embedding_util
@@ -2338,7 +2134,7 @@ endif ()
 
 # If an external GA library is not present, we use the internal
 # DGA code which resides in dga_util:
-if (MPI AND NOT GA AND NOT GA_BUILD)
+if (MPI AND NOT GA)
   set (util dga_util)
   find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
@@ -2367,10 +2163,6 @@ if (LINALG STREQUAL "Runtime")
     message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   list (APPEND ${util}_incs ${internal_linalg})
-endif ()
-
-if (GEN1INT)
-  list (APPEND integral_util_defs "_GEN1INT_")
 endif ()
 
 # activate HDF5 wrappers for I/O
@@ -2453,6 +2245,17 @@ if (CHEMPS2)
   endif ()
 endif ()
 
+if (DICE)
+  set (util dice_util)
+  find_source (${util} ${source_roots})
+  if (DEFINED ${util}_src)
+    list (APPEND utils ${util})
+    list (APPEND ${util}_defs "_ENABLE_DICE_SHCI_")
+  else ()
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
+  endif ()
+endif ()
+
 # activate libwfa support
 if (WFA AND WFA_FOUND)
   list (APPEND progs wfa)
@@ -2487,7 +2290,12 @@ if (WFA AND WFA_FOUND)
 endif ()
 
 if (GEN1INT)
-  list (APPEND seward_defs "_GEN1INT_")
+  foreach (prog
+    seward
+    integral_util
+  )
+    list (APPEND ${prog}_defs "_GEN1INT_")
+  endforeach ()
 endif ()
 
 # programs doing HDF5 calls
@@ -2495,12 +2303,15 @@ if (HDF5 AND HDF5_FOUND)
   foreach (prog
     caspt2
     dynamix
+    expbas
     guessorb
+    localisation
     mcpdft
     nevpt2
     poly_aniso
     rasscf
     rassi
+    rhodyn
     scf
     single_aniso
     slapaf
@@ -2517,6 +2328,9 @@ if (HDF5 AND HDF5_FOUND)
       list (APPEND ${prog}_deplibs qcmaquis-hdf5-interface)
     endforeach ()
   endif ()
+else ()
+  message (WARNING "RHODYN program requires HDF5 interface, disabled")
+  list (REMOVE_ITEM progs rhodyn)
 endif ()
 
 # Libraries that require QCMaquis-OpenMolcas interface
@@ -2539,6 +2353,20 @@ if (DMRG)
   )
   foreach (prog ${dmrg_progs})
     list (APPEND ${prog}_deplibs ${MAQUIS_DMRG_LIBRARIES} -lstdc++)
+  endforeach ()
+endif ()
+
+if (GA AND MPI)
+  foreach (prog
+           caspt2
+           cholesky_util
+           cht3
+           ga_util
+           mclr
+           rasscf
+           ri_util
+  )
+    list (APPEND ${prog}_incs ${GA_INCLUDE_PATH})
   endforeach ()
 endif ()
 
@@ -2611,11 +2439,10 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
   set (netlib_nowarn_flags " -Kieee -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
-  set (netlib_nowarn_flags " -w")
+  set (netlib_nowarn_flags " -w -dcfuns")
 endif ()
-find_source (LinAlg_internal ${source_roots})
 if (netlib_nowarn_flags)
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
+  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90 ${delayed_util_src}/*.f ${delayed_util_src}/*.F90)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
 endif ()
 
@@ -2657,6 +2484,12 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
+if (TARGET Libxc)
+  add_dependencies (mods_obj Libxc)
+endif ()
+if (GA_BUILD AND MPI)
+  add_dependencies (mods_obj GlobalArrays)
+endif ()
 if (GEN1INT)
   add_dependencies (mods_obj gen1int)
 endif ()
@@ -2664,6 +2497,13 @@ if (BUILD_SHARED_LIBS)
   set_target_properties (mods_obj PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
 endif ()
 set_target_properties (mods_obj PROPERTIES Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR})
+
+# set the module directory for internal linalg
+if (LINALG STREQUAL "Internal")
+  foreach (lib ${LINALG_LIBRARIES})
+    set_module_directory (${lib})
+  endforeach ()
+endif ()
 
 # now go through utility list
 foreach (util ${utils})
@@ -2678,6 +2518,10 @@ foreach (util ${utils})
   endif ()
   list (APPEND utils_obj ${util}_obj)
   list (APPEND ALL_SOURCES ${${util}_sources} ${${util}_mods})
+  # get the list of "public" include directories, since these may be needed
+  # when compiling programs, and not just for linking
+  get_target_property(inc ${util}_obj INTERFACE_INCLUDE_DIRECTORIES)
+  list (APPEND public_incs ${inc})
 endforeach (util)
 
 # build an actual libmolcas library
@@ -2695,25 +2539,9 @@ if (BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
   target_link_libraries (libmolcas_static ${utils_obj})
   target_link_libraries (libmolcas_static mods_obj)
 endif ()
-
-# if necessary, build BLAS/LAPACK
+# make sure these are installed
 if (LINALG STREQUAL "Internal")
-  set (util "LinAlg_internal")
-  if (NOT DEFINED ${util}_src)
-    message (FATAL_ERROR "\"${util}\" not found in source directories.")
-  endif ()
-  foreach (lib ${LINALG_LIBRARIES})
-    set (source ${${util}_src}/${lib}.f)
-    add_library (${lib} ${source})
-    list (APPEND ALL_SOURCES ${source})
-    list (APPEND ${util}_incs ${internal_linalg})
-    foreach (inc ${${util}_incs})
-      target_include_directories (${lib} PRIVATE ${inc})
-    endforeach ()
-    if (BUILD_SHARED_LIBS)
-      set_target_properties (${lib} PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
-    endif ()
-  endforeach ()
+  list (APPEND MOLCAS_LIBRARIES ${INTERNAL_LINALG})
 endif ()
 
 ################################################################################
@@ -2766,9 +2594,7 @@ if (DMRG)
   foreach (prog ${dmrg_progs})
     if (NOT MAQUIS_DMRG_FOUND AND TARGET ${prog}.exe)
       set_target_properties (${prog}.exe PROPERTIES
-        BUILD_WITH_INSTALL_RPATH TRUE
-        INSTALL_RPATH_USE_LINK_PATH TRUE
-        INSTALL_RPATH "\$ORIGIN/../qcmaquis/lib:${INSTALL_RPATH}"
+        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/qcmaquis/lib:${CMAKE_INSTALL_RPATH}"
       )
     endif ()
   endforeach ()
@@ -2868,11 +2694,13 @@ file (COPY "${OPENMOLCAS_DIR}/CONTRIBUTORS.md" DESTINATION ${PROJECT_BINARY_DIR}
 
 # copy the necessary files from data
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/data)
-configure_file (${OPENMOLCAS_DIR}/data/rysrw.ascii  data/rysrw        COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/abdata.ascii data/abdata       COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/banner.src   data/banner.txt   COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/modalias.src data/modalias.txt COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/landing.src  data/landing.txt  COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/rysrw.ascii      data/rysrw            COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/abdata.ascii     data/abdata           COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/banner.src       data/banner.txt       COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/modalias.src     data/modalias.txt     COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/landing.src      data/landing.txt      COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/isotope_data.src data/isotope_data.txt COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/functionals.src  data/functionals.txt  COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
   foreach (f alias.plx auto.prgm landing.txt)
@@ -2881,7 +2709,7 @@ if (DEFINED EXTRA_DIR)
 endif ()
 # copy the necessary files from sbin
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
-foreach (f setup verify version find_sources have_feature help_basis help_doc)
+foreach (f setup verify version find_sources have_feature help_basis help_func help_doc)
   file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
 endforeach ()
 if (DEFINED EXTRA_DIR)
@@ -3029,9 +2857,9 @@ add_custom_target (prgms ALL
 add_dependencies (mods_obj prgms)
 
 # generate help databases from doc
-if (PYTHONINTERP_FOUND)
+if (Python_FOUND)
   execute_process (
-    COMMAND ${PYTHON_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
+    COMMAND ${Python_EXECUTABLE} ${OPENMOLCAS_DIR}/sbin/extract_xmldoc.py ${OPENMOLCAS_DIR}/doc ${PROJECT_BINARY_DIR}/data
     ERROR_VARIABLE EXTRACT_ERROR
     RESULT_VARIABLE EXTRACT_RESULT
   )
@@ -3052,7 +2880,7 @@ if (PYTHONINTERP_FOUND)
     endif ()
   endif ()
 else ()
-  message (WARNING "No python found, help databases will not be created.")
+  message (WARNING "No Python found, help databases will not be created.")
 endif ()
 
 # generate rcodes.txt file
@@ -3096,7 +2924,7 @@ if (SPHINX_EXECUTABLE)
   message ("-- Sphinx compiler: ${SPHINX_EXECUTABLE}")
 
   # Get the short version (not using REGEX_REPLACE for backwards compatibility)
-  string (REPLACE "v" "" tmp ${MOLCAS_VERSION})
+  string (REPLACE "v" "" tmp "${MOLCAS_VERSION}")
   string (FIND "${tmp}" "-" pos)
   string (SUBSTRING "${tmp}" 0 ${pos} SHORT_VERSION)
 
@@ -3159,17 +2987,23 @@ install (DIRECTORY
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
 
+if (BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
+  set (subdir "/static")
+else ()
+  set (subdir "")
+endif ()
 install (TARGETS
   ${PROGRAM_EXECUTABLES}
   ${MOLCAS_LIBRARIES}
   OPTIONAL
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
   LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib${subdir}
 )
 
 install (PROGRAMS
   ${PROJECT_BINARY_DIR}/sbin/help_basis
+  ${PROJECT_BINARY_DIR}/sbin/help_func
   ${PROJECT_BINARY_DIR}/sbin/help_doc
   ${PROJECT_BINARY_DIR}/sbin/setup
   ${PROJECT_BINARY_DIR}/sbin/version
@@ -3247,6 +3081,7 @@ if (EXTRA_INSTALL_TARGETS)
   install (TARGETS
     ${EXTRA_INSTALL_TARGETS}
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include
     OPTIONAL
   )
 endif ()
@@ -3260,6 +3095,20 @@ foreach (dir ${EXTRA_INSTALL_DIRS})
   )
 endforeach ()
 
+foreach (lib ${EXTRA_INSTALL_IMPORTED_LIBS})
+  get_target_property (fname ${lib} IMPORTED_LOCATION)
+  install (FILES
+    ${fname}
+    TYPE LIB
+    OPTIONAL
+  )
+endforeach ()
+
 if (IS_DIRECTORY "$ENV{HOME}/.Molcas")
   install (CODE "execute_process (COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
 endif ()
+
+# Final warning(s)
+if (GEN1INT)
+  message (WARNING "OpenMolcas is LGPL code, but Gen1Int's original license is GPL.\nThe generated binaries *cannot* be redistributed.")
+endif()

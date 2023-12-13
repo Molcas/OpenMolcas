@@ -1,0 +1,49 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+
+#Hamiltonian NRH
+#Nucleus UNK
+#Contraction SEG
+#AllElectron AE_
+
+************************************************************************
+* This file has been generated from TURBOMOLE basis set data:          *
+*   https://cosmologic-services.de/basis-sets/basissets.php            *
+************************************************************************
+
+/H.def-SV(P).Hattig.4s3p2d.3s2p1d.
+C. Hattig. Phys. Chem. Chem. Phys. 7 (2005) 59-66. doi:10.1039/b415208e
+HYDROGEN (4s,3p,2d) -> [3s,2p,1d]
+     1.0   2
+* s-type functions
+    4    3
+        9.3352160900
+        1.8611070400
+        0.5951246600
+        0.2644809900
+   0.64609379   0.00000000   0.00000000
+   1.37005241   0.00000000   0.00000000
+   0.00000000   1.00000000   0.00000000
+   0.00000000   0.00000000   1.00000000
+* p-type functions
+    3    2
+        2.4524982100
+        1.3540383000
+        0.5952239400
+   0.13284956   0.00000000
+   1.45276215   0.00000000
+   0.00000000   1.00000000
+* d-type functions
+    2    1
+        1.5816376600
+        0.6274396000
+   1.49367397
+  -0.01070690

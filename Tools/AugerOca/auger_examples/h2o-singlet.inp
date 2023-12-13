@@ -1,0 +1,242 @@
+
+*----------------------------------------------------------------------------------
+* Molecule: H2O
+* Basis: ANO-L-VQZP
+* Symmetry: C2v
+* Features tested: Non-resonant Auger spectrum of singlets using auger_oca package
+* Comments: auger_oca package, if not available, can be installed with your prompt:
+* pip install auger_oca
+*----------------------------------------------------------------------------------
+>> IF ( -FILE $MOLCAS/Tools/AugerOca/auger_main.py )
+>>   GOTO HAVE_OCA
+>> ENDIF
+>> EXIT 36
+>> LABEL HAVE_OCA
+>> SHELL sh create_test_numpy $MOLCAS/Tools/AugerOca/auger_main.py
+>> SHELL ./test_numpy.py || touch TEST_NUMPY
+>> IF ( -FILE TEST_NUMPY )
+>>   echo "install required python3 packages h5py and auger-oca using: pip install"
+>>   EXIT 36
+>> ENDIF
+
+>>FILE create_test_numpy
+head -n 1 $1 > test_numpy.py
+echo "import numpy,h5py" >> test_numpy.py
+chmod +x test_numpy.py
+>>EOF
+
+&GATEWAY
+ EXPERT
+ SYMMetry
+ xy y
+ Basis set
+ O.ANO-L-VQZP..
+ Spherical all
+ O        0.000000000      0.000000000      0.000000000  /Angstrom
+ End of basis set
+
+ Basis set
+ H.ANO-L-VQZP..
+ Spherical all
+ H        0.00000000      0.757200054      -0.586500041  /Angstrom
+ End of basis set
+
+ Verbose
+ BSShow
+
+&SEWARD
+
+&SCF
+ charge = 0
+
+>> COPY $Project.ScfOrb INPORB
+ &RASSCF &END
+EXPERT
+LUMORB
+Symmetry
+ 1
+Spin
+ 2
+nActEl
+ 9 1 0
+SUPSym
+ 1
+ 1 1
+ 0; 0; 0
+HEXS
+1
+1
+Inactive
+0 0 0 0
+Ras1
+1 0 0 0
+Ras2
+4 2 0 2
+Ras3
+0 0 0 0
+CIROot
+1 1 1
+Iter=200 100
+End of input
+>> COPY $Project.JobIph $Project.JobIph_CORE
+
+>> COPY $Project.ScfOrb INPORB
+&RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 1
+ Spin
+ 1
+ nActEl
+ 8 1 0
+ Inactive 
+ 0 0 0 0
+ Ras1
+ 1 0 0 0
+ Ras2 
+ 4 2 0 2
+ Ras3 
+ 0 0 0 0
+ OrbListing = All
+ OrbAppear = Full
+ Ciroot = 20 20 1
+>> COPY $Project.JobIph $Project.JobIph_A1
+
+>> COPY $Project.ScfOrb INPORB
+&RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 2
+ Spin
+ 1
+ nActEl
+ 8 1 0
+ Inactive 
+ 0 0 0 0
+ Ras1 
+ 1 0 0 0
+ Ras2 
+ 4 2 0 2
+ Ras3 
+ 0 0 0 0
+ OrbListing = All
+ OrbAppear = Full
+ Ciroot = 20 20 1
+>> COPY $Project.JobIph $Project.JobIph_B1
+>> COPY $Project.rasscf.molden $Project.rasscf_B1.molden
+
+>> COPY $Project.ScfOrb INPORB
+&RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 4
+ Spin
+ 1
+ nActEl
+ 8 1 0
+ Inactive
+ 0 0 0 0
+ Ras1
+ 1 0 0 0
+ Ras2 
+ 4 2 0 2
+ Ras3  
+ 0 0 0 0
+ OrbListing = All
+ OrbAppear = Full
+ Ciroot = 20 20 1
+>> COPY $Project.JobIph $Project.JobIph_B2
+
+>> COPY $Project.ScfOrb INPORB
+&RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 3
+ Spin
+ 1
+ nActEl
+ 8 1 0
+ Inactive
+ 0 0 0 0
+ Ras1
+ 1 0 0 0
+ Ras2
+ 4 2 0 2
+ Ras3
+ 0 0 0 0
+ OrbListing = All
+ OrbAppear = Full
+ Ciroot = 20 20 1
+>> COPY $Project.JobIph $Project.JobIph_A2
+
+>> COPY $Project.JobIph_CORE JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = 1 1
+IMAG
+0.15
+End of input
+>> COPY $Project.JobMix $Project.JobMix_CORE
+>> COPY $Project.JobMix_CORE JOB001
+
+>> COPY $Project.JobIph_A1 JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = all
+IMAG
+0.15
+End of input
+>> COPY $Project.JobMix $Project.JobMix_A1x
+>> COPY $Project.JobMix_A1x JOB002
+
+>> COPY $Project.JobIph_B1 JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = all
+IMAG
+0.15
+End of input
+>> COPY $Project.JobMix $Project.JobMix_B1x
+>> COPY $Project.JobMix_B1x JOB003
+
+>> COPY $Project.JobIph_B2 JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = all
+IMAG
+0.15
+End of input
+>> COPY $Project.JobMix $Project.JobMix_B2x
+>> COPY $Project.JobMix_B2x JOB004
+
+>> COPY $Project.JobIph_A2 JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = all
+IMAG
+0.15
+End of input
+>> COPY $Project.JobMix $Project.JobMix_A2x
+>> COPY $Project.JobMix_A2x JOB005
+
+&RASSI
+ Nrof JobIphs =  5 all
+ CIPRint
+ Ejob
+ TDYS
+ 1
+ O 1s
+ Dyson
+ End of input
+
+>> SHELL $MOLCAS/Tools/AugerOca/auger_main.py -d $WorkDir --aes --s --spec
+>> COPY auger.spectrum.out $CurrDir/$Project.auger.spectrum.out

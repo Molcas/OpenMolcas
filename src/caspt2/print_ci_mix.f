@@ -18,15 +18,17 @@
       Use mh5, Only: mh5_open_file_r, mh5_fetch_dset
 #endif
       Implicit None
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
       Real*8 :: EigVec(nState,nState)
-      Integer :: iState, iiState, jSNum, iDisk
+      Integer :: iState, iiState, iDisk
       Real*8, Allocatable, Dimension(:) :: cCI, mCI
       Logical :: Close_refwfn
+#ifdef _HDF5_
+      Integer :: jSNum
+#endif
 
 
       Call mma_allocate(mCI, nConf, Label='MixCICoeff')
@@ -60,9 +62,9 @@
         Call FZero(mCI, nConf)
         iDisk=iAdr15(4)
         Do iiState=1,nState
-          jSNum=mState(iiState)
           If (refwfn_is_h5) Then
 #ifdef _HDF5_
+            jSNum=mState(iiState)
             Call mh5_fetch_dset(
      &           refwfn_id,'CI_VECTORS',cCI,[nConf,1],[0,jSNum-1])
 #else

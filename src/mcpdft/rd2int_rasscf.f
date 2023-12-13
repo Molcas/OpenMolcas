@@ -26,50 +26,45 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use mcpdft_output, only: lf
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Integer nSymX,nBasX(8)
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
       iRc=-1
       Call GetOrd(iRc,lSquare,nSymX,nBasX,nSkipX)
-      If (iRc.ne.0) Then
+      If (iRc /= 0) Then
         Write(LF,*)'RD2INT Error: Failed to read from ORDINT file.'
-        Write(LF,*)'RASSCF tried to read two-electron integrals from'
+        Write(LF,*)'MCPDFT tried to read two-electron integrals from'
         Write(LF,*)'the ORDINT file, but failed. Something is wrong'
         Write(LF,*)'with the file. Perhaps it is missing?'
-*        Call Quit(20)
         Call Quit_OnUserError()
       End If
-      If ( nSymX.ne.nSym ) Then
+
+      If ( nSymX /= nSym ) Then
         Write(LF,*)'RD2INT Error: Wrong size of symmetry group.'
-        Write(LF,*)'RASSCF tried to use two-electron integrals from'
+        Write(LF,*)'MCPDFT tried to use two-electron integrals from'
         Write(LF,*)'a file that was evidently created for some other'
         Write(LF,*)'program run.'
         Write(LF,'(1x,a,2i8)')'nSymX,nSym:',nSymX,nSym
-*        Call Quit(20)
         Call Quit_OnUserError()
       End If
-      IERR=0
+
       Do iSym=1,nSym
-         If ( nBas(iSym).ne.nBasX(iSym) ) IERR=1
+        If ( nBas(iSym) /= nBasX(iSym) ) then
+          Write(LF,*)'RD2INT Error: Wrong nr of basis functions.'
+          Write(LF,*)'MCPDFT tried to use two-electron integrals from'
+          Write(LF,*)'a file that was evidently created for some other'
+          Write(LF,*)'program run.'
+          Write(LF,'(1x,a,8i8)')'nBas :',(nBas(i),i=1,nSym)
+          Write(LF,'(1x,a,8i8)')'nBasX:',(nBasX(i),i=1,nSym)
+          Call Quit_OnUserError()
+        end if
       End Do
-      If ( IERR.eq.1 ) Then
-        Write(LF,*)'RD2INT Error: Wrong nr of basis functions.'
-        Write(LF,*)'RASSCF tried to use two-electron integrals from'
-        Write(LF,*)'a file that was evidently created for some other'
-        Write(LF,*)'program run.'
-        Write(LF,'(1x,a,8i8)')'nBas :',(nBas(i),i=1,nSym)
-        Write(LF,'(1x,a,8i8)')'nBasX:',(nBasX(i),i=1,nSym)
-*        Call Quit(20)
-        Call Quit_OnUserError()
-      End If
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-      Return
+
       End

@@ -37,7 +37,7 @@ character(len=:), allocatable :: refwfnfile
 integer(kind=iwp) :: istate, ii, j, nDiff, nishprev, nfroprev
 integer(kind=iwp), allocatable :: nCore_local(:)
 real(kind=wp), allocatable :: readbuf(:,:)
-#include "mxdm.fh"
+#include "rasdim.fh"
 #include "caspt2.fh"
 
 ! Save current directory into the CurrDir string
@@ -105,7 +105,7 @@ call refwfn_close()
 
 !> check if nr_states has been requested as 'all'
 if (nr_states == 0) then
-  ! using standard allocate and deallocate because MultGroup&State
+  ! using standard allocate and deallocate because MultGroup%State
   ! is deallocated somewhere in the external library
   if (allocated(MultGroup%State)) deallocate(MultGroup%State)
   !> nstate from common block in caspt2.fh

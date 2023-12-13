@@ -64,6 +64,8 @@
 !     Unit for storage of half-transformed Cho vectors
       Integer LuIChoVec(8)
       Integer LuChoInt(2)       ! Unit for storage of integrals (ii|ab)
+      Integer cmsNACStates(2)   ! StateIndex NAC of MCPDFT module
+      Logical isCMSNAC
 *
 *   nTPert
 *   ======
@@ -101,6 +103,7 @@ c                               !   should be calculated
       Logical fail              ! Calculation didnt converge
       Logical Timedep           ! Time-dependent calculation
       Logical iMCPD             ! CAS-PDFT calculation
+      Logical iMSPD             ! MS-PDFT calculation
       Logical McKinley          ! Input read from McKinley
 c                               !    True if MCKINT exists
       Logical TwoPert           ! Not in use
@@ -144,12 +147,13 @@ c
      &               nFro,nDel,nRs1,nRs2,nRs3,nSkip,
      &               ispop,iPt2,iToc,iMethod,nIter, ncsf,
      &               LuAChoVec,LuIChoVec,LuChoInt,
-     &               iEndofinput,lmode,nmode,nfiles, imass
+     &               iEndofinput,lmode,nmode,nfiles, imass,
+     &               cmsNACStates
       Common/lInput/ Debug, ISOTOP, CASINT, Mckinley, Fail,
-     &               page,lcalc,TimeDep,iMCPD,PT2,
+     &               page,lcalc,TimeDep,iMCPD,iMSPD,PT2,
      &               SpinPol,elechess,save,
      &               TwoPert,BasCon, double, multi, mout,
-     &               lmass, newCho, TwoStep
+     &               lmass, newCho, TwoStep, isCMSNAC
       Common/cInput/ perturbation, AtLbl, HeaderJP,Header1I,
      &               TitleJP,SewLab,Bline,titlein, ChIrr, cmass,
      &               StepType

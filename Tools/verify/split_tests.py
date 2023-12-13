@@ -49,16 +49,20 @@ except:
 
 # read running time estimates
 timest = {}
+trust_skip = False # by default, do not trust timing of skipped tests
 try:
   with open(os.path.join(path, 'timing.data'), 'r') as f:
     while True:
       try:
         line = next(f)
+        if line.strip() == 'trust_skip':
+          trust_skip = True
+          continue
         match = re.match(r'--- (\S*)( .)?', line)
         if match:
           test = match.group(1)
           timest[test] = float(next(f))
-          if match.group(2):
+          if not trust_skip and match.group(2):
             timest[test] = max(timest[test], default_time)
       except StopIteration:
         break

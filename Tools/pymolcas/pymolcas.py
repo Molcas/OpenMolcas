@@ -73,12 +73,13 @@ def main(my_name):
   parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=42,width=120))
   parser.add_argument('-s', '--setup', help='set up a custom molcasrc file with useful environment variables', action='store_true')
   parser.add_argument('-env', '--environment', help='display information about environment', action='store_true')
-  parser.add_argument('-clean', '--clean_scratch', help='clean scratch area after calculation (not in parallel)', action='store_true')
-  parser.add_argument('-new', '--new_scratch', help='clean scratch area before calculation (not in parallel)', action='store_true')
+  parser.add_argument('-clean', '--clean_scratch', help='clean scratch area after calculation', action='store_true')
+  parser.add_argument('-new', '--new_scratch', help='clean scratch area before calculation', action='store_true')
   parser.add_argument('-old', '--old_scratch', help='reuse scratch area (default)', action='store_true')
   parser.add_argument('-ign', '--ignore_environment', help='run ignoring resource files', action='store_true')
   parser.add_argument('-val', '--validate', help='validate input only (dry run)', action='store_true')
   parser.add_argument('-np', '--nprocs', help='number of parallel (MPI) processes', type=int)
+  parser.add_argument('-nt', '--nthreads', help='number of (OpenMP) threads per process', type=int)
   parser.add_argument('-v', '--version', help='print version of the driver', action='store_true')
   parser.add_argument('-o', '--output', help='redirect output stream to FILE', metavar='FILE')
   parser.add_argument('-e', '--error', help='redirect error stream to FILE', metavar='FILE')
@@ -142,6 +143,9 @@ def main(my_name):
   # Define environment variables according to input arguments
   if (args['nprocs']):
     os.environ['MOLCAS_NPROCS'] = text_type(args['nprocs'])
+
+  if (args['nthreads']):
+    os.environ['MOLCAS_THREADS'] = text_type(args['nthreads'])
 
   if (args['clean_scratch']):
     os.environ['MOLCAS_KEEP_WORKDIR'] = 'NO'

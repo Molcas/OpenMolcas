@@ -8,18 +8,30 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
+
 /*
 This function can be used to mark a Fortran allocatable array as deallocated.
 Note that it doesn't deallocate any memory, it just overwrites the array
 descriptor. It is useful for resetting allocatable components in a derived
 type array, after the contents have been garbled.
 */
+
 #include <stdint.h>
 #ifdef _CAPITALS_
-#define c_null_alloc C_NULL_ALLOC
+# define c_null_alloc C_NULL_ALLOC
+# define c_null_alloc2 C_NULL_ALLOC2
 #else
-#ifndef ADD_
-#define c_null_alloc c_null_alloc_
+# ifndef ADD_
+#   define c_null_alloc c_null_alloc_
+#   define c_null_alloc2 c_null_alloc2_
+# endif
 #endif
-#endif
-void c_null_alloc(intptr_t* A) { *A = 0; }
+
+void c_null_alloc(intptr_t *A) {
+  *A = 0;
+}
+
+/* silly wrapper to work around compilers complaining about mismatched interfaces */
+void c_null_alloc2(intptr_t *A) {
+  c_null_alloc(A);
+}

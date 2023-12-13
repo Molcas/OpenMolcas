@@ -61,7 +61,7 @@ End Of Input
  &GuessOrb &End
 End of Input
 *-------------------------------------------------------------------------------
->>export MOLCAS_NOCHECK=SCF_ITER,RASSCF_ITER,MLTPL
+>>export MOLCAS_NOCHECK=SCF_ITER,MLTPL
  &SCF &END
 Title
  C10H22

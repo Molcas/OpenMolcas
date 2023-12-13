@@ -1,27 +1,13 @@
 " Vim syntax file
-"***********************************************************************
-" This file is part of OpenMolcas.                                     *
-"                                                                      *
-" OpenMolcas is free software; you can redistribute it and/or modify   *
-" it under the terms of the GNU Lesser General Public License, v. 2.1. *
-" OpenMolcas is distributed in the hope that it will be useful, but it *
-" is provided "as is" and without any express or implied warranties.   *
-" For more details see the full text of the license in the file        *
-" LICENSE or in <http://www.gnu.org/licenses/>.                        *
-"                                                                      *
-" Copyright (C) 2013, Steven Vancoillie                                *
-"               2017,2018, Ignacio Fdez. Galván                        *
-"***********************************************************************
 " Language:	Molcas input (*.input)
-" Version:	8.2
-" Last Change:	2018 November 1
+" Version:	8.1
+" Last Change:	2022 November 1
 " Maintainer:	Ignacio Fdez. Galván <Ignacio.Fernandez@kemi.uu.se>
 "
 " shell variables, these are substituted by emil
 syn match molcasVariable "\$\w\+"
-syn match molcasVariable "\${\w\+}"
 " emil commands, starts with 1 or more '>'
-syn match molcasEmil "^[ \t]*>\+[ \t]*\w\+"
+syn match molcasEmil "^[ \t]*>\+[ \t]*\(\(do\|end\|go\)\c[ \t]\+\)\?\w\+"
 " module, word starting with '&'
 syn match molcasModule "^[ \t]*&\w*"
 " comments: lines starting with '*', from '//' to the end of line, and regions between '/*' and '*/'

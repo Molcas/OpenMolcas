@@ -309,6 +309,6 @@ call mma_deallocate(VecH)
 
 return
 
-!2001 format(1x,a,'  X=',E12.5,' ,  Y=',E12.5)
+!2001 format(1x,a,'  X=',ES12.5,' ,  Y=',ES12.5)
 
 end subroutine SPLINE

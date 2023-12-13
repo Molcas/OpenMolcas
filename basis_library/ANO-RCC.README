@@ -21,15 +21,14 @@ calculations on the diatom has instead been used to obtain the polarization
 functions. A density matrix that is averaged over all these states have been
 used to generate the final ANOs (using the program GENANO).
 
-The basis set also includes correlation of the semi-core orbitals Core
-correlating,  polarization and valence correlating functions are thus mixed
-among the ANO's and the normal counting procedure becomes more intricate.
+The basis set also includes correlation of the semi-core orbitals. Core
+correlating, polarization and valence correlating functions are thus mixed
+among the ANOs and the normal counting procedure becomes more intricate.
 Rather large basis sets have to be used if these effects are to be
 included completely. If you intend to use only a limited basis set, you have to
 inspect the basis functions to see, which of them correlate the core. In Be,
 for example, the second and fourth 3d correlates the 1s, as does the second 4f.
 
-All elements of the periodic table up to Curium are included.
+All elements of the periodic table up to curium are included.
 It is recommended to use this basis set instead of the ANO-L basis set for all
 atoms.
-

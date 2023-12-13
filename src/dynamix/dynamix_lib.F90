@@ -500,7 +500,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: time, Epot, Ekin, Etot
-integer(kind=iwp) filenum, i, n, nEnergies
+integer(kind=iwp) :: filenum, i, n, nEnergies
 logical(kind=iwp) :: exists, RootCheck
 character(len=12) :: filename
 character(len=24) :: frmt
@@ -524,13 +524,11 @@ frmt = '(f8.2,   (2x,es19.12))'
 if (RootCheck) then
   call Get_iScalar('Number of roots',nEnergies)
   call mma_allocate(Energies,nEnergies,label='MS energies')
-  !call GetMem('MS energies','ALLO','REAL',ipEnergies,nEnergies)
   call Get_dArray('Last energies',Energies,nEnergies)
   n = nEnergies+3
   write(frmt(7:9),'(i3)') n
   write(filenum,frmt) time,Epot,Ekin,Etot,(Energies(i),i=1,nEnergies)
   call mma_deallocate(Energies)
-  !call GetMem('MS energies','FREE','REAL',ipEnergies,nEnergies)
 else
   n = 3
   write(frmt(7:9),'(i3)') n

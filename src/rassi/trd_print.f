@@ -18,17 +18,12 @@
       SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
      &                     CMO1, CMO2, SIJ)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='TRD_PRINT')
 #include "rasdim.fh"
-!#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 #include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
@@ -65,7 +60,7 @@
         NB=NBASF(ISYM)
         DO IO=1,NO
           WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-          WRITE(LU,'(5D19.12)')(CMO1(LPOS+NB*(IO-1)+i),i=0,NB-1)
+          WRITE(LU,'(5ES19.12)')(CMO1(LPOS+NB*(IO-1)+i),i=0,NB-1)
         END DO
         LPOS=LPOS+NB*NO
       END DO
@@ -76,12 +71,12 @@
         NB=NBASF(ISYM)
         DO IO=1,NO
           WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-          WRITE(LU,'(5D19.12)')(CMO2(LPOS+NB*(IO-1)+i),i=0,NB-1)
+          WRITE(LU,'(5ES19.12)')(CMO2(LPOS+NB*(IO-1)+i),i=0,NB-1)
         END DO
         LPOS=LPOS+NB*NO
       END DO
       WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Overlap:'
-      WRITE(LU,'(5D19.12)') SIJ
+      WRITE(LU,'(5ES19.12)') SIJ
       WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD1:'
       LSYM12=MUL(LSYM1,LSYM2)
       LPOS=1
@@ -96,7 +91,7 @@
             NI1=NISH(ISYM1)
             NI2=NISH(ISYM2)
             WRITE(LU,*)'#  Symmetries ',ISYM1,ISYM2
-            WRITE(LU,'(5D19.12)')((TDMAB(LPOS-1+II+NO1*(JJ-1)),
+            WRITE(LU,'(5ES19.12)')((TDMAB(LPOS-1+II+NO1*(JJ-1)),
      &                                  JJ=NI2+1,NO2),II=NI1+1,NO1)
           END IF
           LPOS=LPOS+NO1*NO2
@@ -135,7 +130,7 @@
                         IWBUF=IWBUF+1
                         WBUF(IWBUF)=TDM2(ITUVX)
                         IF(IWBUF.EQ.5) THEN
-                          WRITE(LU,'(5D19.12)')(WBUF(I),I=1,IWBUF)
+                          WRITE(LU,'(5ES19.12)')(WBUF(I),I=1,IWBUF)
                           IWBUF=0
                         END IF
                       END DO
@@ -143,7 +138,7 @@
                   END DO
                 END DO
                 IF(IWBUF.GT.0) THEN
-                  WRITE(LU,'(5D19.12)')(WBUF(I),I=1,IWBUF)
+                  WRITE(LU,'(5ES19.12)')(WBUF(I),I=1,IWBUF)
                   IWBUF=0
                 END IF
 * End of writing a symmetry block.
@@ -153,4 +148,4 @@
         END DO
       END IF
       CLOSE (LU)
-      END SUBROUTINE
+      END SUBROUTINE TRD_PRINT

@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: HCl
-* Basis: ECP
+* Basis: LANL2DZ
 * Symmetry: C2v
 * Features tested: SEW,FFPT,SCF,MBPT2,RASSCF,CASPT2,SEW(prop)
 * Responsible person: P.-O. Widmark 041227
@@ -13,7 +13,7 @@ Title
 Symmetry
 X Y
 Basis set
-Cl.ECP.HW.3s3p.2s2p.7e-LANL2DZ.
+Cl.LANL2DZ_NL.Wadt.3s3p.2s2p.ECP.7el.
 Cl     0.00000   0.00000   2.40000
 End of basis
 Basis set
@@ -85,7 +85,7 @@ Title
 Symmetry
 X Y
 Basis set
-Cl.ECP.HW.3s3p.2s2p.7e-LANL2DZ.
+Cl.LANL2DZ_NL.Wadt.3s3p.2s2p.ECP.7el.
 Cl     0.00000   0.00000   2.40000
 End of basis
 Basis set
@@ -110,7 +110,7 @@ Title
 Symmetry
 X Y
 Basis set
-Cl.ECP.HW.3s3p.2s2p.7e-LANL2DZ.
+Cl.LANL2DZ_NL.Wadt.3s3p.2s2p.ECP.7el.
 Cl     0.00000   0.00000   2.40000
 End of basis
 Basis set

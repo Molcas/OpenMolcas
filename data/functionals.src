@@ -1,0 +1,265 @@
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#***********************************************************************
+
+########################################################################
+#
+# Correspondence between OpenMolcas keywords and Libxc functionals
+#
+# Each block starts with an OpenMolcas keyword and is either:
+#
+# a) A simple alias: a line containing the keyword and a Libxc functional name.
+#    e.g. B3LYP
+#
+# b) A set of components.
+#    The first line contains the keyword and the number of components (n).
+#    Then n lines follow, each containing a factor/coefficient and a Libxc functional name.
+#      (use HF_X for exact exchange, in addition to any exact exchange implicit from Libxc)
+#    e.g. TLYP
+#
+########################################################################
+
+#################
+# EXCHANGE ONLY #
+#################
+
+# Slater exchange doi:10.1017/S0305004100016108 doi:10.1007/BF01340281
+HFS LDA_X
+
+# Slater's Xalpha doi:10.1103/PhysRev.81.385
+Xalpha LDA_C_XALPHA
+
+# Becke 86 doi:10.1063/1.450025
+HFB86 GGA_X_B86
+
+# Becke 88 doi:10.1103/PhysRevA.38.3098
+HFB GGA_X_B88
+
+# Handy & Cohen OPTX 01 doi:10.1080/00268970010018431
+HFO GGA_X_OPTX
+
+# Gill 96 doi:10.1080/002689796173813
+HFG GGA_X_G96
+
+##########################
+# EXCHANGE + CORRELATION #
+##########################
+
+# Slater exchange doi:10.1017/S0305004100016108 doi:10.1007/BF01340281
+# Vosko, Wilk & Nusair (VWN5_RPA) 10.1139/p80-159
+LDA 2
+    1.0 LDA_X
+    1.0 LDA_C_VWN_RPA
+
+# same as LDA
+LSDA 2
+     1.0 LDA_X
+     1.0 LDA_C_VWN_RPA
+
+# same as LDA
+SVWN 2
+     1.0 LDA_X
+     1.0 LDA_C_VWN_RPA
+
+# Slater exchange doi:10.1017/S0305004100016108 doi:10.1007/BF01340281
+# Vosko, Wilk & Nusair (VWN5) doi:10.1139/p80-159
+LDA5 2
+     1.0 LDA_X
+     1.0 LDA_C_VWN
+
+# same as LDA5
+LSDA5 2
+      1.0 LDA_X
+      1.0 LDA_C_VWN
+
+# same as LDA5
+SVWN5 2
+      1.0 LDA_X
+      1.0 LDA_C_VWN
+
+# Becke 88 doi:10.1103/PhysRevA.38.3098
+# Wigner with corresponding LYP parameters doi:10.1039/FT9959104337
+BWIG 2
+     1.0 GGA_X_B88
+     1.0 LDA_C_OW_LYP
+
+# Becke 86 doi:10.1063/1.450025
+# Lee, Yang & Parr doi:10.1103/PhysRevB.37.785 doi:10.1016/0009-2614(89)87234-3
+B86LYP 2
+       1.0 GGA_X_B86
+       1.0 GGA_C_LYP
+
+# Becke 88 doi:10.1103/PhysRevA.38.3098
+# Lee, Yang & Parr doi:10.1103/PhysRevB.37.785 doi:10.1016/0009-2614(89)87234-3
+BLYP 2
+     1.0 GGA_X_B88
+     1.0 GGA_C_LYP
+
+# Handy & Cohen OPTX 01 doi:10.1080/00268970010018431
+# Lee, Yang & Parr doi:10.1103/PhysRevB.37.785 doi:10.1016/0009-2614(89)87234-3
+OLYP 2
+     1.0 GGA_X_OPTX
+     1.0 GGA_C_LYP
+
+# Gill 96 doi:10.1080/002689796173813
+# Lee, Yang & Parr doi:10.1103/PhysRevB.37.785 doi:10.1016/0009-2614(89)87234-3
+GLYP 2
+     1.0 GGA_X_G96
+     1.0 GGA_C_LYP
+
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+PBE 2
+    1.0 GGA_X_PBE
+    1.0 GGA_C_PBE
+
+# Becke 86 doi:10.1063/1.450025
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+B86PBE 2
+       1.0 GGA_X_B86
+       1.0 GGA_C_PBE
+
+# Becke 88 doi:10.1103/PhysRevA.38.3098
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+BPBE 2
+     1.0 GGA_X_B88
+     1.0 GGA_C_PBE
+
+# Revised PBE from Zhang & Yang doi:10.1103/PhysRevLett.80.890
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+revPBE 2
+       1.0 GGA_X_PBE_R
+       1.0 GGA_C_PBE
+
+# Handy & Cohen OPTX 01 doi:10.1080/00268970010018431
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+OPBE 2
+     1.0 GGA_X_OPTX
+     1.0 GGA_C_PBE
+
+# Gill 96 doi:10.1080/002689796173813
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+GPBE 2
+     1.0 GGA_X_G96
+     1.0 GGA_C_PBE
+
+# Swart, Sola and Bickelhaupt correction to PBE doi:10.3233/JCM-2009-0230
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+SSBSW 2
+      1.0 GGA_X_SSB_SW
+      1.0 GGA_C_PBE
+
+# Swart, Sola and Bickelhaupt dispersion doi:10.1063/1.3213193
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+SSBD 2
+     1.0 GGA_X_SSB_D
+     1.0 GGA_C_PBE
+
+# Swart 2012 GGA exchange doi:10.1016/j.cplett.2013.06.045
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+S12G 2
+     1.0 GGA_X_S12G
+     1.0 GGA_C_PBE
+
+# Handy & Cohen OPTX 01 doi:10.1080/00268970010018431
+# Takkar and McCarthy reparametrization doi:10.1063/1.3243845
+OreLYP 2
+       1.0 GGA_X_OPTX
+       1.0 GGA_C_TM_LYP
+
+# Perdew, Burke & Ernzerhof SOL doi:10.1103/PhysRevLett.100.136406
+PBEsol 2
+       1.0 GGA_X_PBE_SOL
+       1.0 GGA_C_PBE_SOL
+
+# Regularized PBE doi:10.1021/ct8005369
+# Perdew, Burke & Ernzerhof SOL doi:10.1103/PhysRevLett.100.136406
+RGE2 2
+     1.0 GGA_X_RGE2
+     1.0 GGA_C_PBE_SOL
+
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+# Tognetti, Cortona, Adamo doi:10.1063/1.2816137
+PTCA 2
+     1.0 GGA_X_PBE
+     1.0 GGA_C_TCA
+
+# Keal and Tozer, version 2 doi:10.1063/1.1590634
+KT2 GGA_XC_KT2
+
+# Keal and Tozer, version 3 doi:10.1063/1.1784777
+KT3 GGA_XC_KT3
+
+# Minnesota M06-L exchange functional doi:10.1063/1.2370993
+# Minnesota M06-L correlation functional doi:10.1063/1.2370993 doi:10.1007/s00214-007-0310-x
+M06L 2
+     1.0 MGGA_X_M06_L
+     1.0 MGGA_C_M06_L
+
+##########
+# HYBRID #
+##########
+
+# Lee, Yang & Parr doi:10.1103/PhysRevB.37.785 doi:10.1016/0009-2614(89)87234-3
+TLYP 2
+     1.0 HF_X
+     1.0 GGA_C_LYP
+
+# B3LYP doi:10.1021/j100096a001
+B3LYP HYB_GGA_XC_B3LYP
+
+# B3LYP with VWN functional 5 instead of RPA doi:10.1021/j100096a001
+B3LYP5 HYB_GGA_XC_B3LYP5
+
+# O3LYP doi:10.1080/00268970010023435
+O3LYP HYB_GGA_XC_O3LYP
+
+# Becke 1994 hybrid meta-GGA doi:10.1002/qua.560520855
+BR89B94h HYB_MGGA_XC_B94_HYB
+
+# PBEH (PBE0) doi:10.1063/1.478522 doi:10.1063/1.478401
+PBE0 HYB_GGA_XC_PBEH
+
+# Swart 2012 hybrid exchange doi:10.1016/j.cplett.2013.06.045
+# Perdew, Burke & Ernzerhof doi:10.1103/PhysRevLett.77.3865 doi:10.1103/PhysRevLett.78.1396
+S12H 2
+     1.0 HYB_GGA_X_S12H
+     1.0 GGA_C_PBE
+
+# Becke 88 doi:10.1103/PhysRevA.38.3098
+# Lee, Yang & Parr doi:10.1103/PhysRevB.37.785 doi:10.1016/0009-2614(89)87234-3
+B2PLYP_SCF 3
+           0.53 HF_X
+           0.47 GGA_X_B88
+           0.73 GGA_C_LYP
+
+# Handy & Cohen OPTX 01 doi:10.1080/00268970010018431
+# Lee, Yang & Parr doi:10.1103/PhysRevB.37.785 doi:10.1016/0009-2614(89)87234-3
+O2PLYP_SCF 3
+           0.50 HF_X
+           0.50 GGA_X_OPTX
+           0.75 GGA_C_LYP
+
+# Minnesota M06 hybrid exchange functional doi:10.1007/s00214-007-0310-x
+# Minnesota M06 correlation functional doi:10.1007/s00214-007-0310-x
+M06 2
+    1.0 HYB_MGGA_X_M06
+    1.0 MGGA_C_M06
+
+# Minnesota M06-2X hybrid exchange functional doi:10.1007/s00214-007-0310-x
+# Minnesota M06-2X correlation functional doi:10.1007/s00214-007-0310-x
+M062X 2
+      1.0 HYB_MGGA_X_M06_2X
+      1.0 MGGA_C_M06_2X
+
+# Minnesota M06-HF hybrid exchange functional doi:10.1021/jp066479k
+# Minnesota M06-HF correlation functional doi:10.1021/jp066479k
+M06HF 2
+      1.0 HYB_MGGA_X_M06_HF
+      1.0 MGGA_C_M06_HF

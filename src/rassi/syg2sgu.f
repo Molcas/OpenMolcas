@@ -10,11 +10,9 @@
 ************************************************************************
       SUBROUTINE SYG2SGU(IMODE,ISGSTRUCT,ICISTRUCT,LSYM,
      &                   ICNFTAB,ISPNTAB,CIOLD,CINEW)
+      use rassi_aux, only: ipglob
+      use Struct, only: mxlev, nSGSize, nCISize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SYG2SGU')
-#include "Struct.fh"
 #include "WrkSpc.fh"
 
       PARAMETER (NBUFFER=600,MXCPI=15)
@@ -28,10 +26,6 @@
       DIMENSION ICISTRUCT(NCISIZE)
       INTEGER ICNFTAB(*),ISPNTAB(*)
       DATA IFUP2CS / 2,1 /
-
-
-
-
 C Input:
 C ISGSTRUCT : Data that define a Split Graph
 C ICISTRUCT : Data that define a CI array structure
@@ -143,10 +137,10 @@ CTEST      write(*,*)' SYG2SGU Loop over NOPEN.'
       NCSYMG=0
       DO NOPEN=MINOP,MAXOP
         NCLSD=(NACTEL-NOPEN)/2
-        IF(NCLSD.LT.0) GOTO 100
-        IF(2*NCLSD+NOPEN.NE.NACTEL) GOTO 100
+        IF(NCLSD.LT.0) cycle
+        IF(2*NCLSD+NOPEN.NE.NACTEL) cycle
         NOCC=NCLSD+NOPEN
-        IF(NOCC.GT.NLEV) GOTO 100
+        IF(NOCC.GT.NLEV) cycle
 CTEST      write(*,'(1x,a,8I8)')'NOPEN,NCLSD,NOCC:',NOPEN,NCLSD,NOCC
         NCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP)))
         KCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+1)
@@ -523,7 +517,6 @@ C End of loop over configurations
 ************************************************************************
 
 C End of loop over NOPEN
- 100    CONTINUE
       END DO
 C
 C As above, processing what remains in the KWALK buffer.
@@ -553,7 +546,7 @@ C      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
 
       CALL GETMEM('MWS2W','FREE','INTE',LMWS2W,NWALK)
 
-      IF( IPGLOB.GE.INSANE ) THEN
+      IF( IPGLOB.GE.5 ) THEN
         WRITE(6,*)
         WRITE(6,*)' CI vector reordered in SYG2SGU'
         IF(IMODE.EQ.0) THEN
@@ -571,8 +564,8 @@ C      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
 C
       CALL GETMEM('OrbArr','Free','Inte',LORBARR,NACTEL)
 
-      RETURN
-      END
+      END SUBROUTINE SYG2SGU
+
       SUBROUTINE PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
       DIMENSION IWALK(*),ICASE(N,NWALK)
 C PURPOSE: PACK THE GUGA STEP NUMBERS INTO THE ARRAY IWALK.
@@ -596,8 +589,8 @@ C call parameter.
           IWALK(IPOS)=IWORD
         END DO
       END DO
-      RETURN
-      END
+      END SUBROUTINE PKWLK
+
       SUBROUTINE UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
       DIMENSION IWALK(*),ICASE(N,NWALK)
 * See companion subroutine PKWLK.
@@ -616,13 +609,14 @@ C call parameter.
           END DO
         END DO
       END DO
-      RETURN
-      END
+      END SUBROUTINE UPKWLK
+
+
       SUBROUTINE W2SGORD(ISGSTRUCT,ICISTRUCT,MWS2W,
      &                 NLIST,KWALK,ICNUM)
+      use Struct, only: nSGSize, nCISize
       PARAMETER (MXCPI=15)
       DIMENSION MWS2W(*),KWALK(*),ICNUM(NLIST)
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
@@ -652,8 +646,8 @@ C Allocate scratch space for case numbers:
      &            IWORK(LDOWN),IWORK(LMAW),IWORK(LICS),
      &            MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
-      RETURN
-      END
+      END SUBROUTINE W2SGORD
+
       SUBROUTINE W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,ISM,MIDLEV,
      &                  MVSTA,IOCSF,NOW,IOW,IDOWN,MAW,ICS,
      &                  MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
@@ -735,12 +729,12 @@ C Leading dimension=nr of upwalks in this block.
         LDIM=NOW(1,ISYUP,MV)
         ICNUM(ICONF)=IOFF+IUW+LDIM*(IDW-1)
       END DO
-      RETURN
-      END
+      END SUBROUTINE W2SGORD1
+
       SUBROUTINE MSTOW(ISGSTRUCT,ICISTRUCT,MWS2W)
+      use Struct, only: nSGSize, nCISize
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION MWS2W(*)
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
@@ -764,8 +758,8 @@ C Leading dimension=nr of upwalks in this block.
      &            IWORK(LICASE),IWORK(LUP),IWORK(LDOWN),
      &            IWORK(LMAW),MWS2W)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
-      RETURN
-      END
+      END SUBROUTINE MSTOW
+
       SUBROUTINE MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,
      &                  MIDLEV,ICS,NOW,IOW,IWALK,
      &                  IUP,IDOWN,MAW,MWS2W)
@@ -784,7 +778,7 @@ C corresponding walks of the Split-GUGA.
       DO MV=1,NMIDV
         DO ISYUP=1,NSYM
           NUP=NOW(1,ISYUP,MV)
-          IF(NUP.EQ.0) GOTO 10
+          IF(NUP.EQ.0) cycle
           IUOFF=IOW(1,ISYUP,MV)/NIPWLK
           DO IUW=1,NUP
             IUWTOT=IUOFF+IUW
@@ -800,14 +794,13 @@ C Unpack upper walk to ICS()
             END DO
             MWS2W(MS)=IUWTOT
           END DO
-  10      CONTINUE
         END DO
       END DO
 
       DO MV=1,NMIDV
         DO ISYDWN=1,NSYM
           NDWN=NOW(2,ISYDWN,MV)
-          IF(NDWN.EQ.0) GOTO 20
+          IF(NDWN.EQ.0) cycle
           IDOFF=IOW(2,ISYDWN,MV)/NIPWLK
           DO IDW=1,NDWN
             IDWTOT=IDOFF+IDW
@@ -823,9 +816,7 @@ C Unpack lower walk to ICS()
             END DO
             MWS2W(MS)=IDWTOT
           END DO
-  20      CONTINUE
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MSTOW1

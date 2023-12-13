@@ -22,8 +22,8 @@
 *                                                                      *
 ************************************************************************
       Program RF2Asc
-#include "runinfo.fh"
-#include "runtypes.fh"
+      Use RunFile_data, Only: lw, nToc, NulPtr, RunHdr, Toc, TypDbl,    &
+     &                        TypInt, TypStr
 *----------------------------------------------------------------------*
 * Declare local variables.                                             *
 *----------------------------------------------------------------------*
@@ -48,14 +48,14 @@
 *----------------------------------------------------------------------*
 * Read the ToC                                                         *
 *----------------------------------------------------------------------*
-      iDisk=RunHdr(ipDaLab)
-      Call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
-      iDisk=RunHdr(ipDaPtr)
-      Call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
-      iDisk=RunHdr(ipDaLen)
-      Call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
-      iDisk=RunHdr(ipDaTyp)
-      Call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
+      iDisk=RunHdr%DaLab
+      Call cDaFile(Lu,icRd,Toc(:)%Lab,lw*nToc,iDisk)
+      iDisk=RunHdr%DaPtr
+      Call iDaFile(Lu,icRd,Toc(:)%Ptr,nToc,iDisk)
+      iDisk=RunHdr%DaLen
+      Call iDaFile(Lu,icRd,Toc(:)%Len,nToc,iDisk)
+      iDisk=RunHdr%DaTyp
+      Call iDaFile(Lu,icRd,Toc(:)%Typ,nToc,iDisk)
 *----------------------------------------------------------------------*
 * Open output file.                                                    *
 *----------------------------------------------------------------------*
@@ -64,34 +64,34 @@
 * Print header information.                                            *
 *----------------------------------------------------------------------*
       Write(9,'(a)')     '# Header information'
-      Write(9,'(a,i15)') '# ID                      ',RunHdr(ipID)
-      Write(9,'(a,i15)') '# Version                 ',RunHdr(ipVer)
-      Write(9,'(a,i15)') '# Next free address       ',RunHdr(ipNext)
-      Write(9,'(a,i15)') '# Number of items         ',RunHdr(ipItems)
-      Write(9,'(a,i15)') '# Address to ToC labels   ',RunHdr(ipDaLab)
-      Write(9,'(a,i15)') '# Address to ToC pointers ',RunHdr(ipDaPtr)
-      Write(9,'(a,i15)') '# Address to ToC lengths  ',RunHdr(ipDaLen)
-      Write(9,'(a,i15)') '# Address to ToC types    ',RunHdr(ipDaTyp)
+      Write(9,'(a,i15)') '# ID                      ',RunHdr%ID
+      Write(9,'(a,i15)') '# Version                 ',RunHdr%Ver
+      Write(9,'(a,i15)') '# Next free address       ',RunHdr%Next
+      Write(9,'(a,i15)') '# Number of items         ',RunHdr%Items
+      Write(9,'(a,i15)') '# Address to ToC labels   ',RunHdr%DaLab
+      Write(9,'(a,i15)') '# Address to ToC pointers ',RunHdr%DaPtr
+      Write(9,'(a,i15)') '# Address to ToC lengths  ',RunHdr%DaLen
+      Write(9,'(a,i15)') '# Address to ToC types    ',RunHdr%DaTyp
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
       Allocate(dBuf(MxBuf),iBuf(MxBuf),cBuf(MxBuf))
       Do i=1,nToc
-         If(TocPtr(i).ne.NulPtr) Then
-            Write(9,'(3a)') '<',TocLab(i),'>'
-            Write(9,*) TocLen(i),TocTyp(i)
-            If(TocTyp(i).eq.TypDbl) Then
-               iDisk=TocPtr(i)
-               Call dDaFile(Lu,icRd,dBuf,TocLen(i),iDisk)
-               Write(9,'(4d26.18)') (dBuf(j),j=1,TocLen(i))
-            Else If(TocTyp(i).eq.TypInt) Then
-               iDisk=TocPtr(i)
-               Call iDaFile(Lu,icRd,iBuf,TocLen(i),iDisk)
-               Write(9,*) (iBuf(j),j=1,TocLen(i))
-            Else If(TocTyp(i).eq.TypStr) Then
-               iDisk=TocPtr(i)
-               Call cDaFile(Lu,icRd,cBuf,TocLen(i),iDisk)
-               Write(9,'(64a1)') (cBuf(j),j=1,TocLen(i))
+         If(Toc(i)%Ptr.ne.NulPtr) Then
+            Write(9,'(3a)') '<',Toc(i)%Lab,'>'
+            Write(9,*) Toc(i)%Len,Toc(i)%Typ
+            If(Toc(i)%Typ.eq.TypDbl) Then
+               iDisk=Toc(i)%Ptr
+               Call dDaFile(Lu,icRd,dBuf,Toc(i)%Len,iDisk)
+               Write(9,'(4d26.18)') (dBuf(j),j=1,Toc(i)%Len)
+            Else If(Toc(i)%Typ.eq.TypInt) Then
+               iDisk=Toc(i)%Ptr
+               Call iDaFile(Lu,icRd,iBuf,Toc(i)%Len,iDisk)
+               Write(9,*) (iBuf(j),j=1,Toc(i)%Len)
+            Else If(Toc(i)%Typ.eq.TypStr) Then
+               iDisk=Toc(i)%Ptr
+               Call cDaFile(Lu,icRd,cBuf,Toc(i)%Len,iDisk)
+               Write(9,'(64a1)') (cBuf(j),j=1,Toc(i)%Len)
             Else
             End If
          End If

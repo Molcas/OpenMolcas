@@ -8,17 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-#include "compiler_features.h"
 
+#include "compiler_features.h"
 #ifdef _EFP_
 
 ! File from the EFP submodule
 #include "efp.f90"
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"
+
 module EFP
 contains
 dummy_empty_procedure(efp_mod)

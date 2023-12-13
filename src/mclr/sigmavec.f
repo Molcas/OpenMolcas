@@ -127,7 +127,7 @@
         Call mma_allocate(SB,LSCR1,Label='SB')
       END IF
 *.SCRATCH space for integrals
-* A 4 index integral block with four indeces belonging OS class
+* A 4 index integral block with four indices belonging OS class
       INTSCR = MXTSOB ** 4
 
       Call mma_allocate(INSCR,INTSCR,Label='INSCR')

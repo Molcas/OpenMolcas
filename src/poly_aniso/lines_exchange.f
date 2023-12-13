@@ -35,7 +35,7 @@
 
               Do l=1,3
                 HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)
-     &                         + cmplx(-Jex,0_wp,wp)
+     &                         + cmplx(-Jex,0.0_wp,wp)
      &                         * S1(l,i1,j1)
      &                         * S2(l,i2,j2)
               End Do

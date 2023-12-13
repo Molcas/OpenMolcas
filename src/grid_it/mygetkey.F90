@@ -42,15 +42,19 @@ function MyGetKey(InUnit,What,IValue,RValue,SValue,N,IArr,RArr)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+#include "intent.fh"
+
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: MyGetKey
 integer(kind=iwp), intent(in) :: InUnit, N
 character, intent(inout) :: What
-integer(kind=iwp), intent(out) :: IValue, IArr(*)
-real(kind=wp), intent(out) :: RValue, RArr(*)
+integer(kind=iwp), intent(out) :: IValue
+real(kind=wp), intent(out) :: RValue
 character(len=*), intent(out) :: SValue
+integer(kind=iwp), intent(_OUT_) :: IArr(*)
+real(kind=wp), intent(_OUT_) :: RArr(*)
 integer(kind=iwp) :: i, iptr, istatus
 logical(kind=iwp) :: retry
 character(len=120) :: KWord

@@ -2,7 +2,7 @@
 # doc-build: rules for when to build documentation
 # doc-publish: rules for when to publish documentation
 
-.template: &doc-build
+.doc-build:
   rules:
     # not on tags
     - if: '$CI_COMMIT_TAG'
@@ -17,13 +17,16 @@
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
       when: on_success
 
-.template: &doc-publish
+.doc-publish:
   rules:
+    # only in the main project
+    - if: '$CI_PROJECT_PATH != "Molcas/OpenMolcas"'
+      when: never
     # only on master
-    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "master"'
       when: on_success
     # scheduled release creation
-    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
       when: on_success
 
 # A special job for building the documentation,
@@ -59,11 +62,23 @@ doc:
     #- echo 'CALL_GRAPH = YES' >> Doxyfile
     #- echo 'CALLER_GRAPH = YES' >> Doxyfile
     - doxygen
+    - >
+      if [ "$(wc -l < doxygen.log)" == "0" ] ; then
+        true
+      else
+        echo "***********************************"
+        echo "* Doxygen finished with warnings! *"
+        echo "***********************************"
+        cat doxygen.log
+        echo "***********************************"
+        # Unfortunately, doxygen warnings are not quite reliable
+        #false
+        true
+      fi
   after_script:
     - |
       if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
     - mv ${install_path} install_dir
-    - cat doc/doxygen/doxygen.log
   artifacts:
     reports:
       dotenv: variables.env
@@ -71,7 +86,7 @@ doc:
       - install_dir
       - doc/doxygen/html
     expire_in: 1 day
-  <<: *doc-build
+  rules: !reference [.doc-build, rules]
   tags:
     - docker
 
@@ -92,4 +107,4 @@ pages:
     paths:
       - public
     expire_in: 1 day
-  <<: *doc-publish
+  rules: !reference [.doc-publish, rules]

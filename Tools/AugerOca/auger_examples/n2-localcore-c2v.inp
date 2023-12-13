@@ -1,0 +1,323 @@
+
+*----------------------------------------------------------------------------------
+* Molecule: N2
+* Basis: AUG-CC-PVQZ
+* Symmetry: C2v with localized core
+* Features tested: N2 resonant Auger spectrum using auger_oca package
+* Comments: auger_oca package, if not available, can be installed with your prompt:
+* pip install auger_oca
+* N 1s orbitals are localized with the Cholesky method
+*----------------------------------------------------------------------------------
+>> IF ( -FILE $MOLCAS/Tools/AugerOca/auger_main.py )
+>>   GOTO HAVE_OCA
+>> ENDIF
+>> EXIT 36
+>> LABEL HAVE_OCA
+>> SHELL sh create_test_numpy $MOLCAS/Tools/AugerOca/auger_main.py
+>> SHELL ./test_numpy.py || touch TEST_NUMPY
+>> IF ( -FILE TEST_NUMPY )
+>>   echo "install required python3 packages h5py and auger-oca using: pip install"
+>>   EXIT 36
+>> ENDIF
+
+>>FILE create_test_numpy
+head -n 1 $1 > test_numpy.py
+echo "import numpy,h5py" >> test_numpy.py
+chmod +x test_numpy.py
+>>EOF
+
+ &GATEWAY
+ expert
+ SYMMetry
+ xy y
+ Basis set
+ N.aug-cc-pvqz..
+ Spherical all
+ n1                0.0000000000     0.0000000000    0.548800 / Angstrom
+ End of basis
+ 
+ Basis set
+ N.aug-cc-pvqz..
+ Spherical all
+ n2                0.0000000000     0.0000000000   -0.548800 / Angstrom
+ End of basis
+ Verbose
+ BSShow
+
+ &SEWARD &END
+ Cholesky
+ End of input
+
+ &SCF &END
+ End of input
+
+ &LOCALISATION
+ NORBitals
+ 2 0 0 0
+ Cholesky
+
+&RASSCF
+ EXPERT
+ LUMORB
+ Symmetry
+ 1
+ Spin
+ 1
+ nActEl
+ 14 1 0
+ SUPSym
+ 2
+ 1 2
+ 1 1
+ 0
+ 0
+ 0
+ Inactive
+ 0 0 0 0
+ Ras1
+ 2 0 0 0
+ Ras2
+ 4 2 0 2
+ Ras3
+ 0 0 0 0 
+ CIRO
+ 1 1 1
+ Iter=200 100
+ End of input
+>>> COPY $Project.JobIph $Project.JobIph_gs
+>>> COPY $Project.RasOrb $Project.RasOrb_gs
+
+>> COPY $Project.RasOrb_gs INPORB
+ &RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 4
+ Spin
+ 1
+ nActEl
+ 14 1 0
+ SUPSym
+ 2
+  1 1
+  1 2
+ 0
+ 0
+ 0
+ HEXS
+ 1
+ 1
+ Inactive
+ 0 0 0 0 
+ Ras1
+ 2 0 0 0
+ Ras2
+ 4 2 0 2
+ Ras3
+ 0 0 0 0
+ CIRO
+ 6 6 1
+ LEVShft
+ 0.8
+ Iter=200 100
+ End of input
+>> COPY $Project.JobIph $Project.JobIph_CORE
+
+>> COPY $Project.RasOrb_gs INPORB
+ &RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 1
+ Spin
+ 2
+ nActEl
+ 13 1 0
+ SUPSym
+ 2
+  1 1
+  1 2
+ 0
+ 0
+ 0
+ Inactive
+ 0 0 0 0
+ Ras1
+ 2 0 0 0
+ Ras2
+ 4 2 0 2
+ Ras3
+ 0 0 0 0
+ CIRO
+ 30 30 1
+ Iter=200 100
+ End of input
+>> COPY $Project.JobIph $Project.JobIph_A1
+
+>> COPY $Project.RasOrb_gs INPORB
+ &RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 2
+ Spin
+ 2
+ nActEl
+ 13 1 0
+ SUPSym
+ 2
+  1 1
+  1 2
+ 0
+ 0
+ 0
+ Inactive
+ 0 0 0 0
+ Ras1
+ 2 0 0 0
+ Ras2
+ 4 2 0 2
+ Ras3
+ 0 0 0 0
+ CIRO
+ 30 30 1
+ Iter=200 100
+ End of input
+>> COPY $Project.JobIph $Project.JobIph_B1
+
+>> COPY $Project.RasOrb_gs INPORB
+ &RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 4
+ Spin
+ 2
+ nActEl
+ 13 1 0
+ SUPSym
+ 2
+  1 1
+  1 2
+ 0
+ 0
+ 0
+ Inactive
+ 0 0 0 0
+ Ras1
+ 2 0 0 0
+ Ras2
+ 4 2 0 2
+ Ras3
+ 0 0 0 0
+ CIRO
+ 30 30 1
+ Iter=200 100
+ End of input
+>> COPY $Project.JobIph $Project.JobIph_B2
+
+>> COPY $Project.RasOrb_gs INPORB
+ &RASSCF &END
+ EXPERT
+ LUMORB
+ Symmetry
+ 3
+ Spin
+ 2
+ nActEl
+ 13 1 0
+ SUPSym
+ 2
+  1 1
+  1 2
+ 0
+ 0
+ 0
+ Inactive
+ 0 0 0 0
+ Ras1
+ 2 0 0 0
+ Ras2
+ 4 2 0 2
+ Ras3
+ 0 0 0 0
+ CIRO
+ 30 30 1
+ Iter=200 100
+ End of input
+>> COPY $Project.JobIph $Project.JobIph_A2
+
+
+>> COPY $Project.JobIph_CORE JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = 1 1
+IMAG
+0.25
+End of input
+>> COPY $Project.JobMix $Project.JobMix_CORE
+>> COPY $Project.JobMix_CORE JOB001
+
+>> COPY $Project.JobIph_A1 JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = all
+IMAG
+0.25
+End of input
+>> COPY $Project.JobMix $Project.JobMix_A1x
+>> COPY $Project.JobMix_A1x JOB002
+
+>> COPY $Project.JobIph_B1 JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = all
+IMAG
+0.25
+End of input
+>> COPY $Project.JobMix $Project.JobMix_B1x
+>> COPY $Project.JobMix_B1x JOB003
+
+>> COPY $Project.JobIph_B2 JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = all
+IMAG
+0.25
+End of input
+>> COPY $Project.JobMix $Project.JobMix_B2x
+>> COPY $Project.JobMix_B2x JOB004
+
+>> COPY $Project.JobIph_A2 JOBIPH
+&CASPT2 &END
+MAXITER
+160
+MULTistate = all
+IMAG
+0.25
+End of input
+>> COPY $Project.JobMix $Project.JobMix_A2x
+>> COPY $Project.JobMix_A2x JOB005
+
+&RASSI
+ Nrof JobIphs 
+ 5 1 30 30 30 30
+ 1
+ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+ Ejob
+ TDYS
+ 2 
+ n1 1s
+ n2 1s
+ DYSON
+ End of input
+
+>> SHELL $MOLCAS/Tools/AugerOca/auger_main.py -d $WorkDir --raes --spec
+>> COPY auger.spectrum.out $CurrDir/$Project.auger.spectrum.out

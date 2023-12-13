@@ -1,57 +1,66 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Roland Lindh                                     *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine TraPAB(nZeta,la,lb,AB,GInt,jSum,rKappa,Fac1,Fac2,
      &                  Fac3,Fac4,Fac5,A,B,P)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!***********************************************************************
+      use Constants, only: Zero
+      Implicit None
+      Integer nZeta,la,lb,jSum
       Real*8 AB(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2),GInt(nZeta,jSum),
      &       rKappa(nZeta), Fac1(nZeta), Fac2(nZeta), Fac3(nZeta),
      &       Fac4(nZeta), Fac5(nZeta), A(3), B(3), P(nZeta,3)
-*
-*-----Statement function
-*
+
+      Integer ix, iy, iz, iad, iOff
+      Integer kOff, i, jx, jy, jz, lOff, ia, iTrgt, ixa, iya, iza, ipa,
+     &        ixb, iyb, izb, ipb, iyaMax, iybMax, ixas, iyas, izas,
+     &        igx, igy, igz, ipg, iax, iay, iaz, ibx, iby, ibz, iZeta,
+     &        ixbs, iybs, izbs
+      Real*8 Ax, Ay, Az, Bx, By, Bz
+#ifdef _DEBUGPRINT_
+      Integer nElem
+#endif
+!
+!-----Statement function
+!
       iad(ix,iy,iz) = (iy+iz) * (iy+iz+1) / 2 + iz + 1
       iOff(ix,iy,iz) = (ix+iy+iz)*(ix+iy+iz+1)*(ix+iy+iz+2)/6
+#ifdef _DEBUGPRINT_
       nElem(i) = (i+1)*(i+2)/2
-*
-      iRout = 239
-      iPrint = nPrint(iRout)
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In TraPAB: GInt',' ',GInt,nZeta,jSum)
-         Call RecPrt(' In TraPAB: P   ',' ',P   ,nZeta,3)
-      End If
-*
-*-----Initilize
-*
-      call dcopy_(nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2,[Zero],0,AB,1)
-*
-*-----Remove redundant elements in GInt. This is done in place.
-*
+!
+      Call RecPrt(' In TraPAB: GInt',' ',GInt,nZeta,jSum)
+      Call RecPrt(' In TraPAB: P   ',' ',P   ,nZeta,3)
+#endif
+!
+!-----Initilize
+!
+      AB(:,:,:)=Zero
+!
+!-----Remove redundant elements in GInt. This is done in place.
+!
       kOff = 4
       Do 101 i = 2, la+lb
-*
+!
          Do 110 ix = i, 0, -1
             Do 120 iy = i-ix, 0, -1
                iz = i-ix-iy
                jx = ix
                jy = iy
                jz = iz
-*
+!
                lOff = 0
                Do 121 ia = 1, i-1
                   If (jz.ne.0) Then
@@ -68,40 +77,40 @@
                If (jz.eq.1) lOff = lOff + 3
                If (jy.eq.1) lOff = lOff + 2
                If (jx.eq.1) lOff = lOff + 1
-*
+!
                iTrgt = iOff(ix,iy,iz) + iAd(ix,iy,iz)
-*              Write(*,*) ' ix,iy,iz,kOff,lOff,iTrgt=',
-*    &                      ix,iy,iz,kOff,lOff,iTrgt
+!              Write(*,*) ' ix,iy,iz,kOff,lOff,iTrgt=',
+!    &                      ix,iy,iz,kOff,lOff,iTrgt
                call dcopy_(nZeta,GInt(1,kOff+lOff),1,GInt(1,iTrgt),1)
-*
+!
  120        Continue
  110     Continue
-*
+!
          kOff = kOff + 3**i
  101  Continue
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In TraPAB: GInt(unique)',' ',GInt,nZeta,
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In TraPAB: GInt(unique)',' ',GInt,nZeta,
      &      (la+lb+1)*(la+lb+2)*(la+lb+3)/6)
-      End If
-*
-*-----Loop over the elements of the basis functions on A and B
-*
+#endif
+!
+!-----Loop over the elements of the basis functions on A and B
+!
       Do 10 ixa = la, 0, -1
          iyaMax = la - ixa
          Do 20 iya = iyaMax, 0, -1
             iza = la - ixa - iya
             ipa = iad(ixa,iya,iza)
-*           Write (*,*) ' ipa,ixa,iya,iza=',ipa,ixa,iya,iza
-*
+!           Write (*,*) ' ipa,ixa,iya,iza=',ipa,ixa,iya,iza
+!
             Do 40 ixb = lb, 0, -1
                iybMax = lb - ixb
                Do 50 iyb = iybMax, 0, -1
                   izb = lb - ixb - iyb
                   ipb = iad(ixb,iyb,izb)
-*                 Write (*,*) ' ipb,ixb,iyb,izb=',ipb,ixb,iyb,izb
-*
-*-----------------Loop over the elements of functions at P
-*
+!                 Write (*,*) ' ipb,ixb,iyb,izb=',ipb,ixb,iyb,izb
+!
+!-----------------Loop over the elements of functions at P
+!
                   Do 11 ixas = 0, ixa
                      Call Binom(ixa,ixas,iAx)
                      Ax = DBLE(iAx)
@@ -135,7 +144,7 @@
      &                            (P(iZeta,3)-A(3))**(iza-izas)
                              End If
  32                        Continue
-*
+!
                            Do 41 ixbs = 0, ixb
                               Call Binom(ixb,ixbs,iBx)
                               Bx = DBLE(iBx)
@@ -166,8 +175,8 @@
                                     igz = izas + izbs
                                     ipg = iOff(igx,igy,igz) +
      &                                    iAd(igx,igy,igz)
-*                 Write (*,*) ' ipg,igx,igy,igz=', ipg,igx,igy,igz
-*
+!                 Write (*,*) ' ipg,igx,igy,igz=', ipg,igx,igy,igz
+!
                                     Do 100 iZeta = 1, nZeta
                                       If ( (izb-izbs).eq.0 ) then
                                        AB(iZeta,ipa,ipb) =
@@ -182,25 +191,23 @@
      &                                     * GInt(iZeta,ipg) * Bz
                                       End If
  100                                Continue
-*
+!
  61                              Continue
  51                           Continue
  41                        Continue
-*
+!
  31                     Continue
  21                  Continue
  11               Continue
-*
+!
  50            Continue
  40         Continue
-*
+!
  20      Continue
  10   Continue
-*
-      If (iPrint.ge.89) Then
-         nab = nElem(la) * nElem(lb)
-         Call RecPrt(' In TraPAB: AB',' ', AB, nZeta,nab)
-      End If
-*
-      Return
-      End
+!
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In TraPAB: AB',' ', AB, nZeta,nElem(la)*nElem(lb))
+#endif
+!
+      End SubRoutine TraPAB

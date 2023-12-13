@@ -62,10 +62,10 @@ if (.not. LAllCenters) then
     write(Lu,3) iAtomType(i),iAtomPar(i),Cen_Lab(i*(i+1)/2)
     write(Lu,1) cor(1,i,i),cor(2,i,i),cor(3,i,i)
     do iMltPl=0,nMltPl
-      write(Lu,1) AtMltPl(iMltPl)%M(:,i)
+      write(Lu,1) AtMltPl(iMltPl)%A(:,i)
     end do
     do iMltPl=0,2
-      write(Lu,1) AtBoMltPlCopy(iMltPl)%M(:,i*(i+1)/2)
+      write(Lu,1) AtBoMltPlCopy(iMltPl)%A(:,i*(i+1)/2)
     end do
     write(Lu,1) AtPol(:,i)
     MolPol(:) = MolPol(:)+AtPol(:,i)
@@ -79,10 +79,10 @@ else
     write(Lu,3) iAtomType(i),iAtomPar(i),Cen_Lab(i*(i+1)/2)
     write(Lu,1) Cor(1,i,i),Cor(2,i,i),Cor(3,i,i)
     do iMltPl=0,nMltPl
-      write(Lu,1) AtBoMltPl(iMltPl)%M(:,i*(i+1)/2)
+      write(Lu,1) AtBoMltPl(iMltPl)%A(:,i*(i+1)/2)
     end do
     do iMltPl=0,2
-      write(Lu,1) AtBoMltPlCopy(iMltPl)%M(:,i*(i+1)/2+i-1)
+      write(Lu,1) AtBoMltPlCopy(iMltPl)%A(:,i*(i+1)/2+i-1)
     end do
     ! Begin EB
     ! if AtBoPol is not allocated, print zero
@@ -101,10 +101,10 @@ else
         write(Lu,5) 0,1,iAtomType(i),iAtomPar(i),iAtomType(j),iAtomPar(j),Cen_Lab(i*(i-1)/2+j)
         write(Lu,1) Cor(1,i,j),Cor(2,i,j),Cor(3,i,j)
         do iMltPl=0,nMltPl
-          write(Lu,1) AtBoMltPl(iMltPl)%M(:,i*(i-1)/2+j)
+          write(Lu,1) AtBoMltPl(iMltPl)%A(:,i*(i-1)/2+j)
         end do
         do iMltPl=0,2
-          write(Lu,1) AtBoMltPlCopy(iMltPl)%M(:,i*(i-1)/2+j)
+          write(Lu,1) AtBoMltPlCopy(iMltPl)%A(:,i*(i-1)/2+j)
         end do
         ! Begin EB
         ! if AtBoPol is not allocated, print zero
@@ -124,7 +124,7 @@ end if
 
 write(Lu,6) '* Molecule properties '
 do iMltPl=0,nMltPl
-  write(Lu,1) AtMltPlTot(iMltPl)%M(:,1)
+  write(Lu,1) AtMltPlTot(iMltPl)%A(:)
 end do
 write(Lu,1) MolPol(:)
 write(Lu,'(A)') '* Orbital information'

@@ -12,7 +12,7 @@
       implicit integer (a-z)
       character*180 line
       character*1 ch
-#include "warnings.fh"
+#include "warnings.h"
       iRc=_RC_ALL_IS_WELL_
 * The following code will open, and return the unit number LUSpool,
 * of an ASCII file with a copy of the presently used input.
@@ -39,7 +39,7 @@
       write(LUnit,'(A180)') line
   10  continue
       read(luspool,'(A180)',err=9910,end=9910) line
-      call leftad(line)
+      line = adjustl(line)
       ch=line(1:1)
       if(ch.ne.' ' .and. ch.ne.'*' .and. ch.ne.'!') then
        write(LUnit,'(A180)') line

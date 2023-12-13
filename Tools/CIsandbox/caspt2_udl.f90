@@ -39,6 +39,7 @@ SUBROUTINE CASPT2_UDL(PSI,F,NAO,NMO,CMO,ONEINT,TWOINT)
 
   REAL(REAL64), ALLOCATABLE :: VPQRS(:,:,:,:), V0(:), X(:)
   REAL(REAL64), ALLOCATABLE :: H0(:,:), S0(:,:), U0(:,:), T0(:,:)
+  REAL(REAL64), ALLOCATABLE :: TMP(:,:), TMPV(:)
   REAL(REAL64) :: E0, E2
   INTEGER :: ISD, JSD, NSD, MSD
 
@@ -432,16 +433,23 @@ SUBROUTINE CASPT2_UDL(PSI,F,NAO,NMO,CMO,ONEINT,TWOINT)
   ! transform to adapt for the overcomplete basis
   CALL DGEMV_('N',NSD,PSI1%NDET,1.0D0, &
        & PSI1BRA,NSD,RHS%COEF,1,0.0D0,X,1)
-  X(:) = MATMUL(MATMUL(T0,TRANSPOSE(T0)),X)
+  ALLOCATE(TMPV(MSD))
+  TMPV(:) = MATMUL(TRANSPOSE(T0),X)
+  X(:) = MATMUL(T0,TMPV)
 
 
   ! apply diagonal inverse, e.g. solve H0' XNEW = XOLD
 
   ! transform equation system
-  H0(1:MSD,1:MSD) = MATMUL(TRANSPOSE(T0),MATMUL(H0,T0))
+  ALLOCATE(TMP(NSD,MSD))
+  TMP(:,:) = MATMUL(H0,T0)
+  H0(1:MSD,1:MSD) = MATMUL(TRANSPOSE(T0),TMP)
+  DEALLOCATE(TMP)
 
   ! solution vector is already filled with RHS, just transform it
-  X(1:MSD) = MATMUL(TRANSPOSE(T0),X)
+  TMPV(:) = MATMUL(TRANSPOSE(T0),X)
+  X(1:MSD) = TMPV
+  DEALLOCATE(TMPV)
 
   ALLOCATE(IPIV(NSD))
 
@@ -453,7 +461,10 @@ SUBROUTINE CASPT2_UDL(PSI,F,NAO,NMO,CMO,ONEINT,TWOINT)
 
   DEALLOCATE(IPIV)
 
-  X(:)=MATMUL(T0,X(1:MSD))
+  ALLOCATE(TMPV(NSD))
+  TMPV(:) = MATMUL(T0,X(1:MSD))
+  X(:) = TMPV
+  DEALLOCATE(TMPV)
 
   ! Now, continue with the transformation steps for L
 
@@ -514,7 +525,10 @@ SUBROUTINE CASPT2_UDL(PSI,F,NAO,NMO,CMO,ONEINT,TWOINT)
   ! transform to adapt for the overcomplete basis
   CALL DGEMV_('N',NSD,PSI1%NDET,1.0D0, &
        & PSI1BRA,NSD,RHS%COEF,1,0.0D0,X,1)
-  X(:) = MATMUL(MATMUL(T0,TRANSPOSE(T0)),X)
+  ALLOCATE(TMPV(MSD))
+  TMPV(:) = MATMUL(TRANSPOSE(T0),X)
+  X(:) = MATMUL(T0,TMPV)
+  DEALLOCATE(TMPV)
 
 
 

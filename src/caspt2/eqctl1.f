@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL1
+      use caspt2_gradient, only: do_grad
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -31,6 +32,7 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
+#include "pt2_guga.fh"
       DIMENSION DUMMY(1),IDUM(1)
 
       IRHS  =1
@@ -106,6 +108,13 @@ C sigma routines now use the full RHS size.
 #endif
 
       IDV=0
+      If (do_grad) Then
+        !! idxG3 matrix is needed for computing Lagrangian. Here, the
+        !! shift avoids the matrix overwritten in PCOLLVEC -> SOLV2DRA
+        NG3MAX=iPARDIV(NG3TOT,NG2)
+        iPad=ItoB-MOD(6*NG3MAX,ItoB)
+        IDV = 6*NG3MAX+iPad
+      End If
       DO IVEC=1,MXVEC
         DO ICASE=1,NCASES
           DO ISYM=1,NSYM

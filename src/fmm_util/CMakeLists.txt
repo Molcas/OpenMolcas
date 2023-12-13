@@ -21,35 +21,36 @@ set (sources
      fmm_global_paras.F90
      fmm_integral_utils.F90
      fmm_interface.F90
-     fmm_J_builder.F90
+     fmm_j_builder.F90
      fmm_local_search.F90
-     fmm_multiple_T_worker.F90
+     fmm_multiple_t_worker.F90
      fmm_multipole_ints.F90
-     fmm_multi_T_buffer.F90
+     fmm_multi_t_buffer.F90
      fmm_proc_selector.c
      fmm_qlm_builder.F90
      fmm_qlm_utils.F90
-     fmm_scale_T_buffer.F90
+     fmm_scale_t_buffer.F90
      fmm_scheme_builder.F90
      fmm_shell_pairs.F90
      fmm_sort_paras.F90
-     fmm_sort_T_pairs.F90
+     fmm_sort_t_pairs.F90
      fmm_stats.F90
-     fmm_T_buffer.F90
-     fmm_T_contractors.F90
-     fmm_T_pair_builder.F90
-     fmm_T_pair_mould.F90
-     fmm_T_pair_tests.F90
+     fmm_t_buffer.F90
+     fmm_t_contractors.F90
+     fmm_t_pair_builder.F90
+     fmm_t_pair_mould.F90
+     fmm_t_pair_tests.F90
      fmm_tree_buffer.F90
-     fmm_T_worker.F90
+     fmm_t_worker.F90
      fmm_utils.F90
-     fmm_Vff_driver.F90
-     fmm_W_buffer.F90
-     fmm_W_contractors.F90
-     fmm_W_pair_builder.F90
-     fmm_W_worker.F90
+     fmm_vff_driver.F90
+     fmm_w_buffer.F90
+     fmm_w_contractors.F90
+     fmm_w_pair_builder.F90
+     fmm_w_worker.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

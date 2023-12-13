@@ -27,7 +27,7 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: Level
 character(len=*), intent(in) :: Message
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: iLevel, rc
 
 if (Level <= 1) then

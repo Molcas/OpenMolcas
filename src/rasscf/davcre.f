@@ -42,7 +42,7 @@ C
       use fciqmc, only : DoNECI
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasrc.fh"
 #include "WrkSpc.fh"
 #include "wadr.fh"
@@ -291,7 +291,7 @@ C
         SC(K)=EI-HD(K)
         IF(ABS(SC(K)).LT.THRZ) SC(K)=1.0d0
        END DO
-       CALL VDIV(SC,1,Q(IST+NDIM),1,Q(IST),1,NDIM)
+       Q(IST:IST+NDIM-1) = Q(IST+NDIM:IST+2*NDIM-1)/SC(1:NDIM)
        IST=IST+NDIM
       END DO
 C Remove any unwanted components. These are signalled by
@@ -402,7 +402,7 @@ C Acceptable, only if it is very close to zero. Else, quit.
        End iF
        XNORM=sqrt(MAX(0.0D0,XNORM))
        IF(IPRLEV.GE.INSANE) THEN
-         Write(LF,'(1X,A,I3,A,I3,A,E16.8)') 'Pass ',IPASS,
+         Write(LF,'(1X,A,I3,A,I3,A,ES16.8)') 'Pass ',IPASS,
      &                 ' New orthogonal vector ',I,' has norm ',XNORM
        END IF
 

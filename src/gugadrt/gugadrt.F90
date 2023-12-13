@@ -13,12 +13,12 @@ subroutine gugadrt(ireturn)
 
 use gugadrt_global, only: ja, jb, jj, jm, kk, max_node, nci_dim
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 real(kind=wp) :: sc, sc0, sc1
-real(kind=r8), external :: seconds
+real(kind=wp), external :: seconds
 
 sc0 = seconds()
 
@@ -43,7 +43,7 @@ call gugadrt_dbl_upwalk()       ! add by wyb 01.9.5
 call gugadrt_ext_downwalk()     ! add by wyb 01.9.5
 call gugadrt_active_drt()       ! add by wyb 01.9.5
 
-call add_info('CI_DIM',[dble(nci_dim)],1,1)
+call add_info('CI_DIM',[real(nci_dim,kind=wp)],1,1)
 call gugadrt_gugafinalize()
 ireturn = 0
 

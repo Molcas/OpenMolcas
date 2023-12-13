@@ -32,7 +32,6 @@
       Real*8          Longines_1,Longines_2,Longines_3
       Real*8          Oris_1,   Oris_2
       Real*8          Movado_1, Movado_2
-      Real*8          Swatch
       Common /timers/ Ebel_1,   Ebel_2,   Ebel_3,                       &
      &                Eterna_1, Eterna_2, Eterna_3,                     &
      &                Rado_1,   Rado_2,   Rado_3,                       &
@@ -52,7 +51,6 @@
      &                WTC_1,    WTC_2,    WTC_3,                        &
      &                Longines_1,Longines_2,Longines_3,                 &
      &                Oris_1,   Oris_2,                                 &
-     &                Movado_1, Movado_2,                               &
-     &                Swatch
+     &                Movado_1, Movado_2
       REAL*8             TSIGMA(6),TDENSI(3)
       COMMON/LUCIA_TIME/ TSIGMA,TDENSI

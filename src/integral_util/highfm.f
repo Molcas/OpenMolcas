@@ -1,34 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
-*               1990, IBM                                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Roland Lindh                                     *
+!               1990, IBM                                              *
+!***********************************************************************
       SubRoutine HighFm(F,T,m,n)
-************************************************************************
-*  Object: to compute the auxiliary function for orders which we do    *
-*          not use Shavitt's method of tables.                         *
-*                                                                      *
-* Called from: Auxil                                                   *
-*                                                                      *
-* Calling    : None                                                    *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             March '90                                                *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
+!***********************************************************************
+!  Object: to compute the auxiliary function for orders which we do    *
+!          not use Shavitt's method of tables.                         *
+!                                                                      *
+! Called from: Auxil                                                   *
+!                                                                      *
+! Calling    : None                                                    *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!***********************************************************************
+      use Constants, only: Zero, One, Two
+      Implicit None
+      Integer m, n
       Real*8 F(n), T(n)
-#include "real.fh"
-*
-*     Find T for which the asympotic formula can be used
-*
+
+      Integer i, ii, k
+      Real*8 TMax, gTmp, Sum0, Sum1, TNew, FValue, Term, Gamma2
+
+!
+!     Find T for which the asympotic formula can be used
+!
       Tmax=50.0D0
  88   gTmp=Gamma2(m,Tmax)
          i = 1
@@ -44,9 +49,9 @@
       If (Abs(Tnew-Tmax).lt.1.0d-9) Go To 97
       Tmax = Tnew
       Go To 88
-*
-*     Compute the auxiliary functions
-*
+!
+!     Compute the auxiliary functions
+!
  97   Tmax = Tnew
       Do 100 k = 1, n
          If (T(k).lt.Tmax) Then
@@ -64,6 +69,6 @@
             F(k) = Gamma2(m,T(k))
          End If
  100  Continue
-*
+!
       Return
-      End
+      End SubRoutine HighFm

@@ -12,12 +12,12 @@
 set (sources
      main.F90
      gen_prim_density_matrix.F90
-     get_density_matrix.F90
+     get_density_matrix_mpprop.F90
      get_mpprop.F90
      get_mpprop_input.F90
      get_ocof.F90
      get_orbcen.F90
-     get_orbe_mpprop.F90
+     get_orbe.F90
      get_polar.F90
      get_prim_atom_tab.F90
      get_prim_density_matrix.F90

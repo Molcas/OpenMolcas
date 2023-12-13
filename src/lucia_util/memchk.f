@@ -12,7 +12,7 @@
 *
 * Check memory allocated  with the memory manager
 *
-      Call Getmem('FLUSH','CHECK','REAL',idum,idum)
+      Call Getmem('FLUSH','CHECK','REAL',idum,0)
 C$$$      CALL MEMMAN(IDUM,IDUM,'CHECK ',IDUM,'IDUM  ')
 *
       RETURN

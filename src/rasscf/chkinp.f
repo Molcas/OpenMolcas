@@ -36,7 +36,7 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "warnings.fh"
+#include "warnings.h"
       integer :: ierr, ierr1, ierr2
       integer :: i, iSym, iAlter
       integer :: iB0, iA0, iC0

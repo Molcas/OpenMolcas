@@ -13,6 +13,7 @@ subroutine Drvh1_EMB(Grad,Temp,nGrad)
 
 use Basis_Info, only: dbsc, nCnttp, nBas
 use Symmetry_Info, only: nIrrep
+use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -26,11 +27,10 @@ integer(kind=iwp) :: i, ii, iIrrep, iPrint, iRout, nComp, nDens, nOrdOp
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DiffOp, lECP, lPP, lFAIEMP
 character(len=80) :: Label
-character(len=16) :: NamRfil
 integer(kind=iwp), allocatable :: lOper(:)
 real(kind=wp), allocatable :: Coor(:,:), D_Var(:)
-external :: OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd, WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, FragPGrd, MltGrd, &
-            OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG, WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG, MltMmG
+procedure(grd_kernel) :: FragPGrd, M1Grd, M2Grd, NAGrd, PPGrd, PrjGrd, SROGrd
+procedure(grd_mem) :: FragPMmG, M1MmG, M2MmG, NAMmG, PPMmG, PrjMmG, SROMmG
 
 !...  Prologue
 iRout = 131
@@ -60,8 +60,7 @@ end do
 ! Read the variational 1st order density matrix
 ! density matrix in AO/SO basis
 
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_var,nDens)
@@ -81,7 +80,7 @@ end if
 !      as embedding should not deal with symmetry
 call Annihil_rho(D_var,nBas(0))
 
-call NameRun(NamRfil)   ! switch RUNFILE name
+call NameRun('#Pop')    ! switch RUNFILE name
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -162,7 +161,6 @@ call mma_deallocate(D_Var)
 
 call Free_iSD()
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 
 return
 

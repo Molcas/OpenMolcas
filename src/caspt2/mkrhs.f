@@ -20,7 +20,7 @@
 * contravariant components. 980928, P-A Malmqvist
 *--------------------------------------------
       SUBROUTINE MKRHS(IVEC)
-      use output_caspt2, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -78,7 +78,6 @@ C INTEGRAL BUFFERS:
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 1 (VJTU).
-
 
       NFNXT=0
       DO 190 ISYM=1,NSYM
@@ -279,7 +278,6 @@ C  Put WM on disk
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
 
-
       NFNXT=0
       DO 390 ISYM=1,NSYM
         NFIMOES=NFNXT
@@ -373,7 +371,6 @@ C   Put W on disk
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 5, AIVX.
-
 
       DO 490 ISYM=1,NSYM
         IF(NINDEP(ISYM,5).EQ.0) GOTO 490

@@ -26,19 +26,16 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use Fock_util_global, only: docholesky
       Implicit Real*8 (A-H,O-Z)
-      Logical DoCholesky
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
 
-#include "davctl.fh"
-#include "qnctl_mcpdft.fh"
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *-------------------------------------- -------------------------------*
-C Local print level (if any)
 *---  close the JOBOLD file -------------------------------------------*
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
@@ -52,11 +49,9 @@ C Local print level (if any)
         JOBIPH=-1
       End If
 *---  close the ORDINT file -------------------------------------------*
-      CALL DecideOnCholesky(DoCholesky)
        If (.not.DoCholesky) then
          iRc=-1
-         iOpt=0
-         Call ClsOrd(iRc,iOpt)
+         Call ClsOrd(iRc)
          If ( iRc.ne.0 ) Then
            Call WarningMessage(1,'Failed to close the ORDINT file.')
          End If
@@ -67,10 +62,7 @@ C Local print level (if any)
       Call DaClos(LUDAVID)
 *---  open the file carrying the hessian update vectors ---------------*
       Call DaClos(LuQune)
-*---  close the file for storage of informations on CI-iterations
-      Close(ITERFILE)
-*----------------------------------------------------------------------*
-*     Exit                                                             *
+
 *----------------------------------------------------------------------*
       Return
       End

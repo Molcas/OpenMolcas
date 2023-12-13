@@ -1,0 +1,22 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+#ifdef _CALLING_
+Alpha,nAlpha,Beta,nBeta,Zeta,rKappa,P,rFinal,nZeta,la,lb,A,B,nHer,Array,nArr,Ccoor,nOrdOp,ifgrad,IndGrd,nOp,iu,iv,nrOp,iDcar, &
+trans,kcar,ksym &
+#else
+! TODO: unknown intents
+integer(kind=iwp) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, IndGrd(0:7), nOp(2), iu, iv, nrOp, iDcar, kcar, ksym
+real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), rFinal(*), A(3), B(3), &
+                 Array(nZeta*nArr), Ccoor(3)
+logical(kind=iwp) :: ifgrad(3,2), trans(2)
+#endif
+#undef _CALLING_

@@ -9,11 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MECTL(PROP,OVLP,HAM,ESHFT)
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: HDIAG
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='MECTL')
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
@@ -27,7 +25,7 @@
 
 C Print results:
       NCOL=4
-      IF(PRXVR.and.IPGLOB.ge.SILENT) THEN
+      IF(PRXVR.and.IPGLOB.ge.0) THEN
       WRITE(6,*)
       Call CollapseOutput(1,'Expectation values for input states')
       WRITE(6,'(3X,A)')     '-----------------------------------'
@@ -52,7 +50,7 @@ C Print results:
           WRITE(6,*)
         WRITE(6,'(1X,A,A8,A,I4)')
      &  'PROPERTY: ',PNAME(IPROP),'   COMPONENT:**',ICOMP(IPROP)
-          WRITE(6,'(1X,A,3D17.8)')
+          WRITE(6,'(1X,A,3ES17.8)')
      &'ORIGIN    :',(PORIG(I,IPROP),I=1,3)
           WRITE(6,'(1X,A,I8,3I17)')
      &'STATE     :',(I,I=ISTA,IEND)
@@ -90,7 +88,7 @@ C Print results:
       IF (X.GE.1.0D-6) IFHD=0
       IF(IFON.eq.0) IFHD=0
 
-      IF(IPGLOB.GE.USUAL) THEN
+      IF(IPGLOB.GE.2) THEN
        IF(IFHAM) THEN
          WRITE(6,*)
          WRITE(6,*)' HAMILTONIAN MATRIX FOR THE ORIGINAL STATES:'
@@ -115,7 +113,7 @@ C Print results:
        END IF
       END IF
 
-      IF(IPGLOB.GE.USUAL) THEN
+      IF(IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)'     OVERLAP MATRIX FOR THE ORIGINAL STATES:'
         WRITE(6,*)
@@ -174,7 +172,7 @@ C Print results:
          END DO
         END DO
         IF(IFON.eq.0) IFHD=0
-        IF(IPGLOB.GE.USUAL) THEN
+        IF(IPGLOB.GE.2) THEN
          WRITE(6,*)
          WRITE(6,*)' USER-MODIFIED HAMILTONIAN FOR THE ORIGINAL STATES:'
          WRITE(6,*)'(With user shifts, and/or replaced diagonal'
@@ -194,7 +192,7 @@ C Print results:
       END IF
 CPAM00 End of updated HDIA/SHIFT section.
 
-      IF(IPGLOB.GT.SILENT .and. PRMER) THEN
+      IF(IPGLOB.GT.0 .and. PRMER) THEN
       WRITE(6,*)
       Call CollapseOutput(1,'Matrix elements for input states')
       WRITE(6,'(3X,A)')     '--------------------------------'
@@ -209,7 +207,7 @@ CPAM00 End of updated HDIA/SHIFT section.
           WRITE(6,*)
           WRITE(6,'(1X,A,A8,A,I4)')
      &  'PROPERTY: ',PNAME(IPROP),'   COMPONENT:*',ICOMP(IPROP)
-          WRITE(6,'(1X,A,3D17.8)')
+          WRITE(6,'(1X,A,3ES17.8)')
      &'ORIGIN    :',(PORIG(I,IPROP),I=1,3)
           WRITE(6,'(1X,A,I8,3I17)')
      &'STATE     :',(I,I=ISTA,IEND)
@@ -241,5 +239,5 @@ cnf
       CALL Put_dArray('SFS_OVLP',OVLP,NSTATE**2)
 
       WRITE(6,*)
-      RETURN
+
       END

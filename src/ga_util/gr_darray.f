@@ -21,7 +21,6 @@
       Call CWTime(TCpu1,TWall1)
       Call GADGOP(Array,nArray,'+')
       Call CWTime(TCpu2,TWall2)
-      Call SavTim(10,TCpu2-TCpu1,TWall2-TWall1)
 #else
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Array)

@@ -30,17 +30,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nGrad
 character(len=*), intent(inout) :: KSDFT
-logical(kind=wp), intent(in) :: Do_Grad
+logical(kind=iwp), intent(in) :: Do_Grad
 real(kind=wp), intent(out) :: Grad(nGrad)
 character(len=4), intent(in) :: DFTFOCK
-#include "debug.fh"
 integer(kind=iwp) :: i, iSpin, kSpin, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Energy_NAD, Fakt_, Func_A, Func_AB, Func_B, Func_X
-character(len=16) :: NamRfil
 real(kind=wp), allocatable :: Grad_A(:), F_DFT(:,:), D_DS(:,:), Fcorr(:,:)
 real(kind=wp), external :: Xlambda
 
-Debug = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -56,8 +53,7 @@ Grad_A(:) = Zero
 !     Setup of density matrices for subsys B (environment)             *
 !                                                                      *
 !***********************************************************************
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -68,13 +64,13 @@ call mma_allocate(D_DS,nh1,nD,Label='D_DS')
 ! Get the density matrix of the environment (rho_B)
 
 call Get_iScalar('Multiplicity',kSpin)
-call Get_D1ao(D_DS(1,1),nh1)
+call Get_dArray_chk('D1ao',D_DS(1,1),nh1)
 !call RecPrt('D_DS(1,1)',' ',D_DS(1,1),nh1,1)
 
 ! Get the spin density matrix of the environment
 
 if (kSpin /= 1) then
-  call Get_D1Sao(D_DS(1,2),nh1)
+  call Get_dArray_chk('D1sao',D_DS(1,2),nh1)
   !call RecPrt('D1Sao',' ',D_DS(1,2),nh1,1)
 end if
 
@@ -110,11 +106,11 @@ end if
 !     Setup of density matrices for subsys A                           *
 !                                                                      *
 !***********************************************************************
-call NameRun(NamRfil)    ! switch back RUNFILE name
+call NameRun('#Pop')     ! switch back RUNFILE name
 
 ! Get the density matrix for rho_A
 
-call Get_D1ao(D_DS(1,3),nh1)
+call Get_dArray_chk('D1ao',D_DS(1,3),nh1)
 !call RecPrt('D_DS(1,3)',' ',D_DS(1,3),nh1,1)
 
 call Get_iScalar('Multiplicity',iSpin)
@@ -126,7 +122,7 @@ end if
 ! Get the spin density matrix of A
 
 if (iSpin /= 1) then
-  call Get_D1Sao(D_DS(1,4),nh1)
+  call Get_dArray_chk('D1sao',D_DS(1,4),nh1)
   !call RecPrt('D1Sao',' ',D_DS(1,4),nh1,1)
 end if
 
@@ -160,7 +156,7 @@ if (dFMD > Zero) then
   Grad_A(:) = Zero
   call mma_allocate(Fcorr,nh1,nFckDim,Label='Fcorr')
 
-  call cwrap_DrvNQ(KSDFT,F_DFT(1,3),nFckDim,Func_A,D_DS(1,3),nh1,nFckDim,Do_Grad,Grad_A,nGrad,DFTFOCK,Fcorr)
+  call cwrap_DrvNQ(KSDFT,nFckDim,Func_A,D_DS(1,3),nh1,nFckDim,Do_Grad,Grad_A,nGrad,DFTFOCK,Fcorr)
 
   call get_dScalar('NAD dft energy',Energy_NAD)
   Fakt_ = Xlambda(abs(Energy_NAD),Xsigma)
@@ -171,12 +167,11 @@ end if
 
 call mma_deallocate(Grad_A)
 
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 
 call wrap_DrvNQ('NUCATT_EMB',F_DFT,nFckDim,Func_X,D_DS(1,3),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK)
 
-call NameRun(NamRfil)   ! switch back RUNFILE name
+call NameRun('#Pop')    ! switch back RUNFILE name
 
 !***********************************************************************
 !                                                                      *

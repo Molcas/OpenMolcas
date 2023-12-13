@@ -856,7 +856,7 @@ contains
     do i = message_index_from, message_index - 1
       write(xml_work, '(a)', advance = "no") trim(strip(message_array(i)))
       if (i == message_index - 1) then
-        continue
+        !continue
       else
         write(xml_work, '("&#xA;")', advance="no")
       endif
@@ -1426,7 +1426,10 @@ contains
     logical, intent (in) :: var1
     character (*), intent (in), optional :: message
 
-    if ( var1 .eqv. .true.) then
+    ! weird nvfortran bug, but this is unnecessary anyway
+    ! (https://forums.developer.nvidia.com/t/nvfortran-wrong-result-var-is-true-but-var-eqv-true-is-false/186255)
+    !if ( var1 .eqv. .true.) then
+    if ( var1 ) then
        call add_success
     else
        call failed_assert_action(to_s(.true.), to_s(var1), message, if_is = .true.)

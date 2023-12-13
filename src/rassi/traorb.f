@@ -22,8 +22,6 @@ C TRANSFORMATION MATRIX CXA.
         IF(NO.EQ.0) GOTO 10
         NB=NBASF(IS)
         IF(NB.EQ.0) GOTO  5
-*        CALL MXMA (CMO(ISTA1),1,NB,CXA(ISTA2),1,NO,
-*     *             WORK(LCNEW-1+ISTA1),1,NB,NB,NO,NO)
         CALL DGEMM_('N','N',NB,NO,NO,1.0D0,
      &             CMO(ISTA1),NB,CXA(ISTA2),NO,
      &        0.0D0, WORK(LCNEW-1+ISTA1),NB)

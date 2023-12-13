@@ -552,10 +552,6 @@ are disregarded for algorithm 0 (see below).
 Limitations
 ...........
 
-The maximum number of selectively frozen
-:kword:`SFRO` or selectively deleted orbitals
-:kword:`SDEL` in each symmetry is limited to 50.
-
 The limitations on the number of basis functions are the same as specified
 for :program:`SEWARD`.
 

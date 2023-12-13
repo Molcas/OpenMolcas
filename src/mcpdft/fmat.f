@@ -52,27 +52,31 @@
 *                                                                      *
 ************************************************************************
 
+      Use RunFile_procedures, Only: Get_dExcdRa
+      use mcpdft_output, only: debug, lf, iPrLoc
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FMAT    ')
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
+      Real*8, Allocatable :: TmpFck(:)
 
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       !iPrLev=DEBUG-1
       If ( iPrLev.ge.DEBUG ) then
-        write(6,*) ('*',i=1,65)
-        write(6,*) 'Entering FMAT routine called by MSCTL!'
-        write(6,*) ('*',i=1,65)
-        write(6,*) 'printing input matrices :'
-        write(6,*) ('*',i=1,65)
+        write(lf,*) ('*',i=1,65)
+        write(lf,*) 'Entering FMAT routine called by MSCTL!'
+        write(lf,*) ('*',i=1,65)
+        write(lf,*) 'printing input matrices :'
+        write(lf,*) ('*',i=1,65)
         Write(LF,*)
         Write(LF,*) ' CMOs in FMAT'
         Write(LF,*) ' ---------------------'
@@ -139,36 +143,14 @@ C Local print level (if any)
 *     create FA in AO basis
       Call GetMem('Scr1','Allo','Real',iTmp1,nTot1)
       Call Fold(nSym,nBas,D1A,Work(iTmp1))
-      If(KSDFT.ne.'SCF'
-     & .and. KSDFT.ne.'TLSDA'
-     & .and. KSDFT.ne.'FTLSDA'
-     & .and. KSDFT.ne.'TPBE'
-     & .and. KSDFT.ne.'FTPBE'
-     & .and. KSDFT.ne.'TOPBE'
-     & .and. KSDFT.ne.'FTOPBE'
-     & .and. KSDFT.ne.'TBLYP'
-     & .and. KSDFT.ne.'FTBLYP'
-     & .and. KSDFT.ne.'TREVPBE'
-     & .and. KSDFT.ne.'FTREVPBE') NewFock=0
-
-c     If (NewFock.eq.0) Then
-c        nBMX=0
-c        Do iSym=1,nSym
-c           nBMX=Max(nBMX,nBas(iSym))
-c        End Do
-c        Call FZero(FA,nTot1)
-c        Call FTwo_Drv(nSym,nBas,nAsh,nSkipX,
-c    &                    Work(iTmp1),D1A,FA,nTot1,
-c    &                    ExFac,nBMX,CMO)
-c     End If
 
 *     Inactive-active contribution to ECAS
       VIA=dDot_(nTot1,FI,1,Work(iTmp1),1)
       ECAS=EMY+VIA
       If ( iPrLev.ge.DEBUG ) then
-        Write(LF,'(A,E20.10)') ' Total core energy:            ',EMY
-        Write(LF,'(A,E20.10)') ' inactive-active interaction:  ',VIA
-        Write(LF,'(A,E20.10)') ' CAS energy (core+interaction):',ECAS
+        Write(LF,'(A,ES20.10)') ' Total core energy:            ',EMY
+        Write(LF,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
+        Write(LF,'(A,ES20.10)') ' CAS energy (core+interaction):',ECAS
       End If
       Call GetMem('Scr1','Free','Real',iTmp1,nTot1)
 
@@ -202,23 +184,21 @@ c     End If
       iOff3 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
+        If (iBas==0) Cycle
         iOrb = nOrb(iSym)
+        If (iOrb==0) Cycle
         iFro = nFro(iSym)
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FI(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-        Call MXMT(Work(iTmp2),iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FI(iOff3),
-     &            iOrb,iBas)
+        Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                 1.0D0,Work(iTmp2),iBas,
+     &                       CMO(iOff2+(iFro*iBas)),iBas,
+     &                 0.0D0,FI(iOff3),iOrb)
         Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
         Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -232,23 +212,21 @@ C     &            iBas,iBas,iOrb)
       iOff3 = 1
       Do iSym = 1,nSym
         iBas = nBas(iSym)
+        If (iBas==0) Cycle
         iOrb = nOrb(iSym)
+        If (iOrb==0) Cycle
         iFro = nFro(iSym)
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FA(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-        Call MXMT(Work(iTmp2),iBas,1,
-     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-     &            FA(iOff3),
-     &            iOrb,iBas)
+        Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                 1.0D0,Work(iTmp2),iBas,
+     &                       CMO(iOff2+(iFro*iBas)),iBas,
+     &                 0.0D0,FA(iOff3),iOrb)
         Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
         Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -256,23 +234,15 @@ C     &            iBas,iBas,iOrb)
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
       End Do
 
-c**************************************************************************
-c              Add DFT part to Fock matrix:                               *
-c**************************************************************************
+c***********************************************************************
+c              Add DFT part to Fock matrix:                            *
+c***********************************************************************
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM'.and.
-     & (KSDFT(1:5).ne.'TLSDA'.and. !GLM
-     &  KSDFT(1:5).ne.'TBLYP'.and.
-     &  KSDFT(1:6).ne.'FTLSDA'.and.
-     &  KSDFT(1:5).ne.'FTPBE'.and.
-     &  KSDFT(1:6).ne.'FTOPBE'.and.
-     &  KSDFT(1:5).ne.'TOPBE'.and.
-     &  KSDFT(1:7).ne.'TREVPBE'.and.
-     &  KSDFT(1:8).ne.'FTREVPBE'.and.
-     &  KSDFT(1:6).ne.'FTBLYP'.and.
-     &  KSDFT(1:4).ne.'TPBE')) Then
+     & (KSDFT(1:2).ne.'T:' .and. KSDFT(1:3).ne.'FT:' ) ) Then
         ipTmpFckI=-99999
         ipTmpFckA=-99999
-        Call Get_dExcdRa(ipTmpFck,nTmpFck)
+        Call Get_dExcdRa(TmpFck,nTmpFck)
+        ipTmpFck = ip_of_Work(TmpFck(1))
         If(nTmpFck.eq.NTOT1) Then
            ipTmpFckI=ipTmpFck
         Else If(nTmpFck.eq.2*NTOT1) Then
@@ -294,24 +264,22 @@ c**************************************************************************
         iOff3 = 1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
+          If (iBas==0) Cycle
           iOrb = nOrb(iSym)
+          If (iOrb==0) Cycle
           iFro = nFro(iSym)
           Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
           Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
           Call Square(Work(ipTmpFckI+iOff1-1),
      &                Work(iTmp1),1,iBas,iBas)
-C          Call MXMA(Work(iTmp1),1,iBas,
-C     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &              Work(iTmp2),1,iBas,
-C     &              iBas,iBas,iOrb)
           Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-          Call MXMT(Work(iTmp2),iBas,1,
-     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-     &              Work(ipTmpFckI+iOff3-1),
-     &              iOrb,iBas)
+          Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                   1.0D0,Work(iTmp2),iBas,
+     &                         CMO(iOff2+(iFro*iBas)),iBas,
+     &                   0.0D0,Work(ipTmpFckI+iOff3-1),iOrb)
           Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
           Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
           iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -327,24 +295,22 @@ C     &              iBas,iBas,iOrb)
         iOff3 = 1
         Do iSym = 1,nSym
           iBas = nBas(iSym)
+          If (iBas==0) Cycle
           iOrb = nOrb(iSym)
+          If (iOrb==0) Cycle
           iFro = nFro(iSym)
           Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
           Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
           Call Square(Work(ipTmpFckA+iOff1-1),
      &                Work(iTmp1),1,iBas,iBas)
-C          Call MXMA(Work(iTmp1),1,iBas,
-C     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &              Work(iTmp2),1,iBas,
-C     &              iBas,iBas,iOrb)
           Call DGEMM_('N','N',iBas,iOrb,iBas,
      &               1.0d0,Work(iTmp1),iBas,
      &               CMO(iOff2+(iFro*iBas)),iBas,
      &               0.0d0,Work(iTmp2),iBas)
-          Call MXMT(Work(iTmp2),iBas,1,
-     &              CMO(iOff2+(iFro*iBas)),1,iBas,
-     &              Work(ipTmpFckA+iOff3-1),
-     &              iOrb,iBas)
+          Call DGEMM_Tri('T','N',iOrb,iOrb,iBas,
+     &                   1.0D0,Work(iTmp2),iBas,
+     &                         CMO(iOff2+(iFro*iBas)),iBas,
+     &                   0.0D0,Work(ipTmpFckA+iOff3-1),iOrb)
           Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
           Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
           iOff1 = iOff1 + (iBas*iBas+iBas)/2
@@ -352,18 +318,6 @@ C     &              iBas,iBas,iOrb)
           iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
         End Do
         End If
-*
-c        If(DFTFOCK(1:4).ne.'ROKS') Then
-c          Write(LF,*) ' Just add a,b to FA,FI',DFTFOCK(1:4)
-c        Else
-c          Write(LF,*) ' ROKS formula',DFTFOCK(1:4)
-c        End If
-*
-        If(DFTFOCK(1:4).ne.'ROKS') Then
-          call daxpy_(NTOT1,1.0D0,Work(ipTmpFckI),1,FI,1)
-          If(ipTmpFckA.ne.-99999)
-     &    call daxpy_(NTOT1,1.0D0,Work(ipTmpFckA),1,FA,1)
-        Else If (DFTFOCK(1:4).eq.'ROKS') Then
            iOff1 = 0
            Do iSym = 1,nSym
               Do iOrb=1,nOrb(iSym)
@@ -396,14 +350,11 @@ c        End If
               End Do
               iOff1 = iOff1 + (nOrb(iSym)*nOrb(iSym)+nOrb(iSym))/2
            End Do
-        Else
-           Write(LF,*) " Not implemented yet"
-        End If
-        Call Free_Work(ipTmpFck)
+        Call mma_deallocate(TmpFck)
       End If
-***************************************************************************
+************************************************************************
 *     update Fock matrix
-      If (NewFock.eq.1) Call Upd_FA_m(PUVX,FA,D,ExFac)
+      Call Upd_FA_m(PUVX,FA,D,ExFac)
 
 *     print FI and FA
       If ( iPrLev.ge.DEBUG ) then

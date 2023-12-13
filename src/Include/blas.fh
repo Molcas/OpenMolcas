@@ -1,23 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
-* This file contains the necessary files for an internal BLAS
-*
-* If you modify this, the files delayed_blas.f90 and f[1-5].fh in
-* delayed_util should be updated too, use delayed.py for the latter
+! This file contains the necessary files for an internal BLAS
+!
+! If you modify this, the files delayed_blas.f90 and f[1-5].fh in
+! delayed_util should be updated too, use delayed.py for the latter
 
-* [cs]axpy, [cs]gemm, scabs1 are used by GA
+! [cs]axpy, [cs]gemm, scabs1 are used by GA
 
 #ifndef _BLAS_FH_
 
+#ifdef _F90_
+#include "dnrm2.f90"
+#include "dznrm2.f90"
+#undef _F90_
+#else
 #include "caxpy.f"
 #include "cgemm.f"
 #include "dasum.f"
@@ -28,7 +33,6 @@
 #include "dgemm.f"
 #include "dgemv.f"
 #include "dger.f"
-#include "dnrm2.f"
 #include "drot.f"
 #include "dscal.f"
 #include "dspmv.f"
@@ -46,7 +50,6 @@
 #include "dtrmv.f"
 #include "dtrsm.f"
 #include "dtrsv.f"
-#include "dznrm2.f"
 #include "idamax.f"
 #include "lsame.f"
 #include "saxpy.f"
@@ -70,6 +73,7 @@
 #include "zswap.f"
 #include "ztrmm.f"
 #include "ztrmv.f"
+#endif
 
 #define _BLAS_FH_
 #endif

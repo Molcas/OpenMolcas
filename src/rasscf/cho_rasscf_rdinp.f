@@ -16,6 +16,9 @@
 *             in RASSCF                                                *
 *                                                                      *
 ************************************************************************
+      Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpK,
+     &                            DoLocK, Estimate, Nscreen, Update
+      Use Cholesky, only: ChFracMem, timings
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -26,15 +29,6 @@
       Logical  DFonly
       character*16 SECNAM
       parameter (SECNAM = 'CHO_RASSCF_RDINP')
-*
-#include "chlcas.fh"
-#include "chodensity.fh"
-#include "chotime.fh"
-#include "cholk.fh"
-#include "choscreen.fh"
-#include "chopar.fh"
-
-*
 *
 ***** Algorithms for using Cholesky vectors in RASSCF ******************
 *
@@ -58,7 +52,7 @@
 ************************************************************************
 *                                                                      *
 *     Default  parameters
-#if defined (_MOLCAS_MPP_)
+#ifdef _MOLCAS_MPP_
       ChFracMem=0.3D0
 #else
       ChFracMem=0.0D0
@@ -124,7 +118,6 @@
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
       Write(LF,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      Call ErrTra
       Write(LF,*) SECNAM, ' Error in keyword.'
       Call Quit_OnUserError()
 *                                                                      *

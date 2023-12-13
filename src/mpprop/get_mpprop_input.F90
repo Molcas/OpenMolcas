@@ -20,7 +20,7 @@ integer(kind=iwp), intent(in) :: nAtoms
 integer(kind=iwp), intent(inout) :: iPol, nThrs, iPrint
 logical(kind=iwp), intent(inout) :: LNearestAtom, LAllCenters, AveOrb, LLumOrb, Diffuse(3)
 real(kind=wp), intent(inout) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: i, iChrct, iStdOut, j, k, l, Last, LuRd, m, nBonds
 character(len=3) :: EndKey
 character(len=4) :: KWord
@@ -76,14 +76,13 @@ do
           if ((Key(j:j) == ' ') .or. (Key(j:j) == ',') .or. (Key(j:j) == ';')) then
             if ((j == 1) .and. ((Key(j:j) == ';') .or. (Key(j:j) == ','))) then
               write(iStdOut,*) 'Error in input, breaker in first position'
-              call ErrTra()
               call Quit(_RC_INPUT_ERROR_)
-            elseif (m < j) then
+            else if (m < j) then
               TestLabe(nBonds) = Key(m:j-1)
               nBonds = nBonds+1
             end if
             m = j+1
-          elseif (EndKey == 'END') then
+          else if (EndKey == 'END') then
             exit atoms
           end if
         end do
@@ -201,13 +200,13 @@ do
           if (Key(1:4) == 'LIMI') then
             Key = Get_Ln(LuRd)
             call Get_F(1,dLimmo,2)
-          elseif (Key(1:4) == 'THRE') then
+          else if (Key(1:4) == 'THRE') then
             Key = Get_Ln(LuRd)
             call Get_F1(1,Thrs1)
             call Get_F1(2,Thrs2)
             call Get_I1(3,nThrs)
             call Get_F1(4,ThrsMul)
-          elseif (Key(1:4) == 'END ') then
+          else if (Key(1:4) == 'END ') then
             exit
           else
             write(iStdOut,*) 'Undefined option for ''DIFFuse'':',Key
@@ -215,7 +214,7 @@ do
             call Quit_OnUserError()
           end if
         end do
-      elseif (Key(1:4) == 'REXT') then
+      else if (Key(1:4) == 'REXT') then
         Diffuse(1) = .true.
         Diffuse(3) = .true.
       else
@@ -248,7 +247,6 @@ do
       write(iStdOut,*)
       write(iStdOut,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
       write(iStdOut,*) ' Error in keyword.'
-      call ErrTra()
       call Quit(_RC_INPUT_ERROR_)
       !write(iStdOut,*) ' Premature end of input file.'
       !call Quit(_RC_INPUT_ERROR_)

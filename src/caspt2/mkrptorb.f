@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKRPTORB(FIFA,TORB,CMO)
+      use fciqmc_interface, only: DoFCIQMC, NonDiagonal
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -89,6 +90,8 @@ C     #orbitals per symmetry
         IF(NO.GT.0) THEN
         CALL SQUARE(FIFA(NFES+1),WORK(LFOCK),NO,1,NO)
         END IF
+        ! the zero-ing out of the off-diagonal blocks happens here
+        ! diafck is not structured like rasscf/fckpt2.f
 * Number of orbitals processed so far in this symmetry:
         IOEND=0
 * Frozen orbitals: Just copy frozen CMO coefficients.
@@ -222,73 +225,82 @@ C     #orbitals per symmetry
 
 C Finally, loop again over symmetries, transforming the CI:
       IF(ISCF.EQ.0) THEN
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-        IF(.NOT.DoCumulant) THEN
+        if (DoFCIQMC) then
+          if (NonDiagonal) then
+           write(6,*)'Transforming CASPT2 intermediates to '//
+     &               'pseudo-canonical orbitals.'
+          else
+            write(6,*)'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
+          end if
+        else
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+          IF(.NOT.DoCumulant) THEN
 #endif
-          CALL GETMEM('LCI3','ALLO','REAL',LCI,NCONF)
-          IDR=IDCIEX
-          IDW=IDTCEX
-          DO IST=1,NSTATE
-           CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDR)
-           ITOEND=0
-           DO ISYM=1,NSYM
-            NI=NISH(ISYM)
-            NA=NASH(ISYM)
-            NR1=NRAS1(ISYM)
-            NR2=NRAS2(ISYM)
-            NR3=NRAS3(ISYM)
-            NS=NSSH(ISYM)
-            NO=NORB(ISYM)
-            NB=NBAS(ISYM)
-            ITOSTA=ITOEND+1
-            ITOEND=ITOEND+NI**2+NR1**2+NR2**2+NR3**2+NS**2
+            CALL GETMEM('LCI3','ALLO','REAL',LCI,NCONF)
+            IDR=IDCIEX
+            IDW=IDTCEX
+            DO IST=1,NSTATE
+             CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDR)
+             ITOEND=0
+             DO ISYM=1,NSYM
+              NI=NISH(ISYM)
+              NA=NASH(ISYM)
+              NR1=NRAS1(ISYM)
+              NR2=NRAS2(ISYM)
+              NR3=NRAS3(ISYM)
+              NS=NSSH(ISYM)
+              NO=NORB(ISYM)
+              NB=NBAS(ISYM)
+              ITOSTA=ITOEND+1
+              ITOEND=ITOEND+NI**2+NR1**2+NR2**2+NR3**2+NS**2
 
-            ITO=ITOSTA+NI**2
-            IF(NA.GT.0) THEN
-              IF(NR1.GT.0) THEN
-                ISTART=NAES(ISYM)+1
-                CALL TRACI_RPT2(ISTART,NR1,TORB(ITO),STSYM,
-     &                                         NCONF,WORK(LCI))
+              ITO=ITOSTA+NI**2
+              IF(NA.GT.0) THEN
+                IF(NR1.GT.0) THEN
+                  ISTART=NAES(ISYM)+1
+                  CALL TRACI_RPT2(ISTART,NR1,TORB(ITO),STSYM,
+     &                                           NCONF,WORK(LCI))
+                END IF
+                ITO=ITO+NR1**2
+                IF(NR2.GT.0) THEN
+                  ISTART=NAES(ISYM)+NR1+1
+                  CALL TRACI_RPT2(ISTART,NR2,TORB(ITO),STSYM,
+     &                                           NCONF,WORK(LCI))
+                END IF
+                ITO=ITO+NR2**2
+                IF(NR3.GT.0) THEN
+                  ISTART=NAES(ISYM)+NR1+NR2+1
+                  CALL TRACI_RPT2(ISTART,NR3,TORB(ITO),STSYM,
+     &                                           NCONF,WORK(LCI))
+                END IF
               END IF
-              ITO=ITO+NR1**2
-              IF(NR2.GT.0) THEN
-                ISTART=NAES(ISYM)+NR1+1
-                CALL TRACI_RPT2(ISTART,NR2,TORB(ITO),STSYM,
-     &                                         NCONF,WORK(LCI))
-              END IF
-              ITO=ITO+NR2**2
-              IF(NR3.GT.0) THEN
-                ISTART=NAES(ISYM)+NR1+NR2+1
-                CALL TRACI_RPT2(ISTART,NR3,TORB(ITO),STSYM,
-     &                                         NCONF,WORK(LCI))
-              END IF
-            END IF
-           END DO
-           CALL DDAFILE(LUCIEX,1,WORK(LCI),NCONF,IDW)
-          END DO
-          CALL GETMEM('LCI3','FREE','REAL',LCI,NCONF)
+             END DO
+             CALL DDAFILE(LUCIEX,1,WORK(LCI),NCONF,IDW)
+            END DO
+            CALL GETMEM('LCI3','FREE','REAL',LCI,NCONF)
 #ifdef _ENABLE_BLOCK_DMRG_
-        ELSE
+          ELSE
 * Transforming 2,3-RDMs from Block DMRG (1-RDM is computed from 2-RDM)
 * NN.14 : For the time, Block's dump files of RDMs are directly loaded,
 *         but those should be stored in JobIph file eventually.
           NXMAT=NASHT**2
 * Workspace for transformation matrix
-          CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NXMAT)
-          CALL DCOPY_(NXMAT,[0.0D0],0,WORK(LXMAT),1)
-          CALL MKXMAT(TORB,WORK(LXMAT))
+            CALL GETMEM('XMAT','ALLO','REAL',LXMAT,NXMAT)
+            CALL DCOPY_(NXMAT,[0.0D0],0,WORK(LXMAT),1)
+            CALL MKXMAT(TORB,WORK(LXMAT))
 
-          CALL block_tran2pdm(NASHT,WORK(LXMAT),JSTATE,JSTATE)
-          CALL block_tran3pdm(NASHT,WORK(LXMAT),JSTATE,JSTATE)
+            CALL block_tran2pdm(NASHT,WORK(LXMAT),JSTATE,JSTATE)
+            CALL block_tran3pdm(NASHT,WORK(LXMAT),JSTATE,JSTATE)
 
-          CALL GETMEM('XMAT','FREE','REAL',LXMAT,NXMAT)
-        END IF
+            CALL GETMEM('XMAT','FREE','REAL',LXMAT,NXMAT)
+          END IF
 #elif _ENABLE_CHEMPS2_DMRG_
-        ELSE
-          write(6,*) 'CHEMPS2> MKRPTORB assumes '//
-     & 'PSEUDOCANONICAL orbitals!'
-        END IF
+          ELSE
+            write(6,*) 'CHEMPS2> MKRPTORB assumes '//
+     &    'PSEUDOCANONICAL orbitals!'
+          END IF
 #endif
+        end if
       END IF
 
 

@@ -9,7 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RDJOB(JOB,READ_STATES)
+      use rasdef, only: NRS1, NRS2, NRS3
+      use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
+      use Struct, only: LEVEL, mxlev
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names,
@@ -23,18 +26,13 @@
      &               mh5_close_file
 #endif
       IMPLICIT NONE
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='RDJOB')
 #include "rasdim.fh"
 #include "cntrl.fh"
 #include "Files.fh"
 #include "symmul.fh"
-#include "rasdef.fh"
 #include "rassi.fh"
 #include "jobin.fh"
 #include "WrkSpc.fh"
-#include "Struct.fh"
 #include "SysDef.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
@@ -45,7 +43,7 @@
      &           ref_nrs2(mxSym), ref_nrs3(mxSym), ref_nssh(mxSym),
      &           ref_ndel(mxSym), ref_nash(mxSym)
       integer :: ref_nactel, ref_nhole1, ref_nelec3, ref_nconf
-      integer :: ref_nstates, ref_nroots
+      integer :: ref_nstates, ref_nroots, ref_ndet
       integer, allocatable :: ref_rootid(:)
       integer :: root2state(MxRoot)
 
@@ -55,13 +53,14 @@
 #endif
 
       Real*8 Weight(MxRoot), ENUCDUMMY, AEMAX, E, HIJ
-      Integer IAD, IAD15, IDISK, IERR
+      Integer IAD, IAD15, IDISK, IERR, IDUM(1)
       Integer IPT2
       Integer ISY, IT
       Integer I, J, ISTATE, JSTATE, ISNUM, JSNUM, iAdr
-      Integer LEJOB, LHEFF, NEJOB, NHEFF, NIS, NIS1, NTIT1, NMAYBE
+      Integer LEJOB, LEREAD, LHEFF, NEJOB, NHEFF, NIS, NIS1, NTIT1,
+     &        NMAYBE
       INTEGER JOB, NROOT0
-      LOGICAL READ_STATES
+      LOGICAL ISZERO, READ_STATES
 #ifdef _HDF5_
       character(len=16) :: molcas_module
       character(len=8)  :: heff_string
@@ -82,7 +81,7 @@
 ************************************************************************
       If (mh5_is_hdf5(jbname(job))) Then
 
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         IF (JOB.EQ.1) THEN
           WRITE(6,*)
           WRITE(6,'(6X,80A1)') ('*',i=1,80)
@@ -93,7 +92,7 @@
           WRITE(6,'(6X,80A1)') ('*',i=1,80)
         END IF
         WRITE(6,*)
-        WRITE(6,*)'  Specific data for HDF5 file ',JBNAME(JOB)
+        WRITE(6,*)'  Specific data for HDF5 file ',trim(JBNAME(JOB))
         WRITE(6,*)'  -------------------------------------'
       END IF
 
@@ -110,10 +109,17 @@
       call mh5_fetch_attr (refwfn_id,'NELEC3', ref_nelec3)
       call mh5_fetch_attr (refwfn_id,'NCONF',  ref_nconf)
       call mh5_fetch_attr (refwfn_id,'NSTATES', ref_nstates)
-      If (mh5_exists_dset(refwfn_id, 'NROOTS')) Then
+      If (mh5_exists_attr(refwfn_id, 'NROOTS')) Then
         call mh5_fetch_attr (refwfn_id,'NROOTS', ref_nroots)
       Else
         ref_nroots = ref_nstates
+      End If
+* NDET array is read only from HDF5, the number is not in JOBIPH
+      If (mh5_exists_attr(refwfn_id,'NDET')) Then
+        call mh5_fetch_attr (refwfn_id,'NDET',ref_ndet)
+      Else
+* to avoid runtime error
+        ref_ndet = 1
       End If
 
       call mma_allocate (typestring, sum(ref_nbas(1:ref_nsym)))
@@ -121,7 +127,8 @@
       call tpstr2orb (ref_nsym,ref_nbas,typestring,
      &                ref_nfro,ref_nish,ref_nrs1,ref_nrs2,ref_nrs3,
      &                ref_nssh,ref_ndel)
-      ref_nash = ref_nrs1 + ref_nrs2 + ref_nrs3
+      ref_nash(1:NSYM) = ref_nrs1(1:NSYM) + ref_nrs2(1:NSYM) +
+     &                   ref_nrs3(1:NSYM)
       call mma_deallocate (typestring)
 
 #ifdef _DMRG_
@@ -143,7 +150,7 @@
         Call AbEnd()
       End If
 
-      call mh5_fetch_attr (refwfn_id,'L2ACT', L2ACT)
+*     call mh5_fetch_attr (refwfn_id,'L2ACT', L2ACT)
       call mh5_fetch_attr (refwfn_id,'A2LEV', LEVEL)
 
       call mma_allocate(ref_rootid,ref_nstates)
@@ -152,7 +159,7 @@
       If (mh5_exists_attr(refwfn_id, 'ROOT2STATE')) Then
          call mh5_fetch_attr (refwfn_id,'ROOT2STATE', root2state)
       Else
-        Do i=1,ref_nstates
+        Do i=1,ref_nroots
           root2state(i)=i
         End Do
       End if
@@ -228,6 +235,9 @@
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
           Work(LREFENE+istate-1)=ref_energies(ISNUM)
+          ! put the energies on the Heff diagonal too, just in case
+          iadr=(istate-1)*nstate+istate-1
+          Work(l_heff+iadr)=ref_energies(ISNUM)
         END DO
         call mma_deallocate(ref_energies)
 * read rasscf energies
@@ -239,6 +249,9 @@
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
           Work(LREFENE+istate-1)=ref_energies(ISNUM)
+          ! put the energies on the Heff diagonal too, just in case
+          iadr=(istate-1)*nstate+istate-1
+          Work(l_heff+iadr)=ref_energies(ISNUM)
         END DO
         call mma_deallocate(ref_energies)
       End If
@@ -260,8 +273,8 @@
             call mh5_fetch_dset(refwfn_id,'QCMAQUIS_CHECKPOINT',
      &                          qcm_group_names(job)%states(i:i),
      &                          [1],[LROOT(ISTATE)-1])
-!           Write(6,'(I3,A,A)') ISTATE, '   ',
-!    &      trim(qcm_group_names(job)%states(i))
+            Write(6,'(5X,I3,3X,A)') ISTATE,
+     &      trim(qcm_group_names(job)%states(i))
           END DO
           write(6,*) "  --------------------------"
           !! save QCMaquis prefix
@@ -307,6 +320,13 @@
       IRREP(JOB)=ref_stSym
       NCONF(JOB)=ref_nConf
       NROOTS(JOB)=ref_nroots
+* in singlet case the number of determinants is doubled in rassi
+* compare to the rasscf routine, storing here due to rassi procedure
+      if (mltplt(JOB) == 1) then
+        nDet(JOB) = 2*ref_ndet-1
+      else
+        nDet(JOB) = ref_ndet
+      end if
 
       if (job.eq.1) then
 * first wavefunction file, set global variables
@@ -345,7 +365,7 @@
       IF(ref_nactel.EQ.0) WFTYPE='EMPTY   '
       RASTYP(JOB)=WFTYPE
 
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         WRITE(6,*)'  STATE IRREP:        ',IRREP(JOB)
         WRITE(6,*)'  SPIN MULTIPLICITY:  ',MLTPLT(JOB)
         WRITE(6,*)'  ACTIVE ELECTRONS:   ',NACTE(JOB)
@@ -359,7 +379,7 @@
         end if
 #endif
       END IF
-      IF(IPGLOB.GE.VERBOSE)
+      IF(IPGLOB.GE.3)
      &          WRITE(6,*)'  Wave function type WFTYPE=',WFTYPE
 
       call mma_deallocate(ref_rootid)
@@ -380,7 +400,7 @@
           call abend()
       end if
 #endif
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         IF (JOB.EQ.1) THEN
           WRITE(6,*)
           WRITE(6,'(6X,80A1)') ('*',i=1,80)
@@ -391,7 +411,7 @@
           WRITE(6,'(6X,80A1)') ('*',i=1,80)
         END IF
         WRITE(6,*)
-        WRITE(6,*)'  Specific data for JOBIPH file ',JBNAME(JOB)
+        WRITE(6,*)'  Specific data for JOBIPH file ',trim(JBNAME(JOB))
         WRITE(6,*)'  -------------------------------------'
       END IF
 C Open JOBIPH file:
@@ -435,28 +455,44 @@ C is added in GETH1.
         END IF
       END DO
 
-C Using energy data from JobIph?
-      IF(IFEJOB) THEN
-        IF(ITOC15(15).EQ.-1) HAVE_HEFF=.TRUE.
-        NEJOB=MXROOT*MXITER
-        CALL GETMEM('EJOB','ALLO','REAL',LEJOB,NEJOB)
-        IAD=ITOC15(6)
-        CALL DDAFILE(LUIPH,2,WORK(LEJOB),NEJOB,IAD)
+C First read energies, which may be used in any case
+      NEJOB=MXROOT*MXITER
+      CALL GETMEM('EJOB','ALLO','REAL',LEJOB,NEJOB)
+      IAD=ITOC15(6)
+      CALL DDAFILE(LUIPH,2,WORK(LEJOB),NEJOB,IAD)
 C Note that there is no info on nr of iterations
 C so we cannot know what energies to pick...
 C Let us make a guess: The correct set of energy values in the
 C table of energies/iteration is the last one with not all zeroes.
-        NMAYBE=0
-        DO IT=1,MXITER
-          AEMAX=0.0D0
-          DO I=1,MXROOT
-            E=WORK(LEJOB+MXROOT*(IT-1)+(I-1))
-            AEMAX=MAX(AEMAX,ABS(E))
-          END DO
-          IF(ABS(AEMAX).LE.1.0D-12) GOTO 11
-          NMAYBE=IT
+      NMAYBE=0
+      DO IT=1,MXITER
+        AEMAX=0.0D0
+        DO I=1,MXROOT
+          E=WORK(LEJOB+MXROOT*(IT-1)+(I-1))
+          AEMAX=MAX(AEMAX,ABS(E))
         END DO
-  11    CONTINUE
+        IF(ABS(AEMAX).LE.1.0D-12) exit
+        NMAYBE=IT
+      END DO
+      CALL GETMEM('EREAD','ALLO','REAL',LEREAD,NSTATE)
+      DO I=1,NSTAT(JOB)
+        ISTATE=ISTAT(JOB)-1+I
+#ifdef _DMRG_
+        if (doDMRG) then
+          E=WORK(LEJOB-1+LROOT(ISTATE)-ISTAT(JOB)+1+MXROOT*(NMAYBE-1))
+        else
+#endif
+        E=WORK(LEJOB-1+LROOT(ISTATE)+MXROOT*(NMAYBE-1))
+#ifdef _DMRG_
+        endif
+#endif
+        Work(LEREAD+istate-1)=E
+      END DO
+      CALL GETMEM('EJOB','FREE','REAL',LEJOB,NEJOB)
+
+C Using energy data from JobIph?
+      IF(IFEJOB) THEN
+        IF(ITOC15(15).EQ.-1) HAVE_HEFF=.TRUE.
         IF(NMAYBE.EQ.0) THEN
           WRITE(6,*)' Sorry. Keyword ''EJOB'' has been used'
           WRITE(6,*)' but there are no energies available on'
@@ -464,23 +500,13 @@ C table of energies/iteration is the last one with not all zeroes.
           CALL ABEND()
         END IF
         HAVE_DIAG=.TRUE.
-
-C Put these energies into diagonal of Hamiltonian:
+C Put the energies into diagonal of Hamiltonian:
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
-#ifdef _DMRG_
-          if (doDMRG) then
-            E=WORK(LEJOB-1+LROOT(ISTATE)-ISTAT(JOB)+1+MXROOT*(NMAYBE-1))
-          else
-#endif
-          E=WORK(LEJOB-1+LROOT(ISTATE)+MXROOT*(NMAYBE-1))
-#ifdef _DMRG_
-          endif
-#endif
-          Work(LREFENE+istate-1)=E
+          Work(LREFENE+istate-1)=Work(LEREAD+istate-1)
         END DO
-        CALL GETMEM('EJOB','FREE','REAL',LEJOB,NEJOB)
       END IF
+
 C Using effective Hamiltonian from JobIph file?
       IF(IFHEFF) THEN
         IF(ITOC15(15).NE.-1) THEN
@@ -512,21 +538,28 @@ C If both EJOB and HEFF are given, read only the diagonal
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
             ISNUM=LROOT(ISTATE)
+            ISZERO=.TRUE.
             DO J=1,NSTAT(JOB)
               JSTATE=ISTAT(JOB)-1+J
               JSNUM=LROOT(JSTATE)
               HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
               iadr=(istate-1)*nstate+jstate-1
               Work(l_heff+iadr)=HIJ
-              Work(LREFENE+istate-1)=HIJ
+              IF (I.EQ.J) Work(LREFENE+istate-1)=HIJ
+              IF (ABS(HIJ)>0.0d0) ISZERO=.FALSE.
             END DO
+            IF (ISZERO) THEN
+              iadr=(istate-1)*nstate+istate-1
+              Work(l_heff+iadr)=Work(LEREAD+istate-1)
+            END IF
           END DO
         END IF
         CALL GETMEM('HEFF','FREE','REAL',LHEFF,NHEFF)
       END IF
+      CALL GETMEM('EREAD','FREE','REAL',LEREAD,NSTATE)
 C Read the level to orbital translations
       IDISK=ITOC15(18)
-      CALL IDAFILE(LUIPH,2,L2ACT,MXLEV,IDISK)
+      CALL IDAFILE(LUIPH,0,IDUM,MXLEV,IDISK) ! L2ACT
       CALL IDAFILE(LUIPH,2,LEVEL,MXLEV,IDISK)
 C Close JobIph file
       CALL DACLOS(LUIPH)
@@ -591,7 +624,7 @@ C CHECK THAT DATA IS CONSISTENT WITH EARLIER:
       END IF
 
 C DATA PARTICULAR TO THIS JOBIPH:
-      IF (IPGLOB.GE.USUAL) THEN
+      IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)'  Header from SEWARD:'
         WRITE(6,'(7X,36A2)')(HEAD1(I),I=1,36)
@@ -622,7 +655,7 @@ C AMOUNT OF TITLE LINES.
       IF(NACTE1.EQ.2*SUM(NASH(1:NSYM))) WFTYPE='CLOSED  '
       IF(NACTE1.EQ.0) WFTYPE='EMPTY   '
       RASTYP(JOB)=WFTYPE
-      IF(IPGLOB.GE.VERBOSE)
+      IF(IPGLOB.GE.3)
      &          WRITE(6,*)'  Wave function type WFTYPE=',WFTYPE
       NACTE(JOB)=NACTE1
       MLTPLT(JOB)=MPLET1

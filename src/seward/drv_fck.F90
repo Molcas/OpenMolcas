@@ -26,7 +26,7 @@ integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), ipad,
 integer(kind=iwp), intent(out) :: ip(nComp)
 real(kind=wp), intent(in) :: CCoor(3,nComp), rNuc(nComp), rHrmt, opmol(*), opnuc(*), PtChrg(nGrid)
 #include "print.fh"
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: iadr, iComp, iIrrep, iOpt, iPrint, iRC, iRout, iSmLbl, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
 real(kind=wp), allocatable :: Int1El(:)
 integer(kind=iwp), external :: n2Tri
@@ -85,7 +85,7 @@ call SOS(iStabO,nStabO,llOper)
 ! Will just store the unique elements, i.e. low triangular blocks
 ! and lower triangular elements in the diagonal blocks.
 
-call ICopy(nComp,[-1],0,ip,1)
+ip(:) = -1
 LenTot = 0
 do iComp=1,nComp
   LenInt = n2Tri(lOper(iComp))
@@ -193,12 +193,12 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use define_af, only: AngTp
 
 implicit none
 character(len=8), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(0:7), nStabO, nIC
 real(kind=wp), intent(in) :: Int1El(LenTot), rHrmt
-#include "angtp.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iElem, ii, iIC, iIrrep, ijB, &
                      ijC, iPrim, iPrint, iRout, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, &
@@ -206,7 +206,7 @@ integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCR
                      nDCRT, nOp(2), nSkal, nSO, nStabM
 real(kind=wp) :: A(3), B(3), Fact, RB(3)
 real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
-character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 
 iRout = 112
@@ -329,7 +329,7 @@ do iS=1,nSkal
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    !       Loops over symmetry operations acting on the basis.
+    ! Loops over symmetry operations acting on the basis.
 
     nOp(1) = NrOpr(0)
     !do lDCRR=0,nDCRR-1

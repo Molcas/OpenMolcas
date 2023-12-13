@@ -15,14 +15,17 @@
 *                                                                      *
 ************************************************************************
       Use MpmC
+      Use Integral_interfaces, only: int_kernel, int_mem
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      use OneDat, only: sOpSiz
       use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
 #endif
       Implicit Real*8 (A-H,O-Z)
-      External EMFInt, EMFMem
+      Procedure(int_kernel) :: EMFInt
+      Procedure(int_mem) :: EMFMem
 *     ipList: list of pointers to the integrals of each component
 *             of the operator
 *     OperI: list which irreps a particular component of the operator
@@ -39,12 +42,10 @@
       Integer IOFF(8,8)
 #endif
 #include "print.fh"
-#include "nq_info.fh"
 #include "real.fh"
 #include "wldata.fh"
-#include "property_label.fh"
 #include "oneswi.fh"
-#include "warnings.fh"
+#include "warnings.h"
       Character*8 Label
       Dimension dum(1),idum(1)
 *
@@ -105,8 +106,7 @@
 *     terms of multipole integrals
 *
       iOpt0=0 ! Write
-      iOpt1=1 ! Read just data size and symmetry
-      iOpt2=2 ! Read
+      iOpt1=ibset(0,sOpSiz) ! Read just data size and symmetry
       iRc=-1
       Label='TMOM0  R'
       iComp=1

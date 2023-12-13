@@ -26,7 +26,7 @@ implicit none
 integer(kind=iwp) :: i, iSym, kOff, n2Bas, nBasT, nOrbT
 character(len=80) :: Txt
 character(len=512) :: FName
-character(len=22), parameter :: SecNam = 'GetInfo_Localisation_0'
+character(len=*), parameter :: SecNam = 'GetInfo_Localisation_0'
 
 ! Read number of irreps.
 ! ----------------------

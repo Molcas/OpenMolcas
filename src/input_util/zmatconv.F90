@@ -12,22 +12,21 @@
 subroutine ZMatConv(LuWr,iAtom,iErr)
 
 use ZMatConv_Mod, only: iZmat, Coords, Zmat
-use Constants, only: Zero, One, Pi
+use Constants, only: Zero, One, deg2rad
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuWR, iAtom
 integer(kind=iwp), intent(out) :: iErr
 integer(kind=iwp) :: i
-real(kind=wp) :: arg, dCBiAtom, dCTiAtom, dSBiAtom, dSTiAtom, r, torad, u1(3), u2(3), u3(3), u4(3), vj(3), vp(3)
+real(kind=wp) :: arg, dCBiAtom, dCTiAtom, dSBiAtom, dSTiAtom, r, u1(3), u2(3), u3(3), u4(3), vj(3), vp(3)
 
 iErr = 0
 
-torad = Pi/180.0_wp
-dCBiAtom = cos(torad*Zmat(2,iAtom))
-dSBiAtom = sin(torad*Zmat(2,iAtom))
-dCTiAtom = cos(torad*Zmat(3,iAtom))
-dSTiAtom = sin(torad*Zmat(3,iAtom))
+dCBiAtom = cos(Zmat(2,iAtom)*deg2rad)
+dSBiAtom = sin(Zmat(2,iAtom)*deg2rad)
+dCTiAtom = cos(Zmat(3,iAtom)*deg2rad)
+dSTiAtom = sin(Zmat(3,iAtom)*deg2rad)
 if (abs(dCBiAtom) < 1.0e-10_wp) dCBiAtom = Zero
 if (abs(dSBiAtom) < 1.0e-10_wp) dSBiAtom = Zero
 if (abs(dCTiAtom) < 1.0e-10_wp) dCTiAtom = Zero

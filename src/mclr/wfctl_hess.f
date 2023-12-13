@@ -43,7 +43,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "machine.fh"
 #include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
 *
@@ -73,9 +72,9 @@
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:)
       Integer, Allocatable:: List(:,:)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       Interface
       SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
      &                   Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
@@ -347,9 +346,9 @@ C         iDisp=iDisp+1
 *                                                                      *
 *         (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
 *
-          If (PT2) then
-             Call RHS_PT2(Temp4,ipST)
-          Else
+          ! If (PT2) then
+            !  Call RHS_PT2(Temp4,Temp4,Temp4)
+          ! Else
              Call RHS(Sigma,Kappa,Temp1,
      &                Temp3,Sc2,dKappa,
      &                Sc3,
@@ -363,7 +362,7 @@ C         iDisp=iDisp+1
              Write (LuWr,*) 'dKap=',DDot_(nDens,dKappa,1,dKappa,1)
              Write (LuWr,*) 'CMO=',DDot_(nCMO,CMO,1,CMO,1)
 #endif
-          End If
+          ! End If
           irc=opout(ipci)
 *
           Write (LuWr,*) 'Process perturbation number ',iDisp
@@ -643,10 +642,10 @@ C         iDisp=iDisp+1
            Write (LuWr,*) 'Sc2=',DDot_(nDens,Sc2,1,Sc2,1)
            If (CI) Then
               Write (LuWr,*) 'Sc3=',DDot_(nDens,Sc3,1,Sc3,1)
-              irc=pin1(ipS2,nconf1)
+              irc=ipin1(ipS2,nconf1)
               Write(LuWr,*)'S2=',DDot_(nConf1,W(ipS2)%Vec,1,
      &                                        W(ipS2)%Vec,1)
-              irc=pin1(ipS1,nconf1)
+              irc=ipin1(ipS1,nconf1)
               Write(LuWr,*)'S1=',DDot_(nConf1,W(ipS1)%Vec,1,
      &                                        W(ipS1)%Vec,1)
            End If

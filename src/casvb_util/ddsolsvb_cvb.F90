@@ -1,0 +1,37 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+!               1996-2006, David L. Cooper                             *
+!***********************************************************************
+
+subroutine ddsolsvb_cvb( &
+#                       define _CALLING_
+#                       include "ddsol_interface.fh"
+                       )
+
+use Definitions, only: wp, iwp
+
+implicit none
+#include "ddsol_interface.fh"
+real(kind=wp), external :: dnrm2_
+
+#include "macros.fh"
+unused_var(ap)
+unused_var(nfrdim)
+
+eig = dnrm2_(itdav,rhsp,1)
+solp(:) = rhsp(1:itdav)/eig
+eig_res = eig
+solp_res(:) = solp(:)
+
+return
+
+end subroutine ddsolsvb_cvb

@@ -11,6 +11,7 @@
 * Copyright (C) Markus P. Fuelscher                                    *
 *               Luis Serrano-Andres                                    *
 ***********************************************************************/
+
 /******************************************************************************/
 /*                                                                            */
 /*  objective:                                                                */
@@ -51,51 +52,52 @@
 #include "molcastype.h"
 
 #ifdef _CAPITALS_
-#define allocdisk ALLOCDISK
+# define allocdisk ALLOCDISK
 #else
-#ifndef ADD_
-#define allocdisk allocdisk_
-#endif
+# ifndef ADD_
+#   define allocdisk allocdisk_
+# endif
 #endif
 
-char* getenvc(const char*);
-
+char *getenvc(const char *);
 
 INT allocdisk()
 
 {
 
-   char *disksize;
-   char *ptr;
-   INT MBytes;
+  char *disksize;
+  char *ptr;
+  INT MBytes;
 
-   disksize=getenvc("MOLCAS_DISK");
-   if(disksize==NULL) {
-      fprintf(stdout,"grabit: MOLCAS_DISK is not defined \n");
-      MBytes=0;
-   } else {
-      MBytes=0;
-      ptr=disksize;
-      while(*disksize!='\0') {
-         if(isdigit(*disksize)) MBytes=10*MBytes+*disksize-'0';
-         disksize++;
-      }
-      free(ptr);
-#ifdef _I8_
-      if(MBytes==0) MBytes=204700;
-#else
-      if(MBytes==0) MBytes=2047;
-#endif
-#ifdef _CRAY_C90_
-      MBytes=0;
-#endif
-/*
-      fprintf(stdout,"grabit: MOLCASDISK is ");
-      fprintf(stdout,INT_FORMAT,MBytes);
-      fprintf(stdout," MBytes \n");
-*/
-   }
+  disksize = getenvc("MOLCAS_DISK");
+  if (disksize == NULL) {
+    fprintf(stdout, "grabit: MOLCAS_DISK is not defined \n");
+    MBytes = 0;
+  } else {
+    MBytes = 0;
+    ptr = disksize;
+    while (*disksize != '\0') {
+      if (isdigit(*disksize))
+        MBytes = 10 * MBytes + *disksize - '0';
+      disksize++;
+    }
+    free(ptr);
+#   ifdef _I8_
+    if (MBytes == 0)
+      MBytes = 204700;
+#   else
+    if (MBytes == 0)
+      MBytes = 2047;
+#   endif
+#   ifdef _CRAY_C90_
+    MBytes = 0;
+#   endif
+    /*
+    fprintf(stdout, "grabit: MOLCASDISK is ");
+    fprintf(stdout, INT_FORMAT, MBytes);
+    fprintf(stdout, " MBytes \n");
+    */
+  }
 
-   return(MBytes);
-
+  return (MBytes);
 }

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine SetPrLev(LF_IN,IPRGLB_IN,IPRLOC_IN)
       Implicit Real*8 (A-H,O-Z)
-#include "warnings.fh"
+#include "warnings.h"
 #include "output_ras.fh"
       Dimension IPRLOC_IN(7)
 *

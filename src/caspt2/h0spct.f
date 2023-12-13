@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE H0SPCT
-      use output_caspt2, only:iPrGlb,verbose
-      use output_caspt2, only:dnmThr,cntThr,cmpThr
+      use caspt2_output, only:iPrGlb,verbose
+      use caspt2_output, only:dnmThr,cntThr,cmpThr
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather
       USE Para_Info, ONLY: Is_Real_Par
@@ -92,7 +92,6 @@ C positioning.
           CALL RHS_ALLO(NIN,NIS,lg_VEC)
           CALL RHS_READ_SR(lg_RHS,ICASE,ISYM,IRHS)
           CALL RHS_READ_SR(lg_VEC,ICASE,ISYM,IVECX)
-
           IBUF=0
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN

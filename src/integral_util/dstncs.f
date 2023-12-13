@@ -1,35 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine Dstncs(Lbls,xyz,mCentr,Angstr,Max_Center,iCols)
-************************************************************************
-*                                                                      *
-* Object: to compute distances from a coordinate list                  *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
-#include "stdalloc.fh"
+!***********************************************************************
+!                                                                      *
+! Object: to compute distances from a coordinate list                  *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!***********************************************************************
+      use Constants, only: One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 #include "Molcas.fh"
-      Real*8 xyz(3,mCentr)
-      Character*(LENIN) Lbls(mCentr)
+      Integer mCentr, Max_Center, iCols
+      Real*8 xyz(3,mCentr), Angstr
+
+      Character(LEN=LENIN) Lbls(mCentr)
       Real*8, Allocatable:: BST(:)
       Integer, Allocatable:: iBST(:,:)
-*
+      Integer Lu, i, iCC, jCC, iC, jC, ii, IsFirst, MoreToGo, iiBst
+      Real*8 Fact, x1, y1, z1, Thr_R, Thr_D, x2, y2, z2, r, rr
+!
       lu=6
       If (mCentr.le.Max_Center) Then
-*
+!
          Do i = 1, 2
             Write (Lu,*)
             If (i.eq.1) Then
@@ -77,7 +81,7 @@
          End Do
          Return
       Else
-*
+!
          Write (Lu,*)
          Write (Lu,'(19X,A)')
      &            ' ************************************************* '
@@ -88,9 +92,9 @@
          Write (Lu,*)
          Write (Lu,'(A)') '     Atom centers     '//
      &                    '    Bohr        Angstrom'
-*
-CVV   Set .false. to get faster printing without sorting.
-*
+!
+!VV   Set .false. to get faster printing without sorting.
+!
          If (.true.) then
             Thr_R=(3.0D0/Angstr)**2
             Thr_D=1D-4
@@ -114,7 +118,7 @@ CVV   Set .false. to get faster printing without sorting.
                   End If
                End Do
             End Do
-*#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
             do ii=1,iiBST
                 R=sqrt(BST(ii))
@@ -126,20 +130,20 @@ CVV   Set .false. to get faster printing without sorting.
 #endif
             MoreToGo=1
             Do While (MoreToGo.eq.1)
-*
-*              Find the shortest distance between any atoms
-*
+!
+!              Find the shortest distance between any atoms
+!
                R=100D0
                do ii=1,iiBST
                   R=MIN(R,BST(ii))
                enddo
-*
+!
                If (R.gt.90D0) Exit
-*
+!
                moretogo=0
                isfirst=1
                do ii=1,iiBST
-*
+!
                   If (abs(R-BST(ii)).lt.Thr_D) Then
                      If (isfirst.eq.1) Then
                         RR=SQRT(R)
@@ -160,9 +164,9 @@ CVV   Set .false. to get faster printing without sorting.
             End Do
             Call mma_deallocate(iBST)
             Call mma_deallocate(BST)
-*
+!
          Else
-*
+!
             Thr_R=3.0D0
             Do icc = 1, mCentr
                x1 = xyz(1,icc)
@@ -180,6 +184,6 @@ CVV   Set .false. to get faster printing without sorting.
             End Do
           End If
       End If
-*
+!
       Return
-      End
+      End SubRoutine Dstncs

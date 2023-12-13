@@ -1,6 +1,6 @@
 **********************************************************************
 * Molecule: CO2
-* Basis: SVP
+* Basis: def-SVP
 * Symmetry: C2v
 * Features tested: Cholesky decomposition (seward),
 *                  Cholesky SCF (algo=3),
@@ -20,11 +20,11 @@ ThrCholesky
  1.0d-6
 
 Basis Set
-C.svp.....
+C.def-SVP.....
 C   0.0  0.0  0.0
 End Of Basis
 Basis Set
-O.svp.....
+O.def-SVP.....
 O   0.0  0.0  2.5
 End Of Basis
 End Of Input

@@ -37,12 +37,12 @@ character(len=256) :: FileStr, FileIn
 character(len=120) :: SelectStr
 character(len=80) :: Key, MULLprt
 character :: What
-character(len=265), parameter :: AllKeys = 'PRIN BINA ASCI NPOI DENS SPAR ORBI REGI ONE  TITL '// &
-                                           'GAP  END  NODE TOTA NAME VB   ALL  ATOM CUBE GRID '// &
-                                           'PACK PKLI PKBI NOOR LINE ORAN ERAN DEBU CUTO NOPA '// &
-                                           'GORI SELE NOSO FILE SPHR COLO VIRT MULL SUBB XDER '// &
-                                           'YDER ZDER GDER CURD CRXJ UMAX NOLU XFIE LUS1 LUS2 '// &
-                                           'PLUS MINU XFMI'
+character(len=*), parameter :: AllKeys = 'PRIN BINA ASCI NPOI DENS SPAR ORBI REGI ONE  TITL &
+                                         &GAP  END  NODE TOTA NAME VB   ALL  ATOM CUBE GRID &
+                                         &PACK PKLI PKBI NOOR LINE ORAN ERAN DEBU CUTO NOPA &
+                                         &GORI SELE NOSO FILE SPHR COLO VIRT MULL SUBB XDER &
+                                         &YDER ZDER GDER CURD CRXJ UMAX NOLU XFIE LUS1 LUS2 &
+                                         &PLUS MINU XFMI'
 integer(kind=iwp), external :: MyGetKey
 
 !do i=1,nRout
@@ -157,7 +157,7 @@ do
       !write(u6,*) ' Keyword ASCII is obsolete'
       !write(u6,*) ' It can be used only for debugging purpose'
       !write(u6,*) ' Note that .lus files produced with this option '
-      !write(u6,*) '      can not be visualised'
+      !write(u6,*) '      cannot be visualised'
       iBinary = 0
     case (4)
       ! NPOI
@@ -176,7 +176,7 @@ do
     case (7)
       ! ORBI Orbitals
       if (nReq > 0) then
-        write(u6,*) 'ORBI keyword can not be used together with SELEct'
+        write(u6,*) 'ORBI keyword cannot be used together with SELEct'
         call Quit_OnUserError()
       end if
       What = 'I'
@@ -330,7 +330,7 @@ do
       What = 'S'
       if (MyGetKey(InUnit,What,iD,rD,SelectStr,iD,iDum,rDum) /= 0) call error()
       if (nReq > 0) then
-        write(u6,*) 'SELEct keyword can not be used together with ORBItals'
+        write(u6,*) 'SELEct keyword cannot be used together with ORBItals'
         call Quit_OnUserError()
       end if
       call gridExpandSelect(SelectStr)
@@ -360,7 +360,7 @@ do
       !isMULL = 1
       read(InUnit,'(A)') MULLPRT
       call upCASE(MULLPRT)
-      call LeftAd(MULLPRT)
+      MULLPRT = adjustl(MULLPRT)
       !if (MULLPRT(1:4) == 'LONG') isLONGPRT = 1
     case (39)
       ! SUBBLOCK

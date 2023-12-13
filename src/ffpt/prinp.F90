@@ -59,7 +59,7 @@ if (mTit > 0) then
     if (i >= 4 .and. i <= nLine-2) then
       PrLine = Title(i-3)
     end if
-    call Center(PrLine)
+    call Center_Text(PrLine)
     write(u6,Fmt1) '*'//PrLine//'*'
   end do
   write(u6,*)
@@ -143,7 +143,7 @@ do iSub1=1,nSub1
         ist = ist+4
         z = ComVal(2,iSub1,iSub2,iParm)
         write(sData,'(F10.6)') z
-        call LeftAd(sData)
+        sData = adjustl(sData)
         iPoint = index(sData,'.')
         nice = .true.
         do i=iPoint+1,len_trim(sData)

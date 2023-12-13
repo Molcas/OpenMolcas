@@ -197,7 +197,7 @@ c      END IF
       IF(IPRDEN.GE.2)
      &WRITE(6,*) ' ICISTR,LSCR1 ',ICISTR,LSCR1
 *.SCRATCH space for block of two-electron density matrix
-* A 4 index block with four indeces belonging OS class
+* A 4 index block with four indices belonging OS class
       INTSCR = MXTSOB ** 4
       IF(IPRDEN.GE.2)
      &WRITE(6,*) ' Density scratch space ',INTSCR

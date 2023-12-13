@@ -10,10 +10,11 @@
 *                                                                      *
 * Copyright (C) 2002, Per-Olof Widmark                                 *
 ***********************************************************************/
+
 /**************************************************************************/
 /*                                                                        */
 /* This function is to be used by fortran routines. The purpose is to     */
-/* return the address of the argument, useful in f77 dymanic memory       */
+/* return the address of the argument, useful in f77 dynamic memory       */
 /* allocation.                                                            */
 /*                                                                        */
 /*------------------------------------------------------------------------*/
@@ -22,12 +23,16 @@
 /* Written: Jan. 2002                                                     */
 /*                                                                        */
 /**************************************************************************/
+
 #include "molcastype.h"
 #ifdef _CAPITALS_
-#define idloc IDLOC
+# define idloc IDLOC
 #else
-#ifndef ADD_
-#define idloc idloc_
+# ifndef ADD_
+#   define idloc idloc_
+# endif
 #endif
-#endif
-INT idloc(INT x) { return x; }
+
+INT idloc(double *x) {
+  return (INT)x;
+}

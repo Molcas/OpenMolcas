@@ -12,12 +12,13 @@
 C
 C     PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
 C
+      use mcpdft_output, only: insane, lf
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "gugx.fh"
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 C
       DIMENSION IDOWN(NVERT,0:3),IUP(NVERT,0:3),IRAW(NVERT,0:4)
 
@@ -38,7 +39,7 @@ C
         END DO
       END DO
 C
-      IF( IPRINT.GE.5 ) THEN
+      IF( IPRINT >= insane ) THEN
         Write(LF,*)
         Write(LF,*)' THE UPCHAIN TABLE IN MKRAW:'
         DO IV=1,NVERT
@@ -66,7 +67,7 @@ C
         IRAW(IV,4)=ISUM
       END DO
 C
-      IF( IPRINT.GE.5 ) THEN
+      IF( IPRINT >= insane ) THEN
         Write(LF,*)
         Write(LF,*)' THE REVERSE ARC WEIGHT TABLE IN MKRAW:'
         DO IV=1,NVERT

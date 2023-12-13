@@ -17,7 +17,7 @@ subroutine Print_MPPROP(rMP,xrMP,xnrMP,nij,nElem,lMax,EC,Polar,Lbl,nAtoms,iANr,N
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
@@ -37,7 +37,7 @@ character(len=6) :: fName
 logical(kind=iwp) :: Exists, Text, Bond_OK, Check_Bond, Found
 logical(kind=iwp), parameter :: Use_Two_Centers_For_Atoms = .false.
 real(kind=wp), allocatable :: Scratch_ele(:), Scratch_nuc(:)
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 MxMP = lMax
 if (lMax > MpProp_Level) MxMP = MpProp_Level

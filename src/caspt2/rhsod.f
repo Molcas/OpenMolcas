@@ -11,7 +11,7 @@
 * Copyright (C) Steven Vancoillie                                      *
 ************************************************************************
 *SVC: compute RHS elements "on demand". If we have access to all the
-* Cholesky vectors, we can just instruct a process to compute it's own
+* Cholesky vectors, we can just instruct a process to compute its own
 * block of RHS elements, computing the integrals directly. This is much
 * more computationally intensive, but should scale much better since we
 * go from a badly scaling scatter algorithm to no communication at all.
@@ -20,7 +20,7 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD(IVEC)
-      use output_caspt2, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb,verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -81,7 +81,7 @@
       SUBROUTINE RHSOD_A(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -92,8 +92,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -191,7 +190,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_C(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -202,8 +201,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -314,7 +312,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_B(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -326,8 +324,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -501,7 +498,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_F(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -513,8 +510,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -687,7 +683,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_H(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -699,8 +695,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -873,7 +868,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_D(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -884,8 +879,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
       DIMENSION NFIMOES(8)
 
@@ -1038,7 +1032,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_E(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1050,8 +1044,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN
@@ -1256,7 +1249,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_G(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1268,8 +1261,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "global.fh"
 #include "mafdecls.fh"
 #else
-      REAL*8 DBL_MB(1:IWORKLEN)
-      EQUIVALENCE (DBL_MB,WORK)
+#define DBL_MB Work
 #endif
 
       IF (iPrGlb.GE.DEBUG) THEN

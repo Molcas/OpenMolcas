@@ -11,7 +11,8 @@
 
 subroutine gugadrt_dbl_upwalk()
 
-use gugadrt_global, only: jpad_upwei, jroute_sys, lsm_inn, mxnode, mul_tab, ng_sm, norb_dbl, norb_dz, norb_frz, nu_ad, ns_sm
+use gugadrt_global, only: jpad_upwei, jroute_sys, lsm_inn, mxnode, ng_sm, norb_dbl, norb_dz, norb_frz, nu_ad, ns_sm
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
@@ -24,7 +25,7 @@ if (norb_dbl == 1) then
   mxnode = 17+ng_sm
   lri = norb_frz+1
   lsmi = lsm_inn(lri)
-  lsmid = mul_tab(lsmi,ns_sm)
+  lsmid = Mul(lsmi,ns_sm)
   ! for node_v
   nu_ad(1) = 1
   jpad_upwei(1) = 1
@@ -53,13 +54,13 @@ if (norb_dbl == 0) then
 end if
 do lri=norb_frz+1,norb_dz
   lsmi = lsm_inn(lri)
-  lsmid = mul_tab(lsmi,ns_sm)
+  lsmid = Mul(lsmi,ns_sm)
   no_d = lsmid+1
   jpad_upwei(no_d) = jpad_upwei(no_d)+1
   do lrj=lri+1,norb_dz
     lsmj = lsm_inn(lrj)
-    lsmij = mul_tab(lsmi,lsmj)
-    lsmit = mul_tab(lsmij,ns_sm)
+    lsmij = Mul(lsmi,lsmj)
+    lsmit = Mul(lsmij,ns_sm)
     no_t = lsmit+9
     jpad_upwei(no_t) = jpad_upwei(no_t)+1
   end do

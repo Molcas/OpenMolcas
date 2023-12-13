@@ -1,0 +1,38 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+#ifdef _CALLING_
+
+#ifdef _FIXED_FORMAT_
+     &iCmp,iShell,iBas,jBas,kBas,lBas,kOp,Shijij,iAO,iAOst,ijkl,AOInt,  &
+     &SOInt,nSOint,iSOSym,nSOs,TInt,nTInt,mSym                          &
+#else
+iCmp,iShell,iBas,jBas,kBas,lBas,kOp,Shijij,iAO,iAOst,ijkl,AOInt,SOInt,nSOint,iSOSym,nSOs,TInt,nTInt,mSym &
+#endif
+
+#else
+
+! TODO: unknown intents
+#ifdef _FIXED_FORMAT_
+      integer iCmp(4),iShell(4),iBas,jBas,kBas,lBas,kOp(4),iAO(4),      &
+     &iAOst(4),ijkl,nSOint,nSOs,iSOSym(2,nSOs),nTInt,mSym
+      logical Shijij
+      real*8 AOInt(*),SOInt(*),TInt(nTInt)
+#else
+integer(kind=iwp) :: iCmp(4), iShell(4), iBas, jBas, kBas, lBas, kOp(4), iAO(4), iAOst(4), ijkl, nSOint, nSOs, &
+                     iSOSym(2,nSOs), nTInt, mSym
+logical(kind=iwp) :: Shijij
+real(kind=wp) :: AOInt(*), SOInt(*), TInt(nTInt)
+#endif
+
+#endif
+
+#undef _CALLING_

@@ -12,7 +12,8 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
-      use output_caspt2, only:iPrGlb,usual,verbose,debug
+      use caspt2_output, only:iPrGlb,usual,verbose,debug
+      use fciqmc_interface, only: DoFCIQMC
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -29,7 +30,7 @@
 #include "SysDef.fh"
 #include "intgrl.fh"
 #include "eqsolv.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "stdalloc.fh"
       LOGICAL IF_TRNSF
       CHARACTER(LEN=27)  STLNE2
@@ -83,7 +84,20 @@
         Jstate=J+JSTATE_OFF
 
 * Copy the 1-RDM of Jstate from LDMIX into LDREF
-        CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)
+        ! this might be obsolete if we remove sadref
+        IF (IFSADREF) Then
+          !! This DREF is used only for constructing the Fock in H0.
+          !! DREF used in other places will be constructed in elsewhere
+          !! (STINI).
+          Call DCopy_(NDREF,[0.0D+00],0,WORK(LDREF),1)
+          Do K = 1, Nstate
+            wij = 1.0d+00/nstate
+            ioffset = NDREF*(K-1)
+            CALL DAXPY_(NDREF,wij,WORK(LDMIX+ioffset),1,WORK(LDREF),1)
+          End Do
+        Else
+         CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)
+        End If
 
 * Compute the Fock matrix in MO basis for state Jstate
 * INTCTL1/INTCTL2 call TRACTL(0) and other routines to compute the
@@ -99,14 +113,13 @@
         end If
 
 c Modify the Fock matrix if needed
-        IF (FOCKTYPE.NE.'STANDARD') THEN
-           CALL NEWFOCK(WORK(LFIFA))
-        END IF
+c You don't have to be beautiful to turn me on
+        CALL NEWFOCK(WORK(LFIFA),WORK(LCMO))
 
 * NN.15, TODO:
 * MKFOP and following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
-        IF (DoCumulant) GoTo 100
+        IF (DoCumulant .or. DoFCIQMC) GoTo 100
 
 * Loop over bra functions
         do I=1,Ngrp
@@ -243,13 +256,15 @@ c Modify the Fock matrix if needed
 * transformed Cholesky vectors (if IfChol), so these are computed here
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
-      if (IfChol) then
+      if (.not. DoFCIQMC) then
+          if (IfChol) then
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices
-        call TRACHO3(WORK(LCMO))
-      else
+              call TRACHO3(WORK(LCMO))
+          else
 * TRACTL(0) computes transformed 2-body MO integrals
-        call TRACTL(0)
+              call TRACTL(0)
+          end if
       end if
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0

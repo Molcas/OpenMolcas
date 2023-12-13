@@ -10,12 +10,9 @@
 ************************************************************************
       SUBROUTINE SGMONE(ISGSTRUCT,ICISTRUCT,IXSTRUCT,
      &                  IP,IQ,CPQ,ISYCI,CI,SGM)
+      use Struct, only: nSGSize, nCISize, nXSize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SGMONE')
       DIMENSION CI(*),SGM(*)
-#include "Struct.fh"
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
@@ -43,5 +40,4 @@
      &             IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &             WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 
-      return
       end

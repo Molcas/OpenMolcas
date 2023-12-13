@@ -17,8 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS1_RPT2 (CI,SGM1,G1)
-      use output_caspt2, only:iPrGlb,debug
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+      use caspt2_output, only:iPrGlb,debug
+      use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       IMPLICIT NONE
@@ -53,6 +54,11 @@
 
 
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)
+
+      if (DoFCIQMC) then
+        Call load_fciqmc_g1(nlev, G1, MSTATE(1))
+        goto 99
+      end if
 
 * For the special cases, there is no actual CI-routines involved:
 * Special code for hi-spin case:
@@ -123,7 +129,7 @@
 *      needed to achieve better load balancing. So it exits from the task
 *      list. It has to do it here since each process gets at least one
 *      task.
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
 #endif
 

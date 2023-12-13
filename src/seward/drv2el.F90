@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Drv2El(Integral_WrOut,ThrAO)
+subroutine Drv2El(ThrAO)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals.                          *
@@ -28,22 +28,21 @@ subroutine Drv2El(Integral_WrOut,ThrAO)
 
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
-use Real_Info, only: CutInt
+use Gateway_Info, only: CutInt
+use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Thize, TskCount => Quad_ijkl, W2Disc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
 
 implicit none
-external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
-real(kind=wp) :: A_int, Disc, Dix_Mx, ExFac(1), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, Thize, &
-                 TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
-integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, Nr_Dens, nSkal
-logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoIntegrals, DoFock, DoGrad, FckNoClmb(1), FckNoExch(1), &
-                     Triangular
+integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
+real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, TMax_all, TskHi, TskLw, TWall1, &
+                 Twall2
+logical(kind=iwp) :: DoGrad, Indexation, Triangular
 character(len=72) :: SLine
-real(kind=wp), allocatable :: Dens(:), Fock(:), TInt(:), TMax(:,:)
-integer(kind=iwp), parameter :: nTInt = 1, mDens = 1
+real(kind=wp), allocatable :: TInt(:), TMax(:,:)
+integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 logical(kind=iwp), external :: Rsv_GTList
 
@@ -55,13 +54,18 @@ call StatusLine(' Seward:',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+! Set variables in module Int_Options
+DoIntegrals = .true. ! Default value
+DoFock = .false.     ! Default value
+FckNoClmb = .false.  ! Default value
+FckNoExch = .false.  ! Default value
 ExFac = One
-Nr_Dens = 1
-DoIntegrals = .true.
-DoFock = .false.
+Thize = Zero         ! Default value
+PreSch = .true.      ! Default value
+Disc_Mx = Zero       ! Default value
+Disc = Zero          ! Default value
+
 DoGrad = .false.
-FckNoClmb = .false.
-FckNoExch = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -78,11 +82,6 @@ call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Thize = Zero               ! Not used for conventional integrals
-PreSch = .true.            ! Not used for conventional integrals
-
-Disc = Zero
-Dix_Mx = Zero
 TskHi = Zero
 TskLw = Zero
 !                                                                      *
@@ -134,6 +133,7 @@ call CWTime(TCpu1,TWall1)
 
 ! big loop over individual tasks distributed over individual nodes
 
+call mma_allocate(TInt,nTInt,label='TInt') ! Not used
 do
   ! make reservations of a tesk in global task list and get task range
   ! in return. Function will be false if no more tasks to execute.
@@ -173,15 +173,7 @@ do
 
         A_int = TMax(iS,jS)*TMax(kS,lS)
         if (A_Int >= CutInt) then
-          ! from Dens are dummy arguments
-          call mma_allocate(TInt,nTInt,label='TInt')
-          call mma_allocate(Dens,mDens,label='Dens')
-          call mma_allocate(Fock,mDens,label='Fock')
-          call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,Dens,Fock,mDens,ExFac,Nr_Dens,FckNoClmb,FckNoExch, &
-                                   Thize,W2Disc,PreSch,Dix_Mx,Disc,TskCount,DoIntegrals,DoFock)
-          call mma_deallocate(TInt)
-          call mma_deallocate(Dens)
-          call mma_deallocate(Fock)
+          call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
         end if
       end if
     end if
@@ -198,14 +190,10 @@ do
     lS = Pair_Index(2,klS)
   end do
 
-  ! Use a time slot to save the number of tasks and shell
-  ! quadrupltes process by an individual node
-  call SavStat(1,One,'+')
-  call SavStat(2,TskHi-TskLw+One,'+')
 end do
+call mma_deallocate(TInt)
 ! End of big task loop
 call CWTime(TCpu2,TWall2)
-call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -224,10 +212,9 @@ call mma_deallocate(TMax)
 !                                                                      *
 ! Terminate integral environment.
 
-Verbose = .false.
-FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints()
 call Free_iSD()
+call Init_Int_Options()
 
 return
 

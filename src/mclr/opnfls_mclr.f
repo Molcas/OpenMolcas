@@ -51,12 +51,12 @@
             End If
          End If
       End If
-      iRc=-1
-      iOpt=0
       Call f_Inquire(FnMCK,McKinley)
       Call f_Inquire(FnPT2,PT2)
       If (McKinley) Then
 *        Write(*,*) 'Calculating response on perturbation from mckinley'
+         iRc=-1
+         iOpt=0
          Call OpnMck(iRc,iOpt,FnMck,LuMck)
          If ( iRc.ne.0 ) Then
             Write (6,*) 'OpnFls: Error opening MCKINT'
@@ -74,9 +74,9 @@
          End If
 *
       Else If (PT2) Then
-       If (iPL.ge.2)
-     &     Write(6,*) 'Calculating lagrange multipliers for CASPT2'
-       Call DaName(LuPT2,FnPT2)
+C      If (iPL.ge.2)
+C    &     Write(6,*) 'Calculating lagrange multipliers for CASPT2'
+C      Call DaName(LuPT2,FnPT2)
       Else
        If (iPL.ge.2) Then
        Write(6,*)'No ',FnPT2,' or ' ,FNMCK, ', I hope that is OK'

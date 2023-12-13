@@ -26,6 +26,7 @@ Angstrom
 &SEWARD
  Relativistic=R02O02
 &SCF
+FERMI=2
 &DMRGSCF &END
 ActiveSpaceOptimizer=QCMaquis
 DMRGSettings

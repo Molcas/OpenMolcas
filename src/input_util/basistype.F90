@@ -124,63 +124,64 @@ else
     if (vNUCL == ' ') vNUCL = 'UNK'
   end if
   close(iunit)
-
-  ! now let's check the header of the basis file
-
-  Found = .false.
-  if (OrigName(1:LenOrig-1) /= ' ') call f_Inquire(DirName(1:ileft)//OrigName(1:LenOrig-1),Found)
-  if (Found) then
-    !write(u6,*) 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
-    call molcas_open(iunit,DirName(1:ileft)//OrigName(1:LenOrig-1))
-    do
-      read(iunit,'(a)',iostat=istatus) Line
-      if (istatus /= 0) exit
-      if (Line(1:1) == '/') then
-        ! we already reached body of the file.
-        LineComp = ':'//vCONT//':'//vALLE//':'//vRELA//':'//vNUCL//':'
-        isKnown = .true.
-        exit
-      end if
-      ! finish reading, let's create the return string
-
-      !write(u6,*) 'line=',Line
-      if (index(Line,CONT(1:index(CONT,' '))) == 1) then
-        i = index(Line,' ')
-        do j=i,len(Line)
-          if (Line(j:j) /= ' ') exit
-        end do
-        vCONT = Line(j:j+3)
-      end if
-      if (index(Line,ALLE(1:index(ALLE,' '))) == 1) then
-        i = index(Line,' ')
-        do j=i,len(Line)
-          if (Line(j:j) /= ' ') exit
-        end do
-        vALLE = Line(j:j+3)
-      end if
-      if (index(Line,RELA(1:index(RELA,' '))) == 1) then
-        i = index(Line,' ')
-        do j=i,len(Line)
-          if (Line(j:j) /= ' ') exit
-        end do
-        vRELA = Line(j:j+3)
-      end if
-
-      if (index(Line,NUCL(1:index(NUCL,' '))) == 1) then
-        i = index(Line,' ')
-        do j=i,len(Line)
-          if (Line(j:j) /= ' ') exit
-        end do
-        vNUCL = Line(j:j+3)
-      end if
-
-    end do
-
-    ! well, now use tbl
-
-    close(iunit)
-  end if
 end if
+
+! now let's check the header of the basis file
+
+Found = .false.
+if (OrigName(1:LenOrig-1) /= ' ') call f_Inquire(DirName(1:ileft)//OrigName(1:LenOrig-1),Found)
+if (Found) then
+  !write(u6,*) 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
+  call molcas_open(iunit,DirName(1:ileft)//OrigName(1:LenOrig-1))
+  do
+    read(iunit,'(a)',iostat=istatus) Line
+    if (istatus /= 0) exit
+    if (Line(1:1) == '/') then
+      ! we already reached body of the file.
+      LineComp = ':'//vCONT//':'//vALLE//':'//vRELA//':'//vNUCL//':'
+      isKnown = .true.
+      exit
+    end if
+    ! finish reading, let's create the return string
+
+    !write(u6,*) 'line=',Line
+    if (index(Line,CONT(1:index(CONT,' '))) == 1) then
+      i = index(Line,' ')
+      do j=i,len(Line)
+        if (Line(j:j) /= ' ') exit
+      end do
+      vCONT = Line(j:j+3)
+    end if
+    if (index(Line,ALLE(1:index(ALLE,' '))) == 1) then
+      i = index(Line,' ')
+      do j=i,len(Line)
+        if (Line(j:j) /= ' ') exit
+      end do
+      vALLE = Line(j:j+3)
+    end if
+    if (index(Line,RELA(1:index(RELA,' '))) == 1) then
+      i = index(Line,' ')
+      do j=i,len(Line)
+        if (Line(j:j) /= ' ') exit
+      end do
+      vRELA = Line(j:j+3)
+    end if
+
+    if (index(Line,NUCL(1:index(NUCL,' '))) == 1) then
+      i = index(Line,' ')
+      do j=i,len(Line)
+        if (Line(j:j) /= ' ') exit
+      end do
+      vNUCL = Line(j:j+3)
+    end if
+
+  end do
+
+  ! well, now use tbl
+
+  close(iunit)
+end if
+
 if (.not. isKnown) LineComp = ':UNK:UNK:UNK:UNK:'
 !write(u6,*) 'DEBUG=',LineComp
 tmp = LineComp(2:5)

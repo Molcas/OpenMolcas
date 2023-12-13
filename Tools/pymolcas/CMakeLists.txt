@@ -19,14 +19,14 @@ set (OUTPUT_PATH ${PROJECT_BINARY_DIR}/)
 file (GLOB py_sources "*.py")
 list (REMOVE_ITEM py_sources "${CMAKE_CURRENT_LIST_DIR}/pack.py")
 
-if (NOT PYTHONINTERP_FOUND)
-  set (dir_error "disabled (no appropriate python interpreter found)" PARENT_SCOPE)
+if (NOT Python_FOUND)
+  set (dir_error "disabled (no appropriate Python interpreter found)" PARENT_SCOPE)
   return ()
 endif ()
 
-set (PYTHONINTERP_FOUND "${PYTHONINTERP_FOUND}" PARENT_SCOPE)
+set (Python_FOUND "${Python_FOUND}" PARENT_SCOPE)
 
-execute_process (COMMAND ${PYTHON_EXECUTABLE} imports.py
+execute_process (COMMAND ${Python_EXECUTABLE} imports.py
                  WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                  OUTPUT_VARIABLE PYMOLCAS_IMPORT_OUTPUT
                  RESULT_VARIABLE PYMOLCAS_IMPORT_RC
@@ -34,7 +34,7 @@ execute_process (COMMAND ${PYTHON_EXECUTABLE} imports.py
 )
 
 if (PYMOLCAS_IMPORT_RC)
-  message (WARNING "Some python modules are not available: ${PYMOLCAS_IMPORT_OUTPUT}")
+  message (WARNING "Some Python modules are not available: ${PYMOLCAS_IMPORT_OUTPUT}")
   set (dir_error "disabled" PARENT_SCOPE)
   return ()
 endif ()
@@ -44,7 +44,7 @@ set (PYMOLCAS_SCRIPT "${PYMOLCAS_SCRIPT}" PARENT_SCOPE)
 
 # Note the command and the target must have different names
 add_custom_command (OUTPUT ${PYMOLCAS_SCRIPT}
-                    COMMAND ${PYTHON_EXECUTABLE} export.py ${PYMOLCAS_SCRIPT}
+                    COMMAND ${Python_EXECUTABLE} export.py ${PYMOLCAS_SCRIPT}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                     DEPENDS ${py_sources}
 )

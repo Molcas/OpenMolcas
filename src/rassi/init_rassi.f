@@ -10,12 +10,10 @@
 ************************************************************************
       SUBROUTINE INIT_RASSI
 
+      use rassi_aux, only: ipglob
       use rasscf_data, only: doDMRG
 
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='INIT')
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "symmul.fh"
@@ -23,6 +21,7 @@
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
+#include "hfc_logical.fh"
       Character*256 STRING
       Logical FoundTwoEls,DoCholesky
 
@@ -54,8 +53,6 @@ C UNIT NUMBERS AND NAMES
       LUCOM=33
       FNCOM='COMFILE'
       LUIPH=15
-      LUSCR=20
-      FNSCR='SCRATCH'
       LUEXC=22
       FNEXC='ANNI'
       LUEXT=21
@@ -71,24 +68,21 @@ C UNIT NUMBERS AND NAMES
       DO  I=1,MXJOB
         WRITE(MINAME(I),'(''MCK'',I3.3)') I
       END DO
-      IF(IPGLOB.GT.VERBOSE) THEN
+      IF(IPGLOB.GT.3) THEN
         WRITE(6,*)' Unit numbers and names:'
         WRITE(6,'(1x,I8,5x,A8)')LUONE,FNONE
         WRITE(6,'(1x,I8,5x,A8)')LUORD,FNORD
-        WRITE(6,'(1x,I8,5x,A8)')LUSCR,FNSCR
         WRITE(6,'(1x,I8,5x,A8)')LUEXC,FNEXC
       END IF
 
-      IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNSCR
-      CALL DANAME(LUSCR,FNSCR)
-      IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNEXC
+      IF(IPGLOB.GT.3) WRITE(6,*)' OPENING ',FNEXC
       CALL DANAME(LUEXC,FNEXC)
 
 
 C NR OF JOBIPHS AND STATES:
       NJOB=0
       NSTATE=0
-      IF(IPGLOB.GT.VERBOSE) THEN
+      IF(IPGLOB.GT.3) THEN
        WRITE(6,*)' INITIAL DEFAULT VALUES:'
        WRITE(6,'(1X,A,I4)')'  NJOB:',NJOB
        WRITE(6,'(1X,A,I4)')'NSTATE:',NSTATE
@@ -126,6 +120,7 @@ C DEFAULT FLAGS:
       PRORB=.FALSE.
       PRTRA=.FALSE.
       PRCI=.FALSE.
+      CIH5=.FALSE.
       IFHAM=.FALSE.
       IFEJOB=.FALSE.
       IFSHFT=.FALSE.
@@ -152,12 +147,13 @@ C DEFAULT FLAGS:
       PRMES=.FALSE.
       IFGCAL=.FALSE.
       EPRTHR=0.0D0
+      EPRATHR=0.0D0
       IFXCAL=.FALSE.
       IFMCAL=.FALSE.
       HOP=.FALSE.
       TRACK=.FALSE.
       ONLY_OVERLAPS=.FALSE.
-* Intesities
+* Intensities
       DIPR=.FALSE.
       OSTHR_DIPR = 0.0D0
       QIPR=.FALSE.
@@ -165,6 +161,10 @@ C DEFAULT FLAGS:
       QIALL=.FALSE.
       DYSO=.FALSE.
       DYSEXPORT=.FALSE.
+      TDYS=.FALSE.
+      OCAN=1
+      DCHS=.FALSE.
+      DCHO=1
 * Exact operator
       Do_TMOM=.FALSE.
       PRRAW=.FALSE.
@@ -191,6 +191,8 @@ cnf
 C tjd- BMII: Print out spin-orbit properties to files
       LPRPR=.FALSE.
       LHAMI=.FALSE.
+c Feng: test control
+      MAG_X2C=.FALSE.
 
 C K. Sharkas  BEG
       IFATCALSA=.FALSE.
@@ -199,6 +201,7 @@ C K. Sharkas  BEG
 C K. Sharkas  END
 
 c BP - Hyperfine tensor and SONATORB initialization
+c RF - SO-NTO initialization
       IFACAL=.FALSE.
       IFACALFC=.TRUE.
       IFACALSD=.TRUE.
@@ -207,7 +210,10 @@ c BP - Hyperfine tensor and SONATORB initialization
       SONATNSTATE=0
       SODIAGNSTATE=0
 
+      SONTOSTATES=0
+
       IFCURD=.FALSE.
+      IFARGU=.FALSE.
 
 
 * Nr of states for which natural orbitals will be computed:
@@ -220,7 +226,7 @@ c BP - Hyperfine tensor and SONATORB initialization
       Call DecideOnCholesky(DoCholesky)
       If (FoundTwoEls .or. DoCholesky) IFHAM=.True.
 
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
         WRITE(6,*)'Initial default flags are:'
         WRITE(6,*)'     PRSXY :',PRSXY
         WRITE(6,*)'     PRORB :',PRORB
@@ -262,7 +268,6 @@ c BP - Hyperfine tensor and SONATORB initialization
 
 C DEFAULT WAVE FUNCTION TYPE:
       WFTYPE='GENERAL '
-      IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' ***** INIT ENDS **********'
+      IF(IPGLOB.GT.3) WRITE(6,*)' ***** INIT ENDS **********'
 
-      RETURN
-      END
+      END SUBROUTINE INIT_RASSI

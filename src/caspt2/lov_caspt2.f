@@ -26,8 +26,8 @@
 * Author:   F. Aquilante  (Geneva, Feb. 2008)                          *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -38,6 +38,7 @@
       Logical DoMP2, DoEnv, all_Vir
       Character(Len=LENIN8) NAME(*)
       Character(Len=LENIN) blank, NamAct(mxAtom)
+      character(len=8) :: Label
       Logical ortho
       Real*8  TrA(8), TrF(8), TrX(8)
       Integer ns_O(8), ns_V(8)
@@ -117,7 +118,10 @@ C     -----------------------------------------------------------
       CALL GetMem('SMAT','ALLO','REAL',ipSQ,nSQ)
       CALL GetMem('SLT','ALLO','REAL',ipS,nTri)
       isymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,Work(ipS),isymlbl)
+      iopt=ibset(ibset(0,sNoOri),sNoNuc)
+      Label='Mltpl  0'
+      iComp=1
+      Call RdOne(irc,iopt,Label,iComp,Work(ipS),isymlbl)
       If(irc.ne.0) return
       ltri=0
       lsq=0
@@ -156,8 +160,9 @@ C     -----------------------------------------------------------
      &                      Zero,Work(ipZ),nBx)
          jBas=lBas+1
          kBas=lBas+nBas(iSym)
-         Call BasFun_Atom_(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
-     &                     Name,jBas,kBas,nUniqAt,.false.)
+         Call BasFun_Atom_Sym(iWork(ip_nBas_per_Atom),
+     &                        iWork(ip_nBas_Start),
+     &                        Name,jBas,kBas,nUniqAt,.false.)
          Do ik=0,nAsh(iSym)-1
             nAk=nUniqAt*ik
             nBk=nBas(iSym)*ik
@@ -429,11 +434,13 @@ C     -----------------------------------------------------------
          Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
          If (iSkip.gt.0) Then
             Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
-     &                            ip_X,ip_Y,.true.)
-            Call ChoMP2_Drv(irc,Dumm,Work(iCMO),Work(kEOcc),Work(kEVir))
+     &                            .true.)
+            Call ChoMP2_Drv(irc,Dumm,Work(iCMO),Work(kEOcc),Work(kEVir),
+     &                      Work(ip_X),Work(ip_Y))
             Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
-     &                            ip_X,ip_Y,.false.)
-            Call ChoMP2_Drv(irc,EMP2,Work(iCMO),Work(kEOcc),Work(kEVir))
+     &                            .false.)
+            Call ChoMP2_Drv(irc,EMP2,Work(iCMO),Work(kEOcc),Work(kEVir),
+     &                      Work(ip_X),Work(ip_Y))
             If(irc.ne.0) then
               write(6,*) 'Frozen region MP2 failed'
               Call Abend
@@ -567,17 +574,19 @@ c         Write(6,*)
 *                                                                      *
 ************************************************************************
       SubRoutine LovCASPT2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
-     &                            ip_X,ip_Y,isFNO)
+     &                            isFNO)
 C
 C     Purpose: put info in MP2 common blocks.
 C
+      Use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2,
+     &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
+     &                  MxQualMP2, OED_Thr, set_cd_thr, shf, SOS_mp2,
+     &                  Span_Def, SpanMP2, ThrMP2, Verbose
 #include "implicit.fh"
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Integer ip_X, ip_Y
       Logical isFNO
 C
 #include "corbinf.fh"
-#include "chomp2_cfg.fh"
 C
 C
       nSym = mSym
@@ -603,14 +612,11 @@ C
       OED_Thr=1.0d-8
       C_os=1.3d0
       EOSMP2=0.0d0
+      shf=0.0d0
 C
       DoFNO=isFNO
-      ip_Dab=ip_X
-      ip_Dii=ip_Y
-      l_Dab=nExt(1)
       l_Dii=nOcc(1)
       Do iSym=2,nSym
-         l_Dab=l_Dab+nExt(iSym)**2
          l_Dii=l_Dii+nOcc(iSym)
       End Do
 C
@@ -670,10 +676,7 @@ C
          koff=koff+nSsh(iSym)
       End Do
 *
-      iDummy=0
-      jDummy=0
-      Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,iDummy,
-     &                           jDummy,.false.)
+      Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.false.)
       Call GetMem('CMON','Allo','Real',iCMO,nBB)
       Call FZero(Work(iCMO),nBB)
       iOff=0
@@ -689,7 +692,8 @@ C
 *
       Call Check_Amp(nSym,lnOcc,lnVir,iSkip)
       If (iSkip.gt.0) Then
-         Call ChoMP2_Drv(irc,E2_ab,Work(iCMO),Work(kEOcc),Work(kEVir))
+         Call ChoMP2_Drv(irc,E2_ab,Work(iCMO),Work(kEOcc),Work(kEVir),
+     &                   Work(ip_Dummy),Work(ip_Dummy))
          If(irc.ne.0) then
            write(6,*) 'MP2 calculation failed in energy_AplusB !'
            Call Abend

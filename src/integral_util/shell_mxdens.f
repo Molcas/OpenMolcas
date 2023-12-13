@@ -1,24 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-************************************************************************
-*                                                                      *
-*  Subroutine Shell_MxDens:   returns max density values for each      *
-*                             shell pair...                            *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!  Subroutine Shell_MxDens:   returns max density values for each      *
+!                             shell pair...                            *
+!                                                                      *
+!***********************************************************************
       subroutine Shell_MxDens(Dens,DMax,nSkal)
-c----------------------------------------------------------------------
+!----------------------------------------------------------------------
       use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-      dimension dmax(nskal,nskal),dens(*)
+      Implicit None
+      Integer nSkal
+      Real*8 dmax(nskal,nskal),dens(*)
+
+      Integer, external:: nbfshl
+      Integer ijOff, irp, ie, iSh, n, ia, je, jSh, m, ja, i, ij, j
+
       ijoff=0
       call fzero(dmax,nskal*nskal)
       Do irp=0,nirrep-1
@@ -44,5 +49,4 @@ c----------------------------------------------------------------------
         End Do
         ijoff=ijoff+ie*(ie+1)/2
       End Do
-      return
-      end
+      end subroutine Shell_MxDens

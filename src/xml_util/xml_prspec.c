@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) Per-Olof Widmark                                       *
 ***********************************************************************/
+
 /**************************************************************************/
 /*                                                                        */
 /* This routine prints an xml tag specifier.                              */
@@ -20,25 +21,32 @@
 /*          Lund University, Sweden                                       */
 /*                                                                        */
 /**************************************************************************/
+
 #include <stdio.h>
 #include "molcastype.h"
 #include "xmlapi.h"
 #ifdef _CAPITALS_
-#define xml_prspec XML_PRSPEC
+# define xml_prspec XML_PRSPEC
 #else
-#ifndef ADD_
-#define xml_prcpec xml_prspec_
+# ifndef ADD_
+#   define xml_prcpec xml_prspec_
+# endif
 #endif
-#endif
-void xml_prspec(FILE *f, char *key, char *value, INT n) {
-   char  line[256];
-   int   k,m;
 
-   if(n<1) return;
-   for(k=0; k<n; k++) line[k]=value[k];
-   m=0;
-   for(k=0; k<n; k++) if(line[k]!=' ') m=k;
-   if(m==0) return;
-   line[m+1]=0;
-   fprintf(f," %s=\"%s\"",key,line);
+void xml_prspec(FILE *f, char *key, char *value, INT n) {
+  char line[256];
+  int k, m;
+
+  if (n < 1)
+    return;
+  for (k = 0; k < n; k++)
+    line[k] = value[k];
+  m = 0;
+  for (k = 0; k < n; k++)
+    if (line[k] != ' ')
+      m = k;
+  if (m == 0)
+    return;
+  line[m + 1] = 0;
+  fprintf(f, " %s=\"%s\"", key, line);
 }

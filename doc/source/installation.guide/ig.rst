@@ -7,5 +7,6 @@ Installation Guide
    install
    parainst
    dmrginst
+   diceinst
    stochcas
    maintain

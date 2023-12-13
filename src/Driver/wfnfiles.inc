@@ -11,10 +11,12 @@
 #ifndef _WFNFILES_
  (file)  GSSWFN    "$WorkDir/$Project$SubProject."guessorb.h5 rws
  (file)  POLYWFN   "$WorkDir/$Project$SubProject."poly.h5     rws
- (file)  RASWFN    "$WorkDir/$Project$SubProject."rasscf.h5   rws
+ (file)  RASWFN    "$WorkDir/$Project$SubProject."rasscf.h5   rw*s
  (file)  PT2WFN    "$WorkDir/$Project$SubProject."caspt2.h5   rws
  (file)  NEVPT2WFN "$WorkDir/$Project$SubProject."nevpt2.h5   rws
  (file)  RASSIWFN  "$WorkDir/$Project$SubProject."rassi.h5    rws
  (file)  SCFWFN    "$WorkDir/$Project$SubProject."scf.h5      rws
+ (file)  LOCWFN    "$WorkDir/$Project$SubProject."local.h5    rws
+ (file)  EXPWFN    "$WorkDir/$Project$SubProject."expbas.h5   rws
 #define _WFNFILES_
 #endif

@@ -35,6 +35,26 @@ integer(kind=iwp), intent(in) :: nx, ny, Level
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 integer(kind=iwp) :: ix, iy, ind, opt
+interface
+  subroutine xml_cDumpa(name_,nx_name,appear,nx_appear,units,nx_units,Level,nxx,nyx,optx) bind(C,name='xml_cdumpa_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*), appear(*), units(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name, nx_appear, nx_units, Level, nxx, nyx, optx
+  end subroutine xml_cDumpa
+  subroutine xml_cDumpb(name_,nx_name,optx) bind(C,name='xml_cdumpb_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name, optx
+  end subroutine xml_cDumpb
+  subroutine xml_cDumpc(name_,nx_name) bind(C,name='xml_cdumpc_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name
+  end subroutine xml_cDumpc
+end interface
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

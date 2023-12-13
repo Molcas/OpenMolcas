@@ -35,6 +35,14 @@ integer(kind=iwp), intent(in) :: Level
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 character(len=16) :: myName
+interface
+  subroutine xml_Openc(name_,nx_name,appear,nx_appear,units,nx_units,Level,value_,nx_value) bind(C,name='xml_openc_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    character(kind=c_char) :: name_(*), appear(*), units(*), value_(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name, nx_appear, nx_units, Level, nx_value
+  end subroutine xml_Openc
+end interface
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

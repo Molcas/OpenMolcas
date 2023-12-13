@@ -259,17 +259,18 @@ Stochastic-CASSCF method
 
 .. warning::
 
-   This program requires an external package to run
+   This program requires an external package to run.
 
 The Stochastic-CASSCF :cite:`limanni2016` has been developed since 2015 by Li Manni and Alavi,
 initially into a locally modified version of |molcas| and now available in |openmolcas|.
-The method retains the simplicity of CASSCF, while circuventing the the exponential scaling of CAS wave functions.
+The method retains the simplicity of CASSCF, while circumventing the exponential scaling of CAS wave functions.
 This is obtained by replacing the Davidson diagonalization technique, in its direct-CI implementation (default in |molcas|),
 with the full-CI quantum Monte-Carlo (FCIQMC) algorithm :cite:`Alavi2009`, whilst the Super-CI method is used
 for the orbital optimization.
 
-The method is compatible with density fitting techniques available within |openmolcas|.
-The method is also compatible with subsequent MC-PDFT method to recover correlation outside the active space.
+The method is compatible with density fitting techniques available within
+|openmolcas|, subsequent MC-PDFT calculations to recover correlation
+outside the active space and state-averaging across multiple multiplicities.
 
 .. _UG\:sec\:StochCAS_dependencies:
 
@@ -291,7 +292,7 @@ Two files are produced by the :program:`RASSCF` module at each MCSCF macro-itera
 .. class:: filelist
 
 :file:`FCIINP`
-  The :file:`$Project.FciInp` (or :file:`FCIINP`) file contains input keywords for the NECI code.
+  The :file:`$Project.FciInp` (or :file:`FCIINP`) file contains input keywords for the :program:`NECI` code.
   These keywords need to be adjusted depending on the chemical system under investigation for an optimal FCIQMC dynamics.
 
 :file:`FCIDMP`
@@ -301,11 +302,16 @@ Two files are produced by the :program:`RASSCF` module at each MCSCF macro-itera
 The Input and the FCIDUMP files are the only files necessary to :program:`NECI` to run a FCIQMC simulation from scratch.
 For questions about the FCIQMC dynamics we invite to contact its developers.
 
-As accurate density matrices are necessary for a successful Stochastic-CASSCF calculation,
-users are invited to use the :file:`dneci.x` binary (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
-The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in the NECI generated :file:`FCIMCStats` file.
-In the :file:`fciqmc.out` there are important pieces of information, such as the list of Slater determinants dominating the FCI wave function and the RDM energy. The latter is passed to |molcas| as shown in the script below.
-When a stationary condition is reached and density matrices sampled these are passed to the :file:`RASSCF` program to continue.
+As accurate density matrices are necessary for a successful Stochastic-CASSCF
+calculation, users are required to use the :file:`dneci.x` and :file:`mneci.x`
+binaries (this will run the FCIQMC dynamic in replica mode) :cite:`Overy2014`.
+The FCIQMC dymanics can be followed in the :file:`fciqmc.out` output file or in
+the :program:`NECI` generated :file:`FCIMCStats` file. In the
+:file:`fciqmc.out` file there are important pieces of information, such as the list
+of Slater determinants dominating the FCI wave function and the RDM energy. The
+latter is passed to |openmolcas| as shown in the script below. When a stationary
+condition is reached and density matrices sampled these are passed to the
+:file:`RASSCF` program to continue.
 This can be achieved by a simple script, such as the following: ::
 
   cp TwoRDM_aaaa.1 $WorkDir/$Project.TwoRDM_aaaa
@@ -318,10 +324,42 @@ This can be achieved by a simple script, such as the following: ::
   grep 'REDUCED D' fciqmc.out | sed "s/^.*: //" > NEWCYCLE
   mv NEWCYCLE $WorkDir/.
 
+When performing state-averaging, the user has to ensure that the ordering of
+all roots is consistent between |openmolcas| and :program:`NECI`. For instance, consider a
+SA-CASSCF on a system admitting 2 doublets, 4 quartets, 3 sextets, 2 octets and
+1 dectet. Using the :file:`FCIDUMP` provided by |openmolcas| (multiplicity in the |openmolcas|
+input is disabled for these calculations, but should nevertheless be provided),
+one can complete the :program:`NECI` dynamics, afterwards |openmolcas| will prompt for 12
+consecutively numbered density matrices and energies, i.e.: ::
+
+  When finished do:
+     cp TwoRDM_* /$YOUR_WORKDIR/
+     echo $your_RDM_Energy > /$YOUR_WORKDIR/NEWCYCLE
+
+A shell script which also takes care of renaming the RDMs might look
+like this: ::
+
+  export CALCBASE="location of your calculation"
+  export YOUR_WORKDIR="location of your scratch"
+
+  cd $CALCBASE/neci-doublet/  # contains roots 1 and 2
+  grep '*REDUCED' $YOUR_INPUT.out | awk '{ print $9 }' >> $CALCBASE/NEWCYCLE
+
+  cd $CALCBASE/neci-quartet/  # contains roots 3 to 6
+  grep '*REDUCED' mn3o4.out | awk '{ print $9 }' >> $CALCBASE/NEWCYCLE
+  # reverse order required, otherwise redundant rename
+  rename .4 .6 *.4; rename .3 .5 *.3 ; rename .2 .4 *.2; rename .1 .3 *.1
+
+  [for the other roots same procedure]
+
+  cd $CALCBASE
+  cp neci-doublet/run$1/TwoRDM_* neci-quartet/run$1/TwoRDM_* [other roots] $YOUR_WORKDIR
+  cp NEWCYCLE $YOUR_WORKDIR
+
 .. class:: filelist
 
 :file:`$Project.TwoRDM_XXXX`
-  These files are ASCII NECI generated output files.
+  These files are ASCII :program:`NECI` generated output files.
   They contain spin-resolved two-body density matrix elements (and one-RDM) and are necessary
   to |molcas| to continue with the Stochastic-CASSSCF calculation.
 
@@ -338,7 +376,7 @@ Two input keywords are strictly required in the :program:`RASSCF` module for act
 :kword:`NECI`
   This keyword is needed to enable the Stochastic-CASSCF method.
 
-  Additional keywords like ``totalwalkers`` have the same meaning as in NECI
+  Additional keywords like ``totalwalkers`` have the same meaning as in :program:`NECI`
   and are just passed on.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NECI" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="DMRG">
@@ -452,8 +490,6 @@ Optional important keywords are:
                 REOR
                   3
                   4 5 1
-
-              leads to an order of [4 2 3 5 1 6].
               </HELP>
               </KEYWORD>
 
@@ -462,50 +498,35 @@ Optional important keywords are:
 Input Example
 .............
 
-A minimal input example follows where the use of the Stochastic-CASSCF joinlty with RICD and MC-PDFT is shown: ::
+A minimal input example for using state-averaged Stochastic-CASSCF jointly with RICD MC-PDFT is shown below: ::
 
   &GATEWAY
    RICD
-   COORD
-     coor.xyz
-   BASIS
-     ANO-RCC-VTZP
-   GROUP
-     full
+   COORD = coor.xyz
+   BASIS = ANO-RCC-VTZP
+   GROUP = full
 
   &SEWARD
 
   &RASSCF
-   NECI
-    ExNe
-   NACTEL
-     26 0 0
-   INACTIVE
-     20 17 17 14 0 0 0 0
-   RAS2
-     0 0 0 0 7 6 6 5
-   SYMMETRY
-     1
+   CIROOT = 2  2  1   * follows standard &RASSCF syntax
+   NECI = ExNe
+   NACTEL = 26 0 0
+   INACTIVE = 20 17 17 14 0 0 0 0
+   RAS2 = 0 0 0 0 7 6 6 5
+   SYMMETRY = 1
 
-  >>foreach DFT in (TPBE, TBLYP, TLSDA)
+  >>foreach DFT in (T:PBE, T:BLYP, T:LSDA)
 
-     >>COPY $CurrDir/converged.RasOrb INPORB
      &RASSCF
-        LumOrb
+        FileOrb = $CurrDir/converged.RasOrb
         CIONLY
-        KSDFT
-          ROKS
-          $DFT
-        NECI
-          ExNe
-        NACTEL
-          26 0 0
-        INACTIVE
-          20 17 17 14 0 0 0 0
-        RAS2
-          0 0 0 0 7 6 6 5
-        SYMMETRY
-          1
+        KSDFT = ROKS; $DFT
+        NECI = ExNe
+        NACTEL = 26 0 0
+        INACTIVE = 20 17 17 14 0 0 0 0
+        RAS2 = 0 0 0 0 7 6 6 5
+        SYMMETRY = 1
   >>enddo
 
 .. _UG\:sec\:gasscf:
@@ -593,6 +614,78 @@ In the current implementation, the on-top pair density functional is obtained by
 Three translated functionals are currently available: tPBE, tLSDA and tBLYP.
 As multiconfigurational wave functions are used as input quantities, spin and space symmetry are correctly conserved.
 
+.. _UG\:sec\:NOCI:
+
+Non-Orthogonal Configuration Interaction
+----------------------------------------
+
+.. warning::
+
+   This program requires an external package to run.
+
+|openmolcas| provides an interface to GronOR :cite:`Straatsma2022`, a massively parallel and GPU-accelerated implementation of NOCI and its extension to fragments or ensembles of molecules, NOCI-F.
+
+.. _UG\:sec\:NOCI_dependencies:
+
+Dependencies
+............
+
+Running NOCI and NOCI-F calculations requires the external installation of the GronOR program: https://gitlab.com/gronor/gronor.
+
+.. _UG\:sec\:NOCI_InpOutFiles:
+
+Input/Output Files
+..................
+
+One extra file is generated for each electronic state considered in the generation of the many-electron basis functions of the NOCI.
+
+.. class:: filelist
+
+:file:`VECDET.x`
+  The :file:`$Project.VecDet.x` (or :file:`VECDET.x`) file contains the list of determinants of root :math:`x`. The list contains the CI coefficients and the active orbital occupations.
+
+.. _UG\:sec\:NOCI_Keywords:
+
+Input keywords
+..............
+
+The :kword:`PRSD` keyword must be added to the input to expand the CSFs in Slater determinants, which are written to the :file:`$Project.VecDet.x` file. It is highly recommended to decrease the threshold for writing CSFs to the output file (:kword:`PRWF`) to at least 1e-5.
+
+.. _UG\:sec\:NOCI_InputExample:
+
+Input Example
+.............
+
+A minimal input example to generate the wave functions that describe the ground state and the first excited singlet state of fragment A. ::
+
+  &GATEWAY
+  coord = fragA.xyz
+  basis = ano-s-vdz
+  group = c1
+
+  * symmetry is not implemented in GronOR
+
+  &RASSCF
+  nactel = 6
+  inactive = 18
+  ras2 = 6
+  prwf = 1e-5
+  prsd
+
+  >>>> COPY $Project.RasOrb.1 $CurrDir/benzeneA_S0.orb
+  >>>> COPY $Project.VecDet.1 $CurrDir/benzeneA_S0.det
+
+  &RASSCF
+  nactel = 6
+  inactive = 18
+  ras2 = 6
+  prwf = 1e-5
+  prsd
+  ciroot = 1 2; 2
+
+  >>>> COPY $Project.RasOrb.2 $CurrDir/benzeneA_S1.orb
+  >>>> COPY $Project.VecDet.2 $CurrDir/benzeneA_S1.det
+
 .. _UG\:sec\:rasscf_orbitals:
 
 RASSCF output orbitals
@@ -603,7 +696,7 @@ The :program:`RASSCF` program produces a binary output file called
 was usually a link, pointing to whichever file the user wanted, or by default
 to the file :file:`$Project.JobIph` if no such links had been made. This default
 can be changed, see keyword :kword:`NewIph` and :kword:`IphName`.
-For simplicity, we refer to this as :file:`JOBIPH` in the manual.The job interface,
+For simplicity, we refer to this as :file:`JOBIPH` in the manual. The job interface,
 :file:`JOBIPH`, contains four different sets of MO's and
 it is important to know the difference between the sets:
 
@@ -860,6 +953,20 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`STAVerage`
+  Specifies the number of roots to include in a state-average calculation.
+  This is a simplified for of the :kword:`CIROot` keyword, and ``STAVerage = n`` is equivalent to ``CIROot = n n 1`` (see below).
+  Only one of :kword:`STAverage` and :kword:`CIROot` should be given.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="STAVERAGE" APPEAR="State average" LEVEL="BASIC" KIND="INT" EXCLUSIVE="CIROOT" DEFAULT_VALUE="1" MIN_VALUE="1">
+              %%Keyword: STAVerage <basic>
+              <HELP>
+              The keyword is followed by an integer giving the number of roots
+              to include in a state-average calculation.
+              STAV=N is equivalent to (and incompatible with) CIROOT=N N 1
+              </HELP>
+              </KEYWORD>
+
   .. xmldoc:: </GROUP>
 
 :kword:`CIROot`
@@ -894,7 +1001,7 @@ A list of these keywords is given below:
 
     CIRoot= 1 1; 1
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CIROOT" LEVEL="BASIC" APPEAR="CI root(s)" KIND="CUSTOM" SIZE="3">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CIROOT" LEVEL="BASIC" APPEAR="CI root(s)" KIND="CUSTOM" SIZE="3" EXCLUSIVE="STAVERAGE">
               %%Keyword: CIROot <basic>
               <HELP>
               Specifies the CI root(s) and the dimension of the
@@ -916,6 +1023,134 @@ A list of these keywords is given below:
               lines are read. A state average calculation will be
               performed over the NROOTS lowest states with equal
               weights.
+              </HELP>
+              </KEYWORD>
+
+:kword:`PPT2`
+  Prepare stochastic CASPT2 in pseudo-canonical orbitals.
+  This keyword will cause a transformation of the output :file:`RasOrb` to
+  pseudo-canonical orbitals, equivalent to ``OUTO = canonical``.
+
+  The performance of FCIQMC depends significantly on the orbital basis. In
+  the pseudo-canonical basis, sampling the contraction of the (diagonal) Fock
+  matrix with the 7-index 4RDM is cheaper than in non-canonical orbitals; however,
+  converging FCIQMC may take a (very) high number of walkers.
+  Sampling in a non-diagonal basis is highly recommended, refer to the :kword:`NDPT`
+  keyword for more information.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PPT2" LEVEL="ADVANCED" APPEAR="FCIQMC-CASPT2" KIND="SINGLE">
+              %%Keyword: PPT2 <ADVANCED>
+              <HELP>
+              Prepare the active-active block of the generalized Fock matrix
+              and a corresponding FCIDUMP for CASPT2 in the pseudo-canonical
+              basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NDPT`
+  Prepare stochastic CASPT2 in any orbital basis. A :file:`fockdump.h5` file
+  will be dumped to the :file:`WorkDir` which can be used with the same :file:`FCIDUMP`
+  as used for the last CASSCF iteration to perform stochastic-CASPT2.
+
+  The performance of FCIQMC depends to a large degree on the orbital basis and
+  working in a non-pseudo-canonical orbital basis may alleviate the burden to
+  converge the dynamics significantly. This comes at the price of higher
+  computational requirements for the contraction of the full 4RDM with the
+  non-diagonal Fockian. In practice, this expense is compensated for by
+  requiring one to two orders of magnitude fewer walkers compared to canonical
+  orbitals.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NDPT" LEVEL="ADVANCED" APPEAR="Non-diagonal FCIQMC-CASPT2" KIND="SINGLE">
+              %%Keyword: NDPT <ADVANCED>
+              <HELP>
+              Prepare the generalized Fock matrix in any orbital basis
+              for stochastic CASPT2. Mutually exclusive with the PPT2 keyword.
+              </HELP>
+              </KEYWORD>
+
+:kword:`MCM7`
+  Use the M7 package instead of NECI to perform the CI step in the
+  stochastic-CASSCF interface. Currently no multi-root functionality
+  is implemented.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MCM7" LEVEL="BASIC" APPEAR="FCIQMC-M7" KIND="SINGLE">
+              %%Keyword: MCM7 <BASIC>
+              <HELP>
+              Use the M7 package to perform the CI step in the stochastic-CASSCF interface.
+              Currently no multi-root functionality is implemented.
+              </HELP>
+              </KEYWORD>
+
+:kword:`RGRA`
+  Compute the norm of the orbital gradient for each CI root instead of just
+  for the root specified in geometry optimization.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RGRA" LEVEL="BASIC" APPEAR="Root Gradients" KIND="SINGLE">
+              %%Keyword: RGRA <BASIC>
+              <HELP>
+              Compute the CI-root-resolved orbital gradient.
+              </HELP>
+              </KEYWORD>
+
+:kword:`WRMA`
+  Dump the 1RDM and (anti)symmetrised 2RDM arrays to disk.
+  These matrices can be used in conjunction with the GUGA-FCIQMC interface
+  to create deterministic reference calculations for state-averaged CASSCF across
+  different spin multiplicities. Works only for one root per spin sector per
+  calculation.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="WRMA" LEVEL="BASIC" APPEAR="Write matrices" KIND="SINGLE">
+              %%Keyword: WRMA <BASIC>
+              <HELP>
+              Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays for a single
+              CASSCF root to disk.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SSCR`
+  Computes the orbital resolved spin-correlation function between two ranges of
+  orbitals. For physically meaningful results prior localisation and sorting by
+  atomic sites is required. The latter step is not performed by the
+  :program:`Localisation` module and must be performed manually on the
+  :file:`LocOrb` file.
+
+  At least one integer is required, specifying the length of the orbital
+  vectors. An optional second integer determines whether the vectors are
+  the same (``1``) or different (any other number or no argument). In the latter
+  case, both orbital vectors must be specified in the next two lines.
+
+  Consider a triangle with sites A B C, each having three unpaired electrons,
+  corresponding to a CAS(9,9). Below, two practical examples are given: ::
+
+    * Spin correlation from orbital 1 to 6, i.e. local spin S_AB expectation value
+    * < S_AB > = S_AB (S_AB + 1)
+    SSCR = 6 1
+    * or
+    SSCR = 6
+    1 2 3 4 5 6
+    1 2 3 4 5 6
+    * Spin correlation between sites A (1-3) and C (7-9), i.e < S_A \cdot S_C >
+    SSCR = 3
+    1 2 3
+    7 8 9
+
+  Notice that the numbering is consecutive and each entry in an orbital range
+  has to be unique.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SSCR" LEVEL="BASIC" APPEAR="spin-spin-correlation" KIND="INTS_COMPUTED" SIZE="2">
+              <ALTERNATE KIND="INTS" SIZE="2" />
+              %%Keyword: SSCR <basic>
+              <HELP>
+              Calculate the pairwise orbital resolved spin-correlation
+              function, for instance between two magnetically coupled centers,
+              after localisation and site-ordering of the corresponding
+              orbitals. Please consult the manual for further guidance. The
+              keyword uses a modified syntax already known from CIROots. At
+              least one input is required, specifying the length of the orbital
+              vectors. An optional second input determines whether the
+              vectors are the same (1) or different (any other or no number).
+              In the latter case, both orbital vectors must be
+              specified in the following two lines.
               </HELP>
               </KEYWORD>
 
@@ -1074,6 +1309,9 @@ A list of these keywords is given below:
   reaction field calculation (so-called non-equilibrium solvation). The slow component
   is always generated and stored on file for equilibrium solvation calculations so that
   it potentially can be used in subsequent non-equilibrium calculations on other states.
+  If the total charge is greater (i.e., fewer electrons) than that of the reference state,
+  for which the slow component was calculated, PCM is initialized with a fake total charge
+  equal to the reference one, thus allowing to calculate ionized states.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NONEQUILIBRIUM" APPEAR="Non-equilibrium reaction field" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: NONEquilibrium <advanced>
@@ -1082,6 +1320,9 @@ A list of these keywords is given below:
               reaction field calculation (so-called non-equilibrium solvation). The slow component
               is always generated and stored on file for equilibrium solvation calculations so that
               it potentially can be used in subsequent non-equilibrium calculations on other states.
+              If the total charge is greater (i.e., fewer electrons) than that of the reference state,
+              for which the slow component was calculated, PCM is initialized with a fake total charge
+              equal to the reference one, thus allowing to calculate ionized states.
               </HELP>
               </KEYWORD>
 
@@ -1255,7 +1496,8 @@ A list of these keywords is given below:
 :kword:`KSDFT`
   Needed to perform MC-PDFT calculations. It must be used together with
   :kword:`CIONLY` keyword (it is a post-SCF method not compatible with SCF) and :kword:`ROKS` keyword.
-  The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA.
+  The functional choice follows. Specify the functional by prefixing
+  ``T:`` or ``FT:`` to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`)
   An example of an input that uses this keyword follows: ::
 
     &RASSCF
@@ -1265,19 +1507,19 @@ A list of these keywords is given below:
     Ras2
     1 0 0 0 1 0 0 0
     KSDFT
-    ROKS
-    TPBE
+    ROKS; T:PBE
 
   In the above example, :kword:`JOBIPH` is used to use orbitals stored in :file:`JobIph`, :kword:`CIRESTART` is used to
   use a pre-optimized CI vector, :kword:`CIONLY` is used to avoid conflicts between the standard :program:`RASSCF` module
   and the MC-PDFT method (not compatible with SCF so far). The functional chosen is the translated-PBE.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="CHOICE" LIST="----,ROKS; tPBE:tPBE,ROKS; tBLYP:tBLYP,ROKS; tLSDA:tLSDA" LEVEL="ADVANCED" REQUIRE="CIONLY">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED" REQUIRE="CIONLY">
               %%Keyword: KSDFT <advanced>
               <HELP>
               Needed to perform MC-PDFT calculations. It must be used together with
               CIONLY keyword (it is a post-SCF method not compatible with SCF) and ROKS keyword.
-              The functional choice follows. Currently available functionals are: tPBE, tBLYP, tLSDA.
+              The functional choice follows. Currently available functionals are
+              prefix T: or FT: to the standard DFT functionals (see keyword KSDFT of SCF program)
               </HELP>
               </KEYWORD>
 
@@ -1432,7 +1674,7 @@ A list of these keywords is given below:
   to clean. For each group of orbitals within the symmetry, three lines
   follow. The first line indicates the number of considered orbitals
   and the specific number of the orbital (within the symmetry) in the
-  set of input orbitals. Note the input lines can not be longer than 72
+  set of input orbitals. Note the input lines cannot be longer than 72
   characters and the program expects as many continuation lines as are
   needed. The second line indicates the number of
   coefficients belonging to the prior orbitals which are going to be
@@ -1668,6 +1910,22 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`PERI`
+  Write the orbital file per iteration.
+  The obtained files are named `${Project}.IterOrb.${iter_number}`
+  and if HDF5 is available `${Project}.rasscf.${iter_number}.h5`.
+  Note that up until the last iteration all states in a state-averaged calculation
+  are in the same orbital basis.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PERI" APPEAR="Write per iteration" KIND="SINGLE" EXCLUSIVE="" LEVEL="BASIC">
+              %%Keyword: PERI <basic>
+              <HELP>
+              Write the orbital file per iteration.
+              The obtained files are named ${Project}.IterOrb.${iter_number}
+              and if HDF5 is available ${Project}.rasscf.${iter_number}.h5.
+              </HELP>
+              </KEYWORD>
+
 :kword:`LEVShft`
   Define a level shift value for the super-CI Hamiltonian. Typical values are in the range
   0.0--1.5. Increase this value if a calculation diverges. The default value 0.5,
@@ -1778,6 +2036,29 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`DEXS`
+  Doubly highly excited states. Will eliminate the maximum and maximum - 1
+  occupations in one or more RAS/GAS's thereby eliminating all roots below.
+  Very helpful for double-core excitations where the ground-state input
+  can be used to eliminate unwanted roots. Works with RASSI.
+  First input is the number of RAS/GAS where the maximum and maximum - 1
+  occupations should be eliminated. Second is the RAS/GAS or RAS/GAS's where
+  maximum and maximum - 1 occupations will not be allowed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DEXS" APPEAR="Doubly highly excited states" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
+              %%Keyword: DEXS <advanced>
+              <HELP>
+              Doubly highly excited states. Will eliminate the maximum and
+              maximum - 1 occupations in one or more RAS/GAS's thereby
+              eliminating all roots below.  Very helpful for double-core
+              excitations where the ground-state input can be used to eliminate
+              unwanted roots. Works with RASSI.  First input is the number of
+              RAS/GAS where the maximum and maximum - 1 occupations should be
+              eliminated. Second is the RAS/GAS or RAS/GAS's where maximum and
+              maximum - 1 occupations will not be allowed.
+              </HELP>
+              </KEYWORD>
+
 :kword:`SDAV`
   Here follows the dimension of the explicit Hamiltonian used to speed up
   the Davidson CI iteration process. An explicit H matrix is constructed
@@ -1848,7 +2129,7 @@ A list of these keywords is given below:
   If the number of additional subgroups is not zero there are additional
   entries for each subgroup: The dimension of the subgroup and
   the list of orbitals in the subgroup counted relative to the first orbital
-  in this symmetry. Note, the input lines can not be longer than 180 characters
+  in this symmetry. Note, the input lines cannot be longer than 180 characters
   and the program expects continuation lines as many as there are needed.
   As an example assume an atom treated in :math:`C_{2v}` symmetry for
   which the d\ :math:`_{z^2}` orbitals (7 and 10) in symmetries 1 may mix with the
@@ -2047,7 +2328,7 @@ A list of these keywords is given below:
   sets with occupation numbers 0 (zero). The main use of these orbitals
   is to act as input to property calculations and for graphical
   presentations.
-  This keyword is on by default for up to ten roots.
+  This keyword is on by default for all roots.
 
   An example input follows in which five files are requested containing
   natural orbitals for roots one to five of a RASSCF calculation.
@@ -2249,8 +2530,38 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`CMSStart`
+  This keyword gives the file that stores the starting rotation matrix for finding the CMS intermediate states (see :kword:`CMSInter`). The file has the same format as :file:`Do_Rotate.txt`. The default is to use the XMS intermediate states (see :kword:`XMSInter`).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSS" LEVEL="ADVANCED" APPEAR="CMS starting rotation matrix" KIND="STRING" DEFAULT_VALUE="XMS">
+              %%Keyword: CMSS <advanced>
+              <HELP>
+              This keyword specifies file that provides the starting rotation matrix for CMS intermediate states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CMSOpt`
+  This keyword defines the maximization algorithm to find the CMS intermediate states (see :kword:`CMSInter`). The allowed values are:
+
+  * **Newton:** Newton's method. The Hessian and the gradient of the sum-over-states
+    of the active--active classical Coulomb energies (Q_a-a) are computed. This is the
+    default for calculations with more than two states. Note that Q_a-a may decrease within
+    the minimum number of cycles defined by `CMMI` if a step is too big. After the minimum
+    number of cycles, a smaller step will be taken to ensure that Q_a-a increases, and an
+    extra cycle will always be taken if a smaller step is used.
+  * **Jacobi:** Jacobi's method. States are rotated in pairwise succession,
+    and a trigonometric function is used to fit such rotation to find the
+    maximum. This is the default for calculations with two states.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMSO" APPEAR="CMS Optimization Option" LEVEL="ADVANCED" KIND="CHOICE" LIST="Newton,Jacobi" DEFAULT_VALUE="Newton" >
+              %%Keyword: CMSO <advanced>
+              <HELP>
+              This keyword specifies the maximization algorithm to find the CMS intermediate states.
+              </HELP>
+              </KEYWORD>
+
 :kword:`CMMAx`
-   This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
+  This keyword defines the maximum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 100.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMMA" APPEAR="CMS Maximum Cycles" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="100" MIN_VALUE="1">
               %%Keyword: CMMA <advanced>
@@ -2260,7 +2571,7 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMMIn`
-   This keyword defines the minimum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 5.
+  This keyword defines the minimum number of cycles to find the CMS intermediate states (see :kword:`CMSInter`). The default value is 5.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMMI" APPEAR="CMS Mininum Cycles" LEVEL="ADVANCED" KIND="INT" DEFAULT_VALUE="5" MIN_VALUE="1">
               %%Keyword: CMMI <advanced>
@@ -2270,9 +2581,9 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`CMTHreshold`
-   This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge (see :kword:`CMSInter`). The default value is 1.0d-6.
+  This keyword defines the threshold for the change in the sum over states of the classical Coulomb energy for CMS intermediate states to converge (see :kword:`CMSInter`). The default value is 1.0d-8.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-6" >
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CMTH" APPEAR="CMS Threshold" LEVEL="ADVANCED" KIND="REAL" DEFAULT_VALUE="1.0d-8">
               %%Keyword: CMTH <advanced>
               <HELP>
               This keyword specifies the threshold for the change of sum over states of the classical Coulomb energy for CMS intermediate states to converge.
@@ -2284,9 +2595,9 @@ A list of these keywords is given below:
   This keyword is only effective when there is a file named :file:`Do_Rotate.txt` present in the scratch directory; otherwise the states will not be rotated.
   The file :file:`Do_Rotate.txt` stores the rotation vector that rotates the states; the rotation vector is stored in a format such that the first line of the file records the first row of the rotation matrix, and so on. This keyword writes a file called :file:`H0_Rotate.txt` in the scratch directory; :file:`H0_Rotate.txt` contains the Hamiltonian matrix of the rotated states.
   This keyword currently does not work for wave functions optimized with the DMRG algorithm.
-  More information regarding XMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
+  More information regarding XMS-PDFT or CMS-PDFT can be found on the Minnesota OpenMolcas page\ [#fn1]_.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ROSTate" APPEAR="Rotate states" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ROSTATE" APPEAR="Rotate states" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: ROSTate <basic>
               <HELP>
               This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation.
@@ -2486,6 +2797,84 @@ the last ones in each symmetry block.
 For calculations of a molecule in a reaction field see :numref:`UG:sec:rfield`
 of the present manual and :numref:`TUT:sec:cavity` of the examples manual.
 
+HCI-CASSCF keywords
+...................
+
+.. warning::
+
+   An external package (DICE) is required to run HCI-CASSCF.
+
+.. class:: keywordlist
+
+:kword:`DICE`
+  Use this keyword to activate Heat-Bath Configuration Interaction (HCI)-CASSCF, calculated with the Dice--|molcas| interface.
+  The perturbative component will be calculated deterministically.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DICE" APPEAR="DICE" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DICE <basic>
+              <HELP>
+              Use this keyword to activate HCI-CASSCF.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EPSIlons`
+  Array of two thresholds. :math:`\epsilon_1`: the threshold for adding determinants to the Fock space during the variational calculation; and
+  :math:`\epsilon_2`: the threshold for the second-order perturbative energy correction to the variational energy. :math:`\epsilon_2 < \epsilon_1`.
+  Lower thresholds will give lower HCI energy, but increase the computational cost.
+  Default values are: 1.0d-4, 1.0d-5.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="EPSILONS" LEVEL="BASIC" APPEAR="Thresholds (DICE)" KIND="REALS" SIZE="2" DEFAULT_VALUES="1.0d-4,1.0d-5">
+              %%Keyword: EPSIlons <basic>
+              <HELP>
+              Thresholds in the variational and pertubational steps.
+              </HELP>
+              (Default: 1.0d-4 1.0d-5)
+              </KEYWORD>
+
+:kword:`DITErations`
+  Maximum number of iterations in the variational step.
+  Default value is: 20.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DITERATION" LEVEL="BASIC" APPEAR="Maximum number of iterations in the variational step (DICE)" KIND="INT" DEFAULT_VALUE="20">
+              %%Keyword: DITErations <basic>
+              <HELP>
+              Maximum number of iterations in the variational step (DICE).
+              </HELP>
+              (Default: 20)
+              </KEYWORD>
+
+:kword:`DIREstart`
+  Use this keyword to activate restart in the first HCI iteration from a previous calculation.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIRESTART" APPEAR="Restart in the first HCI iteration (DICE)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DIREstart <basic>
+              <HELP>
+              Use this keyword to activate restart in the first HCI iteration from a previous calculation.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DIOCcupy`
+  Initial electronic configuration for the HCI-CASSCF calculations. This keyword is required.
+  The keyword requires first the number of configurations :math:`n`, followed by :math:`n` configuration.
+  Each configuration is inserted as a string of aliases of occupations/couplings of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty.
+
+  ::
+
+    DIOCcupy
+    3
+    u u 2 0 2 0
+    2 0 u u 2 0
+    2 u d 0 u u
+
+  In this CAS(6,6) example, three initial configurations will be read. The first configuration is :math:`\ket{\mathord{\uparrow\uparrow}2020}`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIOCCUPY" KIND="STRINGS_COMPUTED" LEVEL="BASIC">
+              %%Keyword: DIOCcupy <basic>
+              <HELP>
+              Set HF determinant start guess for HCI wave functions (DICE).
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 
@@ -2522,8 +2911,7 @@ The following input is an example of how to use the RASSCF program to run MC-PDF
   Ras2
   1 0 0 0 1 0 0 0
   KSDFT
-  ROKS
-  TPBE
+  ROKS; T:PBE
 
 The first RASSCF run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
 The second call to the RASSCF input will use the CI vector and the orbitals previously optimized. The second RASSCF will
@@ -2532,7 +2920,7 @@ provide MC-PDFT energies.
 
 More advanced examples can be found in the tutorial section of the manual.
 
-Input example for DMRG-CASSCF with Molcas-CheMPS2 interface: ::
+Input example for DMRG-CASSCF with CheMPS2--|molcas| interface: ::
 
   &RASSCF
   Title= Water molecule. Active orbitals OH and OH* in both symmetries
@@ -2543,10 +2931,28 @@ Input example for DMRG-CASSCF with Molcas-CheMPS2 interface: ::
   DMRG     = 500
   3RDM
 
+Input example for HCI-CASSCF with Dice--|molcas| interface: ::
+
+  &RASSCF
+  Title= Water molecule. Active orbitals OH and OH* in both symmetries
+  Spin     = 1
+  Symmetry = 1
+  Inactive = 2 0 1 0
+  Ras2     = 2 2 0 0
+  THRS     = 1.0e-07 1.0e-03 1.0e-03
+  DICE
+  EPSIlons = 1.0d-4 1.0d-5
+  DITErations = 30
+  DIOCuppy
+  1
+  2 0  2 0
+
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="H5CI" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="AVERAGE" LEVEL="UNDOCUMENTED" KIND="INTS_COMPUTED" SIZE="2" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DEXS" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
 
 .. xmldoc:: </MODULE>

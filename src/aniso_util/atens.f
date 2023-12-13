@@ -106,7 +106,8 @@ C
       Call DIAG_R2(A_TENS_TERM(1:3,1:3), 3, info, W(1:3),  Z(1:3,1:3))
 
       If (INFO.ne.0) Go To 199
-      If ((w(1).lt.0._wp).AND.(w(2).lt.0._wp).AND.(w(3).lt.0._wp)) Then
+      If ((w(1).lt.0.0_wp).AND.(w(2).lt.0.0_wp).AND.(w(3).lt.0.0_wp))
+     & Then
       Write(6,'(2x,A)') 'ALL EIGENVALUES OF THE A-TENSOR ARE NEGATIVE'
       Write(6,'(2X,A)') 'THIS IS A VERY UNUSUAL SITUATION. PLEASE'//
      & 'CHECK MANUALLY '
@@ -188,14 +189,14 @@ c set the main Z axis:
          gtens(2)=MAIN(2)
          gtens(1)=MAIN(3)
 
-         If (Z(3,1).ge.0._wp) Then
+         If (Z(3,1).ge.0.0_wp) Then
             Do i=1,3
             maxes(i,3)=Z(i,1)
             maxes(i,1)=Z(i,3)
             End Do
-         Else If (Z(3,1).lt.0._wp) Then
+         Else If (Z(3,1).lt.0.0_wp) Then
             Do i=1,3
-            maxes(i,3)=-1._wp*Z(i,1)
+            maxes(i,3)=-1.0_wp*Z(i,1)
             maxes(i,1)=Z(i,3)
             End Do
          End If
@@ -209,7 +210,7 @@ c set the main Z axis:
          gtens(2)=MAIN(2)
          gtens(1)=MAIN(1)
 
-         If (Z(3,3).ge.0._wp) Then
+         If (Z(3,3).ge.0.0_wp) Then
             Do i=1,3
             maxes(i,3)=Z(i,3)
             maxes(i,1)=Z(i,1)

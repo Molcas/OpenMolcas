@@ -30,30 +30,31 @@ subroutine Alaska(LuSpool,ireturn)
 
 use Alaska_Info, only: Am
 use Basis_Info, only: dbsc, nCnttp
-use Temporary_Parameters, only: Onenly, Test
+use Gateway_global, only: Onenly, Test
 use RICD_Info, only: Do_RI, Cholesky
 use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb
+use k2_arrays, only: DeDe
+use rctfld_module, only: iCharge_Ref, NonEQ_Ref
+use pso_stuff, only: No_Nuc
+use Disp, only: ChDisp, HF_Force, IndxEq, InxDsp, lDisp, lEQ, TRSymm
+use NAC, only: DoCSF, EDiff, isNAC
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Ten, Half
-use Definitions, only: wp, iwp, r8, u6
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
-#include "disp.fh"
 #include "print.fh"
-#include "rctfld.fh"
-#include "columbus_gamma.fh"
-#include "nac.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCnttp_Valence, ndc, nDiff, nsAtom
-real(kind=wp) :: EDiff_f, EDiff_s, TCpu1, TCpu2, TWall1, TWall2
+real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DoRys, Found
 character(len=180) :: Label
 real(kind=wp), allocatable :: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
 integer(kind=iwp), external :: isFreeUnit
-real(kind=r8), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical(kind=iwp), external :: RF_On
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j
@@ -141,7 +142,7 @@ if (king() .or. HF_Force) then
     call DrvN1(Grad,Temp,lDisp(0))
     if (iPrint >= 15) then
       Lab = ' Total Nuclear Contribution'
-      call PrGrad(Lab,Grad,lDisp(0),ChDisp,iPrint)
+      call PrGrad(Lab,Grad,lDisp(0),ChDisp)
     end if
   end if
 end if
@@ -173,7 +174,7 @@ if (.not. Test) then
     call Drvh1_EMB(Grad,Temp,lDisp(0))
   end if
   !Lab = 'Nuc + One-electron Contribution'
-  !call PrGrad(Lab,Grad,lDisp(0),ChDisp,iPrint)
+  !call PrGrad(Lab,Grad,lDisp(0),ChDisp)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -184,6 +185,7 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
   if (.not. Onenly) then
+    call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -210,7 +212,7 @@ if (.not. Test) then
     call DScal_(lDisp(0),Half,Temp,1)
     if (iPrint >= 15) then
       Lab = ' Two-electron Contribution'
-      call PrGrad(Lab,Temp,lDisp(0),ChDisp,iPrint)
+      call PrGrad(Lab,Temp,lDisp(0),ChDisp)
     end if
 
     !-- Accumulate contribution to the gradient
@@ -220,12 +222,12 @@ if (.not. Test) then
     !                                                                  *
     !*******************************************************************
     !                                                                  *
+    call mma_deallocate(DeDe)
   end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   call CWTime(TCpu2,TWall2)
-  call SavTim(7,TCpu2-TCpu1,TWall2-TWall1)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -233,7 +235,7 @@ if (.not. Test) then
 
   if (TRSymm) then
     if (iPrint >= 99) then
-      call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0),ChDisp,iPrint)
+      call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0),ChDisp)
       call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
     end if
     Temp(1:lDisp(0)) = Grad(1:lDisp(0))
@@ -274,30 +276,27 @@ end do
 ! NOCSF was given, to avoid division by (nearly) zero
 
 if (isNAC) then
-  call PrGrad('CI derivative coupling ',Grad,lDisp(0),ChDisp,iPrint)
+  call PrGrad('CI derivative coupling ',Grad,lDisp(0),ChDisp)
   if (DoCSF) then
     call mma_Allocate(CSFG,lDisp(0),Label='CSFG')
     call CSFGrad(CSFG,lDisp(0))
-    call PrGrad('CSF derivative coupling ',CSFG,lDisp(0),ChDisp,iPrint)
+    call PrGrad('CSF derivative coupling ',CSFG,lDisp(0),ChDisp)
     call daxpy_(lDisp(0),EDiff,CSFG,1,Grad,1)
     call mma_deallocate(CSFG)
   end if
-  EDiff_s = max(One,Ten**(-floor(log10(abs(EDiff)))-4))
-  EDiff_f = EDiff*EDiff_s
   write(u6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
   Label = ''
-  if (EDiff_s > One) write(Label,'(A,ES8.1,A)') ' (divided by',EDiff_s,')'
   Label = 'Total derivative coupling'//trim(Label)
   call mma_allocate(Tmp,lDisp(0),Label='Tmp')
-  Tmp(:) = Grad(:)/EDiff_f
-  call PrGrad(trim(Label),Tmp,lDisp(0),ChDisp,iPrint)
+  Tmp(:) = Grad(:)/EDiff
+  call PrGrad(trim(Label),Tmp,lDisp(0),ChDisp)
   write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
   call mma_deallocate(Tmp)
-elseif (iPrint >= 4) then
+else if (iPrint >= 4) then
   if (HF_Force) then
-    call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0),ChDisp,iPrint)
+    call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0),ChDisp)
   else
-    call PrGrad(' Molecular gradients',Grad,lDisp(0),ChDisp,iPrint)
+    call PrGrad(' Molecular gradients',Grad,lDisp(0),ChDisp)
   end if
 end if
 if (isNAC) then
@@ -348,10 +347,10 @@ end do
 !
 if (HF_Force) then
   call Put_dArray('HF-forces',Rlx,l1)
-elseif (Columbus == 1) then
+else if (Columbus == 1) then
   call Put_nadc(colgradmode,Rlx,l1)
 else
-  call Put_Grad(Rlx,l1)
+  call Put_dArray('GRAD',Rlx,l1)
 end if
 call mma_deallocate(Rlx)
 
@@ -364,7 +363,7 @@ if (Columbus == 1) then
   ! integer lcartgrd, iatom,icen,j
   call mma_allocate(CGrad,3,MxAtom,label='CGrad')
   call mma_allocate(CNames,MxAtom,label='CNames')
-  call TrGrd_Alaska_(CGrad,CNames,Grad,lDisp(0),iCen)
+  call TrGrd_Alaska(CGrad,CNames,Grad,lDisp(0),iCen)
   lcartgrd = 60
   lcartgrd = isFreeUnit(lcartgrd)
   call Molcas_Open(lcartgrd,'cartgrd')
@@ -413,6 +412,6 @@ end if
 
 return
 
-1010 format(3d15.6)
+1010 format(3es15.6)
 
 end subroutine Alaska

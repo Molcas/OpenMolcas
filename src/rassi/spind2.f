@@ -95,8 +95,8 @@ CTEST       CALL PRWVF(IORBTAB,ISSTAB,IWORK(LFSBANN4),PRTHR,WORK(LANN4))
 C Symmetry properties:
           KSMLAB=IORBTAB(KOINFO+1+8*(KSORB-1))
           KSPLAB=IORBTAB(KOINFO+3+8*(KSORB-1))
-          IF(MUL(KSMLAB,LSMLAB).NE.KLSYM) GOTO 100
-          IF(KSPLAB+LSPLAB.NE.KLMS2)      GOTO 100
+          IF(MUL(KSMLAB,LSMLAB).NE.KLSYM) cycle
+          IF(KSPLAB+LSPLAB.NE.KLMS2)      cycle
 C Pair index:
           KLSORB=((LSORB-1)*(LSORB-2))/2+KSORB
 C Annihilate once more, the spin orbital KSORB:
@@ -118,7 +118,6 @@ CTEST       write(*,*)' Their overlap:',OVLP
             SPD2(IJKL)=SPD2(IJKL)+OVLP
             CALL GETMEM('ANN3','Free','Real',LANN3,ND3)
             CALL KILLOBJ(LFSBANN3)
- 100      CONTINUE
          END DO
          CALL GETMEM('ANN4','Free','Real',LANN4,ND4)
          CALL KILLOBJ(LFSBANN4)
@@ -129,5 +128,5 @@ CTEST       write(*,*)' Their overlap:',OVLP
        CALL GETMEM('ANN1','Free','Real',LANN1,ND1)
        CALL KILLOBJ(LFSBANN1)
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE SPIND2

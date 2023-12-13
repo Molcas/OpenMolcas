@@ -40,16 +40,18 @@ else()
   set(mod_dir ${MAIN_MOD_DIR}/nevpt2)
 endif()
 
-if (LINALG STREQUAL "Internal")
-  set (LINALG_LIBRARIES $<TARGET_FILE:blas> $<TARGET_FILE:lapack>)
+if (LINALG_LIBRARIES)
+  target_files(LINALG_LIBRARIES_FILES ${LINALG_LIBRARIES})
+elseif (LINALG STREQUAL "Internal")
+  set (LINALG_LIBRARIES_FILES $<TARGET_FILE:blas> $<TARGET_FILE:lapack>)
 endif()
 
 # CMake does not support passing lists inside lists, so we need to
 # replace the semicolons in the lists and pass them as normal strings
 # and then replace the new separators with semicolons on the other side
 
-string(REPLACE ";" "<->" LINALG_LIBRARIES_NEVPT "${LINALG_LIBRARIES}")
-        list(APPEND NEVPT2CMakeArgs
+string(REPLACE ";" "<->" LINALG_LIBRARIES_NEVPT "${LINALG_LIBRARIES_FILES}")
+list(APPEND NEVPT2CMakeArgs
   "-DCMAKE_BUILD_TYPE=${NEVPT2_BUILD_TYPE}"
   "-DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External"
   "-DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}"
@@ -57,7 +59,6 @@ string(REPLACE ";" "<->" LINALG_LIBRARIES_NEVPT "${LINALG_LIBRARIES}")
   "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
   "-DCMAKE_C_FLAGS=${CMake_C_FLAGS}"
   "-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>"
-  "-DCMAKE_INSTALL_LIBDIR=lib"
   "-DENABLE_DEBUG_DMRG=OFF"
   "-DENABLE_DMRG=ON"
   "-DENABLE_OPENMP=${OPENMP}"
@@ -77,16 +78,17 @@ endif()
 
 if (MPI AND GA)
 # MPI and GA
-list(APPEND GA_LIBRARIES "${MPI_Fortran_LIBRARIES}")
-string(REPLACE ";" "<->" GA_LIBRARIES_NEVPT "${GA_LIBRARIES}")
-  list(APPEND NEVPT2CMakeArgs
-    "-DGA_LIBS=${GA_LIBRARIES_NEVPT}")
+target_files(GA_LIBRARIES_FILES ${GA_LIBRARIES})
+list(APPEND GA_LIBRARIES_FILES "${MPI_Fortran_LIBRARIES}")
+string(REPLACE ";" "<->" GA_LIBRARIES_NEVPT "${GA_LIBRARIES_FILES}")
+list(APPEND NEVPT2CMakeArgs
+  "-DGA_LIBS=${GA_LIBRARIES_NEVPT}")
 endif()
 
 
 if (MAQUIS_DMRG_DIR)
 list(APPEND NEVPT2CMakeArgs
-        "-DMAQUIS_DMRG_DIR=${MAQUIS_DMRG_DIR}")
+  "-DMAQUIS_DMRG_DIR=${MAQUIS_DMRG_DIR}")
 endif()
 
 
@@ -94,7 +96,7 @@ endif()
 # git references for NEVPT2          #
 ######################################
 set(reference_git_repo https://github.com/qcscine/nevpt2.git)
-# set(reference_git_tag release-3.0) # uncomment before merging into master, since before merging we expect more patches into upstream
+set(reference_git_commit e1484fd)
 
 
 set(EP_PROJECT nevpt2_ext)
@@ -102,14 +104,31 @@ set(EP_PROJECT nevpt2_ext)
 # Enabling source changes to keep ExternalProject happy
 set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
+set (last_hash "None")
+set (hash_file ${CUSTOM_NEVPT2_LOCATION}/${EP_PROJECT}.hash)
+if (EXISTS ${hash_file})
+  file (READ ${hash_file} last_hash)
+  string (REGEX REPLACE "\n$" "" last_hash "${last_hash}")
+endif ()
+if (last_hash STREQUAL ${reference_git_commit})
+  set (EP_SkipUpdate ON)
+else ()
+  set (EP_SkipUpdate OFF)
+endif ()
 
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
                     GIT_REPOSITORY ${reference_git_repo}
-                 #   GIT_TAG ${reference_git_tag}
+                    GIT_TAG ${reference_git_commit}
+                    UPDATE_DISCONNECTED ${EP_SkipUpdate}
                     CMAKE_ARGS "${NEVPT2CMakeArgs}"
                     INSTALL_DIR "${PROJECT_BINARY_DIR}/qcmaquis"
                    )
+
+ExternalProject_Add_Step (${EP_PROJECT} update_hash
+                          COMMAND echo ${reference_git_commit} > ${hash_file}
+                          DEPENDEES build
+                         )
 
 ExternalProject_Get_Property(${EP_PROJECT} install_dir)
 set(TOOL_SUBDIR Tools/distributed-4rdm)

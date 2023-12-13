@@ -33,7 +33,6 @@
 *>
 *> @param[in] IndexE  SF states sorted by energy
 *> @param[in] nSS     number of SO states
-*> @param[in] nSS     number of SO states
 *> @param[in] USOR    SO coefficients in SF basis (real part)
 *> @param[in] USOI    SO coefficients in SF basis (imaginary part)
 *> @param[in] MapSt   map of SF states expanded by multiplicity

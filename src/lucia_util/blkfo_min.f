@@ -39,9 +39,9 @@
 
 *. Output : Should outside be dimensioned as MXNTTS
       INTEGER LEN_BLK(*)
-      INTEGER IDUMMY(1)
+      INTEGER I_DUMMY(1)
 *
-      IDUMMY = 0 ! jwk-cleanup
+      I_DUMMY(1) = 0 ! jwk-cleanup
       IATP = 1
       IBTP = 2
 *
@@ -56,7 +56,7 @@
 *. Info needed for generation of block info
       CALL GETMEM('CIOIO ','ALLO','INTE',KLCIOIO,NOCTPA*NOCTPB)
       CALL IAIBCM(ISSPC,iWORK(KLCIOIO)) ! Jesper
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KPCBLTP),IDUMMY)
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KPCBLTP),I_DUMMY)
 *. Allowed length of each batch( not important for final output )
       LBLOCK = MAX(MXSOOB,LCSBLK)
 *. Batches  of C vector

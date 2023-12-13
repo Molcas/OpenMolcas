@@ -161,7 +161,7 @@
       ! local variables:
 #include "stdalloc.fh"
       Integer            :: i, j, l
-      Integer            :: luaniso, idisk
+      Integer            :: luaniso, idisk, idum(1)
       Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
       LUANISO=8
@@ -169,8 +169,10 @@
       Call DANAME(LUANISO,'POLYFILE')
       ! writing data to it:
       idisk=0
-      Call idafile(luaniso,1,[nstate],1,idisk)
-      Call idafile(luaniso,1,[nss],1,idisk)
+      idum(1)=nstate
+      Call idafile(luaniso,1,idum,1,idisk)
+      idum(1)=nss
+      Call idafile(luaniso,1,idum,1,idisk)
       ! spin multiplicity ofthe spin free states:
       Call idafile(luaniso,1,multiplicity,nstate,idisk)
       ! spin-orbit energies:

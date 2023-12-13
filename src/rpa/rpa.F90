@@ -24,10 +24,10 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: irc
 character(len=80) :: string
-character(len=3), parameter :: SecNam = 'RPA'
+character(len=*), parameter :: SecNam = 'RPA'
 
 !=======================================================================
 ! Enter

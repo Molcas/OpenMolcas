@@ -29,14 +29,14 @@ use MpmC, only: Coor_MpM
 use PrpPnt, only: Den, Occ, Vec
 use External_Centers, only: Dxyz, AMP_Center, EF_Centers, DMS_Centers, nDMS, nEF, nOrdEF, nOrd_XF, nWel, OAM_Center, OMQ_Center, &
                             Wel_Info, XF
-use SW_file, only: SW_FileOrb
 use Symmetry_Info, only: iChBas
-use Temporary_Parameters, only: PrPrt, Short, Primitive_Pass
+use Gateway_global, only: Primitive_Pass, PrPrt, Short, SW_FileOrb
 use PAM2, only: iPAMcount, iPAMPrim, kCnttpPAM
 use DKH_Info, only: BSS, DKroll
 use Sizes_of_Seward, only: S
-use Real_Info, only: PotNuc, kVector
-use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt, DoFMM, EMFR, GIAO, lPSOI
+use Gateway_Info, only: Do_FckInt, DoFMM, EMFR, GIAO, kVector, lAMFI, lMXTC, lRel, NEMO, PotNuc, Vlct
+use Integral_interfaces, only: int_kernel, int_mem
+use Property_Label, only: PLabel
 #ifdef _FDE_
 use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
@@ -47,16 +47,15 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "print.fh"
 #include "wldata.fh"
-#include "property_label.fh"
 #include "oneswi.fh"
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
-                     iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, iLow, &
-                     iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, &
-                     iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, iSymxLx, &
-                     iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, iSymzLz, &
-                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, mComp, mDMS, &
-                     mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
+                     iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCmp, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, &
+                     iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, &
+                     iSymCX, iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, &
+                     iSymxLx, iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, &
+                     iSymzLz, iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, &
+                     mComp, mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
 real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt
 logical(kind=iwp) :: lECPnp, lECP, lPAM2np, lPAM2, lPP, lFAIEMP
 character(len=8) :: Label
@@ -71,18 +70,25 @@ integer(kind=iwp), external :: IrrFnc, MltLbl, n2Tri
 integer(kind=iwp), allocatable :: ipList(:), OperI(:), OperC(:), iAtmNr2(:)
 real(kind=wp), allocatable :: CoorO(:), Nuc(:), KnE_Int(:), NA_Int(:), FragP(:), OneHam(:), PtEl(:), PtNuc(:), SumEl(:), &
                               SumNuc(:), Charge2(:)
-external :: MltInt, KnEInt, MVeInt, VeInt, D1Int, NAInt, EFInt, OAMInt, OMQInt, DMSInt, WelInt, XFdInt, PrjInt, QpVInt, M1Int, &
-            M2Int, SROInt, AMPInt, PXPInt, PXInt, VPInt, PPInt, CntInt, EMFInt, MltInt_GIAO, KneInt_GIAO, NAInt_GIAO, &
-            dTdmu_Int, PAM2Int, FragPint, P_Int, EPEInt
-external :: MltMem, KnEMem, MVeMem, VeMem, D1Mem, NAMem, EFMem, OAMMem, OMQMem, DMSMem, WelMem, XFdMem, PrjMem, QpVMem, M1Mem, &
-            M2Mem, SROMem, AMPMem, PXPmem, PXMem, VPMem, PPMem, CntMem, EMFMem, MltMem_GIAO, KneMem_GIAO, NAMem_GIAO, &
-            dTdmu_Mem, PAM2Mem, FragPMem, P_Mem, EPEMem
+procedure(int_kernel) :: AMPInt, CntInt, D1Int, DMSInt, dTdmu_Int, EFInt, EMFInt, FragPint, KneInt, KneInt_GIAO, M1Int, M2Int, &
+                         MltInt, MltInt_GIAO, MVeInt, NAInt, NAInt_GIAO, OAMInt, OMQInt, P_Int, PAM2Int, PPInt, PrjInt, PXInt, &
+                         PXPInt, QpVInt, SROInt, VeInt, VPInt, WelInt, XFdInt
+procedure(int_mem) :: AMPMem, CntMem, D1Mem, DMSMem, dTdmu_Mem, EFMem, EMFMem, FragPMem, KneMem, KneMem_GIAO, M1Mem, M2Mem, &
+                      MltMem, MltMem_GIAO, MVeMem, NAMem, NAMem_GIAO, OAMMem, OMQMem, P_Mem, PAM2Mem, PPMem, PrjMem, PXMem, &
+                      PXPMem, QpVMem, SROMem, VeMem, VPMem, WelMem, XFdMem
 #ifdef _FDE_
 ! Embedding
 integer(kind=iwp) :: iEMb, iunit
 real(kind=wp), allocatable :: Emb_Int(:)
 integer(kind=iwp), external :: isFreeUnit
-external :: embPotKernel, embPotMem
+procedure(int_kernel) :: embPotKernel
+procedure(int_mem) :: embPotMem
+#endif
+#ifdef _GEN1INT_
+integer(kind=iwp) :: nAtoms, jCnt
+! These won't actually be called, but need to be passed around
+procedure(int_kernel) :: DumInt
+procedure(int_mem) :: DumMem
 #endif
 
 iRout = 131
@@ -111,7 +117,7 @@ end do
 
 NDDO = .false.
 if (Prprt .and. DKroll) then
-  call WarningMessage(2,'Prprt and DKroll options can not be combined!')
+  call WarningMessage(2,'Prprt and DKroll options cannot be combined!')
   call Quit_OnUserError()
 end if
 
@@ -1065,8 +1071,9 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
   iOpt = 0
   lOper = 0
   iRC = -1
+  iCmp = 1
   Label = 'Kinetic '
-  call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+  call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
   if (iRC /= 0) then
     call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
     call Quit(_RC_IO_ERROR_READ_)
@@ -1074,7 +1081,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
   Label = 'Attract '
   lOper = 0
   iRC = -1
-  call RdOne(iRC,iOpt,Label,1,NA_Int,lOper)
+  call RdOne(iRC,iOpt,Label,iCmp,NA_Int,lOper)
   if (iRC /= 0) then
     call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
     call Quit(_RC_IO_ERROR_READ_)
@@ -1099,7 +1106,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
       Label = 'embpot  '
       lOper = 0
       iRC = -1
-      call RdOne(iRC,iOpt,Label,1,Emb_Int,lOper)
+      call RdOne(iRC,iOpt,Label,iCmp,Emb_Int,lOper)
       if (iRC /= 0) then
         call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
         call Quit(_RC_IO_ERROR_READ_)
@@ -1115,7 +1122,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'PrjInt  '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1124,7 +1131,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'M1Int   '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1133,7 +1140,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'M2Int   '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1142,7 +1149,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'SROInt  '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1156,7 +1163,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'PPInt   '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1170,7 +1177,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'XFdInt  '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1186,7 +1193,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
       write(Label,'(A,I4)') 'Well',iWel
       lOper = 0
       iRC = -1
-      call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+      call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
       if (iRC /= 0) then
         call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
         call Quit(_RC_IO_ERROR_READ_)
@@ -1550,7 +1557,7 @@ if (lAMFI .and. (.not. Prprt) .and. (.not. Primitive_Pass)) then
     end if
   end do
 
-  call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,Charge2)
+  call Drv_AMFI(Label,OperI,nComp,iAtmNr2,Charge2)
 
   call mma_deallocate(iAtmNr2)
   call mma_deallocate(Charge2)
@@ -1558,69 +1565,49 @@ if (lAMFI .and. (.not. Prprt) .and. (.not. Primitive_Pass)) then
 end if
 !***********************************************************************
 !***********************************************************************
-!KAMAL)                                                                *
+!KAMAL,Rulin Update)                                                   *
 !                                                                      *
 !              GEN1INT                                                 *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-if (lPSOI .and. (.not. Prprt) .and. (.not. Primitive_Pass)) then
+!!!MXTC
+if (lMXTC .and. DKroll .and. Primitive_Pass) then
 # ifdef _GEN1INT_
-  PLabel = ' '
-  rHrmt = -One
-  nComp = 3
+  nOrdOp = 0
+  ! Assume symmetric
+  rHrmt = One
+  nComp = 9
   call Get_nAtoms_All(nAtoms)
   do iCnt=1,nAtoms
-    write(Label,'(A,I2)') 'PSOI  ',iCnt
-    nPSOI = iCnt
-    nOrdOp = 1
-    call Allocate_Auxiliary()
-
-    iComp = 0
-    do iComp=1,nComp
-      ! FIXME ipPSO is uninitialized
-      !call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
-      call SysAbendMsg('Drv1El','Faulty code (undefined Work index).','Please correct it or contact the developer.')
+    do jCnt=1,2
+      if (jCnt == 1) then
+        ! Label for lower triangular portion
+        write(Label,'(A,I3)') 'MAGXP',iCnt
+        write(PLabel,'(A6)') 'MagInt'
+      else
+        ! Label for upper triangular portion
+        write(Label,'(A,I3)') 'MAGPX',iCnt
+        write(PLabel,'(A6)') 'MagInt'
+      end if
+      call Allocate_Auxiliary()
+      ! Dummy symmetry indices
+      do i=1,nComp
+        OperI(i) = 255
+        OperC(i) = 0
+      end do
+      ! Zero nuclear contribution
+      call dcopy_(nComp,[Zero],0,Nuc,1)
+      ! Compute one electron integrals
+      call OneEl(DumInt,DumMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      call Deallocate_Auxiliary()
     end do
-
-    ixyz = 1
-    iSymX = 2**IrrFnc(ixyz)
-    ixyz = 2
-    iSymY = 2**IrrFnc(ixyz)
-    ixyz = 4
-    iSymZ = 2**IrrFnc(ixyz)
-    iSymCx = iSymX
-    if (Ccoor(1) /= Zero) iSymCx = ibset(iSymCx,0)
-    iSymCy = iSymY
-    if (Ccoor(2) /= Zero) iSymCy = ibset(iSymCy,0)
-    iSymCz = iSymZ
-    if (Ccoor(3) /= Zero) iSymCz = ibset(iSymCz,0)
-
-    iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
-    iChOx = iChBas(3)+iChBas(4)
-    OperI(1) = iSymLx
-    OperC(1) = iChOx
-    iSymLy = ior(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
-    iChOy = iChBas(4)+iChBas(2)
-    OperI(1+1) = iSymLy
-    OperC(1+1) = iChOy
-    iSymLz = ior(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
-    iChOz = iChBas(2)+iChBas(3)
-    OperI(1+2) = iSymLz
-    OperC(1+2) = iChOz
-
-    ! Zero nuclear contribution
-    call DCopy_(nComp,[Zero],0,Nuc,1)
-    call OneEl(PSOInt,PSOMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
-
-    call Deallocate_Auxiliary()
   end do
-  !call PrMtrx(Label,lOper,nComp,ip)
 # else
   call WarningMessage(2,'Drv1El: NO Gen1int interface available!')
   call Abend()
 # endif
-end if   ! lPSOI
+end if ! lMXTC
 !***********************************************************************
 !***********************************************************************
 !20)                                                                   *
@@ -1831,8 +1818,9 @@ if (lFAIEMP .and. (.not. Primitive_Pass)) then
   iOpt = 0
   lOper = 0
   iRC = -1
+  iCmp = 1
   call mma_allocate(FragP,n2Tri(1)+4,label='FragP')
-  call RdOne(iRC,iOpt,Label,1,FragP,lOper)
+  call RdOne(iRC,iOpt,Label,iCmp,FragP,lOper)
   if (iRC /= 0) then
     call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
     call Quit(_RC_IO_ERROR_READ_)
@@ -1841,7 +1829,7 @@ if (lFAIEMP .and. (.not. Primitive_Pass)) then
   lOper = 0
   iRC = -1
   call mma_allocate(OneHam,n2Tri(1)+4,label='OneHam')
-  call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
+  call RdOne(iRC,iOpt,Label,iCmp,OneHam,lOper)
   if (iRC /= 0) then
     call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
     call Quit(_RC_IO_ERROR_READ_)

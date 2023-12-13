@@ -32,6 +32,7 @@ subroutine Charge_GRID_IT(nSym,nBas,CMO,nCMO,OCCN,iDoIt,long_prt)
 !
 !***********************************************************************
 
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -42,6 +43,7 @@ real(kind=wp), intent(in) :: CMO(nCMO), OCCN(*)
 logical(kind=iwp), intent(in) :: long_prt
 #include "Molcas.fh"
 integer(kind=iwp) :: iCase, iComp, iOpt, iOrb, iRc, iSyLbl, iSym, jOcc, MxTyp, nNUC, nTot1
+character(len=8) :: Label
 real(kind=wp), allocatable :: QQ(:), S(:), Xocc(:)
 character(len=LenIn8), allocatable :: UBName(:)
 
@@ -58,13 +60,14 @@ call Get_iScalar('Unique atoms',nNUC)
 call mma_allocate(QQ,MxTyp*nNuc,label='QQ')
 call mma_allocate(S,nTot1,label='Ovrlp')
 iRc = -1
-iOpt = 2
+iOpt = ibset(0,sNoOri)
 iComp = 1
 iSyLbl = 1
-call RdOne(iRc,iOpt,'Mltpl  0',iComp,S,iSyLbl)
+Label = 'Mltpl  0'
+call RdOne(iRc,iOpt,Label,iComp,S,iSyLbl)
 if (iRc /= 0) then
   write(u6,*) 'charge_grid_it: iRc from Call RdOne not 0'
-  !write(u6,*) 'Label = ',Label
+  write(u6,*) 'Label = ',Label
   write(u6,*) 'iRc = ',iRc
   call Abend()
 end if

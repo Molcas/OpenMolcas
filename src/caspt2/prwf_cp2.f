@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1994, Per Ake Malmqvist                                *
-**********************************************************************
+************************************************************************
 *--------------------------------------------*
 * 1994  PER-AAKE MALMQUIST                   *
 * DEPARTMENT OF THEORETICAL CHEMISTRY        *
@@ -28,7 +28,7 @@
       INTEGER I
 
       WRITE(6,'(20A4)')('----',I=1,20)
-      WRITE(6,'(a,d9.2)')' CI COEFFICIENTS LARGER THAN ',THR
+      WRITE(6,'(a,es9.2)')' CI COEFFICIENTS LARGER THAN ',THR
       CALL PRWF1_CP2(IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),
      &           IWORK(LIOW),ISYCI,CI,THR)
       RETURN

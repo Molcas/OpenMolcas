@@ -175,7 +175,7 @@ subroutine fmm_build_J_matrix(n_el,dens,J_matrix)
   end select
 
   call fmm_get_J_via_raw_potentials(scheme,dens,J_matrix,energy,E_text)
-  write(LUPRI,'(1X,A," = ",E20.12)') E_text,energy
+  write(LUPRI,'(1X,A," = ",ES20.12)') E_text,energy
 
   TTOT = fmm_second()-T0
   call TIMTXT('>>> TIME USED in fmm_get_J_matrix',TTOT,LUPRI)

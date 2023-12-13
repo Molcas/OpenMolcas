@@ -26,7 +26,7 @@ call Get_Name_Full(atom)
 call Get_nAtoms_All(matom)
 call Get_Mass_All(Mass,matom)
 do i=matom+1,natom
-  call LeftAd(atom(i))
+  atom(i) = adjustl(atom(i))
   Iso = 0
   call Isotope(Iso,atom(i),Mass(i))
 end do

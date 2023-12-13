@@ -14,10 +14,10 @@ set (sources
      chemps2_densi_rasscf.F90
      chemps2_load2pdm.F90
      chemps2_load3pdm.F90
-     fcidump_output.F90
      irreps.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

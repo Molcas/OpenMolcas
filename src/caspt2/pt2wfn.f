@@ -36,7 +36,6 @@
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "pt2_guga.fh"
 #ifdef _HDF5_

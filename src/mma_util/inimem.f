@@ -17,14 +17,23 @@
 *> Initialize memory for Molcas.
 ************************************************************************
       Subroutine IniMem
+      Use stdalloc, only: MxMem
       Implicit Real*8 (A-H,O-Z)
 *
 #include "SysCtl.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "mama.fh"
 #include "WrkSpc.fh"
 *
-      Integer allocmem
+      Interface
+        Function allocmem(ref,intof,dblof,chrof,size_)
+     &           bind(C,name='allocmem_')
+          Use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+          Integer(kind=MOLCAS_C_INT) :: allocmem
+          Real(kind=MOLCAS_C_REAL) :: ref(*)
+          Integer(kind=MOLCAS_C_INT) :: intof, dblof, chrof, size_
+        End Function allocmem
+      End Interface
 *----------------------------------------------------------------------*
 *     Initialize the Common / MemCtl / the first time it is referenced *
 *----------------------------------------------------------------------*
@@ -47,7 +56,7 @@
 *----------------------------------------------------------------------*
 *     Grab from the system a pointer to the dynamic work area          *
 *----------------------------------------------------------------------*
-      iRc=allocmem(Work,cWork,iofint,iofdbl,iofsgl,iofchr,MxMem)
+      iRc=allocmem(Work,iofint,iofdbl,iofchr,MxMem)
       If ( iRc.ne.0 ) Then
          Write (6,'(A,I3,A)') 'The initialization of the memory '//
      &                        'manager failed ( iRc=',iRc,' ).'
@@ -57,7 +66,6 @@
 *     Allocate "dummy" pointers                                        *
 *----------------------------------------------------------------------*
       Call GetMem('ip_Dum', 'Allo','REAL',ip_Dummy,  1)
-      Call GetMem('ip_sDum','Allo','SNGL',ip_sDummy, 1)
       Call GetMem('ip_iDum','Allo','INTE',ip_iDummy, 1)
 *----------------------------------------------------------------------*
 *     exit                                                             *

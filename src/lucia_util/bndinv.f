@@ -64,7 +64,6 @@ C       CALL OVERFL(K000FX)
 C       GO TO (140,51),K000FX
 C
 C       CALCULATE THE DETERMINANT
-        CONTINUE
         DETERP=A(1,1)
         DO I=2,N
          DETERP=DETERP*A(I,I)

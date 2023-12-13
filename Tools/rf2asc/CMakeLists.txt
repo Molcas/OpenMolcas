@@ -20,7 +20,6 @@ foreach (prog IN ITEMS rf2asc asc2rf testrf)
   add_executable (${prog}.exe ${prog}.f)
   target_link_libraries (${prog}.exe libmolcas)
   target_link_libraries (${prog}.exe ${EXTERNAL_LIBRARIES})
-  target_include_directories (${prog}.exe PRIVATE ${runfile_util_src})
   install (PROGRAMS
            ${EXECUTABLE_OUTPUT_PATH}/${prog}.exe
            DESTINATION ${CMAKE_INSTALL_PREFIX}/${tooldir}

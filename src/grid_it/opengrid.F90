@@ -30,7 +30,16 @@ character(len=40) :: Env
 character(len=12) :: Alpha
 character(len=2) :: ss
 character, parameter :: Slash = '/'
-integer(kind=iwp), external :: isFreeUnit, LUSOPEN
+integer(kind=iwp), external :: isFreeUnit
+interface
+  function lusopen(lid,fname,fname_len) bind(C,name='lusopen_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: lusopen
+    integer(kind=MOLCAS_C_INT) :: lid, fname_len
+    character(kind=c_char) :: fname(*)
+  end function lusopen
+end interface
 
 LuOrb = isFreeUnit(46)
 iPRGM = 0

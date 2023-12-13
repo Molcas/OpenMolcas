@@ -50,75 +50,48 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use OFembed, only: Do_OFemb, FMaux
+      use csfbas, only: CONF, KCFTP
+      use Fock_util_global, only: DoCholesky
+      use write_pdft_job, only: iwjob, writejob
+      use sxci_pdft, only: idxsx
+      use mspdft_grad, only: dogradmspd
+      use mspdft, only: mspdftmethod, do_rotate, iF1MS,
+     &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
+     &                  D1SAOMS, doNACMSPD, cmsNACstates, doMECIMSPD,
+     &                  mspdft_finalize
+      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+      use mspdft_util, only: replace_diag
+      use rctfld_module
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
 #include "wadr.fh"
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
-#include "rasrc.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "splitcas.fh"
-#include "bk_approx.fh"
-#include "output_ras.fh"
-#include "rctfld.fh"
 #include "timers.fh"
-#include "casvb.fh"
 #include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "pamint.fh"
-#include "davctl.fh"
-#include "qnctl_mcpdft.fh"
-#include "orthonormalize_mcpdft.fh"
 #include "ciinfo.fh"
-*JB XMC-PDFT stuff
-#include "mspdft.fh"
-*Chen write JOBIPH
-#include "wjob.fh"
-      Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
+
       CHARACTER(Len=18)::MatInfo
-      Integer LXScratch,NXScratch
       INTEGER LUMS,IsFreeUnit
-      Dimension WGRONK(2)
       External IsFreeUnit
 
       Logical DSCF
-      Logical lOPTO
       Character*80 Line
       Logical IfOpened
       Logical Found
-      Character(len=8),DIMENSION(:),Allocatable::VecStat
-      CHARACTER(Len=8)::StatVec
-      CHARACTER(Len=30)::mspdftfmt
-      Logical RefBas
-      Logical Gradient
 
-* --------- Cholesky stuff:
-#include "chotodo.fh"
-#include "chlcas.fh"
-#include "chopar.fh"
-#include "chotime.fh"
-#include "cholk.fh"
-* --------- End Cholesky stuff
-      Character*8 EMILOOP
-
-#include "sxci_mcpdft.fh"
-
-      External Get_ProgName
-!      External Get_SuperName
-      Character*100 ProgName, Get_ProgName!, Get_SuperName
-      External RasScf_Init
-      External Scan_Inp
-!      External Proc_Inp
-!      real*8 Elec_Ener
+      External RasScf_Init_m
+      External Scan_Inp_m
       integer iRef_E,IAD19
       integer IADR19(1:15)
       integer NMAYBE,KROOT
@@ -130,45 +103,27 @@
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
-      !CASDFT_E = 0d0
-      ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
 
 * Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
-* Set some Cholesky stuff
-      DoActive=.true.
-      DoQmat=.false.
-      lOPTO=.False.
-!      PLWO=0
-
-!        ProgName=Get_SuperName()
-!        write(*,*) 'supername',ProgName
-* Set variable IfVB to check if this is a VB job.
-      ProgName=Get_ProgName()
-      IfVB=0
-      If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
       EAV = 0.0d0
       Call RasScf_Init_m()
       Call Seward_Init()
 * Open the one-olectron integral file:
-       LuOne=77
-       LuOne=isFreeUnit(LuOne)
-       iRC=-1
-       iOpt=0
-       Call OpnOne(iRC,iOpt,'ONEINT',LuOne)
-       If (iRC.ne.0) Then
+      LuOne=77
+      LuOne=isFreeUnit(LuOne)
+      iRC=-1
+      iOpt=0
+      Call OpnOne(iRC,iOpt,'ONEINT',LuOne)
+      If (iRC.ne.0) Then
         Write (6,*) 'Error when trying to open the one-electron'
         Write (6,*) 'integral file.'
         Call Quit(_RC_INTERNAL_ERROR_)
-       End If
-      If (IfVB.eq.2) go to 10
+      End If
 
-!      write(*,*) 'KSDFT: ',KSDFT
-*
-!      write(*,*) LUINPUT, IRC
 * Make a copy, upper-cased, left-adjusted, of the input between and including
 * the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
 * with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
@@ -176,63 +131,58 @@
 * That copy will be in file 'CleanInput', and its unit number is returned
 * as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
       Call cpinp_(LUInput,iRc)
-!      write(*,*) LUINPUT, IRC
 * If something wrong with input file:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        Call WarningMessage(2,'Input file is unusable.')
-       Write(6,*)' MCPDFT Error: Could not make a clean copy of'
-       Write(6,*)' the input file. This is an unexpected bug.'
+       write(lf,*)' MCPDFT Error: Could not make a clean copy of'
+       write(lf,*)' the input file. This is an unexpected bug.'
        IRETURN=_RC_INTERNAL_ERROR_
        GOTO 9990
       End If
 
 
-* Scan the input file for keywords:
+! Scan the input file for keywords:
       Call Scan_Inp_m(iRc)
-* If something wrong with input file:
+! If something wrong with input file:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLOC(1).GE.TERSE) Then
         Call WarningMessage(2,'Scanning input file failed.')
-* Calling again, now with iRc indicating an error, will echo the keywords:
+! Calling again, now with iRc indicating an error,
+! will echo the keywords:
         Call Scan_Inp_m(iRc)
        End If
        IRETURN=_RC_INPUT_ERROR_
        GOTO 9990
       End If
 
-* Local print level in this routine:
+! Local print level in this routine:
       IPRLEV=IPRLOC(1)
-*
-10    CONTINUE
+
 * Open files
-      Call OpnFls_RASSCF_m(DSCF,DoCholesky)
+      Call OpnFls_RASSCF_m(DSCF)
 
 * Some preliminary input data:
-      Call Rd1Int_m
+      Call Rd1Int_m()
       If ( .not.DSCF ) Call Rd2Int_MCPDFT
 
-* Printed program header:
-!      If (IfVB.ne.2) Call Mem_Info('MCPDFT')
-
-
 * Process the input:
-      Call Proc_InpX(DSCF,lOPTO,iRc)
+      Call Proc_InpX(DSCF,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
-       If (IPRLEV.ge.TERSE) Then
-        Call WarningMessage(2,'Input processing failed.')
-        Write(6,*)' RASSCF Error: Proc_Inp failed unexpectedly.'
-        Write(6,*)' Here is a printing of the input file that'
-        Write(6,*)' was processed:'
-        Rewind(LUInput)
-  15    Continue
-        Read(LuInput,'(A80)',End=16,Err=16) Line
-        Write(6,*) Line
-        Go To 15
-  16    Continue
-       End If
-       IRETURN=iRc
-       GOTO 9990
+        If (IPRLEV.ge.TERSE) Then
+          Call WarningMessage(2,'Input processing failed.')
+          write(lf,*)' MC-PDFT Error: Proc_Inp failed unexpectedly.'
+          write(lf,*)' Here is a printing of the input file that'
+          write(lf,*)' was processed:'
+          Rewind(LUInput)
+  15      Continue
+          Read(LuInput,'(A80)',End=16,Err=16) Line
+          write(lf,*) Line
+          Go To 15
+  16      Continue
+        End If
+        IRETURN=iRc
+        GOTO 9990
       End If
 
 
@@ -240,21 +190,7 @@
       IPRLEV=IPRLOC(1)
 
 
-      Call InpPri_m(lOpto)
-
-!          INQUIRE(UNIT=JOBOLD,OPENED=IfOpened)
-*
-* If this is not CASDFT make sure the DFT flag is unset
-*
-      If (KSDFT(1:3).eq.'SCF') Then
-        Call Get_iScalar('System BitSwitch',iFlags)
-        iFlags=iAnd(iFlags,Not(2**6))
-        Call Put_iScalar('System BitSwitch',iFlags)
-      End If
-
-* If the ORBONLY option was chosen, then Proc_Inp just generated
-*  orbitals from the JOBIPH file. Nothing more to do:
-      IF(KeyORBO) GOTO 9990
+      Call InpPri_m()
 
 *--------------------------------------------------------
 *
@@ -278,24 +214,20 @@
       LPA  =1
       If ( NAC.GT.0 ) then
 
-         Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
-         Call FZero(Work(LTUVX),NACPR2)
-
-         ltuvx_cvb=ltuvx
-
-         Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
-         Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
-         Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
-         Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
-         call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
-         call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
+        Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
+        Call FZero(Work(LTUVX),NACPR2)
+        Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
+        Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
+        Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
+        Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
+        call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
+        call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
       Else
-         LTUVX = ip_Dummy
-         ltuvx_cvb=ltuvx
-         LDMAT = ip_Dummy
-         LDSPN = ip_Dummy
-         LPMAT = ip_Dummy
-         LPA   = ip_Dummy
+        LTUVX = ip_Dummy
+        LDMAT = ip_Dummy
+        LDSPN = ip_Dummy
+        LPMAT = ip_Dummy
+        LPA   = ip_Dummy
       End If
 *
 * Get start orbitals
@@ -310,7 +242,7 @@
       Call ReadVc_m(Work(LCMO),Work(lOCCN),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
 * Only now are such variables finally known.
-       If (IPRLOC(1).GE.DEBUG) Then
+      If (IPRLOC(1).GE.DEBUG) Then
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
      &              ' ',Work(LDMAT),NAC)
         CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
@@ -319,98 +251,30 @@
      &              ' ',WORK(LPMAT),NACPAR)
         CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
      &              ' ',WORK(LPA),NACPAR)
-       END IF
+      END IF
 *
 * Allocate core space for dynamic storage of data
 *
-      CALL ALLOC_m
-*
-* Create job interphase on unit JOBIPH (FT15)
-*
-      if(ifvb.ne.2) then
-!        CALL CREIPH
-!        call cre_raswfn
-      end if
-      if(ifvb.eq.1)call casinfo2_cvb()
+      CALL ALLOC_m()
 
-      Call Timing(Swatch,Swatch,Ebel_1,Swatch)
+      Call Timing(dum1,dum2,Ebel_1,dum3)
 
-CGG03 Aug 03
-      If(NAlter.gt.0) Call Alter_MO_m(Work(LCMO))
-
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Start iterations
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Rc_CI  = 0
-      Rc_SX  = 0
       ECAS   = 0.0d0
-      ROTMAX = 0.0d0
-      ITER   = 0
       Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Entry point for second and successive iterations
-*                                                                      *
-************************************************************************
-*                                                                      *
 
-!      goto 413 !Jump 1
-      if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &   KSDFT(1:5).eq.'TBLYP'.or.
-     &   KSDFT(1:5).eq.'FTPBE'.or.
-     &   KSDFT(1:7).eq.'TREVPBE'.or.
-     &   KSDFT(1:8).eq.'FTREVPBE'.or.
-     &   KSDFT(1:6).eq.'FTLSDA'.or.
-     &   KSDFT(1:6).eq.'FTBLYP'.or.
-     &   KSDFT(1:4).eq.'TPBE'.or.
-     &   KSDFT(1:5).eq.'TOPBE'.or.
-     &   KSDFT(1:6).eq.'FTOPBE' ) then
-      KSDFT_TEMP=KSDFT
+      ! I guess we spoof for the 2-electron part? Im not sure..
+        KSDFT_TEMP=KSDFT
         KSDFT='SCF'
         ExFac=1.0D0
-      else
-         KSDFT_TEMP=KSDFT
+
+      Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
+      call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
+      If (NASH(1).ne.NAC) then
+        Call DBLOCK_m(Work(ipTmpDMAT))
       end if
+      Call Get_D1A_RASSCF_m(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
+      Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
-      ITER=ITER+1
-      If ( ITER.EQ.1 ) THEN
-        Start_Vectors=.True.
-
-!        Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
-
-        If (iCIRST.eq.1) Then
-           Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
-           call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
-           If (NASH(1).ne.NAC) Call DBLOCK_m(Work(ipTmpDMAT))
-           Call Get_D1A_RASSCF_m(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
-           Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
-           DoActive = .true.
-        Else
-           lRf = .false.
-           IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
-     &        KSDFT_TEMP(1:5).ne.'TBLYP'.and.
-     &        KSDFT_TEMP(1:4).ne.'TPBE'.and.
-     &        KSDFT_TEMP(1:5).ne.'TOPBE')  then
-            KSDFT='SCF'
-            ExFac=1.0D0
-           end IF
-           Call dcopy_(NTOT2,[0.0D0],0,WORK(LD1A),1)
-           DoActive = .false.
-        End If
-        DoQmat=.false.
-      end if
-************************************************************************
-*         ^ End First iteration
-************************************************************************
-*
-* Print header to file containing informations on CI iterations.
-*
 ! 413 Continue
 
 !AMS start-
@@ -419,7 +283,7 @@ CGG03 Aug 03
 ! for each calculated MC-PDFT energy.
 !
 
-        iJOB=0
+      iJOB=0
       Call GetMem('REF_E','ALLO','REAL',iRef_E,lroots)
       Call Fzero(Work(iRef_E),lroots)
         Call f_Inquire('JOBOLD',Found)
@@ -452,27 +316,27 @@ CGG03 Aug 03
         NMAYBE=IT
       END DO
   11  CONTINUE
-      Do_Rotate=.false.
+
       IF(iMSPDFT==1) Then
        call f_inquire('ROT_HAM',Do_Rotate)
        If(.not.Do_Rotate) Then
-        write(6,'(6X,A,A)')'keyword "MSPD" is used but ',
+        write(lf,'(6X,A,A)')'keyword "MSPD" is used but ',
      &  'the file of rotated Hamiltonian is not found.'
-        write(6,'(6X,2a)')'Performing regular (state-',
+        write(lf,'(6X,2a)')'Performing regular (state-',
      &   'specific) MC-PDFT calculation'
        End If
       End IF
       IF(Do_Rotate) Then
-        write(6,'(6X,80A)') ('=',i=1,80)
-        write(6,*)
-        write(6,'(6X,A,A)')'keyword "MSPD" is used and ',
+        write(lf,'(6X,80A)') ('=',i=1,80)
+        write(lf,*)
+        write(lf,'(6X,A,A)')'keyword "MSPD" is used and ',
      &  'file recording rotated hamiltonian is found. '
-        write(6,*)
-        write(6,'(6X,A,A)')
+        write(lf,*)
+        write(lf,'(6X,A,A)')
      &  'Switching calculation to Multi-State Pair-Density ',
      &  'Functional Theory (MS-PDFT) '
-        write(6,'(6X,A)')'calculation.'
-        write(6,*)
+        write(lf,'(6X,A)')'calculation.'
+        write(lf,*)
         NHRot=lroots**2
         CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
         LUMS=12
@@ -485,19 +349,19 @@ CGG03 Aug 03
         Read(LUMS,'(A18)') MatInfo
         MSPDFTMethod=' MS-PDFT'
         IF(trim(adjustl(MatInfo)).eq.'an unknown method') THEN
-         write(6,'(6X,A,A)')'The MS-PDFT calculation is ',
+         write(lf,'(6X,A,A)')'The MS-PDFT calculation is ',
      & 'based on a user-supplied rotation matrix.'
         ELSE
-         write(6,'(6X,A,A,A)')'The MS-PDFT method is ',
+         write(lf,'(6X,A,A,A)')'The MS-PDFT method is ',
      &   trim(adjustl(MatInfo)),'.'
         If(trim(adjustl(MatInfo)).eq.'XMS-PDFT') MSPDFTMethod='XMS-PDFT'
         If(trim(adjustl(MatInfo)).eq.'CMS-PDFT') MSPDFTMethod='CMS-PDFT'
         If(trim(adjustl(MatInfo)).eq.'VMS-PDFT') MSPDFTMethod='VMS-PDFT'
         If(trim(adjustl(MatInfo)).eq.'FMS-PDFT') MSPDFTMethod='FMS-PDFT'
         ENDIF
-        write(6,*)
-        write(6,'(6X,80A)') ('=',i=1,80)
-        write(6,*)
+        write(lf,*)
+        write(lf,'(6X,80A)') ('=',i=1,80)
+        write(lf,*)
         Close(LUMS)
         do KROOT=1,lROOTS
           ENER(IROOT(KROOT),1)=Work((LHRot+(Kroot-1)*lroots+
@@ -514,84 +378,61 @@ CGG03 Aug 03
         end do
       End IF!End IF for Do_Rotate=.true.
 
+      IF(doNACMSPD) Then
+        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,*)
+        write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
+     & cmsNACstates(1), cmsNACstates(2)
+        write(6,*)
+        write(6,'(6X,80A)') ('=',i=1,80)
+        call Put_lScalar('isCMSNAC        ', doNACMSPD)
+        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
+      ELSE
+        cmsNACstates(1) = iRlxRoot
+        cmsNACstates(2) = 0
+        call Put_lScalar('isCMSNAC        ', doNACMSPD)
+        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
+      End IF!End IF for doNACMSPD=.true.
+
+      IF(doMECIMSPD) Then
+        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,*)
+        write(6,'(6X,A,I3,I3)')'keyword MECI is used for states:'
+        write(6,*)
+        write(6,'(6X,80A)') ('=',i=1,80)
+        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
+      ELSE
+        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
+      End IF
+
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
         JOBOLD=-1
       End if
 
-!AMS end
-!        Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
-!           Call Get_D1A_RASSCF(Work(LCMO),Work(LDMAT),WORK(LD1A))
-!      KSDFT_TEMP=KSDFT
-
-
-      Write(IterFile,*)
-      Write(IterFile,'(20A4)') ('****',i=1,20)
-      IF (Iter .Eq. 1) Then
-         Write(IterFile,'(15X,A)') 'RASSCF iteration: 1B'
-      Else
-         Write(IterFile,'(15X,A,I3)') 'RASSCF iteration: ',Iter
-      End If
-*
-        IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:5).eq.'FTPBE'.or.
-     &     KSDFT_TEMP(1:7).eq.'TREVPBE'.or.
-     &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &     KSDFT_TEMP(1:4).eq.'TPBE'.or.
-     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTOPBE') then
-            KSDFT=KSDFT_TEMP
-            ExFac=0.0d0
-*        ExFac=Get_ExFac(KSDFT)
-        end IF
-
+      ! now we reset..
+        KSDFT=KSDFT_TEMP
+        ExFac=0.0d0
 *
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
 *
-      Call Timing(Swatch,Swatch,Fortis_1,Swatch)
-      If (.not.DoCholesky .or. ALGO.eq.1) Then
-         Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
-         Call FZero(Work(LPUVX),NFINT)
-      Else
-         LPUVX=ip_Dummy
-      EndIf
+      Call Timing(dum1,dum2,Fortis_1,dum3)
+      Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
+      Call FZero(Work(LPUVX),NFINT)
       Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
 
-      DoActive = .true.
-!AMS - comment out?
-!      If (DoCholesky.and.ALGO.eq.2) Then
-!         DoQmat=.true. ! to be used in the subsequent SX-section
-!         NTav=0
-!         do iSym=1,nSym
-!            NTav = NTav + nBas(iSym)*nAsh(iSym)
-!         end do
-!         Call GetMem('Q-mat','Allo','Real',ipQmat,NTav)
-!         Call Fzero(Work(ipQmat),NTav)
-!      EndIf
+      IPR=0
+      IF(IPRLOC(2).EQ.debug) IPR=5
+      IF(IPRLOC(2).EQ.insane) IPR=10
 
-c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
-
-       IPR=0
-       IF(IPRLOC(2).EQ.4) IPR=5
-       IF(IPRLOC(2).EQ.5) IPR=10
-
-       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
+      CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
-*       If ( IPRLEV.ge.DEBUG ) then
-*        write(6,*) 'FA_old'
-*        call wrtmat(Work(lfa),1,ntot1,1,ntot1)
-*        write(6,*) 'FI_old'
-*        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
-*        End if
 
-       Call Put_CMO(Work(LCMO),ntot2)
+      Call Put_dArray('Last orbitals',Work(LCMO),ntot2)
 
-       if (doGSOR) then
+      if (doGSOR) then
         Call f_Inquire('JOBOLD',Found)
         if (.not.found) then
           Call f_Inquire('JOBIPH',Found)
@@ -604,271 +445,135 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
              Call DaName(JOBOLD,'JOBOLD')
            end if
         end if
-       IADR19(:)=0
-       IAD19=0
-       LUCT=87
-       LUCT=IsFreeUnit(LUCT)
-       CALL Molcas_Open(LUCT,'CI_THETA')
+        IADR19(:)=0
+        IAD19=0
+        LUCT=87
+        LUCT=IsFreeUnit(LUCT)
+        CALL Molcas_Open(LUCT,'CI_THETA')
 
-      Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
-          CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-          CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
-          CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
-          CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
-          CALL GETMEM('PAtmp','ALLO','REAL',LW9,NACPR2)
-          CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
+        Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
+        CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
+        CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
+        CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
+        CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
+        CALL GETMEM('PAtmp','ALLO','REAL',LW9,NACPR2)
+        CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
 
-          call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
-          call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
-          call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
-          call dcopy_(NCONF,[0.0D0],0,WORK(LW4),1)
-          iDisk = IADR19(4)
-          jDisk = IADR19(3)
+        call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+        call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+        call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
+        call dcopy_(NCONF,[0.0D0],0,WORK(LW4),1)
+        iDisk = IADR19(4)
+        jDisk = IADR19(3)
 
-       Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
-          DO jRoot=1,lroots
-           do i=1,nconf
-             read(LUCT,*) Work(LW4-1+i)
-           end do
-           Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
+        Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
+        DO jRoot=1,lroots
+          do i=1,nconf
+            read(LUCT,*) Work(LW4-1+i)
+          end do
+          Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,1,
-     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                CONF,iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
-         C_Pointer = Lw4
-         CALL GetMem('Lucia','Allo','Real',Lucia_Base, 1)
+          C_Pointer = Lw4
+          CALL GetMem('Lucia','Allo','Real',Lucia_Base, 1)
 !Andrew - changed here
-         CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
-                 If (IFCAS.GT.2 .OR. iDoGAS) Then
-                   Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
-     &                     Work(LW9),Work(LW10))
-                 End If
-         CALL GetMem('Lucia','Free','Real',Lucia_Base, 1)
+          CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
+          If (IFCAS > 2) Then
+            Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
+     &              Work(LW9),Work(LW10))
+          End If
+          CALL GetMem('Lucia','Free','Real',Lucia_Base, 1)
 
-!         write(6,*) 'jDisk',jDisk
-         Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
-         Call DDafile(JOBOLD,1,Work(LW7),NACPAR,jDisk)
-         Call DDafile(JOBOLD,1,Work(LW8),NACPR2,jDisk)
-         Call DDafile(JOBOLD,1,Work(LW9),NACPR2,jDisk)
-       end do
-       Close(LUCT)
-
-       Call fCopy('JOBIPH','JOBGS',ierr)
+          Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
+          Call DDafile(JOBOLD,1,Work(LW7),NACPAR,jDisk)
+          Call DDafile(JOBOLD,1,Work(LW8),NACPR2,jDisk)
+          Call DDafile(JOBOLD,1,Work(LW9),NACPR2,jDisk)
+        end do
+        Close(LUCT)
+        Call fCopy('JOBIPH','JOBGS',ierr)
 
        end if!DoGSOR
 
+      if(dogradmspd) then
+        CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
+      end if
+      Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
 
-!      write(*,*) "two ints",Work(LPUVX:LPUVX+NACPR2-1)
-!      write(*,*) "LCMO",Work(LCMO:LCMO+NTOT2-1)
-      If (.not.DoCholesky .or. ALGO.eq.1) Then
-         Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
-      EndIf
-
-      Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+      Call Timing(dum1,dum2,Fortis_2,dum3)
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 
-!      write(*,*) 'pre MSCTL CMOs'
-!      do i=1,ntot2
-!      write(*,*) Work(LCMO-1+i)
-!      end do
+      IF(DoGradMSPD) THEN
+        Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
+        Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
+        Call GetMem('FxyMS','Allo','Real',iFxyMS,nTot4*nRoots)
+        Call GetMem('F2MS' ,'Allo','Real',iF2MS ,nACPR2*nRoots)
+        Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
+        Call GetMem('DIDA' ,'Allo','Real',iDIDA ,nTot1*(nRoots+1))
+        Call GetMem('D1AOMS' ,'Allo','Real',D1AOMS,nTot1*nRoots)
+        if (ispin.ne.1) then
+          Call GetMem('D1SAOMS' ,'Allo','Real',D1SAOMS,nTot1*nRoots)
+        end if
+        Call FZero(Work(iP2MOt),lRoots*NACPR2)
+      END IF
+      CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 
-
-      IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &    KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:5).eq.'FTPBE'.or.
-     &     KSDFT_TEMP(1:7).eq.'TREVPBE'.or.
-     &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &    KSDFT_TEMP(1:4).eq.'TPBE'.or.
-     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTOPBE') THEN
-
-        CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
-        Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
+      ! This is where MC-PDFT actually computes the PDFT energy for
+      ! each state
+      ! only after 500 lines of nothing above...
+      Call MSCtl(Work(LCMO),Work(LFI),Work(LFA),
      &       Work(iRef_E))
+
+      ! I guess iRef_E now holds the MC-PDFT energy for each state??
+
         If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
 
         If (Do_Rotate) Then
-         NHRot=lroots**2
-         Do Jroot=1,lroots
-          Work(LHRot+Jroot-1+(Jroot-1)*lroots)=Work(iRef_E-1+Jroot)
-         End DO
-         Write(6,'(6X,80a)') ('*',i=1,80)
-         Write(6,*)
-         Write(6,'(34X,2A)')MSPDFTMethod,' FINAL RESULTS'
-         Write(6,*)
-         Write(6,'(6X,80a)') ('*',i=1,80)
-         Write(6,*)
-         write(6,'(6X,2A)')
-     &   MSPDFTMethod,' Effective Hamiltonian'
-         Call RecPrt(' ','',Work(LHRot),lroots,lroots)
-         write (6,*)
-*XMC-PDFT    To diagonalize the final MS-PDFT effective H matrix.
-*XMC-PDFT    Eigenvectors will be stored in LRState. This notation for the
-*XMC-PDFT    address here is the same for the rotated space in XMS-CASPT2.
-         NRState=NHRot
-         CALL GETMEM('RotStat','ALLO','REAL',LRState,NRState)
-         Call FZero(Work(LRState),NRState)
-         Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
-     &               WGRONK,-1,INFO)
-         NXScratch=Int(WGRONK(1))
-         Call GetMem('XScratch','Allo','Real',LXScratch,NXScratch)
-         Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
-     &               Work(LXScratch),NXScratch,INFO)
-         write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
-         Do Jroot=1,lroots
-           write(6,'(6X,3A,1X,I2,5X,A13,F18.8)')
-     &'::    ',MSPDFTMethod,' Root',
-     &     Jroot,'Total energy:',Work(LRState+Jroot-1)
-         End Do
-         Write(6,*)
-         CALL mma_allocate(VecStat,lRoots)
-         Do Jroot=1,lRoots
-          write(StatVec,'(A6,I2)')'Root ',JRoot
-          VecStat(JRoot)=StatVec
-         End Do
-         write(6,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
-         write(6,'(7X,A)')'Intermediate-state Basis'
-         if(lroots.lt.10) then
-          write(mspdftfmt,'(A5,I1,A9)')
-     &     '(13X,',lRoots,'(A8,16X))'
-          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
-         else
-          write(mspdftfmt,'(A5,I2,A9)')
-     &     '(13X,',lRoots,'(A8,16X))'
-          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
-         end if
-*Added by Chen to write energies and states of MS-PDFT into JOBIPH
-         If(IWJOB==1) Call writejobms(iadr19,LRState,LHRot)
-         Call RecPrt(' ','',Work(LHRot),lroots,lroots)
-*         Write(6,*)
-         refbas=.false.
-         call f_inquire('ROT_VEC',RefBas)
-         Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
-*print MS-PDFT final states in basis of reference states
-*re-use RotStat, XScratch and LRState
-         if(RefBas) then
-          NXScratch=NHRot
-          Call GetMem('XScratch','ALLO','Real',LXScratch,NXScratch)
-          Call FZero(Work(LXScratch),NXScratch)
-          Call FZero(Work(LRState)  ,NXScratch)
-          LUMS=IsFreeUnit(LUMS)
-          CALL Molcas_Open(LUMS,'ROT_VEC')
-          Do Jroot=1,lroots
-            read(LUMS,*) (Work(LRState+kroot-1+(jroot-1)*lroots)
-     &                   ,kroot=1,lroots)
-          End Do
-          CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,Work(LRState),
-     &         lRoots,Work(LHRot),lRoots,0.0d0,Work(LXScratch),lRoots)
-          write(6,'(7X,A)')'Reference-state Basis'
-          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
-          Call RecPrt(' ',' ',Work(LXScratch),lroots,lroots)
-          close(LUMS)
-          CALL Molcas_Open(LUMS,'FIN_VEC')
-          Do JRoot=1,lRoots
-           write(LUMS,*)(Work(LXScratch+(JRoot-1)*lRoots+kRoot-1),
-     &     kRoot=1,lRoots)
-          End Do
-          write(LUMS,*) MSPDFTMethod
-          Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
-          Close(LUMS)
-         end if
-         Write(6,'(6X,80a)') ('*',i=1,80)
-         CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
-         CALL GETMEM('RotStat','FREE','REAL',LRState,NRState)
-         CALL mma_deallocate(VecStat)
+          call replace_diag(work(lhrot), work(iref_e), lroots)
+          call mspdft_finalize(work(lhrot), lroots, irlxroot, iadr19)
         End If
-        CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
-      END IF
 
+      ! Free up some space
+      CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
 
-!      Call rasscf_mcontrol(Iter)
-!      Call Timing(Swatch,Swatch,Gucci_1,Swatch)
+      if (do_rotate) then
+        CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
+        if(DoGradMSPD) then
+          Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
+          Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
+          Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)
+          Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
+          Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
+          Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
+          Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
+          if (ispin.ne.1)
+     &       Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
+        end if
+      end if
 
-!AMS - comment out here, too!
-!      If (DoCholesky.and.ALGO.eq.2) Then
-!         Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
-!      EndIf
-
-
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute Final CI vectors
-*                                                                      *
-************************************************************************
-*                                                                      *
-      ICICH=0
 *****************************************************************************************
 ***************************           Closing up MC-PDFT      ***************************
 *****************************************************************************************
 
 ************************************************************************
-*  write essential information for subsequent gradient calculations.
-      Gradient=.False.
-      If(Gradient) then
-
-        If (.not.DoCholesky .or. ALGO.eq.1) Then
-          Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
-          Call FZero(Work(LPUVX),NFINT)
-        EndIf
-
-        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
-     &             WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
-
-        Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
-        Call GetMem('Fcore','Allo','Real',iTmp1,nTot1)
-        iComp  =  1
-        iSyLbl =  1
-        iRc    = -1
-        iOpt   =  6
-        Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
-
-!        Call GetMem('Dens','ALLO','REAL',ipDens,nTot1)
-
-
-        !if(CASDFT_E.eq.0) then
-        !  CASDFT_E = ECAS
-        !end if
-
-!        Elec_Ener = CASDFT_E-PotNuc
-        write(6,*) "PLWO"
-        write(6,*) PLWO(:)
-!        Call Calc_E(Work(LDMAT),Work(LDSPN),WORK(LPMAT),
-!     &            Work(ipDens),Work(LCMO),Work(LTUVX),
-!     &            Work(iTmp1),Elec_Ener,PLWO)
-        Call GetMem('Dens','FREE','REAL',ipDens,nTot1)
-        Call GetMem('Fcore','FREE','Real',iTmp1,nTot1)
-        Call GetMem('PUVX','FREE','Real',LPUVX,NFINT)
-        deallocate(PLWO)
-!       Necessary for analgrad in Alaska.
-        Call Put_iScalar('PDFT ready',0)
-
-
-      End If
-
 *^follow closing up MC-PDFT
 *
 * release SEWARD
 *
-      Call ClsSew
+      Call ClsSew()
 * ClsSew is needed for releasing memory used by integral_util, rys... which is allocated when MC-PDFT run is performed.
 
 *---  Finalize Cholesky information if initialized
       if (DoCholesky)then
          Call Cho_X_Final(irc)
          if (irc.ne.0) then
-            Write(LF,*)'RASSCF: Cho_X_Final fails with return code ',irc
-            Write(LF,*)' Try to recover. Calculation continues.'
+           Write(LF,*)'MC-PDFT: Cho_X_Final fails with return code ',irc
+           Write(LF,*)' Try to recover. Calculation continues.'
          endif
-         If (Do_OFemb) Then
-            Call mma_deallocate(FMaux)
-            Call OFE_print(EAV)
-         EndIf
       endif
 
 *  Release  some memory allocations
@@ -890,10 +595,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         Call GetMem('TUVX','free','Real',LTUVX,NACPR2)
       End if
 
-      If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 *
-* Create output orbital files:
-!      Call OrbFiles(JOBIPH,IPRLEV)
 *
        if (doGSOR) then
           CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
@@ -906,54 +608,17 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
           Call MKGUGA_FREE_m
        end if
-* Exit
+
 *
       Call StatusLine('MCPDFT:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
-      if(ifvb.eq.1) call make_close_rvb_m
-cvv call to grid is moved up, in order to call clssew safely..
-c       If (iCIonly.eq.0) Then
-c         Call Grid_driver(-1,'RASSCF','RASORB',iR)
-c       End If
 
-      Call Timing(Swatch,Swatch,Ebel_3,Swatch)
+      Call Timing(dum1,dum2,Ebel_3,dum3)
       IF (IPRLEV.GE.3) THEN
        Call PrtTim_m
        Call FastIO('STATUS')
       END IF
       Call ClsFls_RASSCF_m()
-
-!      Call GetMem(' ','Flush','Real',ipLow,1)
-!      Call Free_Work(ipLow)
-
-*
-      Rc_RAS = ITERM
-      Rc_RAS = Max(RC_RAS,Rc_CI)
-      Rc_RAS = Max(RC_RAS,Rc_SX)
-      If (Rc_Ras.eq.0) then
-         ireturn=_RC_ALL_IS_WELL_
-      Else If (Rc_Ras.eq.16) then
-         ireturn=_RC_NOT_CONVERGED_
-      Else
-         Call WarningMessage(2,'Something is wrong: Did CI fail?')
-         ireturn=_RC_GENERAL_ERROR_
-      End If
-*
-      If (Do_OFemb) Then
-         Call GetEnvF('EMIL_InLoop',EMILOOP)
-         If (EMILOOP.eq.' ') EMILOOP='0'
-         If (EMILOOP(1:1).ne.'0') Then
-            If (iReturn.ne._RC_ALL_IS_WELL_) Then
-               Call WarningMessage(1,'RASSCF: non-zero return code.')
-            EndIf
-            iReturn=_RC_CONTINUE_LOOP_
-            Call Check_FThaw(iReturn)
-         EndIf
-      EndIf
-
-!      if(.not.(iDoGas.or.doDMRG.or.doBlockDMRG.or.iDoNeci)) then
-!        Call MKGUGA_FREE_m
-!      end if
 
  9990 Continue
 
@@ -967,13 +632,12 @@ C Close the one-electron integral file:
          Call Quit(_RC_INTERNAL_ERROR_)
       End If
 
-      If (IfVB.ne.2) Then
-        DO I=10,99
-          INQUIRE(UNIT=I,OPENED=IfOpened)
-          IF (IfOpened.and.I.ne.19) CLOSE (I)
-        END DO
-        Close(LUInput)
-      End If
+      DO I=10,99
+        INQUIRE(UNIT=I,OPENED=IfOpened)
+        IF (IfOpened.and.I.ne.19) CLOSE (I)
+      END DO
+      Close(LUInput)
+
       return
       End
 

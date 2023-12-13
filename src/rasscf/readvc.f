@@ -68,6 +68,7 @@
      &  nDel, nBas, nOrb,
      &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
      &  JobIph, nSSH, maxbfn, mXAct
+      use casvb_global, only: ifvb
 
       use orthonormalization, only : t_ON_scheme, ON_scheme_values,
      &  orthonormalize
@@ -85,16 +86,15 @@
       Parameter (ROUTINE='READVC  ')
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "wadr.fh"
-#include "casvb.fh"
 #include "sxci.fh"
 
       real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
       type(t_ON_scheme), intent(in) :: scheme
 
       logical :: found, changed
-      integer :: iPrlev, nData, ifvb,
+      integer :: iPrlev, nData,
      &    i, j, iTIND, NNwOrd, iSym,
      &    LNEWORD, LTMPXSYM, iErr, IAD19, iJOB,
      &    lll, lJobH, ldJobH, lscr, iDisk,
@@ -250,7 +250,7 @@ C Local print level (if any)
            end if
         Else
            If (IPRLEV.ge.TERSE) then
-              Write(LF,*) '  File JOBOLD not found -- use JOBIPH.'
+              Write(LF,'(6X,A)') 'File JOBOLD not found -- use JOBIPH.'
            End If
            If (JOBIPH.gt.0) Then
               JOBOLD=JOBIPH
@@ -269,25 +269,25 @@ C Local print level (if any)
           IF(IPRGLB.GE.VERBOSE)
      &               Call WarningMessage(1,'Old JOBIP file layout.')
         END IF
-        lll = 1
+        lll = 10+RtoI
         lll = MAX(lll,mxSym)
         lll = MAX(lll,mxOrb)
-        lll = MAX(lll,RtoI)
         lll = MAX(lll,RtoI*mxRoot)
         CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
-        ldJobH=ip_of_Work_i(iWork(lJobH))
+        ldJobH=ip_of_Work_i(iWork(lJobH+10))
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
+     &                      iWork(lJobH),iWork(lJobH+1),iWork(lJobH+2),
+     &                      iWork(lJobH+3),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      mxSym,
-     &                      lJobH1,LENIN8*mxOrb,iWork(lJobH),
+     &                      lJobH1,LENIN8*mxOrb,iWork(lJobH+4),
      &                      lJobH2,2*72,JobTit,72*mxTit,
-     &                      Work(ldJobH),iWork(lJobH),
-     &                      iWork(lJobH),iWork(lJobH),mxRoot,
+     &                      Work(ldJobH),iWork(lJobH+5),
+     &                      iWork(lJobH+6),iWork(lJobH),mxRoot,
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
+     &                      iWork(lJobH+7),iWork(lJobH+8),
+     &                      iWork(lJobH+9),
      &                      Work(ldJobH))
         IF(IPRLEV.ge.TERSE) THEN
          If (iJOB.eq.1) Then

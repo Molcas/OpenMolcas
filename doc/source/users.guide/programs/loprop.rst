@@ -247,7 +247,7 @@ There are no compulsory keywords.
 :kword:`USERdensity`
   No density matrix is computed instead it is read as an input from the file
   :file:`USERDEN`. This enables :program:`LoProp` to obtain localized
-  properties for densities that currently can not be computed with |molcas|.
+  properties for densities that currently cannot be computed with |molcas|.
   If the keyword :kword:`NOFIeld` is not given, six additional files are
   required (:file:`USERDEN1`--:file:`USERDEN6`), each containing the density matrix of
   a perturbed calculation, see above. Observe the form
@@ -256,7 +256,7 @@ There are no compulsory keywords.
   .. xmldoc:: %%Keyword: UserDensity <basic>
               No density matrix is computed instead it is read as an input from the file
               USERDEN. This enables LoProp to obtain localized
-              properties for densities that currently can not be computed with molcas.
+              properties for densities that currently cannot be computed with molcas.
               If the keyword NOFIeld is not given, six additional files are
               required (USERDEN1-USERDEN6), each containing the density matrix of
               a perturbed calculation, see above. Observe the form
@@ -277,20 +277,6 @@ There are no compulsory keywords.
               final state of the transition. For example, if it is the transition
               density between the first and second state which should be localized,
               the integers should be 1 and 2. The keyword implies NOFIeld.
-
-:kword:`XHOLe`
-  The exchange hole dipole moment is computed, localized and given
-  as additional output.
-  This quantity can be used to compute local dispersion coefficients
-  according to Becke and Johnson :cite:`Becke:05`. The numerical integration
-  routine in |molcas| is used.
-
-  .. xmldoc:: %%Keyword: XHole <basic>
-              The exchange hole dipole moment is computed, localized and given
-              as additional output.
-              This quantity can be used to compute local dispersion coefficients
-              according to Becke and Johnson. The numerical integration
-              routine in Molcas is used.
 
 Input example
 .............

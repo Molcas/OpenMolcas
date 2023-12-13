@@ -20,7 +20,7 @@ subroutine RPA_PPInp()
 use RPA_globals, only: dRPA, Reference, RPAModel, SOSEX
 
 implicit none
-character(len=9), parameter :: SecNam = 'RPA_PPInp'
+character(len=*), parameter :: SecNam = 'RPA_PPInp'
 
 ! set RPAModel
 if (dRPA) then

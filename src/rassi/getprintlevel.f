@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GETPRINTLEVEL
+      use rassi_aux, only: ipglob
       IMPLICIT NONE
-#include "prgm.fh"
       Integer, External :: iPrintLevel
       Logical, External :: Reduce_Prt
 
@@ -18,7 +18,7 @@ C Global print level
       IPGLOB=iPrintLevel(-1)
 C Change print level when in an optimization loop
       IF (Reduce_Prt()) THEN
-        IPGLOB=MAX(IPGLOB-USUAL,SILENT)
+        IPGLOB=MAX(IPGLOB-2,0)
       END IF
 
-      END
+      END SUBROUTINE GETPRINTLEVEL

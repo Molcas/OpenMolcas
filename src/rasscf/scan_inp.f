@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Scan_Inp(iRc)
+#ifdef _DMRG_
+      use UnixInfo, only: ProgName
+#endif
       Implicit Real*8 (A-H,O-Z)
 * ------------------------------------------------------------
 * Scan input lines after the '&RASSCF' marker and until
@@ -18,7 +21,7 @@
 * Return codes are _RC_ALL_IS_WELL_ or _RC_INPUT_ERROR_
 * ------------------------------------------------------------
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "WrkSpc.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
@@ -27,16 +30,12 @@
       Character*180  Line
 
 #ifdef _DMRG_
-      External Get_ProgName
-      Character*100 Get_ProgName
-      Character*100 ProgName
       logical qcmaquis_input
 #endif
 *
 
 #ifdef _DMRG_
       qcmaquis_input = .false.
-      ProgName       = Get_ProgName()
 #endif
 
 * If the return code is already set to indicate an error, there will

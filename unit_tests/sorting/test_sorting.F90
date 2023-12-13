@@ -9,17 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2020, Oskar Weser                                      *
-!               2021, Ignacio Fdez. Galvan                             *
+!               2021,2023, Ignacio Fdez. Galvan                        *
 !***********************************************************************
 
 module test_sorting_mod
     use fruit
     use sorting, only: sort, argsort
-    use isotopes, only: initialize_isotopes, elementlist
+    use isotopes, only: maxatomnum, ptab
     use definitions, only: wp
     implicit none
     private
     public :: test_sort_ints, test_sort_isotopes, test_sort_reals
+
+    ! not using the ElementList from the isotopes module because
+    ! it is protected and proper initialization would require
+    ! access to the isotopes_data.txt file
+    ! (putting it here and not in the subroutine because of the lex_alphabet_leq problem, see below)
+    type Element
+      character(len=2) :: symbol
+    end type Element
+    type(Element), allocatable :: ElementList(:)
 
 contains
 
@@ -69,10 +78,12 @@ contains
 
     subroutine test_sort_isotopes
         integer, allocatable :: idx(:)
-
         integer :: i
 
-        call initialize_isotopes()
+        allocate(ElementList(MaxAtomNum))
+        do i=1,MaxAtomNum
+          ElementList(i)%symbol = adjustl(PTab(i))
+        end do
 
         allocate(idx(lbound(elementlist, 1) : ubound(elementlist, 1)))
 
@@ -80,17 +91,18 @@ contains
 
         call sort(idx, lex_alphabet_leq)
 
+        print * , elementlist(idx(: 10))%symbol
         call assert_true(all(elementlist(idx(: 10))%symbol &
             == ['Ac', 'Ag', 'Al', 'Am', 'Ar', 'As', 'At', 'Au', 'B ', 'Ba']))
 
-        contains
-
-        logical pure function lex_alphabet_leq(i, j)
-            integer, intent(in) :: i, j
-            lex_alphabet_leq = elementlist(i)%symbol <= elementlist(j)%symbol
-        end function
-
     end subroutine
+
+    ! this should be internal to test_sort_isotopes,
+    ! but the nvidia/pgi compiler chokes on it (segmentation fault)
+    logical pure function lex_alphabet_leq(i, j)
+        integer, intent(in) :: i, j
+        lex_alphabet_leq = elementlist(i)%symbol <= elementlist(j)%symbol
+    end function
 
 end module
 
@@ -99,11 +111,10 @@ program test_sorting
     use test_sorting_mod
 
     implicit none
-    integer :: failed_count, i
-    integer, parameter :: seed_size = 50
-    integer, parameter :: seed(seed_size) = [(i, i = 1, seed_size)]
+    integer :: failed_count, i, seed_size
 
-    call random_seed(put=seed)
+    call random_seed(size=seed_size)
+    call random_seed(put=[(i, i = 1, seed_size)])
     call init_fruit()
     call init_linalg()
     call inimem()

@@ -20,7 +20,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: iUHF, iSym, i, nB, nB2, ip, ipO, ipV
 logical(kind=iwp) :: Found
-character(len=21), parameter :: SecNam = 'RPA_RdOrb_FromRunfile'
+character(len=*), parameter :: SecNam = 'RPA_RdOrb_FromRunfile'
 integer(kind=iwp), external :: RPA_iUHF
 
 ! Restricted (1) or unrestricted (2)
@@ -36,7 +36,7 @@ end do
 call mma_allocate(CMO,l_CMO,iUHF,label='CMO(RPA)')
 
 ! Read CMO array(s) from Runfile
-call Get_CMO(CMO(:,1),nB2)
+call Get_dArray_chk('Last orbitals',CMO(:,1),nB2)
 if (iUHF == 2) then
   call Get_dArray('CMO_ab',CMO(:,2),nB2)
 end if

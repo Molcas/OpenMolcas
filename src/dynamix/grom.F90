@@ -28,12 +28,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-integer :: natom, i, j, filenum
+integer(kind=iwp) :: natom, i, j, filenum
 character(len=80) :: filename
 real(kind=wp), allocatable :: xyz(:), force(:)
 character(len=2), allocatable :: atom(:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "warnings.fh"
+#include "warnings.h"
 
 if (IPRINT == INSANE) write(u6,*) ' Entering GROM'
 

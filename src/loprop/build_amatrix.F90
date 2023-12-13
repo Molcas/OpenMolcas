@@ -19,7 +19,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, iANr(nAtoms), nij
 real(kind=wp), intent(out) :: AMatrix(nAtoms,nAtoms), AInvMatrix(nAtoms,nAtoms)
 real(kind=wp), intent(in) :: EC(3,nij), Alpha
-integer(kind=iwp) :: i, iAtom, ii, ISING, j, jAtom, jj
+integer(kind=iwp) :: i, iAtom, ii, j, jAtom, jj
 real(kind=wp) :: A(3), B(3), DET, R_BS_i, R_BS_j, rij02, rij2, Shift, temp
 real(kind=wp), external :: Bragg_Slater
 
@@ -71,7 +71,7 @@ call DaXpY_(nAtoms**2,Shift,[One],0,AMatrix,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call MINV(AMatrix,AInvMatrix,ISING,DET,nAtoms)
+call MINV(AMatrix,AInvMatrix,DET,nAtoms)
 !call RecPrt('AInv-matrix',' ',AIntMatrix,nAtoms,nAtoms)
 !                                                                      *
 !***********************************************************************

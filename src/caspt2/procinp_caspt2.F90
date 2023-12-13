@@ -8,14 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine ProcInp_Caspt2
+subroutine procinp_caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
-  use InputData, only: Input
-  use definitions, only:iwp
-  use output_caspt2, only:iPrGlb,terse,cmpThr,cntThr,dnmThr
+  use inputData, only: input
+  use definitions, only: iwp,wp
+  use caspt2_output, only: iPrGlb, terse, cmpThr, cntThr, dnmThr
+  use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
+                           ipea_shift, imag_shift, real_shift
+  use caspt2_gradient, only: do_grad, do_nac, do_csf, do_lindep, &
+                             if_invar, iRoot1, iRoot2, if_invaria, &
+                             ConvInvar
+  use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
-  use Para_Info, only:Is_Real_Par
+  use Para_Info, only:Is_Real_Par, nProcs
 #endif
 ! NOT TESTED
 #if 0
@@ -31,21 +37,29 @@ subroutine ProcInp_Caspt2
 #include "stdalloc.fh"
 #include "SysDef.fh"
 #include "chocaspt2.fh"
+#include "caspt2_grad.fh"
 
-  Integer(kind=iwp) :: iDummy
+  integer(kind=iwp) :: iDummy
 
   ! Number of non-valence orbitals per symmetry
-  Integer(kind=iwp) :: nCore(mxSym)
-  Integer(kind=iwp) :: nDiff,NFI,NSD
+  integer(kind=iwp) :: nCore(mxSym)
+  integer(kind=iwp) :: nDiff,NFI,NSD
   ! Geometry-determining root
-  Logical(kind=iwp) :: Is_iRlxRoot_Set
+  logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
   ! Environment
-  Character(Len=180) :: Env
+  character(Len=180) :: Env
+  ! NAC or not
+  character(Len=16) :: mstate1
+  logical(kind=iwp) :: Found
 
-  Integer(kind=iwp) :: I,J,M,N
-  Integer(kind=iwp) :: iSym
+  integer(kind=iwp) :: I,J,M,N
+  integer(kind=iwp) :: iSym
   ! State selection
-  Integer(kind=iwp) :: iGroup,iOff
+  integer(kind=iwp) :: iGroup,iOff
+  ! Numerical gradients
+  logical(kind=iwp) :: DNG, DNG_available
+  integer(kind=iwp) :: iDNG
+  integer(kind=iwp), external :: isStructure
 
   ! Hzero and Focktype are merged together into Hzero. We keep the
   ! variable Focktype not to break the input keyword which is documented
@@ -60,41 +74,35 @@ subroutine ProcInp_Caspt2
   ! Choose Focktype, reset IPEA shift to 0 for non-standard fock matrices
   Focktype = input%Focktype
   if (Focktype .ne. 'STANDARD') then
-    if (IfChol) then
-      call WarningMessage(2,'Requested FOCKtype not possible.')
-      write (6,*) 'Calculations using Cholesky vectors can only'
-      write (6,*) 'be used with the standard FOCKtype!'
-      call Quit_OnUserError
-    end if
     ! if both Hzero and Focktype are not standard, quit
     if (Hzero .ne. 'STANDARD') then
       call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
       call Quit_OnUserError
     end if
-    ! IPEA different from zero only for standard Focktype
-    if (BSHIFT .gt. 0.0d0 .or. BSHIFT .lt. 0.0d0) then
-      BSHIFT = 0.0d0
+    ! IPEA shift different from zero only for standard Focktype
+    if (ipea_shift .ne. 0.0d0) then
+      ipea_shift = 0.0d0
       if (IPRGLB .ge. TERSE) then
         call WarningMessage(1,'IPEA shift reset to zero!')
       end if
     end if
   else
     ! user-specified IPEA shift or not?
-    if (input%IPEA) then
-      BSHIFT = input%BSHIFT
+    if (input%ipea) then
+      ipea_shift = input%ipea_shift
     else
       ! Set default IPEA to 0.25 Eh or 0.0
       call getenvf('MOLCAS_NEW_DEFAULTS',Env)
       call upcase(Env)
       if (Env .eq. 'YES') then
-        BSHIFT = 0.0d0
+        ipea_shift = 0.0d0
       else
-        BSHIFT = 0.25d0
+        ipea_shift = 0.25d0
       end if
     end if
   end if
 
-  ! Copy over to Hzero the content of Focktype, if Hzero is not CUSTOM
+  ! copy over to Hzero the content of Focktype, if Hzero is not CUSTOM
   if (Hzero .ne. 'CUSTOM') then
     Hzero = Focktype
   end if
@@ -105,8 +113,33 @@ subroutine ProcInp_Caspt2
   end if
 
   ! real/imaginary shifts
-  SHIFT = Input%Shift
-  SHIFTI = Input%ShiftI
+  real_shift = Input%real_shift
+  imag_shift = Input%imag_shift
+
+  ! sigma-p regularizers
+  if (input%sigma_1_epsilon /= 0.0_wp .and. input%sigma_2_epsilon /= 0.0_wp) then
+    call WarningMessage(2,'SIG1 and SIG2 keywords are mutually exclusive')
+    call Quit_OnUserError()
+  end if
+
+  if (input%sigma_1_epsilon > 0.0_wp) then
+    sigma_p_epsilon = Input%sigma_1_epsilon
+    sigma_p_exponent = 1
+  end if
+
+  if (input%sigma_2_epsilon > 0.0_wp) then
+    sigma_p_epsilon = Input%sigma_2_epsilon
+    sigma_p_exponent = 2
+  end if
+
+  do_real = real_shift > 0.0_wp
+  do_imag = imag_shift > 0.0_wp
+  do_sigp = sigma_p_epsilon > 0.0_wp
+  if ((do_real .and. (do_imag .or. do_sigp)) .or. (do_imag .and. do_sigp)) then
+    call WarningMessage(2,'More than one intruder-state removal technique active: &
+                           &SHIFt/IMAGinary/SIG1/SIG2 are mutually exclusive!')
+    call Quit_OnUserError()
+  end if
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_
@@ -419,6 +452,7 @@ subroutine ProcInp_Caspt2
   IFXMS = Input%XMUL
   IFRMS = Input%RMUL
   IFMSCOUP = (Input%MULT.or.IFXMS.or.IFRMS) .AND. (.NOT. Input%NoMult)
+  IF (nState == 1 .AND. (NLYROOT .ne. mState(1))) IFMSCOUP = .FALSE.
   IFDW = Input%DWMS
   ! Set type and exponent for DWMS
   DWType = Input%DWType
@@ -428,15 +462,6 @@ subroutine ProcInp_Caspt2
       call Quit_OnUserError
     end if
     zeta = Input%zeta
-  end if
-
-  IFEFOCK = Input%EFOC
-  if (Input%EFOC) then
-    if (.not. (IFXMS .and. IFDW)) then
-      call WarningMessage(2,'Keyword EFOCk can only be used in (X)DW-CASPT2 calculations.')
-      call Quit_OnUserError
-    else
-    end if
   end if
 
   ! Choice? of preprocessing route
@@ -490,7 +515,189 @@ subroutine ProcInp_Caspt2
     end do
     M = 2*M
   end do
+!***********************************************************************
+!
+! Gradients
+!
+!***********************************************************************
 
-  !---  Exit
-  Return
-end
+  ! at the moment the calculation of analytic gradients has many
+  ! technical restrictions and we need to make sure that we do not
+  ! run into a unsupported combination of keywords, these are:
+  ! 1. no symmetry
+  ! 2. all CASSCF roots included in QD-CASPT2 gradients
+  ! 3. QD-CASPT2 gradients only with CD/DF
+
+  call put_iScalar('mp2prpt',0)
+
+  ! check if numerical gradients were requested in GATEWAY
+  call qpg_iScalar('DNG', DNG_available)
+  if (DNG_available) then
+    call get_iScalar('DNG', iDNG)
+    DNG = iDNG .eq. 1
+  else
+    DNG = .false.
+  end if
+
+  ! if the CASPT2 module was called by the NUMERICAL_GRADIENT one,
+  ! we make sure to disable analytic gradients
+  if (SuperName(1:18) == 'numerical_gradient') then
+    call put_iScalar('mp2prpt',0)
+    DNG = .true.
+    do_grad = .false.
+  end if
+
+  ! check first if the user specifically asked for analytic gradients
+  ! I think GRDT keyword should be ignored for numerical gradient and last energy
+  do_lindep = .False.
+  if (input%GRDT .and. SuperName(1:18) /= 'numerical_gradient' .and. SuperName(1:11) /= 'last_energy') then
+    do_grad = Input%GRDT
+
+    ! quit if both analytical and numerical gradients were explicitly requested
+    if (DNG) then
+      call warningMessage(2,'It seems that numerical gradients were requested'// &
+                            ' in GATEWAY and analytical gradients in CASPT2.'// &
+                            ' Please choose only one of the two!')
+      call quit_onUserError
+    end if
+
+    ! only allow analytic gradients without symmetry
+    if (nSym /= 1) then
+      call warningMessage(2,'Analytic gradients only available without symmetry.')
+      call quit_onUserError
+    end if
+
+    if (ipea_shift.ne.0.0D+00) do_lindep = .True.
+
+    ! only allow analytic gradients either with nstate = nroots or with sadref
+    if ((nState /= nRoots) .and. (.not. ifsadref)) then
+      call warningMessage(2,'Analytic gradients available only if all'// &
+                            ' CASSCF roots are included in the CASPT2'// &
+                            ' calculation or with the SADRef keyword.')
+      call quit_onUserError
+    end if
+
+    ! QD-CASPT2 analytic gradients available only with DF or CD
+    if (ifMSCoup .and. (.not. ifChol)) then
+      call warningMessage(2,'MS-type analytic gradients available only '//  &
+                            'with density fitting or Cholesky decomposition.')
+      call quit_onUserError
+    end if
+
+    ! CASPT2 analytic gradients with state-dependent density available only with DF or CD
+    if ((.not. ifChol) .and. (.not.input%SADREF) .and. (nRoots.ne.1)) then
+      call warningMessage(2,'Analytic gradients with state-dependent density available only '//  &
+                            'with density fitting or Cholesky decomposition.')
+      call quit_onUserError
+    end if
+#ifdef _MOLCAS_MPP_
+    ! for the time being no gradients with MPI
+    if (nProcs > 1) then
+      call warningMessage(2,'Analytic gradients not available'//  &
+                            ' in parallel executions.')
+      call quit_onUserError
+    end if
+#endif
+
+  end if
+
+  ! inside LAST_ENERGY we do not need analytic gradients
+  if (SuperName(1:11) == 'last_energy') DNG=.true.
+
+  ! check if the calculation is inside a loop and make analytical
+  ! gradients default in this case, unless the user specifically
+  ! requested numerical gradients in GATEWAY
+  if ((isStructure() == 1)) then
+    ! if MPI is enabled, analytic gradients only with one process
+#ifdef _MOLCAS_MPP_
+    if (nProcs == 1) then
+#endif
+      ! check the hard constraints first
+      if ((.not. DNG) .and. (nSym == 1)) then
+        do_grad = .true.
+
+        ! check weaker constraints, if not met, revert to numerical gradients
+        if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
+        if ((ipea_shift /= 0.0_wp) .and. (.not. ifChol)) do_grad = .false.
+        if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
+      end if
+#ifdef _MOLCAS_MPP_
+    end if
+#endif
+  end if
+
+  ! compute full unrelaxed density for gradients
+  if (do_grad) ifDens = .true.
+
+  if (do_grad) then
+    call put_iScalar('mp2prpt',2)
+    do_nac = input%NAC
+
+    !! If states to be computed are requested by ALASKA
+    !! (if "@" presents in MCLR Root), always compute for these states
+    call Qpg_cArray('MCLR Root',Found,I)
+    if (Found) then
+      call Get_cArray('MCLR Root',mstate1,16)
+!     write (*,*) "mstate1"
+!     write (*,'(a)') mstate1
+      if (mstate1 /= '****************') then
+        if (index(mstate1,'@') /= 0) then
+          read(mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
+!         write (*,*) "MCLR Root read:", iRoot1,iRoot2
+          if (iRoot1 /= 0) do_nac = .true.
+          if (iRoot1 == 0) then
+            iRoot1 = iRoot2
+            iRlxRoot = iRoot1
+            do_nac = .false.
+          end if
+        end if
+      end if
+    end if
+
+!   write (*,*) "roots after MCLR Root:",iRoot1,iRoot2
+
+    !! If nothing is specified by ALASKA, use the states in &CASPT2
+    if ((iRoot1 == 0) .and. (iRoot2 == 0)) then
+      if ((input%iNACRoot1 == 0) .and. (input%iNACRoot2 == 0)) then
+        iRoot1 = iRlxRoot
+        iRoot2 = iRlxRoot
+      else
+        iRoot1 = input%iNACRoot1
+        iRoot2 = input%iNACRoot2
+      end if
+    end if
+  end if
+
+  if (do_nac) then
+    do_csf = input%CSF
+  end if
+
+  IFSADREF   = input%SADREF
+  IFDORTHO   = input%DORTHO
+  if_invar   = input%INVAR
+  if (ipea_shift /= 0.0_wp) if_invar = .false.
+  if_invaria = input%IAINVAR
+  ConvInvar  = input%ThrConvInvar
+
+  if ((ipea_shift /= 0.0_wp) .and. do_grad .and. (.not.IFDORTHO)) then
+    call warningMessage(2,'Analytic gradients with IPEA shift'//  &
+                          ' must use the CORT or DORT option.')
+    call quit_onUserError
+  end if
+
+  !! Whether the Fock matrix (eigenvalues) is constructed with
+  !! the state-averaged density matrix or not.
+  !! The name of the variable is like state-specific DM,
+  !! but not necessarily state-specific. It is a matter of the
+  !! structure of WORK(LDWGT) array or matrix.
+  !! WORK(LDWGT) is a matrix form for SS- and MS-CASPT2 with
+  !! state-specific DM, XDW-CASPT2, and RMS-CASPT2, while it is an
+  !! array for SS- and MS-CASPT2 with state-averaged DM (with SADREF
+  !! option) and XMS-CASPT2.
+  if (IFSADREF .or. (nRoots == 1) .or. (IFXMS .and. (.not.IFDW))) then
+    IFSSDM = .false.
+  else
+    IFSSDM = .true.
+  end if
+
+end subroutine procinp_caspt2

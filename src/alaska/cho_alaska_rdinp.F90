@@ -16,17 +16,17 @@ subroutine Cho_Alaska_RdInp(LuSpool)
 !
 !***********************************************************************
 
+use RI_glob, only: dmpK, nScreen
+use Cholesky, only: timings
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-#include "exterm.fh"
-#include "chotime.fh"
 integer(kind=iwp) :: istatus
 real(kind=wp) :: dmpK_default
 character(len=180) :: KWord, Key
-character(len=16), parameter :: SECNAM = 'CHO_ALASKA_INPUT'
+character(len=*), parameter :: SECNAM = 'CHO_ALASKA_INPUT'
 character(len=180), external :: Get_Ln
 
 ! Set defaults

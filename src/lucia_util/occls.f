@@ -122,7 +122,7 @@ C?      CALL IWRTMA(IOC,1,NGAS,1,NGAS)
            WRITE(6,*) ' Class    Occupation in GASpaces '
            WRITE(6,*) ' ================================'
            DO I = 1, NOCCLS
-             WRITE(6,'(1H ,I5,3X,16I3)')
+             WRITE(6,'(1X,I5,3X,16I3)')
      &       I, (IOCCLS(IGAS,I),IGAS=1, NGAS)
            END DO
 C          CALL IWRTMA(IOCCLS,NGAS,NOCCLS,NGAS,NOCCLS)

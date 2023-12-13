@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Real*8 Function FindDetR(matrix, n)
+      REAL*8 FUNCTION FindDetR(matrix, n)
 c     Function to find the determinant of a square matrix
 c
 c     Description: The Subroutine is based on two key points:
@@ -19,35 +19,48 @@ c         would work as well) are used to convert the matrix the matrix
 c         into upper triangular form
 c     2]  The determinant of a triangular matrix is obtained by finding
 c         the product of the diagonal elements
-      Implicit None
-#include "stdalloc.fh"
-      Integer, parameter        :: wp=kind(0.d0)
-c Calling parameters
-      Integer, intent(in)        :: N
-      Real(kind=8)              :: matrix(N,N)
-c local variables:
-      Real(kind=8), allocatable :: w(:), z(:,:)
-      Integer                    :: i, info
+      IMPLICIT NONE
 
-      info=0
-      FindDetR=0.0_wp
-      Call mma_allocate(w,n,'eigenvalues')
-      Call mma_allocate(z,n,n,'engenvectors')
-      Call dcopy_(  n,[0.0_wp],0,w,1)
-      Call dcopy_(n*n,[0.0_wp],0,z,1)
-      ! diagonalize the matrix:
-      Call diag_r2(matrix,n,info,w,z)
-      If (info.ne.0) then
-         Write(6,*) 'inside FindDetR. diagonalization failed. Info =',
-     &               info
-         Return
-      End If
+      INTEGER, INTENT (IN) :: N
+      REAL (kind=8)        :: matrix(N,N)
+      ! local variables:
+      REAL (kind=8)        :: m, temp, MINIMAL_REAL
+      INTEGER              :: i, j, k, l
+      LOGICAL              :: DetExists
+      DetExists = .TRUE.
+      MINIMAL_REAL = TINY(0.d0)
+      l = 1
+      temp=0
+      ! Convert to upper triangular form
+      DO k = 1, N-1
+         IF (ABS(matrix(k,k))<MINIMAL_REAL) THEN
+            DetExists = .FALSE.
+            DO i = k+1, N
+               IF (ABS(matrix(i,k))>MINIMAL_REAL) THEN
+                  DO j = 1, N
+                           temp  =  matrix(i,j)
+                     matrix(i,j) =  matrix(k,j)
+                     matrix(k,j) =  temp
+                  END DO
+                  DetExists = .TRUE.
+               END IF
+            END DO
+            IF (DetExists .EQV. .FALSE.) THEN
+               FindDetR = 0
+               RETURN
+            END IF
+         END IF
+         DO j = k+1, N
+            m = matrix(j,k)/matrix(k,k)
+            DO i = k+1, N
+               matrix(j,i) = matrix(j,i) - m*matrix(k,i)
+            END DO
+         END DO
+      END DO ! k
       ! Evaluate determinant by finding product of diagonal elements
-      FindDetR=1.0_wp
-      Do i=1, N
-         FindDetR = FindDetR * w(i)
-      End Do
-      Call mma_deallocate(w)
-      Call mma_deallocate(z)
-      Return
-      End
+      FindDetR = l
+      DO i=1, N
+         FindDetR = FindDetR * matrix(i,i)
+      END DO
+      RETURN
+      END FUNCTION FindDetR

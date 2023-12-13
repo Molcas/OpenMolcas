@@ -12,19 +12,18 @@
 ************************************************************************
       SUBROUTINE TRACHO3(CMO)
       USE CHOVEC_IO
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
-**********************************************************************
+************************************************************************
 *  Author : P. A. Malmqvist
-**********************************************************************
+************************************************************************
       REAL*8 CMO(NBSQT)
 
       INTEGER NCES(8),ip_HTVec(8)
@@ -41,7 +40,7 @@
       INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
-**********************************************************************
+************************************************************************
 * ======================================================================
 * This section deals with density matrices and CMO''s
 * Offsets into CMO arrays:

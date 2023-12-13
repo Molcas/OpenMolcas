@@ -31,31 +31,29 @@
 
 #include "parnell.h"
 
-parnell_status_t
-parnell_init (void)
-{
-        char tmpWorkDir[FILENAME_MAX+7];
+parnell_status_t parnell_init(void) {
+  char tmpWorkDir[FILENAME_MAX + 7];
 
-        /* all process should have been started in the main work directory */
-        if (WorkDir[0]==0 && getcwd(WorkDir, FILENAME_MAX)==NULL) {
-                perror ("while calling getcwd");
-                fprintf(stderr,"%d parnell_init: fatal error, could not determine current working directory\n", MyRank);
-                return PARNELL_ERROR;
-        }
-        /* set MyWorkDir and switch to it */
-        if(MyWorkDir[0]==0) {
-                if (MyRank == 0) {
-                        strncpy (MyWorkDir, WorkDir, FILENAME_MAX);
-                } else {
-                        snprintf (tmpWorkDir, FILENAME_MAX+7, "%s/tmp_%d", WorkDir, MyRank);
-                        strncpy (MyWorkDir, tmpWorkDir, FILENAME_MAX-1);
-                        MyWorkDir[FILENAME_MAX-1] = 0;
-                        if (chdir (MyWorkDir) != 0) {
-                                perror ("cannot change directory");
-                                fprintf(stderr,"%d parnell_init: fatal error, could not switch to directory %s\n", MyRank, MyWorkDir);
-                                return PARNELL_ERROR;
-                        }
-                }
-        }
-        return PARNELL_OK;
+  /* all process should have been started in the main work directory */
+  if (WorkDir[0] == 0 && getcwd(WorkDir, FILENAME_MAX) == NULL) {
+    perror("while calling getcwd");
+    fprintf(stderr, "%d parnell_init: fatal error, could not determine current working directory\n", MyRank);
+    return PARNELL_ERROR;
+  }
+  /* set MyWorkDir and switch to it */
+  if (MyWorkDir[0] == 0) {
+    if (MyRank == 0) {
+      strncpy(MyWorkDir, WorkDir, FILENAME_MAX);
+    } else {
+      snprintf(tmpWorkDir, FILENAME_MAX + 7, "%s/tmp_%d", WorkDir, MyRank);
+      strncpy(MyWorkDir, tmpWorkDir, FILENAME_MAX - 1);
+      MyWorkDir[FILENAME_MAX - 1] = 0;
+      if (chdir(MyWorkDir) != 0) {
+        perror("cannot change directory");
+        fprintf(stderr, "%d parnell_init: fatal error, could not switch to directory %s\n", MyRank, MyWorkDir);
+        return PARNELL_ERROR;
+      }
+    }
+  }
+  return PARNELL_OK;
 }

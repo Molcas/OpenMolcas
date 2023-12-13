@@ -1,26 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine priwel(k,alfa,beta,r0,a,gri,nz,isum,grin)
-      Implicit Real*8(A-H,O-Z)
-#include "real.fh"
-#include "welcom.fh"
+      use Constants, only: Zero
+      use welcom, only: kMax, iPot3
+      Implicit None
+      Integer nz, iSum, k
       Real*8 gri(nz,isum), grin(nz,0:k,k/2+1,k/4+1), alfa(nz), a(nz)
+
+      Integer indst, i, j, l, ix, iy, iz, iPot3i, jj, iDiv, ixyz, ix2,
+     &        iy2, ixS, iyS, ixyS, mZ
       Integer iv(kmax)
-*
-*     iQ = 1
+      Real*8 Beta, r0
+!
       Call binte(k,alfa,beta,r0,a,grin,nz)
-*     Call RecPrt(' In PriWel: Grin',' ',Grin,nz,(k+1)*(k/2+1)*(k/4+1))
-*
-c.....distribute the integrals into gri
-*
+!     Call RecPrt(' In PriWel: Grin',' ',Grin,nz,(k+1)*(k/2+1)*(k/4+1))
+!
+!.....distribute the integrals into gri
+!
       indst=1
       isum=ipot3(k+1)
       Do 115 iz=1,nz
@@ -38,10 +42,10 @@ c.....distribute the integrals into gri
                iv(l)=ixyz
                jj=jj-(ixyz-1)*idiv
 12          Continue
-*
-c.....the potency vector for this integral is now ready
-c .....now analyze it
-*
+!
+!.....the potency vector for this integral is now ready
+! .....now analyze it
+!
             ix=0
             iy=0
             iz=0
@@ -65,7 +69,7 @@ c .....now analyze it
          indst=indst+ipot3i
  10   Continue
  99   Continue
-*     Call RecPrt(' In PriWel:gri',' ',gri,nz,isum)
-*
+!     Call RecPrt(' In PriWel:gri',' ',gri,nz,isum)
+!
       Return
-      End
+      End Subroutine priwel

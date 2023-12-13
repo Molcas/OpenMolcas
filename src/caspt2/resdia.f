@@ -1,21 +1,37 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+!> @brief Apply the resolvent of the diagonal of H0-E0 to a vector
+!> @author Per-&Aring;ke Malmqvist, 1994
+!>
+!> @details
+!> ::presdia stands for "parallel resolvent diagonal" and it applies
+!> the resolvent of the diagonal of \f$ (H_0 - E_0) \f$ to a coefficient
+!> vector stored at position \p IVEC on \p LUSOLV. The result is stored
+!> in the vector at position \p JVEC. Furthremore, it computes the
+!> "overlap" as \p IVEC squared divided by the resolvent.
+!> The parallel part is thaken care of in subroutine calls \p RHS_.
+!> Potential shifts and modification of \f$ H_0 \f$ are considered
+!> in ::rhs_resdia
+!>
+!> @param[in]     IVEC   Vector position to which the res is applied
+!> @param[out]    JVEC   Vector position where the result is saved
+!> @param[in]     OVLAPS Array containing the overlaps
       SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
       IMPLICIT NONE
 

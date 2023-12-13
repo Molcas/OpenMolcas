@@ -13,7 +13,6 @@
       DIMENSION CNAT(*),OCC(*)
       DIMENSION GDAO(*)
       DIMENSION ISTART(NSYM),NUSE(NSYM),NBAS(NSYM)
-#include "WrkSpc.fh"
 
 * General density matrix, in the sense of using a specified
 * but arbitrary range of orbitals in each symmetry, and an

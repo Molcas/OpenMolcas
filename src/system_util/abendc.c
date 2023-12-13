@@ -10,20 +10,20 @@
 *                                                                      *
 * Copyright (C) 2001-2005, Valera Veryazov                             *
 ***********************************************************************/
+
 #include <string.h>
 #include "molcastype.h"
 
 #ifdef _CAPITALS_
-#define abend ABEND
+# define abend ABEND
 #else
-#ifndef ADD_
-#define abend abend_
-#endif
+# ifndef ADD_
+#   define abend abend_
+# endif
 #endif
 
 void abend();
 
-void abendc()
-   {
-   abend();
-   }
+void abendc() {
+  abend();
+}

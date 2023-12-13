@@ -1,22 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine OrdExpD2C(nExp,Exp,nCntrc,Cff)
-      Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
+      use Constants
+      Implicit None
+      Integer nExp, nCntrc
       Real*8 Exp(nExp), Cff(nExp,nCntrc)
-*
-*     Order exponents diffuse to compact
-*     Make the subsequent change in the contraction
-*     matrix
-*
+
+      Integer iExp, kExp, jExp
+      Real*8 Exp1, Exp2
+#ifdef _ORDER_BAS_
+      Integer iCntrc, kCntrc, jCntrc
+      Real*8 Bas1, Bas2
+#endif
+!
+!     Order exponents diffuse to compact
+!     Make the subsequent change in the contraction
+!     matrix
+!
       Do iExp = 1, nExp-1
          Exp1 = Exp(iExp)
          kExp = iExp
@@ -33,9 +41,9 @@
          End If
       End Do
 #ifdef _ORDER_BAS_
-*
-*     Now order the contracted basis functions diffuse to compact
-*
+!
+!     Now order the contracted basis functions diffuse to compact
+!
       Do iCntrc = 1, nCntrc-1
          Bas1=Abs(Cff(1,iCntrc))
          kCntrc = iCntrc
@@ -51,6 +59,6 @@
          End If
       End Do
 #endif
-*
+!
       Return
-      End
+      End SubRoutine OrdExpD2C

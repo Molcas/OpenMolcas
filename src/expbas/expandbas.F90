@@ -16,6 +16,8 @@ subroutine expandbas(Bas1,nBas1,Bas2,nBas2,Orb1,Orb2,occ1,eorb1,indt1,occ2,eorb2
 ! Bas1 and Bas2 are the basis set specifications for the old and
 ! new basis, respectively. They have dimensions nBas1 and nBas2.
 
+#include "intent.fh"
+
 use info_expbas_mod, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -24,9 +26,9 @@ use Definitions, only: wp, iwp
 implicit none
 character(len=LenIn+8), intent(in) :: Bas1(*), Bas2(*)
 integer(kind=iwp), intent(in) :: nBas1, nBas2, indt1(*)
-integer(kind=iwp), intent(out) :: indt2(*)
+integer(kind=iwp), intent(_OUT_) :: indt2(*)
 real(kind=wp), intent(in) :: Orb1(*), occ1(*), eorb1(*)
-real(kind=wp), intent(out) :: Orb2(*), occ2(*), eorb2(*)
+real(kind=wp), intent(_OUT_) :: Orb2(*), occ2(*), eorb2(*)
 integer(kind=iwp) :: i, Ibas1, Ibas2, imo, lmo1, lmo2, Nzero
 integer(kind=iwp), allocatable :: Izero(:)
 

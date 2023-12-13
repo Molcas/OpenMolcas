@@ -21,7 +21,7 @@
 *     kappa  -> kappa      where i is occupied and p,q is general.     *
 *          ip        iq                                                *
 *                                                                      *
-*     we therefore approximate the hessian with thoose diagonal        *
+*     we therefore approximate the hessian with those diagonal         *
 *     terms in the preconditioner                                      *
 *                                                                      *
 *     Anders Bernhardsson 96                                           *

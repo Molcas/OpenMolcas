@@ -1,39 +1,43 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992,2000, Roland Lindh                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992,2000, Roland Lindh                                *
+!***********************************************************************
       SubRoutine PrRF(DSCF,NonEq,iCharge,jPrint)
-************************************************************************
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*                                                                      *
-*             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
-************************************************************************
+!***********************************************************************
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!                                                                      *
+!             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
+!***********************************************************************
       use External_Centers, only: nXF, iXPolType
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-#include "real.fh"
-#include "rctfld.fh"
+      use rctfld_module, only: lRF, PCM, lRFCav, Eps, EpsInf, rds, lMax,
+     &    lLangevin, latato, RadLat, ScalA, ScalB, ScalC, ScaAA, PolSI,
+     &    DipSI, gAtom, DieDel, TK, cLim, aFac, nExpo, PreFac, Solvent,
+     &    Conductor, CordSI, RslPar
+      Implicit None
       Logical DSCF, NonEq
-      Integer StrnLn
-*
-*
+      Integer iCharge, jPrint
+
+      Integer StrnLn, i, j, nSolvent
+      Real*8 AArea, R_Min_Sphere
+!
+!
       IF (jPrint.GE.2) THEN
       If (lRF.and..Not.PCM.and.lRFCav) Then
          Write (6,*)
          Write (6,'(5X,A)')
      &       'Reaction Field calculation: the Kirkwood model'
-         Write (6,'(5X,A,E10.3)') ' Dielectric Constant :',Eps
-         Write (6,'(5X,A,E10.3)') ' Eps_opt             :',EpsInf
-         Write (6,'(5X,A,E10.3)') ' Radius of Cavity(au):',rds
+         Write (6,'(5X,A,ES10.3)') ' Dielectric Constant :',Eps
+         Write (6,'(5X,A,ES10.3)') ' Eps_opt             :',EpsInf
+         Write (6,'(5X,A,ES10.3)') ' Radius of Cavity(au):',rds
          Write (6,'(5X,A,I2)')    ' l_Max               :',lMax
          If (NonEq) Then
             Write (6,'(5X,A)')
@@ -65,7 +69,7 @@
          Do i = 1, latato
             Write (6,'(3(5x,F10.4))') (Cordsi(j,i),j=1,3)
          End Do
-         Write (6,'(5X,A,E10.3)')  ' Max. Latt. Extn(au) :',radlat
+         Write (6,'(5X,A,ES10.3)')  ' Max. Latt. Extn(au) :',radlat
          Write (6,'(5X,A,F10.4)')  ' Cell dimensions     :',scala
          Write (6,'(5X,A,F10.4)')  '                      ',scalb
          Write (6,'(5X,A,F10.4)')  '                      ',scalc
@@ -75,7 +79,7 @@
          Write (6,'(5X,A,F10.4)')  ' Atoms in the latt.  :',gAtom
          Write (6,'(5X,A,F10.4)')  ' Diel. delete param. :',diedel
          Write (6,'(5X,A,F10.4)')  ' Inverse Boltzman f. :',tK
-         Write (6,'(5X,A,E10.1)')  ' clim                :',clim
+         Write (6,'(5X,A,ES10.1)')  ' clim                :',clim
          Write (6,'(5X,A,F10.4)')  ' afac                :',afac
          Write (6,'(5X,A,I10  )')  ' nexp                :',nexpo
          Write (6,'(5X,A,F10.4)')  ' prefac              :',prefac
@@ -114,8 +118,8 @@
       ENDIF
 
       If (lRF) Call Init_RctFld(NonEq,iCharge)
-      If (DSCF) Call Allok2
-*
+      If (DSCF) Call Allok2()
+!
       Return
-*
-      End
+!
+      End SubRoutine PrRF

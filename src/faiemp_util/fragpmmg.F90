@@ -12,11 +12,14 @@
 !               2016, Liviu Ungur                                      *
 !***********************************************************************
 
-subroutine FragPMmG(nHer,MemFrag,la,lb,lr)
+subroutine FragPMmG( &
+#                   define _CALLING_
+#                   include "mem_interface.fh"
+                   )
 !***********************************************************************
-!  Object: to compute the number of real*8 the kernal routine will     *
+!  Object: to compute the number of real*8 the kernel routine will     *
 !          need for the computation of a matrix element between two    *
-!          cartesian Gaussin functions with the total angular momentum *
+!          cartesian Gaussian functions with the total angular momentum*
 !          of la and lb (la=0 s-function, la=1 p-function, etc.)       *
 !          lr is the order of the operator (this is only used when the *
 !          integrals are computed with the Hermite-Gauss quadrature).  *
@@ -33,12 +36,11 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(out) :: nHer, MemFrag
-integer(kind=iwp), intent(in) :: la, lb, lr
+#include "mem_interface.fh"
 integer(kind=iwp) :: nOrder, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, nExpi, nExpj, nBasisi, nBasisj
 
 nOrder = 0
-MemFrag = 0
+Mem = 0
 maxDensSize = 0
 ! largest possible fragment energy weighted density matrix
 do iCnttp=1,nCnttp
@@ -57,7 +59,7 @@ do iCnttp=1,nCnttp
     do jCnttp=iCnttp,nCnttp
       ! still figure out how to loop only over the centers belonging to the
       ! same fragment (keep track of mdc?) ! still to be done !!!
-      if (.not. dbsc(jCnttp)%Frag) cycle !Go To 1970
+      if (.not. dbsc(jCnttp)%Frag) cycle
 
       do jAng=0,dbsc(jCnttp)%nVal-1
         jShll = dbsc(jCnttp)%iVal+jAng
@@ -80,7 +82,7 @@ do iCnttp=1,nCnttp
         ip = ip+nExpi*3*nHer*(la+2)*(iAng+1)*(lr+1)
         ip = ip+nExpi
 
-        MemFrag = max(MemFrag,ip)
+        Mem = max(Mem,ip)
         ip = ip-nExpi*(6+3*nHer*((la+2)+(iAng+1)+(lr+1)+(la+2)*(iAng+1)*(lr+1))+1)
 
         ncb = 4*(jAng+1)*(jAng+2)/2*(lb+1)*(lb+2)/2
@@ -97,11 +99,11 @@ do iCnttp=1,nCnttp
         ip = ip+nExpj*3*nHer*(lb+2)*(jAng+1)*(lr+1)
         ip = ip+nExpj
 
-        MemFrag = max(MemFrag,ip)
+        Mem = max(Mem,ip)
         ip = ip-nExpj*(6+3*nHer*((lb+2)+(jAng+1)+(lr+1)+(lb+2)*(jAng+1)*(lr+1))+1)
 
         ip = ip+max(max(nExpi,nBasisj)*nac,ncb*nBasisj)
-        MemFrag = max(MemFrag,ip)
+        Mem = max(Mem,ip)
       end do  !jAng
 
     end do  !jCnttp

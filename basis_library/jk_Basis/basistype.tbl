@@ -1,0 +1,42 @@
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#***********************************************************************
+#  - UNK: unknown
+# 1: Contraction type
+#  - SEG: segmented
+#  - SEC: segmented Cartesian
+#  - ANO: ANO
+#  - RAF: Raffenetti
+#  - CCC: CC contraction
+#  - UNC: uncontracted
+#  - ARC: automatic Raffenetti
+#  - GEN: general contraction
+# 2: All electron
+#  - AE_: all electron (= YES)
+#  - NAE: not all electron (= NO_)
+# 3: Relativity
+#  - RH_: relativistic Hamiltonian
+#  - NRH: non relativistic Hamiltonian
+#  - RCP: relativistic core potential
+#  - DKH: Douglas-Kroll-Hess
+#  - X2C: exact 2-component
+#  - RYD: Rydberg
+# 4: Nucleus
+#  - PN_: point nucleus
+#  - GN_: Gaussian nucleus
+#  - MGN: modified Gaussian
+# *************************************
+#                 1     2     3     4
+# ------------   ---   ---   ---   ---
+
+CC-PVTZ          CCC   AE_   NRH   UNK
+
+DEF-SV(P)        SEG   NAE   NRH   UNK
+DEF-SVP          SEG   NAE   NRH   UNK

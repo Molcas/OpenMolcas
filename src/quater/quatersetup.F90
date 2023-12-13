@@ -29,12 +29,12 @@ subroutine QuaterSetup(U1,U2,V1,V2)
 
 use Quater_globals, only: debug
 use Constants, only: One
-use Definitions, only: wp, r8
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(inout) :: U1(3), V1(3), U2(3), V2(3)
 real(kind=wp) :: coeff, U1dU2, V1dV2
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 call normalizeVec(U1)
 call normalizeVec(V1)

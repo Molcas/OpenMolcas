@@ -19,6 +19,7 @@
 *  Also ERFNUC, reaction field contribution to nuclear repulsion.
 *****************************************************************
       SUBROUTINE GETH1_RASSI(HONEAO)
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION HONEAO(NBSQ)
 #include "Molcas.fh"
@@ -31,7 +32,7 @@
 *
       CALL GETMEM('H1    ','ALLO','REAL',LH1,NBTRI)
       iRc=-1
-      iOpt=6
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iCmp=1
       iSyLab=1
       OneLbl='OneHam  '
@@ -50,7 +51,7 @@
          Call GetMem('RFFLD','Allo','Real',ipTmp,nBtri)
          Call Get_dScalar('RF Self Energy',ERFNuc)
          Call Get_dArray('Reaction field',Work(ipTmp),nBtri)
-         If (Found) Call NameRun('RUNFILE')
+         If (Found) Call NameRun('#Pop')
          Call Daxpy_(nBtri,1.0D0,Work(ipTmp),1,WORK(LH1),1)
          Call GetMem('RFFLD','Free','Real',ipTmp,nBtri)
       End If
@@ -58,7 +59,7 @@
       ISTQ=0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
-        IF(NB.EQ.0) GO TO 150
+        if (NB == 0) cycle
         DO IP=1,NB
           DO IQ=1,IP
             IPQ=NB*(IP-1)+IQ+ISTQ
@@ -69,7 +70,6 @@
           END DO
         END DO
        ISTQ=ISTQ+NB**2
-150   CONTINUE
       END DO
       CALL GETMEM('      ','FREE','REAL',LH1,NBTRI)
       RETURN

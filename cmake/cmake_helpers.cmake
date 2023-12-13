@@ -118,3 +118,38 @@ function (make_internal Var)
     set (${Var} ${${Var}} CACHE INTERNAL "${help}" FORCE)
   endif ()
 endfunction ()
+
+# Replace targets in a list with their output files
+function (target_files Output)
+  foreach (tgt ${ARGN})
+    if (TARGET ${tgt})
+      list (APPEND file_list $<TARGET_FILE:${tgt}>)
+    else ()
+      list (APPEND file_list ${tgt})
+    endif ()
+  endforeach ()
+  set (${Output} ${file_list} PARENT_SCOPE)
+endfunction ()
+
+# Replacement for PATCH_COMMAND
+# (see https://gitlab.kitware.com/cmake/cmake/-/issues/17287)
+function (ExternalProject_add_patches name)
+  ExternalProject_Get_Property (${name} STAMP_DIR)
+  ExternalProject_Get_Property (${name} SOURCE_DIR)
+
+  foreach (patch ${ARGN})
+    list (APPEND absolute_paths "${CMAKE_CURRENT_SOURCE_DIR}/${patch}")
+  endforeach ()
+
+  set (patch_command patch -d "${SOURCE_DIR}" -p1 -N -i)
+  foreach (patch ${absolute_paths})
+    list (APPEND cmd_list COMMAND ${patch_command} "${patch}")
+  endforeach ()
+
+  add_custom_command (
+    APPEND
+    OUTPUT ${STAMP_DIR}/${name}-download
+    ${cmd_list}
+    DEPENDS ${absolute_paths}
+  )
+endfunction ()

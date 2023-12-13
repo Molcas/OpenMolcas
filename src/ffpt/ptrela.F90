@@ -18,6 +18,7 @@ subroutine PtRela(H0,nSize,Temp,nTemp)
 !***********************************************************************
 
 use FFPT_Global, only: nBas, nSym, ComStk, ComVal
+use OneDat, only: sNoOri, sOpSiz
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -43,8 +44,8 @@ end if
 
 Label = 'MassVel '
 iRc = -1
-iOpt1 = 1
-iOpt2 = 2
+iOpt1 = ibset(0,sOpSiz)
+iOpt2 = ibset(0,sNoOri)
 iSyLbl = 0
 iComp = 1
 Alpha = ComVal(2,5,0,1)
@@ -63,8 +64,8 @@ if (Debug) then
 end if
 Label = 'Darwin  '
 iRc = -1
-iOpt1 = 1
-iOpt2 = 2
+iOpt1 = ibset(0,sOpSiz)
+iOpt2 = ibset(0,sNoOri)
 iSyLbl = 0
 iComp = 1
 call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)

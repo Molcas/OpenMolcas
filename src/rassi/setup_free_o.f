@@ -9,19 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Setup_O()
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "nq_info.fh"
-#include "WrkSpc.fh"
-      Call GetMem('ip_O','ALLO','REAL',ip_O,9)
-      Call DCOPY_(9,[0.0d0],0,Work(ip_O),1)
-      Call DCOPY_(3,[1.0D0],0,Work(ip_O),4)
+      use nq_Grid, only: Pax
+#include "stdalloc.fh"
+      Call mma_allocate(Pax,3,3,Label='Pax')
+      Pax(:,:)=0.0D0
+      Call DCOPY_(3,[1.0D0],0,Pax,4)
       Return
       End
 *
       Subroutine Free_O()
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "nq_info.fh"
-#include "WrkSpc.fh"
-      Call GetMem('ip_O','FREE','REAL',ip_O,9)
+      use nq_Grid, only: Pax
+#include "stdalloc.fh"
+      Call mma_deallocate(Pax)
       Return
       End

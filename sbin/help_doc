@@ -35,7 +35,7 @@ except ImportError:
 
 helptext = '''
 {1}################################################################################
-#                              Molcas quick help                               #
+#                            OpenMolcas quick help                             # 
 ################################################################################{0}
 
 Display documentation for modules and keywords. The module and optional keyword

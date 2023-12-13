@@ -16,17 +16,24 @@ use Definitions, only: iwp
 implicit none
 private
 
+#include "Molcas.fh"
+! Exporting some useful parameters
+public :: LenIn, MxAtom, mxsym
+
 !> Different kinds of orbitals
 !> f, i, 1, 2, 3, s, d
 integer(kind=iwp), parameter :: n_orb_kinds = 7
 
+integer(kind=iwp) :: nBas1(MxSym), nBas2(MxSym), nSym1, nSym2
+#ifdef _HDF5_
+integer(kind=iwp) :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+#endif
 logical(kind=iwp) :: DoExpbas, DoDesy
 character(len=512) :: EB_FileOrb
 
-public :: DoExpbas, DoDesy, EB_FileOrb, n_orb_kinds
-
-! Exporting some useful parameters
-#include "Molcas.fh"
-public :: LenIn, MxAtom, mxsym
+public :: DoDesy, DoExpbas, EB_FileOrb, n_orb_kinds, nBas1, nBas2, nSym1, nSym2
+#ifdef _HDF5_
+public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+#endif
 
 end module info_expbas_mod

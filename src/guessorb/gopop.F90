@@ -43,6 +43,7 @@ logical(kind=iwp), intent(in) :: PrtEor
 !real(kind=wp) ::  eFermi
 real(kind=wp) :: TotNucChg, eGap, OccNo, eLo, eHi, tmp
 integer(kind=iwp) :: nElec, nAlpha, nBeta, nOcc, nAct, kLo, kHi, i, j, k, m
+
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*

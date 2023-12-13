@@ -16,6 +16,8 @@ set (sources
      alaska_info.F90
      alaska_super_driver.F90
      annihil_rho.F90
+     caspt2_grad_btamp.F90
+     caspt2_grad_fwdcnt.F90
      chk_numerical.F90
      cho_alaska_rdinp.F90
      drvdftg.F90

@@ -11,33 +11,29 @@
 
 subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 
+use Fock_util_global, only: Estimate, Update
+use Cholesky, only: timings
+use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBDT, nBas(8), nSym
 real(kind=wp), intent(in) :: Dma(nBDT), Dmb(nBDT)
 real(kind=wp), intent(out) :: Etwo
-#include "choscf.fh"
-#include "choscreen.fh"
-#include "chotime.fh"
-integer(kind=iwp) :: i, iOff, ipFLT(2), ipKLT(2), ipPorb(2), ipPLT(2), irc, nBB, nForb(8,2), nIorb(8,2)
-real(kind=wp) :: ChFracMem, dFmat, FactXI
-!character(len=16) :: KSDFT
-real(kind=wp), allocatable :: Dm1(:), Dm2(:), FCNO(:,:), KCNO(:,:), PLT(:), Porb(:,:)
-integer(kind=iwp), external :: ip_of_Work
-real(kind=r8), external :: ddot_ !, Get_ExFac
+integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2), NSCREEN
+real(kind=wp) :: ChFracMem, dFmat, dmpk, FactXI
+!character(len=80) :: KSDFT
+real(kind=wp), allocatable :: Dm1(:), Dm2(:)
+real(kind=wp), external :: ddot_ !, Get_ExFac
+type (DSBA_Type) :: FLT(2), KLT(2), POrb(2), PLT(2)
 
 timings = .false.
 Estimate = .false.
-REORD = .false.
 
 Update = .true.
-DECO = .true.
 dmpk = One
-dFKmat = Zero
-ALGO = 4
 NSCREEN = 10
 
 nForb(:,:) = 0
@@ -45,26 +41,27 @@ nBB = 0
 do i=1,nSym
   nBB = nBB+nBas(i)**2
 end do
-!call Get_cArray('DFT functional',KSDFT,16)
+!call Get_cArray('DFT functional',KSDFT,80)
 !ExFac = Get_ExFac(KSDFT)
 !FactXI = ExFac
 FactXI = One  ! always HF energy
-call mma_allocate(PLT,nBDT,label='PLTc')
-PLT(:) = Dma(:)+Dmb(:)
+call Allocate_DT(PLT(1),nBas,nBas,nSym,aCase='TRI')
+PLT(1)%A0(:) = Dma(:)+Dmb(:)
 
-call mma_allocate(Porb,nBB,2,label='ChMc')
+call Allocate_DT(POrb(1),nBas,nBas,nSym)
+call Allocate_DT(POrb(2),nBas,nBas,nSym)
 call mma_allocate(Dm1,nBB,label='Dm1')
 call mma_allocate(Dm2,nBB,label='Dm2')
 call UnFold(Dma,nBDT,Dm1,nBB,nSym,nBas)
 call UnFold(Dmb,nBDT,Dm2,nBB,nSym,nBas)
 iOff = 1
 do i=1,nSym
-  call CD_InCore(Dm1(iOff),nBas(i),Porb(iOff,1),nBas(i),nIorb(i,1),1.0e-12_wp,irc)
+  call CD_InCore(Dm1(iOff),nBas(i),Porb(1)%SB(i)%A2,nBas(i),nIorb(i,1),1.0e-12_wp,irc)
   if (irc /= 0) then
     write(u6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
     call Abend()
   end if
-  call CD_InCore(Dm2(iOff),nBas(i),Porb(iOff,2),nBas(i),nIorb(i,2),1.0e-12_wp,irc)
+  call CD_InCore(Dm2(iOff),nBas(i),Porb(2)%SB(i)%A2,nBas(i),nIorb(i,2),1.0e-12_wp,irc)
   if (irc /= 0) then
     write(u6,*) ' Beta density. Sym= ',i,'   rc= ',irc
     call Abend()
@@ -72,10 +69,15 @@ do i=1,nSym
   iOff = iOff+nBas(i)**2
 end do
 
-call mma_allocate(FCNO,nBDT,2,label='FCNO')
-FCNO(:,:) = Zero
-call mma_allocate(KCNO,nBDT,2,label='KCNO')
-KCNO(:,:) = Zero
+call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI')
+call Allocate_DT(FLT(2),nBas,nBas,nSym,aCase='TRI')
+FLT(1)%A0(:) = Zero
+FLT(2)%A0(:) = Zero
+
+call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI')
+call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI')
+KLT(1)%A0(:) = Zero
+KLT(2)%A0(:) = Zero
 
 call Cho_X_init(irc,ChFracMem)
 if (irc /= 0) then
@@ -83,15 +85,9 @@ if (irc /= 0) then
   call Abend()
 end if
 
-ipFLT(1) = ip_of_Work(FCNO(1,1))
-ipFLT(2) = ip_of_Work(FCNO(1,2))
-ipKLT(1) = ip_of_Work(KCNO(1,1))
-ipKLT(2) = ip_of_Work(KCNO(1,2))
-ipPorb(1) = ip_of_Work(Porb(1,1))
-ipPorb(2) = ip_of_Work(Porb(1,2))
-ipPLT(1) = ip_of_Work(PLT(1))
-ipPLT(2) = 0 ! dummy, should be unused
-call CHO_LK_SCF(irc,2,ipFLT,ipKLT,nForb,nIorb,ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+
+call CHO_LK_SCF(irc,2,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nSCReen,dmpk,dFmat)
+
 if (irc /= 0) then
   call WarningMessage(2,'Get_CNOs. Non-zero rc in Cho_LK_scf.')
   call Abend()
@@ -103,14 +99,17 @@ if (irc /= 0) then
   call Abend()
 end if
 
-Etwo = Half*(ddot_(nBDT,Dma,1,FCNO(:,1),1)+ddot_(nBDT,Dmb,1,FCNO(:,2),1))
+Etwo = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
 
-call mma_deallocate(PLT)
-call mma_deallocate(Porb)
+call Deallocate_DT(PLT(1))
+call Deallocate_DT(Porb(2))
+call Deallocate_DT(Porb(1))
 call mma_deallocate(Dm1)
 call mma_deallocate(Dm2)
-call mma_deallocate(FCNO)
-call mma_deallocate(KCNO)
+call Deallocate_DT(FLT(2))
+call Deallocate_DT(FLT(1))
+call Deallocate_DT(KLT(2))
+call Deallocate_DT(KLT(1))
 
 return
 

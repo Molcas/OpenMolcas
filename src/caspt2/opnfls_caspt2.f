@@ -59,7 +59,7 @@ C  Half transformed integrals (uq|rt)
       CALL DANAME_MF_wa(LUDRATOT,'DRARRT')
 *
 C-SVC: assign logical units for RHS arrays and open files for writing
-      DO IVEC=1,6
+      DO IVEC=1,8
         LURHS(IVEC)=50+IVEC
         write(unit=CVEC, fmt='(I2.2)') IVEC
         CALL DANAME_MF_WA(LURHS(IVEC),'RHS_'//CVEC)
@@ -105,6 +105,7 @@ C  AO one-electron integrals
           CALL ABEND()
         End If
       End If
+
 *----------------------------------------------------------------------*
 C  Exit
 *----------------------------------------------------------------------*

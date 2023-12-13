@@ -22,11 +22,11 @@ Description
             %%Description:
             <HELP>
             The SCF program of the molcas program system generates
-            closed-shell Hartree-Fock, open-shell UHF, and Kohn Sham DFT wave functions.
+            closed-shell Hartree-Fock, open-shell UHF, and Kohn-Sham DFT wave functions.
             </HELP>
 
 The :program:`SCF` program of the |molcas| program system generates
-closed-shell Hartree--Fock, open-shell UHF, and Kohn Sham DFT wave functions.
+closed-shell Hartree--Fock, open-shell UHF, and Kohn--Sham DFT wave functions.
 
 The construction of the Fock
 matrices is either done conventionally from the two-electron integral
@@ -131,12 +131,12 @@ for the latter to zero in the corresponding input card (keyword
 By default :program:`SCF` behaves in different ways depending on what
 kind of start orbitals are found according to
 
-#. No start orbitals are found. In this case the core hamiltonian
+#. No start orbitals are found. In this case the core Hamiltonian
    is diagonalized and these orbitals are used as start.
    The "Fermi aufbau" procedure is used until a stable configuration is found.
 
 #. Start orbitals from :program:`Guessorb` are found.
-   In this case the HOMO LUMO gap is analyzed and if it is small
+   In this case the HOMO--LUMO gap is analyzed and if it is small
    the "Fermi aufbau" procedure is used until a stable configuration is found.
    Otherwise the configuration suggested by :program:`Guessorb` is used.
 
@@ -271,11 +271,23 @@ Below is a list of keywords that should cover the needs of most users.
   restrictions, and not all features of :program:`SCF` program are supported.
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="UHF" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: UHF <basic> GUI:keyword
+              %%Keyword: UHF <basic>
               <HELP>
               Use this keyword to run Unrestricted Hartree-Fock code
               Note that current implementation of UHF code has some
               restrictions, and not all features of SCF program are supported
+              </HELP>
+              </KEYWORD>
+
+:kword:`HFC`
+  Requests the computation of hyperfine coupling tensor matrix on each atom using spin polarization in
+  the calculated spin unrestricted wavefunctions, has to be used with the keyword :kword:`UHF`.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="HFC" KIND="SINGLE" REQUIRE="UHF" LEVEL="BASIC">
+              %%Keyword: HFC <basic>
+              <HELP>
+              Requests the computation of hyperfine coupling tensor matrix using spin polarization in
+              the calculated spin unrestricted wavefunctions, has to be used with the keyword UHF.
               </HELP>
               </KEYWORD>
 
@@ -302,9 +314,8 @@ Below is a list of keywords that should cover the needs of most users.
   Alternative way of specifying the electronic spin of the system.
   The keyword is followed by an integer giving the value of spin multiplicity (:math:`2S+1`).
   Default is 1 (singlet) or 2 (doublet) depending on if there is an even or odd number of electrons.
-  Any value different from 1 requires the :kword:`UHF` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="SPIN" APPEAR="Spin" LEVEL="BASIC" KIND="INT" MIN_VALUE="1" REQUIRE="UHF" EXCLUSIVE="ZSPIN">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="SPIN" APPEAR="Spin" LEVEL="BASIC" KIND="INT" MIN_VALUE="1" EXCLUSIVE="ZSPIN">
               %%Keyword: Spin <basic>
               <HELP>
               The keyword is followed by an integer giving the value of spin
@@ -313,24 +324,52 @@ Below is a list of keywords that should cover the needs of most users.
               </HELP>
               </KEYWORD>
 
+:kword:`RS-Rfo`
+  Use this keyword to optimize te SCF orbitals using the restricted step
+  rational function optimization (RS-RFO) procedure. Default is the use
+  of the quasi-Newton-Raphson C2-DIIS procedure.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RS-RFO" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: RS-RFO <basic>
+              <HELP>
+              Use this keyword to optimize te SCF orbitals using the restricted step
+              rational function optimization (RS-RFO) procedure. Default is the use
+              of the quasi-Newton-Raphson C2-DIIS procedure.
+              </HELP>
+              </KEYWORD>
+
 :kword:`KSDFT`
   Use this keyword to do density functional theory calculations.
-  This keyword should be followed by functional keyword:
-  BLYP, BPBE, B2PLYP, B3LYP, B3LYP5, B86LYP, B86PBE, GLYP, GPBE, HFB,
-  HFS, KT2, KT3, LDA, LDA5, LSDA, LSDA5, M06, M06HF, M062X, M06L, OLYP, OPBE,
-  O2PLYP, O3LYP, PBE, PBESOL, PBE0, PTCA, RGE2, SSBSW, SVWN, SVWN5, TLYP.
-  Example: `KSDFT=B3LYP`
+  This keyword should be followed by a functional keyword.
+  Use :command:`pymolcas help_func` to see a list of available keywords,
+  you can also specify a `Libxc <https://www.tddft.org/programs/libxc/>`_ functional name, or a number :math:`N` followed
+  by :math:`N` lines, each of them containing a weight factor and a Libxc
+  functional name (or ``HF_X`` for exact exchange).
+  Examples (all three should be equivalent): ::
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="KSDFT" APPEAR="DFT" KIND="CHOICE" LEVEL="BASIC"
-              LIST="----,BLYP,BPBE,B2PLYP,B3LYP,B3LYP5,B86LYP,B86PBE,GLYP,GPBE,HFB,HFS,KT2,KT3,LDA,LDA5,LSDA,LSDA5,M06,M06HF,M062X,M06L,OLYP,OPBE,O2PLYP,O3LYP,PBE,PBESOL,PBE0,PTCA,RGE2,SSBSW,SVWN,SVWN5,TLYP">
+     KSDFT=B3LYP                 * A functional keyword
+
+  ::
+
+     KSDFT=HYB_GGA_XC_B3LYP      * A Libxc functional name
+
+  ::
+
+     KSDFT=5                     * Five components with their weights
+           0.20 HF_X             * Keyword for exact exchange
+           0.08 XC_LDA_X         * Libxc functional names
+           0.72 XC_GGA_X_B88     *  .
+           0.19 XC_LDA_C_VWN_RPA *  .
+           0.81 XC_GGA_C_LYP     *  .
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="KSDFT" APPEAR="DFT" KIND="STRINGS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              <ALTERNATE KIND="STRING" />
               %%Keyword: KSDFT <basic>
               <HELP>
               Use this keyword to do density functional theory calculations
-              This keyword should be followed by the functional keyword:
-              BLYP, BPBE, B2PLYP, B3LYP, B3LYP5, B86LYP, B86PBE, GLYP, GPBE, HFB,
-              HFS, KT2, KT3, LDA, LDA5, LSDA, LSDA5, M06, M06HF, M062X, M06L, OLYP, OPBE,
-              O2PLYP, O3LYP, PBE, PBESOL, PBE0, PTCA, RGE2, SSBSW, SVWN, SVWN5, TLYP.
-              Example: KSDFT=B3LYP
+              This keyword should be followed by a functional keyword , a Libxc functional
+              name, or a functional specification. See "pymolcas help_func" for
+              available functionals keywords.
               </HELP>
               </KEYWORD>
 
@@ -469,7 +508,7 @@ Below is a list of keywords that should cover the needs of most users.
   enabled.
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FERMI" KIND="INT" LEVEL="BASIC">
-              %%Keyword: Fermi <basic> GUI:number
+              %%Keyword: Fermi <basic>
               <HELP>
               Use this keyword to specify that you want to use the "Fermi aufbau"
               procedure for the first few iterations to ensure convergence.
@@ -560,7 +599,7 @@ Below is a list of keywords that should cover the needs of most users.
     Available only within :kword:`ChoInput`. Modifies the thresholds used in the LK screening.
     The keyword takes as argument a (double precision) floating point (non-negative) number used
     as correction factor for the LK screening thresholds.
-    The default value is 1.0d0. A smaller value results in a slower but more accurate calculation.
+    The default value is 0.045d0. A smaller value results in a slower but more accurate calculation.
 
     **Note:** The default choice of the LK screening thresholds is tailored to achieve as much as possible an
     accuracy of the converged SCF energy consistent with the choice of the Cholesky decomposition
@@ -570,7 +609,7 @@ Below is a list of keywords that should cover the needs of most users.
                 %%Keyword: dmpK <advanced>
                 <HELP>
                 Modifies the thresholds used in the LK screening. Available only within ChoInput
-                The default value is 1.0d0. A smaller value results in a slower but more accurate calculation.
+                The default value is 0.045d0. A smaller value results in a slower but more accurate calculation.
                 </HELP>
                 </KEYWORD>
 
@@ -755,14 +794,14 @@ Below is a list of keywords that should cover the needs of most users.
 
 :kword:`HLGAp`
   This keyword is used to make the program level shift the virtual
-  orbitals in such a way that the HOMO LUMO gap is at least the value
+  orbitals in such a way that the HOMO--LUMO gap is at least the value
   specified on the next line. This will help convergence in difficult
   cases but may lead to that it converges to an excited configuration.
   A suitable value is 0.2.
 
   .. xmldoc:: %%Keyword: HLgap <basic>
               This keyword is used to make the program levelshift the virtual
-              orbitals in such a way that the HOMO LUMO gap is at least the value
+              orbitals in such a way that the HOMO-LUMO gap is at least the value
               specified on the next line. This will help convergence in difficult
               cases but may lead to that it converges to an excited configuration.
               A suitable value is 0.2.
@@ -956,50 +995,6 @@ Advanced general keywords
          about the efficiency of the integral prescreening (subroutine 9). This
          option is certainly not used in production calculations.
 
-:kword:`ROBU`
-  Robust LDF integral representation (non-hybrid KS-DFT only).
-  Requires Local Density Fitting (LDF) in SEWARD. This is the default for LDF.
-
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="ROBU" APPEAR="Robust LDF integral representation" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: ROBU <advanced>
-              <HELP>
-              Robust LDF integral representation (non-hybrid KS-DFT only). Requires Local Density Fitting (LDF) in SEWARD. This is the default for LDF.
-              </HELP>
-              </KEYWORD>
-
-:kword:`NR-2`
-  Nonrobust LDF integral representation with 2-index integrals only (non-hybrid KS-DFT only).
-  Requires Local Density Fitting (LDF) in SEWARD. Default is robust integral representation.
-
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="NR-2" APPEAR="Nonrobust LDF integral representation with 2-index integrals only" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: NR-2 <advanced>
-              <HELP>
-              Nonrobust LDF integral representation with 2-index integrals only (non-hybrid KS-DFT only). Requires Local Density Fitting (LDF) in SEWARD. Default is robust integral representation.
-              </HELP>
-              </KEYWORD>
-
-:kword:`NR-3`
-  Nonrobust LDF integral representation with 3-index integrals only (non-hybrid KS-DFT only).
-  Requires Local Density Fitting (LDF) in SEWARD. Default is robust integral representation.
-
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="NR-3" APPEAR="Nonrobust LDF integral representation with 3-index integrals only" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: NR-3 <advanced>
-              <HELP>
-              Nonrobust LDF integral representation with 3-index integrals only (non-hybrid KS-DFT only). Requires Local Density Fitting (LDF) in SEWARD. Default is robust integral representation.
-              </HELP>
-              </KEYWORD>
-
-:kword:`XIDI`
-  Use exact integral diagonal blocks with LDF.
-  Reduces the risk of negative eigenvalues of the approximate integral matrix.
-  Default is to not use exact integral diagonal blocks.
-
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="XIDI" APPEAR="Use exact integral diagonal blocks with LDF" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: XIDI <advanced>
-              <HELP>
-              Use exact integral diagonal blocks with LDF. Reduces the risk of negative eigenvalues of the approximate integral matrix. Default is to not use exact integral diagonal blocks.
-              </HELP>
-              </KEYWORD>
 
 :kword:`THREsholds`
   Specifies convergence thresholds. Four individual thresholds are specified
@@ -1010,7 +1005,7 @@ Advanced general keywords
   DltNTh finally specifies the norm of the orbital displacement vector used
   for the orbital rotations in the second-order/\ :math:`C^2`\-DIIS procedure.
   The corresponding values are read in the order given above.
-  The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.2d-4,
+  The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.1d-2,
   respectively.
   **Note** that these thresholds automatically define the threshold
   used in the direct Fock matrix construction to estimate individual
@@ -1029,7 +1024,7 @@ Advanced general keywords
               DltNTh finally specifies the norm of the orbital displacement vector used
               for the orbital rotations in the second-order/C2-DIIS procedure.
               The corresponding values are read in the order given above.
-              The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.2d-4,
+              The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.1d-2,
               respectively.
               Note that these thresholds automatically define the threshold
               used in the direct Fock matrix construction to estimate individual
@@ -1142,7 +1137,7 @@ Advanced general keywords
   wavefunction itself is used as a reference in a subsequent calculation.
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="IVO" APPEAR="IVO" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: IVO <advanced> GUI:keyword
+              %%Keyword: IVO <advanced>
               <HELP>
               Specifies that the virtual orbitals are to be improved for
               subsequent MCSCF calculations. The core Hamiltonian is diagonalized
@@ -1178,14 +1173,14 @@ Advanced general keywords
 
 :kword:`RFPErt`
   This keyword will add a constant reaction field perturbation to the
-  bare nuclei hamiltonian.
+  bare nuclei Hamiltonian.
   The perturbation is read from :file:`RUNOLD` (if not present defaults to :file:`RUNFILE`) and
   is the latest self consistent perturbation generated
   by one of the programs :program:`SCF` or :program:`RASSCF`.
 
   .. xmldoc:: %%Keyword: Rfpert <advanced>
               This keyword will add a constant reaction field perturbation to the
-              bare nuclei hamiltonian.
+              bare nuclei Hamiltonian.
               The perturbation is read from RUNOLD (if not present defaults to RUNFILE) and
               is the latest selfconsistent perturbation generated
               by one of the programs SCF or RASSCF.
@@ -1262,12 +1257,18 @@ path will be taken whenever there are no two-electron integrals available.
   Only integrals above this threshold (but not necessarily all of those) are kept
   on disk for the semi-direct algorithm.
   The keyword takes as argument a (double precision) floating point number.
+  Default value is 1.0D-6.
 
-  .. xmldoc:: %%Keyword: Thize <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="THIZE" APPEAR="Threshold for two-electron integrals" KIND="REAL" DEFAULT_VALUE="1.0d-6" LEVEL="ADVANCED">
+              %%Keyword: Thize <advanced>
+              <HELP>
               This option specifies a threshold for two-electron integrals.
               Only integrals above this threshold (but not necessarily all of those) are kept
               on disk for the semi-direct algorithm.
               The keyword takes as argument a (double precision) floating point number.
+              </HELP>
+              Default value is 1.0D-6.
+              </KEYWORD>
 
 :kword:`SIMPle`
   If this option is specified, only a simple prescreening scheme,
@@ -1282,7 +1283,7 @@ path will be taken whenever there are no two-electron integrals available.
 Limitations
 ...........
 
-The limitations/MODULE on the number of basis functions are the same as specified
+The limitations on the number of basis functions are the same as specified
 for :program:`SEWARD`.
 
 Input examples
@@ -1317,11 +1318,9 @@ electron configuration :math:`\text{1a}_1^2 \text{2a}_1^2 \text{3a}_1^2 \text{1b
   Disk= 1 0
   Ivo
 
-.. xmldoc:: <KEYWORD MODULE="SCF" NAME="USELDF" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="SCF" NAME="USECONVENTIONAL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
-.. xmldoc:: <KEYWORD MODULE="SCF" NAME="QPRINT" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FCKAUF" KIND="CHOICE" LIST="True,False" LEVEL="UNDOCUMENTED" />
 

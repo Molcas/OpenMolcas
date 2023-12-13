@@ -33,7 +33,7 @@ character(len=13) :: orbitals
 character(len=120) :: Line, BlLine, StLine
 character(len=LenIn8), allocatable :: UBName(:)
 integer(kind=iwp), parameter :: lPaper = 132
-character(len=9), parameter :: SecNam = 'RPA_PrInp'
+character(len=*), parameter :: SecNam = 'RPA_PrInp'
 integer(kind=iwp), external :: RPA_iUHF
 
 ! set restricted(1)/unrestricted(2)
@@ -62,7 +62,7 @@ end if
 ! set irrep names
 call Get_cArray('Irreps',lIrrep,24)
 do iSym=1,nSym
-  call RightAd(lIrrep(iSym))
+  lIrrep(iSym) = adjustr(lIrrep(iSym))
 end do
 
 ! init blank line and "star" line
@@ -84,7 +84,7 @@ if (nTitle > 0) then
     if ((i == 1) .or. (i == nLine)) Line = StLine
     if (i == 3) Line = 'Title:'
     if ((i >= 4) .and. (i <= nLine-2)) Line = Title(i-3)
-    call Center(Line)
+    call Center_Text(Line)
     write(u6,Fmt1) '*'//Line//'*'
   end do
   write(u6,*)
@@ -100,7 +100,7 @@ if (iPrint >= 2) then
   write(u6,*)
   write(u6,Fmt2//'A,2(1X,A))') Reference,'reference',orbitals
   j = len(Reference)+11+l_orbitals
-  write(u6,Fmt2//'80A1)')('-',i=1,j)
+  write(u6,Fmt2//'A)') repeat('-',j)
   if (Reference(2:3) == 'KS') then
     write(u6,Fmt2//'A,A)') 'DFT functional: ',DFTFunctional
   end if

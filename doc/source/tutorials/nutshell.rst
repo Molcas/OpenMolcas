@@ -515,7 +515,7 @@ At the same time, LUSCUS provides a user-friendly interface, and contains many n
 options, compared to GV.
 
 LUSCUS can be obtained from http://luscus.sourceforge.net/, or
-from http://www.molcas.org/LUSCUS.
+from https://www.molcas.org/LUSCUS.
 
 LUSCUS can read the files only in one format: Luscus internal format (:file:`.lus`).
 This format contains two sections: XYZ cartesian coordinates, and XML

@@ -17,6 +17,7 @@ subroutine PtAdd(H0,RR,nSize,Temp,nTemp)
 !***********************************************************************
 
 use FFPT_Global, only: LCumulate, nBas, nSym, ComStk
+use OneDat, only: sNoOri, sOpSiz
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -36,8 +37,8 @@ logical(kind=iwp), parameter :: Debug = .false.
 !                                                                      *
 !----------------------------------------------------------------------*
 
-iOpt1 = 1
-iOpt2 = 2
+iOpt1 = ibset(0,sOpSiz)
+iOpt2 = ibset(0,sNoOri)
 iComp = 1
 iSyLbl = nSym
 if (LCumulate) then

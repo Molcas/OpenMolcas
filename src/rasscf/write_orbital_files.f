@@ -16,12 +16,15 @@
 
         implicit none
         private
-        public :: OrbFiles, get_typeidx, putOrbFile
+        public :: OrbFiles, get_typeidx, putOrbFile,
+     &      write_orb_per_iter
         save
 
         interface get_typeidx
           module procedure RAS_get_typeidx, GAS_get_typeidx
         end interface
+
+        logical :: write_orb_per_iter = .false.
 
         interface
           integer function isfreeunit(iseed)
@@ -38,7 +41,7 @@
 
       use rasscf_data, only : iToc, name, header, title, lRoots, nRoots,
      &  iRoot, LENIN8, mXORB, mxTit, mXroot, iPt2, Weight, iOrbTyp,
-     &  FDiag, E2Act, mxiter, maxorbout, doDMRG
+     &  FDiag, E2Act, mxiter, maxorbout
       use general_data, only : nActel, iSpin, stSym, mXSym,
      &  nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3,
      &  nTot, nTot2, nConf
@@ -158,12 +161,6 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       iDisk=iToc(12)
       DO IRT=1, MIN(MAXORBOUT, LROOTS, 999)
         energy=Work(ipEne+IRT-1)
-
-        if(doDMRG)then
-#ifdef _DMRG_
-          energy = dmrg_energy%dmrg_state_specific(irt)
-#endif
-        end if
         filename = 'RASORB.'//merge(str(IRT), 'x', irt < 999)
         Call dDaFile(JobIph,2,Work(lCMO),ntot2,iDisk)
         Call dDaFile(JobIph,2,Work(ipOcc),ntot,iDisk)

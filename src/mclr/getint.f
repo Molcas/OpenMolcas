@@ -64,13 +64,13 @@
         IF(ICOUL.EQ.0) THEN
           WRITE(6,*) ' 2 electron integral block for TS blocks '
           WRITE(6,*) ' Ixchng :', IXCHNG
-          WRITE(6,'(1H ,4(A,I2,A,I2,A))')
+          WRITE(6,'(1X,4(A,I2,A,I2,A))')
      &    '(',ITP,',',ISM,')','(',JTP,',',JSM,')',
      &    '(',KTP,',',KSM,')','(',LTP,',',LSM,')'
            CALL WRTMAT(XINT,NIK,NJL,NIK,NJL)
         ELSE
           WRITE(6,*) ' Integrals in Coulomb form '
-          WRITE(6,'(1H ,4(A,I2,A,I2,A))')
+          WRITE(6,'(1X,4(A,I2,A,I2,A))')
      &   '(',ITP,',',ISM,')','(',JTP,',',JSM,')',
      &   '(',KTP,',',KSM,')','(',LTP,',',LSM,')'
           NIJ = NI*NJ

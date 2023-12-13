@@ -11,14 +11,18 @@
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
 
+subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 !***********************************************************************
 !     The generation of starting orbitals suffers from the fact that   *
 !     the virtual orbitals are not well defined. This routine is       *
 !     supposed to generate a set of well-defined virtual orbitals from *
 !     a set of well-defined occupied orbitals.                         *
 !***********************************************************************
-subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Index_Functions, only: iTri
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -32,10 +36,8 @@ logical(kind=iwp) :: Polished
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: P(:,:), Ovrlp_Sq(:,:), EVe(:,:), C_tmp(:,:), PNew(:), EVa(:)
 real(kind=wp), parameter :: thr = 1.0e-14_wp
-
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i, j, ij
+integer(kind=iwp) :: ij
 
 write(u6,*) 'nBas,nOcc,nVirt=',nBas,nOcc,nVirt
 call RecPrt('C_Occ',' ',C_Occ,nBas,nOcc)
@@ -70,10 +72,9 @@ if (nVirt == 0) call Abend()
 call mma_allocate(Ovrlp_Sq,nBas,nBas,Label='Ovrlp_Sq')
 call mma_allocate(EVa,nBas*(nBas+1)/2,Label='EVa')
 call mma_allocate(EVe,nBas,nBas,Label='EVe')
-call FZero(EVe,nBas**2)
-call DCopy_(nBas,[One],0,EVe,nBas+1)
+call unitmat(EVe,nBas)
 call DCopy_(nBas*(nBas+1)/2,Ovrlp,1,EVa,1)
-call NIdiag(EVa,EVe,nBas,nBas,0)
+call NIdiag(EVa,EVe,nBas,nBas)
 
 do iBas=2,nBas
   EVa(iBas) = EVa(iBas*(iBas+1)/2)
@@ -275,15 +276,5 @@ call RecPrt('C_Virt(New)',' ',C_Virt,nBas,nVirt)
 #endif
 
 return
-
-#ifdef _DEBUGPRINT_
-contains
-
-function iTri(i,j)
-  integer(kind=iwp) :: iTri
-  integer(kind=iwp), intent(in) :: i, j
-  iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-end function iTri
-#endif
 
 end subroutine Virt_Space

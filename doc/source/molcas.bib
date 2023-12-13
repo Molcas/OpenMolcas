@@ -14,7 +14,7 @@
 @String { cjp = {Can. J. Phys.} }
 @String { cms = {Comput. Mater. Sci.} }
 @String { cpc = {ChemPhysChem} }
-@String { cpl = {Chem. Phys. Letters} }
+@String { cpl = {Chem. Phys. Lett.} }
 @String { cr = {Chem. Rev.} }
 @String { farad = {J. Chem. Soc. Faraday Trans.} }
 @String { ijc = {Isr. J. Chem.} }
@@ -37,6 +37,7 @@
 @String { jpcb = {J. Phys. Chem. B} }
 @String { jpcl = {J. Phys. Chem. Lett.} }
 @String { jpcs = {J. Phys. C: Solid State Phys.} }
+@String { m = {Molecules} }
 @String { man = {(Manuscript)} }
 @String { mc = {Math. Comput.} }
 @String { mp = {Mol. Phys.} }
@@ -48,7 +49,7 @@
 @String { phr = {Phys. Rev.} }
 @String { phra = {Phys. Rev. A} }
 @String { phrb = {Phys. Rev. B} }
-@String { phrl = {Phys. Rev. Letters} }
+@String { phrl = {Phys. Rev. Lett.} }
 @String { prsla = {Proc. Roy. Soc. Lond. A} }
 @String { ps = {Physica Scripta} }
 @String { rmp = {Rev. Mod. Phys.} }
@@ -57,6 +58,7 @@
 @String { tca = {Theor. Chim. Acta} }
 @String { tcac = {Theor. Chem. Acc.} }
 @String { theo = {J. Mol. Struct. Theochem} }
+@String { wircms = {Wiley Interdiscip. Rev.: Comput. Mol. Sci.}}
 
 @Article{Buckingham:67,
   Title = {Permanent and Induced Molecular Moments and Long-Range Intermolecular Forces},
@@ -2045,7 +2047,7 @@
   Number = {22},
   Pages = {4935--4947},
   Year = {2018},
-  Doi = {10.1021/acs.jpca.7b12710},
+  Doi = {10.1021/acs.jpca.7b12710}
 }
 
 @Article{limanni2019,
@@ -2055,7 +2057,7 @@
   Pages = {1492-1497},
   Volume = {15},
   Year = {2019},
-  Doi = {10.1021/acs.jctc.8b01277},
+  Doi = {10.1021/acs.jctc.8b01277}
 }
 
 @Article{Alavi2009,
@@ -2065,7 +2067,7 @@
   Volume = {131},
   Pages = {054106},
   Year = {2009},
-  Doi = {10.1063/1.3193710},
+  Doi = {10.1063/1.3193710}
 }
 
 @Article{Overy2014,
@@ -2075,7 +2077,7 @@
   Volume = {141},
   Pages = {244117},
   Year = {2014},
-  Doi = {10.1063/1.4904313},
+  Doi = {10.1063/1.4904313}
 }
 
 @Article{Andersson:90,
@@ -3297,10 +3299,15 @@
   Doi = {10.1021/ct300307c}
 }
 
-@Misc{TheoDORE,
-  Title = {{TheoDORE}: a package for theoretical density, orbital relaxation, and exciton analysis},
-  Author = {F. Plasser},
-  Url = {http://theodore-qc.sourceforge.net/}
+@Article{TheoDORE,
+  Title = {{TheoDORE}: A toolbox for a detailed and automated analysis of electronic excited state computations},
+  Author = {Plasser, F.},
+  Journal = jcp,
+  Pages = {084108},
+  Volume = {152},
+  Year = {2020},
+  Number = {8},
+  Doi = {10.1063/1.5143076}
 }
 
 @Article{Plasser2016,
@@ -3322,7 +3329,7 @@
   Volume = {22},
   Year = {2020},
   Number = {11},
-  Doi = {10.1039/d0cp00369g},
+  Doi = {10.1039/d0cp00369g}
 }
 
 @Article{Head-Gordon2003,
@@ -3340,6 +3347,16 @@
   Title = {{libwfa}: {W}ave-function analysis tool library for quantum chemical applications},
   Author = {F. Plasser and M. Wormit and S. A. Mewes and B. Thomitzni and A. Dreuw},
   Url = {https://github.com/libwfa/libwfa}
+}
+
+@Article{libwfa2022,
+  Title = {libwfa: Wavefunction analysis tools for excited and open-shell electronic states},
+  Author = {Plasser, Felix and Krylov, Anna I. and Dreuw, Andreas},
+  Journal = wircms,
+  Pages = {e1595},
+  Volume = {12},
+  Year = {2022},
+  Doi = {10.1002/wcms.1595}
 }
 
 @Article{Molcas_libwfa,
@@ -3563,8 +3580,9 @@
   Title = {Extended Dynamically Weighted {CASPT2}: The Best of Two Worlds},
   Author = {Battaglia, Stefano and Lindh, Roland},
   Journal = jctc,
-  Pages = {1555-1567},
   Volume = {16},
+  Number = {3},
+  Pages = {1555-1567},
   Year = {2020},
   Doi = {10.1021/acs.jctc.9b01129}
 }
@@ -3573,20 +3591,22 @@
   Title = {Restricted-Variance Molecular Geometry Optimization Based on Gradient-Enhanced {K}riging},
   Author = {Gerardo Raggi and Fdez. Galv{\'a}n, Ignacio and Christian L. Ritterhoff and Morgane Vacher and Roland Lindh},
   Journal = jctc,
-  Pages = {3989-4001},
   Volume = {16},
+  Number = {6},
+  Pages = {3989-4001},
   Year = {2020},
-  Doi = {10.1021/acs.jctc.0c00257},
+  Doi = {10.1021/acs.jctc.0c00257}
 }
 
 @Article{FdezGalvan2021,
   Title = {Restricted-Variance Constrained, Reaction Path, and Transition State Molecular Optimizations Using Gradient-Enhanced {K}riging},
   Author = {Fdez. Galv{\'a}n, Ignacio and Gerardo Raggi and Roland Lindh},
   Journal = jctc,
-  Pages = {571-582},
   Volume = {17},
+  Number = {1},
+  Pages = {571-582},
   Year = {2021},
-  Doi = {10.1021/acs.jctc.0c01163},
+  Doi = {10.1021/acs.jctc.0c01163}
 }
 
 @Article{Battaglia2021,
@@ -3596,7 +3616,7 @@
   Pages = {034102},
   Volume = {154},
   Year = {2021},
-  Doi = {10.1063/5.0030944},
+  Doi = {10.1063/5.0030944}
 }
 
 @Article{Angeli_JChemPhys_Introduction_2001,
@@ -3657,4 +3677,153 @@
   Pages = {451-459},
   Year = {2017},
   Doi = {10.1021/acs.jctc.6b00778}
+}
+
+@Article{Feng_JChemTheoryComput_Electron_2021,
+  Title = {Electron-Nucleus Hyperfine Coupling Calculated from Restricted Active Space Wavefunctions and an Exact Two-Component {H}amiltonian},
+  Author = {Feng, Rulin and Duignan, Thomas J. and Autschbach, Jochen},
+  Journal = jctc,
+  Volume = {17},
+  Pages = {255-268},
+  Year = {2021},
+  Doi = {10.1021/acs.jctc.0c01005}
+}
+
+@Article{Kochetov:20,
+  Title = {Effect of chemical structure on the ultrafast spin dynamics in core-excited states},
+  Author = {Kochetov, Vladislav and Wang, Huihui and Bokarev, Sergey I.},
+  Journal = jcp,
+  Volume = {153},
+  Pages = {044304},
+  Year = {2020},
+  Doi = {10.1063/5.0005940}
+}
+
+@Article{Kochetov:22,
+  Title = {{RhoDyn}: A $\rho$-{TD-RASCI} Framework to Study Ultrafast Electron Dynamics in Molecules},
+  Author = {Kochetov, Vladislav and Bokarev, Sergey I.},
+  Journal = jctc,
+  Volume = {18},
+  Pages = {46-58},
+  Year = {2022},
+  Doi = {10.1021/acs.jctc.1c01097}
+}
+
+@Article{Weigend:08,
+  Title = {{H}artree--{F}ock exchange fitting basis sets for $\ce{H}$ to $\ce{Rn}$},
+  Author = {Weigend, Florian},
+  Journal = jcc,
+  Volume = {29},
+  Pages = {167-175},
+  Year = {2008},
+  Number = {2},
+  Doi = {10.1002/jcc.20702}
+}
+
+@Article{Tenorio:2022molecules,
+  Title = {Photoionization Observables from Multi-Reference {D}yson Orbitals Coupled to {B}-Spline {DFT} and {TD-DFT} Continuum},
+  Author = {Tenorio, Bruno Nunes Cabral and Ponzi, Aurora and Coriani, Sonia and Decleva, Piero},
+  Journal = m,
+  Volume = {27},
+  Pages = {1203},
+  Year = {2022},
+  Doi = {10.3390/molecules27041203}
+}
+
+@Article{Tenorio:2022jctc,
+  Title = {Multireference Approach to Normal and Resonant {A}uger Spectra Based on the One-Center Approximation},
+  Author = {Tenorio, Bruno Nunes Cabral and Voss, Torben Arne and Bokarev, Sergey I. and Decleva, Piero and Coriani, Sonia},
+  Journal = jctc,
+  Volume = {18},
+  Number = {7},
+  Pages = {4387-4407},
+  Year = {2022},
+  Doi = {10.1021/acs.jctc.2c00252}
+}
+
+@Article{Tenorio:2021jcp,
+  Title = {Multi-reference approach to the computation of double core-hole spectra},
+  Author = {Tenorio, Bruno Nunes Cabral and Decleva, Piero and Coriani, Sonia},
+  Journal = jcp,
+  Volume = {155},
+  Number = {13},
+  Pages = {131101},
+  Year = {2021},
+  Doi = {10.1063/5.0062130}
+}
+
+@Article{Sharma2017,
+  Title = {Semistochastic heat-bath configuration interaction method: Selected configuration interaction with semistochastic perturbation theory},
+  Author = {Sharma, Sandeep and Holmes, Adam A. and Jeanmairet, Guillaume and Alavi, Ali and Umrigar, Cyrus J.},
+  Journal = jctc,
+  Volume = {13},
+  Number = {4},
+  Pages = {1595-1604},
+  Year = {2017},
+  Doi = {10.1021/acs.jctc.6b01028}
+}
+
+@Article{Holmes2016,
+  Title = {Heat-bath configuration interaction: An efficient selected configuration interaction algorithm inspired by heat-bath sampling},
+  Author = {Holmes, Adam A. and Tubman, Norm M. and Umrigar, C. J.},
+  Journal = jctc,
+  Volume = {12},
+  Number = {8},
+  Pages = {3674-3680},
+  Year = {2016},
+  Doi = {10.1021/acs.jctc.6b00407}
+}
+
+@Article{Battaglia2022,
+  Title = {Regularized {CASPT2}: an Intruder-State-Free Approach},
+  Author = {Battaglia, Stefano and Frans{\'e}n, Lina and Fdez. Galv{\'a}n, Ignacio and Lindh, Roland},
+  Journal = jctc,
+  Volume = {18},
+  Number = {8},
+  Pages = {4814--4825},
+  Year = {2022},
+  Doi = {10.1021/acs.jctc.2c00368}
+}
+
+@Article{Straatsma2022,
+  Title = {{GronOR}: Scalable and Accelerated Nonorthogonal Configuration Interaction for Molecular Fragment Wave Functions},
+  Author = {Straatsma, T. P. and Broer, R. and S{\'a}nchez-Mansilla, A. and Sousa, C. and de Graaf, C.},
+  Journal = jctc,
+  Volume = {18},
+  Pages = {3549-3565},
+  Year = {2022},
+  Doi = {10.1021/acs.jctc.2c00266}
+}
+
+@Article{Nishimoto2022,
+  Title = {Analytic First-Order Derivatives of {(X)MS}, {XDW}, and {RMS} Variants of the {CASPT2} and {RASPT2} Methods},
+  Author = {Nishimoto, Yoshio and Battaglia, Stefano and Lindh, Roland},
+  Journal = jctc,
+  Volume = {18},
+  Number = {7},
+  Pages = {4269--4281},
+  Year = {2022},
+  Doi = {10.1021/acs.jctc.2c00301}
+}
+
+@Article{Nishimoto2021,
+  Title = {Analytic gradients for restricted active space second-order perturbation theory ({RASPT2})},
+  Author = {Nishimoto, Yoshio},
+  Journal = jcp,
+  Volume = {154},
+  Number = {19},
+  Pages = {194103},
+  Year = {2021},
+  Doi = {10.1063/5.0050074}
+}
+
+@Article{FdezGalvan2023,
+  Title = {Smooth Things Come in Threes: A Diabatic Surrogate Model for Conical Intersection Optimization},
+  Author = {Fdez. Galv{\'a}n, Ignacio and Roland Lindh},
+  Journal = jctc,
+  Volume = {19},
+  Number = {11},
+  Pages = {3418-3427},
+  Year = {2023},
+  Doi = {10.1021/acs.jctc.3c00389}
 }

@@ -32,6 +32,15 @@ implicit none
 character(len=*), intent(in) :: TagName, Appear, Units
 real(kind=wp), intent(in) :: Content(*)
 integer(kind=iwp), intent(in) :: nx, ny, Level
+interface
+  subroutine xml_ddumpc(name_,nx_name,appear,nx_appear,units,nx_units,Level,data_,nxx,nyx) bind(C,name='xml_ddumpc_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+    character(kind=c_char) :: name_(*), appear(*), units(*)
+    integer(kind=MOLCAS_C_INT) :: nx_name, nx_appear, nx_units, Level, nxx, nyx
+    real(kind=MOLCAS_C_REAL) :: data_(*)
+  end subroutine xml_ddumpc
+end interface
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

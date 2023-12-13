@@ -25,41 +25,39 @@
 *           the full list of integrals!                                *
 *                                                                      *
 ************************************************************************
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
-      use Data_structures, only: DSBA_Type, Allocate_DSBA
-      use Data_structures, only: Deallocate_DSBA
+      use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
+      use Data_structures, only: DSBA_Type, Allocate_DT
+      use Data_structures, only: Deallocate_DT
       use Data_structures, only: SBA_Type
-      use Data_structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_structures, only: Allocate_DT, Deallocate_DT
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
-#include "warnings.fh"
+#include "warnings.h"
       Character(LEN=13), Parameter:: SECNAM = 'CHO_PREC_MCLR'
 
-      Integer   ISTLT(8),ISTSQ(8)
+      Integer   ISTSQ(8)
       Integer   LuAChoVec(8),LuChoInt(2)
       Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),nAshb(8),nAshe(8)
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
 #include "real.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Character*50 CFmt
       Real*8, parameter:: xone=-One
-      Character*6 mode
       Logical taskleft, add
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
-      Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      Lrs(:,:), Integral(:)
-      Type (DSBA_Type) CMOt
+      Real*8, Allocatable:: iiab(:), tupq(:), Lrs(:,:), Integral(:)
+      Real*8, Allocatable, Target:: iirs(:), turs(:)
+      Real*8, Pointer :: piirs(:,:)=>Null(), pturs(:,:)=>Null()
+
+      Type (DSBA_Type) CMOt, Tmp(1)
       Type (SBA_Type) Lpq(1)
 
       Real*8, Allocatable, Target :: Lii(:), Lij(:)
-      Real*8, Pointer :: pLii(:,:), pLij(:,:)
+      Real*8, Pointer :: pLii(:,:)=>Null(), pLij(:,:)=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -81,11 +79,8 @@
       MaxVecPerBatch=Cho_LK_MaxVecPerBatch()
       iLoc = 3
 *
-      ISTLT(1)=0
       ISTSQ(1)=0
       DO ISYM=2,NSYM
-        NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
         ISTSQ(iSYM)=ISTSQ(iSYM-1)+NBAS(ISYM-1)**2
       END DO
 *
@@ -239,7 +234,7 @@
           Call mma_allocate(iirs,ntotie*maxRS,Label='iirs')
         EndIf
         ipiaib=1+nab*ntotie
-        iiab(:)=0.0d0
+        iiab(:)=Zero
 *
         If (taskleft) Then
            ntotae=0
@@ -301,7 +296,7 @@
 *
 **    Transpose CMO
 *
-        Call Allocate_DSBA(CMOt,nIShe,nBas,nSym)
+        Call Allocate_DT(CMOt,nIShe,nBas,nSym)
 
         ioff =0
         Do iSym=1,nsym
@@ -337,8 +332,14 @@ c         !set index arrays at iLoc
           nRS = nDimRS(JSYM,JRED)
 
           If (jSym.eq.1) Then
-            If (ntotie.gt.0) iirs(:)=0.0D0
-            If (ntue.gt.0) turs(:)=0.0d0
+            If (ntotie.gt.0) Then
+               piirs(1:nRS,1:ntotie) => iirs(1:nRS*ntotie)
+               piirs(:,:)=Zero
+            End If
+            If (ntue.gt.0) Then
+               pturs(1:nRS,1:ntue) => turs(1:nRS*ntue)
+               pturs(:,:)=Zero
+            End If
           EndIf
 
           Call mma_MaxDBLE(LWORKe)
@@ -369,7 +370,7 @@ c         !set index arrays at iLoc
             IVEC2 = JVEC - 1 + JNUM
 
             iSwap = 1 ! Lqi,J are returned
-            Call Allocate_SBA(Lpq(1),nIshe,nBas,nVec,JSYM,nSym,iSwap)
+            Call Allocate_DT(Lpq(1),nIshe,nBas,JNUM,JSYM,nSym,iSwap)
             Call mma_allocate(Lii,ntotie*nVec,Label='Lii')
 ************************************************************************
 ************************************************************************
@@ -424,7 +425,7 @@ c         !set index arrays at iLoc
                  Call DGEMM_('N','T',nBas(kSym),nBas(kSym),JNUM,
      &          1.0D0,Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym),
      &                Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym),
-     &                        1.0d0,iiab(ip1:)  ,nBas(kSym))
+     &          1.0d0,iiab(ip1:)  ,nBas(kSym))
                  ip1=ip1+nBas(kSym)**2
               End Do
             End Do
@@ -469,7 +470,7 @@ c         !set index arrays at iLoc
               Call DGEMM_('N','N',nRS,ntotie,JNUM,
      &                    1.0d0,Lrs,nRS,
      &                          pLii,JNUM,
-     &                    1.0d0,iirs,nRS)
+     &                    1.0d0,piirs,nRS)
               pLii => Null()
 
               CALL CWTIME(TCR2,TWR2)
@@ -479,14 +480,14 @@ c         !set index arrays at iLoc
             End If  ! jSym
 
             Call mma_deallocate(Lii)
-            Call Deallocate_SBA(Lpq(1))
+            Call Deallocate_DT(Lpq(1))
 *
 ************************************************************************
 ************************************************************************
 **          Read half-transformed active vectors
 *
             iSwap = 0 ! Lvb,J
-            Call Allocate_SBA(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+            Call Allocate_DT(Lpq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
 
             Call mma_allocate(Lij,ntue*nVec,Label='Lij')
 
@@ -517,8 +518,8 @@ c         !set index arrays at iLoc
                     ipInt=iptpuq+ioff+itu*nBas(i)**2
 
                     Call DGER(nBas(i),nBas(i),
-     &                 1.0d0,Lpq(1)%SB(i)%A3(itt,1,j),nAsh(k),
-     &                       Lpq(1)%SB(i)%A3(iuu,1,j),nAsh(k),
+     &                 1.0d0,Lpq(1)%SB(i)%A3(itt,:,j),1,
+     &                       Lpq(1)%SB(i)%A3(iuu,:,j),1,
      &                              tupq(ipInt),nBas(i))
 
                   End Do
@@ -562,7 +563,6 @@ c         !set index arrays at iLoc
 **           Formation of the (tu|rs) integral
 *
              ipInt=1
-             ipLtu=1
              iE = 0
              Do i=1,nsym
                na2 = nAshe(i)*nAshb(i) + nAshe(i)*(nAshe(i)+1)/2
@@ -574,10 +574,8 @@ c         !set index arrays at iLoc
 
                Call DGEMM_('N','T',nRS,na2,JNUM,
      &                     1.0d0,Lrs,nRS,
-*    &                           Lij(ipLtu),na2,
      &                           pLij,na2,
      &                     1.0d0,turs(ipInt),nRS)
-               ipLtu=ipLtu+na2*JNUM
                ipInt=ipInt+nRS*na2
              End Do
             CALL CWTIME(TCR1,TWR1)
@@ -592,26 +590,27 @@ c         !set index arrays at iLoc
 ************************************************************************
 
            Call mma_deallocate(Lij)
-           Call Deallocate_SBA(Lpq(1))
+           Call Deallocate_DT(Lpq(1))
           End Do ! jbatch
 *
 **        Transform to full storage, use Lrs as temp storage
 *
           If (jsym.eq.1) Then
             add = .True.
-            mode = 'tofull'
             nMat = 1
             Do i=1,ntotie
-              ip1=ip_of_Work(iiab(1))+nab*(i-1)
-              ipRS1=ip_of_Work(iirs(1))+nRS*(i-1)
+              Call Allocate_DT(Tmp(1),nBas,nBas,nSym,aCase='TRI',
+     &                         Ref=iiab(1+nab*(i-1):))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [ip1],Work(ipRS1),mode,add)
+     &                          Tmp,piirs(:,i),add)
+              Call Deallocate_DT(Tmp(1))
             End Do
             Do i=1,ntue
-              ip1=ip_of_Work(tupq(1))+npq*(i-1)
-              ipRS1=ip_of_Work(turs(1))+nRS*(i-1)
+              Call Allocate_DT(Tmp(1),nBas,nBas,nSym,aCase='TRI',
+     &                         Ref=tupq(1+npq*(i-1):))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [ip1],Work(ipRS1),mode,add)
+     &                          Tmp,pturs(:,i),add)
+              Call Deallocate_DT(Tmp(1))
             End Do
           EndIf
 *
@@ -620,8 +619,14 @@ c         !set index arrays at iLoc
         End Do ! reduced set JRED
 *
         If (jsym.eq.1) Then
-          If (ntotie.gt.0) Call mma_deallocate(iirs)
-          If (ntue.gt.0) Call mma_deallocate(turs)
+          If (ntotie.gt.0) Then
+             Call mma_deallocate(iirs)
+             piirs=>Null()
+          End If
+          If (ntue.gt.0) Then
+             Call mma_deallocate(turs)
+             pturs=>Null()
+          End If
         EndIf
 *
 ** MGD  Gather integrals from parallel runs
@@ -778,7 +783,7 @@ c         !set index arrays at iLoc
           nIshb(i)=nIshb(i)+nIshe(i)  ! now those are done!
           nAshb(i)=nAshb(i)+nAshe(i)  ! now those are done!
         EndDo
-        Call Deallocate_DSBA(CMOt)
+        Call Deallocate_DT(CMOt)
         Call mma_deallocate(iiab)
         If (ntotae.gt.0) Call mma_deallocate(tupq)
         If (taskleft) Go to 50  ! loop over i/t batches

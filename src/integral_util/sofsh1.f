@@ -1,68 +1,69 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Martin Schuetz                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Martin Schuetz                                   *
+!***********************************************************************
       SubRoutine SOFSh1(nSkal,nSym,nSOs)
-************************************************************************
-* This Module contains subroutines which are used to compute info on   *
-* the size of the SO integral symmetry blocks for direct integral      *
-* transformation                                                       *
-*                                                                      *
-* SubRoutine SOFSh1                                                    *
-*  -> compute (1) # SO functions in irrep for all shells iShell        *
-*             (2) position of 1st component of shell in irrep for      *
-*                 all shells in all irreps                             *
-*             (3) map vector between shells and psedoshells for each   *
-*                 irrep (not any shell contributes to all irreps)      *
-*             (4) map vector between SO indices and shells             *
-* relevant data is declared and passed in common "inftra.fh"           *
-*----------------------------------------------------------------------*
-*     written by:                                                      *
-*     M. Schuetz                                                       *
-*     University of Lund, Sweden, 1995                                 *
-************************************************************************
-*#define _CHECK_
+!***********************************************************************
+! This Module contains subroutines which are used to compute info on   *
+! the size of the SO integral symmetry blocks for direct integral      *
+! transformation                                                       *
+!                                                                      *
+! SubRoutine SOFSh1                                                    *
+!  -> compute (1) # SO functions in irrep for all shells iShell        *
+!             (2) position of 1st component of shell in irrep for      *
+!                 all shells in all irreps                             *
+!             (3) map vector between shells and psedoshells for each   *
+!                 irrep (not any shell contributes to all irreps)      *
+!             (4) map vector between SO indices and shells             *
+! relevant data is declared and passed in common "inftra.fh"           *
+!----------------------------------------------------------------------*
+!     written by:                                                      *
+!     M. Schuetz                                                       *
+!     University of Lund, Sweden, 1995                                 *
+!***********************************************************************
+!#define _CHECK_
       use SOAO_Info, only: iAOtSO
-      use iSD_data
-      use Index_arrays
+      use iSD_data, only: iSD, nShBf, iShOff, nShBfMx, iCntr, iSh2Sh,
+     &                    nShIrp, iSO2Sh
       use Basis_Info, only: nBas, nBas_Aux
-      Implicit Real*8 (A-H,O-Z)
-*
-#include "stdalloc.fh"
-#include "Basis_Mode.fh"
-      Integer nSkal, nSym, nSOs, nShOff(0:7)
-      Dimension iTmp(1 )
-*
-*     Allocate all memory
-*
+      use stdalloc, only: mma_allocate
+      use BasisMode, only: Basis_Mode, Auxiliary_Mode
+      Implicit None
+      Integer nSkal, nSym, nSOs
+
+      Integer nShOff(0:7), iTmp(1), iSkal, iAO, iCmp, iSO, iPtr,
+     &        i, iRP, nShBfi, iSOB
+!
+!     Allocate all memory
+!
       Call mma_allocate(nShBF,[0,nSym-1],[1,nSkal],Label='nShBF')
       Call mma_allocate(iShOff,[0,nSym-1],[1,nSkal],Label='iShOff')
       Call mma_allocate(iSh2Sh,[0,nSym-1],[1,nSkal],Label='iSh2Sh')
       Call mma_allocate(iSO2Sh,nSOs,Label='iSO2Sh')
       Call mma_allocate(iCntr,nSkal,Label='iCntr')
-*
-*     Initialize
+!
+!     Initialize
       nShBF(:,:)=0
       iShOff(:,:)=9999999
       nShOff(:)=1
-*
+!
       Do iSkal = 1, nSkal
          iAO         = iSD( 7,iSkal)
          iCmp        = iSD( 2,iSkal)
          icntr(iSkal)= iSD(10,iSkal)
-*
-*        loop over components of shell...
-*
+!
+!        loop over components of shell...
+!
          Do i=1, iCmp
-*           loop over irreps...
+!           loop over irreps...
             Do irp=0, nSym-1
                If (iAOtSO(iAO+i,irp)>0) Then
                   nShBF(irp,iSkal) = nShBF(irp,iSkal)+ iSD(3,iSkal)
@@ -102,23 +103,23 @@
          Write(6,'(8I4)') iSkal,(iShOff(irp,iSkal),irp=0,nSym-1)
 #endif
       End Do
-*
-*     and now set up SO-Shell and Shell-Psudoshell index vectors...
-*
+!
+!     and now set up SO-Shell and Shell-Psudoshell index vectors...
+!
       iTmp=0 ! Use iTmp to get round compiler bug on some machines
       Call ICopy(nSym,iTmp,0,nShIrp,1)
-*
+!
       iTmp=-9999999
       Call ICopy(nSOs,iTmp,0,iSO2Sh,1)
       Call ICopy(nSkal*nSym,iTmp,0,iSh2Sh,1)
-*
-*     Loop over irreps...
-*
+!
+!     Loop over irreps...
+!
       iptr=0
       nShBFMx=0
       Do irp=0, nSym-1
          Do iSkal=1, nSkal
-*
+!
             nShBFi=nShBF(irp,iSkal)
             nShBFMx=Max(nShBFMx,nShBFi)
             iSOb=iShOff(irp,iSkal)
@@ -129,7 +130,7 @@
                End If
                iSO2Sh(iptr+iSO)=iSkal
             End Do
-*
+!
             If (nShBFi.gt.0) Then
               nShIrp(irp)=nShIrp(irp)+1
               iSh2Sh(irp,iSkal)=nShIrp(irp)
@@ -154,4 +155,4 @@
       Write(6,'(50I4)') (iSO2Sh(iSO),iSO=1,nSOs)
 #endif
       Return
-      End
+      End SubRoutine SOFSh1

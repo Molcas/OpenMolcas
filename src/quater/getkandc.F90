@@ -33,13 +33,13 @@
 subroutine GetKandC(U1,U2,V1,V2,K,C)
 
 use Quater_globals, only: debug
-use Definitions, only: wp, r8, u6
+use Definitions, only: wp, u6
 
 implicit none
 real(kind=wp), intent(in) :: U1(3), U2(3), V1(3), V2(3)
 real(kind=wp), intent(out) :: K(3), C
 real(kind=wp) :: T1(3), T2(3)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 T1(:) = V1(:)-U1(:)     ! T1 = V1-U1
 T2(:) = V2(:)-U2(:)     ! T2 = V2-U2

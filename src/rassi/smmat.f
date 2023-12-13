@@ -12,9 +12,6 @@
       use rassi_global_arrays, only: JBNUM
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION PRMAT(NSS,NSS)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SMMAT')
 #include "SysDef.fh"
 #include "Molcas.fh"
 #include "cntrl.fh"
@@ -43,6 +40,10 @@ C 2 = spin dependent property, triplet operator
      &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.
      &          (ICOMP(IPROP).EQ.ISOCMP(ISONUM))) THEN
                IPRNUM=IPROP
+               IF (PNAME(IPRNUM)(1:3).EQ.'PSO') THEN
+                  IFSPIN=0
+                  IPRCMP=ISPINCMP
+               END IF
                IF (PNAME(IPRNUM)(1:5).EQ.'TMOM0') THEN
                   IFSPIN=2
                   IPRCMP=ISPINCMP
@@ -61,8 +62,8 @@ C 2 = spin dependent property, triplet operator
          END DO
       END IF
       IF (IPRNUM.EQ.-1) THEN
-         Write (6,*) TRIM(ROUTINE),', Abend IPRNUM.EQ.-1'
-         Write (6,*) TRIM(ROUTINE),', PRLBL=','>',PNAME(ISONUM),'<'
+         Write (6,*) 'SMMAT, Abend IPRNUM.EQ.-1'
+         Write (6,*) 'SMMAT, PRLBL=','>',PNAME(ISONUM),'<'
          Call Abend()
       ENDIF
 

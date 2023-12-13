@@ -434,7 +434,7 @@ C  read the input
      &                               esfs, U, MM, MS, ML, DM,
      &                               ANGMOM, EDMOM, AMFI, HSO,
      &                               eso_au, esfs_au )
-         WRITE(6,'(A)') 'ENTER fetch_data_RunFile_all'
+         WRITE(6,'(A)') 'AFTER fetch_data_RunFile_all'
          Call xFlush(6)
          If (DBG) Then
             Write(6,'(A)') 'SA: ANGMOM(x,y,z)'

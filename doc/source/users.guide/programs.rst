@@ -35,6 +35,7 @@ Programs
    programs/guga
    programs/gugaci
    programs/gugadrt
+   programs/level
    programs/localisation
    programs/loprop
    programs/mbpt2
@@ -55,6 +56,7 @@ Programs
    programs/quater
    programs/rasscf
    programs/rassi
+   programs/rhodyn
    programs/rpa
    programs/scf
    programs/seward

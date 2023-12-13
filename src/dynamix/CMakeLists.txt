@@ -18,12 +18,12 @@ set (sources
      getmassdx.F90
      grom.F90
      init_dynamix.F90
-     nhcThermo.F90
+     nhcthermo.F90
      project_in_for.F90
      project_in_vel.F90
      project_out_for.F90
      project_out_vel.F90
-     randomGauss.F90
+     randomgauss.F90
      rdinp_dynamix.F90
      readin_dynamix.F90
      velver_first.F90

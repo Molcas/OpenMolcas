@@ -13,7 +13,7 @@
 
 subroutine Gradient_Kriging(x0_,dy_,ndimx)
 
-use kriging_mod, only: gpred, x0
+use kriging_mod, only: gpred, nSet, x0
 use Definitions, only: wp, iwp
 
 !#define _Grad_Test
@@ -24,7 +24,7 @@ use Constants, only: Two, u6
 implicit none
 integer(kind=iwp), intent(in) :: ndimx
 real(kind=wp), intent(in) :: x0_(ndimx)
-real(kind=wp), intent(out) :: dy_(ndimx)
+real(kind=wp), intent(out) :: dy_(ndimx,nSet)
 #ifdef _Grad_Test
 integer(kind=iwp) :: i
 real(kind=wp) :: Delta, tpred, thpred
@@ -38,10 +38,11 @@ x0(:) = x0_(:)
 ! Write(u6,*) 'Entro grad'
 call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
 call predict(1)
-dy_(:) = gpred(:)
+dy_(:,:) = gpred(:,1:nSet)
 
 #ifdef _Grad_Test
 ! Numerical Gradient of GEK
+if (nSet /= 1) call Abend()
 write(u6,*) 'Begining Numerical Gradient'
 Delta = 1.0e-4_wp !max(abs(x_(i,1)),1.0e-5_wp)*Scale
 do i=1,nInter
@@ -51,28 +52,28 @@ do i=1,nInter
 
   call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(0)
-  tpred = pred
+  tpred = pred(1)
 
   x0(i) = x0_(i)-Delta
 
   call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(0)
-  thpred = pred
+  thpred = pred(1)
 
-  gpred(i) = (tpred-thpred)/(Two*Delta)
+  gpred(i,1) = (tpred-thpred)/(Two*Delta)
 
 end do
 write(u6,*) 'Gradient Threshold',GradT
 do i=1,nInter
   write(u6,*) 'i',i
-  write(u6,*) 'gpred, dy_',gpred(i),dy_(i)
-  if (abs(dy_(i)-gpred(i)) > GradT) then
+  write(u6,*) 'gpred, dy_',gpred(i,1),dy_(i)
+  if (abs(dy_(i)-gpred(i,1)) > GradT) then
     write(u6,*) 'Error in entry',i,'of the gradient vector'
     call RecPrt('Anna Grad',' ',dy_,1,nInter)
-    call RecPrt('Num Grad',' ',gpred,1,nInter)
+    call RecPrt('Num Grad',' ',gpred(:,1),1,nInter)
     write(u6,*) 'abs(dy_(i,j)+ HessT)',abs(dy_(i)+GradT)
     write(u6,*) 'abs(dy_(i,j)- HessT)',abs(dy_(i)-GradT)
-    write(u6,*) 'abs(gpred(i))',abs(gpred(i))
+    write(u6,*) 'abs(gpred(i))',abs(gpred(i,1))
     call Abend()
   end if
 end do

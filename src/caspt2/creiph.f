@@ -11,7 +11,8 @@
 * Copyright (C) 1997, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
-      use output_caspt2, only:iPrGlb,usual
+      use fciqmc_interface, only: DoFCIQMC
+      use caspt2_output, only:iPrGlb,usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
@@ -40,6 +41,8 @@ C printed, no JOBMIX file is created.
         END IF
       END IF
       IF (DOCUMULANT .OR. (.NOT.IFMIX)) RETURN
+
+      if (DoFCIQMC) return
 
       IF(IFMSCOUP) THEN
         IF(IPRGLB.GE.USUAL) THEN

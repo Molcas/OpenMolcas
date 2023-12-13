@@ -154,9 +154,10 @@ CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
 *
-             CALL NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
-     &                     NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
-     &                     Str(ITYP)%NSTSO)
+            Call ICopy(NOCTYP(ITYP),[0],0,Str(ITYP)%NSTSO,1)
+            CALL NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
+     &                    NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
+     &                    Str(ITYP)%NSTSO)
             LENGTH = NCASTR_MCLR(2,Str(ITYP)%NSTSO,NOCTYP(ITYP),
      &                      ITYP,NOBPT,3,Str(ITYP)%EL123)
 *. Explicit offsets and lengths

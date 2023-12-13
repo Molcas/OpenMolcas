@@ -1,0 +1,55 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine two2mean12a(carteSO,carteOO,occup,AOcoeffs,onecart,ncontmf,norbsum,noccorb,sameorb)
+
+use AMFI_global, only: MxcontL
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ncontmf, norbsum, noccorb
+real(kind=wp), intent(in) :: carteSO(ncontmf,norbsum,ncontmf,norbsum), carteOO(ncontmf,norbsum,ncontmf,norbsum), occup(*), &
+                             AOcoeffs(MxcontL,*)
+real(kind=wp), intent(inout) :: onecart(MxcontL,MxcontL)
+logical(kind=iwp), intent(in) :: sameorb
+integer(kind=iwp) :: icartleft, icartright, Mrun
+real(kind=wp) :: coeff
+
+if (sameorb) then
+  do icartleft=1,norbsum
+    do icartright=1,norbsum
+      coeff = Zero
+      do Mrun=1,noccorb
+        coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
+      end do
+      coeff = Half*coeff
+      onecart(1:ncontmf,1:ncontmf) = onecart(1:ncontmf,1:ncontmf)-coeff*carteSO(1:ncontmf,icartleft,1:ncontmf,icartright)
+    end do
+  end do
+else
+  do icartleft=1,norbsum
+    do icartright=1,norbsum
+      coeff = Zero
+      do Mrun=1,noccorb
+        coeff = coeff+occup(Mrun)*AOcoeffs(icartleft,Mrun)*AOcoeffs(icartright,Mrun)
+      end do
+      coeff = Half*coeff
+      onecart(1:ncontmf,1:ncontmf) = onecart(1:ncontmf,1:ncontmf)- &
+                                     coeff*(carteSO(1:ncontmf,icartleft,1:ncontmf,icartright)+ &
+                                            Two*carteOO(1:ncontmf,icartleft,1:ncontmf,icartright))
+    end do
+  end do
+end if
+
+return
+
+end subroutine two2mean12a

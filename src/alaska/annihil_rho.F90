@@ -11,12 +11,14 @@
 
 subroutine Annihil_rho(Dmat,nBas)
 
+#include "intent.fh"
+
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(out) :: Dmat(*)
+real(kind=wp), intent(_OUT_) :: Dmat(*)
 integer(kind=iwp), intent(in) :: nBas
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAt, iAt_B, ijj, j, jj, Length, nAA, nAt_B, nAtoms, nBas_A, nBas_B
@@ -91,7 +93,7 @@ call mma_deallocate(nBas_per_Atom)
 ! Annihilated density written to runfile for use in Coulomb gradients
 
 Length = nBas*(nBas+1)/2
-call Put_D1ao_Var(Dmat,Length)
+call Put_dArray('D1aoVar',Dmat,Length)
 
 return
 

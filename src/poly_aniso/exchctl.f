@@ -1078,7 +1078,10 @@ cccc----------------------------------------------------------------------------
      &                MMR(1:nneq,1:3,1:nmaxR,1:nmaxR),
      &                SMR(1:nneq,1:3,1:nmaxR,1:nmaxR) )
 
-          Call barrier(exchR,MR(1:3,1:exchR,1:exchR),WR(1:exchR),1,2)
+          Call WarningMessage(2,'Wrong code in poly_aniso/exchctl.f')
+          ! FIXME: This call is missing 3 arguments
+          !Call barrier(exchR,MR(1:3,1:exchR,1:exchR),WR(1:exchR),1,2)
+          Call Abend()
         End If !KEOPT
 
         End If ! npair>0, index lp
@@ -1343,7 +1346,7 @@ c  results of projection of the exchange interaction on the Ising Hamiltonian:
 c      open (76,file='eigenstates.txt')
 c      Do i=1,EXCH
 c        Do j=1,EXCH
-c      Write(76,'(2E24.14)') Z(i,j)
+c      Write(76,'(2ES24.14)') Z(i,j)
 c        End Do
 c      End Do
 c      close(76)
@@ -1353,7 +1356,7 @@ c      ZZR=0.0_wp
 c      ZZI=0.0_wp
 c      Do i=1,EXCH
 c        Do j=1,EXCH
-c      read(77,'(2E24.14)') ZZR(i,j),ZZI(i,j)
+c      read(77,'(2ES24.14)') ZZR(i,j),ZZI(i,j)
 c        End Do
 c      End Do
 c      close(77)

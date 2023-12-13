@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
 #endif
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
@@ -47,7 +47,7 @@
         CALL GETMEM('LSGM2','ALLO','REAL',LSGM2 ,MXCI)
         CALL GETMEM('LG1TMP','ALLO','REAL',LG1TMP,NG1)
         CALL GETMEM('LG2TMP','ALLO','REAL',LG2TMP,NG2)
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
         IF(.Not.DoCumulant) THEN
 #endif
           CALL DENS2_RPT2(CI,WORK(LSGM1),WORK(LSGM2),

@@ -19,7 +19,7 @@ use nevpt2wfn, only: nevpt2wfn_close
 use stdalloc, only: mma_deallocate
 
 implicit none
-#include "mxdm.fh"
+#include "rasdim.fh"
 #include "caspt2.fh"
 
 call nevpt2wfn_close()

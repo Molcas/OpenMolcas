@@ -13,15 +13,15 @@
       SUBROUTINE TRACHOSZ
       USE CHOVEC_IO
       USE Para_Info, ONLY: nProcs
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec
+      use caspt2_gradient, only: do_grad
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choglob.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -34,9 +34,9 @@
       INTEGER MXFTARR,MXHTARR
       INTEGER MXSPC
       INTEGER NVACT,NVACC,NVECS_RED
-**********************************************************************
+************************************************************************
 *  Author : P. A. Malmqvist
-**********************************************************************
+************************************************************************
 
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
@@ -56,6 +56,7 @@
        MXHTARR=MAX(MXHTARR,NPB)
       END DO
       MXCHARR=NBAST**2
+      IF (do_grad) MXHTARR = MXCHARR
 * MXFTARR,MXHTARR: Largest single full-transformed, half-transformed vector.
 * MXCHARR: Largest possible Cholesky vector.
 

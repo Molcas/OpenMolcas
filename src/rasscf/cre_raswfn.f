@@ -25,6 +25,7 @@
 #  include "rasscf.fh"
 #  include "WrkSpc.fh"
 #  include "general.fh"
+#  include "ciinfo.fh"
 #  include "stdalloc.fh"
 #  include "raswfn.fh"
 #  include "gugx.fh"
@@ -66,6 +67,7 @@
       call mh5_init_attr (wfn_fileid,'NCONF',  nConf)
       call mh5_init_attr (wfn_fileid,'NSTATES', nRoots)
       call mh5_init_attr (wfn_fileid,'NROOTS', lRoots)
+      call mh5_init_attr (wfn_fileid,'NDET', nDet)
 
       call mh5_init_attr (wfn_fileid,'L2ACT', 1, [mxAct], IDXSX)
       call mh5_init_attr (wfn_fileid,'A2LEV', 1, [mxAct], IDXCI)

@@ -71,8 +71,8 @@
 *
         Label='MOPERT'
         iop=2**loper
-        iopt=0
         irc=-1
+        iopt=0
         Call dRdMck(iRC,iOpt,Label,jDisp,rMO,iop)
         If (iRc.ne.0) Then
            Write (6,*) 'IntX: Error reading MCKINT'
@@ -118,8 +118,8 @@
       iop=2**loper
       If (iAnd(ntpert(idisp),2**4).eq.2**4) Then  ! from mckinley
        Label='ONEGRD'
-       iopt=0
        irc=-1
+       iopt=0
        Call dRdMck(iRC,iOpt,Label,jDisp,Temp1,iop)
        If (iRc.ne.0) Then
           Write (6,*) 'IntX: Error reading MCKINT'

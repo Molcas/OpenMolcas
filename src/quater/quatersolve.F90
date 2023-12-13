@@ -39,7 +39,7 @@ subroutine quatersolve(U1,U2,V1,V2,Q)
 
 use Quater_globals, only: debug
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: U1(3), U2(3), V1(3), V2(3)
@@ -47,7 +47,7 @@ real(kind=wp), intent(out) :: Q(0:3)
 real(kind=wp) :: U3(3), V3(3), Uref(3), Vref(3), K(3), Vtmp(3), c
 logical(kind=iwp) :: skip
 real(kind=wp), parameter :: thrs = 1.0e-3_wp
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 if (debug) then
   call RecPrt('IN SOLVE U1',' ',U1,3,1)

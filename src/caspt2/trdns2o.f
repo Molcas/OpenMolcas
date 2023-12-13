@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
+      SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2,SCAL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -29,10 +29,6 @@
 #include "sigma.fh"
       DIMENSION DPT2(*)
       DIMENSION IFCOUP(13,13)
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
 C Remove this after debugging:
 C     WRITE(*,*)' TRDNS2O Warning: Inactive-Active, Active-'//
@@ -102,13 +98,13 @@ C Transform to standard representation, contravariant form.
       NLOOP=2
       IF(IVEC.EQ.JVEC) NLOOP=1
       DO 1000 ILOOP=1,NLOOP
-        IF(ILOOP.EQ.1) THEN
-          IBRA=IVEC
-          IKET=JVEC
-        ELSE
-          IBRA=JVEC
-          IKET=IVEC
-        END IF
+        ! IF(ILOOP.EQ.1) THEN
+        !   IBRA=IVEC
+        !   IKET=JVEC
+        ! ELSE
+        !   IBRA=JVEC
+        !   IKET=IVEC
+        ! END IF
 
 C Loop over types and symmetry block of VEC1 vector:
       DO 400 ICASE1=1,13
@@ -123,11 +119,25 @@ C Form VEC1 from the BRA vector, transformed to covariant form.
           CALL RHS_SCAL(NAS1,NIS1,LVEC1,0.0D0)
           IF(ICASE1.LE.11) THEN
            CALL RHS_ALLO(NAS1,NIS1,LSCR)
-           CALL RHS_READ(NAS1,NIS1,LSCR,ICASE1,ISYM1,IBRA)
+           CALL RHS_READ(NAS1,NIS1,LSCR,ICASE1,ISYM1,IVEC) !! IBRA)
+           IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
+            IF (SCAL.ne.1.0D+00) CALL DSCAL_(NVEC1,SCAL,WORK(LSCR),1)
+            CALL RHS_ALLO(NAS1,NIS1,LSCR2)
+            CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
+            Call DaXpY_(NAS1*NIS1,1.0D+00,Work(LSCR2),1,Work(LSCR),1)
+            CALL RHS_FREE(NAS1,NIS1,LSCR2)
+           END IF
            CALL RHS_STRANS (NAS1,NIS1,1.0D0,LSCR,LVEC1,ICASE1,ISYM1)
            CALL RHS_FREE(NAS1,NIS1,LSCR)
           ELSE
-           CALL RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IBRA)
+           CALL RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IVEC) !! IBRA)
+           IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
+            IF (SCAL.ne.1.0D+00) CALL DSCAL_(NVEC1,SCAL,WORK(LVEC1),1)
+            CALL RHS_ALLO(NAS1,NIS1,LSCR2)
+            CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
+            Call DaXpY_(NAS1*NIS1,1.0D+00,Work(LSCR2),1,Work(LVEC1),1)
+            CALL RHS_FREE(NAS1,NIS1,LSCR2)
+           END IF
           END IF
 C Form WEC1 from VEC1, if needed.
           NWEC1=0
@@ -188,7 +198,14 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               NVEC2=NIS2*NAS2
               IF(NVEC2.EQ.0) GOTO 200
               CALL RHS_ALLO(NAS2,NIS2,LVEC2)
-              CALL RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IKET)
+              CALL RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IVEC) !! IKET)
+              IF (IVEC.NE.JVEC.AND.ILOOP.EQ.2) THEN
+              IF (SCAL.ne.1.0D+00) CALL DSCAL_(NVEC2,SCAL,WORK(LVEC2),1)
+               CALL RHS_ALLO(NAS2,NIS2,LSCR2)
+               CALL RHS_READ(NAS2,NIS2,LSCR2,ICASE2,ISYM2,JVEC)
+              Call DaXpY_(NAS2*NIS2,1.0D+00,Work(LSCR2),1,Work(LVEC2),1)
+               CALL RHS_FREE(NAS2,NIS2,LSCR2)
+              END IF
 #ifdef _MOLCAS_MPP_
               IF (IS_REAL_PAR()) THEN
                   CALL GETMEM('TMP1','ALLO','REAL',LTMP1,NVEC1)

@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: NaCl
-* Basis: ECP
+* Basis: CG-AIMP
 * Symmetry: C1
 * Features tested: MCLR (keyword sala) with Cholesky undifferentiated ERIs
 *     also tested: seward, scf, rasscf all with Cholesky
@@ -17,12 +17,12 @@ ThrC
 EndChoInp
 
 Basis set
-Cl.ECP...1s2p1d.
+Cl.CG-AIMP...1s2p1d.
 Cl -0.1472860990 0.2 0.3
 End of Basis
 
 Basis set
-Na.ECP...1s2p.
+Na.CG-AIMP...1s2p.
 Na 4.8716010705 -0.6 -0.4
 End of Basis
 

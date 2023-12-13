@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE RHSALL2(IVEC)
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 * ----------------------------------------------------------------
 * Code for processing all the cholesky vectors
@@ -18,7 +18,7 @@
 * Also form the active two-electron integrals 'TUVX'.
 * ================================================================
 #include "rasdim.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
@@ -136,7 +136,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Assemble constributions to TUVX integrals
+*      Assemble contributions to TUVX integrals
 *      Reuse the ket vectors as L(TU) bra vectors
 *
        LBRASM=LKET
@@ -464,7 +464,7 @@ C      the case, symmetry, and rhs vector respectively.
      &                             BUFF,idxBuff,nBUFF,
      &                             nSh,JSYM,
      &                             IVEC,NV)
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -648,7 +648,7 @@ C-SVC: sanity check
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
      &                           NCHOBUF,NPIQK,NADDBUF)
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

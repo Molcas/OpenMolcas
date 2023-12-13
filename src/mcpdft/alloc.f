@@ -18,15 +18,16 @@ C     No subroutine calls
 C
 C     ********** IBM-3090 Release 88 10 11 **********
 C
+      use mcpdft_output, only: debug, lf, iPrLoc
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='ALLOC   ')
       IPRLEV=IPRLOC(1)
-      IF(IPRLEV.ge.DEBUG) THEN
+      IF(IPRLEV >= DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
 C
@@ -62,7 +63,7 @@ C
       END DO
       NFINT=ISTORD(NSYM+1)
 C
-      IF(IPRLEV.GE.DEBUG) THEN
+      IF(IPRLEV >= DEBUG) THEN
        Write(LF,'(1X,A,5X,9I5)')'ISTORD-vector:',(ISTORD(I),I=1,NSYM+1)
       END IF
       RETURN

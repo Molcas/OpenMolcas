@@ -28,7 +28,7 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: iSym, n, nOrb2LocT
 logical(kind=iwp) :: DoCholesky
 integer(kind=iwp), parameter :: nLocModel = 4
-character(len=9), parameter :: SecNam = 'Chk_Input'
+character(len=*), parameter :: SecNam = 'Chk_Input'
 
 irc = 0
 doCholesky = .false.

@@ -58,7 +58,7 @@ if (nTit > 0) then
     if (i >= 4 .and. i <= nLine-2) then
       Line = Title(i-3)
     end if
-    call Center(Line)
+    call Center_Text(Line)
     write(u6,Frmt) '*'//Line//'*'
   end do
   write(u6,*)

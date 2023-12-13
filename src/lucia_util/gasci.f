@@ -51,7 +51,7 @@
 #include "cecore.fh"
 #include "cmxcj.fh"
 *
-*#include "h_occ_cons.fh"
+*     COMMON/H_OCC_CONS/IH_OCC_CONS
 *
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
 *
@@ -71,14 +71,6 @@ c      MXAADST = 0
 *. Not just number conserving part
 c      IH_OCC_CONS_TEST = 0
 c      IF(IH_OCC_CONS_TEST.EQ.1) THEN
-c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
-c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
-c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
-c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
-c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
-c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
-c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
-c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
 c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
 c         IH_OCC_CONS = 1
 c      END IF

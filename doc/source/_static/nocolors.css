@@ -12,6 +12,7 @@
 ***********************************************************************/
 
 div.header-wrapper, div.sidebar, div.footer-wrapper { background-color: #FFFFFF; }
+div.sidebar { scrollbar-color: inherit; }
 div.sidebar li.toctree-l1 a { background-color: #CCCCCC; }
 div.sidebar li.toctree-l2 a { background-color: transparent; }
 div.warning { background: #CCCCCC; background: repeating-linear-gradient(135deg, #DDDDDD, #DDDDDD 10px, transparent 10px, transparent 20px); }

@@ -43,7 +43,7 @@ C in parsable format
       ENDIF
 
       WRITE(DIRECTION,'(I1)') ISOCMP(INPUT)
-      IF (PROPERTY(1:4).EQ."MLTP") THEN
+      IF (PROPERTY(1:5).EQ."MLTPL") THEN
           IF (PROPERTY(8:8).EQ.'0') THEN
             FILENAME = 'monopole-'//DIRECTION//'.txt'
           ELSE IF (PROPERTY(8:8).EQ.'1') THEN
@@ -53,6 +53,14 @@ C in parsable format
           ELSE
             GO TO 100
           END IF
+      ELSE IF (PROPERTY(1:5).EQ."MLTPV") THEN
+          IF (PROPERTY(8:8).EQ.'2') THEN
+            FILENAME = 'velocity_quadrupole-'//DIRECTION//'.txt'
+          ELSE
+            GO TO 100
+          END IF
+      ELSE IF (PROPERTY(1:4).EQ."VELO") THEN
+          FILENAME = 'velocity_dipole-'//DIRECTION//'.txt'
       ELSE IF (PROPERTY(1:4).EQ."ANGM") THEN
           FILENAME = 'angmom-'//DIRECTION//'.txt'
       ELSE IF (PROPERTY(1:6).EQ."EIGVEC") THEN
@@ -64,7 +72,7 @@ C in parsable format
       WRITE(88,*) "#NROW NCOL REAL IMAG"
       DO JSTA=1,NSS
         DO ISS=1,NSS
-        WRITE(88,'(I4,I4,A1,E25.16,A1,E25.16)') ISS,JSTA,' ',
+        WRITE(88,'(I4,I4,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
      &   XMATR(ISS,JSTA),' ',XMATI(ISS,JSTA)
         END DO
       END DO
@@ -88,7 +96,7 @@ C Write out spin matrix elements in parsable format
       WRITE(88,*) "#NROW NCOL REAL IMAG"
       DO JSTA=1,NSS
         DO ISS=1,NSS
-        WRITE(88,'(I4,I4,A1,E25.16,A1,E25.16)') ISS,JSTA,' ',
+        WRITE(88,'(I4,I4,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
      &   SMATR(ISS,JSTA),' ',SMATI(ISS,JSTA)
         END DO
       END DO
@@ -111,7 +119,7 @@ C Write out spin matrix elements in parsable format
       ee=ee+XMATR(ISS,JSS)*XMATR(ISS,JSS)+
      & XMATI(ISS,JSS)*XMATI(ISS,JSS)
       Z(ISS,JSS)=Z(ISS,JSS)+
-     &DCMPLX(XMATR(ISS,JSS),XMATI(ISS,JSS))
+     &CMPLX(XMATR(ISS,JSS),XMATI(ISS,JSS),kind=8)
       enddo
       enddo
       RETURN

@@ -9,12 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine cvbmn_rvb(icode)
+      use casvb_global, only: esym, n_iter
       implicit real*8 (a-h,o-z)
-#include "main_cvb.fh"
-
-#include "optze_cvb.fh"
-#include "files_cvb.fh"
-#include "print_cvb.fh"
 
 c  ICODE=0 standard casvb calculation
 c  ICODE=1 variational calculation

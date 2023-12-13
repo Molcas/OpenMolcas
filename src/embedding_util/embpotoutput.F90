@@ -20,8 +20,7 @@ subroutine embPotOutput(nAtoms,dens)
 ! Called from: OneEl                                                   *
 !              RASSCF (version below)                                  *
 !                                                                      *
-! Calling    : GetMem                                                  *
-!              IniSewM                                                 *
+! Calling    : IniSewM                                                 *
 !              Drv1_Pot                                                *
 !              molcas_open                                             *
 !              embpot routines                                         *

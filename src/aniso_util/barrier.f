@@ -857,8 +857,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       R=0.0_wp
       R=( abs(M(1))+abs(M(2))+abs(M(3)) )/3.0_wp
 
-      f1='(2x,a,2E19.11,1x,A,      23x,A)'
-      f2='(2x,a,2E19.11,1x,A,E22.12,1x,A)'
+      f1='(2x,a,2ES19.11,1x,A,      23x,A)'
+      f2='(2x,a,2ES19.11,1x,A,ES22.12,1x,A)'
       Write(6,f1) fx,M(1),'|',  '|'
       Write(6,f2) fy,M(2),'|',R,'|'
       Write(6,f1) fz,M(3),'|',  '|'

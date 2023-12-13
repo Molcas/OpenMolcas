@@ -197,7 +197,7 @@ cccc-------------------------------------------------------cccc
          Write(6,'(A,F12.5)') '        zJ =',zJ
          Write(6,'(A,F12.5)') '    Xfield =',Xfield
          Write(6,'(A,F12.5)') '        EM =',EM
-         Write(6,'(A,E12.5)') '      THRS =',THRS
+         Write(6,'(A,ES12.5)') '      THRS =',THRS
          Write(6,          *) 'm_accurate =',m_accurate
          Write(6,          *) '     smagn =',smagn
          Write(6,          *) 'm_paranoid =',m_paranoid
@@ -541,17 +541,17 @@ c exchange magnetization:
      &              Mex2(1:3,1:nTempTotal), m_paranoid, DBG )
       If(DBG) Then
         Do i=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex0(',i,')=',(Mex0(l,i),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex0(',i,')=',(Mex0(l,i),l=1,3)
         End Do
         Do i=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex1(',i,')=',(Mex1(l,i),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex1(',i,')=',(Mex1(l,i),l=1,3)
         End Do
         Do i=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex2(',i,')=',(Mex2(l,i),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex2(',i,')=',(Mex2(l,i),l=1,3)
         End Do
         Do i=1,nTempTotal
-          Write(6,'(A,i3,A,9E22.14)') 'Mex 2-1 (',i,')=',
-     &                                (Mex2(l,i)-Mex1(l,i),l=1,3)
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex 2-1 (',i,')=',
+     &                                 (Mex2(l,i)-Mex1(l,i),l=1,3)
         End Do
       End If !DBG
 
@@ -649,10 +649,10 @@ c only local "exchange states":
      &                       m_paranoid, DBG )
                   If (DBG) Then
                      Do iT=1,nTempTotal
-                        Write(6,'(A,i1,A,i3,A,3E22.14)')
+                        Write(6,'(A,i1,A,i3,A,3ES22.14)')
      &                          'ML(',i,',L,',iT,')=',
      &                                   (ML2(i,l,iT)-ML1(i,l,iT),l=1,3)
-                        Write(6,'(A,i1,A,i3,A,3E22.14)')
+                        Write(6,'(A,i1,A,i3,A,3ES22.14)')
      &                          'MR(',i,',L,',iT,')=',
      &                                   (MR2(i,l,iT)-MR1(i,l,iT),l=1,3)
                      End Do
@@ -827,13 +827,13 @@ c computing the XT as tensor's average:
       ibuf=0
       ibuf=9*(nT+nTempMagn)
       Call Add_Info('dM/dH    XTtens_dMdH',
-     &                              [dnrm2_(ibuf,XTtens_dMdH,1)],1,6)
+     &                              [dnrm2_(ibuf,XTtens_dMdH,1)],1,5)
       Call Add_Info('dM/dH    XTtens_MH',
      &                              [dnrm2_(ibuf,XTtens_MH,1)],1,6)
       ibuf=0
       ibuf=nT+nTempMagn
       Call Add_Info('dM/dH    XTM_dMdH',
-     &                              [dnrm2_(ibuf,XTM_dMdH,1)],1,6)
+     &                              [dnrm2_(ibuf,XTM_dMdH,1)],1,5)
       Call Add_Info('dM/dH    XTM_MH',
      &                              [dnrm2_(ibuf,XTM_MH,1)],1,6)
 C -------------------------------------------------------------------
@@ -858,7 +858,7 @@ C -------------------------------------------------------------------
 
       Do iT=1,nT
          jT=iT+nTempMagn
-         Write(6,'(A,F11.6,A,E12.5,A,F12.8,A,F12.8,A,F12.7,A)')
+         Write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,F12.7,A)')
      & '     |',T(jT),' |', ZT0(jT),' |',XT_no_field(jT),' |',
      &          XTM_dMdH(jT),' |', XTM_MH(jT), ' |'
       End Do

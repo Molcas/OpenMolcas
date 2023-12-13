@@ -41,15 +41,12 @@
 *> @param[in,out] CI   CI Array
 ************************************************************************
       SUBROUTINE CITRA(WFTP,ISGS,ICIS,IXS,LSM,TRA,NCO,CI)
+      use Struct, only: nSGSize, nCISize, nXSize
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='CITRA')
       DIMENSION TRA(NTRA),CI(NCO)
 #include "WrkSpc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "Struct.fh"
       CHARACTER*8 WFTP
       DIMENSION ISGS(NSGSIZE),ICIS(NCISIZE),IXS(NXSIZE)
 
@@ -80,7 +77,7 @@ C  FIRST TRANSFORM THE INACTIVE ORBITALS:
 !     write(6,*)' CITRA. inactive done CI='
 !     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 C  THEN THE ACTIVE ONES:
-      IF(WFTP.EQ.'EMPTY   ') GOTO 100
+      if (WFTP /= 'EMPTY   ') then
 * The HISPIN case may be buggy and is not presently used.
       IF(WFTP.EQ.'HISPIN  '.or.WFTP.EQ.'CLOSED  ') THEN
         ISTA=1
@@ -118,6 +115,6 @@ C The general case:
 !     write(6,*)' CITRA completely done. CI='
 !     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 
- 100  CONTINUE
-      RETURN
+      end if
+
       END

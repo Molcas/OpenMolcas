@@ -80,6 +80,7 @@ integer(INTK), save :: pack_inter_tree_used
 integer(INTK), save :: pack_total_in_current_chunk
 
 contains
+
 !---------------------------------------------------------------------------
 ! fmm_tree_buffer_init:
 ! initialize data structures and counters when starting packing the tree.

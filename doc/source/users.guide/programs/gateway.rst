@@ -439,7 +439,7 @@ The default units are ångströms. By default, maximum possible symmetry is used
   coordinates.
 
   Element name might be optionally followed by a Number (e.g. ``H7``),
-  a Label (separated by ``_`` sign: e.g. ``H_INNER``), or Basis Set (separated by ``.``,
+  a Label (separated by ``_``: e.g. ``H_INNER``), or Basis Set (separated by ``.``,
   e.g. ``H.STO-3G``)
 
 .. class:: keywordlist
@@ -484,7 +484,15 @@ The default units are ångströms. By default, maximum possible symmetry is used
   In this example, the C atom (in the origin) will have the basis set STO-3G and
   the H atoms 6-31G*.
 
-  If keyword BASIS never appears in the input, the default basis,
+  An individual instance of :kword:`BASIS` is limited to 80 characters, but the keyword can
+  be given multiple times, e.g. ::
+
+    BASIS
+    STO-3G
+    BASIS
+    H.6-31G*
+
+  If the keyword :kword:`BASIS` never appears in the input, the default basis,
   ANO-S-MB, will be used.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (XYZ)" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
@@ -627,7 +635,7 @@ By default, symmetry is not used in the calculation.
     orbitals in R-matrix calculations.
     The label is truncated to four characters. Observe that this
     label must be unique to each center. The coordinate unit can
-    be specified as an option. The default unit is Bohr.
+    be specified as an option. The default unit is bohr.
     There should at least be one card of this type in a basis set
     definition.
 
@@ -835,7 +843,7 @@ Advanced keywords:
               <HELP>
               Randomly modifies the initial coordinates of the atoms, maintaining the input (or computed)
               symmetry. This can be useful to avoid a geometry optimization converging to a higher-symmetry
-              saddle point. The maximum displacement in the axes x, y and z is read from the following
+              saddle point. The maximum displacement per atom is read from the following
               real number. This number can be followed by Bohr or Angstrom, which indicates
               the unit in which the displacement is specified, the default is Bohr.
               </HELP>
@@ -970,7 +978,7 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Use the RI-J basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJ" APPEAR="RI-J option" KIND="SINGLE" EXCLUSIVE="RIJK,RIC,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJ" APPEAR="RI-J option" KIND="SINGLE" EXCLUSIVE="RIJK,RIC,RICD,LOW,MEDI,HIGH,NOCD,XRIC" LEVEL="BASIC">
               %%Keyword: RIJ <basic>
               <HELP>
               Use the RI-J auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -982,7 +990,7 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Use the RI-JK auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJK" APPEAR="RI-JK option" KIND="SINGLE" EXCLUSIVE="RIJ,RIC,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIJK" APPEAR="RI-JK option" KIND="SINGLE" EXCLUSIVE="RIJ,RIC,RICD,LOW,MEDI,HIGH,NOCD,XRIC" LEVEL="BASIC">
               %%Keyword: RIJK <basic>
               <HELP>
               Use the RI-JK auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -994,7 +1002,7 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Use the RI-C auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals. Note that the valence
   basis set must have a supporting auxiliary basis set for this to work.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIC" APPEAR="RI-C option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RIC" APPEAR="RI-C option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RICD,LOW,MEDI,HIGH,NOCD,XRIC" LEVEL="BASIC">
               %%Keyword: RIC <basic>
               <HELP>
               Use the RI-C auxiliary basis in the density fitting (DF) approach to treat the two-electron integrals.
@@ -1006,11 +1014,30 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Use the aCD or acCD approach :cite:`Aquilante:07b` to treat the two-electron integrals.
   This procedure will use an on-the-fly generated auxiliary basis set.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RICD" APPEAR="RI-aCD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="RICD" APPEAR="RI-aCD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,LOW,MEDI,HIGH,NOCD,XRIC" LEVEL="BASIC">
               %%Keyword: RICD <basic>
               <HELP>
               Use the aCD or acCD approach to treat the two-electron integrals.
               This procedure will use an on-the-fly generated auxiliary basis set.
+              </HELP>
+              </KEYWORD>
+:kword:`DCCD`
+  One-center two-electron integrals will be computed exactly in the selected RI scheme.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="DCCD" APPEAR="1-center corrected RI" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DCCD <basic>
+              <HELP>
+              One-center two-electron integrals will be computed exactly in the selected RI scheme.
+              </HELP>
+              </KEYWORD>
+
+:kword:`XRICd`
+  Use an externally generated RICD basis set available in the file :file:`$Project.RICDLib`.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRIC" APPEAR="x-RICD option" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH,NOCD" LEVEL="BASIC">
+              %%Keyword: xRICD <basic>
+              <HELP>
+              Use an externally generated RICD basis set available in the file $Project.RICDLib.
               </HELP>
               </KEYWORD>
 
@@ -1018,15 +1045,13 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
   Disable Cholesky decomposition.
   Useful in the case :kword:`RICD` has been made the default with :variable:`MOLCAS_NEW_DEFAULTS`.
 
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NOCD" APPEAR="No CD" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="NOCD" APPEAR="No CD" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH,XRIC" LEVEL="BASIC">
               %%Keyword: NOCD <basic>
               <HELP>
               Disable Cholesky decomposition.
               Useful in the case RICD has been made the default with MOLCAS_NEW_DEFAULTS.
               </HELP>
               </KEYWORD>
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="XRICD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 :kword:`CDTHreshold`
   Threshold for on-the-fly generation of aCD or acCD auxiliary basis sets for RI calculations
@@ -1041,13 +1066,13 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
               </KEYWORD>
 
 :kword:`SHAC`
-  Skip high angular combinations à la Turbomole when creating on-the-fly basis sets
+  Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend :cite:`Weigend:08`.
   (default off).
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SHAC" APPEAR="Skip high angular combinations" KIND="SINGLE" REQUIRE="RICD" EXCLUSIVE="KHAC" LEVEL="ADVANCED">
               %%Keyword: SHAC <advanced>
               <HELP>
-              Skip high angular combinations a la Turbomole when creating on-the-fly basis sets
+              Skip high angular combinations when creating on-the-fly basis sets, following the angular structure of the universal JK fitting sets of Weigend
               (default off).
               </HELP>
               </KEYWORD>
@@ -1260,7 +1285,7 @@ Optional keywords for the Kirkwood Model
   It indicates the beginning of the specification of the
   reaction field parameters. The subsequent line will contain
   the dielectric constant of the medium, the radius of the
-  cavity in Bohrs (the cavity is always centered around the
+  cavity in bohrs (the cavity is always centered around the
   origin), and the angular quantum number of the highest multipole
   moment used in the expansion of the change distribution of
   the molecule (only charge is specified as 0, charge and dipole
@@ -1279,7 +1304,7 @@ Optional keywords for the Kirkwood Model
               This indicated the beginning of the specification of the
               reaction field parameters. The subsequent line will contain
               the dielectric constant of the medium, the radius of the
-              cavity in Bohrs (the cavity is always centered around the
+              cavity in bohrs (the cavity is always centered around the
               origin), and the angular quantum number of the highest multipole
               moment used in the expansion of the change distribution of
               the molecule (only charge is specified as 0, charge and dipole
@@ -1699,7 +1724,7 @@ Keywords associated to one-electron integrals
   be 0 or 1 (where 0 is default), specifying whether an element number (e.g. 8 for oxygen) should be
   read for each multipole. In that case the default radius for that element is used to determine which
   Langevin grid points should be annihilated. A negative element number signifies that a particular
-  radius should be used for that multipole, in thousands of a Bohr (-1400 meaning 1.4 Bohr).
+  radius should be used for that multipole, in thousandths of a bohr (-1400 meaning 1.4 bohr).
   Then follows nXF lines, one for each center. On each line is first nFrag+nRead (which may equal 0)
   integers, specifying the fragments that the multipole should not contribute to (the first fragment is
   taken as the fragment that the polarisability belongs to) and the element number. Then follows
@@ -1735,7 +1760,7 @@ Keywords associated to one-electron integrals
               be 0 or 1 (where 0 is default), specifying whether an element number (e.g. 8 for oxygen) should be
               read for each multipole. In that case the default radius for that element is used to determine which
               Langevin grid points should be annihilated. A negative element number signifies that a particular
-              radius should be used for that multipole, in thousands of a Bohr (-1400 meaning 1.4 Bohr).
+              radius should be used for that multipole, in thousandths of a bohr (-1400 meaning 1.4 bohr).
               Then follows nXF lines, one for each center. On each line is first nFrag+nRead (which may equal 0)
               integers, specifying the fragments that the multipole should not contribute to (the first fragment is
               taken as the fragment that the polarisability belongs to) and the element number. Then follows
@@ -1825,6 +1850,23 @@ Keywords associated to one-electron integrals
               shielding will be computed at each nucleus. If nonzero, then the
               coordinates (in au) for each origin has to be supplied, one entry for each
               origin.
+              </HELP>
+              </KEYWORD>
+
+:kword:`MXTC`
+  Requests the computation of X2C transformed hyperfine magnetic integrals (used in subsequent
+  hyperfine calculations), has to be used together with the keyword :kword:`RX2C`.
+  If one wants to calculate the non-relativistic limit, one can simply set up a large
+  speed of light value.
+  See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="MXTC" APPEAR="X2C hyperfine magnetic" KIND="SINGLE" REQUIRE="RX2C" LEVEL="BASIC">
+              %%Keyword: MXTC <basic>
+              <HELP>
+              Requests the computation of X2C transformed hyperfine magnetic integrals (used in subsequent
+              hyperfine calculations), has to be used together with the keyword RX2C.
+              If one wants to calculate the non-relativistic limit, one can simply set up a large
+              speed of light value.
               </HELP>
               </KEYWORD>
 

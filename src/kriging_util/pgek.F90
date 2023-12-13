@@ -19,7 +19,7 @@ use Constants, only: Zero, One, Two, Four, Pi
 use Definitions, only: wp, iwp
 
 !#define _MI_SORT_
-#if (defined(_DEBUGPRINT_) || defined(_MI_SORT_))
+#if defined (_DEBUGPRINT_) || defined (_MI_SORT_)
 use Definitions, only: u6
 #endif
 
@@ -30,7 +30,7 @@ integer(kind=iwp) :: i, j, l
 ! Mutual information array
 !real(kind=wp) :: MI(nInter)
 real(kind=wp), allocatable :: MI(:)
-! universal kernal density estimators.
+! universal kernel density estimators.
 !real(kind=wp) :: px(nPoints,nInter), py(nPoints), pxy(nPoints,nInter)
 real(kind=wp), allocatable :: px(:,:), py(:), pxy(:,:)
 ! the 2 x 2 covariance matrix (used to compute the transformation variable in the bivariate case)
@@ -46,7 +46,7 @@ write(u6,*) 'and the energy, denoted MI(l).'
 write(u6,*)
 write(u6,*) '# of sample points, nPoints=               ',nPoints
 write(u6,*) '# of dimensions of the coordinates, nInter=',nInter
-call RecPrt('Energies (nPoints): y',' ',y,1,nPoints)
+call RecPrt('Energies (nPoints): y',' ',y(:,1),1,nPoints)
 call RecPrt('Coordinates (nInter x nPoints): x',' ',x,nInter,nPoints)
 #endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -76,7 +76,7 @@ do i=1,nInter
 end do
 Mean_Univariate(nInter+1) = Zero
 do j=1,nPoints
-  Mean_Univariate(nInter+1) = Mean_Univariate(nInter+1)+y(j)
+  Mean_Univariate(nInter+1) = Mean_Univariate(nInter+1)+y(j,1)
 end do
 Mean_Univariate(:) = Mean_Univariate(:)/real(nPoints,kind=wp)
 
@@ -86,12 +86,12 @@ do i=1,nInter
   Variance_bivariate(i) = Zero
   do j=1,nPoints
     Variance_Univariate(i) = Variance_Univariate(i)+(x(i,j)-Mean_univariate(i))**2
-    Variance_bivariate(i) = Variance_bivariate(i)+(x(i,j)-Mean_univariate(i))*(y(j)-Mean_univariate(nInter+1))
+    Variance_bivariate(i) = Variance_bivariate(i)+(x(i,j)-Mean_univariate(i))*(y(j,1)-Mean_univariate(nInter+1))
   end do
 end do
 Variance_Univariate(nInter+1) = Zero
 do j=1,nPoints
-  Variance_Univariate(nInter+1) = Variance_Univariate(nInter+1)+(y(j)-Mean_univariate(nInter+1))**2
+  Variance_Univariate(nInter+1) = Variance_Univariate(nInter+1)+(y(j,1)-Mean_univariate(nInter+1))**2
 end do
 Variance_Univariate(:) = Variance_Univariate(:)/real(nPoints,kind=wp)
 Variance_Bivariate(:) = Variance_Bivariate(:)/real(nPoints,kind=wp)
@@ -170,7 +170,7 @@ do i=1,nPoints
 
   tmp = Zero
   do j=1,nPoints
-    u_j = (y(i)-y(j))**2/(h**2*Sigma_2)
+    u_j = (y(i,1)-y(j,1))**2/(h**2*Sigma_2)
     K_u_j = N_norm*exp(-u_j/Two)
     !write (u6,*) 'u_j, K_u_j=',u_j, K_u_j
     tmp = tmp+K_u_j
@@ -208,9 +208,9 @@ do l=1,nInter
   Sigma2(2,2) = Variance_univariate(nInter+1) ! p(y^2)
   Det_Sigma2 = Sigma2(1,1)*Sigma2(2,2)-Sigma2(1,2)*Sigma2(2,1)  ! The determinant of the 2 x 2 sigma matrix
 # ifdef _DEBUGPRINT_
-  call RecPrt('Sigma2','(2E12.4)',Sigma2,2,2)
-  write(u6,'(A,E12.4)') 'Det(Sigma2)=           ',Det_Sigma2
-  write(u6,'(A,E12.4)') 'Sqrt(ABS(Det(Sigma2)))=',sqrt(abs(Det_Sigma2))
+  call RecPrt('Sigma2','(2ES12.4)',Sigma2,2,2)
+  write(u6,'(A,ES12.4)') 'Det(Sigma2)=           ',Det_Sigma2
+  write(u6,'(A,ES12.4)') 'Sqrt(ABS(Det(Sigma2)))=',sqrt(abs(Det_Sigma2))
 # endif
   if (Variance_univariate(l) < 1.0e-10_wp .or. abs(Det_Sigma2) < 1.0e-20_wp) then
     pxy(l,:) = One/real(nPoints,kind=wp)
@@ -219,14 +219,14 @@ do l=1,nInter
     Sigma2_Inverse(1,2) = -Sigma2(1,2)/Det_Sigma2
     Sigma2_Inverse(2,1) = -Sigma2(2,1)/Det_Sigma2
     Sigma2_Inverse(2,2) = Sigma2(1,1)/Det_Sigma2
-    !call RecPrt('Sigma2_Inverse','(2E10.2)',Sigma2_Inverse,2,2)
+    !call RecPrt('Sigma2_Inverse','(2ES10.2)',Sigma2_Inverse,2,2)
     N_norm = (Fact/sqrt(Det_Sigma2))
     do i=1,nPoints
 
       tmp = Zero
       do j=1,nPoints
         dx = x(l,i)-x(l,j)
-        dy = y(i)-y(j)
+        dy = y(i,1)-y(j,1)
         u_j = (dx*dx*Sigma2_Inverse(1,1)+dx*dy*Sigma2_Inverse(1,2)+dy*dx*Sigma2_Inverse(2,1)+dy*dy*Sigma2_Inverse(2,2))/h**2
         !write (u6,*)' u_j=',u_j
         K_u_j = N_norm*exp(-u_j/Two)
@@ -268,7 +268,7 @@ end do
 write(u6,*) 'Mutual Information'
 write(u6,*) '=================='
 do i=1,nInter
-  write(u6,'(i4,E10.3)') i,MI(i)
+  write(u6,'(i4,ES10.3)') i,MI(i)
 end do
 #endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -333,8 +333,9 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-real(kind=wp) function p_x(xl,l)
+function p_x(xl,l)
 
+  real(kind=wp) :: p_x
   real(kind=wp), intent(in) :: xl
   integer(kind=iwp), intent(in) :: l
   integer(kind=iwp) :: j
@@ -360,8 +361,9 @@ end function p_x
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-real(kind=wp) function p_y(yl)
+function p_y(yl)
 
+  real(kind=wp) :: p_y
   real(kind=wp), intent(in) :: yl
   integer(kind=iwp) :: j
 
@@ -373,7 +375,7 @@ real(kind=wp) function p_y(yl)
   N_norm = (Fact/sqrt(Sigma_2))
   p_y = Zero
   do j=1,nPoints
-    u_j = (yl-y(j))**2/(h**2*Sigma_2)
+    u_j = (yl-y(j,1))**2/(h**2*Sigma_2)
     K_u_j = N_norm*exp(-u_j/Two)
     p_y = p_y+K_u_j
   end do
@@ -383,8 +385,9 @@ end function p_y
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-real(kind=wp) function p_xy(xl,yl,l)
+function p_xy(xl,yl,l)
 
+  real(kind=wp) :: p_xy
   real(kind=wp), intent(in) :: xl, yl
   integer(kind=iwp), intent(in) :: l
   integer(kind=iwp) :: j
@@ -408,7 +411,7 @@ real(kind=wp) function p_xy(xl,yl,l)
   p_xy = Zero
   do j=1,nPoints
     dx = xl-x(l,j)
-    dy = yl-y(j)
+    dy = yl-y(j,1)
     u_j = (dx*dx*Sigma2_Inverse(1,1)+dx*dy*Sigma2_Inverse(1,2)+dy*dx*Sigma2_Inverse(2,1)+dy*dy*Sigma2_Inverse(2,2))/h**2
     K_u_j = N_norm*exp(-u_j/Two)
     p_xy = p_xy+K_u_j

@@ -144,7 +144,7 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
 :kword:`RDMRead`
   Do not calculate the 4-RDM, but rather read it from QCMaquis result files :file:`$Project.results_state.X.h5` for state ``X``. Useful if the previous calculation crashed but the 4-RDM evaluation step has succeeded. Do NOT use it if you are using the distributed 4-RDM calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="RDMRead" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="RDMREAD" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: RDMRead <basic>
               <HELP>
               Read previously calculated 4-RDMs from QCMaquis result files instead of calculating it.
@@ -154,7 +154,7 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
 :kword:`DISTributedRDM`
   Enable reading of the RDMs calculated with the distributed RDM evaluation script. This keyword should be followed by another line, which specifies the path to the folder with the calculation results. The 4-RDM will then be read from QCMaquis HDF5 files found in :file:`<path>/4rdm-scratch.<state>/parts/part-*/$Project.results_state.<state>.h5`. The distributed :math:`n`-RDM evaluation is described in the NEVPT2 program-based tutorial. If the tutorial is followed, the path should be :file:`$WorkDir`.
 
-  .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="DistributedRDM" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="DISTRIBUTEDRDM" KIND="STRING" LEVEL="BASIC">
               %%Keyword: DistributedRDM <basic>
               <HELP>
               Read RDMs calculated in a distributed fashion.

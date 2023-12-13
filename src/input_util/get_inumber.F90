@@ -27,7 +27,7 @@ character(len=*), intent(in) :: string
 integer(kind=iwp), intent(out) :: iNumber, iErr
 integer(kind=iwp) :: i, j
 logical(kind=iwp) :: NaN
-character(len=11), parameter :: Chars = ' 1234567890'
+character(len=*), parameter :: Chars = ' 1234567890'
 
 iErr = 0
 iNumber = 0

@@ -27,27 +27,25 @@ use Alaska_Info, only: Am, Auto, ForceNAC
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
-use Temporary_Parameters, only: Onenly, Test
-use Real_Info, only: CutInt
+use Gateway_global, only: Onenly, Test
+use Gateway_Info, only: CutInt
+use RI_glob, only: Timings_default
+use Cholesky, only: timings
 use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
+use pso_stuff, only: No_Nuc
+use Disp, only: ChDisp, CutGrd, Dirct, Disp_Fac, HF_Force, IndDsp, IndxEQ, InxDsp, l2DI, lDisp, lEQ, Mult_Disp, nTR, TRSymm
+use NAC, only: DoCSF, EDiff, isCSF, isNAC, NACStates
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-#include "itmax.fh"
 #include "Molcas.fh"
 #include "print.fh"
-#include "disp.fh"
-#include "iavec.fh"
-#include "columbus_gamma.fh"
-#include "exterm.fh"
-#include "nac.fh"
-#include "chotime.fh"
-integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iR, iRout, istatus, iSym(3), &
-                     iTR, ix, iy, iz, j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, &
-                     nCnttp_Valence, nDisp, nElem, nGroup, nRoots, nSlct
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &
+                     j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, &
+                     nElem, nGroup, nRoots, nSlct
 real(kind=wp) :: alpha, Fact, ovlp
 logical(kind=iwp) :: TstFnc, ltype, Slct, T_Only, No_Input_OK, Skip
 character(len=80) :: KWord, Key
@@ -55,7 +53,7 @@ integer(kind=iwp), allocatable :: IndCar(:), iTemp(:)
 real(kind=wp), allocatable :: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrintLevel, iPrmt, NrOpr
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Reduce_Prt
 
 iRout = 99
@@ -106,7 +104,7 @@ end do
 
 call mma_allocate(iTemp,3*MxAtom,label='iTemp')
 
-! First CutGrd can not be more accurate than CutInt!
+! First CutGrd cannot be more accurate than CutInt!
 CutGrd = max(1.0e-7_wp,CutInt)
 ! Second CutInt should now locally for Alaska be reset to the value
 ! of CutInt/100!
@@ -115,7 +113,7 @@ do i=1,3*MxAtom
   IndxEq(i) = i
 end do
 do ldsp=1,3*MxAtom
-  Direct(ldsp) = .true.
+  Dirct(ldsp) = .true.
 end do
 !                                                                      *
 !***********************************************************************
@@ -198,7 +196,7 @@ do
         read(KWord,*) nElem,(iTemp(iElem),iElem=1,nElem)
         do iElem=2,nElem
           IndxEq(iTemp(iElem)) = iTemp(1)
-          Direct(iTemp(iElem)) = .false.
+          Dirct(iTemp(iElem)) = .false.
         end do
       end do
     case ('CUTO')
@@ -249,7 +247,7 @@ do
         call Quit_OnUserError()
       end if
       do i=1,3*MxAtom
-        Direct(i) = .false.
+        Dirct(i) = .false.
       end do
       do
         read(LuSpool,'(A)',iostat=istatus) KWord
@@ -265,7 +263,7 @@ do
       end do
       read(KWord,*) (iTemp(iElem),iElem=1,nSlct)
       do iElem=1,nSlct
-        Direct(iTemp(iElem)) = .true.
+        Dirct(iTemp(iElem)) = .true.
       end do
     case ('2DOP')
       !                                                                *
@@ -353,7 +351,7 @@ do
         if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
       end do
       call UpCase(KWord)
-      call LeftAd(KWord)
+      KWord = adjustl(KWord)
       read(KWord,'(A)') OFE_KSDFT
       Do_OFemb = .true.
     case ('KEON')
@@ -496,7 +494,7 @@ if (HF_Force .and. Show .and. (iPrint >= 6)) then
 end if
 if (Show .and. (iPrint >= 6)) then
   write(LuWr,*)
-  write(LuWr,'(20X,A,E10.3)') ' Threshold for contributions to the gradient:',CutGrd
+  write(LuWr,'(20X,A,ES10.3)') ' Threshold for contributions to the gradient:',CutGrd
   write(LuWr,*)
 end if
 
@@ -641,7 +639,7 @@ if (TRSymm) then
           iComp = 2**(iCar-1)
           if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
             ldsp = ldsp+1
-            Direct(lDsp) = .true.
+            Dirct(lDsp) = .true.
             ! Transfer the coordinates
             C(:,ldsp) = dbsc(iCnttp)%Coor(1:3,iCnt)
             ! Transfer the multiplicity factor
@@ -732,7 +730,7 @@ if (TRSymm) then
             kTR = ldsp
             ovlp = alpha
           end if
-          if ((.not. Direct(ldsp)) .and. (alpha > 1.0e-2_wp)) then
+          if ((.not. Dirct(ldsp)) .and. (alpha > 1.0e-2_wp)) then
             kTR = ldsp
             ovlp = huge(ovlp)
           end if
@@ -778,10 +776,7 @@ if (TRSymm) then
     if (IPrint >= 99) call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
     call mma_deallocate(Am)
     call mma_allocate(Am,lDisp(0),lDisp(0),Label='Am')
-    Am(:,:) = Zero
-    do i=1,lDisp(0)
-      Am(i,i) = One
-    end do
+    call unitmat(Am,lDisp(0))
     do iTR=1,nTR
       ldsp = iTemp(iTR)
       call dcopy_(lDisp(0),Scr(1,iTR),nTR,Am(1,lDisp),lDisp(0))
@@ -794,14 +789,14 @@ if (TRSymm) then
     call mma_deallocate(Temp)
     do iTR=1,nTR
       ldsp = iTemp(iTR)
-      Direct(ldsp) = .false.
+      Dirct(ldsp) = .false.
     end do
 
     write(LuWr,*)
     write(LuWr,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'
     write(LuWr,*)
     do i=1,lDisp(0)
-      if (Direct(i)) then
+      if (Dirct(i)) then
         write(LuWr,'(25X,A,A)') Chdisp(i),' is independent'
       else
         write(LuWr,'(25X,A,A)') Chdisp(i),' is dependent'
@@ -826,7 +821,7 @@ if (Slct .and. (.not. Skip)) then
   write(LuWr,'(20X,A)') ' The Selection option is used'
   write(LuWr,*)
   do i=1,lDisp(0)
-    if (Direct(i)) then
+    if (Dirct(i)) then
       write(LuWr,'(25X,A,A)') Chdisp(i),' is computed'
     else
       write(LuWr,'(25X,A,A)') Chdisp(i),' is set to zero'
@@ -834,21 +829,6 @@ if (Slct .and. (.not. Skip)) then
   end do
   write(LuWr,*)
 end if
-
-! Set up the angular index vector
-
-i = 0
-do iR=0,iTabMx
-  do ix=iR,0,-1
-    do iy=iR-ix,0,-1
-      iz = iR-ix-iy
-      i = i+1
-      ixyz(1,i) = ix
-      ixyz(2,i) = iy
-      ixyz(3,i) = iz
-    end do
-  end do
-end do
 
 Onenly = HF_Force
 

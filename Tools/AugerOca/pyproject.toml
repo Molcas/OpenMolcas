@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "auger_oca"
+version = "0.1.0"
+authors = [
+  { name="Bruno Tenorio", email="b.nunes.bruno@gmail.com" },
+]
+description = "An Auger tool based on the one-center approximatio to be used with OpenMolcas"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)",
+    "Operating System :: OS Independent",
+]
+[project.urls]
+"Homepage" = "https://gitlab.com/Molcas/OpenMolcas.git"

@@ -30,10 +30,12 @@ contains
 !>  Contains information about \p nAsh, \p nActEl,
 !>  \p iSpin, and \p stSym.
 !>
+!>  @param[in] path
 !>  @param[in] EMY Core energy
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
+!>  @param[in] orbsym
   subroutine dump_ascii(path, EMY, orbital_table, fock_table, &
                         two_el_table, orbsym)
     use general_data, only : nActEl, iSpin, stSym, nAsh
@@ -100,15 +102,17 @@ contains
 !>  Contains information about \p nAsh, \p nSym, \p nActEl,
 !>  \p iSpin, and \p stSym.
 !>
+!>  @param[in] path
 !>  @param[in] EMY Core energy
 !>  @param[in] orbital_table Orbital energies with index
 !>  @param[in] fock_table
 !>  @param[in] two_el_table
+!>  @param[in] orbsym
   subroutine dump_hdf5(path, EMY, orbital_table, fock_table, two_el_table, orbsym)
+#ifdef _HDF5_
     use general_data, only : nSym, nActEl, multiplicity => iSpin, stSym, nAsh
     use gas_data, only : iDoGAS
     use gugx_data, only : IfCAS
-#ifdef _HDF5_
     use mh5
 #endif
     implicit none

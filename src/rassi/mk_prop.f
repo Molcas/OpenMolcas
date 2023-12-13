@@ -12,6 +12,8 @@
 ************************************************************************
       SUBROUTINE MK_PROP(PROP,IPROP,ISTATE_,JSTATE_,LABEL,ITYPE,
      &                   BUFF,NBUFF,DENS,NDENS,MASK,ISY12,IOFF)
+      use OneDat, only: sOpSiz
+      use Constants, only: Zero, Two
       IMPLICIT REAL*8 (A-H,O-Z)
 ************************************************************************
 *     Objective: to compute the transition property between state      *
@@ -32,16 +34,23 @@
       ISTATE=Max(ISTATE_,JSTATE_)
       JSTATE=Min(ISTATE_,JSTATE_)
 *
+      IF (LABEL(1:4).eq.'ASD ') LABEL(1:5)='MAGXP'
       IC=ICOMP(IPROP)
 !     Write (*,*) 'Mk_Prop: Label=',Label
 !     Write (*,*) 'Mk_Prop:    IC=',IC
-      IOPT=1
+      IOPT=ibset(0,sOpSiz)
       NSIZ=0
       CALL iRDONE(IRC,IOPT,LABEL,IC,IDUM,ISCHK)
       IF(IRC.eq.0) NSIZ=IDUM(1)
-      IF(MOD(ISCHK/MASK,2).EQ.0) GOTO 300
+      IF(MOD(ISCHK/MASK,2).EQ.0) RETURN
       IOPT=0
-      CALL RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)
+C Rulin: The 'spin-dependent' part of hyperfine contribution
+      IF (LABEL(1:5).eq.'MAGXP') THEN
+        CALL HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
+        LABEL(1:5) = 'ASD  '
+      ELSE
+        CALL RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)
+      END IF
 !     Write (*,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
       IF ( IRC.NE.0.AND.LABEL(1:4).NE.'TMOM' ) THEN
          WRITE(6,*)
@@ -50,7 +59,7 @@
          WRITE(6,'(6X,A,A)')'  LABEL     = ',LABEL
          WRITE(6,'(6X,A,I2)')'  COMPONENT = ',IC
          WRITE(6,*)
-         GO TO 300
+         RETURN
       END IF
       IPUSED(IPROP)=1
 C IF THIS IS THE FIRST CALL TO THE SUBROUTINE, PICK UP SOME DATA:
@@ -62,21 +71,22 @@ C PICK UP THE ORIGIN COORDINATES:
       PORIG(2,IPROP)=BUFF(NSIZ+2)
       PORIG(3,IPROP)=BUFF(NSIZ+3)
 C PICK UP THE NUCLEAR CONTRIBUTION FROM INTEGRAL BUFFER
-      IF (PNAME(IPROP)(1:3).NE.'ASD') THEN
+      IF (PNAME(IPROP)(1:3).NE.'ASD'.AND.
+     &    PNAME(IPROP)(1:3).NE.'PSO') THEN
          PNUC(IPROP)=BUFF(NSIZ+4)
       ELSE
-         Write(6,*) "Removing nuclear contrib from ASD: "
+         Write(6,*) "Removing nuclear contrib from ASD and PSO: "
       END IF
       IINT=1
-      PSUM=0.0D00
-      DO 220 ISY1=1,NSYM
+      PSUM=Zero
+      DO ISY1=1,NSYM
          NB1=NBASF(ISY1)
-         IF(NB1.EQ.0) GOTO  220
-         DO 210 ISY2=1,ISY1
+         IF(NB1.EQ.0) cycle
+         DO ISY2=1,ISY1
             I12=MUL(ISY1,ISY2)
-            IF(IAND(2**(I12-1),ISCHK).EQ.0) GOTO 210
+            IF(IAND(2**(I12-1),ISCHK).EQ.0) cycle
             NB2=NBASF(ISY2)
-            IF(NB2.EQ.0) GOTO  210
+            IF(NB2.EQ.0) cycle
             NB12=NB1*NB2
             IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
             IF (I12.EQ.ISY12) THEN
@@ -84,8 +94,8 @@ C PICK UP THE NUCLEAR CONTRIBUTION FROM INTEGRAL BUFFER
                PSUM=PSUM+DDOT_(NB12,BUFF(IINT),1,DENS(IPOS,ITYPE),1)
             END IF
             IINT=IINT+NB12
-210      CONTINUE
-220   CONTINUE
+        END DO
+      END DO
 C     Write (*,*) 'PSUM=',PSUM,LABEL,IC
 C IN THE CASE OF MULTIPOLES, CHANGE SIGN TO ACCOUNT FOR THE NEGATIVE
 C ELECTRONIC CHARGE AS COMPARED TO THE NUCLEAR CONTRIBUTION.
@@ -95,7 +105,7 @@ C The reason for the factor of two is that this program uses spin
 C (uses Clebsch-Gordan coefficients to define Wigner-Eckart
 C  reduced matrix elements of spin-tensor properties)
 C while the AMFI authors used Pauli matrices.
-      IF(LABEL(1:4).EQ.'AMFI') PSUM=2.0D0*PSUM
+      IF(LABEL(1:4).EQ.'AMFI') PSUM=Two*PSUM
       PROP(ISTATE,JSTATE,IPROP)=PSUM
       IF (ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
          PROP(JSTATE,ISTATE,IPROP)=PSUM
@@ -103,7 +113,4 @@ C while the AMFI authors used Pauli matrices.
          PROP(JSTATE,ISTATE,IPROP)=-PSUM
       END IF
 *
-300   CONTINUE
-*
-      RETURN
-      END
+      END SUBROUTINE MK_PROP

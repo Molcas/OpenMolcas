@@ -31,6 +31,12 @@ be run for every new geometry before :program:`FALSE` to update the
 coordinates. It can, however, use a dummy basis set and/or the :kword:`ONEOnly`
 keyword.
 
+:program:`FALSE` can also be run in "add" mode, where the results from the
+external program are added to the existing values, instead of replacing them
+(see the :kword:`MODE` keyword). In this case, :program:`FALSE` should be
+called after all desired energies and gradients have been calculated with some
+other method.
+
 .. _UG\:sec\:false_files:
 
 Files
@@ -70,6 +76,21 @@ Input
               </HELP>
               </KEYWORD>
 
+:kword:`MODE`
+  Specifies whether the values computed by the external program will replace any
+  pre-existing values (`REPLACE`, which is the default), or they will be added as
+  a new contribution (`ADD`). If set to `ADD`, and the output from the external
+  program contains values for a single root, the values will be added to all
+  roots.
+
+  .. xmldoc:: <KEYWORD MODULE="FALSE" NAME="MODE" APPEAR="Mode" KIND="CHOICE" LIST="REPLACE,ADD" DEFAULT_VALUE="REPLACE" LEVEL="BASIC">
+              %%Keyword: MODE <basic>
+              <HELP>
+              Set to REPLACE (default) to use the bare external program results.
+              Set to ADD to add the external program results as a contribution.
+              </HELP>
+              </KEYWORD>
+
 .. _UG\:sec\:false_format:
 
 Format
@@ -91,7 +112,9 @@ bracketed headers (case-insensitive), and all values are in atomic units.
 Unknown sections are ignored.
 
 * ``[ROOTS]`` is compulsory, followed by the number of roots for which energies
-  and other properties will be given later.
+  and other properties will be given later. If :kword:`MODE` is `ADD`, it should
+  match the number of roots already existing, or be `1` (in which case the
+  external contribution will be added to all roots).
 
 * ``[RELAX ROOT]`` is optional, followed by the index of the root that will
   be optimized. If not given, the highest root will be assumed. If given, it must

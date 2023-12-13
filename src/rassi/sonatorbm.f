@@ -14,9 +14,6 @@
       use rassi_aux, only : idisk_TDM
       use rassi_global_arrays, only: JBNUM
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SONATORB')
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
@@ -211,11 +208,11 @@ c DIAGONAL SYMMETRY BLOCKS
         IF(ISY12.EQ.1) THEN
           IOF=0
           ITD=0
-          DO 100 ISY=1,NSYM
+          DO ISY=1,NSYM
             NB=NBASF(ISY)
-            IF(NB.EQ.0) GOTO 100
-            DO 90 J=1,NB
-              DO 91 I=1,NB
+            IF(NB.EQ.0) cycle
+            DO J=1,NB
+              DO I=1,NB
                 ITD=ITD+1
                 TDM=WORK(LTDMZZ-1+ITD)
                 IF(I.GE.J) THEN
@@ -231,40 +228,40 @@ c DIAGONAL SYMMETRY BLOCKS
                 END IF
                 IF(ITYPE.EQ.1) WORK(LSCR-1+IJ)=WORK(LSCR-1+IJ)+TDM
                 IF(ITYPE.EQ.3) WORK(LSCR-1+IJ)=WORK(LSCR-1+IJ)+TDM
-91            CONTINUE
-90          CONTINUE
+              END DO
+            END DO
             IOF=IOF+(NB*(NB+1))/2
-100       CONTINUE
+          END DO
         ELSE
 C GENERAL CASE, NON-DIAGONAL SYMMETRY BLOCKS
 C THEN LOOP OVER ELEMENTS OF TDMZZ
           ITD=0
-          DO 200 ISY1=1,NSYM
+          DO ISY1=1,NSYM
             NB1=NBASF(ISY1)
-            IF(NB1.EQ.0) GOTO 200
+            IF(NB1.EQ.0) cycle
             ISY2=MUL(ISY1,ISY12)
             NB2=NBASF(ISY2)
-            IF(NB2.EQ.0) GOTO 200
+            IF(NB2.EQ.0) cycle
             IF(ISY1.GT.ISY2) THEN
-              DO 180 J=1,NB2
-                DO 181 I=1,NB1
+              DO J=1,NB2
+                DO I=1,NB1
                   ITD=ITD+1
                   TDM=WORK(LTDMZZ-1+ITD)
                   IJ=IOFF(ISY1)+I+NB1*(J-1)
                   WORK(LSCR-1+IJ)=WORK(LSCR-1+IJ)+TDM
-181             CONTINUE
-180           CONTINUE
+                END DO
+              END DO
             ELSE
-              DO 190 J=1,NB2
-                DO 191 I=1,NB1
+              DO J=1,NB2
+                DO I=1,NB1
                   ITD=ITD+1
                   TDM=WORK(LTDMZZ-1+ITD)
                   IJ=IOFF(ISY2)+J+NB2*(I-1)
                   WORK(LSCR-1+IJ)=WORK(LSCR-1+IJ)-TDM
-191             CONTINUE
-190           CONTINUE
+                END DO
+              END DO
             END IF
-200       CONTINUE
+          END DO
         END IF
 
 
@@ -401,5 +398,4 @@ c Free memory
       CALL GETMEM('MAPSP','FREE','INTE',LMAPSP,NSS)
       CALL GETMEM('MAPMS','FREE','INTE',LMAPMS,NSS)
 
-      RETURN
-      END
+      END SUBROUTINE SONATORBM

@@ -43,7 +43,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: iRun
 integer(kind=iwp), intent(out) :: ireturn
-#include "warnings.fh"
+#include "warnings.h"
 integer(kind=iwp) :: nDiff
 logical(kind=iwp) :: DoRys
 character(len=1024) :: INPORB

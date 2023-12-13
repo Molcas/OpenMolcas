@@ -34,21 +34,23 @@ subroutine Loc_Nat_orb(irc,Cmo,Xmo,OccN,mOrb)
 !***********************************************************************
 
 use Localisation_globals, only: nActa, NamAct, BName, nBas, nFro, nSym, ThrSel
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: Cmo(*)
 real(kind=wp), intent(inout) :: Xmo(*), OccN(*)
 integer(kind=iwp), intent(in) :: mOrb(*)
-integer(kind=iwp) :: i, ia, iab, ifr, iOff, iSym, isymlbl, j, ja, jb, jC, jfr, jOcc, jOff, jto, jX, jZ, k, ka, kl, km, kOff, lScr, &
-                     mOx, n_KO, n_OK, nBa, nBax, nBmx, nBx, nnB, nOrbmx, nOx
+integer(kind=iwp) :: i, ia, iab, iComp, ifr, iOff, iOpt, iSym, isymlbl, j, ja, jb, jC, jfr, jOcc, jOff, jto, jX, jZ, k, ka, kl, &
+                     km, kOff, lScr, mOx, n_KO, n_OK, nBa, nBax, nBmx, nBx, nnB, nOrbmx, nOx
 character(len=len(NamAct)) :: tmp
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: jD(:), kD(:), lD(:)
 real(kind=wp), allocatable :: C(:), CC(:), FOcc(:), S(:), Scr(:), SQ(:), Q(:), U(:), X(:), Z(:)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 irc = 0
 
@@ -69,7 +71,10 @@ call mma_allocate(lD,nOrbmx,label='lD')
 call mma_allocate(S,nnB,label='S')
 call mma_allocate(SQ,nBmx**2,label='SQ')
 isymlbl = 1
-call RdOne(irc,6,'Mltpl  0',1,S,isymlbl)
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+Label = 'Mltpl  0'
+iComp = 1
+call RdOne(irc,iOpt,Label,iComp,S,isymlbl)
 if (irc /= 0) return
 lScr = nBmx*nOrbmx
 call mma_allocate(C,lScr,label='C')

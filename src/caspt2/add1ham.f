@@ -11,8 +11,10 @@
       SUBROUTINE ADD1HAM(H1EFF)
 * NOT TESTED (used for OFEmbed below)
 #if 0
+      use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb, FMAux, OFE_First
 #endif
+      use OneDat, only: sNoNuc, sNoOri
       Implicit real*8 (a-h,o-z)
       Dimension H1EFF(*)
 * ----------------------------------------------------------------
@@ -24,19 +26,17 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
-* NOT TESTED (used for OFEmbed below)
-#if 0
-      Character(Len=16) NamRfil
-#endif
+      character(len=8) :: Label
       Logical Found
 
 c Add naked one-el Hamiltonian in AO basis to H1EFF:
       CALL GETMEM('ONEHAM','ALLO','REAL',LONEHAM,NBTRI)
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICOMP=1
       ISYLBL=1
-      CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,WORK(LONEHAM),ISYLBL)
+      Label='OneHam'
+      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LONEHAM),ISYLBL)
       CALL DAXPY_(NBTRI,1.0D0,WORK(LONEHAM),1,H1EFF,1)
       CALL GETMEM('ONEHAM','FREE','REAL',LONEHAM,NBTRI)
 
@@ -60,7 +60,7 @@ c the nuclear attraction by the cavity self-energy
          Call GetMem('RFFLD','Allo','Real',lTemp,nTemp)
          Call Get_dScalar('RF Self Energy',ERFSelf)
          Call Get_dArray('Reaction field',Work(lTemp),nTemp)
-         If (Found) Call NameRun('RUNFILE')
+         If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
          Call Daxpy_(nTemp,1.0D0,Work(lTemp),1,H1EFF,1)
          Call GetMem('RFFLD','Free','Real',lTemp,nTemp)
@@ -99,17 +99,17 @@ c the nuclear attraction by the Rep_EN
          Call GetMem('DCoul','Free','Real',ipCoul,nTemp) ! used as Dum
          OFE_First=.false.
 *
-         Call Get_NameRun(NamRfil) ! save the old RUNFILE name
-         Call NameRun('AUXRFIL')   ! switch the RUNFILE name
-         Call Get_dExcdRa(ipVxc,nVxc)
+         Call NameRun('AUXRFIL') ! switch the RUNFILE name
+         Call Get_dExcdRa(Vxc,nVxc)
+         ipVxc = ip_of_Work(Vxc(1))
          Call DaXpY_(nTemp,1.0d0,Work(ipVxc),1,H1EFF,1)
          If (nVxc.eq.2*nTemp) Then ! but fix for Nuc Attr added twice
             Call DaXpY_(nTemp,1.0d0,Work(ipVxc+nTemp),1,H1EFF,1)
             Call Get_dArray('Nuc Potential',Work(ipVxc),nTemp)
             Call DaXpY_(nTemp,-1.0d0,Work(ipVxc),1,H1EFF,1)
          EndIf
-         Call Free_Work(ipVxc)
-         Call NameRun(NamRfil)   ! switch back to old RUNFILE
+         Call mma_deallocate(Vxc)
+         Call NameRun('#Pop')    ! switch back to old RUNFILE
 #ifdef _DEBUGPRINT_
              WRITE(6,*)' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'
              ISTLT=0

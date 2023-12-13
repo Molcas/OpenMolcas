@@ -37,7 +37,7 @@
       CALL INTPNT(iWORK(KPINT1),iWORK(KLSM1),
      &            iWORK(KPINT2),iWORK(KLSM2))
 *
-*. Pointer for orbital indeces for symmetry blocked matrices
+*. Pointer for orbital indices for symmetry blocked matrices
       CALL ORBINH1(iWORK(KINH1),iWORK(KINH1_NOCCSYM),NTOOBS,NTOOB,NSMOB)
 *
 *. Change one-electron integrals to inactive fock matrix
@@ -62,17 +62,17 @@ c     &   WRITE(6,*) ' Updated core energy ',ECORE
 C?    WRITE(6,*) ' IDMPIN ', IDMPIN
 c      IF (IDMPIN.EQ.1 ) THEN
 c        WRITE(6,*)
-c     &   ' Integrals written formatted (E22.15) on unit 90'
+c     &   ' Integrals written formatted (ES22.15) on unit 90'
 c        LU90 = 90
 c        REWIND LU90
 c*.1 : One-electron integrals
-c        WRITE(LU90,'(E22.15)')
+c        WRITE(LU90,'(ES22.15)')
 c     &   (WORK(KINT1O-1+INT1),INT1=1,NINT1)
 c*.2 : Two-electron integrals
-c        WRITE(LU90,'(E22.15)')
+c        WRITE(LU90,'(ES22.15)')
 c     &   (WORK(KINT2-1+INT2),INT2=1,NINT2)
 c*.3. Core energy
-c        WRITE(LU90,'(E22.15)')ECORE_ORIG
+c        WRITE(LU90,'(ES22.15)')ECORE_ORIG
 c*.4  Rewind to empty buffer
 c        REWIND LU90
 c*.   Symmetry info etc two LU91

@@ -61,7 +61,7 @@
             If ( i.ge.4 .and. i.le.nLine-2 )
      &         Write(Line,'(18A4)')(TitleIN((i-4)*18+j),j=1,18)
             If (iPL.ge.3) Then
-               Call Center(Line)
+               Call Center_Text(Line)
                Write(6,Fmt1) '*'//Line//'*'
             End If
          End Do
@@ -75,9 +75,9 @@
          Write(6,Fmt1) 'Header of the ONEINT file:'
          Write(6,Fmt1) '--------------------------'
          Write(Line,Fmt1)  Header1I(1)
-         Write(6,'(A)') Line(:mylen(Line))
+         Write(6,'(A)') trim(Line)
          Write(Line,Fmt1)  Header1I(2)
-         Write(6,'(A)') Line(:mylen(Line))
+         Write(6,'(A)') trim(Line)
          Write(6,*)
 *----------------------------------------------------------------------*
 *     Print cartesian coordinates of the system                        *
@@ -145,7 +145,7 @@
             Write(6,Fmt2//'A,T47,I6)')
      &               'State symmetry',
      &                             State_Sym
-            Write(6,Fmt2//'A,T47,I6)') 'Number of roots',nroots
+            Write(6,Fmt2//'A,T47,I6)') 'Number of CI roots',nroots
             Write(6,Fmt2//'A,(T47,10I6))')
      &       'States considered ',(iroot(i),i=1,nroots)
             Write(6,Fmt2//'A,(T47,10F6.3))') 'Weights ',
@@ -155,7 +155,7 @@
      &           'Symmetry species',
      &                            (i,i=1,nSym)
             Write(6,Fmt2//'A,T47,8I6)')
-     &           'Skiped sym. species',
+     &           'Skipped sym. species',
      &            (nSkip(iSym),iSym=1,nSym)
             Write(6,Fmt2//'A,T47,8I6)')
      &            'Frozen orbitals',
@@ -178,7 +178,7 @@
      &               'Number of basis functions',
      &                              (nBas(iSym),iSym=1,nSym)
             Write(6,Fmt2//'A,T47,8I6)')
-     &               'Number of Orbitals',
+     &               'Number of orbitals',
      &                              (nOrb(iSym),iSym=1,nSym)
             Write(6,Fmt2//'A,T47,8I6)')
      &            'Number of configurations',
@@ -197,7 +197,7 @@
             End If
 *
             Write(6,Fmt2//'A,T33,F20.10)')
-     &           'RASSCF state energy = ',ERASSCF(istate)
+     &           'RASSCF state energy = ', ERASSCF(istate)
             Write(6,Fmt2//'A,T47,I6)')
      &          'Size of explicit Hamiltonian in PCG: ',nExp_Max
             Call CollapseOutput(0,'Wave function specifications:')
@@ -246,11 +246,12 @@
          End If
 *
       If (SPINPOL) Then
-         Write(6,Fmt1) 'CALCULATING SPIN POLARIZATION'
-      Else If (PT2) Then
-         Write(6,Fmt2//'A,A)') 'CALCULATING LAGRANGIAN MULTIPLIER',
-     &                      ' FOR CASPT2'
-      Else If (SA.or.iMCPD) Then
+         Write(6,Fmt1) 'Calculating spin polarization'
+      Else If (SA.or.iMCPD.or.PT2) Then
+         If (PT2) Then
+            Write(6,Fmt2//'A,A)') 'Calculating Lagrangian multipliers',
+     &                      ' for CASPT2'
+         End if
          If (isNAC) Then
             Write(6,Fmt2//'A,I3,"/",I3)')'Lagrangian multipliers '//
      &                            'are calculated for states no. ',
@@ -281,10 +282,10 @@
             Call CollapseOutput(1,Line)
             Write(6,Fmt1)              '----------------------------'
             Write(6,*)
-            Write(6,Fmt2//'A,T47,8I4)')
+            Write(6,Fmt2//'A,T49,8I4)')
      &             'Number of perturbations in each symmetry',
      &                           (ldisp(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T50,A)') 'Type of perturbation:',
+            Write(6,Fmt2//'A,T52,A)') 'Type of perturbation:',
      &                            Perturbation
             Call CollapseOutput(0,'Perturbation specifications:')
             Write(6,*)
@@ -341,6 +342,13 @@
 ************************************************************************
 *                                                                      *
       Write(6,*)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (isNAC .and. (nSym > 1)) Then
+        Call WarningMessage(2,'NAC is not supported with symmetry')
+        Call Abend()
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

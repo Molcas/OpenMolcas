@@ -10,7 +10,7 @@
 !***********************************************************************
 Module negpre
 Integer, Parameter:: MXSTATE=10
-Integer, Parameter:: luciv=31
+Integer :: luciv=31
 
 Real*8 ERAS(MXSTATE)
 Real*8 P1(MXSTATE*(MXSTATE+1)/2)

@@ -1,7 +1,8 @@
 DFT functionals:
 ::::::::::::::::
 
-Below is listed the keywords for the DFT functionals currently implemented in the package.
+Below is a partial list of the keywords for DFT functionals currently implemented in the package.
+Note that most `Libxc <https://www.tddft.org/programs/libxc/>`_ functionals are available too.
 
 .. class:: keywordlist
 
@@ -63,7 +64,7 @@ Below is listed the keywords for the DFT functionals currently implemented in th
     The constants :math:`A`, :math:`B`, :math:`C` are those determined by Becke by fitting to the G1 molecule set, namely
     :math:`A`\=0.80, :math:`B`\=0.72, :math:`C`\=0.81.
 
-:kword:`B2PLYP`
+:kword:`B2PLYP_SCF`
   Grimme's double-hybrid density functional :cite:`B2PLYP` based on Becke's 1988 exchange and LYP correlation GGA functionals with the form
 
   .. math:: A E_{\text{X}}^{\text{Slater}} + (1-A) E_{\text{X}}^{\text{HF}} + A \Delta E_{\text{X}}^{\text{Becke}} + C E_{\text{C}}^{\text{LYP}} + (1-C) E_{\text{C}}^{\text{PT2}}
@@ -79,7 +80,7 @@ Below is listed the keywords for the DFT functionals currently implemented in th
   Becke's 1988 GGA exchange functional combined with the local Wigner correlation functional :cite:`GillWig`.
 
 :kword:`GLYP`
-  Gill's 1996 GGA exchange functional :cite:`G96` combined with the combined with the LYP correlation :cite:`Lee:88,Miehlich:89`.
+  Gill's 1996 GGA exchange functional :cite:`G96` combined with the LYP correlation :cite:`Lee:88,Miehlich:89`.
 
 :kword:`OLYP`
   Handy's OPTX exchange functional :cite:`OPTX` combined with the LYP correlation :cite:`Lee:88,Miehlich:89`.

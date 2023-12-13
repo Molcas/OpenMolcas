@@ -11,6 +11,7 @@
       SUBROUTINE BINAT()
       use rassi_global_arrays, only : JBNUM, EIGVEC
       use rassi_aux, only : iDisk_TDM
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT NONE
 
 #include "SysDef.fh"
@@ -32,7 +33,7 @@
       INTEGER LUNIT, ISFREEUNIT, IDUMMY
       REAL*8  SSEL, SWAP, SEV, X, DUMMY, SUMSNG, DDOT_
       CHARACTER*16 KNUM
-      CHARACTER*8  BNUM
+      CHARACTER*8  BNUM, LABEL
       CHARACTER*21 TXT
       CHARACTER*24 FNAME
 
@@ -56,10 +57,11 @@ C EIGENVALUES OF OVERLAP MATRIX:
 C READ ORBITAL OVERLAP MATRIX.
       CALL GETMEM('SAO','ALLO','REAL',LSAO,NBTRI)
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSAO),ISYLAB)
+      LABEL = 'MLTPL  0'
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSAO),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  BINAT ***'
@@ -179,9 +181,9 @@ C needed for the singular values and for the TDM.
        CALL DCOPY_(NBSQ,[0.0D0],0,WORK(LTDMAT),1)
 C DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS
        DO I=1,NSTATE
-        IF (IRREP(JBNUM(I)).NE.LSYM_BRA) GOTO 92
+        IF (IRREP(JBNUM(I)).NE.LSYM_BRA) cycle
         DO J=1,NSTATE
-         IF (IRREP(JBNUM(J)).NE.LSYM_KET) GOTO 91
+         IF (IRREP(JBNUM(J)).NE.LSYM_KET) cycle
 C PICK UP TRANSITION DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
 C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
          X=EIGVEC(KEIG_BRA,i)*EIGVEC(KEIG_KET,j)
@@ -212,9 +214,7 @@ C Loop over the receiving side:
          END IF
          CALL DAXPY_(NBSQ,X,WORK(LTDMAO),1,WORK(LTDMAT),1)
          END IF
-   91    CONTINUE
         END DO
-   92   CONTINUE
        END DO
 C TDMAT() now contains the transition density matrix in AO basis for
 C the eigenstates.
@@ -336,5 +336,5 @@ C End of very long loop over eigenstate pairs.
       CALL GETMEM('TDMAO','FREE','REAL',LTDMAO,NBSQ)
       CALL GETMEM('BRABNO','FREE','REAL',LBRABNO,NBSQ)
       CALL GETMEM('KETBNO','FREE','REAL',LKETBNO,NBSQ)
-      RETURN
+
       END

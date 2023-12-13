@@ -79,7 +79,7 @@ if (LFirstRun) then
     do j=1,i
       ij = i*(i-1)/2+j
       do k=1,3
-        MltPl(1)%M(ij,k) = MltPl(1)%M(ij,k)+(CordMltPl(k,0)-CordMltPl(k,2))*MltPl(0)%M(ij,1)
+        MltPl(1)%A(ij,k) = MltPl(1)%A(ij,k)+(CordMltPl(k,0)-CordMltPl(k,2))*MltPl(0)%A(ij,1)
       end do
     end do
   end do
@@ -118,7 +118,7 @@ end if
 do i=1,nPrim
   do j=1,i
     ij = i*(i-1)/2+j
-    Qexp(i,j) = MltPl(0)%M(ij,1)*D_p(ij)
+    Qexp(i,j) = MltPl(0)%A(ij,1)*D_p(ij)
     Qexp(j,i) = Qexp(i,j)
   end do
 end do
@@ -169,16 +169,16 @@ do nA=1,nAtoms
                     ii = i
                   end if
                   ij = ii*(ii-1)/2+jj
-                  rsum = rsum+xfac*yfac*zfac*D_p(ij)*MltPl(ip+iq+il)%M(ij,iCompMat(ip,iq,il))
+                  rsum = rsum+xfac*yfac*zfac*D_p(ij)*MltPl(ip+iq+il)%A(ij,iCompMat(ip,iq,il))
                 end do
               end do
             end do
           end do
         end do
         ! minus from the negative sign of the electron
-        AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2)-rsum
-        AtBoMltPlCopy(iMltpl)%M(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2)
-        AtMltPl(iMltPl)%M(iComp,nA) = AtMltPl(iMltPl)%M(iComp,nA)-rsum
+        AtBoMltPl(iMltpl)%A(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%A(iComp,nA*(nA+1)/2)-rsum
+        AtBoMltPlCopy(iMltpl)%A(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%A(iComp,nA*(nA+1)/2)
+        AtMltPl(iMltPl)%A(iComp,nA) = AtMltPl(iMltPl)%A(iComp,nA)-rsum
       end do
     end do
   end do
@@ -186,9 +186,9 @@ do nA=1,nAtoms
   ! THE NUCLEAR CHARGE IS ADDED ON
 
   if (LFirstRun) then
-    AtMltPl(0)%M(1,nA) = AtMltPl(0)%M(1,nA)+Qnuc(nA)
-    AtBoMltPl(0)%M(1,nA*(nA+1)/2) = AtBoMltPl(0)%M(1,nA*(nA+1)/2)+Qnuc(nA)
-    AtBoMltPlCopy(0)%M(1,nA*(nA+1)/2) = AtBoMltPlCopy(0)%M(1,nA*(nA+1)/2)+Qnuc(nA)
+    AtMltPl(0)%A(1,nA) = AtMltPl(0)%A(1,nA)+Qnuc(nA)
+    AtBoMltPl(0)%A(1,nA*(nA+1)/2) = AtBoMltPl(0)%A(1,nA*(nA+1)/2)+Qnuc(nA)
+    AtBoMltPlCopy(0)%A(1,nA*(nA+1)/2) = AtBoMltPlCopy(0)%A(1,nA*(nA+1)/2)+Qnuc(nA)
   end if
 
   do nB=1,nA-1
@@ -323,16 +323,16 @@ do nA=1,nAtoms
                       ii = i
                     end if
                     ij = ii*(ii-1)/2+jj
-                    rsum = rsum+xfac*yfac*zfac*Two*D_p(ij)*MltPl(ip+iq+il)%M(ij,iCompMat(ip,iq,il))
+                    rsum = rsum+xfac*yfac*zfac*Two*D_p(ij)*MltPl(ip+iq+il)%A(ij,iCompMat(ip,iq,il))
                   end do
                 end do
               end do
             end do
           end do
           ! minus from the negative sign of the electron
-          AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB)-rsum
+          AtBoMltPl(iMltpl)%A(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%A(iComp,nA*(nA-1)/2+nB)-rsum
           ! Copy the multipole arrays
-          AtBoMltPlCopy(iMltpl)%M(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB)
+          AtBoMltPlCopy(iMltpl)%A(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%A(iComp,nA*(nA-1)/2+nB)
         end do
       end do
     end do
@@ -376,24 +376,24 @@ do nA=1,nAtoms
                     zfac_a = (Cor(3,nA,nB)-Cor(3,iA,iA))**(nl-il)*rnloveril
                     zfac_b = (Cor(3,nA,nB)-Cor(3,nB,nB))**(nl-il)*rnloveril
                   end if
-                  sum_a = sum_a+xfac_a*yfac_a*zfac_a*FracA*AtBoMltPl(ip+iq+il)%M(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
-                  sum_b = sum_b+xfac_b*yfac_b*zfac_b*FracB*AtBoMltPl(ip+iq+il)%M(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
+                  sum_a = sum_a+xfac_a*yfac_a*zfac_a*FracA*AtBoMltPl(ip+iq+il)%A(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
+                  sum_b = sum_b+xfac_b*yfac_b*zfac_b*FracB*AtBoMltPl(ip+iq+il)%A(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
                 end do
               end do
             end do
             if (BondMat(nA,nB)) then
               ! If bonding
               ! Do atoms
-              AtMltPl(iMltpl)%M(iComp,iA) = AtMltPl(iMltpl)%M(iComp,iA)+sum_a
-              AtMltPl(iMltpl)%M(iComp,nB) = AtMltPl(iMltpl)%M(iComp,nB)+sum_b
+              AtMltPl(iMltpl)%A(iComp,iA) = AtMltPl(iMltpl)%A(iComp,iA)+sum_a
+              AtMltPl(iMltpl)%A(iComp,nB) = AtMltPl(iMltpl)%A(iComp,nB)+sum_b
             else
               ! If not bonding
               ! Do atoms
-              AtMltPl(iMltpl)%M(iComp,iA) = AtMltPl(iMltpl)%M(iComp,iA)+sum_a
-              AtMltPl(iMltpl)%M(iComp,nB) = AtMltPl(iMltpl)%M(iComp,nB)+sum_b
+              AtMltPl(iMltpl)%A(iComp,iA) = AtMltPl(iMltpl)%A(iComp,iA)+sum_a
+              AtMltPl(iMltpl)%A(iComp,nB) = AtMltPl(iMltpl)%A(iComp,nB)+sum_b
               ! Do bonds
-              AtBoMltPl(iMltpl)%M(iComp,iA*(iA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,iA*(iA+1)/2)+sum_a
-              AtBoMltPl(iMltpl)%M(iComp,nB*(nB+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nB*(nB+1)/2)+sum_b
+              AtBoMltPl(iMltpl)%A(iComp,iA*(iA+1)/2) = AtBoMltPl(iMltpl)%A(iComp,iA*(iA+1)/2)+sum_a
+              AtBoMltPl(iMltpl)%A(iComp,nB*(nB+1)/2) = AtBoMltPl(iMltpl)%A(iComp,nB*(nB+1)/2)+sum_b
             end if
           end do
         end do

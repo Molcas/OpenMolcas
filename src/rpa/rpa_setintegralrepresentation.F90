@@ -11,22 +11,16 @@
 
 subroutine RPA_SetIntegralRepresentation()
 
-use RPA_globals, only: doCD, doDF, doLDF
+use RPA_globals, only: doCD, doDF
 
 implicit none
 
 call DecideOnCholesky(doCD)
 call DecideOnDF(doDF)
-call DecideOnLocalDF(doLDF)
-if (doLDF) then
+if (doDF) then
   doCD = .false.
-  doDF = .false.
-else if (doDF) then
-  doCD = .false.
-  doLDF = .false.
 else if (doCD) then
   doDF = .false.
-  doLDF = .false.
 end if
 
 end subroutine RPA_SetIntegralRepresentation

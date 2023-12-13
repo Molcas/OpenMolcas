@@ -37,7 +37,7 @@ if (Found) call NameRun('RUNOLD')
 call get_dscalar('RF Self Energy',ERFself)
 PotNuc = PotNuc+ERFself
 call get_darray('Reaction field',Temp,nTemp)
-if (Found) call NameRun('RUNFILE')
+if (Found) call NameRun('#Pop')
 call Daxpy_(nTemp,One,Temp,1,HOne,1)
 call mma_deallocate(Temp)
 !----------------------------------------------------------------------*

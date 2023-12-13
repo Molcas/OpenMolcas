@@ -242,7 +242,7 @@ Input files
 
 :file:`JOBnnn`
   A number of :file:`JOBIPH` files from different :program:`RASSCF` jobs.
-  An older naming convention assumes file names JOB001, JOB002, etc. for these files.
+  An older naming convention assumes file names :file:`JOB001`, :file:`JOB002`, etc. for these files.
   They are automatically linked to default files named :file:`$Project.JobIph`,
   :file:`$Project.JobIph01`, :file:`$Project.JobIph02`, etc. in directory :file:`$WorkDir`,
   unless they already exist as files or links before the program starts.
@@ -529,11 +529,15 @@ Keywords
   spin--orbit eigenstates. This keyword has no effect unless the
   :kword:`SPIN` keyword has been used. Format: see :kword:`PROP` keyword.
 
-  .. xmldoc:: %%Keyword: SOProperty <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SOPROPERTY" APPEAR="SO Properties" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: SOProperty <basic>
+              <HELP>
               Enter a selection of one-electron operators, for which
               matrix elements and expectation values are to be calculated over the
               spin-orbit eigenstates. This keyword has no effect unless the
               SPIN keyword has been used. Format: see PROP keyword.
+              </HELP>
+              </KEYWORD>
 
 :kword:`SPINorbit`
   Spin--orbit interaction matrix elements will be computed. Provided that
@@ -607,8 +611,8 @@ Keywords
   as input followed by the word "``ALL``", indicating that all states
   will be taken from each file. In this case no further lines are required.
   For :file:`JOBIPH` file names, see the Files section.
-  Note: If this keyword is missing, then by default all files named "JOB001",
-  "JOB002", etc. will be used, and all states found on these files will be
+  Note: If this keyword is missing, then by default all files named ":file:`JOB001`",
+  ":file:`JOB002`", etc. will be used, and all states found on these files will be
   used.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NROFJOBIPHS" APPEAR="Input states from JOBIPHs" KIND="CUSTOM" LEVEL="BASIC" ALSO="NR OF JOBIPHS">
@@ -764,6 +768,21 @@ Keywords
               %%Keyword: Thrs <advanced>
               <HELP>
               Enter the threshold for printing CI coefficients. Default 0.05.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CIH5`
+  Add CI coefficients and occupation vectors in Slater determinant basis as well as
+  molecular orbitals (both original and biorthonormally transformed) to the HDF5 file.
+  If coupled with :kword:`CIPRint` and :kword:`ORBItals` keywords print them also to output file.
+  Needed for the interface to :program:`SCAMPI` program.
+  Note that it can be enabled only if no more than two :file:`JOBIPH` files are computed at a time.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CIH5" APPEAR="Put additional CI info to HDF5" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CIH5 <advanced>
+              <HELP>
+              Add CI coefficients and occupation vectors in Slater determinant basis as well as
+              molecular orbitals (both original and transformed) to the HDF5 file.
               </HELP>
               </KEYWORD>
 
@@ -1206,7 +1225,7 @@ Keywords
 
 :kword:`TRDC`
   Prints out COMPLEX valued components of the transition dipole vector
-  for spin-orbit calculations,
+  for spin--orbit calculations,
   otherwise functionally equivalent to :kword:`TRDI` and :kword:`TDMN`.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRDC" APPEAR="Transition dipole" KIND="SINGLE" LEVEL="ADVANCED">
@@ -1254,9 +1273,9 @@ Keywords
               </KEYWORD>
 
 :kword:`DYSOn`
-  Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons.
+  Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons. Dyson amplitudes are correctly obtained from a biorthonormally transformed orbital sets as described in :cite:`Tenorio:2022molecules`.
 
-  Calculations are performed for spin-free states, and for spin-orbit coupled states if the keyword :kword:`SPINorbit` has also been specified. Note that spin-orbit coupled amplitudes are per default obtained from an approximation where a transformation is applied directly to the spin-free amplitudes rather than the Dyson orbitals, which may severly impact the accuracy. For a complete calculation also for spin-orbit states see the :kword:`DYSExport` keyword.
+  Calculations are performed for spin-free states, and for spin--orbit coupled states if the keyword :kword:`SPINorbit` has also been specified. Note that spin--orbit coupled amplitudes are per default obtained from an approximation where a transformation is applied directly to the spin-free amplitudes rather than the Dyson orbitals, which may severly impact the accuracy. For a complete calculation also for spin--orbit states see the :kword:`DYSExport` keyword.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSON" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: DYSON <advanced>
@@ -1266,9 +1285,9 @@ Keywords
               </KEYWORD>
 
 :kword:`DYSExport`
-  Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
+  Requires the :kword:`DYSOn` keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin--orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin--orbit states are always energy ordered.
 
-  Dyson amplitudes for the spin-orbit states are here correctly obtained from a transformation of the Dyson orbitals (as opposed to the amplitudes, see :kword:`DYSOn` keywpord), but only for the specified number of initial states. Note that this calculation may be time consuming, i.e. the number of initial states should be limited.
+  Dyson amplitudes for the spin--orbit states are here correctly obtained from a transformation of the Dyson orbitals (as opposed to the amplitudes, see :kword:`DYSOn` keyword), but only for the specified number of initial states. Note that this calculation may be time consuming, i.e. the number of initial states should be limited.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DYSEXPORT" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: DYSEXPORT <advanced>
@@ -1277,22 +1296,225 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`DCHS`
+  Computes spectral intensity of double-core hole states similar to Dyson norm (see :cite:`Tenorio:2021jcp`).
+  Double core hole wave functions are generated with the DEXS keyword on RASSCF input (See :kword:`DEXS` keyword).
+  The next line specifies the orbital number of the double-core hole (normally it is 1, that is, the first active orbital).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DCHS" KIND="INT" LEVEL="ADVANCED">
+                   %%Keyword: DCHS <advanced>
+              <HELP>
+              Computes spectral intensity of double-core hole states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`TDYSOn`
+  Prints Auger density matrices to ASCII files (see :cite:`Tenorio:2022jctc`). Required to run :program:`Auger-OCA` program found in the :file:`Tools/` folder.
+  Requires the :kword:`DYSOn` keyword.
+  It starts by an integer number specifying the number of scattering centers, followed by the same number of lines. Each line contains strings with the type of Auger scattering centers. An example for the computation of Auger matrix elements of carbon K-edge is "TDYS = 1; C 1s".
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TDYS" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED">
+                   %%Keyword: TDYSOn <advanced>
+              <HELP>
+              Enables saving Auger density matrices to ASCII files.
+              </HELP>
+              </KEYWORD>
+
+:kword:`RHODyn`
+  Required to run :program:`RHODYN` program. Enable saving pure spin--orbit coupling Hamiltonian and SO Dyson amplitudes (not squared!) to HDF5 file of :program:`RASSI`.
+  Keywords :kword:`SPINorbit`, :kword:`MESO`, :kword:`XVES`, :kword:`XVSO`, :kword:`DYSOn` are required to print corresponding properties.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="RHOD" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: RHODyn <advanced>
+              <HELP>
+              Enables saving V_SOC and Dyson amplitudes to HDF5.
+              </HELP>
+              </KEYWORD>
+
 :kword:`NTOCalc`
-  Enables natural transition orbital (NTO) calculation of two states from two JobIph files (which can be identical to each other).
+  Enables natural transition orbital (NTO) calculation of two states from two :file:`JobIph` files (which can be identical to each other).
   The NTO calculations can be performed for states with different spatial symmetries.
-  To perform an NTO calculation, two JobIph files, which by convention are named :file:`JOB001` and :file:`JOB002`, are needed. Since NTO calculations are performed usually between the ground state and an excited state, :file:`JOB001` is used to provide the information for the ground state, and :file:`JOB002` is used to provide the information for excited states. This way of storing information was chosen so that NTO calculations can be performed either for states with the same symmetry or states with different symmetries, but in the former case, if two states are obtained in a single SA-CASSCF or SA-RASSCF calculation, one may make a copy of the JobIph file to get the second JobIph file. The two states are specified in the keyword :kword:`NROF` to tell the program for which two states the NTO calculation is to be performed.
-  The NTO files are named as :file:`$Project.NTOrb.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`, where :file:`Spin` is `a` for alpha NTOs and `b` for beta NTOs, and where :file:`I` and :file:`J` are the RASSI states between which the NTOs are calculated, and where :file:`NTOType` is `PART` for particle NTOs and `HOLE` for hole NTOs. In addition, Molden files for the orbitals named :file:`$Project.nto.molden.I_J.Spin.NTOType` are also generated.
-  One may search for ``Nr of states`` in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with ``State:``) with the actual states (in the line starting with ``Root nr:``) in each JobIph file (in the line starting with ``JobIph:``). If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
+  To perform an NTO calculation, two :file:`JobIph` files, which by convention are named :file:`JOB001` and :file:`JOB002`, are needed. Since NTO calculations are performed usually between the ground state and an excited state, :file:`JOB001` is used to provide the information for the ground state, and :file:`JOB002` is used to provide the information for excited states. This way of storing information was chosen so that NTO calculations can be performed either for states with the same symmetry or states with different symmetries, but in the former case, if two states are obtained in a single SA-CASSCF or SA-RASSCF calculation, one may make a copy of the :file:`JobIph` file to get the second :file:`JobIph` file. The two states are specified in the keyword :kword:`NROF` to tell the program for which two states the NTO calculation is to be performed.
+  The NTO files are named as :file:`$Project.NTOrb.SF.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`, where :file:`Spin` is `a` for alpha NTOs and `b` for beta NTOs, and where :file:`I` and :file:`J` are the RASSI states between which the NTOs are calculated, and where :file:`NTOType` is `PART` for particle NTOs and `HOLE` for hole NTOs. In addition, Molden files for the orbitals named :file:`$Project.nto.molden.SF.I_J.Spin.NTOType` are also generated.
+  One may search for ``Nr of states`` in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with ``State:``) with the actual states (in the line starting with ``Root nr:``) in each :file:`JobIph` file (in the line starting with ``JobIph:``). If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
   For more information and examples of this method, please refer to the Minnesota OpenMolcas webpage\ [#fn1]_.
 
   .. [#fn1] https://comp.chem.umn.edu/openmolcas/
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" APPEAR="Natural transition orbitals" KIND="SINGLE" LEVEL="ADVANCED" >
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" APPEAR="Natural transition orbitals" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: NTOC <advanced>
               <HELP>
               Enables natural transition orbital calculation from two JobIph files.
               </HELP>
               </KEYWORD>
+
+:kword:`SONT`
+  This computes the spin--orbit natural transition orbitals (SO-NTOs) for two spin--orbit coupled states, and it also
+  performs the transition dipole moment (TDM) partitioning study based on the obtained SO-NTOs. It starts by an integer number
+  specifying the number of requested SO-NTO pairs, followed by the same number of lines. Each line contains two integers
+  for the two spin--orbit (SO) coupled states. An input example has been shown below.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONT" APPEAR="Spin-orbit natural transition orbitals" KIND="INTS_COMPUTED" SIZE="2" LEVEL="ADVANCED">
+              %%Keyword: SONT <advanced>
+              <HELP>
+              This computes the spin--orbit natural transition orbitals (SO-NTOs) for two spin--orbit coupled states, and it also
+              performs the transition dipole moment (TDM) partitioning study based on the obtained SO-NTOs.
+              </HELP>
+              </KEYWORD>
+
+:kword:`ARGU`
+  This minimizes the imaginary component of the calculated SO-NTOs.
+  The keyword :kword:`SONT` is needed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ARGU" APPEAR="Argument Phi" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="SONT">
+              %%Keyword: ARGU <advanced>
+              <HELP>
+              This minimizes the imaginary component of the calculated SO-NTOs. The SO-NTOs are required (use keyword SONT).
+              </HELP>
+              </KEYWORD>
+
+:kword:`EPRA`
+  This computes the hyperfine tensor matrix and the principal magnetic axes values for the ground
+  spin--orbit state. The hyperfine and spin--orbit coupling matrix elements are required upon calculation
+  (use keywords :kword:`SPIN` and :kword:`PROP`). For the hyperfine matrix elements, either the spin-dependent (ASD)
+  or the paramagnetic spin orbital (PSOP) part is needed, while in most cases both are recommended for the same atom.
+  See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" APPEAR="EPR hyperfine Matrix" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN">
+              %%Keyword: EPRa <advanced>
+              <HELP>
+              This computes the hyperfine tensor matrix and the principal magnetic axes values for the ground
+              spin-orbit state. The hyperfine and spin-orbit coupling matrix elements are required upon calculation
+              (use keywords SPIN and PROP). For the hyperfine matrix elements, either the spin-dependent (ASD)
+              or the paramagnetic spin orbital (PSOP) part is needed, while in most cases both are recommended 
+              for the same atom.
+              </HELP>
+              </KEYWORD>
+
+:kword:`AFCC`
+  This computes the Fermi contact contribution of the total hyperfine coupling matrix.
+  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="AFCC" APPEAR="Hyperfine Fermi contact" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
+              %%Keyword: AFCC <advanced>
+              <HELP>
+              This computes the Fermi contact contribution of the total hyperfine coupling matrix.
+              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
+              elements is needed.
+              </HELP>
+              </KEYWORD>
+
+:kword:`ASDC`
+  This computes the spin-dipolar contribution of the total hyperfine coupling matrix.
+  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ASDC" APPEAR="Hyperfine spin dipole" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
+              %%Keyword: ASDC <advanced>
+              <HELP>
+              This computes the spin-dipolar contribution of the total hyperfine coupling matrix.
+              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
+              elements is needed.
+              </HELP>
+              </KEYWORD>
+
+:kword:`FCSD`
+  This computes the spin-dependent contribution of the total hyperfine coupling matrix.
+  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="FCSD" APPEAR="Hyperfine spin dependent" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
+              %%Keyword: FCSD <advanced>
+              <HELP>
+              This computes the spin-dependent contribution of the total hyperfine coupling matrix.
+              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
+              elements is needed.
+              </HELP>
+              </KEYWORD>
+
+:kword:`APSO`
+  This computes the paramagnetic spin orbital contribution of the total hyperfine coupling matrix.
+  The keyword :`EPRA` is needed. The paramagnetic spin orbital (PSOP) part of the hyperfine matrix
+  elements is needed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="APSO" APPEAR="Hyperfine paramagnetic" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
+              %%Keyword: APSO <advanced>
+              <HELP>
+              This computes the paramagnetic spin orbital contribution of the total hyperfine coupling matrix.
+              The keyword EPRA is needed. The paramagnetic spin orbital (PSOP) part of the hyperfine matrix
+              elements is needed.
+              </HELP>
+              </KEYWORD>
+
+:kword:`ATSA`
+  This keyword activates the pseudospin approach to compute the same hyperfine constants as :kword:`EPRA`.
+  For Kramers pair ground states this keyword is optional, otherwise (non-Kramers pair ground state) it is needed.
+  See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
+  The keyword :kword:`EPRA` is needed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ATSA" APPEAR="Hyperfine A-Tensor" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
+              %%Keyword: ATSA <advanced>
+              <HELP>
+              This keyword activates the pseudospin approach to compute the same hyperfine constants as EPRA.
+              For Kramers pair ground states this keyword is optional, otherwise (non-Kramers pair ground state) it is needed.
+              The keyword EPRA is needed.
+              </HELP>
+              </KEYWORD>
+
+:kword:`MONA`
+  This keyword indicates that the properties of monomer A were calculated in the respective :program:`RASSI` section of the Frenkel exciton protocol.
+  This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer A must always be in the first place in the BSSE section.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONA" APPEAR="Monomer A" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: MONA <basic>
+              <HELP>
+              Indicates that monomer A was calculated in the respective RASSI section.
+              </HELP>
+              </KEYWORD>
+
+:kword:`MONB`
+  This keyword indicates that the properties of monomer B were calculated in the respective :program:`RASSI` section of the Frenkel exciton protocol.
+  This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer B must always be in the second place in the BSSE section.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONB" APPEAR="Monomer B" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: MONB <basic>
+              <HELP>
+              Indicates that monomer B was calculated in the respective RASSI section.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EXCItonics`
+  This keyword initiates the calculation of the Frenkel exciton coupling elements between two monomers, the excitonic eigenvectors, eigenenergies and the absorption spectrum.
+  Has to be put in the second :program:`RASSI` section of the Frenkel exciton protocol.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXCITONICS" APPEAR="Exciton calculation" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: EXCI <basic>
+              <HELP>
+              Starts the calculation of properties needed for the Frenkel exciton absorption spectrum.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EXAList`
+  Number of initial states of monomer A in the Frenkel exciton calculation, followed by the list of these states in the next line.
+  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two :program:`RASSI` sections.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXALIST" APPEAR="Initial states of monomer A in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              %%Keyword: EXAL <basic>
+              <HELP>
+              Number of initial states of Monomer A, followed by the list of these states in the next line.
+              </HELP>
+              </KEYWORD>
+
+
+:kword:`EXBList`
+  Number of initial states of monomer B in the Frenkel exciton calculation, followed by the list of these states in the next line.
+  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two :program:`RASSI` sections.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXBLIST" APPEAR="Initial states of monomer B in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              %%Keyword: EXBL <basic>
+              <HELP>
+              Number of initial states of Monomer B, followed by the list of these states in the next line.
+              </HELP>
+              </KEYWORD>
+
 
 Input example
 .............
@@ -1325,12 +1547,103 @@ An NTO input example using the JobIph file from a state-averaged calculation is 
   *This NTO calculation is performed for the ground state and the first
   *excited state of the previous calculation done in the &RASSCF module.
 
+An SO-NTO input example from three singlets and two triplets: ::
+
+  >>COPY  $Project.JobIph.s0s1s2 JOB001
+  >>COPY  $Project.JobIph.t1t2 JOB002
+
+  &RASSI
+  Nr of JobIphs
+  2 3 2
+  1 2 3
+  1 2
+  SPINorbit
+  ARGU *This minimizes the imaginary component of SO-NTOs
+  SONT
+  3
+  1 2
+  1 3
+  2 3
+  *Three pairs of SO-NTOs are requested, between SO state 1 and 2,
+  *SO state 1 and 3, and SO state 2 and 3.
+  *Note that the states are SO coupled states.
+
+An illustrative hyperfine calculation input for a diatomic molecule: ::
+
+  >>COPY "Jobiph file 1" JOB001
+
+  &RASSI
+  Nr of JobIphs
+  1 4
+  1 2 3 4
+  SPIN
+  EPRA
+  AFCC
+  ASDC
+  FCSD
+  APSO
+  ATSA
+  PROPerties
+  18
+  'ASD    1' 1
+  'ASD    1' 2
+  'ASD    1' 3
+  'ASD    1' 4
+  'ASD    1' 5
+  'ASD    1' 6
+  'ASD    2' 1
+  'ASD    2' 2
+  'ASD    2' 3
+  'ASD    2' 4
+  'ASD    2' 5
+  'ASD    2' 6
+  'PSOP   1' 1
+  'PSOP   1' 2
+  'PSOP   1' 3
+  'PSOP   2' 1
+  'PSOP   2' 2
+  'PSOP   2' 3
+  * Note that the strings following PROP have to be of sizes of 8, each
+  * followed by an integer number for the property component.
+  * The last digit of the string is the atom number.
+  * Note that there are 6 ASD and 3 PSOP components for each atom, respectively.
+  * One has to include all 6 of ASD components to obtain principle
+  * spin-dependent hyperfine contributions, and one has to include all 3 of PSOP
+  * components to obtain principle paramagnetic spin orbital contributions.
+
+It is also possible to calculate only the non-relativistic part of the spin--dependent hyperfine contributions: ::
+
+  &RASSI
+  Nr of JobIphs
+  1 4
+  1 2 3 4
+  SPIN
+  EPRA
+  AFCC
+  ASDC
+  FCSD
+  APSO
+  ATSA
+  PROPerties
+  12
+  'ASDO   1' 1
+  'ASDO   1' 2
+  'ASDO   1' 3
+  'ASDO   1' 4
+  'ASDO   1' 5
+  'ASDO   1' 6
+  'ASDO   2' 1
+  'ASDO   2' 2
+  'ASDO   2' 3
+  'ASDO   2' 4
+  'ASDO   2' 5
+  'ASDO   2' 6
+  * Note that 'ASD' is now 'ASDO' for the non-relativistic integrals.
+
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SODIAG" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
-
-.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="FILE" KIND="STRINGS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 

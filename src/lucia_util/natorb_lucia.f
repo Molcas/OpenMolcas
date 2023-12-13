@@ -53,7 +53,7 @@
 *
         DO IOB = IOBOFF,IOBOFF + LOB-1
            DO JOB = IOBOFF,IOBOFF + LOB-1
-*. Corresponding type indeces
+*. Corresponding type indices
              IOBP = ISTOB(IOB)
              JOBP = ISTOB(JOB)
              RHO1SM(IMTOFF-1+(JOB-IOBOFF)*LOB+IOB-IOBOFF+1)
@@ -76,7 +76,7 @@ C      TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
         CALL SCALVE(SCR,ONEM,LOB*(LOB+1)/2)
         Call DCopy_(LOB**2,[0.0D0],0,XNAT(IMTOFF),1)
         Call DCopy_(LOB,[1.0D0],0,XNAT(IMTOFF),1+LOB)
-        Call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB,0)
+        Call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB)
         Call JACORD(SCR,XNAT(IMTOFF),LOB,LOB)
 *
         DO  I = 1, LOB

@@ -20,6 +20,7 @@
       public :: mma_allocate, mma_deallocate, mxMem
 
 #include "stdalloc.fh"
-#include "WrkSpc_min.fh"
+      integer MxMem
       save
+
       end module stdalloc

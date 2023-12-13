@@ -197,8 +197,8 @@ c      End If
 
       Do IM=1,AngPoints
          WRITE(STLNE1,'(A   )') 'SINGLE_ANISO:  torque:'
-         WRITE(STLNE2,'(A,I3)') 'Magnetization at point ',IM
-         Call StatusLine(STLNE1,STLNE2)
+         WRITE(STLNE2,'(A,I3)') ' Magnetization at point ',IM
+         Call StatusLine( trim(STLNE1), trim(STLNE2) )
          ZT=0.0_wp
          Call dcopy_(nM,[0.0_wp],0,W,1)
          Call dcopy_(3,[0.0_wp],0,MT,1)
@@ -255,7 +255,7 @@ C -------------------------------------------------------------------
      &                             'rotation in the XZ plane          |'
         Write(6,'(10A)') '--------|', '-- torque along Y --|'
          Do iM=1,AngPoints
-            Write(6,'(F7.3,1x,A,E18.10)') Ang(iM),'|',ty(iM)
+            Write(6,'(F7.3,1x,A,ES18.10)') Ang(iM),'|',ty(iM)
          End Do
         Write(6,'(10A)') '--------|','---------------------------|'
 

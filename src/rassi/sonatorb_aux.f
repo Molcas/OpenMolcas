@@ -9,10 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SONATORB_PLOT')
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
@@ -24,13 +22,10 @@
       CHARACTER(LEN=*) FILEBASE
       CHARACTER*16 KNUM
       CHARACTER*16 FNUM,XNUM
-      CHARACTER*8 CHARTYPE
+      CHARACTER*8 CHARTYPE,LABEL
       CHARACTER CDIR
       INTEGER ASS,BSS
       DIMENSION Dummy(1),iDummy(7,8)
-
-
-
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PLOTTING SECTION
@@ -77,10 +72,11 @@ C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
 
 c IOPT=6, origin and nuclear contrib not read
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      LABEL='MLTPL  0'
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -95,17 +91,17 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LV=LVEC
       LE=LEIG
       CALL FZERO(WORK(LVEC),NBSQ)
-      DO 700 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NB=NBASF(ISYM)
-        DO 620 I=1,NB**2,(NB+1)
+        DO I=1,NB**2,(NB+1)
           WORK(LV-1+I)=1.0D00
-620      CONTINUE
+        END DO
         CALL JACOB(WORK(LS),WORK(LV),NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
-        DO 630 I=1,NB
+        DO I=1,NB
           EIG=WORK(LS1)
           WORK(LE1)=EIG
           X=1.0D00/SQRT(MAX(EIG,1.0D-14))
@@ -113,11 +109,11 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
           LS1=LS1+I+1
           LV1=LV1+NB
           LE1=LE1+1
-630      CONTINUE
+        END DO
         LS=LS+(NB*(NB+1))/2
         LV=LV+NB**2
         LE=LE+NB
-700   CONTINUE
+      END DO
 
       CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NBTRI)
 
@@ -285,18 +281,15 @@ c    ONLYFOR NATURAL ORBITALS
       CALL GETMEM('VNAT  ','FREE','REAL',LVNAT,NBSQ)
       CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
 
-
-      RETURN
-      END
+      END SUBROUTINE SONATORB_PLOT
 
 
 
 
       SUBROUTINE SONATORB_CPLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
+      use OneDat, only: sNoNuc, sNoOri, sOpSiz
+      use rassi_aux, only: ipglob
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SONATORB_CPLOT')
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
@@ -308,7 +301,7 @@ c    ONLYFOR NATURAL ORBITALS
       CHARACTER(LEN=*) FILEBASE
       CHARACTER*16 KNUM
       CHARACTER*16 FNUM,XNUM
-      CHARACTER*8 CHARTYPE
+      CHARACTER*8 CHARTYPE,LABEL
       CHARACTER CDIR
       INTEGER ASS,BSS
       DIMENSION IDUM(1),Dummy(1),iDummy(7,8)
@@ -367,10 +360,11 @@ C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
 
 c IOPT=6, origin and nuclear contrib not read
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      LABEL='MLTPL  0'
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -385,17 +379,17 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LV=LVEC
       LE=LEIG
       CALL FZERO(WORK(LVEC),NBSQ)
-      DO 1700 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NB=NBASF(ISYM)
-        DO 1620 I=1,NB**2,(NB+1)
+        DO I=1,NB**2,(NB+1)
           WORK(LV-1+I)=1.0D00
-1620      CONTINUE
+        END DO
         CALL JACOB(WORK(LS),WORK(LV),NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
-        DO 1630 I=1,NB
+        DO I=1,NB
           EIG=WORK(LS1)
           WORK(LE1)=EIG
           X=1.0D00/SQRT(MAX(EIG,1.0D-14))
@@ -403,11 +397,11 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
           LS1=LS1+I+1
           LV1=LV1+NB
           LE1=LE1+1
-1630      CONTINUE
+        END DO
         LS=LS+(NB*(NB+1))/2
         LV=LV+NB**2
         LE=LE+NB
-1700   CONTINUE
+      END DO
 
       CALL GETMEM('SZZ   ','FREE','REAL',LSZZ,NBTRI)
 
@@ -439,12 +433,14 @@ C read in ao matrix for angmom or mltpl
       CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSANG),1)
 
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
+      JOPT=ibset(0,sOpSiz)
 
       IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
         ICMP=1
-        CALL iRDONE(IRC,   1,'MLTPL  0',ICMP,IDUM,       ISYLAB)
-        CALL  RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSANG),ISYLAB)
+        LABEL='MLTPL  0'
+        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,       ISYLAB)
+        CALL  RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSANG),ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
           WRITE(6,*)
@@ -457,8 +453,9 @@ C read in ao matrix for angmom or mltpl
 
       ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
         ICMP=3
-        CALL iRDONE(IRC,   1,'ANGMOM  ',ICMP,IDUM,       ISYLAB)
-        CALL  RDONE(IRC,IOPT,'ANGMOM  ',ICMP,WORK(LSANG),ISYLAB)
+        LABEL='ANGMOM'
+        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,       ISYLAB)
+        CALL  RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSANG),ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
           WRITE(6,*)
@@ -482,7 +479,7 @@ cccccccccccccccccccccccc
         LE=LEIG
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
-          IF(NB.EQ.0) GOTO 1800
+          IF(NB.EQ.0) cycle
 
 C TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
 C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
@@ -597,13 +594,12 @@ C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           INV=INV+NB**2
           LV=LV+NB**2
           LE=LE+NB
-1800      CONTINUE
         END DO
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCC TESTING
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      IF(IPGLOB.GE.DEBUG) THEN
+      IF(IPGLOB.GE.4) THEN
 
       CALL GETMEM('SANGF ','ALLO','REAL',LSANGF,NBMX**2)
       CALL GETMEM('SANGTR  ','ALLO','REAL',LSANGTR,NBMX**2)
@@ -707,7 +703,7 @@ c Sum over the trace
         CALL GETMEM('SANGTI  ','FREE','REAL',LSANGTI,NBMX**2)
         CALL GETMEM('SANGTR2  ','FREE','REAL',LSANGTR2,NBMX**2)
         CALL GETMEM('SANGTI2  ','FREE','REAL',LSANGTI2,NBMX**2)
-      END IF ! IPGLOB >= DEBUG
+      END IF ! IPGLOB >= 4
 
       CALL GETMEM('SANG  ','FREE','REAL',LSANG,NBTRI)
 
@@ -790,8 +786,7 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
       CALL GETMEM('VNATI  ','FREE','REAL',LVNATI,NBSQ)
       CALL GETMEM('OCC   ','FREE','REAL',LOCC,NBST)
 
-      RETURN
-      END
+      END SUBROUTINE SONATORB_CPLOT
 
 
 
@@ -810,8 +805,8 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
       INTEGER INFO
 
       DO J=1,(DIM*(DIM+1)/2)
-          MATFULL(J) = DCMPLX(MATR(J),MATI(J))
-c          MATFULL(J) = DCMPLX(MATR(J),0.0d0)
+          MATFULL(J) = CMPLX(MATR(J),MATI(J),kind=8)
+c          MATFULL(J) = CMPLX(MATR(J),0.0d0,kind=8)
       END DO
 
 
@@ -839,5 +834,4 @@ c          MATFULL(J) = DCMPLX(MATR(J),0.0d0)
          MATR((J*(J-1)/2)+J) = CEIGVAL(J)
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE CPLOT_DIAG

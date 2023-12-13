@@ -10,8 +10,8 @@ also mention features not available in OpenMolcas.
 The `.rst` files contain embedded blocks that are used to generate command-line
 help (accessed with `pymolcas help_doc`) and an XML input description for
 MolGUI. These blocks use the `.. xmldoc::` directive and follow a format
-similar to that described
-[here](https://gitlab.com/Molcas/OpenMolcas/wikis/Programming%20guide/Documentation).
+described
+[here](https://gitlab.com/Molcas/OpenMolcas/wikis/xml%20syntax%20documentation).
 
 To build the documentation, after configuring OpenMolcas with `cmake`, run
 `make doc_html` or `make doc_pdf`.

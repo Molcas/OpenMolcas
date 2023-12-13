@@ -42,7 +42,7 @@ CONTAINS
     TYPE(DET), INTENT(IN) :: D
     INTEGER, INTENT(IN) :: NORB
     CHARACTER(LEN=64) FMT
-    WRITE(FMT,'("(2(X,B",I0,".",I0"))")') NORB, NORB
+    WRITE(FMT,'( 2(1X,B1,I0,".",I0) )') NORB, NORB
     WRITE(*,FMT) D%ALFA, D%BETA
   END SUBROUTINE DET_PRINT
 
@@ -97,18 +97,18 @@ CONTAINS
     REAL(REAL64) :: THR
     INTEGER :: NBITS
     NBITS=MAX(PSI%NORB,5)
-    WRITE(*,'(X,A)') 'WAVEFUNCTION SPECS:'
-    WRITE(*,'(X,A)') '==================='
-    WRITE(*,'(X,A,I12)') '#ELECTRONS    = ', PSI%NEL
-    WRITE(*,'(X,A,I12)') '#ORBITALS     = ', PSI%NORB
-    WRITE(*,'(X,A,I12)') '#MULTIPLICITY = ', PSI%MULT
-    WRITE(*,'(X,A,I12)') '#DET (ALPHA)  = ', PSI%NDETA
-    WRITE(*,'(X,A,I12)') '#DET (BETA)   = ', PSI%NDETB
-    WRITE(*,'(X,A,I12)') '#DET (TOTAL)  = ', PSI%NDETA*PSI%NDETB
+    WRITE(*,'(1X,A)') 'WAVEFUNCTION SPECS:'
+    WRITE(*,'(1X,A)') '==================='
+    WRITE(*,'(1X,A,I12)') '#ELECTRONS    = ', PSI%NEL
+    WRITE(*,'(1X,A,I12)') '#ORBITALS     = ', PSI%NORB
+    WRITE(*,'(1X,A,I12)') '#MULTIPLICITY = ', PSI%MULT
+    WRITE(*,'(1X,A,I12)') '#DET (ALPHA)  = ', PSI%NDETA
+    WRITE(*,'(1X,A,I12)') '#DET (BETA)   = ', PSI%NDETB
+    WRITE(*,'(1X,A,I12)') '#DET (TOTAL)  = ', PSI%NDETA*PSI%NDETB
     WRITE(*,*)
-    WRITE(FMT,'("(A18,X,2(2X,A",I0,"))")') NBITS
+    WRITE(FMT,'("(A18,1X,2(2X,A",I0,"))")') NBITS
     WRITE(*,FMT) 'COEFFICIENTS','ALPHA','BETA'
-    WRITE(FMT,'("(F18.14,X,2(2X,B",I0,".",I0,"))")') NBITS, PSI%NORB
+    WRITE(FMT,'("(F18.14,1X,2(2X,B",I0,".",I0,"))")') NBITS, PSI%NORB
     DETB = LEX_INIT(PSI%NELB,PSI%NORB)
     DO IB = 1, PSI%NDETB
       DETA = LEX_INIT(PSI%NELA,PSI%NORB)
@@ -407,6 +407,7 @@ CONTAINS
   END SUBROUTINE WFN_ORBROT
 
   SUBROUTINE WFN_ENERGY(NI,NA,NS,D1,D2,ONEINT,TWOINT)
+    USE IEEE_ARITHMETIC, ONLY:IEEE_IS_NAN
     REAL(REAL64) :: D1(:,:), D2(:,:,:,:)
     REAL(REAL64) :: ONEINT(:,:), TWOINT(:,:,:,:)
     INTEGER :: NI, NA, NS
@@ -450,7 +451,7 @@ CONTAINS
       DO T=1,NA
         DO U=1,NA
           IF (D1(T,U).NE.0.0D0) THEN
-            IF (ISNAN(TWOINT(I,I,NI+T,NI+U)).OR.ISNAN(TWOINT(I,NI+U,NI+T,I))) THEN
+            IF (IEEE_IS_NAN(TWOINT(I,I,NI+T,NI+U)).OR.IEEE_IS_NAN(TWOINT(I,NI+U,NI+T,I))) THEN
               WRITE(*,*) 'NaN detected on: ', I, I, NI+T, NI+U
             END IF
             E2=E2+(2.0D0*TWOINT(I,I,NI+T,NI+U)-TWOINT(I,NI+U,NI+T,I))*D1(T,U)
@@ -466,7 +467,7 @@ CONTAINS
         DO V=1,NA
           DO X=1,NA
             IF (D2(V,T,X,U).NE.0.0D0) THEN
-              IF (ISNAN(TWOINT(NI+T,NI+U,NI+V,NI+X))) THEN
+              IF (IEEE_IS_NAN(TWOINT(NI+T,NI+U,NI+V,NI+X))) THEN
                 WRITE(*,*) 'NaN detected on: ', NI+T, NI+U, NI+V, NI+X
               END IF
               E2=E2+0.5*TWOINT(NI+T,NI+U,NI+V,NI+X)*D2(V,T,X,U)

@@ -24,7 +24,7 @@ implicit none
 integer(kind=iwp) :: iUHF, iSym, i
 logical(kind=iwp) :: Warn
 character(len=8) :: Model
-character(len=9), parameter :: SecNam = 'RPA_RdRun'
+character(len=*), parameter :: SecNam = 'RPA_RdRun'
 integer(kind=iwp), external :: RPA_iUHF
 
 ! Set type of SCF reference wave function
@@ -107,7 +107,7 @@ call Get_dScalar('PotNuc',NuclearRepulsionEnergy(1))
 
 ! Get DFT functional
 if (Reference(2:3) == 'KS') then
-  call Get_cArray('DFT functional',DFTFunctional,16)
+  call Get_cArray('DFT functional',DFTFunctional,80)
 else
   DFTFunctional = 'Hartree-Fock'
 end if

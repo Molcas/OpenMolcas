@@ -30,7 +30,7 @@ public :: fmm_init_scheme, &
 type(scheme_paras), target, save :: scheme
 
 ! Safety check for initialisation
-logical, save :: scheme_initialised = .false.
+logical(INTK), save :: scheme_initialised = .false.
 
 contains
 
@@ -181,7 +181,7 @@ subroutine fmm_verify_scheme()
         call fmm_quit('RPQ cut off too large or boxes too small!')
       end if
     case default
-      continue
+      !continue
   end select
 
   if (scheme%trans_LMAX < scheme%raw_LMAX) call fmm_quit('increase TLMAX!')
@@ -237,7 +237,7 @@ subroutine fmm_print_scheme()
   write(LUPRI,'(A,F8.4)') ' Smallest box dimension =',scheme%grain
 
   !if (scheme%job_type == MD4_FMM) then
-  !   write(LUPRI,'(A,E12.4)') 'Short-range threshold =',exp(-fmm_ThrInt)
+  !   write(LUPRI,'(A,ES12.4)') 'Short-range threshold =',exp(-fmm_ThrInt)
   !   write(LUPRI,'(A,F9.4)') 'Extent X0 parameter   =',fmm_X0
   !end if
   !if (scheme%job_type == FE_FMM) then

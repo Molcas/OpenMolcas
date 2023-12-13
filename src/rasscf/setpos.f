@@ -14,7 +14,7 @@
       Character*(*) Line
       Character*16 Command
       Character*16 Key
-#include "warnings.fh"
+#include "warnings.h"
 #include "rasdim.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"

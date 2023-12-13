@@ -24,12 +24,13 @@
 !                                                                      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!real(kind=wp) function embPotEne1(density,length)
+!function embPotEne1(density,length)
 !
 !use stdalloc, only: mma_allocate, mma_deallocate
 !use Definitions, only: wp, iwp
 !
 !implicit none
+!real(kind=wp) :: embPotEne1
 !integer(kind=iwp), intent(in) :: length
 !real(kind=wp), intent(in) :: density(length)
 !
@@ -45,7 +46,8 @@
 !
 !! Read in the one-electron integrals due to the embedding potential
 !readCheck = -1
-!call RdOne(readCheck,6,'embpot  ',1,embInts,1)
+!iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+!call RdOne(readCheck,iOpt,'embpot  ',1,embInts,1)
 !if (readCheck /= 0) then
 !  write(u6,*) 'R1Inta: Error readin ONEINT'
 !  write(u6,'(a,a)') 'Label=embpot  '
@@ -58,17 +60,18 @@
 !! Clean Memory
 !call mma_deallocate(embInts)
 !
-!end function
+!end function embPotEne1
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-real(kind=wp) function embPotEneSCF(density,embeddingInts,length)
+function embPotEneSCF(density,embeddingInts,length)
 
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
+real(kind=wp) :: embPotEneSCF
 integer(kind=iwp), intent(in) :: length
 real(kind=wp), intent(in) :: density(length), embeddingInts(length)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ! In this case the energy is just the dot-product of the vectors which resemble
 ! the packed matrices.
@@ -77,12 +80,14 @@ embPotEneSCF = DDot_(length,density,1,embeddingInts,1)
 end function embPotEneSCF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-real(kind=wp) function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nSym)
+function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nSym)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
+real(kind=wp) :: embPotEneMODensities
 integer(kind=iwp), intent(in) :: nSym, nBasPerSym(nSym), nBasTotSquare
 real(kind=wp), intent(in) :: densityInactive(nBasTotSquare), densityActive(nBasTotSquare), embeddingInts(*)
 !real(kind=wp), intent(in) :: coefficientMatrix(nBasFunc**2)
@@ -101,13 +106,13 @@ integer(kind=iwp) :: i, dens_dim_packed, iRow, iCol, counter, counter2
 !  call Abend()
 !end if
 
-allocate(totalDensity(nBasTotSquare))
+call mma_allocate(totalDensity,nBasTotSquare)
 
 dens_dim_packed = 0
 do i=1,nSym
   dens_dim_packed = dens_dim_packed+((nBasPerSym(i)*(nBasPerSym(i)+1))/2)
 end do
-allocate(totalDensityPacked(dens_dim_packed))
+call mma_allocate(totalDensityPacked,dens_dim_packed)
 
 call dcopy_(nBasTotSquare,densityInactive,1,totalDensity,1)
 call daxpy_(nBasTotSquare,One,densityActive,1,totalDensity,1)
@@ -160,9 +165,9 @@ end do
 !embPotEneMODensities = embPotEneSCF(totalDensity,transformedEmbInts,dens_dim)
 embPotEneMODensities = embPotEneSCF(totalDensityPacked,embeddingInts,dens_dim_packed)
 
-deallocate(totalDensity)
-deallocate(totalDensityPacked)
-!deallocate(transformedEmbInts)
+call mma_deallocate(totalDensity)
+call mma_deallocate(totalDensityPacked)
+!call mma_deallocate(transformedEmbInts)
 
 return
 
@@ -195,20 +200,13 @@ end function embPotEneMODensities
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !call Square(inMatrix,unpackedMatrix,1,nBasFunc,nBasFunc)
-!!call MXMA(unpackedMatrix,1,nBasFunc, &
-!           coefficientMatrix(nFrozenOrbs*nBasFunc),1, &
-!           nBasFunc,halfTrafoMat,1, &
-!           nBasFunc,nBasFunc,nBasFunc,nBasFunc)
 !! stefan: check T (transpose) whether it is correct...
-!call DGEMM_('T','N',nBasFunc,nBasFunc,nBasFunc, &
-!            One,unpackedMatrix,nBasFunc, &
-!            coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc, &
-!            Zero,halfTrafoMat,nBasFunc)
-!call MXMT(halfTrafoMat,nBasFunc,1, &
-!          coefficientMatrix(nFrozenOrbs*nBasFunc),1, &
-!          nBasFunc,outMatrix,nBasFunc,nBasFunc)
+!call DGEMM_('T','N',nBasFunc,nBasFunc,nBasFunc,One,unpackedMatrix,nBasFunc,coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc,Zero, &
+!            halfTrafoMat,nBasFunc)
+!call DGEMM_Tri('T','N',nBasFunc,nBasFunc,nBasFunc,One,halfTrafoMat,nBasFunc,coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc, &
+!               Zero,outMatrix,nBasFunc)
 !
 !call mma_deallocate(unpackedMatrix)
 !call mma_deallocate(halfTrafoMat)
 !
-!end subroutine
+!end subroutine transAOtoMO

@@ -1,0 +1,27 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm)  "$MOLCAS"/bin/rhodyn.exe          executable
+ (file)  RASSD1   "$WorkDir/$Project."rassd1.h5      ro
+ (file)  RASSD2   "$WorkDir/$Project."rassd2.h5      ro
+ (file)  RASSD3   "$WorkDir/$Project."rassd3.h5      ro
+ (file)  RASSD4   "$WorkDir/$Project."rassd4.h5      ro
+ (file)  RASSD5   "$WorkDir/$Project."rassd5.h5      ro
+ (file)  RASSD6   "$WorkDir/$Project."rassd6.h5      ro
+ (file)  RASSISD  "$WorkDir/$Project."rassisd.h5     ro
+ (file)  HRFACT   "$WorkDir/$Project."hrfact.dat     ro
+ (file)  INDENS   "$WorkDir/$Project."indens.dat     ro
+ (file)  PULSE    "$WorkDir/$Project."pulse.dat      rws
+ (file)  SODENS   "$WorkDir/$Project."so_den.dat     rws
+ (file)  SFDENS   "$WorkDir/$Project."sf_den.dat     rws
+ (file)  CSFDEN   "$WorkDir/$Project."csf_den.dat    rws
+ (file)  DIPOLE   "$WorkDir/$Project."dipole.dat     rws
+ (file)  RDPREP   "$WorkDir/$Project."rdprep.h5      rws
+ (file)  RDOUT    "$WorkDir/$Project."rhodyn.h5      rws

@@ -11,7 +11,7 @@
       Subroutine poly_aniso_open(iReturn)
 
       Implicit None
-#include "warnings.fh"
+#include "warnings.h"
       Integer       :: nneq, exch, neqv, nmax, nLoc, nCenter,
      &                 nT, nH, nTempMagn, nDir, nDirZee,
      &                 nMult, nPair, MxRank1, MxRank2

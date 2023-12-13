@@ -21,7 +21,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
       INTEGER IFC,ISYM
       REAL*8 FACT,X(*),Y(*)
       INTEGER NAS,NT,NA,IT,ITQ,IUQ,ITUU

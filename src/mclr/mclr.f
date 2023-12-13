@@ -38,6 +38,7 @@
 ************************************************************************
       Use Basis_Info, only: Basis_Info_Free
       Use Center_Info, only: Center_Info_Free
+      Use External_Centers, only: External_Centers_Free
       use Symmetry_Info, only: Symmetry_Info_Free
       use Arrays, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
@@ -46,14 +47,16 @@
      &                  FIMO, F0SQMO
       use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       use negpre, only: SS
+      use PDFT_Util, only :Do_Hybrid,WF_Ratio,PDFT_Ratio
+*     Added for CMS NACs
+      use Definitions, only: iwp, u6
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
-#include "warnings.fh"
+#include "warnings.h"
 #include "stdalloc.fh"
 #include "machine.fh"
 #include "SysDef.fh"
 
-#include "blksize.fh"
 #include "sa.fh"
 #include "Pointers.fh"
 #include "detdim.fh"
@@ -62,12 +65,114 @@
       Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
      &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
 
+#include "Files_mclr.fh"
+
       Logical Reduce_Prt
       External Reduce_Prt
+      Integer get_MBl_wa
+      External get_MBl_wa
 *
 *     first a few things for making Markus Happy
       logical converged(8)
       logical DoCholesky
+
+* Additional things for CMS-NACs Optimization
+      Character*8 Method
+      integer(kind=iwp) :: LuInput, istatus, LuSpool2
+      character(len=16) :: StdIn
+      character(len=180) :: Line
+      character(len=128) :: FileName
+      logical(kind=iwp) :: Exists
+      integer(kind=iwp), external :: isFreeUnit
+      Logical :: CalcNAC_Opt = .False., MECI_via_SLAPAF = .False.
+
+*   This used to be after the CWTIME() functional call                 *
+************************************************************************
+*                                                                      *
+      iPL=iPrintLevel(-1)
+      If (Reduce_Prt().and.iPL.lt.3) iPL=iPL-1
+*                                                                      *
+************************************************************************
+*                                                                      *
+!This is where you should put the information for CMS
+      Call Get_cArray('Relax Method',Method,8)
+      if(Method.eq.'MSPDFT  ') then
+          Call Get_iArray('cmsNACstates    ', cmsNACstates,2)
+          Call Get_iArray('NACstatesOpt    ', NACstates,2)
+          Call Get_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
+          call Get_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
+
+          if(MECI_via_SLAPAF.eqv..FALSE.) then
+              if ( (cmsNACstates(1).ne.NACstates(1)).or.
+     &    (cmsNACstates(2).ne.NACstates(2)) ) Then
+                    NACstates(1) = cmsNACstates(1)
+                    NACstates(2) = cmsNACstates(2)
+              end if
+          end if
+
+          if ( (cmsNACstates(1).ne.NACstates(1)).or.
+     & (cmsNACstates(2).ne.NACstates(2)) ) Then
+             if (iPL >= 3) then
+                 write(u6,*)
+                 write(u6,*) 'MS-PDFT Potentials for root(s)'
+                 write(u6,*) cmsNACstates(1), cmsNACstates(2)
+                 write(u6,*) 'MCLR Lag. Mult. for root'
+                 write(u6,*) NACstates(1), NACstates(2)
+                 write(u6,*) 'MS-PDFT roots and MCLR roots do not match'
+                 write(u6,*) 'MCLR requests MCPDFT to be run before'
+                 write(u6,*) 'it states again'
+                 write(u6,*)
+             end if
+
+             LuInput = 11
+             LuInput = IsFreeUnit(LuInput)
+             call StdIn_Name(StdIn)
+             call Molcas_open(LuInput,StdIn)
+
+             write(LuInput,'(A)') '>ECHO OFF'
+             write(LuInput,'(A)') '>export MCLR_OLD_TRAP=$MOLCAS_TRAP'
+             write(LuInput,'(A)') '>export MOLCAS_TRAP=ON'
+
+             write(LuInput,'(A)') ' &MCPDFT &END'
+             write(LuInput,'(A)') ' KSDFT=T:PBE'
+             write(LuInput,'(A)') ' MSPDft'
+             write(LuInput,'(A)') ' GRAD'
+             if (NACstates(2).ne.0) then
+               write(LuInput,'(A)') 'NAC'
+               write(LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
+               if(CalcNAC_Opt) Write(LuInput,'(A)') 'MECI'
+             end if
+             write(LuInput,'(A)') 'End of Input'
+             write(LuInput,'(A)') ' '
+
+             FileName = 'MCLRINP'
+             call f_inquire(Filename,Exists)
+
+             if (Exists) then
+               LuSpool2 = 77
+               LuSpool2 = IsFreeUnit(LuSpool2)
+               call Molcas_Open(LuSpool2,Filename)
+               do
+                  read(LuSpool2,'(A)',iostat=istatus) Line
+                  if (istatus > 0) call Abend()
+                  if (istatus < 0) exit
+                  write(LuInput,'(A)') Line
+               end do
+               close(LuSpool2)
+             else
+               write(LuInput,'(A)') ' &MCLR &End'
+             end if
+
+             write(LuInput,'(A)') '>export MOLCAS_TRAP=$MCLR_OLD_TRAP'
+             write(LuInput,'(A)') '>ECHO ON'
+             close(LuInput)
+             call Finish(_RC_INVOKED_OTHER_MODULE_)
+           End if
+      End if
+*
+      !! check the status; if quantities needed for MCLR have not been
+      !! computed, call CASPT2
+      if (Method.eq.'CASPT2  ') call check_caspt2(0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -76,14 +181,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iPL=iPrintLevel(-1)
-      If (Reduce_Prt().and.iPL.lt.3) iPL=iPL-1
-*                                                                      *
-************************************************************************
-*                                                                      *
       iAllo=0
 c      idp=rtoi
-      nrec=MBl_wa/rtob
+      nrec=get_MBl_wa()/rtob
 *
       Call DecideOnCholesky(DoCholesky)
       Call get_iScalar('nSym',nSymX)
@@ -144,6 +244,8 @@ c      idp=rtoi
          nA(iSym)=nna
          nnA=nnA+nAsh(isym)
       end do
+      nacpar=(nnA+1)*nnA/2
+      nacpr2=(nacpar+1)*nacpar/2
 
       Call Start_MCLR()
 *
@@ -190,8 +292,25 @@ c      idp=rtoi
 *        Call WfCtl_PCG(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
 *        Call Abend()
       Else if(iMCPD) Then!pdft
-         Call WfCtl_PDFT(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
-      Else if (SA) Then
+
+        Do_Hybrid=.false.
+        CALL qpg_DScalar('R_WF_HMC',Do_Hybrid)
+        If(Do_Hybrid) Then
+         CALL Get_DScalar('R_WF_HMC',WF_Ratio)
+         PDFT_Ratio=1.0d0-WF_Ratio
+        End If
+
+        if(iMSPD) then
+          if(Do_Hybrid) then
+           CALL WarningMessage(2,
+     &     'Hybrid MS-PDFT gradient not supported yet')
+           CALL Quit(_RC_EXIT_EXPECTED_)
+          end if
+          Call WfCtl_MSPD(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
+        else
+          Call WfCtl_PDFT(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
+        end if
+      Else if (SA.or.PT2) Then
          Call WfCtl_SA(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
       Else If (TimeDep) Then
          Call WfCtl_td(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI,
@@ -208,6 +327,7 @@ c      idp=rtoi
       If(.not.(TwoStep.and.(StepType.eq.'RUN1'))) Then
          If (PT2.or.SA.or.iMCPD) Then
             Call Out_PT2(ifpK,ifpCI)
+            If (PT2) Close (LUPT2) !! this file is opend in wfctl_sa
          Else If (TimeDep) Then
             Call Output_td(ifpK,ifpS,ifpCI,ifpSC,
      &                     ifpRHS,ifpRHSCI,converged)
@@ -227,6 +347,7 @@ c      idp=rtoi
       Call Basis_Info_Free()
       Call Center_Info_Free()
       Call Symmetry_Info_Free()
+      Call External_Centers_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *

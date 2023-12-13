@@ -15,11 +15,11 @@
      &                     IOCOC,MXSOOB_AS)
 *
 *
-* Number of combimations with symmetry ITOTSM and
+* Number of combinations with symmetry ITOTSM and
 * occupation between IOCCMN and IOCCMX
 *
 * In view of the limited range of I*4, the number of dets
-* is returned as integer and  real*8
+* is returned as integer and real*8
 *
 * MXSB is largest UNPACKED symmetry block
 * MXSOOB is largest UNPACKED symmetry-type-type block

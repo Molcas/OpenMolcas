@@ -134,9 +134,9 @@ Structure of the ECP libraries
       "*keyword* :kword:`mv&dw potentials end`".)
    #. The keyword :kword:`End of Spectral Representation Operator`.
 
-Below is an example of an entry in the :file:`ECP` library for an AIMP. ::
+Below is an example of an entry in the AIMP library. ::
 
-  /S.ECP.Barandiaran.7s6p1d.1s1p1d.6e-CG-AIMP.        -- label (note that type is ECP)
+  /S.CG-AIMP.Barandiaran.7s6p1d.1s1p1d.ECP.6el.       -- label (note that 6th field is ECP)
   Z.Barandiaran and L.Seijo, Can.J.Chem. 70(1992)409. -- 1st ref. line
   core[Ne] val[3s,3p]  (61/411/1*)=2s3p1d recommended -- 2nd ref. line
   *SQR-SP(7/6/1)                 (61/411/1)           -- comment line
@@ -247,9 +247,9 @@ Below is an example of an entry in the :file:`ECP` library for an AIMP. ::
   SQR-2P                                              -- label in QRPLIB
   End of Spectral Representation Operator             -- end of SR operator
 
-Below is an example of an entry in the :file:`ECP` library for a pseudo potential. ::
+Below is an example of an entry in the :file:`STUTTGART` file for a pseudo potential. ::
 
-  /Hg.ECP.Dolg.4s4p2d.2s2p1d.2e-MWB                   -- label (note the type ECP)
+  /Hg.Stuttgart.Kuchle.4s4p1d.2s2p1d.ECP.2el.         -- label (note the 6th field is ECP)
   W. Kuechle, M. Dolg, H. Stoll, H. Preuss, Mol. Phys.-- ref. line 1
   74, 1245 (1991); J. Chem. Phys. 94, 3011 (1991).    -- ref. line 2
       2.00000    2                                    -- eff. charge & highest ang.mom.

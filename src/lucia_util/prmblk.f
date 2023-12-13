@@ -24,7 +24,7 @@
 * =====
 * Output
 * =====
-* JATP(I),JASM(I),JBTP(I),JBSM(I) Indeces for Block I
+* JATP(I),JASM(I),JBTP(I),JBSM(I) indices for Block I
 * NPERM : Number of blocks  that can be obtained
 * ITRP(I) = 1 => block should     be transposed
 *         = 0 => block should not be transposed

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Oskar Weser                                      *
 ************************************************************************
-#include "intent.h"
+#include "intent.fh"
       module orthonormalization
         use definitions, only: wp
         use stdalloc, only: mma_allocate, mma_deallocate
@@ -88,7 +88,7 @@
 
         select case (scheme%val)
           case(ON_scheme_values%no_ON)
-            continue
+            !continue
           case(ON_scheme_values%Lowdin)
             call Lowdin_Blocks(basis, S, ONB)
           case(ON_scheme_values%Canonical)
@@ -137,7 +137,7 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Lowdin(basis(i)%block, ONB(i)%block, S(i)%block)
+          call Lowdin(basis(i)%blck, ONB(i)%blck, S(i)%blck)
         end do
       end subroutine Lowdin_Blocks
 
@@ -156,8 +156,8 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Canonical(basis(i)%block, n_to_ON(i),
-     &                   ONB(i)%block, n_new(i), S(i)%block)
+          call Canonical(basis(i)%blck, n_to_ON(i),
+     &                   ONB(i)%blck, n_new(i), S(i)%blck)
         end do
       end subroutine Canonical_Blocks
 
@@ -175,8 +175,8 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Gram_Schmidt(basis(i)%block, n_to_ON(i), ONB(i)%block,
-     &                      n_new(i), S(i)%block)
+          call Gram_Schmidt(basis(i)%blck, n_to_ON(i), ONB(i)%blck,
+     &                      n_new(i), S(i)%blck)
         end do
       end subroutine Gram_Schmidt_Blocks
 
@@ -186,7 +186,7 @@
      &    n_to_ON, nNew,
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
       use general_data, only : nSym
-#include "warnings.fh"
+#include "warnings.h"
 #include "output_ras.fh"
       integer, intent(in) :: n_to_ON(:), nNew(:)
       integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
@@ -235,16 +235,18 @@
 
 
       subroutine read_raw_S(S_buffer)
+        use OneDat, only: sNoOri
         real(wp), intent(inout) :: S_buffer(:)
         integer :: i_Rc, i_Opt, i_Component, i_SymLbl
-#include "warnings.fh"
+        character(len=8) :: Label
+#include "warnings.h"
 
         i_Rc = 0
-        i_Opt = 2
+        i_Opt = ibset(0,sNoOri)
         i_Component = 1
         i_SymLbl = 1
-        Call RdOne(i_Rc, i_Opt, 'Mltpl  0', i_Component,
-     &             S_buffer, i_SymLbl)
+        Label = 'Mltpl  0'
+        Call RdOne(i_Rc, i_Opt, Label, i_Component, S_buffer, i_SymLbl)
         if ( i_rc /= 0 ) then
           write(6,*)' RASSCF is trying to orthonormalize orbitals but'
           write(6,*)' could not read overlaps from ONEINT. Something'
@@ -258,7 +260,7 @@
       subroutine read_S(S)
         use general_data, only : nBas, nSym, nActEl
         use rasscf_data, only : nFr, nIn, Tot_Nuc_Charge
-#include "warnings.fh"
+#include "warnings.h"
 #include "output_ras.fh"
         type(t_blockdiagonal) :: S(nSym)
 

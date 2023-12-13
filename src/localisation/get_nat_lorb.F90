@@ -13,13 +13,15 @@
 
 subroutine Get_Nat_Lorb(Occ,FOcc,nO,nX,jOrb,Umat)
 
+#include "intent.fh"
+
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: Occ(*)
-real(kind=wp), intent(out) :: FOcc(*)
+real(kind=wp), intent(_OUT_) :: FOcc(*)
 real(kind=wp), intent(inout) :: Umat(*)
 integer(kind=iwp), intent(in) :: nO, nX, jOrb(nO)
 integer(kind=iwp) :: i, ii, j, nOx, nXx

@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) Per-Olof Widmark                                       *
 ***********************************************************************/
+
 /**************************************************************************/
 /*                                                                        */
 /* This routine does xml dump of strings.                                 */
@@ -20,29 +21,38 @@
 /*          Lund University, Sweden                                       */
 /*                                                                        */
 /**************************************************************************/
+
 #include <stdio.h>
 #include "molcastype.h"
 #include "xmlapi.h"
 #ifdef _CAPITALS_
-#define xml_cdumpb XML_CDUMPC
+# define xml_cdumpb XML_CDUMPC
 #else
-#ifndef ADD_
-#define xml_cdumpb xml_cdumpb_
+# ifndef ADD_
+#   define xml_cdumpb xml_cdumpb_
+# endif
 #endif
-#endif
+
 void xml_cdumpb(char *name, INT *nx_name, INT *optx) {
-   FILE *f;
-   char  line[256];
-   int   n_name;
-   int   opt;
-   int   k;
+  FILE *f;
+  char line[256];
+  int n_name;
+  int opt;
+  int k;
 
-   n_name=*nx_name;
-   opt=*optx;
+  n_name = *nx_name;
+  opt = *optx;
 
-   if((f=fopen(XMLDUMP,"a"))==NULL) return;
-   for(k=0; k<n_name; k++) { line[k]=name[k]; if(line[k]==' ') line[k]=0; }; line[n_name]=0;
-   fprintf(f," \"%s\"",line);
-   if((opt&1)!=0) fprintf(f,"\n");
-   fclose(f);
+  if ((f = fopen(XMLDUMP, "a")) == NULL)
+    return;
+  for (k = 0; k < n_name; k++) {
+    line[k] = name[k];
+    if (line[k] == ' ')
+      line[k] = 0;
+  };
+  line[n_name] = 0;
+  fprintf(f, " \"%s\"", line);
+  if ((opt & 1) != 0)
+    fprintf(f, "\n");
+  fclose(f);
 }

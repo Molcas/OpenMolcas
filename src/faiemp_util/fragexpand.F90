@@ -16,7 +16,7 @@ subroutine FragExpand(LuRd)
 !***********************************************************************
 !                                                                      *
 !    Objective: To expand the data for the fragments and append them   *
-!               to regular arrays in info.fh                           *
+!               to regular arrays in Basis_Info, Center_Info           *
 !                                                                      *
 ! Called from: Input                                                   *
 !                                                                      *
@@ -29,7 +29,6 @@ subroutine FragExpand(LuRd)
 use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
-use Gateway_Interfaces, only: GetBS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -44,7 +43,7 @@ integer(kind=iwp) :: BasisTypes(4), LenLbl, iAtom, ib, iBas, iCnttp, iCntr, ii, 
 logical(kind=iwp) :: UnNorm
 character(len=4) :: label
 character(len=13) :: DefNm = 'basis_library'
-character(len=80) :: Ref(2)
+character(len=180) :: Ref(2)
 character(len=storageSize) :: sBasis
 character(len=256) :: Basis_lib, Fname
 character(len=180), allocatable :: STDINP(:)
@@ -82,7 +81,7 @@ end do
 
 ! Loop over distrinct basis set centers (dbsc)
 
-ndc = 0 ! destinct center index
+ndc = 0 ! distinct center index
 do iCnttp=1,mCnttp
 
   ! Skip if this is not a fragment dbsc to expand.
@@ -106,7 +105,6 @@ do iCnttp=1,mCnttp
       nCnttp = nCnttp+1
       if (nCnttp > Mxdbsc) then
         write(u6,*) ' Increase Mxdbsc'
-        call ErrTra()
         call Quit_OnUserError()
       end if
 
@@ -165,10 +163,11 @@ do iCnttp=1,mCnttp
         Shells(iSh)%Frag = .true.
       end do
       if (index(sBasis(1:Indx-1),'6-31G') /= 0) then
-        do iSh=jShll+3,iShll
+        iSh = jShll+3
+        if (iSh <= iShll) then
           Shells(iSh)%Prjct = .false.
           Shells(iSh)%Transf = .false.
-        end do
+        end if
       end if
       dbsc(nCnttp)%Frag = .true.
 
@@ -180,7 +179,6 @@ do iCnttp=1,mCnttp
       if (mdc > MxAtom) then
         write(u6,*) ' FragExpand: Increase MxAtom'
         write(u6,*) '        MxAtom=',MxAtom
-        call ErrTra()
         call Quit_OnUserError()
       end if
       ! get the relative coordinates

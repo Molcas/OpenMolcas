@@ -66,7 +66,13 @@ c      END IF
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "cands.fh"
-#include "cicisp.fh"
+!#include "cicisp.fh"
+      COMMON/CICISP/IDUMMY,NICISP,
+     &              NELCI(MXPICI),
+     &              XISPSM(MXPCSM,MXPICI),
+     &              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,
+     &              NBLKIC(MXPCSM,MXPICI),LCOLIC(MXPCSM,MXPICI),
+     &              MXNTTS,MXSOOB_AS
 #include "cstate.fh"
 #include "clunit.fh"
 #include "glbbas.fh"

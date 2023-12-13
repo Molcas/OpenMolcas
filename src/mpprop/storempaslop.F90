@@ -12,7 +12,6 @@
 subroutine StoreMpAsLop(nAtoms,ANr,nB,T,Ti,MP,lMax,EC)
 
 use MPProp_globals, only: AtBoMltPl, Cor
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -27,10 +26,7 @@ call Get_iArray('LP_A',ANr,nAtoms)
 
 !-- Let's fix the uber-simple T and T(-1).
 
-T(:,:) = Zero
-do i=1,nB
-  T(i,i) = One
-end do
+call unitmat(T,nB)
 Ti(:,:) = T(:,:)
 
 !-- Let's fix the expansion centres.
@@ -58,7 +54,7 @@ do l=0,lMax
       do iAt1=1,nAtoms
         do iAt2=1,iAt1
           iAtK = iAtK+1
-          MP(iAtK,iMu) = AtBoMltPl(l)%M(kompost,iAtK)
+          MP(iAtK,iMu) = AtBoMltPl(l)%A(kompost,iAtK)
         end do
         if (l == 0) then
           MP(iAtK,iMu) = MP(iAtK,iMu)-real(ANr(iAt1),kind=wp)

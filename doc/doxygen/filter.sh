@@ -14,10 +14,4 @@
 # Preprocess file
 cat $1 | \
   # Fix case of automatic links
-  ./fix_links.py | \
-  # Disable #include directives (using "C" to avoid mis-detection as free format)
-  sed -e 's/^#include/Cinclude/' -e 's/^[*cC!]/C/' | \
-  # Preprocess with cpp
-  #cpp -undef -w -fdirectives-only -dU -P -nostdinc
-  # Preprocess with gpp
-  gpp -n -U "" "" "(" "," ")" "(" ")" "#" "" -M "\n#\w" "\n" " " " " "\n" "" ""
+  ./fix_links.py

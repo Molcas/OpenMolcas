@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
-      use output_caspt2, only:iPrGlb,usual,verbose
+      use caspt2_output, only:iPrGlb,usual,verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -102,7 +102,9 @@ C usually print info on the total number of parameters
       END
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
-      use output_caspt2, only:iPrGlb,insane
+      use caspt2_output, only: iPrGlb, insane
+      use caspt2_gradient, only: do_grad, do_lindep, nStpGrd, LUSTD,
+     *                           idBoriMat
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -111,6 +113,8 @@ C usually print info on the total number of parameters
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
+#include "pt2_guga.fh"
+#include "caspt2_grad.fh"
 
 * For fooling some compilers:
       DIMENSION WGRONK(2)
@@ -149,6 +153,13 @@ C for temporary storage.
      &  'SBDIAG_SER: ','CASE ',ICASE,' (',CASES(ICASE),') ','SYM ',ISYM
       END IF
 
+      IDTMP0 = 0
+      If (do_grad.or.nStpGrd.EQ.2) Then
+        !! correct?
+        iPad = ItoB - Mod(6*NG3,ItoB)
+        IDTMP0=6*NG3+iPad
+      End If
+
       NS=(NAS*(NAS+1))/2
       CALL GETMEM('LS','ALLO','REAL',LS,NS)
       IDS=IDSMAT(ISYM,ICASE)
@@ -179,12 +190,16 @@ C Extremely small values give scale factor exactly zero.
       DO I=1,NAS
         IDIAG=IDIAG+I
         SD=WORK(LS-1+IDIAG)
-        IF(SD.GT.THRSHN) THEN
+        If (IFDORTHO) then
+          WORK(LSCA-1+I)=1.0D+00
+        Else
+          IF(SD.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-          WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
-        ELSE
-          WORK(LSCA-1+I)=0.0D0
-        END IF
+              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
+          ELSE
+            WORK(LSCA-1+I)=0.0D0
+          END IF
+        End If
       END DO
       IJ=0
       DO J=1,NAS
@@ -224,10 +239,10 @@ C DIAGONALIZE THE SCALED S MATRIX:
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
       ! fingerprint eigenvalues
-      IF (IPRGLB.GE.INSANE) THEN
-        FP=DNRM2_(NAS,WORK(LEIG),1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT EIGENVALUE NORM: ', FP
-      END IF
+      if (iprglb >= insane) then
+        fp = dnrm2_(nas,work(leig),1)
+        write(6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
+      end if
 
 C Form orthonormal vectors by scaling eigenvectors
       NIN=0
@@ -251,6 +266,7 @@ C Addition, for the scaled symmetric ON.
         SCA=WORK(LSCA-1+I)
         CALL DSCAL_(NIN,SCA,WORK(LVEC-1+I),NAS)
       END DO
+
       CALL GETMEM('LSCA','FREE','REAL',LSCA,NAS)
 C The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
@@ -322,7 +338,7 @@ C USE LUSOLV AS TEMPORARY STORAGE. WE MAY NEED SECTIONING.
 C NOTE: SECTIONING MUST BE  PRECISELY THE SAME AS WHEN LATER
 C READ BACK (SEE BELOW).
       NAUX=MIN(19,NIN)
-      IDTMP=0
+      IDTMP=IDTMP0
       CALL DDAFILE(LUSOLV,1,WORK(LVEC),NAS*NAUX,IDTMP)
       DO KSTA=NAUX+1,NIN,NAUX
         KEND=MIN(KSTA-1+NAUX,NIN)
@@ -341,6 +357,11 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY WORK(LVEC)
       NB=NS
       CALL GETMEM('LB','ALLO','REAL',LB,NB)
       CALL DDAFILE(LUSBT,2,WORK(LB),NB,IDB)
+      If ((do_grad.or.nStpGrd.eq.2).and.do_lindep) Then
+        !! The original B matrix is needed in the LinDepLag subroutine
+        IDB2 = idBoriMat(ISYM,ICASE)
+        CALL DDAFILE(LUSTD,1,WORK(LB),NB,IDB2)
+      End If
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NB,WORK(LB),1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM: ', FP
@@ -437,7 +458,7 @@ C full matrices, plus an additional 19 columns of results.
       NAUX=MIN(19,NIN)
       CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
       CALL GETMEM('LAUX'  ,'ALLO','REAL',LAUX  ,NAS*NAUX)
-      IDTMP=0
+      IDTMP=IDTMP0
       CALL DDAFILE(LUSOLV,2,WORK(LAUX),NAS*NAUX,IDTMP)
       IF(BTRANS.EQ.'YES') THEN
         CALL DGEMM_('N','N',
@@ -501,7 +522,7 @@ C batch mode.  However, unlike in the replicate routine, this amount is
 C divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
-      use output_caspt2, only:iPrGlb,insane
+      use caspt2_output, only:iPrGlb,insane
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: King
 #endif

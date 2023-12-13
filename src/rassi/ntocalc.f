@@ -41,17 +41,15 @@
 *                  in Depart. of Chemistry, University of Minnesota, USA
 *                                             2018/08/09
 
-      SUBROUTINE   NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
+      SUBROUTINE NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
 
       use fortran_strings, only : str
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
@@ -94,6 +92,7 @@
 
       LU=233
 
+      statename=''
       DoTest=.false.
       Zero=0.0D0
       Two=2.0D0
@@ -276,14 +275,14 @@ C     Print out transition density matrix
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(5(2X,E10.4E2))')
+        write (LU,'(5(1X,ES11.4E2))')
      &    (TRAD(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       write (LU,*)
       write (LU,*)
       write (LU,*)
       DO I=1,NASHT
-        write (LU,'(5(2X,E10.4E2))')
+        write (LU,'(5(1X,ES11.4E2))')
      &    (TRASD(NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
@@ -299,7 +298,7 @@ C     Writing Particle Matrix
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(10(2X,E10.4E2))')
+        write (LU,'(10(1X,ES11.4E2))')
      &    (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
@@ -311,7 +310,7 @@ C     Calculating T*T_transpose
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
       DO I=1,NASHT
-        write (LU,'(10(2X,E10.4E2))')
+        write (LU,'(10(1X,ES11.4E2))')
      &    (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
       END DO
       close (LU)
@@ -338,7 +337,7 @@ C     Printing some matrices
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (LU,'(5(2X,E10.4E2))')
+         write (LU,'(5(1X,ES11.4E2))')
      &     (WORK(LNTOVmat-1+NASHT*(I-1)+J),J=1,NASHT)
        END DO
        close (LU)
@@ -347,7 +346,7 @@ C     Printing some matrices
       LU=ISFREEUNIT(LU)
       CALL Molcas_Open(LU,FILENAME)
        DO I=1,NASHT
-         write (LU,'(5(2X,E10.4E2))')
+         write (LU,'(5(1X,ES11.4E2))')
      &     (WORK(LNTOUmat-1+NASHT*(I-1)+J),J=1,NASHT)
        END DO
        close (LU)
@@ -394,7 +393,7 @@ C     End of Printing NTOs
 
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
-         Call RightAd(lIrrep(iSym))
+         lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
 
 C     Putting particle-hole pairs in the output
@@ -454,21 +453,19 @@ C     Putting particle-hole pairs in the output
       CALL GETMEM ('SupCMO2','Free','Real',LSUPCMO2,NSUPCMO)
       CALL GETMEM ('ONTO','Free','Real',LONTO,NSUPCMO)
       CALL GETMEM ('UNTO','Free','Real',LUNTO,NSUPCMO)
-      RETURN
-      END
+
+      END SUBROUTINE NTOCalc
 
 
 
       SUBROUTINE  NTOSymAnalysis(NUseSym,NUseBF,NUsedBF,LNTO,
      &NTOType,STATENAME,LEigVal,UsetoReal,RealtoUse,Spin,LSym,LInd)
 #include "rasdim.fh"
-#include "rasdef.fh"
 #include "symmul.fh"
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "Files.fh"
-#include "Struct.fh"
 
 C     input variables
       INTEGER NUseSym,LNTO,LEigVal
@@ -535,7 +532,7 @@ C
           write(6,'(a,a)')'There are at least two symmetries that have',
      &    ' a sum of coefficient**2 larger than the threshold'
        write(6,'(5A10)')'Threshold','Sum1','Sum2','Sym1','Sym2'
-       write(6,'(3E10.6E2,2I10)')Threshold,SquareSum(iPrintSym),
+       write(6,'(3ES10.3E2,2I10)')Threshold,SquareSum(iPrintSym),
      & SquareSum(IUseSym),iPrintSym,IUseSym
           If (SquareSum(iPrintSym).lt.SquareSum(IUseSym)) THEN
            iPrintSym=IUseSym
@@ -625,16 +622,16 @@ C Recording Printed NTO (PCMO)
       LU=ISFREEUNIT(LU)
       Note='*  Natural Transition Orbitals'
       WRITE(FILENAME,'(6(a))')
-     & 'NTORB.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
+     & 'NTORB.SF.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       WRITE(molden_name,'(6(a))')
-     & 'MD_NTO.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
+     & 'MD_NTO.SF.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
      & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
       CALL Molden_interface(0,trim(FILENAME),trim(molden_name))
 
       deallocate(PCMO)
-      RETURN
-      END
+
+      END SUBROUTINE  NTOSymAnalysis
 
 
 

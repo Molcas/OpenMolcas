@@ -20,7 +20,7 @@ subroutine PAO_Analysis(D,R,X)
 use Localisation_globals, only: AnaNrm, BName, MOrig, nAtoms, nBas, nFro, nOrb2Loc, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: D(*), R(*), X(*)
@@ -32,8 +32,8 @@ logical(kind=iwp) :: Debug
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: DAt(:), EigI(:), EigR(:), RAt(:), S(:), SX(:), Tst(:), XAt(:)
 real(kind=wp), parameter :: Tol = 1.0e-10_wp
-character(len=12), parameter :: SecNam = 'PAO_Analysis'
-real(kind=r8), external :: ddot_
+character(len=*), parameter :: SecNam = 'PAO_Analysis'
+real(kind=wp), external :: ddot_
 
 call Untested('PAO_Analysis')
 
@@ -83,7 +83,7 @@ do iSym=1,nSym
     xRMS = Zero
   end if
   if (xRMS > Tol) then
-    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(D-RR^T) = ',xRMS,' (sym.',iSym,')'
+    write(u6,'(A,A,ES16.8,A,I2,A)') SecNam,': ERROR: RMS(D-RR^T) = ',xRMS,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kOffX = kOff+nB*nF
@@ -96,7 +96,7 @@ do iSym=1,nSym
     xRMS = Zero
   end if
   if (xRMS > Tol) then
-    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(D-XX^T) = ',xRMS,' (sym.',iSym,')'
+    write(u6,'(A,A,ES16.8,A,I2,A)') SecNam,': ERROR: RMS(D-XX^T) = ',xRMS,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kOff = kOff+nB2
@@ -141,7 +141,7 @@ do iSym=1,nSym
     xRMS = Zero
   end if
   if (xRMS > Tol) then
-    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(Co^TSX [Frozen]) = ',xRMS,' (sym.',iSym,')'
+    write(u6,'(A,A,ES16.8,A,I2,A)') SecNam,': ERROR: RMS(Co^TSX [Frozen]) = ',xRMS,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kCR = kC+nBas(iSym)*(nFro(iSym)+nOrb2Loc(iSym))
@@ -154,7 +154,7 @@ do iSym=1,nSym
     xRMS = Zero
   end if
   if (xRMS > Tol) then
-    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(Co^TSX [Rest]) = ',xRMS,' (sym.',iSym,')'
+    write(u6,'(A,A,ES16.8,A,I2,A)') SecNam,': ERROR: RMS(Co^TSX [Rest]) = ',xRMS,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kC = kC+nBas(iSym)*nBas(iSym)
@@ -178,7 +178,7 @@ do iSym=1,nSym
   do i=1,nOrb2Loc(iSym)
     xNrm = sqrt(EigR(i)**2+EigI(i)**2)
     if (xNrm < Tol) then
-      write(u6,'(A,A,I6,A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||eigenvalue',i,'|| of ','C^TSX = ',xNrm,' (sym.',iSym,')'
+      write(u6,'(A,A,I6,A,A,ES16.8,A,I2,A)') SecNam,': ERROR: ||eigenvalue',i,'|| of ','C^TSX = ',xNrm,' (sym.',iSym,')'
       nErr = nErr+1
     end if
   end do

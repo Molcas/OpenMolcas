@@ -11,17 +11,18 @@
 * Copyright (C) 1987, Per Ake Malmqvist                                *
 *               2018, Jesper Norell                                    *
 *               2018, Joel Creutzberg                                  *
+*               2023, Ignacio Fdez. Galvan                             *
 ************************************************************************
       SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
       use rassi_global_arrays, only: SFDYS, SODYSAMPS,
      &                               SODYSAMPSR, SODYSAMPSI, JBNUM
+      use OneDat, only: sNoNuc, sNoOri
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
 #include "rassi.fh"
-#include "prgm.fh"
 #include "symmul.fh"
 #include "Files.fh"
 
@@ -46,6 +47,8 @@
       DIMENSION DYSEN(NSS)
       DIMENSION AMPS(NSS)
       Character*30 Filename
+      Character*80 TITLE
+      character(len=8) :: Label
 
 ! +++ J.Norell 2018
 
@@ -59,6 +62,8 @@ C    (approximation) for all states
 C 2. (Slower): Compute the full SO Dyson orbitals for the requested
 C    initial states and export them to .molden format. SO amplitudes
 C    are correctly calculated for these states.
+
+! IFG: Added DysOrb export, not sure it's correct
 
 ! ****************************************************************
 
@@ -126,19 +131,20 @@ C Compute the magnitude of the complex amplitudes as an approximation
       NSZZ=0
       NSSQ=0
       NPROD=0
-      DO 10 ISY=1,NSYM
+      DO ISY=1,NSYM
         NO=NOSH(ISY)
         NB=NBASF(ISY)
         NSZZ=NSZZ+(NB*(NB+1))/2
         NSSQ=MAX(NSSQ,NB**2)
         NPROD=MAX(NPROD,NO*NB)
-10    CONTINUE
+      END DO
       CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NSZZ)
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      Label='MLTPL  0'
+      CALL RDONE(IRC,IOPT,Label,ICMP,WORK(LSZZ),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE SODYSORB ***'
@@ -267,10 +273,27 @@ C SO Dyson orbitals
 
 ! If at least one orbital was found, export it/them
         IF(ORBNUM.GT.0) THEN
-         Write(filename,'(A16,I0,A3)') 'Dyson.SO.molden.',JSTATE,'.Re'
-         Call Molden_DysOrb(0,filename,DYSEN,AMPS,SODYSCMOR,ORBNUM,NZ)
-         Write(filename,'(A16,I0,A3)') 'Dyson.SO.molden.',JSTATE,'.Im'
-         Call Molden_DysOrb(0,filename,DYSEN,AMPS,SODYSCMOI,ORBNUM,NZ)
+         Write(filename,'(A,I0,A3)') 'MD_DYS.SO.',JSTATE,'.Re'
+         Call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOR,ORBNUM,NZ)
+         Write(filename,'(A,I0,A3)') 'MD_DYS.SO.',JSTATE,'.Im'
+         Call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOI,ORBNUM,NZ)
+
+         ! This does not work for SO-Dyson orbitals, because they may
+         ! contain contributions from several irreps.
+         ! Either that's a bug elsewhere in the code, or the InpOrb
+         ! format is not adequate for these orbitals.
+         Write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Re'
+         LUNIT=IsFreeUnit(50)
+         Write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for '//
+     &                           'state ',JSTATE,' (real part)'
+         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOR,
+     &                    AMPS,DYSEN,Trim(TITLE),NZ)
+         Write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Im'
+         Write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for '//
+     &                           'state ',JSTATE,' (imaginary part)'
+         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOI,
+     &                    AMPS,DYSEN,Trim(TITLE),NZ)
+         Close(LUNIT)
         END IF
 
        END DO ! JSTATE
@@ -284,5 +307,4 @@ C Free all the allocated memory
       CALL GETMEM('SO2SF','FREE','INTE',SO2SFNUM,NSS)
       CALL GETMEM('MSPROJS','FREE','REAL',MSPROJS,NSS)
 
-      RETURN
-      END
+      END SUBROUTINE SODYSORB

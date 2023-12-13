@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKSMAT()
-      use output_caspt2, only:iPrGlb,verbose,debug
+      use caspt2_output, only:iPrGlb,verbose,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
 #include "rasdim.fh"
@@ -26,6 +26,9 @@ C     Set up S matrices for cases 1..13.
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
+#include "stdalloc.fh"
+      REAL*8 DUM(1)
+      INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -43,18 +46,17 @@ C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
         CALL GETMEM('GAMMA3','ALLO','REAL',LG3,NG3)
         CALL PT2_GET(NG3,'GAMMA3',WORK(LG3))
-        iPad=ItoB-MOD(6*NG3,ItoB)
-        CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
+        CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
-        CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
+        CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
         CALL MKSA(WORK(LDREF),WORK(LPREF),
-     &            NG3,WORK(LG3),i1WORK(LidxG3))
+     &            NG3,WORK(LG3),idxG3)
         CALL MKSC(WORK(LDREF),WORK(LPREF),
-     &            NG3,WORK(LG3),i1WORK(LidxG3))
+     &            NG3,WORK(LG3),idxG3)
 
         CALL GETMEM('GAMMA3','FREE','REAL',LG3,NG3)
-        CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
+        CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
         CALL MKSB(WORK(LDREF),WORK(LPREF))
@@ -67,12 +69,13 @@ C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest  of the routines.
+      DUM(1)=1.0D00
       DO ISYM=1,NSYM
         DO ICASE=12,13
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.GT.0) THEN
             IDISK=IDSMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,1,[1.0D00],1,IDISK)
+            CALL DDAFILE(LUSBT,1,DUM,1,IDISK)
           END IF
         END DO
       END DO
@@ -86,7 +89,7 @@ C looping, etc in the rest  of the routines.
 ********************************************************************************
       SUBROUTINE MKSA(DREF,PREF,NG3,G3,idxG3)
       USE SUPERINDEX
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -892,7 +895,7 @@ C Add -dyu Gvzxt
 * Case C (ICASE=4)
 ********************************************************************************
       SUBROUTINE MKSC(DREF,PREF,NG3,G3,idxG3)
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
       USE SUPERINDEX
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par

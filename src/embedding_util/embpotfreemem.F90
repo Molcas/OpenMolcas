@@ -20,8 +20,6 @@ subroutine embPotFreeMem()
 !              DrvMO                                                   *
 !              EmbPotOutput                                            *
 !                                                                      *
-! Calling    : GetMem                                                  *
-!                                                                      *
 !     Author: Thomas Dresselhaus                                       *
 !                                                                      *
 !***********************************************************************

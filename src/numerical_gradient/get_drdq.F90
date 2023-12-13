@@ -18,11 +18,10 @@ subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter)
 ! the 'UDC' file.                                                      *
 !***********************************************************************
 
-use Slapaf_Info, only: BMx, Degen
-use Slapaf_Parameters, only: iRow_c, Curvilinear
+use Slapaf_Info, only: BMx, Curvilinear, Degen, iRow_c
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: mInt, nLambda, Iter
@@ -34,7 +33,7 @@ logical(kind=iwp) :: lWrite
 integer(kind=iwp), allocatable :: iFlip(:)
 real(kind=wp), allocatable :: BVc(:), dBVc(:), BMx_t(:,:), Val(:), Val0(:), cInt(:), cInt0(:), Mult(:), dBMx(:)
 character(len=8), allocatable :: Lbl(:)
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 lWrite = .false.
 n3 = size(Degen)

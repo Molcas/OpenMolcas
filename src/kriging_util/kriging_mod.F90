@@ -13,6 +13,7 @@
 
 module kriging_mod
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,15 +30,14 @@ logical(kind=iwp) :: Kriging = .false., &
                      ordinary = .false., &
                      PGEK_On = .false.
 integer(kind=iwp) :: nspAI = 1, pAI = 2, Max_MicroIterations = 50, nD_In = 0
-real(kind=wp) :: lb(3) = [20.0_wp,20.0_wp,1.0_wp], &
-                 Thr_MicroIterations = 1.0e-8_wp, &
+real(kind=wp) :: Thr_MicroIterations = 1.0e-8_wp, &
                  blavAI = 10.0_wp, &
-                 blvAI = 0.0_wp
+                 blvAI = Zero
 
 ! Memory for coordinates, value and gradients of the
 ! sample points.
 
-real(kind=wp), allocatable, protected :: x(:,:), y(:), dy(:)
+real(kind=wp), allocatable, protected :: x(:,:), y(:,:), dy(:,:)
 
 ! Inter  : the dimension of the coordinate vector
 ! nPoints: the total number of sample points for which the value is
@@ -48,24 +48,23 @@ real(kind=wp), allocatable, protected :: x(:,:), y(:), dy(:)
 ! We will assume that nD >= 0
 
 integer(kind=iwp), protected :: nInter = 0, nPoints = 0, nD = 0
-integer(kind=iwp) :: nInter_Eff = 0
+integer(kind=iwp) :: nInter_Eff = 0, nSet = 1
 
-real(kind=wp), allocatable :: rl(:,:), dl(:), full_Rinv(:,:), full_R(:,:), x0(:), Kv(:), cv(:,:,:), Rones(:), l(:), gpred(:), &
-                              hpred(:,:), ll(:), cvMatFder(:), cvMatSder(:), cvMatTder(:)
-integer(kind=iwp), allocatable :: Index_PGEK(:)
-real(kind=wp) :: pred, sigma, var, sb, variance, detR, lh, sbO, sbmev
 integer(kind=iwp) :: m_t
-real(kind=wp), parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10
+real(kind=wp) :: detR, sbmev, sbO, var
+integer(kind=iwp), allocatable :: Index_PGEK(:), Model_Type(:)
+real(kind=wp), allocatable :: cv(:,:,:), cvMatFder(:), cvMatSder(:), cvMatTder(:), dl(:), full_R(:,:), full_Rinv(:,:), gpred(:,:), &
+                              hpred(:,:,:), Kv(:,:), l(:), lh(:), pred(:), rl(:,:), Rones(:), sb(:), sigma(:), variance(:), x0(:)
 ! eps avoid to become singular in 1st der & eps2 in 2nd der
+real(kind=wp), parameter :: h = 1.0e-5_wp, eps = 1.0e-13_wp, eps2 = 1.0e-10_wp
 
 ! Transformation matrix for kriging_layer routines
-
 real(kind=wp), allocatable :: layer_U(:,:)
 
 public :: anMd, blaAI, blAI, blavAI, blvAI, cv, cvMatFder, cvMatSder, cvMatTder, detR, dl, dy, eps, eps2, full_R, full_RInv, &
-          gpred, h, hpred, Index_PGEK, Kriging, kv, l, layer_U, lb, lh, ll, Max_MicroIterations, m_t, mblAI, nD, nD_In, nInter, &
-          nInter_Eff, nPoints, nspAI, ordinary, pAI, PGEK_On, pred, rl, Rones, sb, sbmev, sbO, set_l, sigma, Thr_MicroIterations, &
-          var, variance, x, x0, y
+          gpred, h, hpred, Index_PGEK, Kriging, kv, l, layer_U, lh, Max_MicroIterations, m_t, mblAI, Model_Type, nD, nD_In, &
+          nInter, nInter_Eff, nPoints, nSet, nspAI, ordinary, pAI, PGEK_On, pred, rl, Rones, sb, sbmev, sbO, set_l, sigma, &
+          Thr_MicroIterations, var, variance, x, x0, y
 public :: Deallocate_Protected, Prep_Kriging
 
 contains
@@ -75,7 +74,7 @@ subroutine Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
   use stdalloc, only: mma_allocate
 
   integer(kind=iwp), intent(in) :: nPoints_In, nInter_In
-  real(kind=wp), intent(in) :: x_(nInter_In,nPoints_In), y_(nPoints_In), dy_(nInter_In,nPoints_In)
+  real(kind=wp), intent(in) :: x_(nInter_In,nPoints_In), y_(nPoints_In,nSet), dy_(nInter_In,nPoints_In,nSet)
   integer(kind=iwp) :: i, j
 
   nInter = nInter_In
@@ -86,8 +85,8 @@ subroutine Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
   ! Allocate arrays for data or energies, coordinates, and gradients
 
   call mma_Allocate(x,nInter,nPoints,label='x')
-  call mma_Allocate(y,nPoints,label='y')
-  call mma_Allocate(dy,nInter*(nPoints-nD),label='dy')
+  call mma_Allocate(y,nPoints,nSet,label='y')
+  call mma_Allocate(dy,nInter*(nPoints-nD),nSet,label='dy')
 
   ! The code will use partial GEK with indirect addressing. However,
   ! here we defaults the index array so that it behaves as conventional GEK.
@@ -101,7 +100,7 @@ subroutine Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
   x(:,:) = x_(:,:)
   !write(u6,*) 'x',x
   ! y is the energy
-  y(:) = y_(:)
+  y(:,:) = y_(:,:)
   !write(u6,*) 'y',y
   ! dy is a vector of Grad-y (eq. (5) ref. gradients of
   ! the energy with respect to the internal coordinates
@@ -116,7 +115,7 @@ subroutine Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 
   do i=1,nInter
     do j=1,nPoints-nD
-      dy(j+(i-1)*(nPoints-nD)) = dy_(i,j+nD)
+      dy(j+(i-1)*(nPoints-nD),:) = dy_(i,j+nD,:)
     end do
   end do
 
@@ -131,6 +130,7 @@ subroutine Deallocate_protected()
   call mma_Deallocate(x)
   call mma_Deallocate(y)
   call mma_Deallocate(dy)
+  if (allocated(Model_Type)) call mma_Deallocate(Model_Type)
 
 end subroutine Deallocate_protected
 

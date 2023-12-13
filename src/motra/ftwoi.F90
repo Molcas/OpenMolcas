@@ -11,6 +11,8 @@
 
 subroutine FTWOI(DLT,DSQ,FLT,nFLT,FSQ,LBUF,X1,X2)
 
+#include "intent.fh"
+
 use motra_global, only: Debug, FnTwoAO, iPrint, LuTwoAO, nBas, nFro, nSym
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -19,8 +21,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nFLT, LBUF
 real(kind=wp), intent(in) :: DLT(*), DSQ(*)
 real(kind=wp), intent(inout) :: FLT(nFLT), FSQ(*)
-real(kind=wp), intent(out) :: X1(*), X2(*)
-integer(kind=iwp) :: IRC, ISTLTT, ISYM, KEEP(8), NB, NB1, NB2, NBSX(8), NSYM2
+real(kind=wp), intent(_OUT_) :: X1(*), X2(*)
+integer(kind=iwp) :: IOPT, IRC, ISTLTT, ISYM, KEEP(8), NB, NB1, NB2, NBSX(8), NSYM2
 real(kind=wp) :: ExFac
 logical(kind=iwp) :: FoundTwoEls, ISQUAR
 
@@ -30,7 +32,8 @@ if (.not. FoundTwoEls) then
   call Abend()
 end if
 
-call OPNORD(IRC,0,FNTWOAO,LUTWOAO)
+IOPT = 0
+call OPNORD(IRC,IOPT,FNTWOAO,LUTWOAO)
 call GETORD(IRC,ISQUAR,NSYM2,NBSX,KEEP)
 
 ! Compare content of 1el and 2el integral file
@@ -61,7 +64,7 @@ call FockTwo(nSym,nBas,nFro,Keep,DLT,DSQ,FLT,nFLT,FSQ,LBUF,X1,X2,ExFac)
 !                                                                      *
 ! Close electron repulsion integral file
 
-call CLSORD(IRC,0)
+call CLSORD(IRC)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

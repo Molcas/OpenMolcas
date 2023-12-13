@@ -39,5 +39,4 @@ C Pick out nr of active orbitals from orbital table:
      &               IFSBTAB1,IFSBTAB2,DET1,DET2,
      &               IF10,IF01,DYSAMP,DYSCOF)
 
-      RETURN
-      END
+      END SUBROUTINE DYSON

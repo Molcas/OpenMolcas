@@ -12,14 +12,14 @@
 ************************************************************************
       SUBROUTINE ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 *
-* Obtain array of 2 orbital indeces,
+* Obtain array of 2 orbital indices,
 * for symmetry packed matrices
 *
 * IORBINH1 : Lower half packed
 * IORBINH1_NOCCSYM : Complete blocks
 *
-* resulting indeces are with respect to start of given symmetry block
-* while input orbital indeces are absolute and in symmetry order
+* resulting indices are with respect to start of given symmetry block
+* while input orbital indices are absolute and in symmetry order
 *
 * Jeppe Olsen, March 1995
 *              ORBINH1_NOCCSYM added August 2000
@@ -75,7 +75,7 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
               IORBINH1_NOCCSYM(IABS,JABS) = INDEX_NOCCSYM
             END DO
           END DO
-*. End of loops over orbital indeces
+*. End of loops over orbital indices
         END DO
       END DO
 *. End of loop over orbital symmetries

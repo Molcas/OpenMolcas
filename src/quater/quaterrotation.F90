@@ -27,13 +27,13 @@
 subroutine quaterRotation(Q,U,V)
 
 use Constants, only: One, Two
-use Definitions, only: wp, r8
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(in) :: Q(0:3), U(3)
 real(kind=wp), intent(out) :: V(3)
 real(kind=wp) :: T(3), C1, C2, C3
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 call CheckQuater(Q)
 call Cross(Q(1:3),U,T)         ! T = Q x U

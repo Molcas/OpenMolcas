@@ -1,0 +1,51 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Roland Lindh                                     *
+!***********************************************************************
+
+!***********************************************************************
+! Alpha : exponents of bra gaussians                                   *
+! nAlpha: number of primitives (exponents) of bra gaussians            *
+! Beta  : as Alpha but for ket gaussians                               *
+! nBeta : as nAlpha but for the ket gaussians                          *
+! Zeta  : sum of exponents (nAlpha x nBeta)                            *
+! ZInv  : inverse of Zeta                                              *
+! rKappa: gaussian prefactor for the products of bra and ket gaussians *
+! P     : center of new gaussian from the products of bra and ket      *
+!         gaussians                                                    *
+! rFinal: array for computed integrals                                 *
+! nZeta : nAlpha x nBeta                                               *
+! nComp : number of components in the operator (e.g. dipole moment     *
+!         operator has three components)                               *
+! la    : total angular momentum of bra gaussian                       *
+! lb    : total angular momentum of ket gaussian                       *
+! A     : center of bra gaussian                                       *
+! B     : center of ket gaussian                                       *
+! nHer  : order of Rys- or Hermite-Gauss polynomial                    *
+! Array : Auxiliary memory as requested by ECPMem                      *
+! nArr  : length of Array                                              *
+! Ccoor : coordinates of the operator, zero for symmetric oper.        *
+! nOrdOp: Order of the operator                                        *
+!***********************************************************************
+
+#ifdef _CALLING_
+Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdc, &
+ndc,kOp,nComp,iStabM,nStabM &
+#else
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, &
+                                 nStabM, iStabM(0:nStabM-1)
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(*)
+real(kind=wp), intent(inout) :: rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,6), Grad(nGrad), &
+                                DAO(nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+real(kind=wp), intent(out) :: Array(nZeta*nArr)
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
+#endif
+#undef _CALLING_

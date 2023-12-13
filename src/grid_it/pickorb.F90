@@ -14,6 +14,8 @@ subroutine PickOrb(Nz,Sort,Gref,Sort_ab,Gref_ab,E,Occ,E_ab,Occ_ab,nShowMOs,nShow
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+#include "intent.fh"
+
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use grid_it_globals, only: iMaxDown, iMaxUp, iReq, isAll, iAuMO, isUHF, itRange, NoSort, nReq, Region
@@ -22,7 +24,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nMOs, iType(nMOs)
-integer(kind=iwp), intent(out) :: NZ(*), Sort(nMOs), Sort_ab(merge(nMOs,0,isUHF)), nShowMOs, nShowMOs_ab
+integer(kind=iwp), intent(_OUT_) :: NZ(*)
+integer(kind=iwp), intent(out) :: Sort(nMOs), Sort_ab(merge(nMOs,0,isUHF)), nShowMOs, nShowMOs_ab
 integer(kind=iwp), intent(inout) :: Gref(nMOs), Gref_ab(merge(nMOs,0,isUHF))
 real(kind=wp), intent(inout) :: E(nMOs), E_ab(merge(nMOs,0,isUHF))
 real(kind=wp), intent(in) :: Occ(nMOs), Occ_ab(merge(nMOs,0,isUHF))

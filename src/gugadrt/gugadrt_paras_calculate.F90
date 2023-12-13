@@ -12,7 +12,7 @@
 subroutine gugadrt_paras_calculate()
 
 use gugadrt_global, only: ja_sys, jb_sys, jc_sys, jroute_sys, n_electron, norb_all, norb_dz, spin
-use constants, only: Half
+use Constants, only: Half
 
 implicit none
 !data inlptb_new/

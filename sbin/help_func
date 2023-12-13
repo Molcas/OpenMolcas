@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2022, Ignacio Fdez. Galván                             *
+#***********************************************************************
+
+import sys
+from os.path import join
+from os import environ
+
+try:
+  from colorama import init, Fore, Style
+except ImportError:
+  def init(*args, **kwargs):
+    pass
+  class Dummy(object):
+    pass
+  Fore = Dummy()
+  Fore.RED = ''
+  Fore.BLUE = ''
+  Fore.GREEN = ''
+  Style = Dummy()
+  Style.RESET_ALL = ''
+
+helptext = '''
+{1}################################################################################
+#                      Density functionals in OpenMolcas                       #
+################################################################################{0}
+
+Use with a command-line argument that is a basis label in Molcas format:
+
+       {2}[element].[name].[author].[primitives].[contraction].[aux. labels]*
+          (1)     (2)     (3)        (4)           (5)          (6){0}
+
+trailing dots can be omitted.
+
+Examples:
+
+In the simplest form, just write an element symbol to get a list of basis sets
+for that element:
+  {3}Fe{0}               lists all basis sets for iron
+  
+Additional fields can be included to restrict the search:
+  {3}Fe..jensen{0}       lists all basis sets for iron, with "jensen" in the author
+                   field (case insensitive)
+  {3}Fe.....ECP{0}       lists all basis sets for silver that use ECP
+                   
+Wildcards are supported:
+  {3}Fe.*cc-p*v?z*{0}    lists all basis sets for iron belonging to the "cc" families
+                   
+A single space matches empty fields (needs quotes):
+  {3}"Fe..... ."{0}      lists all basis sets for silver with an empty 6th field
+                   (probably all-electron)
+                   
+Minimum number of functions for ANO-type basis sets can be specified:
+  {3}Fe....8s7p7d4f{0}   lists all basis sets for iron with a [8s7p7d4f] contraction or
+                   larger if the basis set supports using fewer functions
+
+Exact matches are printed in green, "fuzzy" matches in red
+'''.format(Style.RESET_ALL, Fore.BLUE, Fore.RED, Fore.GREEN)
+
+compat = False
+try:
+  flag = sys.argv[1]
+except IndexError:
+  flag = None
+  pass
+if (flag == '-bw'):
+  sys.argv.pop(1)
+  compat = True
+
+# First get the template from the command line,
+# Use colors in terminal, not if output is redirected to file
+if (sys.stdout.isatty() and not compat):
+  init()
+else:
+  init(strip=True)
+
+try:
+  MOLCAS = environ['MOLCAS']
+except KeyError:
+  MOLCAS = '.'
+
+funcs = {}
+n = 0
+name = ''
+with open(join(MOLCAS, 'data', 'functionals.txt'), 'r') as f:
+  for l in f:
+    if l.strip().startswith('#') or (len(l.strip()) == 0):
+      continue
+    parts = l.split()
+    if n == 0:
+      name = parts[0]
+      try:
+        n = int(parts[1])
+        funcs[name] = []
+      except ValueError:
+        funcs[name] = [[1.0, parts[1]]]
+    else:
+      parts = l.split()
+      coeff = float(parts[0])
+      label = parts[1].upper()
+      funcs[name].append([coeff, label])
+      n -= 1
+
+try:
+  name = sys.argv[1].upper()
+  for k in funcs.keys():
+    if k.upper() == name:
+      print(f'\nDefinition of {Fore.GREEN}{k}{Style.RESET_ALL}:\n')
+      print(f'{Fore.BLUE}factor Libxc name{Style.RESET_ALL}')
+      print(f'{Fore.BLUE}====== =========={Style.RESET_ALL}')
+      for i in funcs[k]:
+        if i[1] == 'HF_X':
+          print(f'{i[0]:6.4f} exact exchange')
+        else:
+          print(f'{i[0]:6.4f} {Fore.RED}{i[1]}{Style.RESET_ALL}')
+      break
+  else:
+    print(f'\nFunctional {Fore.RED}{name}{Style.RESET_ALL} not found')
+except IndexError:
+  print(f'{Fore.BLUE}################################################################################')
+  print('#                      Density functionals in OpenMolcas                       #')
+  print(f'################################################################################{Style.RESET_ALL}')
+  print('')
+  print('Specify the functional name as an argument to see its definition')
+  print('(in terms of Libxc functionals)')
+  print('')
+  for k in sorted(funcs.keys(), key=lambda x: x.upper()):
+    print(f'  {Fore.GREEN}{k}{Style.RESET_ALL}')

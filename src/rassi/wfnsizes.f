@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine wfnsizes_rassi
+      use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
       use rassi_aux, only : nasht_save
       implicit none
 #include "symmul.fh"
-#include "rasdef.fh"
 #include "rassi.fh"
-      integer isym
+      integer :: isym
 C The structure of the orbital space:
       NFROT=0
       NISHT=0
@@ -46,4 +46,4 @@ C The structure of the orbital space:
         NBST=NBST+NBASF(ISYM)
       END DO
       nasht_save=nasht
-      end
+      end subroutine wfnsizes_rassi

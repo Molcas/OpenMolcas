@@ -14,6 +14,9 @@
 subroutine covarVector(gh)
 
 use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, Index_PGEK, l, nD, nInter, nInter_Eff, nPoints, rl, x, x0
+#ifdef _DEBUGPRINT_
+use kriging_mod, only: m_t
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp, u6
@@ -46,7 +49,7 @@ if (gh == 0) then
     cv(i0:i1,1,1) = cvMatFder(1+nD:nPoints)*diffxi(1+nD:nPoints)
   end do
 # ifdef _DEBUGPRINT_
-  call RecPrt(' The covector for energies','(12(2x,E9.3))',cv(:,1,1),m_t,1)
+  call RecPrt(' The covector for energies','(12(1x,ES10.3))',cv(:,1,1),m_t,1)
 # endif
 
 ! Covariant vector in Gradient Enhanced Kriging
@@ -70,7 +73,7 @@ else if (gh == 1) then
     end do
   end do
 # ifdef _DEBUGPRINT_
-  call RecPrt(' The covector for gradients','(12(2x,E9.3))',cv(:,:,1),m_t,nInter)
+  call RecPrt(' The covector for gradients','(12(1x,ES10.3))',cv(:,:,1),m_t,nInter)
 # endif
 
 else if (gh == 2) then

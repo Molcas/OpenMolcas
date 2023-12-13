@@ -17,19 +17,18 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY0
+
+      use fciqmc_interface, only: DoFCIQMC
+
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "WrkSpc.fh"
 
 #include "SysDef.fh"
 
-      INTEGER I,IT,ITABS,ILEV,ISYM
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-      INTEGER IQ
-#endif
+      INTEGER I,IT,ITABS,ILEV,ISYM, iq
 
       NLEV=NASHT
 C ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
@@ -39,15 +38,13 @@ C first by RAS type, then by symmetry.
       DO ISYM=1,NSYM
         DO IT=1,NASH(ISYM)
           ITABS=ITABS+1
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
 ! Quan: Bug in LEVEL(ITABS) and L2ACT
-          if (DoCumulant) then
+          if (DoCumulant .or. DoFCIQMC) then
              do iq=1,NLEV
                LEVEL(iq)=iq
                L2ACT(iq)=iq
              enddo
           endif
-#endif
           ILEV=LEVEL(ITABS)
           ISM(ILEV)=ISYM
         END DO
@@ -59,8 +56,9 @@ C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
       END DO
       NCSF(STSYM)=1
 
-      IF ((.NOT.DoCumulant).AND.
-     &    (NACTEL.GT.0).AND.(ISCF.EQ.0)) CALL GINIT_CP2
+      if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
+     &      .and. (.not. DoFCIQMC)) call ginit_cp2
+
       MXCI=1
       DO I=1,NSYM
         MXCI=MAX(MXCI,NCSF(I))

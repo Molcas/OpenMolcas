@@ -69,9 +69,9 @@ Using |molcas| together with :program:`Gromacs`
 
 The interface to :program:`GROMACS` differs from the :program:`TINKER` interface in that the MM code is not run as a separate program but included in |molcas| as a library. In this way, the communication between the QM and MM codes is handled by simple function calls instead of using data files. The interface is automatically installed along with |molcas| provided that the :program:`GROMACS` library (currently a development version\ [#fn2]_) is available at configuration time\ [#fn3]_. Instructions how to install the :program:`GROMACS` library can be found at the official web site\ [#fn4]_. Make sure that the installation is done in double precision since this is the precision used by |molcas|. Also make sure to source the :program:`GROMACS` GMXR script in your shell startup file. otherwise the |molcas| configuration procedure will not be able to detect the relevant library path.
 
-.. [#fn2] http://repo.or.cz/w/gromacs.git/shortlog/refs/heads/qmmm
+.. [#fn2] https://repo.or.cz/w/gromacs.git/shortlog/refs/heads/qmmm
 .. [#fn3] Configuration with CMake requires the flag ``-D GROMACS=ON``
-.. [#fn4] http://www.gromacs.org/
+.. [#fn4] https://www.gromacs.org/
 
 The recommended (and the only verified) approach of using the |molcas|/:program:`GROMACS` interface is to define the full QM+MM system in the :program:`GROMACS` input. The system definition can then be imported into |molcas| by adding the keyword :kword:`GROMACS` in :program:`GATEWAY` (see :numref:`UG:sec:gateway` for details). For efficiency reasons, the |molcas| part of the interface separates the MM subsystem into two different atom types: *inner* MM atoms and *outer* MM atoms. These are completely equivalent as far as interactions are concerned. However, whereas the coordinates of the inner MM atoms are stored and updated using |molcas| standard mechanism, the outer MM atoms are handled using a mechanism specifically designed with large systems in mind. The division into inner and outer MM atoms can be controlled with options to the :kword:`GROMACS` keyword in :program:`GATEWAY` (see :numref:`UG:sec:gateway`).
 

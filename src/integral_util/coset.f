@@ -1,21 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine CoSet(iCoSet,nCoSet,iChAtom)
       use Symmetry_Info, only: nIrrep, iOper
-      Implicit Real*8 (A-H,O-Z)
-      Integer iCoSet(0:7)
+      Implicit None
+      Integer, Intent(out):: nCoSet
+      Integer, Intent(In)::  iChAtom
+      Integer, Intent(Out)::  iCoSet(0:7)
+
       Logical Same
-*
-*     Find the coset representatives
-*
+      Integer iIrrep, itest, jCoSet, jtest
+!
+!     Find the coset representatives
+!
       iCoSet(0) = 0      ! Put in the unit operator
       nCoSet = 1
       Do iIrrep = 1, nIrrep-1
@@ -30,6 +34,6 @@
             iCoSet(nCoSet-1) = iOper(iIrrep)
          End If
       End Do
-*
+!
       Return
-      End
+      End Subroutine CoSet

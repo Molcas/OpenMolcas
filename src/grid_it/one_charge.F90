@@ -13,12 +13,11 @@
 
 subroutine One_CHARGE(NSYM,NBAS,UBNAME,CMO,OCCN,SMAT,iCase,FullMlk,MxTyp,QQ,nNuc)
 
+use UnixInfo, only: ProgName
+use define_af, only: AngTp, iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-#ifdef _DEBUGPRINT_
-use Definitions, only: r8
-#endif
 
 implicit none
 #include "Molcas.fh"
@@ -27,18 +26,16 @@ character(len=LenIn8), intent(in) :: UBNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk
 real(kind=wp), intent(out) :: QQ(MxTyp,nNuc)
-#include "angtp.fh"
 integer(kind=iwp) :: AtomA, AtomB, i, i0, iAB, iAng, IB, iBlo, iEnd, iix, iixx, ik, ikk, iM, IMN, IMO, iNuc, IO, iPair, iPL, IS, &
-                     ISING, ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, &
-                     MYTYP, NB, nBas2, NBAST, NDIM, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
+                     ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, &
+                     NB, nBas2, NBAST, NDIM, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
 real(kind=wp) :: BO, BOThrs, Det, DMN, QSUMI, TERM
 logical(kind=iwp) :: DoBond
-character(len=100) :: ProgName
-character(len=8) TMP
-!character(len=4) TLbl(MXATOM)
+character(len=len(ProgName)) :: PName
+character(len=8) :: TMP
+!character(len=4) :: TLbl(MXATOM)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-character(len=100), external :: Get_ProgName
 character(len=LenIn8), external :: Clean_Bname
 integer(kind=iwp), allocatable :: iCenter(:), ICNT(:), ITYP(:), nStab(:)
 real(kind=wp), allocatable :: Bonds(:), Charge(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), Fac(:), P(:,:), PInv(:,:), Q2(:), &
@@ -48,10 +45,10 @@ character(len=8), allocatable :: tName(:), tSwap(:)
 character(len=LenIn), allocatable :: CNAME(:)
 character(len=LenIn4), allocatable :: LblCnt4(:)
 #ifdef _DEBUGPRINT_
-real(kind=r8) :: E
-real(kind=r8), external :: DDot_
+real(kind=wp) :: E
+real(kind=wp), external :: DDot_
 #endif
-character(len=3), parameter :: AufBau(19) = ['01s',                   &
+character(len=*), parameter :: AufBau(19) = ['01s',                   &
                                              '02s',            '02p', &
                                              '03s',            '03p', &
                                              '04s',      '03d','04p', &
@@ -77,10 +74,10 @@ end do
 !     If CPFMCPF no bond analysis is done.                             *
 !----------------------------------------------------------------------*
 
-ProgName = Get_ProgName()
-call Upcase(ProgName)
-call LeftAd(ProgName)
-iEnd = max(1,index(ProgName,' '))
+PName = ProgName
+call Upcase(PName)
+PName = adjustl(PName)
+iEnd = max(1,index(PName,' '))
 
 DoBond = .false.
 
@@ -358,7 +355,7 @@ if (DoBond) then
 #   ifdef _DEBUGPRINT_
     call RecPrt('SM',' ',P,NBAST,NBAST)
 #   endif
-    call MINV(P,PInv,ISING,DET,NBAST)
+    call MINV(P,PInv,DET,NBAST)
 #   ifdef _DEBUGPRINT_
     call RecPrt('SMInv',' ',PInv,NBAST,NBAST)
 #   endif
@@ -408,7 +405,7 @@ if (DoBond) then
   ! Just atom label. It's a double of the next one,
   ! but someone could find it usefull in future
 
-  !call Get_LblCnt_All(TLbl)
+  !call Get_Name_All(TLbl)
 
   ! Atom labels plus symmetry generator
 
@@ -506,8 +503,8 @@ if (DoBond) then
   write(u6,*) 'Number of electrons as sum of D and S elements = ',E
 # endif
 
-  ! In case of symmetry, we desymmetrize D and S through D_blo and S_blo
   if (nSym > 1) then
+    ! In case of symmetry, we desymmetrize D and S through D_blo and S_blo
     iBlo = 0
     iSum = 0
     do i=1,NSYM
@@ -542,9 +539,8 @@ if (DoBond) then
     call Desymmetrize(S_blo,nBas2,Scr,nScr,S,nBas,NBAST,PInv,nSym,iSyLbl)
     call mma_deallocate(Scr)
 
-  ! Otherwise we simply copy D and S tmp into D and S
-
   else
+    ! Otherwise we simply copy D and S tmp into D and S
     D(:,:) = D_tmp(:,:)
     S(:,:) = S_tmp(:,:)
   end if

@@ -71,9 +71,9 @@ do i=1,NOCOB
             LL = L
           end if
           kl = kk*(kk-1)/2+ll
-          PAX = PAX+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%M(kl,1)+MltPl(0)%M(kl,1)*(CordMltPl(1,1)-RIJX))
-          PAY = PAY+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%M(kl,2)+MltPl(0)%M(kl,1)*(CordMltPl(2,1)-RIJY))
-          PAZ = PAZ+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%M(kl,3)+MltPl(0)%M(kl,1)*(CordMltPl(3,1)-RIJZ))
+          PAX = PAX+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%A(kl,1)+MltPl(0)%A(kl,1)*(CordMltPl(1,1)-RIJX))
+          PAY = PAY+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%A(kl,2)+MltPl(0)%A(kl,1)*(CordMltPl(2,1)-RIJY))
+          PAZ = PAZ+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%A(kl,3)+MltPl(0)%A(kl,1)*(CordMltPl(3,1)-RIJZ))
         end do
       end do
       PD(1,nA) = PAX

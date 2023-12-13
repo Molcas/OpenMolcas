@@ -12,9 +12,6 @@
      &                        IST,INUM,JST,JNUM)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION PRMAT(NSS,NSS)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='SMMAT_MASKED')
       Integer INUM, JNUM
       Integer ISS_INDEX(NSTATE+1), IST(INUM), JST(JNUM)
 #include "SysDef.fh"
@@ -56,8 +53,8 @@ C 2 = spin dependent property, triplet operator
          END DO
       END IF
       IF (IPRNUM.EQ.-1) THEN
-         Write (6,*) TRIM(ROUTINE),', Abend IPRNUM.EQ.-1'
-         Write (6,*) TRIM(ROUTINE),', PRLBL=','>',PNAME(ISONUM),'<'
+         Write (6,*) 'SMMAT_MASKED, Abend IPRNUM.EQ.-1'
+         Write (6,*) 'SMMAT_MASKED, PRLBL=','>',PNAME(ISONUM),'<'
          Call Abend()
       ENDIF
 

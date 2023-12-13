@@ -35,7 +35,7 @@ def _indentlabel(line):
     elif re.match(r'[0-9]', label):
       label = '1' + label[1]
   else:
-    match = re.match(r'(\s*)(\S+\s+-+)', line)
+    match = re.match(r'(\s*)(\S+\s+-+)\s', line)
     if match:
       label = len(match.group(2))*'_'
     else:

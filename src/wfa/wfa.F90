@@ -17,7 +17,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "warnings.fh"
+#include "warnings.h"
 
 #ifdef _WFA_
 integer(kind=iwp) :: iLU, ist, ien

@@ -68,7 +68,7 @@ parameter of 0.25) is default in |molcas| from version 6.4.
 If :variable:`MOLCAS_NEW_DEFAULTS` is set to ``YES``, the default will be no IPEA shift.
 
 An alternative to IPEA is to use the options, called ":math:`g_1`", ":math:`g_2`", and
-":math:`g_3`" (See Ref. :cite:`Andersson:95a`), that stabilizes the energies of the
+":math:`g_3`" (See ref. :cite:`Andersson:95a`), that stabilizes the energies of the
 active orbitals. The remaining error is no longer systematic, and is generally
 reduced. For example, the error in the singlet-triplet separation of :math:`\ce{CH2}` is
 reduced to 1 kcal/mol :cite:`Andersson:95a`. This option is, however, not
@@ -90,8 +90,22 @@ such a third row transition metal compounds and actinides with accurate results.
 
 The CASPT2 method can also be used in combination with the :program:`FFPT`
 program to compute dynamic correlation contributions to properties with good
-results in most cases. Numerical gradients are available with the
-:program:`slapaf` module.
+results in most cases.
+While numerical gradients are available with the :program:`slapaf` module,
+analytical first-order derivatives, nuclear energy gradients and derivative
+coupling vector, are also available :cite:`Nishimoto2021,Nishimoto2022`.
+To use the analytical code, it is not sufficient to simply call :program:`alaska`,
+but additional keywords in the :program:`CASPT2` input block are required to
+precompute the necessary quantities used in :program:`MCLR` and :program:`alaska`.
+All quasi-degenerate variants of CASPT2 support the analytical gradients
+and NAC, as well as RASPT2. Currently, a separate CASPT2 calculation is
+required for each state for which the analytical quantities are needed.
+For instance, to compute the non-adiabatic coupling vector between two states,
+three separate CASPT2 calculations are required: one to obtain the gradient
+of the first state, one to obtain the gradient of the second state, and one to
+obtain the NAC vector. Tests 430 through 439 cover most common scenarios
+for the use of the analytical gradients code, and we invite the user to
+have a look at them if they encounter difficulties in setting up the calculation.
 
 The CASPT2 method is based on second order perturbation theory. To be
 successful, the perturbation should be small. A correct selection of
@@ -103,8 +117,8 @@ coefficients. When this occurs, the :program:`CASPT2` program issues a warning.
 If the energy contribution from such a configuration is large, the results is
 not to be trusted and a new selection of the active space should be made.
 
-Especially in calculations on excited states, :index:`intruder <single: Intruders; CASPT2>` states may occur in the
-first order wave function. Warnings are then issued by
+Especially in calculations on excited states, :index:`intruder <single: Intruders; CASPT2>`
+states may occur in the first-order wave function. Warnings are then issued by
 the program that an energy denominator is small or negative. Such intruder
 states often arise from Rydberg orbitals, which have not been included in the
 active space. Even if this sometimes leads to large first order CI coefficients,
@@ -116,43 +130,52 @@ orbital into the active space. It can sometimes be deleted from the MO space.
 Calculations on compounds with heavy atoms (transition metals, actinides, etc.)
 may yield many virtual orbitals with low energies. The interaction energies for
 excitations to states where these orbitals are occupied are often very small and
-the low denominators can then be removed by a suitable level shift (see below).
-But it is always safer to include such orbitals in the active space.
+the small denominators can then be removed by a suitable technique (see below).
+Nevertheless, it is always safer to include such orbitals in the active space.
 
-Two keywords have been introduced to deal with this fairly common
-situation, for excited states, that weakly coupled intruders cause
-spurious singularities, "spikes" in e.g. a potential curve. The two
-keywords :kword:`SHIFT` and :kword:`IMAGINARY SHIFT` (mutually exclusive) will introduce a :index:`shift <single: Level shift; CASPT2>`
-in the energy denominators,
-thus avoiding singularities, and will also correct the energy for the use of
-this shift. The net effect is that the energy is almost unaffected except in
-the vicinity of the weak singularity, which is removed. The :kword:`SHIFT` keyword adds
-a real shift, and the use of this procedure is well tested
-:cite:`Roos:95b,Roos:96a`. The :kword:`IMAGINARY SHIFT` adds an imaginary quantity, and
-then uses the real value of the resulting second-order energy
-:cite:`Forsberg:96`. This offers some advantage, in particular for weak intruder
-states.
+The intruder states problem is thus a fairly common situation, in which weakly
+coupled intruders cause spurious singularities, "spikes", in the potential
+energy surface.
+Several ways to mitigate this problem are available in :openmolcas:.
+First, two level shift techniques, activated with keywords :kword:`SHIFT` and
+:kword:`IMAGINARY SHIFT`, will introduce a :index:`shift <single: Level shift; CASPT2>`
+in the energy denominators, thus avoiding the singularities.
+The :kword:`SHIFT` keyword adds a real shift, and the use of this procedure
+is well tested :cite:`Roos:95b,Roos:96a`. However, it does not remove the
+singularities, just shifts them :cite:`Battaglia2022`.
+The :kword:`IMAGINARY SHIFT` adds an imaginary quantity, and then uses the
+real component of the resulting second-order energy :cite:`Forsberg:96`.
+This approach is more robust than the real shift, in particular for weak
+intruder states.
+An alternative way to remove intruder states is to use :math:`\sigma^p` regularization
+:cite:`Battaglia2022`, which is activated by either keyword :kword:`SIG1`
+or keyword :kword:`SIG2`. The advantage of regularization over the level
+shift techniques is its weaker dependence on the input parameter.
+All intruder state removal techniques are mutually exclusive.
 
 In some cases, where one can expect strong interaction between different CASSCF
-wave functions, it is advisable to use the Multi-State (MS) CASPT2 method
-:cite:`Finley:98b`, the extended Multi-State (XMS) method :cite:`Granovsky2011,Shiozaki2011`
-or the new extended dynamically weighted CASPT2 :cite:`Battaglia2020`.
-A second order effective Hamiltonian is constructed for a
+wave functions, it is advisable to use the multistate (MS) CASPT2 method
+:cite:`Finley:98b`, the extended multistate (XMS) method :cite:`Granovsky2011,Shiozaki2011`,
+extended dynamically weighted (XDW) CASPT2 :cite:`Battaglia2020` or
+rotated multistate (RMS) CASPT2 :cite:`Battaglia2021`.
+A second-order effective Hamiltonian is constructed for a
 number of CASSCF wave functions obtained in a state-average calculation. This
 introduces interaction matrix elements at second order between the different
 CASSCF states. The effective Hamiltonian is diagonalized to obtain the final
-second order energies. The program also produces a file, :file:`JOBMIX`, with the new
+second-order energies. The program also produces a file, :file:`JOBMIX`, with the new
 effective zeroth order wave functions, which are linear combinations of the
 original CASSCF states. This method has been used successfully to separate
 artificially mixed valence and Rydberg states and for transition metal compounds
 with low lying excited states of the same symmetry as the ground state.
-In the original multi-state method,
-perturbed wave functions are computed for each of several root functions,
-separately; these are used to compute the effective Hamiltonian.
+In the original multistate method, perturbed wave functions are computed
+for each of several root functions, separately; these are used to compute
+the effective Hamiltonian.
 In the XMS-CASPT2 method, the perturbations are computed with one
 common zeroth-order Hamiltonian.
-The new XDW-CASPT2 method interpolates between the MS and XMS variants,
-retaining the advantages of both approaches.
+The XDW-CASPT2 and RMS-CASPT2 methods apply the same initial transformation
+to the CASSCF states as in XMS-CASPT2, but then proceed with state-specific
+zeroth-order Hamiltonian operators as in the original MS-CASPT2 method,
+thus retaining advantages from both approaches.
 
 It is clear from the discussion above that it is not a "black box" procedure
 to perform CASPT2 calculations on excited states. It is often necessary to
@@ -198,7 +221,7 @@ between zero and two. Due to the approximation, any properties computed
 using these orbitals are inexact and can be used only qualitatively. An exact
 first order density matrix can be computed but this is more time-consuming. It
 is controlled by the keyword :kword:`DENSity`. Use this keyword to compute
-properties like dipole moments, etc. The most secure accurate way to do that is.
+properties like dipole moments, etc. The most secure accurate way to do that is,
 however, to use finite field perturbation theory (FFPT).
 
 .. index::
@@ -333,7 +356,7 @@ Keywords
   has to be explicitly specified; reasonable values associated to :kword:`DWTYpe`
   equal to 1, 2 and 3 are 50, 1e-8 and 1, respectively (see
   :cite:`Battaglia2020,Battaglia2021` for more details).
-  It is also possible to use this option with :kword:`MULTistate` instaed of
+  It is also possible to use this option with :kword:`MULTistate` instead of
   :kword:`XMULtistate`, in which case the original CASSCF states are used
   instead of the rotated ones.
 
@@ -385,37 +408,74 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`SIG2`
+  Apply :math:`\sigma^2` regularization to the first-order amplitudes, removing
+  potential intruder states. See :cite:`Battaglia2022`.
+  In addition to the conventionally computed second-order energy
+  value, the energy obtained by Hylleraas' variational formula
+  is computed. This energy is very close to the unregularized one,
+  except close to singularities due to intruders.
+  This option is an alternative to :kword:`IMAG`, but should be
+  preferred over :kword:`SIG1` and :kword:`SHIFT`.
+  Mutually exclusive with :kword:`SIG1`, :kword:`IMAG` and :kword:`SHIFT`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SIG2" APPEAR="Sigma-2 regularization" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,IMAGINARY,SHIFT">
+              %%Keyword: Sig2  <advanced> GUI:number
+              <HELP>
+              Use sigma^2 regularization on the first-order amplitudes
+              to eliminate potential intruder states. Should be preferred
+              over sigma^1 regularization and the real level shift.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SIG1`
+  The same as :kword:`SIG2`, but applies :math:`sigma^1` regularization instead.
+  This option should be carefully used in case the small denominators
+  change sign due to conformational changes, see :cite:`Battaglia2022`.
+  Mutually exclusive with :kword:`SIG2`, :kword:`IMAG` and :kword:`SHIFT`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SIG1" APPEAR="Sigma-1 regularization" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG2,IMAGINARY,SHIFT">
+              %%Keyword: Sig1  <advanced> GUI:number
+              <HELP>
+              Use sigma^1 regularization on the first-order amplitudes
+              to eliminate potential intruder states. Sigma^2 regularization
+              is a safer option.
+              </HELP>
+              </KEYWORD>
+
 :kword:`IMAGinary`
-  Add an imaginary shift to the external part of the zero order
+  Add an imaginary shift to the external part of the zeroth-order
   Hamiltonian. The correlation energy computed is the real part
   of the resulting complex perturbation energy.
-  Also, a corrected
-  value, obtained by Hylleraas' variational formula, is computed.
-  See Ref. :cite:`Forsberg:96`.
-  As with the real shift, this option is used to eliminate intruder
-  problems.
+  As for the regularizers, also in this case a corrected energy
+  is obtained by Hylleraas' variational formula. See ref. :cite:`Forsberg:96`.
+  This option is used to eliminate intruder states and is
+  comaprable to :kword:`SIG2` in both effectiveness and accuracy.
+  Mutually exclusive with :kword:`SIG2`, :kword:`SIG1` and :kword:`SHIFT`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="IMAGINARY" APPEAR="Imaginary shift" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="0.0">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="IMAGINARY" APPEAR="Imaginary shift" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,SIG2,SHIFT">
               %%Keyword: Imaginary <advanced> GUI:number
               <HELP>
-              Add an imaginary shift (Default 0.0) to eliminate weak intruders.
+              Add an imaginary shift to eliminate weak intruder states.
+              To be preferred over the real shift.
               </HELP>
               </KEYWORD>
 
 :kword:`SHIFt`
-  Add a shift to the external part of the zero order Hamiltonian.
-  See Refs. :cite:`Forsberg:96,Roos:95b,Roos:96b`.
-  In addition to the conventionally computed second order energy
-  value, another energy obtained by Hylleraas' variational formula
-  is computed. This energy is then very close to the unshifted
-  energy, except close to singularities due to intruders.
-  This option should only be used to eliminate intruder state problems.
+  The original level shift technique, which adds a real shift to
+  the external part of the zeroth-order Hamiltonian to shift
+  away weak intruder states. See refs. :cite:`Forsberg:96,Roos:95b,Roos:96b`.
+  As for all other intruder state removal technqiues, the second-order
+  energy is corrected through Hylleraas' variational formula.
+  :kword:`SIG2` or :kword:`IMAG` should be preferred over this one.
+  Mutually exclusive with :kword:`SIG2`, :kword:`SIG1` and :kword:`IMAG`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SHIFT" APPEAR="Real shift" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SHIFT" APPEAR="Real shift" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,SIG2,IMAGINARY">
               %%Keyword: Shift  <advanced> GUI:number
               <HELP>
-              Add a shift to the external part of the zero order Hamiltonian,
-              which may shift away weak intruders. Imaginary shift is better.
+              Add a shift to the external part of the zeroth-order Hamiltonian,
+              which may shift away weak intruders. Regularization and imaginary
+              shift are better options.
               </HELP>
               </KEYWORD>
 
@@ -513,11 +573,16 @@ Keywords
 
     FNOCaspt2
      0.4
+    RegFNOparameter
+     0.01
     DoMP2
 
-  The keyword :kword:`FNOC` has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
-  (in each irrep) to be retained in the FNO-CASPT2 calculation.
-  The keyword :kword:`DoMP2` is optional and used to compute the (estimated) correction for the truncation error.
+  The keyword :kword:`FNOC` has one compulsory argument: a real number in [-1,1] that if in ]0,1] specifies the fraction of virtual orbitals
+  (in each irrep) to be retained in the FNO-CASPT2 calculation; if in [-1,0[ is to be interpreted as an estimate of the percentage of
+  correlation energy that we are willing to trade for the resulting speedup.
+  If the keyword :kword:`RegFNO` is included, the value specified (a real number) is used to regularize the calculation of the density matrix
+  for the selection of the NOs, particularly useful for wavefunction models based on multiple active spaces.
+  The keyword :kword:`DoMP2` is also optional and used to compute the (estimated) correction for the truncation error.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="FNOCASPT2" APPEAR="Frozen natural orbital CASPT2" LEVEL="ADVANCED" KIND="REAL">
               %%Keyword: FNOC <advanced>
@@ -527,13 +592,19 @@ Keywords
 
                 FNOCaspt2
                  0.4
+                RegFNOparameter
+                 0.01
                 DoMP2
 
-              The keyword FNOC has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
-              (in each irrep) to be retained in the FNO-CASPT2 calculation.
-              The keyword DoMP2 is optional and used to compute the (estimated) correction for the truncation error.
+              The keyword FNOC has one compulsory argument: a real number in [-1,1] that if in [-1,0[ is to be interpreted as
+              an estimate of the percentage of correlation energy that we are willing to trade for the resulting speedup.
+              If the keyword RegfNO is included, the value specified (a real number) is used to regularize the calculation of the
+              density matrix for the selection of the NOs, particularly useful for wavefunction models based on multiple active spaces.
+              The keyword DoMP2 is also optional and used to compute the (estimated) correction for the truncation error.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="REGFNO" LEVEL="UNDOCUMENTED" KIND="REAL" />
 
 :kword:`FOCKtype`
   Use an alternative Fock matrix. The default Fock matrix is described in
@@ -596,6 +667,58 @@ Keywords
               CASPT2 wave function. Used for dipole moments, etc.
               </HELP>
               </KEYWORD>
+
+:kword:`GRDT`
+  Enable the calculation of quantities required by :program:`MCLR` to obtain the
+  Lagrange multipliers for computing the analytical nuclear gradients.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="GRDT" APPEAR="Gradient" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Grdt <advanced>
+              <HELP>
+              Enable calculation of quantities required for the analytical nuclear gradients.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NAC`
+  Enable the calculation of quantities required by :program:`MCLR` to obtain the
+  Lagrange multipliers for computing the analytical non-adiabatic coupling vector.
+  This keyword expects two 2 integers specifying the two states for which the NAC
+  vector should be computed.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NAC" APPEAR="Non-adiabatic coupling" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
+              %%Keyword: NAC <advanced>
+              <HELP>
+              Enable calculation of quantities required for the analytical non-adiabatic coupling vector.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SADRef`
+  To be used in combination with :kword:`GRDT` to use the state-average density matrix for the
+  calculation of analytical nuclear gradients.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SADREF" APPEAR="State-average density" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Sadref <advanced>
+              <HELP>
+              Use state-average density matrix for the calculation of analytical
+              nuclear gradients.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DORT` or :kword:`CORT`
+  Use a different (canonical) orthonormalization for internally contracted basis.
+  This keyword is required for analytical nuclear gradients with IPEA shift.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DORT" APPEAR="Canonical orthonormalization" KIND="SINGLE" LEVEL="ADVANCED" ALSO='CORT'>
+              %%Keyword: DORT <advanced>
+              <HELP>
+              Use the canonical orthonormalization for internally contracted basis.
+              </HELP>
+              CORT is a valid synonym.
+              </KEYWORD>
+
+              %%Keyword: CORT <advanced>
+              Use the canonical orthonormalization for internally contracted basis.
+              Synonym of DORT.
 
 :kword:`RFPErt`
   This keyword makes the program add reaction field effects to the energy
@@ -873,6 +996,39 @@ Keywords
               %%Keyword: PRSD <advanced>
               <HELP>
               Activate printing of CSFs in terms of determinants.
+              </HELP>
+              </KEYWORD>
+
+:kword:`FCIQmc`
+  Perform a FCIQMC-CASPT2 calculation with the |molcas|--M7 interface.
+  The keyword :kword:`MCM7` and :kword:`NDPT` should be used in
+  :program:`RASSCF`, the latter being optional if the calculation should be
+  performed in pseudo-canonical orbitals.
+  The program will skip the calculations of the :math:`n`-particle reduced
+  density matrix and prompt the user for interaction.
+  Multi-state calculations are currently not supported.
+  Always specify ``MULTi = 1 iroot``, where ``iroot`` is the root index.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="FCIQMC" APPEAR="FCIQMC-CASPT2 (M7)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: FCIQmc <basic>
+              <HELP>
+              Perform a FCIQMC-CASPT2 calculation with the Molcas-M7 interface.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NDIAgonal`
+  Activiate FCIQMC-CASPT2 in non-pseudo-canonical orbitals, i.e. using a non-diagonal Fock
+  operator. As a consequence the entire eight-index 4 RDM needs to be
+  computed and contracted with the Fock matrix on the fly. Despite being
+  computationally more costly, very often the number of walkers required to
+  stabilise the dynamics is considerably smaller than running in pseudo-canonical
+  orbitals. This option is therefore highly recommended.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NDIAGONAL" APPEAR="NON-DIAGONAL-CASPT2 (M7)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NDIAgonal <basic>
+              <HELP>
+              Transform the CASPT2 intermediates which were computed in a given
+              basis to pseudo-canonical orbitals.
               </HELP>
               </KEYWORD>
 

@@ -10,16 +10,10 @@
 ************************************************************************
       SUBROUTINE DRT0_RASSI(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
       IMPLICIT INTEGER (A-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='DRT0_RASSI')
       DIMENSION DRT(NVERT,5),DOWN(NVERT,0:3),TMP(NTMP)
       PARAMETER(LTAB=1,NTAB=2,ATAB=3,BTAB=4,CTAB=5)
       DIMENSION DA(0:3),DB(0:3),DC(0:3)
       DATA DA /0,0,1,1/, DB /0,1,-1,0/, DC /1,0,1,0/
-
-
-
 
       NACTEL=2*A0+B0
       NLEV=A0+B0+C0
@@ -42,22 +36,21 @@
           DO STEP=0,3
             DOWN(VUP,STEP)=0
             ADWN=AUP-DA(STEP)
-            IF(ADWN.LT.0) GOTO 20
+            if (ADWN < 0) cycle
             BDWN=BUP-DB(STEP)
-            IF(BDWN.LT.0) GOTO 20
+            if (BDWN < 0) cycle
             CDWN=CUP-DC(STEP)
-            IF(CDWN.LT.0) GOTO 20
+            if (CDWN < 0) cycle
             BC=BDWN+CDWN
             ADDR=1+(BC*(BC+1))/2 + CDWN
             TMP(ADDR)=4*VUP+STEP
             DOWN(VUP,STEP)=ADDR
-20        CONTINUE
           END DO
         END DO
         VDWN=VEND
         DO ADDR=1,MXADDR
           VUPS=TMP(ADDR)
-          IF(VUPS.EQ.0) GOTO 40
+          if (VUPS == 0) cycle
           VUP=VUPS/4
           STEP=MOD(VUPS,4)
           VDWN=VDWN+1
@@ -65,7 +58,6 @@
           DRT(VDWN,BTAB)=DRT(VUP,BTAB)-DB(STEP)
           DRT(VDWN,CTAB)=DRT(VUP,CTAB)-DC(STEP)
           TMP(ADDR)=VDWN
-40      CONTINUE
         END DO
         DO VUP=VSTA,VEND
           DO STEP=0,3
@@ -93,5 +85,4 @@
         CALL ABEND()
       END IF
 
-      RETURN
       END

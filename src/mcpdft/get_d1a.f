@@ -19,7 +19,7 @@
 *     calling arguments:                                               *
 *     CMO     : input, array of real*8                                 *
 *               MO-coefficients                                        *
-*     D1A_MO  : output, array of real*8                                *
+*     D1A_MO  : input, array of real*8                                *
 *               active one-body density in MO-space                    *
 *     D1A_AO  : output, array of real*8                                *
 *               active one-body density in AO-space                    *
@@ -59,7 +59,10 @@
         If ( iAsh.ne.0 ) then
           Call GetMem('Scr1','Allo','Real',iTmp1,iAsh*iAsh)
           Call GetMem('Scr2','Allo','Real',iTmp2,iAsh*iBas)
+          ! This is needed since D1A_MO is stored as upper triangle
+          ! and we need iTmp1 to be a full square matrix.
           Call Square(D1A_MO(iOff1),Work(iTmp1),1,iAsh,iAsh)
+! Does essentially C_a * D1A * C_a converting from MO -> AO basis
           Call DGEMM_('N','T',
      &                iBas,iAsh,iAsh,
      &                1.0d0,CMO(iOff2+(iFro+iIsh)*iBas),iBas,

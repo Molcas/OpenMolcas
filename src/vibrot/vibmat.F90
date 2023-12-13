@@ -47,10 +47,10 @@ WarnVq = Zero
 WarnRq = Zero
 Joule = 1.0e3_wp*auTokJ
 beta = One/(kBoltzmann*Temp)
-!write(u6,'(a,e12.5)') 'Bolzmann ',kBoltzmann
-!write(u6,'(a,e12.5)') 'au to J  ',Joule
-!write(u6,'(a,e12.5)') 'Temp     ',Temp
-!write(u6,'(a,e12.5)') 'beta     ',beta
+!write(u6,'(a,es12.5)') 'Bolzmann ',kBoltzmann
+!write(u6,'(a,es12.5)') 'au to J  ',Joule
+!write(u6,'(a,es12.5)') 'Temp     ',Temp
+!write(u6,'(a,es12.5)') 'beta     ',beta
 ndim1 = ndim+1
 nwork = ne*ndim1
 call mma_allocate(Vib,nwork,label='Vib')

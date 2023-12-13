@@ -177,17 +177,17 @@
       If (iPrint.ge.5) Then
       If (imode.eq.0.and.iAnd(kprint,8).eq.8) Then
       WRITE(6,101)
-101   FORMAT(/,6X,100(1H-),/,
+101   FORMAT(/,6X,100('-'),/,
      &      6X,29X,'Wave function printout: Split Graph format',/,
      &      6X, 8X,'in paranthesis: midvertex, upper-walk symmetry',
      &             ' upper- and lower-walk serial numbers',/,
-     &         6X,100(1H-),/)
+     &         6X,100('-'),/)
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
       Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
      &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,CIL)
       WRITE(6,103)
-103   FORMAT(/,6X,100(1H-),/)
+103   FORMAT(/,6X,100('-'),/)
       End If
       End If
 *

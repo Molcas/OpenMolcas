@@ -1,0 +1,13 @@
+diff --git a/cmake/linalg-modules/util/CommonFunctions.cmake b/cmake/linalg-modules/util/CommonFunctions.cmake
+index d56305fa..f9af1943 100644
+--- a/cmake/linalg-modules/util/CommonFunctions.cmake
++++ b/cmake/linalg-modules/util/CommonFunctions.cmake
+@@ -177,7 +177,7 @@ function( append_possibly_missing_libs _linker_test __compile_output _orig_libs
+     list( APPEND _tmp_libs Threads::Threads )
+   endif()
+   
+-  if( ${__compile_output} MATCHES "logf" )
++  if( ${__compile_output} MATCHES "logf" OR ${__compile_output} MATCHES "/libm.so" )
+     message( STATUS 
+             "  * Missing LIBM            - Adding to ${_linker_test} linker" )
+     list( APPEND _tmp_libs "m" )

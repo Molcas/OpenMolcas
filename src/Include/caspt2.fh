@@ -24,9 +24,11 @@
      &    POTNUC,ECORE,EREF,ERFSELF
 
       LOGICAL         IFDENS,IFMIX,IFPROP,IFMSCOUP,                     &
-     &    IFXMS,IFRMS,IFDW,IFEFOCK,IFSILPRROT
+     &    IFXMS,IFRMS,IFDW,IFSILPRROT,IFSADREF,IFDORTHO,                &
+     &    IFINVAR
       COMMON/SWITCHES/IFDENS,IFMIX,IFPROP,IFMSCOUP,                     &
-     &    IFXMS,IFRMS,IFDW,IFEFOCK,IFSILPRROT
+     &    IFXMS,IFRMS,IFDW,IFSILPRROT,IFSADREF,IFDORTHO,                &
+     &    IFINVAR
 
       INTEGER     MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
      &    NFRO,NFROT,NISH,NIES,NISHT,NRAS1,NRAS1T,                      &
@@ -42,6 +44,7 @@
      &    IAD1M,IEOF1M,NELE3,NHOLE1,IFQCAN,                             &
      &    NLYROOT,NLYGROUP,                                             &
      &    DWTYPE
+! Note: MUL(8,8) is just a copy of Mul in the Symmetry_Info module
       COMMON/INPI/MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
      &    NFRO(8),NFROT,NISH(8),NIES(8),NISHT,NRAS1(8),NRAS1T,          &
      &    NRAS2(8),NRAS2T,NRAS3(8),NRAS3T,NASH(8),NAES(8),NASHT,        &
@@ -58,11 +61,11 @@
      &    NLYROOT,NLYGROUP,                                             &
      &    DWTYPE
       REAL*8        EPS,EPSI,EPSA,EPSE,                                 &
-     &    EASUM,DENORM,SHIFT,ZETA,                                      &
-     &    SHIFTI,BSHIFT,ECOMM,E2CORR,E2TOT,RNORM,REFWGT
+     &    EASUM,DENORM,ZETA,                                            &
+     &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
       COMMON/VARIA/ EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),     &
-     &    EASUM,DENORM,SHIFT,ZETA,                                      &
-     &    SHIFTI,BSHIFT,ECOMM,E2CORR,E2TOT,RNORM,REFWGT
+     &    EASUM,DENORM,ZETA,                                            &
+     &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
       INTEGER NCMO,LCMO,LCMORAS,LCMOPT2,NTORB,LTORB,NTAT,               &
      &    LTAT,NFIMO,LFIMO,NFAMO,LFAMO,NFIFA,LFIFA,NHONE,LHONE,         &
      &    NDREF,LDREF,NPREF,LPREF,LEIGVEC,LDMIX,LDWGT
@@ -74,7 +77,7 @@
      &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS,LUH0T
       COMMON/UNITS_caspt2/ LUINTA,LUONEA,LUMORB,LUCIEX,                 &
      &    LUONEM,LUHLF1,LUHLF2,LUHLF3,LUINTM,LUDMAT,LUEXT,LUSOLV,       &
-     &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS(6),LUH0T(4)
+     &    LUSBT,IDCIEX,IDTCEX,LUDRA,LUDRATOT,LUDRATRP,LURHS(8),LUH0T(4)
       INTEGER       NSTUV,NSTU,NSTGEU,NSTGTU,                           &
      &    NTUV,NTU,NTGEU,NTGTU,                                         &
      &    NIGEJ,NIGTJ,NAGEB,NAGTB,NTUVES,NTUES,                         &

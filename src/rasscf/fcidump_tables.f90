@@ -87,13 +87,10 @@ contains
 !>  @author Oskar Weser
 !>
 !>  @details
-!>  The orbitals table gets filled with the orbital energies from DIAF.
-!>  If it is the first iteration (iter == 1) then the one electron
-!>  energies are read from the InpOrb.
+!>  The orbitals table gets filled with the orbital energies from orbital_energies.
 !>
-!>  @param[in,out] orbitals Core
-!>  @param[in] DIAF
-!>  @param[in] iter
+!>  @param[in,out] table
+!>  @param[in] orbital_energies
   subroutine fill_orbitals(table, orbital_energies)
     use general_data, only : nBas, nSym, nAsh, nFro, nIsh
     implicit none
@@ -124,7 +121,7 @@ contains
     type(OrbitalTable), intent(in) :: table
     integer :: i
     do i = 1, length(table)
-      write(6, '(E15.7, I7)') table%values(i), table%index(i)
+      write(6, '(ES15.7, I7)') table%values(i), table%index(i)
     end do
   end subroutine OrbitalTable_print
 
@@ -156,10 +153,8 @@ contains
 !>  The index is given by i and j.
 !>
 !>  @param[in,out] fock_table
-!>  @param[in] CMO The occupation number vector in MO-space.
-!>  @param[in] F_In
+!>  @param[in] Fock
 !>    \f[\sum_{\sigma\rho} {In}^D_{\sigma\rho} (g_{\mu\nu\sigma\rho})  \f]
-!>  @param[in] D1I_MO The inactive one-body density matrix in MO-space
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
   subroutine fill_fock(fock_table, Fock, cutoff)
@@ -171,7 +166,8 @@ contains
     integer :: i, n
     real*8 :: cutoff_
 
-    cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
+    cutoff_ = cutoff_default
+    if (present(cutoff)) cutoff_ = cutoff
 
     n = 0
     do i = 1, size(Fock)
@@ -195,7 +191,7 @@ contains
     type(FockTable), intent(in) :: table
     integer :: i, j
     do j = 1, length(table)
-      write(6, '(E15.7, I7, I7)') table%values(j), (table%index(i, j), i=1, 2)
+      write(6, '(ES15.7, I7, I7)') table%values(j), (table%index(i, j), i=1, 2)
     end do
   end subroutine FockTable_print
 
@@ -241,7 +237,8 @@ contains
     integer, parameter :: max_test = 20
     integer :: l_twoel_test
 
-    cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
+    cutoff_ = cutoff_default
+    if (present(cutoff)) cutoff_ = cutoff
 
     n = 0
     do i = 1, size(TUVX)
@@ -270,7 +267,7 @@ contains
     type(TwoElIntTable), intent(in) :: table
     integer :: i, j
     do j = 1, length(table)
-      write(6, '(E15.7, I7, I7, I7, I7)') &
+      write(6, '(ES15.7, I7, I7, I7, I7)') &
         table%values(j), (table%index(i, j), i=1, 4)
     end do
   end subroutine TwoElIntTable_print

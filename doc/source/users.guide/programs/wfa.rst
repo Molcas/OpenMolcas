@@ -9,7 +9,7 @@
 
 .. warning::
 
-   This program requires a submodule
+   This program requires a submodule.
 
 .. only:: html
 
@@ -26,7 +26,7 @@
 
 The :program:`WFA` program of the |molcas| program system provides various
 visual and quantitative wavefunction analysis methods.
-It is based on the libwfa :cite:`libwfa` wavefunction analysis library.
+It is based on the libwfa :cite:`libwfa,libwfa2022` wavefunction analysis library.
 The interface to |molcas| is described in Ref. :cite:`Molcas_libwfa`.
 
 .. Quantitative analysis methods are printed to the standard output, orbital coefficients are
@@ -43,18 +43,28 @@ Output is printed for the 1-electron transition density matrix (1TDM) and for th
 A decomposition into local and charge transfer contributions on different chromophores
 is possible through the charge transfer number analysis :cite:`Plasser2012`,
 which has been integrated into |molcas| recently.
-Postprocessing is possible through the external `TheoDORE <http://theodore-qc.sourceforge.net/>`_ :cite:`TheoDORE` program.
+Postprocessing is possible through the external `TheoDORE <https://theodore-qc.sourceforge.net/>`_ :cite:`TheoDORE` program.
+
+:program:`WFA` supports full use of spatial symmetry and can analyse transitions between
+different spin multiplicities and particle numbers.
 
 Installation
 ------------
 
 The :program:`WFA` module is currently not installed by default.
 Its installation occurs via CMake.
-It requires a working HDF5 installation and access to the include files of the Armadillo C++ linear algebra library.
+It requires a working HDF5 installation (including C++ bindings) and access to the include files of the Armadillo C++ linear algebra library.
 In the current settings, external BLAS/LAPACK libraries have to be used.
 Use, e.g., the following commands for installation: ::
 
   FC=ifort cmake -D LINALG=MKL -D WFA=ON -D ARMADILLO_INC=../armadillo-7.300.0/include ..
+
+To obtain the required libraries, you can use on Ubuntu: ::
+
+  sudo apt install libhdf5-dev libhdf5-cpp-103
+
+Alternatively, you can link against the dynamic HDF5 libraries distributed
+along with `Anaconda <https://www.anaconda.com/>`_.
 
 .. _UG\:sec\:wfa_dependencies:
 
@@ -98,7 +108,8 @@ For a seamless interface to TheoDORE, you can also create the :file:`tden_summ.t
 
   grep '^|' molcas.log > tden_summ.txt
 
-Extraction of the NOs, NTOs, and NDOs from the HDF5 file occurs with the external `Molpy program <https://github.com/steabert/molpy>`_. Call, e.g.: ::
+The NOs, NTOs, and NDOs on the HDF5 file can be accessed via `Pegamoid <https://pypi.org/project/Pegamoid/>`_.
+Alternatively, the orbitals can be converted to Molden format via the `Molpy program <https://github.com/felixplasser/molpy>`_. Call, e.g.: ::
 
   penny molcas.rassi.h5 --wfaorbs molden
 
@@ -145,7 +156,7 @@ Basic Keywords:
               </KEYWORD>
 
 :kword:`CTNUmmode`
-  Specifies what properties are computed in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style fragment-based analysis (0-3, default: 1).
+  Specifies what properties are computed in a `TheoDORE <https://theodore-qc.sourceforge.net/>`_-style fragment-based analysis (0-3, default: 1).
   This requires defining fragments via :kword:`ATLIsts`.
 
   0 --- none
@@ -168,7 +179,9 @@ Basic Keywords:
               </KEYWORD>
 
 :kword:`ATLIsts`
-  Define the fragments in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style analysis.
+  Define the fragments in a `TheoDORE <https://theodore-qc.sourceforge.net/>`_-style analysis.
+  *Note:* If symmetry is turned on, then |molcas| may reorder the atoms.
+  In this case it is essential to take the order |molcas| produced (seen for example in the Molden files).
 
   The first entry is the number of fragments.
   Then enter the atomic indices of the fragment followed by a \*.
@@ -178,6 +191,11 @@ Basic Keywords:
     2
     1 2 4 *
     3 *
+
+  *Note:* This input can be generated automatically via TheoDORE by suppling a file with
+  coordinates coord.mol and running ::
+
+    theodore theoinp -a coord.mol
 
   .. xmldoc:: <KEYWORD MODULE="WFA" NAME="ATLISTS" APPEAR="Fragment definition" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword:ATLIsts <basic>
@@ -261,7 +279,7 @@ Advanced keywords for fine grain output options and debug information:
               </KEYWORD>
 
 :kword:`PROPlist`
-  Manual input of properties to be printed out in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style fragment based analysis.
+  Manual input of properties to be printed out in a `TheoDORE <https://theodore-qc.sourceforge.net/>`_-style fragment based analysis.
   Use only if :kword:`CTNUMMODE` does not provide what you want.
 
   .. xmldoc:: <KEYWORD MODULE="WFA" NAME="PROPLIST" APPEAR="Property list" KIND="CUSTOM" LEVEL="ADVANCED">
@@ -290,7 +308,7 @@ Advanced keywords for fine grain output options and debug information:
               </KEYWORD>
 
 :kword:`ADDInfo`
-  Add info for verification runs with :command:`molcas verify`.
+  Add info for verification runs with :command:`pymolcas verify`.
 
   .. xmldoc:: <KEYWORD MODULE="WFA" NAME="ADDINFO" APPEAR="Add info" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword:ADDInfo <advanced>
@@ -387,6 +405,8 @@ Output listing                         Explanation
 ``Nr of entangled states (Z_HE)``      :math:`Z_{HE}=2^{S_{H|E}}`
 ``Renormalized S_HE/Z_HE``             Replace :math:`\lambda_i\rightarrow \lambda_i/\Omega`
 ``omega``                              Norm of the 1TDM :math:`\Omega`, single-exc. character
+``QTa`` / ``QT2``                      Sum over absolute (:math:`Q^t_a`) or squared (:math:`Q^t_2`) transition charges
+``LOC`` / ``LOCa``                     Local contributions: Trace of the :math:`\Omega` matrix with respect to basis functions (LOC) or squareroots of the values (LOCa)
 ``<Phe>``                              Exp. value of the particle-hole permutation operator, measuring de-excitations :cite:`Kimber2020`
 ``<r_h> [Ang]``                        Mean position of hole :math:`\langle\vec{x}_h\rangle_{\text{exc}}` :cite:`Plasser2015`
 ``<r_e> [Ang]``                        Mean position of electron :math:`\langle\vec{x}_e\rangle_{\text{exc}}`

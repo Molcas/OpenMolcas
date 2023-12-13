@@ -86,7 +86,7 @@
         NOCTPB = NOCTYP(IBSTFI(ISPC(IISPC)))
         MXOCOC = MAX(MXOCOC,NOCTPA*NOCTPB)
       END DO
-      Call mma_allocate(IOIO,NOCTPA*NOCTPB,Label='IOIO')
+      Call mma_allocate(IOIO,MXOCOC,Label='IOIO')
 **. Diagonal of one-body integrals and coulomb and exchange integrals
 *
       CALL GT1DIA_MCLR(H1D)

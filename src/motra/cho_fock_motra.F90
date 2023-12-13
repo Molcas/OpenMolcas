@@ -9,21 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Cho_Fock_MoTra(nSym,nBas,nFro,DLT,DSQ,FLT,nFLT,FSQ,ExFac)
+subroutine Cho_Fock_MoTra(nSym,nBas,nFro,W_DLT,W_DSQ,W_FLT,nFLT,W_FSQ,ExFac)
 
-use stdalloc, only: mma_allocate, mma_deallocate
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nFLT
 ! TODO: fix intent of these arrays after removing "ip_of_Work"
-real(kind=wp), intent(inout) :: DLT(*), DSQ(*), FLT(nFLT), FSQ(*)
+real(kind=wp), intent(inout) :: W_DLT(*), W_DSQ(*), W_FLT(nFLT), W_FSQ(*)
 real(kind=wp), intent(in) :: ExFac
-integer(kind=iwp) :: i, ipd, ipDLT(1), ipFLT(1), ipFSQ(1), ipMOs(1), irc, ja, jaa, MOdim, nDen, NScreen, NumV, nXorb(8)
+integer(kind=iwp) :: i, irc, ja, nDen, NScreen, NumV, nXorb(8)
 real(kind=wp) :: ChFracMem, dFKmat, dmpk, Thr, Ymax
-real(kind=wp), allocatable :: MOs(:)
-integer(kind=iwp), external :: ip_of_Work
+type (DSBA_Type) FLT(1), KLT(1), MOs, DLT, DSQ
 
 !****************************************************************
 ! CALCULATE AND RETURN FMAT DUE TO FROZEN ORBITALS ONLY
@@ -32,7 +31,7 @@ integer(kind=iwp), external :: ip_of_Work
 NScreen = 10
 dmpK = 0.1_wp
 dFKmat = Zero
-call IZero(nXorb,nSym)
+nXorb(:)=0
 
 ! Initialize Cholesky information
 
@@ -43,22 +42,18 @@ if (irc /= 0) then
   call AbEnd()
 end if
 
-MOdim = 0
-do i=1,nSym
-  MOdim = MOdim+nBas(i)**2
-end do
-call mma_allocate(MOs,MOdim,label='chMOs')
+call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT)
+call Allocate_DT(DSQ,nBas,nBas,nSym,aCase='REC',Ref=W_DSQ)
+call Allocate_DT(MOs,nBas,nBas,nSym)
 
-ipd = 1
 do i=1,nSym
   if (nBas(i) > 0) then
     Ymax = Zero
     do ja=1,nBas(i)
-      jaa = ipd-1+nBas(i)*(ja-1)+ja
-      Ymax = max(Ymax,DSQ(jaa))
+      Ymax = max(Ymax,DSQ%SB(i)%A2(ja,ja))
     end do
     Thr = 1.0e-8_wp*Ymax
-    call CD_InCore(DSQ(ipd),nBas(i),MOs(ipd),nBas(i),NumV,Thr,irc)
+    call CD_InCore(DSQ%SB(i)%A2,nBas(i),MOs%SB(i)%A2,nBas(i),NumV,Thr,irc)
     if (irc /= 0) then
       write(u6,*) 'Cho_Fock_Motra: CD_incore returns rc ',irc
       call AbEnd()
@@ -72,23 +67,27 @@ do i=1,nSym
 
   end if
 
-  ipd = ipd+nBas(i)**2
 end do
 
 nDen = 1
-ipFLT(1) = ip_of_Work(FLT(1))
-ipFSQ(1) = ip_of_Work(FSQ(1))  ! not needed on exit
-ipMOs(1) = ip_of_Work(MOs(1))
-ipDLT(1) = ip_of_Work(DLT(1))
-call CHO_LK_SCF(irc,nDen,ipFLT,ipFSQ,nXorb,nFro,ipMOs,ipDLT,Half*ExFac,NScreen,dmpk,dFKmat)
+call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FLT)
+call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ) ! not needed on exit
+
+call CHO_LK_SCF(irc,nDen,FLT,KLT,nXorb,nFro,[MOs],[DLT],Half*ExFac,NScreen,dmpk,dFKmat)
+
 if (irc /= 0) then
   write(u6,*) 'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
   call AbEnd()
 end if
 
-call GADSUM(FLT,nFLT)
+call Deallocate_DT(KLT(1))
+call Deallocate_DT(FLT(1))
 
-call mma_deallocate(MOs)
+call GADSUM(W_FLT,nFLT)
+
+call deallocate_DT(MOs)
+call deallocate_DT(DSQ)
+call deallocate_DT(DLT)
 
 ! Finalize Cholesky information
 

@@ -20,7 +20,7 @@ C
 C
 #include "rasdim.fh"
 #include "rasscf.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
 #include "gugx.fh"
@@ -140,7 +140,7 @@ C -- PRINT IT!
                 ! use maximum spin projection value
                 IMS = ISPIN-1
                 WRITE(6,*)
-                CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX))
+                CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX),coef,LuVecDet)
                 WRITE(6,*)
               ENDIF
               Line=' '

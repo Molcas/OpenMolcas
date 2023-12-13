@@ -28,7 +28,7 @@ C an array of the form Y(p,q), compute the matrix
 C    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
 C where V=VAL1(L4), looped over ITEM=1,NLST1.
 C Note: Arrays are addressed by strides given in common.
-*     write(*,*)' In MLTUNF. List:'
+*     write(6,*)' In MLTUNF. List:'
 *     write(*,'(1x,4i5)') ((LST(I,J),I=1,4),J=1,NLST1)
 *     write(*,'(1x,a,3i5)')'INCX:',INCX1,INCX2,INCX3
 *     write(*,'(1x,a,3i5)')'INCY:',INCY1,INCY2

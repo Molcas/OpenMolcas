@@ -1,0 +1,174 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Roland Lindh                                     *
+!               1993, Per Boussard                                     *
+!***********************************************************************
+
+subroutine PrjGrd_mck( &
+#                     define _CALLING_
+#                     include "grd_mck_interface.fh"
+                     )
+!***********************************************************************
+!                                                                      *
+! Object: kernel routine for the computation of ECP integrals.         *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
+!             Physics, University of Stockholm, Sweden, October 1993.  *
+!***********************************************************************
+
+use Index_Functions, only: nTri_Elem1
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
+use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+#include "grd_mck_interface.fh"
+integer(kind=iwp) :: iAng, iCnt, iDCRT(0:7), Indx(3,4), ip, ipFA1, ipFA2, ipFB1, ipFB2, ipFin, iShll, iuvwx(4), JndGrd(3,4,0:7), &
+                     kCnt, kCnttp, kdc, lDCRT, LmbdT, mOp(4), mvec, nBasisi, nDCRT, nExpi, nt
+real(kind=wp) :: C(3), Dum(1), Fact, TC(3)
+logical(kind=iwp) :: DiffCnt, ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(P)
+unused_var(nHer)
+unused_var(Ccoor)
+unused_var(Trans)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+iuvwx(1) = iu
+iuvwx(2) = iv
+mop(1) = nOp(1)
+mop(2) = nOp(2)
+DiffCnt = IfGrad(iDCar,1) .or. IfGrad(iDCar,2)
+
+#ifdef _DEBUGPRINT_
+call RecPrt(' In PrjGrd_McK: A',' ',A,1,3)
+call RecPrt(' In PrjGrd_McK: RB',' ',RB,1,3)
+!call RecPrt(' In PrjGrd_McK: P',' ',P,nZeta,3)
+call RecPrt(' In PrjGrd_McK: Alpha',' ',Alpha,nAlpha,1)
+call RecPrt(' In PrjGrd_McK: Beta',' ',Beta,nBeta,1)
+write(u6,*) ' In PrjGrd_McK: la,lb=',' ',la,lb
+write(u6,*) ' In PrjGrd_McK: Diffs=',' ',IfGrad(iDCar,1),IfGrad(iDCar,2)
+write(u6,*) ' In PrjGrd_McK: Center=',' ',iDCNT
+#endif
+
+kdc = 0
+do kCnttp=1,nCnttp
+  if (kCnttp > 1) kdc = kdc+dbsc(kCnttp-1)%nCntr
+  if (.not. dbsc(kCnttp)%ECP) cycle
+  if (dbsc(kCnttp)%nSRO <= 0) cycle
+
+  do kCnt=1,dbsc(kCnttp)%nCntr
+    if ((.not. DiffCnt) .and. (kdc+kCnt /= iDCnt)) cycle
+
+    C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
+
+    call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
+    iuvwx(3) = dc(kdc+kCnt)%nStab
+    iuvwx(4) = dc(kdc+kCnt)%nStab
+
+    JfGrad(:,:) = .false.
+    tr(:) = .false.
+    JndGrd(:,:,0:nIrrep-1) = 0
+    JfGrad(iDCar,1:2) = IfGrad(iDCar,1:2)
+    do ICnt=1,2
+      if (IfGrad(idcar,iCnt)) JndGrd(iDCar,iCnt,0:nIrrep-1) = IndGrd(0:nIrrep-1)
+    end do
+
+    if ((kdc+kCnt) == iDCnt) then
+      Tr(3) = .true.
+      JfGrad(iDCar,1:2) = .true.
+      JndGrd(iDCar,3,0:nIrrep-1) = -IndGrd(0:nIrrep-1)
+    end if
+
+    do lDCRT=0,nDCRT-1
+
+      mop(3) = nropr(iDCRT(lDCRT))
+      mop(4) = mop(3)
+      call OA(iDCRT(lDCRT),C,TC)
+
+      if (EQ(A,RB) .and. EQ(A,TC)) cycle
+
+      do iAng=0,dbsc(kCnttp)%nPrj-1
+        iShll = dbsc(kCnttp)%iPrj+iAng
+        nExpi = Shells(iShll)%nExp
+        nBasisi = Shells(iShll)%nBasis
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'nExp(iShll)=',nExpi
+        write(u6,*) 'nBasisi=',nBasisi
+        write(u6,*) ' iAng=',iAng
+        call RecPrt('TC',' ',TC,1,3)
+#       endif
+
+        if ((nExpi == 0) .or. (nBasisi == 0)) cycle
+
+        ip = 1
+
+        ipFin = ip
+        ip = ip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*6
+
+        ipFA1 = ip
+        ip = ip+nAlpha*nExpi*nTri_Elem1(la)*nTri_Elem1(iAng)*4
+
+        ipFB1 = ip
+        ip = ip+nExpi*nBeta*nTri_Elem1(iAng)*nTri_Elem1(lb)*4
+
+        ipFB2 = ip
+        ipFA2 = ip
+        if (ip >= narr) then
+          write(u6,*) 'No mem in PrjGrd_McK',ip,narr
+          call abend()
+        end if
+
+        Array(:) = Zero
+
+#       ifdef _DEBUGPRINT_
+        call Acore(iang,la,ishll,nordop,TC,A,Array(ip),narr-ip+1,Alpha,nalpha,Array(ipFA1),array(ipFA2),jfgrad(1,1),ifhess_dum,1, &
+                   .true.)
+#       else
+        call Acore(iang,la,ishll,nordop,TC,A,Array(ip),narr-ip+1,Alpha,nalpha,Array(ipFA1),array(ipFA2),jfgrad(1,1),ifhess_dum,1, &
+                   .false.)
+#       endif
+        call LToCore(Array(ipFA1),nalpha,ishll,la,iAng,4)
+
+#       ifdef _DEBUGPRINT_
+        call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),narr-ip+1,Beta,nbeta,Array(ipFB1),array(ipFB2),jfgrad(1,2),ifhess_dum,1, &
+                   .true.)
+#       else
+        call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),narr-ip+1,Beta,nbeta,Array(ipFB1),array(ipFB2),jfgrad(1,2),ifhess_dum,1, &
+                   .false.)
+#       endif
+        call RToCore(Array(ipFB1),nBeta,ishll,lb,iAng,4)
+
+        call CmbnACB1(Array(ipFA1),Array(ipFB1),Array(ipFin),Fact,nAlpha,nBeta,Dum,nBasisi,la,lb,iang,jfgrad,Dum,.false.,Indx, &
+                      mvec,idcar)
+
+        nt = nAlpha*nBeta*nTri_Elem1(lb)*nTri_Elem1(la)
+        call SmAdNa(Array(ipFin),nt,rFinal,mop,loper,JndGrd,iuvwx,Indx,idcar,One,tr)
+
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine PrjGrd_mck

@@ -15,7 +15,6 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-!#include "timtra.fh"
 integer(kind=iwp) :: lengthlast
 character(len=8) :: Method
 logical(kind=iwp) :: Do_ESPF, StandAlone, FoundLastEn
@@ -35,27 +34,27 @@ end if
 
 call DecideOnESPF(Do_ESPF)
 
-if (Method(5:7) == 'SCF'     .or. &
-    Method(1:6) == 'KS-DFT'  .or. &
-    Method(1:6) == 'CASSCF'  .or. &
-    Method(1:6) == 'RASSCF'  .or. &
-    Method(1:6) == 'CASPT2'  .or. &
-    Method(1:5) == 'MBPT2'   .or. &
-    Method(1:5) == 'CCSDT'   .or. &
-    Method(1:4) == 'CHCC'    .or. &
-    Method(1:6) == 'MCPDFT'  .or. &
+if (Method(5:7) /= 'SCF'     .and. &
+    Method(1:6) /= 'KS-DFT'  .and. &
+    Method(1:6) /= 'CASSCF'  .and. &
+    Method(1:6) /= 'RASSCF'  .and. &
+    Method(1:6) /= 'CASPT2'  .and. &
+    Method(1:5) /= 'MBPT2'   .and. &
+    Method(1:5) /= 'CCSDT'   .and. &
+    Method(1:4) /= 'CHCC'    .and. &
+    Method(1:6) /= 'MCPDFT'  .and. &
+    Method(1:6) /= 'MSPDFT'  .and. &
 #   ifdef _DMRG_
-    Method(1:7) == 'DMRGSCF' .or. &
+    Method(1:7) /= 'DMRGSCF' .and. &
 #   endif
-    Method(1:4) == 'CHT3'    .or. &
-    Method(1:8) == 'EXTERNAL') then
-  continue
-else
+    Method(1:4) /= 'CHT3'    .and. &
+    Method(1:8) /= 'EXTERNAL') then
   write(u6,'(A,A,A)') 'Last Energy for ',Method,' is not implemented yet.'
   call Abend()
 end if
 
 if (Method(1:6) == 'MCPDFT') Do_ESPF = .false.
+if (Method(1:6) == 'MSPDFT') Do_ESPF = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -105,6 +104,7 @@ else if (Method(1:6) == 'RASSCF' .or. &
          Method(1:6) == 'CASSCF' .or. &
          Method(1:6) == 'CASPT2' .or. &
          Method(1:6) == 'MCPDFT' .or. &
+         Method(1:6) == 'MSPDFT' .or. &
          Method(1:5) == 'CCSDT') then
   call StartLight('rasscf')
   call Disable_Spool()
@@ -211,13 +211,17 @@ if (Method(1:6) == 'MCPDFT') then
     call Abend()
   end if
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Since Last_Energy itself cleans up after the modules, it's necessary
-! to force nfld_tim and nfld_stat to zero, or finish will scream.
-!nfld_tim = 0
-!nfld_stat = 0
+
+if (Method(1:6) == 'MSPDFT') then
+  call StartLight('mcpdft')
+  call Disable_Spool()
+  call MCPDFT(iReturn)
+  if (iReturn /= 0) then
+    write(u6,*) 'Last_Energy failed ...'
+    write(u6,*) 'MCPDFT returned with return code, rc = ',iReturn
+    call Abend()
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *

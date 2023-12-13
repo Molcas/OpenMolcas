@@ -17,8 +17,8 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS2_RPT2 (CI,SGM1,SGM2,G1,G2)
-      use output_caspt2, only:iPrGlb,debug
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+      use caspt2_output, only:iPrGlb,debug
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       IMPLICIT NONE
@@ -174,7 +174,7 @@ CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
 #endif
 

@@ -223,7 +223,7 @@ Input
   &GENANO
 
   right before the actual input starts. Below is a list of the available keywords.
-  Please note that you can not abbreviate any keyword.
+  Please note that you cannot abbreviate any keyword.
 
 .. class:: keywordlist
 

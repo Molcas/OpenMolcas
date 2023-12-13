@@ -12232,6 +12232,32 @@ diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/picalc.f 6.3.3/source/picalc.f
                       nbpi = nbpi + 1
                       do m = 1, nbond
                          if (iorb.eq.ibnd(1,m) .and.
+diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/pmestuff.f 6.3.3/source/pmestuff.f
+--- 6.3.3/source_orig/pmestuff.f 2022-09-30 09:09:28.116394906 +0200
++++ 6.3.3/source/pmestuff.f      2022-09-30 09:04:52.978118592 +0200
+@@ -51,19 +51,19 @@
+          ifr = int(fr-eps)
+          w = fr - dble(ifr)
+          igrid(1,i) = ifr - bsorder
+-         call bsplgen (w,thetai1(1,1,i))
++         call bsplgen (w,thetai1(:,:,i))
+          w = xi*recip(1,2) + yi*recip(2,2) + zi*recip(3,2)
+          fr = dble(nfft2) * (w-anint(w)+0.5d0)
+          ifr = int(fr-eps)
+          w = fr - dble(ifr)
+          igrid(2,i) = ifr - bsorder
+-         call bsplgen (w,thetai2(1,1,i))
++         call bsplgen (w,thetai2(:,:,i))
+          w = xi*recip(1,3) + yi*recip(2,3) + zi*recip(3,3)
+          fr = dble(nfft3) * (w-anint(w)+0.5d0)
+          ifr = int(fr-eps)
+          w = fr - dble(ifr)
+          igrid(3,i) = ifr - bsorder
+-         call bsplgen (w,thetai3(1,1,i))
++         call bsplgen (w,thetai3(:,:,i))
+       end do
+       return
+       end
 diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/promo.f 6.3.3/source/promo.f
 --- 6.3.3/source_orig/promo.f	2015-04-14 13:58:10.118343730 +0200
 +++ 6.3.3/source/promo.f	2015-04-15 14:03:48.548057299 +0200
@@ -13919,6 +13945,18 @@ diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/update_qmmm.f 6.3.3/source/update_qm
 +c
 +      return
 +      end
+diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/valence.f 6.3.3/source/valence.f
+--- 6.3.3/source_orig/valence.f  2022-09-30 09:16:19.605860155 +0200
++++ 6.3.3/source/valence.f       2022-09-30 09:18:00.125251072 +0200
+@@ -16,7 +16,7 @@
+ c     on a quantum mechanical optimized structure and frequencies
+ c
+ c
+-      program valence
++      program valence_prog
+       implicit none
+       include 'sizes.i'
+       include 'atoms.i'
 diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/xyzedit.f 6.3.3/source/xyzedit.f
 --- 6.3.3/source_orig/xyzedit.f	2015-04-14 13:58:10.122343730 +0200
 +++ 6.3.3/source/xyzedit.f	2015-04-15 13:48:53.796041225 +0200

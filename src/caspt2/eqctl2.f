@@ -17,7 +17,8 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
-      use output_caspt2, only:iPrGlb,usual,verbose,insane
+      use caspt2_output, only: iPrGlb,usual,verbose,insane
+      use caspt2_gradient, only: nStpGrd, do_grad, iStpGrd
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -30,55 +31,59 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "chocaspt2.fh"
 
+      INTEGER Cho_X_GetTol
+      EXTERNAL Cho_X_GetTol
 
-      IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,'(1X,A)')
-        WRITE(6,'(1X,A)') 'Computing the S/B matrices'
-        WRITE(6,'(1X,A)') '--------------------------'
-      END IF
+
+      If (iStpGrd.EQ.1) Then
+        IF (IPRGLB.GE.VERBOSE) THEN
+          WRITE(6,'(1X,A)')
+          WRITE(6,'(1X,A)') 'Computing the S/B matrices'
+          WRITE(6,'(1X,A)') '--------------------------'
+        END IF
 
 C Compute S and (possibly) B matrices and write them on LUSBT
 C this uses previously stored data on LUSOLV!!
 CPAM98      IF(SMATRIX.NE.'NO      ')CALL SBMAT
-      CALL GASync
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
+        CALL GASync
+        CALL TIMING(CPU0,CPU,TIO0,TIO)
 * PAM14 Necessary to reset NINDEP to conservative estimate. It gets its
 * final value after SBDIAG call, but must have its original value when
 * calling MKSMAT and MKBMAT.
-      DO ICASE=1,13
-       DO ISYM=1,NSYM
-        NINDEP(ISYM,ICASE)=NASUP(ISYM,ICASE)
-        IF(NISUP(ISYM,ICASE).EQ.0) NINDEP(ISYM,ICASE)=0
-       END DO
-      END DO
-      IF(SMATRIX.NE.'NO      ') THEN
-        CALL MKSMAT
-        CALL MKBMAT
-      END IF
+        DO ICASE=1,13
+         DO ISYM=1,NSYM
+          NINDEP(ISYM,ICASE)=NASUP(ISYM,ICASE)
+          IF(NISUP(ISYM,ICASE).EQ.0) NINDEP(ISYM,ICASE)=0
+         END DO
+        END DO
+        IF(SMATRIX.NE.'NO      ') THEN
+          CALL MKSMAT
+          CALL MKBMAT
+        END IF
 C Modify B matrices, if necessary:
-      IF(HZERO.EQ.'CUSTOM') THEN
-        CALL NEWB
-      END IF
-      CALL GASync
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUSBM=CPU1-CPU0
-      TIOSBM=TIO1-TIO0
+        IF(HZERO.EQ.'CUSTOM') THEN
+          CALL NEWB
+        END IF
+        CALL GASync
+        CALL TIMING(CPU1,CPU,TIO1,TIO)
+        CPUSBM=CPU1-CPU0
+        TIOSBM=TIO1-TIO0
 
 C Linear dependence removal, ON transformation of S matrix,
 C and spectral resolution of H0:
-      CALL GASync
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
-      IF(SDECOM.NE.'NO      ') THEN
-        CALL SBDIAG
-      END IF
-      CALL GASync
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUEIG=CPU1-CPU0
-      TIOEIG=TIO1-TIO0
+        CALL GASync
+        CALL TIMING(CPU0,CPU,TIO0,TIO)
+        IF(SDECOM.NE.'NO      ') THEN
+          CALL SBDIAG
+        END IF
+        CALL GASync
+        CALL TIMING(CPU1,CPU,TIO1,TIO)
+        CPUEIG=CPU1-CPU0
+        TIOEIG=TIO1-TIO0
+      End If
 C The transformation matrices have now been computed and
 C written at disk addresses given by IDTMAT().
 C The B matrices were destroyed here. In their place,
@@ -181,9 +186,17 @@ C Transform RHS of CASPT2 equations to eigenbasis for H0:
         CALL RHS_FPRINT('SR',IRHS)
       END IF
 
-      CALL PCG(ICONV)
+      If (iStpGrd.EQ.1) CALL PCG(ICONV)
+      If (iStpGrd.EQ.2) Then
+        CALL RHS_ZERO(IVECR)
+        ICONV = 0
+        !! Just for verification
+        LAXITY=8
+        IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
+        Call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
+      End If
 
-      IF (ICONV .NE. 0) GOTO 100
+      ! IF (ICONV .NE. 0) GOTO 100
       CALL PTRTOC(0,IVECX,IVECC)
       CALL PTRTOC(1,IVECX,IVECC2)
 
@@ -194,9 +207,11 @@ C-SVC: end of PCG routine, compute total time.
       TIOPCG=TIO1-TIO0
 
 C-SVC: collect and print information on coefficients/denominators
-      IF(IPRGLB.GE.USUAL) THEN
-        CALL H0SPCT
-      END IF
+      if (nStpGrd == 1 .or. (nStpGrd == 2 .and. .not.do_grad)) then
+        IF(IPRGLB.GE.USUAL) THEN
+          CALL H0SPCT
+        END IF
+      end if
 
       CALL GASync
       CALL TIMING(CPU0,CPU,TIO0,TIO)
@@ -205,6 +220,6 @@ C-SVC: collect and print information on coefficients/denominators
       CPUSER=CPU1-CPU0
       TIOSER=TIO1-TIO0
 
-  100 CONTINUE
+  ! 100 CONTINUE
       RETURN
       END

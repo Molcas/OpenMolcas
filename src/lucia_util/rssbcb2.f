@@ -77,7 +77,7 @@
 * IHFORM
 * NNSEL2E : Only selected 2e terms will be included
 * ISEL2E : orbital spaces in which 2e terms are included
-*          (Currently : all indeces identical )
+*          (Currently : all indices identical )
 *
 * ======
 * Output

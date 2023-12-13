@@ -16,7 +16,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: id
-integer(kind=iwp) :: i, idisk, idx(2), jbuf(4*(id+1)), nc
+integer(kind=iwp) :: i, idisk, idum(1), idx(2), jbuf(4*(id+1)), nc
 
 nc = 1
 do i=0,id
@@ -27,14 +27,16 @@ idisk = 0
 ! number of nodes
 call idafile(ludrt,2,idx,2,idisk)
 idisk = idx(2)
-call idafile(ludrt,1,[id],1,idisk)
+idum(1) = id
+call idafile(ludrt,1,idum,1,idisk)
 call idafile(ludrt,1,ja,id,idisk)
 call idafile(ludrt,1,jb,id,idisk)
 call idafile(ludrt,1,jm,id,idisk)
 call idafile(ludrt,1,jbuf,4*(id+1),idisk)
 call idafile(ludrt,1,kk(0),1+id,idisk)
 call idafile(ludrt,1,no(0),norb_inn+2,idisk)
-call idafile(ludrt,1,[jv],1,idisk)
+idum(1) = jv
+call idafile(ludrt,1,idum,1,idisk)
 call idafile(ludrt,1,jd,8,idisk)
 call idafile(ludrt,1,jt,8,idisk)
 call idafile(ludrt,1,js,8,idisk)

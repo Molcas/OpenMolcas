@@ -11,7 +11,10 @@
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       USE RASSI_aux
       USE kVectors
+      use rassi_aux, only: ipglob
       USE rassi_global_arrays, only: JBNUM
+      USE do_grid, only: Do_Lebedev_Sym
+      use frenkel_global_vars, only: iTyp
 #ifdef _HDF5_
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
@@ -21,9 +24,6 @@
       USE ISO_C_Binding
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "prgm.fh"
-      CHARACTER*16 ROUTINE
-      PARAMETER (ROUTINE='EIGCTL')
 #include "symmul.fh"
 #include "rassi.fh"
 #include "Molcas.fh"
@@ -39,13 +39,11 @@
       character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
-     &       DYSAMPS(NSTATE,NSTATE)
+     &       DYSAMPS(NSTATE,NSTATE), DYSAMPS2(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
       Logical Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
-* Short array, just for putting transition dipole values
-* into Add_Info, for generating check numbers:
-      Real*8 TDIPARR(3)
+      character(len=13) :: filnam
       Integer  cho_x_gettol
       External cho_x_gettol
       INTEGER IOFF(8), SECORD(4), IPRTMOM(12)
@@ -53,7 +51,7 @@
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
-      Real*8, Allocatable :: pol_Vector(:,:)
+      Real*8, Allocatable :: pol_Vector(:,:), Rquad(:,:)
       Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),SCR(:,:)
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
@@ -69,7 +67,11 @@
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
 
-
+      ! Bruno, DYSAMPS2 is used for printing out the pure norm
+      ! of the Dyson vectors.
+      ! DYSAMPS remains basis of the SF eigen-states to the basis
+      ! of the original SF states.
+      DYSAMPS2=DYSAMPS
 
 C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
@@ -117,7 +119,7 @@ C Make a list of interacting sets of states:
       END DO
       ISET=0
       DO I=1,NSTATE
-        IF(IWORK(LLIST-1+I).GT.0) GOTO 20
+        IF(IWORK(LLIST-1+I).GT.0) cycle
         ISET=ISET+1
         IWORK(LLIST-1+I)=ISET
         JOB1=JBNUM(I)
@@ -125,18 +127,16 @@ C Make a list of interacting sets of states:
         MPLET1=MLTPLT(JOB1)
         LSYM1=IRREP(JOB1)
         DO J=I+1,NSTATE
-          IF(IWORK(LLIST-1+J).GT.0) GOTO 10
+          IF(IWORK(LLIST-1+J).GT.0) cycle
           JOB2=JBNUM(J)
           NACTE2=NACTE(JOB2)
-          IF(NACTE2.NE.NACTE1) GOTO 10
+          IF(NACTE2.NE.NACTE1) cycle
           MPLET2=MLTPLT(JOB2)
-          IF(MPLET2.NE.MPLET1) GOTO 10
+          IF(MPLET2.NE.MPLET1) cycle
           LSYM2=IRREP(JOB2)
-          IF(LSYM2.NE.LSYM1) GOTO 10
+          IF(LSYM2.NE.LSYM1) cycle
           IWORK(LLIST-1+J)=ISET
-  10      CONTINUE
         END DO
-  20    CONTINUE
       END DO
       NSETS=ISET
 CTEST      write(*,*)' EIGCTL. There are NSETS sets of interacting states.'
@@ -207,17 +207,9 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
 
       If (.not.diagonal) Then
 C 4. TRANSFORM HAMILTON MATRIX.
-*        CALL MXMA(WORK(LHSQ),1,MSTATE,
-*     &            WORK(LUU),1,MSTATE,
-*     &            WORK(LSCR),1,MSTATE,
-*     &            MSTATE,MSTATE,MSTATE)
         CALL DGEMM_('N','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LHSQ),MSTATE,WORK(LUU),MSTATE,
      &             0.0D0,WORK(LSCR),MSTATE)
-*        CALL MXMA(WORK(LUU),MSTATE,1,
-*     &            WORK(LSCR),1,MSTATE,
-*     &            WORK(LHSQ),1,MSTATE,
-*     &            MSTATE,MSTATE,MSTATE)
         CALL DGEMM_('T','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LUU),MSTATE,WORK(LSCR),MSTATE,
      &             0.0D0,WORK(LHSQ),MSTATE)
@@ -309,26 +301,34 @@ C especially for already diagonal Hamiltonian matrix.
       call mh5_put_dset(wfn_sfs_coef, EIGVEC)
 #endif
 
-      IF(IPGLOB.GE.TERSE) THEN
-       DO ISTATE=1,NSTATE
-        Call PrintResult(6,'(6x,A,I5,5X,A,F16.8)',
-     &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
-       END DO
-      END IF
+      if (IPGLOB >= 1) then
+        write(filnam,'(A,I1)') 'stE', iTyp
+        LuT2 = 11
+        LuT1 = isFreeUnit(LuT2)
+        call molcas_open(LuT1, filnam)
+        do istate=1,nstate
+          write(LuT1,*) energy(istate)
+        end do
+        close(LuT1)
+        do istate=1,nstate
+          call PrintResult(6,'(6x,A,I5,5X,A,F23.14)',
+     &     'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
+        end do
+      end if
 
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
 C components of H and S in original RASSCF wave function basis:
-      EPSH=MAX(5.0D-10,ABS(ENERGY(1))*5.0D-11)
       EPSS=5.0D-11
+      EPSH=MAX(5.0D-10,ABS(ENERGY(1))*EPSS)
       IDX=100
       DO I=1,NSTATE
-       EI=ENERGY(I)
+       EI=ENERGY(I)*EPSS
        V2SUM=0.0D0
        DO J=1,NSTATE
         V2SUM=V2SUM+EIGVEC(J,I)**2
        END DO
-       ERMS=SQRT(EPSH**2+EI**2*EPSS**2)*V2SUM
+       ERMS=SQRT(EPSH**2+EI**2)*V2SUM
        IDX=MIN(IDX,INT(-LOG10(ERMS)))
       END DO
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
@@ -420,7 +420,7 @@ C within the basis formed by the states.
 *                                                                      *
 C REPORT ON SECULAR EQUATION RESULT:
       CALL MMA_ALLOCATE(ESFS,NSTATE)
-      IF(IPGLOB.ge.TERSE) THEN
+      IF(IPGLOB.ge.1) THEN
        WRITE(6,*)
        WRITE(6,*)
        WRITE(6,*)
@@ -501,16 +501,17 @@ C REPORT ON SECULAR EQUATION RESULT:
       END IF
 c LU: save esfs array
        CALL Put_dArray('ESFS_SINGLE'  , ESFS  , NSTATE)
-       CALL Put_dArray('ESFS_SINGLEAU', ENERGY, NSTATE)
+       CALL Put_dArray('ESFS_SINGLEAU',
+     &           (ENERGY+EMIN), NSTATE)
        CALL MMA_DEALLOCATE(ESFS)
 c
 
-      IF((IPGLOB.ge.VERBOSE).or.(.not.diagonal)) THEN
+      IF((IPGLOB.ge.3).or.(.not.diagonal)) THEN
        WRITE(6,*)
        WRITE(6,*)'  Spin-free eigenstates in basis of input states:'
        WRITE(6,*)'  -----------------------------------------------'
        WRITE(6,*)
-       IF(IPGLOB.ge.VERBOSE) THEN
+       IF(IPGLOB.ge.3) THEN
         DO L=1,NSTATE
            I=IndexE(L)
           Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
@@ -549,7 +550,7 @@ c
        END DO
        CALL GETMEM('ILST','FREE','INTE',LILST,NSTATE)
        CALL GETMEM('VLST','FREE','REAL',LVLST,NSTATE)
-       IF(IPGLOB.ge.VERBOSE) THEN
+       IF(IPGLOB.ge.3) THEN
         WRITE(6,*)
         WRITE(6,*)' THE INPUT RASSCF STATES REEXPRESSED IN EIGENSTATES:'
         WRITE(6,*)
@@ -566,7 +567,6 @@ c
         END DO
        END IF
       END IF
-
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -591,12 +591,14 @@ C
       END DO
 
 C And the same for the Dyson amplitudes
+      IF (DYSO) THEN
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,DYSAMPS,NSTATE)
+      END IF
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -624,8 +626,8 @@ C                                                                      C
       IF(DIPR) THEN
         WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
       END IF
-! this is to ensure that the total transistion strength is non-zero
-! Negative transitions strengths can occur for quadrupole transistions
+! this is to ensure that the total transition strength is non-zero
+! Negative transitions strengths can occur for quadrupole transitions
 ! due to the truncation of the Taylor expansion.
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
@@ -663,7 +665,7 @@ C                                                                      C
       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
      &          /CONST_AU_TIME_IN_SI_
 *
-      IF(IPGLOB.le.SILENT) GOTO 900
+      IF(IPGLOB.le.0) GOTO 900
 !
 * CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
 !
@@ -678,7 +680,7 @@ C                                                                      C
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 !
-      IF(IPGLOB.ge.TERSE) THEN
+      IF(IPGLOB.ge.1) THEN
 
        IPRDX=0
        IPRDY=0
@@ -810,6 +812,11 @@ C                                                                      C
 * Key words for printing transition dipole vectors
 * PRDIPVEC TDIPMIN
        IF(PRDIPVEC .AND. (NSTATE.gt.1) .and. (IFANYD.NE.0)) THEN
+         write(filnam,'(A,I1)') 'dip_vec', iTyp
+         LuT2 = 11
+         LuT1 = isFreeUnit(LuT2)
+         call molcas_open(LuT1,filnam)
+
         WRITE(6,*)
         CALL CollapseOutput(1,'Dipole transition vectors '//
      &                        '(spin-free states):')
@@ -866,11 +873,7 @@ C                                                                      C
             END IF
             LNCNT=LNCNT+1
             WRITE(6,33) I,J,DX,DY,DZ,DSZ
-* Put values into array for add_info:
-            TDIPARR(1)=DX
-            TDIPARR(2)=DY
-            TDIPARR(3)=DZ
-            Call Add_Info('TRDIP',TDIPARR,3,6)
+            write(LuT1,222) I,J,DX,DY,DZ
            END IF
          END DO
         END DO
@@ -887,6 +890,7 @@ C                                                                      C
       End Do ! iVec
 *
       End If
+      close(LuT1)
       END IF
 *
 *     Transition moments computed with the velocity operator.
@@ -2296,10 +2300,12 @@ C                                                                      C
 *
 ! +++ J. Norell 12/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
+!+++ Bruno Tenorio, 2020. Added Corrected Dyson norms
+! according to Dysnorm.f subroutine.
        IF (DYSO) THEN
         DYSTHR=1.0D-5
         WRITE(6,*)
-        CALL CollapseOutput(1,'Dyson amplitudes '//
+        CALL CollapseOutput(1,'Dyson amplitudes Biorth. corrected'//
      &                        '(spin-free states):')
         WRITE(6,'(3X,A)')     '----------------------------'//
      &                        '-------------------'
@@ -2308,22 +2314,26 @@ C                                                                      C
            WRITE(6,30)
         END IF
         WRITE(6,*) '       From      To        '//
-     &   'BE (eV)       Dyson intensity'
+     &   'BE (eV)           Dyson intensity    '
         WRITE(6,32)
         FMAX=0.0D0
         DO I_=1,NSTATE
            I=IndexE(I_)
          DO J_=1,NSTATE
             J=IndexE(J_)
-          F=DYSAMPS(I,J)*DYSAMPS(I,J)
+          F=DYSAMPS2(I,J)*DYSAMPS2(I,J)
           EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
-          IF (F.GT.0.00001) THEN
+          IF (F.GT.1.0D-36) THEN
            IF (EDIFF.GT.0.0D0) THEN
-            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+            WRITE(6,'(A,I8,I8,F15.3,ES22.5)') '    ',
+     &       I,J,EDIFF,F
            END IF
           END IF
          END DO ! J
         END DO ! I
+        CALL CollapseOutput(0,'Dyson amplitudes Biorth. corrected'//
+     &                        '(spin-free states):')
+        WRITE(6,*)
        END IF
 ! +++ J. Norell
 
@@ -2396,15 +2406,15 @@ C                                                                      C
 *
       If (Do_SK) Then
          nQuad=1
-         Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
+         Call mma_Allocate(Rquad,4,nQuad,label='SK')
          nVec = nk_Vector
       Else
          Call Setup_O()
 *        In the spin-free case, oscillator and rotatory strengths for k and -k
 *        are equal, so we compute only half the quadrature points and multiply
 *        the weights by 2
-         Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
-         Call DScal_(nQuad,2.0D0,Work(ipR+3),4)
+         Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
+         Rquad(4,:) = 2.0D0*Rquad(4,:)
          nVec = 1
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
@@ -2522,10 +2532,8 @@ C                                                                      C
 *
       Do iVec = 1, nVec
          If (Do_SK) Then
-            Work(ipR  )=k_Vector(1,iVec)
-            Work(ipR+1)=k_Vector(2,iVec)
-            Work(ipR+2)=k_Vector(3,iVec)
-            Work(ipR+3)=1.0D0   ! Dummy weight
+            Rquad(1:3,1)=k_Vector(:,iVec)
+            Rquad(4,1)=1.0D0   ! Dummy weight
          End If
 *
       iPrint=0
@@ -2577,15 +2585,13 @@ C                                                                      C
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
-               UK(1)=Work((iQuad-1)*4  +ipR)
-               UK(2)=Work((iQuad-1)*4+1+ipR)
-               UK(3)=Work((iQuad-1)*4+2+ipR)
+               UK(:)=Rquad(1:3,iQuad)
                Wavevector(:)=rkNorm*UK(:)
 *
 *              Note that the weights are normalized to integrate to
 *              4*pi over the solid angles.
 *
-               Weight=Work((iQuad-1)*4+3+ipR)
+               Weight=Rquad(4,iQuad)
                If (.Not.Do_SK) Weight=Weight/(4.0D0*PI)
 *
 *              Generate the polarization vector
@@ -3052,7 +3058,7 @@ C                 Why do it when we don't do the L.S-term!
 *     Do some cleanup
 *
       If (.NOT.Do_SK) Call Free_O()
-      Call Free_Work(ipR)
+      Call mma_deAllocate(Rquad)
       Call ClsSew()
 ************************************************************************
 *                                                                      *
@@ -3076,7 +3082,7 @@ C                 Why do it when we don't do the L.S-term!
       end if
       Call mma_DeAllocate(IndexE)
 
-      RETURN
+222    FORMAT (5X,2(1X,I4),5X,3(1X,ES18.8))
 30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)
 32    FORMAT (5X,95('-'))
