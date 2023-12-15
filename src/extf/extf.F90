@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2015, Luis Manuel Frutos                               *
 !               2015, Alessio Valentini                                *
+!               2023, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 ! This module calculates an external force applied to the system.
@@ -22,14 +23,14 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: atomNumberx3, cnt, efatom1, efatom2, efatom3, efatom4, i, LuSpool, nCent, nsAtom
+integer(kind=iwp) :: atomNumberx3, cnt, efatom1, efatom2, efatom3, efatom4, i, LuSpool, nCent, nRoots, nsAtom
 real(kind=wp) :: Bt(3,4), dBt(3,4,3,4), Dum, efmodul, efmodulAU, fourAtoms(3,4), gau_sigma, gau_t0, mdtime, norm, time_scaling
 logical(kind=iwp) :: bending, Found, gaussian_force, ldB, linear, lWarn, lWrite, torsional
 character(len=180) :: Key, Line
 character(len=8) :: Label
 real(kind=wp), allocatable :: coord(:,:), ExtGrad(:,:), gradient(:,:), modgrad(:,:)
 real(kind=wp), parameter :: nnewt = auToN*1.0e9_wp
-integer(kind=iwp), external :: isfreeunit
+integer(kind=iwp), external :: isfreeunit, Read_Grad
 character(len=180), external :: Get_Ln
 
 ! get initial values
@@ -112,6 +113,8 @@ do
     call Quit_OnUserError()
   end if
 end do
+
+close(LuSpool)
 
 cnt = 0
 if (linear) cnt = cnt+1
@@ -284,7 +287,14 @@ write(u6,*)
 
 call Put_dArray('GRAD',modgrad,atomNumberx3)
 
-close(LuSpool)
+! Modify the GRADS file too
+call Get_iScalar('Number of roots',nRoots)
+do i=1,nRoots
+  if (Read_Grad(gradient,3*nsAtom,i,0,0) == 1) then
+    modgrad(:,:) = gradient(:,:)+ExtGrad(:,:)
+    call Store_Grad(modgrad,3*nsAtom,i,0,0)
+  end if
+end do
 
 call mma_deallocate(gradient)
 call mma_deallocate(ExtGrad)
