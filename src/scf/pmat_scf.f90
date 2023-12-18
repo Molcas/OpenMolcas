@@ -149,8 +149,6 @@
             Call DCopy_(nVxc,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
          Else
-            Write (6,*) 'FZero call ...'
-            Write (6,*) 'ExFac is', ExFac
             Call FZero(Vxc(1,1,iPsLst),nBT*nD)
          End If
 !

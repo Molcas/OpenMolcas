@@ -148,6 +148,20 @@ test:intel:
     - build:intel
   parallel: 2
 
+build:intel_llvm:
+  extends:
+    - .compile
+    - .intel_llvm
+test:intel_llvm:
+  extends:
+    - .run-tests
+    - .intel_llvm
+  needs:
+    - !reference [.use-clone]
+    - build:intel_llvm
+  allow_failure: true
+  parallel: 2
+
 build:intel13:
   extends:
     - .compile

@@ -90,9 +90,9 @@ do iMO1=1,nOrb2Loc-1
       write(u6,'(A9,F10.5)') ' Gamma :',Gamma_rot
     end if
 
-    Tsts = sin(Gamma_rot)
-    Tstc = One-cos(Gamma_rot)
-    if ((abs(Tsts) > ThrRot) .or. (abs(Tstc) > ThrRot)) then
+    Tsts = abs(sin(Gamma_rot))
+    Tstc = One-abs(cos(Gamma_rot))
+    if ((Tsts > ThrRot) .or. (Tstc > ThrRot)) then
       call Rot_st(CMO(1,iMO_s),CMO(1,iMO_t),nBas,Gamma_rot,Debug)
       call UpdateB(Col,nOrb2Loc,Lbl,nComp,Gamma_rot,iMO_s,iMO_t,Debug)
       xDone = xDone+One

@@ -11,7 +11,6 @@
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       USE RASSI_aux
       USE kVectors
-      use rassi_aux, only: ipglob
       USE rassi_global_arrays, only: JBNUM
       USE do_grid, only: Do_Lebedev_Sym
       use frenkel_global_vars, only: iTyp

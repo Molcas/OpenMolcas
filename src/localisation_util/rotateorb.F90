@@ -117,9 +117,9 @@ do iMO1=1,nOrb2Loc-1
       write(u6,'(a9,f10.5)') ' Gamma :',Gamma_rot
     end if
 
-    Tsts = sin(Gamma_rot)
-    Tstc = One-cos(Gamma_rot)
-    if ((abs(Tsts) > ThrRot) .or. (abs(Tstc) > ThrRot)) then
+    Tsts = abs(sin(Gamma_rot))
+    Tstc = One-abs(cos(Gamma_rot))
+    if ((Tsts > ThrRot) .or. (Tstc > ThrRot)) then
       call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot,Debug)
       call UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,Gamma_rot,iMO_s,iMO_t,Debug)
       xDone = xDone+One
