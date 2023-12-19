@@ -269,7 +269,7 @@ set (CFLAGS_IntelLLVM_RELEASE "-O2")
 set (CFLAGS_IntelLLVM_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "IntelLLVM")
-set (FFLAGS_IntelLLVM_BASIC "")
+set (FFLAGS_IntelLLVM_BASIC "-standard-semantics -fltconsistency")
 set (FFLAGS_IntelLLVM_PREPROCESS "-fpp")
 set (FFLAGS_IntelLLVM_OPENMP "-qopenmp")
 set (FFLAGS_IntelLLVM_ILP64 "-i8 -heap-arrays")
