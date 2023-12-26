@@ -35,7 +35,7 @@ use SOAO_Info, only: iAOtSO
 use pso_stuff, only: AOrb, B_PT2, Gamma_On, lPSO, lSA, Thpkl
 use Data_Structures, only: V1
 use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, LuCVector, nChOrb, nIJR, nKdens, nYmnij, tbvec, &
-                   Yij, Ymnij
+                   Yij, Ymnij, iUHF
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: D0, iD0Lbl
 use RI_glob, only: iOff_Ymnij
@@ -48,14 +48,13 @@ integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, kB
 real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
 real(kind=wp), intent(in) :: DSO(nDSO,nSA), DSO_Var(nDSO), ExFac, CoulFac, V_k(mV_k,nSA), U_k(mV_k), ZpK(nnP1,mV_K,*)
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ijBas, ijk, ik, ik1, ik2, il, il1, il2, ileft, imo, iMO1, iMO2, iMOleft, iMOright, &
-                     indexB, Indkl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, jSkip(4), &
+                     indexB, Indkl, iOff1, iPAO, irc, iright, iSO, iThpkl, iVec, iVec_, j, jAOj, jC, jik, jmo, jSkip(4), &
                      jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, Kth, lAct, lAOl, lBVec, lCVec, lda, lda1, &
                      lda2, lSO, lSOl, lSym, Lth, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iSym
 #endif
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, fact, Factor, temp, tmp, Wall, Wall1, Wall2
-logical(kind=iwp) :: Found
 real(kind=wp), pointer :: Xki(:), Xli(:)
 type(V1) :: Xki2(2), Xki3(2), Xli2(2), Xli3(2)
 real(kind=wp), external :: Compute_B, dDot_
@@ -93,13 +92,6 @@ jSym = 1
 kSym = 1
 lSym = Mul(jSym,kSym)
 NumOrb(1) = nChOrb(kSym-1,1)
-
-call Qpg_iScalar('SCF mode',Found)
-if (Found) then
-  call Get_iScalar('SCF mode',iUHF) ! either 0 or 1
-else
-  iUHF = 0
-end if
 
 ! Test if we have any exchange contribution of significance
 

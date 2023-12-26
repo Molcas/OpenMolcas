@@ -32,7 +32,7 @@ use Cholesky, only: nSym, NumCho
 use Symmetry_Info, only: Mul, nIrrep
 use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
-use RI_glob, only: DoCholExch, iMP2prpt, LuAVector, LuBVector, LuCVector, nAdens, nAvec, nJdens, nKdens, nKvec, tavec, tbvec
+use RI_glob, only: DoCholExch, iMP2prpt, LuAVector, LuBVector, LuCVector, nAdens, nAvec, nJdens, nKdens, nKvec, tavec, tbvec, iUHF
 use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -47,7 +47,7 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-integer(kind=iwp) :: i, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, iUHF, j, jStart, jSym, jtmp, kStart, &
+integer(kind=iwp) :: i, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, j, jStart, jSym, jtmp, kStart, &
                      kTmp, m_ij2K, mAO, nAct(0:7), nAux_Tot, nij_Eff, ntmp, nV_k_New, nVec, nZ_p_k_New, nZ_p_l
 real(kind=wp) :: BufFrac, TCpu1, TCpu2, TWall1, TWall2
 #ifdef _CD_TIMING_
