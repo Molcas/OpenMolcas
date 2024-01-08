@@ -31,7 +31,7 @@ use Basis_Info, only: nBas, nBas_Aux
 use SOAO_Info, only: iAOtSO
 use pso_stuff, only: DMdiag, lPSO, lSA, nnP
 use Symmetry_Info, only: Mul, nIrrep
-use RI_glob, only: A, CijK, iAdrCVec, iMP2prpt, LuCVector, nIJ1, tavec, iUHF
+use RI_glob, only: A, CijK, iAdrCVec, iMP2prpt, iUHF, LuCVector, nIJ1, tavec
 use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6
 
@@ -39,8 +39,8 @@ implicit none
 integer(kind=iwp), intent(in) :: iCmp(4), jBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, mV_K, nSA, nZ_p_k
 real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
 real(kind=wp), intent(in) :: ExFac, CoulFac, V_K(mV_K,nSA), Z_p_K(nZ_p_k,*)
-integer(kind=iwp) :: CumnnP(0:7), CumnnP2(0:7), i, i2, i4, iAdrJ, iAdrL, iE, iS, iSO, iSym, j, j2, j4, jAOj, jp, jpSOj, &
-                     jpSOl, js, jSO, jSOj, jSym(0:7), kSym, lAOl, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, nB, nik, njSym, nlSym
+integer(kind=iwp) :: CumnnP(0:7), CumnnP2(0:7), i, i2, i4, iAdrJ, iAdrL, iE, iS, iSO, iSym, j, j2, j4, jAOj, jp, jpSOj, jpSOl, js, &
+                     jSO, jSOj, jSym(0:7), kSym, lAOl, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, nB, nik, njSym, nlSym
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fact, temp, temp2, Wall, Wall1, Wall2
 real(kind=wp), pointer :: CiKj(:), CiKl(:), V2(:)
 
