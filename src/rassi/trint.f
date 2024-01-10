@@ -19,7 +19,7 @@
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT(1), KSQ,
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT(1), FLT(1), KSQ,
      &                 FAO, Temp_SQ, DInAO
 #include "real.fh"
 #include "rassi.fh"
@@ -167,15 +167,15 @@ c --- FAO already contains the one-electron part
             Call AbEnd()
          endif
 
-         Call Allocate_DT(DLT,nBasF,nBasF,nSym,aCase='TRI')
-         CALL Fold_Mat(nSym,nBasF,DINAO%A0,DLT%A0)
+         Call Allocate_DT(DLT(1),nBasF,nBasF,nSym,aCase='TRI')
+         CALL Fold_Mat(nSym,nBasF,DINAO%A0,DLT(1)%A0)
 
 #ifdef _DEBUGPRINT_
 
          do i=1,nSym
             call cho_output(DInAO%SB(i)%A2,1,nBasF(i),1,nBasF(i),
      &                      nBasF(i),nBasF(i),1,6)
-            call triprt('DLT','',DLT%SB(i)%A1,nBasF(i))
+            call triprt('DLT','',DLT(1)%SB(i)%A1,nBasF(i))
          end do
 
 #endif
@@ -190,7 +190,7 @@ C which is the RF contribution to the nuclear repulsion
 
          CALL CHO_GETH1(nBtri,FLT(1)%A0,RFpert,ERFNuc)
 
-         ECORE1=DDOT_(nBtri,FLT(1)%A0,1,DLT%A0,1)
+         ECORE1=DDOT_(nBtri,FLT(1)%A0,1,DLT(1)%A0,1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO
          If ( IfTest ) Write (6,*) '      FAKE_CMO2=',FAKE_CMO2
 
@@ -331,7 +331,7 @@ c ---     and compute the (tu|vx) integrals
          EndIf
 
          Call Deallocate_DT(FLT(1))
-         Call Deallocate_DT(DLT)
+         Call Deallocate_DT(DLT(1))
 
          Call GADSUM(FAO%A0,NBSQ)
          Call GADSUM(TUVX,NGAM2)

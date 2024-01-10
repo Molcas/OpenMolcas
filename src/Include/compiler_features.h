@@ -102,3 +102,8 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #else
 #define EMPTY_TYPE_INIT
 #endif
+
+/* Compiler bug (see https://community.intel.com/t5/Intel-Fortran-Compiler/Wrong-results-with-ifx-2024-0-1/m-p/1561431/highlight/true#M170327) */
+#if (__INTEL_LLVM_COMPILER)
+#define _BUGGY_INTEL_LLVM_
+#endif

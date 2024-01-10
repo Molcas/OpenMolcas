@@ -32,7 +32,7 @@
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI(1), KI, JA, KA,
+      Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,
      &                 FkI, FkA, QVec, CMO, CMO_Inv
 *                                                                      *
 ************************************************************************
@@ -119,8 +119,8 @@
 *
         Call mma_allocate(Dens2,nDens2,Label='Dens2')
         Dens2(:)=Zero
-        Call Allocate_DT(DLT,nOrb,nOrb,nSym) ! Note SQ format
-        DLT%A0(:)=Zero
+        Call Allocate_DT(DLT(1),nOrb,nOrb,nSym) ! Note SQ format
+        DLT(1)%A0(:)=Zero
 
         If (idSym/=1) Then
            Write (6,*) 'idSym/=1, idSym=',idsym
@@ -139,18 +139,18 @@
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
      &                         One,Dens2(ipMat(iS,jS)),nOrb(iS),
      &                             W_CMO(ipCM(is)),nOrb(iS),
-     &                         Zero,DLT%SB(iS)%A2,nOrb(jS))
+     &                         Zero,DLT(1)%SB(iS)%A2,nOrb(jS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),
-     &                         One,DLT%SB(iS)%A2,nOrb(iS),
+     &                         One,DLT(1)%SB(iS)%A2,nOrb(iS),
      &                             W_CMO(ipCM(js)),nOrb(jS),
      &                         Zero,Dens2(ipMat(iS,jS)),nOrb(jS))
 
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
      &                         One,DI%SB(js)%A2,nOrb(iS),
      &                             W_CMO(ipCM(is)),nOrb(iS),
-     &                         Zero,DLT%SB(iS)%A2,nOrb(jS))
+     &                         Zero,DLT(1)%SB(iS)%A2,nOrb(jS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),
-     &                         One, DLT%SB(iS)%A2,nOrb(iS),
+     &                         One, DLT(1)%SB(iS)%A2,nOrb(iS),
      &                              W_CMO(ipCM(js)),nOrb(jS),
      &                         Zero,DI%SB(js)%A2,nOrb(jS))
               EndIf
@@ -158,11 +158,11 @@
           EndIf
         End Do
         ! Release and allocate again in LT format
-        Call Deallocate_DT(DLT)
-        Call Allocate_DT(DLT,nOrb,nOrb,nSym,aCase='TRI')
+        Call Deallocate_DT(DLT(1))
+        Call Allocate_DT(DLT(1),nOrb,nOrb,nSym,aCase='TRI')
 
-        call Fold_Mat(nSym,nOrb,Dens2,DLT%A0)
-        DLT%A0(:) = ReCo * DLT%A0(:)
+        call Fold_Mat(nSym,nOrb,Dens2,DLT(1)%A0)
+        DLT(1)%A0(:) = ReCo * DLT(1)%A0(:)
 *
 **      Form active density and MO coefficients
 *
@@ -241,7 +241,7 @@
         call dcopy_(nATri,[0.0d0],0,rMOs,1)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-        Call RecPrt('DLT',' ',DLT%A0,1,SIZE(DLT%A0))
+        Call RecPrt('DLT',' ',DLT(1)%A0,1,SIZE(DLT(1)%A0))
         Call RecPrt('DI ',' ',DI%A0 ,1,SIZE(DI%A0 ))
         Call RecPrt('DA ',' ',DA%A0 ,1,SIZE(DA%A0 ))
         Call RecPrt('G2x',' ',G2x,1,SIZE(G2x))
@@ -340,7 +340,7 @@
           Call deallocate_DT(DA)
         EndIf
 
-        Call deallocate_DT(DLT)
+        Call deallocate_DT(DLT(1))
         Call deallocate_DT(DI)
 
         Call GADSum(    Q,nDens2)

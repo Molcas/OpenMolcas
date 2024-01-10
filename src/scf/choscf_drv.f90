@@ -147,7 +147,7 @@
          Call Allocate_DT(FSQ(1),nBas,nBas,nSym,            Ref=W_FSQ)
 
          If (ExFac.eq.Zero) Then
-            CALL CHO_FOCK_DFT_RED(rc,DLT(1),FLT(1))
+            CALL CHO_FOCK_DFT_RED(rc,DLT,FLT)
             If (rc.ne.0) Go To 999
             goto 997
           EndIf
@@ -364,7 +364,7 @@
       FactX(3) = One*ExFac
 
       If (ExFac.eq.Zero) Then
-         CALL CHO_FOCK_DFT_RED(rc,DLT(1),FLT(1))
+         CALL CHO_FOCK_DFT_RED(rc,DLT,FLT)
          If (rc.ne.0) Go To 999
          goto 998
       EndIf

@@ -23,7 +23,7 @@ real(kind=wp), intent(out) :: Rep_EN
 real(kind=wp), intent(inout) :: FM(lFDM)
 real(kind=wp), intent(in) :: DMA(lFDM), DMB(lFDM)
 integer(kind=iwp) :: irc
-type(DSBA_Type) :: DLT, FLT(1)
+type(DSBA_Type) :: DLT(1), FLT(1)
 real(kind=wp), external :: ddot_
 
 if ((nDM > 2) .or. (nDM < 1)) then
@@ -37,8 +37,8 @@ if (GetFM) then
 
   call NameRun('AUXRFIL') ! switch RUNFILE name
 
-  call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI')
-  call get_dArray('D1ao',DLT%A0,lFDM)
+  call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI')
+  call get_dArray('D1ao',DLT(1)%A0,lFDM)
 
   FLT(1)%A0(:) = Zero
   call CHO_FOCK_DFT_RED(irc,DLT,FLT)
@@ -47,7 +47,7 @@ if (GetFM) then
   end if
   call GADSum(FM,lFDM)
 
-  call Deallocate_DT(DLT)
+  call Deallocate_DT(DLT(1))
   call Deallocate_DT(FLT(1))
 
   call NameRun('#Pop')  ! switch back RUNFILE name

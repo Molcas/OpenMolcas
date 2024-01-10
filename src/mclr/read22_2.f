@@ -34,7 +34,7 @@
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI(1), KI, JA, KA,
+      Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,
      &                 FkI, FkA, QVec, CMO, CMO_Inv
 *                                                                      *
 ************************************************************************
@@ -299,8 +299,8 @@
            EndIf
         End Do
 *
-        Call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI')
-        call Fold_Mat(nSym,nOrb,Temp2,DLT%A0)
+        Call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI')
+        call Fold_Mat(nSym,nOrb,Temp2,DLT(1)%A0)
 *
 **      Form active CMO and density
 *
@@ -421,7 +421,7 @@
         Call Deallocate_DT(DI)
         Call Deallocate_DT(JA)
         Call Deallocate_DT(KA)
-        Call deallocate_DT(DLT)
+        Call deallocate_DT(DLT(1))
         Call mma_deallocate(G2x)
         Call Deallocate_DT(CVa(2))
         Call Deallocate_DT(CVa(1))

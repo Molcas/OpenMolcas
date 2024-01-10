@@ -110,6 +110,11 @@ do iPnt=1,nGrdPt
     if (IsMM(jAt) == 1) cycle
     iQM = iQM+1
     B(iPnt) = B(iPnt)+Ext(1,jAt)*TTT(iPnt,nOrd*(iQM-1)+1)
+#   include "compiler_features.h"
+#   ifdef _BUGGY_INTEL_LLVM_
+    ! dummy statement to work around compiler bug, will never be executed
+    if (nOrd < 0) B(iPnt) = -B(iPnt)
+#   endif
     if (nOrd > 1) &
       B(iPnt) = B(iPnt)+Ext(2,jAt)*TTT(iPnt,nOrd*(iQM-1)+2)+Ext(3,jAt)*TTT(iPnt,nOrd*(iQM-1)+3)+Ext(4,jAt)*TTT(iPnt,nOrd*(iQM-1)+4)
   end do
