@@ -140,7 +140,8 @@
     - docker
 
 .intel13:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
+  # "legacy" image with classic Intel compilers
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:230525
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
