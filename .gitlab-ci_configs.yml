@@ -110,14 +110,14 @@
       cmake -D EXTRA_FFLAGS="" .
     pre_run_script: |
       . /opt/intel/oneapi/setvars.sh intel64
-    CC: "icc"
-    CXX: "icpc"
-    FC: "ifort"
+    CC: "icx"
+    CXX: "icx"
+    FC: "ifort -diag-disable=10448"
   tags:
     - docker
 
 .intel_llvm:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )

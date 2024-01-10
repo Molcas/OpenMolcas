@@ -159,7 +159,6 @@ test:intel_llvm:
   needs:
     - !reference [.use-clone]
     - build:intel_llvm
-  allow_failure: true
   parallel: 2
 
 build:intel13:
