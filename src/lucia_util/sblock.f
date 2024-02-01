@@ -217,13 +217,6 @@ c      END IF
 *
       IF(IPRCIX.GE.3)  WRITE(6,*) ' LSCR2 = ', LSCR2
 C  I assume memory was allocated for blocks, so
-      KC2 = KVEC3
-*
-      KCJRES = KC2
-      KSIRES = KC2 + LSCR2
-*
-      KSSCR = KSIRES
-      KCSCR = KCJRES
 *
 *.vectors able to hold strings of given sym and type
       MAXIK = MAX(MAXI,MAXK)
@@ -297,20 +290,20 @@ C     END IF
 * Jesper: Initializing ksvst
 c      KCJPA = 1 ! jwk-cleanup
 c      KSIPA = 1 ! jwk-cleanup
-      CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
+      CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KVEC3),
      &             iWORK(KCIOIO),ISMOST(1,ICSM),iWORK(KCBLTP),
      &             iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &             NAEL,IATP,NBEL,IBTP,
      &             IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &             NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &             ITSOB,MAXK,MAXI,LSCR1,
-     &             WORK(KINSCR),WORK(KCSCR),WORK(KSSCR),
+     &             WORK(KINSCR),WORK(KVEC3),WORK(KVEC3+LSCR2),
      &             iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
      &             ADSXA,NGAS,NELFSPGP,IDC,
      &             iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
      &             IDOH2,MXPOBS,iWORK(KSVST),
      &             PSSIGN,IPRDIA,LUC,ICJKAIB,
-     &             WORK(KCJRES),WORK(KSIRES),
+     &             WORK(KVEC3),WORK(KVEC3+LSCR2),
      &             iWORK(KI3),WORK(KXI3S),iWORK(KI4),WORK(KXI4S),
      &             MXSXST,MXSXBL,MOCAA,
      &             iWORK(KLLBT),iWORK(KLLEBT),
