@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
@@ -26,6 +27,7 @@
 *
       DIMENSION LREC(MXNTTS),CMOMO(*)
       DIMENSION I_DUMMY(1)
+      Real*8, allocatable:: VEC1(:)
 *
       NTEST = 0
       LBLK  = -1
@@ -38,7 +40,7 @@
 *. The three scratch  blocks
 C          GET_3BLKS(KVEC1,KVEC2,KC2)
 C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
-      CALL GETMEM('VEC1  ','ALLO','REAL',KVEC1,LBLOCK)
+      Call mma_allocate(VEC1,LBLOCK,Label='VEC1')
       CALL GETMEM('VEC2  ','ALLO','REAL',KVEC2,LBLOCK)
       CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,KVEC3_LENGTH)
       CALL GETMEM('KVEC4 ','ALLO','REAL',KVEC4,NCONF)
@@ -50,24 +52,24 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       JDISK = JOBDISK
       DO JROOT = 1,NROOT
          CALL DDAFILE(JOBIPH,2,WORK(KVEC4),NCONF,JDISK)
-         CALL CSDTVC(WORK(KVEC4),WORK(KVEC1),1,WORK(KDTOC_POINTER),
+         CALL CSDTVC(WORK(KVEC4),VEC1,1,WORK(KDTOC_POINTER),
      &                    iWORK(KSDREO_POINTER),ISSM,0)
          IF (NTEST .GE. 50) THEN
             Write(6,*) 'CI-vector written to disk for root = ',JROOT
-            CALL WRTMAT(WORK(KVEC1),1,20,1,20)
+            CALL WRTMAT(VEC1,1,20,1,20)
             CALL XFLUSH(6)
             Write(6,*) 'Writing this to disk:'
-            IOFF  = 0
+            IOFF  = 1
             DO IREC = 1, NREC
                IF (LREC(IREC) .GE. 0) THEN
-                  CALL WRTMAT(WORK(KVEC1+IOFF),1,LREC(IREC),
+                  CALL WRTMAT(VEC1(IOFF),1,LREC(IREC),
      &                  1,LREC(IREC))
                   IOFF = IOFF + LREC(IREC)
                END IF
             END DO
             CALL XFLUSH(6)
          END IF
-         CALL TODSCN(WORK(KVEC1),NREC,LREC,LBLK,LUC)
+         CALL TODSCN(VEC1,NREC,LREC,LBLK,LUC)
          CALL ITODS([-1],1,LBLK,LUC)
       END DO
 
@@ -116,14 +118,14 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       IDISK(LUDIA)=0
       DO JROOT = 1, NROOT
         IDISK(LUSC1)=0
-        CALL COPVCD(LUC,LUSC1,WORK(KVEC1),0,LBLK)
-        CALL COPVCD(LUSC1,LUSC2,WORK(KVEC1),1,LBLK)
+        CALL COPVCD(LUC,LUSC1,VEC1,0,LBLK)
+        CALL COPVCD(LUSC1,LUSC2,VEC1,1,LBLK)
 *
 *. Transform CI vector : Input on LUHC, output on LUDIA (!)
-        CALL COPVCD(LUSC1,LUHC,WORK(KVEC1),1,LBLK)
+        CALL COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
 *
         CALL TRACI_LUCIA(WORK(KLCMOMO),LUHC,LUDIA,ISSPC,ISSM,
-     &             WORK(KVEC1),WORK(KVEC2))
+     &             VEC1,WORK(KVEC2))
       END DO
 *     ^ End of loop over roots
       IDISK(LUDIA)=0
@@ -131,16 +133,16 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 * Copy CI-vector back to MOLCAS JOBIPH file
 *
       DO JROOT = 1,NROOT
-         CALL FRMDSCN(WORK(KVEC1),NREC,LBLK,LUDIA)
+         CALL FRMDSCN(VEC1,NREC,LBLK,LUDIA)
          IF (NTEST .GE. 50) THEN
             NUM_ELE = 0
             DO IREC = 1,NREC
                NUM_ELE = NUM_ELE + LREC(IREC)
             END DO
             WRITE(6,*) 'CI-Vector read from disk for root = ',JROOT
-            CALL WRTMAT(WORK(KVEC1),1,NUM_ELE,1,NUM_ELE)
+            CALL WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
          END IF
-         CALL CSDTVC(WORK(KVEC2),WORK(KVEC1),2,WORK(KDTOC_POINTER),
+         CALL CSDTVC(WORK(KVEC2),VEC1,2,WORK(KDTOC_POINTER),
      &               iWORK(KSDREO_POINTER),ISSM,0)
          CALL DDAFILE(JOBIPH,1,WORK(KVEC2),NCONF,JOBDISK)
          CALL IFRMDS(I_DUMMY,1,LBLK,LUDIA)
@@ -149,7 +151,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 *
       IF(NTEST.GE.100) THEN
         DO JROOT = 1, NROOT
-          CALL WRTVCD(WORK(KVEC1),LUDIA,0,LBLK)
+          CALL WRTVCD(VEC1,LUDIA,0,LBLK)
           CALL XFLUSH(6)
         END DO
       END IF
@@ -157,7 +159,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 *. clean up time : copy 1-e integrals back in place
       CALL COPVEC(WORK(KLH1SAVE),WORK(KINT1),NDIM)
 *
-      CALL GETMEM('VEC1  ','FREE','REAL',KVEC1,LBLOCK)
+      Call mma_deallocate(VEC1)
       CALL GETMEM('VEC2  ','FREE','REAL',KVEC2,LBLOCK)
       CALL GETMEM('KC2   ','FREE','REAL',KVEC3,KVEC3_LENGTH)
       CALL GETMEM('KVEC4 ','FREE','REAL',KVEC4,NCONF)

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE densi_master(rvec)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Controls the calculation of the densities, when Lucia is called
 * from Molcas Rasscf.
@@ -29,6 +30,7 @@
       integer rvec
       logical iPack,tdm
       dimension dummy(1)
+      Real*8, Allocatable:: VEC1(:)
 *
 * Put CI-vector from RASSCF on luc
 *
@@ -73,7 +75,7 @@ c      END IF
 *
 *     IDUM=0
 *     CALL MEMMAN(IDUM, IDUM, 'MARK', IDUM, 'DENS_M')
-      CALL GETMEM('VEC1  ','ALLO','REAL',KVEC1,LBLOCK)
+      Call mma_allocate(VEC1,LBLOCK,Label='VEC1')
       CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,kvec3_length)
 *
 * Copy Sigma-vector from disc to core
@@ -97,8 +99,8 @@ c      END IF
 *
       IDISK(LUC)=0
       IDISK(LUSC1)=0
-      CALL COPVCD(LUC,LUSC1,WORK(KVEC1),0,LBLK)
-      IF (.not.tdm) CALL COPVCD(LUSC1,LUHC,WORK(KVEC1),1,LBLK)
+      CALL COPVCD(LUC,LUSC1,VEC1,0,LBLK)
+      IF (.not.tdm) CALL COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
 *
 * Calculate one- and two-body densities
 *
@@ -106,10 +108,10 @@ c      END IF
       DUMMY = 0.0D0
       IF (tdm) THEN
          CALL densi2_lucia(1,work(lw6),dummy,dummy,dummy,
-     &   work(kvec1),work(kvec2),lusc1,luhc,exps2,1,work(lw7),IPACK)
+     &   vec1,work(kvec2),lusc1,luhc,exps2,1,work(lw7),IPACK)
       ELSE
          CALL densi2_lucia(2,work(krho1),dummy,Work(lw8),Work(lw9),
-     &   work(kvec1),work(kvec2),lusc1,luhc,exps2,1,work(ksrho1),IPACK)
+     &   vec1,work(kvec2),lusc1,luhc,exps2,1,work(ksrho1),IPACK)
       END IF
 
 *
@@ -118,7 +120,7 @@ c      END IF
 C      2      : DONE!!! - Calculate both one and two body densities.
 C      krho1  : DONE!!! - Output - include in glbbas.fh.
 C      krho2  : DONE!!! - Output - include in glbbas.fh.
-C      kvec1  : DONE!!! - CI-vector
+C      vec1  : DONE!!! - CI-vector
 C      kvec2  : DONE!!! - Sigma-vector
 C      lusc1  : DONE!!! - file pointer
 C      luhc   : DONE!!! - file pointer
@@ -140,7 +142,7 @@ C      ksrho1 : DONE!!! - Comming with glbbas.fh.
 *     CALL MEMMAN(IDUM, IDUM, 'FLUSM', IDUM, 'DENS_M')
       CALL GETMEM('LSCR1 ','FREE','REAL',LSCR1,NSD_PER_SYM(IREFSM))
       CALL GETMEM('LSCR2 ','FREE','REAL',LSCR2,NSD_PER_SYM(IREFSM))
-      CALL GETMEM('VEC1  ','FREE','REAL',KVEC1,LBLOCK)
+      Call mma_deallocate(VEC1)
       CALL GETMEM('KC2   ','FREE','REAL',KVEC3,kvec3_length)
       CALL GETMEM('VEC2  ','FREE','REAL',KVEC2,LBLOCK)
       IF (tdm) THEN
