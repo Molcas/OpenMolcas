@@ -75,6 +75,7 @@
       Integer, Allocatable:: LLBT(:)
       Integer, Allocatable:: LLEBT(:)
       Integer, Allocatable:: LI1BT(:)
+      Integer, Allocatable:: LIBT(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -250,7 +251,7 @@ C  I assume memory was allocated for blocks, so
       Call mma_allocate(LLBT,NTTS,Label='LLBT')
       Call mma_allocate(LLEBT,NTTS,Label='LLEBT')
       Call mma_allocate(LI1BT,NTTS,Label='LI1BT')
-      CALL GETMEM('IBTC  ','ALLO','INTE',KLIBT ,8*NTTS)
+      Call mma_allocate(LIBT,8*NTTS,Label='LIBT')
 *. For scaling for each TTS block
       CALL GETMEM('SCLFAC','ALLO','REAL',KLSCLFAC ,NTTS)
 
@@ -319,7 +320,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             I3,XI3S,I4,XI4S,
      &             MXSXST,MXSXBL,MOCAA,
      &             LLBT,LLEBT,
-     &             LI1BT,iWORK(KLIBT),
+     &             LI1BT,LIBT,
      &             IRESTRICT,
      &             CONSPA,CONSPB,WORK(KLSCLFAC),
      &             IPERTOP,IH0INSPC,iWORK(KLH0SPC),
@@ -368,7 +369,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(LLBT)
       call mma_deallocate(LLEBT)
       call mma_deallocate(LI1BT)
-      CALL GETMEM('IBTC  ','FREE','INTE',KLIBT ,8*NTTS)
+      call mma_deallocate(LIBT)
       CALL GETMEM('KLOCS ','FREE','INTE',KLOCSTR(1),MAX_STR_OC_BLK)
       DO I1234 = 1, 2
         CALL GETMEM('KLREO ','FREE','INTE',KLREO(I1234),MAX_STR_SPGP)
