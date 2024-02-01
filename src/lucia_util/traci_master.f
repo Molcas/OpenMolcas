@@ -27,7 +27,7 @@
 *
       DIMENSION LREC(MXNTTS),CMOMO(*)
       DIMENSION I_DUMMY(1)
-      Real*8, allocatable:: VEC1(:), VEC2(:)
+      Real*8, allocatable:: VEC1(:), VEC2(:), VEC4(:)
 *
       NTEST = 0
       LBLK  = -1
@@ -43,7 +43,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       Call mma_allocate(VEC1,LBLOCK,Label='VEC1')
       Call mma_allocate(VEC2,LBLOCK,Label='VEC2')
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL GETMEM('KVEC4 ','ALLO','REAL',KVEC4,NCONF)
+      Call mma_allocate(VEC4,NCONF,Label='VEC4')
 *
 * Transfer the CI-vector to LUC
 *
@@ -51,8 +51,8 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       IDISK(LUC)=0
       JDISK = JOBDISK
       DO JROOT = 1,NROOT
-         CALL DDAFILE(JOBIPH,2,WORK(KVEC4),NCONF,JDISK)
-         CALL CSDTVC(WORK(KVEC4),VEC1,1,WORK(KDTOC_POINTER),
+         CALL DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
+         CALL CSDTVC(VEC4,VEC1,1,WORK(KDTOC_POINTER),
      &                    iWORK(KSDREO_POINTER),ISSM,0)
          IF (NTEST .GE. 50) THEN
             Write(6,*) 'CI-vector written to disk for root = ',JROOT
@@ -162,7 +162,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       Call mma_deallocate(VEC1)
       Call mma_deallocate(VEC2)
       Call mma_deallocate(VEC3)
-      CALL GETMEM('KVEC4 ','FREE','REAL',KVEC4,NCONF)
+      Call mma_deallocate(VEC4)
       CALL GETMEM('CMOMO ','FREE','REAL',KLCMOMO,NDIM)
       CALL GETMEM('H1SAVE','FREE','REAL',KLH1SAVE,NDIM)
 *
