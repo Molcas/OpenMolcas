@@ -73,6 +73,7 @@
       Integer, Allocatable:: I1(:), I2(:), I3(:), I4(:)
       Real*8, Allocatable:: XI1S(:), XI2S(:), XI3S(:), XI4S(:)
       Integer, Allocatable:: LLBT(:)
+      Integer, Allocatable:: LLEBT(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -246,7 +247,7 @@ C  I assume memory was allocated for blocks, so
 *
 *. for partitioning of vector
       Call mma_allocate(LLBT,NTTS,Label='LLBT')
-      CALL GETMEM('LECTC ','ALLO','INTE',KLLEBT,NTTS  )
+      Call mma_allocate(LLEBT,NTTS,Label='LLEBT')
       CALL GETMEM('I1BTC ','ALLO','INTE',KLI1BT,NTTS  )
       CALL GETMEM('IBTC  ','ALLO','INTE',KLIBT ,8*NTTS)
 *. For scaling for each TTS block
@@ -316,7 +317,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             VEC3,VEC3(1+LSCR2),
      &             I3,XI3S,I4,XI4S,
      &             MXSXST,MXSXBL,MOCAA,
-     &             LLBT,iWORK(KLLEBT),
+     &             LLBT,LLEBT,
      &             iWORK(KLI1BT),iWORK(KLIBT),
      &             IRESTRICT,
      &             CONSPA,CONSPB,WORK(KLSCLFAC),
@@ -364,7 +365,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(XI4S)
       CALL GETMEM('SCLFAC','FREE','REAL',KLSCLFAC ,NTTS)
       call mma_deallocate(LLBT)
-      CALL GETMEM('LECTC ','FREE','INTE',KLLEBT,NTTS  )
+      call mma_deallocate(LLEBT)
       CALL GETMEM('I1BTC ','FREE','INTE',KLI1BT,NTTS  )
       CALL GETMEM('IBTC  ','FREE','INTE',KLIBT ,8*NTTS)
       CALL GETMEM('KLOCS ','FREE','INTE',KLOCSTR(1),MAX_STR_OC_BLK)
