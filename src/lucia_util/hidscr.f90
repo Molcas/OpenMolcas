@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module HIDSCR
-      Integer:: KLZ(4)
       Integer, Allocatable:: ZSCR(:)
       Integer, Allocatable:: OCSTR(:,:)
       Integer, Allocatable:: REO(:,:)
+      Integer, Allocatable:: Z(:,:)
 End Module HIDSCR

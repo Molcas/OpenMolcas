@@ -38,13 +38,13 @@
 *. Output
       INTEGER ICONF_OCC(*),ICONF_REO(*)
       DIMENSION ICTSDT(*)
-      Integer, Allocatable:: ZSCR(:)
+      Integer, Allocatable:: ZSCR(:), Z(:)
 *
       NTEST = 0
       NELEC = IELSUM(IOCCLS(1,1),NGAS)
 C
       CALL mma_allocate(ZSCR,(NOCOB+1)*(NELEC+1),Label='ZSCR')
-      CALL GETMEM('Z     ','ALLO','INTE',KLZ,NOCOB*NELEC*2)
+      CALL mma_allocate(Z,NOCOB*NELEC*2,Label='Z')
       CALL GETMEM('OCMIN ','ALLO','INTE',KLOCMIN,NOCOB)
       CALL GETMEM('OCMAX ','ALLO','INTE',KLOCMAX,NOCOB)
 *. Zero configuration reorder array using NCONF_ALL_SYM
@@ -71,7 +71,7 @@ C_REMOVED         CALL ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
      &                  NGAS,NOBPT,IOCCLS(1,JOCCLS),MINOP,NTEST)
 *. the arcweights
          CALL CONF_GRAPH(iWORK(KLOCMIN),iWORK(KLOCMAX),
-     &                   NOCOB, NELEC,iWORK(KLZ),NCONF_P,ZSCR)
+     &                   NOCOB, NELEC,Z(:),NCONF_P,ZSCR)
 *
          IF(JOCCLS.EQ.1) THEN
             INITIALIZE_CONF_COUNTERS = 1
@@ -97,7 +97,7 @@ C_REMOVED         CALL ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
      &                           IB_CONF_OCC,
      &                           iWORK(KICONF_OCC(ISYM)),
      &                           IDOREO,
-     &                           iWORK(KLZ),
+     &                           Z(:),
      &                           NCONF_ALL_SYM,
 *
      &                           iwork(kiconf_reo(isym)),
@@ -124,7 +124,7 @@ C    &            IREFML,IREFG,XNDXCI,NORB,NEL,ORBSYM,
 C    &            ICNFOK,IGENSG,ISGNA,ISGNB,IPRCSF)
 *
       Call mma_deallocate(ZSCR)
-      CALL GETMEM('Z     ','FREE','INTE',KLZ,NOCOB*NELEC*2)
+      Call mma_deallocate(Z)
       CALL GETMEM('OCMIN ','FREE','INTE',KLOCMIN,NOCOB)
       CALL GETMEM('OCMAX ','FREE','INTE',KLOCMAX,NOCOB)
       RETURN

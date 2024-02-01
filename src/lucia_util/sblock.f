@@ -266,9 +266,7 @@ C  I assume memory was allocated for blocks, so
       Call mma_allocate(OCSTR,MAX_STR_OC_BLK,K12,Label='OCSTR')
       I1234=2
       Call mma_allocate(REO,MAX_STR_SPGP,I1234,Label='REO')
-      DO I1234 = 1, 2
-        CALL GETMEM('KLZ   ','ALLO','INTE',KLZ(I1234),LZ)
-      END DO
+      call mma_allocate(Z,LZ,I1234,Label='Z')
       Call mma_allocate(ZSCR,LZSCR,Label='ZSCR')
 * 4 arrays containing all strings of given sym. Dimension can  be
 *   reduced to largest number of strings in alpha or beta.
@@ -374,9 +372,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(LIBT)
       call mma_deallocate(OCSTR)
       call mma_deallocate(REO)
-      DO I1234 = 1, 2
-        CALL GETMEM('KLZ   ','FREE','INTE',KLZ(I1234),LZ)
-      END DO
+      call mma_deallocate(Z)
       Call mma_deallocate(ZSCR)
       CALL GETMEM('H0SPC ','FREE','INTE',KLH0SPC,NOCTPA*NOCTPB)
       RETURN

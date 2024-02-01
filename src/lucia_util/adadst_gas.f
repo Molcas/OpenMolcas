@@ -87,9 +87,8 @@ C?    END IF
 *
 *. Internal affairs
 *
-      IF(I12.LE.4.AND.K12.LE.2) THEN
-        KLLZ = KLZ(I12)
-      ELSE
+      IF(I12.GT.SIZE(Z,2).OR.K12.GT.SIZE(OCSTR,2)) THEN
+        WRITE(6,*) ' ADST_GAS : Illegal value of K12 = ', K12
         WRITE(6,*) ' ADST_GAS : Illegal value of I12 = ', I12
 *        STOP' ADST_GAS : Illegal value of I12  '
         CALL SYSABENDMSG('lucia_util/adst_gas','Internal error',' ')
@@ -115,14 +114,14 @@ C?    END IF
 *.. Generate information about I strings
 *. Arc weights for ISPGP
         NTEST2 = NTEST
-        CALL WEIGHT_SPGP(iWORK(KLLZ),NGAS,NELFSPGP(1,ISPGPABS),
+        CALL WEIGHT_SPGP(Z(:,I12),NGAS,NELFSPGP(1,ISPGPABS),
      &                      NOBPT,ZSCR,NTEST2)
         NELI = NELFTP(ITP)
         NELIS(I12) = NELI
 *. Reorder array for I strings
         CALL GETSTR_TOTSM_SPGP(    ITP,  ISPGP,    ISM,   NELI,  NSTRI,
      &                         OCSTR(:,K12),NOCOB,1,
-     &                         iWORK(KLLZ),REO(:,K12))
+     &                         Z(:,I12),REO(:,I12))
       END IF
       NELK = NELIS(I12) - 2
       IF(KFRST.NE.0) THEN
@@ -138,7 +137,7 @@ C?    END IF
       JJOB = IOBPTS(JOBTP,JOBSM) + JOB - 1
       CALL ADADS1_GAS(       NK,       I1,     XI1S,      LI1,     IIOB,
      &                     NIOB,     JJOB,     NJOB,OCSTR(:,K12),  NELK,
-     &                    NSTRK,REO(:,K12),iWORK(KLLZ),NOCOB, KMAX,
+     &                    NSTRK,REO(:,I12),Z(:,I12),NOCOB, KMAX,
      &                     KMIN,     IEND,   SCLFAC)
 *
       RETURN
