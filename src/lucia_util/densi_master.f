@@ -30,7 +30,7 @@
       integer rvec
       logical iPack,tdm
       dimension dummy(1)
-      Real*8, Allocatable:: VEC1(:)
+      Real*8, Allocatable:: VEC1(:), VEC2(:)
 *
 * Put CI-vector from RASSCF on luc
 *
@@ -80,15 +80,13 @@ c      END IF
 *
 * Copy Sigma-vector from disc to core
 *
-      CALL GETMEM('VEC2  ','ALLO','REAL',KVEC2,LBLOCK)
+      Call mma_allocate(VEC2,LBLOCK,Label='VEC2')
        IF (iSigma_on_disk .ne. 0) THEN
           Call GetMem('lvec','Allo','inte',ivlrec,MXNTTS)
-          CALL cpsivc(lusc34, mxntts, work(kvec2),iWork(ivlrec))
+          CALL cpsivc(lusc34, mxntts, vec2,iWork(ivlrec))
           Call GetMem('lvec','Free','inte',ivlrec,MXNTTS)
        ELSE
-         Do i = 1, Lblock
-            work(kvec2+i-1) = 0.0d0
-         Enddo
+          vec2(:) = 0.0d0
        ENDIF
 *
 * Information needed on file handling
@@ -108,10 +106,10 @@ c      END IF
       DUMMY = 0.0D0
       IF (tdm) THEN
          CALL densi2_lucia(1,work(lw6),dummy,dummy,dummy,
-     &   vec1,work(kvec2),lusc1,luhc,exps2,1,work(lw7),IPACK)
+     &   vec1,vec2,lusc1,luhc,exps2,1,work(lw7),IPACK)
       ELSE
          CALL densi2_lucia(2,work(krho1),dummy,Work(lw8),Work(lw9),
-     &   vec1,work(kvec2),lusc1,luhc,exps2,1,work(ksrho1),IPACK)
+     &   vec1,vec2,lusc1,luhc,exps2,1,work(ksrho1),IPACK)
       END IF
 
 *
@@ -121,7 +119,7 @@ C      2      : DONE!!! - Calculate both one and two body densities.
 C      krho1  : DONE!!! - Output - include in glbbas.fh.
 C      krho2  : DONE!!! - Output - include in glbbas.fh.
 C      vec1  : DONE!!! - CI-vector
-C      kvec2  : DONE!!! - Sigma-vector
+C      vec2  : DONE!!! - Sigma-vector
 C      lusc1  : DONE!!! - file pointer
 C      luhc   : DONE!!! - file pointer
 C      exps2  : DONE!!! - Output - expectation value of S**2.
@@ -143,8 +141,8 @@ C      ksrho1 : DONE!!! - Comming with glbbas.fh.
       CALL GETMEM('LSCR1 ','FREE','REAL',LSCR1,NSD_PER_SYM(IREFSM))
       CALL GETMEM('LSCR2 ','FREE','REAL',LSCR2,NSD_PER_SYM(IREFSM))
       Call mma_deallocate(VEC1)
+      Call mma_deallocate(VEC2)
       CALL GETMEM('KC2   ','FREE','REAL',KVEC3,kvec3_length)
-      CALL GETMEM('VEC2  ','FREE','REAL',KVEC2,LBLOCK)
       IF (tdm) THEN
          CALL GETMEM('LSCR3 ','FREE','REAL',LSCR3,NSD_PER_SYM(IREFSM))
          CALL GETMEM('LSCR4 ','FREE','REAL',LSCR4,NSD_PER_SYM(IREFSM))
