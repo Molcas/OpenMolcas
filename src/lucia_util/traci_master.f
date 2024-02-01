@@ -28,6 +28,7 @@
       DIMENSION LREC(MXNTTS),CMOMO(*)
       DIMENSION I_DUMMY(1)
       Real*8, allocatable:: VEC1(:), VEC2(:), VEC4(:)
+      Real*8, Allocatable:: LCMOMO(:)
 *
       NTEST = 0
       LBLK  = -1
@@ -74,7 +75,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       END DO
 
 *. MO-MO transformation matrix :
-      CALL GETMEM('CMOMO ','ALLO','REAL',KLCMOMO,NDIM)
+      Call mma_allocate(LCMOMO,NDIM,Label='LCMOMO')
 *. Copy of one-electron integrals
       CALL GETMEM('H1SAVE','ALLO','REAL',KLH1SAVE,NDIM)
 *. We are going to mess with the one-electron integrals, take a copy
@@ -93,8 +94,8 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 * The input transformation matrix contains a lot of zeros which
 * is expected not to be there in Traci_Lucia, so remove them.
 *
-      CALL DCOPY_(NDIM,[0.0D0],0,WORK(KLCMOMO),1)
-      IOFF = 0
+      LCMOMO(:)=0.0D0
+      IOFF = 1
       IADR = 1
       ICOL = 1
       DO ISM = 1,NSMOB
@@ -103,7 +104,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
             DO I = 1,NTOOBS(ISM)
                IADR = (ICOL-1)*NTOOB+IROW
                DO J = 1,NTOOBS(ISM)
-                   WORK(KLCMOMO+IOFF+NTOOBS(ISM)*(J-1)+I-1) =
+                   LCMOMO(IOFF+NTOOBS(ISM)*(J-1)+I-1) =
      &                                       CMOMO(IADR+J-1)
                END DO
                ICOL = ICOL + 1
@@ -124,7 +125,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 *. Transform CI vector : Input on LUHC, output on LUDIA (!)
         CALL COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
 *
-        CALL TRACI_LUCIA(WORK(KLCMOMO),LUHC,LUDIA,ISSPC,ISSM,
+        CALL TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,
      &             VEC1,VEC2)
       END DO
 *     ^ End of loop over roots
@@ -163,7 +164,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       Call mma_deallocate(VEC2)
       Call mma_deallocate(VEC3)
       Call mma_deallocate(VEC4)
-      CALL GETMEM('CMOMO ','FREE','REAL',KLCMOMO,NDIM)
+      Call mma_deallocate(LCMOMO)
       CALL GETMEM('H1SAVE','FREE','REAL',KLH1SAVE,NDIM)
 *
       RETURN
