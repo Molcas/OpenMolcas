@@ -26,6 +26,7 @@
 *> @param[in] Array1 Argument to LUCIA
 ************************************************************************
       Subroutine Lucia_Util(Module,Int1,Int2,Array1)
+      use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
 #include "implicit.fh"
       Parameter(MxpLnc = 72)
@@ -68,6 +69,7 @@
 #include "strinp.fh"
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
+      Integer, Allocatable:: lVec(:)
 *
 #ifdef _DEBUGPRINT_
       INTEGER, SAVE :: COUNTER = 0
@@ -96,9 +98,9 @@
 *        Int1 is the initial disk address (for read/write of JOBIPH)
 *        Int2 is the file unit for JOBIPH
 *        Array1 is the transformation matrix (not sorted as LUCIA needs it).
-         Call GetMem('lrec','allo','inte',ivlrec,MXNTTS)
-         Call Traci_Master(Int1,Int2,Array1,iWork(ivlrec))
-         Call GetMem('lrec','free','inte',ivlrec,MXNTTS)
+         Call mma_allocate(lVec,MXNTTS,Label='lVec')
+         Call Traci_Master(Int1,Int2,Array1,lVec)
+         Call mma_deallocate(lVec)
       Else If (Module_(1:5) .eq. 'DENSI') Then
          Call Densi_Master(Int1)
       Else If (Module_(1:3) .eq. 'INI') Then

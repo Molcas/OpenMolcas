@@ -31,6 +31,7 @@
       logical iPack,tdm
       dimension dummy(1)
       Real*8, Allocatable:: VEC1(:), VEC2(:)
+      Integer, Allocatable:: lVec(:)
 *
 * Put CI-vector from RASSCF on luc
 *
@@ -41,7 +42,7 @@
       CALL GETMEM('LSCR2 ','ALLO','REAL',LSCR2,NSD_PER_SYM(IREFSM))
       CALL COPVEC(WORK(C_POINTER),WORK(LSCR1),NCSF_PER_SYM(IREFSM))
       ITMP_POINTER = C_POINTER
-      Call GetMem('lrec','allo','inte',ivlrec,MXNTTS)
+      Call mma_allocate(lVec,MXNTTS,Label='lVec')
       IF (tdm) THEN
          CALL GETMEM('LSCR3 ','ALLO','REAL',LSCR3,NSD_PER_SYM(IREFSM))
          CALL GETMEM('LSCR4 ','ALLO','REAL',LSCR4,NSD_PER_SYM(IREFSM))
@@ -49,13 +50,13 @@
          CALL CSDTVC(WORK(LSCR3),WORK(LSCR4),1,WORK(KDTOC_POINTER),
      &               iWORK(KSDREO_POINTER), IREFSM, 1)
          C_POINTER = LSCR3
-         CALL CPCIVC(LUHC, MXNTTS, IREFSM, 1,iwork(ivlrec))
+         CALL CPCIVC(LUHC, MXNTTS, IREFSM, 1,lVec)
       END IF
       C_POINTER = LSCR1
       CALL CSDTVC(WORK(LSCR1),WORK(LSCR2),1,WORK(KDTOC_POINTER),
      &     iWORK(KSDREO_POINTER), IREFSM, 1)
-      CALL CPCIVC(LUC, MXNTTS, IREFSM, 1,iwork(ivlrec))
-      Call GetMem('lrec','free','inte',ivlrec,MXNTTS)
+      CALL CPCIVC(LUC, MXNTTS, IREFSM, 1,lVec)
+      Call mma_deallocate(lVec)
 
 *
 * Determine length of arrays VEC1 and VEC2
@@ -82,9 +83,9 @@ c      END IF
 *
       Call mma_allocate(VEC2,LBLOCK,Label='VEC2')
        IF (iSigma_on_disk .ne. 0) THEN
-          Call GetMem('lvec','Allo','inte',ivlrec,MXNTTS)
-          CALL cpsivc(lusc34, mxntts, vec2,iWork(ivlrec))
-          Call GetMem('lvec','Free','inte',ivlrec,MXNTTS)
+          Call mma_allocate(lVec,MXNTTS,Label='lVec')
+          CALL cpsivc(lusc34, mxntts, vec2,lVec)
+          Call mma_deallocate(lVec)
        ELSE
           vec2(:) = 0.0d0
        ENDIF
