@@ -13,7 +13,7 @@ Private
 #include 'mxpdim.fh'
       Integer ::    KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
-     &              KSBIA,KSBIB,KVEC3,KPNIJ,KIJKK,KFI,KINH1,            &
+     &              KSBIA,KSBIB,KPNIJ,KIJKK,KFI,KINH1,                  &
      &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G,KPGINT1(MXPOBS),   &
      &              KINT1O,KFIO,KPGINT1A(MXPOBS),                       &
      &              KMOMO,KSRHO1,KFIZ,                                  &
@@ -23,10 +23,11 @@ Private
      &              KDFTP,KCFTP,KDTOC,                                  &
      &              KSDREO_I(8),KZ_PTDT(MXPORB+1),                      &
      &              KREO_PTDT(MXPORB+1)
+      Real*8, Allocatable:: VEC3(:)
 
       Public        KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
-     &              KSBIA,KSBIB,KVEC3,KPNIJ,KIJKK,KFI,KINH1,            &
+     &              KSBIA,KSBIB,VEC3,KPNIJ,KIJKK,KFI,KINH1,             &
      &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G,KPGINT1,           &
      &              KINT1O,KFIO,KPGINT1A,                               &
      &              KMOMO,KSRHO1,KFIZ,                                  &

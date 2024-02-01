@@ -324,7 +324,7 @@ c      END IF
       ELSE IF(ICISTR.GE.2) THEN
         S2_TERM1 = 0.0D0
         CALL GASDN2_LUCIA(     I12,    RHO1,    RHO2,   RHO2S,   RHO2A,
-     &                           L,       R,       L,     R,WORK(KVEC3),
+     &                           L,       R,       L,     R,VEC3,
      &                    iWORK(KCIOIO),iWORK(KSIOIO),
      &                    ISMOST(1,ICSM),ISMOST(1,ISSM),
      &                    iWORK(KCBLTP),iWORK(KSBLTP),NACOB,
@@ -334,7 +334,7 @@ c      END IF
      &                      IOCTPA,  IOCTPB,  NOCTPA,  NOCTPB,   NSMST,
      &                       NSMOB,   NSMSX,   NSMDX, MXPNGAS,  NOBPTS,
      &                      IOBPTS,    MAXK,    MAXI,   LSCR1,   LSCR1,
-     &                    WORK(KVEC3+KCSCR),WORK(KVEC3),
+     &                    VEC3(1+KCSCR),VEC3,
      &                    SXSTSM,iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
      &                    ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &                    iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),

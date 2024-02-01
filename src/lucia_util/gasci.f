@@ -291,8 +291,8 @@ c         END IF
       IF(IPRCIX.GE.2)
      &     WRITE(6,*) ' Space for two resolution matrices ',2*LSCR2
       LSCR12 = MAX(LBLOCK,2*LSCR2)
-CSVC: is KVEC3 used at all before it is deallocated again?
-      CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,LSCR12)
+CSVC: is VEC3 used at all before it is deallocated again?
+      Call mma_allocate(VEC3,LSCR12,Label='VEC3')
       KVEC1 = KCI_POINTER
 c     KVEC2 = KSIGMA_POINTER
       KVEC3_LENGTH = MAX(LSCR12,2*LBLOCK,KVEC3_LENGTH)
@@ -335,7 +335,7 @@ c         END IF
       Call mma_deallocate(LCIOIO)
       CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
       CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*NTTS)
-      CALL GETMEM('KC2   ','FREE','REAL',KVEC3,LSCR12)
+      Call mma_deallocate(VEC3)
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real(EREF)

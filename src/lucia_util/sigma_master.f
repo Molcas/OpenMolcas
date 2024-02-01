@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE sigma_master()
+      use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
 *
 * Controls the calculation of the sigma vector, when Lucia is called
@@ -44,9 +45,9 @@ c      END IF
 *
 * Calculate the sigma vector:
 *
-      CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,KVEC3_LENGTH)
+      Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
       CALL MV7(WORK(KCI_POINTER), WORK(KSIGMA_POINTER), LUC, LUSC34)
-      CALL GETMEM('KC2   ','FREE','REAL',KVEC3,KVEC3_LENGTH)
+      Call mma_deallocate(VEC3)
 *
 * Export lusc34 to RASSCF
 *
@@ -64,6 +65,7 @@ c      END IF
 ******************************
       SUBROUTINE SIGMA_MASTER_CVB(IREFSM_CASVB)
       use GLBBAS
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "cands.fh"
@@ -110,10 +112,10 @@ c      END IF
 *
 * Calculate the sigma vector:
 *
-      CALL DIAG_MASTER
-      CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,KVEC3_LENGTH)
+      CALL DIAG_MASTER()
+      Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
       CALL MV7(WORK(KCI_POINTER), WORK(KSIGMA_POINTER), LUC, LUSC34)
-      CALL GETMEM('KC2   ','FREE','REAL',KVEC3,KVEC3_LENGTH)
+      Call mma_deallocate(VEC3)
 *
 * Export lusc34 to RASSCF
 *

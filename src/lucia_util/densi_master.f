@@ -76,7 +76,7 @@ c      END IF
 *     IDUM=0
 *     CALL MEMMAN(IDUM, IDUM, 'MARK', IDUM, 'DENS_M')
       Call mma_allocate(VEC1,LBLOCK,Label='VEC1')
-      CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,kvec3_length)
+      Call mma_allocate(VEC3,kvec3_length,Label='VEC3')
 *
 * Copy Sigma-vector from disc to core
 *
@@ -142,7 +142,7 @@ C      ksrho1 : DONE!!! - Comming with module glbbas
       CALL GETMEM('LSCR2 ','FREE','REAL',LSCR2,NSD_PER_SYM(IREFSM))
       Call mma_deallocate(VEC1)
       Call mma_deallocate(VEC2)
-      CALL GETMEM('KC2   ','FREE','REAL',KVEC3,kvec3_length)
+      Call mma_deallocate(VEC3)
       IF (tdm) THEN
          CALL GETMEM('LSCR3 ','FREE','REAL',LSCR3,NSD_PER_SYM(IREFSM))
          CALL GETMEM('LSCR4 ','FREE','REAL',LSCR4,NSD_PER_SYM(IREFSM))

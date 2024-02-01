@@ -290,20 +290,20 @@ C     END IF
 * Jesper: Initializing ksvst
 c      KCJPA = 1 ! jwk-cleanup
 c      KSIPA = 1 ! jwk-cleanup
-      CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KVEC3),
+      CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,VEC3,
      &             iWORK(KCIOIO),ISMOST(1,ICSM),iWORK(KCBLTP),
      &             iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &             NAEL,IATP,NBEL,IBTP,
      &             IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &             NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &             ITSOB,MAXK,MAXI,LSCR1,
-     &             WORK(KINSCR),WORK(KVEC3),WORK(KVEC3+LSCR2),
+     &             WORK(KINSCR),VEC3,VEC3(1+LSCR2),
      &             iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
      &             ADSXA,NGAS,NELFSPGP,IDC,
      &             iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
      &             IDOH2,MXPOBS,iWORK(KSVST),
      &             PSSIGN,IPRDIA,LUC,ICJKAIB,
-     &             WORK(KVEC3),WORK(KVEC3+LSCR2),
+     &             VEC3,VEC3(1+LSCR2),
      &             iWORK(KI3),WORK(KXI3S),iWORK(KI4),WORK(KXI4S),
      &             MXSXST,MXSXBL,MOCAA,
      &             iWORK(KLLBT),iWORK(KLLEBT),

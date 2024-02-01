@@ -42,7 +42,7 @@ C          GET_3BLKS(KVEC1,KVEC2,KC2)
 C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       Call mma_allocate(VEC1,LBLOCK,Label='VEC1')
       Call mma_allocate(VEC2,LBLOCK,Label='VEC2')
-      CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,KVEC3_LENGTH)
+      Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
       CALL GETMEM('KVEC4 ','ALLO','REAL',KVEC4,NCONF)
 *
 * Transfer the CI-vector to LUC
@@ -161,7 +161,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 *
       Call mma_deallocate(VEC1)
       Call mma_deallocate(VEC2)
-      CALL GETMEM('KC2   ','FREE','REAL',KVEC3,KVEC3_LENGTH)
+      Call mma_deallocate(VEC3)
       CALL GETMEM('KVEC4 ','FREE','REAL',KVEC4,NCONF)
       CALL GETMEM('CMOMO ','FREE','REAL',KLCMOMO,NDIM)
       CALL GETMEM('H1SAVE','FREE','REAL',KLH1SAVE,NDIM)
