@@ -65,6 +65,7 @@
 #include "cintfo.fh"
       DIMENSION CB(*),HCB(*)
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
+      Real*8, Allocatable:: INSCR(:), INSCR2(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -170,8 +171,8 @@ c      END IF
       INTSCR = MAX(MXTSOB ** 4, NTOOB**2)
       IF(IPRCIX.GE.3)
      &WRITE(6,*) ' Integral scratch space ',INTSCR
-      CALL GETMEM('INSCR ','ALLO','REAL',KINSCR,INTSCR)
-      CALL GETMEM('INSCR2','ALLO','REAL',KINSCR2,INTSCR)
+      Call mma_allocate(INSCR,INTSCR,Label='INSCR')
+      Call mma_allocate(INSCR2,INTSCR,Label='INSCR2')
 *. Arrays giving allowed type combinations '
       CALL GETMEM('CIOIO ','ALLO','INTE',KCIOIO,NOCTPA*NOCTPB)
       CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
@@ -299,7 +300,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &             NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &             ITSOB,MAXK,MAXI,LSCR1,
-     &             WORK(KINSCR),VEC3,VEC3(1+LSCR2),
+     &             INSCR,VEC3,VEC3(1+LSCR2),
      &             iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
      &             ADSXA,NGAS,NELFSPGP,IDC,
      &             iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
@@ -314,7 +315,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             CONSPA,CONSPB,WORK(KLSCLFAC),
      &             IPERTOP,IH0INSPC,iWORK(KLH0SPC),
      &             ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,
-     &             I_RES_AB,ISIMSYM,WORK(KINSCR2))
+     &             I_RES_AB,ISIMSYM,INSCR2)
 *
 * CALL SBLOCKS --> 91
 *
@@ -340,8 +341,8 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(CONSPB)
       CALL GETMEM('KSTSTS','FREE','INTE',KSTSTS,NSMST ** 2)
       CALL GETMEM('KSTSTD','FREE','INTE',KSTSTD,NSMST ** 2)
-      CALL GETMEM('INSCR ','FREE','REAL',KINSCR,INTSCR)
-      CALL GETMEM('INSCR2','FREE','REAL',KINSCR2,INTSCR)
+      call mma_deallocate(INSCR)
+      call mma_deallocate(INSCR2)
       CALL GETMEM('CIOIO ','FREE','INTE',KCIOIO,NOCTPA*NOCTPB)
       CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
       CALL GETMEM('CBLTP ','FREE','INTE',KCBLTP,NSMST)

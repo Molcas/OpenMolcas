@@ -82,6 +82,7 @@ c      REAL*8 INPRDD
 *.Output
       DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
+      Real*8, Allocatable:: INSCR(:)
 *. Before I forget it :
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
@@ -203,7 +204,7 @@ c      END IF
       INTSCR = MXTSOB ** 4
       IF(IPRDEN.GE.2)
      &WRITE(6,*) ' Density scratch space ',INTSCR
-      CALL GETMEM('INSCR ','ALLO','REAL',KINSCR,INTSCR)
+      Call mma_allocate(INSCR,INTSCR,Label='INSCR')
 *
 *. Arrays giving allowed type combinations '
       CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
@@ -341,7 +342,7 @@ c      END IF
      &                    ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &                    iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
      &                    iWORK(KI3),WORK(KXI3S),iWORK(KI4),WORK(KXI4S),
-     &                    WORK(KINSCR),MXPOBS,IPRDEN,WORK(KRHO1S),
+     &                    INSCR,MXPOBS,IPRDEN,WORK(KRHO1S),
      &                    LUL,LUR,PSSIGN,PSSIGN,
      &                    WORK(KRHO1P),WORK(KXNATO),
      &                    NBATCHL,
@@ -425,7 +426,7 @@ c      END IF
       CALL GETMEM('KSTSTD','FREE','INTE',KSTSTD,NSMST ** 2)
       Call mma_deallocate(CONSPA)
       Call mma_deallocate(CONSPB)
-      CALL GETMEM('INSCR ','FREE','REAL',KINSCR,INTSCR)
+      Call mma_deallocate(INSCR)
       CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
       CALL GETMEM('CIOIO ','FREE','INTE',KCIOIO,NOCTPA*NOCTPB)
       CALL GETMEM('I1    ','FREE','INTE',KI1,  LSCR3       )
