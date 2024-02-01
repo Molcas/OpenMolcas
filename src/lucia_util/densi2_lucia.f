@@ -291,8 +291,9 @@ c      END IF
       call mma_allocate(ZSCR,lZSCR,Label='ZSCR')
       K12=1
       call mma_allocate(OCSTR,MAX_STR_OC_BLK,K12,Label='OCSTR')
+      I1234=2
+      Call mma_allocate(REO,MAX_STR_SPGP,I1234,Label='REO')
       DO I1234 = 1, 2
-        CALL GETMEM('KLREO ','ALLO','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','ALLO','INTE',KLZ(I1234),LZ)
       END DO
 *. Arrays for partitioning of Left vector = sigma
@@ -457,8 +458,8 @@ c      END IF
       CALL GETMEM('RHO1S ','FREE','REAL',KOCCSM,NACOB )
       Call mma_deallocate(ZSCR)
       Call mma_deallocate(OCSTR)
+      Call mma_deallocate(REO)
       DO I1234 = 1, 2
-        CALL GETMEM('KLREO ','FREE','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','FREE','INTE',KLZ(I1234),LZ)
       END DO
       Call mma_deallocate(LLBTL)
