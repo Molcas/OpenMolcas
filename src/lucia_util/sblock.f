@@ -67,6 +67,8 @@
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:), INSCR2(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
+      Integer, Allocatable, Target:: CIOIO(:), SIOIO(:)
+      Integer, Pointer:: SCIOIO(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -175,14 +177,14 @@ c      END IF
       Call mma_allocate(INSCR,INTSCR,Label='INSCR')
       Call mma_allocate(INSCR2,INTSCR,Label='INSCR2')
 *. Arrays giving allowed type combinations '
-      CALL GETMEM('CIOIO ','ALLO','INTE',KCIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
+      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
+      Call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
 *. Offsets for alpha and beta supergroups
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
 *. sigma needed for MXRESC
-      CALL IAIBCM(ISSPC,iWORK(KSIOIO))
-      CALL IAIBCM(ICSPC,iWORK(KCIOIO))
+      CALL IAIBCM(ISSPC,SIOIO)
+      CALL IAIBCM(ICSPC,CIOIO)
 *. Arrays giving block type
       CALL GETMEM('CBLTP ','ALLO','INTE',KCBLTP,NSMST)
 *. Arrays for additional symmetry operation
@@ -198,11 +200,11 @@ c      END IF
 *. Scratch space for CJKAIB resolution matrices
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
       IF( ISSPC.GE.ICSPC) THEN
-         KSCIOIO = KSIOIO
+         SCIOIO => SIOIO
       ELSE
-         KSCIOIO = KCIOIO
+         SCIOIO => CIOIO
       END IF
-      CALL MXRESCPH(iWORK(KSCIOIO),IOCTPA, IOCTPB,  NOCTPA,  NOCTPB,
+      CALL MXRESCPH(SCIOIO,IOCTPA, IOCTPB,  NOCTPA,  NOCTPB,
      &                  NSMST,NSTFSMSPGP,MXPNSMST,   NSMOB, MXPNGAS,
      &                   NGAS,   NOBPTS,   IPRCIX,   MAXK, NELFSPGP,
      &                   MXCJ,   MXCIJA,   MXCIJB,MXCIJAB,   MXSXBL,
@@ -295,7 +297,7 @@ C     END IF
 c      KCJPA = 1 ! jwk-cleanup
 c      KSIPA = 1 ! jwk-cleanup
       CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,VEC3,
-     &             iWORK(KCIOIO),ISMOST(1,ICSM),iWORK(KCBLTP),
+     &             CIOIO,ISMOST(1,ICSM),iWORK(KCBLTP),
      &             iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &             NAEL,IATP,NBEL,IBTP,
      &             IOCTPA,IOCTPB,NOCTPA,NOCTPB,
@@ -344,8 +346,9 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(STSTD)
       call mma_deallocate(INSCR)
       call mma_deallocate(INSCR2)
-      CALL GETMEM('CIOIO ','FREE','INTE',KCIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
+      call mma_deallocate(CIOIO)
+      call mma_deallocate(SIOIO)
+      SCIOIO => Null()
       CALL GETMEM('CBLTP ','FREE','INTE',KCBLTP,NSMST)
       CALL GETMEM('I1    ','FREE','INTE',KI1  ,LSCR3)
       CALL GETMEM('XI1S  ','FREE','REAL',KXI1S,LSCR3)

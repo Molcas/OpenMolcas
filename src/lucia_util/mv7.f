@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MV7(C,HC,LUC,LUHC)
+      use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
 *
 * Outer routine for sigma vector generation
@@ -42,6 +43,7 @@
 #include "cprnt.fh"
 #include "oper.fh"
 #include "cmxcj.fh"
+      Integer, Allocatable:: SIOIO(:)
 *
       IF(ICISTR.EQ.1) THEN
         WRITE(6,*) ' MV7 does not work for ICISTR = 1'
@@ -58,8 +60,8 @@
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
 *. Arrays giving allowed type combinations
-      CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
-      CALL IAIBCM(ISSPC,iWORK(KSIOIO))
+      Call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
+      CALL IAIBCM(ISSPC,SIOIO)
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
         CALL GETMEM('SVST  ','ALLO','INTE',KSVST,NSMST)
@@ -96,14 +98,14 @@ C     WRITE(6,*) ' ISSM and ICSM in MV7 =', ISSM,ICSM
      &               IWORK(KSBLTP),
      &               IWORK(KNSTSO(IATP)),
      &               IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB, NSMST,LBLOCK,
-     &               IWORK(KSIOIO),
+     &               SIOIO,
 *
      &               ISMOST(1,ISSM),
      &                  NBATCH,
      &               IWORK(KLSLBT),
      &               IWORK(KLSLEBT),IWORK(KLSI1BT),IWORK(KLSIBT),
      &               0,ISIMSYM)
-      CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
+      Call mma_deallocate(SIOIO)
       CALL GETMEM('SBLTP ','FREE','INTE',KSBLTP,NSMST)
 
       IF(ICISTR.EQ.1) THEN

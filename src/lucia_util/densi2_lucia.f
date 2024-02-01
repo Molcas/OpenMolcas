@@ -84,6 +84,7 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
+      Integer, Allocatable:: CIOIO(:), SIOIO(:)
 *. Before I forget it :
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
@@ -208,13 +209,13 @@ c      END IF
       Call mma_allocate(INSCR,INTSCR,Label='INSCR')
 *
 *. Arrays giving allowed type combinations '
-      CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('CIOIO ','ALLO','INTE',KCIOIO,NOCTPA*NOCTPB)
+      Call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
+      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 *
-      CALL IAIBCM(ISSPC,iWORK(KSIOIO))
-      CALL IAIBCM(ISSPC,iWORK(KCIOIO))
+      CALL IAIBCM(ISSPC,SIOIO)
+      CALL IAIBCM(ISSPC,CIOIO)
 *. Scratch space for CJKAIB resolution matrices
-      CALL MXRESCPH(iWORK(KCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(CIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &                  NSMST,NSTFSMSPGP,MXPNSMST,   NSMOB, MXPNGAS,
      &                   NGAS,   NOBPTS,   IPRCIX,     MAXK, NELFSPGP,
      &                   MXCJ,   MXCIJA,   MXCIJB,  MXCIJAB,   MXSXBL,
@@ -297,7 +298,7 @@ c      END IF
      &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &               NOCTPA,NOCTPB,
      &               NSMST, LSCR1,
-     &               iWORK(KSIOIO),ISMOST(1,ISSM),
+     &               SIOIO,ISMOST(1,ISSM),
      &               NBATCHL,
      &               iWORK(KLLBTL),iWORK(KLLEBTL),
      &               iWORK(KLI1BTL),iWORK(KLIBTL),
@@ -313,7 +314,7 @@ c      END IF
      &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &               NOCTPA,NOCTPB,
      &               NSMST, LSCR1,
-     &               iWORK(KCIOIO),ISMOST(1,ICSM),
+     &               CIOIO,ISMOST(1,ICSM),
      &               NBATCHR,
      &               iWORK(KLLBTR),iWORK(KLLEBTR),
      &               iWORK(KLI1BTR),iWORK(KLIBTR),
@@ -329,7 +330,7 @@ c      END IF
         S2_TERM1 = 0.0D0
         CALL GASDN2_LUCIA(     I12,    RHO1,    RHO2,   RHO2S,   RHO2A,
      &                           L,       R,       L,     R,VEC3,
-     &                    iWORK(KCIOIO),iWORK(KSIOIO),
+     &                    CIOIO,SIOIO,
      &                    ISMOST(1,ICSM),ISMOST(1,ISSM),
      &                    iWORK(KCBLTP),iWORK(KSBLTP),NACOB,
      &                    iWORK(KNSTSO(IATP)),iWORK(KISTSO(IATP)),
@@ -428,8 +429,8 @@ c      END IF
       Call mma_deallocate(CONSPA)
       Call mma_deallocate(CONSPB)
       Call mma_deallocate(INSCR)
-      CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('CIOIO ','FREE','INTE',KCIOIO,NOCTPA*NOCTPB)
+      Call mma_deallocate(SIOIO)
+      Call mma_deallocate(CIOIO)
       CALL GETMEM('I1    ','FREE','INTE',KI1,  LSCR3       )
       CALL GETMEM('I2    ','FREE','INTE',KI2,  LSCR3       )
       CALL GETMEM('I3    ','FREE','INTE',KI3,  LSCR3       )
