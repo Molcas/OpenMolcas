@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE CNFORD_GAS( IOCCLS, NOCCLS,   ISYM, PSSIGN, IPRCSF,
      &                      ICONF_OCC,ICONF_REO,ICTSDT,IBLOCK,NBLOCK)
+      use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
 *
 * Generate configurations in ICONF
@@ -37,11 +38,12 @@
 *. Output
       INTEGER ICONF_OCC(*),ICONF_REO(*)
       DIMENSION ICTSDT(*)
+      Integer, Allocatable:: ZSCR(:)
 *
       NTEST = 0
       NELEC = IELSUM(IOCCLS(1,1),NGAS)
 C
-      CALL GETMEM('ZSCR  ','ALLO','INTE',KLZSCR,(NOCOB+1)*(NELEC+1))
+      CALL mma_allocate(ZSCR,(NOCOB+1)*(NELEC+1),Label='ZSCR')
       CALL GETMEM('Z     ','ALLO','INTE',KLZ,NOCOB*NELEC*2)
       CALL GETMEM('OCMIN ','ALLO','INTE',KLOCMIN,NOCOB)
       CALL GETMEM('OCMAX ','ALLO','INTE',KLOCMAX,NOCOB)
@@ -69,7 +71,7 @@ C_REMOVED         CALL ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
      &                  NGAS,NOBPT,IOCCLS(1,JOCCLS),MINOP,NTEST)
 *. the arcweights
          CALL CONF_GRAPH(iWORK(KLOCMIN),iWORK(KLOCMAX),
-     &                   NOCOB, NELEC,iWORK(KLZ),NCONF_P,iWORK(KLZSCR))
+     &                   NOCOB, NELEC,iWORK(KLZ),NCONF_P,ZSCR)
 *
          IF(JOCCLS.EQ.1) THEN
             INITIALIZE_CONF_COUNTERS = 1
@@ -121,7 +123,7 @@ C     CALL CNTOST(ICONF,SGNCTS,ICTSDT,IWORK,IDCNF(1),IREFSM,
 C    &            IREFML,IREFG,XNDXCI,NORB,NEL,ORBSYM,
 C    &            ICNFOK,IGENSG,ISGNA,ISGNB,IPRCSF)
 *
-      CALL GETMEM('ZSCR  ','FREE','INTE',KLZSCR,(NOCOB+1)*(NELEC+1))
+      Call mma_deallocate(ZSCR)
       CALL GETMEM('Z     ','FREE','INTE',KLZ,NOCOB*NELEC*2)
       CALL GETMEM('OCMIN ','FREE','INTE',KLOCMIN,NOCOB)
       CALL GETMEM('OCMAX ','FREE','INTE',KLOCMAX,NOCOB)

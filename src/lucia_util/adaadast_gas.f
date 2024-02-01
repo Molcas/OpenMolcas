@@ -15,6 +15,7 @@
      &                          ISPGP,    ISM,    ITP,   KMIN,   KMAX,
      &                             I1,   XI1S,    LI1,     NK,   IEND,
      &                          IFRST,  KFRST,    I12,    K12, SCLFAC)
+      use HIDSCR
 *
 *
 * Obtain two-operator mappings
@@ -63,7 +64,6 @@
 #include "cgas.fh"
 #include "gasstr.fh"
 *. Local scratch
-#include "hidscr.fh"
 #include "ssave.fh"
       SAVE NSTRI_
 C-jwk-cleanup      INTEGER KELFGRP(MXPNGAS)
@@ -195,13 +195,8 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
 *.. Generate information about I strings
 *. Arc weights for ISPGP
         NTEST2 = NTEST
-        CALL WEIGHT_SPGP(iWORK(KLLZ),
-     &                       NGAS,
-     &                   NELFSPGP(1,ISPGPABS),
-     &                      NOBPT,
-     &                   iWORK(KLZSCR),
-*
-     &                     NTEST2)
+        CALL WEIGHT_SPGP(iWORK(KLLZ),NGAS,
+     &                   NELFSPGP(1,ISPGPABS),NOBPT,ZSCR,NTEST2)
         NELI = NELFTP(ITP)
         NELIS(I12) = NELI
 *. Reorder array for I strings

@@ -13,6 +13,7 @@
      &                        IDOSRHO1, SRHO1, IPACK)
       use stdalloc, only: mma_allocate, mma_deallocate
       USE GLBBAS
+      use hidscr
 *
 * Density matrices between L and R
 *
@@ -74,7 +75,6 @@ c      REAL*8 INPRDD
 #include "lucinp.fh"
 #include "clunit.fh"
 *. Scratch for string information
-#include "hidscr.fh"
       INTEGER SXSTSM(1)
 *. Specific input
       REAL*8 L
@@ -288,7 +288,7 @@ c      END IF
 *. reordering arrays
       LZSCR = (MAX(NAEL,NBEL)+3)*(NOCOB+1) + 2 * NOCOB
       LZ    = (MAX(NAEL,NBEL)+2) * NOCOB
-      CALL GETMEM('KLZSCR','ALLO','INTE',KLZSCR,LZSCR)
+      call mma_allocate(ZSCR,lZSCR,Label='ZSCR')
       DO K12 = 1, 1
         CALL GETMEM('KLOCS ','ALLO','INTE',KLOCSTR(K12),MAX_STR_OC_BLK)
       END DO
@@ -456,7 +456,7 @@ c      END IF
       CALL GETMEM('RHO1S ','FREE','REAL',KRHO1SM,NACOB ** 2)
       CALL GETMEM('RHO1S ','FREE','REAL',KXNATSM,NACOB ** 2)
       CALL GETMEM('RHO1S ','FREE','REAL',KOCCSM,NACOB )
-      CALL GETMEM('KLZSCR','FREE','INTE',KLZSCR,LZSCR)
+      Call mma_deallocate(ZSCR)
       DO K12 = 1, 1
         CALL GETMEM('KLOCS ','FREE','INTE',KLOCSTR(K12),MAX_STR_OC_BLK)
       END DO

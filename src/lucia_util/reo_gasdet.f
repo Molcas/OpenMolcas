@@ -45,6 +45,7 @@
 *. Output
       INTEGER IREO(*)
       Integer, Allocatable:: LASTR(:), LBSTR(:)
+      Integer, Allocatable:: ZSCR(:)
 
 c      write(6,*)'nconf_per_open in reo_gasdet'
 c      call iwrtma(nconf_per_open,1,4,1,4)
@@ -76,7 +77,7 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
       Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
 *. Space for constructing arc weights for configurations
-      CALL GETMEM('ZSCR  ','ALLO','INTE',KLZSCR,(NOCOB+1)*(NEL+1))
+      CALL mma_allocate(ZSCR,(NOCOB+1)*(NEL+1),Label='ZSCR')
       CALL GETMEM('Z     ','ALLO','INTE',KLZ,NOCOB*NEL*2)
       CALL GETMEM('OCMIN ','ALLO','INTE',KLOCMIN,NOCOB)
       CALL GETMEM('OCMAX ','ALLO','INTE',KLOCMAX,NOCOB)
@@ -107,7 +108,7 @@ C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
      &                     maxop,
      &                  nconf_per_open(1,isym),
      &                  IB_SD_FOR_OPEN,
-     &                  IWORK(KLZSCR),
+     &                  ZSCR,
 *
      &                  IWORK(KLZ),
      &                  IWORK(KLOCMIN),
@@ -120,7 +121,7 @@ C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
 *
       Call mma_deallocate(LASTR)
       Call mma_deallocate(LBSTR)
-      CALL GETMEM('ZSCR  ','FREE','INTE',KLZSCR,(NOCOB+1)*(NEL+1))
+      Call mma_deallocate(ZSCR)
       CALL GETMEM('Z     ','FREE','INTE',KLZ,NOCOB*NEL*2)
       CALL GETMEM('OCMIN ','FREE','INTE',KLOCMIN,NOCOB)
       CALL GETMEM('OCMAX ','FREE','INTE',KLOCMAX,NOCOB)

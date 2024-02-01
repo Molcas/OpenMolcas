@@ -13,6 +13,7 @@
      &                  ICBAT_END)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
+      use hidscr
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -61,7 +62,6 @@
 #include "io_util.fh"
 *
 #include "csmprd.fh"
-#include "hidscr.fh"
 #include "cintfo.fh"
       DIMENSION CB(*),HCB(*)
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
@@ -268,7 +268,7 @@ C     DO I1234 = 1, 2
         CALL GETMEM('KLREO ','ALLO','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','ALLO','INTE',KLZ(I1234),LZ)
       END DO
-      CALL GETMEM('KLZSCR','ALLO','INTE',KLZSCR,LZSCR)
+      Call mma_allocate(ZSCR,LZSCR,Label='ZSCR')
 * 4 arrays containing all strings of given sym. Dimension can  be
 *   reduced to largest number of strings in alpha or beta.
 C?    WRITE(6,*) ' SBLOCKS : MAX_STR_SPGP = ', MAX_STR_SPGP
@@ -376,7 +376,7 @@ c      KSIPA = 1 ! jwk-cleanup
         CALL GETMEM('KLREO ','FREE','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','FREE','INTE',KLZ(I1234),LZ)
       END DO
-      CALL GETMEM('KLZSCR','FREE','INTE',KLZSCR,LZSCR)
+      Call mma_deallocate(ZSCR)
       CALL GETMEM('H0SPC ','FREE','INTE',KLH0SPC,NOCTPA*NOCTPB)
       RETURN
       END
