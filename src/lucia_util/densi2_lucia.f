@@ -92,6 +92,7 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: LLEBTL(:), LLEBTR(:)
       Integer, Allocatable:: LI1BTL(:), LI1BTR(:)
       Integer, Allocatable:: LIBTL(:), LIBTR(:)
+      Real*8, Allocatable:: LSCLFCL(:), LSCLFCR(:)
 
 *. Before I forget it :
 *     IDUM = 0
@@ -301,7 +302,7 @@ c      END IF
       Call mma_allocate(LLEBTL,NTTS,Label='LLEBTL')
       Call mma_allocate(LI1BTL,NTTS,Label='LI1BTL')
       Call mma_allocate(LIBTL,8*NTTS,Label='LIBTL')
-      CALL GETMEM('SCLF_L ','ALLO','REAL',KLSCLFCL,NTTS)
+      Call mma_allocate(LSCLFCL,NTTS,Label='LSCLFCL')
       CALL PART_CIV2(IDC,SBLTP,
      &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &               NOCTPA,NOCTPB,
@@ -317,7 +318,7 @@ c      END IF
       Call mma_allocate(LLEBTR,NTTS,Label='LLEBTR')
       Call mma_allocate(LI1BTR,NTTS,Label='LI1BTR')
       Call mma_allocate(LIBTR,8*NTTS,Label='LIBTR')
-      CALL GETMEM('SCLF_R ','ALLO','REAL',KLSCLFCR,NTTS)
+      Call mma_allocate(LSCLFCR,NTTS,Label='LSCLFCR')
       CALL PART_CIV2(IDC,CBLTP,
      &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &               NOCTPA,NOCTPB,
@@ -362,7 +363,7 @@ c      END IF
      &                    LLBTR,LLEBTR,
      &                    LI1BTR,LIBTR,
      &                    CONSPA,CONSPB,
-     &                    WORK(KLSCLFCL),WORK(KLSCLFCR),
+     &                    LSCLFCL,LSCLFCR,
      &                    S2_TERM1, IUSE_PH,  IPHGAS,IDOSRHO1,   SRHO1,
      &                    IPACK)
 *
@@ -467,12 +468,12 @@ c      END IF
       Call mma_deallocate(LLEBTL)
       Call mma_deallocate(LI1BTL)
       Call mma_deallocate(LIBTL)
-      CALL GETMEM('SCLF_L ','FREE','REAL',KLSCLFCL,NTTS)
+      Call mma_deallocate(LSCLFCL)
       Call mma_deallocate(LLBTR)
       Call mma_deallocate(LLEBTR)
       Call mma_deallocate(LI1BTR)
       Call mma_deallocate(LIBTR)
-      CALL GETMEM('SCLF_R ','FREE','REAL',KLSCLFCR,NTTS)
+      Call mma_deallocate(LSCLFCR)
 
       RETURN
       END

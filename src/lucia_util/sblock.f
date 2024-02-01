@@ -76,6 +76,7 @@
       Integer, Allocatable:: LLEBT(:)
       Integer, Allocatable:: LI1BT(:)
       Integer, Allocatable:: LIBT(:)
+      Real*8, Allocatable:: LSCLFAC(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -253,7 +254,7 @@ C  I assume memory was allocated for blocks, so
       Call mma_allocate(LI1BT,NTTS,Label='LI1BT')
       Call mma_allocate(LIBT,8*NTTS,Label='LIBT')
 *. For scaling for each TTS block
-      CALL GETMEM('SCLFAC','ALLO','REAL',KLSCLFAC ,NTTS)
+      Call mma_allocate(LSCLFAC,8*NTTS,Label='LSCLFAC')
 
 *. Space for four blocks of string occupations and arrays of
 *. reordering arrays
@@ -322,7 +323,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             LLBT,LLEBT,
      &             LI1BT,LIBT,
      &             IRESTRICT,
-     &             CONSPA,CONSPB,WORK(KLSCLFAC),
+     &             CONSPA,CONSPB,LSCLFAC,
      &             IPERTOP,IH0INSPC,iWORK(KLH0SPC),
      &             ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,
      &             I_RES_AB,ISIMSYM,INSCR2)
@@ -365,7 +366,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(XI2S)
       call mma_deallocate(XI3S)
       call mma_deallocate(XI4S)
-      CALL GETMEM('SCLFAC','FREE','REAL',KLSCLFAC ,NTTS)
+      call mma_deallocate(LSCLFAC)
       call mma_deallocate(LLBT)
       call mma_deallocate(LLEBT)
       call mma_deallocate(LI1BT)
