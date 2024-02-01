@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE sigma_master
+      SUBROUTINE sigma_master()
+      use GLBBAS
 *
 * Controls the calculation of the sigma vector, when Lucia is called
 * from Molcas Rasscf.
@@ -18,7 +19,6 @@
 #include "cicisp.fh"
 #include "cstate.fh"
 #include "clunit.fh"
-#include "glbbas.fh"
 #include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cecore.fh"
@@ -63,6 +63,7 @@ c      END IF
 *                            *
 ******************************
       SUBROUTINE SIGMA_MASTER_CVB(IREFSM_CASVB)
+      use GLBBAS
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "cands.fh"
@@ -75,7 +76,6 @@ c      END IF
      &              MXNTTS,MXSOOB_AS
 #include "cstate.fh"
 #include "clunit.fh"
-#include "glbbas.fh"
 #include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cecore.fh"

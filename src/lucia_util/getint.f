@@ -11,6 +11,7 @@
       SUBROUTINE GETINT(    XINT,     ITP,     ISM,     JTP,     JSM,
      &                       KTP,     KSM,     LTP,     LSM,  IXCHNG,
      &                      IKSM,    JLSM,   ICOUL)
+      use GLBBAS
 *
 * Outer routine for accessing integral block
 *
@@ -23,7 +24,6 @@
 
 #include "crun.fh"
 #include "WrkSpc.fh"
-#include "glbbas.fh"
 #include "oper.fh"
 #include "wadr.fh"
       DIMENSION XINT(*)

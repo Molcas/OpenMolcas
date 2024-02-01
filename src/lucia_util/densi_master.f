@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE densi_master(rvec)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use GLBBAS
 *
 * Controls the calculation of the densities, when Lucia is called
 * from Molcas Rasscf.
@@ -20,7 +21,6 @@
 #include "crun.fh"
 #include "cicisp.fh"
 #include "clunit.fh"
-#include "glbbas.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
 #include "spinfo_lucia.fh"
@@ -116,15 +116,15 @@ c      END IF
 * Explanation of calling parameters
 *
 C      2      : DONE!!! - Calculate both one and two body densities.
-C      krho1  : DONE!!! - Output - include in glbbas.fh.
-C      krho2  : DONE!!! - Output - include in glbbas.fh.
+C      krho1  : DONE!!! - Output - include in module glbbas
+C      krho2  : DONE!!! - Output - include in moduke glbbas
 C      vec1  : DONE!!! - CI-vector
 C      vec2  : DONE!!! - Sigma-vector
 C      lusc1  : DONE!!! - file pointer
 C      luhc   : DONE!!! - file pointer
 C      exps2  : DONE!!! - Output - expectation value of S**2.
 C      1      : DONE!!! - Calculate spin density
-C      ksrho1 : DONE!!! - Comming with glbbas.fh.
+C      ksrho1 : DONE!!! - Comming with module glbbas
 *
       IF (.not.tdm) THEN
 *        Save densities in trigonal format for use in Molcas

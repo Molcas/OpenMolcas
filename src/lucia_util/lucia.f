@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE LUCIA()
+      use GLBBAS
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *. Parameters for dimensioning
@@ -26,7 +27,6 @@
 #include "oper.fh"
 #include "cgas.fh"
 
-#include "glbbas.fh"
 #include "rasscf_lucia.fh"
 #include "warnings.h"
 *.Scratch : A character line

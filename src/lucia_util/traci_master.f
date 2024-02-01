@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use  GLBBAS
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
@@ -17,7 +18,6 @@
 #include "crun.fh"
 #include "cicisp.fh"
 #include "cstate.fh"
-#include "glbbas.fh"
 #include "orbinp.fh"
 #include "cands.fh"
 #include "spinfo_lucia.fh"

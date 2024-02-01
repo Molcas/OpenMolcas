@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE CNFORD_GAS( IOCCLS, NOCCLS,   ISYM, PSSIGN, IPRCSF,
      &                      ICONF_OCC,ICONF_REO,ICTSDT,IBLOCK,NBLOCK)
+      use GLBBAS
 *
 * Generate configurations in ICONF
 *
@@ -27,7 +28,6 @@
 #include "implicit.fh"
 #include "mxpdim.fh"
 #include "spinfo_lucia.fh"
-#include "glbbas.fh"
 #include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cgas.fh"

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       FUNCTION GETH1E(IORB,ITP,ISM,JORB,JTP,JSM)
+      use GLBBAS
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
@@ -18,7 +19,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
-#include "glbbas.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "multd2h.fh"

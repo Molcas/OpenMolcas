@@ -11,6 +11,7 @@
 * Copyright (C) 2000, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE INTPNT(IPNT1,ISL1,IPNT2,ISL2)
+      use GLBBAS
 *
 * Pointers to symmetry blocks of integrals
 * IPNT1 : Pointer to given one-electron block, total symmetric
@@ -33,7 +34,6 @@
 *
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
-#include "glbbas.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "csm.fh"

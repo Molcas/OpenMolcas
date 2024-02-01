@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MV7(C,HC,LUC,LUHC)
+      use GLBBAS
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
@@ -39,7 +40,6 @@
 #include "cgas.fh"
 #include "lucinp.fh"
 #include "cprnt.fh"
-#include "glbbas.fh"
 #include "oper.fh"
 #include "cmxcj.fh"
 *

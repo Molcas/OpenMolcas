@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE DETCTL_GAS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use GLBBAS
 *
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
@@ -31,7 +32,6 @@
 #include "strbas.fh"
 #include "csm.fh"
 #include "spinfo_lucia.fh"
-#include "glbbas.fh"
 #include "strinp.fh"
 #include "WrkSpc.fh"
 #include "lucinp.fh"
@@ -263,6 +263,7 @@ c      END IF
       END
 *
       SUBROUTINE DETCTL_FREE()
+      use GLBBAS
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
 #include "gasstr.fh"
@@ -277,7 +278,6 @@ c      END IF
 #include "strbas.fh"
 #include "csm.fh"
 #include "spinfo_lucia.fh"
-#include "glbbas.fh"
 #include "strinp.fh"
 #include "WrkSpc.fh"
 #include "lucinp.fh"

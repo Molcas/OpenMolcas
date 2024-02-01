@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
+      use GLBBAS
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -34,7 +35,6 @@
 #include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
-#include "glbbas.fh"
 #include "cgas.fh"
 #include "spinfo_lucia.fh"
 #include "warnings.h"
@@ -375,6 +375,7 @@ c     ntest=10
       END
 
       SUBROUTINE CSFDIM_FREE(ISYM)
+      use GLBBAS
 * Free resources allocated by CSFDIM_GAS
 
 #include "implicit.fh"
@@ -382,7 +383,6 @@ c     ntest=10
 #include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
-#include "glbbas.fh"
 #include "cgas.fh"
 #include "spinfo_lucia.fh"
 #include "warnings.h"

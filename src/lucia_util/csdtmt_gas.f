@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE CSDTMT_GAS(IPDTCNF,IPCSCNF,DTOC,IPRCSF)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use GLBBAS
 *
 * Construct in IDTFTP list of proto type combinations in IDFTP
 * Construct in ICFTP list of proto type CSF's in ICFTP
@@ -33,7 +34,6 @@
 #include "spinfo_lucia.fh"
 #include "WrkSpc.fh"
 #include "cstate.fh"
-#include "glbbas.fh"
 *. Output
       INTEGER IPDTCNF(*),IPCSCNF(*)
       DIMENSION DTOC(*)

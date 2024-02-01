@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GT1DIA(H1DIA)
+      use GLBBAS
 *
 * Obtain diagonal of one electron matrix over active
 * orbitals
@@ -20,8 +21,6 @@
       DIMENSION H1DIA(*)
 
 *.GLobal pointers
-C     COMMON/GLBBAS/KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1
-#include "glbbas.fh"
 
 #include "lucinp.fh"
 #include "orbinp.fh"

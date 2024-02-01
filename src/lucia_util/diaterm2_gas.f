@@ -13,6 +13,7 @@
       SUBROUTINE DIATERM2_GAS( FACTOR,  ITASK,    VEC, NBLOCK, IBLOCK,
      &                           IOFF,  JPERT,    J12,    JDC)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use GLBBAS
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -38,7 +39,6 @@
 #include "cprnt.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
-#include "glbbas.fh"
 #include "oper.fh"
 #include "cecore.fh"
 *

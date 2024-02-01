@@ -11,6 +11,7 @@
       SUBROUTINE DENSI2_LUCIA(    I12,   RHO1,   RHO2,  RHO2S,  RHO2A,
      &                              L,      R,    LUL,    LUR,  EXPS2,
      &                        IDOSRHO1, SRHO1, IPACK)
+      USE GLBBAS
 *
 * Density matrices between L and R
 *
@@ -66,7 +67,6 @@ c      REAL*8 INPRDD
 #include "gasstr.fh"
 #include "cprnt.fh"
 #include "spinfo_lucia.fh"
-#include "glbbas.fh"
 *
       LOGICAL IPACK
 #include "csmprd.fh"

@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 1991,1997, Jeppe Olsen                                 *
 ************************************************************************
-      SUBROUTINE INTIM
+      SUBROUTINE INTIM()
+      use GLBBAS
 *
 * Interface to external integrals
 *
@@ -23,7 +24,6 @@
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
 #include "crun.fh"
-#include "glbbas.fh"
 #include "clunit.fh"
 #include "lucinp.fh"
 #include "csm.fh"

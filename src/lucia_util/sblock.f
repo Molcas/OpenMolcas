@@ -11,6 +11,7 @@
       SUBROUTINE SBLOCK(  NBLOCK,  IBLOCK,   IBOFF,      CB,     HCB,
      &                       LUC,IRESTRICT, LUCBLK,ICBAT_RES,ICBAT_INI,
      &                  ICBAT_END)
+      use GLBBAS
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -55,7 +56,6 @@
 #include "cgas.fh"
 #include "lucinp.fh"
 #include "cprnt.fh"
-#include "glbbas.fh"
 #include "oper.fh"
 #include "io_util.fh"
 *

@@ -11,6 +11,7 @@
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE T_ROW_TO_H(T,H,K,TKK)
+      use GLBBAS
 *
 * Set H integrals
 *
@@ -25,7 +26,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "mxpdim.fh"
-#include "glbbas.fh"
 #include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"

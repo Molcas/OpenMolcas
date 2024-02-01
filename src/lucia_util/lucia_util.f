@@ -26,6 +26,7 @@
 *> @param[in] Array1 Argument to LUCIA
 ************************************************************************
       Subroutine Lucia_Util(Module,Int1,Int2,Array1)
+      use GLBBAS
 #include "implicit.fh"
       Parameter(MxpLnc = 72)
       Character*(*) Module
@@ -54,7 +55,6 @@
 
 
 #include "gasstr.fh"
-#include "glbbas.fh"
 #include "intform.fh"
 #include "irat.fh"
 

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE diag_master
+      SUBROUTINE diag_master()
+      use GLBBAS
 *
 *  To do in this subroutine:
 *
@@ -24,7 +25,6 @@
 #include "cprnt.fh"
 #include "WrkSpc.fh"
 #include "orbinp.fh"
-#include "glbbas.fh"
 #include "cands.fh"
 #include "rasscf_lucia.fh"
 *

@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE TRACID(       T,   LUCIN,  LUCOUT,   LUSC1,   LUSC2,
      &                     LUSC3,    VEC1,    VEC2)
+      use GLBBAS
 *
 * Transform CI vector on LUCIN with T matrix after
 * Docent Malmquist's recipe. Place result as next vector on LUOUT
@@ -26,7 +27,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
-#include "glbbas.fh"
 #include "oper.fh"
 #include "intform.fh"
 #include "lucinp.fh"

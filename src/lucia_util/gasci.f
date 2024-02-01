@@ -13,6 +13,7 @@
       SUBROUTINE GASCI(     ISM,    ISPC,   IPRNT,    EREF,IIUSEH0P,
      &                 MPORENP_E)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use GLBBAS
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -32,7 +33,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "strbas.fh"
-#include "glbbas.fh"
 #include "cprnt.fh"
 #include "oper.fh"
 #include "gasstr.fh"

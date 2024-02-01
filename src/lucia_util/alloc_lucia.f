@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ALLOC_LUCIA
+      use GLBBAS
 *
 * Dimensions and
 * Allocation of static memory
@@ -51,7 +52,6 @@
 #include "cintfo.fh"
 #include "rasscf_lucia.fh"
 *.Output
-#include "glbbas.fh"
 
 *.1 : One electron integrals( Complete matrix allocated )
       CALL GETMEM('INT1  ','ALLO','REAL',KINT1,NTOOB ** 2)

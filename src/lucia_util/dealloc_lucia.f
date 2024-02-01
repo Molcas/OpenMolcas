@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DEALLOC_LUCIA
+      SUBROUTINE DEALLOC_LUCIA()
+      use GLBBAS
 * Deallocate memory allocated during alloc_lucia
 
 *. Input
@@ -27,7 +28,6 @@
 #include "cintfo.fh"
 #include "rasscf_lucia.fh"
 *.Output
-#include "glbbas.fh"
 
 *.1 : One electron integrals( Complete matrix allocated )
       CALL GETMEM('INT1  ','FREE','REAL',KINT1,NTOOB ** 2)
