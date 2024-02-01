@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE DETCTL_GAS
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
@@ -37,6 +38,7 @@
 #include "rasscf_lucia.fh"
 
       INTEGER IOCCLS(1),IBASSPC(1)
+      Integer, Allocatable:: LCIOIO(:)
 
 *. Set variables in cands.fh
       JSYM = IREFSM
@@ -101,10 +103,10 @@ C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
 *. Additional info required to construct partitioning
 *
 *
-      CALL GETMEM('CIOIO ','ALLO','INTE',KLCIOIO,NOCTPA*NOCTPB)
+      Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
       CALL GETMEM('CBLTP ','ALLO','INTE',KLCBLTP,NSMST)
 *
-      CALL IAIBCM(ICSPC,iWORK(KLCIOIO))
+      CALL IAIBCM(ICSPC,LCIOIO)
 *. option KSVST not active so
       KSVST = 1
       CALL ZBLTP(ISMOST(1,jsym),NSMST,IDC,iWORK(KLCBLTP),iWORK(KSVST))
@@ -112,7 +114,7 @@ C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
 *. Batches  of C vector
       CALL PART_CIV2(IDC,iWORK(KLCBLTP),iWORK(KNSTSO(IATP)),
      &     iWORK(KNSTSO(IBTP)),
-     &     NOCTPA,NOCTPB,NSMST,LBLOCK,iWORK(KLCIOIO),
+     &     NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,
      &     ISMOST(1,jsym),
      &     NBATCH,iWORK(KLCLBT),iWORK(KLCLEBT),
      &     iWORK(KLCI1BT),iWORK(KLCIBT),0,ISIMSYM)
@@ -182,7 +184,7 @@ C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
-      CALL MXRESCPH(iWORK(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(LCIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &        NSMST,NSTFSMSPGP,MXPNSMST,
      &        NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &        NELFSPGP,
@@ -254,13 +256,13 @@ c      END IF
      &     KICTS_POINTER,
      &     nCSF_HEXS)
 
-      CALL GETMEM('CIOIO ','FREE','INTE',KLCIOIO,NOCTPA*NOCTPB)
+      Call mma_deallocate(LCIOIO)
       CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
 
       RETURN
       END
 *
-      SUBROUTINE DETCTL_FREE
+      SUBROUTINE DETCTL_FREE()
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
 #include "gasstr.fh"
@@ -286,6 +288,6 @@ c      END IF
       JSYM = IREFSM
       CALL CSFDIM_FREE(JSYM)
 
-      CALL LUCIA2MOLCAS_FREE
+      CALL LUCIA2MOLCAS_FREE()
 
       END

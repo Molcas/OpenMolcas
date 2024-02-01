@@ -11,6 +11,7 @@
 * Copyright (C) 2001, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE BLKFO_MIN(ISM,NBLK,LEN_BLK)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Number of blocks and length of each block for CI expansion
 *
@@ -36,6 +37,7 @@
 #include "strbas.fh"
 #include "crun.fh"
 #include "cands.fh"
+      Integer, Allocatable:: LCIOIO(:)
 
 *. Output : Should outside be dimensioned as MXNTTS
       INTEGER LEN_BLK(*)
@@ -54,15 +56,15 @@
       CALL GETMEM('CIBT  ','ALLO','INTE',KPCIBT ,8*MXNTTS)
       CALL GETMEM('CBLTP ','ALLO','INTE',KPCBLTP,NSMST)
 *. Info needed for generation of block info
-      CALL GETMEM('CIOIO ','ALLO','INTE',KLCIOIO,NOCTPA*NOCTPB)
-      CALL IAIBCM(ISSPC,iWORK(KLCIOIO)) ! Jesper
+      Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
+      CALL IAIBCM(ISSPC,LCIOIO) ! Jesper
       CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KPCBLTP),I_DUMMY)
 *. Allowed length of each batch( not important for final output )
       LBLOCK = MAX(MXSOOB,LCSBLK)
 *. Batches  of C vector
       CALL PART_CIV2(IDC,IWORK(KPCBLTP),IWORK(KNSTSO(IATP)),
      &              IWORK(KNSTSO(IBTP)),
-     &              NOCTPA,NOCTPB,NSMST,LBLOCK,IWORK(KLCIOIO),
+     &              NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,
      &              ISMOST(1,ISM),
      &              NBATCH,IWORK(KPCLBT),IWORK(KPCLEBT),
      &              IWORK(KPCI1BT),IWORK(KPCIBT),0,ISIMSYM)
@@ -77,7 +79,7 @@
       CALL GETMEM('CI1BT ','FREE','INTE',KPCI1BT,MXNTTS)
       CALL GETMEM('CIBT  ','FREE','INTE',KPCIBT ,8*MXNTTS)
       CALL GETMEM('CBLTP ','FREE','INTE',KPCBLTP,NSMST)
-      CALL GETMEM('CIOIO ','FREE','INTE',KLCIOIO,NOCTPA*NOCTPB)
+      Call mma_deallocate(LCIOIO)
       RETURN
       END
 *

@@ -13,6 +13,7 @@
       SUBROUTINE Z_BLKFO(    ISPC,     ISM,    IATP,    IBTP,  KPCLBT,
      &                    KPCLEBT, KPCI1BT,  KPCIBT, KPCBLTP,  NBATCH,
      &                     NBLOCK)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -40,6 +41,7 @@
 #include "csm.fh"
 #include "strbas.fh"
 #include "crun.fh"
+      Integer, Allocatable:: LCIOIO(:)
 * Some dummy initializations
       KSVST = 1 ! jwk-cleanup
 *
@@ -63,8 +65,8 @@
       CALL GETMEM('CBLTP ','ALLO','INTE',KPCBLTP,NSMST)
 *.    ^ These should be preserved after exit so put mark for flushing here
 *. Info needed for generation of block info
-      CALL GETMEM('CIOIO ','ALLO','INTE',KLCIOIO,NOCTPA*NOCTPB)
-      CALL IAIBCM(ISPC,IWORK(KLCIOIO))
+      Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
+      CALL IAIBCM(ISPC,LCIOIO)
       CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KPCBLTP),IWORK(KSVST))
 *. Allowed length of each batch
 c      IF(ISIMSYM.EQ.0) THEN
@@ -89,7 +91,7 @@ c      END IF
      &               IWORK(KPCBLTP),
      &               IWORK(KNSTSO(IATP)),
      &               IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB, NSMST,LBLOCK,
-     &               IWORK(KLCIOIO),
+     &               LCIOIO,
 *
      &               ISMOST(1,ISM),
      &                  NBATCH,
@@ -106,6 +108,6 @@ c      END IF
 *. Length of each block
       CALL EXTRROW(IWORK(KPCIBT),8,8,NBLOCK,IWORK(KPCI1BT))
 *
-      CALL GETMEM('CIOIO ','FREE','INTE',KLCIOIO,NOCTPA*NOCTPB)
+      Call mma_deallocate(LCIOIO)
       RETURN
       END

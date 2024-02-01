@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE GASCI(     ISM,    ISPC,   IPRNT,    EREF,IIUSEH0P,
      &                 MPORENP_E)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -54,6 +55,7 @@
 *     COMMON/H_OCC_CONS/IH_OCC_CONS
 *
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
+      Integer, Allocatable:: LCIOIO(:)
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
@@ -175,10 +177,10 @@ c      END IF
       CALL GETMEM('CI1BT ','ALLO','INTE',KLCI1BT,NTTS  )
       CALL GETMEM('CIBT  ','ALLO','INTE',KLCIBT ,8*NTTS)
 *. Additional info required to construct partitioning
-      CALL GETMEM('CIOIO ','ALLO','INTE',KLCIOIO,NOCTPA*NOCTPB)
+      Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
       CALL GETMEM('CBLTP ','ALLO','INTE',KLCBLTP,NSMST)
 *
-      CALL IAIBCM(ISPC,IWORK(KLCIOIO))
+      CALL IAIBCM(ISPC,LCIOIO)
 *. option KSVST not active so
       KSVST = 1
       CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KLCBLTP),IWORK(KSVST))
@@ -188,7 +190,7 @@ c      END IF
      &               IWORK(KLCBLTP),
      &               IWORK(KNSTSO(IATP)),
      &               IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB, NSMST,LBLOCK,
-     &               IWORK(KLCIOIO),
+     &               LCIOIO,
 *
      &               ISMOST(1,ISM),
      &                  NBATCH,
@@ -268,7 +270,7 @@ C?          WRITE(6,*) ' MAXA1 1', MAXA1
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
-      CALL MXRESCPH(IWORK(KLCIOIO),IOCTPA,IOCTPB, NOCTPA, NOCTPB,
+      CALL MXRESCPH(LCIOIO,IOCTPA,IOCTPB, NOCTPA, NOCTPB,
      &                    NSMST,NSTFSMSPGP,MXPNSMST, NSMOB,MXPNGAS,
      &                     NGAS,  NOBPTS,  IPRCIX,    MAXK,NELFSPGP,
      &                     MXCJ,  MXCIJA,  MXCIJB, MXCIJAB,  MXSXBL,
@@ -330,7 +332,7 @@ c         END IF
       END IF
 
       IDUMMY=1
-      CALL GETMEM('CIOIO ','FREE','INTE',KLCIOIO,NOCTPA*NOCTPB)
+      Call mma_deallocate(LCIOIO)
       CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
       CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*NTTS)
       CALL GETMEM('KC2   ','FREE','REAL',KVEC3,LSCR12)
