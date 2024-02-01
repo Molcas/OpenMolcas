@@ -48,6 +48,7 @@
 * ======
       DIMENSION DIAG(*)
       Integer, Allocatable:: LASTR(:), LBSTR(:)
+      Real*8, Allocatable:: LSCR2(:)
 *
 *
       NTEST = 0
@@ -78,7 +79,7 @@
 *
       CALL GETMEM('KLJ   ','ALLO','REAL',KLJ   ,NTOOB**2)
       CALL GETMEM('KLK   ','ALLO','REAL',KLK   ,NTOOB**2)
-      CALL GETMEM('KLSC2 ','ALLO','REAL',KLSCR2,2*NTOOB**2)
+      Call mma_allocate(LSCR2,2*NTOOB**2,Label='LSCR2')
       CALL GETMEM('KLXB  ','ALLO','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','ALLO','REAL',KLH1D ,NACOB)
 *. Space for blocks of strings
@@ -90,7 +91,7 @@
 **. Diagonal of one-body integrals and coulomb and exchange integrals
 *
       CALL GT1DIA(WORK(KLH1D))
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS,IREOST)
+      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,LSCR2,IREOTS,IREOST)
       IF( LUDIA .GT. 0 ) IDISK(LUDIA)=0
       CALL GASDIAS(NAEL,LASTR,NBEL,LBSTR,
      &             NACOB,DIAG,NSMST,
@@ -102,7 +103,7 @@
 *.Flush local memory
       CALL GETMEM('KLJ   ','FREE','REAL',KLJ   ,NTOOB**2)
       CALL GETMEM('KLK   ','FREE','REAL',KLK   ,NTOOB**2)
-      CALL GETMEM('KLSC2 ','FREE','REAL',KLSCR2,2*NTOOB**2)
+      Call mma_deallocate(LSCR2)
       CALL GETMEM('KLXB  ','FREE','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','FREE','REAL',KLH1D ,NACOB)
       Call mma_deallocate(LASTR)

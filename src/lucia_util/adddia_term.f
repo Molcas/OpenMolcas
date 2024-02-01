@@ -43,6 +43,7 @@
 *. Output
       DIMENSION SVEC(*)
       Integer, Allocatable:: LASTR(:), LBSTR(:)
+      Real*8, Allocatable:: LSCR(:), LSCR2(:)
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
@@ -64,10 +65,10 @@
       CALL GETMEM('KLH1D ','ALLO','REAL',KLH1D ,NTOOB)
       CALL GETMEM('KLJ   ','ALLO','REAL',KLJ   ,NTOOB**2)
       CALL GETMEM('KLK   ','ALLO','REAL',KLK   ,NTOOB**2)
-      CALL GETMEM('KLSC2 ','ALLO','REAL',KLSCR2,2*NTOOB**2)
+      Call mma_allocate(LSCR2,2*NTOOB**2,Label='LSCR2')
       CALL GETMEM('KLXA  ','ALLO','REAL',KLXA  ,NACOB)
       CALL GETMEM('KLXB  ','ALLO','REAL',KLXB  ,NACOB)
-      CALL GETMEM('KLSCR ','ALLO','REAL',KLSCR ,2*NACOB)
+      Call mma_allocate(LSCR,2*NACOB,Label='LSCR')
 *. Space for blocks of strings
       Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
@@ -77,17 +78,17 @@
 *. Diagonal of one-body integrals and coulomb and exchange integrals
 *. Integrals assumed in place so :
       CALL GT1DIA(WORK(KLH1D))
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS,IREOST)
+      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,LSCR2,IREOTS,IREOST)
 *. Core energy not included
       ECOREP = 0.0D0
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS,IREOST)
+      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,LSCR2,IREOTS,IREOST)
 *
       SHIFT = ECORE_ORIG-ECORE
       FACTORX = FACTOR + SHIFT
 *
       CALL ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,
      &             NACOB,CVEC,SVEC,NSMST,WORK(KLH1D),
-     &             WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
+     &             WORK(KLXA),WORK(KLXB),LSCR,WORK(KLJ),
      &             WORK(KLK),IWORK(KNSTSO(IATP)),IWORK(KNSTSO(IBTP)),
      &             ECOREP,
      &             IPRDIA,NTOOB,
@@ -97,10 +98,10 @@
       CALL GETMEM('KLH1D ','FREE','REAL',KLH1D ,NTOOB)
       CALL GETMEM('KLJ   ','FREE','REAL',KLJ   ,NTOOB**2)
       CALL GETMEM('KLK   ','FREE','REAL',KLK   ,NTOOB**2)
-      CALL GETMEM('KLSC2 ','FREE','REAL',KLSCR2,2*NTOOB**2)
+      Call mma_deallocate(LSCR2)
       CALL GETMEM('KLXA  ','FREE','REAL',KLXA  ,NACOB)
       CALL GETMEM('KLXB  ','FREE','REAL',KLXB  ,NACOB)
-      CALL GETMEM('KLSCR ','FREE','REAL',KLSCR ,2*NACOB)
+      Call mma_deallocate(LSCR)
       Call mma_deallocate(LASTR)
       Call mma_deallocate(LBSTR)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)

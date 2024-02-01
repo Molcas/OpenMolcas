@@ -11,6 +11,7 @@
 * Copyright (C) 1992,2001, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE CSDTMT_GAS(IPDTCNF,IPCSCNF,DTOC,IPRCSF)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Construct in IDTFTP list of proto type combinations in IDFTP
 * Construct in ICFTP list of proto type CSF's in ICFTP
@@ -36,6 +37,8 @@
 *. Output
       INTEGER IPDTCNF(*),IPCSCNF(*)
       DIMENSION DTOC(*)
+      Real*8,  Allocatable:: LSCR1(:)
+      Integer, Allocatable:: LSCR2(:)
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRCSF)
@@ -49,7 +52,7 @@
      &MAX_DC
       LSCR = MAX(MAX_DC,MAXOP)
                 LSCR = MAX_DC*MAXOP+MAXOP
-      CALL GETMEM('SCR_CS','ALLO','REAL',KLSCR1,LSCR)
+      Call mma_allocate(LSCR1,LSCR,Label='LSCR1')
 *
 *
 * .. Set up combinations and upper determinants
@@ -136,7 +139,7 @@ C    &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
           LSCR = MAX(L,LSCR)
         END IF
       END DO
-      CALL GETMEM('KLSCR2','ALLO','INTE',KLSCR2,LSCR)
+      Call mma_allocate(LSCR2,LSCR,Label='LSCR2')
 *
       IDTBS = 1
 C-jwk      DO IOPEN = 0, MAXOP
@@ -158,7 +161,7 @@ C?      WRITE(6,*) ' IOPEN, IDET = ', IOPEN, IDET
      &                 IPDTCNF(IDTBS),
 *
      &                     IDET,
-     &                 IWORK(KLSCR2) )
+     &                 LSCR2 )
 C?     WRITE(6,*) ' Z array as delivered by REO_PTDET'
 C?     CALL IWRTMA(WORK(KZ_PTDT(ITP)),IOPEN,IALPHA,IOPEN,IALPHA)
 C     REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,
@@ -206,15 +209,15 @@ C       IF(NPCMCNF(ITP)*NPCSCNF(ITP).EQ.0) GOTO 30
      &                      IPCSCNF(ICSBS),
      &                      NPCSCNF(ITP),
 *
-     &                      DTOC(ICDCBS),WORK(KLSCR1),PSSIGN,IPRCSF)
+     &                      DTOC(ICDCBS),LSCR1,PSSIGN,IPRCSF)
 C              CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,WORK,PSSIGN,
 C    &                IPRCSF)
         END IF
       END DO
 *     ^ End of loop over number of open shells
 *
-      CALL GETMEM('SCR_CS','FREE','REAL',KLSCR1,LSCR)
-      CALL GETMEM('KLSCR2','FREE','INTE',KLSCR2,LSCR)
+      Call mma_deallocate(LSCR1)
+      Call mma_deallocate(LSCR2)
 *
       IF(NTEST.GE.10) THEN
         WRITE(6,*)  ' List of CSF-SD transformation matrices '

@@ -48,6 +48,7 @@
 *
       DIMENSION VEC(*)
       Integer, Allocatable:: LASTR(:), LBSTR(:)
+      Real*8, Allocatable:: LSCR2(:)
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
@@ -92,7 +93,7 @@ C     END IF
 *. A bit of scracth
       CALL GETMEM('KLJ   ','ALLO','REAL',KLJ   ,NTOOB**2)
       CALL GETMEM('KLK   ','ALLO','REAL',KLK   ,NTOOB**2)
-      CALL GETMEM('KLSC2 ','ALLO','REAL',KLSCR2,2*NTOOB**2)
+      Call mma_allocate(LSCR2,2*NTOOB**2,Label='LSCR2')
       CALL GETMEM('KLXB  ','ALLO','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','ALLO','REAL',KLH1D ,NACOB)
 *. Space for blocks of strings
@@ -106,7 +107,7 @@ C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       CALL GT1DIA(WORK(KLH1D))
 C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       IF(J12.EQ.2)
-     &CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS,IREOST)
+     &CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,LSCR2,IREOTS,IREOST)
 *. Core energy not included
       ECOREP = 0.0D0
       SHIFT = ECORE_ORIG-ECORE
@@ -122,7 +123,7 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
 *.Flush local memory
       CALL GETMEM('KLJ   ','FREE','REAL',KLJ   ,NTOOB**2)
       CALL GETMEM('KLK   ','FREE','REAL',KLK   ,NTOOB**2)
-      CALL GETMEM('KLSC2 ','FREE','REAL',KLSCR2,2*NTOOB**2)
+      Call mma_deallocate(LSCR2)
       CALL GETMEM('KLXB  ','FREE','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','FREE','REAL',KLH1D ,NACOB)
       Call mma_deallocate(LASTR)
