@@ -10,7 +10,7 @@
 !***********************************************************************
 Module GLBBAS
 Private
-#include 'mxpdim.fh'
+#include "mxpdim.fh"
       Integer ::    KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB,KPNIJ,KIJKK,KFI,KINH1,                  &
