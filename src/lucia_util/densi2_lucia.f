@@ -229,13 +229,12 @@ c      END IF
          LSCR12 = MAX(LSCR1,LSCR2)
       END IF
 *. It is assumed that the third block already has been allocated, so
-      KC2 = KVEC3
       IF(IPRCIX.GE.2)
      &WRITE(6,*) ' Space for resolution matrices ',LSCR12
-      KSSCR = KC2
-      KCSCR = KC2 + LSCR2
       IF (ENVIRO(1:6) .EQ. 'RASSCF') THEN
-         KCSCR = KC2 + LSCR12
+         KCSCR = LSCR12
+      ELSE
+         KCSCR = LSCR2
       END IF
 *
 *. Space for annihilation/creation mappings
@@ -325,7 +324,7 @@ c      END IF
       ELSE IF(ICISTR.GE.2) THEN
         S2_TERM1 = 0.0D0
         CALL GASDN2_LUCIA(     I12,    RHO1,    RHO2,   RHO2S,   RHO2A,
-     &                           L,       R,       L,       R,WORK(KC2),
+     &                           L,       R,       L,     R,WORK(KVEC3),
      &                    iWORK(KCIOIO),iWORK(KSIOIO),
      &                    ISMOST(1,ICSM),ISMOST(1,ISSM),
      &                    iWORK(KCBLTP),iWORK(KSBLTP),NACOB,
@@ -335,7 +334,7 @@ c      END IF
      &                      IOCTPA,  IOCTPB,  NOCTPA,  NOCTPB,   NSMST,
      &                       NSMOB,   NSMSX,   NSMDX, MXPNGAS,  NOBPTS,
      &                      IOBPTS,    MAXK,    MAXI,   LSCR1,   LSCR1,
-     &                    WORK(KCSCR),WORK(KSSCR),
+     &                    WORK(KVEC3+KCSCR),WORK(KVEC3),
      &                    SXSTSM,iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
      &                    ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &                    iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
