@@ -88,6 +88,7 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: CBLTP(:), SBLTP(:)
       Integer, Allocatable:: I1(:), I2(:), I3(:), I4(:)
       Real*8, Allocatable:: XI1S(:), XI2S(:), XI3S(:), XI4S(:)
+      Integer, Allocatable:: LLBTL(:), LLBTR(:)
 
 *. Before I forget it :
 *     IDUM = 0
@@ -293,7 +294,7 @@ c      END IF
       END DO
 *. Arrays for partitioning of Left vector = sigma
       NTTS = MXNTTS
-      CALL GETMEM('LBT_L  ','ALLO','INTE',KLLBTL ,NTTS  )
+      Call mma_allocate(LLBTL,NTTS,Label='LLBTL')
       CALL GETMEM('LEBT_L ','ALLO','INTE',KLLEBTL,NTTS  )
       CALL GETMEM('I1BT_L ','ALLO','INTE',KLI1BTL,NTTS  )
       CALL GETMEM('IBT_L  ','ALLO','INTE',KLIBTL ,8*NTTS)
@@ -304,12 +305,12 @@ c      END IF
      &               NSMST, LSCR1,
      &               SIOIO,ISMOST(1,ISSM),
      &               NBATCHL,
-     &               iWORK(KLLBTL),iWORK(KLLEBTL),
+     &               LLBTL,iWORK(KLLEBTL),
      &               iWORK(KLI1BTL),iWORK(KLIBTL),
      &               0,ISIMSYM)
 *. Arrays for partitioning of Right  vector = C
       NTTS = MXNTTS
-      CALL GETMEM('LBT_R  ','ALLO','INTE',KLLBTR ,NTTS  )
+      Call mma_allocate(LLBTR,NTTS,Label='LLBTR')
       CALL GETMEM('LEBT_R ','ALLO','INTE',KLLEBTR,NTTS  )
       CALL GETMEM('I1BT_R ','ALLO','INTE',KLI1BTR,NTTS  )
       CALL GETMEM('IBT_R  ','ALLO','INTE',KLIBTR ,8*NTTS)
@@ -320,7 +321,7 @@ c      END IF
      &               NSMST, LSCR1,
      &               CIOIO,ISMOST(1,ICSM),
      &               NBATCHR,
-     &               iWORK(KLLBTR),iWORK(KLLEBTR),
+     &               LLBTR,iWORK(KLLEBTR),
      &               iWORK(KLI1BTR),iWORK(KLIBTR),
      &               0,ISIMSYM)
 
@@ -352,10 +353,10 @@ c      END IF
      &                    LUL,LUR,PSSIGN,PSSIGN,
      &                    WORK(KRHO1P),WORK(KXNATO),
      &                    NBATCHL,
-     &                    iWORK(KLLBTL),iWORK(KLLEBTL),
+     &                    LLBTL,iWORK(KLLEBTL),
      &                    iWORK(KLI1BTL),iWORK(KLIBTL),
      &                    NBATCHR,
-     &                    iWORK(KLLBTR),iWORK(KLLEBTR),
+     &                    LLBTR,iWORK(KLLEBTR),
      &                    iWORK(KLI1BTR),iWORK(KLIBTR),
      &                    CONSPA,CONSPB,
      &                    WORK(KLSCLFCL),WORK(KLSCLFCR),
@@ -383,7 +384,7 @@ C     density matrices are given in Nijkl.
 *
 * CALL GASDN2_LUCIA --> 89
 *
-C     KLLBTR  KLLEBTR KLI1BTR KLIBTR
+C     LBTR  KLLEBTR KLI1BTR KLIBTR
       END IF
 C?    WRITE(6,*) ' Memcheck in densi2 after GASDN2'
 C?    CALL MEMCHK
@@ -459,12 +460,12 @@ c      END IF
         CALL GETMEM('KLREO ','FREE','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','FREE','INTE',KLZ(I1234),LZ)
       END DO
-      CALL GETMEM('LBT_L  ','FREE','INTE',KLLBTL ,NTTS  )
+      Call mma_deallocate(LLBTL)
       CALL GETMEM('LEBT_L ','FREE','INTE',KLLEBTL,NTTS  )
       CALL GETMEM('I1BT_L ','FREE','INTE',KLI1BTL,NTTS  )
       CALL GETMEM('IBT_L  ','FREE','INTE',KLIBTL ,8*NTTS)
       CALL GETMEM('SCLF_L ','FREE','REAL',KLSCLFCL,NTTS)
-      CALL GETMEM('LBT_R  ','FREE','INTE',KLLBTR ,NTTS  )
+      Call mma_deallocate(LLBTR)
       CALL GETMEM('LEBT_R ','FREE','INTE',KLLEBTR,NTTS  )
       CALL GETMEM('I1BT_R ','FREE','INTE',KLI1BTR,NTTS  )
       CALL GETMEM('IBT_R  ','FREE','INTE',KLIBTR ,8*NTTS)
