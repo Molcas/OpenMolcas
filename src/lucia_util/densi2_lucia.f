@@ -86,6 +86,7 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: STSTS(:), STSTD(:)
       Integer, Allocatable:: CIOIO(:), SIOIO(:)
       Integer, Allocatable:: CBLTP(:), SBLTP(:)
+      Integer, Allocatable:: I1(:), I2(:), I3(:), I4(:)
 
 *. Before I forget it :
 *     IDUM = 0
@@ -247,10 +248,10 @@ c      END IF
 *. Space for annihilation/creation mappings
       MAXIK = MAX(MAXI,MAXK)
       LSCR3 = MAX(MXADKBLK,MAXIK*MXTSOB*MXTSOB,MXSTBL0)
-      CALL GETMEM('I1    ','ALLO','INTE',KI1,  LSCR3       )
-      CALL GETMEM('I2    ','ALLO','INTE',KI2,  LSCR3       )
-      CALL GETMEM('I3    ','ALLO','INTE',KI3,  LSCR3       )
-      CALL GETMEM('I4    ','ALLO','INTE',KI4,  LSCR3       )
+      Call mma_allocate(I1,LSCR3,Label='I1')
+      Call mma_allocate(I2,LSCR3,Label='I2')
+      Call mma_allocate(I3,LSCR3,Label='I3')
+      Call mma_allocate(I4,LSCR3,Label='I4')
       CALL GETMEM('XI1S  ','ALLO','REAL',KXI1S,LSCR3       )
       CALL GETMEM('XI2S  ','ALLO','REAL',KXI2S,LSCR3       )
       CALL GETMEM('XI3S  ','ALLO','REAL',KXI3S,LSCR3       )
@@ -344,8 +345,8 @@ c      END IF
      &                    VEC3(1+KCSCR),VEC3,
      &                    SXSTSM,STSTS,STSTD,SXDXSX,
      &                    ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
-     &                    iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
-     &                    iWORK(KI3),WORK(KXI3S),iWORK(KI4),WORK(KXI4S),
+     &                    I1,WORK(KXI1S),I2,WORK(KXI2S),
+     &                    I3,WORK(KXI3S),I4,WORK(KXI4S),
      &                    INSCR,MXPOBS,IPRDEN,WORK(KRHO1S),
      &                    LUL,LUR,PSSIGN,PSSIGN,
      &                    WORK(KRHO1P),WORK(KXNATO),
@@ -433,10 +434,10 @@ c      END IF
       Call mma_deallocate(INSCR)
       Call mma_deallocate(SIOIO)
       Call mma_deallocate(CIOIO)
-      CALL GETMEM('I1    ','FREE','INTE',KI1,  LSCR3       )
-      CALL GETMEM('I2    ','FREE','INTE',KI2,  LSCR3       )
-      CALL GETMEM('I3    ','FREE','INTE',KI3,  LSCR3       )
-      CALL GETMEM('I4    ','FREE','INTE',KI4,  LSCR3       )
+      Call mma_deallocate(I1)
+      Call mma_deallocate(I2)
+      Call mma_deallocate(I3)
+      Call mma_deallocate(I4)
       CALL GETMEM('XI1S  ','FREE','REAL',KXI1S,LSCR3       )
       CALL GETMEM('XI2S  ','FREE','REAL',KXI2S,LSCR3       )
       CALL GETMEM('XI3S  ','FREE','REAL',KXI3S,LSCR3       )
