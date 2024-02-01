@@ -71,6 +71,7 @@
       Integer, Pointer:: SCIOIO(:)
       Integer, Allocatable, Target:: CBLTP(:)
       Integer, Allocatable:: I1(:), I2(:), I3(:), I4(:)
+      Real*8, Allocatable:: XI1S(:), XI2S(:), XI3S(:), XI4S(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -234,10 +235,10 @@ C  I assume memory was allocated for blocks, so
       Call mma_allocate(I2,LSCR3,Label='I2')
       Call mma_allocate(I3,LSCR3,Label='I3')
       Call mma_allocate(I4,LSCR3,Label='I4')
-      CALL GETMEM('XI1S  ','ALLO','REAL',KXI1S,LSCR3)
-      CALL GETMEM('XI2S  ','ALLO','REAL',KXI2S,LSCR3)
-      CALL GETMEM('XI3S  ','ALLO','REAL',KXI3S,LSCR3)
-      CALL GETMEM('XI4S  ','ALLO','REAL',KXI4S,LSCR3)
+      Call mma_allocate(XI1S,LSCR3,Label='XI1S')
+      Call mma_allocate(XI2S,LSCR3,Label='XI2S')
+      Call mma_allocate(XI3S,LSCR3,Label='XI3S')
+      Call mma_allocate(XI4S,LSCR3,Label='XI4S')
       CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iWORK(KSVST))
 *.Some TTS arrays
       NTTS = MXNTTS
@@ -308,11 +309,11 @@ c      KSIPA = 1 ! jwk-cleanup
      &             INSCR,VEC3,VEC3(1+LSCR2),
      &             STSTS,STSTD,SXDXSX,
      &             ADSXA,NGAS,NELFSPGP,IDC,
-     &             I1,WORK(KXI1S),I2,WORK(KXI2S),
+     &             I1,XI1S,I2,XI2S,
      &             IDOH2,MXPOBS,iWORK(KSVST),
      &             PSSIGN,IPRDIA,LUC,ICJKAIB,
      &             VEC3,VEC3(1+LSCR2),
-     &             I3,WORK(KXI3S),I4,WORK(KXI4S),
+     &             I3,XI3S,I4,XI4S,
      &             MXSXST,MXSXBL,MOCAA,
      &             iWORK(KLLBT),iWORK(KLLEBT),
      &             iWORK(KLI1BT),iWORK(KLIBT),
@@ -356,10 +357,10 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(I2)
       call mma_deallocate(I3)
       call mma_deallocate(I4)
-      CALL GETMEM('XI1S  ','FREE','REAL',KXI1S,LSCR3)
-      CALL GETMEM('XI2S  ','FREE','REAL',KXI2S,LSCR3)
-      CALL GETMEM('XI3S  ','FREE','REAL',KXI3S,LSCR3)
-      CALL GETMEM('XI4S  ','FREE','REAL',KXI4S,LSCR3)
+      call mma_deallocate(XI1S)
+      call mma_deallocate(XI2S)
+      call mma_deallocate(XI3S)
+      call mma_deallocate(XI4S)
       CALL GETMEM('SCLFAC','FREE','REAL',KLSCLFAC ,NTTS)
       CALL GETMEM('LBTC  ','FREE','INTE',KLLBT ,NTTS  )
       CALL GETMEM('LECTC ','FREE','INTE',KLLEBT,NTTS  )

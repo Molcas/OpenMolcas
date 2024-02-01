@@ -87,6 +87,7 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: CIOIO(:), SIOIO(:)
       Integer, Allocatable:: CBLTP(:), SBLTP(:)
       Integer, Allocatable:: I1(:), I2(:), I3(:), I4(:)
+      Real*8, Allocatable:: XI1S(:), XI2S(:), XI3S(:), XI4S(:)
 
 *. Before I forget it :
 *     IDUM = 0
@@ -252,10 +253,10 @@ c      END IF
       Call mma_allocate(I2,LSCR3,Label='I2')
       Call mma_allocate(I3,LSCR3,Label='I3')
       Call mma_allocate(I4,LSCR3,Label='I4')
-      CALL GETMEM('XI1S  ','ALLO','REAL',KXI1S,LSCR3       )
-      CALL GETMEM('XI2S  ','ALLO','REAL',KXI2S,LSCR3       )
-      CALL GETMEM('XI3S  ','ALLO','REAL',KXI3S,LSCR3       )
-      CALL GETMEM('XI4S  ','ALLO','REAL',KXI4S,LSCR3       )
+      Call mma_allocate(XI1S,LSCR3,Label='XI1S')
+      Call mma_allocate(XI2S,LSCR3,Label='XI2S')
+      Call mma_allocate(XI3S,LSCR3,Label='XI3S')
+      Call mma_allocate(XI4S,LSCR3,Label='XI4S')
 *. Arrays giving block type
       Call mma_allocate(SBLTP,NSMST,Label='SBLTP')
       Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
@@ -345,8 +346,8 @@ c      END IF
      &                    VEC3(1+KCSCR),VEC3,
      &                    SXSTSM,STSTS,STSTD,SXDXSX,
      &                    ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
-     &                    I1,WORK(KXI1S),I2,WORK(KXI2S),
-     &                    I3,WORK(KXI3S),I4,WORK(KXI4S),
+     &                    I1,XI1S,I2,XI2S,
+     &                    I3,XI3S,I4,XI4S,
      &                    INSCR,MXPOBS,IPRDEN,WORK(KRHO1S),
      &                    LUL,LUR,PSSIGN,PSSIGN,
      &                    WORK(KRHO1P),WORK(KXNATO),
@@ -438,10 +439,10 @@ c      END IF
       Call mma_deallocate(I2)
       Call mma_deallocate(I3)
       Call mma_deallocate(I4)
-      CALL GETMEM('XI1S  ','FREE','REAL',KXI1S,LSCR3       )
-      CALL GETMEM('XI2S  ','FREE','REAL',KXI2S,LSCR3       )
-      CALL GETMEM('XI3S  ','FREE','REAL',KXI3S,LSCR3       )
-      CALL GETMEM('XI4S  ','FREE','REAL',KXI4S,LSCR3       )
+      Call mma_deallocate(XI1S)
+      Call mma_deallocate(XI2S)
+      Call mma_deallocate(XI3S)
+      Call mma_deallocate(XI4S)
       Call mma_deallocate(SBLTP)
       Call mma_deallocate(CBLTP)
       CALL GETMEM('RHO1S ','FREE','REAL',KRHO1S,NACOB ** 2)
