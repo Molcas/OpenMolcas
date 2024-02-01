@@ -11,6 +11,7 @@
       SUBROUTINE DENSI2_LUCIA(    I12,   RHO1,   RHO2,  RHO2S,  RHO2A,
      &                              L,      R,    LUL,    LUR,  EXPS2,
      &                        IDOSRHO1, SRHO1, IPACK)
+      use stdalloc, only: mma_allocate, mma_deallocate
       USE GLBBAS
 *
 * Density matrices between L and R
@@ -80,6 +81,7 @@ c      REAL*8 INPRDD
       DIMENSION L(*),R(*)
 *.Output
       DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
+      Integer, Allocatable:: CONSPA(:), CONSPB(:)
 *. Before I forget it :
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
@@ -133,12 +135,12 @@ C?     WRITE(6,*) ' ISSPC ICSPC in DENSI2 ',ISSPC,ICSPC
       CALL GETMEM('KSTSTD','ALLO','INTE',KSTSTD,NSMST ** 2)
       CALL STSTSM(IWORK(KSTSTS),IWORK(KSTSTD),NSMST)
 *. connection matrices for supergroups
-      CALL GETMEM('CONSPA','ALLO','INTE',KCONSPA,NOCTPA**2)
-      CALL GETMEM('CONSPB','ALLO','INTE',KCONSPB,NOCTPB**2)
+      Call mma_allocate(CONSPA,NOCTPA**2,Label='CONSPA')
+      Call mma_allocate(CONSPB,NOCTPB**2,Label='CONSPB')
       CALL SPGRPCON(   IOCTPA,   NOCTPA,     NGAS,  MXPNGAS, NELFSPGP,
-     &              iWORK(KCONSPA),IPRCIX)
+     &              CONSPA,IPRCIX)
       CALL SPGRPCON(   IOCTPB,   NOCTPB,     NGAS,  MXPNGAS, NELFSPGP,
-     &              iWORK(KCONSPB),IPRCIX)
+     &              CONSPB,IPRCIX)
 *. Largest block of strings in zero order space
       MAXA0 = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
       MAXB0 = IMNMX(IWORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
@@ -348,7 +350,7 @@ c      END IF
      &                    NBATCHR,
      &                    iWORK(KLLBTR),iWORK(KLLEBTR),
      &                    iWORK(KLI1BTR),iWORK(KLIBTR),
-     &                    iWORK(KCONSPA),iWORK(KCONSPB),
+     &                    CONSPA,CONSPB,
      &                    WORK(KLSCLFCL),WORK(KLSCLFCR),
      &                    S2_TERM1, IUSE_PH,  IPHGAS,IDOSRHO1,   SRHO1,
      &                    IPACK)
@@ -421,8 +423,8 @@ c      END IF
 *. Eliminate local memory
       CALL GETMEM('KSTSTS','FREE','INTE',KSTSTS,NSMST ** 2)
       CALL GETMEM('KSTSTD','FREE','INTE',KSTSTD,NSMST ** 2)
-      CALL GETMEM('CONSPA','FREE','INTE',KCONSPA,NOCTPA**2)
-      CALL GETMEM('CONSPB','FREE','INTE',KCONSPB,NOCTPB**2)
+      Call mma_deallocate(CONSPA)
+      Call mma_deallocate(CONSPB)
       CALL GETMEM('INSCR ','FREE','REAL',KINSCR,INTSCR)
       CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
       CALL GETMEM('CIOIO ','FREE','INTE',KCIOIO,NOCTPA*NOCTPB)

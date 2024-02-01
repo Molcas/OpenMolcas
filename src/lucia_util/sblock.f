@@ -11,6 +11,7 @@
       SUBROUTINE SBLOCK(  NBLOCK,  IBLOCK,   IBOFF,      CB,     HCB,
      &                       LUC,IRESTRICT, LUCBLK,ICBAT_RES,ICBAT_INI,
      &                  ICBAT_END)
+      use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
 *
 * Generate a set of sigma blocks,
@@ -23,7 +24,7 @@
 * If LUCBLK.GT.0, the blocks of C corresponding to IBLOCK
 * are stored on LUCBLK
 *
-* ICONSPA,ICONSPB  added October 1996
+* CONSPA,CONSPB  added October 1996
 * ICBAT_RES, ICBAT_INI, IBBAT_END added august 1997
 *
 * If ICBAT_RES .eq.1 then it as assumed that only
@@ -63,6 +64,7 @@
 #include "hidscr.fh"
 #include "cintfo.fh"
       DIMENSION CB(*),HCB(*)
+      Integer, Allocatable:: CONSPA(:), CONSPB(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -100,13 +102,13 @@ C?    WRITE(6,*) ' I12 in SBLOCK = ', I12
 *
 *. connection matrices for supergroups
 *
-      CALL GETMEM('CONSPA','ALLO','INTE',KCONSPA,NOCTPA**2)
-      CALL GETMEM('CONSPB','ALLO','INTE',KCONSPB,NOCTPB**2)
+      Call mma_allocate(CONSPA,NOCTPA**2,Label='CONSPA')
+      Call mma_allocate(CONSPB,NOCTPB**2,Label='CONSPB')
 C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
       CALL SPGRPCON(   IOCTPA,   NOCTPA,     NGAS,  MXPNGAS, NELFSPGP,
-     &              iWORK(KCONSPA),IPRCIX)
+     &              CONSPA,IPRCIX)
       CALL SPGRPCON(   IOCTPB,   NOCTPB,     NGAS,  MXPNGAS, NELFSPGP,
-     &              iWORK(KCONSPB),IPRCIX)
+     &              CONSPB,IPRCIX)
 *
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
@@ -309,7 +311,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             iWORK(KLLBT),iWORK(KLLEBT),
      &             iWORK(KLI1BT),iWORK(KLIBT),
      &             IRESTRICT,
-     &             iWORK(KCONSPA),iWORK(KCONSPB),WORK(KLSCLFAC),
+     &             CONSPA,CONSPB,WORK(KLSCLFAC),
      &             IPERTOP,IH0INSPC,iWORK(KLH0SPC),
      &             ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,
      &             I_RES_AB,ISIMSYM,WORK(KINSCR2))
@@ -334,8 +336,8 @@ c      KSIPA = 1 ! jwk-cleanup
 *. Eliminate local memory
 *     IDUM = 0
 *     CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'SBLOCK')
-      CALL GETMEM('CONSPA','FREE','INTE',KCONSPA,NOCTPA**2)
-      CALL GETMEM('CONSPB','FREE','INTE',KCONSPB,NOCTPB**2)
+      call mma_deallocate(CONSPA)
+      call mma_deallocate(CONSPB)
       CALL GETMEM('KSTSTS','FREE','INTE',KSTSTS,NSMST ** 2)
       CALL GETMEM('KSTSTD','FREE','INTE',KSTSTD,NSMST ** 2)
       CALL GETMEM('INSCR ','FREE','REAL',KINSCR,INTSCR)
