@@ -69,6 +69,7 @@
       Integer, Allocatable:: STSTS(:), STSTD(:)
       Integer, Allocatable, Target:: CIOIO(:), SIOIO(:)
       Integer, Pointer:: SCIOIO(:)
+      Integer, Allocatable, Target:: CBLTP(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -186,7 +187,7 @@ c      END IF
       CALL IAIBCM(ISSPC,SIOIO)
       CALL IAIBCM(ICSPC,CIOIO)
 *. Arrays giving block type
-      CALL GETMEM('CBLTP ','ALLO','INTE',KCBLTP,NSMST)
+      Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
 c      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
 c        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
@@ -236,7 +237,7 @@ C  I assume memory was allocated for blocks, so
       CALL GETMEM('XI3S  ','ALLO','REAL',KXI3S,LSCR3)
       CALL GETMEM('I4    ','ALLO','INTE',KI4  ,LSCR3)
       CALL GETMEM('XI4S  ','ALLO','REAL',KXI4S,LSCR3)
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,iWORK(KCBLTP),iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iWORK(KSVST))
 *.Some TTS arrays
       NTTS = MXNTTS
 *
@@ -297,7 +298,7 @@ C     END IF
 c      KCJPA = 1 ! jwk-cleanup
 c      KSIPA = 1 ! jwk-cleanup
       CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,VEC3,
-     &             CIOIO,ISMOST(1,ICSM),iWORK(KCBLTP),
+     &             CIOIO,ISMOST(1,ICSM),CBLTP,
      &             iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &             NAEL,IATP,NBEL,IBTP,
      &             IOCTPA,IOCTPB,NOCTPA,NOCTPB,
@@ -349,7 +350,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(CIOIO)
       call mma_deallocate(SIOIO)
       SCIOIO => Null()
-      CALL GETMEM('CBLTP ','FREE','INTE',KCBLTP,NSMST)
+      call mma_deallocate(CBLTP)
       CALL GETMEM('I1    ','FREE','INTE',KI1  ,LSCR3)
       CALL GETMEM('XI1S  ','FREE','REAL',KXI1S,LSCR3)
       CALL GETMEM('I2    ','FREE','INTE',KI2  ,LSCR3)

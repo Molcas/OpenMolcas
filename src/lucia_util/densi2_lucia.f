@@ -85,6 +85,8 @@ c      REAL*8 INPRDD
       Real*8, Allocatable:: INSCR(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
       Integer, Allocatable:: CIOIO(:), SIOIO(:)
+      Integer, Allocatable:: CBLTP(:), SBLTP(:)
+
 *. Before I forget it :
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
@@ -254,8 +256,8 @@ c      END IF
       CALL GETMEM('XI3S  ','ALLO','REAL',KXI3S,LSCR3       )
       CALL GETMEM('XI4S  ','ALLO','REAL',KXI4S,LSCR3       )
 *. Arrays giving block type
-      CALL GETMEM('SBLTP ','ALLO','INTE',KSBLTP,NSMST)
-      CALL GETMEM('CBLTP ','ALLO','INTE',KCBLTP,NSMST)
+      Call mma_allocate(SBLTP,NSMST,Label='SBLTP')
+      Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
 c      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
 c        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
@@ -263,8 +265,8 @@ c        CALL SIGVST(WORK(KSVST),NSMST)
 c      ELSE
          KSVST = 1
 c      END IF
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,iWORK(KSBLTP),iWORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,iWORK(KCBLTP),iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iWORK(KSVST))
 * scratch space containing active one body
       CALL GETMEM('RHO1S ','ALLO','REAL',KRHO1S,NACOB ** 2)
 *. For natural orbitals
@@ -294,7 +296,7 @@ c      END IF
       CALL GETMEM('I1BT_L ','ALLO','INTE',KLI1BTL,NTTS  )
       CALL GETMEM('IBT_L  ','ALLO','INTE',KLIBTL ,8*NTTS)
       CALL GETMEM('SCLF_L ','ALLO','REAL',KLSCLFCL,NTTS)
-      CALL PART_CIV2(IDC,iWORK(KSBLTP),
+      CALL PART_CIV2(IDC,SBLTP,
      &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &               NOCTPA,NOCTPB,
      &               NSMST, LSCR1,
@@ -310,7 +312,7 @@ c      END IF
       CALL GETMEM('I1BT_R ','ALLO','INTE',KLI1BTR,NTTS  )
       CALL GETMEM('IBT_R  ','ALLO','INTE',KLIBTR ,8*NTTS)
       CALL GETMEM('SCLF_R ','ALLO','REAL',KLSCLFCR,NTTS)
-      CALL PART_CIV2(IDC,iWORK(KCBLTP),
+      CALL PART_CIV2(IDC,CBLTP,
      &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &               NOCTPA,NOCTPB,
      &               NSMST, LSCR1,
@@ -332,7 +334,7 @@ c      END IF
      &                           L,       R,       L,     R,VEC3,
      &                    CIOIO,SIOIO,
      &                    ISMOST(1,ICSM),ISMOST(1,ISSM),
-     &                    iWORK(KCBLTP),iWORK(KSBLTP),NACOB,
+     &                    CBLTP,SBLTP,NACOB,
      &                    iWORK(KNSTSO(IATP)),iWORK(KISTSO(IATP)),
      &                    iWORK(KNSTSO(IBTP)),iWORK(KISTSO(IBTP)),
      &                    NAEL,IATP,  NBEL,  IBTP,
@@ -439,8 +441,8 @@ c      END IF
       CALL GETMEM('XI2S  ','FREE','REAL',KXI2S,LSCR3       )
       CALL GETMEM('XI3S  ','FREE','REAL',KXI3S,LSCR3       )
       CALL GETMEM('XI4S  ','FREE','REAL',KXI4S,LSCR3       )
-      CALL GETMEM('SBLTP ','FREE','INTE',KSBLTP,NSMST)
-      CALL GETMEM('CBLTP ','FREE','INTE',KCBLTP,NSMST)
+      Call mma_deallocate(SBLTP)
+      Call mma_deallocate(CBLTP)
       CALL GETMEM('RHO1S ','FREE','REAL',KRHO1S,NACOB ** 2)
       CALL GETMEM('RHO1P ','FREE','REAL',KRHO1P,NACOB*(NACOB+1)/2)
       CALL GETMEM('XNATO ','FREE','REAL',KXNATO,NACOB **2)
