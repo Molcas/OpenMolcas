@@ -44,6 +44,7 @@
 #include "oper.fh"
 #include "cmxcj.fh"
       Integer, Allocatable:: SIOIO(:)
+      Integer, Allocatable:: SVST(:)
 *
       IF(ICISTR.EQ.1) THEN
         WRITE(6,*) ' MV7 does not work for ICISTR = 1'
@@ -64,17 +65,15 @@
       CALL IAIBCM(ISSPC,SIOIO)
 *. Arrays for additional symmetry operation
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        CALL GETMEM('SVST  ','ALLO','INTE',KSVST,NSMST)
-        CALL SIGVST(IWORK(KSVST),NSMST)
+        CALL mma_allocate(SVST,NSMST,Label='SVST')
+        CALL SIGVST(SVST,NSMST)
       ELSE
-         KSVST = 1
+        CALL mma_allocate(SVST,1,Label='SVST')
       END IF
 *. Arrays giving block type
       CALL GETMEM('SBLTP ','ALLO','INTE',KSBLTP,NSMST)
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,IWORK(KSBLTP),IWORK(KSVST))
-      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        CALL GETMEM('SVST  ','FREE','INTE',KSVST,NSMST)
-      END IF
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,IWORK(KSBLTP),SVST)
+      CALL mma_deallocate(SVST)
 *. Arrays for partitioning of sigma
       NTTS = MXNTTS
       CALL GETMEM('CLBT  ','ALLO','INTE',KLSLBT ,NTTS  )

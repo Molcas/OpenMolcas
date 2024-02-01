@@ -56,6 +56,7 @@
 *
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
       Integer, Allocatable:: LCIOIO(:)
+      Integer, Allocatable:: SVST(:)
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
@@ -181,9 +182,9 @@ c      END IF
       CALL GETMEM('CBLTP ','ALLO','INTE',KLCBLTP,NSMST)
 *
       CALL IAIBCM(ISPC,LCIOIO)
-*. option KSVST not active so
-      KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KLCBLTP),IWORK(KSVST))
+      Call mma_allocate(SVST,1,Label='SVST')
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KLCBLTP),SVST)
+      Call mma_deallocate(SVST)
 *
 *. Batches  of C vector
       CALL PART_CIV2(      IDC,

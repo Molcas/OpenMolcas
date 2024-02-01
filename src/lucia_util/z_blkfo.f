@@ -42,9 +42,9 @@
 #include "strbas.fh"
 #include "crun.fh"
       Integer, Allocatable:: LCIOIO(:)
-* Some dummy initializations
-      KSVST = 1 ! jwk-cleanup
+      Integer, Allocatable:: SVST(:)
 *
+* Some dummy initializations
       NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -67,7 +67,9 @@
 *. Info needed for generation of block info
       Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
       CALL IAIBCM(ISPC,LCIOIO)
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KPCBLTP),IWORK(KSVST))
+      Call mma_allocate(SVST,1,Label='SVST')
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KPCBLTP),SVST)
+      Call mma_deallocate(SVST)
 *. Allowed length of each batch
 c      IF(ISIMSYM.EQ.0) THEN
         LBLOCK = MXSOOB

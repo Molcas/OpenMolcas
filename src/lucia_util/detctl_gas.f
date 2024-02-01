@@ -39,6 +39,7 @@
 
       INTEGER IOCCLS(1),IBASSPC(1)
       Integer, Allocatable:: LCIOIO(:)
+      Integer, Allocatable:: SVST(:)
 
 *. Set variables in cands.fh
       JSYM = IREFSM
@@ -107,9 +108,9 @@ C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
       CALL GETMEM('CBLTP ','ALLO','INTE',KLCBLTP,NSMST)
 *
       CALL IAIBCM(ICSPC,LCIOIO)
-*. option KSVST not active so
-      KSVST = 1
-      CALL ZBLTP(ISMOST(1,jsym),NSMST,IDC,iWORK(KLCBLTP),iWORK(KSVST))
+      Call mma_allocate(SVST,1,Label='SVST')
+      CALL ZBLTP(ISMOST(1,jsym),NSMST,IDC,iWORK(KLCBLTP),SVST)
+      Call mma_deallocate(SVST)
 *
 *. Batches  of C vector
       CALL PART_CIV2(IDC,iWORK(KLCBLTP),iWORK(KNSTSO(IATP)),

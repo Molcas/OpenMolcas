@@ -93,6 +93,7 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: LI1BTL(:), LI1BTR(:)
       Integer, Allocatable:: LIBTL(:), LIBTR(:)
       Real*8, Allocatable:: LSCLFCL(:), LSCLFCR(:)
+      Integer, Allocatable:: SVST(:)
 
 *. Before I forget it :
 *     IDUM = 0
@@ -267,13 +268,14 @@ c      END IF
       Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
 c      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-c        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
-c        CALL SIGVST(WORK(KSVST),NSMST)
+c        Call mma_allocate(SVST,NSMST,Label='SVST')
+c        CALL SIGVST(SVST,NSMST)
 c      ELSE
-         KSVST = 1
+         Call mma_allocate(SVST,1,Label='SVST')
 c      END IF
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,iWORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,SVST)
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,SVST)
+      Call mma_deallocate(SVST)
 * scratch space containing active one body
       CALL GETMEM('RHO1S ','ALLO','REAL',KRHO1S,NACOB ** 2)
 *. For natural orbitals

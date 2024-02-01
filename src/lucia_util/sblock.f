@@ -77,6 +77,7 @@
       Integer, Allocatable:: LI1BT(:)
       Integer, Allocatable:: LIBT(:)
       Real*8, Allocatable:: LSCLFAC(:)
+      Integer, Allocatable:: SVST(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -197,10 +198,10 @@ c      END IF
       Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
 c      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-c        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
-c        CALL SIGVST(WORK(KSVST),NSMST)
+c        Call mma_allocate(SVST,NSMST,Label='SVST')
+c        CALL SIGVST(SVST,NSMST)
 c      ELSE
-         KSVST = 1
+         Call mma_allocate(SVST,1,Label='SVST')
 c      END IF
 *
 *.scratch space for projected matrices and a CI block
@@ -244,7 +245,7 @@ C  I assume memory was allocated for blocks, so
       Call mma_allocate(XI2S,LSCR3,Label='XI2S')
       Call mma_allocate(XI3S,LSCR3,Label='XI3S')
       Call mma_allocate(XI4S,LSCR3,Label='XI4S')
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,SVST)
 *.Some TTS arrays
       NTTS = MXNTTS
 *
@@ -314,7 +315,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             STSTS,STSTD,SXDXSX,
      &             ADSXA,NGAS,NELFSPGP,IDC,
      &             I1,XI1S,I2,XI2S,
-     &             IDOH2,MXPOBS,iWORK(KSVST),
+     &             IDOH2,MXPOBS,SVST,
      &             PSSIGN,IPRDIA,LUC,ICJKAIB,
      &             VEC3,VEC3(1+LSCR2),
      &             I3,XI3S,I4,XI4S,
@@ -374,6 +375,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(REO)
       call mma_deallocate(Z)
       Call mma_deallocate(ZSCR)
+      Call mma_deallocate(SVST)
       CALL GETMEM('H0SPC ','FREE','INTE',KLH0SPC,NOCTPA*NOCTPB)
       RETURN
       END
