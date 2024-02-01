@@ -47,7 +47,7 @@
       INTEGER IBLOCK(8,*)
 *
       DIMENSION VEC(*)
-      Integer, Allocatable:: LASTR(:)
+      Integer, Allocatable:: LASTR(:), LBSTR(:)
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
@@ -97,7 +97,7 @@ C     END IF
       CALL GETMEM('KLH1D ','ALLO','REAL',KLH1D ,NACOB)
 *. Space for blocks of strings
       Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
-      CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NAEL)
+      Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
       MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL GETMEM('KLRJKA','ALLO','REAL',KLRJKA,MAXA)
 *. Diagonal of one-body integrals and coulomb and exchange integrals
@@ -111,7 +111,7 @@ C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       ECOREP = 0.0D0
       SHIFT = ECORE_ORIG-ECORE
       FACTORX = FACTOR + SHIFT
-      CALL DIATERMS_GAS(NAEL,LASTR,NBEL,IWORK(KLBSTR),
+      CALL DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,
      &                  NACOB,VEC,NSMST,
      &                  WORK(KLH1D),JDC,WORK(KLXB),WORK(KLJ),WORK(KLK),
      &                  iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
@@ -126,7 +126,7 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
       CALL GETMEM('KLXB  ','FREE','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','FREE','REAL',KLH1D ,NACOB)
       Call mma_deallocate(LASTR)
-      CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NAEL)
+      Call mma_deallocate(LBSTR)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)
 *
 *

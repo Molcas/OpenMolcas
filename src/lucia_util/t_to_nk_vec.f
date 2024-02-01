@@ -43,7 +43,7 @@
 
 *. Scratch block, must hold a batch of blocks
       DIMENSION C(*)
-      Integer, Allocatable:: LASTR(:)
+      Integer, Allocatable:: LASTR(:), LBSTR(:)
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -65,7 +65,7 @@ C           Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
       NBEL = NELEC(IBTP)
 *
       Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
-      CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NBEL)
+      Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
       CALL GETMEM('KLKAOC','ALLO','INTE',KLKAOC,MXNSTR)
       CALL GETMEM('KLKBOC','ALLO','INTE',KLKBOC,MXNSTR)
 *. Orbital K in type ordering
@@ -74,11 +74,11 @@ C           Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
      &                     IWORK(KNSTSO(IATP)),
      &                     IWORK(KNSTSO(IBTP)),
      &                     NBLOCK,IWORK(KLCIBT),NAEL,NBEL,LASTR,
-     &                     IWORK(KLBSTR),IWORK(KLCBLTP),
+     &                     LBSTR,IWORK(KLCBLTP),
      &                   NSMST,ICISTR,NTOOB,IWORK(KLKAOC),IWORK(KLKBOC))
 
       Call mma_deallocate(LASTR)
-      CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
+      Call mma_deallocate(LBSTR)
       CALL GETMEM('KLKAOC','FREE','INTE',KLKAOC,MXNSTR)
       CALL GETMEM('KLKBOC','FREE','INTE',KLKBOC,MXNSTR)
 

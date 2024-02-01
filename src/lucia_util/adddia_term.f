@@ -42,7 +42,7 @@
       DIMENSION CVEC(*)
 *. Output
       DIMENSION SVEC(*)
-      Integer, Allocatable:: LASTR(:)
+      Integer, Allocatable:: LASTR(:), LBSTR(:)
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
@@ -70,7 +70,7 @@
       CALL GETMEM('KLSCR ','ALLO','REAL',KLSCR ,2*NACOB)
 *. Space for blocks of strings
       Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
-      CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NBEL)
+      Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
 
       MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL GETMEM('KLRJKA','ALLO','REAL',KLRJKA,MAXA)
@@ -85,7 +85,7 @@
       SHIFT = ECORE_ORIG-ECORE
       FACTORX = FACTOR + SHIFT
 *
-      CALL ADDDIA_TERMS(NAEL,LASTR,NBEL,IWORK(KLBSTR),
+      CALL ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,
      &             NACOB,CVEC,SVEC,NSMST,WORK(KLH1D),
      &             WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
      &             WORK(KLK),IWORK(KNSTSO(IATP)),IWORK(KNSTSO(IBTP)),
@@ -102,7 +102,7 @@
       CALL GETMEM('KLXB  ','FREE','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLSCR ','FREE','REAL',KLSCR ,2*NACOB)
       Call mma_deallocate(LASTR)
-      CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
+      Call mma_deallocate(LBSTR)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)
 
       RETURN
