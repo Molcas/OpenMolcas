@@ -289,9 +289,8 @@ c      END IF
       LZSCR = (MAX(NAEL,NBEL)+3)*(NOCOB+1) + 2 * NOCOB
       LZ    = (MAX(NAEL,NBEL)+2) * NOCOB
       call mma_allocate(ZSCR,lZSCR,Label='ZSCR')
-      DO K12 = 1, 1
-        CALL GETMEM('KLOCS ','ALLO','INTE',KLOCSTR(K12),MAX_STR_OC_BLK)
-      END DO
+      K12=1
+      call mma_allocate(OCSTR,MAX_STR_OC_BLK,K12,Label='OCSTR')
       DO I1234 = 1, 2
         CALL GETMEM('KLREO ','ALLO','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','ALLO','INTE',KLZ(I1234),LZ)
@@ -457,9 +456,7 @@ c      END IF
       CALL GETMEM('RHO1S ','FREE','REAL',KXNATSM,NACOB ** 2)
       CALL GETMEM('RHO1S ','FREE','REAL',KOCCSM,NACOB )
       Call mma_deallocate(ZSCR)
-      DO K12 = 1, 1
-        CALL GETMEM('KLOCS ','FREE','INTE',KLOCSTR(K12),MAX_STR_OC_BLK)
-      END DO
+      Call mma_deallocate(OCSTR)
       DO I1234 = 1, 2
         CALL GETMEM('KLREO ','FREE','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','FREE','INTE',KLZ(I1234),LZ)

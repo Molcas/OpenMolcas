@@ -262,8 +262,8 @@ C  I assume memory was allocated for blocks, so
       LZSCR = (MAX(NAEL,NBEL)+3)*(NOCOB+1) + 2 * NOCOB + NOCOB*NOCOB
       LZ    = (MAX(NAEL,NBEL)+2) * NOCOB
 *. Set up to two blocks for orbital conserving operator
-C     DO I1234 = 1, 2
-      CALL GETMEM('KLOCS ','ALLO','INTE',KLOCSTR(1),MAX_STR_OC_BLK)
+      K12=1
+      Call mma_allocate(OCSTR,MAX_STR_OC_BLK,K12,Label='OCSTR')
       DO I1234 = 1, 2
         CALL GETMEM('KLREO ','ALLO','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','ALLO','INTE',KLZ(I1234),LZ)
@@ -371,7 +371,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(LLEBT)
       call mma_deallocate(LI1BT)
       call mma_deallocate(LIBT)
-      CALL GETMEM('KLOCS ','FREE','INTE',KLOCSTR(1),MAX_STR_OC_BLK)
+      call mma_deallocate(OCSTR)
       DO I1234 = 1, 2
         CALL GETMEM('KLREO ','FREE','INTE',KLREO(I1234),MAX_STR_SPGP)
         CALL GETMEM('KLZ   ','FREE','INTE',KLZ(I1234),LZ)

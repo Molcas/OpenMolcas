@@ -88,7 +88,6 @@ C?    END IF
 *. Internal affairs
 *
       IF(I12.LE.4.AND.K12.LE.2) THEN
-        KLLOC = KLOCSTR(K12)
         KLLZ = KLZ(I12)
         KLLREO = KLREO(I12)
       ELSE
@@ -123,14 +122,14 @@ C?    END IF
         NELIS(I12) = NELI
 *. Reorder array for I strings
         CALL GETSTR_TOTSM_SPGP(    ITP,  ISPGP,    ISM,   NELI,  NSTRI,
-     &                         IWORK(KLLOC),NOCOB,1,
+     &                         OCSTR(:,K12),NOCOB,1,
      &                         iWORK(KLLZ),IWORK(KLLREO))
       END IF
       NELK = NELIS(I12) - 2
       IF(KFRST.NE.0) THEN
 *. Generate occupation of K STRINGS
        CALL GETSTR_TOTSM_SPGP(      1,KSPGPABS,   KSM,  NELK, NSTRK,
-     &                        IWORK(KLLOC),NOCOB,   0,IDUM_ARR,IDUM_ARR)
+     &                        OCSTR(:,K12),NOCOB,   0,IDUM_ARR,IDUM_ARR)
        NSTRKS(K12) = NSTRK
       END IF
 *
@@ -139,7 +138,7 @@ C?    END IF
       IIOB = IOBPTS(IOBTP,IOBSM) + IOB - 1
       JJOB = IOBPTS(JOBTP,JOBSM) + JOB - 1
       CALL ADADS1_GAS(       NK,       I1,     XI1S,      LI1,     IIOB,
-     &                     NIOB,     JJOB,     NJOB,iWORK(KLLOC),  NELK,
+     &                     NIOB,     JJOB,     NJOB,OCSTR(:,K12),  NELK,
      &                    NSTRK,iWORK(KLLREO),iWORK(KLLZ),NOCOB, KMAX,
      &                     KMIN,     IEND,   SCLFAC)
 *

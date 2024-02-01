@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module HIDSCR
-      Integer:: KLOCSTR(4),KLREO(4),KLZ(4)
+      Integer:: KLREO(4),KLZ(4)
       Integer, Allocatable:: ZSCR(:)
+      Integer, Allocatable:: OCSTR(:,:)
 End Module HIDSCR

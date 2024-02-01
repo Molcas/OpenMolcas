@@ -98,7 +98,6 @@ c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
 *. Internal affairs
 *
       IF(I12.LE.4.AND.K12.LE.1) THEN
-        KLLOC = KLOCSTR(K12)
         KLLZ = KLZ(I12)
         KLLREO = KLREO(I12)
       ELSE
@@ -108,9 +107,6 @@ c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
         CALL SYSABENDMSG('lucia_util/adst_gas',
      &                    'Internal error',' ')
         RETURN
-      END IF
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' KLLOC KLLREO',KLLOC,KLLREO
       END IF
 
 *
@@ -201,7 +197,7 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
         NELIS(I12) = NELI
 *. Reorder array for I strings
         CALL GETSTR_TOTSM_SPGP(    ITP,  ISPGP,    ISM,   NELI,  NSTRI,
-     &                         IWORK(KLLOC),
+     &                         OCSTR(:,K12),
      &                           NOCOB,
      &                               1,
      &                         IWORK(KLLZ),
@@ -238,7 +234,7 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
 *. Generate occupation of K STRINGS
        IDUM(1)=0
        CALL GETSTR2_TOTSM_SPGP(   KGRP,   NGAS,    KSM,   NELK,  NSTRK,
-     &                         iWORK(KLLOC),NOCOB,    0, IDUM, IDUM)
+     &                         OCSTR(:,K12),NOCOB,    0, IDUM, IDUM)
 C     GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,
 C    &                              NORBT,IDOREO,IZ,IREO)
        NSTRKS(K12) = NSTRK
@@ -261,7 +257,7 @@ COLD  CALL SETVEC(XI1S,ZERO ,LI1*NIOB*NJOB)
 *
       CALL ADAADAS1_GAS(      NK,      I1,    XI1S,     LI1,    IIOB,
      &                      NIOB,     IAC,    JJOB,    NJOB,     JAC,
-     &                  iWORK(KLLOC), NELK,NSTRK,
+     &                  OCSTR(:,K12), NELK,NSTRK,
      &                  iWORK(KLLREO),iWORK(KLLZ),
      &                     NOCOB,    KMAX,    KMIN,    IEND,  SCLFAC,
      &                  NSTRI_)
