@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE DIATERM2_GAS( FACTOR,  ITASK,    VEC, NBLOCK, IBLOCK,
      &                           IOFF,  JPERT,    J12,    JDC)
+      use stdalloc, only: mma_allocate, mma_deallocate
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -46,6 +47,7 @@
       INTEGER IBLOCK(8,*)
 *
       DIMENSION VEC(*)
+      Integer, Allocatable:: LASTR(:)
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
@@ -94,7 +96,7 @@ C     END IF
       CALL GETMEM('KLXB  ','ALLO','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','ALLO','REAL',KLH1D ,NACOB)
 *. Space for blocks of strings
-      CALL GETMEM('KLASTR','ALLO','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NAEL)
       MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL GETMEM('KLRJKA','ALLO','REAL',KLRJKA,MAXA)
@@ -109,7 +111,7 @@ C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       ECOREP = 0.0D0
       SHIFT = ECORE_ORIG-ECORE
       FACTORX = FACTOR + SHIFT
-      CALL DIATERMS_GAS(NAEL,IWORK(KLASTR),NBEL,IWORK(KLBSTR),
+      CALL DIATERMS_GAS(NAEL,LASTR,NBEL,IWORK(KLBSTR),
      &                  NACOB,VEC,NSMST,
      &                  WORK(KLH1D),JDC,WORK(KLXB),WORK(KLJ),WORK(KLK),
      &                  iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
@@ -123,7 +125,7 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
       CALL GETMEM('KLSC2 ','FREE','REAL',KLSCR2,2*NTOOB**2)
       CALL GETMEM('KLXB  ','FREE','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','FREE','REAL',KLH1D ,NACOB)
-      CALL GETMEM('KLASTR','FREE','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_deallocate(LASTR)
       CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NAEL)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)
 *

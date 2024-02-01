@@ -11,6 +11,7 @@
 * Copyright (C) 2001, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE REO_GASDET(IBLOCK,NBLOCK,ISYM,IREO)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -43,6 +44,7 @@
 *
 *. Output
       INTEGER IREO(*)
+      Integer, Allocatable:: LASTR(:)
 
 c      write(6,*)'nconf_per_open in reo_gasdet'
 c      call iwrtma(nconf_per_open,1,4,1,4)
@@ -71,7 +73,7 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
 *
 *
 *Space for alpha and beta strings
-      CALL GETMEM('KLASTR','ALLO','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NBEL)
 *. Space for constructing arc weights for configurations
       CALL GETMEM('ZSCR  ','ALLO','INTE',KLZSCR,(NOCOB+1)*(NEL+1))
@@ -93,7 +95,7 @@ C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
      &                  IWORK(KNSTSO(IATP)),
      &                 IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB,MXPNGAS,IOCTPA,
      &                    IOCTPB,  NBLOCK,  IBLOCK,    NAEL,    NBEL,
-     &                 IWORK(KLASTR),IWORK(KLBSTR),NSMST,NELFSPGP,
+     &                 LASTR,IWORK(KLBSTR),NSMST,NELFSPGP,
 *
      &                  NMXOCCLS,    NGAS,IWORK(KIOCLS),NTOOB,  NOBPT,
      &                  IWORK(KDFTP),
@@ -116,7 +118,7 @@ C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
      &                  IWORK(KLDET_VC),iWORK,KZ_PTDT,KREO_PTDT, MINOP,
      &                  IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 *
-      CALL GETMEM('KLASTR','FREE','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_deallocate(LASTR)
       CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
       CALL GETMEM('ZSCR  ','FREE','INTE',KLZSCR,(NOCOB+1)*(NEL+1))
       CALL GETMEM('Z     ','FREE','INTE',KLZ,NOCOB*NEL*2)

@@ -12,6 +12,7 @@
 *               2011, Giovanni Li Manni                                *
 ************************************************************************
       SUBROUTINE ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *. Update Sigma vector with diagonal terms for a given block
 *     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
 *                         + (FACTOR+DIAG(IASPGP,IBSPGP))CVEC(IASPGP,IBSPGP)
@@ -41,6 +42,7 @@
       DIMENSION CVEC(*)
 *. Output
       DIMENSION SVEC(*)
+      Integer, Allocatable:: LASTR(:)
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
@@ -67,7 +69,7 @@
       CALL GETMEM('KLXB  ','ALLO','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLSCR ','ALLO','REAL',KLSCR ,2*NACOB)
 *. Space for blocks of strings
-      CALL GETMEM('KLASTR','ALLO','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NBEL)
 
       MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
@@ -83,7 +85,7 @@
       SHIFT = ECORE_ORIG-ECORE
       FACTORX = FACTOR + SHIFT
 *
-      CALL ADDDIA_TERMS(NAEL,IWORK(KLASTR),NBEL,IWORK(KLBSTR),
+      CALL ADDDIA_TERMS(NAEL,LASTR,NBEL,IWORK(KLBSTR),
      &             NACOB,CVEC,SVEC,NSMST,WORK(KLH1D),
      &             WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
      &             WORK(KLK),IWORK(KNSTSO(IATP)),IWORK(KNSTSO(IBTP)),
@@ -99,7 +101,7 @@
       CALL GETMEM('KLXA  ','FREE','REAL',KLXA  ,NACOB)
       CALL GETMEM('KLXB  ','FREE','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLSCR ','FREE','REAL',KLSCR ,2*NACOB)
-      CALL GETMEM('KLASTR','FREE','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_deallocate(LASTR)
       CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)
 

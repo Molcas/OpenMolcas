@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE T_TO_NK_VEC(      T,   KORB,    ISM,   ISPC,  LUCIN,
      &                        LUCOUT,      C)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -42,6 +43,7 @@
 
 *. Scratch block, must hold a batch of blocks
       DIMENSION C(*)
+      Integer, Allocatable:: LASTR(:)
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -62,7 +64,7 @@ C           Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
 *
-      CALL GETMEM('KLASTR','ALLO','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NBEL)
       CALL GETMEM('KLKAOC','ALLO','INTE',KLKAOC,MXNSTR)
       CALL GETMEM('KLKBOC','ALLO','INTE',KLKBOC,MXNSTR)
@@ -71,11 +73,11 @@ C           Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
       CALL T_TO_NK_VECS   (       T,   KKORB,       C,   LUCIN,  LUCOUT,
      &                     IWORK(KNSTSO(IATP)),
      &                     IWORK(KNSTSO(IBTP)),
-     &                     NBLOCK,IWORK(KLCIBT),NAEL,NBEL,IWORK(KLASTR),
+     &                     NBLOCK,IWORK(KLCIBT),NAEL,NBEL,LASTR,
      &                     IWORK(KLBSTR),IWORK(KLCBLTP),
      &                   NSMST,ICISTR,NTOOB,IWORK(KLKAOC),IWORK(KLKBOC))
 
-      CALL GETMEM('KLASTR','FREE','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_deallocate(LASTR)
       CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
       CALL GETMEM('KLKAOC','FREE','INTE',KLKAOC,MXNSTR)
       CALL GETMEM('KLKBOC','FREE','INTE',KLKBOC,MXNSTR)

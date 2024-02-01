@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE GASDIAT(    DIAG,   LUDIA,   ECORE,  ICISTR,     I12,
      &                      IBLTP,  NBLOCK,  IBLKFO)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -46,6 +47,7 @@
 *.Output
 * ======
       DIMENSION DIAG(*)
+      Integer, Allocatable:: LASTR(:)
 *
 *
       NTEST = 0
@@ -80,7 +82,7 @@
       CALL GETMEM('KLXB  ','ALLO','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','ALLO','REAL',KLH1D ,NACOB)
 *. Space for blocks of strings
-      CALL GETMEM('KLASTR','ALLO','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NBEL)
       MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
       CALL GETMEM('KLRJKA','ALLO','REAL',KLRJKA,MAXA)
@@ -90,7 +92,7 @@
       CALL GT1DIA(WORK(KLH1D))
       CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,WORK(KLSCR2),IREOTS,IREOST)
       IF( LUDIA .GT. 0 ) IDISK(LUDIA)=0
-      CALL GASDIAS(NAEL,IWORK(KLASTR),NBEL,IWORK(KLBSTR),
+      CALL GASDIAS(NAEL,LASTR,NBEL,IWORK(KLBSTR),
      &             NACOB,DIAG,NSMST,
      &             WORK(KLH1D),WORK(KLXB),WORK(KLJ),WORK(KLK),
      &             IWORK(KNSTSO(IATP)),IWORK(KNSTSO(IBTP)),
@@ -103,7 +105,7 @@
       CALL GETMEM('KLSC2 ','FREE','REAL',KLSCR2,2*NTOOB**2)
       CALL GETMEM('KLXB  ','FREE','REAL',KLXB  ,NACOB)
       CALL GETMEM('KLH1D ','FREE','REAL',KLH1D ,NACOB)
-      CALL GETMEM('KLASTR','FREE','INTE',KLASTR,MXNSTR*NAEL)
+      Call mma_deallocate(LASTR)
       CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)
 *
