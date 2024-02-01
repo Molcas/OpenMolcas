@@ -28,7 +28,7 @@
       DIMENSION LREC(MXNTTS),CMOMO(*)
       DIMENSION I_DUMMY(1)
       Real*8, allocatable:: VEC1(:), VEC2(:), VEC4(:)
-      Real*8, Allocatable:: LCMOMO(:)
+      Real*8, Allocatable:: LCMOMO(:), LH1SAVE(:)
 *
       NTEST = 0
       LBLK  = -1
@@ -77,9 +77,9 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 *. MO-MO transformation matrix :
       Call mma_allocate(LCMOMO,NDIM,Label='LCMOMO')
 *. Copy of one-electron integrals
-      CALL GETMEM('H1SAVE','ALLO','REAL',KLH1SAVE,NDIM)
+      Call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
 *. We are going to mess with the one-electron integrals, take a copy
-      CALL COPVEC(WORK(KINT1),WORK(KLH1SAVE),NDIM)
+      CALL COPVEC(WORK(KINT1),LH1SAVE,NDIM)
 *. Set up block structure of CI space
       IATP = 1
       IBTP = 2
@@ -158,14 +158,14 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       END IF
 *
 *. clean up time : copy 1-e integrals back in place
-      CALL COPVEC(WORK(KLH1SAVE),WORK(KINT1),NDIM)
+      CALL COPVEC(LH1SAVE,WORK(KINT1),NDIM)
 *
       Call mma_deallocate(VEC1)
       Call mma_deallocate(VEC2)
       Call mma_deallocate(VEC3)
       Call mma_deallocate(VEC4)
       Call mma_deallocate(LCMOMO)
-      CALL GETMEM('H1SAVE','FREE','REAL',KLH1SAVE,NDIM)
+      Call mma_deallocate(LH1SAVE)
 *
       RETURN
       END
