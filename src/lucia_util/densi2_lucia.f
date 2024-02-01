@@ -83,6 +83,7 @@ c      REAL*8 INPRDD
       DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:)
+      Integer, Allocatable:: STSTS(:), STSTD(:)
 *. Before I forget it :
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
@@ -132,9 +133,9 @@ C?     WRITE(6,*) ' ISSPC ICSPC in DENSI2 ',ISSPC,ICSPC
 
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
-      CALL GETMEM('KSTSTS','ALLO','INTE',KSTSTS,NSMST ** 2)
-      CALL GETMEM('KSTSTD','ALLO','INTE',KSTSTD,NSMST ** 2)
-      CALL STSTSM(IWORK(KSTSTS),IWORK(KSTSTD),NSMST)
+      Call mma_allocate(STSTS,NSMST**2,Label='STSTS')
+      Call mma_allocate(STSTD,NSMST**2,Label='STSTD')
+      CALL STSTSM(STSTS,STSTD,NSMST)
 *. connection matrices for supergroups
       Call mma_allocate(CONSPA,NOCTPA**2,Label='CONSPA')
       Call mma_allocate(CONSPB,NOCTPB**2,Label='CONSPB')
@@ -338,7 +339,7 @@ c      END IF
      &                       NSMOB,   NSMSX,   NSMDX, MXPNGAS,  NOBPTS,
      &                      IOBPTS,    MAXK,    MAXI,   LSCR1,   LSCR1,
      &                    VEC3(1+KCSCR),VEC3,
-     &                    SXSTSM,iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
+     &                    SXSTSM,STSTS,STSTD,SXDXSX,
      &                    ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &                    iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
      &                    iWORK(KI3),WORK(KXI3S),iWORK(KI4),WORK(KXI4S),
@@ -422,8 +423,8 @@ c      END IF
       END IF
 
 *. Eliminate local memory
-      CALL GETMEM('KSTSTS','FREE','INTE',KSTSTS,NSMST ** 2)
-      CALL GETMEM('KSTSTD','FREE','INTE',KSTSTD,NSMST ** 2)
+      Call mma_deallocate(STSTS)
+      Call mma_deallocate(STSTD)
       Call mma_deallocate(CONSPA)
       Call mma_deallocate(CONSPB)
       Call mma_deallocate(INSCR)

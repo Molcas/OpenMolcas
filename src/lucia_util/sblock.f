@@ -66,6 +66,7 @@
       DIMENSION CB(*),HCB(*)
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:), INSCR2(:)
+      Integer, Allocatable:: STSTS(:), STSTD(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -113,9 +114,9 @@ C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
 *
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
-      CALL GETMEM('KSTSTS','ALLO','INTE',KSTSTS,NSMST ** 2)
-      CALL GETMEM('KSTSTD','ALLO','INTE',KSTSTD,NSMST ** 2)
-      CALL STSTSM(iWORK(KSTSTS),iWORK(KSTSTD),NSMST)
+      Call mma_allocate(STSTS,NSMST**2,Label='STSTS')
+      Call mma_allocate(STSTD,NSMST**2,Label='STSTD')
+      CALL STSTSM(STSTS,STSTD,NSMST)
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR
 *. Largest number of strings of given symmetry and type
@@ -301,7 +302,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,
      &             ITSOB,MAXK,MAXI,LSCR1,
      &             INSCR,VEC3,VEC3(1+LSCR2),
-     &             iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
+     &             STSTS,STSTD,SXDXSX,
      &             ADSXA,NGAS,NELFSPGP,IDC,
      &             iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
      &             IDOH2,MXPOBS,iWORK(KSVST),
@@ -339,8 +340,8 @@ c      KSIPA = 1 ! jwk-cleanup
 *     CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'SBLOCK')
       call mma_deallocate(CONSPA)
       call mma_deallocate(CONSPB)
-      CALL GETMEM('KSTSTS','FREE','INTE',KSTSTS,NSMST ** 2)
-      CALL GETMEM('KSTSTD','FREE','INTE',KSTSTD,NSMST ** 2)
+      call mma_deallocate(STSTS)
+      call mma_deallocate(STSTD)
       call mma_deallocate(INSCR)
       call mma_deallocate(INSCR2)
       CALL GETMEM('CIOIO ','FREE','INTE',KCIOIO,NOCTPA*NOCTPB)
