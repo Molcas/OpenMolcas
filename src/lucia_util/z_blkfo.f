@@ -10,11 +10,9 @@
 *                                                                      *
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE Z_BLKFO(ISPC,ISM,    IATP,    IBTP,
-     &                   KPCBLTP,  NBATCH,
-     &                     NBLOCK)
+      SUBROUTINE Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -26,7 +24,7 @@
 * CLEBT : Length of each Batch ( in elements)
 * CI1BT : Length of each block
 * CIBT  : Info on each block
-* KPCBLTP : BLock type for each symmetry
+* CBLTP : BLock type for each symmetry
 *
 * NBATCH : Number of batches
 * NBLOCK : Number of blocks
@@ -65,13 +63,13 @@
       CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT')
       CALL mma_allocate(CI1BT,MXNTTS,Label='CI1BT')
       CALL mma_allocate(CIBT ,8*MXNTTS,Label='CIBT')
-      CALL GETMEM('CBLTP ','ALLO','INTE',KPCBLTP,NSMST)
+      CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *.    ^ These should be preserved after exit so put mark for flushing here
 *. Info needed for generation of block info
       Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
       CALL IAIBCM(ISPC,LCIOIO)
       Call mma_allocate(SVST,1,Label='SVST')
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KPCBLTP),SVST)
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,SVST)
       Call mma_deallocate(SVST)
 *. Allowed length of each batch
 c      IF(ISIMSYM.EQ.0) THEN
@@ -93,7 +91,7 @@ c      END IF
 *
 *. Batches  of C vector
       CALL PART_CIV2(      IDC,
-     &               IWORK(KPCBLTP),
+     &               CBLTP,
      &               IWORK(KNSTSO(IATP)),
      &               IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB, NSMST,LBLOCK,
      &               LCIOIO,
