@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE STRINF_GAS(IPRNT)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Obtain string information for GAS expansion
 *
@@ -45,6 +46,7 @@
 #include "WrkSpc.fh"
 *
       INTEGER ZERO_ARR(1), IDUM(1)
+      Integer, Allocatable:: FREEL(:)
 *. A bit of scratch
 C     DIMENSION IOCTYP(MXPNGAS)
 *
@@ -79,7 +81,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
          NACOB_EFFECTIVE = NACOB
          IF (NACOB .EQ. 0) NACOB_EFFECTIVE = 1
          MAXSCR = 2*NACOB_EFFECTIVE +(IEL+1)*(NACOB_EFFECTIVE+1) +NSMST
-         CALL GETMEM('KFREEL','ALLO','INTE',KFREEL, MAXSCR)
+         Call mma_allocate(FREEL,MAXSCR,Label='FREEL')
       DO IGRP = 1, NGRP
 *. A gas group can be considered as a RAS group with 0 electrons in
 *  RAS1, RAS3 !
@@ -100,29 +102,29 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *. Reverse lexical adresing schemes for each group of string
         CALL WEIGHT_LUCIA(iWork(KZ(IGRP)),IEL,  NORB1,  NORB2,  NORB3,
      &                      MNRS1X,MXRS1X, MNRS3X,
-     &                      MXRS3X,iWork(KFREEL),
+     &                      MXRS3X,FREEL,
      &                      IPRNT )
 *. Number of strings per symmetry in a given group
         CALL NSTRSO_GAS(     IEL,   NORB1,   NORB2,   NORB3,  MNRS1X,
-     &                    MXRS1X,  MNRS3X,  MXRS3X,iWork(KFREEL),NACOB,
+     &                    MXRS1X,  MNRS3X,  MXRS3X,FREEL,NACOB,
      &                  iWork(KNSTSGP(1)),
      &                  iWork(KISTSGP(1)),IOCTYPX,NSMST,IGRP,IPRNT)
 *. Construct the strings ordered by symmetry
         CALL GENSTR_GAS(     IEL,  MNRS1X,  MXRS1X,  MNRS3X,  MXRS3X,
      &                  iWork(KISTSGP(1)),
      &                  IGRP,IOCTYPX,NSMST,iWork(KZ(IGRP)),
-     &                  iWork(KFREEL),
+     &                  FREEL,
      &                  iWork(KSTREO(IGRP)),
      &                  iWork(KOCSTR(IGRP)),
 *
-     &                  iWork(KFREEL+IOCTYPX*NSMST),IGRP,IPRNT)
+     &                  FREEL(1+IOCTYPX*NSMST),IGRP,IPRNT)
 *
        CALL ICOPVE2(iWork(KNSTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
      &              NSTFSMGP(1,IGRP))
        CALL ICOPVE2(iWork(KISTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
      &              ISTFSMGP(1,IGRP))
       END DO
-      CALL GETMEM('KFREEL','FREE','INTE',KFREEL, MAXSCR)
+      Call mma_deallocate(FREEL)
 *
       INGRP_VAL = NGRP
       CALL GETMEM('ISMDFGP','ALLO','INTE',ISMDFGP, NSMST*NGRP)
