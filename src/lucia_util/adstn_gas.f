@@ -10,9 +10,9 @@
 *                                                                      *
 * Copyright (C) 1991,1994-1996, Jeppe Olsen                            *
 ************************************************************************
-      SUBROUTINE ADSTN_GAS(  KLOFFI,   IOBSM,   IOBTP,   ISPGP, ISPGPSM,
-     &                      ISPGPTP,      I1,    XI1S,   NKSTR,    IEND,
-     &                        IFRST,   KFRST,    KACT,  SCLFAC)
+      SUBROUTINE ADSTN_GAS(OFFI,   IOBSM,   IOBTP,   ISPGP, ISPGPSM,
+     &                     ISPGPTP,      I1,    XI1S,   NKSTR,    IEND,
+     &                     IFRST,   KFRST,    KACT,  SCLFAC)
 *
 *
 * Obtain mappings
@@ -50,6 +50,7 @@
 #include "cgas.fh"
 #include "csm.fh"
 #include "lucinp.fh"
+      Real*8 :: OFFI(*)
 *. Local scratch
       INTEGER NELFGS(MXPNGAS), ISMFGS(MXPNGAS),ITPFGS(MXPNGAS)
       INTEGER MAXVAL(MXPNGAS),MINVAL(MXPNGAS)
@@ -57,7 +58,6 @@
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
 *
       INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
-C??      DIMENSION IOFFI(LOFFI)
       PARAMETER(MXLNGAS=20)
 *
 * =======
@@ -69,10 +69,6 @@ C??      DIMENSION IOFFI(LOFFI)
 *. Will be stored as an matrix of dimension
 * (NKSTR,*), Where NKSTR is the number of K-strings of
 *  correct symmetry . Nk is provided by this routine.
-*
-* PAM Mars-2006: Allocation moved to outside this subroutine.
-*      CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'ADSTN ')
-*      CALL MEMMAN(KLOFFI,LOFFI,'ADDL  ',2,'KLOFFI')
 *
       IF(NGAS.GT.MXLNGAS) THEN
         WRITE(6,*) ' Ad hoc programming in ADSTN (IOFFI)'
@@ -212,11 +208,11 @@ C?     CALL IWRTMA(NACIST,1,NSMST,1,NSMST)
         WRITE(6,*) ' ============================ '
         WRITE(6,*)
       END IF
-        WORK(KLOFFI+IOFF-1) = DBLE(NSTRINT) + 1.001D0
+        OFFI(IOFF) = DBLE(NSTRINT) + 1.001D0
         NSTRINT = NSTRINT + NSTRII
         IF(NTEST.GE.200) THEN
-          WRITE(6,*) ' IOFF, IOFFI(IOFF) NSTRII ',
-     &                 IOFF, WORK(KLOFFI+IOFF-1),NSTRII
+          WRITE(6,*) ' IOFF, OFFI(IOFF) NSTRII ',
+     &                 IOFF, OFFI(IOFF),NSTRII
         END IF
 *
       IF(NGASL-1.GT.0) GOTO 2000
@@ -313,7 +309,7 @@ C?      write(6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
           MULT = MULT * NSMST
         END DO
         ISMFGS(IOBTP) = ISAVE
-        IBSTRINI = INT(WORK(KLOFFI+IOFF-1))
+        IBSTRINI = INT(OFFI(IOFF))
 C?      WRITE(6,*) ' IOFF IBSTRINI ', IOFF,IBSTRINI
 *. Number of strings before active GAS space
         NSTB = 1
