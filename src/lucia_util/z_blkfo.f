@@ -11,10 +11,10 @@
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE Z_BLKFO(ISPC,ISM,    IATP,    IBTP,
-     &                   KPCIBT, KPCBLTP,  NBATCH,
+     &                   KPCBLTP,  NBATCH,
      &                     NBLOCK)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CLBT, CLEBT, CI1BT
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -25,7 +25,7 @@
 * CLBT : Length of each Batch ( in blocks)
 * CLEBT : Length of each Batch ( in elements)
 * CI1BT : Length of each block
-* KPCIBT  : Info on each block
+* CIBT  : Info on each block
 * KPCBLTP : BLock type for each symmetry
 *
 * NBATCH : Number of batches
@@ -64,7 +64,7 @@
       CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT')
       CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT')
       CALL mma_allocate(CI1BT,MXNTTS,Label='CI1BT')
-      CALL GETMEM('CIBT  ','ALLO','INTE',KPCIBT ,8*MXNTTS)
+      CALL mma_allocate(CIBT ,8*MXNTTS,Label='CIBT')
       CALL GETMEM('CBLTP ','ALLO','INTE',KPCBLTP,NSMST)
 *.    ^ These should be preserved after exit so put mark for flushing here
 *. Info needed for generation of block info
@@ -102,7 +102,7 @@ c      END IF
      &               NBATCH,
      &               CLBT,
      &               CLEBT,CI1BT,
-     &               IWORK(KPCIBT),0,ISIMSYM)
+     &               CIBT,0,ISIMSYM)
 *. Number of BLOCKS
       NBLOCK = IFRMR(CI1BT,1,NBATCH)
      &       + IFRMR(CLBT,1,NBATCH) - 1
@@ -111,7 +111,7 @@ c      END IF
          WRITE(6,*) ' Number of blocks ', NBLOCK
       END IF
 *. Length of each block
-      CALL EXTRROW(IWORK(KPCIBT),8,8,NBLOCK,CI1BT)
+      CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
 *
       Call mma_deallocate(LCIOIO)
       RETURN
