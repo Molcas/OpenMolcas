@@ -11,10 +11,10 @@
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE Z_BLKFO(ISPC,ISM,    IATP,    IBTP,
-     &                    KPCLEBT, KPCI1BT,  KPCIBT, KPCBLTP,  NBATCH,
+     &                    KPCI1BT,  KPCIBT, KPCBLTP,  NBATCH,
      &                     NBLOCK)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CLBT
+      use Local_Arrays, only: CLBT, CLEBT
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -23,7 +23,7 @@
 * where the info is stored :
 *
 * CLBT : Length of each Batch ( in blocks)
-* KPCLEBT : Length of each Batch ( in elements)
+* CLEBT : Length of each Batch ( in elements)
 * KPCI1BT : Length of each block
 * KPCIBT  : Info on each block
 * KPCBLTP : BLock type for each symmetry
@@ -62,7 +62,7 @@
       NOCTPB = NOCTYP(IBTP)
 *. Pointers to output arrays
       CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT')
-      CALL GETMEM('CLEBT ','ALLO','INTE',KPCLEBT,MXNTTS)
+      CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT')
       CALL GETMEM('CI1BT ','ALLO','INTE',KPCI1BT,MXNTTS)
       CALL GETMEM('CIBT  ','ALLO','INTE',KPCIBT ,8*MXNTTS)
       CALL GETMEM('CBLTP ','ALLO','INTE',KPCBLTP,NSMST)
@@ -101,7 +101,7 @@ c      END IF
      &               ISMOST(1,ISM),
      &               NBATCH,
      &               CLBT,
-     &               IWORK(KPCLEBT),IWORK(KPCI1BT),
+     &               CLEBT,IWORK(KPCI1BT),
      &               IWORK(KPCIBT),0,ISIMSYM)
 *. Number of BLOCKS
       NBLOCK = IFRMR(IWORK(KPCI1BT),1,NBATCH)
