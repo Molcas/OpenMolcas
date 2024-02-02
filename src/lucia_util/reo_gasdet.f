@@ -47,6 +47,7 @@
       Integer, Allocatable:: LASTR(:), LBSTR(:)
       Integer, Allocatable:: ZSCR(:), Z(:)
       Integer, Allocatable:: LOCMIN(:), LOCMAX(:)
+      Integer, Allocatable:: DET_OC(:), DET_MS(:), DET_VC(:)
 
 c      write(6,*)'nconf_per_open in reo_gasdet'
 c      call iwrtma(nconf_per_open,1,4,1,4)
@@ -83,11 +84,9 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
       Call mma_allocate(LOCMIN,NOCOB,Label='LOCMIN')
       Call mma_allocate(LOCMAX,NOCOB,Label='LOCMAX')
 *. Occupation and projections of a given determinant
-C??? Jesper      CALL MEMMAN(KLDET_OC,NOCOB,'ADDL  ',1,'CONF_O')
-      CALL GETMEM('CONF_O','ALLO','INTE',KLDET_OC,NAEL+NBEL)
-      CALL GETMEM('CONF_M','ALLO','INTE',KLDET_MS,NAEL+NBEL)
-C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
-      CALL GETMEM('CONF_M','ALLO','INTE',KLDET_VC,NOCOB)
+      Call mma_allocate(DET_OC,NAEL+NBEL,Label='DET_OC')
+      Call mma_allocate(DET_MS,NAEL+NBEL,Label='DET_MS')
+      Call mma_allocate(DET_VC,NOCOB,    Label='DET_VC')
 
 *
 *     KIB_OCCLS removed from the argument list, since it's not defined
@@ -114,10 +113,10 @@ C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
      &                  Z(:),
      &                  LOCMIN,
      &                  LOCMAX,
-     &                  IWORK(KLDET_OC),
-     &                  IWORK(KLDET_MS),
+     &                  DET_OC,
+     &                  DET_MS,
 *
-     &                  IWORK(KLDET_VC),iWORK,KZ_PTDT,KREO_PTDT, MINOP,
+     &                  DET_VC,iWORK,KZ_PTDT,KREO_PTDT, MINOP,
      &                  IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 *
       Call mma_deallocate(LASTR)
@@ -126,9 +125,8 @@ C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
       Call mma_deallocate(Z)
       Call mma_deallocate(LOCMIN)
       Call mma_deallocate(LOCMAX)
-      CALL GETMEM('CONF_O','FREE','INTE',KLDET_OC,NAEL+NBEL)
-      CALL GETMEM('CONF_M','FREE','INTE',KLDET_MS,NAEL+NBEL)
-      CALL GETMEM('CONF_M','FREE','INTE',KLDET_VC,NOCOB)
+      Call mma_deallocate(DET_OC)
+      Call mma_deallocate(DET_MS)
+      Call mma_deallocate(DET_VC)
 *
-      RETURN
       END
