@@ -65,9 +65,8 @@ c      ENDIF
          END IF
 *. READ in MO-AO matrix
 c      IF(NOMOFL.EQ.0) CALL GET_CMOAO(WORK(KMOAOIN))
-*. Internal string information (stored in WORK, bases in /STRBAS/)
-c       CALL STRINF_GAS(WORK,IPRSTR)
-      CALL STRINF_GAS(iWORK,IPRSTR) ! really iWORK??? in master?
+*. Internal string information
+      CALL STRINF_GAS(IPRSTR)
 *. Internal subspaces
       CALL LCISPC(IPRCIX)
 *

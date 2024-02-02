@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE STRINF_GAS(STIN,IPRNT)
+      SUBROUTINE STRINF_GAS(IPRNT)
 *
 * Obtain string information for GAS expansion
 *
@@ -44,7 +44,6 @@
 *
 #include "WrkSpc.fh"
 *
-      INTEGER STIN(*)
       INTEGER ZERO_ARR(1), IDUM(1)
 *. A bit of scratch
 C     DIMENSION IOCTYP(MXPNGAS)
@@ -99,26 +98,28 @@ C     DIMENSION IOCTYP(MXPNGAS)
         IEL = NELFGP(IGRP)
         IOCTYPX = 1
 *. Reverse lexical adresing schemes for each group of string
-        CALL WEIGHT_LUCIA(STIN(KZ(IGRP)),IEL,  NORB1,  NORB2,  NORB3,
-     &                      MNRS1X,MXRS1X, MNRS3X,  MXRS3X,STIN(KFREEL),
+        CALL WEIGHT_LUCIA(iWork(KZ(IGRP)),IEL,  NORB1,  NORB2,  NORB3,
+     &                      MNRS1X,MXRS1X, MNRS3X,
+     &                      MXRS3X,iWork(KFREEL),
      &                      IPRNT )
 *. Number of strings per symmetry in a given group
         CALL NSTRSO_GAS(     IEL,   NORB1,   NORB2,   NORB3,  MNRS1X,
-     &                    MXRS1X,  MNRS3X,  MXRS3X,STIN(KFREEL),NACOB,
-     &                  STIN(KNSTSGP(1)),
-     &                  STIN(KISTSGP(1)),IOCTYPX,NSMST,IGRP,IPRNT)
+     &                    MXRS1X,  MNRS3X,  MXRS3X,iWork(KFREEL),NACOB,
+     &                  iWork(KNSTSGP(1)),
+     &                  iWork(KISTSGP(1)),IOCTYPX,NSMST,IGRP,IPRNT)
 *. Construct the strings ordered by symmetry
         CALL GENSTR_GAS(     IEL,  MNRS1X,  MXRS1X,  MNRS3X,  MXRS3X,
-     &                  STIN(KISTSGP(1)),
-     &                   IGRP,IOCTYPX,NSMST,STIN(KZ(IGRP)),STIN(KFREEL),
-     &                  STIN(KSTREO(IGRP)),
-     &                  STIN(KOCSTR(IGRP)),
+     &                  iWork(KISTSGP(1)),
+     &                  IGRP,IOCTYPX,NSMST,iWork(KZ(IGRP)),
+     &                  iWork(KFREEL),
+     &                  iWork(KSTREO(IGRP)),
+     &                  iWork(KOCSTR(IGRP)),
 *
-     &                  STIN(KFREEL+IOCTYPX*NSMST),IGRP,IPRNT)
+     &                  iWork(KFREEL+IOCTYPX*NSMST),IGRP,IPRNT)
 *
-       CALL ICOPVE2(STIN(KNSTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
+       CALL ICOPVE2(iWork(KNSTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
      &              NSTFSMGP(1,IGRP))
-       CALL ICOPVE2(STIN(KISTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
+       CALL ICOPVE2(iWork(KISTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
      &              ISTFSMGP(1,IGRP))
       END DO
       CALL GETMEM('KFREEL','FREE','INTE',KFREEL, MAXSCR)
@@ -134,7 +135,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
         write(6,*) 'NGRP', NGRP
         write(6,*) 'NSMST*NGRP', NSMST*NGRP
         WRITE(6,*) ' Number of strings per group and symmetry '
-        CALL IWRTMA10(STIN(KNSTSGP(1)),NSMST,NGRP,NSMST,NGRP)
+        CALL IWRTMA10(iWork(KNSTSGP(1)),NSMST,NGRP,NSMST,NGRP)
         WRITE(6,*) ' Number of strings per group and symmetry(2) '
         CALL IWRTMA10(NSTFSMGP,NSMST,NGRP,MXPNSMST,NGRP)
       END IF
@@ -200,26 +201,28 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *. Zero
         IF(LAC.NE.0) THEN
           IZERO = 0
-          CALL ISETVC(STIN(KSTSTM(IGRP,1)),IZERO,LROW*NSTINI)
-          CALL ISETVC(STIN(KSTSTM(IGRP,2)),IZERO,LROW*NSTINI)
+          CALL ISETVC(iWork(KSTSTM(IGRP,1)),IZERO,LROW*NSTINI)
+          CALL ISETVC(iWork(KSTSTM(IGRP,2)),IZERO,LROW*NSTINI)
         END IF
 *
         IF(ISTAC(IGRP,2).NE.0) THEN
           JGRP = ISTAC(IGRP,2)
-          CALL CRESTR_GAS(STIN(KOCSTR(IGRP)),
+          CALL CRESTR_GAS(iWork(KOCSTR(IGRP)),
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
-     &                    STIN(KZ(JGRP)),STIN(KSTREO(JGRP)),0,IDUM,IDUM,
-     &                    STIN(KSTSTM(IGRP,1)),
-     &                    STIN(KSTSTM(IGRP,2)),NACOB,IPRNT)
+     &                    iWork(KZ(JGRP)),iWork(KSTREO(JGRP)),
+     &                    0,IDUM,IDUM,
+     &                    iWork(KSTSTM(IGRP,1)),
+     &                    iWork(KSTSTM(IGRP,2)),NACOB,IPRNT)
 *
         END IF
         IF(ISTAC(IGRP,1).NE.0) THEN
           JGRP = ISTAC(IGRP,1)
-          CALL ANNSTR_GAS(STIN(KOCSTR(IGRP)),
+          CALL ANNSTR_GAS(iWork(KOCSTR(IGRP)),
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
-     &                    STIN(KZ(JGRP)),STIN(KSTREO(JGRP)),0,IDUM,IDUM,
-     &                    STIN(KSTSTM(IGRP,1)),
-     &                    STIN(KSTSTM(IGRP,2)),NACOB,IEC,LROW,IPRNT)
+     &                    iWork(KZ(JGRP)),iWork(KSTREO(JGRP)),
+     &                    0,IDUM,IDUM,
+     &                    iWork(KSTSTM(IGRP,1)),
+     &                    iWork(KSTSTM(IGRP,2)),NACOB,IEC,LROW,IPRNT)
 *
         END IF
       END DO
