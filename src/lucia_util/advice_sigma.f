@@ -160,8 +160,4 @@ C?      WRITE(6,*) 'NIJTYP, NKLTYP', NIJTYP,NKLTYP
           END IF
         END IF
 *       ^ End if several types/ph modi
-C     WRITE(6,*) ' MEMCHECK at end of ADVICE'
-C     CALL MEMCHK
-C     WRITE(6,*) ' MEMCHECK passed '
-      RETURN
       END

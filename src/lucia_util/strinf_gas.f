@@ -372,8 +372,4 @@ C?      WRITE(6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
         END IF
       END DO
 *
-C     WRITE(6,*) ' Memory Check at end of STRINF_GAS  '
-      CALL MEMCHK
-*
-      RETURN
       END

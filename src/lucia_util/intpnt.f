@@ -79,8 +79,5 @@ c        CALL PNT4DM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,
 c     &              ITSDX,ADSXA,SXDXSX,I12,I34,I1234,
 c     &              WORK(KPINT2_SIMTRH),ISL2,ADASX)
 c      END IF
-C?    write(6,*) ' Memory check INTPNT 2 '
-C?    CALL MEMCHK
-      RETURN
       END
 ************************************************************************

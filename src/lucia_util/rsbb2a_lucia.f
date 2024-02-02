@@ -872,10 +872,6 @@ C                   write(6,*) ' first element of updated SB', SB(1)
 *
  2001 CONTINUE
 *
-C?      WRITE(6,*) ' Memcheck at end of RSBB2A '
-C?      CALL MEMCHK
-C?      WRITE(6,*) ' Memcheck passed '
-*
       Call Free_Work(ipSCR)
       RETURN
 c Avoid unused argument warnings

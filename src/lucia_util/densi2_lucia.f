@@ -390,8 +390,6 @@ C     density matrices are given in Nijkl.
 *
 C     LBTR  LLEBTR LI1BTR LIBTR
       END IF
-C?    WRITE(6,*) ' Memcheck in densi2 after GASDN2'
-C?    CALL MEMCHK
 *
 *
 *. Add terms from hole-hole commutator

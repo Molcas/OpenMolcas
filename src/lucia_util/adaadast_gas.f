@@ -266,7 +266,4 @@ COLD  CALL SETVEC(XI1S,ZERO ,LI1*NIOB*NJOB)
        END IF
  9999 CONTINUE
 *
-C     WRITE(6,*) ' Memcheck at end of ADAADAS1 '
-C     CALL MEMCHK
-      RETURN
       END
