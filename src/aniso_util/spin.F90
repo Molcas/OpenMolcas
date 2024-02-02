@@ -8,112 +8,116 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Complex*16 function spin(l,dim,m1,m2)
-!  Returns the value of the < m1 | S_l | m2 >
-!
 
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in):: m1,m2,dim,l
-      Integer            :: ipar
-      Real(kind=8)      :: S, MM1, MM2, R, D, F
-      Logical            :: dbg
+complex*16 function spin(l,dim,m1,m2)
+! Returns the value of the < m1 | S_l | m2 >
 
-      dbg=.false.
+implicit none
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: m1, m2, dim, l
+integer :: ipar
+real(kind=8) :: S, MM1, MM2, R, D, F
+logical :: dbg
 
-      spin=0.0_wp
-      ipar=mod(dim,2)
-      S=dble(dim-1)/2.0_wp
-      R=0.0_wp
+dbg = .false.
 
-      If(dbg) Write(6,'(A,4I3)') 'l,dim,m1,m2=', l, dim, m1, m2
-      If(dbg) Write(6,'(A,I3,F8.3)') ' ipar,  S  =', ipar, S
+spin = 0.0_wp
+ipar = mod(dim,2)
+S = dble(dim-1)/2.0_wp
+R = 0.0_wp
+
+if (dbg) then
+  write(6,'(A,4I3)') 'l,dim,m1,m2=',l,dim,m1,m2
+  write(6,'(A,I3,F8.3)') ' ipar,  S  =',ipar,S
+end if
 
 ! set up the true values of the MM1 and MM2
 ! i.e. the projections of the spin momentum S
-      If ( ipar==0 ) Then
-         If ( m1<0 ) Then
-            MM1=dble(m1) + 0.5_wp
-         Else
-            MM1=dble(m1) - 0.5_wp
-         End If
+if (ipar == 0) then
+  if (m1 < 0) then
+    MM1 = dble(m1)+0.5_wp
+  else
+    MM1 = dble(m1)-0.5_wp
+  end if
 
-         If ( m2<0 ) Then
-            MM2=dble(m2) + 0.5_wp
-         Else
-            MM2=dble(m2) - 0.5_wp
-         End If
-      Else
-            MM1=dble(m1)
-            MM2=dble(m2)
-      End If
-      If(dbg) Write(6,'(A,2F8.3)') 'mm1,mm2=',mm1, mm2
-      Call xFlush(6)
+  if (m2 < 0) then
+    MM2 = dble(m2)+0.5_wp
+  else
+    MM2 = dble(m2)-0.5_wp
+  end if
+else
+  MM1 = dble(m1)
+  MM2 = dble(m2)
+end if
+if (dbg) write(6,'(A,2F8.3)') 'mm1,mm2=',mm1,mm2
+call xFlush(6)
 ! compute the value of the matrix element, for each possible cartesian component.
 ! l=1  => X
 ! l=2  => Y
 ! l=3  => Z
 
-      If ( l==1 ) Then
+if (l == 1) then
 
-         If (      (MM1-1.0_wp)==MM2 ) Then
-            D=S+MM1
-            F=S-MM1+1.0_wp
-            R=0.5_wp*sqrt(D*F)
+  if ((MM1-1.0_wp) == MM2) then
+    D = S+MM1
+    F = S-MM1+1.0_wp
+    R = 0.5_wp*sqrt(D*F)
 
-            spin=cmplx( R, 0.0_wp, wp)
+    spin = cmplx(R,0.0_wp,wp)
 
-         Else If ( (MM1+1.0_wp)==MM2 ) Then
+  else if ((MM1+1.0_wp) == MM2) then
 
-            D=S-MM1
-            F=S+MM1+1.0_wp
-            R=0.5_wp*sqrt(D*F)
-            spin=cmplx( R, 0.0_wp, wp)
+    D = S-MM1
+    F = S+MM1+1.0_wp
+    R = 0.5_wp*sqrt(D*F)
+    spin = cmplx(R,0.0_wp,wp)
 
-         Else
-            spin=cmplx(0.0_wp,0.0_wp,wp)
-         End If
-         If(dbg) Write(6,'(A,2F8.3)') 'X, spin =',spin
-         Call xFlush(6)
+  else
+    spin = cmplx(0.0_wp,0.0_wp,wp)
+  end if
+  if (dbg) write(6,'(A,2F8.3)') 'X, spin =',spin
+  call xFlush(6)
 
-      Else If ( l==2 ) Then
+else if (l == 2) then
 
-         If (     (MM1-1.0_wp)==MM2 ) Then
+  if ((MM1-1.0_wp) == MM2) then
 
-            D=S+MM1
-            F=S-MM1+1.0_wp
-            R=-0.5_wp*sqrt(D*F)
-            spin=cmplx(0.0_wp, R, wp)
+    D = S+MM1
+    F = S-MM1+1.0_wp
+    R = -0.5_wp*sqrt(D*F)
+    spin = cmplx(0.0_wp,R,wp)
 
-         Else If( (MM1+1.0_wp)==MM2 ) Then
+  else if ((MM1+1.0_wp) == MM2) then
 
-            D=S-MM1
-            F=S+MM1+1.0_wp
-            R=0.5_wp*sqrt(D*F)
-            spin=cmplx(0.0_wp, R, wp)
+    D = S-MM1
+    F = S+MM1+1.0_wp
+    R = 0.5_wp*sqrt(D*F)
+    spin = cmplx(0.0_wp,R,wp)
 
-         Else
-            spin=cmplx(0.0_wp,0.0_wp,wp)
-         End If
-         If(dbg) Write(6,'(A,2F8.3)') 'Y, spin =',spin
-         Call xFlush(6)
+  else
+    spin = cmplx(0.0_wp,0.0_wp,wp)
+  end if
+  if (dbg) write(6,'(A,2F8.3)') 'Y, spin =',spin
+  call xFlush(6)
 
-      Else If ( l==3 ) Then
+else if (l == 3) then
 
-         If ( MM1 .ne. MM2 ) Then
-            spin=cmplx(0.0_wp,0.0_wp,wp)
-         Else
-            spin=cmplx(MM1,0.0_wp,wp)
-         End If
-         If(dbg) Write(6,'(A,2F8.3)') 'Z, spin =',spin
-         Call xFlush(6)
+  if (MM1 /= MM2) then
+    spin = cmplx(0.0_wp,0.0_wp,wp)
+  else
+    spin = cmplx(MM1,0.0_wp,wp)
+  end if
+  if (dbg) write(6,'(A,2F8.3)') 'Z, spin =',spin
+  call xFlush(6)
 
-      Else
-         Write(6,'(A)') 'The spin function gives a wrong number'
-         Return
-      End If
+else
+  write(6,'(A)') 'The spin function gives a wrong number'
+  return
+end if
 
-      If(dbg) Write(6,*) 'Upon Return:  spin =',spin
-      Call xFlush(6)
-      Return
-      End function spin
+if (dbg) write(6,*) 'Upon Return:  spin =',spin
+call xFlush(6)
+
+return
+
+end function spin

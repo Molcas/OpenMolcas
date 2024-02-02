@@ -8,313 +8,133 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SPIN_PHASE(MM,dim,Zinp,Zout)
+
+subroutine SPIN_PHASE(MM,dim,Zinp,Zout)
+! The RASSI program gives a random phase to the spin-orbit functions.
 !
-!     The RASSI program gives a random phase to the spin-orbit functions.
-!
-!     This routine performs a simple check with the obtained spin functions,
-!     in order to determine the phase of the spin functions.
-!     If the phase is not the same, Then the spin functions will be multiplied
-!     with the correspondind coefficient that sets the same phase to all spin
-!     eigenfunctions
-!
-      Implicit None
+! This routine performs a simple check with the obtained spin functions,
+! in order to determine the phase of the spin functions.
+! If the phase is not the same, Then the spin functions will be multiplied
+! with the correspondind coefficient that sets the same phase to all spin
+! eigenfunctions
+
+implicit none
 #include "stdalloc.fh"
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in)           :: dim
-      Complex(kind=8), intent(in)  :: mm(3,dim,dim)
-      Complex(kind=8), intent(in)  :: Zinp(dim,dim)
-      Complex(kind=8), intent(out) :: Zout(dim,dim)
-! ------------------------------------------------------------
-      Integer                       :: i, j, i1, i2, l
-      Real(kind=8), allocatable    :: rxr(:) !dim)
-      Real(kind=8), allocatable    :: rxi(:) !dim)
-      Complex(kind=8), allocatable :: r(:) !(dim)
-      Complex(kind=8), allocatable :: phs(:,:,:)  !3,dim,dim)
-      Complex(kind=8), allocatable :: tmp(:,:) !dim,dim
-      Logical :: dbg
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: dim
+complex(kind=8), intent(in) :: mm(3,dim,dim)
+complex(kind=8), intent(in) :: Zinp(dim,dim)
+complex(kind=8), intent(out) :: Zout(dim,dim)
+!-----------------------------------------------------------------------
+integer :: i, j, i1, i2, l
+real(kind=8), allocatable :: rxr(:) !dim)
+real(kind=8), allocatable :: rxi(:) !dim)
+complex(kind=8), allocatable :: r(:) !(dim)
+complex(kind=8), allocatable :: phs(:,:,:)  !3,dim,dim)
+complex(kind=8), allocatable :: tmp(:,:) !dim,dim
+logical :: dbg
 
+dbg = .false.
 
-      dbg=.false.
+call mma_allocate(rxr,dim,'rxr')
+call mma_allocate(rxi,dim,'rxi')
+call mma_allocate(r,dim,'r')
+call mma_allocate(phs,3,dim,dim,'phs')
+call mma_allocate(tmp,dim,dim,'tmp')
+!-----------------------------------------------------------------------
+call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
+call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
+call zcopy_(dim,[(0.0_wp,0.0_wp)],0,r,1)
+call dcopy_(dim,[0.0_wp],0,rxr,1)
+call dcopy_(dim,[0.0_wp],0,rxi,1)
+rxr(1) = 1.0_wp
+rxi(1) = 0.0_wp
 
-      Call mma_allocate(rxr,dim,'rxr')
-      Call mma_allocate(rxi,dim,'rxi')
-      Call mma_allocate(r,dim,'r')
-      Call mma_allocate(phs,3,dim,dim,'phs')
-      Call mma_allocate(tmp,dim,dim,'tmp')
-! ------------------------------------------------------------
-      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-      Call zcopy_(dim,[(0.0_wp,0.0_wp)],0,r,1)
-      Call dcopy_(dim,[0.0_wp],0,rxr,1)
-      Call dcopy_(dim,[0.0_wp],0,rxi,1)
-      rxr(1)=1.0_wp
-      rxi(1)=0.0_wp
+do i=1,dim-1
+  j = i+1
+  r(j) = (0.0_wp,0.0_wp)
+  do i1=1,dim
+    Zout(i1,1) = Zinp(i1,1)
+  end do
 
-      Do i=1,dim-1
-        j = i+1
-        r(j)=(0.0_wp,0.0_wp)
-        Do i1=1,dim
-          Zout(i1,1)=Zinp(i1,1)
-        End Do
+  do i1=1,dim
+    do i2=1,dim
+      phs(1,i,j) = phs(1,i,j)+MM(1,i1,i2)*conjg(Zout(i1,i))*Zinp(i2,j)
+    end do
+  end do
 
-        Do i1=1,dim
-          Do i2=1,dim
-            phs(1,i,j)=phs(1,i,j)+ MM(1,i1,i2)*CONJG(Zout(i1,i))*       &
-     &                                               Zinp(i2,j)
-          End Do
-        End Do
+  if (abs(phs(1,i,j)) > 1.0e-14_wp) then
+    rxr(j) = dble(phs(1,i,j))/abs(phs(1,i,j))
+    rxi(j) = aimag(phs(1,i,j))/abs(phs(1,i,j))
+  else
+    rxr(j) = 1.0_wp
+    rxi(j) = 0.0_wp
+  end if
+  r(1) = (1.0_wp,0.0_wp)
 
-        If(ABS(phs(1,i,j)).gt.1.0e-14_wp ) Then
-          rxr(j)= DBLE(phs(1,i,j))/ABS(phs(1,i,j))
-          rxi(j)=AIMAG(phs(1,i,j))/ABS(phs(1,i,j))
-        Else
-          rxr(j)=1.0_wp
-          rxi(j)=0.0_wp
-        End If
-        r(1)=(1.0_wp,0.0_wp)
+  ! kind=8, complex double precision
+  r(j) = cmplx(rxr(j),rxi(j),kind=8)
 
-        ! kind=8, complex double precision
-        r(j)=CMPLX( rxr(j), rxi(j), kind=8)
+  do i1=1,dim
+    Zout(i1,j) = conjg(r(j))*Zinp(i1,j)
+  end do
 
-        Do i1=1,dim
-          Zout(i1,j)=CONJG(r(j))*Zinp(i1,j)
-        End Do
+  if (dbg) write(6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE: R(',j,') = ',conjg(r(j))
+end do ! i
 
-        If(dbg) Then
-          Write(6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE:'//                  &
-     &                        ' R(',j,') = ', CONJG(r(j))
-        End If
-      End Do ! i
+call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
+call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
+call zgemm_('C','N',dim,dim,dim,(1.0_wp,0.0_wp),Zout(1:dim,1:dim),dim,mm(1,1:dim,1:dim),dim,(0.0_wp,0.0_wp),TMP(1:dim,1:dim),dim)
+call zgemm_('N','N',dim,dim,dim,(1.0_wp,0.0_wp),TMP(1:dim,1:dim),dim,Zout(1:dim,1:dim),dim,(0.0_wp,0.0_wp),phs(1,1:dim,1:dim),dim)
+! convention:
+!    mX(i,i+1) => Real, negative
+!    mY(i,i+1) => imag, positive
+!    mZ(i,i)   => diagonal
+do i=1,dim-1,2
+  j = i+1
+  if (dble(phs(1,i,j)) > 0.0_wp) then
+    do i1=1,dim
+      Zout(i1,j) = -Zout(i1,j)
+    end do
+  end if
+end do
 
+if (dbg) then
 
-      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-      Call zgemm_('C','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),           &
-     &            Zout(  1:dim,1:dim), dim,                             &
-     &              mm(1,1:dim,1:dim), dim, (0.0_wp,0.0_wp),            &
-     &             TMP(  1:dim,1:dim), dim )
-      Call zgemm_('N','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),           &
-     &             TMP(  1:dim,1:dim), dim,                             &
-     &            Zout(  1:dim,1:dim), dim, (0.0_wp,0.0_wp),            &
-     &             phs(1,1:dim,1:dim), dim )
-!c convention:
-!c    mX(i,i+1) => Real, negative
-!c    mY(i,i+1) => imag, positive
-!c    mZ(i,i)   => diagonal
-      Do i=1,dim-1,2
-        j=i+1
-        If(DBLE( phs(1,i,j) ).gt.0.0_wp ) Then
-          Do i1=1,dim
-            Zout(i1,j)=-Zout(i1,j)
-          End Do
-        End If
-      End Do
+  call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
+  do l=1,3
+    call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
+    call zgemm_('C','N',dim,dim,dim,(1.0_wp,0.0_wp),Zout(1:dim,1:dim),dim,mm(l,1:dim,1:dim),dim,(0.0_wp,0.0_wp),TMP(1:dim,1:dim), &
+                dim)
+    call zgemm_('N','N',dim,dim,dim,(1.0_wp,0.0_wp),TMP(1:dim,1:dim),dim,Zout(1:dim,1:dim),dim,(0.0_wp,0.0_wp),phs(l,1:dim,1:dim), &
+                dim)
+  end do
 
-      If(dbg) Then
+  do i=1,dim
+    do j=1,dim
+      write(6,'(a,i2,a,i2,a,2ES24.14)') 'SPIN-PHASE:  Zout(',i,',',j,') = ',Zout(i,j)
+    end do
+  end do
 
-        Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-        Do l=1,3
-          Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-          Call zgemm_('C','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),       &
-     &                Zout(  1:dim,1:dim), dim,                         &
-     &                  mm(l,1:dim,1:dim), dim, (0.0_wp,0.0_wp),        &
-     &                 TMP(  1:dim,1:dim), dim )
-          Call zgemm_('N','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),       &
-     &                 TMP(  1:dim,1:dim), dim,                         &
-     &                Zout(  1:dim,1:dim), dim, (0.0_wp,0.0_wp),        &
-     &                 phs(l,1:dim,1:dim), dim )
-        End Do
+  write(6,'(//)')
+  do i=1,dim
+    do j=1,dim
+      if ((j == i-1) .or. (j == i+1)) then
+        write(6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =',(phs(l,i,j),l=1,3)
+      else
+        cycle
+      end if
+    end do
+  end do
+end if
 
-       Do i=1,dim
-         Do j=1,dim
-           Write(6,'(a,i2,a,i2,a,2ES24.14)') 'SPIN-PHASE:'//            &
-     &      '  Zout(',i,',',j,') = ',Zout(i,j)
-         End Do
-       End Do
+!-----------------------------------------------------------------------
+call mma_deallocate(rxr)
+call mma_deallocate(rxi)
+call mma_deallocate(r)
+call mma_deallocate(phs)
+call mma_deallocate(tmp)
 
-       Write(6,'(//)')
-       Do i=1,dim
-        Do j=1,dim
-         If((j==(i-1)).or.(j==(i+1))) Then
-          Write(6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE:'//      &
-     &             ' PHS(',i,',',j,') = (x,y,z) =',(phs(l,i,j),l=1,3)
-         Else
-           cycle
-         End If
-        End Do
-       End Do
-      End If
+return
 
-
-
-! ------------------------------------------------------------
-      Call mma_deallocate(rxr)
-      Call mma_deallocate(rxi)
-      Call mma_deallocate(r)
-      Call mma_deallocate(phs)
-      Call mma_deallocate(tmp)
-
-      Return
-      End
-!
-
-
-
-
-
-      Subroutine SPIN_PHASE2(MM,dim,Zinp,Zout)
-!
-!     The RASSI program gives a ranDom phase to the spin-orbit functions.
-!
-!     This routine performs a simple check with the obtained spin functions,
-!     in order to determine the phase of the spin functions.
-!     If the phase is not the same, Then the spin functions will be multiplied
-!     with the correspondind coefficient that sets the same phase to all spin
-!     eigenfunctions
-!
-      Implicit None
-#include "stdalloc.fh"
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in)           :: dim
-      Complex(kind=8), intent(in)  :: mm(3,dim,dim)
-      Complex(kind=8), intent(in)  :: Zinp(dim,dim)
-      Complex(kind=8), intent(out) :: Zout(dim,dim)
-! ------------------------------------------------------------
-      Integer                       :: i, j, i1, l
-      Complex(kind=8)              :: t
-      Real(kind=8), allocatable    :: rxr(:) !dim)
-      Real(kind=8), allocatable    :: rxi(:) !dim)
-      Complex(kind=8), allocatable :: r(:) !(dim)
-      Complex(kind=8), allocatable :: phs(:,:,:)  !3,dim,dim)
-      Complex(kind=8), allocatable :: tmp(:,:) !dim,dim
-      Logical :: dbg
-
-      dbg=.false.
-
-      Call mma_allocate(rxr,dim,'rxr')
-      Call mma_allocate(rxi,dim,'rxi')
-      Call mma_allocate(r,dim,'r')
-      Call mma_allocate(phs,3,dim,dim,'phs')
-      Call mma_allocate(tmp,dim,dim,'tmp')
-! ------------------------------------------------------------
-      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-      Call zcopy_(dim,[(0.0_wp,0.0_wp)],0,r,1)
-      Call dcopy_(dim,[0.0_wp],0,rxr,1)
-      Call dcopy_(dim,[0.0_wp],0,rxi,1)
-      rxr(1)=1.0_wp
-      rxi(1)=0.0_wp
-
-      ! compute magnetic moment, X
-      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-      Call zgemm_('C','N', dim,  dim,  dim, (1.0_wp,0.0_wp),            &
-     &            Zinp(  1:dim,1:dim), dim,                             &
-     &              mm(1,1:dim,1:dim), dim, (0.0_wp,0.0_wp),            &
-     &             TMP(  1:dim,1:dim), dim )
-      Call zgemm_('N','N', dim,  dim,  dim, (1.0_wp,0.0_wp),            &
-     &             TMP(  1:dim,1:dim), dim,                             &
-     &            Zinp(  1:dim,1:dim), dim, (0.0_wp,0.0_wp),            &
-     &             phs(1,1:dim,1:dim), dim )
-
-      r(1)=(1.0_wp,0.0_wp)
-      Do i=1,dim-1
-        j=i+1
-
-        If(ABS(phs(1,i,j)).gt.1.0e-14_wp ) Then
-          rxr(j)= DBLE(phs(1,i,j))/ABS(phs(1,i,j))
-          rxi(j)=AIMAG(phs(1,i,j))/ABS(phs(1,i,j))
-        Else
-          rxr(j)=1.0_wp
-          rxi(j)=0.0_wp
-        End If
-
-        ! kind=8, complex double precision
-        r(j)=CMPLX( rxr(j),-rxi(j),kind=8)
-
-        If(dbg) Then
-          Write(6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE:'//                  &
-     &                        ' R(',j,') = ', r(j)*r(i)
-        End If
-      End Do
-
-      t=(1.0_wp,0.0_wp)
-      Do j=1,dim
-        t=t*r(j)
-        Do i1=1,dim
-          Zout(i1,j)=t*Zinp(i1,j)
-        End Do
-      End Do
-
-      ! compute the momentum using the ZOUT functions:
-      Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-      Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-      Call zgemm_('C','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),           &
-     &            Zout(  1:dim,1:dim), dim,                             &
-     &              mm(1,1:dim,1:dim), dim, (0.0_wp,0.0_wp),            &
-     &             TMP(  1:dim,1:dim), dim )
-      Call zgemm_('N','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),           &
-     &             TMP(  1:dim,1:dim), dim,                             &
-     &            Zout(  1:dim,1:dim), dim, (0.0_wp,0.0_wp),            &
-     &             phs(1,1:dim,1:dim), dim )
-!c convention:
-!c    mX(i,i+1) => Real, negative
-!c    mY(i,i+1) => imag, positive
-!c    mZ(i,i)   => diagonal
-      Do i=1,dim-1,2
-        j=i+1
-        If(DBLE( phs(1,i,j) ).gt.0.0_wp ) Then
-          Do i1=1,dim
-            Zout(i1,j)=-Zout(i1,j)
-          End Do
-        End If
-      End Do
-
-
-      If(dbg) Then
-
-        Call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-        Do l=1,3
-           Call zcopy_(  dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-           CALL ZGEMM_('C','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),      &
-     &                 Zout(  1:dim,1:dim), dim,                        &
-     &                   mm(l,1:dim,1:dim), dim, (0.0_wp,0.0_wp),       &
-     &                  TMP(  1:dim,1:dim), dim )
-           CALL ZGEMM_('N','N',  dim,  dim,  dim, (1.0_wp,0.0_wp),      &
-     &                  TMP(  1:dim,1:dim), dim,                        &
-     &                 Zout(  1:dim,1:dim), dim, (0.0_wp,0.0_wp),       &
-     &                  phs(l,1:dim,1:dim), dim )
-        End Do
-
-       Do i=1,dim
-         Do j=1,dim
-           Write(6,'(a,i2,a,i2,a,2ES24.14)') 'SPIN-PHASE:'//            &
-     &      '  Zout(',i,',',j,') = ',Zout(i,j)
-         End Do
-       End Do
-
-       Write(6,'(//)')
-       Do i=1,dim
-        Do j=1,diM
-         If((j.eq.(i-1)).or.(j.eq.(i+1))) Then
-          Write(6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE:'//      &
-     &             ' PHS(',i,',',j,') = (x,y,z) =',(phs(l,i,j),l=1,3)
-         Else
-           cycle
-         End If
-        End Do
-       End Do
-      End If
-
-
-! ------------------------------------------------------------
-      Call mma_deallocate(rxr)
-      Call mma_deallocate(rxi)
-      Call mma_deallocate(r)
-      Call mma_deallocate(phs)
-      Call mma_deallocate(tmp)
-
-      Return
-      End
-!
+end subroutine SPIN_PHASE

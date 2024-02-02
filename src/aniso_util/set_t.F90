@@ -8,77 +8,73 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine set_T( nT, nTempMagn, TINPUT, TempMagn, Tmin, Tmax,    &
-     &                  chit_exp, Texp,                                 &
-     &                  T, XTexp )
 
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
+subroutine set_T(nT,nTempMagn,TINPUT,TempMagn,Tmin,Tmax,chit_exp,Texp,T,XTexp)
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
 ! input:
-      Integer, intent(in)       :: nT, nTempMagn
-      Logical, intent(in)       :: TINPUT
-      Real(kind=8), intent(in) :: Tmin, Tmax, TempMagn(nTempMagn),      &
-     &                             Texp(nT), chit_exp(nT)
-      Real(kind=8), intent(out):: T(nT+nTempMagn), XTexp(nT+nTempMagn)
+integer, intent(in) :: nT, nTempMagn
+logical, intent(in) :: TINPUT
+real(kind=8), intent(in) :: Tmin, Tmax, TempMagn(nTempMagn), Texp(nT), chit_exp(nT)
+real(kind=8), intent(out) :: T(nT+nTempMagn), XTexp(nT+nTempMagn)
 ! local variables:
-      Integer :: i
-      Real(kind=8) :: dltt
+integer :: i
+real(kind=8) :: dltt
 
+! set nT, T(i) and XTexp(i) arrays:
+T = 0.0_wp
+XTexp = 0.0_wp
+!----------------------------------------------------------------------!
+if (TINPUT) then
+  ! case 1:  T(iT) computed from input values: Texp, and nTempMagn
+  !          nTempMagn = 0
+  if (nTempMagn > 0) then
+    do i=1,nTempMagn
+      T(i) = TempMagn(i)
+    end do
+    do i=1,nT
+      T(i+nTempMagn) = Texp(i)
+      XTexp(i+nTempMagn) = chit_exp(i)
+    end do
+  else
+    do i=1,nT
+      T(i) = Texp(i)
+      XTexp(i) = chit_exp(i)
+    end do
+  end if
+else
+  ! case 2:  T(iT) computed from input values: Tmin, Tmax, nT
+  !          and nTempMagn
+  dltt = 0.0_wp
+  dltt = (tmax-tmin)/(dble(nT-1))
 
-      ! set nT, T(i) and XTexp(i) arrays:
-      T=0.0_wp
-      XTexp=0.0_wp
-!---------------------------------------------------------------------!
-      If ( TINPUT ) Then
-      ! case 1:  T(iT) computed from input values: Texp, and nTempMagn
-      !          nTempMagn = 0
-         If ( nTempMagn > 0  ) Then
-            Do i=1, nTempMagn
-               T(i)=TempMagn(i)
-            End Do
-            Do i= 1, nT
-                   T(i+nTempMagn) =    Texp(i)
-               XTexp(i+nTempMagn) =chit_exp(i)
-            End Do
-         Else
-            Do i = 1, nT
-               T(i)     =     Texp(i)
-               XTexp(i) = chit_exp(i)
-            End Do
-         End If
-      Else
-      ! case 2:  T(iT) computed from input values: Tmin, Tmax, nT
-      !          and nTempMagn
-         dltt=0.0_wp
-         dltt=(tmax-tmin)/(dble(nT-1))
+  if (nTempMagn > 0) then
+    do i=1,nTempMagn
+      T(i) = TempMagn(i)
+    end do
 
-         If ( nTempMagn > 0 ) Then
-            Do i=1, nTempMagn
-               T(i)=TempMagn(i)
-            End Do
+    T(1+nTempMagn) = 0.0001_wp
+    do i=2,nT
+      T(i+nTempMagn) = Tmin+dltt*dble(i-1)
+    end do
+  else !compute_magnetization
 
-            T(1+nTempMagn)=0.0001_wp
-            Do i = 2, nT
-               T(i+nTempMagn) = Tmin + dltt*dble(i-1)
-            End Do
-         Else !compute_magnetization
+    T(1) = 0.0001_wp
+    do i=2,nT
+      T(i) = Tmin+dltt*dble(i-1)
+    end do
+  end if
+end if !tinput
 
-            T(1)=0.0001_wp
-            Do i = 2, nT
-               T(i) = Tmin + dltt*dble(i-1)
-            End Do
-         End If
-      End If !tinput
+!----------------------------------------------------------------------!
 
-!---------------------------------------------------------------------!
+! check for T=0 values and replace them
+! with a definite nonzero value:
+do i=1,nT+nTempMagn
+  if (abs(T(i)) <= tiny(0.0_wp)) T(i) = 0.0001_wp
+end do
 
-      ! check for T=0 values and replace them
-      ! with a definite nonzero value:
-      Do i=1,nT+nTempMagn
-        If( abs(T(i)) .le. tiny(0.0_wp) ) Then
-            T(i) = 0.0001_wp
-        End If
-      End Do
+return
 
-      Return
-      End subroutine set_T
+end subroutine set_T

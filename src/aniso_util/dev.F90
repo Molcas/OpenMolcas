@@ -8,26 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Real*8 function dev(N, Fcal, Fexp)
+
+real*8 function dev(N,Fcal,Fexp)
 ! this function Returns the standard deviation between experimental
 ! data points and the computed ones
 !     N --- number of data points ( Integer, input)
 !  Fcal --- calculated array of size (N), Real(kind=8) ::, input
 !  Fexp --- experimental array of size (N), Real(kind=8) ::, input
 !   dev --- standard deviation, Real(kind=8) ::, output;
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in)       :: N
-      Real(kind=8), intent(in) :: Fcal(N), Fexp(N)
-      Integer                   :: i
-      Real(kind=8)             :: diff, X
-      dev=0.0_wp
-      X=0.0_wp
-      Do i=1,N
-        diff=0.0_wp
-        diff=Fcal(i)-Fexp(i)
-           X=X+diff*diff/dble(N)
-      End Do
-      dev=sqrt(X)
-      Return
-      End
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: N
+real(kind=8), intent(in) :: Fcal(N), Fexp(N)
+integer :: i
+real(kind=8) :: diff, X
+
+dev = 0.0_wp
+X = 0.0_wp
+do i=1,N
+  diff = 0.0_wp
+  diff = Fcal(i)-Fexp(i)
+  X = X+diff*diff/dble(N)
+end do
+dev = sqrt(X)
+
+return
+
+end function dev

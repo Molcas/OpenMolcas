@@ -8,55 +8,42 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine MAGN( EXCH,N,X,Y,Z,H,W,zJ,THRS,dM,sM,nT,T,sopt,        &
-     &                 WZ,ZB,S,M, m_paranoid, DBG)
+
+subroutine MAGN(EXCH,N,X,Y,Z,H,W,zJ,THRS,dM,sM,nT,T,sopt,WZ,ZB,S,M,m_paranoid,DBG)
 ! this Subroutine is a wrapper for various MAGN subroutines
 
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in)          :: EXCH, N, nT
-      Real(kind=8), intent(in)    :: X, Y, Z, H, zJ
-      Real(kind=8), intent(in)    :: W(EXCH), T(nT)
-      Complex(kind=8), intent(in) :: dM(3,EXCH,EXCH)
-      Complex(kind=8), intent(in) :: sM(3,EXCH,EXCH)
-      Logical, intent(in)          :: sopt
+implicit none
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: EXCH, N, nT
+real(kind=8), intent(in) :: X, Y, Z, H, zJ
+real(kind=8), intent(in) :: W(EXCH), T(nT)
+complex(kind=8), intent(in) :: dM(3,EXCH,EXCH)
+complex(kind=8), intent(in) :: sM(3,EXCH,EXCH)
+logical, intent(in) :: sopt
+real(kind=8), intent(out) :: ZB(nT), WZ(N)
+real(kind=8), intent(out) :: S(3,nT), M(3,nT)
+real(kind=8), intent(in) :: THRS
+logical, intent(in) :: m_paranoid
+logical, intent(in) :: DBG
 
-      Real(kind=8), intent(out)   :: ZB(nT), WZ(N)
-      Real(kind=8), intent(out)   :: S(3,nT), M(3,nT)
+if (abs(zJ) < tiny(0.0_wp)) then
 
-      Real(kind=8), intent(in)    :: THRS
-      Logical, intent(in)          :: m_paranoid
-      Logical, intent(in)          :: DBG
-! local variables:
+  if (DBG) write(6,*) 'Enter MAGN_NO_MF :'
 
+  call MAGN_NO_MF(EXCH,N,X,Y,Z,H,W,dM,sM,nT,T,sopt,WZ,ZB,S,M,DBG)
 
-      If( abs(zJ) .lt. tiny(0.0_wp) ) Then
+  if (DBG) write(6,*) 'Exit MAGN_NO_MF :'
 
+else ! zJ /= 0.0_wp
 
-         If(DBG) Write(6,*) 'Enter MAGN_NO_MF :'
+  if (DBG) write(6,*) 'Enter MAGN_ZJ_PAR :'
 
-         Call MAGN_NO_MF( EXCH, N, X,Y,Z, H, W, dM, sM, nT, T, sopt,    &
-     &                    WZ, ZB, S, M, DBG )
+  call MAGN_ZJ_PAR(EXCH,N,X,Y,Z,H,W,zJ,dM,sM,nT,T,sopt,WZ,ZB,S,M,thrs,m_paranoid,DBG)
 
-         If(DBG) Write(6,*) 'Exit MAGN_NO_MF :'
+  if (DBG) write(6,*) 'Exit MAGN_ZJ_PAR :'
 
+end if
 
-      Else ! zJ .ne. 0.0_wp
+return
 
-
-         If(DBG) Write(6,*) 'Enter MAGN_ZJ_PAR :'
-
-         Call MAGN_ZJ_PAR( EXCH, N, X,Y,Z, H, W, zJ, dM, sM,            &
-     &                     nT, T, sopt, WZ, ZB, S, M, thrs,             &
-     &                     m_paranoid, DBG )
-
-         If(DBG) Write(6,*) 'Exit MAGN_ZJ_PAR :'
-
-
-      End If
-
-
-
-      Return
-      End subroutine magn
-
+end subroutine MAGN

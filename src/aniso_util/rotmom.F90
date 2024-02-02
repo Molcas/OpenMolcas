@@ -8,77 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine rotmom(MOM, N, R, MOMR )
-      ! inverse rotation
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in) :: N
-      Real(kind=8), intent(in) :: R(3,3) !rotation matrix
-!     initial momentum matrix
-      Complex(kind=8), intent(in) :: MOM(3,N,N)
-!     rotated momentum matrix
-      Complex(kind=8), intent(out) :: MOMR(3,N,N)
-!  local variables
-      Integer :: i,j,l,k
-      Complex(kind=8) :: RC(3,3)
+
+subroutine rotmom(MOM,N,R,MOMR)
+! inverse rotation
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: N
+real(kind=8), intent(in) :: R(3,3) !rotation matrix
+! initial momentum matrix
+complex(kind=8), intent(in) :: MOM(3,N,N)
+! rotated momentum matrix
+complex(kind=8), intent(out) :: MOMR(3,N,N)
+! local variables
+integer :: i, j, l, k
+complex(kind=8) :: RC(3,3)
 
 ! rotate the matrix
 
-      Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
+call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
 
-      Do l=1,3
-         Do k=1,3
-            RC(l,k) = (0.0_wp,0.0_wp)
-            RC(l,k) = cmplx(R(l,k),0.0d0,wp)
-         End Do
-      End Do
+do l=1,3
+  do k=1,3
+    RC(l,k) = (0.0_wp,0.0_wp)
+    RC(l,k) = cmplx(R(l,k),0.0d0,wp)
+  end do
+end do
 
-      Do i=1,N
-         Do j=1,N
-            Do l=1,3
-               Do k=1,3
-                  MOMR(l,i,j) = MOMR(l,i,j) + RC(l,k) * MOM(k,i,j)
-               End Do
-            End Do
-         End Do
-      End Do
+do i=1,N
+  do j=1,N
+    do l=1,3
+      do k=1,3
+        MOMR(l,i,j) = MOMR(l,i,j)+RC(l,k)*MOM(k,i,j)
+      end do
+    end do
+  end do
+end do
 
-      Return
-      End
-!------------------------------------------------------------------------
-      Subroutine rotmom2(MOM, N, R, MOMR)
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in) :: N
-      Real(kind=8),intent(in) :: R(3,3) !rotation matrix
-      Complex(kind=8),intent(in) :: MOM(3,N,N) !initial momentum matrix
-!     rotated momentum matrix
-      Complex(kind=8),intent(out) :: MOMR(3,N,N)
-!  local variables
-      Integer i,j,l,k
-      Complex(kind=8) :: RC(3,3)
+return
 
-! rotate the matrix
-      Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
-
-      Do l=1,3
-         Do k=1,3
-            RC(l,k) = (0.0_wp,0.0_wp)
-            RC(l,k) = cmplx(R(l,k),0.0d0,wp)
-         End Do
-      End Do
-
-      Do i=1,N
-         Do j=1,N
-            Do l=1,3
-               Do k=1,3
-                  MOMR(l,i,j) = MOMR(l,i,j) + RC(k,l) * MOM(k,i,j)
-               End Do
-            End Do
-         End Do
-      End Do
-
-      Return
-      End
-
-
+end subroutine rotmom

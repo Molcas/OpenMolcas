@@ -720,7 +720,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !     JITO exchange interaction
       If(JITO_exchange) Then
-       If(dbg) Write(6,'(A)') 'EXCHCTL:  Enterring  JITO_exchange'
+       If(dbg) Write(6,'(A)') 'EXCHCTL:  Entering  JITO_exchange'
        If(nPair>0) Then
        Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HITO,1)
        Do lp=1,npair

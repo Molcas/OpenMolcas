@@ -1,0 +1,93 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine recover_exch_HAM_from_Stevens_ESO(n1,n2,S,HAM)
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
+#include "stdalloc.fh"
+integer, intent(in) :: n1, n2
+complex(kind=8), intent(in) :: S((n1-1),-(n1-1):(n1-1),(n2-1),-(n2-1):(n2-1))
+complex(kind=8), intent(out) :: HAM(n1,n1,n2,n2)
+! local variables:
+integer :: k1, k2, q1, q2, m1, m2, l1, l2
+complex(kind=8) :: redME1, redME2
+complex(kind=8), allocatable :: O1(:,:), O2(:,:), W1(:,:), W2(:,:)
+complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:), OW(:,:,:,:), WO(:,:,:,:)
+
+!-----------------------------------------------------------------------
+! recover the original HAMILTONIAN using the S parameters
+!=======================================================================
+call mma_allocate(O1,n1,n1,'operator O1')
+call mma_allocate(O2,n2,n2,'operator O2')
+call mma_allocate(W1,n1,n1,'operator W1')
+call mma_allocate(W2,n2,n2,'operator W2')
+call mma_allocate(OO,n1,n1,n2,n2,'operator OO')
+call mma_allocate(OW,n1,n1,n2,n2,'operator WO')
+call mma_allocate(WO,n1,n1,n2,n2,'operator OW')
+call mma_allocate(WW,n1,n1,n2,n2,'operator WW')
+call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HAM,1)
+do k1=1,n1-1
+  do q1=0,k1
+    do k2=1,n2-1
+      do q2=0,k2
+        ! generate the operator matrix K=ik, Q=iq, dimension=na
+        call ESO(n1,k1,q1,O1,W1,redME1)
+        call ESO(n2,k2,q2,O2,W2,redME2)
+        ! generate coupled operators:
+        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OO,1)
+        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OW,1)
+        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WO,1)
+        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WW,1)
+        do m1=1,n1
+          do m2=1,n1
+            do l1=1,n2
+              do l2=1,n2
+                OO(m1,m2,l1,l2) = O1(m1,m2)*O2(l1,l2)
+                OW(m1,m2,l1,l2) = O1(m1,m2)*W2(l1,l2)
+                WO(m1,m2,l1,l2) = W1(m1,m2)*O2(l1,l2)
+                WW(m1,m2,l1,l2) = W1(m1,m2)*W2(l1,l2)
+              end do
+            end do
+          end do
+        end do !m1
+        ! compute the exchange Hamiltonian:
+        if ((q1 == 0) .and. (q2 == 0)) then
+          call zaxpy_(n1*n1*n2*n2,S(k1,0,k2,0),OO,1,HAM,1)
+        else if ((q1 == 0) .and. (q2 /= 0)) then
+          call zaxpy_(n1*n1*n2*n2,S(k1,0,k2,q2),OO,1,HAM,1)
+          call zaxpy_(n1*n1*n2*n2,S(k1,0,k2,-q2),OW,1,HAM,1)
+        else if ((q1 /= 0) .and. (q2 == 0)) then
+          call zaxpy_(n1*n1*n2*n2,S(k1,q1,k2,0),OO,1,HAM,1)
+          call zaxpy_(n1*n1*n2*n2,S(k1,-q1,k2,0),WO,1,HAM,1)
+        else if ((q1 /= 0) .and. (q2 /= 0)) then
+          call zaxpy_(n1*n1*n2*n2,S(k1,q1,k2,q2),OO,1,HAM,1)
+          call zaxpy_(n1*n1*n2*n2,S(k1,q1,k2,-q2),OW,1,HAM,1)
+          call zaxpy_(n1*n1*n2*n2,S(k1,-q1,k2,q2),WO,1,HAM,1)
+          call zaxpy_(n1*n1*n2*n2,S(k1,-q1,k2,-q2),WW,1,HAM,1)
+        end if
+      end do !q
+    end do !k
+  end do !q
+end do !k
+
+call mma_deallocate(O1)
+call mma_deallocate(O2)
+call mma_deallocate(W1)
+call mma_deallocate(W2)
+call mma_deallocate(OO)
+call mma_deallocate(OW)
+call mma_deallocate(WO)
+call mma_deallocate(WW)
+
+return
+
+end subroutine recover_exch_HAM_from_Stevens_ESO

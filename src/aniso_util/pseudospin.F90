@@ -8,66 +8,65 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine pseudospin(M,dim,z,iDir,iOpt,iprint)
+
+subroutine pseudospin(M,dim,z,iDir,iOpt,iprint)
 ! dim - dimension (input)
 ! moment(l,dim,dim) (input)
 ! z - pseuDospin eigenfunctions (output)
-      Implicit None
+
+implicit none
 #include "stdalloc.fh"
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in)           :: dim, iprint
-      Integer, intent(in)           :: iDir, iOpt
-      Complex(kind=8), intent(in)  :: M(3,dim,dim)
-      Complex(kind=8), intent(out) :: z(dim,dim)
-      ! local variables:
-      Integer                       :: info, i
-      Real(kind=8), allocatable    :: w(:)
-      Complex(kind=8), allocatable :: z1(:,:)
-      Real(kind=8)                 :: dznrm2_
-      External                      :: dznrm2_
-      Logical                       :: dbg
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: dim, iprint
+integer, intent(in) :: iDir, iOpt
+complex(kind=8), intent(in) :: M(3,dim,dim)
+complex(kind=8), intent(out) :: z(dim,dim)
+! local variables:
+integer :: info, i
+real(kind=8), allocatable :: w(:)
+complex(kind=8), allocatable :: z1(:,:)
+real(kind=8) :: dznrm2_
+external :: dznrm2_
+logical :: dbg
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      Call mma_allocate(W,dim,'W')
-      Call mma_allocate(Z1,dim,dim,'Z1')
-      dbg=iprint.ge.3
-      Call dcopy_(dim,[0.0_wp],0,W,1)
-      Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,Z,1)
-      Call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,Z1,1)
-      info=0
-      Call diag_c2(M(iDir,1:dim,1:dim),dim,info,w,z1)
-      If(dbg) Then
-        Do i=1,dim
-          Write(6,'(A,i3,A,F24.14)') 'i=',i,' eigenvalue=',w(i)
-        End Do
-      End If
-      If (info.ne.0) Then
-        Write(6,'(5x,a)') 'PSEUDO::  diagonalization of the '//         &
-     &                    'zeeman hamiltonian failed.'
-        Go To 199
-      End If
-      If(dbg) Write(6,*) "PSEUDO:  norm of  M is:",                     &
-     &                                            dznrm2_(3*dim*dim,M,1)
-      If(dbg) Write(6,*) "PSEUDO:  norm of Z1 is:",dznrm2_(dim*dim,Z1,1)
-      If(iDir==3) Then
-         If(iOpt==1) Then
-            Call spin_phase(M,dim,z1,z)
-         Else
-            Call zcopy_(dim*dim,z1,1,z,1)
-            Write(6,*) 'PSEUDOSPIN:  iOpt = ',iOpt
-            Call WarningMessage(2,'PSEUDOSPIN: iOpt '//                 &
-     &                            'is not understood.')
-         End If
-      Else
-         Call zcopy_(dim*dim,z1,1,z,1)
-      End If
+call mma_allocate(W,dim,'W')
+call mma_allocate(Z1,dim,dim,'Z1')
+dbg = iprint >= 3
+call dcopy_(dim,[0.0_wp],0,W,1)
+call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,Z,1)
+call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,Z1,1)
+info = 0
+call diag_c2(M(iDir,1:dim,1:dim),dim,info,w,z1)
+if (dbg) then
+  do i=1,dim
+    write(6,'(A,i3,A,F24.14)') 'i=',i,' eigenvalue=',w(i)
+  end do
+end if
+if (info /= 0) then
+  write(6,'(5x,a)') 'PSEUDO::  diagonalization of the zeeman hamiltonian failed.'
+  go to 199
+end if
+if (dbg) then
+  write(6,*) 'PSEUDO:  norm of  M is:',dznrm2_(3*dim*dim,M,1)
+  write(6,*) 'PSEUDO:  norm of Z1 is:',dznrm2_(dim*dim,Z1,1)
+end if
+if (iDir == 3) then
+  if (iOpt == 1) then
+    call spin_phase(M,dim,z1,z)
+  else
+    call zcopy_(dim*dim,z1,1,z,1)
+    write(6,*) 'PSEUDOSPIN:  iOpt = ',iOpt
+    call WarningMessage(2,'PSEUDOSPIN: iOpt is not understood.')
+  end if
+else
+  call zcopy_(dim*dim,z1,1,z,1)
+end if
 
- 199  Continue
-      Call mma_deallocate(W)
-      Call mma_deallocate(Z1)
-      Return
-      End
+199 continue
+call mma_deallocate(W)
+call mma_deallocate(Z1)
 
+return
 
-
-
+end subroutine pseudospin

@@ -8,127 +8,117 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine moments(N,MS,MM,iprint)
 
-      Implicit None
+subroutine moments(N,MS,MM,iprint)
+
+implicit none
 #include "stdalloc.fh"
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in)          :: N,iprint
-      Complex(kind=8), intent(in) :: MM(3,N,N), MS(3,N,N)
-
-      Integer                       :: I,J,L,i1,i2,iDir
-      Real(kind=8)                 :: g_e
-      Complex(kind=8), allocatable :: Z(:,:) ! N,N
-      Complex(kind=8), allocatable :: AMS(:,:,:)
-      Complex(kind=8), allocatable :: AML(:,:,:)
-      Complex(kind=8), allocatable :: AMM(:,:,:) !(3,N,N),
-      Complex(kind=8), allocatable :: Mf(:,:), Sf(:,:), Lf(:,:) !(3,3)
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: N, iprint
+complex(kind=8), intent(in) :: MM(3,N,N), MS(3,N,N)
+integer :: I, J, L, i1, i2, iDir
+real(kind=8) :: g_e
+complex(kind=8), allocatable :: Z(:,:) ! N,N
+complex(kind=8), allocatable :: AMS(:,:,:)
+complex(kind=8), allocatable :: AML(:,:,:)
+complex(kind=8), allocatable :: AMM(:,:,:) !(3,N,N),
+complex(kind=8), allocatable :: Mf(:,:), Sf(:,:), Lf(:,:) !(3,3)
 !-----------------------------------------------------------------------
 
-      g_e=2.0023193043718_wp
+g_e = 2.0023193043718_wp
 
-      If(N<1) Return
-      Call mma_allocate(Z,N,N,'Z')
-      Call mma_allocate(AMS,3,N,N,'AMS')
-      Call mma_allocate(AML,3,N,N,'AML')
-      Call mma_allocate(AMM,3,N,N,'AMM')
-      Call mma_allocate(Mf,3,3,'Mf')
-      Call mma_allocate(Sf,3,3,'Sf')
-      Call mma_allocate(Lf,3,3,'Lf')
+if (N < 1) return
+call mma_allocate(Z,N,N,'Z')
+call mma_allocate(AMS,3,N,N,'AMS')
+call mma_allocate(AML,3,N,N,'AML')
+call mma_allocate(AMM,3,N,N,'AMM')
+call mma_allocate(Mf,3,3,'Mf')
+call mma_allocate(Sf,3,3,'Sf')
+call mma_allocate(Lf,3,3,'Lf')
 !-----------------------------------------------------------------------
-      Call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Lf,1)
-      Call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Mf,1)
-      Call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Sf,1)
-      Do iDir=1,3
-        Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,Z,1)
-        Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AMM,1)
-        Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AML,1)
-        Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AMS,1)
+call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Lf,1)
+call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Mf,1)
+call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Sf,1)
+do iDir=1,3
+  call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,Z,1)
+  call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AMM,1)
+  call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AML,1)
+  call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AMS,1)
 
-        Call pseudospin(MM,N,Z,iDir,1,1)
+  call pseudospin(MM,N,Z,iDir,1,1)
 
-        Do l=1,3
-          Do i=1,N
-            Do j=1,N
-              Do i1=1,N
-                Do i2=1,N
-        AMM(l,i,j) = AMM(l,i,j) + MM(l,i1,i2) * conjg(Z(i1,i))*Z(i2,j)
-        AMS(l,i,j) = AMS(l,i,j) + MS(l,i1,i2) * conjg(Z(i1,i))*Z(i2,j)
-                End Do
-              End Do
-        AML(l,i,j)= -AMM(l,i,j) - g_e * AMS(l,i,j)
-            End Do
-          End Do
-          Mf(iDir,l)=AMM(l,1,1)
-          Sf(iDir,l)=AMS(l,1,1)
-          Lf(iDir,l)=AML(l,1,1)
-        End Do
+  do l=1,3
+    do i=1,N
+      do j=1,N
+        do i1=1,N
+          do i2=1,N
+            AMM(l,i,j) = AMM(l,i,j)+MM(l,i1,i2)*conjg(Z(i1,i))*Z(i2,j)
+            AMS(l,i,j) = AMS(l,i,j)+MS(l,i1,i2)*conjg(Z(i1,i))*Z(i2,j)
+          end do
+        end do
+        AML(l,i,j) = -AMM(l,i,j)-g_e*AMS(l,i,j)
+      end do
+    end do
+    Mf(iDir,l) = AMM(l,1,1)
+    Sf(iDir,l) = AMS(l,1,1)
+    Lf(iDir,l) = AML(l,1,1)
+  end do
 
-        If(iprint.gt.3) Then
-          Write(6,*)
-          Write(6,'(2x,a)') 'MOMENTS:  AMM(l,:,:)'
-          Do l=1,3
-            Write(6,*)
-            Write(6,'(a,i3)') 'PROJECTION2 =' , l
-            Do i=1,N
-              Write(6,'(20(2F12.8,2x))') (AMM(l,i,j), j=1,N)
-            End Do
-          End Do
-          Write(6,*)
-          Write(6,'(2x,a)') 'MOMENTS:  AMS(l,:,:)'
-          Do l=1,3
-            Write(6,*)
-            Write(6,'(a,i3)') 'PROJECTION2 =' , l
-            Do i=1,N
-              Write(6,'(20(2F12.8,2x))') (AMS(l,i,j), j=1,N)
-            End Do
-          End Do
-          Write(6,*)
-          Write(6,'(2x,a)') 'MOMENTS:  AML(l,:,:)'
-          Do l=1,3
-            Write(6,*)
-            Write(6,'(a,i3)') 'PROJECTION2 =' , l
-            Do i=1,N
-              Write(6,'(20(2F12.8,2x))') (AML(l,i,j), j=1,N)
-            End Do
-          End Do
-        End If
-      End Do !iDir
+  if (iprint > 3) then
+    write(6,*)
+    write(6,'(2x,a)') 'MOMENTS:  AMM(l,:,:)'
+    do l=1,3
+      write(6,*)
+      write(6,'(a,i3)') 'PROJECTION2 =',l
+      do i=1,N
+        write(6,'(20(2F12.8,2x))') (AMM(l,i,j),j=1,N)
+      end do
+    end do
+    write(6,*)
+    write(6,'(2x,a)') 'MOMENTS:  AMS(l,:,:)'
+    do l=1,3
+      write(6,*)
+      write(6,'(a,i3)') 'PROJECTION2 =',l
+      do i=1,N
+        write(6,'(20(2F12.8,2x))') (AMS(l,i,j),j=1,N)
+      end do
+    end do
+    write(6,*)
+    write(6,'(2x,a)') 'MOMENTS:  AML(l,:,:)'
+    do l=1,3
+      write(6,*)
+      write(6,'(a,i3)') 'PROJECTION2 =',l
+      do i=1,N
+        write(6,'(20(2F12.8,2x))') (AML(l,i,j),j=1,N)
+      end do
+    end do
+  end if
+end do !iDir
 
-      Write(6,'(A)') '--------------|--- H || Xm --|'//                 &
-     &                              '--- H || Ym --|'//                 &
-     &                              '--- H || Zm --|'
-      Write(6,'(65A)') ('-',i=1,14),'|', ( ('-',i=1,14),'|',j=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') ' <1| mu_X |1> |',                   &
-     & ( DBLE(Mf(iDir,1)),'|',iDir=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') ' <1| mu_Y |1> |',                   &
-     & ( DBLE(Mf(iDir,2)),'|',iDir=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') ' <1| mu_Z |1> |',                   &
-     & ( DBLE(Mf(iDir,3)),'|',iDir=1,3 )
-      Write(6,'(65a)') ('-',i=1,14),'|', ( ('-',i=1,14),'|',j=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') '  <1| L_X |1> |',                   &
-     & ( DBLE(Lf(iDir,1)),'|',iDir=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') '  <1| L_Y |1> |',                   &
-     & ( DBLE(Lf(iDir,2)),'|',iDir=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') '  <1| L_Z |1> |',                   &
-     & ( DBLE(Lf(iDir,3)),'|',iDir=1,3 )
-      Write(6,'(65a)') ('-',i=1,14),'|', ( ('-',i=1,14),'|',j=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') '  <1| S_X |1> |',                   &
-     & ( DBLE(Sf(iDir,1)),'|',iDir=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') '  <1| S_Y |1> |',                   &
-     & ( DBLE(Sf(iDir,2)),'|',iDir=1,3 )
-      Write(6,'(A,3(F13.9,1x,A))') '  <1| S_Z |1> |',                   &
-     & ( DBLE(Sf(iDir,3)),'|',iDir=1,3 )
-      Write(6,'(65a)') ('-',i=1,59), '|'
+write(6,'(A)') '--------------|--- H || Xm --|--- H || Ym --|--- H || Zm --|'
+write(6,'(65A)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(6,'(A,3(F13.9,1x,A))') ' <1| mu_X |1> |',(dble(Mf(iDir,1)),'|',iDir=1,3)
+write(6,'(A,3(F13.9,1x,A))') ' <1| mu_Y |1> |',(dble(Mf(iDir,2)),'|',iDir=1,3)
+write(6,'(A,3(F13.9,1x,A))') ' <1| mu_Z |1> |',(dble(Mf(iDir,3)),'|',iDir=1,3)
+write(6,'(65a)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(6,'(A,3(F13.9,1x,A))') '  <1| L_X |1> |',(dble(Lf(iDir,1)),'|',iDir=1,3)
+write(6,'(A,3(F13.9,1x,A))') '  <1| L_Y |1> |',(dble(Lf(iDir,2)),'|',iDir=1,3)
+write(6,'(A,3(F13.9,1x,A))') '  <1| L_Z |1> |',(dble(Lf(iDir,3)),'|',iDir=1,3)
+write(6,'(65a)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(6,'(A,3(F13.9,1x,A))') '  <1| S_X |1> |',(dble(Sf(iDir,1)),'|',iDir=1,3)
+write(6,'(A,3(F13.9,1x,A))') '  <1| S_Y |1> |',(dble(Sf(iDir,2)),'|',iDir=1,3)
+write(6,'(A,3(F13.9,1x,A))') '  <1| S_Z |1> |',(dble(Sf(iDir,3)),'|',iDir=1,3)
+write(6,'(65a)') ('-',i=1,59),'|'
 
 !-----------------------------------------------------------------------
-      Call mma_deallocate(Z)
-      Call mma_deallocate(AMS)
-      Call mma_deallocate(AML)
-      Call mma_deallocate(AMM)
-      Call mma_deallocate(Mf)
-      Call mma_deallocate(Sf)
-      Call mma_deallocate(Lf)
+call mma_deallocate(Z)
+call mma_deallocate(AMS)
+call mma_deallocate(AML)
+call mma_deallocate(AMM)
+call mma_deallocate(Mf)
+call mma_deallocate(Sf)
+call mma_deallocate(Lf)
 
-      Return
-      End
+return
+
+end subroutine moments

@@ -8,18 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer function norder(icoord,int_code,lmax)
 
-      Implicit None
-      Integer lmax
-      Integer icoord(lmax),int_code(lmax)
-      Integer nb,isite
+integer function norder(icoord,int_code,lmax)
 
-      nb=0
-      Do isite=1,lmax
-         nb=nb+icoord(isite)*int_code(isite)
-      End Do
+implicit none
+integer lmax
+integer icoord(lmax), int_code(lmax)
+integer nb, isite
 
-      norder=nb+1
-      Return
-      End
+nb = 0
+do isite=1,lmax
+  nb = nb+icoord(isite)*int_code(isite)
+end do
+
+norder = nb+1
+
+return
+
+end function norder

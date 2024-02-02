@@ -1,0 +1,60 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine tensor2cart_minus(Jt,Jc)
+! Hexch = -Jsph.S1.S2
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
+complex(kind=8), intent(in) :: Jt(-1:1,-1:1)
+real(kind=8), intent(out) :: Jc(3,3)
+! local variables
+complex(kind=8) :: i, pp, pz, pm, zp, zz, zm, mp, mz, mm
+
+jc(1:3,1:3) = 0.0_wp
+i = (0.0_wp,1.0_wp)
+pp = (0.0_wp,0.0_wp)
+pz = (0.0_wp,0.0_wp)
+pm = (0.0_wp,0.0_wp)
+zp = (0.0_wp,0.0_wp)
+zz = (0.0_wp,0.0_wp)
+zm = (0.0_wp,0.0_wp)
+mp = (0.0_wp,0.0_wp)
+mz = (0.0_wp,0.0_wp)
+mm = (0.0_wp,0.0_wp)
+
+pp = jt(1,1)
+pz = jt(1,0)
+pm = jt(1,-1)
+zp = jt(0,1)
+zz = jt(0,0)
+zm = jt(0,-1)
+mp = jt(-1,1)
+mz = jt(-1,0)
+mm = jt(-1,-1)
+
+jc(1,1) = 0.5_wp*dble(-mm+mp+pm-pp)
+jc(2,2) = 0.5_wp*dble(mm+mp+pm+pp)
+
+jc(1,2) = 0.5_wp*dble(i*mm-i*mp+i*pm-i*pp)
+jc(2,1) = 0.5_wp*dble(i*mm+i*mp-i*pm-i*pp)
+
+jc(1,3) = sqrt(0.5_wp)*dble(-zm+zp)
+jc(3,1) = sqrt(0.5_wp)*dble(-mz+pz)
+
+jc(2,3) = sqrt(0.5_wp)*dble(i*zm+i*zp)
+jc(3,2) = sqrt(0.5_wp)*dble(i*mz+i*pz)
+
+jc(3,3) = dble(-zz)
+
+return
+
+end subroutine tensor2cart_minus

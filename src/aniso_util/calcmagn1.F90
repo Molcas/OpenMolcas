@@ -8,82 +8,64 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine calcmagn1(N,E,M,T,MT,Z)
-!----------------------------------------------------------------------
-!   Input data:
-!     N =  number of the states to be considered, scalar integer, input
-!     E =  Zeeman energy of these states, array(N), real, input
-!     M =  momentum of these states ( diagonal), complex array (N,N), input
-!          ( only diagonal elements are used )
-!     T =  scalar real number denoting temperature in K, real, input
-!   Output data:
-!     MT=  computed momentum at temperature T, scalar real, output
-!     Z =  Boltzmann statistical sum, real scalar
-!----------------------------------------------------------------------
-      Implicit None
-      Integer, parameter          :: wp=kind(0.d0)
-      Integer, intent(in)         :: N
-      Real(kind=8),intent(in)    :: E(N), T
-      Complex(kind=8),intent(in) :: M(N,N)
 
-      Real(kind=8),intent(out)   :: Z, MT
+subroutine calcmagn1(N,E,M,T,MT,Z)
+!-----------------------------------------------------------------------
+! Input data:
+!   N =  number of the states to be considered, scalar integer, input
+!   E =  Zeeman energy of these states, array(N), real, input
+!   M =  momentum of these states ( diagonal), complex array (N,N), input
+!        ( only diagonal elements are used )
+!   T =  scalar real number denoting temperature in K, real, input
+! Output data:
+!   MT=  computed momentum at temperature T, scalar real, output
+!   Z =  Boltzmann statistical sum, real scalar
+!-----------------------------------------------------------------------
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: N
+real(kind=8), intent(in) :: E(N), T
+complex(kind=8), intent(in) :: M(N,N)
+real(kind=8), intent(out) :: Z, MT
 !-- local variables:
-      Integer                 :: im,mp1,i
-      Real(kind=8)           :: kB
+integer :: im, mp1, i
+real(kind=8) :: kB
 !----------------------------------------------------------------------
-      kB=0.6950356000_wp !   in cm^-1*K-1
-      Z =0.0_wp
-      MT=0.0_wp
-      im=0
-      mp1=0
-      im=MOD(N,11)
 
-      If (im.ne.0) Then
-        Do i = 1,im !N   ! im
-          Z = Z + EXP( -(E(i)-E(1))/kB/T )
-          MT=MT + EXP( -(E(i)-E(1))/kB/T ) * DBLE( M(I,I) )
-        End Do
-        If ( N < 11 ) Then
-          MT=MT/Z
-        Return
-        End If
-      End If
+kB = 0.6950356000_wp !   in cm^-1*K-1
+Z = 0.0_wp
+MT = 0.0_wp
+im = 0
+mp1 = 0
+im = mod(N,11)
 
-      mp1 = im + 1
-      Do i = mp1, N, 11
-        Z = Z + EXP( -(E(i   )-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 1)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 2)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 3)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 4)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 5)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 6)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 7)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 8)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+ 9)-E(1))/kB/T )                             &
-     &        + EXP( -(E(i+10)-E(1))/kB/T )
+if (im /= 0) then
+  do i=1,im !N   ! im
+    Z = Z+exp(-(E(i)-E(1))/kB/T)
+    MT = MT+exp(-(E(i)-E(1))/kB/T)*dble(M(I,I))
+  end do
+  if (N < 11) then
+    MT = MT/Z
+    return
+  end if
+end if
 
-        MT=MT + EXP( -(E(i   )-E(1))/kB/T ) * DBLE( M(i   ,i   ) )      &
-     &        + EXP( -(E(i+ 1)-E(1))/kB/T ) * DBLE( M(i+ 1,i+ 1) )      &
-     &        + EXP( -(E(i+ 2)-E(1))/kB/T ) * DBLE( M(i+ 2,i+ 2) )      &
-     &        + EXP( -(E(i+ 3)-E(1))/kB/T ) * DBLE( M(i+ 3,i+ 3) )      &
-     &        + EXP( -(E(i+ 4)-E(1))/kB/T ) * DBLE( M(i+ 4,i+ 4) )      &
-     &        + EXP( -(E(i+ 5)-E(1))/kB/T ) * DBLE( M(i+ 5,i+ 5) )      &
-     &        + EXP( -(E(i+ 6)-E(1))/kB/T ) * DBLE( M(i+ 6,i+ 6) )      &
-     &        + EXP( -(E(i+ 7)-E(1))/kB/T ) * DBLE( M(i+ 7,i+ 7) )      &
-     &        + EXP( -(E(i+ 8)-E(1))/kB/T ) * DBLE( M(i+ 8,i+ 8) )      &
-     &        + EXP( -(E(i+ 9)-E(1))/kB/T ) * DBLE( M(i+ 9,i+ 9) )      &
-     &        + EXP( -(E(i+10)-E(1))/kB/T ) * DBLE( M(i+10,i+10) )
-      End Do
+mp1 = im+1
+do i=mp1,N,11
+  Z = Z+exp(-(E(i)-E(1))/kB/T)+exp(-(E(i+1)-E(1))/kB/T)+exp(-(E(i+2)-E(1))/kB/T)+exp(-(E(i+3)-E(1))/kB/T)+ &
+        exp(-(E(i+4)-E(1))/kB/T)+exp(-(E(i+5)-E(1))/kB/T)+exp(-(E(i+6)-E(1))/kB/T)+exp(-(E(i+7)-E(1))/kB/T)+ &
+        exp(-(E(i+8)-E(1))/kB/T)+exp(-(E(i+9)-E(1))/kB/T)+exp(-(E(i+10)-E(1))/kB/T)
 
-      MT=MT/Z
+  MT = MT+exp(-(E(i)-E(1))/kB/T)*dble(M(i,i))+exp(-(E(i+1)-E(1))/kB/T)*dble(M(i+1,i+1))+exp(-(E(i+2)-E(1))/kB/T)*dble(M(i+2,i+2))+ &
+          exp(-(E(i+3)-E(1))/kB/T)*dble(M(i+3,i+3))+exp(-(E(i+4)-E(1))/kB/T)*dble(M(i+4,i+4))+ &
+          exp(-(E(i+5)-E(1))/kB/T)*dble(M(i+5,i+5))+exp(-(E(i+6)-E(1))/kB/T)*dble(M(i+6,i+6))+ &
+          exp(-(E(i+7)-E(1))/kB/T)*dble(M(i+7,i+7))+exp(-(E(i+8)-E(1))/kB/T)*dble(M(i+8,i+8))+ &
+          exp(-(E(i+9)-E(1))/kB/T)*dble(M(i+9,i+9))+exp(-(E(i+10)-E(1))/kB/T)*dble(M(i+10,i+10))
+end do
 
-      Return
-      End
+MT = MT/Z
 
+return
 
-
-
-
-
-
+end subroutine calcmagn1
