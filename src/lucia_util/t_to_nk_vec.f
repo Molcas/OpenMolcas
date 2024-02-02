@@ -13,7 +13,7 @@
       SUBROUTINE T_TO_NK_VEC(      T,   KORB,    ISM,   ISPC,  LUCIN,
      &                        LUCOUT,      C)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CLBT, CLEBT
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -60,7 +60,7 @@
       NBEL = NELEC(IBTP)
 *
       CALL Z_BLKFO(     ISPC,      ISM,     IATP,     IBTP,
-     &                KLCI1BT,   KLCIBT,  KLCBLTP,   NBATCH,
+     &                KLCIBT,  KLCBLTP,   NBATCH,
      &                NBLOCK)
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
@@ -85,7 +85,7 @@
 
       CALL mma_deallocate(CLBT)
       CALL mma_deallocate(CLEBT)
-      CALL GETMEM('CI1BT ','FREE','INTE',KLCI1BT,MXNTTS)
+      CALL mma_deallocate(CI1BT)
       CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*MXNTTS)
       CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
 *

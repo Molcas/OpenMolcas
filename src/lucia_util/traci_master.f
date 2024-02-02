@@ -11,7 +11,7 @@
       SUBROUTINE TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
       use stdalloc, only: mma_allocate, mma_deallocate
       use  GLBBAS
-      use Local_Arrays, only: CLBT, CLEBT
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
@@ -85,11 +85,11 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       IATP = 1
       IBTP = 2
       CALL  Z_BLKFO(ISSPC,ISSM,IATP,IBTP,
-     &      KLCI1BT,KLCIBT,KLCBLTP,NBATCH,NBLOCK)
+     &      KLCIBT,KLCBLTP,NBATCH,NBLOCK)
 
       CALL mma_deallocate(CLBT)
       CALL mma_deallocate(CLEBT)
-      CALL GETMEM('CI1BT ','FREE','INTE',KLCI1BT,MXNTTS)
+      CALL mma_deallocate(CI1BT)
       CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*MXNTTS)
       CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
 *

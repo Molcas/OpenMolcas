@@ -11,10 +11,10 @@
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE Z_BLKFO(ISPC,ISM,    IATP,    IBTP,
-     &                    KPCI1BT,  KPCIBT, KPCBLTP,  NBATCH,
+     &                   KPCIBT, KPCBLTP,  NBATCH,
      &                     NBLOCK)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CLBT, CLEBT
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -24,7 +24,7 @@
 *
 * CLBT : Length of each Batch ( in blocks)
 * CLEBT : Length of each Batch ( in elements)
-* KPCI1BT : Length of each block
+* CI1BT : Length of each block
 * KPCIBT  : Info on each block
 * KPCBLTP : BLock type for each symmetry
 *
@@ -63,7 +63,7 @@
 *. Pointers to output arrays
       CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT')
       CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT')
-      CALL GETMEM('CI1BT ','ALLO','INTE',KPCI1BT,MXNTTS)
+      CALL mma_allocate(CI1BT,MXNTTS,Label='CI1BT')
       CALL GETMEM('CIBT  ','ALLO','INTE',KPCIBT ,8*MXNTTS)
       CALL GETMEM('CBLTP ','ALLO','INTE',KPCBLTP,NSMST)
 *.    ^ These should be preserved after exit so put mark for flushing here
@@ -101,17 +101,17 @@ c      END IF
      &               ISMOST(1,ISM),
      &               NBATCH,
      &               CLBT,
-     &               CLEBT,IWORK(KPCI1BT),
+     &               CLEBT,CI1BT,
      &               IWORK(KPCIBT),0,ISIMSYM)
 *. Number of BLOCKS
-      NBLOCK = IFRMR(IWORK(KPCI1BT),1,NBATCH)
+      NBLOCK = IFRMR(CI1BT,1,NBATCH)
      &       + IFRMR(CLBT,1,NBATCH) - 1
       IF(NTEST.GE.1) THEN
          WRITE(6,*) ' Number of batches', NBATCH
          WRITE(6,*) ' Number of blocks ', NBLOCK
       END IF
 *. Length of each block
-      CALL EXTRROW(IWORK(KPCIBT),8,8,NBLOCK,IWORK(KPCI1BT))
+      CALL EXTRROW(IWORK(KPCIBT),8,8,NBLOCK,CI1BT)
 *
       Call mma_deallocate(LCIOIO)
       RETURN
