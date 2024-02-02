@@ -55,8 +55,10 @@
 *     COMMON/H_OCC_CONS/IH_OCC_CONS
 *
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
-      Integer, Allocatable:: LCIOIO(:)
+      Integer, Allocatable:: CIOIO(:)
       Integer, Allocatable:: SVST(:)
+      Integer, Allocatable:: CLBT(:), CLEBT(:), CI1BT(:), CIBT(:),
+     &                       CBLTP(:)
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
@@ -78,6 +80,7 @@ c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
 c         IH_OCC_CONS = 1
 c      END IF
 *
+#ifdef _DEBUGPRINT_
       IF(NTEST .GE. 20) THEN
          WRITE(6,*)
          WRITE(6,*) ' ====================================='
@@ -113,6 +116,7 @@ c      END IF
          END DO
 *
       END IF
+#endif
 *
       NDET = INT(XISPSM(ISM,ISPC))
       NEL = NELCI(ISPC)
@@ -173,34 +177,29 @@ c      END IF
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
       NTTS = MXNTTS
-      CALL GETMEM('CLBT  ','ALLO','INTE',KLCLBT ,NTTS  )
-      CALL GETMEM('CLEBT ','ALLO','INTE',KLCLEBT ,NTTS  )
-      CALL GETMEM('CI1BT ','ALLO','INTE',KLCI1BT,NTTS  )
-      CALL GETMEM('CIBT  ','ALLO','INTE',KLCIBT ,8*NTTS)
+      CALL mma_allocate(CLBT ,NTTS  ,Label='CLBT')
+      CALL mma_allocate(CLEBT ,NTTS  ,Label='CLEBT')
+      CALL mma_allocate(CI1BT,NTTS  ,Label='CI1BT')
+      CALL mma_allocate(CIBT ,8*NTTS,Label='CIBT')
 *. Additional info required to construct partitioning
-      Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
-      CALL GETMEM('CBLTP ','ALLO','INTE',KLCBLTP,NSMST)
+      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
+      CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *
-      CALL IAIBCM(ISPC,LCIOIO)
+      CALL IAIBCM(ISPC,CIOIO)
       Call mma_allocate(SVST,1,Label='SVST')
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KLCBLTP),SVST)
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,SVST)
       Call mma_deallocate(SVST)
 *
 *. Batches  of C vector
-      CALL PART_CIV2(      IDC,
-     &               IWORK(KLCBLTP),
+      CALL PART_CIV2(IDC,CBLTP,
      &               IWORK(KNSTSO(IATP)),
      &               IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB, NSMST,LBLOCK,
-     &               LCIOIO,
+     &               CIOIO,
 *
-     &               ISMOST(1,ISM),
-     &                  NBATCH,
-     &               IWORK(KLCLBT),
-     &               IWORK(KLCLEBT),IWORK(KLCI1BT),IWORK(KLCIBT),
-     &               0,ISIMSYM)
+     &               ISMOST(1,ISM),NBATCH,
+     &               CLBT,CLEBT,CI1BT,CIBT,0,ISIMSYM)
 *. Number of BLOCKS
-      NBLOCK = IFRMR(IWORK(KLCI1BT),1,NBATCH)
-     &       + IFRMR(IWORK(KLCLBT),1,NBATCH) - 1
+      NBLOCK = IFRMR(CI1BT,1,NBATCH) + IFRMR(CLBT,1,NBATCH) - 1
 *.
 *. Enabling the calculation of excited states in a new way. Lasse
 *. This can be realized for GAS1 to GASN (for the GAS version)
@@ -208,16 +207,15 @@ c      END IF
 *. in the sigma vector calculation. This to satisfy RASSI.
 *. Insert if statement
       IF(I_ELIMINATE_GAS.GE.1) THEN
-        CALL I_AM_SO_EXCITED(NBATCH,IWORK(KLCIBT),IWORK(KLCLBT),
-     &                       IWORK(KLCI1BT))
+        CALL I_AM_SO_EXCITED(NBATCH,CIBT,CLBT,CI1BT)
       END IF
 *. End of story for Lasse
 *.
-      CALL GETMEM('CLBT  ','FREE','INTE',KLCLBT ,NTTS  )
-      CALL GETMEM('CLEBT ','FREE','INTE',KLCLEBT ,NTTS  )
+      CALL mma_deallocate(CLBT)
+      CALL mma_deallocate(CLEBT)
 *. Length of each block
-      CALL EXTRROW(IWORK(KLCIBT),8,8,NBLOCK,IWORK(KLCI1BT))
-      CALL GETMEM('CI1BT ','FREE','INTE',KLCI1BT,NTTS  )
+      CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
+      CALL mma_deallocate(CI1BT)
 *.
 *. Class divisions of  dets
 *. ( Well, in principle I am against class division, but I
@@ -271,7 +269,7 @@ C?          WRITE(6,*) ' MAXA1 1', MAXA1
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
-      CALL MXRESCPH(LCIOIO,IOCTPA,IOCTPB, NOCTPA, NOCTPB,
+      CALL MXRESCPH(CIOIO,IOCTPA,IOCTPB, NOCTPA, NOCTPB,
      &                    NSMST,NSTFSMSPGP,MXPNSMST, NSMOB,MXPNGAS,
      &                     NGAS,  NOBPTS,  IPRCIX,    MAXK,NELFSPGP,
      &                     MXCJ,  MXCIJA,  MXCIJB, MXCIJAB,  MXSXBL,
@@ -308,13 +306,13 @@ c     KVEC2 = KSIGMA_POINTER
          I12 = 2
          SHIFT = ECORE_ORIG-ECORE
          CALL GASDIAT(WORK(KVEC1),  LUDIA,  SHIFT, ICISTR,    I12,
-     &                IWORK(KLCBLTP),NBLOCK,IWORK(KLCIBT))
+     &                CBLTP,NBLOCK,CIBT)
 *
 c         IF(IIUSEH0P.EQ.1) THEN
 c*. Diagonal with F
 c            CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
 c            CALL GASDIAT(WORK(KVEC1),LUSC52,SHIFT,ICISTR,1,
-c     &           WORK(KLCBLTP),NBLOCK,WORK(KLCIBT))
+c     &           CBLTP,NBLOCK,CIBT)
 c            CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
 c*. diag of (1-Lambda) F + Lambda H
 c            FAC1 = 1.0D0 - XLAMBDA
@@ -333,9 +331,9 @@ c         END IF
       END IF
 
       IDUMMY=1
-      Call mma_deallocate(LCIOIO)
-      CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
-      CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*NTTS)
+      Call mma_deallocate(CIOIO)
+      CALL mma_deallocate(CBLTP)
+      CALL mma_deallocate(CIBT)
       Call mma_deallocate(VEC3)
       RETURN
 c Avoid unused argument warnings
