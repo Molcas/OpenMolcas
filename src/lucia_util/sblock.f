@@ -78,6 +78,7 @@
       Integer, Allocatable:: LIBT(:)
       Real*8, Allocatable:: LSCLFAC(:)
       Integer, Allocatable:: SVST(:)
+      Integer, Allocatable:: H0SPC(:)
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -290,10 +291,10 @@ CINSERT_START
 *
 C     IF(IPERTOP.NE.0) THEN
 *. Matrix specifying partiotioned spaces
-      CALL GETMEM('H0SPC ','ALLO','INTE',KLH0SPC,NOCTPA*NOCTPB)
+      Call mma_allocate(H0SPC,NOCTPA*NOCTPB,Label='H0SPC')
       CALL H0INTSPC(   IH0SPC,   NPTSPC, IOCPTSPC,   NOCTPA,   NOCTPB,
      &                ISPGPFTP(1,IOCTPA),ISPGPFTP(1,IOCTPB),
-     &                   NGAS,MXPNGAS,iWORK(KLH0SPC),NELFGP)
+     &                   NGAS,MXPNGAS,H0SPC,NELFGP)
 C       IF(IH0SPC.EQ.0) THEN
 *. Form of perturbation in subspace has not been defined,
 *. Use current IPART
@@ -324,7 +325,7 @@ c      KSIPA = 1 ! jwk-cleanup
      &             LI1BT,LIBT,
      &             IRESTRICT,
      &             CONSPA,CONSPB,LSCLFAC,
-     &             IPERTOP,IH0INSPC,iWORK(KLH0SPC),
+     &             IPERTOP,IH0INSPC,H0SPC,
      &             ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,
      &             I_RES_AB,ISIMSYM,INSCR2)
 *
@@ -376,6 +377,6 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(Z)
       Call mma_deallocate(ZSCR)
       Call mma_deallocate(SVST)
-      CALL GETMEM('H0SPC ','FREE','INTE',KLH0SPC,NOCTPA*NOCTPB)
+      Call mma_deallocate(H0SPC)
       RETURN
       END
