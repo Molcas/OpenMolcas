@@ -37,7 +37,9 @@
 #include "strbas.fh"
 #include "crun.fh"
 #include "cands.fh"
-      Integer, Allocatable:: LCIOIO(:)
+      Integer, Allocatable:: CIOIO(:)
+      Integer, Allocatable:: CLBT(:), CLEBT(:), CI1BT(:), CIBT(:),
+     &                       CBLTP(:)
 
 *. Output : Should outside be dimensioned as MXNTTS
       INTEGER LEN_BLK(*)
@@ -50,36 +52,36 @@
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
 *. Pointers to local arrays
-      CALL GETMEM('CLBT  ','ALLO','INTE',KPCLBT ,MXNTTS)
-      CALL GETMEM('CLEBT ','ALLO','INTE',KPCLEBT,MXNTTS)
-      CALL GETMEM('CI1BT ','ALLO','INTE',KPCI1BT,MXNTTS)
-      CALL GETMEM('CIBT  ','ALLO','INTE',KPCIBT ,8*MXNTTS)
-      CALL GETMEM('CBLTP ','ALLO','INTE',KPCBLTP,NSMST)
+      CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT')
+      CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT')
+      CALL mma_allocate(CI1BT,MXNTTS,Label='CI1BT')
+      CALL mma_allocate(CIBT ,8*MXNTTS,Label='CIBT')
+      CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Info needed for generation of block info
-      Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
-      CALL IAIBCM(ISSPC,LCIOIO) ! Jesper
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KPCBLTP),I_DUMMY)
+      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
+      CALL IAIBCM(ISSPC,CIOIO) ! Jesper
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,I_DUMMY)
 *. Allowed length of each batch( not important for final output )
       LBLOCK = MAX(MXSOOB,LCSBLK)
 *. Batches  of C vector
-      CALL PART_CIV2(IDC,IWORK(KPCBLTP),IWORK(KNSTSO(IATP)),
+      CALL PART_CIV2(IDC,CBLTP,IWORK(KNSTSO(IATP)),
      &              IWORK(KNSTSO(IBTP)),
-     &              NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,
+     &              NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,
      &              ISMOST(1,ISM),
-     &              NBATCH,IWORK(KPCLBT),IWORK(KPCLEBT),
-     &              IWORK(KPCI1BT),IWORK(KPCIBT),0,ISIMSYM)
+     &              NBATCH,CLBT,CLEBT,
+     &              CI1BT,CIBT,0,ISIMSYM)
 *. Number of BLOCKS
-      NBLK = IFRMR(iWORK(KPCI1BT),1,NBATCH)
-     &     + IFRMR(iWORK(KPCLBT),1,NBATCH) - 1
+      NBLK = IFRMR(CI1BT,1,NBATCH)
+     &     + IFRMR(CLBT,1,NBATCH) - 1
 *. Length of each block
-      CALL EXTRROW(iWORK(KPCIBT),8,8,NBLK,LEN_BLK)
+      CALL EXTRROW(CIBT,8,8,NBLK,LEN_BLK)
 *
-      CALL GETMEM('CLBT  ','FREE','INTE',KPCLBT ,MXNTTS)
-      CALL GETMEM('CLEBT ','FREE','INTE',KPCLEBT,MXNTTS)
-      CALL GETMEM('CI1BT ','FREE','INTE',KPCI1BT,MXNTTS)
-      CALL GETMEM('CIBT  ','FREE','INTE',KPCIBT ,8*MXNTTS)
-      CALL GETMEM('CBLTP ','FREE','INTE',KPCBLTP,NSMST)
-      Call mma_deallocate(LCIOIO)
+      CALL mma_deallocate(CLBT)
+      CALL mma_deallocate(CLEBT)
+      CALL mma_deallocate(CI1BT)
+      CALL mma_deallocate(CIBT)
+      CALL mma_deallocate(CBLTP)
+      Call mma_deallocate(CIOIO)
       RETURN
       END
 *
