@@ -39,14 +39,15 @@
       INTEGER ICONF_OCC(*),ICONF_REO(*)
       DIMENSION ICTSDT(*)
       Integer, Allocatable:: ZSCR(:), Z(:)
+      Integer, Allocatable:: LOCMIN(:), LOCMAX(:)
 *
       NTEST = 0
       NELEC = IELSUM(IOCCLS(1,1),NGAS)
 C
       CALL mma_allocate(ZSCR,(NOCOB+1)*(NELEC+1),Label='ZSCR')
       CALL mma_allocate(Z,NOCOB*NELEC*2,Label='Z')
-      CALL GETMEM('OCMIN ','ALLO','INTE',KLOCMIN,NOCOB)
-      CALL GETMEM('OCMAX ','ALLO','INTE',KLOCMAX,NOCOB)
+      Call mma_allocate(LOCMIN,NOCOB,Label='LOCMIN')
+      Call mma_allocate(LOCMAX,NOCOB,Label='LOCMAX')
 *. Zero configuration reorder array using NCONF_ALL_SYM
       IZERO = 0
 c     CALL ISETVC(WORK(KICONF_REO(ISYM)),IZERO,NCONF_ALL_SYM)
@@ -67,10 +68,10 @@ c     CALL ISETVC(WORK(KICONF_REO(ISYM)),IZERO,NCONF_ALL_SYM)
 *
 C_REMOVED         CALL ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
 *.Max and min arrays for strings
-      CALL MXMNOC_OCCLS(iWORK(KLOCMIN),iWORK(KLOCMAX),
+      CALL MXMNOC_OCCLS(LOCMIN,LOCMAX,
      &                  NGAS,NOBPT,IOCCLS(1,JOCCLS),MINOP,NTEST)
 *. the arcweights
-         CALL CONF_GRAPH(iWORK(KLOCMIN),iWORK(KLOCMAX),
+         CALL CONF_GRAPH(LOCMIN,LOCMAX,
      &                   NOCOB, NELEC,Z(:),NCONF_P,ZSCR)
 *
          IF(JOCCLS.EQ.1) THEN
@@ -125,8 +126,8 @@ C    &            ICNFOK,IGENSG,ISGNA,ISGNB,IPRCSF)
 *
       Call mma_deallocate(ZSCR)
       Call mma_deallocate(Z)
-      CALL GETMEM('OCMIN ','FREE','INTE',KLOCMIN,NOCOB)
-      CALL GETMEM('OCMAX ','FREE','INTE',KLOCMAX,NOCOB)
+      Call mma_deallocate(LOCMIN)
+      Call mma_deallocate(LOCMAX)
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
