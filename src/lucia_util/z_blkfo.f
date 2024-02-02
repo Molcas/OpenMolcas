@@ -10,10 +10,11 @@
 *                                                                      *
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE Z_BLKFO(    ISPC,     ISM,    IATP,    IBTP,  KPCLBT,
+      SUBROUTINE Z_BLKFO(ISPC,ISM,    IATP,    IBTP,
      &                    KPCLEBT, KPCI1BT,  KPCIBT, KPCBLTP,  NBATCH,
      &                     NBLOCK)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Local_Arrays, only: CLBT
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -21,7 +22,7 @@
 * Output is given in the form of pointers to vectors in WORK
 * where the info is stored :
 *
-* KPCLBT : Length of each Batch ( in blocks)
+* CLBT : Length of each Batch ( in blocks)
 * KPCLEBT : Length of each Batch ( in elements)
 * KPCI1BT : Length of each block
 * KPCIBT  : Info on each block
@@ -46,6 +47,7 @@
 *
 * Some dummy initializations
       NTEST = 00
+#ifdef _DEBUGPRINT_
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================== '
@@ -54,11 +56,12 @@
         WRITE(6,*)
         WRITE(6,*) ' ISM, ISPC = ', ISM,ISPC
       END IF
+#endif
 *
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
 *. Pointers to output arrays
-      CALL GETMEM('CLBT  ','ALLO','INTE',KPCLBT ,MXNTTS)
+      CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT')
       CALL GETMEM('CLEBT ','ALLO','INTE',KPCLEBT,MXNTTS)
       CALL GETMEM('CI1BT ','ALLO','INTE',KPCI1BT,MXNTTS)
       CALL GETMEM('CIBT  ','ALLO','INTE',KPCIBT ,8*MXNTTS)
@@ -96,13 +99,13 @@ c      END IF
      &               LCIOIO,
 *
      &               ISMOST(1,ISM),
-     &                  NBATCH,
-     &               IWORK(KPCLBT),
+     &               NBATCH,
+     &               CLBT,
      &               IWORK(KPCLEBT),IWORK(KPCI1BT),
      &               IWORK(KPCIBT),0,ISIMSYM)
 *. Number of BLOCKS
       NBLOCK = IFRMR(IWORK(KPCI1BT),1,NBATCH)
-     &       + IFRMR(IWORK(KPCLBT),1,NBATCH) - 1
+     &       + IFRMR(CLBT,1,NBATCH) - 1
       IF(NTEST.GE.1) THEN
          WRITE(6,*) ' Number of batches', NBATCH
          WRITE(6,*) ' Number of blocks ', NBLOCK
