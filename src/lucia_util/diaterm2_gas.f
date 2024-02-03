@@ -92,6 +92,8 @@ C     END IF
         write(6,*) ' IOCTPA IOCTPB  : ', IOCTPA,IOCTPB
         WRITE(6,*) ' JPERT,IPART,J12,IPERTOP',JPERT,J12,IPERTOP
       END IF
+#else
+      Call Unused_INteger(JPERT)
 #endif
 *. A bit of scracth
       CALL mma_allocate(LJ   ,NTOOB**2,Label='LJ')
