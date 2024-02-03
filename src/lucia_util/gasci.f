@@ -116,6 +116,9 @@ c      END IF
          END DO
 *
       END IF
+#else
+      Call Unused_Integer(IIUSEH0P)
+      Call Unused_Integer(MPORENP_E)
 #endif
 *
       NDET = INT(XISPSM(ISM,ISPC))
