@@ -21,7 +21,7 @@
 *
 * DETERMINE BASE ADRESSES
 *             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
-*             KCFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
+*             CFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
 *             KDTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
 *             KICONF_OCC(I) : SPACE FOR STORING  NCNSM
 *                        CONFIGURATION EXPANSIONS
@@ -308,7 +308,7 @@ C
 C. permanent memory for csf proto type arrays
 C
       CALL mma_allocate(DFTP,LIDT,Label='DFTP')
-      CALL GETMEM('CFTP  ','ALLO','INTE',KCFTP,LICS)
+      CALL mma_allocate(CFTP,LICS,Label='CFTP')
       CALL GETMEM('D_TO_C','ALLO','REAL',KDTOC,LDTOC)
 C
 C. PERMANENT ARRAYS FOR
@@ -403,7 +403,7 @@ c     END DO
 c     LCONF = MAX(LCONF,LLCONF)
 
       CALL mma_deallocate(DFTP)
-      CALL GETMEM('CFTP  ','FREE','INTE',KCFTP,LICS)
+      CALL mma_deallocate(CFTP)
       CALL GETMEM('D_TO_C','FREE','REAL',KDTOC,LDTOC)
 
       CALL GETMEM('CNFOCC','FREE','INTE',KICONF_OCC(ISYM),LCONF)
