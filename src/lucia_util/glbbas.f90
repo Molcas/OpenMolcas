@@ -19,7 +19,6 @@ Private
      &              KMOMO,KSRHO1,KFIZ,                                  &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
-     &              KZ_PTDT(MXPORB+1),                                  &
      &              KREO_PTDT(MXPORB+1)
       Real*8, Allocatable:: VEC3(:)
 
@@ -36,6 +35,7 @@ Private
          Integer, Allocatable:: I(:)
       End Type  Array
       Type (Array) CONF_OCC(8), CONF_REO(8), SDREO_I(8)
+      Type (Array), Allocatable:: Z_PTDT(:)
 
       Public        KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
@@ -47,6 +47,6 @@ Private
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
      &              CONF_OCC,CONF_REO,                                  &
      &              DFTP,CFTP,DTOC,                                     &
-     &              SDREO_I,KZ_PTDT,                                    &
+     &              SDREO_I,Z_PTDT,                                     &
      &              KREO_PTDT
 End Module GLBBAS

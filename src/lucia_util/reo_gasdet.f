@@ -89,8 +89,6 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
       Call mma_allocate(DET_VC,NOCOB,    Label='DET_VC')
 
 *
-*     KIB_OCCLS removed from the argument list, since it's not defined
-*
 *     / Jesper Wisborg Krogh, 2005-06-22
       CALL REO_GASDET_S(IREO,
      &                  IWORK(KNSTSO(IATP)),
@@ -116,7 +114,7 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
      &                  DET_OC,
      &                  DET_MS,
 *
-     &                  DET_VC,iWORK,KZ_PTDT,KREO_PTDT, MINOP,
+     &                  DET_VC,iWORK,KREO_PTDT, MINOP,
      &                  IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 *
       Call mma_deallocate(LASTR)

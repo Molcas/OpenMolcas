@@ -154,16 +154,11 @@ C-jwk      DO IOPEN = 0, MAXOP
 C?      WRITE(6,*) ' IOPEN, IDET = ', IOPEN, IDET
         CALL REO_PTDET(   IOPEN,
      &                   IALPHA,
-     &                 IWORK(KZ_PTDT(ITP)),
+     &                 Z_PTDT(ITP)%I,
      &                 IWORK(KREO_PTDT(ITP)),
      &                 DFTP(IDTBS),
 *
-     &                     IDET,
-     &                 LSCR2 )
-C?     WRITE(6,*) ' Z array as delivered by REO_PTDET'
-C?     CALL IWRTMA(WORK(KZ_PTDT(ITP)),IOPEN,IALPHA,IOPEN,IALPHA)
-C     REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,
-C    &                     NLIST_PTDET,ISCR)
+     &                     IDET,LSCR2)
       END DO
 
 *
