@@ -14,6 +14,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use hidscr
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
+     &                        Allocate_Local_Arrays,
+     &                      Deallocate_Local_Arrays
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -69,13 +72,8 @@
       Integer, Allocatable:: STSTS(:), STSTD(:)
       Integer, Allocatable, Target:: CIOIO(:), SIOIO(:)
       Integer, Pointer:: SCIOIO(:)
-      Integer, Allocatable, Target:: CBLTP(:)
       Integer, Allocatable:: I1(:), I2(:), I3(:), I4(:)
       Real*8, Allocatable:: XI1S(:), XI2S(:), XI3S(:), XI4S(:)
-      Integer, Allocatable:: LLBT(:)
-      Integer, Allocatable:: LLEBT(:)
-      Integer, Allocatable:: LI1BT(:)
-      Integer, Allocatable:: LIBT(:)
       Real*8, Allocatable:: LSCLFAC(:)
       Integer, Allocatable:: SVST(:)
       Integer, Allocatable:: H0SPC(:)
@@ -195,8 +193,6 @@ c      END IF
 *. sigma needed for MXRESC
       CALL IAIBCM(ISSPC,SIOIO)
       CALL IAIBCM(ICSPC,CIOIO)
-*. Arrays giving block type
-      Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
 c      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
 c        Call mma_allocate(SVST,NSMST,Label='SVST')
@@ -246,15 +242,13 @@ C  I assume memory was allocated for blocks, so
       Call mma_allocate(XI2S,LSCR3,Label='XI2S')
       Call mma_allocate(XI3S,LSCR3,Label='XI3S')
       Call mma_allocate(XI4S,LSCR3,Label='XI4S')
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,SVST)
+
 *.Some TTS arrays
       NTTS = MXNTTS
 *
 *. for partitioning of vector
-      Call mma_allocate(LLBT,NTTS,Label='LLBT')
-      Call mma_allocate(LLEBT,NTTS,Label='LLEBT')
-      Call mma_allocate(LI1BT,NTTS,Label='LI1BT')
-      Call mma_allocate(LIBT,8*NTTS,Label='LIBT')
+      Call Allocate_Local_Arrays(NTTS,NSMST)
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,SVST)
 *. For scaling for each TTS block
       Call mma_allocate(LSCLFAC,8*NTTS,Label='LSCLFAC')
 
@@ -321,8 +315,8 @@ c      KSIPA = 1 ! jwk-cleanup
      &             VEC3,VEC3(1+LSCR2),
      &             I3,XI3S,I4,XI4S,
      &             MXSXST,MXSXBL,MOCAA,
-     &             LLBT,LLEBT,
-     &             LI1BT,LIBT,
+     &             CLBT,CLEBT,
+     &             CI1BT,CIBT,
      &             IRESTRICT,
      &             CONSPA,CONSPB,LSCLFAC,
      &             IPERTOP,IH0INSPC,H0SPC,
@@ -358,7 +352,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(CIOIO)
       call mma_deallocate(SIOIO)
       SCIOIO => Null()
-      call mma_deallocate(CBLTP)
+      Call Deallocate_Local_Arrays()
       call mma_deallocate(I1)
       call mma_deallocate(I2)
       call mma_deallocate(I3)
@@ -368,10 +362,6 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(XI3S)
       call mma_deallocate(XI4S)
       call mma_deallocate(LSCLFAC)
-      call mma_deallocate(LLBT)
-      call mma_deallocate(LLEBT)
-      call mma_deallocate(LI1BT)
-      call mma_deallocate(LIBT)
       call mma_deallocate(OCSTR)
       call mma_deallocate(REO)
       call mma_deallocate(Z)
