@@ -11,7 +11,8 @@
       SUBROUTINE TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
       use stdalloc, only: mma_allocate, mma_deallocate
       use  GLBBAS
-      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
+     &                        Deallocate_Local_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
@@ -86,11 +87,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       IBTP = 2
       CALL  Z_BLKFO(ISSPC,ISSM,IATP,IBTP,NBATCH,NBLOCK)
 
-      CALL mma_deallocate(CLBT)
-      CALL mma_deallocate(CLEBT)
-      CALL mma_deallocate(CI1BT)
-      CALL mma_deallocate(CIBT)
-      CALL mma_deallocate(CBLTP)
+      Call Deallocate_Local_Arrays()
 *
 * The input transformation matrix contains a lot of zeros which
 * is expected not to be there in Traci_Lucia, so remove them.

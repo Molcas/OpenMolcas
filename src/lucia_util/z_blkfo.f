@@ -12,7 +12,8 @@
 ************************************************************************
       SUBROUTINE Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
+     &                        Allocate_Local_Arrays
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -58,12 +59,8 @@
 *
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
-*. Pointers to output arrays
-      CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT')
-      CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT')
-      CALL mma_allocate(CI1BT,MXNTTS,Label='CI1BT')
-      CALL mma_allocate(CIBT ,8*MXNTTS,Label='CIBT')
-      CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
+*.    Allocate local arrays
+      Call Allocate_Local_Arrays(MXNTTS,NSMST)
 *.    ^ These should be preserved after exit so put mark for flushing here
 *. Info needed for generation of block info
       Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')

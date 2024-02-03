@@ -13,7 +13,8 @@
       SUBROUTINE T_TO_NK_VEC(      T,   KORB,    ISM,   ISPC,  LUCIN,
      &                        LUCOUT,      C)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
+     &                        Deallocate_Local_Arrays
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -81,10 +82,6 @@
       Call mma_deallocate(LKAOC)
       Call mma_deallocate(LKBOC)
 
-      CALL mma_deallocate(CLBT)
-      CALL mma_deallocate(CLEBT)
-      CALL mma_deallocate(CI1BT)
-      CALL mma_deallocate(CIBT)
-      CALL mma_deallocate(CBLTP)
+      Call Deallocate_Local_Arrays()
 *
       END
