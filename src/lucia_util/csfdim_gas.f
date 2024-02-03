@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
+      use stdalloc, only: mma_allocate
       use GLBBAS
 *
 * Initializing routine for CSF-DET expansions
@@ -19,7 +20,7 @@
 *
 *
 * DETERMINE BASE ADRESSES
-*             KDFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
+*             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
 *             KCFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
 *             KDTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
 *             KICONF_OCC(I) : SPACE FOR STORING  NCNSM
@@ -306,17 +307,9 @@ C?    WRITE(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
 C
 C. permanent memory for csf proto type arrays
 C
-      CALL GETMEM('DFTP  ','ALLO','INTE',KDFTP,LIDT)
+      CALL mma_allocate(DFTP,LIDT,Label='DFTP')
       CALL GETMEM('CFTP  ','ALLO','INTE',KCFTP,LICS)
       CALL GETMEM('D_TO_C','ALLO','REAL',KDTOC,LDTOC)
-C     CALL MEMADD(KDFTP,LIDT,KFREE,1)
-C     CALL MEMADD(KCFTP,LICS,KFREE,1)
-C     CALL MEMADD(KDTOC,LDTOC,KFREE,2)
-      IF( NTEST .GE.6 ) THEN
-        WRITE(6,*) ' MEMORY ALLOCATION IN CSFDIM : '
-        WRITE(6,*) ' POINTERS FOR PROTOTYPE INFORMATION '
-        WRITE(6,'(A,3I7)') ' KDFTP KCFTP KDTOC ',KDFTP,KCFTP,KDTOC
-      END IF
 C
 C. PERMANENT ARRAYS FOR
 C. HOLDING CONFIGURATION EXPANSIONS AND REORDER ARRAYS
@@ -375,6 +368,7 @@ c     ntest=10
       END
 
       SUBROUTINE CSFDIM_FREE(ISYM)
+      use stdalloc, only: mma_deallocate
       use GLBBAS
 * Free resources allocated by CSFDIM_GAS
 
@@ -408,7 +402,7 @@ c       LLCONF = LLCONF + NCONF_PER_OPEN(ITYP,ISYM)*(IOPEN+ICL)
 c     END DO
 c     LCONF = MAX(LCONF,LLCONF)
 
-      CALL GETMEM('DFTP  ','FREE','INTE',KDFTP,LIDT)
+      CALL mma_deallocate(DFTP)
       CALL GETMEM('CFTP  ','FREE','INTE',KCFTP,LICS)
       CALL GETMEM('D_TO_C','FREE','REAL',KDTOC,LDTOC)
 

@@ -99,7 +99,7 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
      &                 LASTR,LBSTR,NSMST,NELFSPGP,
 *
      &                  NMXOCCLS,    NGAS,IWORK(KIOCLS),NTOOB,  NOBPT,
-     &                  IWORK(KDFTP),
+     &                  DFTP,
      &                  IB_CONF_REO,
      &                  iwork(kiconf_reo(isym)),
      &                  nconf_tot,

@@ -20,10 +20,11 @@ Private
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
      &              KICONF_OCC(8),KICONF_REO(8),                        &
-     &              KDFTP,KCFTP,KDTOC,                                  &
+     &              KCFTP,KDTOC,                                        &
      &              KSDREO_I(8),KZ_PTDT(MXPORB+1),                      &
      &              KREO_PTDT(MXPORB+1)
       Real*8, Allocatable:: VEC3(:)
+      Integer, Allocatable:: DFTP(:)
 
       Public        KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
@@ -34,7 +35,7 @@ Private
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
      &              KICONF_OCC,KICONF_REO,                              &
-     &              KDFTP,KCFTP,KDTOC,                                  &
+     &              DFTP,KCFTP,KDTOC,                                   &
      &              KSDREO_I,KZ_PTDT,                                   &
      &              KREO_PTDT
 End Module GLBBAS

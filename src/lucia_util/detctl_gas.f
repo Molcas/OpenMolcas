@@ -79,7 +79,7 @@ C??         WRITE(6,*) ' CSFDIM_GAS will be called '
 C            CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCIX)
 *. Prototype dets and csf's and CSF'SD matrices
 C            CSDTMT_GAS(IPDTCNF,IPCSCNF,DTOC,IPRCSF)
-         CALL CSDTMT_GAS(iWORK(KDFTP),iWORK(KCFTP),WORK(KDTOC),IPRCIX)
+         CALL CSDTMT_GAS(DFTP,iWORK(KCFTP),WORK(KDTOC),IPRCIX)
       END  IF
 *. Allocate memory for diagonalization
 c      IF(ISIMSYM.EQ.0) THEN
@@ -248,6 +248,7 @@ c      END IF
 *
       KDTOC_POINTER  = KDTOC
       KSDREO_POINTER = KSDREO_I(jsym)
+      kDFTP=ip_of_iWork(DFTP)
       CALL LUCIA2MOLCAS(kdftp,kcftp,kdtoc,
      &     iwork(kiconf_occ(jsym)),iwork(KSDREO_I(jsym)),
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
@@ -256,7 +257,6 @@ c      END IF
      &     nCSF_HEXS)
 
 
-      RETURN
       END
 *
       SUBROUTINE DETCTL_FREE()
