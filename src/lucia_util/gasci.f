@@ -14,6 +14,9 @@
      &                 MPORENP_E)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
+     &                        Allocate_Local_Arrays,
+     &                      Deallocate_Local_Arrays
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -57,8 +60,6 @@
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
       Integer, Allocatable:: CIOIO(:)
       Integer, Allocatable:: SVST(:)
-      Integer, Allocatable:: CLBT(:), CLEBT(:), CI1BT(:), CIBT(:),
-     &                       CBLTP(:)
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
@@ -180,13 +181,9 @@ c      END IF
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
       NTTS = MXNTTS
-      CALL mma_allocate(CLBT ,NTTS  ,Label='CLBT')
-      CALL mma_allocate(CLEBT ,NTTS  ,Label='CLEBT')
-      CALL mma_allocate(CI1BT,NTTS  ,Label='CI1BT')
-      CALL mma_allocate(CIBT ,8*NTTS,Label='CIBT')
+      Call Allocate_Local_Arrays(NTTS,NSMST)
 *. Additional info required to construct partitioning
       Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
-      CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *
       CALL IAIBCM(ISPC,CIOIO)
       Call mma_allocate(SVST,1,Label='SVST')
@@ -334,9 +331,8 @@ c         END IF
       END IF
 
       IDUMMY=1
+      Call Deallocate_Local_Arrays()
       Call mma_deallocate(CIOIO)
-      CALL mma_deallocate(CBLTP)
-      CALL mma_deallocate(CIBT)
       Call mma_deallocate(VEC3)
       RETURN
 c Avoid unused argument warnings
