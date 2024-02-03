@@ -135,6 +135,8 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
             CALL IWRTMA(NBLKIC(1,ICI),1,NSMCI,1,NSMCI)
         END DO
       END IF
+#else
+      Call Unused_Integer(IPRNT)
 #endif
 *. Largest number of BLOCKS in a CI expansion
       MXNTTS = 0
