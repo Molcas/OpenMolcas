@@ -50,8 +50,7 @@ C
       Call mma_allocate(LOCMAX,NOCOB,Label='LOCMAX')
 *. Zero configuration reorder array using NCONF_ALL_SYM
       IZERO = 0
-c     CALL ISETVC(WORK(KICONF_REO(ISYM)),IZERO,NCONF_ALL_SYM)
-      CALL ISETVC(iWORK(KICONF_REO(ISYM)),IZERO,NCONF_tot)
+      CALL ISETVC(CONF_REO(ISYM)%I,IZERO,NCONF_tot)
 *
 * Generate configurations for all occupation classes
 *
@@ -101,7 +100,7 @@ C_REMOVED         CALL ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
      &                           Z(:),
      &                           NCONF_ALL_SYM,
 *
-     &                           iwork(kiconf_reo(isym)),
+     &                           conf_reo(isym)%I,
      &                           nconf_tot)
 *
 C     GEN_CONF_FOR_OCCLS(

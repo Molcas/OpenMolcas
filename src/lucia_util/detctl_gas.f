@@ -124,7 +124,7 @@ c      END IF
       CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
       IF (NEL .GT. 0)
      &   CALL CNFORD_GAS(IWORK(KLOCCLS), NOCCLS, jsym, PSSIGN, IPRCIX,
-     &       CONF_OCC(JSYM)%I, IWORK(KICONF_REO(jsym)),
+     &       CONF_OCC(JSYM)%I, CONF_REO(jsym)%I,
      &       IWORK(KSDREO_I(jsym)),
      &       CIBT, NBLOCK)
 *

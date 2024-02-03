@@ -19,7 +19,6 @@ Private
      &              KMOMO,KSRHO1,KFIZ,                                  &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
-     &              KICONF_REO(8),                                      &
      &              KSDREO_I(8),KZ_PTDT(MXPORB+1),                      &
      &              KREO_PTDT(MXPORB+1)
       Real*8, Allocatable:: VEC3(:)
@@ -36,7 +35,7 @@ Private
       Type Array
          Integer, Allocatable:: I(:)
       End Type  Array
-      Type (Array) CONF_OCC(8)
+      Type (Array) CONF_OCC(8), CONF_REO(8)
 
       Public        KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
@@ -46,7 +45,7 @@ Private
      &              KMOMO,KSRHO1,KFIZ,                                  &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
-     &              CONF_OCC,KICONF_REO,                              &
+     &              CONF_OCC,CONF_REO,                                  &
      &              DFTP,CFTP,DTOC,                                     &
      &              KSDREO_I,KZ_PTDT,                                   &
      &              KREO_PTDT

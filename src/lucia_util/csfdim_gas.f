@@ -317,8 +317,7 @@ C
 *. Occupation of configurations
       CALL mma_allocate(CONF_OCC(ISYM)%I,LCONF,Label='CONF_OCC()')
 *. Reorder array for configurations
-c     CALL MEMMAN(KICONF_REO(ISYM),NCONF_ALL_SYM,'ADDL  ',1,'CNFREO')
-      CALL GETMEM('CNFREO','ALLO','INTE',KICONF_REO(ISYM),NCONF_TOT)
+      CALL mma_allocate(CONF_REO(ISYM)%I,NCONF_TOT,Label='CONF_REO()')
 *. Reorder array for determinants, index and sign
       CALL GETMEM('SDREOI','ALLO','INTE',KSDREO_I(ISYM),NSD)
 *
@@ -390,7 +389,7 @@ c     LCONF = MAX(LCONF,LLCONF)
       CALL mma_deallocate(DTOC)
 
       CALL mma_deallocate(CONF_OCC(ISYM)%I)
+      CALL mma_deallocate(CONF_REO(ISYM)%I)
 
-      CALL GETMEM('CNFREO','FREE','INTE',KICONF_REO(ISYM),NCONF_TOT)
       CALL GETMEM('SDREOI','FREE','INTE',KSDREO_I(ISYM),LDET)
       END

@@ -92,16 +92,16 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
 *     KIB_OCCLS removed from the argument list, since it's not defined
 *
 *     / Jesper Wisborg Krogh, 2005-06-22
-      CALL REO_GASDET_S(    IREO,
+      CALL REO_GASDET_S(IREO,
      &                  IWORK(KNSTSO(IATP)),
      &                 IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB,MXPNGAS,IOCTPA,
-     &                    IOCTPB,  NBLOCK,  IBLOCK,    NAEL,    NBEL,
-     &                 LASTR,LBSTR,NSMST,NELFSPGP,
+     &                  IOCTPB,  NBLOCK,  IBLOCK,    NAEL,    NBEL,
+     &                  LASTR,LBSTR,NSMST,NELFSPGP,
 *
      &                  NMXOCCLS,    NGAS,IWORK(KIOCLS),NTOOB,  NOBPT,
      &                  DFTP,
      &                  IB_CONF_REO,
-     &                  iwork(kiconf_reo(isym)),
+     &                  conf_reo(isym)%I,
      &                  nconf_tot,
 *
      &                  ib_conf_reo,
