@@ -319,7 +319,7 @@ C
 *. Reorder array for configurations
       CALL mma_allocate(CONF_REO(ISYM)%I,NCONF_TOT,Label='CONF_REO()')
 *. Reorder array for determinants, index and sign
-      CALL GETMEM('SDREOI','ALLO','INTE',KSDREO_I(ISYM),NSD)
+      CALL mma_allocate(SDREO_I(ISYM)%I,NSD,Label='SDREO_I()')
 *
 * Arrays for addressing prototype determinants for each number of orbitals
 *
@@ -391,5 +391,5 @@ c     LCONF = MAX(LCONF,LLCONF)
       CALL mma_deallocate(CONF_OCC(ISYM)%I)
       CALL mma_deallocate(CONF_REO(ISYM)%I)
 
-      CALL GETMEM('SDREOI','FREE','INTE',KSDREO_I(ISYM),LDET)
+      CALL mma_deallocate(SDREO_I(ISYM)%I)
       END

@@ -125,7 +125,7 @@ c      END IF
       IF (NEL .GT. 0)
      &   CALL CNFORD_GAS(IWORK(KLOCCLS), NOCCLS, jsym, PSSIGN, IPRCIX,
      &       CONF_OCC(JSYM)%I, CONF_REO(jsym)%I,
-     &       IWORK(KSDREO_I(jsym)),
+     &       SDREO_I(jsym)%I,
      &       CIBT, NBLOCK)
 *
       Call Deallocate_Local_Arrays()
@@ -246,13 +246,13 @@ c      IF(ISIMSYM.EQ.0) THEN
          MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA + 4*MAX_STR_SPGP
 c      END IF
 *
-      KSDREO_POINTER = KSDREO_I(jsym)
+      KSDREO_POINTER = ip_of_Work(SDREO_I(jsym)%I(1))
       kDFTP=ip_of_iWork(DFTP)
       kCFTP=ip_of_iWork(CFTP)
       kDTOC=ip_of_iWork(DTOC)
       KDTOC_POINTER  = KDTOC
       CALL LUCIA2MOLCAS(kdftp,kcftp,kdtoc,
-     &     CONF_OCC(jsym)%I,iwork(KSDREO_I(jsym)),
+     &     CONF_OCC(jsym)%I,SDREO_I(jsym)%I,
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
      &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
      &     KICTS_POINTER,
