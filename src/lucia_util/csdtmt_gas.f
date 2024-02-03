@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2001, Jeppe Olsen                                 *
 ************************************************************************
-      SUBROUTINE CSDTMT_GAS(IPDTCNF,IPCSCNF,DTOC,IPRCSF)
+      SUBROUTINE CSDTMT_GAS(IPRCSF)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
 *
@@ -35,8 +35,6 @@
 #include "WrkSpc.fh"
 #include "cstate.fh"
 *. Output
-      INTEGER IPDTCNF(*),IPCSCNF(*)
-      DIMENSION DTOC(*)
       Real*8,  Allocatable:: LSCR1(:)
       Integer, Allocatable:: LSCR2(:)
 *
@@ -93,8 +91,8 @@ C
             CALL SPNCOM_LUCIA(  IOPEN,
      &                            MS2,
      &                          NNDET,
-     &                        IPDTCNF(IDTBS),
-     &                        IPCSCNF(ICSBS),
+     &                        DFTP(IDTBS),
+     &                        CFTP(ICSBS),
 *
      &                          IFLAG,
      &                         PSSIGN,
@@ -106,8 +104,8 @@ C    &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
             CALL SPNCOM_LUCIA(  IOPEN,
      &                            MS2,
      &                          NNDET,
-     &                        IPDTCNF(IDTBS),
-     &                        IPCSCNF(ICSBS),
+     &                        DFTP(IDTBS),
+     &                        CFTP(ICSBS),
 *
      &                          IFLAG,
      &                         PSSIGN,
@@ -116,8 +114,8 @@ C    &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
             CALL SPNCOM_LUCIA(  IOPEN,
      &                        MULTS-1,
      &                          NNDET,
-     &                        IPDTCNF(IDTBS),
-     &                        IPCSCNF(ICSBS),
+     &                        DFTP(IDTBS),
+     &                        CFTP(ICSBS),
 *
      &                          IFLAG,
      &                         PSSIGN,
@@ -158,7 +156,7 @@ C?      WRITE(6,*) ' IOPEN, IDET = ', IOPEN, IDET
      &                   IALPHA,
      &                 IWORK(KZ_PTDT(ITP)),
      &                 IWORK(KREO_PTDT(ITP)),
-     &                 IPDTCNF(IDTBS),
+     &                 DFTP(IDTBS),
 *
      &                     IDET,
      &                 LSCR2 )
@@ -204,9 +202,9 @@ C       IF(NPCMCNF(ITP)*NPCSCNF(ITP).EQ.0) GOTO 30
            DTOC(ICDCBS) = 1.0D0
         ELSE
           CALL CSFDET_LUCIA(  IOPEN,
-     &                      IPDTCNF(IDTBS),
+     &                      DFTP(IDTBS),
      &                      NPCMCNF(ITP),
-     &                      IPCSCNF(ICSBS),
+     &                      CFTP(ICSBS),
      &                      NPCSCNF(ITP),
 *
      &                      DTOC(ICDCBS),LSCR1,PSSIGN,IPRCSF)

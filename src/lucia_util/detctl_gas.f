@@ -78,8 +78,8 @@ C??         WRITE(6,*) ' CSFDIM_GAS will be called '
          CALL CSFDIM_GAS(IWORK(KLOCCLS),NOCCLS,JSYM,IPRCIX)
 C            CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCIX)
 *. Prototype dets and csf's and CSF'SD matrices
-C            CSDTMT_GAS(IPDTCNF,IPCSCNF,DTOC,IPRCSF)
-         CALL CSDTMT_GAS(DFTP,CFTP,WORK(KDTOC),IPRCIX)
+C            CSDTMT_GAS(IPRCSF)
+         CALL CSDTMT_GAS(IPRCIX)
       END  IF
 *. Allocate memory for diagonalization
 c      IF(ISIMSYM.EQ.0) THEN
@@ -246,10 +246,11 @@ c      IF(ISIMSYM.EQ.0) THEN
          MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA + 4*MAX_STR_SPGP
 c      END IF
 *
-      KDTOC_POINTER  = KDTOC
       KSDREO_POINTER = KSDREO_I(jsym)
       kDFTP=ip_of_iWork(DFTP)
       kCFTP=ip_of_iWork(CFTP)
+      kDTOC=ip_of_iWork(DTOC)
+      KDTOC_POINTER  = KDTOC
       CALL LUCIA2MOLCAS(kdftp,kcftp,kdtoc,
      &     iwork(kiconf_occ(jsym)),iwork(KSDREO_I(jsym)),
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
