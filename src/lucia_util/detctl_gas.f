@@ -11,6 +11,10 @@
       SUBROUTINE DETCTL_GAS
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
+     &                        Allocate_Local_Arrays,
+     &                      Deallocate_Local_Arrays
+
 *
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
@@ -96,44 +100,35 @@ c      END IF
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
       NTTS = MXNTTS
-C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
-      CALL GETMEM('CLBT  ','ALLO','INTE',KLCLBT ,NTTS  )
-      CALL GETMEM('CLEBT ','ALLO','INTE',KLCLEBT ,NTTS  )
-      CALL GETMEM('CI1BT ','ALLO','INTE',KLCI1BT,NTTS  )
-      CALL GETMEM('CIBT  ','ALLO','INTE',KLCIBT ,8*NTTS)
+      Call Allocate_Local_Arrays(NTTS,NSMST)
 *. Additional info required to construct partitioning
 *
-*
       Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
-      CALL GETMEM('CBLTP ','ALLO','INTE',KLCBLTP,NSMST)
 *
       CALL IAIBCM(ICSPC,LCIOIO)
       Call mma_allocate(SVST,1,Label='SVST')
-      CALL ZBLTP(ISMOST(1,jsym),NSMST,IDC,iWORK(KLCBLTP),SVST)
+      CALL ZBLTP(ISMOST(1,jsym),NSMST,IDC,CBLTP,SVST)
       Call mma_deallocate(SVST)
 *
 *. Batches  of C vector
-      CALL PART_CIV2(IDC,iWORK(KLCBLTP),iWORK(KNSTSO(IATP)),
+      CALL PART_CIV2(IDC,CBLTP,iWORK(KNSTSO(IATP)),
      &     iWORK(KNSTSO(IBTP)),
      &     NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,
      &     ISMOST(1,jsym),
-     &     NBATCH,iWORK(KLCLBT),iWORK(KLCLEBT),
-     &     iWORK(KLCI1BT),iWORK(KLCIBT),0,ISIMSYM)
+     &     NBATCH,CLBT,CLEBT,
+     &     CI1BT,CIBT,0,ISIMSYM)
 *. Number of BLOCKS
-      NBLOCK = IFRMR(IWORK(KLCI1BT),1,NBATCH)
-     &     + IFRMR(IWORK(KLCLBT),1,NBATCH) - 1
+      NBLOCK = IFRMR(CI1BT,1,NBATCH)
+     &     + IFRMR(CLBT,1,NBATCH) - 1
 *. Length of each block
-      CALL EXTRROW(iWORK(KLCIBT),8,8,NBLOCK,iWORK(KLCI1BT))
+      CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
       IF (NEL .GT. 0)
      &   CALL CNFORD_GAS(IWORK(KLOCCLS), NOCCLS, jsym, PSSIGN, IPRCIX,
      &       IWORK(KICONF_OCC(jsym)), IWORK(KICONF_REO(jsym)),
      &       IWORK(KSDREO_I(jsym)),
-     &       IWORK(KLCIBT), NBLOCK)
+     &       CIBT, NBLOCK)
 *
-      CALL GETMEM('CLBT  ','FREE','INTE',KLCLBT ,NTTS  )
-      CALL GETMEM('CLEBT ','FREE','INTE',KLCLEBT ,NTTS  )
-      CALL GETMEM('CI1BT ','FREE','INTE',KLCI1BT,NTTS  )
-      CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*NTTS)
+      Call Deallocate_Local_Arrays()
 *. If PICO2/SBLOCK are used, three blocks are used in PICO2, so
 *...
 *. Sblock is used in general nowadays so,
@@ -192,6 +187,9 @@ C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
      &        MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,
      &        IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,
      &        MXADKBLK_AS,MX_NSPII)
+
+      Call mma_deallocate(LCIOIO)
+
       IF(IPRCIX.GE.2) THEN
          WRITE(6,*) 'DETCTL : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',
      &           MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
@@ -257,8 +255,6 @@ c      END IF
      &     KICTS_POINTER,
      &     nCSF_HEXS)
 
-      Call mma_deallocate(LCIOIO)
-      CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
 
       RETURN
       END
