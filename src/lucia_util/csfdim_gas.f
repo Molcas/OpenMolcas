@@ -23,7 +23,7 @@
 *             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
 *             CFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
 *             DTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
-*             KICONF_OCC(I) : SPACE FOR STORING  NCNSM
+*             ONF_OCC%I(I) : SPACE FOR STORING  NCNSM
 *                        CONFIGURATION EXPANSIONS
 * Local memory requirements : IWORK(NACTOB)
 *
@@ -315,29 +315,12 @@ C. PERMANENT ARRAYS FOR
 C. HOLDING CONFIGURATION EXPANSIONS AND REORDER ARRAYS
 C
 *. Occupation of configurations
-      CALL GETMEM('CNFOCC','ALLO','INTE',KICONF_OCC(ISYM),LCONF)
+      CALL mma_allocate(CONF_OCC(ISYM)%I,LCONF,Label='CONF_OCC()')
 *. Reorder array for configurations
 c     CALL MEMMAN(KICONF_REO(ISYM),NCONF_ALL_SYM,'ADDL  ',1,'CNFREO')
       CALL GETMEM('CNFREO','ALLO','INTE',KICONF_REO(ISYM),NCONF_TOT)
 *. Reorder array for determinants, index and sign
       CALL GETMEM('SDREOI','ALLO','INTE',KSDREO_I(ISYM),NSD)
-*. Sign array is kept real for compatibility
-c.. Giovanni and Dongxia decided to delete 'SDREOS' array since it is not used
-c     CALL MEMMAN(KSDREO_S(ISYM),NSD,'ADDL  ',1,'SDREOS')
-c..
-COLD  CALL MEMADD(KICONF(ICNSM),LCONF,KFREE,1)
-COLD  CALL MEMADD(KICTS(ICNSM),LDET ,KFREE,1)
-COLD  CALL MEMADD(KSCTS(ICNSM),LDET ,KFREE,2)
-c     write(6,*)'check me!! dimensions:'
-c     write(6,*)'nconf_all_sym =',nconf_all_sym
-c     write(6,*)'nconf_tot =', nconf_tot
-C
-c     ntest=10
-      IF( NTEST .GE. 6 ) THEN
-        WRITE(6,*) ' KICONF_OCC,  kiconf_reo = ',
-     &  KICONF_OCC(ISYM), kiconf_reo(isym)
-        WRITE(6,*) ' KSDREO_I',KSDREO_I(ISYM)
-      END IF
 *
 * Arrays for addressing prototype determinants for each number of orbitals
 *
@@ -406,7 +389,8 @@ c     LCONF = MAX(LCONF,LLCONF)
       CALL mma_deallocate(CFTP)
       CALL mma_deallocate(DTOC)
 
-      CALL GETMEM('CNFOCC','FREE','INTE',KICONF_OCC(ISYM),LCONF)
+      CALL mma_deallocate(CONF_OCC(ISYM)%I)
+
       CALL GETMEM('CNFREO','FREE','INTE',KICONF_REO(ISYM),NCONF_TOT)
       CALL GETMEM('SDREOI','FREE','INTE',KSDREO_I(ISYM),LDET)
       END

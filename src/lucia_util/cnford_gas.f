@@ -96,16 +96,13 @@ C_REMOVED         CALL ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
      &                           IB_CONF_REO,
 *
      &                           IB_CONF_OCC,
-     &                           iWORK(KICONF_OCC(ISYM)),
+     &                           CONF_OCC(ISYM)%I,
      &                           IDOREO,
      &                           Z(:),
      &                           NCONF_ALL_SYM,
 *
      &                           iwork(kiconf_reo(isym)),
      &                           nconf_tot)
-c      write(6,*)'nconf_per_open after 2nd call of gen_conf_for_occls'
-c      call iwrtma(nconf_per_open,1,4,1,4)
-c     write(6,*)'nconf_tot in gen_conf_for_occls',nconf_tot
 *
 C     GEN_CONF_FOR_OCCLS(
 C    &    IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,

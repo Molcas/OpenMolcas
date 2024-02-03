@@ -124,7 +124,7 @@ c      END IF
       CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
       IF (NEL .GT. 0)
      &   CALL CNFORD_GAS(IWORK(KLOCCLS), NOCCLS, jsym, PSSIGN, IPRCIX,
-     &       IWORK(KICONF_OCC(jsym)), IWORK(KICONF_REO(jsym)),
+     &       CONF_OCC(JSYM)%I, IWORK(KICONF_REO(jsym)),
      &       IWORK(KSDREO_I(jsym)),
      &       CIBT, NBLOCK)
 *
@@ -252,7 +252,7 @@ c      END IF
       kDTOC=ip_of_iWork(DTOC)
       KDTOC_POINTER  = KDTOC
       CALL LUCIA2MOLCAS(kdftp,kcftp,kdtoc,
-     &     iwork(kiconf_occ(jsym)),iwork(KSDREO_I(jsym)),
+     &     CONF_OCC(jsym)%I,iwork(KSDREO_I(jsym)),
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
      &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
      &     KICTS_POINTER,
