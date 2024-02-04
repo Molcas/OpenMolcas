@@ -201,8 +201,8 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *. Zero
         IF(LAC.NE.0) THEN
           IZERO = 0
-          CALL ISETVC(iWork(KSTSTM(IGRP,1)),IZERO,LROW*NSTINI)
-          CALL ISETVC(iWork(KSTSTM(IGRP,2)),IZERO,LROW*NSTINI)
+          CALL ISETVC(STSTM(IGRP,1)%I,IZERO,LROW*NSTINI)
+          CALL ISETVC(STSTM(IGRP,2)%I,IZERO,LROW*NSTINI)
         END IF
 *
         IF(ISTAC(IGRP,2).NE.0) THEN
@@ -211,8 +211,8 @@ C     DIMENSION IOCTYP(MXPNGAS)
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
      &                    iWork(KZ(JGRP)),STREO(JGRP)%I,
      &                    0,IDUM,IDUM,
-     &                    iWork(KSTSTM(IGRP,1)),
-     &                    iWork(KSTSTM(IGRP,2)),NACOB,IPRNT)
+     &                    STSTM(IGRP,1)%I,
+     &                    STSTM(IGRP,2)%I,NACOB,IPRNT)
 *
         END IF
         IF(ISTAC(IGRP,1).NE.0) THEN
@@ -221,8 +221,8 @@ C     DIMENSION IOCTYP(MXPNGAS)
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
      &                    iWork(KZ(JGRP)),STREO(JGRP)%I,
      &                    0,IDUM,IDUM,
-     &                    iWork(KSTSTM(IGRP,1)),
-     &                    iWork(KSTSTM(IGRP,2)),NACOB,IEC,LROW,IPRNT)
+     &                    STSTM(IGRP,1)%I,
+     &                    STSTM(IGRP,2)%I,NACOB,IEC,LROW,IPRNT)
 *
         END IF
       END DO

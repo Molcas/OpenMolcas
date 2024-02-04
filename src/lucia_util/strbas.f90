@@ -12,17 +12,17 @@ Module STRBAS
       Private
 #include "mxpdim.fh"
       Integer       KNSTSO(MXPSTT),KISTSO(MXPSTT),                      &
-     &              KSTSTM(MXPSTT,2),KZ(MXPSTT),                        &
+     &              KZ(MXPSTT),                                         &
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,                  &
      &              KNSTSGP(MXPNGAS),KISTSGP(MXPNGAS) ,                 &
      &              KIOCLS,KSPGPAN,KSPGPCR
       Type iArray
          Integer, Allocatable:: I(:)
       End Type iArray
-      Type (iArray):: OCSTR(MXPSTT), STREO(MXPSTT)
+      Type (iArray):: OCSTR(MXPSTT), STREO(MXPSTT), STSTM(MXPSTT,2)
 
       Public        OCSTR,KNSTSO,KISTSO,                                &
-     &              KSTSTM,KZ,STREO,                                    &
+     &              STSTM,KZ,STREO,                                     &
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,                  &
      &              KNSTSGP,KISTSGP,                                    &
      &              KIOCLS,KSPGPAN,KSPGPCR

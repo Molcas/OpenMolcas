@@ -338,10 +338,8 @@ C?   &               nstb,nsta,niac,nkac
 *
         NKACT = NSTFGP(KACGRP)
 C?      write(6,*) ' KACGRP ', KACGRP
-        CALL ADSTN_GASSM(    NSTB,    NSTA,    IKAC,    IIAC,IBSTRINI,
-     &                     KSTRBS,
-     &                   IWORK(KSTSTM(KACGRP,1)),
-     &                   IWORK(KSTSTM(KACGRP,2)),
+        CALL ADSTN_GASSM(NSTB,    NSTA,    IKAC,    IIAC,IBSTRINI,
+     &                   KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,
      &                   IBORBSPS, IBORBSP,  NORBTS,    NKAC,   NKACT,
 *
      &                       NIAC,   NKSTR, KBSTRIN,    NELB, NACGSOB,

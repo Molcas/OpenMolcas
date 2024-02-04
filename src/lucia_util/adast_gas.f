@@ -307,10 +307,10 @@ C       DO IGAS =  IOBTP +1, NIGRP
 *
         IF(NSTA*NSTB*NIAC*NKAC.NE.0)
      &  CALL ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,
-     &                 iWORK(KSTSTM(KACGRP,1)),iWORK(KSTSTM(KACGRP,2)),
-     &                 IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
-     &                 NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
-     &                 LROW_IN,IEC)
+     &                   STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,
+     &                   IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
+     &                   NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
+     &                   LROW_IN,IEC)
         KSTRBS = KSTRBS + NKSD
         GOTO 1000
 *

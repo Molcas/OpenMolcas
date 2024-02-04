@@ -67,20 +67,8 @@
         ISTRIN = NSTFGP(IGRP)
 *. IF creation is involve : Use full orbital notation
 *  If only annihilation is involved, compact form will be used
-        IF(ISTAC(IGRP,2).NE.0) THEN
-          LENGTH = IORB*ISTRIN
-          CALL GETMEM('ORBMAP','FREE','INTE',KSTSTM(IGRP,1),LENGTH)
-          CALL GETMEM('STRMAP','FREE','INTE',KSTSTM(IGRP,2),LENGTH)
-        ELSE IF(ISTAC(IGRP,1).NE.0) THEN
-*. Only annihilation map so
-          LENGTH = IEL*ISTRIN
-          CALL GETMEM('ORBMAP','FREE','INTE',KSTSTM(IGRP,1),LENGTH)
-          CALL GETMEM('STRMAP','FREE','INTE',KSTSTM(IGRP,2),LENGTH)
-        ELSE
-*. Neither annihilation nor creation (?!)
-          KSTSTM(IGRP,1) = -1
-          KSTSTM(IGRP,2) = -1
-        END IF
+        CALL mma_deallocate(STSTM(IGRP,1)%I)
+        CALL mma_deallocate(STSTM(IGRP,2)%I)
       END DO
 *
 *. Symmetry of conjugated orbitals and orbital excitations
