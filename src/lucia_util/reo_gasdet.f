@@ -91,8 +91,8 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
 *
 *     / Jesper Wisborg Krogh, 2005-06-22
       CALL REO_GASDET_S(IREO,
-     &                  IWORK(KNSTSO(IATP)),
-     &                 IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB,MXPNGAS,IOCTPA,
+     &                  NSTSO(IATP)%I,
+     &                  NSTSO(IBTP)%I,NOCTPA,NOCTPB,MXPNGAS,IOCTPA,
      &                  IOCTPB,  NBLOCK,  IBLOCK,    NAEL,    NBEL,
      &                  LASTR,LBSTR,NSMST,NELFSPGP,
 *

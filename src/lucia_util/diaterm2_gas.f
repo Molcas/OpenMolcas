@@ -104,7 +104,7 @@ C     END IF
 *. Space for blocks of strings
       Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
-      MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXA = IMNMX(NSTSO(IATP)%I,NSMST*NOCTPA,2)
       CALL mma_allocate(LRJKA,MAXA,Label='LRJKA')
 *. Diagonal of one-body integrals and coulomb and exchange integrals
 *. Integrals assumed in place so :
@@ -120,7 +120,7 @@ C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),WORK(KINT1),NINT1)
       CALL DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,
      &                  NACOB,VEC,NSMST,
      &                  LH1D,JDC,LXB,LJ,LK,
-     &                  iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
+     &                  NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &                  ECOREP,0,0,IPRDIA,NTOOB,LRJKA,J12,
      &                  IBLOCK(1,IOFF),NBLOCK,ITASK, FACTORX,0,[0])
 *
@@ -139,7 +139,7 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
       IF(NTEST.GE.100) THEN
         WRITE(6,*)  ' output vector from DIATRM '
         CALL WRTTTS(      VEC,IBLOCK(1,IOFF),NBLOCK,  NSMST,
-     &                 IWORK(KNSTSO(IATP)),IWORK(KNSTSO(IBTP)),IDC)
+     &                 NSTSO(IATP)%I,NSTSO(IBTP)%I,IDC)
       END IF
 #endif
 *

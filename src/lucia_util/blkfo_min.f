@@ -62,8 +62,8 @@
 *. Allowed length of each batch( not important for final output )
       LBLOCK = MAX(MXSOOB,LCSBLK)
 *. Batches  of C vector
-      CALL PART_CIV2(IDC,CBLTP,IWORK(KNSTSO(IATP)),
-     &              IWORK(KNSTSO(IBTP)),
+      CALL PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,
+     &                         NSTSO(IBTP)%I,
      &              NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,
      &              ISMOST(1,ISM),
      &              NBATCH,CLBT,CLEBT,

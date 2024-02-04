@@ -241,7 +241,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           CALL NSTPTP_GAS(    NGAS,
      &                    ISPGPFTP(1,IGRPABS),
      &                    NSTSGP(1)%I,
-     &                   NSMST,IWORK(KNSTSO(ITP)),IGRP,MXNSTRFSG,NSMCLS,
+     &                   NSMST,NSTSO(ITP)%I,IGRP,MXNSTRFSG,NSMCLS,
      &                     NSMCLSE,NSMCLSE1)
 *
 *
@@ -252,21 +252,21 @@ C     DIMENSION IOCTYP(MXPNGAS)
           MXNSTR = MAX(MXNSTR,MXNSTRFSG)
         END DO
 *
-        CALL ICOPMT(iWORK(KNSTSO(ITP)),
+        CALL ICOPMT(NSTSO(ITP)%I,
      &                  NSMST,
      &              NSPGPFTP(ITP),
      &              NSTFSMSPGP(1,IBSPGPFTP(ITP)),
      &               MXPNSMST,NSPGPFTP(ITP))
 *. Corresponding offset array : Each supergroup is generated individually
 *. so each supergroup starts with offset 1 !
-        CALL ZSPGPIB(iWORK(KNSTSO(ITP)),iWORK(KISTSO(ITP)),
+        CALL ZSPGPIB(NSTSO(ITP)%I,iWORK(KISTSO(ITP)),
      &               NSPGPFTP(ITP),NSMST)
 *
         IF(NTEST.GE.5) THEN
           WRITE(6,*)
      &    ' Number of strings per sym (row) and supergroup(column)',
      &    ' for type = ', ITP
-          CALL IWRTMA(iWORK(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
+          CALL IWRTMA(NSTSO(ITP)%I,NSMST,NSPGPFTP(ITP),
      &                NSMST,NSPGPFTP(ITP))
           WRITE(6,'(A,3I6)') ' NSMCLS,NSMCLSE,NSMCLSE1=',
      &                         NSMCLS,NSMCLSE,NSMCLSE1

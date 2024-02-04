@@ -70,8 +70,8 @@
 *. Orbital K in type ordering
       KKORB = IREOST(KORB)
       CALL T_TO_NK_VECS   (       T,   KKORB,       C,   LUCIN,  LUCOUT,
-     &                     IWORK(KNSTSO(IATP)),
-     &                     IWORK(KNSTSO(IBTP)),
+     &                     NSTSO(IATP)%I,
+     &                     NSTSO(IBTP)%I,
      &                     NBLOCK,CIBT,NAEL,NBEL,LASTR,
      &                     LBSTR,CBLTP,
      &                     NSMST,ICISTR,NTOOB,LKAOC,LKBOC)

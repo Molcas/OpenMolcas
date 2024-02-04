@@ -89,8 +89,8 @@ c      END IF
 *. Batches  of C vector
       CALL PART_CIV2(      IDC,
      &               CBLTP,
-     &               IWORK(KNSTSO(IATP)),
-     &               IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB, NSMST,LBLOCK,
+     &               NSTSO(IATP)%I,
+     &               NSTSO(IBTP)%I,NOCTPA,NOCTPB, NSMST,LBLOCK,
      &               LCIOIO,
 *
      &               ISMOST(1,ISM),

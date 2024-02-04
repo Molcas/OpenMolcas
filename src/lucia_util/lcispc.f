@@ -84,7 +84,7 @@ c     &CALL SIGVST(WORK(KLCVST),NSMST)
      &               LBLTP,iWORK(KLCVST))
           CALL NGASDT(IGSOCCX(1,1,ICI),IGSOCCX(1,2,ICI),
      &                NGAS,ISYM,NSMST,NOCTPA,NOCTPB,
-     &                iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
+     &                NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &                ISPGPFTP(1,IBSPGPFTP(IATP)),
      &                ISPGPFTP(1,IBSPGPFTP(IBTP)),
      &                MXPNGAS,NCOMB,XNCOMB,MXS,MXSOO,

@@ -97,8 +97,8 @@ c      END IF
 C     WRITE(6,*) ' ISSM and ICSM in MV7 =', ISSM,ICSM
       CALL PART_CIV2(IDC,
      &               SBLTP,
-     &               IWORK(KNSTSO(IATP)),
-     &               IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB, NSMST,LBLOCK,
+     &               NSTSO(IATP)%I,
+     &               NSTSO(IBTP)%I,NOCTPA,NOCTPB, NSMST,LBLOCK,
      &               SIOIO,
 *
      &               ISMOST(1,ISSM),

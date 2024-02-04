@@ -45,8 +45,7 @@
 *. for types
 *
       DO  ITP  = 1, NSTTP
-        CALL GETMEM('NSTSO ','FREE','INTE',
-     &              KNSTSO(ITP),NSPGPFTP(ITP)*NSMST)
+        CALL mma_deallocate(NSTSO(ITP)%I)
         CALL GETMEM('ISTSO ','FREE','INTE',
      &              KISTSO(ITP),NSPGPFTP(ITP)*NSMST)
       END DO

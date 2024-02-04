@@ -157,26 +157,26 @@ C?     WRITE(6,*) ' ISSPC ICSPC in DENSI2 ',ISSPC,ICSPC
       CALL SPGRPCON(   IOCTPB,   NOCTPB,     NGAS,  MXPNGAS, NELFSPGP,
      &              CONSPB,IPRCIX)
 *. Largest block of strings in zero order space
-      MAXA0 = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
-      MAXB0 = IMNMX(IWORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
+      MAXA0 = IMNMX(NSTSO(IATP)%I,NSMST*NOCTYP(IATP),2)
+      MAXB0 = IMNMX(NSTSO(IBTP)%I,NSMST*NOCTYP(IBTP),2)
       MXSTBL0 = MXNSTR
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(IWORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(NSTSO(IATPM1)%I,NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(IWORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(NSTSO(IATPM2)%I,NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(IWORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(NSTSO(IBTPM1)%I,NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(IWORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(NSTSO(IBTPM2)%I,NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MAXA = MAX(MAXA,MAXA0)
@@ -305,7 +305,7 @@ c      END IF
       Call mma_allocate(LIBTL,8*NTTS,Label='LIBTL')
       Call mma_allocate(LSCLFCL,NTTS,Label='LSCLFCL')
       CALL PART_CIV2(IDC,SBLTP,
-     &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
+     &               NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &               NOCTPA,NOCTPB,
      &               NSMST, LSCR1,
      &               SIOIO,ISMOST(1,ISSM),
@@ -321,7 +321,7 @@ c      END IF
       Call mma_allocate(LIBTR,8*NTTS,Label='LIBTR')
       Call mma_allocate(LSCLFCR,NTTS,Label='LSCLFCR')
       CALL PART_CIV2(IDC,CBLTP,
-     &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
+     &               NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &               NOCTPA,NOCTPB,
      &               NSMST, LSCR1,
      &               CIOIO,ISMOST(1,ICSM),
@@ -343,8 +343,8 @@ c      END IF
      &                    CIOIO,SIOIO,
      &                    ISMOST(1,ICSM),ISMOST(1,ISSM),
      &                    CBLTP,SBLTP,NACOB,
-     &                    iWORK(KNSTSO(IATP)),iWORK(KISTSO(IATP)),
-     &                    iWORK(KNSTSO(IBTP)),iWORK(KISTSO(IBTP)),
+     &                    NSTSO(IATP)%I,iWORK(KISTSO(IATP)),
+     &                    NSTSO(IBTP)%I,iWORK(KISTSO(IBTP)),
      &                    NAEL,IATP,  NBEL,  IBTP,
      &                      IOCTPA,  IOCTPB,  NOCTPA,  NOCTPB,   NSMST,
      &                       NSMOB,   NSMSX,   NSMDX, MXPNGAS,  NOBPTS,

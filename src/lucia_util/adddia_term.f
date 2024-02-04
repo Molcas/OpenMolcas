@@ -71,7 +71,7 @@
       Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
 
-      MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXA = IMNMX(NSTSO(IATP)%I,NSMST*NOCTPA,2)
       CALL mma_allocate(LRJKA,MAXA,Label='LRJKA')
 *. Diagonal of one-body integrals and coulomb and exchange integrals
 *. Integrals assumed in place so :
@@ -87,7 +87,7 @@
       CALL ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,
      &             NACOB,CVEC,SVEC,NSMST,LH1D,
      &             LXA,LXB,LSCR,LJ,
-     &             LK,IWORK(KNSTSO(IATP)),IWORK(KNSTSO(IBTP)),
+     &             LK,NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &             ECOREP,
      &             IPRDIA,NTOOB,
      &             LRJKA,

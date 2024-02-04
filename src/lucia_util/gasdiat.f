@@ -88,7 +88,7 @@
 *. Space for blocks of strings
       Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
       Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
-      MAXA = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTPA,2)
+      MAXA = IMNMX(NSTSO(IATP)%I,NSMST*NOCTPA,2)
       CALL mma_allocate(LRJKA,MAXA,Label='LRJKA')
 *
 **. Diagonal of one-body integrals and coulomb and exchange integrals
@@ -99,7 +99,7 @@
       CALL GASDIAS(NAEL,LASTR,NBEL,LBSTR,
      &             NACOB,DIAG,NSMST,
      &             LH1D,LXB,LJ,LK,
-     &             IWORK(KNSTSO(IATP)),IWORK(KNSTSO(IBTP)),
+     &             NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &             LUDIA,ECORE,PSSIGN,IPRDIA,NTOOB,ICISTR,
      &             LRJKA,I12,IBLTP,NBLOCK,IBLKFO,
      &             I_AM_OUT,N_ELIMINATED_BATCHES)

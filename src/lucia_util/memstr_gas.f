@@ -65,8 +65,8 @@
 *. for types
 *
       DO  ITP  = 1, NSTTP
-        CALL GETMEM('NSTSO ','ALLO','INTE',
-     &              KNSTSO(ITP),NSPGPFTP(ITP)*NSMST)
+        CALL mma_allocate(NSTSO(ITP)%I,NSPGPFTP(ITP)*NSMST,
+     &                    Label='NSTSO(ITP)')
         CALL GETMEM('ISTSO ','ALLO','INTE',
      &              KISTSO(ITP),NSPGPFTP(ITP)*NSMST)
       END DO
