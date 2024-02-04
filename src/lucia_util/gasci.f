@@ -310,10 +310,10 @@ c     KVEC2 = KSIGMA_POINTER
 *
 c         IF(IIUSEH0P.EQ.1) THEN
 c*. Diagonal with F
-c            CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
+c            CALL SWAPVE(WORK(KFI),INT1O,NINT1)
 c            CALL GASDIAT(WORK(KVEC1),LUSC52,SHIFT,ICISTR,1,
 c     &           CBLTP,NBLOCK,CIBT)
-c            CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
+c            CALL SWAPVE(WORK(KFI),INT1O,NINT1)
 c*. diag of (1-Lambda) F + Lambda H
 c            FAC1 = 1.0D0 - XLAMBDA
 c            FAC2 = XLAMBDA

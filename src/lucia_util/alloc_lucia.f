@@ -57,14 +57,14 @@
 *.1 : One electron integrals( Complete matrix allocated )
       CALL mma_allocate(INT1,NTOOB ** 2,Label='INT1')
 *. A copy of the original UNMODIFIED 1-elecs ints
-      CALL GETMEM('INT1O ','ALLO','REAL',KINT1O,NTOOB ** 2)
-      kint1_pointer = ip_of_Work(INT1)
-      kint1o_pointer = KINT1O
+      CALL mma_allocate(INT1O,NTOOB ** 2,Label='Int1O')
+      kint1_pointer = ip_of_Work(INT1(1))
+      kint1o_pointer = ip_of_Work(INT1O(1))
 *. Zero to avoid problems with elements that will not
 *. be initialized
       ZERO = 0.0D0
-      INT1(:)=ZERI
-      CALL SETVEC(WORK(KINT1O),ZERO,NTOOB**2)
+      INT1(:)=ZERO
+      INT1O(:)=ZERO
 *.1.1 : Inactive fock matrix
       CALL GETMEM('FI    ','ALLO','REAL',KFI  ,NTOOB ** 2)
       CALL GETMEM('FIO   ','ALLO','REAL',KFIO ,NTOOB ** 2)

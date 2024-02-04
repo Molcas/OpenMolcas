@@ -42,7 +42,7 @@
 *
 *. Change one-electron integrals to inactive fock matrix
       IF(NOINT.EQ.0) THEN
-        CALL COPVEC(INT1,WORK(KINT1O),NINT1)
+        INT1O(:)=INT1(:)
         ECORE_HEX = 0.0D0
       END IF
       ECORE_ORIG = ECORE

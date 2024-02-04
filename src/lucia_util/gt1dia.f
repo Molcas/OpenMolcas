@@ -14,7 +14,7 @@
 * Obtain diagonal of one electron matrix over active
 * orbitals
 *
-*. Dec 97 : obtained from KINT1O
+*. Dec 97 : obtained from INT1O
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
@@ -25,9 +25,7 @@
 #include "lucinp.fh"
 #include "orbinp.fh"
 *
-CINA  CALL GT1DIS(H1DIA,IREOTS(1+NINOB),PINT1,INT1,
-CINA &            ISMFTO,IBSO,NACOB)
-      CALL GT1DIS(H1DIA,IREOTS(1),PINT1,WORK(KINT1O),ISMFTO,
-     &                 IBSO,    NACOB)
+CINA  CALL GT1DIS(H1DIA,IREOTS(1+NINOB),PINT1,INT1,ISMFTO,IBSO,NACOB)
+      CALL GT1DIS(H1DIA,IREOTS(1),PINT1,INT1O,ISMFTO,IBSO,NACOB)
 *
       END

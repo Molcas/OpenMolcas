@@ -33,7 +33,7 @@
 *.1 : One electron integrals( Complete matrix allocated )
       CALL mma_deallocate(INT1)
 *. A copy of the original UNMODIFIED 1-elecs ints
-      CALL GETMEM('INT1O ','FREE','REAL',KINT1O,NTOOB ** 2)
+      CALL mma_deallocate(INT1O)
 *.1.1 : Inactive fock matrix
       CALL GETMEM('FI    ','FREE','REAL',KFI  ,NTOOB ** 2)
       CALL GETMEM('FIO   ','FREE','REAL',KFIO ,NTOOB ** 2)
