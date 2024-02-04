@@ -45,8 +45,8 @@
 #include "cmxcj.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
-      Integer, Allocatable:: SBLTP(:), LSLBT(:), LSLEBT(:), LSI1BT(:),
-     &                       LSIBT(:)
+      Integer, Allocatable:: CBLTP(:), CLBT(:), CLEBT(:), CI1BT(:),
+     &                       CIBT(:)
 *
       IF(ICISTR.EQ.1) THEN
         WRITE(6,*) ' MV7 does not work for ICISTR = 1'
@@ -73,15 +73,15 @@
         CALL mma_allocate(SVST,1,Label='SVST')
       END IF
 *. Arrays giving block type
-      Call mma_allocate(SBLTP,NSMST,Label='SBLTP')
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,SVST)
+      Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,CBLTP,SVST)
       CALL mma_deallocate(SVST)
 *. Arrays for partitioning of sigma
       NTTS = MXNTTS
-      Call mma_allocate(LSLBT ,NTTS,Label='LSLBT')
-      Call mma_allocate(LSLEBT ,NTTS,Label='LSLEBT')
-      Call mma_allocate(LSI1BT,NTTS,Label='LSI1BT')
-      Call mma_allocate(LSIBT ,8*NTTS,Label='LSIBT')
+      Call mma_allocate(CLBT ,NTTS,Label='CLBT')
+      Call mma_allocate(CLEBT ,NTTS,Label='CLEBT')
+      Call mma_allocate(CI1BT,NTTS,Label='CI1BT')
+      Call mma_allocate(CIBT ,8*NTTS,Label='CIBT')
 *. Batches  of C vector
 c      IF (ISIMSYM.EQ.0) THEN
         LBLOCK = MXSOOB
@@ -96,18 +96,18 @@ c      END IF
       ENDIF
 C     WRITE(6,*) ' ISSM and ICSM in MV7 =', ISSM,ICSM
       CALL PART_CIV2(IDC,
-     &               SBLTP,
+     &               CBLTP,
      &               NSTSO(IATP)%I,
      &               NSTSO(IBTP)%I,NOCTPA,NOCTPB, NSMST,LBLOCK,
      &               SIOIO,
 *
      &               ISMOST(1,ISSM),
      &               NBATCH,
-     &               LSLBT,
-     &               LSLEBT,LSI1BT,LSIBT,
+     &               CLBT,
+     &               CLEBT,CI1BT,CIBT,
      &               0,ISIMSYM)
       Call mma_deallocate(SIOIO)
-      Call mma_deallocate(SBLTP)
+      Call mma_deallocate(CBLTP)
 
       IF(ICISTR.EQ.1) THEN
        LLUC = 0
@@ -118,14 +118,14 @@ C     WRITE(6,*) ' ISSM and ICSM in MV7 =', ISSM,ICSM
       END IF
 *
       CALL RASSG3(C,       HC,   NBATCH,
-     &            LSLBT,LSLEBT,
-     &            LSI1BT,LSIBT,
+     &            CLBT,CLEBT,
+     &            CI1BT,CIBT,
      &            LLUC,  LLUHC,I_AM_OUT,N_ELIMINATED_BATCHES)
 C?    WRITE(6,*) ' LSCMAX_MX = ', LSCMAX_MX
 *. Eliminate local memory
-      Call mma_deallocate(LSLBT)
-      Call mma_deallocate(LSLEBT)
-      Call mma_deallocate(LSI1BT)
-      Call mma_deallocate(LSIBT)
+      Call mma_deallocate(CLBT)
+      Call mma_deallocate(CLEBT)
+      Call mma_deallocate(CI1BT)
+      Call mma_deallocate(CIBT)
 *
       END
