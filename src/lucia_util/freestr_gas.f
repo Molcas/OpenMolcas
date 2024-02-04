@@ -32,7 +32,7 @@
       DO IGRP = 1, NGRP
         NSTRIN = NSTFGP(IGRP)
         Call mma_deallocate(OCSTR(IGRP)%I)
-        CALL GETMEM('STREO ','FREE','INTE',KSTREO(IGRP),NSTRIN)
+        CALL mma_deallocate(STREO(IGRP)%I)
       END DO
 *
 *. Number of strings per symmetry and offset for strings of given sym

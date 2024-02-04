@@ -113,9 +113,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
         CALL GENSTR_GAS(     IEL,  MNRS1X,  MXRS1X,  MNRS3X,  MXRS3X,
      &                  iWork(KISTSGP(1)),
      &                  IGRP,IOCTYPX,NSMST,iWork(KZ(IGRP)),
-     &                  FREEL,
-     &                  iWork(KSTREO(IGRP)),
-     &                  OCSTR(IGRP)%I,
+     &                  FREEL,STREO(IGRP)%I,OCSTR(IGRP)%I,
 *
      &                  FREEL(1+IOCTYPX*NSMST),IGRP,IPRNT)
 *
@@ -211,7 +209,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           JGRP = ISTAC(IGRP,2)
           CALL CRESTR_GAS(OCSTR(IGRP)%I,
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
-     &                    iWork(KZ(JGRP)),iWork(KSTREO(JGRP)),
+     &                    iWork(KZ(JGRP)),STREO(JGRP)%I,
      &                    0,IDUM,IDUM,
      &                    iWork(KSTSTM(IGRP,1)),
      &                    iWork(KSTSTM(IGRP,2)),NACOB,IPRNT)
@@ -221,7 +219,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           JGRP = ISTAC(IGRP,1)
           CALL ANNSTR_GAS(OCSTR(IGRP)%I,
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
-     &                    iWork(KZ(JGRP)),iWork(KSTREO(JGRP)),
+     &                    iWork(KZ(JGRP)),STREO(JGRP)%I,
      &                    0,IDUM,IDUM,
      &                    iWork(KSTSTM(IGRP,1)),
      &                    iWork(KSTSTM(IGRP,2)),NACOB,IEC,LROW,IPRNT)

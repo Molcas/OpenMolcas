@@ -52,7 +52,7 @@
         NSTRIN = NSTFGP(IGRP)
         LSTRIN = NSTRIN*NELFGP(IGRP)
         CALL mma_allocate(OCSTR(IGRP)%I,LSTRIN,Label='OCSTR()')
-        CALL GETMEM('STREO ','ALLO','INTE',KSTREO(IGRP),NSTRIN)
+        CALL mma_allocate(STREO(IGRP)%I,NSTRIN,Label='STREO()')
       END DO
 *
 *. Number of strings per symmetry and offset for strings of given sym
