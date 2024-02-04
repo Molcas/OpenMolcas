@@ -13,7 +13,7 @@
      &                  ICBAT_END)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
-      use hidscr
+      use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
@@ -259,7 +259,7 @@ C  I assume memory was allocated for blocks, so
       LZ    = (MAX(NAEL,NBEL)+2) * NOCOB
 *. Set up to two blocks for orbital conserving operator
       K12=1
-      Call mma_allocate(OCSTR,MAX_STR_OC_BLK,K12,Label='OCSTR')
+      Call mma_allocate(ZOCSTR,MAX_STR_OC_BLK,K12,Label='ZOCSTR')
       I1234=2
       Call mma_allocate(REO,MAX_STR_SPGP,I1234,Label='REO')
       call mma_allocate(Z,LZ,I1234,Label='Z')
@@ -362,7 +362,7 @@ c      KSIPA = 1 ! jwk-cleanup
       call mma_deallocate(XI3S)
       call mma_deallocate(XI4S)
       call mma_deallocate(LSCLFAC)
-      call mma_deallocate(OCSTR)
+      call mma_deallocate(ZOCSTR)
       call mma_deallocate(REO)
       call mma_deallocate(Z)
       Call mma_deallocate(ZSCR)

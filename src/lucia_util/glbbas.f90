@@ -30,11 +30,11 @@ Private
       Integer, Allocatable:: DFTP(:)
       Integer, Allocatable:: CFTP(:)
       Real*8,  Allocatable:: DTOC(:)
-      Type Array
+      Type iArray
          Integer, Allocatable:: I(:)
-      End Type  Array
-      Type (Array) CONF_OCC(8), CONF_REO(8), SDREO_I(8)
-      Type (Array), Allocatable:: Z_PTDT(:), REO_PTDT(:)
+      End Type  iArray
+      Type (iArray) ::  CONF_OCC(8), CONF_REO(8), SDREO_I(8)
+      Type (iArray), Allocatable:: Z_PTDT(:), REO_PTDT(:)
 
       Integer, Allocatable:: KLOCCLS(:)
 

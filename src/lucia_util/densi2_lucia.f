@@ -13,7 +13,7 @@
      &                        IDOSRHO1, SRHO1, IPACK)
       use stdalloc, only: mma_allocate, mma_deallocate
       USE GLBBAS
-      use hidscr
+      use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use strbas
 *
 * Density matrices between L and R
@@ -293,7 +293,7 @@ c      END IF
       LZ    = (MAX(NAEL,NBEL)+2) * NOCOB
       call mma_allocate(ZSCR,lZSCR,Label='ZSCR')
       K12=1
-      call mma_allocate(OCSTR,MAX_STR_OC_BLK,K12,Label='OCSTR')
+      call mma_allocate(ZOCSTR,MAX_STR_OC_BLK,K12,Label='ZOCSTR')
       I1234=2
       Call mma_allocate(REO,MAX_STR_SPGP,I1234,Label='REO')
       CALL mma_allocate(Z,LZ,I1234,Label='Z')
@@ -455,7 +455,7 @@ c      END IF
       Call mma_deallocate(RHO1SM)
       Call mma_deallocate(OCCSM)
       Call mma_deallocate(ZSCR)
-      Call mma_deallocate(OCSTR)
+      Call mma_deallocate(ZOCSTR)
       Call mma_deallocate(REO)
       Call mma_deallocate(Z)
       Call mma_deallocate(LLBTL)

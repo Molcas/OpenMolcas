@@ -15,7 +15,7 @@
      &                          ISPGP,    ISM,    ITP,   KMIN,   KMAX,
      &                             I1,   XI1S,    LI1,     NK,   IEND,
      &                          IFRST,  KFRST,    I12,    K12, SCLFAC)
-      use HIDSCR
+      use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use strbas
 *
 *
@@ -97,7 +97,7 @@ c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
 *
 *. Internal affairs
 *
-      IF(I12.GT.SIZE(Z,2).OR.K12.GT.SIZE(OCSTR,2)) THEN
+      IF(I12.GT.SIZE(Z,2).OR.K12.GT.SIZE(ZOCSTR,2)) THEN
         WRITE(6,*)
      &  ' ADST_GAS : Illegal value of I12 or K12 ', I12, K12
 *        STOP' ADST_GAS : Illegal value of I12 or K12  '
@@ -194,7 +194,7 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
         NELIS(I12) = NELI
 *. Reorder array for I strings
         CALL GETSTR_TOTSM_SPGP(    ITP,  ISPGP,    ISM,   NELI,  NSTRI,
-     &                         OCSTR(:,K12),
+     &                         ZOCSTR(:,K12),
      &                           NOCOB,
      &                               1,
      &                         Z(:,I12),
@@ -231,7 +231,7 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
 *. Generate occupation of K STRINGS
        IDUM(1)=0
        CALL GETSTR2_TOTSM_SPGP(   KGRP,   NGAS,    KSM,   NELK,  NSTRK,
-     &                         OCSTR(:,K12),NOCOB,    0, IDUM, IDUM)
+     &                         ZOCSTR(:,K12),NOCOB,    0, IDUM, IDUM)
 C     GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,
 C    &                              NORBT,IDOREO,IZ,IREO)
        NSTRKS(K12) = NSTRK
@@ -254,7 +254,7 @@ COLD  CALL SETVEC(XI1S,ZERO ,LI1*NIOB*NJOB)
 *
       CALL ADAADAS1_GAS(      NK,      I1,    XI1S,     LI1,    IIOB,
      &                      NIOB,     IAC,    JJOB,    NJOB,     JAC,
-     &                  OCSTR(:,K12), NELK,NSTRK,
+     &                  ZOCSTR(:,K12), NELK,NSTRK,
      &                  REO(:,I12),Z(:,I12),
      &                     NOCOB,    KMAX,    KMIN,    IEND,  SCLFAC,
      &                  NSTRI_)

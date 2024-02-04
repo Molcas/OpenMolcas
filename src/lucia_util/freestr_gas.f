@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FREESTR_GAS()
+      use stdalloc, only: mma_deallocate
       use strbas
 * Deallocate the memory that was set up in MEMSTR_GAS
 
@@ -30,8 +31,7 @@
 *
       DO IGRP = 1, NGRP
         NSTRIN = NSTFGP(IGRP)
-        LSTRIN = NSTRIN*NELFGP(IGRP)
-        CALL GETMEM('OCSTR ','FREE','INTE',KOCSTR(IGRP),LSTRIN)
+        Call mma_deallocate(OCSTR(IGRP)%I)
         CALL GETMEM('STREO ','FREE','INTE',KSTREO(IGRP),NSTRIN)
       END DO
 *

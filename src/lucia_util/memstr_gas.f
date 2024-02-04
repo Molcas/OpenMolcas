@@ -11,6 +11,7 @@
 * Copyright (C) 1994, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE MEMSTR_GAS()
+      use stdalloc, only: mma_allocate
       use strbas
 *
 *
@@ -50,7 +51,7 @@
       DO IGRP = 1, NGRP
         NSTRIN = NSTFGP(IGRP)
         LSTRIN = NSTRIN*NELFGP(IGRP)
-        CALL GETMEM('OCSTR ','ALLO','INTE',KOCSTR(IGRP),LSTRIN)
+        CALL mma_allocate(OCSTR(IGRP)%I,LSTRIN,Label='OCSTR()')
         CALL GETMEM('STREO ','ALLO','INTE',KSTREO(IGRP),NSTRIN)
       END DO
 *
