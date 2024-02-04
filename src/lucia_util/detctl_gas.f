@@ -44,6 +44,7 @@
       INTEGER IOCCLS(1),IBASSPC(1)
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)
+      Integer, Allocatable:: BASSPC(:)
 
 *. Set variables in cands.fh
       JSYM = IREFSM
@@ -66,19 +67,16 @@
 * same header file
       NOCCLS_G=NOCCLS
 *. and then the occupation classes
-      CALL GETMEM('KLOCCL','ALLO','INTE',KLOCCLS,NGAS*NOCCLS)
-      CALL GETMEM('BASSPC','ALLO','INTE',KLBASSPC,NOCCLS)
-      CALL OCCLS(2,NOCCLS,iWORK(KLOCCLS),NEL,NGAS,
-     &     IGSOCC(1,1),IGSOCC(1,2),1,iWORK(KLBASSPC),NOBPT)
-      CALL GETMEM('BASSPC','FREE','INTE',KLBASSPC,NOCCLS)
+      CALL mma_allocate(KLOCCLS,NGAS*NOCCLS,Label='KLOCCLS')
+      CALL mma_allocate(BASSPC,NOCCLS,Label='BASSPC')
+      CALL OCCLS(2,NOCCLS,KLOCCLS,NEL,NGAS,
+     &     IGSOCC(1,1),IGSOCC(1,2),1,BASSPC,NOBPT)
+      CALL mma_deallocate(BASSPC)
 C     END IF
       IF(NOCSF.EQ.0) THEN
 *. Initial information on CSF expansion
-C??         WRITE(6,*) ' CSFDIM_GAS will be called '
-         CALL CSFDIM_GAS(IWORK(KLOCCLS),NOCCLS,JSYM,IPRCIX)
-C            CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCIX)
+         CALL CSFDIM_GAS(KLOCCLS,NOCCLS,JSYM,IPRCIX)
 *. Prototype dets and csf's and CSF'SD matrices
-C            CSDTMT_GAS(IPRCSF)
          CALL CSDTMT_GAS(IPRCIX)
       END  IF
 *. Allocate memory for diagonalization
@@ -123,7 +121,7 @@ c      END IF
 *. Length of each block
       CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
       IF (NEL .GT. 0)
-     &   CALL CNFORD_GAS(IWORK(KLOCCLS), NOCCLS, jsym, PSSIGN, IPRCIX,
+     &   CALL CNFORD_GAS(KLOCCLS, NOCCLS, jsym, PSSIGN, IPRCIX,
      &       CONF_OCC(JSYM)%I, CONF_REO(jsym)%I,
      &       SDREO_I(jsym)%I,
      &       CIBT, NBLOCK)
@@ -249,7 +247,7 @@ c      END IF
       KSDREO_POINTER = ip_of_iWork(SDREO_I(jsym)%I(1))
       kDFTP=ip_of_iWork(DFTP(1))
       kCFTP=ip_of_iWork(CFTP(1))
-      kDTOC=ip_of_iWork(DTOC(1))
+      kDTOC=ip_of_Work(DTOC(1))
       KDTOC_POINTER  = KDTOC
       CALL LUCIA2MOLCAS(kdftp,kcftp,kdtoc,
      &     CONF_OCC(jsym)%I,SDREO_I(jsym)%I,
@@ -261,6 +259,7 @@ c      END IF
       END
 *
       SUBROUTINE DETCTL_FREE()
+      use stdalloc, only: mma_deallocate
       use GLBBAS
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
@@ -281,7 +280,7 @@ c      END IF
 #include "lucinp.fh"
 #include "rasscf_lucia.fh"
 
-      CALL GETMEM('KLOCCL','FREE','INTE',KLOCCLS,NGAS*NOCCLS_G)
+      CALL mma_deallocate(KLOCCLS)
 
       JSYM = IREFSM
       CALL CSFDIM_FREE(JSYM)

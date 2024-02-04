@@ -14,7 +14,7 @@ Private
       Integer ::    KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB,KPNIJ,KIJKK,KFI,KINH1,                  &
-     &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G,KPGINT1(MXPOBS),   &
+     &              KMOAOIN,KMOAOUT,NOCCLS_G,KPGINT1(MXPOBS),           &
      &              KINT1O,KFIO,KPGINT1A(MXPOBS),                       &
      &              KMOMO,KSRHO1,KFIZ,                                  &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
@@ -35,6 +35,8 @@ Private
       End Type  Array
       Type (Array) CONF_OCC(8), CONF_REO(8), SDREO_I(8)
       Type (Array), Allocatable:: Z_PTDT(:), REO_PTDT(:)
+
+      Integer, Allocatable:: KLOCCLS(:)
 
       Public        KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &

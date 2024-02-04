@@ -11,8 +11,7 @@
       SUBROUTINE TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
       use stdalloc, only: mma_allocate, mma_deallocate
       use  GLBBAS
-      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
-     &                        Deallocate_Local_Arrays
+      use Local_Arrays, only: Deallocate_Local_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
