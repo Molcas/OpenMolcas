@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE DEALLOC_LUCIA()
+      use stdalloc, only: mma_deallocate
       use GLBBAS
 * Deallocate memory allocated during alloc_lucia
 
@@ -30,7 +31,7 @@
 *.Output
 
 *.1 : One electron integrals( Complete matrix allocated )
-      CALL GETMEM('INT1  ','FREE','REAL',KINT1,NTOOB ** 2)
+      CALL mma_deallocate(INT1)
 *. A copy of the original UNMODIFIED 1-elecs ints
       CALL GETMEM('INT1O ','FREE','REAL',KINT1O,NTOOB ** 2)
 *.1.1 : Inactive fock matrix

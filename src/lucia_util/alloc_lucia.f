@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ALLOC_LUCIA
+      use stdalloc, only: mma_allocate
       use GLBBAS
 *
 * Dimensions and
@@ -54,15 +55,15 @@
 *.Output
 
 *.1 : One electron integrals( Complete matrix allocated )
-      CALL GETMEM('INT1  ','ALLO','REAL',KINT1,NTOOB ** 2)
+      CALL mma_allocate(INT1,NTOOB ** 2,Label='INT1')
 *. A copy of the original UNMODIFIED 1-elecs ints
       CALL GETMEM('INT1O ','ALLO','REAL',KINT1O,NTOOB ** 2)
-      kint1_pointer = KINT1
+      kint1_pointer = ip_of_Work(INT1)
       kint1o_pointer = KINT1O
 *. Zero to avoid problems with elements that will not
 *. be initialized
       ZERO = 0.0D0
-      CALL SETVEC(WORK(KINT1),ZERO,NTOOB**2)
+      INT1(:)=ZERI
       CALL SETVEC(WORK(KINT1O),ZERO,NTOOB**2)
 *.1.1 : Inactive fock matrix
       CALL GETMEM('FI    ','ALLO','REAL',KFI  ,NTOOB ** 2)

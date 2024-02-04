@@ -80,7 +80,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 *. Copy of one-electron integrals
       Call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
 *. We are going to mess with the one-electron integrals, take a copy
-      CALL COPVEC(WORK(KINT1),LH1SAVE,NDIM)
+      CALL COPVEC(INT1,LH1SAVE,NDIM)
 *. Set up block structure of CI space
       IATP = 1
       IBTP = 2
@@ -155,7 +155,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       END IF
 *
 *. clean up time : copy 1-e integrals back in place
-      CALL COPVEC(LH1SAVE,WORK(KINT1),NDIM)
+      CALL COPVEC(LH1SAVE,INT1,NDIM)
 *
       Call mma_deallocate(VEC1)
       Call mma_deallocate(VEC2)

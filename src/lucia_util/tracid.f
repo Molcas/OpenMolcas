@@ -54,7 +54,7 @@ C           COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
       DO K = 1, NTOOB
 *. Place (T(P,K)/S(K,K)   in one-electron integral list
 C                       T_ROW_TO_H(T,H,K)
-        CALL T_ROW_TO_H(T,WORK(KINT1),K,TKK)
+        CALL T_ROW_TO_H(T,INT1,K,TKK)
 *. T_{kk}^Nk
 C            T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
         CALL T_TO_NK_VEC(     TKK,       K,    ISSM,   ISSPC,   LUSC1,

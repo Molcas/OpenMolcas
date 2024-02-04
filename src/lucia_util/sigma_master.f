@@ -126,5 +126,4 @@ c      END IF
       ICSM  = IREFSM
       ISSM  = IREFSM
 *
-      RETURN
       END

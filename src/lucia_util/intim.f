@@ -43,12 +43,12 @@
 *. Change one-electron integrals to inactive fock matrix
       IF(NOINT.EQ.0) THEN
 C?      WRITE(6,*) ' INTIM : IUSE_PH', IUSE_PH
-        CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
+        CALL COPVEC(INT1,WORK(KINT1O),NINT1)
 c        IF(IUSE_PH.EQ.1) THEN
 c           IF (ENVIRO(1:6) .EQ. 'RASSCF') THEN
 c              ECORE_HEX = 0.0D0
 cc           ELSE
-cc              CALL FI(WORK(KINT1),ECORE_HEX,1)
+cc              CALL FI(INT1,ECORE_HEX,1)
 c           END IF
 c        ELSE
            ECORE_HEX = 0.0D0
@@ -81,12 +81,12 @@ c        CALL DUMP_1EL_INFO(LU91)
 c      END IF
 *
 c      IF (ENVIRO(1:6) .NE. 'RASSCF' .OR. IPRNT .GE. 20)
-c     &       WRITE(6,*) ' INTIM : First integrals in WORK(KINT1) '
+c     &       WRITE(6,*) ' INTIM : First integrals in INT1 '
 c      LLL = MIN(10,NINT1)
 c      LLL = NINT1
 c      IF (ENVIRO(1:6) .NE. 'RASSCF' .OR. IPRNT .GE. 20) THEN
 c         WRITE(6,*) ' NINT1 = ',NINT1
-c         CALL WRTMAT(WORK(KINT1),1,LLL,1,LLL)
+c         CALL WRTMAT(INT1,1,LLL,1,LLL)
 c         WRITE(6,*) ' INTIM : First integrals in WORK(KINT2) '
 c      ENDIF
 c      LLL = MIN(10,NINT2)
