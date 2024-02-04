@@ -62,12 +62,12 @@
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
       NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
 *
+#ifdef _DEBUGPRINT_
+      NOCTPB = NOCTYP(IBTP)
 *. Offsets for alpha and beta supergroups
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
-#ifdef _DEBUGPRINT_
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' ================'
         WRITE(6,*) ' GASDIA speaking '

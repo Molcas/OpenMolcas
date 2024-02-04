@@ -94,6 +94,8 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: LIBTL(:), LIBTR(:)
       Real*8, Allocatable:: LSCLFCL(:), LSCLFCR(:)
       Integer, Allocatable:: SVST(:)
+      Real*8, Allocatable:: RHO1S(:), RHO1P(:), XNATO(:), RHO1SM(:),
+     &                       OCCSM(:)
 
 *. Before I forget it :
 *     IDUM = 0
@@ -277,14 +279,13 @@ c      END IF
       CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,SVST)
       Call mma_deallocate(SVST)
 * scratch space containing active one body
-      CALL GETMEM('RHO1S ','ALLO','REAL',KRHO1S,NACOB ** 2)
+      CALL mma_allocate(RHO1S,NACOB ** 2,Label='RHO1S')
 *. For natural orbitals
-      CALL GETMEM('RHO1P ','ALLO','REAL',KRHO1P,NACOB*(NACOB+1)/2)
-      CALL GETMEM('XNATO ','ALLO','REAL',KXNATO,NACOB **2)
+      CALL mma_allocate(RHO1P,NACOB*(NACOB+1)/2,Label='RHO1P')
+      CALL mma_allocate(XNATO,NACOB **2,Label='XNATO')
 *. Natural orbitals in symmetry blocks
-      CALL GETMEM('RHO1S ','ALLO','REAL',KRHO1SM,NACOB ** 2)
-      CALL GETMEM('RHO1S ','ALLO','REAL',KXNATSM,NACOB ** 2)
-      CALL GETMEM('RHO1S ','ALLO','REAL',KOCCSM,NACOB )
+      CALL mma_allocate(RHO1SM,NACOB ** 2,Label='RHO1SM')
+      CALL mma_allocate(OCCSM,NACOB,Label='OCCSM')
 *
 *. Space for one block of string occupations and two arrays of
 *. reordering arrays
@@ -353,9 +354,9 @@ c      END IF
      &                    ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
      &                    I1,XI1S,I2,XI2S,
      &                    I3,XI3S,I4,XI4S,
-     &                    INSCR,MXPOBS,IPRDEN,WORK(KRHO1S),
+     &                    INSCR,MXPOBS,IPRDEN,RHO1S,
      &                    LUL,LUR,PSSIGN,PSSIGN,
-     &                    WORK(KRHO1P),WORK(KXNATO),
+     &                    RHO1P,XNATO,
      &                    NBATCHL,
      &                    LLBTL,LLEBTL,
      &                    LI1BTL,LIBTL,
@@ -401,8 +402,8 @@ c      END IF
 
 * Natural Orbitals
       CALL NATORB_LUCIA(RHO1,   NSMOB,  NTOOBS,  NACOBS,  NINOBS,IREOST,
-     &                  WORK(KXNATO),WORK(KRHO1SM),WORK(KOCCSM),NACOB,
-     &                  WORK(KRHO1P),IPRDEN)
+     &                  XNATO,RHO1SM,OCCSM,NACOB,
+     &                  RHO1P,IPRDEN)
 *
       IF(IPRDEN.GE.5) THEN
         WRITE(6,*) ' One-electron density matrix '
@@ -448,12 +449,11 @@ c      END IF
       Call mma_deallocate(XI4S)
       Call mma_deallocate(SBLTP)
       Call mma_deallocate(CBLTP)
-      CALL GETMEM('RHO1S ','FREE','REAL',KRHO1S,NACOB ** 2)
-      CALL GETMEM('RHO1P ','FREE','REAL',KRHO1P,NACOB*(NACOB+1)/2)
-      CALL GETMEM('XNATO ','FREE','REAL',KXNATO,NACOB **2)
-      CALL GETMEM('RHO1S ','FREE','REAL',KRHO1SM,NACOB ** 2)
-      CALL GETMEM('RHO1S ','FREE','REAL',KXNATSM,NACOB ** 2)
-      CALL GETMEM('RHO1S ','FREE','REAL',KOCCSM,NACOB )
+      Call mma_deallocate(RHO1S)
+      Call mma_deallocate(RHO1P)
+      Call mma_deallocate(XNATO)
+      Call mma_deallocate(RHO1SM)
+      Call mma_deallocate(OCCSM)
       Call mma_deallocate(ZSCR)
       Call mma_deallocate(OCSTR)
       Call mma_deallocate(REO)

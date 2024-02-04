@@ -61,9 +61,6 @@
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
 *
-*. Offsets for alpha and beta supergroups
-      IOCTPA = IBSPGPFTP(IATP)
-      IOCTPB = IBSPGPFTP(IBTP)
 *
 C     IF(JPERT.EQ.0) THEN
 *. Use full Hamiltonian
@@ -83,6 +80,9 @@ C       END IF
 C     END IF
 
 #ifdef _DEBUGPRINT_
+*. Offsets for alpha and beta supergroups
+      IOCTPA = IBSPGPFTP(IATP)
+      IOCTPB = IBSPGPFTP(IBTP)
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' ========================='
         WRITE(6,*) '   DIATERM2_GAS speaking '

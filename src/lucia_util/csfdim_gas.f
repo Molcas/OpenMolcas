@@ -368,9 +368,6 @@ C
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
 *
-        IALPHA = (IOPEN+MS2)/2
-        LZ = IOPEN*IALPHA
-        LPTDT = IBION_LUCIA(IOPEN,IALPHA)
         CALL mma_deallocate(Z_PTDT(ITYP)%I)
         CALL mma_deallocate(REO_PTDT(ITYP)%I)
       END DO
