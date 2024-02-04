@@ -59,7 +59,7 @@
 *. for groups
 *
       CALL mma_allocate(NSTSGP(1)%I,NSMST*NGRP,Label='NSTSGP(1)')
-      CALL GETMEM('ISTSGP','ALLO','INTE',KISTSGP(1),NSMST*NGRP)
+      CALL mma_allocate(ISTSGP(1)%I,NSMST*NGRP,Label='ISTSGP(1)')
 *
 *. Number of strings per symmetry and offset for strings of given sym
 *. for types

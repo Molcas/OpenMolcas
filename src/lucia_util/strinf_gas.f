@@ -108,10 +108,10 @@ C     DIMENSION IOCTYP(MXPNGAS)
         CALL NSTRSO_GAS(     IEL,   NORB1,   NORB2,   NORB3,  MNRS1X,
      &                    MXRS1X,  MNRS3X,  MXRS3X,FREEL,NACOB,
      &                  NSTSGP(1)%I,
-     &                  iWork(KISTSGP(1)),IOCTYPX,NSMST,IGRP,IPRNT)
+     &                  ISTSGP(1)%I,IOCTYPX,NSMST,IGRP,IPRNT)
 *. Construct the strings ordered by symmetry
         CALL GENSTR_GAS(     IEL,  MNRS1X,  MXRS1X,  MNRS3X,  MXRS3X,
-     &                  iWork(KISTSGP(1)),
+     &                  ISTSGP(1)%I,
      &                  IGRP,IOCTYPX,NSMST,iWork(KZ(IGRP)),
      &                  FREEL,STREO(IGRP)%I,OCSTR(IGRP)%I,
 *
@@ -119,7 +119,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *
        CALL ICOPVE2(NSTSGP(1)%I,1+(IGRP-1)*NSMST,NSMST,
      &              NSTFSMGP(1,IGRP))
-       CALL ICOPVE2(iWork(KISTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
+       CALL ICOPVE2(ISTSGP(1)%I,1+(IGRP-1)*NSMST,NSMST,
      &              ISTFSMGP(1,IGRP))
       END DO
       Call mma_deallocate(FREEL)

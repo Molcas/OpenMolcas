@@ -142,7 +142,7 @@ C?    END IF
      &               NNSTSGP(1,IGAS))
       END DO
 *. Offset and dimension for active group in I strings
-      CALL ICOPVE2(iWORK(KISTSGP(1)),(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(ISTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
      &               IACIST)
       CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
      &               NACIST)
@@ -242,7 +242,7 @@ CM   & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
       DO IGAS = 1, NGAS
         CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
-        CALL ICOPVE2(iWORK(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(ISTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               IISTSGP(1,IGAS))
       END DO
 *

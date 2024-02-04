@@ -198,7 +198,7 @@
        IF(NELFGP(KGRP(JGRP)).GT.0) NGASL = JGRP
        CALL ICOPVE2(NSTSGP(1)%I,(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              NNSTSGP(1,JGRP))
-       CALL ICOPVE2(iWORK(KISTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
+       CALL ICOPVE2(ISTSGP(1)%I,(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              IISTSGP(1,JGRP))
       END DO
       IF(NTEST.GE.100) WRITE(6,*) 'NGASL', NGASL
@@ -217,7 +217,7 @@
       CALL TS_SYM_PNT2(    IGRP,   NIGRP,   MXVLI,   MNVLI, ISPGPSM,
      &                    IOFFI,   LOFFI)
 *. Offset and dimension for active group in I strings
-      CALL ICOPVE2(iWORK(KISTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(ISTSGP(1)%I,(IGRP(IACGRP)-1)*NSMST+1,NSMST,
      &               IACIST)
 *
       CALL ICOPVE2(NSTSGP(1)%I,(IGRP(IACGRP)-1)*NSMST+1,NSMST,

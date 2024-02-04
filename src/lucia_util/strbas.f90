@@ -14,17 +14,16 @@ Module STRBAS
       Integer       KNSTSO(MXPSTT),KISTSO(MXPSTT),                      &
      &              KZ(MXPSTT),                                         &
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,                  &
-     &              KISTSGP(MXPNGAS),                                   &
      &              KIOCLS,KSPGPAN,KSPGPCR
       Type iArray
          Integer, Allocatable:: I(:)
       End Type iArray
       Type (iArray):: OCSTR(MXPSTT), STREO(MXPSTT), STSTM(MXPSTT,2),    &
-     &                NSTSGP(MXPNGAS)
+     &                NSTSGP(MXPNGAS), ISTSGP(MXPNGAS)
 
       Public ::     OCSTR,KNSTSO,KISTSO,                                &
      &              STSTM,KZ,STREO,                                     &
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,                  &
-     &              NSTSGP,KISTSGP,                                     &
+     &              NSTSGP,ISTSGP,                                      &
      &              KIOCLS,KSPGPAN,KSPGPCR
 End Module STRBAS
