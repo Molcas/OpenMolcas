@@ -57,7 +57,7 @@
 *.0.5 : Pointers to one-electron integrals, all symmetries, complete form
       DO ISM = 1, NSMOB
         CALL PNT2DM(        0,    NSMOB,    NSMSX,    ADSXA,   NTOOBS,
-     &                 NTOOBS,ISM  ,   ISL1,IWORK(KPGINT1A(ISM)),MXPOBS)
+     &                 NTOOBS,ISM  ,   ISL1,PGINT1A(ISM)%I,MXPOBS)
       END DO
 *.1 : Number of one-electron integrals
       CALL PNT2DM(        1,    NSMOB,    NSMSX,    ADSXA,   NTOOBS,

@@ -42,7 +42,7 @@ C?        WRITE(6,*) ' GETH1E, old route '
       ELSE
 *. Integrals are in full blocked form
         GETH1E =
-     &  GTH1ES(IREOTS,iWORK(KPGINT1A(IJSM)),INT1,IBSO,MXPNGAS,
+     &  GTH1ES(IREOTS,PGINT1A(IJSM)%I,INT1,IBSO,MXPNGAS,
      &         IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,0)
       END IF
 *

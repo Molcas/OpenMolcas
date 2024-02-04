@@ -43,7 +43,7 @@
 *. triangular packed
         CALL GETMEM('PGINT1','FREE','INTE',KPGINT1(ISM),NSMOB)
 *. no packing
-        CALL GETMEM('PGIN1A','FREE','INTE',KPGINT1A(ISM),NSMOB)
+        CALL mma_deallocate(PGINT1A(ISM)%I)
       END DO
 *. Symmetry of last index as a function of initial index
       CALL GETMEM('LSM1   ','FREE','INTE',KLSM1,NBINT1)
