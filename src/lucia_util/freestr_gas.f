@@ -53,7 +53,7 @@
 *
 *. Not in use so
       DO  IGRP = 1, NGRP
-        CALL GETMEM('Zmat  ','FREE','INTE',KZ(IGRP),NACOB*NELFGP(IGRP))
+        CALL mma_deallocate(Zmat(IGRP)%I)
       END DO
 *
 *. Mappings between different groups

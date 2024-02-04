@@ -100,7 +100,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
         IEL = NELFGP(IGRP)
         IOCTYPX = 1
 *. Reverse lexical adresing schemes for each group of string
-        CALL WEIGHT_LUCIA(iWork(KZ(IGRP)),IEL,  NORB1,  NORB2,  NORB3,
+        CALL WEIGHT_LUCIA(Zmat(IGRP)%I,IEL,  NORB1,  NORB2,  NORB3,
      &                      MNRS1X,MXRS1X, MNRS3X,
      &                      MXRS3X,FREEL,
      &                      IPRNT )
@@ -112,7 +112,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *. Construct the strings ordered by symmetry
         CALL GENSTR_GAS(     IEL,  MNRS1X,  MXRS1X,  MNRS3X,  MXRS3X,
      &                  ISTSGP(1)%I,
-     &                  IGRP,IOCTYPX,NSMST,iWork(KZ(IGRP)),
+     &                  IGRP,IOCTYPX,NSMST,Zmat(IGRP)%I,
      &                  FREEL,STREO(IGRP)%I,OCSTR(IGRP)%I,
 *
      &                  FREEL(1+IOCTYPX*NSMST),IGRP,IPRNT)
@@ -209,7 +209,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           JGRP = ISTAC(IGRP,2)
           CALL CRESTR_GAS(OCSTR(IGRP)%I,
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
-     &                    iWork(KZ(JGRP)),STREO(JGRP)%I,
+     &                    Zmat(JGRP)%I,STREO(JGRP)%I,
      &                    0,IDUM,IDUM,
      &                    STSTM(IGRP,1)%I,
      &                    STSTM(IGRP,2)%I,NACOB,IPRNT)
@@ -219,7 +219,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           JGRP = ISTAC(IGRP,1)
           CALL ANNSTR_GAS(OCSTR(IGRP)%I,
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
-     &                    iWork(KZ(JGRP)),STREO(JGRP)%I,
+     &                    Zmat(JGRP)%I,STREO(JGRP)%I,
      &                    0,IDUM,IDUM,
      &                    STSTM(IGRP,1)%I,
      &                    STSTM(IGRP,2)%I,NACOB,IEC,LROW,IPRNT)

@@ -75,7 +75,8 @@
 *
 *. Not in use so
       DO  IGRP = 1, NGRP
-        CALL GETMEM('Zmat  ','ALLO','INTE',KZ(IGRP),NACOB*NELFGP(IGRP))
+        CALL mma_allocate(Zmat(IGRP)%I,NACOB*NELFGP(IGRP),
+     &                    Label='ZMat()')
       END DO
 *
 *. Mappings between different groups
