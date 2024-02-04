@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE GETSTR2_TOTSM_SPGP(  IGRP, NIGRP,ISPGRPSM, NEL,NSTR,
      &                                ISTR, NORBT,IDOREO,    IZ,  IREO)
+      use strbas
 *
 * Obtain all super-strings of given total symmetry and given
 * occupation in each GAS space
@@ -54,7 +55,6 @@
 #include "WrkSpc.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
-#include "strbas.fh"
 #include "csm.fh"
       INTEGER IZ(NORBT,NEL)
       INTEGER IGRP(NIGRP)

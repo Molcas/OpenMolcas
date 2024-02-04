@@ -17,6 +17,7 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
+      use strbas
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -35,7 +36,6 @@
 #include "crun.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "cprnt.fh"
 #include "oper.fh"
 #include "gasstr.fh"

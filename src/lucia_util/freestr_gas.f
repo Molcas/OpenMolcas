@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FREESTR_GAS
+      SUBROUTINE FREESTR_GAS()
+      use strbas
 * Deallocate the memory that was set up in MEMSTR_GAS
 
 *
@@ -16,7 +17,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "WrkSpc.fh"
 #include "cgas.fh"

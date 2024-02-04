@@ -11,6 +11,7 @@
       SUBROUTINE GASDIAT(    DIAG,   LUDIA,   ECORE,  ICISTR,     I12,
      &                      IBLTP,  NBLOCK,  IBLKFO)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use strbas
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -29,7 +30,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cicisp.fh"
-#include "strbas.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"

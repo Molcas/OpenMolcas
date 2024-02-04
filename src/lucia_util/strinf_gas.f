@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE STRINF_GAS(IPRNT)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use strbas
 *
 * Obtain string information for GAS expansion
 *
@@ -23,7 +24,7 @@
 *.Output
 * =====
 *
-* /STRINP/,/STINF/,/STRBAS/ and string information in STIN
+* /STRINP/,/STINF/,STRBAS and string information in STIN
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *. Input
@@ -32,7 +33,6 @@
 #include "orbinp.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "cstate.fh"
 #include "lucinp.fh"

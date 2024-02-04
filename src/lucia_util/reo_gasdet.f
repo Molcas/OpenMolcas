@@ -13,6 +13,7 @@
       SUBROUTINE REO_GASDET(IBLOCK,NBLOCK,ISYM,IREO)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
+      use strbas
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -28,7 +29,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "strbas.fh"
 #include "cicisp.fh"
 #include "cstate.fh"
 #include "strinp.fh"

@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE BLKFO_MIN(ISM,NBLK,LEN_BLK)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use strbas
 *
 * Number of blocks and length of each block for CI expansion
 *
@@ -34,7 +35,6 @@
 #include "stinf.fh"
 #include "cstate.fh"
 #include "csm.fh"
-#include "strbas.fh"
 #include "crun.fh"
 #include "cands.fh"
       Integer, Allocatable:: CIOIO(:)

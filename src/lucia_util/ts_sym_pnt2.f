@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE TS_SYM_PNT2(   IGRP,  NIGRP, MAXVAL, MINVAL,   ISYM,
      &                          IPNT,   LPNT)
+      use strbas
 *
 * Construct pointers to start of symmetrydistributions
 * for supergroup of strings with given symmetry
@@ -40,7 +41,6 @@
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
 #include "csm.fh"

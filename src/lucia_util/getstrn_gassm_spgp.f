@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTROC,  NSTR,   NEL,
      &                              NNSTSGP,IISTSGP)
+      use strbas
 *
 * Obtain all superstrings containing  strings of given sym and type
 *
@@ -35,7 +36,6 @@
 *. General input
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
-#include "strbas.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "csm.fh"

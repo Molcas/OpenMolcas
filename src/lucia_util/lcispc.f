@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE LCISPC(IPRNT)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use strbas
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -31,7 +32,6 @@
 #include "lucinp.fh"
 #include "cstate.fh"
 #include "strinp.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "stinf.fh"
 #include "cgas.fh"

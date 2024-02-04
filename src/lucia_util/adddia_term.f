@@ -13,6 +13,7 @@
 ************************************************************************
       SUBROUTINE ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use strbas
 *. Update Sigma vector with diagonal terms for a given block
 *     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
 *                         + (FACTOR+DIAG(IASPGP,IBSPGP))CVEC(IASPGP,IBSPGP)
@@ -26,7 +27,6 @@
 #include "strinp.fh"
 #include "orbinp.fh"
 #include "gasstr.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "stinf.fh"
 #include "cecore.fh"

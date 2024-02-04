@@ -11,6 +11,7 @@
 * Copyright (C) 1997,1998, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE MINMAX_FOR_SYM_DIST(NIGRP,IGRP,MNVAL,MXVAL,NDIST)
+      use strbas
 *
 * A combination of NIGRP groups are given (IGRP)
 *. Find MIN and MAX for symmetry in each group
@@ -22,7 +23,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
 *. Include blocks
 #include "mxpdim.fh"
-#include "strbas.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "csm.fh"

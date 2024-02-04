@@ -14,6 +14,7 @@
      &                           IOFF,  JPERT,    J12,    JDC)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
+      use strbas
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -30,7 +31,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cicisp.fh"
-#include "strbas.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"

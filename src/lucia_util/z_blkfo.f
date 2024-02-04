@@ -14,6 +14,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays
+      use strbas
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -39,7 +40,6 @@
 #include "stinf.fh"
 #include "cstate.fh"
 #include "csm.fh"
-#include "strbas.fh"
 #include "crun.fh"
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)

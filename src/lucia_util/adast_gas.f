@@ -14,6 +14,7 @@
       SUBROUTINE ADAST_GAS(   IOBSM,   IOBTP,   NIGRP,    IGRP, ISPGPSM,
      &                           I1,    XI1S,   NKSTR,    IEND,   IFRST,
      &                        KFRST,    KACT,  SCLFAC,     IAC)
+      use strbas
 *
 *
 * Obtain creation or annihilation mapping
@@ -58,7 +59,6 @@
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
 #include "csm.fh"

@@ -17,6 +17,7 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
+      use strbas
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -50,7 +51,6 @@
 *./ORBINP/ : NACOB used
 #include "orbinp.fh"
 #include "cicisp.fh"
-#include "strbas.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"

@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 1994, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE MEMSTR_GAS
+      SUBROUTINE MEMSTR_GAS()
+      use strbas
 *
 *
 * Construct pointers for saving information about strings and
@@ -27,7 +28,7 @@
 *=========
 * Output
 *=========
-* Pointers stored in common block /STRBAS/
+* Pointers stored in Module STRBAS
 *
 * Jeppe Olsen , Winter of 1994
 *
@@ -35,7 +36,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "WrkSpc.fh"
 #include "cgas.fh"

@@ -14,6 +14,7 @@
      &                        LUCOUT,      C)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Local_Arrays, only: CIBT, CBLTP, Deallocate_Local_Arrays
+      use strbas
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -37,7 +38,6 @@
 #include "strinp.fh"
 #include "orbinp.fh"
 #include "cicisp.fh"
-#include "strbas.fh"
 #include "gasstr.fh"
 #include "crun.fh"
 #include "csm.fh"

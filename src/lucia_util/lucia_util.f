@@ -28,6 +28,7 @@
       Subroutine Lucia_Util(Module,Int1,Int2,Array1)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
+      use strbas
 #include "implicit.fh"
       Parameter(MxpLnc = 72)
       Character*(*) Module
@@ -65,7 +66,6 @@
 #include "orbinp.fh"
 #include "spinfo_lucia.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "strinp.fh"
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"

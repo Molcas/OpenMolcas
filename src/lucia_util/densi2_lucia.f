@@ -14,6 +14,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       USE GLBBAS
       use hidscr
+      use strbas
 *
 * Density matrices between L and R
 *
@@ -58,7 +59,6 @@ c      REAL*8 INPRDD
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cicisp.fh"
-#include "strbas.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"

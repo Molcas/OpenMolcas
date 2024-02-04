@@ -11,6 +11,7 @@
 * Copyright (C) 1995, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE ZNELFSPGP(NTESTG)
+      use strbas
 *
 * Generate for each supergroup the number of electrons in each active
 * orbital space and store in NELFSPGP
@@ -20,8 +21,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
 *. input
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
-#include "strbas.fh"
 #include "cgas.fh"
 *. Input and Output ( NELFSPGP(MXPNGAS,MXPSTT) )
 #include "gasstr.fh"

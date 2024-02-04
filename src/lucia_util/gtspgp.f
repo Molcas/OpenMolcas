@@ -11,6 +11,7 @@
 * Copyright (C) 1995, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE GTSPGP(IEL,ISPGP,IWAY)
+      use strbas
 *
 *
 * Relation between number of electrons in AS1, AS2 ... and
@@ -30,7 +31,6 @@
 *. Generel input
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
-#include "strbas.fh"
 #include "stinf.fh"
 #include "cgas.fh"
 #include "gasstr.fh"

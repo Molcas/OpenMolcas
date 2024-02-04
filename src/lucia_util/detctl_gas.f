@@ -14,6 +14,7 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
+      use strbas
 
 *
       IMPLICIT REAL*8 (A-H, O-Z)
@@ -33,7 +34,6 @@
      &              MXNTTS,MXSOOB_AS
 #include "cprnt.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "spinfo_lucia.fh"
 #include "strinp.fh"
@@ -261,6 +261,7 @@ c      END IF
       SUBROUTINE DETCTL_FREE()
       use stdalloc, only: mma_deallocate
       use GLBBAS
+      use strbas
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
 #include "gasstr.fh"
@@ -272,7 +273,6 @@ c      END IF
 #include "cicisp.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "spinfo_lucia.fh"
 #include "strinp.fh"

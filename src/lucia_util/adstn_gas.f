@@ -13,6 +13,7 @@
       SUBROUTINE ADSTN_GAS(OFFI,   IOBSM,   IOBTP,   ISPGP, ISPGPSM,
      &                     ISPGPTP,      I1,    XI1S,   NKSTR,    IEND,
      &                     IFRST,   KFRST,    KACT,  SCLFAC)
+      use strbas
 *
 *
 * Obtain mappings
@@ -45,7 +46,6 @@
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
 #include "csm.fh"

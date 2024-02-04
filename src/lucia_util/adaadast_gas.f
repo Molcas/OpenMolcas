@@ -16,6 +16,7 @@
      &                             I1,   XI1S,    LI1,     NK,   IEND,
      &                          IFRST,  KFRST,    I12,    K12, SCLFAC)
       use HIDSCR
+      use strbas
 *
 *
 * Obtain two-operator mappings
@@ -60,7 +61,6 @@
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
-#include "strbas.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 *. Local scratch

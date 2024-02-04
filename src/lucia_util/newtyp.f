@@ -11,6 +11,7 @@
 * Copyright (C) 1993,1995, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
+      use strbas
 *
 * an input  supergroup is given.
 * apply an string of elementary operators to this supergroup and
@@ -36,7 +37,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
 #include "cgas.fh"
-#include "strbas.fh"
 #include "WrkSpc.fh"
 *. Input
       INTEGER INSPGP,IACOP,ITPOP
