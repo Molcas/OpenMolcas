@@ -34,7 +34,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "cprnt.fh"
@@ -96,7 +95,7 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
      &                  IOCTPB,  NBLOCK,  IBLOCK,    NAEL,    NBEL,
      &                  LASTR,LBSTR,NSMST,NELFSPGP,
 *
-     &                  NMXOCCLS,    NGAS,IWORK(KIOCLS),NTOOB,  NOBPT,
+     &                  NMXOCCLS,    NGAS,IOCLS,NTOOB,  NOBPT,
      &                  DFTP,
      &                  IB_CONF_REO,
      &                  conf_reo(isym)%I,

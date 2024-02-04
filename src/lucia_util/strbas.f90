@@ -11,15 +11,16 @@
 Module STRBAS
       Private
 #include "mxpdim.fh"
-      Integer       KIOCLS,KSPGPAN,KSPGPCR
+      Integer       KSPGPAN,KSPGPCR
       Type iArray
          Integer, Allocatable:: I(:)
       End Type iArray
       Type (iArray):: OCSTR(MXPSTT), STREO(MXPSTT), STSTM(MXPSTT,2),    &
      &                NSTSGP(MXPNGAS), ISTSGP(MXPNGAS), NSTSO(MXPSTT),  &
      &                ISTSO(MXPSTT), Zmat(MXPSTT)
+      Integer, Allocatable:: IOCLS(:)
 
       Public ::     OCSTR,NSTSO,ISTSO,STSTM,Zmat,STREO,                 &
      &              NSTSGP,ISTSGP,                                      &
-     &              KIOCLS,KSPGPAN,KSPGPCR
+     &              IOCLS,KSPGPAN,KSPGPCR
 End Module STRBAS

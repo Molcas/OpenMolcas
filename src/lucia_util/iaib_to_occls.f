@@ -42,7 +42,7 @@ C  IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
 *
      &                 NGAS)
 *. And the address of this occupation class
-      CALL CMP_IVEC_ILIST(IABOCC,iWORK(KIOCLS),NGAS,NMXOCCLS,INUM)
+      CALL CMP_IVEC_ILIST(IABOCC,IOCLS,NGAS,NMXOCCLS,INUM)
 *
       IOC = INUM
 *

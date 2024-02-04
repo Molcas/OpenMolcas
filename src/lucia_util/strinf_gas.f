@@ -320,7 +320,7 @@ C?   &                     MXSMCLS,MXSMCLSE,MXSMCLSE1
 * Possible occupation classes
 *
       ZERO_ARR(1)=0
-      CALL OCCLS(         2,  NMXOCCLS,IWORK(KIOCLS),  NACTEL,    NGAS,
+      CALL OCCLS(         2,  NMXOCCLS,IOCLS,  NACTEL,    NGAS,
      &           IGSOCC(1,1),IGSOCC(1,2),       0,ZERO_ARR,   NOBPT)
 *
 * Maps creation/annihilation of given gas orb from given supergroup
