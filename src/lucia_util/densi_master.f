@@ -32,28 +32,29 @@
       dimension dummy(1)
       Real*8, Allocatable:: VEC1(:), VEC2(:)
       Integer, Allocatable:: lVec(:)
+      Real*8, Allocatable:: SCR1(:), SCR2(:), SCR3(:), SCR4(:)
 *
 * Put CI-vector from RASSCF on luc
 *
 *     if rvec/=ip_Dummy, it should be a pointer to a second CI vector
 *     and a one-particle transition density matrix will be computed
       tdm = rvec.ne.ip_Dummy
-      CALL GETMEM('LSCR1 ','ALLO','REAL',LSCR1,NSD_PER_SYM(IREFSM))
-      CALL GETMEM('LSCR2 ','ALLO','REAL',LSCR2,NSD_PER_SYM(IREFSM))
-      CALL COPVEC(WORK(C_POINTER),WORK(LSCR1),NCSF_PER_SYM(IREFSM))
+      CALL mma_allocate(SCR1,NSD_PER_SYM(IREFSM),Label='SCR1')
+      CALL mma_allocate(SCR2,NSD_PER_SYM(IREFSM),Label='SCR2')
+      CALL COPVEC(WORK(C_POINTER),SCR1,NCSF_PER_SYM(IREFSM))
       ITMP_POINTER = C_POINTER
       Call mma_allocate(lVec,MXNTTS,Label='lVec')
       IF (tdm) THEN
-         CALL GETMEM('LSCR3 ','ALLO','REAL',LSCR3,NSD_PER_SYM(IREFSM))
-         CALL GETMEM('LSCR4 ','ALLO','REAL',LSCR4,NSD_PER_SYM(IREFSM))
-         CALL COPVEC(WORK(rvec),WORK(LSCR3),NCSF_PER_SYM(IREFSM))
-         CALL CSDTVC(WORK(LSCR3),WORK(LSCR4),1,WORK(KDTOC_POINTER),
+         CALL mma_allocate(SCR3,NSD_PER_SYM(IREFSM),Label='SCR3')
+         CALL mma_allocate(SCR4,NSD_PER_SYM(IREFSM),Label='SCR4')
+         CALL COPVEC(WORK(rvec),SCR3,NCSF_PER_SYM(IREFSM))
+         CALL CSDTVC(SCR3,SCR4,1,WORK(KDTOC_POINTER),
      &               iWORK(KSDREO_POINTER), IREFSM, 1)
-         C_POINTER = LSCR3
+         C_POINTER = ip_of_Work(SCR3)
          CALL CPCIVC(LUHC, MXNTTS, IREFSM, 1,lVec)
       END IF
-      C_POINTER = LSCR1
-      CALL CSDTVC(WORK(LSCR1),WORK(LSCR2),1,WORK(KDTOC_POINTER),
+      C_POINTER = ip_of_Work(SCR1)
+      CALL CSDTVC(SCR1,SCR2,1,WORK(KDTOC_POINTER),
      &     iWORK(KSDREO_POINTER), IREFSM, 1)
       CALL CPCIVC(LUC, MXNTTS, IREFSM, 1,lVec)
       Call mma_deallocate(lVec)
@@ -134,21 +135,19 @@ C      ksrho1 : DONE!!! - Comming with module glbbas
          CALL TriPak(work(ksrho1), work(lw7), 1, ntoob, ntoob)
       END IF
 *
-      CALL CSDTVC(work(lscr1),work(lscr2),2,work(kdtoc_pointer),
+      CALL CSDTVC(scr1,scr2,2,work(kdtoc_pointer),
      &     iwork(KSDREO_POINTER), iRefSm, 1)
       C_POINTER = iTmp_pointer
 *
-*     CALL MEMMAN(IDUM, IDUM, 'FLUSM', IDUM, 'DENS_M')
-      CALL GETMEM('LSCR1 ','FREE','REAL',LSCR1,NSD_PER_SYM(IREFSM))
-      CALL GETMEM('LSCR2 ','FREE','REAL',LSCR2,NSD_PER_SYM(IREFSM))
+      CALL mma_deallocate(SCR1)
+      CALL mma_deallocate(SCR2)
       Call mma_deallocate(VEC1)
       Call mma_deallocate(VEC2)
       Call mma_deallocate(VEC3)
       IF (tdm) THEN
-         CALL GETMEM('LSCR3 ','FREE','REAL',LSCR3,NSD_PER_SYM(IREFSM))
-         CALL GETMEM('LSCR4 ','FREE','REAL',LSCR4,NSD_PER_SYM(IREFSM))
+         CALL mma_deallocate(SCR3)
+         CALL mma_deallocate(SCR4)
       END IF
 *
-      RETURN
       END
 *
