@@ -108,9 +108,7 @@ C     END IF
       CALL mma_allocate(LRJKA,MAXA,Label='LRJKA')
 *. Diagonal of one-body integrals and coulomb and exchange integrals
 *. Integrals assumed in place so :
-C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),INT1,NINT1)
       CALL GT1DIA(LH1D)
-C!    IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KFI),INT1,NINT1)
       IF(J12.EQ.2)
      &CALL GTJK(LJ,LK,NTOOB,LSCR2,IREOTS,IREOST)
 *. Core energy not included

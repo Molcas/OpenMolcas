@@ -13,13 +13,13 @@ Private
 #include "mxpdim.fh"
       Integer ::                              KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
-     &              KSBIA,KSBIB,KPNIJ,KIJKK,KFI,KINH1,                  &
+     &              KSBIA,KSBIB,KPNIJ,KIJKK,    KINH1,                  &
      &              KMOAOIN,KMOAOUT,NOCCLS_G,KPGINT1(MXPOBS),           &
-     &                     KFIO,KPGINT1A(MXPOBS),                       &
+     &                          KPGINT1A(MXPOBS),                       &
      &              KMOMO,KSRHO1,                                       &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM
-      Real*8, Allocatable:: INT1(:), INT1O(:), FIZ(:)
+      Real*8, Allocatable:: INT1(:), INT1O(:)
       Integer, Allocatable:: PINT1(:), PINT2(:)
       Real*8, Allocatable:: VEC3(:)
 
@@ -42,10 +42,10 @@ Private
 
       Public         INT1,       PINT1, PINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
-     &              KSBIA,KSBIB, VEC3,KPNIJ,KIJKK,KFI,KINH1,            &
+     &              KSBIA,KSBIB, VEC3,KPNIJ,KIJKK,    KINH1,            &
      &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G,KPGINT1,           &
-     &               INT1O,KFIO,KPGINT1A,                               &
-     &              KMOMO,KSRHO1, FIZ,                                  &
+     &               INT1O,     KPGINT1A,                               &
+     &              KMOMO,KSRHO1,                                       &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
      &              CONF_OCC,CONF_REO,                                  &

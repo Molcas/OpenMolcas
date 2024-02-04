@@ -308,19 +308,6 @@ c     KVEC2 = KSIGMA_POINTER
          CALL GASDIAT(WORK(KVEC1),  LUDIA,  SHIFT, ICISTR,    I12,
      &                CBLTP,NBLOCK,CIBT)
 *
-c         IF(IIUSEH0P.EQ.1) THEN
-c*. Diagonal with F
-c            CALL SWAPVE(WORK(KFI),INT1O,NINT1)
-c            CALL GASDIAT(WORK(KVEC1),LUSC52,SHIFT,ICISTR,1,
-c     &           CBLTP,NBLOCK,CIBT)
-c            CALL SWAPVE(WORK(KFI),INT1O,NINT1)
-c*. diag of (1-Lambda) F + Lambda H
-c            FAC1 = 1.0D0 - XLAMBDA
-c            FAC2 = XLAMBDA
-c            CALL VECSMD(WORK(KVEC1),WORK(KVEC2),FAC1,FAC2,
-c     &           LUSC52,LUDIA,LUSC53,1,LBLK)
-c            CALL COPVCD(LUSC53,LUDIA,WORK(KVEC1),1,LBLK)
-c         END IF
          IF(NOCSF.EQ.1.AND.ICISTR.EQ.1) THEN
             IDISK(LUDIA)=0
             CALL TODSC(WORK(KVEC1),NVAR,-1,LUDIA)
