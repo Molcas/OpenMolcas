@@ -63,10 +63,6 @@
         CALL mma_deallocate(STSTM(IGRP,2)%I)
       END DO
 *
-*. Symmetry of excitation connecting  strings of given symmetry
-*
-      CALL GETMEM('Ststx ','FREE','INTE',KSTSTX,NSMST*NSMST)
-*
 *. Occupation classes
 *
       CALL GETMEM('IOCLS ','FREE','INTE',KIOCLS,NMXOCCLS*NGAS)

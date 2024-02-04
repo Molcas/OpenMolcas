@@ -98,10 +98,6 @@
         CALL mma_allocate(STSTM(IGRP,2)%I,LENGTH,LABEL='STSTM(IGRP,2)')
       END DO
 *
-*. Symmetry of excitation connecting  strings of given symmetry
-*
-      CALL GETMEM('Ststx ','ALLO','INTE',KSTSTX,NSMST*NSMST)
-*
 *. Occupation classes
 *
       CALL GETMEM('IOCLS ','ALLO','INTE',KIOCLS,NMXOCCLS*NGAS)
