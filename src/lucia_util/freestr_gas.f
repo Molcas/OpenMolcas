@@ -63,14 +63,6 @@
         CALL mma_deallocate(STSTM(IGRP,2)%I)
       END DO
 *
-*. Symmetry of conjugated orbitals and orbital excitations
-*
-*     COBSM,KNIFSJ,KIFSJ,KIFSJO
-      CALL mma_deallocate(COBSM)
-      CALL GETMEM('Nifsj ','FREE','INTE',KNIFSJ,NACOB*NSMSX)
-      CALL GETMEM('Ifsj  ','FREE','INTE',KIFSJ,NACOB**2 )
-      CALL GETMEM('Ifsjo ','FREE','INTE',KIFSJO,NACOB*NSMSX)
-*
 *. Symmetry of excitation connecting  strings of given symmetry
 *
       CALL GETMEM('Ststx ','FREE','INTE',KSTSTX,NSMST*NSMST)

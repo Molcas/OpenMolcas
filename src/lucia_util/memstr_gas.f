@@ -38,7 +38,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "stinf.fh"
@@ -98,14 +97,6 @@
         CALL mma_allocate(STSTM(IGRP,1)%I,LENGTH,LABEL='STSTM(IGRP,1)')
         CALL mma_allocate(STSTM(IGRP,2)%I,LENGTH,LABEL='STSTM(IGRP,2)')
       END DO
-*
-*. Symmetry of conjugated orbitals and orbital excitations
-*
-*     COBSM,KNIFSJ,KIFSJ,KIFSJO
-      CALL mma_allocate(COBSM,NACOB,Label='COBSM')
-      CALL GETMEM('Nifsj ','ALLO','INTE',KNIFSJ,NACOB*NSMSX)
-      CALL GETMEM('Ifsj  ','ALLO','INTE',KIFSJ,NACOB**2 )
-      CALL GETMEM('Ifsjo ','ALLO','INTE',KIFSJO,NACOB*NSMSX)
 *
 *. Symmetry of excitation connecting  strings of given symmetry
 *
