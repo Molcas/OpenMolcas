@@ -67,7 +67,7 @@
 *
       CALL mma_deallocate(IOCLS)
 *. Annihilation/Creation map of supergroup types
-      CALL GETMEM('SPGPAN','FREE','INTE',KSPGPAN,NTSPGP*NGAS)
+      CALL mma_deallocate(SPGPAN)
       CALL GETMEM('SPGPCR','FREE','INTE',KSPGPCR,NTSPGP*NGAS)
 *
 * Allocated during strinf_gas call

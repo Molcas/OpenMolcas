@@ -328,7 +328,7 @@ C?   &                     MXSMCLS,MXSMCLSE,MXSMCLSE1
 *
       IZERO = 0
       CALL ISETVC(iWORK(KSPGPCR),IZERO,NGAS*NTSPGP)
-      CALL ISETVC(iWORK(KSPGPAN),IZERO,NGAS*NTSPGP)
+      CALL ISETVC(SPGPAN,IZERO,NGAS*NTSPGP)
 *
       DO ISTTYP = 1,NSTTYP
 *. Creation map from this type
@@ -362,7 +362,7 @@ C?      WRITE(6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
            CALL SPGP_AC(NELFSPGP(1,1),
      &                  NSPGPFTP(ISTTYP),
      &                  NELFSPGP(1,1),NSPGPFTP(ISTTYPA),NGAS,MXPNGAS,1,
-     &                  iWORK(KSPGPAN),
+     &                  SPGPAN,
      &                  IBSPGPFTP(ISTTYP),
      &                  IBSPGPFTP(ISTTYPA))
         END IF
