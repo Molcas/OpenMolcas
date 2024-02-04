@@ -87,6 +87,7 @@
         ISTRIN = NSTFGP(IGRP)
 *. IF creation is involve : Use full orbital notation
 *  If only annihilation is involved, compact form will be used
+        LENGTH=1
         IF(ISTAC(IGRP,2).NE.0) THEN
           LENGTH = IORB*ISTRIN
         ELSE IF(ISTAC(IGRP,1).NE.0) THEN
