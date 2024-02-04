@@ -114,7 +114,7 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
      &                  DET_OC,
      &                  DET_MS,
 *
-     &                  DET_VC,iWORK,KREO_PTDT, MINOP,
+     &                  DET_VC,MINOP,
      &                  IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 *
       Call mma_deallocate(LASTR)

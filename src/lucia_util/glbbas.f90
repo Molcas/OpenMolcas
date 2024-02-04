@@ -18,8 +18,7 @@ Private
      &              KINT1O,KFIO,KPGINT1A(MXPOBS),                       &
      &              KMOMO,KSRHO1,KFIZ,                                  &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
-     &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
-     &              KREO_PTDT(MXPORB+1)
+     &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM
       Real*8, Allocatable:: VEC3(:)
 
 ! DETERMINE BASE ADRESSES
@@ -35,7 +34,7 @@ Private
          Integer, Allocatable:: I(:)
       End Type  Array
       Type (Array) CONF_OCC(8), CONF_REO(8), SDREO_I(8)
-      Type (Array), Allocatable:: Z_PTDT(:)
+      Type (Array), Allocatable:: Z_PTDT(:), REO_PTDT(:)
 
       Public        KINT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
@@ -47,6 +46,5 @@ Private
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
      &              CONF_OCC,CONF_REO,                                  &
      &              DFTP,CFTP,DTOC,                                     &
-     &              SDREO_I,Z_PTDT,                                     &
-     &              KREO_PTDT
+     &              SDREO_I,Z_PTDT,REO_PTDT
 End Module GLBBAS

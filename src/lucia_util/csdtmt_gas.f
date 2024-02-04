@@ -155,7 +155,7 @@ C?      WRITE(6,*) ' IOPEN, IDET = ', IOPEN, IDET
         CALL REO_PTDET(   IOPEN,
      &                   IALPHA,
      &                 Z_PTDT(ITP)%I,
-     &                 IWORK(KREO_PTDT(ITP)),
+     &                 REO_PTDT(ITP)%I,
      &                 DFTP(IDTBS),
 *
      &                     IDET,LSCR2)

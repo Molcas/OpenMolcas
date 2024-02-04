@@ -324,6 +324,7 @@ C
 * Arrays for addressing prototype determinants for each number of orbitals
 *
       Allocate(Z_PTDT(MINOP+1:MAXOP+1))
+      Allocate(REO_PTDT(MINOP+1:MAXOP+1))
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
 *
@@ -331,7 +332,7 @@ C
         LZ = IOPEN*IALPHA
         LPTDT = IBION_LUCIA(IOPEN,IALPHA)
         CALL mma_allocate(Z_PTDT(ITYP)%I,LZ,Label='Z_PTDT()')
-        CALL GETMEM('RE_PTD','ALLO','INTE',KREO_PTDT(ITYP),LPTDT)
+        CALL mma_allocate(REO_PTDT(ITYP)%I,LPTDT,Label='REO_PTDT()')
       END DO
 *
 * Array giving first determinant with given number of electrons
@@ -371,9 +372,10 @@ C
         LZ = IOPEN*IALPHA
         LPTDT = IBION_LUCIA(IOPEN,IALPHA)
         CALL mma_deallocate(Z_PTDT(ITYP)%I)
-        CALL GETMEM('RE_PTD','FREE','INTE',KREO_PTDT(ITYP),LPTDT)
+        CALL mma_deallocate(REO_PTDT(ITYP)%I)
       END DO
       DEALLOCATE(Z_PTDT)
+      DEALLOCATE(REO_PTDT)
 
 c     LDET = NSD_PER_SYM(ISYM)
 c     LCONF = 0
