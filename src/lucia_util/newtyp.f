@@ -37,7 +37,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
 #include "cgas.fh"
-#include "WrkSpc.fh"
 *. Input
       INTEGER INSPGP,IACOP,ITPOP
 *. output
@@ -46,7 +45,7 @@
       IF(IACOP.EQ.1) THEN
         OUTSPGP = SPGPAN(ITPOP+NGAS*(INSPGP-1))
       ELSE
-        OUTSPGP = IWORK(KSPGPCR+ITPOP-1+NGAS*(INSPGP-1))
+        OUTSPGP = SPGPCR(ITPOP+NGAS*(INSPGP-1))
       END IF
 *
       RETURN

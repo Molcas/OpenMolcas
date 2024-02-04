@@ -327,7 +327,7 @@ C?   &                     MXSMCLS,MXSMCLSE,MXSMCLSE1
 * gives new supergroup.
 *
       IZERO = 0
-      CALL ISETVC(iWORK(KSPGPCR),IZERO,NGAS*NTSPGP)
+      CALL ISETVC(SPGPCR,IZERO,NGAS*NTSPGP)
       CALL ISETVC(SPGPAN,IZERO,NGAS*NTSPGP)
 *
       DO ISTTYP = 1,NSTTYP
@@ -346,7 +346,7 @@ C?      WRITE(6,*) ' ISTTYP and ISTTYPC ',ISTTYP,ISTTYPC
            CALL SPGP_AC(NELFSPGP(1,1),
      &                  NSPGPFTP(ISTTYP),
      &                  NELFSPGP(1,1),NSPGPFTP(ISTTYPC),NGAS,MXPNGAS,2,
-     &                  iWORK(KSPGPCR),
+     &                  SPGPCR,
      &                  IBSPGPFTP(ISTTYP),
      &                  IBSPGPFTP(ISTTYPC))
         ELSE

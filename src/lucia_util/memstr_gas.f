@@ -103,6 +103,6 @@
       CALL mma_allocate(IOCLS,NMXOCCLS*NGAS,Label='IOCLS')
 *. Annihilation/Creation map of supergroup types
       CALL mma_allocate(SPGPAN,NTSPGP*NGAS,Label='SPGPAN')
-      CALL GETMEM('SPGPCR','ALLO','INTE',KSPGPCR,NTSPGP*NGAS)
+      CALL mma_allocate(SPGPCR,NTSPGP*NGAS,Label='SPGPCR')
 *
       END
