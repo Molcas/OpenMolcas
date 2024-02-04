@@ -259,8 +259,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
      &               MXPNSMST,NSPGPFTP(ITP))
 *. Corresponding offset array : Each supergroup is generated individually
 *. so each supergroup starts with offset 1 !
-        CALL ZSPGPIB(NSTSO(ITP)%I,iWORK(KISTSO(ITP)),
-     &               NSPGPFTP(ITP),NSMST)
+        CALL ZSPGPIB(NSTSO(ITP)%I,ISTSO(ITP)%I,NSPGPFTP(ITP),NSMST)
 *
         IF(NTEST.GE.5) THEN
           WRITE(6,*)

@@ -67,8 +67,8 @@
       DO  ITP  = 1, NSTTP
         CALL mma_allocate(NSTSO(ITP)%I,NSPGPFTP(ITP)*NSMST,
      &                    Label='NSTSO(ITP)')
-        CALL GETMEM('ISTSO ','ALLO','INTE',
-     &              KISTSO(ITP),NSPGPFTP(ITP)*NSMST)
+        CALL mma_allocate(ISTSO(ITP)%I,NSPGPFTP(ITP)*NSMST,
+     &                    Label='ISTSO(ITP)')
       END DO
 *
 **. Lexical adressing of arrays : use array indices for complete active space

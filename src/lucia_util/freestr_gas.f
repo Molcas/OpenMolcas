@@ -46,8 +46,7 @@
 *
       DO  ITP  = 1, NSTTP
         CALL mma_deallocate(NSTSO(ITP)%I)
-        CALL GETMEM('ISTSO ','FREE','INTE',
-     &              KISTSO(ITP),NSPGPFTP(ITP)*NSMST)
+        CALL mma_deallocate(ISTSO(ITP)%I)
       END DO
 *
 **. Lexical adressing of arrays : use array indices for complete active space
