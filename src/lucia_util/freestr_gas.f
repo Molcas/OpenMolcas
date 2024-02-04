@@ -38,7 +38,7 @@
 *. Number of strings per symmetry and offset for strings of given sym
 *. for groups
 *
-      CALL GETMEM('NSTSGP','FREE','INTE',KNSTSGP(1),NSMST*NGRP)
+      CALL mma_deallocate(NSTSGP(1)%I)
       CALL GETMEM('ISTSGP','FREE','INTE',KISTSGP(1),NSMST*NGRP)
 *
 *. Number of strings per symmetry and offset for strings of given sym

@@ -107,7 +107,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *. Number of strings per symmetry in a given group
         CALL NSTRSO_GAS(     IEL,   NORB1,   NORB2,   NORB3,  MNRS1X,
      &                    MXRS1X,  MNRS3X,  MXRS3X,FREEL,NACOB,
-     &                  iWork(KNSTSGP(1)),
+     &                  NSTSGP(1)%I,
      &                  iWork(KISTSGP(1)),IOCTYPX,NSMST,IGRP,IPRNT)
 *. Construct the strings ordered by symmetry
         CALL GENSTR_GAS(     IEL,  MNRS1X,  MXRS1X,  MNRS3X,  MXRS3X,
@@ -117,7 +117,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *
      &                  FREEL(1+IOCTYPX*NSMST),IGRP,IPRNT)
 *
-       CALL ICOPVE2(iWork(KNSTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
+       CALL ICOPVE2(NSTSGP(1)%I,1+(IGRP-1)*NSMST,NSMST,
      &              NSTFSMGP(1,IGRP))
        CALL ICOPVE2(iWork(KISTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
      &              ISTFSMGP(1,IGRP))
@@ -135,7 +135,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
         write(6,*) 'NGRP', NGRP
         write(6,*) 'NSMST*NGRP', NSMST*NGRP
         WRITE(6,*) ' Number of strings per group and symmetry '
-        CALL IWRTMA10(iWork(KNSTSGP(1)),NSMST,NGRP,NSMST,NGRP)
+        CALL IWRTMA10(NSTSGP(1)%I,NSMST,NGRP,NSMST,NGRP)
         WRITE(6,*) ' Number of strings per group and symmetry(2) '
         CALL IWRTMA10(NSTFSMGP,NSMST,NGRP,MXPNSMST,NGRP)
       END IF
@@ -240,7 +240,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
           IGRPABS = IGRP-1 + IBSPGPFTP(ITP)
           CALL NSTPTP_GAS(    NGAS,
      &                    ISPGPFTP(1,IGRPABS),
-     &                    IWORK(KNSTSGP(1)),
+     &                    NSTSGP(1)%I,
      &                   NSMST,IWORK(KNSTSO(ITP)),IGRP,MXNSTRFSG,NSMCLS,
      &                     NSMCLSE,NSMCLSE1)
 *

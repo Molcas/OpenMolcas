@@ -61,7 +61,7 @@ C-jwk-cleanup      INTEGER NELFGS(MXPNGAS)
 C      ITPFGS(IGAS) = IGRP(IGAS)
        IF(NELFGP(IGRP(IGAS)).GT.0) NGASL = IGAS
 *. Number of strings per symmetry in each gasspace
-C       CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+C       CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
 C    &               NNSTSGP(1,IGAS))
         CALL ICOPVE(NSTFSMGP(1,IGRP(IGAS)),NNSTSGP(1,IGAS),NSMST)
       END DO

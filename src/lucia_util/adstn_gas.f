@@ -138,13 +138,13 @@ C?    END IF
 
 *. Number of strings per symmetry for each symmetry
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(iWORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
       END DO
 *. Offset and dimension for active group in I strings
       CALL ICOPVE2(iWORK(KISTSGP(1)),(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
      &               IACIST)
-      CALL ICOPVE2(iWORK(KNSTSGP(1)),(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
      &               NACIST)
 C?     WRITE(6,*) ' IACIST and NACIST arrays '
 C?     CALL IWRTMA(IACIST,1,NSMST,1,NSMST)
@@ -240,7 +240,7 @@ CM   & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
       KACGRP = ITPFGS(IOBTP)
 *. Number of strings per symmetry distribution
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(iWORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
         CALL ICOPVE2(iWORK(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               IISTSGP(1,IGAS))

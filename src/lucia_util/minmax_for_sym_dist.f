@@ -44,7 +44,7 @@ C-jwk-cleanup      DIMENSION LSMGP(MXPOBS,MXPNGAS)
 
 *. Number of strings per sym and group
 C     DO JGRP = 1, NIGRP
-C       CALL ICOPVE2(WORK(KNSTSGP(1)),(IGRP(JGRP)-1)*NSMST+1,
+C       CALL ICOPVE2(NSTSGP(1)%I,(IGRP(JGRP)-1)*NSMST+1,
 C    &               NSMST,LSMGP(1,JGRP))
 C     END DO
 C     IF(NTEST.GE.1000) THEN

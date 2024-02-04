@@ -188,7 +188,7 @@
       CALL ICOPVE(IGRP,KGRP,NIGRP)
       KGRP(IACGRP) = KACGRP
 *. Number of strings and symmetry distributions of K strings
-      CALL NST_SPGRP( NIGRP,   KGRP,      KSM,iWORK(KNSTSGP(1)),NSMST,
+      CALL NST_SPGRP( NIGRP,   KGRP,      KSM,NSTSGP(1)%I,NSMST,
      &                NKSTR,   NKDIST)
       IF(NTEST.GE.1000) WRITE(6,*) 'KSM,NKSTR,NKDIST:', KSM,NKSTR,NKDIST
       IF(NKSTR.EQ.0) GOTO 9999
@@ -196,7 +196,7 @@
       NGASL = 1
       DO JGRP = 1, NIGRP
        IF(NELFGP(KGRP(JGRP)).GT.0) NGASL = JGRP
-       CALL ICOPVE2(iWORK(KNSTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
+       CALL ICOPVE2(NSTSGP(1)%I,(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              NNSTSGP(1,JGRP))
        CALL ICOPVE2(iWORK(KISTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              IISTSGP(1,JGRP))
@@ -220,7 +220,7 @@
       CALL ICOPVE2(iWORK(KISTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
      &               IACIST)
 *
-      CALL ICOPVE2(iWORK(KNSTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(NSTSGP(1)%I,(IGRP(IACGRP)-1)*NSMST+1,NSMST,
      &               NACIST)
 *. Last entry in IGRP with a nonvanisking number of strings
       NIGASL = 1
