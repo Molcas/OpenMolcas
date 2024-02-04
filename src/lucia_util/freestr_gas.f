@@ -19,7 +19,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "stinf.fh"
@@ -30,7 +29,6 @@
 *.  Offsets for occupation and reorder array of strings
 *
       DO IGRP = 1, NGRP
-        NSTRIN = NSTFGP(IGRP)
         Call mma_deallocate(OCSTR(IGRP)%I)
         CALL mma_deallocate(STREO(IGRP)%I)
       END DO
@@ -59,10 +57,6 @@
 *. Mappings between different groups
 *
       DO  IGRP = 1, NGRP
-        IEL = NELFGP(IGRP)
-        IGAS = IGSFGP(IGRP)
-        IORB = NOBPT(IGAS)
-        ISTRIN = NSTFGP(IGRP)
 *. IF creation is involve : Use full orbital notation
 *  If only annihilation is involved, compact form will be used
         CALL mma_deallocate(STSTM(IGRP,1)%I)
@@ -71,8 +65,8 @@
 *
 *. Symmetry of conjugated orbitals and orbital excitations
 *
-*     KCOBSM,KNIFSJ,KIFSJ,KIFSJO
-      CALL GETMEM('Cobsm ','FREE','INTE',KCOBSM,NACOB)
+*     COBSM,KNIFSJ,KIFSJ,KIFSJO
+      CALL mma_deallocate(COBSM)
       CALL GETMEM('Nifsj ','FREE','INTE',KNIFSJ,NACOB*NSMSX)
       CALL GETMEM('Ifsj  ','FREE','INTE',KIFSJ,NACOB**2 )
       CALL GETMEM('Ifsjo ','FREE','INTE',KIFSJO,NACOB*NSMSX)
@@ -92,5 +86,4 @@
       CALL GETMEM('ISMDFGP','FREE','INTE',ISMDFGP, NSMST*NGRP)
       CALL GETMEM('NACTSYM','FREE','INTE',NACTSYM, NGRP)
       CALL GETMEM('ISMSCR','FREE','INTE',ISMSCR, NGRP)
-      RETURN
       END

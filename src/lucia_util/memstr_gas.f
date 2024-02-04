@@ -101,8 +101,8 @@
 *
 *. Symmetry of conjugated orbitals and orbital excitations
 *
-*     KCOBSM,KNIFSJ,KIFSJ,KIFSJO
-      CALL GETMEM('Cobsm ','ALLO','INTE',KCOBSM,NACOB)
+*     COBSM,KNIFSJ,KIFSJ,KIFSJO
+      CALL mma_allocate(COBSM,NACOB,Label='COBSM')
       CALL GETMEM('Nifsj ','ALLO','INTE',KNIFSJ,NACOB*NSMSX)
       CALL GETMEM('Ifsj  ','ALLO','INTE',KIFSJ,NACOB**2 )
       CALL GETMEM('Ifsjo ','ALLO','INTE',KIFSJO,NACOB*NSMSX)
