@@ -16,10 +16,10 @@ Private
      &              KSBIA,KSBIB,KPNIJ,KIJKK,KFI,KINH1,                  &
      &              KMOAOIN,KMOAOUT,NOCCLS_G,KPGINT1(MXPOBS),           &
      &                     KFIO,KPGINT1A(MXPOBS),                       &
-     &              KMOMO,KSRHO1,KFIZ,                                  &
+     &              KMOMO,KSRHO1,                                       &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM
-      Real*8, Allocatable:: INT1(:), INT1O(:)
+      Real*8, Allocatable:: INT1(:), INT1O(:), FIZ(:)
       Integer, Allocatable:: PINT1(:), PINT2(:)
       Real*8, Allocatable:: VEC3(:)
 
@@ -45,7 +45,7 @@ Private
      &              KSBIA,KSBIB, VEC3,KPNIJ,KIJKK,KFI,KINH1,            &
      &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G,KPGINT1,           &
      &               INT1O,KFIO,KPGINT1A,                               &
-     &              KMOMO,KSRHO1,KFIZ,                                  &
+     &              KMOMO,KSRHO1, FIZ,                                  &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
      &              CONF_OCC,CONF_REO,                                  &

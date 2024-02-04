@@ -38,7 +38,7 @@
       CALL GETMEM('FI    ','FREE','REAL',KFI  ,NTOOB ** 2)
       CALL GETMEM('FIO   ','FREE','REAL',KFIO ,NTOOB ** 2)
 *.1.2 Inactive Fock matrx in zero order space
-      CALL GETMEM('FIZ    ','FREE','REAL',KFIZ,NTOOB **2)
+      CALL mma_deallocate(FIZ)
 *.2 : Two electron integrals
 *. Pointers to symmetry block of integrals
       CALL mma_deallocate(PINT1)

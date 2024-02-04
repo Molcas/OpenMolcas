@@ -69,7 +69,7 @@
       CALL GETMEM('FI    ','ALLO','REAL',KFI  ,NTOOB ** 2)
       CALL GETMEM('FIO   ','ALLO','REAL',KFIO ,NTOOB ** 2)
 *.1.2 Inactive Fock matrx in zero order space
-      CALL GETMEM('FIZ    ','ALLO','REAL',KFIZ,NTOOB **2)
+      CALL mma_allocate(FIZ,NTOOB **2,Label='FIZ')
 *.2 : Two electron integrals
 *. Pointers to symmetry block of integrals
       CALL mma_allocate(PINT1,NBINT1,Label='PINT1')
