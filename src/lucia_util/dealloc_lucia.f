@@ -41,7 +41,7 @@
       CALL GETMEM('FIZ    ','FREE','REAL',KFIZ,NTOOB **2)
 *.2 : Two electron integrals
 *. Pointers to symmetry block of integrals
-      CALL GETMEM('PINT1 ','FREE','INTE',KPINT1,NBINT1)
+      CALL mma_deallocate(PINT1)
       CALL GETMEM('PINT2 ','FREE','INTE',KPINT2,NBINT2)
 *. Pointers to nonsymmetric one-electron integrals
       DO ISM = 1, NSMOB

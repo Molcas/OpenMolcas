@@ -32,7 +32,7 @@
         IF(IJSM.EQ.1) THEN
 C?        WRITE(6,*) ' GETH1E, old route '
           GETH1E =
-     &    GTH1ES(IREOTS,iWORK(KPINT1),INT1,IBSO,MXPNGAS,
+     &    GTH1ES(IREOTS,PINT1,INT1,IBSO,MXPNGAS,
      &              IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)
         ELSE
           GETH1E =
