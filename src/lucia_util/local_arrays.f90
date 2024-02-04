@@ -27,6 +27,7 @@ Contains
 
 Subroutine Allocate_Local_Arrays(MXNTTS,NSMST)
 Integer :: MXNTTS,NSMST
+If (Allocated(CLBT)) Stop 678
 If (.NOT.Allocated(CLBT)) CALL mma_allocate(CLBT ,MXNTTS,Label='CLBT')
 If (.NOT.Allocated(CLEBT)) CALL mma_allocate(CLEBT,MXNTTS,Label='CLEBT')
 If (.NOT.Allocated(CI1BT)) CALL mma_allocate(CI1BT,MXNTTS,Label='CI1BT')

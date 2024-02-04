@@ -45,6 +45,8 @@
 #include "cmxcj.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
+! this is a the same structure as for local_arrays but it can not be
+! used since lower level routines will use it.
       Integer, Allocatable:: CBLTP(:), CLBT(:), CLEBT(:), CI1BT(:),
      &                       CIBT(:)
 *
