@@ -42,60 +42,10 @@
 *
 *. Change one-electron integrals to inactive fock matrix
       IF(NOINT.EQ.0) THEN
-C?      WRITE(6,*) ' INTIM : IUSE_PH', IUSE_PH
         CALL COPVEC(INT1,WORK(KINT1O),NINT1)
-c        IF(IUSE_PH.EQ.1) THEN
-c           IF (ENVIRO(1:6) .EQ. 'RASSCF') THEN
-c              ECORE_HEX = 0.0D0
-cc           ELSE
-cc              CALL FI(INT1,ECORE_HEX,1)
-c           END IF
-c        ELSE
-           ECORE_HEX = 0.0D0
-c        END IF
+        ECORE_HEX = 0.0D0
       END IF
       ECORE_ORIG = ECORE
       ECORE = ECORE + ECORE_HEX
-c      IF (ENVIRO(1:6) .NE. 'RASSCF')
-c     &   WRITE(6,*) ' Updated core energy ',ECORE
-*
-C?    WRITE(6,*) ' IDMPIN ', IDMPIN
-c      IF (IDMPIN.EQ.1 ) THEN
-c        WRITE(6,*)
-c     &   ' Integrals written formatted (ES22.15) on unit 90'
-c        LU90 = 90
-c        REWIND LU90
-c*.1 : One-electron integrals
-c        WRITE(LU90,'(ES22.15)')
-c     &   (WORK(KINT1O-1+INT1),INT1=1,NINT1)
-c*.2 : Two-electron integrals
-c        WRITE(LU90,'(ES22.15)')
-c     &   (WORK(KINT2-1+INT2),INT2=1,NINT2)
-c*.3. Core energy
-c        WRITE(LU90,'(ES22.15)')ECORE_ORIG
-c*.4  Rewind to empty buffer
-c        REWIND LU90
-c*.   Symmetry info etc two LU91
-c        LU91 = 91
-c        CALL DUMP_1EL_INFO(LU91)
-c      END IF
-*
-c      IF (ENVIRO(1:6) .NE. 'RASSCF' .OR. IPRNT .GE. 20)
-c     &       WRITE(6,*) ' INTIM : First integrals in INT1 '
-c      LLL = MIN(10,NINT1)
-c      LLL = NINT1
-c      IF (ENVIRO(1:6) .NE. 'RASSCF' .OR. IPRNT .GE. 20) THEN
-c         WRITE(6,*) ' NINT1 = ',NINT1
-c         CALL WRTMAT(INT1,1,LLL,1,LLL)
-c         WRITE(6,*) ' INTIM : First integrals in WORK(KINT2) '
-c      ENDIF
-c      LLL = MIN(10,NINT2)
-c      LLL = NINT2
-c      IF (ENVIRO(1:6) .NE. 'RASSCF' .OR. IPRNT .GE. 20) THEN
-c         WRITE(6,*) ' NINT2 = ',NINT2
-c         CALL WRTMAT(WORK(KINT2),1,LLL,1,LLL)
-c      ENDIF
 
-C!    stop ' Jeppe forced my to stop in INTIM '
-      RETURN
       END

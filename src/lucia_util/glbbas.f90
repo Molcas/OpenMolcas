@@ -11,7 +11,7 @@
 Module GLBBAS
 Private
 #include "mxpdim.fh"
-      Integer ::          KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
+      Integer ::                KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB,KPNIJ,KIJKK,KFI,KINH1,                  &
      &              KMOAOIN,KMOAOUT,NOCCLS_G,KPGINT1(MXPOBS),           &
@@ -39,7 +39,7 @@ Private
 
       Integer, Allocatable:: KLOCCLS(:)
 
-      Public         INT1,KINT2,KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
+      Public         INT1,      KPINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB, VEC3,KPNIJ,KIJKK,KFI,KINH1,            &
      &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G,KPGINT1,           &
