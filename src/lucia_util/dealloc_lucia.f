@@ -42,7 +42,7 @@
 *.2 : Two electron integrals
 *. Pointers to symmetry block of integrals
       CALL mma_deallocate(PINT1)
-      CALL GETMEM('PINT2 ','FREE','INTE',KPINT2,NBINT2)
+      CALL mma_deallocate(PINT2)
 *. Pointers to nonsymmetric one-electron integrals
       DO ISM = 1, NSMOB
 *. triangular packed

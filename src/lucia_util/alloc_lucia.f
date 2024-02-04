@@ -73,7 +73,7 @@
 *.2 : Two electron integrals
 *. Pointers to symmetry block of integrals
       CALL mma_allocate(PINT1,NBINT1,Label='PINT1')
-      CALL GETMEM('PINT2 ','ALLO','INTE',KPINT2,NBINT2)
+      CALL mma_allocate(PINT2,NBINT2,Label='PINT2')
 *. Pointers to nonsymmetric one-electron integrals
       DO ISM = 1, NSMOB
 *. triangular packed

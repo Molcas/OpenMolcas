@@ -11,7 +11,7 @@
 Module GLBBAS
 Private
 #include "mxpdim.fh"
-      Integer ::                       KPINT2,KLSM1,KLSM2,KRHO1,        &
+      Integer ::                              KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB,KPNIJ,KIJKK,KFI,KINH1,                  &
      &              KMOAOIN,KMOAOUT,NOCCLS_G,KPGINT1(MXPOBS),           &
@@ -20,7 +20,7 @@ Private
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM
       Real*8, Allocatable:: INT1(:)
-      Integer, Allocatable:: PINT1(:)
+      Integer, Allocatable:: PINT1(:), PINT2(:)
       Real*8, Allocatable:: VEC3(:)
 
 ! DETERMINE BASE ADRESSES
@@ -40,7 +40,7 @@ Private
 
       Integer, Allocatable:: KLOCCLS(:)
 
-      Public         INT1,       PINT1,KPINT2,KLSM1,KLSM2,KRHO1,        &
+      Public         INT1,       PINT1, PINT2,KLSM1,KLSM2,KRHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB, VEC3,KPNIJ,KIJKK,KFI,KINH1,            &
      &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G,KPGINT1,           &

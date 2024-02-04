@@ -39,7 +39,7 @@ c       WRITE(6,*) ' I_USE_SIMTRH in GETINT =', I_USE_SIMTRH
 *. Read integrals in in RASSCF format
         CALL GETINCN_RASSCF(   XINT,    ITP,    ISM,    JTP,    JSM,
      &                          KTP,    KSM,    LTP,    LSM, IXCHNG,
-     &                       IKSM,JLSM,IWORK(KPINT2),NSMOB,IWORK(KINH1),
+     &                       IKSM,JLSM,PINT2,NSMOB,IWORK(KINH1),
      &                        ICOUL)
 
       IF(NTEST.NE.0) THEN
