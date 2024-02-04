@@ -246,10 +246,10 @@ c      IF(ISIMSYM.EQ.0) THEN
          MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA + 4*MAX_STR_SPGP
 c      END IF
 *
-      KSDREO_POINTER = ip_of_Work(SDREO_I(jsym)%I(1))
-      kDFTP=ip_of_iWork(DFTP)
-      kCFTP=ip_of_iWork(CFTP)
-      kDTOC=ip_of_iWork(DTOC)
+      KSDREO_POINTER = ip_of_iWork(SDREO_I(jsym)%I(1))
+      kDFTP=ip_of_iWork(DFTP(1))
+      kCFTP=ip_of_iWork(CFTP(1))
+      kDTOC=ip_of_iWork(DTOC(1))
       KDTOC_POINTER  = KDTOC
       CALL LUCIA2MOLCAS(kdftp,kcftp,kdtoc,
      &     CONF_OCC(jsym)%I,SDREO_I(jsym)%I,

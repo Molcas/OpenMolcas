@@ -50,10 +50,10 @@
          CALL COPVEC(WORK(rvec),SCR3,NCSF_PER_SYM(IREFSM))
          CALL CSDTVC(SCR3,SCR4,1,WORK(KDTOC_POINTER),
      &               iWORK(KSDREO_POINTER), IREFSM, 1)
-         C_POINTER = ip_of_Work(SCR3)
+         C_POINTER = ip_of_Work(SCR3(1))
          CALL CPCIVC(LUHC, MXNTTS, IREFSM, 1,lVec)
       END IF
-      C_POINTER = ip_of_Work(SCR1)
+      C_POINTER = ip_of_Work(SCR1(1))
       CALL CSDTVC(SCR1,SCR2,1,WORK(KDTOC_POINTER),
      &     iWORK(KSDREO_POINTER), IREFSM, 1)
       CALL CPCIVC(LUC, MXNTTS, IREFSM, 1,lVec)
