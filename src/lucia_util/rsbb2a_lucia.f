@@ -20,6 +20,7 @@
      &                          NSMST,    NSMDX,
      &                           MXSXST, MXSXBL,   IMOC, SCLFAC,
      &                         NTESTG, IPHGAS)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 *
 * SUBROUTINE RSBB2A_LUCIA --> 46
@@ -76,7 +77,6 @@
       USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS)
       INTEGER STSTDX(NSMST,NSMST)
@@ -100,27 +100,24 @@ C-jwk-cleanup      INTEGER I4_DIM(4),I4_SM(4)
       INTEGER I4_AC(4)
 *
       INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
-*     DIMENSION SCR(MXPTSOB*MXPTSOB*MXPTSOB*MXPTSOB)
 *
+      Real*8, Allocatable:: SCR(:)
 
 #include "oper.fh"
 *
 C-jwk-cleanup      DIMENSION IACAR(2),ITPAR(2)
-      Call Allocate_Work(ipSCR,MXPTSOB**4)
-      NTESTL = 000
-      NTEST = MAX(NTESTG,NTESTL)
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' ================'
-        WRITE(6,*) ' RSBB2A speaking '
-        WRITE(6,*) ' ================'
-        WRITE(6,*) ' MXSXST MXSXBL = ', MXSXST,MXSXBL
-        WRITE(6,*) ' RSBB2A : IMOC ', IMOC
-        WRITE(6,*) ' ISOC and ICOC : '
-        CALL IWRTMA(ISOC,1,NGAS,1,NGAS)
-        CALL IWRTMA(ICOC,1,NGAS,1,NGAS)
+      Call mma_allocate(SCR,MXPTSOB**4,Label='SCR')
+#ifdef _DEBUGPRINT_
+      WRITE(6,*) ' ================'
+      WRITE(6,*) ' RSBB2A speaking '
+      WRITE(6,*) ' ================'
+      WRITE(6,*) ' MXSXST MXSXBL = ', MXSXST,MXSXBL
+      WRITE(6,*) ' RSBB2A : IMOC ', IMOC
+      WRITE(6,*) ' ISOC and ICOC : '
+      CALL IWRTMA(ISOC,1,NGAS,1,NGAS)
+      CALL IWRTMA(ICOC,1,NGAS,1,NGAS)
 *
-*
-      END IF
+#endif
       IFRST = 1
       JFRST = 1
 *
@@ -153,10 +150,10 @@ C?      IF(NPTOT.EQ.3) GOTO 2000
         KTYP_ORIG = KTYP
         LTYP_ORIG = LTYP
 *
-        IF(NTEST.GE.100) THEN
-          WRITE(6,*) ' ITYP_ORIG, JTYP_ORIG, KTYP_ORIG, LTYP_ORIG',
-     &                 ITYP_ORIG, JTYP_ORIG, KTYP_ORIG, LTYP_ORIG
-        END IF
+#ifdef _DEBUGPRINT_
+        WRITE(6,*) ' ITYP_ORIG, JTYP_ORIG, KTYP_ORIG, LTYP_ORIG',
+     &               ITYP_ORIG, JTYP_ORIG, KTYP_ORIG, LTYP_ORIG
+#endif
         NIJKL1 = 0
         IF(ITYP.EQ.1) NIJKL1 = NIJKL1+1
         IF(JTYP.EQ.1) NIJKL1 = NIJKL1+1
@@ -197,12 +194,12 @@ C         ISCR( I4_REO(IJKL) ) = I4_TP(IJKL)
         DO IJKL = 1, 4
           I4_AC(IJKL) = ISCR(IJKL)
         END DO
-        IF(NTEST.GE.100) THEN
-          WRITE(6,*) ' I4_AC, IT_TP  defined '
-          WRITE(6,*) ' I4_AC, I4_TP '
-          CALL IWRTMA(I4_AC,1,4,1,4)
-          CALL IWRTMA(I4_TP,1,4,1,4)
-        END IF
+#ifdef _DEBUGPRINT_
+        WRITE(6,*) ' I4_AC, IT_TP  defined '
+        WRITE(6,*) ' I4_AC, I4_TP '
+        CALL IWRTMA(I4_AC,1,4,1,4)
+        CALL IWRTMA(I4_TP,1,4,1,4)
+#endif
 *
 CSVC: determine optimum number of partions as the lowest multiple of
 C     NPROCS that satisfies a block size smaller than MAXI:
@@ -284,16 +281,16 @@ C     NPROCS that satisfies a block size smaller than MAXI:
             END IF
 
 *.
-            IF(NTEST.GE.2000) THEN
-              WRITE(6,*) ' ITYP, KTYP, IKOBSM,  NIKBT = ',
-     &                     ITYP, KTYP, IKOBSM,  NIKBT
-              WRITE(6,*) ' IKBT : Offset, number, length '
-              DO JIKBT = 1, NIKBT
-                WRITE(6,'(3i3)') (IKBT(II,JIKBT), II = 1, 3)
-              END DO
-              WRITE(6,*) ' IKSMBT '
-              CALL IWRTMA(IKSMBT,2,NBLKT,2,8)
-            END IF
+#ifdef _DEBUGPRINT_
+            WRITE(6,*) ' ITYP, KTYP, IKOBSM,  NIKBT = ',
+     &                   ITYP, KTYP, IKOBSM,  NIKBT
+            WRITE(6,*) ' IKBT : Offset, number, length '
+            DO JIKBT = 1, NIKBT
+              WRITE(6,'(3i3)') (IKBT(II,JIKBT), II = 1, 3)
+            END DO
+            WRITE(6,*) ' IKSMBT '
+            CALL IWRTMA(IKSMBT,2,NBLKT,2,8)
+#endif
 *
 *. Number of batchs of symmetry pairs JL
 *
@@ -338,16 +335,16 @@ C     NPROCS that satisfies a block size smaller than MAXI:
               JLBT(3,NJLBT) = LENGTH
             END IF
 *.
-            IF(NTEST.GE.2000) THEN
-              WRITE(6,*) ' JTYP, LTYP, JLOBSM,  NJLBT = ',
-     &                     JTYP, LTYP, JLOBSM,  NJLBT
-              WRITE(6,*) ' JLBT : Offset, number, length '
-              DO JJLBT = 1, NJLBT
-                WRITE(6,'(3i3)') (JLBT(II,JJLBT), II = 1, 3)
-              END DO
-              WRITE(6,*) ' JLSMBT '
-              CALL IWRTMA(JLSMBT,2,NBLKT,2,8)
-            END IF
+#ifdef _DEBUGPRINT_
+            WRITE(6,*) ' JTYP, LTYP, JLOBSM,  NJLBT = ',
+     &                   JTYP, LTYP, JLOBSM,  NJLBT
+            WRITE(6,*) ' JLBT : Offset, number, length '
+            DO JJLBT = 1, NJLBT
+              WRITE(6,'(3i3)') (JLBT(II,JJLBT), II = 1, 3)
+            END DO
+            WRITE(6,*) ' JLSMBT '
+            CALL IWRTMA(JLSMBT,2,NBLKT,2,8)
+#endif
 *
 *. Loop over batches of IK strings
             DO 1940 IKBTC = 1, NIKBT
@@ -484,15 +481,13 @@ C?       write(6,*) ' Before ADAADAST '
 *. fetch integrals
 *. Full conjugation symmetry, do do not worry
 *                       CALL GETINT(   SCR,  ITYP,   ISM,  JTYP,   JSM,
-                        CALL GETINT(Work(ipSCR),
-     &                                       ITYP,   ISM,  JTYP,   JSM,
-     &                                KTYP,   KSM,  LTYP,   LSM,IXCHNG,
+                        CALL GETINT(SCR,ITYP,   ISM,  JTYP,   JSM,
+     &                                 KTYP,   KSM,  LTYP,   LSM,IXCHNG,
      &                                IKSM,  JLSM, ICOUL)
 *                       ^ End if similarity transformed Hamiltonian is
 *                         used
                         DO JL = 1, NJL
-*                         CALL COPVEC(SCR((JL-1)*NIK+1),
-                          CALL COPVEC(Work((JL-1)*NIK+ipSCR),
+                          CALL COPVEC(SCR((JL-1)*NIK+1),
      &                         XINT((JLOFF-1+JL-1)*NIKT+IKOFF),NIK)
                         END DO
                         IKOFF = IKOFF + NIK
@@ -504,14 +499,12 @@ C?       write(6,*) ' Before ADAADAST '
                     IFIRST = 0
 *.and now ,to the work
                     LIKB = NIBTC*NKBTC
-                    IF(NTEST.GE.3000) THEN
-                     WRITE(6,*) ' Integral block '
-                     CALL WRTMAT(XINT,NIKT,NJLT,NIKT,NJLT)
-                    END IF
-                    IF(NTEST.GE.3000) THEN
-                      WRITE(6,*) ' CSCR matrix '
-                      CALL WRTMAT(CSCR,LIKB,NJLT,LIKB,NJLT)
-                    END IF
+#ifdef _DEBUGPRINT_
+                    WRITE(6,*) ' Integral block '
+                    CALL WRTMAT(XINT,NIKT,NJLT,NIKT,NJLT)
+                    WRITE(6,*) ' CSCR matrix '
+                    CALL WRTMAT(CSCR,LIKB,NJLT,LIKB,NJLT)
+#endif
 *
 C?                  MXACIJO = MXACIJ
 c                    MXACIJ = MAX(MXACIJ,LIKB*NJLT,LIKB*NIKT)
@@ -529,10 +522,10 @@ C?                  END IF
                     CALL MATML7(   SSCR,   CSCR,   XINT,   LIKB,   NIKT,
      &                             LIKB,   NJLT,   NIKT,   NJLT,FACTORC,
      &                          FACTORAB,     2)
-                    IF(NTEST.GE.3000) THEN
-                      WRITE(6,*) ' SSCR matrix '
-                      CALL WRTMAT(SSCR,LIKB,NIKT,LIKB,NIKT)
-                    END IF
+#ifdef _DEBUGPRINT_
+                    WRITE(6,*) ' SSCR matrix '
+                    CALL WRTMAT(SSCR,LIKB,NIKT,LIKB,NIKT)
+#endif
 * ============================
 * Loop over ik and scatter out
 * ============================
@@ -632,8 +625,9 @@ C?                  END IF
               KSM = ADSXA(ISM,IKOBSM)
               DO JSM = 1, NSMOB
                 LSM = ADSXA(JSM,JLOBSM)
-                IF(NTEST.GE.2000) WRITE(6,*) ' ISM KSM LSM JSM',
-     &          ISM,KSM,LSM,JSM
+#ifdef _DEBUGPRINT_
+                WRITE(6,*) ' ISM KSM LSM JSM',ISM,KSM,LSM,JSM
+#endif
                 ISCR(I4_REO(1)) = ISM
                 ISCR(I4_REO(2)) = KSM
                 ISCR(I4_REO(3)) = LSM
@@ -762,9 +756,11 @@ C                   KFRST = 1
                         IXCHNG = 1
                         FACX = -1.0D0
                       END IF
-           IF( NTEST.GE.1000) WRITE(6,*)
+#ifdef _DEBUGPRINT_
+           WRITE(6,*)
      &   ' ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX',
      &     ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX
+#endif
 *. fetch integrals
 * we want the operator in the form a+i ak a+l aj ((ij!lk)-(ik!lj))
                       IF(ICOUL.EQ.2) THEN
@@ -783,14 +779,12 @@ C                   KFRST = 1
                     IFIRST = 0
 *.and now ,to the work
                     LIKB = NIBTC*NKBTC
-                    IF(NTEST.GE.3000) THEN
-                     WRITE(6,*) ' Integral block '
-                     CALL WRTMAT(XINT,NIK,NJL,NIK,NJL)
-                    END IF
-                    IF(NTEST.GE.3000) THEN
-                      WRITE(6,*) ' CSCR matrix '
-                      CALL WRTMAT(CSCR,LIKB,NJL,LIKB,NJL)
-                    END IF
+#ifdef _DEBUGPRINT_
+                    WRITE(6,*) ' Integral block '
+                    CALL WRTMAT(XINT,NIK,NJL,NIK,NJL)
+                    WRITE(6,*) ' CSCR matrix '
+                    CALL WRTMAT(CSCR,LIKB,NJL,LIKB,NJL)
+#endif
 *
 C?                  MXACIJO = MXACIJ
 c                    MXACIJ = MAX(MXACIJ,LIKB*NJL,LIKB*NIK)
@@ -872,7 +866,7 @@ C                   write(6,*) ' first element of updated SB', SB(1)
 *
  2001 CONTINUE
 *
-      Call Free_Work(ipSCR)
+      Call mma_deallocate(SCR)
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
