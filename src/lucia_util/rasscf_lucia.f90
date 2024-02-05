@@ -11,13 +11,13 @@
 Module RASSCF_LUCIA
 Private
 INTEGER, Public:: C_POINTER, kvec3_length, iSigma_on_disk,ini_h0,Memory_Needed_Lucia
-INTEGER, Public:: LW6
 Real*8, Allocatable, Public:: PAtmp(:)
 Real*8, Allocatable, Public:: Pscr(:)
 Real*8, Allocatable, Public:: CIV(:)
 Integer, Allocatable, Public:: PrSel(:)
 Real*8, Allocatable, Public:: Ptmp(:)
 Real*8, Allocatable, Public:: DStmp(:)
+Real*8, Allocatable, Public:: Dtmp(:)
 Real*8, Allocatable, Public:: RF1(:)
 Real*8, Allocatable, Public:: RF2(:)
 End Module RASSCF_LUCIA

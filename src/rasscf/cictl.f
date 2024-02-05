@@ -278,13 +278,13 @@ C Local print level (if any)
 
 * compute density matrices
 
-           Call GetMem('Dtmp ','ALLO','REAL',LW6,NACPAR)
+           Call mma_allocate(Dtmp,NACPAR,Label='Dtmp')
            Call mma_allocate(DStmp,NACPAR,Label='DStmp')
            Call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
            If ( NAC.ge.1 ) Then
 
               If (NACTEL.eq.0) THEN
-                 call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+                 Dtmp(:)=0.0D0
                  DStmp(:)=0.0D0
                  Ptmp(:)=0.0D0
               Else
@@ -292,7 +292,7 @@ C Local print level (if any)
                 if(doDMRG)then
 #ifdef _DMRG_
                 ! copy the DMs from d1rf/d2rf for ipcmroot
-                call dcopy_(NACPAR,rf1,1,work(lw6),1)
+                call dcopy_(NACPAR,rf1,1,Dtmp,1)
                 if (twordm_qcm) then
                   call dcopy_(NACPR2,rf2,1,Ptmp,1)
                 end if
@@ -312,7 +312,7 @@ C Local print level (if any)
                  C_Pointer = Lw4
                  CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
-                   Call CISX(IDXSX,Work(LW6),DStmp,Ptmp,PAtmp,Pscr)
+                   Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
                  End If
                  Call mma_deallocate(Pscr)
                  Call mma_deallocate(PAtmp)
@@ -320,7 +320,7 @@ C Local print level (if any)
 
              End If
            Else
-              call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+              Dtmp(:)=0.0D0
               DStmp(:)=0.0D0
               Ptmp(:)=0.0D0
            End If
@@ -333,26 +333,26 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 *                  write(6,*) 'n_Det =', n_Det
            If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &    Call Mod_P2(Ptmp,NACPR2,
-     &                                   Work(LW6),NACPAR,
+     &                                   Dtmp,NACPAR,
      &                                   DStmp,ExFac,n_Det)
 *
            Call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
 *
            Call mma_deallocate(Ptmp)
 *
-           Call Put_dArray('D1mo',Work(LW6),NACPAR) ! Put on RUNFILE
-           IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LW6))
-           Call Get_D1A_RASSCF(CMO,Work(LW6),Work(LRCT_F))
+           Call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
+           IF ( NASH(1).NE.NAC ) CALL DBLOCK(Dtmp)
+           Call Get_D1A_RASSCF(CMO,Dtmp,Work(LRCT_F))
 *
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(DStmp)
            Call Get_D1A_RASSCF(CMO,DStmp,Work(LRCT_FS))
 *
 !           do i=1,NACPAR  !yma
-!              write(*,*)"i-rdms1 1",i,Work(LW6+i-1)
+!              write(*,*)"i-rdms1 1",i,Dtmp(i)
 !           end do
 
            Call mma_deallocate(DStmp)
-           Call GetMem('Dtmp ','FREE','REAL',LW6,NACPAR)
+           Call mma_deallocate(Dtmp)
            Call GetMem('CIVEC','FREE','REAL',LW4,NCONF)
 *
            Call SGFCIN(CMO,Work(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
@@ -523,7 +523,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * COMPUTE AVERAGE DENSITY MATRICES
 * C
 *
-* LW6: ONE-BODY DENSITY
+* Dtmp: ONE-BODY DENSITY
 * DStmp: ONE-BODY SPIN DENSITY
 * Ptmp: SYMMETRIC TWO-BODY DENSITY
 * PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
@@ -534,7 +534,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
       Call dCopy_(NACPR2,[0.0D0],0,P,1)
       Call dCopy_(NACPR2,[0.0D0],0,PA,1)
       CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-      CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
+      CALL mma_allocate(Dtmp,NACPAR,Label='Dtmp')
       CALL mma_allocate(DStmp,NACPAR,Label='DStmp')
       CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
       CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
@@ -596,20 +596,20 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
      &       CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
-             CALL TRIPRT('D after lucia  ',' ',Work(LW6),NAC)
+             CALL TRIPRT('D after lucia  ',' ',Dtmp,NAC)
              CALL TRIPRT('DS after lucia  ',' ',DStmp,NAC)
              CALL TRIPRT('P after lucia',' ',Ptmp,NACPAR)
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
          EndIf
          IF (.not.doDMRG .and. (IFCAS.GT.2 .OR. iDoGAS))
-     &   CALL CISX(IDXSX,Work(LW6),DStmp,Ptmp,PAtmp,Pscr)
+     &   CALL CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
 ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
          if(doDMRG)then
 #ifdef _DMRG_
           ! for QCMaquis, just copy the RDMs
           ! actually, copying is not needed! TODO
-          call dcopy_(NACPAR,d1all(:,jroot),1,work(lw6),1)
+          call dcopy_(NACPAR,d1all(:,jroot),1,Dtmp,1)
           if (twordm_qcm) then
             call dcopy_(NACPR2,d2all(:,jroot),1,Ptmp,1)
           end if
@@ -626,7 +626,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            PAtmp(:)=0.0D0
 
            IF ( IPRLEV.GE.INSANE  ) THEN
-             CALL TRIPRT('D after  DMRG',' ',Work(LW6),NAC)
+             CALL TRIPRT('D after  DMRG',' ',Dtmp,NAC)
              CALL TRIPRT('DS after DMRG',' ',DStmp,NAC)
              CALL TRIPRT('P after  DMRG',' ',Ptmp,NACPAR)
              CALL TRIPRT('PA after DMRG',' ',PAtmp,NACPAR)
@@ -653,7 +653,7 @@ c
 
            If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &                     Call Mod_P2(Ptmp,NACPR2,
-     &                                 Work(LW6),NACPAR,
+     &                                 Dtmp,NACPAR,
      &                                 DStmp,ExFac,n_Det)
 
 * update average density matrices
@@ -663,23 +663,23 @@ c
              Scal = Weight(kRoot)
            End If
          End Do
-         Call daXpY_(NACPAR,Scal,Work(LW6),1,D,1)
+         Call daXpY_(NACPAR,Scal,Dtmp,1,D,1)
          Call daXpY_(NACPAR,Scal,DStmp,1,DS,1)
          Call daXpY_(NACPR2,Scal,Ptmp,1,P,1)
 cGLM Put the D1MO and the P2MO values in RUNFILE
 *
-         Call Put_dArray('D1mo',Work(LW6),NACPAR) ! Put on RUNFILE
+         Call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
          Call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
          Call daXpY_(NACPR2,Scal,PAtmp,1,PA,1)
 * save density matrices on disk
-         Call DDafile(JOBIPH,1,Work(LW6),NACPAR,jDisk)
+         Call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
          Call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
          Call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
          Call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
 CSVC: store a single column instead of the whole array (which is for each root!)
 C and for now don't bother with 2-electron active density matrices
 #ifdef _HDF5_
-         call square(work(lw6),density_square,1,nac,nac)
+         call square(Dtmp,density_square,1,nac,nac)
          call mh5_put_dset(wfn_dens, density_square,
      $           [nac,nac,1], [0,0,jRoot-1])
          call square(DStmp,density_square,1,nac,nac)
@@ -699,25 +699,25 @@ C and for now don't bother with 2-electron active density matrices
            C_Pointer = Lw4
            CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
-             CALL TRIPRT('D after lucia',' ',Work(LW6),NAC)
+             CALL TRIPRT('D after lucia',' ',Dtmp,NAC)
              CALL TRIPRT('DS after lucia',' ',DStmp,NAC)
              CALL TRIPRT('P after lucia',' ',Ptmp,NACPAR)
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
         EndIf
-        IF (IDoGAS.or.ifcas.gt.2) CALL CISX(IDXSX,Work(LW6),DStmp,
+        IF (IDoGAS.or.ifcas.gt.2) CALL CISX(IDXSX,Dtmp,DStmp,
      &              Ptmp,PAtmp,Pscr)
            If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &                      Call Mod_P2(Ptmp,NACPR2,
-     &                                Work(LW6),NACPAR,
+     &                                Dtmp,NACPAR,
      &                                DStmp,ExFac,n_Det)
         Scal = 1.0d0
-        call daxpy_(NACPAR,Scal,Work(LW6),1,D,1)
+        call daxpy_(NACPAR,Scal,Dtmp,1,D,1)
         call daxpy_(NACPAR,Scal,DStmp,1,DS,1)
         call daxpy_(NACPR2,Scal,Ptmp,1,P,1)
         call daxpy_(NACPR2,Scal,PAtmp,1,PA,1)
 * save density matrices on disk
-        Call DDafile(JOBIPH,1,Work(LW6),NACPAR,jDisk)
+        Call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
         Call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
         Call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
         Call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
@@ -730,7 +730,7 @@ C and for now don't bother with 2-electron active density matrices
       Call mma_deallocate(PAtmp)
       Call mma_deallocate(Ptmp)
       Call mma_deallocate(DStmp)
-      CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPR2)
+      Call mma_deallocate(Dtmp)
 *
 * print matrices
       IF ( IPRLEV.GE.INSANE  ) THEN

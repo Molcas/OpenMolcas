@@ -1861,7 +1861,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
          Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
-         Call GetMem('Dtmp','ALLO','REAL',LW6,NAC*NAC)
+         Call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
          Call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
          jDisk=IADR15(4)
          Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
@@ -1882,7 +1882,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *              Compute TDM and store in h5 file
                Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
-               Call mh5_put_dset(wfn_transdens,Work(LW6:LW6+NAC*NAC-1),
+               Call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),
      &              [NAC,NAC,1], [0,0,idx-1])
                If (iSpin.gt.1)
      &         Call mh5_put_dset(wfn_transsdens,DStmp(1:NAC**2),
@@ -1893,7 +1893,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
          Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
-         Call GetMem('Dtmp','FREE','REAL',LW6,NAC*NAC)
+         Call mma_deallocate(Dtmp)
          Call mma_deallocate(DStmp)
 #else
          Call WarningMessage(1,'HDF5 support disabled, '//

@@ -112,19 +112,17 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       INTEGER nGD
       Real*8 GD(nGD)
       INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
-      INTEGER tlw6,tlw7,ldtmp,lsdtmp
       INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2
       REAL*8 Dummy(1)
-      Real*8, Allocatable:: SDtmp(:)
+      Real*8, Allocatable:: SDtmp(:), TmpD(:)
 
       NAC2=NAC**2
-      tlw6=lw6
       Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
       Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
-      Call GetMem('Dtmp','ALLO','REAL',ldtmp,NAC**2)
+      Call mma_allocate(TmpD,NAC**2,Label='TmpD')
       Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
-      lw6=ldtmp
       SDtmp(:)=DStmp(:)
+      TmpD(:)=DTmp(:)
       CIDisk1=IADR15(4)
       Do jRoot=1,lRoots
        Call DDafile(JOBIPH,2,Work(iVecL),nConf,CIDisk1)
@@ -136,14 +134,14 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
         IOffNIJ1=(lRoots*(jRoot-1)+kRoot-1)*NAC2
         IOffNIJ2=(lRoots*(kRoot-1)+jRoot-1)*NAC2
 C        write(6,*)'GD matrix',jRoot,kRoot
-C        CALL RecPrt(' ',' ',WORK(LW6),NAC,NAC)
-        Call DCopy_(NAC2,WORK(LW6),1,GD(IOffNIJ1+1),1)
+C        CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
+        Call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
          dO q=1,NAC
           do p=1,NAC
           ipq=(q-1)*NAC+p
           iqp=(p-1)*NAC+q
-          GD(IOffNIJ2+iqp)=WORK(LW6+ipq-1)
-*          GDMat(NIJ2,q,p)=WORK(LW6+q-1+(p-1)*NAC)
+          GD(IOffNIJ2+iqp)=Dtmp(ipq)
+*          GDMat(NIJ2,q,p)=Dtmp(q+(p-1)*NAC)
           end do
          eND dO
        End Do
@@ -152,15 +150,15 @@ C        CALL RecPrt(' ',' ',WORK(LW6),NAC,NAC)
        Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
        IOffNIJ1=(lRoots+1)*(jRoot-1)*NAC2
 C       write(6,*)'GD matrix',jRoot,kRoot
-C       CALL RecPrt(' ',' ',WORK(LW6),NAC,NAC)
-       Call DCopy_(NAC2,WORK(LW6),1,GD(IOffNIJ1+1),1)
+C       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
+       Call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
       End DO
-      lw6=tlw6
       DStmp(:)=SDtmp(:)
+      Dtmp(:)=TmpD(:)
       Call mma_deallocate(SDtmp)
+      Call mma_deallocate(TmpD)
       Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
       Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
-      Call GetMem('Dtmp','FREE','REAL',ldtmp,NAC**2)
       END Subroutine
 ************************************************************************
 

@@ -105,7 +105,7 @@ c      END IF
       IPACK = .TRUE.
       DUMMY = 0.0D0
       IF (tdm) THEN
-         CALL densi2_lucia(1,work(lw6),dummy,dummy,dummy,
+         CALL densi2_lucia(1,Dtmp,dummy,dummy,dummy,
      &   vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
       ELSE
          CALL densi2_lucia(2,rho1,dummy,Ptmp,PAtmp,
@@ -129,7 +129,7 @@ C      srho1 : DONE!!! - Comming with module glbbas
       IF (.not.tdm) THEN
 *        Save densities in trigonal format for use in Molcas
 *
-         CALL TriPak(rho1, work(lw6), 1, ntoob, ntoob)
+         CALL TriPak(rho1, Dtmp, 1, ntoob, ntoob)
          CALL TriPak(srho1, DStmp, 1, ntoob, ntoob)
       END IF
 *
