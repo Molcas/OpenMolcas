@@ -23,7 +23,6 @@ integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KICONF_OCC_LUCIA(*), KSDREO_I(*
                                  NDET_LUCIA, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM), &
                                  NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
 integer(kind=iwp) :: I, ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, J, LCONF, LDET, LLCONF, LUCIA_TYPE, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
-integer(kind=iwp), external :: ip_of_iWork
 #include "rasdim.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"

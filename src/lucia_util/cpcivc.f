@@ -34,10 +34,10 @@
 *      Write CI-vector to disc
 *   =============================
 *
-      ioff = 0
       IF (iway.eq.1) then
 #ifdef _DEBUGPRINT_
-         write(6,*) 'Jesper: CI-vector put to disk:'
+         ioff = 0
+         write(6,*) 'CI-vector put to disk:'
          DO IREC = 1,NREC
             IF(LREC(IREC) .GE. 0) THEN
                call wrtmat(work(c_pointer+ioff),1,lrec(irec),
