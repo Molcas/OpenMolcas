@@ -312,7 +312,7 @@
       if (doDMRG.and.PCM_On()) then
         Call GetMem('D1RF','Allo','Real',LW_RF1,NACPAR)
         if (twordm_qcm) then
-          Call GetMem('D2RF','Allo','Real',LW_RF2,NACPR2)
+          Call mma_allocate(RF2,NACPR2,Label='RF2')
         end if
       end if
 #endif
@@ -2013,7 +2013,7 @@ c  i_root>0 gives natural spin orbitals for that root
       if (doDMRG.and.PCM_On()) then
         Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
         if (twordm_qcm) then
-          Call GetMem('D2RF','FREE','Real',LW_RF2,NACPR2)
+          Call mma_deallocate(RF2)
         end if
       end if
 #endif

@@ -480,14 +480,12 @@
           Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
           C_Pointer = Lw4
-          CALL GetMem('Lucia','Allo','Real',Lucia_Base, 1)
 !Andrew - changed here
           CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
           If (IFCAS > 2) Then
             Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
      &              Work(LW9),Work(LW10))
           End If
-          CALL GetMem('Lucia','Free','Real',Lucia_Base, 1)
 
           Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
           Call DDafile(JOBOLD,1,Work(LW7),NACPAR,jDisk)
