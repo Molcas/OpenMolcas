@@ -308,14 +308,14 @@ C Local print level (if any)
 #endif
                else
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-                 Call GetMem('Pscr','ALLO','REAL',LW10,NACPR2)
+                 Call mma_allocate(Pscr,NACPR2,Label='Pscr')
                  C_Pointer = Lw4
                  CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Work(LW6),Work(LW7),Work(LW8),
-     &                     PAtmp,Work(LW10))
+     &                     PAtmp,Pscr)
                  End If
-                 Call GetMem('Pscr','FREE','REAL',LW10,NACPR2)
+                 Call mma_deallocate(Pscr)
                  Call mma_deallocate(PAtmp)
                end if ! doDMRG/doBLOK or CI
 
@@ -539,7 +539,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
       CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
       CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
       CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-      CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
+      CALL mma_allocate(Pscr,NACPR2,Label='Pscr')
 #ifdef _HDF5_
       call mma_allocate(density_square, nac, nac)
 #endif
@@ -605,7 +605,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
          EndIf
          IF (.not.doDMRG .and. (IFCAS.GT.2 .OR. iDoGAS))
      &   CALL CISX(IDXSX,Work(LW6),Work(LW7),
-     &               Work(LW8),PAtmp,Work(LW10))
+     &               Work(LW8),PAtmp,Pscr)
 ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
          if(doDMRG)then
 #ifdef _DMRG_
@@ -708,7 +708,7 @@ C and for now don't bother with 2-electron active density matrices
            END IF
         EndIf
         IF (IDoGAS.or.ifcas.gt.2) CALL CISX(IDXSX,Work(LW6),Work(LW7),
-     &              Work(LW8),PAtmp,Work(LW10))
+     &              Work(LW8),PAtmp,Pscr)
            If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &                      Call Mod_P2(Work(LW8),NACPR2,
      &                                Work(LW6),NACPAR,
@@ -728,7 +728,7 @@ C and for now don't bother with 2-electron active density matrices
 #ifdef _HDF5_
       call mma_deallocate(density_square)
 #endif
-      CALL GETMEM('Pscr','FREE','REAL',LW10,NACPR2)
+      Call mma_deallocate(Pscr)
       Call mma_deallocate(PAtmp)
       CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPAR)
       CALL GETMEM('DStmp','FREE','REAL',LW7,NACPR2)

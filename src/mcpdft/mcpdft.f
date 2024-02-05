@@ -459,7 +459,7 @@
         CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
         CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
         CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-        CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
+        CALL mma_allocate(Pscr,NACPR2,Label='Pscr')
 
         call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
         call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
@@ -485,7 +485,7 @@
           CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
           If (IFCAS > 2) Then
             Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
-     &              PAtmp,Work(LW10))
+     &              PAtmp,PScr)
           End If
 
           Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
@@ -603,7 +603,7 @@
           CALL GETMEM('DStmp','FREE','REAL',LW7,NACPAR)
           CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPR2)
           CALL mma_deallocate(PAtmp)
-          CALL GETMEM('Pscr','FREE','REAL',LW10,NACPR2)
+          CALL mma_deallocate(Pscr)
           Call GetMem('CIVtmp','FREE','Real',LW11,nConf)
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
           Call MKGUGA_FREE_m

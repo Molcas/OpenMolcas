@@ -172,23 +172,23 @@ C Local print level (if any)
 * load back 1- and 2-RDMs from previous DMRG run
                  NACT4=NAC**4
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-                 CALL GETMEM('PTscr','ALLO','REAL',LW10,NACT4)
+                 CALL mma_allocate(Pscr,NACT4,Label='Pscr')
 #ifdef _ENABLE_BLOCK_DMRG_
                  CALL block_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
-     &                                   Work(LW8),PAtmp,Work(LW10))
+     &                                   Work(LW8),PAtmp,Pscr)
 #elif _ENABLE_CHEMPS2_DMRG_
                  CALL chemps2_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
-     &                                 Work(LW8),PAtmp,Work(LW10))
+     &                                 Work(LW8),PAtmp,Pscr)
 #elif _ENABLE_DICE_SHCI_
                  CALL dice_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
-     &                                  Work(LW8),PAtmp,Work(LW10))
+     &                                  Work(LW8),PAtmp,Pscr)
 #endif
 
 * NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
 c                If (IFCAS.GT.2) Call CISX(IDXSX,Work(LW6),
 c    &                                     Work(LW7),Work(LW8),
-c    &                                     PAtmp,Work(LW10))
-                 CALL GETMEM('PTscr','FREE','REAL',LW10,NACT4)
+c    &                                     PAtmp,Pscr)
+                 Call mma_deallocate(Pscr)
                  Call mma_deallocate(PAtmp)
               EndIf
 *
@@ -313,18 +313,18 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * load density matrices from DMRG run
         If ( NAC.ge.1 ) Then
           NACT4=NAC**4
-          CALL GETMEM('PTscr','ALLO','REAL',LW10,NACT4)
+          CALL mma_allocate(Pscr,NACT4,Label='Pscr'))
 #ifdef _ENABLE_BLOCK_DMRG_
           CALL block_densi_rasscf(jRoot,Work(LW6),Work(LW7),
-     &                            Work(LW8),PAtmp,Work(LW10))
+     &                            Work(LW8),PAtmp,Pscr)
 #elif _ENABLE_CHEMPS2_DMRG_
           CALL chemps2_densi_rasscf(jRoot,Work(LW6),Work(LW7),
-     &                              Work(LW8),PAtmp,Work(LW10))
+     &                              Work(LW8),PAtmp,Pscr)
 #elif _ENABLE_DICE_SHCI_
           CALL dice_densi_rasscf(jRoot,Work(LW6),Work(LW7),
-     &                           Work(LW8),PAtmp,Work(LW10))
+     &                           Work(LW8),PAtmp,Pscr)
 #endif
-          CALL GETMEM('PTscr','FREE','REAL',LW10,NACT4)
+          Call mma_deallocate(Pscf)
         EndIf
 * Modify the symmetric 2-particle density if only partial
 * "exact exchange" is included.
