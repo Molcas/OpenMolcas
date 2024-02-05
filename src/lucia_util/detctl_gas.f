@@ -60,11 +60,6 @@
       IBASSPC(1)=0
       CALL OCCLS(1,NOCCLS,IOCCLS,NEL,NGAS,
      &     IGSOCC(1,1),IGSOCC(1,2),0,IBASSPC,NOBPT)
-* store the value in a global variable for later use to free the
-* KLOCCLS array. I had to rename it because otherwise it conflicts
-* with other local use of NOCCLS in other routines that include the
-* same header file
-      NOCCLS_G=NOCCLS
 *. and then the occupation classes
       CALL mma_allocate(KLOCCLS,NGAS*NOCCLS,Label='KLOCCLS')
       CALL mma_allocate(BASSPC,NOCCLS,Label='BASSPC')

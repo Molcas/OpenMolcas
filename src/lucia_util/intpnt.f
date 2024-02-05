@@ -67,16 +67,5 @@
      &                 I12S,     I34S,   I1234S,    IPNT2,     ISL2,
      &                ADASX)
 *
-c      IF(ISIMTRH.EQ.1) THEN
-c*. Pointers for similarity transformed Hamiltonian
-c        CALL PNT2DM(0,NSMOB,NSMSX,ADSXA,NTOOBS,NTOOBS,
-c     &         1  ,ISL1,WORK(KPINT1_SIMTRH),MXPOBS)
-c        I12 = 0
-c        I34 = 0
-c        I1234 = 1
-c        CALL PNT4DM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,
-c     &              ITSDX,ADSXA,SXDXSX,I12,I34,I1234,
-c     &              WORK(KPINT2_SIMTRH),ISL2,ADASX)
-c      END IF
       END
 ************************************************************************

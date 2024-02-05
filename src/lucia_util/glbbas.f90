@@ -11,12 +11,6 @@
 Module GLBBAS
 Private
 #include "mxpdim.fh"
-      Integer ::    KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
-     &              KSBIA,KSBIB,KPNIJ,KIJKK,                            &
-     &              KMOAOIN,KMOAOUT,NOCCLS_G,                           &
-     &              KMOMO,                                              &
-     &                            KINT2_SIMTRH,                         &
-     &              KPINT1_SIMTRH,KPINT2_SIMTRH
       Real*8, Allocatable:: INT1(:), INT1O(:)
       Integer, Allocatable:: PINT1(:), PINT2(:)
       Real*8, Allocatable:: VEC3(:)
@@ -46,13 +40,11 @@ Private
       Integer, Pointer:: SDREO(:)
 
       Public         INT1,       PINT1, PINT2, LSM1, LSM2, RHO1,        &
-     &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
-     &              KSBIA,KSBIB, VEC3,KPNIJ,KIJKK,    KINH1,            &
-     &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G, PGINT1,           &
+     &                           VEC3,                KINH1,            &
+     &                              KLOCCLS,          PGINT1,           &
      &               INT1O,      PGINT1A,                               &
-     &              KMOMO, SRHO1,                                       &
-     &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
-     &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
+     &                     SRHO1,                                       &
+     &                                          KINH1_NOCCSYM,          &
      &              CONF_OCC,CONF_REO,                                  &
      &              DFTP,CFTP,DTOC,                                     &
      &              SDREO_I,Z_PTDT,REO_PTDT
