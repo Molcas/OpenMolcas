@@ -51,7 +51,7 @@
 *.3 One-body density
       CALL mma_deallocate(RHO1)
 *.3.1 : One-body spin density
-      CALL GETMEM('SRHO1 ','FREE','REAL',KSRHO1,NTOOB **2)
+      CALL mma_deallocate(SRHO1)
 *. indices for pair of orbitals symmetry ordered
 *. Lower half packed
       CALL GETMEM('KINH1  ','FREE','INTE',KINH1,NTOOB*NTOOB)

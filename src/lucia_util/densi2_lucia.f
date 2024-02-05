@@ -9,9 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 ! temporary renaming of RHO1 to QHO1
+! temporary renaming of SRHO1 to SQHO1
       SUBROUTINE DENSI2_LUCIA(    I12,   QHO1,   RHO2,  RHO2S,  RHO2A,
      &                              L,      R,    LUL,    LUR,  EXPS2,
-     &                        IDOSRHO1, SRHO1, IPACK)
+     &                        IDOSRHO1, SQHO1, IPACK)
       use stdalloc, only: mma_allocate, mma_deallocate
       USE GLBBAS
       use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
@@ -81,7 +82,7 @@ c      REAL*8 INPRDD
       REAL*8 L
       DIMENSION L(*),R(*)
 *.Output
-      DIMENSION QHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
+      DIMENSION QHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SQHO1(*)
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
@@ -118,7 +119,7 @@ C     density matrices are given in Nijkl.
       END IF
 *
       IF(IDOSRHO1.EQ.1) THEN
-        CALL SETVEC(SRHO1,ZERO,NACOB ** 2)
+        CALL SETVEC(SQHO1,ZERO,NACOB ** 2)
       END IF
 *
 C?     WRITE(6,*) ' ISSPC ICSPC in DENSI2 ',ISSPC,ICSPC
@@ -366,7 +367,7 @@ c      END IF
      &                    LI1BTR,LIBTR,
      &                    CONSPA,CONSPB,
      &                    LSCLFCL,LSCLFCR,
-     &                    S2_TERM1, IUSE_PH,  IPHGAS,IDOSRHO1,   SRHO1,
+     &                    S2_TERM1, IUSE_PH,  IPHGAS,IDOSRHO1,   SQHO1,
      &                    IPACK)
 *
         CALL GADSUM(QHO1,NACOB**2)
@@ -384,7 +385,7 @@ C     density matrices are given in Nijkl.
           END IF
         END IF
         IF(IDOSRHO1.EQ.1) THEN
-          CALL GADSUM(SRHO1,NACOB ** 2)
+          CALL GADSUM(SQHO1,NACOB ** 2)
         END IF
         CALL GADSUM_SCAL(S2_TERM1)
 *
@@ -429,7 +430,7 @@ c      END IF
 *
       IF(IDOSRHO1.EQ.1.AND.IPRDEN.GE.2) THEN
         WRITE(6,*) ' One-electron spindensity <0!E(aa) - E(bb)!0> '
-        CALL WRTMAT(SRHO1,NTOOB,NTOOB,NTOOB,NTOOB)
+        CALL WRTMAT(SQHO1,NTOOB,NTOOB,NTOOB,NTOOB)
       END IF
 
 *. Eliminate local memory

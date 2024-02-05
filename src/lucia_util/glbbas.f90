@@ -14,7 +14,7 @@ Private
       Integer ::    KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB,KPNIJ,KIJKK,    KINH1,                  &
      &              KMOAOIN,KMOAOUT,NOCCLS_G,                           &
-     &              KMOMO,KSRHO1,                                       &
+     &              KMOMO,                                              &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM
       Real*8, Allocatable:: INT1(:), INT1O(:)
@@ -37,7 +37,7 @@ Private
      &                  PGINT1A(MXPOBS), PGINT1(MXPOBS)
       Type (iArray), Allocatable:: Z_PTDT(:), REO_PTDT(:)
       Integer, Allocatable:: LSM1(:), LSM2(:)
-      Real*8,  Allocatable:: RHO1(:)
+      Real*8,  Allocatable:: RHO1(:), SRHO1(:)
 
       Integer, Allocatable:: KLOCCLS(:)
 
@@ -46,7 +46,7 @@ Private
      &              KSBIA,KSBIB, VEC3,KPNIJ,KIJKK,    KINH1,            &
      &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G, PGINT1,           &
      &               INT1O,      PGINT1A,                               &
-     &              KMOMO,KSRHO1,                                       &
+     &              KMOMO, SRHO1,                                       &
      &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
      &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM,          &
      &              CONF_OCC,CONF_REO,                                  &

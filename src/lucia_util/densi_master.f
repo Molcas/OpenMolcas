@@ -111,7 +111,7 @@ c      END IF
      &   vec1,vec2,lusc1,luhc,exps2,1,work(lw7),IPACK)
       ELSE
          CALL densi2_lucia(2,rho1,dummy,Work(lw8),Work(lw9),
-     &   vec1,vec2,lusc1,luhc,exps2,1,work(ksrho1),IPACK)
+     &   vec1,vec2,lusc1,luhc,exps2,1,srho1,IPACK)
       END IF
 
 *
@@ -126,13 +126,13 @@ C      lusc1  : DONE!!! - file pointer
 C      luhc   : DONE!!! - file pointer
 C      exps2  : DONE!!! - Output - expectation value of S**2.
 C      1      : DONE!!! - Calculate spin density
-C      ksrho1 : DONE!!! - Comming with module glbbas
+C      srho1 : DONE!!! - Comming with module glbbas
 *
       IF (.not.tdm) THEN
 *        Save densities in trigonal format for use in Molcas
 *
          CALL TriPak(rho1, work(lw6), 1, ntoob, ntoob)
-         CALL TriPak(work(ksrho1), work(lw7), 1, ntoob, ntoob)
+         CALL TriPak(srho1, work(lw7), 1, ntoob, ntoob)
       END IF
 *
       CALL CSDTVC(scr1,scr2,2,work(kdtoc_pointer),
