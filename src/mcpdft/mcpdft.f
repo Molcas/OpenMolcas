@@ -50,7 +50,8 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
-      use csfbas, only: CONF, KCFTP
+      use csfbas, only: CONF
+      use glbbas, only: CFTP
       use Fock_util_global, only: DoCholesky
       use write_pdft_job, only: iwjob, writejob
       use sxci_pdft, only: idxsx
@@ -474,7 +475,7 @@
           Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,1,
-     &                CONF,iWork(KCFTP),
+     &                CONF,CFTP,
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)

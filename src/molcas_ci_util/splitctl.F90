@@ -31,8 +31,8 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF, KCFTP
-use GLBBAS, only: DFTP, DTOC
+use csfbas, only: CONF
+use GLBBAS, only: DFTP, DTOC, CFTP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
@@ -486,7 +486,7 @@ else ! Do it IF there is CIRESTART
   call mma_allocate(vkcnf,nactel,label='kcnf')
   !do i=1,lRootSplit
   call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
-  call Reord2(NAC,NACTEL,STSYM,1,CONF,iWork(KCFTP),Tmp1,Tmp2,vkcnf)
+  call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,Tmp2,vkcnf)
   call Save_CI_vec(1,nConf,Tmp2,LuDavid)
   !write(u6,'(A,I2)') 'Start vector of root',i
   !if (DBG) then

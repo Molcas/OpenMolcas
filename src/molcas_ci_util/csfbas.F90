@@ -16,9 +16,9 @@ use Definitions, only: iwp
 implicit none
 private
 
-integer(kind=iwp) :: KCFTP, MAXOP_LUCIA
+integer(kind=iwp) :: MAXOP_LUCIA
 integer(kind=iwp), allocatable :: CONF(:), CTS(:)
 
-public :: CONF, CTS, KCFTP, MAXOP_LUCIA
+public :: CONF, CTS, MAXOP_LUCIA
 
 end module csfbas
