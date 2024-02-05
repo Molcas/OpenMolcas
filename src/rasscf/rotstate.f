@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine RotState()
       use rctfld_module
+      use rasscf_lucia
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
@@ -27,7 +28,6 @@
 #include "SysDef.fh"
 #include "timers.fh"
 #include "wadr.fh"
-#include "rasscf_lucia.fh"
 #include "pamint.fh"
 #include "input_ras.fh"
 #include "stdalloc.fh"

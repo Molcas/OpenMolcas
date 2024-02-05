@@ -16,6 +16,7 @@
 * Jie J. Bao, on May. 21, 2020, created this file.               *
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
+      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -23,7 +24,6 @@
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
 ******Input
       Real*8,DIMENSION(NTOT1):: FI,FA
@@ -64,6 +64,7 @@ C     Deallocating Memory
 
 ******************************************************
       Subroutine CalcFckO(CMO,FI,FA,FckO)
+      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -71,7 +72,6 @@ C     Deallocating Memory
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 ******Input
       Real*8,DIMENSION(NTOT1)::FI,FA
       Real*8,Dimension(NTOT2)::CMO
@@ -148,6 +148,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 
 ******************************************************
       Subroutine GetGDMat(GDMat)
+      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -155,7 +156,6 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 *     Auxiliary qunatities
@@ -203,6 +203,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 
 ******************************************************
       Subroutine CalcFckS(FckO,GDMat,FckS)
+      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -210,7 +211,6 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
 ******Input
       Real*8,DIMENSION(NAC,NAC)::FckO

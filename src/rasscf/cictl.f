@@ -67,6 +67,7 @@
       use casvb_global, only: ifvb, lw1_cvb
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module
+      use rasscf_lucia
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -95,7 +96,6 @@
 #include "SysDef.fh"
 #include "timers.fh"
 #include "wadr.fh"
-#include "rasscf_lucia.fh"
 #include "pamint.fh"
 #include "input_ras.fh"
 #include "stdalloc.fh"
@@ -444,8 +444,6 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * DAVIDSON DIAGONALIZATION
 * C
 *
-C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
-      kh0_pointer = lw1
       if(IfVB.eq.1)then
         call cvbmn_rvb(max(ifinal,1))
       else

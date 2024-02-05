@@ -88,6 +88,7 @@
       use UnixInfo, only: ProgName
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
+      use rasscf_lucia
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -104,7 +105,6 @@
 #include "bk_approx.fh"
 #include "output_ras.fh"
 #include "timers.fh"
-#include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
 #include "gugx.fh"
 #include "pamint.fh"

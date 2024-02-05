@@ -17,6 +17,7 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
+      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -24,7 +25,6 @@
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
       Real*8,DIMENSION(NACPR2)::TUVX
       CHARACTER(len=16)::VecName
@@ -510,6 +510,7 @@ C     & IState,' is ',Vee(IState)
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
+      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -517,7 +518,6 @@ C     & IState,' is ',Vee(IState)
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
       Real*8,DIMENSION(lRoots,lRoots)::RotMat

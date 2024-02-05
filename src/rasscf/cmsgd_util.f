@@ -100,6 +100,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 ************************************************************************
 
       Subroutine CalcGD(GD,nGD)
+      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -107,7 +108,6 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
       INTEGER nGD
       Real*8 GD(nGD)
       INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy

@@ -29,6 +29,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
+      use rasscf_lucia
 #include "implicit.fh"
       Parameter(MxpLnc = 72)
       Character*(*) Module
@@ -67,7 +68,6 @@
 #include "spinfo_lucia.fh"
 #include "stinf.fh"
 #include "strinp.fh"
-#include "rasscf_lucia.fh"
       Integer, Allocatable:: lVec(:)
 *
 #ifdef _DEBUGPRINT_

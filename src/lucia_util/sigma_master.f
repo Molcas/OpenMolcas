@@ -11,6 +11,7 @@
       SUBROUTINE sigma_master()
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
+      use rasscf_lucia
 *
 * Controls the calculation of the sigma vector, when Lucia is called
 * from Molcas Rasscf.
@@ -23,7 +24,6 @@
 #include "orbinp.fh"
 #include "cecore.fh"
 #include "crun.fh"
-#include "rasscf_lucia.fh"
       Integer, Allocatable:: lVec(:)
 *
 * Put CI-vector from RASSCF on luc and get h0 from Molcas enviroment.
@@ -63,6 +63,7 @@ c      END IF
       SUBROUTINE SIGMA_MASTER_CVB(IREFSM_CASVB)
       use GLBBAS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rasscf_lucia
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "cands.fh"
@@ -78,7 +79,6 @@ c      END IF
 #include "orbinp.fh"
 #include "cecore.fh"
 #include "crun.fh"
-#include "rasscf_lucia.fh"
       Integer, Allocatable:: lVec(:)
 *
 * Set ICSM and ISSM (from cands.fh) to the correct symmetry for this call

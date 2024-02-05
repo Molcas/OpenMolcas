@@ -13,6 +13,7 @@ subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 
 use Definitions, only: wp, iwp
 use GLBBAS, only: CI_Vec, Sigma_Vec
+use rasscf_lucia, only: C_pointer
 
 implicit none
 integer(kind=iwp), intent(in) :: IREFSM, NCI
@@ -21,7 +22,6 @@ real(kind=wp), intent(out) :: HC(NCI)
 integer(kind=iwp) :: IDUMMY
 real(kind=wp) :: DUMMY(1)
 Integer, External:: ip_of_Work
-#include "rasscf_lucia.fh"
 
 ! Export arguments to be used in sigma_master_cvb
 

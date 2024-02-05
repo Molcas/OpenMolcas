@@ -40,6 +40,7 @@
 
       use rctfld_module
       Use casvb_global, Only: ifvb, lw1_cvb
+      use rasscf_lucia
       Implicit Real* 8 (A-H,O-Z)
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
@@ -56,7 +57,6 @@ c     Logical Exist
 #include "SysDef.fh"
 #include "timers.fh"
 #include "wadr.fh"
-#include "rasscf_lucia.fh"
 #include "gas.fh"
 #include "pamint.fh"
 #include "sxci.fh"
@@ -251,8 +251,6 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 *
 * SOLVE DMRG WAVEFUNCTION
 *
-C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
-      kh0_pointer = lw1
       if(IfVB.eq.1)then
 * NN.14 FIXME: I'm not sure whether this option should work?
         call cvbmn_rvb(max(ifinal,1))

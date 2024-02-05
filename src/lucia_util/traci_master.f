@@ -12,6 +12,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use  GLBBAS
       use Local_Arrays, only: Deallocate_Local_Arrays
+      use rasscf_lucia
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "clunit.fh"
@@ -22,7 +23,6 @@
 #include "cands.fh"
 #include "spinfo_lucia.fh"
 #include "lucinp.fh"
-#include "rasscf_lucia.fh"
 #include "io_util.fh"
 *
       DIMENSION LREC(MXNTTS),CMOMO(*)

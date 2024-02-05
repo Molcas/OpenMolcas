@@ -18,6 +18,7 @@
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
       use strbas
+      use rasscf_lucia
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -45,7 +46,6 @@
 
 #include "cintfo.fh"
 #include "spinfo_lucia.fh"
-#include "rasscf_lucia.fh"
 #include "io_util.fh"
 *
 *. Common block for communicating with sigma

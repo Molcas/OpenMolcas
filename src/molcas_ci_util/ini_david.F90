@@ -51,6 +51,7 @@ use davctl_mod, only: disk_address, in_core, istart, LblStk, memory_vectors, mix
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use rasscf_lucia, only: Memory_Needed_Lucia
 
 implicit none
 integer(kind=iwp), intent(in) :: nRoots, nConf, nDet, nSel, n_keep, ntAsh, LuDavid
@@ -60,7 +61,6 @@ real(kind=wp) :: Dum(1)
 integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
 ! check input arguments
 if (nConf < 0) then

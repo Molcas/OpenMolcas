@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE cpcivc(ifile, mxrec, isym, iway,lrec)
+      use rasscf_lucia
 *
 * Copies the CI-vector between Molcas Rasscf and Lucia enviroment
 * IWAY = 1: from Molcas to Lucia (from core to disk unit ifile).
@@ -16,7 +17,6 @@
 *
       implicit real*8 (a-h,o-z)
       dimension lrec(mxrec)
-#include "rasscf_lucia.fh"
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "general.fh"
@@ -62,6 +62,7 @@
       END
 *
       SUBROUTINE cpsivc(ifile, mxrec, vec,lrec)
+      use rasscf_lucia
 *
 * Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
 *
@@ -69,7 +70,6 @@
       dimension lrec(mxrec)
       dimension vec(mxrec)
 #include "rasdim.fh"
-#include "rasscf_lucia.fh"
 #include "general.fh"
 #include "io_util.fh"
 *
@@ -90,12 +90,12 @@
 
       SUBROUTINE CP_ONE_INT(W1,NDIM)
       use GLBBAS, only: INT1, INT1O
+      use rasscf_lucia
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION W1(NDIM)
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "WrkSpc.fh"
-#include "rasscf_lucia.fh"
 
       INT1(:)=0.0D0
       INT1(1:NDIM)=W1(1:NDIM)

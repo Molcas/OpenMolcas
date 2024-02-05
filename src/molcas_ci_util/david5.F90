@@ -13,6 +13,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTR
 
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 
+use rasscf_lucia, only: c_pointer, iSigma_on_disk
 use csfbas, only: CONF, CTS
 use glbbas, only: DTOC, CFTP
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
@@ -28,7 +29,6 @@ implicit none
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "timers.fh"
-#include "rasscf_lucia.fh"
 #include "output_ras.fh"
 ! lroots, maxjt in rasscf.fh
 ! nsel in general.fh

@@ -8,9 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE ALLOC_LUCIA
+      SUBROUTINE ALLOC_LUCIA()
       use stdalloc, only: mma_allocate
       use GLBBAS
+      use rasscf_lucia
 *
 * Dimensions and
 * Allocation of static memory
@@ -50,7 +51,6 @@
 *.CSMPRD
 #include "csmprd.fh"
 #include "cintfo.fh"
-#include "rasscf_lucia.fh"
 *.Output
 
 *.1 : One electron integrals( Complete matrix allocated )

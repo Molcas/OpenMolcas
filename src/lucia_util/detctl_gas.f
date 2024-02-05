@@ -15,6 +15,7 @@
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
       use strbas
+      use rasscf_lucia
 
 *
       IMPLICIT REAL*8 (A-H, O-Z)
@@ -38,7 +39,6 @@
 #include "spinfo_lucia.fh"
 #include "strinp.fh"
 #include "lucinp.fh"
-#include "rasscf_lucia.fh"
 
       INTEGER IOCCLS(1),IBASSPC(1)
       Integer, Allocatable:: LCIOIO(:)
@@ -249,6 +249,7 @@ c      END IF
       use stdalloc, only: mma_deallocate
       use GLBBAS
       use strbas
+      use rasscf_lucia
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
 #include "gasstr.fh"
@@ -264,7 +265,6 @@ c      END IF
 #include "spinfo_lucia.fh"
 #include "strinp.fh"
 #include "lucinp.fh"
-#include "rasscf_lucia.fh"
 
       CALL mma_deallocate(KLOCCLS)
 

@@ -11,6 +11,7 @@
       SUBROUTINE DEALLOC_LUCIA()
       use stdalloc, only: mma_deallocate
       use GLBBAS
+      use rasscf_lucia
 * Deallocate memory allocated during alloc_lucia
 
 *. Input
@@ -26,7 +27,6 @@
 *.CSMPRD
 #include "csmprd.fh"
 #include "cintfo.fh"
-#include "rasscf_lucia.fh"
 *.Output
 
 *.1 : One electron integrals( Complete matrix allocated )

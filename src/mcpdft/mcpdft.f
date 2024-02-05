@@ -63,6 +63,7 @@
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use mspdft_util, only: replace_diag
       use rctfld_module
+      use rasscf_lucia
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -75,7 +76,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "timers.fh"
-#include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
 #include "gugx.fh"
 #include "pamint.fh"

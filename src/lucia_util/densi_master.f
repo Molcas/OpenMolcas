@@ -11,6 +11,7 @@
       SUBROUTINE densi_master(rvec)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
+      use rasscf_lucia
 *
 * Controls the calculation of the densities, when Lucia is called
 * from Molcas Rasscf.
@@ -25,7 +26,6 @@
 #include "lucinp.fh"
 #include "spinfo_lucia.fh"
 #include "cstate.fh"
-#include "rasscf_lucia.fh"
 #include "io_util.fh"
       integer rvec
       logical iPack,tdm

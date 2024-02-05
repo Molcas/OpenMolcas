@@ -36,6 +36,7 @@
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
+      use rasscf_lucia
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -51,7 +52,6 @@
 #include "SysDef.fh"
 #include "gugx.fh"
 #include "wadr.fh"
-#include "rasscf_lucia.fh"
 !      Logical TraOnly
 
 *
