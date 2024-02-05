@@ -19,7 +19,7 @@
      &                           XI1S,          XINT,  NSMOB,
      &                          NSMST,    NSMDX,
      &                           MXSXST, MXSXBL,   IMOC, SCLFAC,
-     &                         NTESTG, IPHGAS)
+     &                         IPHGAS)
       use stdalloc, only: mma_allocate, mma_deallocate
 *
 *
@@ -231,7 +231,9 @@ C     NPROCS that satisfies a block size smaller than MAXI:
 *. Symmetry of allowed Double excitation,loop over excitations
           DO 1950 IKOBSM = 1, NSMOB
             JLOBSM = SXDXSX(IKOBSM,IDXSM)
-            IF(NTEST.GE.100) WRITE(6,*) ' IKOBSM,JLOBSM', IKOBSM,JLOBSM
+#ifdef _DEBUGPRINT_
+            WRITE(6,*) ' IKOBSM,JLOBSM', IKOBSM,JLOBSM
+#endif
             IF(JLOBSM.EQ.0) GOTO 1950
 *. types + symmetries defined => K strings are defined
             KFRST = 1
@@ -246,7 +248,9 @@ C     NPROCS that satisfies a block size smaller than MAXI:
               KSM = ADSXA(ISM,IKOBSM)
               NI = NOBPTS(ITYP,ISM)
               NK = NOBPTS(KTYP,KSM)
-              IF(NTEST.GE.100) write(6,*) ' NI, NK' , NI,NK
+#ifdef _DEBUGPRINT_
+              write(6,*) ' NI, NK' , NI,NK
+#endif
 *
               IF(ISM.EQ.KSM.AND.ITYP.EQ.KTYP) THEN
                 NIK = NI*(NI+1)/2
@@ -348,7 +352,9 @@ C     NPROCS that satisfies a block size smaller than MAXI:
 *
 *. Loop over batches of IK strings
             DO 1940 IKBTC = 1, NIKBT
-              IF(NTEST.GE.1000) WRITE(6,*) ' IKBTC = ', IKBTC
+#ifdef _DEBUGPRINT_
+              WRITE(6,*) ' IKBTC = ', IKBTC
+#endif
 *. Loop over batches of JL strings
               DO 1930 JLBTC = 1, NJLBT
                 IFIRST = 1
@@ -802,10 +808,10 @@ C?                  END IF
                     CALL MATML7(   SSCR,   CSCR,   XINT,   LIKB,    NIK,
      &                             LIKB,    NJL,    NIK,    NJL,FACTORC,
      &                          FACTORAB,     2)
-                    IF(NTEST.GE.3000) THEN
-                      WRITE(6,*) ' SSCR matrix '
-                      CALL WRTMAT(SSCR,LIKB,NIK,LIKB,NIK)
-                    END IF
+#ifdef _DEBUGPRINT_
+                    WRITE(6,*) ' SSCR matrix '
+                    CALL WRTMAT(SSCR,LIKB,NIK,LIKB,NIK)
+#endif
 * ============================
 * Loop over ik and scatter out
 * ============================

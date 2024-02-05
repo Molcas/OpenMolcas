@@ -238,7 +238,7 @@ c      END IF
      &                         XI1S,    XINT,  NSMOB,
      &                        NSMST,    NSMDX,
      &                         MXSXST, MXSXBL,  MOCAA, SCLFAC,
-     &                        NTEST,   IPHGAS)
+     &                         IPHGAS)
           CALL TIMING(CPU1,CPU,WALL1,WALL)
           TSIGMA(2)=TSIGMA(2)+(WALL1-WALL0)
 *
@@ -424,7 +424,7 @@ c           END IF
      &                         XI1S,       XINT,  NSMOB,
      &                        NSMST,   NSMDX,
      &                         MXSXST, MXSXBL,  MOCAA, SCLFAC,
-     &                        NTEST,   IPHGAS)
+     &                        IPHGAS)
           CALL TIMING(CPU1,CPU,WALL1,WALL)
           TSIGMA(2)=TSIGMA(2)+(WALL1-WALL0)
 *
