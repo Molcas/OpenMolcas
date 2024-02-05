@@ -454,7 +454,7 @@
         CALL Molcas_Open(LUCT,'CI_THETA')
 
         Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
-        CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
+        CALL mma_allocate(CIVEC,NCONF,Label='CIVEC')
         CALL mma_allocate(Dtmp,NACPAR,Label='Dtmp')
         CALL mma_allocate(DStmp,NACPAR,Label='DStmp')
         CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
@@ -464,23 +464,22 @@
         Dtmp(:)=0.0D0
         DStmp(:)=0.0D0
         Ptmp(:)=0.0D0
-        call dcopy_(NCONF,[0.0D0],0,WORK(LW4),1)
+        CIVEC(:)=0.0D0
         iDisk = IADR19(4)
         jDisk = IADR19(3)
 
         Call mma_allocate(CIV,nConf,Label='CIV')
         DO jRoot=1,lroots
           do i=1,nconf
-            read(LUCT,*) Work(LW4-1+i)
+            read(LUCT,*) CIVEC(i)
           end do
-          Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
+          Call DDafile(JOBOLD,1,CIVEC,nConf,iDisk)
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,1,
-     &                CONF,CFTP,
-     &                Work(LW4),CIV,iWork(ivkcnf))
-          Call dcopy_(nconf,CIV,1,Work(LW4),1)
+     &                CONF,CFTP,CIVEC,CIV,iWork(ivkcnf))
+          Call dcopy_(nconf,CIV,1,CIVEC,1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
-          C_Pointer = Lw4
+          C_Pointer = ip_of_Work(CIVEC(1))
 !Andrew - changed here
           CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
           If (IFCAS > 2) Then
@@ -597,7 +596,7 @@
 *
 *
        if (doGSOR) then
-          CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+          CALL mma_deallocate(CIVEC)
           CALL mma_deallocate(Dtmp)
           CALL mma_deallocate(DStmp)
           CALL mma_deallocate(Ptmp)

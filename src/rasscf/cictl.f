@@ -259,9 +259,9 @@ C Local print level (if any)
 *
 * Compute the density of the particular state
 *
-           Call GetMem('CIVEC','ALLO','REAL',LW4,NCONF)
+           Call mma_allocate(CIVEC,NCONF,Label='CIVEC')
            If (NACTEL.EQ.0) THEN
-             Work(LW4)=1.0D0
+             CIVEC(1)=1.0D0
            Else
              if(.not.(doDMRG))then
 !               write(*,*)"run the load back CI vector part" ! yma
@@ -270,8 +270,8 @@ C Local print level (if any)
                    iOpt=0
                    If (jRoot.eq.IPCMROOT) iOpt=2
 * load back one CI vector at the time
-                   Call DDafile(JOBIPH,iOpt,Work(LW4),nConf,iDisk)
-                  !call DVcPrt('BLUBB-start CI PCM',' ',Work(LW4),nConf)
+                   Call DDafile(JOBIPH,iOpt,CIVEC,nConf,iDisk)
+                  !call DVcPrt('BLUBB-start CI PCM',' ',CIVEC,nConf)
                End Do
              end if
            End If
@@ -309,7 +309,7 @@ C Local print level (if any)
                else
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
                  Call mma_allocate(Pscr,NACPR2,Label='Pscr')
-                 C_Pointer = Lw4
+                 C_Pointer = ip_of_Work(CIVEC(1))
                  CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
@@ -353,7 +353,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 
            Call mma_deallocate(DStmp)
            Call mma_deallocate(Dtmp)
-           Call GetMem('CIVEC','FREE','REAL',LW4,NCONF)
+           Call mma_deallocate(CIVEC)
 *
            Call SGFCIN(CMO,Work(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
@@ -533,7 +533,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
       Call dCopy_(NACPAR,[0.0D0],0,DS,1)
       Call dCopy_(NACPR2,[0.0D0],0,P,1)
       Call dCopy_(NACPR2,[0.0D0],0,PA,1)
-      CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
+      CALL mma_allocate(CIVEC,NCONF,Label='CIVEC')
       CALL mma_allocate(Dtmp,NACPAR,Label='Dtmp')
       CALL mma_allocate(DStmp,NACPAR,Label='DStmp')
       CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
@@ -584,14 +584,14 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * load back one CI vector at the time
 *JB      If do_rotate=.true., then we read CI vectors from Work(LRCIVec)
 *JB      Otherwise we read if from JOBIPH
-         Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
+         Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
          IF (IPRLEV.GE.DEBUG) THEN
-          call DVcPrt('CI-Vec in CICTL',' ',Work(LW4),nConf )
+          call DVcPrt('CI-Vec in CICTL',' ',CIVEC,nConf )
          END IF
 * compute density matrices
 
          If ( NAC.ge.1 ) Then
-           C_Pointer = Lw4
+           C_Pointer = ip_of_Work(CIVEC(1))
            if(.not.(doDMRG))
      &       CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
@@ -689,14 +689,14 @@ C and for now don't bother with 2-electron active density matrices
        End Do
 
       ELSE  ! SplitCAS run
-        Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
+        Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         IF (IPRLEV.GE.DEBUG) then
           call DVcPrt('CI-Vec in CICTL SplitCAS sect',' ',
-     &              Work(LW4),nConf)
+     &              CIVEC,nConf)
         end if
 * compute density matrices
         If ( NAC.ge.1 ) Then
-           C_Pointer = Lw4
+           C_Pointer = ip_of_Work(CIVEC(1))
            CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Dtmp,NAC)
@@ -781,16 +781,16 @@ c
         Do i = 1,lRoots
           jDisk=iDisk
 * load back one CI vector at the time
-           Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
+           Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL last cycle',' ',
-     &        Work(LW4),nConf)
+     &        CIVEC,nConf)
           END IF
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
          if(.not.iDoGas)then
           Call Reord2(NAC,NACTEL,STSYM,0,
      &                CONF,CFTP,
-     &                Work(LW4),CIV,iWork(ivkcnf))
+     &                CIVEC,CIV,iWork(ivkcnf))
 c        end if
 c         call getmem('kcnf','free','inte',ivkcnf,nactel)
 
@@ -802,7 +802,7 @@ c         if(.not.iDoGas)then
 
 #endif
 c         else
-c         call DDafile(JOBIPH,1,Work(LW4),nConf,jDisk)
+c         call DDafile(JOBIPH,1,CIVEC,nConf,jDisk)
 c         end if
 * printout of the wave function
             IF (IPRLEV.GE.USUAL) THEN
@@ -829,10 +829,10 @@ c         end if
          else ! for iDoGas
           Write(LF,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
 c.. save CI vector on disk
-          Call DDafile(JOBIPH,1,Work(LW4),nconf,jDisk)
+          Call DDafile(JOBIPH,1,CIVEC,nconf,jDisk)
 CSVC: store CI as a column array of the on-disk CI (which is for all roots!)
 #ifdef _HDF5_
-          call mh5_put_dset(wfn_cicoef,Work(LW4:LW4+nconf-1),
+          call mh5_put_dset(wfn_cicoef,CIVEC(1:nconf),
      &                      [nconf,1],[0,i-1])
 #endif
 C.. printout of the wave function
@@ -845,7 +845,7 @@ C.. printout of the wave function
      c                'energy=',ener(i,iter)
 
             call gasprwf(PrSel,nac,nactel,stsym,conf,
-     c           cftp,work(lw4),iwork(ivkcnf))
+     c           cftp,CIVEC,iwork(ivkcnf))
           End If
          end if
           call getmem('kcnf','free','inte',ivkcnf,nactel)
@@ -856,16 +856,16 @@ C.. printout of the wave function
 
           jDisk=iDisk
 * load back one CI vector at the time
-          Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
+          Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL SplitCAS last cycle',' ',
-     &        Work(LW4),nConf)
+     &        CIVEC,nConf)
           END IF
 * reorder it according to the split graph GUGA conventions
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,0,
      &                CONF,CFTP,
-     &                Work(LW4),CIV,iWork(ivkcnf))
+     &                CIVEC,CIV,iWork(ivkcnf))
           call getmem('kcnf','free','inte',ivkcnf,nactel)
 * save reorder CI vector on disk
           Call DDafile(JOBIPH,1,CIV,nConf,jDisk)
@@ -914,7 +914,7 @@ C.. printout of the wave function
       end if
 #endif
 
-      CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
+      Call mma_deallocate(CIVEC)
       CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
 
  9000 Continue
