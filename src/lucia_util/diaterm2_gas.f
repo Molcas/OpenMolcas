@@ -59,7 +59,6 @@
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
       NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
 *
 *
 C     IF(JPERT.EQ.0) THEN
@@ -81,6 +80,7 @@ C     END IF
 
 #ifdef _DEBUGPRINT_
 *. Offsets for alpha and beta supergroups
+      NOCTPB = NOCTYP(IBTP)
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
       IF(NTEST.GE.10) THEN

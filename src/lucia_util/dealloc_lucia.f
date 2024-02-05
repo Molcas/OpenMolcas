@@ -41,7 +41,7 @@
 *. Pointers to nonsymmetric one-electron integrals
       DO ISM = 1, NSMOB
 *. triangular packed
-        CALL GETMEM('PGINT1','FREE','INTE',KPGINT1(ISM),NSMOB)
+        CALL mma_deallocate(PGINT1(ISM)%I)
 *. no packing
         CALL mma_deallocate(PGINT1A(ISM)%I)
       END DO

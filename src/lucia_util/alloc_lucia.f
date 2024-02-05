@@ -35,7 +35,7 @@
 * =======
 *
 * Modified Jan 1997
-*           Fall 97 (KPGINT1 added )
+*           Fall 97 (PGINT1 added )
 *           Spring 99
 
 *. Input
@@ -72,7 +72,7 @@
 *. Pointers to nonsymmetric one-electron integrals
       DO ISM = 1, NSMOB
 *. triangular packed
-        CALL GETMEM('PGINT1','ALLO','INTE',KPGINT1(ISM),NSMOB)
+        CALL mma_allocate(PGINT1(ISM)%I,NSMOB,Label='PGINT1(ISM)%I')
 *. no packing
         CALL mma_allocate(PGINT1A(ISM)%I,NSMOB,Label='PGINT1A(ISM)%I')
       END DO

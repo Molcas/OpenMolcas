@@ -18,7 +18,6 @@
 * total symmetry of the operator
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "multd2h.fh"
@@ -36,7 +35,7 @@ C?        WRITE(6,*) ' GETH1E, old route '
      &              IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)
         ELSE
           GETH1E =
-     &    GTH1ES(IREOTS,iWORK(KPGINT1(IJSM)),INT1,IBSO,MXPNGAS,
+     &    GTH1ES(IREOTS,PGINT1(IJSM)%I,INT1,IBSO,MXPNGAS,
      &              IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)
         END IF
       ELSE

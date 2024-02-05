@@ -43,7 +43,6 @@
       INTEGER ITPFGS(*), ISMFGS(*)
       INTEGER NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
 *. Local scratch
-C     INTEGER NSTFGS(MXPNGAS), IBSTFGS(MXPNGAS), ISTRNM(MXPNGAS)
       INTEGER NSTFGS(MXPNGAS), IBSTFGS(MXPNGAS)
 *. Output
       INTEGER ISTROC(NEL,*)
@@ -54,8 +53,8 @@ C?    write(6,*) ' entering problem child '
         IBSTFGS(IGAS) = IISTSGP(ISMFGS(IGAS),IGAS)
       END DO
 *
-      NTEST = 000
 #ifdef _DEBUGPRINT_
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) '  GETSTR_GASSM_SPGP speaking '
         WRITE(6,*) '  =========================== '

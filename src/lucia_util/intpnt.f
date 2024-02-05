@@ -20,7 +20,7 @@
 * ISL1  : Symmetry of last index for given first index, 1 e-
 *
 * In addition pointers to one-electron integrals with general
-* symmetry is generated in WORK(KPGINT1(ISM))
+* symmetry is generated in PGINT1(ISM%I)
 *
 * Pointers for similarity transformed Hamiltonian may also be
 * generated
@@ -33,7 +33,6 @@
 * =====
 *
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "csm.fh"
@@ -52,7 +51,7 @@
 *.0 : Pointers to one-integrals, all symmetries, Lower half matrices
       DO ISM = 1, NSMOB
         CALL PNT2DM(        1,    NSMOB,    NSMSX,    ADSXA,   NTOOBS,
-     &                 NTOOBS,ISM  ,    ISL1,IWORK(KPGINT1(ISM)),MXPOBS)
+     &                 NTOOBS,ISM  ,    ISL1,PGINT1(ISM)%I,MXPOBS)
       END DO
 *.0.5 : Pointers to one-electron integrals, all symmetries, complete form
       DO ISM = 1, NSMOB
