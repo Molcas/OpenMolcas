@@ -85,7 +85,6 @@ c         IF (ENVIRO(1:6).EQ.'RASSCF') THEN
 
       CALL mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
       CALL mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
-      KCI_POINTER=ip_of_Work(CI_VEC(1))
       KSIGMA_POINTER=ip_of_Work(SIGMA_VEC(1))
 
       END

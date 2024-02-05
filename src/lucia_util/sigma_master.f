@@ -46,7 +46,7 @@ c      END IF
 * Calculate the sigma vector:
 *
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(WORK(KCI_POINTER), WORK(KSIGMA_POINTER), LUC, LUSC34)
+      CALL MV7(CI_Vec, WORK(KSIGMA_POINTER), LUC, LUSC34)
       Call mma_deallocate(VEC3)
 *
 * Export lusc34 to RASSCF
@@ -55,7 +55,6 @@ c      END IF
       CALL CPCIVC(LUSC34, MXNTTS, IREFSM, 2, lVec)
       call mma_deallocate(lVec)
 *
-      RETURN
       END
 ******************************
 *                            *
@@ -112,7 +111,7 @@ c      END IF
 *
       CALL DIAG_MASTER()
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(WORK(KCI_POINTER), WORK(KSIGMA_POINTER), LUC, LUSC34)
+      CALL MV7(CI_VEC, WORK(KSIGMA_POINTER), LUC, LUSC34)
       Call mma_deallocate(VEC3)
 *
 * Export lusc34 to RASSCF
