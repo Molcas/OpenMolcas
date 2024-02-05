@@ -249,7 +249,6 @@ c      END IF
      &     CONF_OCC(jsym)%I,SDREO_I(jsym)%I,
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
      &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
-     &     KICTS_POINTER,
      &     nCSF_HEXS)
 
       END

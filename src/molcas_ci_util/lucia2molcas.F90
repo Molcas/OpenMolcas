@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine LUCIA2MOLCAS(KDFTP_LUCIA,KCFTP_LUCIA,KDTOC_LUCIA,KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA, &
-                        NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF,MULTS_LUCIA,KICTS_POINTER, &
+                        NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF,MULTS_LUCIA, &
                         nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
@@ -22,7 +22,6 @@ implicit none
 integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KDFTP_LUCIA, KCFTP_LUCIA, KDTOC_LUCIA, KICONF_OCC_LUCIA(*), KSDREO_I(*), &
                                  NDET_LUCIA, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM), &
                                  NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
-integer(kind=iwp), intent(out) :: KICTS_POINTER
 integer(kind=iwp) :: I, ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, J, LCONF, LDET, LLCONF, LUCIA_TYPE, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
 integer(kind=iwp), external :: ip_of_iWork
 #include "rasdim.fh"
@@ -131,7 +130,6 @@ end do
 
 call mma_allocate(CONF,LCONF,label='CONF')
 call mma_allocate(CTS,LDET,label='CTS')
-KICTS_POINTER = ip_of_iWork(CTS(1))
 
 CONF(:) = KICONF_OCC_LUCIA(1:LCONF)
 
