@@ -20,7 +20,6 @@
 #include "cicisp.fh"
 #include "cstate.fh"
 #include "clunit.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cecore.fh"
 #include "crun.fh"
@@ -46,7 +45,7 @@ c      END IF
 * Calculate the sigma vector:
 *
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(CI_Vec, WORK(KSIGMA_POINTER), LUC, LUSC34)
+      CALL MV7(CI_Vec, SIGMA_Vec, LUC, LUSC34)
       Call mma_deallocate(VEC3)
 *
 * Export lusc34 to RASSCF
@@ -76,7 +75,6 @@ c      END IF
      &              MXNTTS,MXSOOB_AS
 #include "cstate.fh"
 #include "clunit.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cecore.fh"
 #include "crun.fh"
@@ -111,7 +109,7 @@ c      END IF
 *
       CALL DIAG_MASTER()
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(CI_VEC, WORK(KSIGMA_POINTER), LUC, LUSC34)
+      CALL MV7(CI_VEC, SIGMA_Vec, LUC, LUSC34)
       Call mma_deallocate(VEC3)
 *
 * Export lusc34 to RASSCF

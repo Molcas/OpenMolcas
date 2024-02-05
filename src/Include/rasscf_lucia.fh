@@ -8,11 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER KSIGMA_POINTER,              C_POINTER,                   &
+      INTEGER                              C_POINTER,                   &
      &                       kh0_pointer, Lucia_base, Lucia_length,     &
      &        kvec3_length,                                             &
      &                       iSigma_on_disk,ini_h0, Memory_Needed_Lucia
-      COMMON/RASSCF_LUCIA/KSIGMA_POINTER,              C_POINTER,       &
+      COMMON/RASSCF_LUCIA/                             C_POINTER,       &
      &                       kh0_pointer, Lucia_base, Lucia_length,     &
      &        kvec3_length,                                             &
      &                       iSigma_on_disk,ini_h0, Memory_Needed_Lucia
