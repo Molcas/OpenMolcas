@@ -39,8 +39,6 @@
       IF(PSSIGN.NE.0.0D0) LBLOCK = INT(2.0D0*XISPSM(IREFSM,1))
 *
 *. The three scratch  blocks
-C          GET_3BLKS(KVEC1,KVEC2,KC2)
-C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       Call mma_allocate(VEC1,LBLOCK,Label='VEC1')
       Call mma_allocate(VEC2,LBLOCK,Label='VEC2')
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')

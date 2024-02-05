@@ -28,7 +28,6 @@
       EXTERNAL MV7
 #include "mxpdim.fh"
 #include "cicisp.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "clunit.fh"
 #include "csm.fh"
@@ -290,10 +289,7 @@ c         END IF
       IF(IPRCIX.GE.2)
      &     WRITE(6,*) ' Space for two resolution matrices ',2*LSCR2
       LSCR12 = MAX(LBLOCK,2*LSCR2)
-CSVC: is VEC3 used at all before it is deallocated again?
       Call mma_allocate(VEC3,LSCR12,Label='VEC3')
-      KVEC1 = KCI_POINTER
-c     KVEC2 = KSIGMA_POINTER
       KVEC3_LENGTH = MAX(LSCR12,2*LBLOCK,KVEC3_LENGTH)
 *
 *. CI diagonal - if required
@@ -305,12 +301,12 @@ c     KVEC2 = KSIGMA_POINTER
          IF(ICISTR.GE.2) IDISK(LUDIA)=0
          I12 = 2
          SHIFT = ECORE_ORIG-ECORE
-         CALL GASDIAT(WORK(KVEC1),  LUDIA,  SHIFT, ICISTR,    I12,
+         CALL GASDIAT(CI_VEC,  LUDIA,  SHIFT, ICISTR,    I12,
      &                CBLTP,NBLOCK,CIBT)
 *
          IF(NOCSF.EQ.1.AND.ICISTR.EQ.1) THEN
             IDISK(LUDIA)=0
-            CALL TODSC(WORK(KVEC1),NVAR,-1,LUDIA)
+            CALL TODSC(CI_VEC,NVAR,-1,LUDIA)
          END IF
          IF(IPRCIX.GE.2) WRITE(6,*) ' Diagonal constructed  '
       ELSE
