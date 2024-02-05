@@ -102,6 +102,7 @@ C-jwk-cleanup      INTEGER I4_DIM(4),I4_SM(4)
       INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
 *
       Real*8, Allocatable:: SCR(:)
+      Real*8 :: FACX=0.0D0
 
 #include "oper.fh"
 *
