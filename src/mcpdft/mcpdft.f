@@ -64,6 +64,7 @@
       use mspdft_util, only: replace_diag
       use rctfld_module
       use rasscf_lucia
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -457,7 +458,7 @@
         CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
         CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
         CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
-        CALL GETMEM('PAtmp','ALLO','REAL',LW9,NACPR2)
+        CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
         CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
 
         call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
@@ -484,13 +485,13 @@
           CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
           If (IFCAS > 2) Then
             Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
-     &              Work(LW9),Work(LW10))
+     &              PAtmp,Work(LW10))
           End If
 
           Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
           Call DDafile(JOBOLD,1,Work(LW7),NACPAR,jDisk)
           Call DDafile(JOBOLD,1,Work(LW8),NACPR2,jDisk)
-          Call DDafile(JOBOLD,1,Work(LW9),NACPR2,jDisk)
+          Call DDafile(JOBOLD,1,PAtmp,NACPR2,jDisk)
         end do
         Close(LUCT)
         Call fCopy('JOBIPH','JOBGS',ierr)
@@ -601,7 +602,7 @@
           CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPAR)
           CALL GETMEM('DStmp','FREE','REAL',LW7,NACPAR)
           CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPR2)
-          CALL GETMEM('PAtmp','FREE','REAL',LW9,NACPR2)
+          CALL mma_deallocate(PAtmp)
           CALL GETMEM('Pscr','FREE','REAL',LW10,NACPR2)
           Call GetMem('CIVtmp','FREE','Real',LW11,nConf)
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)

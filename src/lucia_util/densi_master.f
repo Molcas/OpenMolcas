@@ -108,7 +108,7 @@ c      END IF
          CALL densi2_lucia(1,work(lw6),dummy,dummy,dummy,
      &   vec1,vec2,lusc1,luhc,exps2,1,work(lw7),IPACK)
       ELSE
-         CALL densi2_lucia(2,rho1,dummy,Work(lw8),Work(lw9),
+         CALL densi2_lucia(2,rho1,dummy,Work(lw8),PAtmp,
      &   vec1,vec2,lusc1,luhc,exps2,1,srho1,IPACK)
       END IF
 

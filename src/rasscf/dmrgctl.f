@@ -171,25 +171,25 @@ C Local print level (if any)
               Else
 * load back 1- and 2-RDMs from previous DMRG run
                  NACT4=NAC**4
-                 Call GetMem('PAtmp','ALLO','REAL',LW9,NACPR2)
+                 Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
                  CALL GETMEM('PTscr','ALLO','REAL',LW10,NACT4)
 #ifdef _ENABLE_BLOCK_DMRG_
                  CALL block_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
-     &                                   Work(LW8),Work(LW9),Work(LW10))
+     &                                   Work(LW8),PAtmp,Work(LW10))
 #elif _ENABLE_CHEMPS2_DMRG_
                  CALL chemps2_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
-     &                                 Work(LW8),Work(LW9),Work(LW10))
+     &                                 Work(LW8),PAtmp,Work(LW10))
 #elif _ENABLE_DICE_SHCI_
                  CALL dice_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
-     &                                  Work(LW8),Work(LW9),Work(LW10))
+     &                                  Work(LW8),PAtmp,Work(LW10))
 #endif
 
 * NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
 c                If (IFCAS.GT.2) Call CISX(IDXSX,Work(LW6),
 c    &                                     Work(LW7),Work(LW8),
-c    &                                     Work(LW9),Work(LW10))
+c    &                                     PAtmp,Work(LW10))
                  CALL GETMEM('PTscr','FREE','REAL',LW10,NACT4)
-                 Call GetMem('PAtmp','FREE','REAL',LW9,NACPR2)
+                 Call mma_deallocate(PAtmp)
               EndIf
 *
            Else
@@ -295,7 +295,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * LW6: ONE-BODY DENSITY
 * LW7: ONE-BODY SPIN DENSITY
 * LW8: SYMMETRIC TWO-BODY DENSITY
-* LW9: ANTISYMMETRIC TWO-BODY DENSITY
+* PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 *
       Call Timing(Rado_1,dum1,dum2,dum3)
       Zero = 0.0d0
@@ -306,27 +306,23 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
       CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
       CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
       CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
-      CALL GETMEM('PAtmp','ALLO','REAL',LW9,NACPR2)
+      CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
       jDisk = IADR15(3)
 
       Do jRoot = 1,lRoots
-        IF (IPRLEV.GE.DEBUG) THEN
-          Write(LF,*) ' WORK SPACE VARIABLES IN SUBR. DMRGCTL: '
-          Write(LF,'(1x,A,4I10)') 'DENSI',LW6,LW7,LW8,LW9
-        END IF
 * load density matrices from DMRG run
         If ( NAC.ge.1 ) Then
           NACT4=NAC**4
           CALL GETMEM('PTscr','ALLO','REAL',LW10,NACT4)
 #ifdef _ENABLE_BLOCK_DMRG_
           CALL block_densi_rasscf(jRoot,Work(LW6),Work(LW7),
-     &                            Work(LW8),Work(LW9),Work(LW10))
+     &                            Work(LW8),PAtmp,Work(LW10))
 #elif _ENABLE_CHEMPS2_DMRG_
           CALL chemps2_densi_rasscf(jRoot,Work(LW6),Work(LW7),
-     &                              Work(LW8),Work(LW9),Work(LW10))
+     &                              Work(LW8),PAtmp,Work(LW10))
 #elif _ENABLE_DICE_SHCI_
           CALL dice_densi_rasscf(jRoot,Work(LW6),Work(LW7),
-     &                           Work(LW8),Work(LW9),Work(LW10))
+     &                           Work(LW8),PAtmp,Work(LW10))
 #endif
           CALL GETMEM('PTscr','FREE','REAL',LW10,NACT4)
         EndIf
@@ -359,15 +355,15 @@ c
         call daxpy_(NACPAR,Scal,Work(LW6),1,D,1)
         call daxpy_(NACPAR,Scal,Work(LW7),1,DS,1)
         call daxpy_(NACPR2,Scal,Work(LW8),1,P,1)
-        call daxpy_(NACPR2,Scal,Work(LW9),1,PA,1)
+        call daxpy_(NACPR2,Scal,PAtmp,1,PA,1)
 * save density matrices on disk
         Call DDafile(JOBIPH,1,Work(LW6),NACPAR,jDisk)
         Call DDafile(JOBIPH,1,Work(LW7),NACPAR,jDisk)
         Call DDafile(JOBIPH,1,Work(LW8),NACPR2,jDisk)
-        Call DDafile(JOBIPH,1,Work(LW9),NACPR2,jDisk)
+        Call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
       End Do
 
-      CALL GETMEM('PAtmp','FREE','REAL',LW9,NACPAR)
+      Call mma_deallocate(PAtmp)
       CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPAR)
       CALL GETMEM('DStmp','FREE','REAL',LW7,NACPR2)
       CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPR2)
