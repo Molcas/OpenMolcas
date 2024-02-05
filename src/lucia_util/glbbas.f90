@@ -41,6 +41,7 @@ Private
       Integer, Allocatable:: KINH1_NOCCSYM(:), KINH1(:)
 
       Integer, Allocatable:: KLOCCLS(:)
+      Real*8,  Allocatable:: CI_VEC(:), SIGMA_VEC(:)
 
       Public         INT1,       PINT1, PINT2, LSM1, LSM2, RHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
@@ -53,4 +54,5 @@ Private
      &              CONF_OCC,CONF_REO,                                  &
      &              DFTP,CFTP,DTOC,                                     &
      &              SDREO_I,Z_PTDT,REO_PTDT
+      Public CI_VEC, SIGMA_VEC
 End Module GLBBAS

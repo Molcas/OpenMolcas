@@ -9,13 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE LUCIA()
+      use stdalloc, only: mma_allocate
       use GLBBAS
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *. Parameters for dimensioning
 #include "mxpdim.fh"
-*.Memory
-#include "WrkSpc.fh"
 *.File numbers
 #include "clunit.fh"
 *.Print flags
@@ -64,7 +63,7 @@ c      ENDIF
             WRITE(6,*) ' No integrals imported '
          END IF
 *. READ in MO-AO matrix
-c      IF(NOMOFL.EQ.0) CALL GET_CMOAO(WORK(KMOAOIN))
+c      IF(NOMOFL.EQ.0) CALL GET_CMOAO(MOAOIN)
 *. Internal string information
       CALL STRINF_GAS(IPRSTR)
 *. Internal subspaces
@@ -84,7 +83,9 @@ c         IF (ENVIRO(1:6).EQ.'RASSCF') THEN
       LBLOCK = MAX(INT(XISPSM(IREFSM,1)),MXSOOB)
       IF(PSSIGN.NE.0.0D0) LBLOCK = INT(2.0D0*XISPSM(IREFSM,1))
 
-      CALL GETMEM('VEC1  ','ALLO','REAL',KCI_POINTER,LBLOCK)
-      CALL GETMEM('VEC2  ','ALLO','REAL',KSIGMA_POINTER,LBLOCK)
-      RETURN
+      CALL mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
+      CALL mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
+      KCI_POINTER=ip_of_Work(CI_VEC(1))
+      KSIGMA_POINTER=ip_of_Work(SIGMA_VEC(1))
+
       END
