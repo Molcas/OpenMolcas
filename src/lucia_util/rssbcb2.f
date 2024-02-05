@@ -24,7 +24,7 @@
 *
      &                     MXPOBS,     IDC,         CJRES,
      &                      SIRES,      I3,    XI3S,      I4,    XI4S,
-     &                     MXSXBL,  MXSXST,   MOCAA,
+     &                     MXSXST,   MOCAA,
      &                      IPRNT,   IHAPR,
      &                       SCLFAC, IUSE_PH,  IPHGAS,
 *

@@ -126,7 +126,7 @@
 * IH_OCC_CONS =1 implies that we should employ occupation conserving
 * part of Hamiltonian
 
-
+      Call unused_integer(mxsxbl)
 *.
 C-jwk-cleanup      REAL * 8 INPROD
 *
@@ -424,7 +424,7 @@ C               IF(IPERTOP.NE.0) THEN
      &                         NSMDX,   NIA,   NIB,  NLLA,  NLLB,
      &                         MXPOBS,   IDC,    CJRES,
      &                         SIRES,    I3,  XI3S,    I4,  XI4S,
-     &                         MXSXBL,MXSXST, MOCAA,
+     &                         MXSXST, MOCAA,
      &                         IPRNT,IPERTOP,
      &                         XFAC,IUSE_PH,IPHGAS,
      &                         I_RES_AB,
