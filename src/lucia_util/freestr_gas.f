@@ -11,6 +11,8 @@
       SUBROUTINE FREESTR_GAS()
       use stdalloc, only: mma_deallocate
       use strbas
+* allocations during strinf_gas
+      use distsym
 * Deallocate the memory that was set up in MEMSTR_GAS
 
 *
@@ -23,8 +25,6 @@
 #include "gasstr.fh"
 #include "stinf.fh"
 #include "crun.fh"
-* allocations during strinf_gas
-#include "distsym.fh"
 *
 *.  Offsets for occupation and reorder array of strings
 *
@@ -71,7 +71,7 @@
       CALL mma_deallocate(SPGPCR)
 *
 * Allocated during strinf_gas call
-      CALL GETMEM('ISMDFGP','FREE','INTE',ISMDFGP, NSMST*NGRP)
+      CALL mma_deallocate(ISMDFGP)
       CALL GETMEM('NACTSYM','FREE','INTE',NACTSYM, NGRP)
       CALL GETMEM('ISMSCR','FREE','INTE',ISMSCR, NGRP)
       END

@@ -15,6 +15,7 @@
      &                           I1,    XI1S,   NKSTR,    IEND,   IFRST,
      &                        KFRST,    KACT,  SCLFAC,     IAC)
       use strbas
+      use distsym
 *
 *
 * Obtain creation or annihilation mapping
@@ -63,7 +64,6 @@
 #include "cgas.fh"
 #include "csm.fh"
 #include "lucinp.fh"
-#include "distsym.fh"
 #include "loff.fh"
 #include "stdalloc.fh"
 *. Input
@@ -250,7 +250,7 @@ cGLM        ELSE
 *. Next distribution
           CALL NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,
      &                           ISMFGS,KSM,KFIRST,NONEW,
-     &                  iWork(ISMDFGP),iWork(NACTSYM),iWork(ISMSCR))
+     &                  ISMDFGP,iWork(NACTSYM),iWork(ISMSCR))
 cGLM          IF(NONEW.EQ.1) GOTO 9999
 cGLM        END IF
         IF(NTEST.GE.1000) THEN

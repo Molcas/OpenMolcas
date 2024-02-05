@@ -11,6 +11,8 @@
       SUBROUTINE STRINF_GAS(IPRNT)
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas
+* modification Jeppe + Giovanni + Dongxia.
+      use distsym
 *
 * Obtain string information for GAS expansion
 *
@@ -40,8 +42,6 @@
 #include "strinp.fh"
 #include "irat.fh"
 #include "crun.fh"
-* modification Jeppe + Giovanni + Dongxia.
-#include "distsym.fh"
 *
 #include "WrkSpc.fh"
 *
@@ -125,11 +125,11 @@ C     DIMENSION IOCTYP(MXPNGAS)
       Call mma_deallocate(FREEL)
 *
       INGRP_VAL = NGRP
-      CALL GETMEM('ISMDFGP','ALLO','INTE',ISMDFGP, NSMST*NGRP)
+      CALL mma_allocate(ISMDFGP, NSMST*NGRP,Label='ISMDFGP')
       CALL GETMEM('NACTSYM','ALLO','INTE',NACTSYM, NGRP)
       CALL GETMEM('ISMSCR','ALLO','INTE',ISMSCR, NGRP)
       call SMDFGP_GEN(NGRP,NSMST,MXPNSMST,NSTFSMGP,
-     &                iWork(NACTSYM),iWork(ISMDFGP))
+     &                iWork(NACTSYM),ISMDFGP)
 *
       IF(NTEST.GE.10) THEN
         write(6,*) 'NGRP', NGRP
