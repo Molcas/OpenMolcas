@@ -250,7 +250,7 @@ cGLM        ELSE
 *. Next distribution
           CALL NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,
      &                           ISMFGS,KSM,KFIRST,NONEW,
-     &                  ISMDFGP,iWork(NACTSYM),iWork(ISMSCR))
+     &                  ISMDFGP,NACTSYM,iWork(ISMSCR))
 cGLM          IF(NONEW.EQ.1) GOTO 9999
 cGLM        END IF
         IF(NTEST.GE.1000) THEN

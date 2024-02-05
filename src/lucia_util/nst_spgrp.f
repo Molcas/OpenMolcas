@@ -68,7 +68,7 @@ cGLM     &                       IFIRST,  NONEW)
 * GLMJ Giovanni Li Manni modification  Feb/March 2012
          CALL NEXT_SYM_DISTR_NEW(NSMST,INGRP_VAL,IGRP,NGRP,
      &                           ISM,ISM_TOT,IFIRST,NONEW,
-     &                           ISMDFGP,iWork(NACTSYM),
+     &                           ISMDFGP,NACTSYM,
      &                           iWork(ISMSCR))
         IF(NONEW.EQ.0) THEN
           LDIST = 1

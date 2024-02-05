@@ -27,7 +27,7 @@
       INTEGER ISMDFGP(NSMST,NGRP),NACTSYM(NGRP),ISMSCR(NGRP)
       INTEGER KGRP(NGAS)
 *. Input and output
-      DIMENSION ISYM(NGAS)
+      INTEGER ISYM(NGAS)
 *
       NTEST = 00
 *
@@ -82,5 +82,4 @@
         END IF
       END IF
 *
-      RETURN
       END

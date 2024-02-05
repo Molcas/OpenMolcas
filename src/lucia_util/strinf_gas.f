@@ -43,8 +43,6 @@
 #include "irat.fh"
 #include "crun.fh"
 *
-#include "WrkSpc.fh"
-*
       INTEGER ZERO_ARR(1), IDUM(1)
       Integer, Allocatable:: FREEL(:)
 *. A bit of scratch
@@ -126,10 +124,10 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *
       INGRP_VAL = NGRP
       CALL mma_allocate(ISMDFGP, NSMST*NGRP,Label='ISMDFGP')
-      CALL GETMEM('NACTSYM','ALLO','INTE',NACTSYM, NGRP)
+      CALL mma_allocate(NACTSYM, NGRP,Label='NACTSYM')
       CALL GETMEM('ISMSCR','ALLO','INTE',ISMSCR, NGRP)
       call SMDFGP_GEN(NGRP,NSMST,MXPNSMST,NSTFSMGP,
-     &                iWork(NACTSYM),ISMDFGP)
+     &                NACTSYM,ISMDFGP)
 *
       IF(NTEST.GE.10) THEN
         write(6,*) 'NGRP', NGRP

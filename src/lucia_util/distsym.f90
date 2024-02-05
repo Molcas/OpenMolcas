@@ -10,6 +10,7 @@
 !***********************************************************************
 Module DISTSYM
 Private
-Integer,Public:: NACTSYM, ISMSCR, INGRP_VAL
+Integer,Public:: ISMSCR, INGRP_VAL
 Integer,Allocatable,Public:: ISMDFGP(:)
+Integer,Allocatable,Public:: NACTSYM(:)
 End Module DISTSYM
