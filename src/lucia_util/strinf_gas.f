@@ -125,7 +125,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
       INGRP_VAL = NGRP
       CALL mma_allocate(ISMDFGP, NSMST*NGRP,Label='ISMDFGP')
       CALL mma_allocate(NACTSYM, NGRP,Label='NACTSYM')
-      CALL GETMEM('ISMSCR','ALLO','INTE',ISMSCR, NGRP)
+      CALL mma_allocate(ISMSCR, NGRP,Label='ISMSCR')
       call SMDFGP_GEN(NGRP,NSMST,MXPNSMST,NSTFSMGP,
      &                NACTSYM,ISMDFGP)
 *

@@ -73,5 +73,5 @@
 * Allocated during strinf_gas call
       CALL mma_deallocate(ISMDFGP)
       CALL mma_deallocate(NACTSYM)
-      CALL GETMEM('ISMSCR','FREE','INTE',ISMSCR, NGRP)
+      CALL mma_deallocate(ISMSCR)
       END

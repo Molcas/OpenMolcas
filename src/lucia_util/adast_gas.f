@@ -56,7 +56,6 @@
 *./BIGGY
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
@@ -250,7 +249,7 @@ cGLM        ELSE
 *. Next distribution
           CALL NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,
      &                           ISMFGS,KSM,KFIRST,NONEW,
-     &                  ISMDFGP,NACTSYM,iWork(ISMSCR))
+     &                  ISMDFGP,NACTSYM,ISMSCR)
 cGLM          IF(NONEW.EQ.1) GOTO 9999
 cGLM        END IF
         IF(NTEST.GE.1000) THEN

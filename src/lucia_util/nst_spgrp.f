@@ -39,7 +39,6 @@
       DIMENSION NSTSGP(NSMST,*)
 *. Scratch
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
       INTEGER ISM(MXPNGAS),MNSM(MXPNGAS),MXSM(MXPNGAS)
 *
       NTEST = 0
@@ -68,8 +67,7 @@ cGLM     &                       IFIRST,  NONEW)
 * GLMJ Giovanni Li Manni modification  Feb/March 2012
          CALL NEXT_SYM_DISTR_NEW(NSMST,INGRP_VAL,IGRP,NGRP,
      &                           ISM,ISM_TOT,IFIRST,NONEW,
-     &                           ISMDFGP,NACTSYM,
-     &                           iWork(ISMSCR))
+     &                           ISMDFGP,NACTSYM,ISMSCR)
         IF(NONEW.EQ.0) THEN
           LDIST = 1
           DO JGRP = 1, NGRP
