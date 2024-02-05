@@ -757,7 +757,7 @@ c
 * THE SPLIT GRAPH GUGA CONVENTIONS AND PRINT IT.
 * C
 *
-* LW11: Temporary copy of a CI vector
+* CIV: Temporary copy of a CI vector
 *
       IF (IFINAL.EQ.2 .AND. NAC.GT.0 ) THEN
        IF (IPRLEV.ge.USUAL) THEN
@@ -775,7 +775,7 @@ c
        END IF
        Call GetMem('PrSel','Allo','Inte',LW12,nConf)
        Call iCopy(nConf,[0],0,iWork(LW12),1)
-       Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
+       Call mma_allocate(CIV,nConf,Label='CIV')
        iDisk = IADR15(4)
 
        if (.not.doDMRG) then
@@ -787,23 +787,20 @@ c
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL last cycle',' ',
      &        Work(LW4),nConf)
-           Write(LF,*) ' WORK SPACE VARIABLES IN SUBR. CICTL: '
-           Write(LF,'(1x,A,2I10)') 'REORD',LW4,LW11
           END IF
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
          if(.not.iDoGas)then
           Call Reord2(NAC,NACTEL,STSYM,0,
      &                CONF,CFTP,
-     &                Work(LW4),Work(LW11),iWork(ivkcnf))
+     &                Work(LW4),CIV,iWork(ivkcnf))
 c        end if
 c         call getmem('kcnf','free','inte',ivkcnf,nactel)
 
 * save reorder CI vector on disk
 c         if(.not.iDoGas)then
-          Call DDafile(JOBIPH,1,Work(LW11),nConf,jDisk)
+          Call DDafile(JOBIPH,1,CIV,nConf,jDisk)
 #ifdef _HDF5_
-          call mh5_put_dset(wfn_cicoef,Work(LW11:LW11+nConf-1),
-     &                      [nconf,1],[0,i-1])
+          call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
 
 #endif
 c         else
@@ -827,7 +824,7 @@ c         end if
                 write(LuVecDet,'(8i4)') nish
               End If
               CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
-     &                    IWORK(LNOW),IWORK(LIOW),WORK(LW11))
+     &                    IWORK(LNOW),IWORK(LIOW),CIV)
 !     Close GronOR vecdet file (tps/cdg 20210430)
               If (KeyPRSD) close(LuVecDet)
             End If
@@ -866,25 +863,19 @@ C.. printout of the wave function
            call DVcPrt('CI-Vec in CICTL SplitCAS last cycle',' ',
      &        Work(LW4),nConf)
           END IF
-          IF (IPRLEV.GE.DEBUG) THEN
-           Write(LF,*) ' WORK SPACE VARIABLES IN SUBR. CICTL: '
-           Write(LF,'(1x,A,2I10)') 'REORD',LW4,LW11
-          END IF
 * reorder it according to the split graph GUGA conventions
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,0,
      &                CONF,CFTP,
-     &                Work(LW4),Work(LW11),iWork(ivkcnf))
+     &                Work(LW4),CIV,iWork(ivkcnf))
           call getmem('kcnf','free','inte',ivkcnf,nactel)
 * save reorder CI vector on disk
-          Call DDafile(JOBIPH,1,Work(LW11),nConf,jDisk)
+          Call DDafile(JOBIPH,1,CIV,nConf,jDisk)
 #ifdef _HDF5_
-          call mh5_put_dset(wfn_cicoef,Work(LW11:LW11+nConf-1),
-     &                      [nconf,1],[0,i-1])
+          call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
 #endif
           IF (IPRLEV.GE.DEBUG) THEN
-           call DVcPrt('CI-Vec in CICTL after Reord',' ',
-     &        Work(LW11),nConf)
+           call DVcPrt('CI-Vec in CICTL after Reord',' ',CIV,nConf)
           END IF
 * printout of the wave function
           IF (IPRLEV.GE.USUAL) THEN
@@ -902,7 +893,7 @@ C.. printout of the wave function
             call Molcas_open(LuVecDet,filename)
             write(LuVecDet,'(8i4)') nish
             CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
-     &           IWORK(LNOW),IWORK(LIOW),WORK(LW11))
+     &           IWORK(LNOW),IWORK(LIOW),CIV)
 !     Close GronOR vecdet file (tps/cdg 20210430)
             close(LuVecDet)
           END IF
@@ -910,7 +901,7 @@ C.. printout of the wave function
         endif
 
         Call GetMem('PrSel','Free','Inte',LW12,nConf)
-        Call GetMem('CIVtmp','Free','Real',LW11,nConf)
+        Call mma_deallocate(CIV)
       ENDIF
 
 #ifdef _DMRG_

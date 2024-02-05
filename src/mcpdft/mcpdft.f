@@ -468,7 +468,7 @@
         iDisk = IADR19(4)
         jDisk = IADR19(3)
 
-        Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
+        Call mma_allocate(CIV,nConf,Label='CIV')
         DO jRoot=1,lroots
           do i=1,nconf
             read(LUCT,*) Work(LW4-1+i)
@@ -477,8 +477,8 @@
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,1,
      &                CONF,CFTP,
-     &                Work(LW4),Work(LW11),iWork(ivkcnf))
-          Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
+     &                Work(LW4),CIV,iWork(ivkcnf))
+          Call dcopy_(nconf,CIV,1,Work(LW4),1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
           C_Pointer = Lw4
 !Andrew - changed here
@@ -604,7 +604,7 @@
           CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPR2)
           CALL mma_deallocate(PAtmp)
           CALL mma_deallocate(Pscr)
-          Call GetMem('CIVtmp','FREE','Real',LW11,nConf)
+          CALL mma_deallocate(CIV)
           Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
           Call MKGUGA_FREE_m
        end if
