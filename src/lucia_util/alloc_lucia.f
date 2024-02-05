@@ -82,7 +82,7 @@
 *.3 One-body density
       CALL mma_allocate(RHO1,NTOOB ** 2,Label='RHO1')
 *.3.1 : One-body spin density
-      CALL mma_allocate(RHO1,NTOOB **2,Label='SRHO1')
+      CALL mma_allocate(SRHO1,NTOOB **2,Label='SRHO1')
 *. indices for pair of orbitals symmetry ordered
 *. Lower half packed
       CALL GETMEM('KINH1  ','ALLO','INTE',KINH1,NTOOB*NTOOB)
