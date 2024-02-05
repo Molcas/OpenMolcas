@@ -85,7 +85,7 @@
       CALL mma_allocate(SRHO1,NTOOB **2,Label='SRHO1')
 *. indices for pair of orbitals symmetry ordered
 *. Lower half packed
-      CALL GETMEM('KINH1  ','ALLO','INTE',KINH1,NTOOB*NTOOB)
+      CALL mma_allocate(KINH1,NTOOB*NTOOB,Label='KINTH1')
 *. Complete form
       CALL mma_allocate(KINH1_NOCCSYM,NTOOB*NTOOB,
      &                  Label='KINTH1_NOCCSYM')

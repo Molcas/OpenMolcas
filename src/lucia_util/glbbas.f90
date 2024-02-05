@@ -12,7 +12,7 @@ Module GLBBAS
 Private
 #include "mxpdim.fh"
       Integer ::    KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
-     &              KSBIA,KSBIB,KPNIJ,KIJKK,    KINH1,                  &
+     &              KSBIA,KSBIB,KPNIJ,KIJKK,                            &
      &              KMOAOIN,KMOAOUT,NOCCLS_G,                           &
      &              KMOMO,                                              &
      &                            KINT2_SIMTRH,                         &
@@ -38,7 +38,7 @@ Private
       Type (iArray), Allocatable:: Z_PTDT(:), REO_PTDT(:)
       Integer, Allocatable:: LSM1(:), LSM2(:)
       Real*8,  Allocatable:: RHO1(:), SRHO1(:)
-      Integer, Allocatable:: KINH1_NOCCSYM(:)
+      Integer, Allocatable:: KINH1_NOCCSYM(:), KINH1(:)
 
       Integer, Allocatable:: KLOCCLS(:)
 

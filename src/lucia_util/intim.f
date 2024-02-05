@@ -22,7 +22,6 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "crun.fh"
 #include "clunit.fh"
 #include "lucinp.fh"
@@ -37,7 +36,7 @@
       CALL INTPNT(PINT1,LSM1,PINT2,LSM2)
 *
 *. Pointer for orbital indices for symmetry blocked matrices
-      CALL ORBINH1(iWORK(KINH1),KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
+      CALL ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 *
 *. Change one-electron integrals to inactive fock matrix
       IF(NOINT.EQ.0) THEN

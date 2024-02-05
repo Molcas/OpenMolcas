@@ -54,7 +54,7 @@
       CALL mma_deallocate(SRHO1)
 *. indices for pair of orbitals symmetry ordered
 *. Lower half packed
-      CALL GETMEM('KINH1  ','FREE','INTE',KINH1,NTOOB*NTOOB)
+      CALL mma_deallocate(KINH1)
 *. Complete form
       CALL mma_deallocate(KINH1_NOCCSYM)
 
