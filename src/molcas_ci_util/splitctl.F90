@@ -31,8 +31,8 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF, KCFTP, KDTOC
-use GLBBAS, only: DFTP
+use csfbas, only: CONF, KCFTP
+use GLBBAS, only: DFTP, DTOC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
@@ -154,7 +154,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       call mma_allocate(Scr,MXXWS,label='EXHSCR')
       MXSpli = iDimBlockA
       !nAAblock = MXSpli*(MXSpli+1)/2
-      call ipCSFSplit(Diag,IPCSFtot,IPCNFtot,nConf,MXSpli,Work(KDTOC),DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM), &
+      call ipCSFSplit(Diag,IPCSFtot,IPCNFtot,nConf,MXSpli,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM), &
                       NAEL+NBEL,NAEL,NBEL,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
       !call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Diag,nConf)
       call mma_deallocate(Scr)
@@ -178,7 +178,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       ! 'condition' goes to DiagOrd as a percentage if PerSplit
       if (EnerSplit) condition = gapSpli/auToeV
       if (PerSplit) condition = percSpli
-      call DiagOrd(Diag,DiagCNF,IPCSFtot,IPCNFtot,nConf,condition,ITER,Work(KDTOC),DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr, &
+      call DiagOrd(Diag,DiagCNF,IPCSFtot,IPCNFtot,nConf,condition,ITER,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr, &
                    NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS)
       if (DBG) then
         call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Diag,nConf)
@@ -239,7 +239,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       end if
       !call Compute_Umn(BVEC,NPCNF,NCNASM(STSYM),EnInSplit,NPCNF+1,1,DHAM)
       !call SPLITCSF(AABlock,EnInSplit,DHAM,
-      call get_Umn(AABlock,EnInSplit,DHAM,IPCSFtot,IPCNFtot,nconf,Work(KDTOC),DFTP,CONF,STSYM,HONE,ECORE,NAC, &
+      call get_Umn(AABlock,EnInSplit,DHAM,IPCSFtot,IPCNFtot,nconf,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC, &
                    NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,iDimBlockA,iDimBlockACNF,TUVX,iterSplit,ITER,IPRINT,ExFac,IREOTS)
       call xflush(u6)
       if (DBG) then
@@ -301,7 +301,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !TotSplitV(:) = Zero
       !call CmSplit(IPCSFtot,IPCNFtot,
       call cwtime(C_get_Cm1,W_get_Cm1)
-      call get_Cm(IPCSFtot,IPCNFtot,nConf,NCNASM(STSYM),iDimBlockA,iDimBlockACNF,SplitV(:,lRootSplit),EnFinSplit,Work(KDTOC), &
+      call get_Cm(IPCSFtot,IPCNFtot,nConf,NCNASM(STSYM),iDimBlockA,iDimBlockACNF,SplitV(:,lRootSplit),EnFinSplit,DTOC, &
                   DFTP,CONF,STSYM,HONE,ECORE,NAC,(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS,FordSplit,TotSplitV)
       call cwtime(C_get_Cm2,W_get_Cm2)
       C_get_Cm3 = C_get_Cm3+C_get_Cm2-C_get_Cm1
@@ -390,7 +390,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_maxDBLE(MXXWS)
     call mma_allocate(Scr,MXXWS,label='EXHSCR')
     call GET_IREOTS(IREOTS,NAC)
-    call PHPCSF(AABlock,iSel,IPCNF,MXSpli,Work(KDTOC),DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL, &
+    call PHPCSF(AABlock,iSel,IPCNF,MXSpli,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL, &
                 NBEL,iDimBlockA,iDimBlockACNF,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
     call mma_deallocate(Scr)
     if (DBG) then

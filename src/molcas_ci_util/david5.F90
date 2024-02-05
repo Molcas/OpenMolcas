@@ -13,7 +13,8 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTR
 
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 
-use csfbas, only: CONF, CTS, KCFTP, KDTOC
+use csfbas, only: CONF, CTS, KCFTP
+use glbbas, only: DTOC
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -182,13 +183,13 @@ do it_ci=1,mxItr
       ! Convert the CI-vector from CSF to Det. basis
       ctemp(1:nConf) = Vec1(:)
       sigtemp(:) = Zero
-      call csdtvc(ctemp,sigtemp,1,work(kdtoc),cts,stSym,1)
+      call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
       c_pointer = ip_of_Work(ctemp(1))
       ! Calling Lucia to determine the sigma vector
       call Lucia_Util('Sigma',iDummy,iDummy,Dummy)
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       iSigma_on_disk = 1
-      call CSDTVC(Tmp,ctemp,2,work(kdtoc),cts,stSym,1)
+      call CSDTVC(Tmp,ctemp,2,dtoc,cts,stSym,1)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)
