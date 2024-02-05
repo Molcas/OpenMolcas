@@ -56,7 +56,7 @@
 *. Lower half packed
       CALL GETMEM('KINH1  ','FREE','INTE',KINH1,NTOOB*NTOOB)
 *. Complete form
-      CALL GETMEM('KINH1  ','FREE','INTE',KINH1_NOCCSYM,NTOOB*NTOOB)
+      CALL mma_deallocate(KINH1_NOCCSYM)
 
 * arrays allocated at end of lucia
       LBLOCK = MXSOOB

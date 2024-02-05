@@ -15,8 +15,8 @@ Private
      &              KSBIA,KSBIB,KPNIJ,KIJKK,    KINH1,                  &
      &              KMOAOIN,KMOAOUT,NOCCLS_G,                           &
      &              KMOMO,                                              &
-     &              KINT1_SIMTRH,KINT2_SIMTRH,                          &
-     &              KPINT1_SIMTRH,KPINT2_SIMTRH,KINH1_NOCCSYM
+     &                            KINT2_SIMTRH,                         &
+     &              KPINT1_SIMTRH,KPINT2_SIMTRH
       Real*8, Allocatable:: INT1(:), INT1O(:)
       Integer, Allocatable:: PINT1(:), PINT2(:)
       Real*8, Allocatable:: VEC3(:)
@@ -38,6 +38,7 @@ Private
       Type (iArray), Allocatable:: Z_PTDT(:), REO_PTDT(:)
       Integer, Allocatable:: LSM1(:), LSM2(:)
       Real*8,  Allocatable:: RHO1(:), SRHO1(:)
+      Integer, Allocatable:: KINH1_NOCCSYM(:)
 
       Integer, Allocatable:: KLOCCLS(:)
 

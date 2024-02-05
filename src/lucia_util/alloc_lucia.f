@@ -87,7 +87,8 @@
 *. Lower half packed
       CALL GETMEM('KINH1  ','ALLO','INTE',KINH1,NTOOB*NTOOB)
 *. Complete form
-      CALL GETMEM('KINH1  ','ALLO','INTE',KINH1_NOCCSYM,NTOOB*NTOOB)
+      CALL mma_allocate(KINH1_NOCCSYM,NTOOB*NTOOB,
+     &                  Label='KINTH1_NOCCSYM')
 *
       RETURN
       END
