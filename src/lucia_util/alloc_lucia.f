@@ -80,7 +80,7 @@
       CALL mma_allocate(LSM1,NBINT1,Label='LSM1')
       CALL mma_allocate(LSM2,NBINT2,Label='LSM2')
 *.3 One-body density
-      CALL GETMEM('RHO1  ','ALLO','REAL',KRHO1,NTOOB ** 2)
+      CALL mma_allocate(RHO1,NTOOB ** 2,Label='RHO1')
 *.3.1 : One-body spin density
       CALL GETMEM('SRHO1 ','ALLO','REAL',KSRHO1,NTOOB **2)
 *. indices for pair of orbitals symmetry ordered

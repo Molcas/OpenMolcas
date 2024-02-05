@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DENSI2_LUCIA(    I12,   RHO1,   RHO2,  RHO2S,  RHO2A,
+! temporary renaming of RHO1 to QHO1
+      SUBROUTINE DENSI2_LUCIA(    I12,   QHO1,   RHO2,  RHO2S,  RHO2A,
      &                              L,      R,    LUL,    LUR,  EXPS2,
      &                        IDOSRHO1, SRHO1, IPACK)
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -80,7 +81,7 @@ c      REAL*8 INPRDD
       REAL*8 L
       DIMENSION L(*),R(*)
 *.Output
-      DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
+      DIMENSION QHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
@@ -101,7 +102,7 @@ c      REAL*8 INPRDD
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
       ZERO = 0.0D0
-      CALL SETVEC(RHO1,ZERO ,NACOB ** 2 )
+      CALL SETVEC(QHO1,ZERO ,NACOB ** 2 )
       IF(I12.EQ.2) THEN
          IF(IPACK) THEN
 * If IPACK .EQ. .TRUE. then
@@ -338,7 +339,7 @@ c      END IF
      &                    'Internal error',' ')
       ELSE IF(ICISTR.GE.2) THEN
         S2_TERM1 = 0.0D0
-        CALL GASDN2_LUCIA(     I12,    RHO1,    RHO2,   RHO2S,   RHO2A,
+        CALL GASDN2_LUCIA(     I12,    QHO1,    RHO2,   RHO2S,   RHO2A,
      &                           L,       R,       L,     R,VEC3,
      &                    CIOIO,SIOIO,
      &                    ISMOST(1,ICSM),ISMOST(1,ISSM),
@@ -368,7 +369,7 @@ c      END IF
      &                    S2_TERM1, IUSE_PH,  IPHGAS,IDOSRHO1,   SRHO1,
      &                    IPACK)
 *
-        CALL GADSUM(RHO1,NACOB**2)
+        CALL GADSUM(QHO1,NACOB**2)
         IF(I12.EQ.2) THEN
           IF(IPACK) THEN
 * If IPACK .EQ. .TRUE. then
@@ -397,18 +398,18 @@ C     LBTR  LLEBTR LI1BTR LIBTR
 c      IF(IUSE_PH.EQ.1) THEN
 c*. Overlap between left and right vector
 c       XLR = INPRDD(L,R,LUR,LUL,1,-1)
-c       CALL RHO1_HH(RHO1,XLR)
+c       CALL RHO1_HH(QHO1,XLR)
 c      END IF
 
 * Natural Orbitals
-      CALL NATORB_LUCIA(RHO1,   NSMOB,  NTOOBS,  NACOBS,  NINOBS,IREOST,
+      CALL NATORB_LUCIA(QHO1,   NSMOB,  NTOOBS,  NACOBS,  NINOBS,IREOST,
      &                  XNATO,RHO1SM,OCCSM,NACOB,
      &                  RHO1P,IPRDEN)
 *
       IF(IPRDEN.GE.5) THEN
         WRITE(6,*) ' One-electron density matrix '
         WRITE(6,*) ' ============================'
-        CALL WRTMAT(RHO1,NTOOB,NTOOB,NTOOB,NTOOB)
+        CALL WRTMAT(QHO1,NTOOB,NTOOB,NTOOB,NTOOB)
         IF(I12.EQ.2) THEN
           WRITE(6,*) ' Two-electron density '
           CALL PRSYM(RHO2,NACOB**2)

@@ -110,7 +110,7 @@ c      END IF
          CALL densi2_lucia(1,work(lw6),dummy,dummy,dummy,
      &   vec1,vec2,lusc1,luhc,exps2,1,work(lw7),IPACK)
       ELSE
-         CALL densi2_lucia(2,work(krho1),dummy,Work(lw8),Work(lw9),
+         CALL densi2_lucia(2,rho1,dummy,Work(lw8),Work(lw9),
      &   vec1,vec2,lusc1,luhc,exps2,1,work(ksrho1),IPACK)
       END IF
 
@@ -118,7 +118,7 @@ c      END IF
 * Explanation of calling parameters
 *
 C      2      : DONE!!! - Calculate both one and two body densities.
-C      krho1  : DONE!!! - Output - include in module glbbas
+C      rho1  : DONE!!! - Output - include in module glbbas
 C      krho2  : DONE!!! - Output - include in moduke glbbas
 C      vec1  : DONE!!! - CI-vector
 C      vec2  : DONE!!! - Sigma-vector
@@ -131,7 +131,7 @@ C      ksrho1 : DONE!!! - Comming with module glbbas
       IF (.not.tdm) THEN
 *        Save densities in trigonal format for use in Molcas
 *
-         CALL TriPak(work(krho1), work(lw6), 1, ntoob, ntoob)
+         CALL TriPak(rho1, work(lw6), 1, ntoob, ntoob)
          CALL TriPak(work(ksrho1), work(lw7), 1, ntoob, ntoob)
       END IF
 *

@@ -49,7 +49,7 @@
       CALL mma_deallocate(LSM1)
       CALL mma_deallocate(LSM2)
 *.3 One-body density
-      CALL GETMEM('RHO1  ','FREE','REAL',KRHO1,NTOOB ** 2)
+      CALL mma_deallocate(RHO1)
 *.3.1 : One-body spin density
       CALL GETMEM('SRHO1 ','FREE','REAL',KSRHO1,NTOOB **2)
 *. indices for pair of orbitals symmetry ordered

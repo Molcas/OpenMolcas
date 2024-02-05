@@ -11,8 +11,7 @@
 Module GLBBAS
 Private
 #include "mxpdim.fh"
-      Integer ::                                          KRHO1,        &
-     &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
+      Integer ::    KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB,KPNIJ,KIJKK,    KINH1,                  &
      &              KMOAOIN,KMOAOUT,NOCCLS_G,                           &
      &              KMOMO,KSRHO1,                                       &
@@ -38,10 +37,11 @@ Private
      &                  PGINT1A(MXPOBS), PGINT1(MXPOBS)
       Type (iArray), Allocatable:: Z_PTDT(:), REO_PTDT(:)
       Integer, Allocatable:: LSM1(:), LSM2(:)
+      Real*8,  Allocatable:: RHO1(:)
 
       Integer, Allocatable:: KLOCCLS(:)
 
-      Public         INT1,       PINT1, PINT2, LSM1, LSM2,KRHO1,        &
+      Public         INT1,       PINT1, PINT2, LSM1, LSM2, RHO1,        &
      &              KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,             &
      &              KSBIA,KSBIB, VEC3,KPNIJ,KIJKK,    KINH1,            &
      &              KMOAOIN,KMOAOUT,KLOCCLS,NOCCLS_G, PGINT1,           &
