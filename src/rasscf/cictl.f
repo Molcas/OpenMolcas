@@ -292,7 +292,7 @@ C Local print level (if any)
                 if(doDMRG)then
 #ifdef _DMRG_
                 ! copy the DMs from d1rf/d2rf for ipcmroot
-                call dcopy_(NACPAR,work(lw_rf1),1,work(lw6),1)
+                call dcopy_(NACPAR,rf1,1,work(lw6),1)
                 if (twordm_qcm) then
                   call dcopy_(NACPR2,rf2,1,work(lw8),1)
                 end if
@@ -497,7 +497,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 
              ! For PCM calculations: copy RDMs for the PCM root
              if (PCM_On()) then
-               call dcopy_(NACPAR,d1all(:,ipcmroot),1,work(lw_rf1),1)
+               call dcopy_(NACPAR,d1all(:,ipcmroot),1,rf1,1)
                if (twordm_qcm) then
                  call dcopy_(NACPR2,d2all(:,ipcmroot),1,rf2,1)
                end if

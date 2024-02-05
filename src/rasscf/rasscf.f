@@ -310,7 +310,7 @@
 #ifdef _DMRG_
 * Allocate RDMs for the reaction field reference root in QCMaquis calculations
       if (doDMRG.and.PCM_On()) then
-        Call GetMem('D1RF','Allo','Real',LW_RF1,NACPAR)
+        Call mma_allocate(RF1,NACPAR,Label='RF1')
         if (twordm_qcm) then
           Call mma_allocate(RF2,NACPR2,Label='RF2')
         end if
@@ -2011,7 +2011,7 @@ c  i_root>0 gives natural spin orbitals for that root
 #ifdef _DMRG_
 * Free RDMs for the reaction field reference root in QCMaquis calculations
       if (doDMRG.and.PCM_On()) then
-        Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
+        Call mma_deallocate(RF1)
         if (twordm_qcm) then
           Call mma_deallocate(RF2)
         end if
