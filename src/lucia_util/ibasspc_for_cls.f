@@ -85,7 +85,6 @@ CTOBE       INCLUDE 'implicit.fh'
 CTOBE       INCLUDE 'mxpdim.fh'
 CTOBE       INCLUDE 'gasstr.fh'
 CTOBE       INCLUDE 'cgas.fh'
-CTOBE       INCLUDE 'WrkSpc.fh'
 CTOBE *. Input
 CTOBE       INTEGER ISPSPCLS(NOCTPA,NOCTPB)
 CTOBE *. Output

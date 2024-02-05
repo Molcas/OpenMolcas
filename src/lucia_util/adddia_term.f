@@ -22,7 +22,6 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *
-#include "WrkSpc.fh"
 #include "mxpdim.fh"
 #include "strinp.fh"
 #include "orbinp.fh"

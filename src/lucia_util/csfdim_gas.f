@@ -33,7 +33,6 @@
 
 #include "implicit.fh"
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
 #include "cgas.fh"

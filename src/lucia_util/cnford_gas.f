@@ -29,7 +29,6 @@
 #include "implicit.fh"
 #include "mxpdim.fh"
 #include "spinfo_lucia.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cgas.fh"
 *. Specific input

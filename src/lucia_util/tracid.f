@@ -26,7 +26,6 @@
 * each transformation is
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "oper.fh"
 #include "intform.fh"
 #include "lucinp.fh"

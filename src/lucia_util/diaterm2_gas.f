@@ -35,7 +35,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "cprnt.fh"
 #include "cgas.fh"
 #include "gasstr.fh"

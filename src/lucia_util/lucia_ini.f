@@ -26,7 +26,6 @@ C Input from RASSCF
 #include "oper.fh"
 #include "orbinp.fh"
 #include "gasstr.fh"
-#include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
 #include "memman.fh"
 C Other definitions

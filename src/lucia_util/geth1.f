@@ -27,7 +27,6 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 *.Global pointers
 #include "lucinp.fh"
 #include "orbinp.fh"

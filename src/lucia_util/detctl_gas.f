@@ -37,7 +37,6 @@
 #include "csm.fh"
 #include "spinfo_lucia.fh"
 #include "strinp.fh"
-#include "WrkSpc.fh"
 #include "lucinp.fh"
 #include "rasscf_lucia.fh"
 
@@ -275,7 +274,6 @@ c      END IF
 #include "csm.fh"
 #include "spinfo_lucia.fh"
 #include "strinp.fh"
-#include "WrkSpc.fh"
 #include "lucinp.fh"
 #include "rasscf_lucia.fh"
 

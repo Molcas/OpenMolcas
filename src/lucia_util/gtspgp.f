@@ -30,7 +30,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *. Generel input
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "stinf.fh"
 #include "cgas.fh"
 #include "gasstr.fh"

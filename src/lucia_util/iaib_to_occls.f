@@ -22,7 +22,6 @@
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
-#include "WrkSpc.fh"
 *. Local scratch
       INTEGER IABOCC(MXPNGAS)
 *

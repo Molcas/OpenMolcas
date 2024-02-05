@@ -26,7 +26,6 @@
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 *. Input
       DIMENSION IGRP(NIGRP)
 *.Output

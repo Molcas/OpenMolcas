@@ -81,7 +81,6 @@
 *
 *
       IMPLICIT REAL*8(A-H,O-Z)
-#include "WrkSpc.fh"
 #include "loff.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)

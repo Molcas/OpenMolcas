@@ -65,7 +65,7 @@ c     &CALL MEMMAN(KLCVST,NSMST,'ADDL  ',2,'KLCVST')
 *. Obtain array giving symmetry of sigma v reflection times string
 *. symmetry.
 c      IF(IDC.EQ.3.OR.IDC.EQ.4)
-c     &CALL SIGVST(WORK(KLCVST),NSMST)
+c     &CALL SIGVST(CVST,NSMST)
 
 *. Array defining symmetry combinations of internal strings
 *. Number of internal dets for each symmetry

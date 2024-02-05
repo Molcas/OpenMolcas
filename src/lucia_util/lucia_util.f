@@ -67,7 +67,6 @@
 #include "spinfo_lucia.fh"
 #include "stinf.fh"
 #include "strinp.fh"
-#include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
       Integer, Allocatable:: lVec(:)
 *

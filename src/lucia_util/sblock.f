@@ -55,7 +55,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "crun.fh"
 #include "gasstr.fh"
 #include "cgas.fh"

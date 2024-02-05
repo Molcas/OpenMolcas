@@ -65,7 +65,6 @@ c      REAL*8 INPRDD
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "crun.fh"
 #include "cgas.fh"
 #include "gasstr.fh"

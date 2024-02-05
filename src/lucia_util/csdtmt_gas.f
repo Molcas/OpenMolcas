@@ -32,7 +32,6 @@
 #include "implicit.fh"
 #include "mxpdim.fh"
 #include "spinfo_lucia.fh"
-#include "WrkSpc.fh"
 #include "cstate.fh"
 *. Output
       Real*8,  Allocatable:: LSCR1(:)

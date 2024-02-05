@@ -17,7 +17,6 @@
 *. Dec 97 : obtained from INT1O
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
       DIMENSION H1DIA(*)
 
 *.GLobal pointers

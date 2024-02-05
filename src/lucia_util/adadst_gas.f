@@ -49,8 +49,6 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-*./BIGGY
-#include "WrkSpc.fh"
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
