@@ -606,7 +606,7 @@ if (MPI)
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
   # MPICH and GCC > 10.0 requires explicit MPI interface
-  if (MPI_IMPLEMENTATION STREQUAL "mpich" AND
+  if ((MPI_IMPLEMENTATION STREQUAL "mpich" OR MPI_IMPLEMENTATION STREQUAL "impi") AND
       CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
       CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
     add_compile_definitions (_NEED_EXPLICIT_MPI_INTERFACE_)
@@ -1296,6 +1296,10 @@ if (GA AND MPI)
           -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
           -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
           -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+          -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+          -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+          -D GCCROOT=${GCCROOT}
+          -D CMAKE_INSTALL_LIBDIR=lib
           -D ENABLE_FORTRAN=ON
           -D ENABLE_CXX=OFF
           -D ENABLE_TESTS=OFF
@@ -1851,12 +1855,16 @@ if (EFPLIB)
     )
     set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
-    ExternalProject_Get_Property (efplib BINARY_DIR)
+    ExternalProject_Get_Property (${projname} BINARY_DIR)
     set (proj_bin ${BINARY_DIR})
     link_directories (${proj_bin})
     list (APPEND EXTERNAL_PROJECTS ${projname})
 
     list (APPEND integral_util_incs ${proj}/interface)
+
+    if (LINALG STREQUAL "Internal")
+      add_dependencies (${EP_PROJECT} ${LINALG_LIBRARIES})
+    endif ()
 
     set (EFP_LIBRARIES efp)
 
@@ -1865,7 +1873,7 @@ if (EFPLIB)
     list (APPEND EXTERNAL_LIBRARIES ${EFP_LIBRARIES})
     add_compile_definitions (_EFP_)
   else ()
-    message ("-- EFP interface ignored (source not available, run git submodule update --init ${proj}\")")
+    message ("-- EFP interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
   endif ()
 else ()
   message ("EFP interface DISABLED")

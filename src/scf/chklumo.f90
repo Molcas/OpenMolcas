@@ -230,7 +230,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !----------------------------------------------------------------------*
       If(Abs(qa+qb+Tot_el_charge).gt.half) Then
 #ifdef _DEBUGPRINT_
-         Write(6,*) 'chklumo: System have changed charge!'
+         Write(6,*) 'chklumo: System has changed charge!'
 #endif
          Occset=.false.
          FermSet=.true.

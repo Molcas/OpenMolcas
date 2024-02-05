@@ -30,10 +30,11 @@
       real(c_double), intent(out):: field(3,n_pt)
       type(c_ptr) :: user_field
 
-      type(c_ptr) :: user_field, Dummy
+      type(c_ptr) :: Dummy
       real*8, Allocatable:: D1ao(:)
       Logical Found
       integer(c_size_t) :: nCmp, nOrdOp
+      integer :: nDens
 !
       Dummy=user_field
 !
