@@ -47,7 +47,8 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF, KDFTP, KDTOC
+use csfbas, only: CONF, KDTOC
+use GLBBAS, only: DFTP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -100,7 +101,7 @@ call mma_allocate(IREOTS,NAC,label='IREOTS')
 call mma_maxDBLE(MXXWS)
 call mma_allocate(Scr,MXXWS,label='EXHSCR')
 call GET_IREOTS(IREOTS,NAC)
-call PHPCSF(EXHAM,ISEL,CNF,MXXSEL,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL, &
+call PHPCSF(EXHAM,ISEL,CNF,MXXSEL,Work(KDTOC),DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL, &
             NPCNF,DIAG,TUVX,IPRINT,ExFac,IREOTS)
 if (IPRLEV == INSANE) then
   call Square(EXHAM,EXPLV,1,NSEL,NSEL)

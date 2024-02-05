@@ -237,10 +237,9 @@ c      IF(ISIMSYM.EQ.0) THEN
          MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA + 4*MAX_STR_SPGP
 c      END IF
 *
-      kDFTP=ip_of_iWork(DFTP(1))
       kCFTP=ip_of_iWork(CFTP(1))
       kDTOC=ip_of_Work(DTOC(1))
-      CALL LUCIA2MOLCAS(kdftp,kcftp,kdtoc,
+      CALL LUCIA2MOLCAS(kcftp,kdtoc,
      &     CONF_OCC(jsym)%I,SDREO_I(jsym)%I,
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
      &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
