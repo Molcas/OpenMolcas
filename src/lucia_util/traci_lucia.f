@@ -43,8 +43,8 @@
 *. Common block for communicating with sigma
 #include "cands.fh"
 *
-      DIMENSION X(*),VEC1(*),VEC2(*)
-      Real*8, Allocatable:: LSCR(:), LT(:)
+      Real*8 X(*),VEC1(*),VEC2(*)
+      Real*8, Allocatable:: SCR(:), LT(:)
 * Some dummy initializations
       IOFF = 0 ! jwk-cleanup
 *
@@ -60,7 +60,7 @@
 * for a matrix T
       Call mma_allocate(LT,NTOOB**2,Label='LT')
 *. Scratch in PAMTMT
-      Call mma_allocate(LSCR,NTOOB**2 + NTOOB*(NTOOB+1)/2, Label='LSCR')
+      Call mma_allocate(SCR,NTOOB**2 + NTOOB*(NTOOB+1)/2, Label='SCR')
 *. Obtain T matrix used for transformation, for each symmetry separately
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
@@ -69,7 +69,7 @@
           IOFF = IOFF + NTOOBS(ISM-1)**2
         END IF
         IF(NTOOBS(ISM).GT.0) THEN
-         CALL PAMTMT(X(IOFF),LT(IOFF),LSCR,NTOOBS(ISM))
+         CALL PAMTMT(X(IOFF),LT(IOFF),SCR,NTOOBS(ISM))
         END IF
       END DO
 *. Transform CI-vector
@@ -81,7 +81,7 @@
       CALL TRACID(LT,    LUCIN,   LUCOUT,    LUSC1,    LUSC2,
      &                LUSC3,     VEC1,     VEC2)
 *
-      Call mma_deallocate(LSCR)
+      Call mma_deallocate(SCR)
       Call mma_deallocate(LT)
 *
 *
