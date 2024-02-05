@@ -456,13 +456,13 @@
         Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
         CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
         CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
-        CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
+        CALL mma_allocate(DStmp,NACPAR,Label='DStmp')
         CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
         CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
         CALL mma_allocate(Pscr,NACPR2,Label='Pscr')
 
         call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
-        call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+        DStmp(:)=0.0D0
         Ptmp(:)=0.0D0
         call dcopy_(NCONF,[0.0D0],0,WORK(LW4),1)
         iDisk = IADR19(4)
@@ -484,11 +484,11 @@
 !Andrew - changed here
           CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
           If (IFCAS > 2) Then
-            Call CISX_m(IDXSX,Work(LW6),Work(LW7),Ptmp,PAtmp,PScr)
+            Call CISX_m(IDXSX,Work(LW6),DStmp,Ptmp,PAtmp,PScr)
           End If
 
           Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
-          Call DDafile(JOBOLD,1,Work(LW7),NACPAR,jDisk)
+          Call DDafile(JOBOLD,1,DStmp,NACPAR,jDisk)
           Call DDafile(JOBOLD,1,Ptmp,NACPR2,jDisk)
           Call DDafile(JOBOLD,1,PAtmp,NACPR2,jDisk)
         end do
@@ -599,7 +599,7 @@
        if (doGSOR) then
           CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
           CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPAR)
-          CALL GETMEM('DStmp','FREE','REAL',LW7,NACPAR)
+          CALL mma_deallocate(DStmp)
           CALL mma_deallocate(Ptmp)
           CALL mma_deallocate(PAtmp)
           CALL mma_deallocate(Pscr)

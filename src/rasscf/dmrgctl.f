@@ -161,12 +161,12 @@ C Local print level (if any)
 *
 
            Call GetMem('Dtmp ','ALLO','REAL',LW6,NACPAR)
-           Call GetMem('DStmp','ALLO','REAL',LW7,NACPAR)
-           Call mma_allocate(Ptmp,NACPR2,Label='Ptmp'))
+           Call mma_allocate((DStmp,NACPAR,Label='DStmp')
+           Call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
            If ( NAC.ge.1 ) Then
               If (NACTEL.eq.0) THEN
                  call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
-                 call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+                 DStmp(:)=0.0D0
                  Ptmp(:)=0.0D0
               Else
 * load back 1- and 2-RDMs from previous DMRG run
@@ -174,26 +174,26 @@ C Local print level (if any)
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
                  CALL mma_allocate(Pscr,NACT4,Label='Pscr')
 #ifdef _ENABLE_BLOCK_DMRG_
-                 CALL block_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
+                 CALL block_densi_rasscf(IPCMRoot,Work(LW6),DStmp,
      &                                   Ptmp,PAtmp,Pscr)
 #elif _ENABLE_CHEMPS2_DMRG_
-                 CALL chemps2_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
+                 CALL chemps2_densi_rasscf(IPCMRoot,Work(LW6),DStmp,
      &                                     Ptmp,PAtmp,Pscr)
 #elif _ENABLE_DICE_SHCI_
-                 CALL dice_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
+                 CALL dice_densi_rasscf(IPCMRoot,Work(LW6),DStmp,
      &                                  Ptmp,PAtmp,Pscr)
 #endif
 
 * NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
 c                If (IFCAS.GT.2) Call CISX(IDXSX,Work(LW6),
-c    &                                     Work(LW7),Ptmp,PAtmp,Pscr)
+c    &                                     DStmp,Ptmp,PAtmp,Pscr)
                  Call mma_deallocate(Pscr)
                  Call mma_deallocate(PAtmp)
               EndIf
 *
            Else
               call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
-              call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+              DStmp(:)=0.0D0
               Ptmp(:)=0.0D0
            End If
 * Modify the symmetric 2-particle density if only partial
@@ -204,7 +204,7 @@ c          n_paired_elec=nActEl-n_unpaired_elec
 c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            If (ExFac.ne.1.0D0) Call Mod_P2(Ptmp,NACPR2,
      &                                   Work(LW6),NACPAR,
-     &                                   Work(LW7),ExFac,n_Det)
+     &                                   DStmp,ExFac,n_Det)
 *
            Call Put_dArray('P2mo',Ptmp,NACPR2) ! Put it on the RUNFILE
 *
@@ -214,10 +214,10 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LW6))
            Call Get_D1A_RASSCF(CMO,Work(LW6),Work(LRCT_F))
 *
-           IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LW7))
-           Call Get_D1A_RASSCF(CMO,Work(LW7),Work(LRCT_FS))
+           IF ( NASH(1).NE.NAC ) CALL DBLOCK(DStmp)
+           Call Get_D1A_RASSCF(CMO,DStmp,Work(LRCT_FS))
 *
-           Call GetMem('DStmp','FREE','REAL',LW7,NACPAR)
+           Call mma_deallocate(DStmp)
            Call GetMem('Dtmp ','FREE','REAL',LW6,NACPAR)
 *
            Call SGFCIN(CMO,Work(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
@@ -292,7 +292,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * C
 *
 * LW6: ONE-BODY DENSITY
-* LW7: ONE-BODY SPIN DENSITY
+* DStmp: ONE-BODY SPIN DENSITY
 * Ptmp: SYMMETRIC TWO-BODY DENSITY
 * PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 *
@@ -303,7 +303,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
       Call dCopy_(NACPR2,[Zero],0,P,1)
       Call dCopy_(NACPR2,[Zero],0,PA,1)
       CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
-      CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
+      CALL mma_allocate(DStmp,NACPAR,Label='DStmp'))
       CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
       CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
       jDisk = IADR15(3)
@@ -314,14 +314,12 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
           NACT4=NAC**4
           CALL mma_allocate(Pscr,NACT4,Label='Pscr')
 #ifdef _ENABLE_BLOCK_DMRG_
-          CALL block_densi_rasscf(jRoot,Work(LW6),Work(LW7),
-     &                            Ptmp,PAtmp,Pscr)
+          CALL block_densi_rasscf(jRoot,Work(LW6),DStmp,Ptmp,PAtmp,Pscr)
 #elif _ENABLE_CHEMPS2_DMRG_
-          CALL chemps2_densi_rasscf(jRoot,Work(LW6),Work(LW7),
+          CALL chemps2_densi_rasscf(jRoot,Work(LW6),DStmp,
      &                              Ptmp,PAtmp,Pscr)
 #elif _ENABLE_DICE_SHCI_
-          CALL dice_densi_rasscf(jRoot,Work(LW6),Work(LW7),
-     &                           Ptmp,PAtmp,Pscr)
+          CALL dice_densi_rasscf(jRoot,Work(LW6),DStmp,Ptmp,PAtmp,Pscr)
 #endif
           Call mma_deallocate(Pscf)
         EndIf
@@ -342,7 +340,7 @@ c
 c
         If (ExFac.ne.1.0D0) Call Mod_P2(Ptmp,NACPR2,
      &                                Work(LW6),NACPAR,
-     &                                Work(LW7),ExFac,n_Det)
+     &                                DStmp,ExFac,n_Det)
 
 * update average density matrices
         Scal = 0.0d0
@@ -352,19 +350,19 @@ c
           End If
         End Do
         call daxpy_(NACPAR,Scal,Work(LW6),1,D,1)
-        call daxpy_(NACPAR,Scal,Work(LW7),1,DS,1)
+        call daxpy_(NACPAR,Scal,DStmp,1,DS,1)
         call daxpy_(NACPR2,Scal,Ptmp,1,P,1)
         call daxpy_(NACPR2,Scal,PAtmp,1,PA,1)
 * save density matrices on disk
         Call DDafile(JOBIPH,1,Work(LW6),NACPAR,jDisk)
-        Call DDafile(JOBIPH,1,Work(LW7),NACPAR,jDisk)
+        Call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
         Call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
         Call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
       End Do
 
       Call mma_deallocate(PAtmp)
       Call mma_deallocate(Ptmp)
-      CALL GETMEM('DStmp','FREE','REAL',LW7,NACPR2)
+      Call mma_deallocate(DStmp)
       CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPR2)
 *
 * C

@@ -100,6 +100,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 ************************************************************************
 
       Subroutine CalcGD(GD,nGD)
+      use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -114,16 +115,16 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       INTEGER tlw6,tlw7,ldtmp,lsdtmp
       INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2
       REAL*8 Dummy(1)
+      Real*8, Allocatable:: SDtmp(:)
 
       NAC2=NAC**2
       tlw6=lw6
-      tlw7=lw7
       Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
       Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
       Call GetMem('Dtmp','ALLO','REAL',ldtmp,NAC**2)
-      Call GetMem('SDtmp','ALLO','REAL',lsdtmp,NAC**2)
+      Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
       lw6=ldtmp
-      lw7=lsdtmp
+      SDtmp(:)=DStmp(:)
       CIDisk1=IADR15(4)
       Do jRoot=1,lRoots
        Call DDafile(JOBIPH,2,Work(iVecL),nConf,CIDisk1)
@@ -155,12 +156,11 @@ C       CALL RecPrt(' ',' ',WORK(LW6),NAC,NAC)
        Call DCopy_(NAC2,WORK(LW6),1,GD(IOffNIJ1+1),1)
       End DO
       lw6=tlw6
-      lw7=tlw7
+      DStmp(:)=SDtmp(:)
+      Call mma_deallocate(SDtmp)
       Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
       Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
       Call GetMem('Dtmp','FREE','REAL',ldtmp,NAC**2)
-      Call GetMem('SDtmp','Free','REAL',lsdtmp,NAC**2)
-      RETURN
       END Subroutine
 ************************************************************************
 

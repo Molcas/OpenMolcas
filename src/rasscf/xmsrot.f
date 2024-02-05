@@ -149,6 +149,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 ******************************************************
       Subroutine GetGDMat(GDMat)
       use rasscf_lucia
+      use stdalloc, only: mma_allocate, mma_deallocate
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -162,14 +163,14 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
       INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
       INTEGER tlw6,tlw7,ldtmp,lsdtmp,NIJ2
       REAL*8 Dummy(1)
+      Real*8, Allocatable:: SDtmp(:)
       tlw6=lw6
-      tlw7=lw7
       Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
       Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
       Call GetMem('Dtmp','ALLO','REAL',ldtmp,NAC**2)
-      Call GetMem('SDtmp','ALLO','REAL',lsdtmp,NAC**2)
+      Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
+      SDtmp(:)=DStmp(:)
       lw6=ldtmp
-      lw7=lsdtmp
       CIDisk1=IADR15(4)
       Do jRoot=1,lRoots
        Call DDafile(JOBIPH,2,Work(iVecL),nConf,CIDisk1)
@@ -193,12 +194,11 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
        End Do
       End DO
       lw6=tlw6
-      lw7=tlw7
+      DStmp(:)=SDtmp(:)
+      Call mma_deallocate(SDtmp)
       Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
       Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
       Call GetMem('Dtmp','FREE','REAL',ldtmp,NAC**2)
-      Call GetMem('SDtmp','Free','REAL',lsdtmp,NAC**2)
-      RETURN
       END Subroutine
 
 ******************************************************
