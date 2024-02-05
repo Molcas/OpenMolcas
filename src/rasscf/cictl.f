@@ -773,8 +773,8 @@ c
         Write(6,'(6x,A)')
      &     'has been made, which may change the order of the CSFs.'
        END IF
-       Call GetMem('PrSel','Allo','Inte',LW12,nConf)
-       Call iCopy(nConf,[0],0,iWork(LW12),1)
+       Call mma_allocate(PrSel,nConf,Label='PrSel')
+       PrSel(:)=0
        Call mma_allocate(CIV,nConf,Label='CIV')
        iDisk = IADR15(4)
 
@@ -823,7 +823,7 @@ c         end if
                 call Molcas_open(LuVecDet,filename)
                 write(LuVecDet,'(8i4)') nish
               End If
-              CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
+              CALL SGPRWF(PrSel,IWORK(LNOCSF),IWORK(LIOCSF),
      &                    IWORK(LNOW),IWORK(LIOW),CIV)
 !     Close GronOR vecdet file (tps/cdg 20210430)
               If (KeyPRSD) close(LuVecDet)
@@ -846,7 +846,7 @@ C.. printout of the wave function
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
 
-            call gasprwf(iwork(lw12),nac,nactel,stsym,conf,
+            call gasprwf(PrSel,nac,nactel,stsym,conf,
      c           cftp,work(lw4),iwork(ivkcnf))
           End If
          end if
@@ -892,7 +892,7 @@ C.. printout of the wave function
             LuVecDet=IsFreeUnit(LuVecDet)
             call Molcas_open(LuVecDet,filename)
             write(LuVecDet,'(8i4)') nish
-            CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
+            CALL SGPRWF(PrSel,IWORK(LNOCSF),IWORK(LIOCSF),
      &           IWORK(LNOW),IWORK(LIOW),CIV)
 !     Close GronOR vecdet file (tps/cdg 20210430)
             close(LuVecDet)
@@ -900,7 +900,7 @@ C.. printout of the wave function
         END IF
         endif
 
-        Call GetMem('PrSel','Free','Inte',LW12,nConf)
+        Call mma_deallocate(PrSel)
         Call mma_deallocate(CIV)
       ENDIF
 
