@@ -18,7 +18,7 @@
 *
      &                           XI1S,          XINT,  NSMOB,
      &                          NSMST,    NSMDX,
-     &                           MXSXST, MXSXBL,   IMOC, SCLFAC,
+     &                          SCLFAC,
      &                         IPHGAS)
       use stdalloc, only: mma_allocate, mma_deallocate
 *
@@ -111,8 +111,6 @@ C-jwk-cleanup      DIMENSION IACAR(2),ITPAR(2)
       WRITE(6,*) ' ================'
       WRITE(6,*) ' RSBB2A speaking '
       WRITE(6,*) ' ================'
-      WRITE(6,*) ' MXSXST MXSXBL = ', MXSXST,MXSXBL
-      WRITE(6,*) ' RSBB2A : IMOC ', IMOC
       WRITE(6,*) ' ISOC and ICOC : '
       CALL IWRTMA(ISOC,1,NGAS,1,NGAS)
       CALL IWRTMA(ICOC,1,NGAS,1,NGAS)
