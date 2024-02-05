@@ -34,7 +34,7 @@
 *
 *. : Pointers for symmetry blocks of integrals
 *
-      CALL INTPNT(PINT1,iWORK(KLSM1),
+      CALL INTPNT(PINT1,LSM1,
      &            PINT2,iWORK(KLSM2))
 *
 *. Pointer for orbital indices for symmetry blocked matrices

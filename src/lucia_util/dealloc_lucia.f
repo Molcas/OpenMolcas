@@ -46,7 +46,7 @@
         CALL mma_deallocate(PGINT1A(ISM)%I)
       END DO
 *. Symmetry of last index as a function of initial index
-      CALL GETMEM('LSM1   ','FREE','INTE',KLSM1,NBINT1)
+      CALL mma_deallocate(LSM1)
       CALL GETMEM('LSM2   ','FREE','INTE',KLSM2,NBINT2)
 *.3 One-body density
       CALL GETMEM('RHO1  ','FREE','REAL',KRHO1,NTOOB ** 2)

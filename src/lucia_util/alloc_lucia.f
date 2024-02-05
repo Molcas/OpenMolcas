@@ -77,7 +77,7 @@
         CALL mma_allocate(PGINT1A(ISM)%I,NSMOB,Label='PGINT1A(ISM)%I')
       END DO
 *. Symmetry of last index as a function of initial index
-      CALL GETMEM('LSM1   ','ALLO','INTE',KLSM1,NBINT1)
+      CALL mma_allocate(LSM1,NBINT1,Label='LSM1')
       CALL GETMEM('LSM2   ','ALLO','INTE',KLSM2,NBINT2)
 *.3 One-body density
       CALL GETMEM('RHO1  ','ALLO','REAL',KRHO1,NTOOB ** 2)
