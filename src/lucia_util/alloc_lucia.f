@@ -57,7 +57,6 @@
       CALL mma_allocate(INT1,NTOOB ** 2,Label='INT1')
 *. A copy of the original UNMODIFIED 1-elecs ints
       CALL mma_allocate(INT1O,NTOOB ** 2,Label='Int1O')
-      kint1_pointer = ip_of_Work(INT1(1))
       kint1o_pointer = ip_of_Work(INT1O(1))
 *. Zero to avoid problems with elements that will not
 *. be initialized

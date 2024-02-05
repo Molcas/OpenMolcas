@@ -71,8 +71,6 @@
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
-#include "rasscf_lucia.fh"
-*^ needed for passing kint1_pointer
 *
 *
       Character*180  Line
