@@ -14,7 +14,6 @@
       use Local_Arrays, only: Deallocate_Local_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "clunit.fh"
 #include "crun.fh"
 #include "cicisp.fh"
@@ -54,8 +53,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       JDISK = JOBDISK
       DO JROOT = 1,NROOT
          CALL DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
-         CALL CSDTVC(VEC4,VEC1,1,WORK(KDTOC_POINTER),
-     &                    SDREO,ISSM,0)
+         CALL CSDTVC(VEC4,VEC1,1,DTOC,SDREO,ISSM,0)
          IF (NTEST .GE. 50) THEN
             Write(6,*) 'CI-vector written to disk for root = ',JROOT
             CALL WRTMAT(VEC1,1,20,1,20)
@@ -122,8 +120,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
 *. Transform CI vector : Input on LUHC, output on LUDIA (!)
         CALL COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
 *
-        CALL TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,
-     &             VEC1,VEC2)
+        CALL TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2)
       END DO
 *     ^ End of loop over roots
       IDISK(LUDIA)=0
@@ -140,7 +137,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
             WRITE(6,*) 'CI-Vector read from disk for root = ',JROOT
             CALL WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
          END IF
-         CALL CSDTVC(VEC2,VEC1,2,WORK(KDTOC_POINTER),SDREO,ISSM,0)
+         CALL CSDTVC(VEC2,VEC1,2,DTOC,SDREO,ISSM,0)
          CALL DDAFILE(JOBIPH,1,VEC2,NCONF,JOBDISK)
          CALL IFRMDS(I_DUMMY,1,LBLK,LUDIA)
       END DO
