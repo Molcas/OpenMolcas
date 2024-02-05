@@ -55,7 +55,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
       DO JROOT = 1,NROOT
          CALL DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
          CALL CSDTVC(VEC4,VEC1,1,WORK(KDTOC_POINTER),
-     &                    iWORK(KSDREO_POINTER),ISSM,0)
+     &                    SDREO,ISSM,0)
          IF (NTEST .GE. 50) THEN
             Write(6,*) 'CI-vector written to disk for root = ',JROOT
             CALL WRTMAT(VEC1,1,20,1,20)
@@ -140,8 +140,7 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
             WRITE(6,*) 'CI-Vector read from disk for root = ',JROOT
             CALL WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
          END IF
-         CALL CSDTVC(VEC2,VEC1,2,WORK(KDTOC_POINTER),
-     &               iWORK(KSDREO_POINTER),ISSM,0)
+         CALL CSDTVC(VEC2,VEC1,2,WORK(KDTOC_POINTER),SDREO,ISSM,0)
          CALL DDAFILE(JOBIPH,1,VEC2,NCONF,JOBDISK)
          CALL IFRMDS(I_DUMMY,1,LBLK,LUDIA)
       END DO

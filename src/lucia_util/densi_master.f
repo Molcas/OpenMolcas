@@ -49,13 +49,13 @@
          CALL mma_allocate(SCR4,NSD_PER_SYM(IREFSM),Label='SCR4')
          CALL COPVEC(WORK(rvec),SCR3,NCSF_PER_SYM(IREFSM))
          CALL CSDTVC(SCR3,SCR4,1,WORK(KDTOC_POINTER),
-     &               iWORK(KSDREO_POINTER), IREFSM, 1)
+     &               SDREO, IREFSM, 1)
          C_POINTER = ip_of_Work(SCR3(1))
          CALL CPCIVC(LUHC, MXNTTS, IREFSM, 1,lVec)
       END IF
       C_POINTER = ip_of_Work(SCR1(1))
       CALL CSDTVC(SCR1,SCR2,1,WORK(KDTOC_POINTER),
-     &     iWORK(KSDREO_POINTER), IREFSM, 1)
+     &     SDREO, IREFSM, 1)
       CALL CPCIVC(LUC, MXNTTS, IREFSM, 1,lVec)
       Call mma_deallocate(lVec)
 
@@ -135,8 +135,7 @@ C      srho1 : DONE!!! - Comming with module glbbas
          CALL TriPak(srho1, work(lw7), 1, ntoob, ntoob)
       END IF
 *
-      CALL CSDTVC(scr1,scr2,2,work(kdtoc_pointer),
-     &     iwork(KSDREO_POINTER), iRefSm, 1)
+      CALL CSDTVC(scr1,scr2,2,work(kdtoc_pointer),SDREO, iRefSm, 1)
       C_POINTER = iTmp_pointer
 *
       CALL mma_deallocate(SCR1)
