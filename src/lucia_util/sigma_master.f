@@ -33,8 +33,7 @@
          ECORE = ECORE_ORIG
       ENDIF
       INI_H0 = 0
-      NDIM = NTOOB**2
-      CALL COPVEC(WORK(KINT1O_POINTER),INT1,NDIM)
+      INT1(:)=INT1O(:)
       ECORE_ORIG = ECORE
 c      IF (IUSE_PH .EQ. 1) THEN
 c         CALL FI(INT1,ECORE_HEX,1)
@@ -96,8 +95,7 @@ c      END IF
          ECORE = ECORE_ORIG
       ENDIF
       INI_H0 = 0
-      NDIM = NTOOB**2
-      CALL COPVEC(WORK(KINT1O_POINTER),INT1,NDIM)
+      INT1(:)=INT1O(:)
       ECORE_ORIG = ECORE
 c      IF (IUSE_PH .EQ. 1) THEN
 c         CALL FI(INT1,ECORE_HEX,1)

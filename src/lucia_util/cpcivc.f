@@ -36,17 +36,16 @@
 *
       ioff = 0
       IF (iway.eq.1) then
-         NTEST = 0
-         IF (NTEST .GE. 100) THEN
-            write(6,*) 'Jesper: CI-vector put to disk:'
-            DO IREC = 1,NREC
-               IF(LREC(IREC) .GE. 0) THEN
-                  call wrtmat(work(c_pointer+ioff),1,lrec(irec),
-     &               1,lrec(irec))
-               ioff = ioff + lrec(irec)
-               ENDIF
-            ENDDO
-         ENDIF
+#ifdef _DEBUGPRINT_
+         write(6,*) 'Jesper: CI-vector put to disk:'
+         DO IREC = 1,NREC
+            IF(LREC(IREC) .GE. 0) THEN
+               call wrtmat(work(c_pointer+ioff),1,lrec(irec),
+     &            1,lrec(irec))
+            ioff = ioff + lrec(irec)
+            ENDIF
+         ENDDO
+#endif
 
          CALL todscn(work(c_pointer), nrec, lrec,
      &        -1, ifile)
@@ -60,7 +59,6 @@
          CALL frmdscn(work(c_pointer), nrec, -1, ifile)
       ENDIF
 *
-      RETURN
       END
 *
       SUBROUTINE cpsivc(ifile, mxrec, vec,lrec)
@@ -88,11 +86,10 @@
 *
       CALL frmdscn(vec, nrec, -1, ifile)
 *
-      RETURN
       END
 
       SUBROUTINE CP_ONE_INT(W1,NDIM)
-      use GLBBAS, only: INT1
+      use GLBBAS, only: INT1, INT1O
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION W1(NDIM)
 #include "mxpdim.fh"
@@ -102,7 +99,7 @@
 
       INT1(:)=0.0D0
       INT1(1:NDIM)=W1(1:NDIM)
-      CALL DCOPY_(NTOOB**2,INT1,1,Work(kint1o_pointer),1)
+      INT1O(:)=0.0D0
+      INT1O(:)=INT1(:)
 
-      Return
       End
