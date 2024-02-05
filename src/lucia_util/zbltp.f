@@ -19,9 +19,10 @@
 * = 2 : symmetry block is included , lower OO types
 *
 *. Input
-      DIMENSION ISMOST(*),IMMLST(*)
+      Integer MAXSYM, IDC
+      INTEGER ISMOST(MAXSYM),IMMLST(MAXSYM)
 *. Output
-      DIMENSION ICBLTP(*)
+      INTEGER ICBLTP(MAXSYM)
 *. Changed to simplify structure for IDC .le. 2
       IF(IDC.LE.2) THEN
 *. No spatial degeneracy

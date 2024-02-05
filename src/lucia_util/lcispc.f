@@ -36,7 +36,6 @@
 #include "stinf.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
-#include "WrkSpc.fh"
 *
 * ====================
 *. Output common block : XISPSM is calculated
@@ -44,7 +43,7 @@
 *
 #include "cicisp.fh"
 
-      Integer, Allocatable:: LBLTP(:), LIOIO(:)
+      Integer, Allocatable:: LBLTP(:), LIOIO(:), CVST(:)
 *
 *
 *. Number of spaces
@@ -58,14 +57,11 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
       NOCTPB =  NOCTYP(IBTP)
 *.Local memory
       CALL mma_allocate(LBLTP,NSMST,Label='LBLTP')
-      KLCVST=1
-c      IF(IDC.EQ.3 .OR. IDC .EQ. 4 )
-c     &CALL MEMMAN(KLCVST,NSMST,'ADDL  ',2,'KLCVST')
+      Call mma_allocate(CVST,NSMST,Label='CVST')
       CALL mma_allocate(LIOIO,NOCTPA*NOCTPB,Label='LIOIO')
 *. Obtain array giving symmetry of sigma v reflection times string
 *. symmetry.
-c      IF(IDC.EQ.3.OR.IDC.EQ.4)
-c     &CALL SIGVST(CVST,NSMST)
+c      IF(IDC.EQ.3.OR.IDC.EQ.4) CALL SIGVST(CVST,NSMST)
 
 *. Array defining symmetry combinations of internal strings
 *. Number of internal dets for each symmetry
@@ -80,8 +76,7 @@ c     &CALL SIGVST(CVST,NSMST)
       CALL IAIBCM(ICI,LIOIO)
 
       DO  50 ISYM = 1, NSMCI
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,
-     &               LBLTP,iWORK(KLCVST))
+          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,LBLTP,CVST)
           CALL NGASDT(IGSOCCX(1,1,ICI),IGSOCCX(1,2,ICI),
      &                NGAS,ISYM,NSMST,NOCTPA,NOCTPB,
      &                NSTSO(IATP)%I,NSTSO(IBTP)%I,
@@ -100,6 +95,7 @@ c     &CALL SIGVST(CVST,NSMST)
           LCOLIC(ISYM,ICI) = LCOL
    50 CONTINUE
       Call mma_deallocate(LBLTP)
+      Call mma_deallocate(CVST)
       Call mma_deallocate(LIOIO)
   100 CONTINUE
 *
