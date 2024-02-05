@@ -78,7 +78,7 @@
       END DO
 *. Symmetry of last index as a function of initial index
       CALL mma_allocate(LSM1,NBINT1,Label='LSM1')
-      CALL GETMEM('LSM2   ','ALLO','INTE',KLSM2,NBINT2)
+      CALL mma_allocate(LSM2,NBINT2,Label='LSM2')
 *.3 One-body density
       CALL GETMEM('RHO1  ','ALLO','REAL',KRHO1,NTOOB ** 2)
 *.3.1 : One-body spin density

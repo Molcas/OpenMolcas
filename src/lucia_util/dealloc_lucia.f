@@ -47,7 +47,7 @@
       END DO
 *. Symmetry of last index as a function of initial index
       CALL mma_deallocate(LSM1)
-      CALL GETMEM('LSM2   ','FREE','INTE',KLSM2,NBINT2)
+      CALL mma_deallocate(LSM2)
 *.3 One-body density
       CALL GETMEM('RHO1  ','FREE','REAL',KRHO1,NTOOB ** 2)
 *.3.1 : One-body spin density
