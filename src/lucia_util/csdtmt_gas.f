@@ -34,8 +34,8 @@
 #include "spinfo_lucia.fh"
 #include "cstate.fh"
 *. Output
-      Real*8,  Allocatable:: LSCR1(:)
-      Integer, Allocatable:: LSCR2(:)
+      Real*8,  Allocatable:: SCR1(:)
+      Integer, Allocatable:: iSCR2(:)
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRCSF)
@@ -49,7 +49,7 @@
      &MAX_DC
       LSCR = MAX(MAX_DC,MAXOP)
                 LSCR = MAX_DC*MAXOP+MAXOP
-      Call mma_allocate(LSCR1,LSCR,Label='LSCR1')
+      Call mma_allocate(SCR1,LSCR,Label='SCR1')
 *
 *
 * .. Set up combinations and upper determinants
@@ -136,7 +136,7 @@ C    &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
           LSCR = MAX(L,LSCR)
         END IF
       END DO
-      Call mma_allocate(LSCR2,LSCR,Label='LSCR2')
+      Call mma_allocate(iSCR2,LSCR,Label='iSCR2')
 *
       IDTBS = 1
 C-jwk      DO IOPEN = 0, MAXOP
@@ -157,7 +157,7 @@ C?      WRITE(6,*) ' IOPEN, IDET = ', IOPEN, IDET
      &                 REO_PTDT(ITP)%I,
      &                 DFTP(IDTBS),
 *
-     &                     IDET,LSCR2)
+     &                     IDET,iSCR2)
       END DO
 
 *
@@ -201,15 +201,15 @@ C       IF(NPCMCNF(ITP)*NPCSCNF(ITP).EQ.0) GOTO 30
      &                      CFTP(ICSBS),
      &                      NPCSCNF(ITP),
 *
-     &                      DTOC(ICDCBS),LSCR1,PSSIGN,IPRCSF)
+     &                      DTOC(ICDCBS),SCR1,SIZE(SCR1),PSSIGN,IPRCSF)
 C              CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,WORK,PSSIGN,
 C    &                IPRCSF)
         END IF
       END DO
 *     ^ End of loop over number of open shells
 *
-      Call mma_deallocate(LSCR1)
-      Call mma_deallocate(LSCR2)
+      Call mma_deallocate(SCR1)
+      Call mma_deallocate(iSCR2)
 *
       IF(NTEST.GE.10) THEN
         WRITE(6,*)  ' List of CSF-SD transformation matrices '

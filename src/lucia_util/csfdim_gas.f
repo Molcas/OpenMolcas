@@ -25,8 +25,6 @@
 *             DTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
 *             ONF_OCC%I(I) : SPACE FOR STORING  NCNSM
 *                        CONFIGURATION EXPANSIONS
-* Local memory requirements : IWORK(NACTOB)
-*
 * ( Spin signaled by PSSIGN in CIINFO)
 *
 * Adapted for GAS calculations and LUCIA, Dec. 2001
@@ -358,7 +356,6 @@ C
 
 #include "implicit.fh"
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
 #include "cgas.fh"
