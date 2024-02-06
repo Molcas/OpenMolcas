@@ -14,7 +14,7 @@
 
 subroutine applyh_cvb(civec)
 
-use casvb_global, only: icnt_ci, iform_ci, lw1_cvb, n_applyh, ncivb, ndet, nirrep
+use casvb_global, only: icnt_ci, iform_ci, n_applyh, ncivb, ndet, nirrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
