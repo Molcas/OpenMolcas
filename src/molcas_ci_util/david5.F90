@@ -43,8 +43,9 @@ real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, Dummy(1), E
                  ThrRes, updsiz, Z
 logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: vkcnf(:)
-real(kind=wp), allocatable :: Cs(:), ctemp(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
+real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
                               sigtemp(:), sgm(:,:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
+real(kind=wp), allocatable, target:: ctemp(:)
 real(kind=wp), allocatable, target :: Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 integer(kind=iwp), external :: ip_of_Work
@@ -184,7 +185,7 @@ do it_ci=1,mxItr
       ctemp(1:nConf) = Vec1(:)
       sigtemp(:) = Zero
       call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
-      c_pointer = ip_of_Work(ctemp(1))
+      c_pointer => ctemp
       ! Calling Lucia to determine the sigma vector
       call Lucia_Util('Sigma',iDummy,iDummy,Dummy)
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
@@ -556,6 +557,6 @@ call Timing(Alfex_2,dum1,dum2,dum3)
 Alfex_2 = Alfex_2-Alfex_1
 Alfex_3 = Alfex_3+Alfex_2
 
-return
+C_Pointer => Null()
 
 end subroutine David5

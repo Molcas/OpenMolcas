@@ -18,7 +18,6 @@
       implicit real*8 (a-h,o-z)
       dimension lrec(mxrec)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "general.fh"
 #include "rasscf.fh"
 #include "io_util.fh"
@@ -36,18 +35,18 @@
 *
       IF (iway.eq.1) then
 #ifdef _DEBUGPRINT_
-         ioff = 0
+         ioff = 1
          write(6,*) 'CI-vector put to disk:'
          DO IREC = 1,NREC
             IF(LREC(IREC) .GE. 0) THEN
-               call wrtmat(work(c_pointer+ioff),1,lrec(irec),
+               call wrtmat(c_pointer(ioff),1,lrec(irec),
      &            1,lrec(irec))
             ioff = ioff + lrec(irec)
             ENDIF
          ENDDO
 #endif
 
-         CALL todscn(work(c_pointer), nrec, lrec,
+         CALL todscn(c_pointer, nrec, lrec,
      &        -1, ifile)
          CALL itods([-1],1,-1,ifile)
 *
@@ -56,7 +55,7 @@
 *   ==============================
 *
       ELSE
-         CALL frmdscn(work(c_pointer), nrec, -1, ifile)
+         CALL frmdscn(c_pointer, nrec, -1, ifile)
       ENDIF
 *
       END
@@ -95,7 +94,6 @@
       DIMENSION W1(NDIM)
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "WrkSpc.fh"
 
       INT1(:)=0.0D0
       INT1(1:NDIM)=W1(1:NDIM)

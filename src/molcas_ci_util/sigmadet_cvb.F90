@@ -25,10 +25,11 @@ Integer, External:: ip_of_Work
 
 ! Export arguments to be used in sigma_master_cvb
 
-C_POINTER = ip_of_Work(CI_VEC(1))
+C_POINTER => CI_VEC
 CI_VEC(1:NCI)=C(1:NCI)
 ! Call the sigma routine
 call LUCIA_UTIL('SIGMA_CVB',IREFSM,IDUMMY,DUMMY)
 HC(1:NCI)=SIGMA_VEC(1:NCI)
+C_POINTER => Null()
 
 end subroutine SIGMADET_CVB

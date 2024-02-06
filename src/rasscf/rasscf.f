@@ -1863,7 +1863,7 @@ c Clean-close as much as you can the CASDFT stuff...
 #ifdef _HDF5_
          Call GetMem('TMP','ALLO','REAL',iTmp,NConf)
          Call mma_allocate(VecL,NConf,Label='VecL')
-         C_Pointer=ip_of_Work(VecL(1))
+         C_Pointer=>VecL
          Call mma_allocate(VecR,NConf,Label='VecR')
          iVecR=ip_of_Work(VecR(1))
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
@@ -1895,6 +1895,7 @@ c Clean-close as much as you can the CASDFT stuff...
             End Do
          End Do
          Call GetMem('TMP','FREE','REAL',iTmp,NConf)
+         C_Pointer=>Null()
          Call mma_deallocate(VecL)
          Call mma_deallocate(VecR)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)

@@ -121,6 +121,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 
       NAC2=NAC**2
       Call mma_allocate(VecL,NConf,Label='VecL')
+      C_Pointer=>VecL
       Call mma_allocate(VecR,NConf,Label='VecR')
       iVecR=ip_of_Work(VecR(1))
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
@@ -130,7 +131,6 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       CIDisk1=IADR15(4)
       Do jRoot=1,lRoots
        Call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
-       C_Pointer=ip_of_Work(VecL(1))
        CIDisk2=IADR15(4)
        Do kRoot=1,jRoot-1
         Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
@@ -163,6 +163,7 @@ C       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
       Call mma_deallocate(TmpD)
       Call mma_deallocate(VecL)
       Call mma_deallocate(VecR)
+      C_Pointer=>Null()
       END Subroutine
 ************************************************************************
 

@@ -479,7 +479,7 @@
      &                CONF,CFTP,CIVEC,CIV,iWork(ivkcnf))
           Call dcopy_(nconf,CIV,1,CIVEC,1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
-          C_Pointer = ip_of_Work(CIVEC(1))
+          C_Pointer => CIVEC
 !Andrew - changed here
           CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
           If (IFCAS > 2) Then

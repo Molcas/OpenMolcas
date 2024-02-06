@@ -169,7 +169,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 
 
       Call mma_allocate(VecL,NConf,Label='VecL')
-      C_Pointer=ip_of_Work(VecL(1))
+      C_Pointer=>VecL
       Call mma_allocate(VecR,NConf,Label='VecR')
       iVecR=ip_of_Work(VecR)
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
@@ -201,6 +201,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
       DTmp(:)=TmpD(:)
       Call mma_deallocate(SDtmp)
       Call mma_deallocate(TmpD)
+      C_Pointer=>Null()
       Call mma_deallocate(VecL)
       Call mma_deallocate(VecR)
       END Subroutine
