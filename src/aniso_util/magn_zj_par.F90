@@ -50,8 +50,10 @@ subroutine MAGN_ZJ_PAR(EXCH,N,X,Y,Z,H,W,zJ,dM,sM,nT,T,sopt,WZ,ZB,S,M,thrs,m_para
 ! mxIter--defines the maximal number of iterations for determination of the average spin
 !    ST -- value of the average spin of neighboring sites, Real(kind=8) :: (3) array;
 
+use Constants, only: Zero, cZero
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: EXCH, N, nT
 real(kind=8), intent(in) :: X, Y, Z, H, zJ
 real(kind=8), intent(in) :: W(EXCH), T(nT)
@@ -81,23 +83,23 @@ complex(kind=8), allocatable :: MZ(:,:,:) ! SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
 
 ! a few checks, before proceeding:
 do iT=1,nT
-  if (T(iT) == 0.0_wp) return
+  if (T(iT) == Zero) return
 end do
-if (H == 0.0_wp) return
+if (H == Zero) return
 if (N > EXCH) return
 
 ! allocate memory:
 call mma_allocate(WM,exch,'WM')
-call dcopy_(exch,[0.0_wp],0,WM,1)
+call dcopy_(exch,[Zero],0,WM,1)
 
 call mma_allocate(ZM,exch,exch,'ZM')
-call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,ZM,1)
+call zcopy_(exch*exch,[cZero],0,ZM,1)
 
 call mma_allocate(SZ,3,exch,exch,'SZ')
-call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,SZ,1)
+call zcopy_(3*exch*exch,[cZero],0,SZ,1)
 
 call mma_allocate(MZ,3,exch,exch,'MZ')
-call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,MZ,1)
+call zcopy_(3*exch*exch,[cZero],0,MZ,1)
 
 ! temporary arrays used in ZEEM_SA:
 call mma_allocate(RWORK,(3*N-2),'ZEEM_RWORK')
@@ -106,30 +108,30 @@ call mma_allocate(WORK,(2*N-1),'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
 
 ! zero everything:
-call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
-call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
-call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
-call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
+call dcopy_(3*N-2,[Zero],0,RWORK,1)
+call zcopy_(N*(N+1)/2,[cZero],0,HZEE,1)
+call zcopy_(2*N-1,[cZero],0,WORK,1)
+call zcopy_(N,[cZero],0,W_c,1)
 
 ! start calculations:
 ! code for the case (zJ /= 0):
-call dcopy_(nT,[0.0_wp],0,ZB,1)
-call dcopy_(3*nT,[0.0_wp],0,M,1)
-call dcopy_(3*nT,[0.0_wp],0,S,1)
+call dcopy_(nT,[Zero],0,ZB,1)
+call dcopy_(3*nT,[Zero],0,M,1)
+call dcopy_(3*nT,[Zero],0,S,1)
 
 do iT=1,nT
   ! determine first the average spin of neighboring
   ! molecules for each temperature point ST(1:3)
   if (m_paranoid) then
-    call dcopy_(3,[0.0_wp],0,ST,1)
-    call dcopy_(3,[0.0_wp],0,STsave,1)
+    call dcopy_(3,[Zero],0,ST,1)
+    call dcopy_(3,[Zero],0,STsave,1)
     call mean_field(EXCH,N,H,X,Y,Z,zJ,T(iT),W,thrs,DM,SM,ST,dbg)
     call dcopy_(3,ST,1,STsave,1)
   else
     ! i.e. when m_paranoid=.false.
     if (iT == 1) then
-      call dcopy_(3,[0.0_wp],0,ST,1)
-      call dcopy_(3,[0.0_wp],0,STsave,1)
+      call dcopy_(3,[Zero],0,ST,1)
+      call dcopy_(3,[Zero],0,STsave,1)
       call mean_field(EXCH,N,H,X,Y,Z,zJ,T(iT),W,thrs,DM,SM,ST,dbg)
       call dcopy_(3,ST,1,STsave,1)
     else
@@ -140,14 +142,14 @@ do iT=1,nT
   !---------------------------------------------------------------------
   ! here  we have the value of the averaged spin for this temperature
   ! proceed with the computation of magnetism for this temperature
-  if (DBG) write(6,'(A,3ES13.5)') 'Average spin finished. ST on entrance to last ZEEM:',(ST(i),i=1,3)
-  call dcopy_(exch,[0.0_wp],0,WM,1)
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,ZM,1)
+  if (DBG) write(u6,'(A,3ES13.5)') 'Average spin finished. ST on entrance to last ZEEM:',(ST(i),i=1,3)
+  call dcopy_(exch,[Zero],0,WM,1)
+  call zcopy_(exch*exch,[cZero],0,ZM,1)
 
   call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(1:3,1:N,1:N),sM(1:3,1:N,1:N),ST,zJ,WM(1:N),ZM(1:N,1:N),DBG,RWORK,HZEE,WORK,W_c)
 
   ! move WM energies to WZ:
-  call dcopy_(N,[0.0_wp],0,WZ,1)
+  call dcopy_(N,[Zero],0,WZ,1)
   call dcopy_(N,WM,1,WZ,1)
   ! /// calculation of matrix elements of spin momentum in the basis of Zeeman states
   if (N < EXCH) then
@@ -157,8 +159,8 @@ do iT=1,nT
   end if
 
   ! transform the momenta
-  call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,SZ,1)
-  call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,MZ,1)
+  call zcopy_(3*exch*exch,[cZero],0,SZ,1)
+  call zcopy_(3*exch*exch,[cZero],0,MZ,1)
   call UTMU(EXCH,N,ZM(1:N,1:N),SM,SZ)
   call UTMU(EXCH,N,ZM(1:N,1:N),DM,MZ)
 

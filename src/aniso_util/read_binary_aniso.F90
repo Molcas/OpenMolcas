@@ -11,8 +11,10 @@
 
 subroutine read_binary_aniso(nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,angmom,edmom,amfi,HSO)
 
+use Constants, only: Zero, cZero, gElectron
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: nss, nstate
 integer :: multiplicity(nstate)
 real(kind=8) :: eso(nss), esfs(nstate)
@@ -27,23 +29,22 @@ complex(kind=8) :: HSO(nss,nss)
 #include "stdalloc.fh"
 integer :: i, j, l
 integer :: luaniso, idisk, idum(1)
-real(kind=8) :: g_e
+real(kind=8), parameter :: g_e = 2.0023193043718_wp !IFG -gElectro
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
-g_e = 2.0023193043718_wp
 ! initialize:
 multiplicity = 0
-eso = 0.0_wp
-esfs = 0.0_wp
-angmom = 0.0_wp
-edmom = 0.0_wp
-amfi = 0.0_wp
-U = (0.0_wp,0.0_wp)
-MS = (0.0_wp,0.0_wp)
-ML = (0.0_wp,0.0_wp)
-MM = (0.0_wp,0.0_wp)
-DM = (0.0_wp,0.0_wp)
-HSO = (0.0_wp,0.0_wp)
+eso(:) = Zero
+esfs(:) = Zero
+angmom(:,:,:) = Zero
+edmom(:,:,:) = Zero
+amfi(:,:,:) = Zero
+U(:,:) = cZero
+MS(:,:,:) = cZero
+ML(:,:,:) = cZero
+MM(:,:,:) = cZero
+DM(:,:,:) = cZero
+HSO(:,:) = cZero
 luaniso = 8
 idisk = 0
 ! get the information from binary "$project.aniso" file:
@@ -61,8 +62,8 @@ call ddafile(luaniso,2,eso,nss,idisk)
 call ddafile(luaniso,2,esfs,nstate,idisk)
 
 ! spin-orbit mixing coefficients:
-tmpR = 0.0_wp
-tmpI = 0.0_wp
+tmpR(:,:) = Zero
+tmpI(:,:) = Zero
 call ddafile(luaniso,2,tmpR,nss**2,idisk)
 call ddafile(luaniso,2,tmpI,nss**2,idisk)
 do i=1,nss
@@ -72,8 +73,8 @@ do i=1,nss
 end do
 
 ! spin-orbit Hamiltonian
-tmpR = 0.0_wp
-tmpI = 0.0_wp
+tmpR(:,:) = Zero
+tmpI(:,:) = Zero
 call ddafile(luaniso,2,tmpR,nss**2,idisk)
 call ddafile(luaniso,2,tmpI,nss**2,idisk)
 do i=1,nss
@@ -91,8 +92,8 @@ call ddafile(luaniso,3,amfi,3*nstate*nstate,idisk)
 
 ! magnetic moment
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   call ddafile(luaniso,2,tmpR,nss**2,idisk)
   call ddafile(luaniso,2,tmpI,nss**2,idisk)
   do i=1,nss
@@ -104,8 +105,8 @@ end do
 
 ! spin moment
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   call ddafile(luaniso,2,tmpR,nss**2,idisk)
   call ddafile(luaniso,2,tmpI,nss**2,idisk)
   do i=1,nss
@@ -125,8 +126,8 @@ end do
 
 ! electric dipole moment
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   call ddafile(luaniso,2,tmpR,nss**2,idisk)
   call ddafile(luaniso,2,tmpI,nss**2,idisk)
   do i=1,nss

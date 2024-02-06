@@ -12,8 +12,9 @@
 subroutine MAGN(EXCH,N,X,Y,Z,H,W,zJ,THRS,dM,sM,nT,T,sopt,WZ,ZB,S,M,m_paranoid,DBG)
 ! this Subroutine is a wrapper for various MAGN subroutines
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: EXCH, N, nT
 real(kind=8), intent(in) :: X, Y, Z, H, zJ
 real(kind=8), intent(in) :: W(EXCH), T(nT)
@@ -26,21 +27,21 @@ real(kind=8), intent(in) :: THRS
 logical, intent(in) :: m_paranoid
 logical, intent(in) :: DBG
 
-if (abs(zJ) < tiny(0.0_wp)) then
+if (abs(zJ) < tiny(zJ)) then
 
-  if (DBG) write(6,*) 'Enter MAGN_NO_MF :'
+  if (DBG) write(u6,*) 'Enter MAGN_NO_MF :'
 
   call MAGN_NO_MF(EXCH,N,X,Y,Z,H,W,dM,sM,nT,T,sopt,WZ,ZB,S,M,DBG)
 
-  if (DBG) write(6,*) 'Exit MAGN_NO_MF :'
+  if (DBG) write(u6,*) 'Exit MAGN_NO_MF :'
 
-else ! zJ /= 0.0_wp
+else ! zJ /= 0.0
 
-  if (DBG) write(6,*) 'Enter MAGN_ZJ_PAR :'
+  if (DBG) write(u6,*) 'Enter MAGN_ZJ_PAR :'
 
   call MAGN_ZJ_PAR(EXCH,N,X,Y,Z,H,W,zJ,dM,sM,nT,T,sopt,WZ,ZB,S,M,thrs,m_paranoid,DBG)
 
-  if (DBG) write(6,*) 'Exit MAGN_ZJ_PAR :'
+  if (DBG) write(u6,*) 'Exit MAGN_ZJ_PAR :'
 
 end if
 

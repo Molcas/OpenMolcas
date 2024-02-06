@@ -25,8 +25,10 @@ subroutine pa_pseudo(M,S,dim,iopt,zfin,MF,SF,coord,iprint)
 ! MF(3,dim,dim) -- magnetic moment in the pseuDospin basis
 ! SF(3,dim,dim) -- spin moment in the pseuDospin basis
 
+use Constants, only: Zero, One, cOne
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: dim, info, i, j, k, l, i1, i2, iopt
 integer :: iprint
 real(kind=8) :: gtens(3), w(dim), maxes(3,3), det, FindDetR
@@ -42,32 +44,32 @@ external FindDetR
 ! set to zero important variables:
 ! choose the quantization axis:
 if (iopt == 1) then
-  gtens = 0.0_wp
-  maxes = 0.0_wp
+  gtens(:) = Zero
+  maxes(:,:) = Zero
   call atens(M,dim,gtens,maxes,2)
 
 else if (iopt == 2) then
-  gtens = 0.0_wp
-  maxes = 0.0_wp
+  gtens(:) = Zero
+  maxes(:,:) = Zero
   call atens(M(1:3,1:2,1:2),2,gtens,maxes,2)
 
 else if (iopt == 3) then
-  write(6,'(A)') 'User provided the COORD to the PA_PSEUDo:'
+  write(u6,'(A)') 'User provided the COORD to the PA_PSEUDo:'
 
 else if (iopt == 4) then
-  write(6,'(A)') 'COORD is set to unity'
-  coord = 0.0_wp
+  write(u6,'(A)') 'COORD is set to unity'
+  coord(:,:) = Zero
   do i=1,3
-    coord(i,i) = 1.0_wp
+    coord(i,i) = One
   end do
 else
-  write(6,'(A)') 'check the iopt parameter to PA_PSEUDo!!!'
+  write(u6,'(A)') 'check the iopt parameter to PA_PSEUDo!!!'
   !call Abort()
 end if
 !ccccccccccccccccccccccccccccccccccc
-write(6,'(A)') 'input "coord" matrix to PA_PSEUDo'
+write(u6,'(A)') 'input "coord" matrix to PA_PSEUDo'
 do i=1,3
-  write(6,'(3F20.14)') (coord(j,i),j=1,3)
+  write(u6,'(3F20.14)') (coord(j,i),j=1,3)
 end do
 ! check If "coord" is empty:
 call rZeroMatrix(coord2,3)
@@ -76,10 +78,9 @@ do i=1,3
     coord2(i,j) = coord(i,j)
   end do
 end do
-det = 0.0_wp
 det = FindDetR(coord2,3)
-write(6,'(A, f20.13)') 'det = ',det
-if (abs(det-1.0_wp) < 0.0001_wp) then  ! 'coord is not empty'
+write(u6,'(A, f20.13)') 'det = ',det
+if (abs(det-One) < 1.0e-4_wp) then  ! 'coord is not empty'
   call rZeroMatrix(maxes,3)
   do i=1,3
     do j=1,3
@@ -94,9 +95,9 @@ else                                   ! 'coord is empty'
     end do
   end do
 end if
-write(6,'(A)') 'Employed  axes for diagonalization of the Zeeman Hamiltonian:'
+write(u6,'(A)') 'Employed  axes for diagonalization of the Zeeman Hamiltonian:'
 do i=1,3
-  write(6,'(3F20.14)') (maxes(j,i),j=1,3)
+  write(u6,'(3F20.14)') (maxes(j,i),j=1,3)
 end do
 
 call cZeroMoment(s_so2,dim)
@@ -105,8 +106,8 @@ do l=1,3
   do i=1,dim
     do j=1,dim
       do k=1,3
-        dipso2(l,i,j) = dipso2(l,i,j)+M(k,i,j)*cmplx(maxes(k,l),0.0_wp,wp)
-        s_so2(l,i,j) = s_so2(l,i,j)+S(k,i,j)*cmplx(maxes(k,l),0.0_wp,wp)
+        dipso2(l,i,j) = dipso2(l,i,j)+M(k,i,j)*(maxes(k,l)*cOne)
+        s_so2(l,i,j) = s_so2(l,i,j)+S(k,i,j)*(maxes(k,l)*cOne)
       end do
     end do
   end do
@@ -115,7 +116,7 @@ end do
 call cZeroMatrix(hzee,dim)
 do i=1,dim
   do j=1,dim
-    hzee(i,j) = hzee(i,j)+(-1.0_wp,0.0_wp)*dipso2(3,i,j)
+    hzee(i,j) = hzee(i,j)-cOne*dipso2(3,i,j)
   end do
 end do
 info = 0
@@ -123,7 +124,7 @@ call rZeroVector(w,dim)
 call cZeroMatrix(z,dim)
 call diag_c2(hzee,dim,info,w,z)
 if (info /= 0) then
-  write(6,'(5x,a)') 'diagonalization of the zeeman hamiltonian failed.'
+  write(u6,'(5x,a)') 'diagonalization of the zeeman hamiltonian failed.'
   go to 199
 end if
 
@@ -131,27 +132,27 @@ call cZeroMatrix(zfin,dim)
 call spin_phase(dipso2,dim,z,zfin)
 
 if (iprint > 2) then
-  write(6,'(5X,A)') 'MAIN VALUES OF THE ZEEMAN HAMILTONIAN:'
-  write(6,*)
+  write(u6,'(5X,A)') 'MAIN VALUES OF THE ZEEMAN HAMILTONIAN:'
+  write(u6,*)
   if (mod(dim,2) == 1) then
     do I=1,dim
-      write(6,'(3X,A,I3,A,F17.3)') '|',(dim-1)/2+(1-I),'> = ',W(i)
+      write(u6,'(3X,A,I3,A,F17.3)') '|',(dim-1)/2+(1-I),'> = ',W(i)
     end do
   else
     do I=1,dim
-      write(6,'(3X,A,I3,A,F17.3)') '|',(dim-1)-2*(I-1),'/2 > = ',W(i)
+      write(u6,'(3X,A,I3,A,F17.3)') '|',(dim-1)-2*(I-1),'/2 > = ',W(i)
     end do
   end if
-  write(6,*)
-  write(6,'(1X,A)') 'EIGENFUNCTIONS OF THE EFFECTIVE SPIN:'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(1X,A)') 'EIGENFUNCTIONS OF THE EFFECTIVE SPIN:'
+  write(u6,*)
   if (mod(dim,2) == 1) then
     do i=1,dim
-      write(6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)/2+(1-i),' > :',(zfin(j,i),j=1,dim)
+      write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)/2+(1-i),' > :',(zfin(j,i),j=1,dim)
     end do
   else
     do i=1,dim
-      write(6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)-2*(i-1),'/2 > :',(zfin(j,i),j=1,dim)
+      write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)-2*(i-1),'/2 > :',(zfin(j,i),j=1,dim)
     end do
   end if
 end if ! printing of eigenfunctions with identical phase.

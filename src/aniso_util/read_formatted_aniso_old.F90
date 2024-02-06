@@ -11,29 +11,30 @@
 
 subroutine read_formatted_aniso_old(input_file_name,nss,nstate,multiplicity,eso,MM,MS,ML)
 
+use Constants, only: Zero, cZero, gElectron
+use Definitions, only: wp
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(inout) :: nss, nstate
 integer, intent(out) :: multiplicity(nstate)
 real(kind=8), intent(out) :: eso(nss)
 complex(kind=8), intent(out) :: MM(3,nss,nss)
 complex(kind=8), intent(out) :: MS(3,nss,nss)
 complex(kind=8), intent(out) :: ML(3,nss,nss)
-character(Len=180) :: input_file_name
+character(len=180) :: input_file_name
 ! local variables:
 integer :: l, j, j1, j2, LuAniso, IsFreeUnit
-real(kind=8) :: g_e
+real(kind=8), parameter :: g_e = 2.00231930437180_wp ! IFG -gElectron
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 external :: IsFreeUnit
 
-g_e = 2.00231930437180_wp
-!   set to zero all arrays:
+! set to zero all arrays:
 multiplicity = 0
-eso = 0.0_wp
-MM = (0.0_wp,0.0_wp)
-MS = (0.0_wp,0.0_wp)
-ML = (0.0_wp,0.0_wp)
+eso(:) = Zero
+MM(:,:,:) = cZero
+MS(:,:,:) = cZero
+ML(:,:,:) = cZero
 ! read the file "aniso.input":
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,trim(input_file_name))
@@ -46,8 +47,8 @@ call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
 ! magnetic moment
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
@@ -60,8 +61,8 @@ end do
 
 ! spin moment
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
@@ -84,28 +85,28 @@ do l=1,3
 end do
 
 !if (iprint > 4) then
-!  write(6,'(10a12)') (('------------'),j=1,10)
-!  write(6,'(15x,a,i2,a)') 'aniso_.input'
-!  write(6,'(10a12)') (('------------'),j=1,10)
-!  write(6,'(5x,a,i6)') 'nstate = ',nstate
-!  write(6,'(5x,a,i6)') '   nss = ',nss
-!  write(6,'(5x,a)') ' eso(j): '
-!  write(6,'(10(f12.5,1x))') (eso(j),j=1,nss)
-!  write(6,'(5x,a,i2,a)') 'multiplicity(j):'
-!  write(6,'(40i3)') (multiplicity(j),j=1,nstate)
-!  write(6,'(5x,a,i2,a)') 'dipso(l,j1,j2):'
+!  write(u6,'(10a12)') (('------------'),j=1,10)
+!  write(u6,'(15x,a,i2,a)') 'aniso_.input'
+!  write(u6,'(10a12)') (('------------'),j=1,10)
+!  write(u6,'(5x,a,i6)') 'nstate = ',nstate
+!  write(u6,'(5x,a,i6)') '   nss = ',nss
+!  write(u6,'(5x,a)') ' eso(j): '
+!  write(u6,'(10(f12.5,1x))') (eso(j),j=1,nss)
+!  write(u6,'(5x,a,i2,a)') 'multiplicity(j):'
+!  write(u6,'(40i3)') (multiplicity(j),j=1,nstate)
+!  write(u6,'(5x,a,i2,a)') 'dipso(l,j1,j2):'
 !  do l=1,3
-!    write(6,'(5x,a,i2)') 'axis= ',l
+!    write(u6,'(5x,a,i2)') 'axis= ',l
 !    do j1=1,nss
-!      write(6,'(20(2f20.14,1x))') (MM(l,j1,j2),j2=1,nss)
+!      write(u6,'(20(2f20.14,1x))') (MM(l,j1,j2),j2=1,nss)
 !    end do
 !  end do
-!  write(6,*)
-!  write(6,'(5x,a,i2,a)') 's_so(l,j1,j2):'
+!  write(u6,*)
+!  write(u6,'(5x,a,i2,a)') 's_so(l,j1,j2):'
 !  do l=1,3
-!    write(6,'(5x,a,i2)') 'axis= ',l
+!    write(u6,'(5x,a,i2)') 'axis= ',l
 !    do j1=1,nss
-!      write(6,'(20(2f20.14,1x))') (MS(l,j1,j2),j2=1,nss)
+!      write(u6,'(20(2f20.14,1x))') (MS(l,j1,j2),j2=1,nss)
 !    end do
 !  end do
 !end if

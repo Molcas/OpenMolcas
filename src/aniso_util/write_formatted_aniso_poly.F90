@@ -12,7 +12,6 @@
 subroutine write_formatted_aniso_poly(filename,nss,eso,MM,MS)
 
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: nss
 real(kind=8), intent(in) :: eso(nss)
 complex(kind=8), intent(in) :: MM(3,nss,nss)

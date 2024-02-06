@@ -15,23 +15,24 @@
 subroutine read_hdf5_init(file_h5,nstate,nss)
 
 use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_close_file
+use Definitions, only: u6
 
 implicit none
 #include "stdalloc.fh"
-character(Len=180), intent(in) :: file_h5
+character(len=180), intent(in) :: file_h5
 integer, intent(out) :: nstate, nss
 ! local variables:
 integer :: i, fileid
 character :: tmp*256, sFile*128
-character(Len=180) :: tmp2
+character(len=180) :: tmp2
 integer, allocatable :: spin_mult(:)
-character(Len=5) :: molcas_module_kind
+character(len=5) :: molcas_module_kind
 logical :: Exist
 logical :: DBG
 
 DBG = .false.
 
-write(6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
+write(u6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
 NSS = 0
 NSTATE = 0
 Exist = .false.
@@ -39,7 +40,7 @@ Exist = .false.
 
 ! Check the file exists in $WorkDir
 call f_inquire(trim(file_h5),Exist)
-if (Exist) write(6,*) 'file ',trim(file_h5),' exists!!!'
+if (Exist) write(u6,*) 'file ',trim(file_h5),' exists!!!'
 ! if not present, look for it in the submit directory:
 if (.not. Exist) then
   call getenvf('MOLCAS_SUBMIT_DIR',tmp)
@@ -62,7 +63,7 @@ fileid = mh5_open_file_r(trim(file_h5))
 ! check if it is an HDF5 file produced by RASSI
 call mh5_fetch_attr(fileid,'MOLCAS_MODULE',tmp2)
 molcas_module_kind = trim(tmp2)
-if (DBG) write(6,'(A,A)') 'read_hdf5::  molcas_module=',molcas_module_kind
+if (DBG) write(u6,'(A,A)') 'read_hdf5::  molcas_module=',molcas_module_kind
 if (molcas_module_kind(1:5) /= 'RASSI') then
   call WarningMessage(2,'Input HDF5 file '//trim(file_h5)//' is not produced by RASSI')
   call Quit_OnUserError()
@@ -71,22 +72,22 @@ end if
 !----------------------------------------------------------------------|
 ! read number of spin free states
 call mh5_fetch_attr(fileid,'NSTATE',nstate)
-if (DBG) write(6,'(A,I6)') 'read_hdf5::  NSTATE=',NSTATE
+if (DBG) write(u6,'(A,I6)') 'read_hdf5::  NSTATE=',NSTATE
 call Put_iScalar('NSTATE_SINGLE   ',NSTATE)
 
 ! read spin multiplicity of each state:
 call mma_allocate(spin_mult,nstate,'nstate')
 call mh5_fetch_attr(fileid,'STATE_SPINMULT',spin_mult(1:nstate))
 if (DBG) then
-  write(6,'(A)') 'spin_mult'
-  write(6,'(20I4)') (spin_mult(i),i=1,nstate)
+  write(u6,'(A)') 'spin_mult'
+  write(u6,'(20I4)') (spin_mult(i),i=1,nstate)
 end if
 ! compute the number of spin-orbit states:
 nss = 0
 do i=1,nstate
   nss = nss+spin_mult(i)
 end do
-if (DBG) write(6,'(A,I6)') 'read_hdf5::     NSS=',NSS
+if (DBG) write(u6,'(A,I6)') 'read_hdf5::     NSS=',NSS
 call Put_iScalar('NSS_SINGLE      ',NSS)
 call mma_deallocate(spin_mult)
 

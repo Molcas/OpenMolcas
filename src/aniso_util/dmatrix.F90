@@ -14,8 +14,10 @@ subroutine DMATRIX(E,F,Z,IPRINT)
 ! OF THE STEVENS OPERATORS OF ORDER 2 (ES AND FS) AND DIAGONALIZE IT
 ! TO OBTAIN THE MAIN ANISOTROPY AXES
 
+use Constants, only: Zero, One, Two, Half, OneHalf
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: iprint
 real(kind=8), intent(in) :: Z(3,3)
 complex(kind=8), intent(in) :: E(0:2), F(0:2)
@@ -24,11 +26,11 @@ real(kind=8) :: WD(3), CF, Unity(3,3), SMAT(3,3), DMATR(3,3), ZD(3,3), dtens(3),
                 ZD2(3,3)
 complex(kind=8) :: DMAT(3,3)
 
-CF = sqrt(3.0_wp/2.0_wp)
+CF = sqrt(OneHalf)
 
 DMAT(1,1) = CF*E(2)-E(0)
 DMAT(2,2) = -CF*E(2)-E(0)
-DMAT(3,3) = 2.0_wp*E(0)
+DMAT(3,3) = Two*E(0)
 DMAT(1,2) = CF*F(2)
 DMAT(1,3) = CF*E(1)
 DMAT(2,3) = CF*F(1)
@@ -38,33 +40,33 @@ DMAT(3,2) = DMAT(2,3)
 
 do i=1,3
   do j=1,3
-    DMATR(i,j) = dble(DMAT(i,j))
+    DMATR(i,j) = real(DMAT(i,j))
   end do
 end do
 
 call DIAG_R2(DMATR,3,INFO,WD,ZD)
 
 ! calculate the rotation matrix:
-call dcopy_(3*3,[0.0_wp],0,Unity,1)
+call dcopy_(3*3,[Zero],0,Unity,1)
 do i=1,3
-  Unity(i,i) = 1.0_wp
+  Unity(i,i) = One
 end do
 
-call DGEMM_('N','N',3,3,3,1.0_wp,ZD,3,Unity,3,0.0_wp,SMAT,3)
+call DGEMM_('N','N',3,3,3,One,ZD,3,Unity,3,Zero,SMAT,3)
 
 ! Set the dtens and daxes with respect to the gtens and maxes.
 !ccccccccccccccccccccccccccccccc
-dtens(:) = 0.0_wp
+dtens(:) = Zero
 if ((abs(SMAT(1,1)) > abs(SMAT(1,2))) .and. (abs(SMAT(1,1)) > abs(SMAT(1,3)))) then
   ! the WD(1) and ZD(i,1) correspond to gtens(1) and maxes(i,1)
   dtens(1) = WD(1)
-  if (SMAT(1,1) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(1,1) is larger than SMAT(1,2) and SMAT(1,3) and is positive'
+  if (SMAT(1,1) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,1) is larger than SMAT(1,2) and SMAT(1,3) and is positive'
     do i=1,3
       daxes(i,1) = ZD(i,1)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(1,1) is larger than SMAT(1,2) and SMAT(1,3) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,1) is larger than SMAT(1,2) and SMAT(1,3) and is negative'
     do i=1,3
       daxes(i,1) = -ZD(i,1)
     end do
@@ -73,13 +75,13 @@ if ((abs(SMAT(1,1)) > abs(SMAT(1,2))) .and. (abs(SMAT(1,1)) > abs(SMAT(1,3)))) t
 else if ((abs(SMAT(1,2)) > abs(SMAT(1,1))) .and. (abs(SMAT(1,2)) > abs(SMAT(1,3)))) then
   ! the WD(1) and ZD(i,1) correspond to gtens(2) and maxes(i,2)
   dtens(1) = WD(2)
-  if (SMAT(1,2) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(1,2) is larger than SMAT(1,1) and SMAT(1,3) and is positive'
+  if (SMAT(1,2) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,2) is larger than SMAT(1,1) and SMAT(1,3) and is positive'
     do i=1,3
       daxes(i,1) = ZD(i,2)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(1,2) is larger than SMAT(1,1) and SMAT(1,3) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,2) is larger than SMAT(1,1) and SMAT(1,3) and is negative'
     do i=1,3
       daxes(i,1) = -ZD(i,2)
     end do
@@ -88,13 +90,13 @@ else if ((abs(SMAT(1,2)) > abs(SMAT(1,1))) .and. (abs(SMAT(1,2)) > abs(SMAT(1,3)
 else if ((abs(SMAT(1,3)) > abs(SMAT(1,1))) .and. (abs(SMAT(1,3)) > abs(SMAT(1,2)))) then
   ! the WD(1) and ZD(i,1) correspond to gtens(3) and maxes(i,3)
   dtens(1) = WD(3)
-  if (SMAT(1,3) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(1,3) is larger than SMAT(1,1) and SMAT(1,2) and is positive'
+  if (SMAT(1,3) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,3) is larger than SMAT(1,1) and SMAT(1,2) and is positive'
     do i=1,3
       daxes(i,1) = ZD(i,3)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(1,3) is larger than SMAT(1,1) and SMAT(1,2) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,3) is larger than SMAT(1,1) and SMAT(1,2) and is negative'
     do i=1,3
       daxes(i,1) = -ZD(i,3)
     end do
@@ -105,13 +107,13 @@ end if
 if ((abs(SMAT(2,1)) > abs(SMAT(2,2))) .and. (abs(SMAT(2,1)) > abs(SMAT(2,3)))) then
   ! the WD(2) and ZD(i,2) correspond to gtens(1) and maxes(i,1)
   dtens(2) = WD(1)
-  if (SMAT(2,1) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(2,1) is larger than SMAT(2,2) and SMAT(2,3) and is positive'
+  if (SMAT(2,1) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,1) is larger than SMAT(2,2) and SMAT(2,3) and is positive'
     do i=1,3
       daxes(i,2) = ZD(i,1)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(2,1) is larger than SMAT(2,2) and SMAT(2,3) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,1) is larger than SMAT(2,2) and SMAT(2,3) and is negative'
     do i=1,3
       daxes(i,2) = -ZD(i,1)
     end do
@@ -120,13 +122,13 @@ if ((abs(SMAT(2,1)) > abs(SMAT(2,2))) .and. (abs(SMAT(2,1)) > abs(SMAT(2,3)))) t
 else if ((abs(SMAT(2,2)) > abs(SMAT(2,1))) .and. (abs(SMAT(2,2)) > abs(SMAT(2,3)))) then
   ! the WD(2) and ZD(i,2) correspond to gtens(2) and maxes(i,2)
   dtens(2) = WD(2)
-  if (SMAT(2,2) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(2,2) is larger than SMAT(2,1) and SMAT(2,3) and is positive'
+  if (SMAT(2,2) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,2) is larger than SMAT(2,1) and SMAT(2,3) and is positive'
     do i=1,3
       daxes(i,2) = ZD(i,2)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(2,2) is larger than SMAT(2,1) and SMAT(2,3) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,2) is larger than SMAT(2,1) and SMAT(2,3) and is negative'
     do i=1,3
       daxes(i,2) = -ZD(i,2)
     end do
@@ -135,13 +137,13 @@ else if ((abs(SMAT(2,2)) > abs(SMAT(2,1))) .and. (abs(SMAT(2,2)) > abs(SMAT(2,3)
 else if ((abs(SMAT(2,3)) > abs(SMAT(2,1))) .and. (abs(SMAT(2,3)) > abs(SMAT(2,2)))) then
   ! the WD(2) and ZD(i,2) correspond to gtens(3) and maxes(i,3)
   dtens(2) = WD(3)
-  if (SMAT(2,3) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(2,3) is larger than SMAT(2,1) and SMAT(2,2) and is positive'
+  if (SMAT(2,3) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,3) is larger than SMAT(2,1) and SMAT(2,2) and is positive'
     do i=1,3
       daxes(i,2) = ZD(i,3)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(2,3) is larger than SMAT(2,1) and SMAT(2,2) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,3) is larger than SMAT(2,1) and SMAT(2,2) and is negative'
     do i=1,3
       daxes(i,2) = -ZD(i,3)
     end do
@@ -152,13 +154,13 @@ end if
 if ((abs(SMAT(3,1)) > abs(SMAT(3,2))) .and. (abs(SMAT(3,1)) > abs(SMAT(3,3)))) then
   ! the WD(3) and ZD(i,3) correspond to gtens(1) and maxes(i,1)
   dtens(3) = WD(1)
-  if (SMAT(3,1) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(3,1) is larger than SMAT(3,2) and SMAT(3,3) and is positive'
+  if (SMAT(3,1) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,1) is larger than SMAT(3,2) and SMAT(3,3) and is positive'
     do i=1,3
       daxes(i,3) = ZD(i,1)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(3,1) is larger than SMAT(3,2) and SMAT(3,3) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,1) is larger than SMAT(3,2) and SMAT(3,3) and is negative'
     do i=1,3
       daxes(i,3) = -ZD(i,1)
     end do
@@ -167,13 +169,13 @@ if ((abs(SMAT(3,1)) > abs(SMAT(3,2))) .and. (abs(SMAT(3,1)) > abs(SMAT(3,3)))) t
 else if ((abs(SMAT(3,2)) > abs(SMAT(3,1))) .and. (abs(SMAT(3,2)) > abs(SMAT(3,3)))) then
   ! the WD(3) and ZD(i,3) correspond to gtens(2) and maxes(i,2)
   dtens(3) = WD(2)
-  if (SMAT(3,2) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(3,2) is larger than SMAT(3,1) and SMAT(3,3) and is positive'
+  if (SMAT(3,2) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,2) is larger than SMAT(3,1) and SMAT(3,3) and is positive'
     do i=1,3
       daxes(i,3) = ZD(i,2)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(3,2) is larger than SMAT(3,1) and SMAT(3,3) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,2) is larger than SMAT(3,1) and SMAT(3,3) and is negative'
     do i=1,3
       daxes(i,3) = -ZD(i,2)
     end do
@@ -182,62 +184,62 @@ else if ((abs(SMAT(3,2)) > abs(SMAT(3,1))) .and. (abs(SMAT(3,2)) > abs(SMAT(3,3)
 else if ((abs(SMAT(3,3)) > abs(SMAT(3,1))) .and. (abs(SMAT(3,3)) > abs(SMAT(3,2)))) then
   ! the WD(3) and ZD(i,3) correspond to gtens(3) and maxes(i,3)
   dtens(3) = WD(3)
-  if (SMAT(3,3) > 0.0_wp) then
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(3,3) is larger than SMAT(3,1) and SMAT(3,2) and is positive'
+  if (SMAT(3,3) > Zero) then
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,3) is larger than SMAT(3,1) and SMAT(3,2) and is positive'
     do i=1,3
       daxes(i,3) = ZD(i,3)
     end do
   else
-    if (IPRINT > 2) write(6,'(a)') 'SMAT(3,3) is larger than SMAT(3,1) and SMAT(3,2) and is negative'
+    if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,3) is larger than SMAT(3,1) and SMAT(3,2) and is negative'
     do i=1,3
       daxes(i,3) = -ZD(i,3)
     end do
   end if
 end if
 
-call DGEMM_('N','N',3,3,3,1.0_wp,Z,3,daxes,3,0.0_wp,ZD2,3)
+call DGEMM_('N','N',3,3,3,One,Z,3,daxes,3,Zero,ZD2,3)
 
 diff12 = abs(dtens(1)-dtens(2))
 diff23 = abs(dtens(2)-dtens(3))
 
 if (diff12 > diff23) then
-  D_factor = 1.5_wp*dtens(1)
-  E_factor = (dtens(2)-dtens(3))/2.0_wp
+  D_factor = OneHalf*dtens(1)
+  E_factor = (dtens(2)-dtens(3))*Half
 else
-  D_factor = 1.5_wp*dtens(3)
-  E_factor = (dtens(1)-dtens(2))/2.0_wp
+  D_factor = OneHalf*dtens(3)
+  E_factor = (dtens(1)-dtens(2))*Half
 end if
 
 if (iprint > 2) then
-  write(6,'(20X,A)') 'D-TENSOR:'
-  write(6,*)
-  write(6,'(10X,A,10X,3(F9.5,2X))') '|  xx    xy    xz  |',(DMATR(1,J),J=1,3)
-  write(6,'(10X,A,10X,3(F9.5,2X))') '|  yx    yy    yz  |',(DMATR(2,J),J=1,3)
-  write(6,'(10X,A,10X,3(F9.5,2X))') '|  zx    zy    zz  |',(DMATR(3,J),J=1,3)
-  write(6,*)
+  write(u6,'(20X,A)') 'D-TENSOR:'
+  write(u6,*)
+  write(u6,'(10X,A,10X,3(F9.5,2X))') '|  xx    xy    xz  |',(DMATR(1,J),J=1,3)
+  write(u6,'(10X,A,10X,3(F9.5,2X))') '|  yx    yy    yz  |',(DMATR(2,J),J=1,3)
+  write(u6,'(10X,A,10X,3(F9.5,2X))') '|  zx    zy    zz  |',(DMATR(3,J),J=1,3)
+  write(u6,*)
 end if
 
 if (iprint >= 2) then
-  write(6,*)
-  write(6,'(A)') 'D TENSOR:'
-  write(6,'(90a)') ('-',i=1,84),'|'
-  write(6,'(A,4x,A,27x,A,21x,a,3x,a)') 'MAIN VALUES','|','MAIN ANISOTROPY AXES','|','x , y , z  -- initial Cartesian axes'
-  write(6,'(85a,3x,a)') ('-',i=1,15),'|',('-',i=1,36),'|',('-',i=1,31),'|','Xm, Ym, Zm -- main magnetic axes'
-  write(6,'(15x,a,4x,a,5x,a,8x,a,8x,a,4x,a,5x,a,9x,a,9x,a,5x,a,3x,a)') '|','|','Xm','Ym','Zm','|','x','y','z','|', &
+  write(u6,*)
+  write(u6,'(A)') 'D TENSOR:'
+  write(u6,'(90a)') ('-',i=1,84),'|'
+  write(u6,'(A,4x,A,27x,A,21x,a,3x,a)') 'MAIN VALUES','|','MAIN ANISOTROPY AXES','|','x , y , z  -- initial Cartesian axes'
+  write(u6,'(85a,3x,a)') ('-',i=1,15),'|',('-',i=1,36),'|',('-',i=1,31),'|','Xm, Ym, Zm -- main magnetic axes'
+  write(u6,'(15x,a,4x,a,5x,a,8x,a,8x,a,4x,a,5x,a,9x,a,9x,a,5x,a,3x,a)') '|','|','Xm','Ym','Zm','|','x','y','z','|', &
                                                                        'Xa, Ya, Za -- main anisotropy axes'
-  write(6,'(90a)') ('-',i=1,15),'|',('-',i=1,4),'|',('-',i=1,31),'|',('-',i=1,31),'|'
-  write(6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dx =',dtens(1),' | Xa |',(daxes(j,1),j=1,3),'|',(ZD2(j,1),j=1,3),'|'
-  write(6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dy =',dtens(2),' | Ya |',(daxes(j,2),j=1,3),'|',(ZD2(j,2),j=1,3),'|'
-  write(6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dz =',dtens(3),' | Za |',(daxes(j,3),j=1,3),'|',(ZD2(j,3),j=1,3),'|'
-  write(6,'(90a)') ('-',i=1,84),'|'
-  write(6,*)
-  write(6,'(A)') '2-nd order ZFS Hamiltonian:'
-  write(6,*)
-  write(6,'(A)') 'H_zfs^{2}= D * [S_{Za}^2 - S*(S+1)/3] + E * [S_{Xa}^2 - S_{Ya}^2]'
-  write(6,*)
-  write(6,'(A)') 'Anisotropy parameters: D = 3/2 * Dz;  E = (Dx-Dy)/2;'
-  write(6,'(a,F9.4)') 'D = ',D_factor
-  write(6,'(a,F9.4)') 'E = ',E_factor
+  write(u6,'(90a)') ('-',i=1,15),'|',('-',i=1,4),'|',('-',i=1,31),'|',('-',i=1,31),'|'
+  write(u6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dx =',dtens(1),' | Xa |',(daxes(j,1),j=1,3),'|',(ZD2(j,1),j=1,3),'|'
+  write(u6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dy =',dtens(2),' | Ya |',(daxes(j,2),j=1,3),'|',(ZD2(j,2),j=1,3),'|'
+  write(u6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dz =',dtens(3),' | Za |',(daxes(j,3),j=1,3),'|',(ZD2(j,3),j=1,3),'|'
+  write(u6,'(90a)') ('-',i=1,84),'|'
+  write(u6,*)
+  write(u6,'(A)') '2-nd order ZFS Hamiltonian:'
+  write(u6,*)
+  write(u6,'(A)') 'H_zfs^{2}= D * [S_{Za}^2 - S*(S+1)/3] + E * [S_{Xa}^2 - S_{Ya}^2]'
+  write(u6,*)
+  write(u6,'(A)') 'Anisotropy parameters: D = 3/2 * Dz;  E = (Dx-Dy)/2;'
+  write(u6,'(a,F9.4)') 'D = ',D_factor
+  write(u6,'(a,F9.4)') 'E = ',E_factor
 end if
 
 return

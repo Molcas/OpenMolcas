@@ -13,8 +13,10 @@ subroutine utmul(EXCH,N,Z,ML)
 ! the same as UTMU, except being that the input M is
 ! being transformed and only one projection is done at a time.
 
+use Constants, only: cZero, cOne
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer, intent(in) :: EXCH, N
 ! one projection is done
@@ -30,34 +32,34 @@ complex(kind=8), allocatable :: TMP(:,:), MTMP(:,:)
 DBG = .false.
 
 if ((N <= 0) .or. (EXCH <= 0)) then
-  write(6,'(A)') 'in UTMU2:   EXCH or N<=0 !!!'
-  write(6,*) 'EXCH=',EXCH
-  write(6,*) 'N   =',N
+  write(u6,'(A)') 'in UTMU2:   EXCH or N<=0 !!!'
+  write(u6,*) 'EXCH=',EXCH
+  write(u6,*) 'N   =',N
   call xquit(128)
 end if
 
 if (N > EXCH) then
-  write(6,'(A)') 'in UTMU2:   EXCH < N !!!'
-  write(6,*) 'EXCH=',EXCH
-  write(6,*) 'N   =',N
-  write(6,'(A)') 'Nothing is to be done >> Return'
+  write(u6,'(A)') 'in UTMU2:   EXCH < N !!!'
+  write(u6,*) 'EXCH=',EXCH
+  write(u6,*) 'N   =',N
+  write(u6,'(A)') 'Nothing is to be done >> Return'
   call xquit(128)
 end if
 
 R1 = dznrm2_(EXCH*EXCH,ML,1)
 R2 = dznrm2_(N*N,Z,1)
 if ((R1 < 1.0e-25_wp) .or. (R2 < 1.0e-25_wp)) then
-  write(6,'(A)') 'in UTMU2:   M or Z are empty!!!'
-  write(6,*) 'norm(M)=',R1
-  write(6,*) 'norm(Z)=',R2
+  write(u6,'(A)') 'in UTMU2:   M or Z are empty!!!'
+  write(u6,*) 'norm(M)=',R1
+  write(u6,*) 'norm(Z)=',R2
   call xquit(128)
 end if
 
 if (DBG) then
-  write(6,'(A)') 'UTMU :: input moment'
+  write(u6,'(A)') 'UTMU :: input moment'
   do i=1,EXCH
     do j=1,EXCH
-      write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|ML|',j,'>',ML(i,j)
+      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|ML|',j,'>',ML(i,j)
     end do
   end do
 end if
@@ -76,21 +78,15 @@ if (N < EXCH) then
 end if
 
 if (N == EXCH) then
-  call zcopy_(EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
-  call zgemm_('C','N',EXCH,EXCH,EXCH,(1.0_wp,0.0_wp),Z,EXCH,ML,EXCH,(0.0_wp,0.0_wp),TMP,EXCH)
-  call zcopy_(EXCH*EXCH,[(0.0_wp,0.0_wp)],0,ML(:,:),1)
-  call zgemm_('N','N',EXCH,EXCH,EXCH,(1.0_wp,0.0_wp),TMP,EXCH,Z,EXCH,(0.0_wp,0.0_wp),ML,EXCH)
+  call zgemm_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,ML,EXCH,cZero,TMP,EXCH)
+  call zgemm_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,ML,EXCH)
 
 else
 
-  call zcopy_(EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
-  call ZGEMM_('C','N',N,N,N,(1.0_wp,0.0_wp),Z(1:N,1:N),N,ML(1:N,1:N),N,(0.0_wp,0.0_wp),TMP,N)
-  call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,ML(1:N,1:N),1)
-
-  call ZGEMM_('N','N',N,N,N,(1.0_wp,0.0_wp),TMP,N,Z(1:N,1:N),N,(0.0_wp,0.0_wp),ML(1:N,1:N),N)
-
-  call zcopy_(EXCH*EXCH,[(0.0_wp,0.0_wp)],0,TMP,1)
-  call ZGEMM_('C','N',N,EXCH,N,(1.0_wp,0.0_wp),Z(1:N,1:N),N,ML(1:N,1:EXCH),N,(0.0_wp,0.0_wp),TMP(1:N,1:EXCH),N)
+  call ZGEMM_('C','N',N,N,N,cOne,Z(1:N,1:N),N,ML(1:N,1:N),N,cZero,TMP,N)
+  call zcopy_(N*N,[cZero],0,ML(1:N,1:N),1)
+  call ZGEMM_('N','N',N,N,N,cOne,TMP,N,Z(1:N,1:N),N,cZero,ML(1:N,1:N),N)
+  call ZGEMM_('C','N',N,EXCH,N,cOne,Z(1:N,1:N),N,ML(1:N,1:EXCH),N,cZero,TMP(1:N,1:EXCH),N)
 
   do I=1,N
     do J=N+1,EXCH
@@ -109,16 +105,16 @@ else
 end if !N == exch
 
 if (DBG) then
-  write(6,'(A)') 'UTMU :: unitary transformtion matrix'
+  write(u6,'(A)') 'UTMU :: unitary transformtion matrix'
   do i=1,N
     do j=1,N
-      write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'| U |',j,'>',Z(i,j)
+      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'| U |',j,'>',Z(i,j)
     end do
   end do
-  write(6,'(A)') 'UTMU :: output moment'
+  write(u6,'(A)') 'UTMU :: output moment'
   do i=1,EXCH
     do j=1,EXCH
-      write(6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|ML|',j,'>',ML(i,j)
+      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|ML|',j,'>',ML(i,j)
     end do
   end do
 end if

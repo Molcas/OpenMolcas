@@ -25,8 +25,10 @@ subroutine chi(M1,M2,E,N,T,Z,X)
 !    pB   -- partial Boltzmann population of a given state, Real(kind=8) ::
 !    dE -- energy diference E(i)-E(j)
 
+use Constants, only: Zero, One, Two, cLight, kBoltzmann, rPlanck
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N
 real(kind=8), intent(in) :: E(N), T
 complex(kind=8), intent(in) :: M1(3,N,N), M2(3,N,N)
@@ -34,18 +36,16 @@ real(kind=8), intent(out) :: Z, X(3,3)
 ! local variables
 integer :: i, j, iS, jS
 real(kind=8) :: pB, dE, c2(3,3), R, F
-real(kind=8) :: boltz_k
+real(kind=wp), parameter :: boltz_k = 0.69503560_wp !IFG kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
 
-boltz_k = 0.6950356_wp !   in cm^-1*k-1
-
-pB = 0.0_wp
-dE = 0.0_wp
-Z = 0.0_wp
-call dcopy_(3*3,[0.0_wp],0,X,1)
+pB = Zero
+dE = Zero
+Z = Zero
+call dcopy_(3*3,[Zero],0,X,1)
 
 do iS=1,N
   ! first loop over all states
-  call dcopy_(3*3,[0.0_wp],0,c2,1)
+  call dcopy_(3*3,[Zero],0,c2,1)
   ! pB = statistical sum for state iS at temperature T
   pB = exp(-E(iS)/boltz_k/T)
   ! accumulate the total statistical sum Z
@@ -54,15 +54,15 @@ do iS=1,N
     ! second loop over all states
     dE = E(iS)-E(jS)
     ! set the multiplication factor:
-    if (abs(dE) < 0.001_wp) then
-      F = 1.0_wp
+    if (abs(dE) < 1.0e-3_wp) then
+      F = One
     else
-      F = -2.0_wp*boltz_k*T/dE
+      F = -Two*boltz_k*T/dE
     end if
     ! accumulate the contributions to the X tensor:
     do i=1,3
       do j=1,3
-        R = dble(M1(i,iS,jS)*conjg(M2(j,iS,jS)))
+        R = real(M1(i,iS,jS)*conjg(M2(j,iS,jS)))
         c2(i,j) = c2(i,j)+F*R
       end do ! j
     end do ! i
@@ -74,7 +74,7 @@ do iS=1,N
 end do ! iS
 
 ! scale the total tensor by the total statistical sum Z:
-call dscal_(3*3,1.0_wp/Z,X,1)
+call dscal_(3*3,One/Z,X,1)
 
 return
 

@@ -11,15 +11,16 @@
 
 complex*16 function trace(n,A,B)
 
+use Constants, only: cZero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 ! size of the square matrices A(n,n) and B(n,n)
 integer, intent(in) :: n
 complex(kind=8), intent(in) :: A(n,n), B(n,n)
 ! local variables
 integer :: i, k
 
-trace = (0.0_wp,0.0_wp)
+trace = cZero
 do i=1,n
   do k=1,n
     trace = trace+A(i,k)*B(k,i)

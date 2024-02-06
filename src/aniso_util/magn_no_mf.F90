@@ -44,9 +44,11 @@ subroutine MAGN_NO_MF(EXCH,N,X,Y,Z,H,W,dM,sM,nT,T,sopt,WZ,ZB,S,M,DBG)
 !     l -- labels the cartesian component of the momentum (convention: x=1, y=2, z=3)
 !    iT -- labes the temperature points;
 
+use Constants, only: Zero, cZero
+use Definitions, only: u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: EXCH, N, nT
 real(kind=8), intent(in) :: X, Y, Z, H
 real(kind=8), intent(in) :: W(EXCH), T(nT)
@@ -66,11 +68,11 @@ logical :: DBG
 
 ! a few checks, before proceeding:
 do iT=1,nT
-  if (T(iT) == 0.0_wp) return
+  if (T(iT) == Zero) return
 end do
-if (H == 0.0_wp) return
+if (H == Zero) return
 if (N > EXCH) return
-zJ = 0.0_wp ! it must be defined for ZEEM
+zJ = Zero ! it must be defined for ZEEM
 ! initialization:
 call mma_allocate(WM,exch,'WM')
 call mma_allocate(ZM,exch,exch,'ZM')
@@ -85,28 +87,28 @@ call mma_allocate(WORK,(2*N-1),'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
 
 ! zero everything:
-call dcopy_(3*N-2,[0.0_wp],0,RWORK,1)
-call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,HZEE,1)
-call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,WORK,1)
-call zcopy_(N,[(0.0_wp,0.0_wp)],0,W_c,1)
+call dcopy_(3*N-2,[Zero],0,RWORK,1)
+call zcopy_(N*(N+1)/2,[cZero],0,HZEE,1)
+call zcopy_(2*N-1,[cZero],0,WORK,1)
+call zcopy_(N,[cZero],0,W_c,1)
 
-call dcopy_(3,[0.0_wp],0,ST,1)
-call dcopy_(N,[0.0_wp],0,WZ,1)
-call dcopy_(exch,[0.0_wp],0,WM,1)
-call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,ZM,1)
-call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,SZ,1)
-call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,MZ,1)
+call dcopy_(3,[Zero],0,ST,1)
+call dcopy_(N,[Zero],0,WZ,1)
+call dcopy_(exch,[Zero],0,WM,1)
+call zcopy_(exch*exch,[cZero],0,ZM,1)
+call zcopy_(3*exch*exch,[cZero],0,SZ,1)
+call zcopy_(3*exch*exch,[cZero],0,MZ,1)
 ! start calculations:
 if (DBG) then
-  write(6,*) 'Enter ZEEM::'
-  write(6,*) 'Input data:   N = ',N
-  write(6,*) 'Input data:   H = ',H
-  write(6,*) 'Input data:   X = ',X
-  write(6,*) 'Input data:   Y = ',Y
-  write(6,*) 'Input data:   Z = ',Z
-  write(6,*) 'Input data:  zJ = ',zJ
-  write(6,*) 'Input data: W() = ',W(1:N)
-  write(6,*) 'Input data: ST()= ',ST(1:3)
+  write(u6,*) 'Enter ZEEM::'
+  write(u6,*) 'Input data:   N = ',N
+  write(u6,*) 'Input data:   H = ',H
+  write(u6,*) 'Input data:   X = ',X
+  write(u6,*) 'Input data:   Y = ',Y
+  write(u6,*) 'Input data:   Z = ',Z
+  write(u6,*) 'Input data:  zJ = ',zJ
+  write(u6,*) 'Input data: W() = ',W(1:N)
+  write(u6,*) 'Input data: ST()= ',ST(1:3)
   call prmom('INput data dM:',dM,N)
   call prmom('INput data sM:',sM,N)
 end if
@@ -114,7 +116,7 @@ end if
 ! Build and diagonalize the Zeeman Hamiltonian
 ! most important output are: WM (energies) and ZM (eigenvectors)
 call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(1:3,1:N,1:N),sM(1:3,1:N,1:N),ST,zJ,WM(1:N),ZM,DBG,RWORK,HZEE,WORK,W_c)
-if (DBG) write(6,*) 'Exit ZEEM::'
+if (DBG) write(u6,*) 'Exit ZEEM::'
 
 call DCOPY_(N,WM(1:N),1,WZ(1:N),1)
 if (N /= EXCH) then
@@ -128,9 +130,9 @@ call UTMU(EXCH,N,ZM,sM,SZ)
 call UTMU(EXCH,N,ZM,dM,MZ)
 
 ! compute magnetization at different temperatures:
-call dcopy_(nT,[0.0_wp],0,ZB,1)
-call dcopy_(3*nT,[0.0_wp],0,M,1)
-call dcopy_(3*nT,[0.0_wp],0,S,1)
+call dcopy_(nT,[Zero],0,ZB,1)
+call dcopy_(3*nT,[Zero],0,M,1)
+call dcopy_(3*nT,[Zero],0,S,1)
 
 if (N == EXCH) then
   do iT=1,nT

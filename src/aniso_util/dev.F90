@@ -17,19 +17,21 @@ real*8 function dev(N,Fcal,Fexp)
 !  Fexp --- experimental array of size (N), Real(kind=8) ::, input
 !   dev --- standard deviation, Real(kind=8) ::, output;
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N
 real(kind=8), intent(in) :: Fcal(N), Fexp(N)
 integer :: i
 real(kind=8) :: diff, X
 
-dev = 0.0_wp
-X = 0.0_wp
+dev = Zero
+X = Zero
 do i=1,N
-  diff = 0.0_wp
+  diff = Zero
   diff = Fcal(i)-Fexp(i)
-  X = X+diff*diff/dble(N)
+  X = X+diff*diff/real(N,kind=wp)
 end do
 dev = sqrt(X)
 

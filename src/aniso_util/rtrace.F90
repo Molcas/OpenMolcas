@@ -12,8 +12,10 @@
 subroutine rtrace(N,A,B)
 ! removes the trace of a Real array
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N ! size of the array
 real(kind=8), intent(in) :: A(N) ! input
 real(kind=8), intent(out) :: B(N) ! output
@@ -21,11 +23,11 @@ real(kind=8), intent(out) :: B(N) ! output
 integer :: i
 real(kind=8) :: AS
 
-AS = 0.0_wp
-call dcopy_(N,[0.0_wp],0,B,1)
+AS = Zero
+call dcopy_(N,[Zero],0,B,1)
 ! compute the equal-weighted average
 do i=1,N
-  AS = AS+A(i)/dble(N)
+  AS = AS+A(i)/real(N,kind=wp)
 end do
 ! translate each of the elements
 do i=1,N

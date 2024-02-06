@@ -11,21 +11,21 @@
 
 subroutine moments(N,MS,MM,iprint)
 
+use Constants, only: cZero, gElectron
+use Definitions, only: wp, u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N, iprint
 complex(kind=8), intent(in) :: MM(3,N,N), MS(3,N,N)
 integer :: I, J, L, i1, i2, iDir
-real(kind=8) :: g_e
+real(kind=8), parameter :: g_e = 2.0023193043718_wp !IFG -gElectron
 complex(kind=8), allocatable :: Z(:,:) ! N,N
 complex(kind=8), allocatable :: AMS(:,:,:)
 complex(kind=8), allocatable :: AML(:,:,:)
 complex(kind=8), allocatable :: AMM(:,:,:) !(3,N,N),
 complex(kind=8), allocatable :: Mf(:,:), Sf(:,:), Lf(:,:) !(3,3)
 !-----------------------------------------------------------------------
-
-g_e = 2.0023193043718_wp
 
 if (N < 1) return
 call mma_allocate(Z,N,N,'Z')
@@ -36,14 +36,14 @@ call mma_allocate(Mf,3,3,'Mf')
 call mma_allocate(Sf,3,3,'Sf')
 call mma_allocate(Lf,3,3,'Lf')
 !-----------------------------------------------------------------------
-call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Lf,1)
-call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Mf,1)
-call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Sf,1)
+call zcopy_(3*3,[cZero],0,Lf,1)
+call zcopy_(3*3,[cZero],0,Mf,1)
+call zcopy_(3*3,[cZero],0,Sf,1)
 do iDir=1,3
-  call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,Z,1)
-  call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AMM,1)
-  call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AML,1)
-  call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,AMS,1)
+  call zcopy_(N*N,[cZero],0,Z,1)
+  call zcopy_(3*N*N,[cZero],0,AMM,1)
+  call zcopy_(3*N*N,[cZero],0,AML,1)
+  call zcopy_(3*N*N,[cZero],0,AMS,1)
 
   call pseudospin(MM,N,Z,iDir,1,1)
 
@@ -65,50 +65,50 @@ do iDir=1,3
   end do
 
   if (iprint > 3) then
-    write(6,*)
-    write(6,'(2x,a)') 'MOMENTS:  AMM(l,:,:)'
+    write(u6,*)
+    write(u6,'(2x,a)') 'MOMENTS:  AMM(l,:,:)'
     do l=1,3
-      write(6,*)
-      write(6,'(a,i3)') 'PROJECTION2 =',l
+      write(u6,*)
+      write(u6,'(a,i3)') 'PROJECTION2 =',l
       do i=1,N
-        write(6,'(20(2F12.8,2x))') (AMM(l,i,j),j=1,N)
+        write(u6,'(20(2F12.8,2x))') (AMM(l,i,j),j=1,N)
       end do
     end do
-    write(6,*)
-    write(6,'(2x,a)') 'MOMENTS:  AMS(l,:,:)'
+    write(u6,*)
+    write(u6,'(2x,a)') 'MOMENTS:  AMS(l,:,:)'
     do l=1,3
-      write(6,*)
-      write(6,'(a,i3)') 'PROJECTION2 =',l
+      write(u6,*)
+      write(u6,'(a,i3)') 'PROJECTION2 =',l
       do i=1,N
-        write(6,'(20(2F12.8,2x))') (AMS(l,i,j),j=1,N)
+        write(u6,'(20(2F12.8,2x))') (AMS(l,i,j),j=1,N)
       end do
     end do
-    write(6,*)
-    write(6,'(2x,a)') 'MOMENTS:  AML(l,:,:)'
+    write(u6,*)
+    write(u6,'(2x,a)') 'MOMENTS:  AML(l,:,:)'
     do l=1,3
-      write(6,*)
-      write(6,'(a,i3)') 'PROJECTION2 =',l
+      write(u6,*)
+      write(u6,'(a,i3)') 'PROJECTION2 =',l
       do i=1,N
-        write(6,'(20(2F12.8,2x))') (AML(l,i,j),j=1,N)
+        write(u6,'(20(2F12.8,2x))') (AML(l,i,j),j=1,N)
       end do
     end do
   end if
 end do !iDir
 
-write(6,'(A)') '--------------|--- H || Xm --|--- H || Ym --|--- H || Zm --|'
-write(6,'(65A)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
-write(6,'(A,3(F13.9,1x,A))') ' <1| mu_X |1> |',(dble(Mf(iDir,1)),'|',iDir=1,3)
-write(6,'(A,3(F13.9,1x,A))') ' <1| mu_Y |1> |',(dble(Mf(iDir,2)),'|',iDir=1,3)
-write(6,'(A,3(F13.9,1x,A))') ' <1| mu_Z |1> |',(dble(Mf(iDir,3)),'|',iDir=1,3)
-write(6,'(65a)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
-write(6,'(A,3(F13.9,1x,A))') '  <1| L_X |1> |',(dble(Lf(iDir,1)),'|',iDir=1,3)
-write(6,'(A,3(F13.9,1x,A))') '  <1| L_Y |1> |',(dble(Lf(iDir,2)),'|',iDir=1,3)
-write(6,'(A,3(F13.9,1x,A))') '  <1| L_Z |1> |',(dble(Lf(iDir,3)),'|',iDir=1,3)
-write(6,'(65a)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
-write(6,'(A,3(F13.9,1x,A))') '  <1| S_X |1> |',(dble(Sf(iDir,1)),'|',iDir=1,3)
-write(6,'(A,3(F13.9,1x,A))') '  <1| S_Y |1> |',(dble(Sf(iDir,2)),'|',iDir=1,3)
-write(6,'(A,3(F13.9,1x,A))') '  <1| S_Z |1> |',(dble(Sf(iDir,3)),'|',iDir=1,3)
-write(6,'(65a)') ('-',i=1,59),'|'
+write(u6,'(A)') '--------------|--- H || Xm --|--- H || Ym --|--- H || Zm --|'
+write(u6,'(65A)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(u6,'(A,3(F13.9,1x,A))') ' <1| mu_X |1> |',(real(Mf(iDir,1)),'|',iDir=1,3)
+write(u6,'(A,3(F13.9,1x,A))') ' <1| mu_Y |1> |',(real(Mf(iDir,2)),'|',iDir=1,3)
+write(u6,'(A,3(F13.9,1x,A))') ' <1| mu_Z |1> |',(real(Mf(iDir,3)),'|',iDir=1,3)
+write(u6,'(65a)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(u6,'(A,3(F13.9,1x,A))') '  <1| L_X |1> |',(real(Lf(iDir,1)),'|',iDir=1,3)
+write(u6,'(A,3(F13.9,1x,A))') '  <1| L_Y |1> |',(real(Lf(iDir,2)),'|',iDir=1,3)
+write(u6,'(A,3(F13.9,1x,A))') '  <1| L_Z |1> |',(real(Lf(iDir,3)),'|',iDir=1,3)
+write(u6,'(65a)') ('-',i=1,14),'|',(('-',i=1,14),'|',j=1,3)
+write(u6,'(A,3(F13.9,1x,A))') '  <1| S_X |1> |',(real(Sf(iDir,1)),'|',iDir=1,3)
+write(u6,'(A,3(F13.9,1x,A))') '  <1| S_Y |1> |',(real(Sf(iDir,2)),'|',iDir=1,3)
+write(u6,'(A,3(F13.9,1x,A))') '  <1| S_Z |1> |',(real(Sf(iDir,3)),'|',iDir=1,3)
+write(u6,'(65a)') ('-',i=1,59),'|'
 
 !-----------------------------------------------------------------------
 call mma_deallocate(Z)

@@ -30,7 +30,7 @@ integer :: i, j, k, l
 logical :: DetExists
 
 DetExists = .true.
-MINIMAL_REAL = tiny(0.d0)
+MINIMAL_REAL = tiny(MINIMAL_REAL)
 l = 1
 temp = 0
 ! Convert to upper triangular form

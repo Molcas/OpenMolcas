@@ -11,8 +11,10 @@
 
 subroutine set_T(nT,nTempMagn,TINPUT,TempMagn,Tmin,Tmax,chit_exp,Texp,T,XTexp)
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 ! input:
 integer, intent(in) :: nT, nTempMagn
 logical, intent(in) :: TINPUT
@@ -23,8 +25,8 @@ integer :: i
 real(kind=8) :: dltt
 
 ! set nT, T(i) and XTexp(i) arrays:
-T = 0.0_wp
-XTexp = 0.0_wp
+T(:) = Zero
+XTexp(:) = Zero
 !----------------------------------------------------------------------!
 if (TINPUT) then
   ! case 1:  T(iT) computed from input values: Texp, and nTempMagn
@@ -46,23 +48,22 @@ if (TINPUT) then
 else
   ! case 2:  T(iT) computed from input values: Tmin, Tmax, nT
   !          and nTempMagn
-  dltt = 0.0_wp
-  dltt = (tmax-tmin)/(dble(nT-1))
+  dltt = (tmax-tmin)/real(nT-1,kind=wp)
 
   if (nTempMagn > 0) then
     do i=1,nTempMagn
       T(i) = TempMagn(i)
     end do
 
-    T(1+nTempMagn) = 0.0001_wp
+    T(1+nTempMagn) = 1.0e-4_wp
     do i=2,nT
-      T(i+nTempMagn) = Tmin+dltt*dble(i-1)
+      T(i+nTempMagn) = Tmin+dltt*real(i-1,kind=wp)
     end do
   else !compute_magnetization
 
-    T(1) = 0.0001_wp
+    T(1) = 1.0e-4_wp
     do i=2,nT
-      T(i) = Tmin+dltt*dble(i-1)
+      T(i) = Tmin+dltt*real(i-1,kind=wp)
     end do
   end if
 end if !tinput
@@ -72,7 +73,7 @@ end if !tinput
 ! check for T=0 values and replace them
 ! with a definite nonzero value:
 do i=1,nT+nTempMagn
-  if (abs(T(i)) <= tiny(0.0_wp)) T(i) = 0.0001_wp
+  if (abs(T(i)) <= tiny(T)) T(i) = 1.0e-4_wp
 end do
 
 return

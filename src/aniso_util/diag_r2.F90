@@ -14,9 +14,10 @@ subroutine DIAG_R2(MATRIX,N,INFO,W,Z)
 ! MATRIX WITH THE DIMENSION NBTOT. THE EIGENVALUES OF THE DIAGONALIZATION
 ! ARE DIRECTED INTO W1 AND THE Real EIGENVECTORS ARE WRITTEN TO Z1.
 
+use Constants, only: Zero
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N
 integer, intent(out) :: INFO
 real(kind=8), intent(in) :: MATRIX(N,N)
@@ -32,17 +33,17 @@ real(kind=8), allocatable :: Z1(:,:) !(N,N)
 INFO = 0
 if (N < 1) return
 
-call dcopy_(N,[0.0_wp],0,W,1)
-call dcopy_(N*N,[0.0_wp],0,Z,1)
+call dcopy_(N,[Zero],0,W,1)
+call dcopy_(N*N,[Zero],0,Z,1)
 
 call mma_allocate(AP,(N*(N+1)/2),'AP')
 call mma_allocate(WORK,3*N,'WORK')
 call mma_allocate(W1,N,'W1')
 call mma_allocate(Z1,N,N,'Z1')
-call dcopy_(N*(N+1)/2,[0.0_wp],0,AP,1)
-call dcopy_(3*N,[0.0_wp],0,WORK,1)
-call dcopy_(N,[0.0_wp],0,W1,1)
-call dcopy_(N*N,[0.0_wp],0,Z1,1)
+call dcopy_(N*(N+1)/2,[Zero],0,AP,1)
+call dcopy_(3*N,[Zero],0,WORK,1)
+call dcopy_(N,[Zero],0,W1,1)
+call dcopy_(N*N,[Zero],0,Z1,1)
 
 do j=1,N
   do i=1,j

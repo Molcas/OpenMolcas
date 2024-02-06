@@ -22,20 +22,21 @@ subroutine calcmagn1(N,E,M,T,MT,Z)
 !   Z =  Boltzmann statistical sum, real scalar
 !-----------------------------------------------------------------------
 
+use Constants, only: Zero, cLight, kBoltzmann, rPlanck
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N
 real(kind=8), intent(in) :: E(N), T
 complex(kind=8), intent(in) :: M(N,N)
 real(kind=8), intent(out) :: Z, MT
 !-- local variables:
 integer :: im, mp1, i
-real(kind=8) :: kB
+real(kind=wp), parameter :: kB = 0.6950356000_wp !IFG kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! in cm-1*K-1
 !----------------------------------------------------------------------
 
-kB = 0.6950356000_wp !   in cm^-1*K-1
-Z = 0.0_wp
-MT = 0.0_wp
+Z = Zero
+MT = Zero
 im = 0
 mp1 = 0
 im = mod(N,11)
@@ -43,7 +44,7 @@ im = mod(N,11)
 if (im /= 0) then
   do i=1,im !N   ! im
     Z = Z+exp(-(E(i)-E(1))/kB/T)
-    MT = MT+exp(-(E(i)-E(1))/kB/T)*dble(M(I,I))
+    MT = MT+exp(-(E(i)-E(1))/kB/T)*real(M(I,I))
   end do
   if (N < 11) then
     MT = MT/Z
@@ -57,11 +58,11 @@ do i=mp1,N,11
         exp(-(E(i+4)-E(1))/kB/T)+exp(-(E(i+5)-E(1))/kB/T)+exp(-(E(i+6)-E(1))/kB/T)+exp(-(E(i+7)-E(1))/kB/T)+ &
         exp(-(E(i+8)-E(1))/kB/T)+exp(-(E(i+9)-E(1))/kB/T)+exp(-(E(i+10)-E(1))/kB/T)
 
-  MT = MT+exp(-(E(i)-E(1))/kB/T)*dble(M(i,i))+exp(-(E(i+1)-E(1))/kB/T)*dble(M(i+1,i+1))+exp(-(E(i+2)-E(1))/kB/T)*dble(M(i+2,i+2))+ &
-          exp(-(E(i+3)-E(1))/kB/T)*dble(M(i+3,i+3))+exp(-(E(i+4)-E(1))/kB/T)*dble(M(i+4,i+4))+ &
-          exp(-(E(i+5)-E(1))/kB/T)*dble(M(i+5,i+5))+exp(-(E(i+6)-E(1))/kB/T)*dble(M(i+6,i+6))+ &
-          exp(-(E(i+7)-E(1))/kB/T)*dble(M(i+7,i+7))+exp(-(E(i+8)-E(1))/kB/T)*dble(M(i+8,i+8))+ &
-          exp(-(E(i+9)-E(1))/kB/T)*dble(M(i+9,i+9))+exp(-(E(i+10)-E(1))/kB/T)*dble(M(i+10,i+10))
+  MT = MT+exp(-(E(i)-E(1))/kB/T)*real(M(i,i))+exp(-(E(i+1)-E(1))/kB/T)*real(M(i+1,i+1))+exp(-(E(i+2)-E(1))/kB/T)*real(M(i+2,i+2))+ &
+          exp(-(E(i+3)-E(1))/kB/T)*real(M(i+3,i+3))+exp(-(E(i+4)-E(1))/kB/T)*real(M(i+4,i+4))+ &
+          exp(-(E(i+5)-E(1))/kB/T)*real(M(i+5,i+5))+exp(-(E(i+6)-E(1))/kB/T)*real(M(i+6,i+6))+ &
+          exp(-(E(i+7)-E(1))/kB/T)*real(M(i+7,i+7))+exp(-(E(i+8)-E(1))/kB/T)*real(M(i+8,i+8))+ &
+          exp(-(E(i+9)-E(1))/kB/T)*real(M(i+9,i+9))+exp(-(E(i+10)-E(1))/kB/T)*real(M(i+10,i+10))
 end do
 
 MT = MT/Z

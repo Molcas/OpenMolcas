@@ -14,9 +14,11 @@ subroutine pseudospin(M,dim,z,iDir,iOpt,iprint)
 ! moment(l,dim,dim) (input)
 ! z - pseuDospin eigenfunctions (output)
 
+use Constants, only: Zero, cZero
+use Definitions, only: u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: dim, iprint
 integer, intent(in) :: iDir, iOpt
 complex(kind=8), intent(in) :: M(3,dim,dim)
@@ -33,30 +35,30 @@ logical :: dbg
 call mma_allocate(W,dim,'W')
 call mma_allocate(Z1,dim,dim,'Z1')
 dbg = iprint >= 3
-call dcopy_(dim,[0.0_wp],0,W,1)
-call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,Z,1)
-call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,Z1,1)
+call dcopy_(dim,[Zero],0,W,1)
+call zcopy_(dim*dim,[cZero],0,Z,1)
+call zcopy_(dim*dim,[cZero],0,Z1,1)
 info = 0
 call diag_c2(M(iDir,1:dim,1:dim),dim,info,w,z1)
 if (dbg) then
   do i=1,dim
-    write(6,'(A,i3,A,F24.14)') 'i=',i,' eigenvalue=',w(i)
+    write(u6,'(A,i3,A,F24.14)') 'i=',i,' eigenvalue=',w(i)
   end do
 end if
 if (info /= 0) then
-  write(6,'(5x,a)') 'PSEUDO::  diagonalization of the zeeman hamiltonian failed.'
+  write(u6,'(5x,a)') 'PSEUDO::  diagonalization of the zeeman hamiltonian failed.'
   go to 199
 end if
 if (dbg) then
-  write(6,*) 'PSEUDO:  norm of  M is:',dznrm2_(3*dim*dim,M,1)
-  write(6,*) 'PSEUDO:  norm of Z1 is:',dznrm2_(dim*dim,Z1,1)
+  write(u6,*) 'PSEUDO:  norm of  M is:',dznrm2_(3*dim*dim,M,1)
+  write(u6,*) 'PSEUDO:  norm of Z1 is:',dznrm2_(dim*dim,Z1,1)
 end if
 if (iDir == 3) then
   if (iOpt == 1) then
     call spin_phase(M,dim,z1,z)
   else
     call zcopy_(dim*dim,z1,1,z,1)
-    write(6,*) 'PSEUDOSPIN:  iOpt = ',iOpt
+    write(u6,*) 'PSEUDOSPIN:  iOpt = ',iOpt
     call WarningMessage(2,'PSEUDOSPIN: iOpt is not understood.')
   end if
 else

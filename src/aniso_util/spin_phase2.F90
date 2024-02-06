@@ -18,9 +18,11 @@ subroutine SPIN_PHASE2(MM,dim,Zinp,Zout)
 ! with the correspondind coefficient that sets the same phase to all spin
 ! eigenfunctions
 
+use Constants, only: Zero, One, cZero, cOne
+use Definitions, only: wp, u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: dim
 complex(kind=8), intent(in) :: mm(3,dim,dim)
 complex(kind=8), intent(in) :: Zinp(dim,dim)
@@ -43,39 +45,38 @@ call mma_allocate(r,dim,'r')
 call mma_allocate(phs,3,dim,dim,'phs')
 call mma_allocate(tmp,dim,dim,'tmp')
 !-----------------------------------------------------------------------
-call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-call zcopy_(dim,[(0.0_wp,0.0_wp)],0,r,1)
-call dcopy_(dim,[0.0_wp],0,rxr,1)
-call dcopy_(dim,[0.0_wp],0,rxi,1)
-rxr(1) = 1.0_wp
-rxi(1) = 0.0_wp
+call zcopy_(3*dim*dim,[cZero],0,phs,1)
+call zcopy_(dim*dim,[cZero],0,tmp,1)
+call zcopy_(dim,[cZero],0,r,1)
+call dcopy_(dim,[Zero],0,rxr,1)
+call dcopy_(dim,[Zero],0,rxi,1)
+rxr(1) = One
+rxi(1) = Zero
 
 ! compute magnetic moment, X
-call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-call zgemm_('C','N',dim,dim,dim,(1.0_wp,0.0_wp),Zinp(1:dim,1:dim),dim,mm(1,1:dim,1:dim),dim,(0.0_wp,0.0_wp),TMP(1:dim,1:dim),dim)
-call zgemm_('N','N',dim,dim,dim,(1.0_wp,0.0_wp),TMP(1:dim,1:dim),dim,Zinp(1:dim,1:dim),dim,(0.0_wp,0.0_wp),phs(1,1:dim,1:dim),dim)
+call zcopy_(3*dim*dim,[cZero],0,phs,1)
+call zgemm_('C','N',dim,dim,dim,cOne,Zinp,dim,mm(1,:,:),dim,cZero,TMP,dim)
+call zgemm_('N','N',dim,dim,dim,cOne,TMP,dim,Zinp,dim,cZero,phs(1,:,:),dim)
 
-r(1) = (1.0_wp,0.0_wp)
+r(1) = cOne
 do i=1,dim-1
   j = i+1
 
   if (abs(phs(1,i,j)) > 1.0e-14_wp) then
-    rxr(j) = dble(phs(1,i,j))/abs(phs(1,i,j))
+    rxr(j) = real(phs(1,i,j))/abs(phs(1,i,j))
     rxi(j) = aimag(phs(1,i,j))/abs(phs(1,i,j))
   else
-    rxr(j) = 1.0_wp
-    rxi(j) = 0.0_wp
+    rxr(j) = one
+    rxi(j) = Zero
   end if
 
   ! kind=8, complex double precision
   r(j) = cmplx(rxr(j),-rxi(j),kind=8)
 
-  if (dbg) write(6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE: R(',j,') = ',r(j)*r(i)
+  if (dbg) write(u6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE: R(',j,') = ',r(j)*r(i)
 end do
 
-t = (1.0_wp,0.0_wp)
+t = cOne
 do j=1,dim
   t = t*r(j)
   do i1=1,dim
@@ -84,17 +85,16 @@ do j=1,dim
 end do
 
 ! compute the momentum using the ZOUT functions:
-call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
-call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-call zgemm_('C','N',dim,dim,dim,(1.0_wp,0.0_wp),Zout(1:dim,1:dim),dim,mm(1,1:dim,1:dim),dim,(0.0_wp,0.0_wp),TMP(1:dim,1:dim),dim)
-call zgemm_('N','N',dim,dim,dim,(1.0_wp,0.0_wp),TMP(1:dim,1:dim),dim,Zout(1:dim,1:dim),dim,(0.0_wp,0.0_wp),phs(1,1:dim,1:dim),dim)
+call zcopy_(3*dim*dim,[cZero],0,phs,1)
+call zgemm_('C','N',dim,dim,dim,cOne,Zout,dim,mm(1,:,:),dim,cZero,TMP,dim)
+call zgemm_('N','N',dim,dim,dim,cOne,TMP,dim,Zout,dim,cZero,phs(1,:,:),dim)
 ! convention:
 !    mX(i,i+1) => Real, negative
 !    mY(i,i+1) => imag, positive
 !    mZ(i,i)   => diagonal
 do i=1,dim-1,2
   j = i+1
-  if (dble(phs(1,i,j)) > 0.0_wp) then
+  if (real(phs(1,i,j)) > Zero) then
     do i1=1,dim
       Zout(i1,j) = -Zout(i1,j)
     end do
@@ -103,26 +103,22 @@ end do
 
 if (dbg) then
 
-  call zcopy_(3*dim*dim,[(0.0_wp,0.0_wp)],0,phs,1)
   do l=1,3
-    call zcopy_(dim*dim,[(0.0_wp,0.0_wp)],0,tmp,1)
-    call ZGEMM_('C','N',dim,dim,dim,(1.0_wp,0.0_wp),Zout(1:dim,1:dim),dim,mm(l,1:dim,1:dim),dim,(0.0_wp,0.0_wp),TMP(1:dim,1:dim), &
-                dim)
-    call ZGEMM_('N','N',dim,dim,dim,(1.0_wp,0.0_wp),TMP(1:dim,1:dim),dim,Zout(1:dim,1:dim),dim,(0.0_wp,0.0_wp),phs(l,1:dim,1:dim), &
-                dim)
+    call ZGEMM_('C','N',dim,dim,dim,cOne,Zout,dim,mm(l,:,:),dim,cZero,TMP,dim)
+    call ZGEMM_('N','N',dim,dim,dim,cOne,TMP,dim,Zout,dim,cZero,phs(l,:,:),dim)
   end do
 
   do i=1,dim
     do j=1,dim
-      write(6,'(a,i2,a,i2,a,2ES24.14)') 'SPIN-PHASE:  Zout(',i,',',j,') = ',Zout(i,j)
+      write(u6,'(a,i2,a,i2,a,2ES24.14)') 'SPIN-PHASE:  Zout(',i,',',j,') = ',Zout(i,j)
     end do
   end do
 
-  write(6,'(//)')
+  write(u6,'(//)')
   do i=1,dim
     do j=1,diM
       if ((j == i-1) .or. (j == i+1)) then
-        write(6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =',(phs(l,i,j),l=1,3)
+        write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =',(phs(l,i,j),l=1,3)
       else
         cycle
       end if

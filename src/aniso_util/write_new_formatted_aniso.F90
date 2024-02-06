@@ -14,7 +14,6 @@ subroutine write_new_formatted_aniso(nss,nstate,multiplicity,eso_au,esfs_au,U,MM
 use Constants, only: Angstrom
 
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: nss, nstate, multiplicity(nstate)
 real(kind=8), intent(in) :: eso_au(nss), esfs_au(nstate)
 real(kind=8), intent(in) :: angmom(3,nstate,nstate)

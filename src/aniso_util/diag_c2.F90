@@ -10,13 +10,14 @@
 !***********************************************************************
 
 subroutine diag_c2(matrix,n,info,w,z)
-!   this routine performs the diagonalization of a Complex square
-!   matrix with the dimension nbtot. the eigenvalues of the diagonalization
-!   are directed into w1 and the Complex eigenvectors are written to z1.
+! this routine performs the diagonalization of a Complex square
+! matrix with the dimension nbtot. the eigenvalues of the diagonalization
+! are directed into w1 and the Complex eigenvectors are written to z1.
+
+use Constants, only: Zero, cZero, cOne
 
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer :: info, i, j, n
 complex(kind=8), intent(in) :: matrix(n,n)
 complex(kind=8), intent(out) :: z(n,n)
@@ -31,24 +32,24 @@ real(kind=8), external :: dznrm2_
 real(kind=8) :: RM
 
 info = 0
-call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,Z,1)
-call dcopy_(N,[0.0_wp],0,W,1)
+call zcopy_(N*N,[cZero],0,Z,1)
+call dcopy_(N,[Zero],0,W,1)
 
-RM = 0.0_wp
+RM = Zero
 RM = dznrm2_(n*n,matrix,1)
 
-if (RM > 0.0_wp) then
+if (RM > Zero) then
   call mma_allocate(ap,(n*(n+1)/2),'ap')
   call mma_allocate(work,(2*n-1),'work')
   call mma_allocate(z1,n,n,'work')
-  call zcopy_(N*(N+1)/2,[(0.0_wp,0.0_wp)],0,AP,1)
-  call zcopy_(2*N-1,[(0.0_wp,0.0_wp)],0,work,1)
-  call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,Z1,1)
+  call zcopy_(N*(N+1)/2,[cZero],0,AP,1)
+  call zcopy_(2*N-1,[cZero],0,work,1)
+  call zcopy_(N*N,[cZero],0,Z1,1)
 
   call mma_allocate(rwork,(3*n-2),'rwork')
   call mma_allocate(w1,n,'w1')
-  call dcopy_(3*N-2,[0.0_wp],0,rwork,1)
-  call dcopy_(N,[0.0_wp],0,W1,1)
+  call dcopy_(3*N-2,[Zero],0,rwork,1)
+  call dcopy_(N,[Zero],0,W1,1)
 
   do j=1,n
     do i=1,j
@@ -69,8 +70,8 @@ if (RM > 0.0_wp) then
 else
   ! return dummy results:
   do i=1,n
-    w(i) = 0.0_wp
-    z(i,i) = (1.0_wp,0.0_wp)
+    w(i) = Zero
+    z(i,i) = cOne
   end do
 end if
 

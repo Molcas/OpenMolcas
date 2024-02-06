@@ -16,8 +16,9 @@ complex*16 function CDET(MA,N,A)
 ! A is the Complex matrix
 !=================================================
 
+use Constants, only: Zero, cZero, cOne
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N, MA
 complex(kind=8), intent(inout) :: A(MA,MA)
 integer :: I, J, K, L, K1
@@ -25,10 +26,10 @@ real(kind=8) :: P, Q
 complex(kind=8) :: CP, CQ
 
 I = 0
-CDET = (0.0_wp,0.0_wp)
+CDET = cZero
 
 do K=1,N
-  P = 0.0_wp
+  P = Zero
 
   do J=K,N
     Q = abs(A(J,K))
@@ -38,7 +39,7 @@ do K=1,N
     end if
   end do
 
-  CP = (1.0_wp,0.0_wp)/A(I,K)
+  CP = cOne/A(I,K)
 
   if (I /= K) then
     CDET = -CDET

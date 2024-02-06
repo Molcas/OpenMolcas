@@ -11,8 +11,10 @@
 
 subroutine prbar(ist,s1,s2,M)
 
+use Constants, only: Three
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ist
 character(len=5), intent(in) :: s1, s2
 complex(kind=8), intent(in) :: M(3)
@@ -24,14 +26,13 @@ real(kind=8) :: R
 write(fx,'(i2,5a)') ist,'. | <',s1,' | mu_X |',s2,' > |'
 write(fy,'(i2,5a)') ist,'. | <',s1,' | mu_Y |',s2,' > |'
 write(fz,'(i2,5a)') ist,'. | <',s1,' | mu_Z |',s2,' > |'
-R = 0.0_wp
-R = (abs(M(1))+abs(M(2))+abs(M(3)))/3.0_wp
+R = (abs(M(1))+abs(M(2))+abs(M(3)))/Three
 
 f1 = '(2x,a,2ES19.11,1x,A,      23x,A)'
 f2 = '(2x,a,2ES19.11,1x,A,ES22.12,1x,A)'
-write(6,f1) fx,M(1),'|','|'
-write(6,f2) fy,M(2),'|',R,'|'
-write(6,f1) fz,M(3),'|','|'
+write(u6,f1) fx,M(1),'|','|'
+write(u6,f2) fy,M(2),'|',R,'|'
+write(u6,f1) fz,M(3),'|','|'
 
 return
 

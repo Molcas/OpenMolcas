@@ -30,8 +30,10 @@ subroutine ITO(N,k,q,C0,Cp,Cm)
 ! Cm = O- operator (output), complex
 ! C0 = CG0  (output), real number, positive
 
+use Constants, only: Half, cZero, cOne
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n, k, q
 real(kind=8), intent(out) :: C0
 complex(kind=8), intent(out) :: Cp(n,n), Cm(n,n)
@@ -40,22 +42,22 @@ integer :: m1, m2
 real(kind=8) :: rm1, rm2, rS, rK, rQ, CGp, CGm, fct
 external :: fct
 
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cp,1)
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cm,1)
+call zcopy_(n*n,[cZero],0,Cp,1)
+call zcopy_(n*n,[cZero],0,Cm,1)
 
-rS = dble(n-1)/2.0_wp
-rK = dble(k)
-rQ = dble(q)
-C0 = fct(n-1)*sqrt(dble(n)/(fct(n-k-1)*fct(n+k)))
+rS = real(n-1,kind=wp)*Half
+rK = real(k,kind=wp)
+rQ = real(q,kind=wp)
+C0 = fct(n-1)*sqrt(real(n,kind=wp)/(fct(n-k-1)*fct(n+k)))
 ! M1 and M2 go from max value to min value
 do m1=1,n
   do m2=1,n
-    rm1 = rS-dble(m1-1)
-    rm2 = rS-dble(m2-1)
+    rm1 = rS-real(m1-1,kind=wp)
+    rm2 = rS-real(m2-1,kind=wp)
     call Clebsh_Gordan(rS,rm2,rK,rQ,rS,rm1,CGp)
     call Clebsh_Gordan(rS,rm2,rK,-rQ,rS,rm1,CGm)
-    Cp(m1,m2) = cmplx(CGp/C0,0.0_wp,wp)
-    Cm(m1,m2) = cmplx(CGm/C0,0.0_wp,wp)
+    Cp(m1,m2) = CGp/C0*cOne
+    Cm(m1,m2) = CGm/C0*cOne
   end do
 end do
 
@@ -64,24 +66,25 @@ return
 end subroutine ITO
 !=!=
 subroutine Liviu_ITO(n,k,q,O,W,redME)
-
 ! generate O, W as in previous Stewens_matrixel function:
 ! redME =  ratio between Naoya's and Liviu operators
+
+use Constants, only: Zero, cZero, cOne
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n, k, q
 complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
 ! local
 real(kind=8) :: CR, C0
 
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
-CR = 0.0_wp
-C0 = 0.0_wp
-redME = (0.0_wp,0.0_wp)
+call zcopy_(n*n,[cZero],0,O,1)
+call zcopy_(n*n,[cZero],0,W,1)
+CR = Zero
+C0 = Zero
+redME = cZero
 call coeff_redus_sub(n,k,CR)
 call ITO(n,k,q,C0,O,W)
-redME = cmplx(C0*CR,0.0_wp,wp)
+redME = C0*CR*cOne
 call zscal_(n*n,redME,W,1)
 call zscal_(n*n,redME,O,1)
 
@@ -94,22 +97,23 @@ subroutine Stev_ITO(n,k,q,O,W,redME)
 ! redME =  ratio between Naoya's and Liviu operators
 ! scaled as for Stevens Operators by knm
 
+use Constants, only: One, cZero, cOne
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n, k, q
 complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
 ! local
 real(kind=8) :: F, knm(12,0:12)
 
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
-redME = (0.0_wp,0.0_wp)
+call zcopy_(n*n,[cZero],0,O,1)
+call zcopy_(n*n,[cZero],0,W,1)
+redME = cZero
 if ((k > 12) .or. (q > 12)) return
 
 call set_knm(knm)
 call Liviu_ITO(n,k,q,O,W,redME)
-F = 1.0_wp/knm(k,q)
-redME = cmplx(F,0.0_wp,wp)
+F = One/knm(k,q)
+redME = F*cOne
 call zscal_(n*n,redME,W,1)
 call zscal_(n*n,redME,O,1)
 
@@ -121,8 +125,9 @@ subroutine ESO(n,k,q,O,W,redME)
 ! generate Hermitian ESO operators, as in MATLAB EasySpin(stev) function
 ! only for q >= 0
 
+use Constants, only: Half, cZero, cOne, Onei
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer, intent(in) :: n, k, q
 complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
@@ -132,25 +137,25 @@ real(kind=8) :: CR, C0, knm(12,0:12), F
 complex(kind=8) :: mQ, HALF_R, FALF_I
 complex(kind=8), allocatable :: Cp(:,:), Cm(:,:)
 
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,O,1)
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,W,1)
-redME = (0.0_wp,0.0_wp)
+call zcopy_(n*n,[cZero],0,O,1)
+call zcopy_(n*n,[cZero],0,W,1)
+redME = cZero
 if ((k > 12) .or. (q > 12)) return ! not available in MATLAB
 
 call mma_allocate(Cp,n,n,'Cp')
 call mma_allocate(Cm,n,n,'Cm')
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cp,1)
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cm,1)
+call zcopy_(n*n,[cZero],0,Cp,1)
+call zcopy_(n*n,[cZero],0,Cm,1)
 
 call set_knm(knm)
 call coeff_redus_sub(n,k,CR)
 call ITO(n,k,q,C0,Cp,Cm)
 
 F = C0*CR/knm(k,q)
-redME = cmplx(F,0.0_wp,wp)
-mQ = cmplx((-1)**q,0.0_wp,wp)
-HALF_R = (0.5_wp,0.0_wp)
-FALF_I = (0.0_wp,0.5_wp)
+redME = F*cOne
+mQ = (-cOne)**q
+HALF_R = Half*cOne
+FALF_I = Half*Onei
 do m1=1,n
   do m2=1,n
     O(m1,m2) = HALF_R*redME*(Cm(m1,m2)+mQ*Cp(m1,m2))
@@ -171,8 +176,9 @@ subroutine Liviu_ESO(n,k,q,O,W,redME)
 ! Op = Ok+q
 ! the only difference with MATLAB's ESO are scaling factor Knm
 
+use Constants, only: Half, cZero, cOne, Onei
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer, intent(in) :: n, k, q
 complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
@@ -184,19 +190,19 @@ complex(kind=8), allocatable :: Cp(:,:), Cm(:,:)
 
 call mma_allocate(Cp,n,n,'Cp')
 call mma_allocate(Cm,n,n,'Cm')
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cp,1)
-call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,Cm,1)
+call zcopy_(n*n,[cZero],0,Cp,1)
+call zcopy_(n*n,[cZero],0,Cm,1)
 
 call coeff_redus_sub(n,k,CR)
 call ITO(n,k,q,C0,Cp,Cm)
-redME = cmplx(C0*CR,0.0_wp,wp)
-mQ = cmplx(dble((-1)**q),0.0_wp,wp)
+redME = C0*CR*cOne
+mQ = (-cOne)**q
 do m1=1,n
   do m2=1,n
     Om = Cm(m1,m2)*redME
     Op = Cp(m1,m2)*redME
-    O(m1,m2) = (0.5_wp,0.0_wp)*(Om+mQ*Op)
-    W(m1,m2) = (0.0_wp,0.5_wp)*(Om-mQ*Op)
+    O(m1,m2) = Half*(Om+mQ*Op)
+    W(m1,m2) = Half*Onei*(Om-mQ*Op)
   end do
 end do
 call mma_deallocate(Cp)
@@ -215,8 +221,10 @@ subroutine Stewens_matrixel(N,M,dim,ITO_O,ITO_W,IPRINT)
 ! Dip_Stewens(N, L, dim, dim) -- the matrix elements of the ITO tensor
 !               operators in the basis of effective spin eigenfunctions
 
+use Constants, only: Zero, Half, cZero, cOne
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N, M, dim, IPRINT
 complex(kind=8), intent(out) :: ITO_O(dim,dim), ITO_W(dim,dim)
 integer :: npar, i, j, ms1, ms2
@@ -225,67 +233,67 @@ complex(kind=8) :: ITO_PLUS(-dim:dim,-dim:dim), ITO_MINUS(-dim:dim,-dim:dim)
 !***********************************************************************
 
 NPAR = mod(dim,2)
-COEFF_REDUS = 0.0_wp
-ITO_PLUS(-dim:dim,-dim:dim) = (0.0_wp,0.0_wp)
-ITO_MINUS(-dim:dim,-dim:dim) = (0.0_wp,0.0_wp)
-ITO_O(1:dim,1:dim) = (0.0_wp,0.0_wp)
-ITO_W(1:dim,1:dim) = (0.0_wp,0.0_wp)
+COEFF_REDUS = Zero
+ITO_PLUS(:,:) = cZero
+ITO_MINUS(:,:) = cZero
+ITO_O(:,:) = cZero
+ITO_W(:,:) = cZero
 
 call COEFF_REDUS_SUB(dim,N,COEFF_REDUS)
-!COEFF_REDUS = 1.0_wp
-a = dble(N)
-al = dble(M)
-c = (dble(dim)-1.0_wp)/2.0_wp
-b = (dble(dim)-1.0_wp)/2.0_wp
+!COEFF_REDUS = One
+a = real(N,kind=wp)
+al = real(M,kind=wp)
+c = real(dim-1,kind=wp)*Half
+b = real(dim-1,kind=wp)*Half
 do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
   if ((ms1 == 0) .and. (NPAR == 0)) go to 160
   if (NPAR == 0) then
     if (ms1 < 0) then
-      gm = dble(ms1)+0.5_wp
+      gm = real(ms1,kind=wp)+Half
     else
-      gm = dble(ms1)-0.5_wp
+      gm = real(ms1,kind=wp)-Half
     end if
   else
-    gm = dble(ms1)
+    gm = real(ms1,kind=wp)
   end if
 
   do ms2=-(dim-NPAR)/2,(dim-NPAR)/2
     if ((ms2 == 0) .and. (NPAR == 0)) go to 150
     if (NPAR == 0) then
       if (ms2 < 0) then
-        bt = dble(ms2)+0.5_wp
+        bt = real(ms2,kind=wp)+Half
       else
-        bt = dble(ms2)-0.5_wp
+        bt = real(ms2,kind=wp)-Half
       end if
     else
-      bt = dble(ms2)
+      bt = real(ms2,kind=wp)
     end if
-    coeffCG = 0.0_wp
+    coeffCG = Zero
 
     call Clebsh_Gordan(a,al,b,bt,c,gm,coeffCG)
 
-    ITO_PLUS(ms1,ms2) = cmplx(coeffCG*COEFF_REDUS,0.0_wp,wp)
+    ITO_PLUS(ms1,ms2) = coeffCG*COEFF_REDUS*cOne
 
     if (iprint > 5) &
-      write(6,'(5x,2(a,i3,2x),6(a,f4.1,2x),2(a,f14.10,2x))') 'ms1=',ms1,'ms2=',ms2,'a=',a,'al=',al,'b=',b,'bt=',bt,'c=',c, &
-                                                             'gm=',gm,'coeffCG=',coeffCG,'coeffCG^2=',coeffCG**2
+      write(u6,'(5x,2(a,i3,2x),6(a,f4.1,2x),2(a,f14.10,2x))') 'ms1=',ms1,'ms2=',ms2,'a=',a,'al=',al,'b=',b,'bt=',bt,'c=',c, &
+                                                              'gm=',gm,'coeffCG=',coeffCG,'coeffCG^2=',coeffCG**2
 150 continue
   end do ! ms2
 160 continue
 end do ! ms1
 
-al = -dble(M)
+al = -real(M,kind=wp)
 
 do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
   if ((ms1 == 0) .and. (NPAR == 0)) go to 161
   if (NPAR == 0) then
     if (ms1 < 0) then
-      gm = dble(ms1)+0.5_wp
+      gm = real(ms1,kind=wp)+Half
     else
-      gm = dble(ms1)-0.5_wp
+      gm = real(ms1,kind=wp)-Half
     end if
   else
-    gm = dble(ms1)
+    gm = real(ms1,kind=wp)
   end if
 
   do ms2=-(dim-NPAR)/2,(dim-NPAR)/2
@@ -293,22 +301,22 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
 
     if (NPAR == 0) then
       if (ms2 < 0) then
-        bt = dble(ms2)+0.5_wp
+        bt = real(ms2,kind=wp)+Half
       else
-        bt = dble(ms2)-0.5_wp
+        bt = real(ms2,kind=wp)-Half
       end if
     else
-      bt = dble(ms2)
+      bt = real(ms2,kind=wp)
     end if
-    coeffCG = 0.0_wp
+    coeffCG = Zero
 
     call Clebsh_Gordan(a,al,b,bt,c,gm,coeffCG)
 
-    ITO_MINUS(ms1,ms2) = cmplx(coeffCG*COEFF_REDUS,0.0_wp,wp)
+    ITO_MINUS(ms1,ms2) = coeffCG*COEFF_REDUS*cOne
 
     if (iprint > 5) &
-      write(6,'(5x,2(a,i3,2x),6(a,f4.1,2x),2(a,f14.10,2x))') 'ms1=',ms1,'ms2=',ms2,'a=',a,'al=',al,'b=',b,'bt=',bt,'c=',c, &
-                                                             'gm=',gm,'coeffCG=',coeffCG,'coeffCG^2=',coeffCG**2
+      write(u6,'(5x,2(a,i3,2x),6(a,f4.1,2x),2(a,f14.10,2x))') 'ms1=',ms1,'ms2=',ms2,'a=',a,'al=',al,'b=',b,'bt=',bt,'c=',c, &
+                                                              'gm=',gm,'coeffCG=',coeffCG,'coeffCG^2=',coeffCG**2
 151 continue
   end do
 161 continue
@@ -331,37 +339,37 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
 end do
 
 if (IPRINT > 3) then
-  write(6,'(/)')
-  write(6,'(5X,A,2I3)') 'Operator ITO_PLUS',N,M
-  write(6,*)
+  write(u6,'(/)')
+  write(u6,'(5X,A,2I3)') 'Operator ITO_PLUS',N,M
+  write(u6,*)
   do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
     if ((ms1 == 0) .and. (NPAR == 0)) go to 158
-    if (NPAR == 1) write(6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
-    if (NPAR == 0) write(6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-dim/2,-1),(ITO_PLUS(ms1,ms2),ms2=1,dim/2)
+    if (NPAR == 1) write(u6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
+    if (NPAR == 0) write(u6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-dim/2,-1),(ITO_PLUS(ms1,ms2),ms2=1,dim/2)
 158 continue
   end do ! ms1
 
-  write(6,'(/)')
-  write(6,'(5X,A,2I3)') 'Operator ITO_MINUS',N,M
-  write(6,*)
+  write(u6,'(/)')
+  write(u6,'(5X,A,2I3)') 'Operator ITO_MINUS',N,M
+  write(u6,*)
   do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
     if ((ms1 == 0) .and. (NPAR == 0)) go to 159
-    if (NPAR == 1) write(6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
-    if (NPAR == 0) write(6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-dim/2,-1),(ITO_MINUS(ms1,ms2),ms2=1,dim/2)
+    if (NPAR == 1) write(u6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
+    if (NPAR == 0) write(u6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-dim/2,-1),(ITO_MINUS(ms1,ms2),ms2=1,dim/2)
 159 continue
   end do ! ms1
 
-  write(6,'(/////)')
-  write(6,'(5X,A,2I3)') 'ITO_O',N,M
-  write(6,*)
+  write(u6,'(/////)')
+  write(u6,'(5X,A,2I3)') 'ITO_O',N,M
+  write(u6,*)
   do i=1,dim
-    write(6,'(16(2X,2ES12.3))') (ITO_O(i,j),j=1,dim)
+    write(u6,'(16(2X,2ES12.3))') (ITO_O(i,j),j=1,dim)
   end do   ! i
-  write(6,'(/)')
-  write(6,'(5X,A,2I3)') 'ITO_W',N,M
-  write(6,*)
+  write(u6,'(/)')
+  write(u6,'(5X,A,2I3)') 'ITO_W',N,M
+  write(u6,*)
   do i=1,dim
-    write(6,'(16(2X,2ES12.3))') (ITO_W(i,j),j=1,dim)
+    write(u6,'(16(2X,2ES12.3))') (ITO_W(i,j),j=1,dim)
   end do ! i
 end if ! iPrint
 
@@ -372,19 +380,21 @@ end subroutine Stewens_matrixel
 real*8 function fct(n)
 ! this function provides correct answer till n=169 only
 
+use Constants, only: One
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 integer :: i
 real(kind=8) :: xct
 
-xct = 1.0_wp
-fct = 1.0_wp
+xct = One
+fct = One
 if (n < 0) then
-  write(6,'(A,i0)') 'FCT:  N<0 !'
-  write(6,'(A,i0)') 'N = ',N
-  write(6,'(A   )') 'It is an impossible case.'
-  fct = -9.d99
+  write(u6,'(A,i0)') 'FCT:  N<0 !'
+  write(u6,'(A,i0)') 'N = ',N
+  write(u6,'(A   )') 'It is an impossible case.'
+  fct = -9.0e99_wp
   return
 
 else if (n == 0) then
@@ -392,13 +402,13 @@ else if (n == 0) then
 
 else if ((n > 0) .and. (n <= 169)) then
   do i=1,n
-    xct = xct*dble(i)
+    xct = xct*real(i,kind=wp)
   end do
 
 else
-  write(6,'(A,i0)') 'FCT:   N = ',N
-  write(6,'(A)') 'Factorial of N>169 overflows on x86_64'
-  write(6,'(A)') 'Use higher numerical precision, or rethink your algorithm.'
+  write(u6,'(A,i0)') 'FCT:   N = ',N
+  write(u6,'(A)') 'Factorial of N>169 overflows on x86_64'
+  write(u6,'(A)') 'Use higher numerical precision, or rethink your algorithm.'
 end if
 
 fct = xct
@@ -420,23 +430,21 @@ subroutine COEFF_REDUS_SUB(dim,N,COEFF_REDUS)
 ! This norm makes the matrix elements of ESO identical to those of the
 ! operators from EasySpin (stev).
 
+use Constants, only: Zero, One, Two, Eight
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N, dim
 real(kind=8), intent(out) :: COEFF_REDUS
-integer :: i
 real(kind=8) :: FCT, Norm(100), s1, s2
 external :: fct
 
-COEFF_REDUS = 0.0_wp
-do i=1,100
-  Norm(i) = 0.0_wp
-end do
-Norm(1) = 1.0_wp
-Norm(2) = 2.0_wp
-Norm(3) = 2.0_wp
-Norm(4) = 8.0_wp
-Norm(5) = 8.0_wp
+COEFF_REDUS = Zero
+Norm(1) = One
+Norm(2) = Two
+Norm(3) = Two
+Norm(4) = Eight
+Norm(5) = Eight
 Norm(6) = 16.0_wp
 Norm(7) = 16.0_wp
 Norm(8) = 128.0_wp
@@ -513,11 +521,10 @@ Norm(78) = 18889465931478580854784.0_wp
 Norm(79) = 18889465931478580854784.0_wp
 Norm(80) = 302231454903657293676544.0_wp
 Norm(81) = 302231454903657293676544.0_wp
+Norm(82:100) = Zero
 !  new method
-s1 = 0.0_wp
-s2 = 0.0_wp
 s1 = sqrt(fct(dim+N)/fct(dim-N-1))
-s2 = dble(2**N)*sqrt(dble(dim))
+s2 = real(2**N,kind=wp)*sqrt(real(dim,kind=wp))
 
 COEFF_REDUS = Norm(N)*s1/s2
 
@@ -527,8 +534,10 @@ end subroutine COEFF_REDUS_SUB
 !=!=
 subroutine Clebsh_Gordan(a,al,b,bt,c,gm,coeffCG)
 
+use Constants, only: Zero, Two
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 real(kind=8), intent(in) :: a, al, b, bt, c, gm
 real(kind=8), intent(out) :: coeffCG
 real(kind=8) :: u, fct, s1, s2
@@ -536,45 +545,43 @@ integer :: lb1, lb2, i
 external :: fct
 
 ! exclude the cases for which CG coefficients are exactly zero
-coeffCG = 0.0_wp
+coeffCG = Zero
 if ((al+bt) /= gm) return
-if (a < 0.0_wp) return
-if (b < 0.0_wp) return
-if (c < 0.0_wp) return
+if (a < Zero) return
+if (b < Zero) return
+if (c < Zero) return
 if (abs(al) > a) return
 if (abs(bt) > b) return
 if (abs(gm) > c) return
 if ((abs(a-b) > c) .or. ((a+b) < c)) return
 if ((abs(b-c) > a) .or. ((b+c) < a)) return
 if ((abs(c-a) > b) .or. ((c+a) < b)) return
-if (mod(nint(2.0_wp*a),2) /= mod(nint(2.0_wp*abs(al)),2)) return
-if (mod(nint(2.0_wp*b),2) /= mod(nint(2.0_wp*abs(bt)),2)) return
-if (mod(nint(2.0_wp*c),2) /= mod(nint(2.0_wp*abs(gm)),2)) return
-u = 0.0_wp
+if (mod(nint(Two*a),2) /= mod(nint(Two*abs(al)),2)) return
+if (mod(nint(Two*b),2) /= mod(nint(Two*abs(bt)),2)) return
+if (mod(nint(Two*c),2) /= mod(nint(Two*abs(gm)),2)) return
+u = Zero
 lb1 = int(min(c-b+al,c-a-bt))
 lb2 = int(min(a+b-c,a-al,b+bt))
 if (lb1 < 0) then
   if (-lb1 > lb2) then
-    coeffCG = 0.0_wp
+    coeffCG = Zero
     return
   else
 
     do i=-lb1,lb2
-      u = u+dble((-1)**i)/ &
-          dble(fct(i)*fct(nint(a-al-i))*fct(nint(b+bt-i))*fct(nint(a+b-c-i))*fct(nint(c-b+al+i))*fct(nint(c-a-bt+i)))
+      u = u+real((-1)**i,kind=wp)/ &
+          real(fct(i)*fct(nint(a-al-i))*fct(nint(b+bt-i))*fct(nint(a+b-c-i))*fct(nint(c-b+al+i))*fct(nint(c-a-bt+i)),kind=wp)
     end do
   end if
 else
   do i=0,lb2
-    u = u+dble((-1)**i)/dble(fct(i)*fct(nint(a-al-i))*fct(nint(b+bt-i))*fct(nint(a+b-c-i))*fct(nint(c-b+al+i))*fct(nint(c-a-bt+i)))
+    u = u+real((-1)**i,kind=wp)/ &
+        real(fct(i)*fct(nint(a-al-i))*fct(nint(b+bt-i))*fct(nint(a+b-c-i))*fct(nint(c-b+al+i))*fct(nint(c-a-bt+i)),kind=wp)
   end do
 end if
 
-s1 = 0.0_wp
-s2 = 0.0_wp
-s1 = sqrt(dble(fct(nint(a+b-c))*fct(nint(a-b+c))*fct(nint(-a+b+c)))/dble(fct(nint(a+b+c+1))))
-
-s2 = sqrt(dble(fct(nint(a+al))*fct(nint(a-al))*fct(nint(b+bt))*fct(nint(b-bt))*fct(nint(c+gm))*fct(nint(c-gm))*(2*c+1)))
+s1 = sqrt(real(fct(nint(a+b-c))*fct(nint(a-b+c))*fct(nint(-a+b+c)),kind=wp)/real(fct(nint(a+b+c+1)),kind=wp))
+s2 = sqrt(real(fct(nint(a+al))*fct(nint(a-al))*fct(nint(b+bt))*fct(nint(b-bt))*fct(nint(c+gm))*fct(nint(c-gm))*(2*c+1),kind=wp))
 
 coeffCG = u*s1*s2
 
@@ -593,15 +600,17 @@ real*8 function W9J(a,b,c,d,e,f,g,h,j)
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: a, b, c, d, e, f, g, h, j
 integer :: n, nlow, nhig
 real(kind=8) :: W6J
 logical :: check_triangle
 external :: W6J, check_triangle
 
-W9j = 0.0_wp
+W9j = Zero
 if (mod(a+b,2) /= mod(c,2)) return
 if (mod(d+e,2) /= mod(f,2)) return
 if (mod(g+h,2) /= mod(j,2)) return
@@ -625,7 +634,7 @@ nlow = max(abs(a-j)/2,abs(d-h)/2,abs(b-f)/2)
 nhig = min((a+j)/2,(d+h)/2,(b+f)/2)
 
 do n=nlow,nhig
-  W9j = W9j+dble(2*n+1)*dble((-1)**(2*n))*W6J(a,b,c,f,j,2*n)*W6J(d,e,f,b,2*n,h)*W6J(g,h,j,2*n,a,d)
+  W9j = W9j+real(2*n+1,kind=wp)*real((-1)**(2*n),kind=wp)*W6J(a,b,c,f,j,2*n)*W6J(d,e,f,b,2*n,h)*W6J(g,h,j,2*n,a,d)
 end do
 
 return
@@ -642,15 +651,17 @@ real*8 function W6J(a,b,c,d,e,f)
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: a, b, c, d, e, f
 integer :: n, nlow, nhig
 real(kind=8) :: dlt, sum, fct, isum
 logical :: check_triangle
 external :: fct, dlt, check_triangle
 
-W6J = 0.0_wp
+W6J = Zero
 if (mod(a+b,2) /= mod(c,2)) return
 if (mod(c+d,2) /= mod(e,2)) return
 if (mod(a+e,2) /= mod(f,2)) return
@@ -670,9 +681,9 @@ nhig = 0
 nlow = max((a+b+c)/2,(c+d+e)/2,(b+d+f)/2,(a+e+f)/2)
 nhig = min((a+b+d+e)/2,(b+c+e+f)/2,(a+c+d+f)/2)
 
-sum = 0.0_wp
+sum = Zero
 do n=nlow,nhig
-  isum = dble((-1)**n)*fct(n+1)/fct((a+c+d+f)/2-n)/fct((b+c+e+f)/2-n)/fct(n-(a+b+c)/2)/fct(n-(c+d+e)/2)/fct(n-(a+e+f)/2)/ &
+  isum = real((-1)**n,kind=wp)*fct(n+1)/fct((a+c+d+f)/2-n)/fct((b+c+e+f)/2-n)/fct(n-(a+b+c)/2)/fct(n-(c+d+e)/2)/fct(n-(a+e+f)/2)/ &
          fct(n-(b+d+f)/2)/fct((a+b+d+e)/2-n)
   sum = sum+isum
 end do
@@ -692,16 +703,19 @@ real*8 function W3J(j1,j2,j3,m1,m2,m3)
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
+use Constants, only: Zero, Half
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: j1, j2, j3, m1, m2, m3
 real(kind=8) :: coeffCG
 
-W3J = 0.0_wp
-coeffCG = 0.0_wp
-call Clebsh_Gordan(dble(j1)/2.0_wp,dble(m1)/2.0_wp,dble(j2)/2.0_wp,dble(m2)/2.0_wp,dble(j3)/2.0_wp,-dble(m3)/2.0_wp,coeffCG)
-if (coeffCG == 0.0_wp) return
-W3J = dble((-1)**((j1-j2-m3)/2))*coeffCG/sqrt(dble(j3+1))
+W3J = Zero
+coeffCG = Zero
+call Clebsh_Gordan(real(j1,kind=wp)*Half,real(m1,kind=wp)*Half,real(j2,kind=wp)*Half,real(m2,kind=wp)*Half,real(j3,kind=wp)*Half, &
+                   -real(m3,kind=wp)*Half,coeffCG)
+if (coeffCG == Zero) return
+W3J = real((-1)**((j1-j2-m3)/2),kind=wp)*coeffCG/sqrt(real(j3+1,kind=wp))
 
 return
 
@@ -717,14 +731,16 @@ real*8 function WCG(a,al,b,bt,c,gm)
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: a, al, b, bt, c, gm
 integer :: lb1, lb2, i
 real(kind=8) :: u, fct, dlt
 external :: fct, dlt
 
-WCG = 0.0_wp
+WCG = Zero
 
 if ((al+bt) /= gm) return
 if (a < 0) return
@@ -739,27 +755,30 @@ if ((abs(c-a) > b) .or. ((c+a) < b)) return
 if (mod(a,2) /= mod(abs(al),2)) return
 if (mod(b,2) /= mod(abs(bt),2)) return
 if (mod(c,2) /= mod(abs(gm),2)) return
-u = 0.0_wp
+u = Zero
 lb1 = min((c-b+al)/2,(c-a-bt)/2)
 lb2 = min((a+b-c)/2,(a-al)/2,(b+bt)/2)
 if (lb1 < 0) then
   if (-lb1 > lb2) then
-    WCG = 0.0_wp
+    WCG = Zero
     return
   else
     do i=-lb1,lb2
-      u = u+dble((-1)**i)/(fct(i)*fct((a+b-c-2*i)/2)*fct((c-b+al+2*i)/2)*fct((c-a-bt+2*i)/2)*fct((a-al-2*i)/2)*fct((b+bt-2*i)/2))
+      u = u+real((-1)**i,kind=wp)/ &
+          (fct(i)*fct((a+b-c-2*i)/2)*fct((c-b+al+2*i)/2)*fct((c-a-bt+2*i)/2)*fct((a-al-2*i)/2)*fct((b+bt-2*i)/2))
     end do
   end if
 else
   do i=0,lb2
-    u = u+dble((-1)**i)/(fct(i)*fct((a+b-c-2*i)/2)*fct((c-b+al+2*i)/2)*fct((c-a-bt+2*i)/2)*fct((a-al-2*i)/2)*fct((b+bt-2*i)/2))
+    u = u+real((-1)**i,kind=wp)/ &
+        (fct(i)*fct((a+b-c-2*i)/2)*fct((c-b+al+2*i)/2)*fct((c-a-bt+2*i)/2)*fct((a-al-2*i)/2)*fct((b+bt-2*i)/2))
   end do
 end if
 WCG = u*dlt(a,b,c)*sqrt(fct((a+al)/2)*fct((a-al)/2)*fct((b+bt)/2)*fct((b-bt)/2)*fct((c+gm)/2)*fct((c-gm)/2)*(c+1))
 
-!write(6,'(A)') 'a,  al,  b,  bt,  c,  gm'
-!write(6,'(6(F4.1,2x),F20.14)') dble(a)/2.0_wp,dble(al)/2.0_wp,dble(b)/2.0_wp,dble(bt)/2.0_wp,dble(c)/2.0_wp,dble(gm)/2.0_wp,WCG
+!write(u6,'(A)') 'a,  al,  b,  bt,  c,  gm'
+!write(u6,'(6(F4.1,2x),F20.14)') real(a,kind=wp)*Half,real(al,kind=wp)*Half,real(b,kind=wp)*Half,real(bt,kind=wp)*Half, &
+!                                real(c,kind=wp)*Half,real(gm,kind=wp)*Half,WCG
 
 return
 
@@ -773,14 +792,16 @@ real*8 function dlt(a,b,c)
 ! a,b,c are positive Integer numbers,
 ! their values are DoUBLE than their original value
 
+use Constants, only: Zero, One
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: a, b, c
 real(kind=8) :: fct
 logical :: check_triangle
 external :: check_triangle, fct
 
-dlt = 0.0_wp
+dlt = Zero
 if ((abs(a-b) > c) .or. (a+b < c)) return
 if ((abs(b-c) > a) .or. (b+c < a)) return
 if ((abs(c-a) > b) .or. (c+a < b)) return
@@ -790,9 +811,9 @@ if (mod((-a+b+c),2) == 1) return
 if (mod((a+b+c),2) == 1) return
 if (.not. check_triangle(a,b,c)) return
 ! special cases:
-if (a == 0) dlt = 1.0_wp/sqrt(dble(b+1))
-if (b == 0) dlt = 1.0_wp/sqrt(dble(a+1))
-if (c == 0) dlt = 1.0_wp/sqrt(dble(a+1))
+if (a == 0) dlt = One/sqrt(real(b+1,kind=wp))
+if (b == 0) dlt = One/sqrt(real(a+1,kind=wp))
+if (c == 0) dlt = One/sqrt(real(a+1,kind=wp))
 
 dlt = sqrt(fct((a+b-c)/2)*fct((a-b+c)/2)*fct((-a+b+c)/2)/fct((a+b+c)/2+1))
 
@@ -802,17 +823,20 @@ end function dlt
 !=!=
 logical function check_triangle(a,b,c)
 !  checks If the values a,b,c comply with the triangle rule
+
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: a, b, c
 
 check_triangle = .false.
 
 if ((a <= 0) .or. (b <= 0) .or. (c <= 0)) then
-  write(6,'(A)') 'a=',a
-  write(6,'(A)') 'b=',b
-  write(6,'(A)') 'c=',c
-  write(6,'(A)') 'The rule is: a>0, b>0 and c>0!'
-  write(6,'(A)') 'Please check this issue, or report a bug!'
+  write(u6,'(A)') 'a=',a
+  write(u6,'(A)') 'b=',b
+  write(u6,'(A)') 'c=',c
+  write(u6,'(A)') 'The rule is: a>0, b>0 and c>0!'
+  write(u6,'(A)') 'Please check this issue, or report a bug!'
   return
 end if
 
@@ -836,26 +860,27 @@ complex*16 function WignerD(J,M1,M2,al,bt,gm)
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
+use Constants, only: Half, cZero, cOne, Onei
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: J, M1, M2
 real(kind=8), intent(in) :: al, bt, gm
 complex(kind=8) :: m1_fact, m2_fact, wig_fac
-real(kind=8) :: wigner_d
-external :: wigner_d
+real(kind=8), external :: wigner_d
 
 !  check correctness
-WignerD = (0.0_wp,0.0_wp)
-wig_fac = (0.0_wp,0.0_wp)
-m1_fact = (0.0_wp,0.0_wp)
-m2_fact = (0.0_wp,0.0_wp)
+WignerD = cZero
+wig_fac = cZero
+m1_fact = cZero
+m2_fact = cZero
 if (abs(M1) > J) return
 if (abs(M2) > J) return
 if (abs(J) < 0) return
 
-m1_fact = exp((0.0_wp,-1.0_wp)**(dble(al*M1)/2.0_wp))
-m2_fact = exp((0.0_wp,-1.0_wp)**(dble(gm*M2)/2.0_wp))
-wig_fac = cmplx(wigner_d(J,M1,M2,bt),0.0_wp,wp)
+m1_fact = exp((-Onei)**(real(al*M1,kind=wp)*Half))
+m2_fact = exp((-Onei)**(real(gm*M2,kind=wp)*Half))
+wig_fac = wigner_d(J,M1,M2,bt)*cOne
 WignerD = m1_fact*m2_fact*wig_fac
 
 return
@@ -867,24 +892,26 @@ real*8 function wigner_d(J,M1,M2,bt)
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
+use Constants, only: Zero, Half
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: J, M1, M2
 real(kind=8), intent(in) :: bt
 real(kind=8) :: ksum, fct
 integer :: kmin, kmax, i
 external :: fct
 
-wigner_d = 0.0_wp
-ksum = 0.0_wp
+wigner_d = Zero
+ksum = Zero
 kmax = min((J-M1)/2,(J-M2)/2)
 kmin = max(0,-(M1+M2)/2)
 do i=kmin,kmax
-  ksum = dble((-1)**(i))*(cos(bt/2.0_wp)**dble(M1/2+M2/2+2*i))*(sin(bt/2.0_wp)**dble(J-M1/2-M2/2-2*i))/fct(i)/fct((J-M1)/2-i)/ &
+  ksum = real((-1)**i,kind=wp)*(cos(bt*Half)**(M1/2+M2/2+2*i))*(sin(bt*Half)**(J-M1/2-M2/2-2*i))/fct(i)/fct((J-M1)/2-i)/ &
          fct((J-M2)/2-i)/fct((M1+M2)/2+i)
   wigner_d = wigner_d+ksum
 end do
-wigner_d = wigner_d*dble((-1)**((J-M2)/2))*sqrt(fct((J+M1)/2)*fct((J-M1)/2)*fct((J+M2)/2)*fct((J-M2)/2))
+wigner_d = wigner_d*real((-1)**((J-M2)/2),kind=wp)*sqrt(fct((J+M1)/2)*fct((J-M1)/2)*fct((J+M2)/2)*fct((J-M2)/2))
 
 return
 
@@ -900,28 +927,30 @@ real*8 function RedME(La,Sa,LaP,SaP,L,S)
 !
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: La, Sa, LaP, SaP, L, S
 integer :: JaP, jm, js, s_orb, l_orb
 real(kind=8) :: WCG, temp, factor
 external :: WCG
 
-RedME = 0.0_wp
-temp = 0.0_wp
+RedME = Zero
+temp = Zero
 l_orb = 6  ! Double of true value l_orb = 3
 s_orb = 1  ! Double of true value s_orb = 1/2
 JaP = LaP+SaP
-if (WCG(La,La,L,0,La,La) == 0.0_wp) return
-if (WCG(Sa,Sa,S,0,Sa,Sa) == 0.0_wp) return
-if (WCG(La,La,l_orb,LaP-La,LaP,LaP) == 0.0_wp) return
-if (WCG(Sa,Sa,s_orb,SaP-Sa,SaP,SaP) == 0.0_wp) return
+if (WCG(La,La,L,0,La,La) == Zero) return
+if (WCG(Sa,Sa,S,0,Sa,Sa) == Zero) return
+if (WCG(La,La,l_orb,LaP-La,LaP,LaP) == Zero) return
+if (WCG(Sa,Sa,s_orb,SaP-Sa,SaP,SaP) == Zero) return
 
-factor = sqrt(dble((La+1)*(Sa+1)))/WCG(La,La,L,0,La,La)/WCG(Sa,Sa,S,0,Sa,Sa)
+factor = sqrt(real((La+1)*(Sa+1),kind=wp))/WCG(La,La,L,0,La,La)/WCG(Sa,Sa,S,0,Sa,Sa)
 
 do jm=-l_orb,l_orb
   do js=-s_orb,s_orb
-    temp = temp+dble((-1)**((l_orb+jm+s_orb+js)/2))*WCG(l_orb,-jm,l_orb,jm,L,0)*WCG(s_orb,-js,s_orb,js,S,0)* &
+    temp = temp+real((-1)**((l_orb+jm+s_orb+js)/2),kind=wp)*WCG(l_orb,-jm,l_orb,jm,L,0)*WCG(s_orb,-js,s_orb,js,S,0)* &
            WCG(LaP,La+jm,SaP,Sa+js,JaP,La+jm+Sa+js)*WCG(LaP,La+jm,SaP,Sa+js,JaP,La+jm+Sa+js)*WCG(La,La,l_orb,jm,LaP,La+jm)* &
            WCG(La,La,l_orb,jm,LaP,La+jm)*WCG(Sa,Sa,s_orb,js,SaP,Sa+js)*WCG(Sa,Sa,s_orb,js,SaP,Sa+js)/ &
            WCG(La,La,l_orb,LaP-La,LaP,LaP)/WCG(La,La,l_orb,LaP-La,LaP,LaP)/WCG(Sa,Sa,s_orb,SaP-Sa,SaP,SaP)/ &
@@ -942,31 +971,33 @@ real*8 function jot1(t,L,ML,S,MS,La,Sa,LaP,SaP)
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 !    Substitutions:
 
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: L, ML, S, MS, La, Sa, LaP, SaP
 integer :: Ja, l_orb
 real(kind=8), intent(in) :: t
 real(kind=8) :: W9J, WCG, RedME, txt
 external :: W9J, WCG, RedME
 
-jot1 = 0.0_wp
-txt = 0.0_wp
+jot1 = Zero
+txt = Zero
 l_orb = 6  ! Double of true value l_orb = 3
 !s_orb = 1 ! Double of true value s_orb = 1/2
 if (mod(L,2) == 0) then
   if (ML == 0) then
-    txt = dble((-1)**(l_orb/2))*WCG(l_orb,-4,l_orb,4,L,0)
+    txt = real((-1)**(l_orb/2),kind=wp)*WCG(l_orb,-4,l_orb,4,L,0)
   else if (ML == 8) then
-    txt = -0.5_wp*dble((-1)**(l_orb/2))*WCG(l_orb,4,l_orb,4,L,8)
+    txt = -Half*real((-1)**(l_orb/2),kind=wp)*WCG(l_orb,4,l_orb,4,L,8)
   else if (ML == -8) then
-    txt = -0.5_wp*dble((-1)**(l_orb/2))*WCG(l_orb,4,l_orb,4,L,8)
+    txt = -Half*real((-1)**(l_orb/2),kind=wp)*WCG(l_orb,4,l_orb,4,L,8)
   end if
 end if
 Ja = La+Sa
 
-jot1 = t*txt*sqrt(dble((Ja+1)*(L+s+1)))*W9J(Ja,La,Sa,Ja,La,Sa,L+s,L,2)*WCG(L,ML,2,MS,L+s,ML+MS)*WCG(Ja,Ja,L+s,0,Ja,Ja)* &
-       RedME(La,Sa,LaP,SaP,L,2)/sqrt(2.0_wp)
+jot1 = t*txt*sqrt(real((Ja+1)*(L+s+1),kind=wp))*W9J(Ja,La,Sa,Ja,La,Sa,L+s,L,2)*WCG(L,ML,2,MS,L+s,ML+MS)*WCG(Ja,Ja,L+s,0,Ja,Ja)* &
+       RedME(La,Sa,LaP,SaP,L,2)/sqrt(Two)
 
 return
 
@@ -979,32 +1010,33 @@ real*8 function jot0(t,L,ML,La,Sa,LaP,SaP)
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 !    Substitutions:
 
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: L, ML, La, Sa, LaP, SaP
 integer :: Ja, l_orb
 real(kind=8), intent(in) :: t
 real(kind=8) :: W6J, WCG, RedME, txt, W9Jl
 external :: W6J, WCG, RedME
 
-jot0 = 0.0_wp
+jot0 = Zero
 l_orb = 6  ! Double of true value l_orb = 3
 !s_orb = 1 ! Double of true value s_orb = 1/2
-txt = 0.0_wp
+txt = Zero
 if (mod(L,4) == 0) then
   if (ML == 0) then
-    txt = dble((-1)**(l_orb/2))*WCG(l_orb,-4,l_orb,4,L,0)
+    txt = real((-1)**(l_orb/2),kind=wp)*WCG(l_orb,-4,l_orb,4,L,0)
   else if (ML == 8) then
-    txt = -0.5_wp*dble((-1)**(l_orb/2))*WCG(l_orb,4,l_orb,4,L,8)
+    txt = -Half*real((-1)**(l_orb/2),kind=wp)*WCG(l_orb,4,l_orb,4,L,8)
   else if (ML == -8) then
-    txt = -0.5_wp*dble((-1)**(l_orb/2))*WCG(l_orb,4,l_orb,4,L,8)
+    txt = -Half*real((-1)**(l_orb/2),kind=wp)*WCG(l_orb,4,l_orb,4,L,8)
   end if
 end if
 Ja = La+Sa
-W9Jl = 0.0_wp
-W9Jl = dble((-1)**((La+Ja+Sa+L)/2))*sqrt(dble((Sa+1)*(L+1)))*W6J(Ja,La,Sa,La,Ja,L)
+W9Jl = real((-1)**((La+Ja+Sa+L)/2),kind=wp)*sqrt(real((Sa+1)*(L+1),kind=wp))*W6J(Ja,La,Sa,La,Ja,L)
 
-jot0 = -t*txt*sqrt(dble((Ja+1)*(L+1)))*W9Jl*WCG(Ja,Ja,L,0,Ja,Ja)*RedME(La,Sa,LaP,SaP,L,0)/sqrt(2.0_wp)
+jot0 = -t*txt*sqrt(real((Ja+1)*(L+1),kind=wp))*W9Jl*WCG(Ja,Ja,L,0,Ja,Ja)*RedME(La,Sa,LaP,SaP,L,0)/sqrt(Two)
 
 return
 
@@ -1012,8 +1044,10 @@ end function jot0
 !=!=
 subroutine verify_CG(N)
 
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer :: n, k, q, m1, m2
 real(wp) :: rJ, rK, rQ, mf, rM1, rM2, rfE, rfG
@@ -1021,27 +1055,27 @@ real(wp) :: CG_A, CG_B, CG_C, CG_D, CG_E, CG_F, CG_G, CG_H
 logical :: prn
 
 !2J = n-1
-rJ = dble(n-1)/2.0_wp
+rJ = real(n-1,kind=wp)*Half
 
 do k=1,n-1
   do q=0,k
-    rK = dble(k)
-    rQ = dble(q)
+    rK = real(k,kind=wp)
+    rQ = real(q,kind=wp)
 
     do m1=1,n
       do m2=1,n
         ! real value for the projections:
-        rM1 = -rJ+dble(m1-1)
-        rM2 = -rJ+dble(m2-1)
+        rM1 = -rJ+real(m1-1,kind=wp)
+        rM2 = -rJ+real(m2-1,kind=wp)
 
-        CG_A = 0.0_wp
-        CG_B = 0.0_wp
-        CG_C = 0.0_wp
-        CG_D = 0.0_wp
-        CG_E = 0.0_wp
-        CG_F = 0.0_wp
-        CG_G = 0.0_wp
-        CG_H = 0.0_wp
+        CG_A = Zero
+        CG_B = Zero
+        CG_C = Zero
+        CG_D = Zero
+        CG_E = Zero
+        CG_F = Zero
+        CG_G = Zero
+        CG_H = Zero
         mf = (-1)**nint(rK)
         !(a , alpha, b, beta,    c,  gamma)
         call Clebsh_Gordan(rJ,rM2,rK,rQ,rJ,rM1,CG_A)
@@ -1049,7 +1083,7 @@ do k=1,n-1
         call Clebsh_Gordan(rJ,-rM2,rK,-rQ,rJ,-rM1,CG_C)
         call Clebsh_Gordan(rK,-rQ,rJ,-rM2,rJ,-rM1,CG_D)
 
-        rfE = ((-1)**(rJ-rM2))*(sqrt(dble(n)/(2.0_wp*rK+1.0_wp)))
+        rfE = ((-1)**(rJ-rM2))*(sqrt(real(n,kind=wp)/(Two*rK+One)))
         call Clebsh_Gordan(rJ,rM2,rJ,-rM1,rK,-rQ,CG_E)
         call Clebsh_Gordan(rJ,rM1,rJ,-rM2,rK,rQ,CG_F)
 
@@ -1057,8 +1091,8 @@ do k=1,n-1
         call Clebsh_Gordan(rJ,-rM1,rK,rQ,rJ,-rM2,CG_G)
         call Clebsh_Gordan(rK,-rQ,rJ,rM1,rJ,rM2,CG_H)
 
-        prn = (CG_A /= 0.0_wp) .or. (CG_B /= 0.0_wp) .or. (CG_C /= 0.0_wp) .or. (CG_D /= 0.0_wp) .or. (CG_E /= 0.0_wp) .or. &
-              (CG_F /= 0.0_wp) .or. (CG_G /= 0.0_wp) .or. (CG_H /= 0.0_wp)
+        prn = (CG_A /= Zero) .or. (CG_B /= Zero) .or. (CG_C /= Zero) .or. (CG_D /= Zero) .or. (CG_E /= Zero) .or. &
+              (CG_F /= Zero) .or. (CG_G /= Zero) .or. (CG_H /= Zero)
 
         if (prn) print '(A,1x,8F12.6)','n,k,q,CG:',CG_A,mf*CG_B,mf*CG_C,CG_D,rfE*CG_E,rfE*CG_F,rfG*CG_G,rfG*CG_H
 

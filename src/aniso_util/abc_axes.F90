@@ -18,56 +18,47 @@ subroutine abc_axes(cryst,coord,xyz,abc,Do_option,iReturn)
 !    If Do_option has other value, abort
 !    coord(3)-- Cartesian coordinates of the main magnetic center
 
+use Constants, only: Zero, One, Two, deg2rad
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: Do_option
 real(kind=8), intent(inout) :: xyz(3,3), abc(3,3)
 real(kind=8), intent(in) :: cryst(6), coord(3)
 integer, intent(out) :: iReturn
 ! local variables:
 integer :: i
-real(kind=8) :: a, b, c, al, bt, gm, cal, cbt, cgm, sgm, v, pi, x, y, z
+real(kind=8) :: a, b, c, al, bt, gm, cal, cbt, cgm, sgm, v, x, y, z
 real(kind=8) :: xyz2(3,3), pX(3), pY(3), pZ(3)
 
 ! initializations
-pi = 3.1415926535897932384626433832795028841971693993751_wp
-a = 0.0_wp
-b = 0.0_wp
-c = 0.0_wp
-al = 0.0_wp
-bt = 0.0_wp
-gm = 0.0_wp
-cal = 0.0_wp
-cbt = 0.0_wp
-cgm = 0.0_wp
-sgm = 0.0_wp
-X = 0.0_wp
-Y = 0.0_wp
-Z = 0.0_wp
-pX = 0.0_wp
-pY = 0.0_wp
-pZ = 0.0_wp
-xyz2 = 0.0_wp
-
 a = cryst(1)
 b = cryst(2)
 c = cryst(3)
-al = cryst(4)*pi/180.0_wp
-bt = cryst(5)*pi/180.0_wp
-gm = cryst(6)*pi/180.0_wp
+al = cryst(4)*deg2rad
+bt = cryst(5)*deg2rad
+gm = cryst(6)*deg2rad
 cal = cos(al)
 cbt = cos(bt)
 cgm = cos(gm)
 sgm = sin(gm)
 
-v = sqrt(1.0_wp-cal*cal-cbt*cbt-cgm*cgm+2.0_wp*cal*cbt*cgm)
+X = Zero
+Y = Zero
+Z = Zero
+pX(:) = Zero
+pY(:) = Zero
+pZ(:) = Zero
+xyz2(:,:) = Zero
+
+v = sqrt(One-cal*cal-cbt*cbt-cgm*cgm+Two*cal*cbt*cgm)
 
 if (Do_option == 1) then
-  abc = 0.0_wp
+  abc = Zero
   do i=1,3
-    xyz2(1,i) = 1.0_wp*xyz(1,i)+coord(1)
-    xyz2(2,i) = 1.0_wp*xyz(2,i)+coord(2)
-    xyz2(3,i) = 1.0_wp*xyz(3,i)+coord(3)
+    xyz2(1,i) = xyz(1,i)+coord(1)
+    xyz2(2,i) = xyz(2,i)+coord(2)
+    xyz2(3,i) = xyz(3,i)+coord(3)
   end do
 
   do i=1,3
@@ -75,16 +66,16 @@ if (Do_option == 1) then
     Y = xyz2(2,i)
     Z = xyz2(3,i)
 
-    pX(1) = 1.0_wp/a
+    pX(1) = One/a
     pY(1) = -cgm/(a*sgm)
     pZ(1) = ((cal*cgm-cbt)/(a*v*sgm))
 
-    pX(2) = 0.0_wp
-    pY(2) = 1.0_wp/(b*sgm)
+    pX(2) = Zero
+    pY(2) = One/(b*sgm)
     pZ(2) = (cbt*cgm-cal)/(b*v*sgm)
 
-    pX(3) = 0.0_wp
-    pY(3) = 0.0_wp
+    pX(3) = Zero
+    pY(3) = Zero
     pZ(3) = sgm/(c*v)
 
     abc(1,i) = pX(1)*X+pY(1)*Y+pZ(1)*Z
@@ -94,22 +85,22 @@ if (Do_option == 1) then
 
 else if (Do_option == 2) then
 
-  xyz = 0.0_wp
+  xyz = Zero
   do i=1,3
     X = abc(1,i)*a
     Y = abc(2,i)*b
     Z = abc(3,i)*c
 
-    pX(1) = 1.0_wp
+    pX(1) = One
     pY(1) = cgm
     pZ(1) = cbt
 
-    pX(2) = 0.0_wp
+    pX(2) = Zero
     pY(2) = sgm
     pZ(2) = (cal-cbt*cgm)/sgm
 
-    pX(3) = 0.0_wp
-    pY(3) = 0.0_wp
+    pX(3) = Zero
+    pY(3) = Zero
     pZ(3) = v/sgm
 
     xyz(1,i) = X+Y*cgm+Z*cbt
@@ -121,8 +112,8 @@ else if (Do_option == 2) then
     xyz(3,i) = pX(3)*X+pY(3)*Y+pZ(3)*Z
   end do
 else
-  write(6,'(A)') 'the Do_option is not specified. '
-  write(6,'(A)') 'the program continues without ABCC option'
+  write(u6,'(A)') 'the Do_option is not specified. '
+  write(u6,'(A)') 'the program continues without ABCC option'
   iReturn = 1
   go to 190
 end if

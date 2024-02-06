@@ -11,17 +11,19 @@
 
 real*8 function real_1_trace2(n,A)
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 ! size of the square matrices A(n,n)
 integer, intent(in) :: n
 real(kind=8), intent(in) :: A(n,n)
 ! local variables
 integer :: i
 
-real_1_trace2 = 0.0_wp
+real_1_trace2 = Zero
 do i=1,n
-  real_1_trace2 = real_1_trace2+A(i,i)/dble(n)
+  real_1_trace2 = real_1_trace2+A(i,i)/real(n,kind=wp)
 end do
 
 end function real_1_trace2

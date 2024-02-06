@@ -11,8 +11,9 @@
 
 subroutine recover_exch_HAM_from_Liviu_ITO(n1,n2,B,HAM)
 
+use Constants, only: cZero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer, intent(in) :: n1, n2
 complex(kind=8), intent(in) :: B((n1-1),-(n1-1):(n1-1),(n2-1),-(n2-1):(n2-1))
@@ -34,7 +35,7 @@ call mma_allocate(OO,n1,n1,n2,n2,'operator OO')
 call mma_allocate(OW,n1,n1,n2,n2,'operator WO')
 call mma_allocate(WO,n1,n1,n2,n2,'operator OW')
 call mma_allocate(WW,n1,n1,n2,n2,'operator WW')
-call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HAM,1)
+call zcopy_(n1*n1*n2*n2,[cZero],0,HAM,1)
 do k1=1,n1-1
   do q1=0,k1
     do k2=1,n2-1
@@ -43,10 +44,10 @@ do k1=1,n1-1
         call Liviu_ITO(n1,k1,q1,O1,W1,redME1)
         call Liviu_ITO(n2,k2,q2,O2,W2,redME2)
         ! generate coupled operators:
-        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OO,1)
-        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OW,1)
-        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WO,1)
-        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WW,1)
+        call zcopy_(n1*n1*n2*n2,[cZero],0,OO,1)
+        call zcopy_(n1*n1*n2*n2,[cZero],0,OW,1)
+        call zcopy_(n1*n1*n2*n2,[cZero],0,WO,1)
+        call zcopy_(n1*n1*n2*n2,[cZero],0,WW,1)
         do m1=1,n1
           do m2=1,n1
             do l1=1,n2

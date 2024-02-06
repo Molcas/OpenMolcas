@@ -11,8 +11,9 @@
 
 subroutine write_binary_aniso(nss,nstate,multiplicity,eso,esfs,U,MM,MS,DM,ANGMOM,EDMOM,AMFI,HSO)
 
+use Constants, only: Zero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: nss, nstate
 integer :: multiplicity(nstate)
 real(kind=8) :: eso(nss), esfs(nstate)
@@ -46,11 +47,11 @@ call ddafile(luaniso,1,esfs,nstate,idisk)
 call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
 ! spin-orbit mixing coefficients:
-tmpR = 0.0_wp
-tmpI = 0.0_wp
+tmpR(:,:) = Zero
+tmpI(:,:) = Zero
 do i=1,nss
   do j=1,nss
-    tmpR(i,j) = dble(U(i,j))
+    tmpR(i,j) = real(U(i,j))
     tmpI(i,j) = aimag(U(i,j))
   end do
 end do
@@ -58,11 +59,11 @@ call ddafile(luaniso,1,tmpR,nss*nss,idisk)
 call ddafile(luaniso,1,tmpI,nss*nss,idisk)
 
 ! spin-orbit Hamiltonian
-tmpR = 0.0_wp
-tmpI = 0.0_wp
+tmpR(:,:) = Zero
+tmpI(:,:) = Zero
 do i=1,nss
   do j=1,nss
-    tmpR(i,j) = dble(HSO(i,j))
+    tmpR(i,j) = real(HSO(i,j))
     tmpI(i,j) = aimag(HSO(i,j))
   end do
 end do
@@ -78,11 +79,11 @@ call ddafile(luaniso,1,amfi,3*nstate*nstate,idisk)
 
 ! magnetic moment:
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   do i=1,nss
     do j=1,nss
-      tmpR(i,j) = dble(MM(l,i,j))
+      tmpR(i,j) = real(MM(l,i,j))
       tmpI(i,j) = aimag(MM(l,i,j))
     end do
   end do
@@ -92,11 +93,11 @@ end do
 
 ! spin moment:
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   do i=1,nss
     do j=1,nss
-      tmpR(i,j) = dble(MS(l,i,j))
+      tmpR(i,j) = real(MS(l,i,j))
       tmpI(i,j) = aimag(MS(l,i,j))
     end do
   end do
@@ -106,11 +107,11 @@ end do
 
 ! electric dipole moment:
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   do i=1,nss
     do j=1,nss
-      tmpR(i,j) = dble(DM(l,i,j))
+      tmpR(i,j) = real(DM(l,i,j))
       tmpI(i,j) = aimag(DM(l,i,j))
     end do
   end do

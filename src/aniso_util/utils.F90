@@ -12,8 +12,9 @@
 subroutine cZeroMatrix(a,n)
 ! fills all elements of a square Complex matrix of size n by Complex zero
 
+use Constants, only: cZero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 complex(kind=8) :: a(n,n)
 !local
@@ -21,7 +22,7 @@ integer :: i, j
 
 do j=1,n
   do i=1,n
-    a(i,j) = (0.0_wp,0.0_wp)
+    a(i,j) = cZero
   end do
 end do
 
@@ -30,10 +31,11 @@ return
 end subroutine cZeroMatrix
 !=!=
 subroutine rZeroMatrix(a,n)
-
 ! fills all elements of a square Real matrix of size n by Complex zero
+
+use Constants, only: Zero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 real(kind=8) :: a(n,n)
 !local
@@ -41,7 +43,7 @@ integer :: i, j
 
 do j=1,n
   do i=1,n
-    a(i,j) = 0.0_wp
+    a(i,j) = Zero
   end do
 end do
 
@@ -52,15 +54,16 @@ end subroutine rZeroMatrix
 subroutine cZeroVector(a,n)
 ! fills all elements of a Complex vector of size n by Complex zero
 
+use Constants, only: cZero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: n
 complex(kind=8) :: a(n)
 !local
 integer :: i
 
 do i=1,n
-  a(i) = (0.0_wp,0.0_wp)
+  a(i) = cZero
 end do
 
 return
@@ -70,15 +73,16 @@ end subroutine cZeroVector
 subroutine rZeroVector(a,n)
 ! fills all elements of a Complex vector of size n by Complex zero
 
+use Constants, only: Zero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 real(kind=8) :: a(n)
 !local
 integer :: i
 
 do i=1,n
-  a(i) = 0.0_wp
+  a(i) = Zero
 end do
 
 return
@@ -88,8 +92,9 @@ end subroutine rZeroVector
 subroutine cZeroMoment(a,n)
 ! fills all elements of a Complex matrix of size a(3,n,n)  by Complex zero
 
+use Constants, only: cZero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 complex(kind=8) :: a(3,n,n)
 !local
@@ -98,7 +103,7 @@ integer :: i, j, l
 do i=1,n
   do j=1,n
     do l=1,3
-      a(l,j,i) = (0.0_wp,0.0_wp)
+      a(l,j,i) = cZero
     end do
   end do
 end do
@@ -109,28 +114,29 @@ end subroutine cZeroMoment
 !=!=
 subroutine prMom(a,m,n)
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 complex(kind=8) :: M(3,n,n)
 !local
 integer :: i, j, l
-character(len=1) :: proj(3)
+character :: proj(3)
 character(len=*) :: a
 character(len=50) :: fmtline
 
 proj(1) = 'X'
 proj(2) = 'Y'
 proj(3) = 'Z'
-write(6,*)
-write(6,'(2a)') 'print: ',a
+write(u6,*)
+write(u6,'(2a)') 'print: ',a
 write(fmtline,'(a,i2,a)') '(',n,'(2f9.4,1x))'
 do l=1,3
-  write(6,'(2a)') 'projection: ',proj(l)
+  write(u6,'(2a)') 'projection: ',proj(l)
   do i=1,n
-    write(6,fmtline) (M(l,i,j),j=1,n)
+    write(u6,fmtline) (M(l,i,j),j=1,n)
   end do
-  write(6,*)
+  write(u6,*)
 end do
 
 return
@@ -139,8 +145,10 @@ end subroutine prMom
 !=!=
 subroutine prMom_herm(a,m,n)
 
+use Constants, only: Three
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 complex(kind=8) :: M(3,n,n)
 !local
@@ -148,15 +156,14 @@ integer :: i, j, l
 real(kind=8) :: R
 character(len=*) :: a
 
-write(6,*)
-write(6,'(2a)') 'print: ',a
+write(u6,*)
+write(u6,'(2a)') 'print: ',a
 do i=1,n
   do j=1,i
-    R = 0.0_wp
-    R = (abs(M(1,i,j))+abs(M(2,i,j))+abs(M(3,i,j)))/3.0_wp
-    write(6,'(A,2I3,A,3(2F16.7,2x), 2F20.7)') 'i j: ',i,j,' <i|O|j>=',(M(l,i,j),l=1,3),R
+    R = (abs(M(1,i,j))+abs(M(2,i,j))+abs(M(3,i,j)))/Three
+    write(u6,'(A,2I3,A,3(2F16.7,2x), 2F20.7)') 'i j: ',i,j,' <i|O|j>=',(M(l,i,j),l=1,3),R
   end do
-  write(6,*)
+  write(u6,*)
 end do
 
 return
@@ -165,20 +172,21 @@ end subroutine prMom_herm
 !=!=
 subroutine pa_prMat(a,m,n)
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 complex(kind=8) :: M(n,n)
 !local
 integer :: i, j
-character*(*) a
-character*(50) fmtline
+character(len=*) a
+character(len=50) fmtline
 
-write(6,*)
-write(6,'(2a)') 'print: ',a
+write(u6,*)
+write(u6,'(2a)') 'print: ',a
 write(fmtline,'(a,i2,a)') '(',n,'(2f12.4,1x))'
 do i=1,n
-  write(6,fmtline) (M(i,j),j=1,n)
+  write(u6,fmtline) (M(i,j),j=1,n)
 end do
 
 return
@@ -187,20 +195,21 @@ end subroutine pa_prMat
 !=!=
 subroutine pa_prMatR(a,m,n)
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
 real(kind=8) :: M(n,n)
 !local
 integer :: i, j
-character*(*) a
-character*(50) fmtline
+character(len=*) a
+character(len=50) fmtline
 
-write(6,*)
-write(6,'(2a)') 'print: ',a
+write(u6,*)
+write(u6,'(2a)') 'print: ',a
 write(fmtline,'(a,i2,a)') '(',n,'(f19.14,1x))'
 do i=1,n
-  write(6,fmtline) (M(i,j),j=1,n)
+  write(u6,fmtline) (M(i,j),j=1,n)
 end do
 
 return
@@ -209,38 +218,39 @@ end subroutine pa_prMatR
 !=!=
 subroutine print_ZFS(a,m,n)
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: i, j, n, k, jEnd
 complex(kind=8), intent(in) :: M(n,n)
-character*(*) :: a
+character(len=*) :: a
 
-write(6,'(/)')
-write(6,'(100A)') ('-',i=1,87)
-write(6,'(A)') a
+write(u6,'(/)')
+write(u6,'(100A)') ('-',i=1,87)
+write(u6,'(A)') a
 do j=1,n,4
   jEnd = min(n,J+3)
   if (mod(n,2) == 0) then
     ! code for odd N
-    write(6,'(150A)') ('-',i=1,10),(('-',i=1,24),k=j,jEnd),'|'
-    write(6,'(10x,A,50(8x,A,I3,A,7x,A))') '|',('|',2*i-n-1,'/2 >','|',i=j,jEnd)
-    write(6,'(150A)') ('-',i=1,10),'|',('---- Real ----- Imag --|',k=j,jEnd)
+    write(u6,'(150A)') ('-',i=1,10),(('-',i=1,24),k=j,jEnd),'|'
+    write(u6,'(10x,A,50(8x,A,I3,A,7x,A))') '|',('|',2*i-n-1,'/2 >','|',i=j,jEnd)
+    write(u6,'(150A)') ('-',i=1,10),'|',('---- Real ----- Imag --|',k=j,jEnd)
     ! print the matrix
     do i=1,n
-      write(6,'(1x,A,I3,A,1x,A,50(2F11.5,1x,A))') '<',2*i-n-1,'/2','| |',(M(k,i),'|',k=j,jEnd)
+      write(u6,'(1x,A,I3,A,1x,A,50(2F11.5,1x,A))') '<',2*i-n-1,'/2','| |',(M(k,i),'|',k=j,jEnd)
     end do
-    write(6,'(150A)') ('-',i=1,10),(('-',i=1,24),k=j,jEnd),'|'
+    write(u6,'(150A)') ('-',i=1,10),(('-',i=1,24),k=j,jEnd),'|'
 
   else
     ! code for odd N
 
-    write(6,'(150A)') ('-',i=1,8),(('-',i=1,24),k=j,jEnd),'|'
-    write(6,'(8x,A,50(8x,A,I3,A,9x,A))') '|',('|',-(n-1)/2-1+i,' >','|',i=j,jEnd)
-    write(6,'(150A)') ('-',i=1,8),'|',('---- Real ----- Imag --|',k=j,jEnd)
+    write(u6,'(150A)') ('-',i=1,8),(('-',i=1,24),k=j,jEnd),'|'
+    write(u6,'(8x,A,50(8x,A,I3,A,9x,A))') '|',('|',-(n-1)/2-1+i,' >','|',i=j,jEnd)
+    write(u6,'(150A)') ('-',i=1,8),'|',('---- Real ----- Imag --|',k=j,jEnd)
     do i=1,n
-      write(6,'(1x,A,I3,1x,A,50(2F11.5,1x,A))') '<',-(n-1)/2-1+i,'| |',(M(k,i),'|',k=j,jEnd)
+      write(u6,'(1x,A,I3,1x,A,50(2F11.5,1x,A))') '<',-(n-1)/2-1+i,'| |',(M(k,i),'|',k=j,jEnd)
     end do
-    write(6,'(150A)') ('-',i=1,8),(('-',i=1,24),k=j,jEnd),'|'
+    write(u6,'(150A)') ('-',i=1,8),(('-',i=1,24),k=j,jEnd),'|'
   end if
 end do !j
 
@@ -250,30 +260,31 @@ end subroutine print_ZFS
 !=!=
 subroutine print_ZFS_eigenvectors(a,m,n)
 
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: i, j, n, k, jEnd
 complex(kind=8), intent(in) :: M(n,n) ! eigenvectors
-character*(1) :: a
+character :: a
 
-write(6,'(/)')
+write(u6,'(/)')
 do j=1,n,2
   jEnd = min(n,j+1) ! '|  > |'
-  write(6,'(A,6A)') '--------|',('-----------------------------|',i=j,jEnd)
-  write(6,'(3A,6(6x,a,i3,5x,a))') ' | ',a,'M > |',('ab initio state',i,'|',i=j,jEnd)
-  write(6,'(A,6A)') '--------|',('-- Real ---- Imag --|-Weight-|',i=j,jEnd)
+  write(u6,'(A,6A)') '--------|',('-----------------------------|',i=j,jEnd)
+  write(u6,'(3A,6(6x,a,i3,5x,a))') ' | ',a,'M > |',('ab initio state',i,'|',i=j,jEnd)
+  write(u6,'(A,6A)') '--------|',('-- Real ---- Imag --|-Weight-|',i=j,jEnd)
 
   do i=1,n
     if (mod(n,2) == 1) then
-      write(6,'(1x,A,1x,i2,A,6(2(ES22.14,1x),a,F6.1,1x,a))') '|',-(n-1)/2-(1-i),' > |',(dble(M(i,k)),aimag(M(i,k)),'|', &
-                                                             100.0_wp*(dble(M(i,k))**2+aimag(M(i,k))**2),'%|',k=j,jEnd)
+      write(u6,'(1x,A,1x,i2,A,6(2(ES22.14,1x),a,F6.1,1x,a))') '|',-(n-1)/2-(1-i),' > |',(real(M(i,k)),aimag(M(i,k)),'|', &
+                                                              100.0_wp*(real(M(i,k))**2+aimag(M(i,k))**2),'%|',k=j,jEnd)
     else
-      write(6,'(A,i3,a,a,6(2(ES22.14,1x),a,F6.1,1x,a))') '|',-(n-1)+2*(i-1),'/2> ','|',(dble(M(i,k)),aimag(M(i,k)),'|', &
-                                                         100.0_wp*(dble(M(i,k))**2+aimag(M(i,k))**2),'%|',k=j,jEnd)
+      write(u6,'(A,i3,a,a,6(2(ES22.14,1x),a,F6.1,1x,a))') '|',-(n-1)+2*(i-1),'/2> ','|',(real(M(i,k)),aimag(M(i,k)),'|', &
+                                                          100.0_wp*(real(M(i,k))**2+aimag(M(i,k))**2),'%|',k=j,jEnd)
     end if
   end do  !i
 
-  write(6,'(A,6A)') '--------|',('-----------------------------|',i=j,jEnd)
+  write(u6,'(A,6A)') '--------|',('-----------------------------|',i=j,jEnd)
 end do ! j
 
 return
@@ -282,46 +293,44 @@ end subroutine print_ZFS_eigenvectors
 !=!=
 subroutine print_ZFS_naoya(A,M,N)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N ! dimension of the pseudospin
 ! complex parameters to print
 complex(kind=8), intent(in) :: M(n,n)
-character*(1) :: a
+character :: a
 ! local variables:
 integer :: k, i, j, jEnd
 real(kind=8) :: Mr(n), Mi(n), Weight(n)
 
-write(6,'(/)')
+write(u6,'(/)')
 do j=1,n,2
   jEnd = min(n,j+1) ! '|  > |'
-  if (j == 1) write(6,'(150A)') '--------|',(('-',k=1,58),'|',i=j,jEnd)
-  write(6,'(3A,6(16x,a,i3,24x,a))') ' | ',a,'M > |',('ab initio state',i,'|',i=j,jEnd)
-  write(6,'(A,6A)') '--------|',('-------  Real  -------|------  Imaginary  -------|-Weight-|',i=j,jEnd)
+  if (j == 1) write(u6,'(150A)') '--------|',(('-',k=1,58),'|',i=j,jEnd)
+  write(u6,'(3A,6(16x,a,i3,24x,a))') ' | ',a,'M > |',('ab initio state',i,'|',i=j,jEnd)
+  write(u6,'(A,6A)') '--------|',('-------  Real  -------|------  Imaginary  -------|-Weight-|',i=j,jEnd)
 
   do i=1,n
     ! fix the sign:
     do k=j,jEnd
-      Mr(k) = 0.0_wp
-      Mi(k) = 0.0_wp
-      Weight(k) = 0.0_wp
-
-      Mr(k) = dble(M(i,k))
+      Mr(k) = real(M(i,k))
       Mi(k) = aimag(M(i,k))
       Weight(k) = 100.0_wp*(Mr(k)*Mr(k)+Mi(k)*Mi(k))
     end do
 
     ! print it
     if (mod(n,2) == 1) then
-      write(6,'(1x,A,1x,i2,A,2(SP,2(1x,ES21.14,1x),a,S,F6.1,1x,a))') '|',-(n-1)/2-(1-i),' > |', &
+      write(u6,'(1x,A,1x,i2,A,2(SP,2(1x,ES21.14,1x),a,S,F6.1,1x,a))') '|',-(n-1)/2-(1-i),' > |', &
                                                                      (Mr(k),Mi(k),'*I |',Weight(k),'%|',k=j,jEnd)
     else
-      write(6,'(A,i3,a,a,2(SP,2(1x,ES21.14,1x),a,S,F6.1,1x,a))') '|',-(n-1)+2*(i-1),'/2> ','|', &
+      write(u6,'(A,i3,a,a,2(SP,2(1x,ES21.14,1x),a,S,F6.1,1x,a))') '|',-(n-1)+2*(i-1),'/2> ','|', &
                                                                  (Mr(k),Mi(k),'*I |',Weight(k),'%|',k=j,jEnd)
     end if
   end do ! i
 
-  write(6,'(150A)') '--------|',(('-',k=1,58),'|',i=j,jEnd)
+  write(u6,'(150A)') '--------|',(('-',k=1,58),'|',i=j,jEnd)
 end do ! j
 
 return
@@ -330,8 +339,10 @@ end subroutine print_ZFS_naoya
 !=!=
 subroutine print_CFP_alpha(nlanth,n,B,C)
 
+use Constants, only: Zero, One
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n    ! dimension of the pseudospin
 integer, intent(in) :: nlanth  ! number of the lanthanide
 ! real and imaginary CF parameters
@@ -341,39 +352,39 @@ real(kind=8), intent(in) :: B(n,0:n), C(n,0:n)
 integer :: k, q, i
 real(kind=8) :: a(6)
 
-a = 0.0_wp
+a(:) = Zero
 call set_an(nlanth,a)
 
-! O(m1,m2) = (0.5_wp,0.0_wp) * ( Om + mQ*Op )
-! W(m1,m2) = (0.0_wp,0.5_wp) * ( Om - mQ*Op )
-write(6,'(/)')
-write(6,'(100A)') ('*',i=1,80)
-write(6,'(A)') 'The Crystal-Field Hamiltonian:'
-write(6,'(A)') '   Hcf = SUM_{k,q} alpha(k) * [ B(k,q) * O(k,q) +  C(k,q) * W(k,q) ];'
-write(6,'(A)') 'where:'
-write(6,'(A)') '   O(k,q) =  0.5 * ( (-1)**q * Y(k,+q) + Y(k,-q) );'
-write(6,'(A)') '   W(k,q) = -0.5 * ( (-1)**q * Y(k,+q) - Y(k,-q) ) * I;   (I = imaginary unit)'
-write(6,'(A)') '   k - the rank of the ITO, = 2, 4, 6;'
-write(6,'(A)') '   q - the component of the ITO, = 0, 1, 2, ... k;'
-write(6,'(A)') '   alpha(k) - Stevens coefficients;'
-write(6,'(A)') 'These operators have been defined in: '
-write(6,'(A)') '  L. F. Chibotaru, L.Ungur, J. Chem. Phys., 137, 064112 (2012).'
+!O(m1,m2) = Half*(Om+mQ*Op)
+!W(m1,m2) = Half*Onei*(Om-mQ*Op)
+write(u6,'(/)')
+write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') 'The Crystal-Field Hamiltonian:'
+write(u6,'(A)') '   Hcf = SUM_{k,q} alpha(k) * [ B(k,q) * O(k,q) +  C(k,q) * W(k,q) ];'
+write(u6,'(A)') 'where:'
+write(u6,'(A)') '   O(k,q) =  0.5 * ( (-1)**q * Y(k,+q) + Y(k,-q) );'
+write(u6,'(A)') '   W(k,q) = -0.5 * ( (-1)**q * Y(k,+q) - Y(k,-q) ) * I;   (I = imaginary unit)'
+write(u6,'(A)') '   k - the rank of the ITO, = 2, 4, 6;'
+write(u6,'(A)') '   q - the component of the ITO, = 0, 1, 2, ... k;'
+write(u6,'(A)') '   alpha(k) - Stevens coefficients;'
+write(u6,'(A)') 'These operators have been defined in: '
+write(u6,'(A)') '  L. F. Chibotaru, L.Ungur, J. Chem. Phys., 137, 064112 (2012).'
 
-write(6,'(100A)') ('-',i=1,76),'|'
-write(6,'(A)') '  k  |  q  |    1/alpha(k)  |         B(k,q)        |         C(k,q)        |'
+write(u6,'(100A)') ('-',i=1,76),'|'
+write(u6,'(A)') '  k  |  q  |    1/alpha(k)  |         B(k,q)        |         C(k,q)        |'
 do k=2,6,2
-  if (abs(A(k)) > tiny(0.0_wp)) then
-    write(6,'(A)') '-----|-----|----------------|-----------------------|-----------------------|'
+  if (abs(A(k)) > tiny(A)) then
+    write(u6,'(A)') '-----|-----|----------------|-----------------------|-----------------------|'
     do q=0,k
       if (q == k/2) then
-        write(6,'(2(2x,I1,2x,A),F14.5,2x,A,2(ES22.14,1x,A))') k,'|',q,'|',1.0_wp/a(k),'|',B(k,q)/a(k),'|',C(k,q)/a(k),'|'
+        write(u6,'(2(2x,I1,2x,A),F14.5,2x,A,2(ES22.14,1x,A))') k,'|',q,'|',One/a(k),'|',B(k,q)/a(k),'|',C(k,q)/a(k),'|'
       else
-        write(6,'(2(2x,I1,2x,A),16x,A,2(ES22.14,1x,A))') k,'|',q,'|','|',B(k,q)/a(k),'|',C(k,q)/a(k),'|'
+        write(u6,'(2(2x,I1,2x,A),16x,A,2(ES22.14,1x,A))') k,'|',q,'|','|',B(k,q)/a(k),'|',C(k,q)/a(k),'|'
       end if
     end do
   end if
 end do
-write(6,'(100A)') ('-',i=1,76),'|'
+write(u6,'(100A)') ('-',i=1,76),'|'
 
 return
 
@@ -381,8 +392,9 @@ end subroutine print_CFP_alpha
 !=!=
 subroutine print_CFP_LCLU(n,B,C,print_all)
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n    ! dimension of the pseudospin
 ! real and imaginary CF parameters
 real(kind=8), intent(in) :: B(n,0:n), C(n,0:n)
@@ -390,38 +402,38 @@ logical, intent(in) :: print_all
 ! local variables:
 integer :: k, q, i
 
-! O(m1,m2) = (0.5_wp,0.0_wp) * ( Om + mQ*Op )
-! W(m1,m2) = (0.0_wp,0.5_wp) * ( Om - mQ*Op )
-write(6,'(/)')
-write(6,'(100A)') ('*',i=1,80)
-write(6,'(A)') 'The Crystal-Field Hamiltonian:'
-write(6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) +  C(k,q) * W(k,q) ];'
-write(6,'(A)') 'where:'
-write(6,'(A)') '   O(k,q) =  0.5 * ( (-1)**q * Y(k,+q) + Y(k,-q) );'
-write(6,'(A)') '   W(k,q) = -0.5 * ( (-1)**q * Y(k,+q) - Y(k,-q) ) * I;   (I = imaginary unit)'
-write(6,'(A)') '   k - the rank of the ITO, = 2, 4, 6;'
-write(6,'(A)') '   q - the component of the ITO, = 0, 1, 2, ... k;'
-write(6,'(A)') 'These operators have been defined in: '
-write(6,'(A)') '  L. F. Chibotaru, L.Ungur, J. Chem. Phys., 137, 064112 (2012).'
+!O(m1,m2) = Half*(Om+mQ*Op)
+!W(m1,m2) = Half*Onei*(Om-mQ*Op)
+write(u6,'(/)')
+write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') 'The Crystal-Field Hamiltonian:'
+write(u6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) +  C(k,q) * W(k,q) ];'
+write(u6,'(A)') 'where:'
+write(u6,'(A)') '   O(k,q) =  0.5 * ( (-1)**q * Y(k,+q) + Y(k,-q) );'
+write(u6,'(A)') '   W(k,q) = -0.5 * ( (-1)**q * Y(k,+q) - Y(k,-q) ) * I;   (I = imaginary unit)'
+write(u6,'(A)') '   k - the rank of the ITO, = 2, 4, 6;'
+write(u6,'(A)') '   q - the component of the ITO, = 0, 1, 2, ... k;'
+write(u6,'(A)') 'These operators have been defined in: '
+write(u6,'(A)') '  L. F. Chibotaru, L.Ungur, J. Chem. Phys., 137, 064112 (2012).'
 
-write(6,'(100A)') ('-',i=1,59),'|'
-write(6,'(A)') '  k  |  q  |         B(k,q)        |         C(k,q)        |'
+write(u6,'(100A)') ('-',i=1,59),'|'
+write(u6,'(A)') '  k  |  q  |         B(k,q)        |         C(k,q)        |'
 if (print_all) then
   do k=2,n-1
-    write(6,'(A)') '-----|-----|-----------------------|-----------------------|'
+    write(u6,'(A)') '-----|-----|-----------------------|-----------------------|'
     do q=0,k
-      write(6,'(2(1x,I2,2x,A),2(ES22.14,1x,A))') k,'|',q,'|',B(k,q),'|',C(k,q),'|'
+      write(u6,'(2(1x,I2,2x,A),2(ES22.14,1x,A))') k,'|',q,'|',B(k,q),'|',C(k,q),'|'
     end do
   end do
 else
   do k=2,n-1,2
-    write(6,'(A)') '-----|-----|-----------------------|-----------------------|'
+    write(u6,'(A)') '-----|-----|-----------------------|-----------------------|'
     do q=0,k
-      write(6,'(2(1x,I2,2x,A),2(ES22.14,1x,A))') k,'|',q,'|',B(k,q),'|',C(k,q),'|'
+      write(u6,'(2(1x,I2,2x,A),2(ES22.14,1x,A))') k,'|',q,'|',B(k,q),'|',C(k,q),'|'
     end do
   end do
 end if
-write(6,'(100A)') ('-',i=1,59),'|'
+write(u6,'(100A)') ('-',i=1,59),'|'
 
 return
 
@@ -429,8 +441,9 @@ end subroutine print_CFP_LCLU
 !=!=
 subroutine print_CFP_stev(n,B,print_all)
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n    ! dimension of the pseudospin
 ! real and imaginary CF parameters
 real(kind=8), intent(in) :: B(n,-n:n)
@@ -440,24 +453,24 @@ integer :: k, q, i, kmax, iq
 real(kind=8) :: knm(12,0:12), f
 
 call set_knm(knm)
-write(6,'(/)')
-write(6,'(100A)') ('*',i=1,80)
-write(6,'(A)') 'The Crystal-Field Hamiltonian:'
-write(6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
-write(6,'(A)') 'where:'
-write(6,'(A)') '   O(k,q) =  Extended Stevens Operators (ESO) as defined in:'
-write(6,'(10x,A)') '1. Rudowicz, C.; J.Phys.C: Solid State Phys.,18(1985) 1415-1430.'
-write(6,'(10x,A)') '2. Implemented in the "EasySpin" function in MATLAB, www.easyspin.org.'
-write(6,'(A)') '   k - the rank of the ITO, = 2, 4, 6, 8, 10, 12.'
-write(6,'(A)') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
+write(u6,'(/)')
+write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') 'The Crystal-Field Hamiltonian:'
+write(u6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
+write(u6,'(A)') 'where:'
+write(u6,'(A)') '   O(k,q) =  Extended Stevens Operators (ESO) as defined in:'
+write(u6,'(10x,A)') '1. Rudowicz, C.; J.Phys.C: Solid State Phys.,18(1985) 1415-1430.'
+write(u6,'(10x,A)') '2. Implemented in the "EasySpin" function in MATLAB, www.easyspin.org.'
+write(u6,'(A)') '   k - the rank of the ITO, = 2, 4, 6, 8, 10, 12.'
+write(u6,'(A)') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
 if ((n-1) > 12) then
-  write(6,'(A)') 'k = 12 may not be the highest rank of the ITO for this case, but it '
-  write(6,'(A)') 'is the maximal k implemented in the "EasySpin" function in MATLAB.'
+  write(u6,'(A)') 'k = 12 may not be the highest rank of the ITO for this case, but it '
+  write(u6,'(A)') 'is the maximal k implemented in the "EasySpin" function in MATLAB.'
 end if
-write(6,'(A)') 'Knm are proportionality coefficients between the ESO and operators defined in '
-write(6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
-write(6,'(100A)') ('-',i=1,48),'|'
-write(6,'(A)') '  k |  q  |    (K)^2    |         B(k,q)        |'
+write(u6,'(A)') 'Knm are proportionality coefficients between the ESO and operators defined in '
+write(u6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
+write(u6,'(100A)') ('-',i=1,48),'|'
+write(u6,'(A)') '  k |  q  |    (K)^2    |         B(k,q)        |'
 if ((n-1) > 12) then
   kmax = 12
 else
@@ -466,24 +479,24 @@ end if
 
 if (print_all) then
   do k=2,kmax
-    write(6,'(A)') '----|-----|-------------|-----------------------|'
+    write(u6,'(A)') '----|-----|-------------|-----------------------|'
     do q=-k,k
       iq = abs(q)
       f = knm(k,iq)*knm(k,iq)
-      write(6,'((1x,I2,1x,A),(1x,I3,1x,A),F11.2,2x,A,2(ES22.14,1x,A))') k,'|',q,'|',f,'|',B(k,q),'|'
+      write(u6,'((1x,I2,1x,A),(1x,I3,1x,A),F11.2,2x,A,2(ES22.14,1x,A))') k,'|',q,'|',f,'|',B(k,q),'|'
     end do
   end do
 else
   do k=2,kmax,2
-    write(6,'(A)') '----|-----|-------------|-----------------------|'
+    write(u6,'(A)') '----|-----|-------------|-----------------------|'
     do q=-k,k
       iq = abs(q)
       f = knm(k,iq)*knm(k,iq)
-      write(6,'((1x,I2,1x,A),(1x,I3,1x,A),F11.2,2x,A,2(ES22.14,1x,A))') k,'|',q,'|',f,'|',B(k,q),'|'
+      write(u6,'((1x,I2,1x,A),(1x,I3,1x,A),F11.2,2x,A,2(ES22.14,1x,A))') k,'|',q,'|',f,'|',B(k,q),'|'
     end do
   end do
 end if
-write(6,'(90A)') ('-',i=1,48),'|'
+write(u6,'(90A)') ('-',i=1,48),'|'
 
 return
 
@@ -491,8 +504,10 @@ end subroutine print_CFP_stev
 !=!=
 subroutine print_CFP_naoya(N,A,print_all)
 
+use Constants, only: Zero
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N ! dimension of the pseudospin
 ! complex parameters to print
 complex(kind=8), intent(in) :: A((n-1),-(n-1):(n-1))
@@ -501,57 +516,57 @@ logical, intent(in) :: print_all
 integer :: k, q, i
 real(kind=8) :: Ar, Ai
 
-write(6,'(/)')
-write(6,'(100A)') ('*',i=1,80)
-write(6,'(A)') 'The Crystal-Field Hamiltonian:'
-write(6,'(A)')
-write(6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
-write(6,'(A)')
-write(6,'(A)') ' where:                                  '
-write(6,'(A)') '   O(k,q) =  Irreducible Tensor Operators'
-write(6,'(A)') '             defined as follows:         '
-write(6,'(A)')
-write(6,'(A)') '          Y(k,q)             CG(J,M2,k,q,J,M1)'
-write(6,'(A)') ' < J,M1 | ------ | J,M2 >  = -----------------'
-write(6,'(A)') '          Y(k,0)              CG(J,J,k,0,J,J) '
-write(6,'(A)')
-write(6,'(A)') '  CG - Clebsh-Gordan Coefficient:'
-write(6,'(A)') '                            c,gm     '
-write(6,'(A)') '      CG(a,al,b,bt,c,gm) = C         '
-write(6,'(A)') '                            a,al,b,bt'
-write(6,'(A)')
-write(6,'(A)') '   k - the rank of the ITO, = 2, 4, 6, 8, 10, 12.'
-write(6,'(A)') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
+write(u6,'(/)')
+write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') 'The Crystal-Field Hamiltonian:'
+write(u6,'(A)')
+write(u6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
+write(u6,'(A)')
+write(u6,'(A)') ' where:                                  '
+write(u6,'(A)') '   O(k,q) =  Irreducible Tensor Operators'
+write(u6,'(A)') '             defined as follows:         '
+write(u6,'(A)')
+write(u6,'(A)') '          Y(k,q)             CG(J,M2,k,q,J,M1)'
+write(u6,'(A)') ' < J,M1 | ------ | J,M2 >  = -----------------'
+write(u6,'(A)') '          Y(k,0)              CG(J,J,k,0,J,J) '
+write(u6,'(A)')
+write(u6,'(A)') '  CG - Clebsh-Gordan Coefficient:'
+write(u6,'(A)') '                            c,gm     '
+write(u6,'(A)') '      CG(a,al,b,bt,c,gm) = C         '
+write(u6,'(A)') '                            a,al,b,bt'
+write(u6,'(A)')
+write(u6,'(A)') '   k - the rank of the ITO, = 2, 4, 6, 8, 10, 12.'
+write(u6,'(A)') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
 ! thee table:
-write(6,'(100A)') ('-',i=1,59),'|'
-write(6,'(A,11x,A,12x,A)') '  k |  q  |','Complex parameter  A(k,q)','|'
-write(6,'(A)') '----|-----|--------  Real  ------|-----  Imaginary  -------|'
+write(u6,'(100A)') ('-',i=1,59),'|'
+write(u6,'(A,11x,A,12x,A)') '  k |  q  |','Complex parameter  A(k,q)','|'
+write(u6,'(A)') '----|-----|--------  Real  ------|-----  Imaginary  -------|'
 
 if (print_all) then
   do k=2,N-1
     do q=-k,k
-      Ar = dble(A(k,q))
+      Ar = real(A(k,q))
       Ai = aimag(A(k,q))
 
-      write(6,'((1x,I2,1x,A),(1x,I3,1x,A),SP,ES21.14,1x,ES21.14,A)') k,'|',q,'| ',Ar,Ai,' *I |'
+      write(u6,'((1x,I2,1x,A),(1x,I3,1x,A),SP,ES21.14,1x,ES21.14,A)') k,'|',q,'| ',Ar,Ai,' *I |'
 
     end do
-    if (k /= (N-1-mod(N-1,2))) write(6,'(A)') '----|-----|----------------------|-------------------------|'
+    if (k /= (N-1-mod(N-1,2))) write(u6,'(A)') '----|-----|----------------------|-------------------------|'
   end do
 else
   do k=2,N-1,2
     do q=-k,k
-      Ar = dble(A(k,q))
+      Ar = real(A(k,q))
       Ai = aimag(A(k,q))
 
-      write(6,'((1x,I2,1x,A),(1x,I3,1x,A),SP,ES21.14,1x,ES21.14,A)') k,'|',q,'| ', Ar,Ai,' *I |'
+      write(u6,'((1x,I2,1x,A),(1x,I3,1x,A),SP,ES21.14,1x,ES21.14,A)') k,'|',q,'| ', Ar,Ai,' *I |'
 
     end do
-    if (k /= (N-1-mod(N-1,2))) write(6,'(A)') '----|-----|----------------------|-------------------------|'
+    if (k /= (N-1-mod(N-1,2))) write(u6,'(A)') '----|-----|----------------------|-------------------------|'
   end do
 end if
 
-write(6,'(100A)') ('-',i=1,59),'|'
+write(u6,'(100A)') ('-',i=1,59),'|'
 
 return
 
@@ -559,8 +574,9 @@ end subroutine print_cfp_naoya
 !=!=
 subroutine print_MOM_ITO_stev(n,B,print_all)
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n    ! dimension of the pseudospin
 ! real and imaginary CF parameters, for x,y,z
 real(kind=8), intent(in) :: B(3,n,-n:n)
@@ -570,24 +586,24 @@ integer :: k, q, i, kmax, iq
 real(kind=8) :: knm(12,0:12), f
 
 call set_knm(knm)
-write(6,'(/)')
-write(6,'(100A)') ('*',i=1,80)
-write(6,'(A)') 'The magnetic moment is decomposed in Stev ITO:'
-write(6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
-write(6,'(A)') 'where:'
-write(6,'(A)') '   O(k,q) =  Extended Stevens Operators (ESO) as defined in:'
-write(6,'(10x,A)') '1. Rudowicz, C.; J.Phys.C: Solid State Phys.,18(1985) 1415-1430.'
-write(6,'(10x,A)') '2. Implemented in the "EasySpin" function in MATLAB, www.easyspin.org.'
-write(6,'(A)') '   k - the rank of the ITO, = 1, 3, 5, 7, 9, 11.'
-write(6,'(A)') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
+write(u6,'(/)')
+write(u6,'(100A)') ('*',i=1,80)
+write(u6,'(A)') 'The magnetic moment is decomposed in Stev ITO:'
+write(u6,'(A)') '   Hcf = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
+write(u6,'(A)') 'where:'
+write(u6,'(A)') '   O(k,q) =  Extended Stevens Operators (ESO) as defined in:'
+write(u6,'(10x,A)') '1. Rudowicz, C.; J.Phys.C: Solid State Phys.,18(1985) 1415-1430.'
+write(u6,'(10x,A)') '2. Implemented in the "EasySpin" function in MATLAB, www.easyspin.org.'
+write(u6,'(A)') '   k - the rank of the ITO, = 1, 3, 5, 7, 9, 11.'
+write(u6,'(A)') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
 if ((n-1) > 12) then
-  write(6,'(A)') 'k = 12 may not be the highest rank of the ITO for this case, but it '
-  write(6,'(A)') 'is the maximal k implemented in the "EasySpin" function in MATLAB.'
+  write(u6,'(A)') 'k = 12 may not be the highest rank of the ITO for this case, but it '
+  write(u6,'(A)') 'is the maximal k implemented in the "EasySpin" function in MATLAB.'
 end if
-write(6,'(A)') 'Knm are proportionality coefficients between the ESO and operators defined in '
-write(6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
-write(6,'(100A)') ('-',i=1,96),'|'
-write(6,'(A)') '  k |  q  |    (K)^2    |        B(k,q) - X     |        B(k,q) - Y     |        B(k,q) - Z     |'
+write(u6,'(A)') 'Knm are proportionality coefficients between the ESO and operators defined in '
+write(u6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
+write(u6,'(100A)') ('-',i=1,96),'|'
+write(u6,'(A)') '  k |  q  |    (K)^2    |        B(k,q) - X     |        B(k,q) - Y     |        B(k,q) - Z     |'
 if ((n-1) > 12) then
   kmax = 12
 else
@@ -597,27 +613,27 @@ end if
 if (print_all) then
 
   do k=1,kmax
-    write(6,'(A)') '----|-----|-------------|-----------------------|-----------------------|-----------------------|'
+    write(u6,'(A)') '----|-----|-------------|-----------------------|-----------------------|-----------------------|'
     do q=-k,k
       iq = abs(q)
       f = knm(k,iq)*knm(k,iq)
-      write(6,'((1x,I2,1x,A),(1x,I3,1x,A),F11.2,2x,A,3(ES22.14,1x,A))') k,'|',q,'|',f,'|',B(1,k,q),'|',B(2,k,q),'|',B(3,k,q),'|'
+      write(u6,'((1x,I2,1x,A),(1x,I3,1x,A),F11.2,2x,A,3(ES22.14,1x,A))') k,'|',q,'|',f,'|',B(1,k,q),'|',B(2,k,q),'|',B(3,k,q),'|'
     end do
   end do
 
 else
 
   do k=1,kmax,2
-    write(6,'(A)') '----|-----|-------------|-----------------------|-----------------------|-----------------------|'
+    write(u6,'(A)') '----|-----|-------------|-----------------------|-----------------------|-----------------------|'
     do q=-k,k
       iq = abs(q)
       f = knm(k,iq)*knm(k,iq)
-      write(6,'((1x,I2,1x,A),(1x,I3,1x,A),F11.2,2x,A,3(ES22.14,1x,A))') k,'|',q,'|',f,'|',B(1,k,q),'|',B(2,k,q),'|',B(3,k,q),'|'
+      write(u6,'((1x,I2,1x,A),(1x,I3,1x,A),F11.2,2x,A,3(ES22.14,1x,A))') k,'|',q,'|',f,'|',B(1,k,q),'|',B(2,k,q),'|',B(3,k,q),'|'
     end do
   end do
 
 end if
-write(6,'(100A)') ('-',i=1,96),'|'
+write(u6,'(100A)') ('-',i=1,96),'|'
 
 return
 

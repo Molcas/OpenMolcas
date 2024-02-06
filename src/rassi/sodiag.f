@@ -65,7 +65,7 @@ C BPTST       Storage for some testing
 
       ge=-(CONST_ELECTRON_G_FACTOR_)
       MU_BOHR=CONST_BOHR_MAGNETON_IN_SI_*
-     &        (CONV_AU_TO_CM1_/CONV_AU_TO_KJ_/1.0D3) ! in cm-1/T
+     &        (CONST_C_IN_SI_*CONST_PLANCK_*1.0D2) ! in cm-1/T
 
       WRITE(6,*)
       WRITE(6,*)

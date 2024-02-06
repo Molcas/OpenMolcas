@@ -12,7 +12,6 @@
 subroutine write_formatted_aniso(nss,nstate,multiplicity,eso,esfs,U,MM,MS,DM,angmom,edmom,amfi,HSO)
 
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: nss, nstate, multiplicity(nstate)
 real(kind=8), intent(in) :: eso(nss), esfs(nstate)
 real(kind=8), intent(in) :: angmom(3,nstate,nstate)

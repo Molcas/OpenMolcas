@@ -20,43 +20,41 @@ subroutine Set_knm(knm)
 ! of the ITO and ESO for each rank n and projection m
 !----------------------------------------!
 
+use Constants, only: Zero, One, Six, Ten, Half, OneHalf
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
-integer :: i, j
 real(kind=8) :: knm(12,0:12)
 
-do i=1,12
-  do j=0,12
-    knm(i,j) = 0.0_wp
-  end do
-end do
+knm(:,:) = Zero
+
 !----------------------------------------!
-knm(1,0) = 1.0_wp
-knm(1,1) = sqrt(0.500_wp)
+knm(1,0) = One
+knm(1,1) = sqrt(Half)
 !----------------------------------------!
-knm(2,0) = 1.0_wp
-knm(2,1) = sqrt(6.000_wp)
-knm(2,2) = sqrt(1.500_wp)
+knm(2,0) = One
+knm(2,1) = sqrt(Six)
+knm(2,2) = sqrt(OneHalf)
 !----------------------------------------!
-knm(3,0) = 1.0_wp
+knm(3,0) = One
 knm(3,1) = sqrt(0.750_wp)
 knm(3,2) = sqrt(7.500_wp)
 knm(3,3) = sqrt(1.250_wp)
 !----------------------------------------!
-knm(4,0) = 1.0_wp
+knm(4,0) = One
 knm(4,1) = sqrt(20.000_wp)
-knm(4,2) = sqrt(10.000_wp)
+knm(4,2) = sqrt(Ten)
 knm(4,3) = sqrt(140.000_wp)
 knm(4,4) = sqrt(17.500_wp)
 !----------------------------------------!
-knm(5,0) = 1.0_wp
+knm(5,0) = One
 knm(5,1) = sqrt(7.500_wp)
 knm(5,2) = sqrt(210.000_wp)
 knm(5,3) = sqrt(8.750_wp)
 knm(5,4) = sqrt(157.500_wp)
 knm(5,5) = sqrt(15.750_wp)
 !----------------------------------------!
-knm(6,0) = 1.0_wp
+knm(6,0) = One
 knm(6,1) = sqrt(42.000_wp)
 knm(6,2) = sqrt(26.250_wp)
 knm(6,3) = sqrt(105.000_wp)
@@ -64,7 +62,7 @@ knm(6,4) = sqrt(31.500_wp)
 knm(6,5) = sqrt(693.000_wp)
 knm(6,6) = sqrt(57.750_wp)
 !----------------------------------------!
-knm(7,0) = 1.0_wp
+knm(7,0) = One
 knm(7,1) = sqrt(0.875_wp)
 knm(7,2) = sqrt(5.250_wp)
 knm(7,3) = sqrt(2.625_wp)
@@ -73,7 +71,7 @@ knm(7,5) = sqrt(28.875_wp)
 knm(7,6) = sqrt(750.750_wp)
 knm(7,7) = sqrt(107.250_wp)
 !----------------------------------------!
-knm(8,0) = 1.0_wp
+knm(8,0) = One
 knm(8,1) = sqrt(72.000_wp)
 knm(8,2) = sqrt(1260.000_wp)
 knm(8,3) = sqrt(9240.000_wp)
@@ -83,7 +81,7 @@ knm(8,6) = sqrt(1716.000_wp)
 knm(8,7) = sqrt(51480.000_wp)
 knm(8,8) = sqrt(3217.500_wp)
 !----------------------------------------!
-knm(9,0) = 1.0_wp
+knm(9,0) = One
 knm(9,1) = sqrt(22.500_wp)
 knm(9,2) = sqrt(1980.000_wp)
 knm(9,3) = sqrt(1155.000_wp)
@@ -94,7 +92,7 @@ knm(9,7) = sqrt(1608.750_wp)
 knm(9,8) = sqrt(54697.500_wp)
 knm(9,9) = sqrt(3038.750_wp)
 !----------------------------------------!
-knm(10,0) = 1.0_wp
+knm(10,0) = One
 knm(10,1) = sqrt(110.000_wp)
 knm(10,2) = sqrt(82.500_wp)
 knm(10,3) = sqrt(8580.000_wp)
@@ -106,7 +104,7 @@ knm(10,8) = sqrt(6077.500_wp)
 knm(10,9) = sqrt(230945.000_wp)
 knm(10,10) = sqrt(11547.250_wp)
 !----------------------------------------!
-knm(11,0) = 1.0_wp
+knm(11,0) = One
 knm(11,1) = sqrt(8.250_wp)
 knm(11,2) = sqrt(1072.500_wp)
 knm(11,3) = sqrt(3753.750_wp)
@@ -119,7 +117,7 @@ knm(11,9) = sqrt(5773.625_wp)
 knm(11,10) = sqrt(242492.250_wp)
 knm(11,11) = sqrt(11022.375_wp)
 !----------------------------------------!
-knm(12,0) = 1.0_wp
+knm(12,0) = One
 knm(12,1) = sqrt(156.000_wp)
 knm(12,2) = sqrt(6006.000_wp)
 knm(12,3) = sqrt(4004.000_wp)

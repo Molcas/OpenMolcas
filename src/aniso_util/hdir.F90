@@ -13,8 +13,10 @@ subroutine hdir(nDir,nDirZee,dirX,dirY,dirZ,dir_weight,nP,nsymm,ngrid,nDirTot,dH
 ! this routine generates the directions of the applied magnetic
 ! field according to Lebedev-Laikov grids using the the given parameters (nsymm, ngrid)
 
+use Constants, only: Zero
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: nP, nDirTot, nDir, nDirZee, i, j
 integer :: nsymm, ngrid
 real(kind=8) :: dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3)
@@ -22,25 +24,25 @@ real(kind=8) :: dHX(nDirTot), dHY(nDirTot), dHZ(nDirTot), dHW(nDirTot)
 real(kind=8) :: X(nP), Y(nP), Z(nP), W(nP)
 
 if ((nDirTot-nDir-nDirZee-nP) /= 0) then
-  write(6,'(A   )') 'the number of directions of applied magnetic field is not consistent:'
-  write(6,'(A,i4)') 'nDir    = ',nDir
-  write(6,'(A,i4)') 'nDirZee = ',nDirZee
-  write(6,'(A,i4)') 'nP      = ',nP
-  write(6,'(A,i4)') 'nDirTot = ',nDirTot
-  write(6,'(A,i4)') 'The rule is :'
-  write(6,'(A   )') 'nDir + nDirZee + nP = nDirTot'
-  call xFlush(6)
+  write(u6,'(A   )') 'the number of directions of applied magnetic field is not consistent:'
+  write(u6,'(A,i4)') 'nDir    = ',nDir
+  write(u6,'(A,i4)') 'nDirZee = ',nDirZee
+  write(u6,'(A,i4)') 'nP      = ',nP
+  write(u6,'(A,i4)') 'nDirTot = ',nDirTot
+  write(u6,'(A,i4)') 'The rule is :'
+  write(u6,'(A   )') 'nDir + nDirZee + nP = nDirTot'
+  call xFlush(u6)
   call abend()
 end if
 ! intialization
-call dcopy_(nDirTot,[0.0_wp],0,dHX(1),1)
-call dcopy_(nDirTot,[0.0_wp],0,dHY(1),1)
-call dcopy_(nDirTot,[0.0_wp],0,dHZ(1),1)
-call dcopy_(nDirTot,[0.0_wp],0,dHW(1),1)
-call dcopy_(nP,[0.0_wp],0,X(1),1)
-call dcopy_(nP,[0.0_wp],0,Y(1),1)
-call dcopy_(nP,[0.0_wp],0,Z(1),1)
-call dcopy_(nP,[0.0_wp],0,W(1),1)
+call dcopy_(nDirTot,[Zero],0,dHX(1),1)
+call dcopy_(nDirTot,[Zero],0,dHY(1),1)
+call dcopy_(nDirTot,[Zero],0,dHZ(1),1)
+call dcopy_(nDirTot,[Zero],0,dHW(1),1)
+call dcopy_(nP,[Zero],0,X(1),1)
+call dcopy_(nP,[Zero],0,Y(1),1)
+call dcopy_(nP,[Zero],0,Z(1),1)
+call dcopy_(nP,[Zero],0,W(1),1)
 
 !if (nDir > 0) then
 !  call DCOPY_(nDir,dirX,1,dHX(1),1)

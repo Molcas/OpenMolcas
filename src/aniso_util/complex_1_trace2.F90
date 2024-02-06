@@ -11,8 +11,9 @@
 
 complex*16 function complex_1_trace2(n,A)
 
+use Constants, only: Zero, cOne
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 ! size of the square matrices A(n,n)
 integer, intent(in) :: n
 complex(kind=8), intent(in) :: A(n,n)
@@ -20,8 +21,8 @@ complex(kind=8), intent(in) :: A(n,n)
 integer :: i
 complex(kind=8) :: FACT
 
-complex_1_trace2 = 0.0_wp
-FACT = cmplx(dble(n),0.0_wp,wp)
+complex_1_trace2 = Zero
+FACT = n*cOne
 do i=1,n
   complex_1_trace2 = complex_1_trace2+A(i,i)/FACT
 end do

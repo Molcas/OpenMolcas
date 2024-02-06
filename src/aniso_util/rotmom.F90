@@ -12,8 +12,9 @@
 subroutine rotmom(MOM,N,R,MOMR)
 ! inverse rotation
 
+use Constants, only: cZero, cOne
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N
 real(kind=8), intent(in) :: R(3,3) !rotation matrix
 ! initial momentum matrix
@@ -26,12 +27,11 @@ complex(kind=8) :: RC(3,3)
 
 ! rotate the matrix
 
-call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
+call zcopy_(3*N*N,[cZero],0,MOMR,1)
 
 do l=1,3
   do k=1,3
-    RC(l,k) = (0.0_wp,0.0_wp)
-    RC(l,k) = cmplx(R(l,k),0.0d0,wp)
+    RC(l,k) = R(l,k)*cOne
   end do
 end do
 

@@ -12,8 +12,10 @@
 subroutine utmu2(exch,n,z,m)
 ! the same as utmu, except being that the input m is being transformed.
 
+use Constants, only: cZero, cOne
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer, intent(in) :: exch, n
 complex(kind=8), intent(inout) :: m(3,exch,exch)
@@ -28,36 +30,36 @@ complex(kind=8), allocatable :: tmp(:,:), mtmp(:,:,:)
 dbg = .false.
 
 if ((n <= 0) .or. (exch <= 0)) then
-  write(6,'(a)') 'in utmu2:   exch or n<=0 !!!'
-  write(6,*) 'exch=',exch
-  write(6,*) 'n   =',n
-  call xflush(6)
+  write(u6,'(a)') 'in utmu2:   exch or n<=0 !!!'
+  write(u6,*) 'exch=',exch
+  write(u6,*) 'n   =',n
+  call xflush(u6)
   call xquit(128)
 end if
 
 if (n > exch) then
-  write(6,'(a)') 'in utmu2:   exch < n !!!'
-  write(6,*) 'exch=',exch
-  write(6,*) 'n   =',n
-  write(6,'(a)') 'nothing is to be done >> return'
-  call xflush(6)
+  write(u6,'(a)') 'in utmu2:   exch < n !!!'
+  write(u6,*) 'exch=',exch
+  write(u6,*) 'n   =',n
+  write(u6,'(a)') 'nothing is to be done >> return'
+  call xflush(u6)
   call xquit(128)
 end if
 
 r1 = dznrm2_(3*exch*exch,m,1)
 r2 = dznrm2_(n*n,z,1)
 if ((r1 < 1.0e-25_wp) .or. (r2 < 1.0e-25_wp)) then
-  write(6,'(a)') 'in utmu2:   m or z are empty!!!'
-  write(6,*) 'norm(m)=',r1
-  write(6,*) 'norm(z)=',r2
+  write(u6,'(a)') 'in utmu2:   m or z are empty!!!'
+  write(u6,*) 'norm(m)=',r1
+  write(u6,*) 'norm(z)=',r2
   return
 end if
 
 if (dbg) then
-  write(6,'(a)') 'utmu2 :: input moment'
+  write(u6,'(a)') 'utmu2 :: input moment'
   do i=1,exch
     do j=1,exch
-      write(6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
+      write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
     end do
   end do
 end if
@@ -80,23 +82,16 @@ end if
 if (n == exch) then
 
   do l=1,3
-    call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
-    call zgemm_('c','n',exch,exch,exch,(1.0_wp,0.0_wp),z,exch,m(l,:,:),exch,(0.0_wp,0.0_wp),tmp,exch)
-    call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,m(l,:,:),1)
-    call zgemm_('n','n',exch,exch,exch,(1.0_wp,0.0_wp),tmp,exch,z,exch,(0.0_wp,0.0_wp),m(l,:,:),exch)
+    call zgemm_('c','n',exch,exch,exch,cOne,z,exch,m(l,:,:),exch,cZero,tmp,exch)
+    call zgemm_('n','n',exch,exch,exch,cOne,tmp,exch,z,exch,cZero,m(l,:,:),exch)
   end do !l
 
 else
 
   do l=1,3
-    call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
-    call zgemm_('c','n',n,n,n,(1.0_wp,0.0_wp),z(1:n,1:n),n,m(l,1:n,1:n),n,(0.0_wp,0.0_wp),tmp,n)
-    call zcopy_(n*n,[(0.0_wp,0.0_wp)],0,m(l,1:n,1:n),1)
-
-    call zgemm_('n','n',n,n,n,(1.0_wp,0.0_wp),tmp,n,z(1:n,1:n),n,(0.0_wp,0.0_wp),m(l,1:n,1:n),n)
-
-    call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
-    call zgemm_('c','n',n,exch,n,(1.0_wp,0.0_wp),z(1:n,1:n),n,m(l,1:n,1:exch),n,(0.0_wp,0.0_wp),tmp(1:n,1:exch),n)
+    call zgemm_('c','n',n,n,n,cOne,z(1:n,1:n),n,m(l,1:n,1:n),n,cZero,tmp,n)
+    call zgemm_('n','n',n,n,n,cOne,tmp,n,z(1:n,1:n),n,cZero,m(l,1:n,1:n),n)
+    call zgemm_('c','n',n,exch,n,cOne,z(1:n,1:n),n,m(l,1:n,1:exch),n,cZero,tmp(1:n,1:exch),n)
 
     do i=1,n
       do j=n+1,exch
@@ -115,16 +110,16 @@ else
 end if !n == exch
 
 if (dbg) then
-  write(6,'(a)') 'utmu2 :: unitary transformtion matrix'
+  write(u6,'(a)') 'utmu2 :: unitary transformtion matrix'
   do i=1,n
     do j=1,n
-      write(6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'| u |',j,'>',z(i,j)
+      write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'| u |',j,'>',z(i,j)
     end do
   end do
-  write(6,'(a)') 'utmu2 :: output moment'
+  write(u6,'(a)') 'utmu2 :: output moment'
   do i=1,exch
     do j=1,exch
-      write(6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
+      write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
     end do
   end do
 end if
@@ -133,7 +128,7 @@ if (n < exch) call mma_deallocate(mtmp)
 call mma_deallocate(tmp)
 
 if (dbg) then
-  write(6,*) 'at the end of utmu2'
+  write(u6,*) 'at the end of utmu2'
   call prmom('utmu2, moment',m,n)
 end if
 

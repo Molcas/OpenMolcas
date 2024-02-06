@@ -15,9 +15,10 @@
 subroutine read_hdf5_poly(file_h5,nss,nstate,eso,MM,MS,iReturn)
 
 use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
+use Constants, only: Zero, cZero, cOne, Onei, auTocm, gElectron
+use Definitions, only: wp, u6
 
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer, intent(in) :: nstate, nss
 integer :: multiplicity(nstate)
@@ -33,13 +34,14 @@ complex(kind=8) :: MS(3,nss,nss)
 !complex(kind=8), intent(out) :: DM(3,nss,nss) ! electric dipole moment
 !complex(kind=8), intent(out) :: HSO(nss,nss)
 !complex(kind=8) :: U(nLoc,nLoc)
-real(kind=8) :: AU2CM
+real(kind=8), parameter :: AU2CM = 219474.6313702_wp, & !IFG auTocm
+                           g_e = 2.00231930437180_wp !IFG -gElectron
 real(kind=8), allocatable :: etmp(:)
 real(kind=8), allocatable :: RR(:,:), RI(:,:)
 real(kind=8), allocatable :: AL(:,:,:)
 complex(kind=8), allocatable :: U(:,:)
 integer :: fileid, jend, INRM
-character(Len=180) :: file_h5
+character(len=180) :: file_h5
 real(kind=8) :: RNRM
 real(kind=8), external :: dnrm2_, dznrm2_
 complex(kind=8), external :: spin
@@ -47,15 +49,12 @@ complex(kind=8), external :: spin
 integer :: iss, ibas(nstate,-50:50)
 integer :: i, j, i1, j1, ist, jst, mult, multI, multJ
 integer :: l, ipar
-real(kind=8) :: g_e
 complex(kind=8), allocatable :: tmp(:,:)
 !logical :: Exist
 !logical :: found_edmom, found_angmom, found_hso, found_amfi, found_sos_coeff, found_eso, found_esfs, found_mult
 logical :: DBG
 
 DBG = .false.
-AU2CM = 219474.6313702_wp
-g_e = 2.00231930437180_wp
 !found_edmom = .false.
 !found_angmom = .false.
 !found_hso = .false.
@@ -66,7 +65,7 @@ g_e = 2.00231930437180_wp
 !found_mult = .false.
 iReturn = 0
 
-write(6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
+write(u6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
 
 ! the presence of the RASSI-HDF5 has already been made in
 ! read_hdf5_init subroutine, executed earlier
@@ -74,21 +73,21 @@ write(6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
 !----------------------------------------------------------------------|
 ! open the file
 fileid = mh5_open_file_r(trim(file_h5))
-if (DBG) write(6,'(A,I24)') 'read_hdf5_all:: fileid=',fileid
+if (DBG) write(u6,'(A,I24)') 'read_hdf5_all:: fileid=',fileid
 !----------------------------------------------------------------------|
 ! read spin multiplicity of each state:
 !if (mh5_exists_dset(fileid,'STATE_SPINMULT')) then
 !  found_mult = .true.
 call mh5_fetch_attr(fileid,'STATE_SPINMULT',multiplicity(1:nstate))
 if (DBG) then
-  write(6,'(A)') 'read_hdf5_all:: multiplicity'
-  write(6,'(20I4)') (multiplicity(i),i=1,nstate)
+  write(u6,'(A)') 'read_hdf5_all:: multiplicity'
+  write(u6,'(20I4)') (multiplicity(i),i=1,nstate)
 end if
 INRM = 0
 INRM = sum(multiplicity(:))
 if (INRM == 0) then
   call WarningMessage(2,'STATE_SPINMULT array read from HDF5 file has norm = zero')
-  write(6,*) 'Norm=',INRM
+  write(u6,*) 'Norm=',INRM
 end if
 !else
 !  call WarningMessage(2,'State multiplicity array was not found on HDF5 file')
@@ -97,25 +96,24 @@ end if
 !----------------------------------------------------------------------|
 ! read the spin free energies (cm-1)
 !call mma_allocate(etmp,nstate,'etmp)')
-!call dcopy_(nstate,[0.0_wp],0,etmp,1)
+!call dcopy_(nstate,[Zero],0,etmp,1)
 !if (mh5_exists_dset(fileid,'SFS_ENERGIES')) then
 !  found_esfs = .true.
 !  call mh5_fetch_dset(fileid,'SFS_ENERGIES',etmp)
-!  RNRM = 0.0_wp
 !  RNRM = dnrm2_(nstate,etmp,1)
-!  if (RNRM < 1.0D-50) then
+!  if (RNRM < 1.0e-50_wp) then
 !    call WarningMessage(2,'ESFS read from HDF5 file has norm = zero')
-!    write(6,*) 'Norm=',RNRM
+!    write(u6,*) 'Norm=',RNRM
 !  end if
 !  ! compute the energeis in cm-1:
 !  do i=1,nstate
 !    esfs(i) = (etmp(i)-etmp(1))*AU2CM
 !  end do
 !  if (DBG) then
-!    write(6,'(A)') 'read_hdf5_all:: esfs'
+!    write(u6,'(A)') 'read_hdf5_all:: esfs'
 !    do i=1,nstate,4
 !      jEND = MIN(nstate,i+3)
-!      write(6,'(4ES24.14)') (esfs(j),j=i,jEnd)
+!      write(u6,'(4ES24.14)') (esfs(j),j=i,jEnd)
 !    end do
 !  end if
 !else
@@ -126,25 +124,24 @@ end if
 !----------------------------------------------------------------------|
 ! read the spin-orbit energies (cm-1)
 call mma_allocate(etmp,nss,'tmp)')
-call dcopy_(nss,[0.0_wp],0,etmp,1)
+call dcopy_(nss,[Zero],0,etmp,1)
 if (mh5_exists_dset(fileid,'SOS_ENERGIES')) then
   !found_eso = .true.
   call mh5_fetch_dset(fileid,'SOS_ENERGIES',etmp)
-  RNRM = 0.0_wp
   RNRM = dnrm2_(nss,etmp,1)
-  if (RNRM < 1.0D-50) then
+  if (RNRM < 1.0e-50_wp) then
     call WarningMessage(2,'ESO read from HDF5 file has norm = zero')
-    write(6,*) 'Norm=',RNRM
+    write(u6,*) 'Norm=',RNRM
   end if
   ! compute the energeis in cm-1:
   do i=1,nss
     eso(i) = (etmp(i)-etmp(1))*AU2CM
   end do
   if (DBG) then
-    write(6,'(A)') 'read_hdf5_all:: eso'
+    write(u6,'(A)') 'read_hdf5_all:: eso'
     do i=1,nss,4
       jEnd = min(nss,i+3)
-      write(6,'(4ES24.14)') (eso(j),j=i,jEnd)
+      write(u6,'(4ES24.14)') (eso(j),j=i,jEnd)
     end do
   end if
 else
@@ -157,9 +154,9 @@ call mma_deallocate(etmp)
 call mma_allocate(RR,nss,nss,'RR')
 call mma_allocate(RI,nss,nss,'RI')
 call mma_allocate(U,nss,nss,'U')
-call dcopy_(nss*nss,[0.0_wp],0,RR,1)
-call dcopy_(nss*nss,[0.0_wp],0,RI,1)
-call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,U,1)
+call dcopy_(nss*nss,[Zero],0,RR,1)
+call dcopy_(nss*nss,[Zero],0,RI,1)
+call zcopy_(nss*nss,[cZero],0,U,1)
 
 if (mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL') .and. mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG')) then
   !found_sos_coeff = .true.
@@ -171,17 +168,16 @@ if (mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL') .and. mh5_exists_dset(fileid
       U(i,j) = cmplx(RR(i,j),RI(i,j),wp)
     end do
   end do
-  RNRM = 0.0_wp
   RNRM = dznrm2_(nss*nss,U,1)
-  if (RNRM < 1.0D-50) then
+  if (RNRM < 1.0e-50_wp) then
     call WarningMessage(2,'SOS-U matrix read from HDF5 file has norm = zero')
-    write(6,*) 'Norm=',RNRM
+    write(u6,*) 'Norm=',RNRM
   end if
   if (DBG) then
-    write(6,'(A)') 'read_hdf5_all:: U'
+    write(u6,'(A)') 'read_hdf5_all:: U'
     do i=1,nss
       do j=1,nss
-        write(6,'(2i4,A,2ES24.14)') i,j,' |',U(i,j)
+        write(u6,'(2i4,A,2ES24.14)') i,j,' |',U(i,j)
       end do
     end do
   end if
@@ -194,7 +190,7 @@ call mma_deallocate(RI)
 !----------------------------------------------------------------------|
 ! read the angular momentum integrals (L):
 call mma_allocate(AL,nstate,nstate,3,'AL')
-call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
+call dcopy_(nstate*nstate*3,[Zero],0,AL,1)
 if (mh5_exists_dset(fileid,'SFS_ANGMOM')) then
   !found_angmom = .true.
   call mh5_fetch_dset(fileid,'SFS_ANGMOM',AL)
@@ -205,17 +201,16 @@ if (mh5_exists_dset(fileid,'SFS_ANGMOM')) then
       end do
     end do
   end do
-  RNRM = 0.0_wp
   RNRM = dnrm2_(nstate*nstate*3,AL,1)
-  if (RNRM < 1.0D-50) then
+  if (RNRM < 1.0e-50_wp) then
     call WarningMessage(2,'SFS_ANGMOM read from HDF5 file has norm = zero')
-    write(6,*) 'Norm=',RNRM
+    write(u6,*) 'Norm=',RNRM
   end if
   if (DBG) then
-    write(6,'(A)') 'read_hdf5_all:: ANGMOM (x,y,z)'
+    write(u6,'(A)') 'read_hdf5_all:: ANGMOM (x,y,z)'
     do i=1,nstate
       do j=1,nstate
-        write(6,'(2i4,A,3ES24.14)') i,j,' |',(ANGMOM(l,i,j),l=1,3)
+        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(ANGMOM(l,i,j),l=1,3)
       end do
     end do
   end if
@@ -227,7 +222,7 @@ call mma_deallocate(AL)
 !----------------------------------------------------------------------|
 ! read the electric dipole momentum integrals (EDMOM):
 !call mma_allocate(AL,nstate,nstate,3,'AL')
-!call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
+!call dcopy_(nstate*nstate*3,[Zero],0,AL,1)
 !if (mh5_exists_dset(fileid,'SFS_EDIPMOM')) then
 !  found_edmom = .true.
 !  call mh5_fetch_dset(fileid,'SFS_EDIPMOM',AL)
@@ -238,17 +233,16 @@ call mma_deallocate(AL)
 !      end do
 !    end do
 !  end do
-!  RNRM = 0.0_wp
 !  RNRM = dnrm2_(nstate*nstate*3,AL,1)
-!  if (RNRM < 1.0D-50) then
+!  if (RNRM < 1.0e-50_wp) then
 !    call WarningMessage(2,'SFS_EDIPMOM read from HDF5 file has norm = zero')
-!    write(6,*) 'Norm=',RNRM
+!    write(u6,*) 'Norm=',RNRM
 !  end if
 !  if (DBG) then
-!    write(6,'(A)') 'read_hdf5_all:: SFS_EDIPMOM(x,y,z)'
+!    write(u6,'(A)') 'read_hdf5_all:: SFS_EDIPMOM(x,y,z)'
 !    do i=1,nstate
 !      do j=1,nstate
-!        write(6,'(2i4,A,3ES24.14)') i,j,' |',(EDMOM(l,i,j),l=1,3)
+!        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(EDMOM(l,i,j),l=1,3)
 !      end do
 !    end do
 !  end if
@@ -260,7 +254,7 @@ call mma_deallocate(AL)
 !----------------------------------------------------------------------|
 ! read the spin-orbit integrals (AMFI):
 !call mma_allocate(AL,nstate,nstate,3,'AL')
-!call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
+!call dcopy_(nstate*nstate*3,[Zero],0,AL,1)
 !if (mh5_exists_dset(fileid,'SFS_AMFIINT')) then
 !  found_amfi=.true.
 !  call mh5_fetch_dset(fileid,'SFS_AMFIINT',AL)
@@ -271,17 +265,16 @@ call mma_deallocate(AL)
 !      end do
 !    end do
 !  end do
-!  RNRM = 0.0_wp
 !  RNRM = dnrm2_(nstate*nstate*3,AL,1)
-!  if (RNRM < 1.0D-50) then
+!  if (RNRM < 1.0e-50_wp) then
 !    call WarningMessage(2,'SFS_AMFIINT read from HDF5 file has norm = zero')
-!    write(6,*) 'Norm=',RNRM
+!    write(u6,*) 'Norm=',RNRM
 !  end if
 !  if (DBG) then
-!    write(6,'(A)') 'read_hdf5_all:: SFS_AMFIINT(x,y,z)'
+!    write(u6,'(A)') 'read_hdf5_all:: SFS_AMFIINT(x,y,z)'
 !    do i=1,nstate
 !      do j=1,nstate
-!        write(6,'(2i4,A,3ES24.14)') i,j,' |',(AMFI(l,i,j),l=1,3)
+!        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(AMFI(l,i,j),l=1,3)
 !      end do
 !    end do
 !  end if
@@ -297,8 +290,8 @@ call mma_deallocate(AL)
 ! read the RASSI SOS Hamiltonian (SOS_HAM):
 !call mma_allocate(RR,nss,nss,'RR')
 !call mma_allocate(RI,nss,nss,'RI')
-!call dcopy_(nss*nss,[0.0_wp],0,RR,1)
-!call dcopy_(nss*nss,[0.0_wp],0,RI,1)
+!call dcopy_(nss*nss,[Zero],0,RR,1)
+!call dcopy_(nss*nss,[Zero],0,RI,1)
 !
 !if ( mh5_exists_dset(fileid,'HSO_MATRIX_REAL') .and. mh5_exists_dset(fileid,'HSO_MATRIX_IMAG') ) then
 !  found_hso = .true.
@@ -310,17 +303,16 @@ call mma_deallocate(AL)
 !      HSO(i,j) = cmplx(RR(i,j),RI(i,j),wp)
 !    end do
 !  end do
-!  RNRM = 0.0_wp
 !  RNRM = dznrm2_(nss*nss,HSO,1)
-!  if (RNRM < 1.0D-50) then
+!  if (RNRM < 1.0e-50_wp) then
 !    call WarningMessage(2,'HSO matrix read from HDF5 file has norm = zero')
-!    write(6,*) 'Norm=',RNRM
+!    write(u6,*) 'Norm=',RNRM
 !  end if
 !  if (DBG) then
-!    write(6,'(A)') 'read_hdf5_all:: HSO'
+!    write(u6,'(A)') 'read_hdf5_all:: HSO'
 !    do i=1,nss
 !      do j=1,nss
-!        write(6,'(2i4,A,2ES24.14)') i,j,' |',HSO(i,j)
+!        write(u6,'(2i4,A,2ES24.14)') i,j,' |',HSO(i,j)
 !      end do
 !    end do
 !  end if
@@ -349,9 +341,9 @@ do Ist=1,nstate
 end do ! ist
 
 ! expand the spin free basis to the spin-orbit basis:
-MM = (0.0_wp,0.0_wp)
-!ML = (0.0_wp,0.0_wp)
-MS = (0.0_wp,0.0_wp)
+MM(:,:,:) = cZero
+!ML(:,:,:) = cZero
+MS(:,:,:) = cZero
 do Ist=1,nstate
   Mult = Multiplicity(Ist)
   do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
@@ -380,9 +372,9 @@ do Ist=1,nstate
         do l=1,3
           i1 = Ibas(Ist,I)
           j1 = Ibas(Jst,I)
-          MM(l,i1,j1) = MM(l,i1,j1)-cmplx(0.0_wp,Angmom(l,Ist,Jst),wp)
-          !ML(l,i1,j1) = ML(l,i1,j1)+cmplx(0.0_wp,Angmom(l,Ist,Jst),wp)
-          !DM(l,i1,j1) = DM(l,i1,j1)+cmplx(eDmom(l,Ist,Jst),0.0_wp,wp)
+          MM(l,i1,j1) = MM(l,i1,j1)-Angmom(l,Ist,Jst)*Onei
+          !ML(l,i1,j1) = ML(l,i1,j1)+Angmom(l,Ist,Jst)*Onei
+          !DM(l,i1,j1) = DM(l,i1,j1)+eDmom(l,Ist,Jst)*cOne
         end do   ! l
 303     continue
       end do   ! I
@@ -394,24 +386,20 @@ end do   ! Ist
 ! in the spin-orbit basis:
 call mma_allocate(tmp,nss,nss,'tmp')
 do L=1,3
-  TMP = (0.0_wp,0.0_wp)
   ! spin moment
-  call ZGEMM_('C','N',nss,nss,nss,(1.0_wp,0.0_wp),U,nss,MS(L,:,:),nss,(0.0_wp,0.0_wp),TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,(1.0_wp,0.0_wp),TMP,nss,U,nss,(0.0_wp,0.0_wp),MS(L,:,:),nss)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,MS(L,:,:),nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,MS(L,:,:),nss)
   ! orbital moment
-  ! TMP = (0.0_wp,0.0_wp)
-  ! call ZGEMM_('C','N',nss,nss,nss,(1.0_wp,0.0_wp),U,nss,ML(L,:,:),nss,(0.0_wp,0.0_wp),TMP,nss)
-  ! call ZGEMM_('N','N',nss,nss,nss,(1.0_wp,0.0_wp),TMP,nss,U,nss,(0.0_wp,0.0_wp),ML(L,:,:),nss)
+  ! call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,ML(L,:,:),nss,cZero,TMP,nss)
+  ! call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,ML(L,:,:),nss)
   ! magnetic moment
-  TMP = (0.0_wp,0.0_wp)
-  call ZGEMM_('C','N',nss,nss,nss,(1.0_wp,0.0_wp),U,nss,MM(L,:,:),nss,(0.0_wp,0.0_wp),TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,(1.0_wp,0.0_wp),TMP,nss,U,nss,(0.0_wp,0.0_wp),MM(L,:,:),nss)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,MM(L,:,:),nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,MM(L,:,:),nss)
 
   !if (found_EDMOM) then
   !  ! electric dipole moment
-  !  TMP = (0.0_wp,0.0_wp)
-  !  call ZGEMM_('C','N',nss,nss,nss,(1.0_wp,0.0_wp),U,nss,DM(L,:,:),nss,(0.0_wp,0.0_wp),TMP,nss)
-  !  call ZGEMM_('N','N',nss,nss,nss,(1.0_wp,0.0_wp),TMP,nss,U,nss,(0.0_wp,0.0_wp),DM(L,:,:),nss)
+  !  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,DM(L,:,:),nss,cZero,TMP,nss)
+  !  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,DM(L,:,:),nss)
   !end if
 end do !L
 call mma_deallocate(tmp)

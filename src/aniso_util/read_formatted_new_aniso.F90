@@ -12,8 +12,10 @@
 subroutine read_formatted_new_aniso(input_file_name,nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,AMFI,HSO,eso_au, &
                                     esfs_au)
 
+use Constants, only: Zero, cZero, auTocm, gElectron
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(inout) :: nss, nstate
 integer, intent(out) :: multiplicity(nstate)
 real(kind=8), intent(out) :: eso(nss), esfs(nstate)
@@ -28,28 +30,27 @@ complex(kind=8), intent(out) :: ML(3,nss,nss)
 complex(kind=8), intent(out) :: DM(3,nss,nss)
 complex(kind=8), intent(out) :: U(nss,nss)
 complex(kind=8), intent(out) :: HSO(nss,nss)
-character(Len=180) :: input_file_name
+character(len=180) :: input_file_name
 ! local variables:
 integer :: l, i, j, LuAniso, IsFreeUnit
-real(kind=8) :: g_e, conv_au_to_cm1
+real(kind=8), parameter :: conv_au_to_cm1 = 2.194746313702e5_wp, & !IFG auTocm
+                           g_e = 2.00231930437180_wp !IFG -gElectron
 external :: IsFreeUnit
 logical :: DBG
 
 dbg = .false.
-if (dbg) write(6,'(A)') 'Entering read_formatted_aniso_new'
-g_e = 2.00231930437180_wp
-conv_au_to_cm1 = 2.194746313702e5_wp
+if (dbg) write(u6,'(A)') 'Entering read_formatted_aniso_new'
 ! set to zero all arrays:
 multiplicity = 0
-eso = 0.0_wp
-esfs = 0.0_wp
-edmom = 0.0_wp
-angmom = 0.0_wp
-MM = (0.0_wp,0.0_wp)
-MS = (0.0_wp,0.0_wp)
-ML = (0.0_wp,0.0_wp)
-DM = (0.0_wp,0.0_wp)
-U = (0.0_wp,0.0_wp)
+eso(:) = Zero
+esfs(:) = Zero
+edmom(:,:,:) = Zero
+angmom(:,:,:) = Zero
+MM(:,:,:) = cZero
+MS(:,:,:) = cZero
+ML(:,:,:) = cZero
+DM(:,:,:) = cZero
+U(:,:) = cZero
 ! read the data file:
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,input_file_name)
@@ -74,7 +75,7 @@ end do
 do i=1,nstate
   esfs(i) = (esfs_au(i)-esfs_au(1))*conv_au_to_cm1
 end do
-write(6,*) esfs
+write(u6,*) esfs
 
 ! compute the orbital moment
 do l=1,3

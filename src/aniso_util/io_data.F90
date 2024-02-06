@@ -179,16 +179,16 @@
 subroutine check_commutation(n,moment,dbg)
 ! valid for S, L, J in spin-orbit basis
 
+use Constants, only: cZero, cOne, Onei
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N
-complex(wp), intent(in) :: moment(3,N,N)
-complex(wp), allocatable :: XY(:,:), YX(:,:), YZ(:,:), ZY(:,:), ZX(:,:), XZ(:,:)
-complex(wp) :: tr
+complex(kind=wp), intent(in) :: moment(3,N,N)
+complex(kind=wp), allocatable :: XY(:,:), YX(:,:), YZ(:,:), ZY(:,:), ZX(:,:), XZ(:,:)
+complex(kind=wp) :: tr
 logical, intent(in) :: dbg
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp), OneC = (1.0_wp,0.0_wp), cI = (0.0_wp,1.0_wp)
 integer :: i, j, l
-integer, parameter :: StdOut = 6
 
 ! verify the commutation relations for S
 allocate(XY(n,n))
@@ -197,60 +197,60 @@ allocate(YZ(n,n))
 allocate(ZY(n,n))
 allocate(ZX(n,n))
 allocate(XZ(n,n))
-XY = ZeroC
-YX = ZeroC
-call zgemm_('n','n',n,n,n,OneC,moment(1,1:n,1:n),n,moment(2,1:n,1:n),n,ZeroC,XY,n)
+XY(:,:) = cZero
+YX(:,:) = cZero
+call zgemm_('n','n',n,n,n,cOne,moment(1,1:n,1:n),n,moment(2,1:n,1:n),n,cZero,XY,n)
 
-call zgemm_('n','n',n,n,n,OneC,moment(2,1:n,1:n),n,moment(1,1:n,1:n),n,ZeroC,YX,n)
+call zgemm_('n','n',n,n,n,cOne,moment(2,1:n,1:n),n,moment(1,1:n,1:n),n,cZero,YX,n)
 
-YZ = ZeroC
-ZY = ZeroC
-call zgemm_('n','n',n,n,n,OneC,moment(2,1:n,1:n),n,moment(3,1:n,1:n),n,ZeroC,YZ,n)
+YZ(:,:) = cZero
+ZY(:,:) = cZero
+call zgemm_('n','n',n,n,n,cOne,moment(2,1:n,1:n),n,moment(3,1:n,1:n),n,cZero,YZ,n)
 
-call zgemm_('n','n',n,n,n,OneC,moment(3,1:n,1:n),n,moment(2,1:n,1:n),n,ZeroC,ZY,n)
+call zgemm_('n','n',n,n,n,cOne,moment(3,1:n,1:n),n,moment(2,1:n,1:n),n,cZero,ZY,n)
 
-ZX = ZeroC
-XZ = ZeroC
-call zgemm_('n','n',n,n,n,OneC,moment(3,1:n,1:n),n,moment(1,1:n,1:n),n,ZeroC,ZX,n)
+ZX(:,:) = cZero
+XZ(:,:) = cZero
+call zgemm_('n','n',n,n,n,cOne,moment(3,1:n,1:n),n,moment(1,1:n,1:n),n,cZero,ZX,n)
 
-call zgemm_('n','n',n,n,n,OneC,moment(1,1:n,1:n),n,moment(3,1:n,1:n),n,ZeroC,XZ,n)
+call zgemm_('n','n',n,n,n,cOne,moment(1,1:n,1:n),n,moment(3,1:n,1:n),n,cZero,XZ,n)
 
 if (dbg) then
   do l=1,3
-    write(StdOut,'(A,I2)') 'check_commutation:: moment, projection, L=',l
+    write(u6,'(A,I2)') 'check_commutation:: moment, projection, L=',l
     do i=1,n
-      write(StdOut,'(10(2F8.4,2x))') (moment(l,i,j),j=1,n)
+      write(u6,'(10(2F8.4,2x))') (moment(l,i,j),j=1,n)
     end do
   end do
 
-  write(StdOut,'(A,I2)') 'check_commutation:: XY-YX'
+  write(u6,'(A,I2)') 'check_commutation:: XY-YX'
   do i=1,n
-    write(StdOut,'(10(2F8.4,2x))') (XY(i,j)-YX(i,j),j=1,n)
+    write(u6,'(10(2F8.4,2x))') (XY(i,j)-YX(i,j),j=1,n)
   end do
 
-  write(StdOut,'(A,I2)') 'check_commutation:: i*Z'
+  write(u6,'(A,I2)') 'check_commutation:: i*Z'
   do i=1,n
-    write(StdOut,'(10(2F8.4,2x))') (cI*moment(3,i,j),j=1,n)
+    write(u6,'(10(2F8.4,2x))') (Onei*moment(3,i,j),j=1,n)
   end do
 
-  write(StdOut,'(A,I2)') 'check_commutation:: (XY-YX) -i*Z'
+  write(u6,'(A,I2)') 'check_commutation:: (XY-YX) -i*Z'
   do i=1,n
-    write(StdOut,'(10(2F8.4,2x))') (XY(i,j)-YX(i,j)-cI*moment(3,i,j),j=1,n)
+    write(u6,'(10(2F8.4,2x))') (XY(i,j)-YX(i,j)-Onei*moment(3,i,j),j=1,n)
   end do
 end if
 
-tr = ZeroC
+tr = cZero
 do i=1,n
   do j=1,n
-    tr = tr+XY(i,j)-YX(i,j)-cI*moment(3,i,j)+YZ(i,j)-ZY(i,j)-cI*moment(1,i,j)+ZX(i,j)-XZ(i,j)-cI*moment(2,i,j)
+    tr = tr+XY(i,j)-YX(i,j)-Onei*moment(3,i,j)+YZ(i,j)-ZY(i,j)-Onei*moment(1,i,j)+ZX(i,j)-XZ(i,j)-Onei*moment(2,i,j)
   end do
 end do
 
-if (dbg) write(StdOut,'(A,ES22.14)') 'check_commutation::  trace of [Sx,Sy]-iSz = ',abs(tr)
+if (dbg) write(u6,'(A,ES22.14)') 'check_commutation::  trace of [Sx,Sy]-iSz = ',abs(tr)
 if (abs(tr) > 1.0e-6_wp) then
   call WarningMessage(1,'check_commutation:: trace of [Sx,Sy]-iSz  is larger than 1.0e-6. The input moment looks inacurate')
 else
-  write(StdOut,'(A,ES22.14)') 'check_commutation:  The input moment passes all three commutation tests.'
+  write(u6,'(A,ES22.14)') 'check_commutation:  The input moment passes all three commutation tests.'
 end if
 
 deallocate(XY)
@@ -267,53 +267,51 @@ end subroutine check_commutation
 subroutine check_S_square(n,moment,dbg)
 ! valid also for J, L, S
 
+use Constants, only: Quart, cZero, cOne
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
-complex(wp), intent(in) :: moment(3,n,n)
-complex(wp), allocatable :: X2(:,:), Y2(:,:), Z2(:,:), S2(:,:)
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp), OneC = (1.0_wp,0.0_wp)
-real(wp), parameter :: Zero = 0.0_wp
-complex(wp) :: tr
-real(wp) :: S2_theoretic
+complex(kind=wp), intent(in) :: moment(3,n,n)
+complex(kind=wp), allocatable :: X2(:,:), Y2(:,:), Z2(:,:), S2(:,:)
+complex(kind=wp) :: tr
+real(kind=wp) :: S2_theoretic
 logical, intent(in) :: dbg
 integer :: i
-integer, parameter :: StdOut = 6
 
 allocate(X2(n,n))
 allocate(Y2(n,n))
 allocate(Z2(n,n))
 allocate(S2(n,n))
-X2 = ZeroC
-Y2 = ZeroC
-Z2 = ZeroC
-S2 = ZeroC
+X2(:,:) = cZero
+Y2(:,:) = cZero
+Z2(:,:) = cZero
+S2(:,:) = cZero
 
-call zgemm_('c','n',n,n,n,OneC,moment(1,1:n,1:n),n,moment(1,1:n,1:n),n,ZeroC,X2,n)
+call zgemm_('c','n',n,n,n,cOne,moment(1,1:n,1:n),n,moment(1,1:n,1:n),n,cZero,X2,n)
 
-call zgemm_('c','n',n,n,n,OneC,moment(2,1:n,1:n),n,moment(2,1:n,1:n),n,ZeroC,Y2,n)
+call zgemm_('c','n',n,n,n,cOne,moment(2,1:n,1:n),n,moment(2,1:n,1:n),n,cZero,Y2,n)
 
-call zgemm_('c','n',n,n,n,OneC,moment(3,1:n,1:n),n,moment(3,1:n,1:n),n,ZeroC,Z2,n)
+call zgemm_('c','n',n,n,n,cOne,moment(3,1:n,1:n),n,moment(3,1:n,1:n),n,cZero,Z2,n)
 
 ! matrix add:
 ! S2 = X2 + Y2 + Z2
-call zaxpy_(n*n,OneC,X2,1,S2,1)
-call zaxpy_(n*n,OneC,Y2,1,S2,1)
-call zaxpy_(n*n,OneC,Z2,1,S2,1)
+call zaxpy_(n*n,cOne,X2,1,S2,1)
+call zaxpy_(n*n,cOne,Y2,1,S2,1)
+call zaxpy_(n*n,cOne,Z2,1,S2,1)
 
-tr = ZeroC
+tr = cZero
 do i=1,n
   tr = tr+S2(i,i)
 end do
 
-S2_theoretic = Zero
-S2_theoretic = dble(n**3-n)/4.0_wp
+S2_theoretic = real(n**3-n,kind=wp)*Quart
 
-if (dbg) write(StdOut,'(A,ES22.14)') 'check_S_square::  trace of S2=(Sx).Sx+(Sy).Sy+(Sz).Sz = ',abs(tr)
+if (dbg) write(u6,'(A,ES22.14)') 'check_S_square::  trace of S2=(Sx).Sx+(Sy).Sy+(Sz).Sz = ',abs(tr)
 if ((abs(tr)-S2_theoretic) > 1.0e-6_wp) then
   call WarningMessage(1,'check_S_square:: tr(S^2) - S2_theoretic is larger than 1.0e-6. The input moment looks inacurate')
 else
-  write(StdOut,'(A,ES22.14)') 'check_S_square:  The input moment passes the S^2 test.'
+  write(u6,'(A,ES22.14)') 'check_S_square:  The input moment passes the S^2 test.'
 end if
 deallocate(X2)
 deallocate(Y2)
@@ -326,18 +324,18 @@ end subroutine check_S_square
 !=!=
 subroutine check_hermiticity_moment(n,moment,dbg)
 
+use Constants, only: cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
-complex(wp), intent(in) :: moment(3,n,n)
+complex(kind=wp), intent(in) :: moment(3,n,n)
 logical, intent(in) :: dbg
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
-complex(wp) :: c
+complex(kind=wp) :: c
 integer :: i, j, l
-integer, parameter :: StdOut = 6
 
 ! build difference SUM ( M ATRIX(i,j) - CONJG(MATRIX(j,i)) )
-c = ZeroC
+c = cZero
 do i=1,n
   do j=1,n
     if (i == j) cycle
@@ -346,12 +344,12 @@ do i=1,n
     end do
   end do
 end do
-if (dbg) write(StdOut,'(A,2ES22.14)') 'check_hermiticity_moment::  trace of A(i,j)-CONJG(A(j,i)) = ',c
+if (dbg) write(u6,'(A,2ES22.14)') 'check_hermiticity_moment::  trace of A(i,j)-CONJG(A(j,i)) = ',c
 if (abs(c) > 1.0e-6_wp) then
   call WarningMessage(1,'check_hermiticity_moment:: trace of M(1:3,i,j)-CONJG(A(1:3,j,i)) is larger than 1.0e-6. '// &
                       'The hermiticity of input moment is not quite fulfilled')
 else
-  write(StdOut,'(A,ES22.14)') 'check_hermiticity_moment:  The input moment passes the hermiticity test.'
+  write(u6,'(A,ES22.14)') 'check_hermiticity_moment:  The input moment passes the hermiticity test.'
 end if
 
 return
@@ -360,30 +358,30 @@ end subroutine check_hermiticity_moment
 !=!=
 subroutine check_hermiticity_matrix(n,matrix,dbg)
 
+use Constants, only: cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: n
-complex(wp), intent(in) :: matrix(n,n)
+complex(kind=wp), intent(in) :: matrix(n,n)
 logical, intent(in) :: dbg
-complex(wp) :: c
+complex(kind=wp) :: c
 integer :: i, j
-integer, parameter :: StdOut = 6
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
 
 ! build difference ( MATRIX(i,j) - CONJG(MATRIX(j,i)) )
-c = ZeroC
+c = cZero
 do i=1,n
   do j=i,n
     if (i == j) cycle
     c = c+(matrix(i,j)-conjg(matrix(j,i)))
   end do
 end do
-if (dbg) write(StdOut,'(A,2ES22.14)') 'check_hermiticity_matrix::  trace of A(i,j)-CONJG(A(j,i)) = ',c
+if (dbg) write(u6,'(A,2ES22.14)') 'check_hermiticity_matrix::  trace of A(i,j)-CONJG(A(j,i)) = ',c
 if (abs(c) > 1.0e-6_wp) then
   call WarningMessage(1,'check_hermiticity_matrix:: trace of A(i,j)-CONJG(A(j,i)) is larger than 1.0e-6. '// &
                       'The hermiticity of input matrix is not quite fulfilled')
 else
-  write(StdOut,'(A,ES22.14)') 'check_hermiticity_matrix:  The input matrix passes the hermiticity test.'
+  write(u6,'(A,ES22.14)') 'check_hermiticity_matrix:  The input matrix passes the hermiticity test.'
 end if
 
 return
@@ -410,22 +408,21 @@ end subroutine check_hermiticity_matrix
 
 subroutine read_magnetic_moment(DATA_FILE,n,moment,dbg)
 
+use Constants, only: Zero, Ten, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
-complex(wp), intent(out) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(out) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j
-real(wp), external :: dnrm2_, dznrm2_
+real(kind=wp), external :: dnrm2_, dznrm2_
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
-real(wp), parameter :: Zero = 0.0_wp
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-moment = ZeroC
+moment(:,:,:) = cZero
 allocate(rr(n,n))
 allocate(ri(n,n))
 ! projection X
@@ -434,12 +431,12 @@ ri = Zero
 if (inquire_key_presence(DATA_FILE,'$magn_xr')) call read_2d_real_array(DATA_FILE,'$magn_xr',n,n,rr,dbg)
 if (inquire_key_presence(DATA_FILE,'$magn_xi')) call read_2d_real_array(DATA_FILE,'$magn_xi',n,n,ri,dbg)
 if (dbg) then
-  write(StdOut,*) 'read_magnetic_moment::  norm of moment_xr=',dnrm2_(n*n,rr,1)
-  write(StdOut,*) 'read_magnetic_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'read_magnetic_moment::  norm of moment_xr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_magnetic_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
 end if
 do i=1,n
   do j=1,n
-    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 if (dbg) call check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
@@ -449,12 +446,12 @@ ri = Zero
 if (inquire_key_presence(DATA_FILE,'$magn_yr')) call read_2d_real_array(DATA_FILE,'$magn_yr',n,n,rr,dbg)
 if (inquire_key_presence(DATA_FILE,'$magn_yi')) call read_2d_real_array(DATA_FILE,'$magn_yi',n,n,ri,dbg)
 if (dbg) then
-  write(StdOut,*) 'read_magnetic_moment::  norm of moment_yr=',dnrm2_(n*n,rr,1)
-  write(StdOut,*) 'read_magnetic_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'read_magnetic_moment::  norm of moment_yr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_magnetic_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
 end if
 do i=1,n
   do j=1,n
-    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 if (dbg) call check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
@@ -464,12 +461,12 @@ ri = Zero
 if (inquire_key_presence(DATA_FILE,'$magn_zr')) call read_2d_real_array(DATA_FILE,'$magn_zr',n,n,rr,dbg)
 if (inquire_key_presence(DATA_FILE,'$magn_zi')) call read_2d_real_array(DATA_FILE,'$magn_zi',n,n,ri,dbg)
 if (dbg) then
-  write(StdOut,*) 'read_magnetic_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
-  write(StdOut,*) 'read_magnetic_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'read_magnetic_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_magnetic_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 end if
 do i=1,n
   do j=1,n
-    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_magnetic_moment:: the norm of the read moment is zero!')
@@ -477,18 +474,18 @@ if (dbg) call check_hermiticity_matrix(n,moment(3,1:n,1:n),dbg)
 deallocate(rr)
 deallocate(ri)
 if (dbg) then
-  write(StdOut,*) 'read_magnetic_moment::  ELECTRIC MOMENT at the end of the suboutine'
-  write(StdOut,*) 'projection X'
+  write(u6,*) 'read_magnetic_moment::  ELECTRIC MOMENT at the end of the suboutine'
+  write(u6,*) 'projection X'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
   end do
-  write(StdOut,*) 'projection Y'
+  write(u6,*) 'projection Y'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
   end do
-  write(StdOut,*) 'projection Z'
+  write(u6,*) 'projection Z'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
   end do
 end if
 
@@ -498,22 +495,21 @@ end subroutine read_magnetic_moment
 !=!=
 subroutine read_electric_moment(DATA_FILE,n,moment,dbg)
 
+use Constants, only: Zero, Ten, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
-complex(wp), intent(out) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(out) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j
-real(wp), external :: dnrm2_, dznrm2_
+real(kind=wp), external :: dnrm2_, dznrm2_
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
-real(wp), parameter :: Zero = 0.0_wp
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-moment = ZeroC
+moment(:,:,:) = cZero
 allocate(rr(n,n))
 allocate(ri(n,n))
 ! projection X
@@ -522,12 +518,12 @@ ri = Zero
 if (inquire_key_presence(DATA_FILE,'$edipm_xr')) call read_2d_real_array(DATA_FILE,'$edipm_xr',n,n,rr,dbg)
 if (inquire_key_presence(DATA_FILE,'$edipm_xi')) call read_2d_real_array(DATA_FILE,'$edipm_xi',n,n,ri,dbg)
 if (dbg) then
-  write(StdOut,*) 'read_electric_moment::  norm of moment_xr=',dnrm2_(n*n,rr,1)
-  write(StdOut,*) 'read_electric_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'read_electric_moment::  norm of moment_xr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_electric_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
 end if
 do i=1,n
   do j=1,n
-    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 if (dbg) call check_hermiticity_matrix(n,moment(1,:,:),dbg)
@@ -537,12 +533,12 @@ ri = Zero
 if (inquire_key_presence(DATA_FILE,'$edipm_yr')) call read_2d_real_array(DATA_FILE,'$edipm_yr',n,n,rr,dbg)
 if (inquire_key_presence(DATA_FILE,'$edipm_yi')) call read_2d_real_array(DATA_FILE,'$edipm_yi',n,n,ri,dbg)
 if (dbg) then
-  write(StdOut,*) 'read_electric_moment::  norm of moment_yr=',dnrm2_(n*n,rr,1)
-  write(StdOut,*) 'read_electric_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'read_electric_moment::  norm of moment_yr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_electric_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
 end if
 do i=1,n
   do j=1,n
-    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 if (dbg) call check_hermiticity_matrix(n,moment(2,:,:),dbg)
@@ -552,12 +548,12 @@ ri = Zero
 if (inquire_key_presence(DATA_FILE,'$edipm_zr')) call read_2d_real_array(DATA_FILE,'$edipm_zr',n,n,rr,dbg)
 if (inquire_key_presence(DATA_FILE,'$edipm_zi')) call read_2d_real_array(DATA_FILE,'$edipm_zi',n,n,ri,dbg)
 if (dbg) then
-  write(StdOut,*) 'read_electric_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
-  write(StdOut,*) 'read_electric_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'read_electric_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_electric_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 end if
 do i=1,n
   do j=1,n
-    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_electric_moment:: the norm of the read moment is zero!')
@@ -565,18 +561,18 @@ if (dbg) call check_hermiticity_matrix(n,moment(3,:,:),dbg)
 deallocate(rr)
 deallocate(ri)
 if (dbg) then
-  write(StdOut,*) 'read_electric_moment::  ELECTRIC MOMENT at the end of the suboutine'
-  write(StdOut,*) 'projection X'
+  write(u6,*) 'read_electric_moment::  ELECTRIC MOMENT at the end of the suboutine'
+  write(u6,*) 'projection X'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
   end do
-  write(StdOut,*) 'projection Y'
+  write(u6,*) 'projection Y'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
   end do
-  write(StdOut,*) 'projection Z'
+  write(u6,*) 'projection Z'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
   end do
 end if
 
@@ -586,61 +582,60 @@ end subroutine read_electric_moment
 !=!=
 subroutine read_spin_moment(DATA_FILE,n,moment,dbg)
 
+use Constants, only: Zero, Ten, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
-complex(wp), intent(out) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(out) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j
-real(wp), external :: dnrm2_, dznrm2_
+real(kind=wp), external :: dnrm2_, dznrm2_
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
-real(wp), parameter :: Zero = 0.0_wp
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment'
-moment = (0.0_wp,0.0_wp)
+if (dbg) write(u6,*) 'ENTER read_spin_moment'
+moment(:,:,:) = cZero
 allocate(rr(n,n))
 allocate(ri(n,n))
 ! projection X
 rr = Zero
 ri = Zero
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p2  :spin_xr: ',inquire_key_presence(DATA_FILE,'$spin_xr')
-flush(StdOut)
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p2  :spin_xi: ',inquire_key_presence(DATA_FILE,'$spin_xi')
-flush(StdOut)
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p2  :spin_yr: ',inquire_key_presence(DATA_FILE,'$spin_yr')
-flush(StdOut)
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p2  :spin_yi: ',inquire_key_presence(DATA_FILE,'$spin_yi')
-flush(StdOut)
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p2  :spin_zr: ',inquire_key_presence(DATA_FILE,'$spin_zr')
-flush(StdOut)
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p2  :spin_zi: ',inquire_key_presence(DATA_FILE,'$spin_zi')
-flush(StdOut)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_xr: ',inquire_key_presence(DATA_FILE,'$spin_xr')
+flush(u6)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_xi: ',inquire_key_presence(DATA_FILE,'$spin_xi')
+flush(u6)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_yr: ',inquire_key_presence(DATA_FILE,'$spin_yr')
+flush(u6)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_yi: ',inquire_key_presence(DATA_FILE,'$spin_yi')
+flush(u6)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_zr: ',inquire_key_presence(DATA_FILE,'$spin_zr')
+flush(u6)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_zi: ',inquire_key_presence(DATA_FILE,'$spin_zi')
+flush(u6)
 if (inquire_key_presence(DATA_FILE,'$spin_xr')) call read_2d_real_array(DATA_FILE,'$spin_xr',n,n,rr,dbg)
-flush(StdOut)
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p3'
-flush(StdOut)
+flush(u6)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p3'
+flush(u6)
 if (inquire_key_presence(DATA_FILE,'$spin_xi')) call read_2d_real_array(DATA_FILE,'$spin_xi',n,n,ri,dbg)
-flush(StdOut)
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p4'
-flush(StdOut)
-if (dbg) write(StdOut,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
-flush(StdOut)
-if (dbg) write(StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
-flush(StdOut)
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p5'
-flush(StdOut)
+flush(u6)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p4'
+flush(u6)
+if (dbg) write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
+flush(u6)
+if (dbg) write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+flush(u6)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p5'
+flush(u6)
 do i=1,n
   do j=1,n
-    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
-if (dbg) write(StdOut,*) 'ENTER read_spin_moment p6'
-flush(StdOut)
+if (dbg) write(u6,*) 'ENTER read_spin_moment p6'
+flush(u6)
 if (dbg) call check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
 ! projection Y
 rr = Zero
@@ -648,12 +643,12 @@ ri = Zero
 if (inquire_key_presence(DATA_FILE,'$spin_yr')) call read_2d_real_array(DATA_FILE,'$spin_yr',n,n,rr,dbg)
 if (inquire_key_presence(DATA_FILE,'$spin_yi')) call read_2d_real_array(DATA_FILE,'$spin_yi',n,n,ri,dbg)
 if (dbg) then
-  write(StdOut,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
-  write(StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 end if
 do i=1,n
   do j=1,n
-    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 if (dbg) call check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
@@ -663,12 +658,12 @@ ri = Zero
 if (inquire_key_presence(DATA_FILE,'$spin_zr')) call read_2d_real_array(DATA_FILE,'$spin_zr',n,n,rr,dbg)
 if (inquire_key_presence(DATA_FILE,'$spin_zi')) call read_2d_real_array(DATA_FILE,'$spin_zi',n,n,ri,dbg)
 if (dbg) then
-  write(StdOut,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
-  write(StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 end if
 do i=1,n
   do j=1,n
-    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_spin:: the norm of the read moment is zero!')
@@ -678,21 +673,21 @@ deallocate(ri)
 if (dbg) call check_commutation(n,moment,dbg)
 
 if (dbg) then
-  write(StdOut,*) 'read_spin_moment::  SPIN MOMENT at the end of the suboutine'
-  write(StdOut,*) 'projection X'
+  write(u6,*) 'read_spin_moment::  SPIN MOMENT at the end of the suboutine'
+  write(u6,*) 'projection X'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
   end do
-  write(StdOut,*) 'projection Y'
+  write(u6,*) 'projection Y'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
   end do
-  write(StdOut,*) 'projection Z'
+  write(u6,*) 'projection Z'
   do i=1,n
-    write(StdOut,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
+    write(u6,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
   end do
 end if
-if (dbg) write(StdOut,*) 'EXIT read_spin_moment'
+if (dbg) write(u6,*) 'EXIT read_spin_moment'
 
 return
 
@@ -700,26 +695,26 @@ end subroutine read_spin_moment
 !=!=
 subroutine read_angmom(DATA_FILE,n,moment,dbg)
 
+use Constants, only: Zero, Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
-real(wp), intent(out) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:)
+real(kind=wp), intent(out) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:)
 integer :: i, j
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-moment = Zero
+moment(:,:,:) = Zero
 allocate(rr(n,n))
 ! projection X
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$angmom_x')) call read_2d_real_array(DATA_FILE,'$angmom_x',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_angmom::  norm of moment_x=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_angmom::  norm of moment_x=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(1,i,j) = rr(i,j)
@@ -728,7 +723,7 @@ end do
 ! projection Y
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$angmom_y')) call read_2d_real_array(DATA_FILE,'$angmom_y',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_angmom::  norm of moment_y=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_angmom::  norm of moment_y=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(2,i,j) = rr(i,j)
@@ -737,7 +732,7 @@ end do
 ! projection Z
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$angmom_z')) call read_2d_real_array(DATA_FILE,'$angmom_z',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_angmom::  norm of moment_z=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_angmom::  norm of moment_z=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(3,i,j) = rr(i,j)
@@ -752,26 +747,26 @@ end subroutine read_angmom
 !=!=
 subroutine read_edipmom(DATA_FILE,n,moment,dbg)
 
+use Constants, only: Zero, Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
-real(wp), intent(out) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:)
+real(kind=wp), intent(out) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:)
 integer :: i, j
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-moment = Zero
+moment(:,:,:) = Zero
 allocate(rr(n,n))
 ! projection X
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$edmom_x')) call read_2d_real_array(DATA_FILE,'$edmom_x',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_edipmom::  norm of moment_x=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_edipmom::  norm of moment_x=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(1,i,j) = rr(i,j)
@@ -780,7 +775,7 @@ end do
 ! projection Y
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$edmom_y')) call read_2d_real_array(DATA_FILE,'$edmom_y',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_edipmom::  norm of moment_y=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_edipmom::  norm of moment_y=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(2,i,j) = rr(i,j)
@@ -789,7 +784,7 @@ end do
 ! projection Z
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$edmom_z')) call read_2d_real_array(DATA_FILE,'$edmom_z',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_edipmom::  norm of moment_z=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_edipmom::  norm of moment_z=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(3,i,j) = rr(i,j)
@@ -804,26 +799,26 @@ end subroutine read_edipmom
 !=!=
 subroutine read_amfi(DATA_FILE,n,moment,dbg)
 
+use Constants, only: Zero, Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
-real(wp), intent(out) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:)
+real(kind=wp), intent(out) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:)
 integer :: i, j
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-moment = Zero
+moment(:,:,:) = Zero
 allocate(rr(n,n))
 ! projection X
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$amfi_x')) call read_2d_real_array(DATA_FILE,'$amfi_x',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_amfi::  norm of moment_x=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_amfi::  norm of moment_x=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(1,i,j) = rr(i,j)
@@ -832,7 +827,7 @@ end do
 ! projection Y
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$amfi_y')) call read_2d_real_array(DATA_FILE,'$amfi_y',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_amfi::  norm of moment_y=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_amfi::  norm of moment_y=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(2,i,j) = rr(i,j)
@@ -841,7 +836,7 @@ end do
 ! projection Z
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$amfi_z')) call read_2d_real_array(DATA_FILE,'$amfi_z',n,n,rr,dbg)
-if (dbg) write(StdOut,*) 'read_amfi::  norm of moment_z=',dnrm2_(n*n,rr,1)
+if (dbg) write(u6,*) 'read_amfi::  norm of moment_z=',dnrm2_(n*n,rr,1)
 do i=1,n
   do j=1,n
     moment(3,i,j) = rr(i,j)
@@ -904,11 +899,12 @@ end subroutine read_nmult
 !=!=
 subroutine read_multiplicity(DATA_FILE,n,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n
 integer, intent(out) :: array(n)
-integer, parameter :: StdOut = 6
 logical, intent(in) :: dbg
 logical, external :: inquire_key_presence
 
@@ -916,11 +912,11 @@ array = 0
 if (inquire_key_presence(DATA_FILE,'$multiplicity')) call read_1d_INTEGER_array(DATA_FILE,'$multiplicity',n,array,dbg)
 if (sum(abs(array(1:n))) == 0) then
   call WarningMessage(1,'read_multiplicity:: it seems that all the multiplicities in DATA_FILE are 0. Is it really the case?')
-  write(StdOut,*) 'read_multiplicity:: SUM(Sz) = ',sum(abs(array(1:n)))
+  write(u6,*) 'read_multiplicity:: SUM(Sz) = ',sum(abs(array(1:n)))
 end if
 if (sum(array(1:n)) == 0) then
   call WarningMessage(1,'read_multiplicity:: it seems that all the multiplicities in DATA_FILE are 0. Is it really the case?')
-  write(StdOut,*) 'read_szproj:: SUM(Sz) = ',sum(array(1:n))
+  write(u6,*) 'read_szproj:: SUM(Sz) = ',sum(array(1:n))
 end if
 
 return
@@ -929,11 +925,12 @@ end subroutine read_multiplicity
 !=!=
 subroutine read_imult(DATA_FILE,n,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n
 integer, intent(out) :: array(n)
-integer, parameter :: StdOut = 6
 logical, external :: inquire_key_presence
 logical, intent(in) :: dbg
 
@@ -941,7 +938,7 @@ array = 0
 if (inquire_key_presence(DATA_FILE,'$imult')) call read_1d_INTEGER_array(DATA_FILE,'$imult',n,array,dbg)
 if (sum(array(1:n)) == 0) then
   call WarningMessage(1,'read_imult:: it seems that all the multiplicities in DATA_FILE are 0. Is it really the case?')
-  write(StdOut,*) 'read_imult:: SUM(mult()) = ',sum(array(1:n))
+  write(u6,*) 'read_imult:: SUM(mult()) = ',sum(array(1:n))
 end if
 
 return
@@ -953,7 +950,6 @@ subroutine read_format(DATA_FILE,n,dbg)
 implicit none
 integer, intent(in) :: DATA_FILE
 integer, intent(out) :: n
-integer, parameter :: StdOut = 6
 logical, external :: inquire_key_presence
 logical, intent(in) :: dbg
 
@@ -968,11 +964,12 @@ end subroutine read_format
 !=!=
 subroutine read_nroot(DATA_FILE,n,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n
 integer, intent(out) :: array(n)
-integer, parameter :: StdOut = 6
 logical, external :: inquire_key_presence
 logical, intent(in) :: dbg
 
@@ -981,7 +978,7 @@ if (inquire_key_presence(DATA_FILE,'$nroot')) call read_1d_INTEGER_array(DATA_FI
 if (sum(array(1:n)) == 0) then
   call WarningMessage(1,'read_nroot:: it seems that the number of roots included in spin-orbit interaction in DATA_FILE are 0. '// &
                       'Is it really the case?')
-  write(StdOut,*) 'read_szproj:: SUM(array()) = ',sum(array(1:n))
+  write(u6,*) 'read_szproj:: SUM(array()) = ',sum(array(1:n))
 end if
 
 return
@@ -990,11 +987,12 @@ end subroutine read_nroot
 !=!=
 subroutine read_szproj(DATA_FILE,n,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n
 integer, intent(out) :: array(n)
-integer, parameter :: StdOut = 6
 logical, external :: inquire_key_presence
 logical, intent(in) :: dbg
 
@@ -1002,11 +1000,11 @@ array = 0
 if (inquire_key_presence(DATA_FILE,'$szproj')) call read_1d_INTEGER_array(DATA_FILE,'$szproj',n,array,dbg)
 if (sum(abs(array(1:n))) == 0) then
   call WarningMessage(1,'read_szproj:: it seems that SUM(ABS(Sz)) in DATA_FILE is 0. Is it really the case?')
-  write(StdOut,*) 'read_szproj:: SUM(ABS(Sz)) = ',sum(abs(array(1:n)))
+  write(u6,*) 'read_szproj:: SUM(ABS(Sz)) = ',sum(abs(array(1:n)))
 end if
 if (sum(array(1:n)) /= 0) then
   call WarningMessage(1,'read_szproj:: it seems that SUM(Sz) in DATA_FILE is not 0. Is it really the case?')
-  write(StdOut,*) 'read_szproj:: SUM(Sz) = ',sum(array(1:n))
+  write(u6,*) 'read_szproj:: SUM(Sz) = ',sum(array(1:n))
 end if
 
 return
@@ -1015,24 +1013,24 @@ end subroutine read_szproj
 !=!=
 subroutine read_eso(DATA_FILE,n,array,dbg)
 
+use Constants, only: Zero, Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n
-real(wp), intent(out) :: array(n)
-real(wp), external :: dnrm2_
+real(kind=wp), intent(out) :: array(n)
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-real(wp), parameter :: Zero = 0.0_wp
-integer, parameter :: StdOut = 6
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-array = Zero
+array(:) = Zero
 if (inquire_key_presence(DATA_FILE,'$eso')) call read_1d_real_array(DATA_FILE,'$eso',n,array,dbg)
-if (dbg) write(StdOut,*) 'read_eso::  norm of eso=',dnrm2_(n,array,1)
+if (dbg) write(u6,*) 'read_eso::  norm of eso=',dnrm2_(n,array,1)
 if (dnrm2_(n,array,1) <= MINIMAL_REAL) then
   call WarningMessage(1,'read_eso:: it seems that the norm of ESO array in DATA_FILE is 0. Is it really the case?')
-  write(StdOut,*) 'read_eso:: dnrm2_(eso) = ',dnrm2_(n,array,1)
+  write(u6,*) 'read_eso:: dnrm2_(eso) = ',dnrm2_(n,array,1)
 end if
 
 return
@@ -1041,24 +1039,24 @@ end subroutine read_eso
 !=!=
 subroutine read_esfs(DATA_FILE,n,array,dbg)
 
+use Constants, only: Zero, Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n
-real(wp), intent(out) :: array(n)
-real(wp), external :: dnrm2_
+real(kind=wp), intent(out) :: array(n)
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-real(wp), parameter :: Zero = 0.0_wp
-integer, parameter :: StdOut = 6
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-array = Zero
+array(:) = Zero
 if (inquire_key_presence(DATA_FILE,'$esfs')) call read_1d_real_array(DATA_FILE,'$esfs',n,array,dbg)
-if (dbg) write(StdOut,*) 'read_esfs::  norm of esfs=',dnrm2_(n,array,1)
+if (dbg) write(u6,*) 'read_esfs::  norm of esfs=',dnrm2_(n,array,1)
 if (dnrm2_(n,array,1) <= MINIMAL_REAL) then
   call WarningMessage(1,'read_esfs:: it seems that the norm of ESFS in DATA_FILE is 0. Is it really the case?')
-  write(StdOut,*) 'read_esfs:: dnrm2_(esfs) = ',dnrm2_(n,array,1)
+  write(u6,*) 'read_esfs:: dnrm2_(esfs) = ',dnrm2_(n,array,1)
 end if
 
 return
@@ -1067,24 +1065,24 @@ end subroutine read_esfs
 !=!=
 subroutine read_hso(DATA_FILE,n,array,dbg)
 
+use Constants, only: Ten, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n
-complex(wp), intent(out) :: array(n)
-real(wp), external :: dznrm2_
+complex(kind=wp), intent(out) :: array(n)
+real(kind=wp), external :: dznrm2_
 logical, intent(in) :: dbg
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
-integer, parameter :: StdOut = 6
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-array = ZeroC
+array(:) = cZero
 if (inquire_key_presence(DATA_FILE,'$hso')) call read_complex_matrix(DATA_FILE,'$hso',n,array,dbg)
-if (dbg) write(StdOut,*) 'read_hso::  norm of hso=',dznrm2_(n*n,array,1)
+if (dbg) write(u6,*) 'read_hso::  norm of hso=',dznrm2_(n*n,array,1)
 if (dznrm2_(n*n,array,1) <= MINIMAL_REAL) then
   call WarningMessage(1,'read_hso:: it seems that norm of HSO in DATA_FILE is 0. Is it really the case?')
-  write(StdOut,*) 'read_hso:: dznrm2_(hso) = ',dznrm2_(n*n,array,1)
+  write(u6,*) 'read_hso:: dznrm2_(hso) = ',dznrm2_(n*n,array,1)
 end if
 
 return
@@ -1093,24 +1091,24 @@ end subroutine read_hso
 !=!=
 subroutine read_eigen(DATA_FILE,n,array,dbg)
 
+use Constants, only: Ten, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n
-complex(wp), intent(out) :: array(n)
-real(wp), external :: dznrm2_
+complex(kind=wp), intent(out) :: array(n)
+real(kind=wp), external :: dznrm2_
 logical, intent(in) :: dbg
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
-integer, parameter :: StdOut = 6
 logical, external :: inquire_key_presence
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-array = ZeroC
+array(:) = cZero
 if (inquire_key_presence(DATA_FILE,'$eigen')) call read_complex_matrix(DATA_FILE,'$eigen',n,array,dbg)
-if (dbg) write(StdOut,*) 'read_eigen::  norm of eigenv=',dznrm2_(n*n,array,1)
+if (dbg) write(u6,*) 'read_eigen::  norm of eigenv=',dznrm2_(n*n,array,1)
 if (dznrm2_(n*n,array,1) <= MINIMAL_REAL) then
   call WarningMessage(1,'read_eigen:: it seems that norm of EIGENV in DATA_FILE is 0. Is it really the case?')
-  write(StdOut,*) 'read_eigen:: dznrm2_(array) = ',dznrm2_(n*n,array,1)
+  write(u6,*) 'read_eigen:: dznrm2_(array) = ',dznrm2_(n*n,array,1)
 end if
 
 return
@@ -1119,16 +1117,18 @@ end subroutine read_eigen
 !=!=
 subroutine read_gtens(DATA_FILE,nmult,gtens,axes,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: nmult
-real(wp), intent(out) :: gtens(nmult,3)
-real(wp), intent(out) :: axes(nmult,3,3)
+real(kind=wp), intent(out) :: gtens(nmult,3)
+real(kind=wp), intent(out) :: axes(nmult,3,3)
 logical, intent(in) :: dbg
 
-gtens = 0.0_wp
-axes = 0.0_wp
+gtens = Zero
+axes = Zero
 call read_2d_real_array(DATA_FILE,'$gtens_main',nmult,3,gtens,dbg)
 call read_3d_real_array(DATA_FILE,'$gtens_axes',nmult,3,3,axes,dbg)
 
@@ -1138,16 +1138,16 @@ end subroutine read_gtens
 !=!=
 subroutine read_stev_cfp(DATA_FILE,s,n,cfp,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: n   ! 2J+1, or 2L+1, i.e. the dimension of the J or L multiplet
-real(wp), intent(out) :: cfp(n-1,-(n-1):(n-1))
-character(len=1) :: s
+real(kind=wp), intent(out) :: cfp(n-1,-(n-1):(n-1))
+character :: s
 integer :: k, q, i, ik, iq, ierr
 logical, intent(in) :: dbg
-real(wp), parameter :: Zero = 0.0_wp
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 
 ierr = 0
@@ -1155,7 +1155,7 @@ if ((n <= 0)) then
   call WarningMessage(1,'read_stev_cfp_'//trim(s)//':: nothing to read. Array size = 0.')
   return
 end if
-CFP = Zero
+CFP(:,:) = Zero
 
 rewind(DATA_FILE)
 call file_advance_to_string(DATA_FILE,'$stev_cfp_'//trim(s),line,ierr,dbg)
@@ -1171,7 +1171,7 @@ if (ierr == 0) then
       iq = 9999999
       read(DATA_FILE,*,iostat=ierr) ik,iq,cfp(ik,iq)
       if (ierr /= 0) call WarningMessage(2,'read_stev_cfp_'//trim(s)//':: Something went wrong reading the array.')
-      if (dbg) write(StdOut,*) 'read_stev_cfp_'//trim(s)//'::  k, q =',k,q
+      if (dbg) write(u6,*) 'read_stev_cfp_'//trim(s)//'::  k, q =',k,q
     end do
   end do
 end if
@@ -1182,27 +1182,28 @@ end subroutine read_stev_cfp
 !=!=
 subroutine read_susc(DATA_FILE,s,n,field,zj,t,x,x_tens,dbg)
 
+use Constants, only: Zero, Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
-integer, intent(inout) :: n            ! number of temperature points
-real(wp), intent(out) :: zj            ! intermolecular interaction
-real(wp), intent(out) :: field         ! applied field
-real(wp), intent(out) :: t(n)          ! temperature points
-real(wp), intent(out) :: x(n)          ! susceptibility X
-real(wp), intent(out) :: x_tens(n,3,3) ! susceptibility tensor, X_tens
+integer, intent(inout) :: n                 ! number of temperature points
+real(kind=wp), intent(out) :: zj            ! intermolecular interaction
+real(kind=wp), intent(out) :: field         ! applied field
+real(kind=wp), intent(out) :: t(n)          ! temperature points
+real(kind=wp), intent(out) :: x(n)          ! susceptibility X
+real(kind=wp), intent(out) :: x_tens(n,3,3) ! susceptibility tensor, X_tens
 character(len=*), intent(in) :: s
 integer :: i, j, k
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 integer :: ierr
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
-t = 0.0_wp
-x = 0.0_wp
-x_tens = 0.0_wp
+t(:) = Zero
+x(:) = Zero
+x_tens(:,:,:) = Zero
 ! s takes the values:
 ! 'x'
 ! 'x_field'
@@ -1268,9 +1269,9 @@ if (ierr == 0) then
     end do
   end do
   if (dnrm2_(n*3*3,X_tens,1) < MINIMAL_REAL) call WarningMessage(1,'read_x '//trim(s)//' :: all array X_tens elements are zero.')
-  if (dbg) flush(StdOut)
+  if (dbg) flush(u6)
 else
-  write(StdOut,*) 'keyword $susceptibility_'//trim(s)//' was not found in DATA_FILE'
+  write(u6,*) 'keyword $susceptibility_'//trim(s)//' was not found in DATA_FILE'
 end if
 
 return
@@ -1279,25 +1280,25 @@ end subroutine read_susc
 !=!=
 subroutine read_magn(DATA_FILE,nt,nh,nd,nss,zj,t,h,x,y,z,w,m,mav,energy,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: DATA_FILE
 integer, intent(in) :: nt                           ! number of temperature points
 integer, intent(in) :: nh                           ! number of field points
 integer, intent(in) :: nd                           ! number of directions of aplied field
 integer, intent(in) :: nss                          ! number of spin-orbit states
-real(wp), intent(out) :: zj                         ! inter-molecular parameter zJ
-real(wp), intent(out) :: t(nt)                      ! temperature points
-real(wp), intent(out) :: h(nh)                      ! field points
-real(wp), intent(out) :: x(nd), y(nd), z(nd), w(nd) ! Lebedev grid directions and weight
-real(wp), intent(out) :: m(nd,3,nt,nh)              ! magnetisation vector
-real(wp), intent(out) :: mav(nt,nh)                 ! average magnetisation vector
-real(wp), intent(out) :: energy(nd,nh,nss)          ! Zeeman energy states
+real(kind=wp), intent(out) :: zj                         ! inter-molecular parameter zJ
+real(kind=wp), intent(out) :: t(nt)                      ! temperature points
+real(kind=wp), intent(out) :: h(nh)                      ! field points
+real(kind=wp), intent(out) :: x(nd), y(nd), z(nd), w(nd) ! Lebedev grid directions and weight
+real(kind=wp), intent(out) :: m(nd,3,nt,nh)              ! magnetisation vector
+real(kind=wp), intent(out) :: mav(nt,nh)                 ! average magnetisation vector
+real(kind=wp), intent(out) :: energy(nd,nh,nss)          ! Zeeman energy states
 integer :: id, ih, it, i, iss, l, ierr
 logical, intent(in) :: dbg
 character(len=500) :: line
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
 
 ierr = 0
 if ((nt <= 0) .or. (nh <= 0) .or. (nd <= 0) .or. (nss <= 0)) then
@@ -1318,15 +1319,15 @@ if (id /= nd) call WarningMessage(1,'read_magn :: nd read from DATA_FILE is not 
 if (iss /= nss) call WarningMessage(1,'read_magn :: nss read from DATA_FILE is not the same as the parameter used to CALL '// &
                                     'this function.')
 zJ = Zero
-T = Zero
-H = Zero
-X = Zero
-Y = Zero
-Z = Zero
-W = Zero
-energy = Zero
-m = Zero
-mav = Zero
+T(:) = Zero
+H(:) = Zero
+X(:) = Zero
+Y(:) = Zero
+Z(:) = Zero
+W(:) = Zero
+energy(:,:,:) = Zero
+m(:,:,:,:) = Zero
+mav(:,:) = Zero
 read(DATA_FILE,*,iostat=ierr) zJ
 read(DATA_FILE,*,iostat=ierr) (T(i),i=1,nt)
 if (ierr /= 0) call WarningMessage(2,'read_magn :: Something went wrong reading the T array.')
@@ -1362,7 +1363,7 @@ do ih=1,nh
   read(DATA_FILE,*,iostat=ierr) (mav(ih,it),it=1,nt)
   if (ierr /= 0) call WarningMessage(2,'read_magn :: Something went wrong reading the average M data.')
 end do
-if (dbg) flush(StdOut)
+if (dbg) flush(u6)
 
 return
 
@@ -1370,28 +1371,28 @@ end subroutine read_magn
 !=!=
 subroutine read_complex_matrix(LU,key,n,matrix,dbg)
 
+use Constants, only: Zero, cZero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 integer, intent(in) :: N
 character(len=*), intent(in) :: key
-complex(wp), intent(out) :: matrix(N,N)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(out) :: matrix(N,N)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j
 logical, intent(in) :: dbg
-real(wp), parameter :: Zero = 0.0_wp
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
 
-matrix = ZeroC
+matrix(:,:) = cZero
 allocate(rr(n,n))
 allocate(ri(n,n))
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 call read_2d_real_array(LU,key//'r',n,n,rr,dbg)
 call read_2d_real_array(LU,key//'i',n,n,ri,dbg)
 do i=1,n
   do j=1,n
-    matrix(i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    matrix(i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 deallocate(rr)
@@ -1403,23 +1404,25 @@ end subroutine read_complex_matrix
 !=!=
 subroutine write_complex_matrix(LU,key,n,matrix,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 integer, intent(in) :: N
 character(len=*), intent(in) :: key
-complex(wp), intent(in) :: matrix(N,N)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(in) :: matrix(N,N)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j
 logical, intent(in) :: dbg
 
 allocate(rr(n,n))
 allocate(ri(n,n))
-rr = 0.0_wp
-ri = 0.0_wp
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(matrix(i,j))
+    rr(i,j) = real(matrix(i,j))
     ri(i,j) = aimag(matrix(i,j))
   end do
 end do
@@ -1461,46 +1464,47 @@ end subroutine write_complex_matrix
 
 subroutine write_magnetic_moment(ANISO_FILE,n,moment,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
-complex(wp), intent(in) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(in) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j
-real(wp), parameter :: Zero = 0.0_wp
 logical, intent(in) :: dbg
 
 allocate(rr(n,n))
 allocate(ri(n,n))
 ! projection X
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(1,i,j))
+    rr(i,j) = real(moment(1,i,j))
     ri(i,j) = aimag(moment(1,i,j))
   end do
 end do
 call write_2d_real_array(ANISO_FILE,'$magn_xr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$magn_xi',n,n,ri,dbg)
 ! projection Y
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(2,i,j))
+    rr(i,j) = real(moment(2,i,j))
     ri(i,j) = aimag(moment(2,i,j))
   end do
 end do
 call write_2d_real_array(ANISO_FILE,'$magn_yr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$magn_yi',n,n,ri,dbg)
 ! projection Z
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(3,i,j))
+    rr(i,j) = real(moment(3,i,j))
     ri(i,j) = aimag(moment(3,i,j))
   end do
 end do
@@ -1515,46 +1519,47 @@ end subroutine write_magnetic_moment
 !=!=
 subroutine write_electric_moment(ANISO_FILE,n,moment,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
-complex(wp), intent(in) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(in) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j
-real(wp), parameter :: Zero = 0.0_wp
 logical, intent(in) :: dbg
 
 allocate(rr(n,n))
 allocate(ri(n,n))
 ! projection X
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(1,i,j))
+    rr(i,j) = real(moment(1,i,j))
     ri(i,j) = aimag(moment(1,i,j))
   end do
 end do
 call write_2d_real_array(ANISO_FILE,'$edipm_xr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$edipm_xi',n,n,ri,dbg)
 ! projection Y
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(2,i,j))
+    rr(i,j) = real(moment(2,i,j))
     ri(i,j) = aimag(moment(2,i,j))
   end do
 end do
 call write_2d_real_array(ANISO_FILE,'$edipm_yr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$edipm_yi',n,n,ri,dbg)
 ! projection Z
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(3,i,j))
+    rr(i,j) = real(moment(3,i,j))
     ri(i,j) = aimag(moment(3,i,j))
   end do
 end do
@@ -1569,46 +1574,47 @@ end subroutine write_electric_moment
 !=!=
 subroutine write_spin_moment(ANISO_FILE,n,moment,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
-complex(wp), intent(in) :: moment(3,N,N)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(in) :: moment(3,N,N)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j
-real(wp), parameter :: Zero = 0.0_wp
 logical, intent(in) :: dbg
 
 allocate(rr(n,n))
 allocate(ri(n,n))
 ! projection X
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(1,i,j))
+    rr(i,j) = real(moment(1,i,j))
     ri(i,j) = aimag(moment(1,i,j))
   end do
 end do
 call write_2d_real_array(ANISO_FILE,'$spin_xr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$spin_xi',n,n,ri,dbg)
 ! projection Y
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(2,i,j))
+    rr(i,j) = real(moment(2,i,j))
     ri(i,j) = aimag(moment(2,i,j))
   end do
 end do
 call write_2d_real_array(ANISO_FILE,'$spin_yr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$spin_yi',n,n,ri,dbg)
 ! projection Z
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n
   do j=1,n
-    rr(i,j) = dble(moment(3,i,j))
+    rr(i,j) = real(moment(3,i,j))
     ri(i,j) = aimag(moment(3,i,j))
   end do
 end do
@@ -1623,11 +1629,12 @@ end subroutine write_spin_moment
 !=!=
 subroutine write_angmom(ANISO_FILE,n,moment,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
-real(wp), intent(in) :: moment(3,N,N)
+real(kind=wp), intent(in) :: moment(3,N,N)
 logical, intent(in) :: dbg
 
 call write_2d_real_array(ANISO_FILE,'$angmom_x',n,n,moment(1,:,:),dbg)
@@ -1640,11 +1647,12 @@ end subroutine write_angmom
 !=!=
 subroutine write_edipmom(ANISO_FILE,n,moment,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
-real(wp), intent(in) :: moment(3,N,N)
+real(kind=wp), intent(in) :: moment(3,N,N)
 logical, intent(in) :: dbg
 
 call write_2d_real_array(ANISO_FILE,'$edmom_x',n,n,moment(1,:,:),dbg)
@@ -1657,11 +1665,12 @@ end subroutine write_edipmom
 !=!=
 subroutine write_amfi(ANISO_FILE,n,moment,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
-real(wp), intent(in) :: moment(3,N,N)
+real(kind=wp), intent(in) :: moment(3,N,N)
 logical, intent(in) :: dbg
 
 call write_2d_real_array(ANISO_FILE,'$amfi_x',n,n,moment(1,:,:),dbg)
@@ -1782,15 +1791,15 @@ end subroutine write_szproj
 !=!=
 subroutine write_eso(ANISO_FILE,n,array,dbg)
 
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: n
-real(wp), intent(in) :: array(n)
+real(kind=wp), intent(in) :: array(n)
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
 
-if (dbg) write(StdOut,*) 'write_eso: '
+if (dbg) write(u6,*) 'write_eso: '
 call write_1d_real_array(ANISO_FILE,'$eso',n,array,dbg)
 
 return
@@ -1799,11 +1808,12 @@ end subroutine write_eso
 !=!=
 subroutine write_esfs(ANISO_FILE,n,array,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: n
-real(wp), intent(in) :: array(n)
+real(kind=wp), intent(in) :: array(n)
 logical, intent(in) :: dbg
 
 call write_1d_real_array(ANISO_FILE,'$esfs',n,array,dbg)
@@ -1814,11 +1824,12 @@ end subroutine write_esfs
 !=!=
 subroutine write_hso(ANISO_FILE,n,array,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: n
-complex(wp), intent(in) :: array(n)
+complex(kind=wp), intent(in) :: array(n)
 logical, intent(in) :: dbg
 
 call write_complex_matrix(ANISO_FILE,'$hso',n,array,dbg)
@@ -1829,11 +1840,12 @@ end subroutine write_hso
 !=!=
 subroutine write_eigen(ANISO_FILE,n,array,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: n
-complex(wp), intent(in) :: array(n)
+complex(kind=wp), intent(in) :: array(n)
 logical, intent(in) :: dbg
 
 call write_complex_matrix(ANISO_FILE,'$eigen',n,array,dbg)
@@ -1844,12 +1856,13 @@ end subroutine write_eigen
 !=!=
 subroutine write_gtens(ANISO_FILE,nmult,gtens,axes,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: nmult
-real(wp), intent(in) :: gtens(nmult,3)
-real(wp), intent(in) :: axes(nmult,3,3)
+real(kind=wp), intent(in) :: gtens(nmult,3)
+real(kind=wp), intent(in) :: axes(nmult,3,3)
 logical, intent(in) :: dbg
 
 call write_2d_real_array(ANISO_FILE,'$gtens_main',nmult,3,gtens,dbg)
@@ -1861,17 +1874,18 @@ end subroutine write_gtens
 !=!=
 subroutine write_stev_cfp(ANISO_FILE,s,n,cfp,dbg)
 
+use Constants, only: Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: n   ! 2J+1, or 2L+1, i.e. the dimension of the J or L multiplet
-real(wp), intent(in) :: cfp(n-1,-(n-1):(n-1))
+real(kind=wp), intent(in) :: cfp(n-1,-(n-1):(n-1))
 character(len=*) :: s
 integer :: k, q, ierr
-integer, parameter :: StdOut = 6
 logical, intent(in) :: dbg
 character(len=500) :: line
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 character(len=30) :: FMTCFP = '(2(I0,1x),ES22.14)'
 
 ! s takes the value:
@@ -1907,7 +1921,7 @@ do k=2,n-1,2
   do q=-k,k,2
     if (abs(cfp(k,q)) > MINIMAL_REAL) write(ANISO_FILE,FMTCFP,iostat=ierr) k,q,cfp(k,q)
     if (ierr /= 0) call WarningMessage(2,'write_stev_cfp_'//trim(s)//':: Something went wrong writing the array.')
-    if (dbg) write(StdOut,*) 'write_stev_cfp_'//trim(s)//'::  k, q =',k,q
+    if (dbg) write(u6,*) 'write_stev_cfp_'//trim(s)//'::  k, q =',k,q
   end do
 end do
 write(ANISO_FILE,'(A)',iostat=ierr)
@@ -1919,22 +1933,23 @@ end subroutine write_stev_cfp
 !=!=
 subroutine write_susc(ANISO_FILE,s,n,field,zj,t,z,x,x_tens,dbg)
 
+use Constants, only: Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n              ! number of temperature points
-real(wp), intent(in) :: field         ! applied field
-real(wp), intent(in) :: zJ            ! intermolecular interaction
-real(wp), intent(in) :: t(n)          ! temperature points
-real(wp), intent(in) :: z(n)          ! partition function
-real(wp), intent(in) :: x(n)          ! susceptibility X
-real(wp), intent(in) :: x_tens(n,3,3) ! susceptibility tensor X_tens
+integer, intent(in) :: n                   ! number of temperature points
+real(kind=wp), intent(in) :: field         ! applied field
+real(kind=wp), intent(in) :: zJ            ! intermolecular interaction
+real(kind=wp), intent(in) :: t(n)          ! temperature points
+real(kind=wp), intent(in) :: z(n)          ! partition function
+real(kind=wp), intent(in) :: x(n)          ! susceptibility X
+real(kind=wp), intent(in) :: x_tens(n,3,3) ! susceptibility tensor X_tens
 character(len=*), intent(in) :: s
 integer :: i, j, k, ierr
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 character(len=500) :: line
 character(len=20) :: FMTR = '(5ES22.14)'
 character(len=20) :: FMTI = '(20(I0,1x))'
@@ -2015,7 +2030,7 @@ do j=1,3
 end do
 write(ANISO_FILE,*,iostat=ierr)
 flush(ANISO_FILE)
-if (dbg) flush(StdOut)
+if (dbg) flush(u6)
 
 return
 
@@ -2023,25 +2038,26 @@ end subroutine write_susc
 !=!=
 subroutine write_magn(ANISO_FILE,nt,nh,nd,nss,zj,t,h,x,y,z,w,m,mav,energy,dbg)
 
+use Constants, only: Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: nt                          ! number of temperature points
-integer, intent(in) :: nh                          ! number of field points
-integer, intent(in) :: nd                          ! number of directions of aplied field
-integer, intent(in) :: nss                         ! number of spin-orbit states included in the Zeeman interaction
-real(wp), intent(in) :: zj                         ! inter-molecular parameter zJ
-real(wp), intent(in) :: t(nt)                      ! temperature points
-real(wp), intent(in) :: h(nh)                      ! field points
-real(wp), intent(in) :: x(nd), y(nd), z(nd), w(nd) ! Lebedev grid directions and weight
-real(wp), intent(in) :: m(nd,3,nh,nt)              ! magnetisation vector
-real(wp), intent(in) :: mav(nh,nt)                 ! average magnetisation vector
-real(wp), intent(in) :: energy(nd,nh,nss)          ! Zeeman energy states
+integer, intent(in) :: nt                               ! number of temperature points
+integer, intent(in) :: nh                               ! number of field points
+integer, intent(in) :: nd                               ! number of directions of aplied field
+integer, intent(in) :: nss                              ! number of spin-orbit states included in the Zeeman interaction
+real(kind=wp), intent(in) :: zj                         ! inter-molecular parameter zJ
+real(kind=wp), intent(in) :: t(nt)                      ! temperature points
+real(kind=wp), intent(in) :: h(nh)                      ! field points
+real(kind=wp), intent(in) :: x(nd), y(nd), z(nd), w(nd) ! Lebedev grid directions and weight
+real(kind=wp), intent(in) :: m(nd,3,nh,nt)              ! magnetisation vector
+real(kind=wp), intent(in) :: mav(nh,nt)                 ! average magnetisation vector
+real(kind=wp), intent(in) :: energy(nd,nh,nss)          ! Zeeman energy states
 integer :: id, ih, it, i, iss, l, ierr
-real(wp), external :: dnrm2_
-integer, parameter :: StdOut = 6
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 character(len=500) :: line
 character(len=20) :: FMTR = '(5ES22.14)'
 character(len=20) :: FMTI = '(20(I0,1x))'
@@ -2110,7 +2126,7 @@ do ih=1,nh
 end do
 write(ANISO_FILE,*,iostat=ierr)
 flush(ANISO_FILE)
-if (dbg) flush(StdOut)
+if (dbg) flush(u6)
 
 return
 
@@ -2239,6 +2255,8 @@ end function key_found
 !=!=
 subroutine file_advance_to_string(LU,key,line,ierr,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 integer :: ios
@@ -2247,7 +2265,6 @@ character(len=*), intent(in) :: key
 character(len=*) :: line
 integer, intent(out) :: ierr
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
 
 ierr = 0
 num_read = 0
@@ -2272,11 +2289,11 @@ line = ' '
 ierr = 1
 
 if (dbg) then
-  write(StdOut,'(a)') ' '
-  write(StdOut,'(a)') 'FILE_ADVANCE_TO_STRING - Warning!'
-  write(StdOut,'(a)') '  Did not find the key:'
-  write(StdOut,'(a)') '    '//trim(key)
-  write(StdOut,'(a,i6)') '  Number of lines read was ',num_read
+  write(u6,'(a)') ' '
+  write(u6,'(a)') 'FILE_ADVANCE_TO_STRING - Warning!'
+  write(u6,'(a)') '  Did not find the key:'
+  write(u6,'(a)') '    '//trim(key)
+  write(u6,'(a,i6)') '  Number of lines read was ',num_read
 end if
 
 return
@@ -2312,6 +2329,8 @@ end function inquire_key_presence
 
 subroutine read_INTEGER_scalar(LU,key,i,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
@@ -2319,7 +2338,6 @@ integer, intent(out) :: i
 character(len=500) :: line
 logical, intent(in) :: dbg
 integer :: ierr
-integer, parameter :: StdOut = 6
 
 ierr = 0
 i = 0
@@ -2328,8 +2346,8 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i
 if (ierr /= 0) call WarningMessage(2,'read_INTEGER_scalar:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_INTEGER_scalar:: key =',trim(key)
-  write(StdOut,*) 'read_INTEGER_scalar::   i =',i
+  write(u6,*) 'read_INTEGER_scalar:: key =',trim(key)
+  write(u6,*) 'read_INTEGER_scalar::   i =',i
 end if
 
 return
@@ -2338,13 +2356,13 @@ end subroutine read_INTEGER_scalar
 !=!=
 subroutine read_real_scalar(LU,key,r,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
-real(wp), intent(out) :: r
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
+real(kind=wp), intent(out) :: r
 logical, intent(in) :: dbg
 integer :: ierr
 character(len=500) :: line
@@ -2356,8 +2374,8 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) r
 if (ierr /= 0) call WarningMessage(2,'read_real_scalar:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_real_scalar:: key =',trim(key)
-  write(StdOut,*) 'read_real_scalar::   r =',r
+  write(u6,*) 'read_real_scalar:: key =',trim(key)
+  write(u6,*) 'read_real_scalar::   r =',r
 end if
 
 return
@@ -2366,15 +2384,14 @@ end subroutine read_real_scalar
 !=!=
 subroutine read_complex_scalar(LU,key,c,dbg)
 
+use Constants, only: Zero, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
-complex(wp), intent(out) :: c
-real(wp) :: rr, ri
-real(wp), parameter :: Zero = 0.0_wp
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
-integer, parameter :: StdOut = 6
+complex(kind=wp), intent(out) :: c
+real(kind=wp) :: rr, ri
 integer :: ierr
 character(len=500) :: line
 logical, intent(in) :: dbg
@@ -2382,17 +2399,17 @@ logical, intent(in) :: dbg
 ierr = 0
 rr = Zero
 ri = Zero
-c = ZeroC
+c = cZero
 rewind(LU)
 call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) rr,ri
 if (ierr /= 0) call WarningMessage(2,'read_complex_scalar:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_complex_scalar::   key =',trim(key)
-  write(StdOut,*) 'read_complex_scalar:: (r,i) =',rr,ri
-  write(StdOut,*) 'read_complex_scalar::     c =',c
+  write(u6,*) 'read_complex_scalar::   key =',trim(key)
+  write(u6,*) 'read_complex_scalar:: (r,i) =',rr,ri
+  write(u6,*) 'read_complex_scalar::     c =',c
 end if
-c = cmplx(rr,ri,wp)
+c = cmplx(rr,ri,kind=wp)
 
 return
 
@@ -2400,6 +2417,8 @@ end subroutine read_complex_scalar
 !=!=
 subroutine read_string(LU,key,length,s,dbg)
 !result(s)
+
+use Definitions, only: u6
 
 implicit none
 integer, intent(in) :: LU
@@ -2409,28 +2428,27 @@ character(len=length), intent(out) :: s
 character(len=500) :: c, f, line
 integer :: i, ierr
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
 
 if (dbg) then
-  write(StdOut,*) 'read_string::    key =',trim(key)
-  write(StdOut,*) 'read_string:: length =',length
+  write(u6,*) 'read_string::    key =',trim(key)
+  write(u6,*) 'read_string:: length =',length
 end if
-flush(StdOut)
+flush(u6)
 write(f,'(A,i0,2A)') '"(A',length,')"'
-write(StdOut,'(2A)') 'format =',trim(f)
-flush(StdOut)
+write(u6,'(2A)') 'format =',trim(f)
+flush(u6)
 rewind(LU)
 call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,f,iostat=ierr) c
-write(StdOut,'(2A)') 'c =',trim(c)
+write(u6,'(2A)') 'c =',trim(c)
 write(s,'(A)') trim(c)
 
 do i=1,len(trim(LINE))
   read(LINE,'(A500)') c
   write(s,'(A)') trim(c)
-  flush(StdOut)
-  if (dbg) write(StdOut,*) 'read_string::   c =',trim(c)
-  flush(StdOut)
+  flush(u6)
+  if (dbg) write(u6,*) 'read_string::   c =',trim(c)
+  flush(u6)
 end do
 
 return
@@ -2439,11 +2457,12 @@ end subroutine read_string
 !=!=
 subroutine read_1d_size(LU,key,n,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(out) :: n
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 logical, intent(in) :: dbg
 integer :: ierr
@@ -2455,8 +2474,8 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) n
 if (ierr /= 0) call WarningMessage(2,'read_1d_size:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_1d_size:: key =',trim(key)
-  write(StdOut,*) 'read_1d_size::   n =',n
+  write(u6,*) 'read_1d_size:: key =',trim(key)
+  write(u6,*) 'read_1d_size::   n =',n
 end if
 
 return
@@ -2465,11 +2484,12 @@ end subroutine read_1d_size
 !=!=
 subroutine read_2d_size(LU,key,n1,n2,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(out) :: n1, n2
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 logical, intent(in) :: dbg
 integer :: ierr
@@ -2482,9 +2502,9 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) n1,n2
 if (ierr /= 0) call WarningMessage(2,'read_2d_size:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_2d_size:: key =',trim(key)
-  write(StdOut,*) 'read_2d_size::  n1 =',n1
-  write(StdOut,*) 'read_2d_size::  n2 =',n2
+  write(u6,*) 'read_2d_size:: key =',trim(key)
+  write(u6,*) 'read_2d_size::  n1 =',n1
+  write(u6,*) 'read_2d_size::  n2 =',n2
 end if
 
 return
@@ -2493,11 +2513,12 @@ end subroutine read_2d_size
 !=!=
 subroutine read_3d_size(LU,key,n1,n2,n3,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(out) :: n1, n2, n3
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 logical, intent(in) :: dbg
 integer :: ierr
@@ -2511,10 +2532,10 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) n1,n2,n3
 if (ierr /= 0) call WarningMessage(2,'read_3d_size:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_3d_size:: key =',trim(key)
-  write(StdOut,*) 'read_3d_size::  n1 =',n1
-  write(StdOut,*) 'read_3d_size::  n2 =',n2
-  write(StdOut,*) 'read_3d_size::  n3 =',n3
+  write(u6,*) 'read_3d_size:: key =',trim(key)
+  write(u6,*) 'read_3d_size::  n1 =',n1
+  write(u6,*) 'read_3d_size::  n2 =',n2
+  write(u6,*) 'read_3d_size::  n3 =',n3
 end if
 
 return
@@ -2523,11 +2544,12 @@ end subroutine read_3d_size
 !=!=
 subroutine read_4d_size(LU,key,n1,n2,n3,n4,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(out) :: n1, n2, n3, n4
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 logical, intent(in) :: dbg
 integer :: ierr
@@ -2542,11 +2564,11 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) n1,n2,n3,n4
 if (ierr /= 0) call WarningMessage(2,'read_4d_size:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_4d_size:: key =',trim(key)
-  write(StdOut,*) 'read_4d_size::  n1 =',n1
-  write(StdOut,*) 'read_4d_size::  n2 =',n2
-  write(StdOut,*) 'read_4d_size::  n3 =',n3
-  write(StdOut,*) 'read_4d_size::  n4 =',n4
+  write(u6,*) 'read_4d_size:: key =',trim(key)
+  write(u6,*) 'read_4d_size::  n1 =',n1
+  write(u6,*) 'read_4d_size::  n2 =',n2
+  write(u6,*) 'read_4d_size::  n3 =',n3
+  write(u6,*) 'read_4d_size::  n4 =',n4
 end if
 
 return
@@ -2555,13 +2577,14 @@ end subroutine read_4d_size
 !=!=
 subroutine read_1d_INTEGER_array(LU,key,n,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n
 integer, intent(out) :: array(n)
 integer :: i, ierr
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 logical, intent(in) :: dbg
 
@@ -2577,21 +2600,23 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i
 if (ierr /= 0) call WarningMessage(2,'read_1d_INTEGER_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_1d_INTEGER_array:: key =',trim(key)
-  write(StdOut,*) 'read_1d_INTEGER_array::   n =',i
+  write(u6,*) 'read_1d_INTEGER_array:: key =',trim(key)
+  write(u6,*) 'read_1d_INTEGER_array::   n =',i
 end if
 if (i /= n) call WarningMessage(2,'read_1d_INTEGER_array:: sizes of the array are different from the ones used to CALL this '// &
                                 'SUBROUTINE')
 
 read(LU,*,iostat=ierr) (array(i),i=1,n)
 if (ierr /= 0) call WarningMessage(2,'read_1d_INTEGER_array:: Something went wrong reading the array.')
-if (dbg) write(StdOut,*) 'read_1d_INTEGER_array:: array =',(array(i),i=1,n)
+if (dbg) write(u6,*) 'read_1d_INTEGER_array:: array =',(array(i),i=1,n)
 
 return
 
 end subroutine read_1d_INTEGER_array
 !=!=
 subroutine read_2d_INTEGER_array(LU,key,n1,n2,array,dbg)
+
+use Definitions, only: u6
 
 implicit none
 integer, intent(in) :: LU
@@ -2600,7 +2625,6 @@ integer, intent(in) :: n1, n2
 integer, intent(out) :: array(n1,n2)
 integer :: i, j
 logical, intent(in) :: dbg
-integer :: StdOut = 6
 character(len=500) :: line
 integer :: ierr
 
@@ -2609,8 +2633,8 @@ array = 0
 if ((n1 <= 0) .or. (n2 <= 0)) then
   call WarningMessage(1,'read_2d_INTEGER_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_2d_INTEGER_array::   n1 =',n1
-    write(StdOut,*) 'read_2d_INTEGER_array::   n2 =',n2
+    write(u6,*) 'read_2d_INTEGER_array::   n1 =',n1
+    write(u6,*) 'read_2d_INTEGER_array::   n2 =',n2
   end if
   return
 end if
@@ -2620,16 +2644,16 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i,j
 if (ierr /= 0) call WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_2d_INTEGER_array:: key =',trim(key)
-  write(StdOut,*) 'read_2d_INTEGER_array::  n1 =',i
-  write(StdOut,*) 'read_2d_INTEGER_array::  n2 =',j
+  write(u6,*) 'read_2d_INTEGER_array:: key =',trim(key)
+  write(u6,*) 'read_2d_INTEGER_array::  n1 =',i
+  write(u6,*) 'read_2d_INTEGER_array::  n2 =',j
 end if
 if ((i /= n1) .or. (j /= n2)) call WarningMessage(2,'read_2d_INTEGER_array:: sizes of the array are different from the ones '// &
                                                   'used to CALL this SUBROUTINE')
 do i=1,n1
   read(LU,*,iostat=ierr) (array(i,j),j=1,n2)
   if (ierr /= 0) call WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading the array.')
-  if (dbg) write(StdOut,*) 'read_2d_INTEGER_array::  i =',i
+  if (dbg) write(u6,*) 'read_2d_INTEGER_array::  i =',i
 end do
 
 return
@@ -2638,6 +2662,8 @@ end subroutine read_2d_INTEGER_array
 !=!=
 subroutine read_3d_INTEGER_array(LU,key,n1,n2,n3,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
@@ -2645,7 +2671,6 @@ integer, intent(in) :: n1, n2, n3
 integer, intent(out) :: array(n1,n2,n3)
 integer :: i, j, k
 logical, intent(in) :: dbg
-integer :: StdOut = 6
 character(len=500) :: line
 integer :: ierr
 
@@ -2654,9 +2679,9 @@ array = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
   call WarningMessage(1,'read_3d_INTEGER_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_3d_INTEGER_array::   n1 =',n1
-    write(StdOut,*) 'read_3d_INTEGER_array::   n2 =',n2
-    write(StdOut,*) 'read_3d_INTEGER_array::   n3 =',n3
+    write(u6,*) 'read_3d_INTEGER_array::   n1 =',n1
+    write(u6,*) 'read_3d_INTEGER_array::   n2 =',n2
+    write(u6,*) 'read_3d_INTEGER_array::   n3 =',n3
   end if
   return
 end if
@@ -2666,10 +2691,10 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i,j,k
 if (ierr /= 0) call WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_3d_INTEGER_array:: key =',trim(key)
-  write(StdOut,*) 'read_3d_INTEGER_array::  n1 =',i
-  write(StdOut,*) 'read_3d_INTEGER_array::  n2 =',j
-  write(StdOut,*) 'read_3d_INTEGER_array::  n3 =',k
+  write(u6,*) 'read_3d_INTEGER_array:: key =',trim(key)
+  write(u6,*) 'read_3d_INTEGER_array::  n1 =',i
+  write(u6,*) 'read_3d_INTEGER_array::  n2 =',j
+  write(u6,*) 'read_3d_INTEGER_array::  n3 =',k
 end if
 if ((i /= n1) .or. (j /= n2) .or. (k /= n3)) call WarningMessage(2,'read_3d_INTEGER_array:: sizes of the array are different '// &
                                                                  'from the ones used to CALL this SUBROUTINE')
@@ -2677,7 +2702,7 @@ do i=1,n1
   do j=1,n2
     read(LU,*,iostat=ierr) (array(i,j,k),k=1,n3)
     if (ierr /= 0) call WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading the array.')
-    if (dbg) write(StdOut,*) 'read_3d_INTEGER_array::  i,j =',i,j
+    if (dbg) write(u6,*) 'read_3d_INTEGER_array::  i,j =',i,j
   end do
 end do
 
@@ -2687,6 +2712,8 @@ end subroutine read_3d_INTEGER_array
 !=!=
 subroutine read_4d_INTEGER_array(LU,key,n1,n2,n3,n4,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
@@ -2694,7 +2721,6 @@ integer, intent(in) :: n1, n2, n3, n4
 integer, intent(out) :: array(n1,n2,n3,n4)
 integer :: i, j, k, l
 logical, intent(in) :: dbg
-integer :: StdOut = 6
 character(len=500) :: line
 integer :: ierr
 
@@ -2703,10 +2729,10 @@ array = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then
   call WarningMessage(1,'read_4d_INTEGER_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_4d_INTEGER_array::   n1 =',n1
-    write(StdOut,*) 'read_4d_INTEGER_array::   n2 =',n2
-    write(StdOut,*) 'read_4d_INTEGER_array::   n3 =',n3
-    write(StdOut,*) 'read_4d_INTEGER_array::   n4 =',n4
+    write(u6,*) 'read_4d_INTEGER_array::   n1 =',n1
+    write(u6,*) 'read_4d_INTEGER_array::   n2 =',n2
+    write(u6,*) 'read_4d_INTEGER_array::   n3 =',n3
+    write(u6,*) 'read_4d_INTEGER_array::   n4 =',n4
   end if
   return
 end if
@@ -2716,11 +2742,11 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i,j,k,l
 if (ierr /= 0) call WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_4d_INTEGER_array:: key =',trim(key)
-  write(StdOut,*) 'read_4d_INTEGER_array::  n1 =',i
-  write(StdOut,*) 'read_4d_INTEGER_array::  n2 =',j
-  write(StdOut,*) 'read_4d_INTEGER_array::  n3 =',k
-  write(StdOut,*) 'read_4d_INTEGER_array::  n4 =',l
+  write(u6,*) 'read_4d_INTEGER_array:: key =',trim(key)
+  write(u6,*) 'read_4d_INTEGER_array::  n1 =',i
+  write(u6,*) 'read_4d_INTEGER_array::  n2 =',j
+  write(u6,*) 'read_4d_INTEGER_array::  n3 =',k
+  write(u6,*) 'read_4d_INTEGER_array::  n4 =',l
 end if
 if ((i /= n1) .or. (j /= n2) .or. (k /= n3) .or. (l /= n4)) &
   call WarningMessage(2,'read_4d_INTEGER_array:: sizes of the array are different from the ones used to CALL this SUBROUTINE')
@@ -2729,7 +2755,7 @@ do i=1,n1
     do k=1,n3
       read(LU,*,iostat=ierr) (array(i,j,k,l),l=1,n4)
       if (ierr /= 0) call WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading the array.')
-      if (dbg) write(StdOut,*) 'read_4d_INTEGER_array::  i,j,k =',i,j,k
+      if (dbg) write(u6,*) 'read_4d_INTEGER_array::  i,j,k =',i,j,k
     end do
   end do
 end do
@@ -2740,21 +2766,21 @@ end subroutine read_4d_INTEGER_array
 !=!=
 subroutine read_1d_real_array(LU,key,n,array,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n
-real(wp), intent(out) :: array(n)
+real(kind=wp), intent(out) :: array(n)
 integer :: i
 logical, intent(in) :: dbg
-real(wp), parameter :: Zero = 0.0_wp
-integer :: StdOut = 6
 character(len=500) :: line
 integer :: ierr
 
 ierr = 0
-array = Zero
+array(:) = Zero
 if (n <= 0) then
   call WarningMessage(1,'read_1d_real_array:: nothing to read. Array size = 0.')
   return
@@ -2765,15 +2791,15 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i
 if (ierr /= 0) call WarningMessage(2,'read_1d_real_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_1d_real_array:: key =',trim(key)
-  write(StdOut,*) 'read_1d_real_array::   n =',i
+  write(u6,*) 'read_1d_real_array:: key =',trim(key)
+  write(u6,*) 'read_1d_real_array::   n =',i
 end if
 if ((i /= n)) call WarningMessage(2,'read_1d_real_array:: sizes of the array are different from the ones used to CALL this '// &
                                   'SUBROUTINE')
 
 read(LU,*,iostat=ierr) (array(i),i=1,n)
 if (ierr /= 0) call WarningMessage(2,'read_1d_real_array:: Something went wrong reading the array.')
-if (dbg) write(StdOut,*) 'read_1d_real_array:: array =',(array(i),i=1,n)
+if (dbg) write(u6,*) 'read_1d_real_array:: array =',(array(i),i=1,n)
 
 return
 
@@ -2781,25 +2807,25 @@ end subroutine read_1d_real_array
 !=!=
 subroutine read_2d_real_array(LU,key,n1,n2,array,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2
-real(wp), intent(out) :: array(n1,n2)
+real(kind=wp), intent(out) :: array(n1,n2)
 integer :: i, j, ierr
 logical, intent(in) :: dbg
-real(wp), parameter :: Zero = 0.0_wp
 character(len=500) :: line
-integer :: StdOut = 6
 
 ierr = 0
-array = Zero
+array(:,:) = Zero
 if ((n1 <= 0) .or. (n2 <= 0)) then
   call WarningMessage(1,'read_2d_real_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_2d_real_array::   n1 =',n1
-    write(StdOut,*) 'read_2d_real_array::   n2 =',n2
+    write(u6,*) 'read_2d_real_array::   n1 =',n1
+    write(u6,*) 'read_2d_real_array::   n2 =',n2
   end if
   return
 end if
@@ -2808,22 +2834,22 @@ rewind(LU)
 call file_advance_to_string(LU,key,line,ierr,dbg)
 
 if (ierr /= 0) call WarningMessage(2,'read_2d_real_array:: Something went wrong reading key'//trim(key))
-if (dbg) write(StdOut,*) 'read_2d_real_array:: key =',trim(key)
+if (dbg) write(u6,*) 'read_2d_real_array:: key =',trim(key)
 
 read(LU,*,iostat=ierr) i,j
 
 if (dbg) then
-  write(StdOut,*) 'read_2d_real_array::  n1 =',i
-  write(StdOut,*) 'read_2d_real_array::  n2 =',j
+  write(u6,*) 'read_2d_real_array::  n1 =',i
+  write(u6,*) 'read_2d_real_array::  n2 =',j
 end if
 if ((i /= n1) .or. (j /= n2)) call WarningMessage(2,'read_2d_real_array:: sizes of the array are different from the ones used '// &
                                                   'to CALL this SUBROUTINE')
 
 do i=1,n1
   read(LU,*,iostat=ierr) (array(i,j),j=1,n2)
-  if (dbg) write(StdOut,*) (array(i,j),j=1,n2)
+  if (dbg) write(u6,*) (array(i,j),j=1,n2)
   if (ierr /= 0) call WarningMessage(2,'read_2d_real_array:: Something went wrong reading the array.')
-  if (dbg) write(StdOut,*) 'read_2d_real_array::  i =',i
+  if (dbg) write(u6,*) 'read_2d_real_array::  i =',i
 end do
 
 return
@@ -2832,26 +2858,26 @@ end subroutine read_2d_real_array
 !=!=
 subroutine read_3d_real_array(LU,key,n1,n2,n3,array,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2, n3
-real(wp), intent(out) :: array(n1,n2,n3)
+real(kind=wp), intent(out) :: array(n1,n2,n3)
 integer :: i, j, k, ierr
 logical, intent(in) :: dbg
-real(wp), parameter :: Zero = 0.0_wp
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 
 ierr = 0
-array = Zero
+array(:,:,:) = Zero
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
   call WarningMessage(1,'read_3d_real_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_3d_real_array::   n1 =',n1
-    write(StdOut,*) 'read_3d_real_array::   n2 =',n2
-    write(StdOut,*) 'read_3d_real_array::   n3 =',n3
+    write(u6,*) 'read_3d_real_array::   n1 =',n1
+    write(u6,*) 'read_3d_real_array::   n2 =',n2
+    write(u6,*) 'read_3d_real_array::   n3 =',n3
   end if
   return
 end if
@@ -2861,10 +2887,10 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i,j,k
 if (ierr /= 0) call WarningMessage(2,'read_3d_real_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_3d_real_array:: key =',trim(key)
-  write(StdOut,*) 'read_3d_real_array::  n1 =',i
-  write(StdOut,*) 'read_3d_real_array::  n2 =',j
-  write(StdOut,*) 'read_3d_real_array::  n3 =',k
+  write(u6,*) 'read_3d_real_array:: key =',trim(key)
+  write(u6,*) 'read_3d_real_array::  n1 =',i
+  write(u6,*) 'read_3d_real_array::  n2 =',j
+  write(u6,*) 'read_3d_real_array::  n3 =',k
 end if
 if ((i /= n1) .or. (j /= n2) .or. (k /= n3)) call WarningMessage(2,'read_3d_real_array:: sizes of the array are different from '// &
                                                                  'the ones used to CALL this SUBROUTINE')
@@ -2872,7 +2898,7 @@ do i=1,n1
   do j=1,n2
     read(LU,*,iostat=ierr) (array(i,j,k),k=1,n3)
     if (ierr /= 0) call WarningMessage(2,'read_3d_real_array:: Something went wrong reading the array.')
-    if (dbg) write(StdOut,*) 'read_3d_real_array::  i,j =',i,j
+    if (dbg) write(u6,*) 'read_3d_real_array::  i,j =',i,j
   end do
 end do
 
@@ -2882,27 +2908,27 @@ end subroutine read_3d_real_array
 !=!=
 subroutine read_4d_real_array(LU,key,n1,n2,n3,n4,array,dbg)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2, n3, n4
-real(wp), intent(out) :: array(n1,n2,n3,n4)
+real(kind=wp), intent(out) :: array(n1,n2,n3,n4)
 integer :: i, j, k, l, ierr
 logical, intent(in) :: dbg
 character(len=500) :: line
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
 
 ierr = 0
-array = Zero
+array(:,:,:,:) = Zero
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then
   call WarningMessage(1,'read_4d_real_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_4d_real_array::   n1 =',n1
-    write(StdOut,*) 'read_4d_real_array::   n2 =',n2
-    write(StdOut,*) 'read_4d_real_array::   n3 =',n3
-    write(StdOut,*) 'read_4d_real_array::   n4 =',n4
+    write(u6,*) 'read_4d_real_array::   n1 =',n1
+    write(u6,*) 'read_4d_real_array::   n2 =',n2
+    write(u6,*) 'read_4d_real_array::   n3 =',n3
+    write(u6,*) 'read_4d_real_array::   n4 =',n4
   end if
   return
 end if
@@ -2912,11 +2938,11 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i,j,k,l
 if (ierr /= 0) call WarningMessage(2,'read_4d_real_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_4d_real_array:: key =',trim(key)
-  write(StdOut,*) 'read_4d_real_array::  n1 =',i
-  write(StdOut,*) 'read_4d_real_array::  n2 =',j
-  write(StdOut,*) 'read_4d_real_array::  n3 =',k
-  write(StdOut,*) 'read_4d_real_array::  n4 =',l
+  write(u6,*) 'read_4d_real_array:: key =',trim(key)
+  write(u6,*) 'read_4d_real_array::  n1 =',i
+  write(u6,*) 'read_4d_real_array::  n2 =',j
+  write(u6,*) 'read_4d_real_array::  n3 =',k
+  write(u6,*) 'read_4d_real_array::  n4 =',l
 end if
 if ((i /= n1) .or. (j /= n2) .or. (k /= n3) .or. (l /= n4)) &
   call WarningMessage(2,'read_4d_real_array:: sizes of the array are different from the ones used to CALL this SUBROUTINE')
@@ -2925,7 +2951,7 @@ do i=1,n1
     do k=1,n3
       read(LU,*,iostat=ierr) (array(i,j,k,l),l=1,n4)
       if (ierr /= 0) call WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
-      if (dbg) write(StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
+      if (dbg) write(u6,*) 'read_4d_real_array::  i,j,k =',i,j,k
     end do
   end do
 end do
@@ -2936,22 +2962,21 @@ end subroutine read_4d_real_array
 !=!=
 subroutine read_1d_complex_array(LU,key,n,array,dbg)
 
+use Constants, only: Zero, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n
-complex(wp), intent(out) :: array(n)
-real(wp), allocatable :: rr(:), ri(:)
+complex(kind=wp), intent(out) :: array(n)
+real(kind=wp), allocatable :: rr(:), ri(:)
 integer :: i, ierr
 logical, intent(in) :: dbg
 character(len=500) :: line
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
 
 ierr = 0
-array = ZeroC
+array(:) = cZero
 if (n <= 0) then
   call WarningMessage(1,'read_1d_complex_array:: nothing to read. Array size = 0.')
   return
@@ -2962,20 +2987,20 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i
 if (ierr /= 0) call WarningMessage(2,'read_1d_complex_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_1d_complex_array:: key =',trim(key)
-  write(StdOut,*) 'read_1d_complex_array::   n =',i
+  write(u6,*) 'read_1d_complex_array:: key =',trim(key)
+  write(u6,*) 'read_1d_complex_array::   n =',i
 end if
 if ((i /= n)) call WarningMessage(2,'read_1d_complex_array:: sizes of the array are different from the ones used to CALL this '// &
                                   'SUBROUTINE')
 allocate(rr(n))
 allocate(ri(n))
-rr = Zero
-ri = Zero
+rr(:) = Zero
+ri(:) = Zero
 read(LU,*,iostat=ierr) (rr(i),ri(i),i=1,n)
 if (ierr /= 0) call WarningMessage(2,'read_1d_complex_array:: Something went wrong reading the array.')
-if (dbg) write(StdOut,*) 'read_1d_complex_array:: array =',(rr(i),ri(i),i=1,n)
+if (dbg) write(u6,*) 'read_1d_complex_array:: array =',(rr(i),ri(i),i=1,n)
 do i=1,n
-  array(i) = cmplx(rr(i),ri(i),wp)
+  array(i) = cmplx(rr(i),ri(i),kind=wp)
 end do
 deallocate(rr)
 deallocate(ri)
@@ -2986,27 +3011,26 @@ end subroutine read_1d_complex_array
 !=!=
 subroutine read_2d_complex_array(LU,key,n1,n2,array,dbg)
 
+use Constants, only: Zero, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2
-complex(wp), intent(out) :: array(n1,n2)
-real(wp), allocatable :: rr(:,:), ri(:,:)
+complex(kind=wp), intent(out) :: array(n1,n2)
+real(kind=wp), allocatable :: rr(:,:), ri(:,:)
 integer :: i, j, ierr
 logical, intent(in) :: dbg
 character(len=500) :: line
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
 
 ierr = 0
-array = ZeroC
+array(:,:) = cZero
 if ((n1 <= 0) .or. (n2 <= 0)) then
   call WarningMessage(1,'read_2d_complex_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_2d_complex_array::   n1 =',n1
-    write(StdOut,*) 'read_2d_complex_array::   n2 =',n2
+    write(u6,*) 'read_2d_complex_array::   n1 =',n1
+    write(u6,*) 'read_2d_complex_array::   n2 =',n2
   end if
   return
 end if
@@ -3016,24 +3040,24 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i,j
 if (ierr /= 0) call WarningMessage(2,'read_2d_complex_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_2d_complex_array:: key =',trim(key)
-  write(StdOut,*) 'read_2d_complex_array::  n1 =',i
-  write(StdOut,*) 'read_2d_complex_array::  n2 =',j
+  write(u6,*) 'read_2d_complex_array:: key =',trim(key)
+  write(u6,*) 'read_2d_complex_array::  n1 =',i
+  write(u6,*) 'read_2d_complex_array::  n2 =',j
 end if
 if ((i /= n1) .or. (j /= n2)) call WarningMessage(2,'read_2d_complex_array:: sizes of the array are different from the ones '// &
                                                   'used to CALL this SUBROUTINE')
 allocate(rr(n1,n2))
 allocate(ri(n1,n2))
-rr = Zero
-ri = Zero
+rr(:,:) = Zero
+ri(:,:) = Zero
 do i=1,n1
   read(LU,*,iostat=ierr) (rr(i,j),ri(i,j),j=1,n2)
   if (ierr /= 0) call WarningMessage(2,'read_2d_complex_array:: Something went wrong reading the array.')
-  if (dbg) write(StdOut,*) 'read_2d_complex_array::  i =',i
+  if (dbg) write(u6,*) 'read_2d_complex_array::  i =',i
 end do
 do i=1,n1
   do j=1,n2
-    array(i,j) = cmplx(rr(i,j),ri(i,j),wp)
+    array(i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
   end do
 end do
 deallocate(rr)
@@ -3045,28 +3069,27 @@ end subroutine read_2d_complex_array
 !=!=
 subroutine read_3d_complex_array(LU,key,n1,n2,n3,array,dbg)
 
+use Constants, only: Zero, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2, n3
-complex(wp), intent(out) :: array(n1,n2,n3)
-real(wp), allocatable :: rr(:,:,:), ri(:,:,:)
+complex(kind=wp), intent(out) :: array(n1,n2,n3)
+real(kind=wp), allocatable :: rr(:,:,:), ri(:,:,:)
 integer :: i, j, k, ierr
 logical, intent(in) :: dbg
 character(len=500) :: line
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
 
 ierr = 0
-array = ZeroC
+array(:,:,:) = cZero
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
   call WarningMessage(1,'read_3d_complex_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_3d_complex_array::   n1 =',n1
-    write(StdOut,*) 'read_3d_complex_array::   n2 =',n2
-    write(StdOut,*) 'read_3d_complex_array::   n3 =',n3
+    write(u6,*) 'read_3d_complex_array::   n1 =',n1
+    write(u6,*) 'read_3d_complex_array::   n2 =',n2
+    write(u6,*) 'read_3d_complex_array::   n3 =',n3
   end if
   return
 end if
@@ -3076,28 +3099,28 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i,j,k
 if (ierr /= 0) call WarningMessage(2,'read_3d_complex_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_3d_complex_array:: key =',trim(key)
-  write(StdOut,*) 'read_3d_complex_array::  n1 =',i
-  write(StdOut,*) 'read_3d_complex_array::  n2 =',j
-  write(StdOut,*) 'read_3d_complex_array::  n3 =',k
+  write(u6,*) 'read_3d_complex_array:: key =',trim(key)
+  write(u6,*) 'read_3d_complex_array::  n1 =',i
+  write(u6,*) 'read_3d_complex_array::  n2 =',j
+  write(u6,*) 'read_3d_complex_array::  n3 =',k
 end if
 if ((i /= n1) .or. (j /= n2) .or. (k /= n3)) call WarningMessage(2,'read_3d_complex_array:: sizes of the array are different '// &
                                                                  'from the ones used to CALL this SUBROUTINE')
 allocate(rr(n1,n2,n3))
 allocate(ri(n1,n2,n3))
-rr = Zero
-ri = Zero
+rr(:,:,:) = Zero
+ri(:,:,:) = Zero
 do i=1,n1
   do j=1,n2
     read(LU,*,iostat=ierr) (rr(i,j,k),ri(i,j,k),k=1,n3)
     if (ierr /= 0) call WarningMessage(2,'read_3d_complex_array:: Something went wrong reading the array.')
-    if (dbg) write(StdOut,*) 'read_3d_complex_array::  i,j =',i,j
+    if (dbg) write(u6,*) 'read_3d_complex_array::  i,j =',i,j
   end do
 end do
 do i=1,n1
   do j=1,n2
     do k=1,n3
-      array(i,j,k) = cmplx(rr(i,j,k),ri(i,j,k),wp)
+      array(i,j,k) = cmplx(rr(i,j,k),ri(i,j,k),kind=wp)
     end do
   end do
 end do
@@ -3110,29 +3133,28 @@ end subroutine read_3d_complex_array
 !=!=
 subroutine read_4d_complex_array(LU,key,n1,n2,n3,n4,array,dbg)
 
+use Constants, only: Zero, cZero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2, n3, n4
-complex(wp), intent(out) :: array(n1,n2,n3,n4)
-real(wp), allocatable :: rr(:,:,:,:), ri(:,:,:,:)
+complex(kind=wp), intent(out) :: array(n1,n2,n3,n4)
+real(kind=wp), allocatable :: rr(:,:,:,:), ri(:,:,:,:)
 integer :: i, j, k, l, ierr
 logical, intent(in) :: dbg
 character(len=500) :: line
-integer, parameter :: StdOut = 6
-real(wp), parameter :: Zero = 0.0_wp
-complex(wp), parameter :: ZeroC = (0.0_wp,0.0_wp)
 
 ierr = 0
-array = ZeroC
+array(:,:,:,:) = cZero
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then
   call WarningMessage(1,'read_4d_complex_array:: nothing to read. Array size = 0.')
   if (dbg) then
-    write(StdOut,*) 'read_4d_complex_array::   n1 =',n1
-    write(StdOut,*) 'read_4d_complex_array::   n2 =',n2
-    write(StdOut,*) 'read_4d_complex_array::   n3 =',n3
-    write(StdOut,*) 'read_4d_complex_array::   n4 =',n4
+    write(u6,*) 'read_4d_complex_array::   n1 =',n1
+    write(u6,*) 'read_4d_complex_array::   n2 =',n2
+    write(u6,*) 'read_4d_complex_array::   n3 =',n3
+    write(u6,*) 'read_4d_complex_array::   n4 =',n4
   end if
   return
 end if
@@ -3142,24 +3164,24 @@ call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,*,iostat=ierr) i,j,k,l
 if (ierr /= 0) call WarningMessage(2,'read_4d_complex_array:: Something went wrong reading key'//trim(key))
 if (dbg) then
-  write(StdOut,*) 'read_4d_complex_array:: key =',trim(key)
-  write(StdOut,*) 'read_4d_complex_array::  n1 =',i
-  write(StdOut,*) 'read_4d_complex_array::  n2 =',j
-  write(StdOut,*) 'read_4d_complex_array::  n3 =',k
-  write(StdOut,*) 'read_4d_complex_array::  n4 =',l
+  write(u6,*) 'read_4d_complex_array:: key =',trim(key)
+  write(u6,*) 'read_4d_complex_array::  n1 =',i
+  write(u6,*) 'read_4d_complex_array::  n2 =',j
+  write(u6,*) 'read_4d_complex_array::  n3 =',k
+  write(u6,*) 'read_4d_complex_array::  n4 =',l
 end if
 if ((i /= n1) .or. (j /= n2) .or. (k /= n3) .or. (l /= n4)) &
   call WarningMessage(2,'read_4d_complex_array:: sizes of the array are different from the ones used to CALL this SUBROUTINE')
 allocate(rr(n1,n2,n3,n4))
 allocate(ri(n1,n2,n3,n4))
-rr = Zero
-ri = Zero
+rr(:,:,:,:) = Zero
+ri(:,:,:,:) = Zero
 do i=1,n1
   do j=1,n2
     do k=1,n3
       read(LU,*,iostat=ierr) (rr(i,j,k,l),ri(i,j,k,l),l=1,n4)
       if (ierr /= 0) call WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
-      if (dbg) write(StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
+      if (dbg) write(u6,*) 'read_4d_real_array::  i,j,k =',i,j,k
     end do
   end do
 end do
@@ -3167,7 +3189,7 @@ do i=1,n1
   do j=1,n2
     do k=1,n3
       do l=1,n4
-        array(i,j,k,l) = cmplx(rr(i,j,k,l),ri(i,j,k,l),wp)
+        array(i,j,k,l) = cmplx(rr(i,j,k,l),ri(i,j,k,l),kind=wp)
       end do
     end do
   end do
@@ -3217,11 +3239,12 @@ end subroutine write_INTEGER_scalar
 !=!=
 subroutine write_real_scalar(LU,key,r,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
-real(wp), intent(in) :: r
+real(kind=wp), intent(in) :: r
 integer :: ierr
 character(len=500) :: line
 logical, intent(in) :: dbg
@@ -3250,11 +3273,12 @@ end subroutine write_real_scalar
 !=!=
 subroutine write_complex_scalar(LU,key,c,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
-complex(wp), intent(in) :: c
+complex(kind=wp), intent(in) :: c
 logical, intent(in) :: dbg
 integer :: ierr
 character(len=500) :: line
@@ -3356,13 +3380,14 @@ end subroutine write_1d_INTEGER_array
 !=!=
 subroutine write_2d_INTEGER_array(LU,key,n1,n2,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2
 integer, intent(in) :: array(n1,n2)
 integer :: i, j, ierr
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 logical, intent(in) :: dbg
 character(len=20) :: FMTI = '(20(I0,1x))'
@@ -3383,7 +3408,7 @@ if (ierr == 0) then
   do i=1,n1
     write(LU,FMTI,iostat=ierr) (array(i,j),j=1,n2)
     if (ierr /= 0) call WarningMessage(2,'write_2d_INTEGER_array:: Something went wrong writing the array.')
-    if (dbg) write(StdOut,*) 'write_2d_INTEGER_array::  i =',i
+    if (dbg) write(u6,*) 'write_2d_INTEGER_array::  i =',i
   end do
 else if (ierr /= 0) then
   ! if the keyword is not found, THEN append the new keyword and data
@@ -3394,7 +3419,7 @@ else if (ierr /= 0) then
   do i=1,n1
     write(LU,FMTI,iostat=ierr) (array(i,j),j=1,n2)
     if (ierr /= 0) call WarningMessage(2,'write_2d_INTEGER_array:: Something went wrong writing data.')
-    if (dbg) write(StdOut,*) 'write_2d_INTEGER_array::  i =',i
+    if (dbg) write(u6,*) 'write_2d_INTEGER_array::  i =',i
   end do
 end if
 write(LU,*,iostat=ierr)
@@ -3406,6 +3431,8 @@ end subroutine write_2d_INTEGER_array
 !=!=
 subroutine write_3d_INTEGER_array(LU,key,n1,n2,n3,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
@@ -3414,7 +3441,6 @@ integer, intent(in) :: array(n1,n2,n3)
 integer :: i, j, k, ierr
 logical, intent(in) :: dbg
 character(len=20) :: FMTI = '(20(I0,1x))'
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 
 ierr = 0
@@ -3434,7 +3460,7 @@ if (ierr == 0) then
     do j=1,n2
       write(LU,FMTI,iostat=ierr) (array(i,j,k),k=1,n3)
       if (ierr /= 0) call WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
-      if (dbg) write(StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
+      if (dbg) write(u6,*) 'write_3d_INTEGER_array::  i,j =',i,j
     end do
   end do
 else if (ierr /= 0) then
@@ -3447,7 +3473,7 @@ else if (ierr /= 0) then
     do j=1,n2
       write(LU,FMTI,iostat=ierr) (array(i,j,k),k=1,n3)
       if (ierr /= 0) call WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
-      if (dbg) write(StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
+      if (dbg) write(u6,*) 'write_3d_INTEGER_array::  i,j =',i,j
     end do
   end do
 end if
@@ -3460,6 +3486,8 @@ end subroutine write_3d_INTEGER_array
 !=!=
 subroutine write_4d_INTEGER_array(LU,key,n1,n2,n3,n4,array,dbg)
 
+use Definitions, only: u6
+
 implicit none
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
@@ -3468,7 +3496,6 @@ integer, intent(in) :: array(n1,n2,n3,n4)
 integer :: i, j, k, l, ierr
 logical, intent(in) :: dbg
 character(len=20) :: FMTI = '(20(I0,1x))'
-integer, parameter :: StdOut = 6
 character(len=500) :: line
 
 ierr = 0
@@ -3489,7 +3516,7 @@ if (ierr == 0) then
       do k=1,n3
         write(LU,FMTI,iostat=ierr) (array(i,j,k,l),l=1,n4)
         if (ierr /= 0) call WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong reading the array.')
-        if (dbg) write(StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
+        if (dbg) write(u6,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
       end do
     end do
   end do
@@ -3504,7 +3531,7 @@ else if (ierr /= 0) then
       do k=1,n3
         write(LU,FMTI,iostat=ierr) (array(i,j,k,l),l=1,n4)
         if (ierr /= 0) call WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong writting the array.')
-        if (dbg) write(StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
+        if (dbg) write(u6,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
       end do
     end do
   end do
@@ -3518,17 +3545,19 @@ end subroutine write_4d_INTEGER_array
 !=!=
 subroutine write_1d_real_array(LU,key,n,array,dbg)
 
+use Constants, only: Ten
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n
-real(wp), intent(in) :: array(n)
+real(kind=wp), intent(in) :: array(n)
 integer :: i, ierr
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
 character(len=500) :: line
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 character(len=20) :: FMTR = '(5ES22.14)'
 character(len=20) :: FMTI = '(20(I0,1x))'
 
@@ -3564,17 +3593,18 @@ end subroutine write_1d_real_array
 !=!=
 subroutine write_2d_real_array(LU,key,n1,n2,array,dbg)
 
+use Constants, only: Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2
-real(wp), intent(in) :: array(n1,n2)
+real(kind=wp), intent(in) :: array(n1,n2)
 integer :: i, j, ierr
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
-integer, parameter :: StdOut = 6
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 character(len=500) :: line
 character(len=20) :: FMTR = '(5ES22.14)'
 character(len=20) :: FMTI = '(20(I0,1x))'
@@ -3595,7 +3625,7 @@ if (ierr == 0) then
   do i=1,n1
     write(LU,FMTR,iostat=ierr) (array(i,j),j=1,n2)
     if (ierr /= 0) call WarningMessage(2,'write_2d_real_array:: Something went wrong writing the array.')
-    if (dbg) write(StdOut,*) 'write_2d_real_array::  i =',i
+    if (dbg) write(u6,*) 'write_2d_real_array::  i =',i
   end do
 else if (ierr /= 0) then
   ! if the keyword is not found, THEN append the new keyword and data
@@ -3606,7 +3636,7 @@ else if (ierr /= 0) then
   do i=1,n1
     write(LU,FMTR,iostat=ierr) (array(i,j),j=1,n2)
     if (ierr /= 0) call WarningMessage(2,'write_2d_real_array:: Something went wrong writing data.')
-    if (dbg) write(StdOut,*) 'write_2d_real_array::  i =',i
+    if (dbg) write(u6,*) 'write_2d_real_array::  i =',i
   end do
 end if
 write(LU,*,iostat=ierr)
@@ -3618,17 +3648,18 @@ end subroutine write_2d_real_array
 !=!=
 subroutine write_3d_real_array(LU,key,n1,n2,n3,array,dbg)
 
+use Constants, only: Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2, n3
-real(wp), intent(in) :: array(n1,n2,n3)
+real(kind=wp), intent(in) :: array(n1,n2,n3)
 integer :: i, j, k, ierr
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
-integer, parameter :: StdOut = 6
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 character(len=500) :: line
 character(len=20) :: FMTR = '(5ES22.14)'
 character(len=20) :: FMTI = '(20(I0,1x))'
@@ -3650,7 +3681,7 @@ if (ierr == 0) then
     do j=1,n2
       write(LU,FMTR,iostat=ierr) (array(i,j,k),k=1,n3)
       if (ierr /= 0) call WarningMessage(2,'write_3d_real_array:: Something went wrong writing the array.')
-      if (dbg) write(StdOut,*) 'write_3d_real_array::  i,j =',i,j
+      if (dbg) write(u6,*) 'write_3d_real_array::  i,j =',i,j
     end do
   end do
 else if (ierr /= 0) then
@@ -3663,7 +3694,7 @@ else if (ierr /= 0) then
     do j=1,n2
       write(LU,FMTR,iostat=ierr) (array(i,j,k),k=1,n3)
       if (ierr /= 0) call WarningMessage(2,'write_3d_real_array:: Something went wrong writing the array.')
-      if (dbg) write(StdOut,*) 'write_3d_real_array::  i,j =',i,j
+      if (dbg) write(u6,*) 'write_3d_real_array::  i,j =',i,j
     end do
   end do
 end if
@@ -3676,16 +3707,17 @@ end subroutine write_3d_real_array
 !=!=
 subroutine write_4d_real_array(LU,key,n1,n2,n3,n4,array,dbg)
 
+use Constants, only: Ten
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2, n3, n4
-real(wp), intent(in) :: array(n1,n2,n3,n4)
+real(kind=wp), intent(in) :: array(n1,n2,n3,n4)
 integer :: i, j, k, l, ierr
-real(wp), external :: dnrm2_
-real(wp), parameter :: MINIMAL_REAL = tiny(0.0_wp)*10.0_wp
-integer, parameter :: StdOut = 6
+real(kind=wp), external :: dnrm2_
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 logical, intent(in) :: dbg
 character(len=500) :: line
 character(len=20) :: FMTR = '(5ES22.14)'
@@ -3709,7 +3741,7 @@ if (ierr == 0) then
       do k=1,n3
         write(LU,FMTR,iostat=ierr) (array(i,j,k,l),l=1,n4)
         if (ierr /= 0) call WarningMessage(2,'write_4d_real_array:: Something went wrong reading the array.')
-        if (dbg) write(StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
+        if (dbg) write(u6,*) 'write_4d_real_array::  i,j,k =',i,j,k
       end do
     end do
   end do
@@ -3724,7 +3756,7 @@ else if (ierr /= 0) then
       do k=1,n3
         write(LU,FMTR,iostat=ierr) (array(i,j,k,l),l=1,n4)
         if (ierr /= 0) call WarningMessage(2,'write_4d_real_array:: Something went wrong writting the array.')
-        if (dbg) write(StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
+        if (dbg) write(u6,*) 'write_4d_real_array::  i,j,k =',i,j,k
       end do
     end do
   end do
@@ -3738,12 +3770,13 @@ end subroutine write_4d_real_array
 !=!=
 subroutine write_1d_complex_array(LU,key,n,array,dbg)
 
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n
-complex(wp), intent(in) :: array(n)
+complex(kind=wp), intent(in) :: array(n)
 integer :: i, ierr
 logical, intent(in) :: dbg
 character(len=20) :: FMTI = '(20(I0,1x))'
@@ -3781,15 +3814,15 @@ end subroutine write_1d_complex_array
 !=!=
 subroutine write_2d_complex_array(LU,key,n1,n2,array,dbg)
 
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2
-complex(wp), intent(in) :: array(n1,n2)
+complex(kind=wp), intent(in) :: array(n1,n2)
 integer :: i, j, ierr
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
 character(len=20) :: FMTI = '(20(I0,1x))'
 character(len=20) :: FMTC = '(3(2ES22.14))'
 character(len=500) :: line
@@ -3809,7 +3842,7 @@ if (ierr == 0) then
   do i=1,n1
     write(LU,FMTC,iostat=ierr) (array(i,j),j=1,n2)
     if (ierr /= 0) call WarningMessage(2,'write_2d_complex_array:: Something went wrong writing the array.')
-    if (dbg) write(StdOut,*) 'write_2d_complex_array::  i =',i
+    if (dbg) write(u6,*) 'write_2d_complex_array::  i =',i
   end do
 else if (ierr /= 0) then
   ! if the keyword is not found, THEN append the new keyword and data
@@ -3820,7 +3853,7 @@ else if (ierr /= 0) then
   do i=1,n1
     write(LU,FMTC,iostat=ierr) (array(i,j),j=1,n2)
     if (ierr /= 0) call WarningMessage(2,'write_2d_complex_array:: Something went wrong writing data.')
-    if (dbg) write(StdOut,*) 'write_2d_complex_array::  i =',i
+    if (dbg) write(u6,*) 'write_2d_complex_array::  i =',i
   end do
 end if
 write(LU,*,iostat=ierr)
@@ -3832,15 +3865,15 @@ end subroutine write_2d_complex_array
 !=!=
 subroutine write_3d_complex_array(LU,key,n1,n2,n3,array,dbg)
 
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2, n3
-complex(wp), intent(in) :: array(n1,n2,n3)
+complex(kind=wp), intent(in) :: array(n1,n2,n3)
 integer :: i, j, k, ierr
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
 character(len=20) :: FMTI = '(20(I0,1x))'
 character(len=20) :: FMTC = '(3(2ES22.14))'
 character(len=500) :: line
@@ -3861,7 +3894,7 @@ if (ierr == 0) then
     do j=1,n2
       write(LU,FMTC,iostat=ierr) (array(i,j,k),k=1,n3)
       if (ierr /= 0) call WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
-      if (dbg) write(StdOut,*) 'write_3d_complex_array::  i,j =',i,j
+      if (dbg) write(u6,*) 'write_3d_complex_array::  i,j =',i,j
     end do
   end do
 else if (ierr /= 0) then
@@ -3874,7 +3907,7 @@ else if (ierr /= 0) then
     do j=1,n2
       write(LU,FMTC,iostat=ierr) (array(i,j,k),k=1,n3)
       if (ierr /= 0) call WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
-      if (dbg) write(StdOut,*) 'write_3d_complex_array::  i,j =',i,j
+      if (dbg) write(u6,*) 'write_3d_complex_array::  i,j =',i,j
     end do
   end do
 end if
@@ -3887,15 +3920,15 @@ end subroutine write_3d_complex_array
 !=!=
 subroutine write_4d_complex_array(LU,key,n1,n2,n3,n4,array,dbg)
 
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: LU
 character(len=*), intent(in) :: key
 integer, intent(in) :: n1, n2, n3, n4
-complex(wp), intent(in) :: array(n1,n2,n3,n4)
+complex(kind=wp), intent(in) :: array(n1,n2,n3,n4)
 integer :: i, j, k, l, ierr
 logical, intent(in) :: dbg
-integer, parameter :: StdOut = 6
 character(len=20) :: FMTI = '(20(I0,1x))'
 character(len=20) :: FMTC = '(3(2ES22.14))'
 character(len=500) :: line
@@ -3917,7 +3950,7 @@ if (ierr == 0) then
       do k=1,n3
         write(LU,FMTC,iostat=ierr) (array(i,j,k,l),l=1,n4)
         if (ierr /= 0) call WarningMessage(2,'write_4d_complex_array:: Something went wrong reading the array.')
-        if (dbg) write(StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
+        if (dbg) write(u6,*) 'write_4d_complex_array::  i,j,k =',i,j,k
       end do
     end do
   end do
@@ -3932,7 +3965,7 @@ else if (ierr /= 0) then
       do k=1,n3
         write(LU,FMTC,iostat=ierr) (array(i,j,k,l),l=1,n4)
         if (ierr /= 0) call WarningMessage(2,'write_4d_complex_array:: Something went wrong writting the array.')
-        if (dbg) write(StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
+        if (dbg) write(u6,*) 'write_4d_complex_array::  i,j,k =',i,j,k
       end do
     end do
   end do

@@ -11,14 +11,16 @@
 
 subroutine newjkqpar(n1,n2,H,J,B,S)
 
+use Constants, only: Zero, One, cZero, cOne, Onei
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer, intent(in) :: n1, n2
 complex(kind=8), intent(in) :: H(n1,n1,n2,n2)
-complex(kind=8), intent(out) :: J((n1-1),-(n1-1):(n1-1),(n2-1),-(n2-1):(n2-1))
-complex(kind=8), intent(out) :: B((n1-1),-(n1-1):(n1-1),(n2-1),-(n2-1):(n2-1))
-complex(kind=8), intent(out) :: S((n1-1),-(n1-1):(n1-1),(n2-1),-(n2-1):(n2-1))
+complex(kind=8), intent(out) :: J(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
+complex(kind=8), intent(out) :: B(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
+complex(kind=8), intent(out) :: S(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
 ! local variables:
 integer :: k1, k2, q1, q2, m1, m2, m12, i1, i2, j1, j2
 real(kind=8) :: cr1, cr2, C01, C02, r1, r2, F1, F2
@@ -42,29 +44,29 @@ call mma_allocate(O2,n2,n2,'operator O2')
 call mma_allocate(W2,n2,n2,'operator W2')
 call set_knm(knm)
 !-------------------------------------------
-J(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) = (0.0_wp,0.0_wp)
-B(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) = (0.0_wp,0.0_wp)
-S(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) = (0.0_wp,0.0_wp)
+J(:,:,:,:) = cZero
+B(:,:,:,:) = cZero
+S(:,:,:,:) = cZero
 do k1=1,n1-1
   do q1=0,k1
     do k2=1,n2-1
       do q2=0,k2
-        cr1 = 0.0_wp
-        cr2 = 0.0_wp
+        cr1 = Zero
+        cr2 = Zero
         m1 = 0
         m2 = 0
-        r1 = 0.0_wp
-        r2 = 0.0_wp
-        cf1 = (0.0_wp,0.0_wp)
-        cf2 = (0.0_wp,0.0_wp)
+        r1 = Zero
+        r2 = Zero
+        cf1 = cZero
+        cf2 = cZero
 
         m1 = (-1)**q1
         m2 = (-1)**q2
         m12 = (-1)**(q1+q2)
-        c1 = cmplx(m1,0.0_wp,wp)
-        c2 = cmplx(m2,0.0_wp,wp)
-        c12 = cmplx(m12,0.0_wp,wp)
-        ci = (0.0_wp,-1.0_wp)
+        c1 = m1*cOne
+        c2 = m2*cOne
+        c12 = m12*cOne
+        ci = -Onei
 
         ! generate the operators for site 1 and 2:
         call ITO(n1,k1,q1,C01,O1,W1)
@@ -73,12 +75,12 @@ do k1=1,n1-1
         ! compute the scaling factors for various Operators
         call coeff_redus_sub(n1,k1,cr1)
         call coeff_redus_sub(n2,k2,cr2)
-        cc1 = cmplx(1.0_wp/(cr1*C01),0.0_wp,wp)
-        cc2 = cmplx(1.0_wp/(cr2*C02),0.0_wp,wp)
-        r1 = C01*C01*dble(2*k1+1)/dble(n1)
-        r2 = C02*C02*dble(2*k2+1)/dble(n2)
-        cf1 = c1*cmplx(r1,0.0_wp,wp)
-        cf2 = c2*cmplx(r2,0.0_wp,wp)
+        cc1 = One/(cr1*C01)*cOne
+        cc2 = One/(cr2*C02)*cOne
+        r1 = C01*C01*real(2*k1+1,kind=wp)/real(n1,kind=wp)
+        r2 = C02*C02*real(2*k2+1,kind=wp)/real(n2,kind=wp)
+        cf1 = c1*(r1*cOne)
+        cf2 = c2*(r2*cOne)
 
         if (dbg) then
           ! use the old trace_exch function
@@ -155,11 +157,11 @@ do k1=1,n1-1
   do q1=-k1,k1
     do k2=1,n2-1
       do q2=-k2,k2
-        F1 = 0.0_wp
-        F2 = 0.0_wp
+        F1 = Zero
+        F2 = Zero
         if (k1 <= 12) F1 = knm(k1,abs(q1))
         if (k2 <= 12) F2 = knm(k2,abs(q2))
-        S(k1,q1,k2,q2) = S(k1,q1,k2,q2)*cmplx(F1*F2,0.0_wp,wp)
+        S(k1,q1,k2,q2) = S(k1,q1,k2,q2)*(F1*F2*cOne)
       end do
     end do
   end do
@@ -168,56 +170,56 @@ end do
 ! in case verification is needed:
 if (dbg) then
   call mma_allocate(HAM,n1,n1,n2,n2,'recovered HAM_S')
-  write(6,'(A)') 'Extracted exchange parameters: J(k1,q1,k2,q2):'
-  write(6,'(A)') 'using Naoya ITO:'
+  write(u6,'(A)') 'Extracted exchange parameters: J(k1,q1,k2,q2):'
+  write(u6,'(A)') 'using Naoya ITO:'
   do k1=1,n1-1
     do q1=-k1,k1
       do k2=1,n2-1
         do q2=-k2,k2
           !if (abs(S(k1,q1,k2,q2)) > 1.0e-20_wp) then
-          write(6,'(4(A,i2),A,2ES22.13)') 'J(',k1,',',q1,',',k2,',',q2,') = ',J(k1,q1,k2,q2)
+          write(u6,'(4(A,i2),A,2ES22.13)') 'J(',k1,',',q1,',',k2,',',q2,') = ',J(k1,q1,k2,q2)
           !end if
         end do
       end do
     end do
   end do
   call recover_exch_HAM_from_Naoya_ITO(n1,n2,J,HAM)
-  write(6,'(A,ES20.10)') 'recover from Naoya Jkqkq parameters'
-  write(6,'(A,ES24.14)') 'JKQP: total difference between HAM-H=',dznrm2_(n1*n1*n2*n2,HAM-H,1)
+  write(u6,'(A,ES20.10)') 'recover from Naoya Jkqkq parameters'
+  write(u6,'(A,ES24.14)') 'JKQP: total difference between HAM-H=',dznrm2_(n1*n1*n2*n2,HAM-H,1)
 
-  write(6,'(A)') 'Extracted exchange parameters: B(k1,q1,k2,q2):'
-  write(6,'(A)') 'using Liviu ITO:'
+  write(u6,'(A)') 'Extracted exchange parameters: B(k1,q1,k2,q2):'
+  write(u6,'(A)') 'using Liviu ITO:'
   do k1=1,n1-1
     do q1=-k1,k1
       do k2=1,n2-1
         do q2=-k2,k2
           !if (abs(S(k1,q1,k2,q2)) > 1.0e-20_wp) then
-          write(6,'(4(A,i2),A,2ES22.13)') 'B(',k1,',',q1,',',k2,',',q2,') = ',B(k1,q1,k2,q2)
+          write(u6,'(4(A,i2),A,2ES22.13)') 'B(',k1,',',q1,',',k2,',',q2,') = ',B(k1,q1,k2,q2)
           !end if
         end do
       end do
     end do
   end do
   call recover_exch_HAM_from_Liviu_ITO(n1,n2,B,HAM)
-  write(6,'(A,ES20.10)') 'recover from Liviu Bkqkq parameters'
-  write(6,'(A,ES24.14)') 'JKQP: total difference between HAM-H=',dznrm2_(n1*n1*n2*n2,HAM-H,1)
+  write(u6,'(A,ES20.10)') 'recover from Liviu Bkqkq parameters'
+  write(u6,'(A,ES24.14)') 'JKQP: total difference between HAM-H=',dznrm2_(n1*n1*n2*n2,HAM-H,1)
 
-  write(6,'(A)') 'Extracted exchange parameters: S(k1,q1,k2,q2):'
-  write(6,'(A)') 'using Stevens ESO:'
+  write(u6,'(A)') 'Extracted exchange parameters: S(k1,q1,k2,q2):'
+  write(u6,'(A)') 'using Stevens ESO:'
   do k1=1,n1-1
     do q1=-k1,k1
       do k2=1,n2-1
         do q2=-k2,k2
           !if (abs(S(k1,q1,k2,q2)) > 1.0e-20_wp) then
-          write(6,'(4(A,i2),A,2ES22.13)') 'S(',k1,',',q1,',',k2,',',q2,') = ',S(k1,q1,k2,q2)
+          write(u6,'(4(A,i2),A,2ES22.13)') 'S(',k1,',',q1,',',k2,',',q2,') = ',S(k1,q1,k2,q2)
           !end if
         end do
       end do
     end do
   end do
   call recover_exch_HAM_from_Stevens_ESO(n1,n2,S,HAM)
-  write(6,'(A,ES20.10)') 'recover from Stevens Skqkq parameters'
-  write(6,'(A,ES24.14)') 'JKQP: total difference between HAM-H=',dznrm2_(n1*n1*n2*n2,HAM-H,1)
+  write(u6,'(A,ES20.10)') 'recover from Stevens Skqkq parameters'
+  write(u6,'(A,ES24.14)') 'JKQP: total difference between HAM-H=',dznrm2_(n1*n1*n2*n2,HAM-H,1)
   call mma_deallocate(HAM)
 end if
 

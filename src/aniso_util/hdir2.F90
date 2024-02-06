@@ -18,61 +18,61 @@ subroutine hdir2(nP,L,dX,dY,dZ,Ang,iprint)
 !            If L=2 (i.e.Y), rotation of the M occurs in the XZ plane
 !            If L=3 (i.e.Z), rotation of the M occurs in the XY plane
 
+use Constants, only: Zero, One, deg2rad
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: nP, L, iprint
 real(kind=8) :: dX(nP), dY(nP), dZ(nP), Ang(nP)
 !local variables
 integer :: i
 real(kind=8) :: AngStep, AngRad
-real(kind=8) :: pi
 
-pi = 3.1415926535897932384626433832795028841971_wp
-dX(:) = 0.0_wp
-dY(:) = 0.0_wp
-dZ(:) = 0.0_wp
-Ang(:) = 0.0_wp
-AngStep = 0.0_wp
-AngRad = 0.0_wp
-AngStep = 360.0_wp/dble(nP-1)
+dX(:) = Zero
+dY(:) = Zero
+dZ(:) = Zero
+Ang(:) = Zero
+AngStep = Zero
+AngRad = Zero
+AngStep = 360.0_wp/real(nP-1,kind=wp)
 
 if (L == 1) then
-  dY(1) = 1.0_wp
-  dZ(1) = 0.0_wp
+  dY(1) = One
+  dZ(1) = Zero
   do i=1,nP
-    AngRad = dble(i-1)*AngStep*Pi/180.0_wp
-    Ang(i) = dble(i-1)*AngStep
+    AngRad = real(i-1,kind=wp)*AngStep*deg2rad
+    Ang(i) = real(i-1,kind=wp)*AngStep
     dY(i) = cos(AngRad)
     dZ(i) = sin(AngRad)
   end do
 else if (L == 2) then
-  dX(1) = 1.0_wp
-  dZ(1) = 0.0_wp
+  dX(1) = One
+  dZ(1) = Zero
   do i=1,nP
-    AngRad = dble(i-1)*AngStep*Pi/180.0_wp+122.625_wp*Pi/180.0_wp
-    Ang(i) = dble(i-1)*AngStep
+    AngRad = real(i-1,kind=wp)*AngStep*deg2rad+122.625_wp*deg2rad
+    Ang(i) = real(i-1,kind=wp)*AngStep
     dX(i) = cos(AngRad)
     dZ(i) = sin(AngRad)
   end do
 else if (L == 3) then
-  dX(1) = 1.0_wp
-  dY(1) = 0.0_wp
+  dX(1) = One
+  dY(1) = Zero
   do i=1,nP
-    AngRad = dble(i-1)*AngStep*Pi/180.0_wp
-    Ang(i) = dble(i-1)*AngStep
+    AngRad = real(i-1,kind=wp)*AngStep*deg2rad
+    Ang(i) = real(i-1,kind=wp)*AngStep
     dX(i) = cos(AngRad)
     dY(i) = sin(AngRad)
   end do
 else
-  write(6,'(A   )') 'Error. Parametr L can take only Integer values 1, 2 or 3.'
-  write(6,'(A,I5)') 'Current value: L = ',L
+  write(u6,'(A   )') 'Error. Parametr L can take only Integer values 1, 2 or 3.'
+  write(u6,'(A,I5)') 'Current value: L = ',L
 end if
 
 if (iprint > 2) then
-  write(6,'(A,I5)') 'Angular grid for Magnetization Torque, Cartesian Component =',L
-  write(6,'(2x,A,4x,A,5x,3(10X,A,10x))') 'Nr.','Angle','X','Y','Z'
+  write(u6,'(A,I5)') 'Angular grid for Magnetization Torque, Cartesian Component =',L
+  write(u6,'(2x,A,4x,A,5x,3(10X,A,10x))') 'Nr.','Angle','X','Y','Z'
   do i=1,nP
-    write(6,'(I4,F10.3,3x,3F21.14)') i,Ang(i),dX(i),dY(i),dZ(i)
+    write(u6,'(I4,F10.3,3x,3F21.14)') i,Ang(i),dX(i),dY(i),dZ(i)
   end do
 end if
 

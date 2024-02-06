@@ -11,9 +11,11 @@
 
 subroutine read_formatted_aniso(input_file_name,nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,AMFI,HSO)
 
+use Constants, only: Zero, cZero, gElectron
+use Definitions, only: wp, u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(inout) :: nss, nstate
 integer, intent(out) :: multiplicity(nstate)
 real(kind=8), intent(out) :: eso(nss), esfs(nstate)
@@ -27,55 +29,54 @@ complex(kind=8), intent(out) :: ML(3,nss,nss)
 complex(kind=8), intent(out) :: DM(3,nss,nss)
 complex(kind=8), intent(out) :: U(nss,nss)
 complex(kind=8), intent(out) :: HSO(nss,nss)
-character(Len=180) :: input_file_name
+character(len=180) :: input_file_name
 ! local variables:
 integer :: l, j, j1, j2, LuAniso, IsFreeUnit
-real(kind=8) :: g_e
+real(kind=8), parameter :: g_e = 2.00231930437180_wp !IFG -gElectron
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 external :: IsFreeUnit
 logical :: DBG
 
 dbg = .false.
 
-if (dbg) write(6,'(A)') 'Entering read_formatted_aniso'
-call xFlush(6)
-g_e = 2.00231930437180_wp
-!   set to zero all arrays:
+if (dbg) write(u6,'(A)') 'Entering read_formatted_aniso'
+call xFlush(u6)
+! set to zero all arrays:
 multiplicity = 0
-eso = 0.0_wp
-esfs = 0.0_wp
-edmom = 0.0_wp
-angmom = 0.0_wp
-MM = (0.0_wp,0.0_wp)
-MS = (0.0_wp,0.0_wp)
-ML = (0.0_wp,0.0_wp)
-DM = (0.0_wp,0.0_wp)
-U = (0.0_wp,0.0_wp)
+eso(:) = Zero
+esfs(:) = Zero
+edmom(:,:,:) = Zero
+angmom(:,:,:) = Zero
+MM(:,:,:) = cZero
+MS(:,:,:) = cZero
+ML(:,:,:) = cZero
+DM(:,:,:) = cZero
+U(:,:) = cZero
 ! read the file "aniso.input":
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,trim(input_file_name))
 ! compatibility with the present version: of aniso_i.input file
 read(LuAniso,*) nstate,nss
-if (dbg) write(6,'(A,2I6)') 'nstate, nss:',nstate,nss
-call xFlush(6)
+if (dbg) write(u6,'(A,2I6)') 'nstate, nss:',nstate,nss
+call xFlush(u6)
 read(LuAniso,*) (eso(j),j=1,nss)
 if (dbg) then
-  write(6,'(A)') 'ESO:'
-  write(6,'(5ES24.14)') (eso(j),j=1,nss)
+  write(u6,'(A)') 'ESO:'
+  write(u6,'(5ES24.14)') (eso(j),j=1,nss)
 end if
 read(LuAniso,*) (multiplicity(j),j=1,nstate)
 if (dbg) then
-  write(6,'(A)') '(multiplicity(j),j=1,nstate)'
-  write(6,'(50I3)') (multiplicity(j),j=1,nstate)
+  write(u6,'(A)') '(multiplicity(j),j=1,nstate)'
+  write(u6,'(50I3)') (multiplicity(j),j=1,nstate)
 end if
-call xFlush(6)
+call xFlush(u6)
 
 call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
 ! magnetic moment
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
@@ -85,12 +86,12 @@ do l=1,3
     end do
   end do
 end do
-call xFlush(6)
+call xFlush(u6)
 
 ! spin moment
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
@@ -104,13 +105,13 @@ end do
 ! spin-free energies
 read(LuAniso,*) (esfs(j),j=1,nstate)
 if (dbg) then
-  write(6,'(A)') 'ESFS:'
-  write(6,'(5ES24.14)') (esfs(j),j=1,nstate)
+  write(u6,'(A)') 'ESFS:'
+  write(u6,'(5ES24.14)') (esfs(j),j=1,nstate)
 end if
 
 ! U matrix
-tmpR = 0.0_wp
-tmpI = 0.0_wp
+tmpR(:,:) = Zero
+tmpI(:,:) = Zero
 do j1=1,nss
   read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
 end do
@@ -139,8 +140,8 @@ end do
 
 ! DMmom
 do l=1,3
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
+  tmpR(:,:) = Zero
+  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
@@ -166,8 +167,8 @@ do l=1,3
 end do
 
 ! HSO matrix
-tmpR = 0.0_wp
-tmpI = 0.0_wp
+tmpR(:,:) = Zero
+tmpI(:,:) = Zero
 do j1=1,nss
   read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
 end do
