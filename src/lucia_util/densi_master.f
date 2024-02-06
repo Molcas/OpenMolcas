@@ -32,7 +32,8 @@
       dimension dummy(1)
       Real*8, Allocatable:: VEC1(:), VEC2(:)
       Integer, Allocatable:: lVec(:)
-      Real*8, Allocatable:: SCR1(:), SCR2(:), SCR3(:), SCR4(:)
+      Real*8, Allocatable, Target:: SCR1(:), SCR3(:)
+      Real*8, Allocatable:: SCR2(:), SCR4(:)
 *
 * Put CI-vector from RASSCF on luc
 *

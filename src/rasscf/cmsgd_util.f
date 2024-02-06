@@ -115,21 +115,25 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2
       REAL*8 Dummy(1)
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
+      Real*8, Allocatable, Target:: VecL(:)
+      Real*8, Allocatable:: VecR(:)
+      Integer, External:: ip_of_Work
 
       NAC2=NAC**2
-      Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
-      Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
+      Call mma_allocate(VecL,NConf,Label='VecL')
+      Call mma_allocate(VecR,NConf,Label='VecR')
+      iVecR=ip_of_Work(VecR(1))
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
       Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
       SDtmp(:)=DStmp(:)
       TmpD(:)=DTmp(:)
       CIDisk1=IADR15(4)
       Do jRoot=1,lRoots
-       Call DDafile(JOBIPH,2,Work(iVecL),nConf,CIDisk1)
-       C_Pointer=iVecL
+       Call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
+       C_Pointer=ip_of_Work(VecL(1))
        CIDisk2=IADR15(4)
        Do kRoot=1,jRoot-1
-        Call DDafile(JOBIPH,2,Work(iVecR),nConf,CIDisk2)
+        Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
         Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
         IOffNIJ1=(lRoots*(jRoot-1)+kRoot-1)*NAC2
         IOffNIJ2=(lRoots*(kRoot-1)+jRoot-1)*NAC2
@@ -146,7 +150,7 @@ C        CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
          eND dO
        End Do
        kRoot=jRoot
-       Call DDafile(JOBIPH,2,Work(iVecR),nConf,CIDisk2)
+       Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
        Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
        IOffNIJ1=(lRoots+1)*(jRoot-1)*NAC2
 C       write(6,*)'GD matrix',jRoot,kRoot
@@ -157,8 +161,8 @@ C       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
       Dtmp(:)=TmpD(:)
       Call mma_deallocate(SDtmp)
       Call mma_deallocate(TmpD)
-      Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
-      Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
+      Call mma_deallocate(VecL)
+      Call mma_deallocate(VecR)
       END Subroutine
 ************************************************************************
 

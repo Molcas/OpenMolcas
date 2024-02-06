@@ -36,7 +36,8 @@ Private
       Integer, Allocatable:: KINH1_NOCCSYM(:), KINH1(:)
 
       Integer, Allocatable:: KLOCCLS(:)
-      Real*8,  Allocatable:: CI_VEC(:), SIGMA_VEC(:)
+      Real*8,  Allocatable, Target:: CI_VEC(:)
+      Real*8,  Allocatable:: SIGMA_VEC(:)
       Integer, Pointer:: SDREO(:)
 
       Public         INT1,       PINT1, PINT2, LSM1, LSM2, RHO1,        &
