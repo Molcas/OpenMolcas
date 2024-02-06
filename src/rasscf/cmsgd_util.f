@@ -111,7 +111,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 #include "warnings.h"
       INTEGER nGD
       Real*8 GD(nGD)
-      INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
+      INTEGER CIDisk1,CIDisk2,iVecR,iDummy
       INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2
       REAL*8 Dummy(1)
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
