@@ -159,7 +159,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 *     Auxiliary qunatities
-      INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
+      INTEGER CIDisk1,CIDisk2,iVecR,iDummy
       INTEGER NIJ2
       REAL*8 Dummy(1)
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
