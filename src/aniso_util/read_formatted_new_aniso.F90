@@ -33,8 +33,7 @@ complex(kind=8), intent(out) :: HSO(nss,nss)
 character(len=180) :: input_file_name
 ! local variables:
 integer :: l, i, j, LuAniso, IsFreeUnit
-real(kind=8), parameter :: conv_au_to_cm1 = 2.194746313702e5_wp, & !IFG auTocm
-                           g_e = 2.00231930437180_wp !IFG -gElectron
+real(kind=8), parameter :: g_e = -gElectron
 external :: IsFreeUnit
 logical :: DBG
 
@@ -68,12 +67,12 @@ call read_eigen(LuAniso,nss,U,dbg)
 
 ! compute the relative spin-orbit energies in cm-1
 do i=1,nss
-  eso(i) = (eso_au(i)-eso_au(1))*conv_au_to_cm1
+  eso(i) = (eso_au(i)-eso_au(1))*auTocm
 end do
 
 ! compute the relative spin-free energies in cm-1
 do i=1,nstate
-  esfs(i) = (esfs_au(i)-esfs_au(1))*conv_au_to_cm1
+  esfs(i) = (esfs_au(i)-esfs_au(1))*auTocm
 end do
 write(u6,*) esfs
 

@@ -36,7 +36,7 @@ real(kind=8), intent(out) :: Z, X(3,3)
 ! local variables
 integer :: i, j, iS, jS
 real(kind=8) :: pB, dE, c2(3,3), R, F
-real(kind=wp), parameter :: boltz_k = 0.69503560_wp !IFG kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
+real(kind=wp), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! in cm-1*K-1
 
 pB = Zero
 dE = Zero

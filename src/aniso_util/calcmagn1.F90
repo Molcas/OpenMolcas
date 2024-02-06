@@ -32,7 +32,7 @@ complex(kind=8), intent(in) :: M(N,N)
 real(kind=8), intent(out) :: Z, MT
 !-- local variables:
 integer :: im, mp1, i
-real(kind=wp), parameter :: kB = 0.6950356000_wp !IFG kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! in cm-1*K-1
+real(kind=wp), parameter :: kB = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! in cm-1*K-1
 !----------------------------------------------------------------------
 
 Z = Zero

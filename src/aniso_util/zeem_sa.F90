@@ -27,7 +27,7 @@ real(kind=8), intent(out) :: WM(N)
 complex(kind=8), intent(out) :: ZM(N,N)
 ! local variables:
 integer :: i, j, info
-real(kind=8), parameter :: mB = 0.4668643740_wp !IFG mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
+real(kind=8), parameter :: mB = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
 real(kind=8) :: RWORK(3*N-2)
 complex(kind=8) :: HZEE(N*(N+1)/2)
 complex(kind=8) :: WORK(2*N-1), R, P, RP

@@ -24,7 +24,6 @@ complex(kind=8), intent(out) :: MS(3,nss,nss)
 character(len=180) :: input_file_name
 ! local variables:
 real(kind=wp), allocatable :: eso_au(:)
-real(kind=wp), parameter :: conv_au_to_cm1 = 2.194746313702e5_wp !IFG auTocm
 integer :: i, j, l, LuAniso, IsFreeUnit
 external :: IsFreeUnit
 logical :: dbg
@@ -53,7 +52,7 @@ call read_spin_moment(LuAniso,nss,MS,dbg)
 
 ! compute the relative spin-orbit energies in cm-1
 do i=1,nss
-  eso(i) = (eso_au(i)-eso_au(1))*conv_au_to_cm1
+  eso(i) = (eso_au(i)-eso_au(1))*auTocm
 end do
 call mma_deallocate(eso_au)
 close(LuAniso)

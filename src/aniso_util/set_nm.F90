@@ -26,8 +26,8 @@ real(kind=8), intent(out) :: EM
 ! local variables:
 integer :: i
 real(kind=8) :: diff, T_High
-real(kind=8), parameter :: boltz_k = 0.69503560_wp, & !IFG kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
-                           mu_bohr = 0.4668643740_wp !IFG mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
+real(kind=8), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
+                           mu_bohr = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
 
 nM = 1
 EM = Zero

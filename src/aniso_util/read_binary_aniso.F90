@@ -29,7 +29,7 @@ complex(kind=8) :: HSO(nss,nss)
 #include "stdalloc.fh"
 integer :: i, j, l
 integer :: luaniso, idisk, idum(1)
-real(kind=8), parameter :: g_e = 2.0023193043718_wp !IFG -gElectro
+real(kind=8), parameter :: g_e = -gElectron
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
 ! initialize:

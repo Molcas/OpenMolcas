@@ -25,7 +25,7 @@ complex(kind=8), intent(out) :: ML(3,nss,nss)
 character(len=180) :: input_file_name
 ! local variables:
 integer :: l, j, j1, j2, LuAniso, IsFreeUnit
-real(kind=8), parameter :: g_e = 2.00231930437180_wp ! IFG -gElectron
+real(kind=8), parameter :: g_e = -gElectron
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 external :: IsFreeUnit
 

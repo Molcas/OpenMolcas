@@ -31,8 +31,8 @@ real(kind=8), intent(out) :: MT, Z
 complex(kind=8), intent(in) :: M(3,N,N)
 integer :: i, j
 real(kind=8) :: pB, dltw, S2, S1
-real(kind=wp), parameter :: kB = 0.69503560_wp, & !IFG kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
-                            mB = 0.4668643740_wp !IFG mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
+real(kind=wp), parameter :: kB = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
+                            mB = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
 
 pB = Zero
 Z = Zero

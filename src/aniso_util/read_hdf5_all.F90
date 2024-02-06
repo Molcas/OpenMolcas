@@ -34,8 +34,7 @@ complex(kind=8), intent(out) :: ML(3,nss,nss)
 complex(kind=8), intent(out) :: DM(3,nss,nss)
 complex(kind=8), intent(out) :: U(nss,nss)
 complex(kind=8), intent(out) :: HSO(nss,nss)
-real(kind=8), parameter :: AU2CM = 219474.6313702_wp, & !IFG auTocm
-                           g_e = 2.00231930437180_wp !IFG -gElectron
+real(kind=8), parameter :: g_e = -gElectron
 real(kind=8), allocatable :: etmp(:)
 real(kind=8), allocatable :: RR(:,:), RI(:,:)
 real(kind=8), allocatable :: AL(:,:,:)
@@ -106,7 +105,7 @@ if (mh5_exists_dset(fileid,'SFS_ENERGIES')) then
   end if
   ! compute the energeis in cm-1:
   do i=1,nstate
-    esfs(i) = (etmp(i)-etmp(1))*AU2CM
+    esfs(i) = (etmp(i)-etmp(1))*auTocm
   end do
   if (DBG) then
     write(u6,'(A)') 'read_hdf5_all:: esfs'
@@ -132,9 +131,9 @@ if (mh5_exists_dset(fileid,'SOS_ENERGIES')) then
     call WarningMessage(2,'ESO read from HDF5 file  has norm = zero')
     write(u6,*) 'Norm=',RNRM
   end if
-  ! compute the energeis in cm-1:
+  ! compute the energies in cm-1:
   do i=1,nss
-    eso(i) = (etmp(i)-etmp(1))*AU2CM
+    eso(i) = (etmp(i)-etmp(1))*auTocm
   end do
   if (DBG) then
     write(u6,'(A)') 'read_hdf5_all:: eso'

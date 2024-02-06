@@ -19,7 +19,7 @@ implicit none
 integer, intent(in) :: N, iprint
 complex(kind=8), intent(in) :: MM(3,N,N), MS(3,N,N)
 integer :: I, J, L, i1, i2, iDir
-real(kind=8), parameter :: g_e = 2.0023193043718_wp !IFG -gElectron
+real(kind=8), parameter :: g_e = -gElectron
 complex(kind=8), allocatable :: Z(:,:) ! N,N
 complex(kind=8), allocatable :: AMS(:,:,:)
 complex(kind=8), allocatable :: AML(:,:,:)

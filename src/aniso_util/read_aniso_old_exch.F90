@@ -25,7 +25,7 @@ character(len=180) :: input_file_name
 ! local variables:
 integer :: nss_local, nstate_local
 integer :: l, j, j1, j2, LuAniso, IsFreeUnit
-real(kind=8), parameter :: g_e = 2.00231930437180_wp !IFG -gElectron
+real(kind=8), parameter :: g_e = -gElectron
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), tmp(:)
 external :: IsFreeUnit
 ! in this subroutine nss is input data
