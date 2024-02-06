@@ -584,6 +584,4 @@ call Deallocate_DT(Rrf)
 
 return
 
-contains
-
 end subroutine BSSint

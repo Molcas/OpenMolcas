@@ -34,24 +34,29 @@
       Real*8, Allocatable, Target:: SCR1(:), SCR3(:)
       Real*8, Allocatable:: SCR2(:), SCR4(:)
       Real*8, Pointer:: TMP_POINTER(:)=>Null()
+
+      TMP_POINTER => C_POINTER
 *
 * Put CI-vector from RASSCF on luc
 *
 *     if rvec is associated, it should be a pointer to a second CI vector
 *     and a one-particle transition density matrix will be computed
       tdm = Associated(rVec)
+
       CALL mma_allocate(SCR1,NSD_PER_SYM(IREFSM),Label='SCR1')
       CALL mma_allocate(SCR2,NSD_PER_SYM(IREFSM),Label='SCR2')
       CALL COPVEC(C_POINTER,SCR1,NCSF_PER_SYM(IREFSM))
-      TMP_POINTER => C_POINTER
       Call mma_allocate(lVec,MXNTTS,Label='lVec')
       IF (tdm) THEN
          CALL mma_allocate(SCR3,NSD_PER_SYM(IREFSM),Label='SCR3')
+         C_POINTER => SCR3
          CALL mma_allocate(SCR4,NSD_PER_SYM(IREFSM),Label='SCR4')
          CALL COPVEC(rvec,SCR3,NCSF_PER_SYM(IREFSM))
          CALL CSDTVC(SCR3,SCR4,1,DTOC,SDREO, IREFSM, 1)
-         C_POINTER => SCR3
          CALL CPCIVC(LUHC, MXNTTS, IREFSM, 1,lVec)
+         C_POINTER => Null()
+         CALL mma_deallocate(SCR3)
+         CALL mma_deallocate(SCR4)
       END IF
       C_POINTER => SCR1
       CALL CSDTVC(SCR1,SCR2,1,DTOC,SDREO, IREFSM, 1)
@@ -135,6 +140,7 @@ C      srho1 : DONE!!! - Comming with module glbbas
       END IF
 *
       CALL CSDTVC(scr1,scr2,2,dtoc,SDREO, iRefSm, 1)
+
       C_POINTER => Tmp_pointer
       Tmp_Pointer => Null()
 *
@@ -143,10 +149,6 @@ C      srho1 : DONE!!! - Comming with module glbbas
       Call mma_deallocate(VEC1)
       Call mma_deallocate(VEC2)
       Call mma_deallocate(VEC3)
-      IF (tdm) THEN
-         CALL mma_deallocate(SCR3)
-         CALL mma_deallocate(SCR4)
-      END IF
 *
       END
 *

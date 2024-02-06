@@ -531,6 +531,7 @@ if (.not. Skip) then
   nItr = nItr-1
 end if
 
+C_Pointer => Null()
 ! deallocate local temporary vectors
 call mma_deallocate(Vec1)
 nullify(Vec2)
@@ -556,7 +557,5 @@ end if
 call Timing(Alfex_2,dum1,dum2,dum3)
 Alfex_2 = Alfex_2-Alfex_1
 Alfex_3 = Alfex_3+Alfex_2
-
-C_Pointer => Null()
 
 end subroutine David5
