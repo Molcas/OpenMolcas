@@ -112,9 +112,8 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 #include "warnings.h"
       INTEGER nGD
       Real*8 GD(nGD)
-      INTEGER CIDisk1,CIDisk2,iVecR,iDummy
+      INTEGER CIDisk1,CIDisk2
       INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2
-      REAL*8 Dummy(1)
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
       Real*8, Allocatable, Target:: VecL(:), VecR(:)
 
@@ -133,7 +132,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
        CIDisk2=IADR15(4)
        Do kRoot=1,jRoot-1
         Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-        Call Lucia_Util('Densi',iDummy,Dummy)
+        Call Lucia_Util('Densi')
         IOffNIJ1=(lRoots*(jRoot-1)+kRoot-1)*NAC2
         IOffNIJ2=(lRoots*(kRoot-1)+jRoot-1)*NAC2
 C        write(6,*)'GD matrix',jRoot,kRoot
@@ -150,7 +149,7 @@ C        CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
        End Do
        kRoot=jRoot
        Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-       Call Lucia_Util('Densi',iDummy,Dummy)
+       Call Lucia_Util('Densi')
        IOffNIJ1=(lRoots+1)*(jRoot-1)*NAC2
 C       write(6,*)'GD matrix',jRoot,kRoot
 C       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)

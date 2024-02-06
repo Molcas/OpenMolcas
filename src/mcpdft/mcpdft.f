@@ -480,7 +480,7 @@
           Call dcopy_(nconf,CIV,1,CIVEC,1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
           C_Pointer => CIVEC
-          CALL Lucia_Util('Densi',iDummy,Dummy)
+          CALL Lucia_Util('Densi')
           If (IFCAS > 2) Then
             Call CISX_m(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
           End If
@@ -602,7 +602,7 @@
           CALL mma_deallocate(PAtmp)
           CALL mma_deallocate(Pscr)
           CALL mma_deallocate(CIV)
-          Call Lucia_Util('CLOSE',iDummy,Dummy)
+          Call Lucia_Util('CLOSE')
           Call MKGUGA_FREE_m
        end if
 

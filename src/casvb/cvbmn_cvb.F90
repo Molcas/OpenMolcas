@@ -29,7 +29,7 @@ real(kind=wp) :: Dummy(1)
 call cvbstart_cvb_lt9(icode)
 call main_cvb()
 call setretvals_cvb(esym,n_iter)
-call Lucia_Util('CLOSE',iDummy,Dummy)
+call Lucia_Util('CLOSE')
 
 return
 

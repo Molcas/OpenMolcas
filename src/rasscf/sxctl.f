@@ -62,8 +62,9 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
-      use Lucia_Interface, only: iDisk_LI
+      use Lucia_Interface, only: iDisk_LI, Lu_LI, Array_LI
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -84,7 +85,8 @@
       Character*80 VecTyp
       Save nCall
       Logical TraOnly
-      Dimension P2act(1),CIDUMMY(1)
+      Real*8 P2act(1),CIDUMMY(1)
+      Real*8, Allocatable, Target:: SMAT(:)
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.
@@ -398,22 +400,25 @@ c           IF (NACTEL.GT.0) THEN
 * NN.14 Skip this when DMRG-CASSCF due to CI-vector dependency
            !IF(.NOT.(DoDMRG.or.doBlockDMRG).AND.NACTEL.GT.0) THEN
            IF(NACTEL.GT.0)THEN
-             CALL GETMEM('SMAT','ALLO','REAL',LSMAT,NAC*NAC)
+             CALL mma_allocate(SMAT,NAC*NAC,Label='SMAT')
              IWAY = 1
-             CALL OVLP(IWAY,CMO,WORK(LCMON),WORK(LSMAT))
+             CALL OVLP(IWAY,CMO,WORK(LCMON),SMAT)
 
              if(dodmrg)then
 #ifdef _DMRG_
 #ifdef BLUBB
-               call mpsrot(work(lsmat),nac,nrs2,nsym)
+               call mpsrot(mat,nac,nrs2,nsym)
 #endif
 #endif
              else if(doBlockDMRG .or. DoNECI)then
              else !CI
                IDISK_LI=IADR15(4)
-               CALL LUCIA_UTIL('TRACI',JOBIPH,WORK(LSMAT))
+               Lu_LI=JOBIPH
+               Array_LI => SMAT
+               CALL LUCIA_UTIL('TRACI')
+               Array_LI => Null()
              end if
-             CALL GETMEM('SMAT','FREE','REAL',LSMAT,NAC*NAC)
+             Call mma_deallocate(SMAT)
            ELSE
              CIDUMMY=1.0D0
              IDISK=IADR15(4)

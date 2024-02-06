@@ -817,7 +817,7 @@ CSVC: check if NU<NT are included in the same gas space
 
 *
 * And call Lucia_Ini to initialize LUCIA
-      CALL Lucia_Util('Ini',iDummy,Dummy)
+      CALL Lucia_Util('Ini')
 * to get number of CSFs for GAS
       nconf=0
       do i=1,mxsym

@@ -11,6 +11,8 @@
 Module LUCIA_INTERFACE
 Private
 Integer, Public :: iSym_LI=-1
-Integer, Public :: iDIsk_LI=-1
+Integer, Public :: iDisk_LI=-1
+Integer, Public :: Lu_LI=-1
 Real*8, Pointer, Public:: RVEC(:) => Null()
+Real*8, Pointer, Public:: Array_LI(:) => Null()
 End Module LUCIA_INTERFACE

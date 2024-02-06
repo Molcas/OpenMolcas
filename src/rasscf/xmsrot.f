@@ -160,9 +160,8 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 *     Auxiliary qunatities
-      INTEGER CIDisk1,CIDisk2,iVecR,iDummy
+      INTEGER CIDisk1,CIDisk2
       INTEGER NIJ2
-      REAL*8 Dummy(1)
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
       Real*8, Allocatable, Target:: VecL(:), VecR(:)
 
@@ -184,7 +183,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 C        write(6,*) 'VecL and VecR for states',jRoot,kRoot
 C        write(6,*)(VecL(I),I=0,NConf-1)
 C        write(6,*)(VecR(I),I=0,NConf-1)
-        Call Lucia_Util('Densi',iDummy,Dummy)
+        Call Lucia_Util('Densi')
 C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
           do JOrb=1,NAC

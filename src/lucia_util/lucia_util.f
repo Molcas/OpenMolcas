@@ -24,15 +24,13 @@
 *> @param[in] iArg2   Argument to LUCIA
 *> @param[in] Array1 Argument to LUCIA
 ************************************************************************
-      Subroutine Lucia_Util(Module,iArg2,Array1)
+      Subroutine Lucia_Util(Module)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
       use rasscf_lucia
-      use Lucia_Interface, only: iSym_LI, iDisk_LI
+      use Lucia_Interface, only: iSym_LI, iDisk_LI, Lu_LI, Array_LI
 #include "implicit.fh"
-      Real*8, Intent(InOut):: Array1(*)
-      Integer, Intent(In) :: iArg2
 
       Parameter(MxpLnc = 72)
       Character(LEN=*) Module
@@ -97,10 +95,10 @@
       Else If (Module_(1:5) .eq. 'TRACI') Then
 !        write(6,*) 'blubbbbbbtraci'
 *        iDisk_LI is the initial disk address (for read/write of JOBIPH)
-*        iArg2 is the file unit for JOBIPH
-*        Array1 is the transformation matrix (not sorted as LUCIA needs it).
+*        Lu_LI is the file unit for JOBIPH
+*        Array_LI is the transformation matrix (not sorted as LUCIA needs it).
          Call mma_allocate(lVec,MXNTTS,Label='lVec')
-         Call Traci_Master(iDisk_LI,iArg2,Array1,lVec)
+         Call Traci_Master(iDisk_LI,LU_LI,Array_LI,lVec)
          Call mma_deallocate(lVec)
       Else If (Module_(1:5) .eq. 'DENSI') Then
          Call Densi_Master()

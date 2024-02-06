@@ -310,7 +310,7 @@ C Local print level (if any)
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
                  Call mma_allocate(Pscr,NACPR2,Label='Pscr')
                  C_Pointer => CIVEC
-                 CALL Lucia_Util('Densi',iDummy,rdum)
+                 CALL Lucia_Util('Densi')
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
                  End If
@@ -594,7 +594,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
          If ( NAC.ge.1 ) Then
            C_Pointer => CIVEC
            if(.not.(doDMRG))
-     &       CALL Lucia_Util('Densi',iDummy,rdum)
+     &       CALL Lucia_Util('Densi')
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Dtmp,NAC)
@@ -699,7 +699,7 @@ C and for now don't bother with 2-electron active density matrices
 * compute density matrices
         If ( NAC.ge.1 ) Then
            C_Pointer => CIVEC
-           CALL Lucia_Util('Densi',iDummy,rdum)
+           CALL Lucia_Util('Densi')
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Dtmp,NAC)
              CALL TRIPRT('DS after lucia',' ',DStmp,NAC)

@@ -1884,7 +1884,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                     CONF,CFTP,
      &                     Work(iTmp),VecR,iWork(ivkcnf))
 *              Compute TDM and store in h5 file
-               Call Lucia_Util('Densi',iDummy,Dummy)
+               Call Lucia_Util('Densi')
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
                Call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),
      &              [NAC,NAC,1], [0,0,idx-1])
@@ -2063,7 +2063,7 @@ c deallocating TUVX memory...
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
-        Call Lucia_Util('CLOSE',iDummy,Dummy)
+        Call Lucia_Util('CLOSE')
       end if
 
 
