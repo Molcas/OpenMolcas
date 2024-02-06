@@ -25,9 +25,11 @@
 #include "cecore.fh"
 #include "crun.fh"
       Integer, Allocatable:: lVec(:)
+      Integer nSD
 *
 * Put CI-vector from RASSCF on luc and get h0 from Molcas enviroment.
 *
+      nSD=Size(C_Pointer)
       IF (INI_H0 .EQ. 0) THEN
          ECORE = ECORE_ORIG
       ENDIF
@@ -39,7 +41,7 @@ c         CALL FI(INT1,ECORE_HEX,1)
 c         ECORE = ECORE + ECORE_HEX
 c      END IF
       call mma_allocate(lVec,MXNTTS,Label='lVec')
-      CALL CPCIVC(LUC, MXNTTS, IREFSM, 1, lVec)
+      CALL CPCIVC(C_Pointer,nSD,LUC, MXNTTS, IREFSM, 1, lVec)
       call mma_deallocate(lVec)
 *
 * Calculate the sigma vector:
@@ -51,7 +53,7 @@ c      END IF
 * Export lusc34 to RASSCF
 *
       call mma_allocate(lVec,MXNTTS,Label='lVec')
-      CALL CPCIVC(LUSC34, MXNTTS, IREFSM, 2, lVec)
+      CALL CPCIVC(C_Pointer,nSD,LUSC34, MXNTTS, IREFSM, 2, lVec)
       call mma_deallocate(lVec)
 *
       END
@@ -80,6 +82,9 @@ c      END IF
 #include "cecore.fh"
 #include "crun.fh"
       Integer, Allocatable:: lVec(:)
+      Integer nSD
+
+      nSD=Size(C_Pointer)
 *
 * Set ICSM and ISSM (from cands.fh) to the correct symmetry for this call
 *
@@ -102,7 +107,7 @@ c      END IF
 * Write CI-vector to disc
 *
       call mma_allocate(lVec,MXNTTS,Label='lVec')
-      CALL CPCIVC(LUC, MXNTTS, ISSM, 1,lVec)
+      CALL CPCIVC(C_Pointer,nSD,LUC, MXNTTS, ISSM, 1,lVec)
       call mma_deallocate(lVec)
 *
 * Calculate the sigma vector:

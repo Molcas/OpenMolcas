@@ -8,15 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE cpcivc(ifile, mxrec, isym, iway,lrec)
-      use rasscf_lucia
+      SUBROUTINE cpcivc(CIVec,nCIVEC,ifile, mxrec, isym, iway,lrec)
 *
 * Copies the CI-vector between Molcas Rasscf and Lucia enviroment
 * IWAY = 1: from Molcas to Lucia (from core to disk unit ifile).
 * IWAY = 2: from Lucia to Molcas (from disk unit ifile to core).
 *
       implicit real*8 (a-h,o-z)
-      dimension lrec(mxrec)
+      integer nCIVEC, ifile, mxrec, isym, iway
+      integer lrec(mxrec)
+      real*8 CIVec(nCIVec)
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
@@ -39,15 +40,13 @@
          write(6,*) 'CI-vector put to disk:'
          DO IREC = 1,NREC
             IF(LREC(IREC) .GE. 0) THEN
-               call wrtmat(c_pointer(ioff),1,lrec(irec),
+               call wrtmat(CIVec(ioff),1,lrec(irec),
      &            1,lrec(irec))
             ioff = ioff + lrec(irec)
             ENDIF
          ENDDO
 #endif
-
-         CALL todscn(c_pointer, nrec, lrec,
-     &        -1, ifile)
+         CALL todscn(CIVec, nrec, lrec,-1, ifile)
          CALL itods([-1],1,-1,ifile)
 *
 *   ==============================
@@ -55,7 +54,7 @@
 *   ==============================
 *
       ELSE
-         CALL frmdscn(c_pointer, nrec, -1, ifile)
+         CALL frmdscn(CIVec, nrec, -1, ifile)
       ENDIF
 *
       END
@@ -89,9 +88,9 @@
 
       SUBROUTINE CP_ONE_INT(W1,NDIM)
       use GLBBAS, only: INT1, INT1O
-      use rasscf_lucia
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION W1(NDIM)
+      Integer nDIM
+      Real*8 W1(NDIM)
 #include "mxpdim.fh"
 #include "orbinp.fh"
 
