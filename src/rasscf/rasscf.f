@@ -153,6 +153,10 @@
       Integer IndType(56)
       Character(len=80) ::  VecTyp
 
+      Real*8, Allocatable, Target:: VecL(:)
+      Real*8, Allocatable:: VecR(:)
+      Integer, External:: ip_of_Work
+
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
 
@@ -1858,8 +1862,10 @@ c Clean-close as much as you can the CASDFT stuff...
       If (KeyTDM) Then
 #ifdef _HDF5_
          Call GetMem('TMP','ALLO','REAL',iTmp,NConf)
-         Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
-         Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
+         Call mma_allocate(VecL,NConf,Label='VecL')
+         C_Pointer=ip_of_Work(VecL(1))
+         Call mma_allocate(VecR,NConf,Label='VecR')
+         iVecR=ip_of_Work(VecR(1))
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
          Call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
          Call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
@@ -1870,15 +1876,14 @@ c Clean-close as much as you can the CASDFT stuff...
             Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
             Call Reord2(NAC,NACTEL,STSYM,1,
      &                  CONF,CFTP,
-     &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
-            C_Pointer=iVecL
+     &                  Work(iTmp),VecL,iWork(ivkcnf))
             kDisk=IADR15(4)
             Do kRoot=1,jRoot-1
 *              Read and reorder the right CI vector
                Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
                Call Reord2(NAC,NACTEL,STSYM,1,
      &                     CONF,CFTP,
-     &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
+     &                     Work(iTmp),VecR,iWork(ivkcnf))
 *              Compute TDM and store in h5 file
                Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
@@ -1890,8 +1895,8 @@ c Clean-close as much as you can the CASDFT stuff...
             End Do
          End Do
          Call GetMem('TMP','FREE','REAL',iTmp,NConf)
-         Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
-         Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
+         Call mma_deallocate(VecL)
+         Call mma_deallocate(VecR)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
          Call mma_deallocate(Dtmp)
          Call mma_deallocate(DStmp)
