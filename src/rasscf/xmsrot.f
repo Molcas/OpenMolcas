@@ -173,7 +173,9 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
       Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
       SDtmp(:)=DStmp(:)
+      DStmp(:)=0.0D0
       TmpD(:)=Dtmp(:)
+      Dtmp(:)=0.0D0
       CIDisk1=IADR15(4)
       Do jRoot=1,lRoots
        Call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)

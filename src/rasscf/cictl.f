@@ -278,8 +278,8 @@ C Local print level (if any)
 
 * compute density matrices
 
-           Call mma_allocate(Dtmp,NACPAR,Label='Dtmp')
-           Call mma_allocate(DStmp,NACPAR,Label='DStmp')
+           Call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+           Call mma_allocate(DStmp,NAC**2,Label='DStmp')
            Call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
            If ( NAC.ge.1 ) Then
 
@@ -535,8 +535,8 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
       Call dCopy_(NACPR2,[0.0D0],0,P,1)
       Call dCopy_(NACPR2,[0.0D0],0,PA,1)
       CALL mma_allocate(CIVEC,NCONF,Label='CIVEC')
-      CALL mma_allocate(Dtmp,NACPAR,Label='Dtmp')
-      CALL mma_allocate(DStmp,NACPAR,Label='DStmp')
+      CALL mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+      CALL mma_allocate(DStmp,NAC**2,Label='DStmp')
       CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
       CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
       CALL mma_allocate(Pscr,NACPR2,Label='Pscr')

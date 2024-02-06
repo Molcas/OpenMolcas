@@ -160,8 +160,8 @@ C Local print level (if any)
 * Compute the density of the particular state
 *
 
-           Call mma_allocate(Dtmp,NACPAR,Label='Dtmp'))
-           Call mma_allocate((DStmp,NACPAR,Label='DStmp')
+           Call mma_allocate(Dtmp,NAC**2,Label='Dtmp'))
+           Call mma_allocate((DStmp,NAC**2,Label='DStmp')
            Call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
            If ( NAC.ge.1 ) Then
               If (NACTEL.eq.0) THEN
@@ -192,7 +192,7 @@ c    &                                     DStmp,Ptmp,PAtmp,Pscr)
               EndIf
 *
            Else
-              call dcopy_(NACPAR,[0.0D0],0,Dtmp,1)
+              Dtmp(:)=0.0D0
               DStmp(:)=0.0D0
               Ptmp(:)=0.0D0
            End If
@@ -302,8 +302,8 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
       Call dCopy_(NACPAR,[Zero],0,DS,1)
       Call dCopy_(NACPR2,[Zero],0,P,1)
       Call dCopy_(NACPR2,[Zero],0,PA,1)
-      CALL mma_allocate(Dtmp,NACPAR,Label='Dtmp')
-      CALL mma_allocate(DStmp,NACPAR,Label='DStmp')
+      CALL mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+      CALL mma_allocate(DStmp,NAC**2,Label='DStmp')
       CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
       CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
       jDisk = IADR15(3)

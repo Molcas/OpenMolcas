@@ -455,8 +455,8 @@
 
         Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
         CALL mma_allocate(CIVEC,NCONF,Label='CIVEC')
-        CALL mma_allocate(Dtmp,NACPAR,Label='Dtmp')
-        CALL mma_allocate(DStmp,NACPAR,Label='DStmp')
+        CALL mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+        CALL mma_allocate(DStmp,NAC**2,Label='DStmp')
         CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
         CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
         CALL mma_allocate(Pscr,NACPR2,Label='Pscr')

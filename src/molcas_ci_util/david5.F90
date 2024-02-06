@@ -37,7 +37,7 @@ integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
-integer(kind=iwp) :: i, iConf, iConv, idelta, iDummy, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
+integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
                      kRoot, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, Dummy(1), E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, &
                  ThrRes, updsiz, Z
