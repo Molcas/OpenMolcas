@@ -153,7 +153,6 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
@@ -164,24 +163,28 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
       INTEGER NIJ2
       REAL*8 Dummy(1)
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
-      tlw6=lw6
-      Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
-      Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
-      Call GetMem('Dtmp','ALLO','REAL',ldtmp,NAC**2)
+      Real*8, Allocatable, Target:: VecL(:)
+      Real*8, Allocatable::  VecR(:)
+      Integer, External:: ip_of_Work
+
+
+      Call mma_allocate(VecL,NConf,Label='VecL')
+      C_Pointer=ip_of_Work(VecL(1))
+      Call mma_allocate(VecR,NConf,Label='VecR')
+      iVecR=ip_of_Work(VecR)
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
       Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
       SDtmp(:)=DStmp(:)
       TmpD(:)=Dtmp(:)
       CIDisk1=IADR15(4)
       Do jRoot=1,lRoots
-       Call DDafile(JOBIPH,2,Work(iVecL),nConf,CIDisk1)
-       C_Pointer=iVecL
+       Call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
        CIDisk2=IADR15(4)
        Do kRoot=1,jRoot
-        Call DDafile(JOBIPH,2,Work(iVecR),nConf,CIDisk2)
+        Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
 C        write(6,*) 'VecL and VecR for states',jRoot,kRoot
-C        write(6,*)(WORK(iVecL+I),I=0,NConf-1)
-C        write(6,*)(WORK(iVecR+I),I=0,NConf-1)
+C        write(6,*)(VecL(I),I=0,NConf-1)
+C        write(6,*)(VecR(I),I=0,NConf-1)
         Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
 C        Call Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
 C        write(6,*)'GDMat for states',jRoot,kRoot
@@ -198,9 +201,8 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
       DTmp(:)=TmpD(:)
       Call mma_deallocate(SDtmp)
       Call mma_deallocate(TmpD)
-      Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
-      Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
-      Call GetMem('Dtmp','FREE','REAL',ldtmp,NAC**2)
+      Call mma_deallocate(VecL)
+      Call mma_deallocate(VecR)
       END Subroutine
 
 ******************************************************
