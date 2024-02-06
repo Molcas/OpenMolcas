@@ -26,8 +26,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
-integer(kind=iwp) :: iDummy, IPRINT, IPRL, IPRLEV
-real(kind=wp) :: dum1, dum2, dum3, Dummy(1), eCore_Hex
+integer(kind=iwp) :: IPRINT, IPRL, IPRLEV
+real(kind=wp) :: dum1, dum2, dum3, eCore_Hex
 real(kind=wp), allocatable :: DDIA(:)
 real(kind=wp), external :: Get_eCore
 #include "ciinfo.fh"

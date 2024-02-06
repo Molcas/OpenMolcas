@@ -89,7 +89,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
       use rasscf_lucia
+#ifdef _HDF5_
       use Lucia_Interface, only: RVEC
+#endif
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -154,7 +156,9 @@
       Integer IndType(56)
       Character(len=80) ::  VecTyp
 
+#ifdef _HDF5_
       Real*8, Allocatable, Target:: VecL(:), VecR(:)
+#endif
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')

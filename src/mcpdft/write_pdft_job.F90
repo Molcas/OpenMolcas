@@ -160,7 +160,7 @@ module write_pdft_job
     integer, dimension(15), intent(in) :: adr19
     real(kind=wp), dimension(:,:), intent(in) :: U
 
-    integer :: disk, ncon, i, j, k
+    integer :: disk, ncon=0, i, j, k
     integer, dimension(1) :: dum
     real(kind=wp), allocatable :: ci_rot(:), tCI(:)
     integer :: roots
