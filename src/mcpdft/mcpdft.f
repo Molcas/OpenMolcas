@@ -101,7 +101,6 @@
 !
       real*8, allocatable :: PLWO(:)
       integer ivkcnf
-      Dimension Dummy(1)
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)

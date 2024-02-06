@@ -20,9 +20,6 @@ implicit none
 integer(kind=iwp), intent(in) :: IREFSM, NCI
 real(kind=wp), intent(in) :: C(NCI)
 real(kind=wp), intent(out) :: HC(NCI)
-integer(kind=iwp) :: IDUMMY
-real(kind=wp) :: DUMMY(1)
-Integer, External:: ip_of_Work
 
 ! Export arguments to be used in sigma_master_cvb
 
@@ -30,7 +27,7 @@ C_POINTER => CI_VEC
 CI_VEC(1:NCI)=C(1:NCI)
 ! Call the sigma routine
 iSym_LI=iREFSM
-call LUCIA_UTIL('SIGMA_CVB',IDUMMY,DUMMY)
+call LUCIA_UTIL('SIGMA_CVB')
 iSym_LI=-1
 HC(1:NCI)=SIGMA_VEC(1:NCI)
 C_POINTER => Null()

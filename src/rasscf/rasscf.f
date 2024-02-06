@@ -152,7 +152,6 @@
       real*8  :: maxtrW
 #include "nevptp.fh"
 #endif
-      Dimension Dummy(1)
       Integer IndType(56)
       Character(len=80) ::  VecTyp
 

@@ -19,8 +19,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: icode
-integer(kind=iwp) :: iDummy
-real(kind=wp) :: Dummy(1)
 
 ! ICODE=0 standard casvb calculation
 ! ICODE=1 variational calculation

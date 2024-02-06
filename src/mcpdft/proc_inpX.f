@@ -73,7 +73,6 @@
       Character*72 JobTit(mxTit)
       Character*256 RealName
       Logical, External :: Is_First_Iter
-      Dimension Dummy(1)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
       CHARACTER*(80) OriginalKS

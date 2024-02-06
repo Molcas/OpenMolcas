@@ -79,8 +79,6 @@ c      END IF
 *
 * Allocate arrays
 *
-*     IDUM=0
-*     CALL MEMMAN(IDUM, IDUM, 'MARK', IDUM, 'DENS_M')
       Call mma_allocate(VEC1,LBLOCK,Label='VEC1')
       Call mma_allocate(VEC3,kvec3_length,Label='VEC3')
 *
