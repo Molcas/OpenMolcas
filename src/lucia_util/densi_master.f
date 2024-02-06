@@ -8,17 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE densi_master(rvec)
+      SUBROUTINE densi_master()
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use rasscf_lucia
+      use Lucia_Interface, only: rVec
 *
 * Controls the calculation of the densities, when Lucia is called
 * from Molcas Rasscf.
 *
       implicit real*8 (a-h,o-z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "crun.fh"
 #include "cicisp.fh"
 #include "clunit.fh"
@@ -27,7 +27,6 @@
 #include "spinfo_lucia.fh"
 #include "cstate.fh"
 #include "io_util.fh"
-      integer rvec
       logical iPack,tdm
       dimension dummy(1)
       Real*8, Allocatable:: VEC1(:), VEC2(:)
@@ -38,9 +37,9 @@
 *
 * Put CI-vector from RASSCF on luc
 *
-*     if rvec/=ip_Dummy, it should be a pointer to a second CI vector
+*     if rvec is associated, it should be a pointer to a second CI vector
 *     and a one-particle transition density matrix will be computed
-      tdm = rvec.ne.ip_Dummy
+      tdm = Associated(rVec)
       CALL mma_allocate(SCR1,NSD_PER_SYM(IREFSM),Label='SCR1')
       CALL mma_allocate(SCR2,NSD_PER_SYM(IREFSM),Label='SCR2')
       CALL COPVEC(C_POINTER,SCR1,NCSF_PER_SYM(IREFSM))
@@ -49,7 +48,7 @@
       IF (tdm) THEN
          CALL mma_allocate(SCR3,NSD_PER_SYM(IREFSM),Label='SCR3')
          CALL mma_allocate(SCR4,NSD_PER_SYM(IREFSM),Label='SCR4')
-         CALL COPVEC(WORK(rvec),SCR3,NCSF_PER_SYM(IREFSM))
+         CALL COPVEC(rvec,SCR3,NCSF_PER_SYM(IREFSM))
          CALL CSDTVC(SCR3,SCR4,1,DTOC,SDREO, IREFSM, 1)
          C_POINTER => SCR3
          CALL CPCIVC(LUHC, MXNTTS, IREFSM, 1,lVec)

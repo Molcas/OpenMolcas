@@ -187,7 +187,7 @@ do it_ci=1,mxItr
       call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
       c_pointer => ctemp
       ! Calling Lucia to determine the sigma vector
-      call Lucia_Util('Sigma',iDummy,iDummy,Dummy)
+      call Lucia_Util('Sigma',iDummy,Dummy)
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       iSigma_on_disk = 1
       call CSDTVC(Tmp,ctemp,2,dtoc,cts,stSym,1)

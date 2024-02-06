@@ -89,6 +89,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
       use rasscf_lucia
+      use Lucia_Interface, only: RVEC
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -153,9 +154,7 @@
       Integer IndType(56)
       Character(len=80) ::  VecTyp
 
-      Real*8, Allocatable, Target:: VecL(:)
-      Real*8, Allocatable:: VecR(:)
-      Integer, External:: ip_of_Work
+      Real*8, Allocatable, Target:: VecL(:), VecR(:)
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -1865,7 +1864,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Call mma_allocate(VecL,NConf,Label='VecL')
          C_Pointer=>VecL
          Call mma_allocate(VecR,NConf,Label='VecR')
-         iVecR=ip_of_Work(VecR(1))
+         RVec=>VecR
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
          Call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
          Call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
@@ -1885,7 +1884,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                     CONF,CFTP,
      &                     Work(iTmp),VecR,iWork(ivkcnf))
 *              Compute TDM and store in h5 file
-               Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
+               Call Lucia_Util('Densi',iDummy,Dummy)
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
                Call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),
      &              [NAC,NAC,1], [0,0,idx-1])
@@ -1896,6 +1895,7 @@ c Clean-close as much as you can the CASDFT stuff...
          End Do
          Call GetMem('TMP','FREE','REAL',iTmp,NConf)
          C_Pointer=>Null()
+         RVEC=>Null()
          Call mma_deallocate(VecL)
          Call mma_deallocate(VecR)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
@@ -2063,7 +2063,7 @@ c deallocating TUVX memory...
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
-        Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
+        Call Lucia_Util('CLOSE',iDummy,Dummy)
       end if
 
 

@@ -21,20 +21,22 @@
 *> that all common blocks used have a common parent routine.
 *>
 *> @param[in] Module Identifier
-*> @param[in] iArg1   Argument to LUCIA
 *> @param[in] iArg2   Argument to LUCIA
 *> @param[in] Array1 Argument to LUCIA
 ************************************************************************
-      Subroutine Lucia_Util(Module,iArg1,iArg2,Array1)
+      Subroutine Lucia_Util(Module,iArg2,Array1)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
       use rasscf_lucia
+      use Lucia_Interface, only: iSym_LI, iDisk_LI
 #include "implicit.fh"
+      Real*8, Intent(InOut):: Array1(*)
+      Integer, Intent(In) :: iArg2
+
       Parameter(MxpLnc = 72)
-      Character*(*) Module
-      Character*(MxpLnc) Module_
-      Dimension Array1(*)
+      Character(LEN=*) Module
+      Character(LEN=MxpLnc) Module_
 *
 * Include all LUCIA include files to make sure
 * they are available during the calculation.
@@ -87,27 +89,27 @@
       If (Module_(1:4) .eq. 'DIAG') Then
          Call Diag_Master
       Else If (Module_(1:9) .eq. 'SIGMA_CVB') Then
-*        iArg1 is the symmetry to be used.
-         Call Sigma_Master_CVB(iArg1)
+*        iSym_LI is the symmetry to be used.
+         Call Sigma_Master_CVB(iSym_LI)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
          Call Sigma_Master
       Else If (Module_(1:5) .eq. 'TRACI') Then
 !        write(6,*) 'blubbbbbbtraci'
-*        iArg1 is the initial disk address (for read/write of JOBIPH)
+*        iDisk_LI is the initial disk address (for read/write of JOBIPH)
 *        iArg2 is the file unit for JOBIPH
 *        Array1 is the transformation matrix (not sorted as LUCIA needs it).
          Call mma_allocate(lVec,MXNTTS,Label='lVec')
-         Call Traci_Master(iArg1,iArg2,Array1,lVec)
+         Call Traci_Master(iDisk_LI,iArg2,Array1,lVec)
          Call mma_deallocate(lVec)
       Else If (Module_(1:5) .eq. 'DENSI') Then
-         Call Densi_Master(iArg1)
+         Call Densi_Master()
       Else If (Module_(1:3) .eq. 'INI') Then
-         Call Lucia_Ini
-         Call DetCtl_Gas
+         Call Lucia_Ini()
+         Call DetCtl_Gas()
       Else If (Module_(1:5) .eq. 'CLOSE') Then
-         Call DetCtl_Free
-         Call Lucia_Close
+         Call DetCtl_Free()
+         Call Lucia_Close()
       Else
          Write(6,*) 'Unknown module requested in Lucia_Util.'
          Write(6,*) 'Module = ',Module

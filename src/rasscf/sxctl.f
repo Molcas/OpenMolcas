@@ -63,6 +63,7 @@
       use mh5, only: mh5_put_dset
 #endif
       use Fock_util_global, only: ALGO, DoCholesky
+      use Lucia_Interface, only: iDisk_LI
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -409,8 +410,8 @@ c           IF (NACTEL.GT.0) THEN
 #endif
              else if(doBlockDMRG .or. DoNECI)then
              else !CI
-               IDISK=IADR15(4)
-               CALL LUCIA_UTIL('TRACI',IDISK,JOBIPH,WORK(LSMAT))
+               IDISK_LI=IADR15(4)
+               CALL LUCIA_UTIL('TRACI',JOBIPH,WORK(LSMAT))
              end if
              CALL GETMEM('SMAT','FREE','REAL',LSMAT,NAC*NAC)
            ELSE
