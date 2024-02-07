@@ -21,6 +21,7 @@ use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use lucia_interface, only: lucia_util
 
 implicit none
 #include "rasdim.fh"

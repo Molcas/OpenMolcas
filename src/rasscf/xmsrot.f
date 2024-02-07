@@ -150,7 +150,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
       Subroutine GetGDMat(GDMat)
       use rasscf_lucia
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Lucia_Interface, only: RVEC
+      use Lucia_Interface, only: RVEC, Lucia_Util
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

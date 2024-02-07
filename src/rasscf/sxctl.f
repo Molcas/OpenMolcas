@@ -64,7 +64,8 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
-      use Lucia_Interface, only: iDisk_LI, Lu_LI, Array_LI
+      use Lucia_Interface, only: iDisk_LI, Lu_LI, Array_LI,
+     &                           Lucia_Util
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)

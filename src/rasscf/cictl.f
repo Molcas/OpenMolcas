@@ -68,6 +68,7 @@
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module
       use rasscf_lucia
+      use Lucia_Interface, only: Lucia_Util
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),

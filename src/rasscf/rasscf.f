@@ -90,7 +90,7 @@
       use rctfld_module
       use rasscf_lucia
 #ifdef _HDF5_
-      use Lucia_Interface, only: RVEC
+      use Lucia_Interface, only: RVEC, Lucia_Util
 #endif
 
       Implicit Real*8 (A-H,O-Z)

@@ -14,7 +14,7 @@ subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 use Definitions, only: wp, iwp
 use GLBBAS, only: CI_Vec, Sigma_Vec
 use rasscf_lucia, only: C_pointer
-use Lucia_Interface, only: iSym_LI
+use Lucia_Interface, only: Lucia_Util, iSym_LI
 
 implicit none
 integer(kind=iwp), intent(in) :: IREFSM, NCI

@@ -16,6 +16,7 @@ subroutine cvbmn_cvb(icode)
 
 use casvb_global, only: esym, n_iter
 use Definitions, only: wp, iwp
+use lucia_interface, only: lucia_util
 
 implicit none
 integer(kind=iwp), intent(in) :: icode
@@ -28,7 +29,5 @@ call cvbstart_cvb_lt9(icode)
 call main_cvb()
 call setretvals_cvb(esym,n_iter)
 call Lucia_Util('CLOSE')
-
-return
 
 end subroutine cvbmn_cvb

@@ -65,6 +65,7 @@
       use rctfld_module
       use rasscf_lucia
       use stdalloc, only: mma_allocate, mma_deallocate
+      use lucia_interface, only: lucia_util
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -634,6 +635,5 @@ C Close the one-electron integral file:
       END DO
       Close(LUInput)
 
-      return
       End
 

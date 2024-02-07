@@ -29,6 +29,7 @@
       use UnixInfo, only: SuperName
       use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+      use lucia_interface, only: lucia_util
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
