@@ -63,8 +63,7 @@
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use mspdft_util, only: replace_diag
       use rctfld_module
-      use rasscf_lucia, only: PAtmp, Pscr, CIV, CIVEC, Ptmp, DStmp,
-     &                        Dtmp
+      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
 
@@ -101,7 +100,7 @@
       integer NMAYBE,KROOT
       real*8 EAV
 !
-      real*8, allocatable :: PLWO(:)
+      real*8, allocatable :: PLWO(:), CIV(:)
       integer ivkcnf
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')

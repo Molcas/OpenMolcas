@@ -67,8 +67,7 @@
       use casvb_global, only: ifvb, lw1_cvb
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module
-      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PrSel, PTmp, DStmp,
-     &                        Dtmp, CIV
+      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PTmp, DStmp, Dtmp
 #ifdef _DMRG_
       use rasscf_lucia, only: RF1, RF2
 #endif
@@ -124,6 +123,7 @@
 c #include "nevptp.fh"
 #endif
       Dimension rdum(1)
+      Real*8, Allocatable:: PrSel(:), CIV(:)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)

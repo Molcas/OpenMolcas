@@ -11,11 +11,9 @@
 Module RASSCF_LUCIA
 Private
 INTEGER, Public:: kvec3_length, iSigma_on_disk,ini_h0,Memory_Needed_Lucia
+Real*8, Allocatable, Public:: CIVec(:)
 Real*8, Allocatable, Public:: PAtmp(:)
 Real*8, Allocatable, Public:: Pscr(:)
-Real*8, Allocatable, Public:: CIV(:)
-Real*8, Allocatable, Public:: CIVec(:)
-Integer, Allocatable, Public:: PrSel(:)
 Real*8, Allocatable, Public:: Ptmp(:)
 Real*8, Allocatable, Public:: DStmp(:)
 Real*8, Allocatable, Public:: Dtmp(:)
