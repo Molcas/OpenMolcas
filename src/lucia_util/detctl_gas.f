@@ -237,11 +237,12 @@ c      END IF
      &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
      &     nCSF_HEXS)
 
+      CALL mma_deallocate(KLOCCLS)
+
       END SUBROUTINE DETCTL_GAS
 *
       SUBROUTINE DETCTL_FREE()
       use stdalloc, only: mma_deallocate
-      use GLBBAS, only: KLOCCLS
       use strbas
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
@@ -259,7 +260,6 @@ c      END IF
 #include "strinp.fh"
 #include "lucinp.fh"
 
-      CALL mma_deallocate(KLOCCLS)
 
       JSYM = IREFSM
       CALL CSFDIM_FREE(JSYM)
