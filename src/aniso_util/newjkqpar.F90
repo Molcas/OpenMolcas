@@ -22,9 +22,9 @@ complex(kind=8), intent(out) :: J(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
 complex(kind=8), intent(out) :: B(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
 complex(kind=8), intent(out) :: S(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
 ! local variables:
-integer :: k1, k2, q1, q2, m1, m2, m12, i1, i2, j1, j2
+integer :: k1, k2, q1, q2, m1, m2, m12, i2, j2
 real(kind=8) :: cr1, cr2, C01, C02, r1, r2, F1, F2
-complex(kind=8) :: cf1, cf2, c1, c2, c12, ci, cc1, cc2, trace_exch2
+complex(kind=8) :: cf1, cf2, c1, c2, c12, cc1, cc2, trace_exch2
 complex(kind=8), allocatable :: O1(:,:), W1(:,:)
 complex(kind=8), allocatable :: O2(:,:), W2(:,:)
 complex(kind=8), allocatable :: OO(:,:,:,:), WO(:,:,:,:)
@@ -51,14 +51,6 @@ do k1=1,n1-1
   do q1=0,k1
     do k2=1,n2-1
       do q2=0,k2
-        cr1 = Zero
-        cr2 = Zero
-        m1 = 0
-        m2 = 0
-        r1 = Zero
-        r2 = Zero
-        cf1 = cZero
-        cf2 = cZero
 
         m1 = (-1)**q1
         m2 = (-1)**q2
@@ -66,7 +58,6 @@ do k1=1,n1-1
         c1 = m1*cOne
         c2 = m2*cOne
         c12 = m12*cOne
-        ci = -Onei
 
         ! generate the operators for site 1 and 2:
         call ITO(n1,k1,q1,C01,O1,W1)
@@ -89,16 +80,12 @@ do k1=1,n1-1
           call mma_allocate(OW,n1,n1,n2,n2,'operator OW')
           call mma_allocate(WW,n1,n1,n2,n2,'operator WW')
 
-          do i1=1,n1
-            do j1=1,n1
-              do i2=1,n2
-                do j2=1,n2
-                  OO(i1,j1,i2,j2) = O1(i1,j1)*O2(i2,j2)
-                  OW(i1,j1,i2,j2) = O1(i1,j1)*W2(i2,j2)
-                  WO(i1,j1,i2,j2) = W1(i1,j1)*O2(i2,j2)
-                  WW(i1,j1,i2,j2) = W1(i1,j1)*W2(i2,j2)
-                end do
-              end do
+          do i2=1,n2
+            do j2=1,n2
+              OO(:,:,i2,j2) = O1(:,:)*O2(i2,j2)
+              OW(:,:,i2,j2) = O1(:,:)*W2(i2,j2)
+              WO(:,:,i2,j2) = W1(:,:)*O2(i2,j2)
+              WW(:,:,i2,j2) = W1(:,:)*W2(i2,j2)
             end do
           end do
           ! find the parameters:
@@ -132,17 +119,17 @@ do k1=1,n1-1
           ! BB = (Jmm + (-1)^q2 Jmp + (-1)^q1 Jpm + (-1)^(q1 + q2) Jpp);
           S(k1,q1,k2,q2) = B(k1,-q1,k2,-q2)+c2*B(k1,-q1,k2,q2)+c1*B(k1,q1,k2,-q2)+c12*B(k1,q1,k2,q2)
           ! BC = (Jmm - (-1)^q2 Jmp + (-1)^q1 Jpm - (-1)^(q1 + q2) Jpp) (-I);
-          S(k1,q1,k2,-q2) = (B(k1,-q1,k2,-q2)-c2*B(k1,-q1,k2,q2)+c1*B(k1,q1,k2,-q2)-c12*B(k1,q1,k2,q2))*ci
+          S(k1,q1,k2,-q2) = -Onei*(B(k1,-q1,k2,-q2)-c2*B(k1,-q1,k2,q2)+c1*B(k1,q1,k2,-q2)-c12*B(k1,q1,k2,q2))
           ! CB = (Jpp + (-1)^q2 Jpm - (-1)^q1 Jmp - (-1)^(q1 + q2) Jmm) (-I);
-          S(k1,-q1,k2,q2) = (B(k1,-q1,k2,-q2)+c2*B(k1,-q1,k2,q2)-c1*B(k1,q1,k2,-q2)-c12*B(k1,q1,k2,q2))*ci
+          S(k1,-q1,k2,q2) = -Onei*(B(k1,-q1,k2,-q2)+c2*B(k1,-q1,k2,q2)-c1*B(k1,q1,k2,-q2)-c12*B(k1,q1,k2,q2))
           ! CC = (-Jpp + (-1)^q2 Jpm + (-1)^q1 Jmp - (-1)^(q1 + q2) Jmm);
           S(k1,-q1,k2,-q2) = -B(k1,-q1,k2,-q2)+c2*B(k1,-q1,k2,q2)+c1*B(k1,q1,k2,-q2)-c12*B(k1,q1,k2,q2)
         else if ((q1 == 0) .and. (q2 > 0)) then
           S(k1,q1,k2,q2) = (B(k1,q1,k2,-q2)+c2*B(k1,q1,k2,q2))
-          S(k1,q1,k2,-q2) = (B(k1,q1,k2,-q2)-c2*B(k1,q1,k2,q2))*ci
+          S(k1,q1,k2,-q2) = -Onei*(B(k1,q1,k2,-q2)-c2*B(k1,q1,k2,q2))
         else if ((q1 > 0) .and. (q2 == 0)) then
           S(k1,q1,k2,q2) = (B(k1,-q1,k2,q2)+c1*B(k1,q1,k2,q2))
-          S(k1,-q1,k2,q2) = (B(k1,-q1,k2,q2)-c1*B(k1,q1,k2,q2))*ci
+          S(k1,-q1,k2,q2) = -Onei*(B(k1,-q1,k2,q2)-c1*B(k1,q1,k2,q2))
         else if ((q1 == 0) .and. (q2 == 0)) then
           S(k1,q1,k2,q2) = B(k1,q1,k2,q2)
         end if

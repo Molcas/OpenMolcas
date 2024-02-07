@@ -179,6 +179,7 @@
 subroutine check_commutation(n,moment,dbg)
 ! valid for S, L, J in spin-orbit basis
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne, Onei
 use Definitions, only: wp, u6
 
@@ -191,12 +192,12 @@ logical, intent(in) :: dbg
 integer :: i, j, l
 
 ! verify the commutation relations for S
-allocate(XY(n,n))
-allocate(YX(n,n))
-allocate(YZ(n,n))
-allocate(ZY(n,n))
-allocate(ZX(n,n))
-allocate(XZ(n,n))
+call mma_allocate(XY,n,n,label='XY')
+call mma_allocate(YX,n,n,label='YX')
+call mma_allocate(YZ,n,n,label='YZ')
+call mma_allocate(ZY,n,n,label='ZY')
+call mma_allocate(ZX,n,n,label='ZX')
+call mma_allocate(XZ,n,n,label='XZ')
 XY(:,:) = cZero
 YX(:,:) = cZero
 call zgemm_('n','n',n,n,n,cOne,moment(1,1:n,1:n),n,moment(2,1:n,1:n),n,cZero,XY,n)
@@ -240,8 +241,8 @@ if (dbg) then
 end if
 
 tr = cZero
-do i=1,n
-  do j=1,n
+do j=1,n
+  do i=1,n
     tr = tr+XY(i,j)-YX(i,j)-Onei*moment(3,i,j)+YZ(i,j)-ZY(i,j)-Onei*moment(1,i,j)+ZX(i,j)-XZ(i,j)-Onei*moment(2,i,j)
   end do
 end do
@@ -253,12 +254,12 @@ else
   write(u6,'(A,ES22.14)') 'check_commutation:  The input moment passes all three commutation tests.'
 end if
 
-deallocate(XY)
-deallocate(YX)
-deallocate(YZ)
-deallocate(ZY)
-deallocate(ZX)
-deallocate(XZ)
+call mma_deallocate(XY)
+call mma_deallocate(YX)
+call mma_deallocate(YZ)
+call mma_deallocate(ZY)
+call mma_deallocate(ZX)
+call mma_deallocate(XZ)
 
 return
 
@@ -267,6 +268,7 @@ end subroutine check_commutation
 subroutine check_S_square(n,moment,dbg)
 ! valid also for J, L, S
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart, cZero, cOne
 use Definitions, only: wp, u6
 
@@ -279,14 +281,10 @@ real(kind=wp) :: S2_theoretic
 logical, intent(in) :: dbg
 integer :: i
 
-allocate(X2(n,n))
-allocate(Y2(n,n))
-allocate(Z2(n,n))
-allocate(S2(n,n))
-X2(:,:) = cZero
-Y2(:,:) = cZero
-Z2(:,:) = cZero
-S2(:,:) = cZero
+call mma_allocate(X2,n,n,label='X2')
+call mma_allocate(Y2,n,n,label='Y2')
+call mma_allocate(Z2,n,n,label='Z2')
+call mma_allocate(S2,n,n,label='S2')
 
 call zgemm_('c','n',n,n,n,cOne,moment(1,1:n,1:n),n,moment(1,1:n,1:n),n,cZero,X2,n)
 
@@ -296,9 +294,7 @@ call zgemm_('c','n',n,n,n,cOne,moment(3,1:n,1:n),n,moment(3,1:n,1:n),n,cZero,Z2,
 
 ! matrix add:
 ! S2 = X2 + Y2 + Z2
-call zaxpy_(n*n,cOne,X2,1,S2,1)
-call zaxpy_(n*n,cOne,Y2,1,S2,1)
-call zaxpy_(n*n,cOne,Z2,1,S2,1)
+S2(:,:) = X2(:,:)+Y2(:,:)+Z2(:,:)
 
 tr = cZero
 do i=1,n
@@ -313,10 +309,10 @@ if ((abs(tr)-S2_theoretic) > 1.0e-6_wp) then
 else
   write(u6,'(A,ES22.14)') 'check_S_square:  The input moment passes the S^2 test.'
 end if
-deallocate(X2)
-deallocate(Y2)
-deallocate(Z2)
-deallocate(S2)
+call mma_deallocate(X2)
+call mma_deallocate(Y2)
+call mma_deallocate(Z2)
+call mma_deallocate(S2)
 
 return
 
@@ -408,6 +404,7 @@ end subroutine check_hermiticity_matrix
 
 subroutine read_magnetic_moment(DATA_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, cZero
 use Definitions, only: wp, u6
 
@@ -423,8 +420,8 @@ logical, external :: inquire_key_presence
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
 moment(:,:,:) = cZero
-allocate(rr(n,n))
-allocate(ri(n,n))
+call mma_allocate(rr,n,n,label='rr')
+call mma_allocate(ri,n,n,label='ri')
 ! projection X
 rr = Zero
 ri = Zero
@@ -434,11 +431,7 @@ if (dbg) then
   write(u6,*) 'read_magnetic_moment::  norm of moment_xr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_magnetic_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
 end if
-do i=1,n
-  do j=1,n
-    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) call check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
 ! projection Y
 rr = Zero
@@ -449,11 +442,7 @@ if (dbg) then
   write(u6,*) 'read_magnetic_moment::  norm of moment_yr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_magnetic_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
 end if
-do i=1,n
-  do j=1,n
-    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) call check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
 ! projection Z
 rr = Zero
@@ -464,15 +453,11 @@ if (dbg) then
   write(u6,*) 'read_magnetic_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_magnetic_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 end if
-do i=1,n
-  do j=1,n
-    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_magnetic_moment:: the norm of the read moment is zero!')
 if (dbg) call check_hermiticity_matrix(n,moment(3,1:n,1:n),dbg)
-deallocate(rr)
-deallocate(ri)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 if (dbg) then
   write(u6,*) 'read_magnetic_moment::  ELECTRIC MOMENT at the end of the suboutine'
   write(u6,*) 'projection X'
@@ -495,6 +480,7 @@ end subroutine read_magnetic_moment
 !=!=
 subroutine read_electric_moment(DATA_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, cZero
 use Definitions, only: wp, u6
 
@@ -510,8 +496,8 @@ logical, external :: inquire_key_presence
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
 moment(:,:,:) = cZero
-allocate(rr(n,n))
-allocate(ri(n,n))
+call mma_allocate(rr,n,n,label='rr')
+call mma_allocate(ri,n,n,label='ri')
 ! projection X
 rr = Zero
 ri = Zero
@@ -521,11 +507,7 @@ if (dbg) then
   write(u6,*) 'read_electric_moment::  norm of moment_xr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_electric_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
 end if
-do i=1,n
-  do j=1,n
-    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) call check_hermiticity_matrix(n,moment(1,:,:),dbg)
 ! projection Y
 rr = Zero
@@ -536,11 +518,7 @@ if (dbg) then
   write(u6,*) 'read_electric_moment::  norm of moment_yr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_electric_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
 end if
-do i=1,n
-  do j=1,n
-    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) call check_hermiticity_matrix(n,moment(2,:,:),dbg)
 ! projection Z
 rr = Zero
@@ -551,15 +529,11 @@ if (dbg) then
   write(u6,*) 'read_electric_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_electric_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 end if
-do i=1,n
-  do j=1,n
-    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_electric_moment:: the norm of the read moment is zero!')
 if (dbg) call check_hermiticity_matrix(n,moment(3,:,:),dbg)
-deallocate(rr)
-deallocate(ri)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 if (dbg) then
   write(u6,*) 'read_electric_moment::  ELECTRIC MOMENT at the end of the suboutine'
   write(u6,*) 'projection X'
@@ -582,6 +556,7 @@ end subroutine read_electric_moment
 !=!=
 subroutine read_spin_moment(DATA_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, cZero
 use Definitions, only: wp, u6
 
@@ -598,8 +573,8 @@ real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
 if (dbg) write(u6,*) 'ENTER read_spin_moment'
 moment(:,:,:) = cZero
-allocate(rr(n,n))
-allocate(ri(n,n))
+call mma_allocate(rr,n,n,label='rr')
+call mma_allocate(ri,n,n,label='ri')
 ! projection X
 rr = Zero
 ri = Zero
@@ -629,11 +604,7 @@ if (dbg) write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 flush(u6)
 if (dbg) write(u6,*) 'ENTER read_spin_moment p5'
 flush(u6)
-do i=1,n
-  do j=1,n
-    moment(1,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) write(u6,*) 'ENTER read_spin_moment p6'
 flush(u6)
 if (dbg) call check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
@@ -646,11 +617,7 @@ if (dbg) then
   write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 end if
-do i=1,n
-  do j=1,n
-    moment(2,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) call check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
 ! projection Z
 rr = Zero
@@ -661,15 +628,11 @@ if (dbg) then
   write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
 end if
-do i=1,n
-  do j=1,n
-    moment(3,i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
+moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_spin:: the norm of the read moment is zero!')
 if (dbg) call check_hermiticity_matrix(n,moment(3,1:n,1:n),dbg)
-deallocate(rr)
-deallocate(ri)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 if (dbg) call check_commutation(n,moment,dbg)
 
 if (dbg) then
@@ -695,6 +658,7 @@ end subroutine read_spin_moment
 !=!=
 subroutine read_angmom(DATA_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
 use Definitions, only: wp, u6
 
@@ -703,42 +667,29 @@ integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
 real(kind=wp), intent(out) :: moment(3,N,N)
 real(kind=wp), allocatable :: rr(:,:)
-integer :: i, j
 real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
 logical, external :: inquire_key_presence
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
 moment(:,:,:) = Zero
-allocate(rr(n,n))
+call mma_allocate(rr,n,n,label='rr')
 ! projection X
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$angmom_x')) call read_2d_real_array(DATA_FILE,'$angmom_x',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_angmom::  norm of moment_x=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(1,i,j) = rr(i,j)
-  end do
-end do
+moment(1,:,:) = rr(:,:)
 ! projection Y
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$angmom_y')) call read_2d_real_array(DATA_FILE,'$angmom_y',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_angmom::  norm of moment_y=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(2,i,j) = rr(i,j)
-  end do
-end do
+moment(2,:,:) = rr(:,:)
 ! projection Z
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$angmom_z')) call read_2d_real_array(DATA_FILE,'$angmom_z',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_angmom::  norm of moment_z=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(3,i,j) = rr(i,j)
-  end do
-end do
-deallocate(rr)
+moment(3,:,:) = rr(:,:)
+call mma_deallocate(rr)
 if (dnrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_angmom:: the norm of the read moment is zero!')
 
 return
@@ -747,6 +698,7 @@ end subroutine read_angmom
 !=!=
 subroutine read_edipmom(DATA_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
 use Definitions, only: wp, u6
 
@@ -755,42 +707,29 @@ integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
 real(kind=wp), intent(out) :: moment(3,N,N)
 real(kind=wp), allocatable :: rr(:,:)
-integer :: i, j
 real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
 logical, external :: inquire_key_presence
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
 moment(:,:,:) = Zero
-allocate(rr(n,n))
+call mma_allocate(rr,n,n,label='rr')
 ! projection X
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$edmom_x')) call read_2d_real_array(DATA_FILE,'$edmom_x',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_edipmom::  norm of moment_x=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(1,i,j) = rr(i,j)
-  end do
-end do
+moment(1,:,:) = rr(:,:)
 ! projection Y
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$edmom_y')) call read_2d_real_array(DATA_FILE,'$edmom_y',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_edipmom::  norm of moment_y=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(2,i,j) = rr(i,j)
-  end do
-end do
+moment(2,:,:) = rr(:,:)
 ! projection Z
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$edmom_z')) call read_2d_real_array(DATA_FILE,'$edmom_z',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_edipmom::  norm of moment_z=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(3,i,j) = rr(i,j)
-  end do
-end do
-deallocate(rr)
+moment(3,:,:) = rr(:,:)
+call mma_deallocate(rr)
 if (dnrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_edipmom:: the norm of the read moment is zero!')
 
 return
@@ -799,6 +738,7 @@ end subroutine read_edipmom
 !=!=
 subroutine read_amfi(DATA_FILE,n,moment,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
 use Definitions, only: wp, u6
 
@@ -807,42 +747,29 @@ integer, intent(in) :: DATA_FILE
 integer, intent(in) :: N
 real(kind=wp), intent(out) :: moment(3,N,N)
 real(kind=wp), allocatable :: rr(:,:)
-integer :: i, j
 real(kind=wp), external :: dnrm2_
 logical, intent(in) :: dbg
 logical, external :: inquire_key_presence
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
 moment(:,:,:) = Zero
-allocate(rr(n,n))
+call mma_allocate(rr,n,n,label='rr')
 ! projection X
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$amfi_x')) call read_2d_real_array(DATA_FILE,'$amfi_x',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_amfi::  norm of moment_x=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(1,i,j) = rr(i,j)
-  end do
-end do
+moment(1,:,:) = rr(:,:)
 ! projection Y
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$amfi_y')) call read_2d_real_array(DATA_FILE,'$amfi_y',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_amfi::  norm of moment_y=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(2,i,j) = rr(i,j)
-  end do
-end do
+moment(2,:,:) = rr(:,:)
 ! projection Z
 rr = Zero
 if (inquire_key_presence(DATA_FILE,'$amfi_z')) call read_2d_real_array(DATA_FILE,'$amfi_z',n,n,rr,dbg)
 if (dbg) write(u6,*) 'read_amfi::  norm of moment_z=',dnrm2_(n*n,rr,1)
-do i=1,n
-  do j=1,n
-    moment(3,i,j) = rr(i,j)
-  end do
-end do
-deallocate(rr)
+moment(3,:,:) = rr(:,:)
+call mma_deallocate(rr)
 if (dnrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_amfi:: the norm of the read moment is zero!')
 
 return
@@ -1167,8 +1094,6 @@ if (i /= n) call WarningMessage(2,'read_stev_cfp_'//trim(s)//':: size of the mul
 if (ierr == 0) then
   do k=2,n-1,2
     do q=-k,k,2
-      ik = 99999
-      iq = 9999999
       read(DATA_FILE,*,iostat=ierr) ik,iq,cfp(ik,iq)
       if (ierr /= 0) call WarningMessage(2,'read_stev_cfp_'//trim(s)//':: Something went wrong reading the array.')
       if (dbg) write(u6,*) 'read_stev_cfp_'//trim(s)//'::  k, q =',k,q
@@ -1371,7 +1296,8 @@ end subroutine read_magn
 !=!=
 subroutine read_complex_matrix(LU,key,n,matrix,dbg)
 
-use Constants, only: Zero, cZero
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp
 
 implicit none
@@ -1380,23 +1306,17 @@ integer, intent(in) :: N
 character(len=*), intent(in) :: key
 complex(kind=wp), intent(out) :: matrix(N,N)
 real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j
 logical, intent(in) :: dbg
 
-matrix(:,:) = cZero
-allocate(rr(n,n))
-allocate(ri(n,n))
+call mma_allocate(rr,n,n,label='rr')
+call mma_allocate(ri,n,n,label='ri')
 rr(:,:) = Zero
 ri(:,:) = Zero
 call read_2d_real_array(LU,key//'r',n,n,rr,dbg)
 call read_2d_real_array(LU,key//'i',n,n,ri,dbg)
-do i=1,n
-  do j=1,n
-    matrix(i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
-deallocate(rr)
-deallocate(ri)
+matrix(:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 
@@ -1404,7 +1324,7 @@ end subroutine read_complex_matrix
 !=!=
 subroutine write_complex_matrix(LU,key,n,matrix,dbg)
 
-use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
@@ -1413,23 +1333,16 @@ integer, intent(in) :: N
 character(len=*), intent(in) :: key
 complex(kind=wp), intent(in) :: matrix(N,N)
 real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j
 logical, intent(in) :: dbg
 
-allocate(rr(n,n))
-allocate(ri(n,n))
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(matrix(i,j))
-    ri(i,j) = aimag(matrix(i,j))
-  end do
-end do
+call mma_allocate(rr,n,n,label='rr')
+call mma_allocate(ri,n,n,label='ri')
+rr(:,:) = real(matrix(:,:))
+ri(:,:) = aimag(matrix(:,:))
 call write_2d_real_array(LU,key//'r',n,n,rr,dbg)
 call write_2d_real_array(LU,key//'i',n,n,ri,dbg)
-deallocate(rr)
-deallocate(ri)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 
@@ -1464,7 +1377,7 @@ end subroutine write_complex_matrix
 
 subroutine write_magnetic_moment(ANISO_FILE,n,moment,dbg)
 
-use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
@@ -1472,46 +1385,27 @@ integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
 complex(kind=wp), intent(in) :: moment(3,N,N)
 real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j
 logical, intent(in) :: dbg
 
-allocate(rr(n,n))
-allocate(ri(n,n))
+call mma_allocate(rr,n,n,label='rr')
+call mma_allocate(ri,n,n,label='ri')
 ! projection X
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(1,i,j))
-    ri(i,j) = aimag(moment(1,i,j))
-  end do
-end do
+rr(:,:) = real(moment(1,:,:))
+ri(:,:) = aimag(moment(1,:,:))
 call write_2d_real_array(ANISO_FILE,'$magn_xr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$magn_xi',n,n,ri,dbg)
 ! projection Y
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(2,i,j))
-    ri(i,j) = aimag(moment(2,i,j))
-  end do
-end do
+rr(:,:) = real(moment(2,:,:))
+ri(:,:) = aimag(moment(2,:,:))
 call write_2d_real_array(ANISO_FILE,'$magn_yr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$magn_yi',n,n,ri,dbg)
 ! projection Z
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(3,i,j))
-    ri(i,j) = aimag(moment(3,i,j))
-  end do
-end do
+rr(:,:) = real(moment(3,:,:))
+ri(:,:) = aimag(moment(3,:,:))
 call write_2d_real_array(ANISO_FILE,'$magn_zr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$magn_zi',n,n,ri,dbg)
-deallocate(rr)
-deallocate(ri)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 
@@ -1519,7 +1413,7 @@ end subroutine write_magnetic_moment
 !=!=
 subroutine write_electric_moment(ANISO_FILE,n,moment,dbg)
 
-use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
@@ -1527,46 +1421,27 @@ integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
 complex(kind=wp), intent(in) :: moment(3,N,N)
 real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j
 logical, intent(in) :: dbg
 
-allocate(rr(n,n))
-allocate(ri(n,n))
+call mma_allocate(rr,n,n,label='rr')
+call mma_allocate(ri,n,n,label='ri')
 ! projection X
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(1,i,j))
-    ri(i,j) = aimag(moment(1,i,j))
-  end do
-end do
+rr(:,:) = real(moment(1,:,:))
+ri(:,:) = aimag(moment(1,:,:))
 call write_2d_real_array(ANISO_FILE,'$edipm_xr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$edipm_xi',n,n,ri,dbg)
 ! projection Y
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(2,i,j))
-    ri(i,j) = aimag(moment(2,i,j))
-  end do
-end do
+rr(:,:) = real(moment(2,:,:))
+ri(:,:) = aimag(moment(2,:,:))
 call write_2d_real_array(ANISO_FILE,'$edipm_yr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$edipm_yi',n,n,ri,dbg)
 ! projection Z
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(3,i,j))
-    ri(i,j) = aimag(moment(3,i,j))
-  end do
-end do
+rr(:,:) = real(moment(3,:,:))
+ri(:,:) = aimag(moment(3,:,:))
 call write_2d_real_array(ANISO_FILE,'$edipm_zr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$edipm_zi',n,n,ri,dbg)
-deallocate(rr)
-deallocate(ri)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 
@@ -1574,7 +1449,7 @@ end subroutine write_electric_moment
 !=!=
 subroutine write_spin_moment(ANISO_FILE,n,moment,dbg)
 
-use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
@@ -1582,46 +1457,27 @@ integer, intent(in) :: ANISO_FILE
 integer, intent(in) :: N
 complex(kind=wp), intent(in) :: moment(3,N,N)
 real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j
 logical, intent(in) :: dbg
 
-allocate(rr(n,n))
-allocate(ri(n,n))
+call mma_allocate(rr,n,n,label='rr')
+call mma_allocate(ri,n,n,label='ri')
 ! projection X
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(1,i,j))
-    ri(i,j) = aimag(moment(1,i,j))
-  end do
-end do
+rr(:,:) = real(moment(1,:,:))
+ri(:,:) = aimag(moment(1,:,:))
 call write_2d_real_array(ANISO_FILE,'$spin_xr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$spin_xi',n,n,ri,dbg)
 ! projection Y
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(2,i,j))
-    ri(i,j) = aimag(moment(2,i,j))
-  end do
-end do
+rr(:,:) = real(moment(2,:,:))
+ri(:,:) = aimag(moment(2,:,:))
 call write_2d_real_array(ANISO_FILE,'$spin_yr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$spin_yi',n,n,ri,dbg)
 ! projection Z
-rr(:,:) = Zero
-ri(:,:) = Zero
-do i=1,n
-  do j=1,n
-    rr(i,j) = real(moment(3,i,j))
-    ri(i,j) = aimag(moment(3,i,j))
-  end do
-end do
+rr(:,:) = real(moment(3,:,:))
+ri(:,:) = aimag(moment(3,:,:))
 call write_2d_real_array(ANISO_FILE,'$spin_zr',n,n,rr,dbg)
 call write_2d_real_array(ANISO_FILE,'$spin_zi',n,n,ri,dbg)
-deallocate(rr)
-deallocate(ri)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 
@@ -2961,7 +2817,8 @@ end subroutine read_4d_real_array
 !=!=
 subroutine read_1d_complex_array(LU,key,n,array,dbg)
 
-use Constants, only: Zero, cZero
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, u6
 
 implicit none
@@ -2975,7 +2832,6 @@ logical, intent(in) :: dbg
 character(len=500) :: line
 
 ierr = 0
-array(:) = cZero
 if (n <= 0) then
   call WarningMessage(1,'read_1d_complex_array:: nothing to read. Array size = 0.')
   return
@@ -2991,18 +2847,16 @@ if (dbg) then
 end if
 if ((i /= n)) call WarningMessage(2,'read_1d_complex_array:: sizes of the array are different from the ones used to CALL this '// &
                                   'SUBROUTINE')
-allocate(rr(n))
-allocate(ri(n))
+call mma_allocate(rr,n,label='rr')
+call mma_allocate(ri,n,label='ri')
 rr(:) = Zero
 ri(:) = Zero
 read(LU,*,iostat=ierr) (rr(i),ri(i),i=1,n)
 if (ierr /= 0) call WarningMessage(2,'read_1d_complex_array:: Something went wrong reading the array.')
 if (dbg) write(u6,*) 'read_1d_complex_array:: array =',(rr(i),ri(i),i=1,n)
-do i=1,n
-  array(i) = cmplx(rr(i),ri(i),kind=wp)
-end do
-deallocate(rr)
-deallocate(ri)
+array(:) = cmplx(rr(:),ri(:),kind=wp)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 
@@ -3010,7 +2864,8 @@ end subroutine read_1d_complex_array
 !=!=
 subroutine read_2d_complex_array(LU,key,n1,n2,array,dbg)
 
-use Constants, only: Zero, cZero
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, u6
 
 implicit none
@@ -3024,7 +2879,6 @@ logical, intent(in) :: dbg
 character(len=500) :: line
 
 ierr = 0
-array(:,:) = cZero
 if ((n1 <= 0) .or. (n2 <= 0)) then
   call WarningMessage(1,'read_2d_complex_array:: nothing to read. Array size = 0.')
   if (dbg) then
@@ -3045,8 +2899,8 @@ if (dbg) then
 end if
 if ((i /= n1) .or. (j /= n2)) call WarningMessage(2,'read_2d_complex_array:: sizes of the array are different from the ones '// &
                                                   'used to CALL this SUBROUTINE')
-allocate(rr(n1,n2))
-allocate(ri(n1,n2))
+call mma_allocate(rr,n1,n2,label='rr')
+call mma_allocate(ri,n1,n2,label='ri')
 rr(:,:) = Zero
 ri(:,:) = Zero
 do i=1,n1
@@ -3054,13 +2908,9 @@ do i=1,n1
   if (ierr /= 0) call WarningMessage(2,'read_2d_complex_array:: Something went wrong reading the array.')
   if (dbg) write(u6,*) 'read_2d_complex_array::  i =',i
 end do
-do i=1,n1
-  do j=1,n2
-    array(i,j) = cmplx(rr(i,j),ri(i,j),kind=wp)
-  end do
-end do
-deallocate(rr)
-deallocate(ri)
+array(:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 
@@ -3068,7 +2918,8 @@ end subroutine read_2d_complex_array
 !=!=
 subroutine read_3d_complex_array(LU,key,n1,n2,n3,array,dbg)
 
-use Constants, only: Zero, cZero
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, u6
 
 implicit none
@@ -3082,7 +2933,6 @@ logical, intent(in) :: dbg
 character(len=500) :: line
 
 ierr = 0
-array(:,:,:) = cZero
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
   call WarningMessage(1,'read_3d_complex_array:: nothing to read. Array size = 0.')
   if (dbg) then
@@ -3105,8 +2955,8 @@ if (dbg) then
 end if
 if ((i /= n1) .or. (j /= n2) .or. (k /= n3)) call WarningMessage(2,'read_3d_complex_array:: sizes of the array are different '// &
                                                                  'from the ones used to CALL this SUBROUTINE')
-allocate(rr(n1,n2,n3))
-allocate(ri(n1,n2,n3))
+call mma_allocate(rr,n1,n2,n3,label='rr')
+call mma_allocate(ri,n1,n2,n3,label='ri')
 rr(:,:,:) = Zero
 ri(:,:,:) = Zero
 do i=1,n1
@@ -3116,15 +2966,9 @@ do i=1,n1
     if (dbg) write(u6,*) 'read_3d_complex_array::  i,j =',i,j
   end do
 end do
-do i=1,n1
-  do j=1,n2
-    do k=1,n3
-      array(i,j,k) = cmplx(rr(i,j,k),ri(i,j,k),kind=wp)
-    end do
-  end do
-end do
-deallocate(rr)
-deallocate(ri)
+array(:,:,:) = cmplx(rr(:,:,:),ri(:,:,:),kind=wp)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 
@@ -3132,7 +2976,8 @@ end subroutine read_3d_complex_array
 !=!=
 subroutine read_4d_complex_array(LU,key,n1,n2,n3,n4,array,dbg)
 
-use Constants, only: Zero, cZero
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, u6
 
 implicit none
@@ -3146,7 +2991,6 @@ logical, intent(in) :: dbg
 character(len=500) :: line
 
 ierr = 0
-array(:,:,:,:) = cZero
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then
   call WarningMessage(1,'read_4d_complex_array:: nothing to read. Array size = 0.')
   if (dbg) then
@@ -3171,8 +3015,8 @@ if (dbg) then
 end if
 if ((i /= n1) .or. (j /= n2) .or. (k /= n3) .or. (l /= n4)) &
   call WarningMessage(2,'read_4d_complex_array:: sizes of the array are different from the ones used to CALL this SUBROUTINE')
-allocate(rr(n1,n2,n3,n4))
-allocate(ri(n1,n2,n3,n4))
+call mma_allocate(rr,n1,n2,n3,n4,label='rr')
+call mma_allocate(ri,n1,n2,n3,n4,label='ri')
 rr(:,:,:,:) = Zero
 ri(:,:,:,:) = Zero
 do i=1,n1
@@ -3184,17 +3028,9 @@ do i=1,n1
     end do
   end do
 end do
-do i=1,n1
-  do j=1,n2
-    do k=1,n3
-      do l=1,n4
-        array(i,j,k,l) = cmplx(rr(i,j,k,l),ri(i,j,k,l),kind=wp)
-      end do
-    end do
-  end do
-end do
-deallocate(rr)
-deallocate(ri)
+array(:,:,:,:) = cmplx(rr(:,:,:,:),ri(:,:,:,:),kind=wp)
+call mma_deallocate(rr)
+call mma_deallocate(ri)
 
 return
 

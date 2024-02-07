@@ -11,7 +11,7 @@
 
 subroutine read_formatted_aniso_old(input_file_name,nss,nstate,multiplicity,eso,MM,MS,ML)
 
-use Constants, only: Zero, cZero, gElectron
+use Constants, only: gElectron
 use Definitions, only: wp
 
 implicit none
@@ -29,12 +29,6 @@ real(kind=8), parameter :: g_e = -gElectron
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 external :: IsFreeUnit
 
-! set to zero all arrays:
-multiplicity = 0
-eso(:) = Zero
-MM(:,:,:) = cZero
-MS(:,:,:) = cZero
-ML(:,:,:) = cZero
 ! read the file "aniso.input":
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,trim(input_file_name))
@@ -47,42 +41,24 @@ call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
 ! magnetic moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
-  do j1=1,nss
-    do j2=1,nss
-      MM(l,j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
-    end do
-  end do
+  MM(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 
 ! spin moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
-  do j1=1,nss
-    do j2=1,nss
-      MS(l,j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
-    end do
-  end do
+  MS(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 call mma_deallocate(tmpR)
 call mma_deallocate(tmpI)
 
 ! compute the orbital moment
-do l=1,3
-  do j1=1,nss
-    do j2=1,nss
-      ML(l,j1,j2) = -MM(l,j1,j2)-MS(l,j1,j2)*g_e
-    end do
-  end do
-end do
+ML(:,:,:) = -MM(:,:,:)-g_e*MS(:,:,:)
 
 !if (iprint > 4) then
 !  write(u6,'(10a12)') (('------------'),j=1,10)

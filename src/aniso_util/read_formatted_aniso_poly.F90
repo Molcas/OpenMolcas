@@ -11,7 +11,7 @@
 
 subroutine read_formatted_aniso_poly(input_file_name,nss,nstate,nLoc,eso,MM,MS,iReturn)
 
-use Constants, only: Zero, cZero
+use Constants, only: cZero
 use Definitions, only: wp
 
 implicit none
@@ -30,8 +30,7 @@ external :: IsFreeUnit
 
 ! set to zero all arrays:
 iReturn = 0
-multiplicity = 0
-eso(:) = Zero
+multiplicity(:) = 0
 MM(:,:,:) = cZero
 MS(:,:,:) = cZero
 ! read the file "aniso.input":
@@ -46,30 +45,18 @@ call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
 ! magnetic moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
-  do j1=1,nss
-    do j2=1,nss
-      MM(l,j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),kind=wp)
-    end do
-  end do
+  MM(l,1:nss,1:nss) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 
 ! spin moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
-  do j1=1,nss
-    do j2=1,nss
-      MS(l,j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),kind=wp)
-    end do
-  end do
+  MS(l,1:nss,1:nss) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 call mma_deallocate(tmpR)
 call mma_deallocate(tmpI)

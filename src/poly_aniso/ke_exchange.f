@@ -20,7 +20,7 @@ c local variables
       Real(kind=8) :: HEXC1(N1,N1,N2,N2)
       Real(kind=8) :: test1, test2
       Real(kind=8) :: Jfinal(0:7, -5:5, 0:1, -1:1)
-      Real(kind=8) :: WCG ! Clebsh_Gordan Coefficeints
+      Real(kind=8) :: WCG ! Clebsch_Gordan Coefficients
       External      :: WCG
 #include "stdalloc.fh"
 #include "jcoeff.fh"

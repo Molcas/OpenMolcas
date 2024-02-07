@@ -34,21 +34,17 @@ real(kind=8) :: pB, dltw, S2, S1
 real(kind=wp), parameter :: kB = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
                             mB = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
 
-pB = Zero
 Z = Zero
 MT = Zero
-DLTW = Zero
 
 do I=1,N
   pB = exp(-(W(I)-W(1))/kB/T)
   Z = Z+pB
   if (I <= NM) then
     ! case when I <= NM
-    S2 = Zero
     S2 = real(M(L,I,I))
     do J=NM+1,N
       DLTW = W(I)-W(J)
-      S1 = Zero
       S1 = real(M(L,I,J)*conjg(M(1,I,J)))*dX+real(M(L,I,J)*conjg(M(2,I,J)))*dY+real(M(L,I,J)*conjg(M(3,I,J)))*dZ
       S2 = S2-Two*mB*H*S1/DLTW
     end do ! J
@@ -56,9 +52,8 @@ do I=1,N
     ! case when I > NM
     do J=1,N
       DLTW = W(I)-W(J)
-      S1 = Zero
-      S2 = Zero
       S1 = real(M(L,I,J)*conjg(M(1,I,J)))*dX+real(M(L,I,J)*conjg(M(2,I,J)))*dY+real(M(L,I,J)*conjg(M(3,I,J)))*dZ
+      S2 = Zero
 
       if (abs(DLTW) < 1.0e-3_wp) then
         S2 = S2+mB*H*S1/kB/T

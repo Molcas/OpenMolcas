@@ -16,7 +16,7 @@ subroutine barrier(nBlock,dipIn,W,imanifold,NMULT,NDIM,doPLOT,iprint)
 ! projection of M on the quantization axis.
 !  N --  dimension of the barrier
 
-use Constants, only: Zero, One, Three, cZero, cOne
+use Constants, only: Zero, Three, cZero, cOne
 use Definitions, only: u6
 
 implicit none
@@ -33,8 +33,8 @@ real(kind=8) :: mave
 character(len=90) :: string2
 character(len=5) :: s1, s2
 integer, allocatable :: ibas(:,:)                 ! (nmult,nBlock)
-real(kind=8), allocatable :: gtens(:)             ! (3)
-real(kind=8), allocatable :: maxes(:,:), E(:)     ! (3,3), E(nmult)
+real(kind=8) :: gtens(3), maxes(3,3)
+real(kind=8), allocatable :: E(:)                 ! (3,3), E(nmult)
 real(kind=8), allocatable :: wz(:,:)              ! (nmult,nBlock)
 complex(kind=8), allocatable :: dipN(:,:,:)       ! (3,nBlock,nBlock)
 complex(kind=8), allocatable :: dipN3(:,:,:)      ! (3,ndim(imanifold),ndim(imanifold))
@@ -42,24 +42,24 @@ complex(kind=8), allocatable :: CZ(:,:,:)         ! (nmult,nBlock,nBlock)
 complex(kind=8), allocatable :: Ztr(:,:)          ! (nBlock,nBlock)
 complex(kind=8), allocatable :: ML(:,:,:)         ! (3,nBlock,nBlock)
 complex(kind=8), allocatable :: tmp(:,:)          ! (nBlock,nBlock)
-complex(kind=8), allocatable :: MM(:)             ! (3)
+complex(kind=8) :: MM(3)
 complex(kind=8), allocatable :: dipso5(:,:,:,:,:) ! (3,nmult,10,nmult,10)
 !-----------------------------------------------------------------------
 
 if ((nmult > 0) .and. (nBlock > 0)) then
   call mma_allocate(ibas,nmult,nBlock,'ibas')
   call mma_allocate(wz,nmult,nBlock,'wz')
-  call mma_allocate(cz,nmult,nBlock,nBlock,'cz')
-  call icopy(nmult*nBlock,[0],0,ibas,1)
-  call dcopy_(nmult*nBlock,[Zero],0,wz,1)
-  call zcopy_(nmult*nBlock*nBlock,[cZero],0,CZ,1)
+  call mma_allocate(CZ,nmult,nBlock,nBlock,'CZ')
+  ibas(:,:) = 0
+  wz(:,:) = Zero
+  cz(:,:,:) = cZero
 end if
 
 if (nmult > 0) then
   call mma_allocate(E,nmult,'E')
   call mma_allocate(dipso5,3,nmult,10,nmult,10,'dipso5')
-  call dcopy_(nmult,[Zero],0,E,1)
-  call zcopy_(3*nmult*10*nmult*10,[cZero],0,dipso5,1)
+  E(:) = Zero
+  dipso5(:,:,:,:,:) = cZero
 end if
 
 if (nBlock > 0) then
@@ -67,29 +67,23 @@ if (nBlock > 0) then
   call mma_allocate(ML,3,nBlock,nBlock,'ML')
   call mma_allocate(Ztr,nBlock,nBlock,'Ztr')
   call mma_allocate(tmp,nBlock,nBlock,'tmp')
-  call zcopy_(3*nBlock*nBlock,[cZero],0,dipN,1)
-  call zcopy_(3*nBlock*nBlock,[cZero],0,ML,1)
-  call zcopy_(nBlock*nBlock,[cZero],0,Ztr,1)
-  call zcopy_(nBlock*nBlock,[cZero],0,tmp,1)
+  dipN(:,:,:) = cZero
+  ML(:,:,:) = cZero
+  Ztr(:,:) = cZero
+  tmp(:,:) = cZero
 end if
 
 k = nDim(imanifold)
 if (k > 0) then
   call mma_allocate(dipN3,3,k,k,'dipN3')
-  call zcopy_(3*k*k,[cZero],0,dipN3,1)
+  dipN3(:,:,:) = cZero
 end if
 
-call mma_allocate(gtens,3,'gtens')
-call mma_allocate(MM,3,'MM')
-call mma_allocate(maxes,3,3,'maxes')
-call dcopy_(3,[Zero],0,gtens,1)
-call dcopy_(3*3,[Zero],0,maxes,1)
-call zcopy_(3,[cZero],0,MM,1)
+gtens(:) = Zero
+MM(:) = Zero
 
 !-----------------------------------------------------------------------
-do i=1,3
-  maxes(i,i) = One
-end do
+call unitmat(maxes,3)
 ! rotate the magnetic moment to the magnetic axes of the ground multiplet ( NDIM(1) )
 if (ndim(imanifold) <= 1) then
   write(u6,'(a,i2,a)') 'The manifold ',imanifold,' was chosen for determination of the quantization axis.'
@@ -97,13 +91,7 @@ if (ndim(imanifold) <= 1) then
   write(u6,'(a,i1  )') 'size = ',ndim(imanifold)
   write(u6,'(a     )') 'in this case, quantization axis will remain the original Z axis'
 else
-  do i=1,ndim(imanifold)
-    do j=1,ndim(imanifold)
-      do l=1,3
-        dipN3(l,i,j) = dipIn(l,i,j)
-      end do
-    end do
-  end do
+  dipN3(:,1:ndim(imanifold),1:ndim(imanifold)) = dipIn(:,1:ndim(imanifold),1:ndim(imanifold))
   call atens(dipN3,ndim(imanifold),gtens,maxes,1)
 end if
 call rotmom2(dipIn(1:3,1:nBlock,1:nBlock),nBlock,maxes(1:3,1:3),dipN(1:3,1:nBlock,1:nBlock))
@@ -154,7 +142,7 @@ end do
 !-----------------------------------------------------------------------
 ! compute the matrix elements between multiplets
 l = 0
-ibas = 0
+ibas(:,:) = 0
 do i=1,nmult
   do j=1,ndim(i)
     l = l+1
@@ -167,7 +155,6 @@ do il=1,nmult
   if (ndim(il) > maxmult) maxmult = ndim(il)
 end do
 ! build the transformation matrix Z(nBlock,nBlock)
-call zcopy_(nBlock*nBlock,[cZero],0,ZTR,1)
 do iMult=1,nmult
   do j1=1,ndim(iMult)
     do j2=1,ndim(iMult)
@@ -178,9 +165,7 @@ do iMult=1,nmult
   end do
 end do
 
-call zcopy_(3*nBlock*nBlock,[cZero],0,ML,1)
 do L=1,3
-  call zcopy_(nBlock*nBlock,[cZero],0,TMP,1)
   call ZGEMM_('C','N',nBlock,nBlock,nBlock,cOne,Ztr,nBlock,dipN(L,:,:),nBlock,cZero,TMP,nBlock)
   call ZGEMM_('N','N',nBlock,nBlock,nBlock,cOne,TMP,nBlock,Ztr,nBlock,cZero,ML(L,:,:),nBlock)
 end do !L
@@ -200,7 +185,6 @@ if (iprint > 2) then
   end do
 end if
 
-call zcopy_(3*nmult*10*nmult*10,[cZero],0,DIPSO5,1)
 do l=1,3
   do i1=1,nmult
     do j1=1,ndim(i1)
@@ -250,7 +234,6 @@ if (i > 1) ipar = ipar/(i-1)
 
 Ifunct = 0
 do il=1,nmult
-  E(il) = Zero
   do i=1,ndim(il)
     E(il) = E(il)+W(Ifunct+i)/ndim(il)
   end do
@@ -644,10 +627,6 @@ end if
 
 k = nDim(imanifold)
 if (k > 0) call mma_deallocate(dipN3)
-
-call mma_deallocate(gtens)
-call mma_deallocate(MM)
-call mma_deallocate(maxes)
 
 return
 

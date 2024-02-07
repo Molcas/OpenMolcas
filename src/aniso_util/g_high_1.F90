@@ -64,12 +64,7 @@ call mma_allocate(SP_DIPW,3,'SP_DIPW')
 !-----------------------------------------------------------------------
 call atens(dipsom,dim,gtens,maxes,2)
 ! save data for construction of the blocking barriers
-!do i=1,3
-!  do j=1,3
-!    axes(iMLTPL,i,j) = Zero
-!    axes(iMLTPL,i,j) = maxes(i,j)
-!  end do
-!end do
+!axes(iMLTPL,:,:) = maxes(:,:)
 ! compute the magnetic axes in the crystalographic coordinate system, If requested:
 if (do_structure_abc) then
   axes_in_abc(:,:) = Zero
@@ -99,27 +94,18 @@ if (iprint > 2) then
   call prMom('G_HIGH_1:   S_SO2(l,i,j):',s_so2,dim)
 end if
 
-call zcopy_(dim*dim,[cZero],0,ZOUT,1)
-call zcopy_(3*dim*dim,[cZero],0,AMS,1)
-call zcopy_(3*dim*dim,[cZero],0,AMSSPIN,1)
-call zcopy_(dim*3*dim*dim,[cZero],0,HCF2,1)
+ZOUT(:,:) = cZero
+AMS(:,:,:) = cZero
+AMSSPIN(:,:,:) = cZero
+HCF2(:,:,:,:) = cZero
 
 call mu_order(dim,s_so2,dipso2,gtens,1,HCF2,AMS,AMSSPIN,ZOUT,iprint)
 
 check_sgn = cZero
 check_sgn2 = Zero
-mux(:,:) = cZero
-muy(:,:) = cZero
-muz(:,:) = cZero
-muxz(:,:) = cZero
-muzx(:,:) = cZero
-do i=1,dim
-  do j=1,dim
-    mux(i,j) = HCF2(1,1,i,j)
-    muy(i,j) = HCF2(1,2,i,j)
-    muz(i,j) = HCF2(1,3,i,j)
-  end do
-end do
+mux(:,:) = HCF2(1,1,:,:)
+muy(:,:) = HCF2(1,2,:,:)
+muz(:,:) = HCF2(1,3,:,:)
 call ZGEMM_('N','N',dim,dim,dim,cOne,mux,dim,muz,dim,cZero,muxz,dim)
 call ZGEMM_('N','N',dim,dim,dim,cOne,muz,dim,mux,dim,cZero,muzx,dim)
 
@@ -146,8 +132,8 @@ end if
 B(1:3,1:dim,-dim:dim) = cZero
 do N=1,dim-1,2
   do M=0,N
-    call zcopy_(dim*dim,[cZero],0,DIP_O,1)
-    call zcopy_(dim*dim,[cZero],0,DIP_W,1)
+    DIP_O(:,:) = cZero
+    DIP_W(:,:) = cZero
 
     call Stewens_matrixel(N,M,dim,DIP_O,DIP_W,IPRINT)
 
@@ -172,8 +158,8 @@ do N=1,dim-1,2
     SP_MOW = cZero
     SP_MOW = trace(dim,DIP_O,DIP_W)
     do l=1,3
-      SP_DIPO(l) = trace(dim,AMS(l,1:dim,1:dim),DIP_O)
-      SP_DIPW(l) = trace(dim,AMS(l,1:dim,1:dim),DIP_W)
+      SP_DIPO(l) = trace(dim,AMS(l,:,:),DIP_O)
+      SP_DIPW(l) = trace(dim,AMS(l,:,:),DIP_W)
 
       B(l,n,-m) = SP_DIPO(l)/SP_MOW
       B(l,n,m) = SP_DIPW(l)/SP_MOW
@@ -181,8 +167,8 @@ do N=1,dim-1,2
   end do !m
 end do !n
 
-BNMC(1:3,1:dim,0:dim) = cZero
-BNMS(1:3,1:dim,0:dim) = cZero
+BNMC(1:3,:,:) = cZero
+BNMS(1:3,:,:) = cZero
 do n=1,dim-1,2
   do m=0,N
     do l=1,3
@@ -281,17 +267,11 @@ write(u6,'(100A)') ('-',i=1,51),'|'
 
 ! Calculation of the ZFS tensors and the coefficients of the higher order spin-operators Enm and Fnm
 if (dim > 2) then
-  ESUM = Zero
-  do I=1,dim
-    ELOC(i) = Zero
-    ESUM = ESUM+ESOM(I)
-  end do
-  E0 = ESUM/real(dim)
-  do I=1,dim
-    ELOC(I) = ESOM(I)-E0
-  end do
+  ESUM = sum(ESOM(:))
+  E0 = ESUM/real(dim,kind=wp)
+  ELOC(:) = ESOM(:)-E0
 
-  call zcopy_(dim*dim,[cZero],0,HZFS,1)
+  HZFS(:,:) = cZero
   do i1=1,dim
     do i2=1,dim
       do i=1,dim
@@ -339,11 +319,11 @@ if (dim > 2) then
   C(1:dim,-dim:dim) = cZero
   do N=2,dim-1,2
     do M=0,N
-      call zcopy_(dim*dim,[cZero],0,DIP_O,1)
-      call zcopy_(dim*dim,[cZero],0,DIP_W,1)
-      call zcopy_(dim*dim,[cZero],0,HZFS_MONM,1)
-      call zcopy_(dim*dim,[cZero],0,HZFS_MWNM,1)
-      call zcopy_(dim*dim,[cZero],0,DIP_MOW,1)
+      DIP_O(:,:) = cZero
+      DIP_W(:,:) = cZero
+      HZFS_MONM(:,:) = cZero
+      HZFS_MWNM(:,:) = cZero
+      DIP_MOW(:,:) = cZero
 
       call Stewens_matrixel(N,M,dim,DIP_O,DIP_W,IPRINT)
 
@@ -401,8 +381,8 @@ if (dim > 2) then
     end do !M
   end do !N
 
-  CNMC(1:dim,0:dim) = cZero
-  CNMS(1:dim,0:dim) = cZero
+  CNMC(:,:) = cZero
+  CNMS(:,:) = cZero
   do N=2,dim-1,2
     do M=0,N
       if (M == 0) then
@@ -489,11 +469,9 @@ if (dim > 2) then
     close(LuDgrad)
   end if
   !-----------------------------
-!
-  do i=0,2
-    ES(i) = CNMC(2,i)
-    FS(i) = CNMS(2,i)
-  end do
+
+  ES(:) = CNMC(2,0:2)
+  FS(:) = CNMS(2,0:2)
   call DMATRIX(Es,Fs,maxes,2)
 end if ! decomposition of ZFS in higher-order ITO operators
 

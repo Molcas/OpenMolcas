@@ -72,9 +72,7 @@ if (n < exch) then
     do j=n+1,exch
       i1 = i-n
       j1 = j-n
-      do l=1,3
-        mtmp(l,i1,j1) = m(l,i,j)
-      end do
+      mtmp(:,i1,j1) = m(:,i,j)
     end do
   end do
 end if
@@ -99,13 +97,7 @@ else
         m(l,j,i) = conjg(tmp(i,j))
       end do
     end do
-    do i=n+1,exch
-      do j=n+1,exch
-        i1 = i-n
-        j1 = j-n
-        m(l,i,j) = mtmp(l,i1,j1)
-      end do
-    end do
+    m(l,n+1:exch,n+1:exch) = mtmp(l,1:exch-n,1:exch-n)
   end do !l
 end if !n == exch
 

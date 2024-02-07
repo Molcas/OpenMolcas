@@ -20,24 +20,19 @@ complex(kind=8), intent(in) :: MOM(3,N,N) !initial momentum matrix
 ! rotated momentum matrix
 complex(kind=8), intent(out) :: MOMR(3,N,N)
 ! local variables
-integer i, j, l, k
+integer i, j, k
 complex(kind=8) :: RC(3,3)
 
 ! rotate the matrix
-call zcopy_(3*N*N,[cZero],0,MOMR,1)
 
-do l=1,3
-  do k=1,3
-    RC(l,k) = R(l,k)*cOne
-  end do
-end do
+MOMR(:,:,:) = cZero
+
+RC(:,:) = R(:,:)*cOne
 
 do i=1,N
   do j=1,N
-    do l=1,3
-      do k=1,3
-        MOMR(l,i,j) = MOMR(l,i,j)+RC(k,l)*MOM(k,i,j)
-      end do
+    do k=1,3
+      MOMR(:,i,j) = MOMR(:,i,j)+RC(k,:)*MOM(k,i,j)
     end do
   end do
 end do

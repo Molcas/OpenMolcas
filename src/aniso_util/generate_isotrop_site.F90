@@ -36,7 +36,8 @@ complex(kind=8), allocatable :: HZFS(:,:), S2(:,:), Wc(:,:)
 complex(kind=8), allocatable :: SX2(:,:), SY2(:,:), SZ2(:,:)
 complex(kind=8), allocatable :: Z(:,:), tmp(:,:)
 complex(kind=8), allocatable :: MTMP(:,:,:), STMP(:,:,:)
-real(kind=8), allocatable :: W(:), gtens(:), maxes(:,:)
+real(kind=8), allocatable :: W(:)
+real(kind=8) :: gtens(3), maxes(3,3)
 real(kind=8) :: dznrm2_, RM, RS, dnrm2_
 real(kind=8) :: g(3), ma(3,3)
 external :: spin, dznrm2_, dnrm2_
@@ -57,22 +58,18 @@ if (dbg) then
   write(u6,*) 'GENERATE_SITE:  riso  = ',((riso(i,j),i=1,3),j=1,3)
 end if
 
-do i=1,nExch
-  E(i) = Zero
-end do
-
-call zcopy_(3*nExch*nExch,[cZero],0,S,1)
-call zcopy_(3*nExch*nExch,[cZero],0,M,1)
+E(:) = Zero
+S(:,:,:) = cZero
+M(:,:,:) = cZero
 
 if (nss >= 2) then
   call mma_allocate(Wc,nss,nss,'Wc')
-  call ESO(nss,1,1,S(1,1:nss,1:nss),S(2,1:nss,1:nss),redME)
-  call ESO(nss,1,0,S(3,1:nss,1:nss),Wc(1:nss,1:nss),redME)
+  call ESO(nss,1,1,S(1,:,:),S(2,:,:),redME)
+  call ESO(nss,1,0,S(3,:,:),Wc,redME)
   call mma_deallocate(Wc)
-  call zcopy_(3*nss*nss,S,1,M,1)
-  call zdscal_(nss*nss,-gtens_input(1),M(1,1:nss,1:nss),1)
-  call zdscal_(nss*nss,-gtens_input(2),M(2,1:nss,1:nss),1)
-  call zdscal_(nss*nss,-gtens_input(3),M(3,1:nss,1:nss),1)
+  M(1,:,:) = -gtens_input(1)*S(1,:,:)
+  M(2,:,:) = -gtens_input(2)*S(2,:,:)
+  M(3,:,:) = -gtens_input(3)*S(3,:,:)
 
   if (dbg) then
     call prmom('GENERATE_SITE:     SPIN MOMENT:',S,nss)
@@ -90,30 +87,19 @@ if (nss >= 2) then
     call mma_allocate(Z,nExch,nExch,'Z')
     call mma_allocate(tmp,nExch,nExch,'tmp')
 
-    call zcopy_(3*nExch*nExch,[cZero],0,MTMP,1)
-    call zcopy_(3*nExch*nExch,[cZero],0,STMP,1)
-
-    call zcopy_(3*nExch*nExch,M,1,MTMP,1)
-    call zcopy_(3*nExch*nExch,S,1,STMP,1)
-    call zcopy_(3*nExch*nExch,[cZero],0,M,1)
-    call zcopy_(3*nExch*nExch,[cZero],0,S,1)
-    call zcopy_(nExch*nExch,[cZero],0,Z,1)
+    MTMP(:,:,:) = M(:,:,:)
+    STMP(:,:,:) = S(:,:,:)
+    Z(:,:) = Zero
 
     if (dbg) write(u6,'(A,ES20.10)') 'GENERATE_SITE: Norm of riso:',dnrm2_(9,riso,1)
 
-    call zcopy_(3*nExch*nExch,MTMP,1,M,1)
-    call zcopy_(3*nExch*nExch,STMP,1,S,1)
     call rotmom(STMP,nExch,riso,S)
     call rotmom(MTMP,nExch,riso,M)
 
     if (dbg) then
-      call mma_allocate(gtens,3,'gtens')
-      call mma_allocate(maxes,3,3,'maxes')
-      call dcopy_(3,[Zero],0,gtens,1)
-      call dcopy_(3*3,[Zero],0,maxes,1)
+      gtens(:) = Zero
+      maxes(:,:) = Zero
       call atens(M,nExch,gtens,maxes,2)
-      call mma_deallocate(gtens)
-      call mma_deallocate(maxes)
     end if
 
     if (abs(D) > Zero) then
@@ -125,12 +111,7 @@ if (nss >= 2) then
       call mma_allocate(S2,nExch,nExch,'S2')
       call mma_allocate(W,nExch,'W')
 
-      call zcopy_(nExch*nExch,[cZero],0,HZFS,1)
-      call zcopy_(nExch*nExch,[cZero],0,SX2,1)
-      call zcopy_(nExch*nExch,[cZero],0,SY2,1)
-      call zcopy_(nExch*nExch,[cZero],0,SZ2,1)
-      call zcopy_(nExch*nExch,[cZero],0,S2,1)
-      call dcopy_(nExch,[Zero],0,W,1)
+      W(:) = Zero
 
       call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,S(1,:,:),nEXCH,S(1,:,:),nEXCH,cZero,SX2,nEXCH)
       call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,S(2,:,:),nEXCH,S(2,:,:),nEXCH,cZero,SY2,nEXCH)
@@ -152,9 +133,7 @@ if (nss >= 2) then
       info = 0
       call diag_c2(HZFS,nExch,info,W,Z)
 
-      do i=1,nExch
-        E(i) = W(i)-W(1)
-      end do
+      E(:) = W(:)-W(1)
       if (dbg) then
         do i=1,nExch
           write(u6,'(A,i2,A,F14.8)') 'ZFS  E(',i,') = ',E(i)
@@ -163,14 +142,10 @@ if (nss >= 2) then
       ! rotate the spin and magnetic moment:
 
       do L=1,3
-        call zcopy_(nexch*nexch,[cZero],0,TMP,1)
         call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,Z,nEXCH,M(L,:,:),nEXCH,cZero,TMP,nEXCH)
-        call zcopy_(nexch*nexch,[cZero],0,M(L,:,:),1)
         call zgemm_('N','N',nEXCH,nEXCH,nEXCH,cOne,TMP,nEXCH,Z,nEXCH,cZero,M(L,:,:),nEXCH)
 
-        call zcopy_(nexch*nexch,[cZero],0,TMP,1)
         call zgemm_('C','N',nEXCH,nEXCH,nEXCH,cOne,Z,nEXCH,S(L,:,:),nEXCH,cZero,TMP,nEXCH)
-        call zcopy_(nexch*nexch,[cZero],0,S(L,:,:),1)
         call zgemm_('N','N',nEXCH,nEXCH,nEXCH,cOne,TMP,nEXCH,Z,nEXCH,cZero,S(L,:,:),nEXCH)
       end do  ! L
 

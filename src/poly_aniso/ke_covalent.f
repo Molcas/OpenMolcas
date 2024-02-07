@@ -14,7 +14,7 @@ c this function computes the covalent CF Hamiltonian ofr a given Lanthanide
       Integer, parameter        :: wp=kind(0.d0)
       Integer N,OPT,lant
       Real(kind=8) ::  t,u
-      Real(kind=8) ::  WCG ! Clebsh_Gordan Coefficeints
+      Real(kind=8) ::  WCG ! Clebsch_Gordan Coefficients
       Complex(kind=8) ::  HCOV(N,N)
 c local variables
       Integer i,j,JLn,ms1,ns1

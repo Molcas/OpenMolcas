@@ -11,7 +11,7 @@
 
 subroutine read_binary_aniso(nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,angmom,edmom,amfi,HSO)
 
-use Constants, only: Zero, cZero, gElectron
+use Constants, only: gElectron
 use Definitions, only: wp
 
 implicit none
@@ -27,25 +27,12 @@ complex(kind=8) :: U(nss,nss)
 complex(kind=8) :: HSO(nss,nss)
 ! local variables:
 #include "stdalloc.fh"
-integer :: i, j, l
+integer :: l
 integer :: luaniso, idisk, idum(1)
 real(kind=8), parameter :: g_e = -gElectron
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
 
 ! initialize:
-multiplicity = 0
-eso(:) = Zero
-esfs(:) = Zero
-angmom(:,:,:) = Zero
-edmom(:,:,:) = Zero
-amfi(:,:,:) = Zero
-U(:,:) = cZero
-MS(:,:,:) = cZero
-ML(:,:,:) = cZero
-MM(:,:,:) = cZero
-DM(:,:,:) = cZero
-HSO(:,:) = cZero
-luaniso = 8
 idisk = 0
 ! get the information from binary "$project.aniso" file:
 call daname(luaniso,'POLYFILE')
@@ -62,26 +49,14 @@ call ddafile(luaniso,2,eso,nss,idisk)
 call ddafile(luaniso,2,esfs,nstate,idisk)
 
 ! spin-orbit mixing coefficients:
-tmpR(:,:) = Zero
-tmpI(:,:) = Zero
 call ddafile(luaniso,2,tmpR,nss**2,idisk)
 call ddafile(luaniso,2,tmpI,nss**2,idisk)
-do i=1,nss
-  do j=1,nss
-    U(i,j) = cmplx(tmpR(i,j),tmpI(i,j),wp)
-  end do
-end do
+U(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 
 ! spin-orbit Hamiltonian
-tmpR(:,:) = Zero
-tmpI(:,:) = Zero
 call ddafile(luaniso,2,tmpR,nss**2,idisk)
 call ddafile(luaniso,2,tmpI,nss**2,idisk)
-do i=1,nss
-  do j=1,nss
-    HSO(i,j) = cmplx(tmpR(i,j),tmpI(i,j),wp)
-  end do
-end do
+HSO(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 
 ! angmom
 call ddafile(luaniso,3,angmom,3*nstate*nstate,idisk)
@@ -92,49 +67,25 @@ call ddafile(luaniso,3,amfi,3*nstate*nstate,idisk)
 
 ! magnetic moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   call ddafile(luaniso,2,tmpR,nss**2,idisk)
   call ddafile(luaniso,2,tmpI,nss**2,idisk)
-  do i=1,nss
-    do j=1,nss
-      MM(l,i,j) = cmplx(tmpR(i,j),tmpI(i,j),wp)
-    end do
-  end do
+  MM(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 
 ! spin moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   call ddafile(luaniso,2,tmpR,nss**2,idisk)
   call ddafile(luaniso,2,tmpI,nss**2,idisk)
-  do i=1,nss
-    do j=1,nss
-      MS(l,i,j) = cmplx(tmpR(i,j),tmpI(i,j),wp)
-    end do
-  end do
+  MS(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 ! generate magnetic moment on the fly:
-do l=1,3
-  do i=1,nss
-    do j=1,nss
-      ML(l,i,j) = -MM(l,i,j)-g_e*MS(l,i,j)
-    end do
-  end do
-end do
+ML(:,:,:) = -MM(:,:,:)-g_e*MS(:,:,:)
 
 ! electric dipole moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   call ddafile(luaniso,2,tmpR,nss**2,idisk)
   call ddafile(luaniso,2,tmpI,nss**2,idisk)
-  do i=1,nss
-    do j=1,nss
-      DM(l,i,j) = cmplx(tmpR(i,j),tmpI(i,j),wp)
-    end do
-  end do
+  DM(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 
 call mma_deallocate(tmpR)

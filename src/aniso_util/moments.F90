@@ -12,7 +12,7 @@
 subroutine moments(N,MS,MM,iprint)
 
 use Constants, only: cZero, gElectron
-use Definitions, only: wp, u6
+use Definitions, only: u6
 
 implicit none
 #include "stdalloc.fh"
@@ -24,7 +24,7 @@ complex(kind=8), allocatable :: Z(:,:) ! N,N
 complex(kind=8), allocatable :: AMS(:,:,:)
 complex(kind=8), allocatable :: AML(:,:,:)
 complex(kind=8), allocatable :: AMM(:,:,:) !(3,N,N),
-complex(kind=8), allocatable :: Mf(:,:), Sf(:,:), Lf(:,:) !(3,3)
+complex(kind=8) :: Mf(3,3), Sf(3,3), Lf(3,3)
 !-----------------------------------------------------------------------
 
 if (N < 1) return
@@ -32,18 +32,12 @@ call mma_allocate(Z,N,N,'Z')
 call mma_allocate(AMS,3,N,N,'AMS')
 call mma_allocate(AML,3,N,N,'AML')
 call mma_allocate(AMM,3,N,N,'AMM')
-call mma_allocate(Mf,3,3,'Mf')
-call mma_allocate(Sf,3,3,'Sf')
-call mma_allocate(Lf,3,3,'Lf')
 !-----------------------------------------------------------------------
-call zcopy_(3*3,[cZero],0,Lf,1)
-call zcopy_(3*3,[cZero],0,Mf,1)
-call zcopy_(3*3,[cZero],0,Sf,1)
 do iDir=1,3
-  call zcopy_(N*N,[cZero],0,Z,1)
-  call zcopy_(3*N*N,[cZero],0,AMM,1)
-  call zcopy_(3*N*N,[cZero],0,AML,1)
-  call zcopy_(3*N*N,[cZero],0,AMS,1)
+  Z(:,:) = cZero
+  AMM(:,:,:) = cZero
+  AML(:,:,:) = cZero
+  AMS(:,:,:) = cZero
 
   call pseudospin(MM,N,Z,iDir,1,1)
 
@@ -59,10 +53,10 @@ do iDir=1,3
         AML(l,i,j) = -AMM(l,i,j)-g_e*AMS(l,i,j)
       end do
     end do
-    Mf(iDir,l) = AMM(l,1,1)
-    Sf(iDir,l) = AMS(l,1,1)
-    Lf(iDir,l) = AML(l,1,1)
   end do
+  Mf(iDir,:) = AMM(:,1,1)
+  Sf(iDir,:) = AMS(:,1,1)
+  Lf(iDir,:) = AML(:,1,1)
 
   if (iprint > 3) then
     write(u6,*)
@@ -115,9 +109,6 @@ call mma_deallocate(Z)
 call mma_deallocate(AMS)
 call mma_deallocate(AML)
 call mma_deallocate(AMM)
-call mma_deallocate(Mf)
-call mma_deallocate(Sf)
-call mma_deallocate(Lf)
 
 return
 

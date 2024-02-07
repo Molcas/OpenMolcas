@@ -23,7 +23,8 @@ integer :: i
 
 real_1_trace2 = Zero
 do i=1,n
-  real_1_trace2 = real_1_trace2+A(i,i)/real(n,kind=wp)
+  real_1_trace2 = real_1_trace2+A(i,i)
 end do
+real_1_trace2 = real_1_trace2/real(n,kind=wp)
 
 end function real_1_trace2

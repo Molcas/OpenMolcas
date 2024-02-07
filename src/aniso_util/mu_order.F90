@@ -12,7 +12,7 @@
 subroutine mu_order(dim,MS,MM,gtens,order,HCF2,AMM,AMS,Z,iprint)
 ! This Subroutine receives the moment matrix dipso(3,dim,dim) and Returns the matrix re-builted using only the 1-st order operators.
 
-use Constants, only: Zero, One, Half, cZero, Onei
+use Constants, only: One, Half, cZero, Onei
 use Definitions, only: u6
 
 implicit none
@@ -42,14 +42,12 @@ call pseudospin(MM,dim,Z,3,1,iprint)
 ! re-write MM and MS to the new pseudospin basis:
 AMS(:,:,:) = cZero
 AMM(:,:,:) = cZero
-do l=1,3
-  do i=1,dim
-    do j=1,dim
-      do i1=1,dim
-        do i2=1,dim
-          AMM(l,i,j) = AMM(l,i,j)+MM(l,i1,i2)*conjg(Z(i1,i))*Z(i2,j)
-          AMS(l,i,j) = AMS(l,i,j)+MS(l,i1,i2)*conjg(Z(i1,i))*Z(i2,j)
-        end do
+do i=1,dim
+  do j=1,dim
+    do i1=1,dim
+      do i2=1,dim
+        AMM(:,i,j) = AMM(:,i,j)+MM(:,i1,i2)*conjg(Z(i1,i))*Z(i2,j)
+        AMS(:,i,j) = AMS(:,i,j)+MS(:,i1,i2)*conjg(Z(i1,i))*Z(i2,j)
       end do
     end do
   end do
@@ -85,8 +83,8 @@ do N=1,dim-1
     SP_DIPW(:) = czero
     SP_MOW = trace(dim,DIP_O,DIP_W)
     do l=1,3
-      SP_DIPO(l) = trace(dim,AMS(l,1:dim,1:dim),DIP_O(1:dim,1:dim))
-      SP_DIPW(l) = trace(dim,AMS(l,1:dim,1:dim),DIP_W(1:dim,1:dim))
+      SP_DIPO(l) = trace(dim,AMS(l,:,:),DIP_O)
+      SP_DIPW(l) = trace(dim,AMS(l,:,:),DIP_W)
 
       B(l,n,-m) = SP_DIPO(l)/SP_MOW
       B(l,n,m) = SP_DIPW(l)/SP_MOW
@@ -94,19 +92,12 @@ do N=1,dim-1
   end do ! m
 end do ! n
 
-BNMC(:,:,:) = cZero
-BNMS(:,:,:) = cZero
 do n=1,dim-1
-  do m=0,N
-    do l=1,3
-      if (M == 0) then
-        BNMC(l,n,m) = Half*(B(l,n,m)+B(l,n,-m))
-      else
-        m_fact = (-One)**M
-        BNMC(l,n,m) = B(l,n,m)+m_fact*B(l,n,-m)
-        BNMS(l,n,m) = -Onei*(B(l,n,m)-m_fact*B(l,n,-m))
-      end if
-    end do
+  BNMC(:,n,0) = B(:,n,0)
+  do m=1,N
+    m_fact = (-One)**M
+    BNMC(:,n,m) = B(:,n,m)+m_fact*B(:,n,-m)
+    BNMS(:,n,m) = -Onei*(B(:,n,m)-m_fact*B(:,n,-m))
   end do
 end do !n
 
@@ -166,8 +157,6 @@ if (iprint > 2) then
   end do
 end if
 
-gtens(:) = Zero
-maxes(:,:) = Zero
 call ATENS(HCF2(order,:,:,:),dim,gtens,maxes,1)
 
 return

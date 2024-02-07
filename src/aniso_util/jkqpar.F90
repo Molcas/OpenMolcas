@@ -11,7 +11,7 @@
 
 subroutine JKQPar(N1,N2,HEXCH,Jpar)
 
-use Constants, only: Zero, cZero, cOne, Onei
+use Constants, only: cZero, cOne, Onei
 use Definitions, only: wp, u6
 
 implicit none
@@ -20,9 +20,9 @@ integer, intent(in) :: N1, N2
 complex(kind=8), intent(in) :: HEXCH(N1,N1,N2,N2)
 complex(kind=8), intent(out) :: Jpar(N1-1,-(N1-1):N1-1,N2-1,-(N2-1):N2-1)
 ! local variables
-integer :: k1, k2, q1, q2, ipr, i1, i2, j1, j2, i
+integer :: k1, k2, q1, q2, ipr, i2, j2, i
 real(kind=8) :: F, THRS, R, knm(12,0:12)
-complex(kind=8) :: F1, F2, F12, CI
+complex(kind=8) :: F1, F2, F12
 complex(kind=8) :: trace_exch, trace, fact
 complex(kind=8), allocatable :: O1(:,:), W1(:,:)
 complex(kind=8), allocatable :: O2(:,:), W2(:,:)
@@ -39,7 +39,6 @@ logical :: DBG
 !real(kind=8) :: cm_to_MHz
 !-----------------------------------------------------------------------
 
-knm(:,:) = Zero
 call Set_knm(knm)
 call mma_allocate(O1,N1,N1,'O1')
 call mma_allocate(O2,N2,N2,'O2')
@@ -68,10 +67,10 @@ do k1=1,N1-1
     do k2=1,N2-1
       do q2=0,k2
 
-        call zcopy_(N1*N1,[cZero],0,O1,1)
-        call zcopy_(N2*N2,[cZero],0,O2,1)
-        call zcopy_(N1*N1,[cZero],0,W1,1)
-        call zcopy_(N2*N2,[cZero],0,W2,1)
+        O1(:,:) = cZero
+        O2(:,:) = cZero
+        W1(:,:) = cZero
+        W2(:,:) = cZero
         ! get the ITOs for each site:
         call Stewens_matrixel(k1,q1,N1,O1,W1,ipr)
         call Stewens_matrixel(k2,q2,N2,O2,W2,ipr)
@@ -118,20 +117,12 @@ do k1=1,N1-1
         ! O1-W2
         ! W1-O2
         ! W1-W2
-        call zcopy_(N1*N1*N2*N2,[cZero],0,O1_O2,1)
-        call zcopy_(N1*N1*N2*N2,[cZero],0,O1_W2,1)
-        call zcopy_(N1*N1*N2*N2,[cZero],0,W1_O2,1)
-        call zcopy_(N1*N1*N2*N2,[cZero],0,W1_W2,1)
-        do i1=1,N1
-          do j1=1,N1
-            do i2=1,N2
-              do j2=1,N2
-                O1_O2(i1,j1,i2,j2) = O1(i1,j1)*O2(i2,j2)
-                O1_W2(i1,j1,i2,j2) = O1(i1,j1)*W2(i2,j2)
-                W1_O2(i1,j1,i2,j2) = W1(i1,j1)*O2(i2,j2)
-                W1_W2(i1,j1,i2,j2) = W1(i1,j1)*W2(i2,j2)
-              end do
-            end do
+        do i2=1,N2
+          do j2=1,N2
+            O1_O2(:,:,i2,j2) = O1(:,:)*O2(i2,j2)
+            O1_W2(:,:,i2,j2) = O1(:,:)*W2(i2,j2)
+            W1_O2(:,:,i2,j2) = W1(:,:)*O2(i2,j2)
+            W1_W2(:,:,i2,j2) = W1(:,:)*W2(i2,j2)
           end do
         end do
 
@@ -203,15 +194,14 @@ do k1=1,N1-1
         F1 = (-cOne)**(-q1)
         F2 = (-cOne)**(-q2)
         F12 = (-cOne)**(-q1-q2)
-        CI = -Onei
 
         Jcc(k1,q1,k2,q2) = Jpar(k1,q1,k2,q2)+F2*Jpar(k1,q1,k2,-q2)+F1*Jpar(k1,-q1,k2,q2)+F12*Jpar(k1,-q1,k2,-q2)
 
         Jss(k1,q1,k2,q2) = Jpar(k1,q1,k2,q2)-F2*Jpar(k1,q1,k2,-q2)-F1*Jpar(k1,-q1,k2,q2)+F12*Jpar(k1,-q1,k2,-q2)
 
-        Jcs(k1,q1,k2,q2) = (Jpar(k1,q1,k2,q2)-F2*Jpar(k1,q1,k2,-q2)+F1*Jpar(k1,-q1,k2,q2)-F12*Jpar(k1,-q1,k2,-q2))*CI
+        Jcs(k1,q1,k2,q2) = -Onei*(Jpar(k1,q1,k2,q2)-F2*Jpar(k1,q1,k2,-q2)+F1*Jpar(k1,-q1,k2,q2)-F12*Jpar(k1,-q1,k2,-q2))
 
-        Jsc(k1,q1,k2,q2) = (Jpar(k1,q1,k2,q2)+F2*Jpar(k1,q1,k2,-q2)-F1*Jpar(k1,-q1,k2,q2)-F12*Jpar(k1,-q1,k2,-q2))*CI
+        Jsc(k1,q1,k2,q2) = -Onei*(Jpar(k1,q1,k2,q2)+F2*Jpar(k1,q1,k2,-q2)-F1*Jpar(k1,-q1,k2,q2)-F12*Jpar(k1,-q1,k2,-q2))
 
         if (DBG) then
           if (abs(Jcc(k1,q1,k2,q2)) > 0.5e-13_wp) &

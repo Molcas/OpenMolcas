@@ -23,33 +23,24 @@ complex(kind=8), intent(in) :: matrix(n,n)
 complex(kind=8), intent(out) :: z(n,n)
 real(kind=8), intent(out) :: w(n)
 ! local variables:
-real(kind=8), allocatable :: rwork(:) !rwork(3*n-2)
-real(kind=8), allocatable :: w1(:)    !w1(n)
+real(kind=8), allocatable :: rwork(:)    !rwork(3*n-2)
 complex(kind=8), allocatable :: ap(:)    !ap(n*(n+1)/2)
 complex(kind=8), allocatable :: work(:)  !work(2*n-1)
-complex(kind=8), allocatable :: z1(:,:)  !z1(n,n)
 real(kind=8), external :: dznrm2_
 real(kind=8) :: RM
 
 info = 0
-call zcopy_(N*N,[cZero],0,Z,1)
-call dcopy_(N,[Zero],0,W,1)
+W(:) = Zero
+Z(:,:) = cZero
 
-RM = Zero
 RM = dznrm2_(n*n,matrix,1)
 
 if (RM > Zero) then
-  call mma_allocate(ap,(n*(n+1)/2),'ap')
-  call mma_allocate(work,(2*n-1),'work')
-  call mma_allocate(z1,n,n,'work')
-  call zcopy_(N*(N+1)/2,[cZero],0,AP,1)
-  call zcopy_(2*N-1,[cZero],0,work,1)
-  call zcopy_(N*N,[cZero],0,Z1,1)
-
-  call mma_allocate(rwork,(3*n-2),'rwork')
-  call mma_allocate(w1,n,'w1')
-  call dcopy_(3*N-2,[Zero],0,rwork,1)
-  call dcopy_(N,[Zero],0,W1,1)
+  call mma_allocate(ap,n*(n+1)/2,'ap')
+  call mma_allocate(work,2*n-1,'work')
+  call mma_allocate(rwork,3*n-2,'rwork')
+  work(:) = cZero
+  rwork(:) = Zero
 
   do j=1,n
     do i=1,j
@@ -57,20 +48,14 @@ if (RM > Zero) then
     end do
   end do
   ! diagonalize:
-  call zhpev_('v','u',n,ap,w1,z1,n,work,rwork,info)
-  ! save results:
-  call dcopy_(N,W1,1,W,1)
-  call zcopy_(N*N,Z1,1,Z,1)
+  call zhpev_('v','u',n,ap,w,z,n,work,rwork,info)
 
   call mma_deallocate(rwork)
-  call mma_deallocate(w1)
   call mma_deallocate(ap)
   call mma_deallocate(work)
-  call mma_deallocate(z1)
 else
   ! return dummy results:
   do i=1,n
-    w(i) = Zero
     z(i,i) = cOne
   end do
 end if

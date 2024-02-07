@@ -12,6 +12,7 @@
 complex*16 function complex_1_trace2(n,A)
 
 use Constants, only: Zero, cOne
+use Definitions, only: wp
 
 implicit none
 ! size of the square matrices A(n,n)
@@ -19,12 +20,11 @@ integer, intent(in) :: n
 complex(kind=8), intent(in) :: A(n,n)
 ! local variables
 integer :: i
-complex(kind=8) :: FACT
 
 complex_1_trace2 = Zero
-FACT = n*cOne
 do i=1,n
-  complex_1_trace2 = complex_1_trace2+A(i,i)/FACT
+  complex_1_trace2 = complex_1_trace2+A(i,i)
 end do
+complex_1_trace2 = complex_1_trace2/(real(n,kind=wp)*cOne)
 
 end function complex_1_trace2

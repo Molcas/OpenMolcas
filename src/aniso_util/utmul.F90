@@ -84,7 +84,6 @@ if (N == EXCH) then
 else
 
   call ZGEMM_('C','N',N,N,N,cOne,Z(1:N,1:N),N,ML(1:N,1:N),N,cZero,TMP,N)
-  call zcopy_(N*N,[cZero],0,ML(1:N,1:N),1)
   call ZGEMM_('N','N',N,N,N,cOne,TMP,N,Z(1:N,1:N),N,cZero,ML(1:N,1:N),N)
   call ZGEMM_('C','N',N,EXCH,N,cOne,Z(1:N,1:N),N,ML(1:N,1:EXCH),N,cZero,TMP(1:N,1:EXCH),N)
 
@@ -94,13 +93,7 @@ else
       ML(J,I) = conjg(TMP(I,J))
     end do
   end do
-  do i=N+1,EXCH
-    do j=N+1,EXCH
-      i1 = i-N
-      j1 = j-N
-      ML(i,j) = MTMP(i1,j1)
-    end do
-  end do
+  ML(N+1:EXCH,N+1:EXCH) = MTMP(1:EXCH-N,1:EXCH-N)
 
 end if !N == exch
 

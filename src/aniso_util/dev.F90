@@ -26,14 +26,12 @@ real(kind=8), intent(in) :: Fcal(N), Fexp(N)
 integer :: i
 real(kind=8) :: diff, X
 
-dev = Zero
 X = Zero
 do i=1,N
-  diff = Zero
   diff = Fcal(i)-Fexp(i)
-  X = X+diff*diff/real(N,kind=wp)
+  X = X+diff**2
 end do
-dev = sqrt(X)
+dev = sqrt(X/real(N,kind=wp))
 
 return
 

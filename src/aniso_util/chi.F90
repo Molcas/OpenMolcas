@@ -38,14 +38,12 @@ integer :: i, j, iS, jS
 real(kind=8) :: pB, dE, c2(3,3), R, F
 real(kind=wp), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! in cm-1*K-1
 
-pB = Zero
-dE = Zero
 Z = Zero
-call dcopy_(3*3,[Zero],0,X,1)
+X(:,:) = Zero
 
 do iS=1,N
   ! first loop over all states
-  call dcopy_(3*3,[Zero],0,c2,1)
+  c2(:,:) = Zero
   ! pB = statistical sum for state iS at temperature T
   pB = exp(-E(iS)/boltz_k/T)
   ! accumulate the total statistical sum Z
@@ -70,11 +68,11 @@ do iS=1,N
 
   ! add the (iS) contribution to the X tensor, according to its
   ! Boltzmann distribution:
-  call daxpy_(3*3,pB,c2,1,X,1)
+  X(:,:) = X(:,:)+pB*c2(:,:)
 end do ! iS
 
 ! scale the total tensor by the total statistical sum Z:
-call dscal_(3*3,One/Z,X,1)
+X(:,:) = X(:,:)/Z
 
 return
 

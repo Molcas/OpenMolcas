@@ -44,20 +44,16 @@ call mma_allocate(r,dim,'r')
 call mma_allocate(phs,3,dim,dim,'phs')
 call mma_allocate(tmp,dim,dim,'tmp')
 !-----------------------------------------------------------------------
-call zcopy_(3*dim*dim,[cZero],0,phs,1)
-call zcopy_(dim*dim,[cZero],0,tmp,1)
-call zcopy_(dim,[cZero],0,r,1)
-call dcopy_(dim,[Zero],0,rxr,1)
-call dcopy_(dim,[Zero],0,rxi,1)
-rxr(1) = One
+phs(:,:,:) = cZero
+r(:) = czero
+rxr(:) = Zero
+rxi(:) = Zero
 rxi(1) = Zero
+r(1) = cOne
 
 do i=1,dim-1
   j = i+1
-  r(j) = cZero
-  do i1=1,dim
-    Zout(i1,1) = Zinp(i1,1)
-  end do
+  Zout(:,1) = Zinp(:,1)
 
   do i1=1,dim
     do i2=1,dim
@@ -72,19 +68,14 @@ do i=1,dim-1
     rxr(j) = One
     rxi(j) = Zero
   end if
-  r(1) = cOne
 
-  ! kind=8, complex double precision
   r(j) = cmplx(rxr(j),rxi(j),kind=wp)
 
-  do i1=1,dim
-    Zout(i1,j) = conjg(r(j))*Zinp(i1,j)
-  end do
+  Zout(:,j) = conjg(r(j))*Zinp(:,j)
 
   if (dbg) write(u6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE: R(',j,') = ',conjg(r(j))
 end do ! i
 
-call zcopy_(3*dim*dim,[cZero],0,phs,1)
 call zgemm_('C','N',dim,dim,dim,cOne,Zout,dim,mm(1,:,:),dim,cZero,TMP,dim)
 call zgemm_('N','N',dim,dim,dim,cOne,TMP,dim,Zout,dim,cZero,phs(1,:,:),dim)
 ! convention:
@@ -93,16 +84,11 @@ call zgemm_('N','N',dim,dim,dim,cOne,TMP,dim,Zout,dim,cZero,phs(1,:,:),dim)
 !    mZ(i,i)   => diagonal
 do i=1,dim-1,2
   j = i+1
-  if (real(phs(1,i,j)) > Zero) then
-    do i1=1,dim
-      Zout(i1,j) = -Zout(i1,j)
-    end do
-  end if
+  if (real(phs(1,i,j)) > Zero) Zout(:,j) = -Zout(:,j)
 end do
 
 if (dbg) then
 
-  call zcopy_(3*dim*dim,[cZero],0,phs,1)
   do l=1,3
     call zgemm_('C','N',dim,dim,dim,cOne,Zout,dim,mm(l,:,:),dim,cZero,TMP,dim)
     call zgemm_('N','N',dim,dim,dim,cOne,TMP,dim,Zout,dim,cZero,phs(l,:,:),dim)
@@ -117,11 +103,8 @@ if (dbg) then
   write(u6,'(//)')
   do i=1,dim
     do j=1,dim
-      if ((j == i-1) .or. (j == i+1)) then
-        write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =',(phs(l,i,j),l=1,3)
-      else
-        cycle
-      end if
+      if ((j == i-1) .or. (j == i+1)) write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =', &
+                                                                                (phs(l,i,j),l=1,3)
     end do
   end do
 end if

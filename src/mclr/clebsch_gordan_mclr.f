@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
-      Real*8 Function Clebsch_Gordan(j1,m1,j2,m2,j,m)
+      Real*8 Function Clebsch_Gordan_mclr(j1,m1,j2,m2,j,m)
 *
 *     Calculates the Clebsch-Gordan coefficients
 *
@@ -47,9 +47,9 @@
      &    fact(j-j2+m1+DBLE(z))*fact(j-j1-m2+DBLE(z))
         sum=sum+T/N
        End do
-       Clebsch_Gordan=sum*fct
+       Clebsch_Gordan_mclr=sum*fct
       else
-       Clebsch_Gordan=0.0d0
+       Clebsch_Gordan_mclr=0.0d0
       End If
       return
       end

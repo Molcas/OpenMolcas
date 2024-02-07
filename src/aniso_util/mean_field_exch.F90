@@ -41,43 +41,40 @@ S(:) = Zero
 ST(:) = Zero
 
 ! temporary arrays used in ZEEM_SA:
-call mma_allocate(RWORK,(3*N-2),'ZEEM_RWORK')
-call mma_allocate(HZEE,(N*(N+1)/2),'ZEEM_HZEE')
-call mma_allocate(WORK,(2*N-1),'ZEEM_WORK')
+call mma_allocate(RWORK,3*N-2,'ZEEM_RWORK')
+call mma_allocate(HZEE,N*(N+1)/2,'ZEEM_HZEE')
+call mma_allocate(WORK,2*N-1,'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
 
 ! zero everything:
-call dcopy_(3*N-2,[Zero],0,RWORK,1)
-call zcopy_(N*(N+1)/2,[cZero],0,HZEE,1)
-call zcopy_(2*N-1,[cZero],0,WORK,1)
-call zcopy_(N,[cZero],0,W_c,1)
+RWORK(:) = Zero
+HZEE(:) = cZero
+WORK(:) = cZero
+W_c(:) = cZero
 ! determine first the average spin of neighboring
 ! molecules for each temperature point
 Conv = .false.
 do iter=1,mxIter
-  WM(1:N) = Zero
-  ZM(1:N,1:N) = cZero
+  WM(:) = Zero
+  ZM(:,:) = cZero
   ! build and diagonalize the Zeeman Hamiltonian (size N x N)
   ! for the field direction (X,Y,Z) and strength (H)
-  call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(1:3,1:N,1:N),sM(1:3,1:N,1:N),ST(1:3),zJ,WM(1:N),ZM(1:N,1:N),DBG,RWORK,HZEE,WORK,W_c)
+  call ZEEM_SA(N,H,X,Y,Z,W,dM,sM,ST,zJ,WM,ZM,DBG,RWORK,HZEE,WORK,W_c)
   !write(u6,'(A,3ES16.8)') 'WM:',(WM(l),l=1,N)
   !write(u6,'(A,9(2ES16.8,2x))') 'ZM:',((ZM(l,i),l=1,N),i=1,N)
   ! transform the spin momenta to the Zeeman eigenstate basis
-  SZ(1:3,1:N,1:N) = cZero
-  call UTMU(N,N,ZM(1:N,1:N),SM(1:3,1:N,1:N),SZ(1:3,1:N,1:N))
+  SZ(:,:,:) = cZero
+  call UTMU(N,N,ZM,SM,SZ)
   ! compute the spin magnetization vector at this temperature (T):
   if (iter == mxIter) SL(:) = S(:)
+  S(:) = Zero
   do l=1,3
-    S(l) = Zero
     ZB = Zero
-    call calcmagn1(N,WM(1:N),SZ(l,1:N,1:N),T,S(l),ZB)
+    call calcmagn1(N,WM,SZ(l,:,:),T,S(l),ZB)
   end do
 
   ! check if average spin is converged
-  SCHK = Zero
-  do L=1,3
-    SCHK = SCHK+sqrt((S(L)-ST(L))*(S(L)-ST(L)))
-  end do
+  SCHK = sum(abs(S(:)-ST(:)))
 
   if (DBG) then
     write(u6,'(A,i4,1x,A,3ES20.10,2x,A,3ES20.10)') 'ST:   End of iteration',iter,':',(ST(l),l=1,3),'DIFF:',(S(l)-ST(l),l=1,3)

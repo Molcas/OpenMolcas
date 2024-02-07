@@ -13,11 +13,10 @@ subroutine hdir(nDir,nDirZee,dirX,dirY,dirZ,dir_weight,nP,nsymm,ngrid,nDirTot,dH
 ! this routine generates the directions of the applied magnetic
 ! field according to Lebedev-Laikov grids using the the given parameters (nsymm, ngrid)
 
-use Constants, only: Zero
 use Definitions, only: u6
 
 implicit none
-integer :: nP, nDirTot, nDir, nDirZee, i, j
+integer :: nP, nDirTot, nDir, nDirZee
 integer :: nsymm, ngrid
 real(kind=8) :: dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3)
 real(kind=8) :: dHX(nDirTot), dHY(nDirTot), dHZ(nDirTot), dHW(nDirTot)
@@ -34,54 +33,21 @@ if ((nDirTot-nDir-nDirZee-nP) /= 0) then
   call xFlush(u6)
   call abend()
 end if
-! intialization
-call dcopy_(nDirTot,[Zero],0,dHX(1),1)
-call dcopy_(nDirTot,[Zero],0,dHY(1),1)
-call dcopy_(nDirTot,[Zero],0,dHZ(1),1)
-call dcopy_(nDirTot,[Zero],0,dHW(1),1)
-call dcopy_(nP,[Zero],0,X(1),1)
-call dcopy_(nP,[Zero],0,Y(1),1)
-call dcopy_(nP,[Zero],0,Z(1),1)
-call dcopy_(nP,[Zero],0,W(1),1)
 
-!if (nDir > 0) then
-!  call DCOPY_(nDir,dirX,1,dHX(1),1)
-!  call DCOPY_(nDir,dirY,1,dHY(1),1)
-!  call DCOPY_(nDir,dirZ,1,dHZ(1),1)
-!end if
+dHX(1:nDir) = dirX(:)
+dHY(1:nDir) = dirY(:)
+dHZ(1:nDir) = dirZ(:)
 
-!if (nDirZee > 0) then
-!  call DCOPY_(nDirZee,dir_weight(1:3,1),1,dHX(1+nDir),1)
-!  call DCOPY_(nDirZee,dir_weight(1:3,2),1,dHY(1+nDir),1)
-!  call DCOPY_(nDirZee,dir_weight(1:3,3),1,dHZ(1+nDir),1)
-!end if
-
-do i=1,nDir
-  dHX(i) = dirX(i)
-  dHY(i) = dirY(i)
-  dHZ(i) = dirZ(i)
-end do
-
-do i=1,nDirZee
-  dHX(i+nDir) = dir_weight(i,1)
-  dHY(i+nDir) = dir_weight(i,2)
-  dHZ(i+nDir) = dir_weight(i,3)
-end do
+dHX(nDir+1:nDir+nDirZee) = dir_weight(:,1)
+dHY(nDir+1:nDir+nDirZee) = dir_weight(:,2)
+dHZ(nDir+1:nDir+nDirZee) = dir_weight(:,3)
 
 call Lebedev_Laikov(nSymm,nGrid,nP,X,Y,Z,W)
 
-do i=1,nP
-  j = i+nDir+nDirZee
-  dHX(j) = X(i)
-  dHY(j) = Y(i)
-  dHZ(j) = Z(i)
-  dHW(j) = W(i)
-end do
-
-!call DCOPY_(nP,X(1),1,dHX(1+nDir+nDirZee),1)
-!call DCOPY_(nP,Y(1),1,dHY(1+nDir+nDirZee),1)
-!call DCOPY_(nP,Z(1),1,dHZ(1+nDir+nDirZee),1)
-!call DCOPY_(nP,W(1),1,dHW(1+nDir+nDirZee),1)
+dHX(nDir+nDirZee+1:nDir+nDirZee+nP) = X(:)
+dHY(nDir+nDirZee+1:nDir+nDirZee+nP) = Y(:)
+dHZ(nDir+nDirZee+1:nDir+nDirZee+nP) = Z(:)
+dHW(nDir+nDirZee+1:nDir+nDirZee+nP) = W(:)
 
 return
 

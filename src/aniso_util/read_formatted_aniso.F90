@@ -11,7 +11,7 @@
 
 subroutine read_formatted_aniso(input_file_name,nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,AMFI,HSO)
 
-use Constants, only: Zero, cZero, gElectron
+use Constants, only: gElectron
 use Definitions, only: wp, u6
 
 implicit none
@@ -41,17 +41,6 @@ dbg = .false.
 
 if (dbg) write(u6,'(A)') 'Entering read_formatted_aniso'
 call xFlush(u6)
-! set to zero all arrays:
-multiplicity = 0
-eso(:) = Zero
-esfs(:) = Zero
-edmom(:,:,:) = Zero
-angmom(:,:,:) = Zero
-MM(:,:,:) = cZero
-MS(:,:,:) = cZero
-ML(:,:,:) = cZero
-DM(:,:,:) = cZero
-U(:,:) = cZero
 ! read the file "aniso.input":
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,trim(input_file_name))
@@ -75,14 +64,12 @@ call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
 ! magnetic moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
   do j1=1,nss
     do j2=1,nss
-      MM(l,j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
+      MM(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
     end do
   end do
 end do
@@ -90,14 +77,12 @@ call xFlush(u6)
 
 ! spin moment
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
   do j1=1,nss
     do j2=1,nss
-      MS(l,j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
+      MS(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
     end do
   end do
 end do
@@ -110,17 +95,11 @@ if (dbg) then
 end if
 
 ! U matrix
-tmpR(:,:) = Zero
-tmpI(:,:) = Zero
 do j1=1,nss
   read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
 end do
 
-do j1=1,nss
-  do j2=1,nss
-    U(j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
-  end do
-end do
+U(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 
 ! angmom
 do l=1,3
@@ -130,26 +109,14 @@ do l=1,3
 end do
 
 ! compute the orbital moment
-do l=1,3
-  do j1=1,nss
-    do j2=1,nss
-      ML(l,j1,j2) = -MM(l,j1,j2)-MS(l,j1,j2)*g_e
-    end do
-  end do
-end do
+ML(:,:,:) = -MM(:,:,:)-g_e*MS(:,:,:)
 
 ! DMmom
 do l=1,3
-  tmpR(:,:) = Zero
-  tmpI(:,:) = Zero
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
-  do j1=1,nss
-    do j2=1,nss
-      DM(l,j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
-    end do
-  end do
+  DM(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 
 ! edmom
@@ -167,17 +134,11 @@ do l=1,3
 end do
 
 ! HSO matrix
-tmpR(:,:) = Zero
-tmpI(:,:) = Zero
 do j1=1,nss
   read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
 end do
 
-do j1=1,nss
-  do j2=1,nss
-    HSO(j1,j2) = cmplx(tmpR(j1,j2),tmpI(j1,j2),wp)
-  end do
-end do
+HSO(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 
 call mma_deallocate(tmpR)
 call mma_deallocate(tmpI)

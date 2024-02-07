@@ -18,7 +18,7 @@ subroutine hdir2(nP,L,dX,dY,dZ,Ang,iprint)
 !            If L=2 (i.e.Y), rotation of the M occurs in the XZ plane
 !            If L=3 (i.e.Z), rotation of the M occurs in the XY plane
 
-use Constants, only: Zero, One, deg2rad
+use Constants, only: Zero, deg2rad
 use Definitions, only: wp, u6
 
 implicit none
@@ -28,17 +28,10 @@ real(kind=8) :: dX(nP), dY(nP), dZ(nP), Ang(nP)
 integer :: i
 real(kind=8) :: AngStep, AngRad
 
-dX(:) = Zero
-dY(:) = Zero
-dZ(:) = Zero
-Ang(:) = Zero
-AngStep = Zero
-AngRad = Zero
 AngStep = 360.0_wp/real(nP-1,kind=wp)
 
 if (L == 1) then
-  dY(1) = One
-  dZ(1) = Zero
+  dX(:) = Zero
   do i=1,nP
     AngRad = real(i-1,kind=wp)*AngStep*deg2rad
     Ang(i) = real(i-1,kind=wp)*AngStep
@@ -46,8 +39,7 @@ if (L == 1) then
     dZ(i) = sin(AngRad)
   end do
 else if (L == 2) then
-  dX(1) = One
-  dZ(1) = Zero
+  dY(:) = Zero
   do i=1,nP
     AngRad = real(i-1,kind=wp)*AngStep*deg2rad+122.625_wp*deg2rad
     Ang(i) = real(i-1,kind=wp)*AngStep
@@ -55,8 +47,7 @@ else if (L == 2) then
     dZ(i) = sin(AngRad)
   end do
 else if (L == 3) then
-  dX(1) = One
-  dY(1) = Zero
+  dZ(:) = Zero
   do i=1,nP
     AngRad = real(i-1,kind=wp)*AngStep*deg2rad
     Ang(i) = real(i-1,kind=wp)*AngStep

@@ -30,7 +30,7 @@ subroutine ITO(N,k,q,C0,Cp,Cm)
 ! Cm = O- operator (output), complex
 ! C0 = CG0  (output), real number, positive
 
-use Constants, only: Half, cZero, cOne
+use Constants, only: Half, cOne
 use Definitions, only: wp
 
 implicit none
@@ -42,9 +42,6 @@ integer :: m1, m2
 real(kind=8) :: rm1, rm2, rS, rK, rQ, CGp, CGm, fct
 external :: fct
 
-call zcopy_(n*n,[cZero],0,Cp,1)
-call zcopy_(n*n,[cZero],0,Cm,1)
-
 rS = real(n-1,kind=wp)*Half
 rK = real(k,kind=wp)
 rQ = real(q,kind=wp)
@@ -54,8 +51,8 @@ do m1=1,n
   do m2=1,n
     rm1 = rS-real(m1-1,kind=wp)
     rm2 = rS-real(m2-1,kind=wp)
-    call Clebsh_Gordan(rS,rm2,rK,rQ,rS,rm1,CGp)
-    call Clebsh_Gordan(rS,rm2,rK,-rQ,rS,rm1,CGm)
+    call Clebsch_Gordan(rS,rm2,rK,rQ,rS,rm1,CGp)
+    call Clebsch_Gordan(rS,rm2,rK,-rQ,rS,rm1,CGm)
     Cp(m1,m2) = CGp/C0*cOne
     Cm(m1,m2) = CGm/C0*cOne
   end do
@@ -77,16 +74,16 @@ complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
 ! local
 real(kind=8) :: CR, C0
 
-call zcopy_(n*n,[cZero],0,O,1)
-call zcopy_(n*n,[cZero],0,W,1)
+O(:,:) = cZero
+W(:,:) = cZero
 CR = Zero
 C0 = Zero
 redME = cZero
 call coeff_redus_sub(n,k,CR)
 call ITO(n,k,q,C0,O,W)
 redME = C0*CR*cOne
-call zscal_(n*n,redME,W,1)
-call zscal_(n*n,redME,O,1)
+W(:,:) = redME*W(:,:)
+O(:,:) = redME*O(:,:)
 
 return
 
@@ -105,8 +102,8 @@ complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
 ! local
 real(kind=8) :: F, knm(12,0:12)
 
-call zcopy_(n*n,[cZero],0,O,1)
-call zcopy_(n*n,[cZero],0,W,1)
+O(:,:) = cZero
+W(:,:) = cZero
 redME = cZero
 if ((k > 12) .or. (q > 12)) return
 
@@ -114,8 +111,8 @@ call set_knm(knm)
 call Liviu_ITO(n,k,q,O,W,redME)
 F = One/knm(k,q)
 redME = F*cOne
-call zscal_(n*n,redME,W,1)
-call zscal_(n*n,redME,O,1)
+W(:,:) = redME*W(:,:)
+O(:,:) = redME*O(:,:)
 
 return
 
@@ -132,20 +129,19 @@ implicit none
 integer, intent(in) :: n, k, q
 complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
 ! local
-integer :: m1, m2
 real(kind=8) :: CR, C0, knm(12,0:12), F
-complex(kind=8) :: mQ, HALF_R, FALF_I
+complex(kind=8) :: mQ
 complex(kind=8), allocatable :: Cp(:,:), Cm(:,:)
 
-call zcopy_(n*n,[cZero],0,O,1)
-call zcopy_(n*n,[cZero],0,W,1)
+O(:,:) = cZero
+W(:,:) = cZero
 redME = cZero
 if ((k > 12) .or. (q > 12)) return ! not available in MATLAB
 
 call mma_allocate(Cp,n,n,'Cp')
 call mma_allocate(Cm,n,n,'Cm')
-call zcopy_(n*n,[cZero],0,Cp,1)
-call zcopy_(n*n,[cZero],0,Cm,1)
+Cp(:,:) = cZero
+Cm(:,:) = cZero
 
 call set_knm(knm)
 call coeff_redus_sub(n,k,CR)
@@ -154,14 +150,8 @@ call ITO(n,k,q,C0,Cp,Cm)
 F = C0*CR/knm(k,q)
 redME = F*cOne
 mQ = (-cOne)**q
-HALF_R = Half*cOne
-FALF_I = Half*Onei
-do m1=1,n
-  do m2=1,n
-    O(m1,m2) = HALF_R*redME*(Cm(m1,m2)+mQ*Cp(m1,m2))
-    W(m1,m2) = FALF_I*redME*(Cm(m1,m2)-mQ*Cp(m1,m2))
-  end do
-end do
+O(:,:) = Half*cOne*redME*(Cm(:,:)+mQ*Cp(:,:))
+W(:,:) = Half*Onei*redME*(Cm(:,:)-mQ*Cp(:,:))
 call mma_deallocate(Cp)
 call mma_deallocate(Cm)
 
@@ -183,28 +173,21 @@ implicit none
 integer, intent(in) :: n, k, q
 complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
 ! local
-integer :: m1, m2
 real(kind=8) :: CR, C0
-complex(kind=8) :: Om, Op, mQ
+complex(kind=8) :: mQ
 complex(kind=8), allocatable :: Cp(:,:), Cm(:,:)
 
 call mma_allocate(Cp,n,n,'Cp')
 call mma_allocate(Cm,n,n,'Cm')
-call zcopy_(n*n,[cZero],0,Cp,1)
-call zcopy_(n*n,[cZero],0,Cm,1)
+Cp(:,:) = cZero
+Cm(:,:) = cZero
 
 call coeff_redus_sub(n,k,CR)
 call ITO(n,k,q,C0,Cp,Cm)
 redME = C0*CR*cOne
 mQ = (-cOne)**q
-do m1=1,n
-  do m2=1,n
-    Om = Cm(m1,m2)*redME
-    Op = Cp(m1,m2)*redME
-    O(m1,m2) = Half*(Om+mQ*Op)
-    W(m1,m2) = Half*Onei*(Om-mQ*Op)
-  end do
-end do
+O(:,:) = Half*redME*(Cm(:,:)+mQ*Cp(:,:))
+W(:,:) = Half*Onei*redME*(Cm(:,:)-mQ*Cp(:,:))
 call mma_deallocate(Cp)
 call mma_deallocate(Cm)
 
@@ -270,7 +253,7 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
     end if
     coeffCG = Zero
 
-    call Clebsh_Gordan(a,al,b,bt,c,gm,coeffCG)
+    call Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
 
     ITO_PLUS(ms1,ms2) = coeffCG*COEFF_REDUS*cOne
 
@@ -308,7 +291,7 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
     end if
     coeffCG = Zero
 
-    call Clebsh_Gordan(a,al,b,bt,c,gm,coeffCG)
+    call Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
 
     ITO_MINUS(ms1,ms2) = coeffCG*COEFF_REDUS*cOne
 
@@ -524,7 +507,7 @@ return
 
 end subroutine COEFF_REDUS_SUB
 !=!=
-subroutine Clebsh_Gordan(a,al,b,bt,c,gm,coeffCG)
+subroutine Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
 
 use Constants, only: Zero, Two
 use Definitions, only: wp
@@ -579,7 +562,7 @@ coeffCG = u*s1*s2
 
 return
 
-end subroutine Clebsh_Gordan
+end subroutine Clebsch_Gordan
 !=!=
 real*8 function W9J(a,b,c,d,e,f,g,h,j)
 
@@ -704,8 +687,8 @@ real(kind=8) :: coeffCG
 
 W3J = Zero
 coeffCG = Zero
-call Clebsh_Gordan(real(j1,kind=wp)*Half,real(m1,kind=wp)*Half,real(j2,kind=wp)*Half,real(m2,kind=wp)*Half,real(j3,kind=wp)*Half, &
-                   -real(m3,kind=wp)*Half,coeffCG)
+call Clebsch_Gordan(real(j1,kind=wp)*Half,real(m1,kind=wp)*Half,real(j2,kind=wp)*Half,real(m2,kind=wp)*Half,real(j3,kind=wp)*Half, &
+                    -real(m3,kind=wp)*Half,coeffCG)
 if (coeffCG == Zero) return
 W3J = real((-1)**((j1-j2-m3)/2),kind=wp)*coeffCG/sqrt(real(j3+1,kind=wp))
 
@@ -1060,28 +1043,20 @@ do k=1,n-1
         rM1 = -rJ+real(m1-1,kind=wp)
         rM2 = -rJ+real(m2-1,kind=wp)
 
-        CG_A = Zero
-        CG_B = Zero
-        CG_C = Zero
-        CG_D = Zero
-        CG_E = Zero
-        CG_F = Zero
-        CG_G = Zero
-        CG_H = Zero
         mf = (-1)**nint(rK)
-        !(a , alpha, b, beta,    c,  gamma)
-        call Clebsh_Gordan(rJ,rM2,rK,rQ,rJ,rM1,CG_A)
-        call Clebsh_Gordan(rK,rQ,rJ,rM2,rJ,rM1,CG_B)
-        call Clebsh_Gordan(rJ,-rM2,rK,-rQ,rJ,-rM1,CG_C)
-        call Clebsh_Gordan(rK,-rQ,rJ,-rM2,rJ,-rM1,CG_D)
+        ! (a , alpha, b, beta,    c,  gamma)
+        call Clebsch_Gordan(rJ,rM2,rK,rQ,rJ,rM1,CG_A)
+        call Clebsch_Gordan(rK,rQ,rJ,rM2,rJ,rM1,CG_B)
+        call Clebsch_Gordan(rJ,-rM2,rK,-rQ,rJ,-rM1,CG_C)
+        call Clebsch_Gordan(rK,-rQ,rJ,-rM2,rJ,-rM1,CG_D)
 
         rfE = ((-1)**(rJ-rM2))*(sqrt(real(n,kind=wp)/(Two*rK+One)))
-        call Clebsh_Gordan(rJ,rM2,rJ,-rM1,rK,-rQ,CG_E)
-        call Clebsh_Gordan(rJ,rM1,rJ,-rM2,rK,rQ,CG_F)
+        call Clebsch_Gordan(rJ,rM2,rJ,-rM1,rK,-rQ,CG_E)
+        call Clebsch_Gordan(rJ,rM1,rJ,-rM2,rK,rQ,CG_F)
 
         rfG = (-1)**(rK+rQ)
-        call Clebsh_Gordan(rJ,-rM1,rK,rQ,rJ,-rM2,CG_G)
-        call Clebsh_Gordan(rK,-rQ,rJ,rM1,rJ,rM2,CG_H)
+        call Clebsch_Gordan(rJ,-rM1,rK,rQ,rJ,-rM2,CG_G)
+        call Clebsch_Gordan(rK,-rQ,rJ,rM1,rJ,rM2,CG_H)
 
         prn = (CG_A /= Zero) .or. (CG_B /= Zero) .or. (CG_C /= Zero) .or. (CG_D /= Zero) .or. (CG_E /= Zero) .or. &
               (CG_F /= Zero) .or. (CG_G /= Zero) .or. (CG_H /= Zero)

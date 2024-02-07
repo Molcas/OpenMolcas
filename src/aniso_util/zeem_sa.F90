@@ -37,11 +37,6 @@ logical :: DBG
 
 ! initialization
 
-!call dcopy_(N,[Zero],0,WM,1)
-!call dcopy_(3*N-2,[Zero],0,RWORK,1)
-!call zcopy_(N**2,[cZero],0,ZM,1)
-!call zcopy_(N*(N+1)/2,[cZero],0,HZEE,1)
-!call zcopy_(2*N-1,[cZero],0,WORK,1)
 WM(:) = Zero
 RWORK(:) = Zero
 ZM(:,:) = cZero
@@ -62,14 +57,8 @@ dY_c = dY*cOne
 dZ_c = dZ*cOne
 zJ_c = zJ*cOne
 mB_c = mB*cOne
-call zcopy_(N,[cZero],0,W_c,1)
-call zcopy_(3,[cZero],0,S_c,1)
-do i=1,N
-  W_c(i) = W(i)*cOne
-end do
-do i=1,3
-  S_c(i) = S(i)*cOne
-end do
+W_c(:) = W(:)*cOne
+S_c(:) = S(:)*cOne
 
 if (DBG) then
   write(u6,*) ' H_c = ',H_c

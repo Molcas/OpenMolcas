@@ -19,18 +19,16 @@ real(kind=8), intent(in) :: A(3,3)
 real(kind=8), intent(out) :: Jiso, Jsym(3,3), Jantisym(3,3)
 logical, intent(in) :: dbg
 integer :: i, j
-real(kind=8) :: tmp
 real(kind=8) :: Dtmp(3,3)
 
-tmp = Zero
 Jiso = Zero
 Jsym(:,:) = Zero
 Jantisym(:,:) = Zero
 !-------------------------------------
 do i=1,3
-  tmp = tmp+A(i,i)
+  Jiso = Jiso+A(i,i)
 end do
-Jiso = tmp/Three
+Jiso = Jiso/Three
 !-------------------------------------
 do i=1,3
   Jsym(i,i) = A(i,i)-Jiso
@@ -39,25 +37,22 @@ end do
 ! find the symmetric matrix:
 do i=1,3
   do j=1,3
-    if (i == j) cycle
-    Jsym(i,j) = (A(i,j)+A(j,i))*Half
+    if (i /= j) Jsym(i,j) = (A(i,j)+A(j,i))*Half
   end do
 end do
 ! find the anti-symmetric matrix:
 do i=1,3
   do j=1,3
-    if (i == j) cycle
-    Jantisym(i,j) = (A(i,j)-A(j,i))*Half
+    if (i /= j) Jantisym(i,j) = (A(i,j)-A(j,i))*Half
   end do
 end do
 
 if (dbg) then
-  Dtmp = Zero
+  Dtmp(:,:) = Zero
   do i=1,3
     Dtmp(i,i) = Jiso+Jsym(i,i)+Jantisym(i,i)
     do j=1,3
-      if (i == j) cycle
-      Dtmp(i,j) = Jsym(i,j)+Jantisym(i,j)
+      if (i /= j) Dtmp(i,j) = Jsym(i,j)+Jantisym(i,j)
     end do
   end do
 

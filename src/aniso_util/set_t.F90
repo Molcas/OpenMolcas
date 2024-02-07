@@ -31,41 +31,23 @@ XTexp(:) = Zero
 if (TINPUT) then
   ! case 1:  T(iT) computed from input values: Texp, and nTempMagn
   !          nTempMagn = 0
-  if (nTempMagn > 0) then
-    do i=1,nTempMagn
-      T(i) = TempMagn(i)
-    end do
-    do i=1,nT
-      T(i+nTempMagn) = Texp(i)
-      XTexp(i+nTempMagn) = chit_exp(i)
-    end do
-  else
-    do i=1,nT
-      T(i) = Texp(i)
-      XTexp(i) = chit_exp(i)
-    end do
-  end if
+  if (nTempMagn > 0) T(1:nTempMagn) = TempMagn(:)
+  T(nTempMagn+1:nTempMagn+nT) = Texp(:)
+  XTexp(nTempMagn+1:nTempMagn+nT) = chit_exp(:)
 else
   ! case 2:  T(iT) computed from input values: Tmin, Tmax, nT
   !          and nTempMagn
   dltt = (tmax-tmin)/real(nT-1,kind=wp)
 
-  if (nTempMagn > 0) then
-    do i=1,nTempMagn
-      T(i) = TempMagn(i)
-    end do
+  T(nTempMagn+1:nTempMagn+nT) = Texp(:)
+  XTexp(nTempMagn+1:nTempMagn+nT) = chit_exp(:)
 
-    T(1+nTempMagn) = 1.0e-4_wp
-    do i=2,nT
-      T(i+nTempMagn) = Tmin+dltt*real(i-1,kind=wp)
-    end do
-  else !compute_magnetization
+  if (nTempMagn > 0) T(1:nTempMagn) = TempMagn(:)
 
-    T(1) = 1.0e-4_wp
-    do i=2,nT
-      T(i) = Tmin+dltt*real(i-1,kind=wp)
-    end do
-  end if
+  T(nTempMagn+1) = 1.0e-4_wp
+  do i=2,nT
+    T(nTempMagn+i) = Tmin+dltt*real(i-1,kind=wp)
+  end do
 end if !tinput
 
 !----------------------------------------------------------------------!

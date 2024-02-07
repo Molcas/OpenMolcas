@@ -25,11 +25,11 @@ subroutine pa_pseudo(M,S,dim,iopt,zfin,MF,SF,coord,iprint)
 ! MF(3,dim,dim) -- magnetic moment in the pseuDospin basis
 ! SF(3,dim,dim) -- spin moment in the pseuDospin basis
 
-use Constants, only: Zero, One, cOne
+use Constants, only: Zero, One, cZero, cOne
 use Definitions, only: wp, u6
 
 implicit none
-integer :: dim, info, i, j, k, l, i1, i2, iopt
+integer :: dim, info, i, j, k, i1, i2, iopt
 integer :: iprint
 real(kind=8) :: gtens(3), w(dim), maxes(3,3), det, FindDetR
 real(kind=8) :: coord(3,3), coord2(3,3)
@@ -58,10 +58,7 @@ else if (iopt == 3) then
 
 else if (iopt == 4) then
   write(u6,'(A)') 'COORD is set to unity'
-  coord(:,:) = Zero
-  do i=1,3
-    coord(i,i) = One
-  end do
+  call unitmat(coord,3)
 else
   write(u6,'(A)') 'check the iopt parameter to PA_PSEUDo!!!'
   !call Abort()
@@ -72,62 +69,37 @@ do i=1,3
   write(u6,'(3F20.14)') (coord(j,i),j=1,3)
 end do
 ! check If "coord" is empty:
-call rZeroMatrix(coord2,3)
-do i=1,3
-  do j=1,3
-    coord2(i,j) = coord(i,j)
-  end do
-end do
+coord2(:,:) = coord(:,:)
 det = FindDetR(coord2,3)
 write(u6,'(A, f20.13)') 'det = ',det
 if (abs(det-One) < 1.0e-4_wp) then  ! 'coord is not empty'
-  call rZeroMatrix(maxes,3)
-  do i=1,3
-    do j=1,3
-      maxes(i,j) = coord(i,j)
-    end do
-  end do
+  maxes(:,:) = coord(:,:)
 else                                   ! 'coord is empty'
-  call rZeroMatrix(coord,3)
-  do i=1,3
-    do j=1,3
-      coord(i,j) = maxes(i,j)
-    end do
-  end do
+  coord(:,:) = maxes(:,:)
 end if
 write(u6,'(A)') 'Employed  axes for diagonalization of the Zeeman Hamiltonian:'
 do i=1,3
   write(u6,'(3F20.14)') (maxes(j,i),j=1,3)
 end do
 
-call cZeroMoment(s_so2,dim)
-call cZeroMoment(dipso2,dim)
-do l=1,3
-  do i=1,dim
-    do j=1,dim
-      do k=1,3
-        dipso2(l,i,j) = dipso2(l,i,j)+M(k,i,j)*(maxes(k,l)*cOne)
-        s_so2(l,i,j) = s_so2(l,i,j)+S(k,i,j)*(maxes(k,l)*cOne)
-      end do
+do i=1,dim
+  do j=1,dim
+    do k=1,3
+      dipso2(:,i,j) = dipso2(:,i,j)+M(k,i,j)*(maxes(k,:)*cOne)
+      s_so2(:,i,j) = s_so2(:,i,j)+S(k,i,j)*(maxes(k,:)*cOne)
     end do
   end do
 end do
 
-call cZeroMatrix(hzee,dim)
-do i=1,dim
-  do j=1,dim
-    hzee(i,j) = hzee(i,j)-cOne*dipso2(3,i,j)
-  end do
-end do
+hzee(:,:) = hzee(:,:)-dipso2(3,:,:)
 info = 0
-call rZeroVector(w,dim)
-call cZeroMatrix(z,dim)
+w(:) = Zero
+z(:,:) = cZero
 call diag_c2(hzee,dim,info,w,z)
 if (info /= 0) then
   write(u6,'(5x,a)') 'diagonalization of the zeeman hamiltonian failed.'
 else
 
-  call cZeroMatrix(zfin,dim)
   call spin_phase(dipso2,dim,z,zfin)
 
   if (iprint > 2) then
@@ -156,16 +128,12 @@ else
     end if
   end if ! printing of eigenfunctions with identical phase.
 
-  call cZeroMoment(MF,dim)
-  call cZeroMoment(SF,dim)
-  do l=1,3
-    do i=1,dim
-      do j=1,dim
-        do i1=1,dim
-          do i2=1,dim
-            MF(l,i,j) = MF(l,i,j)+dipso2(l,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
-            SF(l,i,j) = SF(l,i,j)+s_so2(l,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
-          end do
+  do i=1,dim
+    do j=1,dim
+      do i1=1,dim
+        do i2=1,dim
+          MF(:,i,j) = MF(:,i,j)+dipso2(:,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
+          SF(:,i,j) = SF(:,i,j)+s_so2(:,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
         end do
       end do
     end do

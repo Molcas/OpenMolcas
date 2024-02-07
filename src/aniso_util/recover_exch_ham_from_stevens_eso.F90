@@ -19,7 +19,7 @@ integer, intent(in) :: n1, n2
 complex(kind=8), intent(in) :: S((n1-1),-(n1-1):(n1-1),(n2-1),-(n2-1):(n2-1))
 complex(kind=8), intent(out) :: HAM(n1,n1,n2,n2)
 ! local variables:
-integer :: k1, k2, q1, q2, m1, m2, l1, l2
+integer :: k1, k2, q1, q2, l1, l2
 complex(kind=8) :: redME1, redME2
 complex(kind=8), allocatable :: O1(:,:), O2(:,:), W1(:,:), W2(:,:)
 complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:), OW(:,:,:,:), WO(:,:,:,:)
@@ -35,7 +35,7 @@ call mma_allocate(OO,n1,n1,n2,n2,'operator OO')
 call mma_allocate(OW,n1,n1,n2,n2,'operator WO')
 call mma_allocate(WO,n1,n1,n2,n2,'operator OW')
 call mma_allocate(WW,n1,n1,n2,n2,'operator WW')
-call zcopy_(n1*n1*n2*n2,[cZero],0,HAM,1)
+HAM(:,:,:,:) = cZero
 do k1=1,n1-1
   do q1=0,k1
     do k2=1,n2-1
@@ -44,36 +44,24 @@ do k1=1,n1-1
         call ESO(n1,k1,q1,O1,W1,redME1)
         call ESO(n2,k2,q2,O2,W2,redME2)
         ! generate coupled operators:
-        call zcopy_(n1*n1*n2*n2,[cZero],0,OO,1)
-        call zcopy_(n1*n1*n2*n2,[cZero],0,OW,1)
-        call zcopy_(n1*n1*n2*n2,[cZero],0,WO,1)
-        call zcopy_(n1*n1*n2*n2,[cZero],0,WW,1)
-        do m1=1,n1
-          do m2=1,n1
-            do l1=1,n2
-              do l2=1,n2
-                OO(m1,m2,l1,l2) = O1(m1,m2)*O2(l1,l2)
-                OW(m1,m2,l1,l2) = O1(m1,m2)*W2(l1,l2)
-                WO(m1,m2,l1,l2) = W1(m1,m2)*O2(l1,l2)
-                WW(m1,m2,l1,l2) = W1(m1,m2)*W2(l1,l2)
-              end do
-            end do
+        do l1=1,n2
+          do l2=1,n2
+            OO(:,:,l1,l2) = O1(:,:)*O2(l1,l2)
+            OW(:,:,l1,l2) = O1(:,:)*W2(l1,l2)
+            WO(:,:,l1,l2) = W1(:,:)*O2(l1,l2)
+            WW(:,:,l1,l2) = W1(:,:)*W2(l1,l2)
           end do
-        end do !m1
+        end do
         ! compute the exchange Hamiltonian:
         if ((q1 == 0) .and. (q2 == 0)) then
-          call zaxpy_(n1*n1*n2*n2,S(k1,0,k2,0),OO,1,HAM,1)
+          HAM(:,:,:,:) = HAM(:,:,:,:)+S(k1,0,k2,0)*OO(:,:,:,:)
         else if ((q1 == 0) .and. (q2 /= 0)) then
-          call zaxpy_(n1*n1*n2*n2,S(k1,0,k2,q2),OO,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,S(k1,0,k2,-q2),OW,1,HAM,1)
+          HAM(:,:,:,:) = HAM(:,:,:,:)+S(k1,0,k2,q2)*OO(:,:,:,:)+S(k1,0,k2,-q2)*OW(:,:,:,:)
         else if ((q1 /= 0) .and. (q2 == 0)) then
-          call zaxpy_(n1*n1*n2*n2,S(k1,q1,k2,0),OO,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,S(k1,-q1,k2,0),WO,1,HAM,1)
+          HAM(:,:,:,:) = HAM(:,:,:,:)+S(k1,q1,k2,0)*OO(:,:,:,:)+S(k1,-q1,k2,0)*WO(:,:,:,:)
         else if ((q1 /= 0) .and. (q2 /= 0)) then
-          call zaxpy_(n1*n1*n2*n2,S(k1,q1,k2,q2),OO,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,S(k1,q1,k2,-q2),OW,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,S(k1,-q1,k2,q2),WO,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,S(k1,-q1,k2,-q2),WW,1,HAM,1)
+          HAM(:,:,:,:) = HAM(:,:,:,:)+S(k1,q1,k2,q2)*OO(:,:,:,:)+S(k1,q1,k2,-q2)*OW(:,:,:,:)+S(k1,-q1,k2,q2)*WO(:,:,:,:)+ &
+                         S(k1,-q1,k2,-q2)*WW(:,:,:,:)
         end if
       end do !q
     end do !k

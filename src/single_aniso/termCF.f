@@ -447,7 +447,7 @@ c      print *, 'build coupled basis |L,ML>|S,MS>'
               spinM=dble(ibasS(iLS))/2.d0
               orbM=dble(ibasL(iLS))/2.d0
 
-              Call Clebsh_Gordan(tL,orbM,tS,spinM,tJ,tJM, coeffCG)
+              Call Clebsch_Gordan(tL,orbM,tS,spinM,tJ,tJM, coeffCG)
               Cf(iJ,iLS)=coeffCG
 
               If(abs(coeffCG)>1.d-20) write(6,*) 'ij,iLS,coeffCG',

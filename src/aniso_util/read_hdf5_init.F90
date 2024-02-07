@@ -83,10 +83,7 @@ if (DBG) then
   write(u6,'(20I4)') (spin_mult(i),i=1,nstate)
 end if
 ! compute the number of spin-orbit states:
-nss = 0
-do i=1,nstate
-  nss = nss+spin_mult(i)
-end do
+nss = sum(spin_mult(:))
 if (DBG) write(u6,'(A,I6)') 'read_hdf5::     NSS=',NSS
 call Put_iScalar('NSS_SINGLE      ',NSS)
 call mma_deallocate(spin_mult)

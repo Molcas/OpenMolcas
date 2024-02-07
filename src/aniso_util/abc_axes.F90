@@ -29,7 +29,7 @@ integer, intent(out) :: iReturn
 ! local variables:
 integer :: i
 real(kind=8) :: a, b, c, al, bt, gm, cal, cbt, cgm, sgm, v, x, y, z
-real(kind=8) :: xyz2(3,3), pX(3), pY(3), pZ(3)
+real(kind=8) :: pX(3), pY(3), pZ(3)
 
 ! initializations
 a = cryst(1)
@@ -43,28 +43,14 @@ cbt = cos(bt)
 cgm = cos(gm)
 sgm = sin(gm)
 
-X = Zero
-Y = Zero
-Z = Zero
-pX(:) = Zero
-pY(:) = Zero
-pZ(:) = Zero
-xyz2(:,:) = Zero
-
 v = sqrt(One-cal*cal-cbt*cbt-cgm*cgm+Two*cal*cbt*cgm)
 
 if (Do_option == 1) then
-  abc = Zero
-  do i=1,3
-    xyz2(1,i) = xyz(1,i)+coord(1)
-    xyz2(2,i) = xyz(2,i)+coord(2)
-    xyz2(3,i) = xyz(3,i)+coord(3)
-  end do
 
   do i=1,3
-    X = xyz2(1,i)
-    Y = xyz2(2,i)
-    Z = xyz2(3,i)
+    X = xyz(1,i)+coord(1)
+    Y = xyz(2,i)+coord(2)
+    Z = xyz(3,i)+coord(3)
 
     pX(1) = One/a
     pY(1) = -cgm/(a*sgm)
@@ -78,14 +64,11 @@ if (Do_option == 1) then
     pY(3) = Zero
     pZ(3) = sgm/(c*v)
 
-    abc(1,i) = pX(1)*X+pY(1)*Y+pZ(1)*Z
-    abc(2,i) = pX(2)*X+pY(2)*Y+pZ(2)*Z
-    abc(3,i) = pX(3)*X+pY(3)*Y+pZ(3)*Z
+    abc(:,i) = pX(:)*X+pY(:)*Y+pZ(:)*Z
   end do
 
 else if (Do_option == 2) then
 
-  xyz = Zero
   do i=1,3
     X = abc(1,i)*a
     Y = abc(2,i)*b
@@ -107,9 +90,7 @@ else if (Do_option == 2) then
     xyz(2,i) = Y*sgm+Z*((cal-cbt*cgm)/sgm)
     xyz(3,i) = Z*v/sgm
 
-    xyz(1,i) = pX(1)*X+pY(1)*Y+pZ(1)*Z
-    xyz(2,i) = pX(2)*X+pY(2)*Y+pZ(2)*Z
-    xyz(3,i) = pX(3)*X+pY(3)*Y+pZ(3)*Z
+    xyz(:,i) = pX(:)*X+pY(:)*Y+pZ(:)*Z
   end do
 else
   write(u6,'(A)') 'the Do_option is not specified. '

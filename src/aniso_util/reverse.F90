@@ -12,35 +12,28 @@
 subroutine REVERSE(A_dir,A_inv,det)
 ! THIS ROUTINE CALCULATES THE INVERSE OF A SQUARE 3x3 MATRIX, AND ITS DETERMINANT.
 
-use Constants, only: Zero, One
-
 implicit none
 real(kind=8) :: A_dir(3,3)
 real(kind=8) :: A_inv(3,3)
 real(kind=8) :: A(3,3)
-real(kind=8) :: B(3,3)
 real(kind=8) :: det
-real(kind=8) :: FindDetR
-external :: FindDetR
+real(kind=8), external :: FindDetR
 
-call dcopy_(3*3,[Zero],0,B,1)
-call dcopy_(3*3,[Zero],0,A_inv,1)
-call dcopy_(3*3,A_dir,1,A,1)
+A(:,:) = A_dir(:,:)
 
 det = FindDetR(A,3)
 
-B(1,1) = A(2,2)*A(3,3)-A(3,2)*A(2,3)
-B(1,2) = -A(1,2)*A(3,3)+A(3,2)*A(1,3)
-B(1,3) = A(1,2)*A(2,3)-A(2,2)*A(1,3)
-B(2,1) = -A(2,1)*A(3,3)+A(3,1)*A(2,3)
-B(2,2) = A(1,1)*A(3,3)-A(3,1)*A(1,3)
-B(2,3) = -A(1,1)*A(2,3)+A(2,1)*A(1,3)
-B(3,1) = A(2,1)*A(3,2)-A(3,1)*A(2,2)
-B(3,2) = -A(1,1)*A(3,2)+A(3,1)*A(1,2)
-B(3,3) = A(1,1)*A(2,2)-A(2,1)*A(1,2)
+A_inv(1,1) = A(2,2)*A(3,3)-A(3,2)*A(2,3)
+A_inv(1,2) = -A(1,2)*A(3,3)+A(3,2)*A(1,3)
+A_inv(1,3) = A(1,2)*A(2,3)-A(2,2)*A(1,3)
+A_inv(2,1) = -A(2,1)*A(3,3)+A(3,1)*A(2,3)
+A_inv(2,2) = A(1,1)*A(3,3)-A(3,1)*A(1,3)
+A_inv(2,3) = -A(1,1)*A(2,3)+A(2,1)*A(1,3)
+A_inv(3,1) = A(2,1)*A(3,2)-A(3,1)*A(2,2)
+A_inv(3,2) = -A(1,1)*A(3,2)+A(3,1)*A(1,2)
+A_inv(3,3) = A(1,1)*A(2,2)-A(2,1)*A(1,2)
 
-call dscal_(3*3,One/det,B,1)
-call dcopy_(3*3,B,1,A_inv,1)
+A_inv(:,:) = A_inv(:,:)/det
 
 return
 

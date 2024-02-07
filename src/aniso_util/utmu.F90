@@ -65,7 +65,6 @@ if (DBG) then
 end if
 
 call mma_allocate(TMP,EXCH,EXCH,'TMP')
-call zcopy_(3*EXCH*EXCH,[cZero],0,M2,1)
 
 if (N == EXCH) then
 
@@ -75,6 +74,8 @@ if (N == EXCH) then
   end do !L
 
 else
+
+  M2(:,:,:) = cZero
 
   do L=1,3
     call ZGEMM_('C','N',N,N,N,cOne,Z(1:N,1:N),N,M1(L,1:N,1:N),N,cZero,TMP,N)
@@ -87,11 +88,7 @@ else
         M2(L,J,I) = conjg(TMP(I,J))
       end do
     end do
-    do i=N+1,EXCH
-      do j=N+1,EXCH
-        M2(L,i,j) = M1(L,i,j)
-      end do
-    end do
+    M2(L,N+1:EXCH,N+1:EXCH) = M1(L,N+1:EXCH,N+1:EXCH)
   end do !L
 
 end if !N == exch

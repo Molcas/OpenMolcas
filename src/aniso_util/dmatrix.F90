@@ -38,19 +38,12 @@ DMAT(2,1) = DMAT(1,2)
 DMAT(3,1) = DMAT(1,3)
 DMAT(3,2) = DMAT(2,3)
 
-do i=1,3
-  do j=1,3
-    DMATR(i,j) = real(DMAT(i,j))
-  end do
-end do
+DMATR(:,:) = real(DMAT(:,:))
 
 call DIAG_R2(DMATR,3,INFO,WD,ZD)
 
 ! calculate the rotation matrix:
-call dcopy_(3*3,[Zero],0,Unity,1)
-do i=1,3
-  Unity(i,i) = One
-end do
+call unitmat(Unity,3)
 
 call DGEMM_('N','N',3,3,3,One,ZD,3,Unity,3,Zero,SMAT,3)
 
@@ -62,14 +55,10 @@ if ((abs(SMAT(1,1)) > abs(SMAT(1,2))) .and. (abs(SMAT(1,1)) > abs(SMAT(1,3)))) t
   dtens(1) = WD(1)
   if (SMAT(1,1) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,1) is larger than SMAT(1,2) and SMAT(1,3) and is positive'
-    do i=1,3
-      daxes(i,1) = ZD(i,1)
-    end do
+    daxes(:,1) = ZD(:,1)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,1) is larger than SMAT(1,2) and SMAT(1,3) and is negative'
-    do i=1,3
-      daxes(i,1) = -ZD(i,1)
-    end do
+    daxes(:,1) = -ZD(:,1)
   end if
 
 else if ((abs(SMAT(1,2)) > abs(SMAT(1,1))) .and. (abs(SMAT(1,2)) > abs(SMAT(1,3)))) then
@@ -77,14 +66,10 @@ else if ((abs(SMAT(1,2)) > abs(SMAT(1,1))) .and. (abs(SMAT(1,2)) > abs(SMAT(1,3)
   dtens(1) = WD(2)
   if (SMAT(1,2) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,2) is larger than SMAT(1,1) and SMAT(1,3) and is positive'
-    do i=1,3
-      daxes(i,1) = ZD(i,2)
-    end do
+    daxes(:,1) = ZD(:,2)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,2) is larger than SMAT(1,1) and SMAT(1,3) and is negative'
-    do i=1,3
-      daxes(i,1) = -ZD(i,2)
-    end do
+    daxes(:,1) = -ZD(:,2)
   end if
 
 else if ((abs(SMAT(1,3)) > abs(SMAT(1,1))) .and. (abs(SMAT(1,3)) > abs(SMAT(1,2)))) then
@@ -92,14 +77,10 @@ else if ((abs(SMAT(1,3)) > abs(SMAT(1,1))) .and. (abs(SMAT(1,3)) > abs(SMAT(1,2)
   dtens(1) = WD(3)
   if (SMAT(1,3) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,3) is larger than SMAT(1,1) and SMAT(1,2) and is positive'
-    do i=1,3
-      daxes(i,1) = ZD(i,3)
-    end do
+    daxes(:,1) = ZD(:,3)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(1,3) is larger than SMAT(1,1) and SMAT(1,2) and is negative'
-    do i=1,3
-      daxes(i,1) = -ZD(i,3)
-    end do
+    daxes(:,1) = -ZD(:,3)
   end if
 end if
 !ccccccccccccccccccccccccccccccc
@@ -109,14 +90,10 @@ if ((abs(SMAT(2,1)) > abs(SMAT(2,2))) .and. (abs(SMAT(2,1)) > abs(SMAT(2,3)))) t
   dtens(2) = WD(1)
   if (SMAT(2,1) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,1) is larger than SMAT(2,2) and SMAT(2,3) and is positive'
-    do i=1,3
-      daxes(i,2) = ZD(i,1)
-    end do
+    daxes(:,2) = ZD(:,1)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,1) is larger than SMAT(2,2) and SMAT(2,3) and is negative'
-    do i=1,3
-      daxes(i,2) = -ZD(i,1)
-    end do
+    daxes(:,2) = -ZD(:,1)
   end if
 
 else if ((abs(SMAT(2,2)) > abs(SMAT(2,1))) .and. (abs(SMAT(2,2)) > abs(SMAT(2,3)))) then
@@ -124,14 +101,10 @@ else if ((abs(SMAT(2,2)) > abs(SMAT(2,1))) .and. (abs(SMAT(2,2)) > abs(SMAT(2,3)
   dtens(2) = WD(2)
   if (SMAT(2,2) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,2) is larger than SMAT(2,1) and SMAT(2,3) and is positive'
-    do i=1,3
-      daxes(i,2) = ZD(i,2)
-    end do
+    daxes(:,2) = ZD(:,2)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,2) is larger than SMAT(2,1) and SMAT(2,3) and is negative'
-    do i=1,3
-      daxes(i,2) = -ZD(i,2)
-    end do
+    daxes(:,2) = -ZD(:,2)
   end if
 
 else if ((abs(SMAT(2,3)) > abs(SMAT(2,1))) .and. (abs(SMAT(2,3)) > abs(SMAT(2,2)))) then
@@ -139,14 +112,10 @@ else if ((abs(SMAT(2,3)) > abs(SMAT(2,1))) .and. (abs(SMAT(2,3)) > abs(SMAT(2,2)
   dtens(2) = WD(3)
   if (SMAT(2,3) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,3) is larger than SMAT(2,1) and SMAT(2,2) and is positive'
-    do i=1,3
-      daxes(i,2) = ZD(i,3)
-    end do
+    daxes(:,2) = ZD(:,3)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(2,3) is larger than SMAT(2,1) and SMAT(2,2) and is negative'
-    do i=1,3
-      daxes(i,2) = -ZD(i,3)
-    end do
+    daxes(:,2) = -ZD(:,3)
   end if
 end if
 
@@ -156,14 +125,10 @@ if ((abs(SMAT(3,1)) > abs(SMAT(3,2))) .and. (abs(SMAT(3,1)) > abs(SMAT(3,3)))) t
   dtens(3) = WD(1)
   if (SMAT(3,1) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,1) is larger than SMAT(3,2) and SMAT(3,3) and is positive'
-    do i=1,3
-      daxes(i,3) = ZD(i,1)
-    end do
+    daxes(:,3) = ZD(:,1)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,1) is larger than SMAT(3,2) and SMAT(3,3) and is negative'
-    do i=1,3
-      daxes(i,3) = -ZD(i,1)
-    end do
+    daxes(:,3) = -ZD(:,1)
   end if
 
 else if ((abs(SMAT(3,2)) > abs(SMAT(3,1))) .and. (abs(SMAT(3,2)) > abs(SMAT(3,3)))) then
@@ -171,14 +136,10 @@ else if ((abs(SMAT(3,2)) > abs(SMAT(3,1))) .and. (abs(SMAT(3,2)) > abs(SMAT(3,3)
   dtens(3) = WD(2)
   if (SMAT(3,2) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,2) is larger than SMAT(3,1) and SMAT(3,3) and is positive'
-    do i=1,3
-      daxes(i,3) = ZD(i,2)
-    end do
+    daxes(:,3) = ZD(:,2)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,2) is larger than SMAT(3,1) and SMAT(3,3) and is negative'
-    do i=1,3
-      daxes(i,3) = -ZD(i,2)
-    end do
+    daxes(:,3) = -ZD(:,2)
   end if
 
 else if ((abs(SMAT(3,3)) > abs(SMAT(3,1))) .and. (abs(SMAT(3,3)) > abs(SMAT(3,2)))) then
@@ -186,14 +147,10 @@ else if ((abs(SMAT(3,3)) > abs(SMAT(3,1))) .and. (abs(SMAT(3,3)) > abs(SMAT(3,2)
   dtens(3) = WD(3)
   if (SMAT(3,3) > Zero) then
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,3) is larger than SMAT(3,1) and SMAT(3,2) and is positive'
-    do i=1,3
-      daxes(i,3) = ZD(i,3)
-    end do
+    daxes(:,3) = ZD(:,3)
   else
     if (IPRINT > 2) write(u6,'(a)') 'SMAT(3,3) is larger than SMAT(3,1) and SMAT(3,2) and is negative'
-    do i=1,3
-      daxes(i,3) = -ZD(i,3)
-    end do
+    daxes(:,3) = -ZD(:,3)
   end if
 end if
 

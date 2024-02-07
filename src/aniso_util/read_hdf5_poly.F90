@@ -95,7 +95,7 @@ end if
 !----------------------------------------------------------------------|
 ! read the spin free energies (cm-1)
 !call mma_allocate(etmp,nstate,'etmp)')
-!call dcopy_(nstate,[Zero],0,etmp,1)
+!etmp(:) = Zero
 !if (mh5_exists_dset(fileid,'SFS_ENERGIES')) then
 !  found_esfs = .true.
 !  call mh5_fetch_dset(fileid,'SFS_ENERGIES',etmp)
@@ -105,9 +105,7 @@ end if
 !    write(u6,*) 'Norm=',RNRM
 !  end if
 !  ! compute the energeis in cm-1:
-!  do i=1,nstate
-!    esfs(i) = (etmp(i)-etmp(1))*auTocm
-!  end do
+!  esfs(:) = (etmp(:)-etmp(1))*auTocm
 !  if (DBG) then
 !    write(u6,'(A)') 'read_hdf5_all:: esfs'
 !    do i=1,nstate,4
@@ -123,7 +121,7 @@ end if
 !----------------------------------------------------------------------|
 ! read the spin-orbit energies (cm-1)
 call mma_allocate(etmp,nss,'tmp)')
-call dcopy_(nss,[Zero],0,etmp,1)
+etmp(:) = Zero
 if (mh5_exists_dset(fileid,'SOS_ENERGIES')) then
   !found_eso = .true.
   call mh5_fetch_dset(fileid,'SOS_ENERGIES',etmp)
@@ -133,9 +131,7 @@ if (mh5_exists_dset(fileid,'SOS_ENERGIES')) then
     write(u6,*) 'Norm=',RNRM
   end if
   ! compute the energeis in cm-1:
-  do i=1,nss
-    eso(i) = (etmp(i)-etmp(1))*auTocm
-  end do
+  eso(:) = (etmp(:)-etmp(1))*auTocm
   if (DBG) then
     write(u6,'(A)') 'read_hdf5_all:: eso'
     do i=1,nss,4
@@ -153,20 +149,13 @@ call mma_deallocate(etmp)
 call mma_allocate(RR,nss,nss,'RR')
 call mma_allocate(RI,nss,nss,'RI')
 call mma_allocate(U,nss,nss,'U')
-call dcopy_(nss*nss,[Zero],0,RR,1)
-call dcopy_(nss*nss,[Zero],0,RI,1)
-call zcopy_(nss*nss,[cZero],0,U,1)
-
+U(:,:) = cZero
 if (mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL') .and. mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG')) then
   !found_sos_coeff = .true.
   call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_REAL',RR)
   call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_IMAG',RI)
   ! assemble the complex matrix U:
-  do i=1,nss
-    do j=1,nss
-      U(i,j) = cmplx(RR(i,j),RI(i,j),wp)
-    end do
-  end do
+  U(:,:) = cmplx(RR(:,:),RI(:,:),kind=wp)
   RNRM = dznrm2_(nss*nss,U,1)
   if (RNRM < 1.0e-50_wp) then
     call WarningMessage(2,'SOS-U matrix read from HDF5 file has norm = zero')
@@ -189,15 +178,12 @@ call mma_deallocate(RI)
 !----------------------------------------------------------------------|
 ! read the angular momentum integrals (L):
 call mma_allocate(AL,nstate,nstate,3,'AL')
-call dcopy_(nstate*nstate*3,[Zero],0,AL,1)
 if (mh5_exists_dset(fileid,'SFS_ANGMOM')) then
   !found_angmom = .true.
   call mh5_fetch_dset(fileid,'SFS_ANGMOM',AL)
   do i=1,nstate
     do j=1,nstate
-      do l=1,3
-        ANGMOM(l,i,j) = AL(i,j,l)
-      end do
+      ANGMOM(:,i,j) = AL(:,j,l)
     end do
   end do
   RNRM = dnrm2_(nstate*nstate*3,AL,1)
@@ -221,15 +207,12 @@ call mma_deallocate(AL)
 !----------------------------------------------------------------------|
 ! read the electric dipole momentum integrals (EDMOM):
 !call mma_allocate(AL,nstate,nstate,3,'AL')
-!call dcopy_(nstate*nstate*3,[Zero],0,AL,1)
 !if (mh5_exists_dset(fileid,'SFS_EDIPMOM')) then
 !  found_edmom = .true.
 !  call mh5_fetch_dset(fileid,'SFS_EDIPMOM',AL)
 !  do i=1,nstate
 !    do j=1,nstate
-!      do l=1,3
-!        EDMOM(l,i,j) = AL(i,j,l)
-!      end do
+!      EDMOM(:,i,j) = AL(i,j,:)
 !    end do
 !  end do
 !  RNRM = dnrm2_(nstate*nstate*3,AL,1)
@@ -253,15 +236,12 @@ call mma_deallocate(AL)
 !----------------------------------------------------------------------|
 ! read the spin-orbit integrals (AMFI):
 !call mma_allocate(AL,nstate,nstate,3,'AL')
-!call dcopy_(nstate*nstate*3,[Zero],0,AL,1)
 !if (mh5_exists_dset(fileid,'SFS_AMFIINT')) then
 !  found_amfi=.true.
 !  call mh5_fetch_dset(fileid,'SFS_AMFIINT',AL)
 !  do i=1,nstate
 !    do j=1,nstate
-!      do l=1,3
-!        AMFI(l,i,j) = AL(i,j,l)
-!      end do
+!      AMFI(:,i,j) = AL(i,j,:)
 !    end do
 !  end do
 !  RNRM = dnrm2_(nstate*nstate*3,AL,1)
@@ -289,19 +269,12 @@ call mma_deallocate(AL)
 ! read the RASSI SOS Hamiltonian (SOS_HAM):
 !call mma_allocate(RR,nss,nss,'RR')
 !call mma_allocate(RI,nss,nss,'RI')
-!call dcopy_(nss*nss,[Zero],0,RR,1)
-!call dcopy_(nss*nss,[Zero],0,RI,1)
-!
 !if ( mh5_exists_dset(fileid,'HSO_MATRIX_REAL') .and. mh5_exists_dset(fileid,'HSO_MATRIX_IMAG') ) then
 !  found_hso = .true.
 !  call mh5_fetch_dset(fileid,'HSO_MATRIX_REAL',RR )
 !  call mh5_fetch_dset(fileid,'HSO_MATRIX_IMAG',RI )
 !  ! assemble the complex matrix U:
-!  do i=1,nss
-!    do j=1,nss
-!      HSO(i,j) = cmplx(RR(i,j),RI(i,j),wp)
-!    end do
-!  end do
+!  HSO(:,:) = cmplx(RR(:,:),RI(:,:),kind=wp)
 !  RNRM = dznrm2_(nss*nss,HSO,1)
 !  if (RNRM < 1.0e-50_wp) then
 !    call WarningMessage(2,'HSO matrix read from HDF5 file has norm = zero')
@@ -348,9 +321,9 @@ do Ist=1,nstate
     if ((Ipar == 0) .and. (I == 0)) cycle
     do J=-(Mult-Ipar)/2,(Mult-Ipar)/2
       if ((Ipar == 0) .and. (J == 0)) cycle
+      i1 = Ibas(Ist,I)
+      j1 = Ibas(Ist,J)
       do l=1,3
-        i1 = Ibas(Ist,I)
-        j1 = Ibas(Ist,J)
         MM(l,i1,j1) = -Spin(l,Mult,I,J)*g_e
         MS(l,i1,j1) = Spin(l,Mult,I,J)
       end do ! l
@@ -365,13 +338,11 @@ do Ist=1,nstate
     if (MultI == MultJ) then
       do I=-(MultI-Ipar)/2,(MultI-Ipar)/2
         if ((Ipar == 0) .and. (I == 0)) cycle
-        do l=1,3
-          i1 = Ibas(Ist,I)
-          j1 = Ibas(Jst,I)
-          MM(l,i1,j1) = MM(l,i1,j1)-Angmom(l,Ist,Jst)*Onei
-          !ML(l,i1,j1) = ML(l,i1,j1)+Angmom(l,Ist,Jst)*Onei
-          !DM(l,i1,j1) = DM(l,i1,j1)+eDmom(l,Ist,Jst)*cOne
-        end do   ! l
+        i1 = Ibas(Ist,I)
+        j1 = Ibas(Jst,I)
+        MM(:,i1,j1) = MM(:,i1,j1)-Angmom(:,Ist,Jst)*Onei
+        !ML(:,i1,j1) = ML(:,i1,j1)+Angmom(:,Ist,Jst)*Onei
+        !DM(:,i1,j1) = DM(:,i1,j1)+eDmom(:,Ist,Jst)*cOne
       end do   ! I
     end if
   end do   ! Jst

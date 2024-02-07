@@ -56,9 +56,7 @@ do K=1,N
     K1 = K+1
     do I=K1,N
       CQ = A(I,K)*CP
-      do L=K1,N
-        A(I,L) = A(I,L)-CQ*A(K,L)
-      end do
+      A(I,K1:N) = A(I,K1:N)-CQ*A(K,K1:N)
     end do
   end if
 

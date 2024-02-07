@@ -12,8 +12,8 @@
 subroutine read_formatted_new_aniso(input_file_name,nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,AMFI,HSO,eso_au, &
                                     esfs_au)
 
-use Constants, only: Zero, cZero, auTocm, gElectron
-use Definitions, only: wp, u6
+use Constants, only: auTocm, gElectron
+use Definitions, only: u6
 
 implicit none
 integer, intent(inout) :: nss, nstate
@@ -32,24 +32,13 @@ complex(kind=8), intent(out) :: U(nss,nss)
 complex(kind=8), intent(out) :: HSO(nss,nss)
 character(len=180) :: input_file_name
 ! local variables:
-integer :: l, i, j, LuAniso, IsFreeUnit
+integer :: LuAniso, IsFreeUnit
 real(kind=8), parameter :: g_e = -gElectron
 external :: IsFreeUnit
 logical :: DBG
 
 dbg = .false.
 if (dbg) write(u6,'(A)') 'Entering read_formatted_aniso_new'
-! set to zero all arrays:
-multiplicity = 0
-eso(:) = Zero
-esfs(:) = Zero
-edmom(:,:,:) = Zero
-angmom(:,:,:) = Zero
-MM(:,:,:) = cZero
-MS(:,:,:) = cZero
-ML(:,:,:) = cZero
-DM(:,:,:) = cZero
-U(:,:) = cZero
 ! read the data file:
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,input_file_name)
@@ -66,24 +55,13 @@ call read_hso(LuAniso,nss,HSO,dbg)
 call read_eigen(LuAniso,nss,U,dbg)
 
 ! compute the relative spin-orbit energies in cm-1
-do i=1,nss
-  eso(i) = (eso_au(i)-eso_au(1))*auTocm
-end do
+eso(:) = (eso_au(:)-eso_au(1))*auTocm
 
 ! compute the relative spin-free energies in cm-1
-do i=1,nstate
-  esfs(i) = (esfs_au(i)-esfs_au(1))*auTocm
-end do
-write(u6,*) esfs
+esfs(:) = (esfs_au(:)-esfs_au(1))*auTocm
 
 ! compute the orbital moment
-do l=1,3
-  do i=1,nss
-    do j=1,nss
-      ML(l,i,j) = -MM(l,i,j)-MS(l,i,j)*g_e
-    end do
-  end do
-end do
+ML(:,:,:) = -MM(:,:,:)-g_e*MS(:,:,:)
 
 !read_nmult,
 !read_imult,

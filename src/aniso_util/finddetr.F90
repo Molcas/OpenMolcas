@@ -21,17 +21,18 @@ real*8 function FindDetR(matrix,n)
 ! 2]  The determinant of a triangular matrix is obtained by finding
 !     the product of the diagonal elements
 
+use Constants, only: One
+
 implicit none
 integer, intent(in) :: N
 real(kind=8) :: matrix(N,N)
 ! local variables:
-real(kind=8) :: m, temp, MINIMAL_REAL
-integer :: i, j, k, l
+real(kind=8) :: m, temp
+real(kind=8), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)
+integer :: i, j, k
 logical :: DetExists
 
 DetExists = .true.
-MINIMAL_REAL = tiny(MINIMAL_REAL)
-l = 1
 temp = 0
 ! Convert to upper triangular form
 do k=1,N-1
@@ -54,13 +55,11 @@ do k=1,N-1
   end if
   do j=k+1,N
     m = matrix(j,k)/matrix(k,k)
-    do i=k+1,N
-      matrix(j,i) = matrix(j,i)-m*matrix(k,i)
-    end do
+    matrix(j,k+1:N) = matrix(j,k+1:N)-m*matrix(k,k+1:N)
   end do
 end do ! k
 ! Evaluate determinant by finding product of diagonal elements
-FindDetR = l
+FindDetR = One
 do i=1,N
   FindDetR = FindDetR*matrix(i,i)
 end do

@@ -14,14 +14,8 @@ integer function norder(icoord,int_code,lmax)
 implicit none
 integer lmax
 integer icoord(lmax), int_code(lmax)
-integer nb, isite
 
-nb = 0
-do isite=1,lmax
-  nb = nb+icoord(isite)*int_code(isite)
-end do
-
-norder = nb+1
+norder = sum(icoord(:)*int_code(:))+1
 
 return
 

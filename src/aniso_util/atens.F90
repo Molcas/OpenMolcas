@@ -11,7 +11,7 @@
 
 subroutine atens(moment,dim,gtens,maxes,iprint)
 
-use Constants, only: Zero, One, Twelve, Half, cZero
+use Constants, only: Zero, Twelve, Half
 use Definitions, only: wp, u6
 
 implicit none
@@ -34,7 +34,7 @@ real(kind=8), intent(out) :: maxes(3,3)
 !-----------------------------------------------------------------------
 ! local variables
 integer :: ic1, ic2, i, j, info
-real(kind=8) :: A_TENS_TERM(3,3), W(3), MAIN(3), Z(3,3), factor, Det_gtens, diff12, diff23, ZR(3,3), dnorm
+real(kind=8) :: A_TENS_TERM(3,3), W(3), MAIN(3), Z(3,3), Det_gtens, diff12, diff23, ZR(3,3), dnorm
 real(kind=8) :: dznrm2, FindDetR
 complex(kind=8) :: AC_TENS(3,3), trace
 external :: dznrm2, FindDetR, trace
@@ -45,21 +45,12 @@ dnorm = dznrm2(3*dim*dim,moment,1)
 if (dnorm <= tiny(dnorm)) then
   write(u6,'(A)') 'Norm of the magnetic moment is zero.'
   write(u6,'(A)') 'Returning the default (dummy) values'
-  gtens = Zero
-  maxes = Zero
-  do i=1,3
-    maxes(i,i) = One
-  end do
+  gtens(:) = Zero
+  call unitmat(maxes,3)
   return
 end if
 
 ! initialization:
-do I=1,3
-  do J=1,3
-    AC_TENS(I,J) = cZero
-    A_TENS_TERM(I,J) = Zero
-  end do
-end do
 
 do ic1=1,3
   do ic2=1,3
@@ -73,13 +64,7 @@ do ic1=1,3
   end do
 end do
 
-factor = Zero
-factor = Twelve/real(dim**3-dim,kind=wp)
-do ic1=1,3
-  do ic2=1,3
-    A_TENS_TERM(ic1,ic2) = factor*A_TENS_TERM(ic1,ic2)
-  end do
-end do
+A_TENS_TERM(:,:) = Twelve/real(dim**3-dim,kind=wp)*A_TENS_TERM(:,:)
 
 if (iprint > 2) then
   write(u6,'(/)')
@@ -92,16 +77,12 @@ end if
 
 ! Diagonalization of A_tens - g tensors
 
-do I=1,3
-  main(I) = Zero
-  w(I) = Zero
-  do J=1,3
-    z(I,J) = Zero
-  end do
-end do
+main(:) = Zero
+w(:) = Zero
+z(:,:) = Zero
 info = 0
 
-call DIAG_R2(A_TENS_TERM(1:3,1:3),3,info,W(1:3),Z(1:3,1:3))
+call DIAG_R2(A_TENS_TERM,3,info,W,Z)
 
 if (INFO /= 0) return
 if ((w(1) < Zero) .and. (w(2) < Zero) .and. (w(3) < Zero)) then
@@ -128,33 +109,23 @@ end if
 
 do I=1,3
   if (W(I) < Zero) W(I) = 1.0e-24_wp
-  MAIN(i) = sqrt(W(i))
 end do
+MAIN(:) = sqrt(W(:))
 
 ! Check the sign of the coordinate system. If CS is Left-handed,
 ! Then change it to RIGHT-handed
-Det_gtens = Zero
-do I=1,3
-  do J=1,3
-    ZR(I,J) = Zero
-    ZR(I,J) = Z(I,J)
-  end do
-end do
+ZR(:,:) = Z(:,:)
 
 Det_gtens = FindDetR(ZR,3)
 
 if (Det_gtens < Zero) then
-  do i=1,3
-    Z(i,1) = -Z(i,1)
-  end do
+  Z(:,1) = -Z(:,1)
   if (iprint > 2) then
     write(u6,'(a)') 'The coordinate system is LEFT-handed.'
     write(u6,'(a)') 'It has been changed to RIGHT-handed'
   end if
 end if
 
-diff12 = Zero
-diff23 = Zero
 diff12 = MAIN(2)-MAIN(1)
 diff23 = MAIN(3)-MAIN(2)
 
@@ -163,28 +134,17 @@ if (iprint > 2) then
   write(u6,'(5x,a,3F19.15)') 'diff23 = ',diff23
 end if
 
-do i=1,3
-  gtens(i) = Zero
-  do j=1,3
-    maxes(i,j) = Zero
-  end do
-end do
+maxes(:,:) = Zero
 ! set the main Z axis:
 if (diff12 > diff23) then
-  gtens(3) = MAIN(1)
-  gtens(2) = MAIN(2)
-  gtens(1) = MAIN(3)
+  gtens(:) = MAIN(3:1:-1)
 
   if (Z(3,1) >= Zero) then
-    do i=1,3
-      maxes(i,3) = Z(i,1)
-      maxes(i,1) = Z(i,3)
-    end do
+    maxes(:,3) = Z(:,1)
+    maxes(:,1) = Z(:,3)
   else if (Z(3,1) < Zero) then
-    do i=1,3
-      maxes(i,3) = -Z(i,1)
-      maxes(i,1) = Z(i,3)
-    end do
+    maxes(:,3) = -Z(:,1)
+    maxes(:,1) = Z(:,3)
   end if
 
   maxes(1,2) = maxes(2,3)*maxes(3,1)-maxes(2,1)*maxes(3,3)
@@ -192,32 +152,25 @@ if (diff12 > diff23) then
   maxes(3,2) = maxes(1,3)*maxes(2,1)-maxes(1,1)*maxes(2,3)
 
 else if (diff23 > diff12) then
-  gtens(3) = MAIN(3)
-  gtens(2) = MAIN(2)
-  gtens(1) = MAIN(1)
+  gtens(:) = MAIN(:)
 
   if (Z(3,3) >= Zero) then
-    do i=1,3
-      maxes(i,3) = Z(i,3)
-      maxes(i,1) = Z(i,1)
-    end do
+    maxes(:,3) = Z(:,3)
+    maxes(:,1) = Z(:,1)
   else if (Z(3,3) < Zero) then
-    do i=1,3
-      maxes(i,3) = -Z(i,3)
-      maxes(i,1) = Z(i,1)
-    end do
+    maxes(:,3) = -Z(:,3)
+    maxes(:,1) = Z(:,1)
   end if
 
   maxes(1,2) = maxes(2,3)*maxes(3,1)-maxes(2,1)*maxes(3,3)
   maxes(2,2) = maxes(1,1)*maxes(3,3)-maxes(1,3)*maxes(3,1)
   maxes(3,2) = maxes(1,3)*maxes(2,1)-maxes(1,1)*maxes(2,3)
+
 else !( diff23 == diff12)
   ! this special case is isotropic:
   ! therefore assign main axes as close as to be to the cartesian xyz
-  do i=1,3
-    gtens(i) = MAIN(i)
-    maxes(i,i) = One
-  end do
+  gtens(:) = MAIN(:)
+  call unitmat(maxes,3)
 
 end if
 if (iprint > 2) then

@@ -17,7 +17,6 @@ use Definitions, only: wp, u6
 implicit none
 #include "stdalloc.fh"
 integer, intent(inout) :: nss, nstate, iReturn
-! nLoc is the maximal value of the array nss(1:nneq)
 real(kind=8), intent(out) :: eso(nss)
 complex(kind=8), intent(out) :: MM(3,nss,nss)
 complex(kind=8), intent(out) :: MS(3,nss,nss)
@@ -51,9 +50,7 @@ flush(u6)
 call read_spin_moment(LuAniso,nss,MS,dbg)
 
 ! compute the relative spin-orbit energies in cm-1
-do i=1,nss
-  eso(i) = (eso_au(i)-eso_au(1))*auTocm
-end do
+eso(:) = (eso_au(:)-eso_au(1))*auTocm
 call mma_deallocate(eso_au)
 close(LuAniso)
 

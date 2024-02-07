@@ -37,7 +37,7 @@ c      Complex(kind=8) ::  DIP_O2(N2,N2)
 c      Complex(kind=8) ::  DIP_W2(N2,N2)
 c      Complex(kind=8) ::  SP_MOW1,SP_MOW2
 c      Complex(kind=8) ::  QMAT(N1,N1,N2,N2) !,trace
-c      Real(kind=8) ::  WCG ! Clebsh_Gordan Coefficeints
+c      Real(kind=8) ::  WCG ! Clebsch_Gordan Coefficients
 c      logical DBG
 c      external WCG
       Complex(kind=8) ::  Jpar(N1-1,-N1+1:N1-1,N2-1,-N2+1:N2-1)

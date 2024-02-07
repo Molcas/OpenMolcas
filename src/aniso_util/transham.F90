@@ -13,7 +13,7 @@ subroutine transHam(n1,n2,rot1,rot2,MM1,MM2,typ1,typ2,H,HT,iopt)
 ! purpose:  transform the exchange Hamiltonian
 !           matrices to the basis of their local pseudospins
 
-use Constants, only: Zero, One, cZero, cOne
+use Constants, only: cZero, cOne
 use Definitions, only: u6
 
 implicit none
@@ -58,20 +58,15 @@ if (n2 > 0) then
   call mma_allocate(TMP2,n2,n2,'TMP2')
 end if
 if ((n1 > 0) .and. (n2 > 0)) call mma_allocate(HI,n1,n1,n2,n2,'HI')
-call zcopy_(n1*n1*n2*n2,[cZero],0,HT,1)
+HT(:,:,:,:) = cZero
 !-----------------------------------------------------------------------
 
 ! rotate the magnetic moments to their general coordinate system
-call zcopy_(3*n1*n1,[cZero],0,M1,1)
-call zcopy_(3*n2*n2,[cZero],0,M2,1)
+
 call rotmom(MM1,n1,rot1,M1)
 call rotmom(MM2,n2,rot2,M2)
 
 if (iopt == 1) then ! local coordinate system
-  call dcopy_(3,[Zero],0,gt1,1)
-  call dcopy_(3,[Zero],0,gt2,1)
-  call dcopy_(3*3,[Zero],0,ax1,1)
-  call dcopy_(3*3,[Zero],0,ax2,1)
   if (DBG) then
     write(u6,'(A)') 'TRANSHAM:: local g tensors and axes:'
     call atens(M1,n1,gt1,ax1,2)
@@ -82,18 +77,14 @@ if (iopt == 1) then ! local coordinate system
   end if
 
 else if (iopt == 2) then ! general coordinate system
-  call dcopy_(3*3,[Zero],0,ax1,1)
-  call dcopy_(3*3,[Zero],0,ax2,1)
-  do i1=1,3
-    ax1(i1,i1) = One
-    ax2(i1,i1) = One
-  end do
+  call unitmat(ax1,3)
+  call unitmat(ax2,3)
 end if
 
 !-----------------------------------------------------------------------
 ! rotate magnetic moments to their local magnetic axes:
-call zcopy_(3*n1*n1,[cZero],0,MR1,1)
-call zcopy_(3*n2*n2,[cZero],0,MR2,1)
+MR1(:,:,:) = cZero
+MR2(:,:,:) = cZero
 if (((typ1 == 'A') .and. (typ2 == 'A')) .or. ((typ1 == 'B') .and. (typ2 == 'B')) .or. ((typ1 == 'B') .and. (typ2 == 'C')) .or. &
     ((typ1 == 'C') .and. (typ2 == 'B')) .or. ((typ1 == 'C') .and. (typ2 == 'C'))) then
   ! both sites have been computed ab initio
@@ -127,8 +118,6 @@ end if
 
 !-----------------------------------------------------------------------
 ! find local pseudospin on each site:
-call zcopy_(n1*n1,[cZero],0,Z1,1)
-call zcopy_(n2*n2,[cZero],0,Z2,1)
 call pseudospin(MR1,n1,Z1,3,1,1)
 call pseudospin(MR2,n2,Z2,3,1,1)
 
@@ -152,7 +141,7 @@ if (DBG) then
 end if
 
 ! save a local copy:
-call zcopy_(n1*n1*n2*n2,H,1,HI,1)
+if (allocated(HI)) HI(:,:,:,:) = H(:,:,:,:)
 
 do i1=1,n1
   do j1=1,n1
@@ -181,8 +170,7 @@ do i1=1,n1
   end do
 end do
 
-call zcopy_(n1*n1*n2*n2,[cZero],0,HT,1)
-call zcopy_(n1*n1*n2*n2,HI,1,HT,1)
+if (allocated(HI)) HT(:,:,:,:) = HI(:,:,:,:)
 
 do i1=1,n1
   do j1=1,n1
