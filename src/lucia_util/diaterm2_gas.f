@@ -13,7 +13,6 @@
       SUBROUTINE DIATERM2_GAS( FACTOR,  ITASK,    VEC, NBLOCK, IBLOCK,
      &                           IOFF,  JPERT,    J12,    JDC)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
       use strbas
 * = DIATERM_GAS, just J12 added !
 *

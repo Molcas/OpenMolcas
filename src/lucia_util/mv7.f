@@ -10,7 +10,6 @@
 ************************************************************************
       SUBROUTINE MV7(C,HC,LUC,LUHC)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
       use strbas
 *
 * Outer routine for sigma vector generation
