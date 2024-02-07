@@ -38,6 +38,7 @@
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 
+      use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
       Use casvb_global, Only: ifvb, lw1_cvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp

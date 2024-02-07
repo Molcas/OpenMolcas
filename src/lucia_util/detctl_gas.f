@@ -243,7 +243,6 @@ c      END IF
       END SUBROUTINE DETCTL_GAS
 *
       SUBROUTINE DETCTL_FREE()
-      use stdalloc, only: mma_deallocate
       use strbas
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
