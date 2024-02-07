@@ -119,7 +119,6 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 
       NAC2=NAC**2
       Call mma_allocate(VecL,NConf,Label='VecL')
-      C_Pointer=>VecL
       Call mma_allocate(VecR,NConf,Label='VecR')
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
       Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
@@ -149,6 +148,7 @@ C        CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
        kRoot=jRoot
        Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
        Call Lucia_Util('Densi',
+     &                 CI_Vector=VecL(:),
      &                 RVec=VecR(:))
        IOffNIJ1=(lRoots+1)*(jRoot-1)*NAC2
 C       write(6,*)'GD matrix',jRoot,kRoot
@@ -161,7 +161,6 @@ C       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
       Call mma_deallocate(TmpD)
       Call mma_deallocate(VecL)
       Call mma_deallocate(VecR)
-      C_Pointer=>Null()
       END Subroutine
 ************************************************************************
 

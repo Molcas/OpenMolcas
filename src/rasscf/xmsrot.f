@@ -161,11 +161,10 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
       INTEGER CIDisk1,CIDisk2
       INTEGER NIJ2
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
-      Real*8, Allocatable, Target:: VecL(:), VecR(:)
+      Real*8, Allocatable:: VecL(:), VecR(:)
 
 
       Call mma_allocate(VecL,NConf,Label='VecL')
-      C_Pointer=>VecL
       Call mma_allocate(VecR,NConf,Label='VecR')
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
       Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
@@ -183,6 +182,7 @@ C        write(6,*) 'VecL and VecR for states',jRoot,kRoot
 C        write(6,*)(VecL(I),I=0,NConf-1)
 C        write(6,*)(VecR(I),I=0,NConf-1)
         Call Lucia_Util('Densi',
+     &                  CI_Vector=VecL(:),
      &                  RVEC=VECR(:))
 C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
@@ -198,7 +198,6 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
       DTmp(:)=TmpD(:)
       Call mma_deallocate(SDtmp)
       Call mma_deallocate(TmpD)
-      C_Pointer=>Null()
       Call mma_deallocate(VecL)
       Call mma_deallocate(VecR)
       END Subroutine

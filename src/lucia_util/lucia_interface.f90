@@ -26,7 +26,7 @@ Contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-      Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array, RVec)
+      Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array, RVec, CI_VECTOR)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
@@ -38,7 +38,7 @@ Contains
       Integer, Optional:: LU
       Real*8, Optional:: Array(:)
       Real*8, Optional:: RVEC(:)
-
+      Real*8, Optional:: CI_Vector(:)
       Parameter(MxpLnc = 72)
       Character(LEN=MxpLnc) Module_
 !
@@ -94,10 +94,10 @@ Contains
          Call Diag_Master
       Else If (Module_(1:9) .eq. 'SIGMA_CVB') Then
 !        iSym_LI is the symmetry to be used.
-         Call Sigma_Master_CVB(C_POINTER,SIZE(C_POINTER),iSym)
+         Call Sigma_Master_CVB(CI_VECTOR,SIZE(CI_VECTOR),iSym)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
-         Call Sigma_Master(C_POINTER,SIZE(C_POINTER))
+         Call Sigma_Master(CI_VECTOR,SIZE(CI_VECTOR))
       Else If (Module_(1:5) .eq. 'TRACI') Then
 !        write(6,*) 'blubbbbbbtraci'
 !        iDisk is the initial disk address (for read/write of JOBIPH)
@@ -108,9 +108,9 @@ Contains
          Call mma_deallocate(lVec)
       Else If (Module_(1:5) .eq. 'DENSI') Then
          If (Present(RVEC)) Then
-            Call Densi_Master(C_POINTER,SIZE(C_POINTER),RVEC=RVEC(:))
+            Call Densi_Master(CI_VECTOR,SIZE(CI_VECTOR),RVEC=RVEC(:))
          Else
-            Call Densi_Master(C_POINTER,SIZE(C_POINTER))
+            Call Densi_Master(CI_VECTOR,SIZE(CI_VECTOR))
          End If
       Else If (Module_(1:3) .eq. 'INI') Then
          Call Lucia_Ini()

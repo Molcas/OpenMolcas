@@ -310,12 +310,11 @@ C Local print level (if any)
                else
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
                  Call mma_allocate(Pscr,NACPR2,Label='Pscr')
-                 C_Pointer => CIVEC
-                 CALL Lucia_Util('Densi')
+                 CALL Lucia_Util('Densi',
+     &                           CI_Vector=CIVEC(:))
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
                  End If
-                 C_Pointer => Null()
                  Call mma_deallocate(Pscr)
                  Call mma_deallocate(PAtmp)
                end if ! doDMRG/doBLOK or CI
@@ -593,9 +592,8 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * compute density matrices
 
          If ( NAC.ge.1 ) Then
-           C_Pointer => CIVEC
-           if(.not.(doDMRG))
-     &       CALL Lucia_Util('Densi')
+           if(.not.(doDMRG)) CALL Lucia_Util('Densi',
+     &                                       CI_Vector=CIVEC(:))
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Dtmp,NAC)
@@ -603,7 +601,6 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
              CALL TRIPRT('P after lucia',' ',Ptmp,NACPAR)
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
-           C_Pointer => Null()
          EndIf
          IF (.not.doDMRG .and. (IFCAS.GT.2 .OR. iDoGAS))
      &   CALL CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
@@ -699,15 +696,14 @@ C and for now don't bother with 2-electron active density matrices
         end if
 * compute density matrices
         If ( NAC.ge.1 ) Then
-           C_Pointer => CIVEC
-           CALL Lucia_Util('Densi')
+           CALL Lucia_Util('Densi',
+     &                     CI_Vector=CIVEC(:))
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Dtmp,NAC)
              CALL TRIPRT('DS after lucia',' ',DStmp,NAC)
              CALL TRIPRT('P after lucia',' ',Ptmp,NACPAR)
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
-           C_Pointer => Null()
         EndIf
         IF (IDoGAS.or.ifcas.gt.2) CALL CISX(IDXSX,Dtmp,DStmp,
      &              Ptmp,PAtmp,Pscr)

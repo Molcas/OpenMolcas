@@ -156,7 +156,7 @@
       Character(len=80) ::  VecTyp
 
 #ifdef _HDF5_
-      Real*8, Allocatable, Target:: VecL(:), VecR(:)
+      Real*8, Allocatable:: VecL(:), VecR(:)
 #endif
 
 * Set status line for monitor:
@@ -1865,7 +1865,6 @@ c Clean-close as much as you can the CASDFT stuff...
 #ifdef _HDF5_
          Call GetMem('TMP','ALLO','REAL',iTmp,NConf)
          Call mma_allocate(VecL,NConf,Label='VecL')
-         C_Pointer=>VecL
          Call mma_allocate(VecR,NConf,Label='VecR')
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
          Call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
@@ -1887,6 +1886,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                     Work(iTmp),VecR,iWork(ivkcnf))
 *              Compute TDM and store in h5 file
                Call Lucia_Util('Densi',
+     &                         CI_Vector=VecL(:),
      &                         RVec=VecR(:))
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
                Call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),
@@ -1897,7 +1897,6 @@ c Clean-close as much as you can the CASDFT stuff...
             End Do
          End Do
          Call GetMem('TMP','FREE','REAL',iTmp,NConf)
-         C_Pointer=>Null()
          Call mma_deallocate(VecL)
          Call mma_deallocate(VecR)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
@@ -2063,10 +2062,12 @@ c deallocating TUVX memory...
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
+#ifdef _HDF5_
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE')
       end if
+#endif
 
 
       Call StatusLine('RASSCF:','Finished.')

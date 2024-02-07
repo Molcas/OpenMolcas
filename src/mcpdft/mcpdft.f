@@ -479,8 +479,8 @@
      &                CONF,CFTP,CIVEC,CIV,iWork(ivkcnf))
           Call dcopy_(nconf,CIV,1,CIVEC,1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
-          C_Pointer => CIVEC
-          CALL Lucia_Util('Densi')
+          CALL Lucia_Util('Densi',
+     &                    CI_Vector=CIVEC(:))
           If (IFCAS > 2) Then
             Call CISX_m(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
           End If

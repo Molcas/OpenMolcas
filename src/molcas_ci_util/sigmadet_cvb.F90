@@ -13,7 +13,6 @@ subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 
 use Definitions, only: wp, iwp
 use GLBBAS, only: CI_Vec, Sigma_Vec
-use rasscf_lucia, only: C_pointer
 use Lucia_Interface, only: Lucia_Util
 
 implicit none
@@ -23,12 +22,11 @@ real(kind=wp), intent(out) :: HC(NCI)
 
 ! Export arguments to be used in sigma_master_cvb
 
-C_POINTER => CI_VEC
 CI_VEC(1:NCI)=C(1:NCI)
 ! Call the sigma routine
-call LUCIA_UTIL('SIGMA_CVB',  &
+call LUCIA_UTIL('SIGMA_CVB',         &
+                CI_Vector=CI_VEC(:), &
                 iSym=iREFSM)
 HC(1:NCI)=SIGMA_VEC(1:NCI)
-C_POINTER => Null()
 
 end subroutine SIGMADET_CVB
