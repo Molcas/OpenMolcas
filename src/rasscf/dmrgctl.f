@@ -321,7 +321,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 #elif _ENABLE_DICE_SHCI_
           CALL dice_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
 #endif
-          Call mma_deallocate(Pscf)
+          Call mma_deallocate(Pscr)
         EndIf
 * Modify the symmetric 2-particle density if only partial
 * "exact exchange" is included.
