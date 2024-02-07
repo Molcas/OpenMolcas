@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DETCTL_GAS
+      SUBROUTINE DETCTL_GAS()
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
@@ -26,13 +26,7 @@
 #include "crun.fh"
 #include "cstate.fh"
 #include "cands.fh"
-!#include "cicisp.fh"
-      COMMON/CICISP/IDUMMY,NICISP,
-     &              NELCI(MXPICI),
-     &              XISPSM(MXPCSM,MXPICI),
-     &              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,
-     &              NBLKIC(MXPCSM,MXPICI),LCOLIC(MXPCSM,MXPICI),
-     &              MXNTTS,MXSOOB_AS
+#include "cicisp.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
 #include "csm.fh"
@@ -243,7 +237,7 @@ c      END IF
      &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
      &     nCSF_HEXS)
 
-      END
+      END SUBROUTINE DETCTL_GAS
 *
       SUBROUTINE DETCTL_FREE()
       use stdalloc, only: mma_deallocate
@@ -273,4 +267,4 @@ c      END IF
 
       CALL LUCIA2MOLCAS_FREE()
 
-      END
+      END SUBROUTINE DETCTL_FREE

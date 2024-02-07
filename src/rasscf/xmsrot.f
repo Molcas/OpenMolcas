@@ -57,7 +57,6 @@ C     Deallocating Memory
       CALL mma_deallocate(FckS)
       CALL mma_deallocate(EigVec)
 
-      RETURN
       End Subroutine
 
 ************************************************************************
@@ -141,7 +140,6 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
        IOff3=IOff3+NA
       END DO
 
-      RETURN
       END Subroutine
 
 ******************************************************

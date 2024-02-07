@@ -416,7 +416,7 @@ c           IF (NACTEL.GT.0) THEN
                CALL LUCIA_UTIL('TRACI',
      &                         iDisk=iDisk,
      &                         Lu=JOBIPH,
-     &                         Array=SMAT)
+     &                         Array=SMAT(:))
              end if
              Call mma_deallocate(SMAT)
            ELSE
