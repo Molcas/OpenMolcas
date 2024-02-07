@@ -88,7 +88,7 @@
          Call Diag_Master
       Else If (Module_(1:9) .eq. 'SIGMA_CVB') Then
 *        iSym_LI is the symmetry to be used.
-         Call Sigma_Master_CVB(iSym_LI)
+         Call Sigma_Master_CVB(C_POINTER,SIZE(C_POINTER),iSym_LI)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
          Call Sigma_Master(C_POINTER,SIZE(C_POINTER))

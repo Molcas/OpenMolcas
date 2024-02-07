@@ -66,10 +66,10 @@ c      END IF
 *   Now for the CASVB case   *
 *                            *
 ******************************
-      SUBROUTINE SIGMA_MASTER_CVB(IREFSM_CASVB)
+      SUBROUTINE SIGMA_MASTER_CVB(CIVEC,nCIVEC,IREFSM_CASVB)
       use GLBBAS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_lucia
+      use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, ISIGMA_ON_DISK
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "cands.fh"
@@ -85,10 +85,13 @@ c      END IF
 #include "orbinp.fh"
 #include "cecore.fh"
 #include "crun.fh"
+#include "spinfo_lucia.fh"
+      Integer nCIVEC
+      Real*8 CIVEC(nCIVEC)
       Integer, Allocatable:: lVec(:)
       Integer nSD
 
-      nSD=Size(C_Pointer)
+      nSD = NSD_PER_SYM(IREFSM)
 *
 * Set ICSM and ISSM (from cands.fh) to the correct symmetry for this call
 *
@@ -111,7 +114,7 @@ c      END IF
 * Write CI-vector to disc
 *
       call mma_allocate(lVec,MXNTTS,Label='lVec')
-      CALL CPCIVC(C_Pointer,nSD,LUC, MXNTTS, ISSM, 1,lVec)
+      CALL CPCIVC(CIVEC,nSD,LUC, MXNTTS, ISSM, 1,lVec)
       call mma_deallocate(lVec)
 *
 * Calculate the sigma vector:
