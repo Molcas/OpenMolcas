@@ -125,59 +125,58 @@ call cZeroMatrix(z,dim)
 call diag_c2(hzee,dim,info,w,z)
 if (info /= 0) then
   write(u6,'(5x,a)') 'diagonalization of the zeeman hamiltonian failed.'
-  go to 199
-end if
+else
 
-call cZeroMatrix(zfin,dim)
-call spin_phase(dipso2,dim,z,zfin)
+  call cZeroMatrix(zfin,dim)
+  call spin_phase(dipso2,dim,z,zfin)
 
-if (iprint > 2) then
-  write(u6,'(5X,A)') 'MAIN VALUES OF THE ZEEMAN HAMILTONIAN:'
-  write(u6,*)
-  if (mod(dim,2) == 1) then
-    do I=1,dim
-      write(u6,'(3X,A,I3,A,F17.3)') '|',(dim-1)/2+(1-I),'> = ',W(i)
-    end do
-  else
-    do I=1,dim
-      write(u6,'(3X,A,I3,A,F17.3)') '|',(dim-1)-2*(I-1),'/2 > = ',W(i)
-    end do
-  end if
-  write(u6,*)
-  write(u6,'(1X,A)') 'EIGENFUNCTIONS OF THE EFFECTIVE SPIN:'
-  write(u6,*)
-  if (mod(dim,2) == 1) then
+  if (iprint > 2) then
+    write(u6,'(5X,A)') 'MAIN VALUES OF THE ZEEMAN HAMILTONIAN:'
+    write(u6,*)
+    if (mod(dim,2) == 1) then
+      do I=1,dim
+        write(u6,'(3X,A,I3,A,F17.3)') '|',(dim-1)/2+(1-I),'> = ',W(i)
+      end do
+    else
+      do I=1,dim
+        write(u6,'(3X,A,I3,A,F17.3)') '|',(dim-1)-2*(I-1),'/2 > = ',W(i)
+      end do
+    end if
+    write(u6,*)
+    write(u6,'(1X,A)') 'EIGENFUNCTIONS OF THE EFFECTIVE SPIN:'
+    write(u6,*)
+    if (mod(dim,2) == 1) then
+      do i=1,dim
+        write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)/2+(1-i),' > :',(zfin(j,i),j=1,dim)
+      end do
+    else
+      do i=1,dim
+        write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)-2*(i-1),'/2 > :',(zfin(j,i),j=1,dim)
+      end do
+    end if
+  end if ! printing of eigenfunctions with identical phase.
+
+  call cZeroMoment(MF,dim)
+  call cZeroMoment(SF,dim)
+  do l=1,3
     do i=1,dim
-      write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)/2+(1-i),' > :',(zfin(j,i),j=1,dim)
-    end do
-  else
-    do i=1,dim
-      write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)-2*(i-1),'/2 > :',(zfin(j,i),j=1,dim)
-    end do
-  end if
-end if ! printing of eigenfunctions with identical phase.
-
-call cZeroMoment(MF,dim)
-call cZeroMoment(SF,dim)
-do l=1,3
-  do i=1,dim
-    do j=1,dim
-      do i1=1,dim
-        do i2=1,dim
-          MF(l,i,j) = MF(l,i,j)+dipso2(l,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
-          SF(l,i,j) = SF(l,i,j)+s_so2(l,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
+      do j=1,dim
+        do i1=1,dim
+          do i2=1,dim
+            MF(l,i,j) = MF(l,i,j)+dipso2(l,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
+            SF(l,i,j) = SF(l,i,j)+s_so2(l,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
+          end do
         end do
       end do
     end do
   end do
-end do
 
-if (IPRINT > 2) then
-  call prMom('PseudoSpin basis:  MAGNETIC MOMENT: MF :',MF,dim)
-  call prMom('PseudoSpin basis:      SPIN MOMENT: SF :',SF,dim)
+  if (IPRINT > 2) then
+    call prMom('PseudoSpin basis:  MAGNETIC MOMENT: MF :',MF,dim)
+    call prMom('PseudoSpin basis:      SPIN MOMENT: SF :',SF,dim)
+  end if
 end if
 
-199 continue
 return
 
 end subroutine pa_pseudo

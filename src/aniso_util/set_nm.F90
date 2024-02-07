@@ -69,7 +69,7 @@ else if (encut_definition == 2) then
     if (i > 1) diff = w(i)-w(i-1)
     if ((w(i) > em) .and. (diff > 1.0e-4_wp)) then
       nm = i-1
-      go to 309
+      exit
     end if
   end do
 
@@ -82,7 +82,7 @@ else if (encut_definition == 3) then
     if (i > 1) diff = w(i)-w(i-1)
     if ((w(i) > em) .and. (diff > 1.0e-4_wp)) then
       nm = i-1
-      go to 309
+      exit
     end if
   end do
 
@@ -92,8 +92,6 @@ else
   call quit(_RC_INPUT_ERROR_)
 
 end if !encut_definition
-
-309 continue
 
 return
 

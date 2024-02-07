@@ -69,10 +69,9 @@ ipar = mod(multiplicity(1),2)
 do Ist=1,nstate
   Mult = Multiplicity(Ist)
   do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
-    if ((Ipar == 0) .and. (I == 0)) go to 310
+    if ((Ipar == 0) .and. (I == 0)) cycle
     Iss = Iss+1
     szproj(iss) = I
-310 continue
   end do ! i
 end do ! ist
 

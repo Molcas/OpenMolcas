@@ -2276,7 +2276,7 @@ do
   if (ios /= 0) then
     !stop 'file_advance_to_string:: error reading line'
     !print '(A,i0,2A)', 'file_advance_to_string:: error reading line: LU=',LU,' key=',key
-    go to 1
+    exit
   end if
 
   num_read = num_read+1
@@ -2284,7 +2284,6 @@ do
   if (index(line,trim(key)) /= 0) return
 end do
 
-1 continue
 line = ' '
 ierr = 1
 

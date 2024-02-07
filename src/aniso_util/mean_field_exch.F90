@@ -26,7 +26,7 @@ real(kind=8), intent(out) :: ST(3)
 #include "stdalloc.fh"
 ! local variables:
 integer :: i, l, mxIter, iter
-logical :: DBG
+logical :: Conv, DBG
 real(kind=8) :: WM(N), S(3), ZB, SCHK, THRS, SL(3)
 complex(kind=8) :: ZM(N,N), SZ(3,N,N)
 real(kind=8), allocatable :: RWORK(:)
@@ -53,6 +53,7 @@ call zcopy_(2*N-1,[cZero],0,WORK,1)
 call zcopy_(N,[cZero],0,W_c,1)
 ! determine first the average spin of neighboring
 ! molecules for each temperature point
+Conv = .false.
 do iter=1,mxIter
   WM(1:N) = Zero
   ZM(1:N,1:N) = cZero
@@ -84,21 +85,22 @@ do iter=1,mxIter
   end if
 
   ! decide to continue the iterative process or exit
-  if (SCHK < THRS) go to 1001
+  if (SCHK < THRS) then
+    Conv = .true.
+    exit
+  end if
   ST(:) = S(:)
 end do ! iter
 
-write(u6,'(A, ES24.14)') 'This message shows that the average spin did NOT converge after 100 iterations. Temp.(in K)=',T
-write(u6,'(A,4ES24.14)') 'Field: (X, Y, Z), and (H):',X,Y,Z,H
-write(u6,'(A,4ES24.14)') 'Last values of the average spin: (Sx,Sy,Sz):',(ST(i),i=1,3)
-write(u6,'(A,4ES24.14)') 'Last values of the deviation:              :',(SL(i)-ST(i),i=1,3)
-write(u6,'(A,4ES24.14)') 'Absolute value of the deviation:           :',SCHK
-write(u6,'(A,4ES24.14)') 'Convergence threshold:    THRS =           :',THRS
-write(u6,'(A         )') 'The program will continue, using the last value of the average spin'
-
-return
-
-1001 continue
+if (.not. Conv) then
+  write(u6,'(A, ES24.14)') 'This message shows that the average spin did NOT converge after 100 iterations. Temp.(in K)=',T
+  write(u6,'(A,4ES24.14)') 'Field: (X, Y, Z), and (H):',X,Y,Z,H
+  write(u6,'(A,4ES24.14)') 'Last values of the average spin: (Sx,Sy,Sz):',(ST(i),i=1,3)
+  write(u6,'(A,4ES24.14)') 'Last values of the deviation:              :',(SL(i)-ST(i),i=1,3)
+  write(u6,'(A,4ES24.14)') 'Absolute value of the deviation:           :',SCHK
+  write(u6,'(A,4ES24.14)') 'Convergence threshold:    THRS =           :',THRS
+  write(u6,'(A         )') 'The program will continue, using the last value of the average spin'
+end if
 
 ! deallocate temporary data:
 call mma_deallocate(RWORK)

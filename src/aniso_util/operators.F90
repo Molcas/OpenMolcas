@@ -246,7 +246,7 @@ al = real(M,kind=wp)
 c = real(dim-1,kind=wp)*Half
 b = real(dim-1,kind=wp)*Half
 do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
-  if ((ms1 == 0) .and. (NPAR == 0)) go to 160
+  if ((ms1 == 0) .and. (NPAR == 0)) cycle
   if (NPAR == 0) then
     if (ms1 < 0) then
       gm = real(ms1,kind=wp)+Half
@@ -258,7 +258,7 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
   end if
 
   do ms2=-(dim-NPAR)/2,(dim-NPAR)/2
-    if ((ms2 == 0) .and. (NPAR == 0)) go to 150
+    if ((ms2 == 0) .and. (NPAR == 0)) cycle
     if (NPAR == 0) then
       if (ms2 < 0) then
         bt = real(ms2,kind=wp)+Half
@@ -277,15 +277,13 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
     if (iprint > 5) &
       write(u6,'(5x,2(a,i3,2x),6(a,f4.1,2x),2(a,f14.10,2x))') 'ms1=',ms1,'ms2=',ms2,'a=',a,'al=',al,'b=',b,'bt=',bt,'c=',c, &
                                                               'gm=',gm,'coeffCG=',coeffCG,'coeffCG^2=',coeffCG**2
-150 continue
   end do ! ms2
-160 continue
 end do ! ms1
 
 al = -real(M,kind=wp)
 
 do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
-  if ((ms1 == 0) .and. (NPAR == 0)) go to 161
+  if ((ms1 == 0) .and. (NPAR == 0)) cycle
   if (NPAR == 0) then
     if (ms1 < 0) then
       gm = real(ms1,kind=wp)+Half
@@ -297,7 +295,7 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
   end if
 
   do ms2=-(dim-NPAR)/2,(dim-NPAR)/2
-    if ((ms2 == 0) .and. (NPAR == 0)) go to 151
+    if ((ms2 == 0) .and. (NPAR == 0)) cycle
 
     if (NPAR == 0) then
       if (ms2 < 0) then
@@ -317,25 +315,21 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
     if (iprint > 5) &
       write(u6,'(5x,2(a,i3,2x),6(a,f4.1,2x),2(a,f14.10,2x))') 'ms1=',ms1,'ms2=',ms2,'a=',a,'al=',al,'b=',b,'bt=',bt,'c=',c, &
                                                               'gm=',gm,'coeffCG=',coeffCG,'coeffCG^2=',coeffCG**2
-151 continue
   end do
-161 continue
 end do
 
 i = 0
 do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
-  if ((ms1 == 0) .and. (NPAR == 0)) go to 180
+  if ((ms1 == 0) .and. (NPAR == 0)) cycle
   i = i+1
   j = 0
 
   do ms2=-(dim-NPAR)/2,(dim-NPAR)/2
-    if ((ms2 == 0) .and. (NPAR == 0)) go to 170
+    if ((ms2 == 0) .and. (NPAR == 0)) cycle
     j = j+1
     ITO_O(i,j) = ITO_PLUS(ms1,ms2)
     ITO_W(i,j) = ITO_MINUS(ms1,ms2)
-170 continue
   end do
-180 continue
 end do
 
 if (IPRINT > 3) then
@@ -343,20 +337,18 @@ if (IPRINT > 3) then
   write(u6,'(5X,A,2I3)') 'Operator ITO_PLUS',N,M
   write(u6,*)
   do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
-    if ((ms1 == 0) .and. (NPAR == 0)) go to 158
+    if ((ms1 == 0) .and. (NPAR == 0)) cycle
     if (NPAR == 1) write(u6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
     if (NPAR == 0) write(u6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-dim/2,-1),(ITO_PLUS(ms1,ms2),ms2=1,dim/2)
-158 continue
   end do ! ms1
 
   write(u6,'(/)')
   write(u6,'(5X,A,2I3)') 'Operator ITO_MINUS',N,M
   write(u6,*)
   do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
-    if ((ms1 == 0) .and. (NPAR == 0)) go to 159
+    if ((ms1 == 0) .and. (NPAR == 0)) cycle
     if (NPAR == 1) write(u6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
     if (NPAR == 0) write(u6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-dim/2,-1),(ITO_MINUS(ms1,ms2),ms2=1,dim/2)
-159 continue
   end do ! ms1
 
   write(u6,'(/////)')

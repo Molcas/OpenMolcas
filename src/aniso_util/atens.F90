@@ -103,13 +103,13 @@ info = 0
 
 call DIAG_R2(A_TENS_TERM(1:3,1:3),3,info,W(1:3),Z(1:3,1:3))
 
-if (INFO /= 0) go to 199
+if (INFO /= 0) return
 if ((w(1) < Zero) .and. (w(2) < Zero) .and. (w(3) < Zero)) then
   write(u6,'(2x,A)') 'ALL EIGENVALUES OF THE A-TENSOR ARE NEGATIVE'
   write(u6,'(2X,A)') 'THIS IS A VERY UNUSUAL SITUATION. PLEASE CHECK MANUALLY '
   write(u6,'(2x,A)') 'THE FOLLOWING PART OF THE PSEUDoSPIN SECTION'
   write(u6,'(2x,A)') 'MUST BE DISREGARDED. THE RESULTS ARE NOT TRUSTABLE.'
-  go to 199
+  return
 end if
 
 if (iprint > 2) then
@@ -243,8 +243,6 @@ if (iprint >= 2) then
   write(u6,'(A,F18.14,A,3F18.14,1x,A)') ' gZ = ',gtens(3),' | Zm |',(maxes(j,3),j=1,3),'|'
   write(u6,'(65a)') ('-',i=1,56),'|'
 end if
-
-199 continue
 
 return
 

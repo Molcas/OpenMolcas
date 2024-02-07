@@ -115,10 +115,7 @@ else
   write(u6,'(A)') 'the Do_option is not specified. '
   write(u6,'(A)') 'the program continues without ABCC option'
   iReturn = 1
-  go to 190
 end if
-
-190 continue
 
 return
 

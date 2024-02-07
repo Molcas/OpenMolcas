@@ -47,25 +47,24 @@ if (dbg) then
 end if
 if (info /= 0) then
   write(u6,'(5x,a)') 'PSEUDO::  diagonalization of the zeeman hamiltonian failed.'
-  go to 199
-end if
-if (dbg) then
-  write(u6,*) 'PSEUDO:  norm of  M is:',dznrm2_(3*dim*dim,M,1)
-  write(u6,*) 'PSEUDO:  norm of Z1 is:',dznrm2_(dim*dim,Z1,1)
-end if
-if (iDir == 3) then
-  if (iOpt == 1) then
-    call spin_phase(M,dim,z1,z)
+else
+  if (dbg) then
+    write(u6,*) 'PSEUDO:  norm of  M is:',dznrm2_(3*dim*dim,M,1)
+    write(u6,*) 'PSEUDO:  norm of Z1 is:',dznrm2_(dim*dim,Z1,1)
+  end if
+  if (iDir == 3) then
+    if (iOpt == 1) then
+      call spin_phase(M,dim,z1,z)
+    else
+      call zcopy_(dim*dim,z1,1,z,1)
+      write(u6,*) 'PSEUDOSPIN:  iOpt = ',iOpt
+      call WarningMessage(2,'PSEUDOSPIN: iOpt is not understood.')
+    end if
   else
     call zcopy_(dim*dim,z1,1,z,1)
-    write(u6,*) 'PSEUDOSPIN:  iOpt = ',iOpt
-    call WarningMessage(2,'PSEUDOSPIN: iOpt is not understood.')
   end if
-else
-  call zcopy_(dim*dim,z1,1,z,1)
 end if
 
-199 continue
 call mma_deallocate(W)
 call mma_deallocate(Z1)
 
