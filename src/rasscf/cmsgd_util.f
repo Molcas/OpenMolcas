@@ -102,7 +102,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       Subroutine CalcGD(GD,nGD)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia
-      use Lucia_Interface, only: RVEC, Lucia_Util
+      use Lucia_Interface, only: Lucia_Util
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -121,7 +121,6 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       Call mma_allocate(VecL,NConf,Label='VecL')
       C_Pointer=>VecL
       Call mma_allocate(VecR,NConf,Label='VecR')
-      RVec=>VecR
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
       Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
       SDtmp(:)=DStmp(:)
@@ -149,7 +148,8 @@ C        CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
        End Do
        kRoot=jRoot
        Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-       Call Lucia_Util('Densi')
+       Call Lucia_Util('Densi',
+     &                 RVec=VecR(:))
        IOffNIJ1=(lRoots+1)*(jRoot-1)*NAC2
 C       write(6,*)'GD matrix',jRoot,kRoot
 C       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
@@ -162,7 +162,6 @@ C       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
       Call mma_deallocate(VecL)
       Call mma_deallocate(VecR)
       C_Pointer=>Null()
-      RVec=>Null()
       END Subroutine
 ************************************************************************
 

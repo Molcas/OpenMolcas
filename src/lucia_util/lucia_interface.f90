@@ -10,8 +10,6 @@
 !***********************************************************************
 Module LUCIA_INTERFACE
 Private
-Real*8, Pointer, Public:: RVEC(:) => Null()
-
 Public Lucia_Util
 
 Contains
@@ -28,7 +26,7 @@ Contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-      Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array)
+      Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array, RVec)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
@@ -39,6 +37,7 @@ Contains
       Integer, Optional:: iDisk
       Integer, Optional:: LU
       Real*8, Optional:: Array(:)
+      Real*8, Optional:: RVEC(:)
 
       Parameter(MxpLnc = 72)
       Character(LEN=MxpLnc) Module_
@@ -108,7 +107,11 @@ Contains
          Call Traci_Master(iDisk,LU,Array,lVec)
          Call mma_deallocate(lVec)
       Else If (Module_(1:5) .eq. 'DENSI') Then
-         Call Densi_Master(C_POINTER,SIZE(C_POINTER))
+         If (Present(RVEC)) Then
+            Call Densi_Master(C_POINTER,SIZE(C_POINTER),RVEC=RVEC(:))
+         Else
+            Call Densi_Master(C_POINTER,SIZE(C_POINTER))
+         End If
       Else If (Module_(1:3) .eq. 'INI') Then
          Call Lucia_Ini()
          Call DetCtl_Gas()
@@ -133,7 +136,7 @@ Contains
 
 
 
-      SUBROUTINE densi_master(CIVec,nCIVec)
+      SUBROUTINE densi_master(CIVec,nCIVec,RVec)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use rasscf_lucia, only: kvec3_length, iSigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
@@ -153,6 +156,7 @@ Contains
 #include "io_util.fh"
       Integer nCIVec
       Real*8 CIVec(nCIVEC)
+      Real*8, Optional:: RVec(:)
 
       logical iPack,tdm
       dimension dummy(1)
@@ -167,7 +171,7 @@ Contains
 !
 !     if rvec is associated, it should be a pointer to a second CI vector
 !     and a one-particle transition density matrix will be computed
-      tdm = Associated(rVec)
+      tdm = Present(rVec)
 
       NSD = NSD_PER_SYM(IREFSM)
       NCSF= NCSF_PER_SYM(IREFSM)

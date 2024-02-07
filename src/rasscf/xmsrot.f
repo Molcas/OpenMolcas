@@ -148,7 +148,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
       Subroutine GetGDMat(GDMat)
       use rasscf_lucia
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Lucia_Interface, only: RVEC, Lucia_Util
+      use Lucia_Interface, only: Lucia_Util
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -167,7 +167,6 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
       Call mma_allocate(VecL,NConf,Label='VecL')
       C_Pointer=>VecL
       Call mma_allocate(VecR,NConf,Label='VecR')
-      RVec=>VecR
       Call mma_allocate(TmpD,NAC**2,Label='TmpD')
       Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
       SDtmp(:)=DStmp(:)
@@ -183,7 +182,8 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 C        write(6,*) 'VecL and VecR for states',jRoot,kRoot
 C        write(6,*)(VecL(I),I=0,NConf-1)
 C        write(6,*)(VecR(I),I=0,NConf-1)
-        Call Lucia_Util('Densi')
+        Call Lucia_Util('Densi',
+     &                  RVEC=VECR(:))
 C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
           do JOrb=1,NAC
@@ -199,7 +199,6 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
       Call mma_deallocate(SDtmp)
       Call mma_deallocate(TmpD)
       C_Pointer=>Null()
-      RVEC=>Null()
       Call mma_deallocate(VecL)
       Call mma_deallocate(VecR)
       END Subroutine

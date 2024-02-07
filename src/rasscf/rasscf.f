@@ -90,7 +90,7 @@
       use rctfld_module
       use rasscf_lucia
 #ifdef _HDF5_
-      use Lucia_Interface, only: RVEC, Lucia_Util
+      use Lucia_Interface, only: Lucia_Util
 #endif
 
       Implicit Real*8 (A-H,O-Z)
@@ -1867,7 +1867,6 @@ c Clean-close as much as you can the CASDFT stuff...
          Call mma_allocate(VecL,NConf,Label='VecL')
          C_Pointer=>VecL
          Call mma_allocate(VecR,NConf,Label='VecR')
-         RVec=>VecR
          Call GetMem('KCNF','ALLO','INTE',ivkcnf,NACTEL)
          Call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
          Call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
@@ -1887,7 +1886,8 @@ c Clean-close as much as you can the CASDFT stuff...
      &                     CONF,CFTP,
      &                     Work(iTmp),VecR,iWork(ivkcnf))
 *              Compute TDM and store in h5 file
-               Call Lucia_Util('Densi')
+               Call Lucia_Util('Densi',
+     &                         RVec=VecR(:))
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
                Call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),
      &              [NAC,NAC,1], [0,0,idx-1])
@@ -1898,7 +1898,6 @@ c Clean-close as much as you can the CASDFT stuff...
          End Do
          Call GetMem('TMP','FREE','REAL',iTmp,NConf)
          C_Pointer=>Null()
-         RVEC=>Null()
          Call mma_deallocate(VecL)
          Call mma_deallocate(VecR)
          Call GetMem('KCNF','FREE','INTE',ivkcnf,NACTEL)
