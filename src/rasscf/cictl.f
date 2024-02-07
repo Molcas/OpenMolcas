@@ -123,7 +123,8 @@
 c #include "nevptp.fh"
 #endif
       Dimension rdum(1)
-      Real*8, Allocatable:: PrSel(:), CIV(:)
+      Real*8, Allocatable:: CIV(:)
+      Integer, Allocatable:: PrSel(:)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)
