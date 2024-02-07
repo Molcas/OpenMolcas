@@ -24,12 +24,16 @@
 #include "orbinp.fh"
 #include "cecore.fh"
 #include "crun.fh"
-      Integer nSD
+#include "spinfo_lucia.fh"
+      Integer nCIVEC
       Real*8 CIVEC(nCIVEC)
+
       Integer, Allocatable:: lVec(:)
+      Integer nSD
 *
 * Put CI-vector from RASSCF on luc and get h0 from Molcas enviroment.
 *
+      nSD = NSD_PER_SYM(IREFSM)
       IF (INI_H0 .EQ. 0) THEN
          ECORE = ECORE_ORIG
       ENDIF
