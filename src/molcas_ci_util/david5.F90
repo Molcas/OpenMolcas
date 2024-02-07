@@ -187,6 +187,7 @@ do it_ci=1,mxItr
       c_pointer => ctemp
       ! Calling Lucia to determine the sigma vector
       call Lucia_Util('Sigma')
+      C_Pointer => Null()
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       iSigma_on_disk = 1
       call CSDTVC(Tmp,ctemp,2,dtoc,cts,stSym,1)
@@ -530,7 +531,6 @@ if (.not. Skip) then
   nItr = nItr-1
 end if
 
-C_Pointer => Null()
 ! deallocate local temporary vectors
 call mma_deallocate(Vec1)
 nullify(Vec2)

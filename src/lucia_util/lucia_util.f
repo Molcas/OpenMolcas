@@ -91,7 +91,7 @@
          Call Sigma_Master_CVB(iSym_LI)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
-         Call Sigma_Master()
+         Call Sigma_Master(C_POINTER,SIZE(C_POINTER))
       Else If (Module_(1:5) .eq. 'TRACI') Then
 !        write(6,*) 'blubbbbbbtraci'
 *        iDisk_LI is the initial disk address (for read/write of JOBIPH)
