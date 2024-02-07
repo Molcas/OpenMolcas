@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE densi_master()
+      SUBROUTINE densi_master(CIVec,nCIVec)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
-      use rasscf_lucia
+      use rasscf_lucia, only: kvec3_length, iSigma_on_Disk, PAtmp, Ptmp,
+     &                        DSTmp, Dtmp
       use Lucia_Interface, only: rVec
 *
 * Controls the calculation of the densities, when Lucia is called
@@ -27,6 +28,9 @@
 #include "spinfo_lucia.fh"
 #include "cstate.fh"
 #include "io_util.fh"
+      Integer nCIVec
+      Real*8 CIVec(nCIVEC)
+
       logical iPack,tdm
       dimension dummy(1)
       Real*8, Allocatable:: VEC1(:), VEC2(:)
@@ -47,7 +51,7 @@
       CALL mma_allocate(SCR1,NSD,Label='SCR1')
       CALL mma_allocate(SCR2,NSD,Label='SCR2')
 
-      CALL COPVEC(C_POINTER,SCR1,NCSF)
+      CALL COPVEC(CIVEC,SCR1,NCSF)
 
       Call mma_allocate(lVec,MXNTTS,Label='lVec')
       IF (tdm) THEN

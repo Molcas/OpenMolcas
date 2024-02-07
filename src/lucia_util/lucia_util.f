@@ -91,7 +91,7 @@
          Call Sigma_Master_CVB(iSym_LI)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
-         Call Sigma_Master
+         Call Sigma_Master()
       Else If (Module_(1:5) .eq. 'TRACI') Then
 !        write(6,*) 'blubbbbbbtraci'
 *        iDisk_LI is the initial disk address (for read/write of JOBIPH)
@@ -101,7 +101,7 @@
          Call Traci_Master(iDisk_LI,LU_LI,Array_LI,lVec)
          Call mma_deallocate(lVec)
       Else If (Module_(1:5) .eq. 'DENSI') Then
-         Call Densi_Master()
+         Call Densi_Master(C_POINTER,SIZE(C_POINTER))
       Else If (Module_(1:3) .eq. 'INI') Then
          Call Lucia_Ini()
          Call DetCtl_Gas()
