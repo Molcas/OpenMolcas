@@ -101,7 +101,7 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
 
       Subroutine CalcGD(GD,nGD)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_lucia
+      use rasscf_lucia, only: DStmp, Dtmp
       use Lucia_Interface, only: Lucia_Util
 #include "rasdim.fh"
 #include "rasscf.fh"

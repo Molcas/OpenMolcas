@@ -11,7 +11,6 @@
       SUBROUTINE DEALLOC_LUCIA()
       use stdalloc, only: mma_deallocate
       use GLBBAS
-      use rasscf_lucia
 * Deallocate memory allocated during alloc_lucia
 
 *. Input

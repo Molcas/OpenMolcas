@@ -12,7 +12,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use  GLBBAS
       use Local_Arrays, only: Deallocate_Local_Arrays
-      use rasscf_lucia
+      use rasscf_lucia, only: kvec3_length
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "clunit.fh"

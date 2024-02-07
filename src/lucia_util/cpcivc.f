@@ -60,7 +60,6 @@
       END
 *
       SUBROUTINE cpsivc(ifile, mxrec, vec,lrec)
-      use rasscf_lucia
 *
 * Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
 *

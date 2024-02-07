@@ -10,7 +10,6 @@
 ************************************************************************
       SUBROUTINE diag_master()
       use GLBBAS
-      use rasscf_lucia
 *
 *  To do in this subroutine:
 *

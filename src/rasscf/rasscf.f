@@ -88,9 +88,9 @@
       use UnixInfo, only: ProgName
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
-      use rasscf_lucia
-#ifdef _HDF5_
       use Lucia_Interface, only: Lucia_Util
+#ifdef _HDF5_
+      use rasscf_lucia, only: Ptmp, DStmp, Dtmp, RF1, RF2
 #endif
 
       Implicit Real*8 (A-H,O-Z)
@@ -2062,12 +2062,10 @@ c deallocating TUVX memory...
 
 *
 * Skip Lucia stuff if NECI or BLOCK-DMRG is on
-#ifdef _HDF5_
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE')
       end if
-#endif
 
 
       Call StatusLine('RASSCF:','Finished.')

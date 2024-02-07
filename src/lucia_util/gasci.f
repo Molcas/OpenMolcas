@@ -18,7 +18,7 @@
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
       use strbas
-      use rasscf_lucia
+      use rasscf_lucia, only: kvec3_length
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *

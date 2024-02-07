@@ -63,7 +63,8 @@
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use mspdft_util, only: replace_diag
       use rctfld_module
-      use rasscf_lucia
+      use rasscf_lucia, only: PAtmp, Pscr, CIV, CIVEC, Ptmp, DStmp,
+     &                        Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
 
@@ -603,7 +604,7 @@
           CALL mma_deallocate(Pscr)
           CALL mma_deallocate(CIV)
           Call Lucia_Util('CLOSE')
-          Call MKGUGA_FREE_m
+          Call MKGUGA_FREE_m()
        end if
 
 *

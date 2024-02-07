@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Lucia_Ini()
-      use rasscf_lucia
+      use rasscf_lucia, only: iSigma_on_disk, ini_h0
 *
       implicit real*8 (a-h,o-z)
 C Input from RASSCF

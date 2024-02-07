@@ -11,7 +11,6 @@
       SUBROUTINE ALLOC_LUCIA()
       use stdalloc, only: mma_allocate
       use GLBBAS
-      use rasscf_lucia
 *
 * Dimensions and
 * Allocation of static memory

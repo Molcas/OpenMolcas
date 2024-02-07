@@ -16,7 +16,6 @@
 * Jie J. Bao, on May. 21, 2020, created this file.               *
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
-      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -63,7 +62,6 @@ C     Deallocating Memory
 
 ******************************************************
       Subroutine CalcFckO(CMO,FI,FA,FckO)
-      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -146,7 +144,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 
 ******************************************************
       Subroutine GetGDMat(GDMat)
-      use rasscf_lucia
+      use rasscf_lucia, only: DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use Lucia_Interface, only: Lucia_Util
 #include "rasdim.fh"
@@ -204,7 +202,6 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 
 ******************************************************
       Subroutine CalcFckS(FckO,GDMat,FckS)
-      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

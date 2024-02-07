@@ -67,7 +67,11 @@
       use casvb_global, only: ifvb, lw1_cvb
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module
-      use rasscf_lucia
+      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PrSel, PTmp, DStmp,
+     &                        Dtmp, CIV
+#ifdef _DMRG_
+      use rasscf_lucia, only: RF1, RF2
+#endif
       use Lucia_Interface, only: Lucia_Util
       Implicit Real* 8 (A-H,O-Z)
 

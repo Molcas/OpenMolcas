@@ -17,7 +17,6 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
-      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -510,7 +509,6 @@ C     & IState,' is ',Vee(IState)
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
-      use rasscf_lucia
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

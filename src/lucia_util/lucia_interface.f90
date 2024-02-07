@@ -30,7 +30,6 @@ Contains
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
-      use rasscf_lucia
 #include "implicit.fh"
       Character(LEN=*) Module
       Integer, Optional:: iSym

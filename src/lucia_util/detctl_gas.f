@@ -15,7 +15,7 @@
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
       use strbas
-      use rasscf_lucia
+      use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
 
 *
       IMPLICIT REAL*8 (A-H, O-Z)
@@ -243,7 +243,6 @@ c      END IF
       use stdalloc, only: mma_deallocate
       use GLBBAS
       use strbas
-      use rasscf_lucia
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
 #include "gasstr.fh"

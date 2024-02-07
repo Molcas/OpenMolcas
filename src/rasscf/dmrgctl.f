@@ -40,7 +40,7 @@
 
       use rctfld_module
       Use casvb_global, Only: ifvb, lw1_cvb
-      use rasscf_lucia
+      use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
       Implicit Real* 8 (A-H,O-Z)
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
@@ -160,8 +160,8 @@ C Local print level (if any)
 * Compute the density of the particular state
 *
 
-           Call mma_allocate(Dtmp,NAC**2,Label='Dtmp'))
-           Call mma_allocate((DStmp,NAC**2,Label='DStmp')
+           Call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+           Call mma_allocate(DStmp,NAC**2,Label='DStmp')
            Call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
            If ( NAC.ge.1 ) Then
               If (NACTEL.eq.0) THEN

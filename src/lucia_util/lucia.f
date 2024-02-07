@@ -11,7 +11,6 @@
       SUBROUTINE LUCIA()
       use stdalloc, only: mma_allocate
       use GLBBAS
-      use rasscf_lucia
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *. Parameters for dimensioning
