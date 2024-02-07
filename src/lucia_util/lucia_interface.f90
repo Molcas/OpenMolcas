@@ -137,7 +137,7 @@ Contains
 
       SUBROUTINE densi_master(CIVec,nCIVec,RVec)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: VEC3, DTOC, RHO1, SRHO1, SDREO
       use rasscf_lucia, only: kvec3_length, iSigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
 !
 ! Controls the calculation of the densities, when Lucia is called

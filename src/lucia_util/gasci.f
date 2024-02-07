@@ -13,7 +13,7 @@
       SUBROUTINE GASCI(     ISM,    ISPC,   IPRNT,    EREF,IIUSEH0P,
      &                 MPORENP_E)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: VEC3, CI_VEC
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays

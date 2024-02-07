@@ -12,7 +12,7 @@
      &                       LUC,IRESTRICT, LUCBLK,ICBAT_RES,ICBAT_INI,
      &                  ICBAT_END)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: VEC3
       use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,

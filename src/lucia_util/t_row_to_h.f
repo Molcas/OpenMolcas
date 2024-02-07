@@ -11,7 +11,7 @@
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE T_ROW_TO_H(T,H,K,TKK)
-      use GLBBAS
+      use GLBBAS, only: PGINT1A
 *
 * Set H integrals
 *

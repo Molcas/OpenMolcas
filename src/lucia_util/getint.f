@@ -11,7 +11,7 @@
       SUBROUTINE GETINT(    XINT,     ITP,     ISM,     JTP,     JSM,
      &                       KTP,     KSM,     LTP,     LSM,  IXCHNG,
      &                      IKSM,    JLSM,   ICOUL)
-      use GLBBAS
+      use GLBBAS, only: PINT2, KINH1
 *
 * Outer routine for accessing integral block
 *

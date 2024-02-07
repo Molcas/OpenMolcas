@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE diag_master()
-      use GLBBAS
+      use GLBBAS, only: INT1, INT1O
 *
 *  To do in this subroutine:
 *

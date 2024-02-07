@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CSDTMT_GAS(IPRCSF)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: DFTP, CFTP, DTOC, Z_PTDT, REO_PTDT
 *
 * Construct in IDTFTP list of proto type combinations in IDFTP
 * Construct in ICFTP list of proto type CSF's in ICFTP

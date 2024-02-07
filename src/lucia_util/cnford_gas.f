@@ -13,7 +13,7 @@
       SUBROUTINE CNFORD_GAS( IOCCLS, NOCCLS,   ISYM, PSSIGN, IPRCSF,
      &                      ICONF_OCC,ICONF_REO,ICTSDT,IBLOCK,NBLOCK)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: CONF_OCC, CONF_REO
 *
 * Generate configurations in ICONF
 *

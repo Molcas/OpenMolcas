@@ -43,6 +43,4 @@ else if (iWay == 2) then
   call csdtvc(vec,detvec,iway,dtoc,cts,isym_loc,jcopy)
 end if
 
-return
-
 end subroutine csf2det_cvb

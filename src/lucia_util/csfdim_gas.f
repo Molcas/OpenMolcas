@@ -10,7 +10,8 @@
 ************************************************************************
       SUBROUTINE CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
       use stdalloc, only: mma_allocate
-      use GLBBAS
+      use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
+     &                  Z_PTDT, REO_PTDT, SDREO
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -351,7 +352,8 @@ C
 
       SUBROUTINE CSFDIM_FREE(ISYM)
       use stdalloc, only: mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
+     &                  Z_PTDT, REO_PTDT, SDREO
 * Free resources allocated by CSFDIM_GAS
 
 #include "implicit.fh"

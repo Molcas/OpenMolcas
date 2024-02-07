@@ -40,6 +40,5 @@ call mma_allocate(kcnf,nactel,label='kcnf')
 call reord2(nac,nactel,stsym,imode,conf,cftp,cfrom,cto,kcnf)
 call mma_deallocate(kcnf)
 
-return
 
 end subroutine reord2_cvb

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GT1DIA(H1DIA)
-      use GLBBAS
+      use GLBBAS, Only: INT1O, PINT1
 *
 * Obtain diagonal of one electron matrix over active
 * orbitals

@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE DETCTL_GAS()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: SDREO_I, CONF_OCC, CONF_REO, KLOCCLS
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
@@ -241,7 +241,7 @@ c      END IF
 *
       SUBROUTINE DETCTL_FREE()
       use stdalloc, only: mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: KLOCCLS
       use strbas
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"

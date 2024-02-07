@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE LUCIA()
       use stdalloc, only: mma_allocate
-      use GLBBAS
+      use GLBBAS, only: CI_VEC, SIGMA_VEC
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *. Parameters for dimensioning
@@ -54,10 +54,10 @@ c         KBASE = 1
 c         KADD = MXPWRD
 c         CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY')
 c      ENDIF
-      CALL ALLOC_LUCIA
+      CALL ALLOC_LUCIA()
 *. Read in integrals
          IF(NOINT.EQ.0) THEN
-            CALL INTIM
+            CALL INTIM()
          ELSE
             WRITE(6,*) ' No integrals imported '
          END IF

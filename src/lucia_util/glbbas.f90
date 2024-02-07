@@ -28,6 +28,7 @@ Private
          Integer, Allocatable:: I(:)
       End Type  iArray
       Type (iArray), Target ::  SDREO_I(8)
+      Integer, Pointer:: SDREO(:)
       Type (iArray) ::  CONF_OCC(8), CONF_REO(8),                       &
      &                  PGINT1A(MXPOBS), PGINT1(MXPOBS)
       Type (iArray), Allocatable:: Z_PTDT(:), REO_PTDT(:)
@@ -38,7 +39,6 @@ Private
       Integer, Allocatable:: KLOCCLS(:)
       Real*8,  Allocatable, Target:: CI_VEC(:)
       Real*8,  Allocatable:: SIGMA_VEC(:)
-      Integer, Pointer:: SDREO(:)
 
       Public         INT1,       PINT1, PINT2, LSM1, LSM2, RHO1,        &
      &                           VEC3,                KINH1,            &

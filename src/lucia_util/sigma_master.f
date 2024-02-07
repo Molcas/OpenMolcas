@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE sigma_master(CIVEC,nCIVEC)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
+      use GLBBAS, only: INT1, INT1O, VEC3, CI_VEC, SIGMA_VEC
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
 *
 * Controls the calculation of the sigma vector, when Lucia is called
@@ -67,19 +67,12 @@ c      END IF
 *                            *
 ******************************
       SUBROUTINE SIGMA_MASTER_CVB(CIVEC,nCIVEC,IREFSM_CASVB)
-      use GLBBAS
+      use GLBBAS, only: INT1, INT1O, CI_VEC, SIGMA_VEC, VEC3
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, ISIGMA_ON_DISK
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "cands.fh"
-!#include "cicisp.fh"
-      COMMON/CICISP/IDUMMY,NICISP,
-     &              NELCI(MXPICI),
-     &              XISPSM(MXPCSM,MXPICI),
-     &              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,
-     &              NBLKIC(MXPCSM,MXPICI),LCOLIC(MXPCSM,MXPICI),
-     &              MXNTTS,MXSOOB_AS
 #include "cstate.fh"
 #include "clunit.fh"
 #include "orbinp.fh"

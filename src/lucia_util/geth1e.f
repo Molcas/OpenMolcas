@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       FUNCTION GETH1E(IORB,ITP,ISM,JORB,JTP,JSM)
-      use GLBBAS
+      use GLBBAS, only: INT1, PINT1, PGINT1, PGINT1A
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
@@ -45,5 +45,4 @@ C?        WRITE(6,*) ' GETH1E, old route '
      &         IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,0)
       END IF
 *
-      RETURN
       END

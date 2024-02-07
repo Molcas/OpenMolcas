@@ -11,7 +11,8 @@
 * Copyright (C) 1991,1997, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE INTIM()
-      use GLBBAS
+      use GLBBAS, only: INT1, INT1O, PINT1, PINT2, LSM1, LSM2, KINH1,
+     &                  KINH1_NOCCSYM
 *
 * Interface to external integrals
 *
