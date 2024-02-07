@@ -64,7 +64,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
-      use Lucia_Interface, only: Array_LI, Lucia_Util
+      use Lucia_Interface, only: Lucia_Util
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -412,12 +412,11 @@ c           IF (NACTEL.GT.0) THEN
 #endif
              else if(doBlockDMRG .or. DoNECI)then
              else !CI
-               Array_LI => SMAT
                iDisk=IADR15(4)
                CALL LUCIA_UTIL('TRACI',
      &                         iDisk=iDisk,
-     &                         Lu=JOBIPH)
-               Array_LI => Null()
+     &                         Lu=JOBIPH,
+     &                         Array=SMAT)
              end if
              Call mma_deallocate(SMAT)
            ELSE
