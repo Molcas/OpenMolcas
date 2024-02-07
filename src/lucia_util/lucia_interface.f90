@@ -10,7 +10,6 @@
 !***********************************************************************
 Module LUCIA_INTERFACE
 Private
-Integer, Public :: iDisk_LI=-1
 Integer, Public :: Lu_LI=-1
 Real*8, Pointer, Public:: RVEC(:) => Null()
 Real*8, Pointer, Public:: Array_LI(:) => Null()
@@ -31,7 +30,7 @@ Contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-      Subroutine Lucia_Util(Module, iSym)
+      Subroutine Lucia_Util(Module, iSym, iDisk)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
@@ -39,6 +38,7 @@ Contains
 #include "implicit.fh"
       Character(LEN=*) Module
       Integer, Optional:: iSym
+      Integer, Optional:: iDisk
 
       Parameter(MxpLnc = 72)
       Character(LEN=MxpLnc) Module_
@@ -101,11 +101,11 @@ Contains
          Call Sigma_Master(C_POINTER,SIZE(C_POINTER))
       Else If (Module_(1:5) .eq. 'TRACI') Then
 !        write(6,*) 'blubbbbbbtraci'
-!        iDisk_LI is the initial disk address (for read/write of JOBIPH)
+!        iDisk is the initial disk address (for read/write of JOBIPH)
 !        Lu_LI is the file unit for JOBIPH
 !        Array_LI is the transformation matrix (not sorted as LUCIA needs it).
          Call mma_allocate(lVec,MXNTTS,Label='lVec')
-         Call Traci_Master(iDisk_LI,LU_LI,Array_LI,lVec)
+         Call Traci_Master(iDisk,LU_LI,Array_LI,lVec)
          Call mma_deallocate(lVec)
       Else If (Module_(1:5) .eq. 'DENSI') Then
          Call Densi_Master(C_POINTER,SIZE(C_POINTER))
