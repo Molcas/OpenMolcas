@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE DETCTL_GAS()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS, only: SDREO_I, CONF_OCC, CONF_REO, KLOCCLS
+      use GLBBAS, only: SDREO_I, CONF_OCC, CONF_REO
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
@@ -38,6 +38,7 @@
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)
       Integer, Allocatable:: BASSPC(:)
+      Integer, Allocatable:: KLOCCLS(:)
 
 *. Set variables in cands.fh
       JSYM = IREFSM
