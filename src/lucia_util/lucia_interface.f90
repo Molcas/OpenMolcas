@@ -10,7 +10,6 @@
 !***********************************************************************
 Module LUCIA_INTERFACE
 Private
-Integer, Public :: iSym_LI=-1
 Integer, Public :: iDisk_LI=-1
 Integer, Public :: Lu_LI=-1
 Real*8, Pointer, Public:: RVEC(:) => Null()
@@ -32,15 +31,16 @@ Contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-      Subroutine Lucia_Util(Module)
+      Subroutine Lucia_Util(Module, iSym)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
       use rasscf_lucia
 #include "implicit.fh"
+      Character(LEN=*) Module
+      Integer, Optional:: iSym
 
       Parameter(MxpLnc = 72)
-      Character(LEN=*) Module
       Character(LEN=MxpLnc) Module_
 !
 ! Include all LUCIA include files to make sure
@@ -95,7 +95,7 @@ Contains
          Call Diag_Master
       Else If (Module_(1:9) .eq. 'SIGMA_CVB') Then
 !        iSym_LI is the symmetry to be used.
-         Call Sigma_Master_CVB(C_POINTER,SIZE(C_POINTER),iSym_LI)
+         Call Sigma_Master_CVB(C_POINTER,SIZE(C_POINTER),iSym)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
          Call Sigma_Master(C_POINTER,SIZE(C_POINTER))
