@@ -28,7 +28,8 @@ Contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-      Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array, RVec, CI_VECTOR)
+      Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array, RVec, CI_VECTOR, &
+                            SIGMA_VECTOR)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS
       use strbas
@@ -40,6 +41,7 @@ Contains
       Real*8, Optional:: Array(:)
       Real*8, Optional:: RVEC(:)
       Real*8, Optional:: CI_Vector(:)
+      Real*8, Optional:: SIGMA_Vector(:)
       Parameter(MxpLnc = 72)
       Character(LEN=MxpLnc) Module_
 !
@@ -95,7 +97,7 @@ Contains
          Call Diag_Master()
       Else If (Module_(1:9) .eq. 'SIGMA_CVB') Then
 !        iSym_LI is the symmetry to be used.
-         Call Sigma_Master_CVB(CI_VECTOR,SIGMA_VEC,SIZE(CI_VECTOR),iSym)
+         Call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,SIZE(CI_VECTOR),iSym)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
          Call Sigma_Master(CI_VECTOR,SIGMA_VEC,SIZE(CI_VECTOR))

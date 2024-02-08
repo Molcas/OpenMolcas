@@ -25,6 +25,7 @@ real(kind=wp), intent(out) :: HC(NCI)
 ! Call the sigma routine
 call LUCIA_UTIL('SIGMA_CVB',         &
                 CI_Vector=C, &
+                SIGMA_Vector=Sigma_Vec, &
                 iSym=iREFSM)
 HC(1:NCI)=SIGMA_VEC(1:NCI)
 
