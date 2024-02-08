@@ -142,7 +142,7 @@ Contains
       SUBROUTINE densi_master(CIVec,nCIVec,RVec)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS, only: VEC3, DTOC, RHO1, SRHO1, SDREO
-      use rasscf_lucia, only: kvec3_length, iSigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
+      use rasscf_lucia, only: kvec3_length, Sigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
 !
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
@@ -220,7 +220,7 @@ Contains
 ! Copy Sigma-vector from disc to core
 !
       Call mma_allocate(VEC2,LBLOCK,Label='VEC2')
-       IF (iSigma_on_disk .ne. 0) THEN
+       IF (Sigma_on_disk) THEN
           Call mma_allocate(lVec,MXNTTS,Label='lVec')
           CALL cpsivc(lusc34, mxntts, vec2,lVec)
           Call mma_deallocate(lVec)
@@ -347,7 +347,7 @@ Contains
 !     Note that CI_VEC is used as a scratch array!
       use GLBBAS, only: INT1, INT1O, SCR => CI_VEC, VEC3
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, ISIGMA_ON_DISK
+      use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, SIGMA_ON_DISK
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "cicisp.fh"
@@ -398,7 +398,7 @@ Contains
 !
 ! Export lusc34 to RASSCF
 !
-      ISIGMA_ON_DISK = 1
+      SIGMA_ON_DISK = .TRUE.
 !
 ! Set ICSM and ISSM (from cands.fh) back to IREFSM
 !

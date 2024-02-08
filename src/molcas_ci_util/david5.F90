@@ -13,7 +13,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTR
 
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 
-use rasscf_lucia, only: iSigma_on_disk
+use rasscf_lucia, only: Sigma_on_disk
 use csfbas, only: CONF, CTS
 use glbbas, only: DTOC, CFTP
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
@@ -189,7 +189,7 @@ do it_ci=1,mxItr
       call Lucia_Util('Sigma',   &
                       CI_Vector=ctemp(:))
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
-      iSigma_on_disk = 1
+      Sigma_on_disk = .TRUE.
       call CSDTVC(Tmp,ctemp,2,dtoc,cts,stSym,1)
 
       if (iprlev >= DEBUG) then

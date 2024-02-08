@@ -130,7 +130,9 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
        CIDisk2=IADR15(4)
        Do kRoot=1,jRoot-1
         Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-        Call Lucia_Util('Densi')
+        Call Lucia_Util('Densi',
+     &                   CI_Vector=VecL(:),
+     &                   RVec=VecR(:))
         IOffNIJ1=(lRoots*(jRoot-1)+kRoot-1)*NAC2
         IOffNIJ2=(lRoots*(kRoot-1)+jRoot-1)*NAC2
 C        write(6,*)'GD matrix',jRoot,kRoot

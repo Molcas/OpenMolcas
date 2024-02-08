@@ -92,6 +92,9 @@
 #ifdef _HDF5_
       use rasscf_lucia, only: DStmp, Dtmp
 #endif
+#ifdef _DMRG_
+      use rasscf_lucia, only: RF1, RF2
+#endif
 
       Implicit Real*8 (A-H,O-Z)
 

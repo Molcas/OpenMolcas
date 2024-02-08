@@ -10,7 +10,8 @@
 !***********************************************************************
 Module RASSCF_LUCIA
 Private
-INTEGER, Public:: kvec3_length, iSigma_on_disk,ini_h0,Memory_Needed_Lucia
+INTEGER, Public:: kvec3_length=0, ini_h0,Memory_Needed_Lucia=0
+Logical, Public:: Sigma_on_disk=.FALSE.
 Real*8, Allocatable, Public:: CIVec(:)
 Real*8, Allocatable, Public:: PAtmp(:)
 Real*8, Allocatable, Public:: Pscr(:)

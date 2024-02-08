@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Lucia_Ini()
-      use rasscf_lucia, only: iSigma_on_disk, ini_h0
+      use rasscf_lucia, only: Sigma_on_disk, ini_h0
 *
       implicit real*8 (a-h,o-z)
 C Input from RASSCF
@@ -56,7 +56,7 @@ C =======================
 c      I_USE_SIMTRH = 0
 * Initialize flag to be used by densi_master to check whether the
 * sigma-vector is on disk.
-      iSigma_on_disk = 0
+      Sigma_on_disk = .FALSE.
 *
 C ===================
 C  Initialize isetkw
