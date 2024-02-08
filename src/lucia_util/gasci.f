@@ -13,7 +13,8 @@
       SUBROUTINE GASCI(     ISM,    ISPC,   IPRNT,    EREF,IIUSEH0P,
      &                 MPORENP_E)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS, only: VEC3, CI_VEC
+!     Note that CI_VEC is used as a scratch array here and below.
+      use GLBBAS, only: VEC3, SCR => CI_VEC
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
@@ -301,12 +302,12 @@ c         END IF
          IF(ICISTR.GE.2) IDISK(LUDIA)=0
          I12 = 2
          SHIFT = ECORE_ORIG-ECORE
-         CALL GASDIAT(CI_VEC,  LUDIA,  SHIFT, ICISTR,    I12,
+         CALL GASDIAT(SCR,  LUDIA,  SHIFT, ICISTR,    I12,
      &                CBLTP,NBLOCK,CIBT)
 *
          IF(NOCSF.EQ.1.AND.ICISTR.EQ.1) THEN
             IDISK(LUDIA)=0
-            CALL TODSC(CI_VEC,NVAR,-1,LUDIA)
+            CALL TODSC(SCR,NVAR,-1,LUDIA)
          END IF
          IF(IPRCIX.GE.2) WRITE(6,*) ' Diagonal constructed  '
       ELSE

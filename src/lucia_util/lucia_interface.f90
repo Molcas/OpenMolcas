@@ -92,7 +92,7 @@ Contains
 ! Call the appropriate routines according to Module
 !
       If (Module_(1:4) .eq. 'DIAG') Then
-         Call Diag_Master
+         Call Diag_Master()
       Else If (Module_(1:9) .eq. 'SIGMA_CVB') Then
 !        iSym_LI is the symmetry to be used.
          Call Sigma_Master_CVB(CI_VECTOR,SIZE(CI_VECTOR),iSym)
