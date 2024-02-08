@@ -12,7 +12,6 @@
 subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 
 use Definitions, only: wp, iwp
-use GLBBAS, only: Sigma_Vec
 use Lucia_Interface, only: Lucia_Util
 
 implicit none
@@ -25,8 +24,7 @@ real(kind=wp), intent(out) :: HC(NCI)
 ! Call the sigma routine
 call LUCIA_UTIL('SIGMA_CVB',         &
                 CI_Vector=C, &
-                SIGMA_Vector=Sigma_Vec, &
+                SIGMA_Vector=HC, &
                 iSym=iREFSM)
-HC(1:NCI)=SIGMA_VEC(1:NCI)
 
 end subroutine SIGMADET_CVB
