@@ -181,16 +181,22 @@ do it_ci=1,mxItr
       call mma_deallocate(sgm)
       call mma_deallocate(psi)
     else
+
       ! Convert the CI-vector from CSF to Det. basis
+      ! sigtemp is scratch, converted vector is stored in ctemp
+
       ctemp(1:nConf) = Vec1(:)
       sigtemp(:) = Zero
       call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
+
       ! Calling Lucia to determine the sigma vector
-      call Lucia_Util('Sigma',   &
-                      CI_Vector=ctemp(:))
+      call Lucia_Util('Sigma',                            &
+                      CI_Vector=ctemp(:),                 &
+                      Sigma_Vector=sigtemp(:))
+
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       Sigma_on_disk = .TRUE.
-      call CSDTVC(VEC2,ctemp,2,dtoc,cts,stSym,1)
+      call CSDTVC(VEC2,sigtemp,2,dtoc,cts,stSym,1)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)

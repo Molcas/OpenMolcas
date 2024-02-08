@@ -100,7 +100,7 @@ Contains
          Call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,SIZE(CI_VECTOR),iSym)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
-         Call Sigma_Master(CI_VECTOR,SIGMA_VEC,SIZE(CI_VECTOR))
+         Call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,SIZE(CI_VECTOR))
       Else If (Module_(1:5) .eq. 'TRACI') Then
 !        write(6,*) 'blubbbbbbtraci'
 !        iDisk is the initial disk address (for read/write of JOBIPH)
@@ -288,7 +288,7 @@ Contains
       SUBROUTINE sigma_master(CIVEC,SIGMAVEC,nCIVEC)
       use stdalloc, only: mma_allocate, mma_deallocate
 !     Note that CI_VEC is used as a scratch array!
-      use GLBBAS, only: INT1, INT1O, VEC3, SCR => CI_VEC
+      use GLBBAS, only: INT1, INT1O, VEC3, CI_SCR => CI_VEC, SIGMA_SCR => SIGMA_VEC
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
@@ -330,18 +330,18 @@ Contains
 ! Calculate the sigma vector:
 !            LUC: unit from which the CI vector is picked
 !            LUSC34: unit to which the sigma vector is put
-!            SCR: scratch area to store the CI vector temporarily(?)
+!            CI_SCR: scratch area to store the CI vector temporarily
 !            SIGMAVec: the computed sigmavector in core.
 !
 !
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(SCR, SIGMAVec, LUC, LUSC34)
+      CALL MV7(CI_SCR, SIGMA_SCR, LUC, LUSC34)
       Call mma_deallocate(VEC3)
 !
 ! Export lusc34 to RASSCF
 !
       call mma_allocate(lVec,MXNTTS,Label='lVec')
-      CALL CPCIVC(CIVEC,nSD,LUSC34, MXNTTS, IREFSM, 2, lVec)
+      CALL CPCIVC(SIGMAVEC,nSD,LUSC34, MXNTTS, IREFSM, 2, lVec)
       call mma_deallocate(lVec)
 
       END SUBROUTINE SIGMA_MASTER
