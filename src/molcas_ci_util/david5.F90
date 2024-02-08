@@ -190,7 +190,7 @@ do it_ci=1,mxItr
                       CI_Vector=ctemp(:))
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       Sigma_on_disk = .TRUE.
-      call CSDTVC(Tmp,ctemp,2,dtoc,cts,stSym,1)
+      call CSDTVC(VEC2,ctemp,2,dtoc,cts,stSym,1)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)

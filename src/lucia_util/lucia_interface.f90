@@ -254,7 +254,7 @@ Contains
 !
 !      2      : DONE!!! - Calculate both one and two body densities.
 !      rho1  : DONE!!! - Output - include in module glbbas
-!      krho2  : DONE!!! - Output - include in moduke glbbas
+!      rho2  : DONE!!! - Output - include in module glbbas
 !      vec1  : DONE!!! - CI-vector
 !      vec2  : DONE!!! - Sigma-vector
 !      lusc1  : DONE!!! - file pointer
@@ -308,25 +308,31 @@ Contains
 
       Integer, Allocatable:: lVec(:)
       Integer nSD
+
+      nSD = NSD_PER_SYM(IREFSM)
 !
 ! Put CI-vector from RASSCF on luc and get h0 from Molcas enviroment.
 !
-      nSD = NSD_PER_SYM(IREFSM)
       IF (INI_H0 .EQ. 0) THEN
          ECORE = ECORE_ORIG
       ENDIF
       INI_H0 = 0
       INT1(:)=INT1O(:)
       ECORE_ORIG = ECORE
-!      IF (IUSE_PH .EQ. 1) THEN
-!         CALL FI(INT1,ECORE_HEX,1)
-!         ECORE = ECORE + ECORE_HEX
-!      END IF
+!     IF (IUSE_PH .EQ. 1) THEN
+!        CALL FI(INT1,ECORE_HEX,1)
+!        ECORE = ECORE + ECORE_HEX
+!     END IF
       call mma_allocate(lVec,MXNTTS,Label='lVec')
       CALL CPCIVC(CIVEC,nSD,LUC, MXNTTS, IREFSM, 1, lVec)
       call mma_deallocate(lVec)
 !
 ! Calculate the sigma vector:
+!            LUC: unit from which the CI vector is picked
+!            LUSC34: unit to which the sigma vector is put
+!            SCR: scratch area to store the CI vector temporarily(?)
+!            SIGMAVec: the computed sigmavector in core.
+!
 !
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
       CALL MV7(SCR, SIGMAVec, LUC, LUSC34)
@@ -362,13 +368,14 @@ Contains
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
       Integer, Allocatable:: lVec(:)
       Integer nSD
-
-      nSD = NSD_PER_SYM(IREFSM)
 !
 ! Set ICSM and ISSM (from cands.fh) to the correct symmetry for this call
 !
       ICSM  = IREFSM_CASVB
       ISSM  = IREFSM_CASVB
+
+!     nSD = NSD_PER_SYM(IREFSM)
+      nSD = NSD_PER_SYM(IREFSM_CASVB)
 !
 ! Get h0 from Molcas enviroment.
 !
@@ -378,10 +385,10 @@ Contains
       INI_H0 = 0
       INT1(:)=INT1O(:)
       ECORE_ORIG = ECORE
-!      IF (IUSE_PH .EQ. 1) THEN
-!         CALL FI(INT1,ECORE_HEX,1)
-!         ECORE = ECORE + ECORE_HEX
-!      END IF
+!     IF (IUSE_PH .EQ. 1) THEN
+!        CALL FI(INT1,ECORE_HEX,1)
+!        ECORE = ECORE + ECORE_HEX
+!     END IF
 !
 ! Write CI-vector to disc
 !

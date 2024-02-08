@@ -80,12 +80,10 @@
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
 *
-C?    WRITE(6,*) ' IPERTOP in SBLOCK = ', IPERTOP
       NTEST = 00
-      IF(NTEST.GE.5)
-     &WRITE(6,*) ' SBLOCK : ISSPC,ICSPC ', ISSPC,ICSPC
-C?    WRITE(6,*) ' LUC in SBLOCK ', LUC
-C?    WRITE(6,*) ' I12 in SBLOCK = ', I12
+#ifdef _DEBUGPRINT_
+      IF(NTEST.GE.5) WRITE(6,*) ' SBLOCK : ISSPC,ICSPC ', ISSPC,ICSPC
+#endif
       IF(LUCBLK.GT.0) THEN
         IDISK(LUCBLK)=0
       END IF
@@ -153,8 +151,10 @@ C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
+#ifdef _DEBUGPRINT_
       IF(IPRCIX.GE.3 ) WRITE(6,*)
      &' Largest block of strings with given symmetry and type',MXSTBL
+#endif
 *. Largest number of resolution strings and spectator strings
 *  that can be treated simultaneously
       MAXI = MIN( MXINKA,MXSTBL)
@@ -174,13 +174,17 @@ c      ELSE
 c        LSCR1 = MXSOOB_AS
 c      END IF
       LSCR1 = MAX(LSCR1,LCSBLK)
+#ifdef _DEBUGPRINT_
       IF(IPRCIX.GE.3)
      &WRITE(6,*) ' ICISTR,LSCR1 ',ICISTR,LSCR1
+#endif
 *.SCRATCH space for integrals
 * A 4 index integral block with four indices belonging OS class
       INTSCR = MAX(MXTSOB ** 4, NTOOB**2)
+#ifdef _DEBUGPRINT_
       IF(IPRCIX.GE.3)
      &WRITE(6,*) ' Integral scratch space ',INTSCR
+#endif
       Call mma_allocate(INSCR,INTSCR,Label='INSCR')
       Call mma_allocate(INSCR2,INTSCR,Label='INSCR2')
 *. Arrays giving allowed type combinations '
@@ -215,18 +219,22 @@ c      END IF
      &                   MXCJ,   MXCIJA,   MXCIJB,MXCIJAB,   MXSXBL,
      &               MXADKBLK,   IPHGAS, NHLFSPGP,   MNHL,  IADVICE,
      &              MXCJ_ALLSYM,MXADKBLK_AS,MX_NSPII)
+#ifdef _DEBUGPRINT_
       IF(IPRCIX.GE.3) THEN
         WRITE(6,*) 'SBLOCK : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXCJ_ALLSYM',
      &                       MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXCJ_ALLSYM
          WRITE(6,*) 'SBLOCK : MXADKBLK ', MXADKBLK
          WRITE(6,*) ' MX_NSPII = ', MX_NSPII
       END IF
+#endif
 *. For hardwired routines MXCIJAB is also used
       LSCR2 = MAX(MXCJ,MXCIJA,MXCIJB,MXCIJAB,MX_NSPII)
+#ifdef _DEBUGPRINT_
       IF(IPRCIX.GE.3)
      &WRITE(6,*) ' Space for resolution matrices ',LSCR2
 *
       IF(IPRCIX.GE.3)  WRITE(6,*) ' LSCR2 = ', LSCR2
+#endif
 C  I assume memory was allocated for blocks, so
 *
 *.vectors able to hold strings of given sym and type
@@ -340,8 +348,6 @@ c      KSIPA = 1 ! jwk-cleanup
         CALL ITODS([-1],1,-1,LUCBLK)
       END IF
 *. Eliminate local memory
-*     IDUM = 0
-*     CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'SBLOCK')
       call mma_deallocate(CONSPA)
       call mma_deallocate(CONSPB)
       call mma_deallocate(STSTS)
@@ -367,5 +373,4 @@ c      KSIPA = 1 ! jwk-cleanup
       Call mma_deallocate(ZSCR)
       Call mma_deallocate(SVST)
       Call mma_deallocate(H0SPC)
-      RETURN
       END

@@ -40,6 +40,8 @@
 
       Integer, Allocatable:: SBSIZ(:), SBOFF(:)
 *
+      IF (.FALSE.) Call Unused_integer_array(LEBATS)
+#ifdef _DEBUGPRINT_
       NTEST = 00
 C     NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
@@ -48,6 +50,7 @@ C     NTEST = MAX(NTEST,IPRNT)
         WRITE(6,*) ' ================='
         WRITE(6,*) ' RASSG3 : NBATS = ',NBATS
       END IF
+#endif
 *
 CSVC: Compute offsets of a sigma batch in the sigma array.
 C     The batches used inside sblock(s) use a batch size corresponding
@@ -55,8 +58,10 @@ C     to the 'expanded form' as computed inside part_civ2. This is
 C     stored inside 7th element of IBATS. Later, the size that needs to
 C     be actually written to disc uses the 'packed form', stored inside
 C     the 8th element of IBATS. This also computes the total size NSB.
+
       Call mma_allocate(SBSIZ,NBATS,Label='SBSIZ')
       Call mma_allocate(SBOFF,NBATS,Label='SBOFF')
+
       NSB=0
       DO JBATS = 1, NBATS
         ISTA=I1BATS(JBATS)
@@ -134,12 +139,11 @@ C     if this block structure is used internally, I didn't optimize this.
       Call mma_deallocate(SBOFF)
 
       CALL ITODS([-1],1,-1,LUHC)
+
+#ifdef _DEBUGPRINT_
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Final S-vector on disc'
         CALL WRTVCD(SB,LUHC,1,-1)
       END IF
-*
-      RETURN
-c Avoid unused argument warnings
-      IF (.FALSE.) Call Unused_integer_array(LEBATS)
+#endif
       END
