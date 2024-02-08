@@ -285,7 +285,8 @@ Contains
 
       SUBROUTINE sigma_master(CIVEC,nCIVEC)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS, only: INT1, INT1O, VEC3, CI_VEC, SIGMA_VEC
+!     Note that CI_VEC is used as a scratch array!
+      use GLBBAS, only: INT1, INT1O, VEC3, SCR => CI_VEC, SIGMA_VEC
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
@@ -326,7 +327,7 @@ Contains
 ! Calculate the sigma vector:
 !
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(CI_Vec, SIGMA_Vec, LUC, LUSC34)
+      CALL MV7(SCR, SIGMA_Vec, LUC, LUSC34)
       Call mma_deallocate(VEC3)
 !
 ! Export lusc34 to RASSCF
@@ -341,7 +342,8 @@ Contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       SUBROUTINE SIGMA_MASTER_CVB(CIVEC,nCIVEC,IREFSM_CASVB)
-      use GLBBAS, only: INT1, INT1O, CI_VEC, SIGMA_VEC, VEC3
+!     Note that CI_VEC is used as a scratch array!
+      use GLBBAS, only: INT1, INT1O, SCR => CI_VEC, SIGMA_VEC, VEC3
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, ISIGMA_ON_DISK
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -389,7 +391,7 @@ Contains
 !
       CALL DIAG_MASTER()
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(CI_VEC, SIGMA_Vec, LUC, LUSC34)
+      CALL MV7(SCR, SIGMA_Vec, LUC, LUSC34)
       Call mma_deallocate(VEC3)
 !
 ! Export lusc34 to RASSCF
