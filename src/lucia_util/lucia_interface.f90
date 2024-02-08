@@ -95,10 +95,10 @@ Contains
          Call Diag_Master()
       Else If (Module_(1:9) .eq. 'SIGMA_CVB') Then
 !        iSym_LI is the symmetry to be used.
-         Call Sigma_Master_CVB(CI_VECTOR,SIZE(CI_VECTOR),iSym)
+         Call Sigma_Master_CVB(CI_VECTOR,SIGMA_VEC,SIZE(CI_VECTOR),iSym)
       Else If (Module_(1:5) .eq. 'SIGMA') Then
 !        write(6,*) 'blubbbbbbhc'
-         Call Sigma_Master(CI_VECTOR,SIZE(CI_VECTOR))
+         Call Sigma_Master(CI_VECTOR,SIGMA_VEC,SIZE(CI_VECTOR))
       Else If (Module_(1:5) .eq. 'TRACI') Then
 !        write(6,*) 'blubbbbbbtraci'
 !        iDisk is the initial disk address (for read/write of JOBIPH)
@@ -283,10 +283,10 @@ Contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-      SUBROUTINE sigma_master(CIVEC,nCIVEC)
+      SUBROUTINE sigma_master(CIVEC,SIGMAVEC,nCIVEC)
       use stdalloc, only: mma_allocate, mma_deallocate
 !     Note that CI_VEC is used as a scratch array!
-      use GLBBAS, only: INT1, INT1O, VEC3, SCR => CI_VEC, SIGMA_VEC
+      use GLBBAS, only: INT1, INT1O, VEC3, SCR => CI_VEC
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
@@ -302,7 +302,7 @@ Contains
 #include "crun.fh"
 #include "spinfo_lucia.fh"
       Integer nCIVEC
-      Real*8 CIVEC(nCIVEC)
+      Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
 
       Integer, Allocatable:: lVec(:)
       Integer nSD
@@ -327,7 +327,7 @@ Contains
 ! Calculate the sigma vector:
 !
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(SCR, SIGMA_Vec, LUC, LUSC34)
+      CALL MV7(SCR, SIGMAVec, LUC, LUSC34)
       Call mma_deallocate(VEC3)
 !
 ! Export lusc34 to RASSCF
@@ -341,9 +341,9 @@ Contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      SUBROUTINE SIGMA_MASTER_CVB(CIVEC,nCIVEC,IREFSM_CASVB)
+      SUBROUTINE SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,nCIVEC,IREFSM_CASVB)
 !     Note that CI_VEC is used as a scratch array!
-      use GLBBAS, only: INT1, INT1O, SCR => CI_VEC, SIGMA_VEC, VEC3
+      use GLBBAS, only: INT1, INT1O, SCR => CI_VEC, VEC3
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, ISIGMA_ON_DISK
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -357,7 +357,7 @@ Contains
 #include "crun.fh"
 #include "spinfo_lucia.fh"
       Integer nCIVEC
-      Real*8 CIVEC(nCIVEC)
+      Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
       Integer, Allocatable:: lVec(:)
       Integer nSD
 
@@ -391,7 +391,7 @@ Contains
 !
       CALL DIAG_MASTER()
       Call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-      CALL MV7(SCR, SIGMA_Vec, LUC, LUSC34)
+      CALL MV7(SCR, SIGMAVec, LUC, LUSC34)
       Call mma_deallocate(VEC3)
 !
 ! Export lusc34 to RASSCF
