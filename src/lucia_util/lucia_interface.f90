@@ -346,6 +346,7 @@ Contains
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, ISIGMA_ON_DISK
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
+#include "cicisp.fh"
 #include "cands.fh"
 #include "cstate.fh"
 #include "clunit.fh"
