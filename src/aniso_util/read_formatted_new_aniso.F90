@@ -13,7 +13,10 @@ subroutine read_formatted_new_aniso(input_file_name,nss,nstate,multiplicity,eso,
                                     esfs_au)
 
 use Constants, only: auTocm, gElectron
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 character(len=180), intent(in) :: input_file_name
@@ -24,10 +27,17 @@ real(kind=wp), intent(out) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate), e
 complex(kind=wp), intent(out) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
 integer(kind=iwp) :: LuAniso
 real(kind=wp), parameter :: g_e = -gElectron
-logical(kind=iwp), parameter :: DBG = .false.
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical(kind=iwp), parameter :: DBG = _DBG_
 integer(kind=iwp), external :: IsFreeUnit
 
-if (dbg) write(u6,'(A)') 'Entering read_formatted_aniso_new'
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'Entering read_formatted_aniso_new'
+#endif
 ! read the data file:
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,input_file_name)

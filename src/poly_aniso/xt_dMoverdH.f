@@ -886,11 +886,11 @@ c  calcualtion of the standard deviation:
             Call plot_XT_with_Exp(label, nT,
      &                           T((1+nTempMagn):(nT+nTempMagn) ),
      &                      XTM_MH((1+nTempMagn):(nT+nTempMagn) ),
-     &                    chit_exp((1+nTempMagn):(nT+nTempMagn) ), zJ )
+     &                    chit_exp((1+nTempMagn):(nT+nTempMagn) ) )
          ELSE
             Call plot_XT_no_Exp(  label, nT,
      &                           T((1+nTempMagn):(nT+nTempMagn) ),
-     &                      XTM_MH((1+nTempMagn):(nT+nTempMagn) ), zJ )
+     &                      XTM_MH((1+nTempMagn):(nT+nTempMagn) ) )
          END IF
       END IF
 
@@ -902,11 +902,11 @@ c  calcualtion of the standard deviation:
             Call plot_XT_with_Exp(label, nT,
      &                           T((1+nTempMagn):(nT+nTempMagn) ),
      &                    XTM_dMdH((1+nTempMagn):(nT+nTempMagn) ),
-     &                    chit_exp((1+nTempMagn):(nT+nTempMagn) ), zJ )
+     &                    chit_exp((1+nTempMagn):(nT+nTempMagn) ) )
          ELSE
             Call plot_XT_no_Exp(  label, nT,
      &                           T((1+nTempMagn):(nT+nTempMagn) ),
-     &                    XTM_dMdH((1+nTempMagn):(nT+nTempMagn) ), zJ )
+     &                    XTM_dMdH((1+nTempMagn):(nT+nTempMagn) ) )
          END IF
       END IF
 !------------------------- END PLOTs -------------------------------------!

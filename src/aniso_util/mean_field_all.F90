@@ -30,7 +30,11 @@ real(kind=wp), allocatable :: RWORK(:), WM(:)
 complex(kind=wp), allocatable :: HZEE(:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
 integer(kind=iwp), parameter :: mxIter = 100
 real(kind=wp), parameter :: THRS2 = 1.0e-12_wp ! FIXME: overriding input thrs
-logical(kind=iwp), parameter :: DBG = .false.
+#ifdef _DEBUGPRINT_
+# define _DBG_ .true.
+#else
+# define _DBG_ .false.
+#endif
 
 #include "macros.fh"
 unused_var(thrs)
@@ -62,7 +66,7 @@ do iter=1,mxIter
   ZM(:,:) = cZero
   ! build and diagonalize the Zeeman Hamiltonian (size N x N)
   ! for the field direction (X,Y,Z) and strength (H)
-  call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(:,1:N,1:N),sM(:,1:N,1:N),ST,zJ,WM(1:N),ZM,DBG,RWORK,HZEE,WORK,W_c)
+  call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(:,1:N,1:N),sM(:,1:N,1:N),ST,zJ,WM(1:N),ZM,_DBG_,RWORK,HZEE,WORK,W_c)
   WM(N+1:EXCH) = W(N+1:EXCH)
 
   ! transform the spin momenta to the Zeeman eigenstate basis
@@ -86,10 +90,10 @@ do iter=1,mxIter
   ! check if average spin is converged
   SCHK = sum(abs(S(:)-ST(:)))
 
-  if (DBG) then
-    write(u6,'(A,i4,1x,A,3ES20.10,2x,A,3ES20.10)') 'ST:   End of iteration',iter,':',(ST(l),l=1,3),'DIFF:',(S(l)-ST(l),l=1,3)
-    write(u6,'(A,i4,1x,A,3ES20.10,2x,A,3ES20.10)') 'SCHK: End of iteration',iter,':',SCHK
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,i4,1x,A,3ES20.10,2x,A,3ES20.10)') 'ST:   End of iteration',iter,':',(ST(l),l=1,3),'DIFF:',(S(l)-ST(l),l=1,3)
+  write(u6,'(A,i4,1x,A,3ES20.10,2x,A,3ES20.10)') 'SCHK: End of iteration',iter,':',SCHK
+# endif
 
   ! decide to continue the iterative process or exit
   if (SCHK < THRS2) then

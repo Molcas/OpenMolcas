@@ -9,40 +9,45 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine generate_isotrop_site(nss,nsfs,nexch,nLoc,gtens_input,riso,D,EoverD,E,M,S)
+subroutine generate_isotrop_site(nss,nsfs,nexch,gtens_input,riso,D,EoverD,E,M,S)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, cZero, cOne
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(inout) :: nss, nsfs, nexch
-integer(kind=iwp), intent(in) :: nLoc
 real(kind=wp), intent(in) :: gtens_input(3), riso(3,3), D, EoverD ! ZFS factors
 real(kind=wp), intent(out) :: E(nExch) ! spin-orbit energy states, starting from 0
 complex(kind=wp), intent(out) :: M(3,nExch,nExch), S(3,nExch,nExch)
-integer(kind=iwp) :: i, info, j, l
-real(kind=wp) :: g(3), gtens(3), ma(3,3), maxes(3,3), RM, RS
+integer(kind=iwp) :: info, l
+real(kind=wp) :: RM, RS
 complex(kind=wp) :: redme
 real(kind=wp), allocatable :: W(:)
 complex(kind=wp), allocatable :: HZFS(:,:), MTMP(:,:,:), S2(:,:), STMP(:,:,:), SX2(:,:), SY2(:,:), SZ2(:,:), tmp(:,:), Wc(:,:), &
                                 Z(:,:)
-logical(kind=iwp), parameter :: dbg = .false.
-real(kind=wp), external :: dznrm2_, dnrm2_
+real(kind=wp), external :: dznrm2_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i, j
+real(kind=wp) :: g(3), gtens(3), ma(3,3), maxes(3,3), RM, RS
+real(kind=wp), external :: dnrm2_
+#endif
 !----------------------------------------------------------------------|
 
 nsfs = 1
 nss = nexch
 
-if (dbg) then
-  write(u6,*) 'GENERATE_SITE:  nss   = ',nss
-  write(u6,*) 'GENERATE_SITE:  nsfs  = ',nsfs
-  write(u6,*) 'GENERATE_SITE:  nLoc  = ',nLoc
-  write(u6,*) 'GENERATE_SITE:  gfact = ',(gtens_input(l),l=1,3)
-  write(u6,*) 'GENERATE_SITE:  EoverD= ',EoverD
-  write(u6,*) 'GENERATE_SITE:  D     = ',D
-  write(u6,*) 'GENERATE_SITE:  riso  = ',((riso(i,j),i=1,3),j=1,3)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'GENERATE_SITE:  nss   = ',nss
+write(u6,*) 'GENERATE_SITE:  nsfs  = ',nsfs
+write(u6,*) 'GENERATE_SITE:  gfact = ',(gtens_input(l),l=1,3)
+write(u6,*) 'GENERATE_SITE:  EoverD= ',EoverD
+write(u6,*) 'GENERATE_SITE:  D     = ',D
+write(u6,*) 'GENERATE_SITE:  riso  = ',((riso(i,j),i=1,3),j=1,3)
+#endif
 
 E(:) = Zero
 S(:,:,:) = cZero
@@ -57,14 +62,16 @@ if (nss >= 2) then
   M(2,:,:) = -gtens_input(2)*S(2,:,:)
   M(3,:,:) = -gtens_input(3)*S(3,:,:)
 
-  if (dbg) then
-    call prmom('GENERATE_SITE:     SPIN MOMENT:',S,nss)
-    call prmom('GENERATE_SITE: MAGNETIC MOMENT:',M,nss)
-  end if
+# ifdef _DEBUGPRINT_
+  call prmom('GENERATE_SITE:     SPIN MOMENT:',S,nss)
+  call prmom('GENERATE_SITE: MAGNETIC MOMENT:',M,nss)
+# endif
 
   RM = dznrm2_(3*nss*nss,M(1:3,1:nss,1:nss),1)
   RS = dznrm2_(3*nss*nss,S(1:3,1:nss,1:nss),1)
-  if (dbg) write(u6,'(A,2ES22.14)') 'Norms of M and S:',RM,RS
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,2ES22.14)') 'Norms of M and S:',RM,RS
+# endif
 
   if ((RM > Zero) .and. (RS > Zero)) then
     ! rotate the spin and magnetic moment to the general coordinate system:
@@ -77,16 +84,18 @@ if (nss >= 2) then
     STMP(:,:,:) = S(:,:,:)
     Z(:,:) = Zero
 
-    if (dbg) write(u6,'(A,ES20.10)') 'GENERATE_SITE: Norm of riso:',dnrm2_(9,riso,1)
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,ES20.10)') 'GENERATE_SITE: Norm of riso:',dnrm2_(9,riso,1)
+#   endif
 
     call rotmom(STMP,nExch,riso,S)
     call rotmom(MTMP,nExch,riso,M)
 
-    if (dbg) then
-      gtens(:) = Zero
-      maxes(:,:) = Zero
-      call atens(M,nExch,gtens,maxes,2)
-    end if
+#   ifdef _DEBUGPRINT_
+    gtens(:) = Zero
+    maxes(:,:) = Zero
+    call atens(M,nExch,gtens,maxes,2)
+#   endif
 
     if (abs(D) > Zero) then
       ! compute the ZFS
@@ -105,26 +114,28 @@ if (nss >= 2) then
 
       S2(:,:) = SX2(:,:)+SY2(:,:)+SZ2(:,:)
 
-      if (dbg) then
-        call pa_prMat('GENERATE_SITE: SX2',SX2,nexch)
-        call pa_prMat('GENERATE_SITE: SY2',SY2,nexch)
-        call pa_prMat('GENERATE_SITE: SZ2',SZ2,nexch)
-        call pa_prMat('GENERATE_SITE: S2 ',S2,nexch)
-      end if
+#     ifdef _DEBUGPRINT_
+      call pa_prMat('GENERATE_SITE: SX2',SX2,nexch)
+      call pa_prMat('GENERATE_SITE: SY2',SY2,nexch)
+      call pa_prMat('GENERATE_SITE: SZ2',SZ2,nexch)
+      call pa_prMat('GENERATE_SITE: S2 ',S2,nexch)
+#     endif
 
       HZFS(:,:) = D*(SZ2(:,:)-S2(:,:)/Three)+D*EoverD*(SX2(:,:)-SY2(:,:))
 
-      if (dbg) call print_ZFS('GENERATE_SITE: ZFS matrix:',HZFS,nExch)
+#     ifdef _DEBUGPRINT_
+      call print_ZFS('GENERATE_SITE: ZFS matrix:',HZFS,nExch)
+#     endif
 
       info = 0
       call diag_c2(HZFS,nExch,info,W,Z)
 
       E(:) = W(:)-W(1)
-      if (dbg) then
-        do i=1,nExch
-          write(u6,'(A,i2,A,F14.8)') 'ZFS  E(',i,') = ',E(i)
-        end do
-      end if
+#     ifdef _DEBUGPRINT_
+      do i=1,nExch
+        write(u6,'(A,i2,A,F14.8)') 'ZFS  E(',i,') = ',E(i)
+      end do
+#     endif
       ! rotate the spin and magnetic moment:
 
       do L=1,3
@@ -149,12 +160,12 @@ if (nss >= 2) then
     call mma_deallocate(tmp)
   end if ! dznrm2_ M and S
 
-  if (dbg) then
-    write(u6,'(A)') 'g tensor at the end of GENERATE_SPIN'
-    g(:) = Zero
-    ma(:,:) = Zero
-    call atens(M,nExch,g,ma,2)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'g tensor at the end of GENERATE_SPIN'
+  g(:) = Zero
+  ma(:,:) = Zero
+  call atens(M,nExch,g,ma,2)
+# endif
 end if ! nss>=2
 
 return

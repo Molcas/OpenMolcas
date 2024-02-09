@@ -631,9 +631,9 @@ c /// -------------------------------------------------------------------
       If(DoPlot) Then
         IF ( hinput ) THEN
            Call plot_MH_with_Exp( nH, H, nTempMagn, TempMagn, MAV,
-     &                            magn_exp, zJ )
+     &                            magn_exp )
         ELSE
-           Call plot_MH_no_Exp( nH, H, nTempMagn, TempMagn, MAV, zJ )
+           Call plot_MH_no_Exp( nH, H, nTempMagn, TempMagn, MAV )
         END IF
 !        IF ( zeeman_energy ) THEN
 !           Call plot_zeeman( nH, nM, nDirZee, H, LuZee )

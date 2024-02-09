@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine plot_XT_with_Exp(label,nT,T,XTcalc,XTexp,zJ)
+subroutine plot_XT_with_Exp(label,nT,T,XTcalc,XTexp)
 
 use Constants, only: Zero, Five, Six
 use Definitions, only: wp, iwp, u6
@@ -17,13 +17,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 character(len=50), intent(in) :: label
 integer(kind=iwp), intent(in) :: nT
-real(kind=wp), intent(in) :: T(nT), XTcalc(nT), XTexp(nT), zJ
+real(kind=wp), intent(in) :: T(nT), XTcalc(nT), XTexp(nT)
 integer(kind=iwp) :: file_number, file_size, iErr, iT, Length, LuData, LuPlt
 real(kind=wp) :: gnuplot_version, tmax, tmin, XTmax, XTmax_calc, XTmax_exp, XTmin, XTmin_calc, XTmin_exp
 logical(kind=iwp) :: execute_gnuplot_cmd, file_exist, is_file_open
 character(len=1023) :: gnuplot_CMD, realname_dat, realname_eps, realname_plt, realname_png
 character(len=300) :: cdummy, datafile, epsfile, imagefile, line1, line2, plotfile
-logical(kind=iwp), parameter :: dbg = .false.
 integer(kind=iwp), external :: AixRm, IsFreeUnit
 
 #include "macros.fh"
@@ -46,22 +45,21 @@ XTmax_calc = maxval(XTcalc)
 XTmin = min(XTmin_exp,XTmin_calc)-0.08_wp*max(XTmax_exp,XTmax_calc)
 XTmax = max(XTmax_exp,XTmax_calc)+0.08_wp*max(XTmax_exp,XTmax_calc)
 
-if (dbg) then
-  write(u6,*) 'nT        = ',nT
-  write(u6,*) 'tmin      = ',tmin
-  write(u6,*) 'tmax      = ',tmax
-  write(u6,*) 'XTmin_exp = ',XTmin_exp
-  write(u6,*) 'XTmax_exp = ',XTmax_exp
-  write(u6,*) 'XTmin_calc= ',XTmin_calc
-  write(u6,*) 'XTmax_calc= ',XTmax_calc
-  write(u6,*) 'XTmin     = ',XTmin
-  write(u6,*) 'XTmax     = ',XTmax
-  write(u6,*) 'zJ        = ',zJ
-  write(u6,*) 'label     = ',label
-  do iT=1,nT
-    write(u6,*) T(iT),XTcalc(iT),XTexp(iT)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'nT        = ',nT
+write(u6,*) 'tmin      = ',tmin
+write(u6,*) 'tmax      = ',tmax
+write(u6,*) 'XTmin_exp = ',XTmin_exp
+write(u6,*) 'XTmax_exp = ',XTmax_exp
+write(u6,*) 'XTmin_calc= ',XTmin_calc
+write(u6,*) 'XTmax_calc= ',XTmax_calc
+write(u6,*) 'XTmin     = ',XTmin
+write(u6,*) 'XTmax     = ',XTmax
+write(u6,*) 'label     = ',label
+do iT=1,nT
+  write(u6,*) T(iT),XTcalc(iT),XTexp(iT)
+end do
+#endif
 
 ! generate the GNUPLOT script in the $WorkDir
 line1 = ' '
@@ -77,58 +75,76 @@ gnuplot_version = Zero
 inquire(file='lineOUT',exist=file_exist,opened=is_file_open,number=file_number)
 
 if (file_exist) then
-  if (dbg) write(u6,'(A)') 'file "lineOUT" exists in WorkDir'
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'file "lineOUT" exists in WorkDir'
+# endif
   if (is_file_open) then
-    if (dbg) write(u6,'(A)') 'file "lineOUT" is opened'
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A)') 'file "lineOUT" is opened'
+#   endif
     ! close the file:
     close(unit=file_number,status='DELETE')
   end if
   ! delete the file
-  if (dbg) write(u6,'(A)') 'deleting the file...'
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'deleting the file...'
+# endif
   iErr = AixRm('lineOUT')
-  if (dbg) write(u6,*) 'iErr = ',iErr
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iErr = ',iErr
 else
-  if (dbg) write(u6,'(A)') 'file "lineOUT" does not exist in WorkDir'
+  write(u6,'(A)') 'file "lineOUT" does not exist in WorkDir'
+# endif
 end if
 
 ! find the gnuplot
-if (dbg) write(u6,'(A)') 'inquire which GNUPLOT'
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'inquire which GNUPLOT'
+#endif
 
 !#ifdef __INTEL_COMPILER
 call systemf('which gnuplot >> lineOUT',iErr)
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 !#else
 !call execute_command_line('which gnuplot >> lineOUT')
 !#endif
 
 inquire(file='lineOUT',exist=file_exist,opened=is_file_open,number=file_number,size=file_size)
 
-if (dbg) then
-  write(u6,*) 'File_number =',file_number
-  write(u6,*) 'Is_file_open=',is_file_open
-  write(u6,*) 'File_exist  =',file_exist
-  write(u6,*) 'File_size   =',file_size
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'File_number =',file_number
+write(u6,*) 'Is_file_open=',is_file_open
+write(u6,*) 'File_exist  =',file_exist
+write(u6,*) 'File_size   =',file_size
+#endif
 
 if (file_exist) then
   if (file_size > 0) then
-    if (dbg) write(u6,'(A)') 'new file "lineOUT" exists in WorkDir'
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A)') 'new file "lineOUT" exists in WorkDir'
+#   endif
 
     file_number = IsFreeUnit(43)
     call molcas_open(file_number,'lineOUT')
 
     read(file_number,'(A)') line1
 
-    if (dbg) then
-      write(u6,*) 'line1=',line1
-      write(u6,*) trim(line1)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'line1=',line1
+    write(u6,*) trim(line1)
+#   endif
     line2 = trim(line1)
-    if (dbg) write(u6,*) 'line2=',line2
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'line2=',line2
+#   endif
 
     close(file_number)
-    if (dbg) write(u6,*) 'Closing lineOUT file'
-    flush(u6)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Closing lineOUT file'
+    call xFlush(u6)
+#   endif
     execute_gnuplot_cmd = .true.
   else
     ! file_size =0
@@ -140,18 +156,26 @@ else
 end if
 ! remove file "lineOUT"
 iErr = AixRm('lineOUT')
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 
 !-----------------------------------------------------------------------
 ! check the version of the gnuplot:
 if (execute_gnuplot_cmd) then
-  if (dbg) write(u6,'(A)') 'inquire which version of GNUPLOT is installed'
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'inquire which version of GNUPLOT is installed'
+# endif
   ! attempt to execute the script
   write(gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
-  if (dbg) write(u6,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+# endif
 !# ifdef __INTEL_COMPILER
   call systemf(gnuplot_CMD,iErr)
-  if (dbg) write(u6,*) 'iErr = ',iErr
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iErr = ',iErr
+# endif
 !# else
 !  call execute_command_line(gnuplot_CMD)
 !# endif
@@ -159,12 +183,16 @@ if (execute_gnuplot_cmd) then
   call molcas_open(file_number,'lineOUT')
   read(file_number,*) cdummy,gnuplot_version
   unused_var(cdummy)
-  if (dbg) write(u6,'(A,F4.1)') 'gnuplot_version = ',gnuplot_version
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,F4.1)') 'gnuplot_version = ',gnuplot_version
+# endif
   if (abs(gnuplot_version) < 0.1_wp) execute_gnuplot_cmd = .false.
   close(file_number)
   ! remove file "lineOUT"
   iErr = AixRm('lineOUT')
-  if (dbg) write(u6,*) 'iErr = ',iErr
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iErr = ',iErr
+# endif
 end if
 
 !-----------------------------------------------------------------------
@@ -177,50 +205,54 @@ call prgmtranslate(datafile,realname_dat,Length)
 call prgmtranslate(imagefile,realname_png,Length)
 call prgmtranslate(epsfile,realname_eps,Length)
 call prgmtranslate(plotfile,realname_plt,Length)
-if (dbg) then
-  write(u6,'(3A)') 'realname_dat=',trim(realname_dat)
-  write(u6,'(3A)') 'realname_png=',trim(realname_png)
-  write(u6,'(3A)') 'realname_eps=',trim(realname_eps)
-  write(u6,'(3A)') 'realname_plt=',trim(realname_plt)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(3A)') 'realname_dat=',trim(realname_dat)
+write(u6,'(3A)') 'realname_png=',trim(realname_png)
+write(u6,'(3A)') 'realname_eps=',trim(realname_eps)
+write(u6,'(3A)') 'realname_plt=',trim(realname_plt)
+#endif
 
 !  GENERATE FILES:
 !-----------------------------------------------------------------------
 ! generate the file "XT.dat":
 inquire(file=datafile,exist=file_exist,opened=is_file_open,number=file_number)
 if (file_exist) iErr = AixRm(trim(datafile))
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 LuData = IsFreeUnit(44)
 call molcas_open(LuData,datafile)
-if (dbg) then
-  write(u6,*) 'Opening "'//trim(datafile)//'" file'
-  write(u6,*) 'Opening "'//trim(realname_dat)//'" file'
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Opening "'//trim(datafile)//'" file'
+write(u6,*) 'Opening "'//trim(realname_dat)//'" file'
+#endif
 do iT=1,nT
   write(LuData,'(3ES24.14)') T(iT),XTexp(iT),XTcalc(iT)
 end do
-if (dbg) then
-  write(u6,*) 'Writing into the "'//trim(datafile)//'" file'
-  write(u6,*) 'Writing into the "'//trim(realname_dat)//'" file'
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Writing into the "'//trim(datafile)//'" file'
+write(u6,*) 'Writing into the "'//trim(realname_dat)//'" file'
+#endif
 close(LuData)
-if (dbg) then
-  write(u6,*) 'Closing the "'//trim(datafile)//'" file'
-  write(u6,*) 'Closing the "'//trim(realname_dat)//'" file'
-end if
-flush(u6)
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Closing the "'//trim(datafile)//'" file'
+write(u6,*) 'Closing the "'//trim(realname_dat)//'" file'
+call xFlush(u6)
+#endif
 
 !-----------------------------------------------------------------------
 ! generate the GNUPLOT script in the $WorkDir
 inquire(file=plotfile,exist=file_exist,opened=is_file_open,number=file_number)
 if (file_exist) iErr = AixRm(trim(plotfile))
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 LuPlt = IsFreeUnit(54)
 call molcas_open(LuPlt,plotfile)
-if (dbg) then
-  write(u6,*) 'Opening "'//trim(plotfile)//'" file'
-  write(u6,*) 'Opening "'//trim(realname_plt)//'" file'
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Opening "'//trim(plotfile)//'" file'
+write(u6,*) 'Opening "'//trim(realname_plt)//'" file'
+#endif
 
 if (gnuplot_version < Five) then
   !===  GNUPLOT VERSION 4 and below ==>>  generate EPS
@@ -293,31 +325,35 @@ close(LuPlt)
 
 if (execute_gnuplot_cmd) then
   ! attempt to execute the script
-  if (dbg) then
-    file_exist = .false.
-    write(u6,*) trim(realname_plt)
-    inquire(file=trim(realname_plt),exist=file_exist,opened=is_file_open,number=file_number)
-    if (file_exist) then
-      write(u6,'(A,i0,A)') 'File "'//trim(realname_plt)//'" exists.'
-    else
-      write(u6,'(A,i0,A)') 'File "'//trim(realname_plt)//'" does not exist.'
-    end if
-    file_exist = .false.
-    write(u6,*) trim(realname_dat)
-    inquire(file=trim(realname_dat),exist=file_exist,opened=is_file_open,number=file_number)
-    if (file_exist) then
-      write(u6,'(A,i0,A)') 'File "'//trim(realname_dat)//'" exists.'
-    else
-      write(u6,'(A,i0,A)') 'File "'//trim(realname_dat)//'" does not exist.'
-    end if
+# ifdef _DEBUGPRINT_
+  file_exist = .false.
+  write(u6,*) trim(realname_plt)
+  inquire(file=trim(realname_plt),exist=file_exist,opened=is_file_open,number=file_number)
+  if (file_exist) then
+    write(u6,'(A,i0,A)') 'File "'//trim(realname_plt)//'" exists.'
+  else
+    write(u6,'(A,i0,A)') 'File "'//trim(realname_plt)//'" does not exist.'
   end if
+  file_exist = .false.
+  write(u6,*) trim(realname_dat)
+  inquire(file=trim(realname_dat),exist=file_exist,opened=is_file_open,number=file_number)
+  if (file_exist) then
+    write(u6,'(A,i0,A)') 'File "'//trim(realname_dat)//'" exists.'
+  else
+    write(u6,'(A,i0,A)') 'File "'//trim(realname_dat)//'" does not exist.'
+  end if
+# endif
 
   write(gnuplot_CMD,'(5A)') trim(line2),' < ',trim(realname_plt)
-  if (dbg) write(u6,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
+# endif
 
 !# ifdef __INTEL_COMPILER
   call systemf(gnuplot_CMD,iErr)
-  if (dbg) write(u6,*) 'iErr = ',iErr
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iErr = ',iErr
+# endif
 !# else
 !  call execute_command_line(gnuplot_CMD)
 !# endif

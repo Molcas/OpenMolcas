@@ -27,7 +27,12 @@ character(len=128) :: Filename
 integer(kind=iwp), allocatable :: jbnum(:), mltplt(:), nroot(:), szproj(:)
 real(kind=wp), allocatable :: xyz(:,:)
 character(len=LenIn), allocatable :: AtomLbl(:)
-logical(kind=iwp), parameter :: dbg = .false.
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical(kind=iwp), parameter :: dbg = _DBG_
 integer(kind=iwp), external :: IsFreeUnit
 
 !-----------------------------------------------------------------------
@@ -184,7 +189,6 @@ call write_eigen(LU,nss,U,dbg)
 ! The HBO+SOC matrix, atomic units
 call write_hso(LU,nss,HSO,dbg)
 !-----------------------------------------------------------------------
-flush(Lu)
 close(Lu)
 
 call mma_deallocate(szproj)

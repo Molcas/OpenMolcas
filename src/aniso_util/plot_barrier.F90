@@ -23,7 +23,6 @@ integer(kind=iwp) :: file_number, file_size, i, i1, iErr, j, j1, k, l, Length, L
 logical(kind=iwp) :: execute_gnuplot_cmd, file_exist, is_file_open
 character(len=1023) :: gnuplot_CMD, realname_e_dat, realname_eps, realname_m_dat, realname_plt, realname_png
 character(len=100) :: cdummy, datafile_e, datafile_m, epsfile, fmtx, imagefile, line1, line2, plotfile
-logical(kind=iwp), parameter :: dbg = .false.
 integer(kind=iwp), external :: AixRm, IsFreeUnit
 
 #include "macros.fh"
@@ -89,59 +88,77 @@ gnuplot_version = Zero
 inquire(file='lineOUT',exist=file_exist,opened=is_file_open,number=file_number)
 
 if (file_exist) then
-  if (dbg) write(u6,'(A)') 'file "lineOUT" exists in WorkDir'
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'file "lineOUT" exists in WorkDir'
+# endif
   if (is_file_open) then
-    if (dbg) write(u6,'(A)') 'file "lineOUT" is opened'
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A)') 'file "lineOUT" is opened'
+#   endif
     ! close the file:
     close(unit=file_number,status='DELETE')
   end if
   ! delete the file
-  if (dbg) write(u6,'(A)') 'deleting the file...'
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'deleting the file...'
+# endif
   iErr = AixRm('lineOUT')
-  if (dbg) write(u6,*) 'iErr = ',iErr
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iErr = ',iErr
 else
-  if (dbg) write(u6,'(A)') 'file "lineOUT" does not exist in WorkDir'
+  write(u6,'(A)') 'file "lineOUT" does not exist in WorkDir'
+# endif
 end if
 
 ! find the gnuplot
-if (dbg) write(u6,'(A)') 'inquire which GNUPLOT'
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'inquire which GNUPLOT'
+#endif
 
 !#ifdef __INTEL_COMPILER
 call systemf('which gnuplot >> lineOUT',iErr)
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 !#else
 !call execute_command_line("which gnuplot >> lineOUT")
 !#endif
 
 inquire(file='lineOUT',exist=file_exist,opened=is_file_open,number=file_number,size=file_size)
 
-if (dbg) then
-  write(u6,*) 'File_number =',file_number
-  write(u6,*) 'Is_file_open=',is_file_open
-  write(u6,*) 'File_exist  =',file_exist
-  write(u6,*) 'File_size   =',file_size
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'File_number =',file_number
+write(u6,*) 'Is_file_open=',is_file_open
+write(u6,*) 'File_exist  =',file_exist
+write(u6,*) 'File_size   =',file_size
+#endif
 
 if (file_exist) then
   if (file_size > 0) then
 
-    if (dbg) write(u6,'(A)') 'new file "lineOUT" exists in WorkDir'
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A)') 'new file "lineOUT" exists in WorkDir'
+#   endif
 
     file_number = IsFreeUnit(45)
     call molcas_open(file_number,'lineOUT')
 
     read(file_number,'(A)') line1
 
-    if (dbg) then
-      write(u6,*) 'line1=',line1
-      write(u6,*) trim(line1)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'line1=',line1
+    write(u6,*) trim(line1)
+#   endif
     line2 = trim(line1)
-    if (dbg) write(u6,*) 'line2=',line2
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'line2=',line2
+#   endif
 
     close(file_number)
-    if (dbg) write(u6,*) 'Closing lineOUT file'
-    flush(u6)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Closing lineOUT file'
+    call xFlush(u6)
+#   endif
     execute_gnuplot_cmd = .true.
   else
     ! file_size =0
@@ -153,17 +170,25 @@ else
 end if
 ! remove file "lineOUT"
 iErr = AixRm('lineOUT')
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 
 !!!!! check the version of the gnuplot:
 if (execute_gnuplot_cmd) then
-  if (dbg) write(u6,'(A)') 'inquire which version of GNUPLOT is installed'
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'inquire which version of GNUPLOT is installed'
+# endif
   ! attempt to execute the script
   write(gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
-  if (dbg) write(u6,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+# endif
 !# ifdef __INTEL_COMPILER
   call systemf(gnuplot_CMD,iErr)
-  if (dbg) write(u6,*) 'iErr = ',iErr
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iErr = ',iErr
+# endif
 !# else
 ! call execute_command_line(gnuplot_CMD)
 !# endif
@@ -171,12 +196,16 @@ if (execute_gnuplot_cmd) then
   call molcas_open(file_number,'lineOUT')
   read(file_number,*) cdummy,gnuplot_version
   unused_var(cdummy)
-  if (dbg) write(u6,'(A,F4.1)') 'gnuplot_version = ',gnuplot_version
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,F4.1)') 'gnuplot_version = ',gnuplot_version
+# endif
   if (abs(gnuplot_version) < 0.1_wp) execute_gnuplot_cmd = .false.
   close(file_number)
   ! remove file "lineOUT"
   iErr = AixRm('lineOUT')
-  if (dbg) write(u6,*) 'iErr = ',iErr
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iErr = ',iErr
+# endif
 end if
 
 !-----------------------------------------------------------------------
@@ -191,25 +220,27 @@ call prgmtranslate(datafile_m,realname_m_dat,Length)
 call prgmtranslate(imagefile,realname_png,Length)
 call prgmtranslate(epsfile,realname_eps,Length)
 call prgmtranslate(plotfile,realname_plt,Length)
-if (dbg) then
-  write(u6,'(3A)') 'realname_e_dat=',trim(realname_e_dat)
-  write(u6,'(3A)') 'realname_m_dat=',trim(realname_m_dat)
-  write(u6,'(3A)') 'realname_png=',trim(realname_png)
-  write(u6,'(3A)') 'realname_eps=',trim(realname_eps)
-  write(u6,'(3A)') 'realname_plt=',trim(realname_plt)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(3A)') 'realname_e_dat=',trim(realname_e_dat)
+write(u6,'(3A)') 'realname_m_dat=',trim(realname_m_dat)
+write(u6,'(3A)') 'realname_png=',trim(realname_png)
+write(u6,'(3A)') 'realname_eps=',trim(realname_eps)
+write(u6,'(3A)') 'realname_plt=',trim(realname_plt)
+#endif
 
 !!!!! prepare the energy data file:
 inquire(file=datafile_e,exist=file_exist,opened=is_file_open,number=file_number)
 if (file_exist) iErr = AixRm(trim(datafile_e))
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 LuData = IsFreeUnit(75)
 call molcas_open(LuData,datafile_e)
-if (dbg) then
-  write(u6,*) 'Opening "'//trim(datafile_e)//'" file'
-  write(u6,*) 'Opening "'//trim(realname_e_dat)//'" file'
-end if
-flush(u6)
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Opening "'//trim(datafile_e)//'" file'
+write(u6,*) 'Opening "'//trim(realname_e_dat)//'" file'
+call xFlush(u6)
+#endif
 ! write energies
 l = 0
 do i=1,nMult
@@ -223,29 +254,31 @@ do i=1,nMult
     write(LuData,'(A)') ' '
   end do
 end do
-if (dbg) then
-  write(u6,*) 'Writing into the "'//trim(datafile_e)//'" file'
-  write(u6,*) 'Writing into the "'//trim(realname_e_dat)//'" file'
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Writing into the "'//trim(datafile_e)//'" file'
+write(u6,*) 'Writing into the "'//trim(realname_e_dat)//'" file'
+#endif
 close(LuData)
-if (dbg) then
-  write(u6,*) 'Closing the "'//trim(datafile_e)//'" file'
-  write(u6,*) 'Closing the "'//trim(realname_e_dat)//'" file'
-end if
-flush(u6)
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Closing the "'//trim(datafile_e)//'" file'
+write(u6,*) 'Closing the "'//trim(realname_e_dat)//'" file'
+call xFlush(u6)
+#endif
 
 !!!!!===================================================================
 !!!!! prepare the transition matrix elements file:
 inquire(file=datafile_m,exist=file_exist,opened=is_file_open,number=file_number)
 if (file_exist) iErr = AixRm(trim(datafile_m))
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 LuData = IsFreeUnit(76)
 call molcas_open(LuData,datafile_m)
-if (dbg) then
-  write(u6,*) 'Opening "'//trim(datafile_m)//'" file'
-  write(u6,*) 'Opening "'//trim(realname_m_dat)//'" file'
-end if
-flush(u6)
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Opening "'//trim(datafile_m)//'" file'
+write(u6,*) 'Opening "'//trim(realname_m_dat)//'" file'
+call xFlush(u6)
+#endif
 ! write energies,
 l = 0
 do i=1,nMult
@@ -279,23 +312,29 @@ do i=1,nMult
     end do
   end do
 end do
-if (dbg) write(u6,*) 'Writing into the "'//trim(datafile_m)//'" file'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Writing into the "'//trim(datafile_m)//'" file'
+#endif
 close(LuData)
-if (dbg) write(u6,*) 'Closing the "'//trim(datafile_m)//'" file'
-flush(u6)
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Closing the "'//trim(datafile_m)//'" file'
+call xFlush(u6)
+#endif
 
 !!!!!===================================================================
 !!!!! generate the GNUPLOT script in the $WorkDir
 
 inquire(file=plotfile,exist=file_exist,opened=is_file_open,number=file_number)
 if (file_exist) iErr = AixRm(trim(plotfile))
-if (dbg) write(u6,*) 'iErr = ',iErr
+#ifdef _DEBUGPRINT_
+write(u6,*) 'iErr = ',iErr
+#endif
 LuPlt = IsFreeUnit(85)
 call molcas_open(LuPlt,plotfile)
-if (dbg) then
-  write(u6,*) 'Opening "'//trim(plotfile)//'" file'
-  write(u6,*) 'Opening "'//trim(realname_plt)//'" file'
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Opening "'//trim(plotfile)//'" file'
+write(u6,*) 'Opening "'//trim(realname_plt)//'" file'
+#endif
 
 if (gnuplot_version < Five) then
   !===  GNUPLOT VERSION 4 and below ==>>  generate EPS
@@ -402,10 +441,14 @@ close(LuPlt)
 if (execute_gnuplot_cmd) then
   ! attempt to execute the script
   write(gnuplot_CMD,'(5A)') trim(line2),' < ',trim(realname_plt)
-  if (dbg) write(u6,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+# endif
 !# ifdef __INTEL_COMPILER
   call systemf(gnuplot_CMD,iErr)
-  if (dbg) write(u6,*) 'iErr = ',iErr
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iErr = ',iErr
+# endif
 !# else
 !  call execute_command_line(gnuplot_CMD)
 !# endif

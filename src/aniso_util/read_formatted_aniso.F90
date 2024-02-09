@@ -24,11 +24,12 @@ complex(kind=wp), intent(out) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), ML(3,
 integer(kind=iwp) :: j, j1, j2, l, LuAniso
 real(kind=wp), allocatable :: tmpI(:,:), tmpR(:,:)
 real(kind=wp), parameter :: g_e = -gElectron
-logical(kind=iwp), parameter :: DBG = .false.
 integer(kind=iwp), external :: IsFreeUnit
 
-if (dbg) write(u6,'(A)') 'Entering read_formatted_aniso'
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'Entering read_formatted_aniso'
 call xFlush(u6)
+#endif
 ! set to zero all arrays:
 multiplicity(:) = 0
 eso(:) = Zero
@@ -47,19 +48,21 @@ LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,trim(input_file_name))
 ! compatibility with the present version: of aniso_i.input file
 read(LuAniso,*) nstate,nss
-if (dbg) write(u6,'(A,2I6)') 'nstate, nss:',nstate,nss
+#ifdef _DEBUGPRINT_
+write(u6,'(A,2I6)') 'nstate, nss:',nstate,nss
 call xFlush(u6)
+#endif
 read(LuAniso,*) (eso(j),j=1,nss)
-if (dbg) then
-  write(u6,'(A)') 'ESO:'
-  write(u6,'(5ES24.14)') (eso(j),j=1,nss)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'ESO:'
+write(u6,'(5ES24.14)') (eso(j),j=1,nss)
+#endif
 read(LuAniso,*) (multiplicity(j),j=1,nstate)
-if (dbg) then
-  write(u6,'(A)') '(multiplicity(j),j=1,nstate)'
-  write(u6,'(50I3)') (multiplicity(j),j=1,nstate)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') '(multiplicity(j),j=1,nstate)'
+write(u6,'(50I3)') (multiplicity(j),j=1,nstate)
 call xFlush(u6)
+#endif
 
 call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
@@ -69,8 +72,8 @@ do l=1,3
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
   MM(l,1:nss,1:nss) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
+  call xFlush(u6)
 end do
-call xFlush(u6)
 
 ! spin moment
 do l=1,3
@@ -82,10 +85,10 @@ end do
 
 ! spin-free energies
 read(LuAniso,*) (esfs(j),j=1,nstate)
-if (dbg) then
-  write(u6,'(A)') 'ESFS:'
-  write(u6,'(5ES24.14)') (esfs(j),j=1,nstate)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'ESFS:'
+write(u6,'(5ES24.14)') (esfs(j),j=1,nstate)
+#endif
 
 ! U matrix
 do j1=1,nss

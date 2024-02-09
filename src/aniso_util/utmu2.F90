@@ -23,15 +23,14 @@ complex(kind=wp), intent(inout) :: m(3,exch,exch)
 integer(kind=iwp) :: i, i1, j, j1, l
 real(kind=wp) :: r1, r2
 complex(kind=wp), allocatable :: mtmp(:,:,:), tmp(:,:)
-logical(kind=iwp), parameter :: dbg = .false.
 real(kind=wp), external :: dznrm2_
 
 if ((n <= 0) .or. (exch <= 0)) then
   write(u6,'(a)') 'in utmu2:   exch or n<=0 !!!'
   write(u6,*) 'exch=',exch
   write(u6,*) 'n   =',n
-  call xflush(u6)
-  call xquit(128)
+  call xFlush(u6)
+  call abend()
 end if
 
 if (n > exch) then
@@ -39,8 +38,8 @@ if (n > exch) then
   write(u6,*) 'exch=',exch
   write(u6,*) 'n   =',n
   write(u6,'(a)') 'nothing is to be done >> return'
-  call xflush(u6)
-  call xquit(128)
+  call xFlush(u6)
+  call abend()
 end if
 
 r1 = dznrm2_(3*exch*exch,m,1)
@@ -52,14 +51,14 @@ if ((r1 < 1.0e-25_wp) .or. (r2 < 1.0e-25_wp)) then
   return
 end if
 
-if (dbg) then
-  write(u6,'(a)') 'utmu2 :: input moment'
-  do i=1,exch
-    do j=1,exch
-      write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,'(a)') 'utmu2 :: input moment'
+do i=1,exch
+  do j=1,exch
+    write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
   end do
-end if
+end do
+#endif
 
 call mma_allocate(tmp,exch,exch,'tmp')
 if (n < exch) then
@@ -98,28 +97,28 @@ else
   end do !l
 end if !n == exch
 
-if (dbg) then
-  write(u6,'(a)') 'utmu2 :: unitary transformtion matrix'
-  do i=1,n
-    do j=1,n
-      write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'| u |',j,'>',z(i,j)
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,'(a)') 'utmu2 :: unitary transformtion matrix'
+do i=1,n
+  do j=1,n
+    write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'| u |',j,'>',z(i,j)
   end do
-  write(u6,'(a)') 'utmu2 :: output moment'
-  do i=1,exch
-    do j=1,exch
-      write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
-    end do
+end do
+write(u6,'(a)') 'utmu2 :: output moment'
+do i=1,exch
+  do j=1,exch
+    write(u6,'(a,i3,a,i3,a,3(2es16.8,2x))') '<',i,'|m_l|',j,'>',(m(l,i,j),l=1,3)
   end do
-end if
+end do
+#endif
 
 if (n < exch) call mma_deallocate(mtmp)
 call mma_deallocate(tmp)
 
-if (dbg) then
-  write(u6,*) 'at the end of utmu2'
-  call prmom('utmu2, moment',m,n)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'at the end of utmu2'
+call prmom('utmu2, moment',m,n)
+#endif
 
 return
 

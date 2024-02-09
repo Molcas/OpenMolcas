@@ -304,11 +304,11 @@ C
             Call plot_XT_with_Exp(label, nT,
      &                           T((1+nTempMagn):(nT+nTempMagn) ),
      &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ),
-     &                       XTexp((1+nTempMagn):(nT+nTempMagn) ), zJ )
+     &                       XTexp((1+nTempMagn):(nT+nTempMagn) ) )
          ELSE
             Call plot_XT_no_Exp( label, nT,
      &                           T((1+nTempMagn):(nT+nTempMagn) ),
-     &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ), zJ )
+     &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ) )
          END IF
       END IF
 !------------------------- END PLOTs -------------------------------------!

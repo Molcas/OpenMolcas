@@ -575,36 +575,34 @@ call mma_allocate(ri,n,n,label='ri')
 ! projection X
 rr = Zero
 ri = Zero
-if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_xr: ',inquire_key_presence(DATA_FILE,'$spin_xr')
-flush(u6)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_xi: ',inquire_key_presence(DATA_FILE,'$spin_xi')
-flush(u6)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_yr: ',inquire_key_presence(DATA_FILE,'$spin_yr')
-flush(u6)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_yi: ',inquire_key_presence(DATA_FILE,'$spin_yi')
-flush(u6)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_zr: ',inquire_key_presence(DATA_FILE,'$spin_zr')
-flush(u6)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p2  :spin_zi: ',inquire_key_presence(DATA_FILE,'$spin_zi')
-flush(u6)
+if (dbg) then
+  write(u6,*) 'ENTER read_spin_moment p2  :spin_xr: ',inquire_key_presence(DATA_FILE,'$spin_xr')
+  write(u6,*) 'ENTER read_spin_moment p2  :spin_xi: ',inquire_key_presence(DATA_FILE,'$spin_xi')
+  write(u6,*) 'ENTER read_spin_moment p2  :spin_yr: ',inquire_key_presence(DATA_FILE,'$spin_yr')
+  write(u6,*) 'ENTER read_spin_moment p2  :spin_yi: ',inquire_key_presence(DATA_FILE,'$spin_yi')
+  write(u6,*) 'ENTER read_spin_moment p2  :spin_zr: ',inquire_key_presence(DATA_FILE,'$spin_zr')
+  write(u6,*) 'ENTER read_spin_moment p2  :spin_zi: ',inquire_key_presence(DATA_FILE,'$spin_zi')
+  call xFlush(u6)
+end if
 if (inquire_key_presence(DATA_FILE,'$spin_xr')) call read_2d_real_array(DATA_FILE,'$spin_xr',n,n,rr,dbg)
-flush(u6)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p3'
-flush(u6)
+if (dbg) then
+  write(u6,*) 'ENTER read_spin_moment p3'
+  call xFlush(u6)
+end if
 if (inquire_key_presence(DATA_FILE,'$spin_xi')) call read_2d_real_array(DATA_FILE,'$spin_xi',n,n,ri,dbg)
-flush(u6)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p4'
-flush(u6)
-if (dbg) write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
-flush(u6)
-if (dbg) write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
-flush(u6)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p5'
-flush(u6)
+if (dbg) then
+  write(u6,*) 'ENTER read_spin_moment p4'
+  write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
+  write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+  write(u6,*) 'ENTER read_spin_moment p5'
+  call xFlush(u6)
+end if
 moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) write(u6,*) 'ENTER read_spin_moment p6'
-flush(u6)
-if (dbg) call check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
+if (dbg) then
+  write(u6,*) 'ENTER read_spin_moment p6'
+  call check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
+  call xFlush(u6)
+end if
 ! projection Y
 rr = Zero
 ri = Zero
@@ -613,6 +611,7 @@ if (inquire_key_presence(DATA_FILE,'$spin_yi')) call read_2d_real_array(DATA_FIL
 if (dbg) then
   write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+  call xFlush(u6)
 end if
 moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) call check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
@@ -624,6 +623,7 @@ if (inquire_key_presence(DATA_FILE,'$spin_zi')) call read_2d_real_array(DATA_FIL
 if (dbg) then
   write(u6,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
   write(u6,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+  call xFlush(u6)
 end if
 moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_spin:: the norm of the read moment is zero!')
@@ -1183,7 +1183,7 @@ if (ierr == 0) then
     end do
   end do
   if (dnrm2_(n*3*3,X_tens,1) < MINIMAL_REAL) call WarningMessage(1,'read_x '//trim(s)//' :: all array X_tens elements are zero.')
-  if (dbg) flush(u6)
+  if (dbg) call xFlush(u6)
 else
   write(u6,*) 'keyword $susceptibility_'//trim(s)//' was not found in DATA_FILE'
 end if
@@ -1278,7 +1278,7 @@ do ih=1,nh
   read(DATA_FILE,*,iostat=ierr) (mav(ih,it),it=1,nt)
   if (ierr /= 0) call WarningMessage(2,'read_magn :: Something went wrong reading the average M data.')
 end do
-if (dbg) flush(u6)
+if (dbg) call xFlush(u6)
 
 return
 
@@ -1764,7 +1764,7 @@ do k=2,n-1,2
   end do
 end do
 write(ANISO_FILE,'(A)',iostat=ierr)
-flush(ANISO_FILE)
+call xFlush(ANISO_FILE)
 
 return
 
@@ -1860,7 +1860,7 @@ write(ANISO_FILE,FMTR,iostat=ierr) (Z(i),i=1,n)
 if (ierr /= 0) call WarningMessage(2,'write_susc '//trim(s)//' :: Something went wrong writing the Z array.')
 write(ANISO_FILE,FMTR,iostat=ierr) (X(i),i=1,n)
 if (ierr /= 0) call WarningMessage(2,'write_susc '//trim(s)//' :: Something went wrong writing the X array.')
-flush(ANISO_FILE)
+call xFlush(ANISO_FILE)
 do j=1,3
   do k=1,3
     write(ANISO_FILE,FMTR,iostat=ierr) (X_tens(i,j,k),i=1,n)
@@ -1868,8 +1868,8 @@ do j=1,3
   end do
 end do
 write(ANISO_FILE,*,iostat=ierr)
-flush(ANISO_FILE)
-if (dbg) flush(u6)
+call xFlush(ANISO_FILE)
+if (dbg) call xFlush(u6)
 
 return
 
@@ -1940,7 +1940,7 @@ write(ANISO_FILE,FMTR,iostat=ierr) (Z(i),i=1,nd)
 if (ierr /= 0) call WarningMessage(2,'write_magn :: Something went wrong writing the Lebedev grid Z array.')
 write(ANISO_FILE,FMTR,iostat=ierr) (W(i),i=1,nd)
 if (ierr /= 0) call WarningMessage(2,'write_magn :: Something went wrong writing the Lebedev grid W array.')
-flush(ANISO_FILE)
+call xFlush(ANISO_FILE)
 ! Zeeman energy
 do id=1,nd
   do ih=1,nh
@@ -1948,7 +1948,7 @@ do id=1,nd
     if (ierr /= 0) call WarningMessage(2,'write_magn :: Something went wrong writing the Zeeman energy data.')
   end do
 end do
-flush(ANISO_FILE)
+call xFlush(ANISO_FILE)
 ! magnetisation vector data
 do id=1,nd
   do l=1,3
@@ -1958,14 +1958,14 @@ do id=1,nd
     end do
   end do
 end do
-flush(ANISO_FILE)
+call xFlush(ANISO_FILE)
 do ih=1,nh
   write(ANISO_FILE,FMTR,iostat=ierr) (mav(ih,it),it=1,nt)
   if (ierr /= 0) call WarningMessage(2,'write_magn :: Something went wrong writing the average M data.')
 end do
 write(ANISO_FILE,*,iostat=ierr)
-flush(ANISO_FILE)
-if (dbg) flush(u6)
+call xFlush(ANISO_FILE)
+if (dbg) call xFlush(u6)
 
 return
 
@@ -2285,10 +2285,9 @@ if (dbg) then
   write(u6,*) 'read_string::    key =',trim(key)
   write(u6,*) 'read_string:: length =',length
 end if
-flush(u6)
 write(f,'(A,i0,2A)') '"(A',length,')"'
 write(u6,'(2A)') 'format =',trim(f)
-flush(u6)
+call xFlush(u6)
 rewind(LU)
 call file_advance_to_string(LU,key,line,ierr,dbg)
 read(LU,f,iostat=ierr) c
@@ -2298,9 +2297,8 @@ write(s,'(A)') trim(c)
 do i=1,len(trim(LINE))
   read(LINE,'(A500)') c
   write(s,'(A)') trim(c)
-  flush(u6)
   if (dbg) write(u6,*) 'read_string::   c =',trim(c)
-  flush(u6)
+  call xFlush(u6)
 end do
 
 return
@@ -3048,7 +3046,7 @@ else if (ierr /= 0) then
   if (ierr /= 0) call WarningMessage(1,'write_INTEGER_scalar:: Something went wrong writing data')
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3082,7 +3080,7 @@ else if (ierr /= 0) then
   if (ierr /= 0) call WarningMessage(1,'write_real_scalar:: Something went wrong writing data')
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3116,7 +3114,7 @@ else if (ierr /= 0) then
   if (ierr /= 0) call WarningMessage(1,'write_complex_scalar:: Something went wrong writing data')
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3148,7 +3146,7 @@ else if (ierr /= 0) then
   if (ierr /= 0) call WarningMessage(1,'write_string:: Something went wrong writing data')
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3190,7 +3188,7 @@ else if (ierr /= 0) then
   if (ierr /= 0) call WarningMessage(1,'write_1d_INTEGER_array:: Something went wrong writing data')
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3239,7 +3237,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3292,7 +3290,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3349,7 +3347,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3395,7 +3393,7 @@ else if (ierr /= 0) then
   if (ierr /= 0) call WarningMessage(1,'write_1d_real_array:: Something went wrong writing data')
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3448,7 +3446,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3505,7 +3503,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3566,7 +3564,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3608,7 +3606,7 @@ else if (ierr /= 0) then
   if (ierr /= 0) call WarningMessage(1,'write_1d_complex_array:: Something went wrong writing data')
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3657,7 +3655,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3710,7 +3708,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 
@@ -3767,7 +3765,7 @@ else if (ierr /= 0) then
   end do
 end if
 write(LU,*,iostat=ierr)
-flush(LU)
+call xFlush(LU)
 
 return
 

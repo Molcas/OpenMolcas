@@ -27,7 +27,6 @@ character(len=256) :: sFile, tmp
 character(len=180) :: tmp2
 character(len=5) :: molcas_module_kind
 integer(kind=iwp), allocatable :: spin_mult(:)
-logical(kind=iwp), parameter :: DBG = .false.
 
 write(u6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
 NSS = 0
@@ -60,7 +59,9 @@ fileid = mh5_open_file_r(trim(file_h5))
 ! check if it is an HDF5 file produced by RASSI
 call mh5_fetch_attr(fileid,'MOLCAS_MODULE',tmp2)
 molcas_module_kind = trim(tmp2)
-if (DBG) write(u6,'(A,A)') 'read_hdf5::  molcas_module=',molcas_module_kind
+#ifdef _DEBUGPRINT_
+write(u6,'(A,A)') 'read_hdf5::  molcas_module=',molcas_module_kind
+#endif
 if (molcas_module_kind(1:5) /= 'RASSI') then
   call WarningMessage(2,'Input HDF5 file '//trim(file_h5)//' is not produced by RASSI')
   call Quit_OnUserError()
@@ -69,19 +70,23 @@ end if
 !----------------------------------------------------------------------|
 ! read number of spin free states
 call mh5_fetch_attr(fileid,'NSTATE',nstate)
-if (DBG) write(u6,'(A,I6)') 'read_hdf5::  NSTATE=',NSTATE
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I6)') 'read_hdf5::  NSTATE=',NSTATE
+#endif
 call Put_iScalar('NSTATE_SINGLE   ',NSTATE)
 
 ! read spin multiplicity of each state:
 call mma_allocate(spin_mult,nstate,'nstate')
 call mh5_fetch_attr(fileid,'STATE_SPINMULT',spin_mult(1:nstate))
-if (DBG) then
-  write(u6,'(A)') 'spin_mult'
-  write(u6,'(20I4)') (spin_mult(i),i=1,nstate)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'spin_mult'
+write(u6,'(20I4)') (spin_mult(i),i=1,nstate)
+#endif
 ! compute the number of spin-orbit states:
 nss = sum(spin_mult(:))
-if (DBG) write(u6,'(A,I6)') 'read_hdf5::     NSS=',NSS
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I6)') 'read_hdf5::     NSS=',NSS
+#endif
 call Put_iScalar('NSS_SINGLE      ',NSS)
 call mma_deallocate(spin_mult)
 

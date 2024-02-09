@@ -23,10 +23,12 @@ real(kind=wp), intent(in) :: rot1(3,3), rot2(3,3)
 complex(kind=wp), intent(in) :: MM1(3,n1,n1), MM2(3,n2,n2), H(n1,n1,n2,n2)
 character, intent(in) :: typ1, typ2
 complex(kind=wp), intent(out) :: HT(n1,n1,n2,n2)
-integer(kind=iwp) :: i, i1, i2, j1, j2
+integer(kind=iwp) :: i1, i2, iprint, j1, j2
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 real(kind=wp), allocatable :: ax1(:,:), ax2(:,:), gt1(:), gt2(:)
 complex(kind=wp), allocatable :: HI(:,:,:,:), M1(:,:,:), M2(:,:,:), MR1(:,:,:), MR2(:,:,:), TMP1(:,:), TMP2(:,:), Z1(:,:), Z2(:,:)
-logical(kind=iwp), parameter :: DBG = .false.
 
 !-----------------------------------------------------------------------
 call mma_allocate(gt1,3,'gt1')
@@ -55,14 +57,13 @@ call rotmom(MM1,n1,rot1,M1)
 call rotmom(MM2,n2,rot2,M2)
 
 if (iopt == 1) then ! local coordinate system
-  if (DBG) then
-    write(u6,'(A)') 'TRANSHAM:: local g tensors and axes:'
-    call atens(M1,n1,gt1,ax1,2)
-    call atens(M2,n2,gt2,ax2,2)
-  else
-    call atens(M1,n1,gt1,ax1,1)
-    call atens(M2,n2,gt2,ax2,1)
-  end if
+  iprint = 1
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'TRANSHAM:: local g tensors and axes:'
+  iprint = 2
+# endif
+  call atens(M1,n1,gt1,ax1,iprint)
+  call atens(M2,n2,gt2,ax2,iprint)
 
 else if (iopt == 2) then ! general coordinate system
   call unitmat(ax1,3)
@@ -90,43 +91,43 @@ else if (((typ1 == 'B') .and. (typ2 == 'A')) .or. ((typ1 == 'C') .and. (typ2 == 
   call rotmom2(M2,n2,ax2,MR2)
 end if
 
-if (DBG) then
-  if (iopt == 1) then
-    write(u6,'(A,i3)') 'site 1'
-    call prMom('transHam:: magnetic moment, coordinate system of LOCAL main magnetic axes, site 1',MR1,n1)
-    write(u6,'(A,i3)') 'site 2'
-    call prMom('transHam:: magnetic moment, coordinate system of LOCAL main magnetic axes, site 2',MR2,n2)
-  else
-    write(u6,'(A,i3)') 'site 1'
-    call prMom('transHam:: magnetic moment, coordinate system of GENERAL main magnetic axes, site 1',MR1,n1)
-    write(u6,'(A,i3)') 'site 2'
-    call prMom('transHam:: magnetic moment, coordinate system of GENERAL main magnetic axes, site 2',MR2,n2)
-  end if
+#ifdef _DEBUGPRINT_
+if (iopt == 1) then
+  write(u6,'(A,i3)') 'site 1'
+  call prMom('transHam:: magnetic moment, coordinate system of LOCAL main magnetic axes, site 1',MR1,n1)
+  write(u6,'(A,i3)') 'site 2'
+  call prMom('transHam:: magnetic moment, coordinate system of LOCAL main magnetic axes, site 2',MR2,n2)
+else
+  write(u6,'(A,i3)') 'site 1'
+  call prMom('transHam:: magnetic moment, coordinate system of GENERAL main magnetic axes, site 1',MR1,n1)
+  write(u6,'(A,i3)') 'site 2'
+  call prMom('transHam:: magnetic moment, coordinate system of GENERAL main magnetic axes, site 2',MR2,n2)
 end if
+#endif
 
 !-----------------------------------------------------------------------
 ! find local pseudospin on each site:
 call pseudospin(MR1,n1,Z1,3,1,1)
 call pseudospin(MR2,n2,Z2,3,1,1)
 
-if (DBG) then
-  call pa_prmat('Matrix Z1',Z1,n1)
-  call zgemm_('C','N',n1,n1,n1,cOne,Z1,n1,Z1,n1,cZero,TMP1,n1)
-  write(u6,'(A)') 'transHam:  Verify unitarity of Z1'
-  do i=1,n1
-    write(u6,'(A,i2,A,i2,A,2ES20.10)') 'conjg(Z1)*Z1:  (',i,',',i,')=',TMP1(i,i)
-  end do
-  call pa_prmat('Matrix Z2',Z2,n2)
-  call zgemm_('C','N',n2,n2,n2,cOne,Z2,n2,Z2,n2,cZero,TMP2,n2)
-  write(u6,'(A)') 'transHam:  Verify unitarity of Z2'
-  do i=1,n2
-    write(u6,'(A,i2,A,i2,A,2ES20.10)') 'conjg(Z2)*Z2:  (',i,',',i,')=',TMP2(i,i)
-  end do
-  call UTMU2(n1,n1,Z1,MR1)
-  call UTMU2(n2,n2,Z2,MR2)
-  call prMom('transHam:: magnetic moment, coordinate MR1, site 1',MR1,n1)
-  call prMom('transHam:: magnetic moment, coordinate MR2, site 2',MR2,n2)
-end if
+#ifdef _DEBUGPRINT_
+call pa_prmat('Matrix Z1',Z1,n1)
+call zgemm_('C','N',n1,n1,n1,cOne,Z1,n1,Z1,n1,cZero,TMP1,n1)
+write(u6,'(A)') 'transHam:  Verify unitarity of Z1'
+do i=1,n1
+  write(u6,'(A,i2,A,i2,A,2ES20.10)') 'conjg(Z1)*Z1:  (',i,',',i,')=',TMP1(i,i)
+end do
+call pa_prmat('Matrix Z2',Z2,n2)
+call zgemm_('C','N',n2,n2,n2,cOne,Z2,n2,Z2,n2,cZero,TMP2,n2)
+write(u6,'(A)') 'transHam:  Verify unitarity of Z2'
+do i=1,n2
+  write(u6,'(A,i2,A,i2,A,2ES20.10)') 'conjg(Z2)*Z2:  (',i,',',i,')=',TMP2(i,i)
+end do
+call UTMU2(n1,n1,Z1,MR1)
+call UTMU2(n2,n2,Z2,MR2)
+call prMom('transHam:: magnetic moment, coordinate MR1, site 1',MR1,n1)
+call prMom('transHam:: magnetic moment, coordinate MR2, site 2',MR2,n2)
+#endif
 
 ! save a local copy:
 if (allocated(HI)) HI(:,:,:,:) = H(:,:,:,:)
@@ -135,9 +136,11 @@ do i1=1,n1
   do j1=1,n1
     do i2=1,n2
       do j2=1,n2
-        !if (DBG .and. (abs(H(i1,j1,i2,j2)) > 0.5e-13_wp)) then
+#       ifdef _DEBUGPRINT_
+        if (abs(H(i1,j1,i2,j2)) > 0.5e-13_wp) write(u6,'(A,4(i2,A),2ES22.14)') 'H (',i1,',',j1,',',i2,',',j2,')=',H(i1,j1,i2,j2)
+#       else
         write(u6,'(A,4(i2,A),2ES22.14)') 'H (',i1,',',j1,',',i2,',',j2,')=',H(i1,j1,i2,j2)
-        !end if
+#       endif
       end do
     end do
   end do
@@ -164,9 +167,11 @@ do i1=1,n1
   do j1=1,n1
     do i2=1,n2
       do j2=1,n2
-        !if (DBG .and. (abs(HT(i1,j1,i2,j2)) > 0.5e-13_wp)) then
+#       ifdef _DEBUGPRINT_
+        if (abs(HT(i1,j1,i2,j2)) > 0.5e-13_wp) write(u6,'(A,4(i2,A),2ES22.14)') 'HT(',i1,',',j1,',',i2,',',j2,')=',HT(i1,j1,i2,j2)
+#       else
         write(u6,'(A,4(i2,A),2ES22.14)') 'HT(',i1,',',j1,',',i2,',',j2,')=',HT(i1,j1,i2,j2)
-        !end if
+#       endif
       end do
     end do
   end do

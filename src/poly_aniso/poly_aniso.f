@@ -532,7 +532,7 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
             If(dbg) Write(6,*) 'Enter generate_isotrop_site'
             If(dbg) Call xFlush(6)
             Call generate_isotrop_site( nss(i), nsfs(i), nexch(i),
-     &                                  nLoc, gtens_input(1:3,i),
+     &                                  gtens_input(1:3,i),
      &                                  riso(i,1:3,1:3), D_fact(i),
      &                                  EoverD_fact(i),
      &                                  eso(i,1:nexch(i)),

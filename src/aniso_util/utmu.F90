@@ -22,7 +22,6 @@ complex(kind=wp), intent(out) :: M2(3,EXCH,EXCH)
 integer(kind=iwp) :: I, J, L
 real(kind=wp) :: R1, R2
 complex(kind=wp), allocatable :: TMP(:,:)
-logical(kind=iwp), parameter :: DBG = .false.
 real(kind=wp), external :: dznrm2_
 
 if ((N <= 0) .or. (EXCH <= 0)) then
@@ -30,7 +29,7 @@ if ((N <= 0) .or. (EXCH <= 0)) then
   write(u6,*) 'EXCH=',EXCH
   write(u6,*) 'N   =',N
   call xFlush(u6)
-  call xquit(128)
+  call abend()
 end if
 
 if (N > EXCH) then
@@ -39,7 +38,7 @@ if (N > EXCH) then
   write(u6,*) 'N   =',N
   write(u6,'(A)') 'Nothing is to be done >> Return'
   call xFlush(u6)
-  call xquit(128)
+  call abend()
 end if
 
 R1 = dznrm2_(3*EXCH*EXCH,M1,1)
@@ -51,14 +50,14 @@ if ((R1 < 1.0e-25_wp) .or. (R2 < 1.0e-25_wp)) then
   return
 end if
 
-if (DBG) then
-  write(u6,'(A)') 'UTMU :: input moment'
-  do i=1,EXCH
-    do j=1,EXCH
-      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|M1_l|',j,'>',(M1(l,i,j),l=1,3)
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'UTMU :: input moment'
+do i=1,EXCH
+  do j=1,EXCH
+    write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|M1_l|',j,'>',(M1(l,i,j),l=1,3)
   end do
-end if
+end do
+#endif
 
 call mma_allocate(TMP,EXCH,EXCH,'TMP')
 
@@ -89,26 +88,26 @@ else
 
 end if !N == exch
 
-if (DBG) then
-  write(u6,'(A)') 'UTMU :: input moment'
-  do i=1,EXCH
-    do j=1,EXCH
-      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|M_l|',j,'>',(M1(l,i,j),l=1,3)
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'UTMU :: input moment'
+do i=1,EXCH
+  do j=1,EXCH
+    write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|M_l|',j,'>',(M1(l,i,j),l=1,3)
   end do
-  write(u6,'(A)') 'UTMU :: unitary transformtion matrix'
-  do i=1,N
-    do j=1,N
-      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'| U |',j,'>',(Z(i,j),l=1,3)
-    end do
+end do
+write(u6,'(A)') 'UTMU :: unitary transformtion matrix'
+do i=1,N
+  do j=1,N
+    write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'| U |',j,'>',(Z(i,j),l=1,3)
   end do
-  write(u6,'(A)') 'UTMU :: output moment'
-  do i=1,EXCH
-    do j=1,EXCH
-      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|M_l|',j,'>',(M2(l,i,j),l=1,3)
-    end do
+end do
+write(u6,'(A)') 'UTMU :: output moment'
+do i=1,EXCH
+  do j=1,EXCH
+    write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|M_l|',j,'>',(M2(l,i,j),l=1,3)
   end do
-end if
+end do
+#endif
 call mma_deallocate(TMP)
 
 return

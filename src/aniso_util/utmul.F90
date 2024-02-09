@@ -24,7 +24,6 @@ complex(kind=wp), intent(inout) :: ML(EXCH,EXCH)
 integer(kind=iwp) :: I, i1, J, j1
 real(kind=wp) :: R1, R2
 complex(kind=wp), allocatable :: TMP(:,:), MTMP(:,:)
-logical(kind=iwp), parameter :: DBG = .false.
 real(kind=wp), external :: dznrm2_
 
 if ((N <= 0) .or. (EXCH <= 0)) then
@@ -51,14 +50,14 @@ if ((R1 < 1.0e-25_wp) .or. (R2 < 1.0e-25_wp)) then
   call xquit(128)
 end if
 
-if (DBG) then
-  write(u6,'(A)') 'UTMU :: input moment'
-  do i=1,EXCH
-    do j=1,EXCH
-      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|ML|',j,'>',ML(i,j)
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'UTMU :: input moment'
+do i=1,EXCH
+  do j=1,EXCH
+    write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|ML|',j,'>',ML(i,j)
   end do
-end if
+end do
+#endif
 
 call mma_allocate(TMP,EXCH,EXCH,'TMP')
 if (N < EXCH) then
@@ -93,20 +92,20 @@ else
 
 end if !N == exch
 
-if (DBG) then
-  write(u6,'(A)') 'UTMU :: unitary transformtion matrix'
-  do i=1,N
-    do j=1,N
-      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'| U |',j,'>',Z(i,j)
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'UTMU :: unitary transformtion matrix'
+do i=1,N
+  do j=1,N
+    write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'| U |',j,'>',Z(i,j)
   end do
-  write(u6,'(A)') 'UTMU :: output moment'
-  do i=1,EXCH
-    do j=1,EXCH
-      write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|ML|',j,'>',ML(i,j)
-    end do
+end do
+write(u6,'(A)') 'UTMU :: output moment'
+do i=1,EXCH
+  do j=1,EXCH
+    write(u6,'(A,i3,A,i3,A,3(2ES16.8,2x))') '<',i,'|ML|',j,'>',ML(i,j)
   end do
-end if
+end do
+#endif
 
 if (N < EXCH) call mma_deallocate(MTMP)
 call mma_deallocate(TMP)

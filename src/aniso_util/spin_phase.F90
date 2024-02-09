@@ -20,16 +20,21 @@ subroutine SPIN_PHASE(MM,d,Zinp,Zout)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: d
 complex(kind=wp), intent(in) :: mm(3,d,d), Zinp(d,d)
 complex(kind=wp), intent(out) :: Zout(d,d)
-integer(kind=iwp) :: i, i1, i2, j, l
+integer(kind=iwp) :: i, i1, i2, j
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: l
+#endif
 real(kind=wp), allocatable :: rxi(:), rxr(:)
 complex(kind=wp), allocatable :: phs(:,:,:), r(:), tmp(:,:)
-logical(kind=iwp), parameter :: dbg = .false.
 
 call mma_allocate(rxr,d,'rxr')
 call mma_allocate(rxi,d,'rxi')
@@ -66,7 +71,9 @@ do i=1,d-1
 
   Zout(:,j) = conjg(r(j))*Zinp(:,j)
 
-  if (dbg) write(u6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE: R(',j,') = ',conjg(r(j))
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE: R(',j,') = ',conjg(r(j))
+# endif
 end do ! i
 
 call zgemm_('C','N',d,d,d,cOne,Zout,d,mm(1,:,:),d,cZero,TMP,d)
@@ -80,27 +87,26 @@ do i=1,d-1,2
   if (real(phs(1,i,j)) > Zero) Zout(:,j) = -Zout(:,j)
 end do
 
-if (dbg) then
+#ifdef _DEBUGPRINT_
+do l=1,3
+  call zgemm_('C','N',d,d,d,cOne,Zout,d,mm(l,:,:),d,cZero,TMP,d)
+  call zgemm_('N','N',d,d,d,cOne,TMP,d,Zout,d,cZero,phs(l,:,:),d)
+end do
 
-  do l=1,3
-    call zgemm_('C','N',d,d,d,cOne,Zout,d,mm(l,:,:),d,cZero,TMP,d)
-    call zgemm_('N','N',d,d,d,cOne,TMP,d,Zout,d,cZero,phs(l,:,:),d)
+do i=1,d
+  do j=1,d
+    write(u6,'(a,i2,a,i2,a,2ES24.14)') 'SPIN-PHASE:  Zout(',i,',',j,') = ',Zout(i,j)
   end do
+end do
 
-  do i=1,d
-    do j=1,d
-      write(u6,'(a,i2,a,i2,a,2ES24.14)') 'SPIN-PHASE:  Zout(',i,',',j,') = ',Zout(i,j)
-    end do
+write(u6,'(//)')
+do i=1,d
+  do j=1,d
+    if ((j == i-1) .or. (j == i+1)) write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =', &
+                                                                              (phs(l,i,j),l=1,3)
   end do
-
-  write(u6,'(//)')
-  do i=1,d
-    do j=1,d
-      if ((j == i-1) .or. (j == i+1)) write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =', &
-                                                                                (phs(l,i,j),l=1,3)
-    end do
-  end do
-end if
+end do
+#endif
 
 !-----------------------------------------------------------------------
 call mma_deallocate(rxr)

@@ -20,17 +20,16 @@ complex(kind=wp) :: spin
 integer(kind=iwp), intent(in) :: l, i_dim, m1, m2
 integer(kind=iwp) :: ipar
 real(kind=wp) :: D, F, MM1, MM2, R, S
-logical(kind=iwp), parameter :: dbg = .false.
 
 spin = cZero
 ipar = mod(i_dim,2)
 S = real(i_dim-1,kind=wp)*Half
 R = Zero
 
-if (dbg) then
-  write(u6,'(A,4I3)') 'l,i_dim,m1,m2=',l,i_dim,m1,m2
-  write(u6,'(A,I3,F8.3)') ' ipar,  S  =',ipar,S
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A,4I3)') 'l,i_dim,m1,m2=',l,i_dim,m1,m2
+write(u6,'(A,I3,F8.3)') ' ipar,  S  =',ipar,S
+#endif
 
 ! set up the true values of the MM1 and MM2
 ! i.e. the projections of the spin momentum S
@@ -50,8 +49,10 @@ else
   MM1 = real(m1,kind=wp)
   MM2 = real(m2,kind=wp)
 end if
-if (dbg) write(u6,'(A,2F8.3)') 'mm1,mm2=',mm1,mm2
+#ifdef _DEBUGPRINT_
+write(u6,'(A,2F8.3)') 'mm1,mm2=',mm1,mm2
 call xFlush(u6)
+#endif
 ! compute the value of the matrix element, for each possible cartesian component.
 ! l=1  => X
 ! l=2  => Y
@@ -76,8 +77,10 @@ if (l == 1) then
   else
     spin = cZero
   end if
-  if (dbg) write(u6,'(A,2F8.3)') 'X, spin =',spin
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,2F8.3)') 'X, spin =',spin
   call xFlush(u6)
+# endif
 
 else if (l == 2) then
 
@@ -98,8 +101,10 @@ else if (l == 2) then
   else
     spin = cZero
   end if
-  if (dbg) write(u6,'(A,2F8.3)') 'Y, spin =',spin
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,2F8.3)') 'Y, spin =',spin
   call xFlush(u6)
+# endif
 
 else if (l == 3) then
 
@@ -108,16 +113,20 @@ else if (l == 3) then
   else
     spin = MM1*cOne
   end if
-  if (dbg) write(u6,'(A,2F8.3)') 'Z, spin =',spin
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,2F8.3)') 'Z, spin =',spin
   call xFlush(u6)
+# endif
 
 else
   write(u6,'(A)') 'The spin function gives a wrong number'
   return
 end if
 
-if (dbg) write(u6,*) 'Upon Return:  spin =',spin
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Upon Return:  spin =',spin
 call xFlush(u6)
+#endif
 
 return
 

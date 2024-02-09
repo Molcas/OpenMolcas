@@ -23,7 +23,6 @@ integer(kind=iwp), intent(in) :: d, iDir, iOpt, iprint
 complex(kind=wp), intent(in) :: M(3,d,d)
 complex(kind=wp), intent(out) :: z(d,d)
 integer(kind=iwp) :: i, info
-logical(kind=iwp) :: dbg
 real(kind=wp), allocatable :: w(:)
 complex(kind=wp), allocatable :: z1(:,:)
 real(kind=wp), external :: dznrm2_
@@ -31,13 +30,12 @@ real(kind=wp), external :: dznrm2_
 
 call mma_allocate(W,d,'W')
 call mma_allocate(Z1,d,d,'Z1')
-dbg = iprint >= 3
 W(:) = Zero
 Z(:,:) = cZero
 Z1(:,:) = cZero
 info = 0
 call diag_c2(M(iDir,:,:),d,info,w,z1)
-if (dbg) then
+if (iprint >= 3) then
   do i=1,d
     write(u6,'(A,i3,A,F24.14)') 'i=',i,' eigenvalue=',w(i)
   end do
@@ -45,7 +43,7 @@ end if
 if (info /= 0) then
   write(u6,'(5x,a)') 'PSEUDO::  diagonalization of the zeeman hamiltonian failed.'
 else
-  if (dbg) then
+  if (iprint >= 3) then
     write(u6,*) 'PSEUDO:  norm of  M is:',dznrm2_(3*d*d,M,1)
     write(u6,*) 'PSEUDO:  norm of Z1 is:',dznrm2_(d*d,Z1,1)
   end if

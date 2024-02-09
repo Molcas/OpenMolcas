@@ -24,18 +24,17 @@ integer(kind=iwp), intent(in) :: nss, nstate
 real(kind=wp), intent(out) :: eso(nss)
 complex(kind=wp), intent(out) :: MM(3,nss,nss), MS(3,nss,nss)
 integer(kind=iwp), intent(out) :: iReturn
-real(kind=wp), allocatable :: etmp(:)
-real(kind=wp), allocatable :: RR(:,:), RI(:,:)
-real(kind=wp), allocatable :: AL(:,:,:)
-integer(kind=iwp) :: fileid, i, i1, ibas(nstate,-50:50), INRM, ipar, iss, ist, j, j1, jend, jst, l, mult, multI, multJ
+integer(kind=iwp) :: fileid, i, i1, INRM, ipar, iss, ist, j, j1, jst, l, mult, multI, multJ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: jend
+#endif
 real(kind=wp) :: RNRM
 !logical(kind=iwp) :: found_amfi, found_angmom, found_edmom, found_esfs, found_eso, found_hso, found_mult, found_sos_coeff
 character(len=180) :: file_h5
-integer(kind=iwp), allocatable :: multiplicity(:)
-real(kind=wp), allocatable :: angmom(:,:,:) !, amfi(:,:,:), edmom(:,:,:), esfs(:)
+integer(kind=iwp), allocatable :: ibas(:,:), multiplicity(:)
+real(kind=wp), allocatable :: AL(:,:,:), angmom(:,:,:), etmp(:), RR(:,:), RI(:,:) !, amfi(:,:,:), edmom(:,:,:), esfs(:)
 complex(kind=wp), allocatable :: tmp(:,:), U(:,:) !, ML(:,:,:), DM(:,:,:), HSO(:,:)
 real(kind=wp), parameter :: g_e = -gElectron
-logical(kind=iwp), parameter :: DBG = .false.
 real(kind=wp), external :: dnrm2_, dznrm2_
 complex(kind=wp), external :: spin
 
@@ -60,16 +59,18 @@ write(u6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
 !----------------------------------------------------------------------|
 ! open the file
 fileid = mh5_open_file_r(trim(file_h5))
-if (DBG) write(u6,'(A,I24)') 'read_hdf5_all:: fileid=',fileid
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I24)') 'read_hdf5_all:: fileid=',fileid
+#endif
 !----------------------------------------------------------------------|
 ! read spin multiplicity of each state:
 !if (mh5_exists_dset(fileid,'STATE_SPINMULT')) then
 !  found_mult = .true.
 call mh5_fetch_attr(fileid,'STATE_SPINMULT',multiplicity)
-if (DBG) then
-  write(u6,'(A)') 'read_hdf5_all:: multiplicity'
-  write(u6,'(20I4)') (multiplicity(i),i=1,nstate)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'read_hdf5_all:: multiplicity'
+write(u6,'(20I4)') (multiplicity(i),i=1,nstate)
+#endif
 INRM = 0
 INRM = sum(multiplicity(:))
 if (INRM == 0) then
@@ -94,13 +95,13 @@ end if
 !  end if
 !  ! compute the energeis in cm-1:
 !  esfs(:) = (etmp(:)-etmp(1))*auTocm
-!  if (DBG) then
-!    write(u6,'(A)') 'read_hdf5_all:: esfs'
-!    do i=1,nstate,4
-!      jEND = MIN(nstate,i+3)
-!      write(u6,'(4ES24.14)') (esfs(j),j=i,jEnd)
-!    end do
-!  end if
+!# ifdef _DEBUGPRINT_
+!  write(u6,'(A)') 'read_hdf5_all:: esfs'
+!  do i=1,nstate,4
+!    jEND = MIN(nstate,i+3)
+!    write(u6,'(4ES24.14)') (esfs(j),j=i,jEnd)
+!  end do
+!# endif
 !else
 !  call WarningMessage(2,'Spin-free energies were not found on HDF5 file')
 !end if
@@ -120,13 +121,13 @@ if (mh5_exists_dset(fileid,'SOS_ENERGIES')) then
   end if
   ! compute the energeis in cm-1:
   eso(:) = (etmp(:)-etmp(1))*auTocm
-  if (DBG) then
-    write(u6,'(A)') 'read_hdf5_all:: eso'
-    do i=1,nss,4
-      jEnd = min(nss,i+3)
-      write(u6,'(4ES24.14)') (eso(j),j=i,jEnd)
-    end do
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'read_hdf5_all:: eso'
+  do i=1,nss,4
+    jEnd = min(nss,i+3)
+    write(u6,'(4ES24.14)') (eso(j),j=i,jEnd)
+  end do
+# endif
 else
   call WarningMessage(2,'Spin-orbit energies were not found on HDF5 file')
 end if
@@ -149,14 +150,14 @@ if (mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL') .and. mh5_exists_dset(fileid
     call WarningMessage(2,'SOS-U matrix read from HDF5 file has norm = zero')
     write(u6,*) 'Norm=',RNRM
   end if
-  if (DBG) then
-    write(u6,'(A)') 'read_hdf5_all:: U'
-    do i=1,nss
-      do j=1,nss
-        write(u6,'(2i4,A,2ES24.14)') i,j,' |',U(i,j)
-      end do
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'read_hdf5_all:: U'
+  do i=1,nss
+    do j=1,nss
+      write(u6,'(2i4,A,2ES24.14)') i,j,' |',U(i,j)
     end do
-  end if
+  end do
+# endif
 else
   call WarningMessage(2,'SO mixing coefficeints were not found on HDF5 file')
 end if
@@ -179,14 +180,14 @@ if (mh5_exists_dset(fileid,'SFS_ANGMOM')) then
     call WarningMessage(2,'SFS_ANGMOM read from HDF5 file has norm = zero')
     write(u6,*) 'Norm=',RNRM
   end if
-  if (DBG) then
-    write(u6,'(A)') 'read_hdf5_all:: ANGMOM (x,y,z)'
-    do i=1,nstate
-      do j=1,nstate
-        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(ANGMOM(l,i,j),l=1,3)
-      end do
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'read_hdf5_all:: ANGMOM (x,y,z)'
+  do i=1,nstate
+    do j=1,nstate
+      write(u6,'(2i4,A,3ES24.14)') i,j,' |',(ANGMOM(l,i,j),l=1,3)
     end do
-  end if
+  end do
+# endif
 else
   call WarningMessage(2,'ANGMOM integrals were not found on HDF5 file')
 end if
@@ -208,14 +209,14 @@ call mma_deallocate(AL)
 !    call WarningMessage(2,'SFS_EDIPMOM read from HDF5 file has norm = zero')
 !    write(u6,*) 'Norm=',RNRM
 !  end if
-!  if (DBG) then
-!    write(u6,'(A)') 'read_hdf5_all:: SFS_EDIPMOM(x,y,z)'
-!    do i=1,nstate
-!      do j=1,nstate
-!        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(EDMOM(l,i,j),l=1,3)
-!      end do
+!# ifdef _DEBUGPRINT_
+!  write(u6,'(A)') 'read_hdf5_all:: SFS_EDIPMOM(x,y,z)'
+!  do i=1,nstate
+!    do j=1,nstate
+!      write(u6,'(2i4,A,3ES24.14)') i,j,' |',(EDMOM(l,i,j),l=1,3)
 !    end do
-!  end if
+!  end do
+!# endif
 !else
 !  call WarningMessage(2,'EDMOM integrals were not found on HDF5 file')
 !end if
@@ -237,14 +238,14 @@ call mma_deallocate(AL)
 !    call WarningMessage(2,'SFS_AMFIINT read from HDF5 file has norm = zero')
 !    write(u6,*) 'Norm=',RNRM
 !  end if
-!  if (DBG) then
-!    write(u6,'(A)') 'read_hdf5_all:: SFS_AMFIINT(x,y,z)'
-!    do i=1,nstate
-!      do j=1,nstate
-!        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(AMFI(l,i,j),l=1,3)
-!      end do
+!# ifdef _DEBUGPRINT_
+!  write(u6,'(A)') 'read_hdf5_all:: SFS_AMFIINT(x,y,z)'
+!  do i=1,nstate
+!    do j=1,nstate
+!      write(u6,'(2i4,A,3ES24.14)') i,j,' |',(AMFI(l,i,j),l=1,3)
 !    end do
-!  end if
+!  end do
+!# endif
 !else
 !  call WarningMessage(2,'AMFI integrals were not found on HDF5 file')
 !end if
@@ -268,14 +269,14 @@ call mma_deallocate(AL)
 !    call WarningMessage(2,'HSO matrix read from HDF5 file has norm = zero')
 !    write(u6,*) 'Norm=',RNRM
 !  end if
-!  if (DBG) then
-!    write(u6,'(A)') 'read_hdf5_all:: HSO'
-!    do i=1,nss
-!      do j=1,nss
-!        write(u6,'(2i4,A,2ES24.14)') i,j,' |',HSO(i,j)
-!      end do
+!# ifdef _DEBUGPRINT_
+!  write(u6,'(A)') 'read_hdf5_all:: HSO'
+!  do i=1,nss
+!    do j=1,nss
+!      write(u6,'(2i4,A,2ES24.14)') i,j,' |',HSO(i,j)
 !    end do
-!  end if
+!  end do
+!# endif
 !else
 !  call WarningMessage(2,'HSO matrix was not found on HDF5 file')
 !end if
@@ -287,6 +288,7 @@ call mma_deallocate(AL)
 ! transform the SFS data to the SO basis
 !----------------------------------------------------------------------|
 ! generate a local indexing table:
+call mma_allocate(Ibas,[1,nstate],[-50,50],label='Ibas')
 iss = 0
 ibas = 0
 ipar = mod(multiplicity(1),2)
@@ -335,6 +337,8 @@ do Ist=1,nstate
     end if
   end do   ! Jst
 end do   ! Ist
+
+call mma_deallocate(Ibas)
 
 ! calculate the matrix elements of the spin and magnetic moment
 ! in the spin-orbit basis:
