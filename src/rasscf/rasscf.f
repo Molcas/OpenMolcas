@@ -71,7 +71,7 @@
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
-      use casvb_global, only: ifvb, invec_cvb, ipfocc_cvb, lcmo_cvb,
+      use casvb_global, only: ifvb, invec_cvb, lcmo_cvb,
      &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
      &                        ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb,
      &                        loccn_cvb, lpa_cvb, lpmat_cvb
@@ -96,7 +96,7 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
 
-      use wadr, only: LDMAT, LPMAT, LPA, ipFocc,
+      use wadr, only: LDMAT, LPMAT, LPA, FockOcc,
      &                ipDens, TUVX, LDSPN, lfi
       Implicit Real*8 (A-H,O-Z)
 
@@ -604,8 +604,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       actual_iter = 0
       IFINAL = 0
       TMXTOT = 0.0D0
-      Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
-      ipfocc_cvb=ipfocc
+      Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1929,7 +1928,7 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
          Call PutRlx(Work(LDMAT),Work(LDSPN),WORK(LPMAT),
      &            Work(ipDens),Work(LCMO))
          Call Export1(IFINAL,WORK(LCMO),WORK(LDMAT),WORK(LPMAT),
-     &             Work(ipDens),Work(ipFocc))
+     &             Work(ipDens),FockOcc)
          Call GetMem('Dens','FREE','REAL',ipDens,nTot1)
       End If
       Call Timing(dum1,dum2,Oris_2,dum3)
@@ -2007,7 +2006,7 @@ c  i_root>0 gives natural spin orbitals for that root
 
 *  Release  some memory allocations
       Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
-      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
+      Call mma_deallocate(FockOcc)
       Call GetMem('FI','Free','Real',LFI,NTOT1)
       Call GetMem('FA','Free','Real',LFA,NTOT1)
       Call GetMem('D1I','Free','Real',LD1I,NTOT2)

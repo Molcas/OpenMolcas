@@ -23,7 +23,7 @@
       use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
-      use wadr, only: LBM, ipFocc
+      use wadr, only: LBM, FockOcc
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
@@ -191,10 +191,10 @@
      &     Work(iFockA),Work(iD1Act),WORK(LP),
      &     WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
-      CALL DCopy_(nTot1,Work(ipFocc),1,WORK(iFocMS+(iIntS-1)*nTot1),1)
+      CALL DCopy_(nTot1,FockOcc,1,WORK(iFocMS+(iIntS-1)*nTot1),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
        write(lf,*) 'FOCC_OCC'
-       call wrtmat(Work(ipFocc),1,ntot1,1,ntot1)
+       call wrtmat(FockOcc,1,ntot1,1,ntot1)
        write(lf,*) 'DONE WITH NEW FOCK OPERATOR'
       END IF
 

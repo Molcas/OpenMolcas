@@ -14,8 +14,8 @@
 
 subroutine make_close_cvb(it)
 
-use wadr, only: TUVX
-use casvb_global, only: ipfocc_cvb, lcmo_cvb, ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb, &
+use wadr, only: TUVX, FockOcc
+use casvb_global, only: lcmo_cvb, ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb, &
                         loccn_cvb, lpa_cvb, lpmat_cvb, lw1_cvb, variat
 use Definitions, only: iwp
 use stdalloc, only: mma_deallocate
@@ -54,7 +54,7 @@ if (.not. variat) then
   call getmem('PMAT','FREE','REAL',lpmat_cvb,0)
   call getmem('P2AS','FREE','REAL',lpa_cvb,0)
   call getmem('DIAF','FREE','REAL',ldiaf_cvb,0)
-  call getmem('FOCC','FREE','REAL',ipfocc_cvb,0)
+  call mma_deallocate(FockOcc)
   call getmem('FI','FREE','REAL',lfi_cvb,0)
   call getmem('FA','FREE','REAL',lfa_cvb,0)
   call getmem('D1I','FREE','REAL',ld1i_cvb,0)

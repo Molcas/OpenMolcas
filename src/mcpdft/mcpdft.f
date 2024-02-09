@@ -66,7 +66,7 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
-      use wadr, only: LDMAT, LPMAT, LPA, ipFocc, TUVX, ldspn,
+      use wadr, only: LDMAT, LPMAT, LPA, FockOcc, TUVX, ldspn,
      &                lfi
 
       Implicit Real*8 (A-H,O-Z)
@@ -261,7 +261,7 @@
       Call Timing(dum1,dum2,Ebel_1,dum3)
 
       ECAS   = 0.0d0
-      Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
+      Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 
       ! I guess we spoof for the 2-electron part? Im not sure..
         KSDFT_TEMP=KSDFT
@@ -573,7 +573,7 @@
       endif
 
 *  Release  some memory allocations
-      Call GetMem('FOCC','FREE','REAL',ipFocc,NTOT1)
+      Call mma_deallocate(FockOcc)
       Call GetMem('FI','Free','Real',LFI,NTOT1)
       Call GetMem('FA','Free','Real',LFA,NTOT1)
       Call GetMem('D1I','Free','Real',LD1I,NTOT2)

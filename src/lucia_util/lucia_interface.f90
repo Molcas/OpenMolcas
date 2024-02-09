@@ -31,8 +31,7 @@ Contains
       Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array, RVec, CI_VECTOR, &
                             SIGMA_VECTOR)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GLBBAS
-      use strbas
+
 #include "implicit.fh"
       Character(LEN=*) Module
       Integer, Optional:: iSym
@@ -42,7 +41,7 @@ Contains
       Real*8, Optional:: RVEC(:)
       Real*8, Optional:: CI_Vector(:)
       Real*8, Optional:: SIGMA_Vector(:)
-      Parameter(MxpLnc = 72)
+      Integer, Parameter:: MxpLnc = 72
       Character(LEN=MxpLnc) Module_
 !
 ! Include all LUCIA include files to make sure

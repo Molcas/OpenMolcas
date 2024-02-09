@@ -36,7 +36,7 @@
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
-      use wadr, only: LBM, ipFocc, TUVX
+      use wadr, only: LBM, FockOcc, TUVX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -788,7 +788,7 @@ c         call xflush(6)
          CALL FOCK_m(WORK(LFOCK),WORK(LBM),Work(iFockI),Work(iFockA),
      &         Work(iD1Act),WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
 !TMP TEST
-!         Call Put_Darray('fock_tempo',Work(ipFocc),ntot1)
+!         Call Put_Darray('fock_tempo',FockOcc,ntot1)
 !END TMP TEST
 
 
@@ -1127,10 +1127,10 @@ cPS         call xflush(6)
      &        Work(iFockA),Work(iD1Act),WORK(LP),
      &        WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
-         Call Put_dArray('FockOcc',Work(ipFocc),ntot1)
+         Call Put_dArray('FockOcc',FockOcc,ntot1)
         If ( IPRLEV.ge.DEBUG ) then
         write(6,*) 'FOCC_OCC'
-        call wrtmat(Work(ipFocc),1,ntot1,1,ntot1)
+        call wrtmat(FockOcc,1,ntot1,1,ntot1)
 
 
       write(6,*) 'DONE WITH NEW FOCK OPERATOR'

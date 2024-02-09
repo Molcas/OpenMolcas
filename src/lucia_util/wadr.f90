@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module wadr
-      INTEGER         LDMAT,LPMAT,LPA,LDIA,LSXN,LBM,LF1,LF2,LG,LH,LHD,  &
-     &                NLX,ipFocc,nPWXY, LFI, ipDens, lDSPN
-      Real*8, Allocatable:: TUVX(:)
+Private
+INTEGER, Public:: LDMAT,LPMAT,LPA,LDIA,LSXN,LBM,LF1,LF2,LG,LH,LHD, NLX,nPWXY, LFI, ipDens, lDSPN
+Real*8, Allocatable, Public:: TUVX(:), FockOcc(:)
 End Module wadr

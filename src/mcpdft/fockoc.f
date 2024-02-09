@@ -24,7 +24,7 @@ C
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use mcpdft_output, only: lf
-      use wadr, only: ipFocc
+      use wadr, only: FockOcc
       use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -32,7 +32,6 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 
       Real*8 FOCC(*),F(*),CMO(*)
       Real*8, Allocatable:: Scr1(:), Scr2(:)
@@ -69,10 +68,8 @@ c fock matrices added -- R L 921008.
       Call mma_allocate(Scr2,no2m,Label='Scr2')
 
 
-* NOTE: FOCC is nowadays allocated alredy in RASSCF.
-* Disk address ipFocc is in /WADR/
-*      Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
-      call dcopy_(nTot1,[0.0D0],0,Work(ipFocc),1)
+* NOTE: FOCKOCC is nowadays allocated alredy in RASSCF.
+      FockOcc(:)=0.0D0
 #ifdef _DEBUGPRINT_
       Write(LF,*) 'nTot1=',nTot1
 #endif
@@ -80,7 +77,7 @@ c fock matrices added -- R L 921008.
 *-----Construct the occupied part of the Fock matrix in SO/AO basis.
 *
       ISTFCK= 1
-      jFock = ipFocc
+      jFock = 1
       iCMo  = 1
 * A long loop over symmetry:
       Do ISYM=1,NSYM
@@ -112,7 +109,7 @@ c fock matrices added -- R L 921008.
                Do jBas = 1, iBas-1
                   kl = nBas(iSym)*(jBas-1) + iBas
                   lk = nBas(iSym)*(iBas-1) + jBas
-                  Work(ij) = Scr2(kl) + Scr2(lk)
+                  FockOcc(ij) = Scr2(kl) + Scr2(lk)
                   ij = ij + 1
                END DO
                kl = nBas(iSym)*(iBas-1) + iBas
@@ -120,12 +117,12 @@ c fock matrices added -- R L 921008.
                   Write(LF,*) ij,jFock,nTot1
                   Call Abend()
                End If
-               Work(ij) = Scr2(kl)
+               FockOcc(ij) = Scr2(kl)
                ij = ij + 1
             END DO
          END IF
 #ifdef _DEBUGPRINT_
-         Call TriPrt('FAO',' ',Work(jFock),nBas(iSym))
+         Call TriPrt('FAO',' ',FockOcc(jFock),nBas(iSym))
 #endif
          jFock = jFock + nBas(iSym)*(nBas(iSym)+1)/2
          iCMo  = iCMo  + nBas(iSym)**2
