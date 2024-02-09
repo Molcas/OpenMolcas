@@ -11,20 +11,17 @@
 
 subroutine moments(N,MS,MM,iprint)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, gElectron
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: N, iprint
-complex(kind=8), intent(in) :: MM(3,N,N), MS(3,N,N)
-integer :: I, J, L, i1, i2, iDir
-real(kind=8), parameter :: g_e = -gElectron
-complex(kind=8), allocatable :: Z(:,:) ! N,N
-complex(kind=8), allocatable :: AMS(:,:,:)
-complex(kind=8), allocatable :: AML(:,:,:)
-complex(kind=8), allocatable :: AMM(:,:,:) !(3,N,N),
-complex(kind=8) :: Mf(3,3), Sf(3,3), Lf(3,3)
+integer(kind=iwp), intent(in) :: N, iprint
+complex(kind=wp), intent(in) :: MS(3,N,N), MM(3,N,N)
+integer(kind=iwp) :: I, i1, i2, iDir, J, L
+complex(kind=wp) :: Mf(3,3), Sf(3,3), Lf(3,3)
+complex(kind=wp), allocatable :: AML(:,:,:), AMM(:,:,:), AMS(:,:,:), Z(:,:)
+real(kind=wp), parameter :: g_e = -gElectron
 !-----------------------------------------------------------------------
 
 if (N < 1) return

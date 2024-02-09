@@ -54,7 +54,7 @@
 !           read_3d_size,                                       &
 !           read_4d_size,                                       &
 !           read_1d_complex_array,      write_1d_complex_array, &
-!           read_2d_complex_array,      write_2d_complex_array
+!           read_2d_complex_array,      write_2d_complex_array, &
 !           read_2d_INTEGER_array,      write_2d_INTEGER_array, &
 !           read_3d_INTEGER_array,      write_3d_INTEGER_array, &
 !           read_4d_INTEGER_array,      write_4d_INTEGER_array, &
@@ -181,15 +181,15 @@ subroutine check_commutation(n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne, Onei
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: N
 complex(kind=wp), intent(in) :: moment(3,N,N)
-complex(kind=wp), allocatable :: XY(:,:), YX(:,:), YZ(:,:), ZY(:,:), ZX(:,:), XZ(:,:)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, j, l
 complex(kind=wp) :: tr
-logical, intent(in) :: dbg
-integer :: i, j, l
+complex(kind=wp), allocatable :: XY(:,:), XZ(:,:), YX(:,:), YZ(:,:), ZX(:,:), ZY(:,:)
 
 ! verify the commutation relations for S
 call mma_allocate(XY,n,n,label='XY')
@@ -270,16 +270,16 @@ subroutine check_S_square(n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart, cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: n
 complex(kind=wp), intent(in) :: moment(3,n,n)
-complex(kind=wp), allocatable :: X2(:,:), Y2(:,:), Z2(:,:), S2(:,:)
-complex(kind=wp) :: tr
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i
 real(kind=wp) :: S2_theoretic
-logical, intent(in) :: dbg
-integer :: i
+complex(kind=wp) :: tr
+complex(kind=wp), allocatable :: S2(:,:), X2(:,:), Y2(:,:), Z2(:,:)
 
 call mma_allocate(X2,n,n,label='X2')
 call mma_allocate(Y2,n,n,label='Y2')
@@ -321,14 +321,14 @@ end subroutine check_S_square
 subroutine check_hermiticity_moment(n,moment,dbg)
 
 use Constants, only: cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: n
 complex(kind=wp), intent(in) :: moment(3,n,n)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, j, l
 complex(kind=wp) :: c
-integer :: i, j, l
 
 ! build difference SUM ( M ATRIX(i,j) - CONJG(MATRIX(j,i)) )
 c = cZero
@@ -355,14 +355,14 @@ end subroutine check_hermiticity_moment
 subroutine check_hermiticity_matrix(n,matrix,dbg)
 
 use Constants, only: cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: n
 complex(kind=wp), intent(in) :: matrix(n,n)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, j
 complex(kind=wp) :: c
-integer :: i, j
 
 ! build difference ( MATRIX(i,j) - CONJG(MATRIX(j,i)) )
 c = cZero
@@ -406,18 +406,17 @@ subroutine read_magnetic_moment(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: DATA_FILE, N
 complex(kind=wp), intent(out) :: moment(3,N,N)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j
-real(kind=wp), external :: dnrm2_, dznrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, j
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_, dznrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 moment(:,:,:) = cZero
 call mma_allocate(rr,n,n,label='rr')
@@ -482,18 +481,17 @@ subroutine read_electric_moment(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: DATA_FILE, N
 complex(kind=wp), intent(out) :: moment(3,N,N)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j
-real(kind=wp), external :: dnrm2_, dznrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, j
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_, dznrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 moment(:,:,:) = cZero
 call mma_allocate(rr,n,n,label='rr')
@@ -558,18 +556,17 @@ subroutine read_spin_moment(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: DATA_FILE, N
 complex(kind=wp), intent(out) :: moment(3,N,N)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j
-real(kind=wp), external :: dnrm2_, dznrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, j
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_, dznrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 if (dbg) write(u6,*) 'ENTER read_spin_moment'
 moment(:,:,:) = cZero
@@ -660,17 +657,16 @@ subroutine read_angmom(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: DATA_FILE, N
 real(kind=wp), intent(out) :: moment(3,N,N)
+logical(kind=iwp), intent(in) :: dbg
 real(kind=wp), allocatable :: rr(:,:)
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 moment(:,:,:) = Zero
 call mma_allocate(rr,n,n,label='rr')
@@ -700,17 +696,16 @@ subroutine read_edipmom(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: DATA_FILE, N
 real(kind=wp), intent(out) :: moment(3,N,N)
+logical(kind=iwp), intent(in) :: dbg
 real(kind=wp), allocatable :: rr(:,:)
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 moment(:,:,:) = Zero
 call mma_allocate(rr,n,n,label='rr')
@@ -740,17 +735,16 @@ subroutine read_amfi(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: DATA_FILE, N
 real(kind=wp), intent(out) :: moment(3,N,N)
+logical(kind=iwp), intent(in) :: dbg
 real(kind=wp), allocatable :: rr(:,:)
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 moment(:,:,:) = Zero
 call mma_allocate(rr,n,n,label='rr')
@@ -778,11 +772,13 @@ end subroutine read_amfi
 !=!=
 subroutine read_nss(DATA_FILE,n,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(out) :: n
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+integer(kind=iwp), intent(in) :: DATA_FILE
+integer(kind=iwp), intent(out) :: n
+logical(kind=iwp), intent(in) :: dbg
+logical(kind=iwp), external :: inquire_key_presence
 
 n = 0
 if (inquire_key_presence(DATA_FILE,'$nss')) call read_INTEGER_scalar(DATA_FILE,'$nss',n,dbg)
@@ -794,11 +790,13 @@ end subroutine read_nss
 !=!=
 subroutine read_nstate(DATA_FILE,n,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(out) :: n
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+integer(kind=iwp), intent(in) :: DATA_FILE
+integer(kind=iwp), intent(out) :: n
+logical(kind=iwp), intent(in) :: dbg
+logical(kind=iwp), external :: inquire_key_presence
 
 n = 0
 if (inquire_key_presence(DATA_FILE,'$nstate')) call read_INTEGER_scalar(DATA_FILE,'$nstate',n,dbg)
@@ -810,11 +808,13 @@ end subroutine read_nstate
 !=!=
 subroutine read_nmult(DATA_FILE,n,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(out) :: n
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+integer(kind=iwp), intent(in) :: DATA_FILE
+integer(kind=iwp), intent(out) :: n
+logical(kind=iwp), intent(in) :: dbg
+logical(kind=iwp), external :: inquire_key_presence
 
 n = 0
 if (inquire_key_presence(DATA_FILE,'$nmult')) call read_INTEGER_scalar(DATA_FILE,'$nmult',n,dbg)
@@ -826,14 +826,13 @@ end subroutine read_nmult
 !=!=
 subroutine read_multiplicity(DATA_FILE,n,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n
-integer, intent(out) :: array(n)
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+integer(kind=iwp), intent(in) :: DATA_FILE, n
+integer(kind=iwp), intent(out) :: array(n)
+logical(kind=iwp), intent(in) :: dbg
+logical(kind=iwp), external :: inquire_key_presence
 
 array = 0
 if (inquire_key_presence(DATA_FILE,'$multiplicity')) call read_1d_INTEGER_array(DATA_FILE,'$multiplicity',n,array,dbg)
@@ -852,14 +851,13 @@ end subroutine read_multiplicity
 !=!=
 subroutine read_imult(DATA_FILE,n,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n
-integer, intent(out) :: array(n)
-logical, external :: inquire_key_presence
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: DATA_FILE, n
+integer(kind=iwp), intent(out) :: array(n)
+logical(kind=iwp), intent(in) :: dbg
+logical(kind=iwp), external :: inquire_key_presence
 
 array = 0
 if (inquire_key_presence(DATA_FILE,'$imult')) call read_1d_INTEGER_array(DATA_FILE,'$imult',n,array,dbg)
@@ -874,11 +872,13 @@ end subroutine read_imult
 !=!=
 subroutine read_format(DATA_FILE,n,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(out) :: n
-logical, external :: inquire_key_presence
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: DATA_FILE
+integer(kind=iwp), intent(out) :: n
+logical(kind=iwp), intent(in) :: dbg
+logical(kind=iwp), external :: inquire_key_presence
 
 n = 0
 if (inquire_key_presence(DATA_FILE,'$format')) call read_INTEGER_scalar(DATA_FILE,'$format',n,dbg)
@@ -891,14 +891,13 @@ end subroutine read_format
 !=!=
 subroutine read_nroot(DATA_FILE,n,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n
-integer, intent(out) :: array(n)
-logical, external :: inquire_key_presence
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: DATA_FILE, n
+integer(kind=iwp), intent(out) :: array(n)
+logical(kind=iwp), intent(in) :: dbg
+logical(kind=iwp), external :: inquire_key_presence
 
 array = 0
 if (inquire_key_presence(DATA_FILE,'$nroot')) call read_1d_INTEGER_array(DATA_FILE,'$nroot',n,array,dbg)
@@ -914,14 +913,13 @@ end subroutine read_nroot
 !=!=
 subroutine read_szproj(DATA_FILE,n,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n
-integer, intent(out) :: array(n)
-logical, external :: inquire_key_presence
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: DATA_FILE, n
+integer(kind=iwp), intent(out) :: array(n)
+logical(kind=iwp), intent(in) :: dbg
+logical(kind=iwp), external :: inquire_key_presence
 
 array = 0
 if (inquire_key_presence(DATA_FILE,'$szproj')) call read_1d_INTEGER_array(DATA_FILE,'$szproj',n,array,dbg)
@@ -941,16 +939,15 @@ end subroutine read_szproj
 subroutine read_eso(DATA_FILE,n,array,dbg)
 
 use Constants, only: Zero, Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: DATA_FILE, n
 real(kind=wp), intent(out) :: array(n)
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+logical(kind=iwp), intent(in) :: dbg
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 array(:) = Zero
 if (inquire_key_presence(DATA_FILE,'$eso')) call read_1d_real_array(DATA_FILE,'$eso',n,array,dbg)
@@ -967,16 +964,15 @@ end subroutine read_eso
 subroutine read_esfs(DATA_FILE,n,array,dbg)
 
 use Constants, only: Zero, Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: DATA_FILE, n
 real(kind=wp), intent(out) :: array(n)
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+logical(kind=iwp), intent(in) :: dbg
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 array(:) = Zero
 if (inquire_key_presence(DATA_FILE,'$esfs')) call read_1d_real_array(DATA_FILE,'$esfs',n,array,dbg)
@@ -993,16 +989,15 @@ end subroutine read_esfs
 subroutine read_hso(DATA_FILE,n,array,dbg)
 
 use Constants, only: Ten, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: DATA_FILE, n
 complex(kind=wp), intent(out) :: array(n)
-real(kind=wp), external :: dznrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+logical(kind=iwp), intent(in) :: dbg
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dznrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 array(:) = cZero
 if (inquire_key_presence(DATA_FILE,'$hso')) call read_complex_matrix(DATA_FILE,'$hso',n,array,dbg)
@@ -1019,16 +1014,15 @@ end subroutine read_hso
 subroutine read_eigen(DATA_FILE,n,array,dbg)
 
 use Constants, only: Ten, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: DATA_FILE, n
 complex(kind=wp), intent(out) :: array(n)
-real(kind=wp), external :: dznrm2_
-logical, intent(in) :: dbg
-logical, external :: inquire_key_presence
+logical(kind=iwp), intent(in) :: dbg
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dznrm2_
+logical(kind=iwp), external :: inquire_key_presence
 
 array(:) = cZero
 if (inquire_key_presence(DATA_FILE,'$eigen')) call read_complex_matrix(DATA_FILE,'$eigen',n,array,dbg)
@@ -1044,18 +1038,13 @@ end subroutine read_eigen
 !=!=
 subroutine read_gtens(DATA_FILE,nmult,gtens,axes,dbg)
 
-use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: iwp, wp
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: nmult
-real(kind=wp), intent(out) :: gtens(nmult,3)
-real(kind=wp), intent(out) :: axes(nmult,3,3)
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: DATA_FILE, nmult
+real(kind=wp), intent(out) :: gtens(nmult,3), axes(nmult,3,3)
+logical(kind=iwp), intent(in) :: dbg
 
-gtens = Zero
-axes = Zero
 call read_2d_real_array(DATA_FILE,'$gtens_main',nmult,3,gtens,dbg)
 call read_3d_real_array(DATA_FILE,'$gtens_axes',nmult,3,3,axes,dbg)
 
@@ -1066,15 +1055,14 @@ end subroutine read_gtens
 subroutine read_stev_cfp(DATA_FILE,s,n,cfp,dbg)
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: n   ! 2J+1, or 2L+1, i.e. the dimension of the J or L multiplet
-real(kind=wp), intent(out) :: cfp(n-1,-(n-1):(n-1))
-character :: s
-integer :: k, q, i, ik, iq, ierr
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: DATA_FILE, n   ! 2J+1, or 2L+1, i.e. the dimension of the J or L multiplet
+character(len=*), intent(in) :: s
+real(kind=wp), intent(out) :: cfp(n-1,-(n-1):n-1)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, ik, iq, k, q
 character(len=500) :: line
 
 ierr = 0
@@ -1106,25 +1094,26 @@ return
 end subroutine read_stev_cfp
 !=!=
 subroutine read_susc(DATA_FILE,s,n,field,zj,t,x,x_tens,dbg)
+! n     : number of temperature points
+! zj    : intermolecular interaction
+! field : applied field
+! t     : temperature points
+! x     : susceptibility X
+! x_tens: susceptibility tensor, X_tens
 
 use Constants, only: Zero, Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(inout) :: n                 ! number of temperature points
-real(kind=wp), intent(out) :: zj            ! intermolecular interaction
-real(kind=wp), intent(out) :: field         ! applied field
-real(kind=wp), intent(out) :: t(n)          ! temperature points
-real(kind=wp), intent(out) :: x(n)          ! susceptibility X
-real(kind=wp), intent(out) :: x_tens(n,3,3) ! susceptibility tensor, X_tens
+integer(kind=iwp), intent(in) :: DATA_FILE
+integer(kind=iwp), intent(inout) :: n
 character(len=*), intent(in) :: s
-integer :: i, j, k
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
+real(kind=wp), intent(out) :: field, zj, t(n), x(n), x_tens(n,3,3)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k
 character(len=500) :: line
-integer :: ierr
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_
 
 t(:) = Zero
 x(:) = Zero
@@ -1204,25 +1193,26 @@ return
 end subroutine read_susc
 !=!=
 subroutine read_magn(DATA_FILE,nt,nh,nd,nss,zj,t,h,x,y,z,w,m,mav,energy,dbg)
+! nt        :  number of temperature points
+! nh        :  number of field points
+! nd        :  number of directions of aplied field
+! nss       :  number of spin-orbit states
+! zj        :  inter-molecular parameter zJ
+! t         :  temperature points
+! h         :  field points
+! x, y, z, w:  Lebedev grid directions and weight
+! m         :  magnetisation vector
+! mav       :  average magnetisation vector
+! energy    :  Zeeman energy states
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: DATA_FILE
-integer, intent(in) :: nt                           ! number of temperature points
-integer, intent(in) :: nh                           ! number of field points
-integer, intent(in) :: nd                           ! number of directions of aplied field
-integer, intent(in) :: nss                          ! number of spin-orbit states
-real(kind=wp), intent(out) :: zj                         ! inter-molecular parameter zJ
-real(kind=wp), intent(out) :: t(nt)                      ! temperature points
-real(kind=wp), intent(out) :: h(nh)                      ! field points
-real(kind=wp), intent(out) :: x(nd), y(nd), z(nd), w(nd) ! Lebedev grid directions and weight
-real(kind=wp), intent(out) :: m(nd,3,nt,nh)              ! magnetisation vector
-real(kind=wp), intent(out) :: mav(nt,nh)                 ! average magnetisation vector
-real(kind=wp), intent(out) :: energy(nd,nh,nss)          ! Zeeman energy states
-integer :: id, ih, it, i, iss, l, ierr
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: DATA_FILE, nt, nh, nd, nss
+real(kind=wp), intent(out) :: zj, t(nt), h(nh), x(nd), y(nd), z(nd), w(nd), m(nd,3,nt,nh), mav(nt,nh), energy(nd,nh,nss)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, id, ierr, ih, iss, it, l
 character(len=500) :: line
 
 ierr = 0
@@ -1297,21 +1287,17 @@ end subroutine read_magn
 subroutine read_complex_matrix(LU,key,n,matrix,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: LU
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: LU, N
 character(len=*), intent(in) :: key
 complex(kind=wp), intent(out) :: matrix(N,N)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 
 call mma_allocate(rr,n,n,label='rr')
 call mma_allocate(ri,n,n,label='ri')
-rr(:,:) = Zero
-ri(:,:) = Zero
 call read_2d_real_array(LU,key//'r',n,n,rr,dbg)
 call read_2d_real_array(LU,key//'i',n,n,ri,dbg)
 matrix(:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
@@ -1325,15 +1311,14 @@ end subroutine read_complex_matrix
 subroutine write_complex_matrix(LU,key,n,matrix,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: LU
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: LU, N
 character(len=*), intent(in) :: key
 complex(kind=wp), intent(in) :: matrix(N,N)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 
 call mma_allocate(rr,n,n,label='rr')
 call mma_allocate(ri,n,n,label='ri')
@@ -1378,14 +1363,14 @@ end subroutine write_complex_matrix
 subroutine write_magnetic_moment(ANISO_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: ANISO_FILE
+integer(kind=iwp), intent(in) :: N
 complex(kind=wp), intent(in) :: moment(3,N,N)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 
 call mma_allocate(rr,n,n,label='rr')
 call mma_allocate(ri,n,n,label='ri')
@@ -1414,14 +1399,14 @@ end subroutine write_magnetic_moment
 subroutine write_electric_moment(ANISO_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: ANISO_FILE
+integer(kind=iwp), intent(in) :: N
 complex(kind=wp), intent(in) :: moment(3,N,N)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 
 call mma_allocate(rr,n,n,label='rr')
 call mma_allocate(ri,n,n,label='ri')
@@ -1450,14 +1435,14 @@ end subroutine write_electric_moment
 subroutine write_spin_moment(ANISO_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: ANISO_FILE
+integer(kind=iwp), intent(in) :: N
 complex(kind=wp), intent(in) :: moment(3,N,N)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 
 call mma_allocate(rr,n,n,label='rr')
 call mma_allocate(ri,n,n,label='ri')
@@ -1485,13 +1470,13 @@ end subroutine write_spin_moment
 !=!=
 subroutine write_angmom(ANISO_FILE,n,moment,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: ANISO_FILE
+integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: moment(3,N,N)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
 
 call write_2d_real_array(ANISO_FILE,'$angmom_x',n,n,moment(1,:,:),dbg)
 call write_2d_real_array(ANISO_FILE,'$angmom_y',n,n,moment(2,:,:),dbg)
@@ -1503,13 +1488,13 @@ end subroutine write_angmom
 !=!=
 subroutine write_edipmom(ANISO_FILE,n,moment,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: ANISO_FILE
+integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: moment(3,N,N)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
 
 call write_2d_real_array(ANISO_FILE,'$edmom_x',n,n,moment(1,:,:),dbg)
 call write_2d_real_array(ANISO_FILE,'$edmom_y',n,n,moment(2,:,:),dbg)
@@ -1521,13 +1506,13 @@ end subroutine write_edipmom
 !=!=
 subroutine write_amfi(ANISO_FILE,n,moment,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: N
+integer(kind=iwp), intent(in) :: ANISO_FILE
+integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: moment(3,N,N)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
 
 call write_2d_real_array(ANISO_FILE,'$amfi_x',n,n,moment(1,:,:),dbg)
 call write_2d_real_array(ANISO_FILE,'$amfi_y',n,n,moment(2,:,:),dbg)
@@ -1539,10 +1524,12 @@ end subroutine write_amfi
 !=!=
 subroutine write_format(ANISO_FILE,n,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE
+integer(kind=iwp), intent(in) :: n
+logical(kind=iwp), intent(in) :: dbg
 
 call write_INTEGER_scalar(ANISO_FILE,'$format',n,dbg)
 
@@ -1552,10 +1539,11 @@ end subroutine write_format
 !=!=
 subroutine write_nss(ANISO_FILE,n,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, n
+logical(kind=iwp), intent(in) :: dbg
 
 call write_INTEGER_scalar(ANISO_FILE,'$nss',n,dbg)
 
@@ -1565,10 +1553,11 @@ end subroutine write_nss
 !=!=
 subroutine write_nstate(ANISO_FILE,n,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, n
+logical(kind=iwp), intent(in) :: dbg
 
 call write_INTEGER_scalar(ANISO_FILE,'$nstate',n,dbg)
 
@@ -1578,10 +1567,11 @@ end subroutine write_nstate
 !=!=
 subroutine write_nmult(ANISO_FILE,n,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, n
+logical(kind=iwp), intent(in) :: dbg
 
 call write_INTEGER_scalar(ANISO_FILE,'$nmult',n,dbg)
 
@@ -1591,11 +1581,11 @@ end subroutine write_nmult
 !=!=
 subroutine write_multiplicity(ANISO_FILE,n,array,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
-integer, intent(in) :: array(n)
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, n, array(n)
+logical(kind=iwp), intent(in) :: dbg
 
 call write_1d_INTEGER_array(ANISO_FILE,'$multiplicity',n,array,dbg)
 
@@ -1605,11 +1595,11 @@ end subroutine write_multiplicity
 !=!=
 subroutine write_imult(ANISO_FILE,n,array,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
-integer, intent(in) :: array(n)
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, n, array(n)
+logical(kind=iwp), intent(in) :: dbg
 
 call write_1d_INTEGER_array(ANISO_FILE,'$imult',n,array,dbg)
 
@@ -1619,11 +1609,11 @@ end subroutine write_imult
 !=!=
 subroutine write_nroot(ANISO_FILE,n,array,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
-integer, intent(in) :: array(n)
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, n, array(n)
+logical(kind=iwp), intent(in) :: dbg
 
 call write_1d_INTEGER_array(ANISO_FILE,'$nroot',n,array,dbg)
 
@@ -1633,11 +1623,11 @@ end subroutine write_nroot
 !=!=
 subroutine write_szproj(ANISO_FILE,n,array,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
-integer, intent(in) :: array(n)
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, n, array(n)
+logical(kind=iwp), intent(in) :: dbg
 
 call write_1d_INTEGER_array(ANISO_FILE,'$szproj',n,array,dbg)
 
@@ -1647,13 +1637,12 @@ end subroutine write_szproj
 !=!=
 subroutine write_eso(ANISO_FILE,n,array,dbg)
 
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: ANISO_FILE, n
 real(kind=wp), intent(in) :: array(n)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
 
 if (dbg) write(u6,*) 'write_eso: '
 call write_1d_real_array(ANISO_FILE,'$eso',n,array,dbg)
@@ -1664,13 +1653,12 @@ end subroutine write_eso
 !=!=
 subroutine write_esfs(ANISO_FILE,n,array,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: ANISO_FILE, n
 real(kind=wp), intent(in) :: array(n)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
 
 call write_1d_real_array(ANISO_FILE,'$esfs',n,array,dbg)
 
@@ -1680,13 +1668,12 @@ end subroutine write_esfs
 !=!=
 subroutine write_hso(ANISO_FILE,n,array,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: ANISO_FILE, n
 complex(kind=wp), intent(in) :: array(n)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
 
 call write_complex_matrix(ANISO_FILE,'$hso',n,array,dbg)
 
@@ -1696,13 +1683,12 @@ end subroutine write_hso
 !=!=
 subroutine write_eigen(ANISO_FILE,n,array,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n
+integer(kind=iwp), intent(in) :: ANISO_FILE, n
 complex(kind=wp), intent(in) :: array(n)
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
 
 call write_complex_matrix(ANISO_FILE,'$eigen',n,array,dbg)
 
@@ -1712,14 +1698,12 @@ end subroutine write_eigen
 !=!=
 subroutine write_gtens(ANISO_FILE,nmult,gtens,axes,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: nmult
-real(kind=wp), intent(in) :: gtens(nmult,3)
-real(kind=wp), intent(in) :: axes(nmult,3,3)
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, nmult
+real(kind=wp), intent(in) :: gtens(nmult,3), axes(nmult,3,3)
+logical(kind=iwp), intent(in) :: dbg
 
 call write_2d_real_array(ANISO_FILE,'$gtens_main',nmult,3,gtens,dbg)
 call write_3d_real_array(ANISO_FILE,'$gtens_axes',nmult,3,3,axes,dbg)
@@ -1731,18 +1715,17 @@ end subroutine write_gtens
 subroutine write_stev_cfp(ANISO_FILE,s,n,cfp,dbg)
 
 use Constants, only: Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n   ! 2J+1, or 2L+1, i.e. the dimension of the J or L multiplet
-real(kind=wp), intent(in) :: cfp(n-1,-(n-1):(n-1))
-character(len=*) :: s
-integer :: k, q, ierr
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: ANISO_FILE, n   ! 2J+1, or 2L+1, i.e. the dimension of the J or L multiplet
+character(len=*), intent(in) :: s
+real(kind=wp), intent(in) :: cfp(n-1,-(n-1):n-1)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr, k, q
 character(len=500) :: line
-real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 character(len=30) :: FMTCFP = '(2(I0,1x),ES22.14)'
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
 
 ! s takes the value:
 ! 'L' == CFP for a term
@@ -1788,27 +1771,27 @@ return
 end subroutine write_stev_cfp
 !=!=
 subroutine write_susc(ANISO_FILE,s,n,field,zj,t,z,x,x_tens,dbg)
+! n     :  number of temperature points
+! field :  applied field
+! zJ    :  intermolecular interaction
+! t     :  temperature points
+! z     :  partition function
+! x     :  susceptibility X
+! x_tens:  susceptibility tensor X_tens
 
 use Constants, only: Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: n                   ! number of temperature points
-real(kind=wp), intent(in) :: field         ! applied field
-real(kind=wp), intent(in) :: zJ            ! intermolecular interaction
-real(kind=wp), intent(in) :: t(n)          ! temperature points
-real(kind=wp), intent(in) :: z(n)          ! partition function
-real(kind=wp), intent(in) :: x(n)          ! susceptibility X
-real(kind=wp), intent(in) :: x_tens(n,3,3) ! susceptibility tensor X_tens
+integer(kind=iwp), intent(in) :: ANISO_FILE, n
 character(len=*), intent(in) :: s
-integer :: i, j, k, ierr
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), intent(in) :: field, zJ, t(n), z(n), x(n), x_tens(n,3,3)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k
 character(len=500) :: line
-character(len=20) :: FMTR = '(5ES22.14)'
-character(len=20) :: FMTI = '(20(I0,1x))'
+character(len=*), parameter :: FMTI = '(20(I0,1x))', FMTR = '(5ES22.14)'
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+real(kind=wp), external :: dnrm2_
 
 ! s takes the values:
 ! 'x'
@@ -1893,30 +1876,30 @@ return
 end subroutine write_susc
 !=!=
 subroutine write_magn(ANISO_FILE,nt,nh,nd,nss,zj,t,h,x,y,z,w,m,mav,energy,dbg)
+! nt        :  number of temperature points
+! nh        :  number of field points
+! nd        :  number of directions of aplied field
+! nss       :  number of spin-orbit states included in the Zeeman interaction
+! zj        :  inter-molecular parameter zJ
+! t         :  temperature points
+! h         :  field points
+! x, y, z, w:  Lebedev grid directions and weight
+! m         :  magnetisation vector
+! mav       :  average magnetisation vector
+! energy    :  Zeeman energy states
 
 use Constants, only: Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: ANISO_FILE
-integer, intent(in) :: nt                               ! number of temperature points
-integer, intent(in) :: nh                               ! number of field points
-integer, intent(in) :: nd                               ! number of directions of aplied field
-integer, intent(in) :: nss                              ! number of spin-orbit states included in the Zeeman interaction
-real(kind=wp), intent(in) :: zj                         ! inter-molecular parameter zJ
-real(kind=wp), intent(in) :: t(nt)                      ! temperature points
-real(kind=wp), intent(in) :: h(nh)                      ! field points
-real(kind=wp), intent(in) :: x(nd), y(nd), z(nd), w(nd) ! Lebedev grid directions and weight
-real(kind=wp), intent(in) :: m(nd,3,nh,nt)              ! magnetisation vector
-real(kind=wp), intent(in) :: mav(nh,nt)                 ! average magnetisation vector
-real(kind=wp), intent(in) :: energy(nd,nh,nss)          ! Zeeman energy states
-integer :: id, ih, it, i, iss, l, ierr
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+integer(kind=iwp), intent(in) :: ANISO_FILE, nt, nh, nd, nss
+real(kind=wp), intent(in) :: zj, t(nt), h(nh), x(nd), y(nd), z(nd), w(nd), m(nd,3,nh,nt), mav(nh,nt), energy(nd,nh,nss)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, id, ierr, ih, iss, it, l
 character(len=500) :: line
-character(len=20) :: FMTR = '(5ES22.14)'
-character(len=20) :: FMTI = '(20(I0,1x))'
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+character(len=*), parameter :: FMTI = '(20(I0,1x))', FMTR = '(5ES22.14)'
+real(kind=wp), external :: dnrm2_
 
 ierr = 0
 if ((nt <= 0) .or. (nh <= 0) .or. (nd <= 0)) then
@@ -2001,9 +1984,11 @@ end subroutine write_magn
 
 subroutine open_datafile_write(DATA_FILE,DATA_FILE_NAME)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: DATA_FILE
-character(len=180) :: DATA_FILE_NAME
+integer(kind=iwp), intent(in) :: DATA_FILE
+character(len=180), intent(in) :: DATA_FILE_NAME
 !#ifdef _ALONE_
 !integer :: ierr
 !#endif
@@ -2022,9 +2007,11 @@ end subroutine open_datafile_write
 !=!=
 subroutine open_aniso_file(ANISO_FILE,ANISO_FILE_NAME)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: ANISO_FILE
-character(len=180) :: ANISO_FILE_NAME
+integer(kind=iwp), intent(in) :: ANISO_FILE
+character(len=180), intent(in) :: ANISO_FILE_NAME
 !#ifdef _ALONE_
 !integer :: ierr
 !#endif
@@ -2043,9 +2030,11 @@ end subroutine open_aniso_file
 !=!=
 subroutine open_datafile_read(DATA_FILE,DATA_FILE_NAME)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: DATA_FILE
-character(len=180) :: DATA_FILE_NAME
+integer(kind=iwp), intent(in) :: DATA_FILE
+character(len=180), intent(in) :: DATA_FILE_NAME
 !#ifdef _ALONE_
 !integer :: ierr
 !#endif
@@ -2064,9 +2053,11 @@ end subroutine open_datafile_read
 !=!=
 subroutine close_datafile(DATA_FILE)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: DATA_FILE
-integer :: ierr
+integer(kind=iwp), intent(in) :: DATA_FILE
+integer(kind=iwp) :: ierr
 
 ierr = 0
 close(unit=DATA_FILE,iostat=ierr)
@@ -2078,9 +2069,11 @@ end subroutine close_datafile
 !=!=
 subroutine close_anisofile(ANISO_FILE)
 
+use Definitions, only: iwp
+
 implicit none
-integer :: ANISO_FILE
-integer :: ierr
+integer(kind=iwp), intent(in) :: ANISO_FILE
+integer(kind=iwp) :: ierr
 
 ierr = 0
 close(unit=ANISO_FILE,iostat=ierr)
@@ -2090,14 +2083,17 @@ return
 
 end subroutine close_anisofile
 !=!=
-logical function key_found(DATA_FILE,key,dbg)
+function key_found(DATA_FILE,key,dbg)
+
+use Definitions, only: iwp
 
 implicit none
-integer, intent(in) :: DATA_FILE
+logical(kind=iwp) :: key_found
+integer(kind=iwp), intent(in) :: DATA_FILE
 character(len=*), intent(in) :: key
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-integer :: ierr
 
 ierr = 0
 key_found = .false.
@@ -2111,16 +2107,15 @@ end function key_found
 !=!=
 subroutine file_advance_to_string(LU,key,line,ierr,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
-integer :: ios
-integer :: num_read
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
-character(len=*) :: line
-integer, intent(out) :: ierr
-logical, intent(in) :: dbg
+character(len=*), intent(out) :: line
+integer(kind=iwp), intent(out) :: ierr
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ios, num_read
 
 ierr = 0
 num_read = 0
@@ -2155,11 +2150,15 @@ return
 
 end subroutine file_advance_to_string
 !=!=
-logical function inquire_key_presence(LU,key)
+function inquire_key_presence(LU,key)
+
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: LU
-character(len=*) :: key
-integer :: ios
+logical(kind=iwp) :: inquire_key_presence
+integer(kind=iwp), intent(in) :: LU
+character(len=*), intent(in) :: key
+integer(kind=iwp) :: ios
 character(len=500) :: line
 
 inquire_key_presence = .false.
@@ -2184,15 +2183,15 @@ end function inquire_key_presence
 
 subroutine read_INTEGER_scalar(LU,key,i,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
-integer, intent(out) :: i
+integer(kind=iwp), intent(out) :: i
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-logical, intent(in) :: dbg
-integer :: ierr
 
 ierr = 0
 i = 0
@@ -2212,14 +2211,14 @@ end subroutine read_INTEGER_scalar
 subroutine read_real_scalar(LU,key,r,dbg)
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
 real(kind=wp), intent(out) :: r
-logical, intent(in) :: dbg
-integer :: ierr
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
 
 ierr = 0
@@ -2240,16 +2239,16 @@ end subroutine read_real_scalar
 subroutine read_complex_scalar(LU,key,c,dbg)
 
 use Constants, only: Zero, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
 complex(kind=wp), intent(out) :: c
-real(kind=wp) :: rr, ri
-integer :: ierr
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
+real(kind=wp) :: ri, rr
 character(len=500) :: line
-logical, intent(in) :: dbg
 
 ierr = 0
 rr = Zero
@@ -2271,18 +2270,16 @@ return
 end subroutine read_complex_scalar
 !=!=
 subroutine read_string(LU,key,length,s,dbg)
-!result(s)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, length
 character(len=*), intent(in) :: key
-integer, intent(in) :: length
 character(len=length), intent(out) :: s
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr
 character(len=500) :: c, f, line
-integer :: i, ierr
-logical, intent(in) :: dbg
 
 if (dbg) then
   write(u6,*) 'read_string::    key =',trim(key)
@@ -2312,15 +2309,15 @@ end subroutine read_string
 !=!=
 subroutine read_1d_size(LU,key,n,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
-integer, intent(out) :: n
+integer(kind=iwp), intent(out) :: n
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-logical, intent(in) :: dbg
-integer :: ierr
 
 ierr = 0
 n = 0
@@ -2339,15 +2336,15 @@ end subroutine read_1d_size
 !=!=
 subroutine read_2d_size(LU,key,n1,n2,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
-integer, intent(out) :: n1, n2
+integer(kind=iwp), intent(out) :: n1, n2
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-logical, intent(in) :: dbg
-integer :: ierr
 
 ierr = 0
 n1 = 0
@@ -2368,15 +2365,15 @@ end subroutine read_2d_size
 !=!=
 subroutine read_3d_size(LU,key,n1,n2,n3,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
-integer, intent(out) :: n1, n2, n3
+integer(kind=iwp), intent(out) :: n1, n2, n3
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-logical, intent(in) :: dbg
-integer :: ierr
 
 ierr = 0
 n1 = 0
@@ -2399,15 +2396,15 @@ end subroutine read_3d_size
 !=!=
 subroutine read_4d_size(LU,key,n1,n2,n3,n4,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
-integer, intent(out) :: n1, n2, n3, n4
+integer(kind=iwp), intent(out) :: n1, n2, n3, n4
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-logical, intent(in) :: dbg
-integer :: ierr
 
 ierr = 0
 n1 = 0
@@ -2432,16 +2429,15 @@ end subroutine read_4d_size
 !=!=
 subroutine read_1d_INTEGER_array(LU,key,n,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n
 character(len=*), intent(in) :: key
-integer, intent(in) :: n
-integer, intent(out) :: array(n)
-integer :: i, ierr
+integer(kind=iwp), intent(out) :: array(n)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr
 character(len=500) :: line
-logical, intent(in) :: dbg
 
 ierr = 0
 array = 0
@@ -2471,17 +2467,15 @@ end subroutine read_1d_INTEGER_array
 !=!=
 subroutine read_2d_INTEGER_array(LU,key,n1,n2,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2
-integer, intent(out) :: array(n1,n2)
-integer :: i, j
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(out) :: array(n1,n2)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j
 character(len=500) :: line
-integer :: ierr
 
 ierr = 0
 array = 0
@@ -2517,17 +2511,15 @@ end subroutine read_2d_INTEGER_array
 !=!=
 subroutine read_3d_INTEGER_array(LU,key,n1,n2,n3,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3
-integer, intent(out) :: array(n1,n2,n3)
-integer :: i, j, k
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(out) :: array(n1,n2,n3)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k
 character(len=500) :: line
-integer :: ierr
 
 ierr = 0
 array = 0
@@ -2567,17 +2559,15 @@ end subroutine read_3d_INTEGER_array
 !=!=
 subroutine read_4d_INTEGER_array(LU,key,n1,n2,n3,n4,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3, n4
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3, n4
-integer, intent(out) :: array(n1,n2,n3,n4)
-integer :: i, j, k, l
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(out) :: array(n1,n2,n3,n4)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k, l
 character(len=500) :: line
-integer :: ierr
 
 ierr = 0
 array = 0
@@ -2622,17 +2612,15 @@ end subroutine read_4d_INTEGER_array
 subroutine read_1d_real_array(LU,key,n,array,dbg)
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n
 character(len=*), intent(in) :: key
-integer, intent(in) :: n
 real(kind=wp), intent(out) :: array(n)
-integer :: i
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr
 character(len=500) :: line
-integer :: ierr
 
 ierr = 0
 array(:) = Zero
@@ -2663,15 +2651,14 @@ end subroutine read_1d_real_array
 subroutine read_2d_real_array(LU,key,n1,n2,array,dbg)
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2
 real(kind=wp), intent(out) :: array(n1,n2)
-integer :: i, j, ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j
 character(len=500) :: line
 
 ierr = 0
@@ -2714,15 +2701,14 @@ end subroutine read_2d_real_array
 subroutine read_3d_real_array(LU,key,n1,n2,n3,array,dbg)
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3
 real(kind=wp), intent(out) :: array(n1,n2,n3)
-integer :: i, j, k, ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k
 character(len=500) :: line
 
 ierr = 0
@@ -2764,15 +2750,14 @@ end subroutine read_3d_real_array
 subroutine read_4d_real_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3, n4
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3, n4
 real(kind=wp), intent(out) :: array(n1,n2,n3,n4)
-integer :: i, j, k, l, ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k, l
 character(len=500) :: line
 
 ierr = 0
@@ -2819,17 +2804,16 @@ subroutine read_1d_complex_array(LU,key,n,array,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n
 character(len=*), intent(in) :: key
-integer, intent(in) :: n
 complex(kind=wp), intent(out) :: array(n)
-real(kind=wp), allocatable :: rr(:), ri(:)
-integer :: i, ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr
 character(len=500) :: line
+real(kind=wp), allocatable :: ri(:), rr(:)
 
 ierr = 0
 if (n <= 0) then
@@ -2866,17 +2850,16 @@ subroutine read_2d_complex_array(LU,key,n1,n2,array,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2
 complex(kind=wp), intent(out) :: array(n1,n2)
-real(kind=wp), allocatable :: rr(:,:), ri(:,:)
-integer :: i, j, ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j
 character(len=500) :: line
+real(kind=wp), allocatable :: ri(:,:), rr(:,:)
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0)) then
@@ -2920,17 +2903,16 @@ subroutine read_3d_complex_array(LU,key,n1,n2,n3,array,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3
 complex(kind=wp), intent(out) :: array(n1,n2,n3)
-real(kind=wp), allocatable :: rr(:,:,:), ri(:,:,:)
-integer :: i, j, k, ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k
 character(len=500) :: line
+real(kind=wp), allocatable :: ri(:,:,:), rr(:,:,:)
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
@@ -2978,17 +2960,16 @@ subroutine read_4d_complex_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3, n4
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3, n4
 complex(kind=wp), intent(out) :: array(n1,n2,n3,n4)
-real(kind=wp), allocatable :: rr(:,:,:,:), ri(:,:,:,:)
-integer :: i, j, k, l, ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k, l
 character(len=500) :: line
+real(kind=wp), allocatable :: ri(:,:,:,:), rr(:,:,:,:)
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then
@@ -3042,14 +3023,15 @@ end subroutine read_4d_complex_array
 
 subroutine write_INTEGER_scalar(LU,key,i,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, i
 character(len=*), intent(in) :: key
-integer, intent(in) :: i
-integer :: ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-character(len=20) :: FMTI = '(20(I0,1x))'
+character(len=*), parameter :: FMTI = '(20(I0,1x))'
 
 ierr = 0
 rewind(LU)
@@ -3074,16 +3056,16 @@ end subroutine write_INTEGER_scalar
 !=!=
 subroutine write_real_scalar(LU,key,r,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
 real(kind=wp), intent(in) :: r
-integer :: ierr
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-logical, intent(in) :: dbg
-character(len=20) :: FMTR = '(5ES22.14)'
+character(len=*), parameter :: FMTR = '(5ES22.14)'
 
 ierr = 0
 rewind(LU)
@@ -3108,16 +3090,16 @@ end subroutine write_real_scalar
 !=!=
 subroutine write_complex_scalar(LU,key,c,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU
 character(len=*), intent(in) :: key
 complex(kind=wp), intent(in) :: c
-logical, intent(in) :: dbg
-integer :: ierr
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-character(len=20) :: FMTC = '(3(2ES22.14))'
+character(len=*), parameter :: FMTC = '(3(2ES22.14))'
 
 ierr = 0
 rewind(LU)
@@ -3142,13 +3124,14 @@ end subroutine write_complex_scalar
 !=!=
 subroutine write_string(LU,key,s,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: LU
-character(len=*), intent(in) :: key
-character(len=*), intent(in) :: s
-logical, intent(in) :: dbg
+integer(kind=iwp), intent(in) :: LU
+character(len=*), intent(in) :: key, s
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: ierr
 character(len=500) :: line
-integer :: ierr
 
 ierr = 0
 rewind(LU)
@@ -3173,15 +3156,15 @@ end subroutine write_string
 !=!=
 subroutine write_1d_INTEGER_array(LU,key,n,array,dbg)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n, array(n)
 character(len=*), intent(in) :: key
-integer, intent(in) :: n
-integer, intent(in) :: array(n)
-integer :: i, ierr
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr
 character(len=500) :: line
-character(len=20) :: FMTI = '(20(I0,1x))'
+character(len=*), parameter :: FMTI = '(20(I0,1x))'
 
 ierr = 0
 if (n <= 0) then
@@ -3215,17 +3198,15 @@ end subroutine write_1d_INTEGER_array
 !=!=
 subroutine write_2d_INTEGER_array(LU,key,n1,n2,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, array(n1,n2)
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2
-integer, intent(in) :: array(n1,n2)
-integer :: i, j, ierr
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j
 character(len=500) :: line
-logical, intent(in) :: dbg
-character(len=20) :: FMTI = '(20(I0,1x))'
+character(len=*), parameter :: FMTI = '(20(I0,1x))'
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0)) then
@@ -3266,17 +3247,15 @@ end subroutine write_2d_INTEGER_array
 !=!=
 subroutine write_3d_INTEGER_array(LU,key,n1,n2,n3,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3, array(n1,n2,n3)
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3
-integer, intent(in) :: array(n1,n2,n3)
-integer :: i, j, k, ierr
-logical, intent(in) :: dbg
-character(len=20) :: FMTI = '(20(I0,1x))'
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k
 character(len=500) :: line
+character(len=*), parameter :: FMTI = '(20(I0,1x))'
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
@@ -3321,17 +3300,15 @@ end subroutine write_3d_INTEGER_array
 !=!=
 subroutine write_4d_INTEGER_array(LU,key,n1,n2,n3,n4,array,dbg)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3, n4, array(n1,n2,n3,n4)
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3, n4
-integer, intent(in) :: array(n1,n2,n3,n4)
-integer :: i, j, k, l, ierr
-logical, intent(in) :: dbg
-character(len=20) :: FMTI = '(20(I0,1x))'
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k, l
 character(len=500) :: line
+character(len=*), parameter :: FMTI = '(20(I0,1x))'
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then
@@ -3381,20 +3358,18 @@ end subroutine write_4d_INTEGER_array
 subroutine write_1d_real_array(LU,key,n,array,dbg)
 
 use Constants, only: Ten
-use Definitions, only: wp
+use Definitions, only: iwp, wp
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n
 character(len=*), intent(in) :: key
-integer, intent(in) :: n
 real(kind=wp), intent(in) :: array(n)
-integer :: i, ierr
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr
 character(len=500) :: line
 real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
-character(len=20) :: FMTR = '(5ES22.14)'
-character(len=20) :: FMTI = '(20(I0,1x))'
+character(len=*), parameter :: FMTI = '(20(I0,1x))', FMTR = '(5ES22.14)'
+real(kind=wp), external :: dnrm2_
 
 ierr = 0
 if (n <= 0) then
@@ -3429,20 +3404,18 @@ end subroutine write_1d_real_array
 subroutine write_2d_real_array(LU,key,n1,n2,array,dbg)
 
 use Constants, only: Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2
 real(kind=wp), intent(in) :: array(n1,n2)
-integer :: i, j, ierr
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j
 character(len=500) :: line
-character(len=20) :: FMTR = '(5ES22.14)'
-character(len=20) :: FMTI = '(20(I0,1x))'
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+character(len=*), parameter :: FMTI = '(20(I0,1x))', FMTR = '(5ES22.14)'
+real(kind=wp), external :: dnrm2_
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0)) then
@@ -3484,20 +3457,18 @@ end subroutine write_2d_real_array
 subroutine write_3d_real_array(LU,key,n1,n2,n3,array,dbg)
 
 use Constants, only: Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3
 real(kind=wp), intent(in) :: array(n1,n2,n3)
-integer :: i, j, k, ierr
-real(kind=wp), external :: dnrm2_
-logical, intent(in) :: dbg
-real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k
 character(len=500) :: line
-character(len=20) :: FMTR = '(5ES22.14)'
-character(len=20) :: FMTI = '(20(I0,1x))'
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+character(len=*), parameter :: FMTI = '(20(I0,1x))', FMTR = '(5ES22.14)'
+real(kind=wp), external :: dnrm2_
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
@@ -3543,20 +3514,18 @@ end subroutine write_3d_real_array
 subroutine write_4d_real_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use Constants, only: Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3, n4
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3, n4
 real(kind=wp), intent(in) :: array(n1,n2,n3,n4)
-integer :: i, j, k, l, ierr
-real(kind=wp), external :: dnrm2_
-real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
-logical, intent(in) :: dbg
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k, l
 character(len=500) :: line
-character(len=20) :: FMTR = '(5ES22.14)'
-character(len=20) :: FMTI = '(20(I0,1x))'
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)*Ten
+character(len=*), parameter :: FMTI = '(20(I0,1x))', FMTR = '(5ES22.14)'
+real(kind=wp), external :: dnrm2_
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then
@@ -3605,18 +3574,16 @@ end subroutine write_4d_real_array
 !=!=
 subroutine write_1d_complex_array(LU,key,n,array,dbg)
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n
 character(len=*), intent(in) :: key
-integer, intent(in) :: n
 complex(kind=wp), intent(in) :: array(n)
-integer :: i, ierr
-logical, intent(in) :: dbg
-character(len=20) :: FMTI = '(20(I0,1x))'
-character(len=20) :: FMTC = '(3(2ES22.14))'
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr
 character(len=500) :: line
+character(len=*), parameter :: FMTC = '(3(2ES22.14))', FMTI = '(20(I0,1x))'
 
 ierr = 0
 if (n <= 0) then
@@ -3649,18 +3616,16 @@ end subroutine write_1d_complex_array
 !=!=
 subroutine write_2d_complex_array(LU,key,n1,n2,array,dbg)
 
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2
 complex(kind=wp), intent(in) :: array(n1,n2)
-integer :: i, j, ierr
-logical, intent(in) :: dbg
-character(len=20) :: FMTI = '(20(I0,1x))'
-character(len=20) :: FMTC = '(3(2ES22.14))'
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j
 character(len=500) :: line
+character(len=*), parameter :: FMTC = '(3(2ES22.14))', FMTI = '(20(I0,1x))'
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0)) then
@@ -3700,18 +3665,16 @@ end subroutine write_2d_complex_array
 !=!=
 subroutine write_3d_complex_array(LU,key,n1,n2,n3,array,dbg)
 
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3
 complex(kind=wp), intent(in) :: array(n1,n2,n3)
-integer :: i, j, k, ierr
-logical, intent(in) :: dbg
-character(len=20) :: FMTI = '(20(I0,1x))'
-character(len=20) :: FMTC = '(3(2ES22.14))'
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k
 character(len=500) :: line
+character(len=*), parameter :: FMTC = '(3(2ES22.14))', FMTI = '(20(I0,1x))'
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
@@ -3755,18 +3718,16 @@ end subroutine write_3d_complex_array
 !=!=
 subroutine write_4d_complex_array(LU,key,n1,n2,n3,n4,array,dbg)
 
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: LU
+integer(kind=iwp), intent(in) :: LU, n1, n2, n3, n4
 character(len=*), intent(in) :: key
-integer, intent(in) :: n1, n2, n3, n4
 complex(kind=wp), intent(in) :: array(n1,n2,n3,n4)
-integer :: i, j, k, l, ierr
-logical, intent(in) :: dbg
-character(len=20) :: FMTI = '(20(I0,1x))'
-character(len=20) :: FMTC = '(3(2ES22.14))'
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, ierr, j, k, l
 character(len=500) :: line
+character(len=*), parameter :: FMTC = '(3(2ES22.14))', FMTI = '(20(I0,1x))'
 
 ierr = 0
 if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then

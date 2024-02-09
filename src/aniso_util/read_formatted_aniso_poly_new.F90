@@ -11,25 +11,22 @@
 
 subroutine read_formatted_aniso_poly_NEW(input_file_name,nss,nstate,eso,MM,MS,iReturn)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, auTocm
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(inout) :: nss, nstate, iReturn
-real(kind=8), intent(out) :: eso(nss)
-complex(kind=8), intent(out) :: MM(3,nss,nss)
-complex(kind=8), intent(out) :: MS(3,nss,nss)
-character(len=180) :: input_file_name
-! local variables:
+character(len=180), intent(in) :: input_file_name
+integer(kind=iwp), intent(inout) :: nss, nstate
+real(kind=wp), intent(out) :: eso(nss)
+complex(kind=wp), intent(out) :: MM(3,nss,nss), MS(3,nss,nss)
+integer(kind=iwp), intent(out) :: iReturn
+integer(kind=iwp) :: i, j, l, LuAniso
 real(kind=wp), allocatable :: eso_au(:)
-integer :: i, j, l, LuAniso, IsFreeUnit
-external :: IsFreeUnit
-logical :: dbg
+logical(kind=iwp), parameter :: dbg = .false.
+integer(kind=iwp), external :: IsFreeUnit
 
-dbg = .false.
 iReturn = 0
-eso(:) = Zero
 MM(:,:,:) = cZero
 MS(:,:,:) = cZero
 call mma_allocate(eso_au,nss,'eso_au')
@@ -44,10 +41,10 @@ call read_nstate(LuAniso,nstate,dbg)
 if (dbg) write(u6,*) 'read_formatted_aniso_poly_NEW: nstate=',nstate
 call read_eso(LuAniso,nss,eso_au,dbg)
 if (dbg) write(u6,*) 'read_formatted_aniso_poly_NEW: eso_au=',(eso_au(i),i=1,nss)
-call read_magnetic_moment(LuAniso,nss,MM(1:3,1:nss,1:nss),dbg)
+call read_magnetic_moment(LuAniso,nss,MM(:,1:nss,1:nss),dbg)
 if (dbg) write(u6,*) 'Call read_spin_moment'
 flush(u6)
-call read_spin_moment(LuAniso,nss,MS,dbg)
+call read_spin_moment(LuAniso,nss,MS(:,1:nss,1:nss),dbg)
 
 ! compute the relative spin-orbit energies in cm-1
 eso(:) = (eso_au(:)-eso_au(1))*auTocm

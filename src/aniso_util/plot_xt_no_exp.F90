@@ -12,28 +12,22 @@
 subroutine plot_XT_no_Exp(label,nT,T,XTcalc,zJ)
 
 use Constants, only: Zero, Five, Six
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=50), intent(in) :: label
-integer, intent(in) :: nT
-real(wp), intent(in) :: T(nT)
-real(wp), intent(in) :: XTcalc(nT)
-real(wp), intent(in) :: zJ
-! local variables
-real(wp) :: tmin, tmax, XTmin_calc, XTmax_calc, XTmin, XTmax
-real(wp) :: gnuplot_version
-integer :: file_number, iT, LuPlt, LuData, file_size
-logical :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-character(len=300) :: line1, line2, cdummy
-character(len=300) :: datafile, plotfile, imagefile, epsfile
-integer, external :: AixRm
-integer :: Length
-character(len=1023) :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
-integer :: iErr
-integer, external :: IsFreeUnit
+integer(kind=iwp), intent(in) :: nT
+real(kind=wp), intent(in) :: T(nT), XTcalc(nT), zJ
+integer(kind=iwp) :: file_number, file_size, iErr, iT, Length, LuData, LuPlt
+real(kind=wp) :: gnuplot_version, tmax, tmin, XTmax, XTmax_calc, XTmin, XTmin_calc
+logical(kind=iwp) :: execute_gnuplot_cmd, file_exist, is_file_open
+character(len=1023) :: gnuplot_CMD, realname_dat, realname_eps, realname_plt, realname_png
+character(len=300) :: cdummy, datafile, epsfile, imagefile, line1, line2, plotfile
+logical(kind=iwp), parameter :: dbg = .false.
+integer(kind=iwp), external :: AixRm, IsFreeUnit
 
-dbg = .false.
+#include "macros.fh"
+
 iErr = 0
 tmin = Zero
 tmax = Zero
@@ -157,6 +151,7 @@ if (execute_gnuplot_cmd) then
   file_number = IsFreeUnit(102)
   call molcas_open(file_number,'lineOUT')
   read(file_number,*) cdummy,gnuplot_version
+  unused_var(cdummy)
   if (dbg) write(u6,'(A,F4.1)') 'gnuplot_version = ',gnuplot_version
   if (abs(gnuplot_version) < 0.1_wp) execute_gnuplot_cmd = .false.
   close(file_number)
@@ -336,8 +331,5 @@ if (execute_gnuplot_cmd) then
 end if
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call UNUSED_CHARACTER(cdummy)
-#endif
 
 end subroutine plot_XT_no_Exp

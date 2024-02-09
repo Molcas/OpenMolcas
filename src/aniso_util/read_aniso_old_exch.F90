@@ -10,25 +10,21 @@
 !***********************************************************************
 
 subroutine read_aniso_old_exch(input_file_name,nss,eso,MM,MS,ML)
+! in this subroutine nss is input data
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: gElectron
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: nss
-real(kind=8), intent(out) :: eso(nss)
-complex(kind=8), intent(out) :: MM(3,nss,nss)
-complex(kind=8), intent(out) :: MS(3,nss,nss)
-complex(kind=8), intent(out) :: ML(3,nss,nss)
-character(len=180) :: input_file_name
-! local variables:
-integer :: nss_local, nstate_local
-integer :: l, j, j1, j2, LuAniso, IsFreeUnit
-real(kind=8), parameter :: g_e = -gElectron
-real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), tmp(:)
-external :: IsFreeUnit
-! in this subroutine nss is input data
+character(len=180), intent(in) :: input_file_name
+integer(kind=iwp), intent(in) :: nss
+real(kind=wp), intent(out) :: eso(nss)
+complex(kind=wp), intent(out) :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
+integer(kind=iwp) :: j, j1, j2, l, LuAniso, nss_local, nstate_local
+real(kind=wp), allocatable :: tmp(:), tmpI(:,:), tmpR(:,:)
+real(kind=wp), parameter :: g_e = -gElectron
+integer(kind=iwp), external :: IsFreeUnit
 
 ! read the file "aniso.input":
 LuAniso = IsFreeUnit(81)

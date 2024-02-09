@@ -16,70 +16,53 @@ subroutine MAGN_ZJ_PAR(EXCH,N,X,Y,Z,H,W,zJ,dM,sM,nT,T,sopt,WZ,ZB,S,M,thrs,m_para
 !   EXCH -- total number of exchange states, Integer, input
 !      N -- size of the Zeeman matrix, Integer, input, NM <= EXCH !
 !  X,Y,Z -- projections of the magnetic field, specIfying the orientation of the applied
-!           magnetic field, Real(kind=8) ::, input;  rule: ( X**2 + Y**2 + Z**2 = 1);
-!      H -- strength of the magnetic field in Tesla, Real(kind=8) ::, input;
-!      W -- energies of the exchange states; Real(kind=8) :: array (EXCH);
-!     zJ -- parameter of intermolecular interaction, Real(kind=8) ::, input;
-!   THRS -- threshold for convergence of the spin magnetisation. Real(kind=8) ::, input;
+!           magnetic field, Real(kind=wp) ::, input;  rule: ( X**2 + Y**2 + Z**2 = 1);
+!      H -- strength of the magnetic field in Tesla, Real(kind=wp) ::, input;
+!      W -- energies of the exchange states; Real(kind=wp) :: array (EXCH);
+!     zJ -- parameter of intermolecular interaction, Real(kind=wp) ::, input;
+!   THRS -- threshold for convergence of the spin magnetisation. Real(kind=wp) ::, input;
 !           Of any importance only when (zJ /= 0.0_wp), otherwise unused. Default value 1.D-8.
-!     dM -- matrix of the magnetic moment, Complex(kind=8) :: (3,EXCH,EXCH) array, input;
-!     sM -- matrix of the     spin moment, Complex(kind=8) :: (3,EXCH,EXCH) array, input;
+!     dM -- matrix of the magnetic moment, Complex(kind=wp) :: (3,EXCH,EXCH) array, input;
+!     sM -- matrix of the     spin moment, Complex(kind=wp) :: (3,EXCH,EXCH) array, input;
 !     nT -- number of temperature points for which magnetisation is computed, input;
 !      T -- temperature values(in Kelvin) for which magnetisation is computed, input;
 !   sopt -- logical parameter. If sopt=.true. Then spin magnetisation is computed.
 !                              If sopt=.false. Then spin part is skipped.
 !
-!     WZ -- Zeeman energies, true values (not shifted to 0), in cm-1, Real(kind=8) :: (N) array, output;
-!     ZB -- statistical Boltzmann distribution, for each temperature, Real(kind=8) :: (nT) array, output;
-!      S -- spin magnetisation, Real(kind=8) :: (3,nT) array, output;
-!      M -- magnetisation, Real(kind=8) :: (3,nT) array, output;
+!     WZ -- Zeeman energies, true values (not shifted to 0), in cm-1, Real(kind=wp) :: (N) array, output;
+!     ZB -- statistical Boltzmann distribution, for each temperature, Real(kind=wp) :: (nT) array, output;
+!      S -- spin magnetisation, Real(kind=wp) :: (3,nT) array, output;
+!      M -- magnetisation, Real(kind=wp) :: (3,nT) array, output;
 ! m_paranoid --  logical parameter.
 !            If m_paranoid = .true.  Then the average spin is computed for each temperature point exactly
 !            If m_paranoid = .false. Then  the average spin is computed only for the lowest temperature point
 !---------
 !  temporary (local) variables:
-!    MZ -- matrix of the magnetic moment, Complex(kind=8) :: (3,EXCH,EXCH) array
-!    SZ -- matrix of the     spin moment, Complex(kind=8) :: (3,EXCH,EXCH) array
+!    MZ -- matrix of the magnetic moment, Complex(kind=wp) :: (3,EXCH,EXCH) array
+!    SZ -- matrix of the     spin moment, Complex(kind=wp) :: (3,EXCH,EXCH) array
 !    WM -- array containing the Zeeman eigenstates and, If N<EXCH the exchange eigenstates
-!          for the states higher in energy than N, Real(kind=8) ::, (EXCH) array;
-!    ZM -- Zeeman eigenvectors, (N,N) Complex(kind=8) :: array,
-!  SCHK -- variable used for checking the convergence; SCHK = ABS(Sx) + ABS(Sy) + ABS(Sz), Real(kind=8) ::
+!          for the states higher in energy than N, Real(kind=wp) ::, (EXCH) array;
+!    ZM -- Zeeman eigenvectors, (N,N) Complex(kind=wp) :: array,
+!  SCHK -- variable used for checking the convergence; SCHK = ABS(Sx) + ABS(Sy) + ABS(Sz), Real(kind=wp) ::
 !   i,j -- labers of the states;
 !     l -- labels the cartesian component of the momentum (convention: x=1, y=2, z=3)
 !    iT -- labes the temperature points;
-! mxIter--defines the maximal number of iterations for determination of the average spin
-!    ST -- value of the average spin of neighboring sites, Real(kind=8) :: (3) array;
+!    ST -- value of the average spin of neighboring sites, Real(kind=wp) :: (3) array;
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: EXCH, N, nT
-real(kind=8), intent(in) :: X, Y, Z, H, zJ
-real(kind=8), intent(in) :: W(EXCH), T(nT)
-real(kind=8), intent(in) :: thrs
-complex(kind=8), intent(in) :: dM(3,EXCH,EXCH)
-complex(kind=8), intent(in) :: sM(3,EXCH,EXCH)
-logical, intent(in) :: sopt
-logical, intent(in) :: m_paranoid
-logical, intent(in) :: dbg
-real(kind=8), intent(out) :: ZB(nT)
-real(kind=8), intent(out) :: WZ(N)
-real(kind=8), intent(out) :: S(3,nT)
-real(kind=8), intent(out) :: M(3,nT)
-! local variables:
-#include "stdalloc.fh"
-integer, parameter :: mxIter = 100
-! defines the maximal number of iterations for determination of the average spin
-!parameter (mxIter=100) ! it is of any importance only If (zJ /= 0)
-integer :: i, l, iT
-real(kind=8) :: ST(3), STsave(3)
-real(kind=8), allocatable :: WM(:)
-real(kind=8), allocatable :: RWORK(:)
-complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
-complex(kind=8), allocatable :: ZM(:,:)
-complex(kind=8), allocatable :: SZ(:,:,:)
-complex(kind=8), allocatable :: MZ(:,:,:) ! SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
+integer(kind=iwp), intent(in) :: EXCH, N, nT
+real(kind=wp), intent(in) :: X, Y, Z, H, zJ, W(EXCH), T(nT), thrs
+complex(kind=wp), intent(in) :: dM(3,EXCH,EXCH), sM(3,EXCH,EXCH)
+logical(kind=iwp), intent(in) :: sopt, m_paranoid, dbg
+real(kind=wp), intent(out) :: WZ(N), ZB(nT), S(3,nT), M(3,nT)
+integer(kind=iwp) :: i, iT, l
+real(kind=wp) :: ST(3), STsave(3)
+real(kind=wp), allocatable :: RWORK(:), WM(:)
+complex(kind=wp), allocatable :: HZEE(:), MZ(:,:,:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
 
 ! a few checks, before proceeding:
 do iT=1,nT

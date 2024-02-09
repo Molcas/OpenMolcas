@@ -13,32 +13,20 @@ subroutine transHam(n1,n2,rot1,rot2,MM1,MM2,typ1,typ2,H,HT,iopt)
 ! purpose:  transform the exchange Hamiltonian
 !           matrices to the basis of their local pseudospins
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-! exchange basis of both sites
-integer, intent(in) :: n1, n2, iopt
-real(kind=8), intent(in) :: rot1(3,3)
-real(kind=8), intent(in) :: rot2(3,3)
-complex(kind=8), intent(in) :: MM1(3,n1,n1)
-complex(kind=8), intent(in) :: MM2(3,n2,n2)
-complex(kind=8), intent(in) :: H(n1,n1,n2,n2)
-complex(kind=8), intent(out) :: HT(n1,n1,n2,n2)
+integer(kind=iwp), intent(in) :: n1, n2, iopt
+real(kind=wp), intent(in) :: rot1(3,3), rot2(3,3)
+complex(kind=wp), intent(in) :: MM1(3,n1,n1), MM2(3,n2,n2), H(n1,n1,n2,n2)
 character, intent(in) :: typ1, typ2
-! local variables
-integer :: i1, i2, j1, j2, i
-real(kind=8), allocatable :: gt1(:), gt2(:)
-real(kind=8), allocatable :: ax1(:,:), ax2(:,:)
-complex(kind=8), allocatable :: M1(:,:,:), M2(:,:,:)
-complex(kind=8), allocatable :: MR1(:,:,:), MR2(:,:,:)
-complex(kind=8), allocatable :: Z1(:,:), Z2(:,:)
-complex(kind=8), allocatable :: TMP1(:,:), TMP2(:,:)
-complex(kind=8), allocatable :: HI(:,:,:,:) !HI(n1,n1,n2,n2)
-logical :: DBG
-
-DBG = .false.
+complex(kind=wp), intent(out) :: HT(n1,n1,n2,n2)
+integer(kind=iwp) :: i, i1, i2, j1, j2
+real(kind=wp), allocatable :: ax1(:,:), ax2(:,:), gt1(:), gt2(:)
+complex(kind=wp), allocatable :: HI(:,:,:,:), M1(:,:,:), M2(:,:,:), MR1(:,:,:), MR2(:,:,:), TMP1(:,:), TMP2(:,:), Z1(:,:), Z2(:,:)
+logical(kind=iwp), parameter :: DBG = .false.
 
 !-----------------------------------------------------------------------
 call mma_allocate(gt1,3,'gt1')

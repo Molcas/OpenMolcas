@@ -11,20 +11,14 @@
 
 subroutine write_formatted_aniso(nss,nstate,multiplicity,eso,esfs,U,MM,MS,DM,angmom,edmom,amfi,HSO)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer, intent(in) :: nss, nstate, multiplicity(nstate)
-real(kind=8), intent(in) :: eso(nss), esfs(nstate)
-real(kind=8), intent(in) :: angmom(3,nstate,nstate)
-real(kind=8), intent(in) :: edmom(3,nstate,nstate)
-real(kind=8), intent(in) :: amfi(3,nstate,nstate)
-complex(kind=8), intent(in) :: MM(3,nss,nss)
-complex(kind=8), intent(in) :: MS(3,nss,nss)
-complex(kind=8), intent(in) :: DM(3,nss,nss)
-complex(kind=8), intent(in) :: U(nss,nss)
-complex(kind=8), intent(in) :: HSO(nss,nss)
-! local stuff
-integer :: l, i, j, LuAniso, IsFreeUnit
-external :: IsFreeUnit
+integer(kind=iwp), intent(in) :: nss, nstate, multiplicity(nstate)
+real(kind=wp), intent(in) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate), edmom(3,nstate,nstate), amfi(3,nstate,nstate)
+complex(kind=wp), intent(in) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
+integer(kind=iwp) :: i, j, l, LuAniso
+integer(kind=iwp), external :: IsFreeUnit
 
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,'ANISOINPUT')

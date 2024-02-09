@@ -12,20 +12,14 @@
 subroutine MAGN(EXCH,N,X,Y,Z,H,W,zJ,THRS,dM,sM,nT,T,sopt,WZ,ZB,S,M,m_paranoid,DBG)
 ! this Subroutine is a wrapper for various MAGN subroutines
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: EXCH, N, nT
-real(kind=8), intent(in) :: X, Y, Z, H, zJ
-real(kind=8), intent(in) :: W(EXCH), T(nT)
-complex(kind=8), intent(in) :: dM(3,EXCH,EXCH)
-complex(kind=8), intent(in) :: sM(3,EXCH,EXCH)
-logical, intent(in) :: sopt
-real(kind=8), intent(out) :: ZB(nT), WZ(N)
-real(kind=8), intent(out) :: S(3,nT), M(3,nT)
-real(kind=8), intent(in) :: THRS
-logical, intent(in) :: m_paranoid
-logical, intent(in) :: DBG
+integer(kind=iwp), intent(in) :: EXCH, N, nT
+real(kind=wp), intent(in) :: X, Y, Z, H, W(EXCH), zJ, THRS, T(nT)
+complex(kind=wp), intent(in) :: dM(3,EXCH,EXCH), sM(3,EXCH,EXCH)
+logical(kind=iwp), intent(in) :: sopt, m_paranoid, DBG
+real(kind=wp), intent(out) :: WZ(N), ZB(nT), S(3,nT), M(3,nT)
 
 if (abs(zJ) < tiny(zJ)) then
 

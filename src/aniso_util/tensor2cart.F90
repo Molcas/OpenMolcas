@@ -13,12 +13,12 @@ subroutine tensor2cart(Jt,Jc)
 ! Hexch = S1.Jsph.S2
 
 use Constants, only: Half, Onei
+use Definitions, only: wp
 
 implicit none
-complex(kind=8), intent(in) :: Jt(-1:1,-1:1)
-real(kind=8), intent(out) :: Jc(3,3)
-! local variables
-complex(kind=8) :: pp, pz, pm, zp, zz, zm, mp, mz, mm
+complex(kind=wp), intent(in) :: Jt(-1:1,-1:1)
+real(kind=wp), intent(out) :: Jc(3,3)
+complex(kind=wp) :: mm, mp, mz, pm, pp, pz, zm, zp, zz
 
 pp = jt(1,1)
 pz = jt(1,0)

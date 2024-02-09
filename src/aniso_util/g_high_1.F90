@@ -9,60 +9,58 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine G_HIGH_1(iMLTPL,dim,ESOM,GRAD,S_SOM,dipsom,Do_structure_abc,cryst,coord,gtens,maxes,iprint)
+subroutine G_HIGH_1(iMLTPL,d,ESOM,GRAD,S_SOM,dipsom,Do_structure_abc,cryst,coord,gtens,maxes,iprint)
 ! This routine calculates the g-tensor and D-tensor in the basis of the any effective spin,
 ! (COMING FROM 1 MOLECULAR TERM)
 !
-! dim ---  the multiplicity of the effective spin
+! d ---  the multiplicity of the effective spin
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, cZero, cOne, Onei
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: dim, iMLTPL, iprint
-real(kind=8), intent(in) :: ESOM(dim), cryst(6), coord(3)
-real(kind=8), intent(out) :: gtens(3), maxes(3,3)
-complex(kind=8), intent(in) :: s_som(3,dim,dim), dipsom(3,dim,dim)
-logical, intent(in) :: Do_structure_abc, GRAD
-! local variables:
-integer :: I, L, M, J, N, I1, I2, nmax, IsFreeUnit, LuDgrad, rc
-real(kind=8) :: ESUM, E0, CHECK_SGN2, m_fact
-real(kind=8) :: knm(12,0:12)
-real(kind=8), allocatable :: ELOC(:)
-real(kind=8) :: axes_in_abc(3,3)
-complex(kind=8), allocatable :: DIP_O(:,:), DIP_W(:,:), MUX(:,:), MUY(:,:), MUZ(:,:), MUXZ(:,:), MUZX(:,:), HZFS(:,:), &
-                                DIP_MOW(:,:), HZFS_MONM(:,:), HZFS_MWNM(:,:), ZOUT(:,:), AMS(:,:,:), AMSSPIN(:,:,:), &
-                                DIPSO2(:,:,:), S_SO2(:,:,:), HCF2(:,:,:,:), SP_DIPO(:), SP_DIPW(:)
-complex(kind=8) :: B(3,dim,-dim:dim), C(dim,-dim:dim), BNMC(3,dim,0:dim), BNMS(3,dim,0:dim), CNMC(dim,0:dim), CNMS(dim,0:dim), &
-                   ES(0:2), FS(0:2), SP_HZFSO, SP_HZFSW, SP_MOW, CHECK_SGN, trace
-external trace, IsFreeUnit
+integer(kind=iwp), intent(in) :: iMLTPL, d, iprint
+real(kind=wp), intent(in) :: ESOM(d), cryst(6), coord(3)
+logical(kind=iwp), intent(in) :: GRAD, Do_structure_abc
+complex(kind=wp), intent(in) :: s_som(3,d,d), dipsom(3,d,d)
+real(kind=wp), intent(out) :: gtens(3), maxes(3,3)
+integer(kind=iwp) :: I, I1, I2, J, L, LuDgrad, M, N, nmax, rc
+real(kind=wp) :: axes_in_abc(3,3), CHECK_SGN2, E0, ESUM, knm(12,0:12), m_fact
+complex(kind=wp) :: CHECK_SGN, ES(0:2), FS(0:2), SP_HZFSO, SP_HZFSW, SP_MOW
+real(kind=wp), allocatable :: ELOC(:)
+complex(kind=wp), allocatable :: AMS(:,:,:), AMSSPIN(:,:,:), B(:,:,:), BNMC(:,:,:), BNMS(:,:,:), C(:,:), CNMC(:,:), CNMS(:,:), &
+                                 DIP_MOW(:,:), DIP_O(:,:), DIP_W(:,:), DIPSO2(:,:,:), HCF2(:,:,:,:), HZFS(:,:), HZFS_MONM(:,:), &
+                                 HZFS_MWNM(:,:), MUX(:,:), MUXZ(:,:), MUY(:,:), MUZ(:,:), MUZX(:,:), S_SO2(:,:,:), SP_DIPO(:), &
+                                 SP_DIPW(:), ZOUT(:,:)
+integer(kind=iwp), external :: IsFreeUnit
+complex(kind=wp), external :: trace
 !-----------------------------------------------------------------------
 
-call mma_allocate(ELOC,dim,'ELOC')
+call mma_allocate(ELOC,d,'ELOC')
 
-call mma_allocate(DIP_O,dim,dim,'DIP_O')
-call mma_allocate(DIP_W,dim,dim,'DIP_W')
-call mma_allocate(MUX,dim,dim,'MUX')
-call mma_allocate(MUY,dim,dim,'MUY')
-call mma_allocate(MUZ,dim,dim,'MUZ')
-call mma_allocate(MUXZ,dim,dim,'MUXZ')
-call mma_allocate(MUZX,dim,dim,'MUZX')
-call mma_allocate(HZFS,dim,dim,'HZFS')
-call mma_allocate(DIP_MOW,dim,dim,'DIP_MOW')
-call mma_allocate(HZFS_MONM,dim,dim,'HZFS_MONM')
-call mma_allocate(HZFS_MWNM,dim,dim,'HZFS_MWNM')
-call mma_allocate(ZOUT,dim,dim,'ZOUT')
-call mma_allocate(AMS,3,dim,dim,'AMS')
-call mma_allocate(AMSSPIN,3,dim,dim,'AMSSPIN')
-call mma_allocate(DIPSO2,3,dim,dim,'DIPSO2')
-call mma_allocate(S_SO2,3,dim,dim,'S_SO2')
-call mma_allocate(HCF2,dim,3,dim,dim,'HCF2')
+call mma_allocate(DIP_O,d,d,'DIP_O')
+call mma_allocate(DIP_W,d,d,'DIP_W')
+call mma_allocate(MUX,d,d,'MUX')
+call mma_allocate(MUY,d,d,'MUY')
+call mma_allocate(MUZ,d,d,'MUZ')
+call mma_allocate(MUXZ,d,d,'MUXZ')
+call mma_allocate(MUZX,d,d,'MUZX')
+call mma_allocate(HZFS,d,d,'HZFS')
+call mma_allocate(DIP_MOW,d,d,'DIP_MOW')
+call mma_allocate(HZFS_MONM,d,d,'HZFS_MONM')
+call mma_allocate(HZFS_MWNM,d,d,'HZFS_MWNM')
+call mma_allocate(ZOUT,d,d,'ZOUT')
+call mma_allocate(AMS,3,d,d,'AMS')
+call mma_allocate(AMSSPIN,3,d,d,'AMSSPIN')
+call mma_allocate(DIPSO2,3,d,d,'DIPSO2')
+call mma_allocate(S_SO2,3,d,d,'S_SO2')
+call mma_allocate(HCF2,d,3,d,d,'HCF2')
 call mma_allocate(SP_DIPO,3,'SP_DIPO')
 call mma_allocate(SP_DIPW,3,'SP_DIPW')
 
 !-----------------------------------------------------------------------
-call atens(dipsom,dim,gtens,maxes,2)
+call atens(dipsom,d,gtens,maxes,2)
 ! save data for construction of the blocking barriers
 !axes(iMLTPL,:,:) = maxes(:,:)
 ! compute the magnetic axes in the crystalographic coordinate system, If requested:
@@ -86,12 +84,12 @@ end if ! do_structure_abc
 ! Compute the matrix elements of the magnetic moment in the coordinate system
 ! of magnetic axes.  ==> I.e. ROTATE the matrix DipSO to the coordinate system of magnetic axes
 !call unitmat(maxes,3)
-call rotmom2(dipsom,dim,maxes,dipso2)
-call rotmom2(s_som,dim,maxes,s_so2)
+call rotmom2(dipsom,d,maxes,dipso2)
+call rotmom2(s_som,d,maxes,s_so2)
 
 if (iprint > 2) then
-  call prMom('G_HIGH_1:  DIPSO2(l,i,j):',dipso2,dim)
-  call prMom('G_HIGH_1:   S_SO2(l,i,j):',s_so2,dim)
+  call prMom('G_HIGH_1:  DIPSO2(l,i,j):',dipso2,d)
+  call prMom('G_HIGH_1:   S_SO2(l,i,j):',s_so2,d)
 end if
 
 ZOUT(:,:) = cZero
@@ -99,15 +97,15 @@ AMS(:,:,:) = cZero
 AMSSPIN(:,:,:) = cZero
 HCF2(:,:,:,:) = cZero
 
-call mu_order(dim,s_so2,dipso2,gtens,1,HCF2,AMS,AMSSPIN,ZOUT,iprint)
+call mu_order(d,s_so2,dipso2,gtens,1,HCF2,AMS,AMSSPIN,ZOUT,iprint)
 
 check_sgn = cZero
 check_sgn2 = Zero
 mux(:,:) = HCF2(1,1,:,:)
 muy(:,:) = HCF2(1,2,:,:)
 muz(:,:) = HCF2(1,3,:,:)
-call ZGEMM_('N','N',dim,dim,dim,cOne,mux,dim,muz,dim,cZero,muxz,dim)
-call ZGEMM_('N','N',dim,dim,dim,cOne,muz,dim,mux,dim,cZero,muzx,dim)
+call ZGEMM_('N','N',d,d,d,cOne,mux,d,muz,d,cZero,muxz,d)
+call ZGEMM_('N','N',d,d,d,cOne,muz,d,mux,d,cZero,muzx,d)
 
 if (abs(muy(1,2)) > 1.0e-25_wp) then
   check_sgn = -Onei*(muxz(1,2)-muzx(1,2))/muy(1,2)
@@ -129,37 +127,40 @@ else if (check_sgn2 > Zero) then
   write(u6,'(A,i2,a,F9.6)') 'The sign of the product gX * gY * gZ for multiplet',iMLTPL,': > 0.'
 end if
 ! Obtain the b3m and c3m coefficients:
-B(1:3,1:dim,-dim:dim) = cZero
-do N=1,dim-1,2
+call mma_allocate(B,[1,3],[1,d],[-d,d],label='B')
+call mma_allocate(BNMC,[1,3],[1,d],[0,d],label='BNMC')
+call mma_allocate(BNMS,[1,3],[1,d],[0,d],label='BNMS')
+B(:,:,:) = cZero
+do N=1,d-1,2
   do M=0,N
     DIP_O(:,:) = cZero
     DIP_W(:,:) = cZero
 
-    call Stewens_matrixel(N,M,dim,DIP_O,DIP_W,IPRINT)
+    call Stewens_matrixel(N,M,d,DIP_O,DIP_W,IPRINT)
 
     if (iprint > 3) then
       write(u6,*)
       write(u6,'( 5x,a,i2,a,i3)') 'DIP_O, N = ',N,', M =',m
       write(u6,*)
-      do i=1,dim
-        write(u6,'(20(2F10.6,2x))') (DIP_O(i,j),j=1,dim)
+      do i=1,d
+        write(u6,'(20(2F10.6,2x))') (DIP_O(i,j),j=1,d)
       end do
 
       write(u6,*)
       write(u6,'( 5x,a,i2,a,i3)') 'DIP_W, N = ',N,', M =',m
       write(u6,*)
-      do i=1,dim
-        write(u6,'(20(2F10.6,2x))') (DIP_W(i,j),j=1,dim)
+      do i=1,d
+        write(u6,'(20(2F10.6,2x))') (DIP_W(i,j),j=1,d)
       end do
     end if
 
     SP_DIPO(:) = cZero
     SP_DIPW(:) = cZero
     SP_MOW = cZero
-    SP_MOW = trace(dim,DIP_O,DIP_W)
+    SP_MOW = trace(d,DIP_O,DIP_W)
     do l=1,3
-      SP_DIPO(l) = trace(dim,AMS(l,:,:),DIP_O)
-      SP_DIPW(l) = trace(dim,AMS(l,:,:),DIP_W)
+      SP_DIPO(l) = trace(d,AMS(l,:,:),DIP_O)
+      SP_DIPW(l) = trace(d,AMS(l,:,:),DIP_W)
 
       B(l,n,-m) = SP_DIPO(l)/SP_MOW
       B(l,n,m) = SP_DIPW(l)/SP_MOW
@@ -167,19 +168,14 @@ do N=1,dim-1,2
   end do !m
 end do !n
 
-BNMC(1:3,:,:) = cZero
-BNMS(1:3,:,:) = cZero
-do n=1,dim-1,2
-  do m=0,N
-    do l=1,3
-      if (M == 0) then
-        BNMC(l,n,m) = Half*(B(l,n,m)+B(l,n,-m))
-      else
-        m_fact = (-One)**M
-        BNMC(l,n,m) = B(l,n,m)+m_fact*B(l,n,-m)
-        BNMS(l,n,m) = -Onei*(B(l,n,m)-m_fact*B(l,n,-m))
-      end if
-    end do
+BNMC(:,:,:) = cZero
+BNMS(:,:,:) = cZero
+do n=1,d-1,2
+  BNMC(:,n,0) = B(l,n,0)
+  do m=1,N
+    m_fact = (-One)**M
+    BNMC(:,n,m) = B(:,n,m)+m_fact*B(:,n,-m)
+    BNMS(:,n,m) = -Onei*(B(:,n,m)-m_fact*B(:,n,-m))
   end do
 end do !n
 
@@ -201,7 +197,7 @@ write(u6,'(A)') 'These operators have been defined in: '
 write(u6,'(A)') '  L. F. Chibotaru, L.Ungur, J. Chem. Phys., 137, 064112 (2012).'
 write(u6,'(100A)') ('-',i=1,63),'|'
 write(u6,'(A)') '  n  |  m  | i |        B(i,n,m)       |        C(i,n,m)       |'
-do N=1,dim-1,2
+do N=1,d-1,2
   write(u6,'(A)') '-----|-----|---|-----------------------|-----------------------|'
   do M=0,N
     if (M /= 0) write(u6,'(A)') '     |-----|---|-----------------------|-----------------------|'
@@ -224,7 +220,7 @@ write(u6,'(10x,A)') '1. Rudowicz, C.; J.Phys.C: Solid State Phys.,18(1985) 1415-
 write(u6,'(10x,A)') '2. Implemented in the "EasySpin" function in MATLAB, www.easyspin.org.'
 write(u6,'(A    )') '   k - the rank of the ITO, = 1, 3, 5, 7, 9, 11;'
 write(u6,'(A    )') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
-if ((dim-1) > 11) then
+if (d-1 > 11) then
   write(u6,'(A)') 'k = 11 may not be the highest rank of the ITO for this case, but it '
   write(u6,'(A)') 'is the maximal k implemented in the "EasySpin" function in MATLAB.'
 end if
@@ -233,10 +229,10 @@ write(u6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
 write(u6,'(100A)') ('-',i=1,51),'|'
 write(u6,'(A)') '  k |  q  | i |   (Knm)^2  |         B(k,q)        |'
 
-if ((dim-1) > 11) then
+if (d-1 > 11) then
   Nmax = 11
 else
-  nmax = dim-1
+  nmax = d-1
 end if
 
 do N=1,nmax,2
@@ -265,16 +261,20 @@ do N=1,nmax,2
 end do !N
 write(u6,'(100A)') ('-',i=1,51),'|'
 
+call mma_deallocate(B)
+call mma_deallocate(BNMC)
+call mma_deallocate(BNMS)
+
 ! Calculation of the ZFS tensors and the coefficients of the higher order spin-operators Enm and Fnm
-if (dim > 2) then
+if (d > 2) then
   ESUM = sum(ESOM(:))
-  E0 = ESUM/real(dim,kind=wp)
+  E0 = ESUM/real(d,kind=wp)
   ELOC(:) = ESOM(:)-E0
 
   HZFS(:,:) = cZero
-  do i1=1,dim
-    do i2=1,dim
-      do i=1,dim
+  do i1=1,d
+    do i2=1,d
+      do i=1,d
         HZFS(i1,i2) = HZFS(i1,i2)+ELOC(i)*conjg(ZOUT(i,I1))*ZOUT(i,I2)
       end do
     end do
@@ -287,7 +287,7 @@ if (dim > 2) then
     write(u6,'(5X,A,F10.4)') 'E0 = ',E0
     write(u6,'(15X,A,11X,A)') 'ESOM','ESO_LOC'
 
-    do I=1,dim
+    do I=1,d
       write(u6,'(5X,F15.6,2X,F15.6)') ESOM(I),ELOC(I)
     end do
   end if
@@ -298,26 +298,29 @@ if (dim > 2) then
   write(u6,'(100A)') ('-',i=1,87)
   write(u6,*)
   write(u6,'(A)') 'Ab Initio Calculated Zero-Field Splitting Matrix written in the basis of Pseudospin Eigenfunctions'
-  if (mod(dim,2) == 0) then
-    write(u6,'(950A)') ('-',i=1,10),(('-',i=1,24),j=1,dim),'|'
-    write(u6,'(10x,A,50(8x,A,I3,A,7x,A))') '|',('|',2*i-dim-1,'/2 >','|',i=1,dim)
-    write(u6,'(950A)') ('-',i=1,10),'|',(('-',i=1,23),'|',j=1,dim)
-    do i=1,dim
-      write(u6,'(1x,A,I3,A,1x,A,50(2F11.5,1x,A))') '<',2*i-dim-1,'/2','| |',(HZFS(j,i),'|',j=1,dim)
+  if (mod(d,2) == 0) then
+    write(u6,'(950A)') ('-',i=1,10),(('-',i=1,24),j=1,d),'|'
+    write(u6,'(10x,A,50(8x,A,I3,A,7x,A))') '|',('|',2*i-d-1,'/2 >','|',i=1,d)
+    write(u6,'(950A)') ('-',i=1,10),'|',(('-',i=1,23),'|',j=1,d)
+    do i=1,d
+      write(u6,'(1x,A,I3,A,1x,A,50(2F11.5,1x,A))') '<',2*i-d-1,'/2','| |',(HZFS(j,i),'|',j=1,d)
     end do
-    write(u6,'(950A)') ('-',i=1,10),(('-',i=1,24),j=1,dim),'|'
+    write(u6,'(950A)') ('-',i=1,10),(('-',i=1,24),j=1,d),'|'
   else
-    write(u6,'(950A)') ('-',i=1,8),(('-',i=1,24),j=1,dim),'|'
-    write(u6,'(8x,A,50(8x,A,I3,A,9x,A))') '|',('|',-(dim-1)/2-1+i,' >','|',i=1,dim)
-    write(u6,'(950A)') ('-',i=1,8),'|',(('-',i=1,23),'|',j=1,dim)
-    do I=1,dim
-      write(u6,'(1x,A,I3,1x,A,50(2F11.5,1x,A))') '<',-(dim-1)/2-1+i,'| |',(HZFS(j,i),'|',j=1,dim)
+    write(u6,'(950A)') ('-',i=1,8),(('-',i=1,24),j=1,d),'|'
+    write(u6,'(8x,A,50(8x,A,I3,A,9x,A))') '|',('|',-(d-1)/2-1+i,' >','|',i=1,d)
+    write(u6,'(950A)') ('-',i=1,8),'|',(('-',i=1,23),'|',j=1,d)
+    do I=1,d
+      write(u6,'(1x,A,I3,1x,A,50(2F11.5,1x,A))') '<',-(d-1)/2-1+i,'| |',(HZFS(j,i),'|',j=1,d)
     end do
-    write(u6,'(950A)') ('-',i=1,8),(('-',i=1,24),j=1,dim),'|'
+    write(u6,'(950A)') ('-',i=1,8),(('-',i=1,24),j=1,d),'|'
   end if
 
-  C(1:dim,-dim:dim) = cZero
-  do N=2,dim-1,2
+  call mma_allocate(C,[1,d],[-d,d],label='C')
+  call mma_allocate(CNMC,[1,d],[0,d],label='CNMC')
+  call mma_allocate(CNMS,[1,d],[0,d],label='CNMS')
+  C(:,:) = cZero
+  do N=2,d-1,2
     do M=0,N
       DIP_O(:,:) = cZero
       DIP_W(:,:) = cZero
@@ -325,29 +328,29 @@ if (dim > 2) then
       HZFS_MWNM(:,:) = cZero
       DIP_MOW(:,:) = cZero
 
-      call Stewens_matrixel(N,M,dim,DIP_O,DIP_W,IPRINT)
+      call Stewens_matrixel(N,M,d,DIP_O,DIP_W,IPRINT)
 
       if (IPRINT > 5) then
         write(u6,'(/)')
         write(u6,'(5x,a,i3,3x,A,I3)') 'DIP_STEWENS_O  N = ',N,'M =',M
         write(u6,*)
-        do i=1,dim
-          write(u6,'(20(2X,2ES20.10))') (DIP_O(i,j),j=1,dim)
+        do i=1,d
+          write(u6,'(20(2X,2ES20.10))') (DIP_O(i,j),j=1,d)
         end do
         write(u6,'(/)')
         write(u6,'(5x,a,i3,3x,A,I3)') 'DIP_STEWENS_W  N = ',N,'M =',M
         write(u6,*)
-        do i=1,dim
-          write(u6,'(20(2X,2ES20.10))') (DIP_W(i,j),j=1,dim)
+        do i=1,d
+          write(u6,'(20(2X,2ES20.10))') (DIP_W(i,j),j=1,d)
         end do
       end if
 
       SP_HZFSO = cZero
       SP_HZFSW = cZero
       SP_MOW = cZero
-      SP_MOW = trace(dim,DIP_O,DIP_W)
-      SP_HZFSO = trace(dim,HZFS,DIP_O)
-      SP_HZFSW = trace(dim,HZFS,DIP_W)
+      SP_MOW = trace(d,DIP_O,DIP_W)
+      SP_HZFSO = trace(d,HZFS,DIP_O)
+      SP_HZFSW = trace(d,HZFS,DIP_W)
 
       C(N,-M) = SP_HZFSO/SP_MOW
       C(N,M) = SP_HZFSW/SP_MOW
@@ -356,24 +359,24 @@ if (dim > 2) then
         write(u6,'(/)')
         write(u6,'( 5x,a)') 'HZFS_MONM(i,j)'
         write(u6,*)
-        do i=1,dim
-          write(u6,'(20(2F18.10,2x))') (HZFS_MONM(i,j),j=1,dim)
+        do i=1,d
+          write(u6,'(20(2F18.10,2x))') (HZFS_MONM(i,j),j=1,d)
         end do
         write(u6,*)
         write(u6,'(5X,a,2F18.10)') 'SP_HZFSO = ',SP_HZFSO
         write(u6,'(/)')
         write(u6,'( 5x,a)') 'HZFS_MWNM(i,j)'
         write(u6,*)
-        do i=1,dim
-          write(u6,'(20(2F18.10,2x))') (HZFS_MWNM(i,j),j=1,dim)
+        do i=1,d
+          write(u6,'(20(2F18.10,2x))') (HZFS_MWNM(i,j),j=1,d)
         end do
         write(u6,*)
         write(u6,'(5X,a,2F18.10)') 'SP_HZFSW = ',SP_HZFSW
         write(u6,'(/)')
         write(u6,'( 5x,a)') 'HZFS_MOW(i,j) (i,j)'
         write(u6,*)
-        do i=1,dim
-          write(u6,'(20(2F18.10,2x))') (DIP_MOW(i,j),j=1,dim)
+        do i=1,d
+          write(u6,'(20(2F18.10,2x))') (DIP_MOW(i,j),j=1,d)
         end do
         write(u6,*)
         write(u6,'(5X,a,2F18.10)') 'SP_MOW = ',SP_MOW
@@ -383,7 +386,7 @@ if (dim > 2) then
 
   CNMC(:,:) = cZero
   CNMS(:,:) = cZero
-  do N=2,dim-1,2
+  do N=2,d-1,2
     do M=0,N
       if (M == 0) then
         CNMC(N,M) = Half*(C(N,M)+C(N,-M))
@@ -405,7 +408,7 @@ if (dim > 2) then
   write(u6,'(A)') 'The quantization axis is the main magnetic axis of this multiplet (Zm).'
   write(u6,'(100A)') ('-',i=1,59),'|'
   write(u6,'(A)') '  n  |  m  |         E(n,m)        |         F(n,m)        |'
-  do N=2,dim-1,2
+  do N=2,d-1,2
     write(u6,'(A)') '-----|-----|-----------------------|-----------------------|'
     do M=0,N
       write(u6,'(2(1x,I2,2x,A),2(ES22.14,1x,A))') N,'|',M,'|',real(CNMC(N,M)),'|',real(CNMS(N,M)),'|'
@@ -413,7 +416,7 @@ if (dim > 2) then
   end do
   write(u6,'(100A)') ('-',i=1,59),'|'
 
-! decomposition of the ZFS matrix in ExtEnded Stevens Operators
+  ! decomposition of the ZFS matrix in ExtEnded Stevens Operators
   write(u6,'(100A)') ('*',i=1,80)
   write(u6,'(A)') 'The ZFS Hamiltonian:'
   write(u6,'(A)') '   ZFS = SUM_{k,q} * [ B(k,q) * O(k,q) ];'
@@ -424,7 +427,7 @@ if (dim > 2) then
   write(u6,'(A    )') '   k - the rank of the ITO, = 2, 4, 6, 8, 10, 12.'
   write(u6,'(A)') '   q - the component of the ITO, = -k, -k+1, ... 0, 1, ... k;'
 
-  if ((dim-1) > 12) then
+  if ((d-1) > 12) then
     write(u6,'(A)') 'k = 12 may not be the highest rank of the ITO for this case, but it '
     write(u6,'(A)') 'is the maximal k implemented in the "EasySpin" function in MATLAB.'
   end if
@@ -433,10 +436,10 @@ if (dim > 2) then
   write(u6,'(A)') 'J. Chem. Phys., 137, 064112 (2012).'
   write(u6,'(100A)') ('-',i=1,48),'|'
   write(u6,'(A)') '  k |  q  |    (Knm)^2  |         B(k,q)        |'
-  if ((dim-1) > 12) then
+  if (d-1 > 12) then
     Nmax = 12
   else
-    Nmax = dim-1
+    Nmax = d-1
   end if
   do N=2,Nmax,2
     write(u6,'(A)') '----|-----|-------------|-----------------------|'
@@ -472,12 +475,17 @@ if (dim > 2) then
 
   ES(:) = CNMC(2,0:2)
   FS(:) = CNMS(2,0:2)
+
+  call mma_deallocate(C)
+  call mma_deallocate(CNMC)
+  call mma_deallocate(CNMS)
+
   call DMATRIX(Es,Fs,maxes,2)
 end if ! decomposition of ZFS in higher-order ITO operators
 
 write(u6,*)
 write(u6,'(A,I2,A,I3,A)') 'ANGULAR MOMENTS ALONG THE MAIN MAGNETIC AXES'
-call moments(dim,s_so2,dipso2,iprint)
+call moments(d,s_so2,dipso2,iprint)
 
 !----------------------------------------------------------------------
 call mma_deallocate(ELOC)

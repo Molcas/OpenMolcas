@@ -168,18 +168,18 @@ c      Write(6,'(5A)') '--------|----|',
 c     & ('------------------------------|',i=1,4)
 c      Do nb1=1,NmaxPop
 cc  we proceed to compute expectation values for this nb1 exchange state
-c      Call CZeroVector(Mx,lmax)
-c      Call CZeroVector(My,lmax)
-c      Call CZeroVector(Mz,lmax)
-c      Call CZeroVector(Sx,lmax)
-c      Call CZeroVector(Sy,lmax)
-c      Call CZeroVector(Sz,lmax)
-c      Call CZeroVector(Jx,lmax)
-c      Call CZeroVector(Jy,lmax)
-c      Call CZeroVector(Jz,lmax)
-c      Call CZeroVector(Lx,lmax)
-c      Call CZeroVector(Ly,lmax)
-c      Call CZeroVector(Lz,lmax)
+c      Mx(:) = cZero
+c      My(:) = cZero
+c      Mz(:) = cZero
+c      Sx(:) = cZero
+c      Sy(:) = cZero
+c      Sz(:) = cZero
+c      Jx(:) = cZero
+c      Jy(:) = cZero
+c      Jz(:) = cZero
+c      Lx(:) = cZero
+c      Ly(:) = cZero
+c      Lz(:) = cZero
 
 c         Do l=1,lmax
 c         isite = nind(ind_exch(l),1)

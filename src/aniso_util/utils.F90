@@ -11,20 +11,16 @@
 
 subroutine prMom(a,m,n)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
-complex(kind=8) :: M(3,n,n)
-!local
-integer :: i, j, l
-character :: proj(3)
-character(len=*) :: a
+character(len=*), intent(in) :: a
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: M(3,n,n)
+integer(kind=iwp) :: i, j, l
 character(len=50) :: fmtline
+character, parameter :: proj(3) = ['X','Y','Z']
 
-proj(1) = 'X'
-proj(2) = 'Y'
-proj(3) = 'Z'
 write(u6,*)
 write(u6,'(2a)') 'print: ',a
 write(fmtline,'(a,i2,a)') '(',n,'(2f9.4,1x))'
@@ -43,15 +39,14 @@ end subroutine prMom
 subroutine prMom_herm(a,m,n)
 
 use Constants, only: Three
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
-complex(kind=8) :: M(3,n,n)
-!local
-integer :: i, j, l
-real(kind=8) :: R
-character(len=*) :: a
+character(len=*), intent(in) :: a
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: M(3,n,n)
+integer(kind=iwp) :: i, j, l
+real(kind=wp) :: R
 
 write(u6,*)
 write(u6,'(2a)') 'print: ',a
@@ -69,14 +64,13 @@ end subroutine prMom_herm
 !=!=
 subroutine pa_prMat(a,m,n)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
-complex(kind=8) :: M(n,n)
-!local
-integer :: i, j
-character(len=*) a
+character(len=*), intent(in) :: a
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: M(n,n)
+integer(kind=iwp) :: i, j
 character(len=50) fmtline
 
 write(u6,*)
@@ -92,14 +86,13 @@ end subroutine pa_prMat
 !=!=
 subroutine pa_prMatR(a,m,n)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
-real(kind=8) :: M(n,n)
-!local
-integer :: i, j
-character(len=*) a
+character(len=*), intent(in) :: a
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: M(n,n)
+integer(kind=iwp) :: i, j
 character(len=50) fmtline
 
 write(u6,*)
@@ -115,12 +108,13 @@ end subroutine pa_prMatR
 !=!=
 subroutine print_ZFS(a,m,n)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: i, j, n, k, jEnd
-complex(kind=8), intent(in) :: M(n,n)
-character(len=*) :: a
+character(len=*), intent(in) :: a
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: M(n,n)
+integer(kind=iwp) :: i, j, jEnd, k
 
 write(u6,'(/)')
 write(u6,'(100A)') ('-',i=1,87)
@@ -157,12 +151,13 @@ end subroutine print_ZFS
 !=!=
 subroutine print_ZFS_eigenvectors(a,m,n)
 
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: i, j, n, k, jEnd
-complex(kind=8), intent(in) :: M(n,n) ! eigenvectors
-character :: a
+character, intent(in) :: a
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: M(n,n) ! eigenvectors
+integer(kind=iwp) :: i, j, jEnd, k
 
 write(u6,'(/)')
 do j=1,n,2
@@ -191,16 +186,14 @@ end subroutine print_ZFS_eigenvectors
 subroutine print_ZFS_naoya(A,M,N)
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: N ! dimension of the pseudospin
-! complex parameters to print
-complex(kind=8), intent(in) :: M(n,n)
-character :: a
-! local variables:
-integer :: k, i, j, jEnd
-real(kind=8) :: Mr(n), Mi(n), Weight(n)
+character, intent(in) :: a
+integer(kind=iwp), intent(in) :: N ! dimension of the pseudospin
+complex(kind=wp), intent(in) :: M(n,n) ! complex parameters to print
+integer(kind=iwp) :: i, j, jEnd, k
+real(kind=wp) :: Mi(n), Mr(n), Weight(n)
 
 write(u6,'(/)')
 do j=1,n,2
@@ -236,20 +229,16 @@ end subroutine print_ZFS_naoya
 !=!=
 subroutine print_CFP_alpha(nlanth,n,B,C)
 
-use Constants, only: Zero, One
-use Definitions, only: u6
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n    ! dimension of the pseudospin
-integer, intent(in) :: nlanth  ! number of the lanthanide
-! real and imaginary CF parameters
-real(kind=8), intent(in) :: B(n,0:n), C(n,0:n)
-!logical, intent(in), optional :: print_all
-! local variables:
-integer :: k, q, i
-real(kind=8) :: a(6)
+integer(kind=iwp), intent(in) :: nlanth, n  ! number of the lanthanide, dimension of the pseudospin
+real(kind=wp), intent(in) :: B(n,0:n), C(n,0:n) ! real and imaginary CF parameters
+!logical(kind=iwp), intent(in), optional :: print_all
+integer(kind=iwp) :: i, k, q
+real(kind=wp) :: a(6)
 
-a(:) = Zero
 call set_an(nlanth,a)
 
 !O(m1,m2) = Half*(Om+mQ*Op)
@@ -289,15 +278,13 @@ end subroutine print_CFP_alpha
 !=!=
 subroutine print_CFP_LCLU(n,B,C,print_all)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n    ! dimension of the pseudospin
-! real and imaginary CF parameters
-real(kind=8), intent(in) :: B(n,0:n), C(n,0:n)
-logical, intent(in) :: print_all
-! local variables:
-integer :: k, q, i
+integer(kind=iwp), intent(in) :: n ! dimension of the pseudospin
+real(kind=wp), intent(in) :: B(n,0:n), C(n,0:n) ! real and imaginary CF parameters
+logical(kind=iwp), intent(in) :: print_all
+integer(kind=iwp) :: i, k, q
 
 !O(m1,m2) = Half*(Om+mQ*Op)
 !W(m1,m2) = Half*Onei*(Om-mQ*Op)
@@ -338,16 +325,14 @@ end subroutine print_CFP_LCLU
 !=!=
 subroutine print_CFP_stev(n,B,print_all)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n    ! dimension of the pseudospin
-! real and imaginary CF parameters
-real(kind=8), intent(in) :: B(n,-n:n)
-logical, intent(in) :: print_all
-! local variables:
-integer :: k, q, i, kmax, iq
-real(kind=8) :: knm(12,0:12), f
+integer(kind=iwp), intent(in) :: n ! dimension of the pseudospin
+real(kind=wp), intent(in) :: B(n,-n:n) ! real and imaginary CF parameters
+logical(kind=iwp), intent(in) :: print_all
+integer(kind=iwp) :: i, iq, k, kmax, q
+real(kind=wp) :: f, knm(12,0:12)
 
 call set_knm(knm)
 write(u6,'(/)')
@@ -402,16 +387,14 @@ end subroutine print_CFP_stev
 subroutine print_CFP_naoya(N,A,print_all)
 
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: N ! dimension of the pseudospin
-! complex parameters to print
-complex(kind=8), intent(in) :: A((n-1),-(n-1):(n-1))
-logical, intent(in) :: print_all
-! local variables:
-integer :: k, q, i
-real(kind=8) :: Ar, Ai
+integer(kind=iwp), intent(in) :: N ! dimension of the pseudospin
+complex(kind=wp), intent(in) :: A(n-1,-(n-1):n-1) ! complex parameters to print
+logical(kind=iwp), intent(in) :: print_all
+integer(kind=iwp) :: i, k, q
+real(kind=wp) :: Ai, Ar
 
 write(u6,'(/)')
 write(u6,'(100A)') ('*',i=1,80)
@@ -471,16 +454,14 @@ end subroutine print_cfp_naoya
 !=!=
 subroutine print_MOM_ITO_stev(n,B,print_all)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n    ! dimension of the pseudospin
-! real and imaginary CF parameters, for x,y,z
-real(kind=8), intent(in) :: B(3,n,-n:n)
-logical, intent(in) :: print_all
-! local variables:
-integer :: k, q, i, kmax, iq
-real(kind=8) :: knm(12,0:12), f
+integer(kind=iwp), intent(in) :: n ! dimension of the pseudospin
+real(kind=wp), intent(in) :: B(3,n,-n:n) ! real and imaginary CF parameters, for x,y,z
+logical(kind=iwp), intent(in) :: print_all
+integer(kind=iwp) :: i, iq, k, kmax, q
+real(kind=wp) :: f, knm(12,0:12)
 
 call set_knm(knm)
 write(u6,'(/)')

@@ -11,23 +11,19 @@
 
 subroutine utmu(EXCH,N,Z,M1,M2)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: EXCH, N
-complex(kind=8), intent(in) :: M1(3,EXCH,EXCH)
-complex(kind=8), intent(in) :: Z(N,N)
-complex(kind=8), intent(out) :: M2(3,EXCH,EXCH)
-! local variables:
-integer :: L, I, J
-logical :: DBG
-real(kind=8) :: dznrm2_, R1, R2
-external :: dznrm2_
-complex(kind=8), allocatable :: TMP(:,:)
-
-DBG = .false.
+integer(kind=iwp), intent(in) :: EXCH, N
+complex(kind=wp), intent(in) :: Z(N,N), M1(3,EXCH,EXCH)
+complex(kind=wp), intent(out) :: M2(3,EXCH,EXCH)
+integer(kind=iwp) :: I, J, L
+real(kind=wp) :: R1, R2
+complex(kind=wp), allocatable :: TMP(:,:)
+logical(kind=iwp), parameter :: DBG = .false.
+real(kind=wp), external :: dznrm2_
 
 if ((N <= 0) .or. (EXCH <= 0)) then
   write(u6,'(A)') 'in UTMU:   EXCH or N<=0 !!!'

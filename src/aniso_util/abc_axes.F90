@@ -19,17 +19,15 @@ subroutine abc_axes(cryst,coord,xyz,abc,Do_option,iReturn)
 !    coord(3)-- Cartesian coordinates of the main magnetic center
 
 use Constants, only: Zero, One, Two, deg2rad
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: Do_option
-real(kind=8), intent(inout) :: xyz(3,3), abc(3,3)
-real(kind=8), intent(in) :: cryst(6), coord(3)
-integer, intent(out) :: iReturn
-! local variables:
-integer :: i
-real(kind=8) :: a, b, c, al, bt, gm, cal, cbt, cgm, sgm, v, x, y, z
-real(kind=8) :: pX(3), pY(3), pZ(3)
+real(kind=wp), intent(in) :: cryst(6), coord(3)
+real(kind=wp), intent(inout) :: xyz(3,3), abc(3,3)
+integer(kind=iwp), intent(in) :: Do_option
+integer(kind=iwp), intent(out) :: iReturn
+integer(kind=iwp) :: i
+real(kind=wp) :: a, al, b, bt, c, cal, cbt, cgm, gm, pX(3), pY(3), pZ(3), sgm, v, x, y, z
 
 ! initializations
 a = cryst(1)

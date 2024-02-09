@@ -11,16 +11,15 @@
 
 subroutine write_formatted_aniso_poly(filename,nss,eso,MM,MS)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer, intent(in) :: nss
-real(kind=8), intent(in) :: eso(nss)
-complex(kind=8), intent(in) :: MM(3,nss,nss)
-complex(kind=8), intent(in) :: MS(3,nss,nss)
 character(len=180), intent(in) :: filename
-! local stuff
-integer :: l, i, j, LuAniso, IsFreeUnit
-integer :: nstate, multiplicity
-external :: IsFreeUnit
+integer(kind=iwp), intent(in) :: nss
+real(kind=wp), intent(in) :: eso(nss)
+complex(kind=wp), intent(in) :: MM(3,nss,nss), MS(3,nss,nss)
+integer(kind=iwp) :: i, j, l, LuAniso, multiplicity, nstate
+integer(kind=iwp), external :: IsFreeUnit
 
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,filename)

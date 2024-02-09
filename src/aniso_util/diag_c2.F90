@@ -14,20 +14,21 @@ subroutine diag_c2(matrix,n,info,w,z)
 ! matrix with the dimension nbtot. the eigenvalues of the diagonalization
 ! are directed into w1 and the Complex eigenvectors are written to z1.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer :: info, i, j, n
-complex(kind=8), intent(in) :: matrix(n,n)
-complex(kind=8), intent(out) :: z(n,n)
-real(kind=8), intent(out) :: w(n)
-! local variables:
-real(kind=8), allocatable :: rwork(:)    !rwork(3*n-2)
-complex(kind=8), allocatable :: ap(:)    !ap(n*(n+1)/2)
-complex(kind=8), allocatable :: work(:)  !work(2*n-1)
-real(kind=8), external :: dznrm2_
-real(kind=8) :: RM
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: matrix(n,n)
+integer(kind=iwp), intent(out) :: info
+real(kind=wp), intent(out) :: w(n)
+complex(kind=wp), intent(out) :: z(n,n)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: RM
+real(kind=wp), allocatable :: rwork(:)
+complex(kind=wp), allocatable :: ap(:), work(:)
+real(kind=wp), external :: dznrm2_
 
 info = 0
 W(:) = Zero

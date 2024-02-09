@@ -16,35 +16,23 @@ subroutine barrier(nBlock,dipIn,W,imanifold,NMULT,NDIM,doPLOT,iprint)
 ! projection of M on the quantization axis.
 !  N --  dimension of the barrier
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, cZero, cOne
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: nBlock, nMult, iprint, imanifold
-integer, intent(in) :: nDim(nMult)
-real(kind=8), intent(in) :: W(nBlock)
-complex(kind=8), intent(in) :: dipIn(3,nBlock,nBlock)
-logical, intent(in) :: doPLOT
-!-----------------------------------------------------------------------
-integer :: k, l, i, j, i1, i2, il, idim, Ifunct, j1, j2, iMult, ipar
-integer :: nb, maxmult
-real(kind=8) :: mave
+integer(kind=iwp), intent(in) :: nBlock, imanifold, nMult, nDim(nMult), iprint
+complex(kind=wp), intent(in) :: dipIn(3,nBlock,nBlock)
+real(kind=wp), intent(in) :: W(nBlock)
+logical(kind=iwp), intent(in) :: doPLOT
+integer(kind=iwp) :: dimi, i, i1, i2, Ifunct, il, iMult, ipar, j, j1, j2, k, l, maxmult, nb
+real(kind=wp) :: gtens(3), mave, maxes(3,3)
+complex(kind=wp) :: MM(3)
 character(len=90) :: string2
 character(len=5) :: s1, s2
-integer, allocatable :: ibas(:,:)                 ! (nmult,nBlock)
-real(kind=8) :: gtens(3), maxes(3,3)
-real(kind=8), allocatable :: E(:)                 ! (3,3), E(nmult)
-real(kind=8), allocatable :: wz(:,:)              ! (nmult,nBlock)
-complex(kind=8), allocatable :: dipN(:,:,:)       ! (3,nBlock,nBlock)
-complex(kind=8), allocatable :: dipN3(:,:,:)      ! (3,ndim(imanifold),ndim(imanifold))
-complex(kind=8), allocatable :: CZ(:,:,:)         ! (nmult,nBlock,nBlock)
-complex(kind=8), allocatable :: Ztr(:,:)          ! (nBlock,nBlock)
-complex(kind=8), allocatable :: ML(:,:,:)         ! (3,nBlock,nBlock)
-complex(kind=8), allocatable :: tmp(:,:)          ! (nBlock,nBlock)
-complex(kind=8) :: MM(3)
-complex(kind=8), allocatable :: dipso5(:,:,:,:,:) ! (3,nmult,10,nmult,10)
-!-----------------------------------------------------------------------
+integer(kind=iwp), allocatable :: ibas(:,:)
+real(kind=wp), allocatable :: E(:), wz(:,:)
+complex(kind=wp), allocatable :: CZ(:,:,:), dipN(:,:,:), dipN3(:,:,:), dipso5(:,:,:,:,:), ML(:,:,:), tmp(:,:), Ztr(:,:)
 
 if ((nmult > 0) .and. (nBlock > 0)) then
   call mma_allocate(ibas,nmult,nBlock,'ibas')
@@ -125,12 +113,12 @@ end if
 ! determine the "CZ matrix":
 Ifunct = 1
 do il=1,nmult
-  idim = ndim(il)
-  if (idim == 0) return
-  if (idim == 1) then
+  dimi = ndim(il)
+  if (dimi == 0) return
+  if (dimi == 1) then
     CZ(il,1,1) = cOne
     WZ(il,1) = W(Ifunct)
-  else ! idim > 1
+  else ! dimi > 1
 
     call pseudospin(dipN(1:3,Ifunct:(Ifunct+ndim(il)-1),Ifunct:(Ifunct+ndim(il)-1)),ndim(il),CZ(il,1:ndim(il),1:ndim(il)),3,1, &
                     iprint)

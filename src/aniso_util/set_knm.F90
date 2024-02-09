@@ -24,7 +24,7 @@ use Constants, only: Zero, One, Six, Ten, Half, OneHalf
 use Definitions, only: wp
 
 implicit none
-real(kind=8) :: knm(12,0:12)
+real(kind=wp) :: knm(12,0:12)
 
 knm(:,:) = Zero
 

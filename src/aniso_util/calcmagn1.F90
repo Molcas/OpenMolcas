@@ -23,15 +23,14 @@ subroutine calcmagn1(N,E,M,T,MT,Z)
 !-----------------------------------------------------------------------
 
 use Constants, only: Zero, cLight, kBoltzmann, rPlanck
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: N
-real(kind=8), intent(in) :: E(N), T
-complex(kind=8), intent(in) :: M(N,N)
-real(kind=8), intent(out) :: Z, MT
-!-- local variables:
-integer :: im, mp1, i
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: E(N), T
+complex(kind=wp), intent(in) :: M(N,N)
+real(kind=wp), intent(out) :: MT, Z
+integer(kind=iwp) :: i, im, mp1
 real(kind=wp), parameter :: kB = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! in cm-1*K-1
 !----------------------------------------------------------------------
 

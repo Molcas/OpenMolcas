@@ -12,22 +12,19 @@
 subroutine utmu2(exch,n,z,m)
 ! the same as utmu, except being that the input m is being transformed.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: exch, n
-complex(kind=8), intent(inout) :: m(3,exch,exch)
-complex(kind=8), intent(in) :: z(n,n)
-! local variables:
-integer :: l, i, j, i1, j1
-logical :: dbg
-real(kind=8) :: dznrm2_, r1, r2
-external :: dznrm2_
-complex(kind=8), allocatable :: tmp(:,:), mtmp(:,:,:)
-
-dbg = .false.
+integer(kind=iwp), intent(in) :: exch, n
+complex(kind=wp), intent(in) :: z(n,n)
+complex(kind=wp), intent(inout) :: m(3,exch,exch)
+integer(kind=iwp) :: i, i1, j, j1, l
+real(kind=wp) :: r1, r2
+complex(kind=wp), allocatable :: mtmp(:,:,:), tmp(:,:)
+logical(kind=iwp), parameter :: dbg = .false.
+real(kind=wp), external :: dznrm2_
 
 if ((n <= 0) .or. (exch <= 0)) then
   write(u6,'(a)') 'in utmu2:   exch or n<=0 !!!'

@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine pa_pseudo(M,S,dim,iopt,zfin,MF,SF,coord,iprint)
-! dim - dimension of the pseuDospin
-! M(3,dim,dim) -- magnetic moment in the initial basis
-! S(3,dim,dim) -- spin moment in the initial basis
+subroutine pa_pseudo(M,S,d,iopt,zfin,MF,SF,coord,iprint)
+! d - dimension of the pseuDospin
+! M(3,d,d) -- magnetic moment in the initial basis
+! S(3,d,d) -- spin moment in the initial basis
 ! iopt - option for choosing the quantization axis
-!       = 1 : quantization axis is the main magnetic axis of the entire manIfold (dim)
+!       = 1 : quantization axis is the main magnetic axis of the entire manIfold (d)
 !       = 2 : quantization axis is the main magnetic axis of the ground Doublet (low-lying two states)
 !       = 3 : quantization axis is provided by the user by means of coord
 !       = 4 : quantization axis is the unit matrix, i.e. the original Z axis
@@ -22,36 +22,42 @@ subroutine pa_pseudo(M,S,dim,iopt,zfin,MF,SF,coord,iprint)
 !              coordinate system of used for determination of the quantization axis
 !              by diagonalizing the Zeeman hamiltonian
 ! zfin - pseuDospin eigenfunctions
-! MF(3,dim,dim) -- magnetic moment in the pseuDospin basis
-! SF(3,dim,dim) -- spin moment in the pseuDospin basis
+! MF(3,d,d) -- magnetic moment in the pseuDospin basis
+! SF(3,d,d) -- spin moment in the pseuDospin basis
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: dim, info, i, j, k, i1, i2, iopt
-integer :: iprint
-real(kind=8) :: gtens(3), w(dim), maxes(3,3), det, FindDetR
-real(kind=8) :: coord(3,3), coord2(3,3)
-complex(kind=8) :: M(3,dim,dim), S(3,dim,dim), z(dim,dim)
-complex(kind=8) :: MF(3,dim,dim), SF(3,dim,dim), zfin(dim,dim)
-complex(kind=8) :: dipso2(3,dim,dim)
-complex(kind=8) :: s_so2(3,dim,dim)
-complex(kind=8) :: hzee(dim,dim)
-external FindDetR
+integer(kind=iwp), intent(in) :: d, iopt, iprint
+complex(kind=wp), intent(in) :: M(3,d,d), S(3,d,d)
+complex(kind=wp), intent(out) :: zfin(d,d), MF(3,d,d), SF(3,d,d)
+real(kind=wp), intent(inout) :: coord(3,3)
+integer(kind=iwp) :: i, i1, i2, info, j, k
+real(kind=wp) :: coord2(3,3), det, gtens(3), maxes(3,3)
+real(kind=wp), allocatable :: w(:)
+complex(kind=wp), allocatable :: dipso2(:,:,:), hzee(:,:), s_so2(:,:,:), z(:,:)
+real(kind=wp), external :: FindDetR
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+call mma_allocate(w,d,label='w')
+call mma_allocate(dipso2,3,d,d,label='dipso2')
+call mma_allocate(hzee,d,d,label='hzee')
+call mma_allocate(s_so2,3,d,d,label='s_so2')
+call mma_allocate(z,d,d,label='z')
 
 ! set to zero important variables:
 ! choose the quantization axis:
 if (iopt == 1) then
   gtens(:) = Zero
   maxes(:,:) = Zero
-  call atens(M,dim,gtens,maxes,2)
+  call atens(M,d,gtens,maxes,2)
 
 else if (iopt == 2) then
   gtens(:) = Zero
   maxes(:,:) = Zero
-  call atens(M(1:3,1:2,1:2),2,gtens,maxes,2)
+  call atens(M(:,1:2,1:2),2,gtens,maxes,2)
 
 else if (iopt == 3) then
   write(u6,'(A)') 'User provided the COORD to the PA_PSEUDo:'
@@ -74,7 +80,7 @@ det = FindDetR(coord2,3)
 write(u6,'(A, f20.13)') 'det = ',det
 if (abs(det-One) < 1.0e-4_wp) then  ! 'coord is not empty'
   maxes(:,:) = coord(:,:)
-else                                   ! 'coord is empty'
+else                                ! 'coord is empty'
   coord(:,:) = maxes(:,:)
 end if
 write(u6,'(A)') 'Employed  axes for diagonalization of the Zeeman Hamiltonian:'
@@ -82,8 +88,8 @@ do i=1,3
   write(u6,'(3F20.14)') (maxes(j,i),j=1,3)
 end do
 
-do i=1,dim
-  do j=1,dim
+do i=1,d
+  do j=1,d
     do k=1,3
       dipso2(:,i,j) = dipso2(:,i,j)+M(k,i,j)*(maxes(k,:)*cOne)
       s_so2(:,i,j) = s_so2(:,i,j)+S(k,i,j)*(maxes(k,:)*cOne)
@@ -95,43 +101,45 @@ hzee(:,:) = hzee(:,:)-dipso2(3,:,:)
 info = 0
 w(:) = Zero
 z(:,:) = cZero
-call diag_c2(hzee,dim,info,w,z)
+call diag_c2(hzee,d,info,w,z)
 if (info /= 0) then
   write(u6,'(5x,a)') 'diagonalization of the zeeman hamiltonian failed.'
 else
 
-  call spin_phase(dipso2,dim,z,zfin)
+  call spin_phase(dipso2,d,z,zfin)
 
   if (iprint > 2) then
     write(u6,'(5X,A)') 'MAIN VALUES OF THE ZEEMAN HAMILTONIAN:'
     write(u6,*)
-    if (mod(dim,2) == 1) then
-      do I=1,dim
-        write(u6,'(3X,A,I3,A,F17.3)') '|',(dim-1)/2+(1-I),'> = ',W(i)
+    if (mod(d,2) == 1) then
+      do I=1,d
+        write(u6,'(3X,A,I3,A,F17.3)') '|',(d-1)/2+(1-I),'> = ',W(i)
       end do
     else
-      do I=1,dim
-        write(u6,'(3X,A,I3,A,F17.3)') '|',(dim-1)-2*(I-1),'/2 > = ',W(i)
+      do I=1,d
+        write(u6,'(3X,A,I3,A,F17.3)') '|',(d-1)-2*(I-1),'/2 > = ',W(i)
       end do
     end if
     write(u6,*)
     write(u6,'(1X,A)') 'EIGENFUNCTIONS OF THE EFFECTIVE SPIN:'
     write(u6,*)
-    if (mod(dim,2) == 1) then
-      do i=1,dim
-        write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)/2+(1-i),' > :',(zfin(j,i),j=1,dim)
+    if (mod(d,2) == 1) then
+      do i=1,d
+        write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(d-1)/2+(1-i),' > :',(zfin(j,i),j=1,d)
       end do
     else
-      do i=1,dim
-        write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(dim-1)-2*(i-1),'/2 > :',(zfin(j,i),j=1,dim)
+      do i=1,d
+        write(u6,'(10x,a,i2,a,10x,20(2f16.12,2x))') 'eigenvector of |',(d-1)-2*(i-1),'/2 > :',(zfin(j,i),j=1,d)
       end do
     end if
   end if ! printing of eigenfunctions with identical phase.
 
-  do i=1,dim
-    do j=1,dim
-      do i1=1,dim
-        do i2=1,dim
+  MF(:,:,:) = Zero
+  SF(:,:,:) = Zero
+  do i=1,d
+    do j=1,d
+      do i1=1,d
+        do i2=1,d
           MF(:,i,j) = MF(:,i,j)+dipso2(:,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
           SF(:,i,j) = SF(:,i,j)+s_so2(:,i1,i2)*conjg(zfin(i1,i))*zfin(i2,j)
         end do
@@ -140,10 +148,16 @@ else
   end do
 
   if (IPRINT > 2) then
-    call prMom('PseudoSpin basis:  MAGNETIC MOMENT: MF :',MF,dim)
-    call prMom('PseudoSpin basis:      SPIN MOMENT: SF :',SF,dim)
+    call prMom('PseudoSpin basis:  MAGNETIC MOMENT: MF :',MF,d)
+    call prMom('PseudoSpin basis:      SPIN MOMENT: SF :',SF,d)
   end if
 end if
+
+call mma_deallocate(w)
+call mma_deallocate(dipso2)
+call mma_deallocate(hzee)
+call mma_deallocate(s_so2)
+call mma_deallocate(z)
 
 return
 

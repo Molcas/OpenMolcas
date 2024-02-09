@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine hdir2(nP,L,dX,dY,dZ,Ang,iprint)
-! angstep == steps in the angular distribution. It defines the numer of points
+! angstep == steps in the angular distribution. It defines the number of points
 !            in which M will be computed;
 !      nP == number of points, ( nP = 360/angstep )
 !       L == cartesian component of the magnetisation torque
@@ -19,14 +19,13 @@ subroutine hdir2(nP,L,dX,dY,dZ,Ang,iprint)
 !            If L=3 (i.e.Z), rotation of the M occurs in the XY plane
 
 use Constants, only: Zero, deg2rad
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: nP, L, iprint
-real(kind=8) :: dX(nP), dY(nP), dZ(nP), Ang(nP)
-!local variables
-integer :: i
-real(kind=8) :: AngStep, AngRad
+integer(kind=iwp), intent(in) :: nP, L, iprint
+real(kind=wp), intent(out) :: dX(nP), dY(nP), dZ(nP), Ang(nP)
+integer(kind=iwp) :: i
+real(kind=wp) :: AngRad, AngStep
 
 AngStep = 360.0_wp/real(nP-1,kind=wp)
 

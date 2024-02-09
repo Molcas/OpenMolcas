@@ -12,28 +12,21 @@
 subroutine plot_MH_with_Exp(nH,H,nTempMagn,TempMagn,MHcalc,MHexp,zJ)
 
 use Constants, only: Zero, Five, Six
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: nH, nTempMagn
-real(wp), intent(in) :: H(nH), TempMagn(nTempMagn)
-real(wp), intent(in) :: MHexp(nH,nTempMagn)
-real(wp), intent(in) :: MHcalc(nH,nTempMagn)
-real(wp), intent(in) :: zJ
-! local variables
-real(wp) :: hmin, hmax, MHmin_exp, MHmax_exp, MHmin_calc, MHmax_calc, MHmin, MHmax
-real(wp) :: gnuplot_version
-integer :: file_number, iH, iTempMagn, LuPlt, LuData, file_size
-logical :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-character(len=300) :: line1, line2, cdummy
-character(len=300) :: datafile, plotfile, imagefile, epsfile
-integer, external :: AixRm
-integer :: Length
-character(len=1023) :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
-integer :: iErr, ifilenumber
-integer, external :: IsFreeUnit
+integer(kind=iwp), intent(in) :: nH, nTempMagn
+real(kind=wp), intent(in) :: H(nH), TempMagn(nTempMagn), MHcalc(nH,nTempMagn), MHexp(nH,nTempMagn), zJ
+integer(kind=iwp) :: file_number, file_size, iErr, ifilenumber, iH, iTempMagn, Length, LuData, LuPlt
+real(kind=wp) :: gnuplot_version, hmax, hmin, MHmax, MHmax_calc, MHmax_exp, MHmin, MHmin_calc, MHmin_exp
+logical(kind=iwp) :: file_exist, is_file_open, execute_gnuplot_cmd
+character(len=1023) :: gnuplot_CMD, realname_dat, realname_eps, realname_plt, realname_png
+character(len=300) :: cdummy, datafile, epsfile, imagefile, line1, line2, plotfile
+logical(kind=iwp), parameter :: dbg = .false.
+integer(kind=iwp), external :: AixRm, IsFreeUnit
 
-dbg = .false.
+#include "macros.fh"
+
 iErr = 0
 hmin = Zero
 hmax = Zero
@@ -162,6 +155,7 @@ if (execute_gnuplot_cmd) then
   file_number = IsFreeUnit(94)
   call molcas_open(file_number,'lineOUT')
   read(file_number,*) cdummy,gnuplot_version
+  unused_var(cdummy)
   if (dbg) write(u6,'(A,F4.1)') 'gnuplot_version = ',gnuplot_version
   if (abs(gnuplot_version) < 0.1_wp) execute_gnuplot_cmd = .false.
   close(file_number)
@@ -365,8 +359,5 @@ do iTempMagn=1,nTempMagn
 end do ! iTempMagn
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call UNUSED_CHARACTER(cdummy)
-#endif
 
 end subroutine plot_MH_with_Exp

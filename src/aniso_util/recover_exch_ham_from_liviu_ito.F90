@@ -11,18 +11,17 @@
 
 subroutine recover_exch_HAM_from_Liviu_ITO(n1,n2,B,HAM)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: n1, n2
-complex(kind=8), intent(in) :: B((n1-1),-(n1-1):(n1-1),(n2-1),-(n2-1):(n2-1))
-complex(kind=8), intent(out) :: HAM(n1,n1,n2,n2)
-! local variables:
-integer :: k1, k2, q1, q2, l1, l2
-complex(kind=8) :: redME1, redME2
-complex(kind=8), allocatable :: O1(:,:), O2(:,:), W1(:,:), W2(:,:)
-complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:), OW(:,:,:,:), WO(:,:,:,:)
+integer(kind=iwp), intent(in) :: n1, n2
+complex(kind=wp), intent(in) :: B(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
+complex(kind=wp), intent(out) :: HAM(n1,n1,n2,n2)
+integer(kind=iwp) :: k1, k2, l1, l2, q1, q2
+complex(kind=wp) :: redME1, redME2
+complex(kind=wp), allocatable :: O1(:,:), O2(:,:), OO(:,:,:,:), OW(:,:,:,:), W1(:,:), W2(:,:), WO(:,:,:,:), WW(:,:,:,:)
 
 !-----------------------------------------------------------------------
 ! recover the original HAMILTONIAN using the J parameters

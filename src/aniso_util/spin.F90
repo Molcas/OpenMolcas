@@ -9,27 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-complex*16 function spin(l,dim,m1,m2)
+function spin(l,i_dim,m1,m2)
 ! Returns the value of the < m1 | S_l | m2 >
 
 use Constants, only: Zero, One, Half, cZero, cOne, Onei
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: m1, m2, dim, l
-integer :: ipar
-real(kind=8) :: S, MM1, MM2, R, D, F
-logical :: dbg
-
-dbg = .false.
+complex(kind=wp) :: spin
+integer(kind=iwp), intent(in) :: l, i_dim, m1, m2
+integer(kind=iwp) :: ipar
+real(kind=wp) :: D, F, MM1, MM2, R, S
+logical(kind=iwp), parameter :: dbg = .false.
 
 spin = cZero
-ipar = mod(dim,2)
-S = real(dim-1,kind=wp)*Half
+ipar = mod(i_dim,2)
+S = real(i_dim-1,kind=wp)*Half
 R = Zero
 
 if (dbg) then
-  write(u6,'(A,4I3)') 'l,dim,m1,m2=',l,dim,m1,m2
+  write(u6,'(A,4I3)') 'l,i_dim,m1,m2=',l,i_dim,m1,m2
   write(u6,'(A,I3,F8.3)') ' ipar,  S  =',ipar,S
 end if
 

@@ -9,11 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function norder(icoord,int_code,lmax)
+function norder(icoord,int_code,lmax)
+
+use Definitions, only: iwp
 
 implicit none
-integer lmax
-integer icoord(lmax), int_code(lmax)
+integer(kind=iwp) :: norder
+integer(kind=iwp), intent(in) :: lmax, icoord(lmax), int_code(lmax)
 
 norder = sum(icoord(:)*int_code(:))+1
 

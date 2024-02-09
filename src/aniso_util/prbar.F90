@@ -12,16 +12,15 @@
 subroutine prbar(ist,s1,s2,M)
 
 use Constants, only: Three
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: ist
+integer(kind=iwp), intent(in) :: ist
 character(len=5), intent(in) :: s1, s2
-complex(kind=8), intent(in) :: M(3)
-! local
-character(len=30) :: fx, fy, fz
+complex(kind=wp), intent(in) :: M(3)
 character(len=40) :: f1, f2
-real(kind=8) :: R
+character(len=30) :: fx, fy, fz
+real(kind=wp) :: R
 
 write(fx,'(i2,5a)') ist,'. | <',s1,' | mu_X |',s2,' > |'
 write(fy,'(i2,5a)') ist,'. | <',s1,' | mu_Y |',s2,' > |'

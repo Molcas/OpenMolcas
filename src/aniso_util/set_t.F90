@@ -12,17 +12,15 @@
 subroutine set_T(nT,nTempMagn,TINPUT,TempMagn,Tmin,Tmax,chit_exp,Texp,T,XTexp)
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-! input:
-integer, intent(in) :: nT, nTempMagn
-logical, intent(in) :: TINPUT
-real(kind=8), intent(in) :: Tmin, Tmax, TempMagn(nTempMagn), Texp(nT), chit_exp(nT)
-real(kind=8), intent(out) :: T(nT+nTempMagn), XTexp(nT+nTempMagn)
-! local variables:
-integer :: i
-real(kind=8) :: dltt
+integer(kind=iwp), intent(in) :: nT, nTempMagn
+logical(kind=iwp), intent(in) :: TINPUT
+real(kind=wp), intent(in) :: TempMagn(nTempMagn), Tmin, Tmax, chit_exp(nT), Texp(nT)
+real(kind=wp), intent(out) :: T(nT+nTempMagn), XTexp(nT+nTempMagn)
+integer(kind=iwp) :: i
+real(kind=wp) :: dltt
 
 ! set nT, T(i) and XTexp(i) arrays:
 T(:) = Zero

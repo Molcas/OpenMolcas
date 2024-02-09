@@ -12,14 +12,13 @@
 subroutine rtrace(N,A,B)
 ! removes the trace of a Real array
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: N ! size of the array
-real(kind=8), intent(in) :: A(N) ! input
-real(kind=8), intent(out) :: B(N) ! output
-! local variables
-real(kind=8) :: AS
+integer(kind=iwp), intent(in) :: N ! size of the array
+real(kind=wp), intent(in) :: A(N) ! input
+real(kind=wp), intent(out) :: B(N) ! output
+real(kind=wp) :: AS
 
 ! compute the equal-weighted average
 AS = sum(A(:))/real(N,kind=wp)

@@ -13,23 +13,19 @@ subroutine utmul(EXCH,N,Z,ML)
 ! the same as UTMU, except being that the input M is
 ! being transformed and only one projection is done at a time.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: EXCH, N
-! one projection is done
-complex(kind=8), intent(inout) :: ML(EXCH,EXCH)
-complex(kind=8), intent(in) :: Z(N,N)
-! local variables:
-integer :: I, J, i1, j1
-logical :: DBG
-real(kind=8) :: dznrm2_, R1, R2
-external :: dznrm2_
-complex(kind=8), allocatable :: TMP(:,:), MTMP(:,:)
-
-DBG = .false.
+integer(kind=iwp), intent(in) :: EXCH, N
+complex(kind=wp), intent(in) :: Z(N,N)
+complex(kind=wp), intent(inout) :: ML(EXCH,EXCH)
+integer(kind=iwp) :: I, i1, J, j1
+real(kind=wp) :: R1, R2
+complex(kind=wp), allocatable :: TMP(:,:), MTMP(:,:)
+logical(kind=iwp), parameter :: DBG = .false.
+real(kind=wp), external :: dznrm2_
 
 if ((N <= 0) .or. (EXCH <= 0)) then
   write(u6,'(A)') 'in UTMU2:   EXCH or N<=0 !!!'

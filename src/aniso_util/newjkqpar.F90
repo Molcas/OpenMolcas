@@ -11,33 +11,27 @@
 
 subroutine newjkqpar(n1,n2,H,J,B,S)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne, Onei
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: n1, n2
-complex(kind=8), intent(in) :: H(n1,n1,n2,n2)
-complex(kind=8), intent(out) :: J(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
-complex(kind=8), intent(out) :: B(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
-complex(kind=8), intent(out) :: S(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
-! local variables:
-integer :: k1, k2, q1, q2, m1, m2, m12, i2, j2
-real(kind=8) :: cr1, cr2, C01, C02, r1, r2, F1, F2
-complex(kind=8) :: cf1, cf2, c1, c2, c12, cc1, cc2, trace_exch2
-complex(kind=8), allocatable :: O1(:,:), W1(:,:)
-complex(kind=8), allocatable :: O2(:,:), W2(:,:)
-complex(kind=8), allocatable :: OO(:,:,:,:), WO(:,:,:,:)
-complex(kind=8), allocatable :: OW(:,:,:,:), WW(:,:,:,:)
-complex(kind=8), allocatable :: HAM(:,:,:,:)
-real(kind=8) :: knm(12,0:12), dznrm2_
-external :: dznrm2_, trace_exch2
-logical :: dbg
+integer(kind=iwp), intent(in) :: n1, n2
+complex(kind=wp), intent(in) :: H(n1,n1,n2,n2)
+complex(kind=wp), intent(out) :: J(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1), B(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1), &
+                                 S(n1-1,-(n1-1):n1-1,n2-1,-(n2-1):n2-1)
+integer(kind=iwp) :: i2, j2, k1, k2, m1, m12, m2, q1, q2
+real(kind=wp) :: C01, C02, cr1, cr2, F1, F2, knm(12,0:12), r1, r2
+complex(kind=wp) :: c1, c12, c2, cc1, cc2, cf1, cf2
+complex(kind=wp), allocatable :: HAM(:,:,:,:), O1(:,:), O2(:,:), OO(:,:,:,:), OW(:,:,:,:), W1(:,:), W2(:,:), WO(:,:,:,:), &
+                                 WW(:,:,:,:)
+logical(kind=iwp), parameter :: dbg = .false.
+real(kind=wp), external :: dznrm2_
+complex(kind=wp), external :: trace_exch2
 
 !-------------------------------------------
 if ((n1 < 1) .or. (n2 < 1)) return
 !-------------------------------------------
-dbg = .false.
 call mma_allocate(O1,n1,n1,'operator O1')
 call mma_allocate(W1,n1,n1,'operator W1')
 call mma_allocate(O2,n2,n2,'operator O2')

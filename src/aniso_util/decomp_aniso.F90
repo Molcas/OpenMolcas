@@ -12,14 +12,14 @@
 subroutine decomp_aniso(A,Jiso,Jsym,Jantisym,dbg)
 
 use Constants, only: Zero, Three, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=8), intent(in) :: A(3,3)
-real(kind=8), intent(out) :: Jiso, Jsym(3,3), Jantisym(3,3)
-logical, intent(in) :: dbg
-integer :: i, j
-real(kind=8) :: Dtmp(3,3)
+real(kind=wp), intent(in) :: A(3,3)
+real(kind=wp), intent(out) :: Jiso, Jsym(3,3), Jantisym(3,3)
+logical(kind=iwp), intent(in) :: dbg
+integer(kind=iwp) :: i, j
+real(kind=wp) :: Dtmp(3,3)
 
 Jiso = Zero
 Jsym(:,:) = Zero

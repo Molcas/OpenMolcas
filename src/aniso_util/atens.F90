@@ -9,38 +9,36 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine atens(moment,dim,gtens,maxes,iprint)
+subroutine atens(moment,d,gtens,maxes,iprint)
+!-----------------------------------------------------------------------
+! d      -- size of the magnetic moment
+!           d = muliplicity of the pseuDospin ( 2*S+1, where S is the pseuDospin);
+! moment -- matrix of size (3,d,d) of the moment (magnetic, spin or angular)
+! gtens  -- array of size (3) keeping the main values of the A tensor ( sqrt(main_values) )
+! maxes  -- array of size (3,3) keeping the main axes of the A tensor Writen in
+!           the right coordinate system (Determinant = +1)
+! iprint -- the print level of the Subroutine
+!           iprint = 1 => no output
+!           iprint = 2 => standard
+!           iprint = 3 => print for debug
+!-----------------------------------------------------------------------
 
 use Constants, only: Zero, Twelve, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! Calling variables:
-integer, intent(in) :: dim, iprint
-complex(kind=8), intent(in) :: moment(3,dim,dim)
-real(kind=8), intent(out) :: gtens(3)
-real(kind=8), intent(out) :: maxes(3,3)
-!-----------------------------------------------------------------------
-!  dim    -- size of the magnetic moment
-!            dim = muliplicity of the pseuDospin ( 2*S+1, where S is the pseuDospin);
-!  moment -- matrix of size (3,dim,dim) of the moment (magnetic, spin or angular)
-!  gtens  -- array of size (3) keeping the main values of the A tensor ( sqrt(main_values) )
-!  maxes  -- array of size (3,3) keeping the main axes of the A tensor Writen in
-!            the right coordinate system (Determinant = +1)
-!  iprint -- the print level of the Subroutine
-!            iprint = 1 => no output
-!            iprint = 2 => standard
-!            iprint = 3 => print for debug
-!-----------------------------------------------------------------------
-! local variables
-integer :: ic1, ic2, i, j, info
-real(kind=8) :: A_TENS_TERM(3,3), W(3), MAIN(3), Z(3,3), Det_gtens, diff12, diff23, ZR(3,3), dnorm
-real(kind=8) :: dznrm2, FindDetR
-complex(kind=8) :: AC_TENS(3,3), trace
-external :: dznrm2, FindDetR, trace
+integer(kind=iwp), intent(in) :: d, iprint
+complex(kind=wp), intent(in) :: moment(3,d,d)
+real(kind=wp), intent(out) :: gtens(3)
+real(kind=wp), intent(out) :: maxes(3,3)
+integer(kind=iwp) :: i, ic1, ic2, info, j
+real(kind=wp) :: A_TENS_TERM(3,3), Det_gtens, diff12, diff23, dnorm, MAIN(3), W(3), Z(3,3), ZR(3,3)
+complex(kind=wp) :: AC_TENS(3,3)
+real(kind=wp), external :: dznrm2, FindDetR
+complex(kind=wp), external :: trace
 
 dnorm = Zero
-dnorm = dznrm2(3*dim*dim,moment,1)
+dnorm = dznrm2(3*d*d,moment,1)
 
 if (dnorm <= tiny(dnorm)) then
   write(u6,'(A)') 'Norm of the magnetic moment is zero.'
@@ -54,7 +52,7 @@ end if
 
 do ic1=1,3
   do ic2=1,3
-    Ac_tens(ic1,ic2) = trace(dim,moment(ic1,1:dim,1:dim),moment(ic2,1:dim,1:dim))
+    Ac_tens(ic1,ic2) = trace(d,moment(ic1,:,:),moment(ic2,:,:))
   end do
 end do
 
@@ -64,7 +62,7 @@ do ic1=1,3
   end do
 end do
 
-A_TENS_TERM(:,:) = Twelve/real(dim**3-dim,kind=wp)*A_TENS_TERM(:,:)
+A_TENS_TERM(:,:) = Twelve/real(d**3-d,kind=wp)*A_TENS_TERM(:,:)
 
 if (iprint > 2) then
   write(u6,'(/)')
@@ -76,11 +74,6 @@ if (iprint > 2) then
 end if
 
 ! Diagonalization of A_tens - g tensors
-
-main(:) = Zero
-w(:) = Zero
-z(:,:) = Zero
-info = 0
 
 call DIAG_R2(A_TENS_TERM,3,info,W,Z)
 

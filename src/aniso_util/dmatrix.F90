@@ -15,16 +15,16 @@ subroutine DMATRIX(E,F,Z,IPRINT)
 ! TO OBTAIN THE MAIN ANISOTROPY AXES
 
 use Constants, only: Zero, One, Two, Half, OneHalf
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: iprint
-real(kind=8), intent(in) :: Z(3,3)
-complex(kind=8), intent(in) :: E(0:2), F(0:2)
-integer :: I, INFO, J
-real(kind=8) :: WD(3), CF, Unity(3,3), SMAT(3,3), DMATR(3,3), ZD(3,3), dtens(3), daxes(3,3), D_factor, E_factor, diff12, diff23, &
-                ZD2(3,3)
-complex(kind=8) :: DMAT(3,3)
+complex(kind=wp), intent(in) :: E(0:2), F(0:2)
+real(kind=wp), intent(in) :: Z(3,3)
+integer(kind=iwp), intent(in) :: iprint
+integer(kind=iwp) :: I, INFO, J
+real(kind=wp) :: CF, D_factor, daxes(3,3), diff12, diff23, DMATR(3,3), dtens(3), E_factor, SMAT(3,3), Unity(3,3), WD(3), ZD(3,3), &
+                 ZD2(3,3)
+complex(kind=wp) :: DMAT(3,3)
 
 CF = sqrt(OneHalf)
 

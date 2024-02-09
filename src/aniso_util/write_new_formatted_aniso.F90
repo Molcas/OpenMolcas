@@ -11,38 +11,24 @@
 
 subroutine write_new_formatted_aniso(nss,nstate,multiplicity,eso_au,esfs_au,U,MM,MS,DM,angmom,edmom,amfi,HSO)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: nss, nstate, multiplicity(nstate)
-real(kind=8), intent(in) :: eso_au(nss), esfs_au(nstate)
-real(kind=8), intent(in) :: angmom(3,nstate,nstate)
-real(kind=8), intent(in) :: edmom(3,nstate,nstate)
-real(kind=8), intent(in) :: amfi(3,nstate,nstate)
-complex(kind=8), intent(in) :: MM(3,nss,nss)
-complex(kind=8), intent(in) :: MS(3,nss,nss)
-complex(kind=8), intent(in) :: DM(3,nss,nss)
-complex(kind=8), intent(in) :: U(nss,nss)
-complex(kind=8), intent(in) :: HSO(nss,nss)
-! local stuff
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-integer :: njob, mxjob, mult, iss, ipar, ist
-integer :: data_file_format
-integer :: i, IsFreeUnit, Lu, Lutmp
-!character(len=30) :: fmt_int, fmt_real, fmt_key
-external :: IsFreeUnit
-integer, allocatable :: szproj(:), jbnum(:), mltplt(:)
-integer, allocatable :: nroot(:)
+integer(kind=iwp), intent(in) :: nss, nstate, multiplicity(nstate)
+real(kind=wp), intent(in) :: eso_au(nss), esfs_au(nstate), angmom(3,nstate,nstate), edmom(3,nstate,nstate), amfi(3,nstate,nstate)
+complex(kind=wp), intent(in) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
+#include "LenIn.fh"
+integer(kind=iwp) :: data_file_format, i, iAt, ipar, iss, ist, l, Lu, Lutmp, mult, mxjob, nAtoms, njob
+character(len=1024) :: fname, molcas, molcasversion
 character(len=128) :: Filename
-character(len=1024) :: molcas, fname, molcasversion
-logical :: dbg
-integer :: nAtoms, iAt, l
-character(len=LENIN) :: AtomLbl(MxAtom)
-real*8, allocatable :: xyz(:,:)
-
-dbg = .false.
+!character(len=30) :: fmt_int, fmt_key, fmt_real
+integer(kind=iwp), allocatable :: jbnum(:), mltplt(:), nroot(:), szproj(:)
+real(kind=wp), allocatable :: xyz(:,:)
+character(len=LenIn), allocatable :: AtomLbl(:)
+logical(kind=iwp), parameter :: dbg = .false.
+integer(kind=iwp), external :: IsFreeUnit
 
 !-----------------------------------------------------------------------
 ! some preparations
@@ -93,7 +79,8 @@ close(Lutmp)
 ! add coordinates
 nAtoms = 0
 call Get_iScalar('Unique atoms',nAtoms)
-call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
+call mma_allocate(AtomLbl,nAtoms,label='AtomLbl')
+call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nAtoms)
 call mma_allocate(xyz,3,8*nAtoms)
 call Get_dArray('Unique Coordinates',xyz,3*nAtoms)
 
@@ -135,6 +122,7 @@ write(Lu,'(40(I0,1x))') nAtoms
 do iAt=1,nAtoms
   write(Lu,'(i3,1x,A8,1x,3(ES22.14,1x))') iAt,AtomLbl(iAt),(Angstrom*XYZ(l,iAt),l=1,3)
 end do
+call mma_deallocate(AtomLbl)
 write(Lu,'(        A)')
 !-----------------------------------------------------------------------
 ! Number of spin orbit states

@@ -13,14 +13,14 @@ subroutine hdir(nDir,nDirZee,dirX,dirY,dirZ,dir_weight,nP,nsymm,ngrid,nDirTot,dH
 ! this routine generates the directions of the applied magnetic
 ! field according to Lebedev-Laikov grids using the the given parameters (nsymm, ngrid)
 
-use Definitions, only: u6
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: nP, nDirTot, nDir, nDirZee
-integer :: nsymm, ngrid
-real(kind=8) :: dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3)
-real(kind=8) :: dHX(nDirTot), dHY(nDirTot), dHZ(nDirTot), dHW(nDirTot)
-real(kind=8) :: X(nP), Y(nP), Z(nP), W(nP)
+integer(kind=iwp), intent(in) :: nDir, nDirZee, nP, nsymm, ngrid, nDirTot
+real(kind=wp), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3)
+real(kind=wp), intent(out) :: dHX(nDirTot), dHY(nDirTot), dHZ(nDirTot), dHW(nDirTot)
+real(kind=wp) :: X(nP), Y(nP), Z(nP), W(nP)
 
 if ((nDirTot-nDir-nDirZee-nP) /= 0) then
   write(u6,'(A   )') 'the number of directions of applied magnetic field is not consistent:'
@@ -41,6 +41,8 @@ dHZ(1:nDir) = dirZ(:)
 dHX(nDir+1:nDir+nDirZee) = dir_weight(:,1)
 dHY(nDir+1:nDir+nDirZee) = dir_weight(:,2)
 dHZ(nDir+1:nDir+nDirZee) = dir_weight(:,3)
+
+dHW(1:nDir+nDirZee) = Zero
 
 call Lebedev_Laikov(nSymm,nGrid,nP,X,Y,Z,W)
 

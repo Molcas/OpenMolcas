@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-complex*16 function trace_exch(n1,n2,A,B)
+function trace_exch(n1,n2,A,B)
 
 use Constants, only: cZero
+use Definitions, only: wp, iwp
 
 implicit none
-! size of the square matrices A(n1,n1,n2,n2) and B(n1,n1,n2,n2)
-integer, intent(in) :: n1, n2
-complex(kind=8), intent(in) :: A(n1,n1,n2,n2), B(n1,n1,n2,n2)
-! local variables
-integer :: i1, i2, k1, k2
+complex(kind=wp) :: trace_exch
+integer(kind=iwp), intent(in) :: n1, n2
+complex(kind=wp), intent(in) :: A(n1,n1,n2,n2), B(n1,n1,n2,n2)
+integer(kind=iwp) :: i1, i2, k1, k2
 
 trace_exch = cZero
 do i1=1,n1

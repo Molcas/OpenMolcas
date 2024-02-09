@@ -15,44 +15,41 @@
 subroutine read_hdf5_init(file_h5,nstate,nss)
 
 use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_close_file
-use Definitions, only: u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
 
 implicit none
-#include "stdalloc.fh"
 character(len=180), intent(in) :: file_h5
-integer, intent(out) :: nstate, nss
-! local variables:
-integer :: i, fileid
-character :: tmp*256, sFile*128
+integer(kind=iwp), intent(out) :: nstate, nss
+integer(kind=iwp) :: fileid, i
+logical(kind=iwp) :: Exists
+character(len=256) :: sFile, tmp
 character(len=180) :: tmp2
-integer, allocatable :: spin_mult(:)
 character(len=5) :: molcas_module_kind
-logical :: Exist
-logical :: DBG
-
-DBG = .false.
+integer(kind=iwp), allocatable :: spin_mult(:)
+logical(kind=iwp), parameter :: DBG = .false.
 
 write(u6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
 NSS = 0
 NSTATE = 0
-Exist = .false.
+Exists = .false.
 ! Check if it is a rassi-h5 file:
 
 ! Check the file exists in $WorkDir
-call f_inquire(trim(file_h5),Exist)
-if (Exist) write(u6,*) 'file ',trim(file_h5),' exists!!!'
+call f_inquire(trim(file_h5),Exists)
+if (Exists) write(u6,*) 'file ',trim(file_h5),' exists!!!'
 ! if not present, look for it in the submit directory:
-if (.not. Exist) then
+if (.not. Exists) then
   call getenvf('MOLCAS_SUBMIT_DIR',tmp)
   if (tmp /= ' ') then
     i = index(tmp,' ')
     if (i > 0) then
       sFile = trim(tmp(1:i-1)//'/'//file_h5)
-      call f_inquire(sFile,Exist)
+      call f_inquire(sFile,Exists)
     end if
   end if
   ! if still not present, warn the user and abort:
-  if (.not. Exist) then
+  if (.not. Exists) then
     call WarningMessage(2,'File '//trim(file_h5)//' is not found')
     call Quit_OnUserError()
   end if

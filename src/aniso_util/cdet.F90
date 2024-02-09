@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-complex*16 function CDET(MA,N,A)
+function CDET(MA,N,A)
 !=================================================
 ! MA is the MAximal dimension
 ! N is the dimension N<MA
@@ -17,13 +17,15 @@ complex*16 function CDET(MA,N,A)
 !=================================================
 
 use Constants, only: Zero, cZero, cOne
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: N, MA
-complex(kind=8), intent(inout) :: A(MA,MA)
-integer :: I, J, K, L, K1
-real(kind=8) :: P, Q
-complex(kind=8) :: CP, CQ
+complex(kind=wp) :: CDET
+integer(kind=iwp), intent(in) :: MA, N
+complex(kind=wp), intent(inout) :: A(MA,MA)
+integer(kind=iwp) :: I, J, K, K1, L
+real(kind=wp) :: P, Q
+complex(kind=wp) :: CP, CQ
 
 I = 0
 CDET = cZero

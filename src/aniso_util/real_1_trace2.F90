@@ -9,17 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function real_1_trace2(n,A)
+function real_1_trace2(n,A)
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-! size of the square matrices A(n,n)
-integer, intent(in) :: n
-real(kind=8), intent(in) :: A(n,n)
-! local variables
-integer :: i
+real(kind=wp) :: real_1_trace2
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: A(n,n)
+integer(kind=iwp) :: i
 
 real_1_trace2 = Zero
 do i=1,n

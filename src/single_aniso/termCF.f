@@ -72,6 +72,7 @@ c
 
 !
       Real(kind=8) :: tS, tL, tJ, coeffCG, spinM, orbM,tJM,CF(100,100)
+      Real(kind=8) :: det
       Integer       :: MS, ML, MJ
       Integer       :: ij, iLS, nLS, ibasS(100), ibasL(100), ibasJ(100)
       Integer       :: irootL(100), ir, icas, k
@@ -166,11 +167,19 @@ c                   iopt = 3   -- maxes is defined by the user ( maxes is given 
          Write(6,'(a)') 'The parameters of the Crystal Field matrix '//
      &                  'are written in the coordinate system:'
          Write(6,'(a)') '(Xm, Ym, Zm) -- defined in the input file.'
-         If( finddetr(maxes2(1:3,1:3),3).eq.0.0_wp) Then
+         ! copy the maxes2 to maxes
+         Do i=1,3
+           Do j=1,3
+             maxes(i,j)=maxes2(i,j)
+           End Do
+         End Do
+         det=finddetr(maxes(1:3,1:3),3)
+         If( det.eq.0.0_wp) Then
             Write(6,'(A)') 'TermCF:   iopt=3, while  DET(maxes)= 0.0'
             Call AbEnd()
          End If
-         If( finddetr(maxes2(1:3,1:3),3).lt.0.0_wp) Then
+         ! FIXME: note finddetr modifies the matrix!
+         If( det.lt.0.0_wp) Then
            Do i=1,3
               maxes(i,1)=-maxes2(i,1)
            End Do
@@ -178,14 +187,6 @@ c                   iopt = 3   -- maxes is defined by the user ( maxes is given 
      &                           'The original coordinate system '//
      &                           'was LEFT-handed. It has been '//
      &                           'changed to the RIGHT-handed'
-         Else
-           ! copy the maxes2 to maxes
-           Do i=1,3
-             Do j=1,3
-               maxes(i,j)=maxes2(i,j)
-             End Do
-           End Do
-
          End If
 
       Else If ( iopt .eq. 4 ) Then

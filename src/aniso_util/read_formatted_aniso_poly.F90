@@ -10,27 +10,29 @@
 !***********************************************************************
 
 subroutine read_formatted_aniso_poly(input_file_name,nss,nstate,nLoc,eso,MM,MS,iReturn)
+! nLoc is the maximal value of the array nss(1:nneq)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(inout) :: nss, nstate, nLoc, iReturn
-! nLoc is the maximal value of the array nss(1:nneq)
-real(kind=8), intent(out) :: eso(nLoc)
-complex(kind=8), intent(out) :: MM(3,nLoc,nLoc)
-complex(kind=8), intent(out) :: MS(3,nLoc,nLoc)
-character(len=180) :: input_file_name
-! local variables:
-integer :: l, j, j1, j2, LuAniso, IsFreeUnit
-integer :: multiplicity(nLoc)
-real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
-external :: IsFreeUnit
+character(len=180), intent(in) :: input_file_name
+integer(kind=iwp), intent(inout) :: nss, nstate
+integer(kind=iwp), intent(in) :: nLoc
+real(kind=wp), intent(out) :: eso(nLoc)
+complex(kind=wp), intent(out) :: MM(3,nLoc,nLoc), MS(3,nLoc,nLoc)
+integer(kind=iwp), intent(out) :: iReturn
+integer(kind=iwp) :: j, j1, j2, l, LuAniso
+integer(kind=iwp), allocatable :: multiplicity(:)
+real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 
+#include "macros.fh"
+
+call mma_allocate(multiplicity,nstate,label='multiplicity')
 ! set to zero all arrays:
 iReturn = 0
-multiplicity(:) = 0
 MM(:,:,:) = cZero
 MS(:,:,:) = cZero
 ! read the file "aniso.input":
@@ -40,6 +42,7 @@ call molcas_open(LuAniso,input_file_name)
 read(LuAniso,*) nstate,nss
 read(LuAniso,*) (eso(j),j=1,nss)
 read(LuAniso,*) (multiplicity(j),j=1,nstate)
+unused_var(multiplicity)
 
 call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
@@ -89,9 +92,8 @@ call mma_deallocate(tmpI)
 !end if
 close(LuAniso)
 
+call mma_deallocate(multiplicity)
+
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer_array(multiplicity)
-#endif
 
 end subroutine read_formatted_aniso_poly

@@ -15,45 +15,30 @@
 subroutine read_hdf5_poly(file_h5,nss,nstate,eso,MM,MS,iReturn)
 
 use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne, Onei, auTocm, gElectron
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: nstate, nss
-integer :: multiplicity(nstate)
-integer :: iReturn
-!real(kind=8), intent(out) :: esfs(nstate)
-real(kind=8), intent(out) :: eso(nss)
-!real(kind=8), intent(out) ::  edmom(3,nstate,nstate)
-!real(kind=8), intent(out) ::   amfi(3,nstate,nstate)
-real(kind=8) :: angmom(3,nstate,nstate)
-complex(kind=8) :: MM(3,nss,nss)
-complex(kind=8) :: MS(3,nss,nss)
-!complex(kind=8), intent(out) :: ML(3,nss,nss)
-!complex(kind=8), intent(out) :: DM(3,nss,nss) ! electric dipole moment
-!complex(kind=8), intent(out) :: HSO(nss,nss)
-!complex(kind=8) :: U(nLoc,nLoc)
-real(kind=8), parameter :: g_e = -gElectron
-real(kind=8), allocatable :: etmp(:)
-real(kind=8), allocatable :: RR(:,:), RI(:,:)
-real(kind=8), allocatable :: AL(:,:,:)
-complex(kind=8), allocatable :: U(:,:)
-integer :: fileid, jend, INRM
+integer(kind=iwp), intent(in) :: nss, nstate
+real(kind=wp), intent(out) :: eso(nss)
+complex(kind=wp), intent(out) :: MM(3,nss,nss), MS(3,nss,nss)
+integer(kind=iwp), intent(out) :: iReturn
+real(kind=wp), allocatable :: etmp(:)
+real(kind=wp), allocatable :: RR(:,:), RI(:,:)
+real(kind=wp), allocatable :: AL(:,:,:)
+integer(kind=iwp) :: fileid, i, i1, ibas(nstate,-50:50), INRM, ipar, iss, ist, j, j1, jend, jst, l, mult, multI, multJ
+real(kind=wp) :: RNRM
+!logical(kind=iwp) :: found_amfi, found_angmom, found_edmom, found_esfs, found_eso, found_hso, found_mult, found_sos_coeff
 character(len=180) :: file_h5
-real(kind=8) :: RNRM
-real(kind=8), external :: dnrm2_, dznrm2_
-complex(kind=8), external :: spin
-! local variables:
-integer :: iss, ibas(nstate,-50:50)
-integer :: i, j, i1, j1, ist, jst, mult, multI, multJ
-integer :: l, ipar
-complex(kind=8), allocatable :: tmp(:,:)
-!logical :: Exist
-!logical :: found_edmom, found_angmom, found_hso, found_amfi, found_sos_coeff, found_eso, found_esfs, found_mult
-logical :: DBG
+integer(kind=iwp), allocatable :: multiplicity(:)
+real(kind=wp), allocatable :: angmom(:,:,:) !, amfi(:,:,:), edmom(:,:,:), esfs(:)
+complex(kind=wp), allocatable :: tmp(:,:), U(:,:) !, ML(:,:,:), DM(:,:,:), HSO(:,:)
+real(kind=wp), parameter :: g_e = -gElectron
+logical(kind=iwp), parameter :: DBG = .false.
+real(kind=wp), external :: dnrm2_, dznrm2_
+complex(kind=wp), external :: spin
 
-DBG = .false.
 !found_edmom = .false.
 !found_angmom = .false.
 !found_hso = .false.
@@ -63,6 +48,9 @@ DBG = .false.
 !found_esfs = .false.
 !found_mult = .false.
 iReturn = 0
+
+call mma_allocate(multiplicity,nstate,label='multiplicity')
+call mma_allocate(angmom,3,nstate,nstate,label='angmom')
 
 write(u6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
 
@@ -77,7 +65,7 @@ if (DBG) write(u6,'(A,I24)') 'read_hdf5_all:: fileid=',fileid
 ! read spin multiplicity of each state:
 !if (mh5_exists_dset(fileid,'STATE_SPINMULT')) then
 !  found_mult = .true.
-call mh5_fetch_attr(fileid,'STATE_SPINMULT',multiplicity(1:nstate))
+call mh5_fetch_attr(fileid,'STATE_SPINMULT',multiplicity)
 if (DBG) then
   write(u6,'(A)') 'read_hdf5_all:: multiplicity'
   write(u6,'(20I4)') (multiplicity(i),i=1,nstate)
@@ -370,6 +358,8 @@ do L=1,3
 end do !L
 call mma_deallocate(tmp)
 call mma_deallocate(U)
+call mma_deallocate(multiplicity)
+call mma_deallocate(angmom)
 
 ! close the file
 call mh5_close_file(fileid)

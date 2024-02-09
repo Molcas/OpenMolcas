@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function FindDetR(matrix,n)
+function FindDetR(matrix,n)
 ! Function to find the determinant of a square matrix
 !
 ! Description: The Subroutine is based on two key points:
@@ -22,15 +22,16 @@ real*8 function FindDetR(matrix,n)
 !     the product of the diagonal elements
 
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: N
-real(kind=8) :: matrix(N,N)
-! local variables:
-real(kind=8) :: m, temp
-real(kind=8), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)
-integer :: i, j, k
-logical :: DetExists
+real(kind=wp) :: FindDetR
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(inout) :: matrix(N,N)
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: m, temp
+logical(kind=iwp) :: DetExists
+real(kind=wp), parameter :: MINIMAL_REAL = tiny(MINIMAL_REAL)
 
 DetExists = .true.
 temp = 0

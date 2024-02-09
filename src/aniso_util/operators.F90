@@ -31,16 +31,15 @@ subroutine ITO(N,k,q,C0,Cp,Cm)
 ! C0 = CG0  (output), real number, positive
 
 use Constants, only: Half, cOne
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: n, k, q
-real(kind=8), intent(out) :: C0
-complex(kind=8), intent(out) :: Cp(n,n), Cm(n,n)
-! local
-integer :: m1, m2
-real(kind=8) :: rm1, rm2, rS, rK, rQ, CGp, CGm, fct
-external :: fct
+integer(kind=iwp), intent(in) :: n, k, q
+real(kind=wp), intent(out) :: C0
+complex(kind=wp), intent(out) :: Cp(n,n), Cm(n,n)
+integer(kind=iwp) :: m1, m2
+real(kind=wp) :: CGm, CGp, rK, rm1, rm2, rQ, rS
+real(kind=wp), external :: fct
 
 rS = real(n-1,kind=wp)*Half
 rK = real(k,kind=wp)
@@ -66,19 +65,14 @@ subroutine Liviu_ITO(n,k,q,O,W,redME)
 ! generate O, W as in previous Stewens_matrixel function:
 ! redME =  ratio between Naoya's and Liviu operators
 
-use Constants, only: Zero, cZero, cOne
+use Constants, only: cOne
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: n, k, q
-complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
-! local
-real(kind=8) :: CR, C0
+integer(kind=iwp), intent(in) :: n, k, q
+complex(kind=wp), intent(out) :: O(n,n), W(n,n), redME
+real(kind=wp) :: C0, CR
 
-O(:,:) = cZero
-W(:,:) = cZero
-CR = Zero
-C0 = Zero
-redME = cZero
 call coeff_redus_sub(n,k,CR)
 call ITO(n,k,q,C0,O,W)
 redME = C0*CR*cOne
@@ -95,12 +89,12 @@ subroutine Stev_ITO(n,k,q,O,W,redME)
 ! scaled as for Stevens Operators by knm
 
 use Constants, only: One, cZero, cOne
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: n, k, q
-complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
-! local
-real(kind=8) :: F, knm(12,0:12)
+integer(kind=iwp), intent(in) :: n, k, q
+complex(kind=wp), intent(out) :: O(n,n), W(n,n), redME
+real(kind=wp) :: F, knm(12,0:12)
 
 O(:,:) = cZero
 W(:,:) = cZero
@@ -122,16 +116,16 @@ subroutine ESO(n,k,q,O,W,redME)
 ! generate Hermitian ESO operators, as in MATLAB EasySpin(stev) function
 ! only for q >= 0
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half, cZero, cOne, Onei
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: n, k, q
-complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
-! local
-real(kind=8) :: CR, C0, knm(12,0:12), F
-complex(kind=8) :: mQ
-complex(kind=8), allocatable :: Cp(:,:), Cm(:,:)
+integer(kind=iwp), intent(in) :: n, k, q
+complex(kind=wp), intent(out) :: O(n,n), W(n,n), redME
+real(kind=wp) :: C0, CR, F, knm(12,0:12)
+complex(kind=wp) :: mQ
+complex(kind=wp), allocatable :: Cp(:,:), Cm(:,:)
 
 O(:,:) = cZero
 W(:,:) = cZero
@@ -166,21 +160,19 @@ subroutine Liviu_ESO(n,k,q,O,W,redME)
 ! Op = Ok+q
 ! the only difference with MATLAB's ESO are scaling factor Knm
 
-use Constants, only: Half, cZero, cOne, Onei
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half, cOne, Onei
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: n, k, q
-complex(kind=8), intent(out) :: O(n,n), W(n,n), redME
-! local
-real(kind=8) :: CR, C0
-complex(kind=8) :: mQ
-complex(kind=8), allocatable :: Cp(:,:), Cm(:,:)
+integer(kind=iwp), intent(in) :: n, k, q
+complex(kind=wp), intent(out) :: O(n,n), W(n,n), redME
+real(kind=wp) :: C0, CR
+complex(kind=wp) :: mQ
+complex(kind=wp), allocatable :: Cp(:,:), Cm(:,:)
 
 call mma_allocate(Cp,n,n,'Cp')
 call mma_allocate(Cm,n,n,'Cm')
-Cp(:,:) = cZero
-Cm(:,:) = cZero
 
 call coeff_redus_sub(n,k,CR)
 call ITO(n,k,q,C0,Cp,Cm)
@@ -195,40 +187,43 @@ return
 
 end subroutine Liviu_ESO
 !=!=
-subroutine Stewens_matrixel(N,M,dim,ITO_O,ITO_W,IPRINT)
+subroutine Stewens_matrixel(N,M,d,ITO_O,ITO_W,IPRINT)
 ! This Subroutine calculates the matrix elements of the ITO  (On)
 ! on the basis of the eigenfunctions of the effective spin.
 !
 ! N -- the rank of the ITO (On)
-! dim -- the multiplicity of the effective spin
-! Dip_Stewens(N, L, dim, dim) -- the matrix elements of the ITO tensor
+! d -- the multiplicity of the effective spin
+! Dip_Stewens(N, L, d, d) -- the matrix elements of the ITO tensor
 !               operators in the basis of effective spin eigenfunctions
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: N, M, dim, IPRINT
-complex(kind=8), intent(out) :: ITO_O(dim,dim), ITO_W(dim,dim)
-integer :: npar, i, j, ms1, ms2
-real(kind=8) :: a, al, b, bt, c, gm, COEFF_REDUS, coeffCG
-complex(kind=8) :: ITO_PLUS(-dim:dim,-dim:dim), ITO_MINUS(-dim:dim,-dim:dim)
+integer(kind=iwp), intent(in) :: N, M, d, IPRINT
+complex(kind=wp), intent(out) :: ITO_O(d,d), ITO_W(d,d)
+integer(kind=iwp) :: i, j, ms1, ms2, npar
+real(kind=wp) :: a, al, b, bt, c, COEFF_REDUS, coeffCG, gm
+complex(kind=wp), allocatable :: ITO_PLUS(:,:), ITO_MINUS(:,:)
 !***********************************************************************
 
-NPAR = mod(dim,2)
-COEFF_REDUS = Zero
+call mma_allocate(ITO_PLUS,[-d,d],[-d,d],label='ITO_PLUS')
+call mma_allocate(ITO_MINUS,[-d,d],[-d,d],label='ITO_MINUS')
+
+NPAR = mod(d,2)
 ITO_PLUS(:,:) = cZero
 ITO_MINUS(:,:) = cZero
 ITO_O(:,:) = cZero
 ITO_W(:,:) = cZero
 
-call COEFF_REDUS_SUB(dim,N,COEFF_REDUS)
+call COEFF_REDUS_SUB(d,N,COEFF_REDUS)
 !COEFF_REDUS = One
 a = real(N,kind=wp)
 al = real(M,kind=wp)
-c = real(dim-1,kind=wp)*Half
-b = real(dim-1,kind=wp)*Half
-do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
+c = real(d-1,kind=wp)*Half
+b = real(d-1,kind=wp)*Half
+do ms1=-(d-NPAR)/2,(d-NPAR)/2
   if ((ms1 == 0) .and. (NPAR == 0)) cycle
   if (NPAR == 0) then
     if (ms1 < 0) then
@@ -240,7 +235,7 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
     gm = real(ms1,kind=wp)
   end if
 
-  do ms2=-(dim-NPAR)/2,(dim-NPAR)/2
+  do ms2=-(d-NPAR)/2,(d-NPAR)/2
     if ((ms2 == 0) .and. (NPAR == 0)) cycle
     if (NPAR == 0) then
       if (ms2 < 0) then
@@ -265,7 +260,7 @@ end do ! ms1
 
 al = -real(M,kind=wp)
 
-do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
+do ms1=-(d-NPAR)/2,(d-NPAR)/2
   if ((ms1 == 0) .and. (NPAR == 0)) cycle
   if (NPAR == 0) then
     if (ms1 < 0) then
@@ -277,7 +272,7 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
     gm = real(ms1,kind=wp)
   end if
 
-  do ms2=-(dim-NPAR)/2,(dim-NPAR)/2
+  do ms2=-(d-NPAR)/2,(d-NPAR)/2
     if ((ms2 == 0) .and. (NPAR == 0)) cycle
 
     if (NPAR == 0) then
@@ -302,12 +297,12 @@ do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
 end do
 
 i = 0
-do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
+do ms1=-(d-NPAR)/2,(d-NPAR)/2
   if ((ms1 == 0) .and. (NPAR == 0)) cycle
   i = i+1
   j = 0
 
-  do ms2=-(dim-NPAR)/2,(dim-NPAR)/2
+  do ms2=-(d-NPAR)/2,(d-NPAR)/2
     if ((ms2 == 0) .and. (NPAR == 0)) cycle
     j = j+1
     ITO_O(i,j) = ITO_PLUS(ms1,ms2)
@@ -319,49 +314,53 @@ if (IPRINT > 3) then
   write(u6,'(/)')
   write(u6,'(5X,A,2I3)') 'Operator ITO_PLUS',N,M
   write(u6,*)
-  do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
+  do ms1=-(d-NPAR)/2,(d-NPAR)/2
     if ((ms1 == 0) .and. (NPAR == 0)) cycle
-    if (NPAR == 1) write(u6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
-    if (NPAR == 0) write(u6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-dim/2,-1),(ITO_PLUS(ms1,ms2),ms2=1,dim/2)
+    if (NPAR == 1) write(u6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-(d-NPAR)/2,(d-NPAR)/2)
+    if (NPAR == 0) write(u6,'(16(2X,2ES12.3))') (ITO_PLUS(ms1,ms2),ms2=-d/2,-1),(ITO_PLUS(ms1,ms2),ms2=1,d/2)
   end do ! ms1
 
   write(u6,'(/)')
   write(u6,'(5X,A,2I3)') 'Operator ITO_MINUS',N,M
   write(u6,*)
-  do ms1=-(dim-NPAR)/2,(dim-NPAR)/2
+  do ms1=-(d-NPAR)/2,(d-NPAR)/2
     if ((ms1 == 0) .and. (NPAR == 0)) cycle
-    if (NPAR == 1) write(u6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-(dim-NPAR)/2,(dim-NPAR)/2)
-    if (NPAR == 0) write(u6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-dim/2,-1),(ITO_MINUS(ms1,ms2),ms2=1,dim/2)
+    if (NPAR == 1) write(u6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-(d-NPAR)/2,(d-NPAR)/2)
+    if (NPAR == 0) write(u6,'(16(2X,2ES12.3))') (ITO_MINUS(ms1,ms2),ms2=-d/2,-1),(ITO_MINUS(ms1,ms2),ms2=1,d/2)
   end do ! ms1
 
   write(u6,'(/////)')
   write(u6,'(5X,A,2I3)') 'ITO_O',N,M
   write(u6,*)
-  do i=1,dim
-    write(u6,'(16(2X,2ES12.3))') (ITO_O(i,j),j=1,dim)
+  do i=1,d
+    write(u6,'(16(2X,2ES12.3))') (ITO_O(i,j),j=1,d)
   end do   ! i
   write(u6,'(/)')
   write(u6,'(5X,A,2I3)') 'ITO_W',N,M
   write(u6,*)
-  do i=1,dim
-    write(u6,'(16(2X,2ES12.3))') (ITO_W(i,j),j=1,dim)
+  do i=1,d
+    write(u6,'(16(2X,2ES12.3))') (ITO_W(i,j),j=1,d)
   end do ! i
 end if ! iPrint
+
+call mma_deallocate(ITO_PLUS)
+call mma_deallocate(ITO_MINUS)
 
 return
 
 end subroutine Stewens_matrixel
 !=!=
-real*8 function fct(n)
+function fct(n)
 ! this function provides correct answer till n=169 only
 
 use Constants, only: One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
-integer :: i
-real(kind=8) :: xct
+real(kind=wp) ::fct
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp) :: i
+real(kind=wp) :: xct, xlim
 
 xct = One
 fct = One
@@ -376,7 +375,14 @@ else if (n == 0) then
   return
 
 else if ((n > 0) .and. (n <= 169)) then
+  xlim = huge(xct)/real(n,kind=wp)
   do i=1,n
+    if (xct > xlim) then
+      write(u6,'(A,i0)') 'FCT:   N = ',N
+      write(u6,'(A)') 'Factorial of overflows current precision.'
+      write(u6,'(A)') 'Use higher numerical precision, or rethink your algorithm.'
+      call abend()
+    end if
     xct = xct*real(i,kind=wp)
   end do
 
@@ -392,7 +398,7 @@ return
 
 end function fct
 !=!=
-subroutine COEFF_REDUS_SUB(dim,N,COEFF_REDUS)
+subroutine COEFF_REDUS_SUB(d,N,COEFF_REDUS)
 ! THIS Subroutine ReturnS THE VALUE OF THE REDUCED MATRIX ELEMENT  <S|| On ||S>
 ! WHERE S-EFFECTIVE SPIN, On -- THE HIGHER ORDER SPIN OPERATORS
 !
@@ -405,103 +411,25 @@ subroutine COEFF_REDUS_SUB(dim,N,COEFF_REDUS)
 ! This norm makes the matrix elements of ESO identical to those of the
 ! operators from EasySpin (stev).
 
-use Constants, only: Zero, One, Two, Eight
-use Definitions, only: wp
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: N, dim
-real(kind=8), intent(out) :: COEFF_REDUS
-real(kind=8) :: FCT, Norm(100), s1, s2
-external :: fct
+integer(kind=iwp), intent(in) :: d, N
+real(kind=wp), intent(out) :: COEFF_REDUS
+real(kind=wp) :: s1, s2
+real(kind=wp), parameter :: Norm(51) = [Two**0,Two**1,Two**3,Two**4,Two**7,Two**8,Two**10,Two**11,Two**15,Two**16,Two**18,Two**19, &
+                                        Two**22,Two**23,Two**25,Two**26,Two**31,Two**32,Two**34,Two**35,Two**38,Two**39,Two**41, &
+                                        Two**42,Two**46,Two**47,Two**49,Two**50,Two**53,Two**54,Two**56,Two**57,Two**63,Two**64, &
+                                        Two**66,Two**67,Two**70,Two**71,Two**73,Two**74,Two**78,Zero,Zero,Zero,Zero,Zero,Zero, &
+                                        Zero,Zero,Zero,Zero]
+real(kind=wp), external :: fct
 
-COEFF_REDUS = Zero
-Norm(1) = One
-Norm(2) = Two
-Norm(3) = Two
-Norm(4) = Eight
-Norm(5) = Eight
-Norm(6) = 16.0_wp
-Norm(7) = 16.0_wp
-Norm(8) = 128.0_wp
-Norm(9) = 128.0_wp
-Norm(10) = 256.0_wp
-Norm(11) = 256.0_wp
-Norm(12) = 1024.0_wp
-Norm(13) = 1024.0_wp
-Norm(14) = 2048.0_wp
-Norm(15) = 2048.0_wp
-Norm(16) = 32768.0_wp
-Norm(17) = 32768.0_wp
-Norm(18) = 65536.0_wp
-Norm(19) = 65536.0_wp
-Norm(20) = 262144.0_wp
-Norm(21) = 262144.0_wp
-Norm(22) = 524288.0_wp
-Norm(23) = 524288.0_wp
-Norm(24) = 4194304.0_wp
-Norm(25) = 4194304.0_wp
-Norm(26) = 8388608.0_wp
-Norm(27) = 8388608.0_wp
-Norm(28) = 33554432.0_wp
-Norm(29) = 33554432.0_wp
-Norm(30) = 67108867.0_wp
-Norm(31) = 67108867.0_wp
-Norm(32) = 2147483648.0_wp
-Norm(33) = 2147483648.0_wp
-Norm(34) = 4294967296.0_wp
-Norm(35) = 4294967296.0_wp
-Norm(36) = 17179869184.0_wp
-Norm(37) = 17179869184.0_wp
-Norm(38) = 34359738368.0_wp
-Norm(39) = 34359738368.0_wp
-Norm(40) = 274877906944.0_wp
-Norm(41) = 274877906944.0_wp
-Norm(42) = 549755813888.0_wp
-Norm(43) = 549755813888.0_wp
-Norm(44) = 2199023255552.0_wp
-Norm(45) = 2199023255552.0_wp
-Norm(46) = 4398046511104.0_wp
-Norm(47) = 4398046511104.0_wp
-Norm(48) = 70368744177664.0_wp
-Norm(49) = 70368744177664.0_wp
-Norm(50) = 140737488355328.0_wp
-Norm(51) = 140737488355328.0_wp
-Norm(52) = 562949953421312.0_wp
-Norm(53) = 562949953421312.0_wp
-Norm(54) = 1125899906842624.0_wp
-Norm(55) = 1125899906842624.0_wp
-Norm(56) = 9007199254740992.0_wp
-Norm(57) = 9007199254740992.0_wp
-Norm(58) = 18014398509481984.0_wp
-Norm(59) = 18014398509481984.0_wp
-Norm(60) = 72057594037927936.0_wp
-Norm(61) = 72057594037927936.0_wp
-Norm(62) = 144115188075855872.0_wp
-Norm(63) = 144115188075855872.0_wp
-Norm(64) = 9223372036854775808.0_wp
-Norm(65) = 9223372036854775808.0_wp
-Norm(66) = 18446744073709551616.0_wp
-Norm(67) = 18446744073709551616.0_wp
-Norm(68) = 73786976294838206464.0_wp
-Norm(69) = 73786976294838206464.0_wp
-Norm(70) = 147573952589676412928.0_wp
-Norm(71) = 147573952589676412928.0_wp
-Norm(72) = 1180591620717411303424.0_wp
-Norm(73) = 1180591620717411303424.0_wp
-Norm(74) = 2361183241434822606848.0_wp
-Norm(75) = 2361183241434822606848.0_wp
-Norm(76) = 9444732965739290427392.0_wp
-Norm(77) = 9444732965739290427392.0_wp
-Norm(78) = 18889465931478580854784.0_wp
-Norm(79) = 18889465931478580854784.0_wp
-Norm(80) = 302231454903657293676544.0_wp
-Norm(81) = 302231454903657293676544.0_wp
-Norm(82:100) = Zero
 !  new method
-s1 = sqrt(fct(dim+N)/fct(dim-N-1))
-s2 = real(2**N,kind=wp)*sqrt(real(dim,kind=wp))
+s1 = sqrt(fct(d+N)/fct(d-N-1))
+s2 = real(2**N,kind=wp)*sqrt(real(d,kind=wp))
 
-COEFF_REDUS = Norm(N)*s1/s2
+COEFF_REDUS = Norm(N/2+1)*s1/s2
 
 return
 
@@ -510,14 +438,14 @@ end subroutine COEFF_REDUS_SUB
 subroutine Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
 
 use Constants, only: Zero, Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real(kind=8), intent(in) :: a, al, b, bt, c, gm
-real(kind=8), intent(out) :: coeffCG
-real(kind=8) :: u, fct, s1, s2
-integer :: lb1, lb2, i
-external :: fct
+real(kind=wp), intent(in) :: a, al, b, bt, c, gm
+real(kind=wp), intent(out) :: coeffCG
+integer(kind=iwp) :: i, lb1, lb2
+real(kind=wp) :: s1, s2, u
+real(kind=wp), external :: fct
 
 ! exclude the cases for which CG coefficients are exactly zero
 coeffCG = Zero
@@ -564,8 +492,7 @@ return
 
 end subroutine Clebsch_Gordan
 !=!=
-real*8 function W9J(a,b,c,d,e,f,g,h,j)
-
+function W9J(a,b,c,d,e,f,g,h,j)
 ! Calculates a Wigner 9-j symbol. Argument a-j are Integer and are
 ! twice the true value of the 9-j's arguments, in the form
 ! { a b c }
@@ -576,14 +503,14 @@ real*8 function W9J(a,b,c,d,e,f,g,h,j)
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: a, b, c, d, e, f, g, h, j
-integer :: n, nlow, nhig
-real(kind=8) :: W6J
-logical :: check_triangle
-external :: W6J, check_triangle
+real(kind=wp) :: W9J
+integer(kind=iwp), intent(in) :: a, b, c, d, e, f, g, h, j
+integer(kind=iwp) :: n, nhig, nlow
+real(kind=wp), external :: W6J
+logical(kind=iwp), external :: check_triangle
 
 W9j = Zero
 if (mod(a+b,2) /= mod(c,2)) return
@@ -616,7 +543,7 @@ return
 
 end function W9J
 !=!=
-real*8 function W6J(a,b,c,d,e,f)
+function W6J(a,b,c,d,e,f)
 ! Calculates a Wigner 6-j symbol. Argument a-f are positive Integer
 ! and are twice the true value of the 6-j's arguments, in the form
 ! { a b c }
@@ -627,14 +554,15 @@ real*8 function W6J(a,b,c,d,e,f)
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: a, b, c, d, e, f
-integer :: n, nlow, nhig
-real(kind=8) :: dlt, sum, fct, isum
-logical :: check_triangle
-external :: fct, dlt, check_triangle
+real(kind=wp) :: W6J
+integer(kind=iwp), intent(in) :: a, b, c, d, e, f
+integer(kind=iwp) :: n, nhig, nlow
+real(kind=wp) :: rsum
+real(kind=wp), external :: dlt, fct
+logical(kind=iwp), external :: check_triangle
 
 W6J = Zero
 if (mod(a+b,2) /= mod(c,2)) return
@@ -651,24 +579,21 @@ if (.not. check_triangle(c,d,e)) return
 if (.not. check_triangle(a,e,f)) return
 if (.not. check_triangle(b,d,f)) return
 
-nlow = 0
-nhig = 0
 nlow = max((a+b+c)/2,(c+d+e)/2,(b+d+f)/2,(a+e+f)/2)
 nhig = min((a+b+d+e)/2,(b+c+e+f)/2,(a+c+d+f)/2)
 
-sum = Zero
+rsum = Zero
 do n=nlow,nhig
-  isum = real((-1)**n,kind=wp)*fct(n+1)/fct((a+c+d+f)/2-n)/fct((b+c+e+f)/2-n)/fct(n-(a+b+c)/2)/fct(n-(c+d+e)/2)/fct(n-(a+e+f)/2)/ &
-         fct(n-(b+d+f)/2)/fct((a+b+d+e)/2-n)
-  sum = sum+isum
+  rsum = rsum+real((-1)**n,kind=wp)*fct(n+1)/fct((a+c+d+f)/2-n)/fct((b+c+e+f)/2-n)/fct(n-(a+b+c)/2)/fct(n-(c+d+e)/2)/ &
+         fct(n-(a+e+f)/2)/fct(n-(b+d+f)/2)/fct((a+b+d+e)/2-n)
 end do
-W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*sum
+W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*rsum
 
 return
 
 end function W6J
 !=!=
-real*8 function W3J(j1,j2,j3,m1,m2,m3)
+function W3J(j1,j2,j3,m1,m2,m3)
 ! Calculates a Wigner 3-j symbol. Argument j1,j2,j3 are positive Integer
 ! and are twice the true value of the 3-j's arguments, in the form
 ! { j1 j2 j3 }
@@ -679,14 +604,14 @@ real*8 function W3J(j1,j2,j3,m1,m2,m3)
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
 use Constants, only: Zero, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: j1, j2, j3, m1, m2, m3
-real(kind=8) :: coeffCG
+real(kind=wp) :: W3J
+integer(kind=iwp), intent(in) :: j1, j2, j3, m1, m2, m3
+real(kind=wp) :: coeffCG
 
 W3J = Zero
-coeffCG = Zero
 call Clebsch_Gordan(real(j1,kind=wp)*Half,real(m1,kind=wp)*Half,real(j2,kind=wp)*Half,real(m2,kind=wp)*Half,real(j3,kind=wp)*Half, &
                     -real(m3,kind=wp)*Half,coeffCG)
 if (coeffCG == Zero) return
@@ -696,7 +621,7 @@ return
 
 end function W3J
 !=!=
-real*8 function WCG(a,al,b,bt,c,gm)
+function WCG(a,al,b,bt,c,gm)
 ! Calculates a Clebsch-Gordan Coefficient. Argument a, al, b, bt, c, gm are Integer,
 ! Double their actual value.
 ! (   c/2, gm/2            )
@@ -707,13 +632,14 @@ real*8 function WCG(a,al,b,bt,c,gm)
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: a, al, b, bt, c, gm
-integer :: lb1, lb2, i
-real(kind=8) :: u, fct, dlt
-external :: fct, dlt
+real(kind=wp) :: WCG
+integer(kind=iwp), intent(in) :: a, al, b, bt, c, gm
+integer(kind=iwp) :: i, lb1, lb2
+real(kind=wp) :: u
+real(kind=wp), external :: dlt, fct
 
 WCG = Zero
 
@@ -759,7 +685,7 @@ return
 
 end function WCG
 !=!=
-real*8 function dlt(a,b,c)
+function dlt(a,b,c)
 ! calculates the delta(a,b,c) function using the formula 8.2.1. from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
@@ -768,13 +694,13 @@ real*8 function dlt(a,b,c)
 ! their values are DoUBLE than their original value
 
 use Constants, only: Zero, One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: a, b, c
-real(kind=8) :: fct
-logical :: check_triangle
-external :: check_triangle, fct
+real(kind=wp) :: dlt
+integer(kind=iwp), intent(in) :: a, b, c
+real(kind=wp), external :: fct
+logical(kind=iwp), external :: check_triangle
 
 dlt = Zero
 if ((abs(a-b) > c) .or. (a+b < c)) return
@@ -796,13 +722,14 @@ return
 
 end function dlt
 !=!=
-logical function check_triangle(a,b,c)
+function check_triangle(a,b,c)
 !  checks If the values a,b,c comply with the triangle rule
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: a, b, c
+logical(kind=iwp) :: check_triangle
+integer(kind=iwp), intent(in) :: a, b, c
 
 check_triangle = .false.
 
@@ -821,13 +748,13 @@ return
 
 end function check_triangle
 !=!=
-complex*16 function WignerD(J,M1,M2,al,bt,gm)
+function WignerD(J,M1,M2,al,bt,gm)
 ! the function Returns the Wigner-D function specIfying the rotation
 ! of the |J,M1,M2> around three  angles(alpha,beta,gamma).
 ! The rotation is either active (ik=1) or passive (ik=2).
 !   J, M1, M2 are specIfied as Integer numbers, with a value DoUBLE than their actual size;
 !   i.e. J = 2*J (Real); M1= 2*M1(Real); M2=2*M2(Real);
-!   alpha, beta, gamma are specIfied as Double precision (Real(kind=8) ::). These values must be defined in
+!   alpha, beta, gamma are specIfied as Double precision (Real(kind=wp) ::). These values must be defined in
 !   radians ( i.e. in units of Pi)
 !
 !
@@ -836,19 +763,17 @@ complex*16 function WignerD(J,M1,M2,al,bt,gm)
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
 use Constants, only: Half, cZero, cOne, Onei
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: J, M1, M2
-real(kind=8), intent(in) :: al, bt, gm
-complex(kind=8) :: m1_fact, m2_fact, wig_fac
-real(kind=8), external :: wigner_d
+complex(kind=wp) :: WignerD
+integer(kind=iwp), intent(in) :: J, M1, M2
+real(kind=wp), intent(in) :: al, bt, gm
+complex(kind=wp) :: m1_fact, m2_fact, wig_fac
+real(kind=wp), external :: wigner_d
 
-!  check correctness
+! check correctness
 WignerD = cZero
-wig_fac = cZero
-m1_fact = cZero
-m2_fact = cZero
 if (abs(M1) > J) return
 if (abs(M2) > J) return
 if (abs(J) < 0) return
@@ -862,20 +787,21 @@ return
 
 end function WignerD
 !=!=
-real*8 function wigner_d(J,M1,M2,bt)
+function wigner_d(J,M1,M2,bt)
 ! This is the implementation of the formula 4.3.1 (2) from
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
 use Constants, only: Zero, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: J, M1, M2
-real(kind=8), intent(in) :: bt
-real(kind=8) :: ksum, fct
-integer :: kmin, kmax, i
-external :: fct
+real(kind=wp) :: wigner_d
+integer(kind=iwp), intent(in) :: J, M1, M2
+real(kind=wp), intent(in) :: bt
+integer(kind=iwp) :: i, kmax, kmin
+real(kind=wp) :: ksum
+real(kind=wp), external :: fct
 
 wigner_d = Zero
 ksum = Zero
@@ -892,7 +818,7 @@ return
 
 end function wigner_d
 !=!=
-real*8 function RedME(La,Sa,LaP,SaP,L,S)
+function RedME(La,Sa,LaP,SaP,L,S)
 ! function evaluates the reduced matrix elements of the ground atomic J multipet
 !
 !  the function evaluates the formula:
@@ -903,16 +829,16 @@ real*8 function RedME(La,Sa,LaP,SaP,L,S)
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: La, Sa, LaP, SaP, L, S
-integer :: JaP, jm, js, s_orb, l_orb
-real(kind=8) :: WCG, temp, factor
-external :: WCG
+real(kind=wp) :: RedME
+integer(kind=iwp), intent(in) :: La, Sa, LaP, SaP, L, S
+integer(kind=iwp) :: JaP, jm, js, l_orb, s_orb
+real(kind=wp) :: factor, temp
+real(kind=wp), external :: WCG
 
 RedME = Zero
-temp = Zero
 l_orb = 6  ! Double of true value l_orb = 3
 s_orb = 1  ! Double of true value s_orb = 1/2
 JaP = LaP+SaP
@@ -923,6 +849,7 @@ if (WCG(Sa,Sa,s_orb,SaP-Sa,SaP,SaP) == Zero) return
 
 factor = sqrt(real((La+1)*(Sa+1),kind=wp))/WCG(La,La,L,0,La,La)/WCG(Sa,Sa,S,0,Sa,Sa)
 
+temp = Zero
 do jm=-l_orb,l_orb
   do js=-s_orb,s_orb
     temp = temp+real((-1)**((l_orb+jm+s_orb+js)/2),kind=wp)*WCG(l_orb,-jm,l_orb,jm,L,0)*WCG(s_orb,-js,s_orb,js,S,0)* &
@@ -939,7 +866,7 @@ return
 
 end function RedME
 !=!=
-real*8 function jot1(t,L,ML,S,MS,La,Sa,LaP,SaP)
+function jot1(t,L,ML,S,MS,La,Sa,LaP,SaP)
 ! function evaluates the J1 exchange matrix element ( formula S.19)
 !
 ! iL_T,iL_TM,iS_T,iS_TM,iL,iS,Sp,Lp are defined as Integers with a value DoUBLE of their true value
@@ -947,19 +874,20 @@ real*8 function jot1(t,L,ML,S,MS,La,Sa,LaP,SaP)
 !    Substitutions:
 
 use Constants, only: Zero, Two, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: L, ML, S, MS, La, Sa, LaP, SaP
-integer :: Ja, l_orb
-real(kind=8), intent(in) :: t
-real(kind=8) :: W9J, WCG, RedME, txt
-external :: W9J, WCG, RedME
+real(kind=wp) :: jot1
+real(kind=wp), intent(in) :: t
+integer(kind=iwp), intent(in) :: L, ML, S, MS, La, Sa, LaP, SaP
+integer(kind=iwp) :: Ja, l_orb
+real(kind=wp) :: txt
+real(kind=wp), external :: RedME, W9J, WCG
 
 jot1 = Zero
-txt = Zero
 l_orb = 6  ! Double of true value l_orb = 3
 !s_orb = 1 ! Double of true value s_orb = 1/2
+txt = Zero
 if (mod(L,2) == 0) then
   if (ML == 0) then
     txt = real((-1)**(l_orb/2),kind=wp)*WCG(l_orb,-4,l_orb,4,L,0)
@@ -978,7 +906,7 @@ return
 
 end function jot1
 !=!=
-real*8 function jot0(t,L,ML,La,Sa,LaP,SaP)
+function jot0(t,L,ML,La,Sa,LaP,SaP)
 ! function evaluates the J1 exchange matrix element ( formula S.19)
 !
 ! iL_T,iL_TM,iS_T,iS_TM,iL,iS,Sp,Lp are defined as Integers with a value DoUBLE of their true value
@@ -986,14 +914,15 @@ real*8 function jot0(t,L,ML,La,Sa,LaP,SaP)
 !    Substitutions:
 
 use Constants, only: Zero, Two, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: L, ML, La, Sa, LaP, SaP
-integer :: Ja, l_orb
-real(kind=8), intent(in) :: t
-real(kind=8) :: W6J, WCG, RedME, txt, W9Jl
-external :: W6J, WCG, RedME
+real(kind=wp) :: jot0
+real(kind=wp), intent(in) :: t
+integer(kind=iwp), intent(in) :: L, ML, La, Sa, LaP, SaP
+integer(kind=iwp) :: Ja, l_orb
+real(kind=wp) :: txt, W9Jl
+real(kind=wp), external :: RedME, W6J, WCG
 
 jot0 = Zero
 l_orb = 6  ! Double of true value l_orb = 3
@@ -1020,14 +949,13 @@ end function jot0
 subroutine verify_CG(N)
 
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer :: n, k, q, m1, m2
-real(wp) :: rJ, rK, rQ, mf, rM1, rM2, rfE, rfG
-real(wp) :: CG_A, CG_B, CG_C, CG_D, CG_E, CG_F, CG_G, CG_H
-logical :: prn
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp) :: k, m1, m2, q
+real(kind=wp) :: CG_A, CG_B, CG_C, CG_D, CG_E, CG_F, CG_G, CG_H, mf, rfE, rfG, rJ, rK, rM1, rM2, rQ
+logical(kind=iwp) :: prn
 
 !2J = n-1
 rJ = real(n-1,kind=wp)*Half

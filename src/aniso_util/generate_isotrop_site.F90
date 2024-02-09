@@ -11,38 +11,24 @@
 
 subroutine generate_isotrop_site(nss,nsfs,nexch,nLoc,gtens_input,riso,D,EoverD,E,M,S)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, cZero, cOne
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
-#include "stdalloc.fh"
-integer, intent(in) :: nLoc
-integer, intent(inout) :: nexch
-integer, intent(inout) :: nss, nsfs
-real(kind=8), intent(in) :: gtens_input(3)
-real(kind=8), intent(in) :: riso(3,3)
-real(kind=8), intent(in) :: D, EoverD ! ZFS factors
-! spin-orbit energy states, starting from 0
-real(kind=8), intent(out) :: E(nExch)
-complex(kind=8), intent(out) :: M(3,nExch,nExch)
-complex(kind=8), intent(out) :: S(3,nExch,nExch)
-! local variables:
-integer :: i, j, l
-integer :: info
-!complex(kind=8) :: spin
-complex(kind=8) :: redme
-complex(kind=8), allocatable :: HZFS(:,:), S2(:,:), Wc(:,:)
-complex(kind=8), allocatable :: SX2(:,:), SY2(:,:), SZ2(:,:)
-complex(kind=8), allocatable :: Z(:,:), tmp(:,:)
-complex(kind=8), allocatable :: MTMP(:,:,:), STMP(:,:,:)
-real(kind=8), allocatable :: W(:)
-real(kind=8) :: gtens(3), maxes(3,3)
-real(kind=8) :: dznrm2_, RM, RS, dnrm2_
-real(kind=8) :: g(3), ma(3,3)
-external :: spin, dznrm2_, dnrm2_
-logical :: dbg
-dbg = .false.
+integer(kind=iwp), intent(inout) :: nss, nsfs, nexch
+integer(kind=iwp), intent(in) :: nLoc
+real(kind=wp), intent(in) :: gtens_input(3), riso(3,3), D, EoverD ! ZFS factors
+real(kind=wp), intent(out) :: E(nExch) ! spin-orbit energy states, starting from 0
+complex(kind=wp), intent(out) :: M(3,nExch,nExch), S(3,nExch,nExch)
+integer(kind=iwp) :: i, info, j, l
+real(kind=wp) :: g(3), gtens(3), ma(3,3), maxes(3,3), RM, RS
+complex(kind=wp) :: redme
+real(kind=wp), allocatable :: W(:)
+complex(kind=wp), allocatable :: HZFS(:,:), MTMP(:,:,:), S2(:,:), STMP(:,:,:), SX2(:,:), SY2(:,:), SZ2(:,:), tmp(:,:), Wc(:,:), &
+                                Z(:,:)
+logical(kind=iwp), parameter :: dbg = .false.
+real(kind=wp), external :: dznrm2_, dnrm2_
 !----------------------------------------------------------------------|
 
 nsfs = 1

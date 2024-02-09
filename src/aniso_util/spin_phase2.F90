@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SPIN_PHASE2(MM,dim,Zinp,Zout)
+subroutine SPIN_PHASE2(MM,d,Zinp,Zout)
 ! The RASSI program gives a ranDom phase to the spin-orbit functions.
 !
 ! This routine performs a simple check with the obtained spin functions,
@@ -18,32 +18,25 @@ subroutine SPIN_PHASE2(MM,dim,Zinp,Zout)
 ! with the correspondind coefficient that sets the same phase to all spin
 ! eigenfunctions
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: dim
-complex(kind=8), intent(in) :: mm(3,dim,dim)
-complex(kind=8), intent(in) :: Zinp(dim,dim)
-complex(kind=8), intent(out) :: Zout(dim,dim)
-!-----------------------------------------------------------------------
-integer :: i, j, l
-complex(kind=8) :: t
-real(kind=8), allocatable :: rxr(:) !dim)
-real(kind=8), allocatable :: rxi(:) !dim)
-complex(kind=8), allocatable :: r(:) !(dim)
-complex(kind=8), allocatable :: phs(:,:,:)  !3,dim,dim)
-complex(kind=8), allocatable :: tmp(:,:) !dim,dim
-logical :: dbg
+integer(kind=iwp), intent(in) :: d
+complex(kind=wp), intent(in) :: mm(3,d,d), Zinp(d,d)
+complex(kind=wp), intent(out) :: Zout(d,d)
+integer(kind=iwp) :: i, j, l
+complex(kind=wp) :: t
+real(kind=wp), allocatable :: rxi(:), rxr(:)
+complex(kind=wp), allocatable :: phs(:,:,:), r(:), tmp(:,:)
+logical(kind=iwp), parameter :: dbg = .false.
 
-dbg = .false.
-
-call mma_allocate(rxr,dim,'rxr')
-call mma_allocate(rxi,dim,'rxi')
-call mma_allocate(r,dim,'r')
-call mma_allocate(phs,3,dim,dim,'phs')
-call mma_allocate(tmp,dim,dim,'tmp')
+call mma_allocate(rxr,d,'rxr')
+call mma_allocate(rxi,d,'rxi')
+call mma_allocate(r,d,'r')
+call mma_allocate(phs,3,d,d,'phs')
+call mma_allocate(tmp,d,d,'tmp')
 !-----------------------------------------------------------------------
 r(:) = cZero
 rxr(:) = Zero
@@ -52,10 +45,10 @@ rxr(1) = One
 r(1) = cOne
 
 ! compute magnetic moment, X
-call zgemm_('C','N',dim,dim,dim,cOne,Zinp,dim,mm(1,:,:),dim,cZero,TMP,dim)
-call zgemm_('N','N',dim,dim,dim,cOne,TMP,dim,Zinp,dim,cZero,phs(1,:,:),dim)
+call zgemm_('C','N',d,d,d,cOne,Zinp,d,mm(1,:,:),d,cZero,TMP,d)
+call zgemm_('N','N',d,d,d,cOne,TMP,d,Zinp,d,cZero,phs(1,:,:),d)
 
-do i=1,dim-1
+do i=1,d-1
   j = i+1
 
   if (abs(phs(1,i,j)) > 1.0e-14_wp) then
@@ -72,19 +65,19 @@ do i=1,dim-1
 end do
 
 t = cOne
-do j=1,dim
+do j=1,d
   t = t*r(j)
   Zout(:,j) = t*Zinp(:,j)
 end do
 
 ! compute the momentum using the ZOUT functions:
-call zgemm_('C','N',dim,dim,dim,cOne,Zout,dim,mm(1,:,:),dim,cZero,TMP,dim)
-call zgemm_('N','N',dim,dim,dim,cOne,TMP,dim,Zout,dim,cZero,phs(1,:,:),dim)
+call zgemm_('C','N',d,d,d,cOne,Zout,d,mm(1,:,:),d,cZero,TMP,d)
+call zgemm_('N','N',d,d,d,cOne,TMP,d,Zout,d,cZero,phs(1,:,:),d)
 ! convention:
 !    mX(i,i+1) => Real, negative
 !    mY(i,i+1) => imag, positive
 !    mZ(i,i)   => diagonal
-do i=1,dim-1,2
+do i=1,d-1,2
   j = i+1
   if (real(phs(1,i,j)) > Zero) Zout(:,j) = -Zout(:,j)
 end do
@@ -92,19 +85,19 @@ end do
 if (dbg) then
 
   do l=1,3
-    call ZGEMM_('C','N',dim,dim,dim,cOne,Zout,dim,mm(l,:,:),dim,cZero,TMP,dim)
-    call ZGEMM_('N','N',dim,dim,dim,cOne,TMP,dim,Zout,dim,cZero,phs(l,:,:),dim)
+    call ZGEMM_('C','N',d,d,d,cOne,Zout,d,mm(l,:,:),d,cZero,TMP,d)
+    call ZGEMM_('N','N',d,d,d,cOne,TMP,d,Zout,d,cZero,phs(l,:,:),d)
   end do
 
-  do i=1,dim
-    do j=1,dim
+  do i=1,d
+    do j=1,d
       write(u6,'(a,i2,a,i2,a,2ES24.14)') 'SPIN-PHASE:  Zout(',i,',',j,') = ',Zout(i,j)
     end do
   end do
 
   write(u6,'(//)')
-  do i=1,dim
-    do j=1,diM
+  do i=1,d
+    do j=1,d
       if ((j == i-1) .or. (j == i+1)) write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =', &
                                                                                 (phs(l,i,j),l=1,3)
     end do

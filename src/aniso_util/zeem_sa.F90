@@ -12,28 +12,18 @@
 subroutine ZEEM_SA(N,H,dX,dY,dZ,W,M,sM,S,zJ,WM,ZM,DBG,RWORK,HZEE,WORK,W_c)
 
 use Constants, only: Zero, cZero, cOne, cLight, mBohr, rPlanck
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! input variables:
-integer, intent(in) :: N
-real(kind=8), intent(in) :: H, dX, dY, dZ, zJ
-real(kind=8), intent(in) :: W(N)
-real(kind=8), intent(in) :: S(3)
-complex(kind=8), intent(in) :: sM(3,N,N)
-complex(kind=8), intent(in) :: M(3,N,N)
-! output variables:
-real(kind=8), intent(out) :: WM(N)
-complex(kind=8), intent(out) :: ZM(N,N)
-! local variables:
-integer :: i, j, info
-real(kind=8), parameter :: mB = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
-real(kind=8) :: RWORK(3*N-2)
-complex(kind=8) :: HZEE(N*(N+1)/2)
-complex(kind=8) :: WORK(2*N-1), R, P, RP
-complex(kind=8) :: H_c, dX_c, dY_c, dZ_c, zJ_c, W_c(N), S_c(3)
-complex(kind=8) :: mB_c
-logical :: DBG
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: H, dX, dY, dZ, W(N), S(3), zJ
+complex(kind=wp), intent(in) :: M(3,N,N), sM(3,N,N)
+real(kind=wp), intent(out) :: WM(N), RWORK(3*N-2)
+complex(kind=wp), intent(out) :: ZM(N,N), HZEE(N*(N+1)/2), WORK(2*N-1), W_c(N)
+logical(kind=iwp), intent(in) :: DBG
+integer(kind=iwp) :: i, info, j
+complex(kind=wp) :: dX_c, dY_c, dZ_c, H_c, mB_c, P, R, RP, S_c(3), zJ_c
+real(kind=wp), parameter :: mB = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
 
 ! initialization
 

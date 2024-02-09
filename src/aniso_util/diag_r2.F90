@@ -14,18 +14,17 @@ subroutine DIAG_R2(MATRIX,N,INFO,W,Z)
 ! MATRIX WITH THE DIMENSION NBTOT. THE EIGENVALUES OF THE DIAGONALIZATION
 ! ARE DIRECTED INTO W1 AND THE Real EIGENVECTORS ARE WRITTEN TO Z1.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: N
-integer, intent(out) :: INFO
-real(kind=8), intent(in) :: MATRIX(N,N)
-real(kind=8), intent(out) :: W(N), Z(N,N)
-! local variables:
-integer :: I, J
-real(kind=8), allocatable :: AP(:)   !(N*(N+1)/2)
-real(kind=8), allocatable :: WORK(:) !(3*N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: MATRIX(N,N)
+integer(kind=iwp), intent(out) :: INFO
+real(kind=wp), intent(out) :: W(N), Z(N,N)
+integer(kind=iwp) :: I, J
+real(kind=wp), allocatable :: AP(:), WORK(:)
 
 ! initializations
 INFO = 0

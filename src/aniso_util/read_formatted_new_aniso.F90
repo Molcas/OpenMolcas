@@ -13,31 +13,20 @@ subroutine read_formatted_new_aniso(input_file_name,nss,nstate,multiplicity,eso,
                                     esfs_au)
 
 use Constants, only: auTocm, gElectron
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(inout) :: nss, nstate
-integer, intent(out) :: multiplicity(nstate)
-real(kind=8), intent(out) :: eso(nss), esfs(nstate)
-real(kind=8), intent(out) :: eso_au(nss), esfs_au(nstate)
-real(kind=8), intent(out) :: edmom(3,nstate,nstate)
-real(kind=8), intent(out) :: angmom(3,nstate,nstate)
-real(kind=8), intent(out) :: amfi(3,nstate,nstate)
-complex(kind=8), intent(out) :: MM(3,nss,nss)
-complex(kind=8), intent(out) :: MS(3,nss,nss)
-complex(kind=8), intent(out) :: ML(3,nss,nss)
-! electric dipole moment
-complex(kind=8), intent(out) :: DM(3,nss,nss)
-complex(kind=8), intent(out) :: U(nss,nss)
-complex(kind=8), intent(out) :: HSO(nss,nss)
-character(len=180) :: input_file_name
-! local variables:
-integer :: LuAniso, IsFreeUnit
-real(kind=8), parameter :: g_e = -gElectron
-external :: IsFreeUnit
-logical :: DBG
+character(len=180), intent(in) :: input_file_name
+integer(kind=iwp), intent(in) :: nss, nstate
+integer(kind=iwp), intent(out) :: multiplicity(nstate)
+real(kind=wp), intent(out) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate), edmom(3,nstate,nstate), amfi(3,nstate,nstate), &
+                              eso_au(nss), esfs_au(nstate)
+complex(kind=wp), intent(out) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
+integer(kind=iwp) :: LuAniso
+real(kind=wp), parameter :: g_e = -gElectron
+logical(kind=iwp), parameter :: DBG = .false.
+integer(kind=iwp), external :: IsFreeUnit
 
-dbg = .false.
 if (dbg) write(u6,'(A)') 'Entering read_formatted_aniso_new'
 ! read the data file:
 LuAniso = IsFreeUnit(81)

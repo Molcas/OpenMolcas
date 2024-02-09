@@ -11,8 +11,12 @@
 
 subroutine pa_sort(a,n)
 
+use Definitions, only: iwp
+
 implicit none
-integer n, a(n), temp, k, l
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(inout) :: a(n)
+integer(kind=iwp) :: k, l, temp
 
 do k=1,n-1
   do l=k+1,n

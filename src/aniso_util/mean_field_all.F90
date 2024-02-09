@@ -9,36 +9,39 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine mean_field_all(EXCH,N,H,X,Y,Z,zJ,T,thrs,W,dM,SM,ST)
+subroutine mean_field_all(EXCH,N,H,X,Y,Z,zJ,T,W,thrs,dM,SM,ST)
 ! this Subroutine computes the mean field of neighboring spins ST(3)
 ! for zJ /= 0.0
 ! using ONLY Zeeman basis (N)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: EXCH, N
-real(kind=8), intent(in) :: H, X, Y, Z, zJ, T, W(EXCH)
-complex(kind=8), intent(in) :: DM(3,EXCH,EXCH), SM(3,EXCH,EXCH)
-! output
-real(kind=8), intent(out) :: ST(3)
-#include "stdalloc.fh"
-! local variables:
-integer :: i, l, mxIter, iter
-logical :: Conv, DBG
-real(kind=8) :: WM(EXCH), S(3), ZB, SCHK, THRS, SL(3)
-complex(kind=8) :: ZM(N,N), SZ(3,EXCH,EXCH)
-real(kind=8), allocatable :: RWORK(:)
-complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
+integer(kind=iwp), intent(in) :: EXCH, N
+real(kind=wp), intent(in) :: H, X, Y, Z, zJ, T, W(EXCH), thrs
+real(kind=wp), intent(out) :: ST(3)
+complex(kind=wp), intent(in) :: DM(3,EXCH,EXCH), SM(3,EXCH,EXCH)
+integer(kind=iwp) :: i, iter, l
+real(kind=wp) :: S(3), SCHK, SL(3), ZB
+logical(kind=iwp) :: Conv
+real(kind=wp), allocatable :: RWORK(:), WM(:)
+complex(kind=wp), allocatable :: HZEE(:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
+integer(kind=iwp), parameter :: mxIter = 100
+real(kind=wp), parameter :: THRS2 = 1.0e-12_wp ! FIXME: overriding input thrs
+logical(kind=iwp), parameter :: DBG = .false.
 
-DBG = .false.
+#include "macros.fh"
+unused_var(thrs)
 
-MxIter = 100
-THRS = 1.0e-12_wp
 SCHK = Zero
 S(:) = Zero
 ST(:) = Zero
+
+call mma_allocate(WM,EXCH,label='WM')
+call mma_allocate(SZ,3,EXCH,EXCH,label='SZ')
+call mma_allocate(ZM,N,N,label='ZM')
 
 ! temporary arrays used in ZEEM_SA:
 call mma_allocate(RWORK,(3*N-2),'ZEEM_RWORK')
@@ -89,7 +92,7 @@ do iter=1,mxIter
   end if
 
   ! decide to continue the iterative process or exit
-  if (SCHK < THRS) then
+  if (SCHK < THRS2) then
     Conv = .true.
     exit
   end if
@@ -102,11 +105,14 @@ if (.not. Conv) then
   write(u6,'(A,4ES24.14)') 'Last values of the average spin: (Sx,Sy,Sz):',(ST(i),i=1,3)
   write(u6,'(A,4ES24.14)') 'Last values of the deviation:              :',(SL(i)-ST(i),i=1,3)
   write(u6,'(A,4ES24.14)') 'Absolute value of the deviation:           :',SCHK
-  write(u6,'(A,4ES24.14)') 'Convergence threshold:    THRS =           :',THRS
+  write(u6,'(A,4ES24.14)') 'Convergence threshold:    THRS =           :',THRS2
   write(u6,'(A         )') 'The program will continue, using the last value of the average spin'
 end if
 
 ! deallocate temporary data:
+call mma_deallocate(WM)
+call mma_deallocate(SZ)
+call mma_deallocate(ZM)
 call mma_deallocate(RWORK)
 call mma_deallocate(HZEE)
 call mma_deallocate(WORK)

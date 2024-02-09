@@ -12,143 +12,38 @@
 subroutine plot_MH_no_Exp(nH,H,nTempMagn,TempMagn,MHcalc,zJ)
 
 use Constants, only: Zero, Five, Six
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: nH, nTempMagn
-real(wp), intent(in) :: H(nH), TempMagn(nTempMagn)
-real(wp), intent(in) :: MHcalc(nH,nTempMagn)
-real(wp), intent(in) :: zJ
-! local variables
-real(wp) :: hmin, hmax, MHmin_calc, MHmax_calc, MHmin, MHmax, r
-real(wp) :: gnuplot_version
-integer :: file_number, iH, iTempMagn, LuPlt, LuData, ik, ic, file_size
-logical :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-character(len=300) :: line1, line2, fmtline, cdummy
-character(len=300) :: datafile, plotfile, imagefile, epsfile
-character(len=7) :: color(111)
-integer, external :: AixRm
-integer :: Length
-character(len=1023) :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
-integer :: iErr, iSeed = 0
-integer, external :: IsFreeUnit
-real*8, external :: Random_Molcas
+integer(kind=iwp), intent(in) :: nH, nTempMagn
+real(kind=wp), intent(in) :: H(nH), TempMagn(nTempMagn), MHcalc(nH,nTempMagn), zJ
+integer(kind=iwp) :: file_number, file_size, ic, iErr, iH, ik, iSeed = 0, iTempMagn, Length, LuData, LuPlt
+real(kind=wp) :: gnuplot_version, hmax, hmin, MHmax, MHmax_calc, MHmin, MHmin_calc, r
+character(len=1023) :: gnuplot_CMD, realname_dat, realname_eps, realname_plt, realname_png
+character(len=300) :: cdummy, datafile, epsfile, fmtline, imagefile, line1, line2, plotfile
+logical(kind=iwp) :: execute_gnuplot_cmd, file_exist, is_file_open
+logical(kind=iwp), parameter :: dbg = .false.
+character(len=*), parameter :: color(111) = ['#ffffff','#000000','#a0a0a0','#ff0000','#00c000','#0080ff','#c000ff','#00eeee', &
+                                             '#c04000','#c8c800','#4169e1','#ffc020','#008040','#c080ff','#306080','#8b0000', &
+                                             '#408000','#ff80ff','#7fffd4','#a52a2a','#ffff00','#40e0d0','#000000','#1a1a1a', &
+                                             '#333333','#4d4d4d','#666666','#7f7f7f','#999999','#b3b3b3','#c0c0c0','#cccccc', &
+                                             '#e5e5e5','#ffffff','#f03232','#90ee90','#add8e6','#f055f0','#e0ffff','#eedd82', &
+                                             '#ffb6c1','#afeeee','#ffd700','#00ff00','#006400','#00ff7f','#228b22','#2e8b57', &
+                                             '#0000ff','#00008b','#191970','#000080','#0000cd','#87ceeb','#00ffff','#ff00ff', &
+                                             '#00ced1','#ff1493','#ff7f50','#f08080','#ff4500','#fa8072','#e9967a','#f0e68c', &
+                                             '#bdb76b','#b8860b','#f5f5dc','#a08020','#ffa500','#ee82ee','#9400d3','#dda0dd', &
+                                             '#905040','#556b2f','#801400','#801414','#804014','#804080','#8060c0','#8060ff', &
+                                             '#808000','#ff8040','#ffa040','#ffa060','#ffa070','#ffc0c0','#ffff80','#ffffc0', &
+                                             '#cdb79e','#f0fff0','#a0b6cd','#c1ffc1','#cdc0b0','#7cff40','#a0ff20','#bebebe', &
+                                             '#d3d3d3','#d3d3d3','#a0a0a0','#a0b6cd','#000000','#1a1a1a','#333333','#4d4d4d', &
+                                             '#666666','#7f7f7f','#999999','#b3b3b3','#cccccc','#e5e5e5','#ffffff']
+integer(kind=iwp), external :: AixRm, IsFreeUnit
+real(kind=wp), external :: Random_Molcas
 
-color(1) = '#ffffff'
-color(2) = '#000000'
-color(3) = '#a0a0a0'
-color(4) = '#ff0000'
-color(5) = '#00c000'
-color(6) = '#0080ff'
-color(7) = '#c000ff'
-color(8) = '#00eeee'
-color(9) = '#c04000'
-color(10) = '#c8c800'
-color(11) = '#4169e1'
-color(12) = '#ffc020'
-color(13) = '#008040'
-color(14) = '#c080ff'
-color(15) = '#306080'
-color(16) = '#8b0000'
-color(17) = '#408000'
-color(18) = '#ff80ff'
-color(19) = '#7fffd4'
-color(20) = '#a52a2a'
-color(21) = '#ffff00'
-color(22) = '#40e0d0'
-color(23) = '#000000'
-color(24) = '#1a1a1a'
-color(25) = '#333333'
-color(26) = '#4d4d4d'
-color(27) = '#666666'
-color(28) = '#7f7f7f'
-color(29) = '#999999'
-color(30) = '#b3b3b3'
-color(31) = '#c0c0c0'
-color(32) = '#cccccc'
-color(33) = '#e5e5e5'
-color(34) = '#ffffff'
-color(35) = '#f03232'
-color(36) = '#90ee90'
-color(37) = '#add8e6'
-color(38) = '#f055f0'
-color(39) = '#e0ffff'
-color(40) = '#eedd82'
-color(41) = '#ffb6c1'
-color(42) = '#afeeee'
-color(43) = '#ffd700'
-color(44) = '#00ff00'
-color(45) = '#006400'
-color(46) = '#00ff7f'
-color(47) = '#228b22'
-color(48) = '#2e8b57'
-color(49) = '#0000ff'
-color(50) = '#00008b'
-color(51) = '#191970'
-color(52) = '#000080'
-color(53) = '#0000cd'
-color(54) = '#87ceeb'
-color(55) = '#00ffff'
-color(56) = '#ff00ff'
-color(57) = '#00ced1'
-color(58) = '#ff1493'
-color(59) = '#ff7f50'
-color(60) = '#f08080'
-color(61) = '#ff4500'
-color(62) = '#fa8072'
-color(63) = '#e9967a'
-color(64) = '#f0e68c'
-color(65) = '#bdb76b'
-color(66) = '#b8860b'
-color(67) = '#f5f5dc'
-color(68) = '#a08020'
-color(69) = '#ffa500'
-color(70) = '#ee82ee'
-color(71) = '#9400d3'
-color(72) = '#dda0dd'
-color(73) = '#905040'
-color(74) = '#556b2f'
-color(75) = '#801400'
-color(76) = '#801414'
-color(77) = '#804014'
-color(78) = '#804080'
-color(79) = '#8060c0'
-color(80) = '#8060ff'
-color(81) = '#808000'
-color(82) = '#ff8040'
-color(83) = '#ffa040'
-color(84) = '#ffa060'
-color(85) = '#ffa070'
-color(86) = '#ffc0c0'
-color(87) = '#ffff80'
-color(88) = '#ffffc0'
-color(89) = '#cdb79e'
-color(90) = '#f0fff0'
-color(91) = '#a0b6cd'
-color(92) = '#c1ffc1'
-color(93) = '#cdc0b0'
-color(94) = '#7cff40'
-color(95) = '#a0ff20'
-color(96) = '#bebebe'
-color(97) = '#d3d3d3'
-color(98) = '#d3d3d3'
-color(99) = '#a0a0a0'
-color(100) = '#a0b6cd'
-color(101) = '#000000'
-color(102) = '#1a1a1a'
-color(103) = '#333333'
-color(104) = '#4d4d4d'
-color(105) = '#666666'
-color(106) = '#7f7f7f'
-color(107) = '#999999'
-color(108) = '#b3b3b3'
-color(109) = '#cccccc'
-color(110) = '#e5e5e5'
-color(111) = '#ffffff'
+#include "macros.fh"
 
 if (iSeed == 0) call GetSeed(iSeed)
 
-dbg = .false.
 iErr = 0
 hmin = Zero
 hmax = Zero
@@ -272,6 +167,7 @@ if (execute_gnuplot_cmd) then
   file_number = IsFreeUnit(102)
   call molcas_open(file_number,'lineOUT')
   read(file_number,*) cdummy,gnuplot_version
+  unused_var(cdummy)
   if (dbg) write(u6,'(A,F4.1)') 'gnuplot_version = ',gnuplot_version
   if (abs(gnuplot_version) < 0.1_wp) execute_gnuplot_cmd = .false.
   close(file_number)
@@ -486,8 +382,5 @@ if (execute_gnuplot_cmd) then
 end if
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call UNUSED_CHARACTER(cdummy)
-#endif
 
 end subroutine plot_MH_no_Exp

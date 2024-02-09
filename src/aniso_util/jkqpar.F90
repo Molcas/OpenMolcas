@@ -11,32 +11,22 @@
 
 subroutine JKQPar(N1,N2,HEXCH,Jpar)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne, Onei
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: N1, N2
-complex(kind=8), intent(in) :: HEXCH(N1,N1,N2,N2)
-complex(kind=8), intent(out) :: Jpar(N1-1,-(N1-1):N1-1,N2-1,-(N2-1):N2-1)
-! local variables
-integer :: k1, k2, q1, q2, ipr, i2, j2, i
-real(kind=8) :: F, THRS, R, knm(12,0:12)
-complex(kind=8) :: F1, F2, F12
-complex(kind=8) :: trace_exch, trace, fact
-complex(kind=8), allocatable :: O1(:,:), W1(:,:)
-complex(kind=8), allocatable :: O2(:,:), W2(:,:)
-complex(kind=8), allocatable :: O1_O2(:,:,:,:) !(N1,N1,N2,N2)
-complex(kind=8), allocatable :: O1_W2(:,:,:,:) !(N1,N1,N2,N2)
-complex(kind=8), allocatable :: W1_O2(:,:,:,:) !(N1,N1,N2,N2)
-complex(kind=8), allocatable :: W1_W2(:,:,:,:) !(N1,N1,N2,N2)
-complex(kind=8) :: Jcc((N1-1),0:(N1-1),(N2-1),0:(N2-1))
-complex(kind=8) :: Jcs((N1-1),0:(N1-1),(N2-1),0:(N2-1))
-complex(kind=8) :: Jsc((N1-1),0:(N1-1),(N2-1),0:(N2-1))
-complex(kind=8) :: Jss((N1-1),0:(N1-1),(N2-1),0:(N2-1))
-external :: trace_exch, trace
-logical :: DBG
-!real(kind=8) :: cm_to_MHz
+integer(kind=iwp), intent(in) :: N1, N2
+complex(kind=wp), intent(in) :: HEXCH(N1,N1,N2,N2)
+complex(kind=wp), intent(out) :: Jpar(N1-1,-(N1-1):N1-1,N2-1,-(N2-1):N2-1)
+integer(kind=iwp) :: i, i2, ipr, j2, k1, k2, q1, q2
+real(kind=wp) :: F, knm(12,0:12), R
+complex(kind=wp) :: F1, F12, F2, fact
+complex(kind=wp), allocatable :: Jcc(:,:,:,:), Jcs(:,:,:,:), Jsc(:,:,:,:), Jss(:,:,:,:), O1(:,:), O1_O2(:,:,:,:), O1_W2(:,:,:,:), &
+                                 O2(:,:), W1(:,:), W1_O2(:,:,:,:), W1_W2(:,:,:,:), W2(:,:)
+real(kind=wp), parameter :: THRS = 1.0e-16_wp !, cm_to_MHz = cLight*1.0e-4_wp
+logical(kind=iwp), parameter :: DBG = .false.
+complex(kind=wp), external :: trace, trace_exch
 !-----------------------------------------------------------------------
 
 call Set_knm(knm)
@@ -48,11 +38,13 @@ call mma_allocate(O1_O2,N1,N1,N2,N2,'O1_O2')
 call mma_allocate(O1_W2,N1,N1,N2,N2,'O1_W2')
 call mma_allocate(W1_O2,N1,N1,N2,N2,'W1_O2')
 call mma_allocate(W1_W2,N1,N1,N2,N2,'W1_W2')
+call mma_allocate(Jcc,[1,N1-1],[0,N1-1],[1,N2-1],[0,N2-1],label='Jcc')
+call mma_allocate(Jcs,[1,N1-1],[0,N1-1],[1,N2-1],[0,N2-1],label='Jcs')
+call mma_allocate(Jsc,[1,N1-1],[0,N1-1],[1,N2-1],[0,N2-1],label='Jsc')
+call mma_allocate(Jss,[1,N1-1],[0,N1-1],[1,N2-1],[0,N2-1],label='Jss')
 
 !-----------------------------------------------------------------------
 
-!cm_to_MHz = cLight*1.0e-4_wp
-DBG = .false.
 ipr = 1
 
 ! we need to project now the HEXCH: in products of ITOs
@@ -181,10 +173,10 @@ do k1=1,N1-1
   end do
 end do
 
-Jcc((N1-1),0:(N1-1),(N2-1),0:(N2-1)) = cZero
-Jcs((N1-1),0:(N1-1),(N2-1),0:(N2-1)) = cZero
-Jsc((N1-1),0:(N1-1),(N2-1),0:(N2-1)) = cZero
-Jss((N1-1),0:(N1-1),(N2-1),0:(N2-1)) = cZero
+Jcc(:,:,:,:) = cZero
+Jcs(:,:,:,:) = cZero
+Jsc(:,:,:,:) = cZero
+Jss(:,:,:,:) = cZero
 
 do k1=1,N1-1
   do k2=1,N2-1
@@ -220,7 +212,6 @@ do k1=1,N1-1
 end do
 
 if (DBG) then
-  THRS = 1.0e-16_wp
   write(u6,'(A,ES18.7)') 'Real Exchange parameters with values larger than: ',THRS
   write(u6,'(120A)') ('-',i=1,119),'|'
   write(u6,'(A)') ' k1 |  q1 || k2 |  q2 |-------- O1-O2 --------|-------- O1-W2 --------|-------- W1-O2 --------|'// &
@@ -281,6 +272,10 @@ call mma_deallocate(O1_O2)
 call mma_deallocate(O1_W2)
 call mma_deallocate(W1_O2)
 call mma_deallocate(W1_W2)
+call mma_deallocate(Jcc)
+call mma_deallocate(Jcs)
+call mma_deallocate(Jsc)
+call mma_deallocate(Jss)
 
 return
 

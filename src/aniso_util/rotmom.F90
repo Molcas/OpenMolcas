@@ -13,17 +13,15 @@ subroutine rotmom(MOM,N,R,MOMR)
 ! inverse rotation
 
 use Constants, only: cZero, cOne
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: N
-real(kind=8), intent(in) :: R(3,3) !rotation matrix
-! initial momentum matrix
-complex(kind=8), intent(in) :: MOM(3,N,N)
-! rotated momentum matrix
-complex(kind=8), intent(out) :: MOMR(3,N,N)
-! local variables
-integer :: i, j, k
-complex(kind=8) :: RC(3,3)
+integer(kind=iwp), intent(in) :: N
+complex(kind=wp), intent(in) :: MOM(3,N,N) ! initial momentum matrix
+real(kind=wp), intent(in) :: R(3,3) ! rotation matrix
+complex(kind=wp), intent(out) :: MOMR(3,N,N) ! rotated momentum matrix
+integer(kind=iwp) :: i, j, k
+complex(kind=wp) :: RC(3,3)
 
 ! rotate the matrix
 

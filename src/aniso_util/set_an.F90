@@ -20,13 +20,12 @@ subroutine Set_an(ln,a)
 !----------------------------------------!
 
 use Constants, only: Zero, One, Two, Four, Five, Seven, Eight
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: ln
-real(kind=8), intent(out) :: a(6)
-! local variables:
-real(kind=8) :: an(28,6)
+integer(kind=iwp), intent(in) :: ln
+real(kind=wp), intent(out) :: a(6)
+real(kind=wp) :: an(28,6)
 
 an(:,:) = Zero
 a(:) = Zero

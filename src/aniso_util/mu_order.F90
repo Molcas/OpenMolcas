@@ -9,43 +9,39 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine mu_order(dim,MS,MM,gtens,order,HCF2,AMM,AMS,Z,iprint)
-! This Subroutine receives the moment matrix dipso(3,dim,dim) and Returns the matrix re-builted using only the 1-st order operators.
+subroutine mu_order(d,MS,MM,gtens,order,HCF2,AMM,AMS,Z,iprint)
+! This Subroutine receives the moment matrix dipso(3,d,d) and Returns the matrix re-builted using only the 1-st order operators.
+!   MS: initial spin moment
+!   MM: initial magnetic moment
+!  AMS: transformed spin moment
+!  AMM: transformed magnetic moment
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Half, cZero, Onei
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: dim, order, iprint
-real(kind=8), intent(out) :: gtens(3)
-! initial magnetic moment
-complex(kind=8), intent(in) :: MM(3,dim,dim)
-! initial spin moment
-complex(kind=8), intent(in) :: MS(3,dim,dim)
-! transformed magnetic moment
-complex(kind=8), intent(out) :: AMM(3,dim,dim)
-! transformed spin moment
-complex(kind=8), intent(out) :: AMS(3,dim,dim)
-complex(kind=8), intent(out) :: Z(dim,dim)
-complex(kind=8), intent(out) :: HCF2(dim,3,dim,dim)
-! local variables:
-integer :: i, j, l, i1, i2, m, n
-real(kind=8) :: maxes(3,3), m_fact
-complex(kind=8) :: DIP_O(dim,dim), DIP_W(dim,dim), B(3,dim,-dim:dim), BNMC(3,dim,0:dim), BNMS(3,dim,0:dim), SP_MOW, SP_DIPO(3), &
-                   SP_DIPW(3), O1, O2, trace
-external :: trace
+integer(kind=iwp), intent(in) :: d, order, iprint
+complex(kind=wp), intent(in) :: MS(3,d,d), MM(3,d,d)
+real(kind=wp), intent(out) :: gtens(3)
+complex(kind=wp), intent(out) :: HCF2(d,3,d,d), AMM(3,d,d), AMS(3,d,d), Z(d,d)
+integer(kind=iwp) :: i, i1, i2, j, l, m, n
+real(kind=wp) :: m_fact, maxes(3,3)
+complex(kind=wp) :: O1, O2, SP_DIPO(3), SP_DIPW(3), SP_MOW
+complex(kind=wp), allocatable :: B(:,:,:), BNMC(:,:,:), BNMS(:,:,:), DIP_O(:,:), DIP_W(:,:)
+complex(kind=wp), external :: trace
 !------------------------------------------------------------
 
 Z(:,:) = cZero
 ! get the local pseudospin:
-call pseudospin(MM,dim,Z,3,1,iprint)
+call pseudospin(MM,d,Z,3,1,iprint)
 ! re-write MM and MS to the new pseudospin basis:
 AMS(:,:,:) = cZero
 AMM(:,:,:) = cZero
-do i=1,dim
-  do j=1,dim
-    do i1=1,dim
-      do i2=1,dim
+do i=1,d
+  do j=1,d
+    do i1=1,d
+      do i2=1,d
         AMM(:,i,j) = AMM(:,i,j)+MM(:,i1,i2)*conjg(Z(i1,i))*Z(i2,j)
         AMS(:,i,j) = AMS(:,i,j)+MS(:,i1,i2)*conjg(Z(i1,i))*Z(i2,j)
       end do
@@ -53,38 +49,43 @@ do i=1,dim
   end do
 end do
 if (iprint > 2) then
-  call prMom('MU_ORDER:   AMM(l,i,j):',AMM,dim)
-  call prMom('MU_ORDER:   AMS(l,i,j):',AMS,dim)
+  call prMom('MU_ORDER:   AMM(l,i,j):',AMM,d)
+  call prMom('MU_ORDER:   AMS(l,i,j):',AMS,d)
 end if
 ! project the moment on ITO:
 ! obtain the b3m and c3m coefficients:
-B(1:3,1:dim,-dim:dim) = cZero
-do N=1,dim-1
+call mma_allocate(B,[1,3],[1,d],[-d,d],label='B')
+call mma_allocate(BNMC,[1,3],[1,d],[0,d],label='BNMC')
+call mma_allocate(BNMS,[1,3],[1,d],[0,d],label='BNMS')
+call mma_allocate(DIP_O,d,d,label='DIP_O')
+call mma_allocate(DIP_W,d,d,label='DIP_W')
+B(:,:,:) = cZero
+do N=1,d-1
   do M=0,N
     DIP_O(:,:) = cZero
     DIP_W(:,:) = cZero
-    call Stewens_matrixel(N,M,dim,DIP_O,DIP_W,iprint)
+    call Stewens_matrixel(N,M,d,DIP_O,DIP_W,iprint)
     if (iprint > 5) then
       write(u6,*)
       write(u6,'( 5x,a,i2,a,i3)') 'DIP_O, n = ',N,', m =',m
       write(u6,*)
-      do i=1,dim
-        write(u6,'(20(2F10.6,2x))') (DIP_O(i,j),j=1,dim)
+      do i=1,d
+        write(u6,'(20(2F10.6,2x))') (DIP_O(i,j),j=1,d)
       end do
       write(u6,*)
       write(u6,'( 5x,a,i2,a,i3)') 'DIP_W, n = ',N,', m =',m
       write(u6,*)
-      do i=1,dim
-        write(u6,'(20(2F10.6,2x))') (DIP_W(i,j),j=1,dim)
+      do i=1,d
+        write(u6,'(20(2F10.6,2x))') (DIP_W(i,j),j=1,d)
       end do
     end if
 
     SP_DIPO(:) = czero
     SP_DIPW(:) = czero
-    SP_MOW = trace(dim,DIP_O,DIP_W)
+    SP_MOW = trace(d,DIP_O,DIP_W)
     do l=1,3
-      SP_DIPO(l) = trace(dim,AMS(l,:,:),DIP_O)
-      SP_DIPW(l) = trace(dim,AMS(l,:,:),DIP_W)
+      SP_DIPO(l) = trace(d,AMS(l,:,:),DIP_O)
+      SP_DIPW(l) = trace(d,AMS(l,:,:),DIP_W)
 
       B(l,n,-m) = SP_DIPO(l)/SP_MOW
       B(l,n,m) = SP_DIPW(l)/SP_MOW
@@ -92,7 +93,7 @@ do N=1,dim-1
   end do ! m
 end do ! n
 
-do n=1,dim-1
+do n=1,d-1
   BNMC(:,n,0) = B(:,n,0)
   do m=1,N
     m_fact = (-One)**M
@@ -104,7 +105,7 @@ end do !n
 if (iprint > 2) then
   write(u6,'(100A)') ('-',i=1,47),'|'
   write(u6,'(A)') '  n  |  m  |   |       B       |       C       |'
-  do N=1,dim-1
+  do N=1,d-1
     write(u6,'(A)') '-----|-----|---|---------------|---------------|'
     do M=0,N
       if (M /= 0) write(u6,'(A)') '     |-----|---|---------------|---------------|'
@@ -117,16 +118,16 @@ if (iprint > 2) then
 end if
 
 HCF2(:,:,:,:) = cZero
-do N=1,dim-1
+do N=1,d-1
   do M=0,N
     DIP_O(:,:) = cZero
     DIP_W(:,:) = cZero
 
-    call Stewens_matrixel(N,M,dim,DIP_O,DIP_W,iprint)
+    call Stewens_matrixel(N,M,d,DIP_O,DIP_W,iprint)
 
     do l=1,3
-      do i=1,dim
-        do j=1,dim
+      do i=1,d
+        do j=1,d
           if (M == 0) then
             HCF2(N,l,i,j) = HCF2(N,l,i,j)+BNMC(l,N,M)*DIP_O(i,j)
           else
@@ -142,22 +143,28 @@ do N=1,dim-1
   end do
 end do ! n
 
+call mma_deallocate(B)
+call mma_deallocate(BNMC)
+call mma_deallocate(BNMS)
+call mma_deallocate(DIP_O)
+call mma_deallocate(DIP_W)
+
 if (iprint > 2) then
-  do N=1,dim-1,2
+  do N=1,d-1,2
     write(u6,*)
     write(u6,'( 5x,a,I2,a)') 'HCF2(',N,',l,i,j)'
     do l=1,3
       write(u6,*)
       write(u6,'(a,i3)') 'PROJECTION =',l
-      do i=1,dim
-        write(u6,'(20(2F12.8,2x))') (HCF2(N,l,i,j),j=1,dim)
+      do i=1,d
+        write(u6,'(20(2F12.8,2x))') (HCF2(N,l,i,j),j=1,d)
       end do
     end do
     write(u6,*)
   end do
 end if
 
-call ATENS(HCF2(order,:,:,:),dim,gtens,maxes,1)
+call ATENS(HCF2(order,:,:,:),d,gtens,maxes,1)
 
 return
 

@@ -12,22 +12,19 @@
 subroutine set_nm(exch,ncut,encut_definition,nk,mg,nTempMagn,hmax,w,encut_rate,TempMagn,nM,EM,dbg)
 
 use Constants, only: Zero, cLight, kBoltzmann, mBohr, rPlanck
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: exch, ncut, encut_definition, nk, mg, nTempMagn
+real(kind=wp), intent(in) :: hmax, W(exch), encut_rate, TempMagn(nTempMagn)
+integer(kind=iwp), intent(out) :: nM
+real(kind=wp), intent(out) :: EM
+logical(kind=iwp), intent(in) :: dbg
 #include "warnings.h"
-! input data:
-integer, intent(in) :: exch, ncut, encut_definition, nk, mg, nTempMagn
-real(kind=8), intent(in) :: hmax, W(exch), encut_rate, TempMagn(nTempMagn)
-logical, intent(in) :: dbg
-! output data:
-integer, intent(out) :: nM
-real(kind=8), intent(out) :: EM
-! local variables:
-integer :: i
-real(kind=8) :: diff, T_High
-real(kind=8), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
-                           mu_bohr = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
+integer(kind=iwp) :: i
+real(kind=wp) :: diff, T_High
+real(kind=wp), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
+                            mu_bohr = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
 
 nM = 1
 EM = Zero

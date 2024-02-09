@@ -9,17 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-complex*16 function complex_1_trace2(n,A)
+function complex_1_trace2(n,A)
 
 use Constants, only: Zero, cOne
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-! size of the square matrices A(n,n)
-integer, intent(in) :: n
-complex(kind=8), intent(in) :: A(n,n)
-! local variables
-integer :: i
+complex(kind=wp) :: complex_1_trace2
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: A(n,n)
+integer(kind=iwp) :: i
 
 complex_1_trace2 = Zero
 do i=1,n

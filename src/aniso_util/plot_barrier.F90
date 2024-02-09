@@ -12,35 +12,29 @@
 subroutine plot_barrier(nBlock,nMult,nDIM,E,M)
 
 use Constants, only: Zero, One, Three, Five, Six, Ten
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: nBlock, nMult
-integer, intent(in) :: nDIM(nMult)
-complex(wp), intent(in) :: M(3,nMult,10,nMult,10)
-real(wp), intent(in) :: E(nBlock)
-! local variables
-real(wp) :: xstart, xend, dlt, xmin, xmax, emin, emax, fact, F, ystart, yend, X, Y, Z, RAVE, RAVEMIN, RAVEMAX
-real(wp) :: gnuplot_version
-integer :: file_number, i, l, j, i1, j1, k
-integer :: LuPlt, LuData, file_size
-logical :: file_exist, is_file_open, execute_gnuplot_cmd
-character(len=100) :: line1, line2, fmtx, cdummy
-character(len=100) :: datafile_e, datafile_m, plotfile, imagefile, epsfile
-logical :: dbg
-integer, external :: AixRm
-integer :: iErr, Length
-character(len=1023) :: realname_plt, realname_e_dat, realname_m_dat, realname_png, realname_eps, gnuplot_CMD
-integer, external :: IsFreeUnit
+integer(kind=iwp), intent(in) :: nBlock, nMult, nDIM(nMult)
+real(kind=wp), intent(in) :: E(nBlock)
+complex(kind=wp), intent(in) :: M(3,nMult,10,nMult,10)
+real(kind=wp) :: dlt, emax, emin, F, fact, RAVE, RAVEMAX, RAVEMIN, X, xend, xmax, xmin, xstart, Y, yend, ystart, Z, gnuplot_version
+integer(kind=iwp) :: file_number, file_size, i, i1, iErr, j, j1, k, l, Length, LuData, LuPlt
+logical(kind=iwp) :: execute_gnuplot_cmd, file_exist, is_file_open
+character(len=1023) :: gnuplot_CMD, realname_e_dat, realname_eps, realname_m_dat, realname_plt, realname_png
+character(len=100) :: cdummy, datafile_e, datafile_m, epsfile, fmtx, imagefile, line1, line2, plotfile
+logical(kind=iwp), parameter :: dbg = .false.
+integer(kind=iwp), external :: AixRm, IsFreeUnit
 
-dbg = .false.
+#include "macros.fh"
+
 iErr = 0
 
 xmin = minval(real(M(3,:,:,:,:),kind=wp))-0.1_wp*maxval(real(M(3,:,:,:,:),kind=wp))
 xmax = maxval(real(M(3,:,:,:,:),kind=wp))+0.1_wp*maxval(real(M(3,:,:,:,:),kind=wp))
 dlt = 0.01_wp*(xmax-xmin)
 
-F = maxval(E(1:nBlock))
+F = maxval(E(:))
 fact = One
 if (F < Ten) then
   fact = One
@@ -176,6 +170,7 @@ if (execute_gnuplot_cmd) then
   file_number = IsFreeUnit(42)
   call molcas_open(file_number,'lineOUT')
   read(file_number,*) cdummy,gnuplot_version
+  unused_var(cdummy)
   if (dbg) write(u6,'(A,F4.1)') 'gnuplot_version = ',gnuplot_version
   if (abs(gnuplot_version) < 0.1_wp) execute_gnuplot_cmd = .false.
   close(file_number)
@@ -432,11 +427,6 @@ if (execute_gnuplot_cmd) then
   end if
 end if
 
-dbg = .false.
-
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call UNUSED_CHARACTER(cdummy)
-#endif
 
 end subroutine plot_barrier

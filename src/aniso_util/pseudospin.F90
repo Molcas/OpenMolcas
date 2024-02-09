@@ -9,39 +9,36 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine pseudospin(M,dim,z,iDir,iOpt,iprint)
-! dim - dimension (input)
-! moment(l,dim,dim) (input)
+subroutine pseudospin(M,d,z,iDir,iOpt,iprint)
+! d - dimension (input)
+! moment(l,d,d) (input)
 ! z - pseuDospin eigenfunctions (output)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: dim, iprint
-integer, intent(in) :: iDir, iOpt
-complex(kind=8), intent(in) :: M(3,dim,dim)
-complex(kind=8), intent(out) :: z(dim,dim)
-! local variables:
-integer :: info, i
-real(kind=8), allocatable :: w(:)
-complex(kind=8), allocatable :: z1(:,:)
-real(kind=8) :: dznrm2_
-external :: dznrm2_
-logical :: dbg
+integer(kind=iwp), intent(in) :: d, iDir, iOpt, iprint
+complex(kind=wp), intent(in) :: M(3,d,d)
+complex(kind=wp), intent(out) :: z(d,d)
+integer(kind=iwp) :: i, info
+logical(kind=iwp) :: dbg
+real(kind=wp), allocatable :: w(:)
+complex(kind=wp), allocatable :: z1(:,:)
+real(kind=wp), external :: dznrm2_
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-call mma_allocate(W,dim,'W')
-call mma_allocate(Z1,dim,dim,'Z1')
+call mma_allocate(W,d,'W')
+call mma_allocate(Z1,d,d,'Z1')
 dbg = iprint >= 3
 W(:) = Zero
 Z(:,:) = cZero
 Z1(:,:) = cZero
 info = 0
-call diag_c2(M(iDir,:,:),dim,info,w,z1)
+call diag_c2(M(iDir,:,:),d,info,w,z1)
 if (dbg) then
-  do i=1,dim
+  do i=1,d
     write(u6,'(A,i3,A,F24.14)') 'i=',i,' eigenvalue=',w(i)
   end do
 end if
@@ -49,12 +46,12 @@ if (info /= 0) then
   write(u6,'(5x,a)') 'PSEUDO::  diagonalization of the zeeman hamiltonian failed.'
 else
   if (dbg) then
-    write(u6,*) 'PSEUDO:  norm of  M is:',dznrm2_(3*dim*dim,M,1)
-    write(u6,*) 'PSEUDO:  norm of Z1 is:',dznrm2_(dim*dim,Z1,1)
+    write(u6,*) 'PSEUDO:  norm of  M is:',dznrm2_(3*d*d,M,1)
+    write(u6,*) 'PSEUDO:  norm of Z1 is:',dznrm2_(d*d,Z1,1)
   end if
   if (iDir == 3) then
     if (iOpt == 1) then
-      call spin_phase(M,dim,z1,z)
+      call spin_phase(M,d,z1,z)
     else
       z(:,:) = z1(:,:)
       write(u6,*) 'PSEUDOSPIN:  iOpt = ',iOpt

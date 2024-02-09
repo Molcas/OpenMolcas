@@ -11,36 +11,37 @@
 
 subroutine read_formatted_aniso(input_file_name,nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,AMFI,HSO)
 
-use Constants, only: gElectron
-use Definitions, only: wp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, cZero, gElectron
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(inout) :: nss, nstate
-integer, intent(out) :: multiplicity(nstate)
-real(kind=8), intent(out) :: eso(nss), esfs(nstate)
-real(kind=8), intent(out) :: edmom(3,nstate,nstate)
-real(kind=8), intent(out) :: angmom(3,nstate,nstate)
-real(kind=8), intent(out) :: amfi(3,nstate,nstate)
-complex(kind=8), intent(out) :: MM(3,nss,nss)
-complex(kind=8), intent(out) :: MS(3,nss,nss)
-complex(kind=8), intent(out) :: ML(3,nss,nss)
-! electric dipole moment
-complex(kind=8), intent(out) :: DM(3,nss,nss)
-complex(kind=8), intent(out) :: U(nss,nss)
-complex(kind=8), intent(out) :: HSO(nss,nss)
-character(len=180) :: input_file_name
-! local variables:
-integer :: l, j, j1, j2, LuAniso, IsFreeUnit
-real(kind=8), parameter :: g_e = -gElectron
-real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
-external :: IsFreeUnit
-logical :: DBG
-
-dbg = .false.
+character(len=180), intent(in) :: input_file_name
+integer(kind=iwp), intent(inout) :: nss, nstate
+integer(kind=iwp), intent(out) :: multiplicity(nstate)
+real(kind=wp), intent(out) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate), edmom(3,nstate,nstate), amfi(3,nstate,nstate)
+complex(kind=wp), intent(out) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
+integer(kind=iwp) :: j, j1, j2, l, LuAniso
+real(kind=wp), allocatable :: tmpI(:,:), tmpR(:,:)
+real(kind=wp), parameter :: g_e = -gElectron
+logical(kind=iwp), parameter :: DBG = .false.
+integer(kind=iwp), external :: IsFreeUnit
 
 if (dbg) write(u6,'(A)') 'Entering read_formatted_aniso'
 call xFlush(u6)
+! set to zero all arrays:
+multiplicity(:) = 0
+eso(:) = Zero
+esfs(:) = Zero
+angmom(:,:,:) = Zero
+edmom(:,:,:) = Zero
+amfi(:,:,:) = Zero
+U(:,:) = cZero
+MM(:,:,:) = cZero
+MS(:,:,:) = cZero
+ML(:,:,:) = cZero
+DM(:,:,:) = cZero
+HSO(:,:) = cZero
 ! read the file "aniso.input":
 LuAniso = IsFreeUnit(81)
 call molcas_open(LuAniso,trim(input_file_name))
@@ -67,11 +68,7 @@ do l=1,3
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
-  do j1=1,nss
-    do j2=1,nss
-      MM(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
-    end do
-  end do
+  MM(l,1:nss,1:nss) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 call xFlush(u6)
 
@@ -80,11 +77,7 @@ do l=1,3
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
-  do j1=1,nss
-    do j2=1,nss
-      MS(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
-    end do
-  end do
+  MS(l,1:nss,1:nss) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 
 ! spin-free energies
@@ -99,7 +92,7 @@ do j1=1,nss
   read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
 end do
 
-U(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
+U(1:nss,1:nss) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 
 ! angmom
 do l=1,3
@@ -109,14 +102,14 @@ do l=1,3
 end do
 
 ! compute the orbital moment
-ML(:,:,:) = -MM(:,:,:)-g_e*MS(:,:,:)
+ML(:,1:nss,1:nss) = -MM(:,1:nss,1:nss)-g_e*MS(:,1:nss,1:nss)
 
 ! DMmom
 do l=1,3
   do j1=1,nss
     read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
   end do
-  DM(l,:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
+  DM(l,1:nss,1:nss) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 end do
 
 ! edmom
@@ -138,7 +131,7 @@ do j1=1,nss
   read(LuAniso,*) (tmpR(j1,j2),tmpI(j1,j2),j2=1,nss)
 end do
 
-HSO(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
+HSO(1:nss,1:nss) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 
 call mma_deallocate(tmpR)
 call mma_deallocate(tmpI)

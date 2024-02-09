@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-complex*16 function trace2(n,A,B)
+function trace2(n,A,B)
 
 use Constants, only: cZero
+use Definitions, only: wp, iwp
 
 implicit none
-! size of the square matrices A(n,n) and B(n,n)
-integer, intent(in) :: n
-complex(kind=8), intent(in) :: A(n,n), B(n,n)
-! local variables
-integer :: i, k
+complex(kind=wp) :: trace2
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: A(n,n), B(n,n)
+integer(kind=iwp) :: i, k
 
 trace2 = cZero
 do i=1,n

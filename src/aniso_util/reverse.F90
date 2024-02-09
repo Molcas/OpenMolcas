@@ -12,12 +12,13 @@
 subroutine REVERSE(A_dir,A_inv,det)
 ! THIS ROUTINE CALCULATES THE INVERSE OF A SQUARE 3x3 MATRIX, AND ITS DETERMINANT.
 
+use Definitions, only: wp
+
 implicit none
-real(kind=8) :: A_dir(3,3)
-real(kind=8) :: A_inv(3,3)
-real(kind=8) :: A(3,3)
-real(kind=8) :: det
-real(kind=8), external :: FindDetR
+real(kind=wp), intent(in) :: A_dir(3,3)
+real(kind=wp), intent(out) :: A_inv(3,3), det
+real(kind=wp) :: A(3,3)
+real(kind=wp), external :: FindDetR
 
 A(:,:) = A_dir(:,:)
 

@@ -11,20 +11,18 @@
 
 subroutine write_binary_aniso(nss,nstate,multiplicity,eso,esfs,U,MM,MS,DM,ANGMOM,EDMOM,AMFI,HSO)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
 implicit none
-integer :: nss, nstate
-integer :: multiplicity(nstate)
-real(kind=8) :: eso(nss), esfs(nstate)
-real(kind=8) :: angmom(3,nstate,nstate)
-real(kind=8) :: edmom(3,nstate,nstate)
-real(kind=8) :: amfi(3,nstate,nstate)
-complex(kind=8) :: U(nss,nss), HSO(nss,nss)
-complex(kind=8) :: MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss)
-! local variables:
-#include "stdalloc.fh"
-integer :: l
-integer :: luaniso, idisk, idum(1)
-real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
+integer(kind=iwp), intent(in) :: nss, nstate
+integer(kind=iwp), intent(_IN_) :: multiplicity(nstate)
+real(kind=wp), intent(_IN_) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate), edmom(3,nstate,nstate), amfi(3,nstate,nstate)
+complex(kind=wp), intent(in) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
+integer(kind=iwp) :: idisk, idum(1), l, luaniso
+real(kind=wp), allocatable :: tmpI(:,:), tmpR(:,:)
 
 LUANISO = 8
 ! open the binary $Project.aniso file

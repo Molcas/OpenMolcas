@@ -15,45 +15,27 @@
 subroutine read_hdf5_all(file_h5,nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,amfi,HSO)
 
 use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne, Onei, auTocm, gElectron
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: nstate, nss
-integer, intent(out) :: multiplicity(nstate)
-real(kind=8), intent(out) :: esfs(nstate)
-real(kind=8), intent(out) :: eso(nss)
-real(kind=8), intent(out) :: edmom(3,nstate,nstate)
-real(kind=8), intent(out) :: amfi(3,nstate,nstate)
-real(kind=8), intent(out) :: angmom(3,nstate,nstate)
-complex(kind=8), intent(out) :: MM(3,nss,nss)
-complex(kind=8), intent(out) :: MS(3,nss,nss)
-complex(kind=8), intent(out) :: ML(3,nss,nss)
-! electric dipole moment
-complex(kind=8), intent(out) :: DM(3,nss,nss)
-complex(kind=8), intent(out) :: U(nss,nss)
-complex(kind=8), intent(out) :: HSO(nss,nss)
-real(kind=8), parameter :: g_e = -gElectron
-real(kind=8), allocatable :: etmp(:)
-real(kind=8), allocatable :: RR(:,:), RI(:,:)
-real(kind=8), allocatable :: AL(:,:,:)
-integer :: fileid, jend, INRM
-character(len=180) :: file_h5
-real(kind=8) :: RNRM
-real(kind=8), external :: dnrm2_, dznrm2_
-complex(kind=8), external :: spin
-! local variables:
-integer :: iss, ibas(nstate,-50:50)
-integer :: i, j, i1, j1, ist, jst, mult, multI, multJ
-integer :: l, ipar
-complex(kind=8), allocatable :: tmp(:,:)
+character(len=180), intent(in) :: file_h5
+integer(kind=iwp), intent(in) :: nss, nstate
+integer(kind=iwp), intent(out) :: multiplicity(nstate)
+real(kind=wp), intent(out) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate), edmom(3,nstate,nstate), amfi(3,nstate,nstate)
+complex(kind=wp), intent(out) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
+integer(kind=iwp) :: fileid, i, i1, INRM, ipar, iss, ist, j, j1, jend, jst, l, mult, multI, multJ
+real(kind=wp) :: RNRM
+logical(kind=iwp) :: found_edmom !, found_amfi, found_angmom, found_esfs, found_eso, found_hso, found_mult, found_sos_coeff
+integer(kind=iwp), allocatable :: ibas(:,:)
+real(kind=wp), allocatable :: AL(:,:,:), etmp(:), RI(:,:), RR(:,:)
+complex(kind=wp), allocatable :: tmp(:,:)
+real(kind=wp), parameter :: g_e = -gElectron
+logical(kind=iwp), parameter :: DBG = .false.
+real(kind=wp), external :: dnrm2_, dznrm2_
+complex(kind=wp), external :: spin
 
-!logical :: Exist
-logical :: found_edmom !, found_angmom, found_hso, found_amfi, found_sos_coeff, found_eso, found_esfs, found_mult
-logical :: DBG
-
-DBG = .false.
 found_edmom = .false.
 !found_angmom = .false.
 !found_hso = .false.
@@ -295,6 +277,7 @@ call mma_deallocate(RI)
 ! transform the SFS data to the SO basis
 !----------------------------------------------------------------------|
 ! generate a local indexing table:
+call mma_allocate(Ibas,[1,nstate],[-50,50],label='Ibas')
 iss = 0
 ibas = 0
 ipar = mod(multiplicity(1),2)
@@ -343,6 +326,8 @@ do Ist=1,nstate
     end if
   end do   ! Jst
 end do   ! Ist
+
+call mma_deallocate(Ibas)
 
 ! calculate the matrix elements of the spin and magnetic moment
 ! in the spin-orbit basis:
