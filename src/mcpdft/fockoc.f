@@ -76,21 +76,10 @@ c fock matrices added -- R L 921008.
 #ifdef _DEBUGPRINT_
       Write(LF,*) 'nTot1=',nTot1
 #endif
-      nFock = 0
-      Do iSym = 1, nSym
-         nFock = nFock + (nISh(iSym)+nASh(iSym))**2
-      End Do
-      Call GetMem('Fockoc','ALLO','REAL',ipFock,nFock)
-      iAd15 = iAdr15(5)
-*-----Read Fock matrix in MO basis from JOBIPH.
-      Call DDaFile(Jobiph,2,Work(ipFock),nFock,iAd15)
-#ifdef _DEBUGPRINT_
-      Call RecPrt('Fock(MO)',' ',Work(ipFock),1,nFock)
-#endif
 *
 *-----Construct the occupied part of the Fock matrix in SO/AO basis.
 *
-      ISTFCK= 1! ipFock
+      ISTFCK= 1
       jFock = ipFocc
       iCMo  = 1
 * A long loop over symmetry:
@@ -143,7 +132,6 @@ c fock matrices added -- R L 921008.
          ISTFCK=ISTFCK+NO**2
 * End of long loop over symmetry
       END DO
-      Call GetMem('Fockoc','FREE','REAL',ipFock,nFock)
       Call mma_deallocate(Scr2)
       Call mma_deallocate(Scr1)
 *
