@@ -66,7 +66,7 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
-      use wadr, only: DMAT, LPMAT, LPA, FockOcc, TUVX, lfi, DSPN
+      use wadr, only: DMAT, PMAT, LPA, FockOcc, TUVX, lfi, DSPN
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -209,14 +209,11 @@
       PLWO(:) = 0
 !
 *
-      LPMAT=1
       LPA  =1
       If ( NAC.GT.0 ) then
 
-        Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
         Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
       Else
-        LPMAT = ip_Dummy
         LPA   = ip_Dummy
       End If
       Call mma_allocate(TUVX,NACPR2,Label='TUVX')
@@ -224,6 +221,7 @@
       Call mma_allocate(DSPN,NACPAR,Label='DSPN')
       Call mma_allocate(DMAT,NACPAR,Label='DMAT')
       DMAT(:)=0.0D0
+      Call mma_allocate(PMAT,NACPR2,Label='PMAT')
 *
 * Get start orbitals
 
@@ -235,7 +233,7 @@
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc_m(Work(LCMO),Work(lOCCN),
-     &             DMAT,DSPN,WORK(LPMAT),WORK(LPA))
+     &             DMAT,DSPN,PMAT,WORK(LPA))
 * Only now are such variables finally known.
       If (IPRLOC(1).GE.DEBUG) Then
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
@@ -243,7 +241,7 @@
         CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
      &              ' ',DSPN,NAC)
         CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',WORK(LPMAT),NACPAR)
+     &              ' ',PMAT,NACPAR)
         CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
      &              ' ',WORK(LPA),NACPAR)
       END IF
@@ -578,11 +576,11 @@
       Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
 
       If ( NAC.GT.0 ) then
-        Call GetMem('PMAT','free','Real',LPMAT,NACPR2)
         Call GetMem('P2AS','free','Real',LPA,NACPR2)
       End if
       Call mma_deallocate(DMAT)
       Call mma_deallocate(DSPN)
+      Call mma_deallocate(PMAT)
       Call mma_deallocate(TUVX)
 
 *
