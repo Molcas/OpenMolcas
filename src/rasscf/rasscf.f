@@ -73,7 +73,7 @@
       use orthonormalization, only : ON_scheme
       use casvb_global, only: ifvb, invec_cvb, lcmo_cvb,
      &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
-     &                        ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb,
+     &                        ldmat_cvb, lfa_cvb, lfi_cvb,
      &                        loccn_cvb, lpa_cvb, lpmat_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
@@ -96,8 +96,7 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
 
-      use wadr, only: LDMAT, LPMAT, LPA, FockOcc,
-     &                ipDens, TUVX, LDSPN, lfi
+      use wadr, only: LDMAT, LPMAT, LPA, FockOcc, TUVX, lfi, DSPN
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -162,6 +161,7 @@
 #ifdef _HDF5_
       Real*8, Allocatable:: VecL(:), VecR(:)
 #endif
+      Real*8, Allocatable:: Dens(:)
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -338,7 +338,6 @@
       Call FZero(Work(LDIAF),NTOT)
 *
       LDMAT=1
-      LDSPN=1
       LPMAT=1
       LPA  =1
 
@@ -354,26 +353,24 @@
       end if
 
         If ( NAC.GT.0 ) then
-         Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
-         call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
          if(.not.DumpOnly) then
            Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
            Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
            Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
            call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
            ldmat_cvb=ldmat
-           ldspn_cvb=ldspn
            lpmat_cvb=lpmat
            lpa_cvb=lpa
          end if
         Else
          LDMAT = ip_Dummy
-         LDSPN = ip_Dummy
          LPMAT = ip_Dummy
          LPA   = ip_Dummy
         End If
         Call mma_allocate(TUVX,NACPR2,Label='TUVX')
         TUVX(:)=0.0D0
+        Call mma_allocate(DSPN,NACPAR,Label='DSPN')
+        DSPN(:)=0.0D0
 #ifdef _FDE_
       ! Embedding
       iDummyEmb=0
@@ -423,7 +420,7 @@
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc(Work(LCMO),Work(lOCCN),
-     & WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),ON_scheme)
+     & WORK(LDMAT),DSPN,WORK(LPMAT),WORK(LPA),ON_scheme)
       if (KeyORTH) then
 ! TODO(Oskar): Add fourth argument OCC
 !   If the Occupation number is written properly as well.
@@ -808,7 +805,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
      &                   DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                   D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                   D1A_AO=work(lD1A : lD1A + nTot2 - 1),
-     &                   D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                   D1S_MO=DSPN(:),
      &                   F_IN=work(lFI : lFI + nTot1 - 1),
      &                   orbital_E=orbital_E,
      &                   folded_Fock=folded_Fock)
@@ -832,7 +829,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
      &                    TUVX=tuvx(:),
      &                    F_IN=work(lFI : lFI + nTot1 - 1),
-     &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                    D1S_MO=DSPN(:),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
@@ -840,13 +837,13 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
         else If(DoBlockDMRG) then
           CALL DMRGCTL(WORK(LCMO),
-     &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &                 WORK(LDMAT),DSPN,WORK(LPMAT),WORK(LPA),
      &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
      &                 TUVX,IFINAL,0)
 #endif
         else
           CALL CICTL(WORK(LCMO),
-     &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &               WORK(LDMAT),DSPN,WORK(LPMAT),WORK(LPA),
      &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               TUVX,IFINAL)
 
@@ -1135,20 +1132,20 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
      &                    TUVX=tuvx(:),
      &                    F_IN=work(lFI : lFI + nTot1 - 1),
-     &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                    D1S_MO=DSPN(:),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
         else If(DoBlockDMRG) Then
             CALL DMRGCTL(WORK(LCMO),
-     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &             WORK(LDMAT),DSPN,WORK(LPMAT),WORK(LPA),
      &             WORK(LFI),WORK(LD1I),WORK(LD1A),
      &             TUVX,IFINAL,1)
 #endif
         else
           CALL CICTL(WORK(LCMO),
-     &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &               WORK(LDMAT),DSPN,WORK(LPMAT),WORK(LPA),
      &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               TUVX,IFINAL)
         end if
@@ -1248,13 +1245,13 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 * To fix the DS bug... I forgot to transform it to the AO basis... Agrrrrhhh!
         if(iSpin.eq.1) then
           If ( IPRLEV.ge.DEBUG ) then
-            write(6,*) 'running a singlet. LDSPN set to zero!'
+            write(6,*) 'running a singlet. DSPN set to zero!'
           end if
-          Call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
+          DSPN(:)=0.0D0
         end if
         CALL GETMEM('TmpDS_DFT' ,'Allo','REAL',ipTmpDS_DFT ,NACPAR)
         CALL GETMEM('TmpD1S_DFT','Allo','REAL',ipTmpD1S_DFT,NTOT2)
-        Call dcopy_(NACPAR,Work(LDSPN),1,Work(ipTmpDS_DFT),1)
+        Call dcopy_(NACPAR,DSPN,1,Work(ipTmpDS_DFT),1)
         IF ( NASH(1).NE.NAC ) then
           CALL DBLOCK(Work(ipTmpDS_DFT))
         end if
@@ -1270,7 +1267,7 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 c        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
 c     &              ' ',Work(LDMAT),NAC)
 c        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
-c     &              ' ',Work(LDSPN),NAC)
+c     &              ' ',DSPN,NAC)
 c        CALL TRIPRT('Averaged two-body density matrix, P',
 c     &              ' ',WORK(LPMAT),NACPAR)
 c        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
@@ -1686,7 +1683,7 @@ cGLM some additional printout for MC-PDFT
 
       if (KeyWRMA) then
         call dump_fciqmc_mats(dmat=work(lDMAT:lDMAT + nAcPar - 1),
-     &                        dspn=work(lDSPN : lDSPN + nAcPar - 1),
+     &                        dspn=DSPN(:),
      &                        psmat=work(lpmat:lPMat + nAcpr2 - 1),
      &                        pamat=work(lpa:lpa + nAcPr2 - 1))
       end if
@@ -1780,7 +1777,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
      &                    TUVX=tuvx(:),
      &                    F_IN=work(lFI : lFI + nTot1 - 1),
-     &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
+     &                    D1S_MO=DSPN(:),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
@@ -1788,7 +1785,7 @@ c Clean-close as much as you can the CASDFT stuff...
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       else If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
-     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &           WORK(LDMAT),DSPN,WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
      &           TUVX,IFINAL,1)
 #endif
@@ -1802,7 +1799,7 @@ c Clean-close as much as you can the CASDFT stuff...
 #endif
       else
         CALL CICTL(WORK(LCMO),
-     &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
+     &           WORK(LDMAT),DSPN,WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &           TUVX,IFINAL)
       end if
@@ -1924,12 +1921,12 @@ c Clean-close as much as you can the CASDFT stuff...
 * and densities with the densities for state iRLXRoot
 c      write(6,*) 'I am in RASSCF before call to PutRlx!'
       If ( ITERM.ne.99 ) Then
-         Call GetMem('Dens','ALLO','REAL',ipDens,nTot1)
-         Call PutRlx(Work(LDMAT),Work(LDSPN),WORK(LPMAT),
-     &            Work(ipDens),Work(LCMO))
+         Call mma_allocate(Dens,nTot1,Label='Dens')
+         Call PutRlx(Work(LDMAT),DSPN,WORK(LPMAT),
+     &            Dens,Work(LCMO))
          Call Export1(IFINAL,WORK(LCMO),WORK(LDMAT),WORK(LPMAT),
-     &             Work(ipDens),FockOcc)
-         Call GetMem('Dens','FREE','REAL',ipDens,nTot1)
+     &             Dens,FockOcc)
+         Call mma_deallocate(Dens)
       End If
       Call Timing(dum1,dum2,Oris_2,dum3)
       Oris_2 = Oris_2 - Oris_1
@@ -2026,7 +2023,6 @@ c  i_root>0 gives natural spin orbitals for that root
 
 c deallocating TUVX memory...
       IF(NAC.GT.0) THEN
-         Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
          if(.not.DumpOnly) Then
             Call GetMem('P2AS','Free','Real',LPA,NACPR2)
             Call GetMem('PMAT','Free','Real',LPMAT,NACPR2)
@@ -2034,6 +2030,7 @@ c deallocating TUVX memory...
          endif
       END IF
       Call mma_deallocate(TUVX)
+      Call mma_deallocate(DSPN)
 !Leon: The velociraptor comes! xkcd.com/292/
 9989  Continue
 *
