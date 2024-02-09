@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine CRYSTALFIELD( ESOJ, DIPSO, S_SO, nDIMcf,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine CRYSTALFIELD( ESOJ, DIPSO, S_SO, nDIMcf,               &
      &                         iDIM, nlanth, zmagn2, iopt, GRAD, iprint)
 
       Implicit None
@@ -33,12 +33,12 @@
       Write(6,'(/)')
       Write(6,'(100A)') ('%',i=1,95)
       If(MOD(nDIMcf,2).eq.1) Then
-        Write(6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD '//
-     &                         'PARAMETERS OF THE GROUND ATOMIC '//
+        Write(6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD '//        &
+     &                         'PARAMETERS OF THE GROUND ATOMIC '//     &
      &                         'MULTIPLET J = ', (nDIMcf-1)/2, '.'
       Else
-        Write(6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD '//
-     &                         'PARAMETERS OF THE GROUND ATOMIC '//
+        Write(6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD '//        &
+     &                         'PARAMETERS OF THE GROUND ATOMIC '//     &
      &                         'MULTIPLET J = ', (nDIMcf-1),'/2.'
       End If
       Write(6,'(100A)') ('%',i=1,95)
@@ -50,44 +50,44 @@
       Call dcopy_(  3,[0.0_wp],0,gtens,1)
       Call dcopy_(3*3,[0.0_wp],0,zmagn,1)
       If(iopt.eq.1) Then
-c  coordinate system for decomposition of the CF matrix identic to the coordinate system
-c  of the main magnetic axes of the ground multiplet (NDIM(1))
+!  coordinate system for decomposition of the CF matrix identic to the coordinate system
+!  of the main magnetic axes of the ground multiplet (NDIM(1))
         CALL atens(DIPSO(1:3,1:idim,1:idim), idim, GTENS, ZMAGN, 1)
-        Write(6,'(a)') 'The parameters of the Crystal Field matrix '//
+        Write(6,'(a)') 'The parameters of the Crystal Field matrix '//  &
      &                 'are written in the coordinate system:'
         If(MOD(iDIM,2).eq.0) Then
-          Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//
-     &                        'axes of the ground pseuDospin S = |',
+          Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//   &
+     &                        'axes of the ground pseuDospin S = |',    &
      &                        iDIM-1,'/2> multiplet.'
         Else
-          Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//
-     &                        'axes of the ground pseuDospin S = |',
+          Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//   &
+     &                        'axes of the ground pseuDospin S = |',    &
      &                       (iDIM-1)/2,'> multiplet.'
         End If
 
       Else If(iopt.eq.2) Then
-c  coordinate system for decomposition of the CF matrix identic to the coordinate system
-c  of the main magnetic axes of the ground multiplet (NDIM(1))
+!  coordinate system for decomposition of the CF matrix identic to the coordinate system
+!  of the main magnetic axes of the ground multiplet (NDIM(1))
         CALL atens(DIPSO, nDIMCF, GTENS, ZMAGN, 1)
-        Write(6,'(a)') 'The parameters of the Crystal Field matrix '//
+        Write(6,'(a)') 'The parameters of the Crystal Field matrix '//  &
      &                 'are written in the coordinate system:'
         If(MOD(nDIMCF,2).eq.0) Then
-          Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//
-     &                        'axes of the ground atomic J = |',
+          Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//   &
+     &                        'axes of the ground atomic J = |',        &
      &                         nDIMCF-1,'/2> multiplet'
         Else
-          Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//
-     &                        'axes of the ground atomic J = |',
+          Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//   &
+     &                        'axes of the ground atomic J = |',        &
      &                        (nDIMCF-1)/2,'> multiplet'
         End If
 
       Else If(iopt.eq.3) Then
-        Write(6,'(a)') 'The parameters of the Crystal Field matrix '//
+        Write(6,'(a)') 'The parameters of the Crystal Field matrix '//  &
      &                 'are written in the coordinate system:'
         Write(6,'(a)') '(Xm, Ym, Zm) -- defined in the input file.'
         Call dcopy_(3*3,zmagn2,1,zmagn,1)
       Else
-        Write(6,'(a)') 'The parameters of the Crystal Field matrix '//
+        Write(6,'(a)') 'The parameters of the Crystal Field matrix '//  &
      &                 'are written in the initial coordinate system.'
         Do i=1,3
           ZMAGN(i,i)=1.0_wp
@@ -103,7 +103,7 @@ c  of the main magnetic axes of the ground multiplet (NDIM(1))
       CALL rotmom2( DIPSO, nDIMCF, ZMAGN, DIPJ )
       CALL rotmom2(  S_SO, nDIMCF, ZMAGN,   SJ )
 
-      Write(6,'(a)') 'Rotation matrix from the initial coordinate '//
+      Write(6,'(a)') 'Rotation matrix from the initial coordinate '//   &
      &               'system to the employed coordinate system is:'
 
       If((iopt.eq.1).OR.(iopt.eq.2)) Then
@@ -112,7 +112,7 @@ c  of the main magnetic axes of the ground multiplet (NDIM(1))
         Write(6,'(A,35x,A)') 'Xm, Ym, Zm -- main magnetic axes','|'
         Write(6,'(4x,3(17x,a),9x,a)') 'x','y','z','|'
         Write(6,'(6x,A,3F18.14,1x,A)') '| Xm |',(ZMAGN(j,1),j=1,3),'|'
-        Write(6,'( A,A,3F18.14,1x,A)') ' R =  ','| Ym |',
+        Write(6,'( A,A,3F18.14,1x,A)') ' R =  ','| Ym |',               &
      &                                 (ZMAGN(j,2),j=1,3),'|'
         Write(6,'(6x,A,3F18.14,1x,A)') '| Zm |',(ZMAGN(j,3),j=1,3),'|'
         Write(6,'(83a)') ('-',i=1,67),'|'
@@ -122,11 +122,11 @@ c  of the main magnetic axes of the ground multiplet (NDIM(1))
 
         Write(6,'(70a)') ('-',i=1,67),'|'
         Write(6,'(A,31x,A)') 'x , y , z  -- initial Cartesian axes','|'
-        Write(6,'(A,11x,A)') 'Xm, Ym, Zm -- the coordinate system '//
+        Write(6,'(A,11x,A)') 'Xm, Ym, Zm -- the coordinate system '//   &
      &                       'defined in the input','|'
         Write(6,'(4x,3(17x,a),9x,a)') 'x','y','z','|'
         Write(6,'(6x,A,3F18.14,1x,A)') '| Xm |',(ZMAGN(j,1),j=1,3),'|'
-        Write(6,'( A,A,3F18.14,1x,A)') ' R =  ','| Ym |',
+        Write(6,'( A,A,3F18.14,1x,A)') ' R =  ','| Ym |',               &
      &   (ZMAGN(j,2),j=1,3),'|'
         Write(6,'(6x,A,3F18.14,1x,A)') '| Zm |',(ZMAGN(j,3),j=1,3),'|'
         Write(6,'(83a)') ('-',i=1,67),'|'
@@ -150,7 +150,7 @@ c  of the main magnetic axes of the ground multiplet (NDIM(1))
       info=0
       Call diag_c2(DIPJ,nDIMcf,info,wtmp,ztmp)
       Do i=1,nDIMcf
-        Write(6,'(A,i2,A,4F20.15)') 'energy: ',i,' : ',
+        Write(6,'(A,i2,A,4F20.15)') 'energy: ',i,' : ',                 &
      &             wtmp(i), wtmp(i)+wtmp(nDIMcf-i+1)
       End Do
       Call mma_deallocate(ztmp)
@@ -168,24 +168,24 @@ c  of the main magnetic axes of the ground multiplet (NDIM(1))
 
 
 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Subroutine CRYSTALFIELD_1(nDIMcf,nlanth,MM,ESOJ,GRAD,iprint)
 
-C This soubrutine calculates the crystal field parameters on the basis
-C of the given fron RASSI - J multiplet.
-c In a second step, the first largest 27 parameters will be used to
-c recalculate the S-O energies, eigenfunctions, g- and D- tensors.
+! This soubrutine calculates the crystal field parameters on the basis
+! of the given fron RASSI - J multiplet.
+! In a second step, the first largest 27 parameters will be used to
+! recalculate the S-O energies, eigenfunctions, g- and D- tensors.
 
-c  Employed parameters:
-
-
-C  IPRINT = the print level of the calculation
+!  Employed parameters:
 
 
-C  IReturn = the error value.
-c        0 = no error, happy landing
+!  IPRINT = the print level of the calculation
 
-C================== Variable declarations =============================
+
+!  IReturn = the error value.
+!        0 = no error, happy landing
+
+!================== Variable declarations =============================
 
       Implicit None
 #include "stdalloc.fh"
@@ -201,13 +201,13 @@ C================== Variable declarations =============================
       Real(kind=8)                 :: BNC(nDIMcf,0:nDIMcf)
       Real(kind=8)                 :: BNS(nDIMcf,0:nDIMcf)
       Real(kind=8)                 :: Bstev(nDIMcf,-nDIMcf:nDIMcf)
-      Complex(kind=8)              ::
+      Complex(kind=8)              ::                                   &
      &                   Akq((nDIMcf-1),-(nDIMcf-1):(nDIMcf-1))
-      Complex(kind=8), allocatable :: Zinit(:,:), Z(:,:),
+      Complex(kind=8), allocatable :: Zinit(:,:), Z(:,:),               &
      &                                  HCF(:,:)
       External           :: IsFreeUnit
 
-C============== End of variable declarations ==========================
+!============== End of variable declarations ==========================
       Call mma_allocate(Winit,nDIMcf,'Winit')
       Call mma_allocate(Eloc,nDIMcf,'Eloc')
       Call mma_allocate(a,6,'anm')
@@ -238,37 +238,37 @@ C============== End of variable declarations ==========================
       End Do
       ! diagonalize the initial CF matrix:
       CALL DIAG_C2( HCF,nDIMcf,INFO,Winit,Zinit)
-      Call print_ZFS('Ab Initio Calculated Crystal-Field Splitting '//
-     &               'Matrix written in the basis of Pseudospin '//
+      Call print_ZFS('Ab Initio Calculated Crystal-Field Splitting '//  &
+     &               'Matrix written in the basis of Pseudospin '//     &
      &               'Eigenfunctions',HCF,nDIMCF)
 
       If(IPRINT.gt.2) Then
         Write(6,*)
-        Write(6,'(5X,A)') 'MAIN VALUES OF THE INITIAL CRYSTAL'//
+        Write(6,'(5X,A)') 'MAIN VALUES OF THE INITIAL CRYSTAL'//        &
      &                    '-FIELD HAMILTONIAN:'
         Write(6,*)
         If(MOD(nDIMcf,2).eq.1) Then
           Do I=1,nDIMcf
-            Write(6,'(3X,A,I3,A,F25.16)') '|',
+            Write(6,'(3X,A,I3,A,F25.16)') '|',                          &
      &                     (nDIMcf-1)/2+(1-I),'> = ',Winit(I)-Winit(1)
           End Do
         Else
           Do I=1,nDIMcf
-            Write(6,'(3X,A,I3,A,F25.16)') '|',
+            Write(6,'(3X,A,I3,A,F25.16)') '|',                          &
      &                  (nDIMcf-1)-2*(I-1),'/2 > = ',Winit(i)-Winit(1)
           End Do
         End If
         Write(6,*)
 
-        Write(6,'(5X,A)') 'EIGENVECTORS OF THE INITIAL CRYSTAL'//
+        Write(6,'(5X,A)') 'EIGENVECTORS OF THE INITIAL CRYSTAL'//       &
      &                    '-FIELD HAMILTONIAN:'
         Write(6,*)
         Call print_ZFS_naoya('J',Zinit,nDIMcf)
 !     End  the checking of the main values of the initial crystal-field
       End If
 
-C  calculating the coeficients of the crystal filed operators Bnm
-C    Akq=(2k+1)/(2J+1) * 1/|< J || O || J >|^2 * Trace{HCF*O(k,-q)}
+!  calculating the coeficients of the crystal filed operators Bnm
+!    Akq=(2k+1)/(2J+1) * 1/|< J || O || J >|^2 * Trace{HCF*O(k,-q)}
       Call NEWCF(HCF,nDIMcf,Akq,BNC,BNS,Bstev)
       !If(dbg) Call recover_CF(nDIMCF,HCF,Akq,BNC,BNS,Bstev)
 
@@ -283,33 +283,33 @@ C    Akq=(2k+1)/(2J+1) * 1/|< J || O || J >|^2 * Trace{HCF*O(k,-q)}
          Call print_CFP_naoya(nDIMcf,Akq,.false.)
       End If
 
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       Write(6,'(/)')
       If(MOD(nDIMcf,2)==1) Then
-         Write(6,'(A,I0)') 'DECOMPOSITION OF THE RASSI WAVE '//
-     &                     'FUNCTIONS CORRESPONDING TO THE '//
+         Write(6,'(A,I0)') 'DECOMPOSITION OF THE RASSI WAVE '//         &
+     &                     'FUNCTIONS CORRESPONDING TO THE '//          &
      &                     'LOWEST ATOMIC MULTIPLET J =',(nDIMcf-1)/2
-         Write(6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE '//
-     &                     'PROJECTION OF THE TOTAL MOMENT '//
+         Write(6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE '//         &
+     &                     'PROJECTION OF THE TOTAL MOMENT '//          &
      &                     'ON THE QUANTIZATION AXIS'
       Else ! MOD(nDIMcf,2)==0
-         Write(6,'(A,I0,A)') 'DECOMPOSITION OF THE RASSI WAVE '//
-     &                       'FUNCTIONS CORRESPONDING TO THE '//
-     &                       'LOWEST ATOMIC MULTIPLET J = ',
+         Write(6,'(A,I0,A)') 'DECOMPOSITION OF THE RASSI WAVE '//       &
+     &                       'FUNCTIONS CORRESPONDING TO THE '//        &
+     &                       'LOWEST ATOMIC MULTIPLET J = ',            &
      &                         (nDIMcf-1),'/2'
-         Write(6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE '//
-     &                     'PROJECTION OF THE TOTAL MOMENT '//
+         Write(6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE '//         &
+     &                     'PROJECTION OF THE TOTAL MOMENT '//          &
      &                     'ON THE QUANTIZATION AXIS'
       End If
 
       Call print_ZFS_naoya('J',Zinit,nDIMcf)
       Call individual_ranks(nDIMCF,BNC,BNS,HCF,'J',iprint)
-c-----------------------------------------------------------------------
-C  saving some information for tests:
+!-----------------------------------------------------------------------
+!  saving some information for tests:
       CALL Add_Info('CRYS_BNMC_20',[DBLE(BNC(2,0))],1,4)
       CALL Add_Info('CRYS_BNMC_40',[DBLE(BNC(4,0))],1,4)
       CALL Add_Info('CRYS_BNMC_60',[DBLE(BNC(6,0))],1,4)
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! for the interface related to CF gradient calculation:
       If (GRAD) Then
          LuCF=IsFreeUnit(81)
@@ -321,7 +321,7 @@ c-----------------------------------------------------------------------
          End Do
          Close(LuCF)
       End If
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       Call mma_deallocate(Winit)
       Call mma_deallocate(Eloc)
       Call mma_deallocate(a)
@@ -427,7 +427,7 @@ c-----------------------------------------------------------------------
             End If
 
             If(dbg) Then
-               Write(6,'(A,2I3,5(ES20.13,1x))') 'k,q, b(k,q), c(k,q)',
+               Write(6,'(A,2I3,5(ES20.13,1x))') 'k,q, b(k,q), c(k,q)',  &
      &                                      ik,iq, b(ik,iq), c(ik,iq)
             End If
          End Do
@@ -463,7 +463,7 @@ c-----------------------------------------------------------------------
 
       Do k=2,n-1
         Do q=-k,k
-          Write(6,'(A,i2,A,i3,A,2ES20.10)') 'Akq(',k,',',q,') = ',
+          Write(6,'(A,i2,A,i3,A,2ES20.10)') 'Akq(',k,',',q,') = ',      &
      &                                       Akq(k,q)
         End Do
       End Do
@@ -487,9 +487,9 @@ c-----------------------------------------------------------------------
       Write(6,'(A,ES20.10)') 'total difference between HAM-HCF=',tdiff
       Do i=1,n
         Do j=1,n
-          Write(6, '(2(A,i2,A,i2,A,2ES20.10,A),2(2ES20.10,5x))')
-     &                'HAM(',i,',',j,')=',HAM(i,j),'      ',
-     &                'HCF(',i,',',j,')=',HCF(i,j),' diff=',
+          Write(6, '(2(A,i2,A,i2,A,2ES20.10,A),2(2ES20.10,5x))')        &
+     &                'HAM(',i,',',j,')=',HAM(i,j),'      ',            &
+     &                'HCF(',i,',',j,')=',HCF(i,j),' diff=',            &
      &                 HAM(i,j)-HCF(i,j)
         End Do
       End Do
@@ -500,9 +500,9 @@ c-----------------------------------------------------------------------
       Z(:,:)=(0.0_wp,0.0_wp)
       Call diag_c2(HCF,n,info,w2,Z)
       Do i=1,n
-         Write(6,'(2(A,i2,A,ES20.10,A),2(2ES20.10,5x))')
-     &                'W1(',i,')=',w1(i)-w1(1),'      ',
-     &                'W2(',i,')=',w2(i)-w2(1),' diff=',
+         Write(6,'(2(A,i2,A,ES20.10,A),2(2ES20.10,5x))')                &
+     &                'W1(',i,')=',w1(i)-w1(1),'      ',                &
+     &                'W2(',i,')=',w2(i)-w2(1),' diff=',                &
      &                 w1(i)-w2(i)
       End Do
 
@@ -528,9 +528,9 @@ c-----------------------------------------------------------------------
       Write(6,'(A,ES20.10)') 'total difference between HAM-HCF=',tdiff
       Do i=1,n
         Do j=1,n
-          Write(6, '(2(A,i2,A,i2,A,2ES20.10,A),2(2ES20.10,5x))')
-     &                'HAM(',i,',',j,')=',HAM(i,j),'      ',
-     &                'HCF(',i,',',j,')=',HCF(i,j),' diff=',
+          Write(6, '(2(A,i2,A,i2,A,2ES20.10,A),2(2ES20.10,5x))')        &
+     &                'HAM(',i,',',j,')=',HAM(i,j),'      ',            &
+     &                'HCF(',i,',',j,')=',HCF(i,j),' diff=',            &
      &                 HAM(i,j)-HCF(i,j)
         End Do
       End Do
@@ -541,9 +541,9 @@ c-----------------------------------------------------------------------
       Z(:,:)=(0.0_wp,0.0_wp)
       Call diag_c2(HCF,n,info,w2,Z)
       Do i=1,n
-         Write(6,'(2(A,i2,A,ES20.10,A),2(2ES20.10,5x))')
-     &                'W1(',i,')=',w1(i)-w1(1),'      ',
-     &                'W2(',i,')=',w2(i)-w2(1),' diff=',
+         Write(6,'(2(A,i2,A,ES20.10,A),2(2ES20.10,5x))')                &
+     &                'W1(',i,')=',w1(i)-w1(1),'      ',                &
+     &                'W2(',i,')=',w2(i)-w2(1),' diff=',                &
      &                 w1(i)-w2(i)
       End Do
 
@@ -569,9 +569,9 @@ c-----------------------------------------------------------------------
       Write(6,'(A,ES20.10)') 'total difference between HAM-HCF=',tdiff
       Do i=1,n
         Do j=1,n
-          Write(6, '(2(A,i2,A,i2,A,2ES20.10,A),2(2ES20.10,5x))')
-     &                'HAM(',i,',',j,')=',HAM(i,j),'      ',
-     &                'HCF(',i,',',j,')=',HCF(i,j),' diff=',
+          Write(6, '(2(A,i2,A,i2,A,2ES20.10,A),2(2ES20.10,5x))')        &
+     &                'HAM(',i,',',j,')=',HAM(i,j),'      ',            &
+     &                'HCF(',i,',',j,')=',HCF(i,j),' diff=',            &
      &                 HAM(i,j)-HCF(i,j)
         End Do
       End Do
@@ -582,9 +582,9 @@ c-----------------------------------------------------------------------
       Z(:,:)=(0.0_wp,0.0_wp)
       Call diag_c2(HCF,n,info,w2,Z)
       Do i=1,n
-         Write(6,'(2(A,i2,A,ES20.10,A),2(2ES20.10,5x))')
-     &                'W1(',i,')=',w1(i)-w1(1),'      ',
-     &                'W2(',i,')=',w2(i)-w2(1),' diff=',
+         Write(6,'(2(A,i2,A,ES20.10,A),2(2ES20.10,5x))')                &
+     &                'W1(',i,')=',w1(i)-w1(1),'      ',                &
+     &                'W2(',i,')=',w2(i)-w2(1),' diff=',                &
      &                 w1(i)-w2(i)
       End Do
 !==================================================================

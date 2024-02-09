@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine SUSCEPTIBILITY( NSS, ESO, S_SO, DIPSO, nT, nTempMagn,
-     &                           T, tmin, tmax, XTexp, zJ, tinput,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine SUSCEPTIBILITY( NSS, ESO, S_SO, DIPSO, nT, nTempMagn,  &
+     &                           T, tmin, tmax, XTexp, zJ, tinput,      &
      &                           chiT_theta, doplot, iPrint, mem )
 
       Implicit None
@@ -24,10 +24,10 @@
       Complex (kind=8), intent(in) ::  dipso(3,nss,nss)
       Logical          , intent(in) :: tinput
       Logical          , intent(in) :: doplot
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      this routine calculates the magnetic susceptibility and all related to it values.
-c      the units are cgsemu: cm^3*k/mol
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!      this routine calculates the magnetic susceptibility and all related to it values.
+!      the units are cgsemu: cm^3*k/mol
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "stdalloc.fh"
       Integer :: ic,jc,it,im,jm,j,i,info,jT,mem_local,RtoB
       Real (kind=8) :: det, xxm, Zst
@@ -42,12 +42,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Real (kind=8), allocatable ::      chi_theta_1(:)
       Real (kind=8), allocatable :: XMM(:,:)
       ! tensors for zJ /= 0
-      Real (kind=8), allocatable :: XSM(:,:), XSS(:,:), XZJ(:,:),
+      Real (kind=8), allocatable :: XSM(:,:), XSS(:,:), XZJ(:,:),       &
      &                               unity(:,:), a_dir(:,:), a_inv(:,:)
       ! main values and axes of XT tensors:
       Real (kind=8), allocatable :: WT(:), ZT(:,:)
       Character(len=50) :: label
-c constants used in this subrutine
+! constants used in this subrutine
       RtoB=8
       mem_local=0
       coeff_X=0.125048612_wp*3.0_wp
@@ -63,22 +63,22 @@ c constants used in this subrutine
 
       Write(6,*)
       If (TINPUT) Then
-        Write(6,'(5X,A)') 'Temperature dependence of the magnetic '//
+        Write(6,'(5X,A)') 'Temperature dependence of the magnetic '//   &
      &                    'susceptibility calculated according '
-        Write(6,'(5X,A)') 'to experimental values provided in the '//
+        Write(6,'(5X,A)') 'to experimental values provided in the '//   &
      &                    'input'
       Else
-        Write(6,'(5X,A)') 'Temperature dependence of the '//
+        Write(6,'(5X,A)') 'Temperature dependence of the '//            &
      &                    'magnetic susceptibility calculated in'
-        Write(6,'(5x,I3,a,f4.1,a,f6.1,a)') nT,' points, equally '//
-     &                    'distributed in temperature range',
+        Write(6,'(5x,I3,a,f4.1,a,f6.1,a)') nT,' points, equally '//     &
+     &                    'distributed in temperature range',           &
      &                     Tmin,' ---', Tmax,' K.'
       End If
-        Write(6,'(5X,A)') 'The algorithm employed for XT=f(T) in '//
-     &                    'this section is based on the zero '//
+        Write(6,'(5X,A)') 'The algorithm employed for XT=f(T) in '//    &
+     &                    'this section is based on the zero '//        &
      &                    'magnetic field limit.'
       If(doplot) Then
-        Write(6,'(5X,A)') 'The GNUPLOT script and correponding '//
+        Write(6,'(5X,A)') 'The GNUPLOT script and correponding '//      &
      &                    'images are generated in $WorkDir'
       End If
       Write(6,*)
@@ -95,28 +95,28 @@ c constants used in this subrutine
       If(dbg) maxes=0.0_wp
       If(dbg) Call atens(DIPSO, nss, gtens, maxes, 2)
 !-----------------------------------------------------------------------
-C   ***********************************************************
-C   *     Powder averaged high-T limit of susceptibility      *
-C   *                   and g-tensor                          *
-C   ***********************************************************
-c      ee=0.0_wp
-c      ee_2=0.0_wp
-c      Do Iss=1,NSS
-c        Do Jss=1,NSS
-c          Do ic=1,3
-c      ee=ee+DBLE(conjg(DipSO(ic,Iss,Jss))*DipSO(ic,Iss,Jss))
-c       If(Iss.LE.4.AND.Jss.LE.4) Then
-c      ee_2=ee_2+DBLE(conjg(DipSO(ic,Iss,Jss))*DipSO(ic,Iss,Jss))
-c       End If
-c          End Do ! ic
-c        End Do ! Jss
-c      End Do ! Iss
-c      chiT_high=coeff_X*ee/DBLE(NSS)/3.0_wp
-c      SS1=(DBLE(IGSM)-1.0_wp)**2.0_wp/4.0_wp+(DBLE(IGSM)-1.0_wp)/2.0_wp
-c      chiT_high_2=coeff_X*ee_2/12.0_wp
-c      g_high  =sqrt(chiT_high  /(coeff_X*SS1/3.0_wp))
-c      g_high_2=sqrt(chiT_high_2/(coeff_X*SS1/3.0_wp))
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!   ***********************************************************
+!   *     Powder averaged high-T limit of susceptibility      *
+!   *                   and g-tensor                          *
+!   ***********************************************************
+!      ee=0.0_wp
+!      ee_2=0.0_wp
+!      Do Iss=1,NSS
+!        Do Jss=1,NSS
+!          Do ic=1,3
+!      ee=ee+DBLE(conjg(DipSO(ic,Iss,Jss))*DipSO(ic,Iss,Jss))
+!       If(Iss.LE.4.AND.Jss.LE.4) Then
+!      ee_2=ee_2+DBLE(conjg(DipSO(ic,Iss,Jss))*DipSO(ic,Iss,Jss))
+!       End If
+!          End Do ! ic
+!        End Do ! Jss
+!      End Do ! Iss
+!      chiT_high=coeff_X*ee/DBLE(NSS)/3.0_wp
+!      SS1=(DBLE(IGSM)-1.0_wp)**2.0_wp/4.0_wp+(DBLE(IGSM)-1.0_wp)/2.0_wp
+!      chiT_high_2=coeff_X*ee_2/12.0_wp
+!      g_high  =sqrt(chiT_high  /(coeff_X*SS1/3.0_wp))
+!      g_high_2=sqrt(chiT_high_2/(coeff_X*SS1/3.0_wp))
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Call mma_allocate(chiT,       (nT+nTempMagn),'chiT')
       Call mma_allocate(Zstat1,     (nT+nTempMagn),'Zstat1')
       Call mma_allocate(chi_theta_1,(nT+nTempMagn),'chi_theta_1')
@@ -146,7 +146,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
            ! compute XT tensor for this temperature:
            Call chi( DipSO, DipSO, Eso, Nss, T(iT), Zst, XMM)
            If(dbg) Write(6,'(A,9F12.6)') 'XMM:', XMM(1:3,1:3)
-           If(dbg) Write(6,'(A,9F12.6)') 'chiT:',
+           If(dbg) Write(6,'(A,9F12.6)') 'chiT:',                       &
      &              coeff_X*(XMM(1,1)+XMM(2,2)+XMM(3,3))/3.0_wp, Zst
 
            ! Call dscal_( 3*3, coeff_X, XMM, 1 )
@@ -256,43 +256,43 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         Call mma_deallocate(Unity)
       End If !zJ
 
-C
-C  WRITING SOME OF THE OUTPUT...
-C
+!
+!  WRITING SOME OF THE OUTPUT...
+!
       Write(6,'(/)')
-      Write(6,'(A)') '     |     T      | Statistical |    CHI*T    '//
+      Write(6,'(A)') '     |     T      | Statistical |    CHI*T    '// &
      &'|    CHI*T    |     CHI     |    1/CHI    |'
-      Write(6,'(A)') '     |            |  Sum (Z)    |    (zJ=0)   '//
+      Write(6,'(A)') '     |            |  Sum (Z)    |    (zJ=0)   '// &
      &'|             |             |             |'
-      Write(6,'(A)') '     |            |             |             '//
+      Write(6,'(A)') '     |            |             |             '// &
      &'|             |             |             |'
-      Write(6,'(A)') '-----|----------------------------------------'//
+      Write(6,'(A)') '-----|----------------------------------------'// &
      &'------------------------------------------|'
-      Write(6,'(A)') 'Units|   Kelvin   |    ---      |  cm3*K/mol  '//
+      Write(6,'(A)') 'Units|   Kelvin   |    ---      |  cm3*K/mol  '// &
      &'|  cm3*K/mol  |   cm3/mol   |   mol/cm3   |'
-      Write(6,'(A)') '-----|----------------------------------------'//
+      Write(6,'(A)') '-----|----------------------------------------'// &
      &'------------------------------------------|'
 
       Do iT=1,nT
         jT=iT+nTempMagn
-        Write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,ES12.5,A,ES12.5,'//
-     &          'A)')
-     &   '     |',         T(jT),       ' |',     zstat1(jT),
-     &       ' |',      chiT(jT),       ' |', chiT_theta(jT),
+        Write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,ES12.5,A,ES12.5,'//&
+     &          'A)')                                                   &
+     &   '     |',         T(jT),       ' |',     zstat1(jT),           &
+     &       ' |',      chiT(jT),       ' |', chiT_theta(jT),           &
      &       ' |',chiT_theta(jT)/T(jT), ' |',chi_theta_1(jT),' |'
       End Do
-      Write(6,'(A)') '-----|----------------------------------------'//
+      Write(6,'(A)') '-----|----------------------------------------'// &
      &'------------------------------------------|'
 
 
 
       If(TINPUT) Then
         Write(6,'(/)')
-        Write(6,'(5X,A      )') 'STANDARD DEVIATION OF THE CALCULATED'//
+        Write(6,'(5X,A      )') 'STANDARD DEVIATION OF THE CALCULATED'//&
      &                          ' MAGNETIC SUSCEPTIBILITY'
-        Write(6,'(5X,A,F12.7)') 'FROM EXPERIMENTAL VALUES PROVIDED '//
-     &                          'IN THE INPUT FILE IS:',
-     &  dev( nT, chit_theta( (1+nTempMagn):(nT+nTempMagn) ),
+        Write(6,'(5X,A,F12.7)') 'FROM EXPERIMENTAL VALUES PROVIDED '//  &
+     &                          'IN THE INPUT FILE IS:',                &
+     &  dev( nT, chit_theta( (1+nTempMagn):(nT+nTempMagn) ),            &
      &                XTexp( (1+nTempMagn):(nT+nTempMagn) ))
 
       End If
@@ -301,13 +301,13 @@ C
       WRITE(label,'(A)') "no_field"
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
-            Call plot_XT_with_Exp(label, nT,
-     &                           T((1+nTempMagn):(nT+nTempMagn) ),
-     &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ),
+            Call plot_XT_with_Exp(label, nT,                            &
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),      &
+     &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ),      &
      &                       XTexp((1+nTempMagn):(nT+nTempMagn) ) )
          ELSE
-            Call plot_XT_no_Exp( label, nT,
-     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+            Call plot_XT_no_Exp( label, nT,                             &
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),      &
      &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ) )
          END IF
       END IF
@@ -315,17 +315,17 @@ C
 
 
 
-c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main axes:
+! print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main axes:
       If(zJ.eq.0.0_wp) Then
 
         Write(6,'(/)')
         Write(6,'(111A)') ('-',i=1,110),'|'
-        Write(6,'(31X,A,22x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR'//
+        Write(6,'(31X,A,22x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR'//    &
      &                           ' FOR zJ = 0,  in cm3*K/mol','|'
         Write(6,'(111A)') ('-',i=1,110),'|'
-        Write(6,'(A   )') '     T(K)   |   |          '//
-     &                    'Susceptibility Tensor'//
-     &                    '      |    Main Values  |'//
+        Write(6,'(A   )') '     T(K)   |   |          '//               &
+     &                    'Susceptibility Tensor'//                     &
+     &                    '      |    Main Values  |'//                 &
      &                    '               Main Axes             |'
         Do iT=1,nT
           jT=iT+nTempMagn
@@ -333,18 +333,18 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
           Call dcopy_(  3, [0.0_wp], 0, wt,1)
           Call dcopy_(3*3, [0.0_wp], 0, zt,1)
           Call DIAG_R2( chiT_tens(jT,:,:) ,3,info,wt,zt)
-          Write(6,'(A)') '------------|---'//
-     &                   '|------- x --------- y --------- z ---'//
-     &                   '|-----------------'//
+          Write(6,'(A)') '------------|---'//                           &
+     &                   '|------- x --------- y --------- z ---'//     &
+     &                   '|-----------------'//                         &
      &                   '|------ x --------- y --------- z ----|'
-          Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')
-     &             '            | x |',(chiT_tens(jT,1,j),j=1,3),
+          Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')                &
+     &             '            | x |',(chiT_tens(jT,1,j),j=1,3),       &
      &             ' |  X:',wt(1),'|',(zt(j,1),j=1,3),'|'
-          Write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),
-     &             '| y |',            (chiT_tens(jT,2,j),j=1,3),
+          Write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),&
+     &             '| y |',            (chiT_tens(jT,2,j),j=1,3),       &
      &             ' |  Y:',wt(2),'|',(zt(j,2),j=1,3),'|'
-          Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')
-     &             '            | z |',(chiT_tens(jT,3,j),j=1,3),
+          Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')                &
+     &             '            | z |',(chiT_tens(jT,3,j),j=1,3),       &
      &             ' |  Z:',wt(3),'|',(zt(j,3),j=1,3),'|'
         End Do
         Write(6,'(111A)') ('-',i=1,110),'|'
@@ -353,12 +353,12 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
 
         Write(6,'(/)')
         Write(6,'(111A)') ('-',i=1,110),'|'
-        Write(6,'(31X,A,F7.4,15x,A)')
-     &                'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ = ',zJ,
+        Write(6,'(31X,A,F7.4,15x,A)')                                   &
+     &                'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ = ',zJ,   &
      &                ',  in cm3*K/mol','|'
         Write(6,'(111A)') ('-',i=1,110),'|'
-        Write(6,'(A)')'     T(K)   |   |          Susceptibility '//
-     &                'Tensor      |    Main Values  '//
+        Write(6,'(A)')'     T(K)   |   |          Susceptibility '//    &
+     &                'Tensor      |    Main Values  '//                &
      &                '|               Main Axes             |'
         Do iT=1,nT
           jT=iT+nTempMagn
@@ -366,36 +366,36 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
           Call dcopy_(  3, [0.0_wp], 0, wt,1)
           Call dcopy_(3*3, [0.0_wp], 0, zt,1)
           Call DIAG_R2( chiT_theta_tens(jT,:,:) ,3,info,wt,zt)
-          Write(6,'(A)') '------------|---'//
-     &                   '|------- x --------- y --------- z ---'//
-     &                   '|-----------------'//
+          Write(6,'(A)') '------------|---'//                           &
+     &                   '|------- x --------- y --------- z ---'//     &
+     &                   '|-----------------'//                         &
      &                   '|------ x --------- y --------- z ----|'
-          Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')
-     &          '            | x |',(chiT_theta_tens(jT,1,j),j=1,3),
+          Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')                &
+     &          '            | x |',(chiT_theta_tens(jT,1,j),j=1,3),    &
      &          ' |  X:',wt(1),'|',(zt(j,1),j=1,3),'|'
-          Write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),
-     &                      '| y |',(chiT_theta_tens(jT,2,j),j=1,3),
+          Write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),&
+     &                      '| y |',(chiT_theta_tens(jT,2,j),j=1,3),    &
      &          ' |  Y:',wt(2),'|',(zt(j,2),j=1,3),'|'
-          Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')
-     &          '            | z |',(chiT_theta_tens(jT,3,j),j=1,3),
+          Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')                &
+     &          '            | z |',(chiT_theta_tens(jT,3,j),j=1,3),    &
      &          ' |  Z:',wt(3),'|',(zt(j,3),j=1,3),'|'
         End Do
         Write(6,'(111A)') ('-',i=1,110),'|'
          Call mma_deallocate(chiT_theta_tens)
       End If ! zJ
 
-c      Write(6,'(/)')
-c      Write(6,'(10A)') (('------------'), K=1,10)
-c      Write(6,'(5X,A)') 'MAGNETIC SUSCEPTIBILITY IN THE DIRECTION '//
-c     &'OF THE MAIN MAGNETIC AXES'
-c      Write(6,'(10A)') (('------------'), K=1,10)
-c      Write(6,*)
-c      Write(6,'(7X,A)') 'T(K)         gx          gy          gz'
-c      Write(6,*)
-c      Do iT=1,nT
-c      Write(6,'(4X,F6.1,6X,3(F8.4,4X))') T(iT),(ChiT_main(iT,ic),ic=1,3)
-c      End Do
-C  saving some information for tests:
+!      Write(6,'(/)')
+!      Write(6,'(10A)') (('------------'), K=1,10)
+!      Write(6,'(5X,A)') 'MAGNETIC SUSCEPTIBILITY IN THE DIRECTION '//
+!     &'OF THE MAIN MAGNETIC AXES'
+!      Write(6,'(10A)') (('------------'), K=1,10)
+!      Write(6,*)
+!      Write(6,'(7X,A)') 'T(K)         gx          gy          gz'
+!      Write(6,*)
+!      Do iT=1,nT
+!      Write(6,'(4X,F6.1,6X,3(F8.4,4X))') T(iT),(ChiT_main(iT,ic),ic=1,3)
+!      End Do
+!  saving some information for tests:
 
       Call Add_Info('Temperature',T         ,nT+nTempMagn,5)
       Call Add_Info('CHIT'       ,chiT      ,nT+nTempMagn,5)
@@ -411,13 +411,13 @@ C  saving some information for tests:
       Return
       End
 
-C Calculation of susceptibility in the direction of main magnetic axes:
+! Calculation of susceptibility in the direction of main magnetic axes:
 
-c         Do i=1,3
-c           Do j=1,3
-c             Do k=1,3
-c               ChiT_main(iT,i)=ChiT_main(iT,i)+ ZMAGN(k,i)*ZMAGN(j,i)
-c       &                                       *ChiT_tens(iT,k,j)
-c             End Do
-c           End Do
-c         End Do
+!         Do i=1,3
+!           Do j=1,3
+!             Do k=1,3
+!               ChiT_main(iT,i)=ChiT_main(iT,i)+ ZMAGN(k,i)*ZMAGN(j,i)
+!       &                                       *ChiT_tens(iT,k,j)
+!             End Do
+!           End Do
+!         End Do

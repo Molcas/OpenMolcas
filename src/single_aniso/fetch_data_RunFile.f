@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine fetch_data_RunFile_init( nss, nstate )
       Implicit None
 
@@ -133,18 +133,18 @@
       Call qpg_dArray('ANGM_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The ANGMOM array was not found on RUNFILE'
-         Write(6,'(5X,A)') '1. Check If ANGM keyword was used for '//
+         Write(6,'(5X,A)') '1. Check If ANGM keyword was used for '//   &
      &                     'SEWARD.'
-         Write(6,'(5X,A)') '2. Check If MEES keyword was used for '//
+         Write(6,'(5X,A)') '2. Check If MEES keyword was used for '//   &
      &                     'RASSI.'
-         Write(6,'(5X,A)') '3. Check If PROP keyword was used for '//
+         Write(6,'(5X,A)') '3. Check If PROP keyword was used for '//   &
      &                     'RASSI:'
          Write(6,'(9X,A)') 'PROP'
          Write(6,'(9X,A)') '3'
          Write(6,'(9X,A)') ' ''ANGMOM'' 1'
          Write(6,'(9X,A)') ' ''ANGMOM'' 2'
          Write(6,'(9X,A)') ' ''ANGMOM'' 3'
-         Write(6,'(5X,A)') 'If MEES, ANGMOM and PROP keywords  were '//
+         Write(6,'(5X,A)') 'If MEES, ANGMOM and PROP keywords  were '// &
      &                     'used and you still see this problem,'
          Write(6,'(5X,A)') 'please, report a BUG.'
          Call xFlush(6)
@@ -163,18 +163,18 @@
 
 
 
-      Subroutine fetch_data_RunFile_all( nss, nstate,
-     &                                   multiplicity, eso, esfs,
-     &                                   U, MM, MS, ML, DM, angmom,
-     &                                   eDmom, amfi, HSO,
+      Subroutine fetch_data_RunFile_all( nss, nstate,                   &
+     &                                   multiplicity, eso, esfs,       &
+     &                                   U, MM, MS, ML, DM, angmom,     &
+     &                                   eDmom, amfi, HSO,              &
      &                                   eso_au, esfs_au )
       Implicit None
       Integer, Parameter            :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer :: nss, nstate
       Integer :: multiplicity(nstate)
-      Real(kind=8) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate),
-     &                 eDmom(3,nstate,nstate), amfi(3,nstate,nstate),
+      Real(kind=8) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate),  &
+     &                 eDmom(3,nstate,nstate), amfi(3,nstate,nstate),   &
      &                 eso_au(nss), esfs_au(nstate)
       Complex(kind=8) :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
       Complex(kind=8) :: DM(3,nss,nss)
@@ -190,7 +190,7 @@
       Complex(kind=8), allocatable :: tmp(:,:),u1(:,:)
       Complex(kind=8)  :: Spin
       External         :: Spin
-      Logical          :: found_edmom, found_amfi, found_hsor,
+      Logical          :: found_edmom, found_amfi, found_hsor,          &
      &                    found_hsoi
 
       g_e=2.00231930437180_wp
@@ -257,7 +257,7 @@
       edmom=0.0_wp
       found_EDMOM=.false.
       Call qpg_dArray('DIP1_SINGLE',FOUND_EDMOM,NDATA)
-      If (found_edmom)
+      If (found_edmom)                                                  &
      &  Call get_dArray('DIP1_SINGLE',edmom,3*nstate*nstate)
 
 
@@ -265,7 +265,7 @@
       amfi=0.0_wp
       found_AMFI=.false.
       Call qpg_dArray('AMFI_SINGLE',FOUND_AMFI,NDATA)
-      If (found_amfi)
+      If (found_amfi)                                                   &
      &  Call get_dArray('AMFI_SINGLE',amfi,3*nstate*nstate)
 
       ! fetch the spin-orbit hamiltonian
@@ -316,7 +316,7 @@
       Call mma_deallocate(tmpI)
 
 
-c-----
+!-----
       ! generate a local indexing table:
       iss=0
       ibas=0
@@ -331,7 +331,7 @@ c-----
          End Do ! i
       End Do ! ist
 
-c----- expand the spin free basis to the spin-orbit basis:
+!----- expand the spin free basis to the spin-orbit basis:
       Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,MM,1)
       Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,ML,1)
       Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,MS,1)
@@ -364,11 +364,11 @@ c----- expand the spin free basis to the spin-orbit basis:
                   Do l=1,3
                      i1=Ibas(Ist,I)
                      j1=Ibas(Jst,I)
-                     MM(l,i1,j1)=MM(l,i1,j1)
+                     MM(l,i1,j1)=MM(l,i1,j1)                            &
      &                              -CMPLX(0.0_wp,Angmom(l,Ist,Jst),wp)
-                     ML(l,i1,j1)=ML(l,i1,j1)
+                     ML(l,i1,j1)=ML(l,i1,j1)                            &
      &                              +CMPLX(0.0_wp,Angmom(l,Ist,Jst),wp)
-                     DM(l,i1,j1)=DM(l,i1,j1)
+                     DM(l,i1,j1)=DM(l,i1,j1)                            &
      &                              +CMPLX(eDmom(l,Ist,Jst),0.0_wp,wp)
                   End Do   ! l
   303             Continue
@@ -384,45 +384,45 @@ c----- expand the spin free basis to the spin-orbit basis:
       Do L=1,3
          TMP=(0.0_wp,0.0_wp)
          ! spin moment
-         CALL ZGEMM_('C', 'N', nss, nss, nss, (1.0_wp,0.0_wp),
-     &                     U, nss,
-     &             MS(L,:,:), nss,           (0.0_wp,0.0_wp),
+         CALL ZGEMM_('C', 'N', nss, nss, nss, (1.0_wp,0.0_wp),          &
+     &                     U, nss,                                      &
+     &             MS(L,:,:), nss,           (0.0_wp,0.0_wp),           &
      &                   TMP, nss )
-         CALL ZGEMM_('N', 'N', nss, nss, nss, (1.0_wp,0.0_wp),
-     &                   TMP, nss,
-     &                     U, nss,           (0.0_wp,0.0_wp),
+         CALL ZGEMM_('N', 'N', nss, nss, nss, (1.0_wp,0.0_wp),          &
+     &                   TMP, nss,                                      &
+     &                     U, nss,           (0.0_wp,0.0_wp),           &
      &             MS(L,:,:), nss )
          ! orbital moment
          TMP=(0.0_wp,0.0_wp)
-         CALL ZGEMM_('C', 'N', nss, nss, nss, (1.0_wp,0.0_wp),
-     &                     U, nss,
-     &             ML(L,:,:), nss,           (0.0_wp,0.0_wp),
+         CALL ZGEMM_('C', 'N', nss, nss, nss, (1.0_wp,0.0_wp),          &
+     &                     U, nss,                                      &
+     &             ML(L,:,:), nss,           (0.0_wp,0.0_wp),           &
      &                   TMP, nss )
-         CALL ZGEMM_('N', 'N', nss, nss, nss, (1.0_wp,0.0_wp),
-     &                   TMP, nss,
-     &                     U, nss,           (0.0_wp,0.0_wp),
+         CALL ZGEMM_('N', 'N', nss, nss, nss, (1.0_wp,0.0_wp),          &
+     &                   TMP, nss,                                      &
+     &                     U, nss,           (0.0_wp,0.0_wp),           &
      &             ML(L,:,:), nss )
          ! magnetic moment
          TMP=(0.0_wp,0.0_wp)
-         CALL ZGEMM_('C', 'N', nss, nss, nss, (1.0_wp,0.0_wp),
-     &                     U, nss,
-     &             MM(L,:,:), nss,           (0.0_wp,0.0_wp),
+         CALL ZGEMM_('C', 'N', nss, nss, nss, (1.0_wp,0.0_wp),          &
+     &                     U, nss,                                      &
+     &             MM(L,:,:), nss,           (0.0_wp,0.0_wp),           &
      &                   TMP, nss )
-         CALL ZGEMM_('N', 'N', nss, nss, nss, (1.0_wp,0.0_wp),
-     &                   TMP, nss,
-     &                     U, nss,           (0.0_wp,0.0_wp),
+         CALL ZGEMM_('N', 'N', nss, nss, nss, (1.0_wp,0.0_wp),          &
+     &                   TMP, nss,                                      &
+     &                     U, nss,           (0.0_wp,0.0_wp),           &
      &             MM(L,:,:), nss )
 
          If(found_EDMOM) Then
          ! electric dipole moment
          TMP=(0.0_wp,0.0_wp)
-         CALL ZGEMM_('C', 'N', nss, nss, nss, (1.0_wp,0.0_wp),
-     &                     U, nss,
-     &             DM(L,:,:), nss,           (0.0_wp,0.0_wp),
+         CALL ZGEMM_('C', 'N', nss, nss, nss, (1.0_wp,0.0_wp),          &
+     &                     U, nss,                                      &
+     &             DM(L,:,:), nss,           (0.0_wp,0.0_wp),           &
      &                   TMP, nss )
-         CALL ZGEMM_('N', 'N', nss, nss, nss, (1.0_wp,0.0_wp),
-     &                   TMP, nss,
-     &                     U, nss,           (0.0_wp,0.0_wp),
+         CALL ZGEMM_('N', 'N', nss, nss, nss, (1.0_wp,0.0_wp),          &
+     &                   TMP, nss,                                      &
+     &                     U, nss,           (0.0_wp,0.0_wp),           &
      &             DM(L,:,:), nss )
          End If
       End Do !L

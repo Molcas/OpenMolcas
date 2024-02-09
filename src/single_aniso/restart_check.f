@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine restart_check( Ifrestart, input_to_read,
-     &                          input_file_name, nT, nH, nTempMagn,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine restart_check( Ifrestart, input_to_read,               &
+     &                          input_file_name, nT, nH, nTempMagn,     &
      &                          nDir, nDirZee, nMult, GRAD )
 
-c  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
-c
+!  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
+!
       Implicit None
       Integer, Parameter        :: wp=kind(0.d0)
       Integer ::  linenr, input_to_read, Input, nT, nH, nTempMagn
@@ -25,9 +25,9 @@ c
       Character(Len=180) :: input_file_name
       Integer :: ncut,nk,mg
       Real(kind=wp) :: encut_rate
-      Logical :: KeyHEXP,KeyHINT,KeyTMAG,
+      Logical :: KeyHEXP,KeyHINT,KeyTMAG,                               &
      &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT
-c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD,KeyDATA
+!     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD,KeyDATA
       Logical :: DBG
 
       DBG=.false.
@@ -44,24 +44,24 @@ c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD,KeyDATA
       nTempMagn=0
       Input=5
       input_file_name='aniso.input'
-c      origin_of_data_file='xxxxxxxx'
+!      origin_of_data_file='xxxxxxxx'
 
-c     KeyREST=.false.
-c     KeyTEXP=.false.
+!     KeyREST=.false.
+!     KeyTEXP=.false.
       KeyHEXP=.false.
       KeyHINT=.false.
-c     KeyTINT=.false.
+!     KeyTINT=.false.
       KeyTMAG=.false.
       KeyMVEC=.false.
       KeyZEEM=.false.
-c     KeyMLTP=.false.
+!     KeyMLTP=.false.
       KeyNCUT=.false.
       KeyENCU=.false.
       KeyERAT=.false.
-c     KeyGRAD=.false.
-c     KeyDATA=.false.
+!     KeyGRAD=.false.
+!     KeyDATA=.false.
 
-C=========== End of default settings====================================
+!=========== End of default settings====================================
       REWIND(Input)
 50    READ(Input,'(A180)',End=998) LINE
       Call NORMAL(LINE)
@@ -73,23 +73,23 @@ C=========== End of default settings====================================
       If (LINE(1:1).eq.'*') Go To 100
       If (LINE.eq.' ') Go To 100
 
-      If((LINE(1:4).ne.'REST').AND.(LINE(1:4).ne.'TEXP').AND.
-     &   (LINE(1:4).ne.'HEXP').AND.(LINE(1:4).ne.'END ').AND.
-     &   (LINE(1:4).ne.'    ').AND.(LINE(1:4).ne.'HINT').AND.
-     &   (LINE(1:4).ne.'TINT').AND.(LINE(1:4).ne.'TMAG').AND.
-     &   (LINE(1:4).ne.'MVEC').AND.(LINE(1:4).ne.'ZEEM').AND.
-     &   (LINE(1:4).ne.'MLTP').AND.(LINE(1:4).ne.'NCUT').AND.
-     &   (LINE(1:4).ne.'ENCU').AND.(LINE(1:4).ne.'ERAT').AND.
+      If((LINE(1:4).ne.'REST').AND.(LINE(1:4).ne.'TEXP').AND.           &
+     &   (LINE(1:4).ne.'HEXP').AND.(LINE(1:4).ne.'END ').AND.           &
+     &   (LINE(1:4).ne.'    ').AND.(LINE(1:4).ne.'HINT').AND.           &
+     &   (LINE(1:4).ne.'TINT').AND.(LINE(1:4).ne.'TMAG').AND.           &
+     &   (LINE(1:4).ne.'MVEC').AND.(LINE(1:4).ne.'ZEEM').AND.           &
+     &   (LINE(1:4).ne.'MLTP').AND.(LINE(1:4).ne.'NCUT').AND.           &
+     &   (LINE(1:4).ne.'ENCU').AND.(LINE(1:4).ne.'ERAT').AND.           &
      &   (LINE(1:4).ne.'GRAD').AND.(LINE(1:4).ne.'DATA')) Go To 100
       If((LINE(1:4).eq.'END ').OR. (LINE(1:4).eq.'    ')) Go To 200
 
       If (line(1:4).eq.'REST') Then
          Ifrestart=.true.
-c        KeyREST=.true.
+!        KeyREST=.true.
          READ(Input,*) input_to_read
          input_file_name='aniso.input'
          If(DBG) WRITE(6,*) input_to_read
-         If ( (input_to_read==2) .OR. (input_to_read==3) .OR.
+         If ( (input_to_read==2) .OR. (input_to_read==3) .OR.           &
      &        (input_to_read==4) ) Then
            BACKSPACE(Input)
            READ(Input,*) input_to_read, tmp
@@ -117,13 +117,13 @@ c        KeyREST=.true.
       If (line(1:4).eq.'TEXP') Then
           READ(Input,*) nT
           IF(DBG) WRITE(6,*) 'restart_check: TEXP, nT=', nT
-c         KeyTEXP=.true.
+!         KeyTEXP=.true.
           LINENR=LINENR+1
           Go To 100
       End If
 
       If (line(1:4).eq.'GRAD') Then
-c         KeyGRAD=.true.
+!         KeyGRAD=.true.
           GRAD=.true.
           IF(DBG) WRITE(6,*) 'restart_check:  GRAD = ', GRAD
           LINENR=LINENR+1
@@ -151,7 +151,7 @@ c         KeyGRAD=.true.
       If (line(1:4).eq.'TINT') Then
           READ(Input,*) rdummy, rdummy, nT
           IF(DBG) WRITE(6,*) 'restart_check: HINT, nT=', nT
-c         KeyTINT=.true.
+!         KeyTINT=.true.
           LINENR=LINENR+1
           Go To 100
       End If
@@ -183,7 +183,7 @@ c         KeyTINT=.true.
       If (line(1:4).eq.'MLTP') Then
           READ(Input,*) nMult
           IF(DBG) WRITE(6,*) 'restart_check: MLTP, nMult=',nMult
-c         KeyMLTP=.true.
+!         KeyMLTP=.true.
           LINENR=LINENR+1
           Go To 100
       End If
@@ -206,7 +206,7 @@ c         KeyMLTP=.true.
 
       If (LINE(1:4).eq.'ERAT') Then
           READ(Input,*) encut_rate
-          IF(DBG) WRITE(6,*) 'restart_check: ERAT, encut_rate=',
+          IF(DBG) WRITE(6,*) 'restart_check: ERAT, encut_rate=',        &
      &                        encut_rate
           KeyERAT=.true.
           LINENR=LINENR+1
@@ -214,42 +214,42 @@ c         KeyMLTP=.true.
       End If
 
 200   Continue
-      Write(6,'(5X,A)') 'restart_check: NO ERROR WAS LOCATED WHILE '//
+      Write(6,'(5X,A)') 'restart_check: NO ERROR WAS LOCATED WHILE '//  &
      &                   'READING INPUT'
 
-c      print *,'KeyREST=',KeyREST
-c      print *,'KeyTEXP=',KeyTEXP
-c      print *,'KeyHEXP=',KeyHEXP
-c      print *,'KeyHINT=',KeyHINT
-c      print *,'KeyTINT=',KeyTINT
-c      print *,'KeyTMAG=',KeyTMAG
-c      print *,'KeyMVEC=',KeyMVEC
-c      print *,'KeyZEEM=',KeyZEEM
-c      print *,'KeyMLTP=',KeyMLTP
-c      print *,'KeyNCUT=',KeyNCUT
-c      print *,'KeyENCU=',KeyENCU
-c      print *,'KeyERAT=',KeyERAT
-c      print *,'KeyGRAD=',KeyGRAD
+!      print *,'KeyREST=',KeyREST
+!      print *,'KeyTEXP=',KeyTEXP
+!      print *,'KeyHEXP=',KeyHEXP
+!      print *,'KeyHINT=',KeyHINT
+!      print *,'KeyTINT=',KeyTINT
+!      print *,'KeyTMAG=',KeyTMAG
+!      print *,'KeyMVEC=',KeyMVEC
+!      print *,'KeyZEEM=',KeyZEEM
+!      print *,'KeyMLTP=',KeyMLTP
+!      print *,'KeyNCUT=',KeyNCUT
+!      print *,'KeyENCU=',KeyENCU
+!      print *,'KeyERAT=',KeyERAT
+!      print *,'KeyGRAD=',KeyGRAD
 
-c      print *,'LOGLINE=',KeyTMAG.OR.KeyZEEM.OR.KeyMVEC.OR.KeyHINT.OR.
-c     &                   KeyHEXP.OR.KeyNCUT.OR.KeyENCU.OR.KeyERAT
+!      print *,'LOGLINE=',KeyTMAG.OR.KeyZEEM.OR.KeyMVEC.OR.KeyHINT.OR.
+!     &                   KeyHEXP.OR.KeyNCUT.OR.KeyENCU.OR.KeyERAT
 
-      If( KeyTMAG.OR.KeyZEEM.OR.KeyMVEC.OR.KeyHINT.OR.KeyHEXP.OR.
+      If( KeyTMAG.OR.KeyZEEM.OR.KeyMVEC.OR.KeyHINT.OR.KeyHEXP.OR.       &
      &    KeyNCUT.OR.KeyENCU.OR.KeyERAT ) Then
           If(nTempMagn==0) nTempMagn=1
           If(       nH==0) nH=21
       End If
           If(       nT==0) nT=301
 
-c      print *, 'nTempMagn=',nTempMagn
-c      print *, 'nH       =',nH
-c      print *, 'nT       =',nT
+!      print *, 'nTempMagn=',nTempMagn
+!      print *, 'nH       =',nH
+!      print *, 'nT       =',nT
 
 
 
 
       Go To 190
-C------ errors ------------------------------
+!------ errors ------------------------------
 998   continue
       Write(6,*)' -- READIN: Unexpected End of input file.'
 

@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-       Subroutine restart_sa( input_to_read, input_file_name,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+       Subroutine restart_sa( input_to_read, input_file_name,           &
      &                        nss, nstate )
 
        Implicit None
@@ -37,7 +37,7 @@
 
 
 
-       Else If ( (input_to_read .eq. 2) .OR.
+       Else If ( (input_to_read .eq. 2) .OR.                            &
      &           (input_to_read .eq. 4) ) Then
           ! read the ascii formatted "aniso.input" file:
           luaniso = IsFreeUnit(18)
@@ -54,7 +54,7 @@
 
 
        Else If ( input_to_read .eq. 3 ) Then
-          If(dbg) Write(6,*) 'restart_sa: file h5=',
+          If(dbg) Write(6,*) 'restart_sa: file h5=',                    &
      &                        trim(input_file_name)
 #ifdef _HDF5_
           ! NSS and NSTATE are also placed on RunFile
@@ -66,10 +66,10 @@
           Call Put_iScalar('MXJOB_SINGLE    ',1)
           Call Put_iScalar('NJOB_SINGLE     ',1)
 #else
-          Write(6,'(A)') 'Warning:: restart option was set to 3:'//
+          Write(6,'(A)') 'Warning:: restart option was set to 3:'//     &
      &                   'i.e. from an HDF5 file'
           Write(6,'(A,A)') 'file id =',trim(input_file_name)
-          Call WarningMessage(2,'MOLCAS was compiled without '//
+          Call WarningMessage(2,'MOLCAS was compiled without '//        &
      &                          '_HDF5_ option.')
           Call Quit_OnUserError()
 #endif
@@ -91,19 +91,19 @@
           Close(luaniso)
 
        Else
-          Call WarningMessage(2,'SINGLE_ANISO:: RESTART  '//
+          Call WarningMessage(2,'SINGLE_ANISO:: RESTART  '//            &
      &                          'option is not known.')
           Write(6,'(A,I6)') 'restart_option =',input_to_read
-          Write(6,'(A,I6)') 'restart_option can only take integer '//
+          Write(6,'(A,I6)') 'restart_option can only take integer '//   &
      &                      'values:'
           Write(6,'(A,I6)') '1 - from binary $Project.aniso'
-          Write(6,'(A,I6)') '2 - from formatted file "aniso.input" '//
+          Write(6,'(A,I6)') '2 - from formatted file "aniso.input" '//  &
      &                      '(filename can be given in the input)'
-          Write(6,'(A,I6)') '3 - from an HDF5 type file generated '//
-     &                      'by RASSI code (filename can be given '//
+          Write(6,'(A,I6)') '3 - from an HDF5 type file generated '//   &
+     &                      'by RASSI code (filename can be given '//   &
      &                      'in the input)'
-          Write(6,'(A,I6)') '4 - from formatted file "aniso.input" '//
-     &                      '(filename can be given in the input) '//
+          Write(6,'(A,I6)') '4 - from formatted file "aniso.input" '//  &
+     &                      '(filename can be given in the input) '//   &
      &                      'in molcas-8.0 format'
           Call Quit_OnUserError()
 

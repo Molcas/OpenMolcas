@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine termCF( ANGMOM, AMFI, ESFS, ldimcf, iDIM, maxes2, iopt,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine termCF( ANGMOM, AMFI, ESFS, ldimcf, iDIM, maxes2, iopt,&
      &                   nlanth, iprint )
-c
-c this Subroutine calculates the parameters of term-specific crystal field
-c for lanthanides:
-c
-c  nstate                      -- total number of spin free states
-c                                 mixed in RASSI
-c  lDIMcf                      -- number of orbital states in the
-c                                 considered term (LS term)
-c  ANGMOM ( 3, nstate, nstate) -- a real array holding the matrix
-c                                 elements of L in this basis
-c                                 (read from RASSI):
-c  ESFS (nstate)               -- energy of the orbital states form the LS term
-c  maxes2(3,3)                 -- rotation matrix needed to choose the
-c                                 main quantization axis
-c                                 ( determinant(maxes)=1.0_wp, orthogonal vectors )
-c  iopt                        -- option for choosing the main quanization axis
-c                   iopt = 1   -- axis of the ground orbital multiplet,
-c                                 iDIM specifies the size of pseudo L
-c                   iopt = 2   -- axis of the entire L manifold
-c                   iopt = 3   -- maxes is defined by the user
-c                                 ( maxes2 is given as input )
-c                   iopt = 4   -- maxes is the unity matrix ( original Z
-c                                 is the quantization axis )
-c
+!
+! this Subroutine calculates the parameters of term-specific crystal field
+! for lanthanides:
+!
+!  nstate                      -- total number of spin free states
+!                                 mixed in RASSI
+!  lDIMcf                      -- number of orbital states in the
+!                                 considered term (LS term)
+!  ANGMOM ( 3, nstate, nstate) -- a real array holding the matrix
+!                                 elements of L in this basis
+!                                 (read from RASSI):
+!  ESFS (nstate)               -- energy of the orbital states form the LS term
+!  maxes2(3,3)                 -- rotation matrix needed to choose the
+!                                 main quantization axis
+!                                 ( determinant(maxes)=1.0_wp, orthogonal vectors )
+!  iopt                        -- option for choosing the main quanization axis
+!                   iopt = 1   -- axis of the ground orbital multiplet,
+!                                 iDIM specifies the size of pseudo L
+!                   iopt = 2   -- axis of the entire L manifold
+!                   iopt = 3   -- maxes is defined by the user
+!                                 ( maxes2 is given as input )
+!                   iopt = 4   -- maxes is the unity matrix ( original Z
+!                                 is the quantization axis )
+!
       Implicit None
       Integer, Parameter            :: wp=kind(0.d0)
 #include "stdalloc.fh"
@@ -53,7 +53,7 @@ c
       Real(kind=8)                 :: BNC(lDIMcf,0:lDIMcf)
       Real(kind=8)                 :: BNS(lDIMcf,0:lDIMcf)
       Real(kind=8)                 :: Bstev(lDIMcf,-lDIMcf:lDIMcf)
-      Complex(kind=8)              ::
+      Complex(kind=8)              ::                                   &
      &                            Akq((lDIMcf-1),-(lDIMcf-1):(lDIMcf-1))
       Complex(kind=8), allocatable :: Angm(:,:,:) ! 3,ldimcf,ldimcf
       Complex(kind=8), allocatable :: dipso(:,:,:) ! 3,ldimcf,ldimcf
@@ -111,12 +111,12 @@ c
       Write(6,'(/)')
       Write(6,'(100A)') ('%',i=1,95)
       If(MOD(lDIMcf,2)==1) Then
-        Write(6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD '//
-     &                         'PARAMETERS OF THE GROUND ATOMIC '//
+        Write(6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD '//        &
+     &                         'PARAMETERS OF THE GROUND ATOMIC '//     &
      &                         'TERM, L = ', (lDIMcf-1)/2, '.'
       Else
-        Write(6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD '//
-     &                         'PARAMETERS OF THE GROUND ATOMIC '//
+        Write(6,'(5x,A,I2,A)') 'CALCULATION OF CRYSTAL-FIELD '//        &
+     &                         'PARAMETERS OF THE GROUND ATOMIC '//     &
      &                         'TERM, L = ', (lDIMcf-1),'/2.'
       End If
       Write(6,'(100A)') ('%',i=1,95)
@@ -130,41 +130,41 @@ c
           End Do
         End Do
       End Do
-c  find the main anisotropy direction of the
-c  diagonalize the angmom
+!  find the main anisotropy direction of the
+!  diagonalize the angmom
       If ( iopt .eq. 1 ) Then
-c                   iopt = 1   -- axis of the ground orbital Doublet
-         Call atens( dipso(1:3,1:iDIM,1:iDIM), iDIM, gtens, maxes,
+!                   iopt = 1   -- axis of the ground orbital Doublet
+         Call atens( dipso(1:3,1:iDIM,1:iDIM), iDIM, gtens, maxes,      &
      &               iprint)
-         Write(6,'(a)') 'The parameters of the Crystal Field matrix '//
+         Write(6,'(a)') 'The parameters of the Crystal Field matrix '// &
      &                  'are written in the coordinate system:'
          If(MOD(iDIM,2) == 0) Then
-           Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//
-     &                         'axes of the ground pseudo-L = |',
+           Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//  &
+     &                         'axes of the ground pseudo-L = |',       &
      &                          iDIM-1,'/2> orbital multiplet.'
          Else
-           Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//
-     &                         'axes of the ground pseudo-L = |',
+           Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//  &
+     &                         'axes of the ground pseudo-L = |',       &
      &                         (iDIM-1)/2,'> orbital multiplet.'
          End If
 
       Else If ( iopt .eq. 2 ) Then
-c                   iopt = 2   -- axis of the entire L manIfold
-         Call atens( dipso(1:3,1:ldimcf,1:ldimcf), lDIMcf, gtens, maxes,
+!                   iopt = 2   -- axis of the entire L manIfold
+         Call atens( dipso(1:3,1:ldimcf,1:ldimcf), lDIMcf, gtens, maxes,&
      &               iprint)
          If(MOD(lDIMCF,2).eq.0) Then
-           Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//
-     &                         'axes of the ground atomic L = |',
+           Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//  &
+     &                         'axes of the ground atomic L = |',       &
      &                          lDIMCF-1,'/2> multiplet'
          Else
-           Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//
-     &                         'axes of the ground atomic L = |',
+           Write(6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic '//  &
+     &                         'axes of the ground atomic L = |',       &
      &                         (lDIMCF-1)/2,'> multiplet'
          End If
 
       Else If ( iopt .eq. 3 ) Then
-c                   iopt = 3   -- maxes is defined by the user ( maxes is given as input )
-         Write(6,'(a)') 'The parameters of the Crystal Field matrix '//
+!                   iopt = 3   -- maxes is defined by the user ( maxes is given as input )
+         Write(6,'(a)') 'The parameters of the Crystal Field matrix '// &
      &                  'are written in the coordinate system:'
          Write(6,'(a)') '(Xm, Ym, Zm) -- defined in the input file.'
          ! copy the maxes2 to maxes
@@ -183,14 +183,14 @@ c                   iopt = 3   -- maxes is defined by the user ( maxes is given 
            Do i=1,3
               maxes(i,1)=-maxes2(i,1)
            End Do
-           If(iprint.gt.2) Write(6,'(a)')
-     &                           'The original coordinate system '//
-     &                           'was LEFT-handed. It has been '//
+           If(iprint.gt.2) Write(6,'(a)')                               &
+     &                           'The original coordinate system '//    &
+     &                           'was LEFT-handed. It has been '//      &
      &                           'changed to the RIGHT-handed'
          End If
 
       Else If ( iopt .eq. 4 ) Then
-c                   iopt = 4   -- maxes is the unity matrix ( original Z is the quantization axis )
+!                   iopt = 4   -- maxes is the unity matrix ( original Z is the quantization axis )
          Do i=1,3
             maxes(i,i)=1.0_wp
          End Do
@@ -199,7 +199,7 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z is the 
       End If
 
       ! print out the rotation matrix:
-      Write(6,'(a)') 'Rotation matrix from the initial coordinate '//
+      Write(6,'(a)') 'Rotation matrix from the initial coordinate '//   &
      &               'system to the employed coordinate system is:'
 
       If((iopt.eq.1).OR.(iopt.eq.2)) Then
@@ -207,11 +207,11 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z is the 
          Write(6,'(A,31x,A)') 'x , y , z  -- initial Cartesian axes','|'
          Write(6,'(A,35x,A)') 'Xm, Ym, Zm -- main magnetic axes','|'
          Write(6,'(4x,3(17x,a),9x,a)') 'x','y','z','|'
-         Write(6,'(6x,A,3F18.14,1x,A)')
+         Write(6,'(6x,A,3F18.14,1x,A)')                                 &
      &                     '| Xm |',(maxes(j,1),j=1,3),'|'
-         Write(6,'( A,A,3F18.14,1x,A)') ' R =  ',
+         Write(6,'( A,A,3F18.14,1x,A)') ' R =  ',                       &
      &                     '| Ym |',(maxes(j,2),j=1,3),'|'
-         Write(6,'(6x,A,3F18.14,1x,A)')
+         Write(6,'(6x,A,3F18.14,1x,A)')                                 &
      &                     '| Zm |',(maxes(j,3),j=1,3),'|'
          Write(6,'(83a)') ('-',i=1,67),'|'
          Write(6,'(A,I3)') 'Quantization axis is Zm.'
@@ -220,14 +220,14 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z is the 
 
          Write(6,'(70a)') ('-',i=1,67),'|'
          Write(6,'(A,31x,A)') 'x , y , z  -- initial Cartesian axes','|'
-         Write(6,'(A,11x,A)') 'Xm, Ym, Zm -- the coordinate system '//
+         Write(6,'(A,11x,A)') 'Xm, Ym, Zm -- the coordinate system '//  &
      &                        'defined in the input','|'
          Write(6,'(4x,3(17x,a),9x,a)') 'x','y','z','|'
-         Write(6,'(6x,A,3F18.14,1x,A)')
+         Write(6,'(6x,A,3F18.14,1x,A)')                                 &
      &                     '| Xm |',(maxes(j,1),j=1,3),'|'
-         Write(6,'( A,A,3F18.14,1x,A)') ' R =  ',
+         Write(6,'( A,A,3F18.14,1x,A)') ' R =  ',                       &
      &                     '| Ym |',(maxes(j,2),j=1,3),'|'
-         Write(6,'(6x,A,3F18.14,1x,A)')
+         Write(6,'(6x,A,3F18.14,1x,A)')                                 &
      &                     '| Zm |',(maxes(j,3),j=1,3),'|'
          Write(6,'(83a)') ('-',i=1,67),'|'
          Write(6,'(A,I3)') 'Quantization axis is Zm.'
@@ -242,9 +242,9 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z is the 
 !  rotate the angular momentum to the new axes, using "maxes"
       Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,amfi2,1)
       Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,angm,1)
-      Call rotmom2( dipso(1:3,1:ldimcf,1:ldimcf), ldimcf,
+      Call rotmom2( dipso(1:3,1:ldimcf,1:ldimcf), ldimcf,               &
      &              maxes, angm )
-      Call rotmom2( amfi_c(1:3,1:ldimcf,1:ldimcf), ldimcf,
+      Call rotmom2( amfi_c(1:3,1:ldimcf,1:ldimcf), ldimcf,              &
      &              maxes, amfi2 )
       If (debug) Call prmom('TERMCF:: ANGM',angm,ldimcf)
       If (debug) Call prmom('TERMCF:: AMFI2',amfi2,ldimcf)
@@ -259,32 +259,32 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z is the 
         Write(6,*)
         If(MOD(lDIMcf,2).eq.1) Then
           Do I=1,lDIMcf
-            Write(6,'(A,I3,A,3X,20(2F9.6,1X))') '|',
+            Write(6,'(A,I3,A,3X,20(2F9.6,1X))') '|',                    &
      &                 (lDIMcf-1)/2+(1-I),' > :',(Z(j,I),j=1,lDIMcf)
           End Do
         Else
           Do I=1,lDIMcf
-            Write(6,'(A,I3,A,3X,20(2F9.6,1X))') '|',
+            Write(6,'(A,I3,A,3X,20(2F9.6,1X))') '|',                    &
      &                 (lDIMcf-1)-2*(I-1),'/2 > :',(Z(j,I),j=1,lDIMcf)
           End Do
         End If
       End If
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  decompose the orbital moment AMSL in ITOs
-C  transform AMFI integrals to pseudo-L basis:
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!  decompose the orbital moment AMSL in ITOs
+!  transform AMFI integrals to pseudo-L basis:
       ! calculate the matrix elements of the spin and magnetic moment
       ! in the spin-orbit basis:
       Call zcopy_(3*ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,amfi_l,1)
       Do L=1,3
          Call zcopy_(  ldimcf*ldimcf,[(0.0_wp,0.0_wp)],0,tmp,1)
          ! amfi:
-         Call ZGEMM_('C', 'N', lDIMcf, lDIMcf, lDIMcf, (1.0_wp,0.0_wp),
-     &                     Z, lDIMcf,
-     &          AMFI2(L,:,:), lDIMcf,           (0.0_wp,0.0_wp),
+         Call ZGEMM_('C', 'N', lDIMcf, lDIMcf, lDIMcf, (1.0_wp,0.0_wp), &
+     &                     Z, lDIMcf,                                   &
+     &          AMFI2(L,:,:), lDIMcf,           (0.0_wp,0.0_wp),        &
      &                   TMP, lDIMcf )
-         Call ZGEMM_('N', 'N', lDIMcf, lDIMcf, lDIMcf, (1.0_wp,0.0_wp),
-     &                    TMP, lDIMcf,
-     &                      Z, lDIMcf,          (0.0_wp,0.0_wp),
+         Call ZGEMM_('N', 'N', lDIMcf, lDIMcf, lDIMcf, (1.0_wp,0.0_wp), &
+     &                    TMP, lDIMcf,                                  &
+     &                      Z, lDIMcf,          (0.0_wp,0.0_wp),        &
      &          AMFI_L(L,:,:), lDIMcf )
 
       End Do !L
@@ -309,8 +309,8 @@ C  transform AMFI integrals to pseudo-L basis:
       Call dcopy_(lDIMcf,[0.0_wp],0,Winit,1)
       Call zcopy_(lDIMcf*lDIMcf,[(0.0_wp,0.0_wp)],0,Zinit,1)
       Call DIAG_C2( HCF,lDIMcf,info,Winit,Zinit)
-      Call print_ZFS('Ab Initio Calculated Crystal-Field Splitting '//
-     &               'Matrix written in the basis of Pseudo-L '//
+      Call print_ZFS('Ab Initio Calculated Crystal-Field Splitting '//  &
+     &               'Matrix written in the basis of Pseudo-L '//       &
      &               'Eigenfunctions',HCF,lDIMCF)
 
       Call NEWCF(HCF,lDIMcf,Akq,BNC,BNS,BStev)
@@ -328,18 +328,18 @@ C  transform AMFI integrals to pseudo-L basis:
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Write(6,'(/)')
       If(MOD(lDIMCF,2)==1) Then
-         Write(6,'(A,I0)') 'DECOMPOSITION OF THE RASSCF WAVE '//
-     &                     'FUNCTIONS CORRESPONDING TO THE '//
-     &                     'LOWEST ATOMIC MULTIPLET L =',
+         Write(6,'(A,I0)') 'DECOMPOSITION OF THE RASSCF WAVE '//        &
+     &                     'FUNCTIONS CORRESPONDING TO THE '//          &
+     &                     'LOWEST ATOMIC MULTIPLET L =',               &
      &                      (lDIMCF-1)/2
       Else
-         Write(6,'(A,I0,A)') 'DECOMPOSITION OF THE RASSCF WAVE '//
-     &                       'FUNCTIONS CORRESPONDING TO THE '//
-     &                       'LOWEST ATOMIC MULTIPLET L = ',
+         Write(6,'(A,I0,A)') 'DECOMPOSITION OF THE RASSCF WAVE '//      &
+     &                       'FUNCTIONS CORRESPONDING TO THE '//        &
+     &                       'LOWEST ATOMIC MULTIPLET L = ',            &
      &                       (lDIMCF-1), '/2'
       End If
-         Write(6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE '//
-     &                     'PROJECTION OF THE TOTAL MOMENT '//
+         Write(6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE '//         &
+     &                     'PROJECTION OF THE TOTAL MOMENT '//          &
      &                     'ON THE QUANTIZATION AXIS'
       Call print_ZFS_naoya('L',Zinit,lDIMcf)
       Call individual_ranks(lDIMCF,BNC,BNS,HCF,'L',iprint)
@@ -349,9 +349,9 @@ C  transform AMFI integrals to pseudo-L basis:
       Call Add_Info('CRYS_TERM_BNMC_40',BNC(4,0),1,4)
       Call Add_Info('CRYS_TERM_BNMC_60',BNC(6,0),1,4)
       goto 999
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      generate |J,MJ> states using the spin |S,MS> and |L,ML> states
-c
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!      generate |J,MJ> states using the spin |S,MS> and |L,ML> states
+!
       tS=0.d0
       tL=0.d0
       tJ=0.d0
@@ -405,10 +405,10 @@ c
       MS=nint(2.d0*tS+1.d0)
       MJ=nint(2.d0*tJ+1.d0)
 
-c      print *,'nlanth=', nlanth, '  S,  L,  J =', tS, tL, tJ,
-c     &                           ' MS, ML, MJ =', MS, ML, MJ
+!      print *,'nlanth=', nlanth, '  S,  L,  J =', tS, tL, tJ,
+!     &                           ' MS, ML, MJ =', MS, ML, MJ
 
-c      print *, 'build coupled basis |L,ML>|S,MS>'
+!      print *, 'build coupled basis |L,ML>|S,MS>'
       nLS=ML*MS
       ij=0
       ir=0
@@ -422,8 +422,8 @@ c      print *, 'build coupled basis |L,ML>|S,MS>'
          enddo
       enddo
       do iLS=1,nLS
-         write(6,'(A,3I4,2x,A,2F6.1)')
-     &        'nLS,  ML,  MS =', iLS, ibasL(iLS), ibasS(iLS),
+         write(6,'(A,3I4,2x,A,2F6.1)')                                  &
+     &        'nLS,  ML,  MS =', iLS, ibasL(iLS), ibasS(iLS),           &
      &        'ML, MS =', dble(ibasL(iLS))/2.d0, dble(ibasS(iLS))/2.d0
       enddo
 
@@ -451,28 +451,28 @@ c      print *, 'build coupled basis |L,ML>|S,MS>'
               Call Clebsch_Gordan(tL,orbM,tS,spinM,tJ,tJM, coeffCG)
               Cf(iJ,iLS)=coeffCG
 
-              If(abs(coeffCG)>1.d-20) write(6,*) 'ij,iLS,coeffCG',
-     *                                            ij,iLS,coeffCG
+              If(abs(coeffCG)>1.d-20) write(6,*) 'ij,iLS,coeffCG',      &
+     &                                            ij,iLS,coeffCG
          enddo
       enddo
 
-      Write(6,*) 'MJ ->  (1,16), (2,15), (3,14), (4,13), '//
-     *                   '(5,12), (6,11), (7,10), (8,9)'
+      Write(6,*) 'MJ ->  (1,16), (2,15), (3,14), (4,13), '//            &
+     &                   '(5,12), (6,11), (7,10), (8,9)'
       do iLS=1,nLS
-        Write(6,'(A,2F6.1,16F11.8)') 'ML,MS: ',dble(ibasL(iLS))/2.d0,
-     *   dble(ibasS(iLS))/2.d0,
-     &   Cf(1,iLS), Cf(MJ,iLS),
-     &   Cf(2,iLS), Cf(MJ-1,iLS),
-     &   Cf(3,iLS), Cf(MJ-2,iLS),
-     &   Cf(4,iLS), Cf(MJ-3,iLS),
-     &   Cf(5,iLS), Cf(MJ-4,iLS),
-     &   Cf(6,iLS), Cf(MJ-5,iLS),
-     &   Cf(7,iLS), Cf(MJ-6,iLS),
+        Write(6,'(A,2F6.1,16F11.8)') 'ML,MS: ',dble(ibasL(iLS))/2.d0,   &
+     &   dble(ibasS(iLS))/2.d0,                                         &
+     &   Cf(1,iLS), Cf(MJ,iLS),                                         &
+     &   Cf(2,iLS), Cf(MJ-1,iLS),                                       &
+     &   Cf(3,iLS), Cf(MJ-2,iLS),                                       &
+     &   Cf(4,iLS), Cf(MJ-3,iLS),                                       &
+     &   Cf(5,iLS), Cf(MJ-4,iLS),                                       &
+     &   Cf(6,iLS), Cf(MJ-5,iLS),                                       &
+     &   Cf(7,iLS), Cf(MJ-6,iLS),                                       &
      &   Cf(8,iLS), Cf(MJ-7,iLS)
       enddo
 
 
-      Write(6,*) 're-write initial CASSCF states into |J,MJ>, using '
+      Write(6,*) 're-write initial CASSCF states into |J,MJ>, using '   &
      &        //'( Z(j,I),j=1,lDIMcf)  coefficients'
 
 
@@ -491,19 +491,19 @@ c      print *, 'build coupled basis |L,ML>|S,MS>'
       End Do
 
 
-      Write(6,*)  'MJ ->  (1,16), (2,15), (3,14), (4,13), '//
-     *                   '(5,12), (6,11), (7,10), (8,9)'
+      Write(6,*)  'MJ ->  (1,16), (2,15), (3,14), (4,13), '//           &
+     &                   '(5,12), (6,11), (7,10), (8,9)'
       do iLS=1,nLS
-         write(6,'(A,i2,F6.1,16(2F8.4,2x))') 'iCAS,MS: ',
-     &           irootL(iLS), dble(ibasS(iLS))/2.d0,
-     &   CfC(1,iLS), CfC(MJ,  iLS),
-     &   CfC(2,iLS), CfC(MJ-1,iLS),
-     &   CfC(3,iLS), CfC(MJ-2,iLS),
+         write(6,'(A,i2,F6.1,16(2F8.4,2x))') 'iCAS,MS: ',               &
+     &           irootL(iLS), dble(ibasS(iLS))/2.d0,                    &
+     &   CfC(1,iLS), CfC(MJ,  iLS),                                     &
+     &   CfC(2,iLS), CfC(MJ-1,iLS),                                     &
+     &   CfC(3,iLS), CfC(MJ-2,iLS),                                     &
      &   CfC(4,iLS), CfC(MJ-3,iLS)
-c     &   CfC(5,iLS), CfC(MJ-4,iLS)
-c     &   CfC(6,iLS), CfC(MJ-5,iLS),
-c     &   CfC(7,iLS), CfC(MJ-6,iLS),
-c     &   CfC(8,iLS), CfC(MJ-7,iLS)
+!     &   CfC(5,iLS), CfC(MJ-4,iLS)
+!     &   CfC(6,iLS), CfC(MJ-5,iLS),
+!     &   CfC(7,iLS), CfC(MJ-6,iLS),
+!     &   CfC(8,iLS), CfC(MJ-7,iLS)
       enddo
 
 
