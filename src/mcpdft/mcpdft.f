@@ -66,7 +66,7 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
-      use wadr, only: LDMAT, LPMAT, LPA, FockOcc, TUVX, lfi, DSPN
+      use wadr, only: DMAT, LPMAT, LPA, FockOcc, TUVX, lfi, DSPN
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -209,23 +209,21 @@
       PLWO(:) = 0
 !
 *
-      LDMAT=1
       LPMAT=1
       LPA  =1
       If ( NAC.GT.0 ) then
 
-        Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
         Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
         Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
-        call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
       Else
-        LDMAT = ip_Dummy
         LPMAT = ip_Dummy
         LPA   = ip_Dummy
       End If
       Call mma_allocate(TUVX,NACPR2,Label='TUVX')
       TUVX(:)=0.0D0
       Call mma_allocate(DSPN,NACPAR,Label='DSPN')
+      Call mma_allocate(DMAT,NACPAR,Label='DMAT')
+      DMAT(:)=0.0D0
 *
 * Get start orbitals
 
@@ -237,11 +235,11 @@
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc_m(Work(LCMO),Work(lOCCN),
-     &             WORK(LDMAT),DSPN,WORK(LPMAT),WORK(LPA))
+     &             DMAT,DSPN,WORK(LPMAT),WORK(LPA))
 * Only now are such variables finally known.
       If (IPRLOC(1).GE.DEBUG) Then
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',Work(LDMAT),NAC)
+     &              ' ',DMAT,NAC)
         CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
      &              ' ',DSPN,NAC)
         CALL TRIPRT('Averaged two-body density matrix, P',
@@ -265,7 +263,7 @@
         ExFac=1.0D0
 
       Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
-      call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
+      call dcopy_(NACPAR,DMAT,1,Work(ipTmpDMAT),1)
       If (NASH(1).ne.NAC) then
         Call DBLOCK_m(Work(ipTmpDMAT))
       end if
@@ -580,10 +578,10 @@
       Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
 
       If ( NAC.GT.0 ) then
-        Call GetMem('DMAT','free','Real',LDMAT,NACPAR)
         Call GetMem('PMAT','free','Real',LPMAT,NACPR2)
         Call GetMem('P2AS','free','Real',LPA,NACPR2)
       End if
+      Call mma_deallocate(DMAT)
       Call mma_deallocate(DSPN)
       Call mma_deallocate(TUVX)
 
