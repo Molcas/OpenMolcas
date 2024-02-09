@@ -55,7 +55,6 @@ real(kind=wp), external :: ddot_
 #include "splitcas.fh"
 #include "general.fh"
 #include "ciinfo.fh"
-#include "WrkSpc.fh"
 #include "output_ras.fh"
 #include "strnum.fh"
 #include "timers.fh"

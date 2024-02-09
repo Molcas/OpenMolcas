@@ -31,7 +31,6 @@ integer(kind=iwp) :: I, ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, J, LCONF, LDET, 
 #include "splitcas.fh"
 #include "strnum.fh"
 #include "lucia_ini.fh"
-#include "WrkSpc.fh"
 
 do I=1,MXCISM
   NDTASM(I) = NDTASM_LUCIA(I)

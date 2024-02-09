@@ -71,7 +71,6 @@ real(kind=wp), allocatable :: Tmp1(:)
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 #include "output_ras.fh"
 
 IPRLEV = IPRLOC(3)

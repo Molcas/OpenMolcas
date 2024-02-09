@@ -33,7 +33,6 @@ real(kind=wp), allocatable :: DDIA(:)
 real(kind=wp), external :: Get_eCore
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
 #include "output_ras.fh"
 

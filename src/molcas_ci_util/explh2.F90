@@ -68,7 +68,6 @@ real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "general.fh"
 #include "ciinfo.fh"
 #include "strnum.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
 #include "output_ras.fh"
 

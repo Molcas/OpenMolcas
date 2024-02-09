@@ -28,7 +28,6 @@ implicit none
 #include "rasrc.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
 #include "output_ras.fh"
 ! lroots, maxjt in rasscf.fh
