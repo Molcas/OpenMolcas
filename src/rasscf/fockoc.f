@@ -24,13 +24,13 @@ C
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
 
+      use wadr
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "wadr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 

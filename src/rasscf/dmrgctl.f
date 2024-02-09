@@ -42,6 +42,8 @@
       use rctfld_module
       Use casvb_global, Only: ifvb, lw1_cvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
+      use wadr
+
       Implicit Real* 8 (A-H,O-Z)
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
@@ -57,7 +59,6 @@ c     Logical Exist
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "wadr.fh"
 #include "gas.fh"
 #include "pamint.fh"
 #include "sxci.fh"

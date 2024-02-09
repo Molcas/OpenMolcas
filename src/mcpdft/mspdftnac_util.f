@@ -17,8 +17,8 @@
       use definitions, only: wp
       use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS, cmsnacstates
+      use wadr
 #include "WrkSpc.fh"
-#include "wadr.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 #include "input_ras_mcpdft.fh"

@@ -12,6 +12,7 @@
      &                       KTP,     KSM,     LTP,     LSM,  IXCHNG,
      &                      IKSM,    JLSM,   ICOUL)
       use GLBBAS, only: PINT2, KINH1
+      use wadr
 *
 * Outer routine for accessing integral block
 *
@@ -24,7 +25,6 @@
 
 #include "crun.fh"
 #include "oper.fh"
-#include "wadr.fh"
       DIMENSION XINT(*)
 *
       NTEST = 00

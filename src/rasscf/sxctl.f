@@ -65,6 +65,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
+      use wadr
+
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -77,7 +79,6 @@
       Character*16 ROUTINE
       Parameter (ROUTINE='SXCTL   ')
 #include "WrkSpc.fh"
-#include "wadr.fh"
 #include "raswfn.fh"
       Character*4 Word
 * PAM 2008 IndType, VecTyp added, see below at call to WrVec

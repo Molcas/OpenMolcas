@@ -17,13 +17,13 @@ C The sigma vector HC is computed in SIGVEC
 C
 C ********** IBM-3090 Release 88 09 08 **********
 C
+      use wadr
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),HC(*),HH(*)
       DIMENSION HD(NDIM)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "wadr.fh"
 #include "WrkSpc.fh"
 C
 C

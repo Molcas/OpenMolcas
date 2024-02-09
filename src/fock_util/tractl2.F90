@@ -23,6 +23,7 @@ use Fock_util_global, only: ALGO, DoCholesky
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
 use Definitions, only: wp, iwp, u6
+use wadr, only: nPWXY
 
 #include "intent.fh"
 
@@ -34,7 +35,6 @@ integer(kind=iwp), intent(in) :: IPR
 logical(kind=iwp), intent(in) :: lSquare
 #include "rasdim.fh"
 #include "general.fh"
-#include "wadr.fh"
 integer(kind=iwp) :: iDisk, irc
 logical(kind=iwp) :: TraOnly
 
@@ -71,7 +71,7 @@ else if (ALGO == 1) then
   ! select integrals TUVX
   call Get_TUVX(PUVX,TUVX)
   ! save integrals on disk
-  ! nPWXY is computed in cho_eval_waxy and stored in wadr.fh
+  ! nPWXY is computed in cho_eval_waxy and stored in wadr
   iDisk = 0
   call DDaFile(LUINTM,1,PUVX,nPWXY,iDisk)
 

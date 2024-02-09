@@ -16,12 +16,12 @@ C     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 C              WITH THE CHARGE DISTRIBUTION JK
 C
 *. Modified by addition of IREOST, August 2003.
+      use wadr
       IMPLICIT REAL*8 (A-H,O-Z)
 *. Input : Reorder array, symmetry => type (sic!)
       INTEGER IREOST(*)
       DIMENSION RJ(*),RK(*)
 #include "WrkSpc.fh"
-#include "wadr.fh"
 C
 C     FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
 C     THE TWO-ELECTRON INTEGRAL LIST
@@ -48,5 +48,4 @@ C
 C
 C     EXIT
 C
-      RETURN
       END

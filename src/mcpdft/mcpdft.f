@@ -66,11 +66,11 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
+      use wadr
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
-#include "wadr.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 #include "input_ras_mcpdft.fh"

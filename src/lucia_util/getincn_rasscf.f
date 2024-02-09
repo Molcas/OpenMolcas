@@ -11,10 +11,10 @@
       SUBROUTINE GETINCN_RASSCF(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                IXCHNG,IKSM,JLSM,
      &                IPNT2,NSMOB,INH1,ICOUL)
+      use wadr
 * interface to RASSCF common blocks
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "wadr.fh"
 #include "WrkSpc.fh"
 *. For Jesper and openMP
       INTEGER IPNT2(*),INH1(*)

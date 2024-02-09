@@ -72,6 +72,7 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
       use Lucia_Interface, only: Lucia_Util
+      use wadr
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -99,7 +100,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "wadr.fh"
 #include "pamint.fh"
 #include "input_ras.fh"
 #include "stdalloc.fh"

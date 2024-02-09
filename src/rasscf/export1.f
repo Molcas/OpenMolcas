@@ -39,6 +39,7 @@
 !     module dependencies
       use qcmaquis_interface_cfg
 #endif
+      use wadr
 *
       Implicit Real*8 (a-h,o-z)
 *...  Define global variables .........................................*
@@ -46,7 +47,6 @@
 #include "rasscf.fh"
 #include "gas.fh"
 #include "general.fh"
-#include "wadr.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
       Dimension CMO(*),DA(*),PA(*),DAO(*),Focc(*)

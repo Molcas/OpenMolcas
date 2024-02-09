@@ -96,10 +96,10 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
 
+      use wadr
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
-#include "wadr.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 #include "input_ras.fh"

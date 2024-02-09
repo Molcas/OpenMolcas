@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module wadr
       INTEGER         LDMAT,LPMAT,LPA,LDIA,LSXN,LBM,LF1,LF2,LG,LH,LHD,  &
      &                NLX,ipFocc,ipDens,ltuvx,ldspn,lfi,nPWXY
-      COMMON/WADR/    LDMAT,LPMAT,LPA,LDIA,LSXN,LBM,LF1,LF2,LG,LH,LHD,  &
-     &                NLX,ipFocc,ipDens,ltuvx,ldspn,lfi,nPWXY
+End Module wadr

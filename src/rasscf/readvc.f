@@ -87,7 +87,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "warnings.h"
-#include "wadr.fh"
 #include "sxci.fh"
 
       real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)

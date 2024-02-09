@@ -23,6 +23,7 @@
       use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
+      use wadr
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
@@ -38,7 +39,6 @@
 #include "timers.fh"
 #include "SysDef.fh"
 #include "gugx.fh"
-#include "wadr.fh"
 !      Logical TraOnly
 
 

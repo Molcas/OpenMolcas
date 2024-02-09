@@ -26,7 +26,6 @@ real(kind=wp), intent(inout) :: FI(*), FA(*)
 real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 logical(kind=iwp), intent(in) :: TraOnly
 #include "rasdim.fh"
-#include "wadr.fh"
 #include "general.fh"
 #include "rasscf.fh"
 integer(kind=iwp) :: i, iBas, iFro, ikk, incs, iOrb, iSym, ja, jkk, nAorb(8), nChI(8), nChM(8), nForb(8), nIorb(8), NumV

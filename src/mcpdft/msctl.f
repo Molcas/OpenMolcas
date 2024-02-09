@@ -36,6 +36,7 @@
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
+      use wadr
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -50,7 +51,6 @@
 #include "timers.fh"
 #include "SysDef.fh"
 #include "gugx.fh"
-#include "wadr.fh"
 !      Logical TraOnly
 
 *

@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine RotState()
       use rctfld_module
+      use wadr
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
@@ -26,7 +27,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"
-#include "wadr.fh"
 #include "pamint.fh"
 #include "input_ras.fh"
 #include "stdalloc.fh"
