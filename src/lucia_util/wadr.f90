@@ -10,5 +10,6 @@
 !***********************************************************************
 Module wadr
       INTEGER         LDMAT,LPMAT,LPA,LDIA,LSXN,LBM,LF1,LF2,LG,LH,LHD,  &
-     &                NLX,ipFocc,ipDens,ltuvx,ldspn,lfi,nPWXY
+     &                NLX,ipFocc,nPWXY, LFI, ipDens, lDSPN
+      Real*8, Allocatable:: TUVX(:)
 End Module wadr

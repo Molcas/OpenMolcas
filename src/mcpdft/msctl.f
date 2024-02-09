@@ -36,7 +36,7 @@
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
-      use wadr, only: LBM, ipFocc, LTUVX
+      use wadr, only: LBM, ipFocc, TUVX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -589,9 +589,9 @@ c         call xflush(6)
             do i=1,nfint
               write(6,*) work(lpuvx-1+i)
             end do
-            write(6,*) 'ltuvx after tractl'
+            write(6,*) 'tuvx after tractl'
             do i=1,nacpr2
-              write(6,*) work(ltuvx-1+i)
+              write(6,*) tuvx(i)
             end do
             write(6,*) 'id1act_fa before tractl'
             do i=1,nacpar
@@ -642,7 +642,7 @@ c         call xflush(6)
 *
       CALL DCOPY_(nacpr2,[Zero],0,WORK(ltuvx_tmp),1)
       if (iprlev.ge.debug) then
-            write(6,*) 'ltuvx before !!! tractl'
+            write(6,*) 'ltuvx_tmp before !!! tractl'
             do i=1, nacpr2
               write(6,*) work(ltuvx_tmp-1+i)
             end do
@@ -681,9 +681,9 @@ c         call xflush(6)
             do i=1,nfint
               write(6,*) work(lpuvx-1+i)
             end do
-            write(6,*) 'ltuvx after tractl'
+            write(6,*) 'tuvx after tractl'
             do i=1,nacpr2
-              write(6,*) work(ltuvx-1+i)
+              write(6,*) tuvx(i)
             end do
            write(6,*) 'id1act_FA after tractl'
             do i=1,nacpar

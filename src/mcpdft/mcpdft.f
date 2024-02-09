@@ -66,7 +66,7 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
-      use wadr, only: LDMAT, LPMAT, LPA, ipFocc, LTUVX, ldspn,
+      use wadr, only: LDMAT, LPMAT, LPA, ipFocc, TUVX, ldspn,
      &                lfi
 
       Implicit Real*8 (A-H,O-Z)
@@ -210,15 +210,12 @@
       PLWO(:) = 0
 !
 *
-      LTUVX=1
       LDMAT=1
       LDSPN=1
       LPMAT=1
       LPA  =1
       If ( NAC.GT.0 ) then
 
-        Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
-        Call FZero(Work(LTUVX),NACPR2)
         Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
         Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
         Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
@@ -226,12 +223,13 @@
         call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
         call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
       Else
-        LTUVX = ip_Dummy
         LDMAT = ip_Dummy
         LDSPN = ip_Dummy
         LPMAT = ip_Dummy
         LPA   = ip_Dummy
       End If
+      Call mma_allocate(TUVX,NACPR2,Label='TUVX')
+      TUVX(:)=0.0D0
 *
 * Get start orbitals
 
@@ -430,7 +428,7 @@
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
-      CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
+      CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
       Call Put_dArray('Last orbitals',Work(LCMO),ntot2)
@@ -590,8 +588,8 @@
         Call GetMem('DSPN','free','Real',LDSPN,NACPAR)
         Call GetMem('PMAT','free','Real',LPMAT,NACPR2)
         Call GetMem('P2AS','free','Real',LPA,NACPR2)
-        Call GetMem('TUVX','free','Real',LTUVX,NACPR2)
       End if
+      Call mma_deallocate(TUVX)
 
 *
 *

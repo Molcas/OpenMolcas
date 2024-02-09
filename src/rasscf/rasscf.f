@@ -74,7 +74,7 @@
       use casvb_global, only: ifvb, invec_cvb, ipfocc_cvb, lcmo_cvb,
      &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
      &                        ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb,
-     &                        loccn_cvb, lpa_cvb, lpmat_cvb, ltuvx_cvb
+     &                        loccn_cvb, lpa_cvb, lpmat_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
      &    embPotPath, embWriteEsp
@@ -97,7 +97,7 @@
 #endif
 
       use wadr, only: LDMAT, LPMAT, LPA, ipFocc,
-     &                ipDens, LTUVX, LDSPN, lfi
+     &                ipDens, TUVX, LDSPN, lfi
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -337,7 +337,6 @@
       Call FZero(Work(LFA),NTOT1)
       Call FZero(Work(LDIAF),NTOT)
 *
-      LTUVX=1
       LDMAT=1
       LDSPN=1
       LPMAT=1
@@ -355,9 +354,6 @@
       end if
 
         If ( NAC.GT.0 ) then
-         Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
-         Call FZero(Work(LTUVX),NACPR2)
-         ltuvx_cvb=ltuvx
          Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
          call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
          if(.not.DumpOnly) then
@@ -371,13 +367,13 @@
            lpa_cvb=lpa
          end if
         Else
-         LTUVX = ip_Dummy
-         ltuvx_cvb=ltuvx
          LDMAT = ip_Dummy
          LDSPN = ip_Dummy
          LPMAT = ip_Dummy
          LPA   = ip_Dummy
         End If
+        Call mma_allocate(TUVX,NACPR2,Label='TUVX')
+        TUVX(:)=0.0D0
 #ifdef _FDE_
       ! Embedding
       iDummyEmb=0
@@ -735,11 +731,11 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 *
 * Transform two-electron integrals and compute the Fock matrices FI and FA
 * FI and FA are output from TRACTL2...
-        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
+        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
      &               WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
 c         Write(6,*) ' TUVX after TRACTL2'
-c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
+c         write(6,*) (UVX(ind),ind=1,NACPR2)
         IF (ITER.eq.1 .and. IfCRPR) Then
 * Core shift applied to projection of WF with doubly occupied core
           Call MkCRVEC(Work(LCMO),Work(LCRVEC))
@@ -769,7 +765,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
           Write(LF,*) ' ---------------------'
 
           Write(6,*) ' TUVX after TRACTL2'
-          write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
+          write(6,*) (TUVX(ind),ind=1,NACPR2)
           Write(LF,*)
           Write(LF,*) ' ---------------------'
         end if
@@ -819,7 +815,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
      &                   folded_Fock=folded_Fock)
           call make_fcidumps('FCIDUMP', 'H5FCIDUMP',
      &      orbital_E, folded_Fock,
-     &      TUVX=work(ltuvx : ltuvx + nAcPr2 - 1), core_energy=EMY)
+     &      TUVX=tuvx(:), core_energy=EMY)
           call mma_deallocate(orbital_E)
           call mma_deallocate(folded_Fock)
           write(6,*) "FCIDMP file generated. Here for serving you!"
@@ -835,7 +831,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
-     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                    TUVX=tuvx(:),
      &                    F_IN=work(lFI : lFI + nTot1 - 1),
      &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
@@ -847,13 +843,13 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
           CALL DMRGCTL(WORK(LCMO),
      &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &                 WORK(LTUVX),IFINAL,0)
+     &                 TUVX,IFINAL,0)
 #endif
         else
           CALL CICTL(WORK(LCMO),
      &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
-     &               WORK(LTUVX),IFINAL)
+     &               TUVX,IFINAL)
 
           if(dofcidump)then
            write(LF,*) " FCIDUMP file generated. This is the end..."
@@ -1059,7 +1055,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           iOff = iOff + iBas*iBas
          End Do
        end if
-       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
+       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
       If ( IPRLEV.ge.DEBUG ) then
@@ -1138,7 +1134,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
-     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                    TUVX=tuvx(:),
      &                    F_IN=work(lFI : lFI + nTot1 - 1),
      &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
@@ -1149,16 +1145,16 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
             CALL DMRGCTL(WORK(LCMO),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &             WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &             WORK(LTUVX),IFINAL,1)
+     &             TUVX,IFINAL,1)
 #endif
         else
           CALL CICTL(WORK(LCMO),
      &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
-     &               WORK(LTUVX),IFINAL)
+     &               TUVX,IFINAL)
         end if
 
-c      call triprt('twxy',' ',WORK(LTUVX),nAc*(nAc+1)/2)
+c      call triprt('twxy',' ',TUVX,nAc*(nAc+1)/2)
 c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 
         EAV=0.0d0
@@ -1750,7 +1746,7 @@ c Clean-close as much as you can the CASDFT stuff...
        IPR=0
        IF(IPRLOC(2).EQ.4) IPR=5
        IF(IPRLOC(2).EQ.5) IPR=10
-       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
+       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
      &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 *
        If (.not.DoCholesky .or. ALGO.eq.1) Then
@@ -1783,7 +1779,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
-     &                    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1),
+     &                    TUVX=tuvx(:),
      &                    F_IN=work(lFI : lFI + nTot1 - 1),
      &                    D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
@@ -1795,7 +1791,7 @@ c Clean-close as much as you can the CASDFT stuff...
         CALL DMRGCTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
-     &           WORK(LTUVX),IFINAL,1)
+     &           TUVX,IFINAL,1)
 #endif
 #ifdef _DMRG_
 ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
@@ -1809,7 +1805,7 @@ c Clean-close as much as you can the CASDFT stuff...
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
-     &           WORK(LTUVX),IFINAL)
+     &           TUVX,IFINAL)
       end if
 
       EAV=0.0d0
@@ -2031,7 +2027,6 @@ c  i_root>0 gives natural spin orbitals for that root
 
 c deallocating TUVX memory...
       IF(NAC.GT.0) THEN
-         Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
          Call GetMem('DSPN','Free','Real',LDSPN,NACPAR)
          if(.not.DumpOnly) Then
             Call GetMem('P2AS','Free','Real',LPA,NACPR2)
@@ -2039,6 +2034,7 @@ c deallocating TUVX memory...
             Call GetMem('DMAT','Free','Real',LDMAT,NACPAR)
          endif
       END IF
+      Call mma_deallocate(TUVX)
 !Leon: The velociraptor comes! xkcd.com/292/
 9989  Continue
 *
