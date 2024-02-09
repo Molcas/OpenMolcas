@@ -73,8 +73,7 @@
       use orthonormalization, only : ON_scheme
       use casvb_global, only: ifvb, invec_cvb, lcmo_cvb,
      &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
-     &                        lfa_cvb, lfi_cvb,
-     &                        loccn_cvb, lpa_cvb
+     &                        lfa_cvb, lfi_cvb, loccn_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
      &    embPotPath, embWriteEsp
@@ -96,7 +95,7 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
 
-      use wadr, only: DMAT, PMAT, LPA, FockOcc, TUVX, lfi, DSPN
+      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, lfi, DSPN
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -337,8 +336,6 @@
       Call FZero(Work(LFA),NTOT1)
       Call FZero(Work(LDIAF),NTOT)
 *
-      LPA  =1
-
       If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
         write(6,*) 'Choose only one.'
@@ -350,14 +347,6 @@
         write(6,*) 'Nothing else will be done.'
       end if
 
-        If ( NAC.GT.0 ) then
-         if(.not.DumpOnly) then
-           Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
-           lpa_cvb=lpa
-         end if
-        Else
-         LPA   = ip_Dummy
-        End If
         Call mma_allocate(TUVX,NACPR2,Label='TUVX')
         TUVX(:)=0.0D0
         Call mma_allocate(DSPN,NACPAR,Label='DSPN')
@@ -366,6 +355,7 @@
           Call mma_allocate(DMAT,NACPAR,Label='DMat')
           Call mma_allocate(PMAT,NACPR2,Label='PMat')
           DMAT(:)=0.0D0
+          Call mma_allocate(PA,NACPR2,Label='PA')
         end if
 #ifdef _FDE_
       ! Embedding
@@ -416,7 +406,7 @@
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
       Call ReadVc(Work(LCMO),Work(lOCCN),
-     & DMAT,DSPN,PMAT,WORK(LPA),ON_scheme)
+     & DMAT,DSPN,PMAT,PA,ON_scheme)
       if (KeyORTH) then
 ! TODO(Oskar): Add fourth argument OCC
 !   If the Occupation number is written properly as well.
@@ -828,18 +818,18 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
      &                    D1S_MO=DSPN(:),
      &                    DMAT=DMAT(:),
      &                    PSMAT=pmat(:),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
+     &                    PAMAT=pa(:))
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
         else If(DoBlockDMRG) then
           CALL DMRGCTL(WORK(LCMO),
-     &                 DMAT,DSPN,PMAT,WORK(LPA),
+     &                 DMAT,DSPN,PMAT,PA,
      &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
      &                 TUVX,IFINAL,0)
 #endif
         else
           CALL CICTL(WORK(LCMO),
-     &               DMAT,DSPN,PMAT,WORK(LPA),
+     &               DMAT,DSPN,PMAT,PA,
      &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               TUVX,IFINAL)
 
@@ -1131,17 +1121,17 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    D1S_MO=DSPN(:),
      &                    DMAT=DMAT(:),
      &                    PSMAT=pmat(:),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
+     &                    PAMAT=pa(:))
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
         else If(DoBlockDMRG) Then
             CALL DMRGCTL(WORK(LCMO),
-     &             DMAT,DSPN,PMAT,WORK(LPA),
+     &             DMAT,DSPN,PMAT,PA,
      &             WORK(LFI),WORK(LD1I),WORK(LD1A),
      &             TUVX,IFINAL,1)
 #endif
         else
           CALL CICTL(WORK(LCMO),
-     &               DMAT,DSPN,PMAT,WORK(LPA),
+     &               DMAT,DSPN,PMAT,PA,
      &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               TUVX,IFINAL)
         end if
@@ -1267,7 +1257,7 @@ c     &              ' ',DSPN,NAC)
 c        CALL TRIPRT('Averaged two-body density matrix, P',
 c     &              ' ',PMAT,NACPAR)
 c        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-c     &              ' ',WORK(LPA),NACPAR)
+c     &              ' ',PA,NACPAR)
 
       Call Get_D1A_RASSCF(WORK(LCMO),DMAT,WORK(LD1A))
        If ( IPRLEV.ge.DEBUG ) then
@@ -1301,10 +1291,10 @@ c      Call rasscf_xml(Iter)
        CALL TRIPRT('Averaged two-body density matrix, P',
      &             ' ',PMAT,NACPAR)
        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &             ' ',WORK(LPA),NACPAR)
+     &             ' ',PA,NACPAR)
       end if
       CALL SXCTL(WORK(LCMO),WORK(LOCCN),
-     &           DMAT,PMAT,WORK(LPA),
+     &           DMAT,PMAT,PA,
      &           WORK(LFI),WORK(LFA),WORK(LD1A),THMAX,IFINAL)
 
 
@@ -1681,7 +1671,7 @@ cGLM some additional printout for MC-PDFT
         call dump_fciqmc_mats(dmat=DMAT(:),
      &                        dspn=DSPN(:),
      &                        psmat=pmat(:),
-     &                        pamat=work(lpa:lpa + nAcPr2 - 1))
+     &                        pamat=pa(:))
       end if
 
 ************************************************************************
@@ -1776,12 +1766,12 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    D1S_MO=DSPN(:),
      &                    DMAT=DMAT(:),
      &                    PSMAT=pmat(:),
-     &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
+     &                    PAMAT=pa(:))
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       else If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
-     &           DMAT,DSPN,PMAT,WORK(LPA),
+     &           DMAT,DSPN,PMAT,PA,
      &           WORK(LFI),WORK(LD1I),WORK(LD1A),
      &           TUVX,IFINAL,1)
 #endif
@@ -1795,7 +1785,7 @@ c Clean-close as much as you can the CASDFT stuff...
 #endif
       else
         CALL CICTL(WORK(LCMO),
-     &           DMAT,DSPN,PMAT,WORK(LPA),
+     &           DMAT,DSPN,PMAT,PA,
      &           WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &           TUVX,IFINAL)
       end if
@@ -2018,16 +2008,12 @@ c  i_root>0 gives natural spin orbitals for that root
 #endif
 
 c deallocating TUVX memory...
-      IF(NAC.GT.0) THEN
-         if(.not.DumpOnly) Then
-            Call GetMem('P2AS','Free','Real',LPA,NACPR2)
-         endif
-      END IF
       Call mma_deallocate(TUVX)
       Call mma_deallocate(DSPN)
       if(.not.DumpOnly) Then
          Call mma_deallocate(DMAT)
          Call mma_deallocate(PMAT)
+         Call mma_deallocate(PA)
       endif
 !Leon: The velociraptor comes! xkcd.com/292/
 9989  Continue
