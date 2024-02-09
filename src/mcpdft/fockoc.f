@@ -25,6 +25,7 @@ C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use mcpdft_output, only: lf
       use wadr, only: ipFocc
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -33,7 +34,8 @@ C
 #include "general.fh"
 #include "WrkSpc.fh"
 
-      DIMENSION FOCC(*),F(*),CMO(*)
+      Real*8 FOCC(*),F(*),CMO(*)
+      Real*8, Allocatable:: Scr1(:), Scr2(:)
 
 C
 
@@ -63,8 +65,8 @@ c fock matrices added -- R L 921008.
 *
 *-----Start processing the all occupied indices Fock matrix
 *
-      Call GetMem('Scr1','ALLO','REAL',ipScr1,no2m)
-      Call GetMem('Scr2','ALLO','REAL',ipScr2,no2m)
+      Call mma_allocate(Scr1,no2m,Label='Scr1')
+      Call mma_allocate(Scr2,no2m,Label='Scr2')
 
 
 * NOTE: FOCC is nowadays allocated alredy in RASSCF.
@@ -110,26 +112,26 @@ c fock matrices added -- R L 921008.
      &                  nBas(iSym),nOrb(isym),nOrb(isym),
      &                  1.0d0,CMO(iCMo),nBas(iSym),
      &                  F(iStFck),nOrb(isym),
-     &                  0.0d0,Work(ipScr1),nBas(iSym))
+     &                  0.0d0,Scr1,nBas(iSym))
             Call DGEMM_('N','T',
      &                  nBas(iSym),nBas(iSym),nOrb(isym),
-     &                  1.0d0,Work(ipScr1),nBas(iSym),
+     &                  1.0d0,Scr1,nBas(iSym),
      &                  CMO(iCMo),nBas(iSym),
-     &                  0.0d0,Work(ipScr2),nBas(iSym))
+     &                  0.0d0,Scr2,nBas(iSym))
             ij = jFock
             Do iBas = 1, nBas(iSym)
                Do jBas = 1, iBas-1
-                  kl = ipScr2-1 + nBas(iSym)*(jBas-1) + iBas
-                  lk = ipScr2-1 + nBas(iSym)*(iBas-1) + jBas
-                  Work(ij) = Work(kl) + Work(lk)
+                  kl = nBas(iSym)*(jBas-1) + iBas
+                  lk = nBas(iSym)*(iBas-1) + jBas
+                  Work(ij) = Scr2(kl) + Scr2(lk)
                   ij = ij + 1
                END DO
-               kl = ipScr2-1 + nBas(iSym)*(iBas-1) + iBas
+               kl = nBas(iSym)*(iBas-1) + iBas
                If (ij-jFock+1.gt.nTot1) Then
                   Write(LF,*) ij,jFock,nTot1
                   Call Abend()
                End If
-               Work(ij) = Work(kl)
+               Work(ij) = Scr2(kl)
                ij = ij + 1
             END DO
          END IF
@@ -142,9 +144,8 @@ c fock matrices added -- R L 921008.
 * End of long loop over symmetry
       END DO
       Call GetMem('Fockoc','FREE','REAL',ipFock,nFock)
-      Call GetMem('Scr2','FREE','REAL',ipScr2,no2m)
-      Call GetMem('Scr1','FREE','REAL',ipScr1,no2m)
+      Call mma_deallocate(Scr2)
+      Call mma_deallocate(Scr1)
 *
 c End of addition, R L 921008.
-      RETURN
       END
