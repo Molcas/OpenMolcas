@@ -17,7 +17,8 @@ C The sigma vector HC is computed in SIGVEC
 C
 C ********** IBM-3090 Release 88 09 08 **********
 C
-      use wadr, only: DIA, SXN, BM, LF1, LF2, LG, LH, NLX
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use wadr, only: DIA, SXN, BM, F1, F2, LG, LH, NLX
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),HC(*),HH(*)
       DIMENSION HD(NDIM)
@@ -25,19 +26,22 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
+      Real*8, Allocatable:: XX(:), XC(:)
 C
 C
 C COMPUTE SIGMA VECTORS
 C
       IST=1+NDIMH*NDIM
-      CALL GETMEM('SXXX','ALLO','REAL',LXX,NLX)
-      CALL GETMEM('SXC3','ALLO','REAL',LC,NSXS)
+
+      CALL mma_allocate(XX,NLX,Label='XX')
+      CALL mma_allocate(XC,NSXS,Label='XC')
+
       CALL SIGVEC(C(IST),HC(IST),HD,BM,SXN,
      *            WORK(LG),WORK(LH),DIA,
-     *            WORK(LF1),WORK(LF2),WORK(LXX),
-     *            WORK(LC),NTRIAL)
-      CALL GETMEM('XXXX','FREE','REAL',LXX,NLX)
-      CALL GETMEM('XXXX','FREE','REAL',LC,NSXS)
+     *            F1,F2,XX,XC,NTRIAL)
+
+      CALL mma_deallocate(XX)
+      CALL mma_deallocate(XC)
 C
 C Compute a new block of the HH matrix
 C
@@ -54,5 +58,4 @@ C
        IST=IST+NDIM
       END DO
 C
-      RETURN
-      END
+      END SUBROUTINE HMAT

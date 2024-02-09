@@ -65,7 +65,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
-      use wadr, only: DIA, SXN, BM, LF1, LF2, LG, LH, LHD, NLX
+      use wadr, only: DIA, SXN, BM, F1, F2, LG, LH, LHD, NLX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -447,7 +447,7 @@ c           IF (NACTEL.GT.0) THEN
 
 C Memory allocation and calling sequence for SXHAM
 C SXN: Normalization constants for super-CI vector
-C LF1 and LF2: parts of the Fock matrix FP
+C F1 and F2: parts of the Fock matrix FP
 C DIA: Occupied part of the density matrix (squared)
 C LG: The G matrix(used in sigvec)
 C LH: The H matrix( "    "   "   )
@@ -458,8 +458,8 @@ C LDDIA: Diagonal of the density matrix (all elements one symmetry)
       WORD='SXHA'
       LH=1
       CALL mma_allocate(SXN,NSXS,Label='SXN')
-      CALL GETMEM('SXF1','ALLO','REAL',LF1,NIAIA)
-      CALL GETMEM('SXF2','ALLO','REAL',LF2,NAEAE)
+      CALL mma_allocate(F1,NIAIA,Label='F1')
+      CALL mma_allocate(F2,NAEAE,Label='F2')
       CALL mma_allocate(DIA,NIAIA,Label='DIA')
       CALL GETMEM('SXG1','ALLO','REAL',LG,NIAIA)
       IF(NAOAE.GT.0) CALL GETMEM('SXH1','ALLO','REAL',LH,NAOAE)
@@ -467,8 +467,7 @@ C LDDIA: Diagonal of the density matrix (all elements one symmetry)
       CALL GETMEM('SXDF','ALLO','REAL',LDF,NQ)
       CALL GETMEM('SXDD','ALLO','REAL',LDDIA,MNO)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LF1,LF2,LG,
-     &                               LH,LHD,LDF,LDDIA
+        Write(LF,3333)WORD,LG,LH,LHD,LDF,LDDIA
       END IF
 
 c         CALL TRIPRT(' Dmat in MO in SXCTL bf call to SXHAM ',' ',D,NAC)
@@ -477,7 +476,7 @@ c     &              ' ',P,NACPAR)
 c         CALL TRIPRT(' PAmat in MO in SXCTL bf call to SXHAM',
 c     &              ' ',PA,NACPAR)
       CALL SXHAM(D,P,PA,FA,SXN,
-     &               WORK(LF1),WORK(LF2),DIA,WORK(LG),
+     &               F1,F2,DIA,WORK(LG),
      &               WORK(LH),WORK(LHD),WORK(LDF),WORK(LDDIA))
 
       CALL GETMEM('SXDD','FREE','REAL',LDDIA,MNO)
@@ -542,8 +541,8 @@ C LOVL:  Overlap matrix
       CALL GETMEM('SXLQ','FREE','REAL',LQ,NLQ)
       CALL GETMEM('SXQQ','FREE','REAL',LQQ,NROOT)
       CALL GETMEM('XOVL','FREE','REAL',LOVL,NLOVL)
-      CALL GETMEM('SXF1','FREE','REAL',LF1,NIAIA)
-      CALL GETMEM('SXF2','FREE','REAL',LF2,NAEAE)
+      Call mma_deallocate(F1)
+      Call mma_deallocate(F2)
       CALL GETMEM('SXG1','FREE','REAL',LG,NIAIA)
       IF(NAOAE.GT.0) CALL GETMEM('SXH1','FREE','REAL',LH,NAOAE)
       CALL GETMEM('SXHD','FREE','REAL',LHD,NDIMSX)
