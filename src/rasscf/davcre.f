@@ -40,7 +40,7 @@ C
 C ********** IBM-3090 Release 88 09 08 *****
 C
       use fciqmc, only : DoNECI
-      use wadr, only: PA, LDIA, LSXN
+      use wadr, only: PA, DIA, SXN
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
@@ -221,7 +221,7 @@ C
       ICONVQ=0
       IST=1+NDIM
       DO I=1,NROOT
-       CALL COVLP(Q(IST),Q(IST),WORK(LDIA),PA,WORK(LSXN),
+       CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,
      &            WORK(LC1),WORK(LC2),WORK(LX),QQ(I))
        IST=IST+NDIM
       END DO
@@ -332,7 +332,7 @@ C First form the overlap matrix
        ISTC=1
        DO J=1,NDIMH
         IJ=IJ+1
-        CALL COVLP(Q(ISTQ),C(ISTC),WORK(LDIA),PA,WORK(LSXN),
+        CALL COVLP(Q(ISTQ),C(ISTC),DIA,PA,SXN,
      &  WORK(LC1),WORK(LC2),WORK(LX),OVL)
         S(IJ)=-OVL
         ISTC=ISTC+NDIM
@@ -362,7 +362,7 @@ C  Orthogonalize this vector to the preceeding Q's of this iteration
 C
         JST=1
         DO J=1,NTRIAL
-         CALL COVLP(Q(IST),Q(JST),WORK(LDIA),PA,WORK(LSXN),
+         CALL COVLP(Q(IST),Q(JST),DIA,PA,SXN,
      *              WORK(LC1),WORK(LC2),WORK(LX),OVL)
          S(J)=-OVL
          JST=JST+NDIM
@@ -377,7 +377,7 @@ C
 C
 C  Normalize this vector and move to trial set if norm large enough
 C
-       CALL COVLP(Q(IST),Q(IST),WORK(LDIA),PA,WORK(LSXN),
+       CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,
      *            WORK(LC1),WORK(LC2),WORK(LX),XNORM)
 C Due to large noise amplification in COVLP, the squared-norm
 C can actually come out as a negative number.
@@ -544,7 +544,7 @@ C Normalize the final CI vectors
 C
       IST=1
       DO I=1,NROOT
-       CALL COVLP(Q(IST),Q(IST),WORK(LDIA),PA,WORK(LSXN),
+       CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,
      * WORK(LC1),WORK(LC2),WORK(LX),XNORM)
        XNORM=1.0D00/XNORM
        CALL DYAX(NDIM,XNORM,Q(IST),1,C(IST),1)

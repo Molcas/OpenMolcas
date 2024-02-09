@@ -65,7 +65,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
-      use wadr, only: LDIA, LSXN, LBM, LF1, LF2, LG, LH, LHD, NLX
+      use wadr, only: DIA, SXN, BM, LF1, LF2, LG, LH, LHD, NLX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -262,12 +262,12 @@ c         Write(LF,*) ' ---------------------'
 ************************************************************************
       WORD='FOCK'
       CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
-      CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
+      CALL mma_allocate(BM,NSXS,Label='BM')
       CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LFOCK,LBM,LP,LQ
+        Write(LF,3333)WORD,LFOCK,LP,LQ
       END IF
-      CALL FOCK(WORK(LFOCK),WORK(LBM),FI,FA,
+      CALL FOCK(WORK(LFOCK),BM,FI,FA,
      &          D,WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
 c Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
       IF(IPRLEV.GE.DEBUG) THEN
@@ -446,9 +446,9 @@ c           IF (NACTEL.GT.0) THEN
       ENDIF
 
 C Memory allocation and calling sequence for SXHAM
-C LSXN: Normalization constants for super-CI vector
+C SXN: Normalization constants for super-CI vector
 C LF1 and LF2: parts of the Fock matrix FP
-C LDIA: Occupied part of the density matrix (squared)
+C DIA: Occupied part of the density matrix (squared)
 C LG: The G matrix(used in sigvec)
 C LH: The H matrix( "    "   "   )
 C LHD: The diagonal of the super-CI Hamiltonian
@@ -457,17 +457,17 @@ C LDDIA: Diagonal of the density matrix (all elements one symmetry)
 
       WORD='SXHA'
       LH=1
-      CALL GETMEM('XSXN','ALLO','REAL',LSXN,NSXS)
+      CALL mma_allocate(SXN,NSXS,Label='SXN')
       CALL GETMEM('SXF1','ALLO','REAL',LF1,NIAIA)
       CALL GETMEM('SXF2','ALLO','REAL',LF2,NAEAE)
-      CALL GETMEM('XDIA','ALLO','REAL',LDIA,NIAIA)
+      CALL mma_allocate(DIA,NIAIA,Label='DIA')
       CALL GETMEM('SXG1','ALLO','REAL',LG,NIAIA)
       IF(NAOAE.GT.0) CALL GETMEM('SXH1','ALLO','REAL',LH,NAOAE)
       CALL GETMEM('SXHD','ALLO','REAL',LHD,NDIMSX)
       CALL GETMEM('SXDF','ALLO','REAL',LDF,NQ)
       CALL GETMEM('SXDD','ALLO','REAL',LDDIA,MNO)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LSXN,LF1,LF2,LDIA,LG,
+        Write(LF,3333)WORD,LF1,LF2,LG,
      &                               LH,LHD,LDF,LDDIA
       END IF
 
@@ -476,8 +476,8 @@ c         CALL TRIPRT(' Pmat in MO in SXCTL bf call to SXHAM ',
 c     &              ' ',P,NACPAR)
 c         CALL TRIPRT(' PAmat in MO in SXCTL bf call to SXHAM',
 c     &              ' ',PA,NACPAR)
-      CALL SXHAM(D,P,PA,FA,WORK(LSXN),
-     &               WORK(LF1),WORK(LF2),WORK(LDIA),WORK(LG),
+      CALL SXHAM(D,P,PA,FA,SXN,
+     &               WORK(LF1),WORK(LF2),DIA,WORK(LG),
      &               WORK(LH),WORK(LHD),WORK(LDF),WORK(LDDIA))
 
       CALL GETMEM('SXDD','FREE','REAL',LDDIA,MNO)
@@ -491,9 +491,7 @@ C All suppressed rotations can be identified because the corresponding
 C diagonal elements have been set to a huge number in SXHAM.
 C Use this criterion to set some BLB elements exactly =0:
       DO I=1,NSXS
-       IF(WORK(LHD+NROOT-1+I).GT.1.0D20) THEN
-        WORK(LBM-1+I)=0.0D0
-       END IF
+       IF(WORK(LHD+NROOT-1+I).GT.1.0D20) BM(I)=0.0D0
       END DO
 
 C MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
@@ -527,7 +525,7 @@ C LOVL:  Overlap matrix
       CALL GETMEM('XOVL','ALLO','REAL',LOVL,NLOVL)
       IF(IPRLEV.GE.DEBUG) THEN
         Write(LF,3333)WORD,LCSX,LSIGMA,LHH,LCC,LENER,
-     &         LHD,LBM,LSC,LQ,LQQ,LOVL
+     &         LHD,LSC,LQ,LQQ,LOVL
       END IF
 
       CALL DAVCRE(WORK(LCSX),WORK(LSIGMA),WORK(LHH),WORK(LCC),
@@ -557,7 +555,7 @@ C Renormalize the SX-coefficients
       IC=NROOT+LCSXI-1
       XSXMAX=0.0D0
       DO 54 I=1,NSXS
-       WORK(IC+I)=WORK(LSXN+I-1)*WORK(IC+I)/WORK(LCSXI)
+       WORK(IC+I)=SXN(I)*WORK(IC+I)/WORK(LCSXI)
        XSXMAX=MAX(XSXMAX,abs(WORK(IC+I)))
 54    CONTINUE
       IF(IPRLEV.GE.DEBUG) THEN
@@ -590,14 +588,14 @@ C Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
         CALL GETMEM('XV11','ALLO','REAL',LV1,NSXS)
         CALL GETMEM('XV22','ALLO','REAL',LV2,NSXS)
         IF(IPRLEV.GE.DEBUG) THEN
-          Write(LF,3333)WORD,LBM,(NROOT+LCSXI),LVL,LVT,
+          Write(LF,3333)WORD,(NROOT+LCSXI),LVL,LVT,
      &                               LXQN,LSCR,LV1,LV2
         END IF
         CASDFT_En=0.0d0
         If(KSDFT.ne.'SCF'.and.KSDFT(1:3).ne.'PAM')
      &      Call Get_dScalar('CASDFT energy',CASDFT_En)
         CASDFT_En=ECAS+CASDFT_En
-        CALL QUNE(NCALL,CASDFT_En,WORK(LBM),WORK(NROOT+LCSXI),
+        CALL QUNE(NCALL,CASDFT_En,BM,WORK(NROOT+LCSXI),
      &            WORK(LVL),WORK(LVT),WORK(LXQN),WORK(LSCR),
      &            WORK(LV1),WORK(LV2),NSXS,LUQUNE,
      &            TMIN,QNSTEP,QNUPDT,KSDFT)
@@ -626,7 +624,7 @@ C LY: WORK AREA
       CALL GETMEM('SXX2','ALLO','REAL',LX2,NTOT1)
       CALL GETMEM('SXY2','ALLO','REAL',LY,NO2M)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LCMON,LSXN,LCSXI,LXMAT,LX2,LY
+        Write(LF,3333)WORD,LCMON,LCSXI,LXMAT,LX2,LY
       END IF
 
       CALL ROTORB(CMO,WORK(LCMON),WORK(LCSXI),WORK(LXMAT),
@@ -648,8 +646,8 @@ C LY: WORK AREA
       CALL GETMEM('XMAT','FREE','REAL',LXMAT,NO2M)
       CALL GETMEM('SXX2','FREE','REAL',LX2,NTOT1)
       CALL GETMEM('SXY2','FREE','REAL',LY,NO2M)
-      CALL GETMEM('XSXN','FREE','REAL',LSXN,NSXS)
-      CALL GETMEM('XDIA','FREE','REAL',LDIA,NIAIA)
+      Call mma_deallocate(SXN)
+      Call mma_deallocate(DIA)
       CALL GETMEM('XCSX','FREE','REAL',LCSX,NCR1)
 
       IDISK=IADR15(2)
@@ -662,6 +660,6 @@ C LY: WORK AREA
       CALL TIMING(CPTS,CPES,TIOS,TIOES)
 
 9990  CONTINUE
-      CALL GETMEM('SXBM','FREE','REAL',LBM,NSXS)
-      RETURN
+      Call mma_deallocate(BM)
+
       END

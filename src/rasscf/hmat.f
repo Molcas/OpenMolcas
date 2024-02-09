@@ -17,7 +17,7 @@ C The sigma vector HC is computed in SIGVEC
 C
 C ********** IBM-3090 Release 88 09 08 **********
 C
-      use wadr, only: LDIA, LSXN, LBM, LF1, LF2, LG, LH, NLX
+      use wadr, only: DIA, SXN, BM, LF1, LF2, LG, LH, NLX
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),HC(*),HH(*)
       DIMENSION HD(NDIM)
@@ -32,8 +32,8 @@ C
       IST=1+NDIMH*NDIM
       CALL GETMEM('SXXX','ALLO','REAL',LXX,NLX)
       CALL GETMEM('SXC3','ALLO','REAL',LC,NSXS)
-      CALL SIGVEC(C(IST),HC(IST),HD,WORK(LBM),WORK(LSXN),
-     *            WORK(LG),WORK(LH),WORK(LDIA),
+      CALL SIGVEC(C(IST),HC(IST),HD,BM,SXN,
+     *            WORK(LG),WORK(LH),DIA,
      *            WORK(LF1),WORK(LF2),WORK(LXX),
      *            WORK(LC),NTRIAL)
       CALL GETMEM('XXXX','FREE','REAL',LXX,NLX)

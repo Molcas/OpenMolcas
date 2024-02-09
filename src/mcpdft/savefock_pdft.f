@@ -23,7 +23,8 @@
       use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
-      use wadr, only: LBM, FockOcc
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use wadr, only: BM, FockOcc
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
@@ -185,9 +186,9 @@
        CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP))
       END IF
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
-      CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
+      CALL mma_allocate(BM,NSXS,Label='BM')
       CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      CALL FOCK_update(WORK(LFOCK),WORK(LBM),Work(iFockI),
+      CALL FOCK_update(WORK(LFOCK),BM,Work(iFockI),
      &     Work(iFockA),Work(iD1Act),WORK(LP),
      &     WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
@@ -198,7 +199,7 @@
        write(lf,*) 'DONE WITH NEW FOCK OPERATOR'
       END IF
 
-      CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)
+      Call mma_deallocate(BM)
       CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
       Call GetMem('ONTOPO','FREE','Real',ipTmpLOEOTP,ntot1)
       Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)

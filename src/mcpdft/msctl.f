@@ -36,7 +36,8 @@
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
-      use wadr, only: LBM, FockOcc, TUVX
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use wadr, only: BM, FockOcc, TUVX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -782,10 +783,10 @@ c         call xflush(6)
          if(NQ.lt.NIAIA) NQ=NIAIA
 
          CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
-         CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
+         CALL mma_allocate(BM,NSXS,Label='BM')
          CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
          IFINAL = 1
-         CALL FOCK_m(WORK(LFOCK),WORK(LBM),Work(iFockI),Work(iFockA),
+         CALL FOCK_m(WORK(LFOCK),BM,Work(iFockI),Work(iFockA),
      &         Work(iD1Act),WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
 !TMP TEST
 !         Call Put_Darray('fock_tempo',FockOcc,ntot1)
@@ -823,7 +824,7 @@ c         call xflush(6)
          END IF
 
 
-         CALL GETMEM('SXBM','FREE','REAL',LBM,NSXS)
+         Call mma_deallocate(BM)
          CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)
 !At this point, the energy calculation is done.  Now I need to build the
 !fock matrix if this root corresponds to the relaxation root.

@@ -10,6 +10,7 @@
 !***********************************************************************
 Module wadr
 Private
-INTEGER, Public:: LDIA,LSXN,LBM,LF1,LF2,LG,LH,LHD, NLX,nPWXY, LFI
+INTEGER, Public:: LF1,LF2,LG,LH,LHD, NLX, nPWXY, LFI
 Real*8, Allocatable, Public:: TUVX(:), FockOcc(:), DSPN(:), DMAT(:), PMAT(:), PA(:)
+Real*8, Allocatable, Public:: DIA(:), SXN(:), BM(:)
 End Module wadr
