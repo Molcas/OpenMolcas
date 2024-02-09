@@ -39,7 +39,6 @@
 !     module dependencies
       use qcmaquis_interface_cfg
 #endif
-      use wadr
 *
       Implicit Real*8 (a-h,o-z)
 *...  Define global variables .........................................*

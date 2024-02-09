@@ -40,7 +40,7 @@ C
 C ********** IBM-3090 Release 88 09 08 *****
 C
       use fciqmc, only : DoNECI
-      use wadr
+      use wadr, only: LPA, LDIA, LSXN
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"

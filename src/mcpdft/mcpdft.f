@@ -66,7 +66,8 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
-      use wadr
+      use wadr, only: LDMAT, LPMAT, LPA, ipFocc, LTUVX, ldspn,
+     &                lfi
 
       Implicit Real*8 (A-H,O-Z)
 

@@ -17,7 +17,7 @@ C The sigma vector HC is computed in SIGVEC
 C
 C ********** IBM-3090 Release 88 09 08 **********
 C
-      use wadr
+      use wadr, only: LDIA, LSXN, LBM, LF1, LF2, LG, LH, NLX
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),HC(*),HH(*)
       DIMENSION HD(NDIM)

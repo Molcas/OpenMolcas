@@ -62,7 +62,6 @@
 #endif
       use sxci_pdft, only: idxci, idxsx
       use mcpdft_output, only: terse, verbose, debug, lf, iPrGlb, iPrLoc
-      use wadr
 
       Implicit Real*8 (A-H,O-Z)
 

@@ -96,7 +96,8 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
 
-      use wadr
+      use wadr, only: LDMAT, LPMAT, LPA, ipFocc,
+     &                ipDens, LTUVX, LDSPN, lfi
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"

@@ -16,7 +16,7 @@ C     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 C              WITH THE CHARGE DISTRIBUTION JK
 C
 *. Modified by addition of IREOST, August 2003.
-      use wadr
+      use wadr, only: lTUVX
       IMPLICIT REAL*8 (A-H,O-Z)
 *. Input : Reorder array, symmetry => type (sic!)
       INTEGER IREOST(*)

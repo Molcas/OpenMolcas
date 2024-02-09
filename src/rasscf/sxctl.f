@@ -65,7 +65,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
-      use wadr
+      use wadr, only: LDIA, LSXN, LBM, LF1, LF2, LG, LH, LHD, NLX
 
       Implicit Real*8 (A-H,O-Z)
 

@@ -11,7 +11,7 @@
       SUBROUTINE GETINCN_RASSCF(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                IXCHNG,IKSM,JLSM,
      &                IPNT2,NSMOB,INH1,ICOUL)
-      use wadr
+      use wadr, only: ltuvx
 * interface to RASSCF common blocks
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"

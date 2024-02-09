@@ -24,7 +24,7 @@ C
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       use mcpdft_output, only: lf
-      use wadr
+      use wadr, only: ipFocc
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
