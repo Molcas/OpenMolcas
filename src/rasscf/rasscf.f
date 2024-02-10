@@ -71,7 +71,7 @@
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
-      use casvb_global, only: ifvb, invec_cvb, ldiaf_cvb
+      use casvb_global, only: ifvb, invec_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
      &    embPotPath, embWriteEsp
@@ -94,7 +94,7 @@
 #endif
 
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
-     &                D1I, D1A, OccN, CMO
+     &                D1I, D1A, OccN, CMO, DIAF
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -313,7 +313,7 @@
       Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call mma_allocate(CMO,NTOT2,Label='CMO')
-      Call GetMem('DIAF','Allo','Real',LDIAF,NTOT)
+      Call mma_allocate(DIAF,NTOT,Label='DIAF')
 #ifdef _DMRG_
 * Allocate RDMs for the reaction field reference root in QCMaquis calculations
       if (doDMRG.and.PCM_On()) then
@@ -323,10 +323,9 @@
         end if
       end if
 #endif
-      ldiaf_cvb=ldiaf
       FI(:)=0.0D0
       FA(:)=0.0D0
-      Call FZero(Work(LDIAF),NTOT)
+      DIAF(:)=0.0D0
 *
       If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
@@ -400,7 +399,7 @@
 ! TODO(Oskar): Add fourth argument OCC
 !   If the Occupation number is written properly as well.
         call putOrbFile(CMO=CMO(:),
-     &                  orbital_E=work(lDIAF : lDIAF + nTot - 1),
+     &                  orbital_E=DIAF(:),
      &                  iDoGAS=iDoGAS)
       end if
 * Only now are such variables finally known.
@@ -777,7 +776,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
           call mma_allocate(folded_Fock, nAcPar)
           call transform(iter,
      &                   CMO=CMO(:),
-     &                   DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                   DIAF=DIAF(:),
      &                   D1I_AO=D1I(:),
      &                   D1A_AO=D1A(:),
      &                   D1S_MO=DSPN(:),
@@ -799,7 +798,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
      &                    iroot=iroot,
      &                    weight=weight,
      &                    CMO=CMO(:),
-     &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                    DIAF=DIAF(:),
      &                    D1I_AO=D1I(:),
      &                    D1A_AO=D1A(:),
      &                    TUVX=tuvx(:),
@@ -1096,7 +1095,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    iroot=iroot,
      &                    weight=weight,
      &                    CMO=CMO(:),
-     &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                    DIAF=DIAF(:),
      &                    D1I_AO=D1I(:),
      &                    D1A_AO=D1A(:),
      &                    TUVX=tuvx(:),
@@ -1733,7 +1732,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    iroot=iroot,
      &                    weight=weight,
      &                    CMO=CMO(:),
-     &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
+     &                    DIAF=DIAF(:),
      &                    D1I_AO=D1I(:),
      &                    D1A_AO=D1A(:),
      &                    TUVX=tuvx(:),
@@ -1954,7 +1953,7 @@ c  i_root>0 gives natural spin orbitals for that root
       EndIf
 
 *  Release  some memory allocations
-      Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
+      Call mma_deallocate(DIAF)
       Call mma_deallocate(FockOcc)
       Call mma_deallocate(FI)
       Call mma_deallocate(FA)
