@@ -10,7 +10,10 @@
 !***********************************************************************
 Module wadr
 Private
-INTEGER, Public:: LG,LH,LHD, NLX, nPWXY, LFI
+INTEGER, Public:: LH, NLX, nPWXY
 Real*8, Allocatable, Public:: TUVX(:), FockOcc(:), DSPN(:), DMAT(:), PMAT(:), PA(:)
-Real*8, Allocatable, Public:: DIA(:), SXN(:), BM(:), F1(:), F2(:)
+! These arrays are used for the SXCTL part of the code.
+Real*8, Allocatable, Public:: DIA(:), SXN(:), BM(:), F1(:), F2(:), SXG(:), SXHD(:)
+! These arrays are used for the TRACTL2 part of the code.
+INTEGER, Public:: LFI
 End Module wadr

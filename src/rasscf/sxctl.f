@@ -65,7 +65,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
-      use wadr, only: DIA, SXN, BM, F1, F2, LG, LH, LHD, NLX
+      use wadr, only: DIA, SXN, BM, F1, F2, SXG, LH, SXHD, NLX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -449,9 +449,9 @@ C Memory allocation and calling sequence for SXHAM
 C SXN: Normalization constants for super-CI vector
 C F1 and F2: parts of the Fock matrix FP
 C DIA: Occupied part of the density matrix (squared)
-C LG: The G matrix(used in sigvec)
+C SXG: The G matrix(used in sigvec)
 C LH: The H matrix( "    "   "   )
-C LHD: The diagonal of the super-CI Hamiltonian
+C SXHD: The diagonal of the super-CI Hamiltonian
 C LDF: The matrix D*FP
 C LDDIA: Diagonal of the density matrix (all elements one symmetry)
 
@@ -461,13 +461,13 @@ C LDDIA: Diagonal of the density matrix (all elements one symmetry)
       CALL mma_allocate(F1,NIAIA,Label='F1')
       CALL mma_allocate(F2,NAEAE,Label='F2')
       CALL mma_allocate(DIA,NIAIA,Label='DIA')
-      CALL GETMEM('SXG1','ALLO','REAL',LG,NIAIA)
+      CALL mma_allocate(SXG,NIAIA,Label='SXG')
       IF(NAOAE.GT.0) CALL GETMEM('SXH1','ALLO','REAL',LH,NAOAE)
-      CALL GETMEM('SXHD','ALLO','REAL',LHD,NDIMSX)
+      CALL mma_allocate(SXHD,NDIMSX,Label='SXHD')
       CALL GETMEM('SXDF','ALLO','REAL',LDF,NQ)
       CALL GETMEM('SXDD','ALLO','REAL',LDDIA,MNO)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LG,LH,LHD,LDF,LDDIA
+        Write(LF,3333)WORD,LH,LDF,LDDIA
       END IF
 
 c         CALL TRIPRT(' Dmat in MO in SXCTL bf call to SXHAM ',' ',D,NAC)
@@ -475,9 +475,8 @@ c         CALL TRIPRT(' Pmat in MO in SXCTL bf call to SXHAM ',
 c     &              ' ',P,NACPAR)
 c         CALL TRIPRT(' PAmat in MO in SXCTL bf call to SXHAM',
 c     &              ' ',PA,NACPAR)
-      CALL SXHAM(D,P,PA,FA,SXN,
-     &               F1,F2,DIA,WORK(LG),
-     &               WORK(LH),WORK(LHD),WORK(LDF),WORK(LDDIA))
+      CALL SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,
+     &               WORK(LH),SXHD,WORK(LDF),WORK(LDDIA))
 
       CALL GETMEM('SXDD','FREE','REAL',LDDIA,MNO)
       CALL GETMEM('SXDF','FREE','REAL',LDF,NQ)
@@ -490,7 +489,7 @@ C All suppressed rotations can be identified because the corresponding
 C diagonal elements have been set to a huge number in SXHAM.
 C Use this criterion to set some BLB elements exactly =0:
       DO I=1,NSXS
-       IF(WORK(LHD+NROOT-1+I).GT.1.0D20) BM(I)=0.0D0
+       IF(SXHD(NROOT+I).GT.1.0D20) BM(I)=0.0D0
       END DO
 
 C MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
@@ -524,11 +523,11 @@ C LOVL:  Overlap matrix
       CALL GETMEM('XOVL','ALLO','REAL',LOVL,NLOVL)
       IF(IPRLEV.GE.DEBUG) THEN
         Write(LF,3333)WORD,LCSX,LSIGMA,LHH,LCC,LENER,
-     &         LHD,LSC,LQ,LQQ,LOVL
+     &         LSC,LQ,LQQ,LOVL
       END IF
 
       CALL DAVCRE(WORK(LCSX),WORK(LSIGMA),WORK(LHH),WORK(LCC),
-     &            WORK(LENER),WORK(LHD),WORK(LSC),
+     &            WORK(LENER),SXHD,WORK(LSC),
      &            WORK(LQ),WORK(LQQ),WORK(LOVL),SXSEL,
      &            NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
 
@@ -543,9 +542,9 @@ C LOVL:  Overlap matrix
       CALL GETMEM('XOVL','FREE','REAL',LOVL,NLOVL)
       Call mma_deallocate(F1)
       Call mma_deallocate(F2)
-      CALL GETMEM('SXG1','FREE','REAL',LG,NIAIA)
+      Call mma_deallocate(SXG)
       IF(NAOAE.GT.0) CALL GETMEM('SXH1','FREE','REAL',LH,NAOAE)
-      CALL GETMEM('SXHD','FREE','REAL',LHD,NDIMSX)
+      Call mma_deallocate(SXHD)
 
 C Renormalize the SX-coefficients
 
