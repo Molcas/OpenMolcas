@@ -67,7 +67,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
-     &                D1I, D1A, OccN
+     &                D1I, D1A, OccN, CMO
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -204,7 +204,7 @@
       Call mma_allocate(D1I,NTOT2,Label='D1I')
       Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call mma_allocate(OCCN,NTOT,Label='OccN')
-      Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
+      Call mma_allocate(CMO,NTOT2,Label='CMO')
       allocate(PLWO(1:NACPAR))
       PLWO(:) = 0
 !
@@ -226,8 +226,7 @@
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
-      Call ReadVc_m(Work(LCMO),OCCN,
-     &             DMAT,DSPN,PMAT,PA)
+      Call ReadVc_m(CMO,OCCN,DMAT,DSPN,PMAT,PA)
 * Only now are such variables finally known.
       If (IPRLOC(1).GE.DEBUG) Then
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
@@ -259,7 +258,7 @@
       If (NASH(1).ne.NAC) then
         Call DBLOCK_m(Work(ipTmpDMAT))
       end if
-      Call Get_D1A_RASSCF_m(Work(LCMO),Work(ipTmpDMAT),D1A)
+      Call Get_D1A_RASSCF_m(CMO,Work(ipTmpDMAT),D1A)
       Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
 ! 413 Continue
@@ -408,16 +407,16 @@
       Call Timing(dum1,dum2,Fortis_1,dum3)
       Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
       Call FZero(Work(LPUVX),NFINT)
-      Call Get_D1I_RASSCF_m(Work(LCMO),D1I)
+      Call Get_D1I_RASSCF_m(LCMO,D1I)
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
-      CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,D1I,
+      CALL TRACTL2(CMO,WORK(LPUVX),TUVX,D1I,
      &             FI,D1A,FA,IPR,lSquare,ExFac)
 
-      Call Put_dArray('Last orbitals',Work(LCMO),ntot2)
+      Call Put_dArray('Last orbitals',CMO,ntot2)
 
       if (doGSOR) then
         Call f_Inquire('JOBOLD',Found)
@@ -507,7 +506,7 @@
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call MSCtl(Work(LCMO),FI,FA,Work(iRef_E))
+      Call MSCtl(CMO,FI,FA,Work(iRef_E))
 
       ! I guess iRef_E now holds the MC-PDFT energy for each state??
 
@@ -564,7 +563,7 @@
       Call mma_deallocate(D1I)
       Call mma_deallocate(D1A)
       Call mma_deallocate(OccN)
-      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
+      Call mma_deallocate(CMO)
       Call GetMem('REF_E','Free','REAL',iRef_E,lroots)
 
       Call mma_deallocate(DMAT)
