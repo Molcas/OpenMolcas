@@ -73,7 +73,7 @@
       use orthonormalization, only : ON_scheme
       use casvb_global, only: ifvb, invec_cvb, lcmo_cvb,
      &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
-     &                        lfa_cvb, loccn_cvb
+     &                        loccn_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
      &    embPotPath, embWriteEsp
@@ -95,7 +95,7 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
 
-      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, DSPN
+      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -309,7 +309,7 @@
 * Allocate various matrices
 *
       Call mma_allocate(FI,NTOT1,Label='FI')
-      Call GetMem('FA','Allo','Real',LFA,NTOT1)
+      Call mma_allocate(FA,NTOT1,Label='FA')
       Call GetMem('D1I','Allo','Real',LD1I,NTOT2)
       Call GetMem('D1A','Allo','Real',LD1A,NTOT2)
       Call GetMem('D1tot','Allo','Real',LD1tot,NTOT1)
@@ -325,14 +325,14 @@
         end if
       end if
 #endif
-      lfa_cvb=lfa
       ld1i_cvb=ld1i
       ld1a_cvb=ld1a
       ld1tot_cvb=ld1tot
       loccn_cvb=loccn
       lcmo_cvb=lcmo
       ldiaf_cvb=ldiaf
-      Call FZero(Work(LFA),NTOT1)
+      FI(:)=0.0D0
+      FA(:)=0.0D0
       Call FZero(Work(LDIAF),NTOT)
 *
       If (iCIRST.eq.1.and.DumpOnly) then
@@ -713,7 +713,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 * Transform two-electron integrals and compute the Fock matrices FI and FA
 * FI and FA are output from TRACTL2...
         CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &               FI,WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+     &               FI,WORK(LD1A),FA,IPR,lSquare,ExFac)
 
 c         Write(6,*) ' TUVX after TRACTL2'
 c         write(6,*) (UVX(ind),ind=1,NACPR2)
@@ -829,7 +829,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
         else
           CALL CICTL(WORK(LCMO),
      &               DMAT,DSPN,PMAT,PA,
-     &               FI,WORK(LFA),WORK(LD1I),WORK(LD1A),
+     &               FI,FA,WORK(LD1I),WORK(LD1A),
      &               TUVX,IFINAL)
 
           if(dofcidump)then
@@ -1037,7 +1037,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          End Do
        end if
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &              FI,WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+     &              FI,WORK(LD1A),FA,IPR,lSquare,ExFac)
 
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -1131,7 +1131,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         else
           CALL CICTL(WORK(LCMO),
      &               DMAT,DSPN,PMAT,PA,
-     &               FI,WORK(LFA),WORK(LD1I),WORK(LD1A),
+     &               FI,FA,WORK(LD1I),WORK(LD1A),
      &               TUVX,IFINAL)
         end if
 
@@ -1294,7 +1294,7 @@ c      Call rasscf_xml(Iter)
       end if
       CALL SXCTL(WORK(LCMO),WORK(LOCCN),
      &           DMAT,PMAT,PA,
-     &           FI,WORK(LFA),WORK(LD1A),THMAX,IFINAL)
+     &           FI,FA,WORK(LD1A),THMAX,IFINAL)
 
 
       If ( IPRLEV.ge.DEBUG ) then
@@ -1302,10 +1302,10 @@ c      Call rasscf_xml(Iter)
        Write(LF,*) ' FI+FA in RASSCF after SXCTL'
        Write(LF,*) ' ---------------------'
        Write(LF,*)
-       iOff=0
+       iOff=1
        Do iSym = 1,nSym
         iBas = nBas(iSym)
-        Call TriPrt(' ',' ',Work(LFA+iOff),iBas)
+        Call TriPrt(' ',' ',FA(iOff),iBas)
         iOff = iOff + (iBas*iBas+iBas)/2
        End Do
       End If
@@ -1728,7 +1728,7 @@ c Clean-close as much as you can the CASDFT stuff...
        IF(IPRLOC(2).EQ.4) IPR=5
        IF(IPRLOC(2).EQ.5) IPR=10
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &              FI,WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+     &              FI,WORK(LD1A),FA,IPR,lSquare,ExFac)
 *
        If (.not.DoCholesky .or. ALGO.eq.1) Then
           Call GetMem('PVX1','Free','Real',LPUVX,NFINT)
@@ -1785,7 +1785,7 @@ c Clean-close as much as you can the CASDFT stuff...
       else
         CALL CICTL(WORK(LCMO),
      &           DMAT,DSPN,PMAT,PA,
-     &           FI,WORK(LFA),WORK(LD1I),WORK(LD1A),
+     &           FI,FA,WORK(LD1I),WORK(LD1A),
      &           TUVX,IFINAL)
       end if
 
@@ -1990,7 +1990,7 @@ c  i_root>0 gives natural spin orbitals for that root
       Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
       Call mma_deallocate(FockOcc)
       Call mma_deallocate(FI)
-      Call GetMem('FA','Free','Real',LFA,NTOT1)
+      Call mma_deallocate(FA)
       Call GetMem('D1I','Free','Real',LD1I,NTOT2)
       Call GetMem('D1A','Free','Real',LD1A,NTOT2)
       Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)

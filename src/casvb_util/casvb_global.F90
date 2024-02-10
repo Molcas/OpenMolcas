@@ -149,7 +149,7 @@ integer(kind=iwp) :: i_dep_on_j(mxdep), i2s_fr(mxS,mxfrag), iact_mo(mxact_mo), i
                      istnel_c(mxstsy_ci), istnel_d(mxstsy_ci), istsy_c(mxstsy_ci), istsy_d(mxstsy_ci), isym, isympr(mxirrep), &
                      isymv(mxirrep), iter10, iter12e, iter12s, iter7, ityp(mxorb_cvb), ivbweights, iwidth, izbuffer(lbuf), &
                      j_dep_on_i(mxdep), joffs(mxobj+1), joptstep, jroot, kbasis, kbasiscvb, lcmo_cvb, ld1a_cvb, ld1i_cvb, &
-                     ld1tot_cvb, ldiaf_cvb, lenline, lfa_cvb, lfxvb, loccn_cvb, loopstep, &
+                     ld1tot_cvb, ldiaf_cvb, lenline, lfxvb, loccn_cvb, loopstep, &
                      loopstepmx, lstprm(mxprm), lw1_cvb, lzrvb, maxd, maxdav, mcore_c, mcore_d, &
                      mnion, mnion_fr(mxfrag), mxaobf, mxdav, mxion, mxion_fr(mxfrag), mxit, mxiter, mxnvb = 0, mxrhs, n1a, n1b, &
                      n_2el, n_applyh, n_applyt, n_cihess, n_div, n_hess, n_iter, n_orbhess, nact_mo, nalf, nalf_fr(mxMs,mxfrag), &
@@ -220,7 +220,7 @@ public :: aa1, aa2, absym, aikcof, alftol, ap, axc, bikcof, c, casvb_free, charo
           istnel_c, istnel_d, istsy_c, istsy_d, isym, isympr, isymv, iter10, iter12e, iter12s, iter7, ityp, iunset, ivbweights, &
           iwidth, ixapr, ixapr1, ixbpr, ixbpr1, izbuffer, izeta, j_dep_on_i, joffs, joptstep, jroot, kbasis, kbasiscvb, lbuf, &
           lcalccivbs, lcalcevb, lcalcsvb, lciweights, lcmo_cvb, ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb, &
-          lenline, lfa_cvb, lfxvb, line, loccn_cvb, loopstep, loopstepmx, lstprm, lw1_cvb, &
+          lenline, lfxvb, line, loccn_cvb, loopstep, loopstepmx, lstprm, lw1_cvb, &
           lzrvb, max_rec, maxd, maxdav, maxize, mcore_c, mcore_d, memplenty, mnion, mnion_fr, mustdeclare, mxact_mo, mxaobf, &
           mxdav, mxdep, mxfield, mxfiles, mxfrag, mxI, mxion, mxion_fr, mxirrep, mxirrep_ci, mxirrep_mo, mxit, mxiter, mxMs, &
           mxnvb, mxobj, mxopth, mxops, mxorb_cvb, mxprm, mxrhs, mxS, mxstep, mxstsy_ci, mxstt_ci, mxsyme, mxunits, n1a, n1b, &
