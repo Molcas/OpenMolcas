@@ -73,7 +73,7 @@
       use orthonormalization, only : ON_scheme
       use casvb_global, only: ifvb, invec_cvb, lcmo_cvb,
      &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
-     &                        lfa_cvb, lfi_cvb, loccn_cvb
+     &                        lfa_cvb, loccn_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
      &    embPotPath, embWriteEsp
@@ -95,7 +95,7 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
 
-      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, lfi, DSPN
+      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, DSPN
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -308,7 +308,7 @@
 *
 * Allocate various matrices
 *
-      Call GetMem('FI','Allo','Real',LFI,NTOT1)
+      Call mma_allocate(FI,NTOT1,Label='FI')
       Call GetMem('FA','Allo','Real',LFA,NTOT1)
       Call GetMem('D1I','Allo','Real',LD1I,NTOT2)
       Call GetMem('D1A','Allo','Real',LD1A,NTOT2)
@@ -325,7 +325,6 @@
         end if
       end if
 #endif
-      lfi_cvb=lfi
       lfa_cvb=lfa
       ld1i_cvb=ld1i
       ld1a_cvb=ld1a
@@ -714,7 +713,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 * Transform two-electron integrals and compute the Fock matrices FI and FA
 * FI and FA are output from TRACTL2...
         CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &               WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+     &               FI,WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
 c         Write(6,*) ' TUVX after TRACTL2'
 c         write(6,*) (UVX(ind),ind=1,NACPR2)
@@ -792,7 +791,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
      &                   D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                   D1A_AO=work(lD1A : lD1A + nTot2 - 1),
      &                   D1S_MO=DSPN(:),
-     &                   F_IN=work(lFI : lFI + nTot1 - 1),
+     &                   F_IN=FI(:),
      &                   orbital_E=orbital_E,
      &                   folded_Fock=folded_Fock)
           call make_fcidumps('FCIDUMP', 'H5FCIDUMP',
@@ -814,7 +813,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
      &                    TUVX=tuvx(:),
-     &                    F_IN=work(lFI : lFI + nTot1 - 1),
+     &                    F_IN=FI(:),
      &                    D1S_MO=DSPN(:),
      &                    DMAT=DMAT(:),
      &                    PSMAT=pmat(:),
@@ -824,13 +823,13 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
         else If(DoBlockDMRG) then
           CALL DMRGCTL(WORK(LCMO),
      &                 DMAT,DSPN,PMAT,PA,
-     &                 WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &                 FI,WORK(LD1I),WORK(LD1A),
      &                 TUVX,IFINAL,0)
 #endif
         else
           CALL CICTL(WORK(LCMO),
      &               DMAT,DSPN,PMAT,PA,
-     &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
+     &               FI,WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               TUVX,IFINAL)
 
           if(dofcidump)then
@@ -1038,7 +1037,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          End Do
        end if
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+     &              FI,WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -1117,7 +1116,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
      &                    TUVX=tuvx(:),
-     &                    F_IN=work(lFI : lFI + nTot1 - 1),
+     &                    F_IN=FI(:),
      &                    D1S_MO=DSPN(:),
      &                    DMAT=DMAT(:),
      &                    PSMAT=pmat(:),
@@ -1126,13 +1125,13 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         else If(DoBlockDMRG) Then
             CALL DMRGCTL(WORK(LCMO),
      &             DMAT,DSPN,PMAT,PA,
-     &             WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &             FI,WORK(LD1I),WORK(LD1A),
      &             TUVX,IFINAL,1)
 #endif
         else
           CALL CICTL(WORK(LCMO),
      &               DMAT,DSPN,PMAT,PA,
-     &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
+     &               FI,WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               TUVX,IFINAL)
         end if
 
@@ -1244,7 +1243,7 @@ c      call triprt('P-mat 2',' ',PMAT,nAc*(nAc+1)/2)
         Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDS_DFT),
      &                      Work(ipTmpD1S_DFT))
         CALL GETMEM('TmpDS_DFT' ,'Free','REAL',ipTmpDS_DFT ,NACPAR)
-        call CASDFT_terms(WORK(LCMO),WORK(LFOCK),WORK(LFI),WORK(LD1I),
+        call CASDFT_terms(WORK(LCMO),WORK(LFOCK),FI,WORK(LD1I),
      &                    WORK(LD1A),Work(ipTmpD1S_DFT))
         CALL GETMEM('TmpD1S_DFT','Free','REAL',ipTmpD1S_DFT,NTOT2)
         CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
@@ -1295,7 +1294,7 @@ c      Call rasscf_xml(Iter)
       end if
       CALL SXCTL(WORK(LCMO),WORK(LOCCN),
      &           DMAT,PMAT,PA,
-     &           WORK(LFI),WORK(LFA),WORK(LD1A),THMAX,IFINAL)
+     &           FI,WORK(LFA),WORK(LD1A),THMAX,IFINAL)
 
 
       If ( IPRLEV.ge.DEBUG ) then
@@ -1729,7 +1728,7 @@ c Clean-close as much as you can the CASDFT stuff...
        IF(IPRLOC(2).EQ.4) IPR=5
        IF(IPRLOC(2).EQ.5) IPR=10
        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+     &              FI,WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 *
        If (.not.DoCholesky .or. ALGO.eq.1) Then
           Call GetMem('PVX1','Free','Real',LPUVX,NFINT)
@@ -1762,7 +1761,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
      &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
      &                    TUVX=tuvx(:),
-     &                    F_IN=work(lFI : lFI + nTot1 - 1),
+     &                    F_IN=FI(:),
      &                    D1S_MO=DSPN(:),
      &                    DMAT=DMAT(:),
      &                    PSMAT=pmat(:),
@@ -1772,7 +1771,7 @@ c Clean-close as much as you can the CASDFT stuff...
       else If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
      &           DMAT,DSPN,PMAT,PA,
-     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           FI,WORK(LD1I),WORK(LD1A),
      &           TUVX,IFINAL,1)
 #endif
 #ifdef _DMRG_
@@ -1786,7 +1785,7 @@ c Clean-close as much as you can the CASDFT stuff...
       else
         CALL CICTL(WORK(LCMO),
      &           DMAT,DSPN,PMAT,PA,
-     &           WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
+     &           FI,WORK(LFA),WORK(LD1I),WORK(LD1A),
      &           TUVX,IFINAL)
       end if
 
@@ -1990,7 +1989,7 @@ c  i_root>0 gives natural spin orbitals for that root
 *  Release  some memory allocations
       Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
       Call mma_deallocate(FockOcc)
-      Call GetMem('FI','Free','Real',LFI,NTOT1)
+      Call mma_deallocate(FI)
       Call GetMem('FA','Free','Real',LFA,NTOT1)
       Call GetMem('D1I','Free','Real',LD1I,NTOT2)
       Call GetMem('D1A','Free','Real',LD1A,NTOT2)

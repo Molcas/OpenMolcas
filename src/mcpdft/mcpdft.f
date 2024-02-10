@@ -66,7 +66,7 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
-      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, lfi, DSPN
+      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, DSPN
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -198,7 +198,7 @@
 *
 * Allocate various matrices
 *
-      Call GetMem('FI','Allo','Real',LFI,NTOT1)
+      Call mma_allocate(FI,NTOT1,Label='FI')
       Call GetMem('FA','Allo','Real',LFA,NTOT1)
       Call GetMem('D1I','Allo','Real',LD1I,NTOT2)
       Call GetMem('D1A','Allo','Real',LD1A,NTOT2)
@@ -415,7 +415,7 @@
       IF(IPRLOC(2).EQ.insane) IPR=10
 
       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+     &             FI,WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
 
       Call Put_dArray('Last orbitals',Work(LCMO),ntot2)
 
@@ -507,8 +507,7 @@
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call MSCtl(Work(LCMO),Work(LFI),Work(LFA),
-     &       Work(iRef_E))
+      Call MSCtl(Work(LCMO),FI,Work(LFA),Work(iRef_E))
 
       ! I guess iRef_E now holds the MC-PDFT energy for each state??
 
@@ -560,7 +559,7 @@
 
 *  Release  some memory allocations
       Call mma_deallocate(FockOcc)
-      Call GetMem('FI','Free','Real',LFI,NTOT1)
+      Call mma_deallocate(FI)
       Call GetMem('FA','Free','Real',LFA,NTOT1)
       Call GetMem('D1I','Free','Real',LD1I,NTOT2)
       Call GetMem('D1A','Free','Real',LD1A,NTOT2)
