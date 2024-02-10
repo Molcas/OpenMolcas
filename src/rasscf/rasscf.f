@@ -71,9 +71,7 @@
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
-      use casvb_global, only: ifvb, invec_cvb, lcmo_cvb,
-     &                        ld1tot_cvb, ldiaf_cvb,
-     &                        loccn_cvb
+      use casvb_global, only: ifvb, invec_cvb, lcmo_cvb, ldiaf_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
      &    embPotPath, embWriteEsp
@@ -96,7 +94,7 @@
 #endif
 
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
-     &                D1I, D1A
+     &                D1I, D1A, OccN
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -313,8 +311,7 @@
       Call mma_allocate(FA,NTOT1,Label='FA')
       Call mma_allocate(D1I,NTOT2,Label='D1I')
       Call mma_allocate(D1A,NTOT2,Label='D1A')
-      Call GetMem('D1tot','Allo','Real',LD1tot,NTOT1)
-      Call GetMem('OCCN','Allo','Real',LOCCN,NTOT)
+      Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
       Call GetMem('DIAF','Allo','Real',LDIAF,NTOT)
 #ifdef _DMRG_
@@ -326,8 +323,6 @@
         end if
       end if
 #endif
-      ld1tot_cvb=ld1tot
-      loccn_cvb=loccn
       lcmo_cvb=lcmo
       ldiaf_cvb=ldiaf
       FI(:)=0.0D0
@@ -398,12 +393,12 @@
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
-      call dcopy_(NTot,[0.0D0],0,Work(lOCCN),1)
+      OccN(:)=0.0D0
 
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
-      Call ReadVc(Work(LCMO),Work(lOCCN),
+      Call ReadVc(Work(LCMO),OCCN,
      & DMAT,DSPN,PMAT,PA,ON_scheme)
       if (KeyORTH) then
 ! TODO(Oskar): Add fourth argument OCC
@@ -1098,10 +1093,10 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          LuvvVec=50
          LuvvVec=isfreeunit(LuvvVec)
          call WrVec('IterOrb',LuvvVec,'COE',NSYM,NBAS,
-     &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
+     &               NBAS, work(LCMO : LCMO + nTot2 - 1), OCCN,
      &               WORK(LEDUM), INDTYPE,VECTYP)
          call WrVec('IterOrb',LuvvVec,'AI',NSYM,NBAS,
-     &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
+     &               NBAS, work(LCMO : LCMO + nTot2 - 1), OCCN,
      &               WORK(LEDUM), INDTYPE,VECTYP)
          call GetMem('EDUM','FREE','REAL',LEDUM,NTOT)
          write(6,*) "MO coeffs for next iteration written to IterOrb."
@@ -1291,7 +1286,7 @@ c      Call rasscf_xml(Iter)
        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
      &             ' ',PA,NACPAR)
       end if
-      CALL SXCTL(WORK(LCMO),WORK(LOCCN),
+      CALL SXCTL(WORK(LCMO),OCCN,
      &           DMAT,PMAT,PA,
      &           FI,FA,D1A,THMAX,IFINAL)
 
@@ -1952,9 +1947,9 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
 
       If ( ITERM.ne.99 ) THEN
        If (.not.DoSplitCAS) then
-        CALL OUTCTL(WORK(LCMO),WORK(LOCCN),WORK(LSMAT),lOPTO)
+        CALL OUTCTL(WORK(LCMO),OCCN,WORK(LSMAT),lOPTO)
        else
-        CALL OUTCTLSplit(WORK(LCMO),WORK(LOCCN),WORK(LSMAT),lOPTO)
+        CALL OUTCTLSplit(WORK(LCMO),OCCN,WORK(LSMAT),lOPTO)
        end if
       End If
 
@@ -1991,8 +1986,7 @@ c  i_root>0 gives natural spin orbitals for that root
       Call mma_deallocate(FA)
       Call mma_deallocate(D1I)
       Call mma_deallocate(D1A)
-      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
-      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
+      Call mma_deallocate(OccN)
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
 #ifdef _DMRG_
 * Free RDMs for the reaction field reference root in QCMaquis calculations

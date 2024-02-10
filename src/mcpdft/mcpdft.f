@@ -67,7 +67,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
-     &                D1I, D1A
+     &                D1I, D1A, OccN
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -203,8 +203,7 @@
       Call mma_allocate(FA,NTOT1,Label='FA')
       Call mma_allocate(D1I,NTOT2,Label='D1I')
       Call mma_allocate(D1A,NTOT2,Label='D1A')
-      Call GetMem('D1tot','Allo','Real',LD1tot,NTOT1)
-      Call GetMem('OCCN','Allo','Real',LOCCN,NTOT)
+      Call mma_allocate(OCCN,NTOT,Label='OccN')
       Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
       allocate(PLWO(1:NACPAR))
       PLWO(:) = 0
@@ -222,12 +221,12 @@
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
-      call dcopy_(NTot,[0.0D0],0,Work(lOCCN),1)
+      OccN(:)=0.0D0
 
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
-      Call ReadVc_m(Work(LCMO),Work(lOCCN),
+      Call ReadVc_m(Work(LCMO),OCCN,
      &             DMAT,DSPN,PMAT,PA)
 * Only now are such variables finally known.
       If (IPRLOC(1).GE.DEBUG) Then
@@ -564,10 +563,9 @@
       Call mma_deallocate(FA)
       Call mma_deallocate(D1I)
       Call mma_deallocate(D1A)
-      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
+      Call mma_deallocate(OccN)
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
       Call GetMem('REF_E','Free','REAL',iRef_E,lroots)
-      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
 
       Call mma_deallocate(DMAT)
       Call mma_deallocate(DSPN)
