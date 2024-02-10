@@ -412,4 +412,85 @@ Contains
       ISSM  = IREFSM
 !
       END SUBROUTINE SIGMA_MASTER_CVB
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      SUBROUTINE cpcivc(CIVec,nCIVEC,ifile, mxrec, isym, iway,lrec)
+!
+! Copies the CI-vector between Molcas Rasscf and Lucia enviroment
+! IWAY = 1: from Molcas to Lucia (from core to disk unit ifile).
+! IWAY = 2: from Lucia to Molcas (from disk unit ifile to core).
+!
+      implicit real*8 (a-h,o-z)
+      integer nCIVEC, ifile, mxrec, isym, iway
+      integer lrec(mxrec)
+      real*8 CIVec(nCIVec)
+#include "rasdim.fh"
+#include "general.fh"
+#include "rasscf.fh"
+#include "io_util.fh"
+!
+!   ========================
+!      Find nrec and lrec
+!   ========================
+!
+      CALL blkfo_min(isym, nrec, lrec)
+      IDISK(IFILE)=0
+!
+!   =============================
+!      Write CI-vector to disc
+!   =============================
+!
+      IF (iway.eq.1) then
+#ifdef _DEBUGPRINT_
+         ioff = 1
+         write(6,*) 'CI-vector put to disk:'
+         DO IREC = 1,NREC
+            IF(LREC(IREC) .GE. 0) THEN
+               call wrtmat(CIVec(ioff),1,lrec(irec),
+     &            1,lrec(irec))
+            ioff = ioff + lrec(irec)
+            ENDIF
+         ENDDO
+#endif
+         CALL todscn(CIVec, nrec, lrec,-1, ifile)
+         CALL itods([-1],1,-1,ifile)
+!
+!   ==============================
+!      Read CI-vector from disc
+!   ==============================
+!
+      ELSE
+         CALL frmdscn(CIVec, nrec, -1, ifile)
+      ENDIF
+!
+      END SUBROUTINE cpcivc
+!
+      SUBROUTINE cpsivc(ifile, mxrec, vec,lrec)
+!
+! Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
+!
+      implicit real*8 (a-h,o-z)
+      dimension lrec(mxrec)
+      dimension vec(mxrec)
+#include "rasdim.fh"
+#include "general.fh"
+#include "io_util.fh"
+!
+!   ========================
+!      Find nrec and lrec
+!   ========================
+!
+      CALL blkfo_min(stsym, nrec, lrec)
+      IDISK(IFILE)=0
+!
+!   =================================
+!      Read Sigma-vector from disc
+!   =================================
+!
+      CALL frmdscn(vec, nrec, -1, ifile)
+!
+      END SUBROUTINE cpsivc
+
 End Module LUCIA_INTERFACE
