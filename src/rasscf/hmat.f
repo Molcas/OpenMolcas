@@ -18,14 +18,13 @@ C
 C ********** IBM-3090 Release 88 09 08 **********
 C
       use stdalloc, only: mma_allocate, mma_deallocate
-      use wadr, only: DIA, SXN, BM, F1, F2, SXG, LH, NLX
+      use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),HC(*),HH(*)
       DIMENSION HD(NDIM)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
       Real*8, Allocatable:: XX(:), XC(:)
 C
 C
@@ -36,8 +35,7 @@ C
       CALL mma_allocate(XX,NLX,Label='XX')
       CALL mma_allocate(XC,NSXS,Label='XC')
 
-      CALL SIGVEC(C(IST),HC(IST),HD,BM,SXN,
-     *            SXG,WORK(LH),DIA,
+      CALL SIGVEC(C(IST),HC(IST),HD,BM,SXN,SXG,SXH,DIA,
      *            F1,F2,XX,XC,NTRIAL)
 
       CALL mma_deallocate(XX)

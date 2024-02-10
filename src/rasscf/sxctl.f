@@ -65,7 +65,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoCholesky
       use Lucia_Interface, only: Lucia_Util
-      use wadr, only: DIA, SXN, BM, F1, F2, SXG, LH, SXHD, NLX
+      use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, SXHD, NLX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -450,24 +450,23 @@ C SXN: Normalization constants for super-CI vector
 C F1 and F2: parts of the Fock matrix FP
 C DIA: Occupied part of the density matrix (squared)
 C SXG: The G matrix(used in sigvec)
-C LH: The H matrix( "    "   "   )
+C SXH: The H matrix( "    "   "   )
 C SXHD: The diagonal of the super-CI Hamiltonian
 C LDF: The matrix D*FP
 C LDDIA: Diagonal of the density matrix (all elements one symmetry)
 
       WORD='SXHA'
-      LH=1
       CALL mma_allocate(SXN,NSXS,Label='SXN')
       CALL mma_allocate(F1,NIAIA,Label='F1')
       CALL mma_allocate(F2,NAEAE,Label='F2')
       CALL mma_allocate(DIA,NIAIA,Label='DIA')
       CALL mma_allocate(SXG,NIAIA,Label='SXG')
-      IF(NAOAE.GT.0) CALL GETMEM('SXH1','ALLO','REAL',LH,NAOAE)
+      CALL mma_allocate(SXH,NAOAE,Label='SXH')
       CALL mma_allocate(SXHD,NDIMSX,Label='SXHD')
       CALL GETMEM('SXDF','ALLO','REAL',LDF,NQ)
       CALL GETMEM('SXDD','ALLO','REAL',LDDIA,MNO)
       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,3333)WORD,LH,LDF,LDDIA
+        Write(LF,3333)WORD,LDF,LDDIA
       END IF
 
 c         CALL TRIPRT(' Dmat in MO in SXCTL bf call to SXHAM ',' ',D,NAC)
@@ -476,7 +475,7 @@ c     &              ' ',P,NACPAR)
 c         CALL TRIPRT(' PAmat in MO in SXCTL bf call to SXHAM',
 c     &              ' ',PA,NACPAR)
       CALL SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,
-     &               WORK(LH),SXHD,WORK(LDF),WORK(LDDIA))
+     &           SXH,SXHD,WORK(LDF),WORK(LDDIA))
 
       CALL GETMEM('SXDD','FREE','REAL',LDDIA,MNO)
       CALL GETMEM('SXDF','FREE','REAL',LDF,NQ)
@@ -543,7 +542,7 @@ C LOVL:  Overlap matrix
       Call mma_deallocate(F1)
       Call mma_deallocate(F2)
       Call mma_deallocate(SXG)
-      IF(NAOAE.GT.0) CALL GETMEM('SXH1','FREE','REAL',LH,NAOAE)
+      Call mma_deallocate(SXH)
       Call mma_deallocate(SXHD)
 
 C Renormalize the SX-coefficients
