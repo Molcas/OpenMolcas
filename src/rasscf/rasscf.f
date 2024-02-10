@@ -72,7 +72,7 @@
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
       use casvb_global, only: ifvb, invec_cvb, lcmo_cvb,
-     &                        ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb,
+     &                        ld1tot_cvb, ldiaf_cvb,
      &                        loccn_cvb
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
@@ -95,7 +95,8 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
 
-      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN
+      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
+     &                D1I, D1A
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -310,8 +311,8 @@
 *
       Call mma_allocate(FI,NTOT1,Label='FI')
       Call mma_allocate(FA,NTOT1,Label='FA')
-      Call GetMem('D1I','Allo','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Allo','Real',LD1A,NTOT2)
+      Call mma_allocate(D1I,NTOT2,Label='D1I')
+      Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call GetMem('D1tot','Allo','Real',LD1tot,NTOT1)
       Call GetMem('OCCN','Allo','Real',LOCCN,NTOT)
       Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
@@ -325,8 +326,6 @@
         end if
       end if
 #endif
-      ld1i_cvb=ld1i
-      ld1a_cvb=ld1a
       ld1tot_cvb=ld1tot
       loccn_cvb=loccn
       lcmo_cvb=lcmo
@@ -644,7 +643,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
            Call FZero(Work(LPUVX),NFINT)
         EndIf
 
-        Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
+        Call Get_D1I_RASSCF(Work(LCMO),D1I)
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
           Write(LF,*) ' D1I in AO basis in RASSCF'
@@ -653,7 +652,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
           iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-             call wrtmat(Work(lD1I+ioff-1),iBas,iBas, iBas, iBas)
+             call wrtmat(D1I(ioff),iBas,iBas, iBas, iBas)
             iOff = iOff + iBas*iBas
           End Do
         End If
@@ -664,7 +663,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
            Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
            call dcopy_(NACPAR,DMAT,1,Work(ipTmpDMAT),1)
            If (NASH(1).ne.NAC) Call DBLOCK(Work(ipTmpDMAT))
-           Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
+           Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDMAT),D1A)
            Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
            DoActive = .true.
@@ -676,7 +675,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
              KSDFT='SCF'
              ExFac=1.0D0
            end IF
-           Call dcopy_(NTOT2,[0.0D0],0,WORK(LD1A),1)
+           D1A(:)=0.0D0
 
            DoActive = .false.
 
@@ -704,7 +703,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
           iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-            call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+            call wrtmat(D1A(ioff),iBas,iBas, iBas, iBas)
             iOff = iOff + iBas*iBas
           End Do
         end if
@@ -712,8 +711,8 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 *
 * Transform two-electron integrals and compute the Fock matrices FI and FA
 * FI and FA are output from TRACTL2...
-        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &               FI,WORK(LD1A),FA,IPR,lSquare,ExFac)
+        CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,D1I,
+     &               FI,D1A,FA,IPR,lSquare,ExFac)
 
 c         Write(6,*) ' TUVX after TRACTL2'
 c         write(6,*) (UVX(ind),ind=1,NACPR2)
@@ -730,7 +729,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
           iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-            call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+            call wrtmat(D1A(ioff),iBas,iBas, iBas, iBas)
             iOff = iOff + iBas*iBas
           End Do
 
@@ -788,8 +787,8 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
           call transform(iter,
      &                   CMO=work(LCMO : LCMO + nTot2 - 1),
      &                   DIAF=work(LDIAF : LDiaf + nTot - 1),
-     &                   D1I_AO=work(lD1I : lD1I + nTot2 - 1),
-     &                   D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                   D1I_AO=D1I(:),
+     &                   D1A_AO=D1A(:),
      &                   D1S_MO=DSPN(:),
      &                   F_IN=FI(:),
      &                   orbital_E=orbital_E,
@@ -810,8 +809,8 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
      &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
-     &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
-     &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                    D1I_AO=D1I(:),
+     &                    D1A_AO=D1A(:),
      &                    TUVX=tuvx(:),
      &                    F_IN=FI(:),
      &                    D1S_MO=DSPN(:),
@@ -823,13 +822,13 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
         else If(DoBlockDMRG) then
           CALL DMRGCTL(WORK(LCMO),
      &                 DMAT,DSPN,PMAT,PA,
-     &                 FI,WORK(LD1I),WORK(LD1A),
+     &                 FI,D1I,D1A,
      &                 TUVX,IFINAL,0)
 #endif
         else
           CALL CICTL(WORK(LCMO),
      &               DMAT,DSPN,PMAT,PA,
-     &               FI,FA,WORK(LD1I),WORK(LD1A),
+     &               FI,FA,D1I,D1A,
      &               TUVX,IFINAL)
 
           if(dofcidump)then
@@ -840,9 +839,9 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
           !Thomas Dresselhaus
           if (embpot) then
             !Eemb=DDot_(NACPAR,embInt,1,DMAT,1)
-!           Eemb=embPotEne(Work(LD1I), Work(LD1A), embInt,
+!           Eemb=embPotEne(D1I, D1A, embInt,
 !    &                   Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
-            Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A),
+            Eemb=embPotEneMODensities(D1I, D1A,
      &            embInt, nBas, nTot2, nSym)
             Write(LF,*) "Energy from embedding potential with the"
             Write(LF,*) "initial CI vectors: ", Eemb
@@ -871,7 +870,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           END DO
         End If
 
-        Call Get_D1A_RASSCF(WORK(LCMO),DMAT,WORK(LD1A))
+        Call Get_D1A_RASSCF(WORK(LCMO),DMAT,D1A)
 
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
@@ -881,7 +880,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-            call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+            call wrtmat(D1A(ioff),iBas,iBas, iBas, iBas)
             iOff = iOff + iBas*iBas
           End Do
         end if
@@ -1007,7 +1006,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
          Call FZero(Work(LPUVX),NFINT)
       EndIf
-      Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
+      Call Get_D1I_RASSCF(Work(LCMO),D1I)
 
       DoActive = .true.
 
@@ -1032,12 +1031,12 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          iOff=1
          Do iSym = 1,nSym
           iBas = nBas(iSym)
-          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          call wrtmat(D1A(ioff),iBas,iBas, iBas, iBas)
           iOff = iOff + iBas*iBas
          End Do
        end if
-       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &              FI,WORK(LD1A),FA,IPR,lSquare,ExFac)
+       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,D1I,
+     &              FI,D1A,FA,IPR,lSquare,ExFac)
 
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -1047,7 +1046,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          iOff=1
          Do iSym = 1,nSym
           iBas = nBas(iSym)
-          call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+          call wrtmat(D1A(ioff),iBas,iBas, iBas, iBas)
           iOff = iOff + iBas*iBas
          End Do
       end if
@@ -1113,8 +1112,8 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
-     &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
-     &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                    D1I_AO=D1I(:),
+     &                    D1A_AO=D1A(:),
      &                    TUVX=tuvx(:),
      &                    F_IN=FI(:),
      &                    D1S_MO=DSPN(:),
@@ -1125,13 +1124,13 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         else If(DoBlockDMRG) Then
             CALL DMRGCTL(WORK(LCMO),
      &             DMAT,DSPN,PMAT,PA,
-     &             FI,WORK(LD1I),WORK(LD1A),
+     &             FI,D1I,D1A,
      &             TUVX,IFINAL,1)
 #endif
         else
           CALL CICTL(WORK(LCMO),
      &               DMAT,DSPN,PMAT,PA,
-     &               FI,FA,WORK(LD1I),WORK(LD1A),
+     &               FI,FA,D1I,D1A,
      &               TUVX,IFINAL)
         end if
 
@@ -1175,7 +1174,7 @@ c      call triprt('P-mat 2',' ',PMAT,nAc*(nAc+1)/2)
           iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-            call wrtmat(Work(lD1I+ioff-1),iBas,iBas, iBas, iBas)
+            call wrtmat(D1I(ioff),iBas,iBas, iBas, iBas)
             iOff = iOff + iBas*iBas
           End Do
           write(6,*)
@@ -1221,7 +1220,7 @@ c      call triprt('P-mat 2',' ',PMAT,nAc*(nAc+1)/2)
           iOff=1
           Do iSym = 1,nSym
             iBas = nBas(iSym)
-            call wrtmat(Work(lD1A+ioff-1),iBas,iBas, iBas, iBas)
+            call wrtmat(D1A(ioff),iBas,iBas, iBas, iBas)
             iOff = iOff + iBas*iBas
           End Do
         End if
@@ -1243,8 +1242,8 @@ c      call triprt('P-mat 2',' ',PMAT,nAc*(nAc+1)/2)
         Call Get_D1A_RASSCF(Work(LCMO),Work(ipTmpDS_DFT),
      &                      Work(ipTmpD1S_DFT))
         CALL GETMEM('TmpDS_DFT' ,'Free','REAL',ipTmpDS_DFT ,NACPAR)
-        call CASDFT_terms(WORK(LCMO),WORK(LFOCK),FI,WORK(LD1I),
-     &                    WORK(LD1A),Work(ipTmpD1S_DFT))
+        call CASDFT_terms(WORK(LCMO),WORK(LFOCK),FI,D1I,
+     &                    D1A,Work(ipTmpD1S_DFT))
         CALL GETMEM('TmpD1S_DFT','Free','REAL',ipTmpD1S_DFT,NTOT2)
         CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
       end if
@@ -1258,7 +1257,7 @@ c     &              ' ',PMAT,NACPAR)
 c        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
 c     &              ' ',PA,NACPAR)
 
-      Call Get_D1A_RASSCF(WORK(LCMO),DMAT,WORK(LD1A))
+      Call Get_D1A_RASSCF(WORK(LCMO),DMAT,D1A)
        If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' D1A in AO basis in RASSCF bf SXCTL'
@@ -1267,7 +1266,7 @@ c     &              ' ',PA,NACPAR)
         iOff=1
         Do iSym = 1,nSym
          iBas = nBas(iSym)
-         call wrtmat(Work(LD1A+ioff-1),iBas,iBas, iBas, iBas)
+         call wrtmat(D1A(ioff),iBas,iBas, iBas, iBas)
          iOff = iOff + iBas*iBas
         End Do
        End If
@@ -1294,7 +1293,7 @@ c      Call rasscf_xml(Iter)
       end if
       CALL SXCTL(WORK(LCMO),WORK(LOCCN),
      &           DMAT,PMAT,PA,
-     &           FI,FA,WORK(LD1A),THMAX,IFINAL)
+     &           FI,FA,D1A,THMAX,IFINAL)
 
 
       If ( IPRLEV.ge.DEBUG ) then
@@ -1319,11 +1318,11 @@ cGLM   write(6,*) 'ECAS in RASSCF after call to SXCTL', ECAS
         iOff=1
         Do iSym = 1,nSym
          iBas = nBas(iSym)
-         call wrtmat(Work(LD1A+ioff-1),iBas,iBas, iBas, iBas)
+         call wrtmat(D1A(ioff),iBas,iBas, iBas, iBas)
          iOff = iOff + iBas*iBas
         End Do
       end if
-      Call Get_D1A_RASSCF(WORK(LCMO),DMAT,WORK(LD1A))
+      Call Get_D1A_RASSCF(WORK(LCMO),DMAT,D1A)
       CASDFT_Funct=0.0d0
       If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') then
         Call Get_dScalar('CASDFT energy',CASDFT_Funct)
@@ -1463,7 +1462,7 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
 #ifdef _FDE_
       ! Embedding
       if (embpot) then
-       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), embInt,
+       Eemb=embPotEneMODensities(D1I, D1A, embInt,
      &                nBas, nTot2, nSym)
        Write(LF,*)"E from embedding potential (<Psi|v_emb|Psi>): ",Eemb
       end if
@@ -1720,15 +1719,15 @@ c Clean-close as much as you can the CASDFT stuff...
          Call FZero(Work(LPUVX),NFINT)
       EndIf
 
-      Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
+      Call Get_D1I_RASSCF(Work(LCMO),D1I)
 
        DoQmat=.false.
 
        IPR=0
        IF(IPRLOC(2).EQ.4) IPR=5
        IF(IPRLOC(2).EQ.5) IPR=10
-       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &              FI,WORK(LD1A),FA,IPR,lSquare,ExFac)
+       CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,D1I,
+     &              FI,D1A,FA,IPR,lSquare,ExFac)
 *
        If (.not.DoCholesky .or. ALGO.eq.1) Then
           Call GetMem('PVX1','Free','Real',LPUVX,NFINT)
@@ -1758,8 +1757,8 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
-     &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
-     &                    D1A_AO=work(lD1A : lD1A + nTot2 - 1),
+     &                    D1I_AO=D1I(:),
+     &                    D1A_AO=D1A(:),
      &                    TUVX=tuvx(:),
      &                    F_IN=FI(:),
      &                    D1S_MO=DSPN(:),
@@ -1771,7 +1770,7 @@ c Clean-close as much as you can the CASDFT stuff...
       else If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
      &           DMAT,DSPN,PMAT,PA,
-     &           FI,WORK(LD1I),WORK(LD1A),
+     &           FI,D1I,D1A,
      &           TUVX,IFINAL,1)
 #endif
 #ifdef _DMRG_
@@ -1785,7 +1784,7 @@ c Clean-close as much as you can the CASDFT stuff...
       else
         CALL CICTL(WORK(LCMO),
      &           DMAT,DSPN,PMAT,PA,
-     &           FI,FA,WORK(LD1I),WORK(LD1A),
+     &           FI,FA,D1I,D1A,
      &           TUVX,IFINAL)
       end if
 
@@ -1940,14 +1939,13 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
 #ifdef _FDE_
       ! Embedding
       if (embpot) then
-       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), embInt,
+       Eemb=embPotEneMODensities(D1I, D1A, embInt,
      &                nBas, nTot2, nSym)
        Write(LF,*) "Final energy from embedding potential: ", Eemb
        ! Write out ESP on grid if requested
        if (embWriteEsp) then
         Call Get_iScalar('Unique atoms',nNuc)
-        Call embPotOutputMODensities(nNuc,nSym,Work(LD1I),Work(LD1A),
-     &                               nBas,nTot2)
+        Call embPotOutputMODensities(nNuc,nSym,D1I,D1A,nBas,nTot2)
        end if
       end if
 #endif
@@ -1991,8 +1989,8 @@ c  i_root>0 gives natural spin orbitals for that root
       Call mma_deallocate(FockOcc)
       Call mma_deallocate(FI)
       Call mma_deallocate(FA)
-      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
+      Call mma_deallocate(D1I)
+      Call mma_deallocate(D1A)
       Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
       Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
@@ -2035,7 +2033,7 @@ c deallocating TUVX memory...
       endif
 
 !      do i=1,NTOT2
-!        write(*,*) "A,I",work(LD1A+i-1),work(LD1I+i-1)
+!        write(*,*) "A,I",D1A(i),D1I(i)
 !      end do
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 

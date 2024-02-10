@@ -66,7 +66,8 @@
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_interface, only: lucia_util
-      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN
+      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
+     &                D1I, D1A
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -200,8 +201,8 @@
 *
       Call mma_allocate(FI,NTOT1,Label='FI')
       Call mma_allocate(FA,NTOT1,Label='FA')
-      Call GetMem('D1I','Allo','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Allo','Real',LD1A,NTOT2)
+      Call mma_allocate(D1I,NTOT2,Label='D1I')
+      Call mma_allocate(D1A,NTOT2,Label='D1A')
       Call GetMem('D1tot','Allo','Real',LD1tot,NTOT1)
       Call GetMem('OCCN','Allo','Real',LOCCN,NTOT)
       Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
@@ -259,7 +260,7 @@
       If (NASH(1).ne.NAC) then
         Call DBLOCK_m(Work(ipTmpDMAT))
       end if
-      Call Get_D1A_RASSCF_m(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
+      Call Get_D1A_RASSCF_m(Work(LCMO),Work(ipTmpDMAT),D1A)
       Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
 ! 413 Continue
@@ -408,14 +409,14 @@
       Call Timing(dum1,dum2,Fortis_1,dum3)
       Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
       Call FZero(Work(LPUVX),NFINT)
-      Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
+      Call Get_D1I_RASSCF_m(Work(LCMO),D1I)
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
-      CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,WORK(LD1I),
-     &             FI,WORK(LD1A),FA,IPR,lSquare,ExFac)
+      CALL TRACTL2(WORK(LCMO),WORK(LPUVX),TUVX,D1I,
+     &             FI,D1A,FA,IPR,lSquare,ExFac)
 
       Call Put_dArray('Last orbitals',Work(LCMO),ntot2)
 
@@ -561,8 +562,8 @@
       Call mma_deallocate(FockOcc)
       Call mma_deallocate(FI)
       Call mma_deallocate(FA)
-      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
+      Call mma_deallocate(D1I)
+      Call mma_deallocate(D1A)
       Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
       Call GetMem('REF_E','Free','REAL',iRef_E,lroots)
