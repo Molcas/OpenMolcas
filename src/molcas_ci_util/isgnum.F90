@@ -14,7 +14,7 @@ function ISGNUM(IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
 use Definitions, only: iwp
-use gugx, only: NVERT, MXUP, MXDWN, NLEV, MIDLEV, MIDV1, NMIDV
+use gugx, only: NVERT, MXUP, MXDWN, NLEV, MIDLEV, MIDV1, NMIDV, MIDV1
 
 implicit none
 integer(kind=iwp) :: ISGNUM

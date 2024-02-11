@@ -12,7 +12,7 @@
 C     PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY
 C              CREATING A MASK
 C
-      use gugx
+      use gugx, only: NVERT0, LV1RAS, LM1RAS, LV3RAS, LM3RAS, NVERT
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

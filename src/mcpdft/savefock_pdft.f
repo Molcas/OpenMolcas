@@ -25,7 +25,6 @@
       use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: BM, FockOcc
-      use gugx
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.

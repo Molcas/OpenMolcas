@@ -26,7 +26,7 @@ C              AND ISGNUM WHICH COMPUTES THE THE PHASE FACTOR
 C              INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
-      use gugx
+      use gugx, only: LDRT, LDOWN, LUP, LRAW, LDAW, LLSGN, LUSGN
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

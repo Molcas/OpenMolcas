@@ -73,7 +73,7 @@
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
-      use gugx
+      use gugx, only: IFCAS, LNOCSF, LIOCSF, NOW1, IOW1
 
       Implicit Real* 8 (A-H,O-Z)
 

@@ -18,7 +18,8 @@ C     AUTHOR:  P.-AA. MALMQVIST
 C
 C     MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 C
-      use gugx
+      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,
+     &                LM1RAS, LV3RAS, LM3RAS, NCSF
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C

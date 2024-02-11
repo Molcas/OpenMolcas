@@ -16,7 +16,8 @@ C              REVERSE ARC WEIGHT SUM, RESPECTIVELY.
 C              STORE THE DATA IN THE TABLES IUSGNUM AND ILSGNUM
 C
       use mcpdft_output, only: insane, lf
-      use gugx
+      use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, NUW, NLW, MXUP,
+     &                MXDWN, NIPWLK, NICASE
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"

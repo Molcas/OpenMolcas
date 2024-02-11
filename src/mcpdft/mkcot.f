@@ -16,7 +16,8 @@ C              WALKS. POSSIBLY, THERE ARE MORE EFFICIENT WAYS, BUT
 C              SINCE ONLY UPPER AND LOWER WALKS ARE REQUIRED
 C              THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
       use mcpdft_output, only: insane, lf
-      use gugx
+      use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, MIDV1, MIDV2, NUW,
+     &                NLW, NWALK, NIPWLK, NCSF
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C

@@ -68,7 +68,7 @@
       use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use gugx
+      use gugx, only: IFCAS
 
       Implicit Real*8 (A-H,O-Z)
 

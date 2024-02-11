@@ -20,5 +20,5 @@ INTEGER, Public:: NLEV,IA0,IB0,IC0,                               &
                   NIPWLK,NICASE,LICASE,NCSF(8),                     &
                   NNOCSF,LNOCSF,NIOCSF,LIOCSF,                      &
                   LLSGN,LUSGN
-Integer, Allocatable, Public:: NOW1(:), IOW1(:)
+Integer, Allocatable, Public:: NOW1(:), IOW1(:), ICASE(:)
 End Module GUGX

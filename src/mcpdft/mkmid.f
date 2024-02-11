@@ -12,7 +12,8 @@
 C     PURPOSE: FIND THE MIDLEVEL
 C
       use mcpdft_output, only: insane, lf
-      use gugx
+      use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, MIDV1, MIDV2, MXUP,
+     &                MXDWN
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C

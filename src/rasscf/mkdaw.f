@@ -11,7 +11,7 @@
       SUBROUTINE MKDAW(IDOWN,IDAW,IPRINT)
 C     PURPOSE: CONSTRUCT DIRECT ARC WEIGHTS TABLE
 C
-      use gugx
+      use gugx, only: NVERT
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

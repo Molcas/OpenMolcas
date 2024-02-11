@@ -17,7 +17,14 @@ C              THE COMMON /GUGA/. THESE ARE:
 C              LDRT,LDOWN,LDAW,LUP,LRAW,NOW1,IOW1,LNOCSF,LIOCSF
 C
       use stdalloc, only: mma_allocate
-      use gugx
+      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, NDRT0, LDRT0,
+     &                NDOWN0, LDOWN0, IFCAS, NVERT, NDRT, LDRT,
+     &                NDOWN, LDOWN, LUP, NUP, LRAW, NRAW, MIDLEV,
+     &                NMIDV, MXUP, MXDWN, NWALK, NNOW, LDAW, NDAW,
+     &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
+     &                LNOCSF, NIOCSF, LIOCSF, LLSGN, LUSGN, NOW1,
+     &                IOW1
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -127,9 +134,9 @@ C
 C     CONSTRUCT THE CASE LIST
 C
       NICASE=NWALK*NIPWLK
-      CALL GETMEM('CASE','ALLO','INTEG',LICASE,NICASE)
+      CALL mma_allocate(ICASE,NICASE,Label='ICASE')
       CALL MKCLIST(NSM,IWORK(LDOWN),NOW1,IOW1,
-     &             IWORK(LICASE),IWORK(LSCR))
+     &            ICASE,IWORK(LSCR))
       CALL GETMEM('SCR1','FREE','INTEG',LSCR,NSCR)
 C
 C     SET UP ENUMERATION TABLES
@@ -140,8 +147,7 @@ C
       CALL GETMEM('ILSG','ALLO','INTEG',LLSGN,NLSGN)
       CALL MKSGNUM(IWORK(LDOWN),IWORK(LUP),IWORK(LDAW),IWORK(LRAW),
      *             NOW1,IOW1,IWORK(LUSGN),IWORK(LLSGN),
-     *             IWORK(LICASE),IPRINT)
-*     CALL GETMEM('CASE','FREE','INTEG',LICASE,NICASE)
+     *             ICASE,IPRINT)
 C
 C     EXIT
 C
@@ -153,7 +159,8 @@ C
 C     PURPOSE: FREE THE GUGA TABLES
 C
       use stdalloc, only: mma_deallocate
-      use gugx
+      use gugx, only: LDRT, LDOWN, LUP, LRAW, LDAW, LNOCSF,
+     &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 
@@ -169,7 +176,7 @@ C
       CALL GETMEM('NCSF','FREE','INTEG',LNOCSF,NNOCSF)
       CALL GETMEM('ICSF','FREE','INTEG',LIOCSF,NIOCSF)
 
-      CALL GETMEM('CASE','FREE','INTEG',LICASE,NICASE)
+      Call mma_deallocate(ICASE)
 
       NUSGN=MXUP*NMIDV
       NLSGN=MXDWN*NMIDV

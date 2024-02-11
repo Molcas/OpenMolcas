@@ -12,7 +12,8 @@
 *               Markus P. Fuelscher                                    *
 ************************************************************************
       SUBROUTINE GUGACTL_m
-      use gugx
+      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,
+     &                LM1RAS, LV3RAS, LM3RAS, NCSF
 C
 C     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
 C     AUTHOR:  P.-AA. MALMQVIST
