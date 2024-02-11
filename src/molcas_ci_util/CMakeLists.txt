@@ -85,11 +85,13 @@ set (sources
      stepvector_next.F90
      term_david.F90
      transadd.F90
+     wadr.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      csfbas.F90
+     wadr.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
