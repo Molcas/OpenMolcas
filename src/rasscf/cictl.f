@@ -823,7 +823,7 @@ c         end if
                 write(LuVecDet,'(8i4)') nish
               End If
               CALL SGPRWF(PrSel,IWORK(LNOCSF),IWORK(LIOCSF),
-     &                    IWORK(LNOW),IWORK(LIOW),CIV)
+     &                    NOW1,IOW1,CIV)
 !     Close GronOR vecdet file (tps/cdg 20210430)
               If (KeyPRSD) close(LuVecDet)
             End If
@@ -892,7 +892,7 @@ C.. printout of the wave function
             call Molcas_open(LuVecDet,filename)
             write(LuVecDet,'(8i4)') nish
             CALL SGPRWF(PrSel,IWORK(LNOCSF),IWORK(LIOCSF),
-     &           IWORK(LNOW),IWORK(LIOW),CIV)
+     &           NOW1,IOW1,CIV)
 !     Close GronOR vecdet file (tps/cdg 20210430)
             close(LuVecDet)
           END IF

@@ -10,14 +10,15 @@
 !***********************************************************************
 Module GUGX
 Private
-      INTEGER, Public:: NLEV,IA0,IB0,IC0,                               &
-     &                NVERT0,NDRT0,LDRT0,NDOWN0,LDOWN0,                 &
-     &                IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
-     &                NVERT,NDRT,LDRT,NDOWN,LDOWN,                      &
-     &                LUP,NUP,LRAW,NRAW,LDAW,NDAW,                      &
-     &                MIDLEV,NMIDV,MIDV1,MIDV2,NUW,NLW,MXUP,MXDWN,      &
-     &                NWALK,NNOW,LNOW,NIOW,LIOW,                        &
-     &                NIPWLK,NICASE,LICASE,NCSF(8),                     &
-     &                NNOCSF,LNOCSF,NIOCSF,LIOCSF,                      &
-     &                LLSGN,LUSGN
+INTEGER, Public:: NLEV,IA0,IB0,IC0,                               &
+                  NVERT0,NDRT0,LDRT0,NDOWN0,LDOWN0,                 &
+                  IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
+                  NVERT,NDRT,LDRT,NDOWN,LDOWN,                      &
+                  LUP,NUP,LRAW,NRAW,LDAW,NDAW,                      &
+                  MIDLEV,NMIDV,MIDV1,MIDV2,NUW,NLW,MXUP,MXDWN,      &
+                  NWALK,NNOW,NIOW,                        &
+                  NIPWLK,NICASE,LICASE,NCSF(8),                     &
+                  NNOCSF,LNOCSF,NIOCSF,LIOCSF,                      &
+                  LLSGN,LUSGN
+Integer, Allocatable, Public:: NOW1(:), IOW1(:)
 End Module GUGX
