@@ -17,8 +17,8 @@ C              THE COMMON /GUGA/. THESE ARE:
 C              LDRT,LDOWN,LDAW,LUP,LRAW,NOW1,IOW1,LNOCSF,LIOCSF
 C
       use stdalloc, only: mma_allocate
-      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, NDRT0, LDRT0,
-     &                NDOWN0, LDOWN0, IFCAS, NVERT, NDRT, LDRT,
+      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0,
+     &                IFCAS, NVERT, NDRT, LDRT,
      &                NDOWN, LDOWN, LUP, NUP, LRAW, NRAW, MIDLEV,
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW, LDAW, NDAW,
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
