@@ -158,7 +158,9 @@ C
       SUBROUTINE MKGUGA_FREE_m()
       use stdalloc, only: mma_deallocate
       use gugx, only: LDRT, LDOWN, LUP, LRAW, LDAW, LNOCSF,
-     &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1
+     &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1,
+     &                MXUP, MXDWN, NDIMV, NDRT, NDOWN, NDAW, NUP,
+     &                NRAW, NNOCSF, NIOCSF
 C
 C     PURPOSE: FREE THE GUGA TABLES
 C

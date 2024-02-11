@@ -160,7 +160,9 @@ C     PURPOSE: FREE THE GUGA TABLES
 C
       use stdalloc, only: mma_deallocate
       use gugx, only: LDRT, LDOWN, LUP, LRAW, LDAW, LNOCSF,
-     &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1
+     &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1,
+     &                MXUP, MXDWN, NMIDV, NDRT, NDOWN, NDAW, NUP,
+     &                NRAW, NNOCSF, NIOCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 
