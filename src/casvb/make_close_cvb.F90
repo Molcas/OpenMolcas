@@ -14,8 +14,8 @@
 
 subroutine make_close_cvb(it)
 
-use wadr, only: TUVX, FockOcc, DSPN, DMAT, PMAT, PA, FI, FA, D1I, D1A, OccN, CMO, DIAF
-use casvb_global, only: lw1_cvb, variat
+use wadr, only: TUVX, FockOcc, DSPN, DMAT, PMAT, PA, FI, FA, D1I, D1A, OccN, CMO, DIAF, FMO
+use casvb_global, only: variat
 use Definitions, only: iwp
 use stdalloc, only: mma_deallocate
 
@@ -46,7 +46,7 @@ do i=1,il
 end do
 if (.not. variat) then
   call mkguga_free()
-  call getmem('CICTL1','FREE','REAL',lw1_cvb,0)
+  call mma_deallocate(FMO)
   call mma_deallocate(TUVX)
   Call mma_deallocate(DMAT)
   Call mma_deallocate(DSPN)

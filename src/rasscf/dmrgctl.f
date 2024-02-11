@@ -38,9 +38,10 @@
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 
+      use wadr, only: FMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module
-      Use casvb_global, Only: ifvb, lw1_cvb
+      Use casvb_global, Only: ifvb
       use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
 
       Implicit Real* 8 (A-H,O-Z)
@@ -90,14 +91,10 @@ C Local print level (if any)
 * COMPUTE ONE ELECTRON INTEGRALS IN MO BASIS
 * AND ADD CORE INTERACTION
 *
-* LW1: FOCK MATRIX IN MO-BASIS
+* FMO FOCK MATRIX IN MO-BASIS
 * LW2: 1-PARTICLE DENSITY MATRIX ALSO USED IN MO/AO TRANSFORMATION
 *
-      CALL GETMEM('DMRGCTL1','ALLO','REAL',LW1,NACPAR)
-      IF (IPRLEV.GE.DEBUG) THEN
-        Write(LF,*) ' WORK SPACE VARIABLES IN SUBR. DMRGCTL: '
-        Write(LF,*) ' SGFCIN ',LW1
-      END IF
+      CALL mma_allocate(FMO,NACPAR,Label='FMO')
       Call DecideOnESPF(Do_ESPF)
       If ( lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
 *
@@ -147,7 +144,7 @@ C Local print level (if any)
            Call DDafile(JOBIPH,2,Work(ipP2MO),NACPR2,jDisk)
            Call Put_dArray('P2mo',Work(ipP2MO),NACPR2) ! Put it on the RUNFILE
 *
-           CALL SGFCIN(CMO,WORK(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
+           CALL SGFCIN(CMO,FMO,FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
            CALL GETMEM('P2MO','FREE','REAL',ipP2MO,NACPR2)
            CALL GETMEM('D1A_RCT','FREE','REAL',LRCT,NACPAR)
@@ -221,7 +218,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            Call mma_deallocate(Dtmp)
            Call mma_deallocate(DStmp)
 *
-           Call SGFCIN(CMO,Work(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
+           Call SGFCIN(CMO,FMO,FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
         End If
         CALL GETMEM('D1S_FULL','FREE','REAL',LRCT_FS,NTOT2)
@@ -241,12 +238,11 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
         Call Get_D1A_RASSCF(CMO,Work(ipTmpDS),Work(ipTmpD1S))
         CALL GETMEM('TmpDS' ,'Free','REAL',ipTmpDS ,NACPAR)
 *
-        CALL SGFCIN(CMO,WORK(LW1),FI,D1I,D1A,Work(ipTmpD1S))
+        CALL SGFCIN(CMO,FMO,FI,D1I,D1A,Work(ipTmpD1S))
         CALL GETMEM('TmpD1S','Free','REAL',ipTmpD1S,NTOT2 )
 *
       END IF
 *
-      lw1_cvb=lw1
       If (IfVB.eq.2) GoTo 9000
 *
 * SOLVE DMRG WAVEFUNCTION
@@ -265,22 +261,22 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
           Call Get_TUVX(Work(ipTmpPUVX),Work(ipTmpTUVX))
           Call DaXpY_(NACPR2,1.0d0,TUVX,1,Work(ipTmpTUVX),1)
 #ifdef _ENABLE_BLOCK_DMRG_
-          Call BlockCtl(Work(LW1),Work(ipTmpTUVX),IFINAL,IRst)
+          Call BlockCtl(FMO,Work(ipTmpTUVX),IFINAL,IRst)
 #elif _ENABLE_CHEMPS2_DMRG_
-          Call Chemps2Ctl(Work(LW1),Work(ipTmpTUVX),IFINAL,IRst)
+          Call Chemps2Ctl(FMO,Work(ipTmpTUVX),IFINAL,IRst)
 #elif _ENABLE_DICE_SHCI_
-          Call DiceCtl(Work(LW1),Work(ipTmpTUVX),IFINAL,IRst)
+          Call DiceCtl(FMO,Work(ipTmpTUVX),IFINAL,IRst)
 #endif
 
           Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
           Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
         Else
 #ifdef _ENABLE_BLOCK_DMRG_
-          Call BlockCtl(Work(LW1),TUVX,IFINAL,IRst)
+          Call BlockCtl(FMO,TUVX,IFINAL,IRst)
 #elif _ENABLE_CHEMPS2_DMRG_
-          Call Chemps2Ctl(Work(LW1),TUVX,IFINAL,IRst)
+          Call Chemps2Ctl(FMO,TUVX,IFINAL,IRst)
 #elif _ENABLE_DICE_SHCI_
-          Call DiceCtl(Work(LW1),TUVX,IFINAL,IRst)
+          Call DiceCtl(FMO,TUVX,IFINAL,IRst)
 #endif
         End If
       endif
@@ -385,7 +381,7 @@ c
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
 *
-      CALL GETMEM('DMRGCTL','FREE','REAL',LW1,NACPAR)
+      Call mma_deallocate(FMO)
 
  9000 Continue
 *

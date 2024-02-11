@@ -64,7 +64,7 @@
 #endif
       use csfbas, only: CONF
       use glbbas, only: CFTP
-      use casvb_global, only: ifvb, lw1_cvb
+      use casvb_global, only: ifvb
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PTmp, DStmp, Dtmp
@@ -72,6 +72,7 @@
       use rasscf_lucia, only: RF1, RF2
 #endif
       use Lucia_Interface, only: Lucia_Util
+      use wadr, only: FMO
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -170,14 +171,10 @@ C Local print level (if any)
 * COMPUTE ONE ELECTRON INTEGRALS IN MO BASIS
 * AND ADD CORE INTERACTION
 *
-* LW1: FOCK MATRIX IN MO-BASIS
+* FMO: FOCK MATRIX IN MO-BASIS
 * LW2: 1-PARTICLE DENSITY MATRIX ALSO USED IN MO/AO TRANSFORMATION
 *
-      CALL GETMEM('CICTL1','ALLO','REAL',LW1,NACPAR)
-      IF (IPRLEV.GE.DEBUG) THEN
-        Write(LF,*) ' WORK SPACE VARIABLES IN SUBR. CICTL: '
-        Write(LF,*) ' SGFCIN ',LW1
-      END IF
+      CALL mma_allocate(FMO,NACPAR,Label='FMO')
       Call DecideOnESPF(Do_ESPF)
 
 ! initialize RDM arrays for QCMaquis
@@ -251,7 +248,7 @@ C Local print level (if any)
            Call DDafile(JOBIPH,2,Work(ipP2MO),NACPR2,jDisk)
            Call Put_dArray('P2mo',Work(ipP2MO),NACPR2) ! Put on RUNFILE
 *
-           CALL SGFCIN(CMO,WORK(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
+           CALL SGFCIN(CMO,FMO,FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
            CALL GETMEM('P2MO','FREE','REAL',ipP2MO,NACPR2)
            CALL GETMEM('D1A_RCT','FREE','REAL',LRCT,NACPAR)
@@ -360,7 +357,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            Call mma_deallocate(Dtmp)
            Call mma_deallocate(CIVEC)
 *
-           Call SGFCIN(CMO,Work(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
+           Call SGFCIN(CMO,FMO,FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
         End If
         CALL GETMEM('D1S_FULL','FREE','REAL',LRCT_FS,NTOT2)
@@ -382,7 +379,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 
         CALL GETMEM('TmpDS' ,'Free','REAL',ipTmpDS ,NACPAR)
 *
-        CALL SGFCIN(CMO,WORK(LW1),FI,D1I,D1A,Work(ipTmpD1S))
+        CALL SGFCIN(CMO,FMO,FI,D1I,D1A,Work(ipTmpD1S))
         CALL GETMEM('TmpD1S','Free','REAL',ipTmpD1S,NTOT2 )
 *
       END IF
@@ -391,7 +388,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 #ifdef _DMRG_
         ! update integrals for QCMaquis
 
-        call qcmaquis_interface_update_integrals(work(lw1),tuvx,emy)
+        call qcmaquis_interface_update_integrals(FMO,tuvx,emy)
 
         !!! Fiedler order/CI-DEAS run
         if (dmrg_warmup%dofiedler.or.dmrg_warmup%docideas) then
@@ -433,14 +430,13 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
           ! We already have the fcidump module in rasscf, which is called elsewhere
           ! so ensure the compatibility of the FCIDUMP files produced by this module
           ! and remove the code below
-          call qcmaquis_interface_fcidump(work(lw1),tuvx,emy)
-          CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
+          call qcmaquis_interface_fcidump(FMO,tuvx,emy)
+          Call mma_deallocate(FMO)
           goto 9000
         end if
 #endif
       end if
 *
-      lw1_cvb=lw1
       If (IfVB.eq.2) GoTo 9000
 
 *
@@ -452,7 +448,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
         call cvbmn_rvb(max(ifinal,1))
       else
          if (DoSplitCAS) then !(GLMJ)
-           Call SplitCtl(Work(LW1),TUVX,IFINAL,iErrSplit)
+           Call SplitCtl(FMO,TUVX,IFINAL,iErrSplit)
            if (iErrSplit.eq.1) then
             write(LF,*) ('*',i=1,120)
             write(LF,*)'WARNING!!!'
@@ -516,7 +512,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 #endif
            else
 ! Normal Davidson algorithm
-             Call DavCtl(Work(LW1),TUVX,IFINAL)
+             Call DavCtl(FMO,TUVX,IFINAL)
            end if
          end if
       endif
@@ -919,7 +915,7 @@ C.. printout of the wave function
 #endif
 
       Call mma_deallocate(CIVEC)
-      CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
+      Call mma_deallocate(FMO)
 
  9000 Continue
 *
