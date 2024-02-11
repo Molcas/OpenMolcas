@@ -16,12 +16,12 @@ C              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 C              THE COMMON /GUGA/. THESE ARE:
 C              LDRT,LDOWN,LDAW,LUP,LRAW,LNOW,LIOW,LNOCSF,LIOCSF
 C
+      use gugx
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "gugx.fh"
 #include "WrkSpc.fh"
 C
       DIMENSION NSM(*)
@@ -151,9 +151,9 @@ C
 C
 C     PURPOSE: FREE THE GUGA TABLES
 C
+      use gugx
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "gugx.fh"
 #include "WrkSpc.fh"
 
       CALL GETMEM('DRT0/1','FREE','INTE',LDRT,NDRT)

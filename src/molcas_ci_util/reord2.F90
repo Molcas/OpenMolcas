@@ -54,6 +54,7 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !***********************************************************************
 
 use Definitions, only: wp, iwp, u6
+use gugx, only: LDAW, LDOWN, LDRT, LLSGN, LRAW, LUP, LUSGN
 
 #include "intent.fh"
 
@@ -64,7 +65,6 @@ real(kind=wp), intent(_OUT_) :: CINEW(*)
 integer(kind=iwp), intent(out) :: KCNF(NEL)
 #include "rasdim.fh"
 #include "spinfo.fh"
-#include "gugx.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &

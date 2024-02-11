@@ -38,6 +38,7 @@
       use rctfld_module
       use stdalloc, only: mma_allocate, mma_deallocate
       use wadr, only: BM, FockOcc, TUVX
+      use gugx
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -51,7 +52,6 @@
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
-#include "gugx.fh"
 !      Logical TraOnly
 
 *

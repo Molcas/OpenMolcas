@@ -14,10 +14,10 @@ function ISGNUM(IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
 use Definitions, only: iwp
+use gugx, only: NVERT, MXUP, MXDWN, NLEV, MIDLEV, MIDV1, NMIDV
 
 implicit none
 integer(kind=iwp) :: ISGNUM
-#include "gugx.fh"
 integer(kind=iwp), intent(in) :: IDOWN(NVERT,0:3), IUP(NVERT,0:3), IDAW(NVERT,0:4), IRAW(NVERT,0:4), IUSGNUM(MXUP,NMIDV), &
                                  ILSGNUM(MXDWN,NMIDV), IWALK(NLEV)
 integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV

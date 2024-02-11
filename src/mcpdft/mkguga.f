@@ -17,12 +17,12 @@ C              THE COMMON /GUGA/. THESE ARE:
 C              LDRT,LDOWN,LDAW,LUP,LRAW,LNOW,LIOW,LNOCSF,LIOCSF
 C
       use mcpdft_output, only:  debug, lf
+      use gugx
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "general.fh"
-#include "gugx.fh"
 #include "WrkSpc.fh"
 C
       DIMENSION NSM(*)
@@ -150,12 +150,12 @@ C
       END
 
       SUBROUTINE MKGUGA_FREE_m()
+      use gugx
 C
 C     PURPOSE: FREE THE GUGA TABLES
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "gugx.fh"
 #include "WrkSpc.fh"
 
       CALL GETMEM('DRT0/1','FREE','INTE',LDRT,NDRT)

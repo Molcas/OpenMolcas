@@ -92,9 +92,10 @@
 #ifdef _DMRG_
       use rasscf_lucia, only: RF1, RF2
 #endif
-
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO, DIAF
+      use gugx
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -110,7 +111,6 @@
 #include "output_ras.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "gugx.fh"
 #include "pamint.fh"
 #include "qnctl.fh"
 #include "orthonormalize.fh"

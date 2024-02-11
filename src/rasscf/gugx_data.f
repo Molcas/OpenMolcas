@@ -14,7 +14,6 @@
 ! into a data module
 
       module gugx_data
-      implicit none
-#include "gugx.fh"
+      use gugx
       save
       end module gugx_data

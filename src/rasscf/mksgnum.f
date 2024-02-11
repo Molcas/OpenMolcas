@@ -15,10 +15,11 @@ C              COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
 C              REVERSE ARC WEIGHT SUM, RESPECTIVELY.
 C              STORE THE DATA IN THE TABLES IUSGNUM AND ILSGNUM
 C
+      use gugx
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "general_mul.fh"
-#include "gugx.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
 C

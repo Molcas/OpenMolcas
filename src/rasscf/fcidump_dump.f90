@@ -112,7 +112,7 @@ contains
 #ifdef _HDF5_
     use general_data, only : nSym, nActEl, multiplicity => iSpin, stSym, nAsh
     use gas_data, only : iDoGAS
-    use gugx_data, only : IfCAS
+    use gugx, only : IfCAS
     use mh5
 #endif
     implicit none

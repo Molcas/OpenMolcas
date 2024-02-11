@@ -18,6 +18,8 @@ C     AUTHOR:  P.-AA. MALMQVIST
 C
 C     MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 C
+      use gugx
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -28,7 +30,6 @@ C
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='GUGACTL ')
-#include "gugx.fh"
 #include "WrkSpc.fh"
 
 C Local print level (if any)

@@ -8,7 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER         NLEV,IA0,IB0,IC0,                                 &
+Module GUGX
+Private
+      INTEGER, Public:: NLEV,IA0,IB0,IC0,                               &
      &                NVERT0,NDRT0,LDRT0,NDOWN0,LDOWN0,                 &
      &                IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
      &                NVERT,NDRT,LDRT,NDOWN,LDOWN,                      &
@@ -18,13 +20,4 @@
      &                NIPWLK,NICASE,LICASE,NCSF(8),                     &
      &                NNOCSF,LNOCSF,NIOCSF,LIOCSF,                      &
      &                LLSGN,LUSGN
-      COMMON /GUGX/   NLEV,IA0,IB0,IC0,                                 &
-     &                NVERT0,NDRT0,LDRT0,NDOWN0,LDOWN0,                 &
-     &                IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
-     &                NVERT,NDRT,LDRT,NDOWN,LDOWN,                      &
-     &                LUP,NUP,LRAW,NRAW,LDAW,NDAW,                      &
-     &                MIDLEV,NMIDV,MIDV1,MIDV2,NUW,NLW,MXUP,MXDWN,      &
-     &                NWALK,NNOW,LNOW,NIOW,LIOW,                        &
-     &                NIPWLK,NICASE,LICASE,NCSF,                        &
-     &                NNOCSF,LNOCSF,NIOCSF,LIOCSF,                      &
-     &                LLSGN,LUSGN
+End Module GUGX

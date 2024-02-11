@@ -16,12 +16,12 @@ C              WALKS. POSSIBLY, THERE ARE MORE EFFICIENT WAYS, BUT
 C              SINCE ONLY UPPER AND LOWER WALKS ARE REQUIRED
 C              THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
       use mcpdft_output, only: insane, lf
+      use gugx
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "general_mul.fh"
-#include "gugx.fh"
 C
       DIMENSION ISM(NLEV),IDOWN(NVERT,0:3)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)

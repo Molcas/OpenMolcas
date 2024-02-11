@@ -19,6 +19,7 @@
      &               mh5_create_attr_int, mh5_create_dset_real,
      &               mh5_create_dset_int, mh5_create_dset_str,
      &               mh5_put_dset, mh5_close_dset
+      use gugx, only: IFCAS
       implicit none
 
 #  include "rasdim.fh"
@@ -28,7 +29,6 @@
 #  include "ciinfo.fh"
 #  include "stdalloc.fh"
 #  include "raswfn.fh"
-#  include "gugx.fh"
 #  include "gas.fh"
 #  include "input_ras.fh"
 #  include "sxci.fh"

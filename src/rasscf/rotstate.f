@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine RotState()
       use rctfld_module
+      use gugx
 * ****************************************************************
 * history:                                                       *
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
@@ -22,7 +23,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
-#include "gugx.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"

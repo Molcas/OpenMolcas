@@ -12,9 +12,9 @@
 subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR)
 
 use Definitions, only: iwp, u6
+use gugx, only: NLEV, LIOW, LNOW
 
 implicit none
-#include "gugx.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)

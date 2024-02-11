@@ -73,6 +73,8 @@
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
+      use gugx
+
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -96,7 +98,6 @@
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='CICTL   ')
-#include "gugx.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "timers.fh"

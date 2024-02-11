@@ -16,11 +16,11 @@ subroutine MKCLIST(ISM,IDOWN,NOW,IOW,ICASE,ISCR)
 !          INTO ONE INTEGER WORD.
 
 use Definitions, only: iwp
+use gugx, only: NLEV, NVERT, NMIDV, NICASE, MIDLEV, MIDV1, MIDV2, NIPWLK
 
 implicit none
 #include "rasdim.fh"
 #include "general_mul.fh"
-#include "gugx.fh"
 integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)
 integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV

@@ -12,9 +12,9 @@
 C
 C     PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
 C
+      use gugx
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "gugx.fh"
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"

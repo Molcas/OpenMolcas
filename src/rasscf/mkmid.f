@@ -11,9 +11,9 @@
       SUBROUTINE MKMID(IDRT,IDAW,IRAW,LTV,IPRINT)
 C     PURPOSE: FIND THE MIDLEVEL
 C
+      use gugx
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "gugx.fh"
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"

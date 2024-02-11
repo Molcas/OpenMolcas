@@ -12,6 +12,7 @@
 *               Markus P. Fuelscher                                    *
 ************************************************************************
       SUBROUTINE GUGACTL_m
+      use gugx
 C
 C     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
 C     AUTHOR:  P.-AA. MALMQVIST
@@ -29,7 +30,6 @@ C
 #include "gas.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='GUGACTL ')
-#include "gugx.fh"
 #include "WrkSpc.fh"
 
 C Local print level (if any)

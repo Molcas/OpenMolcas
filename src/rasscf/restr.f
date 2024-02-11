@@ -12,9 +12,9 @@
 C     PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY
 C              CREATING A MASK
 C
+      use gugx
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "gugx.fh"
 #include "rasdim.fh"
 #include "general.fh"
 C

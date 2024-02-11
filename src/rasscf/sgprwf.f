@@ -16,6 +16,7 @@ C     NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
 C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
+      use gugx
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -23,7 +24,6 @@ C
 #include "general_mul.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
-#include "gugx.fh"
 #include "WrkSpc.fh"
 C
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)

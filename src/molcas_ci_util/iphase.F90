@@ -15,10 +15,10 @@ function IPHASE(IDRT,IUP,IWALK)
 !          PHASE FACTOR RELATING THE CSFS IN EITHER BASIS.
 
 use Definitions, only: iwp
+use gugx, only: NVERT, NLEV
 
 implicit none
 integer(kind=iwp) :: IPHASE
-#include "gugx.fh"
 integer(kind=iwp), intent(in) :: IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
 integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
 

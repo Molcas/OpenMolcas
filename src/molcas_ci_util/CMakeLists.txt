@@ -44,6 +44,7 @@ set (sources
      geth2a.F90
      getstepvector.F90
      get_umn.F90
+     gugx.F90
      hcsce.F90
      ini_david.F90
      init_lex.F90
@@ -91,6 +92,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      csfbas.F90
+     gugx.F90
      wadr.F90
 )
 

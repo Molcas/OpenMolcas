@@ -12,12 +12,12 @@
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS)
 
 use Definitions, only: iwp
+use gugx, only: NMIDV, NLEV, LICASE, MIDLEV, NICASE, NIPWLK, NUP, NWALK
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "gugx.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP

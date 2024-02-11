@@ -68,6 +68,7 @@
       use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
+      use gugx
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -80,7 +81,6 @@
 #include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "gugx.fh"
 #include "pamint.fh"
 #include "ciinfo.fh"
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt

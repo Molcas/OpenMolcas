@@ -26,6 +26,7 @@ C              AND ISGNUM WHICH COMPUTES THE THE PHASE FACTOR
 C              INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
+      use gugx
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -33,7 +34,6 @@ C
 #include "strnum.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "gugx.fh"
 #include "WrkSpc.fh"
 C
       DIMENSION ICONF(*),ISPIN(*)
