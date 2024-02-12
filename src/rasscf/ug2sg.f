@@ -26,7 +26,7 @@ C              AND ISGNUM WHICH COMPUTES THE THE PHASE FACTOR
 C              INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
-      use gugx, only:  DRT,  DOWN, LUP, LRAW,  DAW, LLSGN, LUSGN
+      use gugx, only:  DRT,  DOWN,  UP, LRAW,  DAW, LLSGN, LUSGN
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -117,12 +117,12 @@ C     COMPUTE STEP VECTOR
      &                   ISPIN(ICSBAS),NORB,IWALK)
 CPAM04 End of replacement code.
 C     GET SPLIT GRAPH ORDERING NUMBER
-            ISG=ISGNUM(DOWN,IWORK(LUP),
+            ISG=ISGNUM(DOWN,UP,
      &                 DAW,IWORK(LRAW),
      &                 IWORK(LUSGN),IWORK(LLSGN),
      &                 IWALK)
 C     GET PHASE PHASE FACTOR
-            IP=IPHASE(DRT,IWORK(LUP),IWALK)
+            IP=IPHASE(DRT,UP,IWALK)
 C     UPDATE REINDEXING TABLE
            IORD(ICSFJP) = ISG * IP
 800       CONTINUE
