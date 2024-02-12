@@ -17,18 +17,20 @@ C              VERTICES FROM THE OLD TO THE NEW DRT TABLE
 C
       use gugx, only: NVERT0, NVERT
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      Implicit None
 C
 #include "rasdim.fh"
 #include "general.fh"
 C
-      DIMENSION IDRT0(NVERT0,5),IDOWN0(NVERT0,0:3)
-      DIMENSION IVER(NVERT0)
-      DIMENSION IDRT(NVERT,5),IDOWN(NVERT,0:3)
+      Integer IDRT0(NVERT0,5),IDOWN0(NVERT0,0:3)
+      Integer IVER(NVERT0)
+      Integer IDRT(NVERT,5),IDOWN(NVERT,0:3)
+
+      Integer IV, IVNEW, ITAB, IC, ID, IDNEW
 C
       DO IV=1,NVERT0
         IVNEW=IVER(IV)
-        IF(IVNEW.EQ.0) GOTO 30
+        IF(IVNEW.EQ.0) Cycle
         DO ITAB=1,5
           IDRT(IVNEW,ITAB)=IDRT0(IV,ITAB)
         END DO
@@ -38,7 +40,6 @@ C
           IF(ID.NE.0) IDNEW=IVER(ID)
           IDOWN(IVNEW,IC)=IDNEW
         END DO
-  30    CONTINUE
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE mkDRT

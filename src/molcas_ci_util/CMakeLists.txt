@@ -61,6 +61,8 @@ set (sources
      lucia2molcas_free.F90
      matml4.F90
      mkclist.F90
+     mkdrt.f
+     mkdrt0.f
      motrac.F90
      newgs.F90
      ordstr.F90
