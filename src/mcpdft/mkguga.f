@@ -14,7 +14,7 @@ C     PURPOSE: MAKE THE GUGA TABLES
 C     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
 C              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 C              THE COMMON /GUGA/. THESE ARE:
-C              DRT,DOWN,DAW,UP,RAW,NOW1,IOW1,LNOCSF,LIOCSF
+C              DRT,DOWN,DAW,UP,RAW,NOW1,IOW1,NOCSF,LIOCSF
 C
       use mcpdft_output, only:  debug, lf
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -23,7 +23,7 @@ C
      &                NDOWN,  DOWN,  UP, NUP,  RAW, NRAW, MIDLEV,
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
-     &                LNOCSF, NIOCSF, LIOCSF, LLSGN, LUSGN, NOW1,
+     &                 NOCSF, NIOCSF, LIOCSF, LLSGN, LUSGN, NOW1,
      &                IOW1
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -136,11 +136,11 @@ C
       NSCR=MAX(6,3*(NLEV+1))
       CALL mma_allocate(NOW1,NNOW,Label='NOW1')
       CALL mma_allocate(IOW1,NIOW,Label='IOW1')
-      CALL GETMEM('NCSF','ALLO','INTEG',LNOCSF,NNOCSF)
+      CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL GETMEM('ICSF','ALLO','INTEG',LIOCSF,NIOCSF)
       CALL GETMEM('SCR1','ALLO','INTEG',LSCR,NSCR)
       CALL MKCOT_m(NSM,DOWN,NOW1,IOW1,
-     *           IWORK(LIOCSF),IWORK(LNOCSF),IWORK(LSCR),IPRINT)
+     *           IWORK(LIOCSF),NOCSF,IWORK(LSCR),IPRINT)
 C
 C     CONSTRUCT THE CASE LIST
 C
@@ -168,10 +168,10 @@ C
 
       SUBROUTINE MKGUGA_FREE_m()
       use stdalloc, only: mma_deallocate
-      use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW, LNOCSF,
+      use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW,  NOCSF,
      &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1,
      &                MXUP, MXDWN, NMIDV,
-     &                      NNOCSF, NIOCSF
+     &                              NIOCSF
 C
 C     PURPOSE: FREE THE GUGA TABLES
 C
@@ -187,7 +187,7 @@ C
 
       Call mma_deallocate(NOW1)
       Call mma_deallocate(IOW1)
-      CALL GETMEM('NCSF','FREE','INTEG',LNOCSF,NNOCSF)
+      Call mma_deallocate(NOCSF)
       CALL GETMEM('ICSF','FREE','INTEG',LIOCSF,NIOCSF)
 
       Call mma_deallocate(ICASE)
