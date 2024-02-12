@@ -83,6 +83,7 @@ Call mma_allocate(ICNL,NEL,Label='ICNL')
 Call mma_allocate(ICNR,NEL,Label='ICNR')
 Call mma_allocate(ICNQ,NEL,Label='ICNQ')
 
+Call mma_allocate(CNHCNM,MXCSFC**2,Label='CNHCNM')
 Call mma_allocate(PHPS,MXCSFC**2,Label='PHPS')
 
 call mma_maxDBLE(MXXWS)
