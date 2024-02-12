@@ -12,7 +12,7 @@ Module GUGX
 Private
 INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,                          &
                   IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
-                  NVERT,NDRT,LDRT,NDOWN,LDOWN,                      &
+                  NVERT,NDRT,     NDOWN, LDOWN,                     &
                   LUP,NUP,LRAW,NRAW,LDAW,NDAW,                      &
                   MIDLEV,NMIDV,MIDV1,MIDV2,NUW,NLW,MXUP,MXDWN,      &
                   NWALK,NNOW,NIOW,                                  &
@@ -20,4 +20,5 @@ INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,                          &
                   NNOCSF,LNOCSF,NIOCSF,LIOCSF,                      &
                   LLSGN,LUSGN
 Integer, Allocatable, Public:: NOW1(:), IOW1(:), ICASE(:)
+Integer, Allocatable, Public, Target:: DRT(:)
 End Module GUGX

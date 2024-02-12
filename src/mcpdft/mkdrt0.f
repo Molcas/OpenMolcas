@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DRT0_m(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
+      SUBROUTINE mkDRT0_m(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
 C
 C     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
 C

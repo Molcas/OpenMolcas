@@ -54,7 +54,7 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !***********************************************************************
 
 use Definitions, only: wp, iwp, u6
-use gugx, only: LDAW, LDOWN, LDRT, LLSGN, LRAW, LUP, LUSGN
+use gugx, only: LDAW, LDOWN,  DRT, LLSGN, LRAW, LUP, LUSGN
 
 #include "intent.fh"
 
@@ -123,7 +123,7 @@ do ITYP=1,NTYP
       ! GET SPLIT GRAPH ORDERING NUMBER
       ISG = ISGNUM(IWORK(LDOWN),IWORK(LUP),IWORK(LDAW),IWORK(LRAW),IWORK(LUSGN),IWORK(LLSGN),IWALK)
       ! GET PHASE PHASE FACTOR
-      IP = IPHASE(IWORK(LDRT),IWORK(LUP),IWALK)
+      IP = IPHASE(DRT,IWORK(LUP),IWALK)
       if (IMODE == 0) then
         CINEW(ISG) = CIOLD(ICSFJP)
         if (IP < 0) CINEW(ISG) = -CIOLD(ICSFJP)

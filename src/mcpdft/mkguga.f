@@ -14,12 +14,12 @@ C     PURPOSE: MAKE THE GUGA TABLES
 C     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
 C              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 C              THE COMMON /GUGA/. THESE ARE:
-C              LDRT,LDOWN,LDAW,LUP,LRAW,NOW1,IOW1,LNOCSF,LIOCSF
+C              DRT,LDOWN,LDAW,LUP,LRAW,NOW1,IOW1,LNOCSF,LIOCSF
 C
       use mcpdft_output, only:  debug, lf
-      use stdalloc, only: mma_allocate
+      use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: NLEV, IA0, IB0, IC0, NVERT0,
-     &                IFCAS, NVERT, NDRT, LDRT,
+     &                IFCAS, NVERT, NDRT,  DRT,
      &                NDOWN, LDOWN, LUP, NUP, LRAW, NRAW, MIDLEV,
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW, LDAW, NDAW,
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
@@ -33,6 +33,8 @@ C
 #include "WrkSpc.fh"
 C
       DIMENSION NSM(*)
+      Integer, Pointer:: DRTP(:)=>Null()
+      Integer, Allocatable, Target:: DRT0(:)
 C
 C     SET UP A FULL PALDUS DRT TABLE:
 C     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -44,29 +46,29 @@ C
       NTMP=((NLEV+1)*(NLEV+2))/2
 
       IF(IFCAS.NE.0) THEN
-         CALL GETMEM('DRT0','ALLO','INTEGER',LDRT0,NDRT0)
+         CALL mma_allocate(DRT0,NDRT0,Label='DRT0')
          CALL GETMEM('DOWN','ALLO','INTEGER',LDOWN0,NDOWN0)
-         LDRTP=LDRT0
+         DRTP => DRT0
          LDOWNP=LDOWN0
       ELSE
          NDRT=NDRT0
          NDOWN=NDOWN0
-         CALL GETMEM('DRT0','ALLO','INTEGER',LDRT,NDRT)
+         CALL mma_allocate(DRT,NDRT,Label='DRT')
          CALL GETMEM('DOWN','ALLO','INTEGER',LDOWN,NDOWN)
-         LDRTP=LDRT
+         DRTP => DRT
          LDOWNP=LDOWN
          NVERT=NVERT0
       ENDIF
 
       CALL GETMEM('LTMP','ALLO','INTEGER',LTMP,NTMP)
-      CALL DRT0_m (IA0,IB0,IC0,NVERT0,IWORK(LDRTP),IWORK(LDOWNP),
+      CALL mkDRT0_m (IA0,IB0,IC0,NVERT0,DRTP,IWORK(LDOWNP),
      *           NTMP,IWORK(LTMP))
       CALL GETMEM('LTMP','FREE','INTEGER',LTMP,NTMP)
 C
       IF(IPRINT >= DEBUG) THEN
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
-        CALL print_drt(NVERT0,IWORK(LDRTP),IWORK(LDOWNP))
+        CALL print_drt(NVERT0,DRTP,IWORK(LDOWNP))
       ENDIF
 C
 C     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
@@ -74,24 +76,24 @@ C     VERTICES WHICH VIOLATE THE FORMER.
 C
       IF(IFCAS.NE.0) THEN
         CALL GETMEM('LV11','ALLO','INTEG',LV,NVERT0)
-        CALL RESTR_m(IWORK(LDRT0),IWORK(LDOWN0),IWORK(LV))
+        CALL RESTR_m(DRT0,IWORK(LDOWN0),IWORK(LV))
 C
 C     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 C
         NDRT=5*NVERT
         NDOWN=4*NVERT
-        CALL GETMEM('DRT1','ALLO','INTEG',LDRT,NDRT)
+        CALL mma_allocate(DRT,NDRT,Label='DRT')
         CALL GETMEM('DWN1','ALLO','INTEG',LDOWN,NDOWN)
-        CALL DRT_m(IWORK(LDRT0),IWORK(LDOWN0),IWORK(LV),
-     *             IWORK(LDRT),IWORK(LDOWN))
+        CALL mkDRT_m(DRT0,IWORK(LDOWN0),IWORK(LV),
+     *             DRT,IWORK(LDOWN))
         CALL GETMEM('LV11','FREE','INTEG',LV,NVERT0)
-        CALL GETMEM('DRT0','FREE','INTEG',LDRT0,NDRT0)
+        CALL mma_deallocate(DRT0)
         CALL GETMEM('DOWN','FREE','INTEG',LDOWN0,NDOWN0)
 C
         IF(IPRINT >= DEBUG) THEN
           Write(LF,*)
           Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
-          CALL print_drt(NVERT,IWORK(LDRT),IWORK(LDOWN))
+          CALL print_drt(NVERT,DRT,IWORK(LDOWN))
         ENDIF
 C
 C     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED
@@ -117,7 +119,7 @@ C     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICES
 C
       NLTV=NLEV+2
       CALL GETMEM('LTV1','ALLO','INTEG',LLTV,NLTV)
-      CALL MKMID_m(IWORK(LDRT),IWORK(LDAW),IWORK(LRAW),IWORK(LLTV),
+      CALL MKMID_m(DRT,IWORK(LDAW),IWORK(LRAW),IWORK(LLTV),
      & IPRINT)
       CALL GETMEM('LTV1','FREE','INTEG',LLTV,NLTV)
 C
@@ -160,14 +162,14 @@ C
 C
 C     EXIT
 C
-      RETURN
+      DRTP => Null()
       END
 
       SUBROUTINE MKGUGA_FREE_m()
       use stdalloc, only: mma_deallocate
-      use gugx, only: LDRT, LDOWN, LUP, LRAW, LDAW, LNOCSF,
+      use gugx, only:  DRT, LDOWN, LUP, LRAW, LDAW, LNOCSF,
      &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1,
-     &                MXUP, MXDWN, NMIDV, NDRT, NDOWN, NDAW, NUP,
+     &                MXUP, MXDWN, NMIDV,       NDOWN, NDAW, NUP,
      &                NRAW, NNOCSF, NIOCSF
 C
 C     PURPOSE: FREE THE GUGA TABLES
@@ -175,7 +177,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 
-      CALL GETMEM('DRT0/1','FREE','INTE',LDRT,NDRT)
+      CALL mma_deallocate(DRT)
       CALL GETMEM('DWN0/1','FREE','INTE',LDOWN,NDOWN)
 
       CALL GETMEM('DAW1','FREE','INTE',LDAW,NDAW)
@@ -194,5 +196,4 @@ C
       CALL GETMEM('IUSG','FREE','INTEG',LUSGN,NUSGN)
       CALL GETMEM('ILSG','FREE','INTEG',LLSGN,NLSGN)
 
-      RETURN
       END
