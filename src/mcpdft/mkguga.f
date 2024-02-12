@@ -67,7 +67,7 @@ C
       IF(IPRINT >= DEBUG) THEN
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
-        CALL print_drt(NVERT0,DRTP,DOWNP)
+        CALL prdrt(NVERT0,DRTP,DOWNP)
       ENDIF
 C
 C     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
@@ -91,7 +91,7 @@ C
         IF(IPRINT >= DEBUG) THEN
           Write(LF,*)
           Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
-          CALL print_drt(NVERT,DRT,DOWN)
+          CALL prdrt(NVERT,DRT,DOWN)
         ENDIF
 C
 C     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED

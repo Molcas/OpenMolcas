@@ -71,6 +71,7 @@ set (sources
      pageno.F90
      page_out.F90
      phpcsf.F90
+     prdrt.f
      recno.F90
      reord2.F90
      save_ci_vec.F90

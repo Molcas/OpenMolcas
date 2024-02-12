@@ -12,8 +12,8 @@
 C
 C     PURPOSE: PRINT THE DRT TABLE
 C
+      use Definitions, only: LF => u6
       IMPLICIT INTEGER (A-Z)
-#include "output_ras.fh"
 C
       DIMENSION DRT(NVERT,5),DOWN(NVERT,0:3)
 C
@@ -27,5 +27,4 @@ C
 C
 C     EXIT
 C
-      RETURN
       END
