@@ -30,11 +30,11 @@ C
 C
 #include "rasdim.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 C
       DIMENSION NSM(*)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
+      Integer, Allocatable:: TMP(:), V11(:), LTV(:), SCR(:)
 C
 C     SET UP A FULL PALDUS DRT TABLE:
 C     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -60,10 +60,9 @@ C
          NVERT=NVERT0
       ENDIF
 
-      CALL GETMEM('LTMP','ALLO','INTEGER',LTMP,NTMP)
-      CALL mkDRT0(IA0,IB0,IC0,NVERT0,DRTP,DOWNP,
-     *           NTMP,IWORK(LTMP))
-      CALL GETMEM('LTMP','FREE','INTEGER',LTMP,NTMP)
+      CALL mma_allocate(TMP,NTMP,Label='TMP')
+      CALL mkDRT0(IA0,IB0,IC0,NVERT0,DRTP,DOWNP,NTMP,TMP)
+      CALL mma_deallocate(TMP)
 C
       IF(IPRINT >= DEBUG) THEN
         Write(LF,*)
@@ -75,8 +74,8 @@ C     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
 C     VERTICES WHICH VIOLATE THE FORMER.
 C
       IF(IFCAS.NE.0) THEN
-        CALL GETMEM('LV11','ALLO','INTEG',LV,NVERT0)
-        CALL RESTR_m(DRT0,DOWN0,IWORK(LV))
+        CALL mma_allocate(V11,NVERT0,Label='V11')
+        CALL RESTR_m(DRT0,DOWN0,V11)
 C
 C     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 C
@@ -84,9 +83,8 @@ C
         NDOWN=4*NVERT
         CALL mma_allocate(DRT,NDRT,Label='DRT')
         CALL mma_allocate(DOWN,NDOWN,Label='DOWN')
-        CALL mkDRT(DRT0,DOWN0,IWORK(LV),
-     *             DRT,DOWN)
-        CALL GETMEM('LV11','FREE','INTEG',LV,NVERT0)
+        CALL mkDRT(DRT0,DOWN0,V11,DRT,DOWN)
+        CALL mma_deallocate(V11)
         CALL mma_deallocate(DRT0)
         CALL mma_deallocate(DOWN0)
 C
@@ -118,10 +116,9 @@ C
 C     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICES
 C
       NLTV=NLEV+2
-      CALL GETMEM('LTV1','ALLO','INTEG',LLTV,NLTV)
-      CALL MKMID_m(DRT,DAW,RAW,IWORK(LLTV),
-     & IPRINT)
-      CALL GETMEM('LTV1','FREE','INTEG',LLTV,NLTV)
+      CALL mma_allocate(LTV,NLTV,Label='LTV')
+      CALL MKMID_m(DRT,DAW,RAW,LTV,IPRINT)
+      CALL mma_deallocate(LTV)
 C
 C     FORM VARIOUS OFFSET TABLES:
 C     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
@@ -138,17 +135,15 @@ C
       CALL mma_allocate(IOW1,NIOW,Label='IOW1')
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
-      CALL GETMEM('SCR1','ALLO','INTEG',LSCR,NSCR)
-      CALL MKCOT_m(NSM,DOWN,NOW1,IOW1,
-     *           IOCSF,NOCSF,IWORK(LSCR),IPRINT)
+      CALL mma_allocate(SCR,NSCR,Label='SCR')
+      CALL MKCOT_m(NSM,DOWN,NOW1,IOW1,IOCSF,NOCSF,SCR,IPRINT)
 C
 C     CONSTRUCT THE CASE LIST
 C
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(ICASE,NICASE,Label='ICASE')
-      CALL MKCLIST(NSM,DOWN,NOW1,IOW1,
-     &             ICASE,IWORK(LSCR))
-      CALL GETMEM('SCR1','FREE','INTEG',LSCR,NSCR)
+      CALL MKCLIST(NSM,DOWN,NOW1,IOW1,ICASE,SCR)
+      CALL mma_deallocate(SCR)
 C
 C     SET UP ENUMERATION TABLES
 C
