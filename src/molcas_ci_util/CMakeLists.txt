@@ -62,6 +62,7 @@ set (sources
      matml4.F90
      mkclist.F90
      mkcot.f
+     mkdaw.f
      mkdrt.f
      mkdrt0.f
      motrac.F90

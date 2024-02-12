@@ -8,18 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKDAW_m(IDOWN,IDAW,IPRINT)
+#define _DEBUGPRINT_
+      SUBROUTINE MKDAW(IDOWN,IDAW)
 C     PURPOSE: CONSTRUCT DIRECT ARC WEIGHTS TABLE
 C
-      use mcpdft_output, only: insane, lf
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
       use gugx, only: NVERT
-
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "general.fh"
 C
-      DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
+      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
 C
 C     BEGIN TO CONSTRUCT DOWN CHAIN TABLE
 C
@@ -32,21 +34,19 @@ C
         DO IC=0,3
           IDAW(IV,IC)=0
           IDWN=IDOWN(IV,IC)
-          IF(IDWN.EQ.0) GOTO 20
+          IF(IDWN.EQ.0) Cycle
           IDAW(IV,IC)=ISUM
           ISUM=ISUM+IDAW(IDWN,4)
-  20      CONTINUE
         END DO
         IDAW(IV,4)=ISUM
       END DO
 C
-      IF(IPRINT >= insane) THEN
-        Write(LF,*)
-        Write(LF,*)' DIRECT ARC WEIGHTS:'
-        DO IV=1,NVERT
-          Write(LF,'(1X,I4,5X,5(1X,I6))') IV,(IDAW(IV,IC),IC=0,4)
-        END DO
-        Write(LF,*)
-      ENDIF
-      RETURN
-      END
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' DIRECT ARC WEIGHTS:'
+      DO IV=1,NVERT
+        Write(LF,'(1X,I4,5X,5(1X,I6))') IV,(IDAW(IV,IC),IC=0,4)
+      END DO
+      Write(LF,*)
+#endif
+      END SUBROUTINE MKDAW
