@@ -55,7 +55,6 @@ integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, ILAI, ILTYP, I
 real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_ComputeH_AB, C_computeH_AB1, C_computeH_AB2, C_Oper, C_oper1, C_oper2, &
                  W_AlphaLoop1, W_AlphaLoop2, W_ComputeH_AB, W_computeH_AB1, W_computeH_AB2, W_Oper, W_oper1, W_oper2
 real(kind=wp), allocatable :: AuxD(:), AuxGa(:), AuxGaTi(:), AuxV(:,:), Scr(:)
-integer(kind=iwp), external :: ip_of_iWork_d, ip_of_Work
 real(kind=wp), external :: ddot_
 integer(kind=iwp), allocatable:: ICNL(:), ICNR(:)
 real(kind=wp), allocatable:: CNHCNM(:)
@@ -254,6 +253,9 @@ call mma_deallocate(AuxD)
 call mma_deallocate(AuxGa)
 call mma_deallocate(AuxGaTi)
 call mma_deallocate(AuxV)
+call mma_deallocate(ICNL)
+call mma_deallocate(ICNR)
+call mma_deallocate(CNHCNM)
 call mma_deallocate(Scr)
 
 return
