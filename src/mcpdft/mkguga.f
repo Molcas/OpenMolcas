@@ -23,7 +23,7 @@ C
      &                NDOWN,  DOWN,  UP, NUP,  RAW, NRAW, MIDLEV,
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
-     &                 NOCSF, NIOCSF,  IOCSF, LLSGN, LUSGN, NOW1,
+     &                 NOCSF, NIOCSF,  IOCSF, LLSGN,  USGN, NOW1,
      &                IOW1
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -154,10 +154,10 @@ C     SET UP ENUMERATION TABLES
 C
       NUSGN=MXUP*NMIDV
       NLSGN=MXDWN*NMIDV
-      CALL GETMEM('IUSG','ALLO','INTEG',LUSGN,NUSGN)
+      CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL GETMEM('ILSG','ALLO','INTEG',LLSGN,NLSGN)
       CALL MKSGNUM_m(DOWN,UP,DAW,RAW,
-     *             NOW1,IOW1,IWORK(LUSGN),IWORK(LLSGN),
+     *             NOW1,IOW1,USGN,IWORK(LLSGN),
      *             ICASE,IPRINT)
 C
 C     EXIT
@@ -172,8 +172,8 @@ C     PURPOSE: FREE THE GUGA TABLES
 C
       use stdalloc, only: mma_deallocate
       use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW,  NOCSF,
-     &                 IOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1,
-     &                MXUP, MXDWN, NMIDV
+     &                 IOCSF,  ICASE,  USGN, LLSGN, NOW1, IOW1,
+     &                      MXDWN, NMIDV
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 
@@ -191,9 +191,8 @@ C
 
       Call mma_deallocate(ICASE)
 
-      NUSGN=MXUP*NMIDV
       NLSGN=MXDWN*NMIDV
-      CALL GETMEM('IUSG','FREE','INTEG',LUSGN,NUSGN)
+      Call mma_deallocate(USGN)
       CALL GETMEM('ILSG','FREE','INTEG',LLSGN,NLSGN)
 
       END
