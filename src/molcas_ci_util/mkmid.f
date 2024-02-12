@@ -8,13 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKMID_m(IDRT,IDAW,IRAW,LTV,IPRINT)
+!#define _DEBUGPRINT_
+      SUBROUTINE MKMID(IDRT,IDAW,IRAW,LTV)
 C     PURPOSE: FIND THE MIDLEVEL
 C
-      use mcpdft_output, only: insane, lf
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
       use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, MIDV1, MIDV2, MXUP,
      &                MXDWN
-
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -90,16 +92,15 @@ c        MXDWN=MAX(MXDWN,IDAW(MV,4))
         if(MXDWN.lt.IDAW(MV,4)) MXDWN=IDAW(MV,4)
       END DO
 C
-      IF( IPRINT >= insane ) THEN
-        Write(LF,*)
-        Write(LF,'(A,I3)')' MIDLEVEL =             ',MIDLEV
-        Write(LF,'(A,I3)')' NUMBER OF MIDVERTICES =',NMIDV
-        Write(LF,'(A,I3)')' FIRST MIDVERTEX =      ',MIDV1
-        Write(LF,'(A,I3)')' LAST MIDVERTEX =       ',MIDV2
-        Write(LF,'(A,I3)')' MAX. NO UPPER WALKS=   ',MXUP
-        Write(LF,'(A,I3)')' MAX. NO LOWER WALKS=   ',MXDWN
-        Write(LF,*)
-      ENDIF
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,'(A,I3)')' MIDLEVEL =             ',MIDLEV
+      Write(LF,'(A,I3)')' NUMBER OF MIDVERTICES =',NMIDV
+      Write(LF,'(A,I3)')' FIRST MIDVERTEX =      ',MIDV1
+      Write(LF,'(A,I3)')' LAST MIDVERTEX =       ',MIDV2
+      Write(LF,'(A,I3)')' MAX. NO UPPER WALKS=   ',MXUP
+      Write(LF,'(A,I3)')' MAX. NO LOWER WALKS=   ',MXDWN
+      Write(LF,*)
+#endif
 
-      RETURN
-      END
+      END SUBROUTINE MKMID
