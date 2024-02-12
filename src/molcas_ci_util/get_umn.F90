@@ -111,7 +111,7 @@ call mma_allocate(Scr,MXXWS,label='EXHSCR')
 if ((ITER /= 1) .or. (iterSplit /= 1)) then
   IIAB = 1
   do iAlpha=NPCNF+1,NCONF ! Loop over alpha
-    call FZero(CNHCNM,MXCSFC*MXCSFC)
+    CNHCNM(:)=0.0D0
     !write(u6,*) 'iAlpha = ',iAlpha
     call GETCNF_LUCIA(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
     NCSFA = NCSFTP(IATYP)
@@ -129,7 +129,7 @@ if ((ITER /= 1) .or. (iterSplit /= 1)) then
     !*************** 2) AB-Block Array (alpha Column) ********************
     IILB = 1
     do Mindex=1,NPCNF ! Loop over AB-Block
-      call FZero(CNHCNM,MXCSFC*MXCSFC)
+      CNHCNM(:)=0.0D0
       !write(u6,*) 'Mindex',Mindex
       call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
       NCSFL = NCSFTP(ILTYP)
