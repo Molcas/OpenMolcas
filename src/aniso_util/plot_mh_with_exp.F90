@@ -271,7 +271,7 @@ do iTempMagn=1,nTempMagn
     write(LuPlt,'(A)') 'set grid'
     write(LuPlt,'(A)')
     write(LuPlt,'(A)') '# Axes'
-    write(LuPlt,'(A)') '  set xlabel "Magnetic Field / Tesla" font "Arial,14"'
+    write(LuPlt,'(A)') '  set xlabel "Magnetic Field / tesla" font "Arial,14"'
     write(LuPlt,'(A)') '  set ylabel "M / {/Symbol m}_{B}" font "Arial,14"'
     write(LuPlt,'(A)')
     write(LuPlt,'(A,F8.4,A,F10.4,A)') '  set xrange[',hmin,':',hmax,']'
@@ -305,7 +305,7 @@ do iTempMagn=1,nTempMagn
     write(LuPlt,'(A)') 'set grid'
     write(LuPlt,'(A)')
     write(LuPlt,'(A)') '# Axes'
-    write(LuPlt,'(A)') '  set xlabel "Magnetic Field / Tesla" font "Arial,14"'
+    write(LuPlt,'(A)') '  set xlabel "Magnetic Field / tesla" font "Arial,14"'
     write(LuPlt,'(A)') '  set ylabel "M / {/Symbol m}_{B}" font "Arial,14"'
     write(LuPlt,'(A)')
     write(LuPlt,'(A,F8.4,A,F10.4,A)') '  set xrange[',hmin,':',hmax,']'

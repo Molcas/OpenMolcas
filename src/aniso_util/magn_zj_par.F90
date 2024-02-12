@@ -17,7 +17,7 @@ subroutine MAGN_ZJ_PAR(EXCH,N,X,Y,Z,H,W,zJ,dM,sM,nT,T,sopt,WZ,ZB,S,M,thrs,m_para
 !      N -- size of the Zeeman matrix, Integer, input, NM <= EXCH !
 !  X,Y,Z -- projections of the magnetic field, specIfying the orientation of the applied
 !           magnetic field, Real(kind=wp) ::, input;  rule: ( X**2 + Y**2 + Z**2 = 1);
-!      H -- strength of the magnetic field in Tesla, Real(kind=wp) ::, input;
+!      H -- strength of the magnetic field in tesla, Real(kind=wp) ::, input;
 !      W -- energies of the exchange states; Real(kind=wp) :: array (EXCH);
 !     zJ -- parameter of intermolecular interaction, Real(kind=wp) ::, input;
 !   THRS -- threshold for convergence of the spin magnetisation. Real(kind=wp) ::, input;
@@ -25,7 +25,7 @@ subroutine MAGN_ZJ_PAR(EXCH,N,X,Y,Z,H,W,zJ,dM,sM,nT,T,sopt,WZ,ZB,S,M,thrs,m_para
 !     dM -- matrix of the magnetic moment, Complex(kind=wp) :: (3,EXCH,EXCH) array, input;
 !     sM -- matrix of the     spin moment, Complex(kind=wp) :: (3,EXCH,EXCH) array, input;
 !     nT -- number of temperature points for which magnetisation is computed, input;
-!      T -- temperature values(in Kelvin) for which magnetisation is computed, input;
+!      T -- temperature values(in kelvin) for which magnetisation is computed, input;
 !   sopt -- logical parameter. If sopt=.true. Then spin magnetisation is computed.
 !                              If sopt=.false. Then spin part is skipped.
 !

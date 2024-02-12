@@ -166,7 +166,7 @@ if (iPrint >= USUAL) then
   write(u6,'(5X,A,/)') '=========================================='
   write(u6,402) 'Kinetic energy',Ekin,'a.u.'
   write(u6,405) 'Total linear momentum ',totimpl,'a.u.'
-  write(u6,402) 'RMS deviation ',RMS,'Bohr'
+  write(u6,402) 'RMS deviation ',RMS,'bohr'
 end if
 
 time = time+DT

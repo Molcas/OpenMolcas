@@ -215,7 +215,7 @@ else
       write(u6,*) '=============================='
       write(u6,*)
       write(u6,*)
-      write(u6,*) ' Reactants / Angstrom'
+      write(u6,*) ' Reactants / angstrom'
       write(u6,*) '====================='
       write(u6,*)
       do iAt=1,mAt
@@ -223,7 +223,7 @@ else
       end do
       write(u6,*)
       write(u6,*)
-      write(u6,*) ' Products / Angstrom'
+      write(u6,*) ' Products / angstrom'
       write(u6,*) '===================='
       write(u6,*)
       do iAt=1,mAt

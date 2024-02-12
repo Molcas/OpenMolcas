@@ -269,7 +269,7 @@ if (ipglob > 1) then
   if (flag_diss) then
     !write(u6,sdbl) 'DeltaE:',         deltaE
     !write(u6,sdbl) 'Coupling (cm-1):',V
-    write(u6,sdbl) 'Gamma (Hartree):',cgamma
+    write(u6,sdbl) 'Gamma (hartree):',cgamma
   end if
   call dashes()
   write(u6,*) 'Pulse characteristics:'

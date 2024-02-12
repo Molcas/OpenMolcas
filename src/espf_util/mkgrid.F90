@@ -65,7 +65,7 @@ if (abs(iGrdTyp) == 1) then
 
   if (Process .and. (.not. DoDeriv)) then
     if (iPL >= 4) then
-      write(u6,'(A,I5,A)') ' PNT grid (in Angstrom) '
+      write(u6,'(A,I5,A)') ' PNT grid (in angstrom) '
       do iPt=1,nGrdPt
         write(u6,'(A4,3F15.6)') ' X  ',Grid%A(:,iPt)*Angstrom
       end do
@@ -168,7 +168,7 @@ else
   ! Printing the GEPOL point coordinates
 
   if ((.not. DoDeriv) .and. (iPL >= 4)) then
-    write(u6,'(A)') 'PCM grid (in Angstroms):'
+    write(u6,'(A)') 'PCM grid (in angstroms):'
     do iPnt=0,nGrdPt-1
       write(u6,'(A4,3F15.6)') ' X  ',Grid%A(:,iPnt)*Angstrom
     end do

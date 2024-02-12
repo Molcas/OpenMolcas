@@ -145,7 +145,7 @@ c  find the main magnetic axes of this manIfold:
       End If
 c  construct the Zeeman matrix in the lowest N exchange states  and diagonalize it
       st=0.0_wp
-      H=1.d-4 ! Tesla
+      H=1.d-4 ! tesla
       zJ=0.0_wp !absence of intermolecular interaction
       Call zeem_sa( N, H, maxes(1,3),maxes(2,3),maxes(3,3),
      &           W(1:N), dipexch(1:3,1:N,1:N),

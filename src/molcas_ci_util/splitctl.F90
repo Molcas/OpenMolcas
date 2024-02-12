@@ -174,7 +174,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       call mma_maxDBLE(MXXWS)
       call mma_allocate(Scr,MXXWS,label='EXHSCR')
       ! 'GapSpli' comes from the input in eV
-      ! 'condition' goes to DiagOrd in Hartree if EnerSplit
+      ! 'condition' goes to DiagOrd in hartree if EnerSplit
       ! 'condition' goes to DiagOrd as a percentage if PerSplit
       if (EnerSplit) condition = gapSpli/auToeV
       if (PerSplit) condition = percSpli

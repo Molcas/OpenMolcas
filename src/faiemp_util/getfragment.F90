@@ -131,7 +131,7 @@ do i=1,nFragCoor
   dbsc(iCnttp)%FragCoor(1,i) = real(iBasis,kind=wp)
   call Get_f(2,dbsc(iCnttp)%FragCoor(2,i),3)
   if (index(Line,'ANGSTROM') /= 0) then
-    if (iPrint >= 49) write(u6,*) 'Reading the relcoords in Angstrom'
+    if (iPrint >= 49) write(u6,*) 'Reading the relcoords in angstrom'
     dbsc(iCnttp)%FragCoor(2:4,i) = dbsc(iCnttp)%FragCoor(2:4,i)/Angstrom
   end if
 end do

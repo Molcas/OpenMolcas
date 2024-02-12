@@ -13,9 +13,9 @@
 !              1  microcanonical ensemble (Andersen Thermostat)
 !              2  canonical ensemble (Nose-Hoover Chain of Thermostats)
 ! VELOcities = 0  zero start velocities (default)
-!              1  reads in the velocities (Bohr/a.u.) from 'velocity.xyz'
-!              2  reads in the mass-weighted velocities (Bohr/a.u.) from 'velocity.xyz'
-!              3  Maxwell-Boltzmann distribution at temperature T (Bohr/a.u.)
+!              1  reads in the velocities (bohr/a.u.) from 'velocity.xyz'
+!              2  reads in the mass-weighted velocities (bohr/a.u.) from 'velocity.xyz'
+!              3  Maxwell-Boltzmann distribution at temperature T (bohr/a.u.)
 ! POUT = x Number of nuclear coordinates to project out from the dynamics
 !          and therefore of files 'out.00x.xyz' to read
 ! PIN = x Number of nuclear coordinates to keep in for the dynamics

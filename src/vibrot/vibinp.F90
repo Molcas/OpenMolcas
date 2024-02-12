@@ -418,9 +418,9 @@ input: do
           write(u6,*) 'No conversion.'
 
         case ('ANGSTROM')
-          ! Distance units of Angstroms, convert to Bohr radii
+          ! Distance units of angstroms, convert to Bohr radii
           write(u6,*)
-          write(u6,*) 'Distance provided in units of Angstroms.'
+          write(u6,*) 'Distance provided in units of angstroms.'
           write(u6,*) 'Converting to Bohr radii.'
 
           if (ipot /= 0) then

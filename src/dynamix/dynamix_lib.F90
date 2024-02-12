@@ -88,8 +88,8 @@ character(len=2), intent(out) :: atom(natom)
 real(kind=wp), intent(out) :: xyz(natom*3), force(natom*3)
 real(kind=wp), parameter :: conv = -One
 
-! The parameter conv converts the gradients (Hartree/Bohr)
-!                              to forces (Hartree/Bohr)
+! The parameter conv converts the gradients (hartree/bohr)
+!                              to forces (hartree/bohr)
 
 call Get_Name_Full(atom)
 call Get_Coord_Full(xyz,natom)
@@ -120,10 +120,10 @@ character(len=80) :: filename
 real(kind=wp), parameter :: a2bohr = One/Angstrom, conv = Angstrom/(rNAVO*auTokJ)
 integer(kind=iwp), external :: IsFreeUnit
 
-! The parameter conv converts the forces from Hartree/Bohr
-!                    to kJ/mole/Angstrom  => 1/4961.47525891
-!             a2bohr converts the coordinates from Angstrom
-!                    to Bohr              => 1/0.52917721090
+! The parameter conv converts the forces from hartree/bohr
+!                    to kJ/mole/angstrom  => 1/4961.47525891
+!             a2bohr converts the coordinates from angstrom
+!                    to bohr              => 1/0.52917721090
 
 filenum = IsFreeUnit(81)
 filename = 'fixforce.dmx'
@@ -134,7 +134,7 @@ do i=1,natom
 end do
 close(filenum)
 
-! Convert forces from kJ/mole/Angstrom to Hartree/Bohr
+! Convert forces from kJ/mole/angstrom to hartree/bohr
 
 call dscal_(3*natom,conv,force,1)
 
@@ -149,7 +149,7 @@ if (natom2 /= natom) call WarningMessage(2,'Inconsistency between coordinates')
 read(filenum,102) (xyz(i),i=1,natom*3)
 close(filenum)
 
-! Convert coordinates from Angstrom to Bohr
+! Convert coordinates from angstrom to bohr
 
 call dscal_(3*natom,a2bohr,xyz,1)
 

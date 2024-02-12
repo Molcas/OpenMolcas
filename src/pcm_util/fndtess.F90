@@ -62,7 +62,7 @@ TsAre = RSlPar(7)
 RSolv = RSlPar(19)
 ITsNum = ISlPar(11)
 
-! PEDRA works with Angstroms
+! PEDRA works with angstroms
 NS = NSinit
 Xs(1:NS) = Xs(1:NS)*Angstrom
 Ys(1:NS) = Ys(1:NS)*Angstrom

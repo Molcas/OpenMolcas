@@ -25,7 +25,7 @@ subroutine GENINT(LNPT,NPP,XX,YY,NUSE,IR2,NTP,XI,YI,VLIM,ILR,NCN,CNN)
 !* If(ILR >= 2) fit last turning points to:  VLIM - sum(of ILR
 !  inverse-power terms beginning with  1/R**NCN). *** If CNN /= 0 ,
 !  leading coefficient fixed at  CNN ; otherwise get it from points too.
-!* Assume read-in CNN value has units:  ((cm-1)(Angstroms)**'NCN').
+!* Assume read-in CNN value has units:  ((cm-1)(angstroms)**'NCN').
 !  If ILR = 2 or 3 , successive higher power terms differ by  1/R**2
 !  If ILR > 3 : this factor is  1/R .
 !=== Calls subroutines PLYINTRP, SPLINT & SPLINE ==================

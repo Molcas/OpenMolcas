@@ -133,7 +133,7 @@ call mma_allocate(n_w,Nstate,Nstate)
 call mma_allocate(J_w,Nstate,Nstate)
 call mma_allocate(omega_ab,Nstate,Nstate)
 
-write(u6,*) 'Gamma=',cgamma,'Hartree',cgamma*auToCm,'cm-1'
+write(u6,*) 'Gamma=',cgamma,' hartree',cgamma*auToCm,' cm-1'
 
 lu = isFreeUnit(20)
 call molcas_open(lu,'kab_out.dat')

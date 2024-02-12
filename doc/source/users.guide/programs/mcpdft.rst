@@ -341,7 +341,7 @@ The following example shows a part of the input to run CMS-PDFT geometry optimiz
    &GATEWAY
     Coord
     2
-    Angstrom
+    angstrom
     Li 0.0 0.0  1.3
     F  0.0 0.0 -1.3
     Group=XY Y

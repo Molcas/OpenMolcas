@@ -165,16 +165,16 @@ if (lab4 == 'MLTP') then
       Line = 'Charge (e):'
       Fact = One
     else if (lPole == 1) then
-      Line = 'Dipole Moment (Debye):'
+      Line = 'Dipole Moment (debye):'
       Fact = Debye
     else if (lPole == 2) then
-      Line = 'Quadrupole Moment (Debye*Ang):'
+      Line = 'Quadrupole Moment (debye*angstrom):'
       Fact = Debye*Angstrom
     else if (lPole == 3) then
-      Line = 'Octupole Moment (Debye*Ang**2):'
+      Line = 'Octupole Moment (debye*angstrom**2):'
       Fact = Debye*Angstrom**2
     else if (lPole == 4) then
-      Line = 'Hexadecapole Moment (Debye*Ang**3):'
+      Line = 'Hexadecapole Moment (debye*angstrom**3):'
       Fact = Debye*Angstrom**3
     else
       Line = ''
@@ -185,8 +185,8 @@ if (lab4 == 'MLTP') then
         write(Line,'(I2)') lPole
         iSt = 3
       end if
-      Line(iSt:iSt+26) = 'th-pole Moment (Debye*Ang**'
-      iSt = iSt+27
+      Line(iSt:iSt+31) = 'th-pole Moment (debye*angstrom**'
+      iSt = iSt+32
       if (lpole <= 10) then
         write(Line(iSt:iSt),'(I1)') lpole-1
         iSt = iSt+1
@@ -199,7 +199,7 @@ if (lab4 == 'MLTP') then
     end if
     write(u6,'(6X,A)') trim(Line)
     if (lpole > 0) then
-      write(u6,'(6X,A,3F10.4)') 'Origin of the operator (Ang)=',(cen1(i)*Angstrom,i=1,3)
+      write(u6,'(6X,A,3F10.4)') 'Origin of the operator (angstrom)=',(cen1(i)*Angstrom,i=1,3)
     end if
     if (lPole == 0) then
       write(u6,'(6X,A,A,F10.4)') labs(1),'=',PrTot(1)*Fact
@@ -209,7 +209,7 @@ if (lab4 == 'MLTP') then
       write(u6,'(4X,4(A,A,ES12.4))') labs(1),'=',PrTot(1)*Fact,labs(2),'=',PrTot(2)*Fact,labs(3),'=',PrTot(3)*Fact, &
                                      '           Total','=',tmp*Fact
       if (abs(Molecular_Charge) > 0.9_wp) then
-        write(u6,'(6X,A)') 'Center of Charge (Ang)'
+        write(u6,'(6X,A)') 'Center of Charge (angstrom)'
         X_Coor = Angstrom*(PrTot(1)/Molecular_Charge)
         Y_Coor = Angstrom*(PrTot(2)/Molecular_Charge)
         Z_Coor = Angstrom*(PrTot(3)/Molecular_Charge)
@@ -219,7 +219,7 @@ if (lab4 == 'MLTP') then
       call Put_DArray('Dipole moment',PrTot,3)
       !call peek_iScalar('xml opened',isopen)
       !if (isopen == 1) then
-      call xml_dDump('dipole','Dipole moment','Debye',1,PrTot,3,1)
+      call xml_dDump('dipole','Dipole moment','debye',1,PrTot,3,1)
       !end if
     else if (lPole >= 2) then
       tmp = Zero
@@ -244,9 +244,9 @@ if (lab4 == 'MLTP') then
       PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
 
       if (lPole >= 3) then
-        write(u6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang**',lPole-1,')'
+        write(u6,'(6X,A,I1,A)') 'In traceless form (debye*angstrom**',lPole-1,')'
       else
-        write(u6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang)'
+        write(u6,'(6X,A,I1,A)') 'In traceless form (debye*angstrom)'
       end if
       ip_ = 1
       do i=1,maxlab,4
@@ -277,7 +277,7 @@ if (lab4 == 'MLTP') then
     call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,0,ifallorb)
     if (lpole == 1) then
       write(u6,'(6x,76(''-''))')
-      write(u6,'(6x,a,3f16.8,3x,a)') 'Total             ',(PrTot(j)*Debye,j=1,3),'Debye'
+      write(u6,'(6x,a,3f16.8,3x,a)') 'Total             ',(PrTot(j)*Debye,j=1,3),'debye'
       call Put_DArray('Dipole moment',PrTot,3)
     end if
 

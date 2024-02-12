@@ -146,7 +146,7 @@ dG_TOT = dH_TOT-dS_TOT*T*1.0e-3_wp
 
 write(u6,*)
 write(u6,'(A)') ' *****************************************************'
-write(u6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' Kelvin, Pressure =',P,' atm'
+write(u6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' kelvin, Pressure =',P,' atm'
 write(u6,'(A)') ' -----------------------------------------------------'
 write(u6,'(A)') ' Molecular Partition Function and Molar Entropy:'
 write(u6,'(A)') '                        q/V (M**-3)    S(kcal/mol*K)'

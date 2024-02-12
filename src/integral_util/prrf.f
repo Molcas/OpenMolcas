@@ -101,10 +101,10 @@
          End If
          Write (6,'(5X,A,F6.4,A)')
      &               ' Average area for surface element on the '
-     &             //'cavity boundary: ', aArea, ' Angstrom^2'
+     &             //'cavity boundary: ', aArea, ' angstrom^2'
          Write (6,'(5X,A,F6.4,A)')
      &               ' Minimum radius for added spheres: ',
-     &               r_min_Sphere, ' Angstrom'
+     &               r_min_Sphere, ' angstrom'
          If (NonEq) Then
             Write (6,'(5X,A)')
      &               ' Calculation type: non-equilibrium'

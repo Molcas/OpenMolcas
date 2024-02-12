@@ -122,7 +122,7 @@ write(Lu,'(        A)') '$atomlbl'
 write(Lu,'(40(I0,1x))') nAtoms
 write(Lu,'(40(A8,1x))') (AtomLbl(iAt),iAt=1,nAtoms)
 write(Lu,'(        A)')
-write(Lu,'(        A)') '$coords (in Angstrom)'
+write(Lu,'(        A)') '$coords (in angstrom)'
 write(Lu,'(40(I0,1x))') nAtoms
 do iAt=1,nAtoms
   write(Lu,'(i3,1x,A8,1x,3(ES22.14,1x))') iAt,AtomLbl(iAt),(Angstrom*XYZ(l,iAt),l=1,3)

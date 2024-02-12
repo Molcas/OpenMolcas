@@ -136,7 +136,7 @@ C      r_J2au=2.29371049D+17 ! Convert Joule to atomic units
 *
        Write (6,*)
        Write (6,*)
-       Write (6,'(A,F6.2,A)') ' Temperature = ',T,' Kelvin'
+       Write (6,'(A,F6.2,A)') ' Temperature = ',T,' kelvin'
        Write (6,'(A)') ' ---------------------------'
        Write (6,*)
 *

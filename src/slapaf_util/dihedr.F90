@@ -99,7 +99,7 @@ do ic=1,mCentr
           Typ = .true.
           write(u6,*)
           write(u6,'(10X,A)') ' ***************************************************************'
-          write(u6,'(10X,A)') ' *              Valence Dihedral Angles / Degree               *'
+          write(u6,'(10X,A)') ' *              Valence Dihedral Angles / degree               *'
           write(u6,'(10X,A)') ' ***************************************************************'
           write(u6,'(7X,A)') '             Atom centers                       Phi1     Phi2     Theta '
         end if

@@ -41,7 +41,7 @@
                Write (Lu,'(19X,A)')
      &            ' *************************************** '
                Write (Lu,'(19X,A)')
-     &            ' *    InterNuclear Distances / Bohr    * '
+     &            ' *    InterNuclear Distances / bohr    * '
                Write (Lu,'(19X,A)')
      &            ' *************************************** '
             Else
@@ -49,7 +49,7 @@
                Write (Lu,'(19X,A)')
      &            ' ******************************************* '
                Write (Lu,'(19X,A)')
-     &            ' *    InterNuclear Distances / Angstrom    * '
+     &            ' *    InterNuclear Distances / angstrom    * '
                Write (Lu,'(19X,A)')
      &            ' ******************************************* '
             End If
@@ -86,12 +86,12 @@
          Write (Lu,'(19X,A)')
      &            ' ************************************************* '
          Write (Lu,'(19X,A)')
-     &            ' **** InterNuclear Distances / Bohr, Angstrom **** '
+     &            ' **** InterNuclear Distances / bohr, angstrom **** '
          Write (Lu,'(19X,A)')
      &            ' ************************************************* '
          Write (Lu,*)
          Write (Lu,'(A)') '     Atom centers     '//
-     &                    '    Bohr        Angstrom'
+     &                    '    bohr        angstrom'
 !
 !VV   Set .false. to get faster printing without sorting.
 !

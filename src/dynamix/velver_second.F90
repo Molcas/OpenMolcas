@@ -51,9 +51,9 @@ character(len=2), allocatable :: atom(:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
-! The parameter conv converts the gradients (Hartree/Bohr) to
-! (i)  forces (Hartree/Bohr)    => -1.0
-! (ii) forces (kJ/mole/Agstrom) => -4961.47525891
+! The parameter conv converts the gradients (hartree/bohr) to
+! (i)  forces (hartree/bohr)     => -1.0
+! (ii) forces (kJ/mole/angstrom) => -4961.47525891
 
 real(kind=wp), parameter :: conv = -One, kb = kBoltzmann/(auTokJ*1.0e3_wp)
 

@@ -78,8 +78,8 @@
 ! CONV_AMU_TO_AU_ -- Convert 1AMU to au.                               *
 ! CONV_AU_TO_KJ_PER_MOLE_ -- Convert 1Eh to kJ/mol.                    *
 ! CONV_CAL_TO_J_ -- Convert 1cal to J.                                 *
-! CONV_AU_TO_DEBYE -- Convert 1au to Debye.                            *
-! CONV_AU_TO_T -- Convert 1au to Tesla.                                *
+! CONV_AU_TO_DEBYE -- Convert 1au to debye.                            *
+! CONV_AU_TO_T -- Convert 1au to tesla.                                *
 !                                                                      *
 !***********************************************************************
 !

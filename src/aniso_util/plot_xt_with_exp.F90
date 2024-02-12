@@ -261,7 +261,7 @@ if (gnuplot_version < Five) then
   write(LuPlt,'(A)') 'set grid'
   write(LuPlt,'(A)')
   write(LuPlt,'(A)') '# Axes'
-  write(LuPlt,'(A)') '  set xlabel "Temperature / Kelvin" font "Arial,14"'
+  write(LuPlt,'(A)') '  set xlabel "Temperature / kelvin" font "Arial,14"'
   write(LuPlt,'(A)') '  set ylabel "{/Symbol c}T / cm^3 K mol^{-1}" font "Arial,14"'
   write(LuPlt,'(A)')
   write(LuPlt,'(A,F8.4,A,F10.4,A)') '  set xrange[',tmin,':',tmax,']'
@@ -292,7 +292,7 @@ else if ((gnuplot_version >= Five) .and. (gnuplot_version < Six)) then
   write(LuPlt,'(A)') 'set grid'
   write(LuPlt,'(A)')
   write(LuPlt,'(A)') '# Axes'
-  write(LuPlt,'(A)') '  set xlabel "Temperature / Kelvin" font "Arial,14"'
+  write(LuPlt,'(A)') '  set xlabel "Temperature / kelvin" font "Arial,14"'
   write(LuPlt,'(A)') '  set ylabel "{/Symbol c}T / cm^3 K mol^{-1}" font "Arial,14"'
   write(LuPlt,'(A)')
   write(LuPlt,'(A,F8.4,A,F10.4,A)') '  set xrange[',tmin,':',tmax,']'

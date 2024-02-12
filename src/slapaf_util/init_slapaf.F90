@@ -316,7 +316,7 @@ call RecPrt('Degen',' ',Degen,3,size(Coor,2))
 ! Compute center of mass and molecular mass. The molecule is
 ! translated so origin and center of mass is identical.
 
-if (jPrint >= 99) call Prlist('Symmetry Distinct Nuclear Coordinates / Bohr',AtomLbl,size(Coor,2),Coor,3,size(Coor,2))
+if (jPrint >= 99) call Prlist('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,size(Coor,2),Coor,3,size(Coor,2))
 if (jPrint >= 99) call PrList('Symmetry Distinct Nuclear Forces / au',AtomLbl,size(Coor,2),Grd,3,size(Coor,2))
 !                                                                      *
 !***********************************************************************

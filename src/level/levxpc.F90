@@ -17,7 +17,7 @@ subroutine LEVXPC(KV,JR,EPR,GAMA,NPP,WF,RFN,V,VLIM,YH,DREF,NBEG,NEND,LXPCT,MORDR
 !** Calculates expectation values of the kinetic energy and of X**IP
 !  (IP=1,MORDR), denoted XPTKE and XPCTR(IP), respectively, for level
 !  v=KV, J=JR, E=EPR(cm-1), using wave function WF(i), (i=NBEG,NEND).
-!** Assumes units of length are (Angstroms) .
+!** Assumes units of length are (angstroms) .
 !** Division by BFCT converts potential V(I) to units (cm-1).
 !** If (|LXPCT| = 2  or  4), "punch" (WRITE(7,XXX)) results to channel-7
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -129,7 +129,7 @@ return
 602 format(' E(v=',i3,', J=',i3,')=',f11.3,'   <M(r)>=',G18.10,'   <KE>=',F11.3/'   Tunneling predissociation  Width(FWHM)=', &
            G13.6,'    <X**',I2,'>=',F13.8)
 604 format((8x,3('   <X**',I2,'>=',F13.8:)))
-603 format(' On iteration #',I2,'  change DREF by',ES10.2,'  to   DREF=',F13.10,' [Angstroms]')
+603 format(' On iteration #',I2,'  change DREF by',ES10.2,'  to   DREF=',F13.10,' [angstroms]')
 701 format(2I4,F11.3,G11.4,F11.3,3(F12.7)/(5X,6F12.7))
 
 end subroutine LEVXPC

@@ -23,7 +23,7 @@ c local variables
       Complex(kind=8) :: p2a, p2b, p1, HL, d3, mb2c, threeC, vec1(3)
 
 
-!     * in cm-1*T-1   -- the value of (mu_Bohr*mu_Bohr)/(Angstrom^3)  in cm-1
+!     * in cm-1*T-1   -- the value of (mu_Bohr*mu_Bohr)/(angstrom^3)  in cm-1
       MB2=0.4329701512063995_wp
 c
       If( (N1<=0).OR.(N2<=0) ) Return
