@@ -8,255 +8,240 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine restart_check( Ifrestart, input_to_read,               &
-     &                          input_file_name, nT, nH, nTempMagn,     &
-     &                          nDir, nDirZee, nMult, GRAD )
 
-!  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
-!
-      Implicit None
-      Integer, Parameter        :: wp=kind(0.d0)
-      Integer ::  linenr, input_to_read, Input, nT, nH, nTempMagn
-      Integer ::  nDir, nDirZee, nMult, i
-      Logical ::  Ifrestart
-      Logical ::  GRAD
-      Real(kind=wp) ::  rdummy
-      Character(Len=280) :: line, tmp
-      Character(Len=180) :: input_file_name
-      Integer :: ncut,nk,mg
-      Real(kind=wp) :: encut_rate
-      Logical :: KeyHEXP,KeyHINT,KeyTMAG,                               &
-     &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT
-!     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD,KeyDATA
-      Logical :: DBG
+subroutine restart_check(Ifrestart,input_to_read,input_file_name,nT,nH,nTempMagn,nDir,nDirZee,nMult,GRAD)
+! this routine looks into the file "single_aniso.input" for the "RESTart" keyword
 
-      DBG=.false.
+implicit none
+integer, parameter :: wp = kind(0.d0)
+integer :: linenr, input_to_read, Input, nT, nH, nTempMagn
+integer :: nDir, nDirZee, nMult, i
+logical :: Ifrestart
+logical :: GRAD
+real(kind=wp) :: rdummy
+character(len=280) :: line, tmp
+character(len=180) :: input_file_name
+integer :: ncut, nk, mg
+real(kind=wp) :: encut_rate
+logical :: KeyHEXP, KeyHINT, KeyTMAG, KeyMVEC, KeyZEEM, KeyNCUT, KeyENCU, KeyERAT
+!logical :: KeyREST, KeyTEXP, KeyTINT, KeyMLTP, KeyGRAD, KeyDATA
+logical :: DBG
 
-      nH=0
-      nT=0
-      nMult=0
-      nDirZee=0
-      nDir=0
-      nk=0
-      mg=0
-      ncut=0
-      encut_rate=0.0_wp
-      nTempMagn=0
-      Input=5
-      input_file_name='aniso.input'
-!      origin_of_data_file='xxxxxxxx'
+DBG = .false.
 
-!     KeyREST=.false.
-!     KeyTEXP=.false.
-      KeyHEXP=.false.
-      KeyHINT=.false.
-!     KeyTINT=.false.
-      KeyTMAG=.false.
-      KeyMVEC=.false.
-      KeyZEEM=.false.
-!     KeyMLTP=.false.
-      KeyNCUT=.false.
-      KeyENCU=.false.
-      KeyERAT=.false.
-!     KeyGRAD=.false.
-!     KeyDATA=.false.
+nH = 0
+nT = 0
+nMult = 0
+nDirZee = 0
+nDir = 0
+nk = 0
+mg = 0
+ncut = 0
+encut_rate = 0.0_wp
+nTempMagn = 0
+Input = 5
+input_file_name = 'aniso.input'
+!origin_of_data_file = 'xxxxxxxx'
+
+!KeyREST = .false.
+!KeyTEXP = .false.
+KeyHEXP = .false.
+KeyHINT = .false.
+!KeyTINT = .false.
+KeyTMAG = .false.
+KeyMVEC = .false.
+KeyZEEM = .false.
+!KeyMLTP = .false.
+KeyNCUT = .false.
+KeyENCU = .false.
+KeyERAT = .false.
+!KeyGRAD = .false.
+!KeyDATA = .false.
 
 !=========== End of default settings====================================
-      REWIND(Input)
-50    READ(Input,'(A180)',End=998) LINE
-      Call NORMAL(LINE)
-      If(LINE(1:7).ne.'&SINGLE') Go To 50
-      LINENR=0
-100   READ(Input,'(A280)',End=998) line
-      LINENR=LINENR+1
-      Call NORMAL(LINE)
-      If (LINE(1:1).eq.'*') Go To 100
-      If (LINE.eq.' ') Go To 100
+rewind(Input)
+50 read(Input,'(A180)',end=998) LINE
+call NORMAL(LINE)
+if (LINE(1:7) /= '&SINGLE') go to 50
+LINENR = 0
+100 read(Input,'(A280)',end=998) line
+LINENR = LINENR+1
+call NORMAL(LINE)
+if (LINE(1:1) == '*') go to 100
+if (LINE == ' ') go to 100
 
-      If((LINE(1:4).ne.'REST').AND.(LINE(1:4).ne.'TEXP').AND.           &
-     &   (LINE(1:4).ne.'HEXP').AND.(LINE(1:4).ne.'END ').AND.           &
-     &   (LINE(1:4).ne.'    ').AND.(LINE(1:4).ne.'HINT').AND.           &
-     &   (LINE(1:4).ne.'TINT').AND.(LINE(1:4).ne.'TMAG').AND.           &
-     &   (LINE(1:4).ne.'MVEC').AND.(LINE(1:4).ne.'ZEEM').AND.           &
-     &   (LINE(1:4).ne.'MLTP').AND.(LINE(1:4).ne.'NCUT').AND.           &
-     &   (LINE(1:4).ne.'ENCU').AND.(LINE(1:4).ne.'ERAT').AND.           &
-     &   (LINE(1:4).ne.'GRAD').AND.(LINE(1:4).ne.'DATA')) Go To 100
-      If((LINE(1:4).eq.'END ').OR. (LINE(1:4).eq.'    ')) Go To 200
+if ((LINE(1:4) /= 'REST') .and. (LINE(1:4) /= 'TEXP') .and. (LINE(1:4) /= 'HEXP') .and. (LINE(1:4) /= 'END ') .and. &
+    (LINE(1:4) /= '    ') .and. (LINE(1:4) /= 'HINT') .and. (LINE(1:4) /= 'TINT') .and. (LINE(1:4) /= 'TMAG') .and. &
+    (LINE(1:4) /= 'MVEC') .and. (LINE(1:4) /= 'ZEEM') .and. (LINE(1:4) /= 'MLTP') .and. (LINE(1:4) /= 'NCUT') .and. &
+    (LINE(1:4) /= 'ENCU') .and. (LINE(1:4) /= 'ERAT') .and. (LINE(1:4) /= 'GRAD') .and. (LINE(1:4) /= 'DATA')) go to 100
+if ((LINE(1:4) == 'END ') .or. (LINE(1:4) == '    ')) go to 200
 
-      If (line(1:4).eq.'REST') Then
-         Ifrestart=.true.
-!        KeyREST=.true.
-         READ(Input,*) input_to_read
-         input_file_name='aniso.input'
-         If(DBG) WRITE(6,*) input_to_read
-         If ( (input_to_read==2) .OR. (input_to_read==3) .OR.           &
-     &        (input_to_read==4) ) Then
-           BACKSPACE(Input)
-           READ(Input,*) input_to_read, tmp
-           If(DBG) WRITE(6,*) tmp
-           input_file_name=trim(tmp)
-           If(DBG) WRITE(6,*) 'restart_check: REST, input_file_name='
-           If(DBG) WRITE(6,*) input_file_name
-         End If
-         LINENR=LINENR+1
-         Go To 100
-      End If
+if (line(1:4) == 'REST') then
+  Ifrestart = .true.
+  !KeyREST = .true.
+  read(Input,*) input_to_read
+  input_file_name = 'aniso.input'
+  if (DBG) write(6,*) input_to_read
+  if ((input_to_read == 2) .or. (input_to_read == 3) .or. (input_to_read == 4)) then
+    backspace(Input)
+    read(Input,*) input_to_read,tmp
+    if (DBG) write(6,*) tmp
+    input_file_name = trim(tmp)
+    if (DBG) write(6,*) 'restart_check: REST, input_file_name='
+    if (DBG) write(6,*) input_file_name
+  end if
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'DATA') Then
-         Ifrestart=.true.
-         !KeyDATA=.true.
-         READ(Input,*) tmp
-         input_file_name=trim(tmp)
-         input_to_read=6
-         If(DBG) WRITE(6,*) 'restart_check: DATA, input_file_name='
-         If(DBG) WRITE(6,*) input_file_name
-         LINENR=LINENR+1
-         Go To 100
-      End If
+if (line(1:4) == 'DATA') then
+  Ifrestart = .true.
+  !KeyDATA = .true.
+  read(Input,*) tmp
+  input_file_name = trim(tmp)
+  input_to_read = 6
+  if (DBG) write(6,*) 'restart_check: DATA, input_file_name='
+  if (DBG) write(6,*) input_file_name
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'TEXP') Then
-          READ(Input,*) nT
-          IF(DBG) WRITE(6,*) 'restart_check: TEXP, nT=', nT
-!         KeyTEXP=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (line(1:4) == 'TEXP') then
+  read(Input,*) nT
+  if (DBG) write(6,*) 'restart_check: TEXP, nT=',nT
+  !KeyTEXP = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'GRAD') Then
-!         KeyGRAD=.true.
-          GRAD=.true.
-          IF(DBG) WRITE(6,*) 'restart_check:  GRAD = ', GRAD
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (line(1:4) == 'GRAD') then
+  !KeyGRAD = .true.
+  GRAD = .true.
+  if (DBG) write(6,*) 'restart_check:  GRAD = ',GRAD
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'HEXP') Then
-          READ(Input,*) nTempMagn, (rdummy,i=1,nTempMagn)
-          READ(Input,*) nH
-          IF(DBG) WRITE(6,*) 'restart_check: HEXP, nH=', nH
-          IF(DBG) WRITE(6,*) 'restart_check: HEXP, nTempMagn=',nTempMagn
-          KeyHEXP=.true.
-          LINENR=LINENR+2
-          Go To 100
-      End If
+if (line(1:4) == 'HEXP') then
+  read(Input,*) nTempMagn,(rdummy,i=1,nTempMagn)
+  read(Input,*) nH
+  if (DBG) write(6,*) 'restart_check: HEXP, nH=',nH
+  if (DBG) write(6,*) 'restart_check: HEXP, nTempMagn=',nTempMagn
+  KeyHEXP = .true.
+  LINENR = LINENR+2
+  go to 100
+end if
 
-      If (line(1:4).eq.'HINT') Then
-          READ(Input,*) rdummy, rdummy, nH
-          IF(DBG) WRITE(6,*) 'restart_check: HINT, nH=', nH
-          KeyHINT=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (line(1:4) == 'HINT') then
+  read(Input,*) rdummy,rdummy,nH
+  if (DBG) write(6,*) 'restart_check: HINT, nH=',nH
+  KeyHINT = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'TINT') Then
-          READ(Input,*) rdummy, rdummy, nT
-          IF(DBG) WRITE(6,*) 'restart_check: HINT, nT=', nT
-!         KeyTINT=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (line(1:4) == 'TINT') then
+  read(Input,*) rdummy,rdummy,nT
+  if (DBG) write(6,*) 'restart_check: HINT, nT=',nT
+  !KeyTINT = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'TMAG') Then
-          READ(Input,*) nTempMagn
-          IF(DBG) WRITE(6,*) 'restart_check: TMAG, nTempMagn=',nTempMagn
-          KeyTMAG=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (line(1:4) == 'TMAG') then
+  read(Input,*) nTempMagn
+  if (DBG) write(6,*) 'restart_check: TMAG, nTempMagn=',nTempMagn
+  KeyTMAG = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'MVEC') Then
-          READ(Input,*) nDir
-          IF(DBG) WRITE(6,*) 'restart_check: MVEC, nDir=',nDir
-          KeyMVEC=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (line(1:4) == 'MVEC') then
+  read(Input,*) nDir
+  if (DBG) write(6,*) 'restart_check: MVEC, nDir=',nDir
+  KeyMVEC = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'ZEEM') Then
-          READ(Input,*) nDirZee
-          IF(DBG) WRITE(6,*) 'restart_check: ZEEM, nDirZee=',nDirZee
-          KeyZEEM=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (line(1:4) == 'ZEEM') then
+  read(Input,*) nDirZee
+  if (DBG) write(6,*) 'restart_check: ZEEM, nDirZee=',nDirZee
+  KeyZEEM = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (line(1:4).eq.'MLTP') Then
-          READ(Input,*) nMult
-          IF(DBG) WRITE(6,*) 'restart_check: MLTP, nMult=',nMult
-!         KeyMLTP=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (line(1:4) == 'MLTP') then
+  read(Input,*) nMult
+  if (DBG) write(6,*) 'restart_check: MLTP, nMult=',nMult
+  !KeyMLTP = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (LINE(1:4).eq.'NCUT') Then
-          READ(Input,*) NCUT
-          IF(DBG) WRITE(6,*) 'restart_check: NCUT, NCUT=',NCUT
-          KeyNCUT=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (LINE(1:4) == 'NCUT') then
+  read(Input,*) NCUT
+  if (DBG) write(6,*) 'restart_check: NCUT, NCUT=',NCUT
+  KeyNCUT = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-      If (LINE(1:4).eq.'ENCU') Then
-          READ(Input,*) NK, MG
-          IF(DBG) WRITE(6,*) 'restart_check: ENCU, NK, MG=',NK,MG
-          LINENR=LINENR+1
-          KeyENCU=.true.
-          Go To 100
-      End If
+if (LINE(1:4) == 'ENCU') then
+  read(Input,*) NK,MG
+  if (DBG) write(6,*) 'restart_check: ENCU, NK, MG=',NK,MG
+  LINENR = LINENR+1
+  KeyENCU = .true.
+  go to 100
+end if
 
-      If (LINE(1:4).eq.'ERAT') Then
-          READ(Input,*) encut_rate
-          IF(DBG) WRITE(6,*) 'restart_check: ERAT, encut_rate=',        &
-     &                        encut_rate
-          KeyERAT=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
+if (LINE(1:4) == 'ERAT') then
+  read(Input,*) encut_rate
+  if (DBG) write(6,*) 'restart_check: ERAT, encut_rate=',encut_rate
+  KeyERAT = .true.
+  LINENR = LINENR+1
+  go to 100
+end if
 
-200   Continue
-      Write(6,'(5X,A)') 'restart_check: NO ERROR WAS LOCATED WHILE '//  &
-     &                   'READING INPUT'
+200 continue
+write(6,'(5X,A)') 'restart_check: NO ERROR WAS LOCATED WHILE READING INPUT'
 
-!      print *,'KeyREST=',KeyREST
-!      print *,'KeyTEXP=',KeyTEXP
-!      print *,'KeyHEXP=',KeyHEXP
-!      print *,'KeyHINT=',KeyHINT
-!      print *,'KeyTINT=',KeyTINT
-!      print *,'KeyTMAG=',KeyTMAG
-!      print *,'KeyMVEC=',KeyMVEC
-!      print *,'KeyZEEM=',KeyZEEM
-!      print *,'KeyMLTP=',KeyMLTP
-!      print *,'KeyNCUT=',KeyNCUT
-!      print *,'KeyENCU=',KeyENCU
-!      print *,'KeyERAT=',KeyERAT
-!      print *,'KeyGRAD=',KeyGRAD
+!write(6,*) 'KeyREST=',KeyREST
+!write(6,*) 'KeyTEXP=',KeyTEXP
+!write(6,*) 'KeyHEXP=',KeyHEXP
+!write(6,*) 'KeyHINT=',KeyHINT
+!write(6,*) 'KeyTINT=',KeyTINT
+!write(6,*) 'KeyTMAG=',KeyTMAG
+!write(6,*) 'KeyMVEC=',KeyMVEC
+!write(6,*) 'KeyZEEM=',KeyZEEM
+!write(6,*) 'KeyMLTP=',KeyMLTP
+!write(6,*) 'KeyNCUT=',KeyNCUT
+!write(6,*) 'KeyENCU=',KeyENCU
+!write(6,*) 'KeyERAT=',KeyERAT
+!write(6,*) 'KeyGRAD=',KeyGRAD
 
-!      print *,'LOGLINE=',KeyTMAG.OR.KeyZEEM.OR.KeyMVEC.OR.KeyHINT.OR.
-!     &                   KeyHEXP.OR.KeyNCUT.OR.KeyENCU.OR.KeyERAT
+!write(6,*) 'LOGLINE=',KeyTMAG .or. KeyZEEM .or. KeyMVEC .or. KeyHINT .or. KeyHEXP .or. KeyNCUT .or. KeyENCU .or. KeyERAT
 
-      If( KeyTMAG.OR.KeyZEEM.OR.KeyMVEC.OR.KeyHINT.OR.KeyHEXP.OR.       &
-     &    KeyNCUT.OR.KeyENCU.OR.KeyERAT ) Then
-          If(nTempMagn==0) nTempMagn=1
-          If(       nH==0) nH=21
-      End If
-          If(       nT==0) nT=301
+if (KeyTMAG .or. KeyZEEM .or. KeyMVEC .or. KeyHINT .or. KeyHEXP .or. KeyNCUT .or. KeyENCU .or. KeyERAT) then
+  if (nTempMagn == 0) nTempMagn = 1
+  if (nH == 0) nH = 21
+end if
+if (nT == 0) nT = 301
 
-!      print *, 'nTempMagn=',nTempMagn
-!      print *, 'nH       =',nH
-!      print *, 'nT       =',nT
+!write(6,*) 'nTempMagn=',nTempMagn
+!write(6,*) 'nH       =',nH
+!write(6,*) 'nT       =',nT
 
-
-
-
-      Go To 190
+go to 190
 !------ errors ------------------------------
-998   continue
-      Write(6,*)' -- READIN: Unexpected End of input file.'
+998 continue
+write(6,*) ' -- READIN: Unexpected End of input file.'
 
-
-190   Continue
-      Return
+190 continue
+return
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_real(rdummy)
+if (.false.) call Unused_real(rdummy)
 #endif
-      End
+
+end subroutine restart_check

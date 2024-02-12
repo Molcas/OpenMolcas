@@ -8,14 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine magnetization( nss, nM, nTempMagn, nDirTot, nDir,      &
-     &                          nDirZee, nH, iPrint, LUZee, mem,        &
-     &                          compute_Mdir_vector, zeeman_energy,     &
-     &                          hinput, m_paranoid, smagn, doplot,      &
-     &                          TempMagn, eso, dirX, dirY, dirZ,        &
-     &                          dir_weight, hexp, magn_exp, zJ, hmin,   &
-     &                          hmax, EM, thrs,                         &
-     &                          dipm, sm, dbg )
+
+subroutine magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,mem,compute_Mdir_vector,zeeman_energy,hinput, &
+                         m_paranoid,smagn,doplot,TempMagn,eso,dirX,dirY,dirZ,dir_weight,hexp,magn_exp,zJ,hmin,hmax,EM,thrs,dipm, &
+                         sm,dbg)
 !***********************************************************************
 !                                                                      *
 !     MAGNETIZATION control section                                    *
@@ -45,642 +41,484 @@
 !     Liviu Ungur, 2008-2017 various modifications                     *
 !***********************************************************************
 
-      Implicit None
-      Integer, Parameter            :: wp=kind(0.d0)
+implicit none
+integer, parameter :: wp = kind(0.d0)
 #include "mgrid.fh"
 #include "stdalloc.fh"
 !----------------------------------------------------------------
-      ! input data (30)
-      Integer, intent(in)          :: nDir
-      Integer, intent(in)          :: nDirZee
-      Integer, intent(in)          :: nDirTot
-      Integer, intent(in)          :: nss
-      Integer, intent(in)          :: nM
-      Integer, intent(in)          :: nH
-      Integer, intent(in)          :: iprint
-      Integer, intent(in)          :: nTempMagn
-      Integer, intent(in)          :: mem
-      Integer, intent(in)          :: LUZee(nDirZee)
-
-      Logical, intent(in)          :: compute_Mdir_vector
-      Logical, intent(in)          :: zeeman_energy
-      Logical, intent(in)          :: DoPlot
-      Logical, intent(in)          :: hinput
-      Logical, intent(in)          :: smagn
-      Logical, intent(in)          :: m_paranoid
-      Logical, intent(in)          :: dbg
-
-      Real(kind=8), intent(in)    :: dirX(nDir), dirY(nDir), dirZ(nDir)
-      Real(kind=8), intent(in)    :: dir_weight(nDirZee,3)
-      Real(kind=8), intent(in)    :: hmin, hmax
-      Real(kind=8), intent(in)    :: zj, thrs
-      Real(kind=8), intent(in)    :: eso(nss)
-      Real(kind=8), intent(in)    :: EM
-      Real(kind=8), intent(in)    :: TempMagn(nTempMagn)
-      Real(kind=8), intent(in)    :: hexp(nH)
-      Real(kind=8), intent(in)    :: magn_exp(nH,nTempMagn)
-
-      Complex(kind=8), intent(in) ::   sm(3,nss,nss)
-      Complex(kind=8), intent(in) :: dipm(3,nss,nss)
-!----------------------------------------------------------------
-!     local variables
-      Integer       :: nP,iTEnd,iT,IM,I,L,J,IC,IDIR,IH,iTemp
-      Real(kind=8) :: DLTH, mv, sv, dev
-      Character(len=99):: STLNE1, STLNE2
-
-      Real(kind=8), allocatable :: WM(:)         ! WM(nm)
-      Real(kind=8), allocatable :: MT(:,:,:)     ! MT(3,nH,nTempMagn)
-      Real(kind=8), allocatable :: ST(:,:,:)     ! ST(3,nH,nTempMagn)
-      ! magnetization and spin vectors
-      Real(kind=8), allocatable :: MVEC(:,:,:,:)
-!                                   MVEC(nDirTot,nH,nTempMagn,3)
-      Real(kind=8), allocatable :: SVEC(:,:,:,:)
-!                                   SVEC(nDirTot,nH,nTempMagn,3)
-      Real(kind=8), allocatable :: H(:)          ! H(nH)
-      ! average powder M and S:
-      Real(kind=8), allocatable :: MAV(:,:) ! MAV(nH,nTempMagn)
-      Real(kind=8), allocatable :: SAV(:,:) ! SAV(nH,nTempMagn)
-
-      Real(kind=8), allocatable :: ZT(:,:)  ! ZT(nH,nTempMagn)
-      Real(kind=8), allocatable :: STDEV(:) ! STDEV(nTempMagn)
-      Real(kind=8), allocatable :: dHX(:)   ! dHX(nDirTot)
-      Real(kind=8), allocatable :: dHY(:)   ! dHY(nDirTot)
-      Real(kind=8), allocatable :: dHZ(:)   ! dHZ(nDirTot)
-      Real(kind=8), allocatable :: dHW(:)   ! dHW(nDirTot)
-
-      Integer          :: mem_local, RtoB
-
-      External      :: dev
+! input data (30)
+integer, intent(in) :: nDir
+integer, intent(in) :: nDirZee
+integer, intent(in) :: nDirTot
+integer, intent(in) :: nss
+integer, intent(in) :: nM
+integer, intent(in) :: nH
+integer, intent(in) :: iprint
+integer, intent(in) :: nTempMagn
+integer, intent(in) :: mem
+integer, intent(in) :: LUZee(nDirZee)
+logical, intent(in) :: compute_Mdir_vector
+logical, intent(in) :: zeeman_energy
+logical, intent(in) :: DoPlot
+logical, intent(in) :: hinput
+logical, intent(in) :: smagn
+logical, intent(in) :: m_paranoid
+logical, intent(in) :: dbg
+real(kind=8), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
+real(kind=8), intent(in) :: dir_weight(nDirZee,3)
+real(kind=8), intent(in) :: hmin, hmax
+real(kind=8), intent(in) :: zj, thrs
+real(kind=8), intent(in) :: eso(nss)
+real(kind=8), intent(in) :: EM
+real(kind=8), intent(in) :: TempMagn(nTempMagn)
+real(kind=8), intent(in) :: hexp(nH)
+real(kind=8), intent(in) :: magn_exp(nH,nTempMagn)
+complex(kind=8), intent(in) :: sm(3,nss,nss)
+complex(kind=8), intent(in) :: dipm(3,nss,nss)
+!-----------------------------------------------------------------------
+! local variables
+integer :: nP, iTEnd, iT, IM, I, L, J, IC, IDIR, IH, iTemp
+real(kind=8) :: DLTH, mv, sv, dev
+character(len=99) :: STLNE1, STLNE2
+real(kind=8), allocatable :: WM(:)         ! WM(nm)
+real(kind=8), allocatable :: MT(:,:,:)     ! MT(3,nH,nTempMagn)
+real(kind=8), allocatable :: ST(:,:,:)     ! ST(3,nH,nTempMagn)
+! magnetization and spin vectors
+real(kind=8), allocatable :: MVEC(:,:,:,:) ! MVEC(nDirTot,nH,nTempMagn,3)
+real(kind=8), allocatable :: SVEC(:,:,:,:) ! SVEC(nDirTot,nH,nTempMagn,3)
+real(kind=8), allocatable :: H(:)          ! H(nH)
+! average powder M and S:
+real(kind=8), allocatable :: MAV(:,:) ! MAV(nH,nTempMagn)
+real(kind=8), allocatable :: SAV(:,:) ! SAV(nH,nTempMagn)
+real(kind=8), allocatable :: ZT(:,:)  ! ZT(nH,nTempMagn)
+real(kind=8), allocatable :: STDEV(:) ! STDEV(nTempMagn)
+real(kind=8), allocatable :: dHX(:)   ! dHX(nDirTot)
+real(kind=8), allocatable :: dHY(:)   ! dHY(nDirTot)
+real(kind=8), allocatable :: dHZ(:)   ! dHZ(nDirTot)
+real(kind=8), allocatable :: dHW(:)   ! dHW(nDirTot)
+integer :: mem_local, RtoB
+external :: dev
 
 !-----------------------------------------------------------------------
 ! Allocate necessary memory
-      mem_local=0
-      RtoB=8
+mem_local = 0
+RtoB = 8
 
-      ! Zeeman exchange energy spectrum
-      Call mma_allocate(WM,nM,'W')
-      Call dcopy_(nM,[0.0_wp],0,WM,1)
-      mem_local=mem_local+nM*RtoB
+! Zeeman exchange energy spectrum
+call mma_allocate(WM,nM,'W')
+call dcopy_(nM,[0.0_wp],0,WM,1)
+mem_local = mem_local+nM*RtoB
 
-      Call mma_allocate(MT,3,nH,nTempMagn,'MT')
-      Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,MT,1)
-      mem_local=mem_local+3*nH*nTempMagn*RtoB
+call mma_allocate(MT,3,nH,nTempMagn,'MT')
+call dcopy_(3*nH*nTempMagn,[0.0_wp],0,MT,1)
+mem_local = mem_local+3*nH*nTempMagn*RtoB
 
-      Call mma_allocate(ST,3,nH,nTempMagn,'ST')
-      Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,ST,1)
-      mem_local=mem_local+3*nH*nTempMagn*RtoB
+call mma_allocate(ST,3,nH,nTempMagn,'ST')
+call dcopy_(3*nH*nTempMagn,[0.0_wp],0,ST,1)
+mem_local = mem_local+3*nH*nTempMagn*RtoB
 
-      Call mma_allocate(MAV,nH,nTempMagn,'MAV')
-      Call dcopy_(nH*nTempMagn,[0.0_wp],0,MAV,1)
-      mem_local=mem_local+nH*nTempMagn*RtoB
+call mma_allocate(MAV,nH,nTempMagn,'MAV')
+call dcopy_(nH*nTempMagn,[0.0_wp],0,MAV,1)
+mem_local = mem_local+nH*nTempMagn*RtoB
 
-      Call mma_allocate(SAV,nH,nTempMagn,'SAV')
-      Call dcopy_(nH*nTempMagn,[0.0_wp],0,SAV,1)
-      mem_local=mem_local+nH*nTempMagn*RtoB
+call mma_allocate(SAV,nH,nTempMagn,'SAV')
+call dcopy_(nH*nTempMagn,[0.0_wp],0,SAV,1)
+mem_local = mem_local+nH*nTempMagn*RtoB
 
-      Call mma_allocate(ZT,nH,nTempMagn,'ZT')
-      Call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
-      mem_local=mem_local+nH*nTempMagn*RtoB
+call mma_allocate(ZT,nH,nTempMagn,'ZT')
+call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
+mem_local = mem_local+nH*nTempMagn*RtoB
 
-      Call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
-      Call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
-      Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,MVEC,1)
-      Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,SVEC,1)
-      mem_local=mem_local+6*nDirTot*nH*nTempMagn*RtoB
+call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
+call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
+call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,MVEC,1)
+call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,SVEC,1)
+mem_local = mem_local+6*nDirTot*nH*nTempMagn*RtoB
 
-      Call mma_allocate(H,nH,'H')
-      Call dcopy_(nH,[0.0_wp],0,H,1)
-      mem_local=mem_local+nH*RtoB
+call mma_allocate(H,nH,'H')
+call dcopy_(nH,[0.0_wp],0,H,1)
+mem_local = mem_local+nH*RtoB
 
-      Call mma_allocate(STDEV,nTempMagn,'H')
-      Call dcopy_(nTempMagn,[0.0_wp],0,STDEV,1)
-      mem_local=mem_local+nTempMagn*RtoB
+call mma_allocate(STDEV,nTempMagn,'H')
+call dcopy_(nTempMagn,[0.0_wp],0,STDEV,1)
+mem_local = mem_local+nTempMagn*RtoB
 
-      Call mma_allocate(dHX,nDirTot,'dHX')
-      Call mma_allocate(dHY,nDirTot,'dHY')
-      Call mma_allocate(dHZ,nDirTot,'dHZ')
-      Call mma_allocate(dHW,nDirTot,'dHW')
-      Call dcopy_(nDirTot,[0.0_wp],0,dHX,1)
-      Call dcopy_(nDirTot,[0.0_wp],0,dHY,1)
-      Call dcopy_(nDirTot,[0.0_wp],0,dHZ,1)
-      Call dcopy_(nDirTot,[0.0_wp],0,dHW,1)
-      mem_local=mem_local+4*nDirTot*RtoB
-      If(dbg) Write(6,*) 'MAGNETIZATION:  memory allocated (local):'
-      If(dbg) Write(6,*) 'mem_local=', mem_local
-      If(dbg) Write(6,*) 'MAGNETIZATION:  memory allocated (total):'
-      If(dbg) Write(6,*) 'mem_total=', mem+mem_local
+call mma_allocate(dHX,nDirTot,'dHX')
+call mma_allocate(dHY,nDirTot,'dHY')
+call mma_allocate(dHZ,nDirTot,'dHZ')
+call mma_allocate(dHW,nDirTot,'dHW')
+call dcopy_(nDirTot,[0.0_wp],0,dHX,1)
+call dcopy_(nDirTot,[0.0_wp],0,dHY,1)
+call dcopy_(nDirTot,[0.0_wp],0,dHZ,1)
+call dcopy_(nDirTot,[0.0_wp],0,dHW,1)
+mem_local = mem_local+4*nDirTot*RtoB
+if (dbg) write(6,*) 'MAGNETIZATION:  memory allocated (local):'
+if (dbg) write(6,*) 'mem_local=',mem_local
+if (dbg) write(6,*) 'MAGNETIZATION:  memory allocated (total):'
+if (dbg) write(6,*) 'mem_total=',mem+mem_local
 !-----------------------------------------------------------------------
-      Write(6,*)
-      Write(6,'(100A)') (('%'),J=1,96)
-      Write(6,'(40X,A)') 'CALCULATION OF THE MOLAR MAGNETIZATION'
-      Write(6,'(100A)') (('%'),J=1,96)
-      Write(6,*)
+write(6,*)
+write(6,'(100A)') (('%'),J=1,96)
+write(6,'(40X,A)') 'CALCULATION OF THE MOLAR MAGNETIZATION'
+write(6,'(100A)') (('%'),J=1,96)
+write(6,*)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      If(DBG.or.iprint>3) Then
-        Write(6,'(A, I5)')  'nH                  = ',nH
-        Write(6,'(A, I5)')  'nM                  = ',nM
-        Write(6,'(A, I5)')  'nsymm               = ',nsymm
-        Write(6,'(A, I5)')  'ngrid               = ',ngrid
-        Write(6,'(A, I5)')  'nDir                = ',nDir
-        Write(6,'(A, I5)')  'nDirZee             = ',nDirZee
-        Write(6,'(A, I5)')  'nDirTot             = ',nDirTot
-        Write(6,'(A, F9.5)')'HMIN                = ',hmin
-        Write(6,'(A, F9.5)')'HMAX                = ',hmax
-        Write(6,'(A, F9.5)')'zJ                  = ',zJ
-        Write(6,*)          'compute_Mdir_vector = ',compute_Mdir_vector
-        Write(6,*)          'hinput              = ',hinput
-        Write(6,*)          'zeeman_energy       = ',zeeman_energy
-        Write(6,*)          'hinput              = ',hinput
-        Write(6,*)          'smagn               = ',smagn
-        Write(6,'(A)') 'dir_weight'
-        Do i=1,nDirZee
-          Write(6,'(3F10.6)') (dir_weight(i,j),j=1,3)
-        End Do
-        Write(6,'(A)') 'nDir'
-        Do i=1,nDir
-          Write(6,'(3F10.6)') dirX(i),dirY(i),dirZ(i)
-        End Do
-        Write(6,'(30(F6.3,a))')                                         &
-     &                       (TempMagn(iTemp),' K.;',iTemp=1,nTempMagn)
-        If (zeeman_energy) Then
-          Write(6,'(A)') 'dir_weight'
-          Do i=1,nDirZee
-            Write(6,'(3F10.6)') (dir_weight(i,j),j=1,3)
-          End Do
-        End If
-      End If
+if (DBG .or. (iprint > 3)) then
+  write(6,'(A, I5)') 'nH                  = ',nH
+  write(6,'(A, I5)') 'nM                  = ',nM
+  write(6,'(A, I5)') 'nsymm               = ',nsymm
+  write(6,'(A, I5)') 'ngrid               = ',ngrid
+  write(6,'(A, I5)') 'nDir                = ',nDir
+  write(6,'(A, I5)') 'nDirZee             = ',nDirZee
+  write(6,'(A, I5)') 'nDirTot             = ',nDirTot
+  write(6,'(A, F9.5)') 'HMIN                = ',hmin
+  write(6,'(A, F9.5)') 'HMAX                = ',hmax
+  write(6,'(A, F9.5)') 'zJ                  = ',zJ
+  write(6,*) 'compute_Mdir_vector = ',compute_Mdir_vector
+  write(6,*) 'hinput              = ',hinput
+  write(6,*) 'zeeman_energy       = ',zeeman_energy
+  write(6,*) 'hinput              = ',hinput
+  write(6,*) 'smagn               = ',smagn
+  write(6,'(A)') 'dir_weight'
+  do i=1,nDirZee
+    write(6,'(3F10.6)') (dir_weight(i,j),j=1,3)
+  end do
+  write(6,'(A)') 'nDir'
+  do i=1,nDir
+    write(6,'(3F10.6)') dirX(i),dirY(i),dirZ(i)
+  end do
+  write(6,'(30(F6.3,a))') (TempMagn(iTemp),' K.;',iTemp=1,nTempMagn)
+  if (zeeman_energy) then
+    write(6,'(A)') 'dir_weight'
+    do i=1,nDirZee
+      write(6,'(3F10.6)') (dir_weight(i,j),j=1,3)
+    end do
+  end if
+end if
 
-      nP=get_nP(nsymm,ngrid)
+nP = get_nP(nsymm,ngrid)
 
+call hdir(nDir,nDirZee,dirX,dirY,dirZ,dir_weight,nP,nsymm,ngrid,nDirTot,dHX,dHY,dHZ,dHW)
 
-      Call hdir( nDir,nDirZee, dirX,dirY,dirZ,dir_weight,               &
-     &           nP,nsymm,ngrid,nDirTot,dHX,dHY,dHZ,dHW)
+write(6,'(2X,A,i3,A)') 'Molar magnetization will be calculated in ',NH,' points, equally distributed in magnetic field range'
+write(6,'(2X,F4.1,1x,a,1X,F4.1,a,10(F6.3,a))') HMIN,'--',HMAX,' T., at the following temperatures:'
+do i=1,nTempMagn,10
+  j = min(nTempMagn,i+9)
+  write(6,'(10(F8.4,A))') (TempMagn(l),' K.;',l=i,j)
+end do
+write(6,'(2X,A,I4,A)') 'Powder molar magnetization will be averaged on ',nP,' directions of the applied magnetic field.'
+write(6,'(2x,10A)') ('--------',i=1,10)
+if (nsymm == 1) then
+  write(6,'(23x,A)') 'Lebedev-Laikov grid on a hemisphere:'
+  write(6,'(38x,A)') 'z >= 0;'
+else if (nsymm == 2) then
+  write(6,'(23x,A)') 'Lebedev-Laikov grid on a 4th-of-a-sphere:'
+  write(6,'(34x,A)') 'x >= 0; z >= 0;'
+else if (nsymm == 3) then
+  write(6,'(23x,A)') 'Lebedev-Laikov grid on a 8th-of-a-sphere:'
+  write(6,'(30x,A)') 'x >= 0; y >= 0; z >= 0;'
+end if
+write(6,'(2x,10A)') ('--------',i=1,10)
+write(6,'(2x,A,12x,A,2(18x,A),16x,A)') 'Nr.','x','y','z','weight'
+do i=1,nP
+  write(6,'(i4,2x,4(F18.12,1x))') i,dHX(i+nDir+nDirZee),dHY(i+nDir+nDirZee),dHZ(i+nDir+nDirZee),dHW(i+nDir+nDirZee)
+end do
 
+if (nDir > 0) then
+  write(6,'(2x,10A)') ('--------',i=1,10)
+  write(6,'(23x,A)') ' Magnetization vector will be computed'
+  write(6,'(2x,10A)') ('--------',i=1,10)
+  write(6,'(2x,A,12x,A,2(18x,A))') 'Nr.','x','y','z'
+  do i=1,nDir
+    write(6,'(i4,2x,4(F18.12,1x))') i,dHX(i),dHY(i),dHZ(i)
+  end do
+end if
 
-      Write(6,'(2X,A,i3,A)') 'Molar magnetization will be '//           &
-     &                       'calculated in ',NH,                       &
-     &                       ' points, equally distributed in '//       &
-     &                       'magnetic field range'
-      Write(6,'(2X,F4.1,1x,a,1X,F4.1,a,10(F6.3,a))') HMIN,'--',HMAX,    &
-     &                       ' T., at the following temperatures:'
-      Do i=1,nTempMagn,10
-        j=MIN(nTempMagn,i+9)
-        Write(6,'(10(F8.4,A))') (TempMagn(l),' K.;',l=i,j)
-      End Do
-      Write(6,'(2X,A,I4,A)') 'Powder molar magnetization will be '//    &
-     &                       'averaged on ',nP,' directions of the '//  &
-     &                       'applied magnetic field.'
-      Write(6,'(2x,10A)') ('--------', i=1,10)
-      If(nsymm.eq.1) Then
-        Write(6,'(23x,A)') 'Lebedev-Laikov grid on a hemisphere:'
-        Write(6,'(38x,A)') 'z >= 0;'
-      Else If(nsymm.eq.2) Then
-        Write(6,'(23x,A)') 'Lebedev-Laikov grid on a 4th-of-a-sphere:'
-        Write(6,'(34x,A)') 'x >= 0; z >= 0;'
-      Else If(nsymm.eq.3) Then
-        Write(6,'(23x,A)') 'Lebedev-Laikov grid on a 8th-of-a-sphere:'
-        Write(6,'(30x,A)') 'x >= 0; y >= 0; z >= 0;'
-      End If
-      Write(6,'(2x,10A)') ('--------', i=1,10)
-      Write(6,'(2x,A,12x,A,2(18x,A),16x,A)') 'Nr.','x','y','z',         &
-     &                                         'weight'
-      Do i=1,nP
-        Write(6,'(i4,2x,4(F18.12,1x))')                                 &
-     &                      i,dHX(i+nDir+nDirZee),dHY(i+nDir+nDirZee),  &
-     &                        dHZ(i+nDir+nDirZee),dHW(i+nDir+nDirZee)
-      End Do
+if (zeeman_energy) then
+  write(6,'(2x,10A)') ('--------',i=1,10)
+  write(6,'(23x,A)') 'Zeeman Energy Splitting will be computed'
+  write(6,'(2x,10A)') ('--------',i=1,10)
+  write(6,'(2x,A,12x,A,2(18x,A))') 'Nr.','x','y','z'
+  do i=1,nDirZee
+    j = i+nDir
+    write(6,'(i4,2x,4(F18.12,1x))') j,dHX(j),dHY(j),dHZ(j)
+  end do
+end if
 
-      If( nDir>0 ) Then
-        Write(6,'(2x,10A)') ('--------', i=1,10)
-        Write(6,'(23x,A)') ' Magnetization vector will be computed'
-        Write(6,'(2x,10A)') ('--------', i=1,10)
-        Write(6,'(2x,A,12x,A,2(18x,A))') 'Nr.','x','y','z'
-        Do i=1,nDir
-          Write(6,'(i4,2x,4(F18.12,1x))') i, dHX(i), dHY(i), dHZ(i)
-        End Do
-      End If
-
-      If (zeeman_energy) Then
-        Write(6,'(2x,10A)') ('--------', i=1,10)
-        Write(6,'(23x,A)') 'Zeeman Energy Splitting will be computed'
-        Write(6,'(2x,10A)') ('--------', i=1,10)
-        Write(6,'(2x,A,12x,A,2(18x,A))') 'Nr.','x','y','z'
-        Do i=1,nDirZee
-           j=i+nDir
-          Write(6,'(i4,2x,4(F18.12,1x))') j, dHX(j), dHY(j), dHZ(j)
-        End Do
-      End If
-
-      Write(6,'(2x,10A)') ('--------', i=1,10)
-      Write(6,'(2X,A)') 'The cut-off energy for the exact '//           &
-     &                  'diagonalization of the Zeeman Hamiltonian is:'
-      Write(6,'(2x,a,F15.9,A)') 'E = ',EM ,' cm(-1).'
-      If(NM.lt.10) Then
-        Write(6,'(2X,A,i2,a)') 'The exact diagonalization of the '//    &
-     &                         'Zeeman Hamiltonian included ',NM,       &
-     &                         ' exchange states.'
-      Else If( (NM.ge.10) .AND. (NM.lt.100) ) Then
-        Write(6,'(2X,A,i3,a)') 'The exact diagonalization of the '//    &
-     &                         'Zeeman Hamiltonian included ',NM,       &
-     &                         ' exchange states.'
-      Else If( (NM.ge.100) .AND. (NM.lt.1000) ) Then
-        Write(6,'(2X,A,i4,a)') 'The exact diagonalization of the '//    &
-     &                         'Zeeman Hamiltonian included ',NM,       &
-     &                         ' exchange states.'
-      Else If( (NM.ge.1000) .AND. (NM.lt.10000) ) Then
-        Write(6,'(2X,A,i5,a)') 'The exact diagonalization of the '//    &
-     &                         'Zeeman Hamiltonian included ',NM,       &
-     &                         ' exchange states.'
-      End If
-      If(compute_Mdir_vector) Then
-        Write(6,'(2x,A,i2,a)') 'The magnetization vector for ',nDir,    &
-     &                         ' directions of the applied '//          &
-     &                         'magnetic field will be calculated.'
-      Else
-        Write(6,'(2X,A)') 'The magnetization vector was not calculated.'
-      End If
-      If(zeeman_energy) Then
-        Write(6,'(2x,A,i2,a)') 'The Zeeman splitting for ',nDirZee,     &
-     &                         ' directions of the applied '//          &
-     &                         'magnetic field will be calculated.'
-        Write(6,'(2x,a     )') 'The Zeeman energies for each '//        &
-     &                         'direction of the applied magnetic '//   &
-     &                         'field are written in files '//          &
-     &                         '"zeeman_energy_xxx.txt".'
-      Else
-        Write(6,'(2X,A)') 'Computation of the Zeeman splitting was '//  &
-     &                    'not requested.'
-      End If
-!      smagn=.false.
-!      m_paranoid=.true.
-!      THRS=1.d-10 !threshold for convergence of average spin, in case (zJ .ne. 0)
+write(6,'(2x,10A)') ('--------',i=1,10)
+write(6,'(2X,A)') 'The cut-off energy for the exact diagonalization of the Zeeman Hamiltonian is:'
+write(6,'(2x,a,F15.9,A)') 'E = ',EM,' cm(-1).'
+if (NM < 10) then
+  write(6,'(2X,A,i2,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+else if ((NM >= 10) .and. (NM < 100)) then
+  write(6,'(2X,A,i3,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+else if ((NM >= 100) .and. (NM < 1000)) then
+  write(6,'(2X,A,i4,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+else if ((NM >= 1000) .and. (NM < 10000)) then
+  write(6,'(2X,A,i5,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+end if
+if (compute_Mdir_vector) then
+  write(6,'(2x,A,i2,a)') 'The magnetization vector for ',nDir,' directions of the applied magnetic field will be calculated.'
+else
+  write(6,'(2X,A)') 'The magnetization vector was not calculated.'
+end if
+if (zeeman_energy) then
+  write(6,'(2x,A,i2,a)') 'The Zeeman splitting for ',nDirZee,' directions of the applied magnetic field will be calculated.'
+  write(6,'(2x,a     )') 'The Zeeman energies for each direction of the applied magnetic field are written in files '// &
+                         '"zeeman_energy_xxx.txt".'
+else
+  write(6,'(2X,A)') 'Computation of the Zeeman splitting was not requested.'
+end if
+!smagn = .false.
+!m_paranoid = .true.
+!THRS = 1.d-10 ! threshold for convergence of average spin, in case (zJ /= 0)
 ! /// opening the loop over the field points
-      Do iH=1,nH
-! /// ---------------------------------------------------------------
-        If (HINPUT) Then
-           H(iH)=HEXP(iH)
-           If(H(iH).eq.0.0_wp) Then
-             H(iH)=0.0001_wp
-           End If
-        Else
-          DLTH=(HMAX-HMIN)/DBLE(NH-1)
-          If (iH.eq.1) Then
-            H(IH)=HMIN+0.0001_wp
-          Else
-            H(IH)=HMIN+DLTH*DBLE(IH-1)
-          End If
-          If(H(iH).eq.0.0_wp) Then
-            H(iH)=0.0001_wp
-          End If
-        End If
+do iH=1,nH
+  !/// -----------------------------------------------------------------
+  if (HINPUT) then
+    H(iH) = HEXP(iH)
+    if (H(iH) == 0.0_wp) H(iH) = 0.0001_wp
+  else
+    DLTH = (HMAX-HMIN)/dble(NH-1)
+    if (iH == 1) then
+      H(IH) = HMIN+0.0001_wp
+    else
+      H(IH) = HMIN+DLTH*dble(IH-1)
+    end if
+    if (H(iH) == 0.0_wp) H(iH) = 0.0001_wp
+  end if
 
-         !    If(DBG)
-         If(DBG) Write(6,'(A,i0,A,F10.5,A,L2,A,L2)')                    &
-     &          'MAGNETIZATION::  H(',iH,') = ', H(iH),                 &
-     &          'smagn=',smagn,' m_paranoid=',m_paranoid
+  if (DBG) write(6,'(A,i0,A,F10.5,A,L2,A,L2)') 'MAGNETIZATION::  H(',iH,') = ',H(iH),'smagn=',smagn,' m_paranoid=',m_paranoid
 
-! ///  opening the loop over dIfferent directions of the magnetic field
-        Do iM=1,NDIRTOT
-          MT(1:3,iH,1:nTempMagn)=0.0_wp
-          ST(1:3,iH,1:nTempMagn)=0.0_wp
-          Call dcopy_(nM,[0.0_wp],0,WM,1)
-!         Entry into monitor: Status line
-          WRITE(STLNE1,'(A)') 'SINGLE_ANISO:  powder magnetization:'
-          WRITE(STLNE2,'(A,I4,A,I4,A,I4,A,I4)')                         &
-     &    ' Field: ',IH,' from ',nH,' at direction ',IM,' from ',NDIRTOT
-          Call StatusLine( trim(STLNE1), trim(STLNE2) )
-!  actual calculation of the MT and ST, ZT
-          Call MAGN( NSS, NM, dHX(iM),dHY(iM),dHZ(iM),H(iH),            &
-     &               ESO, zJ, THRS,                                     &
-     &               DIPM,                                              &
-     &                 SM,                                              &
-     &               nTempMagn,TempMagn,smagn,                          &
-     &               WM,                                                &
-     &               ZT(iH,1:nTempMagn),                                &
-     &               ST(1:3,iH,1:nTempMagn),                            &
-     &               MT(1:3,iH,1:nTempMagn), m_paranoid, DBG )
-          If (DBG .and. (iH.eq.nH) .and. (iM.eq.23)) Then
-            Write(6,'(A,3ES16.8)') 'iM:',dHX(iM),dHY(iM),dHZ(iM)
-            Write(6,'(2(A,3ES16.8,1x),A,ES16.8)')                       &
-     &                                'MT:',(MT(l,iH,1),l=1,3),         &
-     &                                'ST:',(ST(l,iH,1),l=1,3),         &
-     &                             'ZSTAT:',ZT(iH,1)
-            Write(6,'(A,3ES16.8)') 'WM:',(WM(l),l=1,nM)
-          End If
-!  ---------------------------------------------------------------------
-          If (zeeman_energy) Then
-             If((iH.eq.1).and.(iM.eq.nDir+1))                           &
-     &         Write(6,'(A)') 'Energies of the Zeeman Hamiltonian '//   &
-     &                        'for the following directions of the '//  &
-     &                        'applied field:'
-             If ( (iH.eq.1).and.(iM.gt.nDir) .and.                      &
-     &                          (iM.le.(nDir+nDirZee)) ) Then
-               Write(6,'(A,I3,A,3F10.6,3x,5A)')                         &
-     &                 'direction Nr.',iM-nDir, ' : ',                  &
-     &                  dHX(iM), dHY(iM), dHZ(iM),                      &
-     &                 'written in file "zeeman_energy_',               &
-     &                  CHAR(48+mod(int((iM-nDir)/100),10)),            &
-     &                  CHAR(48+mod(int((iM-nDir)/10 ),10)),            &
-     &                  CHAR(48+mod(    (iM-nDir)     ,10)),            &
-     &                  '.txt".'
+  !/// opening the loop over dIfferent directions of the magnetic field
+  do iM=1,NDIRTOT
+    MT(1:3,iH,1:nTempMagn) = 0.0_wp
+    ST(1:3,iH,1:nTempMagn) = 0.0_wp
+    call dcopy_(nM,[0.0_wp],0,WM,1)
+    ! Entry into monitor: Status line
+    write(STLNE1,'(A)') 'SINGLE_ANISO:  powder magnetization:'
+    write(STLNE2,'(A,I4,A,I4,A,I4,A,I4)') ' Field: ',IH,' from ',nH,' at direction ',IM,' from ',NDIRTOT
+    call StatusLine(trim(STLNE1),trim(STLNE2))
+    ! actual calculation of the MT and ST, ZT
+    call MAGN(NSS,NM,dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO,zJ,THRS,DIPM,SM,nTempMagn,TempMagn,smagn,WM,ZT(iH,1:nTempMagn),ST(:,iH,:), &
+              MT(:,iH,:),m_paranoid,DBG)
+    if (DBG .and. (iH == nH) .and. (iM == 23)) then
+      write(6,'(A,3ES16.8)') 'iM:',dHX(iM),dHY(iM),dHZ(iM)
+      write(6,'(2(A,3ES16.8,1x),A,ES16.8)') 'MT:',(MT(l,iH,1),l=1,3),'ST:',(ST(l,iH,1),l=1,3),'ZSTAT:',ZT(iH,1)
+      write(6,'(A,3ES16.8)') 'WM:',(WM(l),l=1,nM)
+    end if
+    !-------------------------------------------------------------------
+    if (zeeman_energy) then
+      if ((iH == 1) .and. (iM == nDir+1)) write(6,'(A)') 'Energies of the Zeeman Hamiltonian for the following directions of '// &
+                                                         'the applied field:'
+      if ((iH == 1) .and. (iM > nDir) .and. (iM <= nDir+nDirZee)) then
+        write(6,'(A,I3,A,3F10.6,3x,5A)') 'direction Nr.',iM-nDir,' : ',dHX(iM),dHY(iM),dHZ(iM),'written in file "zeeman_energy_', &
+                                         char(48+mod(int((iM-nDir)/100),10)),char(48+mod(int((iM-nDir)/10),10)), &
+                                         char(48+mod((iM-nDir),10)),'.txt".'
 
-               Write(LUZee(iM-nDir),'(A,3F24.15)')                      &
-     &                  '# direction of the applied magnetic field:',   &
-     &                  dHX(iM), dHY(iM), dHZ(iM)
-               Write(LUZee(iM-nDir),'(A,6x,A,1000(I4,6x) )') '# H(T)',  &
-     &                  ' State =>',(i,i=1,nm)
-             End If
+        write(LUZee(iM-nDir),'(A,3F24.15)') '# direction of the applied magnetic field:',dHX(iM),dHY(iM),dHZ(iM)
+        write(LUZee(iM-nDir),'(A,6x,A,1000(I4,6x) )') '# H(T)',' State =>',(i,i=1,nm)
+      end if
 
-             If ( (iM.gt.nDir) .and. (iM.le.(nDir+nDirZee)) ) Then
-               Write(LUZee(iM-nDir),'(F8.4,1000F10.3)')                 &
-     &                               H(IH),(WM(I),I=1,NM)
-             End If
-          End If !zeeman_energy
-!  ---------------------------------------------------------------------
-!         computing the AVERAGE MOMENTS calculated at different temperatures
-!         (TempMagn(i))
-          Do iT=1,nTempMagn
-            Do ic=1,3
-              MVEC(iM,iH,iT,ic)=MT(ic,iH,iT)
-              SVEC(iM,iH,iT,ic)=ST(ic,iH,iT)
-            End Do  ! ic
+      if ((iM > nDir) .and. (iM <= nDir+nDirZee)) write(LUZee(iM-nDir),'(F8.4,1000F10.3)') H(IH),(WM(I),I=1,NM)
+    end if !zeeman_energy
+    !-------------------------------------------------------------------
+    ! computing the AVERAGE MOMENTS calculated at different temperatures
+    ! (TempMagn(i))
+    do iT=1,nTempMagn
+      do ic=1,3
+        MVEC(iM,iH,iT,ic) = MT(ic,iH,iT)
+        SVEC(iM,iH,iT,ic) = ST(ic,iH,iT)
+      end do  ! ic
 
-            If(iM.gt.nDir+nDirZee) Then
-!              MAV(iH,iTemp) = MAV(iH,iTemp)+MT(1,iH,iT)*dHX(iM)*dHW(iM)
-!     &                                     +MT(2,iH,iT)*dHY(iM)*dHW(iM)
-!     &                                     +MT(3,iH,iT)*dHZ(iM)*dHW(iM)
-!
-!              SAV(iH,iTemp) = SAV(iH,iTemp)+ST(1,iH,iT)*dHX(iM)*dHW(iM)
-!     &                                     +ST(2,iH,iT)*dHY(iM)*dHW(iM)
-!     &                                     +ST(3,iH,iT)*dHZ(iM)*dHW(iM)
-              ! accumulate contributions:
-              Call daxpy_(1,dHX(iM)*dHW(iM),MT(1,iH,iT),1,MAV(iH,iT),1)
-              Call daxpy_(1,dHY(iM)*dHW(iM),MT(2,iH,iT),1,MAV(iH,iT),1)
-              Call daxpy_(1,dHZ(iM)*dHW(iM),MT(3,iH,iT),1,MAV(iH,iT),1)
-              Call daxpy_(1,dHX(iM)*dHW(iM),ST(1,iH,iT),1,SAV(iH,iT),1)
-              Call daxpy_(1,dHY(iM)*dHW(iM),ST(2,iH,iT),1,SAV(iH,iT),1)
-              Call daxpy_(1,dHZ(iM)*dHW(iM),ST(3,iH,iT),1,SAV(iH,iT),1)
-            End If
-            If (iprint > 2) Then
-               If((iM==1).AND.(iH==1))                                  &
-     &            Write(6,'(2x,A,1x,A,4x,A,7x,A,7x,A)')                 &
-     &                  'iH','iM','iT',                                 &
-     &                  'moment(iM,iT)',                                &
-     &                  'spin(iM,iT)'
-                  Write(6,'(3i4,3(F21.15,1x))')                         &
-     &                   iH,iM,iT,                                      &
-     &                (  MT(1,iH,iT)*dHX(iM)                            &
-     &                 + MT(2,iH,iT)*dHY(iM)                            &
-     &                 + MT(3,iH,iT)*dHZ(iM) ),                         &
-
-     &                (  ST(1,iH,iT)*dHX(iM)                            &
-     &                 + ST(2,iH,iT)*dHY(iM)                            &
-     &                 + ST(3,iH,iT)*dHZ(iM) )
-            End If
-          End Do !iT
-!  ---------------------------------------------------------------------
-! ///  closing the loop over directions of magnetic field
-        End Do   !  iM
-! /// -------------------------------------------------------------------
-! ///  closing the loop over the points of magnetic field:
-      End Do ! IH
-! /// -------------------------------------------------------------------
+      if (iM > nDir+nDirZee) then
+        ! MAV(iH,iTemp) = MAV(iH,iTemp)+MT(1,iH,iT)*dHX(iM)*dHW(iM)+MT(2,iH,iT)*dHY(iM)*dHW(iM)+MT(3,iH,iT)*dHZ(iM)*dHW(iM)
+        ! SAV(iH,iTemp) = SAV(iH,iTemp)+ST(1,iH,iT)*dHX(iM)*dHW(iM)+ST(2,iH,iT)*dHY(iM)*dHW(iM)+ST(3,iH,iT)*dHZ(iM)*dHW(iM)
+        ! accumulate contributions:
+        call daxpy_(1,dHX(iM)*dHW(iM),MT(1,iH,iT),1,MAV(iH,iT),1)
+        call daxpy_(1,dHY(iM)*dHW(iM),MT(2,iH,iT),1,MAV(iH,iT),1)
+        call daxpy_(1,dHZ(iM)*dHW(iM),MT(3,iH,iT),1,MAV(iH,iT),1)
+        call daxpy_(1,dHX(iM)*dHW(iM),ST(1,iH,iT),1,SAV(iH,iT),1)
+        call daxpy_(1,dHY(iM)*dHW(iM),ST(2,iH,iT),1,SAV(iH,iT),1)
+        call daxpy_(1,dHZ(iM)*dHW(iM),ST(3,iH,iT),1,SAV(iH,iT),1)
+      end if
+      if (iprint > 2) then
+        if ((iM == 1) .and. (iH == 1)) write(6,'(2x,A,1x,A,4x,A,7x,A,7x,A)') 'iH','iM','iT','moment(iM,iT)','spin(iM,iT)'
+        write(6,'(3i4,3(F21.15,1x))') iH,iM,iT,(MT(1,iH,iT)*dHX(iM)+MT(2,iH,iT)*dHY(iM)+MT(3,iH,iT)*dHZ(iM)), &
+                                      (ST(1,iH,iT)*dHX(iM)+ST(2,iH,iT)*dHY(iM)+ST(3,iH,iT)*dHZ(iM))
+      end if
+    end do ! iT
+    !-------------------------------------------------------------------
+    !/// closing the loop over directions of magnetic field
+  end do   ! iM
+  !/// -----------------------------------------------------------------
+  !/// closing the loop over the points of magnetic field:
+end do ! IH
+!/// -------------------------------------------------------------------
 ! Close Zeeman files, if opened
-      If (Zeeman_Energy) Then
-        Do i=1,nDirZee
-          Close( LUZee(i) )
-        End Do
-      End If
+if (Zeeman_Energy) then
+  do i=1,nDirZee
+    close(LUZee(i))
+  end do
+end if
 
-! /// -------------------------------------------------------------------
-      If(nDir .gt. 0) Then
+!/// -------------------------------------------------------------------
+if (nDir > 0) then
 
-      If (smagn) Then
-        Do iT=1,nTempMagn
-          Write(6,*)
-          Do iDir=1,nDir
-            Write(6,*)
-            Write(6,'(A,A,1x,A)') '--------|',                          &
-     &                            '------------------------------'//    &
-     &                            '------------------------------|',    &
-     &                            '|------------------------------'//   &
-     &                            '------------------------------|'
-            Write(6,'(A,i3,26x,A,1x,A,60x,A)')                          &
-     &                   'Direction of the applied magnetic field:',    &
-     &                    iDir,'|','|','|'
-            Write(6,'(A,F18.14,44x,A,1x,A,60x,A)')                      &
-     &                   'proj X=',dHX(iDIR),'|','|','|'
-            Write(6,'(A,F18.14,44x,A,1x,A,60x,A)')                      &
-     &                   'proj Y=',dHY(iDir),'|','|','|'
-            Write(6,'(A,F18.14,44x,A,1x,A,60x,A)')                      &
-     &                   'proj Z=',dHZ(iDir),'|','|','|'
-            Write(6,'(A,F7.4,A,41x,A,1x,A,60x,A)')                      &
-     &                   'Temperature = ',TempMagn(iT),                 &
-     &                   ' Kelvin','|','|','|'
-            Write(6,'(A,A,1x,A)') '--------|',                          &
-     &                            '------------------------------'//    &
-     &                            '------------------------------|',    &
-     &                            '|------------------------------'//   &
-     &                            '------------------------------|'
-            Write(6,'(2x,A,12x,2A,1x,A,10x,2A)') 'Field |',             &
-     &                   'Magnetization Vector            |',           &
-     &                   '   Total Magn. |','|',                        &
-     &                   'Spin Magnetization Vector         |',         &
-     &                   '   Total Magn. |'
-            Write(6,'(5A,1x,5A)') '--------|',                          &
-     &                   '--- proj X ---|','--- proj Y ---|',           &
-     &                   '--- proj Z ---|','- in this dir.-|',          &
-     &                   '|--- proj X ---|','--- proj Y ---|',          &
-     &                   '--- proj Z ---|','- in this dir.-|'
-            Do iH=1,nH
-              mv=0.0_wp
-              sv=0.0_wp
-              mv = MVEC(iDir,iH,iT,1)*dHX(iDir)                         &
-     &           + MVEC(iDir,iH,iT,2)*dHY(iDir)                         &
-     &           + MVEC(iDir,iH,iT,3)*dHZ(iDir)
-              sv = SVEC(iDir,iH,iT,1)*dHX(iDir)                         &
-     &           + SVEC(iDir,iH,iT,2)*dHY(iDir)                         &
-     &           + SVEC(iDir,iH,iT,3)*dHZ(iDir)
+  if (smagn) then
+    do iT=1,nTempMagn
+      write(6,*)
+      do iDir=1,nDir
+        write(6,*)
+        write(6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
+                              '|------------------------------------------------------------|'
+        write(6,'(A,i3,26x,A,1x,A,60x,A)') 'Direction of the applied magnetic field:',iDir,'|','|','|'
+        write(6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj X=',dHX(iDIR),'|','|','|'
+        write(6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj Y=',dHY(iDir),'|','|','|'
+        write(6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj Z=',dHZ(iDir),'|','|','|'
+        write(6,'(A,F7.4,A,41x,A,1x,A,60x,A)') 'Temperature = ',TempMagn(iT),' Kelvin','|','|','|'
+        write(6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
+                              '|------------------------------------------------------------|'
+        write(6,'(2x,A,12x,2A,1x,A,10x,2A)') 'Field |','Magnetization Vector            |','   Total Magn. |','|', &
+                                             'Spin Magnetization Vector         |','   Total Magn. |'
+        write(6,'(5A,1x,5A)') '--------|','--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|', &
+                              '|--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|'
+        do iH=1,nH
+          mv = 0.0_wp
+          sv = 0.0_wp
+          mv = MVEC(iDir,iH,iT,1)*dHX(iDir)+MVEC(iDir,iH,iT,2)*dHY(iDir)+MVEC(iDir,iH,iT,3)*dHZ(iDir)
+          sv = SVEC(iDir,iH,iT,1)*dHX(iDir)+SVEC(iDir,iH,iT,2)*dHY(iDir)+SVEC(iDir,iH,iT,3)*dHZ(iDir)
 
-              Write(6,'(F7.3,1x,A, 3(ES13.6,1x,A),ES14.7,1x,A,1x,A, '// &
-     &                            '3(ES13.6,1x,A),ES14.7,1x,A)')        &
-     &                   H(iH),'|', MVEC(iDir,iH,iT,1),' ',             &
-     &                              MVEC(iDir,iH,iT,2),' ',             &
-     &                              MVEC(iDir,iH,iT,3),'|', mv,'|','|', &
-     &                              SVEC(iDir,iH,iT,1),' ',             &
-     &                              SVEC(iDir,iH,iT,2),' ',             &
-     &                              SVEC(iDir,iH,iT,3),'|', sv,'|'
-            End Do
-            Write(6,'(A,A,1x,A)') '--------|',                          &
-     &                            '------------------------------'//    &
-     &                            '------------------------------|',    &
-     &                            '|------------------------------'//   &
-     &                            '------------------------------|'
-          End Do !iDir
-        End Do !iT
+          write(6,'(F7.3,1x,A, 3(ES13.6,1x,A),ES14.7,1x,A,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') H(iH),'|',MVEC(iDir,iH,iT,1),' ', &
+                                                                                             MVEC(iDir,iH,iT,2),' ', &
+                                                                                             MVEC(iDir,iH,iT,3),'|',mv,'|','|', &
+                                                                                             SVEC(iDir,iH,iT,1),' ', &
+                                                                                             SVEC(iDir,iH,iT,2),' ', &
+                                                                                             SVEC(iDir,iH,iT,3),'|',sv,'|'
+        end do
+        write(6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
+                              '|------------------------------------------------------------|'
+      end do ! iDir
+    end do ! iT
 
-      Else
-      ! smagn == .false.
+  else ! smagn == .false.
 
-        Do iT=1,nTempMagn
-          Write(6,*)
-          Do iDir=1,nDir
-            Write(6,*)
-            Write(6,'(2A)') '--------|',                                &
-     &                      '------------------------------'//          &
-     &                      '------------------------------|'
-            Write(6,'(A,i3,26x,A)')                                     &
-     &                      'Direction of the applied magnetic field:', &
-     &                       iDir,'|'
-            Write(6,'(A,F18.14,44x,A)') 'proj X=',dHX(iDIR),'|'
-            Write(6,'(A,F18.14,44x,A)') 'proj Y=',dHY(iDir),'|'
-            Write(6,'(A,F18.14,44x,A)') 'proj Z=',dHZ(iDir),'|'
-            Write(6,'(A,F7.4,A,41x,A)') 'Temperature = ',TempMagn(iT),  &
-     &                                  ' Kelvin','|'
-            Write(6,'(2A)') '--------|',                                &
-     &                      '------------------------------'//          &
-     &                      '------------------------------|'
-            Write(6,'(2x,A,12x,2A)') 'Field |',                         &
-     &                      'Magnetization Vector            |',        &
-     &                      '   Total Magn. |'
-            Write(6,'(5A)') '--------|',                                &
-     &                      '--- proj X ---|','--- proj Y ---|',        &
-     &                      '--- proj Z ---|','- in this dir.-|'
-            Do iH=1,nH
-              mv=0.0_wp
-              mv = MVEC(iDir,iH,iT,1)*dHX(iDir)                         &
-     &           + MVEC(iDir,iH,iT,2)*dHY(iDir)                         &
-     &           + MVEC(iDir,iH,iT,3)*dHZ(iDir)
-              Write(6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') H(iH),  &
-     &                '|',                                              &
-     &                MVEC(iDir,iH,iT,1),' ',                           &
-     &                MVEC(iDir,iH,iT,2),' ',                           &
-     &                MVEC(iDir,iH,iT,3),'|', mv,'|'
-            End Do
-            Write(6,'(2A)') '--------|',                                &
-     &                      '------------------------------'//          &
-     &                      '------------------------------|'
-          End Do !iDir
-        End Do !iT
-        End If !(smagn)
-      End If !(nDir>0)
-! /// -------------------------------------------------------------------
-!     COMPUTING THE STANDARD DEVIATION OF THE MAGNETIZATION
-      If(HINPUT) Then
-        Do iT=1,nTempMagn
-          STDEV(iT) = 0.0_wp
-          STDEV(iT) = dev(nH,MAV(:,iT),magn_exp(:,iT))
-        End Do
-      End If
-! /// -------------------------------------------------------------------
+    do iT=1,nTempMagn
+      write(6,*)
+      do iDir=1,nDir
+        write(6,*)
+        write(6,'(2A)') '--------|','------------------------------------------------------------|'
+        write(6,'(A,i3,26x,A)') 'Direction of the applied magnetic field:',iDir,'|'
+        write(6,'(A,F18.14,44x,A)') 'proj X=',dHX(iDIR),'|'
+        write(6,'(A,F18.14,44x,A)') 'proj Y=',dHY(iDir),'|'
+        write(6,'(A,F18.14,44x,A)') 'proj Z=',dHZ(iDir),'|'
+        write(6,'(A,F7.4,A,41x,A)') 'Temperature = ',TempMagn(iT),' Kelvin','|'
+        write(6,'(2A)') '--------|','------------------------------------------------------------|'
+        write(6,'(2x,A,12x,2A)') 'Field |','Magnetization Vector            |','   Total Magn. |'
+        write(6,'(5A)') '--------|','--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|'
+        do iH=1,nH
+          mv = 0.0_wp
+          mv = MVEC(iDir,iH,iT,1)*dHX(iDir)+MVEC(iDir,iH,iT,2)*dHY(iDir)+MVEC(iDir,iH,iT,3)*dHZ(iDir)
+          write(6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') H(iH),'|',MVEC(iDir,iH,iT,1),' ',MVEC(iDir,iH,iT,2),' ', &
+                                                            MVEC(iDir,iH,iT,3),'|',mv,'|'
+        end do
+        write(6,'(2A)') '--------|','------------------------------------------------------------|'
+      end do !iDir
+    end do !iT
+  end if !(smagn)
+end if !(nDir>0)
+!/// -------------------------------------------------------------------
+! COMPUTING THE STANDARD DEVIATION OF THE MAGNETIZATION
+if (HINPUT) then
+  do iT=1,nTempMagn
+    STDEV(iT) = 0.0_wp
+    STDEV(iT) = dev(nH,MAV(:,iT),magn_exp(:,iT))
+  end do
+end if
+!/// -------------------------------------------------------------------
 
-      Write(6,*)
-      Write(6,'(25X,A)') 'HIGH-FIELD POWDER MAGNETIZATION'
-      Write(6,'(30X,A)') '(Units: Bohr magneton)'
-      Write(6,*)
-      Do iT=1,nTempMagn,5
-        iTEnd=min(nTempMagn,iT+4)
+write(6,*)
+write(6,'(25X,A)') 'HIGH-FIELD POWDER MAGNETIZATION'
+write(6,'(30X,A)') '(Units: Bohr magneton)'
+write(6,*)
+do iT=1,nTempMagn,5
+  iTEnd = min(nTempMagn,iT+4)
 
-        Write(6,'(A,11A)') '-----------|',                              &
-     &                    ('---------------|',i=iT,iTEnd+1)
-        Write(6,'(A,10(F10.3,A))') '   H(T)    |STATISTICAL SUM|',      &
-     &                    (TempMagn(i),' K.  |',i=iT,iTEnd)
-        Write(6,'(A,11A)') '-----------|',                              &
-     &                    ('---------------|',i=iT,iTEnd+1)
+  write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+  write(6,'(A,10(F10.3,A))') '   H(T)    |STATISTICAL SUM|',(TempMagn(i),' K.  |',i=iT,iTEnd)
+  write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
 
-        Do iH=1,nH
-          Write(6,'(F10.6,1X,A,F14.7,1x,A,11(f14.10,1x,A))')            &
-     &          H(iH),'|',ZT(iH,1),'|', (MAV(iH,i),'|',i=iT,iTEnd)
-        End Do
+  do iH=1,nH
+    write(6,'(F10.6,1X,A,F14.7,1x,A,11(f14.10,1x,A))') H(iH),'|',ZT(iH,1),'|',(MAV(iH,i),'|',i=iT,iTEnd)
+  end do
 
-        Write(6,'(A,11A)') '-----------|',                              &
-     &                    ('---------------|',i=iT,iTEnd+1)
-        If(HINPUT) Then
-          Write(6,'(A,15x,11(f14.10,1x,A) )')                           &
-     &                       'ST.DEV.M   |',                            &
-     &                      ( STDEV(i),'|',i=1,nTempMagn)
-          Write(6,'(A,11A)') '-----------|',                            &
-     &                      ('---------------|',i=iT,iTEnd+1)
-        End If
-      End Do
+  write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+  if (HINPUT) then
+    write(6,'(A,15x,11(f14.10,1x,A) )') 'ST.DEV.M   |',(STDEV(i),'|',i=1,nTempMagn)
+    write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+  end if
+end do
 
+if (smagn) then
+  write(6,*)
+  write(6,'(15X,A)') 'HIGH-FIELD POWDER SPIN MAGNETIZATION'
+  write(6,'(20X,A)') '(Units: Bohr magneton)'
+  write(6,*)
+  do iT=1,nTempMagn,5
+    iTEnd = min(nTempMagn,iT+4)
+    write(6,'(A,11A)') '---------|',('---------------|',i=iT,iTEnd+1)
+    write(6,'(A,11(F10.3,A))') '   H(T)  |STATISTICAL SUM|',(TempMagn(i),' K.  |',i=iT,iTEnd)
+    write(6,'(A,11A)') '---------|',('---------------|',i=iT,iTEnd+1)
+    do iH=1,nH
+      write(6,'(F10.6,1X,A,F14.7,1x,A,11(f14.10,1x,A))') H(iH),'|',ZT(iH,1),'|',(SAV(iH,i),'|',i=iT,iTEnd)
+    end do
+    write(6,'(A,11A)') '---------|',('---------------|',i=iT,iTEnd+1)
+  end do
+end if!smagn
 
-      If(smagn) Then
-         Write(6,*)
-         Write(6,'(15X,A)') 'HIGH-FIELD POWDER SPIN MAGNETIZATION'
-         Write(6,'(20X,A)') '(Units: Bohr magneton)'
-         Write(6,*)
-         Do iT=1,nTempMagn,5
-           iTEnd=min(nTempMagn,iT+4)
-           Write(6,'(A,11A)') '---------|',('---------------|',i=iT,    &
-     &                                                        iTEnd+1)
-           Write(6,'(A,11(F10.3,A))') '   H(T)  |STATISTICAL SUM|',     &
-     &                               (TempMagn(i),' K.  |',i=iT,iTEnd)
-           Write(6,'(A,11A)') '---------|',('---------------|',i=iT,    &
-     &                                                        iTEnd+1)
-           Do iH=1,nH
-            Write(6,'(F10.6,1X,A,F14.7,1x,A,11(f14.10,1x,A))')          &
-     &              H(iH),'|',ZT(iH,1),'|', (SAV(iH,i),'|',i=iT,iTEnd)
-           End Do
-           Write(6,'(A,11A)') '---------|',('---------------|',i=iT,    &
-     &                                                        iTEnd+1)
-         End Do
-      End If!smagn
-
-
-      If(DoPlot) Then
-        IF ( hinput ) THEN
-           Call plot_MH_with_Exp( nH, H, nTempMagn, TempMagn, MAV,      &
-     &                            magn_exp )
-        ELSE
-           Call plot_MH_no_Exp( nH, H, nTempMagn, TempMagn, MAV )
-        END IF
-!        IF ( zeeman_energy ) THEN
-!           Call plot_zeeman( nH, nM, nDirZee, H, LuZee )
-!        END IF
-      End If
-
+if (DoPlot) then
+  if (hinput) then
+    call plot_MH_with_Exp(nH,H,nTempMagn,TempMagn,MAV,magn_exp)
+  else
+    call plot_MH_no_Exp(nH,H,nTempMagn,TempMagn,MAV)
+  end if
+  !if (zeeman_energy) then
+  !  call plot_zeeman(nH,nM,nDirZee,H,LuZee)
+  !end if
+end if
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      Call Add_Info('MAGN_AVERAGED',MAV(1:nH,1:nTempMagn),              &
-     &               nH*nTempMagn,5)
-      If(compute_Mdir_vector) Then
-        Call Add_Info('MAGN_VECT_X(2)     ',MVEC(1, 2,1,1),1,4)
-        Call Add_Info('MAGN_VECT_X(nH/2)  ',                            &
-     &                     MVEC(1,(NH-1)/2,1,1),1,4)
-        Call Add_Info('MAGN_VECT_X(nH)    ',MVEC(1,NH,1,1),1,4)
-        Call Add_Info('MAGN_VECT_Y(2)     ',MVEC(1, 2,1,2),1,4)
-        Call Add_Info('MAGN_VECT_Y(nH/2)  ',                            &
-     &                     MVEC(1,(NH-1)/2,1,2),1,4)
-        Call Add_Info('MAGN_VECT_Y(nH)    ',MVEC(1,NH,1,2),1,4)
-        Call Add_Info('MAGN_VECT_Z(2)     ',MVEC(1, 2,1,3),1,4)
-        Call Add_Info('MAGN_VECT_Z(nH/2)  ',                            &
-     &                     MVEC(1,(NH-1)/2,1,3),1,4)
-        Call Add_Info('MAGN_VECT_Z(nH)    ',MVEC(1,NH,1,3),1,4)
-      End If
-
+call Add_Info('MAGN_AVERAGED',MAV(1:nH,1:nTempMagn),nH*nTempMagn,5)
+if (compute_Mdir_vector) then
+  call Add_Info('MAGN_VECT_X(2)     ',MVEC(1,2,1,1),1,4)
+  call Add_Info('MAGN_VECT_X(nH/2)  ',MVEC(1,(NH-1)/2,1,1),1,4)
+  call Add_Info('MAGN_VECT_X(nH)    ',MVEC(1,NH,1,1),1,4)
+  call Add_Info('MAGN_VECT_Y(2)     ',MVEC(1,2,1,2),1,4)
+  call Add_Info('MAGN_VECT_Y(nH/2)  ',MVEC(1,(NH-1)/2,1,2),1,4)
+  call Add_Info('MAGN_VECT_Y(nH)    ',MVEC(1,NH,1,2),1,4)
+  call Add_Info('MAGN_VECT_Z(2)     ',MVEC(1,2,1,3),1,4)
+  call Add_Info('MAGN_VECT_Z(nH/2)  ',MVEC(1,(NH-1)/2,1,3),1,4)
+  call Add_Info('MAGN_VECT_Z(nH)    ',MVEC(1,NH,1,3),1,4)
+end if
 
 !-----------------------------------------------------------------------
 ! Deallocate necessary memory
-      Call mma_deallocate(WM)
-      Call mma_deallocate(MT)
-      Call mma_deallocate(ST)
-      Call mma_deallocate(MAV)
-      Call mma_deallocate(SAV)
-      Call mma_deallocate(ZT)
-      Call mma_deallocate(MVEC)
-      Call mma_deallocate(SVEC)
-      Call mma_deallocate(H)
-      Call mma_deallocate(STDEV)
-      Call mma_deallocate(dHX)
-      Call mma_deallocate(dHY)
-      Call mma_deallocate(dHZ)
-      Call mma_deallocate(dHW)
+call mma_deallocate(WM)
+call mma_deallocate(MT)
+call mma_deallocate(ST)
+call mma_deallocate(MAV)
+call mma_deallocate(SAV)
+call mma_deallocate(ZT)
+call mma_deallocate(MVEC)
+call mma_deallocate(SVEC)
+call mma_deallocate(H)
+call mma_deallocate(STDEV)
+call mma_deallocate(dHX)
+call mma_deallocate(dHY)
+call mma_deallocate(dHZ)
+call mma_deallocate(dHW)
 
-      Return
-      End
+return
 
-
-
-
+end subroutine magnetization
