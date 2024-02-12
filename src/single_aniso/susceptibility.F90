@@ -15,7 +15,7 @@ subroutine SUSCEPTIBILITY(NSS,ESO,S_SO,DIPSO,nT,nTempMagn,T,tmin,tmax,XTexp,zJ,t
 ! the units are cgsemu: cm^3*k/mol
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-use Constants, only: Zero, Three
+use Constants, only: Zero, Three, Ten, cLight, kBoltzmann, mBohr, rNAVO, rPlanck
 use Definitions, only: wp, u6
 
 implicit none
@@ -47,7 +47,8 @@ real(kind=8), allocatable :: XSM(:,:), XSS(:,:), XZJ(:,:), unity(:,:), a_dir(:,:
 ! main values and axes of XT tensors:
 real(kind=8), allocatable :: WT(:), ZT(:,:)
 character(len=50) :: label
-real(kind=8), parameter :: coeff_X = 0.125048612_wp*3.0_wp, boltz_k = 0.6950356_wp ! IFG boltzmann constant
+real(kind=8), parameter :: coeff_X = rNAVO*mBohr**2/kBoltzmann/Ten, &
+                           boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! boltzmann constant in cm-1*K-1
 
 ! constants used in this subrutine
 RtoB = 8
@@ -135,7 +136,7 @@ if (zJ == 0) then
     call chi(DipSO,DipSO,Eso,Nss,T(iT),Zst,XMM)
     if (dbg) then
       write(u6,'(A,9F12.6)') 'XMM:',XMM(1:3,1:3)
-      write(u6,'(A,9F12.6)') 'chiT:',coeff_X*(XMM(1,1)+XMM(2,2)+XMM(3,3))/3.0_wp,Zst
+      write(u6,'(A,9F12.6)') 'chiT:',coeff_X*(XMM(1,1)+XMM(2,2)+XMM(3,3))/Three,Zst
     end if
 
     !call dscal_(3*3,coeff_X,XMM,1)

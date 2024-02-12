@@ -12,7 +12,7 @@
 subroutine XT_dMoverdH_single(nss,nTempMagn,nT,nM,Tmin,Tmax,XTexp,eso,T,zJ,Xfield,EM,dM,sM,XT_no_field,tinput,smagn,mem,DoPlot)
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
-use Constants, only: Zero, One, Two, Three, Nine
+use Constants, only: Zero, One, Two, Three, Nine, Ten, mBohr, rNAVO
 use Definitions, only: wp, u6
 
 implicit none
@@ -82,7 +82,7 @@ real(kind=8) :: WT(3), ZT(3,3)
 integer :: mem_local, RtoB
 logical :: DBG
 character(len=50) :: label
-real(kind=wp), parameter :: cm3tomB = 0.5584938904_wp, & ! IFG  in cm3 * mol-1 * T
+real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten, & ! in cm3 * mol-1 * T
                             THRS = 1.0e-13_wp
 
 DBG = .false.

@@ -33,7 +33,7 @@ subroutine termCF(ANGMOM,AMFI,ESFS,ldimcf,iDIM,maxes2,iopt,nlanth,iprint)
 !                   iopt = 4   -- maxes is the unity matrix ( original Z
 !                                 is the quantization axis )
 
-use Constants, only: Zero, One, Two, Half, cZero, cOne, Onei
+use Constants, only: Zero, One, Two, Half, cZero, cOne, Onei, auTocm
 use Definitions, only: wp, u6
 
 implicit none
@@ -71,7 +71,6 @@ integer :: MS, ML, MJ
 integer :: ij, iLS, nLS, ibasS(100), ibasL(100), ibasJ(100)
 integer :: irootL(100), ir, icas, k
 complex(kind=8) :: CFC(100,100)
-real(kind=8), parameter :: au2cm = 2.194746313705e5_wp ! IFG
 
 call mma_allocate(maxes,3,3,'maxes')
 call mma_allocate(gtens,3,'gtens')
@@ -244,7 +243,7 @@ do L=1,3
 
 end do !L
 
-if (debug) call prMom_herm('TERMCF:: AMFI_L',amfi_l*au2cm,ldimcf)
+if (debug) call prMom_herm('TERMCF:: AMFI_L',amfi_l*auTocm,ldimcf)
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! calculate the RASSI Crystal Field matrix

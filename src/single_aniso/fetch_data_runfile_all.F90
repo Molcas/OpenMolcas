@@ -11,7 +11,7 @@
 
 subroutine fetch_data_RunFile_all(nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,angmom,eDmom,amfi,HSO,eso_au,esfs_au)
 
-use Constants, only: cZero, cOne, Onei
+use Constants, only: cZero, cOne, Onei, auTocm, gElectron
 use Definitions, only: wp
 
 implicit none
@@ -35,8 +35,7 @@ complex(kind=8), allocatable :: tmp(:,:), u1(:,:)
 complex(kind=8) :: Spin
 external :: Spin
 logical :: found_edmom, found_amfi, found_hsor, found_hsoi
-real(kind=8), parameter :: au2cm = 219474.6313702_wp, g_e = 2.00231930437180_wp, & !IFG
-                           thr_deg = 0.2e-13_wp ! a.u. = 0.2e-13*au2cm = 4.38949263E-09 cm-1
+real(kind=8), parameter :: g_e = -gElectron, thr_deg = 0.2e-13_wp ! a.u. = 0.2e-13*auTocm = 4.38949263e-9 cm-1
 
 ! get basic sizes:
 njob = 0
@@ -125,7 +124,7 @@ if (FOUND_HSOR .and. FOUND_HSOI) then
   end do
 
   do i=1,nss
-    ESO(i) = (W(i)-W(1))*au2cm
+    ESO(i) = (W(i)-W(1))*auTocm
   end do
 
   call mma_deallocate(W)
