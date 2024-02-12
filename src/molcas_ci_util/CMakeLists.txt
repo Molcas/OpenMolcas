@@ -65,8 +65,10 @@ set (sources
      mkdaw.f
      mkdrt.f
      mkdrt0.f
+     mkguga.f
      mkmid.f
      mkraw.f
+     mksgnum.f
      motrac.F90
      newgs.F90
      ordstr.F90

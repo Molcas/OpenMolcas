@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKGUGA(NSM,IPRINT)
+!#define _DEBUGPRINT_
+      SUBROUTINE MKGUGA(NSM)
 C
 C     PURPOSE: MAKE THE GUGA TABLES
 C     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
@@ -16,6 +17,9 @@ C              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 C              THE COMMON /GUGA/. THESE ARE:
 C              DRT,DOWN,DAW,UP,RAW,NOW1,IOW1,NOCSF,IOCSF
 C
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: NLEV, IA0, IB0, IC0, NVERT0,
      &                IFCAS, NVERT, NDRT,  DRT,
@@ -29,7 +33,6 @@ C
 C
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 C
       DIMENSION NSM(*)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
@@ -63,11 +66,11 @@ C
       CALL mkDRT0 (IA0,IB0,IC0,NVERT0,DRTP,DOWNP,NTMP,TMP)
       CALL mma_deallocate(TMP)
 C
-      IF(IPRINT.ge.DEBUG) THEN
-        Write(LF,*)
-        Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
-        CALL PRDRT(NVERT0,DRTP,DOWNP)
-      ENDIF
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
+      CALL PRDRT(NVERT0,DRTP,DOWNP)
+#endif
 C
 C     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
 C     VERTICES WHICH VIOLATE THE FORMER.
@@ -87,11 +90,11 @@ C
         CALL mma_deallocate(DRT0)
         CALL mma_deallocate(DOWN0)
 C
-        IF(IPRINT.ge.DEBUG) THEN
-          Write(LF,*)
-          Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
-          CALL PRDRT(NVERT,DRT,DOWN)
-        ENDIF
+#ifdef _DEBUGPRINT_
+        Write(LF,*)
+        Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
+        CALL PRDRT(NVERT,DRT,DOWN)
+#endif
 C
 C     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED
 C     DRT TABLE
@@ -150,7 +153,7 @@ C
       NLSGN=MXDWN*NMIDV
       CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
-      CALL MKSGNUM(DOWN,UP,DAW,RAW,NOW1,IOW1,USGN,LSGN,ICASE,IPRINT)
+      CALL MKSGNUM(DOWN,UP,DAW,RAW,NOW1,IOW1,USGN,LSGN,ICASE)
 C
 C     EXIT
 C

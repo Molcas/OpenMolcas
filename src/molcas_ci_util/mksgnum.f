@@ -8,21 +8,23 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE MKSGNUM(IDOWN,IUP,IDAW,IRAW,NOW,IOW,
-     *                   IUSGNUM,ILSGNUM,ICASE,IPRINT)
+     *                   IUSGNUM,ILSGNUM,ICASE)
 C     PURPOSE: FOR ALL UPPER AND LOWER WALKS
 C              COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
 C              REVERSE ARC WEIGHT SUM, RESPECTIVELY.
 C              STORE THE DATA IN THE TABLES IUSGNUM AND ILSGNUM
 C
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
       use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, NUW, NLW, MXUP,
      &                MXDWN, NIPWLK, NICASE
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "general_mul.fh"
-#include "WrkSpc.fh"
-#include "output_ras.fh"
 C
       DIMENSION IDOWN(NVERT,0:3),IUP(NVERT,0:3)
       DIMENSION IDAW(NVERT,0:4),IRAW(NVERT,0:4)
@@ -53,7 +55,7 @@ C
           JSYM=MUL(ISYM,STSYM)
           ILOFF=1+IOW(2,JSYM,MIDV)
           NLW=NOW(2,JSYM,MIDV)
-          IF( NUW.EQ.0 .OR. NLW.EQ.0 ) GOTO 110
+          IF( NUW.EQ.0 .OR. NLW.EQ.0 ) Cycle
 C
 C         LOOP OVER ALL UPPER WALKS
 C
@@ -114,24 +116,22 @@ C     GET DIRECT ARC WEIGHT FOR THE LOWER WALK
             ICONF=ICONF+NUW
           END DO
 C
-110       CONTINUE
         END DO
       END DO
-      IF( IPRINT.GT.5 ) THEN
-        Write(LF,*)
-        Write(LF,*)' ILSGNUM IN SUBROUTINE MKSGNUM'
-        DO MIDV=1,NMIDV
-          Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,
-     *         (ILSGNUM(J,MIDV),J=1,MXDWN)
-        END DO
-        Write(LF,*)
-        Write(LF,*)' IUSGNUM IN SUBROUTINE MKSGNUM'
-        DO MIDV=1,NMIDV
-          Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,
-     *          (IUSGNUM(J,MIDV),J=1,MXUP)
-        END DO
-        Write(LF,*)
-      ENDIF
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' ILSGNUM IN SUBROUTINE MKSGNUM'
+      DO MIDV=1,NMIDV
+        Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,
+     *       (ILSGNUM(J,MIDV),J=1,MXDWN)
+      END DO
+      Write(LF,*)
+      Write(LF,*)' IUSGNUM IN SUBROUTINE MKSGNUM'
+      DO MIDV=1,NMIDV
+        Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,
+     *        (IUSGNUM(J,MIDV),J=1,MXUP)
+      END DO
+      Write(LF,*)
+#endif
 
-      RETURN
-      END
+      END SUBROUTINE MKSGNUM

@@ -583,7 +583,7 @@
           CALL mma_deallocate(Pscr)
           CALL mma_deallocate(CIV)
           Call Lucia_Util('CLOSE')
-          Call MKGUGA_FREE_m()
+          Call MKGUGA_FREE()
        end if
 
 *
