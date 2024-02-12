@@ -11,6 +11,8 @@
 
 subroutine SINGLE_ANISO_OPEN(IReturn)
 
+use Definitions, only: u6
+
 implicit none
 integer :: iReturn, NSS, NSTATE
 integer :: i, input_to_read, nH, nT, nTempMagn
@@ -35,9 +37,9 @@ nstate = 0
 dbg = .false.
 
 ! check for the "restart" option:
-if (dbg) write(6,*) 'Enter restart_check'
+if (dbg) write(u6,*) 'Enter restart_check'
 call restart_check(ifrestart,input_to_read,input_file_name,nT,nH,nTempMagn,nDir,nDirZee,nMult,GRAD)
-if (dbg) write(6,*) 'Exit restart_check'
+if (dbg) write(u6,*) 'Exit restart_check'
 
 if (ifrestart) then
   call restart_sa(input_to_read,input_file_name,nss,nstate)
@@ -45,26 +47,26 @@ else ! not a restart job -- take all data form RUNFILE
   call fetch_data_RunFile_init(nss,nstate)
 end if !Ifrestart
 
-write(6,'(120A)') ('@',i=1,95)
-write(6,'(A)') '   SINGLE_ANISO (OPEN)'
-write(6,'(A)') '(last updated on 12-March-2018)'
-write(6,'(A)') '   New features: '
-write(6,*)
-write(6,'(A)') '1.  Calculation of the SIGN of the product gX * gY * gZ for any moment;'
-write(6,'(A)') '2.  Calculation of the parameters of the Crystal-Field for lanthanides (CRYS).'
-write(6,'(A)') '3.  Automatic generation of various plot: (PLOT)'
-write(6,'(A)') '     -- Powder magnetic susceptibilty:  XT=f(T)'
-write(6,'(A)') '     -- Powder molar magnetization:  M=f(H,T)'
-write(6,'(A)') '4.  Support for various restart options: (REST)'
-write(6,'(A)') '     -- from  $Project.rassi.h5 file.'
-write(6,'(A)') '     -- from  $Project.aniso (binary) file.'
-write(6,'(A)') '     -- from  ANISOINPUT (ascii) file.'
-write(6,'(A)') '     -- from  $Project.RunFile file.'
-write(6,'(A)') '5.  RASSI was adjusted to provide more accurate tunnelling gaps between near-degenerate states'
-write(6,'(A)') 'Check the MOLCAS manual for details and input examples.'
-write(6,*)
-write(6,'(120A)') ('@',i=1,95)
-call xFlush(6)
+write(u6,'(120A)') ('@',i=1,95)
+write(u6,'(A)') '   SINGLE_ANISO (OPEN)'
+write(u6,'(A)') '(last updated on 12-March-2018)'
+write(u6,'(A)') '   New features: '
+write(u6,*)
+write(u6,'(A)') '1.  Calculation of the SIGN of the product gX * gY * gZ for any moment;'
+write(u6,'(A)') '2.  Calculation of the parameters of the Crystal-Field for lanthanides (CRYS).'
+write(u6,'(A)') '3.  Automatic generation of various plot: (PLOT)'
+write(u6,'(A)') '     -- Powder magnetic susceptibilty:  XT=f(T)'
+write(u6,'(A)') '     -- Powder molar magnetization:  M=f(H,T)'
+write(u6,'(A)') '4.  Support for various restart options: (REST)'
+write(u6,'(A)') '     -- from  $Project.rassi.h5 file.'
+write(u6,'(A)') '     -- from  $Project.aniso (binary) file.'
+write(u6,'(A)') '     -- from  ANISOINPUT (ascii) file.'
+write(u6,'(A)') '     -- from  $Project.RunFile file.'
+write(u6,'(A)') '5.  RASSI was adjusted to provide more accurate tunnelling gaps between near-degenerate states'
+write(u6,'(A)') 'Check the MOLCAS manual for details and input examples.'
+write(u6,*)
+write(u6,'(120A)') ('@',i=1,95)
+call xFlush(u6)
 
 call SINGLE_ANISO2(nH,nT,nTempMagn,nDir,nDirZee,nss,nstate,nMult,input_file_name,Ifrestart,IReturn,GRAD)
 

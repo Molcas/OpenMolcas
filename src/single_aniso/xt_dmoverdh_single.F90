@@ -12,8 +12,10 @@
 subroutine XT_dMoverdH_single(nss,nTempMagn,nT,nM,Tmin,Tmax,XTexp,eso,T,zJ,Xfield,EM,dM,sM,XT_no_field,tinput,smagn,mem,DoPlot)
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
+use Constants, only: Zero, One, Two, Three, Nine
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 !#include "mgrid.fh"
 #include "stdalloc.fh"
 integer, intent(in) :: nss, nTempMagn, nT, NM, mem
@@ -31,7 +33,6 @@ logical, intent(in) :: tinput, smagn, doplot
 !ccc local variables ccc
 integer :: iM, iT, jT, i, j, l, nDirX
 logical :: m_paranoid
-real(kind=8) :: THRS
 ! Zeeman exchange energies
 real(kind=8), allocatable :: WM1(:), WM2(:), WM3(:), WM4(:), WM5(:), WM6(:), WM7(:) !, WM0(nm), WM1(nm), WM2(nm)
 ! data for total system:
@@ -79,67 +80,66 @@ real(kind=8) :: dHZ(3)
 integer :: Info
 real(kind=8) :: WT(3), ZT(3,3)
 integer :: mem_local, RtoB
-real(kind=8) :: cm3tomB
 logical :: DBG
 character(len=50) :: label
+real(kind=wp), parameter :: cm3tomB = 0.5584938904_wp, & ! IFG  in cm3 * mol-1 * T
+                            THRS = 1.0e-13_wp
 
 DBG = .false.
 m_paranoid = .true.!.false.
-cm3tomB = 0.5584938904_wp   !   in cm3 * mol-1 * T
 ! threshold for convergence of average spin, in case (zJ /= 0)
-THRS = 1.d-13
 RtoB = 8
 mem_local = 0
 
 !ccc-------------------------------------------------------cccc
 if (DBG) then
-  write(6,'(A, 10I5)') '       nss =',nss
-  write(6,'(A,   I5)') ' nTempMagn =',nTempMagn
-  write(6,'(A,   I5)') '        nT =',nT
-  write(6,'(A,   I5)') '        nM =',nM
-  write(6,'(A,F12.5)') '      Tmin =',Tmin
-  write(6,'(A,F12.5)') '      Tmax =',Tmax
-  write(6,'(A,F12.5)') '        zJ =',zJ
-  write(6,'(A,F12.5)') '    Xfield =',Xfield
-  write(6,'(A,F12.5)') '        EM =',EM
-  write(6,'(A,ES12.5)') '      THRS =',THRS
-  write(6,*) '     smagn =',smagn
-  write(6,*) '    tinput =',tinput
+  write(u6,'(A, 10I5)') '       nss =',nss
+  write(u6,'(A,   I5)') ' nTempMagn =',nTempMagn
+  write(u6,'(A,   I5)') '        nT =',nT
+  write(u6,'(A,   I5)') '        nM =',nM
+  write(u6,'(A,F12.5)') '      Tmin =',Tmin
+  write(u6,'(A,F12.5)') '      Tmax =',Tmax
+  write(u6,'(A,F12.5)') '        zJ =',zJ
+  write(u6,'(A,F12.5)') '    Xfield =',Xfield
+  write(u6,'(A,F12.5)') '        EM =',EM
+  write(u6,'(A,ES12.5)') '      THRS =',THRS
+  write(u6,*) '     smagn =',smagn
+  write(u6,*) '    tinput =',tinput
   if (tinput) then
     do iT=1,nTempMagn
-      write(6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
+      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
     end do
     do iT=1,nT
       jT = iT+nTempMagn
-      write(6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),' chiT_exp(',iT,')=',XTexp(jT)
+      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),' chiT_exp(',iT,')=',XTexp(jT)
     end do
 
   else
     do iT=1,nT+nTempMagn
-      write(6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
+      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
     end do
   end if
-  write(6,'(A)') 'SPIN-ORBIT ENERGY'
-  write(6,'(10F12.5)') (ESO(i),i=1,NSS)
-  call xFlush(6)
+  write(u6,'(A)') 'SPIN-ORBIT ENERGY'
+  write(u6,'(10F12.5)') (ESO(i),i=1,NSS)
+  call xFlush(u6)
 end if !DBG
 !ccc-------------------------------------------------------cccc
-write(6,*)
-write(6,'(100A)') (('%'),J=1,95)
-write(6,'(16X,A)') 'CALCULATION OF THE FIELD-DEPENDENT MAGNETIC SUSCEPTIBILITY'
-write(6,'(18X,A)') 'within true (dM/dH) and "experimentalists" (M/H) models'
-write(6,'(100A)') (('%'),J=1,95)
-write(6,*)
-write(6,'(2x,A,F10.6,A)') 'Magnetic field strength:',Xfield,' Tesla.'
-write(6,'(2x,A,F10.6,A)') 'dM/dH is computed numerically using 7 point stencil formula, with h=0.00001'
+write(u6,*)
+write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(16X,A)') 'CALCULATION OF THE FIELD-DEPENDENT MAGNETIC SUSCEPTIBILITY'
+write(u6,'(18X,A)') 'within true (dM/dH) and "experimentalists" (M/H) models'
+write(u6,'(100A)') (('%'),J=1,95)
+write(u6,*)
+write(u6,'(2x,A,F10.6,A)') 'Magnetic field strength:',Xfield,' tesla.'
+write(u6,'(2x,A,F10.6,A)') 'dM/dH is computed numerically using 7 point stencil formula, with h=0.00001'
 
 if (tinput) then
-  write(6,'(2x,a)') 'Temperature dependence of the magnetic susceptibility and'
-  write(6,'(2x,a)') 'high-field magnetization will be calculated according to '
-  write(6,'(2x,a)') 'experimental values provided by the user in file "chitexp.input".'
+  write(u6,'(2x,a)') 'Temperature dependence of the magnetic susceptibility and'
+  write(u6,'(2x,a)') 'high-field magnetization will be calculated according to '
+  write(u6,'(2x,a)') 'experimental values provided by the user in file "chitexp.input".'
 else
-  write(6,'(2x,a,i3,a)') 'Temperature dependence of the magnetic susceptibility will be calculated in',nT,' points, '
-  write(6,'(2x,a,f4.1,a,f6.1,a)') 'equally distributed in temperature range ',tmin,' ---',tmax,' K.'
+  write(u6,'(2x,a,i3,a)') 'Temperature dependence of the magnetic susceptibility will be calculated in',nT,' points, '
+  write(u6,'(2x,a,f4.1,a,f6.1,a)') 'equally distributed in temperature range ',tmin,' ---',tmax,' K.'
 end if
 ! allocate memory:
 call mma_allocate(WM1,nM,'WM1')
@@ -182,79 +182,75 @@ call mma_allocate(XTM_dMdH,(nT+nTempMagn),'XTM_dMdH')
 call mma_allocate(XTtens_MH,3,3,(nT+nTempMagn),'XTtens_MH')
 call mma_allocate(XTtens_dMdH,3,3,(nT+nTempMagn),'XTtens_dMdH')
 mem_local = mem_local+(2+2*3*3)*(nT+nTempMagn)*RtoB
-if (dbg) write(6,*) 'XTMG:  memory allocated (local):'
-if (dbg) write(6,*) 'mem_local=',mem_local
-if (dbg) write(6,*) 'XTMG:  memory allocated (total):'
-if (dbg) write(6,*) 'mem_total=',mem+mem_local
-
-dHX = 0.0_wp
-dHY = 0.0_wp
-dHZ = 0.0_wp
+if (dbg) write(u6,*) 'XTMG:  memory allocated (local):'
+if (dbg) write(u6,*) 'mem_local=',mem_local
+if (dbg) write(u6,*) 'XTMG:  memory allocated (total):'
+if (dbg) write(u6,*) 'mem_total=',mem+mem_local
 
 nDirX = 3
 
 ! field along X
-dHX(1) = 1.0_wp
-dHY(1) = 0.0_wp
-dHZ(1) = 0.0_wp
+dHX(1) = One
+dHY(1) = Zero
+dHZ(1) = Zero
 ! field along Y
-dHX(2) = 0.0_wp
-dHY(2) = 1.0_wp
-dHZ(2) = 0.0_wp
+dHX(2) = Zero
+dHY(2) = One
+dHZ(2) = Zero
 ! field along Z
-dHX(3) = 0.0_wp
-dHY(3) = 0.0_wp
-dHZ(3) = 1.0_wp
+dHX(3) = Zero
+dHY(3) = Zero
+dHZ(3) = One
 
-call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,XTtens_MH,1)
-call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,XTtens_dMdH,1)
+call dcopy_(3*3*(nT+nTempMagn),[Zero],0,XTtens_MH,1)
+call dcopy_(3*3*(nT+nTempMagn),[Zero],0,XTtens_dMdH,1)
 
 hp = 0.0001_wp
-Xfield_1 = Xfield-3.0_wp*hp
-Xfield_2 = Xfield-2.0_wp*hp
-Xfield_3 = Xfield-1.0_wp*hp
+Xfield_1 = Xfield-Three*hp
+Xfield_2 = Xfield-Two*hp
+Xfield_3 = Xfield-hp
 Xfield_4 = xField
-Xfield_5 = Xfield+1.0_wp*hp
-Xfield_6 = Xfield+2.0_wp*hp
-Xfield_7 = Xfield+3.0_wp*hp
-if (dbg) write(6,*) 'XTMG:  Xfield: ',Xfield_1,Xfield_2,Xfield_3,Xfield_4,Xfield_5,Xfield_6,Xfield_7
+Xfield_5 = Xfield+hp
+Xfield_6 = Xfield+Two*hp
+Xfield_7 = Xfield+Three*hp
+if (dbg) write(u6,*) 'XTMG:  Xfield: ',Xfield_1,Xfield_2,Xfield_3,Xfield_4,Xfield_5,Xfield_6,Xfield_7
 
 nTempTotal = nT+nTempMagn
 m_paranoid = .true.
 
 ! ///  opening the loop over different directions of the magnetic field
 do iM=1,nDirX
-  call dcopy_(nM,[0.0_wp],0,WM1,1)
-  call dcopy_(nM,[0.0_wp],0,WM2,1)
-  call dcopy_(nM,[0.0_wp],0,WM3,1)
-  call dcopy_(nM,[0.0_wp],0,WM4,1)
-  call dcopy_(nM,[0.0_wp],0,WM5,1)
-  call dcopy_(nM,[0.0_wp],0,WM6,1)
-  call dcopy_(nM,[0.0_wp],0,WM7,1)
+  call dcopy_(nM,[Zero],0,WM1,1)
+  call dcopy_(nM,[Zero],0,WM2,1)
+  call dcopy_(nM,[Zero],0,WM3,1)
+  call dcopy_(nM,[Zero],0,WM4,1)
+  call dcopy_(nM,[Zero],0,WM5,1)
+  call dcopy_(nM,[Zero],0,WM6,1)
+  call dcopy_(nM,[Zero],0,WM7,1)
 
-  call dcopy_((nT+nTempMagn),[0.0_wp],0,ZT1,1)
-  call dcopy_((nT+nTempMagn),[0.0_wp],0,ZT2,1)
-  call dcopy_((nT+nTempMagn),[0.0_wp],0,ZT3,1)
-  call dcopy_((nT+nTempMagn),[0.0_wp],0,ZT4,1)
-  call dcopy_((nT+nTempMagn),[0.0_wp],0,ZT5,1)
-  call dcopy_((nT+nTempMagn),[0.0_wp],0,ZT6,1)
-  call dcopy_((nT+nTempMagn),[0.0_wp],0,ZT7,1)
+  call dcopy_((nT+nTempMagn),[Zero],0,ZT1,1)
+  call dcopy_((nT+nTempMagn),[Zero],0,ZT2,1)
+  call dcopy_((nT+nTempMagn),[Zero],0,ZT3,1)
+  call dcopy_((nT+nTempMagn),[Zero],0,ZT4,1)
+  call dcopy_((nT+nTempMagn),[Zero],0,ZT5,1)
+  call dcopy_((nT+nTempMagn),[Zero],0,ZT6,1)
+  call dcopy_((nT+nTempMagn),[Zero],0,ZT7,1)
 
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT1,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT2,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT3,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT4,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT5,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT6,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,MT7,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT1,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT2,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT3,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT4,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT5,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT6,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT7,1)
 
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST1,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST2,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST3,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST4,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST5,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST6,1)
-  call dcopy_(3*(nT+nTempMagn),[0.0_wp],0,ST7,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST1,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST2,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST3,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST4,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST5,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST6,1)
+  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST7,1)
 
   ! compute magnetization:
   ! seven points numerical field perturbation:
@@ -275,28 +271,28 @@ do iM=1,nDirX
 
   if (DBG) then
     do iT=1,nTempTotal
-      write(6,'(A,i3,A,9ES22.14)') 'Mex1(',iT,')=',(MT1(l,iT),l=1,3)
+      write(u6,'(A,i3,A,9ES22.14)') 'Mex1(',iT,')=',(MT1(l,iT),l=1,3)
     end do
     do iT=1,nTempTotal
-      write(6,'(A,i3,A,9ES22.14)') 'Mex2(',iT,')=',(MT2(l,iT),l=1,3)
+      write(u6,'(A,i3,A,9ES22.14)') 'Mex2(',iT,')=',(MT2(l,iT),l=1,3)
     end do
     do iT=1,nTempTotal
-      write(6,'(A,i3,A,9ES22.14)') 'Mex3(',iT,')=',(MT3(l,iT),l=1,3)
+      write(u6,'(A,i3,A,9ES22.14)') 'Mex3(',iT,')=',(MT3(l,iT),l=1,3)
     end do
     do iT=1,nTempTotal
-      write(6,'(A,i3,A,9ES22.14)') 'Mex4(',iT,')=',(MT4(l,iT),l=1,3)
+      write(u6,'(A,i3,A,9ES22.14)') 'Mex4(',iT,')=',(MT4(l,iT),l=1,3)
     end do
     do iT=1,nTempTotal
-      write(6,'(A,i3,A,9ES22.14)') 'Mex5(',iT,')=',(MT5(l,iT),l=1,3)
+      write(u6,'(A,i3,A,9ES22.14)') 'Mex5(',iT,')=',(MT5(l,iT),l=1,3)
     end do
     do iT=1,nTempTotal
-      write(6,'(A,i3,A,9ES22.14)') 'Mex6(',iT,')=',(MT6(l,iT),l=1,3)
+      write(u6,'(A,i3,A,9ES22.14)') 'Mex6(',iT,')=',(MT6(l,iT),l=1,3)
     end do
     do iT=1,nTempTotal
-      write(6,'(A,i3,A,9ES22.14)') 'Mex7(',iT,')=',(MT7(l,iT),l=1,3)
+      write(u6,'(A,i3,A,9ES22.14)') 'Mex7(',iT,')=',(MT7(l,iT),l=1,3)
     end do
     do iT=1,nTempTotal
-      write(6,'(A,i3,A,9ES22.14)') 'Mex 7-1 (',iT,')=',(MT7(l,iT)-MT1(l,iT),l=1,3)
+      write(u6,'(A,i3,A,9ES22.14)') 'Mex 7-1 (',iT,')=',(MT7(l,iT)-MT1(l,iT),l=1,3)
     end do
   end if ! DBG
   ! computing the AVERAGE MOMENTS calculated at different temperatures (T(i))
@@ -304,14 +300,14 @@ do iM=1,nDirX
 
     ! dM/dH model
     if (iM == 1) then
-      XTtens_dMdH(iM,1,iT) = (-1.0_wp*MT1(1,iT)+9.0_wp*MT2(1,iT)-45.0_wp*MT3(1,iT)+0.0_wp*MT4(1,iT)+45.0_wp*MT5(1,iT)- &
-                             9.0_wp*MT6(1,iT)+1.0_wp*MT7(1,iT))*T(iT)*cm3tomB/(60.0_wp*hp)
+      XTtens_dMdH(iM,1,iT) = (-MT1(1,iT)+Nine*MT2(1,iT)-45.0_wp*MT3(1,iT)+45.0_wp*MT5(1,iT)-Nine*MT6(1,iT)+MT7(1,iT))*T(iT)* &
+                             cm3tomB/(60.0_wp*hp)
     else if (iM == 2) then
-      XTtens_dMdH(iM,2,iT) = (-1.0_wp*MT1(2,iT)+9.0_wp*MT2(2,iT)-45.0_wp*MT3(2,iT)+0.0_wp*MT4(2,iT)+45.0_wp*MT5(2,iT)- &
-                             9.0_wp*MT6(2,iT)+1.0_wp*MT7(2,iT))*T(iT)*cm3tomB/(60.0_wp*hp)
+      XTtens_dMdH(iM,2,iT) = (-MT1(2,iT)+Nine*MT2(2,iT)-45.0_wp*MT3(2,iT)+45.0_wp*MT5(2,iT)-Nine*MT6(2,iT)+MT7(2,iT))*T(iT)* &
+                             cm3tomB/(60.0_wp*hp)
     else if (iM == 3) then
-      XTtens_dMdH(iM,3,iT) = (-1.0_wp*MT1(3,iT)+9.0_wp*MT2(3,iT)-45.0_wp*MT3(3,iT)+0.0_wp*MT4(3,iT)+45.0_wp*MT5(3,iT)- &
-                             9.0_wp*MT6(3,iT)+1.0_wp*MT7(3,iT))*T(iT)*cm3tomB/(60.0_wp*hp)
+      XTtens_dMdH(iM,3,iT) = (-MT1(3,iT)+Nine*MT2(3,iT)-45.0_wp*MT3(3,iT)+45.0_wp*MT5(3,iT)-Nine*MT6(3,iT)+MT7(3,iT))*T(iT)* &
+                             cm3tomB/(60.0_wp*hp)
     end if
 
     ! M/H model
@@ -327,12 +323,10 @@ do iM=1,nDirX
 end do ! iM (nDirX)
 
 ! computing the XT as tensor's average:
-XTM_dMdH = 0.0_wp
-XTM_MH = 0.0_wp
 do iT=1,nTempTotal
-  XTM_dMdH(iT) = (XTtens_dMdH(1,1,iT)+XTtens_dMdH(2,2,iT)+XTtens_dMdH(3,3,iT))/3.0_wp
+  XTM_dMdH(iT) = (XTtens_dMdH(1,1,iT)+XTtens_dMdH(2,2,iT)+XTtens_dMdH(3,3,iT))/Three
 
-  XTM_MH(iT) = (XTtens_MH(1,1,iT)+XTtens_MH(2,2,iT)+XTtens_MH(3,3,iT))/3.0_wp
+  XTM_MH(iT) = (XTtens_MH(1,1,iT)+XTtens_MH(2,2,iT)+XTtens_MH(3,3,iT))/Three
 end do !iT
 call Add_Info('T_dMdH            ',T,nTempTotal,5)
 call Add_Info('XTM_dMdH          ',XTM_dMdH,nTempTotal,5)
@@ -341,35 +335,35 @@ call Add_Info('XTM_MH            ',XTM_MH,nTempTotal,5)
 !-----------------------------------------------------------------------
 ! WRITING SOME OF THE OUTPUT....
 !-----------------------------------------------------------------------
-write(6,*)
-flush(6)
-write(6,'(A)') '--------------------------------------------------------------------------|'
-write(6,'(A)') '     |     T      | Statistical |   CHI*T     |   CHI*T     |   CHI*T     |'
-write(6,'(A,F6.3,A,F6.3,A)') '     |            |  Sum (Z)    | H = 0.000 T | H =',Xfield,' T | H =',XField,' T |'
-write(6,'(A)') '     |            |             |             | X = dM/dH   | X = M/H     |'
-write(6,'(A)') '-----|--------------------------------------------------------------------|'
-write(6,'(A)') 'Units|   Kelvin   |    ---      |  cm3*K/mol  |  cm3*K/mol  |  cm3*K/mol  |'
-write(6,'(A)') '-----|--------------------------------------------------------------------|'
+write(u6,*)
+call xFlush(u6)
+write(u6,'(A)') '--------------------------------------------------------------------------|'
+write(u6,'(A)') '     |     T      | Statistical |   CHI*T     |   CHI*T     |   CHI*T     |'
+write(u6,'(A,F6.3,A,F6.3,A)') '     |            |  Sum (Z)    | H = 0.000 T | H =',Xfield,' T | H =',XField,' T |'
+write(u6,'(A)') '     |            |             |             | X = dM/dH   | X = M/H     |'
+write(u6,'(A)') '-----|--------------------------------------------------------------------|'
+write(u6,'(A)') 'Units|   kelvin   |    ---      |  cm3*K/mol  |  cm3*K/mol  |  cm3*K/mol  |'
+write(u6,'(A)') '-----|--------------------------------------------------------------------|'
 
-flush(6)
+call xFlush(u6)
 do iT=1,nT
   jT = iT+nTempMagn
-  write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,F12.7,A)') '     |',T(jT),' |',ZT3(jT),' |',XT_no_field(jT),' |',XTM_dMdH(jT),' |', &
-                                                          XTM_MH(jT),' |'
+  write(u6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,F12.7,A)') '     |',T(jT),' |',ZT3(jT),' |',XT_no_field(jT),' |',XTM_dMdH(jT), &
+                                                           ' |',XTM_MH(jT),' |'
 end do
-write(6,'(A)') '-----|--------------------------------------------------------------------|'
-flush(6)
+write(u6,'(A)') '-----|--------------------------------------------------------------------|'
+call xFlush(u6)
 
 ! calcualtion of the standard deviation:
 if (tinput) then
-  write(6,'(a,5x, f20.14)') 'ST.DEV: X= dM/dH:',dev(nT,XTM_dMdH((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
-  write(6,'(a,5x, f20.14)') 'ST.DEV: X= M/H:',dev(nT,XTM_MH((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
-  write(6,'(A)') '-----|--------------------------------------------------------------------|'
+  write(u6,'(a,5x, f20.14)') 'ST.DEV: X= dM/dH:',dev(nT,XTM_dMdH((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
+  write(u6,'(a,5x, f20.14)') 'ST.DEV: X= M/H:',dev(nT,XTM_MH((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
+  write(u6,'(A)') '-----|--------------------------------------------------------------------|'
 end if !tinput
 
 !-------------------------  PLOTs -------------------------------------!
 write(label,'(A)') 'with_field_M_over_H'
-flush(6)
+call xFlush(u6)
 if (DoPlot) then
   if (tinput) then
     call plot_XT_with_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),XTM_MH((1+nTempMagn):(nT+nTempMagn)), &
@@ -380,7 +374,7 @@ if (DoPlot) then
 end if
 
 write(label,'(A)') 'with_field_dM_over_dH'
-flush(6)
+call xFlush(u6)
 if (DoPlot) then
   if (tinput) then
     call plot_XT_with_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),XTM_dMdH((1+nTempMagn):(nT+nTempMagn)), &
@@ -392,48 +386,44 @@ end if
 !---------------------- END PLOTs -------------------------------------!
 
 ! print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main axes:
-write(6,'(/)')
-write(6,'(111A)') ('-',i=1,110),'|'
-write(6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR the  X=dM/dH  model,  in cm3*K/mol','|'
-write(6,'(111A)') ('-',i=1,110),'|'
-write(6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
+write(u6,'(/)')
+write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR the  X=dM/dH  model,  in cm3*K/mol','|'
+write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
 do iT=1,nT
   jT = iT+nTempMagn
   info = 0
-  wt = 0.0_wp
-  zt = 0.0_wp
   call DIAG_R2(XTtens_dMdH(:,:,jT),3,info,wt,zt)
-  write(6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- z ----|'
-  write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(XTtens_dMdH(1,j,jT),j=1,3),' |  X:',wt(1),'|', &
-                                                 (zt(j,1),j=1,3),'|'
-  write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(XTtens_dMdH(2,j,jT),j=1,3),' |  Y:',wt(2),'|', &
-                                                          (zt(j,2),j=1,3),'|'
-  write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(XTtens_dMdH(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
-                                                 (zt(j,3),j=1,3),'|'
+  write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- z ----|'
+  write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(XTtens_dMdH(1,j,jT),j=1,3),' |  X:',wt(1),'|', &
+                                                  (zt(j,1),j=1,3),'|'
+  write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(XTtens_dMdH(2,j,jT),j=1,3),' |  Y:',wt(2),'|', &
+                                                           (zt(j,2),j=1,3),'|'
+  write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(XTtens_dMdH(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
+                                                  (zt(j,3),j=1,3),'|'
 end do
-write(6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(111A)') ('-',i=1,110),'|'
 
-write(6,'(/)')
-write(6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(/)')
+write(u6,'(111A)') ('-',i=1,110),'|'
 
-write(6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR the  X = M/H  model,  in cm3*K/mol','|'
-write(6,'(111A)') ('-',i=1,110),'|'
-write(6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
+write(u6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR the  X = M/H  model,  in cm3*K/mol','|'
+write(u6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
 do iT=1,nT
   jT = iT+nTempMagn
   info = 0
-  wt = 0.0_wp
-  zt = 0.0_wp
   call DIAG_R2(XTtens_MH(:,:,jT),3,info,wt,zt)
-  write(6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- z ----|'
-  write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(XTtens_MH(1,j,jT),j=1,3),' |  X:',wt(1),'|', &
-                                                 (zt(j,1),j=1,3),'|'
-  write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(XTtens_MH(2,j,jT),j=1,3),' |  Y:',wt(2),'|', &
-                                                          (zt(j,2),j=1,3),'|'
-  write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(XTtens_MH(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
-                                                 (zt(j,3),j=1,3),'|'
+  write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- z ----|'
+  write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(XTtens_MH(1,j,jT),j=1,3),' |  X:',wt(1),'|', &
+                                                  (zt(j,1),j=1,3),'|'
+  write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(XTtens_MH(2,j,jT),j=1,3),' |  Y:',wt(2),'|', &
+                                                           (zt(j,2),j=1,3),'|'
+  write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(XTtens_MH(3,j,jT),j=1,3),' |  Z:',wt(3),'|', &
+                                                  (zt(j,3),j=1,3),'|'
 end do
-write(6,'(111A)') ('-',i=1,110),'|'
+write(u6,'(111A)') ('-',i=1,110),'|'
 
 call mma_deallocate(WM1)
 call mma_deallocate(WM2)

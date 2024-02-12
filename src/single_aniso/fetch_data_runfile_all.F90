@@ -11,8 +11,10 @@
 
 subroutine fetch_data_RunFile_all(nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,angmom,eDmom,amfi,HSO,eso_au,esfs_au)
 
+use Constants, only: cZero, cOne, Onei
+use Definitions, only: wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 integer :: nss, nstate
 integer :: multiplicity(nstate)
@@ -25,7 +27,7 @@ complex(kind=8) :: U(nss,nss), HSO(nss,nss)
 integer :: njob, mxjob, ndata, iss, ibas(nstate,-50:50)
 integer :: i, j, i1, j1, ist, jst, mult, multI, multJ
 integer :: l, ipar, info
-real(kind=8) :: g_e, au2cm, thr_deg, diff
+real(kind=8) :: diff
 ! allocatable local arrays:
 integer, allocatable :: mltplt(:), jbnum(:), nstat(:) !,lroot(:)
 real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), W(:)
@@ -33,9 +35,9 @@ complex(kind=8), allocatable :: tmp(:,:), u1(:,:)
 complex(kind=8) :: Spin
 external :: Spin
 logical :: found_edmom, found_amfi, found_hsor, found_hsoi
+real(kind=8), parameter :: au2cm = 219474.6313702_wp, g_e = 2.00231930437180_wp, & !IFG
+                           thr_deg = 0.2e-13_wp ! a.u. = 0.2e-13*au2cm = 4.38949263E-09 cm-1
 
-g_e = 2.00231930437180_wp
-au2cm = 219474.6313702_wp
 ! get basic sizes:
 njob = 0
 mxjob = 0
@@ -62,14 +64,10 @@ call mma_deallocate(mltplt)
 call mma_deallocate(nstat)
 
 ! fetch the spin-orbit energies:
-eso = 0.0_wp
-eso_au = 0.0_wp
 call get_dArray('ESO_SINGLE',eso,nss)
 call get_dArray('ESO_LOW',eso_au,nss)
 
 ! fetch the spin-free energies:
-esfs = 0.0_wp
-esfs_au = 0.0_wp
 call get_dArray('ESFS_SINGLE',esfs,nstate)
 call get_dArray('ESFS_SINGLEAU',esfs_au,nstate)
 
@@ -77,29 +75,23 @@ call get_dArray('ESFS_SINGLEAU',esfs_au,nstate)
 call mma_allocate(tmpR,nss,nss,'tmpR')
 call mma_allocate(tmpI,nss,nss,'tmpI')
 
-tmpR = 0.0_wp
-tmpI = 0.0_wp
 call get_dArray('UMATR_SINGLE',tmpR,nss*nss)
 call get_dArray('UMATI_SINGLE',tmpI,nss*nss)
-U = (0.0_wp,0.0_wp)
 do i=1,nss
   do j=1,nss
-    U(i,j) = cmplx(tmpR(i,j),tmpI(i,j),wp)
+    U(i,j) = cmplx(tmpR(i,j),tmpI(i,j),kind=wp)
   end do
 end do
 
 ! fetch the angular momentum integrals:
-angmom = 0.0_wp
 call get_dArray('ANGM_SINGLE',angmom,3*nstate*nstate)
 
 ! fetch the electric dipole moment integrals:
-edmom = 0.0_wp
 found_EDMOM = .false.
 call qpg_dArray('DIP1_SINGLE',FOUND_EDMOM,NDATA)
 if (found_edmom) call get_dArray('DIP1_SINGLE',edmom,3*nstate*nstate)
 
 ! fetch the amfi integrals:
-amfi = 0.0_wp
 found_AMFI = .false.
 call qpg_dArray('AMFI_SINGLE',FOUND_AMFI,NDATA)
 if (found_amfi) call get_dArray('AMFI_SINGLE',amfi,3*nstate*nstate)
@@ -110,26 +102,20 @@ FOUND_HSOI = .false.
 call qpg_dArray('HAMSOR_SINGLE',FOUND_HSOR,NDATA)
 call qpg_dArray('HAMSOI_SINGLE',FOUND_HSOI,NDATA)
 if (FOUND_HSOR .and. FOUND_HSOI) then
-  tmpR = 0.0_wp
-  tmpI = 0.0_wp
   call get_dArray('HAMSOR_SINGLE',tmpR,nss*nss)
   call get_dArray('HAMSOI_SINGLE',tmpI,nss*nss)
-  call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,HSO,1)
   do i=1,nss
     do j=1,nss
-      HSO(i,j) = cmplx(tmpR(i,j),tmpI(i,j),wp)
+      HSO(i,j) = cmplx(tmpR(i,j),tmpI(i,j),kind=wp)
     end do
   end do
   !---------------------------------------------------------------------
   ! if HSO is found, proceed to diagonalize it
   call mma_allocate(W,nss,'W')
   call mma_allocate(U1,nss,nss,'U1')
-  call dcopy_(nss,[0.0_wp],0,W,1)
-  call zcopy_(nss*nss,[(0.0_wp,0.0_wp)],0,U1,1)
   info = 0
   call diag_c2(hso,nss,info,W,U1)
   ! correct for numerical degeneracies:
-  thr_deg = 0.2D-13 ! a.u. = 0.2D-13*au2cm = 4.38949263E-09 cm-1
   do i=1,nss-1
     !wtmp = W(i)
     do j=i+1,nss
@@ -166,9 +152,9 @@ end do ! ist
 
 !-----
 ! expand the spin free basis to the spin-orbit basis:
-call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,MM,1)
-call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,ML,1)
-call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,MS,1)
+call zcopy_(3*nss*nss,[cZero],0,MM,1)
+call zcopy_(3*nss*nss,[cZero],0,ML,1)
+call zcopy_(3*nss*nss,[cZero],0,MS,1)
 do Ist=1,nstate
   Mult = Multiplicity(Ist)
   do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
@@ -197,9 +183,9 @@ do Ist=1,nstate
         do l=1,3
           i1 = Ibas(Ist,I)
           j1 = Ibas(Jst,I)
-          MM(l,i1,j1) = MM(l,i1,j1)-cmplx(0.0_wp,Angmom(l,Ist,Jst),wp)
-          ML(l,i1,j1) = ML(l,i1,j1)+cmplx(0.0_wp,Angmom(l,Ist,Jst),wp)
-          DM(l,i1,j1) = DM(l,i1,j1)+cmplx(eDmom(l,Ist,Jst),0.0_wp,wp)
+          MM(l,i1,j1) = MM(l,i1,j1)-Angmom(l,Ist,Jst)*Onei
+          ML(l,i1,j1) = ML(l,i1,j1)+Angmom(l,Ist,Jst)*Onei
+          DM(l,i1,j1) = DM(l,i1,j1)+eDmom(l,Ist,Jst)*cOne
         end do   ! l
 303     continue
       end do   ! I
@@ -211,30 +197,26 @@ end do   ! Ist
 ! in the spin-orbit basis:
 call mma_allocate(tmp,nss,nss,'tmp')
 do L=1,3
-  TMP = (0.0_wp,0.0_wp)
   ! spin moment
-  call ZGEMM_('C','N',nss,nss,nss,(1.0_wp,0.0_wp),U,nss,MS(L,:,:),nss,(0.0_wp,0.0_wp),TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,(1.0_wp,0.0_wp),TMP,nss,U,nss,(0.0_wp,0.0_wp),MS(L,:,:),nss)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,MS(L,:,:),nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,MS(L,:,:),nss)
   ! orbital moment
-  TMP = (0.0_wp,0.0_wp)
-  call ZGEMM_('C','N',nss,nss,nss,(1.0_wp,0.0_wp),U,nss,ML(L,:,:),nss,(0.0_wp,0.0_wp),TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,(1.0_wp,0.0_wp),TMP,nss,U,nss,(0.0_wp,0.0_wp),ML(L,:,:),nss)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,ML(L,:,:),nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,ML(L,:,:),nss)
   ! magnetic moment
-  TMP = (0.0_wp,0.0_wp)
-  call ZGEMM_('C','N',nss,nss,nss,(1.0_wp,0.0_wp),U,nss,MM(L,:,:),nss,(0.0_wp,0.0_wp),TMP,nss)
-  call ZGEMM_('N','N',nss,nss,nss,(1.0_wp,0.0_wp),TMP,nss,U,nss,(0.0_wp,0.0_wp),MM(L,:,:),nss)
+  call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,MM(L,:,:),nss,cZero,TMP,nss)
+  call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,MM(L,:,:),nss)
 
   if (found_EDMOM) then
     ! electric dipole moment
-    TMP = (0.0_wp,0.0_wp)
-    call ZGEMM_('C','N',nss,nss,nss,(1.0_wp,0.0_wp),U,nss,DM(L,:,:),nss,(0.0_wp,0.0_wp),TMP,nss)
-    call ZGEMM_('N','N',nss,nss,nss,(1.0_wp,0.0_wp),TMP,nss,U,nss,(0.0_wp,0.0_wp),DM(L,:,:),nss)
+    call ZGEMM_('C','N',nss,nss,nss,cOne,U,nss,DM(L,:,:),nss,cZero,TMP,nss)
+    call ZGEMM_('N','N',nss,nss,nss,cOne,TMP,nss,U,nss,cZero,DM(L,:,:),nss)
   end if
 end do ! L
 call mma_deallocate(tmp)
 
 ! check the commutation rules of spin:
-call check_commutation(nss,MS(1:3,1:nss,1:nss),.false.)
+call check_commutation(nss,MS,.false.)
 
 return
 

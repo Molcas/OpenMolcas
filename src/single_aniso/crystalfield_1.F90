@@ -22,9 +22,11 @@ subroutine CRYSTALFIELD_1(nDIMcf,nlanth,MM,ESOJ,GRAD,iprint)
 !  IReturn = the error value.
 !        0 = no error, happy landing
 
+use Constants, only: Zero, cZero
+use Definitions, only: u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: nDIMcf, nlanth, iprint
 logical, intent(in) :: GRAD
 real(kind=8), intent(in) :: ESOJ(nDIMcf)
@@ -48,12 +50,12 @@ call mma_allocate(Z,nDIMcf,nDIMcf,'Z')
 call mma_allocate(HCF,nDIMcf,nDIMcf,'HCF')
 
 info = 0
-call dcopy_(nDIMcf,[0.0_wp],0,Winit,1)
-call dcopy_(nDIMcf,[0.0_wp],0,Eloc,1)
-call dcopy_(6,[0.0_wp],0,A,1)
-call zcopy_(nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,Zinit,1)
-call zcopy_(nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,Z,1)
-call zcopy_(nDIMcf*nDIMcf,[(0.0_wp,0.0_wp)],0,HCF,1)
+call dcopy_(nDIMcf,[Zero],0,Winit,1)
+call dcopy_(nDIMcf,[Zero],0,Eloc,1)
+call dcopy_(6,[Zero],0,A,1)
+call zcopy_(nDIMcf*nDIMcf,[cZero],0,Zinit,1)
+call zcopy_(nDIMcf*nDIMcf,[cZero],0,Z,1)
+call zcopy_(nDIMcf*nDIMcf,[cZero],0,HCF,1)
 
 ! find the J-pseudospin:
 !iDir = 3
@@ -73,22 +75,22 @@ call DIAG_C2(HCF,nDIMcf,INFO,Winit,Zinit)
 call print_ZFS('Ab Initio Calculated Crystal-Field Splitting Matrix written in the basis of Pseudospin Eigenfunctions',HCF,nDIMCF)
 
 if (IPRINT > 2) then
-  write(6,*)
-  write(6,'(5X,A)') 'MAIN VALUES OF THE INITIAL CRYSTAL-FIELD HAMILTONIAN:'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(5X,A)') 'MAIN VALUES OF THE INITIAL CRYSTAL-FIELD HAMILTONIAN:'
+  write(u6,*)
   if (mod(nDIMcf,2) == 1) then
     do I=1,nDIMcf
-      write(6,'(3X,A,I3,A,F25.16)') '|',(nDIMcf-1)/2+(1-I),'> = ',Winit(I)-Winit(1)
+      write(u6,'(3X,A,I3,A,F25.16)') '|',(nDIMcf-1)/2+(1-I),'> = ',Winit(I)-Winit(1)
     end do
   else
     do I=1,nDIMcf
-      write(6,'(3X,A,I3,A,F25.16)') '|',(nDIMcf-1)-2*(I-1),'/2 > = ',Winit(i)-Winit(1)
+      write(u6,'(3X,A,I3,A,F25.16)') '|',(nDIMcf-1)-2*(I-1),'/2 > = ',Winit(i)-Winit(1)
     end do
   end if
-  write(6,*)
+  write(u6,*)
 
-  write(6,'(5X,A)') 'EIGENVECTORS OF THE INITIAL CRYSTAL-FIELD HAMILTONIAN:'
-  write(6,*)
+  write(u6,'(5X,A)') 'EIGENVECTORS OF THE INITIAL CRYSTAL-FIELD HAMILTONIAN:'
+  write(u6,*)
   call print_ZFS_naoya('J',Zinit,nDIMcf)
   ! End the checking of the main values of the initial crystal-field
 end if
@@ -110,22 +112,22 @@ else
 end if
 
 !-----------------------------------------------------------------------
-write(6,'(/)')
+write(u6,'(/)')
 if (mod(nDIMcf,2) == 1) then
-  write(6,'(A,I0)') 'DECOMPOSITION OF THE RASSI WAVE FUNCTIONS CORRESPONDING TO THE LOWEST ATOMIC MULTIPLET J =',(nDIMcf-1)/2
-  write(6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE PROJECTION OF THE TOTAL MOMENT ON THE QUANTIZATION AXIS'
+  write(u6,'(A,I0)') 'DECOMPOSITION OF THE RASSI WAVE FUNCTIONS CORRESPONDING TO THE LOWEST ATOMIC MULTIPLET J =',(nDIMcf-1)/2
+  write(u6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE PROJECTION OF THE TOTAL MOMENT ON THE QUANTIZATION AXIS'
 else ! mod(nDIMcf,2) == 0
-  write(6,'(A,I0,A)') 'DECOMPOSITION OF THE RASSI WAVE FUNCTIONS CORRESPONDING TO THE LOWEST ATOMIC MULTIPLET J = ',(nDIMcf-1),'/2'
-  write(6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE PROJECTION OF THE TOTAL MOMENT ON THE QUANTIZATION AXIS'
+  write(u6,'(A,I0,A)') 'DECOMPOSITION OF THE RASSI WAVE FUNCTIONS CORRESPONDING TO THE LOWEST ATOMIC MULTIPLET J = ',(nDIMcf-1),'/2'
+  write(u6,'(A,I0)') 'IN WAVE FUNCTIONS WITH DEFINITE PROJECTION OF THE TOTAL MOMENT ON THE QUANTIZATION AXIS'
 end if
 
 call print_ZFS_naoya('J',Zinit,nDIMcf)
 call individual_ranks(nDIMCF,BNC,BNS,HCF,'J',iprint)
 !-----------------------------------------------------------------------
 ! saving some information for tests:
-call Add_Info('CRYS_BNMC_20',[dble(BNC(2,0))],1,4)
-call Add_Info('CRYS_BNMC_40',[dble(BNC(4,0))],1,4)
-call Add_Info('CRYS_BNMC_60',[dble(BNC(6,0))],1,4)
+call Add_Info('CRYS_BNMC_20',BNC(2,0),1,4)
+call Add_Info('CRYS_BNMC_40',BNC(4,0),1,4)
+call Add_Info('CRYS_BNMC_60',BNC(6,0),1,4)
 !-----------------------------------------------------------------------
 ! for the interface related to CF gradient calculation:
 if (GRAD) then

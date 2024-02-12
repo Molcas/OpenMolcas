@@ -11,8 +11,9 @@
 
 subroutine sort_KQ(N,ARR,rank,proj,iopt)
 
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N, iopt
 integer, intent(inout) :: rank(N), proj(N)
 real(kind=8), intent(inout) :: ARR(N)
@@ -59,12 +60,12 @@ else if (iopt == 2) then
     proj(i+1) = ip
   end do
 else
-  write(6,'(A)') 'sort_KQ error:  iopt parameter is wrong.'
-  write(6,*) 'iopt = ',iopt
-  write(6,'(A)') 'iopt = 1, sort in ascending order'
-  write(6,'(A)') 'iopt = 2, sort in descending order'
-  write(6,'(A)') 'Return, wthout sorting'
-  call xFlush(6)
+  write(u6,'(A)') 'sort_KQ error:  iopt parameter is wrong.'
+  write(u6,*) 'iopt = ',iopt
+  write(u6,'(A)') 'iopt = 1, sort in ascending order'
+  write(u6,'(A)') 'iopt = 2, sort in descending order'
+  write(u6,'(A)') 'Return, wthout sorting'
+  call xFlush(u6)
   return
 end if
 
