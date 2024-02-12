@@ -14,13 +14,13 @@ C     PURPOSE: MAKE THE GUGA TABLES
 C     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
 C              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 C              THE COMMON /GUGA/. THESE ARE:
-C              DRT,DOWN,LDAW,LUP,LRAW,NOW1,IOW1,LNOCSF,LIOCSF
+C              DRT,DOWN,DAW,LUP,LRAW,NOW1,IOW1,LNOCSF,LIOCSF
 C
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: NLEV, IA0, IB0, IC0, NVERT0,
      &                IFCAS, NVERT, NDRT,  DRT,
      &                NDOWN,  DOWN, LUP, NUP, LRAW, NRAW, MIDLEV,
-     &                NMIDV, MXUP, MXDWN, NWALK, NNOW, LDAW, NDAW,
+     &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
      &                LNOCSF, NIOCSF, LIOCSF, LLSGN, LUSGN, NOW1,
      &                IOW1
@@ -103,8 +103,8 @@ C
 C     CALCULATE ARC WEIGHT AND LTV TABLES.
 C
       NDAW=5*NVERT
-      CALL GETMEM('DAW1','ALLO','INTEG',LDAW,NDAW)
-      CALL MKDAW(DOWN,IWORK(LDAW),IPRINT)
+      CALL mma_allocate(DAW,NDAW,Label='DAW')
+      CALL MKDAW(DOWN,DAW,IPRINT)
 C
 C     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
 C
@@ -118,7 +118,7 @@ C     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICES
 C
       NLTV=NLEV+2
       CALL GETMEM('LTV1','ALLO','INTEG',LLTV,NLTV)
-      CALL MKMID(DRT,IWORK(LDAW),IWORK(LRAW),IWORK(LLTV),IPRINT)
+      CALL MKMID(DRT,DAW,IWORK(LRAW),IWORK(LLTV),IPRINT)
       CALL GETMEM('LTV1','FREE','INTEG',LLTV,NLTV)
 C
 C     FORM VARIOUS OFFSET TABLES:
@@ -154,7 +154,7 @@ C
       NLSGN=MXDWN*NMIDV
       CALL GETMEM('IUSG','ALLO','INTEG',LUSGN,NUSGN)
       CALL GETMEM('ILSG','ALLO','INTEG',LLSGN,NLSGN)
-      CALL MKSGNUM(DOWN,IWORK(LUP),IWORK(LDAW),IWORK(LRAW),
+      CALL MKSGNUM(DOWN,IWORK(LUP),DAW,IWORK(LRAW),
      *             NOW1,IOW1,IWORK(LUSGN),IWORK(LLSGN),
      *             ICASE,IPRINT)
 C
@@ -169,9 +169,9 @@ C
 C     PURPOSE: FREE THE GUGA TABLES
 C
       use stdalloc, only: mma_deallocate
-      use gugx, only:  DRT,  DOWN, LUP, LRAW, LDAW, LNOCSF,
+      use gugx, only:  DRT,  DOWN, LUP, LRAW,  DAW, LNOCSF,
      &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1,
-     &                MXUP, MXDWN, NMIDV,              NDAW, NUP,
+     &                MXUP, MXDWN, NMIDV,                    NUP,
      &                NRAW, NNOCSF, NIOCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -179,7 +179,7 @@ C
       Call mma_deallocate(DRT)
       Call mma_deallocate(DOWN)
 
-      CALL GETMEM('DAW1','FREE','INTE',LDAW,NDAW)
+      Call mma_deallocate(DAW)
       CALL GETMEM('LUP1','FREE','INTE',LUP,NUP)
       CALL GETMEM('RAW1','FREE','INTE',LRAW,NRAW)
 
