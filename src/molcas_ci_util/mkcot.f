@@ -8,14 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKCOT_m(ISM,IDOWN,NOW,IOW,IOCSF,NOCSF,ISCR,IPRINT)
+!#define _DEBUGPRINT_
+      SUBROUTINE MKCOT(ISM,IDOWN,NOW,IOW,IOCSF,NOCSF,ISCR)
 C     PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 C     NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
 C              THE DOWN-CHAIN TABLE IS SCANNED TO PRODUCE ALL POSSIBLE
 C              WALKS. POSSIBLY, THERE ARE MORE EFFICIENT WAYS, BUT
 C              SINCE ONLY UPPER AND LOWER WALKS ARE REQUIRED
 C              THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
-      use mcpdft_output, only: insane, lf
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
       use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, MIDV1, MIDV2, NUW,
      &                NLW, NWALK, NIPWLK, NCSF
 
@@ -144,30 +147,28 @@ C
           END DO
         END DO
       END DO
-      IF (IPRINT.GE.insane) THEN
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' TOTAL NR OF WALKS: UPPER ',NUW
+      Write(LF,*)'                    LOWER ',NLW
+      Write(LF,*)'                     SUM  ',NWALK
+      Write(LF,*)
+      Write(LF,*)' NR OF CONFIGURATIONS/SYMM:'
+      Write(LF,'(8(1X,I8))')(NCSF(IS),IS=1,NSYM)
+      Write(LF,*)
+      Write(LF,*)
+      Write(LF,*)' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
+      Write(LF,*)' BY MIDVERTEX AND SYMMETRY.'
+      DO MV=1,NMIDV
         Write(LF,*)
-        Write(LF,*)' TOTAL NR OF WALKS: UPPER ',NUW
-        Write(LF,*)'                    LOWER ',NLW
-        Write(LF,*)'                     SUM  ',NWALK
-        Write(LF,*)
-        Write(LF,*)' NR OF CONFIGURATIONS/SYMM:'
-        Write(LF,'(8(1X,I8))')(NCSF(IS),IS=1,NSYM)
-        Write(LF,*)
-        Write(LF,*)
-        Write(LF,*)' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
-        Write(LF,*)' BY MIDVERTEX AND SYMMETRY.'
-        DO MV=1,NMIDV
-          Write(LF,*)
-          Write(LF,'(A,I2,A,8I6)') '  MV=',MV,'    UPPER WALKS:',
-     &                             (NOW(1,IS,MV),IS=1,NSYM)
-          Write(LF,'(A,8I6)') '           LOWER WALKS:',
-     &                             (NOW(2,IS,MV),IS=1,NSYM)
-          DO IST=1,NSYM
-          Write(LF,'(A,I2,A,8I6)') ' IST=',IST,'  CONFIGURATIONS:',
-     &                           (NOCSF(IS,MV,IST),IS=1,NSYM)
-          END DO
+        Write(LF,'(A,I2,A,8I6)') '  MV=',MV,'    UPPER WALKS:',
+     &                           (NOW(1,IS,MV),IS=1,NSYM)
+        Write(LF,'(A,8I6)') '           LOWER WALKS:',
+     &                           (NOW(2,IS,MV),IS=1,NSYM)
+        DO IST=1,NSYM
+        Write(LF,'(A,I2,A,8I6)') ' IST=',IST,'  CONFIGURATIONS:',
+     &                         (NOCSF(IS,MV,IST),IS=1,NSYM)
         END DO
-      ENDIF
-
-      RETURN
+      END DO
+#endif
       END
