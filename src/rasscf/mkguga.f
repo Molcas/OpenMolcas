@@ -110,7 +110,7 @@ C
       NRAW=5*NVERT
       CALL mma_allocate(UP,NUP,Label='UP')
       CALL mma_allocate(RAW,NRAW,Label='RAW')
-      CALL MKRAW(DOWN,UP,RAW,IPRINT)
+      CALL MKRAW(DOWN,UP,RAW)
 C
 C     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICES
 C

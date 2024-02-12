@@ -8,13 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKRAW_m(IDOWN,IUP,IRAW,IPRINT)
+!#define _DEBUGPRINT_
+      SUBROUTINE MKRAW(IDOWN,IUP,IRAW)
 C
 C     PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
 C
-      use mcpdft_output, only: insane, lf
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
       use gugx, only: NVERT
-
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -39,14 +41,14 @@ C
         END DO
       END DO
 C
-      IF( IPRINT >= insane ) THEN
-        Write(LF,*)
-        Write(LF,*)' THE UPCHAIN TABLE IN MKRAW:'
-        DO IV=1,NVERT
-          Write(LF,'(1X,I4,5X,4(1X,I6))') IV,(IUP(IV,IC),IC=0,3)
-        END DO
-        Write(LF,*)
-      ENDIF
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' THE UPCHAIN TABLE IN MKRAW:'
+      DO IV=1,NVERT
+        Write(LF,'(1X,I4,5X,4(1X,I6))') IV,(IUP(IV,IC),IC=0,3)
+      END DO
+      Write(LF,*)
+#endif
 C
 C     USE UPCHAIN TABLE TO CALCULATE THE REVERSE ARC WEIGHT TABLE:
 C
@@ -67,14 +69,13 @@ C
         IRAW(IV,4)=ISUM
       END DO
 C
-      IF( IPRINT >= insane ) THEN
-        Write(LF,*)
-        Write(LF,*)' THE REVERSE ARC WEIGHT TABLE IN MKRAW:'
-        DO IV=1,NVERT
-          Write(LF,'(1X,I4,5X,5(1X,I6))') IV,(IRAW(IV,IC),IC=0,4)
-        END DO
-        Write(LF,*)
-      ENDIF
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' THE REVERSE ARC WEIGHT TABLE IN MKRAW:'
+      DO IV=1,NVERT
+        Write(LF,'(1X,I4,5X,5(1X,I6))') IV,(IRAW(IV,IC),IC=0,4)
+      END DO
+      Write(LF,*)
+#endif
 
-      RETURN
-      END
+      END SUBROUTINE MKRAW

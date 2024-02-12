@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
       SUBROUTINE MKDAW(IDOWN,IDAW)
 C     PURPOSE: CONSTRUCT DIRECT ARC WEIGHTS TABLE
 C
