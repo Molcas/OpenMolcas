@@ -14,12 +14,12 @@ C     PURPOSE: MAKE THE GUGA TABLES
 C     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
 C              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 C              THE COMMON /GUGA/. THESE ARE:
-C              DRT,DOWN,DAW,UP,LRAW,NOW1,IOW1,LNOCSF,LIOCSF
+C              DRT,DOWN,DAW,UP,RAW,NOW1,IOW1,LNOCSF,LIOCSF
 C
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: NLEV, IA0, IB0, IC0, NVERT0,
      &                IFCAS, NVERT, NDRT,  DRT,
-     &                NDOWN,  DOWN,  UP, NUP, LRAW, NRAW, MIDLEV,
+     &                NDOWN,  DOWN,  UP, NUP,  RAW, NRAW, MIDLEV,
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
      &                LNOCSF, NIOCSF, LIOCSF, LLSGN, LUSGN, NOW1,
@@ -111,14 +111,14 @@ C
       NUP=4*NVERT
       NRAW=5*NVERT
       CALL mma_allocate(UP,NUP,Label='UP')
-      CALL GETMEM('RAW1','ALLO','INTEG',LRAW,NRAW)
-      CALL MKRAW(DOWN,UP,IWORK(LRAW),IPRINT)
+      CALL mma_allocate(RAW,NRAW,Label='RAW')
+      CALL MKRAW(DOWN,UP,RAW,IPRINT)
 C
 C     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICES
 C
       NLTV=NLEV+2
       CALL GETMEM('LTV1','ALLO','INTEG',LLTV,NLTV)
-      CALL MKMID(DRT,DAW,IWORK(LRAW),IWORK(LLTV),IPRINT)
+      CALL MKMID(DRT,DAW,RAW,IWORK(LLTV),IPRINT)
       CALL GETMEM('LTV1','FREE','INTEG',LLTV,NLTV)
 C
 C     FORM VARIOUS OFFSET TABLES:
@@ -154,7 +154,7 @@ C
       NLSGN=MXDWN*NMIDV
       CALL GETMEM('IUSG','ALLO','INTEG',LUSGN,NUSGN)
       CALL GETMEM('ILSG','ALLO','INTEG',LLSGN,NLSGN)
-      CALL MKSGNUM(DOWN,UP,DAW,IWORK(LRAW),
+      CALL MKSGNUM(DOWN,UP,DAW,RAW,
      *             NOW1,IOW1,IWORK(LUSGN),IWORK(LLSGN),
      *             ICASE,IPRINT)
 C
@@ -169,10 +169,10 @@ C
 C     PURPOSE: FREE THE GUGA TABLES
 C
       use stdalloc, only: mma_deallocate
-      use gugx, only:  DRT,  DOWN,  UP, LRAW,  DAW, LNOCSF,
+      use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW, LNOCSF,
      &                LIOCSF,  ICASE, LUSGN, LLSGN, NOW1, IOW1,
      &                MXUP, MXDWN, NMIDV,
-     &                NRAW, NNOCSF, NIOCSF
+     &                      NNOCSF, NIOCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 
@@ -181,7 +181,7 @@ C
 
       Call mma_deallocate(DAW)
       Call mma_deallocate(UP)
-      CALL GETMEM('RAW1','FREE','INTE',LRAW,NRAW)
+      Call mma_deallocate(RAW)
 
       Call mma_deallocate(NOW1)
       Call mma_deallocate(IOW1)
