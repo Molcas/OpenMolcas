@@ -65,7 +65,7 @@ set (sources
      lucia2molcas_free.F90
      matml4.F90
      mkclist.F90
-     mkcot.f
+     mkcot.F90
      mkdaw.F90
      mkdrt.F90
      mkdrt0.F90
