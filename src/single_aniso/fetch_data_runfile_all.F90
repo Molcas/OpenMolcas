@@ -142,10 +142,9 @@ ipar = mod(multiplicity(1),2)
 do Ist=1,nstate
   Mult = Multiplicity(Ist)
   do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
-    if ((Ipar == 0) .and. (I == 0)) go to 310
+    if ((Ipar == 0) .and. (I == 0)) cycle
     Iss = Iss+1
     Ibas(Ist,I) = Iss
-310 continue
   end do ! i
 end do ! ist
 
@@ -157,18 +156,16 @@ call zcopy_(3*nss*nss,[cZero],0,MS,1)
 do Ist=1,nstate
   Mult = Multiplicity(Ist)
   do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
-    if ((Ipar == 0) .and. (I == 0)) go to 301
+    if ((Ipar == 0) .and. (I == 0)) cycle
     do J=-(Mult-Ipar)/2,(Mult-Ipar)/2
-      if ((Ipar == 0) .and. (J == 0)) go to 302
+      if ((Ipar == 0) .and. (J == 0)) cycle
       do l=1,3
         i1 = Ibas(Ist,I)
         j1 = Ibas(Ist,J)
         MM(l,i1,j1) = -Spin(l,Mult,I,J)*g_e
         MS(l,i1,j1) = Spin(l,Mult,I,J)
       end do ! l
-302   continue
     end do ! J
-301 continue
   end do ! I
 end do ! Ist
 
@@ -178,7 +175,7 @@ do Ist=1,nstate
     MultJ = Multiplicity(Jst)
     if (MultI == MultJ) then
       do I=-(MultI-Ipar)/2,(MultI-Ipar)/2
-        if ((Ipar == 0) .and. (I == 0)) go to 303
+        if ((Ipar == 0) .and. (I == 0)) cycle
         do l=1,3
           i1 = Ibas(Ist,I)
           j1 = Ibas(Jst,I)
@@ -186,7 +183,6 @@ do Ist=1,nstate
           ML(l,i1,j1) = ML(l,i1,j1)+Angmom(l,Ist,Jst)*Onei
           DM(l,i1,j1) = DM(l,i1,j1)+eDmom(l,Ist,Jst)*cOne
         end do   ! l
-303     continue
       end do   ! I
     end if
   end do   ! Jst

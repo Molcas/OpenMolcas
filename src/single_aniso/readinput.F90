@@ -18,7 +18,7 @@ subroutine readin_single(iprint,nmult,ndim,ldim,ndimcf,ldimcf,nlanth,axisoption,
 ! THIS ROUTINE READS THE FILE "SINGLE_ANISO.INPUT".
 
 use Constants, only: Zero, One, Two, Five, Six, Ten
-use Definitions, only: wp, u5, u6
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 #include "warnings.h"
@@ -33,7 +33,7 @@ logical :: compute_Mdir_vector, zeeman_energy
 !common/MZEL/ zeeman_energy
 !-----------------------------------------------------------------------
 integer :: nss, nstate
-integer :: iprint, nt, nh, nk, mg, l, jEnd
+integer :: iprint, nt, nh, nk, mg, l, jEnd, istatus
 integer :: nlanth, ndimcf, ldimcf, axisoption, i_OxStat
 integer :: input_to_read, encut_definition, ncut, ntempmagn
 integer :: ndirtot
@@ -64,7 +64,7 @@ logical :: smagn
 logical :: tinput, hinput
 logical, intent(out) :: m_paranoid
 logical :: doplot
-character(len=2) :: cME, clanth(37)
+character(len=2) :: cME, clanth(37), uME
 character(len=21) :: namefile_energy
 character(len=180) :: input_file_name, tmpline, err_msg
 external :: FindDetR
@@ -305,916 +305,911 @@ AngPoints = 46
 
 !=========== End of default settings====================================
 rewind(u5)
-50 read(u5,'(A280)',end=998) LINE
-if (DBG) write(u6,'(A)') trim(LINE)
-call NORMAL(LINE)
-if (LINE(1:7) /= '&SINGLE') go to 50
+do
+  read(u5,'(A280)',iostat=istatus) LINE
+  if (istatus < 0) call Error(1)
+  if (DBG) write(u6,'(A)') trim(LINE)
+  call NORMAL(LINE)
+  if (LINE(1:7) == '&SINGLE') exit
+end do
 LINENR = 0
-100 read(u5,'(A280)',end=998) LINE
-if (DBG) write(u6,'(A)') trim(LINE)
-LINENR = LINENR+1
-call NORMAL(LINE)
-if (LINE(1:1) == '*') go to 100
-if (LINE == ' ') go to 100
-if ((LINE(1:4) == 'End ') .or. (LINE(1:4) == '    ')) go to 200
-
-!------------------------------------------
-!if (LINE(1:4) == 'TYPE') then
-!  read(u5,*,err=997) ICALC
-!  if (icalc == 1) then
-!    compute_g_tensors = .true.
-!  else if (icalc == 2) then
-!    compute_chiT = .true.
-!  else if (icalc == 3) then
-!    compute_magnetization = .true.
-!  else if (icalc == 4) then
-!    compute_g_tensors = .true.
-!    compute_chiT = .true.
-!  else if (icalc == 5) then
-!    compute_g_tensors = .true.
-!    compute_magnetization = .true.
-!  else if (icalc == 6) then
-!    compute_chiT = .true.
-!    compute_magnetization = .true.
-!  else if (icalc == 7) then
-!    compute_g_tensors = .true.
-!    compute_chiT = .true.
-!    compute_magnetization = .true.
-!  else
-!    write(u6,'(A)') 'ICALC: the maximum value is 7. However, the calculation will continue by computing the magnetism.'
-!    compute_g_tensors = .true.
-!    compute_chiT = .true.
-!    compute_magnetization = .true.
-!  end if
-!  LINENR = LINENR+1
-!  go to 100
-!end if
-!------------------------------------------
-if (LINE(1:4) == 'MLTP') then
-  read(u5,*,err=997) NMULT
-  if (DBG) write(u6,*) 'MLTP:  NMULT=',NMULT
-  compute_g_tensors = .true.
-  read(u5,*,err=997) (NDIM(i),i=1,NMULT)
-  if (DBG) write(u6,*) 'MLTP: NDIM()=',(NDIM(i),i=1,NMULT)
-  LINENR = LINENR+2
-  go to 100
-end if
-!------------------------------------------
-if (LINE(1:4) == 'REST') then
-  Ifrestart = .true.
-  read(u5,*,err=997) input_to_read
-  if (DBG) write(u6,*) 'REST: input_to_read=',input_to_read
-  if ((input_to_read == 2) .or. (input_to_read == 3) .or. (input_to_read == 4)) then
-    backspace(u5)
-    read(u5,*) input_to_read,tmpline
-    input_file_name = trim(tmpline)
-  end if
-  if (input_to_read == 1) then
-    write(u6,*) 'RESTART: -- The SINGLE_ANISO will take all ab initio information from the binary "$Project.aniso" file.'
-  else if (input_to_read == 2) then
-    write(u6,*) 'RESTART: -- The SINGLE_ANISO will take all ab initio information from the ASCII '//trim(input_file_name)//' file.'
-  else if (input_to_read == 3) then
-    write(u6,*) 'RESTART: -- The SINGLE_ANISO will take all ab initio information from the RASSI-HDF5 binary file.'
-  else if (input_to_read == 4) then
-    write(u6,*) 'RESTART: -- The SINGLE_ANISO will take all ab initio information from the ASCII '//trim(input_file_name)// &
-                ' file -- molcas-8.0 format.'
-  else
-    call WarningMessage(2,'SINGLE_ANISO:: RESTART  option is not known.')
-    call Quit_OnUserError()
-  end if
-  go to 100
-end if
-
-!-------------------------------------------
-
-if (line(1:4) == 'DATA') then
-  Ifrestart = .true.
-  read(u5,*) tmpline
-  input_file_name = trim(tmpline)
-  input_to_read = 6
-  if (DBG) write(u6,*) 'restart_check: DATA, input_file_name='
-  if (DBG) write(u6,*) input_file_name
+do
+  read(u5,'(A280)',iostat=istatus) LINE
+  if (istatus < 0) call Error(1)
+  if (DBG) write(u6,'(A)') trim(LINE)
   LINENR = LINENR+1
-  go to 100
-end if
+  call NORMAL(LINE)
+  if ((LINE(1:1) == '*') .or. (LINE == ' ')) cycle
 
-!-------------------------------------------
-if (LINE(1:4) == 'TINT') then
-  if (.not. TINPUT) then
-    TCHECK = .true.
-
-    read(u5,*,err=997) t1,t2,nT
-
-    if ((t1 < 0) .or. (t2 < 0)) then
-      call WarningMessage(2,'TINT: negative temperature requested! ')
-      call Quit_OnUserError()
-    end if
-    if ((t1-t2) > Zero) then
-      Tmin = t2
-      Tmax = t1
-    else if ((t1-t2) < Zero) then
-      Tmin = t1
-      Tmax = t2
-    else ! t1==t2
-      call WarningMessage(2,'TINT: temperature interval == 0! ')
-      call Quit_OnUserError()
-    end if
-
-    if (DBG) write(u6,*) 'TINT: Tmin, Tmax, nT=',Tmin,Tmax,nT
-  else
-    goto 590
-  end if
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'XFIE') then
-  read(u5,*,err=997) Xfield
-  if (DBG) write(u6,*) 'XFIE: Xfield=',Xfield
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'HINT') then
-  if (.not. HINPUT) then
-    HCHECK = .true.
-    compute_magnetization = .true.
-
-    read(u5,*,err=997) t1,t2,nH
-
-    if ((t1 < 0) .or. (t2 < 0)) then
-      call WarningMessage(2,'HINT: negative field requested! ')
-      call Quit_OnUserError()
-    end if
-
-    if ((t1-t2) > Zero) then
-      Hmin = t2
-      Hmax = t1
-    else if ((t1-t2) < Zero) then
-      Hmin = t1
-      Hmax = t2
-    else ! t1 == t2
-      call WarningMessage(2,'HINT: temperature interval == 0! ')
-      call Quit_OnUserError()
-    end if
-
-    if (DBG) write(u6,*) 'HINT: Hmin, Hmax, nH=',Hmin,Hmax,nH
-  else
-    go to 591
-  end if
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'NCUT') then
-  if (ENCUT_check) then
-    go to 595
-  else
-    ENCUT_check = .true.
-    compute_magnetization = .true. ! request for computation of M(H)
-    encut_definition = 1
-
-    read(u5,*,err=997) NCUT  ! E_cut=ESO(Ncut)
-
-    if (NCUT < 0) then
-      call WarningMessage(2,'NCUT: negative NCUT requested! ')
-      call Quit_OnUserError()
-    else if (NCUT == 0) then
-      call WarningMessage(2,'NCUT: zero NCUT requested! ')
-      call Quit_OnUserError()
-    end if
-
-    if (DBG) write(u6,*) 'NCUT: NCUT=',NCUT
-    LINENR = LINENR+1
-    go to 100
-  end if
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'ENCU') then
-  if (ENCUT_check) then
-    go to 595
-  else
-    ENCUT_check = .true.
-    compute_magnetization = .true.
-    encut_definition = 2
-
-    read(u5,*,err=997) NK,MG
-
-    if ((NK <= 0) .or. (MG <= 0)) then
-      call WarningMessage(2,'ENCU: zero or negative NK,MG requested! ')
-      call Quit_OnUserError()
-    end if
-
-    if (DBG) write(u6,*) 'ENCU: NK, MG=',NK,MG
-    LINENR = LINENR+1
-    go to 100
-  end if
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'ERAT') then
-  if (ENCUT_check) then
-    go to 595
-  else
-    ENCUT_check = .true.
-    compute_magnetization = .true.
-    encut_definition = 3
-    ! Ncut = INT(nss*encut_rate)
-    ! E_cut = E(Ncut)
-
-    read(u5,*,err=997) encut_rate
-
-    if (encut_rate <= Zero) then
-      call WarningMessage(2,'ERAT: zero or negative encut rate requested! ')
-      call Quit_OnUserError()
-    end if
-
-    if (DBG) write(u6,*) 'ERAT: encut_rate=',encut_rate
-    LINENR = LINENR+1
-    go to 100
-  end if
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'MVEC') then
-  compute_magnetization = .true.   ! request for computation of M(H)
-  compute_Mdir_vector = .true.
-  read(u5,*,err=997) nDir
-  if (DBG) write(u6,*) 'MVEC: nDir=',nDir
-  do i=1,nDir
-    read(u5,*,err=997) DirX(i),DirY(i),DirZ(i)
-    if (DBG) write(u6,*) 'MVEC: DirX,DirY,DirZ=',DirX(i),DirY(i),DirZ(i)
-  end do
-  ! some processing:
-  do i=1,nDir
-    sum = DirX(i)*DirX(i)+DirY(i)*DirY(i)+DirZ(i)*DirZ(i)
-    if (sum == Zero) then
-      write(err_msg,'(a,i3,a)') 'error: MVEC  vector ',i,'has the modulus = 0.0.'
-      call WarningMessage(2,err_msg)
-      call Quit_OnUserError()
-    end if
-    if (sum /= One) then
-      write(u6,'(a,i3,a)') 'the vector',i,'was re-normalized.'
-      tmp = dirX(i)/sqrt(sum)
-      dirX(i) = tmp
-      tmp = dirY(i)/sqrt(sum)
-      dirY(i) = tmp
-      tmp = dirZ(i)/sqrt(sum)
-      dirZ(i) = tmp
-    end if
-  end do
-
-  LINENR = LINENR+NDIR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'MAVE') then
-  compute_magnetization = .true.
-
-  read(u5,*,err=997) nsymm,ngrid
-
-  if (DBG) write(u6,*) 'MAVE: nsymm, ngrid=',nsymm,ngrid
-  if ((nsymm < 1) .or. (nsymm > 3)) then
-    write(u6,'(A)') '"nsymm" must take Integer values 1, 2 or 3.'
-    write(u6,'(A,i5)') '"nsymm" = ',nsymm
-    call Quit_OnUserError()
-  end if
-  if ((ngrid < 1) .or. (ngrid > 32)) then
-    write(u6,'(A)') '"ngrid" must take Integer values 1, 2, ... 32.'
-    write(u6,'(A,i5)') '"ngrid" = ',ngrid
-    call Quit_OnUserError()
-  end if
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-!if (LINE(1:4) == 'TLIN') then
-!  read(u5,*,err=997) T1,T2
-!  LINENR = LINENR+1
-!  go to 100
-!end if
-!-------------------------------------------
-if (LINE(1:4) == 'SMAG') then
-  smagn = .true.
-  if (DBG) write(u6,*) 'SMAG: =',smagn
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'PLOT') then
-  doplot = .true.
-  if (DBG) write(u6,*) 'PLOT: =',doplot
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'TEXP') then
-  if (.not. TCHECK) then
-    TINPUT = .true.
-    read(u5,*,err=997) NT
-    if (DBG) write(u6,*) 'TEXP: nT=',nT
-    do i=1,NT
-      read(5,*,err=997) texp(i),chit_exp(i)
-      if (DBG) write(u6,*) 'TEXP: texp(i), chit_exp(i)=',texp(i),chit_exp(i)
-      ! check and clean negative values:
-      if (texp(i) < Zero) texp(i) = abs(texp(i))
-      if (chit_exp(i) < Zero) chit_exp(i) = abs(chit_exp(i))
-    end do
-    tmin = texp(1)
-    tmax = texp(nT)
-  else
-    go to 590
-  end if
-  LINENR = LINENR+NT+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'HEXP') then
-  compute_magnetization = .true.
-  if (checkTMAG) write(u6,'(A)') 'The data provided in TMAG will be ignored.'
-  if (.not. HCHECK) then
-    HINPUT = .true.
-    read(u5,*) nTempMagn,(TempMagn(i),i=1,nTempMagn)
-    if (DBG) write(u6,*) 'HEXP: nTempMagn =',nTempMagn
-    if (DBG) write(u6,*) 'HEXP: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
-    read(u5,*) nH
-    if (DBG) write(u6,*) 'HEXP: nH =',nH
-    if (nH < 0) nH = abs(nH)
-    if (nH == 0) call Quit_OnUserError()
-    do i=1,nH
-      read(u5,*,err=997) Hexp(i),(magn_exp(i,j),j=1,nTempMagn)
-      if (DBG) write(u6,*) 'HEXP: Hexp(i),  magn_exp(i,j)=',Hexp(i),(magn_exp(i,j),j=1,nTempMagn)
-      ! check and clean negative values:
-      if (hexp(i) < Zero) hexp(i) = abs(hexp(i))
-      do j=1,nTempMagn
-        if (magn_exp(i,j) < Zero) magn_exp(i,j) = abs(magn_exp(i,j))
-      end do
-    end do
-    hmin = hexp(1)
-    hmax = hexp(nH)
-  else
-    go to 591
-  end if
-  LINENR = LINENR+NH+2
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'ZJPR') then
-  read(u5,*,err=997) ZJ
-  if (DBG) write(u6,*) 'ZJPR: zJ =',zJ
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'TORQ') then
-  compute_torque = .true.
-  read(u5,*,err=997) AngPoints,H_torq,T_torq
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'TMAG') then
-  if (.not. HINPUT) then
-    compute_magnetization = .true.
-    checkTMAG = .true.
-
-    read(u5,*,err=997) nTempMagn,(TempMagn(i),i=1,nTempMagn)
-
-    do i=1,nTempMagn
-      if (TempMagn(i) <= Zero) then
-        call WarningMessage(2,'TMAG: zero or negative temperature requested! ')
-        if (TempMagn(i) < Zero) TempMagn(i) = abs(TempMagn(i))
-        if (TempMagn(i) == Zero) TempMagn(i) = 0.0001_wp
+  select case (LINE(1:4))
+    case ('END ','    ')
+      exit
+    !------------------------------------------
+    !case ('TYPE')
+    !  read(u5,*,iostat=istatus) ICALC
+    !  if (istatus < 0) call Error(2)
+    !  if (icalc == 1) then
+    !    compute_g_tensors = .true.
+    !  else if (icalc == 2) then
+    !    compute_chiT = .true.
+    !  else if (icalc == 3) then
+    !    compute_magnetization = .true.
+    !  else if (icalc == 4) then
+    !    compute_g_tensors = .true.
+    !    compute_chiT = .true.
+    !  else if (icalc == 5) then
+    !    compute_g_tensors = .true.
+    !    compute_magnetization = .true.
+    !  else if (icalc == 6) then
+    !    compute_chiT = .true.
+    !    compute_magnetization = .true.
+    !  else if (icalc == 7) then
+    !    compute_g_tensors = .true.
+    !    compute_chiT = .true.
+    !    compute_magnetization = .true.
+    !  else
+    !    write(u6,'(A)') 'ICALC: the maximum value is 7. However, the calculation will continue by computing the magnetism.'
+    !    compute_g_tensors = .true.
+    !    compute_chiT = .true.
+    !    compute_magnetization = .true.
+    !  end if
+    !  LINENR = LINENR+1
+    !------------------------------------------
+    case ('MLTP')
+      read(u5,*,iostat=istatus) NMULT
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'MLTP:  NMULT=',NMULT
+      compute_g_tensors = .true.
+      read(u5,*,iostat=istatus) (NDIM(i),i=1,NMULT)
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'MLTP: NDIM()=',(NDIM(i),i=1,NMULT)
+      LINENR = LINENR+2
+    !------------------------------------------
+    case ('REST')
+      Ifrestart = .true.
+      read(u5,*,iostat=istatus) input_to_read
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'REST: input_to_read=',input_to_read
+      if ((input_to_read == 2) .or. (input_to_read == 3) .or. (input_to_read == 4)) then
+        backspace(u5)
+        read(u5,*) input_to_read,tmpline
+        input_file_name = trim(tmpline)
       end if
-    end do
+      if (input_to_read == 1) then
+        write(u6,*) 'RESTART: -- The SINGLE_ANISO will take all ab initio information from the binary "$Project.aniso" file.'
+      else if (input_to_read == 2) then
+        write(u6,*) 'RESTART: -- The SINGLE_ANISO will take all ab initio information from the ASCII '//trim(input_file_name)// &
+                    ' file.'
+      else if (input_to_read == 3) then
+        write(u6,*) 'RESTART: -- The SINGLE_ANISO will take all ab initio information from the RASSI-HDF5 binary file.'
+      else if (input_to_read == 4) then
+        write(u6,*) 'RESTART: -- The SINGLE_ANISO will take all ab initio information from the ASCII '//trim(input_file_name)// &
+                    ' file -- molcas-8.0 format.'
+      else
+        call WarningMessage(2,'SINGLE_ANISO:: RESTART  option is not known.')
+        call Quit_OnUserError()
+      end if
+    !-------------------------------------------
+    case ('DATA')
+      Ifrestart = .true.
+      read(u5,*) tmpline
+      input_file_name = trim(tmpline)
+      input_to_read = 6
+      if (DBG) write(u6,*) 'restart_check: DATA, input_file_name='
+      if (DBG) write(u6,*) input_file_name
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('TINT')
+      if (.not. TINPUT) then
+        TCHECK = .true.
 
-    if (DBG) write(u6,*) 'TMAG: nTempMagn =',nTempMagn
-    if (DBG) write(u6,*) 'TMAG: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
-    ! check and clean negative values:
-  else
-    write(u6,'(A)') 'TMAG data is taken from HEXP.'
-  end if
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'PRLV') then
-  read(u5,*,err=997) IPRINT
-  if (DBG) write(u6,*) 'PRLV: IPRINT =',iPrint
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'POLY') then
-  if (DBG) write(u6,*) 'POLY:'
-  POLY_FILE = .true.
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'CRYS') then
-  compute_CF = .true.
-  read(u5,*,err=997) cME
-  if (DBG) write(u6,*) 'CRYS: cME =',cME
+        read(u5,*,iostat=istatus) t1,t2,nT
+        if (istatus < 0) call Error(2)
 
-  if ((cME == 'ce') .or. (cME == 'Ce') .or. (cME == 'cE') .or. (cME == 'CE')) then
-    nlanth = 1
-    nDIMcf = 6  ! f1; multiplet J=L-S=3-1/2=5/2  =>  J = 2F_5/2
-    lDIMCF = 7  ! (L=3)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'pr') .or. (cME == 'Pr') .or. (cME == 'pR') .or. (cME == 'PR')) then
-    nlanth = 2
-    nDIMcf = 9  ! f2; multiplet J=L-S=5-1=4  => J = 3H_4
-    lDIMCF = 11 ! (L=5)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'nd') .or. (cME == 'Nd') .or. (cME == 'nD') .or. (cME == 'ND')) then
-    nlanth = 3
-    nDIMcf = 10 ! f3; multiplet J=L-S=6-3/2=9/2  => J = 4I_9/2
-    lDIMCF = 13 ! (L=6)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'pm') .or. (cME == 'Pm') .or. (cME == 'pM') .or. (cME == 'PM')) then
-    nlanth = 4
-    nDIMcf = 9  ! f4; multiplet J=L-S=6-2=4  => J = 5I_4
-    lDIMCF = 13 ! (L=6)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'sm') .or. (cME == 'Sm') .or. (cME == 'sM') .or. (cME == 'SM')) then
-    nlanth = 5
-    nDIMcf = 6  ! f5; multiplet J=L-S=5-5/2=5/2  => J = 6H_5/2
-    lDIMCF = 11 ! (L=5)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'eu') .or. (cME == 'Eu') .or. (cME == 'eU') .or. (cME == 'EU')) then
-    nlanth = 6
-    nDIMcf = 1  ! f6; multiplet J=L-S=3-3=0  => J = 3F_0
-    lDIMCF = 7  ! (L=3)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'gd') .or. (cME == 'Gd') .or. (cME == 'gD') .or. (cME == 'GD')) then
-    nlanth = 7
-    nDIMcf = 8  ! f7; multiplet J=L+S=0+7/2=0  => J = 8S_7/2
-    lDIMCF = 1  ! (L=0)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'tb') .or. (cME == 'Tb') .or. (cME == 'tB') .or. (cME == 'TB')) then
-    nlanth = 8
-    nDIMcf = 13 ! f8; multiplet J=L+S=3+3=0  => J = 7F_6
-    lDIMCF = 7  ! (L=3)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'dy') .or. (cME == 'Dy') .or. (cME == 'dY') .or. (cME == 'DY')) then
-    nlanth = 9
-    nDIMcf = 16 ! f9; multiplet J=L+S=5+5/2=15/2  => J = 6H_15/2
-    lDIMCF = 11 ! (L=5)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'ho') .or. (cME == 'Ho') .or. (cME == 'hO') .or. (cME == 'HO')) then
-    nlanth = 10
-    nDIMcf = 17 ! f10; multiplet J=L+S=6+2=8  => J = 5I_8
-    lDIMCF = 13 ! (L=6)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'er') .or. (cME == 'Er') .or. (cME == 'eR') .or. (cME == 'ER')) then
-    nlanth = 11
-    nDIMcf = 16 ! f11; multiplet J=L+S=6+3/2=15/2  => J = 4I_15/2
-    lDIMCF = 13 ! (L=6)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'tm') .or. (cME == 'Tm') .or. (cME == 'tM') .or. (cME == 'TM')) then
-    nlanth = 12
-    nDIMcf = 13 ! f12; multiplet J=L+S=5+1=6  => J = 3H_6
-    lDIMCF = 11 ! (L=5)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'yb') .or. (cME == 'Yb') .or. (cME == 'yB') .or. (cME == 'YB')) then
-    nlanth = 13
-    nDIMcf = 8  ! f13; multiplet J=L+S=3+1/2=7/2  => J = 2F_7/2
-    lDIMCF = 7  ! (L=3)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'lu') .or. (cME == 'Lu') .or. (cME == 'lU') .or. (cME == 'LU')) then
-    nlanth = 14
-    nDIMcf = 1  ! f14; multiplet J=L+S=0+0=0  => J = 1S_0
-    lDIMCF = 1  ! (L=0)
+        if ((t1 < 0) .or. (t2 < 0)) then
+          call WarningMessage(2,'TINT: negative temperature requested! ')
+          call Quit_OnUserError()
+        end if
+        if ((t1-t2) > Zero) then
+          Tmin = t2
+          Tmax = t1
+        else if ((t1-t2) < Zero) then
+          Tmin = t1
+          Tmax = t2
+        else ! t1==t2
+          call WarningMessage(2,'TINT: temperature interval == 0! ')
+          call Quit_OnUserError()
+        end if
 
-    !- - - - - - - - - - - - - - - - - - - -
-    ! ACTINIDES
-  else if ((cME == 'th') .or. (cME == 'Th') .or. (cME == 'tH') .or. (cME == 'TH')) then
-    nlanth = 15
-    nDIMcf = 6  ! f1; multiplet J=L-S=3-1/2=5/2  =>  J = 2F_5/2
-    lDIMCF = 7  ! (L=3)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'pa') .or. (cME == 'Pa') .or. (cME == 'pA') .or. (cME == 'PA')) then
-    nlanth = 16
-    nDIMcf = 9  ! f2; multiplet J=L-S=5-1=4  => J = 3H_4
-    lDIMCF = 11 ! (L=5)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'U') .or. (cME == 'u') .or. (cME == 'u ') .or. (cME == 'U ')) then
-    nlanth = 17
-    nDIMcf = 10 ! f3; multiplet J=L-S=6-3/2=9/2  => J = 4I_9/2
-    lDIMCF = 13 ! (L=6)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'np') .or. (cME == 'Np') .or. (cME == 'nP') .or. (cME == 'NP')) then
-    nlanth = 18
-    nDIMcf = 9  ! f4; multiplet J=L-S=6-2=4  => J = 5I_4
-    lDIMCF = 13 ! (L=6)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'pu') .or. (cME == 'Pu') .or. (cME == 'pU') .or. (cME == 'PU')) then
-    nlanth = 19
-    nDIMcf = 6  ! f5; multiplet J=L-S=5-5/2=5/2  => J = 6H_5/2
-    lDIMCF = 11 ! (L=5)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'am') .or. (cME == 'Am') .or. (cME == 'aM') .or. (cME == 'AM')) then
-    nlanth = 20
-    nDIMcf = 1  ! f6; multiplet J=L-S=3-3=0  => J = 3F_0
-    lDIMCF = 7  ! (L=3)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'cm') .or. (cME == 'Cm') .or. (cME == 'cM') .or. (cME == 'CM')) then
-    nlanth = 21
-    nDIMcf = 8  ! f7; multiplet J=L+S=0+7/2=0  => J = 8S_7/2
-    lDIMCF = 1  ! (L=0)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'bk') .or. (cME == 'Bk') .or. (cME == 'bK') .or. (cME == 'BK')) then
-    nlanth = 22
-    nDIMcf = 13 ! f8; multiplet J=L+S=3+3=0  => J = 7F_6
-    lDIMCF = 7  ! (L=3)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'cf') .or. (cME == 'Cf') .or. (cME == 'cF') .or. (cME == 'CF')) then
-    nlanth = 23
-    nDIMcf = 16 ! f9; multiplet J=L+S=5+5/2=15/2  => J = 6H_15/2
-    lDIMCF = 11 ! (L=5)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'es') .or. (cME == 'Es') .or. (cME == 'eS') .or. (cME == 'ES')) then
-    nlanth = 24
-    nDIMcf = 17 ! f10; multiplet J=L+S=6+2=8  => J = 5I_8
-    lDIMCF = 13 ! (L=6)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'fm') .or. (cME == 'Fm') .or. (cME == 'fM') .or. (cME == 'FM')) then
-    nlanth = 25
-    nDIMcf = 16 ! f11; multiplet J=L+S=6+3/2=15/2  => J = 4I_15/2
-    lDIMCF = 13 ! (L=6)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'md') .or. (cME == 'Md') .or. (cME == 'mD') .or. (cME == 'MD')) then
-    nlanth = 26
-    nDIMcf = 13 ! f12; multiplet J=L+S=5+1=6  => J = 3H_6
-    lDIMCF = 11 ! (L=5)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'no') .or. (cME == 'No') .or. (cME == 'nO') .or. (cME == 'NO')) then
-    nlanth = 27
-    nDIMcf = 8  ! f13; multiplet J=L+S=3+1/2=7/2  => J = 2F_7/2
-    lDIMCF = 7  ! (L=3)
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'lr') .or. (cME == 'Lr') .or. (cME == 'lR') .or. (cME == 'LR')) then
-    nlanth = 28
-    nDIMcf = 1  ! f14; multiplet J=L+S=0+0=0  => J = 1S_0
-    lDIMCF = 1  ! (L=0)
+        if (DBG) write(u6,*) 'TINT: Tmin, Tmax, nT=',Tmin,Tmax,nT
+      else
+        write(u6,*) 'READIN: the TINT command is incompatible with TEXP'
+        call ABEnd()
+      end if
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('XFIE')
+      read(u5,*,iostat=istatus) Xfield
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'XFIE: Xfield=',Xfield
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('HINT')
+      if (.not. HINPUT) then
+        HCHECK = .true.
+        compute_magnetization = .true.
 
-    !--------------------- transition metals --------------------------!
+        read(u5,*,iostat=istatus) t1,t2,nH
+        if (istatus < 0) call Error(2)
 
-  else if ((cME == 'Sc') .or. (cME == 'Sc') .or. (cME == 'sC') .or. (cME == 'SC')) then
+        if ((t1 < 0) .or. (t2 < 0)) then
+          call WarningMessage(2,'HINT: negative field requested! ')
+          call Quit_OnUserError()
+        end if
 
-    nlanth = 29
-    ! Sc2+ -- d^1
-    read(u5,*,err=997) i_OxStat
-    if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+        if ((t1-t2) > Zero) then
+          Hmin = t2
+          Hmax = t1
+        else if ((t1-t2) < Zero) then
+          Hmin = t1
+          Hmax = t2
+        else ! t1 == t2
+          call WarningMessage(2,'HINT: temperature interval == 0! ')
+          call Quit_OnUserError()
+        end if
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat < 2) then
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 2) then
-      lDIMCF = 5 ! (L=2) d^1
-    else
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
+        if (DBG) write(u6,*) 'HINT: Hmin, Hmax, nH=',Hmin,Hmax,nH
+      else
+        write(u6,*) 'READIN: the HINT command is incompatible with HEXP'
+        call ABEnd()
+      end if
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('NCUT')
+      if (ENCUT_check) then
+        write(u6,*) 'READIN: NCUT, ERAT and ENCU are mutually exclusive.'
+        call ABEnd()
+      endif
+      ENCUT_check = .true.
+      compute_magnetization = .true. ! request for computation of M(H)
+      encut_definition = 1
 
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'Ti') .or. (cME == 'Ti') .or. (cME == 'tI') .or. (cME == 'TI')) then
+      read(u5,*,iostat=istatus) NCUT  ! E_cut=ESO(Ncut)
+      if (istatus < 0) call Error(2)
 
-    nlanth = 30
-    ! Ti2+ -- d^2
-    ! Ti3+ -- d^1
-    ! Ti4+ -- d^0
-    read(u5,*,err=997) i_OxStat
-    if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+      if (NCUT < 0) then
+        call WarningMessage(2,'NCUT: negative NCUT requested! ')
+        call Quit_OnUserError()
+      else if (NCUT == 0) then
+        call WarningMessage(2,'NCUT: zero NCUT requested! ')
+        call Quit_OnUserError()
+      end if
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat < 2) then
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 2) then
-      lDIMCF = 7 ! (L=3) d^2  3F
-    else if (i_OxStat == 3) then
-      lDIMCF = 5 ! (L=2) d^1  2D
-    else
-      lDIMCF = 1 ! (L=0) d^4
-      write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
+      if (DBG) write(u6,*) 'NCUT: NCUT=',NCUT
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('ENCU')
+      if (ENCUT_check) then
+        write(u6,*) 'READIN: NCUT, ERAT and ENCU are mutually exclusive.'
+        call ABEnd()
+      endif
+      ENCUT_check = .true.
+      compute_magnetization = .true.
+      encut_definition = 2
 
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'v') .or. (cME == 'V') .or. (cME == 'V ') .or. (cME == 'v ')) then
+      read(u5,*,iostat=istatus) NK,MG
+      if (istatus < 0) call Error(2)
 
-    nlanth = 31
-    ! V2+ -- d^3
-    ! V3+ -- d^2
-    ! V4+ -- d^1
-    read(u5,*,err=997) i_OxStat
-    if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+      if ((NK <= 0) .or. (MG <= 0)) then
+        call WarningMessage(2,'ENCU: zero or negative NK,MG requested! ')
+        call Quit_OnUserError()
+      end if
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat < 2) then
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 2) then
-      lDIMCF = 7 ! (L=3) d^3
-    else if (i_OxStat == 3) then
-      lDIMCF = 7 ! (L=3) d^2
-    else if (i_OxStat == 4) then
-      lDIMCF = 5 ! (L=2) d^1
-    else
-      lDIMCF = 1 ! (L=0) d^4
-      write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
+      if (DBG) write(u6,*) 'ENCU: NK, MG=',NK,MG
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('ERAT')
+      if (ENCUT_check) then
+        write(u6,*) 'READIN: NCUT, ERAT and ENCU are mutually exclusive.'
+        call ABEnd()
+      end if
+      ENCUT_check = .true.
+      compute_magnetization = .true.
+      encut_definition = 3
+      ! Ncut = INT(nss*encut_rate)
+      ! E_cut = E(Ncut)
 
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'cr') .or. (cME == 'cR') .or. (cME == 'Cr') .or. (cME == 'CR')) then
+      read(u5,*,iostat=istatus) encut_rate
+      if (istatus < 0) call Error(2)
 
-    nlanth = 32
-    ! Cr3+ -- d^4
-    read(u5,*,err=997) i_OxStat
+      if (encut_rate <= Zero) then
+        call WarningMessage(2,'ERAT: zero or negative encut rate requested! ')
+        call Quit_OnUserError()
+      end if
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat == 2) then
-      lDIMCF = 5 ! (L=2) d^4
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-    else if (i_OxStat == 3) then
-      lDIMCF = 7 ! (L=3) d^3
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-    else if (i_OxStat == 4) then
-      lDIMCF = 7 ! (L=3) d^2
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-    else if (i_OxStat == 5) then
-      lDIMCF = 5 ! (L=2) d^1
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-    else
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
-    write(u6,'(A)') 'Crystal field will not be computed'
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'mn') .or. (cME == 'mN') .or. (cME == 'Mn') .or. (cME == 'MN')) then
+      if (DBG) write(u6,*) 'ERAT: encut_rate=',encut_rate
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('MVEC')
+      compute_magnetization = .true.   ! request for computation of M(H)
+      compute_Mdir_vector = .true.
+      read(u5,*,iostat=istatus) nDir
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'MVEC: nDir=',nDir
+      do i=1,nDir
+        read(u5,*,iostat=istatus) DirX(i),DirY(i),DirZ(i)
+        if (istatus < 0) call Error(2)
+        if (DBG) write(u6,*) 'MVEC: DirX,DirY,DirZ=',DirX(i),DirY(i),DirZ(i)
+      end do
+      ! some processing:
+      do i=1,nDir
+        sum = DirX(i)*DirX(i)+DirY(i)*DirY(i)+DirZ(i)*DirZ(i)
+        if (sum == Zero) then
+          write(err_msg,'(a,i3,a)') 'error: MVEC  vector ',i,'has the modulus = 0.0.'
+          call WarningMessage(2,err_msg)
+          call Quit_OnUserError()
+        end if
+        if (sum /= One) then
+          write(u6,'(a,i3,a)') 'the vector',i,'was re-normalized.'
+          tmp = dirX(i)/sqrt(sum)
+          dirX(i) = tmp
+          tmp = dirY(i)/sqrt(sum)
+          dirY(i) = tmp
+          tmp = dirZ(i)/sqrt(sum)
+          dirZ(i) = tmp
+        end if
+      end do
 
-    nlanth = 33
-    ! Mn3+ -- d^4
-    read(u5,*,err=997) i_OxStat
-    if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+      LINENR = LINENR+NDIR+1
+    !-------------------------------------------
+    case ('MAVE')
+      compute_magnetization = .true.
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat < 3) then
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 3) then
-      lDIMCF = 5 ! (L=2) d^4
-    else
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'fe') .or. (cME == 'fE') .or. (cME == 'Fe') .or. (cME == 'FE')) then
+      read(u5,*,iostat=istatus) nsymm,ngrid
+      if (istatus < 0) call Error(2)
 
-    nlanth = 34
-    ! Co2+ -- d^6 or d^4
-    read(u5,*,err=997) i_OxStat
-    if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+      if (DBG) write(u6,*) 'MAVE: nsymm, ngrid=',nsymm,ngrid
+      if ((nsymm < 1) .or. (nsymm > 3)) then
+        write(u6,'(A)') '"nsymm" must take Integer values 1, 2 or 3.'
+        write(u6,'(A,i5)') '"nsymm" = ',nsymm
+        call Quit_OnUserError()
+      end if
+      if ((ngrid < 1) .or. (ngrid > 32)) then
+        write(u6,'(A)') '"ngrid" must take Integer values 1, 2, ... 32.'
+        write(u6,'(A,i5)') '"ngrid" = ',ngrid
+        call Quit_OnUserError()
+      end if
+      LINENR = LINENR+1
+    !-------------------------------------------
+    !case ('TLIN')
+    !  read(u5,*,iostat=istatus) T1,T2
+    !  if (istatus < 0) call Error(2)
+    !  LINENR = LINENR+1
+    !-------------------------------------------
+    case ('SMAG')
+      smagn = .true.
+      if (DBG) write(u6,*) 'SMAG: =',smagn
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('PLOT')
+      doplot = .true.
+      if (DBG) write(u6,*) 'PLOT: =',doplot
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('TEXP')
+      if (.not. TCHECK) then
+        TINPUT = .true.
+        read(u5,*,iostat=istatus) NT
+        if (istatus < 0) call Error(2)
+        if (DBG) write(u6,*) 'TEXP: nT=',nT
+        do i=1,NT
+          read(5,*,iostat=istatus) texp(i),chit_exp(i)
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'TEXP: texp(i), chit_exp(i)=',texp(i),chit_exp(i)
+          ! check and clean negative values:
+          if (texp(i) < Zero) texp(i) = abs(texp(i))
+          if (chit_exp(i) < Zero) chit_exp(i) = abs(chit_exp(i))
+        end do
+        tmin = texp(1)
+        tmax = texp(nT)
+      else
+        write(u6,*) 'READIN: the TINT command is incompatible with TEXP'
+        call ABEnd()
+      end if
+      LINENR = LINENR+NT+1
+    !-------------------------------------------
+    case ('HEXP')
+      compute_magnetization = .true.
+      if (checkTMAG) write(u6,'(A)') 'The data provided in TMAG will be ignored.'
+      if (.not. HCHECK) then
+        HINPUT = .true.
+        read(u5,*) nTempMagn,(TempMagn(i),i=1,nTempMagn)
+        if (DBG) write(u6,*) 'HEXP: nTempMagn =',nTempMagn
+        if (DBG) write(u6,*) 'HEXP: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+        read(u5,*) nH
+        if (DBG) write(u6,*) 'HEXP: nH =',nH
+        if (nH < 0) nH = abs(nH)
+        if (nH == 0) call Quit_OnUserError()
+        do i=1,nH
+          read(u5,*,iostat=istatus) Hexp(i),(magn_exp(i,j),j=1,nTempMagn)
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'HEXP: Hexp(i),  magn_exp(i,j)=',Hexp(i),(magn_exp(i,j),j=1,nTempMagn)
+          ! check and clean negative values:
+          if (hexp(i) < Zero) hexp(i) = abs(hexp(i))
+          do j=1,nTempMagn
+            if (magn_exp(i,j) < Zero) magn_exp(i,j) = abs(magn_exp(i,j))
+          end do
+        end do
+        hmin = hexp(1)
+        hmax = hexp(nH)
+      else
+        write(u6,*) 'READIN: the HINT command is incompatible with HEXP'
+        call ABEnd()
+      end if
+      LINENR = LINENR+NH+2
+    !-------------------------------------------
+    case ('ZJPR')
+      read(u5,*,iostat=istatus) ZJ
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'ZJPR: zJ =',zJ
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('TORQ')
+      compute_torque = .true.
+      read(u5,*,iostat=istatus) AngPoints,H_torq,T_torq
+      if (istatus < 0) call Error(2)
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('TMAG')
+      if (.not. HINPUT) then
+        compute_magnetization = .true.
+        checkTMAG = .true.
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat < 2) then
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 2) then
-      lDIMCF = 5 ! (L=2)  d^6  or  d^4
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-    else if (i_OxStat == 3) then
-      lDIMCF = 1 ! (L=2)  d^5
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 4) then
-      lDIMCF = 1 ! (L=2)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'co') .or. (cME == 'cO') .or. (cME == 'Co') .or. (cME == 'CO')) then
+        read(u5,*,iostat=istatus) nTempMagn,(TempMagn(i),i=1,nTempMagn)
+        if (istatus < 0) call Error(2)
 
-    nlanth = 35
-    ! Co2+ -- d^7
-    read(u5,*,err=997) i_OxStat
-    if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+        do i=1,nTempMagn
+          if (TempMagn(i) <= Zero) then
+          call WarningMessage(2,'TMAG: zero or negative temperature requested! ')
+          if (TempMagn(i) < Zero) TempMagn(i) = abs(TempMagn(i))
+          if (TempMagn(i) == Zero) TempMagn(i) = 0.0001_wp
+          end if
+        end do
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat < 2) then
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 2) then
-      lDIMCF = 7 ! (L=3) d^7
-    else
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'ni') .or. (cME == 'nI') .or. (cME == 'Ni') .or. (cME == 'NI')) then
+        if (DBG) write(u6,*) 'TMAG: nTempMagn =',nTempMagn
+        if (DBG) write(u6,*) 'TMAG: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+        ! check and clean negative values:
+      else
+        write(u6,'(A)') 'TMAG data is taken from HEXP.'
+      end if
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('PRLV')
+      read(u5,*,iostat=istatus) IPRINT
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'PRLV: IPRINT =',iPrint
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('POLY')
+      if (DBG) write(u6,*) 'POLY:'
+      POLY_FILE = .true.
+    !-------------------------------------------
+    case ('CRYS')
+      compute_CF = .true.
+      read(u5,*,iostat=istatus) cME
+      uME = cME
+      call UpCase(uME)
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'CRYS: cME =',cME
 
-    nlanth = 36
-    ! Ni2+ -- d^8
-    read(u5,*,err=997) i_OxStat
-    if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+      select case (uME)
+        case ('CE')
+          nlanth = 1
+          nDIMcf = 6  ! f1; multiplet J=L-S=3-1/2=5/2  =>  J = 2F_5/2
+          lDIMCF = 7  ! (L=3)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('PR')
+          nlanth = 2
+          nDIMcf = 9  ! f2; multiplet J=L-S=5-1=4  => J = 3H_4
+          lDIMCF = 11 ! (L=5)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('ND')
+          nlanth = 3
+          nDIMcf = 10 ! f3; multiplet J=L-S=6-3/2=9/2  => J = 4I_9/2
+          lDIMCF = 13 ! (L=6)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('PM')
+          nlanth = 4
+          nDIMcf = 9  ! f4; multiplet J=L-S=6-2=4  => J = 5I_4
+          lDIMCF = 13 ! (L=6)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('SM')
+          nlanth = 5
+          nDIMcf = 6  ! f5; multiplet J=L-S=5-5/2=5/2  => J = 6H_5/2
+          lDIMCF = 11 ! (L=5)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('EU')
+          nlanth = 6
+          nDIMcf = 1  ! f6; multiplet J=L-S=3-3=0  => J = 3F_0
+          lDIMCF = 7  ! (L=3)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('GD')
+          nlanth = 7
+          nDIMcf = 8  ! f7; multiplet J=L+S=0+7/2=0  => J = 8S_7/2
+          lDIMCF = 1  ! (L=0)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('TB')
+          nlanth = 8
+          nDIMcf = 13 ! f8; multiplet J=L+S=3+3=0  => J = 7F_6
+          lDIMCF = 7  ! (L=3)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('DY')
+          nlanth = 9
+          nDIMcf = 16 ! f9; multiplet J=L+S=5+5/2=15/2  => J = 6H_15/2
+          lDIMCF = 11 ! (L=5)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('HO')
+          nlanth = 10
+          nDIMcf = 17 ! f10; multiplet J=L+S=6+2=8  => J = 5I_8
+          lDIMCF = 13 ! (L=6)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('ER')
+          nlanth = 11
+          nDIMcf = 16 ! f11; multiplet J=L+S=6+3/2=15/2  => J = 4I_15/2
+          lDIMCF = 13 ! (L=6)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('TM')
+          nlanth = 12
+          nDIMcf = 13 ! f12; multiplet J=L+S=5+1=6  => J = 3H_6
+          lDIMCF = 11 ! (L=5)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('YB')
+          nlanth = 13
+          nDIMcf = 8  ! f13; multiplet J=L+S=3+1/2=7/2  => J = 2F_7/2
+          lDIMCF = 7  ! (L=3)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('LU')
+          nlanth = 14
+          nDIMcf = 1  ! f14; multiplet J=L+S=0+0=0  => J = 1S_0
+          lDIMCF = 1  ! (L=0)
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat < 2) then
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 2) then
-      lDIMCF = 7 ! (L=2) d^8
-    else
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
-    !- - - - - - - - - - - - - - - - - - - -
-  else if ((cME == 'cu') .or. (cME == 'cU') .or. (cME == 'Cu') .or. (cME == 'CU')) then
+          !- - - - - - - - - - - - - - - - - - - -
+          ! ACTINIDES
+        case ('TH')
+          nlanth = 15
+          nDIMcf = 6  ! f1; multiplet J=L-S=3-1/2=5/2  =>  J = 2F_5/2
+          lDIMCF = 7  ! (L=3)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('PA')
+          nlanth = 16
+          nDIMcf = 9  ! f2; multiplet J=L-S=5-1=4  => J = 3H_4
+          lDIMCF = 11 ! (L=5)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('U ')
+          nlanth = 17
+          nDIMcf = 10 ! f3; multiplet J=L-S=6-3/2=9/2  => J = 4I_9/2
+          lDIMCF = 13 ! (L=6)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('NP')
+          nlanth = 18
+          nDIMcf = 9  ! f4; multiplet J=L-S=6-2=4  => J = 5I_4
+          lDIMCF = 13 ! (L=6)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('PU')
+          nlanth = 19
+          nDIMcf = 6  ! f5; multiplet J=L-S=5-5/2=5/2  => J = 6H_5/2
+          lDIMCF = 11 ! (L=5)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('AM')
+          nlanth = 20
+          nDIMcf = 1  ! f6; multiplet J=L-S=3-3=0  => J = 3F_0
+          lDIMCF = 7  ! (L=3)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('CM')
+          nlanth = 21
+          nDIMcf = 8  ! f7; multiplet J=L+S=0+7/2=0  => J = 8S_7/2
+          lDIMCF = 1  ! (L=0)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('BK')
+          nlanth = 22
+          nDIMcf = 13 ! f8; multiplet J=L+S=3+3=0  => J = 7F_6
+          lDIMCF = 7  ! (L=3)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('CF')
+          nlanth = 23
+          nDIMcf = 16 ! f9; multiplet J=L+S=5+5/2=15/2  => J = 6H_15/2
+          lDIMCF = 11 ! (L=5)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('ES')
+          nlanth = 24
+          nDIMcf = 17 ! f10; multiplet J=L+S=6+2=8  => J = 5I_8
+          lDIMCF = 13 ! (L=6)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('FM')
+          nlanth = 25
+          nDIMcf = 16 ! f11; multiplet J=L+S=6+3/2=15/2  => J = 4I_15/2
+          lDIMCF = 13 ! (L=6)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('MD')
+          nlanth = 26
+          nDIMcf = 13 ! f12; multiplet J=L+S=5+1=6  => J = 3H_6
+          lDIMCF = 11 ! (L=5)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('NO')
+          nlanth = 27
+          nDIMcf = 8  ! f13; multiplet J=L+S=3+1/2=7/2  => J = 2F_7/2
+          lDIMCF = 7  ! (L=3)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('LR')
+          nlanth = 28
+          nDIMcf = 1  ! f14; multiplet J=L+S=0+0=0  => J = 1S_0
+          lDIMCF = 1  ! (L=0)
 
-    nlanth = 37
-    ! Cu2+ -- d^9
-    read(u5,*,err=997) i_OxStat
-    if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+          !--------------------- transition metals --------------------------!
 
-    if (i_OxStat < 0) then
-      write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
-      write(u6,'(A)') 'It was re-set to positive.'
-      i_OxStat = abs(i_OxStat)
-    end if
-    if (i_OxStat < 2) then
-      lDIMCF = 1 ! (L=0)
-      write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    else if (i_OxStat == 2) then
-      lDIMCF = 5 ! (L=2) d^9
-    else
-      lDIMCF = 1 ! (L=0) d^4
-      write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
-      write(u6,'(A)') 'Crystal field will not be computed'
-    end if
-    !- - - - - - - - - - - - - - - - - - - -
-  else
-    write(u6,'(A)') 'Label of the metal is not understood.'
-    write(u6,'(A)') 'Crystal field will not be computed'
-  end if
+        case ('SC')
 
-  if (IPRINT > 2) then
-    write(u6,'(5x,3A)') 'SINGLE_ANISO will calculate the parameters of the crystal field for Ln = ',clanth(nlanth),','
-    write(u6,'(5x,A,I2,a)') 'for the ground multiplet J. Multiplicity of J = ',nDIMcf,' and'
-    write(u6,'(5x,A,I2)') 'for the ground LS term. Multiplicity of L = ',lDIMcf
-  end if
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'QUAX') then
-  !if (check_CRYS) then
-  read(u5,*,err=997) axisoption
-  if (DBG) write(u6,*) 'QUAX: axisoption =',axisoption
-  LINENR = LINENR+1
+          nlanth = 29
+          ! Sc2+ -- d^1
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
 
-  if ((axisoption < 1) .or. (axisoption > 3)) &
-    call WarningMessage(2,'QUAX: axisoption out of range! Calculation will continue by employing the default option.')
-  if (axisoption == 3) then
-    do j=1,3
-      read(u5,*,err=997) (zmagn(i,j),i=1,3)
-      if (DBG) write(u6,*) 'QUAX: zmagn(i,j) =',(zmagn(i,j),i=1,3)
-    end do
-    LINENR = LINENR+3
-  end if
-  !else
-  !  write(u6,'(A)') 'The CRYS keyword must be declared above QUAX in the input!'
-  !end if
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'PREX') then
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'UBAR') then
-  compute_barrier = .true.
-  if (DBG) write(u6,*) 'UBAR:'
-  LINENR = LINENR+1
-  go to 100
-end if
-!-------------------------------------------
-if (LINE(1:4) == 'ABCC') then
-  Do_structure_abc = .true.
-  read(u5,*,err=997) (cryst(i),i=1,6)
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat < 2) then
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 2) then
+            lDIMCF = 5 ! (L=2) d^1
+          else
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
 
-  do i=1,6
-    if (cryst(i) <= 0) then
-      call WarningMessage(2,'ABCC: zero or negative crystallographic parameters requested! ')
-      call Quit_OnUserError()
-    end if
-  end do
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('TI')
 
-  if (DBG) write(u6,*) 'ABCC: (cryst(i),i=1,6)=',(cryst(i),i=1,6)
-  read(u5,*,err=997) (coord(i),i=1,3)
-  if (DBG) write(u6,*) 'ABCC: (coord(i),i=1,3)=',(coord(i),i=1,3)
-  LINENR = LINENR+2
-  go to 100
-end if
-! array "cryst" collects the crystallographic data:
-!  cryst(1)= a
-!  cryst(2)= b
-!  cryst(3)= c
-!  cryst(4)= alpha
-!  cryst(5)= beta
-!  cryst(6)= gamma
-!  coord(i) =the coordinates of the magnetic center in "abc" axes
-!  logical variable 'Do_structure_abc' will make the program compute
-!  the magnetic and anisotropy axes in the "abc" coordinate system
-!-------------------------------------------
-if (LINE(1:4) == 'ZEEM') then
-  zeeman_energy = .true.
-  compute_magnetization = .true.
+          nlanth = 30
+          ! Ti2+ -- d^2
+          ! Ti3+ -- d^1
+          ! Ti4+ -- d^0
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
 
-  read(u5,*,err=997) nDirZee
-  if (DBG) write(u6,*) 'ZEEM: nDirZee=',nDirZee
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat < 2) then
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 2) then
+            lDIMCF = 7 ! (L=3) d^2  3F
+          else if (i_OxStat == 3) then
+            lDIMCF = 5 ! (L=2) d^1  2D
+          else
+            lDIMCF = 1 ! (L=0) d^4
+            write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
 
-  do i=1,nDirZee
-    ! open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
-    ! be further written in mangetization() subroutine
-    write(namefile_energy,'(5A)') 'zeeman_energy_',char(48+mod(int((i)/100),10)),char(48+mod(int((i)/10),10)), &
-                                  char(48+mod(int(i),10)),'.txt'
-    !print *, 'namefile_energy: ', namefile_energy
-    LUZee(i) = IsFreeUnit(30+i)
-    call molcas_open(LUZee(i),namefile_energy)
-    !open(30+i,file=namefile_energy)
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('V ')
 
-    read(u5,*,err=997) (dir_weight(i,l),l=1,3)
-    if (DBG) write(u6,*) 'ZEEM: (dir_weight(i,l),l=1,3)=',(dir_weight(i,l),l=1,3)
+          nlanth = 31
+          ! V2+ -- d^3
+          ! V3+ -- d^2
+          ! V4+ -- d^1
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
 
-    check_dir_weight(i) = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat < 2) then
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 2) then
+            lDIMCF = 7 ! (L=3) d^3
+          else if (i_OxStat == 3) then
+            lDIMCF = 7 ! (L=3) d^2
+          else if (i_OxStat == 4) then
+            lDIMCF = 5 ! (L=2) d^1
+          else
+            lDIMCF = 1 ! (L=0) d^4
+            write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
 
-    if (abs(check_dir_weight(i)-One) > 0.005_wp) then
-      write(u6,'(A)') 'The directions for the magnetic field for the computation of the Zeeman splitting are wrong.'
-      write(u6,'(A)') '( px^2 + py^2 + pz^2 ) must give 1.!'
-      write(u6,'(A,I3,2x,A,F9.5)') 'In the present case for direction Nr.',i,' the dir_weight = px^2 + py^2 + pz^2 = ', &
-                                   check_dir_weight(i)**2
-      LINENR = LINENR+2+i
-      go to 997
-    end if
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('CR')
 
-  end do
-  LINENR = LINENR+nDirZee+1
-  go to 100
-end if
-!-------------------------------------------
+          nlanth = 32
+          ! Cr3+ -- d^4
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
 
-200 continue
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat == 2) then
+            lDIMCF = 5 ! (L=2) d^4
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+          else if (i_OxStat == 3) then
+            lDIMCF = 7 ! (L=3) d^3
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+          else if (i_OxStat == 4) then
+            lDIMCF = 7 ! (L=3) d^2
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+          else if (i_OxStat == 5) then
+            lDIMCF = 5 ! (L=2) d^1
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+          else
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
+          write(u6,'(A)') 'Crystal field will not be computed'
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('MN')
+
+          nlanth = 33
+          ! Mn3+ -- d^4
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat < 3) then
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 3) then
+            lDIMCF = 5 ! (L=2) d^4
+          else
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('FE')
+
+          nlanth = 34
+          ! Co2+ -- d^6 or d^4
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat < 2) then
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 2) then
+            lDIMCF = 5 ! (L=2)  d^6  or  d^4
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+          else if (i_OxStat == 3) then
+            lDIMCF = 1 ! (L=2)  d^5
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 4) then
+            lDIMCF = 1 ! (L=2)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('CO')
+
+          nlanth = 35
+          ! Co2+ -- d^7
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat < 2) then
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 2) then
+            lDIMCF = 7 ! (L=3) d^7
+          else
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('NI')
+
+          nlanth = 36
+          ! Ni2+ -- d^8
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat < 2) then
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 2) then
+            lDIMCF = 7 ! (L=2) d^8
+          else
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
+          !- - - - - - - - - - - - - - - - - - - -
+        case ('CU')
+
+          nlanth = 37
+          ! Cu2+ -- d^9
+          read(u5,*,iostat=istatus) i_OxStat
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+
+          if (i_OxStat < 0) then
+            write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
+            write(u6,'(A)') 'It was re-set to positive.'
+            i_OxStat = abs(i_OxStat)
+          end if
+          if (i_OxStat < 2) then
+            lDIMCF = 1 ! (L=0)
+            write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          else if (i_OxStat == 2) then
+            lDIMCF = 5 ! (L=2) d^9
+          else
+            lDIMCF = 1 ! (L=0) d^4
+            write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
+            write(u6,'(A)') 'Crystal field will not be computed'
+          end if
+          !- - - - - - - - - - - - - - - - - - - -
+        case default
+          write(u6,'(A)') 'Label of the metal is not understood.'
+          write(u6,'(A)') 'Crystal field will not be computed'
+      end select
+
+      if (IPRINT > 2) then
+        write(u6,'(5x,3A)') 'SINGLE_ANISO will calculate the parameters of the crystal field for Ln = ',clanth(nlanth),','
+        write(u6,'(5x,A,I2,a)') 'for the ground multiplet J. Multiplicity of J = ',nDIMcf,' and'
+        write(u6,'(5x,A,I2)') 'for the ground LS term. Multiplicity of L = ',lDIMcf
+      end if
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('QUAX')
+      !if (check_CRYS) then
+      read(u5,*,iostat=istatus) axisoption
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'QUAX: axisoption =',axisoption
+      LINENR = LINENR+1
+
+      if ((axisoption < 1) .or. (axisoption > 3)) &
+        call WarningMessage(2,'QUAX: axisoption out of range! Calculation will continue by employing the default option.')
+      if (axisoption == 3) then
+        do j=1,3
+          read(u5,*,iostat=istatus) (zmagn(i,j),i=1,3)
+          if (istatus < 0) call Error(2)
+          if (DBG) write(u6,*) 'QUAX: zmagn(i,j) =',(zmagn(i,j),i=1,3)
+        end do
+        LINENR = LINENR+3
+      end if
+      !else
+      !  write(u6,'(A)') 'The CRYS keyword must be declared above QUAX in the input!'
+      !end if
+    !-------------------------------------------
+    case ('PREX')
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('UBAR')
+      compute_barrier = .true.
+      if (DBG) write(u6,*) 'UBAR:'
+      LINENR = LINENR+1
+    !-------------------------------------------
+    case ('ABCC')
+      Do_structure_abc = .true.
+      read(u5,*,iostat=istatus) (cryst(i),i=1,6)
+      if (istatus < 0) call Error(2)
+
+      do i=1,6
+        if (cryst(i) <= 0) then
+          call WarningMessage(2,'ABCC: zero or negative crystallographic parameters requested! ')
+          call Quit_OnUserError()
+        end if
+      end do
+
+      if (DBG) write(u6,*) 'ABCC: (cryst(i),i=1,6)=',(cryst(i),i=1,6)
+      read(u5,*,iostat=istatus) (coord(i),i=1,3)
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'ABCC: (coord(i),i=1,3)=',(coord(i),i=1,3)
+      LINENR = LINENR+2
+      ! array "cryst" collects the crystallographic data:
+      !  cryst(1)= a
+      !  cryst(2)= b
+      !  cryst(3)= c
+      !  cryst(4)= alpha
+      !  cryst(5)= beta
+      !  cryst(6)= gamma
+      !  coord(i) =the coordinates of the magnetic center in "abc" axes
+      !  logical variable 'Do_structure_abc' will make the program compute
+      !  the magnetic and anisotropy axes in the "abc" coordinate system
+    !-------------------------------------------
+    case ('ZEEM')
+      zeeman_energy = .true.
+      compute_magnetization = .true.
+
+      read(u5,*,iostat=istatus) nDirZee
+      if (istatus < 0) call Error(2)
+      if (DBG) write(u6,*) 'ZEEM: nDirZee=',nDirZee
+
+      do i=1,nDirZee
+        ! open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
+        ! be further written in mangetization() subroutine
+        write(namefile_energy,'(5A)') 'zeeman_energy_',char(48+mod(int((i)/100),10)),char(48+mod(int((i)/10),10)), &
+                                      char(48+mod(int(i),10)),'.txt'
+        !print *, 'namefile_energy: ', namefile_energy
+        LUZee(i) = IsFreeUnit(30+i)
+        call molcas_open(LUZee(i),namefile_energy)
+        !open(30+i,file=namefile_energy)
+
+        read(u5,*,iostat=istatus) (dir_weight(i,l),l=1,3)
+        if (istatus < 0) call Error(2)
+        if (DBG) write(u6,*) 'ZEEM: (dir_weight(i,l),l=1,3)=',(dir_weight(i,l),l=1,3)
+
+        check_dir_weight(i) = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
+
+        if (abs(check_dir_weight(i)-One) > 0.005_wp) then
+          write(u6,'(A)') 'The directions for the magnetic field for the computation of the Zeeman splitting are wrong.'
+          write(u6,'(A)') '( px^2 + py^2 + pz^2 ) must give 1.!'
+          write(u6,'(A,I3,2x,A,F9.5)') 'In the present case for direction Nr.',i,' the dir_weight = px^2 + py^2 + pz^2 = ', &
+                                       check_dir_weight(i)**2
+          LINENR = LINENR+2+i
+          write(u6,*) ' READIN: Error reading standard input.'
+          write(u6,*) ' SINGLE_ANISO input near line nr.',LINENR+1
+          call ABEnd()
+        end if
+
+      end do
+      LINENR = LINENR+nDirZee+1
+    !-------------------------------------------
+  end select
+end do
+
 if (IPRINT > 2) write(u6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
 
 if (compute_CF) then
@@ -1250,7 +1245,7 @@ if (compute_CF) then
 
     do i=1,3
       do j=i+1,3
-        if (i == j) go to 112
+        if (i == j) cycle
         if ((abs(column_check(1,2)) > 0.0001_wp) .or. (abs(column_check(1,3)) > 0.0001_wp) .or. &
             (abs(column_check(2,3)) > 0.0001_wp) .or. (abs(row_check(1,2)) > 0.0001_wp) .or. &
             (abs(row_check(1,3)) > 0.0001_wp) .or. (abs(row_check(2,3)) > 0.0001_wp)) then
@@ -1267,7 +1262,6 @@ if (compute_CF) then
           write(u6,'(A)') 'The program will stop.'
           return
         end if
-112     continue
       end do
     end do
   end if ! axisoption
@@ -1411,38 +1405,23 @@ if (compute_g_tensors) then
   end if
 end if
 
-go to 190
-!------ errors ------------------------------
-write(u6,*) ' The following input line was not understood:'
-write(u6,'(A)') LINE
-go to 999
-
-997 continue
-write(u6,*) ' READIN: Error reading standard input.'
-write(u6,*) ' SINGLE_ANISO input near line nr.',LINENR+1
-go to 999
-
-998 continue
-write(u6,*) ' READIN: Unexpected End of input file.'
-
-999 continue
-call XFLUSH(u6)
-call ABEnd()
-
-590 continue
-write(u6,*) 'READIN: the TINT command is incompatible with TEXP'
-call ABEnd()
-
-591 continue
-write(u6,*) 'READIN: the HINT command is incompatible with HEXP'
-call ABEnd()
-
-595 continue
-write(u6,*) 'READIN: NCUT, ERAT and ENCU are mutually exclusive.'
-call ABEnd()
-
-190 continue
-
 return
+
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  select case (code)
+    case (1)
+      write(u6,*) ' READIN: Unexpected End of input file.'
+    case (2)
+      write(u6,*) ' READIN: Error reading standard input.'
+      write(u6,*) ' SINGLE_ANISO input near line nr.',LINENR+1
+  end select
+  call ABEnd()
+
+end subroutine Error
 
 end subroutine readin_single

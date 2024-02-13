@@ -380,13 +380,9 @@ do i=1,nstate
 end do
 lDIM2 = 1 ! the same as the defult for lDIM
 do i=2,nstate
-  if (abs(ESFS(i)-ESFS(i-1)) < 20.0_wp) then
-    lDIM2 = lDIM2+1
-  else
-    goto 107
-  end if
+  if (abs(ESFS(i)-ESFS(i-1)) >= 20.0_wp) exit
+  lDIM2 = lDIM2+1
 end do
-107 continue
 ! set the lDIM:
 if (lDIM2 > lDIM) lDIM = lDIM2
 
@@ -412,20 +408,18 @@ if (compute_g_tensors .and. (nMult > 0)) then
     if (ndim(imltpl) == 1) then
       write(u6,'(5X,A,I2,A)') 'THE DIMENSION OF THE ',IMLTPL,' MULTIPLET IS 1.'
       write(u6,'(5X,A)') 'THERE IS NO G TENSOR FOR EFFECTIVE S = 0.'
-      go to 10
-    end if
+    else
+      i1 = 1+Ifunct
+      i2 = ndim(imltpl)+Ifunct
 
-    i1 = 1+Ifunct
-    i2 = ndim(imltpl)+Ifunct
-
-    if (i2 <= nss) then
-      if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter g_high',IMLTPL
-      call g_high(eso(i1:i2),GRAD,MS(:,i1:i2,i1:i2),MM(:,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
-                  gtens(imltpl,:),maxes(imltpl,:,:),iprint)
-      if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit g_high',IMLTPL
-      call Add_Info('GTENS_MAIN',gtens(imltpl,:),3,4)
+      if (i2 <= nss) then
+        if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter g_high',IMLTPL
+        call g_high(eso(i1:i2),GRAD,MS(:,i1:i2,i1:i2),MM(:,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
+                    gtens(imltpl,:),maxes(imltpl,:,:),iprint)
+        if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit g_high',IMLTPL
+        call Add_Info('GTENS_MAIN',gtens(imltpl,:),3,4)
+      end if
     end if
-10  continue
 
     IFUNCT = IFUNCT+NDIM(IMLTPL)
     if (IReturn /= 0) call ABEnd()

@@ -30,13 +30,11 @@ if (iopt == 1) then
     ip = proj(j)
 
     do i=j-1,1,-1
-      if (ARR(i) <= a) goto 10
+      if (ARR(i) <= a) exit
       ARR(i+1) = ARR(i)
       rank (i+1) = rank(i)
       proj(i+1) = proj(i)
     end do
-    i = 0
-10  continue
     ARR(i+1) = a
     rank (i+1) = ir
     proj(i+1) = ip
@@ -48,13 +46,11 @@ else if (iopt == 2) then
     ip = proj(j)
 
     do i=j-1,1,-1
-      if (ARR(i) >= a) goto 11
+      if (ARR(i) >= a) exit
       ARR(i+1) = ARR(i)
       rank (i+1) = rank(i)
       proj(i+1) = proj(i)
     end do
-    i = 0
-11  continue
     ARR(i+1) = a
     rank (i+1) = ir
     proj(i+1) = ip

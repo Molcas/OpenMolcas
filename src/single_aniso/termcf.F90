@@ -33,7 +33,10 @@ subroutine termCF(ANGMOM,AMFI,ESFS,ldimcf,iDIM,maxes2,iopt,nlanth,iprint)
 !                   iopt = 4   -- maxes is the unity matrix ( original Z
 !                                 is the quantization axis )
 
-use Constants, only: Zero, One, Two, Half, cZero, cOne, Onei, auTocm
+use Constants, only: Zero, One, cZero, cOne, Onei, auTocm
+#ifdef _DISABLED_
+use Constants, only: Two, Half
+#endif
 use Definitions, only: wp, u6
 
 implicit none
@@ -65,12 +68,15 @@ complex(kind=8), allocatable :: Zinit(:,:) !ldimcf,ldimcf
 integer :: i, j, l, info, i1, i2
 external :: finddetr
 logical :: debug = .false.
-real(kind=8) :: tS, tL, tJ, coeffCG, spinM, orbM, tJM, CF(100,100)
 real(kind=8) :: det
-integer :: MS, ML, MJ
-integer :: ij, iLS, nLS, ibasS(100), ibasL(100), ibasJ(100)
-integer :: irootL(100), ir, icas, k
+#ifdef _DISABLED_
+integer :: ibasJ(100), ibasL(100), ibasS(100), icas, ij, iLS, ir, irootL(100), k, MJ, ML, MS, nLS
+real(kind=8) :: CF(100,100), coeffCG, orbM, spinM, tJ, tJM, tL, tS
 complex(kind=8) :: CFC(100,100)
+#else
+#include "macros.fh"
+unused_var(nlanth)
+#endif
 
 call mma_allocate(maxes,3,3,'maxes')
 call mma_allocate(gtens,3,'gtens')
@@ -289,54 +295,55 @@ call individual_ranks(lDIMCF,BNC,BNS,HCF,'L',iprint)
 call Add_Info('CRYS_TERM_BNMC_20',BNC(2,0),1,4)
 call Add_Info('CRYS_TERM_BNMC_40',BNC(4,0),1,4)
 call Add_Info('CRYS_TERM_BNMC_60',BNC(6,0),1,4)
-goto 999
+#ifdef _DISABLED_
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! generate |J,MJ> states using the spin |S,MS> and |L,ML> states
 
-if (nlanth == 1) then  ! Ce  J=5/2
-  tS = 0.5_wp
-  tJ = 2.5_wp
-else if (nlanth == 2) then  ! Pr  J=4
-  tS = 1.0_wp
-  tJ = 4.0_wp
-else if (nlanth == 3) then ! Nd  J=9/2
-  tS = 1.5_wp
-  tJ = 4.5_wp
-else if (nlanth == 4) then ! Pm  J=4
-  tS = 2.0_wp
-  tJ = 4.0_wp
-else if (nlanth == 5) then ! Sm  J=5/2
-  tS = 2.5_wp
-  tJ = 2.5_wp
-else if (nlanth == 6) then ! Eu  J=0
-  tS = 3.0_wp
-  tJ = 0.0_wp
-else if (nlanth == 7) then ! Gd  J=7/2; S=7/2
-  tS = 3.5_wp
-  tJ = 3.5_wp
-else if (nlanth == 8) then ! Tb  J=6
-  tS = 3.0_wp
-  tJ = 6.0_wp
-else if (nlanth == 9) then ! Dy  J=15/2
-  tS = 2.5_wp
-  tJ = 7.5_wp
-else if (nlanth == 10) then ! Ho  J=8
-  tS = 2.0_wp
-  tJ = 8.0_wp
-else if (nlanth == 11) then ! Er  J=15/2
-  tS = 1.5_wp
-  tJ = 7.5_wp
-else if (nlanth == 12) then ! Tm  J=6
-  tS = 1.0_wp
-  tJ = 6.0_wp
-else if (nlanth == 13) then ! Yb  J=7/2
-  tS = 0.5_wp
-  tJ = 3.5_wp
-else
-  tS = Zero
-  tJ = Zero
-  write(u6,'(A)') 'not implemented yet'
-end if
+select case (nlanth)
+  case (1)  ! Ce  J=5/2
+    tS = 0.5_wp
+    tJ = 2.5_wp
+  case (2)  ! Pr  J=4
+    tS = 1.0_wp
+    tJ = 4.0_wp
+  case (3)  ! Nd  J=9/2
+    tS = 1.5_wp
+    tJ = 4.5_wp
+  case (4)  ! Pm  J=4
+    tS = 2.0_wp
+    tJ = 4.0_wp
+  case (5)  ! Sm  J=5/2
+    tS = 2.5_wp
+    tJ = 2.5_wp
+  case (6)  ! Eu  J=0
+    tS = 3.0_wp
+    tJ = 0.0_wp
+  case (7)  ! Gd  J=7/2; S=7/2
+    tS = 3.5_wp
+    tJ = 3.5_wp
+  case (8)  ! Tb  J=6
+    tS = 3.0_wp
+    tJ = 6.0_wp
+  case (9)  ! Dy  J=15/2
+    tS = 2.5_wp
+    tJ = 7.5_wp
+  case (10) ! Ho  J=8
+    tS = 2.0_wp
+    tJ = 8.0_wp
+  case (11) ! Er  J=15/2
+    tS = 1.5_wp
+    tJ = 7.5_wp
+  case (12) ! Tm  J=6
+    tS = 1.0_wp
+    tJ = 6.0_wp
+  case (13) ! Yb  J=7/2
+    tS = 0.5_wp
+    tJ = 3.5_wp
+  case default
+    tS = Zero
+    tJ = Zero
+    write(u6,'(A)') 'not implemented yet'
+end select
 tL = real(lDIMcf-1,kind=wp)*Half
 ML = lDIMcf
 MS = nint(Two*tS+One)
@@ -417,8 +424,8 @@ do iLS=1,nLS
                                        CfC(MJ-1,iLS),CfC(3,iLS),CfC(MJ-2,iLS),CfC(4,iLS),CfC(MJ-3,iLS) !,CfC(5,iLS),CfC(MJ-4,iLS), &
                                        !CfC(6,iLS),CfC(MJ-5,iLS),CfC(7,iLS),CfC(MJ-6,iLS),CfC(8,iLS),CfC(MJ-7,iLS)
 end do
+#endif
 
-999 continue
 !-----------------------------------------------------------------------
 call mma_deallocate(maxes)
 call mma_deallocate(gtens)
