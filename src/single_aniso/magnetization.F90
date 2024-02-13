@@ -42,7 +42,7 @@ subroutine magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,m
 !***********************************************************************
 
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, u6, RtoB
 
 implicit none
 #include "mgrid.fh"
@@ -79,7 +79,7 @@ complex(kind=8), intent(in) :: sm(3,nss,nss)
 complex(kind=8), intent(in) :: dipm(3,nss,nss)
 !-----------------------------------------------------------------------
 ! local variables
-integer :: nP, iTEnd, iT, IM, I, L, J, IC, IDIR, IH, iTemp
+integer :: nP, iTEnd, iT, IM, I, L, J, IDIR, IH, iTemp
 real(kind=8) :: DLTH, mv, sv, dev
 character(len=99) :: STLNE1, STLNE2
 real(kind=8), allocatable :: WM(:)         ! WM(nm)
@@ -98,66 +98,59 @@ real(kind=8), allocatable :: dHX(:)   ! dHX(nDirTot)
 real(kind=8), allocatable :: dHY(:)   ! dHY(nDirTot)
 real(kind=8), allocatable :: dHZ(:)   ! dHZ(nDirTot)
 real(kind=8), allocatable :: dHW(:)   ! dHW(nDirTot)
-integer :: mem_local, RtoB
+integer :: mem_local
 external :: dev
 
 !-----------------------------------------------------------------------
 ! Allocate necessary memory
 mem_local = 0
-RtoB = 8
 
 ! Zeeman exchange energy spectrum
 call mma_allocate(WM,nM,'W')
-call dcopy_(nM,[Zero],0,WM,1)
-mem_local = mem_local+nM*RtoB
+mem_local = mem_local+size(WM)*RtoB
 
 call mma_allocate(MT,3,nH,nTempMagn,'MT')
-call dcopy_(3*nH*nTempMagn,[Zero],0,MT,1)
-mem_local = mem_local+3*nH*nTempMagn*RtoB
+mem_local = mem_local+size(MT)*RtoB
 
 call mma_allocate(ST,3,nH,nTempMagn,'ST')
-call dcopy_(3*nH*nTempMagn,[Zero],0,ST,1)
-mem_local = mem_local+3*nH*nTempMagn*RtoB
+mem_local = mem_local+size(ST)*RtoB
 
 call mma_allocate(MAV,nH,nTempMagn,'MAV')
-call dcopy_(nH*nTempMagn,[Zero],0,MAV,1)
-mem_local = mem_local+nH*nTempMagn*RtoB
+MAV(:,:) = Zero
+mem_local = mem_local+size(MAV)*RtoB
 
 call mma_allocate(SAV,nH,nTempMagn,'SAV')
-call dcopy_(nH*nTempMagn,[Zero],0,SAV,1)
-mem_local = mem_local+nH*nTempMagn*RtoB
+SAV(:,:) = Zero
+mem_local = mem_local+size(SAV)*RtoB
 
 call mma_allocate(ZT,nH,nTempMagn,'ZT')
-call dcopy_(nH*nTempMagn,[Zero],0,ZT,1)
-mem_local = mem_local+nH*nTempMagn*RtoB
+mem_local = mem_local+size(ZT)*RtoB
 
 call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
 call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
-call dcopy_(3*nDirTot*nH*nTempMagn,[Zero],0,MVEC,1)
-call dcopy_(3*nDirTot*nH*nTempMagn,[Zero],0,SVEC,1)
-mem_local = mem_local+6*nDirTot*nH*nTempMagn*RtoB
+mem_local = mem_local+size(MVEC)*RtoB
+mem_local = mem_local+size(SVEC)*RtoB
 
 call mma_allocate(H,nH,'H')
-call dcopy_(nH,[Zero],0,H,1)
-mem_local = mem_local+nH*RtoB
+mem_local = mem_local+size(H)*RtoB
 
-call mma_allocate(STDEV,nTempMagn,'H')
-call dcopy_(nTempMagn,[Zero],0,STDEV,1)
-mem_local = mem_local+nTempMagn*RtoB
+call mma_allocate(STDEV,nTempMagn,'STDEV')
+mem_local = mem_local+size(STDEV)*RtoB
 
 call mma_allocate(dHX,nDirTot,'dHX')
 call mma_allocate(dHY,nDirTot,'dHY')
 call mma_allocate(dHZ,nDirTot,'dHZ')
 call mma_allocate(dHW,nDirTot,'dHW')
-call dcopy_(nDirTot,[Zero],0,dHX,1)
-call dcopy_(nDirTot,[Zero],0,dHY,1)
-call dcopy_(nDirTot,[Zero],0,dHZ,1)
-call dcopy_(nDirTot,[Zero],0,dHW,1)
-mem_local = mem_local+4*nDirTot*RtoB
-if (dbg) write(u6,*) 'MAGNETIZATION:  memory allocated (local):'
-if (dbg) write(u6,*) 'mem_local=',mem_local
-if (dbg) write(u6,*) 'MAGNETIZATION:  memory allocated (total):'
-if (dbg) write(u6,*) 'mem_total=',mem+mem_local
+mem_local = mem_local+size(dHX)*RtoB
+mem_local = mem_local+size(dHY)*RtoB
+mem_local = mem_local+size(dHZ)*RtoB
+mem_local = mem_local+size(dHW)*RtoB
+if (dbg) then
+  write(u6,*) 'MAGNETIZATION:  memory allocated (local):'
+  write(u6,*) 'mem_local=',mem_local
+  write(u6,*) 'MAGNETIZATION:  memory allocated (total):'
+  write(u6,*) 'mem_total=',mem+mem_local
+end if
 !-----------------------------------------------------------------------
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,96)
@@ -325,21 +318,13 @@ do iH=1,nH
     ! computing the AVERAGE MOMENTS calculated at different temperatures
     ! (TempMagn(i))
     do iT=1,nTempMagn
-      do ic=1,3
-        MVEC(iM,iH,iT,ic) = MT(ic,iH,iT)
-        SVEC(iM,iH,iT,ic) = ST(ic,iH,iT)
-      end do  ! ic
+      MVEC(iM,iH,iT,:) = MT(:,iH,iT)
+      SVEC(iM,iH,iT,:) = ST(:,iH,iT)
 
       if (iM > nDir+nDirZee) then
-        ! MAV(iH,iTemp) = MAV(iH,iTemp)+MT(1,iH,iT)*dHX(iM)*dHW(iM)+MT(2,iH,iT)*dHY(iM)*dHW(iM)+MT(3,iH,iT)*dHZ(iM)*dHW(iM)
-        ! SAV(iH,iTemp) = SAV(iH,iTemp)+ST(1,iH,iT)*dHX(iM)*dHW(iM)+ST(2,iH,iT)*dHY(iM)*dHW(iM)+ST(3,iH,iT)*dHZ(iM)*dHW(iM)
         ! accumulate contributions:
-        call daxpy_(1,dHX(iM)*dHW(iM),MT(1,iH,iT),1,MAV(iH,iT),1)
-        call daxpy_(1,dHY(iM)*dHW(iM),MT(2,iH,iT),1,MAV(iH,iT),1)
-        call daxpy_(1,dHZ(iM)*dHW(iM),MT(3,iH,iT),1,MAV(iH,iT),1)
-        call daxpy_(1,dHX(iM)*dHW(iM),ST(1,iH,iT),1,SAV(iH,iT),1)
-        call daxpy_(1,dHY(iM)*dHW(iM),ST(2,iH,iT),1,SAV(iH,iT),1)
-        call daxpy_(1,dHZ(iM)*dHW(iM),ST(3,iH,iT),1,SAV(iH,iT),1)
+        MAV(iH,iT) = MAV(iH,iT)+dHW(iM)*(dHX(iM)*MT(1,iH,iT)+dHY(iM)*MT(2,iH,iT)+dHZ(iM)*MT(3,iH,iT))
+        SAV(iH,iT) = SAV(iH,iT)+dHW(iM)*(dHX(iM)*ST(1,iH,iT)+dHY(iM)*ST(2,iH,iT)+dHZ(iM)*ST(3,iH,iT))
       end if
       if (iprint > 2) then
         if ((iM == 1) .and. (iH == 1)) write(u6,'(2x,A,1x,A,4x,A,7x,A,7x,A)') 'iH','iM','iT','moment(iM,iT)','spin(iM,iT)'

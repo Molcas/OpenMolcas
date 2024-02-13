@@ -12,11 +12,11 @@
 subroutine SINGLE_ANISO2(nH,nT,nTempMagn,nDir,nDirZee,nss,nstate,nMult,input_file_name,Ifrestart,IReturn,GRAD)
 
 use Constants, only: Zero, Two, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, u6, CtoB, ItoB, RtoB
 
 implicit none
 #include "stdalloc.fh"
-integer :: mem, RtoB, CtoB, ItoB
+integer :: mem
 integer, intent(in) :: nss, nstate
 integer :: i, j, iReturn
 integer :: idim, Ifunct, imltpl, iprint
@@ -109,158 +109,131 @@ if (dbg) then
 end if
 
 mem = 0
-RtoB = 8
-CtoB = 16
-ItoB = 8
 
 ! spin free energies
 call mma_allocate(esfs,nstate,'esfs')
 call mma_allocate(esfs_au,nstate,'esfs_au')
-call dcopy_(nstate,[Zero],0,ESFS,1)
-call dcopy_(nstate,[Zero],0,ESFS_AU,1)
-mem = mem+2*nstate*RtoB
+esfs(:) = Zero
+esfs_au(:) = Zero
+mem = mem+size(esfs)*RtoB
+mem = mem+size(esfs_au)*RtoB
 ! angular momentum
 call mma_allocate(ANGMOM,3,nstate,nstate,'angmom')
-call dcopy_(3*nstate*nstate,[Zero],0,ANGMOM,1)
-mem = mem+3*nstate*nstate*RtoB
+ANGMOM(:,:,:) = Zero
+mem = mem+size(ANGMOM)*RtoB
 ! electric dipole moment
 call mma_allocate(EDMOM,3,nstate,nstate,'edmom')
-call dcopy_(3*nstate*nstate,[Zero],0,EDMOM,1)
-mem = mem+3*nstate*nstate*RtoB
+EDMOM(:,:,:) = Zero
+mem = mem+size(EDMOM)*RtoB
 ! amfi integrals
 call mma_allocate(AMFI,3,nstate,nstate,'amfi')
-call dcopy_(3*nstate*nstate,[Zero],0,AMFI,1)
-mem = mem+3*nstate*nstate*RtoB
+AMFI(:,:,:) = Zero
+mem = mem+size(AMFI)*RtoB
 ! multiplicity of each state
 call mma_allocate(multiplicity,nstate,'multiplicity')
-call icopy(nstate,[0],0,multiplicity,1)
-mem = mem+nstate*ItoB
+multiplicity(:) = 0
+mem = mem+size(multiplicity)*ItoB
 ! allocated memory counter
 if (dbg) write(u6,'(A,I16)') 'mem 1 =',mem
 ! spin orbit energies
 call mma_allocate(eso,nss,'eso')
 call mma_allocate(eso_au,nss,'eso_au')
-call dcopy_(nss,[Zero],0,eso,1)
-call dcopy_(nss,[Zero],0,eso_au,1)
-mem = mem+2*nss*RtoB
+eso(:) = Zero
+eso_au(:) = Zero
+mem = mem+size(eso)*RtoB
+mem = mem+size(eso_au)*RtoB
 ! spin orbit eigenstates
 call mma_allocate(U,nss,nss,'U')
-call zcopy_(nss*nss,[cZero],0,U,1)
-mem = mem+nss*nss*CtoB
+U(:,:) = cZero
+mem = mem+size(U)*CtoB
 ! spin orbit hamiltonian
 call mma_allocate(HSO,nss,nss,'HSO')
-call zcopy_(nss*nss,[cZero],0,HSO,1)
-mem = mem+nss*nss*CtoB
+HSO(:,:) = cZero
+mem = mem+size(HSO)*CtoB
 ! magnetic moment
 call mma_allocate(MM,3,nss,nss,'MM')
-call zcopy_(3*nss*nss,[cZero],0,MM,1)
-mem = mem+3*nss*nss*CtoB
+MM(:,:,:) = cZero
+mem = mem+size(MM)*CtoB
 ! spin moment
 call mma_allocate(MS,3,nss,nss,'MS')
-call zcopy_(3*nss*nss,[cZero],0,MS,1)
-mem = mem+3*nss*nss*CtoB
+MS(:,:,:) = cZero
+mem = mem+size(MS)*CtoB
 ! orbital mooment
 call mma_allocate(ML,3,nss,nss,'ML')
-call zcopy_(3*nss*nss,[cZero],0,ML,1)
-mem = mem+3*nss*nss*CtoB
+ML(:,:,:) = cZero
+mem = mem+size(ML)*CtoB
 ! electric dipole moment
 call mma_allocate(DM,3,nss,nss,'DM')
-call zcopy_(3*nss*nss,[cZero],0,DM,1)
-mem = mem+3*nss*nss*CtoB
+DM(:,:,:) = cZero
+mem = mem+size(DM)*CtoB
 ! allocated memory counter
 if (dbg) write(u6,'(A,I16)') 'mem 2 =',mem
 ! experimental magnetic field points
 call mma_allocate(Hexp,nH,'Hexp')
-call dcopy_(nH,[Zero],0,Hexp,1)
-mem = mem+nH*RtoB
+Hexp(:) = Zero
+mem = mem+size(Hexp)*RtoB
 ! experiemental magnetization
 call mma_allocate(magn_exp,nH,nTempMagn,'magn_exp')
-call dcopy_(nH*nTempMagn,[Zero],0,magn_exp,1)
-mem = mem+nH*nTempMagn*RtoB
+magn_exp(:,:) = Zero
+mem = mem+size(magn_exp)*RtoB
 ! temperature points for magnetization
 call mma_allocate(TempMagn,nTempMagn,'TempMagn')
-call dcopy_(nTempMagn,[Zero],0,TempMagn,1)
-mem = mem+nTempMagn*RtoB
-! allocated memory counter
-!if (dbg) write(u6,'(A,I16)') 'mem 3 =',mem
-!call mma_allocate(Hexp,nH,'Hexp')
-!mem = mem+nH*RtoB
-!call dcopy_(nH,[Zero],0,Hexp,1)
-!call mma_allocate(magn_exp,nH,0,'magn_exp')
-!call mma_allocate(TempMagn,0,'TempMagn')
-! allocated memory counter
-!if (dbg) write(u6,'(A,I16)') 'mem 3 =',mem
-!call mma_allocate(Hexp,0,'Hexp')
-!call mma_allocate(magn_exp,0,nTempMagn,'magn_exp')
-!call mma_allocate(TempMagn,nTempMagn,'TempMagn')
-!call dcopy_(nTempMagn,[Zero],0,TempMagn,1)
-!mem = mem+nTempMagn*RtoB
-! allocated memory counter
-!if (dbg) write(u6,'(A,I16)') 'mem 3 =',mem
-!call mma_allocate(Hexp,0,'Hexp')
-!call mma_allocate(magn_exp,0,0,'magn_exp')
-!call mma_allocate(TempMagn,0,'TempMagn')
+TempMagn(:) = Zero
+mem = mem+size(TempMagn)*RtoB
 
 ! dimensions of pseudospins
 call mma_allocate(ndim,nMult,'ndim')
-call icopy(nMult,[0],0,ndim,1)
-mem = mem+nMult*ItoB
+ndim(:) = 0
+mem = mem+size(ndim)*ItoB
 ! temperature points for magnetization
 call mma_allocate(gtens,nMult,3,'gtens')
-call dcopy_(3*nMult,[Zero],0,gtens,1)
-mem = mem+3*nMult*RtoB
+gtens(:,:) = Zero
+mem = mem+size(gtens)*RtoB
 ! temperature points for magnetization
 call mma_allocate(maxes,nMult,3,3,'maxes')
-call dcopy_(3*3*nMult,[Zero],0,maxes,1)
-mem = mem+3*3*nMult*RtoB
+maxes(:,:,:) = Zero
+mem = mem+size(maxes)*RtoB
 ! allocated memory counter
 if (dbg) write(u6,'(A,I16)') 'mem 4 =',mem
-call mma_allocate(T,(nT+nTempMagn),'Temperature')
-call dcopy_((nT+nTempMagn),[Zero],0,T,1)
-mem = mem+(nT+nTempMagn)*RtoB
-call mma_allocate(XTexp,(nT+nTempMagn),'XTexp')
-call dcopy_((nT+nTempMagn),[Zero],0,XTexp,1)
-mem = mem+(nT+nTempMagn)*RtoB
-call mma_allocate(XT_no_field,(nT+nTempMagn),'XT_no_field')
-call dcopy_((nT+nTempMagn),[Zero],0,XT_no_field,1)
-mem = mem+(nT+nTempMagn)*RtoB
+call mma_allocate(T,nT+nTempMagn,'Temperature')
+T(:) = Zero
+mem = mem+size(T)*RtoB
+call mma_allocate(XTexp,nT+nTempMagn,'XTexp')
+XTexp(:) = Zero
+mem = mem+size(XTexp)*RtoB
+call mma_allocate(XT_no_field,nT+nTempMagn,'XT_no_field')
+XT_no_field(:) = Zero
+mem = mem+size(XT_no_field)*RtoB
 ! allocated memory counter
 if (dbg) write(u6,'(A,I16)') 'mem 5 =',mem
 
 ! unit numbers for the files with Zeeman energies
 call mma_allocate(LuZee,nDirZee,'LUZee')
-call icopy(nDirZee,[0],0,LuZee,1)
-mem = mem+nDirZee*ItoB
+LuZee(:) = 0
+mem = mem+size(LuZee)*ItoB
 ! directions for applied field for Zeeman states
 call mma_allocate(dir_weight,nDirZee,3,'dir_weight')
-call dcopy_(3*nDirZee,[Zero],0,dir_weight,1)
-mem = mem+3*nDirZee*RtoB
-! allocated memory counter
-!if (dbg) write(u6,'(A,I16)') 'mem 6 =',mem
-!call mma_allocate(LuZee,0,'LUZee')
-!call mma_allocate(dir_weight,0,3,'dir_weight')
+dir_weight(:,:) = Zero
+mem = mem+size(dir_weight)*RtoB
 
 ! magnetization vectors
 call mma_allocate(dirX,nDir,'dirX')
 call mma_allocate(dirY,nDir,'dirY')
 call mma_allocate(dirZ,nDir,'dirZ')
-mem = mem+3*nDir*RtoB
-call dcopy_(nDir,[Zero],0,dirX,1)
-call dcopy_(nDir,[Zero],0,dirY,1)
-call dcopy_(nDir,[Zero],0,dirZ,1)
-! allocated memory counter
-!if (dbg) Write(u6,'(A,I16)') 'mem 7 =',mem
-!call mma_allocate(dirX,0,'dirX')
-!call mma_allocate(dirY,0,'dirY')
-!call mma_allocate(dirZ,0,'dirZ')
-! T expeirimental given by user in the input
+dirX(:) = Zero
+dirY(:) = Zero
+dirZ(:) = Zero
+mem = mem+size(dirX)*RtoB
+mem = mem+size(dirY)*RtoB
+mem = mem+size(dirZ)*RtoB
+! T experimental given by user in the input
 call mma_allocate(Texp,nT,'Texp')
-call dcopy_(nT,[Zero],0,Texp,1)
-mem = mem+nT*RtoB
-! XT expeirimental given by user in the input
+Texp(:) = Zero
+mem = mem+size(Texp)*RtoB
+! XT experimental given by user in the input
 call mma_allocate(chit_exp,nT,'chit_exp')
-call dcopy_(nT,[Zero],0,chit_exp,1)
-mem = mem+nT*RtoB
+chit_exp(:) = Zero
+mem = mem+size(chit_exp)*RtoB
 ! allocated memory counter
 if (dbg) write(u6,'(A,I16)') 'mem 8 =',mem
 

@@ -22,7 +22,7 @@ subroutine CRYSTALFIELD_1(nDIMcf,nlanth,MM,ESOJ,GRAD,iprint)
 !  IReturn = the error value.
 !        0 = no error, happy landing
 
-use Constants, only: Zero, cZero
+use Constants, only: cZero
 use Definitions, only: u6
 
 implicit none
@@ -34,7 +34,7 @@ complex(kind=8), intent(in) :: MM(3,nDIMcf,nDIMcf)
 ! local variables:
 integer :: info, i, j, k, q
 integer :: LuCF, IsFreeUnit
-real(kind=8), allocatable :: Winit(:), Eloc(:), a(:)
+real(kind=8), allocatable :: Winit(:), Eloc(:)
 real(kind=8) :: BNC(nDIMcf,0:nDIMcf)
 real(kind=8) :: BNS(nDIMcf,0:nDIMcf)
 real(kind=8) :: Bstev(nDIMcf,-nDIMcf:nDIMcf)
@@ -44,18 +44,9 @@ external :: IsFreeUnit
 
 call mma_allocate(Winit,nDIMcf,'Winit')
 call mma_allocate(Eloc,nDIMcf,'Eloc')
-call mma_allocate(a,6,'anm')
 call mma_allocate(Zinit,nDIMcf,nDIMcf,'Zinit')
 call mma_allocate(Z,nDIMcf,nDIMcf,'Z')
 call mma_allocate(HCF,nDIMcf,nDIMcf,'HCF')
-
-info = 0
-call dcopy_(nDIMcf,[Zero],0,Winit,1)
-call dcopy_(nDIMcf,[Zero],0,Eloc,1)
-call dcopy_(6,[Zero],0,A,1)
-call zcopy_(nDIMcf*nDIMcf,[cZero],0,Zinit,1)
-call zcopy_(nDIMcf*nDIMcf,[cZero],0,Z,1)
-call zcopy_(nDIMcf*nDIMcf,[cZero],0,HCF,1)
 
 ! find the J-pseudospin:
 !iDir = 3
@@ -63,11 +54,10 @@ call pseudospin(MM,nDIMcf,Z,3,1,iprint)
 call rtrace(nDIMcf,ESOJ,ELOC)
 ! re-write the CF matrix in J-pseudospin basis:
 ! energy units = cm-1
-do i=1,nDIMcf
-  do j=1,nDIMcf
-    do k=1,nDIMcf
-      HCF(i,j) = HCF(i,j)+ELOC(k)*conjg(Z(k,i))*Z(k,j)
-    end do
+HCF(:,:) = cZero
+do j=1,nDIMcf
+  do k=1,nDIMcf
+    HCF(:,j) = HCF(:,j)+ELOC(k)*conjg(Z(k,:))*Z(k,j)
   end do
 end do
 ! diagonalize the initial CF matrix:
@@ -143,7 +133,6 @@ end if
 !-----------------------------------------------------------------------
 call mma_deallocate(Winit)
 call mma_deallocate(Eloc)
-call mma_deallocate(a)
 call mma_deallocate(Zinit)
 call mma_deallocate(Z)
 call mma_deallocate(HCF)

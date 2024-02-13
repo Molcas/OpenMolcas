@@ -11,7 +11,7 @@
 
 subroutine individual_ranks(nDIMCF,BC,BS,Hinit,LJ,iprint)
 
-use Constants, only: Zero, cZero, cOne
+use Constants, only: Zero, cZero
 use Definitions, only: wp, u6
 
 implicit none
@@ -34,14 +34,12 @@ real(kind=8), allocatable :: Wk(:,:) !nDIMCF,nDIMCF)
 real(kind=8), allocatable :: Ws(:,:) !nDIMCF,nDIMCF)
 real(kind=8), allocatable :: Winit(:) !nDIMCF)
 real(kind=8), external :: dznrm2_
-complex(kind=8) :: zf, redME
+complex(kind=8) :: redME
 complex(kind=8), allocatable :: O(:,:)  !nDIMCF,nDIMCF)! real ITO
 complex(kind=8), allocatable :: W(:,:)  !nDIMCF,nDIMCF)! imag ITO
 complex(kind=8), allocatable :: HCF(:,:,:) !nDIMCF,nDIMCF,nDIMCF)
 complex(kind=8), allocatable :: HCFS(:,:,:)!nDIMCF,nDIMCF,nDIMCF)
-complex(kind=8), allocatable :: Zk(:,:,:)  !nDIMCF,nDIMCF,nDIMCF)
-complex(kind=8), allocatable :: Zs(:,:,:)  !nDIMCF,nDIMCF,nDIMCF)
-complex(kind=8), allocatable :: Zinit(:,:) !nDIMCF,nDIMCF)
+complex(kind=8), allocatable :: Ztmp(:,:) !nDIMCF,nDIMCF)
 complex(kind=8), allocatable :: HKQ(:,:), Zkq(:,:)
 real(kind=8) :: dznrm2
 external :: dznrm2
@@ -64,35 +62,23 @@ call mma_allocate(HKQ,nDIMCF,nDIMCF,'HKQ')
 call mma_allocate(ZKQ,nDIMCF,nDIMCF,'ZKQ')
 call mma_allocate(HCF,nDIMCF,nDIMCF,nDIMCF,'HCF')
 call mma_allocate(HCFS,nDIMCF,nDIMCF,nDIMCF,'HCFS')
-call mma_allocate(Zk,nDIMCF,nDIMCF,nDIMCF,'Zk')
-call mma_allocate(Zs,nDIMCF,nDIMCF,nDIMCF,'Zs')
-call mma_allocate(Zinit,nDIMCF,nDIMCF,'Zinit')
+call mma_allocate(Ztmp,nDIMCF,nDIMCF,'Ztmp')
 
-call dcopy_(nDIMCF,[Zero],0,Rnrm,1)
-call dcopy_(nDIMCF,[Zero],0,Snrm,1)
+Rnrm(:) = Zero
+Snrm(:) = Zero
 Tnrm = Zero
-call dcopy_(nDIMCF*nDIMCF,[Zero],0,Wk,1)
-call dcopy_(nDIMCF*nDIMCF,[Zero],0,Ws,1)
-call dcopy_(nDIMCF,[Zero],0,Winit,1)
 
-call zcopy_(nDIMCF*nDIMCF,[cZero],0,Zinit,1)
-call zcopy_(nDIMCF*nDIMCF*nDIMCF,[cZero],0,HCF,1)
-call zcopy_(nDIMCF*nDIMCF*nDIMCF,[cZero],0,HCFS,1)
-call zcopy_(nDIMCF*nDIMCF*nDIMCF,[cZero],0,Zk,1)
-call zcopy_(nDIMCF*nDIMCF*nDIMCF,[cZero],0,Zs,1)
+HCF(:,:,:) = cZero
+HCFS(:,:,:) = cZero
 !-----------------------------------------------------------------------
 ! re-construct the  initial CF matrix:
 do N=2,nDIMcf-1,2
   do M=0,N
     call Liviu_ESO(nDIMcf,N,M,O,W,redME)
     if (M == 0) then
-      zf = BC(N,0)*cOne
-      call zaxpy_(nDIMcf*nDIMcf,zf,O,1,HCF(N,1:nDIMcf,1:nDIMcf),1)
+      HCF(N,:,:) = HCF(N,:,:)+BC(N,0)*O(:,:)
     else
-      zf = BC(N,M)*cOne
-      call zaxpy_(nDIMcf*nDIMcf,zf,O,1,HCF(N,1:nDIMcf,1:nDIMcf),1)
-      zf = BS(N,M)*cOne
-      call zaxpy_(nDIMcf*nDIMcf,zf,W,1,HCF(N,1:nDIMcf,1:nDIMcf),1)
+      HCF(N,:,:) = HCF(N,:,:)+BC(N,M)*O(:,:)+BS(N,M)*W(:,:)
     end if
   end do
 end do
@@ -106,11 +92,7 @@ do k=2,nDIMCF-1,2
     ! O8= O2+O4+O6+O8
     ! etc...
     ! compute the cumulative CF matrix
-    do i=1,nDIMcf
-      do j=1,nDIMcf
-        HCFS(k,i,j) = HCFS(k,i,j)+HCF(ik,i,j)
-      end do
-    end do
+    HCFS(k,:,:) = HCFS(k,:,:)+HCF(ik,:,:)
   end do
 end do
 
@@ -123,11 +105,11 @@ do N=2,nDIMCF-1,2
 end do
 ! compute the CF spinting of individual weight operators:
 do k=2,nDIMcf-1,2
-  call DIAG_C2(HCF(k,:,:),nDIMcf,info,Wk(k,:),Zk(k,:,:))
-  call DIAG_C2(HCFS(k,:,:),nDIMcf,info,Ws(k,:),Zs(k,:,:))
+  call DIAG_C2(HCF(k,:,:),nDIMcf,info,Wk(k,:),Ztmp)
+  call DIAG_C2(HCFS(k,:,:),nDIMcf,info,Ws(k,:),Ztmp)
 end do
 ! set the initial energies as to the sum of all contributions:
-call DIAG_C2(Hinit,nDIMcf,info,Winit,Zinit)
+call DIAG_C2(Hinit,nDIMcf,info,Winit,Ztmp)
 
 !-----------------------------------------------------------------------
 ! individual parameter contribution:
@@ -143,13 +125,10 @@ do N=2,nDIMcf-1,2
     ! generate ITO operators:
     call Liviu_ITO(nDIMcf,N,abs(M),O,W,redME)
     ! generate HCF for each parameter rank and projection:
-    call zcopy_(nDIMcf*nDIMcf,[cZero],0,HKQ,1)
     if (M < 0) then
-      zf = BS(N,abs(M))*cOne
-      call zaxpy_(nDIMcf*nDIMcf,zf,W,1,HKQ,1)
+      HKQ(:,:) = BS(N,abs(M))*W(:,:)
     else if (M >= 0) then
-      zf = BC(N,abs(M))*cOne
-      call zaxpy_(nDIMcf*nDIMcf,zf,O,1,HKQ,1)
+      HKQ(:,:) = BC(N,abs(M))*O(:,:)
     end if
     ! find the rank value of each NM operator
     ! for further estimate the effect of the corresponding CF parameter
@@ -298,10 +277,8 @@ call mma_deallocate(W)
 call mma_deallocate(HKQ)
 call mma_deallocate(HCF)
 call mma_deallocate(HCFS)
-call mma_deallocate(Zk)
 call mma_deallocate(Zkq)
-call mma_deallocate(Zs)
-call mma_deallocate(Zinit)
+call mma_deallocate(Ztmp)
 call mma_deallocate(ListKQ)
 call mma_deallocate(rankKQ)
 call mma_deallocate(projKQ)

@@ -76,11 +76,7 @@ call mma_allocate(tmpI,nss,nss,'tmpI')
 
 call get_dArray('UMATR_SINGLE',tmpR,nss*nss)
 call get_dArray('UMATI_SINGLE',tmpI,nss*nss)
-do i=1,nss
-  do j=1,nss
-    U(i,j) = cmplx(tmpR(i,j),tmpI(i,j),kind=wp)
-  end do
-end do
+U(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 
 ! fetch the angular momentum integrals:
 call get_dArray('ANGM_SINGLE',angmom,3*nstate*nstate)
@@ -103,11 +99,7 @@ call qpg_dArray('HAMSOI_SINGLE',FOUND_HSOI,NDATA)
 if (FOUND_HSOR .and. FOUND_HSOI) then
   call get_dArray('HAMSOR_SINGLE',tmpR,nss*nss)
   call get_dArray('HAMSOI_SINGLE',tmpI,nss*nss)
-  do i=1,nss
-    do j=1,nss
-      HSO(i,j) = cmplx(tmpR(i,j),tmpI(i,j),kind=wp)
-    end do
-  end do
+  HSO(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
   !---------------------------------------------------------------------
   ! if HSO is found, proceed to diagonalize it
   call mma_allocate(W,nss,'W')
@@ -123,9 +115,7 @@ if (FOUND_HSOR .and. FOUND_HSOI) then
     end do
   end do
 
-  do i=1,nss
-    ESO(i) = (W(i)-W(1))*auTocm
-  end do
+  ESO(:) = (W(:)-W(1))*auTocm
 
   call mma_deallocate(W)
   call mma_deallocate(U1)
@@ -146,22 +136,22 @@ do Ist=1,nstate
     Iss = Iss+1
     Ibas(Ist,I) = Iss
   end do ! i
-end do ! ist
+end do ! Ist
 
 !-----
 ! expand the spin free basis to the spin-orbit basis:
-call zcopy_(3*nss*nss,[cZero],0,MM,1)
-call zcopy_(3*nss*nss,[cZero],0,ML,1)
-call zcopy_(3*nss*nss,[cZero],0,MS,1)
+MM(:,:,:) = cZero
+ML(:,:,:) = cZero
+MS(:,:,:) = cZero
 do Ist=1,nstate
   Mult = Multiplicity(Ist)
   do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
     if ((Ipar == 0) .and. (I == 0)) cycle
     do J=-(Mult-Ipar)/2,(Mult-Ipar)/2
       if ((Ipar == 0) .and. (J == 0)) cycle
+      i1 = Ibas(Ist,I)
+      j1 = Ibas(Ist,J)
       do l=1,3
-        i1 = Ibas(Ist,I)
-        j1 = Ibas(Ist,J)
         MM(l,i1,j1) = -Spin(l,Mult,I,J)*g_e
         MS(l,i1,j1) = Spin(l,Mult,I,J)
       end do ! l
@@ -176,17 +166,15 @@ do Ist=1,nstate
     if (MultI == MultJ) then
       do I=-(MultI-Ipar)/2,(MultI-Ipar)/2
         if ((Ipar == 0) .and. (I == 0)) cycle
-        do l=1,3
-          i1 = Ibas(Ist,I)
-          j1 = Ibas(Jst,I)
-          MM(l,i1,j1) = MM(l,i1,j1)-Angmom(l,Ist,Jst)*Onei
-          ML(l,i1,j1) = ML(l,i1,j1)+Angmom(l,Ist,Jst)*Onei
-          DM(l,i1,j1) = DM(l,i1,j1)+eDmom(l,Ist,Jst)*cOne
-        end do   ! l
-      end do   ! I
+        i1 = Ibas(Ist,I)
+        j1 = Ibas(Jst,I)
+        MM(:,i1,j1) = MM(:,i1,j1)-Angmom(:,Ist,Jst)*Onei
+        ML(:,i1,j1) = ML(:,i1,j1)+Angmom(:,Ist,Jst)*Onei
+        DM(:,i1,j1) = DM(:,i1,j1)+eDmom(:,Ist,Jst)*cOne
+      end do ! I
     end if
-  end do   ! Jst
-end do   ! Ist
+  end do ! Jst
+end do ! Ist
 
 ! calculate the matrix elements of the spin and magnetic moment
 ! in the spin-orbit basis:

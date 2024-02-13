@@ -11,7 +11,7 @@
 
 subroutine recover_CF(N,HAM,Akq,B,C,Bstev)
 
-use Constants, only: Zero, cZero, cOne
+use Constants, only: cZero
 use Definitions, only: u6
 
 implicit none
@@ -22,7 +22,7 @@ real(kind=8), intent(in) :: B(n,0:n), C(n,0:n), Bstev(n,-n:n)
 integer :: k, q, i, j, info
 real(kind=8) :: tdiff
 complex(kind=8) :: Cp(n,n), Cm(n,n), redME
-complex(kind=8) :: O(n,n), W(n,n), zfact
+complex(kind=8) :: O(n,n), W(n,n)
 complex(kind=8) :: HCF(n,n), Z(n,n)
 real(kind=8) :: w1(n), w2(n), c0, dznrm2_
 external :: dznrm2_
@@ -34,16 +34,15 @@ do k=2,n-1
 end do
 !=======================================================================
 write(u6,'(A,ES20.10)') 'recover from Akq parameters'
-call zcopy_(n*n,[cZero],0,HCF,1)
+HCF(:,:) = cZero
 do k=1,n-1
   do q=0,k
     ! generate the operator matrix K=ik, Q=iq, dimension=na
     call ITO(n,k,q,C0,Cp,Cm)
     if (q == 0) then
-      call zaxpy_(n*n,Akq(k,q),Cp,1,HCF,1)
+      HCF(:,:) = HCF(:,:)+Akq(k,q)*Cp(:,:)
     else
-      call zaxpy_(n*n,Akq(k,q),Cp,1,HCF,1)
-      call zaxpy_(n*n,Akq(k,-q),Cm,1,HCF,1)
+      HCF(:,:) = HCF(:,:)+Akq(k,q)*Cp(:,:)+Akq(k,-q)*Cm(:,:)
     end if
   end do !q
 end do !k
@@ -63,18 +62,14 @@ end do
 
 !=======================================================================
 write(u6,'(A,ES20.10)') 'recover from B and C parameters'
-call zcopy_(n*n,[cZero],0,HCF,1)
+HCF(:,:) = cZero
 do k=1,n-1
   do q=0,k
     call Liviu_ESO(n,k,q,O,W,redME)
     if (q == 0) then
-      zfact = B(k,0)*cOne
-      call zaxpy_(n*n,zfact,O,1,HCF,1)
+      HCF(:,:) = HCF(:,:)+B(k,0)*O(:,:)
     else
-      zfact = B(k,q)*cOne
-      call zaxpy_(n*n,zfact,O,1,HCF,1)
-      zfact = C(k,q)*cOne
-      call zaxpy_(n*n,zfact,W,1,HCF,1)
+      HCF(:,:) = HCF(:,:)+B(k,q)*O(:,:)+C(k,q)*W(:,:)
     end if
   end do
 end do
@@ -94,19 +89,14 @@ end do
 
 !=======================================================================
 write(6,'(A,ES20.10)') 'recover from Bstev'
-tdiff = Zero
-call zcopy_(n*n,[cZero],0,HCF,1)
+HCF(:,:) = cZero
 do k=1,n-1
   do q=0,k
     call ESO(n,k,q,O,W,redME)
     if (q == 0) then
-      zfact = Bstev(k,0)*cOne
-      call zaxpy_(n*n,zfact,O,1,HCF,1)
+      HCF(:,:) = HCF(:,:)+Bstev(k,0)*O(:,:)
     else
-      zfact = Bstev(k,q)*cOne
-      call zaxpy_(n*n,zfact,O,1,HCF,1)
-      zfact = Bstev(k,-q)*cOne
-      call zaxpy_(n*n,zfact,W,1,HCF,1)
+      HCF(:,:) = HCF(:,:)+Bstev(k,q)*O(:,:)+Bstev(k,-q)*W(:,:)
     end if
   end do
 end do

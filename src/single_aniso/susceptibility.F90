@@ -16,7 +16,7 @@ subroutine SUSCEPTIBILITY(NSS,ESO,S_SO,DIPSO,nT,nTempMagn,T,tmin,tmax,XTexp,zJ,t
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 use Constants, only: Zero, Three, Ten, cLight, kBoltzmann, mBohr, rNAVO, rPlanck
-use Definitions, only: wp, u6
+use Definitions, only: wp, u6, RtoB
 
 implicit none
 integer, intent(in) :: nss, iprint, nT, nTempMagn, mem
@@ -30,7 +30,7 @@ complex(kind=8), intent(in) :: dipso(3,nss,nss)
 logical, intent(in) :: tinput
 logical, intent(in) :: doplot
 #include "stdalloc.fh"
-integer :: ic, jc, it, im, jm, j, i, info, jT, mem_local, RtoB
+integer :: ic, jc, it, im, jm, j, i, info, jT, mem_local
 real(kind=8) :: det, xxm, Zst
 real(kind=8) :: dev
 logical :: DBG
@@ -41,17 +41,16 @@ real(kind=8), allocatable :: chit_theta_tens(:,:,:)
 real(kind=8), allocatable :: zstat1(:)
 real(kind=8), allocatable :: chit(:)
 real(kind=8), allocatable :: chi_theta_1(:)
-real(kind=8), allocatable :: XMM(:,:)
+real(kind=8) :: XMM(3,3)
 ! tensors for zJ /= 0
-real(kind=8), allocatable :: XSM(:,:), XSS(:,:), XZJ(:,:), unity(:,:), a_dir(:,:), a_inv(:,:)
+real(kind=8) :: XSM(3,3), XSS(3,3), XZJ(3,3), a_dir(3,3), a_inv(3,3)
 ! main values and axes of XT tensors:
-real(kind=8), allocatable :: WT(:), ZT(:,:)
+real(kind=8) :: WT(3), ZT(3,3)
 character(len=50) :: label
 real(kind=8), parameter :: coeff_X = rNAVO*mBohr**2/kBoltzmann/Ten, &
                            boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! boltzmann constant in cm-1*K-1
 
 ! constants used in this subrutine
-RtoB = 8
 mem_local = 0
 
 DBG = .false.
@@ -106,23 +105,17 @@ end if
 !g_high = sqrt(chiT_high/(coeff_X*SS1/Three))
 !g_high_2 = sqrt(chiT_high_2/(coeff_X*SS1/Three))
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-call mma_allocate(chiT,(nT+nTempMagn),'chiT')
-call mma_allocate(Zstat1,(nT+nTempMagn),'Zstat1')
-call mma_allocate(chi_theta_1,(nT+nTempMagn),'chi_theta_1')
-call mma_allocate(chiT_tens,(nT+nTempMagn),3,3,'chiT_tens')
-call mma_allocate(wt,3,'wt')
-call mma_allocate(zt,3,3,'zt')
-call dcopy_((nT+nTempMagn),[Zero],0,chiT,1)
-call dcopy_((nT+nTempMagn),[Zero],0,chiT_theta,1)
-call dcopy_((nT+nTempMagn),[Zero],0,Zstat1,1)
-call dcopy_((nT+nTempMagn),[Zero],0,chi_theta_1,1)
-call dcopy_(3*3*(nT+nTempMagn),[Zero],0,chiT_tens,1)
-mem_local = mem_local+4*(nT+nTempMagn)*RtoB+3*3*(nT+nTempMagn)*RtoB
+call mma_allocate(chiT,nT+nTempMagn,'chiT')
+call mma_allocate(Zstat1,nT+nTempMagn,'Zstat1')
+call mma_allocate(chi_theta_1,nT+nTempMagn,'chi_theta_1')
+call mma_allocate(chiT_tens,nT+nTempMagn,3,3,'chiT_tens')
+mem_local = mem_local+size(chiT)*RtoB
+mem_local = mem_local+size(Zstat1)*RtoB
+mem_local = mem_local+size(chi_theta_1)*RtoB
+mem_local = mem_local+size(chiT_tens)*RtoB
 
 if (zJ == 0) then
   if (dbg) write(u6,*) 'SUSC:  zJ = 0'
-  call mma_allocate(XMM,3,3,'XMM')
-  mem_local = mem_local+9*RtoB
 
   if (dbg) then
     write(u6,*) 'SUSC:  memory allocated (local):'
@@ -135,18 +128,14 @@ if (zJ == 0) then
     ! compute XT tensor for this temperature:
     call chi(DipSO,DipSO,Eso,Nss,T(iT),Zst,XMM)
     if (dbg) then
-      write(u6,'(A,9F12.6)') 'XMM:',XMM(1:3,1:3)
+      write(u6,'(A,9F12.6)') 'XMM:',XMM(:,:)
       write(u6,'(A,9F12.6)') 'chiT:',coeff_X*(XMM(1,1)+XMM(2,2)+XMM(3,3))/Three,Zst
     end if
 
-    !call dscal_(3*3,coeff_X,XMM,1)
-    do i=1,3
-      do j=1,3
-        chiT_tens(iT,i,j) = coeff_X*XMM(i,j)
-      end do
-    end do
+    !XMM(:,:) = coeff_X*XMM(:,:)
+    chiT_tens(iT,:,:) = coeff_X*XMM(:,:)
 
-    !call dcopy_(3*3,XMM,1,chiT_tens(iT,:,:),1)
+    !chiT_tens(iT,:,:) = XMM(:,:)
     ! compute the powder XT for this temperature:
     chiT(iT) = coeff_X*(XMM(1,1)+XMM(2,2)+XMM(3,3))/Three
 
@@ -156,21 +145,12 @@ if (zJ == 0) then
     chi_theta_1(iT) = T(iT)/chiT(iT)
     Zstat1(iT) = Zst
   end do
-  call mma_deallocate(XMM)
 else  ! i.e. when zJ /= Zero
   if (dbg) write(u6,*) 'SUSC:  zJ \= 0'
   ! allocate matrices:
-  call mma_allocate(chiT_theta_tens,(nT+nTempMagn),3,3,'XTT')
+  call mma_allocate(chiT_theta_tens,nT+nTempMagn,3,3,'XTT')
   ! initialize:
-  call dcopy_(3*3*(nT+nTempMagn),[Zero],0,chiT_theta_tens,1)
-  call mma_allocate(XMM,3,3,'XMM')
-  call mma_allocate(XSM,3,3,'XSM')
-  call mma_allocate(XSS,3,3,'XSS')
-  call mma_allocate(XZJ,3,3,'XZJ')
-  call mma_allocate(A_dir,3,3,'A_dir')
-  call mma_allocate(A_inv,3,3,'A_inv')
-  call mma_allocate(Unity,3,3,'Unity')
-  mem_local = mem_local+3*3*3*(nT+nTempMagn)*RtoB+7*3*3*RtoB
+  mem_local = mem_local+size(chiT_theta_tens)*RtoB
   if (dbg) then
     write(u6,*) 'SUSC:  memory allocated (local):'
     write(u6,*) 'mem_local=',mem_local
@@ -179,22 +159,14 @@ else  ! i.e. when zJ /= Zero
   end if
 
   do iT=1,nT+nTempMagn
-    ! initialize temporary matrices:
-    call dcopy_(3*3,[Zero],0,XMM,1)
-    call dcopy_(3*3,[Zero],0,XSM,1)
-    call dcopy_(3*3,[Zero],0,XSS,1)
-    call dcopy_(3*3,[Zero],0,XZJ,1)
-    call dcopy_(3*3,[Zero],0,A_dir,1)
-    call dcopy_(3*3,[Zero],0,A_inv,1)
-    call unitmat(Unity,3)
     ! compute tensors:
     call chi(DipSO,DipSO,Eso,Nss,T(it),Zst,XMM)
     call chi(S_SO,DipSO,Eso,Nss,T(it),Zst,XSM)
     call chi(S_SO,S_SO,Eso,Nss,T(it),Zst,XSS)
     ! form the A_dir matrix:
     ! A_dir(:,:) = 1(:,:)*kB*T(iT)-zJ*XSS(:,:)
-    call daxpy_(3*3,Boltz_k*T(iT),Unity,1,A_dir,1)
-    call daxpy_(3*3,-zJ,XSS,1,A_dir,1)
+    call unitmat(A_dir,3)
+    A_dir(:,:) = Boltz_k*T(iT)*A_dir(:,:)-zJ*XSS(:,:)
     ! invert it:
     call REVERSE(A_dir,A_inv,DET)
 
@@ -213,11 +185,11 @@ else  ! i.e. when zJ /= Zero
     end do ! ic
 
     ! Scale the tensors by coeff_X factor:
-    call dscal_(3*3,coeff_X,XMM,1)
-    call dscal_(3*3,coeff_X,XZJ,1)
+    XMM(:,:) = coeff_X*XMM(:,:)
+    XZJ(:,:) = coeff_X*XZJ(:,:)
     ! place the tensors in the corresponding part of the "big" arrays:
-    call dcopy_(3*3,XMM,1,chiT_tens(iT,:,:),1)
-    call dcopy_(3*3,XZJ,1,chiT_theta_tens(iT,:,:),1)
+    chiT_tens(iT,:,:) = XMM(:,:)
+    chiT_theta_tens(iT,:,:) = XZJ(:,:)
     ! compute powder:
     chiT(iT) = (XMM(1,1)+XMM(2,2)+XMM(3,3))/Three
     chiT_theta(iT) = (XZJ(1,1)+XZJ(2,2)+XZJ(3,3))/Three
@@ -228,13 +200,6 @@ else  ! i.e. when zJ /= Zero
     chi_theta_1(iT) = T(iT)/chiT_theta(iT)
     Zstat1(iT) = Zst
   end do ! iT
-  call mma_deallocate(XMM)
-  call mma_deallocate(XSM)
-  call mma_deallocate(XSS)
-  call mma_deallocate(XZJ)
-  call mma_deallocate(A_dir)
-  call mma_deallocate(A_inv)
-  call mma_deallocate(Unity)
 end if ! zJ
 
 !  WRITING SOME OF THE OUTPUT...
@@ -343,8 +308,6 @@ call mma_deallocate(Zstat1)
 call mma_deallocate(chiT_tens)
 call mma_deallocate(chiT)
 call mma_deallocate(chi_theta_1)
-call mma_deallocate(wt)
-call mma_deallocate(zt)
 
 return
 

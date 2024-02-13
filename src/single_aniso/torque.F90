@@ -11,8 +11,8 @@
 
 subroutine torque(Nss,NM,AngPoints,EM,eso,dipm,sm,zJ,thrs,mem,m_paranoid,smagn,H_torq,T_torq,ma,dbg)
 
-use Constants, only: Zero, cZero, deg2rad
-use Definitions, only: wp, u6
+use Constants, only: Zero, deg2rad
+use Definitions, only: wp, u6, CtoB, RtoB
 
 implicit none
 #include "mgrid.fh"
@@ -37,8 +37,8 @@ parameter(nPlanes=1)
 !real(kind=8) :: dlth
 real(kind=8), allocatable :: W(:) ! W(NM) ! Zeeman exchange energies
 real(kind=8) :: ZT(1)             ! ZT ! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ST(:) ! ST(3) ! total spin magnetisation,
-real(kind=8), allocatable :: MT(:) ! MT(3) ! total magnetisation
+real(kind=8) :: ST(3) ! total spin magnetisation,
+real(kind=8) :: MT(3) ! total magnetisation
 real(kind=8), allocatable :: dX(:) ! dX(AngPoints)
 real(kind=8), allocatable :: dY(:) ! dY(AngPoints)
 real(kind=8), allocatable :: dZ(:) ! dZ(AngPoints)
@@ -54,7 +54,7 @@ character(len=99) :: STLNE1, STLNE2
 real(kind=8) :: g(3), mg(3,3) !,ma_inv(3,3)!,det
 real(kind=8) :: AngStep, AngRad
 logical :: DBG
-integer :: IM, I, J, mem_local, RtoB, CtoB, nT_torq
+integer :: IM, I, J, mem_local, nT_torq
 
 !Boltz_k = 0.6950356000_wp ! in cm^-1*K-1
 !mu_Bohr = 0.4668643740_wp ! in cm-1*T-1
@@ -99,42 +99,27 @@ end do
 !-----------------------------------------------------------------------
 ! Allocate memory for this computation:
 mem_local = 0
-RtoB = 8
-CtoB = 16
 ! Zeeman exchange energy spectrum
 call mma_allocate(W,nM,'W')
-call dcopy_(nM,[Zero],0,W,1)
-mem_local = mem_local+nM*RtoB
-
-call mma_allocate(ST,3,'ST')
-call dcopy_(3,[Zero],0,ST,1)
-mem_local = mem_local+3*RtoB
-
-call mma_allocate(MT,3,'MT')
-call dcopy_(3,[Zero],0,MT,1)
-mem_local = mem_local+3*RtoB
+mem_local = mem_local+size(W)*RtoB
 
 call mma_allocate(dX,AngPoints,'dX')
 call mma_allocate(dY,AngPoints,'dY')
 call mma_allocate(dZ,AngPoints,'dZ')
-call dcopy_(AngPoints,[Zero],0,dX,1)
-call dcopy_(AngPoints,[Zero],0,dY,1)
-call dcopy_(AngPoints,[Zero],0,dZ,1)
-mem_local = mem_local+3*AngPoints*RtoB
+mem_local = mem_local+size(dX)*RtoB
+mem_local = mem_local+size(dY)*RtoB
+mem_local = mem_local+size(dZ)*RtoB
 
 call mma_allocate(Ang,AngPoints,'Ang')
-call dcopy_(AngPoints,[Zero],0,Ang,1)
-mem_local = mem_local+AngPoints*RtoB
+mem_local = mem_local+size(Ang)*RtoB
 
 call mma_allocate(ty,AngPoints,'ty')
-call dcopy_(AngPoints,[Zero],0,ty,1)
-mem_local = mem_local+AngPoints*RtoB
+mem_local = mem_local+size(ty)*RtoB
 
 call mma_allocate(M,3,nss,nss,'Mrot')
 call mma_allocate(S,3,nss,nss,'Srot')
-call zcopy_(3*nss*nss,[cZero],0,M,1)
-call zcopy_(3*nss*nss,[cZero],0,S,1)
-mem_local = mem_local+2*3*nss*nss*CtoB
+mem_local = mem_local+size(M)*CtoB
+mem_local = mem_local+size(S)*CtoB
 
 if (dbg) then
   write(u6,*) 'TORQ:  memory allocated (local):'
@@ -151,11 +136,8 @@ call rotmom2(SM,nss,ma,S)
 
 call atens(M(:,1:2,1:2),2,g,mg,2)
 !-----------------------------------------------------------------------
-call dcopy_(AngPoints,[Zero],0,dX,1)
-call dcopy_(AngPoints,[Zero],0,dY,1)
-call dcopy_(AngPoints,[Zero],0,dZ,1)
-call dcopy_(AngPoints,[Zero],0,Ang,1)
 !call hdir2(AngPoints,2,dX,dY,dZ,Ang,2)
+dY(:) = Zero
 AngStep = 360.0_wp/real(AngPoints-1,kind=wp)
 do i=1,AngPoints
   AngRad = real(i-1,kind=wp)*AngStep*deg2rad !+122.625_wp*deg2rad
@@ -218,8 +200,6 @@ write(u6,'(10A)') '--------|','---------------------------|'
 !-----------------------------------------------------------------------
 ! deallocate memory for this computation:
 call mma_deallocate(W)
-call mma_deallocate(ST)
-call mma_deallocate(MT)
 call mma_deallocate(dX)
 call mma_deallocate(dY)
 call mma_deallocate(dZ)

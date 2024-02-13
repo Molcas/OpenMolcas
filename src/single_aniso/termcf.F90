@@ -33,9 +33,9 @@ subroutine termCF(ANGMOM,AMFI,ESFS,ldimcf,iDIM,maxes2,iopt,nlanth,iprint)
 !                   iopt = 4   -- maxes is the unity matrix ( original Z
 !                                 is the quantization axis )
 
-use Constants, only: Zero, One, cZero, cOne, Onei, auTocm
+use Constants, only: Zero, cZero, cOne, Onei, auTocm
 #ifdef _DISABLED_
-use Constants, only: Two, Half
+use Constants, only: One, Two, Half
 #endif
 use Definitions, only: wp, u6
 
@@ -48,8 +48,8 @@ real(kind=8), intent(in) :: amfi(3,ldimcf,ldimcf)
 real(kind=8), intent(in) :: maxes2(3,3)
 real(kind=8) :: finddetr
 !real(kind=8) :: knm(12,0:12)
-real(kind=8), allocatable :: maxes(:,:)
-real(kind=8), allocatable :: gtens(:)
+real(kind=8) :: maxes(3,3)
+real(kind=8) :: gtens(3)
 real(kind=8), allocatable :: eloc(:) ! lDIMcf
 real(kind=8), allocatable :: Winit(:) ! lDIMcf
 real(kind=8) :: BNC(lDIMcf,0:lDIMcf)
@@ -65,7 +65,7 @@ complex(kind=8), allocatable :: Z(:,:) !ldimcf,ldimcf
 complex(kind=8), allocatable :: tmp(:,:) !ldimcf,ldimcf
 complex(kind=8), allocatable :: HCF(:,:) !ldimcf,ldimcf
 complex(kind=8), allocatable :: Zinit(:,:) !ldimcf,ldimcf
-integer :: i, j, l, info, i1, i2
+integer :: i, j, l, info, i2
 external :: finddetr
 logical :: debug = .false.
 real(kind=8) :: det
@@ -78,8 +78,6 @@ complex(kind=8) :: CFC(100,100)
 unused_var(nlanth)
 #endif
 
-call mma_allocate(maxes,3,3,'maxes')
-call mma_allocate(gtens,3,'gtens')
 call mma_allocate(eloc,lDIMcf,'eloc')
 call mma_allocate(Winit,lDIMcf,'Winit')
 
@@ -92,21 +90,6 @@ call mma_allocate(Z,ldimcf,ldimcf,'Z')
 call mma_allocate(Zinit,ldimcf,ldimcf,'Zinit')
 call mma_allocate(tmp,ldimcf,ldimcf,'tmp')
 call mma_allocate(HCF,ldimcf,ldimcf,'HCF')
-
-call dcopy_(3,[Zero],0,gtens,1)
-call dcopy_(3*3,[Zero],0,maxes,1)
-call dcopy_(lDIMcf,[Zero],0,eloc,1)
-call dcopy_(lDIMcf,[Zero],0,Winit,1)
-
-call zcopy_(3*ldimcf*ldimcf,[cZero],0,Angm,1)
-call zcopy_(3*ldimcf*ldimcf,[cZero],0,dipso,1)
-call zcopy_(3*ldimcf*ldimcf,[cZero],0,amfi_c,1)
-call zcopy_(3*ldimcf*ldimcf,[cZero],0,amfi2,1)
-call zcopy_(3*ldimcf*ldimcf,[cZero],0,amfi_l,1)
-call zcopy_(ldimcf*ldimcf,[cZero],0,Z,1)
-call zcopy_(ldimcf*ldimcf,[cZero],0,Zinit,1)
-call zcopy_(ldimcf*ldimcf,[cZero],0,tmp,1)
-call zcopy_(ldimcf*ldimcf,[cZero],0,HCF,1)
 !-----------------------------------------------------------------------
 write(u6,'(/)')
 write(u6,'(100A)') ('%',i=1,95)
@@ -118,19 +101,13 @@ end if
 write(u6,'(100A)') ('%',i=1,95)
 write(u6,*)
 
-do l=1,3
-  do i=1,ldimcf
-    do j=1,ldimcf
-      dipso(l,i,j) = -angmom(l,i,j)*Onei
-      amfi_c(l,i,j) = amfi(l,i,j)*cOne
-    end do
-  end do
-end do
+dipso(:,:,:) = -angmom(:,:,:)*Onei
+amfi_c(:,:,:) = amfi(:,:,:)*cOne
 ! find the main anisotropy direction of the
 ! diagonalize the angmom
 if (iopt == 1) then
   ! iopt = 1   -- axis of the ground orbital Doublet
-  call atens(dipso(1:3,1:iDIM,1:iDIM),iDIM,gtens,maxes,iprint)
+  call atens(dipso(:,1:iDIM,1:iDIM),iDIM,gtens,maxes,iprint)
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
   if (mod(iDIM,2) == 0) then
     write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudo-L = |',iDIM-1,'/2> orbital multiplet.'
@@ -140,7 +117,7 @@ if (iopt == 1) then
 
 else if (iopt == 2) then
   ! iopt = 2   -- axis of the entire L manIfold
-  call atens(dipso(1:3,1:ldimcf,1:ldimcf),lDIMcf,gtens,maxes,iprint)
+  call atens(dipso,lDIMcf,gtens,maxes,iprint)
   if (mod(lDIMCF,2) == 0) then
     write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground atomic L = |',lDIMCF-1,'/2> multiplet'
   else
@@ -152,29 +129,21 @@ else if (iopt == 3) then
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
   write(u6,'(a)') '(Xm, Ym, Zm) -- defined in the input file.'
   ! copy the maxes2 to maxes
-  do i=1,3
-    do j=1,3
-      maxes(i,j) = maxes2(i,j)
-    end do
-  end do
-  det = finddetr(maxes(1:3,1:3),3)
+  maxes(:,:) = maxes2(:,:)
+  det = finddetr(maxes,3)
   if (det == Zero) then
     write(u6,'(A)') 'TermCF:   iopt=3, while  DET(maxes)= 0.0'
     call AbEnd()
   end if
   ! FIXME: note finddetr modifies the matrix!
   if (det < Zero) then
-    do i=1,3
-      maxes(i,1) = -maxes2(i,1)
-    end do
+    maxes(:,1) = -maxes2(:,1)
     if (iprint > 2) write(u6,'(a)') 'The original coordinate system was LEFT-handed. It has been changed to the RIGHT-handed'
   end if
 
 else if (iopt == 4) then
   ! iopt = 4   -- maxes is the unity matrix ( original Z is the quantization axis )
-  do i=1,3
-    maxes(i,i) = One
-  end do
+  call unitmat(maxes,3)
 else
   call AbEnd()
 end if
@@ -212,8 +181,6 @@ else
 end if
 
 ! rotate the angular momentum to the new axes, using "maxes"
-call zcopy_(3*ldimcf*ldimcf,[cZero],0,amfi2,1)
-call zcopy_(3*ldimcf*ldimcf,[cZero],0,angm,1)
 call rotmom2(dipso,ldimcf,maxes,angm)
 call rotmom2(amfi_c,ldimcf,maxes,amfi2)
 if (debug) call prmom('TERMCF:: ANGM',angm,ldimcf)
@@ -254,12 +221,10 @@ if (debug) call prMom_herm('TERMCF:: AMFI_L',amfi_l*auTocm,ldimcf)
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! calculate the RASSI Crystal Field matrix
 call rtrace(lDIMcf,ESFS,ELOC)
-call zcopy_(ldimcf*ldimcf,[cZero],0,HCF,1)
+HCF(:,:) = cZero
 do i=1,lDIMcf
-  do I1=1,lDIMcf
-    do I2=1,lDIMcf
-      HCF(I1,I2) = HCF(I1,I2)+ELOC(i)*conjg(Z(i,I1))*Z(i,I2)
-    end do
+  do I2=1,lDIMcf
+    HCF(:,I2) = HCF(:,I2)+ELOC(i)*conjg(Z(i,:))*Z(i,I2)
   end do
 end do
 
@@ -427,8 +392,6 @@ end do
 #endif
 
 !-----------------------------------------------------------------------
-call mma_deallocate(maxes)
-call mma_deallocate(gtens)
 call mma_deallocate(eloc)
 call mma_deallocate(Winit)
 

@@ -11,7 +11,6 @@
 
 subroutine CRYSTALFIELD(ESOJ,DIPSO,S_SO,nDIMcf,iDIM,nlanth,zmagn2,iopt,GRAD,iprint)
 
-use Constants, only: Zero, One, cZero
 use Definitions, only: u6
 
 implicit none
@@ -29,7 +28,7 @@ real(kind=8), allocatable :: wtmp(:)
 complex(kind=8), allocatable :: DIPJ(:,:,:)
 complex(kind=8), allocatable :: SJ(:,:,:), ztmp(:,:)
 integer :: i, j
-real(kind=8), allocatable :: gtens(:), zmagn(:,:)
+real(kind=8) :: gtens(3), zmagn(3,3)
 
 write(u6,'(/)')
 write(u6,'(100A)') ('%',i=1,95)
@@ -41,14 +40,10 @@ end if
 write(u6,'(100A)') ('%',i=1,95)
 write(u6,*)
 
-call mma_allocate(gtens,3,'gtens')
-call mma_allocate(zmagn,3,3,'zmagn')
-call dcopy_(3,[Zero],0,gtens,1)
-call dcopy_(3*3,[Zero],0,zmagn,1)
 if (iopt == 1) then
   ! coordinate system for decomposition of the CF matrix identic to the coordinate system
   ! of the main magnetic axes of the ground multiplet (NDIM(1))
-  call atens(DIPSO(1:3,1:idim,1:idim),idim,GTENS,ZMAGN,1)
+  call atens(DIPSO(:,1:idim,1:idim),idim,GTENS,ZMAGN,1)
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
   if (mod(iDIM,2) == 0) then
     write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseuDospin S = |',iDIM-1,'/2> multiplet.'
@@ -70,19 +65,15 @@ else if (iopt == 2) then
 else if (iopt == 3) then
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
   write(u6,'(a)') '(Xm, Ym, Zm) -- defined in the input file.'
-  call dcopy_(3*3,zmagn2,1,zmagn,1)
+  zmagn(:,:) = zmagn2(:,:)
 else
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the initial coordinate system.'
-  do i=1,3
-    ZMAGN(i,i) = One
-  end do
+  call unitmat(zmagn,3)
 end if ! axisoption
 
 ! rotate the momentum:
 call mma_allocate(DIPJ,3,nDIMcf,nDIMcf,'DIPJ')
 call mma_allocate(SJ,3,nDIMcf,nDIMcf,'SJ')
-call zcopy_(3*nDIMcf*nDIMcf,[cZero],0,DIPJ,1)
-call zcopy_(3*nDIMcf*nDIMcf,[cZero],0,SJ,1)
 call rotmom2(DIPSO,nDIMCF,ZMAGN,DIPJ)
 call rotmom2(S_SO,nDIMCF,ZMAGN,SJ)
 
@@ -135,8 +126,6 @@ call CRYSTALFIELD_1(nDIMcf,nlanth,DIPJ,ESOJ,GRAD,iprint)
 
 call mma_deallocate(DIPJ)
 call mma_deallocate(SJ)
-call mma_deallocate(gtens)
-call mma_deallocate(zmagn)
 
 return
 

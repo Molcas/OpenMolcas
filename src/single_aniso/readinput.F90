@@ -44,7 +44,7 @@ integer :: LUZee(nDirZee)
 real(kind=8) :: tmin, tmax, hmin, hmax, t1, t2, zj, tempmagn(nTempMagn), encut_rate
 real(kind=8) :: texp(nT), chit_exp(nT)
 real(kind=8) :: hexp(nH), magn_exp(nH,ntempmagn)
-real(kind=8) :: zmagn(3,3), sum, tmp
+real(kind=8) :: zmagn(3,3), rsum, tmp
 real(kind=8) :: cryst(6), coord(3)
 real(kind=8) :: column_check(3,3), row_check(3,3)
 real(kind=8) :: check_dir_weight(nDirZee)
@@ -64,7 +64,7 @@ logical :: smagn
 logical :: tinput, hinput
 logical, intent(out) :: m_paranoid
 logical :: doplot
-character(len=2) :: cME, clanth(37), uME
+character(len=2) :: cME, uME
 character(len=21) :: namefile_energy
 character(len=180) :: input_file_name, tmpline, err_msg
 external :: FindDetR
@@ -79,15 +79,13 @@ external :: IsFreeUnit
 integer :: I, LINENR, j
 character(len=280) :: LINE
 logical :: DBG
+character(len=*), parameter :: clanth(37) = ['CE','PR','ND','PM','SM','EU','GD','TB','DY','HO','ER','TM','YB','LU', & ! lanthanides
+                                             'TH','PA','U ','NP','PU','AM','CM','BK','CF','ES','FM','MD','NO','LR', & ! actinides
+                                             'SC','TI','V ','CR','MN','FE','CO','NI','CU'] ! transition metals
 
 DBG = .false.
 !============ Some default settings=====================================
 ! variables in "mgrid.fh"
-do i=1,32
-  do j=1,3
-    get_nP(j,i) = 0
-  end do
-end do
 nsymm = 1
 ngrid = 15
 get_nP(1,1) = 5
@@ -188,20 +186,12 @@ get_nP(3,31) = 694
 get_nP(3,32) = 760
 compute_Mdir_vector = .false.
 zeeman_energy = .false.
-do i=1,nDir
-  DirX(i) = Zero
-  DirY(i) = Zero
-  DirZ(i) = Zero
-end do
-do i=1,nDirZee
-  dir_weight(i,1) = Zero
-  dir_weight(i,2) = Zero
-  dir_weight(i,3) = Zero
-end do
 !========== Initializations of arrays ==================================
-do I=1,nTempMagn
-  TempMagn(i) = Zero
-end do
+DirX(:) = Zero
+DirY(:) = Zero
+DirZ(:) = Zero
+dir_weight(:,:) = Zero
+TempMagn(:) = Zero
 !============ Initializations of constants =============================
 
 thrs = 1.0e-10_wp
@@ -244,63 +234,14 @@ doplot = .false.
 nlanth = 0
 nDIMcf = 0
 cME = '  '
-! -- lanthanides
-clanth(1) = 'CE'
-clanth(2) = 'PR'
-clanth(3) = 'ND'
-clanth(4) = 'PM'
-clanth(5) = 'SM'
-clanth(6) = 'EU'
-clanth(7) = 'GD'
-clanth(8) = 'TB'
-clanth(9) = 'DY'
-clanth(10) = 'HO'
-clanth(11) = 'ER'
-clanth(12) = 'TM'
-clanth(13) = 'YB'
-clanth(14) = 'LU'
-! -- actinides
-clanth(15) = 'TH'
-clanth(16) = 'PA'
-clanth(17) = 'U'
-clanth(18) = 'NP'
-clanth(19) = 'PU'
-clanth(20) = 'AM'
-clanth(21) = 'CM'
-clanth(22) = 'BK'
-clanth(23) = 'CF'
-clanth(24) = 'ES'
-clanth(25) = 'FM'
-clanth(26) = 'MD'
-clanth(27) = 'NO'
-clanth(28) = 'LR'
-! -- transition metals
-clanth(29) = 'SC'
-clanth(30) = 'TI'
-clanth(31) = 'V'
-clanth(32) = 'CR'
-clanth(33) = 'MN'
-clanth(34) = 'FE'
-clanth(35) = 'CO'
-clanth(36) = 'NI'
-clanth(37) = 'CU'
 
-do i=1,6
-  cryst(i) = Zero
-end do
-do i=1,3
-  coord(i) = Zero
-end do
+cryst(:) = Zero
+coord(:) = Zero
 axisoption = 1
 input_to_read = 0
 encut_definition = 2
 encut_rate = 1
-do i=1,3
-  coord(i) = Zero
-  do j=1,3
-    zmagn(i,j) = Zero
-  end do
-end do
+zmagn(:,:) = Zero
 AngPoints = 46
 
 !=========== End of default settings====================================
@@ -423,7 +364,7 @@ do
 
         if (DBG) write(u6,*) 'TINT: Tmin, Tmax, nT=',Tmin,Tmax,nT
       else
-        write(u6,*) 'READIN: the TINT command is incompatible with TEXP'
+        write(u6,*) 'READINPUT: the TINT command is incompatible with TEXP'
         call ABEnd()
       end if
       LINENR = LINENR+1
@@ -460,14 +401,14 @@ do
 
         if (DBG) write(u6,*) 'HINT: Hmin, Hmax, nH=',Hmin,Hmax,nH
       else
-        write(u6,*) 'READIN: the HINT command is incompatible with HEXP'
+        write(u6,*) 'READINPUT: the HINT command is incompatible with HEXP'
         call ABEnd()
       end if
       LINENR = LINENR+1
     !-------------------------------------------
     case ('NCUT')
       if (ENCUT_check) then
-        write(u6,*) 'READIN: NCUT, ERAT and ENCU are mutually exclusive.'
+        write(u6,*) 'READINPUT: NCUT, ERAT and ENCU are mutually exclusive.'
         call ABEnd()
       endif
       ENCUT_check = .true.
@@ -490,7 +431,7 @@ do
     !-------------------------------------------
     case ('ENCU')
       if (ENCUT_check) then
-        write(u6,*) 'READIN: NCUT, ERAT and ENCU are mutually exclusive.'
+        write(u6,*) 'READINPUT: NCUT, ERAT and ENCU are mutually exclusive.'
         call ABEnd()
       endif
       ENCUT_check = .true.
@@ -510,7 +451,7 @@ do
     !-------------------------------------------
     case ('ERAT')
       if (ENCUT_check) then
-        write(u6,*) 'READIN: NCUT, ERAT and ENCU are mutually exclusive.'
+        write(u6,*) 'READINPUT: NCUT, ERAT and ENCU are mutually exclusive.'
         call ABEnd()
       end if
       ENCUT_check = .true.
@@ -543,19 +484,19 @@ do
       end do
       ! some processing:
       do i=1,nDir
-        sum = DirX(i)*DirX(i)+DirY(i)*DirY(i)+DirZ(i)*DirZ(i)
-        if (sum == Zero) then
+        rsum = DirX(i)*DirX(i)+DirY(i)*DirY(i)+DirZ(i)*DirZ(i)
+        if (rsum == Zero) then
           write(err_msg,'(a,i3,a)') 'error: MVEC  vector ',i,'has the modulus = 0.0.'
           call WarningMessage(2,err_msg)
           call Quit_OnUserError()
         end if
-        if (sum /= One) then
+        if (rsum /= One) then
           write(u6,'(a,i3,a)') 'the vector',i,'was re-normalized.'
-          tmp = dirX(i)/sqrt(sum)
+          tmp = dirX(i)/sqrt(rsum)
           dirX(i) = tmp
-          tmp = dirY(i)/sqrt(sum)
+          tmp = dirY(i)/sqrt(rsum)
           dirY(i) = tmp
-          tmp = dirZ(i)/sqrt(sum)
+          tmp = dirZ(i)/sqrt(rsum)
           dirZ(i) = tmp
         end if
       end do
@@ -613,7 +554,7 @@ do
         tmin = texp(1)
         tmax = texp(nT)
       else
-        write(u6,*) 'READIN: the TINT command is incompatible with TEXP'
+        write(u6,*) 'READINPUT: the TINT command is incompatible with TEXP'
         call ABEnd()
       end if
       LINENR = LINENR+NT+1
@@ -643,7 +584,7 @@ do
         hmin = hexp(1)
         hmax = hexp(nH)
       else
-        write(u6,*) 'READIN: the HINT command is incompatible with HEXP'
+        write(u6,*) 'READINPUT: the HINT command is incompatible with HEXP'
         call ABEnd()
       end if
       LINENR = LINENR+NH+2
@@ -703,151 +644,150 @@ do
       if (DBG) write(u6,*) 'CRYS: cME =',cME
 
       select case (uME)
-        case ('CE')
+        ! LANTHANIDES
+        case (clanth(1)) ! Ce
           nlanth = 1
           nDIMcf = 6  ! f1; multiplet J=L-S=3-1/2=5/2  =>  J = 2F_5/2
           lDIMCF = 7  ! (L=3)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('PR')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(2)) ! Pr
           nlanth = 2
           nDIMcf = 9  ! f2; multiplet J=L-S=5-1=4  => J = 3H_4
           lDIMCF = 11 ! (L=5)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('ND')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(3)) ! Nd
           nlanth = 3
           nDIMcf = 10 ! f3; multiplet J=L-S=6-3/2=9/2  => J = 4I_9/2
           lDIMCF = 13 ! (L=6)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('PM')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(4)) ! Pm
           nlanth = 4
           nDIMcf = 9  ! f4; multiplet J=L-S=6-2=4  => J = 5I_4
           lDIMCF = 13 ! (L=6)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('SM')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(5)) ! Sm
           nlanth = 5
           nDIMcf = 6  ! f5; multiplet J=L-S=5-5/2=5/2  => J = 6H_5/2
           lDIMCF = 11 ! (L=5)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('EU')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(6)) ! Eu
           nlanth = 6
           nDIMcf = 1  ! f6; multiplet J=L-S=3-3=0  => J = 3F_0
           lDIMCF = 7  ! (L=3)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('GD')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(7)) !Gd
           nlanth = 7
           nDIMcf = 8  ! f7; multiplet J=L+S=0+7/2=0  => J = 8S_7/2
           lDIMCF = 1  ! (L=0)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('TB')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(8)) !Tb
           nlanth = 8
           nDIMcf = 13 ! f8; multiplet J=L+S=3+3=0  => J = 7F_6
           lDIMCF = 7  ! (L=3)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('DY')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(9)) ! Dy
           nlanth = 9
           nDIMcf = 16 ! f9; multiplet J=L+S=5+5/2=15/2  => J = 6H_15/2
           lDIMCF = 11 ! (L=5)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('HO')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(10)) ! Ho
           nlanth = 10
           nDIMcf = 17 ! f10; multiplet J=L+S=6+2=8  => J = 5I_8
           lDIMCF = 13 ! (L=6)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('ER')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(11)) ! Er
           nlanth = 11
           nDIMcf = 16 ! f11; multiplet J=L+S=6+3/2=15/2  => J = 4I_15/2
           lDIMCF = 13 ! (L=6)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('TM')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(12)) ! Tm
           nlanth = 12
           nDIMcf = 13 ! f12; multiplet J=L+S=5+1=6  => J = 3H_6
           lDIMCF = 11 ! (L=5)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('YB')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(13)) ! Yb
           nlanth = 13
           nDIMcf = 8  ! f13; multiplet J=L+S=3+1/2=7/2  => J = 2F_7/2
           lDIMCF = 7  ! (L=3)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('LU')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(14)) !Lu
           nlanth = 14
           nDIMcf = 1  ! f14; multiplet J=L+S=0+0=0  => J = 1S_0
           lDIMCF = 1  ! (L=0)
-
-          !- - - - - - - - - - - - - - - - - - - -
-          ! ACTINIDES
-        case ('TH')
+        !- - - - - - - - - - - - - - - - - - - -
+        ! ACTINIDES
+        case (clanth(15)) ! Th
           nlanth = 15
           nDIMcf = 6  ! f1; multiplet J=L-S=3-1/2=5/2  =>  J = 2F_5/2
           lDIMCF = 7  ! (L=3)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('PA')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(16)) ! Pa
           nlanth = 16
           nDIMcf = 9  ! f2; multiplet J=L-S=5-1=4  => J = 3H_4
           lDIMCF = 11 ! (L=5)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('U ')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(17)) ! U
           nlanth = 17
           nDIMcf = 10 ! f3; multiplet J=L-S=6-3/2=9/2  => J = 4I_9/2
           lDIMCF = 13 ! (L=6)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('NP')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(18)) ! Np
           nlanth = 18
           nDIMcf = 9  ! f4; multiplet J=L-S=6-2=4  => J = 5I_4
           lDIMCF = 13 ! (L=6)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('PU')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(19)) ! Pu
           nlanth = 19
           nDIMcf = 6  ! f5; multiplet J=L-S=5-5/2=5/2  => J = 6H_5/2
           lDIMCF = 11 ! (L=5)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('AM')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(20)) ! An
           nlanth = 20
           nDIMcf = 1  ! f6; multiplet J=L-S=3-3=0  => J = 3F_0
           lDIMCF = 7  ! (L=3)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('CM')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(21)) ! Cm
           nlanth = 21
           nDIMcf = 8  ! f7; multiplet J=L+S=0+7/2=0  => J = 8S_7/2
           lDIMCF = 1  ! (L=0)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('BK')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(22)) ! Bk
           nlanth = 22
           nDIMcf = 13 ! f8; multiplet J=L+S=3+3=0  => J = 7F_6
           lDIMCF = 7  ! (L=3)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('CF')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(23)) ! Cf
           nlanth = 23
           nDIMcf = 16 ! f9; multiplet J=L+S=5+5/2=15/2  => J = 6H_15/2
           lDIMCF = 11 ! (L=5)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('ES')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(24)) ! Es
           nlanth = 24
           nDIMcf = 17 ! f10; multiplet J=L+S=6+2=8  => J = 5I_8
           lDIMCF = 13 ! (L=6)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('FM')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(25)) ! Fm
           nlanth = 25
           nDIMcf = 16 ! f11; multiplet J=L+S=6+3/2=15/2  => J = 4I_15/2
           lDIMCF = 13 ! (L=6)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('MD')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(26)) ! Md
           nlanth = 26
           nDIMcf = 13 ! f12; multiplet J=L+S=5+1=6  => J = 3H_6
           lDIMCF = 11 ! (L=5)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('NO')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(27)) ! No
           nlanth = 27
           nDIMcf = 8  ! f13; multiplet J=L+S=3+1/2=7/2  => J = 2F_7/2
           lDIMCF = 7  ! (L=3)
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('LR')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(28)) ! Lr
           nlanth = 28
           nDIMcf = 1  ! f14; multiplet J=L+S=0+0=0  => J = 1S_0
           lDIMCF = 1  ! (L=0)
 
-          !--------------------- transition metals --------------------------!
-
-        case ('SC')
+        !------------------- transition metals ------------------------!
+        case (clanth(29)) ! Sc
 
           nlanth = 29
           ! Sc2+ -- d^1
@@ -872,8 +812,8 @@ do
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
 
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('TI')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(30)) ! Ti
 
           nlanth = 30
           ! Ti2+ -- d^2
@@ -902,8 +842,8 @@ do
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
 
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('V ')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(31)) ! V
 
           nlanth = 31
           ! V2+ -- d^3
@@ -934,8 +874,8 @@ do
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
 
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('CR')
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(32)) ! Cr
 
           nlanth = 32
           ! Cr3+ -- d^4
@@ -965,8 +905,9 @@ do
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
           write(u6,'(A)') 'Crystal field will not be computed'
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('MN')
+
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(33)) ! Mn
 
           nlanth = 33
           ! Mn3+ -- d^4
@@ -990,8 +931,9 @@ do
             write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('FE')
+
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(34)) ! Fe
 
           nlanth = 34
           ! Co2+ -- d^6 or d^4
@@ -1024,8 +966,9 @@ do
             write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('CO')
+
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(35)) ! Co
 
           nlanth = 35
           ! Co2+ -- d^7
@@ -1049,8 +992,9 @@ do
             write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('NI')
+
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(36)) ! Ni
 
           nlanth = 36
           ! Ni2+ -- d^8
@@ -1074,8 +1018,9 @@ do
             write(u6,'(3A,i5)') 'Oxidation state of ',cME,' is:',i_OxStat
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
-          !- - - - - - - - - - - - - - - - - - - -
-        case ('CU')
+
+        !- - - - - - - - - - - - - - - - - - - -
+        case (clanth(37)) ! Cu
 
           nlanth = 37
           ! Cu2+ -- d^9
@@ -1099,7 +1044,8 @@ do
             write(u6,'(A)') 'Oxidation state of ',cME,' is:',i_OxStat
             write(u6,'(A)') 'Crystal field will not be computed'
           end if
-          !- - - - - - - - - - - - - - - - - - - -
+
+        !- - - - - - - - - - - - - - - - - - - -
         case default
           write(u6,'(A)') 'Label of the metal is not understood.'
           write(u6,'(A)') 'Crystal field will not be computed'
@@ -1199,7 +1145,7 @@ do
           write(u6,'(A,I3,2x,A,F9.5)') 'In the present case for direction Nr.',i,' the dir_weight = px^2 + py^2 + pz^2 = ', &
                                        check_dir_weight(i)**2
           LINENR = LINENR+2+i
-          write(u6,*) ' READIN: Error reading standard input.'
+          write(u6,*) ' READINPUT: Error reading standard input.'
           write(u6,*) ' SINGLE_ANISO input near line nr.',LINENR+1
           call ABEnd()
         end if
@@ -1215,11 +1161,7 @@ if (IPRINT > 2) write(u6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
 if (compute_CF) then
   if (axisoption == 3) then
     ! check the determinant of the ZMAGN
-    do I=1,3
-      do J=1,3
-        ZR(I,J) = zmagn(I,J)
-      end do
-    end do
+    ZR(:,:) = zmagn(:,:)
     Det_zmagn = FindDetR(ZR,3)
     if (Det_zmagn < Zero) then
       write(u6,'(A)') 'QUAX: The determinant of the rotation matrix provided in the input is NEGATIVE.'
@@ -1234,12 +1176,10 @@ if (compute_CF) then
     ! check the orthogonality of the ZMAGN:
     column_check(:,:) = Zero
     row_check(:,:) = Zero
-    do i=1,3
-      do j=1,3
-        do L=1,3
-          column_check(i,j) = column_check(i,j)+zmagn(i,L)*zmagn(j,L)
-          row_check(i,j) = row_check(i,j)+zmagn(L,i)*zmagn(L,j)
-        end do
+    do j=1,3
+      do L=1,3
+        column_check(:,j) = column_check(:,j)+zmagn(:,L)*zmagn(j,L)
+        row_check(:,j) = row_check(:,j)+zmagn(L,:)*zmagn(L,j)
       end do
     end do
 
@@ -1397,10 +1337,7 @@ end if
 
 if (compute_g_tensors) then
   if (compute_barrier) then
-    Nblock = 0
-    do i=1,nmult
-      Nblock = Nblock+ndim(i)
-    end do
+    Nblock = sum(ndim(:))
     write(u6,'(A,i4)') 'nBlock = ',nBlock
   end if
 end if
@@ -1415,9 +1352,9 @@ subroutine Error(code)
 
   select case (code)
     case (1)
-      write(u6,*) ' READIN: Unexpected End of input file.'
+      write(u6,*) ' READINPUT: Unexpected End of input file.'
     case (2)
-      write(u6,*) ' READIN: Error reading standard input.'
+      write(u6,*) ' READINPUT: Error reading standard input.'
       write(u6,*) ' SINGLE_ANISO input near line nr.',LINENR+1
   end select
   call ABEnd()

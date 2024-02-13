@@ -13,7 +13,7 @@ subroutine XT_dMoverdH_single(nss,nTempMagn,nT,nM,Tmin,Tmax,XTexp,eso,T,zJ,Xfiel
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
 use Constants, only: Zero, One, Two, Three, Nine, Ten, mBohr, rNAVO
-use Definitions, only: wp, u6
+use Definitions, only: wp, u6, RtoB
 
 implicit none
 !#include "mgrid.fh"
@@ -79,7 +79,7 @@ real(kind=8) :: dHY(3)
 real(kind=8) :: dHZ(3)
 integer :: Info
 real(kind=8) :: WT(3), ZT(3,3)
-integer :: mem_local, RtoB
+integer :: mem_local
 logical :: DBG
 character(len=50) :: label
 real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten, & ! in cm3 * mol-1 * T
@@ -88,7 +88,6 @@ real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten, & ! in cm3 * mol-1 * T
 DBG = .false.
 m_paranoid = .true.!.false.
 ! threshold for convergence of average spin, in case (zJ /= 0)
-RtoB = 8
 mem_local = 0
 
 !ccc-------------------------------------------------------cccc
@@ -149,38 +148,63 @@ call mma_allocate(WM4,nM,'WM4')
 call mma_allocate(WM5,nM,'WM5')
 call mma_allocate(WM6,nM,'WM6')
 call mma_allocate(WM7,nM,'WM7')
-mem_local = mem_local+7*nM*RtoB
+mem_local = mem_local+size(WM1)*RtoB
+mem_local = mem_local+size(WM2)*RtoB
+mem_local = mem_local+size(WM3)*RtoB
+mem_local = mem_local+size(WM4)*RtoB
+mem_local = mem_local+size(WM5)*RtoB
+mem_local = mem_local+size(WM6)*RtoB
+mem_local = mem_local+size(WM7)*RtoB
 
-call mma_allocate(ZT1,(nT+nTempMagn),'ZT1')
-call mma_allocate(ZT2,(nT+nTempMagn),'ZT2')
-call mma_allocate(ZT3,(nT+nTempMagn),'ZT3')
-call mma_allocate(ZT4,(nT+nTempMagn),'ZT4')
-call mma_allocate(ZT5,(nT+nTempMagn),'ZT5')
-call mma_allocate(ZT6,(nT+nTempMagn),'ZT6')
-call mma_allocate(ZT7,(nT+nTempMagn),'ZT7')
-mem_local = mem_local+7*(nT+nTempMagn)*RtoB
+call mma_allocate(ZT1,nT+nTempMagn,'ZT1')
+call mma_allocate(ZT2,nT+nTempMagn,'ZT2')
+call mma_allocate(ZT3,nT+nTempMagn,'ZT3')
+call mma_allocate(ZT4,nT+nTempMagn,'ZT4')
+call mma_allocate(ZT5,nT+nTempMagn,'ZT5')
+call mma_allocate(ZT6,nT+nTempMagn,'ZT6')
+call mma_allocate(ZT7,nT+nTempMagn,'ZT7')
+mem_local = mem_local+size(ZT1)*RtoB
+mem_local = mem_local+size(ZT2)*RtoB
+mem_local = mem_local+size(ZT3)*RtoB
+mem_local = mem_local+size(ZT4)*RtoB
+mem_local = mem_local+size(ZT5)*RtoB
+mem_local = mem_local+size(ZT6)*RtoB
+mem_local = mem_local+size(ZT7)*RtoB
 
-call mma_allocate(MT1,3,(nT+nTempMagn),'MT0')
-call mma_allocate(MT2,3,(nT+nTempMagn),'MT1')
-call mma_allocate(MT3,3,(nT+nTempMagn),'MT3')
-call mma_allocate(MT4,3,(nT+nTempMagn),'MT4')
-call mma_allocate(MT5,3,(nT+nTempMagn),'MT5')
-call mma_allocate(MT6,3,(nT+nTempMagn),'MT6')
-call mma_allocate(MT7,3,(nT+nTempMagn),'MT7')
+call mma_allocate(MT1,3,nT+nTempMagn,'MT0')
+call mma_allocate(MT2,3,nT+nTempMagn,'MT1')
+call mma_allocate(MT3,3,nT+nTempMagn,'MT3')
+call mma_allocate(MT4,3,nT+nTempMagn,'MT4')
+call mma_allocate(MT5,3,nT+nTempMagn,'MT5')
+call mma_allocate(MT6,3,nT+nTempMagn,'MT6')
+call mma_allocate(MT7,3,nT+nTempMagn,'MT7')
+mem_local = mem_local+size(MT1)*RtoB
+mem_local = mem_local+size(MT2)*RtoB
+mem_local = mem_local+size(MT3)*RtoB
+mem_local = mem_local+size(MT4)*RtoB
+mem_local = mem_local+size(MT5)*RtoB
+mem_local = mem_local+size(MT6)*RtoB
+mem_local = mem_local+size(MT7)*RtoB
 
-call mma_allocate(ST1,3,(nT+nTempMagn),'ST1')
-call mma_allocate(ST2,3,(nT+nTempMagn),'ST2')
-call mma_allocate(ST3,3,(nT+nTempMagn),'ST3')
-call mma_allocate(ST4,3,(nT+nTempMagn),'ST4')
-call mma_allocate(ST5,3,(nT+nTempMagn),'ST5')
-call mma_allocate(ST6,3,(nT+nTempMagn),'ST6')
-call mma_allocate(ST7,3,(nT+nTempMagn),'ST7')
-mem_local = mem_local+14*3*(nT+nTempMagn)*RtoB
+call mma_allocate(ST1,3,nT+nTempMagn,'ST1')
+call mma_allocate(ST2,3,nT+nTempMagn,'ST2')
+call mma_allocate(ST3,3,nT+nTempMagn,'ST3')
+call mma_allocate(ST4,3,nT+nTempMagn,'ST4')
+call mma_allocate(ST5,3,nT+nTempMagn,'ST5')
+call mma_allocate(ST6,3,nT+nTempMagn,'ST6')
+call mma_allocate(ST7,3,nT+nTempMagn,'ST7')
+mem_local = mem_local+size(ST1)*RtoB
+mem_local = mem_local+size(ST2)*RtoB
+mem_local = mem_local+size(ST3)*RtoB
+mem_local = mem_local+size(ST4)*RtoB
+mem_local = mem_local+size(ST5)*RtoB
+mem_local = mem_local+size(ST6)*RtoB
+mem_local = mem_local+size(ST7)*RtoB
 
-call mma_allocate(XTM_MH,(nT+nTempMagn),'XTM_MH')
-call mma_allocate(XTM_dMdH,(nT+nTempMagn),'XTM_dMdH')
-call mma_allocate(XTtens_MH,3,3,(nT+nTempMagn),'XTtens_MH')
-call mma_allocate(XTtens_dMdH,3,3,(nT+nTempMagn),'XTtens_dMdH')
+call mma_allocate(XTM_MH,nT+nTempMagn,'XTM_MH')
+call mma_allocate(XTM_dMdH,nT+nTempMagn,'XTM_dMdH')
+call mma_allocate(XTtens_MH,3,3,nT+nTempMagn,'XTtens_MH')
+call mma_allocate(XTtens_dMdH,3,3,nT+nTempMagn,'XTtens_dMdH')
 mem_local = mem_local+(2+2*3*3)*(nT+nTempMagn)*RtoB
 if (dbg) write(u6,*) 'XTMG:  memory allocated (local):'
 if (dbg) write(u6,*) 'mem_local=',mem_local
@@ -202,8 +226,8 @@ dHX(3) = Zero
 dHY(3) = Zero
 dHZ(3) = One
 
-call dcopy_(3*3*(nT+nTempMagn),[Zero],0,XTtens_MH,1)
-call dcopy_(3*3*(nT+nTempMagn),[Zero],0,XTtens_dMdH,1)
+XTtens_MH(:,:,:) = Zero
+XTtens_dMdH(:,:,:) = Zero
 
 hp = 0.0001_wp
 Xfield_1 = Xfield-Three*hp
@@ -220,37 +244,6 @@ m_paranoid = .true.
 
 ! ///  opening the loop over different directions of the magnetic field
 do iM=1,nDirX
-  call dcopy_(nM,[Zero],0,WM1,1)
-  call dcopy_(nM,[Zero],0,WM2,1)
-  call dcopy_(nM,[Zero],0,WM3,1)
-  call dcopy_(nM,[Zero],0,WM4,1)
-  call dcopy_(nM,[Zero],0,WM5,1)
-  call dcopy_(nM,[Zero],0,WM6,1)
-  call dcopy_(nM,[Zero],0,WM7,1)
-
-  call dcopy_((nT+nTempMagn),[Zero],0,ZT1,1)
-  call dcopy_((nT+nTempMagn),[Zero],0,ZT2,1)
-  call dcopy_((nT+nTempMagn),[Zero],0,ZT3,1)
-  call dcopy_((nT+nTempMagn),[Zero],0,ZT4,1)
-  call dcopy_((nT+nTempMagn),[Zero],0,ZT5,1)
-  call dcopy_((nT+nTempMagn),[Zero],0,ZT6,1)
-  call dcopy_((nT+nTempMagn),[Zero],0,ZT7,1)
-
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT1,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT2,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT3,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT4,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT5,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT6,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,MT7,1)
-
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST1,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST2,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST3,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST4,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST5,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST6,1)
-  call dcopy_(3*(nT+nTempMagn),[Zero],0,ST7,1)
 
   ! compute magnetization:
   ! seven points numerical field perturbation:
@@ -323,11 +316,8 @@ do iM=1,nDirX
 end do ! iM (nDirX)
 
 ! computing the XT as tensor's average:
-do iT=1,nTempTotal
-  XTM_dMdH(iT) = (XTtens_dMdH(1,1,iT)+XTtens_dMdH(2,2,iT)+XTtens_dMdH(3,3,iT))/Three
-
-  XTM_MH(iT) = (XTtens_MH(1,1,iT)+XTtens_MH(2,2,iT)+XTtens_MH(3,3,iT))/Three
-end do !iT
+XTM_dMdH(:) = (XTtens_dMdH(1,1,:)+XTtens_dMdH(2,2,:)+XTtens_dMdH(3,3,:))/Three
+XTM_MH(:) = (XTtens_MH(1,1,:)+XTtens_MH(2,2,:)+XTtens_MH(3,3,:))/Three
 call Add_Info('T_dMdH            ',T,nTempTotal,5)
 call Add_Info('XTM_dMdH          ',XTM_dMdH,nTempTotal,5)
 call Add_Info('XTM_MH            ',XTM_MH,nTempTotal,5)
