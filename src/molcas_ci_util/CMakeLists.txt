@@ -89,6 +89,7 @@ set (sources
      scavcs.F90
      schmidt.F90
      second_quantization.F90
+     setsxci.f
      sigmadet_cvb.F90
      simplify.F90
      sort_cdet.F90

@@ -8,10 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SETSXCI_m
+!#define _DEBUGPRINT_
+      SUBROUTINE SETSXCI()
 
-      use sxci, only: idxci, idxsx
-      use mcpdft_output, only: debug, lf, iPrGlb
+#ifdef _DEBUGPRINT_
+      use Definitions, only: u6
+#endif
+      use sxci, only: IDXCI, IDXSX
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -20,12 +23,13 @@
 #include "general.fh"
 #include "gas.fh"
 
-      DIMENSION IOFF_GSSH(mxgas)
+      Integer IOFF_GSSH(mxgas)
 C
 C ---------------------------------------------------------
 C --  SET INDEX VECTORS FOR CI/SX INTEGRAL ORDERING
 C ---------------------------------------------------------
 C
+
       NGSSHT=0
       DO IGAS=1,NGAS
         IOFF_GSSH(IGAS)=NGSSHT
@@ -46,11 +50,10 @@ C
         IDXSX(IDXCI(I))=I
       END DO
 
-      IF (IPRGLB.GE.DEBUG)THEN
-        write(lf,'(1X,A,1X,12I5)')
-     &   'REORDERING VECTOR FOR CI',(IDXCI(I),I=1,ISTOT)
-        write(lf,'(1X,A,1X,12I5)')
-     &   'REORDERING VECTOR FOR SX',(IDXSX(I),I=1,ISTOT)
-      ENDIF
-      RETURN
+#ifdef _DEBUGPRINT_
+      WRITE(u6,'(1X,A)') 'REORDERING VECTOR FOR CI'
+      WRITE(u6,'(1X,12I5)') (IDXCI(I),I=1,ISTOT)
+      WRITE(u6,'(1X,A)') 'REORDERING VECTOR FOR SX'
+      WRITE(u6,'(1X,12I5)') (IDXSX(I),I=1,ISTOT)
+#endif
       END
