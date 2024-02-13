@@ -95,7 +95,7 @@
       Call mkDRT0  ! Set up the guga table
      &     (A0,B0,C0,NVERT0,DRT0,DOWN0,NTMP,TMP)
 
-      If ( iPrint.ge.5 )Call PRDRT_MCLR(NVERT0,DRT0,DOWN0)
+      If ( iPrint.ge.5 )Call PRDRT(NVERT0,DRT0,DOWN0)
       Call mma_deallocate(TMP)
 *
       LV1RAS=ntRas1

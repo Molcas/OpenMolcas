@@ -81,7 +81,7 @@ set (sources
      pageno.F90
      page_out.F90
      phpcsf.F90
-     prdrt.f
+     prdrt.F90
      recno.F90
      restr.f
      reord2.F90

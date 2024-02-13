@@ -97,7 +97,7 @@
       Call mma_allocate(TMP,NTMP,Label='TMP')
       Call mkDRT0  ! Set up the guga table
      &     (A0,B0,C0,NVERT0,DRT0,DOWN0,NTMP,TMP)
-      If ( iPrint.ge.5 ) Call PRDRT_MCLR(NVERT0,DRT0,DOWN0)
+      If ( iPrint.ge.5 ) Call PRDRT(NVERT0,DRT0,DOWN0)
       Call mma_deallocate(TMP)
 *
       LV1RAS=ntRas1
@@ -115,7 +115,7 @@
       Call mma_allocate(DOWN,NDOWN,Label='DOWN')
       Call mkDRT  ! Set up the DRT table used in calculation
      &     (NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
-!      If ( iPrint.ge.0 ) Call PRDRT_MCLR(NVERT,DRT,DOWN) !yma    5
+!      If ( iPrint.ge.0 ) Call PRDRT(NVERT,DRT,DOWN) !yma    5
       Call mma_deallocate(V11)
       Call mma_deallocate(DOWN0)
       Call mma_deallocate(DRT0)
