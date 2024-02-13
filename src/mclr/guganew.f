@@ -130,8 +130,8 @@
 *
       NLTV=NLEV+2
       Call mma_allocate(LTV,NLTV,Label='LTV')
-      Call MKMID_MCLR(NVERT,NLEV,DRT,DOWN,DAW,UP,RAW,LTV,
-     &                MIDLEV,NMIDV,MIDV1,MIDV2,MXUP,MXDWN,iPrint)
+      Call MKMID(NVERT,NLEV,DRT,DAW,RAW,LTV,
+     &                MIDLEV,NMIDV,MIDV1,MIDV2,MXUP,MXDWN)
       Call mma_deallocate(LTV)
 *
       NIPWLK=1+(MIDLEV-1)/15
