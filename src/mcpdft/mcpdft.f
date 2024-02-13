@@ -466,7 +466,7 @@
           CALL Lucia_Util('Densi',
      &                    CI_Vector=CIVEC(:))
           If (IFCAS > 2) Then
-            Call CISX_m(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
+            Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
           End If
 
           Call DDafile(JOBOLD,1,Dtmp,NACPAR,jDisk)

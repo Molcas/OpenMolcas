@@ -8,11 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CISX_m(IDX,D,DS,PS,PA,SCR)
+      SUBROUTINE CISX(IDX,D,DS,PS,PA,SCR)
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      DIMENSION IDX(NAC),D(*),DS(*),PS(*),PA(*),SCR(*)
+      Integer IDX(NAC)
+      Real*8 D(*),DS(*),PS(*),PA(*),SCR(*)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -125,5 +126,4 @@
 * End of long loop over ICASE.
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE CISX
