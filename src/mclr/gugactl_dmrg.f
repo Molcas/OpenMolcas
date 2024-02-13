@@ -92,7 +92,7 @@
       Call mma_allocate(DRT0,NDRT0,Label='DRT0')
       Call mma_allocate(DOWN0,NDOWN0,Label='DOWN0')
       Call mma_allocate(TMP,NTMP,Label='TMP')
-      Call DRT0_MCLR  ! Set up the guga table
+      Call mkDRT0  ! Set up the guga table
      &     (A0,B0,C0,NVERT0,DRT0,DOWN0,NTMP,TMP)
 
       If ( iPrint.ge.5 )Call PRDRT_MCLR(NVERT0,DRT0,DOWN0)
@@ -111,7 +111,7 @@
       NDOWN=4*NVERT
       Call mma_allocate(DRT,NDRT,Label='DRT')
       Call mma_allocate(DOWN,NDOWN,Label='DOWN')
-      Call DRT_MCLR  ! Set up the DRT table used in calculation
+      Call mkDRT_MCLR  ! Set up the DRT table used in calculation
      &     (NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
       Call mma_deallocate(V11)
       Call mma_deallocate(DOWN0)
