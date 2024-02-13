@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE mkDRT0(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
-C
-C     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
-C
+!
+!     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
+!
       IMPLICIT None
-C
+!
       Integer A0, B0, C0, NVERT, NTMP
       Integer DRT(NVERT,5),DOWN(NVERT,0:3),TMP(NTMP)
 
       Integer, PARAMETER:: LTAB=1,NTAB=2,ATAB=3,BTAB=4,CTAB=5
-      Integer :: DA(0:3)=[0,0,1,1],
-     &           DB(0:3)=[0,1,-1,0],
-     &           DC(0:3)=[1,0,1,0]
-      Integer ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, I, NLEV,
-     &        MXADDR, NACTEL, STEP, VDWN, LEV, VEND, VERT, VSTA, VUP,
-     &        VUPS
-C
-C     SET UP TOP ROW
-C
+      Integer :: DA(0:3)=[0,0,1,1],                                     &
+                 DB(0:3)=[0,1,-1,0],                                    &
+                 DC(0:3)=[1,0,1,0]
+      Integer ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, I, NLEV,  &
+              MXADDR, NACTEL, STEP, VDWN, LEV, VEND, VERT, VSTA, VUP,   &
+              VUPS
+!
+!     SET UP TOP ROW
+!
       NACTEL=2*A0+B0
       NLEV=A0+B0+C0
       DRT(1,LTAB)=NLEV
@@ -36,25 +36,25 @@ C
       DRT(1,CTAB)=C0
       VSTA=1
       VEND=1
-C
-C     LOOP OVER ALL LEVELS
-C
+!
+!     LOOP OVER ALL LEVELS
+!
       DO LEV=NLEV,1,-1
         MXADDR=((LEV+1)*(LEV+2))/2
         DO I=1,MXADDR
           TMP(I)=0
         END DO
-C
-C     LOOP OVER VERTICES
-C
+!
+!     LOOP OVER VERTICES
+!
         DO VUP=VSTA,VEND
           AUP=DRT(VUP,ATAB)
           BUP=DRT(VUP,BTAB)
           CUP=DRT(VUP,CTAB)
-C
-C     LOOP OVER CASES
-C     AND STORE ONLY VALID CASE NUMBERS WITH ADRESSES
-C
+!
+!     LOOP OVER CASES
+!     AND STORE ONLY VALID CASE NUMBERS WITH ADRESSES
+!
           DO STEP=0,3
             DOWN(VUP,STEP)=0
             ADWN=AUP-DA(STEP)
@@ -70,9 +70,9 @@ C
           END DO
         END DO
         VDWN=VEND
-C
-C     NOW INSERT VALID CASES INTO DRT TABLE
-C
+!
+!     NOW INSERT VALID CASES INTO DRT TABLE
+!
         DO ADDR=1,MXADDR
           VUPS=TMP(ADDR)
           IF(VUPS.EQ.0) Cycle
@@ -84,9 +84,9 @@ C
           DRT(VDWN,CTAB)=DRT(VUP,CTAB)-DC(STEP)
           TMP(ADDR)=VDWN
         END DO
-C
-C     CREATE DOWN CHAIN TABLE
-C
+!
+!     CREATE DOWN CHAIN TABLE
+!
         DO VUP=VSTA,VEND
           DO STEP=0,3
             DWN=DOWN(VUP,STEP)
@@ -96,23 +96,23 @@ C
         VSTA=VEND+1
         VEND=VDWN
       END DO
-* End of loop over levels.
-C
-C     ADDING THE ZERO LEVEL TO DRT AND DOWNCHAIN TABLE
-C
+! End of loop over levels.
+!
+!     ADDING THE ZERO LEVEL TO DRT AND DOWNCHAIN TABLE
+!
       DO  I=1,5
         DRT(VEND,I)=0
       END DO
       DO STEP=0,3
         DOWN(VEND,STEP)=0
       END DO
-C
-C     COMPLETE DRT TABLE BY ADDING NO. OF ORBITALS AND ELECTRONS
-C     INTO THE FIRST AND SECOND COLUMN
-C
+!
+!     COMPLETE DRT TABLE BY ADDING NO. OF ORBITALS AND ELECTRONS
+!     INTO THE FIRST AND SECOND COLUMN
+!
       DO VERT=1,VEND
         DRT(VERT,LTAB)=DRT(VERT,ATAB)+DRT(VERT,BTAB)+DRT(VERT,CTAB)
         DRT(VERT,NTAB)=2*DRT(VERT,ATAB)+DRT(VERT,BTAB)
       END DO
-C
+!
       END SUBROUTINE mkDRT0

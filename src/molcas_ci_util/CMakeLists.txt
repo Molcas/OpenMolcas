@@ -68,7 +68,7 @@ set (sources
      mkcot.f
      mkdaw.f
      mkdrt.f
-     mkdrt0.f
+     mkdrt0.F90
      mkguga.f
      mkmid.f
      mknsm.f
