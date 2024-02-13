@@ -19,7 +19,7 @@ C
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, NUW, NLW, MXUP,
+      use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, MXUP,
      &                MXDWN, NIPWLK, NICASE
 
       IMPLICIT REAL*8 (A-H,O-Z)

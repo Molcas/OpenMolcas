@@ -35,10 +35,12 @@ C
 #include "rasdim.fh"
 #include "general.fh"
 C
-      DIMENSION NSM(*)
+      Integer NSM(*)
+
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), LTV(:), SCR(:)
+      Integer NCSF(8)
 C
 C     SET UP A FULL PALDUS DRT TABLE:
 C     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -141,7 +143,8 @@ C
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL MKCOT(NSM,DOWN,NOW1,IOW1,IOCSF,NOCSF,SCR)
+      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
+     &           NSM,DOWN,NOW1,IOW1,NCSF,IOCSF,NOCSF,SCR)
 C
 C     CONSTRUCT THE CASE LIST
 C

@@ -9,7 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKCOT(ISM,IDOWN,NOW,IOW,IOCSF,NOCSF,ISCR)
+      SUBROUTINE MKCOT
+     &           (NSYM,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
+     &            ISM,IDOWN,NOW,IOW,NCSF,IOCSF,NOCSF,ISCR)
 C     PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 C     NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
 C              THE DOWN-CHAIN TABLE IS SCANNED TO PRODUCE ALL POSSIBLE
@@ -19,18 +21,15 @@ C              THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, MIDV1, MIDV2, NUW,
-     &                NLW, NWALK, NIPWLK, NCSF
+      use Symmetry_Info, only: Mul
 
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "rasdim.fh"
-#include "general_mul.fh"
 C
       DIMENSION ISM(NLEV),IDOWN(NVERT,0:3)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION ISCR(3,0:NLEV)
+      DIMENSION NCSF(NSYM)
       PARAMETER(IVERT=1,ISYM=2,ISTEP=3)
 C
 C     CLEAR ARRAYS IOW AND NOW
