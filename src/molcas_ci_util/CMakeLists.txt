@@ -67,6 +67,7 @@ set (sources
      mkdrt0.f
      mkguga.f
      mkmid.f
+     mknsm.f
      mkraw.f
      mksgnum.f
      motrac.F90
