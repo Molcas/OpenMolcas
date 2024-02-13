@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INTCTL2(IF_TRNSF)
-      use caspt2_output, only: iPrGlb, debug
+      use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad, nStpGrd
+      use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

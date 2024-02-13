@@ -18,7 +18,8 @@
 *--------------------------------------------*
       SUBROUTINE POLY3(IFF)
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: verbose
       use gugx, only: SGS, L2ACT
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.

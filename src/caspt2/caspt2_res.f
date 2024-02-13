@@ -280,7 +280,8 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE PCG_RES(ICONV)
       USE INPUTDATA
-      use caspt2_output, only:iPrGlb,terse,usual
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: terse, usual
       IMPLICIT NONE
 
 #include "rasdim.fh"

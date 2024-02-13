@@ -70,8 +70,9 @@ C
       Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2,nChoVec)
 C
       Use CHOVEC_IO
-      use caspt2_output, only: iPrGlb, verbose
+      use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_csf
+      use PrintLevel, only: verbose
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -452,7 +453,8 @@ C
       Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket,
      &                      Cho_BraD,Cho_KetD)
 C
-      use caspt2_output, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

@@ -211,10 +211,11 @@ C-----------------------------------------------------------------------
 
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
-      use caspt2_output, only: iPrGlb, verbose
+      use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: LuPT2,LuAPT2,
      *                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
      *                           LUSTD,TraFro
+      use PrintLevel, only: verbose
       use stdalloc, only: mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -538,9 +539,10 @@ C-----------------------------------------------------------------------
 C
       Subroutine GradStart
 C
-      use caspt2_output, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb
       use caspt2_global, only:ipea_shift
       use caspt2_gradient, only: if_invar
+      use PrintLevel, only: usual
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

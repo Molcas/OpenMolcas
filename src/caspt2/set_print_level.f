@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Set_Print_Level
-      use caspt2_output, only:iPrGlb,silent,usual
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: silent, usual
       Implicit None
       Integer, External :: iPrintLevel
       Logical, External :: Reduce_Prt

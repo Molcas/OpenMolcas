@@ -18,9 +18,10 @@
 *--------------------------------------------*
       SUBROUTINE PRPCTL(MODE,UEFF,U0)
       USE PT2WFN
-      use caspt2_output, only:iPrGlb,usual,verbose
+      use caspt2_output, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_gradient, only: do_nac,iRoot1,iRoot2
+      use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif

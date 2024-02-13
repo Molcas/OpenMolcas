@@ -14,8 +14,9 @@
       subroutine xdwinit(Heff,H0,U0)
 
       use definitions, only: wp, iwp, u6
-      use caspt2_output, only: iPrGlb, usual, verbose, debug, insane
+      use caspt2_output, only: iPrGlb
       use caspt2_gradient, only: do_grad
+      use PrintLevel, only: debug, insane, usual, verbose
 
       implicit none
 

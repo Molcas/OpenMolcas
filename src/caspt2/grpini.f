@@ -12,8 +12,9 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
-      use caspt2_output, only:iPrGlb,usual,verbose,debug
+      use caspt2_output, only:iPrGlb
       use fciqmc_interface, only: DoFCIQMC
+      use PrintLevel, only: debug, usual, verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase

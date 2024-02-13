@@ -17,8 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS1_RPT2 (CI,SGM1,G1,nLev)
-      use caspt2_output, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
+      use PrintLevel, only: debug
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif

@@ -19,8 +19,9 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 ! in the first loop (for energy) and are restored in the second loop
 ! below (by calling SavGradParams)
 !
-  use caspt2_output, only: iPrGlb, usual, verbose
+  use caspt2_output, only: iPrGlb
   use caspt2_gradient, only: do_grad, IDSAVGRD, iStpGrd
+  use PrintLevel, only: usual, verbose
   use definitions, only: iwp,wp,u6
 
   Implicit None

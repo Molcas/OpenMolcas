@@ -15,7 +15,6 @@ use Constants, only: Zero, Two, cZero
 use Definitions, only: wp, u6
 
 implicit none
-#include "cntrl_sa.fh"
 #include "stdalloc.fh"
 integer :: mem, RtoB, CtoB, ItoB
 integer, intent(in) :: nss, nstate

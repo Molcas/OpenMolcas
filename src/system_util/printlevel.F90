@@ -8,9 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer, parameter ::  SILENT =0,                                 &
-     &                       TERSE  =1,                                 &
-     &                       USUAL  =2,                                 &
-     &                       VERBOSE=3,                                 &
-     &                       DEBUG  =4,                                 &
-     &                       INSANE =5
+
+module PrintLevel
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: SILENT = 0, TERSE = 1, USUAL = 2, VERBOSE = 3, DEBUG = 4, INSANE = 5
+
+public :: DEBUG, INSANE, SILENT, TERSE, USUAL, VERBOSE
+
+end module PrintLevel

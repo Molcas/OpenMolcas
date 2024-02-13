@@ -12,7 +12,8 @@
 ************************************************************************
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
-      use caspt2_output, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
@@ -1119,7 +1120,8 @@ C
      *                    G1,G2,G3,nLev)
 
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_output, only: iPrGlb, verbose
+      use caspt2_output, only: iPrGlb
+      use PrintLevel, only: verbose
       use gugx, only: L2ACT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -1341,7 +1343,8 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagFinal(CLag,SLag)
 C
-      use caspt2_output, only: iPrGlb,verbose
+      use caspt2_output, only: iPrGlb
+      use PrintLevel, only: verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       Dimension CLag(nConf,nState),SLag(*)
@@ -2626,7 +2629,8 @@ C-----------------------------------------------------------------------
 C
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 C
-      use caspt2_output, only:IPrGlb,verbose
+      use caspt2_output, only:IPrGlb
+      use PrintLevel, only: verbose
       use caspt2_gradient, only: ConvInvar
       use gugx, only: SGS, CIS
       Implicit Real*8 (A-H,O-Z)

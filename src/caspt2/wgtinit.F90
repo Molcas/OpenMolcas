@@ -13,7 +13,8 @@
 subroutine wgtinit(H)
 
   use definitions,only:wp,iwp,u6
-  use caspt2_output,only:iPrGlb,verbose,debug
+  use caspt2_output,only:iPrGlb
+  use PrintLevel, only: debug, verbose
 
   implicit none
 

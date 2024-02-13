@@ -22,7 +22,8 @@
 
 subroutine GROM(irc)
 
-use Dynamix_Globals, only: iPrint, INSANE
+use Dynamix_Globals, only: iPrint
+use PrintLevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

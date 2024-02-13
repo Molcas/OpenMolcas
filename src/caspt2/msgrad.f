@@ -100,7 +100,8 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_output, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -1704,8 +1705,12 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_output, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb
       use gugx, only: SGS, L2ACT, CIS
+      use PrintLevel, only: debug
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT NONE
 
 #include "rasdim.fh"

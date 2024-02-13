@@ -12,7 +12,8 @@
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
       IMPLICIT REAL*8 (A-H,O-Z)

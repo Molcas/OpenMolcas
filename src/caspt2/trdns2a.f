@@ -19,7 +19,8 @@
 
       SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2)
 
-      use caspt2_output, only:iPrGlb,verbose
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 
 

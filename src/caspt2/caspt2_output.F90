@@ -15,14 +15,6 @@ module caspt2_output
 
   implicit none
 
-  ! amount of output written
-  Integer(kind=iwp),parameter :: silent  = 0
-  Integer(kind=iwp),parameter :: terse   = 1
-  Integer(kind=iwp),parameter :: usual   = 2
-  Integer(kind=iwp),parameter :: verbose = 3
-  Integer(kind=iwp),parameter :: debug   = 4
-  Integer(kind=iwp),parameter :: insane  = 5
-
   Integer(kind=iwp) :: iPrGlb
 
   ! thresholds for printing denominators

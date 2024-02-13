@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GETDPREF(DREF,PREF)
-      use caspt2_output, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

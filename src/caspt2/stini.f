@@ -11,7 +11,8 @@
 * Copyright (C) 1998, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE STINI
-      use caspt2_output, only:iPrGlb,usual,debug
+      use caspt2_output, only:iPrGlb
+      use PrintLevel, only: debug, usual
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

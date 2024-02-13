@@ -99,7 +99,8 @@ C Read coefficient vector from LUSOLV (C repres).
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
-      USE caspt2_output, ONLY: iPrGlb, usual
+      USE caspt2_output, ONLY: iPrGlb
+      USE PrintLevel, ONLY: usual
       IMPLICIT NONE
 
 #include "rasdim.fh"

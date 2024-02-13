@@ -15,7 +15,6 @@ use Constants, only: Zero, cZero, deg2rad
 use Definitions, only: wp, u6
 
 implicit none
-#include "cntrl_sa.fh"
 #include "mgrid.fh"
 #include "stdalloc.fh"
 integer, intent(in) :: nss, nm

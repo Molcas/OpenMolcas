@@ -29,7 +29,8 @@ subroutine VelVer_First(irc)
 use mh5, only: mh5_put_dset
 use Dynamix_Globals, only: dyn_geom, dyn_time, dyn_vel
 #endif
-use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO, USUAL, INSANE
+use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO
+use PrintLevel, only: USUAL, INSANE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom, Zero, Two, Half
 use Definitions, only: wp, iwp, u6

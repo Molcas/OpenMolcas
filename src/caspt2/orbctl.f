@@ -18,7 +18,8 @@
 *--------------------------------------------*
       SUBROUTINE ORBCTL(CMO)
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_output, only:iPrGlb,verbose,debug
+      use caspt2_output, only:iPrGlb
+      use Printlevel, only: debug, verbose
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
