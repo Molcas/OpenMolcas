@@ -66,7 +66,7 @@ set (sources
      matml4.F90
      mkclist.F90
      mkcot.f
-     mkdaw.f
+     mkdaw.F90
      mkdrt.F90
      mkdrt0.F90
      mkguga.f

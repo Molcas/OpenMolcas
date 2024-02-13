@@ -122,7 +122,7 @@
 *
       NDAW=5*NVERT
       Call mma_allocate(DAW,NDAW,Label='DAW')
-      Call MKDAW_MCLR(NVERT,DOWN,DAW,iPrint)
+      Call MKDAW(NVERT,DOWN,DAW)
 *
       NUP=4*NVERT
       NRAW=5*NVERT

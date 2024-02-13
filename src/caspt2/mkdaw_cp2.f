@@ -16,9 +16,9 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKDAW_CP2(IDRT,IDOWN,IDAW,LTV)
+      SUBROUTINE MKDAW_CP2(NLEV,NVERT,IDRT,IDOWN,IDAW,LTV)
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "pt2_guga.fh"
+      Integer NLEV, NVERT
       DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4),IDRT(NVERT,5)
       DIMENSION LTV(-1:NLEV)
       PARAMETER (LTAB=1)
@@ -37,22 +37,8 @@ C SET UP A LEVEL-TO-VERTEX TABLE, LTV, AND IDENTIFY MIDVERTICES:
       DO LEV=-1,NLEV-1
         LTV(LEV)=1+LTV(LEV+1)
       END DO
-      DO IC=0,3
-        IDAW(NVERT,IC)=0
-      END DO
-      IDAW(NVERT,4)=1
-      DO IV=NVERT-1,1,-1
-        ISUM=0
-        DO IC=0,3
-          IDAW(IV,IC)=0
-          IDWN=IDOWN(IV,IC)
-          IF(IDWN.EQ.0) GOTO 20
-          IDAW(IV,IC)=ISUM
-          ISUM=ISUM+IDAW(IDWN,4)
-  20      CONTINUE
-        END DO
-        IDAW(IV,4)=ISUM
-      END DO
+
+      CALL MKDAW(NVERT,IDOWN,IDAW)
 
 #ifdef _DEBUGPRINT_
 C CHECK PRINTS:
@@ -61,12 +47,5 @@ C CHECK PRINTS:
       DO LEV=0,NLEV
         WRITE(6,'(1X,I4,5X,I4,A4,I4)') LEV,LTV(LEV),' -- ',LTV(LEV-1)-1
       END DO
-      WRITE(6,*)
-      WRITE(6,*)' DIRECT ARC WEIGHTS:'
-      DO IV=1,NVERT
-        WRITE(6,'(1X,I4,5X,5(1X,I6))') IV,(IDAW(IV,IC),IC=0,4)
-      END DO
-      WRITE(6,*)
 #endif
-      RETURN
-      END
+      END SUBROUTINE MKDAW_CP2
