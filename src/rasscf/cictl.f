@@ -74,6 +74,7 @@
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
       use gugx, only: IFCAS,  NOCSF,  IOCSF, NOW1, IOW1
+      use sxci, only: IDXSX
 
       Implicit Real* 8 (A-H,O-Z)
 
@@ -108,7 +109,6 @@
 #include "raswfn.fh"
       real*8, allocatable :: density_square(:,:)
 #endif
-#include "sxci.fh"
 
 #ifdef _DMRG_
       character(len=2300) :: maquis_name_states

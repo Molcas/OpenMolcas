@@ -94,6 +94,7 @@
 #endif
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO, DIAF
+      use sxci
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -141,7 +142,6 @@
 ! actual_iter starts at 0, so iter 1A == 0, 1B == 1, 2 == 2, 3 == 3 and so on
       integer :: actual_iter
 
-#include "sxci.fh"
 
       Character*15 STLNE2
       External RasScf_Init

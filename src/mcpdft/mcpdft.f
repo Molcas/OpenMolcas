@@ -54,7 +54,7 @@
       use glbbas, only: CFTP
       use Fock_util_global, only: DoCholesky
       use write_pdft_job, only: iwjob, writejob
-      use sxci_pdft, only: idxsx
+      use sxci, only: idxsx
       use mspdft_grad, only: dogradmspd
       use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,

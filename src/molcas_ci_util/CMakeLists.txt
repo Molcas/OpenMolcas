@@ -95,6 +95,7 @@ set (sources
      splitctl.F90
      stepvec.F90
      stepvector_next.F90
+     sxci.F90
      term_david.F90
      transadd.F90
      wadr.F90
@@ -104,6 +105,7 @@ set (sources
 set (modfile_list
      csfbas.F90
      gugx.F90
+     sxci.F90
      wadr.F90
 )
 

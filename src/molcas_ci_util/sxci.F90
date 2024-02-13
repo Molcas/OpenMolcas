@@ -9,15 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module sxci_pdft
+module sxci
   implicit none
   private
 
   ! For the mxAct var
-#include "rasdim.fh"
-#include "rasscf.fh"
+#include "Molcas.fh"
 
   integer, dimension(mxAct) :: idxci, idxsx
 
   public :: idxci, idxsx
-end module sxci_pdft
+end module sxci

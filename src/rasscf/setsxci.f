@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SETSXCI
+      use sxci, only: IDXCI, IDXSX
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -17,7 +18,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
-#include "sxci.fh"
 
       DIMENSION IOFF_GSSH(mxgas)
 C

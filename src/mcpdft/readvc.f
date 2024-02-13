@@ -60,7 +60,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
-      use sxci_pdft, only: idxci, idxsx
+      use sxci, only: idxci, idxsx
       use mcpdft_output, only: terse, verbose, debug, lf, iPrGlb, iPrLoc
 
       Implicit Real*8 (A-H,O-Z)

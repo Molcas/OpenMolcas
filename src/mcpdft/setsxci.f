@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE SETSXCI_m
 
-      use sxci_pdft, only: idxci, idxsx
+      use sxci, only: idxci, idxsx
       use mcpdft_output, only: debug, lf, iPrGlb
 
       IMPLICIT REAL*8 (A-H,O-Z)
