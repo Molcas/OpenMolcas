@@ -34,5 +34,4 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_integer(InVec)
 #endif
 #endif
-      Return
-      End
+      End Subroutine Check_InVec

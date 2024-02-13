@@ -111,7 +111,7 @@ C Local print level (if any)
           END IF
         End If
       End If
-      Call Check_InVec_m(InVec)
+      Call Check_InVec(InVec)
       If(InVec == 0) Then
          Call qpg_darray('SCF orbitals',Found,nData)
          If(Found) Then
@@ -121,7 +121,7 @@ C Local print level (if any)
             END IF
          End If
       End If
-      Call Check_InVec_m(InVec)
+      Call Check_InVec(InVec)
       If(InVec == 0) Then
          Call qpg_darray('Guessorb',Found,nData)
          If(Found) Then
@@ -131,7 +131,7 @@ C Local print level (if any)
             END IF
          End If
       End If
-      Call Check_InVec_m(InVec)
+      Call Check_InVec(InVec)
       If(Invec == 0) Then
         Write(LF,'(6X,2A)')
      &  "MC-PDFT shouldn't be guessing orbitals...something wrong",

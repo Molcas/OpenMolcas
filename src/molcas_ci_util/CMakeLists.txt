@@ -11,6 +11,7 @@
 
 set (sources
      alloc.f
+     check_invec.f
      chksplit.F90
      cidia_ci_util.F90
      ciovlp.F90
