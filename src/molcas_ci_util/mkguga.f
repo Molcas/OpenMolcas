@@ -85,7 +85,7 @@ C
         NDOWN=4*NVERT
         CALL mma_allocate(DRT,NDRT,Label='DRT')
         CALL mma_allocate(DOWN,NDOWN,Label='DOWN')
-        CALL mkDRT(DRT0,DOWN0,V11,DRT,DOWN)
+        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
         CALL mma_deallocate(V11)
         CALL mma_deallocate(DRT0)
         CALL mma_deallocate(DOWN0)

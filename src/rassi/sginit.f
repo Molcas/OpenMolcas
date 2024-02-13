@@ -92,8 +92,8 @@ CTEST      write(*,*)' Back from RMVERT'
       Call GetMem('Lim  ','Free','Inte',lLim,nLev)
       Call GetMem('DRT','Allo','Inte',lDRT,5*nVert)
       Call GetMem('Down','Allo','Inte',lDown,4*nVert)
-      Call DRT_RASSI(nVert0,IWork(lDRT0),IWork(lDown0),IWork(lNWV),
-     &         nVert,IWork(lDRT),IWork(lDown))
+      Call mkDRT(nVert0,nVert,IWork(lDRT0),IWork(lDown0),IWORK(lNWV),
+     &                        IWork(lDRT),IWork(lDown))
 CTEST      write(*,*)' Back from DRT. NVERT=',NVERT
       Call GetMem('NwVer ','Free','Inte',lNWV,NVERT0)
       CALL GETMEM('      ','FREE','Inte',LDRT0,NDRT0)

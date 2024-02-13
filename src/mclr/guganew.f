@@ -112,7 +112,7 @@
       NDOWN=4*NVERT
       Call mma_allocate(DRT,NDRT,Label='DRT')
       Call mma_allocate(DOWN,NDOWN,Label='DOWN')
-      Call mkDRT_MCLR(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
+      Call mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
       If ( iPrint.ge.5 ) Call PRDRT_MCLR(NVERT,DRT,DOWN)
       Call mma_deallocate(V11)
       Call mma_deallocate(DRT0)
