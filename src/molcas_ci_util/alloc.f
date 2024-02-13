@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE ALLOC_m
+!#define _DEBUGPRINT_
+      SUBROUTINE ALLOC()
 C
 C     RASSCF: allocation of core memory
 C
@@ -18,22 +19,20 @@ C     No subroutine calls
 C
 C     ********** IBM-3090 Release 88 10 11 **********
 C
-      use mcpdft_output, only: debug, lf, iPrLoc
-
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='ALLOC   ')
-      IPRLEV=IPRLOC(1)
-      IF(IPRLEV >= DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
-      END IF
+      Character(LEN=16), Parameter :: ROUTINE='ALLOC   '
+#ifdef _DEBUGPRINT_
+      WRITE(LF,*)' Entering ',ROUTINE
+#endif
 C
 C     Compute space needed for transformed two-electron integrals
 C
-!AMS
       ISTORD(1)=0
       ISTORP(1)=0
       IORD=0
@@ -48,13 +47,12 @@ C
          NSPQR=IEOR(NSPQ,NSR-1)+1
          NAR=NASH(NSR)
          DO NSS=1,NSR
-          IF(NSPQR.NE.NSS) GO TO 11
+          IF(NSPQR.NE.NSS) Cycle
           NAS=NASH(NSS)
           NRS=NAR*NAS
           IF(NSS.EQ.NSR) NRS=(NAR+NAR**2)/2
           IORD=IORD+NOP*NAQ*NRS
           IORP=IORP+NAP*NAQ*NRS
-11       CONTINUE
          END DO
         END DO
        END DO
@@ -63,8 +61,7 @@ C
       END DO
       NFINT=ISTORD(NSYM+1)
 C
-      IF(IPRLEV >= DEBUG) THEN
-       Write(LF,'(1X,A,5X,9I5)')'ISTORD-vector:',(ISTORD(I),I=1,NSYM+1)
-      END IF
-      RETURN
-      END
+#ifdef _DEBUGPRINT_
+      Write(LF,'(1X,A,5X,9I5)')'ISTORD-vector:',(ISTORD(I),I=1,NSYM+1)
+#endif
+      END SUBROUTINE ALLOC

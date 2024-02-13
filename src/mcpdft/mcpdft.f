@@ -241,7 +241,7 @@
 *
 * Allocate core space for dynamic storage of data
 *
-      CALL ALLOC_m()
+      CALL ALLOC()
 
       Call Timing(dum1,dum2,Ebel_1,dum3)
 
