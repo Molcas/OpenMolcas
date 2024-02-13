@@ -21,9 +21,6 @@
       Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
 
       Integer IC, IV, ISUM, IDWN
-#ifdef _DEBUGPRINT_
-      Integer IC
-#endif
 !
 !     BEGIN TO CONSTRUCT DOWN CHAIN TABLE
 !

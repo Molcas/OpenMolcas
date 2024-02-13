@@ -62,7 +62,6 @@ c     Logical Exist
 #include "timers.fh"
 #include "gas.fh"
 #include "pamint.fh"
-#include "sxci.fh"
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 *
 C Local print level (if any)

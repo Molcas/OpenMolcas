@@ -128,7 +128,7 @@
       NRAW=5*NVERT
       Call mma_allocate(UP,NUP,Label='UP')
       Call mma_allocate(RAW,NRAW,Label='RAW')
-      Call MKRAW_MCLR(NVERT,DOWN,DAW,UP,RAW,iPrint)
+      Call MKRAW(NVERT,DOWN,UP,RAW)
 *
       NLTV=NLEV+2
       Call mma_allocate(LTV,NLTV,Label='LTV')

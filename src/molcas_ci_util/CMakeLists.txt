@@ -72,7 +72,7 @@ set (sources
      mkguga.f
      mkmid.f
      mknsm.f
-     mkraw.f
+     mkraw.F90
      mksgnum.f
      motrac.F90
      newgs.F90
