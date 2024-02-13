@@ -70,7 +70,7 @@ set (sources
      mkdrt.F90
      mkdrt0.F90
      mkguga.f
-     mkmid.f
+     mkmid.F90
      mknsm.f
      mkraw.F90
      mksgnum.f

@@ -26,8 +26,9 @@ C
      &                NDOWN,  DOWN,  UP, NUP,  RAW, NRAW, MIDLEV,
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
-     &                 NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,
-     &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS
+     &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,
+     &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,
+     &                MIDV1, MIDV2
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -96,7 +97,7 @@ C
         Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
         CALL PRDRT(NVERT,DRT,DOWN)
 #endif
-C
+
 C     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED
 C     DRT TABLE
 C
@@ -120,7 +121,8 @@ C     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICES
 C
       NLTV=NLEV+2
       CALL mma_allocate(LTV,NLTV,Label='LTV')
-      CALL MKMID(DRT,DAW,RAW,LTV)
+      CALL MKMID(NVERT,NLEV,DRT,DAW,RAW,LTV,
+     &           MIDLEV, NMIDV, MIDV1, MIDV2, MXUP, MXDWN)
       CALL mma_deallocate(LTV)
 C
 C     FORM VARIOUS OFFSET TABLES:
