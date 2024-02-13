@@ -27,7 +27,7 @@ C
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,
      &                 NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,
-     &                IOW1
+     &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -77,7 +77,8 @@ C     VERTICES WHICH VIOLATE THE FORMER.
 C
       IF(IFCAS.NE.0) THEN
         CALL mma_allocate(V11,NVERT0,Label='V11')
-        CALL RESTR(DRT0,DOWN0,V11)
+        CALL RESTR(NVERT0,DRT0,DOWN0,V11,
+     &             LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT)
 C
 C     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 C

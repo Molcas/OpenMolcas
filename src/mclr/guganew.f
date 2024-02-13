@@ -105,7 +105,7 @@
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
       Call mma_allocate(V11,NVERT0,Label='V11')
-      Call RESTR_MCLR(NVERT0,DRT0,DOWN0,V11,LV1RAS,LV3RAS,LM1RAS,
+      Call RESTR(NVERT0,DRT0,DOWN0,V11,LV1RAS,LV3RAS,LM1RAS,
      &                LM3RAS,NVERT)
 *
       NDRT=5*NVERT

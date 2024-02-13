@@ -83,7 +83,7 @@ set (sources
      phpcsf.F90
      prdrt.F90
      recno.F90
-     restr.f
+     restr.F90
      reord2.F90
      save_ci_vec.F90
      save_h_diag.F90
