@@ -780,7 +780,7 @@ CSVC: check if NU<NT are included in the same gas space
 *
 *     Construct the Guga tables
 *
-      call gugactl_m
+      call gugactl()
 * ===============================================================
 *
 *     Construct the determinant tables

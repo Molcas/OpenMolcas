@@ -11,16 +11,17 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 *               Markus P. Fuelscher                                    *
 ************************************************************************
-      SUBROUTINE GUGACTL_m
-      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,
-     &                LM1RAS, LV3RAS, LM3RAS, NCSF
+!#define _DEBUGPRINT_
+      SUBROUTINE GUGACTL
 C
 C     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
 C     AUTHOR:  P.-AA. MALMQVIST
 C
 C     MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 C
-      use mcpdft_output, only: debug, lf, iPrLoc
+      use Definitions, only: LF => u6
+      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,
+     &                LM1RAS, LV3RAS, LM3RAS, NCSF
 
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -29,15 +30,12 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='GUGACTL ')
-#include "WrkSpc.fh"
+      Character(LEN=16), Parameter :: ROUTINE='GUGACTL '
 
 C Local print level (if any)
-      IPRLEV=IPRLOC(3)
-      IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
-      END IF
+#ifdef _DEBUGPRINT_
+      WRITE(LF,*)' Entering ',ROUTINE
+#endif
 C
 C     SET IFCAS FLAG
 C     IFCAS = 0 : THIS IS A CAS CALCULATION
@@ -51,13 +49,13 @@ C
 C
 C     CREATE THE SYMMETRY INDEX VECTOR
 C
-      CALL MKNSM
+      CALL MKNSM()
 C
 C     (IFCAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
 C     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
 C     SET UP THE REINDEXING TABLE
 C
-      CALL SETSXCI
+      CALL SETSXCI()
 C
 C     FIND TOTAL NUMBER OF VERTICES IN THE SUBSPACES
 C
@@ -102,7 +100,11 @@ C
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
       If ( NVERT0.eq.0 ) then
         NCONF=0
-        Goto 100
+        Return
+      End If
+      If ( doBlockDMRG ) then
+        NCONF=1
+        Return
       End If
 C
 C     INITIALIZE GUGA TABLES:
@@ -111,7 +113,4 @@ C
       NCONF=NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 
-100   Continue
-
-      RETURN
-      END
+      END SUBROUTINE GUGACTL
