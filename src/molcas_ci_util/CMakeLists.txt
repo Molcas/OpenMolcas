@@ -35,6 +35,7 @@ set (sources
      dgmm2_molcas.F90
      diagord.F90
      dihdj_molcas.F90
+     dmatdmat.f
      expcsf.F90
      explh2.F90
      faroald.F90

@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Giovanni Li Manni                                *
 *               2013, Dongxia Ma                                       *
 ************************************************************************
-      SUBROUTINE DmatDmat_m(Dmat,DDarray)
+      SUBROUTINE DmatDmat(Dmat,DDarray)
 c *******************************************************************
 c     Purpose: To construct an array containing Dpq*Drs elements
 c              (product of one-body density matrix elements) ordered

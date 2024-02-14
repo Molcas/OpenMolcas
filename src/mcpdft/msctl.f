@@ -760,7 +760,7 @@ c         call xflush(6)
 *
          IF(ISTORP(NSYM+1).GT.0) THEN
            CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
-           CALL DmatDmat_m(Work(iD1Act),WORK(LP))
+           CALL DmatDmat(Work(iD1Act),WORK(LP))
            CALL GETMEM('ISTRP','ALLO','REAL',LP1,ISTORP(NSYM+1))
            CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP1))
          END IF
