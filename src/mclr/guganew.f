@@ -170,9 +170,9 @@
       NLSGN=MXDWN*NMIDV
       Call mma_allocate(USGN,NUSGN,Label='USGN')
       Call mma_allocate(LSGN,NLSGN,Label='LSGN')
-      Call MKSGNUM_MCLR(ksym,nSym,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,
-     &                  NICASE,NIPWLK,DOWN,UP,DAW,RAW,NOW,IOW,USGN,LSGN,
-     &                  ICASE,iPrint)
+      Call MKSGNUM(ksym,nSym,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,
+     &             NICASE,NIPWLK,DOWN,UP,DAW,RAW,NOW,IOW,USGN,LSGN,
+     &             ICASE)
 *
       If (iPrint.ge.5) Then
       If (imode.eq.0.and.iAnd(kprint,8).eq.8) Then

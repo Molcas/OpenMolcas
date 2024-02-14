@@ -175,9 +175,9 @@
       NLSGN=MXDWN*NMIDV
       Call mma_allocate(USGN,NUSGN,Label='USGN')
       Call mma_allocate(LSGN,NLSGN,Label='LSGN')
-      Call MKSGNUM_MCLR(State_sym,nSym,NLEV,NVERT,MIDLEV,NMIDV,MXUP,
-     &                  MXDWN,NICASE,NIPWLK,DOWN,UP,DAW,RAW,NOW,IOW,
-     &                  USGN,LSGN,ICASE,iPrint)
+      Call MKSGNUM(State_sym,nSym,NLEV,NVERT,MIDLEV,NMIDV,MXUP,
+     &             MXDWN,NICASE,NIPWLK,DOWN,UP,DAW,RAW,NOW,IOW,
+     &             USGN,LSGN,ICASE)
 *
       If (iPrint.ge.5) Then
       PRWTHR=0.0d0

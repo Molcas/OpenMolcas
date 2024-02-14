@@ -34,7 +34,7 @@
 
       Integer, PARAMETER :: IVERT=1, ISYM=2, ISTEP=3
       Integer IHALF, IVTSTA, IVTEND, LEV1, LEV2, IVTOP, LEV, ILND, IS, ISML, ISTP, &
-              ISYDWN, ISYTOT, ISYUP, IVB, IVT, IWSYM, MV, N, NLW, NUW
+              ISYDWN, ISYTOT, ISYUP, IVB, IVT, IWSYM, MV, N, NUW
       Logical Found
 !
 !     CLEAR ARRAYS IOW AND NOW
@@ -126,7 +126,7 @@
           NWALK=NWALK+NOW(2,IS,MV)
         END DO
       END DO
-      NLW=NWALK-NUW
+!     NLW=NWALK-NUW
 !
 !     FINALLY, CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
 !     SEPARATED BY MIDVERTICES AND SYMMETRY.
@@ -158,13 +158,13 @@
       Write(LF,*)' BY MIDVERTEX AND SYMMETRY.'
       DO MV=1,NMIDV
         Write(LF,*)
-        Write(LF,'(A,I2,A,8I6)') '  MV=',MV,'    UPPER WALKS:',
-     &                           (NOW(1,IS,MV),IS=1,NSYM)
-        Write(LF,'(A,8I6)') '           LOWER WALKS:',
-     &                           (NOW(2,IS,MV),IS=1,NSYM)
-        DO IST=1,NSYM
-        Write(LF,'(A,I2,A,8I6)') ' IST=',IST,'  CONFIGURATIONS:',
-     &                         (NOCSF(IS,MV,IST),IS=1,NSYM)
+        Write(LF,'(A,I2,A,8I6)') '  MV=',MV,'    UPPER WALKS:', &
+                                 (NOW(1,IS,MV),IS=1,NSYM)
+        Write(LF,'(A,8I6)') '           LOWER WALKS:', &
+                                 (NOW(2,IS,MV),IS=1,NSYM)
+        DO ISTP=1,NSYM
+        Write(LF,'(A,I2,A,8I6)') ' ISTP=',ISTP,'  CONFIGURATIONS:', &
+                               (NOCSF(IS,MV,ISTP),IS=1,NSYM)
         END DO
       END DO
 #endif
