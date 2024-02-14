@@ -9,14 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function ISGNUM(IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
+function ISGNUM(NLEV,NVERT,MIDLEV,MIDV1,NMIDV,MXUP,MXDWN,     &
+                IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
 use Definitions, only: iwp
-use gugx, only: NVERT, MXUP, MXDWN, NLEV, MIDLEV, MIDV1, NMIDV, MIDV1
 
 implicit none
+Integer NLEV,NVERT,MIDLEV,MIDV1,NMIDV,MXUP,MXDWN
 integer(kind=iwp) :: ISGNUM
 integer(kind=iwp), intent(in) :: IDOWN(NVERT,0:3), IUP(NVERT,0:3), IDAW(NVERT,0:4), IRAW(NVERT,0:4), IUSGNUM(MXUP,NMIDV), &
                                  ILSGNUM(MXDWN,NMIDV), IWALK(NLEV)

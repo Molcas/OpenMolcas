@@ -54,7 +54,8 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !***********************************************************************
 
 use Definitions, only: wp, iwp, u6
-use gugx, only:  DAW,  DOWN,  DRT,  LSGN,  RAW,  UP,  USGN
+use gugx, only:  DAW,  DOWN,  DRT,  LSGN,  RAW,  UP,  USGN,  &
+                 NLEV,NVERT,MIDLEV, MIDV1, NMIDV,MXUP,MXDWN
 
 #include "intent.fh"
 
@@ -120,7 +121,9 @@ do ITYP=1,NTYP
       ! COMPUTE STEP VECTOR
       call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = ISGNUM(DOWN,UP,DAW,RAW,USGN,LSGN,IWALK)
+      ISG = ISGNUM(NLEV,NVERT,MIDLEV,MIDV1,NMIDV,MXUP,MXDWN,   &
+                   DOWN,UP,DAW,RAW,USGN,LSGN,IWALK)
+
       ! GET PHASE PHASE FACTOR
       IP = IPHASE(DRT,UP,IWALK)
       if (IMODE == 0) then
