@@ -160,7 +160,11 @@ C
       NLSGN=MXDWN*NMIDV
       CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
-      CALL MKSGNUM(DOWN,UP,DAW,RAW,NOW1,IOW1,USGN,LSGN,ICASE)
+      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,
+     &              MXUP,MXDWN,NICASE,NIPWLK,
+     &                   DOWN,UP,DAW,RAW,NOW1,IOW1,
+     *                   USGN,LSGN,ICASE)
+
 C
 C     EXIT
 C

@@ -9,7 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKSGNUM(IDOWN,IUP,IDAW,IRAW,NOW,IOW,
+      SUBROUTINE MKSGNUM
+     &             (STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,
+     &              MXUP,MXDWN,NICASE,NIPWLK,
+     &                   IDOWN,IUP,IDAW,IRAW,NOW,IOW,
      *                   IUSGNUM,ILSGNUM,ICASE)
 C     PURPOSE: FOR ALL UPPER AND LOWER WALKS
 C              COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
@@ -19,13 +22,11 @@ C
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      use gugx, only: NLEV, NVERT, MIDLEV, NMIDV, MXUP,
-     &                MXDWN, NIPWLK, NICASE
-
+      use Symmetry_Info, only: MUL
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "general_mul.fh"
+#include "Molcas.fh"
 C
+      Integer STSYM,NSYM,NLEV,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK
       DIMENSION IDOWN(NVERT,0:3),IUP(NVERT,0:3)
       DIMENSION IDAW(NVERT,0:4),IRAW(NVERT,0:4)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
