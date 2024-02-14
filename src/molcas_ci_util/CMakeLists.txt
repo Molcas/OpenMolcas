@@ -44,6 +44,7 @@ set (sources
      fndmnx.F90
      fockoc.f
      gatvcs.F90
+     general_data.F90
      get_cm_.F90
      get_cm.F90
      getcnf_lucia.F90
@@ -112,6 +113,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      csfbas.F90
+     general_data.F90
      gugx.F90
      sxci.F90
      wadr.F90

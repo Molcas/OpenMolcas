@@ -40,14 +40,13 @@
 *                                                                      *
 ************************************************************************
       use general_data, only : nBas, nSym, nFro, nIsh, nAsh
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit none
-#include "WrkSpc.fh"
       real*8, intent(in) :: CMO(*) , D1A_MO(*)
       real*8, intent(out) :: D1A_AO(*)
       real*8, parameter :: Zero = 0.0d0
-      integer :: iOff1, iOff2, iOff3, iSym, iBas, iAsh, iIsh, iFro,
-     &    iTmp1, iTmp2
-
+      integer :: iOff1, iOff2, iOff3, iSym, iBas, iAsh, iIsh, iFro
+      Real*8, Allocatable:: Tmp1(:), Tmp2(:)
 
       iOff1 = 1
       iOff2 = 1
@@ -58,28 +57,26 @@
         iIsh = nIsh(iSym)
         iFro = nFro(iSym)
         Call dCopy_(iBas*iBas,[Zero],0,D1A_AO(iOff3),1)
-        If ( iAsh.ne.0 ) then
-          Call GetMem('Scr1','Allo','Real',iTmp1,iAsh*iAsh)
-          Call GetMem('Scr2','Allo','Real',iTmp2,iAsh*iBas)
-          Call Square(D1A_MO(iOff1),Work(iTmp1),1,iAsh,iAsh)
+        If ( iAsh /= 0 ) then
+          Call mma_allocate(Tmp1,iAsh*iAsh,Label='Tmp1')
+          Call mma_allocate(Tmp2,iAsh*iBas,Label='Tmp2')
+          Call Square(D1A_MO(iOff1),Tmp1,1,iAsh,iAsh)
           Call DGEMM_('N','T',
      &                iBas,iAsh,iAsh,
      &                1.0d0,CMO(iOff2+(iFro+iIsh)*iBas),iBas,
-     &                Work(iTmp1),iAsh,
-     &                0.0d0,Work(iTmp2),iBas)
+     &                      Tmp1,iAsh,
+     &                0.0d0,Tmp2,iBas)
           Call DGEMM_('N','T',
      &                iBas,iBas,iAsh,
-     &                1.0d0,Work(iTmp2),iBas,
-     &                CMO(iOff2+(iFro+iIsh)*iBas),iBas,
+     &                1.0d0,Tmp2,iBas,
+     &                      CMO(iOff2+(iFro+iIsh)*iBas),iBas,
      &                0.0d0,D1A_AO(iOff3),iBas)
-          Call GetMem('Scr2','Free','Real',iTmp2,iAsh*iBas)
-          Call GetMem('Scr1','Free','Real',iTmp1,iAsh*iAsh)
+          Call mma_deallocate(Tmp2)
+          Call mma_deallocate(Tmp1)
         End If
         iOff1 = iOff1 + (iAsh*iAsh+iAsh)/2
         iOff2 = iOff2 + iBas*iBas
         iOff3 = iOff3 + iBas*iBas
       End Do
 
-
-      Return
-      End
+      End subroutine Get_D1A_RASSCF
