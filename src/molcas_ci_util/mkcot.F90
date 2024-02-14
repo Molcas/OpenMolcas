@@ -35,6 +35,7 @@
       Integer, PARAMETER :: IVERT=1, ISYM=2, ISTEP=3
       Integer IHALF, IVTSTA, IVTEND, LEV1, LEV2, IVTOP, LEV, ILND, IS, ISML, ISTP, &
               ISYDWN, ISYTOT, ISYUP, IVB, IVT, IWSYM, MV, N, NLW, NUW
+      Logical Found
 !
 !     CLEAR ARRAYS IOW AND NOW
 !
@@ -72,16 +73,22 @@
           DO WHILE(LEV<=LEV1)
 !     FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX
           IVT=ISCR(IVERT,LEV)
+          Found=.FALSE.
           DO ISTP=ISCR(ISTEP,LEV)+1,3
             IVB=IDOWN(IVT,ISTP)
-            IF(IVB.NE.0) GOTO 200
+            IF(IVB.NE.0) Then
+              FOUND=.TRUE.
+              EXIT
+            END IF
           END DO
 !     NO SUCH ARC WAS POSSIBLE. GO UP ONE STEP AND TRY AGAIN.
+          IF(.NOT.Found) THEN
           ISCR(ISTEP,LEV)=-1
           LEV=LEV+1
           Cycle
+          END IF
 !     SUCH AN ARC WAS FOUND. WALK DOWN:
-200       ISCR(ISTEP,LEV)=ISTP
+          ISCR(ISTEP,LEV)=ISTP
           ISML=1
           IF((ISTP==1).OR.(ISTP==2)) ISML=ISM(LEV)
           LEV=LEV-1
