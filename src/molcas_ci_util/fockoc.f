@@ -26,7 +26,7 @@
 !
 
 #ifdef _DEBUGPRINT_
-      use Definitons, only: LF => u6
+      use Definitions, only: LF => u6
 #endif
       use wadr, only: FockOcc
       use stdalloc, only: mma_allocate, mma_deallocate
