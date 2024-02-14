@@ -146,9 +146,9 @@
       Call mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       Call mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       Call mma_allocate(SCR,NSCR,Label='SCR')
-      Call MKCOT_MCLR(nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,
+      Call MKCOT(nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,
      &                NIPWLK,OrbSym,DOWN,NOW,IOW,NCSF,IOCSF,NOCSF,
-     &                SCR,iPrint)
+     &                SCR)
 *
 *     If ( nConf.ne.NCSF(state_sym) ) then
 *        Write (*,*)
