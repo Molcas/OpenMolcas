@@ -166,9 +166,9 @@
 *
       NICASE=NWALK*NIPWLK
       Call mma_allocate(ICASE,NICASE,Label='ICASE')
-      Call MKCLIST_MCLR
+      Call MKCLIST
      &     (nSym,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,NIPWLK,
-     &      OrbSym,DOWN,NOW,IOW,ICASE,SCR,iPrint)
+     &      OrbSym,DOWN,NOW,IOW,ICASE,SCR)
       Call mma_deallocate(SCR)
 *
       NUSGN=MXUP*NMIDV
