@@ -89,6 +89,7 @@ set (sources
      phpcsf.F90
      pmat_rasscf.f
      prdrt.F90
+     prttim.f
      recno.F90
      restr.F90
      reord2.F90

@@ -592,7 +592,7 @@
 
       Call Timing(dum1,dum2,Ebel_3,dum3)
       IF (IPRLEV.GE.3) THEN
-       Call PrtTim_m
+       Call PrtTim()
        Call FastIO('STATUS')
       END IF
       Call ClsFls_RASSCF_m()
