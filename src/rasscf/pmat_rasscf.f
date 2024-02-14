@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE PMAT_RASSCF(P,X)
 C
 C     RASSCF version IBM-3090: SX section
@@ -20,24 +21,24 @@ c              used to construct the Q-matrix in fock.
 C
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
+      use general_data
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
 #include "rasscf.fh"
-#include "general.fh"
-#include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='PMAT    ')
-      DIMENSION X(*),P(*)
+      Real*8 X(*),P(*)
+#ifdef _DEBUGPRINT_
+      Character(LEN=16), Parameter :: ROUTINE='PMAT    '
+
 C Local print level (if any)
-      IPRLEV=IPRLOC(4)
-      IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
-      END IF
+     WRITE(LF,*)' Entering ',ROUTINE
+#endif
 C
 c     Loop over all reordered 2-matrix elements.
 C
       LPMAT=ISTORP(NSYM+1)
-      CALL FZERO(X,LPMAT)
+      X(1:LPMAT)=0.0D0
 C
       IAT=0
       DO NSP=1,NSYM
@@ -107,9 +108,8 @@ C
 14     CONTINUE
        END DO
 C
-      IF(IPRLEV.GE.INSANE) THEN
-        Write(LF,*)' Reordered 2-matrix:'
-        Write(LF,'(1X,10F10.6)') (X(I),I=1,LPMAT)
-      END IF
-      RETURN
-      END
+#ifdef _DEBUGPRINT_
+      Write(LF,*)' Reordered 2-matrix:'
+      Write(LF,'(1X,10F10.6)') (X(I),I=1,LPMAT)
+#endif
+      END SUBROUTINE PMAT_RASSCF
