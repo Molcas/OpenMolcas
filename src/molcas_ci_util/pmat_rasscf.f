@@ -29,10 +29,10 @@ C
 #include "rasscf.fh"
       Real*8 X(*),P(*)
 #ifdef _DEBUGPRINT_
-      Character(LEN=16), Parameter :: ROUTINE='PMAT    '
+      Character(LEN=16), Parameter :: ROUTINE='PMAT            '
 
 C Local print level (if any)
-     WRITE(LF,*)' Entering ',ROUTINE
+      WRITE(LF,*)' Entering ',ROUTINE
 #endif
 C
 c     Loop over all reordered 2-matrix elements.
