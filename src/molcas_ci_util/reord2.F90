@@ -125,7 +125,7 @@ do ITYP=1,NTYP
                    DOWN,UP,DAW,RAW,USGN,LSGN,IWALK)
 
       ! GET PHASE PHASE FACTOR
-      IP = IPHASE(DRT,UP,IWALK)
+      IP = IPHASE(NLEV,NVERT,DRT,UP,IWALK)
       if (IMODE == 0) then
         CINEW(ISG) = CIOLD(ICSFJP)
         if (IP < 0) CINEW(ISG) = -CIOLD(ICSFJP)
@@ -146,7 +146,5 @@ if (IPRLEV >= DEBUG) then
   write(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
   write(u6,*)
 end if
-
-return
 
 end subroutine Reord2
