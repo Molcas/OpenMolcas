@@ -30,6 +30,7 @@ set (sources
      davctl.F90
      davctl_mod.F90
      david5.F90
+     dblock.F90
      detstr2.F90
      dgmm2_molcas.F90
      diagord.F90

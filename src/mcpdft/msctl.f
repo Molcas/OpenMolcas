@@ -302,7 +302,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 * Generate total density
 ***********************************************************
 
-         If(NASH(1).ne.NAC) Call DBLOCK_m(Work(iD1Act))
+         If(NASH(1).ne.NAC) Call DBLOCK(Work(iD1Act))
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'd1act'
         do i=1,NACPAR
@@ -352,7 +352,7 @@ cPS         call xflush(6)
          if(iSpin.eq.1) then
            Call dcopy_(NACPAR,[0.0d0],0,Work(iD1SpinAO),1)
          end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Spin))
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
@@ -575,7 +575,7 @@ c         call xflush(6)
           Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
         end do
         Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Act_FA))
+        IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Act_FA))
         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
 *****
         Call GetMem('lcmo','ALLO','Real',lcmo,ntot2)
@@ -1229,7 +1229,7 @@ cPS         call xflush(6)
 *          write(6,*) Work(ip2d-1+i)
 *        end do
 
-         If(NASH(1).ne.NAC) Call DBLOCK_m(Work(iD1Act))
+         If(NASH(1).ne.NAC) Call DBLOCK(Work(iD1Act))
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
 
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
@@ -1250,7 +1250,7 @@ cPS         call xflush(6)
          !if(iSpin.eq.1) then
            Call dcopy_(NACPAR,[Zero],0,Work(iD1SpinAO),1)
          !end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Spin))
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
          Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
