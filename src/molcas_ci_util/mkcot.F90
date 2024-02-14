@@ -35,6 +35,9 @@
       Integer, PARAMETER :: IVERT=1, ISYM=2, ISTEP=3
       Integer IHALF, IVTSTA, IVTEND, LEV1, LEV2, IVTOP, LEV, ILND, IS, ISML, ISTP, &
               ISYDWN, ISYTOT, ISYUP, IVB, IVT, IWSYM, MV, N, NUW
+#ifdef _DEBUGPRINT_
+      Integer NLW
+#endif
       Logical Found
 !
 !     CLEAR ARRAYS IOW AND NOW
@@ -126,7 +129,6 @@
           NWALK=NWALK+NOW(2,IS,MV)
         END DO
       END DO
-!     NLW=NWALK-NUW
 !
 !     FINALLY, CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
 !     SEPARATED BY MIDVERTICES AND SYMMETRY.
@@ -145,6 +147,7 @@
         END DO
       END DO
 #ifdef _DEBUGPRINT_
+      NLW=NWALK-NUW
       Write(LF,*)
       Write(LF,*)' TOTAL NR OF WALKS: UPPER ',NUW
       Write(LF,*)'                    LOWER ',NLW
