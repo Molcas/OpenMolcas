@@ -47,6 +47,7 @@ set (sources
      general_data.F90
      get_cm_.F90
      get_cm.F90
+     get_d1a.f
      getcnf_lucia.F90
      geth2a.F90
      getstepvector.F90

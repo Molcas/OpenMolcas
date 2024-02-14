@@ -258,7 +258,7 @@
       If (NASH(1).ne.NAC) then
         Call DBLOCK(Work(ipTmpDMAT))
       end if
-      Call Get_D1A_RASSCF_m(CMO,Work(ipTmpDMAT),D1A)
+      Call Get_D1A_RASSCF(CMO,Work(ipTmpDMAT),D1A)
       Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
 ! 413 Continue

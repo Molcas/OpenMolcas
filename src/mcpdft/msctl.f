@@ -309,7 +309,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
           write(6,*) work(iD1Act-1+i)
         end do
       end if
-         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
+         Call Get_D1A_RASSCF(CMO,Work(iD1Act),Work(iD1ActAO))
 
 !ANDREW _ RIGHT HERE
       if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
@@ -353,7 +353,7 @@ cPS         call xflush(6)
            Call dcopy_(NACPAR,[0.0d0],0,Work(iD1SpinAO),1)
          end if
          IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
-         Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
+         Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
@@ -576,7 +576,7 @@ c         call xflush(6)
         end do
         Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Act_FA))
-        Call Get_D1A_RASSCF_m(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
+        Call Get_D1A_RASSCF(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
 *****
         Call GetMem('lcmo','ALLO','Real',lcmo,ntot2)
         CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
@@ -1230,7 +1230,7 @@ cPS         call xflush(6)
 *        end do
 
          If(NASH(1).ne.NAC) Call DBLOCK(Work(iD1Act))
-         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
+         Call Get_D1A_RASSCF(CMO,Work(iD1Act),Work(iD1ActAO))
 
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
@@ -1251,7 +1251,7 @@ cPS         call xflush(6)
            Call dcopy_(NACPAR,[Zero],0,Work(iD1SpinAO),1)
          !end if
          IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
-         Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
+         Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
