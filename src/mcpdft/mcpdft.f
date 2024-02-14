@@ -166,7 +166,7 @@
 
 * Some preliminary input data:
       Call Rd1Int()
-      If ( .not.DSCF ) Call Rd2Int_MCPDFT
+      If ( .not.DSCF ) Call Rd2Int_RASSCF()
 
 * Process the input:
       Call Proc_InpX(DSCF,iRc)

@@ -91,6 +91,7 @@ set (sources
      prdrt.F90
      prttim.f
      rd1int.f
+     rd2int_rasscf.f
      recno.F90
      restr.F90
      reord2.F90
