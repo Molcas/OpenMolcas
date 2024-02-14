@@ -9,16 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      Logical DoSplitCAS, EnerSplit, NumSplit, PerSplit, FOrdSplit
-      integer lrootSplit, MxIterSplit
-      integer iDimBlockA, iDimBlockACNF, iterSplit
-      real*8 thrSplit, GapSpli, PercSpli
-      real*8 EnInSplit
-      Integer, Parameter :: mxDimBlockA = 2000
-      Real*8, Parameter :: min_ThrSplit = 1.0d-12
+! This is just an encapsulation of the common block in
+! src/Include/rasdim.fh
+! src/Include/general.fh
+! into a data module
 
-      COMMON /SplitCAS_Int /iDimBlockA,iDimBlockACNF,                   &
-     &                      lrootSplit,MxIterSplit,iterSplit
-      COMMON /SplitCAS_Log / DoSplitCAS, EnerSplit, NumSplit, PerSplit, &
-     &                       FOrdSplit
-      COMMON /SplitCAS_Real/ thrSplit, GapSpli, PercSpli, EnInSplit
+      module splitcas_data
+      implicit none
+#include "splitcas.fh"
+      save
+      end module splitcas_data

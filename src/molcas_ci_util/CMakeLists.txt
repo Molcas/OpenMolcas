@@ -105,6 +105,7 @@ set (sources
      simplify.F90
      sort_cdet.F90
      splitctl.F90
+     splitcas_data.F90
      stepvec.F90
      stepvector_next.F90
      sxci.F90
@@ -118,6 +119,7 @@ set (modfile_list
      csfbas.F90
      general_data.F90
      gugx.F90
+     splitcas_data.F90
      sxci.F90
      wadr.F90
 )

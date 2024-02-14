@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine PrtTim
+      Subroutine PrtTim()
 
 ************************************************************************
 *                                                                      *
@@ -28,14 +28,14 @@
 *                                                                      *
 ************************************************************************
 
+      use splitcas_data, only: DoSplitCAS
+      use Definitions, only: LF => u6
       Implicit Real*8 (A-H,O-Z)
 
 #include "timers.fh"
-#include "output_ras.fh"
-#include "splitcas.fh"
       Integer, Parameter :: MAX_TIMERS = 40
 
-      Dimension T(MAX_TIMERS),F(MAX_TIMERS)
+      Real*8 T(MAX_TIMERS),F(MAX_TIMERS)
 *
       T = 0.0d0
       F = 0.0d0
@@ -179,5 +179,4 @@
      &      ' - - - - - - - - - - - - - - - - -'
       Write(LF,*)
 *
-      Return
-      End
+      End Subroutine PrtTim
