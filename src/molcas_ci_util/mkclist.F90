@@ -9,20 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MKCLIST(ISM,IDOWN,NOW,IOW,ICASE,ISCR)
+subroutine MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,NIPWLK, &
+ISM,IDOWN,NOW,IOW,ICASE,ISCR)
 ! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
 !          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
 !          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
 !          INTO ONE INTEGER WORD.
 
 use Definitions, only: iwp
-use gugx, only: NLEV, NVERT, NMIDV, NICASE, MIDLEV, MIDV1, MIDV2, NIPWLK
+use Symmetry_Info, only: Mul
 
 implicit none
-#include "rasdim.fh"
-#include "general_mul.fh"
+integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, MIDLEV, MIDV1, MIDV2, &
+                                 NMIDV,NICASE, NIPWLK
 integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)
+
 integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
 logical(kind=iwp) :: Found
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
