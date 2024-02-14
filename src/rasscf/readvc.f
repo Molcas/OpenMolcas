@@ -67,7 +67,7 @@
       use general_data, only : nSym, mXSym,
      &  nDel, nBas, nOrb,
      &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
-     &  JobIph, nSSH, maxbfn, mXAct
+     &  JobIph, nSSH, maxbfn
       use casvb_global, only: ifvb
 
       use orthonormalization, only : t_ON_scheme, ON_scheme_values,
