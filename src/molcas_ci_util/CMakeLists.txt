@@ -42,6 +42,7 @@ set (sources
      faroald_free.F90
      faroald_init.F90
      fndmnx.F90
+     fockoc.f
      gatvcs.F90
      get_cm_.F90
      get_cm.F90

@@ -1,29 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE FOCKOC(FOCC,F,CMO)
-C
-C     RASSCF program version IBM-3090: SX section
-C
-C     PURPOSE: Construct a fock matrix for the occupied orbitals and
-C              write it on the job interphase for later use in
-C              the RASSCF gradient programs.
-C              The fock matrix is in MO basis with the frozen orbitals
-C              excluded. It is symmetry blocked in contrast to earlier
-C              versions.
-C
-C     called from FOCK if IFINAL=1.
-C
-C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
-C
+!
+!     RASSCF program version IBM-3090: SX section
+!
+!     PURPOSE: Construct a fock matrix for the occupied orbitals and
+!              write it on the job interphase for later use in
+!              the RASSCF gradient programs.
+!              The fock matrix is in MO basis with the frozen orbitals
+!              excluded. It is symmetry blocked in contrast to earlier
+!              versions.
+!
+!     called from FOCK if IFINAL=1.
+!
+!          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+!
 
+#ifdef _DEBUGPRINT_
+      use Definitons, only: LF => u6
+#endif
       use wadr, only: FockOcc
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -31,15 +35,14 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
 
       Real*8 FOCC(*),F(*),CMO(*)
       Real*8, Allocatable:: SCR1(:), SCR2(:)
 
-C
+!
       ISTFCK=0
       IPQ=0
-* Loop over symmetry:
+! Loop over symmetry:
       DO ISYM=1,NSYM
        NIO=NISH(ISYM)
        NAO=NASH(ISYM)
@@ -55,34 +58,34 @@ C
        ENDIF
        ISTFCK=ISTFCK+NO**2
       END DO
-C
+!
       IAD15=IADR15(5)
       CALL DDAFILE(JOBIPH,1,FOCC,IPQ,IAD15)
-C
-c fock matrices added -- R L 921008.
-*
-*-----Start processing the all occupied indices Fock matrix
-*
+!
+! fock matrices added -- R L 921008.
+!
+!-----Start processing the all occupied indices Fock matrix
+!
       Call mma_allocate(Scr1,no2m,Label='Scr1')
       Call mma_allocate(Scr2,no2m,Label='Scr2')
       FockOcc(:)=0.0D0
 #ifdef _DEBUGPRINT_
       Write(LF,*) 'nTot1=',nTot1
 #endif
-*
-*-----Construct the occupied part of the Fock matrix in SO/AO basis.
-*
+!
+!-----Construct the occupied part of the Fock matrix in SO/AO basis.
+!
       ISTFCK= 1
       jFock = 1
       iCMo  = 1
-* A long loop over symmetry:
+! A long loop over symmetry:
       Do ISYM=1,NSYM
-*        Hmm maybe you should check so I use correct nbas/norb
+!        Hmm maybe you should check so I use correct nbas/norb
          NO = nOrb(isym)
          IF (NO.NE.0) THEN
-*
-*-----------Transform to SO/AO basis.
-*
+!
+!-----------Transform to SO/AO basis.
+!
 #ifdef _DEBUGPRINT_
             Write(LF,*) 'iSym=',iSym
             Call RecPrt('F(iStFck)',' ',F(iStFck),nOrb(iSym),
@@ -123,10 +126,10 @@ c fock matrices added -- R L 921008.
          jFock = jFock + nBas(iSym)*(nBas(iSym)+1)/2
          iCMo  = iCMo  + nBas(iSym)**2
          ISTFCK=ISTFCK+NO**2
-* End of long loop over symmetry
+! End of long loop over symmetry
       END DO
       Call mma_deallocate(Scr2)
       Call mma_deallocate(Scr1)
-*
-c End of addition, R L 921008.
-      END
+!
+! End of addition, R L 921008.
+      END SUBROUTINE FOCKOC
