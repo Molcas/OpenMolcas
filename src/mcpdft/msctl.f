@@ -177,7 +177,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 
 !Here we calculate the D1 Inactive matrix (AO).
       Call GetMem('D1Inact','Allo','Real',iD1I,NTOT2)
-      Call Get_D1I_RASSCF_m(CMO,Work(iD1I))
+      Call Get_D1I_RASSCF(CMO,Work(iD1I))
 
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'iD1inact'

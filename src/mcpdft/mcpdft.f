@@ -407,7 +407,7 @@
       Call Timing(dum1,dum2,Fortis_1,dum3)
       Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
       Call FZero(Work(LPUVX),NFINT)
-      Call Get_D1I_RASSCF_m(CMO,D1I)
+      Call Get_D1I_RASSCF(CMO,D1I)
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
