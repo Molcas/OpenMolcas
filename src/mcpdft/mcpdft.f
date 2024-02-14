@@ -165,7 +165,7 @@
       Call OpnFls_RASSCF_m(DSCF)
 
 * Some preliminary input data:
-      Call Rd1Int_m()
+      Call Rd1Int()
       If ( .not.DSCF ) Call Rd2Int_MCPDFT
 
 * Process the input:
