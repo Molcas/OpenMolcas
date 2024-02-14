@@ -762,7 +762,7 @@ c         call xflush(6)
            CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
            CALL DmatDmat(Work(iD1Act),WORK(LP))
            CALL GETMEM('ISTRP','ALLO','REAL',LP1,ISTORP(NSYM+1))
-           CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP1))
+           CALL PMAT_RASSCF(Work(iP2d),WORK(LP1))
          END IF
 
        if(iprlev.ge.debug) then
@@ -1114,7 +1114,7 @@ cPS         call xflush(6)
        IF(ISTORP(NSYM+1).GT.0) THEN
       CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
 !p = work(iP2d)
-         CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP))
+         CALL PMAT_RASSCF(Work(iP2d),WORK(LP))
       END IF
 !test comment add
 !      Call FZero(Work(iptmplteotp),nfint)

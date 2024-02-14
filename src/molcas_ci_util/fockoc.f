@@ -25,9 +25,7 @@
 !          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 !
 
-#ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
-#endif
       use wadr, only: FockOcc
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)

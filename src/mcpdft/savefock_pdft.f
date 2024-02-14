@@ -182,7 +182,7 @@
 !Reordering of the two-body density matrix.
       IF(ISTORP(NSYM+1).GT.0) THEN
        CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
-       CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP))
+       CALL PMAT_RASSCF(Work(iP2d),WORK(LP))
       END IF
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
       CALL mma_allocate(BM,NSXS,Label='BM')
