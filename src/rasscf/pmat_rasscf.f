@@ -43,23 +43,29 @@ C
       IAT=0
       DO NSP=1,NSYM
        NAP=NASH(NSP)
-       IF(NAP.EQ.0) GO TO 14
+       IF(NAP.EQ.0) Cycle
        INDF=ISTORP(NSP)
        NUVX=(ISTORP(NSP+1)-INDF)/NAP
        LROW=0
        IAU=0
        DO NSQ=1,NSYM
         NAQ=NASH(NSQ)
-        IF(NAQ.EQ.0) GO TO 13
+        IF(NAQ.EQ.0) Cycle
         NSPQ=IEOR(NSP-1,NSQ-1)
         IAV=0
         DO NSR=1,NSYM
          NAR=NASH(NSR)
-         IF(NAR.EQ.0) GO TO 12
+         IF(NAR.EQ.0) Cycle
          NSS=IEOR(NSPQ,NSR-1)+1
-         IF(NSS.GT.NSR) GO TO 121
+         IF(NSS.GT.NSR) Then
+           IAV=IAV+NAR
+           Cycle
+         ENDIF
          NAS=NASH(NSS)
-         IF(NAS.EQ.0) GO TO 121
+         IF(NAS.EQ.0) Then
+           IAV=IAV+NAR
+           Cycle
+         ENDIF
          IAX=0
          IF(NSS.NE.1) THEN
           NSSM=NSS-1
@@ -98,14 +104,11 @@ C
            END DO
           END DO
          END DO
-121      IAV=IAV+NAR
-12       CONTINUE
+         IAV=IAV+NAR
         END DO
         IAU=IAU+NAQ
-13      CONTINUE
        END DO
        IAT=IAT+NAP
-14     CONTINUE
        END DO
 C
 #ifdef _DEBUGPRINT_
