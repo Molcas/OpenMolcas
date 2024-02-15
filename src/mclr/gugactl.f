@@ -1,4 +1,3 @@
-************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -8,11 +7,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#define _NEW_
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
+#ifdef _NEW_
+      use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
+     &                NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,DRT,
+     &                DOWN,DAW,UP,RAW,USGN,LSGN,ICASE,IFCAS,
+     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS
+#endif
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
+#ifndef _NEW_
       Integer A0,B0,C0
+#endif
       Real*8 CIL(*)
 *
 #include "Input.fh"
@@ -22,10 +30,12 @@
 #include "spinfo_mclr.fh"
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
+#ifndef _NEW_
       Integer, Allocatable:: DRT0(:), DOWN0(:), TMP(:), V11(:), DRT(:),
      &                       DOWN(:), DAW(:), UP(:), RAW(:), LTV(:),
      &                       NOW(:), IOW(:), NOCSF(:), IOCSF(:), SCR(:),
      &                       ICASE(:), USGN(:), LSGN(:)
+#endif
       Real*8, Allocatable:: CINew(:)
 *
 *
@@ -87,6 +97,16 @@
       End Do
 *
       NLEV=ntASh
+      LV1RAS=ntRas1
+      LV3RAS=LV1RAS+ntRas2
+      LM1RAS=2*LV1RAS-nHole1
+      LM3RAS=nActEl-nElec3
+
+#ifdef _NEW_
+      IFCAS=1
+      Call mkGUGA(OrbSym,NSYM,State_Sym,NCSF)
+      NCONF=NCSF(State_Sym)
+#else
       IAC=MIN(A0,C0)
       NVERT0=((A0+1)*(C0+1)*(2*B0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
       NDRT0=5*NVERT0
@@ -178,6 +198,8 @@
       Call MKSGNUM(State_sym,nSym,NLEV,NVERT,MIDLEV,NMIDV,MXUP,
      &             MXDWN,NICASE,NIPWLK,DOWN,UP,DAW,RAW,NOW,IOW,
      &             USGN,LSGN,ICASE)
+#endif
+      Write (6,*) 'NCONF=',NCONF
 *
       If (iPrint.ge.5) Then
       PRWTHR=0.0d0
@@ -209,6 +231,9 @@
       Call DCopy_(nConf,CInew,1,CIL,1)
       Call mma_deallocate(CInew)
 *
+#ifdef _NEW_
+      Call MkGUGA_Free()
+#else
       Call mma_deallocate(LSGN)
       Call mma_deallocate(USGN)
       Call mma_deallocate(ICASE)
@@ -221,7 +246,7 @@
       Call mma_deallocate(DAW)
       Call mma_deallocate(DOWN)
       Call mma_deallocate(DRT)
-*
+#endif
 *
       Return
       End
