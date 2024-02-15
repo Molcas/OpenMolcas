@@ -8,7 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE mkDRT0(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
+#ifdef _DEBUGPRINT_
+      use Definitions, only: u6
+#endif
 !
 !     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
 !
@@ -35,7 +39,10 @@
       DRT(1,BTAB)=B0
       DRT(1,CTAB)=C0
       VSTA=1
-      VEND=1
+      VEND=1!
+#ifdef _DEBUGPRINT_
+      Write(u6,*) 'A0,B0,C0,NVERT=',A0,B0,C0,NVERT
+#endif
 !
 !     LOOP OVER ALL LEVELS
 !
@@ -114,5 +121,11 @@
         DRT(VERT,LTAB)=DRT(VERT,ATAB)+DRT(VERT,BTAB)+DRT(VERT,CTAB)
         DRT(VERT,NTAB)=2*DRT(VERT,ATAB)+DRT(VERT,BTAB)
       END DO
+#ifdef _DEBUGPRINT_
+      DO VERT=1,VEND
+        Write (6,*) 'DRT(:,LTAB)=',DRT(VERT,LTAB)
+        Write (6,*) 'DRT(:,NTAB)=',DRT(VERT,NTAB)
+      END DO
+#endif
 !
       END SUBROUTINE mkDRT0

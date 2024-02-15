@@ -12,7 +12,7 @@
 *               Markus P. Fuelscher                                    *
 ************************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE GUGACTL
+      SUBROUTINE GUGACTL()
 C
 C     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
 C     AUTHOR:  P.-AA. MALMQVIST
@@ -109,7 +109,7 @@ C
 C
 C     INITIALIZE GUGA TABLES:
 C
-      CALL MKGUGA(NSM)
+      CALL MKGUGA(NSM,NSYM,STSYM,NCSF)
       NCONF=NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 

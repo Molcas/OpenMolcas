@@ -11,6 +11,7 @@
 * Copyright (C) 1990, Markus P. Fuelscher                              *
 *               1990, Jeppe Olsen                                      *
 ************************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE REORD
      &           (NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,
      &            IDRT,IDOWN,IDAW,IUP,IRAW,IUSGN,ILSGN,
@@ -36,6 +37,9 @@ C              IMODE=0 : FROM SYMMETRIC GROUP TO SPLIT GRAPH UGA ORDER
 C              IMODE=1 : FROM SPLIT GRAPH UGA TO SYMMETRIC GROUP ORDER
 C
 C
+#ifdef _DEBUGPRINT_
+      use Definitions, only: u6
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       DIMENSION ICONF(*),ISPIN(*),NCNFTP(*),NCSFTP(*)
@@ -49,6 +53,7 @@ C
       Integer, External:: IPHASE
 
       If (.FALSE.) Call Unused_Integer(MIDV2)
+      If (.FALSE.) Call Unused_Integer(IPRINT)
 C
 C
 C     LOOP OVER CONFIGURATIONS TYPES
@@ -101,16 +106,14 @@ C     NOW REORDER THIS ELEMENT OF THE CI-VECTOR
 900     CONTINUE
 1000  CONTINUE
 C
-      IF( IPRINT.GE.5 ) THEN
-        LPRINT=NCONF
-        WRITE(6,*)
-        WRITE(6,*)' OLD CI-VECTORS IN SUBROUTINE REORD'
-        WRITE(6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
-        WRITE(6,*)' NEW CI-VECTORS IN SUBROUTINE REORD'
-        WRITE(6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
-        WRITE(6,*)
-      ENDIF
+#ifdef _DEBUGPRINT_
+      LPRINT=NCONF
+      WRITE(u6,*)
+      WRITE(u6,*)' OLD CI-VECTORS IN SUBROUTINE REORD'
+      WRITE(u6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
+      WRITE(u6,*)' NEW CI-VECTORS IN SUBROUTINE REORD'
+      WRITE(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
+      WRITE(u6,*)
+#endif
 C
-C
-      RETURN
-      END
+      END SUBROUTINE REORD

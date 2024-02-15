@@ -8,10 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE RESTR(NVERT0,IDRT0,IDOWN0,IVER, LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT)
 !     PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY
 !              CREATING A MASK
 !
+#ifdef _DEBUGPRINT_
+      use Definitions, only: u6
+#endif
       IMPLICIT None
 !
       Integer NVERT0, LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT
@@ -78,5 +82,12 @@
       END DO
       IF (NVERT.eq.0) Call SysAbendMsg('Restr','No configuration was found\n',    &
                                        'Check NACTEL, RAS1, RAS2, RAS3 values')
+#ifdef _DEBUGPRINT_
+      Write (u6,*) 'RESTR:'
+      Write (u6,*)  'LV1RAS, LV3RAS, LM1RAS, LM3RAS=',LV1RAS, LV3RAS, LM1RAS, LM3RAS
+      DO IV=1,NVERT0
+         Write (u6,*) 'IVER(:)=',IVER(IV)
+      END DO
+#endif
 !
       END SUBROUTINE RESTR

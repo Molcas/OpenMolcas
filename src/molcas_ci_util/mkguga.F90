@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKGUGA(NSM)
+      SUBROUTINE MKGUGA(NSM,NSYM,STSYM,NCSF)
 !
 !     PURPOSE: MAKE THE GUGA TABLES
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
@@ -30,15 +30,15 @@
      &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
      &                MIDV1, MIDV2
 
-      use general_data, only: NSYM, STSYM
       IMPLICIT None
 !
-      Integer NSM(*)
+      Integer NSYM, STSYM
+      Integer NSM(NSYM)
+      Integer NCSF(NSYM)
 
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), LTV(:), SCR(:)
-      Integer NCSF(8)
       Integer IAC, NDOWN0, NDRT0, NLSGN, NLTV, NSCR, NTMP, NUSGN
 !
 !     SET UP A FULL PALDUS DRT TABLE:
@@ -161,6 +161,7 @@
 !
       DRTP => Null()
       DOWNP=> Null()
+
       END SUBROUTINE MKGUGA
 
       SUBROUTINE MKGUGA_FREE()
