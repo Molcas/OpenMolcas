@@ -13,24 +13,21 @@ subroutine restart_check(Ifrestart,input_to_read,input_file_name,nT,nH,nTempMagn
 ! this routine looks into the file "single_aniso.input" for the "RESTart" keyword
 
 use Constants, only: Zero
-use Definitions, only: wp, u5, u6
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-integer :: linenr, input_to_read, nT, nH, nTempMagn
-integer :: nDir, nDirZee, nMult, i
-logical :: Ifrestart
-logical :: GRAD
-real(kind=wp) :: rdummy
+logical(kind=iwp), intent(out) :: Ifrestart, GRAD
+integer(kind=iwp), intent(out) :: input_to_read, nT, nH, nTempMagn, nDir, nDirZee, nMult
+character(len=180), intent(out) :: input_file_name
+integer(kind=iwp) :: i, istatus, linenr, mg, ncut, nk
+real(kind=wp) :: encut_rate, rdummy
+logical(kind=iwp) :: KeyENCU, KeyERAT, KeyHEXP, KeyHINT, KeyMVEC, KeyNCUT, KeyTMAG, KeyZEEM
 character(len=280) :: line, tmp
-character(len=180) :: input_file_name
-integer :: ncut, nk, mg, istatus
-real(kind=wp) :: encut_rate
-logical :: KeyHEXP, KeyHINT, KeyTMAG, KeyMVEC, KeyZEEM, KeyNCUT, KeyENCU, KeyERAT
-!logical :: KeyREST, KeyTEXP, KeyTINT, KeyMLTP, KeyGRAD, KeyDATA
-logical :: DBG
+logical(kind=iwp), parameter :: DBG = .false.
 
-DBG = .false.
-
+Ifrestart = .false.
+input_to_read = 0
+GRAD = .false.
 nH = 0
 nT = 0
 nMult = 0

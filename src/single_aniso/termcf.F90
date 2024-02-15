@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine termCF(ANGMOM,AMFI,ESFS,ldimcf,iDIM,maxes2,iopt,nlanth,iprint)
+subroutine termCF(ANGMOM,AMFI,ESFS,ldimcf,d,maxes2,iopt,nlanth,iprint)
 ! this Subroutine calculates the parameters of term-specific crystal field
 ! for lanthanides:
 !
@@ -26,70 +26,55 @@ subroutine termCF(ANGMOM,AMFI,ESFS,ldimcf,iDIM,maxes2,iopt,nlanth,iprint)
 !                                 ( determinant(maxes)=1.0, orthogonal vectors )
 !  iopt                        -- option for choosing the main quanization axis
 !                   iopt = 1   -- axis of the ground orbital multiplet,
-!                                 iDIM specifies the size of pseudo L
+!                                 d specifies the size of pseudo L
 !                   iopt = 2   -- axis of the entire L manifold
 !                   iopt = 3   -- maxes is defined by the user
 !                                 ( maxes2 is given as input )
 !                   iopt = 4   -- maxes is the unity matrix ( original Z
 !                                 is the quantization axis )
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne, Onei, auTocm
 #ifdef _DISABLED_
 use Constants, only: One, Two, Half
 #endif
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp,u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: ldimcf, iprint, iopt, nlanth, iDIM
-real(kind=8), intent(in) :: esfs(ldimcf)
-real(kind=8), intent(in) :: angmom(3,ldimcf,ldimcf)
-real(kind=8), intent(in) :: amfi(3,ldimcf,ldimcf)
-real(kind=8), intent(in) :: maxes2(3,3)
-real(kind=8) :: finddetr
-!real(kind=8) :: knm(12,0:12)
-real(kind=8) :: maxes(3,3)
-real(kind=8) :: gtens(3)
-real(kind=8), allocatable :: eloc(:) ! lDIMcf
-real(kind=8), allocatable :: Winit(:) ! lDIMcf
-real(kind=8) :: BNC(lDIMcf,0:lDIMcf)
-real(kind=8) :: BNS(lDIMcf,0:lDIMcf)
-real(kind=8) :: Bstev(lDIMcf,-lDIMcf:lDIMcf)
-complex(kind=8) :: Akq((lDIMcf-1),-(lDIMcf-1):(lDIMcf-1))
-complex(kind=8), allocatable :: Angm(:,:,:) ! 3,ldimcf,ldimcf
-complex(kind=8), allocatable :: dipso(:,:,:) ! 3,ldimcf,ldimcf
-complex(kind=8), allocatable :: amfi_c(:,:,:) ! 3,ldimcf,ldimcf
-complex(kind=8), allocatable :: amfi2(:,:,:) ! 3,ldimcf,ldimcf
-complex(kind=8), allocatable :: amfi_l(:,:,:) ! 3,ldimcf,ldimcf
-complex(kind=8), allocatable :: Z(:,:) !ldimcf,ldimcf
-complex(kind=8), allocatable :: tmp(:,:) !ldimcf,ldimcf
-complex(kind=8), allocatable :: HCF(:,:) !ldimcf,ldimcf
-complex(kind=8), allocatable :: Zinit(:,:) !ldimcf,ldimcf
-integer :: i, j, l, info, i2
-external :: finddetr
-logical :: debug = .false.
-real(kind=8) :: det
+integer(kind=iwp), intent(in) :: ldimcf, d, iopt, nlanth, iprint
+real(kind=wp), intent(in) :: angmom(3,ldimcf,ldimcf), amfi(3,ldimcf,ldimcf), esfs(ldimcf), maxes2(3,3)
+integer(kind=iwp) :: i, i2, info, j, l
+real(kind=wp) :: det, gtens(3), maxes(3,3)
+real(kind=wp), allocatable :: BNC(:,:), BNS(:,:), Bstev(:,:), eloc(:), Winit(:)
+complex(kind=wp), allocatable :: Akq(:,:), amfi2(:,:,:), amfi_c(:,:,:), amfi_l(:,:,:), Angm(:,:,:), dipso(:,:,:), HCF(:,:), &
+                                 tmp(:,:), Z(:,:), Zinit(:,:)
+logical(kind=iwp), parameter :: debug = .false.
+real(kind=wp), external :: finddetr
 #ifdef _DISABLED_
-integer :: ibasJ(100), ibasL(100), ibasS(100), icas, ij, iLS, ir, irootL(100), k, MJ, ML, MS, nLS
-real(kind=8) :: CF(100,100), coeffCG, orbM, spinM, tJ, tJM, tL, tS
-complex(kind=8) :: CFC(100,100)
+integer(kind=iwp) :: ibasJ(100), ibasL(100), ibasS(100), icas, ij, iLS, ir, irootL(100), k, MJ, ML, MS, nLS
+real(kind=wp) :: CF(100,100), coeffCG, orbM, spinM, tJ, tJM, tL, tS
+complex(kind=wp) :: CFC(100,100)
 #else
 #include "macros.fh"
 unused_var(nlanth)
 #endif
 
-call mma_allocate(eloc,lDIMcf,'eloc')
-call mma_allocate(Winit,lDIMcf,'Winit')
+call mma_allocate(eloc,lDIMcf,label='eloc')
+call mma_allocate(Winit,lDIMcf,label='Winit')
 
-call mma_allocate(Angm,3,ldimcf,ldimcf,'angm')
-call mma_allocate(dipso,3,ldimcf,ldimcf,'dipso')
-call mma_allocate(amfi_c,3,ldimcf,ldimcf,'amfi_c')
-call mma_allocate(amfi2,3,ldimcf,ldimcf,'amfi2')
-call mma_allocate(amfi_l,3,ldimcf,ldimcf,'amfi_l')
-call mma_allocate(Z,ldimcf,ldimcf,'Z')
-call mma_allocate(Zinit,ldimcf,ldimcf,'Zinit')
-call mma_allocate(tmp,ldimcf,ldimcf,'tmp')
-call mma_allocate(HCF,ldimcf,ldimcf,'HCF')
+call mma_allocate(Angm,3,ldimcf,ldimcf,label='angm')
+call mma_allocate(dipso,3,ldimcf,ldimcf,label='dipso')
+call mma_allocate(amfi_c,3,ldimcf,ldimcf,label='amfi_c')
+call mma_allocate(amfi2,3,ldimcf,ldimcf,label='amfi2')
+call mma_allocate(amfi_l,3,ldimcf,ldimcf,label='amfi_l')
+call mma_allocate(Z,ldimcf,ldimcf,label='Z')
+call mma_allocate(Zinit,ldimcf,ldimcf,label='Zinit')
+call mma_allocate(tmp,ldimcf,ldimcf,label='tmp')
+call mma_allocate(HCF,ldimcf,ldimcf,label='HCF')
+call mma_allocate(BNC,[1,lDIMcf],[0,lDIMcf],label='BNC')
+call mma_allocate(BNS,[1,lDIMcf],[0,lDIMcf],label='BNS')
+call mma_allocate(Bstev,[1,lDIMcf],[-lDIMcf,lDIMcf],label='Bstev')
+call mma_allocate(Akq,[1,lDIMcf-1],[-(lDIMcf-1),lDIMcf-1],label='Akq')
 !-----------------------------------------------------------------------
 write(u6,'(/)')
 write(u6,'(100A)') ('%',i=1,95)
@@ -107,12 +92,12 @@ amfi_c(:,:,:) = amfi(:,:,:)*cOne
 ! diagonalize the angmom
 if (iopt == 1) then
   ! iopt = 1   -- axis of the ground orbital Doublet
-  call atens(dipso(:,1:iDIM,1:iDIM),iDIM,gtens,maxes,iprint)
+  call atens(dipso(:,1:d,1:d),d,gtens,maxes,iprint)
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
-  if (mod(iDIM,2) == 0) then
-    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudo-L = |',iDIM-1,'/2> orbital multiplet.'
+  if (mod(d,2) == 0) then
+    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudo-L = |',d-1,'/2> orbital multiplet.'
   else
-    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudo-L = |',(iDIM-1)/2,'> orbital multiplet.'
+    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudo-L = |',(d-1)/2,'> orbital multiplet.'
   end if
 
 else if (iopt == 2) then
@@ -404,6 +389,10 @@ call mma_deallocate(Z)
 call mma_deallocate(Zinit)
 call mma_deallocate(tmp)
 call mma_deallocate(HCF)
+call mma_deallocate(BNC)
+call mma_deallocate(BNS)
+call mma_deallocate(Bstev)
+call mma_deallocate(Akq)
 
 return
 

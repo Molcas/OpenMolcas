@@ -9,26 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CRYSTALFIELD(ESOJ,DIPSO,S_SO,nDIMcf,iDIM,nlanth,zmagn2,iopt,GRAD,iprint)
+subroutine CRYSTALFIELD(ESOJ,DIPSO,S_SO,nDIMcf,d,nlanth,zmagn2,iopt,GRAD,iprint)
 
-use Definitions, only: u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: iprint, iDIM
-integer, intent(in) :: nDIMcf, iopt, nlanth
-real(kind=8), intent(in) :: ESOJ(nDIMcf)
-real(kind=8), intent(in) :: ZMAGN2(3,3)
-complex(kind=8), intent(in) :: DIPSO(3,nDIMcf,nDIMcf)
-complex(kind=8), intent(in) :: S_SO(3,nDIMcf,nDIMcf)
-logical, intent(in) :: GRAD
-! local variables
-integer :: info
-real(kind=8), allocatable :: wtmp(:)
-complex(kind=8), allocatable :: DIPJ(:,:,:)
-complex(kind=8), allocatable :: SJ(:,:,:), ztmp(:,:)
-integer :: i, j
-real(kind=8) :: gtens(3), zmagn(3,3)
+integer(kind=iwp), intent(in) :: nDIMcf, d, nlanth, iopt, iprint
+real(kind=wp), intent(in) :: ESOJ(nDIMcf), ZMAGN2(3,3)
+complex(kind=wp), intent(in) :: DIPSO(3,nDIMcf,nDIMcf), S_SO(3,nDIMcf,nDIMcf)
+logical(kind=iwp), intent(in) :: GRAD
+integer(kind=iwp) :: i, info, j
+real(kind=wp) :: gtens(3), zmagn(3,3)
+real(kind=wp), allocatable :: wtmp(:)
+complex(kind=wp), allocatable :: DIPJ(:,:,:), SJ(:,:,:), ztmp(:,:)
 
 write(u6,'(/)')
 write(u6,'(100A)') ('%',i=1,95)
@@ -43,12 +37,12 @@ write(u6,*)
 if (iopt == 1) then
   ! coordinate system for decomposition of the CF matrix identic to the coordinate system
   ! of the main magnetic axes of the ground multiplet (NDIM(1))
-  call atens(DIPSO(:,1:idim,1:idim),idim,GTENS,ZMAGN,1)
+  call atens(DIPSO(:,1:d,1:d),d,GTENS,ZMAGN,1)
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
-  if (mod(iDIM,2) == 0) then
-    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseuDospin S = |',iDIM-1,'/2> multiplet.'
+  if (mod(d,2) == 0) then
+    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseuDospin S = |',d-1,'/2> multiplet.'
   else
-    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseuDospin S = |',(iDIM-1)/2,'> multiplet.'
+    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseuDospin S = |',(d-1)/2,'> multiplet.'
   end if
 
 else if (iopt == 2) then

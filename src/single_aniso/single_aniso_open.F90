@@ -11,30 +11,18 @@
 
 subroutine SINGLE_ANISO_OPEN(IReturn)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: iReturn, NSS, NSTATE
-integer :: i, input_to_read, nH, nT, nTempMagn
-integer :: nDir, nDirZee, nMult
-logical :: ifrestart, GRAD
+integer(kind=iwp), intent(out) :: iReturn
+integer(kind=iwp) :: i, input_to_read, nDir, nDirZee, nH, nMult, NSS, NSTATE, nT, nTempMagn
+logical(kind=iwp) :: GRAD, ifrestart
 character(len=180) :: input_file_name
-logical :: dbg
+logical(kind=iwp), parameter :: dbg = .false.
 
 !-----------------------------------------------------------------------
 !* initializations
 ireturn = 0
-ifrestart = .false.
-GRAD = .false.
-nT = 0
-nH = 0
-nTempMagn = 0
-nDir = 0
-nDirZee = 0
-nMult = 0
-nss = 0
-nstate = 0
-dbg = .false.
 
 ! check for the "restart" option:
 if (dbg) write(u6,*) 'Enter restart_check'

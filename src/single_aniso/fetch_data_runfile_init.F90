@@ -11,11 +11,12 @@
 
 subroutine fetch_data_RunFile_init(nss,nstate)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: nss, nstate, njob, mxjob, ndata
-logical :: FOUND
+integer(kind=iwp), intent(out) :: nss, nstate
+integer(kind=iwp) :: mxjob, ndata, njob
+logical(kind=iwp) :: FOUND
 
 ! check the presence of the RUNFILE
 call f_inquire('RUNFILE',FOUND)

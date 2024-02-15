@@ -11,58 +11,43 @@
 
 subroutine individual_ranks(nDIMCF,BC,BS,Hinit,LJ,iprint)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: nDIMCF, iprint
-real(kind=8), intent(in) :: BC(nDIMcf,0:nDIMcf)
-real(kind=8), intent(in) :: BS(nDIMcf,0:nDIMcf)
-complex(kind=8), intent(in) :: Hinit(nDIMcf,nDIMcf)
-character(len=1), intent(in) :: LJ
-! local variables:
-integer :: i, j, k, n, m, ik, jEnd, nfields, info, ikmax, ip, ir, iq
-integer, allocatable :: rankKQ(:) ! nDIMCF*(2*nDIMCF+1) )
-integer, allocatable :: projKQ(:) ! nDIMCF*(2*nDIMCF+1) )
-real(kind=8) :: Tnrm, TnrmKQ, wt
-real(kind=8) :: RnrmKQ(nDIMcf,-nDIMcf:nDIMcf)
-real(kind=8), allocatable :: ListKQ(:) ! nDIMCF*(2*nDIMCF+1) )
-real(kind=8), allocatable :: Rnrm(:) !nDIMCF)
-real(kind=8), allocatable :: Snrm(:) !nDIMCF)
-real(kind=8), allocatable :: Wk(:,:) !nDIMCF,nDIMCF)
-real(kind=8), allocatable :: Ws(:,:) !nDIMCF,nDIMCF)
-real(kind=8), allocatable :: Winit(:) !nDIMCF)
-real(kind=8), external :: dznrm2_
-complex(kind=8) :: redME
-complex(kind=8), allocatable :: O(:,:)  !nDIMCF,nDIMCF)! real ITO
-complex(kind=8), allocatable :: W(:,:)  !nDIMCF,nDIMCF)! imag ITO
-complex(kind=8), allocatable :: HCF(:,:,:) !nDIMCF,nDIMCF,nDIMCF)
-complex(kind=8), allocatable :: HCFS(:,:,:)!nDIMCF,nDIMCF,nDIMCF)
-complex(kind=8), allocatable :: Ztmp(:,:) !nDIMCF,nDIMCF)
-complex(kind=8), allocatable :: HKQ(:,:), Zkq(:,:)
-real(kind=8) :: dznrm2
-external :: dznrm2
+integer(kind=iwp), intent(in) :: nDIMCF, iprint
+real(kind=wp), intent(in) :: BC(nDIMcf,0:nDIMcf), BS(nDIMcf,0:nDIMcf)
+complex(kind=wp), intent(in) :: Hinit(nDIMcf,nDIMcf)
+character, intent(in) :: LJ
+integer(kind=iwp) :: i, ik, ikmax, info, ip, iq, ir, j, jEnd, k, m, n, nfields
+real(kind=wp) :: Tnrm, TnrmKQ, wt
+complex(kind=wp) :: redME
 character(len=16) :: field(8)
 character(len=6) :: iprog
+integer(kind=iwp), allocatable :: projKQ(:), rankKQ(:)
+real(kind=wp), allocatable :: ListKQ(:), Rnrm(:), RnrmKQ(:,:), Snrm(:), Winit(:), Wk(:,:), Ws(:,:)
+complex(kind=wp), allocatable :: HCF(:,:,:), HCFS(:,:,:), HKQ(:,:), O(:,:), W(:,:), Zkq(:,:), Ztmp(:,:)
+real(kind=wp), external :: dznrm2_
 
 !-----------------------------------------------------------------------
-call mma_allocate(Rnrm,nDIMCF,'Rnrm')
-call mma_allocate(Snrm,nDIMCF,'Snrm')
-call mma_allocate(Wk,nDIMCF,nDIMCF,'Wk')
-call mma_allocate(Ws,nDIMCF,nDIMCF,'Ws')
-call mma_allocate(Winit,nDIMCF,'Winit')
-call mma_allocate(ListKQ,nDIMCF*(2*nDIMCF+1),'ListKQ')
-call mma_allocate(rankKQ,nDIMCF*(2*nDIMCF+1),'rankKQ')
-call mma_allocate(projKQ,nDIMCF*(2*nDIMCF+1),'projKQ')
+call mma_allocate(Rnrm,nDIMCF,label='Rnrm')
+call mma_allocate(Snrm,nDIMCF,label='Snrm')
+call mma_allocate(Wk,nDIMCF,nDIMCF,label='Wk')
+call mma_allocate(Ws,nDIMCF,nDIMCF,label='Ws')
+call mma_allocate(Winit,nDIMCF,label='Winit')
+call mma_allocate(RnrmKQ,[1,nDIMcf],[-nDIMcf,nDIMcf],label='RnrmKQ')
+call mma_allocate(ListKQ,nDIMCF*(2*nDIMCF+1),label='ListKQ')
+call mma_allocate(rankKQ,nDIMCF*(2*nDIMCF+1),label='rankKQ')
+call mma_allocate(projKQ,nDIMCF*(2*nDIMCF+1),label='projKQ')
 
-call mma_allocate(O,nDIMCF,nDIMCF,'O')
-call mma_allocate(W,nDIMCF,nDIMCF,'W')
-call mma_allocate(HKQ,nDIMCF,nDIMCF,'HKQ')
-call mma_allocate(ZKQ,nDIMCF,nDIMCF,'ZKQ')
-call mma_allocate(HCF,nDIMCF,nDIMCF,nDIMCF,'HCF')
-call mma_allocate(HCFS,nDIMCF,nDIMCF,nDIMCF,'HCFS')
-call mma_allocate(Ztmp,nDIMCF,nDIMCF,'Ztmp')
+call mma_allocate(O,nDIMCF,nDIMCF,label='O')
+call mma_allocate(W,nDIMCF,nDIMCF,label='W')
+call mma_allocate(HKQ,nDIMCF,nDIMCF,label='HKQ')
+call mma_allocate(ZKQ,nDIMCF,nDIMCF,label='ZKQ')
+call mma_allocate(HCF,nDIMCF,nDIMCF,nDIMCF,label='HCF')
+call mma_allocate(HCFS,nDIMCF,nDIMCF,nDIMCF,label='HCFS')
+call mma_allocate(Ztmp,nDIMCF,nDIMCF,label='Ztmp')
 
 Rnrm(:) = Zero
 Snrm(:) = Zero
@@ -97,7 +82,7 @@ do k=2,nDIMCF-1,2
 end do
 
 do N=2,nDIMCF-1,2
-  Rnrm(N) = dznrm2(nDIMcf*nDIMcf,HCF(N,:,:),1)
+  Rnrm(N) = dznrm2_(nDIMcf*nDIMcf,HCF(N,:,:),1)
   Tnrm = Tnrm+Rnrm(N)
   do i=2,N,2
     Snrm(N) = Snrm(N)+Rnrm(i)
@@ -279,6 +264,7 @@ call mma_deallocate(HCF)
 call mma_deallocate(HCFS)
 call mma_deallocate(Zkq)
 call mma_deallocate(Ztmp)
+call mma_deallocate(RnrmKQ)
 call mma_deallocate(ListKQ)
 call mma_deallocate(rankKQ)
 call mma_deallocate(projKQ)

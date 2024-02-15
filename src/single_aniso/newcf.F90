@@ -11,25 +11,21 @@
 
 subroutine newCF(H,n,A,B,C,Bstev)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne, Onei
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: n
-complex(kind=8), intent(in) :: H(n,n)
-complex(kind=8), intent(out) :: A(n-1,-(n-1):n-1)
-real(kind=8), intent(out) :: B(n,0:n), C(n,0:n)
-real(kind=8), intent(out) :: Bstev(n,-n:n)
-! local variables:
-integer :: ik, iq
-real(kind=8) :: rfact, cr, mfact, C0
-complex(kind=8) :: trace, cfact
-complex(kind=8), allocatable :: Cp(:,:), Cm(:,:)
-complex(kind=8) :: mf
-real(kind=8) :: knm(12,0:12)
-external :: trace
-logical :: dbg
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: H(n,n)
+complex(kind=wp), intent(out) :: A(n-1,-(n-1):n-1)
+real(kind=wp), intent(out) :: B(n,0:n), C(n,0:n), Bstev(n,-n:n)
+integer(kind=iwp) :: ik, iq
+real(kind=wp) :: C0, cr, knm(12,0:12), mfact, rfact
+complex(kind=wp) :: cfact, mf
+logical(kind=iwp) :: dbg
+complex(kind=wp), allocatable :: Cm(:,:), Cp(:,:)
+complex(kind=wp), external :: trace
 
 !-------------------------------------------
 if (n < 1) return

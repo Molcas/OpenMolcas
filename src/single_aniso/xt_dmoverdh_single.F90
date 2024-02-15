@@ -12,81 +12,27 @@
 subroutine XT_dMoverdH_single(nss,nTempMagn,nT,nM,Tmin,Tmax,XTexp,eso,T,zJ,Xfield,EM,dM,sM,XT_no_field,tinput,smagn,mem,DoPlot)
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Nine, Ten, mBohr, rNAVO
-use Definitions, only: wp, u6, RtoB
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-!#include "mgrid.fh"
-#include "stdalloc.fh"
-integer, intent(in) :: nss, nTempMagn, nT, NM, mem
-real(kind=8), intent(in) :: Tmin, Tmax
-real(kind=8), intent(in) :: zJ
-real(kind=8), intent(in) :: Xfield
-real(kind=8), intent(in) :: EM
-real(kind=8), intent(in) :: eso(nss)
-real(kind=8), intent(in) :: T(nT+nTempMagn)
-real(kind=8), intent(in) :: XTexp(nT+nTempMagn)
-real(kind=8), intent(in) :: XT_no_field(nT+nTempMagn)
-complex(kind=8), intent(in) :: dM(3,nss,nss)
-complex(kind=8), intent(in) :: sM(3,nss,nss)
-logical, intent(in) :: tinput, smagn, doplot
-!ccc local variables ccc
-integer :: iM, iT, jT, i, j, l, nDirX
-logical :: m_paranoid
-! Zeeman exchange energies
-real(kind=8), allocatable :: WM1(:), WM2(:), WM3(:), WM4(:), WM5(:), WM6(:), WM7(:) !, WM0(nm), WM1(nm), WM2(nm)
-! data for total system:
-! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZT1(:)
-real(kind=8), allocatable :: ST1(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: MT1(:,:) ! total magnetisation
-! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZT2(:)
-real(kind=8), allocatable :: ST2(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: MT2(:,:) ! total magnetisation
-! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZT3(:)
-real(kind=8), allocatable :: ST3(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: MT3(:,:) ! total magnetisation
-! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZT4(:)
-real(kind=8), allocatable :: ST4(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: MT4(:,:) ! total magnetisation
-! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZT5(:)
-real(kind=8), allocatable :: ST5(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: MT5(:,:) ! total magnetisation
-! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZT6(:)
-real(kind=8), allocatable :: ST6(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: MT6(:,:) ! total magnetisation
-! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZT7(:)
-real(kind=8), allocatable :: ST7(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: MT7(:,:) ! total magnetisation
-! standard deviation data:
-real(kind=8) :: dev
-external dev
-real(kind=8), allocatable :: XTM_MH(:) !XTM_MH(  nT+nTempMagn)
-real(kind=8), allocatable :: XTM_dMdH(:) !XTM_dMdH(nT+nTempMagn)
-real(kind=8), allocatable :: XTtens_MH(:,:,:) !XTtens_MH(3,3,nT+nTempMagn)
-real(kind=8), allocatable :: XTtens_dMdH(:,:,:) !XTtens_dMdH(3,3,nT+nTempMagn)
-integer :: nTempTotal
-real(kind=8) :: Xfield_1, Xfield_2, Xfield_3, Xfield_4, Xfield_5, Xfield_6, Xfield_7
-real(kind=8) :: hp
-real(kind=8) :: dHX(3)
-real(kind=8) :: dHY(3)
-real(kind=8) :: dHZ(3)
-integer :: Info
-real(kind=8) :: WT(3), ZT(3,3)
-integer :: mem_local
-logical :: DBG
+integer(kind=iwp), intent(in) :: nss, nTempMagn, nT, NM, mem
+real(kind=wp), intent(in) :: Tmin, Tmax, XTexp(nT+nTempMagn), eso(nss), T(nT+nTempMagn), zJ, Xfield, EM, XT_no_field(nT+nTempMagn)
+complex(kind=wp), intent(in) :: dM(3,nss,nss), sM(3,nss,nss)
+logical(kind=iwp), intent(in) :: tinput, smagn, doplot
+integer(kind=iwp) :: i, iM, Info, iT, j, jT, l, mem_local, nDirX, nTempTotal
+real(kind=wp) :: dHX(3), dHY(3), dHZ(3), hp, WT(3), Xfield_1, Xfield_2, Xfield_3, Xfield_4, Xfield_5, Xfield_6, Xfield_7, ZT(3,3)
 character(len=50) :: label
+real(kind=wp), allocatable :: MT1(:,:), MT2(:,:), MT3(:,:), MT4(:,:), MT5(:,:), MT6(:,:), MT7(:,:), ST1(:,:), ST2(:,:), ST3(:,:), &
+                              ST4(:,:), ST5(:,:), ST6(:,:), ST7(:,:), WM1(:), WM2(:), WM3(:), WM4(:), WM5(:), WM6(:), WM7(:), &
+                              XTM_dMdH(:), XTM_MH(:), XTtens_dMdH(:,:,:), XTtens_MH(:,:,:), ZT1(:), ZT2(:), ZT3(:), ZT4(:), &
+                              ZT5(:), ZT6(:), ZT7(:)
 real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten, & ! in cm3 * mol-1 * T
                             THRS = 1.0e-13_wp
+logical(kind=iwp), parameter :: DBG = .false., m_paranoid = .true.
+real(kind=wp), external :: dev
 
-DBG = .false.
-m_paranoid = .true.!.false.
 ! threshold for convergence of average spin, in case (zJ /= 0)
 mem_local = 0
 
@@ -240,7 +186,6 @@ Xfield_7 = Xfield+Three*hp
 if (dbg) write(u6,*) 'XTMG:  Xfield: ',Xfield_1,Xfield_2,Xfield_3,Xfield_4,Xfield_5,Xfield_6,Xfield_7
 
 nTempTotal = nT+nTempMagn
-m_paranoid = .true.
 
 ! ///  opening the loop over different directions of the magnetic field
 do iM=1,nDirX

@@ -11,25 +11,25 @@
 
 subroutine restart_sa(input_to_read,input_file_name,nss,nstate)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: nss, nstate, input_to_read, iDisk
-integer :: luaniso
-character(len=180) :: input_file_name
-integer :: IsFreeUnit
-external :: IsFreeUnit
-logical :: dbg
-
-dbg = .false.
+integer(kind=iwp), intent(in) :: input_to_read
+character(len=180), intent(in) :: input_file_name
+integer(kind=iwp), intent(inout) :: nss, nstate
+integer(kind=iwp) :: iDisk, idum(1), luaniso
+logical(kind=iwp), parameter :: dbg = .false.
+integer(kind=iwp), external :: IsFreeUnit
 
 if (input_to_read == 1) then
   ! read the binary file "$Project.aniso":
   luaniso = 8
   call daname(luaniso,'POLYFILE')
   iDisk = 0
-  call idafile(luaniso,2,nstate,1,iDisk)
-  call idafile(luaniso,2,nss,1,iDisk)
+  call idafile(luaniso,2,idum,1,iDisk)
+  nstate = idum(1)
+  call idafile(luaniso,2,idum,1,iDisk)
+  nss = idum(1)
   call daclos(luaniso)
   ! put them on RunFile:
   call Put_iScalar('NSTATE_SINGLE   ',nstate)

@@ -15,46 +15,29 @@ subroutine SUSCEPTIBILITY(NSS,ESO,S_SO,DIPSO,nT,nTempMagn,T,tmin,tmax,XTexp,zJ,t
 ! the units are cgsemu: cm^3*k/mol
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, Ten, cLight, kBoltzmann, mBohr, rNAVO, rPlanck
-use Definitions, only: wp, u6, RtoB
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-integer, intent(in) :: nss, iprint, nT, nTempMagn, mem
-real(kind=8), intent(in) :: eso(nss)
-real(kind=8), intent(in) :: zJ, tmin, tmax
-real(kind=8), intent(in) :: T(nT+nTempMagn)
-real(kind=8), intent(in) :: XTexp(nT+nTempMagn)
-real(kind=8), intent(out) :: chit_theta(nT+nTempMagn)
-complex(kind=8), intent(in) :: s_so(3,nss,nss)
-complex(kind=8), intent(in) :: dipso(3,nss,nss)
-logical, intent(in) :: tinput
-logical, intent(in) :: doplot
-#include "stdalloc.fh"
-integer :: ic, jc, it, im, jm, j, i, info, jT, mem_local
-real(kind=8) :: det, xxm, Zst
-real(kind=8) :: dev
-logical :: DBG
-external :: dev
-real(kind=8) :: gtens(3), maxes(3,3)
-real(kind=8), allocatable :: chit_tens(:,:,:)
-real(kind=8), allocatable :: chit_theta_tens(:,:,:)
-real(kind=8), allocatable :: zstat1(:)
-real(kind=8), allocatable :: chit(:)
-real(kind=8), allocatable :: chi_theta_1(:)
-real(kind=8) :: XMM(3,3)
-! tensors for zJ /= 0
-real(kind=8) :: XSM(3,3), XSS(3,3), XZJ(3,3), a_dir(3,3), a_inv(3,3)
-! main values and axes of XT tensors:
-real(kind=8) :: WT(3), ZT(3,3)
+integer(kind=iwp), intent(in) :: nss, nT, nTempMagn, iprint, mem
+real(kind=wp), intent(in) :: eso(nss), T(nT+nTempMagn), tmin, tmax, XTexp(nT+nTempMagn), zJ
+complex(kind=wp), intent(in) :: s_so(3,nss,nss), dipso(3,nss,nss)
+logical(kind=iwp), intent(in) :: tinput, doplot
+real(kind=wp), intent(out) :: chit_theta(nT+nTempMagn)
+integer(kind=iwp) :: i, ic, im, info, it, j, jc, jm, jT, mem_local
+real(kind=wp) :: a_dir(3,3), a_inv(3,3), det, gtens(3), maxes(3,3), WT(3), XMM(3,3), XSM(3,3), XSS(3,3), xxm, XZJ(3,3), Zst, ZT(3,3)
+logical(kind=iwp) :: DBG
 character(len=50) :: label
-real(kind=8), parameter :: coeff_X = rNAVO*mBohr**2/kBoltzmann/Ten, &
-                           boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! boltzmann constant in cm-1*K-1
+real(kind=wp), allocatable :: chi_theta_1(:), chit(:), chit_tens(:,:,:), chit_theta_tens(:,:,:), zstat1(:)
+real(kind=wp), parameter :: coeff_X = rNAVO*mBohr**2/kBoltzmann/Ten, &
+                            boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! boltzmann constant in cm-1*K-1
+real(kind=wp), external :: dev
 
 ! constants used in this subrutine
 mem_local = 0
 
-DBG = .false.
-if (iPrint > 2) DBG = .true.
+DBG = iPrint > 2
 
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,95)
@@ -115,9 +98,8 @@ mem_local = mem_local+size(chi_theta_1)*RtoB
 mem_local = mem_local+size(chiT_tens)*RtoB
 
 if (zJ == 0) then
-  if (dbg) write(u6,*) 'SUSC:  zJ = 0'
-
   if (dbg) then
+    write(u6,*) 'SUSC:  zJ = 0'
     write(u6,*) 'SUSC:  memory allocated (local):'
     write(u6,*) 'mem_local=',mem_local
     write(u6,*) 'SUSC:  memory allocated (total):'

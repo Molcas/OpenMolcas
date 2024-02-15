@@ -10,18 +10,17 @@
 !***********************************************************************
 
 subroutine sort_KQ(N,ARR,rank,proj,iopt)
-
-use Definitions, only: u6
-
-implicit none
-integer, intent(in) :: N, iopt
-integer, intent(inout) :: rank(N), proj(N)
-real(kind=8), intent(inout) :: ARR(N)
-! local
-integer :: i, j, ir, ip
-real(kind=8) :: a
 ! iopt = 1   => sort in ascending order
 ! iopt = 2   => sort in descending order
+
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: N, iopt
+real(kind=wp), intent(inout) :: ARR(N)
+integer(kind=iwp), intent(inout) :: rank(N), proj(N)
+integer(kind=iwp) :: i, ip, ir, j
+real(kind=wp) :: a
 
 if (iopt == 1) then
   do j=2,N
@@ -32,11 +31,11 @@ if (iopt == 1) then
     do i=j-1,1,-1
       if (ARR(i) <= a) exit
       ARR(i+1) = ARR(i)
-      rank (i+1) = rank(i)
+      rank(i+1) = rank(i)
       proj(i+1) = proj(i)
     end do
     ARR(i+1) = a
-    rank (i+1) = ir
+    rank(i+1) = ir
     proj(i+1) = ip
   end do
 else if (iopt == 2) then
@@ -48,11 +47,11 @@ else if (iopt == 2) then
     do i=j-1,1,-1
       if (ARR(i) >= a) exit
       ARR(i+1) = ARR(i)
-      rank (i+1) = rank(i)
+      rank(i+1) = rank(i)
       proj(i+1) = proj(i)
     end do
     ARR(i+1) = a
-    rank (i+1) = ir
+    rank(i+1) = ir
     proj(i+1) = ip
   end do
 else

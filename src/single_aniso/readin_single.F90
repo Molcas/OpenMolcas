@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine readin_single(iprint,nmult,ndim,ldim,ndimcf,ldimcf,nlanth,axisoption,poly_file,Ifrestart,input_to_read,nk,mg,zmagn, &
+subroutine readin_single(iprint,nmult,ndim,ndimcf,ldimcf,nlanth,axisoption,poly_file,Ifrestart,input_to_read,nk,mg,zmagn, &
                          Do_structure_abc,cryst,coord,encut_definition,compute_g_tensors,compute_CF,nDirTot,nss,nstate, &
                          compute_magnetization,compute_torque,smagn,tinput,hinput,compute_Mdir_vector,zeeman_energy,LUZee,doplot, &
                          encut_rate,ncut,nTempMagn,TempMagn,m_paranoid,compute_barrier,nBlock,AngPoints,input_file_name,nT,nH, &
@@ -21,69 +21,32 @@ use Constants, only: Zero, One, Two, Five, Six, Ten
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "warnings.h"
+integer(kind=iwp), intent(inout) :: nmult, ntempmagn, nt, nh, nDir, nDirZee
+integer(kind=iwp), intent(out) :: iprint, ndim(nMult), ndimcf, ldimcf, nlanth, axisoption, input_to_read, nk, mg, &
+                                  encut_definition, ndirtot, LUZee(nDirZee), ncut, nBlock, AngPoints
+logical(kind=iwp), intent(out) :: poly_file, Ifrestart, Do_structure_abc, compute_g_tensors, compute_cf, compute_magnetization, &
+                                  compute_torque, smagn, tinput, hinput, compute_Mdir_vector, zeeman_energy, doplot, m_paranoid, &
+                                  compute_barrier
+real(kind=wp), intent(out) :: zmagn(3,3), cryst(6), coord(3), encut_rate, tempmagn(nTempMagn), texp(nT), chit_exp(nT), zj, &
+                              hexp(nH), magn_exp(nH,ntempmagn), hmin, hmax, dirX(nDir), dirY(nDir), dirZ(nDir), &
+                              dir_weight(nDirZee,3), Xfield, tmin, tmax, thrs, H_torq, T_torq
+integer(kind=iwp), intent(in) :: nss, nstate
+character(len=180), intent(inout) :: input_file_name
 #include "mgrid.fh"
-!-----------------------------------------------------------------------
-! magnetization vectors:
-integer :: nDir, nDirZee
-real(kind=8) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-real(kind=8) :: dir_weight(nDirZee,3)
-logical :: compute_Mdir_vector, zeeman_energy
-!common/MVL/ compute_Mdir_vector
-!common/MZEL/ zeeman_energy
-!-----------------------------------------------------------------------
-integer :: nss, nstate
-integer :: iprint, nt, nh, nk, mg, l, jEnd, istatus
-integer :: nlanth, ndimcf, ldimcf, axisoption, i_OxStat
-integer :: input_to_read, encut_definition, ncut, ntempmagn
-integer :: ndirtot
-integer :: nBlock
-integer :: nmult, ndim(nMult), ldim
-integer :: AngPoints
-integer :: LUZee(nDirZee)
-real(kind=8) :: tmin, tmax, hmin, hmax, t1, t2, zj, tempmagn(nTempMagn), encut_rate
-real(kind=8) :: texp(nT), chit_exp(nT)
-real(kind=8) :: hexp(nH), magn_exp(nH,ntempmagn)
-real(kind=8) :: zmagn(3,3), rsum, tmp
-real(kind=8) :: cryst(6), coord(3)
-real(kind=8) :: column_check(3,3), row_check(3,3)
-real(kind=8) :: check_dir_weight(nDirZee)
-real(kind=8) :: zr(3,3), det_zmagn
-real(kind=8) :: FindDetR
-real(kind=8) :: Xfield
-real(kind=8), intent(out) :: thrs
-real(kind=8), intent(out) :: H_torq, T_torq
-logical :: hcheck, tcheck, poly_file
-logical :: Ifrestart, Do_structure_abc
-logical :: compute_magnetization, encut_check, compute_cf
-logical :: compute_g_tensors
-logical :: checktmag
-logical :: compute_barrier
-logical :: compute_torque
-logical :: smagn
-logical :: tinput, hinput
-logical, intent(out) :: m_paranoid
-logical :: doplot
-character(len=2) :: cME, uME
-character(len=21) :: namefile_energy
-character(len=180) :: input_file_name, tmpline, err_msg
-external :: FindDetR
-integer :: IsFreeUnit
-external :: IsFreeUnit
-!=======================================================================
-!common/CHISUBR/ TMIN,TMAX,T1,T2
-!common/CHISUBL/ TINPUT
-!common/MAGNSUBI/ NK,MG
-!common/MAGNSUBR/ HMIN,HMAX
-!common/MAGNSUBL/ HINPUT
-integer :: I, LINENR, j
+integer(kind=iwp) :: I, i_OxStat, istatus, j, jEnd, l, LINENR
+real(kind=wp) :: check_dir_weight, column_check(3,3), det_zmagn, row_check(3,3), rsum, t1, t2, tmp, zr(3,3)
+logical(kind=iwp) :: checktmag, encut_check, hcheck, tcheck
 character(len=280) :: LINE
-logical :: DBG
+character(len=180) :: err_msg, tmpline
+character(len=21) :: namefile_energy
+character(len=2) :: cME, uME
+logical(kind=iwp), parameter :: DBG = .false.
 character(len=*), parameter :: clanth(37) = ['CE','PR','ND','PM','SM','EU','GD','TB','DY','HO','ER','TM','YB','LU', & ! lanthanides
                                              'TH','PA','U ','NP','PU','AM','CM','BK','CF','ES','FM','MD','NO','LR', & ! actinides
                                              'SC','TI','V ','CR','MN','FE','CO','NI','CU'] ! transition metals
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), external :: FindDetR
 
-DBG = .false.
 !============ Some default settings=====================================
 ! variables in "mgrid.fh"
 nsymm = 1
@@ -184,8 +147,6 @@ get_nP(3,29) = 571
 get_nP(3,30) = 631
 get_nP(3,31) = 694
 get_nP(3,32) = 760
-compute_Mdir_vector = .false.
-zeeman_energy = .false.
 !========== Initializations of arrays ==================================
 DirX(:) = Zero
 DirY(:) = Zero
@@ -194,8 +155,20 @@ dir_weight(:,:) = Zero
 TempMagn(:) = Zero
 !============ Initializations of constants =============================
 
+IPRINT = 2
+ndim(:) = 0
+Ifrestart = .false.
+nDirTot = 0
+LuZee(:) = 0
+nBlock = 0
+texp(:) = Zero
+chit_exp(:) = Zero
+hexp(:) = Zero
+magn_exp(:,:) = Zero
+H_torq = 0.1_wp ! in tesla
+T_torq = Two    ! in K
+
 thrs = 1.0e-10_wp
-ldim = 1
 ncut = 1
 TMIN = Zero
 TMAX = 300.0_wp
@@ -233,6 +206,7 @@ ENCUT_check = .false.
 doplot = .false.
 nlanth = 0
 nDIMcf = 0
+lDIMcf = 0
 cME = '  '
 
 cryst(:) = Zero
@@ -336,8 +310,10 @@ do
       read(u5,*) tmpline
       input_file_name = trim(tmpline)
       input_to_read = 6
-      if (DBG) write(u6,*) 'restart_check: DATA, input_file_name='
-      if (DBG) write(u6,*) input_file_name
+      if (DBG) then
+        write(u6,*) 'restart_check: DATA, input_file_name='
+        write(u6,*) input_file_name
+      end if
       LINENR = LINENR+1
     !-------------------------------------------
     case ('TINT')
@@ -364,7 +340,7 @@ do
 
         if (DBG) write(u6,*) 'TINT: Tmin, Tmax, nT=',Tmin,Tmax,nT
       else
-        write(u6,*) 'READINPUT: the TINT command is incompatible with TEXP'
+        write(u6,*) 'READIN_SINGLE: the TINT command is incompatible with TEXP'
         call ABEnd()
       end if
       LINENR = LINENR+1
@@ -401,14 +377,14 @@ do
 
         if (DBG) write(u6,*) 'HINT: Hmin, Hmax, nH=',Hmin,Hmax,nH
       else
-        write(u6,*) 'READINPUT: the HINT command is incompatible with HEXP'
+        write(u6,*) 'READIN_SINGLE: the HINT command is incompatible with HEXP'
         call ABEnd()
       end if
       LINENR = LINENR+1
     !-------------------------------------------
     case ('NCUT')
       if (ENCUT_check) then
-        write(u6,*) 'READINPUT: NCUT, ERAT and ENCU are mutually exclusive.'
+        write(u6,*) 'READIN_SINGLE: NCUT, ERAT and ENCU are mutually exclusive.'
         call ABEnd()
       endif
       ENCUT_check = .true.
@@ -431,7 +407,7 @@ do
     !-------------------------------------------
     case ('ENCU')
       if (ENCUT_check) then
-        write(u6,*) 'READINPUT: NCUT, ERAT and ENCU are mutually exclusive.'
+        write(u6,*) 'READIN_SINGLE: NCUT, ERAT and ENCU are mutually exclusive.'
         call ABEnd()
       endif
       ENCUT_check = .true.
@@ -451,7 +427,7 @@ do
     !-------------------------------------------
     case ('ERAT')
       if (ENCUT_check) then
-        write(u6,*) 'READINPUT: NCUT, ERAT and ENCU are mutually exclusive.'
+        write(u6,*) 'READIN_SINGLE: NCUT, ERAT and ENCU are mutually exclusive.'
         call ABEnd()
       end if
       ENCUT_check = .true.
@@ -554,7 +530,7 @@ do
         tmin = texp(1)
         tmax = texp(nT)
       else
-        write(u6,*) 'READINPUT: the TINT command is incompatible with TEXP'
+        write(u6,*) 'READIN_SINGLE: the TINT command is incompatible with TEXP'
         call ABEnd()
       end if
       LINENR = LINENR+NT+1
@@ -584,7 +560,7 @@ do
         hmin = hexp(1)
         hmax = hexp(nH)
       else
-        write(u6,*) 'READINPUT: the HINT command is incompatible with HEXP'
+        write(u6,*) 'READIN_SINGLE: the HINT command is incompatible with HEXP'
         call ABEnd()
       end if
       LINENR = LINENR+NH+2
@@ -1137,15 +1113,15 @@ do
         if (istatus < 0) call Error(2)
         if (DBG) write(u6,*) 'ZEEM: (dir_weight(i,l),l=1,3)=',(dir_weight(i,l),l=1,3)
 
-        check_dir_weight(i) = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
+        check_dir_weight = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
 
-        if (abs(check_dir_weight(i)-One) > 0.005_wp) then
+        if (abs(check_dir_weight-One) > 0.005_wp) then
           write(u6,'(A)') 'The directions for the magnetic field for the computation of the Zeeman splitting are wrong.'
           write(u6,'(A)') '( px^2 + py^2 + pz^2 ) must give 1.!'
           write(u6,'(A,I3,2x,A,F9.5)') 'In the present case for direction Nr.',i,' the dir_weight = px^2 + py^2 + pz^2 = ', &
-                                       check_dir_weight(i)**2
+                                       check_dir_weight**2
           LINENR = LINENR+2+i
-          write(u6,*) ' READINPUT: Error reading standard input.'
+          write(u6,*) ' READIN_SINGLE: Error reading standard input.'
           write(u6,*) ' SINGLE_ANISO input near line nr.',LINENR+1
           call ABEnd()
         end if
@@ -1210,10 +1186,9 @@ end if ! compute_CF
 ! preparing the info for computation of molar magnetization
 if (compute_magnetization) then
   ! calculate the total number of directions for the average procedure
-  nDirTot = 0
-  if (zeeman_energy) nDirTot = nDirZee
+  nDirTot = get_nP(nsymm,ngrid)
+  if (zeeman_energy) nDirTot = nDirTot+nDirZee
   if (compute_Mdir_vector) nDirTot = nDirTot+nDir
-  nDirTot = nDirTot+get_nP(nsymm,ngrid)
 end if
 
 !------ CHECK the data from INPUT ------------------------------
@@ -1335,11 +1310,9 @@ if (Do_structure_abc) then
   write(u6,'(10x,a,3F9.4)') 'coords: = ',(coord(i),i=1,3)
 end if
 
-if (compute_g_tensors) then
-  if (compute_barrier) then
-    Nblock = sum(ndim(:))
-    write(u6,'(A,i4)') 'nBlock = ',nBlock
-  end if
+if (compute_g_tensors .and. compute_barrier) then
+  Nblock = sum(ndim(1:nMult))
+  write(u6,'(A,i4)') 'nBlock = ',nBlock
 end if
 
 return
@@ -1352,9 +1325,9 @@ subroutine Error(code)
 
   select case (code)
     case (1)
-      write(u6,*) ' READINPUT: Unexpected End of input file.'
+      write(u6,*) ' READIN_SINGLE: Unexpected End of input file.'
     case (2)
-      write(u6,*) ' READINPUT: Error reading standard input.'
+      write(u6,*) ' READIN_SINGLE: Error reading standard input.'
       write(u6,*) ' SINGLE_ANISO input near line nr.',LINENR+1
   end select
   call ABEnd()

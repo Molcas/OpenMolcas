@@ -11,54 +11,22 @@
 
 subroutine torque(Nss,NM,AngPoints,EM,eso,dipm,sm,zJ,thrs,mem,m_paranoid,smagn,H_torq,T_torq,ma,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, deg2rad
-use Definitions, only: wp, u6, CtoB, RtoB
+use Definitions, only: wp, iwp, u6, CtoB, RtoB
 
 implicit none
+integer(kind=iwp), intent(in) :: nss, nm, AngPoints, mem
+real(kind=wp), intent(in) :: EM, ESO(nss), zJ, thrs, H_torq, T_torq, ma(3,3) ! main magnetic axes
+complex(kind=wp), intent(in) :: DIPM(3,nss,nss), SM(3,nss,nss)
+logical(kind=iwp), intent(in) :: m_paranoid, smagn, DBG
 #include "mgrid.fh"
-#include "stdalloc.fh"
-integer, intent(in) :: nss, nm
-integer, intent(in) :: AngPoints
-integer, intent(in) :: mem
-logical, intent(in) :: smagn
-logical, intent(in) :: m_paranoid
-! ab initio data:
-! exchange energies printed out in the previous part
-real(kind=8), intent(in) :: ESO(nss)
-real(kind=8), intent(in) :: EM, zJ, thrs
-real(kind=8), intent(in) :: H_torq, T_torq
-real(kind=8), intent(in) :: ma(3,3) ! main magnetic axes
-complex(kind=8), intent(in) :: DIPM(3,nss,nss)
-complex(kind=8), intent(in) :: SM(3,nss,nss)
-! local data:
-! magnetic field strength and orientation data:
-integer :: nPlanes
-parameter(nPlanes=1)
-!real(kind=8) :: dlth
-real(kind=8), allocatable :: W(:) ! W(NM) ! Zeeman exchange energies
-real(kind=8) :: ZT(1)             ! ZT ! total statistical sum, Boltzmann distribution
-real(kind=8) :: ST(3) ! total spin magnetisation,
-real(kind=8) :: MT(3) ! total magnetisation
-real(kind=8), allocatable :: dX(:) ! dX(AngPoints)
-real(kind=8), allocatable :: dY(:) ! dY(AngPoints)
-real(kind=8), allocatable :: dZ(:) ! dZ(AngPoints)
-real(kind=8), allocatable :: Ang(:)  ! Ang(AngPoints)
-complex(kind=8), allocatable :: M(:,:,:)
-complex(kind=8), allocatable :: S(:,:,:)
-! magnetic torque
-!real(kind=8), allocatable :: tx(:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-real(kind=8), allocatable :: ty(:) ! ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-!real(kind=8), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-! magnetic and spin moments (i.e. the BIG matrices):
+integer(kind=iwp) :: I, IM, J, mem_local, nT_torq
+real(kind=wp) :: AngRad, AngStep, g(3), mg(3,3), MT(3), ST(3), ZT(1) !, det, dlth, ma_inv(3,3)
 character(len=99) :: STLNE1, STLNE2
-real(kind=8) :: g(3), mg(3,3) !,ma_inv(3,3)!,det
-real(kind=8) :: AngStep, AngRad
-logical :: DBG
-integer :: IM, I, J, mem_local, nT_torq
-
-!Boltz_k = 0.6950356000_wp ! in cm^-1*K-1
-!mu_Bohr = 0.4668643740_wp ! in cm-1*T-1
-!cm3tomB = 0.5584938904_wp ! in cm3 * mol-1 * T
+real(kind=wp), allocatable :: Ang(:), dX(:), dY(:), dZ(:), ty(:), W(:) !, tx(:,:), tz(:,:)
+complex(kind=wp), allocatable :: M(:,:,:), S(:,:,:)
+integer(kind=iwp), parameter :: nPlanes = 1
 
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,96)

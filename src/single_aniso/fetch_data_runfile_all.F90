@@ -11,31 +11,25 @@
 
 subroutine fetch_data_RunFile_all(nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,angmom,eDmom,amfi,HSO,eso_au,esfs_au)
 
-use Constants, only: cZero, cOne, Onei, auTocm, gElectron
-use Definitions, only: wp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, cZero, cOne, Onei, auTocm, gElectron
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer :: nss, nstate
-integer :: multiplicity(nstate)
-real(kind=8) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate), eDmom(3,nstate,nstate), amfi(3,nstate,nstate), eso_au(nss), &
-                esfs_au(nstate)
-complex(kind=8) :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
-complex(kind=8) :: DM(3,nss,nss)
-complex(kind=8) :: U(nss,nss), HSO(nss,nss)
-! local variables:
-integer :: njob, mxjob, ndata, iss, ibas(nstate,-50:50)
-integer :: i, j, i1, j1, ist, jst, mult, multI, multJ
-integer :: l, ipar, info
-real(kind=8) :: diff
-! allocatable local arrays:
-integer, allocatable :: mltplt(:), jbnum(:), nstat(:) !,lroot(:)
-real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), W(:)
-complex(kind=8), allocatable :: tmp(:,:), u1(:,:)
-complex(kind=8) :: Spin
-external :: Spin
-logical :: found_edmom, found_amfi, found_hsor, found_hsoi
-real(kind=8), parameter :: g_e = -gElectron, thr_deg = 0.2e-13_wp ! a.u. = 0.2e-13*auTocm = 4.38949263e-9 cm-1
+integer(kind=iwp), intent(in) :: nss, nstate
+integer(kind=iwp), intent(out) :: multiplicity(nstate)
+real(kind=wp), intent(out) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate), eDmom(3,nstate,nstate), amfi(3,nstate,nstate), &
+                              eso_au(nss), esfs_au(nstate)
+complex(kind=wp), intent(out) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss), DM(3,nss,nss)
+complex(kind=wp), intent(inout) :: HSO(nss,nss)
+integer(kind=iwp) :: i, i1, info, ipar, iss, ist, j, j1, jst, l, mult, multI, multJ, mxjob, ndata, njob
+real(kind=wp) :: diff
+logical(kind=iwp) :: found_amfi, found_edmom, found_hsoi, found_hsor
+integer(kind=iwp), allocatable :: ibas(:,:), jbnum(:), mltplt(:), nstat(:)
+real(kind=wp), allocatable :: tmpI(:,:), tmpR(:,:), W(:)
+complex(kind=wp), allocatable :: tmp(:,:), u1(:,:)
+complex(kind=wp), external :: Spin
+real(kind=wp), parameter :: g_e = -gElectron, thr_deg = 0.2e-13_wp ! a.u. = 0.2e-13*auTocm = 4.38949263e-9 cm-1
 
 ! get basic sizes:
 njob = 0
@@ -54,7 +48,6 @@ call get_iArray('MLTP_SINGLE',MLTPLT,MXJOB)
 call get_iArray('JBNUM_SINGLE',JBNUM,NSTATE)
 call get_iArray('NSTAT_SINGLE',NSTAT,MXJOB)
 ! computing the multiplicity of each state:
-multiplicity = 0
 do i=1,nstate
   multiplicity(i) = mltplt(jbnum(i))
 end do
@@ -82,18 +75,22 @@ U(:,:) = cmplx(tmpR(:,:),tmpI(:,:),kind=wp)
 call get_dArray('ANGM_SINGLE',angmom,3*nstate*nstate)
 
 ! fetch the electric dipole moment integrals:
-found_EDMOM = .false.
 call qpg_dArray('DIP1_SINGLE',FOUND_EDMOM,NDATA)
-if (found_edmom) call get_dArray('DIP1_SINGLE',edmom,3*nstate*nstate)
+if (found_edmom) then
+  call get_dArray('DIP1_SINGLE',edmom,3*nstate*nstate)
+else
+  edmom(:,:,:) = Zero
+end if
 
 ! fetch the amfi integrals:
-found_AMFI = .false.
 call qpg_dArray('AMFI_SINGLE',FOUND_AMFI,NDATA)
-if (found_amfi) call get_dArray('AMFI_SINGLE',amfi,3*nstate*nstate)
+if (found_amfi) then
+  call get_dArray('AMFI_SINGLE',amfi,3*nstate*nstate)
+else
+  amfi(:,:,:) = Zero
+end if
 
 ! fetch the spin-orbit hamiltonian
-FOUND_HSOR = .false.
-FOUND_HSOI = .false.
 call qpg_dArray('HAMSOR_SINGLE',FOUND_HSOR,NDATA)
 call qpg_dArray('HAMSOI_SINGLE',FOUND_HSOI,NDATA)
 if (FOUND_HSOR .and. FOUND_HSOI) then
@@ -126,8 +123,9 @@ call mma_deallocate(tmpI)
 
 !-----
 ! generate a local indexing table:
+call mma_allocate(ibas,[1,nstate],[-50,50],label='ibas')
 iss = 0
-ibas = 0
+ibas(:,:) = 0
 ipar = mod(multiplicity(1),2)
 do Ist=1,nstate
   Mult = Multiplicity(Ist)
@@ -143,6 +141,7 @@ end do ! Ist
 MM(:,:,:) = cZero
 ML(:,:,:) = cZero
 MS(:,:,:) = cZero
+DM(:,:,:) = cZero
 do Ist=1,nstate
   Mult = Multiplicity(Ist)
   do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
@@ -175,6 +174,8 @@ do Ist=1,nstate
     end if
   end do ! Jst
 end do ! Ist
+
+call mma_deallocate(ibas)
 
 ! calculate the matrix elements of the spin and magnetic moment
 ! in the spin-orbit basis:

@@ -12,20 +12,16 @@
 subroutine recover_CF(N,HAM,Akq,B,C,Bstev)
 
 use Constants, only: cZero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: n
-complex(kind=8), intent(in) :: HAM(n,n)
-complex(kind=8), intent(in) :: Akq((n-1),-(n-1):(n-1))
-real(kind=8), intent(in) :: B(n,0:n), C(n,0:n), Bstev(n,-n:n)
-integer :: k, q, i, j, info
-real(kind=8) :: tdiff
-complex(kind=8) :: Cp(n,n), Cm(n,n), redME
-complex(kind=8) :: O(n,n), W(n,n)
-complex(kind=8) :: HCF(n,n), Z(n,n)
-real(kind=8) :: w1(n), w2(n), c0, dznrm2_
-external :: dznrm2_
+integer(kind=iwp), intent(in) :: n
+complex(kind=wp), intent(in) :: HAM(n,n), Akq(n-1,-(n-1):n-1)
+real(kind=wp), intent(in) :: B(n,0:n), C(n,0:n), Bstev(n,-n:n)
+integer(kind=iwp) :: i, info, j, k, q
+real(kind=wp) :: c0, tdiff, w1(n), w2(n)
+complex(kind=wp) :: Cm(n,n), Cp(n,n), HCF(n,n), O(n,n), redME, W(n,n), Z(n,n)
+real(kind=wp), external :: dznrm2_
 
 do k=2,n-1
   do q=-k,k

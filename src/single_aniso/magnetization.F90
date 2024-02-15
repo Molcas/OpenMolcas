@@ -30,6 +30,10 @@ subroutine magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,m
 !     IFINAL  : integer                                                *
 !               termination flag                                       *
 !                                                                      *
+!     local variables:                                                 *
+!     MVEC, SVEC : magnetization and spin vector                       *
+!     MAV, SAV   : average powder M and S                              *
+!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -37,69 +41,27 @@ subroutine magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,m
 !     University of Leuven, Belgium, 2008-2017                         *
 !                                                                      *
 !----------------------------------------------------------------------*
-!     Hystory:                                                         *
+!     History:                                                         *
 !     Liviu Ungur, 2008-2017 various modifications                     *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6, RtoB
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
+integer(kind=iwp), intent(in) :: nss, nM, nTempMagn, nDirTot, nDir, nDirZee, nH, iprint, LUZee(nDirZee), mem
+logical(kind=iwp), intent(in) :: compute_Mdir_vector, zeeman_energy, hinput, m_paranoid, smagn, DoPlot, dbg
+real(kind=wp), intent(in) :: TempMagn(nTempMagn), eso(nss), dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3), hexp(nH), &
+                             magn_exp(nH,nTempMagn), zj, hmin, hmax, EM, thrs
+complex(kind=wp), intent(in) :: dipm(3,nss,nss), sm(3,nss,nss)
 #include "mgrid.fh"
-#include "stdalloc.fh"
-!----------------------------------------------------------------
-! input data (30)
-integer, intent(in) :: nDir
-integer, intent(in) :: nDirZee
-integer, intent(in) :: nDirTot
-integer, intent(in) :: nss
-integer, intent(in) :: nM
-integer, intent(in) :: nH
-integer, intent(in) :: iprint
-integer, intent(in) :: nTempMagn
-integer, intent(in) :: mem
-integer, intent(in) :: LUZee(nDirZee)
-logical, intent(in) :: compute_Mdir_vector
-logical, intent(in) :: zeeman_energy
-logical, intent(in) :: DoPlot
-logical, intent(in) :: hinput
-logical, intent(in) :: smagn
-logical, intent(in) :: m_paranoid
-logical, intent(in) :: dbg
-real(kind=8), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-real(kind=8), intent(in) :: dir_weight(nDirZee,3)
-real(kind=8), intent(in) :: hmin, hmax
-real(kind=8), intent(in) :: zj, thrs
-real(kind=8), intent(in) :: eso(nss)
-real(kind=8), intent(in) :: EM
-real(kind=8), intent(in) :: TempMagn(nTempMagn)
-real(kind=8), intent(in) :: hexp(nH)
-real(kind=8), intent(in) :: magn_exp(nH,nTempMagn)
-complex(kind=8), intent(in) :: sm(3,nss,nss)
-complex(kind=8), intent(in) :: dipm(3,nss,nss)
-!-----------------------------------------------------------------------
-! local variables
-integer :: nP, iTEnd, iT, IM, I, L, J, IDIR, IH, iTemp
-real(kind=8) :: DLTH, mv, sv, dev
+integer(kind=iwp) :: I, IDIR, IH, IM, iT, iTemp, iTEnd, J, L, mem_local, nP
+real(kind=wp) :: DLTH, mv, sv
 character(len=99) :: STLNE1, STLNE2
-real(kind=8), allocatable :: WM(:)         ! WM(nm)
-real(kind=8), allocatable :: MT(:,:,:)     ! MT(3,nH,nTempMagn)
-real(kind=8), allocatable :: ST(:,:,:)     ! ST(3,nH,nTempMagn)
-! magnetization and spin vectors
-real(kind=8), allocatable :: MVEC(:,:,:,:) ! MVEC(nDirTot,nH,nTempMagn,3)
-real(kind=8), allocatable :: SVEC(:,:,:,:) ! SVEC(nDirTot,nH,nTempMagn,3)
-real(kind=8), allocatable :: H(:)          ! H(nH)
-! average powder M and S:
-real(kind=8), allocatable :: MAV(:,:) ! MAV(nH,nTempMagn)
-real(kind=8), allocatable :: SAV(:,:) ! SAV(nH,nTempMagn)
-real(kind=8), allocatable :: ZT(:,:)  ! ZT(nH,nTempMagn)
-real(kind=8), allocatable :: STDEV(:) ! STDEV(nTempMagn)
-real(kind=8), allocatable :: dHX(:)   ! dHX(nDirTot)
-real(kind=8), allocatable :: dHY(:)   ! dHY(nDirTot)
-real(kind=8), allocatable :: dHZ(:)   ! dHZ(nDirTot)
-real(kind=8), allocatable :: dHW(:)   ! dHW(nDirTot)
-integer :: mem_local
-external :: dev
+real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), H(:), MAV(:,:), MT(:,:,:), MVEC(:,:,:,:), SAV(:,:), ST(:,:,:), &
+                              STDEV(:), SVEC(:,:,:,:), WM(:), ZT(:,:)
+real(kind=wp), external :: dev
 
 !-----------------------------------------------------------------------
 ! Allocate necessary memory

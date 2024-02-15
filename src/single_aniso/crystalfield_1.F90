@@ -22,31 +22,29 @@ subroutine CRYSTALFIELD_1(nDIMcf,nlanth,MM,ESOJ,GRAD,iprint)
 !  IReturn = the error value.
 !        0 = no error, happy landing
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: nDIMcf, nlanth, iprint
-logical, intent(in) :: GRAD
-real(kind=8), intent(in) :: ESOJ(nDIMcf)
-complex(kind=8), intent(in) :: MM(3,nDIMcf,nDIMcf)
-! local variables:
-integer :: info, i, j, k, q
-integer :: LuCF, IsFreeUnit
-real(kind=8), allocatable :: Winit(:), Eloc(:)
-real(kind=8) :: BNC(nDIMcf,0:nDIMcf)
-real(kind=8) :: BNS(nDIMcf,0:nDIMcf)
-real(kind=8) :: Bstev(nDIMcf,-nDIMcf:nDIMcf)
-complex(kind=8) :: Akq((nDIMcf-1),-(nDIMcf-1):(nDIMcf-1))
-complex(kind=8), allocatable :: Zinit(:,:), Z(:,:), HCF(:,:)
-external :: IsFreeUnit
+integer(kind=iwp), intent(in) :: nDIMcf, nlanth, iprint
+complex(kind=wp), intent(in) :: MM(3,nDIMcf,nDIMcf)
+real(kind=wp), intent(in) :: ESOJ(nDIMcf)
+logical(kind=iwp), intent(in) :: GRAD
+integer(kind=iwp) :: i, info, j, k, LuCF, q
+real(kind=wp), allocatable :: BNC(:,:), BNS(:,:), Bstev(:,:), Eloc(:), Winit(:)
+complex(kind=wp), allocatable :: Akq(:,:), HCF(:,:), Z(:,:), Zinit(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 
 call mma_allocate(Winit,nDIMcf,'Winit')
 call mma_allocate(Eloc,nDIMcf,'Eloc')
 call mma_allocate(Zinit,nDIMcf,nDIMcf,'Zinit')
 call mma_allocate(Z,nDIMcf,nDIMcf,'Z')
 call mma_allocate(HCF,nDIMcf,nDIMcf,'HCF')
+call mma_allocate(BNC,[1,nDIMcf],[0,nDIMcf],label='BNC')
+call mma_allocate(BNS,[1,nDIMcf],[0,nDIMcf],label='BNS')
+call mma_allocate(Bstev,[1,nDIMcf],[-nDIMcf,nDIMcf],label='Bstev')
+call mma_allocate(Akq,[1,nDIMcf-1],[-(nDIMcf-1),nDIMcf-1],label='Akq')
 
 ! find the J-pseudospin:
 !iDir = 3
@@ -136,6 +134,10 @@ call mma_deallocate(Eloc)
 call mma_deallocate(Zinit)
 call mma_deallocate(Z)
 call mma_deallocate(HCF)
+call mma_deallocate(BNC)
+call mma_deallocate(BNS)
+call mma_deallocate(Bstev)
+call mma_deallocate(Akq)
 
 return
 
