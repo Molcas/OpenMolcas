@@ -40,7 +40,6 @@ character(len=280) :: LINE
 character(len=180) :: err_msg, tmpline
 character(len=21) :: namefile_energy
 character(len=2) :: cME, uME
-logical(kind=iwp), parameter :: DBG = .false.
 character(len=*), parameter :: clanth(37) = ['CE','PR','ND','PM','SM','EU','GD','TB','DY','HO','ER','TM','YB','LU', & ! lanthanides
                                              'TH','PA','U ','NP','PU','AM','CM','BK','CF','ES','FM','MD','NO','LR', & ! actinides
                                              'SC','TI','V ','CR','MN','FE','CO','NI','CU'] ! transition metals
@@ -223,7 +222,9 @@ rewind(u5)
 do
   read(u5,'(A280)',iostat=istatus) LINE
   if (istatus < 0) call Error(1)
-  if (DBG) write(u6,'(A)') trim(LINE)
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') trim(LINE)
+# endif
   call NORMAL(LINE)
   if (LINE(1:7) == '&SINGLE') exit
 end do
@@ -231,7 +232,9 @@ LINENR = 0
 do
   read(u5,'(A280)',iostat=istatus) LINE
   if (istatus < 0) call Error(1)
-  if (DBG) write(u6,'(A)') trim(LINE)
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') trim(LINE)
+# endif
   LINENR = LINENR+1
   call NORMAL(LINE)
   if ((LINE(1:1) == '*') .or. (LINE == ' ')) cycle
@@ -273,18 +276,24 @@ do
     case ('MLTP')
       read(u5,*,iostat=istatus) NMULT
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'MLTP:  NMULT=',NMULT
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'MLTP:  NMULT=',NMULT
+#     endif
       compute_g_tensors = .true.
       read(u5,*,iostat=istatus) (NDIM(i),i=1,NMULT)
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'MLTP: NDIM()=',(NDIM(i),i=1,NMULT)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'MLTP: NDIM()=',(NDIM(i),i=1,NMULT)
+#     endif
       LINENR = LINENR+2
     !------------------------------------------
     case ('REST')
       Ifrestart = .true.
       read(u5,*,iostat=istatus) input_to_read
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'REST: input_to_read=',input_to_read
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'REST: input_to_read=',input_to_read
+#     endif
       if ((input_to_read == 2) .or. (input_to_read == 3) .or. (input_to_read == 4)) then
         backspace(u5)
         read(u5,*) input_to_read,tmpline
@@ -310,10 +319,10 @@ do
       read(u5,*) tmpline
       input_file_name = trim(tmpline)
       input_to_read = 6
-      if (DBG) then
-        write(u6,*) 'restart_check: DATA, input_file_name='
-        write(u6,*) input_file_name
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: DATA, input_file_name='
+      write(u6,*) input_file_name
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('TINT')
@@ -338,7 +347,9 @@ do
           call Quit_OnUserError()
         end if
 
-        if (DBG) write(u6,*) 'TINT: Tmin, Tmax, nT=',Tmin,Tmax,nT
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'TINT: Tmin, Tmax, nT=',Tmin,Tmax,nT
+#       endif
       else
         write(u6,*) 'READIN_SINGLE: the TINT command is incompatible with TEXP'
         call ABEnd()
@@ -348,7 +359,9 @@ do
     case ('XFIE')
       read(u5,*,iostat=istatus) Xfield
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'XFIE: Xfield=',Xfield
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'XFIE: Xfield=',Xfield
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('HINT')
@@ -375,7 +388,9 @@ do
           call Quit_OnUserError()
         end if
 
-        if (DBG) write(u6,*) 'HINT: Hmin, Hmax, nH=',Hmin,Hmax,nH
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'HINT: Hmin, Hmax, nH=',Hmin,Hmax,nH
+#       endif
       else
         write(u6,*) 'READIN_SINGLE: the HINT command is incompatible with HEXP'
         call ABEnd()
@@ -402,7 +417,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'NCUT: NCUT=',NCUT
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'NCUT: NCUT=',NCUT
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('ENCU')
@@ -422,7 +439,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'ENCU: NK, MG=',NK,MG
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'ENCU: NK, MG=',NK,MG
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('ERAT')
@@ -444,7 +463,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'ERAT: encut_rate=',encut_rate
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'ERAT: encut_rate=',encut_rate
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('MVEC')
@@ -452,11 +473,15 @@ do
       compute_Mdir_vector = .true.
       read(u5,*,iostat=istatus) nDir
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'MVEC: nDir=',nDir
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'MVEC: nDir=',nDir
+#     endif
       do i=1,nDir
         read(u5,*,iostat=istatus) DirX(i),DirY(i),DirZ(i)
         if (istatus < 0) call Error(2)
-        if (DBG) write(u6,*) 'MVEC: DirX,DirY,DirZ=',DirX(i),DirY(i),DirZ(i)
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'MVEC: DirX,DirY,DirZ=',DirX(i),DirY(i),DirZ(i)
+#       endif
       end do
       ! some processing:
       do i=1,nDir
@@ -485,7 +510,9 @@ do
       read(u5,*,iostat=istatus) nsymm,ngrid
       if (istatus < 0) call Error(2)
 
-      if (DBG) write(u6,*) 'MAVE: nsymm, ngrid=',nsymm,ngrid
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'MAVE: nsymm, ngrid=',nsymm,ngrid
+#     endif
       if ((nsymm < 1) .or. (nsymm > 3)) then
         write(u6,'(A)') '"nsymm" must take Integer values 1, 2 or 3.'
         write(u6,'(A,i5)') '"nsymm" = ',nsymm
@@ -505,12 +532,16 @@ do
     !-------------------------------------------
     case ('SMAG')
       smagn = .true.
-      if (DBG) write(u6,*) 'SMAG: =',smagn
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'SMAG: =',smagn
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('PLOT')
       doplot = .true.
-      if (DBG) write(u6,*) 'PLOT: =',doplot
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'PLOT: =',doplot
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('TEXP')
@@ -518,11 +549,15 @@ do
         TINPUT = .true.
         read(u5,*,iostat=istatus) NT
         if (istatus < 0) call Error(2)
-        if (DBG) write(u6,*) 'TEXP: nT=',nT
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'TEXP: nT=',nT
+#       endif
         do i=1,NT
           read(5,*,iostat=istatus) texp(i),chit_exp(i)
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'TEXP: texp(i), chit_exp(i)=',texp(i),chit_exp(i)
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'TEXP: texp(i), chit_exp(i)=',texp(i),chit_exp(i)
+#         endif
           ! check and clean negative values:
           if (texp(i) < Zero) texp(i) = abs(texp(i))
           if (chit_exp(i) < Zero) chit_exp(i) = abs(chit_exp(i))
@@ -541,16 +576,22 @@ do
       if (.not. HCHECK) then
         HINPUT = .true.
         read(u5,*) nTempMagn,(TempMagn(i),i=1,nTempMagn)
-        if (DBG) write(u6,*) 'HEXP: nTempMagn =',nTempMagn
-        if (DBG) write(u6,*) 'HEXP: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'HEXP: nTempMagn =',nTempMagn
+        write(u6,*) 'HEXP: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+#       endif
         read(u5,*) nH
-        if (DBG) write(u6,*) 'HEXP: nH =',nH
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'HEXP: nH =',nH
+#       endif
         if (nH < 0) nH = abs(nH)
         if (nH == 0) call Quit_OnUserError()
         do i=1,nH
           read(u5,*,iostat=istatus) Hexp(i),(magn_exp(i,j),j=1,nTempMagn)
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'HEXP: Hexp(i),  magn_exp(i,j)=',Hexp(i),(magn_exp(i,j),j=1,nTempMagn)
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'HEXP: Hexp(i),  magn_exp(i,j)=',Hexp(i),(magn_exp(i,j),j=1,nTempMagn)
+#         endif
           ! check and clean negative values:
           if (hexp(i) < Zero) hexp(i) = abs(hexp(i))
           do j=1,nTempMagn
@@ -568,7 +609,9 @@ do
     case ('ZJPR')
       read(u5,*,iostat=istatus) ZJ
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'ZJPR: zJ =',zJ
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'ZJPR: zJ =',zJ
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('TORQ')
@@ -593,8 +636,10 @@ do
           end if
         end do
 
-        if (DBG) write(u6,*) 'TMAG: nTempMagn =',nTempMagn
-        if (DBG) write(u6,*) 'TMAG: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'TMAG: nTempMagn =',nTempMagn
+        write(u6,*) 'TMAG: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+#       endif
         ! check and clean negative values:
       else
         write(u6,'(A)') 'TMAG data is taken from HEXP.'
@@ -604,11 +649,15 @@ do
     case ('PRLV')
       read(u5,*,iostat=istatus) IPRINT
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'PRLV: IPRINT =',iPrint
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'PRLV: IPRINT =',iPrint
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('POLY')
-      if (DBG) write(u6,*) 'POLY:'
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'POLY:'
+#     endif
       POLY_FILE = .true.
     !-------------------------------------------
     case ('CRYS')
@@ -617,7 +666,9 @@ do
       uME = cME
       call UpCase(uME)
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'CRYS: cME =',cME
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'CRYS: cME =',cME
+#     endif
 
       select case (uME)
         ! LANTHANIDES
@@ -769,7 +820,9 @@ do
           ! Sc2+ -- d^1
           read(u5,*,iostat=istatus) i_OxStat
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         endif
 
           if (i_OxStat < 0) then
             write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
@@ -797,7 +850,9 @@ do
           ! Ti4+ -- d^0
           read(u5,*,iostat=istatus) i_OxStat
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         endif
 
           if (i_OxStat < 0) then
             write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
@@ -827,7 +882,9 @@ do
           ! V4+ -- d^1
           read(u5,*,iostat=istatus) i_OxStat
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         endif
 
           if (i_OxStat < 0) then
             write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
@@ -889,7 +946,9 @@ do
           ! Mn3+ -- d^4
           read(u5,*,iostat=istatus) i_OxStat
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         endif
 
           if (i_OxStat < 0) then
             write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
@@ -915,7 +974,9 @@ do
           ! Co2+ -- d^6 or d^4
           read(u5,*,iostat=istatus) i_OxStat
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         endif
 
           if (i_OxStat < 0) then
             write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
@@ -950,7 +1011,9 @@ do
           ! Co2+ -- d^7
           read(u5,*,iostat=istatus) i_OxStat
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         endif
 
           if (i_OxStat < 0) then
             write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
@@ -976,7 +1039,9 @@ do
           ! Ni2+ -- d^8
           read(u5,*,iostat=istatus) i_OxStat
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         endif
 
           if (i_OxStat < 0) then
             write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
@@ -1002,7 +1067,9 @@ do
           ! Cu2+ -- d^9
           read(u5,*,iostat=istatus) i_OxStat
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'CRYS: i_OxStat =',i_OxStat,'nlanth=',nlanth
+#         endif
 
           if (i_OxStat < 0) then
             write(u6,'(3A,i5)') 'Oxidation state of',cME,'is negative:',i_OxStat
@@ -1038,7 +1105,9 @@ do
       !if (check_CRYS) then
       read(u5,*,iostat=istatus) axisoption
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'QUAX: axisoption =',axisoption
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'QUAX: axisoption =',axisoption
+#     endif
       LINENR = LINENR+1
 
       if ((axisoption < 1) .or. (axisoption > 3)) &
@@ -1047,7 +1116,9 @@ do
         do j=1,3
           read(u5,*,iostat=istatus) (zmagn(i,j),i=1,3)
           if (istatus < 0) call Error(2)
-          if (DBG) write(u6,*) 'QUAX: zmagn(i,j) =',(zmagn(i,j),i=1,3)
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'QUAX: zmagn(i,j) =',(zmagn(i,j),i=1,3)
+#         endif
         end do
         LINENR = LINENR+3
       end if
@@ -1060,7 +1131,9 @@ do
     !-------------------------------------------
     case ('UBAR')
       compute_barrier = .true.
-      if (DBG) write(u6,*) 'UBAR:'
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'UBAR:'
+#     endif
       LINENR = LINENR+1
     !-------------------------------------------
     case ('ABCC')
@@ -1075,10 +1148,14 @@ do
         end if
       end do
 
-      if (DBG) write(u6,*) 'ABCC: (cryst(i),i=1,6)=',(cryst(i),i=1,6)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'ABCC: (cryst(i),i=1,6)=',(cryst(i),i=1,6)
+#     endif
       read(u5,*,iostat=istatus) (coord(i),i=1,3)
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'ABCC: (coord(i),i=1,3)=',(coord(i),i=1,3)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'ABCC: (coord(i),i=1,3)=',(coord(i),i=1,3)
+#     endif
       LINENR = LINENR+2
       ! array "cryst" collects the crystallographic data:
       !  cryst(1)= a
@@ -1097,7 +1174,9 @@ do
 
       read(u5,*,iostat=istatus) nDirZee
       if (istatus < 0) call Error(2)
-      if (DBG) write(u6,*) 'ZEEM: nDirZee=',nDirZee
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'ZEEM: nDirZee=',nDirZee
+#     endif
 
       do i=1,nDirZee
         ! open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
@@ -1111,7 +1190,9 @@ do
 
         read(u5,*,iostat=istatus) (dir_weight(i,l),l=1,3)
         if (istatus < 0) call Error(2)
-        if (DBG) write(u6,*) 'ZEEM: (dir_weight(i,l),l=1,3)=',(dir_weight(i,l),l=1,3)
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'ZEEM: (dir_weight(i,l),l=1,3)=',(dir_weight(i,l),l=1,3)
+#       endif
 
         check_dir_weight = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
 
@@ -1194,10 +1275,10 @@ end if
 !------ CHECK the data from INPUT ------------------------------
 !if (iprint > 10) then
 
-if (dbg) then
-  write(u6,'(A,  F9.5)') 'ZJPR :         = ',zJ
-  write(u6,'(A,  I3  )') 'PRLV :         = ',iprint
-end if
+# ifdef _DEBUGPRINT_
+write(u6,'(A,  F9.5)') 'ZJPR :         = ',zJ
+write(u6,'(A,  I3  )') 'PRLV :         = ',iprint
+# endif
 
 !if (.not. compute_g_tensors) then
 !  !generate an array of 10 low-lying groups of states

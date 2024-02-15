@@ -23,7 +23,6 @@ integer(kind=iwp) :: i, istatus, linenr, mg, ncut, nk
 real(kind=wp) :: encut_rate, rdummy
 logical(kind=iwp) :: KeyENCU, KeyERAT, KeyHEXP, KeyHINT, KeyMVEC, KeyNCUT, KeyTMAG, KeyZEEM
 character(len=280) :: line, tmp
-logical(kind=iwp), parameter :: DBG = .false.
 
 Ifrestart = .false.
 input_to_read = 0
@@ -87,14 +86,20 @@ do
       !KeyREST = .true.
       read(u5,*) input_to_read
       input_file_name = 'aniso.input'
-      if (DBG) write(u6,*) input_to_read
+#     ifdef _DEBUGPRINT_
+      write(u6,*) input_to_read
+#     endif
       if ((input_to_read == 2) .or. (input_to_read == 3) .or. (input_to_read == 4)) then
         backspace(u5)
         read(u5,*) input_to_read,tmp
-        if (DBG) write(u6,*) tmp
+#       ifdef _DEBUGPRINT_
+        write(u6,*) tmp
+#       endif
         input_file_name = trim(tmp)
-        if (DBG) write(u6,*) 'restart_check: REST, input_file_name='
-        if (DBG) write(u6,*) input_file_name
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'restart_check: REST, input_file_name='
+        write(u6,*) input_file_name
+#       endif
       end if
       LINENR = LINENR+1
 
@@ -104,81 +109,107 @@ do
       read(u5,*) tmp
       input_file_name = trim(tmp)
       input_to_read = 6
-      if (DBG) write(u6,*) 'restart_check: DATA, input_file_name='
-      if (DBG) write(u6,*) input_file_name
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: DATA, input_file_name='
+      write(u6,*) input_file_name
+#     endif
       LINENR = LINENR+1
 
     case ('TEXP')
       read(u5,*) nT
-      if (DBG) write(u6,*) 'restart_check: TEXP, nT=',nT
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: TEXP, nT=',nT
+#     endif
       !KeyTEXP = .true.
       LINENR = LINENR+1
 
     case ('GRAD')
       !KeyGRAD = .true.
       GRAD = .true.
-      if (DBG) write(u6,*) 'restart_check:  GRAD = ',GRAD
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check:  GRAD = ',GRAD
+#     endif
       LINENR = LINENR+1
 
     case ('HEXP')
       read(u5,*) nTempMagn,(rdummy,i=1,nTempMagn)
       read(u5,*) nH
-      if (DBG) write(u6,*) 'restart_check: HEXP, nH=',nH
-      if (DBG) write(u6,*) 'restart_check: HEXP, nTempMagn=',nTempMagn
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: HEXP, nH=',nH
+      write(u6,*) 'restart_check: HEXP, nTempMagn=',nTempMagn
+#     endif
       KeyHEXP = .true.
       LINENR = LINENR+2
 
     case ('HINT')
       read(u5,*) rdummy,rdummy,nH
-      if (DBG) write(u6,*) 'restart_check: HINT, nH=',nH
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: HINT, nH=',nH
+#     endif
       KeyHINT = .true.
       LINENR = LINENR+1
 
     case ('TINT')
       read(u5,*) rdummy,rdummy,nT
-      if (DBG) write(u6,*) 'restart_check: HINT, nT=',nT
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: HINT, nT=',nT
+#     endif
       !KeyTINT = .true.
       LINENR = LINENR+1
 
     case ('TMAG')
       read(u5,*) nTempMagn
-      if (DBG) write(u6,*) 'restart_check: TMAG, nTempMagn=',nTempMagn
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: TMAG, nTempMagn=',nTempMagn
+#     endif
       KeyTMAG = .true.
       LINENR = LINENR+1
 
     case ('MVEC')
       read(u5,*) nDir
-      if (DBG) write(u6,*) 'restart_check: MVEC, nDir=',nDir
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: MVEC, nDir=',nDir
+#     endif
       KeyMVEC = .true.
       LINENR = LINENR+1
 
     case ('ZEEM')
       read(u5,*) nDirZee
-      if (DBG) write(u6,*) 'restart_check: ZEEM, nDirZee=',nDirZee
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: ZEEM, nDirZee=',nDirZee
+#     endif
       KeyZEEM = .true.
       LINENR = LINENR+1
 
     case ('MLTP')
       read(u5,*) nMult
-      if (DBG) write(u6,*) 'restart_check: MLTP, nMult=',nMult
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: MLTP, nMult=',nMult
+#     endif
       !KeyMLTP = .true.
       LINENR = LINENR+1
 
     case ('NCUT')
       read(u5,*) NCUT
-      if (DBG) write(u6,*) 'restart_check: NCUT, NCUT=',NCUT
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: NCUT, NCUT=',NCUT
+#     endif
       KeyNCUT = .true.
       LINENR = LINENR+1
 
     case ('ENCU')
       read(u5,*) NK,MG
-      if (DBG) write(u6,*) 'restart_check: ENCU, NK, MG=',NK,MG
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: ENCU, NK, MG=',NK,MG
+#     endif
       LINENR = LINENR+1
       KeyENCU = .true.
 
     case ('ERAT')
       read(u5,*) encut_rate
-      if (DBG) write(u6,*) 'restart_check: ERAT, encut_rate=',encut_rate
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'restart_check: ERAT, encut_rate=',encut_rate
+#     endif
       KeyERAT = .true.
       LINENR = LINENR+1
 
@@ -187,6 +218,12 @@ end do
 
 #include "macros.fh"
 unused_var(rdummy)
+
+! These variables are read, but never used for anything
+unused_var(nk)
+unused_var(mg)
+unused_var(ncut)
+unused_var(encut_rate)
 
 write(u6,'(5X,A)') 'restart_check: NO ERROR WAS LOCATED WHILE READING INPUT'
 

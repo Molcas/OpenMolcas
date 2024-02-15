@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     main.F90
      c1diis.F90
      c2diis.F90
      chkpnt.F90
@@ -25,7 +26,6 @@ set (sources
      g_nrm.F90
      init_updmask.F90
      kriging_update.F90
-     main.F90
      mep_dir.F90
      msp.F90
      mxlbls.F90

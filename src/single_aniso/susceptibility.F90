@@ -27,7 +27,6 @@ logical(kind=iwp), intent(in) :: tinput, doplot
 real(kind=wp), intent(out) :: chit_theta(nT+nTempMagn)
 integer(kind=iwp) :: i, ic, im, info, it, j, jc, jm, jT, mem_local
 real(kind=wp) :: a_dir(3,3), a_inv(3,3), det, gtens(3), maxes(3,3), WT(3), XMM(3,3), XSM(3,3), XSS(3,3), xxm, XZJ(3,3), Zst, ZT(3,3)
-logical(kind=iwp) :: DBG
 character(len=50) :: label
 real(kind=wp), allocatable :: chi_theta_1(:), chit(:), chit_tens(:,:,:), chit_theta_tens(:,:,:), zstat1(:)
 real(kind=wp), parameter :: coeff_X = rNAVO*mBohr**2/kBoltzmann/Ten, &
@@ -36,8 +35,6 @@ real(kind=wp), external :: dev
 
 ! constants used in this subrutine
 mem_local = 0
-
-DBG = iPrint > 2
 
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,95)
@@ -56,7 +53,7 @@ write(u6,'(5X,A)') 'The algorithm employed for XT=f(T) in this section is based 
 if (doplot) write(u6,'(5X,A)') 'The GNUPLOT script and correponding images are generated in $WorkDir'
 write(u6,*)
 !-----------------------------------------------------------------------
-if (dbg) then
+if (iPrint > 2) then
   write(u6,*) 'Tmin       =',tmin
   write(u6,*) 'Tmax       =',tmax
   write(u6,*) '  nT       =',nT
@@ -98,7 +95,7 @@ mem_local = mem_local+size(chi_theta_1)*RtoB
 mem_local = mem_local+size(chiT_tens)*RtoB
 
 if (zJ == 0) then
-  if (dbg) then
+  if (iPrint > 2) then
     write(u6,*) 'SUSC:  zJ = 0'
     write(u6,*) 'SUSC:  memory allocated (local):'
     write(u6,*) 'mem_local=',mem_local
@@ -109,7 +106,7 @@ if (zJ == 0) then
   do iT=1,nT+nTempMagn
     ! compute XT tensor for this temperature:
     call chi(DipSO,DipSO,Eso,Nss,T(iT),Zst,XMM)
-    if (dbg) then
+    if (iPrint > 2) then
       write(u6,'(A,9F12.6)') 'XMM:',XMM(:,:)
       write(u6,'(A,9F12.6)') 'chiT:',coeff_X*(XMM(1,1)+XMM(2,2)+XMM(3,3))/Three,Zst
     end if
@@ -128,12 +125,12 @@ if (zJ == 0) then
     Zstat1(iT) = Zst
   end do
 else  ! i.e. when zJ /= Zero
-  if (dbg) write(u6,*) 'SUSC:  zJ \= 0'
+  if (iPrint > 2) write(u6,*) 'SUSC:  zJ \= 0'
   ! allocate matrices:
   call mma_allocate(chiT_theta_tens,nT+nTempMagn,3,3,'XTT')
   ! initialize:
   mem_local = mem_local+size(chiT_theta_tens)*RtoB
-  if (dbg) then
+  if (iPrint > 2) then
     write(u6,*) 'SUSC:  memory allocated (local):'
     write(u6,*) 'mem_local=',mem_local
     write(u6,*) 'SUSC:  memory allocated (total):'

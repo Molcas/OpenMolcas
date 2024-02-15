@@ -23,14 +23,12 @@ real(kind=wp), intent(out) :: B(n,0:n), C(n,0:n), Bstev(n,-n:n)
 integer(kind=iwp) :: ik, iq
 real(kind=wp) :: C0, cr, knm(12,0:12), mfact, rfact
 complex(kind=wp) :: cfact, mf
-logical(kind=iwp) :: dbg
 complex(kind=wp), allocatable :: Cm(:,:), Cp(:,:)
 complex(kind=wp), external :: trace
 
 !-------------------------------------------
 if (n < 1) return
 !-------------------------------------------
-dbg = .false.
 call mma_allocate(Cp,n,n,'operator O')
 call mma_allocate(Cm,n,n,'operator W')
 !-------------------------------------------
@@ -87,7 +85,9 @@ do ik=1,n-1
       end if
     end if
 
-    if (dbg) write(u6,'(A,2I3,5(ES20.13,1x))') 'k,q, b(k,q), c(k,q)',ik,iq,b(ik,iq),c(ik,iq)
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,2I3,5(ES20.13,1x))') 'k,q, b(k,q), c(k,q)',ik,iq,b(ik,iq),c(ik,iq)
+#   endif
   end do
 end do
 

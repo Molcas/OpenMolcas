@@ -86,7 +86,9 @@ end if
 ! calculating the coeficients of the crystal filed operators Bnm
 !  Akq=(2k+1)/(2J+1) * 1/|< J || O || J >|^2 * Trace{HCF*O(k,-q)}
 call NEWCF(HCF,nDIMcf,Akq,BNC,BNS,Bstev)
-!if(dbg) call recover_CF(nDIMCF,HCF,Akq,BNC,BNS,Bstev)
+!#ifdef _DEBUGPRINT_
+!call recover_CF(nDIMCF,HCF,Akq,BNC,BNS,Bstev)
+!#endif
 
 call print_CFP_alpha(nlanth,nDIMCF,BNC,BNS)
 if (iprint >= 4) then

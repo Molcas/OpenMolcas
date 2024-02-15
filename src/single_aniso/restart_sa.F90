@@ -18,7 +18,12 @@ integer(kind=iwp), intent(in) :: input_to_read
 character(len=180), intent(in) :: input_file_name
 integer(kind=iwp), intent(inout) :: nss, nstate
 integer(kind=iwp) :: iDisk, idum(1), luaniso
-logical(kind=iwp), parameter :: dbg = .false.
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical(kind=iwp), parameter :: dbg = _DBG_
 integer(kind=iwp), external :: IsFreeUnit
 
 if (input_to_read == 1) then
@@ -50,12 +55,16 @@ else if ((input_to_read == 2) .or. (input_to_read == 4)) then
   call Put_iScalar('NJOB_SINGLE     ',1)
 
 else if (input_to_read == 3) then
-  if (dbg) write(u6,*) 'restart_sa: file h5=',trim(input_file_name)
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'restart_sa: file h5=',trim(input_file_name)
+# endif
 # ifdef _HDF5_
   ! NSS and NSTATE are also placed on RunFile
   call read_hdf5_init(input_file_name,nstate,nss)
-  if (dbg) write(u6,*) 'restart_sa:    nss=',nss
-  if (dbg) write(u6,*) 'restart_sa: nstate=',nstate
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'restart_sa:    nss=',nss
+  write(u6,*) 'restart_sa: nstate=',nstate
+# endif
   call Put_iScalar('NSTATE_SINGLE   ',nstate)
   call Put_iScalar('NSS_SINGLE      ',nss)
   call Put_iScalar('MXJOB_SINGLE    ',1)

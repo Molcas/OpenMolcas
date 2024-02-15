@@ -22,8 +22,8 @@ character(len=180), intent(inout) :: input_file_name
 logical(kind=iwp), intent(out) :: ifrestart
 integer(kind=iwp), intent(out) :: iReturn
 logical(kind=iwp), intent(in) :: GRAD
-integer(kind=iwp) :: AngPoints, axisoption, d, encut_definition, i, i1, i2, Ifunct, imanIfold, imltpl, input_to_read, iprint, j, &
-                     l, lDIM, ldimcf, mem, MG, nBlock, ncut, ndimcf, nDirTot, nK, nlanth, nm, nss2, nstate2
+integer(kind=iwp) :: AngPoints, axisoption, d, encut_definition, i, i1, i2, Ifunct, imanIfold, imltpl, input_to_read, iprint, &
+                     lDIM, ldimcf, mem, MG, nBlock, ncut, ndimcf, nDirTot, nK, nlanth, nm, nss2, nstate2
 real(kind=wp) :: coord(3), cryst(6), em, encut_rate, H_torq, HMAX, HMIN, T_torq, thrs, tmax, tmin, xfield, zJ, zmagn(3,3)
 logical(kind=iwp) :: compute_barrier, compute_cf, compute_g_tensors, compute_magnetization, compute_Mdir_vector, compute_torque, &
                      Do_structure_abc, DoPlot, hinput, m_paranoid, poly_file, smagn, tinput, zeeman_energy
@@ -32,24 +32,30 @@ real(kind=wp), allocatable :: amfi(:,:,:), angmom(:,:,:), chit_exp(:), dir_weigh
                               esfs(:), esfs_au(:), eso(:), eso_au(:), gtens(:,:), hexp(:), magn_exp(:,:), maxes(:,:,:), t(:), &
                               TempMagn(:), Texp(:), XT_no_field(:), XTexp(:)
 complex(kind=wp), allocatable :: DM(:,:,:), HSO(:,:), ML(:,:,:), MM(:,:,:), MS(:,:,:), U(:,:)
-logical(kind=iwp), parameter :: DBG = .false.
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: j, l
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical(kind=iwp), parameter :: dbg = _DBG_
 
 !-----------------------------------------------------------------------
 ! Allocate memory for all arrays:
 !-----------------------------------------------------------------------
-if (dbg) then
-  write(u6,*) 'S_A2:: Memory Allocation Parameters'
-  write(u6,*) 'S_A2:: nss             =',nss
-  write(u6,*) 'S_A2:: nstate          =',nstate
-  write(u6,*) 'S_A2:: nH              =',nH
-  write(u6,*) 'S_A2:: nT              =',nT
-  write(u6,*) 'S_A2:: nTempMagn       =',nTempMagn
-  write(u6,*) 'S_A2:: nMult           =',nMult
-  write(u6,*) 'S_A2:: nDir            =',nDir
-  write(u6,*) 'S_A2:: nDirZee         =',nDirZee
-  write(u6,*) 'S_A2:: input_file_name =',input_file_name
-  write(u6,*) 'S_A2:: GRAD            =',GRAD
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'S_A2:: Memory Allocation Parameters'
+write(u6,*) 'S_A2:: nss             =',nss
+write(u6,*) 'S_A2:: nstate          =',nstate
+write(u6,*) 'S_A2:: nH              =',nH
+write(u6,*) 'S_A2:: nT              =',nT
+write(u6,*) 'S_A2:: nTempMagn       =',nTempMagn
+write(u6,*) 'S_A2:: nMult           =',nMult
+write(u6,*) 'S_A2:: nDir            =',nDir
+write(u6,*) 'S_A2:: nDirZee         =',nDirZee
+write(u6,*) 'S_A2:: input_file_name =',input_file_name
+write(u6,*) 'S_A2:: GRAD            =',GRAD
+#endif
 
 mem = 0
 
@@ -71,7 +77,9 @@ mem = mem+size(AMFI)*RtoB
 call mma_allocate(multiplicity,nstate,'multiplicity')
 mem = mem+size(multiplicity)*ItoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 1 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 1 =',mem
+#endif
 ! spin orbit energies
 call mma_allocate(eso,nss,'eso')
 call mma_allocate(eso_au,nss,'eso_au')
@@ -96,7 +104,9 @@ mem = mem+size(ML)*CtoB
 call mma_allocate(DM,3,nss,nss,'DM')
 mem = mem+size(DM)*CtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 2 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 2 =',mem
+#endif
 ! experimental magnetic field points
 call mma_allocate(Hexp,nH,'Hexp')
 mem = mem+size(Hexp)*RtoB
@@ -117,7 +127,9 @@ mem = mem+size(gtens)*RtoB
 call mma_allocate(maxes,nMult,3,3,'maxes')
 mem = mem+size(maxes)*RtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 4 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 4 =',mem
+#endif
 call mma_allocate(T,nT+nTempMagn,'Temperature')
 mem = mem+size(T)*RtoB
 call mma_allocate(XTexp,nT+nTempMagn,'XTexp')
@@ -125,7 +137,9 @@ mem = mem+size(XTexp)*RtoB
 call mma_allocate(XT_no_field,nT+nTempMagn,'XT_no_field')
 mem = mem+size(XT_no_field)*RtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 5 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 5 =',mem
+#endif
 
 ! unit numbers for the files with Zeeman energies
 call mma_allocate(LuZee,nDirZee,'LUZee')
@@ -148,7 +162,9 @@ mem = mem+size(Texp)*RtoB
 call mma_allocate(chit_exp,nT,'chit_exp')
 mem = mem+size(chit_exp)*RtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 8 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 8 =',mem
+#endif
 
 write(u6,'(A,I16,A)') 'The code allocated initially:',mem,' bytes of memory for this run.'
 call xFlush(u6)
@@ -157,13 +173,17 @@ IReturn = 0
 NM = 0
 EM = Zero
 ! read the input
-if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter readin_single'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'SINGLE_ANISO2::  Enter readin_single'
+#endif
 call readin_single(iprint,nmult,ndim,ndimcf,ldimcf,nlanth,axisoption,poly_file,Ifrestart,input_to_read,nk,mg,zmagn, &
                    Do_structure_abc,cryst,coord,encut_definition,compute_g_tensors,compute_CF,nDirTot,nss,nstate, &
                    compute_magnetization,compute_torque,smagn,tinput,hinput,compute_Mdir_vector,zeeman_energy,LUZee,doplot, &
                    encut_rate,ncut,nTempMagn,TempMagn,m_paranoid,compute_barrier,nBlock,AngPoints,input_file_name,nT,nH,texp, &
                    chit_exp,zJ,hexp,magn_exp,hmin,hmax,nDir,nDirZee,dirX,dirY,dirZ,dir_weight,xfield,tmin,tmax,thrs,H_torq,T_torq)
-if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit readin_single'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'SINGLE_ANISO2::  Exit readin_single'
+#endif
 
 if (ifrestart) then
   ! if restart, fetch "big data" from the input file
@@ -174,20 +194,24 @@ if (ifrestart) then
 
   else if (input_to_read == 2) then
     ! get the information from formatted aniso.input file:
-    if (DBG) then
-       write(u6,*) 'SINGLE_ANISO2::  Enter read_formatted_aniso'
-       write(u6,*) 'SA:',input_file_name
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SINGLE_ANISO2::  Enter read_formatted_aniso'
+    write(u6,*) 'SA:',input_file_name
+#   endif
     nss2 = nss
     nstate2 = nstate
     call read_formatted_aniso(input_file_name,nss2,nstate2,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,AMFI,HSO)
     esfs_au(:) = Zero
     eso_au(:) = Zero
-    if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit  read_formatted_aniso'
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SINGLE_ANISO2::  Exit  read_formatted_aniso'
+#   endif
 
   else if (input_to_read == 3) then
     ! get the information from RASSI-HDF5 file:
-    if (DBG) write(u6,*) 'SA:',input_file_name
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SA:',input_file_name
+#   endif
 #   ifdef _HDF5_
     call read_hdf5_all(input_file_name,nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,AMFI,HSO)
 #   else
@@ -198,7 +222,9 @@ if (ifrestart) then
     eso_au(:) = Zero
 
   else if (input_to_read == 4) then
-    if (DBG) write(u6,*) 'SA:',input_file_name
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SA:',input_file_name
+#   endif
     ! get the information from formatted aniso.input file:
     nss2 = nss
     nstate2 = nstate
@@ -215,7 +241,9 @@ if (ifrestart) then
 
   else if (input_to_read == 6) then !  using DATA keyword
 
-    if (DBG) write(u6,*) 'SA:',input_file_name
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SA:',input_file_name
+#   endif
     ! get the information from formatted new aniso-data file:
     nss2 = nss
     nstate2 = nstate
@@ -228,35 +256,35 @@ else
   call fetch_data_RunFile_all(nss,nstate,multiplicity,eso,esfs,U,MM,MS,ML,DM,ANGMOM,EDMOM,AMFI,HSO,eso_au,esfs_au)
   write(u6,'(A)') 'AFTER fetch_data_RunFile_all'
   call xFlush(u6)
-  if (DBG) then
-    write(u6,'(A)') 'SA: ANGMOM(x,y,z)'
-    do i=1,nstate
-      do j=1,nstate
-        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(ANGMOM(l,i,j),l=1,3)
-      end do
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'SA: ANGMOM(x,y,z)'
+  do i=1,nstate
+    do j=1,nstate
+      write(u6,'(2i4,A,3ES24.14)') i,j,' |',(ANGMOM(l,i,j),l=1,3)
     end do
-    write(u6,'(/)')
-    write(u6,'(A)') 'SA: EDMOM(x,y,z)'
-    do i=1,nstate
-      do j=1,nstate
-        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(EDMOM(l,i,j),l=1,3)
-      end do
+  end do
+  write(u6,'(/)')
+  write(u6,'(A)') 'SA: EDMOM(x,y,z)'
+  do i=1,nstate
+    do j=1,nstate
+      write(u6,'(2i4,A,3ES24.14)') i,j,' |',(EDMOM(l,i,j),l=1,3)
     end do
-    write(u6,'(/)')
-    write(u6,'(A)') 'SA: AMFI(x,y,z)'
-    do i=1,nstate
-      do j=1,nstate
-        write(u6,'(2i4,A,3ES24.14)') i,j,' |',(AMFI(l,i,j),l=1,3)
-      end do
+  end do
+  write(u6,'(/)')
+  write(u6,'(A)') 'SA: AMFI(x,y,z)'
+  do i=1,nstate
+    do j=1,nstate
+      write(u6,'(2i4,A,3ES24.14)') i,j,' |',(AMFI(l,i,j),l=1,3)
     end do
-    write(u6,'(/)')
-    write(u6,'(A)') 'SA: HSO(i,j)'
-    do i=1,nss
-      do j=1,nss
-        write(u6,'(2i4,A,4ES24.14)') i,j,' |',HSO(i,j),HSO(j,i)
-      end do
+  end do
+  write(u6,'(/)')
+  write(u6,'(A)') 'SA: HSO(i,j)'
+  do i=1,nss
+    do j=1,nss
+      write(u6,'(2i4,A,4ES24.14)') i,j,' |',HSO(i,j),HSO(j,i)
     end do
-  end if ! DBG
+  end do
+# endif
 
 end if ! Ifrestart
 
@@ -294,10 +322,14 @@ if (compute_g_tensors .and. (nMult > 0)) then
       i2 = ndim(imltpl)+Ifunct
 
       if (i2 <= nss) then
-        if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter g_high',IMLTPL
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'SINGLE_ANISO2::  Enter g_high',IMLTPL
+#       endif
         call g_high(eso(i1:i2),GRAD,MS(:,i1:i2,i1:i2),MM(:,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
                     gtens(imltpl,:),maxes(imltpl,:,:),iprint)
-        if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit g_high',IMLTPL
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'SINGLE_ANISO2::  Exit g_high',IMLTPL
+#       endif
         call Add_Info('GTENS_MAIN',gtens(imltpl,:),3,4)
       end if
     end if
@@ -318,17 +350,21 @@ if (compute_CF .and. (nDIMCF > 0)) then
 
   ! compute the CF of the ground |J,MJ> multiplet:
   if ((nDIMCF > 1) .and. (nDIMCF <= nss)) then
-    if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter CF',nDIMCF
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SINGLE_ANISO2::  Enter CF',nDIMCF
+#   endif
     call CRYSTALFIELD(ESO(1:nDIMCF),MM(:,1:nDIMCF,1:nDIMCF),MS(:,1:nDIMCF,1:nDIMCF),nDIMcf,d,nlanth,zmagn,axisoption,GRAD,iPrint)
-    if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit CF',nDIMCF
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SINGLE_ANISO2::  Exit CF',nDIMCF
+#   endif
   end if
 end if
 
-if (DBG) then
-  write(u6,*) 'SINGLE_ANISO2:: nlanth=',nlanth
-  write(u6,*) 'SINGLE_ANISO2:: lDIMCF=',lDIMCF
-  write(u6,*) 'SINGLE_ANISO2:: nstate=',nstate
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'SINGLE_ANISO2:: nlanth=',nlanth
+write(u6,*) 'SINGLE_ANISO2:: lDIMCF=',lDIMCF
+write(u6,*) 'SINGLE_ANISO2:: nstate=',nstate
+#endif
 
 if (compute_CF .and. (lDIMCF > 0) .and. (lDIMCF <= nstate)) then
   if ((axisoption == 1) .and. (nMult > 0) .and. (nDIM(1) > 1)) then
@@ -338,9 +374,13 @@ if (compute_CF .and. (lDIMCF > 0) .and. (lDIMCF <= nstate)) then
   end if
   ! compute the CF of the ground |L,ML> term:
   if (.not. (ifrestart .and. (input_to_read == 4))) then
-    if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter t-CF',lDIMCF
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SINGLE_ANISO2::  Enter t-CF',lDIMCF
+#   endif
     call termCF(angmom(:,1:lDIMCF,1:lDIMCF),AMFI(:,1:lDIMCF,1:lDIMCF),esfs(1:lDIMCF),lDIMCF,lDIM,zmagn,axisoption,nlanth,iPrint)
-    if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit t-CF',lDIMCF
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SINGLE_ANISO2::  Exit t-CF',lDIMCF
+#   endif
   end if !ifrestart
 end if !compute_CF
 
@@ -350,9 +390,13 @@ if (compute_barrier) then
   if (nBlock /= 0) then
     imanifold = 1
 
-    if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter barrier',nBlock
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SINGLE_ANISO2::  Enter barrier',nBlock
+#   endif
     call BARRIER(nBlock,MM(:,1:nBlock,1:nBlock),eso(1:nBlock),imanIfold,nMult,nDim,doplot,iPrint)
-    if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit barrier',nBlock
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'SINGLE_ANISO2::  Exit barrier',nBlock
+#   endif
 
   else
     write(u6,'(A)') 'nBlock parameter is not defined. '
@@ -368,32 +412,48 @@ call set_T(nT,nTempMagn,TINPUT,TempMagn,Tmin,Tmax,chit_exp,Texp,T,XTexp)
 if (compute_torque .or. compute_magnetization .or. (Xfield /= Zero)) then
   ! set the NM- number of states to be exactly diagonalized
   ! in Zeeman Interaction
-  if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter set_nm'
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SINGLE_ANISO2::  Enter set_nm'
+# endif
   call set_nm(nss,ncut,encut_definition,nk,mg,nTempMagn,hmax,ESO,encut_rate,TempMagn,nM,EM,dbg)
-  if (DBG) write(u6,*) 'SINGLE_ANISO2::  exit set_nm'
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SINGLE_ANISO2::  exit set_nm'
+# endif
 
 end if
 
 !----------------------------------------------------------------------|
 ! >> MAGNETIC SUSCEPTIBILITY <<
-if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter SUSCEPTIBILITY'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'SINGLE_ANISO2::  Enter SUSCEPTIBILITY'
+#endif
 call SUSCEPTIBILITY(NSS,ESO,MS,MM,nT,nTempMagn,T,tmin,tmax,XTexp,zJ,tinput,XT_no_field,doplot,iPrint,mem)
-if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit SUSCEPTIBILITY'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'SINGLE_ANISO2::  Exit SUSCEPTIBILITY'
+#endif
 
 if (Xfield /= Zero) then
-  if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter XT_dMoverdH_single'
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SINGLE_ANISO2::  Enter XT_dMoverdH_single'
+# endif
   ! nM = nss
-  call XT_dMoverdH_single(nss,nTempMagn,nT,nss,Tmin,Tmax,XTexp,ESO,T,zJ,Xfield,EM,MM,MS,XT_no_field,tinput,smagn,mem,DoPlot)
-  if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit XT_dMoverdH_single'
+  call XT_dMoverdH_single(nss,nTempMagn,nT,nss,Tmin,Tmax,XTexp,ESO,T,zJ,Xfield,MM,MS,XT_no_field,tinput,smagn,mem,DoPlot)
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SINGLE_ANISO2::  Exit XT_dMoverdH_single'
+# endif
 end if
 !----------------------------------------------------------------------|
 ! >> TORQUE <<
 if (compute_torque) then
 
-  if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter TORQUE'
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SINGLE_ANISO2::  Enter TORQUE'
+# endif
   ! nM = nss
   call torque(Nss,Nss,AngPoints,EM,eso,mm,ms,zJ,thrs,mem,m_paranoid,smagn,H_torq,T_torq,zmagn,dbg)
-  if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit TORQUE'
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SINGLE_ANISO2::  Exit TORQUE'
+# endif
 
 end if
 !----------------------------------------------------------------------|
@@ -401,10 +461,14 @@ end if
 
 if (compute_magnetization) then
 
-  if (DBG) write(u6,*) 'SINGLE_ANISO2::  Enter magnetization'
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SINGLE_ANISO2::  Enter magnetization'
+# endif
   call magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,mem,compute_Mdir_vector,zeeman_energy,hinput, &
                      m_paranoid,smagn,doplot,TempMagn,eso,dirX,dirY,dirZ,dir_weight,hexp,magn_exp,zJ,hmin,hmax,EM,thrs,mm,ms,dbg)
-  if (DBG) write(u6,*) 'SINGLE_ANISO2::  Exit magnetization'
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SINGLE_ANISO2::  Exit magnetization'
+# endif
 
 else
   write(u6,*)

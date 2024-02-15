@@ -18,16 +18,19 @@ integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: i, input_to_read, nDir, nDirZee, nH, nMult, NSS, NSTATE, nT, nTempMagn
 logical(kind=iwp) :: GRAD, ifrestart
 character(len=180) :: input_file_name
-logical(kind=iwp), parameter :: dbg = .false.
 
 !-----------------------------------------------------------------------
 !* initializations
 ireturn = 0
 
 ! check for the "restart" option:
-if (dbg) write(u6,*) 'Enter restart_check'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Enter restart_check'
+#endif
 call restart_check(ifrestart,input_to_read,input_file_name,nT,nH,nTempMagn,nDir,nDirZee,nMult,GRAD)
-if (dbg) write(u6,*) 'Exit restart_check'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Exit restart_check'
+#endif
 
 if (ifrestart) then
   call restart_sa(input_to_read,input_file_name,nss,nstate)

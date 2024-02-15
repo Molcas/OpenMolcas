@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine XT_dMoverdH_single(nss,nTempMagn,nT,nM,Tmin,Tmax,XTexp,eso,T,zJ,Xfield,EM,dM,sM,XT_no_field,tinput,smagn,mem,DoPlot)
+subroutine XT_dMoverdH_single(nss,nTempMagn,nT,nM,Tmin,Tmax,XTexp,eso,T,zJ,Xfield,dM,sM,XT_no_field,tinput,smagn,mem,DoPlot)
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -18,10 +18,10 @@ use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(in) :: nss, nTempMagn, nT, NM, mem
-real(kind=wp), intent(in) :: Tmin, Tmax, XTexp(nT+nTempMagn), eso(nss), T(nT+nTempMagn), zJ, Xfield, EM, XT_no_field(nT+nTempMagn)
+real(kind=wp), intent(in) :: Tmin, Tmax, XTexp(nT+nTempMagn), eso(nss), T(nT+nTempMagn), zJ, Xfield, XT_no_field(nT+nTempMagn)
 complex(kind=wp), intent(in) :: dM(3,nss,nss), sM(3,nss,nss)
 logical(kind=iwp), intent(in) :: tinput, smagn, doplot
-integer(kind=iwp) :: i, iM, Info, iT, j, jT, l, mem_local, nDirX, nTempTotal
+integer(kind=iwp) :: i, iM, Info, iT, j, jT, mem_local, nDirX, nTempTotal
 real(kind=wp) :: dHX(3), dHY(3), dHZ(3), hp, WT(3), Xfield_1, Xfield_2, Xfield_3, Xfield_4, Xfield_5, Xfield_6, Xfield_7, ZT(3,3)
 character(len=50) :: label
 real(kind=wp), allocatable :: MT1(:,:), MT2(:,:), MT3(:,:), MT4(:,:), MT5(:,:), MT6(:,:), MT7(:,:), ST1(:,:), ST2(:,:), ST3(:,:), &
@@ -30,44 +30,54 @@ real(kind=wp), allocatable :: MT1(:,:), MT2(:,:), MT3(:,:), MT4(:,:), MT5(:,:), 
                               ZT5(:), ZT6(:), ZT7(:)
 real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten, & ! in cm3 * mol-1 * T
                             THRS = 1.0e-13_wp
-logical(kind=iwp), parameter :: DBG = .false., m_paranoid = .true.
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: l
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical(kind=iwp), parameter :: DBG = _DBG_, m_paranoid = .true.
 real(kind=wp), external :: dev
+
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(mem)
+#endif
 
 ! threshold for convergence of average spin, in case (zJ /= 0)
 mem_local = 0
 
 !ccc-------------------------------------------------------cccc
-if (DBG) then
-  write(u6,'(A, 10I5)') '       nss =',nss
-  write(u6,'(A,   I5)') ' nTempMagn =',nTempMagn
-  write(u6,'(A,   I5)') '        nT =',nT
-  write(u6,'(A,   I5)') '        nM =',nM
-  write(u6,'(A,F12.5)') '      Tmin =',Tmin
-  write(u6,'(A,F12.5)') '      Tmax =',Tmax
-  write(u6,'(A,F12.5)') '        zJ =',zJ
-  write(u6,'(A,F12.5)') '    Xfield =',Xfield
-  write(u6,'(A,F12.5)') '        EM =',EM
-  write(u6,'(A,ES12.5)') '      THRS =',THRS
-  write(u6,*) '     smagn =',smagn
-  write(u6,*) '    tinput =',tinput
-  if (tinput) then
-    do iT=1,nTempMagn
-      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
-    end do
-    do iT=1,nT
-      jT = iT+nTempMagn
-      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),' chiT_exp(',iT,')=',XTexp(jT)
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A, 10I5)') '       nss =',nss
+write(u6,'(A,   I5)') ' nTempMagn =',nTempMagn
+write(u6,'(A,   I5)') '        nT =',nT
+write(u6,'(A,   I5)') '        nM =',nM
+write(u6,'(A,F12.5)') '      Tmin =',Tmin
+write(u6,'(A,F12.5)') '      Tmax =',Tmax
+write(u6,'(A,F12.5)') '        zJ =',zJ
+write(u6,'(A,F12.5)') '    Xfield =',Xfield
+write(u6,'(A,ES12.5)') '      THRS =',THRS
+write(u6,*) '     smagn =',smagn
+write(u6,*) '    tinput =',tinput
+if (tinput) then
+  do iT=1,nTempMagn
+    write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
+  end do
+  do iT=1,nT
+    jT = iT+nTempMagn
+    write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),' chiT_exp(',iT,')=',XTexp(jT)
+  end do
 
-  else
-    do iT=1,nT+nTempMagn
-      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
-    end do
-  end if
-  write(u6,'(A)') 'SPIN-ORBIT ENERGY'
-  write(u6,'(10F12.5)') (ESO(i),i=1,NSS)
-  call xFlush(u6)
-end if !DBG
+else
+  do iT=1,nT+nTempMagn
+    write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
+  end do
+end if
+write(u6,'(A)') 'SPIN-ORBIT ENERGY'
+write(u6,'(10F12.5)') (ESO(i),i=1,NSS)
+call xFlush(u6)
+#endif
 !ccc-------------------------------------------------------cccc
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,95)
@@ -152,10 +162,12 @@ call mma_allocate(XTM_dMdH,nT+nTempMagn,'XTM_dMdH')
 call mma_allocate(XTtens_MH,3,3,nT+nTempMagn,'XTtens_MH')
 call mma_allocate(XTtens_dMdH,3,3,nT+nTempMagn,'XTtens_dMdH')
 mem_local = mem_local+(2+2*3*3)*(nT+nTempMagn)*RtoB
-if (dbg) write(u6,*) 'XTMG:  memory allocated (local):'
-if (dbg) write(u6,*) 'mem_local=',mem_local
-if (dbg) write(u6,*) 'XTMG:  memory allocated (total):'
-if (dbg) write(u6,*) 'mem_total=',mem+mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'XTMG:  memory allocated (local):'
+write(u6,*) 'mem_local=',mem_local
+write(u6,*) 'XTMG:  memory allocated (total):'
+write(u6,*) 'mem_total=',mem+mem_local
+#endif
 
 nDirX = 3
 
@@ -183,7 +195,9 @@ Xfield_4 = xField
 Xfield_5 = Xfield+hp
 Xfield_6 = Xfield+Two*hp
 Xfield_7 = Xfield+Three*hp
-if (dbg) write(u6,*) 'XTMG:  Xfield: ',Xfield_1,Xfield_2,Xfield_3,Xfield_4,Xfield_5,Xfield_6,Xfield_7
+#ifdef _DEBUGPRINT_
+write(u6,*) 'XTMG:  Xfield: ',Xfield_1,Xfield_2,Xfield_3,Xfield_4,Xfield_5,Xfield_6,Xfield_7
+#endif
 
 nTempTotal = nT+nTempMagn
 
@@ -207,32 +221,32 @@ do iM=1,nDirX
   ! Xfield =XF +3h
   call MAGN(NSS,NM,dHX(iM),dHY(iM),dHZ(iM),XField_7,ESO,zJ,THRS,DM,SM,nTempTotal,T,smagn,WM7,ZT7,ST7,MT7,m_paranoid,DBG)
 
-  if (DBG) then
-    do iT=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex1(',iT,')=',(MT1(l,iT),l=1,3)
-    end do
-    do iT=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex2(',iT,')=',(MT2(l,iT),l=1,3)
-    end do
-    do iT=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex3(',iT,')=',(MT3(l,iT),l=1,3)
-    end do
-    do iT=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex4(',iT,')=',(MT4(l,iT),l=1,3)
-    end do
-    do iT=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex5(',iT,')=',(MT5(l,iT),l=1,3)
-    end do
-    do iT=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex6(',iT,')=',(MT6(l,iT),l=1,3)
-    end do
-    do iT=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex7(',iT,')=',(MT7(l,iT),l=1,3)
-    end do
-    do iT=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex 7-1 (',iT,')=',(MT7(l,iT)-MT1(l,iT),l=1,3)
-    end do
-  end if ! DBG
+# ifdef _DEBUGPRINT_
+  do iT=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex1(',iT,')=',(MT1(l,iT),l=1,3)
+  end do
+  do iT=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex2(',iT,')=',(MT2(l,iT),l=1,3)
+  end do
+  do iT=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex3(',iT,')=',(MT3(l,iT),l=1,3)
+  end do
+  do iT=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex4(',iT,')=',(MT4(l,iT),l=1,3)
+  end do
+  do iT=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex5(',iT,')=',(MT5(l,iT),l=1,3)
+  end do
+  do iT=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex6(',iT,')=',(MT6(l,iT),l=1,3)
+  end do
+  do iT=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex7(',iT,')=',(MT7(l,iT),l=1,3)
+  end do
+  do iT=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex 7-1 (',iT,')=',(MT7(l,iT)-MT1(l,iT),l=1,3)
+  end do
+# endif
   ! computing the AVERAGE MOMENTS calculated at different temperatures (T(i))
   do iT=1,nTempTotal
 
