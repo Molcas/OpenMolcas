@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine fetch_init_const( nneq, neqv, nmax, exch, nLoc,
-     &                             nCenter, nT, nH, nTempMagn, nDir,
-     &                             nDirZee, nMult, nPair, MxRank1,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine fetch_init_const( nneq, neqv, nmax, exch, nLoc,        &
+     &                             nCenter, nT, nH, nTempMagn, nDir,    &
+     &                             nDirZee, nMult, nPair, MxRank1,      &
      &                             MxRank2, old_aniso_format, iReturn )
-c  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
-c
+!  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
+!
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
 #include "warnings.h"
-      Integer, intent(out) :: nneq, neqv, nmax, exch, nLoc,
-     &                        nCenter, nT, nH, nTempMagn, nDir,
-     &                        nDirZee, nMult, nPair, MxRank1, MxRank2,
+      Integer, intent(out) :: nneq, neqv, nmax, exch, nLoc,             &
+     &                        nCenter, nT, nH, nTempMagn, nDir,         &
+     &                        nDirZee, nMult, nPair, MxRank1, MxRank2,  &
      &                        iReturn
-c local variables:
+! local variables:
       Integer :: NMAXC
       Parameter (NMAXC=99)
-      Integer :: i, j, linenr, Input, nTempMagn_HEXP, nTempMagn_TMAG,
+      Integer :: i, j, linenr, Input, nTempMagn_HEXP, nTempMagn_TMAG,   &
      &           nH_HEXP, nH_HINT, nT_TEXP, nT_TINT
       Integer :: neqA(NMAXC), nexchA(NMAXC)
       Integer :: sfs_check(NMAXC)
@@ -36,8 +36,8 @@ c local variables:
       Real(kind=8):: TempMagn(NMAXC)
       Logical :: ab_initio_all
       Logical :: KeyCoor, KeyPair, KeyHEXP, KeyTEXP
-c     Logical :: KeyHINT, KeyTINT,
-c    &           KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
+!     Logical :: KeyHINT, KeyTINT,
+!    &           KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
       Integer :: LUANISO, Isfreeunit
       Character(Len=1)   :: itype(NMAXC)
       Character(Len=280) :: line
@@ -74,31 +74,31 @@ c    &           KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
       itype(1:nmaxc)=' '
       imaxrank(1:nmaxc,1:2)=0
 
-c      namefile_aniso='              '
+!      namefile_aniso='              '
       ifHDF=.false.
       Input=5
 
       DBG=.false.
 
-c     KeyNNEQ=.false.
+!     KeyNNEQ=.false.
       KeyPair=.false.
       KeyCoor=.false.
       KeyHEXP=.false.
       KeyTEXP=.false.
-c     KeyTMAG=.false.
-c     KeyTINT=.false.
-c     KeyHINT=.false.
-c     KeyMLTP=.false.
-c     KeyMVEC=.false.
-c     KeyZEEM=.false.
-c     KeyITOJ=.false.
+!     KeyTMAG=.false.
+!     KeyTINT=.false.
+!     KeyHINT=.false.
+!     KeyMLTP=.false.
+!     KeyMVEC=.false.
+!     KeyZEEM=.false.
+!     KeyITOJ=.false.
       nH_HEXP=0
       nH_HINT=0
       nT_TEXP=0
       nT_TINT=0
       nTempMagn_HEXP=0
       nTempMagn_TMAG=0
-C=========== End of default settings====================================
+!=========== End of default settings====================================
       REWIND(Input)
 50    READ(Input,'(A280)',End=998) LINE
       Call NORMAL(LINE)
@@ -109,21 +109,21 @@ C=========== End of default settings====================================
       Call NORMAL(LINE)
       If (LINE(1:1).eq.'*') Go To 100
       If (LINE.eq.' ') Go To 100
-      If((LINE(1:4).ne.'NNEQ').AND.(LINE(1:4).ne.'TEXP').AND.
-     &   (LINE(1:4).ne.'HEXP').AND.(LINE(1:4).ne.'END ').AND.
-     &   (LINE(1:4).ne.'    ').AND.(LINE(1:4).ne.'HINT').AND.
-     &   (LINE(1:4).ne.'TINT').AND.(LINE(1:4).ne.'TMAG').AND.
-     &   (LINE(1:4).ne.'MVEC').AND.(LINE(1:4).ne.'ZEEM').AND.
-     &   (LINE(1:4).ne.'MLTP').AND.(LINE(1:4).ne.'LIN1').AND.
-     &   (LINE(1:4).ne.'LIN3').AND.(LINE(1:4).ne.'LIN9').AND.
-     &   (LINE(1:4).ne.'PAIR').AND.(LINE(1:4).ne.'ALIN').AND.
+      If((LINE(1:4).ne.'NNEQ').AND.(LINE(1:4).ne.'TEXP').AND.           &
+     &   (LINE(1:4).ne.'HEXP').AND.(LINE(1:4).ne.'END ').AND.           &
+     &   (LINE(1:4).ne.'    ').AND.(LINE(1:4).ne.'HINT').AND.           &
+     &   (LINE(1:4).ne.'TINT').AND.(LINE(1:4).ne.'TMAG').AND.           &
+     &   (LINE(1:4).ne.'MVEC').AND.(LINE(1:4).ne.'ZEEM').AND.           &
+     &   (LINE(1:4).ne.'MLTP').AND.(LINE(1:4).ne.'LIN1').AND.           &
+     &   (LINE(1:4).ne.'LIN3').AND.(LINE(1:4).ne.'LIN9').AND.           &
+     &   (LINE(1:4).ne.'PAIR').AND.(LINE(1:4).ne.'ALIN').AND.           &
      &   (LINE(1:4).ne.'COOR').AND.(LINE(1:4).ne.'ITOJ')) Go To 100
       If((LINE(1:4).eq.'END ').OR.(LINE(1:4).eq.'    ' )) Go To 200
 
 
       If (line(1:4).eq.'NNEQ') Then
 
-c        KeyNNEQ=.true.
+!        KeyNNEQ=.true.
          READ(Input,*) nneq, ab_initio_all, ifHDF
 
          If(DBG) WRITE(6,*) nneq, ab_initio_all, ifHDF
@@ -147,7 +147,7 @@ c        KeyNNEQ=.true.
               Write(6,'(A,i2,A)') 'neq(',i,')<0! Must be positive!'
               Call Quit_OnUserError()
            Else If (neqA(i)==0) Then
-              Write(6,'(A,i2,A)') 'neq(',i,')=0! Must be larger '//
+              Write(6,'(A,i2,A)') 'neq(',i,')=0! Must be larger '//     &
      &                            'than zero!'
               Call Quit_OnUserError()
            End If
@@ -161,7 +161,7 @@ c        KeyNNEQ=.true.
               Write(6,'(A,i2,A)') 'nexch(',i,')<0! Must be positive!'
               Call Quit_OnUserError()
            Else If (nexchA(i)==0) Then
-              Write(6,'(A,i2,A)') 'nexch(',i,')=0! Must be larger '//
+              Write(6,'(A,i2,A)') 'nexch(',i,')=0! Must be larger '//   &
      &                            'than zero!'
               Call Quit_OnUserError()
            End If
@@ -206,22 +206,22 @@ c        KeyNNEQ=.true.
                 ! generating the name of the "aniso_input file for
                 ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)
                 If(i<10) Then
-                   Write(namefile_aniso,'(4A)') 'aniso_hdf_',
+                   Write(namefile_aniso,'(4A)') 'aniso_hdf_',           &
      &                       CHAR(48+mod( int( i     ),10)),'.input'
                 Else If(i>=10 .and. i<=99) Then
-                   Write(namefile_aniso,'(4A)') 'aniso_hdf_',
-     &                       CHAR(48+mod( int((i)/10 ),10)),
+                   Write(namefile_aniso,'(4A)') 'aniso_hdf_',           &
+     &                       CHAR(48+mod( int((i)/10 ),10)),            &
      &                       CHAR(48+mod( int( i     ),10)),'.input'
                 End If
 
 #ifdef _HDF5_
-                Call read_hdf5_init( NAMEFILE_ANISO,sfs_check(I),
+                Call read_hdf5_init( NAMEFILE_ANISO,sfs_check(I),       &
      &                               sos_check(I))
-                If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),
+                If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),            &
      &                              ' sos(I) ',sos_check(I)
 #else
-                Call WarningMessage(2,'File '//trim(NAMEFILE_ANISO)//
-     &                               ' cannot be opened. Molcas was'//
+                Call WarningMessage(2,'File '//trim(NAMEFILE_ANISO)//   &
+     &                               ' cannot be opened. Molcas was'//  &
      &                               ' compiled without HDF5 option.')
                 Call Quit_OnUserError()
 #endif
@@ -229,11 +229,11 @@ c        KeyNNEQ=.true.
                 ! generating the name of the "aniso_input file for
                 ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)
                 If(i<10) Then
-                   Write(namefile_aniso,'(4A)') 'aniso_',
+                   Write(namefile_aniso,'(4A)') 'aniso_',               &
      &                       CHAR(48+mod( int( i     ),10)),'.input'
                 Else If(i>=10 .and. i<=99) Then
-                   Write(namefile_aniso,'(4A)') 'aniso_',
-     &                       CHAR(48+mod( int((i)/10 ),10)),
+                   Write(namefile_aniso,'(4A)') 'aniso_',               &
+     &                       CHAR(48+mod( int((i)/10 ),10)),            &
      &                       CHAR(48+mod( int( i     ),10)),'.input'
                 End If
                 LUANISO = Isfreeunit(20)
@@ -241,12 +241,12 @@ c        KeyNNEQ=.true.
 
                 If(old_aniso_format) Then
                    READ( LUANISO,*) sfs_check(I), sos_check(I)
-                   If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),
+                   If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),         &
      &                                 ' sos(I) ',sos_check(I)
                 Else
                    Call read_nss ( LUANISO, sos_check(i), dbg)
                    Call read_nstate ( LUANISO, sfs_check(i), dbg)
-                   If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),
+                   If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),         &
      &                                 ' sos(I) ',sos_check(I)
                 End If
                 CLOSE(LUANISO)
@@ -274,7 +274,7 @@ c        KeyNNEQ=.true.
           READ(Input,*) nT_TEXP
 
           If ( nT_TEXP<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'TEXP: Number of temperature points <= 0! ')
              Call Quit_OnUserError()
           End If
@@ -294,13 +294,13 @@ c        KeyNNEQ=.true.
           READ(Input,*) nH_HEXP
 
           If ( nH_HEXP<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'HEXP: Number of field points <= 0! ')
              Call Quit_OnUserError()
           End If
 
           If ( nTempMagn_HEXP<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'HEXP: Number of temperature points <= 0! ')
              Call Quit_OnUserError()
           End If
@@ -315,11 +315,11 @@ c        KeyNNEQ=.true.
 
       If (line(1:4).eq.'HINT') Then
 
-c         KeyHINT=.true.
+!         KeyHINT=.true.
           READ(Input,*) rdummy, rdummy, nH_HINT
 
           If ( nH_HINT<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'HINT: Number of field points <= 0! ')
              Call Quit_OnUserError()
           End If
@@ -333,11 +333,11 @@ c         KeyHINT=.true.
 
       If (line(1:4).eq.'TINT') Then
 
-c         KeyTINT=.true.
+!         KeyTINT=.true.
           READ(Input,*) rdummy, rdummy, nT_TINT
 
           If ( nT_TINT<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'TINT: Number of temperature points <= 0! ')
              Call Quit_OnUserError()
           End If
@@ -352,11 +352,11 @@ c         KeyTINT=.true.
 
       If (line(1:4).eq.'TMAG') Then
 
-c         KeyTMAG=.true.
+!         KeyTMAG=.true.
           READ(Input,*) nTempMagn_TMAG
 
           If ( nTempMagn_TMAG<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'TMAG: Number of temperatureMAGN points <= 0! ')
              Call Quit_OnUserError()
           End If
@@ -370,11 +370,11 @@ c         KeyTMAG=.true.
 
       If (line(1:4).eq.'MVEC') Then
 
-c         KeyMVEC=.true.
+!         KeyMVEC=.true.
           READ(Input,*) nDir
 
           If ( nDir<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'MVEC: Number of nDir points <= 0! ')
              Call Quit_OnUserError()
           End If
@@ -387,11 +387,11 @@ c         KeyMVEC=.true.
 
 
       If (line(1:4).eq.'ZEEM') Then
-c         KeyZEEM=.false.
+!         KeyZEEM=.false.
           READ(Input,*) nDirZee
 
           If ( nDirZee<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'ZEEM: Number of nDirZee points <= 0! ')
              Call Quit_OnUserError()
           End If
@@ -405,11 +405,11 @@ c         KeyZEEM=.false.
 
       If (line(1:4).eq.'MLTP') Then
 
-c         KeyMLTP=.true.
+!         KeyMLTP=.true.
           READ(Input,*) nMult
 
           If ( nMult<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &                 'MLTP: Number of multiplets <= 0! ')
              Call Quit_OnUserError()
           End If
@@ -421,15 +421,15 @@ c         KeyMLTP=.true.
 
 
 
-      If ( (LINE(1:4).eq.'LIN9') .OR. (LINE(1:4).eq.'LIN3') .OR.
-     &     (LINE(1:4).eq.'LIN1') .OR. (LINE(1:4).eq.'ALIN') .OR.
+      If ( (LINE(1:4).eq.'LIN9') .OR. (LINE(1:4).eq.'LIN3') .OR.        &
+     &     (LINE(1:4).eq.'LIN1') .OR. (LINE(1:4).eq.'ALIN') .OR.        &
      &     (LINE(1:4).eq.'PAIR') .OR. (LINE(1:4).eq.'ITOJ') ) Then
 
           KeyPair=.true.
           READ(Input,*,ERR=997) nPair
 
           If ( nPair<=0 ) Then
-             Call WarningMessage(2,
+             Call WarningMessage(2,                                     &
      &             'PAIR OR LINx:: Number of interacting pairs <= 0!')
              Call Quit_OnUserError()
           End If
@@ -443,11 +443,11 @@ c         KeyMLTP=.true.
                 imaxrank(i,1)=0
                 imaxrank(i,2)=0
 
-                READ(Input,*,ERR=997) idummy, idummy,
+                READ(Input,*,ERR=997) idummy, idummy,                   &
      &                              imaxrank(i,1),imaxrank(i,2)
                 Do irank1=1,2*imaxrank(i,1)+1
                   Do irank2=1,2*imaxrank(i,2)+1
-                    READ(Input,*,ERR=997) idummy,idummy,idummy,idummy,
+                    READ(Input,*,ERR=997) idummy,idummy,idummy,idummy,  &
      &                                    rdummy,rdummy
                     iline=iline+1
                   End Do
@@ -492,7 +492,7 @@ c         KeyMLTP=.true.
       If (        nH == 0 ) nH = 11
       If ( nTempMagn == 0 ) nTempMagn = 1
 
-c preliminary check the values:
+! preliminary check the values:
       If (DBG) then
          Write(6,*) 'nneq     =',nneq
          Write(6,*) 'neqv     =',neqv
@@ -512,7 +512,7 @@ c preliminary check the values:
       End If
 
       Go To 190
-C------ errors ------------------------------
+!------ errors ------------------------------
 997   continue
       Write(6,*)' READIN: Error reading "poly_aniso.input" '
       Write(6,*)' near line nr.',LINENR+1

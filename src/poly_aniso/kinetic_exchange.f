@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Kinetic_Exchange(  N1,   N2,   M1,S1,  M2,S2,
-     &                            eso1, eso2,
-     &                            tpar, upar, lant, OPT, HKEX,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Kinetic_Exchange(  N1,   N2,   M1,S1,  M2,S2,          &
+     &                            eso1, eso2,                           &
+     &                            tpar, upar, lant, OPT, HKEX,          &
      &                            MR1,SR1,MR2,SR2)
-c  compute KE, within various options :
+!  compute KE, within various options :
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: lant,OPT
@@ -54,7 +54,7 @@ c  compute KE, within various options :
       Real(kind=8)    :: gtens(4,3),maxes(4,3,3),wcr(n1)
       Logical          :: DBG
       DBG=.false.
-c determine the pseuDospin on each site (Z1 and Z2):
+! determine the pseuDospin on each site (Z1 and Z2):
       Z1=(0.0_wp,0.0_wp)
       Z2=(0.0_wp,0.0_wp)
       iprint=1
@@ -66,7 +66,7 @@ c determine the pseuDospin on each site (Z1 and Z2):
         Call pa_prMat('KE_Exchange:: Pseudospin site 1',Z1,N1)
         Call pa_prMat('KE_Exchange:: Pseudospin site 2',Z2,N2)
       End If
-c get the "traced-to-zero" local energy states on both sites:
+! get the "traced-to-zero" local energy states on both sites:
       eloc1=0.0_wp
       eloc2=0.0_wp
       Call rtrace(N1,eso1,eloc1)
@@ -99,80 +99,80 @@ c get the "traced-to-zero" local energy states on both sites:
 
       H1T=(0.0_wp,0.0_wp)
       H1T=H1+HCOV
-c reWrite the HCOV in the initial ab initio basis:
+! reWrite the HCOV in the initial ab initio basis:
       TMP(:,:)=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','N',N1, N1,  N1, (1.0_wp,0.0_wp),
-     &             Z1(1:N1,1:N1), N1,
-     &           HCOV(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','N',N1, N1,  N1, (1.0_wp,0.0_wp),                 &
+     &             Z1(1:N1,1:N1), N1,                                   &
+     &           HCOV(1:N1,1:N1), N1, (0.0_wp,0.0_wp),                  &
      &            TMP(1:N1,1:N1), N1 )
       HCOV=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','C',N1, N1,  N1, (1.0_wp,0.0_wp),
-     &            TMP(1:N1,1:N1), N1,
-     &             Z1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','C',N1, N1,  N1, (1.0_wp,0.0_wp),                 &
+     &            TMP(1:N1,1:N1), N1,                                   &
+     &             Z1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),                  &
      &           HCOV(1:N1,1:N1), N1 )
-c reWrite the H1 in the initial ab initio basis:
+! reWrite the H1 in the initial ab initio basis:
       TMP(:,:)=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','N',N1,  N1, N1, (1.0_wp,0.0_wp),
-     &             Z1(1:N1,1:N1), N1,
-     &             H1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','N',N1,  N1, N1, (1.0_wp,0.0_wp),                 &
+     &             Z1(1:N1,1:N1), N1,                                   &
+     &             H1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),                  &
      &            TMP(1:N1,1:N1), N1 )
       H1=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','C',N1,  N1, N1, (1.0_wp,0.0_wp),
-     &            TMP(1:N1,1:N1), N1,
-     &             Z1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','C',N1,  N1, N1, (1.0_wp,0.0_wp),                 &
+     &            TMP(1:N1,1:N1), N1,                                   &
+     &             Z1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),                  &
      &             H1(1:N1,1:N1), N1 )
-c reWrite the H2 in the initial ab initio basis:
+! reWrite the H2 in the initial ab initio basis:
       TMP(:,:)=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','N',N2,  N2, N2, (1.0_wp,0.0_wp),
-     &             Z2(1:N2,1:N2), N2,
-     &             H2(1:N2,1:N2), N2, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','N',N2,  N2, N2, (1.0_wp,0.0_wp),                 &
+     &             Z2(1:N2,1:N2), N2,                                   &
+     &             H2(1:N2,1:N2), N2, (0.0_wp,0.0_wp),                  &
      &            TMP(1:N2,1:N2), N2 )
       H2=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','C',N2,  N2, N2, (1.0_wp,0.0_wp),
-     &            TMP(1:N2,1:N2), N2,
-     &             Z2(1:N2,1:N2), N2, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','C',N2,  N2, N2, (1.0_wp,0.0_wp),                 &
+     &            TMP(1:N2,1:N2), N2,                                   &
+     &             Z2(1:N2,1:N2), N2, (0.0_wp,0.0_wp),                  &
      &             H2(1:N2,1:N2), N2 )
-c reWrite the H1T in the initial ab initio basis:
+! reWrite the H1T in the initial ab initio basis:
       TMP(:,:)=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','N',N1, N1,  N1, (1.0_wp,0.0_wp),
-     &             Z1(1:N1,1:N1), N1,
-     &            H1T(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','N',N1, N1,  N1, (1.0_wp,0.0_wp),                 &
+     &             Z1(1:N1,1:N1), N1,                                   &
+     &            H1T(1:N1,1:N1), N1, (0.0_wp,0.0_wp),                  &
      &            TMP(1:N1,1:N1), N1 )
       H1T=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','C',N1, N1,  N1, (1.0_wp,0.0_wp),
-     &            TMP(1:N1,1:N1), N1,
-     &             Z1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','C',N1, N1,  N1, (1.0_wp,0.0_wp),                 &
+     &            TMP(1:N1,1:N1), N1,                                   &
+     &             Z1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),                  &
      &            H1T(1:N1,1:N1), N1 )
-c reWrite the HEXC in the initial ab initio basis:
+! reWrite the HEXC in the initial ab initio basis:
       Do is1=1,N2
         Do is2=1,N2
       TMP(:,:)=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','N',N1,  N1, N1, (1.0_wp,0.0_wp),
-     &          Z1(1:N1,1:N1), N1,
-     &   HEXC(1:N1,1:N1,is1,is2), N1, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','N',N1,  N1, N1, (1.0_wp,0.0_wp),                 &
+     &          Z1(1:N1,1:N1), N1,                                      &
+     &   HEXC(1:N1,1:N1,is1,is2), N1, (0.0_wp,0.0_wp),                  &
      &         TMP(1:N1,1:N1), N1 )
       HEXC(1:N1,1:N1,is1,is2)=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','C',N1,  N1, N1, (1.0_wp,0.0_wp),
-     &         TMP(1:N1,1:N1), N1,
-     &     Z1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','C',N1,  N1, N1, (1.0_wp,0.0_wp),                 &
+     &         TMP(1:N1,1:N1), N1,                                      &
+     &     Z1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),                          &
      &   HEXC(1:N1,1:N1,is1,is2), N1 )
         End Do
       End Do
       Do is1=1,N1
         Do is2=1,N1
       TMP(:,:)=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','N',N2,  N2, N2, (1.0_wp,0.0_wp),
-     &         Z2(1:N2,1:N2), N2,
-     &   HEXC(is1,is2,1:N2,1:N2), N2, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','N',N2,  N2, N2, (1.0_wp,0.0_wp),                 &
+     &         Z2(1:N2,1:N2), N2,                                       &
+     &   HEXC(is1,is2,1:N2,1:N2), N2, (0.0_wp,0.0_wp),                  &
      &      TMP(1:N2,1:N2), N2 )
       HEXC(is1,is2,1:N2,1:N2)=(0.0_wp,0.0_wp)
-      Call ZGEMM_('N','C',N2,  N2, N2, (1.0_wp,0.0_wp),
-     &         TMP(1:N2,1:N2), N2,
-     &     Z2(1:N2,1:N2), N2, (0.0_wp,0.0_wp),
+      Call ZGEMM_('N','C',N2,  N2, N2, (1.0_wp,0.0_wp),                 &
+     &         TMP(1:N2,1:N2), N2,                                      &
+     &     Z2(1:N2,1:N2), N2, (0.0_wp,0.0_wp),                          &
      &     HEXC(is1,is2,1:N2,1:N2), N2 )
         End Do
       End Do
-c
+!
       HKEX=(0.0_wp,0.0_wp)
       ABIT=(0.0_wp,0.0_wp)
       Do i=1,N1
@@ -189,13 +189,13 @@ c
           End Do
         End Do
       End Do
-c H1T = H1 + HCOV
+! H1T = H1 + HCOV
       wcr=0.0_wp
       zcr=(0.0_wp,0.0_wp)
       info=0
       Call diag_c2(H1T,N1,info,wcr,zcr)
       Do i=1,N1
-      Write(6,'(2(A,i2,A,F15.9))')
+      Write(6,'(2(A,i2,A,F15.9))')                                      &
      & 'ESO1(',i,')=',ESO1(i),'  ESO1+COV(',i,')=',wcr(i)-wcr(1)
       End Do
       Do i=1,N1
@@ -204,67 +204,67 @@ c H1T = H1 + HCOV
        End Do
       End Do
 
-c rotate to COV basis:
+! rotate to COV basis:
       If((opt.eq.3).or.(opt.eq.4)) Then
         Do is1=1,N2
           Do is2=1,N2
         TMP(:,:)=(0.0_wp,0.0_wp)
-        Call ZGEMM_('C','N',N1,  N1, N1, (1.0_wp,0.0_wp),
-     &           ZCR(1:N1,1:N1), N1,
-     &    HKEX(1:N1,1:N1,is1,is2), N1, (0.0_wp,0.0_wp),
+        Call ZGEMM_('C','N',N1,  N1, N1, (1.0_wp,0.0_wp),               &
+     &           ZCR(1:N1,1:N1), N1,                                    &
+     &    HKEX(1:N1,1:N1,is1,is2), N1, (0.0_wp,0.0_wp),                 &
      &  TMP(1:N1,1:N1), N1 )
         HKEX(:,:,is1,is2)=(0.0_wp,0.0_wp)
-        Call ZGEMM_('N','N',N1,  N1, N1, (1.0_wp,0.0_wp),
-     &           TMP(1:N1,1:N1), N1,
-     &     ZCR(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+        Call ZGEMM_('N','N',N1,  N1, N1, (1.0_wp,0.0_wp),               &
+     &           TMP(1:N1,1:N1), N1,                                    &
+     &     ZCR(1:N1,1:N1), N1, (0.0_wp,0.0_wp),                         &
      &   HKEX(1:N1,1:N1,is1,is2), N1 )
           End Do
         End Do
       End If
-c compute the g tensors for initial and initial+covalence:
+! compute the g tensors for initial and initial+covalence:
       Call atens(M1(1:3,1:2,1:2), 2, gtens(1,:), maxes(1,:,:), 1 )
       Call atens(M1(1:3,3:4,3:4), 2, gtens(2,:), maxes(2,:,:), 1 )
       MM1=(0.0_wp,0.0_wp)
       SM1=(0.0_wp,0.0_wp)
       Do L=1,3
         TMP(:,:)=(0.0_wp,0.0_wp)
-        Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp), ZCR, N1,
-     &           M1(L,:,:),N1,
+        Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp), ZCR, N1,          &
+     &           M1(L,:,:),N1,                                          &
      &             (0.0_wp,0.0_wp), TMP, N1 )
-        Call ZGEMM_('N','N',N1,N1,N1,(1.0_wp,0.0_wp), TMP, N1, ZCR, N1,
+        Call ZGEMM_('N','N',N1,N1,N1,(1.0_wp,0.0_wp), TMP, N1, ZCR, N1, &
      &             (0.0_wp,0.0_wp), MM1(L,:,:), N1 )
         TMP(:,:)=(0.0_wp,0.0_wp)
-        Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp), ZCR, N1,
-     &           S1(L,:,:),N1,
+        Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp), ZCR, N1,          &
+     &           S1(L,:,:),N1,                                          &
      &             (0.0_wp,0.0_wp), TMP, N1 )
-        Call ZGEMM_('N','N',N1,N1,N1,(1.0_wp,0.0_wp), TMP, N1, ZCR, N1,
+        Call ZGEMM_('N','N',N1,N1,N1,(1.0_wp,0.0_wp), TMP, N1, ZCR, N1, &
      &             (0.0_wp,0.0_wp), SM1(L,:,:), N1 )
       End Do
       Call atens(MM1(:,1:2,1:2), 2, gtens(3,:), maxes(3,:,:), 1 )
       Call atens(MM1(:,3:4,3:4), 2, gtens(4,:), maxes(4,:,:), 1 )
-      Write(6,'(A)') 'Initial g tensors of the ground and first'//
+      Write(6,'(A)') 'Initial g tensors of the ground and first'//      &
      & ' excited KD'
       Do i=1,2
-      Write(6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(i,1),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(i,1),                 &
      & ' axis X: ',(maxes(i,j,1),j=1,3)
-      Write(6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(i,2),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(i,2),                 &
      & ' axis Y: ',(maxes(i,j,2),j=1,3)
-      Write(6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(i,3),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(i,3),                 &
      & ' axis Z: ',(maxes(i,j,3),j=1,3)
       Write(6,*)
       End Do
-      Write(6,'(A)') 'Initial+Covalence g tensors of the ground and'//
+      Write(6,'(A)') 'Initial+Covalence g tensors of the ground and'//  &
      & ' first excited KD'
       Do i=3,4
-      Write(6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(i,1),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(i,1),                 &
      & ' axis X: ',(maxes(i,j,1),j=1,3)
-      Write(6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(i,2),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(i,2),                 &
      & ' axis Y: ',(maxes(i,j,2),j=1,3)
-      Write(6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(i,3),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(i,3),                 &
      & ' axis Z: ',(maxes(i,j,3),j=1,3)
       Write(6,*)
       End Do
-c------
+!------
       MR1=(0.0_wp,0.0_wp)
       SR1=(0.0_wp,0.0_wp)
       MR2=(0.0_wp,0.0_wp)
@@ -288,75 +288,75 @@ c------
 !       rewrite the magnetic moments and spin moments in new local bases:
         Do L=1,3
           TMP(:,:)=(0.0_wp,0.0_wp)
-          Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp),
-     &                ZZ1, N1,
-     &                MR1(L,:,:), N1,  (0.0_wp,0.0_wp),
+          Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp),                 &
+     &                ZZ1, N1,                                          &
+     &                MR1(L,:,:), N1,  (0.0_wp,0.0_wp),                 &
      &                TMP, N1 )
           MR1(L,:,:)=(0.0_wp,0.0_wp)
-          Call ZGEMM_('N','N',N1,N1,N1,(1.0_wp,0.0_wp),
-     &               TMP, N1,
-     &               ZZ1, N1, (0.0_wp,0.0_wp),
+          Call ZGEMM_('N','N',N1,N1,N1,(1.0_wp,0.0_wp),                 &
+     &               TMP, N1,                                           &
+     &               ZZ1, N1, (0.0_wp,0.0_wp),                          &
      &               MR1(L,:,:), N1 )
 
           TMP(:,:)=(0.0_wp,0.0_wp)
-          Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp),
-     &               ZZ1, N1,
-     &               SR1(L,:,:), N1, (0.0_wp,0.0_wp),
+          Call ZGEMM_('C','N',N1,N1,N1,(1.0_wp,0.0_wp),                 &
+     &               ZZ1, N1,                                           &
+     &               SR1(L,:,:), N1, (0.0_wp,0.0_wp),                   &
      &               TMP, N1 )
           SR1(L,:,:)=(0.0_wp,0.0_wp)
-          Call ZGEMM_('N','N',N1,N1,N1,(1.0_wp,0.0_wp),
-     &               TMP, N1,
-     &               ZZ1, N1, (0.0_wp,0.0_wp),
+          Call ZGEMM_('N','N',N1,N1,N1,(1.0_wp,0.0_wp),                 &
+     &               TMP, N1,                                           &
+     &               ZZ1, N1, (0.0_wp,0.0_wp),                          &
      &               SR1(L,:,:), N1 )
-c
+!
           TMP(:,:)=(0.0_wp,0.0_wp)
-          Call ZGEMM_('C','N',N2,N2,N2,(1.0_wp,0.0_wp),
-     &               ZZ2, N2,
-     &               MR2(L,:,:), N2, (0.0_wp,0.0_wp),
+          Call ZGEMM_('C','N',N2,N2,N2,(1.0_wp,0.0_wp),                 &
+     &               ZZ2, N2,                                           &
+     &               MR2(L,:,:), N2, (0.0_wp,0.0_wp),                   &
      &               TMP, N2 )
           MR2(L,:,:)=(0.0_wp,0.0_wp)
-          Call ZGEMM_('N','N',N2,N2,N2,(1.0_wp,0.0_wp),
-     &               TMP, N2,
-     &               ZZ2, N2, (0.0_wp,0.0_wp),
+          Call ZGEMM_('N','N',N2,N2,N2,(1.0_wp,0.0_wp),                 &
+     &               TMP, N2,                                           &
+     &               ZZ2, N2, (0.0_wp,0.0_wp),                          &
      &               MR2(L,:,:), N2 )
           TMP(:,:)=(0.0_wp,0.0_wp)
-          Call ZGEMM_('C','N',N2,N2,N2,(1.0_wp,0.0_wp),
-     &               ZZ2, N2,
-     &               SR2(L,:,:), N2, (0.0_wp,0.0_wp),
+          Call ZGEMM_('C','N',N2,N2,N2,(1.0_wp,0.0_wp),                 &
+     &               ZZ2, N2,                                           &
+     &               SR2(L,:,:), N2, (0.0_wp,0.0_wp),                   &
      &               TMP, N2 )
           SR2(L,:,:)=(0.0_wp,0.0_wp)
-          Call ZGEMM_('N','N',N2,N2,N2,(1.0_wp,0.0_wp),
-     &               TMP, N2,
-     &               ZZ2, N2, (0.0_wp,0.0_wp),
+          Call ZGEMM_('N','N',N2,N2,N2,(1.0_wp,0.0_wp),                 &
+     &               TMP, N2,                                           &
+     &               ZZ2, N2, (0.0_wp,0.0_wp),                          &
      &               SR2(L,:,:), N2 )
         End Do
-c reWrite the exchnage matrix in the basis of local pseuDospins:
+! reWrite the exchnage matrix in the basis of local pseuDospins:
         Do is1=1,N2
           Do is2=1,N2
             TMP(:,:)=(0.0_wp,0.0_wp)
-            Call ZGEMM_('C','N',N1,  N1, N1, (1.0_wp,0.0_wp),
-     &                  ZZ1(1:N1,1:N1), N1,
-     &                  HKEX(1:N1,1:N1,is1,is2), N1, (0.0_wp,0.0_wp),
+            Call ZGEMM_('C','N',N1,  N1, N1, (1.0_wp,0.0_wp),           &
+     &                  ZZ1(1:N1,1:N1), N1,                             &
+     &                  HKEX(1:N1,1:N1,is1,is2), N1, (0.0_wp,0.0_wp),   &
      &                  TMP(1:N1,1:N1), N1 )
 
             HKEX(1:N1,1:N1,is1,is2)=(0.0_wp,0.0_wp)
-            Call ZGEMM_('N','N',N1,  N1, N1, (1.0_wp,0.0_wp),
-     &                  TMP(1:N1,1:N1), N1,
-     &                  ZZ1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),
+            Call ZGEMM_('N','N',N1,  N1, N1, (1.0_wp,0.0_wp),           &
+     &                  TMP(1:N1,1:N1), N1,                             &
+     &                  ZZ1(1:N1,1:N1), N1, (0.0_wp,0.0_wp),            &
      &                  HKEX(1:N1,1:N1,is1,is2), N1 )
           End Do
         End Do
         Do is1=1,N1
           Do is2=1,N1
             TMP(:,:)=(0.0_wp,0.0_wp)
-            Call ZGEMM_('C','N',N2,  N2, N2, (1.0_wp,0.0_wp),
-     &                  ZZ2(1:N2,1:N2), N2,
-     &                  HKEX(is1,is2,1:N2,1:N2), N2, (0.0_wp,0.0_wp),
+            Call ZGEMM_('C','N',N2,  N2, N2, (1.0_wp,0.0_wp),           &
+     &                  ZZ2(1:N2,1:N2), N2,                             &
+     &                  HKEX(is1,is2,1:N2,1:N2), N2, (0.0_wp,0.0_wp),   &
      &                  TMP(1:N2,1:N2), N2 )
             HKEX(is1,is2,1:N2,1:N2)=(0.0_wp,0.0_wp)
-            Call ZGEMM_('N','N',N2,  N2, N2, (1.0_wp,0.0_wp),
-     &                  TMP(1:N2,1:N2), N2,
-     &                  ZZ2(1:N2,1:N2), N2, (0.0_wp,0.0_wp),
+            Call ZGEMM_('N','N',N2,  N2, N2, (1.0_wp,0.0_wp),           &
+     &                  TMP(1:N2,1:N2), N2,                             &
+     &                  ZZ2(1:N2,1:N2), N2, (0.0_wp,0.0_wp),            &
      &                  HKEX(is1,is2,1:N2,1:N2), N2 )
           End Do
         End Do

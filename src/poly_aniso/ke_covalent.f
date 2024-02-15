@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine KE_Covalent(N,lant,t,u,OPT, HCOV )
-c this function computes the covalent CF Hamiltonian ofr a given Lanthanide
+! this function computes the covalent CF Hamiltonian ofr a given Lanthanide
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
       Integer N,OPT,lant
       Real(kind=8) ::  t,u
       Real(kind=8) ::  WCG ! Clebsch_Gordan Coefficients
       Complex(kind=8) ::  HCOV(N,N)
-c local variables
+! local variables
       Integer i,j,JLn,ms1,ns1
       Real(kind=8) ::  HCOV1(N,N)
       Real(kind=8) ::  test1
@@ -42,10 +42,10 @@ c local variables
       test1=0.0_wp
       test1=WCG(JLn, JLn, 2*iK, 0,  JLn, JLn )
       If(test1.eq.0.0_wp) Go To 107
-      HCOV1(i,j)=HCOV1(i,j)
-     &                    + t*t/(u+dE(lant,iLS,iJ))
-     &                    * Jx(lant,iLS,iJ, iK,ika,0,0)
-     &                    * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )
+      HCOV1(i,j)=HCOV1(i,j)                                             &
+     &                    + t*t/(u+dE(lant,iLS,iJ))                     &
+     &                    * Jx(lant,iLS,iJ, iK,ika,0,0)                 &
+     &                    * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )       &
      &                    / WCG(JLn, JLn, 2*iK,     0, JLn, JLn )
  107  continue
                      End Do
@@ -62,9 +62,9 @@ c local variables
       test1=0.0_wp
       test1=WCG(JLn, JLn, 2*iK, 0,  JLn, JLn )
       If(test1.eq.0.0_wp) Go To 108
-      HCOV1(i,j)=HCOV1(i,j) + t*t/u
-     &                    * Jx(lant,iLS,iJ, iK,ika,0,0)
-     &                    * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )
+      HCOV1(i,j)=HCOV1(i,j) + t*t/u                                     &
+     &                    * Jx(lant,iLS,iJ, iK,ika,0,0)                 &
+     &                    * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )       &
      &                    / WCG(JLn, JLn, 2*iK,     0, JLn, JLn )
  108  continue
                      End Do

@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine PopAnalysis(nneq,neq,exch,nexch,nmax,lmax,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine PopAnalysis(nneq,neq,exch,nexch,nmax,lmax,             &
      & NmaxPop,Z)
-c  computes the density matrix of each interacting site in the coupled eigenstate Zi
-c  N - (Integer) - total number of the exchange states ( total number of basis functions )
-c  Z - (Complex*16 array, size N) - contains the coupled eigenvector (a given column of the
-c       entire exchange Z array)
-c  Nsites - total number of interacting magnetic sites
-c  ibas(N,Nsites) - Integer array denoting the coupled basis
-c  nneq -- number of non equivalent sites
-c  neq(Nneq) number of equivalent sites of type i
-c
+!  computes the density matrix of each interacting site in the coupled eigenstate Zi
+!  N - (Integer) - total number of the exchange states ( total number of basis functions )
+!  Z - (Complex*16 array, size N) - contains the coupled eigenvector (a given column of the
+!       entire exchange Z array)
+!  Nsites - total number of interacting magnetic sites
+!  ibas(N,Nsites) - Integer array denoting the coupled basis
+!  nneq -- number of non equivalent sites
+!  neq(Nneq) number of equivalent sites of type i
+!
       Implicit None
 #include "stdalloc.fh"
       Integer, parameter        :: wp=kind(0.d0)
-c main input variables
+! main input variables
       Integer, intent(in)          :: nneq, exch, nmax, lmax
       Integer, intent(in)          :: neq(nneq), nexch(nneq)
       Integer, intent(in)          :: NmaxPop
       Complex(kind=8), intent(in) :: Z(exch,exch)
-c local variables
+! local variables
       Integer          :: i,j,l,isite,i1,i2,nb1,nb2,nb3,tmp,il,nb
       Integer          :: nind(lmax,2),intc(lmax)
       Integer          :: ibas(exch,lmax)
@@ -49,8 +49,8 @@ c local variables
       End If
       Call mma_allocate(pop,exch,lmax,nmax,nmax,'pop')
       Call zcopy_(exch*lmax*nmax*nmax,[(0.0_wp,0.0_wp)],0,pop,1)
-c fill some general arrays:
-c generate the tables:
+! fill some general arrays:
+! generate the tables:
       nind(:,:)=0
       l=0
       Do i=1,nneq
@@ -77,7 +77,7 @@ c generate the tables:
          End Do
       End Do
       isite=0
-c
+!
       pop=(0.0_wp,0.0_wp)
       i=int(24+13*lmax)
       Write(fmtline,'(A,i3,A,i2,A)') '(',i,'A)'
@@ -87,21 +87,21 @@ c
       Write(6,fmtline)   'POPULATION ANALYSIS'
       i=int((8+13*lmax-19)/2)
       Write(fmtline,'(A,i3,A,i3,A)') '(',i,'X,A,',i,'X)'
-      Write(6,fmtline)   '(i.e. diagonal value of density'//
+      Write(6,fmtline)   '(i.e. diagonal value of density'//            &
      & ' matrices of the interacting sites)'
       i=int(24+13*lmax)
       Write(fmtline,'(A,i3,A)') '(',i,'A)'
       Write(6,fmtline) ('-',j=1,i)
       Write(fmtline,'(A,i3,A)') '(A,',lmax,'A)'
-      Write(6,fmtline) '--------|-----|',
+      Write(6,fmtline) '--------|-----|',                               &
      & ('------------|',i=1,lmax)
-      Write(6,fmtline) 'Exchange|Basis|',
+      Write(6,fmtline) 'Exchange|Basis|',                               &
      & ('   center   |', i=1,lmax)
       Write(fmtline,'(A,i3,A)') '(A,',lmax,'(A,i2,A))'
-      Write(6,fmtline) ' state  | set |',
+      Write(6,fmtline) ' state  | set |',                               &
      & ('     ',i,'     |',i=1,lmax)
       Write(fmtline,'(A,i3,A)') '(A,',lmax,'A)'
-      Write(6,fmtline) '--------|-----|',
+      Write(6,fmtline) '--------|-----|',                               &
      & ('------------|',i=1,lmax)
 
 !     loop over all states for which we want density matrices and
@@ -111,7 +111,7 @@ c
          isite=nind(l,1)
             Do i1=1,nexch(isite)
                Do i2=1,nexch(isite)
-c     sum over all other components of other sites
+!     sum over all other components of other sites
                   Do nb2=1,exch
                      Do nb3=1,exch
                         If(ibas(nb2,l)+1 .ne. i1) Go To 11
@@ -135,13 +135,13 @@ c     sum over all other components of other sites
          End Do
 
          Do i=1,nmax ! maxim local basis
-         Write(fmtline,'(A,i2,A)') '(2x,i4,2x,A,1x,i2,2x,A,',
+         Write(fmtline,'(A,i2,A)') '(2x,i4,2x,A,1x,i2,2x,A,',           &
      &                              lmax,'(1x,F10.8,1x,A))'
-         Write(6,fmtline) nb1,'|',i,'|',
+         Write(6,fmtline) nb1,'|',i,'|',                                &
      & ( dble(pop(nb1,l,i,i)),'|',l=1,lmax)
          End Do
       Write(fmtline,'(A,i2,A)') '(A,',lmax,'A)'
-      Write(6,fmtline) '--------|-----|',
+      Write(6,fmtline) '--------|-----|',                               &
      & ('------------|',i=1,lmax)
       End Do ! nb1
 
@@ -152,73 +152,73 @@ c     sum over all other components of other sites
       End
 
 
-c compute and print the calculated expectation values:
-c      Write(6,*)
-c      Write(6,'(A)') 'EXPECTATION VALUES'
-c      Write(6,'(5A)') '--------|----|',
-c     & ('------------------------------|',i=1,4)
-c      Write(6,'(5A)') 'Exchange|Site|',
-c     & '   MAGNETIC MOMENT (M=-L-2S)  |',
-c     & '        SPIN MOMENT (S)       |',
-c     & '      ORBITAL MOMENT (L)      |',
-c     & '     TOTAL MOMENT (J=L+S)     |'
-c      Write(6,'(5A)') ' state  | Nr.|',
-c     & ('     X         Y         Z    |',i=1,4)
-c      Write(6,'(5A)') '--------|----|',
-c     & ('------------------------------|',i=1,4)
-c      Do nb1=1,NmaxPop
-cc  we proceed to compute expectation values for this nb1 exchange state
-c      Mx(:) = cZero
-c      My(:) = cZero
-c      Mz(:) = cZero
-c      Sx(:) = cZero
-c      Sy(:) = cZero
-c      Sz(:) = cZero
-c      Jx(:) = cZero
-c      Jy(:) = cZero
-c      Jz(:) = cZero
-c      Lx(:) = cZero
-c      Ly(:) = cZero
-c      Lz(:) = cZero
+! compute and print the calculated expectation values:
+!      Write(6,*)
+!      Write(6,'(A)') 'EXPECTATION VALUES'
+!      Write(6,'(5A)') '--------|----|',
+!     & ('------------------------------|',i=1,4)
+!      Write(6,'(5A)') 'Exchange|Site|',
+!     & '   MAGNETIC MOMENT (M=-L-2S)  |',
+!     & '        SPIN MOMENT (S)       |',
+!     & '      ORBITAL MOMENT (L)      |',
+!     & '     TOTAL MOMENT (J=L+S)     |'
+!      Write(6,'(5A)') ' state  | Nr.|',
+!     & ('     X         Y         Z    |',i=1,4)
+!      Write(6,'(5A)') '--------|----|',
+!     & ('------------------------------|',i=1,4)
+!      Do nb1=1,NmaxPop
+!c  we proceed to compute expectation values for this nb1 exchange state
+!      Mx(:) = cZero
+!      My(:) = cZero
+!      Mz(:) = cZero
+!      Sx(:) = cZero
+!      Sy(:) = cZero
+!      Sz(:) = cZero
+!      Jx(:) = cZero
+!      Jy(:) = cZero
+!      Jz(:) = cZero
+!      Lx(:) = cZero
+!      Ly(:) = cZero
+!      Lz(:) = cZero
 
-c         Do l=1,lmax
-c         isite = nind(ind_exch(l),1)
-c           Do i1=1,nexch(isite)
-c              Do i2=1,nexch(isite)
-c       Mx(l)=Mx(l)+pop(nb1,l,i1,i2)*M(isite,1,i1,i2)
-c       My(l)=My(l)+pop(nb1,l,i1,i2)*M(isite,2,i1,i2)
-c       Mz(l)=Mz(l)+pop(nb1,l,i1,i2)*M(isite,3,i1,i2)
-c       Sx(l)=Sx(l)+pop(nb1,l,i1,i2)*S(isite,1,i1,i2)
-c       Sy(l)=Sy(l)+pop(nb1,l,i1,i2)*S(isite,2,i1,i2)
-c       Sz(l)=Sz(l)+pop(nb1,l,i1,i2)*S(isite,3,i1,i2)
-c              End Do
-c            End Do
-c       Lx(l)=-Mx(l)-g_e*Sx(l)
-c       Ly(l)=-My(l)-g_e*Sy(l)
-c       Lz(l)=-Mz(l)-g_e*Sz(l)
-c       Jx(l)= Lx(l)+Sx(l)
-c       Jy(l)= Ly(l)+Sy(l)
-c       Jz(l)= Lz(l)+Sz(l)
-c         End Do
-c
-c         Do l=1,lmax
-c         If(l.eq.int((lmax+1)/2)) Then
-c      Write(6,'(i5,3x,A,1x,i2,1x,A,4(3(F9.5,1x),A))')
-c     & nb1,'|',l,'|',
-c     & dble(Mx(l)),dble(My(l)),dble(Mz(l)),'|',
-c     & dble(Sx(l)),dble(Sy(l)),dble(Sz(l)),'|',
-c     & dble(Lx(l)),dble(Ly(l)),dble(Lz(l)),'|',
-c     & dble(Jx(l)),dble(Jy(l)),dble(Jz(l)),'|'
-c         Else
-c      Write(6,'(8x,A,1x,i2,1x,A,4(3(F9.5,1x),A))')
-c     & '|',l,'|',
-c     & dble(Mx(l)),dble(My(l)),dble(Mz(l)),'|',
-c     & dble(Sx(l)),dble(Sy(l)),dble(Sz(l)),'|',
-c     & dble(Lx(l)),dble(Ly(l)),dble(Lz(l)),'|',
-c     & dble(Jx(l)),dble(Jy(l)),dble(Jz(l)),'|'
-c         End If
-c         End Do
-c      Write(6,'(5A)') '--------|----|',
-c     & ('------------------------------|',i=1,4)
-c      End Do
-c
+!         Do l=1,lmax
+!         isite = nind(ind_exch(l),1)
+!           Do i1=1,nexch(isite)
+!              Do i2=1,nexch(isite)
+!       Mx(l)=Mx(l)+pop(nb1,l,i1,i2)*M(isite,1,i1,i2)
+!       My(l)=My(l)+pop(nb1,l,i1,i2)*M(isite,2,i1,i2)
+!       Mz(l)=Mz(l)+pop(nb1,l,i1,i2)*M(isite,3,i1,i2)
+!       Sx(l)=Sx(l)+pop(nb1,l,i1,i2)*S(isite,1,i1,i2)
+!       Sy(l)=Sy(l)+pop(nb1,l,i1,i2)*S(isite,2,i1,i2)
+!       Sz(l)=Sz(l)+pop(nb1,l,i1,i2)*S(isite,3,i1,i2)
+!              End Do
+!            End Do
+!       Lx(l)=-Mx(l)-g_e*Sx(l)
+!       Ly(l)=-My(l)-g_e*Sy(l)
+!       Lz(l)=-Mz(l)-g_e*Sz(l)
+!       Jx(l)= Lx(l)+Sx(l)
+!       Jy(l)= Ly(l)+Sy(l)
+!       Jz(l)= Lz(l)+Sz(l)
+!         End Do
+!
+!         Do l=1,lmax
+!         If(l.eq.int((lmax+1)/2)) Then
+!      Write(6,'(i5,3x,A,1x,i2,1x,A,4(3(F9.5,1x),A))')
+!     & nb1,'|',l,'|',
+!     & dble(Mx(l)),dble(My(l)),dble(Mz(l)),'|',
+!     & dble(Sx(l)),dble(Sy(l)),dble(Sz(l)),'|',
+!     & dble(Lx(l)),dble(Ly(l)),dble(Lz(l)),'|',
+!     & dble(Jx(l)),dble(Jy(l)),dble(Jz(l)),'|'
+!         Else
+!      Write(6,'(8x,A,1x,i2,1x,A,4(3(F9.5,1x),A))')
+!     & '|',l,'|',
+!     & dble(Mx(l)),dble(My(l)),dble(Mz(l)),'|',
+!     & dble(Sx(l)),dble(Sy(l)),dble(Sz(l)),'|',
+!     & dble(Lx(l)),dble(Ly(l)),dble(Lz(l)),'|',
+!     & dble(Jx(l)),dble(Jy(l)),dble(Jz(l)),'|'
+!         End If
+!         End Do
+!      Write(6,'(5A)') '--------|----|',
+!     & ('------------------------------|',i=1,4)
+!      End Do
+!

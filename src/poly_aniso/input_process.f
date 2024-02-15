@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine input_process( nneq, neq, neqv, nmax, nCenter, nexch,
-     &                          nDir, nDirZee, nDirTot, nH, nT, exch,
-     &                          nBlock, nTempMagn, iopt, nMult, nDim,
-     &                          nPair, i_pair, nP, AngPoints, lant,
-     &                          multLn, KEOPT, encut_definition, nK,
-     &                          mG, ncut, nsfs, nss, nLoc,
-     &                          MxRank1, MxRank2, imaxrank, iPrint,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine input_process( nneq, neq, neqv, nmax, nCenter, nexch,  &
+     &                          nDir, nDirZee, nDirTot, nH, nT, exch,   &
+     &                          nBlock, nTempMagn, iopt, nMult, nDim,   &
+     &                          nPair, i_pair, nP, AngPoints, lant,     &
+     &                          multLn, KEOPT, encut_definition, nK,    &
+     &                          mG, ncut, nsfs, nss, nLoc,              &
+     &                          MxRank1, MxRank2, imaxrank, iPrint,     &
 
-     &                          R_LG, gtens_input, dirX, dirY, dirZ,
-     &                          dir_weight, zJ, cryst, coord, hmin,
-     &                          hmax, TempMagn, thrs, Hexp, Mexp,
-     &                          tmin, tmax, chit_exp, Texp, Xfield,
-     &                          Jex, JAex, JAex9, JDMex, tpar, upar,
-     &                          MagnCoords, encut_rate, eso,
-     &                          JITOexR, JITOexI,
+     &                          R_LG, gtens_input, dirX, dirY, dirZ,    &
+     &                          dir_weight, zJ, cryst, coord, hmin,     &
+     &                          hmax, TempMagn, thrs, Hexp, Mexp,       &
+     &                          tmin, tmax, chit_exp, Texp, Xfield,     &
+     &                          Jex, JAex, JAex9, JDMex, tpar, upar,    &
+     &                          MagnCoords, encut_rate, eso,            &
+     &                          JITOexR, JITOexI,                       &
 
-     &                          Title, itype, namefile_aniso,
+     &                          Title, itype, namefile_aniso,           &
 
-     &                          Do_structure_abc, old_aniso_format,
-     &                          compute_barrier, fitCHI, fitM, hinput,
-     &                          tinput, compute_magnetization,
-     &                          compute_Mdir_vector, zeeman_energy,
-     &                          m_paranoid, m_accurate, smagn,
-     &                          compute_g_tensors,compute_torque,
-     &                          compute_susceptibility, Lines,
-     &                          AnisoLines3, AnisoLines9, Dipol,
-     &                          check_title, KE, DM_exchange,
+     &                          Do_structure_abc, old_aniso_format,     &
+     &                          compute_barrier, fitCHI, fitM, hinput,  &
+     &                          tinput, compute_magnetization,          &
+     &                          compute_Mdir_vector, zeeman_energy,     &
+     &                          m_paranoid, m_accurate, smagn,          &
+     &                          compute_g_tensors,compute_torque,       &
+     &                          compute_susceptibility, Lines,          &
+     &                          AnisoLines3, AnisoLines9, Dipol,        &
+     &                          check_title, KE, DM_exchange,           &
      &                          JITO_exchange )
 
       Implicit None
@@ -56,7 +56,7 @@
       Real(kind=8), intent(in) :: eso(nneq,nLoc)
       Integer, intent(in)       :: nss(nneq), nsfs(nneq)
       Character(len=180), intent(in) :: namefile_aniso(nneq)
-c  definition of the exchange:
+!  definition of the exchange:
 !     total number of exchange states
       Integer, intent(in)       :: exch
 !     number of metal pairs (number of interactions)
@@ -77,10 +77,10 @@ c  definition of the exchange:
       Real(kind=8), intent(in) :: JAex9(nPair,3,3)
 !     Dzyaloshinsky-Morya exchange
       Real(kind=8), intent(in) :: JDMex(nPair,3)
-      Real(kind=8), intent(in) ::
-     &                          JITOexR(nPair,MxRank1,-MxRank1:MxRank1,
-     &                                        MxRank2,-MxRank2:MxRank2),
-     &                          JITOexI(nPair,MxRank1,-MxRank1:MxRank1,
+      Real(kind=8), intent(in) ::                                       &
+     &                          JITOexR(nPair,MxRank1,-MxRank1:MxRank1, &
+     &                                        MxRank2,-MxRank2:MxRank2),&
+     &                          JITOexI(nPair,MxRank1,-MxRank1:MxRank1, &
      &                                        MxRank2,-MxRank2:MxRank2)
 
       ! options used in connection with KE
@@ -90,7 +90,7 @@ c  definition of the exchange:
       ! options used in connection with Dipol-Dipol interaction
       Real(kind=8), intent(in) :: MagnCoords(nneq,3)
 
-c  definition of data for susceptibility
+!  definition of data for susceptibility
       Integer, intent(inout)    :: nT
       Logical, intent(in)       :: tinput
       Logical, intent(inout)    :: compute_susceptibility
@@ -118,30 +118,30 @@ c  definition of data for susceptibility
       Integer, intent(in)       :: ncut   ! encut_definition=2;
       Real(kind=8), intent(in) :: encut_rate ! encut_definition=3;
 
-c  definition of g and D tensors
+!  definition of g and D tensors
       Integer, intent(in)       :: nMult
       Integer, intent(in)       :: nDim(nMult)
       Logical, intent(in)       :: compute_g_tensors
-c  magnetization torque
+!  magnetization torque
       Integer, intent(in)       :: nP
       Integer, intent(in)       :: AngPoints
       Logical, intent(in)       :: compute_torque
-c  Zeeman energy and M vector
+!  Zeeman energy and M vector
       Integer, intent(in)       :: nDir, nDirZee
       Real(kind=8), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
       Real(kind=8), intent(in) :: dir_weight(nDirZee,3)
-c  definition of mean field parameter
+!  definition of mean field parameter
       Real(kind=8), intent(in) :: zJ
-c  definintion of the crystal axes:
+!  definintion of the crystal axes:
       Logical, intent(in)       :: Do_structure_abc
 !     a, b, c, alpha, beta, gamma
       Real(kind=8), intent(in) :: cryst(6)
 !     Cartesian coordinates of the main metal site, or center
       Real(kind=8), intent(in) :: coord(3)
-c  definitions for blocking barrier
+!  definitions for blocking barrier
       Integer, intent(inout)    :: nBlock
       Logical, intent(inout)    :: compute_barrier
-c  options for automatic fitting of parameters:
+!  options for automatic fitting of parameters:
       Logical, intent(in)       :: fitCHI !-- not used so far
       Logical, intent(in)       :: fitM !-- not used so far
 
@@ -160,13 +160,13 @@ c  options for automatic fitting of parameters:
 
 
       DBG=.false.
-c-----------------------------------------------------------------------
-c print the data from this Subroutine:
+!-----------------------------------------------------------------------
+! print the data from this Subroutine:
       If(check_title) Then
         Write(6,'(A,A72)')  'TITL :         = ', Title
       End If
 ! ======================================================================
-c     INFORMATION about individual magnetic sites
+!     INFORMATION about individual magnetic sites
 ! ======================================================================
       Write(6,'(A,  I5)')   'PRLV :         = ', iPrint
       Write(6,'(A)') 'Information about individual magnetic sites:'
@@ -183,14 +183,14 @@ c     INFORMATION about individual magnetic sites
 
       Do i=1, nneq
          If(itype(i).eq.'A') Then
-            Write(6,'(i3,1x,A15,1x,3i5,A)') i, namefile_aniso(i),
-     &                                   nsfs(i), nss(i), nexch(i),
+            Write(6,'(i3,1x,A15,1x,3i5,A)') i, namefile_aniso(i),       &
+     &                                   nsfs(i), nss(i), nexch(i),     &
      &                                   ' -- computed ab initio'
             Write(6,'(A,i2,A )') 'ESO(',i,' ):'
             Write(6,'(10F10.3)') (ESO(i,j),j=1,nss(i))
          Else
-            Write(6,'(i3,A15,1x,3i5,A)') i, ' - - - - - - - ',
-     &                                   nsfs(i), nss(i), nexch(i),
+            Write(6,'(i3,A15,1x,3i5,A)') i, ' - - - - - - - ',          &
+     &                                   nsfs(i), nss(i), nexch(i),     &
      &                                   ' -- generated as isotropic'
          End If
       End Do
@@ -205,11 +205,11 @@ c     INFORMATION about individual magnetic sites
            ab_initio_all=.false.
         End If
       End Do
-      If(DBG) Write(6,'(A,i3)') 'input_process:  icount_B_sites=',
+      If(DBG) Write(6,'(A,i3)') 'input_process:  icount_B_sites=',      &
      &                                           icount_B_sites
 
       If ( nosym.eqv..false. )  Then
-         Write(6,'(A,A)') 'SYMM :         = ',' rotation matrices '//
+         Write(6,'(A,A)') 'SYMM :         = ',' rotation matrices '//   &
      &                     'for equivalent magnetic centers:'
          Do i=1,nneq
             Write(6,'(8x,A,i3)') 'center type:',i
@@ -220,24 +220,24 @@ c     INFORMATION about individual magnetic sites
             End Do
          End Do
       Else
-         Write(6,'(A,A )') 'SYMM :         = ',' rotation matrices '//
-     &                     'are "Identity Matrices" for all '//
+         Write(6,'(A,A )') 'SYMM :         = ',' rotation matrices '//  &
+     &                     'are "Identity Matrices" for all '//         &
      &                     'magnetic centers'
       End If
 
       If(ab_initio_all) Then
-         Write(6,'(17x,A,I2,A)') 'all centers have been computed ' //
-     &                           'ab initio and ',nneq,
-     &                           ' file(s) of "aniso_i.input" '//
+         Write(6,'(17x,A,I2,A)') 'all centers have been computed ' //   &
+     &                           'ab initio and ',nneq,                 &
+     &                           ' file(s) of "aniso_i.input" '//       &
      &                           'type exist.'
       Else
-         Write(6,'(17x,I2,A,I2,A)') nneq-icount_B_sites,' center(s) ' //
-     &                             'have been computed ab initio and',
-     &                              nneq-icount_B_sites ,
-     &                             ' file(s) of "aniso_i.input" '//
+         Write(6,'(17x,I2,A,I2,A)') nneq-icount_B_sites,' center(s) ' //&
+     &                             'have been computed ab initio and',  &
+     &                              nneq-icount_B_sites ,               &
+     &                             ' file(s) of "aniso_i.input" '//     &
      &                             'type exist.'
-         Write(6,'(17x,I2,A,15F7.3)') icount_B_sites,' center(s) ' //
-     &                             'have been defined empirical: '//
+         Write(6,'(17x,I2,A,15F7.3)') icount_B_sites,' center(s) ' //   &
+     &                             'have been defined empirical: '//    &
      &                             'no ZFS and g_tens = '
          Write(6,'(17x,A,99F10.5)') 'gX = ',(gtens_input(1,i),i=1,nneq)
          Write(6,'(17x,A,99F10.5)') 'gY = ',(gtens_input(2,i),i=1,nneq)
@@ -245,18 +245,18 @@ c     INFORMATION about individual magnetic sites
       End If
 
       IF(old_aniso_format) THEN
-         Write(6,'(A,A)') 'OLDA :         = ',' Input data files are'//
+         Write(6,'(A,A)') 'OLDA :         = ',' Input data files are'// &
      &                     ' given in OLD format'
       END IF
 
 ! ======================================================================
-c     INFORMATION about exchange
+!     INFORMATION about exchange
 ! ======================================================================
       Write(6,'(A)') 'Information about exchange and magnetic couplings'
       If(Lines) Then
          Write(6,'(A,  I3  )') 'PAIR or LIN1 : = ', npair
          Do i=1,npair
-            Write(6,'(17x,2I3,2x, F9.5)') i_pair(i,1),i_pair(i,2),
+            Write(6,'(17x,2I3,2x, F9.5)') i_pair(i,1),i_pair(i,2),      &
      &                                    Jex(i)
          End Do
       End If
@@ -264,7 +264,7 @@ c     INFORMATION about exchange
       If(AnisoLines3) Then
          Write(6,'(A,  I3  )') 'LIN3 :         = ', npair
          Do i=1,npair
-            Write(6,'(17x,2I3,2x,3F9.5)') i_pair(i,1),i_pair(i,2),
+            Write(6,'(17x,2I3,2x,3F9.5)') i_pair(i,1),i_pair(i,2),      &
      &                                    (JAex(i,j),j=1,3)
          End Do
       End If
@@ -272,9 +272,9 @@ c     INFORMATION about exchange
       If(AnisoLines9) Then
          Write(6,'(A,  I3  )') 'LIN9 :         = ', npair
          Do i=1,npair
-            Write(6,'(17x,2I3,2x,9F9.5)') i_pair(i,1),i_pair(i,2),
-     &                                    (JAex9(i,1,j),j=1,3),
-     &                                    (JAex9(i,2,j),j=1,3),
+            Write(6,'(17x,2I3,2x,9F9.5)') i_pair(i,1),i_pair(i,2),      &
+     &                                    (JAex9(i,1,j),j=1,3),         &
+     &                                    (JAex9(i,2,j),j=1,3),         &
      &                                    (JAex9(i,3,j),j=1,3)
          End Do
       End If
@@ -282,30 +282,30 @@ c     INFORMATION about exchange
       If(DM_exchange) Then
          Write(6,'(A,  I3  )') 'DMEX :         = ', npair
          Do i=1,npair
-            Write(6,'(17x,2I3,2x,3F9.5)') i_pair(i,1),i_pair(i,2),
+            Write(6,'(17x,2I3,2x,3F9.5)') i_pair(i,1),i_pair(i,2),      &
      &                                    (JDMex(i,j),j=1,3)
          End Do
       End If
 
 
       If(Dipol) Then
-         Write(6,'(A,A )') 'DIPO :         = ',' dipolar coupling '//
+         Write(6,'(A,A )') 'DIPO :         = ',' dipolar coupling '//   &
      &                     'for the above exchange pairs is included'
-         Write(6,'(A,A )') 'COOR :         = ',' symmetrized '//
-     &                     'cartesian coordinates for each '//
+         Write(6,'(A,A )') 'COOR :         = ',' symmetrized '//        &
+     &                     'cartesian coordinates for each '//          &
      &                     'non-equivalent magnetic centers '
          Do i=1,nneq
             Write(6,'(17x,i3,3F11.6)') i,(MagnCoords(i,l),l=1,3)
          End Do
       Else
-         Write(6,'(A,A )') 'DIPO :         = ',' dipolar coupling '//
-     &                     'for the above exchange pairs is NOT '//
+         Write(6,'(A,A )') 'DIPO :         = ',' dipolar coupling '//   &
+     &                     'for the above exchange pairs is NOT '//     &
      &                     'included.'
       End If
 
 
       If(KE) Then
-         Write(6,'(A,A )') 'LONG :         = ','kinetic exchange '//
+         Write(6,'(A,A )') 'LONG :         = ','kinetic exchange '//    &
      &                     'coupling is requested:'
          Write(6,'(A,2F14.7)') 't     = ', tpar
          Write(6,'(A,2F14.7)') 'U     = ', upar
@@ -315,8 +315,8 @@ c     INFORMATION about exchange
       End If
 
       If(JITO_exchange) Then
-         Write(6,'(A,A )') 'ITOJ :         = ',' Full anisotopic ITO'//
-     &                     ' exchange for the above exchange pairs'//
+         Write(6,'(A,A )') 'ITOJ :         = ',' Full anisotopic ITO'// &
+     &                     ' exchange for the above exchange pairs'//   &
      &                     ' is included (in cm-1)'
          Do i=1,npair
            Write(6,'(17x,2I3)') i_pair(i,1),i_pair(i,2)
@@ -324,9 +324,9 @@ c     INFORMATION about exchange
             Do iproj1=-irank1,irank1
              Do irank2=1,imaxrank(i,2),2
               Do iproj2=-irank2,irank2
-               Write(6,'(23x,4I3,2x,2ES23.14)')
-     &                        irank1, iproj1, irank2, iproj2,
-     &             JITOexR(i, irank1, iproj1, irank2, iproj2),
+               Write(6,'(23x,4I3,2x,2ES23.14)')                         &
+     &                        irank1, iproj1, irank2, iproj2,           &
+     &             JITOexR(i, irank1, iproj1, irank2, iproj2),          &
      &             JITOexI(i, irank1, iproj1, irank2, iproj2)
               End Do
              End Do
@@ -334,11 +334,11 @@ c     INFORMATION about exchange
            End Do
          End Do
       End If
-c-----------------------------------------------------------------------
-c     print Exchange Hamiltonian
-c     print Exchange Eigenstates
-c     print decomposition of exchange
-c    ...
+!-----------------------------------------------------------------------
+!     print Exchange Hamiltonian
+!     print Exchange Eigenstates
+!     print decomposition of exchange
+!    ...
 ! ======================================================================
 !  Print out of the UBAR:
       If (compute_barrier) Then
@@ -351,13 +351,13 @@ c    ...
             Write(6,'(A)') 'UBAR keyword needs to know the sizes of'
             Write(6,'(A)') 'the manIfolds forming the barrier'
             Write(6,'(A)') 'Was the MLTP keyword defined?'
-            Write(6,'(A)') 'The program will continue, but UBAR is '//
+            Write(6,'(A)') 'The program will continue, but UBAR is '//  &
      &                     'deactivated'
             compute_barrier=.false.
          End If
 
          If (Nblock > exch) Then
-            Write(6,'(A)') 'It seems that you have asked for '//
+            Write(6,'(A)') 'It seems that you have asked for '//        &
      &                     'properties of inexistent states.'
             Write(6,'(A)') 'Nblock > Nexch!'
             Write(6,'(A,I5)') 'Nblock = ',nBlock
@@ -384,21 +384,21 @@ c    ...
            End Do
          End If
       Else
-         Write(6,'(A)') 'Computation of pseudospin Hamiltonians '//
+         Write(6,'(A)') 'Computation of pseudospin Hamiltonians '//     &
      &                  'was not requested'
       End If
 
       If ( compute_g_tensors .AND. (nMult == 0)) Then
          Write(6,'(A,i3)') 'nMult =',nMult
-         Write(6,'(A   )') 'Computation of pseudospin Hamiltonians '//
+         Write(6,'(A   )') 'Computation of pseudospin Hamiltonians '//  &
      &                     'is deactivated.'
       End If
 ! ======================================================================
 
-      If( Do_structure_abc .AND.
+      If( Do_structure_abc .AND.                                        &
      &    ((nMult>0).OR.compute_susceptibility) ) Then
-         Write(6,'(2A)') 'ABCC :         = ','the main axes '//
-     &                   'for the computed tensors are '//
+         Write(6,'(2A)') 'ABCC :         = ','the main axes '//         &
+     &                   'for the computed tensors are '//              &
      &                   'written also'
          Write(6,'(A)') 'in the crystallographic "abc" axes'
          Write(6,'(10x,A,F9.4)') 'a       = ', cryst(1)
@@ -418,17 +418,17 @@ c    ...
 !      If(tmax==0.0_wp) tmax=0.0_wp
       If(compute_susceptibility) Then
        !-----------------------------------------!
-         Write(6,'(A)') 'Magnetic susceptibility will be computed'//
+         Write(6,'(A)') 'Magnetic susceptibility will be computed'//    &
      &                  'in the limit of zero applied magnetic field.'
        !-----------------------------------------!
-         Write(6,'(A,A )') 'CHIT :         = ',' molar magnetic '//
+         Write(6,'(A,A )') 'CHIT :         = ',' molar magnetic '//     &
      &                     'susceptibility is computed using'
        !-----------------------------------------!
          If (IOPT.eq.1) Then
-            Write(6,'(18x,A)') 'newly-derived formula for total '//
+            Write(6,'(18x,A)') 'newly-derived formula for total '//     &
      &                         'XT and M'
          Else If (IOPT.eq.2) Then
-            Write(6,'(18x,A)') 'additive formula employed for '//
+            Write(6,'(18x,A)') 'additive formula employed for '//       &
      &                        'total XT and M'
          Else If (IOPT.eq.3) Then
             Write(6,'(18x,A)') 'old formula employed for total XT and M'
@@ -438,7 +438,7 @@ c    ...
          End If
        !-----------------------------------------!
          If(TINPUT) Then
-            Write(6,'(A)') 'TEXP :         = the experimental '//
+            Write(6,'(A)') 'TEXP :         = the experimental '//       &
      &                     'temperature interval is provided:'
             Do iT=1,nT
                Write(6,'(5X,i4,F11.5,F14.7)') iT, Texp(iT), chit_exp(iT)
@@ -450,28 +450,28 @@ c    ...
          End If
        !-----------------------------------------!
          If (xField.ne.0.0_wp) Then
-            Write(6,'(A)') 'Magnetic susceptibility will be computed '//
+            Write(6,'(A)') 'Magnetic susceptibility will be computed '//&
      &                     'also by using:'
             Write(6,'(A)') ' X= dM/dH formula and'
-            Write(6,'(A)') ' X=  M/H formula (commonly used by '//
+            Write(6,'(A)') ' X=  M/H formula (commonly used by '//      &
      &                     'experimentalists)'
             Write(6,'(A,F9.5,A)') 'FIELD :          ',Xfield,' Telsa'
          End If
        !-----------------------------------------!
       Else
-        Write(6,'(A)') 'Computation of magnetic susceptibility '//
+        Write(6,'(A)') 'Computation of magnetic susceptibility '//      &
      &                 'was not requested.'
       End If
 
 ! ======================================================================
 !  Print out of the TORQUE
       If(compute_torque) Then
-         Write(6,'(A)') 'TORQ :         = ',' magnetic torque '//
+         Write(6,'(A)') 'TORQ :         = ',' magnetic torque '//       &
      &                  'is computed'
          Write(6,'(A,I4)') 'AngPoints = ', AngPoints
          Write(6,'(A,i4)') 'nP        = ', nP
       Else
-         Write(6,'(A)') 'Computation of magnetic torque was not '//
+         Write(6,'(A)') 'Computation of magnetic torque was not '//     &
      &                  'requested.'
       End If
 
@@ -483,17 +483,17 @@ c    ...
 ! ======================================================================
 !  Print out of the MAGNETIZATION
       If(compute_magnetization) Then
-         Write(6,'(2A )') 'MAGN :         = ',' molar magnetization '//
+         Write(6,'(2A )') 'MAGN :         = ',' molar magnetization '// &
      &                    'is computed'
        !-----------------------------------------!
         If(nH > 0) Then
            If(HINPUT) Then
-              Write(6,'(A)') 'HEXP :         = the experimental '//
+              Write(6,'(A)') 'HEXP :         = the experimental '//     &
      &                       'field interval is provided:'
-              Write(fmtline,'(A,i3,A)')
+              Write(fmtline,'(A,i3,A)')                                 &
      &                       '(5x,i4,F11.5,',nTempMagn,'F14.7)'
               Do iH=1,nH
-                 Write(6,fmtline)
+                 Write(6,fmtline)                                       &
      &               iH, Hexp(iH), (Mexp(iH,iT),iT=1,nTempMagn)
               End Do
            Else
@@ -519,7 +519,7 @@ c    ...
 
        !-----------------------------------------!
         If (nTempMagn.le.10) Then
-           Write(6,'(6x,A,10F7.3)') 'TempMagn = ',
+           Write(6,'(6x,A,10F7.3)') 'TempMagn = ',                      &
      &                            (TempMagn(i),i=1,nTempMagn)
         Else
            Do i=1,nTempMagn,10
@@ -529,10 +529,10 @@ c    ...
         End If
        !-----------------------------------------!
         If(zeeman_energy) Then
-           Write(6,'(2A,I3,A)') 'ZEEM :         = ',' Zeeman '//
+           Write(6,'(2A,I3,A)') 'ZEEM :         = ',' Zeeman '//        &
      &                          'splitting for the following ',nDirZee
-           Write(6,'(17x,A  )') 'direction(s) of the magnetic '//
-     &                          'field is given in the'//
+           Write(6,'(17x,A  )') 'direction(s) of the magnetic '//       &
+     &                          'field is given in the'//               &
      &                          ' "zeeman_energy_xxx.output" file(s)'
            Do i=1, nDirZee
               Write(6,'(17x,3F11.6)')  (dir_weight(i,l),l=1,3)
@@ -540,12 +540,12 @@ c    ...
         End If
        !-----------------------------------------!
         If(compute_Mdir_vector) Then
-           Write(6,'(2A,I2,a)') 'MVEC :         = ','Magnetization '//
-     &                          'vector(s) for the following ',nDir,
+           Write(6,'(2A,I2,a)') 'MVEC :         = ','Magnetization '//  &
+     &                          'vector(s) for the following ',nDir,    &
      &                          ' direction(s) of the applied magnetic'
            Write(6,'(17x,A)')   'field will be computed;'
            Do i=1,nDir
-              Write(6,'(17x,A,I2,A,3F10.6)') 'Dir :',i,' : ',
+              Write(6,'(17x,A,I2,A,3F10.6)') 'Dir :',i,' : ',           &
      &                                       DirX(i), DirY(i), DirZ(i)
            End Do
         End If
@@ -558,18 +558,18 @@ c    ...
        !-----------------------------------------!
            nDirTot = 0
            nDirTot = nDir + nDirZee + get_nP(nsymm,ngrid)
-           Write(6,'(A,I4,A)') 'Magnetization will be computed in',
+           Write(6,'(A,I4,A)') 'Magnetization will be computed in',     &
      &                          nDirTot,' directions.'
-           Write(6,'(A,I6,A)') 'There will be ',nDirTot*nH,
+           Write(6,'(A,I6,A)') 'There will be ',nDirTot*nH,             &
      &                         ' calculations in total.'
 
            !-----------------------------------------------------------|
            If (m_accurate) Then
-              Write(6,'(2A   )') 'MACC :         = ','Contribution '//
+              Write(6,'(2A   )') 'MACC :         = ','Contribution '//  &
      &                  'to magnetization from local excited states'
               Write(6,'(17x,A)') 'is computed exactly.'
            Else
-              Write(6,'(17x,A)') 'is accounted by formula: '//
+              Write(6,'(17x,A)') 'is accounted by formula: '//          &
      &                           ' M_excited = X_excited * H'
            End If
            !-----------------------------------------------------------|
@@ -578,25 +578,25 @@ c    ...
            If((exch.lt.256) .AND. (zJ.ne.0.0_wp)) m_paranoid=.true.
 
            If ( m_paranoid .AND. (zJ.ne.0.0_wp)) Then
-              Write(6,'(2A)') 'MPAR :         = ','Average spin '//
+              Write(6,'(2A)') 'MPAR :         = ','Average spin '//     &
      &                        '< S > of the environment is computed'
-              Write(6,'(2A)') '                 ','for each '//
+              Write(6,'(2A)') '                 ','for each '//         &
      &                        'temperature point (more accurate)'
            Else
-              Write(6,'(2A)') 'MPAR :         = ','Average spin '//
+              Write(6,'(2A)') 'MPAR :         = ','Average spin '//     &
      &                        '< S > of the environment is computed'
-              Write(6,'(2A)') '                 ','for the highest '//
-     &                        'temperature point only and used for '//
+              Write(6,'(2A)') '                 ','for the highest '//  &
+     &                        'temperature point only and used for '//  &
      &                        'all computed temperature points.'
            End If
            !-----------------------------------------------------------|
 
            !-----------------------------------------------------------|
            If (smagn) Then
-              Write(6,'(2A)') 'SMAG :         = ','Spin-only '//
+              Write(6,'(2A)') 'SMAG :         = ','Spin-only '//        &
      &                        'magnetisation is computed'
            Else
-              Write(6,'(A)') 'Computation of spin magnetization '//
+              Write(6,'(A)') 'Computation of spin magnetization '//     &
      &                       'was not requested.'
            End If
            !-----------------------------------------------------------|
@@ -604,22 +604,22 @@ c    ...
            Write(6,'(A,ES14.6)') 'THRS = ', thrs
         End If
       Else
-           Write(6,'(A)') 'Computation of molar magnetization was '//
+           Write(6,'(A)') 'Computation of molar magnetization was '//   &
      &                    'not requested.'
       End If
 !  End Print out of the MAGNETIZATION
 ! ======================================================================
-      If( compute_susceptibility .OR. compute_torque .OR.
+      If( compute_susceptibility .OR. compute_torque .OR.               &
      &    compute_magnetization ) Then
          If ( zJ .ne. 0.0_wp ) Then
-            Write(6,'(A)') 'Mean field intermolecular interaction '//
+            Write(6,'(A)') 'Mean field intermolecular interaction '//   &
      &                     'parameter'
             Write(6,'(A,F12.7)') 'ZJPR :         = ', zJ
          End If
       End If
 ! ======================================================================
       If( ( fitCHI .OR. fitM ) .AND. ( tinput .OR. hinput ) ) Then
-            Write(6,'(A)') 'Automatic fitting of exchange parameters'//
+            Write(6,'(A)') 'Automatic fitting of exchange parameters'// &
      &                     'is yet in the development'
       End If
 ! ======================================================================

@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine set_defaults( nneq, nTempMagn, nDir, nDirZee, nMult,
-     &                         neq, nexch, nK, mG, ncut, nP,
-     &                         AngPoints, nBlock, encut_definition,
-     &                         iopt, iPrint,
-     &                         dltT0, dltH0, zJ, tmin, tmax, hmin, hmax,
-     &                         XField, thrs, TempMagn,
-     &                         cryst, coord, encut_rate, gtens_input,
-     &                         D_fact, EoverD_fact, riso,
-     &                         decompose_exchange,
-     &                         AnisoLines1, AnisoLines3, AnisoLines9,
-     &                         DM_exchange,
-     &                         Dipol, KE, JITO_exchange, fitCHI, fitM,
-     &                         Do_structure_abc, doplot,
-     &                         compute_g_tensors, tinput,
-     &                         compute_susceptibility,
-     &                         compute_torque, compute_barrier,
-     &                         compute_magnetization, hinput,
-     &                         compute_Mdir_vector, zeeman_energy,
-     &                         m_paranoid, m_accurate, smagn,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine set_defaults( nneq, nTempMagn, nDir, nDirZee, nMult,   &
+     &                         neq, nexch, nK, mG, ncut, nP,            &
+     &                         AngPoints, nBlock, encut_definition,     &
+     &                         iopt, iPrint,                            &
+     &                         dltT0, dltH0, zJ, tmin, tmax, hmin, hmax,&
+     &                         XField, thrs, TempMagn,                  &
+     &                         cryst, coord, encut_rate, gtens_input,   &
+     &                         D_fact, EoverD_fact, riso,               &
+     &                         decompose_exchange,                      &
+     &                         AnisoLines1, AnisoLines3, AnisoLines9,   &
+     &                         DM_exchange,                             &
+     &                         Dipol, KE, JITO_exchange, fitCHI, fitM,  &
+     &                         Do_structure_abc, doplot,                &
+     &                         compute_g_tensors, tinput,               &
+     &                         compute_susceptibility,                  &
+     &                         compute_torque, compute_barrier,         &
+     &                         compute_magnetization, hinput,           &
+     &                         compute_Mdir_vector, zeeman_energy,      &
+     &                         m_paranoid, m_accurate, smagn,           &
      &                         itype)
-c==================================================================
+!==================================================================
       Implicit None
 #include "mgrid.fh"
       Integer, parameter        :: wp=kind(0.d0)
-c definintion of the cluster
+! definintion of the cluster
       Integer, intent(in)  :: nneq
       Integer, intent(out) :: neq(nneq)
       Real(kind=8), intent(out) :: gtens_input(3,nneq)
@@ -40,21 +40,21 @@ c definintion of the cluster
       Real(kind=8), intent(out) :: EoverD_fact(nneq)
       Real(kind=8), intent(out) :: riso(nneq,3,3)
       Character(Len=1), intent(out) :: itype(nneq)
-c definintion of exchange interaction
+! definintion of exchange interaction
       Integer, intent(out) :: nexch(nneq)
-c  definition of g and D tensors
+!  definition of g and D tensors
       Integer, intent(in)  :: nMult
-c      Integer, intent(out) :: nDim(nMult)
+!      Integer, intent(out) :: nDim(nMult)
       Logical, intent(out) :: compute_g_tensors
-c  Zeeman energy and M vector
+!  Zeeman energy and M vector
       Integer, intent(in) :: nDir, nDirZee
-c  definition of the exchange:
+!  definition of the exchange:
       Logical, intent(out) :: AnisoLines1
       Logical, intent(out) :: AnisoLines3
       Logical, intent(out) :: AnisoLines9
-c     ! options used in connection with Dipol-Dipol interaction
+!     ! options used in connection with Dipol-Dipol interaction
       Logical, intent(out) :: Dipol
-c     ! options used in connection with KE
+!     ! options used in connection with KE
       Logical, intent(out) :: KE
       ! option for Dzialoshinsky-Morya antisymmetric exchange
       Logical, intent(out) :: DM_exchange
@@ -62,15 +62,15 @@ c     ! options used in connection with KE
       Logical, intent(out) :: JITO_exchange
 
 
-cc  options for automatic fitting of parameters:
+!c  options for automatic fitting of parameters:
       Logical, intent(out) :: fitCHI !-- not used so far
       Logical, intent(out) :: fitM !-- not used so far
-cc  definition of data for susceptibility
+!c  definition of data for susceptibility
       Logical, intent(out) :: tinput, compute_susceptibility
       Real(kind=8), intent(out) :: tmin, tmax, dltT0
       ! options related to XT_MoverH
       Real(kind=8), intent(out) :: Xfield
-cc  definition of data for magnetization:
+!c  definition of data for magnetization:
       Integer, intent(in)        :: nTempMagn
       Real(kind=8),intent(out)  :: TempMagn(nTempMagn)
       Integer, intent(out)       :: iopt
@@ -83,36 +83,36 @@ cc  definition of data for magnetization:
       Logical, intent(out)       :: m_paranoid
       Logical, intent(out)       :: m_accurate
       Logical, intent(out)       :: smagn
-c      ! options used to set up nM and EM
+!      ! options used to set up nM and EM
       Integer, intent(out)       :: encut_definition
       Integer, intent(out)       :: nK, mG ! encut_definition=1;
       Integer, intent(out)       :: ncut   ! encut_definition=2;
       Real(kind=8), intent(out) :: encut_rate ! encut_definition=3;
-cc decompose exchange
+!c decompose exchange
       Logical, intent(out)       :: decompose_exchange
-c  magnetization torque
+!  magnetization torque
       Logical, intent(out)       :: compute_torque
       Integer, intent(out)       :: nP
       Integer, intent(out)       :: AngPoints
-c mean field parameter
+! mean field parameter
       Real(kind=8), intent(out) :: zJ
-c  definintion of the crystal axes:
+!  definintion of the crystal axes:
       Logical, intent(out)       :: Do_structure_abc
 !     a, b, c, alpha, beta, gamma
       Real(kind=8), intent(out) :: cryst(6)
 !     Cartesian coordinates of the main metal site, or center
       Real(kind=8), intent(out) :: coord(3)
-cc  definitions for blocking barrier
+!c  definitions for blocking barrier
       Integer, intent(out)       :: nBlock
       Logical, intent(out)       :: compute_barrier
-c  default print level
+!  default print level
       Integer, intent(out)       :: iPrint
       Logical, intent(out)       :: DoPlot
-c------------------------------------------------------------------
+!------------------------------------------------------------------
 ! Local variables:
       Integer       :: i,j,l
 
-c------------------------------------------------------------------
+!------------------------------------------------------------------
 !  at this point, the follwing variables have been already assigned
 !  their values
 !      Integer  :: nneq, exch, nLoc, nCenter, nT, nH, nTempMagn, nDir,
@@ -128,7 +128,7 @@ c------------------------------------------------------------------
 ! --  these values will be (partly) overwritten by the subsequent
 !     "readin_poly" subroutine
 !
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! variables related to the cluster:
       If (nneq > 0) Then
          Do i=1, nneq
@@ -143,7 +143,7 @@ c-----------------------------------------------------------------------
             End Do
          End Do
       End If
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! magnetic exchange
       Dipol              = .false.
       AnisoLines1        = .false.
@@ -153,14 +153,14 @@ c-----------------------------------------------------------------------
       DM_exchange        = .false.
       decompose_exchange = .false.
       JITO_exchange      = .false.
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! g and D tensors
       If (nMult > 0) Then
          compute_g_tensors = .true.
       Else
          compute_g_tensors = .false.
       End If
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! Magnetization vector and Zeeman energy spliting
       If (nDir > 0) Then
          compute_Mdir_vector=.true.
@@ -172,7 +172,7 @@ c-----------------------------------------------------------------------
       Else
          zeeman_energy=.false.
       End If
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! powder magnetization:
       compute_magnetization = .false.
       m_accurate            = .true.
@@ -190,23 +190,23 @@ c-----------------------------------------------------------------------
       encut_rate            =  1.0_wp
       If(nTempMagn>0) TempMagn(1) = 2.0_wp
       ncut                  = 0
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! magnetic susceptibility
       compute_susceptibility= .false.
       TMIN                  =  0.0_wp
       TMAX                  =300.0_wp
       DLTT0                 =    0.001_wp
       Xfield                =    0.0_wp
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! magnetic torque
       compute_torque   = .false.
       nP = 0
       AngPoints = 0
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! perform comparison with experiment
       TINPUT = .false.
       HINPUT = .false.
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! relate to crystallographic axes
       Do_structure_abc = .false.
       Do i=1,6
@@ -215,24 +215,24 @@ c-----------------------------------------------------------------------
       Do i=1,3
         coord(i)=0.0_wp
       End Do
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! mean field paraemeter
       ZJ = 0.0_wp
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! automatic fitting:
       fitCHI  = .false.
       fitM    = .false.
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! print level
       iPrint  = 2
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       ! blocking barrier
       nBlock = 0
       compute_barrier       = .false.
-cccc
+!ccc
       DoPlot = .false.
-c------------------------------------------------------------------
-c  variables in "mgrid.fh"
+!------------------------------------------------------------------
+!  variables in "mgrid.fh"
       Do i=1,32
          Do j=1,3
             get_nP(j,i)=0

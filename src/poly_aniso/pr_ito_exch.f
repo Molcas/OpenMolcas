@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine pr_ito_int( npair, i_pair, lmax, nexch, nneq, neqv,
-     &                       itype, neq, nmax, soe, MM, SM, rot, Dipol,
-     &                       AnisoLines1, AnisoLines3, AnisoLines9,
-     &                       DM_exchange, JITO_exchange,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine pr_ito_int( npair, i_pair, lmax, nexch, nneq, neqv,    &
+     &                       itype, neq, nmax, soe, MM, SM, rot, Dipol, &
+     &                       AnisoLines1, AnisoLines3, AnisoLines9,     &
+     &                       DM_exchange, JITO_exchange,                &
      &                       HLIN1, HLIN3, HLIN9, HDIP, HDMO, HITO )
 !     this function prints the parameters of the exchange interaction in an
 !     accessible format
@@ -44,8 +44,8 @@
       Logical, intent(in)          :: JITO_exchange
       Character(Len=1), intent(in) :: itype(nneq)
       ! local variables
-c     Integer       ::   iopt
-      Integer       ::   i,j,l,k,lp,i1,i2,lb1,lb2,ibuf,
+!     Integer       ::   iopt
+      Integer       ::   i,j,l,k,lp,i1,i2,lb1,lb2,ibuf,                 &
      &                   is1,is2,js1,js2,k1,k2,q1,q2,n1,n2,nsize
       Integer       ::   nind(lmax,2),l1(2),l2(2),l3(2),l4(2)
       Real(kind=8) ::   J1C(3,3), J1Cr(3,3) !, J1C_trans(3,3)
@@ -55,12 +55,12 @@ c     Integer       ::   iopt
       Real(kind=8)    :: dznrm2_,RL1,RL3,RL9,RDI,RDM,RIT
       Real(kind=8)    :: g1(3),g2(3),mg1(3,3),mg2(3,3)
       External         :: dznrm2_
-c     Real(kind=8)    :: cm_to_MHz
+!     Real(kind=8)    :: cm_to_MHz
       logical DBG
 
-c     cm_to_MHz=29979.2458_wp
+!     cm_to_MHz=29979.2458_wp
       DBG=.false.
-c some initializations:
+! some initializations:
       nind(:,:)=0
       l=0
       Do i=1,nneq
@@ -85,7 +85,7 @@ c some initializations:
       RDI=dznrm2_(ibuf,HDIP,1)
       RDM=dznrm2_(ibuf,HDMO,1)
       RIT=dznrm2_(ibuf,HITO,1)
-cccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccc
       If(DBG) Then
         Write(6,'(A,i6)') ' nmax =', nmax
         Write(6,'(A,i6)') ' lmax =', lmax
@@ -117,7 +117,7 @@ cccccccccccccccccccccccccccccccc
         Write(6,'(A)' ) 'magnetic moment, initial'
         Do i=1,nneq
           Write(6,'(A ,i3)') 'site', i
-          Call prMom('pr_ito_int:: magnetic moment, initial',
+          Call prMom('pr_ito_int:: magnetic moment, initial',           &
      &                mm(i,:,:,:),nmax)
         End Do
         Write(6,'(A)' ) 'spin-orbit energies'
@@ -137,7 +137,7 @@ cccccccccccccccccccccccccccccccc
             Do is1=1,nexch(i1)
               Do is2=1,nexch(i1)
                 Do js1=1,nexch(i2)
-                  Write(6,'(10(2F10.6,2x))')
+                  Write(6,'(10(2F10.6,2x))')                            &
      &                     (HLIN1(lp,is1,is2,js1,js2),js2=1,nexch(i2))
                 End Do
               End Do
@@ -149,7 +149,7 @@ cccccccccccccccccccccccccccccccc
             Do is1=1,nexch(i1)
               Do is2=1,nexch(i1)
                 Do js1=1,nexch(i2)
-                  Write(6,'(10(2F10.6,2x))')
+                  Write(6,'(10(2F10.6,2x))')                            &
      &                     (HLIN3(lp,is1,is2,js1,js2),js2=1,nexch(i2))
                 End Do
               End Do
@@ -161,7 +161,7 @@ cccccccccccccccccccccccccccccccc
             Do is1=1,nexch(i1)
               Do is2=1,nexch(i1)
                 Do js1=1,nexch(i2)
-                  Write(6,'(10(2F10.6,2x))')
+                  Write(6,'(10(2F10.6,2x))')                            &
      &                     (HLIN9(lp,is1,is2,js1,js2),js2=1,nexch(i2))
                 End Do
               End Do
@@ -173,7 +173,7 @@ cccccccccccccccccccccccccccccccc
             Do is1=1,nexch(i1)
               Do is2=1,nexch(i1)
                 Do js1=1,nexch(i2)
-                  Write(6,'(10(2F10.6,2x))')
+                  Write(6,'(10(2F10.6,2x))')                            &
      &                     (HDIP(lp,is1,is2,js1,js2),js2=1,nexch(i2))
                 End Do
               End Do
@@ -185,7 +185,7 @@ cccccccccccccccccccccccccccccccc
             Do is1=1,nexch(i1)
               Do is2=1,nexch(i1)
                 Do js1=1,nexch(i2)
-                  Write(6,'(10(2F10.6,2x))')
+                  Write(6,'(10(2F10.6,2x))')                            &
      &                     (HDMO(lp,is1,is2,js1,js2),js2=1,nexch(i2))
                 End Do
               End Do
@@ -197,7 +197,7 @@ cccccccccccccccccccccccccccccccc
             Do is1=1,nexch(i1)
               Do is2=1,nexch(i1)
                 Do js1=1,nexch(i2)
-                  Write(6,'(10(2F10.6,2x))')
+                  Write(6,'(10(2F10.6,2x))')                            &
      &                     (HITO(lp,is1,is2,js1,js2),js2=1,nexch(i2))
                 End Do
               End Do
@@ -210,13 +210,13 @@ cccccccccccccccccccccccccccccccc
       End If !DBG
 
 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Write(6,*)
       Write(6,'(100a)') (('%'),j=1,100)
-      If ( (.not.AnisoLines1).and.(.not.AnisoLines3).and.
-     &     (.not.AnisoLines9).and.(.not.Dipol).and.
+      If ( (.not.AnisoLines1).and.(.not.AnisoLines3).and.               &
+     &     (.not.AnisoLines9).and.(.not.Dipol).and.                     &
      &     (.not.DM_exchange).and.(.not.JITO_exchange) ) Then
-        Write(6,'(20x,A)') 'ITO decomposition of exchange and/or '//
+        Write(6,'(20x,A)') 'ITO decomposition of exchange and/or '//    &
      &                     'dipolar couplings.'
         Write(6,'(A)') 'AnisoLines1 =  FALSE.'
         Write(6,'(A)') 'AnisoLines3 =  FALSE.'
@@ -227,41 +227,41 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Write(6,'(A)') 'Nothing to Do.'
         Return
 
-      Else If((AnisoLines1.or.AnisoLines3.or.AnisoLines9).and.
-     &         (.not.Dipol).and.(.not.DM_exchange).and.
+      Else If((AnisoLines1.or.AnisoLines3.or.AnisoLines9).and.          &
+     &         (.not.Dipol).and.(.not.DM_exchange).and.                 &
      &         (.not.JITO_exchange) ) Then
-        Write(6,'(20x,A)') 'ITO decomposition of the Lines exchange '//
+        Write(6,'(20x,A)') 'ITO decomposition of the Lines exchange '// &
      &                     'interactions.'
 
-      Else If((.not.(AnisoLines1.or.AnisoLines3.or.AnisoLines9))
-     &        .and.Dipol.and.(.not.DM_exchange).and.
+      Else If((.not.(AnisoLines1.or.AnisoLines3.or.AnisoLines9))        &
+     &        .and.Dipol.and.(.not.DM_exchange).and.                    &
      &        (.not.JITO_exchange)) Then
-        Write(6,'(20x,A)') 'ITO decomposition of the dipolar '//
+        Write(6,'(20x,A)') 'ITO decomposition of the dipolar '//        &
      &                     'interactions.'
 
-      Else If((AnisoLines1.or.AnisoLines3.or.AnisoLines9)
-     &         .and.Dipol.and.(.not.DM_exchange).and.
+      Else If((AnisoLines1.or.AnisoLines3.or.AnisoLines9)               &
+     &         .and.Dipol.and.(.not.DM_exchange).and.                   &
      &          (.not.JITO_exchange) ) Then
-        Write(6,'(20x,A)') 'ITO decomposition of exchange and/or '//
+        Write(6,'(20x,A)') 'ITO decomposition of exchange and/or '//    &
      &                     'dipolar couplings.'
-      Else If(.not.(AnisoLines1.or.AnisoLines3.or.AnisoLines9)
-     &         .and.(.not.Dipol).and.(.not.DM_exchange).and.
+      Else If(.not.(AnisoLines1.or.AnisoLines3.or.AnisoLines9)          &
+     &         .and.(.not.Dipol).and.(.not.DM_exchange).and.            &
      &          JITO_exchange ) Then
-        Write(6,'(20x,A)') 'ITO decomposition of anisotropic '//
+        Write(6,'(20x,A)') 'ITO decomposition of anisotropic '//        &
      &                     'exchange interaction. '
-      Else If(.not.(AnisoLines1.or.AnisoLines3.or.AnisoLines9)
-     &         .and.Dipol.and.(.not.DM_exchange).and.
+      Else If(.not.(AnisoLines1.or.AnisoLines3.or.AnisoLines9)          &
+     &         .and.Dipol.and.(.not.DM_exchange).and.                   &
      &          JITO_exchange ) Then
-        Write(6,'(20x,A)') 'ITO decomposition of anisotropic '//
-     &                     'exchange interaction and dipolar '//
+        Write(6,'(20x,A)') 'ITO decomposition of anisotropic '//        &
+     &                     'exchange interaction and dipolar '//        &
      &                     'couplings.'
 
       End If
       Write(6,'(100a)') (('%'),j=1,100)
       Write(6,*)
 
-c decompose the exchange interaction in products of ITO
-c first rotate the magnetic moments to the general coordinate system:
+! decompose the exchange interaction in products of ITO
+! first rotate the magnetic moments to the general coordinate system:
       Do lp=1,npair
         lb1=i_pair(lp,1)
         lb2=i_pair(lp,2)
@@ -272,10 +272,10 @@ c first rotate the magnetic moments to the general coordinate system:
 
         n1=nexch(i1)
         n2=nexch(i2)
-        Write(6,'(A)') 'PART 1: Magnetic exchange is written in the '//
-     &                 'coordinate systems of the LOCAL main '//
+        Write(6,'(A)') 'PART 1: Magnetic exchange is written in the '// &
+     &                 'coordinate systems of the LOCAL main '//        &
      &                 'magnetic axes of the interacting sites.'
-c       iopt=1
+!       iopt=1
         Write(6,'(A)')
         Write(6,'(100A)') ('-',i=1,100)
         Write(6,'(A,i2)') 'Interacting pair',lp
@@ -299,16 +299,16 @@ c       iopt=1
 !====================================================================
         If( AnisoLines1.AND.(RL1>0.0_wp) ) Then
 
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
-          Call newjkqpar(n1,n2,HLIN1(lp,1:n1,1:n1,1:n2,1:n2),
-     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
-     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
+          Call newjkqpar(n1,n2,HLIN1(lp,1:n1,1:n1,1:n2,1:n2),           &
+     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
+     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) )
 
 
@@ -334,11 +334,11 @@ c       iopt=1
           End Do
 
         Write(6,'(A)')
-        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
+        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//    &
      &                 '(rank-1) exchange interaction: LINES-1'
         Write(6,'(A)') 'Anisotropic exchange interaction: -J matrix:'
         Write(6,'(A)') 'LOCAL AXES:::'
-        Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//
+        Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//  &
      &                 ' of the kind:'
         Write(6,'(A)') ' H = -J * S1 * S2'
         Write(6,'(A)') '     (  xx   xy  xz  )  '
@@ -352,24 +352,24 @@ c       iopt=1
         Write(6,'(A)')
         Write(6,'(10x,A)') 'Parameters of the ITOs: (Liviu ITO)'
         Write(6,'( 5x,A)') 'with absolute values larger than:  0.5d-14 '
-        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//  &
      &                 '--------------------------------|'
-        Write(6,'(A)') ' rank | proj.| rank | proj.|           Line'//
+        Write(6,'(A)') ' rank | proj.| rank | proj.|           Line'//  &
      &                 's  Exchange  Interaction        |'
-        Write(6,'(A)') '------|------|------|------|---------- Real'//
+        Write(6,'(A)') '------|------|------|------|---------- Real'//  &
      &                 ' ----------------- Imag --------|'
 
         Do k1=1,n1-1,2
          Do q1=-k1,k1
           Do k2=1,n2-1,2
            Do q2=-k2,k2
-            Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')
+            Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')                  &
      &            k1,'|',q1,'|',k2,'|',q2,'|', JN(k1,q1,k2,q2),'|'
            End Do
           End Do
          End Do
         End Do
-        Write(6,'(A)') '------|------|------|------|---------------'//
+        Write(6,'(A)') '------|------|------|------|---------------'//  &
      &                 ' -------------------------------|'
 
 
@@ -427,16 +427,16 @@ c       iopt=1
 !====================================================================
         If( AnisoLines3.AND.(RL3>0.0_wp) ) Then
 
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
-          Call newjkqpar(n1,n2,HLIN3(lp,1:n1,1:n1,1:n2,1:n2),
-     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
-     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
+          Call newjkqpar(n1,n2,HLIN3(lp,1:n1,1:n1,1:n2,1:n2),           &
+     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
+     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) )
 
           J1C=0.0_wp
@@ -460,11 +460,11 @@ c       iopt=1
           End Do
 
           Write(6,'(A)')
-          Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
+          Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//  &
      &                   '(rank-1) exchange interaction: LINES-3'
           Write(6,'(A)') 'Anisotropic exchange interaction: -J matrix:'
           Write(6,'(A)') 'LOCAL AXES:::'
-          Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//
+          Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//&
      &                   'of the kind:'
           Write(6,'(A)') ' H = -J * S1 * S2'
           Write(6,'(A)') '     (  xx   xy  xz  )  '
@@ -478,42 +478,42 @@ c       iopt=1
         Write(6,'(A)')
         Write(6,'(10x,A)') 'Parameters of the ITOs: (Liviu ITO)'
         Write(6,'( 5x,A)') 'with absolute values larger than:  0.1d-20 '
-        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//  &
      &                 '--------------------------------|'
-        Write(6,'(A)') ' rank | proj.| rank | proj.|        Lines-3'//
+        Write(6,'(A)') ' rank | proj.| rank | proj.|        Lines-3'//  &
      &                 '  Exchange  Interaction         |'
-        Write(6,'(A)') '------|------|------|------|---------- Real'//
+        Write(6,'(A)') '------|------|------|------|---------- Real'//  &
      &                 ' ----------------- Imag --------|'
         Do k1=1,N1-1,2
           Do q1=-k1,k1
             Do k2=1,N2-1,2
               Do q2=-k2,k2
 !                If(ABS(JLin3(lp,k1,q1,k2,q2)) .gt. 0.1e-20_wp ) Then
-                   Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')
-     &                   k1,'|',q1,'|',k2,'|',q2,'|',
+                   Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')           &
+     &                   k1,'|',q1,'|',k2,'|',q2,'|',                   &
      &                   JN(k1,q1,k2,q2),'|'
 !                End If
               End Do
             End Do
           End Do
         End Do
-        Write(6,'(A)') '------|------|------|------|---------------'//
+        Write(6,'(A)') '------|------|------|------|---------------'//  &
      &                 ' -------------------------------|'
         End If
 
 !====================================================================
         If( AnisoLines9.AND.(RL9>0.0_wp) ) Then
 
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
-          Call newjkqpar(n1,n2,HLIN9(lp,1:n1,1:n1,1:n2,1:n2),
-     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
-     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
+          Call newjkqpar(n1,n2,HLIN9(lp,1:n1,1:n1,1:n2,1:n2),           &
+     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
+     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) )
 
 
@@ -537,11 +537,11 @@ c       iopt=1
           End Do
 
         Write(6,'(A)')
-        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
+        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//    &
      &                 '(rank-1) exchange interaction: LINES-9'
         Write(6,'(A)') 'Anisotropic exchange interaction: -J matrix:'
         Write(6,'(A)') 'LOCAL AXES:::'
-        Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//
+        Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//  &
      &                 'of the kind:'
         Write(6,'(A)') ' H = -J * S1 * S2'
         Write(6,'(A)') '     (  xx   xy  xz  )  '
@@ -555,24 +555,24 @@ c       iopt=1
         Write(6,'(A)')
         Write(6,'(10x,A)') 'Parameters of the ITOs:'
         Write(6,'( 5x,A)') 'with absolute values larger than:  0.1e-20 '
-        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//  &
      &                 '--------------------------------|'
-        Write(6,'(A)') ' rank | proj.| rank | proj.|        Lines-9'//
+        Write(6,'(A)') ' rank | proj.| rank | proj.|        Lines-9'//  &
      &                 '  Exchange  Interaction         |'
-        Write(6,'(A)') '------|------|------|------|---------- Real'//
+        Write(6,'(A)') '------|------|------|------|---------- Real'//  &
      &                 ' ----------------- Imag --------|'
         Do k1=1,N1-1,2
          Do q1=-k1,k1
           Do k2=1,N2-1,2
            Do q2=-k2,k2
-            Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')
-     &            k1,'|',q1,'|',k2,'|',q2,'|',
+            Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')                  &
+     &            k1,'|',q1,'|',k2,'|',q2,'|',                          &
      &            JN(k1,q1,k2,q2),'|'
            End Do
           End Do
          End Do
         End Do
-        Write(6,'(A)') '------|------|------|------|---------------'//
+        Write(6,'(A)') '------|------|------|------|---------------'//  &
      &                 ' -------------------------------|'
         End If
 
@@ -581,16 +581,16 @@ c       iopt=1
 
         If (Dipol.AND.(RDI>0.0_wp)) Then
 
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
-          Call newjkqpar(n1,n2,HDIP(lp,1:n1,1:n1,1:n2,1:n2),
-     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
-     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
+          Call newjkqpar(n1,n2,HDIP(lp,1:n1,1:n1,1:n2,1:n2),            &
+     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
+     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) )
 
           J1C=0.0_wp
@@ -612,11 +612,11 @@ c       iopt=1
            End Do
           End Do
 
-        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
+        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//    &
      &                 '(rank-1) exchange interaction: DIPOL'
         Write(6,'(A)') 'Anisotropic exchange interaction: -J matrix:'
         Write(6,'(A)') 'LOCAL AXES:::'
-        Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//
+        Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//  &
      &                 'of the kind:'
         Write(6,'(A)') ' H = -J * S1 * S2'
         Write(6,'(A)') '     (  xx   xy  xz  )  '
@@ -625,24 +625,24 @@ c       iopt=1
         Do i=1,3
           Write(6,'(3ES24.14)') (-J1Cr(i,j),j=1,3)
         End Do
-        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//  &
      &                 '--------------------------------|'
-        Write(6,'(A)') ' rank | proj.| rank | proj.|      Dipolar  '//
+        Write(6,'(A)') ' rank | proj.| rank | proj.|      Dipolar  '//  &
      &                 'Exchange  Interaction           |'
-        Write(6,'(A)') '------|------|------|------|---------- Real'//
+        Write(6,'(A)') '------|------|------|------|---------- Real'//  &
      &                 ' ----------------- Imag --------|'
         Do k1=1,N1-1,2
           Do q1=-k1,k1
             Do k2=1,N2-1,2
               Do q2=-k2,k2
-                   Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')
-     &                   k1,'|',q1,'|',k2,'|',q2,'|',
+                   Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')           &
+     &                   k1,'|',q1,'|',k2,'|',q2,'|',                   &
      &                   JN(k1,q1,k2,q2),'|'
               End Do
             End Do
           End Do
         End Do
-        Write(6,'(A)') '------|------|------|------|---------------'//
+        Write(6,'(A)') '------|------|------|------|---------------'//  &
      &                 ' -------------------------------|'
         End If
 
@@ -651,16 +651,16 @@ c       iopt=1
 
         If (DM_exchange.AND.(RDM>0.0_wp)) Then
 
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
-          Call newjkqpar(n1,n2,HDMO(lp,1:n1,1:n1,1:n2,1:n2),
-     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
-     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
+          Call newjkqpar(n1,n2,HDMO(lp,1:n1,1:n1,1:n2,1:n2),            &
+     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
+     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) )
 
           J1C=0.0_wp
@@ -683,12 +683,12 @@ c       iopt=1
            End Do
           End Do
 
-        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
-     &                 '(rank-1) exchange interaction: '//
+        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//    &
+     &                 '(rank-1) exchange interaction: '//              &
      &                 'Dzyaloshinski-Morya'
         Write(6,'(A)') 'Anisotropic exchange interaction: -J matrix:'
         Write(6,'(A)') 'LOCAL AXES:::'
-        Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//
+        Write(6,'(A)') 'To be used directly in exchange Hamiltonian'//  &
      &                 'of the kind:'
         Write(6,'(A)') ' H = -J * S1 * S2'
         Write(6,'(A)') '     (  xx   xy  xz  )  '
@@ -697,24 +697,24 @@ c       iopt=1
         Do i=1,3
           Write(6,'(3ES24.14)') (-J1Cr(i,j),j=1,3)
         End Do
-        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//  &
      &                 '--------------------------------|'
-        Write(6,'(A)') ' rank | proj.| rank | proj.|     Dzyaloshin'//
+        Write(6,'(A)') ' rank | proj.| rank | proj.|     Dzyaloshin'//  &
      &                 'sky - Morya Interaction         |'
-        Write(6,'(A)') '------|------|------|------|---------- Real'//
+        Write(6,'(A)') '------|------|------|------|---------- Real'//  &
      &                 ' ----------------- Imag --------|'
         Do k1=1,N1-1,2
          Do q1=-k1,k1
           Do k2=1,N2-1,2
            Do q2=-k2,k2
-            Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')
-     &            k1,'|',q1,'|',k2,'|',q2,'|',
+            Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')                  &
+     &            k1,'|',q1,'|',k2,'|',q2,'|',                          &
      &            JN(k1,q1,k2,q2),'|'
            End Do
           End Do
          End Do
         End Do
-        Write(6,'(A)') '------|------|------|------|---------------'//
+        Write(6,'(A)') '------|------|------|------|---------------'//  &
      &                 ' -------------------------------|'
         End If
 
@@ -723,16 +723,16 @@ c       iopt=1
 
         If (JITO_exchange.AND.(RIT>0.0_wp)) Then
 
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
-          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,
+          Call zcopy_(nsize,[(0.0_wp,0.0_wp)],0,                        &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),1)
 
-          Call newjkqpar(n1,n2,HITO(lp,1:n1,1:n1,1:n2,1:n2),
-     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
-     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),
+          Call newjkqpar(n1,n2,HITO(lp,1:n1,1:n1,1:n2,1:n2),            &
+     &            JN(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
+     &            JB(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)),  &
      &            JS(1:(n1-1),-(n1-1):(n1-1),1:(n2-1),-(n2-1):(n2-1)) )
 
           J1C(1:3,1:3)=0.0_wp
@@ -755,8 +755,8 @@ c       iopt=1
            End Do
           End Do
 
-        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
-     &                 '(rank-1) exchange interaction: '//
+        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//    &
+     &                 '(rank-1) exchange interaction: '//              &
      &                 'Anisotropic ITO exchange'
         Write(6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
         Write(6,'(A)') 'LOCAL AXES:::'
@@ -766,24 +766,24 @@ c       iopt=1
         Do i=1,3
           Write(6,'(3ES24.14)') (-J1Cr(i,j),j=1,3)
         End Do
-        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+        Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//  &
      &                 '--------------------------------|'
-        Write(6,'(A)') ' rank | proj.| rank | proj.|     Anisotropi'//
+        Write(6,'(A)') ' rank | proj.| rank | proj.|     Anisotropi'//  &
      &                 'c ITO Exchange Interaction      |'
-        Write(6,'(A)') '------|------|------|------|---------- Real'//
+        Write(6,'(A)') '------|------|------|------|---------- Real'//  &
      &                 ' ----------------- Imag --------|'
         Do k1=1,N1-1,2
           Do q1=-k1,k1
             Do k2=1,N2-1,2
               Do q2=-k2,k2
-                 Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')
-     &                 k1,'|',q1,'|',k2,'|',q2,'|',
+                 Write(6,'(4(i4,2x,A),2(1x,ES22.14),1x,A)')             &
+     &                 k1,'|',q1,'|',k2,'|',q2,'|',                     &
      &                 JN(k1,q1,k2,q2),'|'
               End Do
             End Do
           End Do
         End Do
-        Write(6,'(A)') '------|------|------|------|---------------'//
+        Write(6,'(A)') '------|------|------|------|---------------'//  &
      &                 ' -------------------------------|'
         End If
 
@@ -794,168 +794,168 @@ c       iopt=1
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-c        Write(6,'(100A)') ('-',i=1,100)
-c        Write(6,*)
-c        Write(6,'(A)') 'PART 2: Magnetic exchange is written in the '//
-c     &                 'GENERAL coordinate systems of the computed '//
-c     &                 'system.'
-c        Write(6,'(A)') 'The cartesian Z axis of the system is chosen'//
-c     &                 'the quantisation axis for the local '//
-c     &                 'pseudospins of the two interacting sites.'
-c        Write(6,'(A)')
-c
-c       iopt=2
-c       unity(1:3,1:3)=0.0_wp
-c       unity(1,1)=1.0_wp
-c       unity(2,2)=1.0_wp
-c       unity(3,3)=1.0_wp
-c
-c       If(Lines.or.AnisoLines) Then
-c
-c         Call transHam( n1, n2, unity(1:3,1:3), unity(1:3,1:3),
-c     &                  MM(i1,1:3,1:n1,1:n1), MM(i2,1:3,1:n2,1:n2),
-c     &                  itype(i1), itype(i2),
-c     &                  HLIN(lp, 1:n1,1:n1, 1:n2,1:n2),
-c     &                 HLIN3(lp, 1:n1,1:n1, 1:n2,1:n2), iopt )
-c         JLinG(lp, 1:(n1-1), -(n1-1):(n1-1),
-c     &             1:(n2-1), -(n2-1):(n2-1) )=(0.0_wp,0.0_wp)
-c         Call JKQPar( n1, n2, HLIN3(lp,1:n1,1:n1,1:n2,1:n2),
-c     &                JLinG( lp,1:(n1-1), -(n1-1):(n1-1),
-c     &                          1:(n2-1), -(n2-1):(n2-1)) )
-c         JLinCG(lp,1:3,1:3)=0.0_wp
-c         Call tensor2cart(1,1,JLinG(lp,1,-1:1,1,-1:1),
-c     &                       JLinCG(lp,1:3,1:3) )
-c        Write(6,'(A)')
-c        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
-c     &                 '(rank-1) exchange interaction: LINES'
-c        Write(6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
-c        Write(6,'(A)') 'GENERAL COORD:::'
-c        Write(6,'(A)') '     (  xx   xy  xz  )  '
-c        Write(6,'(A)') 'J =  (  yx   yy  yz  )  '
-c        Write(6,'(A)') '     (  zx   zy  zz  )  '
-c        Do i=1,3
-c          Write(6,'(3ES22.14)') (JLinCG(lp,i,j),j=1,3)
-c        End Do
-c       End If
+!        Write(6,'(100A)') ('-',i=1,100)
+!        Write(6,*)
+!        Write(6,'(A)') 'PART 2: Magnetic exchange is written in the '//
+!     &                 'GENERAL coordinate systems of the computed '//
+!     &                 'system.'
+!        Write(6,'(A)') 'The cartesian Z axis of the system is chosen'//
+!     &                 'the quantisation axis for the local '//
+!     &                 'pseudospins of the two interacting sites.'
+!        Write(6,'(A)')
+!
+!       iopt=2
+!       unity(1:3,1:3)=0.0_wp
+!       unity(1,1)=1.0_wp
+!       unity(2,2)=1.0_wp
+!       unity(3,3)=1.0_wp
+!
+!       If(Lines.or.AnisoLines) Then
+!
+!         Call transHam( n1, n2, unity(1:3,1:3), unity(1:3,1:3),
+!     &                  MM(i1,1:3,1:n1,1:n1), MM(i2,1:3,1:n2,1:n2),
+!     &                  itype(i1), itype(i2),
+!     &                  HLIN(lp, 1:n1,1:n1, 1:n2,1:n2),
+!     &                 HLIN3(lp, 1:n1,1:n1, 1:n2,1:n2), iopt )
+!         JLinG(lp, 1:(n1-1), -(n1-1):(n1-1),
+!     &             1:(n2-1), -(n2-1):(n2-1) )=(0.0_wp,0.0_wp)
+!         Call JKQPar( n1, n2, HLIN3(lp,1:n1,1:n1,1:n2,1:n2),
+!     &                JLinG( lp,1:(n1-1), -(n1-1):(n1-1),
+!     &                          1:(n2-1), -(n2-1):(n2-1)) )
+!         JLinCG(lp,1:3,1:3)=0.0_wp
+!         Call tensor2cart(1,1,JLinG(lp,1,-1:1,1,-1:1),
+!     &                       JLinCG(lp,1:3,1:3) )
+!        Write(6,'(A)')
+!        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
+!     &                 '(rank-1) exchange interaction: LINES'
+!        Write(6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
+!        Write(6,'(A)') 'GENERAL COORD:::'
+!        Write(6,'(A)') '     (  xx   xy  xz  )  '
+!        Write(6,'(A)') 'J =  (  yx   yy  yz  )  '
+!        Write(6,'(A)') '     (  zx   zy  zz  )  '
+!        Do i=1,3
+!          Write(6,'(3ES22.14)') (JLinCG(lp,i,j),j=1,3)
+!        End Do
+!       End If
 
-c       If (Dipol) Then
-c         Call transHam( n1, n2, unity(1:3,1:3), unity(1:3,1:3),
-c     &                  MM(i1,1:3,1:n1,1:n1), MM(i2,1:3,1:n2,1:n2),
-c     &                  itype(i1), itype(i2),
-c     &                  HDIP(lp, 1:n1,1:n1, 1:n2,1:n2),
-c     &                 HDIP3(lp, 1:n1,1:n1, 1:n2,1:n2), iopt )
-c          JDipG(lp, 1:(n1-1), -(n1-1):(n1-1),
-c     &              1:(n2-1), -(n2-1):(n2-1) )=(0.0_wp,0.0_wp)
-c         Call JKQPar( n1, n2, HDIP3(lp,1:n1,1:n1,1:n2,1:n2),
-c     &                JDipG( lp,1:(n1-1), -(n1-1):(n1-1),
-c     &                          1:(n2-1), -(n2-1):(n2-1) ) )
-c         JDipCG(lp,1:3,1:3)=0.0_wp
-c         Call tensor2cart(1,1,JDipG(lp,1,-1:1,1,-1:1),
-c     &                       JDipCG(lp,1:3,1:3) )
-c        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
-c     &                 '(rank-1) exchange interaction: DIPOL'
-c        Write(6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
-c        Write(6,'(A)') 'GENERAL COORD:::'
-c        Write(6,'(A)') '     (  xx   xy  xz  )  '
-c        Write(6,'(A)') 'J =  (  yx   yy  yz  )  '
-c        Write(6,'(A)') '     (  zx   zy  zz  )  '
-c        Do i=1,3
-c          Write(6,'(3ES22.14)') (JDipCG(lp,i,j),j=1,3)
-c        End Do
-c       End If
-
-
+!       If (Dipol) Then
+!         Call transHam( n1, n2, unity(1:3,1:3), unity(1:3,1:3),
+!     &                  MM(i1,1:3,1:n1,1:n1), MM(i2,1:3,1:n2,1:n2),
+!     &                  itype(i1), itype(i2),
+!     &                  HDIP(lp, 1:n1,1:n1, 1:n2,1:n2),
+!     &                 HDIP3(lp, 1:n1,1:n1, 1:n2,1:n2), iopt )
+!          JDipG(lp, 1:(n1-1), -(n1-1):(n1-1),
+!     &              1:(n2-1), -(n2-1):(n2-1) )=(0.0_wp,0.0_wp)
+!         Call JKQPar( n1, n2, HDIP3(lp,1:n1,1:n1,1:n2,1:n2),
+!     &                JDipG( lp,1:(n1-1), -(n1-1):(n1-1),
+!     &                          1:(n2-1), -(n2-1):(n2-1) ) )
+!         JDipCG(lp,1:3,1:3)=0.0_wp
+!         Call tensor2cart(1,1,JDipG(lp,1,-1:1,1,-1:1),
+!     &                       JDipCG(lp,1:3,1:3) )
+!        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
+!     &                 '(rank-1) exchange interaction: DIPOL'
+!        Write(6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
+!        Write(6,'(A)') 'GENERAL COORD:::'
+!        Write(6,'(A)') '     (  xx   xy  xz  )  '
+!        Write(6,'(A)') 'J =  (  yx   yy  yz  )  '
+!        Write(6,'(A)') '     (  zx   zy  zz  )  '
+!        Do i=1,3
+!          Write(6,'(3ES22.14)') (JDipCG(lp,i,j),j=1,3)
+!        End Do
+!       End If
 
 
-c        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
-c     &                 '(rank-1) exchange interaction: LINES+DIPOL'
-c        Write(6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
-c        Write(6,'(A)') 'GENERAL COORD:::'
-c        Write(6,'(A)') '     (  xx   xy  xz  )  '
-c        Write(6,'(A)') 'J =  (  yx   yy  yz  )  '
-c        Write(6,'(A)') '     (  zx   zy  zz  )  '
-c        Do i=1,3
-c          Write(6,'(3F24.14)')
-c     &            ((JLinCG(lp,i,j)+JDipCG(lp,i,j))*cm_to_MHz,j=1,3)
-c        End Do
 
 
-c print out the data:
-c      Write(6,'(A)')
-c      Write(6,'(10x,A)') 'Parameters of the ITOs:'
-c      Write(6,'( 5x,A)') 'with absolute values larger than:  0.5d-14 '
-c      If((Lines.or.AnisoLines).and.(.not.Dipol)) Then
-c      Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
-c     & '----------------------|'
-c      Write(6,'(A)') ' rank | proj.| rank | proj.|    Lines  Exch'//
-c     & 'ange  Interaction     |'
-c      Write(6,'(A)') '------|------|------|------|------ Real ---'//
-c     & '-------- Imag --------|'
-c      Do k1=1,N1-1,2
-c        Do q1=-k1,k1
-c          Do k2=1,N2-1,2
-c            Do q2=-k2,k2
-c                  If(ABS(JLinG(lp,k1,q1,k2,q2)) .gt. 0.5d-14 ) Then
-c      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)')
-c     & k1,'|',q1,'|',k2,'|',q2,'|',JLinG(lp,k1,q1,k2,q2),'|'
-c                  End If
-c            End Do
-c          End Do
-c        End Do
-c      End Do
-c      Write(6,'(A)') '------|------|------|------|---------------'//
-c     & '----------------------|'
-c      Else If((.not.(Lines.or.AnisoLines)).and.Dipol) Then
-c      Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
-c     & '----------------------|'
-c      Write(6,'(A)') ' rank | proj.| rank | proj.|  Dipolar  Exch'//
-c     & 'ange  Interaction     |'
-c      Write(6,'(A)') '------|------|------|------|------ Real ---'//
-c     & '-------- Imag --------|'
-c      Do k1=1,N1-1,2
-c        Do q1=-k1,k1
-c          Do k2=1,N2-1,2
-c            Do q2=-k2,k2
-c                  If(ABS(JDipG(lp,k1,q1,k2,q2)) .gt. 0.5d-14 ) Then
-c      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)')
-c     & k1,'|',q1,'|',k2,'|',q2,'|',JDipG(lp,k1,q1,k2,q2),'|'
-c                  End If
-c            End Do
-c          End Do
-c        End Do
-c      End Do
-c      Write(6,'(A)') '------|------|------|------|---------------'//
-c     & '----------------------|'
-c      Else If((Lines.or.AnisoLines).and.Dipol) Then
-c      Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
-c     & '----------------------|-------------------------------------|'
-c      Write(6,'(A)') ' rank | proj.| rank | proj.|    Lines  Exch'//
-c     & 'ange  Interaction     |  Dipolar  Exchange  Interaction     |'
-c      Write(6,'(A)') '------|------|------|------|------ Real ---'//
-c     & '-------- Imag --------|------ Real ----------- Imag --------|'
-c      Do k1=1,N1-1,2
-c        Do q1=-k1,k1
-c          Do k2=1,N2-1,2
-c            Do q2=-k2,k2
-c                  If ( (ABS(JLinG(lp,k1,q1,k2,q2)) .gt. 0.5d-14) .OR.
-c     &                 (ABS(JDipG(lp,k1,q1,k2,q2)) .gt. 0.5d-14) )  Then
-c      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A,2(1x,ES17.10),1x,A)')
-c     & k1,'|',q1,'|',k2,'|',q2,'|',JLinG(lp,k1,q1,k2,q2),'|',
-c     & JDipG(lp,k1,q1,k2,q2),'|'
-c                  End If
-c            End Do
-c          End Do
-c        End Do
-c      End Do
-c      Write(6,'(A)') '------|------|------|------|---------------'//
-c     & '----------------------|-------------------------------------|'
-c      End If
-c
-c
-c
-c
-c
-c
+!        Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
+!     &                 '(rank-1) exchange interaction: LINES+DIPOL'
+!        Write(6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
+!        Write(6,'(A)') 'GENERAL COORD:::'
+!        Write(6,'(A)') '     (  xx   xy  xz  )  '
+!        Write(6,'(A)') 'J =  (  yx   yy  yz  )  '
+!        Write(6,'(A)') '     (  zx   zy  zz  )  '
+!        Do i=1,3
+!          Write(6,'(3F24.14)')
+!     &            ((JLinCG(lp,i,j)+JDipCG(lp,i,j))*cm_to_MHz,j=1,3)
+!        End Do
+
+
+! print out the data:
+!      Write(6,'(A)')
+!      Write(6,'(10x,A)') 'Parameters of the ITOs:'
+!      Write(6,'( 5x,A)') 'with absolute values larger than:  0.5d-14 '
+!      If((Lines.or.AnisoLines).and.(.not.Dipol)) Then
+!      Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+!     & '----------------------|'
+!      Write(6,'(A)') ' rank | proj.| rank | proj.|    Lines  Exch'//
+!     & 'ange  Interaction     |'
+!      Write(6,'(A)') '------|------|------|------|------ Real ---'//
+!     & '-------- Imag --------|'
+!      Do k1=1,N1-1,2
+!        Do q1=-k1,k1
+!          Do k2=1,N2-1,2
+!            Do q2=-k2,k2
+!                  If(ABS(JLinG(lp,k1,q1,k2,q2)) .gt. 0.5d-14 ) Then
+!      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)')
+!     & k1,'|',q1,'|',k2,'|',q2,'|',JLinG(lp,k1,q1,k2,q2),'|'
+!                  End If
+!            End Do
+!          End Do
+!        End Do
+!      End Do
+!      Write(6,'(A)') '------|------|------|------|---------------'//
+!     & '----------------------|'
+!      Else If((.not.(Lines.or.AnisoLines)).and.Dipol) Then
+!      Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+!     & '----------------------|'
+!      Write(6,'(A)') ' rank | proj.| rank | proj.|  Dipolar  Exch'//
+!     & 'ange  Interaction     |'
+!      Write(6,'(A)') '------|------|------|------|------ Real ---'//
+!     & '-------- Imag --------|'
+!      Do k1=1,N1-1,2
+!        Do q1=-k1,k1
+!          Do k2=1,N2-1,2
+!            Do q2=-k2,k2
+!                  If(ABS(JDipG(lp,k1,q1,k2,q2)) .gt. 0.5d-14 ) Then
+!      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)')
+!     & k1,'|',q1,'|',k2,'|',q2,'|',JDipG(lp,k1,q1,k2,q2),'|'
+!                  End If
+!            End Do
+!          End Do
+!        End Do
+!      End Do
+!      Write(6,'(A)') '------|------|------|------|---------------'//
+!     & '----------------------|'
+!      Else If((Lines.or.AnisoLines).and.Dipol) Then
+!      Write(6,'(A)') '--- SITE 1 --|--- SITE 2 --|---------------'//
+!     & '----------------------|-------------------------------------|'
+!      Write(6,'(A)') ' rank | proj.| rank | proj.|    Lines  Exch'//
+!     & 'ange  Interaction     |  Dipolar  Exchange  Interaction     |'
+!      Write(6,'(A)') '------|------|------|------|------ Real ---'//
+!     & '-------- Imag --------|------ Real ----------- Imag --------|'
+!      Do k1=1,N1-1,2
+!        Do q1=-k1,k1
+!          Do k2=1,N2-1,2
+!            Do q2=-k2,k2
+!                  If ( (ABS(JLinG(lp,k1,q1,k2,q2)) .gt. 0.5d-14) .OR.
+!     &                 (ABS(JDipG(lp,k1,q1,k2,q2)) .gt. 0.5d-14) )  Then
+!      Write(6,'(4(i4,2x,A),2(1x,ES17.10),1x,A,2(1x,ES17.10),1x,A)')
+!     & k1,'|',q1,'|',k2,'|',q2,'|',JLinG(lp,k1,q1,k2,q2),'|',
+!     & JDipG(lp,k1,q1,k2,q2),'|'
+!                  End If
+!            End Do
+!          End Do
+!        End Do
+!      End Do
+!      Write(6,'(A)') '------|------|------|------|---------------'//
+!     & '----------------------|-------------------------------------|'
+!      End If
+!
+!
+!
+!
+!
+!
 !      Write(6,'(A)')
 !      Write(6,'(A)') 'Cartesian representation of the (rank-1)*'//
 !     & '(rank-1) exchange interaction'

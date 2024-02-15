@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Lines_Exchange( Jex, N1, N2, S1, S2, HAM )
 !     this Subroutine calculates the Lines exchange interaction between
 !     two sites, of the one interacting pair
@@ -34,9 +34,9 @@
             Do j2=1,N2
 
               Do l=1,3
-                HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)
-     &                         + cmplx(-Jex,0.0_wp,wp)
-     &                         * S1(l,i1,j1)
+                HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)                   &
+     &                         + cmplx(-Jex,0.0_wp,wp)                  &
+     &                         * S1(l,i1,j1)                            &
      &                         * S2(l,i2,j2)
               End Do
 
@@ -81,7 +81,7 @@
             Do j2=1,N2
 
               Do l=1,3
-                HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)
+                HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)                   &
      &                            + Jc(l) * S1(l,i1,j1) * S2(l,i2,j2)
               End Do
 
@@ -131,7 +131,7 @@
 
               Do l=1,3
                 Do m=1,3
-                  HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)
+                  HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)                 &
      &                    + Jc(l,m) * S1( l, i1,j1 ) * S2( m, i2,j2 )
                 End Do
               End Do
@@ -182,18 +182,18 @@
               Y=(0.0_wp,0.0_wp)
               Z=(0.0_wp,0.0_wp)
 
-              X =  S1(2,i1,j1) * S2(3,i2,j2)
+              X =  S1(2,i1,j1) * S2(3,i2,j2)                            &
      &            -S1(3,i1,j1) * S2(2,i2,j2)
 
-              Y =  S1(3,i1,j1) * S2(1,i2,j2)
+              Y =  S1(3,i1,j1) * S2(1,i2,j2)                            &
      &            -S1(1,i1,j1) * S2(3,i2,j2)
 
-              Z =  S1(1,i1,j1) * S2(2,i2,j2)
+              Z =  S1(1,i1,j1) * S2(2,i2,j2)                            &
      &            -S1(2,i1,j1) * S2(1,i2,j2)
 
-              HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)
-     &                           + Jc(1)*X
-     &                           + Jc(2)*Y
+              HAM(i1,j1, i2,j2) = HAM(i1,j1, i2,j2)                     &
+     &                           + Jc(1)*X                              &
+     &                           + Jc(2)*Y                              &
      &                           + Jc(3)*Z
 
             End Do
@@ -205,7 +205,7 @@
 
 
 
-      Subroutine JITO_Exchange_Int( MxR1, MxR2, imaxrank,
+      Subroutine JITO_Exchange_Int( MxR1, MxR2, imaxrank,               &
      &                              n1, n2, JR, JI, HAM )
 
 !     this Subroutine calculates the anisotropic exchange interaction between
@@ -217,9 +217,9 @@
       Integer, intent(in)           :: imaxrank(2)
       Integer, intent(in)           :: MxR1, MxR2
       Integer, intent(in)           :: n1, n2
-      Real(kind=8), intent(in)     :: JR(MxR1,-MxR1:MxR1,
+      Real(kind=8), intent(in)     :: JR(MxR1,-MxR1:MxR1,               &
      &                                    MxR2,-MxR2:MxR2)
-      Real(kind=8), intent(in)     :: JI(MxR1,-MxR1:MxR1,
+      Real(kind=8), intent(in)     :: JI(MxR1,-MxR1:MxR1,               &
      &                                    MxR2,-MxR2:MxR2)
       ! output variables
       Complex(kind=8), intent(out) ::  HAM( n1,n1, n2,n2 )
@@ -233,7 +233,7 @@
       Complex(kind=8)             :: J(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
       Complex(kind=8), allocatable :: O1(:,:), O2(:,:)
       Complex(kind=8), allocatable :: W1(:,:), W2(:,:)
-      Complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
+      Complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:),         &
      &                                 OW(:,:,:,:), WO(:,:,:,:)
       Logical                       :: dbg
       Real(kind=8)                 :: dnrm2_
@@ -247,11 +247,11 @@
       ibuf=MxR1*(2*MxR1+1)*MxR2*(2*MxR2+1)
       If(ibuf==0) Return
       jpar=0.0_wp
-      jpar=dnrm2_(ibuf,JR(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
+      jpar=dnrm2_(ibuf,JR(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)       &
      &    +dnrm2_(ibuf,JI(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
       If (jpar==0.0_wp) Return
 ! ---- end initial checks
-      Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,
+      Call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,                             &
      &                 J(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
       Do k1=1,MxR1,2
        Do k2=1,MxR2,2
@@ -324,7 +324,7 @@
         Do m2=1,n1
          Do l1=1,n2
           Do l2=1,n2
-           Write(6,'(A,i2,A,i2,A,i2,A,i2,A,2ES22.14)')
+           Write(6,'(A,i2,A,i2,A,i2,A,i2,A,2ES22.14)')                  &
      &        '<',m1,',',l1,'| HAM |',m2,',',l2,'> = ',HAM(m1,m2,l1,l2)
           End Do
          End Do

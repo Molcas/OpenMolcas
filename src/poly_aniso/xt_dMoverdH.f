@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-       Subroutine XT_dMoverdH( exch, nLoc, nCenter, nneq, neqv, neq,
-     &                         nss, nexch, nTempMagn, nT, NM, iopt,
-     &                         mem,
-     &                         Tmin, Tmax, chit_exp, eso, w, T, RROT,
-     &                         zJ, Xfield, EM, THRS, XT_no_field,
-     &                         dipso, s_so, dipexch, s_exch,
-     &                         tinput, smagn, m_paranoid, m_accurate,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+       Subroutine XT_dMoverdH( exch, nLoc, nCenter, nneq, neqv, neq,    &
+     &                         nss, nexch, nTempMagn, nT, NM, iopt,     &
+     &                         mem,                                     &
+     &                         Tmin, Tmax, chit_exp, eso, w, T, RROT,   &
+     &                         zJ, Xfield, EM, THRS, XT_no_field,       &
+     &                         dipso, s_so, dipexch, s_exch,            &
+     &                         tinput, smagn, m_paranoid, m_accurate,   &
      &                         doplot )
-c this Subroutine computes the XT as M/H as it is observed for most of experiments.
-c The M is averaged over the grid for each temperature point.
-c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
+! this Subroutine computes the XT as M/H as it is observed for most of experiments.
+! The M is averaged over the grid for each temperature point.
+!       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
@@ -45,7 +45,7 @@ c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
       Complex(kind=8), intent(in) :: dipexch(3,exch,exch)
       Complex(kind=8), intent(in) ::  s_exch(3,exch,exch)
       Logical, intent(in)          :: tinput, smagn, m_paranoid, doplot
-cccc local variables ccc
+!ccc local variables ccc
       Integer                      :: nDirX
       Integer       :: iM,iT,jT,i,j,l,n,isite !,nP
 
@@ -116,7 +116,7 @@ cccc local variables ccc
       Real(kind=8), allocatable :: ZEX1(:)
 !     exchange statistical sum, Boltzmann distribution
       Real(kind=8), allocatable :: ZEX2(:)
-c total vectors in general coordinate system:
+! total vectors in general coordinate system:
       Real(kind=8), allocatable :: ZRT0(:,:)
       Real(kind=8), allocatable :: ZLT0(:,:)
       Real(kind=8), allocatable :: ZRT1(:,:)
@@ -135,7 +135,7 @@ c total vectors in general coordinate system:
       Real(kind=8), allocatable :: MLT2(:,:,:)
       Real(kind=8), allocatable :: SRT2(:,:,:)
       Real(kind=8), allocatable :: SLT2(:,:,:)
-c data for total system:
+! data for total system:
 ! total statistical sum, Boltzmann distribution
       Real(kind=8), allocatable :: ZT0(:)
 ! total statistical sum, Boltzmann distribution
@@ -148,7 +148,7 @@ c data for total system:
       Real(kind=8), allocatable :: ST1(:,:) ! total spin magnetisation,
       Real(kind=8), allocatable :: ST2(:,:) ! total spin magnetisation,
       Real(kind=8), allocatable :: MT2(:,:) ! total magnetisation
-c standard deviation data:
+! standard deviation data:
       Real(kind=8)              :: dev
       Real(kind=8), allocatable :: XTM_MH(:)
       Real(kind=8), allocatable :: XTM_dMdH(:)
@@ -158,9 +158,9 @@ c standard deviation data:
       Integer                    :: nTempTotal
       Real(kind=8)              :: Xfield_1, Xfield_2, dltXF, F1, F2
       !Real(kind=8)             :: XTS(nT+nTempMagn)
-c Zeeman energy and M vector
-c      Real(kind=8)             :: dirX(nDir), dirY(nDir), dirZ(nDir)
-c      Real(kind=8)             :: dir_weight(nDirZee,3)
+! Zeeman energy and M vector
+!      Real(kind=8)             :: dirX(nDir), dirY(nDir), dirZ(nDir)
+!      Real(kind=8)             :: dir_weight(nDirZee,3)
 
       Real(kind=8)              :: dHX(3)
       Real(kind=8)              :: dHY(3)
@@ -178,7 +178,7 @@ c      Real(kind=8)             :: dir_weight(nDirZee,3)
       DBG=.false.
       !m_paranoid=.true.!.false.
       cm3tomB=0.55849389040_wp   !   in cm3 * mol-1 * T
-cccc-------------------------------------------------------cccc
+!ccc-------------------------------------------------------cccc
       If(DBG) Then
          Write(6,'(A,   I5)') '      exch =',exch
          Write(6,'(A,   I5)') '      nLoc =',nLoc
@@ -208,7 +208,7 @@ cccc-------------------------------------------------------cccc
             End Do
             Do iT=1,nT
                jT=iT+nTempMagn
-               Write(6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),
+               Write(6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),      &
      &                          ' chiT_exp(',iT,')=',chit_exp(iT)
            End Do
 
@@ -235,30 +235,30 @@ cccc-------------------------------------------------------cccc
          End Do
          Call xFlush(6)
       End If !DBG
-cccc-------------------------------------------------------cccc
+!ccc-------------------------------------------------------cccc
       Write(6,*)
       Write(6,'(100A)') (('%'),J=1,95)
-      Write(6,'(16X,A)') 'CALCULATION OF THE FIELD-DEPENDENT '//
+      Write(6,'(16X,A)') 'CALCULATION OF THE FIELD-DEPENDENT '//        &
      &                   'MAGNETIC SUSCEPTIBILITY'
-      Write(6,'(18X,A)') 'within true (dM/dH) and "experimentalists"'//
+      Write(6,'(18X,A)') 'within true (dM/dH) and "experimentalists"'// &
      &                   ' (M/H) models'
       Write(6,'(100A)') (('%'),J=1,95)
       Write(6,*)
-      Write(6,'(2x,A,F10.6,A)') 'Magnetic field strength:',Xfield,
+      Write(6,'(2x,A,F10.6,A)') 'Magnetic field strength:',Xfield,      &
      &                          ' Tesla.'
       If(tinput) Then
-         Write(6,'(2x,a)') 'Temperature dependence of the magnetic '//
+         Write(6,'(2x,a)') 'Temperature dependence of the magnetic '//  &
      &                     'susceptibility and'
-         Write(6,'(2x,a)') 'high-field magnetization will be '//
+         Write(6,'(2x,a)') 'high-field magnetization will be '//        &
      &                     'calculated according to '
-         Write(6,'(2x,a)') 'experimental values provided by the '//
+         Write(6,'(2x,a)') 'experimental values provided by the '//     &
      &                     'user in file "chitexp.input".'
       Else
-         Write(6,'(2x,a,i3,a)') 'Temperature dependence of the '//
-     &                          'magnetic susceptibility will be '//
+         Write(6,'(2x,a,i3,a)') 'Temperature dependence of the '//      &
+     &                          'magnetic susceptibility will be '//    &
      &                          'calculated in',nT,' points, '
-         Write(6,'(2x,a,f4.1,a,f6.1,a)') 'equally distributed in '//
-     &                          'temperature range ',tmin,' ---',
+         Write(6,'(2x,a,f4.1,a,f6.1,a)') 'equally distributed in '//    &
+     &                          'temperature range ',tmin,' ---',       &
      &                           tmax,' K.'
       End If
 
@@ -454,7 +454,7 @@ cccc-------------------------------------------------------cccc
 
       nTempTotal=nT+nTempMagn
 
-c ///  opening the loop over different directions of the magnetic field
+! ///  opening the loop over different directions of the magnetic field
       Do iM=1,nDirX
         Call dcopy_(nM,[0.0_wp],0,WEX0,1)
         Call dcopy_(nM,[0.0_wp],0,WEX1,1)
@@ -511,33 +511,33 @@ c ///  opening the loop over different directions of the magnetic field
         Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,MLT2,1)
         Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SRT2,1)
         Call dcopy_(3*nCenter*(nT+nTempMagn),[0.0_wp],0,SLT2,1)
-c exchange magnetization:
-         Call MAGN( EXCH, NM, dHX(iM), dHY(iM), dHZ(iM),
-     &              XField, W, zJ, THRS,
-     &              DIPEXCH(1:3,1:exch,1:exch),
-     &               S_EXCH(1:3,1:exch,1:exch),
-     &              nTempTotal, T(1:nTempTotal), smagn,
-     &              Wex0(1:nM),
-     &              Zex0(1:nTempTotal),
-     &              Sex0(1:3,1:nTempTotal),
+! exchange magnetization:
+         Call MAGN( EXCH, NM, dHX(iM), dHY(iM), dHZ(iM),                &
+     &              XField, W, zJ, THRS,                                &
+     &              DIPEXCH(1:3,1:exch,1:exch),                         &
+     &               S_EXCH(1:3,1:exch,1:exch),                         &
+     &              nTempTotal, T(1:nTempTotal), smagn,                 &
+     &              Wex0(1:nM),                                         &
+     &              Zex0(1:nTempTotal),                                 &
+     &              Sex0(1:3,1:nTempTotal),                             &
      &              Mex0(1:3,1:nTempTotal), m_paranoid, DBG )
-         Call MAGN( EXCH, NM, dHX(iM), dHY(iM), dHZ(iM),
-     &              XField_1, W, zJ, THRS,
-     &              DIPEXCH(1:3,1:exch,1:exch),
-     &               S_EXCH(1:3,1:exch,1:exch),
-     &              nTempTotal, T(1:nTempTotal), smagn,
-     &              Wex1(1:nM),
-     &              Zex1(1:nTempTotal),
-     &              Sex1(1:3,1:nTempTotal),
+         Call MAGN( EXCH, NM, dHX(iM), dHY(iM), dHZ(iM),                &
+     &              XField_1, W, zJ, THRS,                              &
+     &              DIPEXCH(1:3,1:exch,1:exch),                         &
+     &               S_EXCH(1:3,1:exch,1:exch),                         &
+     &              nTempTotal, T(1:nTempTotal), smagn,                 &
+     &              Wex1(1:nM),                                         &
+     &              Zex1(1:nTempTotal),                                 &
+     &              Sex1(1:3,1:nTempTotal),                             &
      &              Mex1(1:3,1:nTempTotal), m_paranoid, DBG )
-         Call MAGN( EXCH, NM, dHX(iM), dHY(iM), dHZ(iM),
-     &              XField_2, W, zJ, THRS,
-     &              DIPEXCH(1:3,1:exch,1:exch),
-     &               S_EXCH(1:3,1:exch,1:exch),
-     &              nTempTotal, T(1:nTempTotal), smagn,
-     &              Wex2(1:nM),
-     &              Zex2(1:nTempTotal),
-     &              Sex2(1:3,1:nTempTotal),
+         Call MAGN( EXCH, NM, dHX(iM), dHY(iM), dHZ(iM),                &
+     &              XField_2, W, zJ, THRS,                              &
+     &              DIPEXCH(1:3,1:exch,1:exch),                         &
+     &               S_EXCH(1:3,1:exch,1:exch),                         &
+     &              nTempTotal, T(1:nTempTotal), smagn,                 &
+     &              Wex2(1:nM),                                         &
+     &              Zex2(1:nTempTotal),                                 &
+     &              Sex2(1:3,1:nTempTotal),                             &
      &              Mex2(1:3,1:nTempTotal), m_paranoid, DBG )
       If(DBG) Then
         Do i=1,nTempTotal
@@ -550,7 +550,7 @@ c exchange magnetization:
           Write(6,'(A,i3,A,9ES22.14)') 'Mex2(',i,')=',(Mex2(l,i),l=1,3)
         End Do
         Do i=1,nTempTotal
-          Write(6,'(A,i3,A,9ES22.14)') 'Mex 2-1 (',i,')=',
+          Write(6,'(A,i3,A,9ES22.14)') 'Mex 2-1 (',i,')=',              &
      &                                 (Mex2(l,i)-Mex1(l,i),l=1,3)
         End Do
       End If !DBG
@@ -570,90 +570,90 @@ c exchange magnetization:
        Call Add_Info('dM/dH   Zex2',[dnrm2_(  nTempTotal,Zex2,1)],1,8)
        Call Add_Info('dM/dH   Wex2',[dnrm2_(          nM,Wex2,1)],1,8)
 
-c compute local magnetizations:
+! compute local magnetizations:
          If(m_accurate) Then
             Do i=1,nneq
-c all states:
+! all states:
                If ( NSS(i).gt.NEXCH(i) )  Then
-c this check is to avoid the unnecessary computation, in cases when no local excited states are present
-                  Call MAGN( NSS(i), NEXCH(i), dHX(iM),dHY(iM),dHZ(iM),
-     &                       XField,
-     &                       ESO(i,1:NSS(i)), zJ, THRS,
-     &                       DIPSO(i,1:3,1:NSS(i),1:NSS(i)),
-     &                        S_SO(i,1:3,1:NSS(i),1:NSS(i)),
-     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,
-     &                       WL0(i,1:NSS(i)),
-     &                       ZL0(i,1:(nT+nTempMagn)),
-     &                       SL0(i,1:3,1:(nT+nTempMagn)),
-     &                       ML0(i,1:3,1:(nT+nTempMagn)),
+! this check is to avoid the unnecessary computation, in cases when no local excited states are present
+                  Call MAGN( NSS(i), NEXCH(i), dHX(iM),dHY(iM),dHZ(iM), &
+     &                       XField,                                    &
+     &                       ESO(i,1:NSS(i)), zJ, THRS,                 &
+     &                       DIPSO(i,1:3,1:NSS(i),1:NSS(i)),            &
+     &                        S_SO(i,1:3,1:NSS(i),1:NSS(i)),            &
+     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,    &
+     &                       WL0(i,1:NSS(i)),                           &
+     &                       ZL0(i,1:(nT+nTempMagn)),                   &
+     &                       SL0(i,1:3,1:(nT+nTempMagn)),               &
+     &                       ML0(i,1:3,1:(nT+nTempMagn)),               &
      &                       m_paranoid, DBG )
 
-                  Call MAGN( NSS(i), NEXCH(i), dHX(iM),dHY(iM),dHZ(iM),
-     &                       XField_1,
-     &                       ESO(i,1:NSS(i)), zJ, THRS,
-     &                       DIPSO(i,1:3,1:NSS(i),1:NSS(i)),
-     &                        S_SO(i,1:3,1:NSS(i),1:NSS(i)),
-     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,
-     &                       WL1(i,1:NSS(i)),
-     &                       ZL1(i,1:(nT+nTempMagn)),
-     &                       SL1(i,1:3,1:(nT+nTempMagn)),
-     &                       ML1(i,1:3,1:(nT+nTempMagn)),
+                  Call MAGN( NSS(i), NEXCH(i), dHX(iM),dHY(iM),dHZ(iM), &
+     &                       XField_1,                                  &
+     &                       ESO(i,1:NSS(i)), zJ, THRS,                 &
+     &                       DIPSO(i,1:3,1:NSS(i),1:NSS(i)),            &
+     &                        S_SO(i,1:3,1:NSS(i),1:NSS(i)),            &
+     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,    &
+     &                       WL1(i,1:NSS(i)),                           &
+     &                       ZL1(i,1:(nT+nTempMagn)),                   &
+     &                       SL1(i,1:3,1:(nT+nTempMagn)),               &
+     &                       ML1(i,1:3,1:(nT+nTempMagn)),               &
      &                       m_paranoid, DBG )
 
-                  Call MAGN( NSS(i), NEXCH(i), dHX(iM),dHY(iM),dHZ(iM),
-     &                       Xfield_2,
-     &                       ESO(i,1:NSS(i)), zJ, THRS,
-     &                       DIPSO(i,1:3,1:NSS(i),1:NSS(i)),
-     &                        S_SO(i,1:3,1:NSS(i),1:NSS(i)),
-     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,
-     &                       WL2(i,1:NSS(i)),
-     &                       ZL2(i,1:(nT+nTempMagn)),
-     &                       SL2(i,1:3,1:(nT+nTempMagn)),
-     &                       ML2(i,1:3,1:(nT+nTempMagn)),
+                  Call MAGN( NSS(i), NEXCH(i), dHX(iM),dHY(iM),dHZ(iM), &
+     &                       Xfield_2,                                  &
+     &                       ESO(i,1:NSS(i)), zJ, THRS,                 &
+     &                       DIPSO(i,1:3,1:NSS(i),1:NSS(i)),            &
+     &                        S_SO(i,1:3,1:NSS(i),1:NSS(i)),            &
+     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,    &
+     &                       WL2(i,1:NSS(i)),                           &
+     &                       ZL2(i,1:(nT+nTempMagn)),                   &
+     &                       SL2(i,1:3,1:(nT+nTempMagn)),               &
+     &                       ML2(i,1:3,1:(nT+nTempMagn)),               &
      &                       m_paranoid, DBG )
-c only local "exchange states":
-                  Call MAGN( NEXCH(i), NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),
-     &                       XField,
-     &                       ESO(i,1:NEXCH(i)), zJ, THRS,
-     &                       DIPSO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),
-     &                        S_SO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),
-     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,
-     &                       WR0(i,1:Nexch(i)),
-     &                       ZR0(i,1:(nT+nTempMagn)),
-     &                       SR0(i,1:3,1:(nT+nTempMagn)),
-     &                       MR0(i,1:3,1:(nT+nTempMagn)),
-     &                       m_paranoid, DBG )
-
-                  Call MAGN( NEXCH(i), NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),
-     &                       XField_1,
-     &                       ESO(i,1:NEXCH(i)), zJ, THRS,
-     &                       DIPSO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),
-     &                        S_SO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),
-     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,
-     &                       WR1(i,1:Nexch(i)),
-     &                       ZR1(i,1:(nT+nTempMagn)),
-     &                       SR1(i,1:3,1:(nT+nTempMagn)),
-     &                       MR1(i,1:3,1:(nT+nTempMagn)),
+! only local "exchange states":
+                  Call MAGN( NEXCH(i), NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),&
+     &                       XField,                                    &
+     &                       ESO(i,1:NEXCH(i)), zJ, THRS,               &
+     &                       DIPSO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),      &
+     &                        S_SO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),      &
+     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,    &
+     &                       WR0(i,1:Nexch(i)),                         &
+     &                       ZR0(i,1:(nT+nTempMagn)),                   &
+     &                       SR0(i,1:3,1:(nT+nTempMagn)),               &
+     &                       MR0(i,1:3,1:(nT+nTempMagn)),               &
      &                       m_paranoid, DBG )
 
-                  Call MAGN( NEXCH(i), NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),
-     &                       XField_2,
-     &                       ESO(i,1:NEXCH(i)), zJ, THRS,
-     &                       DIPSO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),
-     &                        S_SO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),
-     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,
-     &                       WR2(i,1:Nexch(i)),
-     &                       ZR2(i,1:(nT+nTempMagn)),
-     &                       SR2(i,1:3,1:(nT+nTempMagn)),
-     &                       MR2(i,1:3,1:(nT+nTempMagn)),
+                  Call MAGN( NEXCH(i), NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),&
+     &                       XField_1,                                  &
+     &                       ESO(i,1:NEXCH(i)), zJ, THRS,               &
+     &                       DIPSO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),      &
+     &                        S_SO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),      &
+     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,    &
+     &                       WR1(i,1:Nexch(i)),                         &
+     &                       ZR1(i,1:(nT+nTempMagn)),                   &
+     &                       SR1(i,1:3,1:(nT+nTempMagn)),               &
+     &                       MR1(i,1:3,1:(nT+nTempMagn)),               &
+     &                       m_paranoid, DBG )
+
+                  Call MAGN( NEXCH(i), NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),&
+     &                       XField_2,                                  &
+     &                       ESO(i,1:NEXCH(i)), zJ, THRS,               &
+     &                       DIPSO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),      &
+     &                        S_SO( i,1:3,1:NEXCH(i),1:NEXCH(i) ),      &
+     &                       nTempTotal, T(1:(nT+nTempMagn)), smagn,    &
+     &                       WR2(i,1:Nexch(i)),                         &
+     &                       ZR2(i,1:(nT+nTempMagn)),                   &
+     &                       SR2(i,1:3,1:(nT+nTempMagn)),               &
+     &                       MR2(i,1:3,1:(nT+nTempMagn)),               &
      &                       m_paranoid, DBG )
                   If (DBG) Then
                      Do iT=1,nTempTotal
-                        Write(6,'(A,i1,A,i3,A,3ES22.14)')
-     &                          'ML(',i,',L,',iT,')=',
+                        Write(6,'(A,i1,A,i3,A,3ES22.14)')               &
+     &                          'ML(',i,',L,',iT,')=',                  &
      &                                   (ML2(i,l,iT)-ML1(i,l,iT),l=1,3)
-                        Write(6,'(A,i1,A,i3,A,3ES22.14)')
-     &                          'MR(',i,',L,',iT,')=',
+                        Write(6,'(A,i1,A,i3,A,3ES22.14)')               &
+     &                          'MR(',i,',L,',iT,')=',                  &
      &                                   (MR2(i,l,iT)-MR1(i,l,iT),l=1,3)
                      End Do
                   End If ! DBG
@@ -693,14 +693,14 @@ c only local "exchange states":
        Call Add_Info('dM/dH    ZR2',[dnrm2_(  ibuf1,ZR2,1)],1,8)
        Call Add_Info('dM/dH    WR2',[dnrm2_(nLoc*nneq,WR2,1)],1,8)
 
-c expand the basis and rotate local vectors to the general
-c coordinate system:
+! expand the basis and rotate local vectors to the general
+! coordinate system:
 
             isite=0
             Do i=1,NNEQ
                Do j=1,NEQ(i)
                   isite=isite+1
-c statistical distributions
+! statistical distributions
                   Do iT=1,nTempTotal
                      ZLT0(isite,iT)=ZL0(i,iT)
                      ZRT0(isite,iT)=ZR0(i,iT)
@@ -709,9 +709,9 @@ c statistical distributions
                      ZLT2(isite,iT)=ZL2(i,iT)
                      ZRT2(isite,iT)=ZR2(i,iT)
                   End Do
-c magnetizations:
-c    use R_rot matrices, which have determinant +1.
-c  note that  R_lg matrices have arbitrary determinant.
+! magnetizations:
+!    use R_rot matrices, which have determinant +1.
+!  note that  R_lg matrices have arbitrary determinant.
                   Do iT=1,nTempTotal
                      Do l=1,3
                         Do n=1,3
@@ -751,36 +751,36 @@ c  note that  R_lg matrices have arbitrary determinant.
             Call Add_Info('dM/dH    SLT2',[dnrm2_(ibuf,SLT2,1)],1,8)
             Call Add_Info('dM/dH    MRT2',[dnrm2_(ibuf,MRT2,1)],1,8)
             Call Add_Info('dM/dH    SRT2',[dnrm2_(ibuf,SRT2,1)],1,8)
-c compute the total magnetizations according to the derived formulas:
+! compute the total magnetizations according to the derived formulas:
             If(dbg) Write(6,*) 'check point MLT0'
             Do iT=1,nTempTotal
                If (smagn) Then
-                  Call MSUM( nCenter, Sex0(1:3,iT), Zex0(iT),
-     &                       SLT0(1:nCenter,1:3,iT), ZLT0(1:nCenter,iT),
-     &                       SRT0(1:nCenter,1:3,iT), ZRT0(1:nCenter,iT),
+                  Call MSUM( nCenter, Sex0(1:3,iT), Zex0(iT),           &
+     &                       SLT0(1:nCenter,1:3,iT), ZLT0(1:nCenter,iT),&
+     &                       SRT0(1:nCenter,1:3,iT), ZRT0(1:nCenter,iT),&
      &                       iopt, ST0(1:3,iT),  ZT0(iT)  )
-                  Call MSUM( nCenter, Sex1(1:3,iT), Zex1(iT),
-     &                       SLT1(1:nCenter,1:3,iT), ZLT1(1:nCenter,iT),
-     &                       SRT1(1:nCenter,1:3,iT), ZRT1(1:nCenter,iT),
+                  Call MSUM( nCenter, Sex1(1:3,iT), Zex1(iT),           &
+     &                       SLT1(1:nCenter,1:3,iT), ZLT1(1:nCenter,iT),&
+     &                       SRT1(1:nCenter,1:3,iT), ZRT1(1:nCenter,iT),&
      &                       iopt, ST1(1:3,iT),  ZT1(iT)  )
-                  Call MSUM( nCenter, Sex2(1:3,iT), Zex2(iT),
-     &                       SLT2(1:nCenter,1:3,iT), ZLT2(1:nCenter,iT),
-     &                       SRT2(1:nCenter,1:3,iT), ZRT2(1:nCenter,iT),
+                  Call MSUM( nCenter, Sex2(1:3,iT), Zex2(iT),           &
+     &                       SLT2(1:nCenter,1:3,iT), ZLT2(1:nCenter,iT),&
+     &                       SRT2(1:nCenter,1:3,iT), ZRT2(1:nCenter,iT),&
      &                       iopt, ST2(1:3,iT),  ZT2(iT)  )
                End If
 
                If(dbg) Write(6,*) 'check point MSUM'
-                  Call MSUM( nCenter, Mex0(1:3,iT), Zex0(iT),
-     &                       MLT0(1:nCenter,1:3,iT), ZLT0(1:nCenter,iT),
-     &                       MRT0(1:nCenter,1:3,iT), ZRT0(1:nCenter,iT),
+                  Call MSUM( nCenter, Mex0(1:3,iT), Zex0(iT),           &
+     &                       MLT0(1:nCenter,1:3,iT), ZLT0(1:nCenter,iT),&
+     &                       MRT0(1:nCenter,1:3,iT), ZRT0(1:nCenter,iT),&
      &                       iopt, MT0(1:3,iT),  ZT0(iT)  )
-                  Call MSUM( nCenter, Mex1(1:3,iT), Zex1(iT),
-     &                       MLT1(1:nCenter,1:3,iT), ZLT1(1:nCenter,iT),
-     &                       MRT1(1:nCenter,1:3,iT), ZRT1(1:nCenter,iT),
+                  Call MSUM( nCenter, Mex1(1:3,iT), Zex1(iT),           &
+     &                       MLT1(1:nCenter,1:3,iT), ZLT1(1:nCenter,iT),&
+     &                       MRT1(1:nCenter,1:3,iT), ZRT1(1:nCenter,iT),&
      &                       iopt, MT1(1:3,iT),  ZT1(iT)  )
-                  Call MSUM( nCenter, Mex2(1:3,iT), Zex2(iT),
-     &                       MLT2(1:nCenter,1:3,iT), ZLT2(1:nCenter,iT),
-     &                       MRT2(1:nCenter,1:3,iT), ZRT2(1:nCenter,iT),
+                  Call MSUM( nCenter, Mex2(1:3,iT), Zex2(iT),           &
+     &                       MLT2(1:nCenter,1:3,iT), ZLT2(1:nCenter,iT),&
+     &                       MRT2(1:nCenter,1:3,iT), ZRT2(1:nCenter,iT),&
      &                       iopt, MT2(1:3,iT),  ZT2(iT)  )
             End Do
 
@@ -794,7 +794,7 @@ c compute the total magnetizations according to the derived formulas:
          Call Add_Info('dM/dH    MT0', [dnrm2_(ibuf, MT0,1)],1,6)
          Call Add_Info('dM/dH    MT1', [dnrm2_(ibuf, MT1,1)],1,6)
          Call Add_Info('dM/dH    MT2', [dnrm2_(ibuf, MT2,1)],1,6)
-c  computing the AVERAGE MOMENTS calculated at dIfferent temperatures (T(i))
+!  computing the AVERAGE MOMENTS calculated at dIfferent temperatures (T(i))
          Do iT=1,nTempTotal
             F1=T(iT)*cm3tomB/dltXF
             F2=T(iT)*cm3tomB/Xfield
@@ -809,71 +809,71 @@ c  computing the AVERAGE MOMENTS calculated at dIfferent temperatures (T(i))
             XTtens_MH(iM,2,iT) = MT0(2,iT)*F2
             XTtens_MH(iM,3,iT) = MT0(3,iT)*F2
          End Do
-c ///  closing the loops over field directions
+! ///  closing the loops over field directions
       End Do ! iM (nDirX)
-c computing the XT as tensor's average:
+! computing the XT as tensor's average:
       XTM_dMdH=0.0_wp
       XTM_MH  =0.0_wp
       Do iT=1,nTempTotal
-         XTM_dMdH(iT) = ( XTtens_dMdH(1,1,iT)
-     &                  + XTtens_dMdH(2,2,iT)
+         XTM_dMdH(iT) = ( XTtens_dMdH(1,1,iT)                           &
+     &                  + XTtens_dMdH(2,2,iT)                           &
      &                  + XTtens_dMdH(3,3,iT) ) / 3.0_wp
 
-         XTM_MH(iT)   = ( XTtens_MH(1,1,iT)
-     &                  + XTtens_MH(2,2,iT)
+         XTM_MH(iT)   = ( XTtens_MH(1,1,iT)                             &
+     &                  + XTtens_MH(2,2,iT)                             &
      &                  + XTtens_MH(3,3,iT)   ) / 3.0_wp
       End Do !iT
 
       ibuf=0
       ibuf=9*(nT+nTempMagn)
-      Call Add_Info('dM/dH    XTtens_dMdH',
+      Call Add_Info('dM/dH    XTtens_dMdH',                             &
      &                              [dnrm2_(ibuf,XTtens_dMdH,1)],1,5)
-      Call Add_Info('dM/dH    XTtens_MH',
+      Call Add_Info('dM/dH    XTtens_MH',                               &
      &                              [dnrm2_(ibuf,XTtens_MH,1)],1,6)
       ibuf=0
       ibuf=nT+nTempMagn
-      Call Add_Info('dM/dH    XTM_dMdH',
+      Call Add_Info('dM/dH    XTM_dMdH',                                &
      &                              [dnrm2_(ibuf,XTM_dMdH,1)],1,5)
-      Call Add_Info('dM/dH    XTM_MH',
+      Call Add_Info('dM/dH    XTM_MH',                                  &
      &                              [dnrm2_(ibuf,XTM_MH,1)],1,6)
-C -------------------------------------------------------------------
-C   WRITING SOME OF THE OUTPUT....
-C -------------------------------------------------------------------
+! -------------------------------------------------------------------
+!   WRITING SOME OF THE OUTPUT....
+! -------------------------------------------------------------------
       Write(6,*)
-      Write(6,'(A)') '----------------------------------------------'//
+      Write(6,'(A)') '----------------------------------------------'// &
      &               '----------------------------|'
-      Write(6,'(A)') '     |     T      | Statistical |   CHI*T     '//
+      Write(6,'(A)') '     |     T      | Statistical |   CHI*T     '// &
      &               '|   CHI*T     |   CHI*T     |'
-      Write(6,'(A,F6.3,A,F6.3,A)')
-     &                '     |            |  Sum (Z)    | H = 0.000 T '//
+      Write(6,'(A,F6.3,A,F6.3,A)')                                      &
+     &                '     |            |  Sum (Z)    | H = 0.000 T '//&
      &               '| H =',Xfield,' T | H =',XField,' T |'
-      Write(6,'(A)') '     |            |             |             '//
+      Write(6,'(A)') '     |            |             |             '// &
      &               '| X = dM/dH   | X = M/H     |'
-      Write(6,'(A)') '-----|----------------------------------------'//
+      Write(6,'(A)') '-----|----------------------------------------'// &
      &               '----------------------------|'
-      Write(6,'(A)') 'Units|   kelvin   |    ---      |  cm3*K/mol  '//
+      Write(6,'(A)') 'Units|   kelvin   |    ---      |  cm3*K/mol  '// &
      &               '|  cm3*K/mol  |  cm3*K/mol  |'
-      Write(6,'(A)') '-----|----------------------------------------'//
+      Write(6,'(A)') '-----|----------------------------------------'// &
      &               '----------------------------|'
 
       Do iT=1,nT
          jT=iT+nTempMagn
-         Write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,F12.7,A)')
-     & '     |',T(jT),' |', ZT0(jT),' |',XT_no_field(jT),' |',
+         Write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,F12.7,A)')        &
+     & '     |',T(jT),' |', ZT0(jT),' |',XT_no_field(jT),' |',          &
      &          XTM_dMdH(jT),' |', XTM_MH(jT), ' |'
       End Do
-      Write(6,'(A)') '-----|----------------------------------------'//
+      Write(6,'(A)') '-----|----------------------------------------'// &
      &               '----------------------------|'
 
-c  calcualtion of the standard deviation:
+!  calcualtion of the standard deviation:
       If (tinput) Then
-         Write(6,'(a,5x, f20.14)') 'ST.DEV: X= dM/dH:',
-     &          dev( nT, XTM_dMdH((1+nTempMagn):(nT+nTempMagn)),
+         Write(6,'(a,5x, f20.14)') 'ST.DEV: X= dM/dH:',                 &
+     &          dev( nT, XTM_dMdH((1+nTempMagn):(nT+nTempMagn)),        &
      &                   chit_exp((1+nTempMagn):(nT+nTempMagn))  )
-         Write(6,'(a,5x, f20.14)') 'ST.DEV: X=  M/H :',
-     &          dev( nT, XTM_MH(  (1+nTempMagn):(nT+nTempMagn)),
+         Write(6,'(a,5x, f20.14)') 'ST.DEV: X=  M/H :',                 &
+     &          dev( nT, XTM_MH(  (1+nTempMagn):(nT+nTempMagn)),        &
      &                   chit_exp((1+nTempMagn):(nT+nTempMagn))  )
-      Write(6,'(A)') '-----|----------------------------------------'//
+      Write(6,'(A)') '-----|----------------------------------------'// &
      &               '----------------------------|'
       End If !tinput
 
@@ -883,13 +883,13 @@ c  calcualtion of the standard deviation:
       FLUSH(6)
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
-            Call plot_XT_with_Exp(label, nT,
-     &                           T((1+nTempMagn):(nT+nTempMagn) ),
-     &                      XTM_MH((1+nTempMagn):(nT+nTempMagn) ),
+            Call plot_XT_with_Exp(label, nT,                            &
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),      &
+     &                      XTM_MH((1+nTempMagn):(nT+nTempMagn) ),      &
      &                    chit_exp((1+nTempMagn):(nT+nTempMagn) ) )
          ELSE
-            Call plot_XT_no_Exp(  label, nT,
-     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+            Call plot_XT_no_Exp(  label, nT,                            &
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),      &
      &                      XTM_MH((1+nTempMagn):(nT+nTempMagn) ) )
          END IF
       END IF
@@ -899,13 +899,13 @@ c  calcualtion of the standard deviation:
       FLUSH(6)
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
-            Call plot_XT_with_Exp(label, nT,
-     &                           T((1+nTempMagn):(nT+nTempMagn) ),
-     &                    XTM_dMdH((1+nTempMagn):(nT+nTempMagn) ),
+            Call plot_XT_with_Exp(label, nT,                            &
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),      &
+     &                    XTM_dMdH((1+nTempMagn):(nT+nTempMagn) ),      &
      &                    chit_exp((1+nTempMagn):(nT+nTempMagn) ) )
          ELSE
-            Call plot_XT_no_Exp(  label, nT,
-     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+            Call plot_XT_no_Exp(  label, nT,                            &
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),      &
      &                    XTM_dMdH((1+nTempMagn):(nT+nTempMagn) ) )
          END IF
       END IF
@@ -914,15 +914,15 @@ c  calcualtion of the standard deviation:
 
 
 
-c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main axes:
+! print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main axes:
       Write(6,'(/)')
       Write(6,'(111A)') ('-',i=1,110),'|'
-      Write(6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR '//
-     &                         'FOR the  X=dM/dH  model,  '//
+      Write(6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR '//     &
+     &                         'FOR the  X=dM/dH  model,  '//           &
      &                         'in cm3*K/mol','|'
       Write(6,'(111A)') ('-',i=1,110),'|'
-      Write(6,'(A)') '     T(K)   |   |          Susceptibility '//
-     &               'Tensor      |    Main Values  |           '//
+      Write(6,'(A)') '     T(K)   |   |          Susceptibility '//     &
+     &               'Tensor      |    Main Values  |           '//     &
      &               '    Main Axes             |'
       Do iT=1,nT
         jT=iT+nTempMagn
@@ -930,21 +930,21 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         wt=0.0_wp
         zt=0.0_wp
         Call DIAG_R2( XTtens_dMdH(1:3,1:3,jT) ,3,info,wt,zt)
-        Write(6,'(A)') '------------|---|'//
-     &                 '------- x --------- y --------- z ---|'//
-     &                 '-----------------|'//
+        Write(6,'(A)') '------------|---|'//                            &
+     &                 '------- x --------- y --------- z ---|'//       &
+     &                 '-----------------|'//                           &
      &                 '------ x --------- y --------- z ----|'
-        Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')
-     &                 '            | x |',
-     &                  (XTtens_dMdH(1,j,jT),j=1,3),
+        Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')                  &
+     &                 '            | x |',                             &
+     &                  (XTtens_dMdH(1,j,jT),j=1,3),                    &
      &                 ' |  X:',wt(1),'|',(zt(j,1),j=1,3),'|'
-        Write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),
-     &                             '| y |',
-     &                  (XTtens_dMdH(2,j,jT),j=1,3),
+        Write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),  &
+     &                             '| y |',                             &
+     &                  (XTtens_dMdH(2,j,jT),j=1,3),                    &
      &                 ' |  Y:',wt(2),'|',(zt(j,2),j=1,3),'|'
-        Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')
-     &                 '            | z |',
-     &                  (XTtens_dMdH(3,j,jT),j=1,3),
+        Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')                  &
+     &                 '            | z |',                             &
+     &                  (XTtens_dMdH(3,j,jT),j=1,3),                    &
      &                 ' |  Z:',wt(3),'|',(zt(j,3),j=1,3),'|'
       End Do
       Write(6,'(111A)') ('-',i=1,110),'|'
@@ -955,12 +955,12 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
       Write(6,'(/)')
       Write(6,'(111A)') ('-',i=1,110),'|'
 
-      Write(6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR '//
-     &                         'FOR the  X = M/H  model,  '//
+      Write(6,'(25X,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR '//     &
+     &                         'FOR the  X = M/H  model,  '//           &
      &                         'in cm3*K/mol','|'
       Write(6,'(111A)') ('-',i=1,110),'|'
-      Write(6,'(A)') '     T(K)   |   |          Susceptibility '//
-     &               'Tensor      |    Main Values  |           '//
+      Write(6,'(A)') '     T(K)   |   |          Susceptibility '//     &
+     &               'Tensor      |    Main Values  |           '//     &
      &               '    Main Axes             |'
       Do iT=1,nT
         jT=iT+nTempMagn
@@ -968,21 +968,21 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         wt=0.0_wp
         zt=0.0_wp
         Call DIAG_R2( XTtens_MH(1:3,1:3,jT) ,3,info,wt,zt)
-        Write(6,'(A)') '------------|---|'//
-     &                 '------- x --------- y --------- z ---|'//
-     &                 '-----------------|'//
+        Write(6,'(A)') '------------|---|'//                            &
+     &                 '------- x --------- y --------- z ---|'//       &
+     &                 '-----------------|'//                           &
      &                 '------ x --------- y --------- z ----|'
-        Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')
-     &                 '            | x |',
-     &                  (XTtens_MH(1,j,jT),j=1,3),
+        Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')                  &
+     &                 '            | x |',                             &
+     &                  (XTtens_MH(1,j,jT),j=1,3),                      &
      &                 ' |  X:',wt(1),'|',(zt(j,1),j=1,3),'|'
-        Write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),
-     &                             '| y |',
-     &                  (XTtens_MH(2,j,jT),j=1,3),
+        Write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),  &
+     &                             '| y |',                             &
+     &                  (XTtens_MH(2,j,jT),j=1,3),                      &
      &                 ' |  Y:',wt(2),'|',(zt(j,2),j=1,3),'|'
-        Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')
-     &                 '            | z |',
-     &                  (XTtens_MH(3,j,jT),j=1,3),
+        Write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)')                  &
+     &                 '            | z |',                             &
+     &                  (XTtens_MH(3,j,jT),j=1,3),                      &
      &                 ' |  Z:',wt(3),'|',(zt(j,3),j=1,3),'|'
       End Do
       Write(6,'(111A)') ('-',i=1,110),'|'

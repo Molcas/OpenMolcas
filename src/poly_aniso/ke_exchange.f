@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine KE_exchange(N1,N2,lant,t,u,OPT,HEXC)
-c this function computes the exchange+covalent contributions to Hamiltonian of a given Lanthanide
+! this function computes the exchange+covalent contributions to Hamiltonian of a given Lanthanide
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: N1, N2, OPT, lant
       Real(kind=8), intent(in)     :: t, u
       Complex(kind=8), intent(out) :: HEXC(N1,N1,N2,N2)
-c local variables
+! local variables
       Integer       :: i1,j1,i2,j2,JLn,SR,ms1,ns1,ms2,ns2
       Real(kind=8) :: HEXC1(N1,N1,N2,N2)
       Real(kind=8) :: test1, test2
@@ -48,20 +48,20 @@ c local variables
                   Do iP=0,1
                      Do iph=-1,1
                      test1=0.0_wp
-                     test1=WCG(JLn, JLn, 2*iK, 0,  JLn, JLn )
+                     test1=WCG(JLn, JLn, 2*iK, 0,  JLn, JLn )           &
      &                    *WCG( SR,  SR, 2*iP, 0,   SR,  SR )
                      test2=0.0_wp
-                     test2=WCG(JLn,  ns1, 2*iK, 2*ika, JLn,  ms1 )
+                     test2=WCG(JLn,  ns1, 2*iK, 2*ika, JLn,  ms1 )      &
      &                    *WCG( SR,  ns2, 2*iP, 2*iph,  SR,  ms2 )
                      If(test1.eq.0.0_wp) Go To 104
                      If(test2.eq.0.0_wp) Go To 104
 
-                   HEXC1(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)
-     &                           + t*t/(u+dE(lant,iLS,iJ))
-     &                           * Jx(lant,iLS,iJ, iK,ika,iP,iph)
-     &                           * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )
-     &                           * WCG( SR, ns2, 2*iP, 2*iph,  SR, ms2 )
-     &                           / WCG(JLn, JLn, 2*iK,     0, JLn, JLn )
+                   HEXC1(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)              &
+     &                           + t*t/(u+dE(lant,iLS,iJ))              &
+     &                           * Jx(lant,iLS,iJ, iK,ika,iP,iph)       &
+     &                           * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )&
+     &                           * WCG( SR, ns2, 2*iP, 2*iph,  SR, ms2 )&
+     &                           / WCG(JLn, JLn, 2*iK,     0, JLn, JLn )&
      &                           / WCG( SR,  SR, 2*iP,     0,  SR,  SR )
 
  104                 continue
@@ -84,15 +84,15 @@ c local variables
                   Do iLS=1,4
                      Do iJ=1,17
 
-                 Jfinal(iK,ika,iP,iph) = Jfinal(iK,ika,iP,iph)
-     &                           + t*t/(u+dE(lant,iLS,iJ))
+                 Jfinal(iK,ika,iP,iph) = Jfinal(iK,ika,iP,iph)          &
+     &                           + t*t/(u+dE(lant,iLS,iJ))              &
      &                           * Jx(lant,iLS,iJ, iK,ika,iP,iph)
 
                      End Do
                   End Do
       If ( ABS(Jfinal(iK,ika,iP,iph)).gt.1.d-13 ) Then
-         Write(6,'(4i4,4x,2ES24.14)') iK,ika,iP,iph,
-     &                              Jfinal(iK,ika,iP,iph),
+         Write(6,'(4i4,4x,2ES24.14)') iK,ika,iP,iph,                    &
+     &                              Jfinal(iK,ika,iP,iph),              &
      &                              Jfinal(iK,ika,iP,iph)*0.123984193_wp
       End If
                End Do
@@ -110,20 +110,20 @@ c local variables
                   Do iP=0,1
                      Do iph=-1,1
                      test1=0.0_wp
-                     test1=WCG(JLn, JLn, 2*iK, 0,  JLn, JLn )
+                     test1=WCG(JLn, JLn, 2*iK, 0,  JLn, JLn )           &
      &                    *WCG( SR,  SR, 2*iP, 0,   SR,  SR )
                      test2=0.0_wp
-                     test2=WCG(JLn,  ns1, 2*iK, 2*ika, JLn,  ms1 )
+                     test2=WCG(JLn,  ns1, 2*iK, 2*ika, JLn,  ms1 )      &
      &                    *WCG( SR,  ns2, 2*iP, 2*iph,  SR,  ms2 )
                      If(test1.eq.0.0_wp) Go To 105
                      If(test2.eq.0.0_wp) Go To 105
 
-                   HEXC1(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)
-     &                           + t*t/u
-     &                           * Jx(lant,iLS,iJ, iK,ika,iP,iph)
-     &                           * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )
-     &                           * WCG( SR, ns2, 2*iP, 2*iph,  SR, ms2 )
-     &                           / WCG(JLn, JLn, 2*iK,     0, JLn, JLn )
+                   HEXC1(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)              &
+     &                           + t*t/u                                &
+     &                           * Jx(lant,iLS,iJ, iK,ika,iP,iph)       &
+     &                           * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )&
+     &                           * WCG( SR, ns2, 2*iP, 2*iph,  SR, ms2 )&
+     &                           / WCG(JLn, JLn, 2*iK,     0, JLn, JLn )&
      &                           / WCG( SR,  SR, 2*iP,     0,  SR,  SR )
  105                 continue
                      End Do

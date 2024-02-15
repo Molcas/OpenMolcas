@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine chi_sum( N, Xex,Zex, XL,ZL, XR,ZR, iopt, X, Z )
-c   computes the total CHI, provided all input values are provided
-c   according to the desired partition scheme  (iopt = 1 or 2 )
-c   all X tensors must be given in the general coordinate system
-c
-c definition of the variables:
-c     N  -- total number of magnetic sites, Integer, input
-c    Xex -- susceptibility tensor arising form the exchange states only, Real(kind=8) :: , (3,3) array, input
-c    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=8) :: , input
-c    XL  -- susceptibility tensor arising from LOCAL states (all), Real(kind=8) :: , (N,3,3) array, input
-c    ZL  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (all), Real(kind=8) :: , (N) array, input
-c    XR  -- susceptibility tensor arising from LOCAL states (exchange only), Real(kind=8) :: , (N,3,3) array, input
-c    ZR  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (exchange only), Real(kind=8) :: , (N) array, input
-c   iopt -- option allowing to choose the desired formula, (Integer, input):
-c           iopt=1  =>  formula for weak exchange limit ( new derivation)
-c           iopt=2  =>  formula for strong exchange limit
-c           iopt=3  =>  formula for strong exchange limit
-c    X   -- total susceptibility, Real(kind=8) :: , (3,3) array, output
-c    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=8) :: , output
-c---------
-c  temporary (local) variables:
-c
+!   computes the total CHI, provided all input values are provided
+!   according to the desired partition scheme  (iopt = 1 or 2 )
+!   all X tensors must be given in the general coordinate system
+!
+! definition of the variables:
+!     N  -- total number of magnetic sites, Integer, input
+!    Xex -- susceptibility tensor arising form the exchange states only, Real(kind=8) :: , (3,3) array, input
+!    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=8) :: , input
+!    XL  -- susceptibility tensor arising from LOCAL states (all), Real(kind=8) :: , (N,3,3) array, input
+!    ZL  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (all), Real(kind=8) :: , (N) array, input
+!    XR  -- susceptibility tensor arising from LOCAL states (exchange only), Real(kind=8) :: , (N,3,3) array, input
+!    ZR  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (exchange only), Real(kind=8) :: , (N) array, input
+!   iopt -- option allowing to choose the desired formula, (Integer, input):
+!           iopt=1  =>  formula for weak exchange limit ( new derivation)
+!           iopt=2  =>  formula for strong exchange limit
+!           iopt=3  =>  formula for strong exchange limit
+!    X   -- total susceptibility, Real(kind=8) :: , (3,3) array, output
+!    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=8) :: , output
+!---------
+!  temporary (local) variables:
+!
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)       :: N, iopt
@@ -37,7 +37,7 @@ c
       Real(kind=8), intent(in) :: XL(N,3,3), ZL(N)
       Real(kind=8), intent(in) :: XR(N,3,3), ZR(N)
       Real(kind=8), intent(out):: X(3,3), Z
-c local variables
+! local variables
       Integer       :: i, ic, jc
       Real(kind=8) :: ZLT, ZRT, XLT(3,3), XRT(3,3)
 
@@ -98,8 +98,8 @@ c local variables
               XLT(ic,jc) = XLT(ic,jc) + XL(i,ic,jc)
               XRT(ic,jc) = XRT(ic,jc) + XR(i,ic,jc)
             End Do
-                X(ic,jc) = ( XLT(ic,jc)*ZLT
-     &                     - XRT(ic,jc)*ZRT
+                X(ic,jc) = ( XLT(ic,jc)*ZLT                             &
+     &                     - XRT(ic,jc)*ZRT                             &
      &                     + Xex(ic,jc)*Zex ) / Z
           End Do
         End Do

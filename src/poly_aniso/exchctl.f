@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine exchctl( exch, nneq, neqv, neq, nexch, nmax,
-     &                    lmax, npair, i_pair, MxRank1, MxRank2,
-     &                    imaxrank,
-     &                    Jex, JAex, JAex9,
-     &                    JDMex, JITOexR, JITOexI, eso, SM,  MM,
-     &                    coord, rot, rlg, riso,
-     &                    tpar, upar, lant, itype,
-     &                    Dipol, AnisoLines1, AnisoLines3, AnisoLines9,
-     &                    KE, KEOPT, DM_exchange, JITO_exchange,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine exchctl( exch, nneq, neqv, neq, nexch, nmax,           &
+     &                    lmax, npair, i_pair, MxRank1, MxRank2,        &
+     &                    imaxrank,                                     &
+     &                    Jex, JAex, JAex9,                             &
+     &                    JDMex, JITOexR, JITOexI, eso, SM,  MM,        &
+     &                    coord, rot, rlg, riso,                        &
+     &                    tpar, upar, lant, itype,                      &
+     &                    Dipol, AnisoLines1, AnisoLines3, AnisoLines9, &
+     &                    KE, KEOPT, DM_exchange, JITO_exchange,        &
      &                    W,  Z,  S,   M, iPrint, mem  )
 
 
@@ -49,11 +49,11 @@
       Real(kind=8), intent(in)     :: JAex(npair,3)
       Real(kind=8), intent(in)     :: JDMex(npair,3)
       Real(kind=8), intent(in)     :: JAex9(npair,3,3)
-      Real(kind=8), intent(in)     ::
-     &                          JITOexR(nPair,MxRank1,-MxRank1:MxRank1,
+      Real(kind=8), intent(in)     ::                                   &
+     &                          JITOexR(nPair,MxRank1,-MxRank1:MxRank1, &
      &                                        MxRank2,-MxRank2:MxRank2)
-      Real(kind=8), intent(in)     ::
-     &                          JITOexI(nPair,MxRank1,-MxRank1:MxRank1,
+      Real(kind=8), intent(in)     ::                                   &
+     &                          JITOexI(nPair,MxRank1,-MxRank1:MxRank1, &
      &                                        MxRank2,-MxRank2:MxRank2)
       Real(kind=8), intent(in)     :: coord(nneq,3)
       Real(kind=8), intent(in)     :: rot(nneq,neqv,3,3)
@@ -83,8 +83,8 @@
       Complex(kind=8), intent(out) :: M(3,exch,exch)
 !------------------------------------------------------------------
       ! local variables
-      Integer                       :: i,j,l,lp,lb1,lb2,nb,nb1,nb2,
-     &                                 isite,is1,js1,i1,i2,j1,j2,k,
+      Integer                       :: i,j,l,lp,lb1,lb2,nb,nb1,nb2,     &
+     &                                 isite,is1,js1,i1,i2,j1,j2,k,     &
      &                                 ibuf,q1,q2,k1,k2,n1,n2
       Integer                       :: norder
       Integer                       :: NmaxPop
@@ -128,7 +128,7 @@
       Complex(kind=8), allocatable :: HITO(:,:,:,:,:)
 !                                      HITO(npair,nmax,nmax,nmax,nmax)
       Complex(kind=8), allocatable :: tmp(:,:) ! tmp(exch,exch)
-c two options for KE:
+! two options for KE:
       Integer                       :: KEOPT
       Integer, parameter            :: exchR=8
       Integer                       :: nmaxR
@@ -146,10 +146,10 @@ c two options for KE:
       Complex(kind=8), allocatable :: SR(:,:,:) ! SR(3,exchR,exchR)
       Complex(kind=8), allocatable :: SMR(:,:,:,:) ! SMR(nneq,3,2,2)
       Complex(kind=8), allocatable :: MMR(:,:,:,:) ! MMR(nneq,3,2,2)
-c      Complex(kind=8) ::  JAllDip(npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
-c      Complex(kind=8) ::  JAllEx( npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
-c      Real(kind=8) ::  J1Dip(npair,3,3)
-c      Real(kind=8) ::  J1Ex(npair,3,3)
+!      Complex(kind=8) ::  JAllDip(npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
+!      Complex(kind=8) ::  JAllEx( npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
+!      Real(kind=8) ::  J1Dip(npair,3,3)
+!      Real(kind=8) ::  J1Ex(npair,3,3)
       Real(kind=8)    :: mg1(3,3), mg2(3,3)
       Integer          :: CtoB, RtoB, ItoB, mem_local
       Logical          :: DBG !, testlines
@@ -157,7 +157,7 @@ c      Real(kind=8) ::  J1Ex(npair,3,3)
       External         :: norder, dnrm2_  !,ilaenv
 
       DBG=.false.
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       If(DBG) Then
          Write(6,'(A)') 'Enter EXCHCTL'
          Write(6,'(A,  i8)') 'exch   = ',exch
@@ -179,28 +179,28 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          Write(6,'(A,  L2)') 'JITO_exchange= ',JITO_exchange
          If ( AnisoLines1 ) Then
             Do i=1, nPair
-              Write(6,'(A,2I4,F10.5)') 'LIN1', i_pair(i,1), i_pair(i,2),
+              Write(6,'(A,2I4,F10.5)') 'LIN1', i_pair(i,1), i_pair(i,2),&
      &                                Jex(i)
             End Do
          End If
 
          If ( AnisoLines3 ) Then
            Do i=1, nPair
-             Write(6,'(A,2I4,3F10.5)') 'LIN3', i_pair(i,1), i_pair(i,2),
+             Write(6,'(A,2I4,3F10.5)') 'LIN3', i_pair(i,1), i_pair(i,2),&
      &                              (JAex(i,j),j=1,3)
            End Do
          End If
 
          If( AnisoLines9 ) Then
            Do i=1, nPair
-             Write(6,'(A,2I4,9F10.5)') 'LIN9', i_pair(i,1), i_pair(i,2),
+             Write(6,'(A,2I4,9F10.5)') 'LIN9', i_pair(i,1), i_pair(i,2),&
      &                              ((JAex9(i,j,k),j=1,3),k=1,3)
            End Do
          End If
 
          If(DM_exchange) Then
             Do i=1,nPair
-           Write(6,'(A,2I4,3F10.5)') 'DMEX', i_pair(i,1), i_pair(i,2),
+           Write(6,'(A,2I4,3F10.5)') 'DMEX', i_pair(i,1), i_pair(i,2),  &
      &                              (JDMex(i,j),j=1,3)
             End Do
          End If
@@ -214,13 +214,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          If(JITO_exchange) Then
             Do i=1,nPair
-           Write(6,'(A,4I4,3F10.5)') 'ITOJ', i_pair(i,1), i_pair(i,2),
+           Write(6,'(A,4I4,3F10.5)') 'ITOJ', i_pair(i,1), i_pair(i,2),  &
      &                          imaxrank(i,1),imaxrank(i,2)
               Do k1=1,imaxrank(i,1),2
                Do q1=-k1,k1
                 Do k2=1,imaxrank(i,2),2
                  Do q2=-k2,k2
-                  Write(6,'(4I3,2x,2ES21.14)') k1,q1,k2,q2,
+                  Write(6,'(4I3,2x,2ES21.14)') k1,q1,k2,q2,             &
      &                JITOexR(i,k1,q1,k2,q2), JITOexI(i,k1,q1,k2,q2)
                  End Do
                 End Do
@@ -411,7 +411,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       If(dbg) Then
         Write(6,'(34x,A,1x,20i3)')  'site Nr.', (i,i=1,lmax)
         Do nb=1,exch
-          Write(6,'(A,i5,A,20i3)') 'COUPLING: basis set:  ibas(',nb,
+          Write(6,'(A,i5,A,20i3)') 'COUPLING: basis set:  ibas(',nb,    &
      &                             ' ,isite) = ',(ibas(nb,i)+1,i=1,lmax)
         End Do
       End If ! dbg
@@ -435,13 +435,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! find local pseudospin and rotate the spin and magnetic moment
         ! to the local pseudospin basis
         If(itype(i1)=='A') Then
-         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),
-     &                           SM(i1,1:3,1:n1,1:n1),
+         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),                &
+     &                           SM(i1,1:3,1:n1,1:n1),                  &
      &                           MM(i1,1:3,1:n1,1:n1), mg1, .true. )
         End If
         If(itype(i2)=='A') Then
-         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),
-     &                           SM(i2,1:3,1:n2,1:n2),
+         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),                &
+     &                           SM(i2,1:3,1:n2,1:n2),                  &
      &                           MM(i2,1:3,1:n2,1:n2), mg2, .true. )
         End If
 
@@ -451,9 +451,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         Call prMom('SM(i2) bf Lines1',SM(i2,1:3,1:n2,1:n2),n2)
 
         ! build the Lines exchange matrix:
-        Call Lines_Exchange( Jex(lp), n1, n2,
-     &                       SM(i1,1:3,1:n1,1:n1),
-     &                       SM(i2,1:3,1:n2,1:n2),
+        Call Lines_Exchange( Jex(lp), n1, n2,                           &
+     &                       SM(i1,1:3,1:n1,1:n1),                      &
+     &                       SM(i2,1:3,1:n2,1:n2),                      &
      &              HLIN1(lp,1:n1,1:n1,1:n2,1:n2) )
 
         If(dbg) Then
@@ -465,7 +465,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           Do j=1,n1
            Do k=1,n2
             Do l=1,n2
-              Write(6,'(4(a,i2),a,2ES24.14)')
+              Write(6,'(4(a,i2),a,2ES24.14)')                           &
      &         'HLIN1(',i,',',j,',',k,',',l,') = ',HLIN1(lp,i,j,k,l)
             End Do
            End Do
@@ -501,20 +501,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! find local pseudospin and rotate the spin and magnetic moment
         ! to the local pseudospin basis
         If(itype(i1)=='A') Then
-         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),
-     &                            SM(i1,1:3,1:n1,1:n1),
+         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),                &
+     &                            SM(i1,1:3,1:n1,1:n1),                 &
      &                            MM(i1,1:3,1:n1,1:n1), mg1, dbg )
         End If
 
         If(itype(i2)=='A') Then
-         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),
-     &                            SM(i2,1:3,1:n2,1:n2),
+         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),                &
+     &                            SM(i2,1:3,1:n2,1:n2),                 &
      &                            MM(i2,1:3,1:n2,1:n2), mg2, dbg )
         End If
 
-        Call Aniso_Lines_Exchange3( JAex(lp,1:3), n1, n2,
-     &                              SM(i1,1:3,1:n1,1:n1),
-     &                              SM(i2,1:3,1:n2,1:n2),
+        Call Aniso_Lines_Exchange3( JAex(lp,1:3), n1, n2,               &
+     &                              SM(i1,1:3,1:n1,1:n1),               &
+     &                              SM(i2,1:3,1:n2,1:n2),               &
      &                     HLIN3(lp,1:n1,1:n1,1:n2,1:n2) )
 
         If(dbg) Then
@@ -523,7 +523,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           Do j=1,n1
            Do k=1,n2
             Do l=1,n2
-              Write(6,'(4(a,i2),a,2ES24.14)')
+              Write(6,'(4(a,i2),a,2ES24.14)')                           &
      &         'HLIN3(',i,',',j,',',k,',',l,') = ',HLIN3(lp,i,j,k,l)
             End Do
            End Do
@@ -558,13 +558,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! find local pseudospin and rotate the spin and magnetic moment
         ! to the local pseudospin basis
         If(itype(i1)=='A') Then
-         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),
-     &                            SM(i1,1:3,1:n1,1:n1),
+         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),                &
+     &                            SM(i1,1:3,1:n1,1:n1),                 &
      &                            MM(i1,1:3,1:n1,1:n1), mg1, dbg )
         End If
         If(itype(i2)=='A') Then
-         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),
-     &                            SM(i2,1:3,1:n2,1:n2),
+         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),                &
+     &                            SM(i2,1:3,1:n2,1:n2),                 &
      &                            MM(i2,1:3,1:n2,1:n2), mg2, dbg )
         End If
         ! rotate the input J matrix by the mg1 and mg2
@@ -572,9 +572,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         If(dbg) Call prMom('SM(i2) bf Lines9',SM(i2,1:3,1:n2,1:n2),n2)
 
 
-        Call Aniso_Lines_Exchange9( JAex9(lp,1:3,1:3), n1, n2,
-     &                              SM(i1,1:3,1:n1,1:n1),
-     &                              SM(i2,1:3,1:n2,1:n2),
+        Call Aniso_Lines_Exchange9( JAex9(lp,1:3,1:3), n1, n2,          &
+     &                              SM(i1,1:3,1:n1,1:n1),               &
+     &                              SM(i2,1:3,1:n2,1:n2),               &
      &                     HLIN9(lp,1:n1,1:n1,1:n2,1:n2) )
 
 
@@ -586,7 +586,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           Do j=1,n1
            Do k=1,n2
             Do l=1,n2
-              Write(6,'(4(a,i2),a,2ES24.14)')
+              Write(6,'(4(a,i2),a,2ES24.14)')                           &
      &         'HLIN9(',i,',',j,',',k,',',l,') = ',HLIN9(lp,i,j,k,l)
             End Do
            End Do
@@ -618,28 +618,28 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         vect(1:3)=0.0_wp
         dist=0.0_wp
-        Call dirvect( coord(i1,1:3), rlg(i1,j1,1:3,1:3),
-     &                coord(i2,1:3), rlg(i2,j2,1:3,1:3),
+        Call dirvect( coord(i1,1:3), rlg(i1,j1,1:3,1:3),                &
+     &                coord(i2,1:3), rlg(i2,j2,1:3,1:3),                &
      &                vect(1:3), dist )
-        If(DBG) Write(6,'(A,i3,3ES20.12,2x,ES20.12)')
-     &                  'EXCHCTL: DIPOL: lp, vect, R:',
+        If(DBG) Write(6,'(A,i3,3ES20.12,2x,ES20.12)')                   &
+     &                  'EXCHCTL: DIPOL: lp, vect, R:',                 &
      &                                   lp,(vect(i),i=1,3), dist
         ! find local pseudospin and rotate the spin and magnetic moment
         ! to the local pseudospin basis
         If(itype(i1)=='A') Then
-         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),
-     &                            SM(i1,1:3,1:n1,1:n1),
+         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),                &
+     &                            SM(i1,1:3,1:n1,1:n1),                 &
      &                            MM(i1,1:3,1:n1,1:n1), mg1, dbg )
         End If
         If(itype(i2)=='A') Then
-         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),
-     &                            SM(i2,1:3,1:n2,1:n2),
+         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),                &
+     &                            SM(i2,1:3,1:n2,1:n2),                 &
      &                            MM(i2,1:3,1:n2,1:n2), mg2, dbg )
         End If
 
-        Call Dipol_Exchange( n1, n2, vect(1:3), dist,
-     &                       MM(i1,1:3,1:n1,1:n1),
-     &                       MM(i2,1:3,1:n2,1:n2),
+        Call Dipol_Exchange( n1, n2, vect(1:3), dist,                   &
+     &                       MM(i1,1:3,1:n1,1:n1),                      &
+     &                       MM(i2,1:3,1:n2,1:n2),                      &
      &               HDIP(lp,1:n1,1:n1,1:n2,1:n2) )
 
         If(dbg) Then
@@ -648,7 +648,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           Do j=1,n1
            Do k=1,n2
             Do l=1,n2
-              Write(6,'(4(a,i2),a,2ES24.14)')
+              Write(6,'(4(a,i2),a,2ES24.14)')                           &
      &         'HDIP (',i,',',j,',',k,',',l,') = ',HDIP(lp,i,j,k,l)
             End Do
            End Do
@@ -682,19 +682,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! find local pseudospin and rotate the spin and magnetic moment
         ! to the local pseudospin basis
         If(itype(i1)=='A') Then
-         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),
-     &                            SM(i1,1:3,1:n1,1:n1),
+         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),                &
+     &                            SM(i1,1:3,1:n1,1:n1),                 &
      &                            MM(i1,1:3,1:n1,1:n1), mg1, dbg )
         End If
         If(itype(i2)=='A') Then
-         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),
-     &                            SM(i2,1:3,1:n2,1:n2),
+         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),                &
+     &                            SM(i2,1:3,1:n2,1:n2),                 &
      &                            MM(i2,1:3,1:n2,1:n2), mg2, dbg )
         End If
 
-        Call Dzyaloshinsky_Morya_Exchange( JDMex(lp,1:3), n1, n2,
-     &                                     SM(i1,1:3,1:n1,1:n1),
-     &                                     SM(i2,1:3,1:n2,1:n2),
+        Call Dzyaloshinsky_Morya_Exchange( JDMex(lp,1:3), n1, n2,       &
+     &                                     SM(i1,1:3,1:n1,1:n1),        &
+     &                                     SM(i2,1:3,1:n2,1:n2),        &
      &                             HDMO(lp,1:n1,1:n1,1:n2,1:n2) )
         If(dbg) Then
          Write(6,'(A,i2)') 'Exchange matrix for pair = ',lp
@@ -702,7 +702,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           Do j=1,n1
            Do k=1,n2
             Do l=1,n2
-              Write(6,'(4(a,i2),a,2ES24.14)')
+              Write(6,'(4(a,i2),a,2ES24.14)')                           &
      &         'HDMO (',i,',',j,',',k,',',l,') = ',HDMO(lp,i,j,k,l)
             End Do
            End Do
@@ -736,23 +736,23 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! find local pseudospin and rotate the spin and magnetic moment
         ! to the local pseudospin basis
         If(itype(i1)=='A') Then
-         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),
-     &                            SM(i1,1:3,1:n1,1:n1),
+         Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),                &
+     &                            SM(i1,1:3,1:n1,1:n1),                 &
      &                            MM(i1,1:3,1:n1,1:n1), mg1, dbg )
         End If
         If(itype(i2)=='A') Then
-         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),
-     &                            SM(i2,1:3,1:n2,1:n2),
+         Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),                &
+     &                            SM(i2,1:3,1:n2,1:n2),                 &
      &                            MM(i2,1:3,1:n2,1:n2), mg2, dbg )
         End If
 
         ! using Naoya's ITO:, in general coordinate system
-        Call JITO_Exchange_Int( MxRank1, MxRank2, imaxrank(lp,1:2),
-     &                          n1, n2,
-     &                    JITOexR(lp,1:MxRank1,-MxRank1:MxRank1,
-     &                               1:MxRank2,-MxRank2:MxRank2 ),
-     &                    JITOexI(lp,1:MxRank1,-MxRank1:MxRank1,
-     &                               1:MxRank2,-MxRank2:MxRank2 ),
+        Call JITO_Exchange_Int( MxRank1, MxRank2, imaxrank(lp,1:2),     &
+     &                          n1, n2,                                 &
+     &                    JITOexR(lp,1:MxRank1,-MxRank1:MxRank1,        &
+     &                               1:MxRank2,-MxRank2:MxRank2 ),      &
+     &                    JITOexI(lp,1:MxRank1,-MxRank1:MxRank1,        &
+     &                               1:MxRank2,-MxRank2:MxRank2 ),      &
      &                    HITO(lp,1:n1,1:n1,1:n2,1:n2) )
         If(dbg) Then
          Write(6,'(A,i2)') 'Exchange matrix for pair = ',lp
@@ -760,7 +760,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           Do j=1,n1
            Do k=1,n2
             Do l=1,n2
-              Write(6,'(4(a,i2),a,2ES24.14)')
+              Write(6,'(4(a,i2),a,2ES24.14)')                           &
      &         'HITO (',i,',',j,',',k,',',l,') = ',HITO(lp,i,j,k,l)
             End Do
            End Do
@@ -805,13 +805,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           Call zcopy_(3*n2*n2,[(0.0_wp,0.0_wp)],0, S2,1)
           Call zcopy_(3*n1*n1,[(0.0_wp,0.0_wp)],0, M1,1)
           Call zcopy_(3*n2*n2,[(0.0_wp,0.0_wp)],0, M2,1)
-          Call rotmom2( MM(i1,1:3,1:n1,1:n1), n1, rot(i1,j1,1:3,1:3),
+          Call rotmom2( MM(i1,1:3,1:n1,1:n1), n1, rot(i1,j1,1:3,1:3),   &
      &                  M1(1:3,1:n1,1:n1) )
-          Call rotmom2( SM(i1,1:3,1:n1,1:n1), n1, rot(i1,j1,1:3,1:3),
+          Call rotmom2( SM(i1,1:3,1:n1,1:n1), n1, rot(i1,j1,1:3,1:3),   &
      &                  S1(1:3,1:n1,1:n1) )
-          Call rotmom2( MM(i2,1:3,1:n2,1:n2), n2, rot(i2,j2,1:3,1:3),
+          Call rotmom2( MM(i2,1:3,1:n2,1:n2), n2, rot(i2,j2,1:3,1:3),   &
      &                  M2(1:3,1:n2,1:n2) )
-          Call rotmom2( SM(i2,1:3,1:n2,1:n2), n2, rot(i2,j2,1:3,1:3),
+          Call rotmom2( SM(i2,1:3,1:n2,1:n2), n2, rot(i2,j2,1:3,1:3),   &
      &                  S2(1:3,1:n2,1:n2) )
           ! KEOPT=1 ! FULL
           ! KEOPT=2 ! Full, 1/U
@@ -895,14 +895,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               Write(6,'(A)')'site Ln'
               Do i=1,2
                 Do j=1,2
-                  Write(6,'(3(A,i1),A,3(2F20.14,2x))')
+                  Write(6,'(3(A,i1),A,3(2F20.14,2x))')                  &
      &              'MMR(',i1,',L,',i,',',j,')= ',(MMR(i1,l,i,j),l=1,3)
                 End Do
               End Do
               Write(6,'(/)')
               Do i=1,2
                 Do j=1,2
-                  Write(6,'(3(A,i1),A,3(2F20.14,2x))')
+                  Write(6,'(3(A,i1),A,3(2F20.14,2x))')                  &
      &              'SMR(',i1,',L,',i,',',j,')= ',(SMR(i1,l,i,j),l=1,3)
                 End Do
               End Do
@@ -910,14 +910,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               Write(6,'(A)')'site Radical'
               Do i=1,2
                 Do j=1,2
-                  Write(6,'(3(A,i1),A,3(2F20.14,2x))')
+                  Write(6,'(3(A,i1),A,3(2F20.14,2x))')                  &
      &              'MMR(',i2,',L,',i,',',j,')= ',(MMR(i2,l,i,j),l=1,3)
                 End Do
               End Do
               Write(6,'(/)')
               Do i=1,2
                 Do j=1,2
-                  Write(6,'(3(A,i1),A,3(2F20.14,2x))')
+                  Write(6,'(3(A,i1),A,3(2F20.14,2x))')                  &
      &              'SMR(',i2,',L,',i,',',j,')= ',(SMR(i2,l,i,j),l=1,3)
                 End Do
               End Do
@@ -952,7 +952,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               nb1=nb1-ibasR(nb,lmax-i+1)*intcR(lmax-i+1)
             End Do
           End Do
-cccc----------------------------------------------------------------------------------
+!ccc----------------------------------------------------------------------------------
           HLIN1=(0.0_wp,0.0_wp)
           HLIN3=(0.0_wp,0.0_wp)
           HLIN9=(0.0_wp,0.0_wp)
@@ -966,41 +966,41 @@ cccc----------------------------------------------------------------------------
           WR=0.0_wp
           ZR=(0.0_wp,0.0_wp)
           ! print the Exchange Hamiltonian:
-          Call pa_prham( exchR, npair, i_pair,  nneq,   neq, nexchR,
-     &                   nmaxR,
-     &                lmax, eso(1:nneq,1:nmaxR),
-     &                HLIN1(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HLIN3(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HLIN9(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HDIP(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &               HKEXR(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HDMO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HITO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE,
+          Call pa_prham( exchR, npair, i_pair,  nneq,   neq, nexchR,    &
+     &                   nmaxR,                                         &
+     &                lmax, eso(1:nneq,1:nmaxR),                        &
+     &                HLIN1(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),   &
+     &                HLIN3(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),   &
+     &                HLIN9(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),   &
+     &                HDIP(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),    &
+     &               HKEXR(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),    &
+     &                HDMO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),    &
+     &                HITO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),    &
+     &                Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE, &
      &                DM_exchange, .False. )
           ! diagonalize the Hamiltonian:
-          Call pa_diagham( exchR, npair, i_pair, nneq, neq, nexchR,
-     &                     nmaxR,
-     &                lmax, eso(1:nneq,1:nmaxR),
-     &                HLIN1(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HLIN3(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HLIN9(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HDIP(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &               HKEXR(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HDMO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                HITO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),
-     &                Dipol, .False.,
-     &                AnisoLines1, AnisoLines3, AnisoLines9, KE,.False.,
-     &                WLIN1(1:exchR), WLIN3(1:exchR), WLIN9(1:exchR),
-     &                WLIN(1:exchR), WDIP(1:exchR), WKEX(1:exchR),
-     &                WDMO(1:exchR), WITO(1:exchR),
+          Call pa_diagham( exchR, npair, i_pair, nneq, neq, nexchR,     &
+     &                     nmaxR,                                       &
+     &                lmax, eso(1:nneq,1:nmaxR),                        &
+     &                HLIN1(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),   &
+     &                HLIN3(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),   &
+     &                HLIN9(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),   &
+     &                HDIP(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),    &
+     &               HKEXR(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),    &
+     &                HDMO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),    &
+     &                HITO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),    &
+     &                Dipol, .False.,                                   &
+     &                AnisoLines1, AnisoLines3, AnisoLines9, KE,.False.,&
+     &                WLIN1(1:exchR), WLIN3(1:exchR), WLIN9(1:exchR),   &
+     &                WLIN(1:exchR), WDIP(1:exchR), WKEX(1:exchR),      &
+     &                WDMO(1:exchR), WITO(1:exchR),                     &
      &                  WR(1:exchR), ZR(1:exchR,1:exchR) )
           ! print the resulting eigenstates:
-          Call pa_preigen( exchR,  lmax,   ibasR,  Dipol,
-     &                     AnisoLines1, AnisoLines3, AnisoLines9, KE,
-     &                     .False., .False.,
-     &                     WLIN(1:exchR), WDIP(1:exchR),
-     &                     WKEX(1:exchR), WDMO(1:exchR), WITO(1:exchR),
+          Call pa_preigen( exchR,  lmax,   ibasR,  Dipol,               &
+     &                     AnisoLines1, AnisoLines3, AnisoLines9, KE,   &
+     &                     .False., .False.,                            &
+     &                     WLIN(1:exchR), WDIP(1:exchR),                &
+     &                     WKEX(1:exchR), WDMO(1:exchR), WITO(1:exchR), &
      &                     WR(1:exchR), ZR(1:exchR,1:exchR), 0 )
           ! compute the moments:
           rotR=0.0_wp
@@ -1028,41 +1028,41 @@ cccc----------------------------------------------------------------------------
                 Do js1=1,nexchR(i1)
                   icoord(isite)=js1-1
                   nb2=norder(icoord,intcR,lmax)
-                  MR( l, nb1, nb2 ) = MR( l, nb1, nb2 ) +
-     &                  rotR( i1, j1, l, 1 ) * MMR( i1, 1, is1, js1 )
-     &                 +rotR( i1, j1, l, 2 ) * MMR( i1, 2, is1, js1 )
+                  MR( l, nb1, nb2 ) = MR( l, nb1, nb2 ) +               &
+     &                  rotR( i1, j1, l, 1 ) * MMR( i1, 1, is1, js1 )   &
+     &                 +rotR( i1, j1, l, 2 ) * MMR( i1, 2, is1, js1 )   &
      &                 +rotR( i1, j1, l, 3 ) * MMR( i1, 3, is1, js1 )
-                  SR( l, nb1, nb2 ) = SR( l, nb1, nb2 ) +
-     &                  rotR( i1, j1, l, 1 ) * SMR( i1, 1, is1, js1 )
-     &                 +rotR( i1, j1, l, 2 ) * SMR( i1, 2, is1, js1 )
+                  SR( l, nb1, nb2 ) = SR( l, nb1, nb2 ) +               &
+     &                  rotR( i1, j1, l, 1 ) * SMR( i1, 1, is1, js1 )   &
+     &                 +rotR( i1, j1, l, 2 ) * SMR( i1, 2, is1, js1 )   &
      &                 +rotR( i1, j1, l, 3 ) * SMR( i1, 3, is1, js1 )
 
                 End Do  ! js1
               End Do  ! nb1
             End Do  ! isite
             TMP(:,:)=(0.0_wp,0.0_wp)
-            Call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,
-     &                  (1.0_wp,0.0_wp), ZR,EXCHR,
-     &                                   MR(L,:,:), EXCHR,
+            Call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,                      &
+     &                  (1.0_wp,0.0_wp), ZR,EXCHR,                      &
+     &                                   MR(L,:,:), EXCHR,              &
      &                  (0.0_wp,0.0_wp), TMP, EXCHR )
             MR(L,:,:)=(0.0_wp,0.0_wp)
-            Call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,
-     &                  (1.0_wp,0.0_wp),TMP,EXCHR,
-     &                                   ZR, EXCHR,
+            Call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,                      &
+     &                  (1.0_wp,0.0_wp),TMP,EXCHR,                      &
+     &                                   ZR, EXCHR,                     &
      &                  (0.0_wp,0.0_wp), MR(L,:,:), EXCHR )
             TMP(:,:)=(0.0_wp,0.0_wp)
-            Call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,
-     &                  (1.0_wp,0.0_wp), ZR, EXCHR,
-     &                                   SR(L,:,:), EXCHR,
+            Call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,                      &
+     &                  (1.0_wp,0.0_wp), ZR, EXCHR,                     &
+     &                                   SR(L,:,:), EXCHR,              &
      &                  (0.0_wp,0.0_wp), TMP, EXCHR )
             SR(L,:,:)=(0.0_wp,0.0_wp)
-            Call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,
-     &                  (1.0_wp,0.0_wp),TMP, EXCHR,
-     &                                   ZR, EXCHR,
+            Call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,                      &
+     &                  (1.0_wp,0.0_wp),TMP, EXCHR,                     &
+     &                                   ZR, EXCHR,                     &
      &                  (0.0_wp,0.0_wp), SR(L,:,:), EXCHR )
             Do is1=1,8
               Do js1=1,8
-                Write(6,'(3(A,i1),A,2F20.14)') 'MR(',l,',',
+                Write(6,'(3(A,i1),A,2F20.14)') 'MR(',l,',',             &
      &                     is1,',',js1,') = ',MR(l,is1,js1)
               End Do
             End Do
@@ -1070,12 +1070,12 @@ cccc----------------------------------------------------------------------------
           ! print the localized moments on sites:
           nsta=exchR
           ! assuming max 10 equivalent magnetic sites
-          Call momloc2(nsta, nmaxR, nneq, neq, neqv,
-     &                rotR(1:nneq,1:10,:,:), lmax, nexchR,
-     &                wR(1:nsta),zR(1:nsta,1:nsta),
-     &                MR(1:3,1:nsta,1:nsta),
-     &                SR(1:3,1:nsta,1:nsta),
-     &                MMR(1:nneq,1:3,1:nmaxR,1:nmaxR),
+          Call momloc2(nsta, nmaxR, nneq, neq, neqv,                    &
+     &                rotR(1:nneq,1:10,:,:), lmax, nexchR,              &
+     &                wR(1:nsta),zR(1:nsta,1:nsta),                     &
+     &                MR(1:3,1:nsta,1:nsta),                            &
+     &                SR(1:3,1:nsta,1:nsta),                            &
+     &                MMR(1:nneq,1:3,1:nmaxR,1:nmaxR),                  &
      &                SMR(1:nneq,1:3,1:nmaxR,1:nmaxR) )
 
           Call WarningMessage(2,'Wrong code in poly_aniso/exchctl.f')
@@ -1088,9 +1088,9 @@ cccc----------------------------------------------------------------------------
       End If !KE
 
 
-c--------------------------------------------------------------
-c ALL exchange couplings for all pairs are now known.
-c printout the Hamiltonians:
+!--------------------------------------------------------------
+! ALL exchange couplings for all pairs are now known.
+! printout the Hamiltonians:
       If(DBG) Then
         Write(6,'(A,i5)') 'exch  = ',exch
         Write(6,'(A,i5)') 'npair = ',npair
@@ -1105,8 +1105,8 @@ c printout the Hamiltonians:
         Write(6,*) 'JITO  = ',JITO_exchange
         Write(6,*) 'KE    = ',KE
         Do i=1,npair
-          Write(6,'(A,i2,A,i3,3x,A,i2,A,i3)')
-     &                       'i_pair(',i,',1) = ',i_pair(i,1),
+          Write(6,'(A,i2,A,i3,3x,A,i2,A,i3)')                           &
+     &                       'i_pair(',i,',1) = ',i_pair(i,1),          &
      &                       'i_pair(',i,',2) = ',i_pair(i,2)
         End Do
         Do i=1,nneq
@@ -1116,7 +1116,7 @@ c printout the Hamiltonians:
           Write(6,'(A,i2,A,i3)')    ' nexch(',i,') = ',neq(i)
         End Do
         Do i=1,nneq
-          Write(6,'(A,i2,A,100F10.3)') '   eso(',i,') = ',
+          Write(6,'(A,i2,A,100F10.3)') '   eso(',i,') = ',              &
      &                                (eso(i,j),j=1,nexch(i))
         End Do
         Call xFlush(6)
@@ -1125,25 +1125,25 @@ c printout the Hamiltonians:
 
       If((iPrint > 2).OR.(DBG)) Then
       ! print the Exchange Hamiltonian:
-      Call pa_prham( exch, npair, i_pair, nneq,
-     &               neq, nexch, nmax, lmax, eso,
-     &               HLIN1, HLIN3, HLIN9, HDIP, HKEX, HDMO, HITO,
-     &               Dipol, AnisoLines1, AnisoLines3, AnisoLines9,
+      Call pa_prham( exch, npair, i_pair, nneq,                         &
+     &               neq, nexch, nmax, lmax, eso,                       &
+     &               HLIN1, HLIN3, HLIN9, HDIP, HKEX, HDMO, HITO,       &
+     &               Dipol, AnisoLines1, AnisoLines3, AnisoLines9,      &
      &               KE, DM_exchange, JITO_exchange )
       End If
 
       ! diagonalize the Hamiltonian:
-      Call pa_diagham( exch, npair, i_pair,  nneq,   neq, nexch, nmax,
-     &              lmax,   eso,   HLIN1, HLIN3, HLIN9,  HDIP,
-     &              HKEX, HDMO, HITO, Dipol, DM_exchange, AnisoLines1,
-     &              AnisoLines3, AnisoLines9, KE, JITO_exchange,
-     &              WLIN1, WLIN3, WLIN9, WLIN, WDIP, WKEX, WDMO, WITO,
+      Call pa_diagham( exch, npair, i_pair,  nneq,   neq, nexch, nmax,  &
+     &              lmax,   eso,   HLIN1, HLIN3, HLIN9,  HDIP,          &
+     &              HKEX, HDMO, HITO, Dipol, DM_exchange, AnisoLines1,  &
+     &              AnisoLines3, AnisoLines9, KE, JITO_exchange,        &
+     &              WLIN1, WLIN3, WLIN9, WLIN, WDIP, WKEX, WDMO, WITO,  &
      &              W, Z )
 
       ! printout the resulting eigenstates:
-      Call pa_preigen( exch,  lmax,  ibas, Dipol, AnisoLines1,
-     &                 AnisoLines3, AnisoLines9, KE, DM_exchange,
-     &                 JITO_exchange,
+      Call pa_preigen( exch,  lmax,  ibas, Dipol, AnisoLines1,          &
+     &                 AnisoLines3, AnisoLines9, KE, DM_exchange,       &
+     &                 JITO_exchange,                                   &
      &                 WLIN,  WDIP, WKEX, WDMO, WITO, W, Z, iPrint )
       !Z =  exchange eigenstates:
       NmaxPop=500
@@ -1156,19 +1156,19 @@ c printout the Hamiltonians:
       End Do
 
       !some verification
-      If(dnrm2_(exch,WLIN,1).gt.1.0d-13)
+      If(dnrm2_(exch,WLIN,1).gt.1.0d-13)                                &
      &   Call Add_Info('EXCHCTL::  WLIN',[dnrm2_(exch,WLIN,1)],1,8)
-      If(dnrm2_(exch,WDIP,1).gt.1.0d-13)
+      If(dnrm2_(exch,WDIP,1).gt.1.0d-13)                                &
      &   Call Add_Info('EXCHCTL::  WDIP',[dnrm2_(exch,WDIP,1)],1,8)
-      If(dnrm2_(exch,WKEX,1).gt.1.0d-13)
+      If(dnrm2_(exch,WKEX,1).gt.1.0d-13)                                &
      &   Call Add_Info('EXCHCTL::  WKEX',[dnrm2_(exch,WKEX,1)],1,8)
-      If(dnrm2_(exch,W,1).gt.1.0d-13)
+      If(dnrm2_(exch,W,1).gt.1.0d-13)                                   &
      &   Call Add_Info('EXCHCTL::     W',[dnrm2_(exch,W,1)],1,8)
-c compute the moments:
+! compute the moments:
       Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,M,1)
       Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,S,1)
       If(dbg) Then
-       Write(6,'(A)') 'Magnetic moments before the build of '//
+       Write(6,'(A)') 'Magnetic moments before the build of '//         &
      &                'coupled M and S matrices'
        If(nPair>0) Then
         Do lp=1,npair
@@ -1178,13 +1178,13 @@ c compute the moments:
           i2=nind(lb2,1) ! indices of non-equivalent sites
           n1=nexch(i1)
           n2=nexch(i2)
-          Call prMom('EXCHCTL,Before M ans S, SM(i1):',
+          Call prMom('EXCHCTL,Before M ans S, SM(i1):',                 &
      &                SM(i1,1:3,1:n1,1:n1), n1 )
-          Call prMom('EXCHCTL,Before M ans S, SM(i2):',
+          Call prMom('EXCHCTL,Before M ans S, SM(i2):',                 &
      &                SM(i2,1:3,1:n2,1:n2), n2 )
-          Call prMom('EXCHCTL,Before M ans S, MM(i1):',
+          Call prMom('EXCHCTL,Before M ans S, MM(i1):',                 &
      &                MM(i1,1:3,1:n1,1:n1), n1 )
-          Call prMom('EXCHCTL,Before M ans S, MM(i2):',
+          Call prMom('EXCHCTL,Before M ans S, MM(i2):',                 &
      &                MM(i2,1:3,1:n2,1:n2), n2 )
         End Do
        End If
@@ -1203,13 +1203,13 @@ c compute the moments:
             Do js1=1,nexch(i1)
               icoord(isite)=js1-1
               nb2=norder(icoord,intc,lmax)
-              M( l, nb1, nb2 ) = M( l, nb1, nb2 ) +
-     &              rot( i1, j1, l, 1 ) * MM( i1, 1, is1, js1 )
-     &             +rot( i1, j1, l, 2 ) * MM( i1, 2, is1, js1 )
+              M( l, nb1, nb2 ) = M( l, nb1, nb2 ) +                     &
+     &              rot( i1, j1, l, 1 ) * MM( i1, 1, is1, js1 )         &
+     &             +rot( i1, j1, l, 2 ) * MM( i1, 2, is1, js1 )         &
      &             +rot( i1, j1, l, 3 ) * MM( i1, 3, is1, js1 )
-              S( l, nb1, nb2 ) = S( l, nb1, nb2 ) +
-     &              rot( i1, j1, l, 1 ) * SM( i1, 1, is1, js1 )
-     &             +rot( i1, j1, l, 2 ) * SM( i1, 2, is1, js1 )
+              S( l, nb1, nb2 ) = S( l, nb1, nb2 ) +                     &
+     &              rot( i1, j1, l, 1 ) * SM( i1, 1, is1, js1 )         &
+     &             +rot( i1, j1, l, 2 ) * SM( i1, 2, is1, js1 )         &
      &             +rot( i1, j1, l, 3 ) * SM( i1, 3, is1, js1 )
 
             End Do  ! js1
@@ -1218,45 +1218,45 @@ c compute the moments:
 
         ! magnetic moment
         Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,TMP,1)
-        Call zgemm_('C','N',EXCH,EXCH,EXCH,
-     &             (1.0_wp,0.0_wp),Z, EXCH,
-     &                             M(L,:,:), EXCH,
+        Call zgemm_('C','N',EXCH,EXCH,EXCH,                             &
+     &             (1.0_wp,0.0_wp),Z, EXCH,                             &
+     &                             M(L,:,:), EXCH,                      &
      &             (0.0_wp,0.0_wp),TMP, EXCH )
         Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,M(L,:,:),1)
-        Call zgemm_('N','N',EXCH,EXCH,EXCH,
-     &             (1.0_wp,0.0_wp),TMP,EXCH,
-     &                               Z,EXCH,
+        Call zgemm_('N','N',EXCH,EXCH,EXCH,                             &
+     &             (1.0_wp,0.0_wp),TMP,EXCH,                            &
+     &                               Z,EXCH,                            &
      &             (0.0_wp,0.0_wp), M(L,:,:), EXCH )
         Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,TMP,1)
         ! spin moment
-        Call zgemm_('C','N',EXCH,EXCH,EXCH,
-     &             (1.0_wp,0.0_wp),Z,EXCH,
-     &                             S(L,:,:), EXCH,
+        Call zgemm_('C','N',EXCH,EXCH,EXCH,                             &
+     &             (1.0_wp,0.0_wp),Z,EXCH,                              &
+     &                             S(L,:,:), EXCH,                      &
      &             (0.0_wp,0.0_wp),TMP,EXCH )
         Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,S(L,:,:),1)
-        Call zgemm_('N','N',EXCH,EXCH,EXCH,
-     &             (1.0_wp,0.0_wp),TMP,EXCH,
-     &                               Z,EXCH,
+        Call zgemm_('N','N',EXCH,EXCH,EXCH,                             &
+     &             (1.0_wp,0.0_wp),TMP,EXCH,                            &
+     &                               Z,EXCH,                            &
      &             (0.0_wp,0.0_wp),S(L,:,:),EXCH )
       End Do  ! L
 
 
       If(npair >0 ) Then
       ! ITO decomposition of the exchange and dipolar interactions:
-      Call pr_ito_int( npair, i_pair, lmax, nexch, nneq, neqv, itype,
-     &                 neq, nmax, eso(1:nneq,1:nmax),
-     &                  MM(1:nneq,1:3,1:nmax,1:nmax),
-     &                  SM(1:nneq,1:3,1:nmax,1:nmax), rot,
-     &                 Dipol, AnisoLines1, AnisoLines3, AnisoLines9,
-     &                 DM_exchange, JITO_exchange,
+      Call pr_ito_int( npair, i_pair, lmax, nexch, nneq, neqv, itype,   &
+     &                 neq, nmax, eso(1:nneq,1:nmax),                   &
+     &                  MM(1:nneq,1:3,1:nmax,1:nmax),                   &
+     &                  SM(1:nneq,1:3,1:nmax,1:nmax), rot,              &
+     &                 Dipol, AnisoLines1, AnisoLines3, AnisoLines9,    &
+     &                 DM_exchange, JITO_exchange,                      &
      &                 HLIN1, HLIN3, HLIN9, HDIP, HDMO, HITO )
       End If
 
       ! projection on the Ising Hamiltonian
       ! accessible format
-c      Write(6,'(/)')
-c      Write(6,'(A)')'Complete decomposition of the exchange interaction'
-c      Write(6,'(A)')
+!      Write(6,'(/)')
+!      Write(6,'(A)')'Complete decomposition of the exchange interaction'
+!      Write(6,'(A)')
 
 
 
@@ -1338,65 +1338,65 @@ c      Write(6,'(A)')
 
 
 
-c  results of projection of the exchange interaction on the Ising Hamiltonian:
+!  results of projection of the exchange interaction on the Ising Hamiltonian:
 
 
 
 
-c      open (76,file='eigenstates.txt')
-c      Do i=1,EXCH
-c        Do j=1,EXCH
-c      Write(76,'(2ES24.14)') Z(i,j)
-c        End Do
-c      End Do
-c      close(76)
-c
-c      open (77,file='eigenstates_full.txt')
-c      ZZR=0.0_wp
-c      ZZI=0.0_wp
-c      Do i=1,EXCH
-c        Do j=1,EXCH
-c      read(77,'(2ES24.14)') ZZR(i,j),ZZI(i,j)
-c        End Do
-c      End Do
-c      close(77)
-c      ZF=(0.0_wp,0.0_wp)
-c      Do i=1,EXCH
-c        Do j=1,EXCH
-c        ZF(i,j)=cmplx( ZZR(i,j), ZZI(i,j), 8)
-c        End Do
-c      End Do
-c      OVLP=(0.0_wp,0.0_wp)
-c      Call ZGEMM_('C','N',EXCH,  EXCH,  EXCH, (1.0_wp,0.0_wp),
-c     &             Z(  1:EXCH,1:EXCH), EXCH,
-c     &            ZF(  1:EXCH,1:EXCH), EXCH, (0.0_wp,0.0_wp),
-c     &          OVLP(  1:EXCH,1:EXCH), EXCH )
-c      Do i=1,1
-c        Do j=1,EXCH
-c        If(ABS(OVLP(j,i)).gt.0.0000001_wp ) Then
-c      Write(6,'(A,i3,A,i3,A,2F18.14,3x,A,F18.14,3x,A,F18.14)')
-c     & 'OVLP-1(',j,',',i,') = ',OVLP(j,i),
-c     & 'ABS = ', ABS(OVLP(j,i)), 'ABS^2 = ',
-c     & ABS(OVLP(j,i))*ABS(OVLP(j,i))
-c       End If
-c        End Do
-c      End Do
-c      OVLP=(0.0_wp,0.0_wp)
-c      Call ZGEMM_('C','N',EXCH,  EXCH,  EXCH, (1.0_wp,0.0_wp),
-c     &            ZF(  1:EXCH,1:EXCH), EXCH,
-c     &             Z(  1:EXCH,1:EXCH), EXCH, (0.0_wp,0.0_wp),
-c     &          OVLP(  1:EXCH,1:EXCH), EXCH )
-c      Do i=1,1
-c        Do j=1,EXCH
-c        If(ABS(OVLP(j,i)).gt.0.0000001_wp ) Then
-c      Write(6,'(A,i3,A,i3,A,2F18.14,3x,A,F18.14,3x,A,F18.14)')
-c     & 'OVLP-2(',i,',',j,') = ',OVLP(i,j),
-c     & 'ABS = ', ABS(OVLP(i,j)), 'ABS^2 = ',
-c     & ABS(OVLP(i,j))*ABS(OVLP(i,j))
-c        End If
-c        End Do
-c      End Do
-c 199  Continue
+!      open (76,file='eigenstates.txt')
+!      Do i=1,EXCH
+!        Do j=1,EXCH
+!      Write(76,'(2ES24.14)') Z(i,j)
+!        End Do
+!      End Do
+!      close(76)
+!
+!      open (77,file='eigenstates_full.txt')
+!      ZZR=0.0_wp
+!      ZZI=0.0_wp
+!      Do i=1,EXCH
+!        Do j=1,EXCH
+!      read(77,'(2ES24.14)') ZZR(i,j),ZZI(i,j)
+!        End Do
+!      End Do
+!      close(77)
+!      ZF=(0.0_wp,0.0_wp)
+!      Do i=1,EXCH
+!        Do j=1,EXCH
+!        ZF(i,j)=cmplx( ZZR(i,j), ZZI(i,j), 8)
+!        End Do
+!      End Do
+!      OVLP=(0.0_wp,0.0_wp)
+!      Call ZGEMM_('C','N',EXCH,  EXCH,  EXCH, (1.0_wp,0.0_wp),
+!     &             Z(  1:EXCH,1:EXCH), EXCH,
+!     &            ZF(  1:EXCH,1:EXCH), EXCH, (0.0_wp,0.0_wp),
+!     &          OVLP(  1:EXCH,1:EXCH), EXCH )
+!      Do i=1,1
+!        Do j=1,EXCH
+!        If(ABS(OVLP(j,i)).gt.0.0000001_wp ) Then
+!      Write(6,'(A,i3,A,i3,A,2F18.14,3x,A,F18.14,3x,A,F18.14)')
+!     & 'OVLP-1(',j,',',i,') = ',OVLP(j,i),
+!     & 'ABS = ', ABS(OVLP(j,i)), 'ABS^2 = ',
+!     & ABS(OVLP(j,i))*ABS(OVLP(j,i))
+!       End If
+!        End Do
+!      End Do
+!      OVLP=(0.0_wp,0.0_wp)
+!      Call ZGEMM_('C','N',EXCH,  EXCH,  EXCH, (1.0_wp,0.0_wp),
+!     &            ZF(  1:EXCH,1:EXCH), EXCH,
+!     &             Z(  1:EXCH,1:EXCH), EXCH, (0.0_wp,0.0_wp),
+!     &          OVLP(  1:EXCH,1:EXCH), EXCH )
+!      Do i=1,1
+!        Do j=1,EXCH
+!        If(ABS(OVLP(j,i)).gt.0.0000001_wp ) Then
+!      Write(6,'(A,i3,A,i3,A,2F18.14,3x,A,F18.14,3x,A,F18.14)')
+!     & 'OVLP-2(',i,',',j,') = ',OVLP(i,j),
+!     & 'ABS = ', ABS(OVLP(i,j)), 'ABS^2 = ',
+!     & ABS(OVLP(i,j))*ABS(OVLP(i,j))
+!        End If
+!        End Do
+!      End Do
+! 199  Continue
       Return
       End
 

@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine POLY_ANISO_1( nneq, neqv, nmax, exch, nLoc,
-     &                         nCenter, nT, nH, nTempMagn, nDir,
-     &                         nDirZee, nMult, nPair, MxRank1, MxRank2,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine POLY_ANISO_1( nneq, neqv, nmax, exch, nLoc,            &
+     &                         nCenter, nT, nH, nTempMagn, nDir,        &
+     &                         nDirZee, nMult, nPair, MxRank1, MxRank2, &
      &                         old_aniso_format, iReturn )
 
       Implicit None
@@ -18,7 +18,7 @@
 #include "stdalloc.fh"
       Integer, parameter        :: wp=kind(0.d0)
 !======================================================================
-c  definition of the cluster:
+!  definition of the cluster:
 
       Integer                       :: mem,RtoB,CtoB,ItoB
 !     number of non-equivalent sites
@@ -27,11 +27,11 @@ c  definition of the cluster:
       Integer                       :: neqv
       Integer                       :: nCenter
       Integer, allocatable          :: neq(:)
-c  definition of the local metal sites
+!  definition of the local metal sites
 !     number of spin-orbit states. nLoc = MAXVAL(nss(:));
       Integer                       :: nLoc
       Integer, allocatable          :: nss(:), nsfs(:)
-c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
+!      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
       Real(kind=8), allocatable    :: gtens_input(:,:)
 !                                      gtens_input(3,nneq)
       Real(kind=8), allocatable    :: D_fact(:), EoverD_fact(:)
@@ -50,7 +50,7 @@ c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
       Logical                       :: ifHDF
       Logical, intent(in)           :: old_aniso_format
       Logical                       :: DoPlot
-c  definition of the exchange:
+!  definition of the exchange:
 !     total number of exchange states
       Integer                       :: exch
 !     number of metal pairs (number of interactions)
@@ -97,7 +97,7 @@ c  definition of the exchange:
 !                                      MagnCoords(nneq,3)
 
       Integer                       :: nTempMagn
-c  definition of g and D tensors
+!  definition of g and D tensors
       Logical                       :: compute_g_tensors
       Integer                       :: nMult
 !     multiplicity of each multiplet
@@ -106,7 +106,7 @@ c  definition of g and D tensors
       Real(kind=8), allocatable    :: gtens(:,:)
 !     main axes of each multiplet
       Real(kind=8), allocatable    :: maxes(:,:,:)
-c  definition of data for susceptibility
+!  definition of data for susceptibility
       Integer                       :: nT
       Logical                       :: compute_susceptibility
       Logical                       :: tinput
@@ -125,7 +125,7 @@ c  definition of data for susceptibility
       ! options related to XT_MoverH
       Real(kind=8)                 :: Xfield
 
-c  definition of data for magnetization:
+!  definition of data for magnetization:
       Integer                       :: nH, nM
       Integer                       :: iopt
       Real(kind=8), allocatable    :: TempMagn(:)
@@ -145,26 +145,26 @@ c  definition of data for magnetization:
       Integer                       :: ncut   ! encut_definition=2;
       Real(kind=8)                 :: encut_rate ! encut_definition=3;
 
-c  magnetization torque
+!  magnetization torque
       Logical                       :: compute_torque
       Integer                       :: AngPoints, nP
-c  Zeeman energy and M vector
+!  Zeeman energy and M vector
       Integer                       :: nDir, nDirZee, nDirTot
       Integer, allocatable          :: LuZee(:)
       Real(kind=8), allocatable    :: dirX(:), dirY(:), dirZ(:)
       Real(kind=8), allocatable    :: dir_weight(:,:)
-c  definition of mean field parameter
+!  definition of mean field parameter
       Real(kind=8)                 :: zJ
-c  definintion of the crystal axes:
+!  definintion of the crystal axes:
       Logical                       :: Do_structure_abc
       Real(kind=8)                 :: cryst(6)
 ! a, b, c, alpha, beta, gamma
       Real(kind=8)                 :: coord(3)
 ! Cartesian coordinates of the main metal site, or center
-c  definitions for blocking barrier
+!  definitions for blocking barrier
       Integer                       :: nBlock
       Logical                       :: compute_barrier
-c  options for automatic fitting of parameters:
+!  options for automatic fitting of parameters:
       Logical                       :: fitCHI !-- not used so far
       Logical                       :: fitM !-- not used so far
 
@@ -177,8 +177,8 @@ c  options for automatic fitting of parameters:
       Integer                       :: l1(2),l2(2),l3(2),l4(2),l5(2)
       Integer                       :: imanIfold
       Integer                       :: ibuf
-c      Integer                      :: nsta
-c      Integer                      :: icase, nmagmult
+!      Integer                      :: nsta
+!      Integer                      :: icase, nmagmult
       Logical                       :: check_title
       Character(Len=180)            :: Title
       Logical                       :: GRAD
@@ -189,13 +189,13 @@ c      Integer                      :: icase, nmagmult
       Integer, external             :: IsFreeUnit
 
       dbg=.false.
-c---------------------------------------------------------------------
+!---------------------------------------------------------------------
       ! Constants:
       GRAD=.false.
       conv_au_to_cm1=2.194746313702E5_wp
-c---------------------------------------------------------------------
+!---------------------------------------------------------------------
       ! Allocate memory for all arrays:
-c---------------------------------------------------------------------
+!---------------------------------------------------------------------
       If(dbg) Write(6,*) '      exch = ',exch
       If(dbg) Write(6,*) '     nPair = ',nPair
       If(dbg) Write(6,*) '     nMult = ',nMult
@@ -442,70 +442,70 @@ c---------------------------------------------------------------------
       ! allocated memory counter
       If(dbg) Write(6,'(A,I16)') 'mem 9 =',mem
 
-      Write(6,'(A,I16,A)') 'The code allocated at least:',mem,
+      Write(6,'(A,I16,A)') 'The code allocated at least:',mem,          &
      &                     ' bytes of memory for this run.'
       Call xFlush(6)
-c---------------------------------------------------------------------
+!---------------------------------------------------------------------
       ! set default values of the main variables and arrays:
       If(dbg) Write(6,*) 'Enter set_defaults'
-        Call set_defaults( nneq, nTempMagn, nDir, nDirZee, nMult,
-     &                     neq, nexch, nK, mG, ncut, nP,
-     &                     AngPoints, nBlock, encut_definition,
-     &                     iopt, iPrint,
-     &                     dltT0, dltH0, zJ, tmin, tmax, hmin, hmax,
-     &                     XField, thrs, TempMagn,
-     &                     cryst, coord, encut_rate, gtens_input,
-     &                     D_fact, EoverD_fact, riso,
-     &                     decompose_exchange, AnisoLines1,
-     &                     AnisoLines3, AnisoLines9, DM_exchange,
-     &                     Dipol, KE, JITO_exchange, fitCHI, fitM,
-     &                     Do_structure_abc, doplot,
-     &                     compute_g_tensors, tinput,
-     &                     compute_susceptibility,
-     &                     compute_torque, compute_barrier,
-     &                     compute_magnetization, hinput,
-     &                     compute_Mdir_vector, zeeman_energy,
-     &                     m_paranoid, m_accurate, smagn,
+        Call set_defaults( nneq, nTempMagn, nDir, nDirZee, nMult,       &
+     &                     neq, nexch, nK, mG, ncut, nP,                &
+     &                     AngPoints, nBlock, encut_definition,         &
+     &                     iopt, iPrint,                                &
+     &                     dltT0, dltH0, zJ, tmin, tmax, hmin, hmax,    &
+     &                     XField, thrs, TempMagn,                      &
+     &                     cryst, coord, encut_rate, gtens_input,       &
+     &                     D_fact, EoverD_fact, riso,                   &
+     &                     decompose_exchange, AnisoLines1,             &
+     &                     AnisoLines3, AnisoLines9, DM_exchange,       &
+     &                     Dipol, KE, JITO_exchange, fitCHI, fitM,      &
+     &                     Do_structure_abc, doplot,                    &
+     &                     compute_g_tensors, tinput,                   &
+     &                     compute_susceptibility,                      &
+     &                     compute_torque, compute_barrier,             &
+     &                     compute_magnetization, hinput,               &
+     &                     compute_Mdir_vector, zeeman_energy,          &
+     &                     m_paranoid, m_accurate, smagn,               &
      &                     itype )
       If(dbg) Write(6,*) 'Exit set_defaults'
       If(dbg.and.(neqv.gt.1)) Write(6,*) 'Enter fetch_neq'
       If(neqv.gt.1) Call fetch_neq(nneq,neq(1:nneq),nexch(1:nneq))
       If(dbg.and.(neqv.gt.1)) Write(6,*) 'Exit fetch_neq'
 
-c---------------------------------------------------------------------
-c      ! read the Standard Input:
+!---------------------------------------------------------------------
+!      ! read the Standard Input:
       If(dbg) Write(6,*) 'Enter Readin_poly'
-      Call Readin_poly(nneq, neq, neqv, exch, nCenter,
-     &                 nT, nH, nTempMagn, nDir, nDirZee,
-     &                 nMult, nPair, nexch, nDim, i_pair,
-     &                 lant, multLn, iPrint, keopt,
-     &                 encut_definition, nK, mG, iopt, nP,
-     &                 AngPoints, ncut, LUZee, MxRank1, MxRank2,
-     &                 imaxrank,
-     &                 TempMagn, R_LG, R_ROT, Jex, JAex, JAex9, JDMex,
-     &                 JITOexR, JITOexI,
-     &                 tpar, upar, cryst, coord,
-     &                 Xfield, gtens_input, D_fact, EoverD_fact, riso,
-     &                 MagnCoords, thrs, tmin, tmax,
-     &                 hmin, hmax, Texp(1:nT), chit_exp(1:nT),
-     &                 Hexp, Mexp, encut_rate,
-     &                 zJ, dirX, dirY, dirZ,
-     &                 dir_weight,
-     &                 Title, itype,
-     &                 ifHDF,
-     &                 compute_g_tensors, compute_magnetization,
-     &                 TINPUT, HINPUT, Do_structure_abc, doplot,
-     &                 compute_Mdir_vector, zeeman_energy,
-     &                 m_paranoid, m_accurate, smagn,
-     &                 compute_susceptibility, decompose_exchange,
-     &                 KE, fitCHI, fitM, compute_torque,
-     &                 compute_barrier, Dipol, check_title,
-     &                 AnisoLines1, AnisoLines3, AnisoLines9,
+      Call Readin_poly(nneq, neq, neqv, exch, nCenter,                  &
+     &                 nT, nH, nTempMagn, nDir, nDirZee,                &
+     &                 nMult, nPair, nexch, nDim, i_pair,               &
+     &                 lant, multLn, iPrint, keopt,                     &
+     &                 encut_definition, nK, mG, iopt, nP,              &
+     &                 AngPoints, ncut, LUZee, MxRank1, MxRank2,        &
+     &                 imaxrank,                                        &
+     &                 TempMagn, R_LG, R_ROT, Jex, JAex, JAex9, JDMex,  &
+     &                 JITOexR, JITOexI,                                &
+     &                 tpar, upar, cryst, coord,                        &
+     &                 Xfield, gtens_input, D_fact, EoverD_fact, riso,  &
+     &                 MagnCoords, thrs, tmin, tmax,                    &
+     &                 hmin, hmax, Texp(1:nT), chit_exp(1:nT),          &
+     &                 Hexp, Mexp, encut_rate,                          &
+     &                 zJ, dirX, dirY, dirZ,                            &
+     &                 dir_weight,                                      &
+     &                 Title, itype,                                    &
+     &                 ifHDF,                                           &
+     &                 compute_g_tensors, compute_magnetization,        &
+     &                 TINPUT, HINPUT, Do_structure_abc, doplot,        &
+     &                 compute_Mdir_vector, zeeman_energy,              &
+     &                 m_paranoid, m_accurate, smagn,                   &
+     &                 compute_susceptibility, decompose_exchange,      &
+     &                 KE, fitCHI, fitM, compute_torque,                &
+     &                 compute_barrier, Dipol, check_title,             &
+     &                 AnisoLines1, AnisoLines3, AnisoLines9,           &
      &                 DM_exchange, JITO_exchange )
       If(dbg) Write(6,*) 'Exit Readin_poly'
       Call xFlush(6)
-c---------------------------------------------------------------------
-c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
+!---------------------------------------------------------------------
+!     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
       Do i=1,nneq
          If(dbg) Write(6,'(A,A)') 'itype(i)=',itype(i)
          If(dbg) Call xFlush(6)
@@ -517,12 +517,12 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
          If(dbg) Call xFlush(6)
          If(dbg) Write(6,*) '     nLoc=', nLoc
          If(dbg) Call xFlush(6)
-         If(dbg) Write(6,*) ' gtens_input(1:3,i)=',
+         If(dbg) Write(6,*) ' gtens_input(1:3,i)=',                     &
      &                       (gtens_input(j,i),j=1,3)
          If(dbg) Call xFlush(6)
          If(dbg) Write(6,*) 'D_fact(i)=',D_fact(i)
          If(dbg) Call xFlush(6)
-         If(dbg) Write(6,*) 'eso(i,1:nexch(i))=',
+         If(dbg) Write(6,*) 'eso(i,1:nexch(i))=',                       &
      &                       (eso(i,j),j=1,nexch(i))
          If(dbg) Write(6,*) 'old_aniso_format=',old_aniso_format
          If(dbg) Call xFlush(6)
@@ -531,12 +531,12 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
 
             If(dbg) Write(6,*) 'Enter generate_isotrop_site'
             If(dbg) Call xFlush(6)
-            Call generate_isotrop_site( nss(i), nsfs(i), nexch(i),
-     &                                  gtens_input(1:3,i),
-     &                                  riso(i,1:3,1:3), D_fact(i),
-     &                                  EoverD_fact(i),
-     &                                  eso(i,1:nexch(i)),
-     &                             dipso(i,1:3,1:nexch(i),1:nexch(i)),
+            Call generate_isotrop_site( nss(i), nsfs(i), nexch(i),      &
+     &                                  gtens_input(1:3,i),             &
+     &                                  riso(i,1:3,1:3), D_fact(i),     &
+     &                                  EoverD_fact(i),                 &
+     &                                  eso(i,1:nexch(i)),              &
+     &                             dipso(i,1:3,1:nexch(i),1:nexch(i)),  &
      &                              s_so(i,1:3,1:nexch(i),1:nexch(i)) )
             If(dbg) Write(6,*) 'Exit generate_isotrop_site'
             If(dbg) Call xFlush(6)
@@ -546,46 +546,46 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
             If(ifHDF) Then
                ! set their names:
                If(i<10) Then
-                  Write(namefile_aniso(i),'(4A)') 'aniso_hdf_',
+                  Write(namefile_aniso(i),'(4A)') 'aniso_hdf_',         &
      &                      CHAR(48+mod( int( i     ),10)),'.input'
-                  If(dbg) Write(6,'(A,i2,A,A)') 'namefile_aniso(',i,
+                  If(dbg) Write(6,'(A,i2,A,A)') 'namefile_aniso(',i,    &
      &              ')=', namefile_aniso(i)
                Else If(i>=10 .and. i<=99) Then
-                  Write(namefile_aniso(i),'(4A)') 'aniso_hdf_',
-     &                      CHAR(48+mod( int((i)/10 ),10)),
+                  Write(namefile_aniso(i),'(4A)') 'aniso_hdf_',         &
+     &                      CHAR(48+mod( int((i)/10 ),10)),             &
      &                      CHAR(48+mod( int( i     ),10)),'.input'
                End If
-               If(dbg) Write(6,*) 'PA:  namefile_aniso(i)=',
+               If(dbg) Write(6,*) 'PA:  namefile_aniso(i)=',            &
      &                             trim(namefile_aniso(i))
 
 #ifdef _HDF5_
                If(dbg) Write(6,*) 'Enter read_hdf5_poly'
                Call read_hdf5_init(namefile_aniso(i),nsfs(i),nss(i))
-               If(dbg) Write(6,*) 'i=', i,'nsfs(i),nss(i)=',
+               If(dbg) Write(6,*) 'i=', i,'nsfs(i),nss(i)=',            &
      &                                     nsfs(i),nss(i)
-               Call read_hdf5_poly( namefile_aniso(i),
-     &                              nss(i),
-     &                              nsfs(i),
-     &                              eso(i,1:nss(i)),
-     &                             dipso(i,1:3,1:nss(i),1:nss(i)),
-     &                              s_so(i,1:3,1:nss(i),1:nss(i)),
+               Call read_hdf5_poly( namefile_aniso(i),                  &
+     &                              nss(i),                             &
+     &                              nsfs(i),                            &
+     &                              eso(i,1:nss(i)),                    &
+     &                             dipso(i,1:3,1:nss(i),1:nss(i)),      &
+     &                              s_so(i,1:3,1:nss(i),1:nss(i)),      &
      &                              iReturn )
                If(dbg) Write(6,*) 'Exit read_hdf5_poly'
                If(dbg) Write(6,*) 'ESO(i)=',(ESO(i,j),j=1,nss(i))
 #else
-               Call WarningMessage(2,'File '//trim(namefile_aniso(i))//
-     &                              ' cannot be opened. Molcas was'//
+               Call WarningMessage(2,'File '//trim(namefile_aniso(i))// &
+     &                              ' cannot be opened. Molcas was'//   &
      &                              ' compiled without HDF5 option.')
                Call Quit_OnUserError()
 #endif
             Else
                ! set their names:
                If(i<10) Then
-                  Write(namefile_aniso(i),'(4A)') 'aniso_',
+                  Write(namefile_aniso(i),'(4A)') 'aniso_',             &
      &                      CHAR(48+mod( int( i     ),10)),'.input'
                Else If(i>=10 .and. i<=99) Then
-                  Write(namefile_aniso(i),'(4A)') 'aniso_',
-     &                      CHAR(48+mod( int((i)/10 ),10)),
+                  Write(namefile_aniso(i),'(4A)') 'aniso_',             &
+     &                      CHAR(48+mod( int((i)/10 ),10)),             &
      &                      CHAR(48+mod( int( i     ),10)),'.input'
                End If
 
@@ -598,14 +598,14 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
                   !print *, 'nLoc   =', nLoc
                   Call xFlush(6)
 
-                  Call read_formatted_aniso_poly(
-     &                                 namefile_aniso(i),
-     &                                 nss(i),
-     &                                 nsfs(i),
-     &                                 nLoc,
-     &                                 eso(i,1:nLoc),
-     &                                dipso(i,1:3,1:nLoc,1:nLoc),
-     &                                 s_so(i,1:3,1:nLoc,1:nLoc),
+                  Call read_formatted_aniso_poly(                       &
+     &                                 namefile_aniso(i),               &
+     &                                 nss(i),                          &
+     &                                 nsfs(i),                         &
+     &                                 nLoc,                            &
+     &                                 eso(i,1:nLoc),                   &
+     &                                dipso(i,1:3,1:nLoc,1:nLoc),       &
+     &                                 s_so(i,1:3,1:nLoc,1:nLoc),       &
      &                                 iReturn )
                   If(dbg) Write(6,*) 'Exit read_formatted_aniso_poly'
 
@@ -613,7 +613,7 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
 
                   ! get the information from NEW formatted
                   ! aniso.input file:
-                  If(dbg) Write(6,*)
+                  If(dbg) Write(6,*)                                    &
      &                'read formatted_aniso_poly_NEW'
                    LuAniso=IsFreeUnit(81)
                    Call molcas_open(LuAniso,namefile_aniso(i))
@@ -621,15 +621,15 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
                    Call read_nss( LuAniso, nss(i), dbg )
                    Call read_nstate( LuAniso, nsfs(i), dbg )
                    eso_au(i,1:nss(i))=0.0_wp
-                   Call read_eso( LuAniso, nss(i),
+                   Call read_eso( LuAniso, nss(i),                      &
      &                            eso_au(i,1:nss(i)),dbg)
-                   If(dbg) Write(6,*) 'poly_aniso: eso_au=',
+                   If(dbg) Write(6,*) 'poly_aniso: eso_au=',            &
      &                                (eso_au(i,j),j=1,nss(i))
-                   Call read_magnetic_moment ( LuAniso, nss(i),
+                   Call read_magnetic_moment ( LuAniso, nss(i),         &
      &                     dipso(i,1:3,1:nss(i),1:nss(i)), dbg )
                    IF (dbg) WRITE (6,*) 'Call read_spin_moment'
                    FLUSH(6)
-                   Call read_spin_moment ( LuAniso, nss(i),
+                   Call read_spin_moment ( LuAniso, nss(i),             &
      &                      s_so(i,1:3,1:nss(i),1:nss(i)), dbg )
                    ! compute the relative spin-orbit energies in cm-1
                    do j=1,nss(i)
@@ -658,55 +658,55 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
 
 
       If(dbg) Write(6,*) 'Enter input_process'
-      Call input_process( nneq, neq, neqv, nmax, nCenter, nexch,
-     &                    nDir, nDirZee, nDirTot, nH, nT, exch,
-     &                    nBlock, nTempMagn, iopt, nMult, nDim,
-     &                    nPair, i_pair, nP, AngPoints, lant,
-     &                    multLn, KEOPT, encut_definition, nK,
-     &                    mG, ncut, nsfs, nss, nLoc,
-     &                    MxRank1, MxRank2, imaxrank, iPrint,
+      Call input_process( nneq, neq, neqv, nmax, nCenter, nexch,        &
+     &                    nDir, nDirZee, nDirTot, nH, nT, exch,         &
+     &                    nBlock, nTempMagn, iopt, nMult, nDim,         &
+     &                    nPair, i_pair, nP, AngPoints, lant,           &
+     &                    multLn, KEOPT, encut_definition, nK,          &
+     &                    mG, ncut, nsfs, nss, nLoc,                    &
+     &                    MxRank1, MxRank2, imaxrank, iPrint,           &
 
-     &                    R_LG, gtens_input, dirX, dirY, dirZ,
-     &                    dir_weight, zJ, cryst, coord, hmin,
-     &                    hmax, TempMagn, thrs, Hexp, Mexp,
-     &                    tmin, tmax, chit_exp, Texp, Xfield,
-     &                    Jex, JAex, JAex9, JDMex, tpar, upar,
-     &                    MagnCoords, encut_rate, eso,
-     &                    JITOexR, JITOexI,
+     &                    R_LG, gtens_input, dirX, dirY, dirZ,          &
+     &                    dir_weight, zJ, cryst, coord, hmin,           &
+     &                    hmax, TempMagn, thrs, Hexp, Mexp,             &
+     &                    tmin, tmax, chit_exp, Texp, Xfield,           &
+     &                    Jex, JAex, JAex9, JDMex, tpar, upar,          &
+     &                    MagnCoords, encut_rate, eso,                  &
+     &                    JITOexR, JITOexI,                             &
 
-     &                    Title, itype, namefile_aniso,
+     &                    Title, itype, namefile_aniso,                 &
 
-     &                    Do_structure_abc, old_aniso_format,
-     &                    compute_barrier, fitCHI, fitM, hinput,
-     &                    tinput, compute_magnetization,
-     &                    compute_Mdir_vector, zeeman_energy,
-     &                    m_paranoid, m_accurate, smagn,
-     &                    compute_g_tensors,compute_torque,
-     &                    compute_susceptibility, AnisoLines1,
-     &                    AnisoLines3, AnisoLines9, Dipol,
+     &                    Do_structure_abc, old_aniso_format,           &
+     &                    compute_barrier, fitCHI, fitM, hinput,        &
+     &                    tinput, compute_magnetization,                &
+     &                    compute_Mdir_vector, zeeman_energy,           &
+     &                    m_paranoid, m_accurate, smagn,                &
+     &                    compute_g_tensors,compute_torque,             &
+     &                    compute_susceptibility, AnisoLines1,          &
+     &                    AnisoLines3, AnisoLines9, Dipol,              &
      &                    check_title, KE, DM_exchange, JITO_exchange )
       If(dbg) Write(6,*) 'Exit input_process'
 
-c at this moment all input values are set. proceed to compute various
-c properties:
-c---------------------------------------------------------------------
-c in case J coupling parameters are not known, proceed to get them from
-c a minimization scheme between caclulated and measured magnetic susceptibility
-c
-c the function below optimizes the N+1 parameters:
-c N - exchange couplings J, and one parameter for total shIft of all experimental points;
-c      If (fitCHI) Then
-c      Call fitCHI()
-c      End If
-cc at this point all J parameters are known; we can proceed to compute
-c the energy spectrum and the resulting properties
-c---------------------------------------------------------------------
-c      Lines=.true.
-c      If(AnisoLines.eqv..true.) Then
-c      Lines=.false.
-c      End If
-c      Dipol=dipole_included
-c      KE=exch_long
+! at this moment all input values are set. proceed to compute various
+! properties:
+!---------------------------------------------------------------------
+! in case J coupling parameters are not known, proceed to get them from
+! a minimization scheme between caclulated and measured magnetic susceptibility
+!
+! the function below optimizes the N+1 parameters:
+! N - exchange couplings J, and one parameter for total shIft of all experimental points;
+!      If (fitCHI) Then
+!      Call fitCHI()
+!      End If
+!c at this point all J parameters are known; we can proceed to compute
+! the energy spectrum and the resulting properties
+!---------------------------------------------------------------------
+!      Lines=.true.
+!      If(AnisoLines.eqv..true.) Then
+!      Lines=.false.
+!      End If
+!      Dipol=dipole_included
+!      KE=exch_long
 
       If(dbg) Write(6,*) 'Dipol         = ', Dipol
       If(dbg) Write(6,*) 'AnisoLines1   = ', AnisoLines1
@@ -716,33 +716,33 @@ c      KE=exch_long
       If(dbg) Write(6,*) 'JITO_exchange = ', JITO_exchange
       If(dbg) Write(6,*) 'nmax          = ', nmax
 
-      Call exchctl( exch, nneq, neqv, neq, nexch,
-     &              nmax, nCenter, npair, i_pair,
-     &              MxRank1, MxRank2, imaxrank,
-     &              Jex, JAex, JAex9, JDMex, JITOexR, JITOexI,
-     &              eso(1:nneq,1:nmax),
-     &              s_so(1:nneq,1:3,1:nmax,1:nmax),
-     &              dipso(1:nneq,1:3,1:nmax,1:nmax),
-     &             MagnCoords, R_ROT, R_LG, riso, tpar, upar, lant,
-     &              itype, Dipol, AnisoLines1, AnisoLines3,
-     &              AnisoLines9, KE, KEOPT, DM_exchange, JITO_exchange,
+      Call exchctl( exch, nneq, neqv, neq, nexch,                       &
+     &              nmax, nCenter, npair, i_pair,                       &
+     &              MxRank1, MxRank2, imaxrank,                         &
+     &              Jex, JAex, JAex9, JDMex, JITOexR, JITOexI,          &
+     &              eso(1:nneq,1:nmax),                                 &
+     &              s_so(1:nneq,1:3,1:nmax,1:nmax),                     &
+     &              dipso(1:nneq,1:3,1:nmax,1:nmax),                    &
+     &             MagnCoords, R_ROT, R_LG, riso, tpar, upar, lant,     &
+     &              itype, Dipol, AnisoLines1, AnisoLines3,             &
+     &              AnisoLines9, KE, KEOPT, DM_exchange, JITO_exchange, &
      &               W, Z, S_EXCH, DIPEXCH, iPrint, mem )
-cc---------------------------------------------------------------------
+!c---------------------------------------------------------------------
 !     generate an 'aniso -like file' for testign exchange proj in SA
       fname='ANISOINPUT_POLY'
-      Call write_formatted_aniso_poly( fname, exch, W,
+      Call write_formatted_aniso_poly( fname, exch, W,                  &
      &                                  dipexch, s_exch)
-cc---------------------------------------------------------------------
-c compute the magnetic moments on individual metal sites, for
-c the lowest NSTA exchange states;
-C     NMAX = maximal number of local states which participate into the exchange coupling
-      Call MOMLOC2( exch, nmax, nneq, neq, neqv,
-     &              r_rot, nCenter, nExch, W, Z,
-     &              dipexch, s_exch,
-     &              dipso(1:nneq,1:3,1:nmax,1:nmax),
+!c---------------------------------------------------------------------
+! compute the magnetic moments on individual metal sites, for
+! the lowest NSTA exchange states;
+!     NMAX = maximal number of local states which participate into the exchange coupling
+      Call MOMLOC2( exch, nmax, nneq, neq, neqv,                        &
+     &              r_rot, nCenter, nExch, W, Z,                        &
+     &              dipexch, s_exch,                                    &
+     &              dipso(1:nneq,1:3,1:nmax,1:nmax),                    &
      &               s_so(1:nneq,1:3,1:nmax,1:nmax)  )
 
-c---------------------------------------------------------------------
+!---------------------------------------------------------------------
       If(compute_g_tensors) Then
          If(dbg) Write(6,'(A,90I3)') 'nmult= ',nmult
          If(dbg) Write(6,'(A,90I3)') 'ndim() = ',ndim(1:nmult)
@@ -757,19 +757,19 @@ c---------------------------------------------------------------------
             If (i2>exch) Go To 20
 
             If(dbg) Write(6,'(A,90I3)') 'ndim(imltpl)=',ndim(imltpl)
-            If(dbg) Call prmom('PA: s_exch:',
+            If(dbg) Call prmom('PA: s_exch:',                           &
      &               s_exch(1:3,i1:i2,i1:i2),ndim(imltpl))
-            If(dbg) Call prmom('PA: dip_exch:',
+            If(dbg) Call prmom('PA: dip_exch:',                         &
      &              dipexch(1:3,i1:i2,i1:i2),ndim(imltpl))
 
-            Call g_high( w(i1:i2), GRAD,
-     &                    s_exch(1:3, i1:i2, i1:i2),
-     &                   dipexch(1:3, i1:i2, i1:i2),
-     &                   imltpl, ndim(imltpl),
-     &                   Do_structure_abc,
-     &                   cryst, coord,
-     &                   gtens(imltpl,1:3),
-     &                   maxes(imltpl,1:3,1:3),
+            Call g_high( w(i1:i2), GRAD,                                &
+     &                    s_exch(1:3, i1:i2, i1:i2),                    &
+     &                   dipexch(1:3, i1:i2, i1:i2),                    &
+     &                   imltpl, ndim(imltpl),                          &
+     &                   Do_structure_abc,                              &
+     &                   cryst, coord,                                  &
+     &                   gtens(imltpl,1:3),                             &
+     &                   maxes(imltpl,1:3,1:3),                         &
      &                   iprint )
 
 10          Continue
@@ -785,32 +785,32 @@ c---------------------------------------------------------------------
         If ( nBlock.ne.0 ) Then
           imanifold=1
 
-          Write(6,'(A)') 'UBAR:: matrix elements of the (input) '//
+          Write(6,'(A)') 'UBAR:: matrix elements of the (input) '//     &
      &                  'magnetic moment '
-          Write(6,'(A)') '                |'//
-     &                   '         - projection - X -        |'//
-     &                   '         - projection - Y -        |'//
+          Write(6,'(A)') '                |'//                          &
+     &                   '         - projection - X -        |'//       &
+     &                   '         - projection - Y -        |'//       &
      &                   '         - projection - Z -        |'
-          Write(6,'(A)') '----------------|'//
-     &                   '----- Real ------|---- Imaginary --|'//
-     &                   '----- Real ------|---- Imaginary --|'//
+          Write(6,'(A)') '----------------|'//                          &
+     &                   '----- Real ------|---- Imaginary --|'//       &
+     &                   '----- Real ------|---- Imaginary --|'//       &
      &                   '----- Real ------|---- Imaginary --|'
           Do i=1,nBlock
             Do j=1,i
-            Write(6,'(A,i2,A,i2,A,6ES18.10)') '< ',i,'|M_xyz|',j,' > ',
+            Write(6,'(A,i2,A,i2,A,6ES18.10)') '< ',i,'|M_xyz|',j,' > ', &
      &                                        (dipexch(l,i,j),l=1,3)
             End Do
           End Do
 
-          Call  BARRIER( nBlock, dipexch(1:3,1:nBlock,1:nBlock),
-     &                   W(1:nBlock), imanIfold, nMult, nDim(1:nMult),
+          Call  BARRIER( nBlock, dipexch(1:3,1:nBlock,1:nBlock),        &
+     &                   W(1:nBlock), imanIfold, nMult, nDim(1:nMult),  &
      &                   DoPlot, iprint )
 
         Else
            Write(6,'(A)') 'nBlock parameter is not defined. '
-           Write(6,'(A)') 'Did you specify the MLTP keyword in the '//
+           Write(6,'(A)') 'Did you specify the MLTP keyword in the '//  &
      &                    'input?'
-           Write(6,'(A)') 'If the problem persists,please, '//
+           Write(6,'(A)') 'If the problem persists,please, '//          &
      &                    'submit a bug report.'
         End If
       End If
@@ -823,23 +823,23 @@ c---------------------------------------------------------------------
        If (compute_susceptibility .AND. (nT>0) ) Then
 
          ! set nT, T(i) and XTexp(i) arrays:
-          Call set_T( nT, nTempMagn, TINPUT, TempMagn, Tmin, Tmax,
+          Call set_T( nT, nTempMagn, TINPUT, TempMagn, Tmin, Tmax,      &
      &                chit_exp, Texp, T, XTexp )
 
           ! XT at H=0
-          Call susceptibility_pa( exch, nLoc, nCenter, nneq,
-     &                         neqv, neq, nss, nexch, nTempMagn,
-     &                         nT, Tmin, Tmax, XTexp,
-     &                         eso, dipso, s_so, W, dipexch,
-     &                         s_exch, T, R_LG, zJ, tinput,
-     &                         XLM, ZLM, XRM, ZRM, iopt, XT_no_field,
+          Call susceptibility_pa( exch, nLoc, nCenter, nneq,            &
+     &                         neqv, neq, nss, nexch, nTempMagn,        &
+     &                         nT, Tmin, Tmax, XTexp,                   &
+     &                         eso, dipso, s_so, W, dipexch,            &
+     &                         s_exch, T, R_LG, zJ, tinput,             &
+     &                         XLM, ZLM, XRM, ZRM, iopt, XT_no_field,   &
      &                         DoPlot, mem )
 
          If( Xfield.ne.0.0_wp ) Then
           ! XT at H>0:
 
-           Call set_nm( exch, ncut, encut_definition, nk, mg,
-     &                  nTempMagn, hmax, w, encut_rate, TempMagn,
+           Call set_nm( exch, ncut, encut_definition, nk, mg,           &
+     &                  nTempMagn, hmax, w, encut_rate, TempMagn,       &
      &                  nM, EM, dbg )
           Do i=1,nT+nTempMagn
              Write(6,*) i,  T(i)
@@ -854,16 +854,16 @@ c---------------------------------------------------------------------
           If(dbg) Write(6,*) 'tinpu =',tinput
 
           ! nm = exch
-           Call XT_dMoverdH( exch, nLoc, nCenter, nneq, neqv, neq,
-     &                       nss, nexch, nTempMagn, nT, exch, iopt, mem,
-     &                       Tmin, Tmax, XTexp, eso, w, T, R_ROT,
-     &                       zJ, Xfield, EM, THRS, XT_no_field,
-     &                       dipso, s_so, dipexch, s_exch,
-     &                       tinput, smagn, m_paranoid, m_accurate,
+           Call XT_dMoverdH( exch, nLoc, nCenter, nneq, neqv, neq,      &
+     &                       nss, nexch, nTempMagn, nT, exch, iopt, mem,&
+     &                       Tmin, Tmax, XTexp, eso, w, T, R_ROT,       &
+     &                       zJ, Xfield, EM, THRS, XT_no_field,         &
+     &                       dipso, s_so, dipexch, s_exch,              &
+     &                       tinput, smagn, m_paranoid, m_accurate,     &
      &                       doplot )
          End If
       Else
-         Write(6,'(A)') 'Computation of the magnetic susceptibility'//
+         Write(6,'(A)') 'Computation of the magnetic susceptibility'//  &
      &                  '... skipped by the user'
        End If
 !---------------------------------------------------------------------
@@ -872,22 +872,22 @@ c---------------------------------------------------------------------
 
        If (compute_torque) Then
 !        set the NM- number of states to be exactly diagonalized in Zeeman Interaction
-         Call set_nm( exch, ncut, encut_definition, nk, mg,
-     &                nTempMagn, hmax, w, encut_rate, TempMagn,
+         Call set_nm( exch, ncut, encut_definition, nk, mg,             &
+     &                nTempMagn, hmax, w, encut_rate, TempMagn,         &
      &                nM, EM, dbg )
 
          ! nm = exch
-         Call torque_pa( nneq, nCenter, neq, neqv, nLoc, exch,
-     &                nTempMagn, nH, exch, AngPoints, nexch,
-     &                iopt, nss, mem,
-     &                smagn, m_paranoid, m_accurate,
-     &                TempMagn, w, hmin, hmax, dltH0, EM, zJ, THRS,
-     &                hexp,
-     &                dipexch, s_exch, dipso, s_so, eso,
+         Call torque_pa( nneq, nCenter, neq, neqv, nLoc, exch,          &
+     &                nTempMagn, nH, exch, AngPoints, nexch,            &
+     &                iopt, nss, mem,                                   &
+     &                smagn, m_paranoid, m_accurate,                    &
+     &                TempMagn, w, hmin, hmax, dltH0, EM, zJ, THRS,     &
+     &                hexp,                                             &
+     &                dipexch, s_exch, dipso, s_so, eso,                &
      &                hinput, r_rot, XLM, ZLM, XRM, ZRM )
 
       Else
-         Write(6,'(A)') 'Computation of the magnetization torque ... '//
+         Write(6,'(A)') 'Computation of the magnetization torque ... '//&
      &                  'skipped by the user'
       End If !compute_torque
 !---------------------------------------------------------------------
@@ -895,22 +895,22 @@ c---------------------------------------------------------------------
 !---------------------------------------------------------------------
       If(compute_magnetization .AND. (nH>0) ) Then
 !        set the NM- number of states to be exactly diagonalized in Zeeman Interaction
-         Call set_nm( exch, ncut, encut_definition, nk, mg,
-     &                nTempMagn, hmax, w, encut_rate, TempMagn,
+         Call set_nm( exch, ncut, encut_definition, nk, mg,             &
+     &                nTempMagn, hmax, w, encut_rate, TempMagn,         &
      &                nM, EM, dbg )
 
-         Call magnetization_pa( exch, nLoc, nM, nH, nneq, neq, neqv,
-     &                       nCenter, nTempMagn, nDir, nDirZee,
-     &                       nDirTot, nss, nexch, iopt, LUZee,
-     &                       TempMagn, hexp, mexp, hmin, hmax, em,
-     &                       zJ, thrs, dirX, dirY, dirZ, dir_weight,
-     &                       w, dipexch, s_exch, dipso, s_so, eso,
-     &                       hinput, r_rot, XLM, ZLM, XRM, ZRM,
-     &                       zeeman_energy, compute_Mdir_vector,
-     &                       m_paranoid, m_accurate, smagn, mem,
+         Call magnetization_pa( exch, nLoc, nM, nH, nneq, neq, neqv,    &
+     &                       nCenter, nTempMagn, nDir, nDirZee,         &
+     &                       nDirTot, nss, nexch, iopt, LUZee,          &
+     &                       TempMagn, hexp, mexp, hmin, hmax, em,      &
+     &                       zJ, thrs, dirX, dirY, dirZ, dir_weight,    &
+     &                       w, dipexch, s_exch, dipso, s_so, eso,      &
+     &                       hinput, r_rot, XLM, ZLM, XRM, ZRM,         &
+     &                       zeeman_energy, compute_Mdir_vector,        &
+     &                       m_paranoid, m_accurate, smagn, mem,        &
      &                       doplot )
       Else
-         Write(6,'(A)') 'Computation of the molar magnetization ... '//
+         Write(6,'(A)') 'Computation of the molar magnetization ... '// &
      &                  'skipped by the user'
       End If !compute_magnetization
 

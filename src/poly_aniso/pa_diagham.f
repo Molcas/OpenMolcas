@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-       Subroutine pa_diagham( exch, npair, i_pair,  nneq,   neq, nexch,
-     &                        nmax,  lmax,    eso,  HLIN1, HLIN3, HLIN9,
-     &                        HDIP,  HKEX, HDMO, HITO, Dipol,
-     &                        DM_exchange, AnisoLines1, AnisoLines3,
-     &                        AnisoLines9, KE, JITO_exchange,
-     &                        WLIN1, WLIN3, WLIN9, WLIN, WDIP,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+       Subroutine pa_diagham( exch, npair, i_pair,  nneq,   neq, nexch, &
+     &                        nmax,  lmax,    eso,  HLIN1, HLIN3, HLIN9,&
+     &                        HDIP,  HKEX, HDMO, HITO, Dipol,           &
+     &                        DM_exchange, AnisoLines1, AnisoLines3,    &
+     &                        AnisoLines9, KE, JITO_exchange,           &
+     &                        WLIN1, WLIN3, WLIN9, WLIN, WDIP,          &
      &                        WKEX, WDMO, WITO,  W,     Z  )
-c this function builds and diagonalizes the interaction Hamiltonians
+! this function builds and diagonalizes the interaction Hamiltonians
       Implicit None
 #include "stdalloc.fh"
       Integer, parameter        :: wp=kind(0.d0)
@@ -54,18 +54,18 @@ c this function builds and diagonalizes the interaction Hamiltonians
 
       Real(kind=8), intent(out)    :: w(exch)
       Complex(kind=8), intent(out) :: Z(exch,exch)
-c local variables
+! local variables
       Complex(kind=8), allocatable :: HTOT(:,:)
       Integer, allocatable :: nind(:,:), intc(:), ibas(:,:), icoord(:)
-      Integer  :: nb1, nb2, lb1, lb2, i1, i2, is1, is2,
+      Integer  :: nb1, nb2, lb1, lb2, i1, i2, is1, is2,                 &
      &            js1, js2, nb, i, j, l, lp, lb
       Integer  :: norder
       external :: norder
-c diag:
+! diag:
       Integer          :: info, lwork
       Real(kind=8), allocatable :: rwork(:) !rwork(3*exch-2)
       Complex(kind=8), allocatable :: work(:) !work(2*exch-1)
-c allocate memory and initialize variables:
+! allocate memory and initialize variables:
       If( exch >= 0 ) Then
          Call mma_allocate(HTOT,exch,exch,'HTOT')
          Call mma_allocate(WORK,(2*exch-1),'WORK')
@@ -91,7 +91,7 @@ c allocate memory and initialize variables:
       Call dcopy_(exch,[0.0_wp],0,wdmo,1)
       Call dcopy_(exch,[0.0_wp],0,wito,1)
 
-c generate the tables:
+! generate the tables:
       l=0
       Call icopy(2*lmax,[0],0,nind,1)
       Do i=1,nneq
@@ -119,7 +119,7 @@ c generate the tables:
           nb1=nb1-ibas(nb,lmax-i+1)*intc(lmax-i+1)
         End Do
       End Do
-c build the interaction Hamiltonians
+! build the interaction Hamiltonians
 !----------------------------------------------------------------------!
       If( AnisoLines1 ) Then
         Call zcopy_(exch*exch, [(0.0_wp,0.0_wp)],0,HTOT,1)
@@ -152,7 +152,7 @@ c build the interaction Hamiltonians
             Do j = 1, neq(i)
               l = l + 1
               If( l.eq.lb ) Then
-                HTOT(nb1,nb1)=HTOT(nb1,nb1) +
+                HTOT(nb1,nb1)=HTOT(nb1,nb1) +                           &
      &                        cmplx( eso(i,ibas(nb1,lb)+1), 0.0_wp, wp )
                 If((lb+1).le.(lmax)) lb=lb+1
               End If
@@ -202,7 +202,7 @@ c build the interaction Hamiltonians
             Do j = 1, neq(i)
               l = l + 1
               If( l.eq.lb ) Then
-                HTOT(nb1,nb1)=HTOT(nb1,nb1) +
+                HTOT(nb1,nb1)=HTOT(nb1,nb1) +                           &
      &                        cmplx( eso(i,ibas(nb1,lb)+1), 0.0_wp, wp )
                 If((lb+1).le.(lmax)) lb=lb+1
               End If
@@ -252,7 +252,7 @@ c build the interaction Hamiltonians
             Do j = 1, neq(i)
               l = l + 1
               If( l.eq.lb ) Then
-                HTOT(nb1,nb1)=HTOT(nb1,nb1) +
+                HTOT(nb1,nb1)=HTOT(nb1,nb1) +                           &
      &                        cmplx( eso(i,ibas(nb1,lb)+1), 0.0_wp, wp )
                 If((lb+1).le.(lmax)) lb=lb+1
               End If
@@ -291,8 +291,8 @@ c build the interaction Hamiltonians
               Do js2 = 1, nexch(i2)
                 icoord(lb2) = js2 - 1
                 nb2 = norder(icoord,intc,lmax)
-                HTOT(nb1,nb2)=HTOT(nb1,nb2) + HLIN1(lp,is1,js1,is2,js2)
-     &                                      + HLIN3(lp,is1,js1,is2,js2)
+                HTOT(nb1,nb2)=HTOT(nb1,nb2) + HLIN1(lp,is1,js1,is2,js2) &
+     &                                      + HLIN3(lp,is1,js1,is2,js2) &
      &                                      + HLIN9(lp,is1,js1,is2,js2)
               End Do ! js2
             End Do ! js1
@@ -304,7 +304,7 @@ c build the interaction Hamiltonians
             Do j = 1, neq(i)
               l = l + 1
               If( l.eq.lb ) Then
-                HTOT(nb1,nb1)=HTOT(nb1,nb1) +
+                HTOT(nb1,nb1)=HTOT(nb1,nb1) +                           &
      &                        cmplx( eso(i,ibas(nb1,lb)+1), 0.0_wp, wp )
                 If((lb+1).le.(lmax)) lb=lb+1
               End If
@@ -354,7 +354,7 @@ c build the interaction Hamiltonians
               l = l + 1
               If( l.eq.lb ) Then
                 ! kind=8, complex double precision
-                HTOT(nb1,nb1)=HTOT(nb1,nb1)+
+                HTOT(nb1,nb1)=HTOT(nb1,nb1)+                            &
      &                        cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
                 If((lb+1).le.(lmax)) lb=lb+1
               End If
@@ -404,7 +404,7 @@ c build the interaction Hamiltonians
             Do j = 1, neq(i)
               l = l + 1
               If( l.eq.lb ) Then
-                HTOT(nb1,nb1)=HTOT(nb1,nb1) +
+                HTOT(nb1,nb1)=HTOT(nb1,nb1) +                           &
      &                        cmplx( eso(i,ibas(nb1,lb)+1), 0.0_wp, wp )
                 If((lb+1).le.(lmax)) lb=lb+1
               End If
@@ -518,12 +518,12 @@ c build the interaction Hamiltonians
               icoord(lb2) = js2 - 1
               nb2 = norder(icoord,intc,lmax)
 
-              HTOT(nb1,nb2)= HTOT(nb1,nb2)
-     &                     + HLIN1(lp,is1,js1,is2,js2)
-     &                     + HLIN3(lp,is1,js1,is2,js2)
-     &                     + HLIN9(lp,is1,js1,is2,js2)
-     &                     +  HDIP(lp,is1,js1,is2,js2)
-     &                     +  HKEX(lp,is1,js1,is2,js2)
+              HTOT(nb1,nb2)= HTOT(nb1,nb2)                              &
+     &                     + HLIN1(lp,is1,js1,is2,js2)                  &
+     &                     + HLIN3(lp,is1,js1,is2,js2)                  &
+     &                     + HLIN9(lp,is1,js1,is2,js2)                  &
+     &                     +  HDIP(lp,is1,js1,is2,js2)                  &
+     &                     +  HKEX(lp,is1,js1,is2,js2)                  &
      &                     +  HITO(lp,is1,js1,is2,js2)
             End Do ! js2
           End Do ! js1
@@ -537,7 +537,7 @@ c build the interaction Hamiltonians
               l = l + 1
               If( l.eq.lb ) Then
                 !kind=8, complex double precision
-                HTOT(nb1,nb1)=HTOT(nb1,nb1)+
+                HTOT(nb1,nb1)=HTOT(nb1,nb1)+                            &
      &                        cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
                 If((lb+1).le.(lmax)) lb=lb+1
               End If
@@ -545,7 +545,7 @@ c build the interaction Hamiltonians
           End Do !i
         End If ! .not. KE
       End Do !nb1
-c diagonalize
+! diagonalize
       info =0
       lwork=0
       lwork=2*exch-1

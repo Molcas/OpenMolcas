@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine momloc2( N, NL, nneq,  neq, neqv, r_rot, nsites,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine momloc2( N, NL, nneq,  neq, neqv, r_rot, nsites,       &
      &                    nexch, W, Z, dipexch, s_exch, dipso, s_so )
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
@@ -28,7 +28,7 @@
       Complex(kind=8) ::  s_so(nneq,3,NL,NL)
       Complex(kind=8) :: Z(N,N)
 #include "stdalloc.fh"
-c local variables:
+! local variables:
       Integer          :: L, i, j, m, k
       Integer          :: nmult, isite
       Integer          :: icod(nsites)
@@ -58,7 +58,7 @@ c local variables:
       ! temporary data for ZEEM:
       Real(kind=8), allocatable :: RWORK(:)
       Complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
-c
+!
       DBG=.false.
       g_e=2.0023193043718_wp
 
@@ -93,7 +93,7 @@ c
 
 
       If (N==1) goto 199
-c  initialisations:
+!  initialisations:
       isite=0
       nind=0
       Do i=1,nneq
@@ -119,8 +119,8 @@ c  initialisations:
             j = j - ib(i,k) * icod(k)
          End Do
       End Do
-c  find the multiplicity of the low-lying group of states,
-c  energy threshold E_thres = 1.d-2 cm-1;
+!  find the multiplicity of the low-lying group of states,
+!  energy threshold E_thres = 1.d-2 cm-1;
       nmult=0
       E_thres=1.d-3
       Do i=1,N
@@ -129,77 +129,77 @@ c  energy threshold E_thres = 1.d-2 cm-1;
         End If
       End Do
       If(nmult<2) nmult=2 !minimum value needed to compute g-tensor
-c  find the main magnetic axes of this manIfold:
+!  find the main magnetic axes of this manIfold:
       gtens=0.0_wp
       maxes=0.0_wp
       Call atens( dipexch(1:3,1:nmult,1:nmult), nmult, gtens, maxes, 1)
       If(DBG) Then
       Write(6,'(A)') 'MOMLOC2:  g tensor of the ground manIfold:'
       Write(6,*)
-      Write(6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(1),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(1),                   &
      & ' axis X: ',(maxes(j,1),j=1,3)
-      Write(6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(2),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(2),                   &
      & ' axis Y: ',(maxes(j,2),j=1,3)
-      Write(6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(3),
+      Write(6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(3),                   &
      & ' axis Z: ',(maxes(j,3),j=1,3)
       End If
-c  construct the Zeeman matrix in the lowest N exchange states  and diagonalize it
+!  construct the Zeeman matrix in the lowest N exchange states  and diagonalize it
       st=0.0_wp
       H=1.d-4 ! tesla
       zJ=0.0_wp !absence of intermolecular interaction
-      Call zeem_sa( N, H, maxes(1,3),maxes(2,3),maxes(3,3),
-     &           W(1:N), dipexch(1:3,1:N,1:N),
-     &                    s_exch(1:3,1:N,1:N),
-     &           ST, zJ,  WM(1:N), ZM(1:N,1:N),
+      Call zeem_sa( N, H, maxes(1,3),maxes(2,3),maxes(3,3),             &
+     &           W(1:N), dipexch(1:3,1:N,1:N),                          &
+     &                    s_exch(1:3,1:N,1:N),                          &
+     &           ST, zJ,  WM(1:N), ZM(1:N,1:N),                         &
      &           DBG, RWORK, HZEE, WORK, W_c )
-ccc  eigenvectors
+!cc  eigenvectors
       If (DBG) Then
          Write(6,*)
          Write(6,'(100a)') (('%'),i=1,96)
-         Write(6,'(10x,a)') 'MOMLOC2:  '//
+         Write(6,'(10x,a)') 'MOMLOC2:  '//                              &
      &       'EigenVectors of the Total Magnetic Interaction'
          Write(6,'(100a)') (('%'),i=1,96)
 
-         Write(6,'(A,16A)') '-',('---',m=1,nsites),'|',
+         Write(6,'(A,16A)') '-',('---',m=1,nsites),'|',                 &
      &       ('---------------------------|',i=1,4)
          Write(fmtline,'(A,i2,A)') '(1x,',nsites,'A,39x,A,38x,A)'
-         Write(6,fmtline) ('   ',m=1,nsites),
+         Write(6,fmtline) ('   ',m=1,nsites),                           &
      &        'eigenvectors of the exchange matrix','|'
          Do J=1,N,4
             jEnd=MIN(N,J+3)
-            Write(6,'(A,16A)') '-',('---',m=1,nsites),'|',
+            Write(6,'(A,16A)') '-',('---',m=1,nsites),'|',              &
      &       ('---------------------------|',i=j,jEnd)
 
-            Write(6,'(A,5A)') 'Exch.  |',
+            Write(6,'(A,5A)') 'Exch.  |',                               &
      &       ('      exchange state       |',i=j,jEnd)
 
-            Write(6,'(A,6A)') 'basis  |',
+            Write(6,'(A,6A)') 'basis  |',                               &
      &       ('                           |',i=j,jEnd)
-            Write(6,'(A,6(a,i5,a))') 'on site|',
+            Write(6,'(A,6(a,i5,a))') 'on site|',                        &
      &       ('         ',i,'             |',i=j,jEnd)
-              Write(fmtline,'(A,i2,A)')
+              Write(fmtline,'(A,i2,A)')                                 &
      &              '(A,',nsites,'i3,a,6(a,f19.12,2x,a))'
-            Write(6,fmtline) ' ',(i,i=1,nsites),'|',
+            Write(6,fmtline) ' ',(i,i=1,nsites),'|',                    &
      &       ('  E =',wm(i)-wm(1),' |',i=j,jEnd)
 
-            Write(6,'(A,16A)') '-',('---',m=1,nsites),'|',
+            Write(6,'(A,16A)') '-',('---',m=1,nsites),'|',              &
      &       ('----- Real ------- Imag ---|',i=j,jEnd)
 
-               Write(fmtline,'(A,i2,A)')
+               Write(fmtline,'(A,i2,A)')                                &
      &              '(A,',nsites,'i3,A,5(2F13.9,1x,a))'
             Do iss=1,N
-               Write(6,fmtline) '<',
-     &              ( ib(iss,m)+1,m=1,nsites),'|',
+               Write(6,fmtline) '<',                                    &
+     &              ( ib(iss,m)+1,m=1,nsites),'|',                      &
      &              ( ZM(iss,i),'|',i=j,jEnd)
             End Do  !iss
-            Write(6,'(A,16A)') '-',('---',m=1,nsites),'|',
+            Write(6,'(A,16A)') '-',('---',m=1,nsites),'|',              &
      &          ('---------------------------|',i=j,jEnd)
             Write(6,*)
          End Do ! j
       End If !DBG
 
 
-c  generate the exchange basis:
+!  generate the exchange basis:
       Do isite=1,nsites
          Do L=1,3
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
@@ -214,38 +214,38 @@ c  generate the exchange basis:
                Do jss1=1,nexch(i1)
                icoord(isite)=jss1-1
                nb2=norder(icoord,icod,nsites)
-               VL(nb1, nb2) = VL(nb1, nb2) +
-     &               r_rot( i1, j1, l, 1 ) * dipso( i1, 1, iss1, jss1 )
-     &              +r_rot( i1, j1, l, 2 ) * dipso( i1, 2, iss1, jss1 )
+               VL(nb1, nb2) = VL(nb1, nb2) +                            &
+     &               r_rot( i1, j1, l, 1 ) * dipso( i1, 1, iss1, jss1 ) &
+     &              +r_rot( i1, j1, l, 2 ) * dipso( i1, 2, iss1, jss1 ) &
      &              +r_rot( i1, j1, l, 3 ) * dipso( i1, 3, iss1, jss1 )
                End Do  ! jss1
             End Do  ! nb1
-c rotate this matrix to exchange basis:
+! rotate this matrix to exchange basis:
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
-            Call ZGEMM_('C','N',N,N,N,
-     &                   (1.0_wp,0.0_wp),   Z, N,
-     &                                     VL, N,
+            Call ZGEMM_('C','N',N,N,N,                                  &
+     &                   (1.0_wp,0.0_wp),   Z, N,                       &
+     &                                     VL, N,                       &
      &                   (0.0_wp,0.0_wp), TMP, N )
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
-            Call ZGEMM_('N','N',N,N,N,
-     &                   (1.0_wp,0.0_wp),TMP, N,
-     &                                     Z, N,
+            Call ZGEMM_('N','N',N,N,N,                                  &
+     &                   (1.0_wp,0.0_wp),TMP, N,                        &
+     &                                     Z, N,                        &
      &                   (0.0_wp,0.0_wp), VL, N )
-c rotate this matrix to Zeeman basis:
+! rotate this matrix to Zeeman basis:
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
-            Call ZGEMM_('C','N',N,N,N,(1.0_wp,0.0_wp),
-     &                 ZM(1:N,1:N), N,
-     &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),
+            Call ZGEMM_('C','N',N,N,N,(1.0_wp,0.0_wp),                  &
+     &                 ZM(1:N,1:N), N,                                  &
+     &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),                 &
      &                TMP(1:N,1:N), N )
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
-            Call ZGEMM_('N','N',N,N,N, (1.0_wp,0.0_wp),
-     &                TMP(1:N,1:N), N,
-     &                 ZM(1:N,1:N), N, (0.0_wp,0.0_wp),
+            Call ZGEMM_('N','N',N,N,N, (1.0_wp,0.0_wp),                 &
+     &                TMP(1:N,1:N), N,                                  &
+     &                 ZM(1:N,1:N), N, (0.0_wp,0.0_wp),                 &
      &                 VL(1:N,1:N), N )
             Do i=1,N
                MM(isite,L,i)=dble(VL(i,i))
             End Do
-c spin moment
+! spin moment
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
             Do nb1=1,N
                 Do l_exch=1,nsites
@@ -258,54 +258,54 @@ c spin moment
                Do jss1=1,nexch(i1)
                icoord(isite)=jss1-1
                nb2=norder(icoord,icod,nsites)
-               VL(nb1, nb2) = VL(nb1, nb2) +
-     &               r_rot( i1, j1, l, 1 ) *  s_so( i1, 1, iss1, jss1 )
-     &              +r_rot( i1, j1, l, 2 ) *  s_so( i1, 2, iss1, jss1 )
+               VL(nb1, nb2) = VL(nb1, nb2) +                            &
+     &               r_rot( i1, j1, l, 1 ) *  s_so( i1, 1, iss1, jss1 ) &
+     &              +r_rot( i1, j1, l, 2 ) *  s_so( i1, 2, iss1, jss1 ) &
      &              +r_rot( i1, j1, l, 3 ) *  s_so( i1, 3, iss1, jss1 )
                End Do  ! jss1
             End Do  ! nb1
-c rotate this matrix to exchange basis and to Zeeman basis
+! rotate this matrix to exchange basis and to Zeeman basis
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
-            Call ZGEMM_('C','N',N,N,N,  (1.0_wp,0.0_wp),
-     &                  Z(1:N,1:N), N,
-     &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),
+            Call ZGEMM_('C','N',N,N,N,  (1.0_wp,0.0_wp),                &
+     &                  Z(1:N,1:N), N,                                  &
+     &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),                 &
      &                TMP(1:N,1:N), N )
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
-            Call ZGEMM_('N','N',N,N,N,  (1.0_wp,0.0_wp),
-     &                TMP(1:N,1:N), N,
-     &                  Z(1:N,1:N), N, (0.0_wp,0.0_wp),
+            Call ZGEMM_('N','N',N,N,N,  (1.0_wp,0.0_wp),                &
+     &                TMP(1:N,1:N), N,                                  &
+     &                  Z(1:N,1:N), N, (0.0_wp,0.0_wp),                 &
      &                 VL(1:N,1:N), N )
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,TMP,1)
-            Call ZGEMM_('C','N',N,N,N,  (1.0_wp,0.0_wp),
-     &                 ZM(1:N,1:N), N,
-     &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),
+            Call ZGEMM_('C','N',N,N,N,  (1.0_wp,0.0_wp),                &
+     &                 ZM(1:N,1:N), N,                                  &
+     &                 VL(1:N,1:N), N, (0.0_wp,0.0_wp),                 &
      &                TMP(1:N,1:N), N )
             Call zcopy_(N*N,[(0.0_wp,0.0_wp)],0,VL,1)
-            Call ZGEMM_('N','N',N,N,N,  (1.0_wp,0.0_wp),
-     &                TMP(1:N,1:N), N,
-     &                 ZM(1:N,1:N), N, (0.0_wp,0.0_wp),
+            Call ZGEMM_('N','N',N,N,N,  (1.0_wp,0.0_wp),                &
+     &                TMP(1:N,1:N), N,                                  &
+     &                 ZM(1:N,1:N), N, (0.0_wp,0.0_wp),                 &
      &                 VL(1:N,1:N), N )
             Do i=1,N
                SM(isite,L,i)=dble(VL(i,i))
             End Do
          End Do  ! L
       End Do  ! isite
-c compute and print the calculated expectation values:
+! compute and print the calculated expectation values:
       Write(6,*)
       Write(6,'(A)') 'EXPECTATION VALUES'
-      Write(6,'(5A)') '--------|----|',
+      Write(6,'(5A)') '--------|----|',                                 &
      & ('------------------------------|',i=1,4)
-      Write(6,'(5A)') 'Exchange|Site|',
-     & '   MAGNETIC MOMENT (M=-L-2S)  |',
-     & '        SPIN MOMENT (S)       |',
-     & '      ORBITAL MOMENT (L)      |',
+      Write(6,'(5A)') 'Exchange|Site|',                                 &
+     & '   MAGNETIC MOMENT (M=-L-2S)  |',                               &
+     & '        SPIN MOMENT (S)       |',                               &
+     & '      ORBITAL MOMENT (L)      |',                               &
      & '     TOTAL MOMENT (J=L+S)     |'
-      Write(6,'(5A)') ' state  | Nr.|',
+      Write(6,'(5A)') ' state  | Nr.|',                                 &
      & ('     X         Y         Z    |',i=1,4)
-      Write(6,'(5A)') '--------|----|',
+      Write(6,'(5A)') '--------|----|',                                 &
      & ('------------------------------|',i=1,4)
       Do i=1,N
-c  we proceed to compute expectation values for this nb1 exchange state
+!  we proceed to compute expectation values for this nb1 exchange state
          Do isite=1,nsites
             Do L=1,3
                LM(isite,L,i)=-MM(isite,L,i)-g_e*SM(isite,L,i)
@@ -315,22 +315,22 @@ c  we proceed to compute expectation values for this nb1 exchange state
 
          Do isite=1,nsites
          If(isite.eq.int((nsites+1)/2)) Then
-      Write(6,'(i5,3x,A,1x,i2,1x,A,4(3(F9.5,1x),A))')
-     & i,'|',isite,'|',
-     & MM(isite,1,i),MM(isite,2,i),MM(isite,3,i),'|',
-     & SM(isite,1,i),SM(isite,2,i),SM(isite,3,i),'|',
-     & LM(isite,1,i),LM(isite,2,i),LM(isite,3,i),'|',
+      Write(6,'(i5,3x,A,1x,i2,1x,A,4(3(F9.5,1x),A))')                   &
+     & i,'|',isite,'|',                                                 &
+     & MM(isite,1,i),MM(isite,2,i),MM(isite,3,i),'|',                   &
+     & SM(isite,1,i),SM(isite,2,i),SM(isite,3,i),'|',                   &
+     & LM(isite,1,i),LM(isite,2,i),LM(isite,3,i),'|',                   &
      & JM(isite,1,i),JM(isite,2,i),JM(isite,3,i),'|'
          Else
-      Write(6,'(8x,A,1x,i2,1x,A,4(3(F9.5,1x),A))')
-     & '|',isite,'|',
-     & MM(isite,1,i),MM(isite,2,i),MM(isite,3,i),'|',
-     & SM(isite,1,i),SM(isite,2,i),SM(isite,3,i),'|',
-     & LM(isite,1,i),LM(isite,2,i),LM(isite,3,i),'|',
+      Write(6,'(8x,A,1x,i2,1x,A,4(3(F9.5,1x),A))')                      &
+     & '|',isite,'|',                                                   &
+     & MM(isite,1,i),MM(isite,2,i),MM(isite,3,i),'|',                   &
+     & SM(isite,1,i),SM(isite,2,i),SM(isite,3,i),'|',                   &
+     & LM(isite,1,i),LM(isite,2,i),LM(isite,3,i),'|',                   &
      & JM(isite,1,i),JM(isite,2,i),JM(isite,3,i),'|'
          End If
          End Do
-      Write(6,'(5A)') '--------|----|',
+      Write(6,'(5A)') '--------|----|',                                 &
      & ('------------------------------|',i1=1,4)
       End Do
 

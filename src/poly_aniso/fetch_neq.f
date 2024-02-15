@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine fetch_neq(nneq,neq,nexch)
       Implicit None
 
@@ -24,7 +24,7 @@
 
       neq=0
       nexch=0
-C=========== End of default settings====================================
+!=========== End of default settings====================================
       Input = 5
       Rewind(Input)
 50    READ(Input,'(A72)',End=998) LINE
@@ -44,7 +44,7 @@ C=========== End of default settings====================================
       If (LINE(1:4).eq.'NNEQ') Then
 !        number of non-equivalent centers; type of all centers
          READ(Input,*,ERR=997)  NNEQ, ab_initio_all
-         If(DBG) Write(6,'(A,i4,A,L2)') 'NNEQ=', NNEQ,
+         If(DBG) Write(6,'(A,i4,A,L2)') 'NNEQ=', NNEQ,                  &
      &                          ' ab_initio_all=',ab_initio_all
 !        number of equivalent centers of type "i"
          READ(Input,*,ERR=997) (NEQ(i)  ,i=1,Nneq)
@@ -62,14 +62,14 @@ C=========== End of default settings====================================
 
       GoTo 999 ! end
 
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 997   continue
       Write(6,*)' READIN: Error reading "poly_aniso.input" '
       Write(6,*)' near line nr.',LINENR+1
       Go To 999
 998   continue
       Write(6,*)' READIN: Unexpected End of input file.'
-c-----------------------------------------------------------
+!-----------------------------------------------------------
 999   Continue
       If(DBG) Write(6,'(A)') 'Exit fetch_neq'
       Return

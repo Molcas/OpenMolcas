@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine dirvect( P1, R1, P2, R2,  vec, dist )
-c this Subroutine computes the directional vector of the origins of two points P1 and P2
+! this Subroutine computes the directional vector of the origins of two points P1 and P2
       Implicit None
       Integer, parameter        :: wp=kind(0.d0)
       Real(kind=8), intent(in)  :: P1(3) ! coords of the first point
@@ -20,7 +20,7 @@ c this Subroutine computes the directional vector of the origins of two points P
       Real(kind=8), intent(in)  :: R2(3,3)
       Real(kind=8), intent(out) :: vec(3)
       Real(kind=8), intent(out) :: dist
-c local variables
+! local variables
       Integer       :: i, j
       Real(kind=8) :: C1(3), C2(3)
       Real(kind=8) :: distance
