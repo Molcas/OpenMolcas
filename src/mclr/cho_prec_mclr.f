@@ -42,7 +42,6 @@
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Character*50 CFmt
       Real*8, parameter:: xone=-One
