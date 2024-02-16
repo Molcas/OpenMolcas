@@ -29,7 +29,8 @@
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),
-     &                       UP(:), MAW(:), IVR(:)
+     &                       UP(:), MAW(:), IVR(:), ISGM(:)
+      Real*8, Allocatable:: VSGM(:)
       Integer, External:: ip_of_iWork
 
       LV1RAS=NRAS1T
@@ -125,10 +126,9 @@ C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       CALL mma_allocate(MVR,NMVR,Label='MVR')
       LMVR = ip_of_iWork(MVR(1))
       NSGMNT=26*NVERT
-      CALL GETMEM('ISGM','ALLO','INTEG',LISGM,NSGMNT)
-      CALL GETMEM('VSGM','ALLO','REAL',LVSGM,NSGMNT)
-      CALL MKSEG_CP2(DRT,DOWN,LTV,IVR,
-     &           MVL,MVR,IWORK(LISGM),WORK(LVSGM))
+      CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
+      CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
+      CALL MKSEG_CP2(DRT,DOWN,LTV,IVR,MVL,MVR,ISGM,VSGM)
       Call mma_deallocate(DOWN)
       Call mma_deallocate(LTV)
 C FORM VARIOUS OFFSET TABLES:
@@ -150,7 +150,7 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
       CALL GETMEM('NOCSF','ALLO','INTEG',LNOCSF,NNOCSF)
       CALL GETMEM('IOCSF','ALLO','INTEG',LIOCSF,NIOCSF)
-      CALL NRCOUP_CP2(DRT,IWORK(LISGM),IWORK(LNOW),
+      CALL NRCOUP_CP2(DRT,ISGM,IWORK(LNOW),
      &            IWORK(LIOW),IWORK(LNOCP),IWORK(LIOCP),IWORK(LNOCSF),
      &            IWORK(LIOCSF),IWORK(LNRL),MVL,MVR)
       CALL mma_deallocate(DRT)
@@ -166,8 +166,8 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL GETMEM('ILNDW','ALLO','INTEG',LILNDW,NILNDW)
       CALL GETMEM('SCR','ALLO','INTEG',LSCR,NSCR)
       CALL GETMEM('VAL','ALLO','REAL',LVAL,NLEV+1)
-      CALL MKCOUP_CP2(IVR,MAW,IWORK(LISGM),
-     &            WORK(LVSGM),IWORK(LNOW),IWORK(LIOW),IWORK(LNOCP),
+      CALL MKCOUP_CP2(IVR,MAW,ISGM,
+     &            VSGM,IWORK(LNOW),IWORK(LIOW),IWORK(LNOCP),
      &     IWORK(LIOCP),IWORK(LILNDW),IWORK(LICASE),IWORK(LICOUP),
      &     NVTAB_TMP,WORK(LVTAB_TMP),NVTAB_FINAL,IWORK(LSCR),
      &     WORK(LVAL))
@@ -179,8 +179,8 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL GETMEM('ILNDW','FREE','INTEG',LILNDW,NILNDW)
       CALL GETMEM('SCR','FREE','INTEG',LSCR,NSCR)
       CALL GETMEM('VAL','FREE','REAL',LVAL,NLEV+1)
-      CALL GETMEM('ISGM','FREE','INTEG',LISGM,NSGMNT)
-      CALL GETMEM('VSGM','FREE','REAL',LVSGM,NSGMNT)
+      Call mma_deallocate(ISGM)
+      Call mma_deallocate(VSGM)
       Call mma_deallocate(MAW)
       Call mma_deallocate(IVR)
 
