@@ -29,7 +29,7 @@
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),
-     &                       UP(:), MAW(:), IVR(:), ISGM(:)
+     &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:)
       Real*8, Allocatable:: VSGM(:)
       Integer, External:: ip_of_iWork
 
@@ -142,9 +142,11 @@ C FORM VARIOUS OFFSET TABLES:
       NNOCP=MXEO*NMIDV*NSYM
       NIOCP=NNOCP
       NNRL=(1+MXEO)*NVERT*NSYM
-      CALL GETMEM('NOCP','ALLO','INTEG',LNOCP,NNOCP)
-      CALL GETMEM('IOCP','ALLO','INTEG',LIOCP,NIOCP)
-      CALL GETMEM('NRL','ALLO','INTEG',LNRL,NNRL)
+      CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
+      LNOCP = ip_of_iWork(NOCP(1))
+      CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
+      LIOCP = ip_of_iWork(IOCP(1))
+      CALL mma_allocate(NRL,NNRL,Label='NRL')
       NNOCSF=NMIDV*(NSYM**2)
       NIOCSF=NNOCSF
 C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
@@ -153,10 +155,10 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL GETMEM('NOCSF','ALLO','INTEG',LNOCSF,NNOCSF)
       CALL GETMEM('IOCSF','ALLO','INTEG',LIOCSF,NIOCSF)
       CALL NRCOUP_CP2(DRT,ISGM,NOW1,
-     &            IOW1,IWORK(LNOCP),IWORK(LIOCP),IWORK(LNOCSF),
-     &            IWORK(LIOCSF),IWORK(LNRL),MVL,MVR)
+     &            IOW1,NOCP,IOCP,IWORK(LNOCSF),
+     &            IWORK(LIOCSF),NRL,MVL,MVR)
       CALL mma_deallocate(DRT)
-      CALL GETMEM('NRL','FREE','INTEG',LNRL,NNRL)
+      CALL mma_deallocate(NRL)
       NILNDW=NWALK
       NICASE=NWALK*NIPWLK
       CALL GETMEM('ICASE','ALLO','INTEG',LICASE,NICASE)
@@ -169,8 +171,8 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL GETMEM('SCR','ALLO','INTEG',LSCR,NSCR)
       CALL GETMEM('VAL','ALLO','REAL',LVAL,NLEV+1)
       CALL MKCOUP_CP2(IVR,MAW,ISGM,
-     &            VSGM,NOW1,IOW1,IWORK(LNOCP),
-     &     IWORK(LIOCP),IWORK(LILNDW),IWORK(LICASE),IWORK(LICOUP),
+     &            VSGM,NOW1,IOW1,NOCP,
+     &     IOCP,IWORK(LILNDW),IWORK(LICASE),IWORK(LICOUP),
      &     NVTAB_TMP,WORK(LVTAB_TMP),NVTAB_FINAL,IWORK(LSCR),
      &     WORK(LVAL))
 * Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:

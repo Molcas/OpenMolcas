@@ -13,5 +13,6 @@
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)
       Integer, Allocatable:: NOW1(:), IOW1(:)
+      Integer, Allocatable:: NOCP(:), IOCP(:)
       save
       end module pt2_guga_data
