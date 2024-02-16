@@ -29,8 +29,9 @@
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),
-     &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:)
-      Real*8, Allocatable:: VSGM(:)
+     &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),
+     &                       ILNDW(:)
+      Real*8, Allocatable:: VSGM(:), VTAB_TMP(:)
       Integer, External:: ip_of_iWork, ip_of_Work
 
       LV1RAS=NRAS1T
@@ -168,22 +169,22 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL mma_allocate(ICOUP,NNICOUP,Label='ICOUP')
       LICOUP = ip_of_iWork(ICOUP(1))
       NVTAB_TMP=20000
-      CALL GETMEM('VTAB_TMP','ALLO','REAL',LVTAB_TMP,NVTAB_TMP)
+      CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       NSCR=7*(NLEV+1)
-      CALL GETMEM('ILNDW','ALLO','INTEG',LILNDW,NILNDW)
+      CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL GETMEM('SCR','ALLO','INTEG',LSCR,NSCR)
       CALL GETMEM('VAL','ALLO','REAL',LVAL,NLEV+1)
       CALL MKCOUP_CP2(IVR,MAW,ISGM,VSGM,NOW1,IOW1,NOCP,
-     &     IOCP,IWORK(LILNDW),ICASE,ICOUP,
-     &     NVTAB_TMP,WORK(LVTAB_TMP),NVTAB_FINAL,IWORK(LSCR),
+     &     IOCP,ILNDW,ICASE,ICOUP,
+     &     NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,IWORK(LSCR),
      &     WORK(LVAL))
 * Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:
       NVTAB=NVTAB_FINAL
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
       LVTAB = ip_of_Work(VTAB(1))
-      CALL DCOPY_(NVTAB,WORK(LVTAB_TMP),1,WORK(LVTAB),1)
-      CALL GETMEM('VTAB_TMP','FREE','REAL',LVTAB_TMP,NVTAB_TMP)
-      CALL GETMEM('ILNDW','FREE','INTEG',LILNDW,NILNDW)
+      VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
+      Call mma_deallocate(VTAB_TMP)
+      Call mma_deallocate(ILNDW)
       CALL GETMEM('SCR','FREE','INTEG',LSCR,NSCR)
       CALL GETMEM('VAL','FREE','REAL',LVAL,NLEV+1)
       Call mma_deallocate(ISGM)
