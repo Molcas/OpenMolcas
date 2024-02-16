@@ -15,5 +15,6 @@
       Integer, Allocatable:: NOW1(:), IOW1(:)
       Integer, Allocatable:: NOCP(:), IOCP(:)
       Integer, Allocatable:: NOCSF(:), IOCSF(:)
+      Integer, Allocatable:: ICASE(:), ICOUP(:)
       save
       end module pt2_guga_data
