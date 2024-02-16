@@ -28,7 +28,8 @@
       Integer, Allocatable, Target:: DRT0(:), DRT(:)
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
-      Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:)
+      Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),
+     &                       UP(:)
 
 
       LV1RAS=NRAS1T
@@ -102,19 +103,19 @@ C CALCULATE DIRECT ARC WEIGHT AND LTV TABLES.
       CALL MKDAW_CP2(NLEV,NVERT,DRT,DOWN,DAW,LTV)
 C UPCHAIN INDEX TABLE:
       NUP=4*NVERT
-      CALL GETMEM('UP','ALLO','INTEG',LUP,NUP)
+      CALL mma_allocate(UP,NUP,Label='UP')
 C REVERSE ARC WEIGHT TABLE:
       NRAW=5*NVERT
-      CALL GETMEM('RAW','ALLO','INTEG',LRAW,NRAW)
+      CALL mma_allocate(RAW,NRAW,Label='RAW')
 C DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
       NMAW=4*NVERT
       CALL GETMEM('MAW','ALLO','INTEG',LMAW,NMAW)
-      CALL MKMAW_CP2(DOWN,DAW,IWORK(LUP),IWORK(LRAW),
+      CALL MKMAW_CP2(DOWN,DAW,UP,RAW,
      &           IWORK(LMAW),LTV)
 C THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
       CALL mma_deallocate(DAW)
-      CALL GETMEM('UP','FREE','INTEG',LUP,NUP)
-      CALL GETMEM('RAW','FREE','INTEG',LRAW,NRAW)
+      CALL mma_deallocate(UP)
+      CALL mma_deallocate(RAW)
 C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       NIVR=2*NVERT
       CALL GETMEM('IVR','ALLO','INTEG',LIVR,NIVR)
