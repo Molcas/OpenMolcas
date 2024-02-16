@@ -14,5 +14,6 @@
       Integer, Allocatable:: MVL(:), MVR(:)
       Integer, Allocatable:: NOW1(:), IOW1(:)
       Integer, Allocatable:: NOCP(:), IOCP(:)
+      Integer, Allocatable:: NOCSF(:), IOCSF(:)
       save
       end module pt2_guga_data
