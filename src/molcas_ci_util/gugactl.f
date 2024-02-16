@@ -32,6 +32,16 @@ C
 #include "gas.fh"
       Character(LEN=16), Parameter :: ROUTINE='GUGACTL '
 
+      Interface
+      SUBROUTINE MKGUGA(NSM,NSYM,STSYM,NCSF)
+      IMPLICIT None
+!
+      Integer NSYM, STSYM
+      Integer NSM(NSYM)
+      Integer NCSF(NSYM)
+      End SUBROUTINE MKGUGA
+      End Interface
+
 C Local print level (if any)
 #ifdef _DEBUGPRINT_
       WRITE(LF,*)' Entering ',ROUTINE

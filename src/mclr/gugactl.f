@@ -12,7 +12,8 @@
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
      &                NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,DRT,
      &                DOWN,DAW,UP,RAW,USGN,LSGN,ICASE,IFCAS,
-     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS
+     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
+     &                NOCSF, IOCSF, NOW => NOW1, IOW => IOW1
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Real*8 CIL(*)
@@ -25,6 +26,22 @@
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
       Real*8, Allocatable:: CINew(:)
+
+      Interface
+      SUBROUTINE SGPRWF_MCLR
+     &           (LSYM,PRWTHR,
+     &            NSYM,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
+     &            NSM,NOCSF,IOCSF,NOW,IOW,ICASE,CI)
+      Integer  LSYM
+      Real*8 PRWTHR
+      Integer  NSYM,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE
+      Integer  NSM(NSYM)
+      Integer  NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
+      Integer  NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
+      Integer  ICASE(NICASE)
+      Real*8 CI(NCONF)
+      END SUBROUTINE SGPRWF_MCLR
+      End Interface
 *
 *
       ntRas1=0
@@ -105,9 +122,15 @@
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
 
+#ifdef _TEST_
+      Call SGPRWF_MCLR_E(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,
+     &                 NIPWLK,NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,
+     &                 CIL)
+#else
       Call SGPRWF_MCLR(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,
      &                 NIPWLK,NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,
      &                 CIL)
+#endif
       WRITE(6,103)
 103   FORMAT(/,6X,100('-'),/)
 
@@ -126,4 +149,5 @@
 *
       Call MkGUGA_Free()
 *
+
       End Subroutine GugaCtl_MCLR
