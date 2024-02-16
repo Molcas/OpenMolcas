@@ -28,7 +28,13 @@
       Integer, Allocatable, Target:: DRT0(:), DRT(:)
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
+      Integer, Allocatable:: TMP(:), V11(:)
 
+
+      LV1RAS=NRAS1T
+      LV3RAS=LV1RAS+NRAS2T
+      LM1RAS=2*LV1RAS-NHOLE1
+      LM3RAS=NACTEL-NELE3
 
 C SET UP A FULL PALDUS DRT TABLE:
       IB0=ISPIN-1
@@ -40,7 +46,7 @@ C SET UP A FULL PALDUS DRT TABLE:
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
       NDRT0=5*NVERT0
       NDOWN0=4*NVERT0
-      NVCD=((NLEV+1)*(NLEV+2))/2
+      NTMP=((NLEV+1)*(NLEV+2))/2
 
       IF((NRAS1T+NRAS3T).NE.0) THEN
         CALL mma_allocate(DRT0,NDRT0,Label='DRT0')
@@ -57,10 +63,9 @@ C SET UP A FULL PALDUS DRT TABLE:
         NVERT=NVERT0
       ENDIF
 
-      CALL GETMEM('VCD','ALLO','INTEGER',LVCD,NVCD)
-      CALL mkDRT0(IA0,IB0,IC0,NVERT0,DRTP,DOWNP,
-     &           NVCD,IWORK(LVCD))
-      CALL GETMEM('VCD','FREE','INTEGER',LVCD,NVCD)
+      CALL mma_allocate(TMP,NTMP,Label='TMP')
+      CALL mkDRT0(IA0,IB0,IC0,NVERT0,DRTP,DOWNP,NTMP,TMP)
+      CALL mma_deallocate(TMP)
 #ifdef _DEBUGPRINT_
       WRITE(6,*)
       WRITE(6,*)' PALDUS DRT TABLE (UNRESTRICTED):'
@@ -69,27 +74,26 @@ C SET UP A FULL PALDUS DRT TABLE:
 C RESTRICTIONS?
       IF((NRAS1T+NRAS3T).NE.0) THEN
 C  CONSTRUCT A RESTRICTED GRAPH.
-        CALL GETMEM('VERT','ALLO','INTEG',LV,NVERT0)
-        LV1RAS=NRAS1T
-        LV3RAS=LV1RAS+NRAS2T
-        LM1RAS=2*LV1RAS-NHOLE1
-        LM3RAS=NACTEL-NELE3
-        CALL RESTR(NVERT0,DRTP,DOWN0,IWORK(LV),
+        CALL mma_allocate(V11,NVERT0,Label='V11')
+        CALL RESTR(NVERT0,DRTP,DOWN0,V11,
      &                 LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
+
         NDRT=5*NVERT
         NDOWN=4*NVERT
         CALL mma_allocate(DRT,NDRT,Label='DRT')
         CALL mma_allocate(DOWN,NDOWN,Label='DOWN')
-        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,IWORK(LV),DRT,DOWN)
-        CALL GETMEM('VERT','FREE','INTEG',LV,NVERT0)
+        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
+        CALL mma_deallocate(V11)
         CALL mma_deallocate(DRT0)
         CALL mma_deallocate(DOWN0)
+!
 #ifdef _DEBUGPRINT_
         WRITE(6,*)
         WRITE(6,*)' PALDUS DRT TABLE (RESTRICTED):'
         CALL PRDRT(NVERT,DRT,DOWN)
 #endif
       END IF
+
 C CALCULATE DIRECT ARC WEIGHT AND LTV TABLES.
       NDAW=5*NVERT
       CALL GETMEM('DAW','ALLO','INTEG',LDAW,NDAW)
