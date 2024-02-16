@@ -31,7 +31,7 @@
       Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),
      &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:)
       Real*8, Allocatable:: VSGM(:)
-      Integer, External:: ip_of_iWork
+      Integer, External:: ip_of_iWork, ip_of_Work
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
@@ -179,7 +179,8 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
      &     WORK(LVAL))
 * Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:
       NVTAB=NVTAB_FINAL
-      CALL GETMEM('VTAB','ALLO','REAL',LVTAB,NVTAB)
+      CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
+      LVTAB = ip_of_Work(VTAB(1))
       CALL DCOPY_(NVTAB,WORK(LVTAB_TMP),1,WORK(LVTAB),1)
       CALL GETMEM('VTAB_TMP','FREE','REAL',LVTAB_TMP,NVTAB_TMP)
       CALL GETMEM('ILNDW','FREE','INTEG',LILNDW,NILNDW)

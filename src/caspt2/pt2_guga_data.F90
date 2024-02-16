@@ -16,5 +16,6 @@
       Integer, Allocatable:: NOCP(:), IOCP(:)
       Integer, Allocatable:: NOCSF(:), IOCSF(:)
       Integer, Allocatable:: ICASE(:), ICOUP(:)
+      Real*8,  Allocatable:: VTAB(:)
       save
       end module pt2_guga_data

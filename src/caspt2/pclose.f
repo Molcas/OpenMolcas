@@ -43,7 +43,8 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
       Call mma_deallocate(IOCSF)
       Call mma_deallocate(ICASE)
       Call mma_deallocate(ICOUP)
-      CALL GETMEM('VTAB','FREE','REAL',LVTAB,NVTAB)
+      Call mma_deallocate(VTAB)
+
       CALL GETMEM('SGTMP','FREE','REAL',LSGTMP,NSGTMP)
 
       END SUBROUTINE PCLOSE
