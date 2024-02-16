@@ -8,75 +8,73 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine KE_Covalent(N,lant,t,u,OPT, HCOV )
+
+subroutine KE_Covalent(N,lant,t,u,OPT,HCOV)
 ! this function computes the covalent CF Hamiltonian ofr a given Lanthanide
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer N,OPT,lant
-      Real(kind=8) ::  t,u
-      Real(kind=8) ::  WCG ! Clebsch_Gordan Coefficients
-      Complex(kind=8) ::  HCOV(N,N)
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
+integer N, OPT, lant
+real(kind=8) :: t, u
+real(kind=8) :: WCG ! Clebsch_Gordan Coefficients
+complex(kind=8) :: HCOV(N,N)
 ! local variables
-      Integer i,j,JLn,ms1,ns1
-      Real(kind=8) ::  HCOV1(N,N)
-      Real(kind=8) ::  test1
-      external WCG
+integer i, j, JLn, ms1, ns1
+real(kind=8) :: HCOV1(N,N)
+real(kind=8) :: test1
+external WCG
 #include "stdalloc.fh"
 #include "jcoeff.fh"
 
-      HCOV1=0.0_wp
-      HCOV=(0.0_wp,0.0_wp)
-      JLn=N-1
+HCOV1 = 0.0_wp
+HCOV = (0.0_wp,0.0_wp)
+JLn = N-1
 
-      Do i=1,N
-      ms1=-(N-1)+2*(i-1)
-         Do j=1,N
-         ns1=-(N-1)+2*(j-1)
+do i=1,N
+  ms1 = -(N-1)+2*(i-1)
+  do j=1,N
+    ns1 = -(N-1)+2*(j-1)
 
-      If(OPT.eq.1) Then !FULL calculation
+    if (OPT == 1) then !FULL calculation
 
-            Do iLS=1,4
-               Do iJ=1,17
-                  Do iK=0,6,2
-                     Do ika=-4,4,4
-      test1=0.0_wp
-      test1=WCG(JLn, JLn, 2*iK, 0,  JLn, JLn )
-      If(test1.eq.0.0_wp) Go To 107
-      HCOV1(i,j)=HCOV1(i,j)                                             &
-     &                    + t*t/(u+dE(lant,iLS,iJ))                     &
-     &                    * Jx(lant,iLS,iJ, iK,ika,0,0)                 &
-     &                    * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )       &
-     &                    / WCG(JLn, JLn, 2*iK,     0, JLn, JLn )
- 107  continue
-                     End Do
-                  End Do
-               End Do
-            End Do
+      do iLS=1,4
+        do iJ=1,17
+          do iK=0,6,2
+            do ika=-4,4,4
+              test1 = 0.0_wp
+              test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)
+              if (test1 == 0.0_wp) Go To 107
+              HCOV1(i,j) = HCOV1(i,j)+t*t/(u+dE(lant,iLS,iJ))*Jx(lant,iLS,iJ,iK,ika,0,0)*WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)/ &
+                           WCG(JLn,JLn,2*iK,0,JLn,JLn)
+107           continue
+            end do
+          end do
+        end do
+      end do
 
-      Else If(OPT.eq.2) Then ! 1/U approximation
+    else if (OPT == 2) then ! 1/U approximation
 
-            Do iLS=1,4
-               Do iJ=1,17
-                  Do iK=0,6,2
-                     Do ika=-4,4,4
-      test1=0.0_wp
-      test1=WCG(JLn, JLn, 2*iK, 0,  JLn, JLn )
-      If(test1.eq.0.0_wp) Go To 108
-      HCOV1(i,j)=HCOV1(i,j) + t*t/u                                     &
-     &                    * Jx(lant,iLS,iJ, iK,ika,0,0)                 &
-     &                    * WCG(JLn, ns1, 2*iK, 2*ika, JLn, ms1 )       &
-     &                    / WCG(JLn, JLn, 2*iK,     0, JLn, JLn )
- 108  continue
-                     End Do
-                  End Do
-               End Do
-            End Do
-      End If
-      ! kind=8, complex double precision
-      HCOV(i,j)=cmplx(HCOV1(i,j),0.0_wp, wp)
-      End Do !j
-      End Do !i
+      do iLS=1,4
+        do iJ=1,17
+          do iK=0,6,2
+            do ika=-4,4,4
+              test1 = 0.0_wp
+              test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)
+              if (test1 == 0.0_wp) Go To 108
+              HCOV1(i,j) = HCOV1(i,j)+t*t/u*Jx(lant,iLS,iJ,iK,ika,0,0)*WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)/WCG(JLn,JLn,2*iK,0,JLn,JLn)
+108           continue
+            end do
+          end do
+        end do
+      end do
+    end if
+    ! kind=8, complex double precision
+    HCOV(i,j) = cmplx(HCOV1(i,j),0.0_wp,wp)
+  end do !j
+end do !i
 
-      Call mma_deallocate(Jx)
-      Return
-      End
+call mma_deallocate(Jx)
+
+return
+
+end subroutine KE_Covalent

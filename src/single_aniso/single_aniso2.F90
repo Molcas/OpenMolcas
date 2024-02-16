@@ -22,7 +22,7 @@ character(len=180), intent(inout) :: input_file_name
 logical(kind=iwp), intent(out) :: ifrestart
 integer(kind=iwp), intent(out) :: iReturn
 logical(kind=iwp), intent(in) :: GRAD
-integer(kind=iwp) :: AngPoints, axisoption, d, encut_definition, i, i1, i2, Ifunct, imanIfold, imltpl, input_to_read, iprint, &
+integer(kind=iwp) :: AngPoints, axisoption, d, encut_definition, i, i1, i2, Ifunct, imanifold, imltpl, input_to_read, iprint, &
                      lDIM, ldimcf, mem, MG, nBlock, ncut, ndimcf, nDirTot, nK, nlanth, nm, nss2, nstate2
 real(kind=wp) :: coord(3), cryst(6), em, encut_rate, H_torq, HMAX, HMIN, T_torq, thrs, tmax, tmin, xfield, zJ, zmagn(3,3)
 logical(kind=iwp) :: compute_barrier, compute_cf, compute_g_tensors, compute_magnetization, compute_Mdir_vector, compute_torque, &
@@ -393,7 +393,7 @@ if (compute_barrier) then
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'SINGLE_ANISO2::  Enter barrier',nBlock
 #   endif
-    call BARRIER(nBlock,MM(:,1:nBlock,1:nBlock),eso(1:nBlock),imanIfold,nMult,nDim,doplot,iPrint)
+    call BARRIER(nBlock,MM(:,1:nBlock,1:nBlock),eso(1:nBlock),imanifold,nMult,nDim,doplot,iPrint)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'SINGLE_ANISO2::  Exit barrier',nBlock
 #   endif

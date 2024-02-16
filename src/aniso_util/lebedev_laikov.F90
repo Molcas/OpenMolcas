@@ -286,7 +286,7 @@ real(kind=wp) :: c
 !hvd       order of accuracy"
 !hvd      Russian Acad. Sci. Dokl. Math., Vol. 50, 1995, pp. 283-286.
 !hvd
-!hvd   [3] V.I. Lebedev, and A.L. SkorokhoDov
+!hvd   [3] V.I. Lebedev, and A.L. Skorokhodov
 !hvd      "Quadrature formulas of orders 41, 47, and 53 for the sphere"
 !hvd      Russian Acad. Sci. Dokl. Math., Vol. 45, 1992, pp. 587-592.
 !hvd
@@ -307,13 +307,13 @@ real(kind=wp) :: c
 !hvd      1975, pp. 44-51.
 !hvd
 !vw
-!vw    Given a point on a sphere (specIfied by a and b), generate all
+!vw    Given a point on a sphere (specified by a and b), generate all
 !vw    the equivalent points under Oh symmetry, making grid points with
 !vw    weight v.
-!vw    The variable num is increased by the number of dIfferent points
+!vw    The variable num is increased by the number of different points
 !vw    generated.
 !vw
-!vw    DepEnding on code, there are 6...48 dIfferent but equivalent
+!vw    Depending on code, there are 6...48 different but equivalent
 !vw    points.
 !vw
 !vw    code=1:   (0,0,1) etc                                (  6 points)
@@ -676,7 +676,7 @@ real(kind=wp) :: c
 !hvd       order of accuracy"
 !hvd      Russian Acad. Sci. Dokl. Math., Vol. 50, 1995, pp. 283-286.
 !hvd
-!hvd   [3] V.I. Lebedev, and A.L. SkorokhoDov
+!hvd   [3] V.I. Lebedev, and A.L. Skorokhodov
 !hvd      "Quadrature formulas of orders 41, 47, and 53 for the sphere"
 !hvd      Russian Acad. Sci. Dokl. Math., Vol. 45, 1992, pp. 587-592.
 !hvd
@@ -697,13 +697,13 @@ real(kind=wp) :: c
 !hvd      1975, pp. 44-51.
 !hvd
 !vw
-!vw    Given a point on a sphere (specIfied by a and b), generate all
+!vw    Given a point on a sphere (specified by a and b), generate all
 !vw    the equivalent points under Oh symmetry, making grid points with
 !vw    weight v.
-!vw    The variable num is increased by the number of dIfferent points
+!vw    The variable num is increased by the number of different points
 !vw    generated.
 !vw
-!vw    DepEnding on code, there are 6...48 dIfferent but equivalent
+!vw    Depending on code, there are 6...48 different but equivalent
 !vw    points.
 !vw
 !vw    code=1:   (0,0,1) etc                                (  6 points)
@@ -946,7 +946,7 @@ real(kind=wp) :: c
 !hvd       order of accuracy"
 !hvd      Russian Acad. Sci. Dokl. Math., Vol. 50, 1995, pp. 283-286.
 !hvd
-!hvd   [3] V.I. Lebedev, and A.L. SkorokhoDov
+!hvd   [3] V.I. Lebedev, and A.L. Skorokhodov
 !hvd      "Quadrature formulas of orders 41, 47, and 53 for the sphere"
 !hvd      Russian Acad. Sci. Dokl. Math., Vol. 45, 1992, pp. 587-592.
 !hvd
@@ -967,13 +967,13 @@ real(kind=wp) :: c
 !hvd      1975, pp. 44-51.
 !hvd
 !vw
-!vw    Given a point on a sphere (specIfied by a and b), generate all
+!vw    Given a point on a sphere (specified by a and b), generate all
 !vw    the equivalent points under Oh symmetry, making grid points with
 !vw    weight v.
-!vw    The variable num is increased by the number of dIfferent points
+!vw    The variable num is increased by the number of different points
 !vw    generated.
 !vw
-!vw    DepEnding on code, there are 6...48 dIfferent but equivalent
+!vw    Depending on code, there are 6...48 different but equivalent
 !vw    points.
 !vw
 !vw    code=1:   (0,0,1) etc                                (  6 points)

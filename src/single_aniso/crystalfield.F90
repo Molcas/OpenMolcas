@@ -40,9 +40,9 @@ if (iopt == 1) then
   call atens(DIPSO(:,1:d,1:d),d,GTENS,ZMAGN,1)
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
   if (mod(d,2) == 0) then
-    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseuDospin S = |',d-1,'/2> multiplet.'
+    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudospin S = |',d-1,'/2> multiplet.'
   else
-    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseuDospin S = |',(d-1)/2,'> multiplet.'
+    write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground pseudospin S = |',(d-1)/2,'> multiplet.'
   end if
 
 else if (iopt == 2) then

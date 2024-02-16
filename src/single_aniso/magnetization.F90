@@ -247,7 +247,7 @@ do iH=1,nH
 
   if (DBG) write(u6,'(A,i0,A,F10.5,A,L2,A,L2)') 'MAGNETIZATION::  H(',iH,') = ',H(iH),'smagn=',smagn,' m_paranoid=',m_paranoid
 
-  !/// opening the loop over dIfferent directions of the magnetic field
+  !/// opening the loop over different directions of the magnetic field
   do iM=1,NDIRTOT
     ! Entry into monitor: Status line
     write(STLNE1,'(A)') 'SINGLE_ANISO:  powder magnetization:'

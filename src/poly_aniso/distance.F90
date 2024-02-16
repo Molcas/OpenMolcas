@@ -8,21 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Real*8 function distance(N,C1,C2)
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
-      Integer, intent(in)       :: N
-      Real(kind=8), intent(in) :: C1(N), C2(N)
-      ! local variables
-      Integer       :: i
-      Real(kind=8) :: X, R
-      distance=0.0_wp
-      X=0.0_wp
-      Do i=1,N
-        R=0.0_wp
-        R=C1(i)-C2(i)
-        X=X+R*R
-      End Do
-      distance=sqrt(X)
-      Return
-      End
+
+real*8 function distance(N,C1,C2)
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
+integer, intent(in) :: N
+real(kind=8), intent(in) :: C1(N), C2(N)
+! local variables
+integer :: i
+real(kind=8) :: X, R
+
+distance = 0.0_wp
+X = 0.0_wp
+do i=1,N
+  R = 0.0_wp
+  R = C1(i)-C2(i)
+  X = X+R*R
+end do
+distance = sqrt(X)
+
+return
+
+end function distance

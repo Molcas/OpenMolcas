@@ -208,7 +208,7 @@ if (TINPUT) then
 end if
 
 !-------------------------  PLOTs -------------------------------------!
-write(label,'(A)') "no_field"
+write(label,'(A)') 'no_field'
 if (DoPlot) then
   if (tinput) then
     call plot_XT_with_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),chit_theta((1+nTempMagn):(nT+nTempMagn)), &

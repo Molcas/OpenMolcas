@@ -111,8 +111,8 @@ if (abs(muy(1,2)) > 1.0e-25_wp) then
   check_sgn = -Onei*(muxz(1,2)-muzx(1,2))/muy(1,2)
   check_sgn2 = real(check_sgn)
 else
-  write(u6,'(A)') 'Is it an Ising Doublet?'
-  write(u6,'(A)') 'For an Ising Doublet gX=gY=0, therefore, the product gX * gY * gZ is also zero'
+  write(u6,'(A)') 'Is it an Ising doublet?'
+  write(u6,'(A)') 'For an Ising doublet gX=gY=0, therefore, the product gX * gY * gZ is also zero'
 end if
 
 if (iprint > 2) then
@@ -416,7 +416,7 @@ if (d > 2) then
   end do
   write(u6,'(100A)') ('-',i=1,59),'|'
 
-  ! decomposition of the ZFS matrix in ExtEnded Stevens Operators
+  ! decomposition of the ZFS matrix in Extended Stevens Operators
   write(u6,'(100A)') ('*',i=1,80)
   write(u6,'(A)') 'The ZFS Hamiltonian:'
   write(u6,'(A)') '   ZFS = SUM_{k,q} * [ B(k,q) * O(k,q) ];'

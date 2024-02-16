@@ -12,7 +12,7 @@
 subroutine atens(moment,d,gtens,maxes,iprint)
 !-----------------------------------------------------------------------
 ! d      -- size of the magnetic moment
-!           d = muliplicity of the pseuDospin ( 2*S+1, where S is the pseuDospin);
+!           d = muliplicity of the pseudospin ( 2*S+1, where S is the pseudospin);
 ! moment -- matrix of size (3,d,d) of the moment (magnetic, spin or angular)
 ! gtens  -- array of size (3) keeping the main values of the A tensor ( sqrt(main_values) )
 ! maxes  -- array of size (3,3) keeping the main axes of the A tensor Writen in

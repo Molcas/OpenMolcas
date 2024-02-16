@@ -15,7 +15,7 @@ subroutine MAGN_ZJ_PAR(EXCH,N,X,Y,Z,H,W,zJ,dM,sM,nT,T,sopt,WZ,ZB,S,M,thrs,m_para
 ! definition of the variables:
 !   EXCH -- total number of exchange states, Integer, input
 !      N -- size of the Zeeman matrix, Integer, input, NM <= EXCH !
-!  X,Y,Z -- projections of the magnetic field, specIfying the orientation of the applied
+!  X,Y,Z -- projections of the magnetic field, specifying the orientation of the applied
 !           magnetic field, Real(kind=wp) ::, input;  rule: ( X**2 + Y**2 + Z**2 = 1);
 !      H -- strength of the magnetic field in tesla, Real(kind=wp) ::, input;
 !      W -- energies of the exchange states; Real(kind=wp) :: array (EXCH);

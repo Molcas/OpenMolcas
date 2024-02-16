@@ -8,528 +8,468 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine fetch_init_const( nneq, neqv, nmax, exch, nLoc,        &
-     &                             nCenter, nT, nH, nTempMagn, nDir,    &
-     &                             nDirZee, nMult, nPair, MxRank1,      &
-     &                             MxRank2, old_aniso_format, iReturn )
-!  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
-!
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
+
+subroutine fetch_init_const(nneq,neqv,nmax,exch,nLoc,nCenter,nT,nH,nTempMagn,nDir,nDirZee,nMult,nPair,MxRank1,MxRank2, &
+                            old_aniso_format,iReturn)
+! this routine looks into the file "single_aniso.input" for the "RESTart" keyword
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
 #include "warnings.h"
-      Integer, intent(out) :: nneq, neqv, nmax, exch, nLoc,             &
-     &                        nCenter, nT, nH, nTempMagn, nDir,         &
-     &                        nDirZee, nMult, nPair, MxRank1, MxRank2,  &
-     &                        iReturn
+integer, intent(out) :: nneq, neqv, nmax, exch, nLoc, nCenter, nT, nH, nTempMagn, nDir, nDirZee, nMult, nPair, MxRank1, MxRank2, &
+                        iReturn
 ! local variables:
-      Integer :: NMAXC
-      Parameter (NMAXC=99)
-      Integer :: i, j, linenr, Input, nTempMagn_HEXP, nTempMagn_TMAG,   &
-     &           nH_HEXP, nH_HINT, nT_TEXP, nT_TINT
-      Integer :: neqA(NMAXC), nexchA(NMAXC)
-      Integer :: sfs_check(NMAXC)
-      Integer :: sos_check(NMAXC)
-      Integer :: imaxrank(NMAXC,2)
-      Integer :: idummy
-      Integer :: irank1, irank2, iline
-      Real(kind=8):: rdummy
-      Real(kind=8):: TempMagn(NMAXC)
-      Logical :: ab_initio_all
-      Logical :: KeyCoor, KeyPair, KeyHEXP, KeyTEXP
-!     Logical :: KeyHINT, KeyTINT,
-!    &           KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
-      Integer :: LUANISO, Isfreeunit
-      Character(Len=1)   :: itype(NMAXC)
-      Character(Len=280) :: line
-      Character(Len=180)  :: namefile_aniso
-      Logical :: ifHDF
-      Logical :: DBG
-      External Isfreeunit
-      Logical, intent(in) :: old_aniso_format
+integer :: NMAXC
+parameter(NMAXC=99)
+integer :: i, j, linenr, Input, nTempMagn_HEXP, nTempMagn_TMAG, nH_HEXP, nH_HINT, nT_TEXP, nT_TINT
+integer :: neqA(NMAXC), nexchA(NMAXC)
+integer :: sfs_check(NMAXC)
+integer :: sos_check(NMAXC)
+integer :: imaxrank(NMAXC,2)
+integer :: idummy
+integer :: irank1, irank2, iline
+real(kind=8) :: rdummy
+real(kind=8) :: TempMagn(NMAXC)
+logical :: ab_initio_all
+logical :: KeyCoor, KeyPair, KeyHEXP, KeyTEXP
+!logical :: KeyHINT, KeyTINT, KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
+integer :: LUANISO, Isfreeunit
+character :: itype(NMAXC)
+character(len=280) :: line
+character(len=180) :: namefile_aniso
+logical :: ifHDF
+logical :: DBG
+external Isfreeunit
+logical, intent(in) :: old_aniso_format
 
+iReturn = 0
+nH = 0
+nT = 0
+nTempMagn = 1
+nneq = 0
+neqv = 0
+nmax = 0
+exch = 0
+nCenter = 0
+nDirZee = 0
+nDir = 0
+nMult = 0
+nLoc = 0
+nPair = 0
+MxRank1 = 0
+MxRank2 = 0
+luaniso = 0
+rdummy = 0.0_wp
+neqA(1:nmaxc) = 0
+nexchA(1:nmaxc) = 0
+sfs_check(1:nmaxc) = 0
+sos_check(1:nmaxc) = 0
+ab_initio_all = .false.
+itype(1:nmaxc) = ' '
+imaxrank(1:nmaxc,1:2) = 0
 
-      iReturn=0
-      nH=0
-      nT=0
-      nTempMagn=1
-      nneq=0
-      neqv=0
-      nmax=0
-      exch=0
-      nCenter=0
-      nDirZee=0
-      nDir=0
-      nMult=0
-      nLoc=0
-      nPair=0
-      MxRank1=0
-      MxRank2=0
-      luaniso=0
-      rdummy=0.0_wp
-      neqA(1:nmaxc)=0
-      nexchA(1:nmaxc)=0
-      sfs_check(1:nmaxc)=0
-      sos_check(1:nmaxc)=0
-      ab_initio_all=.false.
-      itype(1:nmaxc)=' '
-      imaxrank(1:nmaxc,1:2)=0
+!namefile_aniso = ''
+ifHDF = .false.
+Input = 5
 
-!      namefile_aniso='              '
-      ifHDF=.false.
-      Input=5
+DBG = .false.
 
-      DBG=.false.
-
-!     KeyNNEQ=.false.
-      KeyPair=.false.
-      KeyCoor=.false.
-      KeyHEXP=.false.
-      KeyTEXP=.false.
-!     KeyTMAG=.false.
-!     KeyTINT=.false.
-!     KeyHINT=.false.
-!     KeyMLTP=.false.
-!     KeyMVEC=.false.
-!     KeyZEEM=.false.
-!     KeyITOJ=.false.
-      nH_HEXP=0
-      nH_HINT=0
-      nT_TEXP=0
-      nT_TINT=0
-      nTempMagn_HEXP=0
-      nTempMagn_TMAG=0
+!KeyNNEQ = .false.
+KeyPair = .false.
+KeyCoor = .false.
+KeyHEXP = .false.
+KeyTEXP = .false.
+!KeyTMAG = .false.
+!KeyTINT = .false.
+!KeyHINT = .false.
+!KeyMLTP = .false.
+!KeyMVEC = .false.
+!KeyZEEM = .false.
+!KeyITOJ = .false.
+nH_HEXP = 0
+nH_HINT = 0
+nT_TEXP = 0
+nT_TINT = 0
+nTempMagn_HEXP = 0
+nTempMagn_TMAG = 0
 !=========== End of default settings====================================
-      REWIND(Input)
-50    READ(Input,'(A280)',End=998) LINE
-      Call NORMAL(LINE)
-      If(LINE(1:11).ne.'&POLY_ANISO') Go To 50
-      LINENR=0
-100   READ(Input,'(A280)',End=998) line
-      LINENR=LINENR+1
-      Call NORMAL(LINE)
-      If (LINE(1:1).eq.'*') Go To 100
-      If (LINE.eq.' ') Go To 100
-      If((LINE(1:4).ne.'NNEQ').AND.(LINE(1:4).ne.'TEXP').AND.           &
-     &   (LINE(1:4).ne.'HEXP').AND.(LINE(1:4).ne.'END ').AND.           &
-     &   (LINE(1:4).ne.'    ').AND.(LINE(1:4).ne.'HINT').AND.           &
-     &   (LINE(1:4).ne.'TINT').AND.(LINE(1:4).ne.'TMAG').AND.           &
-     &   (LINE(1:4).ne.'MVEC').AND.(LINE(1:4).ne.'ZEEM').AND.           &
-     &   (LINE(1:4).ne.'MLTP').AND.(LINE(1:4).ne.'LIN1').AND.           &
-     &   (LINE(1:4).ne.'LIN3').AND.(LINE(1:4).ne.'LIN9').AND.           &
-     &   (LINE(1:4).ne.'PAIR').AND.(LINE(1:4).ne.'ALIN').AND.           &
-     &   (LINE(1:4).ne.'COOR').AND.(LINE(1:4).ne.'ITOJ')) Go To 100
-      If((LINE(1:4).eq.'END ').OR.(LINE(1:4).eq.'    ' )) Go To 200
-
-
-      If (line(1:4).eq.'NNEQ') Then
-
-!        KeyNNEQ=.true.
-         READ(Input,*) nneq, ab_initio_all, ifHDF
-
-         If(DBG) WRITE(6,*) nneq, ab_initio_all, ifHDF
-
-         If(nneq<0) Then
-            Write(6,'(A)') 'nneq<0! Must be positive!'
-            Call Quit_OnUserError()
-         Else If (nneq==0) Then
-            Write(6,'(A)') 'nneq=0! Must be larger than zero!'
-            Call Quit_OnUserError()
-         Else If (nneq>NMAXC) Then
-            Write(6,'(A)') 'nneq>99! Must be smaller than this!'
-            Call Quit_OnUserError()
-         End If
-
-         READ(Input,*) (neqA(i),i=1,nneq)
-         If(DBG) WRITE(6,*) (neqA(i),i=1,nneq)
-
-         Do i=1, nneq
-           If(neqA(i)<0) Then
-              Write(6,'(A,i2,A)') 'neq(',i,')<0! Must be positive!'
-              Call Quit_OnUserError()
-           Else If (neqA(i)==0) Then
-              Write(6,'(A,i2,A)') 'neq(',i,')=0! Must be larger '//     &
-     &                            'than zero!'
-              Call Quit_OnUserError()
-           End If
-         End Do
-
-         READ(Input,*) (nexchA(i),i=1,nneq)
-         If(DBG) WRITE(6,*) (nexchA(i),i=1,nneq)
-
-         Do i=1, nneq
-           If(nexchA(i)<0) Then
-              Write(6,'(A,i2,A)') 'nexch(',i,')<0! Must be positive!'
-              Call Quit_OnUserError()
-           Else If (nexchA(i)==0) Then
-              Write(6,'(A,i2,A)') 'nexch(',i,')=0! Must be larger '//   &
-     &                            'than zero!'
-              Call Quit_OnUserError()
-           End If
-         End Do
-
-         neqv=0
-         neqv=MAXVAL(neqA(1:nneq))
-         If(DBG) Write(6,*) 'neqv = ', neqv
-         nmax=0
-         nmax=MAXVAL(nexchA(1:nneq))
-         If(DBG) Write(6,*) 'nmax = ', nmax
-
-         ! compute "exch"
-         exch=1
-         Do i=1,nneq
-           Do j=1,neqA(i)
-             exch=exch*nexchA(i)
-           End Do
-         End Do
-         If(DBG) Write(6,*) 'exch=',exch
-
-         If(ab_initio_all .eqv. .false.) Then
-           READ(Input,*,ERR=997) (itype(i),i=1,Nneq)
-         Else
-           Do i=1,nneq
-             itype(i)='A'
-           End Do
-         End If !ab_initio_all
-
-         ! check the maximal number of local spin-orbit states
-         sos_check=0
-         sfs_check=0
-         nCenter=0
-         Do i=1,NNEQ
-           nCenter=nCenter+neqA(I)
-         End Do
-
-
-         Do i=1,NNEQ
-           If (itype(i) .eq. 'A') Then
-             If( ifHDF ) Then
-                ! generating the name of the "aniso_input file for
-                ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)
-                If(i<10) Then
-                   Write(namefile_aniso,'(4A)') 'aniso_hdf_',           &
-     &                       CHAR(48+mod( int( i     ),10)),'.input'
-                Else If(i>=10 .and. i<=99) Then
-                   Write(namefile_aniso,'(4A)') 'aniso_hdf_',           &
-     &                       CHAR(48+mod( int((i)/10 ),10)),            &
-     &                       CHAR(48+mod( int( i     ),10)),'.input'
-                End If
-
-#ifdef _HDF5_
-                Call read_hdf5_init( NAMEFILE_ANISO,sfs_check(I),       &
-     &                               sos_check(I))
-                If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),            &
-     &                              ' sos(I) ',sos_check(I)
-#else
-                Call WarningMessage(2,'File '//trim(NAMEFILE_ANISO)//   &
-     &                               ' cannot be opened. Molcas was'//  &
-     &                               ' compiled without HDF5 option.')
-                Call Quit_OnUserError()
-#endif
-             Else
-                ! generating the name of the "aniso_input file for
-                ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)
-                If(i<10) Then
-                   Write(namefile_aniso,'(4A)') 'aniso_',               &
-     &                       CHAR(48+mod( int( i     ),10)),'.input'
-                Else If(i>=10 .and. i<=99) Then
-                   Write(namefile_aniso,'(4A)') 'aniso_',               &
-     &                       CHAR(48+mod( int((i)/10 ),10)),            &
-     &                       CHAR(48+mod( int( i     ),10)),'.input'
-                End If
-                LUANISO = Isfreeunit(20)
-                Call molcas_open( LUANISO, NAMEFILE_ANISO )
-
-                If(old_aniso_format) Then
-                   READ( LUANISO,*) sfs_check(I), sos_check(I)
-                   If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),         &
-     &                                 ' sos(I) ',sos_check(I)
-                Else
-                   Call read_nss ( LUANISO, sos_check(i), dbg)
-                   Call read_nstate ( LUANISO, sfs_check(i), dbg)
-                   If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),         &
-     &                                 ' sos(I) ',sos_check(I)
-                End If
-                CLOSE(LUANISO)
-             End If ! ifHDF
-
-           Else If((itype(i).eq.'B').OR.(itype(i).eq.'C')) Then
-             sfs_check(I)=1
-             sos_check(I)=NexchA(i)
-           End If
-
-
-         End Do ! NNEQ
-
-         nLoc=MAXVAL(sos_check(1:nneq))
-
-         LINENR=LINENR+3
-         Go To 100
-      End If
-
-
-
-      If (line(1:4).eq.'TEXP') Then
-
-          KeyTexp=.true.
-          READ(Input,*) nT_TEXP
-
-          If ( nT_TEXP<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'TEXP: Number of temperature points <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'TEXP:: = nT_TEXP', nT_TEXP
-
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-
-
-      If (line(1:4).eq.'HEXP') Then
-
-          KeyHexp=.true.
-          READ(Input,*) nTempMagn_HEXP, (TempMagn(i),i=1,nTempMagn)
-          READ(Input,*) nH_HEXP
-
-          If ( nH_HEXP<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'HEXP: Number of field points <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If ( nTempMagn_HEXP<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'HEXP: Number of temperature points <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'HEXP:: = nH_HEXP ', nH_HEXP
-          If(DBG) WRITE(6,*) 'HEXP:: = nTempMagn_HEXP ', nTempMagn_HEXP
-          LINENR=LINENR+2
-          Go To 100
-      End If
-
-
-
-      If (line(1:4).eq.'HINT') Then
-
-!         KeyHINT=.true.
-          READ(Input,*) rdummy, rdummy, nH_HINT
-
-          If ( nH_HINT<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'HINT: Number of field points <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'HINT:: = nH_HINT ', nH_HINT
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-
-
-      If (line(1:4).eq.'TINT') Then
-
-!         KeyTINT=.true.
-          READ(Input,*) rdummy, rdummy, nT_TINT
-
-          If ( nT_TINT<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'TINT: Number of temperature points <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'TINT:: = nT_TINT ', nT_TINT
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-
-
-
-      If (line(1:4).eq.'TMAG') Then
-
-!         KeyTMAG=.true.
-          READ(Input,*) nTempMagn_TMAG
-
-          If ( nTempMagn_TMAG<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'TMAG: Number of temperatureMAGN points <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'TMAG:: = nTempMagn_TMAG ',nTempMagn_TMAG
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-
-
-      If (line(1:4).eq.'MVEC') Then
-
-!         KeyMVEC=.true.
-          READ(Input,*) nDir
-
-          If ( nDir<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'MVEC: Number of nDir points <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'MVEC:: = nDir ',nDir
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-
-
-      If (line(1:4).eq.'ZEEM') Then
-!         KeyZEEM=.false.
-          READ(Input,*) nDirZee
-
-          If ( nDirZee<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'ZEEM: Number of nDirZee points <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'ZEEM:: = nDirZee ',nDirZee
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-
-
-      If (line(1:4).eq.'MLTP') Then
-
-!         KeyMLTP=.true.
-          READ(Input,*) nMult
-
-          If ( nMult<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &                 'MLTP: Number of multiplets <= 0! ')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'MLTP:: =nMult ',nMult
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-
-
-      If ( (LINE(1:4).eq.'LIN9') .OR. (LINE(1:4).eq.'LIN3') .OR.        &
-     &     (LINE(1:4).eq.'LIN1') .OR. (LINE(1:4).eq.'ALIN') .OR.        &
-     &     (LINE(1:4).eq.'PAIR') .OR. (LINE(1:4).eq.'ITOJ') ) Then
-
-          KeyPair=.true.
-          READ(Input,*,ERR=997) nPair
-
-          If ( nPair<=0 ) Then
-             Call WarningMessage(2,                                     &
-     &             'PAIR OR LINx:: Number of interacting pairs <= 0!')
-             Call Quit_OnUserError()
-          End If
-
-          If(DBG) WRITE(6,*) 'PAIR:: =nPair ',nPair
-
-
-          If(LINE(1:4).eq.'ITOJ') Then
-             iline=0
-             Do i=1,npair
-                imaxrank(i,1)=0
-                imaxrank(i,2)=0
-
-                READ(Input,*,ERR=997) idummy, idummy,                   &
-     &                              imaxrank(i,1),imaxrank(i,2)
-                Do irank1=1,2*imaxrank(i,1)+1
-                  Do irank2=1,2*imaxrank(i,2)+1
-                    READ(Input,*,ERR=997) idummy,idummy,idummy,idummy,  &
-     &                                    rdummy,rdummy
-                    iline=iline+1
-                  End Do
-                End Do
-             End Do ! i
-             MxRank1=MAXVAL(imaxrank(1:npair,1))
-             MxRank2=MAXVAL(imaxrank(1:npair,2))
-             LINENR=LINENR+iline
-          End If
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-      If (line(1:4).eq.'COOR') Then
-          KeyCoor=.true.
-          LINENR=LINENR+1
-          Go To 100
-      End If
-
-200   Continue
-
-      If((.not.KeyPair).AND.(KeyCoor)) nPair=nCenter*(nCenter-1)/2
-
-      If(KeyHexp) Then
-         nTempMagn=nTempMagn_HEXP
-         nH       =nH_HEXP
-      Else
-         nTempMagn=nTempMagn_TMAG
-         nH       =nH_HINT
-      End If
-
-      If(KeyTEXP) Then
-         nT       =nT_TEXP
-      Else
-         nT       =nT_TINT
-      End If
-
-      ! in case the user did not set up some of the above keywords
-      ! assume the following default ones:
-      If (     nMult == 0 ) nMult=1
-      If (        nT == 0 ) nT = 31
-      If (        nH == 0 ) nH = 11
-      If ( nTempMagn == 0 ) nTempMagn = 1
+rewind(Input)
+50 read(Input,'(A280)',end=998) LINE
+call NORMAL(LINE)
+if (LINE(1:11) /= '&POLY_ANISO') Go To 50
+LINENR = 0
+100 read(Input,'(A280)',end=998) line
+LINENR = LINENR+1
+call NORMAL(LINE)
+if (LINE(1:1) == '*') Go To 100
+if (LINE == ' ') Go To 100
+if ((LINE(1:4) /= 'NNEQ') .and. (LINE(1:4) /= 'TEXP') .and. (LINE(1:4) /= 'HEXP') .and. (LINE(1:4) /= 'END ') .and. &
+    (LINE(1:4) /= '    ') .and. (LINE(1:4) /= 'HINT') .and. (LINE(1:4) /= 'TINT') .and. (LINE(1:4) /= 'TMAG') .and. &
+    (LINE(1:4) /= 'MVEC') .and. (LINE(1:4) /= 'ZEEM') .and. (LINE(1:4) /= 'MLTP') .and. (LINE(1:4) /= 'LIN1') .and. &
+    (LINE(1:4) /= 'LIN3') .and. (LINE(1:4) /= 'LIN9') .and. (LINE(1:4) /= 'PAIR') .and. (LINE(1:4) /= 'ALIN') .and. &
+    (LINE(1:4) /= 'COOR') .and. (LINE(1:4) /= 'ITOJ')) Go To 100
+if ((LINE(1:4) == 'END ') .or. (LINE(1:4) == '    ')) Go To 200
+
+if (line(1:4) == 'NNEQ') then
+
+  !KeyNNEQ = .true.
+  read(Input,*) nneq,ab_initio_all,ifHDF
+
+  if (DBG) write(6,*) nneq,ab_initio_all,ifHDF
+
+  if (nneq < 0) then
+    write(6,'(A)') 'nneq<0! Must be positive!'
+    call Quit_OnUserError()
+  else if (nneq == 0) then
+    write(6,'(A)') 'nneq=0! Must be larger than zero!'
+    call Quit_OnUserError()
+  else if (nneq > NMAXC) then
+    write(6,'(A)') 'nneq>99! Must be smaller than this!'
+    call Quit_OnUserError()
+  end if
+
+  read(Input,*) (neqA(i),i=1,nneq)
+  if (DBG) write(6,*) (neqA(i),i=1,nneq)
+
+  do i=1,nneq
+    if (neqA(i) < 0) then
+      write(6,'(A,i2,A)') 'neq(',i,')<0! Must be positive!'
+      call Quit_OnUserError()
+    else if (neqA(i) == 0) then
+      write(6,'(A,i2,A)') 'neq(',i,')=0! Must be larger than zero!'
+      call Quit_OnUserError()
+    end if
+  end do
+
+  read(Input,*) (nexchA(i),i=1,nneq)
+  if (DBG) write(6,*) (nexchA(i),i=1,nneq)
+
+  do i=1,nneq
+    if (nexchA(i) < 0) then
+      write(6,'(A,i2,A)') 'nexch(',i,')<0! Must be positive!'
+      call Quit_OnUserError()
+    else if (nexchA(i) == 0) then
+      write(6,'(A,i2,A)') 'nexch(',i,')=0! Must be larger than zero!'
+      call Quit_OnUserError()
+    end if
+  end do
+
+  neqv = 0
+  neqv = maxval(neqA(1:nneq))
+  if (DBG) write(6,*) 'neqv = ',neqv
+  nmax = 0
+  nmax = maxval(nexchA(1:nneq))
+  if (DBG) write(6,*) 'nmax = ',nmax
+
+  ! compute "exch"
+  exch = 1
+  do i=1,nneq
+    do j=1,neqA(i)
+      exch = exch*nexchA(i)
+    end do
+  end do
+  if (DBG) write(6,*) 'exch=',exch
+
+  if (.not. ab_initio_all) then
+    read(Input,*,err=997) (itype(i),i=1,Nneq)
+  else
+    do i=1,nneq
+      itype(i) = 'A'
+    end do
+  end if !ab_initio_all
+
+  ! check the maximal number of local spin-orbit states
+  sos_check = 0
+  sfs_check = 0
+  nCenter = 0
+  do i=1,NNEQ
+    nCenter = nCenter+neqA(I)
+  end do
+
+  do i=1,NNEQ
+    if (itype(i) == 'A') then
+      if (ifHDF) then
+        ! generating the name of the "aniso_input file for
+        ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)
+        if (i < 10) then
+          write(namefile_aniso,'(4A)') 'aniso_hdf_',char(48+mod(int(i),10)),'.input'
+        else if ((i >= 10) .and. (i <= 99)) then
+          write(namefile_aniso,'(4A)') 'aniso_hdf_',char(48+mod(int((i)/10),10)),char(48+mod(int(i),10)),'.input'
+        end if
+
+#       ifdef _HDF5_
+        call read_hdf5_init(NAMEFILE_ANISO,sfs_check(I),sos_check(I))
+        if (DBG) write(6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+#       else
+        call WarningMessage(2,'File '//trim(NAMEFILE_ANISO)//' cannot be opened. Molcas was compiled without HDF5 option.')
+        call Quit_OnUserError()
+#       endif
+      else
+        ! generating the name of the "aniso_input file for
+        ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)
+        if (i < 10) then
+          write(namefile_aniso,'(4A)') 'aniso_',char(48+mod(int(i),10)),'.input'
+        else if ((i >= 10) .and. (i <= 99)) then
+          write(namefile_aniso,'(4A)') 'aniso_',char(48+mod(int((i)/10),10)),char(48+mod(int(i),10)),'.input'
+        end if
+        LUANISO = Isfreeunit(20)
+        call molcas_open(LUANISO,NAMEFILE_ANISO)
+
+        if (old_aniso_format) then
+          read(LUANISO,*) sfs_check(I),sos_check(I)
+          if (DBG) write(6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+        else
+          call read_nss(LUANISO,sos_check(i),dbg)
+          call read_nstate(LUANISO,sfs_check(i),dbg)
+          if (DBG) write(6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+        end if
+        close(LUANISO)
+      end if ! ifHDF
+
+    else if ((itype(i) == 'B') .or. (itype(i) == 'C')) then
+      sfs_check(I) = 1
+      sos_check(I) = NexchA(i)
+    end if
+
+  end do ! NNEQ
+
+  nLoc = maxval(sos_check(1:nneq))
+
+  LINENR = LINENR+3
+  Go To 100
+end if
+
+if (line(1:4) == 'TEXP') then
+
+  KeyTexp = .true.
+  read(Input,*) nT_TEXP
+
+  if (nT_TEXP <= 0) then
+    call WarningMessage(2,'TEXP: Number of temperature points <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'TEXP:: = nT_TEXP',nT_TEXP
+
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+if (line(1:4) == 'HEXP') then
+
+  KeyHexp = .true.
+  read(Input,*) nTempMagn_HEXP,(TempMagn(i),i=1,nTempMagn)
+  read(Input,*) nH_HEXP
+
+  if (nH_HEXP <= 0) then
+    call WarningMessage(2,'HEXP: Number of field points <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (nTempMagn_HEXP <= 0) then
+    call WarningMessage(2,'HEXP: Number of temperature points <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'HEXP:: = nH_HEXP ',nH_HEXP
+  if (DBG) write(6,*) 'HEXP:: = nTempMagn_HEXP ',nTempMagn_HEXP
+  LINENR = LINENR+2
+  Go To 100
+end if
+
+if (line(1:4) == 'HINT') then
+
+  !KeyHINT = .true.
+  read(Input,*) rdummy,rdummy,nH_HINT
+
+  if (nH_HINT <= 0) then
+    call WarningMessage(2,'HINT: Number of field points <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'HINT:: = nH_HINT ',nH_HINT
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+if (line(1:4) == 'TINT') then
+
+  !KeyTINT = .true.
+  read(Input,*) rdummy,rdummy,nT_TINT
+
+  if (nT_TINT <= 0) then
+    call WarningMessage(2,'TINT: Number of temperature points <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'TINT:: = nT_TINT ',nT_TINT
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+if (line(1:4) == 'TMAG') then
+
+  !KeyTMAG = .true.
+  read(Input,*) nTempMagn_TMAG
+
+  if (nTempMagn_TMAG <= 0) then
+    call WarningMessage(2,'TMAG: Number of temperatureMAGN points <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'TMAG:: = nTempMagn_TMAG ',nTempMagn_TMAG
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+if (line(1:4) == 'MVEC') then
+
+  !KeyMVEC = .true.
+  read(Input,*) nDir
+
+  if (nDir <= 0) then
+    call WarningMessage(2,'MVEC: Number of nDir points <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'MVEC:: = nDir ',nDir
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+if (line(1:4) == 'ZEEM') then
+  !KeyZEEM = .false.
+  read(Input,*) nDirZee
+
+  if (nDirZee <= 0) then
+    call WarningMessage(2,'ZEEM: Number of nDirZee points <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'ZEEM:: = nDirZee ',nDirZee
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+if (line(1:4) == 'MLTP') then
+
+  !KeyMLTP = .true.
+  read(Input,*) nMult
+
+  if (nMult <= 0) then
+    call WarningMessage(2,'MLTP: Number of multiplets <= 0! ')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'MLTP:: =nMult ',nMult
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+if ((LINE(1:4) == 'LIN9') .or. (LINE(1:4) == 'LIN3') .or. (LINE(1:4) == 'LIN1') .or. (LINE(1:4) == 'ALIN') .or. &
+    (LINE(1:4) == 'PAIR') .or. (LINE(1:4) == 'ITOJ')) then
+
+  KeyPair = .true.
+  read(Input,*,err=997) nPair
+
+  if (nPair <= 0) then
+    call WarningMessage(2,'PAIR OR LINx:: Number of interacting pairs <= 0!')
+    call Quit_OnUserError()
+  end if
+
+  if (DBG) write(6,*) 'PAIR:: =nPair ',nPair
+
+  if (LINE(1:4) == 'ITOJ') then
+    iline = 0
+    do i=1,npair
+      imaxrank(i,1) = 0
+      imaxrank(i,2) = 0
+
+      read(Input,*,err=997) idummy,idummy,imaxrank(i,1),imaxrank(i,2)
+      do irank1=1,2*imaxrank(i,1)+1
+        do irank2=1,2*imaxrank(i,2)+1
+          read(Input,*,err=997) idummy,idummy,idummy,idummy,rdummy,rdummy
+          iline = iline+1
+        end do
+      end do
+    end do ! i
+    MxRank1 = maxval(imaxrank(1:npair,1))
+    MxRank2 = maxval(imaxrank(1:npair,2))
+    LINENR = LINENR+iline
+  end if
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+if (line(1:4) == 'COOR') then
+  KeyCoor = .true.
+  LINENR = LINENR+1
+  Go To 100
+end if
+
+200 continue
+
+if ((.not. KeyPair) .and. KeyCoor) nPair = nCenter*(nCenter-1)/2
+
+if (KeyHexp) then
+  nTempMagn = nTempMagn_HEXP
+  nH = nH_HEXP
+else
+  nTempMagn = nTempMagn_TMAG
+  nH = nH_HINT
+end if
+
+if (KeyTEXP) then
+  nT = nT_TEXP
+else
+  nT = nT_TINT
+end if
+
+! in case the user did not set up some of the above keywords
+! assume the following default ones:
+if (nMult == 0) nMult = 1
+if (nT == 0) nT = 31
+if (nH == 0) nH = 11
+if (nTempMagn == 0) nTempMagn = 1
 
 ! preliminary check the values:
-      If (DBG) then
-         Write(6,*) 'nneq     =',nneq
-         Write(6,*) 'neqv     =',neqv
-         Write(6,*) 'exch     =',exch
-         Write(6,*) 'nLoc     =',nLoc
-         Write(6,*) 'nmax     =',nmax
-         Write(6,*) 'nCenter  =',nCenter
-         Write(6,*) 'nT       =',nT
-         Write(6,*) 'nH       =',nH
-         Write(6,*) 'nTempMagn=',ntempMagn
-         Write(6,*) 'nDir     =',nDir
-         Write(6,*) 'nDirZee  =',nDirZee
-         Write(6,*) 'nMult    =',nMult
-         Write(6,*) 'nPair    =',nPair
-         Write(6,*) 'MxRank1  =',MxRank1
-         Write(6,*) 'MxRank2  =',MxRank2
-      End If
+if (DBG) then
+  write(6,*) 'nneq     =',nneq
+  write(6,*) 'neqv     =',neqv
+  write(6,*) 'exch     =',exch
+  write(6,*) 'nLoc     =',nLoc
+  write(6,*) 'nmax     =',nmax
+  write(6,*) 'nCenter  =',nCenter
+  write(6,*) 'nT       =',nT
+  write(6,*) 'nH       =',nH
+  write(6,*) 'nTempMagn=',ntempMagn
+  write(6,*) 'nDir     =',nDir
+  write(6,*) 'nDirZee  =',nDirZee
+  write(6,*) 'nMult    =',nMult
+  write(6,*) 'nPair    =',nPair
+  write(6,*) 'MxRank1  =',MxRank1
+  write(6,*) 'MxRank2  =',MxRank2
+end if
 
-      Go To 190
+Go To 190
 !------ errors ------------------------------
-997   continue
-      Write(6,*)' READIN: Error reading "poly_aniso.input" '
-      Write(6,*)' near line nr.',LINENR+1
-      Go To 999
-998   continue
-      Write(6,*)' READIN: Unexpected End of input file.'
-999   continue
-      Call quit(_RC_INPUT_ERROR_)
+997 continue
+write(6,*) ' READIN: Error reading "poly_aniso.input" '
+write(6,*) ' near line nr.',LINENR+1
+Go To 999
+998 continue
+write(6,*) ' READIN: Unexpected End of input file.'
+999 continue
+call quit(_RC_INPUT_ERROR_)
 
-
-190   Continue
-      Return
+190 continue
+return
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Then
-         Call Unused_integer(idummy)
-         Call Unused_real(rdummy)
-         Call Unused_real_array(TempMagn)
-      End If
+if (.false.) then
+  call Unused_integer(idummy)
+  call Unused_real(rdummy)
+  call Unused_real_array(TempMagn)
+end if
 #endif
-      End
+
+end subroutine fetch_init_const

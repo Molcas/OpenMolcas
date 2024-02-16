@@ -91,7 +91,7 @@ amfi_c(:,:,:) = amfi(:,:,:)*cOne
 ! find the main anisotropy direction of the
 ! diagonalize the angmom
 if (iopt == 1) then
-  ! iopt = 1   -- axis of the ground orbital Doublet
+  ! iopt = 1   -- axis of the ground orbital doublet
   call atens(dipso(:,1:d,1:d),d,gtens,maxes,iprint)
   write(u6,'(a)') 'The parameters of the Crystal Field matrix are written in the coordinate system:'
   if (mod(d,2) == 0) then
@@ -101,7 +101,7 @@ if (iopt == 1) then
   end if
 
 else if (iopt == 2) then
-  ! iopt = 2   -- axis of the entire L manIfold
+  ! iopt = 2   -- axis of the entire L manifold
   call atens(dipso,lDIMcf,gtens,maxes,iprint)
   if (mod(lDIMCF,2) == 0) then
     write(u6,'(a,i2,a)') '(Xm, Ym, Zm) --  the main magnetic axes of the ground atomic L = |',lDIMCF-1,'/2> multiplet'

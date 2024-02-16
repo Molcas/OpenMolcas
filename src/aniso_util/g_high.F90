@@ -44,7 +44,7 @@ do i=1,d
   if (d > 9) then
     write(u6,'(a,i2,a,i2,a,f11.3,a)') 'spin-orbit state',i,'; energy(',i,') = ',ESOM(i),' cm-1.'
   else
-    write(u6,'(a,i1,a,i1,a,f11.3,a)') 'spin-orbit state ',i,'. energy(',i,') = ',ESOM(i),' cm-1.'
+    write(u6,'(a,i1,a,i1,a,f11.3,a)') 'spin-orbit state ',i,'; energy(',i,') = ',ESOM(i),' cm-1.'
   end if
 end do
 if (d == 2) write(u6,'(a,f17.10,a)') 'Tunnelling splitting:',ESOM(2)-ESOM(1),' cm-1.'

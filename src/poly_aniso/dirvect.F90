@@ -8,39 +8,40 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine dirvect( P1, R1, P2, R2,  vec, dist )
+
+subroutine dirvect(P1,R1,P2,R2,vec,dist)
 ! this Subroutine computes the directional vector of the origins of two points P1 and P2
-      Implicit None
-      Integer, parameter        :: wp=kind(0.d0)
-      Real(kind=8), intent(in)  :: P1(3) ! coords of the first point
-      Real(kind=8), intent(in)  :: P2(3) ! coords of the second point
-!     rot. matrix of the  first point to the general coordinate system
-      Real(kind=8), intent(in)  :: R1(3,3)
-!     rot. matrix of the second point to the general coordinate system
-      Real(kind=8), intent(in)  :: R2(3,3)
-      Real(kind=8), intent(out) :: vec(3)
-      Real(kind=8), intent(out) :: dist
+
+implicit none
+integer, parameter :: wp = kind(0.d0)
+real(kind=8), intent(in) :: P1(3) ! coords of the first point
+real(kind=8), intent(in) :: P2(3) ! coords of the second point
+real(kind=8), intent(in) :: R1(3,3) ! rot. matrix of the  first point to the general coordinate system
+real(kind=8), intent(in) :: R2(3,3) ! rot. matrix of the second point to the general coordinate system
+real(kind=8), intent(out) :: vec(3)
+real(kind=8), intent(out) :: dist
 ! local variables
-      Integer       :: i, j
-      Real(kind=8) :: C1(3), C2(3)
-      Real(kind=8) :: distance
-      External      :: distance
+integer :: i, j
+real(kind=8) :: C1(3), C2(3)
+real(kind=8) :: distance
+external :: distance
 
-      vec=0.0_wp
-      dist=0.0_wp
-      C1=0.0_wp
-      C2=0.0_wp
+vec = 0.0_wp
+dist = 0.0_wp
+C1 = 0.0_wp
+C2 = 0.0_wp
 
-      Do i=1,3
-         Do j=1,3
-            C1(i) = C1(i) + P1(j)*R1(i,j)
-            C2(i) = C2(i) + P2(j)*R2(i,j)
-         End Do
-      End Do
-      dist=distance(3, C1, C2 )
-      Do i=1,3
-        vec(i)=( C1(i)-C2(i) ) / dist
-      End Do
-      Return
-      End
+do i=1,3
+  do j=1,3
+    C1(i) = C1(i)+P1(j)*R1(i,j)
+    C2(i) = C2(i)+P2(j)*R2(i,j)
+  end do
+end do
+dist = distance(3,C1,C2)
+do i=1,3
+  vec(i) = (C1(i)-C2(i))/dist
+end do
 
+return
+
+end subroutine dirvect

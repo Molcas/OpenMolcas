@@ -10,20 +10,20 @@
 !***********************************************************************
 
 subroutine pa_pseudo(M,S,d,iopt,zfin,MF,SF,coord,iprint)
-! d - dimension of the pseuDospin
+! d - dimension of the pseudospin
 ! M(3,d,d) -- magnetic moment in the initial basis
 ! S(3,d,d) -- spin moment in the initial basis
 ! iopt - option for choosing the quantization axis
-!       = 1 : quantization axis is the main magnetic axis of the entire manIfold (d)
-!       = 2 : quantization axis is the main magnetic axis of the ground Doublet (low-lying two states)
+!       = 1 : quantization axis is the main magnetic axis of the entire manifold (d)
+!       = 2 : quantization axis is the main magnetic axis of the ground doublet (low-lying two states)
 !       = 3 : quantization axis is provided by the user by means of coord
 !       = 4 : quantization axis is the unit matrix, i.e. the original Z axis
-!  coord(3,3): matrix specIfying the rotation of initial coordinate system to the
+!  coord(3,3): matrix specifying the rotation of initial coordinate system to the
 !              coordinate system of used for determination of the quantization axis
 !              by diagonalizing the Zeeman hamiltonian
-! zfin - pseuDospin eigenfunctions
-! MF(3,d,d) -- magnetic moment in the pseuDospin basis
-! SF(3,d,d) -- spin moment in the pseuDospin basis
+! zfin - pseudospin eigenfunctions
+! MF(3,d,d) -- magnetic moment in the pseudospin basis
+! SF(3,d,d) -- spin moment in the pseudospin basis
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne

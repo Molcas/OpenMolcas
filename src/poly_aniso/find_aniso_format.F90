@@ -8,47 +8,49 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine find_aniso_format(old_aniso_format)
 
-      Implicit None
-      Logical :: old_aniso_format
-      Character(Len=280) :: line
-      Integer :: LINENR, Input
+subroutine find_aniso_format(old_aniso_format)
 
-      Input=5
-      old_aniso_format=.false.
+implicit none
+logical :: old_aniso_format
+character(len=280) :: line
+integer :: LINENR, Input
+
+Input = 5
+old_aniso_format = .false.
 
 !=========== End of default settings====================================
-      REWIND(Input)
-50    READ(Input,'(A280)',End=998) LINE
-      Call NORMAL(LINE)
-      If(LINE(1:11).ne.'&POLY_ANISO') Go To 50
-      LINENR=0
-100   READ(Input,'(A280)',End=998) line
-      LINENR=LINENR+1
-      Call NORMAL(LINE)
-      If (LINE(1:1).eq.'*') Go To 100
-      If (LINE.eq.' ') Go To 100
-      If( LINE(1:4).ne.'OLDA') Go To 100
-      If((LINE(1:4).eq.'END ').OR.(LINE(1:4).eq.'    ' )) Go To 200
+rewind(Input)
+50 read(Input,'(A280)',end=998) LINE
+call NORMAL(LINE)
+if (LINE(1:11) /= '&POLY_ANISO') Go To 50
+LINENR = 0
+100 read(Input,'(A280)',end=998) line
+LINENR = LINENR+1
+call NORMAL(LINE)
+if (LINE(1:1) == '*') Go To 100
+if (LINE == ' ') Go To 100
+if (LINE(1:4) /= 'OLDA') Go To 100
+if ((LINE(1:4) == 'END ') .or. (LINE(1:4) == '    ')) Go To 200
 
-      If (line(1:4).eq.'OLDA') Then
+if (line(1:4) == 'OLDA') then
 
-          old_aniso_format=.true.
+  old_aniso_format = .true.
 
-          LINENR=LINENR+1
-          Go To 100
-      End If
+  LINENR = LINENR+1
+  Go To 100
+end if
 
-200   Continue
+200 continue
 
-      Go To 190
+Go To 190
 !------ errors ------------------------------
-998   continue
-      Write(6,*)' READIN: Unexpected End of input file.'
+998 continue
+write(6,*) ' READIN: Unexpected End of input file.'
 
-190   Continue
-      Write(6,*) 'find_aniso_format::  old_aniso_format=',              &
-     &  old_aniso_format
-      Return
-      End
+190 continue
+write(6,*) 'find_aniso_format::  old_aniso_format=',old_aniso_format
+
+return
+
+end subroutine find_aniso_format

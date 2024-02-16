@@ -56,7 +56,7 @@ C         Freq(i) = Freq(i) * 4.55633538D-06
        Two=2.0D00
 C      r_k = 1.38065800D-23
        r_k = CONST_BOLTZMANN_
-C      r_J2au=2.29371049D+17 ! Convert Joule to atomic units
+C      r_J2au=2.29371049D+17 ! Convert joules to atomic units
        r_J2au=1.0D-3 / CONV_AU_TO_KJ_
 *      Bolzmann's constant in a.u./ K
        rk = r_k * r_J2au

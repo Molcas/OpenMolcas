@@ -500,7 +500,7 @@ function W9J(a,b,c,d,e,f,g,h,j)
 ! { g h j }
 ! this is the implementation the formula 10.2.4. (20) from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -551,7 +551,7 @@ function W6J(a,b,c,d,e,f)
 !
 ! this is the implementation the formula 9.2.1. (1) from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -601,7 +601,7 @@ function W3J(j1,j2,j3,m1,m2,m3)
 !
 ! this is the implementation the formula 8.1.2. (11) from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
 
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
@@ -623,13 +623,13 @@ end function W3J
 !=!=
 function WCG(a,al,b,bt,c,gm)
 ! Calculates a Clebsch-Gordan Coefficient. Argument a, al, b, bt, c, gm are Integer,
-! Double their actual value.
+! double their actual value.
 ! (   c/2, gm/2            )
 ! ( C                      )
 ! (   a/2, al/2, b/2, bt/2 )
 ! this is the implementation the formula 8.2.1. (3) from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -688,7 +688,7 @@ end function WCG
 function dlt(a,b,c)
 ! calculates the delta(a,b,c) function using the formula 8.2.1. from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
 !
 ! a,b,c are positive Integer numbers,
 ! their values are DoUBLE than their original value
@@ -749,18 +749,18 @@ return
 end function check_triangle
 !=!=
 function WignerD(J,M1,M2,al,bt,gm)
-! the function Returns the Wigner-D function specIfying the rotation
+! the function Returns the Wigner-D function specifying the rotation
 ! of the |J,M1,M2> around three  angles(alpha,beta,gamma).
 ! The rotation is either active (ik=1) or passive (ik=2).
-!   J, M1, M2 are specIfied as Integer numbers, with a value DoUBLE than their actual size;
+!   J, M1, M2 are specified as Integer numbers, with a value DoUBLE than their actual size;
 !   i.e. J = 2*J (Real); M1= 2*M1(Real); M2=2*M2(Real);
-!   alpha, beta, gamma are specIfied as Double precision (Real(kind=wp) ::). These values must be defined in
+!   alpha, beta, gamma are specified as double precision (Real(kind=wp) ::). These values must be defined in
 !   radians ( i.e. in units of Pi)
 !
 !
 ! This is the implementation of the formula 4.3.(1) from
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
 
 use Constants, only: Half, cZero, cOne, Onei
 use Definitions, only: wp, iwp
@@ -790,7 +790,7 @@ end function WignerD
 function wigner_d(J,M1,M2,bt)
 ! This is the implementation of the formula 4.3.1 (2) from
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
 
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
@@ -839,8 +839,8 @@ real(kind=wp) :: factor, temp
 real(kind=wp), external :: WCG
 
 RedME = Zero
-l_orb = 6  ! Double of true value l_orb = 3
-s_orb = 1  ! Double of true value s_orb = 1/2
+l_orb = 6  ! double of true value l_orb = 3
+s_orb = 1  ! double of true value s_orb = 1/2
 JaP = LaP+SaP
 if (WCG(La,La,L,0,La,La) == Zero) return
 if (WCG(Sa,Sa,S,0,Sa,Sa) == Zero) return
@@ -885,8 +885,8 @@ real(kind=wp) :: txt
 real(kind=wp), external :: RedME, W9J, WCG
 
 jot1 = Zero
-l_orb = 6  ! Double of true value l_orb = 3
-!s_orb = 1 ! Double of true value s_orb = 1/2
+l_orb = 6  ! double of true value l_orb = 3
+!s_orb = 1 ! double of true value s_orb = 1/2
 txt = Zero
 if (mod(L,2) == 0) then
   if (ML == 0) then
@@ -925,8 +925,8 @@ real(kind=wp) :: txt, W9Jl
 real(kind=wp), external :: RedME, W6J, WCG
 
 jot0 = Zero
-l_orb = 6  ! Double of true value l_orb = 3
-!s_orb = 1 ! Double of true value s_orb = 1/2
+l_orb = 6  ! double of true value l_orb = 3
+!s_orb = 1 ! double of true value s_orb = 1/2
 txt = Zero
 if (mod(L,4) == 0) then
   if (ML == 0) then

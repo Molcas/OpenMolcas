@@ -12,7 +12,7 @@
 subroutine pseudospin(M,d,z,iDir,iOpt,iprint)
 ! d - dimension (input)
 ! moment(l,d,d) (input)
-! z - pseuDospin eigenfunctions (output)
+! z - pseudospin eigenfunctions (output)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
