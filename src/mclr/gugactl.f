@@ -11,7 +11,7 @@
 *
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
      &                NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,DRT,
-     &                DOWN,DAW,UP,RAW,USGN,LSGN,ICASE,IFCAS,
+     &                DOWN,DAW,UP,RAW,USGN,LSGN,ICASE, IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
      &                NOCSF, IOCSF, NOW => NOW1, IOW => IOW1
       use Str_Info, only: CFTP, CNSM
