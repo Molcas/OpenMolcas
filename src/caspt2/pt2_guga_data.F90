@@ -12,5 +12,6 @@
       implicit none
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)
+      Integer, Allocatable:: NOW1(:), IOW1(:)
       save
       end module pt2_guga_data

@@ -35,8 +35,8 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
       IF(ISCF.NE.0) RETURN
       Call mma_deallocate(MVL)
       Call mma_deallocate(MVR)
-      CALL GETMEM('NOW','FREE','INTEG',LNOW,NNOW)
-      CALL GETMEM('IOW','FREE','INTEG',LIOW,NIOW)
+      Call mma_deallocate(NOW1)
+      Call mma_deallocate(IOW1)
       CALL GETMEM('NOCP','FREE','INTEG',LNOCP,NNOCP)
       CALL GETMEM('IOCP','FREE','INTEG',LIOCP,NIOCP)
       CALL GETMEM('NOCSF','FREE','INTEG',LNOCSF,NNOCSF)
