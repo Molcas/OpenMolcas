@@ -16,8 +16,10 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PCLOSE
+      SUBROUTINE PCLOSE()
+      use stdalloc, only: mma_deallocate
       use fciqmc_interface, only: DoFCIQMC
+      use pt2_guga_data
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 C  PER-AAKE MALMQUIST 92-12-07
@@ -26,14 +28,13 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "pt2_guga.fh"
 
       IF(DoCumulant) RETURN
       IF(DoFCIQMC) RETURN
       IF(NACTEL.EQ.0) RETURN
       IF(ISCF.NE.0) RETURN
-      CALL GETMEM('MVL','FREE','INTEG',LMVL,NMVL)
-      CALL GETMEM('MVR','FREE','INTEG',LMVR,NMVR)
+      Call mma_deallocate(MVL)
+      Call mma_deallocate(MVR)
       CALL GETMEM('NOW','FREE','INTEG',LNOW,NNOW)
       CALL GETMEM('IOW','FREE','INTEG',LIOW,NIOW)
       CALL GETMEM('NOCP','FREE','INTEG',LNOCP,NNOCP)
@@ -44,5 +45,5 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
       CALL GETMEM('ICOUP','FREE','INTEG',LICOUP,(3*NICOUP+1)/2)
       CALL GETMEM('VTAB','FREE','REAL',LVTAB,NVTAB)
       CALL GETMEM('SGTMP','FREE','REAL',LSGTMP,NSGTMP)
-      RETURN
-      END
+
+      END SUBROUTINE PCLOSE

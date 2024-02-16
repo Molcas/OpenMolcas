@@ -19,18 +19,18 @@
 *--------------------------------------------*
       SUBROUTINE GINIT_CP2
       use stdalloc, only: mma_allocate, mma_deallocate
+      use pt2_guga_data
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
 #include "segtab.fh"
       Integer, Allocatable, Target:: DRT0(:), DRT(:)
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),
      &                       UP(:), MAW(:), IVR(:)
-
+      Integer, External:: ip_of_iWork
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
@@ -120,13 +120,15 @@ C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       CALL mma_allocate(IVR,NIVR,Label='IVR')
       NMVL=2*NMIDV
       NMVR=2*NMIDV
-      CALL GETMEM('MVL','ALLO','INTEG',LMVL,NMVL)
-      CALL GETMEM('MVR','ALLO','INTEG',LMVR,NMVR)
+      CALL mma_allocate(MVL,NMVL,Label='MVL')
+      LMVL = ip_of_iWork(MVL(1))
+      CALL mma_allocate(MVR,NMVR,Label='MVR')
+      LMVR = ip_of_iWork(MVR(1))
       NSGMNT=26*NVERT
       CALL GETMEM('ISGM','ALLO','INTEG',LISGM,NSGMNT)
       CALL GETMEM('VSGM','ALLO','REAL',LVSGM,NSGMNT)
       CALL MKSEG_CP2(DRT,DOWN,LTV,IVR,
-     &           IWORK(LMVL),IWORK(LMVR),IWORK(LISGM),WORK(LVSGM))
+     &           MVL,MVR,IWORK(LISGM),WORK(LVSGM))
       Call mma_deallocate(DOWN)
       Call mma_deallocate(LTV)
 C FORM VARIOUS OFFSET TABLES:
@@ -150,7 +152,7 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL GETMEM('IOCSF','ALLO','INTEG',LIOCSF,NIOCSF)
       CALL NRCOUP_CP2(DRT,IWORK(LISGM),IWORK(LNOW),
      &            IWORK(LIOW),IWORK(LNOCP),IWORK(LIOCP),IWORK(LNOCSF),
-     &            IWORK(LIOCSF),IWORK(LNRL),IWORK(LMVL),IWORK(LMVR))
+     &            IWORK(LIOCSF),IWORK(LNRL),MVL,MVR)
       CALL mma_deallocate(DRT)
       CALL GETMEM('NRL','FREE','INTEG',LNRL,NNRL)
       NILNDW=NWALK
