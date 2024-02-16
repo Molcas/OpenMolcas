@@ -14,8 +14,10 @@ subroutine pa_prham(exch,npair,i_pair,nneq,neq,nexch,nmax,lmax,eso,HLIN1,HLIN3,H
 ! this function prints the exchange Hamiltonian
 ! it does not compute any new infromation
 
+use Constants, only: Zero, cZero, cOne
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 #include "warnings.h"
 integer, intent(in) :: exch
@@ -69,13 +71,13 @@ if (lmax == 0) then
 end if
 ibuf = npair*nmax*nmax*nmax*nmax
 if (ibuf > 0) then
-  if ((dznrm2_(ibuf,HLIN1,1) == 0.0_wp) .and. AnisoLines1) call WarningMessage(2,'PA_PRHAM:  HLIN1 is empty')
-  if ((dznrm2_(ibuf,HLIN3,1) == 0.0_wp) .and. AnisoLines3) call WarningMessage(2,'PA_PRHAM:  HLIN3 is empty')
-  if ((dznrm2_(ibuf,HLIN9,1) == 0.0_wp) .and. AnisoLines9) call WarningMessage(2,'PA_PRHAM:  HLIN9 is empty')
-  if ((dznrm2_(ibuf,HDIP,1) == 0.0_wp) .and. Dipol) call WarningMessage(2,'PA_PRHAM:  HDIP is empty')
-  if ((dznrm2_(ibuf,HKEX,1) == 0.0_wp) .and. KE) call WarningMessage(2,'PA_PRHAM:  HKEX is empty')
-  if ((dznrm2_(ibuf,HDMO,1) == 0.0_wp) .and. DM_exchange) call WarningMessage(2,'PA_PRHAM:  HDMO is empty')
-  if ((dznrm2_(ibuf,HITO,1) == 0.0_wp) .and. JITO_exchange) call WarningMessage(2,'PA_PRHAM:  HITO is empty')
+  if ((dznrm2_(ibuf,HLIN1,1) == Zero) .and. AnisoLines1) call WarningMessage(2,'PA_PRHAM:  HLIN1 is empty')
+  if ((dznrm2_(ibuf,HLIN3,1) == Zero) .and. AnisoLines3) call WarningMessage(2,'PA_PRHAM:  HLIN3 is empty')
+  if ((dznrm2_(ibuf,HLIN9,1) == Zero) .and. AnisoLines9) call WarningMessage(2,'PA_PRHAM:  HLIN9 is empty')
+  if ((dznrm2_(ibuf,HDIP,1) == Zero) .and. Dipol) call WarningMessage(2,'PA_PRHAM:  HDIP is empty')
+  if ((dznrm2_(ibuf,HKEX,1) == Zero) .and. KE) call WarningMessage(2,'PA_PRHAM:  HKEX is empty')
+  if ((dznrm2_(ibuf,HDMO,1) == Zero) .and. DM_exchange) call WarningMessage(2,'PA_PRHAM:  HDMO is empty')
+  if ((dznrm2_(ibuf,HITO,1) == Zero) .and. JITO_exchange) call WarningMessage(2,'PA_PRHAM:  HITO is empty')
 end if !ibuf
 !=======================================================================
 ! allocate memory
@@ -87,17 +89,17 @@ if (exch >= 0) then
   call mma_allocate(h2,exch,'h2')
   call mma_allocate(h3,exch,'h3')
   call mma_allocate(h4,exch,'h4')
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,htot,1)
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,h1,1)
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,h2,1)
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,h3,1)
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,h4,1)
+  call zcopy_(exch,[cZero],0,htot,1)
+  call zcopy_(exch,[cZero],0,h1,1)
+  call zcopy_(exch,[cZero],0,h2,1)
+  call zcopy_(exch,[cZero],0,h3,1)
+  call zcopy_(exch,[cZero],0,h4,1)
   mem_local = mem_local+5*exch*CtoB
 end if
 
 !do lp=1,nPair
-!  write(6,'(A,i2,A,i3)') 'i_Pair(',lp,',1)=',i_pair(lp,1)
-!  write(6,'(A,i2,A,i3)') 'i_Pair(',lp,',2)=',i_pair(lp,2)
+!  write(u6,'(A,i2,A,i3)') 'i_Pair(',lp,',1)=',i_pair(lp,1)
+!  write(u6,'(A,i2,A,i3)') 'i_Pair(',lp,',2)=',i_pair(lp,2)
 !end do
 ! generate the tables:
 nind(:,:) = 0
@@ -127,81 +129,81 @@ do nb=1,exch
   end do
 end do
 
-write(6,*)
-write(6,'(100a)') (('%'),j=1,100)
-write(6,'(30x,a)') 'Hamiltonian of the Total Magnetic Interaction'
-write(6,'(100a)') (('%'),j=1,100)
+write(u6,*)
+write(u6,'(100a)') (('%'),j=1,100)
+write(u6,'(30x,a)') 'Hamiltonian of the Total Magnetic Interaction'
+write(u6,'(100a)') (('%'),j=1,100)
 
-write(6,'(A)') 'Only matrix elements with non-zero absolute value are listed below'
+write(u6,'(A)') 'Only matrix elements with non-zero absolute value are listed below'
 
 if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. KE .and. (.not. JITO_exchange)) then
-  write(6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Dipolar Magnetic Interaction   | ', &
-                  '|      Kinetic Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Dipolar Magnetic Interaction   | ', &
+                   '|      Kinetic Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
   lpr = 4
 else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. (.not. KE) .and. (.not. JITO_exchange)) then
-  write(6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Dipolar Magnetic Interaction   | ', &
-                  '|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Dipolar Magnetic Interaction   | ', &
+                   '|       TOTAL  Magnetic Interaction   | '
   lpr = 3
 else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. KE .and. (.not. JITO_exchange)) then
-  write(6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Kinetic Exchange Interaction   | ', &
-                  '|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Kinetic Exchange Interaction   | ', &
+                   '|       TOTAL  Magnetic Interaction   | '
   lpr = 3
 else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. KE .and. (.not. JITO_exchange)) then
-  write(6,'(6A)') '                 ','|      Dipolar Magnetic Interaction   | ','|      Kinetic Exchange Interaction   | ', &
-                  '|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|      Dipolar Magnetic Interaction   | ','|      Kinetic Exchange Interaction   | ', &
+                   '|       TOTAL  Magnetic Interaction   | '
   lpr = 3
 else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. (.not. KE) .and. (.not. JITO_exchange)) then
-  write(6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|       TOTAL  Magnetic Interaction   | '
   lpr = 2
 else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. (.not. KE) .and. (.not. JITO_exchange)) then
-  write(6,'(6A)') '                 ','|      Dipolar Magnetic Interaction   | ','|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|      Dipolar Magnetic Interaction   | ','|       TOTAL  Magnetic Interaction   | '
   lpr = 2
 else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. KE .and. (.not. JITO_exchange)) then
-  write(6,'(6A)') '                 ','|      Kinetic Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|      Kinetic Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
   lpr = 2
 ! JITO is active below:
 else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. (.not. KE) .and. JITO_exchange) then
-  write(6,'(6A)') '                 ','|          ITO Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|          ITO Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
   lpr = 2
 else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. (.not. KE) .and. JITO_exchange) then
-  write(6,'(6A)') '                 ','|      Dipolar Magnetic Interaction   | ','|          ITO Exchange Interaction   | ', &
-                  '|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|      Dipolar Magnetic Interaction   | ','|          ITO Exchange Interaction   | ', &
+                   '|       TOTAL  Magnetic Interaction   | '
   lpr = 3
 else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. KE .and. JITO_exchange) then
-  write(6,'(6A)') '                 ','|      Kinetic Exchange Interaction   | ','|          ITO Exchange Interaction   | ', &
-                  '|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|      Kinetic Exchange Interaction   | ','|          ITO Exchange Interaction   | ', &
+                   '|       TOTAL  Magnetic Interaction   | '
   lpr = 3
 else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. KE .and. JITO_exchange) then
-  write(6,'(6A)') '                 ','|      Dipolar Magnetic Interaction   | ','|      Kinetic Exchange Interaction   | ', &
-                  '|          ITO Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|      Dipolar Magnetic Interaction   | ','|      Kinetic Exchange Interaction   | ', &
+                   '|          ITO Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
   lpr = 4
 else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. (.not. KE) .and. JITO_exchange) then
-  write(6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|          ITO Exchange Interaction   | ', &
-                  '|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|          ITO Exchange Interaction   | ', &
+                   '|       TOTAL  Magnetic Interaction   | '
   lpr = 3
 else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. (.not. KE) .and. JITO_exchange) then
-  write(6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Dipolar Magnetic Interaction   | ', &
-                  '|          ITO Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Dipolar Magnetic Interaction   | ', &
+                   '|          ITO Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
   lpr = 4
 else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. KE .and. JITO_exchange) then
-  write(6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Kinetic Exchange Interaction   | ', &
-                  '|          ITO Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Kinetic Exchange Interaction   | ', &
+                   '|          ITO Exchange Interaction   | ','|       TOTAL  Magnetic Interaction   | '
   lpr = 4
 else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. KE .and. JITO_exchange) then
-  write(6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Dipolar Magnetic Interaction   | ', &
-                  '|      Kinetic Exchange Interaction   | ','|          ITO Exchange Interaction   | ', &
-                  '|       TOTAL  Magnetic Interaction   | '
+  write(u6,'(6A)') '                 ','|       Lines  Model of Interaction   | ','|      Dipolar Magnetic Interaction   | ', &
+                   '|      Kinetic Exchange Interaction   | ','|          ITO Exchange Interaction   | ', &
+                   '|       TOTAL  Magnetic Interaction   | '
   lpr = 5
 
 end if
-write(6,'(110A)') '-----------------',('|-----  Real  ---------  Imaginary  --| ',i=1,lpr)
+write(u6,'(110A)') '-----------------',('|-----  Real  ---------  Imaginary  --| ',i=1,lpr)
 
 do nb1=1,exch
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,H1,1)
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,H2,1)
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,H3,1)
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,H4,1)
-  call zcopy_(exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch,[cZero],0,H1,1)
+  call zcopy_(exch,[cZero],0,H2,1)
+  call zcopy_(exch,[cZero],0,H3,1)
+  call zcopy_(exch,[cZero],0,H4,1)
+  call zcopy_(exch,[cZero],0,HTOT,1)
   do lp=1,npair
     icoord(:) = 0
     do i=1,lmax
@@ -243,7 +245,7 @@ do nb1=1,exch
       do j=1,neq(i)
         l = l+1
         if (l == lb) then
-          HTOT(nb1) = HTOT(nb1)+cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
+          HTOT(nb1) = HTOT(nb1)+eso(i,ibas(nb1,lb)+1)*cOne
           if ((lb+1) <= (lmax)) lb = lb+1
         end if
       end do !j
@@ -253,107 +255,107 @@ do nb1=1,exch
   ! proceed to print
   if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. KE) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > 0.0_wp) .or. (abs(H2(nb2)) > 0.0_wp) .or. (abs(H3(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H3(nb2),HTOT(nb2)
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H3(nb2),HTOT(nb2)
       end if
     end do
 
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. (.not. KE)) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > 0.0_wp) .or. (abs(H2(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),HTOT(nb2)
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),HTOT(nb2)
       end if
     end do
 
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. KE) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > 0.0_wp) .or. (abs(H3(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H3(nb2),HTOT(nb2)
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H3(nb2),HTOT(nb2)
       end if
     end do
 
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. KE) then
     do nb2=nb1,exch
-      if ((abs(H2(nb2)) > 0.0_wp) .or. (abs(H3(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H3(nb2),HTOT(nb2)
+      if ((abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H3(nb2),HTOT(nb2)
       end if
     end do
 
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. (.not. KE)) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),HTOT(nb2)
+      if ((abs(H1(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),HTOT(nb2)
       end if
     end do
 
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. (.not. KE)) then
     do nb2=nb1,exch
-      if ((abs(H2(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),HTOT(nb2)
+      if ((abs(H2(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),HTOT(nb2)
       end if
     end do
 
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. KE) then
     do nb2=nb1,exch
-      if ((abs(H3(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H3(nb2),HTOT(nb2)
+      if ((abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H3(nb2),HTOT(nb2)
       end if
     end do
   ! JITO is active below:
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. (.not. KE) .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H4(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H4(nb2),HTOT(nb2)
+      if ((abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H4(nb2),HTOT(nb2)
       end if
     end do
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. (.not. KE) .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H2(nb2)) > 0.0_wp) .or. (abs(H4(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H4(nb2),HTOT(nb2)
+      if ((abs(H2(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H4(nb2),HTOT(nb2)
       end if
     end do
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. KE .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H3(nb2)) > 0.0_wp) .or. (abs(H4(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H3(nb2),H4(nb2),HTOT(nb2)
+      if ((abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H3(nb2),H4(nb2),HTOT(nb2)
       end if
     end do
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. KE .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H2(nb2)) > 0.0_wp) .or. (abs(H3(nb2)) > 0.0_wp) .or. (abs(H4(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H3(nb2),H4(nb2),HTOT(nb2)
+      if ((abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H3(nb2),H4(nb2),HTOT(nb2)
       end if
     end do
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. (.not. KE) .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > 0.0_wp) .or. (abs(H4(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H4(nb2),HTOT(nb2)
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H4(nb2),HTOT(nb2)
       end if
     end do
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. (.not. KE) .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > 0.0_wp) .or. (abs(H2(nb2)) > 0.0_wp) .or. (abs(H4(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H4(nb2),HTOT(nb2)
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H4(nb2),HTOT(nb2)
       end if
     end do
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. KE .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > 0.0_wp) .or. (abs(H3(nb2)) > 0.0_wp) .or. (abs(H4(nb2)) > 0.0_wp) .or. (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H3(nb2),H4(nb2),HTOT(nb2)
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H3(nb2),H4(nb2),HTOT(nb2)
       end if
     end do
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. KE .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > 0.0_wp) .or. (abs(H2(nb2)) > 0.0_wp) .or. (abs(H3(nb2)) > 0.0_wp) .or. (abs(H4(nb2)) > 0.0_wp) .or. &
-          (abs(HTOT(nb2)) > 0.0_wp)) then
-        write(6,'(A,i4,A,i4,A,5(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H3(nb2),H4(nb2),HTOT(nb2)
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. &
+          (abs(HTOT(nb2)) > Zero)) then
+        write(u6,'(A,i4,A,i4,A,5(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H3(nb2),H4(nb2),HTOT(nb2)
       end if
     end do
   end if
 
 end do !nb1
 
-write(6,'(10A)') '-----------------',('|-------------------------------------| ',i=1,lpr)
+write(u6,'(10A)') '-----------------',('|-------------------------------------| ',i=1,lpr)
 
 !=======================================================================
 ! deallocate memory

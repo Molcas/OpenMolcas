@@ -12,14 +12,14 @@
 subroutine susceptibility_pa(exch,nLoc,nCenter,nneq,neqv,neq,nss,nexch,nTempMagn,nT,Tmin,Tmax,XTexp,eso,dipso,s_so,w,dipexch, &
                              s_exch,T,R_LG,zJ,tinput,XLM,ZLM,XRM,ZRM,iopt,chiT_theta,doplot,mem)
 
+use Constants, only: Zero, Three
+Use Definitions, only: wp, u6
+
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 implicit none
-integer, parameter :: wp = kind(0.d0)
-
 integer, intent(in) :: nLoc, nCenter, nTempMagn, nT, mem
 integer, intent(in) :: exch, nneq, neqv, iopt
 integer, intent(in) :: neq(nneq), nss(nneq), nexch(nneq)
-
 real(kind=8), intent(in) :: T(nT+nTempMagn)
 real(kind=8), intent(in) :: W(exch)
 real(kind=8), intent(in) :: eso(nneq,nLoc)
@@ -40,7 +40,6 @@ complex(kind=8), intent(in) :: s_exch(3,exch,exch)
 complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
 complex(kind=8), intent(in) :: s_so(nneq,3,nLoc,nLoc)
 #include "stdalloc.fh"
-
 ! local variables
 real(kind=8), allocatable :: chit_tens_l(:,:,:)       !chit_tens_l( nneq,3,3)
 real(kind=8), allocatable :: smu_chit_tens_l(:,:,:)   !smu_chit_tens_l( nneq,3,3)
@@ -88,61 +87,53 @@ real(wp), external :: dnrm2_
 mem_local = 0
 dbg = .false.
 RtoB = 8
-coeff_chi = 0.1250486120_wp*3.0_wp ! = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
-boltz_k = 0.69503560_wp            !   in cm^-1*k-1
+coeff_chi = 0.1250486120_wp*Three ! IFG = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
+boltz_k = 0.69503560_wp           ! IFG   in cm^-1*k-1
 !-----------------------------------------------------------------------
 if (dbg) then
-  write(6,*) 'Verification of input data on entrance to PA-SUSC:'
-  write(6,*) 'exch:         ',exch
-  write(6,*) 'nLoc:         ',nLoc
-  write(6,*) 'nCenter:      ',nCenter
-  write(6,*) 'nneq:         ',nneq
-  write(6,*) 'neqv:         ',neqv
-  write(6,*) 'neq():        ',(neq(i),i=1,nneq)
-  write(6,*) 'nss():        ',(nss(i),i=1,nneq)
-  write(6,*) 'nexch():      ',(nexch(i),i=1,nneq)
-  write(6,*) 'nT:           ',nT
-  write(6,*) 'iopt:         ',iopt
-  write(6,*) 'mem:          ',mem
-  write(6,*) 'nTempMagn:    ',nTempMagn
-  write(6,*) 'Tmin:         ',Tmin
-  write(6,*) 'Tmax:         ',Tmax
-  write(6,*) 'XTexp():      ',(XTexp(i),i=1,nT+nTempMagn)
-  write(6,*) 'T():          ',(T(i),i=1,nT+nTempMagn)
-  write(6,*) 'chit_theta(): ',(chit_theta(i),i=1,nT+nTempMagn)
-  write(6,*) 'W()           ',(W(i),i=1,exch)
-  write(6,*) 'zJ:           ',zJ
-  write(6,*) 'tinput:       ',tinput
-  write(6,*) 'doplot:       ',doplot
+  write(u6,*) 'Verification of input data on entrance to PA-SUSC:'
+  write(u6,*) 'exch:         ',exch
+  write(u6,*) 'nLoc:         ',nLoc
+  write(u6,*) 'nCenter:      ',nCenter
+  write(u6,*) 'nneq:         ',nneq
+  write(u6,*) 'neqv:         ',neqv
+  write(u6,*) 'neq():        ',(neq(i),i=1,nneq)
+  write(u6,*) 'nss():        ',(nss(i),i=1,nneq)
+  write(u6,*) 'nexch():      ',(nexch(i),i=1,nneq)
+  write(u6,*) 'nT:           ',nT
+  write(u6,*) 'iopt:         ',iopt
+  write(u6,*) 'mem:          ',mem
+  write(u6,*) 'nTempMagn:    ',nTempMagn
+  write(u6,*) 'Tmin:         ',Tmin
+  write(u6,*) 'Tmax:         ',Tmax
+  write(u6,*) 'XTexp():      ',(XTexp(i),i=1,nT+nTempMagn)
+  write(u6,*) 'T():          ',(T(i),i=1,nT+nTempMagn)
+  write(u6,*) 'chit_theta(): ',(chit_theta(i),i=1,nT+nTempMagn)
+  write(u6,*) 'W()           ',(W(i),i=1,exch)
+  write(u6,*) 'zJ:           ',zJ
+  write(u6,*) 'tinput:       ',tinput
+  write(u6,*) 'doplot:       ',doplot
   !do i=1,nneq
-  !  write(6,*) 'eso()         ',(eso(i,j),j=1,nss(i))
+  !  write(u6,*) 'eso()         ',(eso(i,j),j=1,nss(i))
   !  call prMom('SUSC: input  s_so(i,:,:,:):',s_so(i,:,:,:),nexch(i))
   !  call prMom('SUSC: input dipso(i,:,:,:):',dipso(i,:,:,:),nexch(i))
-  !  gtens = 0.0_wp
-  !  maxes = 0.0_wp
   !  call atens(s_so(i,:,:,:),nexch(i),gtens,maxes,2)
-  !  gtens = 0.0_wp
-  !  maxes = 0.0_wp
   !  call atens(dipso(i,:,:,:),nexch(i),gtens,maxes,2)
   !End Do
   !call prMom('SUSC: input  S_EXCH(l,i,j):',s_exch,exch)
   !call prMom('SUSC: input DIPEXCH(l,i,j):',dipexch,exch)
-  !gtens = 0.0_wp
-  !maxes = 0.0_wp
   !call atens(s_exch,exch,gtens,maxes,2)
-  !gtens = 0.0_wp
-  !maxes = 0.0_wp
   !call atens(dipexch,exch,gtens,maxes,2)
   ! change to pseudospin:
-  !call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,Z,1)
-  !call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,dipexch2,1)
-  !call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,s_exch2,1)
+  !call zcopy_(exch*exch,[cZero],0,Z,1)
+  !call zcopy_(3*exch*exch,[cZero],0,dipexch2,1)
+  !call zcopy_(3*exch*exch,[cZero],0,s_exch2,1)
   !call zcopy_(3*exch*exch,dipexch,1,dipexch2,1)
   !call zcopy_(3*exch*exch,s_exch,1,s_exch2,1)
   !call pseudospin(dipexch2,exch,Z,3,1)
   !
-  !call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,dipexch,1)
-  !call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,s_exch,1)
+  !call zcopy_(3*exch*exch,[cZero],0,dipexch,1)
+  !call zcopy_(3*exch*exch,[cZero],0,s_exch,1)
   !call UTMU(exch,exch,Z,dipexch2,dipexch)
   !call UTMU(exch,exch,Z,s_exch2,s_exch)
   !
@@ -150,21 +141,21 @@ if (dbg) then
   !call prMom('SUSC: input DIPEXCH2(l,i,j):',dipexch,exch)
 end if ! dbg
 !-----------------------------------------------------------------------
-write(6,*)
-write(6,'(100A)') (('%'),J=1,95)
-write(6,'(35X,A)') 'CALCULATION OF THE MAGNETIC SUSCEPTIBILITY'
-write(6,'(100A)') (('%'),J=1,95)
-write(6,*)
+write(u6,*)
+write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(35X,A)') 'CALCULATION OF THE MAGNETIC SUSCEPTIBILITY'
+write(u6,'(100A)') (('%'),J=1,95)
+write(u6,*)
 
 if (tinput) then
-  write(6,'(2x,a)') 'Temperature dependence of the magnetic susceptibility and'
-  write(6,'(2x,a)') 'high-field magnetization will be calculated according to '
-  write(6,'(2x,a)') 'experimental values provided in the input.'
+  write(u6,'(2x,a)') 'Temperature dependence of the magnetic susceptibility and'
+  write(u6,'(2x,a)') 'high-field magnetization will be calculated according to '
+  write(u6,'(2x,a)') 'experimental values provided in the input.'
 else
-  write(6,'(2x,a,i3,a)') 'Temperature dependence of the magnetic susceptibility will be calculated in',nT,' points, '
-  write(6,'(2x,a,f4.1,a,f6.1,a)') 'equally distributed in temperature range ',tmin,' ---',tmax,' K.'
+  write(u6,'(2x,a,i3,a)') 'Temperature dependence of the magnetic susceptibility will be calculated in',nT,' points, '
+  write(u6,'(2x,a,f4.1,a,f6.1,a)') 'equally distributed in temperature range ',tmin,' ---',tmax,' K.'
 end if
-call XFlush(6)
+call XFlush(u6)
 !-----------------------------------------------------------------------
 call mma_allocate(chit_tens_tot,(nT+nTempMagn),3,3,'XT_tens_tot')
 call mma_allocate(chit_theta_tens,(nT+nTempMagn),3,3,'XT_theta_t')
@@ -186,36 +177,36 @@ call mma_allocate(chiT,(nT+nTempMagn),'chiT')
 call mma_allocate(chi_theta_1,(nT+nTempMagn),'chi_theta_1')
 mem_local = mem_local+(3+2*3*3)*(nT+nTempMagn)*RtoB
 
-call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,chit_tens_tot,1)
-call dcopy_(3*3*(nT+nTempMagn),[0.0_wp],0,chit_theta_tens,1)
-call dcopy_((nT+nTempMagn),[0.0_wp],0,zstat_tot,1)
+call dcopy_(3*3*(nT+nTempMagn),[Zero],0,chit_tens_tot,1)
+call dcopy_(3*3*(nT+nTempMagn),[Zero],0,chit_theta_tens,1)
+call dcopy_((nT+nTempMagn),[Zero],0,zstat_tot,1)
 
-if (zJ == 0.0_wp) then
-  if (dbg) write(6,*) 'SUSC:  memory allocated (local):'
-  if (dbg) write(6,*) 'mem_local=',mem_local
-  if (dbg) write(6,*) 'SUSC:  memory allocated (total):'
-  if (dbg) write(6,*) 'mem_total=',mem+mem_local
+if (zJ == Zero) then
+  if (dbg) write(u6,*) 'SUSC:  memory allocated (local):'
+  if (dbg) write(u6,*) 'mem_local=',mem_local
+  if (dbg) write(u6,*) 'SUSC:  memory allocated (total):'
+  if (dbg) write(u6,*) 'mem_total=',mem+mem_local
 
   do iT=1,nT+nTempMagn
     ! initialize temporary variables:
-    call dcopy_(3*3,[0.0_wp],0,chit_tens_ex,1)
-    call dcopy_(nneq*3*3,[0.0_wp],0,chit_tens_l,1)
-    call dcopy_(nneq*3*3,[0.0_wp],0,chit_tens_lr,1)
-    call dcopy_(nneq,[0.0_wp],0,zstat_l,1)
-    call dcopy_(nneq,[0.0_wp],0,zstat_lr,1)
-    call dcopy_(nCenter,[0.0_wp],0,ZR,1)
-    call dcopy_(nCenter,[0.0_wp],0,ZL,1)
-    call dcopy_(3*3*nCenter,[0.0_wp],0,XL,1)
-    call dcopy_(3*3*nCenter,[0.0_wp],0,XR,1)
-    zstat_ex = 0.0_wp
+    call dcopy_(3*3,[Zero],0,chit_tens_ex,1)
+    call dcopy_(nneq*3*3,[Zero],0,chit_tens_l,1)
+    call dcopy_(nneq*3*3,[Zero],0,chit_tens_lr,1)
+    call dcopy_(nneq,[Zero],0,zstat_l,1)
+    call dcopy_(nneq,[Zero],0,zstat_lr,1)
+    call dcopy_(nCenter,[Zero],0,ZR,1)
+    call dcopy_(nCenter,[Zero],0,ZL,1)
+    call dcopy_(3*3*nCenter,[Zero],0,XL,1)
+    call dcopy_(3*3*nCenter,[Zero],0,XR,1)
+    zstat_ex = Zero
     !-------------------------------------------------------------------
     ! local susceptibility= total susceptibility coming from individual magnetic centers
     do i=1,nneq
-      if (dbg) write(6,'(A,2I5)') 'nss(i)=',nss(i)
-      if (dbg) write(6,'(A,2I5)') 'nexch(i)=',nexch(i)
-      if (dbg) write(6,'(A,9F10.6)') 'eso(i,:)=',eso(i,1:nss(i))
-      if (dbg) write(6,'(A,9F10.6)') 'W(:)    =',W(1:exch)
-      if (dbg) write(6,'(A,9F10.6)') 'T(iT)=',T(iT)
+      if (dbg) write(u6,'(A,2I5)') 'nss(i)=',nss(i)
+      if (dbg) write(u6,'(A,2I5)') 'nexch(i)=',nexch(i)
+      if (dbg) write(u6,'(A,9F10.6)') 'eso(i,:)=',eso(i,1:nss(i))
+      if (dbg) write(u6,'(A,9F10.6)') 'W(:)    =',W(1:exch)
+      if (dbg) write(u6,'(A,9F10.6)') 'T(iT)=',T(iT)
       call chi(dipso(i,1:3,1:nss(i),1:nss(i)),dipso(i,1:3,1:nss(i),1:nss(i)),eso(i,1:nss(i)),nss(i),T(it),zstat_l(i), &
                chit_tens_l(i,1:3,1:3))
 
@@ -278,7 +269,7 @@ if (zJ == 0.0_wp) then
     call Add_Info('XT:  ZR',[Fb],1,6)
     call Add_Info('XT: ZEx',[zstat_ex],1,6)
 
-    chit(it) = coeff_chi*(chit_tens_tot(iT,1,1)+chit_tens_tot(iT,2,2)+chit_tens_tot(iT,3,3))/3.0_wp
+    chit(it) = coeff_chi*(chit_tens_tot(iT,1,1)+chit_tens_tot(iT,2,2)+chit_tens_tot(iT,3,3))/Three
     chit_theta(iT) = chit(iT)
 
     if (abs(chit(iT)) < 1.0e-20_wp) then
@@ -287,7 +278,6 @@ if (zJ == 0.0_wp) then
     end if
     chi_theta_1(iT) = T(iT)/chit(iT)
     ! add some verification data:
-    Fa = 0.0_wp
     Fa = dnrm2_(9,chit_theta_tens(iT,1:3,1:3),1)
     call Add_Info('XT: chit_theta_tens',[Fa],1,6)
   end do ! iT
@@ -315,42 +305,39 @@ else ! i.e. when (zJ /= 0)
   mem_local = mem_local+4*3*3*(nCenter+nneq)*RtoB
   mem_local = mem_local+7*3*3*RtoB
 
-  if (dbg) write(6,*) 'SUSC:  memory allocated (local):'
-  if (dbg) write(6,*) 'mem_local=',mem_local
-  if (dbg) write(6,*) 'SUSC:  memory allocated (total):'
-  if (dbg) write(6,*) 'mem_total=',mem+mem_local
+  if (dbg) write(u6,*) 'SUSC:  memory allocated (local):'
+  if (dbg) write(u6,*) 'mem_local=',mem_local
+  if (dbg) write(u6,*) 'SUSC:  memory allocated (total):'
+  if (dbg) write(u6,*) 'mem_total=',mem+mem_local
 
   do iT=1,nT+nTempMagn
     ! initialization:
-    call dcopy_(3*3,[0.0_wp],0,chit_tens_ex,1)
-    call dcopy_(3*3,[0.0_wp],0,smu_chit_tens_ex,1)
-    call dcopy_(3*3,[0.0_wp],0,ss_chit_tens_ex,1)
-    call dcopy_(nneq*3*3,[0.0_wp],0,chit_tens_l,1)
-    call dcopy_(nneq*3*3,[0.0_wp],0,smu_chit_tens_l,1)
-    call dcopy_(nneq*3*3,[0.0_wp],0,ss_chit_tens_l,1)
-    call dcopy_(nneq*3*3,[0.0_wp],0,chit_tens_lr,1)
-    call dcopy_(nneq*3*3,[0.0_wp],0,smu_chit_tens_lr,1)
-    call dcopy_(nneq*3*3,[0.0_wp],0,ss_chit_tens_lr,1)
-    call dcopy_(3*3,[0.0_wp],0,smu_chit_tens_tot,1)
-    call dcopy_(3*3,[0.0_wp],0,ss_chit_tens_tot,1)
-    call dcopy_(nneq,[0.0_wp],0,zstat_l,1)
-    call dcopy_(nneq,[0.0_wp],0,zstat_lr,1)
-    call dcopy_(nCenter,[0.0_wp],0,ZR,1)
-    call dcopy_(nCenter,[0.0_wp],0,ZL,1)
-    call dcopy_(nCenter*3*3,[0.0_wp],0,XL,1)
-    call dcopy_(nCenter*3*3,[0.0_wp],0,XR,1)
-    call dcopy_(nCenter*3*3,[0.0_wp],0,SMUR,1)
-    call dcopy_(nCenter*3*3,[0.0_wp],0,SMUL,1)
-    call dcopy_(nCenter*3*3,[0.0_wp],0,SSR,1)
-    call dcopy_(nCenter*3*3,[0.0_wp],0,SSL,1)
-    call dcopy_(3*3,[0.0_wp],0,A_dir,1)
-    call dcopy_(3*3,[0.0_wp],0,A_inv,1)
-    call dcopy_(3*3,[0.0_wp],0,Unity,1)
-    zstat_ex = 0.0_wp
-    det = 0.0_wp
-    do ic=1,3
-      unity(ic,ic) = 1.0_wp
-    end do
+    call dcopy_(3*3,[Zero],0,chit_tens_ex,1)
+    call dcopy_(3*3,[Zero],0,smu_chit_tens_ex,1)
+    call dcopy_(3*3,[Zero],0,ss_chit_tens_ex,1)
+    call dcopy_(nneq*3*3,[Zero],0,chit_tens_l,1)
+    call dcopy_(nneq*3*3,[Zero],0,smu_chit_tens_l,1)
+    call dcopy_(nneq*3*3,[Zero],0,ss_chit_tens_l,1)
+    call dcopy_(nneq*3*3,[Zero],0,chit_tens_lr,1)
+    call dcopy_(nneq*3*3,[Zero],0,smu_chit_tens_lr,1)
+    call dcopy_(nneq*3*3,[Zero],0,ss_chit_tens_lr,1)
+    call dcopy_(3*3,[Zero],0,smu_chit_tens_tot,1)
+    call dcopy_(3*3,[Zero],0,ss_chit_tens_tot,1)
+    call dcopy_(nneq,[Zero],0,zstat_l,1)
+    call dcopy_(nneq,[Zero],0,zstat_lr,1)
+    call dcopy_(nCenter,[Zero],0,ZR,1)
+    call dcopy_(nCenter,[Zero],0,ZL,1)
+    call dcopy_(nCenter*3*3,[Zero],0,XL,1)
+    call dcopy_(nCenter*3*3,[Zero],0,XR,1)
+    call dcopy_(nCenter*3*3,[Zero],0,SMUR,1)
+    call dcopy_(nCenter*3*3,[Zero],0,SMUL,1)
+    call dcopy_(nCenter*3*3,[Zero],0,SSR,1)
+    call dcopy_(nCenter*3*3,[Zero],0,SSL,1)
+    call dcopy_(3*3,[Zero],0,A_dir,1)
+    call dcopy_(3*3,[Zero],0,A_inv,1)
+    zstat_ex = Zero
+    det = Zero
+    call unitmat(unity,3)
 
     ! compute local tensors  L, and LR:
     do i=1,nneq
@@ -449,7 +436,7 @@ else ! i.e. when (zJ /= 0)
     call REVERSE(A_dir,A_inv,DET)
     do ic=1,3
       do jc=1,3
-        xxm = 0.0_wp
+        xxm = Zero
         do im=1,3
           do jm=1,3
             xxm = xxm+smu_chit_tens_tot(im,ic)*a_inv(im,jm)*smu_chit_tens_tot(jm,jc)
@@ -459,15 +446,15 @@ else ! i.e. when (zJ /= 0)
       end do ! jc
     end do ! ic
 
-    chit(iT) = coeff_chi*(chit_tens_tot(iT,1,1)+chit_tens_tot(iT,2,2)+chit_tens_tot(iT,3,3))/3.0_wp
+    chit(iT) = coeff_chi*(chit_tens_tot(iT,1,1)+chit_tens_tot(iT,2,2)+chit_tens_tot(iT,3,3))/Three
 
-    chit_theta(iT) = coeff_chi*(chit_theta_tens(iT,1,1)+chit_theta_tens(iT,2,2)+chit_theta_tens(iT,3,3))/3.0_wp
-    if (abs(chit(iT)) < 1.0d-20) then
-      chit(iT) = 1.d-20
-      chit_theta(iT) = 1.d-20
+    chit_theta(iT) = coeff_chi*(chit_theta_tens(iT,1,1)+chit_theta_tens(iT,2,2)+chit_theta_tens(iT,3,3))/Three
+    if (abs(chit(iT)) < 1.0e-20_wp) then
+      chit(iT) = 1.0e-20_wp
+      chit_theta(iT) = 1.0e-20_wp
     end if
-    if (abs(chit_theta(iT)) < 1.0d-20) then
-      chit_theta(iT) = 1.d-20
+    if (abs(chit_theta(iT)) < 1.0e-20_wp) then
+      chit_theta(iT) = 1.0e-20_wp
     end if
 
     chi_theta_1(iT) = t(iT)/chit_theta(iT)
@@ -509,27 +496,25 @@ do iT=1,nT+nTempMagn
   do ic=1,3
     do jc=1,3
       chit_tens_tot(iT,ic,jc) = coeff_chi*chit_tens_tot(iT,ic,jc)
-      if (zJ /= 0.0_wp) then
-        chit_theta_tens(iT,ic,jc) = coeff_chi*chit_theta_tens(iT,ic,jc)
-      end if
+      if (zJ /= Zero) chit_theta_tens(iT,ic,jc) = coeff_chi*chit_theta_tens(iT,ic,jc)
     end do
   end do
 end do
-write(6,*)
-write(6,'(A)') '----------------------------------------------------------------------------------------|'
-write(6,'(A)') '     |     T      | Statistical |    CHI*T    |    CHI*T    |     CHI     |    1/CHI    |'
-write(6,'(A)') '     |            |  Sum (Z)    |    (zJ=0)   |             |             |             |'
-write(6,'(A)') '-----|----------------------------------------------------------------------------------|'
-write(6,'(A)') 'Units|   kelvin   |    ---      |  cm3*K/mol  |  cm3*K/mol  |   cm3/mol   |   mol/cm3   |'
-write(6,'(A)') '-----|----------------------------------------------------------------------------------|'
+write(u6,*)
+write(u6,'(A)') '----------------------------------------------------------------------------------------|'
+write(u6,'(A)') '     |     T      | Statistical |    CHI*T    |    CHI*T    |     CHI     |    1/CHI    |'
+write(u6,'(A)') '     |            |  Sum (Z)    |    (zJ=0)   |             |             |             |'
+write(u6,'(A)') '-----|----------------------------------------------------------------------------------|'
+write(u6,'(A)') 'Units|   kelvin   |    ---      |  cm3*K/mol  |  cm3*K/mol  |   cm3/mol   |   mol/cm3   |'
+write(u6,'(A)') '-----|----------------------------------------------------------------------------------|'
 
 do iT=1,nT
   jT = iT+nTempMagn
-  write(6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,ES12.5,A,ES12.5,A)') '     |',T(jT),' |',zstat_tot(jT),' |',chiT(jT),' |', &
-                                                                    chiT_theta(jT),' |',chit_theta(jT)/T(jT),' |',chi_theta_1(jT), &
-                                                                    ' |'
+  write(u6,'(A,F11.6,A,ES12.5,A,F12.8,A,F12.8,A,ES12.5,A,ES12.5,A)') '     |',T(jT),' |',zstat_tot(jT),' |',chiT(jT),' |', &
+                                                                     chiT_theta(jT),' |',chit_theta(jT)/T(jT),' |', &
+                                                                     chi_theta_1(jT),' |'
 end do
-write(6,'(A)') '-----|----------------------------------------------------------------------------------|'
+write(u6,'(A)') '-----|----------------------------------------------------------------------------------|'
 Fb = dnrm2_(nT+nTempMagn,chiT,1)
 call Add_Info('XT: T',[Fb],1,6)
 Fa = dnrm2_(nT+nTempMagn,chiT_theta,1)
@@ -537,9 +522,8 @@ call Add_Info('XT: CHIT_THETA',[Fa],1,6)
 Fa = dnrm2_(nT+nTempMagn,zstat_tot,1)
 call Add_Info('XT: CHIT_THETA',[Fa],1,6)
 !  calcualtion of the standard deviation:
-if (tinput) then
-  write(6,'(a,5x, f20.14)') 'ST.DEV.CHIT:',dev(nT,chit_theta((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
-end if !tinput
+if (tinput) &
+  write(u6,'(a,5x, f20.14)') 'ST.DEV.CHIT:',dev(nT,chit_theta((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
 
 !-------------------------  PLOTs -------------------------------------!
 write(label,'(A)') 'no_field'
@@ -556,52 +540,54 @@ end if
 ! print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main axes:
 call mma_allocate(wt,3,'wt')
 call mma_allocate(zt,3,3,'zt')
-if (zJ == 0.0_wp) then
-  write(6,'(/)')
-  write(6,'(111A)') ('-',i=1,110),'|'
-  write(6,'(31X,A,22x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ = 0,  in cm3*K/mol','|'
-  write(6,'(111A)') ('-',i=1,110),'|'
-  write(6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
+if (zJ == Zero) then
+  write(u6,'(/)')
+  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(31X,A,22x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ = 0,  in cm3*K/mol','|'
+  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
   do iT=1,nT
     jT = iT+nTempMagn
     info = 0
-    call dcopy_(3,[0.0_wp],0,wt,1)
-    call dcopy_(3*3,[0.0_wp],0,zt,1)
+    call dcopy_(3,[Zero],0,wt,1)
+    call dcopy_(3*3,[Zero],0,zt,1)
     call DIAG_R2(chit_tens_tot(jT,:,:),3,info,wt,zt)
-    write(6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- z ----|'
-    write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_tens_tot(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
-                                                   (zt(j,1),j=1,3),'|'
-    write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_tens_tot(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &
-                                                            (zt(j,2),j=1,3),'|'
-    write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_tens_tot(jT,3,j),j=1,3),' |  Z:',wt(3),'|', &
-                                                   (zt(j,3),j=1,3),'|'
+    write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- '// &
+                    'z ----|'
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_tens_tot(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
+                                                    (zt(j,1),j=1,3),'|'
+    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_tens_tot(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &
+                                                             (zt(j,2),j=1,3),'|'
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_tens_tot(jT,3,j),j=1,3),' |  Z:',wt(3),'|', &
+                                                    (zt(j,3),j=1,3),'|'
   end do
-  write(6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(111A)') ('-',i=1,110),'|'
 
-else ! zJ /= 0.0_wp
+else ! zJ /= Zero
 
-  write(6,'(/)')
-  write(6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(/)')
+  write(u6,'(111A)') ('-',i=1,110),'|'
 
-  write(6,'(31X,A,F9.6,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ =',zJ,',  in cm3*K/mol','|'
-  write(6,'(111A)') ('-',i=1,110),'|'
-  write(6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
+  write(u6,'(31X,A,F9.6,A,15x,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR FOR zJ =',zJ,',  in cm3*K/mol','|'
+  write(u6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(A)') '     T(K)   |   |          Susceptibility Tensor      |    Main Values  |               Main Axes             |'
   do iT=1,nT
     jT = iT+nTempMagn
     info = 0
-    call dcopy_(3,[0.0_wp],0,wt,1)
-    call dcopy_(3*3,[0.0_wp],0,zt,1)
+    call dcopy_(3,[Zero],0,wt,1)
+    call dcopy_(3*3,[Zero],0,zt,1)
     call DIAG_R2(chit_theta_tens(jT,:,:),3,info,wt,zt)
-    write(6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- z ----|'
+    write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- '// &
+                    'z ----|'
 
-    write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_theta_tens(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
-                                                   (zt(j,1),j=1,3),'|'
-    write(6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_theta_tens(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &
-                                                            (zt(j,2),j=1,3),'|'
-    write(6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_theta_tens(jT,3,j),j=1,3),' |  Z:',wt(3),'|', &
-                                                   (zt(j,3),j=1,3),'|'
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_theta_tens(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
+                                                    (zt(j,1),j=1,3),'|'
+    write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_theta_tens(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &
+                                                             (zt(j,2),j=1,3),'|'
+    write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | z |',(chiT_theta_tens(jT,3,j),j=1,3),' |  Z:',wt(3),'|', &
+                                                    (zt(j,3),j=1,3),'|'
   end do
-  write(6,'(111A)') ('-',i=1,110),'|'
+  write(u6,'(111A)') ('-',i=1,110),'|'
 end if
 call mma_deallocate(wt)
 call mma_deallocate(zt)
@@ -623,10 +609,10 @@ call mma_deallocate(chi_theta_1)
 
 Go To 190
 !-----------------------------------------------------------------------
-write(6,*)
-write(6,'(5x,a)') 'on user request, the magnetic susceptibility and '
-write(6,'(5x,a)') 'the magnetic susceptibility tensor were not calculated.'
-write(6,*)
+write(u6,*)
+write(u6,'(5x,a)') 'on user request, the magnetic susceptibility and '
+write(u6,'(5x,a)') 'the magnetic susceptibility tensor were not calculated.'
+write(u6,*)
 190 continue
 
 return

@@ -12,8 +12,10 @@
 subroutine KE_exchange(N1,N2,lant,t,u,OPT,HEXC)
 ! this function computes the exchange+covalent contributions to Hamiltonian of a given Lanthanide
 
+use Constants, only: Zero, cOne
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N1, N2, OPT, lant
 real(kind=8), intent(in) :: t, u
 complex(kind=8), intent(out) :: HEXC(N1,N1,N2,N2)
@@ -27,8 +29,7 @@ external :: WCG
 #include "stdalloc.fh"
 #include "jcoeff.fh"
 
-HEXC1 = 0.0_wp
-HEXC = (0.0_wp,0.0_wp)
+HEXC1(:,:,:,:) = Zero
 JLn = N1-1  !nexch(iLn)-1
 SR = N2-1  !nexch(iRad)-1
 do i1=1,N1
@@ -48,12 +49,10 @@ do i1=1,N1
                 do ika=-5,5
                   do iP=0,1
                     do iph=-1,1
-                      test1 = 0.0_wp
                       test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)*WCG(SR,SR,2*iP,0,SR,SR)
-                      test2 = 0.0_wp
                       test2 = WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)*WCG(SR,ns2,2*iP,2*iph,SR,ms2)
-                      if (test1 == 0.0_wp) Go To 104
-                      if (test2 == 0.0_wp) Go To 104
+                      if (test1 == Zero) Go To 104
+                      if (test2 == Zero) Go To 104
 
                       HEXC1(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)+t*t/(u+dE(lant,iLS,iJ))*Jx(lant,iLS,iJ,iK,ika,iP,iph)* &
                                            WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)*WCG(SR,ns2,2*iP,2*iph,SR,ms2)/ &
@@ -68,8 +67,8 @@ do i1=1,N1
           end do
 
           if ((i1 == 1) .and. (j1 == 1) .and. (i2 == 1) .and. (j2 == 1)) then
-            Jfinal = 0.0_wp
-            write(6,'(A)') 'Jfinal(iK,ika,iP,iph):'
+            Jfinal = Zero
+            write(u6,'(A)') 'Jfinal(iK,ika,iP,iph):'
             do iK=0,7
               do ika=-5,5
                 do iP=0,1
@@ -82,8 +81,8 @@ do i1=1,N1
 
                       end do
                     end do
-                    if (abs(Jfinal(iK,ika,iP,iph)) > 1.d-13) then
-                      write(6,'(4i4,4x,2ES24.14)') iK,ika,iP,iph,Jfinal(iK,ika,iP,iph),Jfinal(iK,ika,iP,iph)*0.123984193_wp
+                    if (abs(Jfinal(iK,ika,iP,iph)) > 1.0e-13_wp) then
+                      write(u6,'(4i4,4x,2ES24.14)') iK,ika,iP,iph,Jfinal(iK,ika,iP,iph),Jfinal(iK,ika,iP,iph)*0.123984193_wp ! IFG
                     end if
                   end do
                 end do
@@ -99,12 +98,10 @@ do i1=1,N1
                 do ika=-5,5
                   do iP=0,1
                     do iph=-1,1
-                      test1 = 0.0_wp
                       test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)*WCG(SR,SR,2*iP,0,SR,SR)
-                      test2 = 0.0_wp
                       test2 = WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)*WCG(SR,ns2,2*iP,2*iph,SR,ms2)
-                      if (test1 == 0.0_wp) Go To 105
-                      if (test2 == 0.0_wp) Go To 105
+                      if (test1 == Zero) Go To 105
+                      if (test2 == Zero) Go To 105
 
                       HEXC1(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)+t*t/u*Jx(lant,iLS,iJ,iK,ika,iP,iph)*WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)* &
                                            WCG(SR,ns2,2*iP,2*iph,SR,ms2)/WCG(JLn,JLn,2*iK,0,JLn,JLn)/WCG(SR,SR,2*iP,0,SR,SR)
@@ -119,7 +116,7 @@ do i1=1,N1
         end if !( OPT )
 
         ! kind=8, complex double precision
-        HEXC(i1,j1,i2,j2) = cmplx(HEXC1(i1,j1,i2,j2),0.0_wp,wp)
+        HEXC(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)*cOne
 
       end do !j2
     end do !i2

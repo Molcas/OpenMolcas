@@ -19,9 +19,11 @@ subroutine PopAnalysis(nneq,neq,exch,nexch,nmax,lmax,NmaxPop,Z)
 ! nneq -- number of non equivalent sites
 ! neq(Nneq) number of equivalent sites of type i
 
+use Constants, only: cZero
+use Definitions, only: u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 ! main input variables
 integer, intent(in) :: nneq, exch, nmax, lmax
 integer, intent(in) :: neq(nneq), nexch(nneq)
@@ -37,17 +39,17 @@ logical :: DBG
 DBG = .false.
 
 if (DBG) then
-  write(6,'(A)') 'enter POPULATION ANALYSIS Subroutine'
-  write(6,'(A, i3)') '      nmax = ',nmax
-  write(6,'(A, i3)') '      exch = ',exch
-  write(6,'(A, i3)') '   NmaxPop = ',NmaxPop
-  write(6,'(A, i3)') '      lmax = ',lmax
-  write(6,'(A, i3)') '      nneq = ',nneq
-  write(6,'(A,8i3)') '    neq(i) = ',(neq(i),i=1,nneq)
-  write(6,'(A,8i3)') '  nexch(i) = ',(nexch(i),i=1,nneq)
+  write(u6,'(A)') 'enter POPULATION ANALYSIS Subroutine'
+  write(u6,'(A, i3)') '      nmax = ',nmax
+  write(u6,'(A, i3)') '      exch = ',exch
+  write(u6,'(A, i3)') '   NmaxPop = ',NmaxPop
+  write(u6,'(A, i3)') '      lmax = ',lmax
+  write(u6,'(A, i3)') '      nneq = ',nneq
+  write(u6,'(A,8i3)') '    neq(i) = ',(neq(i),i=1,nneq)
+  write(u6,'(A,8i3)') '  nexch(i) = ',(nexch(i),i=1,nneq)
 end if
 call mma_allocate(pop,exch,lmax,nmax,nmax,'pop')
-call zcopy_(exch*lmax*nmax*nmax,[(0.0_wp,0.0_wp)],0,pop,1)
+call zcopy_(exch*lmax*nmax*nmax,[cZero],0,pop,1)
 ! fill some general arrays:
 ! generate the tables:
 nind(:,:) = 0
@@ -77,26 +79,26 @@ do nb=1,exch
 end do
 isite = 0
 
-pop = (0.0_wp,0.0_wp)
+pop(:,:,:,:) = cZero
 i = int(24+13*lmax)
 write(fmtline,'(A,i3,A,i2,A)') '(',i,'A)'
-write(6,fmtline) ('-',j=1,i)
+write(u6,fmtline) ('-',j=1,i)
 i = int((24+13*lmax-19)/2)
 write(fmtline,'(A,i3,A,i3,A)') '(',i,'X,A,',i,'X)'
-write(6,fmtline) 'POPULATION ANALYSIS'
+write(u6,fmtline) 'POPULATION ANALYSIS'
 i = int((8+13*lmax-19)/2)
 write(fmtline,'(A,i3,A,i3,A)') '(',i,'X,A,',i,'X)'
-write(6,fmtline) '(i.e. diagonal value of density matrices of the interacting sites)'
+write(u6,fmtline) '(i.e. diagonal value of density matrices of the interacting sites)'
 i = int(24+13*lmax)
 write(fmtline,'(A,i3,A)') '(',i,'A)'
-write(6,fmtline) ('-',j=1,i)
+write(u6,fmtline) ('-',j=1,i)
 write(fmtline,'(A,i3,A)') '(A,',lmax,'A)'
-write(6,fmtline) '--------|-----|',('------------|',i=1,lmax)
-write(6,fmtline) 'Exchange|Basis|',('   center   |',i=1,lmax)
+write(u6,fmtline) '--------|-----|',('------------|',i=1,lmax)
+write(u6,fmtline) 'Exchange|Basis|',('   center   |',i=1,lmax)
 write(fmtline,'(A,i3,A)') '(A,',lmax,'(A,i2,A))'
-write(6,fmtline) ' state  | set |',('     ',i,'     |',i=1,lmax)
+write(u6,fmtline) ' state  | set |',('     ',i,'     |',i=1,lmax)
 write(fmtline,'(A,i3,A)') '(A,',lmax,'A)'
-write(6,fmtline) '--------|-----|',('------------|',i=1,lmax)
+write(u6,fmtline) '--------|-----|',('------------|',i=1,lmax)
 
 ! loop over all states for which we want density matrices and
 ! expectation values to be calculated
@@ -130,22 +132,22 @@ do nb1=1,NmaxPop
 
   do i=1,nmax ! maxim local basis
     write(fmtline,'(A,i2,A)') '(2x,i4,2x,A,1x,i2,2x,A,',lmax,'(1x,F10.8,1x,A))'
-    write(6,fmtline) nb1,'|',i,'|',(dble(pop(nb1,l,i,i)),'|',l=1,lmax)
+    write(u6,fmtline) nb1,'|',i,'|',(real(pop(nb1,l,i,i)),'|',l=1,lmax)
   end do
   write(fmtline,'(A,i2,A)') '(A,',lmax,'A)'
-  write(6,fmtline) '--------|-----|',('------------|',i=1,lmax)
+  write(u6,fmtline) '--------|-----|',('------------|',i=1,lmax)
 end do ! nb1
 
 call mma_deallocate(pop)
 
 ! compute and print the calculated expectation values:
-!write(6,*)
-!write(6,'(A)') 'EXPECTATION VALUES'
-!write(6,'(5A)') '--------|----|',('------------------------------|',i=1,4)
-!write(6,'(5A)') 'Exchange|Site|','   MAGNETIC MOMENT (M=-L-2S)  |','        SPIN MOMENT (S)       |', &
-!                '      ORBITAL MOMENT (L)      |','     TOTAL MOMENT (J=L+S)     |'
-!write(6,'(5A)') ' state  | Nr.|',('     X         Y         Z    |',i=1,4)
-!write(6,'(5A)') '--------|----|',('------------------------------|',i=1,4)
+!write(u6,*)
+!write(u6,'(A)') 'EXPECTATION VALUES'
+!write(u6,'(5A)') '--------|----|',('------------------------------|',i=1,4)
+!write(u6,'(5A)') 'Exchange|Site|','   MAGNETIC MOMENT (M=-L-2S)  |','        SPIN MOMENT (S)       |', &
+!                 '      ORBITAL MOMENT (L)      |','     TOTAL MOMENT (J=L+S)     |'
+!write(u6,'(5A)') ' state  | Nr.|',('     X         Y         Z    |',i=1,4)
+!write(u6,'(5A)') '--------|----|',('------------------------------|',i=1,4)
 !do nb1=1,NmaxPop
 !  ! we proceed to compute expectation values for this nb1 exchange state
 !  Mx(:) = cZero
@@ -183,16 +185,16 @@ call mma_deallocate(pop)
 !
 !  do l=1,lmax
 !    if (l == int((lmax+1)/2)) then
-!      write(6,'(i5,3x,A,1x,i2,1x,A,4(3(F9.5,1x),A))') nb1,'|',l,'|',dble(Mx(l)),dble(My(l)),dble(Mz(l)),'|',dble(Sx(l)), &
-!                                                      dble(Sy(l)),dble(Sz(l)),'|',dble(Lx(l)),dble(Ly(l)),dble(Lz(l)),'|', &
-!                                                      dble(Jx(l)),dble(Jy(l)),dble(Jz(l)),'|'
+!      write(u6,'(i5,3x,A,1x,i2,1x,A,4(3(F9.5,1x),A))') nb1,'|',l,'|',real(Mx(l)),real(My(l)),real(Mz(l)),'|',real(Sx(l)), &
+!                                                       real(Sy(l)),real(Sz(l)),'|',real(Lx(l)),real(Ly(l)),real(Lz(l)),'|', &
+!                                                       real(Jx(l)),real(Jy(l)),real(Jz(l)),'|'
 !    else
-!      write(6,'(8x,A,1x,i2,1x,A,4(3(F9.5,1x),A))') '|',l,'|',dble(Mx(l)),dble(My(l)),dble(Mz(l)),'|',dble(Sx(l)),dble(Sy(l)), &
-!                                                   dble(Sz(l)),'|',dble(Lx(l)),dble(Ly(l)),dble(Lz(l)),'|',dble(Jx(l)), &
-!                                                   dble(Jy(l)),dble(Jz(l)),'|'
+!      write(u6,'(8x,A,1x,i2,1x,A,4(3(F9.5,1x),A))') '|',l,'|',real(Mx(l)),real(My(l)),real(Mz(l)),'|',real(Sx(l)),real(Sy(l)), &
+!                                                    real(Sz(l)),'|',real(Lx(l)),real(Ly(l)),real(Lz(l)),'|',real(Jx(l)), &
+!                                                    real(Jy(l)),real(Jz(l)),'|'
 !    end if
 !  end do
-!  write(6,'(5A)') '--------|----|',('------------------------------|',i=1,4)
+!  write(u6,'(5A)') '--------|----|',('------------------------------|',i=1,4)
 !end do
 
 return

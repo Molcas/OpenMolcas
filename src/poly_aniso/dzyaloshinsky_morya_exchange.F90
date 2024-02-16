@@ -13,8 +13,9 @@ subroutine Dzyaloshinsky_Morya_Exchange(Jex,N1,N2,S1,S2,HAM)
 ! this Subroutine calculates the Dzyaloshinsky-Morya exchange interaction between
 ! two sites, of the one interacting pair
 
+use Constants, only: Zero, cZero, cOne
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 ! input variables
 integer, intent(in) :: N1, N2
 real(kind=8), intent(in) :: Jex(3)
@@ -29,12 +30,11 @@ real(kind=8) :: dnrm2_
 external :: dnrm2_
 
 if ((N1 <= 0) .or. (N2 <= 0)) return
-call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
-if (dnrm2_(3,Jex,1) == 0.0_wp) return
+call zcopy_(N1*N1*N2*N2,[cZero],0,HAM,1)
+if (dnrm2_(3,Jex,1) == Zero) return
 
-Jc = (0.0_wp,0.0_wp)
 do l=1,3
-  Jc(l) = cmplx(-Jex(l),0.0_wp,wp)
+  Jc(l) = -Jex(l)*cOne
 end do
 
 ! kind=8, complex double precision
@@ -42,10 +42,6 @@ do i1=1,N1
   do j1=1,N1
     do i2=1,N2
       do j2=1,N2
-
-        X = (0.0_wp,0.0_wp)
-        Y = (0.0_wp,0.0_wp)
-        Z = (0.0_wp,0.0_wp)
 
         X = S1(2,i1,j1)*S2(3,i2,j2)-S1(3,i1,j1)*S2(2,i2,j2)
 

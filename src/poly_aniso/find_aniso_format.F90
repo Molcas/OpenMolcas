@@ -11,21 +11,22 @@
 
 subroutine find_aniso_format(old_aniso_format)
 
+use Definitions, only: u5, u6
+
 implicit none
 logical :: old_aniso_format
 character(len=280) :: line
-integer :: LINENR, Input
+integer :: LINENR
 
-Input = 5
 old_aniso_format = .false.
 
 !=========== End of default settings====================================
-rewind(Input)
-50 read(Input,'(A280)',end=998) LINE
+rewind(u5)
+50 read(u5,'(A280)',end=998) LINE
 call NORMAL(LINE)
 if (LINE(1:11) /= '&POLY_ANISO') Go To 50
 LINENR = 0
-100 read(Input,'(A280)',end=998) line
+100 read(u5,'(A280)',end=998) line
 LINENR = LINENR+1
 call NORMAL(LINE)
 if (LINE(1:1) == '*') Go To 100
@@ -46,10 +47,10 @@ end if
 Go To 190
 !------ errors ------------------------------
 998 continue
-write(6,*) ' READIN: Unexpected End of input file.'
+write(u6,*) ' READIN: Unexpected End of input file.'
 
 190 continue
-write(6,*) 'find_aniso_format::  old_aniso_format=',old_aniso_format
+write(u6,*) 'find_aniso_format::  old_aniso_format=',old_aniso_format
 
 return
 

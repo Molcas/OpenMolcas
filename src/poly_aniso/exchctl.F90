@@ -16,8 +16,10 @@ subroutine exchctl(exch,nneq,neqv,neq,nexch,nmax,lmax,npair,i_pair,MxRank1,MxRan
 ! diagonalization of total hamiltonian and computation of matrix elements
 ! of magnetic and spin moment
 
+use Constants, only: Zero, One, cZero, cOne
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "stdalloc.fh"
 ! global variables:
 integer, intent(in) :: nneq
@@ -126,63 +128,63 @@ external :: norder, dnrm2_  !,ilaenv
 DBG = .false.
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 if (DBG) then
-  write(6,'(A)') 'Enter EXCHCTL'
-  write(6,'(A,  i8)') 'exch   = ',exch
-  write(6,'(A,  i8)') 'nneq   = ',nneq
-  write(6,'(A,  i8)') 'neqv   = ',neqv
-  write(6,'(A,  i8)') 'nmax   = ',nmax
-  write(6,'(A,  i8)') 'lmax   = ',lmax
-  write(6,'(A,  i8)') 'nPair  = ',nPair
-  write(6,'(A,  i8)') 'nPair  = ',nPair
-  write(6,'(A,  i8)') 'MxRank1= ',MxRank1
-  write(6,'(A,  i8)') 'MxRank2= ',MxRank2
-  write(6,'(A,10i4)') 'neq()  = ',(neq(i),i=1,nneq)
-  write(6,'(A,10i4)') 'nexch()= ',(nexch(i),i=1,nneq)
-  write(6,'(A,  L2)') 'AnisoLines1  = ',AnisoLines1
-  write(6,'(A,  L2)') 'AnisoLines3  = ',AnisoLines3
-  write(6,'(A,  L2)') 'AnisoLines9  = ',AnisoLines9
-  write(6,'(A,  L2)') 'DM_exchange  = ',DM_exchange
-  write(6,'(A,  L2)') 'Dipol        = ',Dipol
-  write(6,'(A,  L2)') 'JITO_exchange= ',JITO_exchange
+  write(u6,'(A)') 'Enter EXCHCTL'
+  write(u6,'(A,  i8)') 'exch   = ',exch
+  write(u6,'(A,  i8)') 'nneq   = ',nneq
+  write(u6,'(A,  i8)') 'neqv   = ',neqv
+  write(u6,'(A,  i8)') 'nmax   = ',nmax
+  write(u6,'(A,  i8)') 'lmax   = ',lmax
+  write(u6,'(A,  i8)') 'nPair  = ',nPair
+  write(u6,'(A,  i8)') 'nPair  = ',nPair
+  write(u6,'(A,  i8)') 'MxRank1= ',MxRank1
+  write(u6,'(A,  i8)') 'MxRank2= ',MxRank2
+  write(u6,'(A,10i4)') 'neq()  = ',(neq(i),i=1,nneq)
+  write(u6,'(A,10i4)') 'nexch()= ',(nexch(i),i=1,nneq)
+  write(u6,'(A,  L2)') 'AnisoLines1  = ',AnisoLines1
+  write(u6,'(A,  L2)') 'AnisoLines3  = ',AnisoLines3
+  write(u6,'(A,  L2)') 'AnisoLines9  = ',AnisoLines9
+  write(u6,'(A,  L2)') 'DM_exchange  = ',DM_exchange
+  write(u6,'(A,  L2)') 'Dipol        = ',Dipol
+  write(u6,'(A,  L2)') 'JITO_exchange= ',JITO_exchange
   if (AnisoLines1) then
     do i=1,nPair
-      write(6,'(A,2I4,F10.5)') 'LIN1',i_pair(i,1),i_pair(i,2),Jex(i)
+      write(u6,'(A,2I4,F10.5)') 'LIN1',i_pair(i,1),i_pair(i,2),Jex(i)
     end do
   end if
 
   if (AnisoLines3) then
     do i=1,nPair
-      write(6,'(A,2I4,3F10.5)') 'LIN3',i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
+      write(u6,'(A,2I4,3F10.5)') 'LIN3',i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
     end do
   end if
 
   if (AnisoLines9) then
     do i=1,nPair
-      write(6,'(A,2I4,9F10.5)') 'LIN9',i_pair(i,1),i_pair(i,2),((JAex9(i,j,k),j=1,3),k=1,3)
+      write(u6,'(A,2I4,9F10.5)') 'LIN9',i_pair(i,1),i_pair(i,2),((JAex9(i,j,k),j=1,3),k=1,3)
     end do
   end if
 
   if (DM_exchange) then
     do i=1,nPair
-      write(6,'(A,2I4,3F10.5)') 'DMEX',i_pair(i,1),i_pair(i,2),(JDMex(i,j),j=1,3)
+      write(u6,'(A,2I4,3F10.5)') 'DMEX',i_pair(i,1),i_pair(i,2),(JDMex(i,j),j=1,3)
     end do
   end if
 
   if (Dipol) then
-    write(6,'(A)') 'COORD(i):'
+    write(u6,'(A)') 'COORD(i):'
     do i=1,nneq
-      write(6,'(i3,3F14.8)') i,(coord(i,j),j=1,3)
+      write(u6,'(i3,3F14.8)') i,(coord(i,j),j=1,3)
     end do
   end if
 
   if (JITO_exchange) then
     do i=1,nPair
-      write(6,'(A,4I4,3F10.5)') 'ITOJ',i_pair(i,1),i_pair(i,2),imaxrank(i,1),imaxrank(i,2)
+      write(u6,'(A,4I4,3F10.5)') 'ITOJ',i_pair(i,1),i_pair(i,2),imaxrank(i,1),imaxrank(i,2)
       do k1=1,imaxrank(i,1),2
         do q1=-k1,k1
           do k2=1,imaxrank(i,2),2
             do q2=-k2,k2
-              write(6,'(4I3,2x,2ES21.14)') k1,q1,k2,q2,JITOexR(i,k1,q1,k2,q2),JITOexI(i,k1,q1,k2,q2)
+              write(u6,'(4I3,2x,2ES21.14)') k1,q1,k2,q2,JITOexR(i,k1,q1,k2,q2),JITOexI(i,k1,q1,k2,q2)
             end do
           end do
         end do
@@ -190,17 +192,17 @@ if (DBG) then
     end do ! ipair
   end if
 
-  write(6,'(A)') 'ESO(i):'
+  write(u6,'(A)') 'ESO(i):'
   do i=1,nneq
-    write(6,'(i3,90F14.8)') i,(eso(i,j),j=1,nmax)
+    write(u6,'(i3,90F14.8)') i,(eso(i,j),j=1,nmax)
   end do
-  write(6,'(90A)') 'itype()=',(itype(i),' ',i=1,nneq)
+  write(u6,'(90A)') 'itype()=',(itype(i),' ',i=1,nneq)
 
-  write(6,'(A,  i8)') 'neqv   = ',neqv
+  write(u6,'(A,  i8)') 'neqv   = ',neqv
   do i=1,nneq
-    write(6,'(A,  i8)') 'riso( site=',i,'):'
+    write(u6,'(A,  i8)') 'riso( site=',i,'):'
     do j=1,3
-      write(6,'(3ES22.14)') (riso(i,j,k),k=1,3)
+      write(u6,'(3ES22.14)') (riso(i,j,k),k=1,3)
     end do
   end do
 end if ! dbg
@@ -234,14 +236,14 @@ if (exch >= 0) then
   call mma_allocate(wkex,exch,'wkex ')
   call mma_allocate(wdmo,exch,'wdmo ')
   call mma_allocate(wito,exch,'wito ')
-  call dcopy_(exch,[0.0_wp],0,wlin,1)
-  call dcopy_(exch,[0.0_wp],0,wlin1,1)
-  call dcopy_(exch,[0.0_wp],0,wlin3,1)
-  call dcopy_(exch,[0.0_wp],0,wlin9,1)
-  call dcopy_(exch,[0.0_wp],0,wdip,1)
-  call dcopy_(exch,[0.0_wp],0,wkex,1)
-  call dcopy_(exch,[0.0_wp],0,wdmo,1)
-  call dcopy_(exch,[0.0_wp],0,wito,1)
+  call dcopy_(exch,[Zero],0,wlin,1)
+  call dcopy_(exch,[Zero],0,wlin1,1)
+  call dcopy_(exch,[Zero],0,wlin3,1)
+  call dcopy_(exch,[Zero],0,wlin9,1)
+  call dcopy_(exch,[Zero],0,wdip,1)
+  call dcopy_(exch,[Zero],0,wkex,1)
+  call dcopy_(exch,[Zero],0,wdmo,1)
+  call dcopy_(exch,[Zero],0,wito,1)
   mem_local = mem_local+8*exch*RtoB
 end if
 if (nmax >= 0) then
@@ -255,16 +257,16 @@ if (nmax >= 0) then
   call mma_allocate(SM2,3,nmax,nmax,'SM2')
   call mma_allocate(MM1,3,nmax,nmax,'MM1')
   call mma_allocate(MM2,3,nmax,nmax,'MM2')
-  call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,S1,1)
-  call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,M1,1)
-  call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,S2,1)
-  call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,M2,1)
-  call zcopy_(nmax*nmax,[(0.0_wp,0.0_wp)],0,ZA1,1)
-  call zcopy_(nmax*nmax,[(0.0_wp,0.0_wp)],0,ZA2,1)
-  call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,SM1,1)
-  call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,SM2,1)
-  call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,MM1,1)
-  call zcopy_(3*nmax*nmax,[(0.0_wp,0.0_wp)],0,MM2,1)
+  call zcopy_(3*nmax*nmax,[cZero],0,S1,1)
+  call zcopy_(3*nmax*nmax,[cZero],0,M1,1)
+  call zcopy_(3*nmax*nmax,[cZero],0,S2,1)
+  call zcopy_(3*nmax*nmax,[cZero],0,M2,1)
+  call zcopy_(nmax*nmax,[cZero],0,ZA1,1)
+  call zcopy_(nmax*nmax,[cZero],0,ZA2,1)
+  call zcopy_(3*nmax*nmax,[cZero],0,SM1,1)
+  call zcopy_(3*nmax*nmax,[cZero],0,SM2,1)
+  call zcopy_(3*nmax*nmax,[cZero],0,MM1,1)
+  call zcopy_(3*nmax*nmax,[cZero],0,MM2,1)
   mem_local = mem_local+8*3*nmax*nmax*CtoB
 
   if (npair >= 0) then
@@ -276,20 +278,20 @@ if (nmax >= 0) then
     call mma_allocate(HKEX,npair,nmax,nmax,nmax,nmax,'HKEX')
     call mma_allocate(HDMO,npair,nmax,nmax,nmax,nmax,'HDMO')
     call mma_allocate(HITO,npair,nmax,nmax,nmax,nmax,'HITO')
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN1,1)
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN3,1)
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN9,1)
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HDIP,1)
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HKEX,1)
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HDMO,1)
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HITO,1)
+    call zcopy_(ibuf,[cZero],0,HLIN1,1)
+    call zcopy_(ibuf,[cZero],0,HLIN3,1)
+    call zcopy_(ibuf,[cZero],0,HLIN9,1)
+    call zcopy_(ibuf,[cZero],0,HDIP,1)
+    call zcopy_(ibuf,[cZero],0,HKEX,1)
+    call zcopy_(ibuf,[cZero],0,HDMO,1)
+    call zcopy_(ibuf,[cZero],0,HITO,1)
     mem_local = mem_local+7*ibuf*CtoB
   end if
 end if
 
 if (exch >= 0) then
   call mma_allocate(tmp,exch,exch,'tmp')
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,tmp,1)
+  call zcopy_(exch*exch,[cZero],0,tmp,1)
   mem_local = mem_local+exch*exch*CtoB
 end if
 
@@ -300,13 +302,13 @@ if (nneq >= 0) then
 
   call mma_allocate(SMR,nneq,3,2,2,'SMR')
   call mma_allocate(MMR,nneq,3,2,2,'MMR')
-  call zcopy_(nneq*3*2*2,[(0.0_wp,0.0_wp)],0,SMR,1)
-  call zcopy_(nneq*3*2*2,[(0.0_wp,0.0_wp)],0,MMR,1)
+  call zcopy_(nneq*3*2*2,[cZero],0,SMR,1)
+  call zcopy_(nneq*3*2*2,[cZero],0,MMR,1)
   mem_local = mem_local+2*nneq*3*2*2*CtoB
 
   if (neqv >= 0) then
     call mma_allocate(rotR,nneq,neqv,3,3,'rotR')
-    call dcopy_(nneq*neqv*3*3,[0.0_wp],0,rotR,1)
+    call dcopy_(nneq*neqv*3*3,[Zero],0,rotR,1)
     mem_local = mem_local+nneq*neqv*3*3*RtoB
   end if
 end if
@@ -318,21 +320,21 @@ if (exchR >= 0) then
     mem_local = mem_local+nneq*lmax*ItoB
   end if
   call mma_allocate(WR,exchR,'WR')
-  call dcopy_(exchR,[0.0_wp],0,WR,1)
+  call dcopy_(exchR,[Zero],0,WR,1)
   mem_local = mem_local+exchR*RtoB
 
   call mma_allocate(ZR,exchR,exchR,'ZR')
   call mma_allocate(MR,3,exchR,exchR,'MR')
   call mma_allocate(SR,3,exchR,exchR,'SR')
-  call zcopy_(exchR*exchR,[(0.0_wp,0.0_wp)],0,ZR,1)
-  call zcopy_(3*exchR*exchR,[(0.0_wp,0.0_wp)],0,MR,1)
-  call zcopy_(3*exchR*exchR,[(0.0_wp,0.0_wp)],0,SR,1)
+  call zcopy_(exchR*exchR,[cZero],0,ZR,1)
+  call zcopy_(3*exchR*exchR,[cZero],0,MR,1)
+  call zcopy_(3*exchR*exchR,[cZero],0,SR,1)
   mem_local = mem_local+7*exchR*exchR*CtoB
 end if
 
 if (npair >= 0) then
   call mma_allocate(HKEXR,npair,2,2,2,2,'HKEXR')
-  call zcopy_(npair*2*2*2*2,[(0.0_wp,0.0_wp)],0,HKEXR,1)
+  call zcopy_(npair*2*2*2*2,[cZero],0,HKEXR,1)
   mem_local = mem_local+npair*2*2*2*2*CtoB
 end if
 
@@ -341,10 +343,10 @@ if (lmax >= 0) then
   call icopy(lmax,[0],0,intcR,1)
   mem_local = mem_local+lmax*ItoB
 end if
-if (dbg) write(6,*) 'EXCHCTL:  memory allocated (local):'
-if (dbg) write(6,*) 'mem_local=',mem_local
-if (dbg) write(6,*) 'EXCHCTL:  memory allocated (total):'
-if (dbg) write(6,*) 'mem_total=',mem+mem_local
+if (dbg) write(u6,*) 'EXCHCTL:  memory allocated (local):'
+if (dbg) write(u6,*) 'mem_local=',mem_local
+if (dbg) write(u6,*) 'EXCHCTL:  memory allocated (total):'
+if (dbg) write(u6,*) 'mem_total=',mem+mem_local
 !-----------------------------------------------------------------------
 l = 0
 do i=1,nneq
@@ -369,9 +371,9 @@ do nb=1,exch
   end do
 end do
 if (dbg) then
-  write(6,'(34x,A,1x,20i3)') 'site Nr.',(i,i=1,lmax)
+  write(u6,'(34x,A,1x,20i3)') 'site Nr.',(i,i=1,lmax)
   do nb=1,exch
-    write(6,'(A,i5,A,20i3)') 'COUPLING: basis set:  ibas(',nb,' ,isite) = ',(ibas(nb,i)+1,i=1,lmax)
+    write(u6,'(A,i5,A,20i3)') 'COUPLING: basis set:  ibas(',nb,' ,isite) = ',(ibas(nb,i)+1,i=1,lmax)
   end do
 end if ! dbg
 
@@ -379,7 +381,7 @@ end if ! dbg
 ! Lines model of magnetic couping  -- 1 parameter
 if (AnisoLines1) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN1,1)
+    call zcopy_(ibuf,[cZero],0,HLIN1,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -411,13 +413,13 @@ if (AnisoLines1) then
       if (dbg) then
         call prMom('SM(i1) af Lines1',SM(i1,1:3,1:n1,1:n1),n1)
         call prMom('SM(i2) af Lines1',SM(i2,1:3,1:n2,1:n2),n2)
-        write(6,'(A,i2)') 'Exchange matrix for pair = ',lp
-        write(6,'(A,i2)') 'in local pseudospin basis'
+        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
+        write(u6,'(A,i2)') 'in local pseudospin basis'
         do i=1,n1
           do j=1,n1
             do k=1,n2
               do l=1,n2
-                write(6,'(4(a,i2),a,2ES24.14)') 'HLIN1(',i,',',j,',',k,',',l,') = ',HLIN1(lp,i,j,k,l)
+                write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN1(',i,',',j,',',k,',',l,') = ',HLIN1(lp,i,j,k,l)
               end do
             end do
           end do
@@ -433,7 +435,7 @@ end if
 ! Jxx, Jyy, Jzz
 if (AnisoLines3) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN3,1)
+    call zcopy_(ibuf,[cZero],0,HLIN3,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -458,12 +460,12 @@ if (AnisoLines3) then
       call Aniso_Lines_Exchange3(JAex(lp,1:3),n1,n2,SM(i1,1:3,1:n1,1:n1),SM(i2,1:3,1:n2,1:n2),HLIN3(lp,1:n1,1:n1,1:n2,1:n2))
 
       if (dbg) then
-        write(6,'(A,i2)') 'Exchange matrix for pair = ',lp
+        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
         do i=1,n1
           do j=1,n1
             do k=1,n2
               do l=1,n2
-                write(6,'(4(a,i2),a,2ES24.14)') 'HLIN3(',i,',',j,',',k,',',l,') = ',HLIN3(lp,i,j,k,l)
+                write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN3(',i,',',j,',',k,',',l,') = ',HLIN3(lp,i,j,k,l)
               end do
             end do
           end do
@@ -479,7 +481,7 @@ end if
 ! Jxx, Jxy, Jxz, Jyx, Jyy, Jyz, Jzx, Jzy, Jzz
 if (AnisoLines9) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HLIN9,1)
+    call zcopy_(ibuf,[cZero],0,HLIN9,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -508,12 +510,12 @@ if (AnisoLines9) then
       if (dbg) then
         call prMom('SM(i1) af Lines9',SM(i1,1:3,1:n1,1:n1),n1)
         call prMom('SM(i2) af Lines9',SM(i2,1:3,1:n2,1:n2),n2)
-        write(6,'(A,i2)') 'Exchange matrix for pair = ',lp
+        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
         do i=1,n1
           do j=1,n1
             do k=1,n2
               do l=1,n2
-                write(6,'(4(a,i2),a,2ES24.14)') 'HLIN9(',i,',',j,',',k,',',l,') = ',HLIN9(lp,i,j,k,l)
+                write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN9(',i,',',j,',',k,',',l,') = ',HLIN9(lp,i,j,k,l)
               end do
             end do
           end do
@@ -528,7 +530,7 @@ end if
 ! dipolar couping
 if (Dipol) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HDIP,1)
+    call zcopy_(ibuf,[cZero],0,HDIP,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -540,10 +542,10 @@ if (Dipol) then
       n1 = nexch(i1)
       n2 = nexch(i2)
 
-      vect(1:3) = 0.0_wp
-      dist = 0.0_wp
+      vect(1:3) = Zero
+      dist = Zero
       call dirvect(coord(i1,1:3),rlg(i1,j1,1:3,1:3),coord(i2,1:3),rlg(i2,j2,1:3,1:3),vect(1:3),dist)
-      if (DBG) write(6,'(A,i3,3ES20.12,2x,ES20.12)') 'EXCHCTL: DIPOL: lp, vect, R:',lp,(vect(i),i=1,3),dist
+      if (DBG) write(u6,'(A,i3,3ES20.12,2x,ES20.12)') 'EXCHCTL: DIPOL: lp, vect, R:',lp,(vect(i),i=1,3),dist
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
       if (itype(i1) == 'A') then
@@ -556,12 +558,12 @@ if (Dipol) then
       call Dipol_Exchange(n1,n2,vect(1:3),dist,MM(i1,1:3,1:n1,1:n1),MM(i2,1:3,1:n2,1:n2),HDIP(lp,1:n1,1:n1,1:n2,1:n2))
 
       if (dbg) then
-        write(6,'(A,i2)') 'Exchange matrix for pair = ',lp
+        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
         do i=1,n1
           do j=1,n1
             do k=1,n2
               do l=1,n2
-                write(6,'(4(a,i2),a,2ES24.14)') 'HDIP (',i,',',j,',',k,',',l,') = ',HDIP(lp,i,j,k,l)
+                write(u6,'(4(a,i2),a,2ES24.14)') 'HDIP (',i,',',j,',',k,',',l,') = ',HDIP(lp,i,j,k,l)
               end do
             end do
           end do
@@ -576,7 +578,7 @@ end if
 ! Dzyaloshinsky-Morya antisymmetric couping
 if (DM_exchange) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HDMO,1)
+    call zcopy_(ibuf,[cZero],0,HDMO,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -598,12 +600,12 @@ if (DM_exchange) then
 
       call Dzyaloshinsky_Morya_Exchange(JDMex(lp,1:3),n1,n2,SM(i1,1:3,1:n1,1:n1),SM(i2,1:3,1:n2,1:n2),HDMO(lp,1:n1,1:n1,1:n2,1:n2))
       if (dbg) then
-        write(6,'(A,i2)') 'Exchange matrix for pair = ',lp
+        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
         do i=1,n1
           do j=1,n1
             do k=1,n2
               do l=1,n2
-                write(6,'(4(a,i2),a,2ES24.14)') 'HDMO (',i,',',j,',',k,',',l,') = ',HDMO(lp,i,j,k,l)
+                write(u6,'(4(a,i2),a,2ES24.14)') 'HDMO (',i,',',j,',',k,',',l,') = ',HDMO(lp,i,j,k,l)
               end do
             end do
           end do
@@ -617,9 +619,9 @@ end if
 
 ! JITO exchange interaction
 if (JITO_exchange) then
-  if (dbg) write(6,'(A)') 'EXCHCTL:  Entering  JITO_exchange'
+  if (dbg) write(u6,'(A)') 'EXCHCTL:  Entering  JITO_exchange'
   if (nPair > 0) then
-    call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,HITO,1)
+    call zcopy_(ibuf,[cZero],0,HITO,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -644,12 +646,12 @@ if (JITO_exchange) then
                              JITOexR(lp,1:MxRank1,-MxRank1:MxRank1,1:MxRank2,-MxRank2:MxRank2), &
                              JITOexI(lp,1:MxRank1,-MxRank1:MxRank1,1:MxRank2,-MxRank2:MxRank2),HITO(lp,1:n1,1:n1,1:n2,1:n2))
       if (dbg) then
-        write(6,'(A,i2)') 'Exchange matrix for pair = ',lp
+        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
         do i=1,n1
           do j=1,n1
             do k=1,n2
               do l=1,n2
-                write(6,'(4(a,i2),a,2ES24.14)') 'HITO (',i,',',j,',',k,',',l,') = ',HITO(lp,i,j,k,l)
+                write(u6,'(4(a,i2),a,2ES24.14)') 'HITO (',i,',',j,',',k,',',l,') = ',HITO(lp,i,j,k,l)
               end do
             end do
           end do
@@ -658,17 +660,16 @@ if (JITO_exchange) then
 
     end do
   end if ! nPair
-  if (dbg) write(6,'(A)') 'EXCHCTL:  Exiting JITO_exchange'
+  if (dbg) write(u6,'(A)') 'EXCHCTL:  Exiting JITO_exchange'
 end if
 !-----------------------------------------------------------------------
 
 if (KE) then
   if (nPair > 0) then
-    HKEX = (0.0_wp,0.0_wp)
-    HKEX = (0.0_wp,0.0_wp)
-    HKEXR = (0.0_wp,0.0_wp)
-    MMR = (0.0_wp,0.0_wp)
-    SMR = (0.0_wp,0.0_wp)
+    HKEX(:,:,:,:,:) = cZero
+    HKEXR(:,:,:,:,:) = cZero
+    MMR(:,:,:,:) = cZero
+    SMR(:,:,:,:) = cZero
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -679,10 +680,10 @@ if (KE) then
 
       n1 = nexch(i1)
       n2 = nexch(i2)
-      call zcopy_(3*n1*n1,[(0.0_wp,0.0_wp)],0,S1,1)
-      call zcopy_(3*n2*n2,[(0.0_wp,0.0_wp)],0,S2,1)
-      call zcopy_(3*n1*n1,[(0.0_wp,0.0_wp)],0,M1,1)
-      call zcopy_(3*n2*n2,[(0.0_wp,0.0_wp)],0,M2,1)
+      call zcopy_(3*n1*n1,[cZero],0,S1,1)
+      call zcopy_(3*n2*n2,[cZero],0,S2,1)
+      call zcopy_(3*n1*n1,[cZero],0,M1,1)
+      call zcopy_(3*n2*n2,[cZero],0,M2,1)
       call rotmom2(MM(i1,1:3,1:n1,1:n1),n1,rot(i1,j1,1:3,1:3),M1(1:3,1:n1,1:n1))
       call rotmom2(SM(i1,1:3,1:n1,1:n1),n1,rot(i1,j1,1:3,1:3),S1(1:3,1:n1,1:n1))
       call rotmom2(MM(i2,1:3,1:n2,1:n2),n2,rot(i2,j2,1:3,1:3),M2(1:3,1:n2,1:n2))
@@ -691,10 +692,10 @@ if (KE) then
       ! KEOPT=2 ! Full, 1/U
       ! KEOPT=3 ! FULL  + reduced form
       ! KEOPT=4 ! Full, 1/U + reduced form
-      MM1 = (0.0_wp,0.0_wp)
-      SM1 = (0.0_wp,0.0_wp)
-      MM2 = (0.0_wp,0.0_wp)
-      SM2 = (0.0_wp,0.0_wp)
+      MM1(:,:,:) = cZero
+      SM1(:,:,:) = cZero
+      MM2(:,:,:) = cZero
+      SM2(:,:,:) = cZero
       !FIXME: this call to KE_Exchange does not match at all its definition, please fix
       call WarningMessage(2,'There is surely a bug here')
       if (.false.) call Unused_real(tpar)
@@ -757,29 +758,29 @@ if (KE) then
         end do
 
         if (DBG) then
-          write(6,'(A)') 'site Ln'
+          write(u6,'(A)') 'site Ln'
           do i=1,2
             do j=1,2
-              write(6,'(3(A,i1),A,3(2F20.14,2x))') 'MMR(',i1,',L,',i,',',j,')= ',(MMR(i1,l,i,j),l=1,3)
+              write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'MMR(',i1,',L,',i,',',j,')= ',(MMR(i1,l,i,j),l=1,3)
             end do
           end do
-          write(6,'(/)')
+          write(u6,'(/)')
           do i=1,2
             do j=1,2
-              write(6,'(3(A,i1),A,3(2F20.14,2x))') 'SMR(',i1,',L,',i,',',j,')= ',(SMR(i1,l,i,j),l=1,3)
+              write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'SMR(',i1,',L,',i,',',j,')= ',(SMR(i1,l,i,j),l=1,3)
             end do
           end do
-          write(6,'(/)')
-          write(6,'(A)') 'site Radical'
+          write(u6,'(/)')
+          write(u6,'(A)') 'site Radical'
           do i=1,2
             do j=1,2
-              write(6,'(3(A,i1),A,3(2F20.14,2x))') 'MMR(',i2,',L,',i,',',j,')= ',(MMR(i2,l,i,j),l=1,3)
+              write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'MMR(',i2,',L,',i,',',j,')= ',(MMR(i2,l,i,j),l=1,3)
             end do
           end do
-          write(6,'(/)')
+          write(u6,'(/)')
           do i=1,2
             do j=1,2
-              write(6,'(3(A,i1),A,3(2F20.14,2x))') 'SMR(',i2,',L,',i,',',j,')= ',(SMR(i2,l,i,j),l=1,3)
+              write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'SMR(',i2,',L,',i,',',j,')= ',(SMR(i2,l,i,j),l=1,3)
             end do
           end do
         end if ! DBG
@@ -814,18 +815,18 @@ if (KE) then
         end do
       end do
       !-----------------------------------------------------------------
-      HLIN1 = (0.0_wp,0.0_wp)
-      HLIN3 = (0.0_wp,0.0_wp)
-      HLIN9 = (0.0_wp,0.0_wp)
-      HDIP = (0.0_wp,0.0_wp)
-      WLIN = 0.0_wp
-      WLIN1 = 0.0_wp
-      WLIN3 = 0.0_wp
-      WLIN9 = 0.0_wp
-      WDIP = 0.0_wp
-      WKEX = 0.0_wp
-      WR = 0.0_wp
-      ZR = (0.0_wp,0.0_wp)
+      HLIN1(:,:,:,:,:) = cZero
+      HLIN3(:,:,:,:,:) = cZero
+      HLIN9(:,:,:,:,:) = cZero
+      HDIP(:,:,:,:,:) = cZero
+      WLIN(:) = Zero
+      WLIN1(:) = Zero
+      WLIN3(:) = Zero
+      WLIN9(:) = Zero
+      WDIP(:) = Zero
+      WKEX(:) = Zero
+      WR(:) = Zero
+      ZR(:,:) = cZero
       ! print the Exchange Hamiltonian:
       call pa_prham(exchR,npair,i_pair,nneq,neq,nexchR,nmaxR,lmax,eso(1:nneq,1:nmaxR), &
                     HLIN1(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HLIN3(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
@@ -844,18 +845,18 @@ if (KE) then
       call pa_preigen(exchR,lmax,ibasR,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,.false.,.false.,WLIN(1:exchR),WDIP(1:exchR), &
                       WKEX(1:exchR),WDMO(1:exchR),WITO(1:exchR),WR(1:exchR),ZR(1:exchR,1:exchR),0)
       ! compute the moments:
-      rotR = 0.0_wp
-      rotR(1,1,1,1) = 1.0_wp
-      rotR(1,1,2,2) = 1.0_wp
-      rotR(1,1,3,3) = 1.0_wp
-      rotR(1,2,1,1) = 1.0_wp
-      rotR(1,2,2,2) = 1.0_wp
-      rotR(1,2,3,3) = 1.0_wp
-      rotR(2,1,1,1) = 1.0_wp
-      rotR(2,1,2,2) = 1.0_wp
-      rotR(2,1,3,3) = 1.0_wp
-      MR = (0.0_wp,0.0_wp)
-      SR = (0.0_wp,0.0_wp)
+      rotR(:,:,:,:) = Zero
+      rotR(1,1,1,1) = One
+      rotR(1,1,2,2) = One
+      rotR(1,1,3,3) = One
+      rotR(1,2,1,1) = One
+      rotR(1,2,2,2) = One
+      rotR(1,2,3,3) = One
+      rotR(2,1,1,1) = One
+      rotR(2,1,2,2) = One
+      rotR(2,1,3,3) = One
+      MR(:,:,:) = cZero
+      SR(:,:,:) = cZero
       do L=1,3
         do isite=1,lmax
           do nb1=1,exchR
@@ -877,17 +878,13 @@ if (KE) then
             end do  ! js1
           end do  ! nb1
         end do  ! isite
-        TMP(:,:) = (0.0_wp,0.0_wp)
-        call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,(1.0_wp,0.0_wp),ZR,EXCHR,MR(L,:,:),EXCHR,(0.0_wp,0.0_wp),TMP,EXCHR)
-        MR(L,:,:) = (0.0_wp,0.0_wp)
-        call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,(1.0_wp,0.0_wp),TMP,EXCHR,ZR,EXCHR,(0.0_wp,0.0_wp),MR(L,:,:),EXCHR)
-        TMP(:,:) = (0.0_wp,0.0_wp)
-        call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,(1.0_wp,0.0_wp),ZR,EXCHR,SR(L,:,:),EXCHR,(0.0_wp,0.0_wp),TMP,EXCHR)
-        SR(L,:,:) = (0.0_wp,0.0_wp)
-        call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,(1.0_wp,0.0_wp),TMP,EXCHR,ZR,EXCHR,(0.0_wp,0.0_wp),SR(L,:,:),EXCHR)
+        call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,cOne,ZR,EXCHR,MR(L,:,:),EXCHR,cZero,TMP,EXCHR)
+        call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,cOne,TMP,EXCHR,ZR,EXCHR,cZero,MR(L,:,:),EXCHR)
+        call ZGEMM_('C','N',EXCHR,EXCHR,EXCHR,cOne,ZR,EXCHR,SR(L,:,:),EXCHR,cZero,TMP,EXCHR)
+        call ZGEMM_('N','N',EXCHR,EXCHR,EXCHR,cOne,TMP,EXCHR,ZR,EXCHR,cZero,SR(L,:,:),EXCHR)
         do is1=1,8
           do js1=1,8
-            write(6,'(3(A,i1),A,2F20.14)') 'MR(',l,',',is1,',',js1,') = ',MR(l,is1,js1)
+            write(u6,'(3(A,i1),A,2F20.14)') 'MR(',l,',',is1,',',js1,') = ',MR(l,is1,js1)
           end do
         end do
       end do  ! L
@@ -910,31 +907,31 @@ end if !KE
 ! ALL exchange couplings for all pairs are now known.
 ! printout the Hamiltonians:
 if (DBG) then
-  write(6,'(A,i5)') 'exch  = ',exch
-  write(6,'(A,i5)') 'npair = ',npair
-  write(6,'(A,i5)') 'nneq  = ',nneq
-  write(6,'(A,i5)') 'nmax  = ',nmax
-  write(6,'(A,i5)') 'lmax  = ',lmax
-  write(6,'(A,i5)') 'iPrint= ',iPrint
-  write(6,*) 'AnisoLines1 = ',AnisoLines1
-  write(6,*) 'AnisoLines3 = ',AnisoLines3
-  write(6,*) 'AnisoLines9 = ',AnisoLines9
-  write(6,*) 'Dipol = ',Dipol
-  write(6,*) 'JITO  = ',JITO_exchange
-  write(6,*) 'KE    = ',KE
+  write(u6,'(A,i5)') 'exch  = ',exch
+  write(u6,'(A,i5)') 'npair = ',npair
+  write(u6,'(A,i5)') 'nneq  = ',nneq
+  write(u6,'(A,i5)') 'nmax  = ',nmax
+  write(u6,'(A,i5)') 'lmax  = ',lmax
+  write(u6,'(A,i5)') 'iPrint= ',iPrint
+  write(u6,*) 'AnisoLines1 = ',AnisoLines1
+  write(u6,*) 'AnisoLines3 = ',AnisoLines3
+  write(u6,*) 'AnisoLines9 = ',AnisoLines9
+  write(u6,*) 'Dipol = ',Dipol
+  write(u6,*) 'JITO  = ',JITO_exchange
+  write(u6,*) 'KE    = ',KE
   do i=1,npair
-    write(6,'(A,i2,A,i3,3x,A,i2,A,i3)') 'i_pair(',i,',1) = ',i_pair(i,1),'i_pair(',i,',2) = ',i_pair(i,2)
+    write(u6,'(A,i2,A,i3,3x,A,i2,A,i3)') 'i_pair(',i,',1) = ',i_pair(i,1),'i_pair(',i,',2) = ',i_pair(i,2)
   end do
   do i=1,nneq
-    write(6,'(A,i2,A,i3)') '   neq(',i,') = ',neq(i)
+    write(u6,'(A,i2,A,i3)') '   neq(',i,') = ',neq(i)
   end do
   do i=1,nneq
-    write(6,'(A,i2,A,i3)') ' nexch(',i,') = ',neq(i)
+    write(u6,'(A,i2,A,i3)') ' nexch(',i,') = ',neq(i)
   end do
   do i=1,nneq
-    write(6,'(A,i2,A,100F10.3)') '   eso(',i,') = ',(eso(i,j),j=1,nexch(i))
+    write(u6,'(A,i2,A,100F10.3)') '   eso(',i,') = ',(eso(i,j),j=1,nexch(i))
   end do
-  call xFlush(6)
+  call xFlush(u6)
 end if
 
 if ((iPrint > 2) .or. DBG) then
@@ -961,15 +958,15 @@ do i=exch,1,-1
 end do
 
 ! some verification
-if (dnrm2_(exch,WLIN,1) > 1.0d-13) call Add_Info('EXCHCTL::  WLIN',[dnrm2_(exch,WLIN,1)],1,8)
-if (dnrm2_(exch,WDIP,1) > 1.0d-13) call Add_Info('EXCHCTL::  WDIP',[dnrm2_(exch,WDIP,1)],1,8)
-if (dnrm2_(exch,WKEX,1) > 1.0d-13) call Add_Info('EXCHCTL::  WKEX',[dnrm2_(exch,WKEX,1)],1,8)
-if (dnrm2_(exch,W,1) > 1.0d-13) call Add_Info('EXCHCTL::     W',[dnrm2_(exch,W,1)],1,8)
+if (dnrm2_(exch,WLIN,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::  WLIN',[dnrm2_(exch,WLIN,1)],1,8)
+if (dnrm2_(exch,WDIP,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::  WDIP',[dnrm2_(exch,WDIP,1)],1,8)
+if (dnrm2_(exch,WKEX,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::  WKEX',[dnrm2_(exch,WKEX,1)],1,8)
+if (dnrm2_(exch,W,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::     W',[dnrm2_(exch,W,1)],1,8)
 ! compute the moments:
-call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,M,1)
-call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,S,1)
+call zcopy_(3*exch*exch,[cZero],0,M,1)
+call zcopy_(3*exch*exch,[cZero],0,S,1)
 if (dbg) then
-  write(6,'(A)') 'Magnetic moments before the build of coupled M and S matrices'
+  write(u6,'(A)') 'Magnetic moments before the build of coupled M and S matrices'
   if (nPair > 0) then
     do lp=1,npair
       lb1 = i_pair(lp,1)
@@ -1007,15 +1004,11 @@ do L=1,3
   end do  ! isite
 
   ! magnetic moment
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,TMP,1)
-  call zgemm_('C','N',EXCH,EXCH,EXCH,(1.0_wp,0.0_wp),Z,EXCH,M(L,:,:),EXCH,(0.0_wp,0.0_wp),TMP,EXCH)
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,M(L,:,:),1)
-  call zgemm_('N','N',EXCH,EXCH,EXCH,(1.0_wp,0.0_wp),TMP,EXCH,Z,EXCH,(0.0_wp,0.0_wp),M(L,:,:),EXCH)
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,TMP,1)
+  call zgemm_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,M(L,:,:),EXCH,cZero,TMP,EXCH)
+  call zgemm_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,M(L,:,:),EXCH)
   ! spin moment
-  call zgemm_('C','N',EXCH,EXCH,EXCH,(1.0_wp,0.0_wp),Z,EXCH,S(L,:,:),EXCH,(0.0_wp,0.0_wp),TMP,EXCH)
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,S(L,:,:),1)
-  call zgemm_('N','N',EXCH,EXCH,EXCH,(1.0_wp,0.0_wp),TMP,EXCH,Z,EXCH,(0.0_wp,0.0_wp),S(L,:,:),EXCH)
+  call zgemm_('C','N',EXCH,EXCH,EXCH,cOne,Z,EXCH,S(L,:,:),EXCH,cZero,TMP,EXCH)
+  call zgemm_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,S(L,:,:),EXCH)
 end do  ! L
 
 if (npair > 0) then
@@ -1027,9 +1020,9 @@ end if
 
 ! projection on the Ising Hamiltonian
 ! accessible format
-!write(6,'(/)')
-!write(6,'(A)') 'Complete decomposition of the exchange interaction'
-!write(6,'(A)')
+!write(u6,'(/)')
+!write(u6,'(A)') 'Complete decomposition of the exchange interaction'
+!write(u6,'(A)')
 
 !-----------------------------------------------------------------------
 ! deallocate memory for this function:
@@ -1116,37 +1109,30 @@ end if
 !close(76)
 !
 !open(77,file='eigenstates_full.txt')
-!ZZR = 0.0_wp
-!ZZI = 0.0_wp
 !do i=1,EXCH
 !  do j=1,EXCH
 !    read(77,'(2ES24.14)') ZZR(i,j),ZZI(i,j)
 !  end do
 !end do
 !close(77)
-!ZF = (0.0_wp,0.0_wp)
 !do i=1,EXCH
 !  do j=1,EXCH
-!    ZF(i,j) = cmplx(ZZR(i,j),ZZI(i,j),8)
+!    ZF(i,j) = cmplx(ZZR(i,j),ZZI(i,j),kind=wp)
 !  end do
 !end do
-!OVLP = (0.0_wp,0.0_wp)
-!call ZGEMM_('C','N',EXCH,EXCH,EXCH,(1.0_wp,0.0_wp),Z(1:EXCH,1:EXCH),EXCH,ZF(1:EXCH,1:EXCH),EXCH,(0.0_wp,0.0_wp), &
-!            OVLP(1:EXCH,1:EXCH),EXCH )
+!call ZGEMM_('C','N',EXCH,EXCH,EXCH,cOne,Z(1:EXCH,1:EXCH),EXCH,ZF(1:EXCH,1:EXCH),EXCH,cZero,OVLP(1:EXCH,1:EXCH),EXCH)
 !do i=1,1
 !  do j=1,EXCH
 !    if (ABS(OVLP(j,i)) > 1.0e-7_wp) &
-!      write(6,'(A,i3,A,i3,A,2F18.14,3x,A,F18.14,3x,A,F18.14)') 'OVLP-1(',j,',',i,') = ',OVLP(j,i),'ABS = ',ABS(OVLP(j,i)), &
+!      write(u6,'(A,i3,A,i3,A,2F18.14,3x,A,F18.14,3x,A,F18.14)') 'OVLP-1(',j,',',i,') = ',OVLP(j,i),'ABS = ',ABS(OVLP(j,i)), &
 !                                                               'ABS^2 = ',ABS(OVLP(j,i))*ABS(OVLP(j,i))
 !  end do
 !end do
-!OVLP = (0.0_wp,0.0_wp)
-!call ZGEMM_('C','N',EXCH,EXCH,EXCH,(1.0_wp,0.0_wp),ZF(1:EXCH,1:EXCH),EXCH,Z(1:EXCH,1:EXCH),EXCH,(0.0_wp,0.0_wp), &
-!            OVLP(1:EXCH,1:EXCH),EXCH )
+!call ZGEMM_('C','N',EXCH,EXCH,EXCH,cOne,ZF(1:EXCH,1:EXCH),EXCH,Z(1:EXCH,1:EXCH),EXCH,cZero,OVLP(1:EXCH,1:EXCH),EXCH)
 !do i=1,1
 !  do j=1,EXCH
 !    if (ABS(OVLP(j,i)) > 1.0e-7_wp) &
-!      write(6,'(A,i3,A,i3,A,2F18.14,3x,A,F18.14,3x,A,F18.14)') 'OVLP-2(',i,',',j,') = ',OVLP(i,j),'ABS = ',ABS(OVLP(i,j)), &
+!      write(u6,'(A,i3,A,i3,A,2F18.14,3x,A,F18.14,3x,A,F18.14)') 'OVLP-2(',i,',',j,') = ',OVLP(i,j),'ABS = ',ABS(OVLP(i,j)), &
 !                                                                'ABS^2 = ',ABS(OVLP(i,j))*ABS(OVLP(i,j))
 !    end if
 !  end do

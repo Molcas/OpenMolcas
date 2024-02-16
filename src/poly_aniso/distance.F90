@@ -11,18 +11,17 @@
 
 real*8 function distance(N,C1,C2)
 
+use Constants, only: Zero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N
 real(kind=8), intent(in) :: C1(N), C2(N)
 ! local variables
 integer :: i
 real(kind=8) :: X, R
 
-distance = 0.0_wp
-X = 0.0_wp
+X = Zero
 do i=1,N
-  R = 0.0_wp
   R = C1(i)-C2(i)
   X = X+R*R
 end do

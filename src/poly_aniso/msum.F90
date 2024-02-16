@@ -32,8 +32,10 @@ subroutine Msum(N,Mex,Zex,ML,ZL,MR,ZR,iopt,M,Z)
 !    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=8) ::, output
 !---------
 
+use Constants, only: Zero, One
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer :: N, iopt
 real(kind=8) :: Mex(3), Zex
 real(kind=8) :: ML(N,3), ZL(N)
@@ -43,13 +45,12 @@ real(kind=8) :: M(3), Z
 integer :: i, ic
 real(kind=8) :: ZLT, ZRT, MLT(3), MRT(3)
 logical :: DBG
+
 DBG = .false.
-ZLT = 1.0_wp
-ZRT = 1.0_wp
-Z = 0.0_wp
-MLT(:) = 0.0_wp
-MRT(:) = 0.0_wp
-M(:) = 0.0_wp
+ZLT = One
+ZRT = One
+MLT(:) = Zero
+MRT(:) = Zero
 
 if (iopt == 1) then
   ! compute the total ZT
@@ -67,8 +68,8 @@ if (iopt == 1) then
     M(ic) = Mex(ic)+MLT(ic)-MRT(ic)
   end do
   if (DBG) then
-    write(6,'(A,3F10.6)') 'Contribution from exchange states',(Mex(ic),ic=1,3)
-    write(6,'(A,3F10.6)') 'Contribution from excited states ',(MLT(ic)-MRT(ic),ic=1,3)
+    write(u6,'(A,3F10.6)') 'Contribution from exchange states',(Mex(ic),ic=1,3)
+    write(u6,'(A,3F10.6)') 'Contribution from excited states ',(MLT(ic)-MRT(ic),ic=1,3)
   end if
 
 else if (iopt == 2) then
@@ -88,9 +89,8 @@ else if (iopt == 2) then
 
 else
 
-  write(6,'(A)') 'chi_sum: IOPT parameter out of range'
-  write(6,'(A,i8)') 'IOPT = ',IOPT
-  return
+  write(u6,'(A)') 'chi_sum: IOPT parameter out of range'
+  write(u6,'(A,i8)') 'IOPT = ',IOPT
 
 end if
 

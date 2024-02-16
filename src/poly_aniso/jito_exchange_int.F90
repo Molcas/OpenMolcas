@@ -13,9 +13,11 @@ subroutine JITO_Exchange_Int(MxR1,MxR2,imaxrank,n1,n2,JR,JI,HAM)
 ! this Subroutine calculates the anisotropic exchange interaction between
 ! two sites, of the one interacting pair on the basis of input ITO parameters
 
+use Constants, only: Zero, cZero
+use Definitions, only: wp, u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 ! input variables
 integer, intent(in) :: imaxrank(2)
 integer, intent(in) :: MxR1, MxR2
@@ -40,22 +42,21 @@ external :: dnrm2_
 dbg = .false.
 ! ----  initial checks
 if ((n1 <= 0) .or. (n2 <= 0)) return
-call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,HAM,1)
+call zcopy_(n1*n1*n2*n2,[cZero],0,HAM,1)
 ibuf = 0
 ibuf = MxR1*(2*MxR1+1)*MxR2*(2*MxR2+1)
 if (ibuf == 0) return
-jpar = 0.0_wp
 jpar = dnrm2_(ibuf,JR(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)+dnrm2_(ibuf,JI(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
-if (jpar == 0.0_wp) return
+if (jpar == Zero) return
 ! ---- end initial checks
-call zcopy_(ibuf,[(0.0_wp,0.0_wp)],0,J(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
+call zcopy_(ibuf,[cZero],0,J(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
 do k1=1,MxR1,2
   do k2=1,MxR2,2
     do q1=-k1,k1
       do q2=-k2,k2
         RR = JR(k1,q1,k2,q2)
         RI = JI(k1,q1,k2,q2)
-        J(k1,q1,k2,q2) = cmplx(RR,RI,wp)
+        J(k1,q1,k2,q2) = cmplx(RR,RI,kind=wp)
       end do
     end do
   end do
@@ -78,10 +79,10 @@ do k1=1,imaxrank(1),2
         call ITO(n1,k1,q1,C01,O1,W1)
         call ITO(n2,k2,q2,C02,O2,W2)
         !generate coupled operators:
-        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OO,1)
-        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,OW,1)
-        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WO,1)
-        call zcopy_(n1*n1*n2*n2,[(0.0_wp,0.0_wp)],0,WW,1)
+        call zcopy_(n1*n1*n2*n2,[cZero],0,OO,1)
+        call zcopy_(n1*n1*n2*n2,[cZero],0,OW,1)
+        call zcopy_(n1*n1*n2*n2,[cZero],0,WO,1)
+        call zcopy_(n1*n1*n2*n2,[cZero],0,WW,1)
         do m1=1,n1
           do m2=1,n1
             do l1=1,n2
@@ -115,12 +116,12 @@ do k1=1,imaxrank(1),2
 end do ! k1
 
 if (dbg) then
-  write(6,'(A)') 'JITO_Exchange_Int: generated <m1,l1|HAM|m2,l2>'
+  write(u6,'(A)') 'JITO_Exchange_Int: generated <m1,l1|HAM|m2,l2>'
   do m1=1,n1
     do m2=1,n1
       do l1=1,n2
         do l2=1,n2
-          write(6,'(A,i2,A,i2,A,i2,A,i2,A,2ES22.14)') '<',m1,',',l1,'| HAM |',m2,',',l2,'> = ',HAM(m1,m2,l1,l2)
+          write(u6,'(A,i2,A,i2,A,i2,A,i2,A,2ES22.14)') '<',m1,',',l1,'| HAM |',m2,',',l2,'> = ',HAM(m1,m2,l1,l2)
         end do
       end do
     end do

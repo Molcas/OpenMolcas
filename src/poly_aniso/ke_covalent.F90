@@ -12,8 +12,9 @@
 subroutine KE_Covalent(N,lant,t,u,OPT,HCOV)
 ! this function computes the covalent CF Hamiltonian ofr a given Lanthanide
 
+use Constants, only: Zero, cOne
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer N, OPT, lant
 real(kind=8) :: t, u
 real(kind=8) :: WCG ! Clebsch_Gordan Coefficients
@@ -26,8 +27,7 @@ external WCG
 #include "stdalloc.fh"
 #include "jcoeff.fh"
 
-HCOV1 = 0.0_wp
-HCOV = (0.0_wp,0.0_wp)
+HCOV1(:,:) = Zero
 JLn = N-1
 
 do i=1,N
@@ -41,9 +41,8 @@ do i=1,N
         do iJ=1,17
           do iK=0,6,2
             do ika=-4,4,4
-              test1 = 0.0_wp
               test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)
-              if (test1 == 0.0_wp) Go To 107
+              if (test1 == Zero) Go To 107
               HCOV1(i,j) = HCOV1(i,j)+t*t/(u+dE(lant,iLS,iJ))*Jx(lant,iLS,iJ,iK,ika,0,0)*WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)/ &
                            WCG(JLn,JLn,2*iK,0,JLn,JLn)
 107           continue
@@ -58,9 +57,8 @@ do i=1,N
         do iJ=1,17
           do iK=0,6,2
             do ika=-4,4,4
-              test1 = 0.0_wp
               test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)
-              if (test1 == 0.0_wp) Go To 108
+              if (test1 == Zero) Go To 108
               HCOV1(i,j) = HCOV1(i,j)+t*t/u*Jx(lant,iLS,iJ,iK,ika,0,0)*WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)/WCG(JLn,JLn,2*iK,0,JLn,JLn)
 108           continue
             end do
@@ -69,7 +67,7 @@ do i=1,N
       end do
     end if
     ! kind=8, complex double precision
-    HCOV(i,j) = cmplx(HCOV1(i,j),0.0_wp,wp)
+    HCOV(i,j) = HCOV1(i,j)*cOne
   end do !j
 end do !i
 

@@ -12,8 +12,10 @@
 subroutine torque_pa(nneq,nCenter,neq,neqv,nLoc,exch,nTempMagn,nH,nM,AngPoints,nexch,iopt,nss,mem,smagn,m_paranoid,m_accurate, &
                      TempMagn,w,hmin,hmax,dltH0,EM,zJ,THRS,hexp,dipexch,s_exch,dipso,s_so,eso,hinput,r_rot,XLM,ZLM,XRM,ZRM)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "mgrid.fh"
 #include "stdalloc.fh"
 !-----------------------------------------------------------------------
@@ -92,154 +94,154 @@ integer :: IM, I, it
 integer :: J, IH, k, isite, l, n, iPl
 logical :: DBG
 
-!Boltz_k = 0.6950356000_wp  ! in cm^-1*K-1
-!mu_Bohr = 0.4668643740_wp  ! in cm-1*T-1
-cm3tomB = 0.5584938904_wp   ! in cm3 * mol-1 * T
+!Boltz_k = 0.6950356000_wp  ! IFG in cm^-1*K-1
+!mu_Bohr = 0.4668643740_wp  ! IFG in cm-1*T-1
+cm3tomB = 0.5584938904_wp   ! IFG in cm3 * mol-1 * T
 DBG = .false.
 
-write(6,*)
-write(6,'(100A)') (('%'),J=1,96)
-write(6,'(20X,A)') 'ANGULAR DEPENDENCE OF THE MAGNETIZATION TORQUE'
-write(6,'(100A)') (('%'),J=1,96)
-write(6,*)
+write(u6,*)
+write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(20X,A)') 'ANGULAR DEPENDENCE OF THE MAGNETIZATION TORQUE'
+write(u6,'(100A)') (('%'),J=1,96)
+write(u6,*)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-write(6,'(2X,A,i3,A)') 'Magnetization torque is calculated for the ',NH,' field points, in the field Domain:'
-write(6,'(2X,F4.1,1x,a,1X,F4.1,a,30(F6.3,a))') HMIN,'--',HMAX,' T., at the following temperatures:'
+write(u6,'(2X,A,i3,A)') 'Magnetization torque is calculated for the ',NH,' field points, in the field Domain:'
+write(u6,'(2X,F4.1,1x,a,1X,F4.1,a,30(F6.3,a))') HMIN,'--',HMAX,' T., at the following temperatures:'
 do i=11,nTempMagn,10
   j = min(nTempMagn,i+9)
-  write(6,'(17x,10(F9.3,A))') (TempMagn(k),' K.;',k=i,j)
+  write(u6,'(17x,10(F9.3,A))') (TempMagn(k),' K.;',k=i,j)
 end do
-write(6,'(2x,A,i3,A)') 'Angular dependence of the magnetization torque is computed for ',AngPoints,' angular points distributed'
-write(6,'(2x,A)') 'in the domain 0-180 deg.'
-write(6,'(2X,A)') 'The cut-off energy for the exact diagonalization of the Zeeman Hamiltonian is:'
-write(6,'(2x,a,F15.9,A)') 'E = ',EM,' cm(-1).'
+write(u6,'(2x,A,i3,A)') 'Angular dependence of the magnetization torque is computed for ',AngPoints,' angular points distributed'
+write(u6,'(2x,A)') 'in the domain 0-180 deg.'
+write(u6,'(2X,A)') 'The cut-off energy for the exact diagonalization of the Zeeman Hamiltonian is:'
+write(u6,'(2x,a,F15.9,A)') 'E = ',EM,' cm(-1).'
 if (NM < 10) then
-  write(6,'(2X,A,i2,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+  write(u6,'(2X,A,i2,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
 else if ((NM >= 10) .and. (NM < 100)) then
-  write(6,'(2X,A,i3,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+  write(u6,'(2X,A,i3,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
 else if ((NM >= 100) .and. (NM < 1000)) then
-  write(6,'(2X,A,i4,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+  write(u6,'(2X,A,i4,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
 else if ((NM >= 1000) .and. (NM < 10000)) then
-  write(6,'(2X,A,i5,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+  write(u6,'(2X,A,i5,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
 end if
 if (m_accurate) then
-  write(6,'(2x,A)') 'The contribution of local excited states is computed exactly.'
+  write(u6,'(2x,A)') 'The contribution of local excited states is computed exactly.'
 else
-  write(6,'(2x,A)') 'The contribution of local excited states is computed approximately (by using the susceptibility data). '
+  write(u6,'(2x,A)') 'The contribution of local excited states is computed approximately (by using the susceptibility data). '
 end if
 !-----------------------------------------------------------------------
-if (dbg) write(6,*) 'nM       = ',nM
-if (dbg) write(6,*) 'nTempMagn= ',nTempMagn
-if (dbg) write(6,*) 'nneq     = ',nneq
-if (dbg) write(6,*) 'nCenter  = ',nCenter
-if (dbg) write(6,*) 'AngPoints= ',AngPoints
-if (dbg) write(6,*) 'nPlanes  = ',nPlanes
-if (dbg) write(6,*) 'nH       = ',nH
-if (dbg) write(6,*) 'nLoc     = ',nLoc
-if (dbg) write(6,*) 'nexch()  = ',(nexch(i),i=1,nneq)
-if (dbg) write(6,*) 'neq()    = ',(neq(i),i=1,nneq)
-if (dbg) write(6,*) 'exch     = ',exch
-if (dbg) write(6,*) 'iopt     = ',iopt
-if (dbg) write(6,*) 'neqv     = ',neqv
-if (dbg) write(6,*) 'nss()    = ',(nss(i),i=1,nneq)
-if (dbg) write(6,*) 'W()      = ',(W(i),i=1,exch)
-if (dbg) write(6,*) 'zJ       = ',zJ
-if (dbg) write(6,*) 'EM       = ',EM
-if (dbg) write(6,*) 'm_paranoi= ',m_paranoid
-if (dbg) write(6,*) 'm_accurat= ',m_accurate
-if (dbg) write(6,*) 'smagn    = ',smagn
-if (dbg) write(6,*) 'hinput   = ',hinput
+if (dbg) write(u6,*) 'nM       = ',nM
+if (dbg) write(u6,*) 'nTempMagn= ',nTempMagn
+if (dbg) write(u6,*) 'nneq     = ',nneq
+if (dbg) write(u6,*) 'nCenter  = ',nCenter
+if (dbg) write(u6,*) 'AngPoints= ',AngPoints
+if (dbg) write(u6,*) 'nPlanes  = ',nPlanes
+if (dbg) write(u6,*) 'nH       = ',nH
+if (dbg) write(u6,*) 'nLoc     = ',nLoc
+if (dbg) write(u6,*) 'nexch()  = ',(nexch(i),i=1,nneq)
+if (dbg) write(u6,*) 'neq()    = ',(neq(i),i=1,nneq)
+if (dbg) write(u6,*) 'exch     = ',exch
+if (dbg) write(u6,*) 'iopt     = ',iopt
+if (dbg) write(u6,*) 'neqv     = ',neqv
+if (dbg) write(u6,*) 'nss()    = ',(nss(i),i=1,nneq)
+if (dbg) write(u6,*) 'W()      = ',(W(i),i=1,exch)
+if (dbg) write(u6,*) 'zJ       = ',zJ
+if (dbg) write(u6,*) 'EM       = ',EM
+if (dbg) write(u6,*) 'm_paranoi= ',m_paranoid
+if (dbg) write(u6,*) 'm_accurat= ',m_accurate
+if (dbg) write(u6,*) 'smagn    = ',smagn
+if (dbg) write(u6,*) 'hinput   = ',hinput
 
 ! Allocate memory for this calculation:
 mem_local = 0
 RtoB = 8
 ! Zeeman exchange energy spectrum
 call mma_allocate(Wex,nM,'Wex')
-call dcopy_(nM,[0.0_wp],0,Wex,1)
+call dcopy_(nM,[Zero],0,Wex,1)
 mem_local = mem_local+nM*RtoB
 
-if (dbg) write(6,*) 'mem_local 1 = ',mem_local
+if (dbg) write(u6,*) 'mem_local 1 = ',mem_local
 
 ! exchange statistical sum, Boltzmann distribution
 call mma_allocate(Zex,nTempMagn,'Zex')
-call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
+call dcopy_(nTempMagn,[Zero],0,Zex,1)
 mem_local = mem_local+nTempMagn*RtoB
 ! spin magnetisation, from the exchange block
 call mma_allocate(SEX,3,nTempMagn,'SEX')
-call dcopy_(3*nTempMagn,[0.0_wp],0,SEX,1)
+call dcopy_(3*nTempMagn,[Zero],0,SEX,1)
 mem_local = mem_local+3*nTempMagn*RtoB
 ! magnetisation, from the exchange block
 call mma_allocate(MEX,3,nTempMagn,'MEX')
-call dcopy_(3*nTempMagn,[0.0_wp],0,MEX,1)
+call dcopy_(3*nTempMagn,[Zero],0,MEX,1)
 mem_local = mem_local+3*nTempMagn*RtoB
 
 ! total statistical sum, Boltzmann distribution
 call mma_allocate(ZT,nTempMagn,'ZT')
-call dcopy_(nTempMagn,[0.0_wp],0,ZT,1)
+call dcopy_(nTempMagn,[Zero],0,ZT,1)
 mem_local = mem_local+nTempMagn*RtoB
 ! total spin magnetisation
 call mma_allocate(ST,3,nTempMagn,'ST')
-call dcopy_(3*nTempMagn,[0.0_wp],0,ST,1)
+call dcopy_(3*nTempMagn,[Zero],0,ST,1)
 mem_local = mem_local+3*nTempMagn*RtoB
 ! total magnetisation
 call mma_allocate(MT,3,nTempMagn,'MT')
-call dcopy_(3*nTempMagn,[0.0_wp],0,MT,1)
+call dcopy_(3*nTempMagn,[Zero],0,MT,1)
 mem_local = mem_local+3*nTempMagn*RtoB
 
-if (dbg) write(6,*) 'mem_local 2 = ',mem_local
+if (dbg) write(u6,*) 'mem_local 2 = ',mem_local
 ! local statistical sum, Boltzmann distribution
 call mma_allocate(ZL,nneq,nTempMagn,'ZL')
-call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
+call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
 mem_local = mem_local+nneq*nTempMagn*RtoB
 ! spin magnetisation, from the local sites, using ALL states
 call mma_allocate(SL,nneq,3,nTempMagn,'SL')
-call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,SL,1)
+call dcopy_(nneq*3*nTempMagn,[Zero],0,SL,1)
 mem_local = mem_local+nneq*3*nTempMagn*RtoB
 ! magnetisation, from local sites, using ALL states
 call mma_allocate(ML,nneq,3,nTempMagn,'ML')
-call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,ML,1)
+call dcopy_(nneq*3*nTempMagn,[Zero],0,ML,1)
 mem_local = mem_local+nneq*3*nTempMagn*RtoB
 
 ! local statistical sum, Boltzmann distribution
 call mma_allocate(ZR,nneq,nTempMagn,'ZR')
-call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZR,1)
+call dcopy_(nneq*nTempMagn,[Zero],0,ZR,1)
 mem_local = mem_local+nneq*nTempMagn*RtoB
 ! spin magnetisation, from the local sites, using only NEXCH states
 call mma_allocate(SR,nneq,3,nTempMagn,'SR')
-call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,SR,1)
+call dcopy_(nneq*3*nTempMagn,[Zero],0,SR,1)
 mem_local = mem_local+nneq*3*nTempMagn*RtoB
 ! magnetisation, from the local sites, using only NEXCH states
 call mma_allocate(MR,nneq,3,nTempMagn,'MR')
-call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,MR,1)
+call dcopy_(nneq*3*nTempMagn,[Zero],0,MR,1)
 mem_local = mem_local+nneq*3*nTempMagn*RtoB
 
-if (dbg) write(6,*) 'mem_local 3 = ',mem_local
+if (dbg) write(u6,*) 'mem_local 3 = ',mem_local
 ! ZRT(nCenter,nTempMagn)
 call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
-call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
+call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
 mem_local = mem_local+nCenter*nTempMagn*RtoB
 ! ZLT(nCenter,nTempMagn)
 call mma_allocate(ZLT,nCenter,nTempMagn,'ZLT')
-call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZLT,1)
+call dcopy_(nCenter*nTempMagn,[Zero],0,ZLT,1)
 mem_local = mem_local+nCenter*nTempMagn*RtoB
 ! MRT(nCenter,3,nTempMagn)
 call mma_allocate(MRT,nCenter,3,nTempMagn,'MRT')
-call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,MRT,1)
+call dcopy_(nCenter*3*nTempMagn,[Zero],0,MRT,1)
 mem_local = mem_local+nCenter*3*nTempMagn*RtoB
 ! MLT(nCenter,3,nTempMagn)
 call mma_allocate(MLT,nCenter,3,nTempMagn,'MLT')
-call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,MLT,1)
+call dcopy_(nCenter*3*nTempMagn,[Zero],0,MLT,1)
 mem_local = mem_local+nCenter*3*nTempMagn*RtoB
 ! SRT(nCenter,3,nTempMagn)
 call mma_allocate(SRT,nCenter,3,nTempMagn,'SRT')
-call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,SRT,1)
+call dcopy_(nCenter*3*nTempMagn,[Zero],0,SRT,1)
 mem_local = mem_local+nCenter*3*nTempMagn*RtoB
 ! SLT(nCenter,3,nTempMagn)
 call mma_allocate(SLT,nCenter,3,nTempMagn,'SLT')
-call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,SLT,1)
+call dcopy_(nCenter*3*nTempMagn,[Zero],0,SLT,1)
 mem_local = mem_local+nCenter*3*nTempMagn*RtoB
 
-if (dbg) write(6,*) 'mem_local 4 = ',mem_local
+if (dbg) write(u6,*) 'mem_local 4 = ',mem_local
 ! magnetic torque
 call mma_allocate(tx,nPlanes,AngPoints,nH,nTempMagn,'tx')
 call mma_allocate(ty,nPlanes,AngPoints,nH,nTempMagn,'ty')
@@ -247,64 +249,64 @@ call mma_allocate(tz,nPlanes,AngPoints,nH,nTempMagn,'tz')
 call mma_allocate(sx,nPlanes,AngPoints,nH,nTempMagn,'sx')
 call mma_allocate(sy,nPlanes,AngPoints,nH,nTempMagn,'sy')
 call mma_allocate(sz,nPlanes,AngPoints,nH,nTempMagn,'sz')
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,tx,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,ty,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,tz,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sx,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sy,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sz,1)
+call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,tx,1)
+call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,ty,1)
+call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,tz,1)
+call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sx,1)
+call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sy,1)
+call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sz,1)
 mem_local = mem_local+6*nPlanes*AngPoints*nH*nTempMagn*RtoB
-if (dbg) write(6,*) 'mem_local 5 = ',mem_local
+if (dbg) write(u6,*) 'mem_local 5 = ',mem_local
 
 ! Zeeman local energies
 call mma_allocate(WL,nneq,nLoc,'WL')
-call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
+call dcopy_(nneq*nLoc,[Zero],0,WL,1)
 mem_local = mem_local+nneq*nLoc*RtoB
 ! Zeeman local reduced energies, using only NEXCH states
 call mma_allocate(WR,nneq,nLoc,'WR')
-call dcopy_(nneq*nLoc,[0.0_wp],0,WR,1)
+call dcopy_(nneq*nLoc,[Zero],0,WR,1)
 mem_local = mem_local+nneq*nLoc*RtoB
-if (dbg) write(6,*) 'mem_local 6 = ',mem_local
+if (dbg) write(u6,*) 'mem_local 6 = ',mem_local
 
 call mma_allocate(Ang,AngPoints,'Ang')
-call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
+call dcopy_(AngPoints,[Zero],0,Ang,1)
 mem_local = mem_local+AngPoints*RtoB
 call mma_allocate(dX,nPlanes,AngPoints,'dX')
 call mma_allocate(dY,nPlanes,AngPoints,'dY')
 call mma_allocate(dZ,nPlanes,AngPoints,'dZ')
-call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dX,1)
-call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dY,1)
-call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dZ,1)
+call dcopy_(nPlanes*AngPoints,[Zero],0,dX,1)
+call dcopy_(nPlanes*AngPoints,[Zero],0,dY,1)
+call dcopy_(nPlanes*AngPoints,[Zero],0,dZ,1)
 mem_local = mem_local+3*nPlanes*AngPoints*RtoB
-if (dbg) write(6,*) 'mem_local 7 = ',mem_local
+if (dbg) write(u6,*) 'mem_local 7 = ',mem_local
 
 call mma_allocate(H,nH,'H')
-call dcopy_(nH,[0.0_wp],0,H,1)
+call dcopy_(nH,[Zero],0,H,1)
 mem_local = mem_local+nH*RtoB
 
-if (dbg) write(6,*) 'TORQ:  memory allocated (local):'
-if (dbg) write(6,*) 'mem_local=',mem_local
-if (dbg) write(6,*) 'TORQ:  memory allocated (total):'
-if (dbg) write(6,*) 'mem_total=',mem+mem_local
+if (dbg) write(u6,*) 'TORQ:  memory allocated (local):'
+if (dbg) write(u6,*) 'mem_local=',mem_local
+if (dbg) write(u6,*) 'TORQ:  memory allocated (total):'
+if (dbg) write(u6,*) 'mem_total=',mem+mem_local
 
 !-----------------------------------------------------------------------
 ! set up the field points:
 if (HINPUT) then
   do iH=1,nH
     H(iH) = HEXP(iH)
-    if (H(iH) == 0.0_wp) then
+    if (H(iH) == Zero) then
       H(iH) = 0.0001_wp
     end if
   end do
 else
-  DLTH = (HMAX-HMIN)/dble(NH-1)
+  DLTH = (HMAX-HMIN)/real(NH-1,kind=wp)
   do iH=1,nH
     if (iH == 1) then
       H(IH) = HMIN+dltH0
     else
-      H(IH) = HMIN+DLTH*dble(IH-1)
+      H(IH) = HMIN+DLTH*real(IH-1,kind=wp)
     end if
-    if (H(iH) == 0.0_wp) then
+    if (H(iH) == Zero) then
       H(iH) = 0.0001_wp
     end if
   end do
@@ -313,50 +315,50 @@ end if
 
 do IH=1,NH
   ! ///  opening the loop over field points:
-  call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dX,1)
-  call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dY,1)
-  call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dZ,1)
+  call dcopy_(nPlanes*AngPoints,[Zero],0,dX,1)
+  call dcopy_(nPlanes*AngPoints,[Zero],0,dY,1)
+  call dcopy_(nPlanes*AngPoints,[Zero],0,dZ,1)
   do iPl=1,nPlanes
     ! ///  opening the loop over different planes of rotation of the applied magnetic field:
     !  loop over various angular grids  (iPl = 1, 2 or 3)
     !  iPl=1 (X) , angular grid in the plane YZ ( half of the plane , 0-180 degrees)
     !  iPl=2 (Y) , angular grid in the plane XZ ( half of the plane , 0-180 degrees)
     !  iPl=3 (Z) , angular grid in the plane XY ( half of the plane , 0-180 degrees)
-    call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
+    call dcopy_(AngPoints,[Zero],0,Ang,1)
 
     call hdir2(AngPoints,iPl,dX(iPl,:),dY(iPl,:),dZ(iPl,:),Ang,4)
 
-    if (dbg) write(6,*) 'iPl, dX, dY, dZ=',iPl,dX(iPl,:),dY(iPl,:),dZ(iPl,:),Ang
+    if (dbg) write(u6,*) 'iPl, dX, dY, dZ=',iPl,dX(iPl,:),dY(iPl,:),dZ(iPl,:),Ang
     do IM=1,AngPoints
       ! ///  opening the loop over different directions of the magnetic field
-      call dcopy_(nM,[0.0_wp],0,Wex,1)
-      call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
-      call dcopy_(nneq*nLoc,[0.0_wp],0,WR,1)
-      call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
-      call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
-      call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZR,1)
-      call dcopy_(3*nTempMagn,[0.0_wp],0,SEX,1)
-      call dcopy_(3*nTempMagn,[0.0_wp],0,MEX,1)
-      call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,SL,1)
-      call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,ML,1)
-      call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,SR,1)
-      call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,MR,1)
-      call dcopy_(3*nTempMagn,[0.0_wp],0,MT,1)
-      call dcopy_(3*nTempMagn,[0.0_wp],0,ST,1)
-      call dcopy_(nTempMagn,[0.0_wp],0,ZT,1)
+      call dcopy_(nM,[Zero],0,Wex,1)
+      call dcopy_(nneq*nLoc,[Zero],0,WL,1)
+      call dcopy_(nneq*nLoc,[Zero],0,WR,1)
+      call dcopy_(nTempMagn,[Zero],0,Zex,1)
+      call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
+      call dcopy_(nneq*nTempMagn,[Zero],0,ZR,1)
+      call dcopy_(3*nTempMagn,[Zero],0,SEX,1)
+      call dcopy_(3*nTempMagn,[Zero],0,MEX,1)
+      call dcopy_(nneq*3*nTempMagn,[Zero],0,SL,1)
+      call dcopy_(nneq*3*nTempMagn,[Zero],0,ML,1)
+      call dcopy_(nneq*3*nTempMagn,[Zero],0,SR,1)
+      call dcopy_(nneq*3*nTempMagn,[Zero],0,MR,1)
+      call dcopy_(3*nTempMagn,[Zero],0,MT,1)
+      call dcopy_(3*nTempMagn,[Zero],0,ST,1)
+      call dcopy_(nTempMagn,[Zero],0,ZT,1)
 
       ! exchange magnetization:
       call MAGN(EXCH,NM,dX(iPl,iM),dY(iPl,iM),dZ(iPl,iM),H(iH),W,zJ,THRS,DIPEXCH,S_EXCH,nTempMagn,TempMagn,smagn,Wex,Zex,Sex,Mex, &
                 m_paranoid,DBG)
 
       if (iPl == 2) then
-        if (DBG) write(6,'(A,I3,1x,F8.4,2x, 3F19.14,2x,3F19.14)') 'MEX: iM,',iM,H(iH),(Mex(l,1),l=1,3),dX(iPl,iM),dY(iPl,iM), &
-                                                                  dZ(iPl,iM)
+        if (DBG) write(u6,'(A,I3,1x,F8.4,2x, 3F19.14,2x,3F19.14)') 'MEX: iM,',iM,H(iH),(Mex(l,1),l=1,3),dX(iPl,iM),dY(iPl,iM), &
+                                                                   dZ(iPl,iM)
       end if
       !iT = 1
 
-      !write(6,'(F10.4,1x,2I3,3F18.14,3x,3F20.14,2x,F20.14)') H(iH),iL,iM,dX(iM),dY(iM),dZ(iM),(Mex(j,iT),j=1,3), &
-      !                                                       Mex(1,iT)*dX(iM)+Mex(2,iT)*dY(iM)+Mex(3,iT)*dZ(iM)
+      !write(u6,'(F10.4,1x,2I3,3F18.14,3x,3F20.14,2x,F20.14)') H(iH),iL,iM,dX(iM),dY(iM),dZ(iM),(Mex(j,iT),j=1,3), &
+      !                                                        Mex(1,iT)*dX(iM)+Mex(2,iT)*dY(iM)+Mex(3,iT)*dZ(iM)
       ! compute local magnetizations:
       if (m_accurate) then
         do i=1,nneq
@@ -375,12 +377,12 @@ do IH=1,NH
         end do
         ! expand the basis and rotate local vectors to the
         ! general coordinate system:
-        call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
-        call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZLT,1)
-        call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,MRT,1)
-        call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,MLT,1)
-        call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,SRT,1)
-        call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,SLT,1)
+        call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
+        call dcopy_(nCenter*nTempMagn,[Zero],0,ZLT,1)
+        call dcopy_(3*nCenter*nTempMagn,[Zero],0,MRT,1)
+        call dcopy_(3*nCenter*nTempMagn,[Zero],0,MLT,1)
+        call dcopy_(3*nCenter*nTempMagn,[Zero],0,SRT,1)
+        call dcopy_(3*nCenter*nTempMagn,[Zero],0,SLT,1)
 
         isite = 0
         do i=1,NNEQ
@@ -474,75 +476,76 @@ end do ! iH
 ! ----------------------------------------------------------------------
 ! WRITING SOME OF THE OUTPUT....
 ! ----------------------------------------------------------------------
-write(6,*)
-write(6,'(25X,A)') 'ANGULAR DEPENDENCE OF THE MAGNETIZATION TORQUE'
-write(6,'(30X,A)') '(Units of torque: [energy, cm-1])'
-write(6,*)
+write(u6,*)
+write(u6,'(25X,A)') 'ANGULAR DEPENDENCE OF THE MAGNETIZATION TORQUE'
+write(u6,'(30X,A)') '(Units of torque: [energy, cm-1])'
+write(u6,*)
 
-write(6,'(5x,A)') 'Orientation of the applied magnetic field employed:'
-write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+write(u6,'(5x,A)') 'Orientation of the applied magnetic field employed:'
+write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
 
-write(6,'(2x,A,3(10x,A))') 'Angle |','rotation in the YZ plane          |','rotation in the XZ plane          |', &
-                           'rotation in the XY plane          |'
-write(6,'(10A)') '--------|',('--- proj X ---|','--- proj Y ---|','--- proj Z ---|',i=1,3)
+write(u6,'(2x,A,3(10x,A))') 'Angle |','rotation in the YZ plane          |','rotation in the XZ plane          |', &
+                            'rotation in the XY plane          |'
+write(u6,'(10A)') '--------|',('--- proj X ---|','--- proj Y ---|','--- proj Z ---|',i=1,3)
 do iM=1,AngPoints
-  write(6,'(F7.3,1x,A,3(F13.10,1x,A,F13.10,1x,A,F13.10,1x,A))') Ang(iM),'|',(dX(iPl,iM),' ',dY(iPl,iM),' ',dZ(iPl,iM),'|',iPl=1,3)
+  write(u6,'(F7.3,1x,A,3(F13.10,1x,A,F13.10,1x,A,F13.10,1x,A))') Ang(iM),'|',(dX(iPl,iM),' ',dY(iPl,iM),' ',dZ(iPl,iM),'|',iPl=1,3)
 end do
-write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
 
 do iH=1,nH
   do iT=1,nTempMagn
-    write(6,*)
-    write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
-    write(6,'(A,F9.4,A)') 'Magnetic field strength = ',H(iH),' tesla'
-    write(6,'(12x,A,F9.4,A)') 'Temperature = ',TempMagn(iT),' kelvin'
-    write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+    write(u6,*)
+    write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+    write(u6,'(A,F9.4,A)') 'Magnetic field strength = ',H(iH),' tesla'
+    write(u6,'(12x,A,F9.4,A)') 'Temperature = ',TempMagn(iT),' kelvin'
+    write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
 
-    write(6,'(2x,A,3(10x,A))') 'Angle |','rotation in the YZ plane          |','rotation in the XZ plane          |', &
-                               'rotation in the XY plane          |'
-    write(6,'(10A)') '--------|',('-- torque X --|','-- torque Y --|','-- torque Z --|',i=1,3)
+    write(u6,'(2x,A,3(10x,A))') 'Angle |','rotation in the YZ plane          |','rotation in the XZ plane          |', &
+                                'rotation in the XY plane          |'
+    write(u6,'(10A)') '--------|',('-- torque X --|','-- torque Y --|','-- torque Z --|',i=1,3)
     do iM=1,AngPoints
-      write(6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))') Ang(iM),'|',(tx(iPl,iM,iH,iT),' ',ty(iPl,iM,iH,iT),' ', &
-                                                                    tz(iPl,iM,iH,iT),'|',iPl=1,3)
+      write(u6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))') Ang(iM),'|',(tx(iPl,iM,iH,iT),' ',ty(iPl,iM,iH,iT),' ', &
+                                                                     tz(iPl,iM,iH,iT),'|',iPl=1,3)
     end do
-    write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+    write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
   end do !iT
 end do !iH
 
 ! ----------------------------------------------------------------------
 if (smagn) then
-  write(6,*)
-  write(6,'(25X,A)') 'ANGULAR DEPENDENCE OF THE SPIN MAGNETIZATION TORQUE'
-  write(6,'(30X,A)') '(Units of torque: [energy, cm-1])'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(25X,A)') 'ANGULAR DEPENDENCE OF THE SPIN MAGNETIZATION TORQUE'
+  write(u6,'(30X,A)') '(Units of torque: [energy, cm-1])'
+  write(u6,*)
 
-  write(6,'(5x,A)') 'Orientation of the applied magnetic field employed:'
-  write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+  write(u6,'(5x,A)') 'Orientation of the applied magnetic field employed:'
+  write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
 
-  write(6,'(2x,A,3(10x,A))') 'Angle |','rotation in the YZ plane          |','rotation in the XZ plane          |', &
-                             'rotation in the XY plane          |'
-  write(6,'(10A)') '--------|',('--- proj X ---|','--- proj Y ---|','--- proj Z ---|',i=1,3)
+  write(u6,'(2x,A,3(10x,A))') 'Angle |','rotation in the YZ plane          |','rotation in the XZ plane          |', &
+                              'rotation in the XY plane          |'
+  write(u6,'(10A)') '--------|',('--- proj X ---|','--- proj Y ---|','--- proj Z ---|',i=1,3)
   do iM=1,AngPoints
-    write(6,'(F7.3,1x,A,3(F13.10,1x,A,F13.10,1x,A,F13.10,1x,A))') Ang(iM),'|',(dX(iPl,iM),' ',dY(iPl,iM),' ',dZ(iPl,iM),'|',iPl=1,3)
+    write(u6,'(F7.3,1x,A,3(F13.10,1x,A,F13.10,1x,A,F13.10,1x,A))') Ang(iM),'|', &
+                                                                   (dX(iPl,iM),' ',dY(iPl,iM),' ',dZ(iPl,iM),'|',iPl=1,3)
   end do
-  write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+  write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
 
   do iH=1,nH
     do iT=1,nTempMagn
-      write(6,*)
-      write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
-      write(6,'(A,F9.4,A)') 'Magnetic field strength = ',H(iH),' tesla'
-      write(6,'(12x,A,F9.4,A)') 'Temperature = ',TempMagn(iT),' kelvin'
-      write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+      write(u6,*)
+      write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+      write(u6,'(A,F9.4,A)') 'Magnetic field strength = ',H(iH),' tesla'
+      write(u6,'(12x,A,F9.4,A)') 'Temperature = ',TempMagn(iT),' kelvin'
+      write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
 
-      write(6,'(2x,A,3(10x,A))') 'Angle |','rotation in the YZ plane          |','rotation in the XZ plane          |', &
-                                 'rotation in the XY plane          |'
-      write(6,'(10A)') '--------|',('Spin torque X |','Spin torque Y |','Spin torque Z |',i=1,3)
+      write(u6,'(2x,A,3(10x,A))') 'Angle |','rotation in the YZ plane          |','rotation in the XZ plane          |', &
+                                  'rotation in the XY plane          |'
+      write(u6,'(10A)') '--------|',('Spin torque X |','Spin torque Y |','Spin torque Z |',i=1,3)
       do iM=1,AngPoints
-        write(6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))') Ang(iM),'|',(sx(iPl,iM,iH,iT),' ',sy(iPl,iM,iH,iT),' ', &
-                                                                      sz(iPl,iM,iH,iT),'|',iPl=1,3)
+        write(u6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))') Ang(iM),'|',(sx(iPl,iM,iH,iT),' ',sy(iPl,iM,iH,iT),' ', &
+                                                                       sz(iPl,iM,iH,iT),'|',iPl=1,3)
       end do
-      write(6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
+      write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
     end do !iT
   end do !iH
 
@@ -591,7 +594,7 @@ call mma_deallocate(dZ)
 
 call mma_deallocate(H)
 
-if (dbg) write(6,*) 'TORQ: allocated memory was sucessfully deallocated'
+if (dbg) write(u6,*) 'TORQ: allocated memory was sucessfully deallocated'
 
 return
 

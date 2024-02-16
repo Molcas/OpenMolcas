@@ -16,9 +16,11 @@ subroutine set_defaults(nneq,nTempMagn,nDir,nDirZee,nMult,neq,nexch,nK,mG,ncut,n
                         compute_torque,compute_barrier,compute_magnetization,hinput,compute_Mdir_vector,zeeman_energy,m_paranoid, &
                         m_accurate,smagn,itype)
 
+use Constants, only: Zero, Two, Ten
+use Definitions, only: wp
+
 implicit none
 #include "mgrid.fh"
-integer, parameter :: wp = kind(0.d0)
 ! definition of the cluster
 integer, intent(in) :: nneq
 integer, intent(out) :: neq(nneq)
@@ -119,11 +121,11 @@ if (nneq > 0) then
     neq(i) = 1
     nexch(i) = 1
     itype(i) = ' '
-    D_fact(i) = 0.0_wp
-    EoverD_fact(i) = 0.0_wp
+    D_fact(i) = Zero
+    EoverD_fact(i) = Zero
+    call unitmat(riso(i,:,:),3)
     do l=1,3
-      gtens_input(l,i) = 2.002319304361_wp
-      riso(i,l,l) = 1.0_wp
+      gtens_input(l,i) = 2.002319304361_wp ! IFG
     end do
   end do
 end if
@@ -162,24 +164,24 @@ compute_magnetization = .false.
 m_accurate = .true.
 m_paranoid = .true.
 smagn = .false.
-THRS = 1.D-10 ! threshold for convergence of average spin when zJ /= 0.0
+THRS = 1.0e-10_wp ! threshold for convergence of average spin when zJ /= 0.0
 iopt = 1
 dltH0 = 0.001_wp ! the non-zero field point
 NK = 50
 MG = 50
-HMIN = 0.0_wp
-HMAX = 10.0_wp
+HMIN = Zero
+HMAX = Ten
 encut_definition = 2
 encut_rate = 1.0_wp
-if (nTempMagn > 0) TempMagn(1) = 2.0_wp
+if (nTempMagn > 0) TempMagn(1) = Two
 ncut = 0
 !-----------------------------------------------------------------------
 ! magnetic susceptibility
 compute_susceptibility = .false.
-TMIN = 0.0_wp
+TMIN = Zero
 TMAX = 300.0_wp
 DLTT0 = 0.001_wp
-Xfield = 0.0_wp
+Xfield = Zero
 !-----------------------------------------------------------------------
 ! magnetic torque
 compute_torque = .false.
@@ -193,14 +195,14 @@ HINPUT = .false.
 ! relate to crystallographic axes
 Do_structure_abc = .false.
 do i=1,6
-  Cryst(i) = 0.0_wp
+  Cryst(i) = Zero
 end do
 do i=1,3
-  coord(i) = 0.0_wp
+  coord(i) = Zero
 end do
 !-----------------------------------------------------------------------
 ! mean field paraemeter
-ZJ = 0.0_wp
+ZJ = Zero
 !-----------------------------------------------------------------------
 ! automatic fitting:
 fitCHI = .false.

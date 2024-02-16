@@ -32,8 +32,10 @@ subroutine chi_sum(N,Xex,Zex,XL,ZL,XR,ZR,iopt,X,Z)
 !    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=8) :: , output
 !---------
 
+use Constants, only: Zero, One
+use Definitions, only: u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N, iopt
 real(kind=8), intent(in) :: Xex(3,3), Zex
 real(kind=8), intent(in) :: XL(N,3,3), ZL(N)
@@ -43,12 +45,12 @@ real(kind=8), intent(out) :: X(3,3), Z
 integer :: i, ic, jc
 real(kind=8) :: ZLT, ZRT, XLT(3,3), XRT(3,3)
 
-ZLT = 1.0_wp
-ZRT = 1.0_wp
-Z = 0.0_wp
-call dcopy_(3*3,[0.0_wp],0,XRT,1)
-call dcopy_(3*3,[0.0_wp],0,XLT,1)
-call dcopy_(3*3,[0.0_wp],0,X,1)
+ZLT = One
+ZRT = One
+Z = Zero
+call dcopy_(3*3,[Zero],0,XRT,1)
+call dcopy_(3*3,[Zero],0,XLT,1)
+call dcopy_(3*3,[Zero],0,X,1)
 ! compute the total ZT
 if (iopt == 1) then
   ! my formula (simple):
@@ -106,8 +108,8 @@ else if (iopt == 3) then
 
 else
 
-  write(6,'(A)') 'chi_sum: IOPT parameter out of range'
-  write(6,'(A,i8)') 'IOPT = ',IOPT
+  write(u6,'(A)') 'chi_sum: IOPT parameter out of range'
+  write(u6,'(A,i8)') 'IOPT = ',IOPT
   return
 
 end if

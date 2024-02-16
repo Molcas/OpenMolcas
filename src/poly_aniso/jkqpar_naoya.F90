@@ -11,8 +11,10 @@
 
 subroutine JKQPar_Naoya(N1,N2,HEXCH,Jpar)
 
+use Constants, only: cZero
+use Definitions, only: u6, wp
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: N1, N2
 complex(kind=8), intent(in) :: HEXCH(N1,N1,N2,N2)
 complex(kind=8), intent(out) :: Jpar(N1-1,(-N1+1):N1-1,N2-1,(-N2+1):N2-1)
@@ -29,7 +31,7 @@ DBG = .false.
 !  HEXCH = SUM(rank1,proj1,rank2,proj2) = { B(rank1,proj1,rank2,proj2)* O1(rank1,proj1) * O2(rank2,proj2) }
 ! Naoya definition
 ! eq.40 in DoI:10.1103/PhysRevB.91.174438
-Jpar = (0.0_wp,0.0_wp)
+Jpar(:,:,:,:) = cZero
 J1 = N1-1 ! i.e. double of the dimension of the spin on site 1
 J2 = N2-1 ! i.e. double of the dimension of the spin on site 2
 do k1=0,J1
@@ -41,7 +43,6 @@ do k1=0,J1
         ! the rank of individual spins must be even
         if (mod(k2,2) /= 1) Go To 104
         ! If the total rank is odd, Then it is a local ZFS contribution; ==> to be Done later
-        QMAT = 0.0_wp
         ! compute the qmat:
         ! projections q and q' are with opposite sign:
         !  -is1 and  -is2
@@ -59,9 +60,9 @@ do k1=0,J1
                 QMAT(is1,js1,is2,js2) = WCG(J1,ns1,2*k1,-2*q1,J1,ms1)*WCG(J2,ns2,2*k2,-2*q2,J2,ms2)/WCG(J1,J1,2*k1,0,J1,J1)/ &
                                         WCG(J2,J2,2*k2,0,J2,J2)
 
-                if (DBG .and. (abs(QMAT(is1,js1,is2,js2)) > 1.d-12)) then
-                  write(6,'(8(A,i3),A,2F20.14)') ' QMAT(',k1,',',q1,',',k2,',',q2,'|||',is1,',',js1,',',is2,',',js2,') = ', &
-                                                 QMAT(is1,js1,is2,js2)
+                if (DBG .and. (abs(QMAT(is1,js1,is2,js2)) > 1.0e-12_wp)) then
+                  write(u6,'(8(A,i3),A,2F20.14)') ' QMAT(',k1,',',q1,',',k2,',',q2,'|||',is1,',',js1,',',is2,',',js2,') = ', &
+                                                  QMAT(is1,js1,is2,js2)
                 end if
 
 103             continue
@@ -70,7 +71,7 @@ do k1=0,J1
           end do
         end do
         ! compute the trace Tr[QMAT * HEXCH]
-        trace = (0.0_wp,0.0_wp)
+        trace = cZero
         do is1=1,N1
           do js1=1,N1
             do is2=1,N2
@@ -81,19 +82,17 @@ do k1=0,J1
           end do
         end do
 
-        if (DBG .and. (abs(trace) > 1.d-12)) then
-          write(6,'(4(A,i3),A,2F20.14)') 'trace(',k1,',',q1,',',k2,',',q2,') = ',trace
+        if (DBG .and. (abs(trace) > 1.0e-12_wp)) then
+          write(u6,'(4(A,i3),A,2F20.14)') 'trace(',k1,',',q1,',',k2,',',q2,') = ',trace
         end if
 
-        OPER = 0.0_wp
-        FACT = 0.0_wp
         OPER = WCG(J1,J1,2*k1,0,J1,J1)*WCG(J1,J1,2*k1,0,J1,J1)*WCG(J2,J2,2*k2,0,J2,J2)*WCG(J2,J2,2*k2,0,J2,J2)
-        FACT = dble(((-1)**(q1+q2))*((2*k1+1)*(2*k2+1)))/dble(N1*N2)
+        FACT = real(((-1)**(q1+q2))*((2*k1+1)*(2*k2+1)),kind=wp)/real(N1*N2,kind=wp)
 
-        Jpar(k1,q1,k2,q2) = cmplx(FACT*OPER,0.0_wp,wp)*trace
+        Jpar(k1,q1,k2,q2) = FACT*OPER*trace
 
-        if (DBG .and. (abs(Jpar(k1,q1,k2,q2)) > 0.5d-13)) then
-          write(6,'(4(A,i3),A,2F20.14)') '    J(',k1,',',q1,',',k2,',',q2,') = ',Jpar(k1,q1,k2,q2)
+        if (DBG .and. (abs(Jpar(k1,q1,k2,q2)) > 0.5e-13_wp)) then
+          write(u6,'(4(A,i3),A,2F20.14)') '    J(',k1,',',q1,',',k2,',',q2,') = ',Jpar(k1,q1,k2,q2)
         end if
 
 104     continue

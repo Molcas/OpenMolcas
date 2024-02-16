@@ -13,8 +13,10 @@ subroutine magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir
                             hexp,mexp,hmin,hmax,em,zJ,thrs,dirX,dirY,dirZ,dir_weight,w,dipexch,s_exch,dipso,s_so,eso,hinput,r_rot, &
                             XLM,ZLM,XRM,ZRM,zeeman_energy,compute_Mdir_vector,m_paranoid,m_accurate,smagn,mem,doplot)
 
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 #include "mgrid.fh"
 #include "stdalloc.fh"
 ! constants defining the sizes
@@ -99,128 +101,128 @@ logical :: DBG
 character(len=15) :: lbl_X, lbl_Y, lbl_Z
 
 DBG = .false.
-!Boltz_k = 0.6950356000_wp  ! in cm^-1*K-1
-!mu_Bohr = 0.4668643740_wp  ! in cm-1*T-1
-cm3tomB = 0.5584938904_wp   ! in cm3 * mol-1 * T
+!Boltz_k = 0.6950356000_wp  ! IFG in cm^-1*K-1
+!mu_Bohr = 0.4668643740_wp  ! IFG in cm-1*T-1
+cm3tomB = 0.5584938904_wp   ! IFG in cm3 * mol-1 * T
 
-write(6,*)
-write(6,'(100A)') (('%'),J=1,96)
-write(6,'(40X,A)') 'CALCULATION OF THE MOLAR MAGNETIZATION'
-write(6,'(100A)') (('%'),J=1,96)
-write(6,*)
+write(u6,*)
+write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(40X,A)') 'CALCULATION OF THE MOLAR MAGNETIZATION'
+write(u6,'(100A)') (('%'),J=1,96)
+write(u6,*)
 !----------------------------------------------------------------------
 mem_local = 0
 RtoB = 8
-if (dbg) write(6,*) 'MAGN:        nM=',nM
-if (dbg) write(6,*) 'MAGN:      exch=',exch
-if (dbg) write(6,*) 'MAGN:      nLoc=',nLoc
-if (dbg) write(6,*) 'MAGN: nTempMagn=',nTempMagn
+if (dbg) write(u6,*) 'MAGN:        nM=',nM
+if (dbg) write(u6,*) 'MAGN:      exch=',exch
+if (dbg) write(u6,*) 'MAGN:      nLoc=',nLoc
+if (dbg) write(u6,*) 'MAGN: nTempMagn=',nTempMagn
 
 ! Zeeman exchange energy spectrum
 call mma_allocate(Wex,nM,'Wex')
-call dcopy_(nM,[0.0_wp],0,Wex,1)
+call dcopy_(nM,[Zero],0,Wex,1)
 mem_local = mem_local+nM*RtoB
 
 ! exchange statistical sum, Boltzmann distribution
 call mma_allocate(Zex,nTempMagn,'Zex')
-call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
+call dcopy_(nTempMagn,[Zero],0,Zex,1)
 mem_local = mem_local+nTempMagn*RtoB
 ! spin magnetisation, from the exchange block
 call mma_allocate(Sex,3,nTempMagn,'Sex')
-call dcopy_(3*nTempMagn,[0.0_wp],0,Sex,1)
+call dcopy_(3*nTempMagn,[Zero],0,Sex,1)
 mem_local = mem_local+3*nTempMagn*RtoB
 ! magnetisation, from the exchange block
 call mma_allocate(Mex,3,nTempMagn,'Mex')
-call dcopy_(3*nTempMagn,[0.0_wp],0,Mex,1)
+call dcopy_(3*nTempMagn,[Zero],0,Mex,1)
 mem_local = mem_local+3*nTempMagn*RtoB
 
 ! local statistical sum, Boltzmann distribution
 call mma_allocate(ZL,nneq,nTempMagn,'ZL')
-call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
+call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
 mem_local = mem_local+nneq*nTempMagn*RtoB
 ! spin magnetisation, from the local sites, using ALL states
 call mma_allocate(SL,nneq,3,nTempMagn,'SL')
-call dcopy_(3*nneq*nTempMagn,[0.0_wp],0,SL,1)
+call dcopy_(3*nneq*nTempMagn,[Zero],0,SL,1)
 mem_local = mem_local+3*nneq*nTempMagn*RtoB
 ! magnetisation, from local sites, using ALL states
 call mma_allocate(ML,nneq,3,nTempMagn,'ML')
-call dcopy_(3*nneq*nTempMagn,[0.0_wp],0,ML,1)
+call dcopy_(3*nneq*nTempMagn,[Zero],0,ML,1)
 mem_local = mem_local+3*nneq*nTempMagn*RtoB
 
 ! local statistical sum, Boltzmann distribution, using only Nexch states
 call mma_allocate(ZR,nneq,nTempMagn,'ZR')
-call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZR,1)
+call dcopy_(nneq*nTempMagn,[Zero],0,ZR,1)
 mem_local = mem_local+nneq*nTempMagn*RtoB
 ! spin magnetisation, from the local sites, using only Nexch states
 call mma_allocate(SR,nneq,3,nTempMagn,'SR')
-call dcopy_(3*nneq*nTempMagn,[0.0_wp],0,SR,1)
+call dcopy_(3*nneq*nTempMagn,[Zero],0,SR,1)
 mem_local = mem_local+3*nneq*nTempMagn*RtoB
 ! magnetisation, from local sites, using only Nexch states
 call mma_allocate(MR,nneq,3,nTempMagn,'MR')
-call dcopy_(3*nneq*nTempMagn,[0.0_wp],0,MR,1)
+call dcopy_(3*nneq*nTempMagn,[Zero],0,MR,1)
 mem_local = mem_local+3*nneq*nTempMagn*RtoB
 
 ! Zeeman local energies
 call mma_allocate(WL,nneq,nLoc,'WL')
-call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
+call dcopy_(nneq*nLoc,[Zero],0,WL,1)
 mem_local = mem_local+nneq*nLoc*RtoB
 ! Zeeman local reduced energies, using only Nexch states
 call mma_allocate(WR,nneq,nLoc,'WR')
-call dcopy_(nneq*nLoc,[0.0_wp],0,WR,1)
+call dcopy_(nneq*nLoc,[Zero],0,WR,1)
 mem_local = mem_local+nneq*nLoc*RtoB
 
 ! ZRT(nCenter,nTempMagn)
 call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
-call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
+call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
 mem_local = mem_local+nCenter*nTempMagn*RtoB
 ! ZLT(nCenter,nTempMagn)
 call mma_allocate(ZLT,nCenter,nTempMagn,'ZLT')
-call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZLT,1)
+call dcopy_(nCenter*nTempMagn,[Zero],0,ZLT,1)
 mem_local = mem_local+nCenter*nTempMagn*RtoB
 ! MRT(nCenter,3,nTempMagn)
 call mma_allocate(MRT,nCenter,3,nTempMagn,'MRT')
-call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,MRT,1)
+call dcopy_(nCenter*3*nTempMagn,[Zero],0,MRT,1)
 mem_local = mem_local+3*nCenter*nTempMagn*RtoB
 ! MLT(nCenter,3,nTempMagn)
 call mma_allocate(MLT,nCenter,3,nTempMagn,'MLT')
-call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,MLT,1)
+call dcopy_(nCenter*3*nTempMagn,[Zero],0,MLT,1)
 mem_local = mem_local+3*nCenter*nTempMagn*RtoB
 ! SRT(nCenter,3,nTempMagn)
 call mma_allocate(SRT,nCenter,3,nTempMagn,'SRT')
-call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,SRT,1)
+call dcopy_(nCenter*3*nTempMagn,[Zero],0,SRT,1)
 mem_local = mem_local+3*nCenter*nTempMagn*RtoB
 ! SLT(nCenter,3,nTempMagn)
 call mma_allocate(SLT,nCenter,3,nTempMagn,'SLT')
-call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,SLT,1)
+call dcopy_(nCenter*3*nTempMagn,[Zero],0,SLT,1)
 mem_local = mem_local+3*nCenter*nTempMagn*RtoB
 
 ! total statistical sum, Boltzmann distribution
 call mma_allocate(ZT,nH,nTempMagn,'ZT')
-call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
+call dcopy_(nH*nTempMagn,[Zero],0,ZT,1)
 mem_local = mem_local+nH*nTempMagn*RtoB
 ! total spin magnetisation
 call mma_allocate(ST,3,nH,nTempMagn,'ST')
-call dcopy_(3*nH*nTempMagn,[0.0_wp],0,ST,1)
+call dcopy_(3*nH*nTempMagn,[Zero],0,ST,1)
 mem_local = mem_local+3*nH*nTempMagn*RtoB
 ! total magnetisation
 call mma_allocate(MT,3,nH,nTempMagn,'MT')
-call dcopy_(3*nH*nTempMagn,[0.0_wp],0,MT,1)
+call dcopy_(3*nH*nTempMagn,[Zero],0,MT,1)
 mem_local = mem_local+3*nH*nTempMagn*RtoB
 ! total spin magnetisation
 call mma_allocate(SAV,nH,nTempMagn,'SAV')
-call dcopy_(nH*nTempMagn,[0.0_wp],0,SAV,1)
+call dcopy_(nH*nTempMagn,[Zero],0,SAV,1)
 mem_local = mem_local+nH*nTempMagn*RtoB
 ! total magnetisation
 call mma_allocate(MAV,nH,nTempMagn,'MAV')
-call dcopy_(nH*nTempMagn,[0.0_wp],0,MAV,1)
+call dcopy_(nH*nTempMagn,[Zero],0,MAV,1)
 mem_local = mem_local+nH*nTempMagn*RtoB
 ! total spin magnetisation vector
 call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
-call dcopy_(nDirTot*nH*nTempMagn*3,[0.0_wp],0,SVEC,1)
+call dcopy_(nDirTot*nH*nTempMagn*3,[Zero],0,SVEC,1)
 mem_local = mem_local+nDirTot*nH*nTempMagn*3*RtoB
 ! total magnetisation vector
 call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
-call dcopy_(nDirTot*nH*nTempMagn*3,[0.0_wp],0,MVEC,1)
+call dcopy_(nDirTot*nH*nTempMagn*3,[Zero],0,MVEC,1)
 mem_local = mem_local+nDirTot*nH*nTempMagn*3*RtoB
 
 ! orientation of the field
@@ -228,19 +230,19 @@ call mma_allocate(dHX,nDirTot,'dHX')
 call mma_allocate(dHY,nDirTot,'dHY')
 call mma_allocate(dHZ,nDirTot,'dHZ')
 call mma_allocate(dHW,nDirTot,'dHW')
-call dcopy_(nDirTot,[0.0_wp],0,dHX,1)
-call dcopy_(nDirTot,[0.0_wp],0,dHY,1)
-call dcopy_(nDirTot,[0.0_wp],0,dHZ,1)
-call dcopy_(nDirTot,[0.0_wp],0,dHW,1)
+call dcopy_(nDirTot,[Zero],0,dHX,1)
+call dcopy_(nDirTot,[Zero],0,dHY,1)
+call dcopy_(nDirTot,[Zero],0,dHZ,1)
+call dcopy_(nDirTot,[Zero],0,dHW,1)
 mem_local = mem_local+4*nDirTot*RtoB
 
 call mma_allocate(H,nH,'H  field')
-call dcopy_(nH,[0.0_wp],0,H,1)
+call dcopy_(nH,[Zero],0,H,1)
 mem_local = mem_local+nH*RtoB
-if (dbg) write(6,*) 'MAGN:  memory allocated (local):'
-if (dbg) write(6,*) 'mem_local=',mem_local
-if (dbg) write(6,*) 'MAGN:  memory allocated (total):'
-if (dbg) write(6,*) 'mem_total=',mem+mem_local
+if (dbg) write(u6,*) 'MAGN:  memory allocated (local):'
+if (dbg) write(u6,*) 'mem_local=',mem_local
+if (dbg) write(u6,*) 'MAGN:  memory allocated (total):'
+if (dbg) write(u6,*) 'mem_total=',mem+mem_local
 !-----------------------------------------------------------------------
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 nP = get_nP(nsymm,ngrid)
@@ -251,112 +253,112 @@ call Add_Info('MR_MAGN  dHY',dHY(1:5),5,10)
 call Add_Info('MR_MAGN  dHZ',dHZ(1:5),5,10)
 call Add_Info('MR_MAGN  dWX',dHW(1:5),5,10)
 if (DBG) then
-  write(6,'(A,F10.6)') '        zJ = ',zJ
-  write(6,'(A,F10.6)') '      thrs = ',thrs
-  write(6,'(A,   I6)') '      iopt = ',iopt
-  write(6,'(A, 10I6)') '     nss(i)=',(nss(i),i=1,nneq)
-  write(6,'(A, 10I6)') '   nexch(i)=',(nexch(i),i=1,nneq)
-  write(6,'(A,   I6)') '  nTempMagn= ',nTempMagn
-  write(6,'(A      )') 'TempMagn(i)='
-  write(6,'(10F10.6)') (TempMagn(i),i=1,nTempMagn)
-  write(6,*) 'm_paranoid =',m_paranoid
-  write(6,*) 'm_accurate =',m_accurate
-  write(6,*) '     smagn =',smagn
+  write(u6,'(A,F10.6)') '        zJ = ',zJ
+  write(u6,'(A,F10.6)') '      thrs = ',thrs
+  write(u6,'(A,   I6)') '      iopt = ',iopt
+  write(u6,'(A, 10I6)') '     nss(i)=',(nss(i),i=1,nneq)
+  write(u6,'(A, 10I6)') '   nexch(i)=',(nexch(i),i=1,nneq)
+  write(u6,'(A,   I6)') '  nTempMagn= ',nTempMagn
+  write(u6,'(A      )') 'TempMagn(i)='
+  write(u6,'(10F10.6)') (TempMagn(i),i=1,nTempMagn)
+  write(u6,*) 'm_paranoid =',m_paranoid
+  write(u6,*) 'm_accurate =',m_accurate
+  write(u6,*) '     smagn =',smagn
   do k=1,nneq
-    write(6,'(A,i6)') 'site ',k
-    write(6,'(A,i2,A)') 'ESO(',k,')'
-    write(6,'(10F12.6)') (ESO(k,i),i=1,nss(k))
-    write(6,'(A,i2,A)') 'S_SO(',k,')'
+    write(u6,'(A,i6)') 'site ',k
+    write(u6,'(A,i2,A)') 'ESO(',k,')'
+    write(u6,'(10F12.6)') (ESO(k,i),i=1,nss(k))
+    write(u6,'(A,i2,A)') 'S_SO(',k,')'
     do i=1,nss(k)
       do j=1,nss(k)
-        write(6,'(3(2F15.10,3x))') (s_so(k,l,i,j),l=1,3)
+        write(u6,'(3(2F15.10,3x))') (s_so(k,l,i,j),l=1,3)
       end do
     end do
-    write(6,'(A,i2,A)') 'DIPSO(',k,')'
+    write(u6,'(A,i2,A)') 'DIPSO(',k,')'
     do i=1,nss(k)
       do j=1,nss(k)
-        write(6,'(3(2F15.10,3x))') (dipso(k,l,i,j),l=1,3)
+        write(u6,'(3(2F15.10,3x))') (dipso(k,l,i,j),l=1,3)
       end do
     end do
   end do !k
 end if
 
-write(6,'(2X,A,i3,A)') 'Molar magnetization will be calculated in ',nH,' points, equally distributed in magnetic field range'
-write(6,'(2X,F4.1,1x,a,1X,F4.1,a,5(F6.3,a))') HMIN,'--',HMAX,' T., at the following temperatures:'
+write(u6,'(2X,A,i3,A)') 'Molar magnetization will be calculated in ',nH,' points, equally distributed in magnetic field range'
+write(u6,'(2X,F4.1,1x,a,1X,F4.1,a,5(F6.3,a))') HMIN,'--',HMAX,' T., at the following temperatures:'
 do i=1,nTempMagn,10
   j = min(nTempMagn,i+9)
-  write(6,'(10(F8.4,A))') (TempMagn(k),' K.;',k=i,j)
+  write(u6,'(10(F8.4,A))') (TempMagn(k),' K.;',k=i,j)
 end do
-write(6,'(2X,A,I4,A)') 'Powder molar magnetization will be averaged on ',nP,' directions of the applied magnetic field.'
-write(6,'(2x,10A)') ('--------',i=1,10)
+write(u6,'(2X,A,I4,A)') 'Powder molar magnetization will be averaged on ',nP,' directions of the applied magnetic field.'
+write(u6,'(2x,10A)') ('--------',i=1,10)
 if (nsymm == 1) then
-  write(6,'(23x,A)') 'Lebedev-Laikov grid on a hemisphere:'
-  write(6,'(38x,A)') 'z >= 0;'
+  write(u6,'(23x,A)') 'Lebedev-Laikov grid on a hemisphere:'
+  write(u6,'(38x,A)') 'z >= 0;'
 else if (nsymm == 2) then
-  write(6,'(23x,A)') 'Lebedev-Laikov grid on a 4th-of-a-sphere:'
-  write(6,'(34x,A)') 'x >= 0; z >= 0;'
+  write(u6,'(23x,A)') 'Lebedev-Laikov grid on a 4th-of-a-sphere:'
+  write(u6,'(34x,A)') 'x >= 0; z >= 0;'
 else if (nsymm == 3) then
-  write(6,'(23x,A)') 'Lebedev-Laikov grid on a 8th-of-a-sphere:'
-  write(6,'(30x,A)') 'x >= 0; y >= 0; z >= 0;'
+  write(u6,'(23x,A)') 'Lebedev-Laikov grid on a 8th-of-a-sphere:'
+  write(u6,'(30x,A)') 'x >= 0; y >= 0; z >= 0;'
 end if
-write(6,'(2x,10A)') ('--------',i=1,10)
-write(6,'(2x,A,12x,A,2(18x,A),16x,A)') 'Nr.','x','y','z','weight'
+write(u6,'(2x,10A)') ('--------',i=1,10)
+write(u6,'(2x,A,12x,A,2(18x,A),16x,A)') 'Nr.','x','y','z','weight'
 do i=1,nP
-  write(6,'(i4,2x,4(F18.12,1x))') i,dHX(i+nDir+nDirZee),dHY(i+nDir+nDirZee),dHZ(i+nDir+nDirZee),dHW(i+nDir+nDirZee)
+  write(u6,'(i4,2x,4(F18.12,1x))') i,dHX(i+nDir+nDirZee),dHY(i+nDir+nDirZee),dHZ(i+nDir+nDirZee),dHW(i+nDir+nDirZee)
 end do
-write(6,'(2x,10A)') ('--------',i=1,10)
-write(6,'(2X,A)') 'The cut-off energy for the exact diagonalization of the Zeeman Hamiltonian is:'
-write(6,'(2x,a,F15.9,A)') 'E = ',EM,' cm(-1).'
+write(u6,'(2x,10A)') ('--------',i=1,10)
+write(u6,'(2X,A)') 'The cut-off energy for the exact diagonalization of the Zeeman Hamiltonian is:'
+write(u6,'(2x,a,F15.9,A)') 'E = ',EM,' cm(-1).'
 if (NM < 10) then
-  write(6,'(2X,A,i2,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+  write(u6,'(2X,A,i2,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
 else if ((NM >= 10) .and. (NM < 100)) then
-  write(6,'(2X,A,i3,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+  write(u6,'(2X,A,i3,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
 else if ((NM >= 100) .and. (NM < 1000)) then
-  write(6,'(2X,A,i4,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+  write(u6,'(2X,A,i4,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
 else if ((NM >= 1000) .and. (NM < 10000)) then
-  write(6,'(2X,A,i5,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
+  write(u6,'(2X,A,i5,a)') 'The exact diagonalization of the Zeeman Hamiltonian included ',NM,' exchange states.'
 end if
 if (m_accurate) then
-  write(6,'(2x,A)') 'The contribution of local excited states  is computed exactly.'
-  if ((zJ /= 0.0_wp) .and. m_paranoid .and. (nTempMagn > 1)) then
-    write(6,'(2x,A)') 'The average spin is computed exactly for each temperature point.'
-  else if ((zJ /= 0.0_wp) .and. (.not. m_paranoid) .and. (nTempMagn > 1)) then
-    write(6,'(2x,A,F9.3)') 'The average spin is computed exactly only for the temperature point T= ',maxval(TempMagn(:))
-    write(6,'(2x,A     )') 'We consider this to be a good approximation.'
+  write(u6,'(2x,A)') 'The contribution of local excited states  is computed exactly.'
+  if ((zJ /= Zero) .and. m_paranoid .and. (nTempMagn > 1)) then
+    write(u6,'(2x,A)') 'The average spin is computed exactly for each temperature point.'
+  else if ((zJ /= Zero) .and. (.not. m_paranoid) .and. (nTempMagn > 1)) then
+    write(u6,'(2x,A,F9.3)') 'The average spin is computed exactly only for the temperature point T= ',maxval(TempMagn(:))
+    write(u6,'(2x,A     )') 'We consider this to be a good approximation.'
   end if
 else
-  if ((zJ /= 0.0_wp) .and. m_paranoid .and. (nTempMagn > 1)) then
-    write(6,'(2x,A)') 'The average spin is computed exactly for each temperature point.'
-  else if ((zJ /= 0.0_wp) .and. (.not. m_paranoid) .and. (nTempMagn > 1)) then
-    write(6,'(2x,A,F9.3)') 'The average spin is computed exactly only for the temperature  point T= ',TempMagn(1)
-    write(6,'(2x,A)') 'We consider this to be a good approximation.'
-    write(6,'(2x,A)') 'Use MPAR keyword to compute average spin exactly, for each temperature point, in case higher accuracy '// &
-                      'is needed.'
+  if ((zJ /= Zero) .and. m_paranoid .and. (nTempMagn > 1)) then
+    write(u6,'(2x,A)') 'The average spin is computed exactly for each temperature point.'
+  else if ((zJ /= Zero) .and. (.not. m_paranoid) .and. (nTempMagn > 1)) then
+    write(u6,'(2x,A,F9.3)') 'The average spin is computed exactly only for the temperature  point T= ',TempMagn(1)
+    write(u6,'(2x,A)') 'We consider this to be a good approximation.'
+    write(u6,'(2x,A)') 'Use MPAR keyword to compute average spin exactly, for each temperature point, in case higher accuracy '// &
+                       'is needed.'
   end if
-  write(6,'(2x,A)') 'The contribution of local excited states  is computed approximately (by using the susceptibility data). '
+  write(u6,'(2x,A)') 'The contribution of local excited states  is computed approximately (by using the susceptibility data). '
 end if
 if (compute_Mdir_vector) then
-  write(6,'(2x,A,i2,a)') 'The magnetization vector for ',nDir,' directions of the applied magnetic field will be calculated.'
+  write(u6,'(2x,A,i2,a)') 'The magnetization vector for ',nDir,' directions of the applied magnetic field will be calculated.'
 else
-  write(6,'(2X,A)') 'The magnetization vector was not calculated.'
+  write(u6,'(2X,A)') 'The magnetization vector was not calculated.'
 end if
 if (zeeman_energy) then
-  write(6,'(2x,A,i2,a)') 'The Zeeman splitting for ',nDirZee,' directions of the applied magnetic field will be calculated.'
-  write(6,'(2x,a)') 'The Zeeman energies for each direction of the applied magnetic field are written in files "energy_XX.txt".'
+  write(u6,'(2x,A,i2,a)') 'The Zeeman splitting for ',nDirZee,' directions of the applied magnetic field will be calculated.'
+  write(u6,'(2x,a)') 'The Zeeman energies for each direction of the applied magnetic field are written in files "energy_XX.txt".'
   if (DBG) then
     do i=1,nDirZee
-      write(6,'(A,I4,A,I4)') 'LuZee(',i,' )=',LUZee(i)
+      write(u6,'(A,I4,A,I4)') 'LuZee(',i,' )=',LUZee(i)
     end do
   end if
 else
-  write(6,'(2X,A)') 'Computation of the Zeeman splitting was not requested.'
+  write(u6,'(2X,A)') 'Computation of the Zeeman splitting was not requested.'
 end if
 !if (maxval(TempMagn) < W(exch)) then
-!  write(6,'(2x,A)') 'Contribution to molar magnetization coming from local excited states is taken into account.'
+!  write(u6,'(2x,A)') 'Contribution to molar magnetization coming from local excited states is taken into account.'
 !else
-!  write(6,'(2x,A)') 'Contribution to molar magnetization coming from local excited states is NOT taken into account.'
-!  write(6,'(2x,A)') 'TMAG is requesting to compute magnetization at a larger temperature than the highest exchange state.'
-!  write(6,'(2x,A)') 'Please include more states into the exchange coupling.'
+!  write(u6,'(2x,A)') 'Contribution to molar magnetization coming from local excited states is NOT taken into account.'
+!  write(u6,'(2x,A)') 'TMAG is requesting to compute magnetization at a larger temperature than the highest exchange state.'
+!  write(u6,'(2x,A)') 'Please include more states into the exchange coupling.'
 !end if
 
 ! /// opening the loop over the field points
@@ -364,42 +366,38 @@ do iH=1,nH
   ! /// ----------------------------------------------------------------
   if (HINPUT) then
     H(iH) = HEXP(iH)
-    if (H(iH) == 0.0_wp) then
-      H(iH) = 0.0001_wp
-    end if
+    if (H(iH) == Zero) H(iH) = 0.0001_wp
   else
-    DLTH = (HMAX-HMIN)/dble(nH-1)
+    DLTH = (HMAX-HMIN)/real(nH-1,kind=wp)
     if (iH == 1) then
       H(iH) = HMIN+0.0001_wp
     else
-      H(iH) = HMIN+DLTH*dble(iH-1)
+      H(iH) = HMIN+DLTH*real(iH-1,kind=wp)
     end if
-    if (H(iH) == 0.0_wp) then
-      H(iH) = 0.0001_wp
-    end if
+    if (H(iH) == Zero) H(iH) = 0.0001_wp
   end if
 
-  if (DBG) write(6,'(A,i0,A,F10.5)') 'MAGNETIZATION::  H(',iH,') = ',H(iH)
+  if (DBG) write(u6,'(A,i0,A,F10.5)') 'MAGNETIZATION::  H(',iH,') = ',H(iH)
 
   ! ///  opening the loop over different directions of the magnetic field
   do IM=1,NDIRTOT
-    call dcopy_(nM,[0.0_wp],0,Wex,1)
-    call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
-    call dcopy_(nneq*nLoc,[0.0_wp],0,WR,1)
-    call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
-    call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
-    call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZR,1)
-    call dcopy_(3*nTempMagn,[0.0_wp],0,Sex,1)
-    call dcopy_(3*nTempMagn,[0.0_wp],0,Mex,1)
-    call dcopy_(3*nneq*nTempMagn,[0.0_wp],0,SL,1)
-    call dcopy_(3*nneq*nTempMagn,[0.0_wp],0,ML,1)
-    call dcopy_(3*nneq*nTempMagn,[0.0_wp],0,SR,1)
-    call dcopy_(3*nneq*nTempMagn,[0.0_wp],0,MR,1)
-    if (DBG) write(6,'(A,F20.10)') 'zJ = ',zJ
+    call dcopy_(nM,[Zero],0,Wex,1)
+    call dcopy_(nneq*nLoc,[Zero],0,WL,1)
+    call dcopy_(nneq*nLoc,[Zero],0,WR,1)
+    call dcopy_(nTempMagn,[Zero],0,Zex,1)
+    call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
+    call dcopy_(nneq*nTempMagn,[Zero],0,ZR,1)
+    call dcopy_(3*nTempMagn,[Zero],0,Sex,1)
+    call dcopy_(3*nTempMagn,[Zero],0,Mex,1)
+    call dcopy_(3*nneq*nTempMagn,[Zero],0,SL,1)
+    call dcopy_(3*nneq*nTempMagn,[Zero],0,ML,1)
+    call dcopy_(3*nneq*nTempMagn,[Zero],0,SR,1)
+    call dcopy_(3*nneq*nTempMagn,[Zero],0,MR,1)
+    if (DBG) write(u6,'(A,F20.10)') 'zJ = ',zJ
     ! exchange magnetization:
     call MAGN(exch,NM,dHX(iM),dHY(iM),dHZ(iM),H(iH),W,zJ,THRS,DIPEXCH,S_EXCH,nTempMagn,TempMagn,smagn,Wex,Zex,Sex,Mex,m_paranoid, &
               DBG)
-    if (DBG) write(6,'(A,3F11.7)') 'MEX:',(Mex(l,1),l=1,3)
+    if (DBG) write(u6,'(A,3F11.7)') 'MEX:',(Mex(l,1),l=1,3)
     if (IM == 1) then
       call Add_Info('MEX_MAGN    ',[dnrm2_(3*nTempMagn,Mex,1)],1,8)
       call Add_Info('MR_MAGN  Wex',[dnrm2_(nM,Wex,1)],1,8)
@@ -417,13 +415,13 @@ do iH=1,nH
             call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL,1)],1,8)
           end if
 
-          if (DBG) write(6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(i,l,1),l=1,3)
+          if (DBG) write(u6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(i,l,1),l=1,3)
           ! only local "exchange states":
           call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,1:3,1:NEXCH(i),1:NEXCH(i)), &
                     S_SO(i,1:3,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn,WR(i,1:Nexch(i)),ZR(i,1:nTempMagn), &
                     SR(i,1:3,1:nTempMagn),MR(i,1:3,1:nTempMagn),m_paranoid,DBG)
           call Add_Info('MR_MAGN  WR',[dnrm2_(nexch(i),WR,1)],1,8)
-          if (DBG) write(6,'(A,I2,A,3F11.7)') 'MR: site',i,' : ',(MR(i,l,1),l=1,3)
+          if (DBG) write(u6,'(A,I2,A,3F11.7)') 'MR: site',i,' : ',(MR(i,l,1),l=1,3)
         end if
       end do
 
@@ -434,12 +432,12 @@ do iH=1,nH
 
       ! expand the basis and rotate local vectors to the general
       ! coordinate system:
-      call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
-      call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZLT,1)
-      call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,MRT,1)
-      call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,MLT,1)
-      call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,SRT,1)
-      call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,SLT,1)
+      call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
+      call dcopy_(nCenter*nTempMagn,[Zero],0,ZLT,1)
+      call dcopy_(3*nCenter*nTempMagn,[Zero],0,MRT,1)
+      call dcopy_(3*nCenter*nTempMagn,[Zero],0,MLT,1)
+      call dcopy_(3*nCenter*nTempMagn,[Zero],0,SRT,1)
+      call dcopy_(3*nCenter*nTempMagn,[Zero],0,SLT,1)
       isite = 0
       do i=1,NNEQ
         do j=1,NEQ(i)
@@ -477,8 +475,8 @@ do iH=1,nH
     else
       ! add the contribution from local excited states using the approximate
       ! X*H expression:
-      call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,SRT,1)
-      call dcopy_(3*nCenter*nTempMagn,[0.0_wp],0,SLT,1)
+      call dcopy_(3*nCenter*nTempMagn,[Zero],0,SRT,1)
+      call dcopy_(3*nCenter*nTempMagn,[Zero],0,SLT,1)
       do iT=1,nTempMagn
         do isite=1,nCenter
           do l=1,3
@@ -497,12 +495,12 @@ do iH=1,nH
     !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     ! print out hte Zeeman eigenstates
     if (zeeman_energy) then
-      if ((iH == 1) .and. (iM == nDir+1)) write(6,'(A)') 'Energies of the Zeeman Hamiltonian for the following directions of '// &
-                                                         'the applied field:'
+      if ((iH == 1) .and. (iM == nDir+1)) write(u6,'(A)') 'Energies of the Zeeman Hamiltonian for the following directions of '// &
+                                                          'the applied field:'
       if ((iH == 1) .and. (iM > nDir) .and. (iM <= nDir+nDirZee)) then
-        write(6,'(A,I3,A,3F10.6,3x,5A)') 'direction Nr.',iM-nDir,' : ',dHX(iM),dHY(iM),dHZ(iM),'written in file "zeeman_energy_', &
-                                         char(48+mod(int((iM-nDir)/100),10)),char(48+mod(int((iM-nDir)/10),10)), &
-                                         char(48+mod((iM-nDir),10)),'.txt".'
+        write(u6,'(A,I3,A,3F10.6,3x,5A)') 'direction Nr.',iM-nDir,' : ',dHX(iM),dHY(iM),dHZ(iM),'written in file "zeeman_energy_', &
+                                          char(48+mod(int((iM-nDir)/100),10)),char(48+mod(int((iM-nDir)/10),10)), &
+                                          char(48+mod((iM-nDir),10)),'.txt".'
         write(LUZee(iM-nDir),'(A,3F24.15)') '# direction of the applied magnetic field:',dHX(iM),dHY(iM),dHZ(iM)
         write(LuZee(iM-nDir),'(A,6x,A,1000(I4,6x) )') '# H(T)',' State =>',(i,i=1,nm)
       end if
@@ -545,31 +543,31 @@ end if
 ! -------------------------------------------------------------------
 if (smagn) then
   do iT=1,nTempMagn
-    !write(6,*)
+    !write(u6,*)
     do iDir=1,nDir+nDirZee
-      !write(6,*)
-      write(6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
-                            '|------------------------------------------------------------|'
-      write(6,'(A,i3,26x,A,1x,A,60x,A)') 'Direction of the applied magnetic field:',iDir,'|','|','|'
-      write(6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj X=',dHX(iDIR),'|','|','|'
-      write(6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj Y=',dHY(iDir),'|','|','|'
-      write(6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj Z=',dHZ(iDir),'|','|','|'
-      write(6,'(A,F7.4,A,41x,A,1x,A,60x,A)') 'Temperature = ',TempMagn(iT),' kelvin','|','|','|'
-      write(6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
-                            '|------------------------------------------------------------|'
-      write(6,'(2x,A,12x,2A,1x,A,10x,2A)') 'Field |','Magnetization Vector            |','   Total Magn. |','|', &
-                                           'Spin Magnetization Vector         |','   Total Magn. |'
-      write(6,'(5A,1x,5A)') '--------|','--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|', &
-                            '|--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|'
+      !write(u6,*)
+      write(u6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
+                             '|------------------------------------------------------------|'
+      write(u6,'(A,i3,26x,A,1x,A,60x,A)') 'Direction of the applied magnetic field:',iDir,'|','|','|'
+      write(u6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj X=',dHX(iDIR),'|','|','|'
+      write(u6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj Y=',dHY(iDir),'|','|','|'
+      write(u6,'(A,F18.14,44x,A,1x,A,60x,A)') 'proj Z=',dHZ(iDir),'|','|','|'
+      write(u6,'(A,F7.4,A,41x,A,1x,A,60x,A)') 'Temperature = ',TempMagn(iT),' kelvin','|','|','|'
+      write(u6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
+                             '|------------------------------------------------------------|'
+      write(u6,'(2x,A,12x,2A,1x,A,10x,2A)') 'Field |','Magnetization Vector            |','   Total Magn. |','|', &
+                                            'Spin Magnetization Vector         |','   Total Magn. |'
+      write(u6,'(5A,1x,5A)') '--------|','--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|', &
+                             '|--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|'
       do iH=1,nH
-        write(6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') &
+        write(u6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') &
           H(iH),'|',MVEC(iDir,iH,iT,1),' ',MVEC(iDir,iH,iT,2),' ',MVEC(iDir,iH,iT,3),'|', &
           (MVEC(iDir,iH,iT,1)*dHX(iDir)+MVEC(iDir,iH,iT,2)*dHY(iDir)+MVEC(iDir,iH,iT,3)*dHZ(iDir)),'|','|',SVEC(iDir,iH,iT,1),' ', &
           SVEC(iDir,iH,iT,2),' ',SVEC(iDir,iH,iT,3),'|', &
           (SVEC(iDir,iH,iT,1)*dHX(iDir)+SVEC(iDir,iH,iT,2)*dHY(iDir)+SVEC(iDir,iH,iT,3)*dHZ(iDir)),'|'
       end do
-      write(6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
-                            '|------------------------------------------------------------|'
+      write(u6,'(A,A,1x,A)') '--------|','------------------------------------------------------------|', &
+                             '|------------------------------------------------------------|'
     end do !iDir
   end do !iT
 
@@ -577,21 +575,21 @@ else
 
   do iT=1,nTempMagn
     do iDir=1,nDir+nDirZee
-      write(6,'(2A)') '--------|','------------------------------------------------------------|'
-      write(6,'(A,i3,26x,A)') 'Direction of the applied magnetic field:',iDir,'|'
-      write(6,'(A,F18.14,44x,A)') 'proj X=',dHX(iDIR),'|'
-      write(6,'(A,F18.14,44x,A)') 'proj Y=',dHY(iDir),'|'
-      write(6,'(A,F18.14,44x,A)') 'proj Z=',dHZ(iDir),'|'
-      write(6,'(A,F7.4,A,41x,A)') 'Temperature = ',TempMagn(iT),' kelvin','|'
-      write(6,'(2A)') '--------|','------------------------------------------------------------|'
-      write(6,'(2x,A,12x,2A)') 'Field |','Magnetization Vector            |','   Total Magn. |'
-      write(6,'(5A)') '--------|','--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|'
+      write(u6,'(2A)') '--------|','------------------------------------------------------------|'
+      write(u6,'(A,i3,26x,A)') 'Direction of the applied magnetic field:',iDir,'|'
+      write(u6,'(A,F18.14,44x,A)') 'proj X=',dHX(iDIR),'|'
+      write(u6,'(A,F18.14,44x,A)') 'proj Y=',dHY(iDir),'|'
+      write(u6,'(A,F18.14,44x,A)') 'proj Z=',dHZ(iDir),'|'
+      write(u6,'(A,F7.4,A,41x,A)') 'Temperature = ',TempMagn(iT),' kelvin','|'
+      write(u6,'(2A)') '--------|','------------------------------------------------------------|'
+      write(u6,'(2x,A,12x,2A)') 'Field |','Magnetization Vector            |','   Total Magn. |'
+      write(u6,'(5A)') '--------|','--- proj X ---|','--- proj Y ---|','--- proj Z ---|','- in this dir.-|'
       do iH=1,nH
-        write(6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') &
+        write(u6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)') &
           H(iH),'|',MVEC(iDir,iH,iT,1),' ',MVEC(iDir,iH,iT,2),' ',MVEC(iDir,iH,iT,3),'|', &
           (MVEC(iDir,iH,iT,1)*dHX(iDir)+MVEC(iDir,iH,iT,2)*dHY(iDir)+MVEC(iDir,iH,iT,3)*dHZ(iDir)),'|'
       end do
-      write(6,'(2A)') '--------|','------------------------------------------------------------|'
+      write(u6,'(2A)') '--------|','------------------------------------------------------------|'
     end do !iDir
 
   end do !iT
@@ -600,43 +598,42 @@ end if !(smagn)
 ! COMPUTING THE STANDARD DEVIATION OF THE MAGNETIZATION
 !if (HINPUT) then
 !  do iT=1,nTempMagn
-!    STDEV(iT) = 0.0_wp
 !    STDEV(iT) = dev(nH,MAV(:,iT),Mexp(:,iT))
 !  end do
 !end if
 
-write(6,*)
-write(6,'(15X,A)') 'HIGH-FIELD POWDER MAGNETIZATION'
-write(6,'(20X,A)') '(Units: Bohr magneton)'
-write(6,*)
+write(u6,*)
+write(u6,'(15X,A)') 'HIGH-FIELD POWDER MAGNETIZATION'
+write(u6,'(20X,A)') '(Units: Bohr magneton)'
+write(u6,*)
 do iT=1,nTempMagn,5
   iTEnd = min(nTempMagn,iT+4)
-  write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
-  write(6,'(A,11(F10.3,A))') '    H(T)   |STATISTICAL SUM|',(TempMagn(i),' K.  |',i=iT,iTEnd)
-  write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+  write(u6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+  write(u6,'(A,11(F10.3,A))') '    H(T)   |STATISTICAL SUM|',(TempMagn(i),' K.  |',i=iT,iTEnd)
+  write(u6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
   do iH=1,nH
-    write(6,'(F10.6,1X,A,F14.7,1x,A,11(f14.10,1x,A))') H(iH),'|',ZT(iH,1),'|',(MAV(iH,i),'|',i=iT,iTEnd)
+    write(u6,'(F10.6,1X,A,F14.7,1x,A,11(f14.10,1x,A))') H(iH),'|',ZT(iH,1),'|',(MAV(iH,i),'|',i=iT,iTEnd)
   end do
-  write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+  write(u6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
   if (HINPUT) then
-    write(6,'(A,15x,A, 11(f14.10,1x,A) )') 'ST.DEV.M   |','|',(dev(nH,MAV(:,i),Mexp(:,i)),'|',i=iT,iTEnd)
-    write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+    write(u6,'(A,15x,A, 11(f14.10,1x,A) )') 'ST.DEV.M   |','|',(dev(nH,MAV(:,i),Mexp(:,i)),'|',i=iT,iTEnd)
+    write(u6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
   end if
 end do
 if (smagn) then
-  write(6,*)
-  write(6,'(15X,A)') 'HIGH-FIELD POWDER SPIN MAGNETIZATION'
-  write(6,'(20X,A)') '(Units: Bohr magneton)'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(15X,A)') 'HIGH-FIELD POWDER SPIN MAGNETIZATION'
+  write(u6,'(20X,A)') '(Units: Bohr magneton)'
+  write(u6,*)
   do iT=1,nTempMagn,5
     iTEnd = min(nTempMagn,iT+4)
-    write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
-    write(6,'(A,11(F10.3,A))') '   H(T)   |STATISTICAL SUM|',(TempMagn(i),' K.  |',i=iT,iTEnd)
-    write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+    write(u6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+    write(u6,'(A,11(F10.3,A))') '   H(T)   |STATISTICAL SUM|',(TempMagn(i),' K.  |',i=iT,iTEnd)
+    write(u6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
     do iH=1,nH
-      write(6,'(F10.6,1X,A,F14.7,1x,A,11(f14.10,1x,A))') H(iH),'|',ZT(iH,1),'|',(SAV(iH,i),'|',i=iT,iTEnd)
+      write(u6,'(F10.6,1X,A,F14.7,1x,A,11(f14.10,1x,A))') H(iH),'|',ZT(iH,1),'|',(SAV(iH,i),'|',i=iT,iTEnd)
     end do
-    write(6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
+    write(u6,'(A,11A)') '-----------|',('---------------|',i=iT,iTEnd+1)
   end do
 end if !smagn
 ! add some verification:

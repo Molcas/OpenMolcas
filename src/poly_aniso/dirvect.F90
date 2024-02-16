@@ -12,8 +12,9 @@
 subroutine dirvect(P1,R1,P2,R2,vec,dist)
 ! this Subroutine computes the directional vector of the origins of two points P1 and P2
 
+use Constants, only: Zero
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 real(kind=8), intent(in) :: P1(3) ! coords of the first point
 real(kind=8), intent(in) :: P2(3) ! coords of the second point
 real(kind=8), intent(in) :: R1(3,3) ! rot. matrix of the  first point to the general coordinate system
@@ -26,10 +27,8 @@ real(kind=8) :: C1(3), C2(3)
 real(kind=8) :: distance
 external :: distance
 
-vec = 0.0_wp
-dist = 0.0_wp
-C1 = 0.0_wp
-C2 = 0.0_wp
+C1(:) = Zero
+C2(:) = Zero
 
 do i=1,3
   do j=1,3

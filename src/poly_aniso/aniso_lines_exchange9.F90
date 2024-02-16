@@ -13,8 +13,9 @@ subroutine Aniso_Lines_Exchange9(Jex,N1,N2,S1,S2,HAM)
 ! this Subroutine calculates the Lines exchange interaction between
 ! two sites, of the one interacting pair
 
+use Constants, only: Zero, cZero, cOne
+
 implicit none
-integer, parameter :: wp = kind(0.d0)
 ! input variables
 integer, intent(in) :: N1, N2
 real(kind=8), intent(in) :: Jex(3,3)
@@ -29,13 +30,13 @@ real(kind=8) :: dnrm2_
 external :: dnrm2_
 
 if ((N1 <= 0) .or. (N2 <= 0)) return
-call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
-if (dnrm2_(9,Jex,1) == 0.0_wp) return
+call zcopy_(N1*N1*N2*N2,[cZero],0,HAM,1)
+if (dnrm2_(9,Jex,1) == Zero) return
 
-call zcopy_(3*3,[(0.0_wp,0.0_wp)],0,Jc,1)
+call zcopy_(3*3,[cZero],0,Jc,1)
 do l=1,3
   do m=1,3
-    Jc(l,m) = cmplx(-Jex(l,m),0.0_wp,wp)
+    Jc(l,m) = -Jex(l,m)*cOne
   end do
 end do
 

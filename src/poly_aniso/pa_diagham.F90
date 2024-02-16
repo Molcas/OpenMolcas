@@ -13,9 +13,11 @@ subroutine pa_diagham(exch,npair,i_pair,nneq,neq,nexch,nmax,lmax,eso,HLIN1,HLIN3
                       AnisoLines1,AnisoLines3,AnisoLines9,KE,JITO_exchange,WLIN1,WLIN3,WLIN9,WLIN,WDIP,WKEX,WDMO,WITO,W,Z)
 ! this function builds and diagonalizes the interaction Hamiltonians
 
+use Constants, only: Zero, cZero, cOne
+use Definitions, only: u6
+
 implicit none
 #include "stdalloc.fh"
-integer, parameter :: wp = kind(0.d0)
 integer, intent(in) :: exch
 integer, intent(in) :: npair
 integer, intent(in) :: i_pair(npair,2)
@@ -77,16 +79,16 @@ if (lmax >= 0) then
   call mma_allocate(intc,lmax,'intc')
   call mma_allocate(icoord,lmax,'icoord')
 end if
-call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,Z,1)
-call dcopy_(exch,[0.0_wp],0,w,1)
-call dcopy_(exch,[0.0_wp],0,wlin,1)
-call dcopy_(exch,[0.0_wp],0,wlin1,1)
-call dcopy_(exch,[0.0_wp],0,wlin3,1)
-call dcopy_(exch,[0.0_wp],0,wlin9,1)
-call dcopy_(exch,[0.0_wp],0,wdip,1)
-call dcopy_(exch,[0.0_wp],0,wkex,1)
-call dcopy_(exch,[0.0_wp],0,wdmo,1)
-call dcopy_(exch,[0.0_wp],0,wito,1)
+call zcopy_(exch*exch,[cZero],0,Z,1)
+call dcopy_(exch,[Zero],0,w,1)
+call dcopy_(exch,[Zero],0,wlin,1)
+call dcopy_(exch,[Zero],0,wlin1,1)
+call dcopy_(exch,[Zero],0,wlin3,1)
+call dcopy_(exch,[Zero],0,wlin9,1)
+call dcopy_(exch,[Zero],0,wdip,1)
+call dcopy_(exch,[Zero],0,wkex,1)
+call dcopy_(exch,[Zero],0,wdmo,1)
+call dcopy_(exch,[Zero],0,wito,1)
 
 ! generate the tables:
 l = 0
@@ -119,7 +121,7 @@ end do
 ! build the interaction Hamiltonians
 !----------------------------------------------------------------------!
 if (AnisoLines1) then
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch*exch,[cZero],0,HTOT,1)
   do nb1=1,exch
     do lp=1,npair
       call icopy(lmax,[0],0,icoord,1)
@@ -149,7 +151,7 @@ if (AnisoLines1) then
       do j=1,neq(i)
         l = l+1
         if (l == lb) then
-          HTOT(nb1,nb1) = HTOT(nb1,nb1)+cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
+          HTOT(nb1,nb1) = HTOT(nb1,nb1)+eso(i,ibas(nb1,lb)+1)*cOne
           if ((lb+1) <= (lmax)) lb = lb+1
         end if
       end do !j
@@ -159,14 +161,14 @@ if (AnisoLines1) then
   info = 0
   lwork = 0
   lwork = 2*exch-1
-  call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-  call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+  call dcopy_((3*exch-2),[Zero],0,rwork,1)
+  call zcopy_((2*exch-1),[cZero],0,WORK,1)
   call zheev('n','u',exch,htot,exch,wlin1,work,lwork,rwork,info)
 end if
 
 !----------------------------------------------------------------------!
 if (AnisoLines3) then
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch*exch,[cZero],0,HTOT,1)
   do nb1=1,exch
     do lp=1,npair
       call icopy(lmax,[0],0,icoord,1)
@@ -196,7 +198,7 @@ if (AnisoLines3) then
       do j=1,neq(i)
         l = l+1
         if (l == lb) then
-          HTOT(nb1,nb1) = HTOT(nb1,nb1)+cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
+          HTOT(nb1,nb1) = HTOT(nb1,nb1)+eso(i,ibas(nb1,lb)+1)*cOne
           if ((lb+1) <= (lmax)) lb = lb+1
         end if
       end do !j
@@ -206,14 +208,14 @@ if (AnisoLines3) then
   info = 0
   lwork = 0
   lwork = 2*exch-1
-  call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-  call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+  call dcopy_((3*exch-2),[Zero],0,rwork,1)
+  call zcopy_((2*exch-1),[cZero],0,WORK,1)
   call zheev('n','u',exch,htot,exch,wlin3,work,lwork,rwork,info)
 end if
 
 !----------------------------------------------------------------------!
 if (AnisoLines9) then
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch*exch,[cZero],0,HTOT,1)
   do nb1=1,exch
     do lp=1,npair
       call icopy(lmax,[0],0,icoord,1)
@@ -243,7 +245,7 @@ if (AnisoLines9) then
       do j=1,neq(i)
         l = l+1
         if (l == lb) then
-          HTOT(nb1,nb1) = HTOT(nb1,nb1)+cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
+          HTOT(nb1,nb1) = HTOT(nb1,nb1)+eso(i,ibas(nb1,lb)+1)*cOne
           if ((lb+1) <= (lmax)) lb = lb+1
         end if
       end do !j
@@ -253,14 +255,14 @@ if (AnisoLines9) then
   info = 0
   lwork = 0
   lwork = 2*exch-1
-  call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-  call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+  call dcopy_((3*exch-2),[Zero],0,rwork,1)
+  call zcopy_((2*exch-1),[cZero],0,WORK,1)
   call zheev('n','u',exch,htot,exch,wlin9,work,lwork,rwork,info)
 end if
 
 !----------------------------------------------------------------------!
 if (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) then
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch*exch,[cZero],0,HTOT,1)
   do nb1=1,exch
     do lp=1,npair
       call icopy(lmax,[0],0,icoord,1)
@@ -290,7 +292,7 @@ if (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) then
       do j=1,neq(i)
         l = l+1
         if (l == lb) then
-          HTOT(nb1,nb1) = HTOT(nb1,nb1)+cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
+          HTOT(nb1,nb1) = HTOT(nb1,nb1)+eso(i,ibas(nb1,lb)+1)*cOne
           if ((lb+1) <= (lmax)) lb = lb+1
         end if
       end do !j
@@ -300,14 +302,14 @@ if (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) then
   info = 0
   lwork = 0
   lwork = 2*exch-1
-  call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-  call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+  call dcopy_((3*exch-2),[Zero],0,rwork,1)
+  call zcopy_((2*exch-1),[cZero],0,WORK,1)
   call zheev('n','u',exch,htot,exch,wlin,work,lwork,rwork,info)
 end if
 
 !----------------------------------------------------------------------!
 if (Dipol) then
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch*exch,[cZero],0,HTOT,1)
   do nb1=1,exch
     do lp=1,npair
       call icopy(lmax,[0],0,icoord,1)
@@ -337,7 +339,7 @@ if (Dipol) then
         l = l+1
         if (l == lb) then
           ! kind=8, complex double precision
-          HTOT(nb1,nb1) = HTOT(nb1,nb1)+cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
+          HTOT(nb1,nb1) = HTOT(nb1,nb1)+eso(i,ibas(nb1,lb)+1)*cOne
           if ((lb+1) <= (lmax)) lb = lb+1
         end if
       end do !j
@@ -347,14 +349,14 @@ if (Dipol) then
   info = 0
   lwork = 0
   lwork = 2*exch-1
-  call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-  call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+  call dcopy_((3*exch-2),[Zero],0,rwork,1)
+  call zcopy_((2*exch-1),[cZero],0,WORK,1)
   call zheev('n','u',exch,htot,exch,wdip,work,lwork,rwork,info)
 end if
 
 !----------------------------------------------------------------------!
 if (DM_exchange) then
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch*exch,[cZero],0,HTOT,1)
   do nb1=1,exch
     do lp=1,npair
       call icopy(lmax,[0],0,icoord,1)
@@ -384,7 +386,7 @@ if (DM_exchange) then
       do j=1,neq(i)
         l = l+1
         if (l == lb) then
-          HTOT(nb1,nb1) = HTOT(nb1,nb1)+cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
+          HTOT(nb1,nb1) = HTOT(nb1,nb1)+eso(i,ibas(nb1,lb)+1)*cOne
           if ((lb+1) <= (lmax)) lb = lb+1
         end if
       end do !j
@@ -394,14 +396,14 @@ if (DM_exchange) then
   info = 0
   lwork = 0
   lwork = 2*exch-1
-  call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-  call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+  call dcopy_((3*exch-2),[Zero],0,rwork,1)
+  call zcopy_((2*exch-1),[cZero],0,WORK,1)
   call zheev('n','u',exch,htot,exch,wdmo,work,lwork,rwork,info)
 end if
 
 !----------------------------------------------------------------------!
 if (KE) then
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch*exch,[cZero],0,HTOT,1)
   do nb1=1,exch
     do lp=1,npair
       call icopy(lmax,[0],0,icoord,1)
@@ -429,14 +431,14 @@ if (KE) then
   info = 0
   lwork = 0
   lwork = 2*exch-1
-  call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-  call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+  call dcopy_((3*exch-2),[Zero],0,rwork,1)
+  call zcopy_((2*exch-1),[cZero],0,WORK,1)
   call zheev('n','u',exch,htot,exch,wkex,work,lwork,rwork,info)
 end if
 
 !----------------------------------------------------------------------!
 if (JITO_exchange) then
-  call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+  call zcopy_(exch*exch,[cZero],0,HTOT,1)
   do nb1=1,exch
     do lp=1,npair
       call icopy(lmax,[0],0,icoord,1)
@@ -464,14 +466,14 @@ if (JITO_exchange) then
   info = 0
   lwork = 0
   lwork = 2*exch-1
-  call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-  call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+  call dcopy_((3*exch-2),[Zero],0,rwork,1)
+  call zcopy_((2*exch-1),[cZero],0,WORK,1)
   call zheev('n','u',exch,htot,exch,wito,work,lwork,rwork,info)
 end if
 
 !----------------------------------------------------------------------!
 !cccccccc  total Hamiltonian cccccccc
-call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,HTOT,1)
+call zcopy_(exch*exch,[cZero],0,HTOT,1)
 do nb1=1,exch
   do lp=1,npair
     call icopy(lmax,[0],0,icoord,1)
@@ -505,7 +507,7 @@ do nb1=1,exch
         l = l+1
         if (l == lb) then
           !kind=8, complex double precision
-          HTOT(nb1,nb1) = HTOT(nb1,nb1)+cmplx(eso(i,ibas(nb1,lb)+1),0.0_wp,wp)
+          HTOT(nb1,nb1) = HTOT(nb1,nb1)+eso(i,ibas(nb1,lb)+1)*cOne
           if ((lb+1) <= (lmax)) lb = lb+1
         end if
       end do !j
@@ -516,13 +518,13 @@ end do !nb1
 info = 0
 lwork = 0
 lwork = 2*exch-1
-call dcopy_((3*exch-2),[0.0_wp],0,rwork,1)
-call zcopy_((2*exch-1),[(0.0_wp,0.0_wp)],0,WORK,1)
+call dcopy_((3*exch-2),[Zero],0,rwork,1)
+call zcopy_((2*exch-1),[cZero],0,WORK,1)
 call zheev('v','u',exch,htot,exch,w,work,lwork,rwork,info)
 if (info == 0) then
   call zcopy_(exch*exch,htot,1,Z,1)
 else
-  write(6,'(A,i10)') 'DIAG:  non-zero Return: INFO=',info
+  write(u6,'(A,i10)') 'DIAG:  non-zero Return: INFO=',info
 end if
 
 !----------------------------------------------------------------------!
