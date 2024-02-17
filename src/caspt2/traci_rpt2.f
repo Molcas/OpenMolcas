@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
+      use pt2_guga_data
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
       DIMENSION XMAT(NDIM,NDIM),CI(*)
-#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
       IF (NDIM.LE.0) GOTO 999

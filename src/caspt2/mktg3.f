@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
+      use pt2_guga_data
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
       DIMENSION TG1(NASHT,NASHT),TG2(NASHT,NASHT,NASHT,NASHT)
       DIMENSION TG3(NTG3)
       DIMENSION CI1(MXCI),CI2(MXCI)

@@ -17,12 +17,15 @@
 #endif
       use caspt2_output, only:iPrGlb,verbose,debug
       use caspt2_gradient, only: nbuf1_grad
+      use pt2_guga_data, only: MXCI, NLEV, MXLEV, LICOUP, LIOCP,
+     &                         LIOCSF, LIOW, LMVL, LMVR, LNOCP,
+     &                         LNOCSF, LNOW, LVTAB, NG3, NCSF, L2ACT,
+     &                         ISM
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
 
@@ -916,6 +919,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use pt2_guga_data
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION DF1(NASHT,NASHT),DF2(NASHT,NASHT,NASHT,NASHT),DF3(*)
       DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
@@ -927,7 +931,6 @@ C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
 

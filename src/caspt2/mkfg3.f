@@ -62,12 +62,16 @@ C>                   to active indices
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
+      use pt2_guga_data, only: MXCI, NLEV, MXLEV, LF1, LF2, LF3,
+     &                         LG1, LG2, LG3, LICOUP, LIOCSF,
+     &                         NCSF, LIOCP, LIOW, LMVL, LMVR, LNOCP,
+     &                         LNOCSF, LNOW, LVTAB, NG1, NG2,
+     &                         NG3, ISM, L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
 

@@ -11,6 +11,7 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine DerHEff(CLag,VECROT)
+      use pt2_guga_data
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -19,7 +20,6 @@ C
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
-#include "pt2_guga.fh"
 
       INTEGER IST,JST
 
@@ -816,13 +816,13 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,CI1,CI2,OVL,DTG1,DTG2,NTG3,
      *                  DTG3,CLAG1,CLAG2)
+      use pt2_guga_data
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
       DIMENSION DTG1(NASHT,NASHT),DTG2(NASHT,NASHT,NASHT,NASHT)
       DIMENSION DTG3(NTG3)
       DIMENSION CI1(MXCI),CI2(MXCI)

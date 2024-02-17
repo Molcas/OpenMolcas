@@ -13,12 +13,12 @@
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
       use caspt2_output, only:iPrGlb,verbose
+      use pt2_guga_data
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
 
       DIMENSION CLag(nConf,nState)
       dimension DEPSA(nAshT,nAshT),VECROT(*)
@@ -350,7 +350,6 @@ C
 #include "WrkSpc.fh"
 #include "sigma.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 #include "caspt2_grad.fh"
 C
       DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*),VEC5(*)
@@ -1110,13 +1109,12 @@ C
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_output, only: iPrGlb, verbose
+      use pt2_guga_data
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 
-#include "pt2_guga.fh"
-#include "SysDef.fh"
 C
       DIMENSION CLag(nConf)
       DIMENSION DG1(*),DG2(*),DG3(*),DF1(*),DF2(*),DF3(*)
@@ -1235,12 +1233,11 @@ C
       !! From poly3
       SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG)
 C
+      use pt2_guga_data
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
-#include "SysDef.fh"
 #include "caspt2_grad.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*)
@@ -1405,6 +1402,7 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG)
+      use pt2_guga_data, only: MXCI, NLEV, IADR10, CLAB10
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -1412,8 +1410,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
-#include "SysDef.fh"
 
       REAL*8, INTENT(IN) :: CI(NCONF)
 
@@ -1455,13 +1451,12 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
+      use pt2_guga_data, only: MXCI, NLEV, ISM, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       LOGICAL RSV_TSK
 
@@ -1630,7 +1625,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-C#include "pt2_guga.fh"
 C
       DIMENSION CI(*)
 C
@@ -1864,7 +1858,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
       Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2075,7 +2068,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C
       Dimension BDER(*),SDER(*),
      *          DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2270,7 +2262,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
       Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2479,7 +2470,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C
       Dimension BDER(*),SDER(*),
      *          DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2623,12 +2613,12 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
+      use pt2_guga_data
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
 #include "caspt2_grad.fh"
 C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
@@ -3274,9 +3264,9 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 C
+      use pt2_guga_data
       Implicit Real*8 (A-H,O-Z)
 C
-#include "pt2_guga.fh"
 #include "caspt2_grad.fh"
 C
       Dimension CI(nConf,nState),CIT(nConf,nState),G1(nAshT,nAshT),
@@ -3523,8 +3513,8 @@ C     CHARACTER(LEN=1) CODE(0:3)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "pt2_guga.fh"
 #include "WrkSpc.fh"
+#include "pt2_guga.fh"
       DIMENSION ICS(MXLEV)
 C     DATA CODE /'0','u','d','2'/
 C

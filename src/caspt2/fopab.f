@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
+      use pt2_guga_data
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
 
       DIMENSION FIFA(NFIFA)
 * Purely local array, offsets:
