@@ -15,7 +15,7 @@ subroutine XT_dMoverdH(exch,nLoc,nCenter,nneq,neqv,neq,nss,nexch,nTempMagn,nT,NM
 ! The M is averaged over the grid for each temperature point.
 !       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
-use Constants, only: Zero, One, Three
+use Constants, only: Zero, One, Three, Ten, mBohr, rNAVO
 use Definitions, only: wp, u6
 
 implicit none
@@ -139,13 +139,12 @@ integer :: info, ibuf, ibuf1, ibuf3
 real(kind=8) :: wt(3), zt(3,3)
 real(kind=8) :: dnrm2_
 external :: dev, dnrm2_
-real(kind=8) :: cm3tomB
 logical :: DBG, m_accurate
 character(len=50) :: label
+real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 
 DBG = .false.
 !m_paranoid = .true. ! .false.
-cm3tomB = 0.55849389040_wp   ! IFG in cm3 * mol-1 * T
 !ccc-------------------------------------------------------cccc
 if (DBG) then
   write(u6,'(A,   I5)') '      exch =',exch

@@ -12,7 +12,7 @@
 subroutine Dipol_Exchange(N1,N2,vec,dist,M1,M2,HDIP)
 ! this Subroutine computes the dipolar coupling between the two moments
 
-use Constants, only: Zero, Three, cZero, cOne
+use Constants, only: Zero, Three, cZero, cOne, cLight, mBohr, rPlanck
 use Definitions, only: wp, u6
 
 implicit none
@@ -23,10 +23,8 @@ complex(kind=8), intent(in) :: M2(3,N2,N2)
 complex(kind=8), intent(out) :: HDIP(N1,N1,N2,N2)
 ! local variables
 integer :: m, i1, j1, i2, j2
-real(kind=8) :: MB2
 complex(kind=8) :: p2a, p2b, p1, HL, d3, mb2c, threeC, vec1(3)
-
-MB2 = 0.4329701512063995_wp ! IFG in cm-1*T-1   -- the value of (mu_Bohr*mu_Bohr)/(angstrom^3)  in cm-1
+real(kind=8), parameter :: MB2 = 1.0e21_wp*mBohr**2/(cLight*rPlanck) ! -- the value of (mu_Bohr*mu_Bohr)/(angstrom^3)  in cm-1
 
 if ((N1 <= 0) .or. (N2 <= 0)) return
 call zcopy_(N1*N1*N2*N2,[cZero],0,HDIP,1)

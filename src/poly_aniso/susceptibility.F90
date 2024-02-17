@@ -12,7 +12,7 @@
 subroutine susceptibility_pa(exch,nLoc,nCenter,nneq,neqv,neq,nss,nexch,nTempMagn,nT,Tmin,Tmax,XTexp,eso,dipso,s_so,w,dipexch, &
                              s_exch,T,R_LG,zJ,tinput,XLM,ZLM,XRM,ZRM,iopt,chiT_theta,doplot,mem)
 
-use Constants, only: Zero, Three
+use Constants, only: Zero, Three, Ten, cLight, kBoltzmann, mBohr, rNAVO, rPlanck
 Use Definitions, only: wp, u6
 
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
@@ -73,7 +73,6 @@ real(kind=8), allocatable :: A_inv(:,:)               !A_inv(3,3)
 real(kind=8), allocatable :: unity(:,:)               !unity(3,3)
 real(kind=8) :: xxm
 real(kind=8) :: zstat_ex
-real(kind=8) :: boltz_k, coeff_chi
 real(kind=8) :: det
 real(kind=8) :: dev, Fa, Fb, Fc, Fd, Fe, Ff
 external dev
@@ -82,13 +81,13 @@ integer :: j, n1, n2, im, jm
 integer :: isite, info, mem_local, RtoB
 logical :: dbg
 character(len=50) :: label
-real(wp), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
+real(kind=8), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm^-1*k-1
+                           coeff_chi = rNAVO*mBohr**2/kBoltzmann/Ten ! = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
 
 mem_local = 0
 dbg = .false.
 RtoB = 8
-coeff_chi = 0.1250486120_wp*Three ! IFG = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
-boltz_k = 0.69503560_wp           ! IFG   in cm^-1*k-1
 !-----------------------------------------------------------------------
 if (dbg) then
   write(u6,*) 'Verification of input data on entrance to PA-SUSC:'

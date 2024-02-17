@@ -12,7 +12,7 @@
 subroutine POLY_ANISO_1(nneq,neqv,nmax,exch,nLoc,nCenter,nT,nH,nTempMagn,nDir,nDirZee,nMult,nPair,MxRank1,MxRank2, &
                         old_aniso_format,iReturn)
 
-use Constants, only: Zero, cZero
+use Constants, only: Zero, cZero, auTocm
 use Definitions, only: wp, u6
 
 implicit none
@@ -155,7 +155,6 @@ character(len=180) :: Title
 logical :: GRAD
 logical :: dbg
 character(len=180) :: fname
-real(wp) :: conv_au_to_cm1
 integer :: LuAniso
 integer, external :: IsFreeUnit
 
@@ -163,7 +162,6 @@ dbg = .false.
 !-----------------------------------------------------------------------
 ! Constants:
 GRAD = .false.
-conv_au_to_cm1 = 2.194746313702e5_wp !IFG
 !-----------------------------------------------------------------------
 ! Allocate memory for all arrays:
 !-----------------------------------------------------------------------
@@ -530,7 +528,7 @@ do i=1,nneq
         call read_spin_moment(LuAniso,nss(i),s_so(i,1:3,1:nss(i),1:nss(i)),dbg)
         ! compute the relative spin-orbit energies in cm-1
         do j=1,nss(i)
-          eso(i,j) = (eso_au(i,j)-eso_au(i,1))*conv_au_to_cm1
+          eso(i,j) = (eso_au(i,j)-eso_au(i,1))*auTocm
         end do
         close(LuAniso)
 

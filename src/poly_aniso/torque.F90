@@ -12,7 +12,7 @@
 subroutine torque_pa(nneq,nCenter,neq,neqv,nLoc,exch,nTempMagn,nH,nM,AngPoints,nexch,iopt,nss,mem,smagn,m_paranoid,m_accurate, &
                      TempMagn,w,hmin,hmax,dltH0,EM,zJ,THRS,hexp,dipexch,s_exch,dipso,s_so,eso,hinput,r_rot,XLM,ZLM,XRM,ZRM)
 
-use Constants, only: Zero
+use Constants, only: Zero, Ten, mBohr, rNAVO
 use Definitions, only: wp, u6
 
 implicit none
@@ -87,16 +87,13 @@ real(kind=8), allocatable :: tz(:,:,:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! 
 real(kind=8), allocatable :: sx(:,:,:,:) ! sx(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, X
 real(kind=8), allocatable :: sy(:,:,:,:) ! sy(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Y
 real(kind=8), allocatable :: sz(:,:,:,:) ! sz(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Z
-real(kind=8) :: cm3tomB
 integer :: mem_local, RtoB
 ! local data:
 integer :: IM, I, it
 integer :: J, IH, k, isite, l, n, iPl
 logical :: DBG
+real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 
-!Boltz_k = 0.6950356000_wp  ! IFG in cm^-1*K-1
-!mu_Bohr = 0.4668643740_wp  ! IFG in cm-1*T-1
-cm3tomB = 0.5584938904_wp   ! IFG in cm3 * mol-1 * T
 DBG = .false.
 
 write(u6,*)

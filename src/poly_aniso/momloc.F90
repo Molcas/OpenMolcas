@@ -11,7 +11,7 @@
 
 subroutine momloc2(N,NL,nneq,neq,neqv,r_rot,nsites,nexch,W,Z,dipexch,s_exch,dipso,s_so)
 
-use Constants, only: Zero, cZero, cOne
+use Constants, only: Zero, cZero, cOne, gElectron
 use Definitions, only: wp, u6
 
 implicit none
@@ -47,7 +47,6 @@ real(kind=8) :: st(3)
 real(kind=8) :: H
 real(kind=8) :: E_thres
 real(kind=8) :: zJ
-real(kind=8) :: g_e
 character(len=60) :: fmtline
 logical :: DBG
 real(kind=8), allocatable :: WM(:)     ! WM(N)
@@ -61,9 +60,9 @@ complex(kind=8), allocatable :: TMP(:,:) ! TMP(N,N)
 ! temporary data for ZEEM:
 real(kind=8), allocatable :: RWORK(:)
 complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
+real(kind=8), parameter :: g_e = -gElectron
 
 DBG = .false.
-g_e = 2.0023193043718_wp ! IFG
 
 call mma_allocate(WM,N,'WM')
 call mma_allocate(MM,nsites,3,N,'MM')

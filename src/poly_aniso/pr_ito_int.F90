@@ -55,10 +55,9 @@ complex(kind=8), allocatable :: JS(:,:,:,:)
 real(kind=8) :: dznrm2_, RL1, RL3, RL9, RDI, RDM, RIT
 real(kind=8) :: g1(3), g2(3), mg1(3,3), mg2(3,3)
 external :: dznrm2_
-!real(kind=8) :: cm_to_MHz
+!real(kind=8), parameter :: cm_to_MHz = cLight*1.0e-4_wp
 logical DBG
 
-!cm_to_MHz = 29979.2458_wp ! IFG
 DBG = .false.
 ! some initializations:
 nind(:,:) = 0

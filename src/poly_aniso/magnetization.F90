@@ -13,7 +13,7 @@ subroutine magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir
                             hexp,mexp,hmin,hmax,em,zJ,thrs,dirX,dirY,dirZ,dir_weight,w,dipexch,s_exch,dipso,s_so,eso,hinput,r_rot, &
                             XLM,ZLM,XRM,ZRM,zeeman_energy,compute_Mdir_vector,m_paranoid,m_accurate,smagn,mem,doplot)
 
-use Constants, only: Zero
+use Constants, only: Zero, Ten, mBohr, rNAVO
 use Definitions, only: wp, u6
 
 implicit none
@@ -94,16 +94,13 @@ real(kind=8), allocatable :: SVEC(:,:,:,:) !SVEC(nDirTot,nH,nTempMagn,3)
 
 integer :: IM, I, it, itEnd, J, iH, k, isite, l, n, nP
 integer :: iDir, rtob, ibuf, mem_local
-real(kind=8) :: cm3tomB
 real(kind=8) :: dev, dnrm2_
 external :: dev, dnrm2_
 logical :: DBG
 character(len=15) :: lbl_X, lbl_Y, lbl_Z
+real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 
 DBG = .false.
-!Boltz_k = 0.6950356000_wp  ! IFG in cm^-1*K-1
-!mu_Bohr = 0.4668643740_wp  ! IFG in cm-1*T-1
-cm3tomB = 0.5584938904_wp   ! IFG in cm3 * mol-1 * T
 
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,96)

@@ -13,7 +13,7 @@ subroutine Kinetic_Exchange(N1,N2,M1,S1,M2,S2,eso1,eso2,tpar,upar,lant,OPT,HKEX,
 ! compute KE, within various options :
 
 use Constants, only: cZero, cOne
-use Definitions, only: u6
+use Definitions, only: wp, u6
 
 implicit none
 integer, intent(in) :: lant, OPT

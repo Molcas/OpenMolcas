@@ -16,7 +16,7 @@ subroutine set_defaults(nneq,nTempMagn,nDir,nDirZee,nMult,neq,nexch,nK,mG,ncut,n
                         compute_torque,compute_barrier,compute_magnetization,hinput,compute_Mdir_vector,zeeman_energy,m_paranoid, &
                         m_accurate,smagn,itype)
 
-use Constants, only: Zero, Two, Ten
+use Constants, only: Zero, Two, Ten, gElectron
 use Definitions, only: wp
 
 implicit none
@@ -125,7 +125,7 @@ if (nneq > 0) then
     EoverD_fact(i) = Zero
     call unitmat(riso(i,:,:),3)
     do l=1,3
-      gtens_input(l,i) = 2.002319304361_wp ! IFG
+      gtens_input(l,i) = -gElectron
     end do
   end do
 end if
