@@ -23,15 +23,14 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "segtab.fh"
       Integer, Allocatable, Target:: DRT0(:), DRT(:)
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),
      &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),
-     &                       ILNDW(:)
-      Real*8, Allocatable:: VSGM(:), VTAB_TMP(:)
+     &                       ILNDW(:), SCR(:)
+      Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer, External:: ip_of_iWork, ip_of_Work
 
       LV1RAS=NRAS1T
@@ -136,9 +135,9 @@ C FORM VARIOUS OFFSET TABLES:
       NNOW=2*NMIDV*NSYM
       NIOW=NNOW
       CALL mma_allocate(NOW1,NNOW,Label='NOW1')
-      LNOW = ip_of_Work(NOW1)
+      LNOW = ip_of_iWork(NOW1(1))
       CALL mma_allocate(IOW1,NIOW,Label='IOW1')
-      LIOW = ip_of_Work(IOW1)
+      LIOW = ip_of_iWork(IOW1(1))
       MXEO=(NLEV*(NLEV+5))/2
       NNOCP=MXEO*NMIDV*NSYM
       NIOCP=NNOCP
@@ -172,21 +171,21 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       NSCR=7*(NLEV+1)
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
-      CALL GETMEM('SCR','ALLO','INTEG',LSCR,NSCR)
-      CALL GETMEM('VAL','ALLO','REAL',LVAL,NLEV+1)
-      CALL MKCOUP_CP2(IVR,MAW,ISGM,VSGM,NOW1,IOW1,NOCP,
-     &     IOCP,ILNDW,ICASE,ICOUP,
-     &     NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,IWORK(LSCR),
-     &     WORK(LVAL))
+      CALL mma_allocate(SCR,NSCR,Label='SCR')
+      CALL mma_allocate(VAL,NLEV+1,Label='VAL')
+      CALL MKCOUP_CP2(IVR,MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,ICASE,
+     &                ICOUP,NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,SCR,VAL)
+
 * Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:
       NVTAB=NVTAB_FINAL
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
       LVTAB = ip_of_Work(VTAB(1))
       VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
+
       Call mma_deallocate(VTAB_TMP)
       Call mma_deallocate(ILNDW)
-      CALL GETMEM('SCR','FREE','INTEG',LSCR,NSCR)
-      CALL GETMEM('VAL','FREE','REAL',LVAL,NLEV+1)
+      Call mma_deallocate(SCR)
+      Call mma_deallocate(VAL)
       Call mma_deallocate(ISGM)
       Call mma_deallocate(VSGM)
       Call mma_deallocate(MAW)
