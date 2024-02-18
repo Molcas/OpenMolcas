@@ -16,12 +16,12 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW,LTV)
+      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "pt2_guga.fh"
       DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
       DIMENSION IUP(NVERT,0:3),IRAW(NVERT,0:4)
-      DIMENSION IMAW(NVERT,0:3),LTV(-1:NLEV)
+      DIMENSION IMAW(NVERT,0:3)
 
 C COPY LOWER PART OF DIRECT ARC WEIGHT TABLE INTO IMAW:
       DO 210 IV=MIDV1,NVERT
