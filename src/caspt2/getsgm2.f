@@ -46,7 +46,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IF(NSGM.EQ.0) RETURN
       CALL DCOPY_(NSGM,[0.0D0],0,SGM,1)
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
-     &      IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
+     &      NOCSF,IOCSF,NOW1,IOW1,
      &      NOCP,IOCP,IWORK(LICOUP),
      &      WORK(LVTAB),MVL,MVR)
       RETURN

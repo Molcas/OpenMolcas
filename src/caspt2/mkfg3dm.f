@@ -313,7 +313,7 @@ C-sigma vectors in the buffer.
 *         lto=lbuf1+mxci*(ibuf1-1)
 *         call dcopy_(nsgm1,0.0D0,0,work(lto),1)
 *         CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-*    &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
+*    &     NOCSF,IOCSF,NOW1,IOW1,
 *    &     NOCP,IOCP,IWORK(LICOUP),
 *    &     WORK(LVTAB),MVL,MVR)
          end if
@@ -376,7 +376,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *     lto=lbuf2
 *     call dcopy_(nsgm2,0.0D0,0,work(lto),1)
 *     CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-*    &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
+*    &     NOCSF,IOCSF,NOW1,IOW1,
 *    &     NOCP,IOCP,IWORK(LICOUP),
 *    &     WORK(LVTAB),MVL,MVR)
 *     if(issg2.eq.issg1) then
@@ -410,7 +410,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *       lto=lbuft
 *       call dcopy_(nsgm1,0.0D0,0,work(lto),1)
 *       CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
-*    &       IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
+*    &       NOCSF,IOCSF,NOW1,IOW1,
 *    &       NOCP,IOCP,IWORK(LICOUP),
 *    &       WORK(LVTAB),MVL,MVR)
 *-----------

@@ -147,9 +147,7 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       NIPWLK=1+(MIDLEV-1)/15
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
-      LNOCSF = ip_of_iWork(NOCSF(1))
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
-      LIOCSF = ip_of_iWork(IOCSF(1))
       CALL NRCOUP_CP2(DRT,ISGM,NOW1,IOW1,NOCP,IOCP,NOCSF,IOCSF,
      &                NRL,MVL,MVR)
       CALL mma_deallocate(DRT)
