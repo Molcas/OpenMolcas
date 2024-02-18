@@ -2708,8 +2708,8 @@ C
 C
       !! Precondition
       Call CnstInt(2,Work(ipINT1),Work(ipINT2))
-      Call CnstPrec(IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),
-     *              IWORK(LIOW),ISYCI,Work(ipPre),work(ipcit),
+      Call CnstPrec(IWORK(LNOCSF),IWORK(LIOCSF),NOW1,
+     *              IOW1,ISYCI,Work(ipPre),work(ipcit),
      *              Work(ipINT1),Work(ipINT2),Work(ipFancy))
       Call CnstInt(0,Work(ipINT1),Work(ipINT2))
 C

@@ -133,9 +133,7 @@ C FORM VARIOUS OFFSET TABLES:
       NNOW=2*NMIDV*NSYM
       NIOW=NNOW
       CALL mma_allocate(NOW1,NNOW,Label='NOW1')
-      LNOW = ip_of_iWork(NOW1(1))
       CALL mma_allocate(IOW1,NIOW,Label='IOW1')
-      LIOW = ip_of_iWork(IOW1(1))
       MXEO=(NLEV*(NLEV+5))/2
       NNOCP=MXEO*NMIDV*NSYM
       NIOCP=NNOCP

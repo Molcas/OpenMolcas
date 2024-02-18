@@ -18,8 +18,8 @@
       use caspt2_output, only:iPrGlb,verbose,debug
       use caspt2_gradient, only: nbuf1_grad
       use pt2_guga_data, only: MXCI, NLEV, MXLEV, LICOUP, LIOCP,
-     &                         LIOCSF, LIOW, MVL, MVR, LNOCP,
-     &                         LNOCSF, LNOW, LVTAB, NG3, NCSF, L2ACT,
+     &                         LIOCSF, IOW1, MVL, MVR, LNOCP,
+     &                         LNOCSF, NOW1, LVTAB, NG3, NCSF, L2ACT,
      &                         ISM
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -424,7 +424,7 @@ C     write(6,*) "PREP    : CPU/WALL TIME=", cput,wallt
        isp1=mul(issg1,STSYM)
        nsgm1=ncsf(issg1)
        !! Work(LBufD) = \sum_t <I|E_{tt}|I>*f_{tt}
-       CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
+       CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1)
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
 C-is basically the number of buffers we fill with sigma1 vectors.
@@ -552,7 +552,7 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
           lto=lbuf1+mxci*(ibuf1-1)
           call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),MVL,MVR)
          end if
@@ -637,7 +637,7 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       lto=lbuf2
       call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
       CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),MVL,MVR)
       Call Dcopy_(nsgm1,[0.0D+00],0,Work(LDYZ),1)
@@ -691,7 +691,7 @@ C
           L = LBUFX + MXCI*(ivlev-1)
           Call DCopy_(nsgm1,[0.0D0],0,Work(L),1)
           CALL SIGMA1_CP2(IVLEV,IXLEV0,1.0D+0,STSYM,Work(LFROM),Work(L),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &         IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),MVL,MVR)
         End Do
@@ -794,7 +794,7 @@ C
         end do
         !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
        CALL SIGMA1_CP2(IXLEV,IVLEV,1.0D+00,STSYM,WORK(LBUF3),WORK(LDYZ),
-     &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &      IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &      WORK(LVTAB),MVL,MVR)
 C
@@ -807,7 +807,7 @@ C
       !! Complete the right derivative contribution:
       !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
       CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D+00,STSYM,WORK(LDYZ),CLAG,
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),MVL,MVR)
 C
@@ -835,7 +835,7 @@ C
           lto=ldtu+mxci*(ib-1)
           !! left derivative
           CALL SIGMA1_CP2(ITLEV,IULEV,1.0D00,STSYM,WORK(LTO),CLAG,
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &     WORK(LVTAB),MVL,MVR)
           !! the rest is DEPSA contribution
@@ -844,7 +844,7 @@ C
             Do IBLEV = 1, NLEV
               Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF2),1)
        CALL SIGMA1_CP2(IALEV,IBLEV,1.0D+00,STSYM,Work(IBUF),Work(LBUF2),
-     &          IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &          IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &          IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &          WORK(LVTAB),MVL,MVR)
               DEPSA(IALEV,IBLEV) = DEPSA(IALEV,IBLEV)

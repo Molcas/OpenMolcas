@@ -55,7 +55,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           SCL=0.5D0*WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-0.5D00
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &         IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),MVL,MVR)
         END DO
@@ -65,7 +65,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           SCL=WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-1.0D00
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &         IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),MVL,MVR)
         END DO

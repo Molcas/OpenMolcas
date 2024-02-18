@@ -64,8 +64,8 @@ C>                   to active indices
 #endif
       use pt2_guga_data, only: MXCI, NLEV, MXLEV, LF1, LF2, LF3,
      &                         LG1, LG2, LG3, LICOUP, LIOCSF,
-     &                         NCSF, LIOCP, LIOW, MVL, MVR, LNOCP,
-     &                         LNOCSF, LNOW, LVTAB, NG1, NG2,
+     &                         NCSF, LIOCP, IOW1, MVL, MVR, LNOCP,
+     &                         LNOCSF, NOW1, LVTAB, NG1, NG2,
      &                         NG3, ISM, L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -228,7 +228,7 @@ C-SVC20100301: calculate maximum number of tasks possible
         isp1=mul(issg1,stsym)
         if (.not. DoFCIQMC) then
           nsgm1=ncsf(issg1)
-          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
+          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1)
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -351,7 +351,7 @@ C-sigma vectors in the buffer.
               lto=lbuf1+mxci*(ibuf1-1)
               call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &         IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),MVL,MVR)
           end if
@@ -415,7 +415,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           lto=lbuf2
           call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &         IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),MVL,MVR)
           if(issg2.eq.issg1) then
@@ -451,8 +451,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             lto=lbuft
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
-     &           WORK(LTO),IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),
-     &           IWORK(LIOW),IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &           WORK(LTO),IWORK(LNOCSF),IWORK(LIOCSF),NOW1,
+     &           IOW1,IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &           WORK(LVTAB),MVL,MVR)
         end if
 *-----------
