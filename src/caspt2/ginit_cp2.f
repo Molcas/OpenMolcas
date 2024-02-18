@@ -122,9 +122,7 @@ C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       NMVL=2*NMIDV
       NMVR=2*NMIDV
       CALL mma_allocate(MVL,NMVL,Label='MVL')
-      LMVL = ip_of_iWork(MVL(1))
       CALL mma_allocate(MVR,NMVR,Label='MVR')
-      LMVR = ip_of_iWork(MVR(1))
       NSGMNT=26*NVERT
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')

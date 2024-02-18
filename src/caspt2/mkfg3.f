@@ -64,7 +64,7 @@ C>                   to active indices
 #endif
       use pt2_guga_data, only: MXCI, NLEV, MXLEV, LF1, LF2, LF3,
      &                         LG1, LG2, LG3, LICOUP, LIOCSF,
-     &                         NCSF, LIOCP, LIOW, MVL, LMVR, LNOCP,
+     &                         NCSF, LIOCP, LIOW, MVL, MVR, LNOCP,
      &                         LNOCSF, LNOW, LVTAB, NG1, NG2,
      &                         NG3, ISM, L2ACT
       IMPLICIT NONE
@@ -353,7 +353,7 @@ C-sigma vectors in the buffer.
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),MVL,IWORK(LMVR))
+     &         WORK(LVTAB),MVL,MVR)
           end if
          end if
         end do
@@ -417,7 +417,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),MVL,IWORK(LMVR))
+     &         WORK(LVTAB),MVL,MVR)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -453,7 +453,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
      &           WORK(LTO),IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),
      &           IWORK(LIOW),IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &           WORK(LVTAB),MVL,IWORK(LMVR))
+     &           WORK(LVTAB),MVL,MVR)
         end if
 *-----------
 * Max and min values of index p1:

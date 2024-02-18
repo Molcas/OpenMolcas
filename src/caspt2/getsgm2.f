@@ -48,6 +48,6 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &      WORK(LVTAB),MVL,IWORK(LMVR))
+     &      WORK(LVTAB),MVL,MVR)
       RETURN
       END

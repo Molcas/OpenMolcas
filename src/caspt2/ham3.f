@@ -80,7 +80,7 @@ C Compute SGM1:=E(IY,IZ) PSI
           CALL SIGMA1_CP2(LEVY,LEVZ,1.0D00,ISYCI,CI,WORK(LSGM1),
      &            IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &            IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &            WORK(LVTAB),MVL,IWORK(LMVR))
+     &            WORK(LVTAB),MVL,MVR)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
             X=OP1(IY,IZ)
@@ -117,7 +117,7 @@ C Compute SGM2:=E(IV,IX) SGM1
             CALL SIGMA1_CP2(LEVV,LEVX,1.0D00,ISYM1,WORK(LSGM1),
      &       WORK(LSGM2),IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),
      &       IWORK(LIOW),IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &            WORK(LVTAB),MVL,IWORK(LMVR))
+     &            WORK(LVTAB),MVL,MVR)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
               X=OP2(IVXYZ)
@@ -152,7 +152,7 @@ C Add non-zero 3-el contribution to SGM:
               CALL SIGMA1_CP2(LEVT,LEVU,X,ISYM2,WORK(LSGM2),SGM,
      &            IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &            IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &            WORK(LVTAB),MVL,IWORK(LMVR))
+     &            WORK(LVTAB),MVL,MVR)
 CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)
             ELSE

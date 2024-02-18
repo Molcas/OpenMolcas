@@ -18,14 +18,14 @@
      &     L2ACT,LEVEL,NCSF,NVERT0,NVERT,MIDLEV,NMIDV,                  &
      &     MIDV1,MIDV2,NWALK,LNOW,LIOW,NIPWLK,NICASE,LICASE,            &
      &     LNOCSF,LIOCSF,LICOUP,NICOUP,MXEO,LNOCP,LIOCP,NVTAB,          &
-     &     LMVL,LMVR,LVTAB,NSGTMP,LSGTMP,LCI,MXCI,                      &
+     &               LVTAB,NSGTMP,LSGTMP,LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10,IDTAB
       COMMON /iGUGA/ NLEV,ISM(MXLEV),                                   &
      &     L2ACT(MXLEV),LEVEL(MXLEV),NCSF(8),NVERT0,NVERT,MIDLEV,NMIDV, &
      &     MIDV1,MIDV2,NWALK,LNOW,LIOW,NIPWLK,NICASE,LICASE,            &
      &     LNOCSF,LIOCSF,LICOUP,NICOUP,MXEO,LNOCP,LIOCP,NVTAB,          &
-     &     LMVL,LMVR,LVTAB,NSGTMP,LSGTMP,LCI,MXCI,                      &
+     &               LVTAB,NSGTMP,LSGTMP,LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10(64,2),IDTAB(MXL3)
       INTEGER      NPLBUF,IPLBUF,JPLBUF,ISYMA,NSGMA,ISYMB,NSGMB
