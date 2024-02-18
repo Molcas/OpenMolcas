@@ -17,5 +17,5 @@ INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,                          &
                   NWALK,NNOW,NIOW,NIPWLK,NICASE,NCSF(8),NNOCSF,NIOCSF
 Integer, Allocatable, Public:: NOW1(:), IOW1(:), ICASE(:)
 Integer, Allocatable, Public, Target:: DRT(:), DOWN(:)
-Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:), NOCSF(:), IOCSF(:), USGN(:), LSGN(:)
+Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:), NOCSF(:), IOCSF(:), USGN(:), LSGN(:), LTV(:)
 End Module GUGX

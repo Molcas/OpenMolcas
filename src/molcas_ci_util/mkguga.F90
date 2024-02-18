@@ -28,7 +28,7 @@
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
      &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,        &
      &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
-     &                MIDV1, MIDV2
+     &                MIDV1, MIDV2, LTV
 
       IMPLICIT None
 !
@@ -38,7 +38,7 @@
 
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
-      Integer, Allocatable:: TMP(:), V11(:), LTV(:), SCR(:)
+      Integer, Allocatable:: TMP(:), V11(:), SCR(:)
       Integer IAC, NDOWN0, NDRT0, NLSGN, NLTV, NSCR, NTMP, NUSGN
 !
 !     SET UP A FULL PALDUS DRT TABLE:
@@ -170,24 +170,26 @@
 !
       use stdalloc, only: mma_deallocate
       use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW,  NOCSF,   &
-     &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1
+     &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
+     &                 LTV
       IMPLICIT None
 !
-      Call mma_deallocate(DRT)
-      Call mma_deallocate(DOWN)
+      If (Allocated(DRT)) Call mma_deallocate(DRT)
+      If (Allocated(DOWN)) Call mma_deallocate(DOWN)
 
-      Call mma_deallocate(DAW)
-      Call mma_deallocate(UP)
-      Call mma_deallocate(RAW)
+      If (Allocated(DAW)) Call mma_deallocate(DAW)
+      If (Allocated(UP)) Call mma_deallocate(UP)
+      If (Allocated(RAW)) Call mma_deallocate(RAW)
+      If (Allocated(LTV)) Call mma_deallocate(LTV)
 
-      Call mma_deallocate(NOW1)
-      Call mma_deallocate(IOW1)
-      Call mma_deallocate(NOCSF)
-      Call mma_deallocate(IOCSF)
+      If (Allocated(NOW1)) Call mma_deallocate(NOW1)
+      If (Allocated(IOW1)) Call mma_deallocate(IOW1)
+      If (Allocated(NOCSF)) Call mma_deallocate(NOCSF)
+      If (Allocated(IOCSF)) Call mma_deallocate(IOCSF)
 
-      Call mma_deallocate(ICASE)
+      If (Allocated(ICASE)) Call mma_deallocate(ICASE)
 
-      Call mma_deallocate(USGN)
-      Call mma_deallocate(LSGN)
+      If (Allocated(USGN)) Call mma_deallocate(USGN)
+      If (Allocated(LSGN)) Call mma_deallocate(LSGN)
 
       END SUBROUTINE MKGUGA_FREE
