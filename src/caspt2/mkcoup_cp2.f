@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKCOUP_CP2(IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
-     &                  NOCP,IOCP,ILNDW,ICASE,ICOUP,
+     &                  NOCP,IOCP,ILNDW,ICOUP,
      &                  NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,
      &                  ISCR,VALUE)
 
@@ -34,7 +34,7 @@ C INPUT PARAMETERS:
       DIMENSION NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
 C OUTPUT PARAMETERS:
       DIMENSION IOW(2,NSYM,NMIDV), IOCP(MXEO,NSYM,NMIDV)
-      DIMENSION ILNDW(NWALK),ICASE(NICASE)
+      DIMENSION ILNDW(NWALK)
       DIMENSION VTAB_TMP(NVTAB_TMP)
       INTEGER ICOUP
       DIMENSION ICOUP(3,NICOUP)
@@ -137,15 +137,6 @@ C COUPLING COEFFICIENT VALUE TABLE:
             IAWS=ISCR(IAWSL,LEV2)
             ILNDW(IAWS)=ILND
             NOW(IHALF,LFTSYM,MV)=ILND
-            IPOS=IOW(IHALF,LFTSYM,MV)+(ILND-1)*NIPWLK
-            DO LL=LEV2+1,LEV1,15
-              IC=0
-              DO L=MIN(LL+14,LEV1),LL,-1
-                IC=4*IC+ISCR(ICS,L)
-              END DO
-              IPOS=IPOS+1
-              ICASE(IPOS)=IC
-            END DO
           ELSE
             IP=0
             IQ=0
