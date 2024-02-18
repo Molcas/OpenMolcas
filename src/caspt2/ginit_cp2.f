@@ -127,12 +127,12 @@ C THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       NIVR=2*NVERT
-      CALL mma_allocate(IVR,NIVR,Label='IVR')
       NMVL=2*NMIDV
       NMVR=2*NMIDV
+      NSGMNT=26*NVERT
+      CALL mma_allocate(IVR,NIVR,Label='IVR')
       CALL mma_allocate(MVL,NMVL,Label='MVL')
       CALL mma_allocate(MVR,NMVR,Label='MVR')
-      NSGMNT=26*NVERT
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
       CALL MKSEG_CP2(DRT,DOWN,LTV,IVR,MVL,MVR,ISGM,VSGM)
@@ -140,10 +140,18 @@ C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       Call mma_deallocate(LTV)
 
 C FORM VARIOUS OFFSET TABLES:
+      NIPWLK=1+(MIDLEV-1)/15
+      NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
       NNOW=2*NMIDV*NSYM
       NIOW=NNOW
+      NNOCSF=NMIDV*(NSYM**2)
+      NIOCSF=NNOCSF
       CALL mma_allocate(NOW1,NNOW,Label='NOW1')
       CALL mma_allocate(IOW1,NIOW,Label='IOW1')
+      CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
+      CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
+
+C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
       NNOCP=MXEO*NMIDV*NSYM
       NIOCP=NNOCP
@@ -151,25 +159,19 @@ C FORM VARIOUS OFFSET TABLES:
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      NNOCSF=NMIDV*(NSYM**2)
-      NIOCSF=NNOCSF
-C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
-      NIPWLK=1+(MIDLEV-1)/15
-      NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
-      CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
-      CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       CALL NRCOUP_CP2(DRT,ISGM,NOW1,IOW1,NOCP,IOCP,NOCSF,IOCSF,
      &                NRL,MVL,MVR)
       CALL mma_deallocate(DRT)
       CALL mma_deallocate(NRL)
+
       NILNDW=NWALK
       NICASE=NWALK*NIPWLK
-      CALL mma_allocate(ICASE,NICASE,Label='ICASE')
       NNICOUP=3*NICOUP
-      CALL mma_allocate(ICOUP,NNICOUP,Label='ICOUP')
       NVTAB_TMP=20000
-      CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       NSCR=7*(NLEV+1)
+      CALL mma_allocate(ICASE,NICASE,Label='ICASE')
+      CALL mma_allocate(ICOUP,NNICOUP,Label='ICOUP')
+      CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
