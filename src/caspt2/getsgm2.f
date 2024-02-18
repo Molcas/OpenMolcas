@@ -47,7 +47,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       CALL DCOPY_(NSGM,[0.0D0],0,SGM,1)
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-     &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &      NOCP,IOCP,IWORK(LICOUP),
      &      WORK(LVTAB),MVL,MVR)
       RETURN
       END

@@ -79,7 +79,7 @@ C Compute SGM1:=E(IY,IZ) PSI
           LEVZ=IATOG(IZ)
           CALL SIGMA1_CP2(LEVY,LEVZ,1.0D00,ISYCI,CI,WORK(LSGM1),
      &            IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-     &            IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &            NOCP,IOCP,IWORK(LICOUP),
      &            WORK(LVTAB),MVL,MVR)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
@@ -116,7 +116,7 @@ C Compute SGM2:=E(IV,IX) SGM1
             LEVX=IATOG(IX)
             CALL SIGMA1_CP2(LEVV,LEVX,1.0D00,ISYM1,WORK(LSGM1),
      &       WORK(LSGM2),IWORK(LNOCSF),IWORK(LIOCSF),NOW1,
-     &       IOW1,IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &       IOW1,NOCP,IOCP,IWORK(LICOUP),
      &            WORK(LVTAB),MVL,MVR)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
@@ -151,7 +151,7 @@ C Add non-zero 3-el contribution to SGM:
               LEVU=IATOG(IU)
               CALL SIGMA1_CP2(LEVT,LEVU,X,ISYM2,WORK(LSGM2),SGM,
      &            IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-     &            IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &            NOCP,IOCP,IWORK(LICOUP),
      &            WORK(LVTAB),MVL,MVR)
 CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)

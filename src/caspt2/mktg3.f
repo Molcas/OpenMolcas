@@ -210,7 +210,7 @@ C Translate to levels in the SGUGA coupling order:
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
      &    IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-     &    IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &    NOCP,IOCP,IWORK(LICOUP),
      &    WORK(LVTAB),MVL,MVR)
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
@@ -234,7 +234,7 @@ C Translate to levels:
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
          CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
      &    IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-     &    IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &    NOCP,IOCP,IWORK(LICOUP),
      &    WORK(LVTAB),MVL,MVR)
          LTO=LTO+MXCI
         END DO
@@ -262,7 +262,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
      &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+     &     NOCP,IOCP,IWORK(LICOUP),
      &     WORK(LVTAB),MVL,MVR)
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)

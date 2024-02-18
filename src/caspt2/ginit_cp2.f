@@ -139,9 +139,7 @@ C FORM VARIOUS OFFSET TABLES:
       NIOCP=NNOCP
       NNRL=(1+MXEO)*NVERT*NSYM
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
-      LNOCP = ip_of_iWork(NOCP(1))
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
-      LIOCP = ip_of_iWork(IOCP(1))
       CALL mma_allocate(NRL,NNRL,Label='NRL')
       NNOCSF=NMIDV*(NSYM**2)
       NIOCSF=NNOCSF

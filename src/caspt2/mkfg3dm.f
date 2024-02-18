@@ -314,7 +314,7 @@ C-sigma vectors in the buffer.
 *         call dcopy_(nsgm1,0.0D0,0,work(lto),1)
 *         CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
 *    &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-*    &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+*    &     NOCP,IOCP,IWORK(LICOUP),
 *    &     WORK(LVTAB),MVL,MVR)
          end if
         end do
@@ -377,7 +377,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *     call dcopy_(nsgm2,0.0D0,0,work(lto),1)
 *     CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
 *    &     IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-*    &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+*    &     NOCP,IOCP,IWORK(LICOUP),
 *    &     WORK(LVTAB),MVL,MVR)
 *     if(issg2.eq.issg1) then
 *       do ib=1,ibuf1
@@ -411,7 +411,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *       call dcopy_(nsgm1,0.0D0,0,work(lto),1)
 *       CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
 *    &       IWORK(LNOCSF),IWORK(LIOCSF),NOW1,IOW1,
-*    &       IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
+*    &       NOCP,IOCP,IWORK(LICOUP),
 *    &       WORK(LVTAB),MVL,MVR)
 *-----------
 * Max and min values of index p1:
