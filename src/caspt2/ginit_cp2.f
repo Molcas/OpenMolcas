@@ -31,7 +31,6 @@
      &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),
      &                       ILNDW(:), SCR(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer, External:: ip_of_iWork
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
@@ -155,7 +154,6 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       NILNDW=NWALK
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(ICASE,NICASE,Label='ICASE')
-      LICASE = ip_of_iWork(ICASE(1))
       NNICOUP=3*NICOUP
       CALL mma_allocate(ICOUP,NNICOUP,Label='ICOUP')
       NVTAB_TMP=20000

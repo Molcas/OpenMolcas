@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
+      use pt2_guga_data, only: ICASE
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
@@ -27,7 +28,6 @@
       DIMENSION ICOUP(3,NICOUP)
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
       DIMENSION CI(*),SGM(*)
-
 
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -44,7 +44,6 @@
 
 
       IF(ABS(CPQ).LT.1.0D-12) GOTO 999
-      iLUW=0
 C SYMMETRY OF ORBITALS:
       ISYP=ISM(IP)
       ISYQ=ISM(IQ)
@@ -77,15 +76,11 @@ C IP=IQ < MIDLEV.
           NDWNSG=NOW(2,ISYDSG,MVSGM)
           IOLW=IOW(2,ISYDSG,MVSGM)
           IPSHFT=2*(IP-1)
-          LLW=LICASE+IOLW-NIPWLK+IPSHFT/30
-cVV next statement is a cheat to forbid optimization
-          if(iLUW.eq.666) iLUW=iLUW+LLW
-cVV
+          LLW=1+IOLW-NIPWLK+IPSHFT/30
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO 102 J=1,NDWNSG
-            JC=IWORK(LLW+J*NIPWLK)
-CPAM96           ICS=IAND(ISHFT(JC,-IPSHFT),3)
+            JC=ICASE(LLW+J*NIPWLK)
             ICS=MOD(JC/IPPOW,4)
             IF(ICS.EQ.0) GOTO 102
             X=CPQ*DBLE((1+ICS)/2)
@@ -110,15 +105,11 @@ C IP=IQ>MIDLEV
           NDWNSG=NOW(2,ISYDSG,MVSGM)
           IOUW=IOW(1,ISYUSG,MVSGM)
           IPSHFT=2*(IP-1-MIDLEV)
-          LUW=LICASE+IOUW-NIPWLK+IPSHFT/30
-cVV next statement is a cheat to forbid optimization
-          if(iLUW.eq.666) iLUW=iLUW+LUW
-cVV
+          LUW=1+IOUW-NIPWLK+IPSHFT/30
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO 202 I=1,NUPSG
-            IC=IWORK(LUW+I*NIPWLK)
-CPAM96            ICS=IAND(ISHFT(IC,-IPSHFT),3)
+            IC=ICASE(LUW+I*NIPWLK)
             ICS=MOD(IC/IPPOW,4)
             IF(ICS.EQ.0) GOTO 202
             X=CPQ*DBLE((1+ICS)/2)

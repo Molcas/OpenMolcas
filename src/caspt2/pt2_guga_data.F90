@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!     This module is a temporary tweak while the whole include file
+!     pt2_guga.fh is converted to a proper module which is address
+!     using the "only" construct in the "use" statement of the module.
       module pt2_guga_data
       implicit none
 #include "pt2_guga.fh"
