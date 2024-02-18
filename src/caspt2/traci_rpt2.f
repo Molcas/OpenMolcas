@@ -57,7 +57,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         WORK(LVTAB),MVL,IWORK(LMVR))
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
@@ -67,7 +67,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         WORK(LVTAB),MVL,IWORK(LMVR))
         END DO
 
  100  CONTINUE
