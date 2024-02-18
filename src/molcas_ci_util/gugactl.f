@@ -33,11 +33,11 @@ C
       Character(LEN=16), Parameter :: ROUTINE='GUGACTL '
 
       Interface
-      SUBROUTINE MKGUGA(NSM,NSYM,STSYM,NCSF)
+      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF)
       IMPLICIT None
 !
-      Integer NSYM, STSYM
-      Integer NSM(NSYM)
+      Integer NLEV, NSYM, STSYM
+      Integer NSM(NLEV)
       Integer NCSF(NSYM)
       End SUBROUTINE MKGUGA
       End Interface
@@ -119,7 +119,7 @@ C
 C
 C     INITIALIZE GUGA TABLES:
 C
-      CALL MKGUGA(NSM,NSYM,STSYM,NCSF)
+      CALL MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF)
       NCONF=NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 

@@ -95,7 +95,7 @@
       LM3RAS=nActEl-nElec3
 
       IFCAS=1
-      Call mkGUGA(OrbSym,NSYM,kSym,NCSF)
+      Call mkGUGA(OrbSym,NLEV,NSYM,kSym,NCSF)
       NCONF=NCSF(kSym)
       iss=1
       if (ksym.ne.state_sym) iss=2

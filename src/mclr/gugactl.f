@@ -108,7 +108,7 @@
       LM3RAS=nActEl-nElec3
 
       IFCAS=1
-      Call mkGUGA(OrbSym,NSYM,State_Sym,NCSF)
+      Call mkGUGA(OrbSym,NLEV,NSYM,State_Sym,NCSF)
       NCONF=NCSF(State_Sym)
 *
       If (iPrint.ge.5) Then

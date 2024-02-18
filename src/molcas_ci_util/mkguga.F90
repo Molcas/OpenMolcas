@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKGUGA(NSM,NSYM,STSYM,NCSF)
+      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF)
 !
 !     PURPOSE: MAKE THE GUGA TABLES
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
@@ -21,7 +21,7 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0,                      &
+      use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
      &                IFCAS, NVERT, NDRT,  DRT,                         &
      &                NDOWN,  DOWN,  UP, NUP,  RAW, NRAW, MIDLEV,       &
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
@@ -32,8 +32,8 @@
 
       IMPLICIT None
 !
-      Integer NSYM, STSYM
-      Integer NSM(NSYM)
+      Integer NLEV, NSYM, STSYM
+      Integer NSM(NLEV)
       Integer NCSF(NSYM)
 
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
