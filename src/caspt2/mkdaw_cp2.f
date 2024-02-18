@@ -17,11 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKDAW_CP2(NLEV,NVERT,IDRT,IDOWN,IDAW,LTV)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       Integer NLEV, NVERT
-      DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4),IDRT(NVERT,5)
-      DIMENSION LTV(-1:NLEV)
-      PARAMETER (LTAB=1)
+      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4),IDRT(NVERT,5)
+      Integer LTV(-1:NLEV)
+
+      Integer, PARAMETER::  LTAB=1
+      Integer LEV, IV
 
 C SET UP A LEVEL-TO-VERTEX TABLE, LTV, AND IDENTIFY MIDVERTICES:
       DO LEV=-1,NLEV
@@ -37,8 +39,6 @@ C SET UP A LEVEL-TO-VERTEX TABLE, LTV, AND IDENTIFY MIDVERTICES:
       DO LEV=-1,NLEV-1
         LTV(LEV)=1+LTV(LEV+1)
       END DO
-
-      CALL MKDAW(NVERT,IDOWN,IDAW)
 
 #ifdef _DEBUGPRINT_
 C CHECK PRINTS:
