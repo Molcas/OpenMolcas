@@ -121,9 +121,6 @@ C DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
       CALL mma_allocate(MAW,NMAW,Label='MAW')
       CALL MKMAW(DOWN,DAW,UP,RAW,MAW,LTV)
 C THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
-      CALL mma_deallocate(DAW)
-      CALL mma_deallocate(UP)
-      CALL mma_deallocate(RAW)
 
 C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       NIVR=2*NVERT
@@ -136,8 +133,6 @@ C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
       CALL MKSEG_CP2(DRT,DOWN,LTV,IVR,MVL,MVR,ISGM,VSGM)
-      Call mma_deallocate(DOWN)
-      Call mma_deallocate(LTV)
 
 C FORM VARIOUS OFFSET TABLES:
       NIPWLK=1+(MIDLEV-1)/15
@@ -161,7 +156,6 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL mma_allocate(NRL,NNRL,Label='NRL')
       CALL NRCOUP_CP2(DRT,ISGM,NOW1,IOW1,NOCP,IOCP,NOCSF,IOCSF,
      &                NRL,MVL,MVR)
-      CALL mma_deallocate(DRT)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK
@@ -194,6 +188,14 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
 
       DOWNP=>Null()
       DRTP=>Null()
+
+      CALL mma_deallocate(DRT)
+      Call mma_deallocate(DOWN)
+
+      CALL mma_deallocate(DAW)
+      CALL mma_deallocate(UP)
+      CALL mma_deallocate(RAW)
+      Call mma_deallocate(LTV)
 
       RETURN
  9001 WRITE(6,*)' ERROR IN SUBROUTINE GINIT.'
