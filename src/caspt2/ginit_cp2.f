@@ -31,7 +31,7 @@
      &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),
      &                       ILNDW(:), SCR(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer, External:: ip_of_iWork, ip_of_Work
+      Integer, External:: ip_of_iWork
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
@@ -158,7 +158,6 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       LICASE = ip_of_iWork(ICASE(1))
       NNICOUP=3*NICOUP
       CALL mma_allocate(ICOUP,NNICOUP,Label='ICOUP')
-      LICOUP = ip_of_iWork(ICOUP(1))
       NVTAB_TMP=20000
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       NSCR=7*(NLEV+1)
@@ -171,7 +170,6 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
 * Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:
       NVTAB=NVTAB_FINAL
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
-      LVTAB = ip_of_Work(VTAB(1))
       VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
 
       Call mma_deallocate(VTAB_TMP)

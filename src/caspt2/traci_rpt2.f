@@ -56,8 +56,8 @@ C where U(I) = T(I)-Kronecker(I,J).
           IF(I.EQ.J) SCL=SCL-0.5D00
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
      &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,IWORK(LICOUP),
-     &         WORK(LVTAB),MVL,MVR)
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
@@ -66,8 +66,8 @@ C where U(I) = T(I)-Kronecker(I,J).
           IF(I.EQ.J) SCL=SCL-1.0D00
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
      &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,IWORK(LICOUP),
-     &         WORK(LVTAB),MVL,MVR)
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
         END DO
 
  100  CONTINUE

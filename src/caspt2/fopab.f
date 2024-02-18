@@ -132,8 +132,8 @@
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,IWORK(LICOUP),
-     &         WORK(LVTAB),MVL,MVR)
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
   10      CONTINUE
         END DO
       END DO
@@ -185,8 +185,8 @@
           IF(ABS(FTU).LT.1.0D-16) GOTO 20
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,IWORK(LICOUP),
-     &         WORK(LVTAB),MVL,MVR)
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
   20      CONTINUE
         END DO
       END DO

@@ -63,9 +63,9 @@ C>                   to active indices
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       use pt2_guga_data, only: MXCI, NLEV, MXLEV, LF1, LF2, LF3,
-     &                         LG1, LG2, LG3, LICOUP, IOCSF,
+     &                         LG1, LG2, LG3, ICOUP, IOCSF,
      &                         NCSF,  IOCP, IOW1, MVL, MVR,  NOCP,
-     &                         NOCSF, NOW1, LVTAB, NG1, NG2,
+     &                         NOCSF, NOW1, VTAB, NG1, NG2,
      &                         NG3, ISM, L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -352,8 +352,8 @@ C-sigma vectors in the buffer.
               call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,IWORK(LICOUP),
-     &         WORK(LVTAB),MVL,MVR)
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
           end if
          end if
         end do
@@ -416,8 +416,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         NOCSF,IOCSF,NOW1,IOW1,
-     &         NOCP,IOCP,IWORK(LICOUP),
-     &         WORK(LVTAB),MVL,MVR)
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -452,8 +452,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
      &           WORK(LTO),NOCSF,IOCSF,NOW1,
-     &           IOW1,NOCP,IOCP,IWORK(LICOUP),
-     &           WORK(LVTAB),MVL,MVR)
+     &           IOW1,NOCP,IOCP,ICOUP,
+     &           VTAB,MVL,MVR)
         end if
 *-----------
 * Max and min values of index p1:
