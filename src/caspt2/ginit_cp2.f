@@ -167,8 +167,7 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(DRT,ISGM,NOW1,IOW1,NOCP,IOCP,NOCSF,IOCSF,
-     &                NRL,MVL,MVR)
+      CALL NRCOUP(DRT,ISGM,NOW1,NOCP,IOCP,NOCSF,NRL,MVL,MVR)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK
