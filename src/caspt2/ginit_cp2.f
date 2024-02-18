@@ -20,7 +20,7 @@
       SUBROUTINE GINIT_CP2
       use stdalloc, only: mma_allocate, mma_deallocate
       use pt2_guga_data
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "segtab.fh"
@@ -31,6 +31,13 @@
      &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),
      &                       ILNDW(:), SCR(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
+      Integer IA0, IB0, IC0, IAC
+      Integer LV1RAS, LV3RAS, LM1RAS, LM3RAS
+      Integer MXDWN, MXUP, NDAW, NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,
+     &        NIOCP, NIOCSF, NIOW, NLTV, NRAW, NMAW, NMVL, NMVR,
+     &        NNICOUP, NNOCP, NNOCSF, NNOW, NNRL, NSCR, NTMP, NUP,
+     &        NVTAB_FINAL, NVTAB_TMP
+
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
