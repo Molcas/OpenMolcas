@@ -37,7 +37,8 @@ C
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use pt2_guga_data, only: NLEV
+      use pt2_guga_data, only: NLEV, MXLEV, NG1, NG2, NG3, NCSF, ISM,
+     &                         L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -55,7 +56,6 @@ C
       INTEGER, PARAMETER :: I1=KIND(idxG3)
 
       REAL*8 DG1,DG2,DG3,DF1,DF2,DF3
-*     REAL*8 F1SUM,F2SUM
 
       INTEGER I,J,IDX,JDX
       INTEGER IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
@@ -70,9 +70,7 @@ C
       INTEGER ISSG1,ISSG2,ISP1
       INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
      &        LTASK_LIST,MXTASK,MYTASK,MYBUFFER
-*     INTEGER NSGM1,NSGM2
       INTEGER NTRI1,NTRI2
-*     INTEGER L1,LTO,LFROM
       INTEGER MEMMAX, MEMMAX_SAFE
       INTEGER NLEV2
 #ifdef _ENABLE_BLOCK_DMRG_
@@ -80,7 +78,6 @@ C
 #endif
       INTEGER LDUM,NDUM
       INTEGER NCI
-*     INTEGER ICSF
 
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
 
