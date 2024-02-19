@@ -15,12 +15,12 @@
       use gugx, only: IA0, IB0, IC0, NLEV, NVERT0, NVERT,               &
      &                LV1RAS,LM1RAS,LV3RAS,LM3RAS,                      &
      &                NOW1, NNOW, IOW1, NIOW,                           &
-     &                MIDLEV,NMIDV,MIDV1,MIDV2
+     &                MIDLEV,NMIDV,MIDV1,MIDV2,                         &
+     &                NOCSF, NNOCSF, IOCSF, NIOCSF
       implicit none
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)
       Integer, Allocatable:: NOCP(:), IOCP(:)
-      Integer, Allocatable:: NOCSF(:), IOCSF(:)
       Integer, Allocatable:: ICASE(:), ICOUP(:)
       Real*8,  Allocatable:: VTAB(:)
       save
