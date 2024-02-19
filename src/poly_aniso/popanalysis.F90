@@ -110,20 +110,15 @@ do nb1=1,NmaxPop
         ! sum over all other components of other sites
         do nb2=1,exch
           do nb3=1,exch
-            if (ibas(nb2,l)+1 /= i1) Go To 11
-            if (ibas(nb3,l)+1 /= i2) Go To 11
+            if (ibas(nb2,l)+1 /= i1) cycle
+            if (ibas(nb3,l)+1 /= i2) cycle
             tmp = 0
             do il=1,lmax
-              if (il == l) Go To 10
-              tmp = tmp+(ibas(nb2,il)-ibas(nb3,il))**2
-10            continue
+              if (il /= l) tmp = tmp+(ibas(nb2,il)-ibas(nb3,il))**2
             end do
 
-            if (tmp > 0) Go To 11
+            if (tmp == 0) pop(nb1,l,i1,i2) = pop(nb1,l,i1,i2)+conjg(Z(nb2,nb1))*Z(nb3,nb1)
 
-            pop(nb1,l,i1,i2) = pop(nb1,l,i1,i2)+conjg(Z(nb2,nb1))*Z(nb3,nb1)
-
-11          continue
           end do
         end do
       end do

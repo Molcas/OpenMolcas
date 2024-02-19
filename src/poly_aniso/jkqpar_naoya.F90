@@ -39,9 +39,9 @@ do k1=0,J1
     do k2=0,J2
       do q2=-k2,k2
         ! the rank of individual spins must be even
-        if (mod(k1,2) /= 1) Go To 104
+        if (mod(k1,2) /= 1) cycle
         ! the rank of individual spins must be even
-        if (mod(k2,2) /= 1) Go To 104
+        if (mod(k2,2) /= 1) cycle
         ! If the total rank is odd, Then it is a local ZFS contribution; ==> to be Done later
         ! compute the qmat:
         ! projections q and q' are with opposite sign:
@@ -54,8 +54,8 @@ do k1=0,J1
               ms2 = 2*is2-N2-1 ! spin projection on site 2
               do js2=1,N2
                 ns2 = 2*js2-N2-1 ! spin projection on site 2
-                if (WCG(J1,J1,2*k1,0,J1,J1) == 0) Go To 103
-                if (WCG(J2,J2,2*k2,0,J2,J2) == 0) Go To 103
+                if (WCG(J1,J1,2*k1,0,J1,J1) == 0) cycle
+                if (WCG(J2,J2,2*k2,0,J2,J2) == 0) cycle
 
                 QMAT(is1,js1,is2,js2) = WCG(J1,ns1,2*k1,-2*q1,J1,ms1)*WCG(J2,ns2,2*k2,-2*q2,J2,ms2)/WCG(J1,J1,2*k1,0,J1,J1)/ &
                                         WCG(J2,J2,2*k2,0,J2,J2)
@@ -65,7 +65,6 @@ do k1=0,J1
                                                   QMAT(is1,js1,is2,js2)
                 end if
 
-103             continue
               end do
             end do
           end do
@@ -95,7 +94,6 @@ do k1=0,J1
           write(u6,'(4(A,i3),A,2F20.14)') '    J(',k1,',',q1,',',k2,',',q2,') = ',Jpar(k1,q1,k2,q2)
         end if
 
-104     continue
       end do
     end do
   end do

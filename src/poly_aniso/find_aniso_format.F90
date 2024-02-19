@@ -16,42 +16,55 @@ use Definitions, only: u5, u6
 implicit none
 logical :: old_aniso_format
 character(len=280) :: line
-integer :: LINENR
+integer :: LINENR, istatus
 
 old_aniso_format = .false.
 
 !=========== End of default settings====================================
 rewind(u5)
-50 read(u5,'(A280)',end=998) LINE
-call NORMAL(LINE)
-if (LINE(1:11) /= '&POLY_ANISO') Go To 50
+do
+  read(u5,'(A280)',iostat=istatus) LINE
+  if (istatus < 0) then
+    call Error()
+    write(u6,*) 'find_aniso_format::  old_aniso_format=',old_aniso_format
+    return
+  end if
+  call NORMAL(LINE)
+  if (LINE(1:11) == '&POLY_ANISO') exit
+end do
 LINENR = 0
-100 read(u5,'(A280)',end=998) line
-LINENR = LINENR+1
-call NORMAL(LINE)
-if (LINE(1:1) == '*') Go To 100
-if (LINE == ' ') Go To 100
-if (LINE(1:4) /= 'OLDA') Go To 100
-if ((LINE(1:4) == 'END ') .or. (LINE(1:4) == '    ')) Go To 200
-
-if (line(1:4) == 'OLDA') then
-
-  old_aniso_format = .true.
-
+do
+  read(u5,'(A280)',iostat=istatus) line
+  if (istatus < 0) then
+    call Error()
+    write(u6,*) 'find_aniso_format::  old_aniso_format=',old_aniso_format
+    exit
+  end if
   LINENR = LINENR+1
-  Go To 100
-end if
+  call NORMAL(LINE)
+  if ((LINE(1:1) == '*') .or. (LINE == ' ')) cycle
+  select case (LINE(1:4))
+    case ('END ','    ')
+      exit
 
-200 continue
+    case ('OLDA')
 
-Go To 190
-!------ errors ------------------------------
-998 continue
-write(u6,*) ' READIN: Unexpected End of input file.'
+      old_aniso_format = .true.
 
-190 continue
+      LINENR = LINENR+1
+  end select
+end do
+
 write(u6,*) 'find_aniso_format::  old_aniso_format=',old_aniso_format
 
 return
+
+contains
+
+subroutine Error()
+
+  write(u6,*) ' FIND_ANISO_FORMAT: Unexpected End of input file.'
+
+end subroutine Error
 
 end subroutine find_aniso_format

@@ -22,7 +22,6 @@ complex(kind=8) :: HCOV(N,N)
 ! local variables
 integer i, j, JLn, ms1, ns1
 real(kind=8) :: HCOV1(N,N)
-real(kind=8) :: test1
 external WCG
 #include "stdalloc.fh"
 #include "jcoeff.fh"
@@ -41,11 +40,9 @@ do i=1,N
         do iJ=1,17
           do iK=0,6,2
             do ika=-4,4,4
-              test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)
-              if (test1 == Zero) Go To 107
+              if (WCG(JLn,JLn,2*iK,0,JLn,JLn) == Zero) cycle
               HCOV1(i,j) = HCOV1(i,j)+t*t/(u+dE(lant,iLS,iJ))*Jx(lant,iLS,iJ,iK,ika,0,0)*WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)/ &
                            WCG(JLn,JLn,2*iK,0,JLn,JLn)
-107           continue
             end do
           end do
         end do
@@ -57,10 +54,8 @@ do i=1,N
         do iJ=1,17
           do iK=0,6,2
             do ika=-4,4,4
-              test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)
-              if (test1 == Zero) Go To 108
+              if (WCG(JLn,JLn,2*iK,0,JLn,JLn) == Zero) cycle
               HCOV1(i,j) = HCOV1(i,j)+t*t/u*Jx(lant,iLS,iJ,iK,ika,0,0)*WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)/WCG(JLn,JLn,2*iK,0,JLn,JLn)
-108           continue
             end do
           end do
         end do

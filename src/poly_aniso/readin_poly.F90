@@ -20,7 +20,7 @@ subroutine Readin_poly(nneq,neq,neqv,exch,nCenter,nT,nH,nTempMagn,nDir,nDirZee,n
 ! THIS ROUTINE READS THE standard input.
 
 use Constants, only: Zero, One, Three
-use Definitions, only: wp, u5, u6
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 #include "mgrid.fh"
@@ -123,7 +123,7 @@ integer :: ll, i, j, l, m, n, icount_b_sites, lp, ic, jc
 integer :: linenr, inneq, irank1, irank2, iproj1, iproj2
 integer :: duplicate_check(nPair), nind(exch,2)
 integer :: nst, ASUM, jrank1, jrank2, jproj1, jproj2
-integer :: i1, i2, lb1, lb2
+integer :: i1, i2, lb1, lb2, istatus
 ! index of the metal site in a given interacting pair
 !integer :: nind(nPair,2)
 !integer :: ind_exch(nneq)
@@ -181,913 +181,891 @@ if (DBG) write(u6,'(A,99i6)') 'RDIN:   nexch()=',(nexch(i),i=1,nneq)
 
 !=========== End of default settings====================================
 rewind(u5)
-50 read(u5,'(A72)',end=998) LINE
-if (DBG) write(u6,'(A)') LINE
-call NORMAL(LINE)
-if (LINE(1:5) /= '&POLY') Go To 50
+do
+  read(u5,'(A72)',iostat=istatus) LINE
+  if (istatus < 0) call Error(5)
+  if (DBG) write(u6,'(A)') LINE
+  call NORMAL(LINE)
+  if (LINE(1:5) == '&POLY') exit
+end do
 LINENR = 0
 
-100 call xFlush(u6)
-read(u5,'(A72)',end=998) LINE
-LINENR = LINENR+1
-call NORMAL(LINE)
-if (LINE(1:1) == '*') Go To 100
-if (LINE == ' ') Go To 100
-if (LINE(1:3) == 'END') Go To 210 !End
-
-! ------------ TITL ---------------------------------------------------*
-if (LINE(1:4) == 'TITL') then
-
-  read(u5,*,err=997) ctmp
-
-  if (DBG) write(u6,'(A)') ctmp
-  check_title = .true.
-  Title = trim(ctmp)
+do
+  call xFlush(u6)
+  read(u5,'(A72)',iostat=istatus) LINE
+  if (istatus < 0) call Error(5)
   LINENR = LINENR+1
-  Go To 100
-end if
-
-! ------------ OLDA ---------------------------------------------------*
-if (LINE(1:4) == 'OLDA') then
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process MLTP command --------------------------------------------*
-if (LINE(1:4) == 'MLTP') then
-
-  read(u5,*,err=997) NMULT
-
-  if (DBG) write(u6,'(A,i4)') 'NMULT =',NMULT
-
-  read(u5,*,Err=997) (NDIM(i),i=1,NMULT)
-
-  do i=1,NMULT
-    if (NDIM(i) < 0) then
-      ctmp = ''
-      write(ctmp,'(A,I2,A)') 'MLTP: the dimension of the multiplet ',i,' is negative!!!'
-      call WarningMessage(2,ctmp)
-      call quit(_RC_INPUT_ERROR_)
-    else if (NDIM(i) == 0) then
-      ctmp = ''
-      write(ctmp,'(A,I2,A)') 'MLTP: the dimension of the multiplet ',i,' is zero!!!'
-      call WarningMessage(2,ctmp)
-      call quit(_RC_INPUT_ERROR_)
-    end if
-  end do
-
-  if (DBG) write(u6,'(A,100i4)') 'NDIM: ',(NDIM(i),i=1,NMULT)
-  compute_g_tensors = .true.
-  LINENR = LINENR+2
-  Go To 100
-end if
-
-!---  process TINT command --------------------------------------------*
-if (LINE(1:4) == 'TINT') then
-  compute_susceptibility = .true.
-  if (.not. TINPUT) then
-    TCHECK = .true.
-
-    read(u5,*,err=997) t1,t2,nT
-
-    if ((t1 < 0) .or. (t2 < 0)) then
-      call WarningMessage(2,'TINT: negative temperature requested! ')
-      call quit(_RC_INPUT_ERROR_)
-    end if
-    if ((t1-t2) > Zero) then
-      Tmin = t2
-      Tmax = t1
-    else if ((t1-t2) < Zero) then
-      Tmin = t1
-      Tmax = t2
-    else ! t1==t2
-      call WarningMessage(2,'TINT: temperature interval == 0! ')
-      call quit(_RC_INPUT_ERROR_)
-    end if
-
-    if (DBG) write(u6,'(A,2ES15.7,i6)') 'Tmin, Tmax, nT: ',Tmin,Tmax,nT
-  else
-    goto 590
-  end if
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process HINT command --------------------------------------------*
-if (LINE(1:4) == 'HINT') then
-  if (.not. HINPUT) then
-    HCHECK = .true.
-    compute_magnetization = .true.
-
-    read(u5,*,err=997) t1,t2,nH
-
-    if ((t1 < 0) .or. (t2 < 0)) then
-      call WarningMessage(2,'HINT: negative field requested! ')
-      call quit(_RC_INPUT_ERROR_)
-    end if
-    if ((t1-t2) > Zero) then
-      Hmin = t2
-      Hmax = t1
-    else if ((t1-t2) < Zero) then
-      Hmin = t1
-      Hmax = t2
-    else ! t1==t2
-      call WarningMessage(2,'HINT: temperature interval == 0! ')
-      call quit(_RC_INPUT_ERROR_)
-    end if
-
-    if (DBG) write(u6,'(A,2ES15.7,i6)') 'Hmin, Hmax, nH: ',Hmin,Hmax,nH
-  else
-    Go To 591
-  end if
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process THRS command --------------------------------------------*
-if (LINE(1:4) == 'THRS') then
-
-  read(u5,*,err=997) THRS
-
-  if (thrs < Zero) then
-    call WarningMessage(2,'THRS: negative threshold for  average M!!! ')
-    write(u6,'(A)') 'Set to default thrs=1.0e-10'
-    thrs = 1.0e-10_wp
-  end if
-
-  if (DBG) write(u6,'(A,ES15.7)') 'THRS: ',THRS
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process XFIE command --------------------------------------------*
-if (LINE(1:4) == 'XFIE') then
-  compute_susceptibility = .true.
-
-  read(u5,*,err=997) tmp
-
-  if (tmp < Zero) then
-    call WarningMessage(2,'XFIE: negative value of the applied field !')
-    write(u6,'(A)') 'Set to positive !'
-    Xfield = abs(tmp)
-  else if (tmp == Zero) then
-    call WarningMessage(2,'XFIE: zero value of the applied field !')
-    write(u6,'(A)') 'Field-applied XT will not be computed!'
-  else
-    Xfield = tmp
-  end if
-  if (DBG) write(u6,'(A,ES15.7)') 'XFIE: ',xField
-
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process PLOT command --------------------------------------------*
-if (LINE(1:4) == 'PLOT') then
-  DoPlot = .true.
-
-  if (DBG) write(u6,'(A,L2)') 'PLOT: ',DoPlot
-
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process IOPT command --------------------------------------------*
-if (LINE(1:4) == 'IOPT') then
-
-  read(u5,*,err=997) I  !option for computing MSUM and XTSUM
-
-  if ((i < 0) .or. (i > 3)) then
-    call WarningMessage(2,'IOPT: value out of range!!!')
-    write(u6,'(A)') 'Set to default !'
-    iopt = 1
-  else
-    iopt = i
-  end if
-
-  if (DBG) write(u6,'(A,I6)') 'IOPT: ',IOPT
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process SMAG command --------------------------------------------*
-if (LINE(1:4) == 'SMAG') then
-  smagn = .true.
-  compute_magnetization = .true.
-  if (DBG) write(u6,'(A,L2)') 'SMAG: ',smagn
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process MACC command --------------------------------------------*
-if (LINE(1:4) == 'MACC') then
-  compute_magnetization = .true.  ! request for computation of M(H)
-  m_accurate = .true.             ! request for computation of M(H)
-  if (DBG) write(u6,'(A,L2)') 'MACC: ',m_accurate
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process FITX command --------------------------------------------*
-if (LINE(1:4) == 'FITX') then
-  fitCHI = .true.
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process FITM command --------------------------------------------*
-if (LINE(1:4) == 'FITM') then
-  fitM = .true.
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process MPAR command --------------------------------------------*
-if (LINE(1:4) == 'MPAR') then
-  m_paranoid = .true.             ! request for computation of M(H)
-  compute_magnetization = .true.
-  if (DBG) write(u6,'(A,L2)') 'MPAR: ',m_paranoid
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process TORQ command --------------------------------------------*
-if (LINE(1:4) == 'TORQ') then
-
-  compute_torque = .true.         ! request for computation of M(H)
-  read(u5,*,err=997) i        ! number of angular points
-
-  if (i <= 0) then
-    call WarningMessage(2,'TORQ: nP value out of range!!!')
-    write(u6,'(A)') 'Set to default !'
-    nP = 45
-  else
-    nP = i
-  end if
-
-  if (DBG) write(u6,'(A)') 'TORQ: nP=',nP
-  AngPoints = nP+1
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process MAVE command --------------------------------------------*
-if (LINE(1:4) == 'MAVE') then
-  compute_magnetization = .true.  ! request for computation of M(H)
-
-  read(u5,*,err=997) i,j  !nsymm, ngrid
-
-  if ((i <= 0) .or. (i >= 4)) then
-    call WarningMessage(2,'MAVE: nSYMM value out of range!!!')
-    write(u6,'(A)') 'Set to default !'
-    nsymm = 1
-  else
-    nsymm = i
-  end if
-
-  if ((j <= 0) .or. (j >= 33)) then
-    call WarningMessage(2,'MAVE: nGRID value out of range!!!')
-    write(u6,'(A)') 'Set to default !'
-    ngrid = 15
-  else
-    ngrid = i
-  end if
-
-  if (DBG) write(u6,'(2(A,i6))') ' nsymm:  ',nsymm,' ngrid:  ',ngrid
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process NCUT command --------------------------------------------*
-if (LINE(1:4) == 'NCUT') then
-  if (ENCUT_check) then
-    Go To 595
-  else
-    ENCUT_check = .true.
-    ! request for computation of M(H)
-    compute_magnetization = .true.
-    encut_definition = 1
-
-    read(u5,*,err=997) i ! NCUT
-    !E_cut = exchange_energy(Ncut)
-
-    if ((i <= 0) .or. (i > exch)) then
-      call WarningMessage(2,'NCUT: value out of range!!!')
-      write(u6,'(A)') 'Set to full exchange basis.'
-      nCUT = exch
-    else
-      nCUT = i
-    end if
-    if (DBG) write(u6,'(A,2i6)') 'ncut:  ',nCut
-
-    LINENR = LINENR+1
-    Go To 100
-  end if
-end if
-
-!---  process ENCU command --------------------------------------------*
-if (LINE(1:4) == 'ENCU') then
-  if (ENCUT_check) then
-    Go To 595
-  else
-    ENCUT_check = .true.
-    ! request for computation of M(H)
-    compute_magnetization = .true.
-    encut_definition = 2
-
-    read(u5,*,err=997) NK,MG
-    !E_cut = NK*K_Boltz+MG*mu_Bohr
-    if (DBG) write(u6,'(A,2i6)') 'encu:  nK, mG=',NK,MG
-
-    LINENR = LINENR+1
-    Go To 100
-  end if
-end if
-
-!---  process ERAT command --------------------------------------------*
-if (LINE(1:4) == 'ERAT') then
-  if (ENCUT_check) then
-    Go To 595
-  else
-    ENCUT_check = .true.
-    ! request for computation of M(H)
-    compute_magnetization = .true.
-    encut_definition = 3
-
-    read(u5,*,err=997) encut_rate
-    !Ncut = int(nexch*encut_rate)
-    !E_cut = E(Ncut)
-    if (DBG) write(u6,'(A,i6)') 'encut_rate=',encut_rate
-
-    LINENR = LINENR+1
-    Go To 100
-  end if
-end if
-
-!---  process ZJPR command --------------------------------------------*
-if (LINE(1:4) == 'ZJPR') then
-  read(u5,*,err=997) ZJ
-  if (DBG) write(u6,'(A,ES18.10)') 'zJ    =',zJ
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process PRLV command --------------------------------------------*
-if (LINE(1:4) == 'PRLV') then
-  read(u5,*,err=997) iPrint
-  if (DBG) write(u6,'(A,i6)') 'iPrint=',iPrint
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process COOR command --------------------------------------------*
-if (LINE(1:4) == 'COOR') then
-  Dipol = .true.
-  if (DBG) write(u6,'(A)') 'isite   MagnCoords:'
-  do i=1,nneq
-    read(u5,*,err=997) (MagnCoords(i,l),l=1,3)
-    if (DBG) write(u6,'(i3,5x,3ES18.10)') i,(MagnCoords(i,l),l=1,3)
-  end do
-  LINENR = LINENR+nneq
-  Go To 100
-end if
-
-!---  process MVEC command --------------------------------------------*
-if (LINE(1:4) == 'MVEC') then
-  compute_magnetization = .true.  ! request for computation of M(H)
-  compute_Mdir_vector = .true.
-
-  read(u5,*,err=997) nDir
-  if (DBG) write(u6,'(A,i3)') 'nDir = ',nDir
-
-  do i=1,nDir
-    read(u5,*,err=997) DirX(i),DirY(i),DirZ(i)
-    if (DBG) write(u6,'(i3,5x,3ES18.10)') i,DirX(i),DirY(i),DirZ(i)
-  end do
-  ! some processing:
-  do i=1,nDir
-    sum = DirX(i)*DirX(i)+DirY(i)*DirY(i)+DirZ(i)*DirZ(i)
-    if (sum == Zero) then
-      write(u6,'(a,i3,a)') 'error: MVEC  vector ',i,'has the modulus = 0.0.'
-      write(u6,'(a     )') 'the program will stop now.'
-      call quit(_RC_INPUT_ERROR_)
-    end if
-    if (abs(sum-One) > 0.5e-13_wp) then
-      write(u6,'(a,i3,a)') 'the vector ',i,'was re-normalized.'
-      tmp = dirX(i)/sqrt(sum)
-      dirX(i) = tmp
-      tmp = dirY(i)/sqrt(sum)
-      dirY(i) = tmp
-      tmp = dirZ(i)/sqrt(sum)
-      dirZ(i) = tmp
-    end if
-  end do
-
-  LINENR = LINENR+NDIR+1
-  Go To 100
-end if
-
-!---  process TEXP command --------------------------------------------*
-if (LINE(1:4) == 'TEXP') then
-  compute_susceptibility = .true.
-  if (.not. TCHECK) then
-    TINPUT = .true.
-
-    read(u5,*,err=997) NT
-    if (DBG) write(u6,'(A,i3)') 'nT = ',nT
-
-    do i=1,NT
-
-      read(u5,*,err=997) texp(i),chit_exp(i)
-
-      ! check and clean negative values:
-      if (texp(i) < Zero) texp(i) = abs(texp(i))
-      if (chit_exp(i) < Zero) chit_exp(i) = abs(chit_exp(i))
-    end do
-    tmin = texp(1)
-    tmax = texp(nT)
-  else
-    Go To 590
-  end if
-  LINENR = LINENR+NT+1
-  Go To 100
-end if
-
-!---  process HEXP command --------------------------------------------*
-if (LINE(1:4) == 'HEXP') then
-  compute_magnetization = .true.
-  if (checkTMAG) then
-    write(u6,'(A)') 'The data provided in TMAG will be ignored.'
-  end if
-
-  if (.not. HCHECK) then
-    HINPUT = .true.
-
-    read(u5,*) nTempMagn,(TempMagn(i),i=1,nTempMagn)
-    read(u5,*) nH
-    if (DBG) write(u6,*) 'HEXP: nTempMagn =',nTempMagn
-    if (DBG) write(u6,*) 'HEXP: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
-    if (DBG) write(u6,*) 'HEXP: nH        =',nH
-
-    if (nH < 0) nH = abs(nH)
-    if (nH == 0) call Quit_OnUserError()
-
-    do i=1,nH
-      read(u5,*,err=997) Hexp(i),(Mexp(i,j),j=1,nTempMagn)
-      ! check and clean negative values:
-      if (hexp(i) < Zero) hexp(i) = abs(hexp(i))
-      do j=1,nTempMagn
-        if (Mexp(i,j) < Zero) Mexp(i,j) = abs(Mexp(i,j))
+  call NORMAL(LINE)
+  if ((LINE(1:1) == '*') .or. (LINE == ' ')) cycle
+  if (LINE(1:3) == 'END') exit
+  select case (LINE(1:4))
+
+    ! ------------ TITL -----------------------------------------------*
+    case ('TITL')
+
+      read(u5,*,iostat=istatus) ctmp
+      if (istatus /= 0) call Error(4)
+
+      if (DBG) write(u6,'(A)') ctmp
+      check_title = .true.
+      Title = trim(ctmp)
+      LINENR = LINENR+1
+
+    ! ------------ OLDA -----------------------------------------------*
+    case ('OLDA')
+      LINENR = LINENR+1
+
+    !---  process MLTP command ----------------------------------------*
+    case ('MLTP')
+
+      read(u5,*,iostat=istatus) NMULT
+      if (istatus /= 0) call Error(4)
+
+      if (DBG) write(u6,'(A,i4)') 'NMULT =',NMULT
+
+      read(u5,*,iostat=istatus) (NDIM(i),i=1,NMULT)
+      if (istatus /= 0) call Error(4)
+
+      do i=1,NMULT
+        if (NDIM(i) < 0) then
+          ctmp = ''
+          write(ctmp,'(A,I2,A)') 'MLTP: the dimension of the multiplet ',i,' is negative!!!'
+          call WarningMessage(2,ctmp)
+          call quit(_RC_INPUT_ERROR_)
+        else if (NDIM(i) == 0) then
+          ctmp = ''
+          write(ctmp,'(A,I2,A)') 'MLTP: the dimension of the multiplet ',i,' is zero!!!'
+          call WarningMessage(2,ctmp)
+          call quit(_RC_INPUT_ERROR_)
+        end if
       end do
-    end do
-    hmin = hexp(1)
-    hmax = hexp(nH)
-  else
-    Go To 591
-  end if
-  LINENR = LINENR+NH+2
-  Go To 100
-end if
-!---  process TMAG command --------------------------------------------*
-if (LINE(1:4) == 'TMAG') then
-  if (.not. HINPUT) then
-    compute_magnetization = .true.
-    checkTMAG = .true.
 
-    read(u5,*,err=997) nTempMagn,(TempMagn(i),i=1,nTempMagn)
-    if (DBG) write(u6,*) 'TMAG: nTempMagn =',nTempMagn
-    if (DBG) write(u6,*) 'TMAG: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+      if (DBG) write(u6,'(A,100i4)') 'NDIM: ',(NDIM(i),i=1,NMULT)
+      compute_g_tensors = .true.
+      LINENR = LINENR+2
 
-    ! check and clean for zero / negative values:
-    do i=1,nTempMagn
-      if (TempMagn(i) < Zero) then
-        call WarningMessage(2,'TMAG: negative temperature requested! ')
-        write(u6,'(A)') 'Set to positive.'
-        TempMagn(i) = abs(TempMagn(i))
-      else if (TempMagn(i) == Zero) then
-        call WarningMessage(2,'TMAG: zero temperature requested! ')
-        write(u6,'(A)') 'Set to 0.0001 K.'
-        TempMagn(i) = 0.0001_wp
+    !---  process TINT command ----------------------------------------*
+    case ('TINT')
+      compute_susceptibility = .true.
+      if (TINPUT) then
+        call Error(1)
+      else
+        TCHECK = .true.
+
+        read(u5,*,iostat=istatus) t1,t2,nT
+        if (istatus /= 0) call Error(4)
+
+        if ((t1 < 0) .or. (t2 < 0)) then
+          call WarningMessage(2,'TINT: negative temperature requested! ')
+          call quit(_RC_INPUT_ERROR_)
+        end if
+        if ((t1-t2) > Zero) then
+          Tmin = t2
+          Tmax = t1
+        else if ((t1-t2) < Zero) then
+          Tmin = t1
+          Tmax = t2
+        else ! t1==t2
+          call WarningMessage(2,'TINT: temperature interval == 0! ')
+          call quit(_RC_INPUT_ERROR_)
+        end if
+
+        if (DBG) write(u6,'(A,2ES15.7,i6)') 'Tmin, Tmax, nT: ',Tmin,Tmax,nT
       end if
-    end do
-  else
-    write(u6,'(A)') 'TMAG data is taken from HEXP.'
-  end if
-  LINENR = LINENR+1
-  Go To 100
-end if
-!---  process NNEQ command --------------------------------------------*
-! this is the most important keyword for Poly_Aniso
-if (LINE(1:4) == 'NNEQ') then
-  ! number of non-equivalent centers; type of all centers
-  read(u5,*,err=997) NNEQ,ab_initio_all,ifHDF
-  if (DBG) write(u6,'(A,i4,A,L2,A,L2)') 'NNEQ=',NNEQ,' ab_initio_all=',ab_initio_all,' ifHDF=',ifHDF
-  ! number of equivalent centers of type "i"
-  read(u5,*,err=997) (NEQ(i),i=1,Nneq)
-  if (DBG) write(u6,'(A,100I4)') 'NEQ(I)=',(NEQ(i),i=1,nneq)
-  ! number of RASSI wf for exchange
-  read(u5,*,err=997) (Nexch(i),i=1,Nneq)
-  if (DBG) write(u6,'(A,100I4)') 'NExch(I)=',(NExch(i),i=1,nneq)
+      LINENR = LINENR+1
 
-  do i=1,nneq
-    if (Nexch(i) < 0) then
-      write(u6,'(A,i1,a)') 'The number of functions taken in the exchange interaction from center of type ',i,' is negative!'
-      write(u6,'(A     )') 'The program has to stop, since the input is not reasonable.'
-      call quit(_RC_INPUT_ERROR_)
-    else if (Nexch(i) == 0) then
-      write(u6,'(A,i1,a)') 'The number of functions taken in the exchange interaction from center of type ',i,' is 0 (zero).'
-      write(u6,'(A)') 'The program has to stop, since the input is not reasonable.'
-      call quit(_RC_INPUT_ERROR_)
-    end if
-  end do
-  do i=1,nneq
-    if (neq(i) > 1) then
-      nosym = .false.
-    end if
-  end do
-  !write(u6,'(A,i5)') 'exch = ',exch
-  if (exch == 1) then
-    write(u6,'(3/)')
-    write(u6,'(100A)') ('#',i=1,100)
-    write(u6,'(3/)')
-    write(u6,'(A)') 'The size of the exchange matrix is 1. Is this really what you intended to compute?'
-    write(u6,'(A)') 'The program will continue...'
-    write(u6,'(3/)')
-    write(u6,'(100A)') ('#',i=1,100)
-    write(u6,'(3/)')
-  end if
+    !---  process HINT command ----------------------------------------*
+    case ('HINT')
+      if (HINPUT) then
+        call Error(2)
+      else
+        HCHECK = .true.
+        compute_magnetization = .true.
 
-  !do i=1,nCenter
-  !  ind_exch(i) = i
-  !end do
+        read(u5,*,iostat=istatus) t1,t2,nH
+        if (istatus /= 0) call Error(4)
 
-  ! If the EXCH is above the limit => exit with an error
-  if (exch > 15000) then
-    write(u6,'(A)') 'The number of exchange states is very large'
-    write(u6,'(A)') 'EXCH=',exch
-    write(u6,'(A)') 'The calculation will continue, but might take a LOT of time'
-    write(u6,'(A)') 'We recomend to switch OFF the computation of powder magnetization'
-  end if
+        if ((t1 < 0) .or. (t2 < 0)) then
+          call WarningMessage(2,'HINT: negative field requested! ')
+          call quit(_RC_INPUT_ERROR_)
+        end if
+        if ((t1-t2) > Zero) then
+          Hmin = t2
+          Hmax = t1
+        else if ((t1-t2) < Zero) then
+          Hmin = t1
+          Hmax = t2
+        else ! t1==t2
+          call WarningMessage(2,'HINT: temperature interval == 0! ')
+          call quit(_RC_INPUT_ERROR_)
+        end if
 
-  if (.not. ab_initio_all) then
+        if (DBG) write(u6,'(A,2ES15.7,i6)') 'Hmin, Hmax, nH: ',Hmin,Hmax,nH
+      end if
+      LINENR = LINENR+1
 
-    !type of the center:   A -- the information is read from aniso_ion.input
-    !                      B -- the center is isotropic with g factor read from the input
-    !                      C -- the center is anisotropic with
-    read(u5,*,err=997) (itype(i),i=1,Nneq)
-    if (DBG) write(u6,'(A,100A3)') 'itype: ',(itype(i),i=1,nneq)
-    if (DBG) call xFlush(u6)
-    icount_B_sites = 0
-    do i=1,nneq
-      if ((itype(i) == 'B') .or. (itype(i) == 'C')) then
-        icount_B_sites = icount_B_sites+1
-        read(u5,*,err=997) (gtens_input(l,i),l=1,3),D_fact(i),EoverD_fact(i)
-        if (DBG) write(u6,'(A,i4,A,3ES20.10, 2(A,ES20.10) )') 'gtens_input(',i,')=',(gtens_input(l,i),l=1,3),' D = ',D_fact(i), &
-                                                              ' E/D =',EoverD_fact(i)
-        if ((itype(i) == 'C') .and. ((gtens_input(1,i) /= gtens_input(2,i)) .or. (gtens_input(1,i) /= gtens_input(3,i)) .or. &
-            (gtens_input(2,i) /= gtens_input(3,i)))) then
-          do ic=1,3
-            read(u5,*,err=997) (riso(i,jc,ic),jc=1,3)
-          end do
+    !---  process THRS command ----------------------------------------*
+    case ('THRS')
 
+      read(u5,*,iostat=istatus) THRS
+      if (istatus /= 0) call Error(4)
+
+      if (thrs < Zero) then
+        call WarningMessage(2,'THRS: negative threshold for  average M!!! ')
+        write(u6,'(A)') 'Set to default thrs=1.0e-10'
+        thrs = 1.0e-10_wp
+      end if
+
+      if (DBG) write(u6,'(A,ES15.7)') 'THRS: ',THRS
+      LINENR = LINENR+1
+
+    !---  process XFIE command ----------------------------------------*
+    case ('XFIE')
+      compute_susceptibility = .true.
+
+      read(u5,*,iostat=istatus) tmp
+      if (istatus /= 0) call Error(4)
+
+      if (tmp < Zero) then
+        call WarningMessage(2,'XFIE: negative value of the applied field !')
+        write(u6,'(A)') 'Set to positive !'
+        Xfield = abs(tmp)
+      else if (tmp == Zero) then
+        call WarningMessage(2,'XFIE: zero value of the applied field !')
+        write(u6,'(A)') 'Field-applied XT will not be computed!'
+      else
+        Xfield = tmp
+      end if
+      if (DBG) write(u6,'(A,ES15.7)') 'XFIE: ',xField
+
+      LINENR = LINENR+1
+
+    !---  process PLOT command ----------------------------------------*
+    case ('PLOT')
+      DoPlot = .true.
+
+      if (DBG) write(u6,'(A,L2)') 'PLOT: ',DoPlot
+
+      LINENR = LINENR+1
+
+    !---  process IOPT command ----------------------------------------*
+    case ('IOPT')
+
+      read(u5,*,iostat=istatus) I  !option for computing MSUM and XTSUM
+      if (istatus /= 0) call Error(4)
+
+      if ((i < 0) .or. (i > 3)) then
+        call WarningMessage(2,'IOPT: value out of range!!!')
+        write(u6,'(A)') 'Set to default !'
+        iopt = 1
+      else
+        iopt = i
+      end if
+
+      if (DBG) write(u6,'(A,I6)') 'IOPT: ',IOPT
+      LINENR = LINENR+1
+
+    !---  process SMAG command ----------------------------------------*
+    case ('SMAG')
+      smagn = .true.
+      compute_magnetization = .true.
+      if (DBG) write(u6,'(A,L2)') 'SMAG: ',smagn
+      LINENR = LINENR+1
+
+    !---  process MACC command ----------------------------------------*
+    case ('MACC')
+      compute_magnetization = .true.  ! request for computation of M(H)
+      m_accurate = .true.             ! request for computation of M(H)
+      if (DBG) write(u6,'(A,L2)') 'MACC: ',m_accurate
+      LINENR = LINENR+1
+
+    !---  process FITX command ----------------------------------------*
+    case ('FITX')
+      fitCHI = .true.
+      LINENR = LINENR+1
+
+    !---  process FITM command ----------------------------------------*
+    case ('FITM')
+      fitM = .true.
+      LINENR = LINENR+1
+
+    !---  process MPAR command ----------------------------------------*
+    case ('MPAR')
+      m_paranoid = .true.             ! request for computation of M(H)
+      compute_magnetization = .true.
+      if (DBG) write(u6,'(A,L2)') 'MPAR: ',m_paranoid
+      LINENR = LINENR+1
+
+    !---  process TORQ command ----------------------------------------*
+    case ('TORQ')
+
+      compute_torque = .true.         ! request for computation of M(H)
+      read(u5,*,iostat=istatus) i        ! number of angular points
+      if (istatus /= 0) call Error(4)
+
+      if (i <= 0) then
+        call WarningMessage(2,'TORQ: nP value out of range!!!')
+        write(u6,'(A)') 'Set to default !'
+        nP = 45
+      else
+        nP = i
+      end if
+
+      if (DBG) write(u6,'(A)') 'TORQ: nP=',nP
+      AngPoints = nP+1
+      LINENR = LINENR+1
+
+    !---  process MAVE command ----------------------------------------*
+    case ('MAVE')
+      compute_magnetization = .true.  ! request for computation of M(H)
+
+      read(u5,*,iostat=istatus) i,j  !nsymm, ngrid
+      if (istatus /= 0) call Error(4)
+
+      if ((i <= 0) .or. (i >= 4)) then
+        call WarningMessage(2,'MAVE: nSYMM value out of range!!!')
+        write(u6,'(A)') 'Set to default !'
+        nsymm = 1
+      else
+        nsymm = i
+      end if
+
+      if ((j <= 0) .or. (j >= 33)) then
+        call WarningMessage(2,'MAVE: nGRID value out of range!!!')
+        write(u6,'(A)') 'Set to default !'
+        ngrid = 15
+      else
+        ngrid = i
+      end if
+
+      if (DBG) write(u6,'(2(A,i6))') ' nsymm:  ',nsymm,' ngrid:  ',ngrid
+      LINENR = LINENR+1
+
+    !---  process NCUT command ----------------------------------------*
+    case ('NCUT')
+      if (ENCUT_check) then
+        call Error(3)
+      else
+        ENCUT_check = .true.
+        ! request for computation of M(H)
+        compute_magnetization = .true.
+        encut_definition = 1
+
+        read(u5,*,iostat=istatus) i ! NCUT
+        if (istatus /= 0) call Error(4)
+        !E_cut = exchange_energy(Ncut)
+
+        if ((i <= 0) .or. (i > exch)) then
+          call WarningMessage(2,'NCUT: value out of range!!!')
+          write(u6,'(A)') 'Set to full exchange basis.'
+          nCUT = exch
         else
-          call unitmat(riso(i,:,:),3)
+          nCUT = i
         end if
+        if (DBG) write(u6,'(A,2i6)') 'ncut:  ',nCut
+
+        LINENR = LINENR+1
       end if
 
-      if (abs(D_fact(i)) > Zero) then
-        if (abs(EoverD_fact(i)/D_fact(i)) > One/Three) then
-          write(string,'(A,i3,A)') 'NNEQ: |E/D| for center',i,' > 1/3'
-          call WarningMessage(2,trim(string))
-          write(u6,'(A,i3,A)') '|E/D| for center ',i,' is set to 1/3'
-        end if
+    !---  process ENCU command ----------------------------------------*
+    case ('ENCU')
+      if (ENCUT_check) then
+        call Error(3)
+      else
+        ENCUT_check = .true.
+        ! request for computation of M(H)
+        compute_magnetization = .true.
+        encut_definition = 2
+
+        read(u5,*,iostat=istatus) NK,MG
+        if (istatus /= 0) call Error(4)
+        !E_cut = NK*K_Boltz+MG*mu_Bohr
+        if (DBG) write(u6,'(A,2i6)') 'encu:  nK, mG=',NK,MG
+
+        LINENR = LINENR+1
       end if
-    end do
-  else
-    do i=1,nneq
-      itype(i) = 'A'
-    end do
-  end if !ab_initio_all
-  LINENR = LINENR+3+icount_B_sites
-  if (DBG) call xFlush(u6)
-  Go To 100
-end if
 
-!---  process LIN9 command --------------------------------------------*
-if (LINE(1:4) == 'LIN9') then
-  AnisoLines9 = .true.
+    !---  process ERAT command ----------------------------------------*
+    case ('ERAT')
+      if (ENCUT_check) then
+        call Error(3)
+      else
+        ENCUT_check = .true.
+        ! request for computation of M(H)
+        compute_magnetization = .true.
+        encut_definition = 3
 
-  read(u5,*,err=997) npair
-  if (DBG) write(u6,'(A,i6)') 'LIN9:  nPair=',nPair
+        read(u5,*,iostat=istatus) encut_rate
+        if (istatus /= 0) call Error(4)
+        !Ncut = int(nexch*encut_rate)
+        !E_cut = E(Ncut)
+        if (DBG) write(u6,'(A,i6)') 'encut_rate=',encut_rate
 
-  do i=1,npair
-    ! the convention for 9 exchange interactions is
-    ! Jxx, Jxy, Jxz, Jyx, Jyy, Jyz, Jzx, Jzy, Jzz
-    read(u5,*,err=997) i_pair(i,1),i_pair(i,2),(JAex9(i,1,j),j=1,3),(JAex9(i,2,j),j=1,3),(JAex9(i,3,j),j=1,3)
-    if (DBG) write(u6,'(A,2I3,9F14.8)') 'LIN9: ',i_pair(i,1),i_pair(i,2),(JAex9(i,1,j),j=1,3),(JAex9(i,2,j),j=1,3), &
-                                        (JAex9(i,3,j),j=1,3)
-  end do
-  LINENR = LINENR+npair+1
-  Go To 100
-end if
+        LINENR = LINENR+1
+      end if
 
-!---  process LIN3 command --------------------------------------------*
-if ((LINE(1:4) == 'ALIN') .or. (LINE(1:4) == 'LIN3')) then
-  AnisoLines3 = .true.
+    !---  process ZJPR command ----------------------------------------*
+    case ('ZJPR')
+      read(u5,*,iostat=istatus) ZJ
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,ES18.10)') 'zJ    =',zJ
+      LINENR = LINENR+1
 
-  read(u5,*,err=997) npair
-  if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+    !---  process PRLV command ----------------------------------------*
+    case ('PRLV')
+      read(u5,*,iostat=istatus) iPrint
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,i6)') 'iPrint=',iPrint
+      LINENR = LINENR+1
 
-  do i=1,npair
-    ! the convention for 3 exchange interactions is
-    ! Jxx, Jyy, Jzz
-    read(u5,*,err=997) i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
-    if (DBG) write(u6,'(A,2i3,3F14.8)') 'ALIN/LIN3: ',i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
-  end do
-  LINENR = LINENR+npair+1
-  Go To 100
-end if
+    !---  process COOR command ----------------------------------------*
+    case ('COOR')
+      Dipol = .true.
+      if (DBG) write(u6,'(A)') 'isite   MagnCoords:'
+      do i=1,nneq
+        read(u5,*,iostat=istatus) (MagnCoords(i,l),l=1,3)
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,'(i3,5x,3ES18.10)') i,(MagnCoords(i,l),l=1,3)
+      end do
+      LINENR = LINENR+nneq
 
-!---  process JITO command --------------------------------------------*
-if (LINE(1:4) == 'ITOJ') then
-  JITO_exchange = .true.
+    !---  process MVEC command ----------------------------------------*
+    case ('MVEC')
+      compute_magnetization = .true.  ! request for computation of M(H)
+      compute_Mdir_vector = .true.
 
-  read(u5,*,err=997) npair
-  if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
-  JITOexR(:,:,:,:,:) = Zero
-  JITOexI(:,:,:,:,:) = Zero
+      read(u5,*,iostat=istatus) nDir
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,i3)') 'nDir = ',nDir
 
-  do i=1,npair
-    ! the convention for exchange interactions is
+      do i=1,nDir
+        read(u5,*,iostat=istatus) DirX(i),DirY(i),DirZ(i)
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,'(i3,5x,3ES18.10)') i,DirX(i),DirY(i),DirZ(i)
+      end do
+      ! some processing:
+      do i=1,nDir
+        sum = DirX(i)*DirX(i)+DirY(i)*DirY(i)+DirZ(i)*DirZ(i)
+        if (sum == Zero) then
+          write(u6,'(a,i3,a)') 'error: MVEC  vector ',i,'has the modulus = 0.0.'
+          write(u6,'(a     )') 'the program will stop now.'
+          call quit(_RC_INPUT_ERROR_)
+        end if
+        if (abs(sum-One) > 0.5e-13_wp) then
+          write(u6,'(a,i3,a)') 'the vector ',i,'was re-normalized.'
+          tmp = dirX(i)/sqrt(sum)
+          dirX(i) = tmp
+          tmp = dirY(i)/sqrt(sum)
+          dirY(i) = tmp
+          tmp = dirZ(i)/sqrt(sum)
+          dirZ(i) = tmp
+        end if
+      end do
 
-    read(u5,*,err=997) i_pair(i,1),i_pair(i,2),imaxrank(i,1),imaxrank(i,2)
-    do irank1=1,imaxrank(i,1),2
-      do iproj1=-irank1,irank1
-        do irank2=1,imaxrank(i,2),2
-          do iproj2=-irank2,irank2
-            read(u5,*,err=997) jrank1,jproj1,jrank2,jproj2,JITOexR(i,jrank1,jproj1,jrank2,jproj2),JITOexI(i,jrank1,jproj1,jrank2, &
-                               jproj2)
+      LINENR = LINENR+NDIR+1
+
+    !---  process TEXP command ----------------------------------------*
+    case ('TEXP')
+      compute_susceptibility = .true.
+      if (TCHECK) then
+        call Error(1)
+      else
+        TINPUT = .true.
+
+        read(u5,*,iostat=istatus) NT
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,'(A,i3)') 'nT = ',nT
+
+        do i=1,NT
+
+          read(u5,*,iostat=istatus) texp(i),chit_exp(i)
+          if (istatus /= 0) call Error(4)
+
+          ! check and clean negative values:
+          if (texp(i) < Zero) texp(i) = abs(texp(i))
+          if (chit_exp(i) < Zero) chit_exp(i) = abs(chit_exp(i))
+        end do
+        tmin = texp(1)
+        tmax = texp(nT)
+      end if
+      LINENR = LINENR+NT+1
+
+    !---  process HEXP command ----------------------------------------*
+    case ('HEXP')
+      compute_magnetization = .true.
+      if (checkTMAG) then
+        write(u6,'(A)') 'The data provided in TMAG will be ignored.'
+      end if
+
+      if (HCHECK) then
+        call Error(2)
+      else
+        HINPUT = .true.
+
+        read(u5,*) nTempMagn,(TempMagn(i),i=1,nTempMagn)
+        read(u5,*) nH
+        if (DBG) write(u6,*) 'HEXP: nTempMagn =',nTempMagn
+        if (DBG) write(u6,*) 'HEXP: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+        if (DBG) write(u6,*) 'HEXP: nH        =',nH
+
+        if (nH < 0) nH = abs(nH)
+        if (nH == 0) call Quit_OnUserError()
+
+        do i=1,nH
+          read(u5,*,iostat=istatus) Hexp(i),(Mexp(i,j),j=1,nTempMagn)
+          if (istatus /= 0) call Error(4)
+          ! check and clean negative values:
+          if (hexp(i) < Zero) hexp(i) = abs(hexp(i))
+          do j=1,nTempMagn
+            if (Mexp(i,j) < Zero) Mexp(i,j) = abs(Mexp(i,j))
           end do
         end do
-      end do
-    end do
+        hmin = hexp(1)
+        hmax = hexp(nH)
+      end if
+      LINENR = LINENR+NH+2
 
-    if (DBG) then
-      write(u6,'(A,I3)') 'ITO Exchange parameters for pair:',i
-      do jrank1=1,imaxrank(i,1),2
-        do jproj1=-jrank1,jrank1
-          do jrank2=1,imaxrank(i,2),2
-            do jproj2=-jrank2,jrank2
-              write(u6,'(4I3,2x,2ES21.14)') jrank1,jproj1,jrank2,jproj2,JITOexR(i,jrank1,jproj1,jrank2,jproj2),JITOexI(i,jrank1, &
-                                            jproj1,jrank2,jproj2)
+    !---  process TMAG command ----------------------------------------*
+    case ('TMAG')
+      if (.not. HINPUT) then
+        compute_magnetization = .true.
+        checkTMAG = .true.
+
+        read(u5,*,iostat=istatus) nTempMagn,(TempMagn(i),i=1,nTempMagn)
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,*) 'TMAG: nTempMagn =',nTempMagn
+        if (DBG) write(u6,*) 'TMAG: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+
+        ! check and clean for zero / negative values:
+        do i=1,nTempMagn
+          if (TempMagn(i) < Zero) then
+            call WarningMessage(2,'TMAG: negative temperature requested! ')
+            write(u6,'(A)') 'Set to positive.'
+            TempMagn(i) = abs(TempMagn(i))
+          else if (TempMagn(i) == Zero) then
+            call WarningMessage(2,'TMAG: zero temperature requested! ')
+            write(u6,'(A)') 'Set to 0.0001 K.'
+            TempMagn(i) = 0.0001_wp
+          end if
+        end do
+      else
+        write(u6,'(A)') 'TMAG data is taken from HEXP.'
+      end if
+      LINENR = LINENR+1
+
+    !---  process NNEQ command ----------------------------------------*
+    ! this is the most important keyword for Poly_Aniso
+    case ('NNEQ')
+      ! number of non-equivalent centers; type of all centers
+      read(u5,*,iostat=istatus) NNEQ,ab_initio_all,ifHDF
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,i4,A,L2,A,L2)') 'NNEQ=',NNEQ,' ab_initio_all=',ab_initio_all,' ifHDF=',ifHDF
+      ! number of equivalent centers of type "i"
+      read(u5,*,iostat=istatus) (NEQ(i),i=1,Nneq)
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,100I4)') 'NEQ(I)=',(NEQ(i),i=1,nneq)
+      ! number of RASSI wf for exchange
+      read(u5,*,iostat=istatus) (Nexch(i),i=1,Nneq)
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,100I4)') 'NExch(I)=',(NExch(i),i=1,nneq)
+
+      do i=1,nneq
+        if (Nexch(i) < 0) then
+          write(u6,'(A,i1,a)') 'The number of functions taken in the exchange interaction from center of type ',i,' is negative!'
+          write(u6,'(A     )') 'The program has to stop, since the input is not reasonable.'
+          call quit(_RC_INPUT_ERROR_)
+        else if (Nexch(i) == 0) then
+          write(u6,'(A,i1,a)') 'The number of functions taken in the exchange interaction from center of type ',i,' is 0 (zero).'
+          write(u6,'(A)') 'The program has to stop, since the input is not reasonable.'
+          call quit(_RC_INPUT_ERROR_)
+        end if
+      end do
+      do i=1,nneq
+        if (neq(i) > 1) then
+          nosym = .false.
+        end if
+      end do
+      !write(u6,'(A,i5)') 'exch = ',exch
+      if (exch == 1) then
+        write(u6,'(3/)')
+        write(u6,'(100A)') ('#',i=1,100)
+        write(u6,'(3/)')
+        write(u6,'(A)') 'The size of the exchange matrix is 1. Is this really what you intended to compute?'
+        write(u6,'(A)') 'The program will continue...'
+        write(u6,'(3/)')
+        write(u6,'(100A)') ('#',i=1,100)
+        write(u6,'(3/)')
+      end if
+
+      !do i=1,nCenter
+      !  ind_exch(i) = i
+      !end do
+
+      ! If the EXCH is above the limit => exit with an error
+      if (exch > 15000) then
+        write(u6,'(A)') 'The number of exchange states is very large'
+        write(u6,'(A)') 'EXCH=',exch
+        write(u6,'(A)') 'The calculation will continue, but might take a LOT of time'
+        write(u6,'(A)') 'We recomend to switch OFF the computation of powder magnetization'
+      end if
+
+      if (.not. ab_initio_all) then
+
+        !type of the center:   A -- the information is read from aniso_ion.input
+        !                      B -- the center is isotropic with g factor read from the input
+        !                      C -- the center is anisotropic with
+        read(u5,*,iostat=istatus) (itype(i),i=1,Nneq)
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,'(A,100A3)') 'itype: ',(itype(i),i=1,nneq)
+        if (DBG) call xFlush(u6)
+        icount_B_sites = 0
+        do i=1,nneq
+          if ((itype(i) == 'B') .or. (itype(i) == 'C')) then
+            icount_B_sites = icount_B_sites+1
+            read(u5,*,iostat=istatus) (gtens_input(l,i),l=1,3),D_fact(i),EoverD_fact(i)
+            if (istatus /= 0) call Error(4)
+            if (DBG) write(u6,'(A,i4,A,3ES20.10, 2(A,ES20.10) )') 'gtens_input(',i,')=',(gtens_input(l,i),l=1,3),' D = ', &
+                                                                  D_fact(i),' E/D =',EoverD_fact(i)
+            if ((itype(i) == 'C') .and. ((gtens_input(1,i) /= gtens_input(2,i)) .or. (gtens_input(1,i) /= gtens_input(3,i)) .or. &
+                (gtens_input(2,i) /= gtens_input(3,i)))) then
+              do ic=1,3
+                read(u5,*,iostat=istatus) (riso(i,jc,ic),jc=1,3)
+                if (istatus /= 0) call Error(4)
+              end do
+
+            else
+              call unitmat(riso(i,:,:),3)
+            end if
+          end if
+
+          if (abs(D_fact(i)) > Zero) then
+            if (abs(EoverD_fact(i)/D_fact(i)) > One/Three) then
+              write(string,'(A,i3,A)') 'NNEQ: |E/D| for center',i,' > 1/3'
+              call WarningMessage(2,trim(string))
+              write(u6,'(A,i3,A)') '|E/D| for center ',i,' is set to 1/3'
+            end if
+          end if
+        end do
+      else
+        do i=1,nneq
+          itype(i) = 'A'
+        end do
+      end if !ab_initio_all
+      LINENR = LINENR+3+icount_B_sites
+      if (DBG) call xFlush(u6)
+
+    !---  process LIN9 command ----------------------------------------*
+    case ('LIN9')
+      AnisoLines9 = .true.
+
+      read(u5,*,iostat=istatus) npair
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,i6)') 'LIN9:  nPair=',nPair
+
+      do i=1,npair
+        ! the convention for 9 exchange interactions is
+        ! Jxx, Jxy, Jxz, Jyx, Jyy, Jyz, Jzx, Jzy, Jzz
+        read(u5,*,iostat=istatus) i_pair(i,1),i_pair(i,2),(JAex9(i,1,j),j=1,3),(JAex9(i,2,j),j=1,3),(JAex9(i,3,j),j=1,3)
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,'(A,2I3,9F14.8)') 'LIN9: ',i_pair(i,1),i_pair(i,2),(JAex9(i,1,j),j=1,3),(JAex9(i,2,j),j=1,3), &
+                                            (JAex9(i,3,j),j=1,3)
+      end do
+      LINENR = LINENR+npair+1
+
+    !---  process LIN3 command ----------------------------------------*
+    case ('ALIN','LIN3')
+      AnisoLines3 = .true.
+
+      read(u5,*,iostat=istatus) npair
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+
+      do i=1,npair
+        ! the convention for 3 exchange interactions is
+        ! Jxx, Jyy, Jzz
+        read(u5,*,iostat=istatus) i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,'(A,2i3,3F14.8)') 'ALIN/LIN3: ',i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
+      end do
+      LINENR = LINENR+npair+1
+
+    !---  process JITO command ----------------------------------------*
+    case ('ITOJ')
+      JITO_exchange = .true.
+
+      read(u5,*,iostat=istatus) npair
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+      JITOexR(:,:,:,:,:) = Zero
+      JITOexI(:,:,:,:,:) = Zero
+
+      do i=1,npair
+        ! the convention for exchange interactions is
+
+        read(u5,*,iostat=istatus) i_pair(i,1),i_pair(i,2),imaxrank(i,1),imaxrank(i,2)
+        if (istatus /= 0) call Error(4)
+        do irank1=1,imaxrank(i,1),2
+          do iproj1=-irank1,irank1
+            do irank2=1,imaxrank(i,2),2
+              do iproj2=-irank2,irank2
+                read(u5,*,iostat=istatus) jrank1,jproj1,jrank2,jproj2,JITOexR(i,jrank1,jproj1,jrank2,jproj2),JITOexI(i,jrank1, &
+                                          jproj1,jrank2,jproj2)
+                if (istatus /= 0) call Error(4)
+              end do
             end do
           end do
         end do
+
+        if (DBG) then
+          write(u6,'(A,I3)') 'ITO Exchange parameters for pair:',i
+          do jrank1=1,imaxrank(i,1),2
+            do jproj1=-jrank1,jrank1
+              do jrank2=1,imaxrank(i,2),2
+                do jproj2=-jrank2,jrank2
+                  write(u6,'(4I3,2x,2ES21.14)') jrank1,jproj1,jrank2,jproj2,JITOexR(i,jrank1,jproj1,jrank2,jproj2), &
+                                                JITOexI(i,jrank1,jproj1,jrank2,jproj2)
+                end do
+              end do
+            end do
+          end do
+        end if
       end do
-    end if
-  end do
-  LINENR = LINENR+npair+1
-  Go To 100
-end if
+      LINENR = LINENR+npair+1
 
-!---  process PAIR = LIN1 command -------------------------------------*
-if ((LINE(1:4) == 'PAIR') .or. (LINE(1:4) == 'LIN1')) then
-  AnisoLines1 = .true.
+    !---  process PAIR = LIN1 command ---------------------------------*
+    case ('PAIR','LIN1')
+      AnisoLines1 = .true.
 
-  read(u5,*,err=997) npair
-  if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+      read(u5,*,iostat=istatus) npair
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
 
-  do i=1,npair
+      do i=1,npair
 
-    read(u5,*,err=997) i_pair(i,1),i_pair(i,2),Jex(i)
-    if (DBG) write(u6,'(i4,2x,2I4,2x,ES18.10)') i,i_pair(i,1),i_pair(i,2),Jex(i)
+        read(u5,*,iostat=istatus) i_pair(i,1),i_pair(i,2),Jex(i)
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,'(i4,2x,2I4,2x,ES18.10)') i,i_pair(i,1),i_pair(i,2),Jex(i)
 
-  end do
-  LINENR = LINENR+npair+1
-  Go To 100
-end if
-
-!---  process DMEX command --------------------------------------------*
-if (LINE(1:4) == 'DMEX') then
-  DM_exchange = .true.
-  if (DBG) write(u6,'(A,L2)') 'DMEX::  DM_exchange=',DM_exchange
-
-  read(u5,*,err=997) npair
-  if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
-
-  do i=1,npair
-    ! the convention for 3 exchange interactions is
-    ! JDMex(x, y, z)
-    read(u5,*,err=997) i_pair(i,1),i_pair(i,2),(JDMex(i,j),j=1,3)
-  end do
-  LINENR = LINENR+npair+1
-  Go To 100
-  LINENR = LINENR+1
-  Go To 100
-end if
-
-!---  process ZEEM command --------------------------------------------*
-if (LINE(1:4) == 'ZEEM') then
-  zeeman_energy = .true.
-  compute_magnetization = .true.
-  LUZEE = 0
-
-  read(u5,*,err=997) nDirZee
-
-  do i=1,nDirZee
-    ! open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
-    ! be further written in mangetization() subroutine
-    write(namefile_energy,'(5A)') 'zeeman_energy_',char(48+mod(int((i)/100),10)),char(48+mod(int((i)/10),10)), &
-                                  char(48+mod(int(i),10)),'.txt'
-    if (DBG) write(u6,'(2A)') 'namefile_energy: ',namefile_energy
-    LUZee(i) = IsFreeUnit(30+i)
-    call molcas_open(LUZee(i),namefile_energy)
-
-    read(u5,*,err=997) (dir_weight(i,l),l=1,3)
-
-    check_dir_weight(i) = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
-
-    if (abs(check_dir_weight(i)-One) > 0.005_wp) then
-      write(u6,'(A)') 'The directions for the magnetic field for the computation of the Zeeman splitting are wrong.'
-      write(u6,'(A)') '( px^2 + py^2 + pz^2 ) must give 1.!'
-      write(u6,'(A,I3,2x,A,F9.5)') 'In the present case for direction Nr.',i,' the dir_weight = px^2 + py^2 + pz^2 = ', &
-                                   check_dir_weight(i)**2
-      LINENR = LINENR+2+i
-      Go To 997
-    end if
-
-  end do
-  LINENR = LINENR+nDirZee+1
-  Go To 100
-end if
-
-!---  process MAGN command --------------------------------------------*
-!if (LINE(1:4) == 'MAGN') then
-!  compute_magnetization = .true.
-!  go to 100
-!end if
-
-!---  process SYMM command --------------------------------------------*
-if (LINE(1:4) == 'SYMM') then
-  nosym = .false.
-  check_symm_presence = .true.
-  R_lg(:,:,:,:) = Zero
-  R_rot(:,:,:,:) = Zero
-  if (DBG) write(u6,'(A,i6)') 'SYMM - at init'
-  ll = 0
-  do i=1,nneq
-    if (DBG) write(u6,'(A,i6)') 'SYMM:  i=',i
-
-    read(u5,*,err=997) inneq
-    if (DBG) write(u6,'(A,i6)') 'inneq=',inneq
-
-    do j=1,Neq(i)
-      if (DBG) write(u6,'(A,i6)') 'SYMM:  j=',j
-      do m=1,3
-        ll = ll+1
-        read(u5,*,err=997) (R_lg(i,j,m,n),n=1,3)
-        if (DBG) write(u6,'(3ES20.12)') (R_lg(i,j,m,n),n=1,3)
       end do
-    end do
+      LINENR = LINENR+npair+1
 
-    do j=1,neq(i)
-      do m=1,3
-        do n=1,3
-          tmpR(m,n) = R_lg(i,j,m,n)
+    !---  process DMEX command ----------------------------------------*
+    case ('DMEX')
+      DM_exchange = .true.
+      if (DBG) write(u6,'(A,L2)') 'DMEX::  DM_exchange=',DM_exchange
+
+      read(u5,*,iostat=istatus) npair
+      if (istatus /= 0) call Error(4)
+      if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+
+      do i=1,npair
+        ! the convention for 3 exchange interactions is
+        ! JDMex(x, y, z)
+        read(u5,*,iostat=istatus) i_pair(i,1),i_pair(i,2),(JDMex(i,j),j=1,3)
+        if (istatus /= 0) call Error(4)
+      end do
+      LINENR = LINENR+npair+1
+      !LINENR = LINENR+1
+
+    !---  process ZEEM command ----------------------------------------*
+    case ('ZEEM')
+      zeeman_energy = .true.
+      compute_magnetization = .true.
+      LUZEE = 0
+
+      read(u5,*,iostat=istatus) nDirZee
+      if (istatus /= 0) call Error(4)
+
+      do i=1,nDirZee
+        ! open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
+        ! be further written in mangetization() subroutine
+        write(namefile_energy,'(5A)') 'zeeman_energy_',char(48+mod(int((i)/100),10)),char(48+mod(int((i)/10),10)), &
+                                      char(48+mod(int(i),10)),'.txt'
+        if (DBG) write(u6,'(2A)') 'namefile_energy: ',namefile_energy
+        LUZee(i) = IsFreeUnit(30+i)
+        call molcas_open(LUZee(i),namefile_energy)
+
+        read(u5,*,iostat=istatus) (dir_weight(i,l),l=1,3)
+        if (istatus /= 0) call Error(4)
+
+        check_dir_weight(i) = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
+
+        if (abs(check_dir_weight(i)-One) > 0.005_wp) then
+          write(u6,'(A)') 'The directions for the magnetic field for the computation of the Zeeman splitting are wrong.'
+          write(u6,'(A)') '( px^2 + py^2 + pz^2 ) must give 1.!'
+          write(u6,'(A,I3,2x,A,F9.5)') 'In the present case for direction Nr.',i,' the dir_weight = px^2 + py^2 + pz^2 = ', &
+                                       check_dir_weight(i)**2
+          LINENR = LINENR+2+i
+          call Error(4)
+        end if
+
+      end do
+      LINENR = LINENR+nDirZee+1
+
+    !---  process MAGN command ----------------------------------------*
+    !case ('MAGN')
+    !  compute_magnetization = .true.
+
+    !---  process SYMM command ----------------------------------------*
+    case ('SYMM')
+      nosym = .false.
+      check_symm_presence = .true.
+      R_lg(:,:,:,:) = Zero
+      R_rot(:,:,:,:) = Zero
+      if (DBG) write(u6,'(A,i6)') 'SYMM - at init'
+      ll = 0
+      do i=1,nneq
+        if (DBG) write(u6,'(A,i6)') 'SYMM:  i=',i
+
+        read(u5,*,iostat=istatus) inneq
+        if (istatus /= 0) call Error(4)
+        if (DBG) write(u6,'(A,i6)') 'inneq=',inneq
+
+        do j=1,Neq(i)
+          if (DBG) write(u6,'(A,i6)') 'SYMM:  j=',j
+          do m=1,3
+            ll = ll+1
+            read(u5,*,iostat=istatus) (R_lg(i,j,m,n),n=1,3)
+            if (istatus /= 0) call Error(4)
+            if (DBG) write(u6,'(3ES20.12)') (R_lg(i,j,m,n),n=1,3)
+          end do
         end do
-      end do
 
-      detR = FindDetR(tmpR(1:3,1:3),3)
-      if (DBG) write(u6,'(A,3ES20.12)') 'SYMM:  detR=',detR
+        do j=1,neq(i)
+          do m=1,3
+            do n=1,3
+              tmpR(m,n) = R_lg(i,j,m,n)
+            end do
+          end do
 
-      if (abs(abs(detR)-One) > 0.001_wp) then
-        write(u6,'(A)') 'The rotation matrices must be UNITARY.'
-        write(u6,'(A)') 'and of RIGHT hand system'
-        write(u6,'(A,F11.6)') 'DET = ',detR
-        LINENR = LINENR+ll+i+1
-        Go To 997
-      end if
-      if (detR < Zero) then
-        do m=1,3
-          do n=1,3
-            R_rot(i,j,m,n) = -R_lg(i,j,m,n)
-          end do !n
-        end do !m
-      else if (detR > Zero) then
-        do m=1,3
-          do n=1,3
-            R_rot(i,j,m,n) = R_lg(i,j,m,n)
-          end do !n
-        end do !m
-      end if
-    end do !neq(i)
-  end do !nneq
-  LINENR = LINENR+nneq+ll
-  Go To 100
-end if
+          detR = FindDetR(tmpR(1:3,1:3),3)
+          if (DBG) write(u6,'(A,3ES20.12)') 'SYMM:  detR=',detR
 
-!---  process EXCH command --------------------------------------------*
-if (LINE(1:4) == 'EXCH') then
-  decompose_exchange = .true.
-  Go To 100
-end if
+          if (abs(abs(detR)-One) > 0.001_wp) then
+            write(u6,'(A)') 'The rotation matrices must be UNITARY.'
+            write(u6,'(A)') 'and of RIGHT hand system'
+            write(u6,'(A,F11.6)') 'DET = ',detR
+            LINENR = LINENR+ll+i+1
+            call Error(4)
+          end if
+          if (detR < Zero) then
+            do m=1,3
+              do n=1,3
+                R_rot(i,j,m,n) = -R_lg(i,j,m,n)
+              end do !n
+            end do !m
+          else if (detR > Zero) then
+            do m=1,3
+              do n=1,3
+                R_rot(i,j,m,n) = R_lg(i,j,m,n)
+              end do !n
+            end do !m
+          end if
+        end do !neq(i)
+      end do !nneq
+      LINENR = LINENR+nneq+ll
 
-!---  process OLDA command --------------------------------------------*
-!if (LINE(1:4) == 'OLDA') then
-!  old_aniso_format = .true.
-!  go to 100
-!end if
+    !---  process EXCH command ----------------------------------------*
+    case ('EXCH')
+      decompose_exchange = .true.
 
-!---  process EXCH command --------------------------------------------*
-!if (LINE(1:4) == 'END') then
-!  go to 100
-!end if
+    !---  process OLDA command ----------------------------------------*
+    !case ('OLDA')
+    !  old_aniso_format = .true.
 
-!---  process UBAR command --------------------------------------------*
-if (LINE(1:4) == 'UBAR') then
-  compute_barrier = .true.
-  !read(u5,*,err=997) icase
-  !if (icase == 1) then
-  !! icase =1  --> magnetic field is applied along the main magnetic
-  !!               axis of each doublet (multiplet)
-  !  continue
-  !else if (icase == 2) then
-  !! icase =2  --> magnetic field is applied along the main magnetic
-  !!               axis of the specified doublet (number) number (NDim)
-  !  read(u5,*,err=997) NmagMult
-  !else if (icase == 3) then
-  !! icase =3  --> a new coordination system is defined by the user,
-  !!               and the magnetic field is applied along gZ (third axis)
-  !  do i=1,3
-  !    read(u5,*,err=997) (uBar_Rot(i,j),j=1,3)
-  !  end do
-  !  LINENR = LINENR+3
-  !else
-  !  write(u6,'(A)') 'Is the UBAR keyword used correctly?'
-  !  write(u6,'(A)') 'The ICASE parameter is not understood.'
-  !end if
-  LINENR = LINENR+1
-  Go To 100
-end if
+    !---  process END command -----------------------------------------*
+    !case ('END ')
 
-!----------------------------------------------------------------------*
-if (LINE(1:4) == 'ABCC') then
-  Do_structure_abc = .true.
-  read(u5,*,err=997) (cryst(i),i=1,6)
-  coord(:) = Zero
-  !read(u5,*,err=997) (coord(i),i=1,3)
-  LINENR = LINENR+2
-  Go To 100
-end if
-! array "cryst" collects the crystallographic data:
-!  cryst(1)= a
-!  cryst(2)= b
-!  cryst(3)= c
-!  cryst(4)= alpha
-!  cryst(5)= beta
-!  cryst(6)= gamma
-!  coord(i) =the coordinates of the magnetic center in "abc" axes
-!  logical variable 'Do_structure_abc' will make the program compute
-!  the magnetic and anisotropy axes in the "abc" coordinate system
+    !---  process UBAR command ----------------------------------------*
+    case ('UBAR')
+      compute_barrier = .true.
+      !read(u5,*,iostat=istatus) icase
+      !if (istatus /= 0) call Error(4)
+      !if (icase == 1) then
+      !! icase =1  --> magnetic field is applied along the main magnetic
+      !!               axis of each doublet (multiplet)
+      !  continue
+      !else if (icase == 2) then
+      !! icase =2  --> magnetic field is applied along the main magnetic
+      !!               axis of the specified doublet (number) number (NDim)
+      !  read(u5,*,iostat=istatus) NmagMult
+      !  if (istatus /= 0) call Error(4)
+      !else if (icase == 3) then
+      !! icase =3  --> a new coordination system is defined by the user,
+      !!               and the magnetic field is applied along gZ (third axis)
+      !  do i=1,3
+      !    read(u5,*,iostat=istatus) (uBar_Rot(i,j),j=1,3)
+      !    if (istatus /= 0) call Error(4)
+      !  end do
+      !  LINENR = LINENR+3
+      !else
+      !  write(u6,'(A)') 'Is the UBAR keyword used correctly?'
+      !  write(u6,'(A)') 'The ICASE parameter is not understood.'
+      !end if
+      LINENR = LINENR+1
 
-!---  process LONG command --------------------------------------------*
-if (LINE(1:4) == 'LONG') then
-  KE = .true.
+    !------------------------------------------------------------------*
+    case ('ABCC')
+      Do_structure_abc = .true.
+      read(u5,*,iostat=istatus) (cryst(i),i=1,6)
+      if (istatus /= 0) call Error(4)
+      coord(:) = Zero
+      !read(u5,*,iostat=istatus) (coord(i),i=1,3)
+      !if (istatus /= 0) call Error(4)
+      LINENR = LINENR+2
+      ! array "cryst" collects the crystallographic data:
+      !  cryst(1)= a
+      !  cryst(2)= b
+      !  cryst(3)= c
+      !  cryst(4)= alpha
+      !  cryst(5)= beta
+      !  cryst(6)= gamma
+      !  coord(i) =the coordinates of the magnetic center in "abc" axes
+      !  logical variable 'Do_structure_abc' will make the program compute
+      !  the magnetic and anisotropy axes in the "abc" coordinate system
 
-  read(u5,*,err=997) lanth,tpar,upar,KEOPT
+    !---  process LONG command ----------------------------------------*
+    case ('LONG')
+      KE = .true.
 
-  if ((lanth == 'GD') .or. (lanth == 'gd') .or. (lanth == 'gD') .or. (lanth == 'Gd')) then
-    lant = 1
-    multLn = 8
-  else if ((lanth == 'TB') .or. (lanth == 'tb') .or. (lanth == 'tB') .or. (lanth == 'Tb')) then
-    lant = 2
-    multLn = 13
-  else if ((lanth == 'DY') .or. (lanth == 'dy') .or. (lanth == 'dY') .or. (lanth == 'Dy')) then
-    lant = 3
-    multLn = 16
-  else if ((lanth == 'HO') .or. (lanth == 'ho') .or. (lanth == 'hO') .or. (lanth == 'Ho')) then
-    lant = 4
-    multLn = 17
-  else if ((lanth == 'ER') .or. (lanth == 'er') .or. (lanth == 'eR') .or. (lanth == 'Er')) then
-    lant = 5
-    multLn = 16
-  else if ((lanth == 'TM') .or. (lanth == 'tm') .or. (lanth == 'tM') .or. (lanth == 'Tm')) then
-    lant = 6
-    multLn = 13
-  else if ((lanth == 'YB') .or. (lanth == 'yb') .or. (lanth == 'yB') .or. (lanth == 'Yb')) then
-    lant = 7
-    multLn = 8
-  else
-    write(u6,'( A)') 'Error in getting the type of the lanthanide!'
-    write(u6,'(2A)') 'The program has this info: lanth =',lanth
-    write(u6,'(26x,A,i2)') 'multLn =',multLn
-  end if
-  LINENR = LINENR+2
-  Go To 100
-end if
+      read(u5,*,iostat=istatus) lanth,tpar,upar,KEOPT
+      if (istatus /= 0) call Error(4)
+      call UpCase(lanth)
+
+      select case (lanth)
+        case ('GD')
+          lant = 1
+          multLn = 8
+        case ('TB')
+          lant = 2
+          multLn = 13
+        case ('DY')
+          lant = 3
+          multLn = 16
+        case ('HO')
+          lant = 4
+          multLn = 17
+        case ('ER')
+          lant = 5
+          multLn = 16
+        case ('TM')
+          lant = 6
+          multLn = 13
+        case ('YB')
+          lant = 7
+          multLn = 8
+        case default
+          write(u6,'( A)') 'Error in getting the type of the lanthanide!'
+          write(u6,'(2A)') 'The program has this info: lanth =',lanth
+          write(u6,'(26x,A,i2)') 'multLn =',multLn
+      end select
+      LINENR = LINENR+2
+
+  end select
+end do
 
 ! end of reading input keywords
-210 continue
+
 !-----------------------------------------------------------------------
 
 !=====  Perform some PROCESSING of the data ============================
@@ -1117,10 +1095,9 @@ if (compute_g_tensors) then
       write(u6,'(A,i6)') 'NMULT = ',i-1
 
       nmult = i-1
-      Go To 14
+      exit
     end if
   end do
-14 continue
 end if
 if (DBG) write(u6,*) 'READIN_POLY:  after proc g and D'
 if (DBG) call xFlush(u6)
@@ -1135,12 +1112,10 @@ if (npair > 0) then
     lp = 0
     do i=1,nCenter-1
       do j=i+1,nCenter
-        if (i >= j) goto 17
         lp = lp+1
         i_pair(lp,1) = i
         i_pair(lp,2) = j
         if (DBG) write(u6,'(A,i3,A,2I3)') 'lp=',lp,' i_pair(lp,1:2)=',i_pair(lp,1),i_pair(lp,2)
-17      continue
       end do
     end do
   end if
@@ -1169,13 +1144,11 @@ if (npair > 0) then
   ! check on the duplicate
   do i=1,npair
     do j=i+1,npair
-      if (j == i) Go To 197
       if (Duplicate_check(i) == Duplicate_check(j)) then
         write(u6,'(A)') 'Some interactions are declared twice in the input. Please declare all interactions only once!'
         write(u6,'(A)') 'The program has to stop.'
         call quit(_RC_INPUT_ERROR_)
       end if
-197   continue
     end do
   end do
 
@@ -1239,34 +1212,38 @@ if (DBG) write(u6,*) 'READIN_POLY:  before 200 '
 if (DBG) call xFlush(u6)
 !--------  definition of exchange --------------------------------------
 
-Go To 200
 !-----------------------------------------------------------------------
-write(u6,*) ' The following input line was not understood:'
-write(u6,'(A)') LINE
-Go To 999
+!write(u6,*) ' The following input line was not understood:'
+!write(u6,'(A)') LINE
 
-997 continue
-write(u6,*) ' READIN_POLY: Error reading "poly_aniso.input" '
-write(u6,*) ' near line nr.',LINENR+1
-Go To 999
-998 continue
-write(u6,*) ' READIN_POLY: Unexpected End of input file.'
-999 continue
-call quit(_RC_INPUT_ERROR_)
-590 continue
-write(u6,*) 'READIN_POLY: THE TINT command is incompatible with TEXP'
-call quit(_RC_INPUT_ERROR_)
-591 continue
-write(u6,*) 'READIN_POLY: THE HINT command is incompatible with HEXP'
-call quit(_RC_INPUT_ERROR_)
-595 continue
-write(u6,*) 'READIN_POLY: THE NCUT, ENCU, and ERAT are mutually exclusive. You cannot use more than one keyword at the same time.'
-call quit(_RC_INPUT_ERROR_)
-! ===============   NORMAL EndING  =====================================
-200 continue
+! ===============   NORMAL ENDING  =====================================
 
 if (IPRINT > 2) write(u6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
 
 return
+
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  select case(code)
+    case (1)
+      write(u6,*) 'READIN_POLY: THE TINT command is incompatible with TEXP'
+    case (2)
+      write(u6,*) 'READIN_POLY: THE HINT command is incompatible with HEXP'
+    case (3)
+      write(u6,*) 'READIN_POLY: THE NCUT, ENCU, and ERAT are mutually exclusive. '// &
+                  'You cannot use more than one keyword at the same time.'
+    case (4)
+      write(u6,*) ' READIN_POLY: Error reading "poly_aniso.input" '
+      write(u6,*) ' near line nr.',LINENR+1
+    case (5)
+      write(u6,*) ' READIN_POLY: Unexpected End of input file.'
+  end select
+  call quit(_RC_INPUT_ERROR_)
+
+end subroutine Error
 
 end subroutine Readin_poly

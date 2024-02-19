@@ -13,7 +13,7 @@ subroutine POLY_ANISO_1(nneq,neqv,nmax,exch,nLoc,nCenter,nT,nH,nTempMagn,nDir,nD
                         old_aniso_format,iReturn)
 
 use Constants, only: Zero, cZero, auTocm
-use Definitions, only: wp, u6
+use Definitions, only: u6
 
 implicit none
 #include "warnings.h"
@@ -611,21 +611,20 @@ if (compute_g_tensors) then
     i1 = 1+Ifunct
     i2 = ndim(imltpl)+Ifunct
 
-    if (ndim(imltpl) <= 1) Go To 10
-    if (i2 > exch) Go To 20
+    if (ndim(imltpl) > 1) then
+      if (i2 > exch) exit
 
-    if (dbg) write(u6,'(A,90I3)') 'ndim(imltpl)=',ndim(imltpl)
-    if (dbg) call prmom('PA: s_exch:',s_exch(1:3,i1:i2,i1:i2),ndim(imltpl))
-    if (dbg) call prmom('PA: dip_exch:',dipexch(1:3,i1:i2,i1:i2),ndim(imltpl))
+      if (dbg) write(u6,'(A,90I3)') 'ndim(imltpl)=',ndim(imltpl)
+      if (dbg) call prmom('PA: s_exch:',s_exch(1:3,i1:i2,i1:i2),ndim(imltpl))
+      if (dbg) call prmom('PA: dip_exch:',dipexch(1:3,i1:i2,i1:i2),ndim(imltpl))
 
-    call g_high(w(i1:i2),GRAD,s_exch(1:3,i1:i2,i1:i2),dipexch(1:3,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
-                gtens(imltpl,1:3),maxes(imltpl,1:3,1:3),iprint)
+      call g_high(w(i1:i2),GRAD,s_exch(1:3,i1:i2,i1:i2),dipexch(1:3,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
+                  gtens(imltpl,1:3),maxes(imltpl,1:3,1:3),iprint)
 
-10  continue
+    end if
     Ifunct = Ifunct+ndim(imltpl)
     if (iReturn /= 0) stop
   end do ! imltpl
-20 continue
 end if
 
 !----------------------------------------------------------------------|

@@ -22,7 +22,6 @@ complex(kind=8), intent(out) :: HEXC(N1,N1,N2,N2)
 ! local variables
 integer :: i1, j1, i2, j2, JLn, SR, ms1, ns1, ms2, ns2
 real(kind=8) :: HEXC1(N1,N1,N2,N2)
-real(kind=8) :: test1, test2
 real(kind=8) :: Jfinal(0:7,-5:5,0:1,-1:1)
 real(kind=8) :: WCG ! Clebsch-Gordan Coefficients
 external :: WCG
@@ -50,16 +49,12 @@ do i1=1,N1
                 do ika=-5,5
                   do iP=0,1
                     do iph=-1,1
-                      test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)*WCG(SR,SR,2*iP,0,SR,SR)
-                      test2 = WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)*WCG(SR,ns2,2*iP,2*iph,SR,ms2)
-                      if (test1 == Zero) Go To 104
-                      if (test2 == Zero) Go To 104
+                      if (WCG(JLn,JLn,2*iK,0,JLn,JLn)*WCG(SR,SR,2*iP,0,SR,SR) == Zero) cycle
+                      if (WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)*WCG(SR,ns2,2*iP,2*iph,SR,ms2) == Zero) cycle
 
                       HEXC1(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)+t*t/(u+dE(lant,iLS,iJ))*Jx(lant,iLS,iJ,iK,ika,iP,iph)* &
                                            WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)*WCG(SR,ns2,2*iP,2*iph,SR,ms2)/ &
                                            WCG(JLn,JLn,2*iK,0,JLn,JLn)/WCG(SR,SR,2*iP,0,SR,SR)
-
-104                   continue
                     end do
                   end do
                 end do
@@ -100,14 +95,11 @@ do i1=1,N1
                 do ika=-5,5
                   do iP=0,1
                     do iph=-1,1
-                      test1 = WCG(JLn,JLn,2*iK,0,JLn,JLn)*WCG(SR,SR,2*iP,0,SR,SR)
-                      test2 = WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)*WCG(SR,ns2,2*iP,2*iph,SR,ms2)
-                      if (test1 == Zero) Go To 105
-                      if (test2 == Zero) Go To 105
+                      if (WCG(JLn,JLn,2*iK,0,JLn,JLn)*WCG(SR,SR,2*iP,0,SR,SR) == Zero) cycle
+                      if (WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)*WCG(SR,ns2,2*iP,2*iph,SR,ms2) == Zero) cycle
 
                       HEXC1(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)+t*t/u*Jx(lant,iLS,iJ,iK,ika,iP,iph)*WCG(JLn,ns1,2*iK,2*ika,JLn,ms1)* &
                                            WCG(SR,ns2,2*iP,2*iph,SR,ms2)/WCG(JLn,JLn,2*iK,0,JLn,JLn)/WCG(SR,SR,2*iP,0,SR,SR)
-105                   continue
                     end do
                   end do
                 end do

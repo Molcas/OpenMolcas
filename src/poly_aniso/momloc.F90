@@ -63,6 +63,7 @@ complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
 real(kind=8), parameter :: g_e = -gElectron
 
 DBG = .false.
+if (N > 1) return
 
 call mma_allocate(WM,N,'WM')
 call mma_allocate(MM,nsites,3,N,'MM')
@@ -93,7 +94,6 @@ call zcopy_(N*(N+1)/2,[cZero],0,HZEE,1)
 call zcopy_(2*N-1,[cZero],0,WORK,1)
 call zcopy_(N,[cZero],0,W_c,1)
 
-if (N == 1) goto 199
 ! initialisations:
 isite = 0
 nind = 0
@@ -262,8 +262,6 @@ do i=1,N
   end do
   write(u6,'(5A)') '--------|----|',('------------------------------|',i1=1,4)
 end do
-
-199 continue
 
 ! deallocate temporary arrays:
 call mma_deallocate(WM)

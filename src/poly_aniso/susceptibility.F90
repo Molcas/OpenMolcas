@@ -606,13 +606,11 @@ call mma_deallocate(XR)
 call mma_deallocate(chiT)
 call mma_deallocate(chi_theta_1)
 
-Go To 190
 !-----------------------------------------------------------------------
-write(u6,*)
-write(u6,'(5x,a)') 'on user request, the magnetic susceptibility and '
-write(u6,'(5x,a)') 'the magnetic susceptibility tensor were not calculated.'
-write(u6,*)
-190 continue
+!write(u6,*)
+!write(u6,'(5x,a)') 'on user request, the magnetic susceptibility and '
+!write(u6,'(5x,a)') 'the magnetic susceptibility tensor were not calculated.'
+!write(u6,*)
 
 return
 
