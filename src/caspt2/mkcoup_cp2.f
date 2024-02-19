@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKCOUP_CP2(IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
+      SUBROUTINE MKCOUP_CP2(IVR,IMAW,ISGMNT,VSGMNT,NOW,
      &                  NOCP,IOCP,ILNDW,ICOUP,
      &                  NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,
      &                  ISCR,VALUE)
@@ -33,7 +33,7 @@ C INPUT PARAMETERS:
       DIMENSION ISGMNT(NVERT,26), VSGMNT(NVERT,26)
       DIMENSION NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
 C OUTPUT PARAMETERS:
-      DIMENSION IOW(2,NSYM,NMIDV), IOCP(MXEO,NSYM,NMIDV)
+      DIMENSION                    IOCP(MXEO,NSYM,NMIDV)
       DIMENSION ILNDW(NWALK)
       DIMENSION VTAB_TMP(NVTAB_TMP)
       INTEGER ICOUP

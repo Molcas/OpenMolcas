@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NRCOUP(IDRT,ISGMNT,NOW,NOCP,IOCP,
+      SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,
      &                  NOCSF,NRL,MVL,MVR)
       IMPLICIT REAL*8 (A-H,O-Z)
 
