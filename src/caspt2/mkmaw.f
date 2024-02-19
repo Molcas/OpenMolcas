@@ -16,12 +16,14 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW)
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "pt2_guga.fh"
-      DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
-      DIMENSION IUP(NVERT,0:3),IRAW(NVERT,0:4)
-      DIMENSION IMAW(NVERT,0:3)
+      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
+      IMPLICIT None
+      Integer NVERT, MIDV1, MIDV2
+      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
+      Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
+      Integer IMAW(NVERT,0:3)
+
+      Integer IC, ID, ISUM, IU, IV
 
 C COPY LOWER PART OF DIRECT ARC WEIGHT TABLE INTO IMAW:
       DO 210 IV=MIDV1,NVERT
@@ -40,21 +42,21 @@ C    NOTE THAT THE IMAW TABLE IS ACCESSED BY THE UPPER VERTEX.
   230 CONTINUE
 C FINALLY, ADD AN OFFSET TO ARCS LEADING TO MIDLEVELS:
       ISUM=1
-      DO 250 IV=MIDV1,MIDV2
-        DO 240 IC=0,3
+      DO IV=MIDV1,MIDV2
+        DO IC=0,3
           IU=IUP(IV,IC)
-          IF(IU.EQ.0) GOTO 240
+          IF(IU.EQ.0) Cycle
           IMAW(IU,IC)=ISUM+IMAW(IU,IC)
- 240    CONTINUE
+        END DO
         ISUM=ISUM+IRAW(IV,4)
- 250  CONTINUE
-      DO 270 IV=MIDV1,MIDV2
-        DO 260 IC=0,3
-          IF(IDOWN(IV,IC).EQ.0) GOTO 260
+      END DO
+      DO IV=MIDV1,MIDV2
+        DO IC=0,3
+          IF(IDOWN(IV,IC).EQ.0) Cycle
           IMAW(IV,IC)=ISUM+IMAW(IV,IC)
- 260    CONTINUE
+        END DO
         ISUM=ISUM+IDAW(IV,4)
- 270  CONTINUE
+      END DO
 #ifdef _DEBUGPRINT_
  1010 FORMAT(1X,I4,5X,5(1X,I6))
         WRITE(6,*)

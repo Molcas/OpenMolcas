@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 * 2006  PER-AAKE MALMQUIST                   *
 *--------------------------------------------*
-      SUBROUTINE GINIT_CP2
+      SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
       use pt2_guga_data
       IMPLICIT None
@@ -37,6 +37,16 @@
      &        NIOCP, NIOCSF, NIOW, NLTV, NRAW, NMAW, NMVL, NMVR,
      &        NNICOUP, NNOCP, NNOCSF, NNOW, NNRL, NSCR, NTMP, NUP,
      &        NVTAB_FINAL, NVTAB_TMP
+
+      Interface
+      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
+      IMPLICIT None
+      Integer NVERT, MIDV1, MIDV2
+      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
+      Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
+      Integer IMAW(NVERT,0:3)
+      END SUBROUTINE MKMAW
+      End Interface
 
 
       LV1RAS=NRAS1T
@@ -126,7 +136,7 @@ C DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
       NMAW=4*NVERT
       CALL mma_allocate(MAW,NMAW,Label='MAW')
-      CALL MKMAW(DOWN,DAW,UP,RAW,MAW)
+      CALL MKMAW(DOWN,DAW,UP,RAW,MAW,NVERT, MIDV1, MIDV2)
 C THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 
