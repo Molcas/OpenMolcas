@@ -1,39 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
-      SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+      SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
      &                  NOCSF,NRL,MVL,MVR)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "segtab.fh"
-C INPUT PARAMETERS:
-      DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
-      DIMENSION IDRT(NVERT,5),ISGMNT(NVERT,26)
-      PARAMETER (LTAB=1)
-C OUTPUT PARAMETERS:
-      DIMENSION NOW(2,NSYM,NMIDV),NOCP(MXEO,NSYM,NMIDV)
-      DIMENSION                   IOCP(MXEO,NSYM,NMIDV)
-      DIMENSION NOCSF(NSYM,NMIDV,NSYM)
-C SCRATCH PARAMETERS:
-      DIMENSION NRL(NSYM,NVERT,0:MXEO)
+! INPUT PARAMETERS:
+      Integer MVL(NMIDV,2),MVR(NMIDV,2)
+      Integer IDRT(NVERT,5),ISGMNT(NVERT,26)
+      Integer, PARAMETER :: LTAB=1
+! OUTPUT PARAMETERS:
+      Integer NOW(2,NSYM,NMIDV),NOCP(MXEO,NSYM,NMIDV)
+      Integer                   IOCP(MXEO,NSYM,NMIDV)
+      Integer NOCSF(NSYM,NMIDV,NSYM)
+! SCRATCH PARAMETERS:
+      Integer NRL(NSYM,NVERT,0:MXEO)
+
+      Integer IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT,     &
+     &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
+     &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
+     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1
 
       DO 10 INDEO=0,MXEO
         DO 11 IV=1,MIDV2
@@ -56,40 +61,40 @@ C SCRATCH PARAMETERS:
             IBSYM=MUL(ITSYM,ISYM)
 
       IF(ISGT.LE.4) THEN
-C THIS IS AN UPPER WALK.
+! THIS IS AN UPPER WALK.
         NRL(IBSYM,IVLB,0)=NRL(IBSYM,IVLB,0)+NRL(ITSYM,IVLT,0)
         GOTO 100
       END IF
       IF(ISGT.LE.8) THEN
-C THIS IS AN TOP SEGMENT.
+! THIS IS AN TOP SEGMENT.
         INDEO=LEV+(IBVPT(ISGT)-1)*NLEV
         NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+NRL(ITSYM,IVLT,0)
         GOTO 100
       END IF
       IF(ISGT.LE.18) THEN
-C THIS IS A MID-SEGMENT.
+! THIS IS A MID-SEGMENT.
         DO 110 IP=LEV+1,NLEV
           INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
           INDEOB=IP+(IBVPT(ISGT)-1)*NLEV
-          NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB)+
+          NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB)+                &
      &            NRL(ITSYM,IVLT,INDEOT)
  110    CONTINUE
         GOTO 100
       END IF
       IF(ISGT.LE.22) THEN
-C THIS IS A BOTTOM SEGMENT.
+! THIS IS A BOTTOM SEGMENT.
         DO 120 IP=LEV+1,NLEV
           INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
           IPQ=(IP*(IP-1))/2 + LEV
           INDEOB=IPQ+2*NLEV
-          NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB) +
+          NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB) +               &
      &          NRL(ITSYM,IVLT,INDEOT)
  120    CONTINUE
         GOTO 100
       END IF
-C THIS IS A LOWER WALK.
+! THIS IS A LOWER WALK.
       DO 130 INDEO=2*NLEV+1,MXEO
-        NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+
+        NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+                    &
      &         NRL(ITSYM,IVLT,INDEO)
  130  CONTINUE
 
@@ -128,41 +133,41 @@ C THIS IS A LOWER WALK.
           DO 200 ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
       IF(ISGT.GE.23) THEN
-C THIS IS A LOWER WALK.
+! THIS IS A LOWER WALK.
         NRL(ITSYM,IVLT,0)=NRL(ITSYM,IVLT,0)+NRL(IBSYM,IVLB,0)
         GOTO 200
       END IF
       IF(ISGT.GE.19) THEN
-C THIS IS AN BOTTOM SEGMENT.
+! THIS IS AN BOTTOM SEGMENT.
         INDEO=LEV+(ITVPT(ISGT)-1)*NLEV
         NRL(ITSYM,IVLT,INDEO)=NRL(ITSYM,IVLT,INDEO)+NRL(IBSYM,IVLB,0)
         GOTO 200
       END IF
       IF(ISGT.GE.9) THEN
-C THIS IS A MID-SEGMENT.
+! THIS IS A MID-SEGMENT.
         DO 210 IQ=1,LEV-1
           INDEOT=IQ+(ITVPT(ISGT)-1)*NLEV
           INDEOB=IQ+(IBVPT(ISGT)-1)*NLEV
-          NRL(ITSYM,IVLT,INDEOT)=NRL(ITSYM,IVLT,INDEOT)+
+          NRL(ITSYM,IVLT,INDEOT)=NRL(ITSYM,IVLT,INDEOT)+                &
      &            NRL(IBSYM,IVLB,INDEOB)
  210    CONTINUE
         GOTO 200
       END IF
       IF(ISGT.GE.5) THEN
-C THIS IS AN TOP SEGMENT.
+! THIS IS AN TOP SEGMENT.
         DO 220 IQ=1,LEV-1
           INDEOB=IQ+(IBVPT(ISGT)-1)*NLEV
           IPQ=(LEV*(LEV-1))/2+IQ
           INDEOT=IPQ+2*NLEV
-          NRL(ITSYM,IVLT,INDEOT)=NRL(ITSYM,IVLT,INDEOT) +
+          NRL(ITSYM,IVLT,INDEOT)=NRL(ITSYM,IVLT,INDEOT) +               &
      &          NRL(IBSYM,IVLB,INDEOB)
  220    CONTINUE
         GOTO 200
       END IF
-C THIS IS AN UPPER WALK.
+! THIS IS AN UPPER WALK.
       DO 230 IPQ=1,(LEV*(LEV-1))/2
         INDEO=2*NLEV+IPQ
-        NRL(ITSYM,IVLT,INDEO)=NRL(ITSYM,IVLT,INDEO)+
+        NRL(ITSYM,IVLT,INDEO)=NRL(ITSYM,IVLT,INDEO)+                    &
      &         NRL(IBSYM,IVLB,INDEO)
  230  CONTINUE
 
@@ -196,7 +201,7 @@ C THIS IS AN UPPER WALK.
  261    CONTINUE
  260  CONTINUE
 
-C
+!
       NSGMX=1
       NSGTMP=MAX(MXUP,MXDWN)
       DO 550 MV3=1,NMIDV
@@ -228,18 +233,18 @@ C
   551 CONTINUE
   550 CONTINUE
       CALL GETMEM('LSGTMP','ALLO','REAL',LSGTMP,NSGTMP)
-C
+!
 #ifdef _DEBUGPRINT_
-      WRITE(6,600)MXUP,MXDWN,
+      WRITE(6,600)MXUP,MXDWN,                                           &
      &            NSGMX,NSGMX,NSGTMP
-  600 FORMAT(/,' MAXIMUM NUMBER OF WALKS',
-     &       /,' UPPER ',I6,' LOWER ',I6,
-     &       /,' LENGTH OF LARGEST WORK ARRAYS IN SUBROUTINE SIGMA',
-     &       /,' TEMPORARY SGM1 ',I7,
-     &       /,' TEMPORARY SGM2 ',I7,
+  600 FORMAT(/,' MAXIMUM NUMBER OF WALKS',                              &
+     &       /,' UPPER ',I6,' LOWER ',I6,                               &
+     &       /,' LENGTH OF LARGEST WORK ARRAYS IN SUBROUTINE SIGMA',    &
+     &       /,' TEMPORARY SGM1 ',I7,                                   &
+     &       /,' TEMPORARY SGM2 ',I7,                                   &
      &       /,' NSGTMP         ',I7)
-C
-CAR   END OF INSERT
+!
+!AR   END OF INSERT
         WRITE(6,*)
         WRITE(6,*)' TOTAL NR OF WALKS: UPPER ',NUW
         WRITE(6,*)'                    LOWER ',NLW
@@ -307,5 +312,4 @@ CAR   END OF INSERT
  340    CONTINUE
 #endif
 
-      RETURN
-      END
+      END SUBROUTINE NRCOUP_CP2

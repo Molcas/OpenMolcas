@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994,2006, Per Ake Malmqvist                           *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-* 2006  PER-AAKE MALMQUIST                   *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994,2006, Per Ake Malmqvist                           *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+! 2006  PER-AAKE MALMQUIST                   *
+!--------------------------------------------*
       SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
       use pt2_guga_data
@@ -27,15 +27,15 @@
       Integer, Allocatable, Target:: DRT0(:), DRT(:)
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
-      Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),
-     &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),
+      Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),    &
+     &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),    &
      &                       ILNDW(:), SCR(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer IA0, IB0, IC0, IAC
       Integer LV1RAS, LV3RAS, LM1RAS, LM3RAS
-      Integer MXDWN, MXUP, NDAW, NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,
-     &        NIOCP, NIOCSF, NIOW, NLTV, NRAW, NMAW, NMVL, NMVR,
-     &        NNICOUP, NNOCP, NNOCSF, NNOW, NNRL, NSCR, NTMP, NUP,
+      Integer MXDWN, MXUP, NDAW, NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
+     &        NIOCP, NIOCSF, NIOW, NLTV, NRAW, NMAW, NMVL, NMVR,        &
+     &        NNICOUP, NNOCP, NNOCSF, NNOW, NNRL, NSCR, NTMP, NUP,      &
      &        NVTAB_FINAL, NVTAB_TMP
 
       Interface
@@ -54,7 +54,7 @@
       LM1RAS=2*LV1RAS-NHOLE1
       LM3RAS=NACTEL-NELE3
 
-C SET UP A FULL PALDUS DRT TABLE:
+! SET UP A FULL PALDUS DRT TABLE:
       IB0=ISPIN-1
       IA0=(NACTEL-IB0)/2
       IC0=NLEV-IA0-IB0
@@ -89,11 +89,11 @@ C SET UP A FULL PALDUS DRT TABLE:
       WRITE(6,*)' PALDUS DRT TABLE (UNRESTRICTED):'
       CALL PRDRT(NVERT0,DRTP,DOWNP)
 #endif
-C RESTRICTIONS?
+! RESTRICTIONS?
       IF((NRAS1T+NRAS3T).NE.0) THEN
-C  CONSTRUCT A RESTRICTED GRAPH.
+!  CONSTRUCT A RESTRICTED GRAPH.
         CALL mma_allocate(V11,NVERT0,Label='V11')
-        CALL RESTR(NVERT0,DRTP,DOWN0,V11,
+        CALL RESTR(NVERT0,DRTP,DOWN0,V11,                               &
      &                 LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
 
         NDRT=5*NVERT
@@ -112,35 +112,35 @@ C  CONSTRUCT A RESTRICTED GRAPH.
 #endif
       END IF
 
-C CALCULATE DIRECT ARC WEIGHT AND LTV TABLES.
+! CALCULATE DIRECT ARC WEIGHT AND LTV TABLES.
 
       NDAW=5*NVERT
       CALL mma_allocate(DAW,NDAW,Label='DAW')
       CALL MKDAW(NVERT,DOWN,DAW)
 
-C UPCHAIN INDEX TABLE AND  REVERSE ARC WEIGHT TABLE
+! UPCHAIN INDEX TABLE AND  REVERSE ARC WEIGHT TABLE
       NUP=4*NVERT
       NRAW=5*NVERT
       CALL mma_allocate(UP,NUP,Label='UP')
       CALL mma_allocate(RAW,NRAW,Label='RAW')
       CALL MKRAW(NVERT,DOWN,UP,RAW)
 
-C DECIDE MIDLEV AND LIMITS ON MIVERTICES
+! DECIDE MIDLEV AND LIMITS ON MIVERTICES
 
       NLTV=NLEV+2
       CALL mma_allocate(LTV,NLTV,Label='LTV')
-      CALL MKMID(NVERT,NLEV,DRT,DAW,RAW,LTV,MIDLEV, NMIDV, MIDV1, MIDV2,
+      CALL MKMID(NVERT,NLEV,DRT,DAW,RAW,LTV,MIDLEV, NMIDV, MIDV1, MIDV2,&
      &           MXUP, MXDWN)
 
-C DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
+! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
       NMAW=4*NVERT
       CALL mma_allocate(MAW,NMAW,Label='MAW')
       CALL MKMAW(DOWN,DAW,UP,RAW,MAW,NVERT, MIDV1, MIDV2)
-C THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
+! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 
-C FORM VARIOUS OFFSET TABLES:
+! FORM VARIOUS OFFSET TABLES:
       NIPWLK=1+(MIDLEV-1)/15
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
       NNOW=2*NMIDV*NSYM
@@ -153,7 +153,7 @@ C FORM VARIOUS OFFSET TABLES:
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
+      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK, &
      &           ISM,DOWN,NOW1,IOW1,NCSF,IOCSF,NOCSF,SCR)
 
 !
@@ -161,12 +161,12 @@ C FORM VARIOUS OFFSET TABLES:
 !
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(ICASE,NICASE,Label='ICASE')
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,
+      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,     &
      &             NIPWLK,ISM,DOWN,NOW1,IOW1,ICASE,SCR)
 
       Call mma_deallocate(SCR)
 
-C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
+! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       NIVR=2*NVERT
       NMVL=2*NMIDV
       NMVR=2*NMIDV
@@ -178,7 +178,7 @@ C CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
       CALL MKSEG_CP2(DRT,DOWN,LTV,IVR,MVL,MVR,ISGM,VSGM)
 
-C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
+! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
       NNOCP=MXEO*NMIDV*NSYM
       NIOCP=NNOCP
@@ -198,10 +198,10 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
-      CALL MKCOUP_CP2(IVR,MAW,ISGM,VSGM,NOW1,     NOCP,IOCP,ILNDW,
+      CALL MKCOUP_CP2(IVR,MAW,ISGM,VSGM,NOW1,     NOCP,IOCP,ILNDW,      &
      &                ICOUP,NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,SCR,VAL)
 
-* Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:
+! Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:
       NVTAB=NVTAB_FINAL
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
       VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
@@ -232,5 +232,78 @@ C NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       WRITE(6,*)' NR OF ACTIVE ELECTRONS:',NACTEL
       WRITE(6,*)'        SPIN DEGENERACY:',ISPIN
       CALL ABEND()
+
+#ifdef _TEST_
+      Contains
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
+      IMPLICIT None
+      Integer NVERT, MIDV1, MIDV2
+      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
+      Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
+      Integer IMAW(NVERT,0:3)
+
+      Integer IC, ID, ISUM, IU, IV
+
+! COPY LOWER PART OF DIRECT ARC WEIGHT TABLE INTO IMAW:
+      DO 210 IV=MIDV1,NVERT
+        DO 211 IC=0,3
+          IMAW(IV,IC)=IDAW(IV,IC)
+  211   CONTINUE
+  210 CONTINUE
+! COPY UPPER PART OF REVERSE ARC WEIGHT TABLE INTO IMAW. HOWEVER,
+!    NOTE THAT THE IMAW TABLE IS ACCESSED BY THE UPPER VERTEX.
+      DO 230 IU=1,MIDV1-1
+        DO 220 IC=0,3
+          ID=IDOWN(IU,IC)
+          IMAW(IU,IC)=0
+          IF(ID.NE.0) IMAW(IU,IC)=IRAW(ID,IC)
+  220   CONTINUE
+  230 CONTINUE
+! FINALLY, ADD AN OFFSET TO ARCS LEADING TO MIDLEVELS:
+      ISUM=1
+      DO IV=MIDV1,MIDV2
+        DO IC=0,3
+          IU=IUP(IV,IC)
+          IF(IU.EQ.0) Cycle
+          IMAW(IU,IC)=ISUM+IMAW(IU,IC)
+        END DO
+        ISUM=ISUM+IRAW(IV,4)
+      END DO
+      DO IV=MIDV1,MIDV2
+        DO IC=0,3
+          IF(IDOWN(IV,IC).EQ.0) Cycle
+          IMAW(IV,IC)=ISUM+IMAW(IV,IC)
+        END DO
+        ISUM=ISUM+IDAW(IV,4)
+      END DO
+#ifdef _DEBUGPRINT_
+ 1010 FORMAT(1X,I4,5X,5(1X,I6))
+        WRITE(6,*)
+        WRITE(6,*)' THE MODIFIED ARC WEIGHT TABLE IN MKMAW:'
+        DO 280 IV=1,NVERT
+          WRITE(6,1010) IV,(IMAW(IV,IC),IC=0,3)
+  280   CONTINUE
+        WRITE(6,*)
+#endif
+      END SUBROUTINE MKMAW
+#endif
       END
 
