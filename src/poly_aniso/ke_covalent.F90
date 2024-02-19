@@ -12,6 +12,7 @@
 subroutine KE_Covalent(N,lant,t,u,OPT,HCOV)
 ! this function computes the covalent CF Hamiltonian ofr a given Lanthanide
 
+use jcoeff, only: dE, init_Jx, Jx
 use Constants, only: Zero, cOne
 
 implicit none
@@ -21,11 +22,12 @@ real(kind=8) :: WCG ! Clebsch_Gordan Coefficients
 complex(kind=8) :: HCOV(N,N)
 ! local variables
 integer i, j, JLn, ms1, ns1
+integer :: iJ, iLS
+integer :: iK, ika
 real(kind=8) :: HCOV1(N,N)
 external WCG
-#include "stdalloc.fh"
-#include "jcoeff.fh"
 
+call init_Jx()
 HCOV1(:,:) = Zero
 JLn = N-1
 
@@ -65,8 +67,6 @@ do i=1,N
     HCOV(i,j) = HCOV1(i,j)*cOne
   end do !j
 end do !i
-
-call mma_deallocate(Jx)
 
 return
 

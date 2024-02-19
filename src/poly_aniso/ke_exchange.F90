@@ -12,6 +12,7 @@
 subroutine KE_exchange(N1,N2,lant,t,u,OPT,HEXC)
 ! this function computes the exchange+covalent contributions to Hamiltonian of a given Lanthanide
 
+use jcoeff, only: dE, init_Jx, Jx
 use Constants, only: Zero, cOne, auTocm, auToeV
 use Definitions, only: wp, u6
 
@@ -21,14 +22,15 @@ real(kind=8), intent(in) :: t, u
 complex(kind=8), intent(out) :: HEXC(N1,N1,N2,N2)
 ! local variables
 integer :: i1, j1, i2, j2, JLn, SR, ms1, ns1, ms2, ns2
+integer :: iJ, iLS
+integer :: iK, ika, iP, iph
 real(kind=8) :: HEXC1(N1,N1,N2,N2)
 real(kind=8) :: Jfinal(0:7,-5:5,0:1,-1:1)
 real(kind=8) :: WCG ! Clebsch-Gordan Coefficients
 external :: WCG
-#include "stdalloc.fh"
 real(kind=8), parameter :: conv = 1.0e3_wp*auToeV/auTocm ! cm-1 to meV?
-#include "jcoeff.fh"
 
+call init_Jx()
 HEXC1(:,:,:,:) = Zero
 JLn = N1-1  !nexch(iLn)-1
 SR = N2-1  !nexch(iRad)-1
@@ -116,8 +118,6 @@ do i1=1,N1
     end do !i2
   end do !j1
 end do !i1
-
-call mma_deallocate(Jx)
 
 return
 
