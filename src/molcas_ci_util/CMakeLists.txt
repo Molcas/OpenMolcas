@@ -53,7 +53,7 @@ set (sources
      geth2a.F90
      getstepvector.F90
      get_umn.F90
-     gugactl.f
+     gugactl.F90
      gugx.F90
      hcsce.F90
      ini_david.F90

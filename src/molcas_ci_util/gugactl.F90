@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Per Ake Malmqvist                                      *
-*               Markus P. Fuelscher                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Per Ake Malmqvist                                      *
+!               Markus P. Fuelscher                                    *
+!***********************************************************************
 !#define _DEBUGPRINT_
       SUBROUTINE GUGACTL()
-C
-C     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
-C     AUTHOR:  P.-AA. MALMQVIST
-C
-C     MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
-C
+!
+!     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
+!     AUTHOR:  P.-AA. MALMQVIST
+!
+!     MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
+!
       use Definitions, only: LF => u6
-      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,
+      use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,       &
      &                LM1RAS, LV3RAS, LM3RAS, NCSF
 
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+!
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"
@@ -42,34 +42,34 @@ C
       End SUBROUTINE MKGUGA
       End Interface
 
-C Local print level (if any)
+! Local print level (if any)
 #ifdef _DEBUGPRINT_
       WRITE(LF,*)' Entering ',ROUTINE
 #endif
-C
-C     SET IFCAS FLAG
-C     IFCAS = 0 : THIS IS A CAS CALCULATION
-C     IFCAS = 1 : THIS IS A RAS CALCULATION
-C
+!
+!     SET IFCAS FLAG
+!     IFCAS = 0 : THIS IS A CAS CALCULATION
+!     IFCAS = 1 : THIS IS A RAS CALCULATION
+!
       IFCAS=0
       IF (NHOLE1.NE.0.OR.NELEC3.NE.0) IFCAS=1
       DO IS=1,NSYM
         IF (IFCAS.NE.0.AND.NASH(IS).NE.0)IFCAS=IFCAS+1
       END DO
-C
-C     CREATE THE SYMMETRY INDEX VECTOR
-C
+!
+!     CREATE THE SYMMETRY INDEX VECTOR
+!
       CALL MKNSM()
-C
-C     (IFCAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
-C     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
-C     SET UP THE REINDEXING TABLE
-C
+!
+!     (IFCAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+!     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
+!     SET UP THE REINDEXING TABLE
+!
       CALL SETSXCI()
-C
-C     FIND TOTAL NUMBER OF VERTICES IN THE SUBSPACES
-C
-C... for RAS
+!
+!     FIND TOTAL NUMBER OF VERTICES IN THE SUBSPACES
+!
+!... for RAS
       NLEV=0
       DO IS=1,NSYM
         NLEV=NLEV+NRS1(IS)
@@ -82,21 +82,21 @@ C... for RAS
       DO IS=1,NSYM
         NLEV=NLEV+NRS3(IS)
       END DO
-C
-C     COMPUTE RAS RESTRICTIONS ON VERTICES:
-C
+!
+!     COMPUTE RAS RESTRICTIONS ON VERTICES:
+!
       LV3RAS=LV1RAS+NRAS2
       LM1RAS=2*LV1RAS-NHOLE1
       LM3RAS=NACTEL-NELEC3
-C
-C     COMPUTE TOP ROW OF THE GUGA TABLE
-C
+!
+!     COMPUTE TOP ROW OF THE GUGA TABLE
+!
       IB0=ISPIN-1
       IA0=(NACTEL-IB0)/2
       IC0=NLEV-IA0-IB0
-      IF ( ((2*IA0+IB0).NE.NACTEL) .OR.
-     &     (IA0.LT.0) .OR.
-     &     (IB0.LT.0) .OR.
+      IF ( ((2*IA0+IB0).NE.NACTEL) .OR.                                 &
+     &     (IA0.LT.0) .OR.                                              &
+     &     (IB0.LT.0) .OR.                                              &
      &     (IC0.LT.0) ) then
         Write(LF,*)'GUGACTL Error: Impossible specifications.'
         Write(LF,'(1x,a,3I8)')'NACTEL,NLEV,ISPIN:',NACTEL,NLEV,ISPIN
@@ -116,9 +116,9 @@ C
         NCONF=1
         Return
       End If
-C
-C     INITIALIZE GUGA TABLES:
-C
+!
+!     INITIALIZE GUGA TABLES:
+!
       CALL MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF)
       NCONF=NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
