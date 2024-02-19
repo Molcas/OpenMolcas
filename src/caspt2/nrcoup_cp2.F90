@@ -39,6 +39,9 @@
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
      &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1
+#ifdef _DEBUGPRINT_
+      Integer IS, IST
+#endif
 
       DO 10 INDEO=0,MXEO
         DO 11 IV=1,MIDV2
