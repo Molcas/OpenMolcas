@@ -13,11 +13,11 @@
 !     using the "only" construct in the "use" statement of the module.
       module pt2_guga_data
       use gugx, only: IA0, IB0, IC0, NLEV, NVERT0, NVERT,               &
-     &                LV1RAS,LM1RAS,LV3RAS,LM3RAS
+     &                LV1RAS,LM1RAS,LV3RAS,LM3RAS,                      &
+     &                NOW1, NNOW, IOW1, NIOW
       implicit none
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)
-      Integer, Allocatable:: NOW1(:), IOW1(:)
       Integer, Allocatable:: NOCP(:), IOCP(:)
       Integer, Allocatable:: NOCSF(:), IOCSF(:)
       Integer, Allocatable:: ICASE(:), ICOUP(:)
