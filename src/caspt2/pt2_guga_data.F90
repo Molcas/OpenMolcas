@@ -14,7 +14,8 @@
       module pt2_guga_data
       use gugx, only: IA0, IB0, IC0, NLEV, NVERT0, NVERT,               &
      &                LV1RAS,LM1RAS,LV3RAS,LM3RAS,                      &
-     &                NOW1, NNOW, IOW1, NIOW
+     &                NOW1, NNOW, IOW1, NIOW,                           &
+     &                MIDLEV,NMIDV,MIDV1,MIDV2
       implicit none
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)

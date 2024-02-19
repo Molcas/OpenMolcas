@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR)
-      use pt2_guga_data, only: ICASE, NLEV
+      use pt2_guga_data, only: ICASE, NLEV, NMIDV, MIDLEV
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)

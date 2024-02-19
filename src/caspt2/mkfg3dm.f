@@ -38,7 +38,7 @@ C
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       use pt2_guga_data, only: NLEV, MXLEV, NG1, NG2, NG3, NCSF, ISM,
-     &                         L2ACT, MXCI
+     &                         L2ACT, MXCI, NMIDV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

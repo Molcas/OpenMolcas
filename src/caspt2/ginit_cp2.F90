@@ -24,7 +24,8 @@
      &                         LV3RAS, MIDLEV, MIDV1, MIDV2, MVR, MVL,  &
      &                         MXEO, NICASE, NICOUP, NIPWLK, NLEV,      &
      &                         NMIDV, NOCP, NOCSF, NOW1, NVERT, NVERT0, &
-     &                         NCSF, NVTAB, NWALK, NNOW, NIOW
+     &                         NCSF, NVTAB, NWALK, NNOW, NIOW,          &
+     &                         MIDLEV,NMIDV,MIDV1,MIDV2
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
