@@ -40,7 +40,7 @@
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
      &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1
 #ifdef _DEBUGPRINT_
-      Integer IS, IST
+      Integer IS, IST, NCP, NLW, NUW
 #endif
 
       DO 10 INDEO=0,MXEO
@@ -190,10 +190,6 @@
  241    CONTINUE
  240  CONTINUE
 
-#ifdef _DEBUGPRINT_
-      NLW=NOW(2,NSYM,NMIDV)-NOW(1,NSYM,NMIDV)
-#endif
-
       NICOUP=0
       DO 260 INDEO=1,MXEO
         DO 261 MV=1,NMIDV
@@ -238,6 +234,8 @@
       CALL GETMEM('LSGTMP','ALLO','REAL',LSGTMP,NSGTMP)
 !
 #ifdef _DEBUGPRINT_
+      NUW=NOW(1,NSYM,NMIDV)
+      NLW=NOW(2,NSYM,NMIDV)-NOW(1,NSYM,NMIDV)
       WRITE(6,600)MXUP,MXDWN,                                           &
      &            NSGMX,NSGMX,NSGTMP
   600 FORMAT(/,' MAXIMUM NUMBER OF WALKS',                              &

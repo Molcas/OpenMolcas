@@ -39,13 +39,13 @@
      &        NVTAB_FINAL, NVTAB_TMP
 
       Interface
-      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
+      SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
       IMPLICIT None
       Integer NVERT, MIDV1, MIDV2
       Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
       Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
       Integer IMAW(NVERT,0:3)
-      END SUBROUTINE MKMAW
+      END SUBROUTINE MKMAW_CP2
       End Interface
 
 
@@ -136,7 +136,7 @@
 
       NMAW=4*NVERT
       CALL mma_allocate(MAW,NMAW,Label='MAW')
-      CALL MKMAW(DOWN,DAW,UP,RAW,MAW,NVERT, MIDV1, MIDV2)
+      CALL MKMAW_CP2(DOWN,DAW,UP,RAW,MAW,NVERT, MIDV1, MIDV2)
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 
@@ -253,7 +253,7 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
+      SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
       IMPLICIT None
       Integer NVERT, MIDV1, MIDV2
       Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
@@ -303,7 +303,7 @@
   280   CONTINUE
         WRITE(6,*)
 #endif
-      END SUBROUTINE MKMAW
+      END SUBROUTINE MKMAW_CP2
 #endif
       END
 

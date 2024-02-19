@@ -16,7 +16,7 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
+      SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
       IMPLICIT None
       Integer NVERT, MIDV1, MIDV2
       Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
@@ -66,4 +66,4 @@
   280   CONTINUE
         WRITE(6,*)
 #endif
-      END SUBROUTINE MKMAW
+      END SUBROUTINE MKMAW_CP2
