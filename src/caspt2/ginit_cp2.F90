@@ -25,7 +25,8 @@
      &                         MXEO, NICASE, NICOUP, NIPWLK, NLEV,      &
      &                         NMIDV, NOCP, NOCSF, NOW1, NVERT, NVERT0, &
      &                         NCSF, NVTAB, NWALK, NNOW, NIOW,          &
-     &                         MIDLEV,NMIDV,MIDV1,MIDV2, NNOCSF, NIOCSF
+     &                         MIDLEV,NMIDV,MIDV1,MIDV2, NNOCSF, NIOCSF,&
+     &                         RAW,DAW,NRAW,NDAW
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -33,13 +34,13 @@
       Integer, Allocatable, Target:: DRT0(:), DRT(:)
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
-      Integer, Allocatable:: TMP(:), V11(:), DAW(:), LTV(:), RAW(:),    &
+      Integer, Allocatable:: TMP(:), V11(:),         LTV(:),            &
      &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),    &
      &                       ILNDW(:), SCR(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer IAC
-      Integer MXDWN, MXUP, NDAW, NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
-     &        NIOCP,               NLTV, NRAW, NMAW, NMVL, NMVR,        &
+      Integer MXDWN, MXUP,       NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
+     &        NIOCP,               NLTV,       NMAW, NMVL, NMVR,        &
      &        NNICOUP, NNOCP,               NNRL, NSCR, NTMP, NUP,      &
      &        NVTAB_FINAL, NVTAB_TMP
 
