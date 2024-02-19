@@ -20,11 +20,13 @@ integer, intent(inout) :: neq(nneq), nexch(nneq)
 integer :: i, LineNr, istatus
 character(len=72) :: LINE
 logical :: ab_initio_all
-logical :: DBG
 
-DBG = .false.
-if (DBG) write(u6,'(A)') 'Enter fetch_neq'
-if (DBG) write(u6,'(A,i3)') 'fetch_neq:  nneq=',nneq
+#include "macros.fh"
+
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'Enter fetch_neq'
+write(u6,'(A,i3)') 'fetch_neq:  nneq=',nneq
+#endif
 
 neq = 0
 nexch = 0
@@ -34,10 +36,14 @@ do
   read(u5,'(A72)',iostat=istatus) LINE
   if (istatus < 0) then
     call Error(2)
-    if (DBG) write(u6,'(A)') 'Exit fetch_neq'
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A)') 'Exit fetch_neq'
+#   endif
     return
   end if
-  if (DBG) write(u6,'(A)') LINE
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') LINE
+# endif
   call NORMAL(LINE)
   if (LINE(1:5) == '&POLY') exit
 end do
@@ -62,25 +68,34 @@ do
       call Error(1)
       exit
     end if
-    if (DBG) write(u6,'(A,i4,A,L2)') 'NNEQ=',NNEQ,' ab_initio_all=',ab_initio_all
+    unused_var(ab_initio_all)
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,i4,A,L2)') 'NNEQ=',NNEQ,' ab_initio_all=',ab_initio_all
+#   endif
     ! number of equivalent centers of type "i"
     read(u5,*,iostat=istatus) (NEQ(i),i=1,Nneq)
     if (istatus /= 0) then
       call Error(1)
       exit
     end if
-    if (DBG) write(u6,'(A,100I4)') 'NEQ(I)=',(NEQ(i),i=1,nneq)
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,100I4)') 'NEQ(I)=',(NEQ(i),i=1,nneq)
+#   endif
     ! number of RASSI wf for exchange
     read(u5,*,iostat=istatus) (Nexch(i),i=1,Nneq)
     if (istatus /= 0) then
       call Error(1)
       exit
     end if
-    if (DBG) write(u6,'(A,100I4)') 'NExch(I)=',(NExch(i),i=1,nneq)
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,100I4)') 'NExch(I)=',(NExch(i),i=1,nneq)
+#   endif
   end if
 end do
 
-if (DBG) write(u6,'(A)') 'Exit fetch_neq'
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'Exit fetch_neq'
+#endif
 
 return
 

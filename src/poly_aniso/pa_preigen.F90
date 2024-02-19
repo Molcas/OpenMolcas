@@ -9,8 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine pa_preigen(exch,lmax,ibas,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,DM_exchange,JITO_exchange,WLIN,WDIP,WKEX,WDMO, &
-                      WITO,W,Z,iPrint)
+subroutine pa_preigen(exch,lmax,ibas,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,JITO_exchange,WLIN,WDIP,WKEX,WITO,W,Z,iPrint)
 ! this function prints the energies and eigenvectors of the interaction Hamiltonians:
 
 use Definitions, only: u6
@@ -24,7 +23,6 @@ integer, intent(in) :: ibas(exch,lmax)
 real(kind=8), intent(in) :: WLIN(exch)
 real(kind=8), intent(in) :: WDIP(exch)
 real(kind=8), intent(in) :: WKEX(exch)
-real(kind=8), intent(in) :: WDMO(exch)
 real(kind=8), intent(in) :: WITO(exch)
 real(kind=8), intent(in) :: W(exch)
 complex(kind=8), intent(in) :: Z(exch,exch)
@@ -32,30 +30,26 @@ logical, intent(in) :: AnisoLines1
 logical, intent(in) :: AnisoLines3
 logical, intent(in) :: AnisoLines9
 logical, intent(in) :: Dipol
-logical, intent(in) :: DM_exchange
 logical, intent(in) :: KE
 logical, intent(in) :: JITO_exchange
 ! local variables
 integer :: i, m, ipar, nf, j, jEnd, iss
 character(len=80) :: fmtline
-logical :: dbg
 
 write(u6,*)
 write(u6,'(100a)') (('%'),i=1,100)
 write(u6,'(10x,a)') 'EigenValues of the Magnetic Interaction'
 write(u6,'(100a)') (('%'),i=1,100)
 
-dbg = .false.
-
-if (dbg) write(u6,*) 'pa_preigen:   AnisoLines1 =',AnisoLines1
-if (dbg) write(u6,*) 'pa_preigen:   AnisoLines3 =',AnisoLines3
-if (dbg) write(u6,*) 'pa_preigen:   AnisoLines9 =',AnisoLines9
-if (dbg) write(u6,*) 'pa_preigen:   DM_exchange =',DM_exchange
-if (dbg) write(u6,*) 'pa_preigen:         Dipol =',Dipol
-if (dbg) write(u6,*) 'pa_preigen:            KE =',KE
-if (dbg) write(u6,*) 'pa_preigen: JITO_exchange =',JITO_exchange
-if (dbg) write(u6,*) WDMO
-if (dbg) write(u6,*) WITO
+#ifdef _DEBUGPRINT_
+write(u6,*) 'pa_preigen:   AnisoLines1 =',AnisoLines1
+write(u6,*) 'pa_preigen:   AnisoLines3 =',AnisoLines3
+write(u6,*) 'pa_preigen:   AnisoLines9 =',AnisoLines9
+write(u6,*) 'pa_preigen:         Dipol =',Dipol
+write(u6,*) 'pa_preigen:            KE =',KE
+write(u6,*) 'pa_preigen: JITO_exchange =',JITO_exchange
+write(u6,*) WITO
+#endif
 
 !----------------------------------------------------------------------!
 if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. KE .and. (.not. JITO_exchange)) then

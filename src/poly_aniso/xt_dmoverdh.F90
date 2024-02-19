@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine XT_dMoverdH(exch,nLoc,nCenter,nneq,neqv,neq,nss,nexch,nTempMagn,nT,NM,iopt,mem,Tmin,Tmax,chit_exp,eso,w,T,RROT,zJ, &
-                       Xfield,EM,THRS,XT_no_field,dipso,s_so,dipexch,s_exch,tinput,smagn,m_paranoid,m_accurate,doplot)
+                       Xfield,THRS,XT_no_field,dipso,s_so,dipexch,s_exch,tinput,smagn,m_paranoid,m_accurate,doplot)
 ! this Subroutine computes the XT as M/H as it is observed for most of experiments.
 ! The M is averaged over the grid for each temperature point.
 !       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
@@ -33,7 +33,6 @@ real(kind=8), intent(in) :: T(nT+nTempMagn)
 real(kind=8), intent(in) :: chit_exp(nT)
 real(kind=8), intent(in) :: XT_no_field(nT+nTempMagn)
 real(kind=8), intent(in) :: Xfield
-real(kind=8), intent(in) :: EM
 real(kind=8), intent(in) :: THRS
 complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
 complex(kind=8), intent(in) :: s_so(nneq,3,nLoc,nLoc)
@@ -139,68 +138,77 @@ integer :: info, ibuf, ibuf1, ibuf3
 real(kind=8) :: wt(3), zt(3,3)
 real(kind=8) :: dnrm2_
 external :: dev, dnrm2_
-logical :: DBG, m_accurate
+logical :: m_accurate
 character(len=50) :: label
 real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical, parameter :: DBG = _DBG_
 
-DBG = .false.
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(mem)
+#endif
+
 !m_paranoid = .true. ! .false.
 !ccc-------------------------------------------------------cccc
-if (DBG) then
-  write(u6,'(A,   I5)') '      exch =',exch
-  write(u6,'(A,   I5)') '      nLoc =',nLoc
-  write(u6,'(A,   I5)') '   nCenter =',nCenter
-  write(u6,'(A,   I5)') '      nneq =',nneq
-  write(u6,'(A,   I5)') '      neqv =',neqv
-  write(u6,'(A, 10I5)') '    neq(i) =',(neq(i),i=1,nneq)
-  write(u6,'(A, 10I5)') '  nexch(i) =',(nexch(i),i=1,nneq)
-  write(u6,'(A, 10I5)') '    nss(i) =',(nss(i),i=1,nneq)
-  write(u6,'(A,   I5)') ' nTempMagn =',nTempMagn
-  write(u6,'(A,   I5)') '        nT =',nT
-  write(u6,'(A,   I5)') '        nM =',nM
-  write(u6,'(A,   I5)') '      iopt =',iopt
-  write(u6,'(A,F12.5)') '      Tmin =',Tmin
-  write(u6,'(A,F12.5)') '      Tmax =',Tmax
-  write(u6,'(A,F12.5)') '        zJ =',zJ
-  write(u6,'(A,F12.5)') '    Xfield =',Xfield
-  write(u6,'(A,F12.5)') '        EM =',EM
-  write(u6,'(A,ES12.5)') '      THRS =',THRS
-  write(u6,*) 'm_accurate =',m_accurate
-  write(u6,*) '     smagn =',smagn
-  write(u6,*) 'm_paranoid =',m_paranoid
-  write(u6,*) '    tinput =',tinput
-  if (tinput) then
-    do iT=1,nTempMagn
-      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
-    end do
-    do iT=1,nT
-      jT = iT+nTempMagn
-      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),' chiT_exp(',iT,')=',chit_exp(iT)
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A,   I5)') '      exch =',exch
+write(u6,'(A,   I5)') '      nLoc =',nLoc
+write(u6,'(A,   I5)') '   nCenter =',nCenter
+write(u6,'(A,   I5)') '      nneq =',nneq
+write(u6,'(A,   I5)') '      neqv =',neqv
+write(u6,'(A, 10I5)') '    neq(i) =',(neq(i),i=1,nneq)
+write(u6,'(A, 10I5)') '  nexch(i) =',(nexch(i),i=1,nneq)
+write(u6,'(A, 10I5)') '    nss(i) =',(nss(i),i=1,nneq)
+write(u6,'(A,   I5)') ' nTempMagn =',nTempMagn
+write(u6,'(A,   I5)') '        nT =',nT
+write(u6,'(A,   I5)') '        nM =',nM
+write(u6,'(A,   I5)') '      iopt =',iopt
+write(u6,'(A,F12.5)') '      Tmin =',Tmin
+write(u6,'(A,F12.5)') '      Tmax =',Tmax
+write(u6,'(A,F12.5)') '        zJ =',zJ
+write(u6,'(A,F12.5)') '    Xfield =',Xfield
+write(u6,'(A,ES12.5)') '      THRS =',THRS
+write(u6,*) 'm_accurate =',m_accurate
+write(u6,*) '     smagn =',smagn
+write(u6,*) 'm_paranoid =',m_paranoid
+write(u6,*) '    tinput =',tinput
+if (tinput) then
+  do iT=1,nTempMagn
+    write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
+  end do
+  do iT=1,nT
+    jT = iT+nTempMagn
+    write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),' chiT_exp(',iT,')=',chit_exp(iT)
+  end do
 
-  else
-    do iT=1,nT+nTempMagn
-      write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
-    end do
-  end if
-  write(u6,'(A)') 'local ESO:'
-  do i=1,nneq
-    write(u6,'(A,i3)') 'site:',i
-    write(u6,'(10F12.5)') (eso(i,j),j=1,nss(i))
+else
+  do iT=1,nT+nTempMagn
+    write(u6,'(2(A,i3,A,F12.6,2x))') 'T(',iT,')=',T(iT)
   end do
-  write(u6,'(A)') 'EXCHANGE ENERGY'
-  write(u6,'(10F12.5)') (W(i),i=1,exch)
-  write(u6,'(A)') 'Rotation Matrices:'
-  do i=1,nneq
-    write(u6,'(A,i3)') 'site:',i
-    do j=1,neq(i)
-      do l=1,3
-        write(u6,'(10F12.5)') (RROT(i,j,l,n),n=1,3)
-      end do
+end if
+write(u6,'(A)') 'local ESO:'
+do i=1,nneq
+  write(u6,'(A,i3)') 'site:',i
+  write(u6,'(10F12.5)') (eso(i,j),j=1,nss(i))
+end do
+write(u6,'(A)') 'EXCHANGE ENERGY'
+write(u6,'(10F12.5)') (W(i),i=1,exch)
+write(u6,'(A)') 'Rotation Matrices:'
+do i=1,nneq
+  write(u6,'(A,i3)') 'site:',i
+  do j=1,neq(i)
+    do l=1,3
+      write(u6,'(10F12.5)') (RROT(i,j,l,n),n=1,3)
     end do
   end do
-  call xFlush(u6)
-end if !DBG
+end do
+call xFlush(u6)
+#endif
 !ccc-------------------------------------------------------cccc
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,95)
@@ -377,10 +385,12 @@ call dcopy_(3*nCenter*(nT+nTempMagn),[Zero],0,SRT2,1)
 call dcopy_(3*nCenter*(nT+nTempMagn),[Zero],0,SLT2,1)
 mem_local = mem_local+12*3*nCenter*(nT+nTempMagn)*RtoB
 
-if (dbg) write(u6,*) 'XT_MH:  memory allocated (local):'
-if (dbg) write(u6,*) 'mem_local=',mem_local
-if (dbg) write(u6,*) 'XT_MH:  memory allocated (total):'
-if (dbg) write(u6,*) 'mem_total=',mem+mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'XT_MH:  memory allocated (local):'
+write(u6,*) 'mem_local=',mem_local
+write(u6,*) 'XT_MH:  memory allocated (total):'
+write(u6,*) 'mem_total=',mem+mem_local
+#endif
 
 !=======================================================================
 nDirX = 3
@@ -467,20 +477,20 @@ do iM=1,nDirX
             T(1:nTempTotal),smagn,Wex1(1:nM),Zex1(1:nTempTotal),Sex1(1:3,1:nTempTotal),Mex1(1:3,1:nTempTotal),m_paranoid,DBG)
   call MAGN(EXCH,NM,dHX(iM),dHY(iM),dHZ(iM),XField_2,W,zJ,THRS,DIPEXCH(1:3,1:exch,1:exch),S_EXCH(1:3,1:exch,1:exch),nTempTotal, &
             T(1:nTempTotal),smagn,Wex2(1:nM),Zex2(1:nTempTotal),Sex2(1:3,1:nTempTotal),Mex2(1:3,1:nTempTotal),m_paranoid,DBG)
-  if (DBG) then
-    do i=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex0(',i,')=',(Mex0(l,i),l=1,3)
-    end do
-    do i=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex1(',i,')=',(Mex1(l,i),l=1,3)
-    end do
-    do i=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex2(',i,')=',(Mex2(l,i),l=1,3)
-    end do
-    do i=1,nTempTotal
-      write(u6,'(A,i3,A,9ES22.14)') 'Mex 2-1 (',i,')=',(Mex2(l,i)-Mex1(l,i),l=1,3)
-    end do
-  end if !DBG
+# ifdef _DEBUGPRINT_
+  do i=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex0(',i,')=',(Mex0(l,i),l=1,3)
+  end do
+  do i=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex1(',i,')=',(Mex1(l,i),l=1,3)
+  end do
+  do i=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex2(',i,')=',(Mex2(l,i),l=1,3)
+  end do
+  do i=1,nTempTotal
+    write(u6,'(A,i3,A,9ES22.14)') 'Mex 2-1 (',i,')=',(Mex2(l,i)-Mex1(l,i),l=1,3)
+  end do
+# endif
 
   call Add_Info('dM/dH   Mex0',[dnrm2_(3*nTempTotal,Mex0,1)],1,8)
   call Add_Info('dM/dH   Sex0',[dnrm2_(3*nTempTotal,Sex0,1)],1,8)
@@ -514,7 +524,7 @@ do iM=1,nDirX
         call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),Xfield_2,ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,1:3,1:NSS(i),1:NSS(i)), &
                   S_SO(i,1:3,1:NSS(i),1:NSS(i)),nTempTotal,T(1:(nT+nTempMagn)),smagn,WL2(i,1:NSS(i)),ZL2(i,1:(nT+nTempMagn)), &
                   SL2(i,1:3,1:(nT+nTempMagn)),ML2(i,1:3,1:(nT+nTempMagn)),m_paranoid,DBG)
-! only local "exchange states":
+        ! only local "exchange states":
         call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField,ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,1:3,1:NEXCH(i),1:NEXCH(i)), &
                   S_SO(i,1:3,1:NEXCH(i),1:NEXCH(i)),nTempTotal,T(1:(nT+nTempMagn)),smagn,WR0(i,1:Nexch(i)), &
                   ZR0(i,1:(nT+nTempMagn)),SR0(i,1:3,1:(nT+nTempMagn)),MR0(i,1:3,1:(nT+nTempMagn)),m_paranoid,DBG)
@@ -526,12 +536,12 @@ do iM=1,nDirX
         call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),XField_2,ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,1:3,1:NEXCH(i),1:NEXCH(i)), &
                   S_SO(i,1:3,1:NEXCH(i),1:NEXCH(i)),nTempTotal,T(1:(nT+nTempMagn)),smagn,WR2(i,1:Nexch(i)), &
                   ZR2(i,1:(nT+nTempMagn)),SR2(i,1:3,1:(nT+nTempMagn)),MR2(i,1:3,1:(nT+nTempMagn)),m_paranoid,DBG)
-        if (DBG) then
-          do iT=1,nTempTotal
-            write(u6,'(A,i1,A,i3,A,3ES22.14)') 'ML(',i,',L,',iT,')=',(ML2(i,l,iT)-ML1(i,l,iT),l=1,3)
-            write(u6,'(A,i1,A,i3,A,3ES22.14)') 'MR(',i,',L,',iT,')=',(MR2(i,l,iT)-MR1(i,l,iT),l=1,3)
-          end do
-        end if ! DBG
+#       ifdef _DEBUGPRINT_
+        do iT=1,nTempTotal
+          write(u6,'(A,i1,A,i3,A,3ES22.14)') 'ML(',i,',L,',iT,')=',(ML2(i,l,iT)-ML1(i,l,iT),l=1,3)
+          write(u6,'(A,i1,A,i3,A,3ES22.14)') 'MR(',i,',L,',iT,')=',(MR2(i,l,iT)-MR1(i,l,iT),l=1,3)
+        end do
+#       endif
       end if ! NSS(i) > NEXCH(i)
     end do ! i=1,nneq
 
@@ -626,7 +636,9 @@ do iM=1,nDirX
     call Add_Info('dM/dH    MRT2',[dnrm2_(ibuf,MRT2,1)],1,8)
     call Add_Info('dM/dH    SRT2',[dnrm2_(ibuf,SRT2,1)],1,8)
     ! compute the total magnetizations according to the derived formulas:
-    if (dbg) write(u6,*) 'check point MLT0'
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'check point MLT0'
+#   endif
     do iT=1,nTempTotal
       if (smagn) then
         call MSUM(nCenter,Sex0(1:3,iT),Zex0(iT),SLT0(1:nCenter,1:3,iT),ZLT0(1:nCenter,iT),SRT0(1:nCenter,1:3,iT), &
@@ -637,7 +649,9 @@ do iM=1,nDirX
                   ZRT2(1:nCenter,iT),iopt,ST2(1:3,iT),ZT2(iT))
       end if
 
-      if (dbg) write(u6,*) 'check point MSUM'
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'check point MSUM'
+#     endif
       call MSUM(nCenter,Mex0(1:3,iT),Zex0(iT),MLT0(1:nCenter,1:3,iT),ZLT0(1:nCenter,iT),MRT0(1:nCenter,1:3,iT),ZRT0(1:nCenter,iT), &
                 iopt,MT0(1:3,iT),ZT0(iT))
       call MSUM(nCenter,Mex1(1:3,iT),Zex1(iT),MLT1(1:nCenter,1:3,iT),ZLT1(1:nCenter,iT),MRT1(1:nCenter,1:3,iT),ZRT1(1:nCenter,iT), &

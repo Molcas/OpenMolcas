@@ -153,33 +153,39 @@ integer :: ibuf
 logical :: check_title
 character(len=180) :: Title
 logical :: GRAD
-logical :: dbg
 character(len=180) :: fname
 integer :: LuAniso
 integer, external :: IsFreeUnit
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical, parameter  :: dbg = _DBG_
 
-dbg = .false.
 !-----------------------------------------------------------------------
 ! Constants:
 GRAD = .false.
 !-----------------------------------------------------------------------
 ! Allocate memory for all arrays:
 !-----------------------------------------------------------------------
-if (dbg) write(u6,*) '      exch = ',exch
-if (dbg) write(u6,*) '     nPair = ',nPair
-if (dbg) write(u6,*) '     nMult = ',nMult
-if (dbg) write(u6,*) '      nneq = ',nneq
-if (dbg) write(u6,*) '      neqv = ',neqv
-if (dbg) write(u6,*) '      nLoc = ',nLoc
-if (dbg) write(u6,*) '   nDirZee = ',nDirZee
-if (dbg) write(u6,*) '      nDir = ',nDir
-if (dbg) write(u6,*) '        nH = ',nH
-if (dbg) write(u6,*) '        nT = ',nT
-if (dbg) write(u6,*) ' nTempMagn = ',nTempMagn
-if (dbg) write(u6,*) 'old_format = ',old_aniso_format
-if (dbg) write(u6,*) 'old_format = ',old_aniso_format
-if (dbg) write(u6,*) '   MxRank1 = ',MxRank1
-if (dbg) write(u6,*) '   MxRank2 = ',MxRank2
+#ifdef _DEBUGPRINT_
+write(u6,*) '      exch = ',exch
+write(u6,*) '     nPair = ',nPair
+write(u6,*) '     nMult = ',nMult
+write(u6,*) '      nneq = ',nneq
+write(u6,*) '      neqv = ',neqv
+write(u6,*) '      nLoc = ',nLoc
+write(u6,*) '   nDirZee = ',nDirZee
+write(u6,*) '      nDir = ',nDir
+write(u6,*) '        nH = ',nH
+write(u6,*) '        nT = ',nT
+write(u6,*) ' nTempMagn = ',nTempMagn
+write(u6,*) 'old_format = ',old_aniso_format
+write(u6,*) 'old_format = ',old_aniso_format
+write(u6,*) '   MxRank1 = ',MxRank1
+write(u6,*) '   MxRank2 = ',MxRank2
+#endif
 
 mem = 0
 RtoB = 8
@@ -203,7 +209,9 @@ call mma_allocate(s_exch,3,exch,exch,'s_exch')
 call zcopy_(3*exch*exch,[cZero],0,s_exch,1)
 mem = mem+3*exch*exch*CtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 1 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 1 =',mem
+#endif
 
 ! index of metal site for each interacting pair:
 call mma_allocate(i_pair,nPair,2,'i_pair')
@@ -241,10 +249,12 @@ l4(2) = MxRank2
 l5(1) = -MxRank2
 l5(2) = MxRank2
 ibuf = nPair*MxRank1*MxRank2*(2*MxRank1+1)*(2*MxRank2+1)
-if (dbg) write(u6,'(A,I10)') 'nPair  =',nPair
-if (dbg) write(u6,'(A,I10)') 'MxRank1=',MxRank1
-if (dbg) write(u6,'(A,I10)') 'MxRank2=',MxRank2
-if (dbg) write(u6,'(A,I10)') 'ibuf   =',ibuf
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I10)') 'nPair  =',nPair
+write(u6,'(A,I10)') 'MxRank1=',MxRank1
+write(u6,'(A,I10)') 'MxRank2=',MxRank2
+write(u6,'(A,I10)') 'ibuf   =',ibuf
+#endif
 call xFlush(u6)
 call mma_allocate(JITOexR,l1,l2,l3,l4,l5,'JITOexR')
 call mma_allocate(JITOexI,l1,l2,l3,l4,l5,'JITOexI')
@@ -252,7 +262,9 @@ call dcopy_(ibuf,[Zero],0,JITOexR,1)
 call dcopy_(ibuf,[Zero],0,JITOexI,1)
 mem = mem+2*ibuf*RtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 2 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 2 =',mem
+#endif
 
 ! index of metal site for each interacting pair:
 call mma_allocate(nDim,nMult,'nDim')
@@ -267,7 +279,9 @@ call mma_allocate(maxes,nMult,3,3,'maxes')
 call dcopy_(nMult*3*3,[Zero],0,maxes,1)
 mem = mem+nMult*3*3*RtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 3 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 3 =',mem
+#endif
 
 ! number of equivalent centers, per type
 call mma_allocate(neq,nneq,'neq')
@@ -332,7 +346,9 @@ call zcopy_(3*nneq*nLoc*nLoc,[cZero],0,s_so,1)
 mem = mem+3*nneq*nLoc*nLoc*CtoB
 
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 4 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 4 =',mem
+#endif
 
 ! unit numbers of the files containing Zeeman states
 call mma_allocate(LuZee,nDirZee,'LuZee')
@@ -343,7 +359,9 @@ call mma_allocate(dir_weight,nDirZee,3,'dir_weight')
 call dcopy_(3*nDirZee,[Zero],0,dir_weight,1)
 mem = mem+3*nDirZee*ItoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 5 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 5 =',mem
+#endif
 
 ! magnetization vectors
 call mma_allocate(dirX,nDir,'dirX')
@@ -354,7 +372,9 @@ call dcopy_(nDir,[Zero],0,dirX,1)
 call dcopy_(nDir,[Zero],0,dirY,1)
 call dcopy_(nDir,[Zero],0,dirZ,1)
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 6 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 6 =',mem
+#endif
 
 ! experimental field points:
 call mma_allocate(Hexp,nH,'Hexp')
@@ -369,7 +389,9 @@ call mma_allocate(TempMagn,nTempMagn,'TempMagn')
 call dcopy_(nTempMagn,[Zero],0,TempMagn,1)
 mem = mem+nTempMagn*RtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 7 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 7 =',mem
+#endif
 
 ! XT for local centers, all states
 call mma_allocate(XLM,nCenter,nTempMagn,3,3,'XLM')
@@ -388,7 +410,9 @@ call mma_allocate(ZRM,nCenter,nTempMagn,'ZRM')
 call dcopy_(nCenter*nTempMagn,[Zero],0,ZRM,1)
 mem = mem+nCenter*nTempMagn*RtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 8 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 8 =',mem
+#endif
 
 ! T expeirimental given by user in the input
 call mma_allocate(Texp,nT,'Texp')
@@ -413,26 +437,40 @@ call mma_allocate(XT_no_field,(nTempMagn+nT),'XT_no_field')
 call dcopy_((nT+nTempMagn),[Zero],0,XT_no_field,1)
 mem = mem+(nT+nTempMagn)*RtoB
 ! allocated memory counter
-if (dbg) write(u6,'(A,I16)') 'mem 9 =',mem
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I16)') 'mem 9 =',mem
+#endif
 
 write(u6,'(A,I16,A)') 'The code allocated at least:',mem,' bytes of memory for this run.'
 call xFlush(u6)
 !-----------------------------------------------------------------------
 ! set default values of the main variables and arrays:
-if (dbg) write(u6,*) 'Enter set_defaults'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Enter set_defaults'
+#endif
 call set_defaults(nneq,nTempMagn,nDir,nDirZee,nMult,neq,nexch,nK,mG,ncut,nP,AngPoints,nBlock,encut_definition,iopt,iPrint,dltT0, &
                   dltH0,zJ,tmin,tmax,hmin,hmax,XField,thrs,TempMagn,cryst,coord,encut_rate,gtens_input,D_fact,EoverD_fact,riso, &
                   decompose_exchange,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,Dipol,KE,JITO_exchange,fitCHI,fitM, &
                   Do_structure_abc,doplot,compute_g_tensors,tinput,compute_susceptibility,compute_torque,compute_barrier, &
                   compute_magnetization,hinput,compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,itype)
-if (dbg) write(u6,*) 'Exit set_defaults'
-if (dbg .and. (neqv > 1)) write(u6,*) 'Enter fetch_neq'
-if (neqv > 1) call fetch_neq(nneq,neq(1:nneq),nexch(1:nneq))
-if (dbg .and. (neqv > 1)) write(u6,*) 'Exit fetch_neq'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Exit set_defaults'
+#endif
+if (neqv > 1) then
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Enter fetch_neq'
+# endif
+  call fetch_neq(nneq,neq(1:nneq),nexch(1:nneq))
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Exit fetch_neq'
+# endif
+end if
 
 !-----------------------------------------------------------------------
 ! read the Standard Input:
-if (dbg) write(u6,*) 'Enter Readin_poly'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Enter Readin_poly'
+#endif
 call Readin_poly(nneq,neq,neqv,exch,nCenter,nT,nH,nTempMagn,nDir,nDirZee,nMult,nPair,nexch,nDim,i_pair,lant,multLn,iPrint,keopt, &
                  encut_definition,nK,mG,iopt,nP,AngPoints,ncut,LUZee,MxRank1,MxRank2,imaxrank,TempMagn,R_LG,R_ROT,Jex,JAex,JAex9, &
                  JDMex,JITOexR,JITOexI,tpar,upar,cryst,coord,Xfield,gtens_input,D_fact,EoverD_fact,riso,MagnCoords,thrs,tmin,tmax, &
@@ -440,30 +478,38 @@ call Readin_poly(nneq,neq,neqv,exch,nCenter,nT,nH,nTempMagn,nDir,nDirZee,nMult,n
                  compute_g_tensors,compute_magnetization,TINPUT,HINPUT,Do_structure_abc,doplot,compute_Mdir_vector,zeeman_energy, &
                  m_paranoid,m_accurate,smagn,compute_susceptibility,decompose_exchange,KE,fitCHI,fitM,compute_torque, &
                  compute_barrier,Dipol,check_title,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,JITO_exchange)
-if (dbg) write(u6,*) 'Exit Readin_poly'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Exit Readin_poly'
 call xFlush(u6)
+#endif
 !-----------------------------------------------------------------------
 ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
 do i=1,nneq
-  if (dbg) write(u6,'(A,A)') 'itype(i)=',itype(i)
-  if (dbg) write(u6,*) '   nss(i)=',nss(i)
-  if (dbg) write(u6,*) '  nsfs(i)=',nsfs(i)
-  if (dbg) write(u6,*) ' nexch(i)=',nexch(i)
-  if (dbg) write(u6,*) '     nLoc=',nLoc
-  if (dbg) write(u6,*) ' gtens_input(1:3,i)=',(gtens_input(j,i),j=1,3)
-  if (dbg) write(u6,*) 'D_fact(i)=',D_fact(i)
-  if (dbg) write(u6,*) 'eso(i,1:nexch(i))=',(eso(i,j),j=1,nexch(i))
-  if (dbg) write(u6,*) 'old_aniso_format=',old_aniso_format
-  if (dbg) call xFlush(u6)
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,A)') 'itype(i)=',itype(i)
+  write(u6,*) '   nss(i)=',nss(i)
+  write(u6,*) '  nsfs(i)=',nsfs(i)
+  write(u6,*) ' nexch(i)=',nexch(i)
+  write(u6,*) '     nLoc=',nLoc
+  write(u6,*) ' gtens_input(1:3,i)=',(gtens_input(j,i),j=1,3)
+  write(u6,*) 'D_fact(i)=',D_fact(i)
+  write(u6,*) 'eso(i,1:nexch(i))=',(eso(i,j),j=1,nexch(i))
+  write(u6,*) 'old_aniso_format=',old_aniso_format
+  call xFlush(u6)
+# endif
 
   if ((itype(i) == 'B') .or. (itype(i) == 'C')) then
 
-    if (dbg) write(u6,*) 'Enter generate_isotrop_site'
-    if (dbg) call xFlush(u6)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Enter generate_isotrop_site'
+    call xFlush(u6)
+#   endif
     call generate_isotrop_site(nss(i),nsfs(i),nexch(i),gtens_input(1:3,i),riso(i,1:3,1:3),D_fact(i),EoverD_fact(i), &
                                eso(i,1:nexch(i)),dipso(i,1:3,1:nexch(i),1:nexch(i)),s_so(i,1:3,1:nexch(i),1:nexch(i)))
-    if (dbg) write(u6,*) 'Exit generate_isotrop_site'
-    if (dbg) call xFlush(u6)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Exit generate_isotrop_site'
+    call xFlush(u6)
+#   endif
 
   else if (itype(i) == 'A') then
 
@@ -471,20 +517,30 @@ do i=1,nneq
       ! set their names:
       if (i < 10) then
         write(namefile_aniso(i),'(4A)') 'aniso_hdf_',char(48+mod(int(i),10)),'.input'
-        if (dbg) write(u6,'(A,i2,A,A)') 'namefile_aniso(',i,')=',namefile_aniso(i)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,i2,A,A)') 'namefile_aniso(',i,')=',namefile_aniso(i)
+#       endif
       else if ((i >= 10) .and. (i <= 99)) then
         write(namefile_aniso(i),'(4A)') 'aniso_hdf_',char(48+mod(int((i)/10),10)),char(48+mod(int(i),10)),'.input'
       end if
-      if (dbg) write(u6,*) 'PA:  namefile_aniso(i)=',trim(namefile_aniso(i))
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'PA:  namefile_aniso(i)=',trim(namefile_aniso(i))
+#     endif
 
 #     ifdef _HDF5_
-      if (dbg) write(u6,*) 'Enter read_hdf5_poly'
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Enter read_hdf5_poly'
+#     endif
       call read_hdf5_init(namefile_aniso(i),nsfs(i),nss(i))
-      if (dbg) write(u6,*) 'i=',i,'nsfs(i),nss(i)=',nsfs(i),nss(i)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'i=',i,'nsfs(i),nss(i)=',nsfs(i),nss(i)
+#     endif
       call read_hdf5_poly(namefile_aniso(i),nss(i),nsfs(i),eso(i,1:nss(i)),dipso(i,1:3,1:nss(i),1:nss(i)), &
                           s_so(i,1:3,1:nss(i),1:nss(i)),iReturn)
-      if (dbg) write(u6,*) 'Exit read_hdf5_poly'
-      if (dbg) write(u6,*) 'ESO(i)=',(ESO(i,j),j=1,nss(i))
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Exit read_hdf5_poly'
+      write(u6,*) 'ESO(i)=',(ESO(i,j),j=1,nss(i))
+#     endif
 #     else
       call WarningMessage(2,'File '//trim(namefile_aniso(i))//' cannot be opened. Molcas was compiled without HDF5 option.')
       call Quit_OnUserError()
@@ -500,30 +556,40 @@ do i=1,nneq
       if (old_aniso_format) then
         ! get the information from OLD formatted
         ! aniso.input file:
-        if (dbg) write(u6,*) 'Enter read_formatted_aniso_poly'
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'Enter read_formatted_aniso_poly'
         !write(u6,*) 'nss(i) =',nss(i)
         !write(u6,*) 'nsfs(i)=',nsfs(i)
         !write(u6,*) 'nLoc   =',nLoc
+#       endif
         call xFlush(u6)
 
         call read_formatted_aniso_poly(namefile_aniso(i),nss(i),nsfs(i),nLoc,eso(i,1:nLoc),dipso(i,1:3,1:nLoc,1:nLoc), &
                                        s_so(i,1:3,1:nLoc,1:nLoc),iReturn)
-        if (dbg) write(u6,*) 'Exit read_formatted_aniso_poly'
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'Exit read_formatted_aniso_poly'
+#       endif
 
       else ! old_aniso_format is false, i.e. the default
 
         ! get the information from NEW formatted
         ! aniso.input file:
-        if (dbg) write(u6,*) 'read formatted_aniso_poly_NEW'
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'read formatted_aniso_poly_NEW'
+#       endif
         LuAniso = IsFreeUnit(81)
         call molcas_open(LuAniso,namefile_aniso(i))
         ! nss(i) is yet undefined up till this place
         call read_nss(LuAniso,nss(i),dbg)
         call read_nstate(LuAniso,nsfs(i),dbg)
         call read_eso(LuAniso,nss(i),eso_au(i,1:nss(i)),dbg)
-        if (dbg) write(u6,*) 'poly_aniso: eso_au=',(eso_au(i,j),j=1,nss(i))
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'poly_aniso: eso_au=',(eso_au(i,j),j=1,nss(i))
+#       endif
         call read_magnetic_moment(LuAniso,nss(i),dipso(i,1:3,1:nss(i),1:nss(i)),dbg)
-        if (dbg) write(u6,*) 'Call read_spin_moment'
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'Call read_spin_moment'
+#       endif
         call xFlush(u6)
         call read_spin_moment(LuAniso,nss(i),s_so(i,1:3,1:nss(i),1:nss(i)),dbg)
         ! compute the relative spin-orbit energies in cm-1
@@ -539,16 +605,18 @@ do i=1,nneq
   end if
 end do
 
-if (DBG) then
-  do i=1,nneq
-    write(u6,*) 'MAGNETIC MOMENT  ON  SITE 1'
-    call prMom('site i',dipso(i,1:3,1:nss(i),1:nss(i)),nss(i))
-    write(u6,*) 'SPIN MOMENT  ON  SITE 1'
-    call prMom('site i',s_so(i,1:3,1:nss(i),1:nss(i)),nss(i))
-  end do
-end if
+#ifdef _DEBUGPRINT_
+do i=1,nneq
+  write(u6,*) 'MAGNETIC MOMENT  ON  SITE 1'
+  call prMom('site i',dipso(i,1:3,1:nss(i),1:nss(i)),nss(i))
+  write(u6,*) 'SPIN MOMENT  ON  SITE 1'
+  call prMom('site i',s_so(i,1:3,1:nss(i),1:nss(i)),nss(i))
+end do
+#endif
 
-if (dbg) write(u6,*) 'Enter input_process'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Enter input_process'
+#endif
 call input_process(nneq,neq,neqv,nmax,nCenter,nexch,nDir,nDirZee,nDirTot,nH,nT,exch,nBlock,nTempMagn,iopt,nMult,nDim,nPair,i_pair, &
                    nP,AngPoints,lant,multLn,KEOPT,encut_definition,nK,mG,ncut,nsfs,nss,nLoc,MxRank1,MxRank2,imaxrank,iPrint,R_LG, &
                    gtens_input,dirX,dirY,dirZ,dir_weight,zJ,cryst,coord,hmin,hmax,TempMagn,thrs,Hexp,Mexp,tmin,tmax,chit_exp,Texp, &
@@ -556,7 +624,9 @@ call input_process(nneq,neq,neqv,nmax,nCenter,nexch,nDir,nDirZee,nDirTot,nH,nT,e
                    Do_structure_abc,old_aniso_format,compute_barrier,fitCHI,fitM,hinput,tinput,compute_magnetization, &
                    compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,compute_g_tensors,compute_torque, &
                    compute_susceptibility,AnisoLines1,AnisoLines3,AnisoLines9,Dipol,check_title,KE,DM_exchange,JITO_exchange)
-if (dbg) write(u6,*) 'Exit input_process'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Exit input_process'
+#endif
 
 ! at this moment all input values are set. proceed to compute various
 ! properties:
@@ -577,13 +647,15 @@ if (dbg) write(u6,*) 'Exit input_process'
 !Dipol = dipole_included
 !KE = exch_long
 
-if (dbg) write(u6,*) 'Dipol         = ',Dipol
-if (dbg) write(u6,*) 'AnisoLines1   = ',AnisoLines1
-if (dbg) write(u6,*) 'AnisoLines3   = ',AnisoLines3
-if (dbg) write(u6,*) 'AnisoLines9   = ',AnisoLines9
-if (dbg) write(u6,*) 'DM_exchange   = ',DM_exchange
-if (dbg) write(u6,*) 'JITO_exchange = ',JITO_exchange
-if (dbg) write(u6,*) 'nmax          = ',nmax
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Dipol         = ',Dipol
+write(u6,*) 'AnisoLines1   = ',AnisoLines1
+write(u6,*) 'AnisoLines3   = ',AnisoLines3
+write(u6,*) 'AnisoLines9   = ',AnisoLines9
+write(u6,*) 'DM_exchange   = ',DM_exchange
+write(u6,*) 'JITO_exchange = ',JITO_exchange
+write(u6,*) 'nmax          = ',nmax
+#endif
 
 call exchctl(exch,nneq,neqv,neq,nexch,nmax,nCenter,npair,i_pair,MxRank1,MxRank2,imaxrank,Jex,JAex,JAex9,JDMex,JITOexR,JITOexI, &
              eso(1:nneq,1:nmax),s_so(1:nneq,1:3,1:nmax,1:nmax),dipso(1:nneq,1:3,1:nmax,1:nmax),MagnCoords,R_ROT,R_LG,riso,tpar, &
@@ -602,8 +674,10 @@ call MOMLOC2(exch,nmax,nneq,neq,neqv,r_rot,nCenter,nExch,W,Z,dipexch,s_exch,dips
 
 !-----------------------------------------------------------------------
 if (compute_g_tensors) then
-  if (dbg) write(u6,'(A,90I3)') 'nmult= ',nmult
-  if (dbg) write(u6,'(A,90I3)') 'ndim() = ',ndim(1:nmult)
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,90I3)') 'nmult= ',nmult
+  write(u6,'(A,90I3)') 'ndim() = ',ndim(1:nmult)
+# endif
 
   Ifunct = 0
   do imltpl=1,nmult
@@ -614,9 +688,11 @@ if (compute_g_tensors) then
     if (ndim(imltpl) > 1) then
       if (i2 > exch) exit
 
-      if (dbg) write(u6,'(A,90I3)') 'ndim(imltpl)=',ndim(imltpl)
-      if (dbg) call prmom('PA: s_exch:',s_exch(1:3,i1:i2,i1:i2),ndim(imltpl))
-      if (dbg) call prmom('PA: dip_exch:',dipexch(1:3,i1:i2,i1:i2),ndim(imltpl))
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,90I3)') 'ndim(imltpl)=',ndim(imltpl)
+      call prmom('PA: s_exch:',s_exch(1:3,i1:i2,i1:i2),ndim(imltpl))
+      call prmom('PA: dip_exch:',dipexch(1:3,i1:i2,i1:i2),ndim(imltpl))
+#     endif
 
       call g_high(w(i1:i2),GRAD,s_exch(1:3,i1:i2,i1:i2),dipexch(1:3,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
                   gtens(imltpl,1:3),maxes(imltpl,1:3,1:3),iprint)
@@ -672,18 +748,20 @@ if (compute_susceptibility .and. (nT > 0)) then
     do i=1,nT+nTempMagn
       write(u6,*) i,T(i)
     end do
-    if (dbg) write(u6,*) 'nm    =',nm
-    if (dbg) write(u6,*) 'Tmin  =',Tmin
-    if (dbg) write(u6,*) 'Tmax  =',Tmax
-    if (dbg) write(u6,*) 'THRS  =',THRS
-    if (dbg) write(u6,*) 'smagn =',smagn
-    if (dbg) write(u6,*) 'm_par =',m_paranoid
-    if (dbg) write(u6,*) 'm_acc =',m_accurate
-    if (dbg) write(u6,*) 'tinpu =',tinput
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'nm    =',nm
+    write(u6,*) 'Tmin  =',Tmin
+    write(u6,*) 'Tmax  =',Tmax
+    write(u6,*) 'THRS  =',THRS
+    write(u6,*) 'smagn =',smagn
+    write(u6,*) 'm_par =',m_paranoid
+    write(u6,*) 'm_acc =',m_accurate
+    write(u6,*) 'tinpu =',tinput
+#   endif
 
     ! nm = exch
     call XT_dMoverdH(exch,nLoc,nCenter,nneq,neqv,neq,nss,nexch,nTempMagn,nT,exch,iopt,mem,Tmin,Tmax,XTexp,eso,w,T,R_ROT,zJ,Xfield, &
-                     EM,THRS,XT_no_field,dipso,s_so,dipexch,s_exch,tinput,smagn,m_paranoid,m_accurate,doplot)
+                     THRS,XT_no_field,dipso,s_so,dipexch,s_exch,tinput,smagn,m_paranoid,m_accurate,doplot)
   end if
 else
   write(u6,'(A)') 'Computation of the magnetic susceptibility... skipped by the user'

@@ -96,11 +96,19 @@ integer :: IM, I, it, itEnd, J, iH, k, isite, l, n, nP
 integer :: iDir, rtob, ibuf, mem_local
 real(kind=8) :: dev, dnrm2_
 external :: dev, dnrm2_
-logical :: DBG
 character(len=15) :: lbl_X, lbl_Y, lbl_Z
 real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical, parameter :: DBG = _DBG_
 
-DBG = .false.
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(mem)
+#endif
 
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,96)
@@ -110,10 +118,12 @@ write(u6,*)
 !----------------------------------------------------------------------
 mem_local = 0
 RtoB = 8
-if (dbg) write(u6,*) 'MAGN:        nM=',nM
-if (dbg) write(u6,*) 'MAGN:      exch=',exch
-if (dbg) write(u6,*) 'MAGN:      nLoc=',nLoc
-if (dbg) write(u6,*) 'MAGN: nTempMagn=',nTempMagn
+#ifdef _DEBUGPRINT_
+write(u6,*) 'MAGN:        nM=',nM
+write(u6,*) 'MAGN:      exch=',exch
+write(u6,*) 'MAGN:      nLoc=',nLoc
+write(u6,*) 'MAGN: nTempMagn=',nTempMagn
+#endif
 
 ! Zeeman exchange energy spectrum
 call mma_allocate(Wex,nM,'Wex')
@@ -236,10 +246,12 @@ mem_local = mem_local+4*nDirTot*RtoB
 call mma_allocate(H,nH,'H  field')
 call dcopy_(nH,[Zero],0,H,1)
 mem_local = mem_local+nH*RtoB
-if (dbg) write(u6,*) 'MAGN:  memory allocated (local):'
-if (dbg) write(u6,*) 'mem_local=',mem_local
-if (dbg) write(u6,*) 'MAGN:  memory allocated (total):'
-if (dbg) write(u6,*) 'mem_total=',mem+mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'MAGN:  memory allocated (local):'
+write(u6,*) 'mem_local=',mem_local
+write(u6,*) 'MAGN:  memory allocated (total):'
+write(u6,*) 'mem_total=',mem+mem_local
+#endif
 !-----------------------------------------------------------------------
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 nP = get_nP(nsymm,ngrid)
@@ -249,36 +261,36 @@ call Add_Info('MR_MAGN  dHX',dHX(1:5),5,10)
 call Add_Info('MR_MAGN  dHY',dHY(1:5),5,10)
 call Add_Info('MR_MAGN  dHZ',dHZ(1:5),5,10)
 call Add_Info('MR_MAGN  dWX',dHW(1:5),5,10)
-if (DBG) then
-  write(u6,'(A,F10.6)') '        zJ = ',zJ
-  write(u6,'(A,F10.6)') '      thrs = ',thrs
-  write(u6,'(A,   I6)') '      iopt = ',iopt
-  write(u6,'(A, 10I6)') '     nss(i)=',(nss(i),i=1,nneq)
-  write(u6,'(A, 10I6)') '   nexch(i)=',(nexch(i),i=1,nneq)
-  write(u6,'(A,   I6)') '  nTempMagn= ',nTempMagn
-  write(u6,'(A      )') 'TempMagn(i)='
-  write(u6,'(10F10.6)') (TempMagn(i),i=1,nTempMagn)
-  write(u6,*) 'm_paranoid =',m_paranoid
-  write(u6,*) 'm_accurate =',m_accurate
-  write(u6,*) '     smagn =',smagn
-  do k=1,nneq
-    write(u6,'(A,i6)') 'site ',k
-    write(u6,'(A,i2,A)') 'ESO(',k,')'
-    write(u6,'(10F12.6)') (ESO(k,i),i=1,nss(k))
-    write(u6,'(A,i2,A)') 'S_SO(',k,')'
-    do i=1,nss(k)
-      do j=1,nss(k)
-        write(u6,'(3(2F15.10,3x))') (s_so(k,l,i,j),l=1,3)
-      end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A,F10.6)') '        zJ = ',zJ
+write(u6,'(A,F10.6)') '      thrs = ',thrs
+write(u6,'(A,   I6)') '      iopt = ',iopt
+write(u6,'(A, 10I6)') '     nss(i)=',(nss(i),i=1,nneq)
+write(u6,'(A, 10I6)') '   nexch(i)=',(nexch(i),i=1,nneq)
+write(u6,'(A,   I6)') '  nTempMagn= ',nTempMagn
+write(u6,'(A      )') 'TempMagn(i)='
+write(u6,'(10F10.6)') (TempMagn(i),i=1,nTempMagn)
+write(u6,*) 'm_paranoid =',m_paranoid
+write(u6,*) 'm_accurate =',m_accurate
+write(u6,*) '     smagn =',smagn
+do k=1,nneq
+  write(u6,'(A,i6)') 'site ',k
+  write(u6,'(A,i2,A)') 'ESO(',k,')'
+  write(u6,'(10F12.6)') (ESO(k,i),i=1,nss(k))
+  write(u6,'(A,i2,A)') 'S_SO(',k,')'
+  do i=1,nss(k)
+    do j=1,nss(k)
+      write(u6,'(3(2F15.10,3x))') (s_so(k,l,i,j),l=1,3)
     end do
-    write(u6,'(A,i2,A)') 'DIPSO(',k,')'
-    do i=1,nss(k)
-      do j=1,nss(k)
-        write(u6,'(3(2F15.10,3x))') (dipso(k,l,i,j),l=1,3)
-      end do
+  end do
+  write(u6,'(A,i2,A)') 'DIPSO(',k,')'
+  do i=1,nss(k)
+    do j=1,nss(k)
+      write(u6,'(3(2F15.10,3x))') (dipso(k,l,i,j),l=1,3)
     end do
-  end do !k
-end if
+  end do
+end do !k
+#endif
 
 write(u6,'(2X,A,i3,A)') 'Molar magnetization will be calculated in ',nH,' points, equally distributed in magnetic field range'
 write(u6,'(2X,F4.1,1x,a,1X,F4.1,a,5(F6.3,a))') HMIN,'--',HMAX,' T., at the following temperatures:'
@@ -342,11 +354,11 @@ end if
 if (zeeman_energy) then
   write(u6,'(2x,A,i2,a)') 'The Zeeman splitting for ',nDirZee,' directions of the applied magnetic field will be calculated.'
   write(u6,'(2x,a)') 'The Zeeman energies for each direction of the applied magnetic field are written in files "energy_XX.txt".'
-  if (DBG) then
-    do i=1,nDirZee
-      write(u6,'(A,I4,A,I4)') 'LuZee(',i,' )=',LUZee(i)
-    end do
-  end if
+# ifdef _DEBUGPRINT_
+  do i=1,nDirZee
+    write(u6,'(A,I4,A,I4)') 'LuZee(',i,' )=',LUZee(i)
+  end do
+# endif
 else
   write(u6,'(2X,A)') 'Computation of the Zeeman splitting was not requested.'
 end if
@@ -374,7 +386,9 @@ do iH=1,nH
     if (H(iH) == Zero) H(iH) = 0.0001_wp
   end if
 
-  if (DBG) write(u6,'(A,i0,A,F10.5)') 'MAGNETIZATION::  H(',iH,') = ',H(iH)
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,i0,A,F10.5)') 'MAGNETIZATION::  H(',iH,') = ',H(iH)
+# endif
 
   ! ///  opening the loop over different directions of the magnetic field
   do IM=1,NDIRTOT
@@ -390,11 +404,15 @@ do iH=1,nH
     call dcopy_(3*nneq*nTempMagn,[Zero],0,ML,1)
     call dcopy_(3*nneq*nTempMagn,[Zero],0,SR,1)
     call dcopy_(3*nneq*nTempMagn,[Zero],0,MR,1)
-    if (DBG) write(u6,'(A,F20.10)') 'zJ = ',zJ
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,F20.10)') 'zJ = ',zJ
+#   endif
     ! exchange magnetization:
     call MAGN(exch,NM,dHX(iM),dHY(iM),dHZ(iM),H(iH),W,zJ,THRS,DIPEXCH,S_EXCH,nTempMagn,TempMagn,smagn,Wex,Zex,Sex,Mex,m_paranoid, &
               DBG)
-    if (DBG) write(u6,'(A,3F11.7)') 'MEX:',(Mex(l,1),l=1,3)
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,3F11.7)') 'MEX:',(Mex(l,1),l=1,3)
+#   endif
     if (IM == 1) then
       call Add_Info('MEX_MAGN    ',[dnrm2_(3*nTempMagn,Mex,1)],1,8)
       call Add_Info('MR_MAGN  Wex',[dnrm2_(nM,Wex,1)],1,8)
@@ -412,13 +430,17 @@ do iH=1,nH
             call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL,1)],1,8)
           end if
 
-          if (DBG) write(u6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(i,l,1),l=1,3)
+#         ifdef _DEBUGPRINT_
+          write(u6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(i,l,1),l=1,3)
+#         endif
           ! only local "exchange states":
           call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,1:3,1:NEXCH(i),1:NEXCH(i)), &
                     S_SO(i,1:3,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn,WR(i,1:Nexch(i)),ZR(i,1:nTempMagn), &
                     SR(i,1:3,1:nTempMagn),MR(i,1:3,1:nTempMagn),m_paranoid,DBG)
           call Add_Info('MR_MAGN  WR',[dnrm2_(nexch(i),WR,1)],1,8)
-          if (DBG) write(u6,'(A,I2,A,3F11.7)') 'MR: site',i,' : ',(MR(i,l,1),l=1,3)
+#         ifdef _DEBUGPRINT_
+          write(u6,'(A,I2,A,3F11.7)') 'MR: site',i,' : ',(MR(i,l,1),l=1,3)
+#         endif
         end if
       end do
 

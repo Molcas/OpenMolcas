@@ -38,8 +38,10 @@ call zcopy_(3*n*n,M,1,Mt,1)
 call zcopy_(3*n*n,S,1,St,1)
 call unitmat(mg,3)
 
-if (dbg) call prMom('PA_prep_mom_exch, input S',St,n)
-if (dbg) call prMom('PA_prep_mom_exch, input M',Mt,n)
+if (dbg) then
+  call prMom('PA_prep_mom_exch, input S',St,n)
+  call prMom('PA_prep_mom_exch, input M',Mt,n)
+end if
 
 ! rotate the momentum using the R rotation matrix --
 ! to the local axes for a symmetric compound:
@@ -71,8 +73,10 @@ call rotmom2(Mt,n,R,M)
 !  ! Transform the moment into their local pseudospins
 !  call UTMU2(n,n,Z,S)
 !  call UTMU2(n,n,Z,M)
-!  if (dbg) call prMom('PA_prep_mom_exch, S:',S,n)
-!  if (dbg) call prMom('PA_prep_mom_exch, M:',M,n)
+!  if (dbg) then
+!    call prMom('PA_prep_mom_exch, S:',S,n)
+!    call prMom('PA_prep_mom_exch, M:',M,n)
+!  end if
 !  ! back-up again:
 !  call zcopy_(3*n*n,M,1,Mt,1)
 !  call zcopy_(3*n*n,S,1,St,1)

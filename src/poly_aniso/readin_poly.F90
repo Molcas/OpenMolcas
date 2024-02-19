@@ -144,9 +144,8 @@ character(len=21) :: namefile_energy
 character(len=288) :: Line, ctmp, string
 integer :: IsFreeUnit
 external :: IsFreeUnit
-logical :: DBG
 
-DBG = .false.
+#include "macros.fh"
 
 check_title = .false.
 icount_B_sites = 0
@@ -171,20 +170,24 @@ end do
 check_symm_presence = .true.
 if (neqv > 1) check_symm_presence = .false.
 
-if (DBG) write(u6,'(A,  i6)') 'RDIN:      nneq=',nneq
-if (DBG) write(u6,'(A,  i6)') 'RDIN:      neqv=',neqv
-if (DBG) write(u6,'(A,  i6)') 'RDIN:     nPair=',nPair
-!If (DBG) write(u6,'(A,99I6)') 'RDIN:  i_pair(:,1)=',(i_pair(i,1),i=1,nPair)
-!if (DBG) write(u6,'(A,99I6)') 'RDIN:  i_pair(:,2)=',(i_pair(i,2),i=1,nPair)
-if (DBG) write(u6,'(A,99i6)') 'RDIN:     neq()=',(neq(i),i=1,nneq)
-if (DBG) write(u6,'(A,99i6)') 'RDIN:   nexch()=',(nexch(i),i=1,nneq)
+#ifdef _DEBUGPRINT_
+write(u6,'(A,  i6)') 'RDIN:      nneq=',nneq
+write(u6,'(A,  i6)') 'RDIN:      neqv=',neqv
+write(u6,'(A,  i6)') 'RDIN:     nPair=',nPair
+!write(u6,'(A,99I6)') 'RDIN:  i_pair(:,1)=',(i_pair(i,1),i=1,nPair)
+!write(u6,'(A,99I6)') 'RDIN:  i_pair(:,2)=',(i_pair(i,2),i=1,nPair)
+write(u6,'(A,99i6)') 'RDIN:     neq()=',(neq(i),i=1,nneq)
+write(u6,'(A,99i6)') 'RDIN:   nexch()=',(nexch(i),i=1,nneq)
+#endif
 
 !=========== End of default settings====================================
 rewind(u5)
 do
   read(u5,'(A72)',iostat=istatus) LINE
   if (istatus < 0) call Error(5)
-  if (DBG) write(u6,'(A)') LINE
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') LINE
+# endif
   call NORMAL(LINE)
   if (LINE(1:5) == '&POLY') exit
 end do
@@ -206,7 +209,9 @@ do
       read(u5,*,iostat=istatus) ctmp
       if (istatus /= 0) call Error(4)
 
-      if (DBG) write(u6,'(A)') ctmp
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A)') ctmp
+#     endif
       check_title = .true.
       Title = trim(ctmp)
       LINENR = LINENR+1
@@ -221,7 +226,9 @@ do
       read(u5,*,iostat=istatus) NMULT
       if (istatus /= 0) call Error(4)
 
-      if (DBG) write(u6,'(A,i4)') 'NMULT =',NMULT
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i4)') 'NMULT =',NMULT
+#     endif
 
       read(u5,*,iostat=istatus) (NDIM(i),i=1,NMULT)
       if (istatus /= 0) call Error(4)
@@ -240,7 +247,9 @@ do
         end if
       end do
 
-      if (DBG) write(u6,'(A,100i4)') 'NDIM: ',(NDIM(i),i=1,NMULT)
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,100i4)') 'NDIM: ',(NDIM(i),i=1,NMULT)
+#     endif
       compute_g_tensors = .true.
       LINENR = LINENR+2
 
@@ -270,7 +279,9 @@ do
           call quit(_RC_INPUT_ERROR_)
         end if
 
-        if (DBG) write(u6,'(A,2ES15.7,i6)') 'Tmin, Tmax, nT: ',Tmin,Tmax,nT
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,2ES15.7,i6)') 'Tmin, Tmax, nT: ',Tmin,Tmax,nT
+#       endif
       end if
       LINENR = LINENR+1
 
@@ -300,7 +311,9 @@ do
           call quit(_RC_INPUT_ERROR_)
         end if
 
-        if (DBG) write(u6,'(A,2ES15.7,i6)') 'Hmin, Hmax, nH: ',Hmin,Hmax,nH
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,2ES15.7,i6)') 'Hmin, Hmax, nH: ',Hmin,Hmax,nH
+#       endif
       end if
       LINENR = LINENR+1
 
@@ -316,7 +329,9 @@ do
         thrs = 1.0e-10_wp
       end if
 
-      if (DBG) write(u6,'(A,ES15.7)') 'THRS: ',THRS
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,ES15.7)') 'THRS: ',THRS
+#     endif
       LINENR = LINENR+1
 
     !---  process XFIE command ----------------------------------------*
@@ -336,7 +351,9 @@ do
       else
         Xfield = tmp
       end if
-      if (DBG) write(u6,'(A,ES15.7)') 'XFIE: ',xField
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,ES15.7)') 'XFIE: ',xField
+#     endif
 
       LINENR = LINENR+1
 
@@ -344,7 +361,9 @@ do
     case ('PLOT')
       DoPlot = .true.
 
-      if (DBG) write(u6,'(A,L2)') 'PLOT: ',DoPlot
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,L2)') 'PLOT: ',DoPlot
+#     endif
 
       LINENR = LINENR+1
 
@@ -362,21 +381,27 @@ do
         iopt = i
       end if
 
-      if (DBG) write(u6,'(A,I6)') 'IOPT: ',IOPT
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,I6)') 'IOPT: ',IOPT
+#     endif
       LINENR = LINENR+1
 
     !---  process SMAG command ----------------------------------------*
     case ('SMAG')
       smagn = .true.
       compute_magnetization = .true.
-      if (DBG) write(u6,'(A,L2)') 'SMAG: ',smagn
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,L2)') 'SMAG: ',smagn
+#     endif
       LINENR = LINENR+1
 
     !---  process MACC command ----------------------------------------*
     case ('MACC')
       compute_magnetization = .true.  ! request for computation of M(H)
       m_accurate = .true.             ! request for computation of M(H)
-      if (DBG) write(u6,'(A,L2)') 'MACC: ',m_accurate
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,L2)') 'MACC: ',m_accurate
+#     endif
       LINENR = LINENR+1
 
     !---  process FITX command ----------------------------------------*
@@ -393,7 +418,9 @@ do
     case ('MPAR')
       m_paranoid = .true.             ! request for computation of M(H)
       compute_magnetization = .true.
-      if (DBG) write(u6,'(A,L2)') 'MPAR: ',m_paranoid
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,L2)') 'MPAR: ',m_paranoid
+#     endif
       LINENR = LINENR+1
 
     !---  process TORQ command ----------------------------------------*
@@ -411,7 +438,9 @@ do
         nP = i
       end if
 
-      if (DBG) write(u6,'(A)') 'TORQ: nP=',nP
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A)') 'TORQ: nP=',nP
+#     endif
       AngPoints = nP+1
       LINENR = LINENR+1
 
@@ -438,7 +467,9 @@ do
         ngrid = i
       end if
 
-      if (DBG) write(u6,'(2(A,i6))') ' nsymm:  ',nsymm,' ngrid:  ',ngrid
+#     ifdef _DEBUGPRINT_
+      write(u6,'(2(A,i6))') ' nsymm:  ',nsymm,' ngrid:  ',ngrid
+#     endif
       LINENR = LINENR+1
 
     !---  process NCUT command ----------------------------------------*
@@ -462,7 +493,9 @@ do
         else
           nCUT = i
         end if
-        if (DBG) write(u6,'(A,2i6)') 'ncut:  ',nCut
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,2i6)') 'ncut:  ',nCut
+#       endif
 
         LINENR = LINENR+1
       end if
@@ -480,7 +513,9 @@ do
         read(u5,*,iostat=istatus) NK,MG
         if (istatus /= 0) call Error(4)
         !E_cut = NK*K_Boltz+MG*mu_Bohr
-        if (DBG) write(u6,'(A,2i6)') 'encu:  nK, mG=',NK,MG
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,2i6)') 'encu:  nK, mG=',NK,MG
+#       endif
 
         LINENR = LINENR+1
       end if
@@ -499,7 +534,9 @@ do
         if (istatus /= 0) call Error(4)
         !Ncut = int(nexch*encut_rate)
         !E_cut = E(Ncut)
-        if (DBG) write(u6,'(A,i6)') 'encut_rate=',encut_rate
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,i6)') 'encut_rate=',encut_rate
+#       endif
 
         LINENR = LINENR+1
       end if
@@ -508,24 +545,32 @@ do
     case ('ZJPR')
       read(u5,*,iostat=istatus) ZJ
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,ES18.10)') 'zJ    =',zJ
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,ES18.10)') 'zJ    =',zJ
+#     endif
       LINENR = LINENR+1
 
     !---  process PRLV command ----------------------------------------*
     case ('PRLV')
       read(u5,*,iostat=istatus) iPrint
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,i6)') 'iPrint=',iPrint
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i6)') 'iPrint=',iPrint
+#     endif
       LINENR = LINENR+1
 
     !---  process COOR command ----------------------------------------*
     case ('COOR')
       Dipol = .true.
-      if (DBG) write(u6,'(A)') 'isite   MagnCoords:'
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A)') 'isite   MagnCoords:'
+#     endif
       do i=1,nneq
         read(u5,*,iostat=istatus) (MagnCoords(i,l),l=1,3)
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,'(i3,5x,3ES18.10)') i,(MagnCoords(i,l),l=1,3)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(i3,5x,3ES18.10)') i,(MagnCoords(i,l),l=1,3)
+#       endif
       end do
       LINENR = LINENR+nneq
 
@@ -536,12 +581,16 @@ do
 
       read(u5,*,iostat=istatus) nDir
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,i3)') 'nDir = ',nDir
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i3)') 'nDir = ',nDir
+#     endif
 
       do i=1,nDir
         read(u5,*,iostat=istatus) DirX(i),DirY(i),DirZ(i)
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,'(i3,5x,3ES18.10)') i,DirX(i),DirY(i),DirZ(i)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(i3,5x,3ES18.10)') i,DirX(i),DirY(i),DirZ(i)
+#       endif
       end do
       ! some processing:
       do i=1,nDir
@@ -574,7 +623,9 @@ do
 
         read(u5,*,iostat=istatus) NT
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,'(A,i3)') 'nT = ',nT
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,i3)') 'nT = ',nT
+#       endif
 
         do i=1,NT
 
@@ -604,9 +655,11 @@ do
 
         read(u5,*) nTempMagn,(TempMagn(i),i=1,nTempMagn)
         read(u5,*) nH
-        if (DBG) write(u6,*) 'HEXP: nTempMagn =',nTempMagn
-        if (DBG) write(u6,*) 'HEXP: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
-        if (DBG) write(u6,*) 'HEXP: nH        =',nH
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'HEXP: nTempMagn =',nTempMagn
+        write(u6,*) 'HEXP: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+        write(u6,*) 'HEXP: nH        =',nH
+#       endif
 
         if (nH < 0) nH = abs(nH)
         if (nH == 0) call Quit_OnUserError()
@@ -633,8 +686,10 @@ do
 
         read(u5,*,iostat=istatus) nTempMagn,(TempMagn(i),i=1,nTempMagn)
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,*) 'TMAG: nTempMagn =',nTempMagn
-        if (DBG) write(u6,*) 'TMAG: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'TMAG: nTempMagn =',nTempMagn
+        write(u6,*) 'TMAG: TempMagn()=',(TempMagn(i),i=1,nTempMagn)
+#       endif
 
         ! check and clean for zero / negative values:
         do i=1,nTempMagn
@@ -659,15 +714,21 @@ do
       ! number of non-equivalent centers; type of all centers
       read(u5,*,iostat=istatus) NNEQ,ab_initio_all,ifHDF
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,i4,A,L2,A,L2)') 'NNEQ=',NNEQ,' ab_initio_all=',ab_initio_all,' ifHDF=',ifHDF
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i4,A,L2,A,L2)') 'NNEQ=',NNEQ,' ab_initio_all=',ab_initio_all,' ifHDF=',ifHDF
+#     endif
       ! number of equivalent centers of type "i"
       read(u5,*,iostat=istatus) (NEQ(i),i=1,Nneq)
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,100I4)') 'NEQ(I)=',(NEQ(i),i=1,nneq)
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,100I4)') 'NEQ(I)=',(NEQ(i),i=1,nneq)
+#     endif
       ! number of RASSI wf for exchange
       read(u5,*,iostat=istatus) (Nexch(i),i=1,Nneq)
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,100I4)') 'NExch(I)=',(NExch(i),i=1,nneq)
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,100I4)') 'NExch(I)=',(NExch(i),i=1,nneq)
+#     endif
 
       do i=1,nneq
         if (Nexch(i) < 0) then
@@ -716,16 +777,20 @@ do
         !                      C -- the center is anisotropic with
         read(u5,*,iostat=istatus) (itype(i),i=1,Nneq)
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,'(A,100A3)') 'itype: ',(itype(i),i=1,nneq)
-        if (DBG) call xFlush(u6)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,100A3)') 'itype: ',(itype(i),i=1,nneq)
+        call xFlush(u6)
+#       endif
         icount_B_sites = 0
         do i=1,nneq
           if ((itype(i) == 'B') .or. (itype(i) == 'C')) then
             icount_B_sites = icount_B_sites+1
             read(u5,*,iostat=istatus) (gtens_input(l,i),l=1,3),D_fact(i),EoverD_fact(i)
             if (istatus /= 0) call Error(4)
-            if (DBG) write(u6,'(A,i4,A,3ES20.10, 2(A,ES20.10) )') 'gtens_input(',i,')=',(gtens_input(l,i),l=1,3),' D = ', &
-                                                                  D_fact(i),' E/D =',EoverD_fact(i)
+#           ifdef _DEBUGPRINT_
+            write(u6,'(A,i4,A,3ES20.10, 2(A,ES20.10) )') 'gtens_input(',i,')=',(gtens_input(l,i),l=1,3),' D = ',D_fact(i), &
+                                                         ' E/D =',EoverD_fact(i)
+#           endif
             if ((itype(i) == 'C') .and. ((gtens_input(1,i) /= gtens_input(2,i)) .or. (gtens_input(1,i) /= gtens_input(3,i)) .or. &
                 (gtens_input(2,i) /= gtens_input(3,i)))) then
               do ic=1,3
@@ -752,7 +817,9 @@ do
         end do
       end if !ab_initio_all
       LINENR = LINENR+3+icount_B_sites
-      if (DBG) call xFlush(u6)
+#     ifdef _DEBUGPRINT_
+      call xFlush(u6)
+#     endif
 
     !---  process LIN9 command ----------------------------------------*
     case ('LIN9')
@@ -760,15 +827,18 @@ do
 
       read(u5,*,iostat=istatus) npair
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,i6)') 'LIN9:  nPair=',nPair
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i6)') 'LIN9:  nPair=',nPair
+#     endif
 
       do i=1,npair
         ! the convention for 9 exchange interactions is
         ! Jxx, Jxy, Jxz, Jyx, Jyy, Jyz, Jzx, Jzy, Jzz
         read(u5,*,iostat=istatus) i_pair(i,1),i_pair(i,2),(JAex9(i,1,j),j=1,3),(JAex9(i,2,j),j=1,3),(JAex9(i,3,j),j=1,3)
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,'(A,2I3,9F14.8)') 'LIN9: ',i_pair(i,1),i_pair(i,2),(JAex9(i,1,j),j=1,3),(JAex9(i,2,j),j=1,3), &
-                                            (JAex9(i,3,j),j=1,3)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,2I3,9F14.8)') 'LIN9: ',i_pair(i,1),i_pair(i,2),(JAex9(i,1,j),j=1,3),(JAex9(i,2,j),j=1,3),(JAex9(i,3,j),j=1,3)
+#       endif
       end do
       LINENR = LINENR+npair+1
 
@@ -778,14 +848,18 @@ do
 
       read(u5,*,iostat=istatus) npair
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i6)') 'nPair=',nPair
+#     endif
 
       do i=1,npair
         ! the convention for 3 exchange interactions is
         ! Jxx, Jyy, Jzz
         read(u5,*,iostat=istatus) i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,'(A,2i3,3F14.8)') 'ALIN/LIN3: ',i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,2i3,3F14.8)') 'ALIN/LIN3: ',i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
+#       endif
       end do
       LINENR = LINENR+npair+1
 
@@ -795,7 +869,9 @@ do
 
       read(u5,*,iostat=istatus) npair
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i6)') 'nPair=',nPair
+#     endif
       JITOexR(:,:,:,:,:) = Zero
       JITOexI(:,:,:,:,:) = Zero
 
@@ -816,19 +892,19 @@ do
           end do
         end do
 
-        if (DBG) then
-          write(u6,'(A,I3)') 'ITO Exchange parameters for pair:',i
-          do jrank1=1,imaxrank(i,1),2
-            do jproj1=-jrank1,jrank1
-              do jrank2=1,imaxrank(i,2),2
-                do jproj2=-jrank2,jrank2
-                  write(u6,'(4I3,2x,2ES21.14)') jrank1,jproj1,jrank2,jproj2,JITOexR(i,jrank1,jproj1,jrank2,jproj2), &
-                                                JITOexI(i,jrank1,jproj1,jrank2,jproj2)
-                end do
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,I3)') 'ITO Exchange parameters for pair:',i
+        do jrank1=1,imaxrank(i,1),2
+          do jproj1=-jrank1,jrank1
+            do jrank2=1,imaxrank(i,2),2
+              do jproj2=-jrank2,jrank2
+                write(u6,'(4I3,2x,2ES21.14)') jrank1,jproj1,jrank2,jproj2,JITOexR(i,jrank1,jproj1,jrank2,jproj2), &
+                                              JITOexI(i,jrank1,jproj1,jrank2,jproj2)
               end do
             end do
           end do
-        end if
+        end do
+#       endif
       end do
       LINENR = LINENR+npair+1
 
@@ -838,13 +914,17 @@ do
 
       read(u5,*,iostat=istatus) npair
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i6)') 'nPair=',nPair
+#     endif
 
       do i=1,npair
 
         read(u5,*,iostat=istatus) i_pair(i,1),i_pair(i,2),Jex(i)
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,'(i4,2x,2I4,2x,ES18.10)') i,i_pair(i,1),i_pair(i,2),Jex(i)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(i4,2x,2I4,2x,ES18.10)') i,i_pair(i,1),i_pair(i,2),Jex(i)
+#       endif
 
       end do
       LINENR = LINENR+npair+1
@@ -852,11 +932,15 @@ do
     !---  process DMEX command ----------------------------------------*
     case ('DMEX')
       DM_exchange = .true.
-      if (DBG) write(u6,'(A,L2)') 'DMEX::  DM_exchange=',DM_exchange
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,L2)') 'DMEX::  DM_exchange=',DM_exchange
+#     endif
 
       read(u5,*,iostat=istatus) npair
       if (istatus /= 0) call Error(4)
-      if (DBG) write(u6,'(A,i6)') 'nPair=',nPair
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i6)') 'nPair=',nPair
+#     endif
 
       do i=1,npair
         ! the convention for 3 exchange interactions is
@@ -881,7 +965,9 @@ do
         ! be further written in mangetization() subroutine
         write(namefile_energy,'(5A)') 'zeeman_energy_',char(48+mod(int((i)/100),10)),char(48+mod(int((i)/10),10)), &
                                       char(48+mod(int(i),10)),'.txt'
-        if (DBG) write(u6,'(2A)') 'namefile_energy: ',namefile_energy
+#       ifdef _DEBUGPRINT_
+        write(u6,'(2A)') 'namefile_energy: ',namefile_energy
+#       endif
         LUZee(i) = IsFreeUnit(30+i)
         call molcas_open(LUZee(i),namefile_energy)
 
@@ -912,22 +998,33 @@ do
       check_symm_presence = .true.
       R_lg(:,:,:,:) = Zero
       R_rot(:,:,:,:) = Zero
-      if (DBG) write(u6,'(A,i6)') 'SYMM - at init'
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i6)') 'SYMM - at init'
+#     endif
       ll = 0
       do i=1,nneq
-        if (DBG) write(u6,'(A,i6)') 'SYMM:  i=',i
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,i6)') 'SYMM:  i=',i
+#       endif
 
         read(u5,*,iostat=istatus) inneq
         if (istatus /= 0) call Error(4)
-        if (DBG) write(u6,'(A,i6)') 'inneq=',inneq
+        unused_var(inneq)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,i6)') 'inneq=',inneq
+#       endif
 
         do j=1,Neq(i)
-          if (DBG) write(u6,'(A,i6)') 'SYMM:  j=',j
+#         ifdef _DEBUGPRINT_
+          write(u6,'(A,i6)') 'SYMM:  j=',j
+#         endif
           do m=1,3
             ll = ll+1
             read(u5,*,iostat=istatus) (R_lg(i,j,m,n),n=1,3)
             if (istatus /= 0) call Error(4)
-            if (DBG) write(u6,'(3ES20.12)') (R_lg(i,j,m,n),n=1,3)
+#           ifdef _DEBUGPRINT_
+            write(u6,'(3ES20.12)') (R_lg(i,j,m,n),n=1,3)
+#           endif
           end do
         end do
 
@@ -939,7 +1036,9 @@ do
           end do
 
           detR = FindDetR(tmpR(1:3,1:3),3)
-          if (DBG) write(u6,'(A,3ES20.12)') 'SYMM:  detR=',detR
+#         ifdef _DEBUGPRINT_
+          write(u6,'(A,3ES20.12)') 'SYMM:  detR=',detR
+#         endif
 
           if (abs(abs(detR)-One) > 0.001_wp) then
             write(u6,'(A)') 'The rotation matrices must be UNITARY.'
@@ -1099,8 +1198,10 @@ if (compute_g_tensors) then
     end if
   end do
 end if
-if (DBG) write(u6,*) 'READIN_POLY:  after proc g and D'
-if (DBG) call xFlush(u6)
+#ifdef _DEBUGPRINT_
+write(u6,*) 'READIN_POLY:  after proc g and D'
+call xFlush(u6)
+#endif
 
 !--------  definition of exchange --------------------------------------
 if (npair > 0) then
@@ -1115,7 +1216,9 @@ if (npair > 0) then
         lp = lp+1
         i_pair(lp,1) = i
         i_pair(lp,2) = j
-        if (DBG) write(u6,'(A,i3,A,2I3)') 'lp=',lp,' i_pair(lp,1:2)=',i_pair(lp,1),i_pair(lp,2)
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A,i3,A,2I3)') 'lp=',lp,' i_pair(lp,1:2)=',i_pair(lp,1),i_pair(lp,2)
+#       endif
       end do
     end do
   end if
@@ -1123,7 +1226,9 @@ if (npair > 0) then
   Duplicate_check(1:nPair) = 0
   do i=1,npair
     Duplicate_check(i) = 1000*i_pair(i,1)+i_pair(i,2)
-    if (DBG) write(u6,*) 'Duplicate_check: ',Duplicate_check(i)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Duplicate_check: ',Duplicate_check(i)
+#   endif
 
     if (i_pair(i,1) == i_pair(i,2)) then
       write(u6,'(A,i2,a)') 'The center ',i_pair(i,1),' interacts with itself.'
@@ -1139,7 +1244,9 @@ if (npair > 0) then
       call quit(_RC_INPUT_ERROR_)
     end if
   end do
-  if (DBG) call xFlush(u6)
+# ifdef _DEBUGPRINT_
+  call xFlush(u6)
+# endif
 
   ! check on the duplicate
   do i=1,npair
@@ -1208,8 +1315,10 @@ if (npair > 0) then
   end if ! JITO_exchange
 end if ! nPair
 
-if (DBG) write(u6,*) 'READIN_POLY:  before 200 '
-if (DBG) call xFlush(u6)
+#ifdef _DEBUGPRINT_
+write(u6,*) 'READIN_POLY:  before 200 '
+call xFlush(u6)
+#endif
 !--------  definition of exchange --------------------------------------
 
 !-----------------------------------------------------------------------

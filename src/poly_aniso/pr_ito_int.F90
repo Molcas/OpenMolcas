@@ -43,10 +43,10 @@ logical, intent(in) :: AnisoLines3
 logical, intent(in) :: AnisoLines9
 logical, intent(in) :: DM_exchange
 logical, intent(in) :: JITO_exchange
-character(len=1), intent(in) :: itype(nneq)
+character, intent(in) :: itype(nneq)
 ! local variables
 !integer :: iopt
-integer :: i, j, l, k, lp, i1, i2, lb1, lb2, ibuf, is1, is2, js1, js2, k1, k2, q1, q2, n1, n2, nsize
+integer :: i, j, l, k, lp, i1, i2, lb1, lb2, ibuf, k1, k2, q1, q2, n1, n2, nsize
 integer :: nind(lmax,2), l1(2), l2(2), l3(2), l4(2)
 real(kind=8) :: J1C(3,3), J1Cr(3,3) !, J1C_trans(3,3)
 complex(kind=8), allocatable :: JN(:,:,:,:)
@@ -56,9 +56,18 @@ real(kind=8) :: dznrm2_, RL1, RL3, RL9, RDI, RDM, RIT
 real(kind=8) :: g1(3), g2(3), mg1(3,3), mg2(3,3)
 external :: dznrm2_
 !real(kind=8), parameter :: cm_to_MHz = cLight*1.0e-4_wp
-logical DBG
+#ifdef _DEBUGPRINT_
+integer :: is1, is2, js1, js2
+#endif
 
-DBG = .false.
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(itype)
+unused_var(soe)
+unused_var(SM)
+unused_var(rot)
+#endif
+
 ! some initializations:
 nind(:,:) = 0
 l = 0
@@ -85,121 +94,121 @@ RDI = dznrm2_(ibuf,HDIP,1)
 RDM = dznrm2_(ibuf,HDMO,1)
 RIT = dznrm2_(ibuf,HITO,1)
 !ccccccccccccccccccccccccccccccc
-if (DBG) then
-  write(u6,'(A,i6)') ' nmax =',nmax
-  write(u6,'(A,i6)') ' lmax =',lmax
-  write(u6,'(A,i6)') 'npair =',nmax
-  write(u6,'(A,i6)') ' nneq =',nneq
-  write(u6,'(20A)') ' itype =',(itype(i),i=1,nneq)
-  write(u6,'(A)') 'i_pair'
-  do i=1,npair
-    write(u6,'(2I5)') i_pair(i,1),i_pair(i,2)
-  end do
-  write(u6,'(A)') 'equivalent sites'
-  do i=1,nneq
-    write(u6,'(A,i2,A,i4)') 'neq(',i,') =',neq(i)
-  end do
-  write(u6,'(A)') 'exchange basis'
-  do i=1,nneq
-    write(u6,'(A,i2,A,i4)') 'nexch(',i,') =',nexch(i)
-  end do
-  write(u6,'(A)') 'rotation matrix'
-  do i=1,nneq
-    write(u6,'(A,i3)') 'site',i
-    do j=1,neq(i)
-      do l=1,3
-        write(u6,'(3F12.6)') (rot(i,j,l,i1),i1=1,3)
-      end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A,i6)') ' nmax =',nmax
+write(u6,'(A,i6)') ' lmax =',lmax
+write(u6,'(A,i6)') 'npair =',nmax
+write(u6,'(A,i6)') ' nneq =',nneq
+write(u6,'(20A)') ' itype =',(itype(i),i=1,nneq)
+write(u6,'(A)') 'i_pair'
+do i=1,npair
+  write(u6,'(2I5)') i_pair(i,1),i_pair(i,2)
+end do
+write(u6,'(A)') 'equivalent sites'
+do i=1,nneq
+  write(u6,'(A,i2,A,i4)') 'neq(',i,') =',neq(i)
+end do
+write(u6,'(A)') 'exchange basis'
+do i=1,nneq
+  write(u6,'(A,i2,A,i4)') 'nexch(',i,') =',nexch(i)
+end do
+write(u6,'(A)') 'rotation matrix'
+do i=1,nneq
+  write(u6,'(A,i3)') 'site',i
+  do j=1,neq(i)
+    do l=1,3
+      write(u6,'(3F12.6)') (rot(i,j,l,i1),i1=1,3)
     end do
   end do
-  write(u6,'(A,i3)') 'site',i
-  write(u6,'(A)') 'magnetic moment, initial'
-  do i=1,nneq
-    write(u6,'(A ,i3)') 'site',i
-    call prMom('pr_ito_int:: magnetic moment, initial',mm(i,:,:,:),nmax)
-  end do
-  write(u6,'(A)') 'spin-orbit energies'
-  do i=1,nmax
-    write(u6,'(1 5F14.5)') (soe(j,i),j=1,nneq)
-  end do
+end do
+write(u6,'(A,i3)') 'site',i
+write(u6,'(A)') 'magnetic moment, initial'
+do i=1,nneq
+  write(u6,'(A ,i3)') 'site',i
+  call prMom('pr_ito_int:: magnetic moment, initial',mm(i,:,:,:),nmax)
+end do
+write(u6,'(A)') 'spin-orbit energies'
+do i=1,nmax
+  write(u6,'(1 5F14.5)') (soe(j,i),j=1,nneq)
+end do
 
-  do lp=1,npair
-    lb1 = i_pair(lp,1)
-    lb2 = i_pair(lp,2)
-    i1 = nind(lb1,1) ! indices of non-equivalent sites
-    i2 = nind(lb2,1) ! indices of non-equivalent sites
-    !j1 = nind(lb1,2) ! indices of equivalent sites
-    !j2 = nind(lb2,2) ! indices of equivalent sites
-    if (AnisoLines1 .and. (RL1 > Zero)) then
-      write(u6,'(A,i5)') 'HLIN1,  interacting pair ',lp
-      do is1=1,nexch(i1)
-        do is2=1,nexch(i1)
-          do js1=1,nexch(i2)
-            write(u6,'(10(2F10.6,2x))') (HLIN1(lp,is1,is2,js1,js2),js2=1,nexch(i2))
-          end do
+do lp=1,npair
+  lb1 = i_pair(lp,1)
+  lb2 = i_pair(lp,2)
+  i1 = nind(lb1,1) ! indices of non-equivalent sites
+  i2 = nind(lb2,1) ! indices of non-equivalent sites
+  !j1 = nind(lb1,2) ! indices of equivalent sites
+  !j2 = nind(lb2,2) ! indices of equivalent sites
+  if (AnisoLines1 .and. (RL1 > Zero)) then
+    write(u6,'(A,i5)') 'HLIN1,  interacting pair ',lp
+    do is1=1,nexch(i1)
+      do is2=1,nexch(i1)
+        do js1=1,nexch(i2)
+          write(u6,'(10(2F10.6,2x))') (HLIN1(lp,is1,is2,js1,js2),js2=1,nexch(i2))
         end do
       end do
-    end if
+    end do
+  end if
 
-    if (AnisoLines3 .and. (RL3 > Zero)) then
-      write(u6,'(A,i5)') 'HLIN3,  interacting pair ',lp
-      do is1=1,nexch(i1)
-        do is2=1,nexch(i1)
-          do js1=1,nexch(i2)
-            write(u6,'(10(2F10.6,2x))') (HLIN3(lp,is1,is2,js1,js2),js2=1,nexch(i2))
-          end do
+  if (AnisoLines3 .and. (RL3 > Zero)) then
+    write(u6,'(A,i5)') 'HLIN3,  interacting pair ',lp
+    do is1=1,nexch(i1)
+      do is2=1,nexch(i1)
+        do js1=1,nexch(i2)
+          write(u6,'(10(2F10.6,2x))') (HLIN3(lp,is1,is2,js1,js2),js2=1,nexch(i2))
         end do
       end do
-    end if
+    end do
+  end if
 
-    if (AnisoLines9 .and. (RL9 > Zero)) then
-      write(u6,'(A,i5)') 'HLIN9,  interacting pair ',lp
-      do is1=1,nexch(i1)
-        do is2=1,nexch(i1)
-          do js1=1,nexch(i2)
-            write(u6,'(10(2F10.6,2x))') (HLIN9(lp,is1,is2,js1,js2),js2=1,nexch(i2))
-          end do
+  if (AnisoLines9 .and. (RL9 > Zero)) then
+    write(u6,'(A,i5)') 'HLIN9,  interacting pair ',lp
+    do is1=1,nexch(i1)
+      do is2=1,nexch(i1)
+        do js1=1,nexch(i2)
+          write(u6,'(10(2F10.6,2x))') (HLIN9(lp,is1,is2,js1,js2),js2=1,nexch(i2))
         end do
       end do
-    end if
+    end do
+  end if
 
-    if (Dipol .and. (RDI > Zero)) then
-      write(u6,'(A,i5)') 'HDIP,  interacting pair ',lp
-      do is1=1,nexch(i1)
-        do is2=1,nexch(i1)
-          do js1=1,nexch(i2)
-            write(u6,'(10(2F10.6,2x))') (HDIP(lp,is1,is2,js1,js2),js2=1,nexch(i2))
-          end do
+  if (Dipol .and. (RDI > Zero)) then
+    write(u6,'(A,i5)') 'HDIP,  interacting pair ',lp
+    do is1=1,nexch(i1)
+      do is2=1,nexch(i1)
+        do js1=1,nexch(i2)
+          write(u6,'(10(2F10.6,2x))') (HDIP(lp,is1,is2,js1,js2),js2=1,nexch(i2))
         end do
       end do
-    end if
+    end do
+  end if
 
-    if (DM_exchange .and. (RDM > Zero)) then
-      write(u6,'(A,i5)') 'HDMO,  interacting pair ',lp
-      do is1=1,nexch(i1)
-        do is2=1,nexch(i1)
-          do js1=1,nexch(i2)
-            write(u6,'(10(2F10.6,2x))') (HDMO(lp,is1,is2,js1,js2),js2=1,nexch(i2))
-          end do
+  if (DM_exchange .and. (RDM > Zero)) then
+    write(u6,'(A,i5)') 'HDMO,  interacting pair ',lp
+    do is1=1,nexch(i1)
+      do is2=1,nexch(i1)
+        do js1=1,nexch(i2)
+          write(u6,'(10(2F10.6,2x))') (HDMO(lp,is1,is2,js1,js2),js2=1,nexch(i2))
         end do
       end do
-    end if
+    end do
+  end if
 
-    if (JITO_exchange .and. (RIT > Zero)) then
-      write(u6,'(A,i5)') 'HITO,  interacting pair ',lp
-      do is1=1,nexch(i1)
-        do is2=1,nexch(i1)
-          do js1=1,nexch(i2)
-            write(u6,'(10(2F10.6,2x))') (HITO(lp,is1,is2,js1,js2),js2=1,nexch(i2))
-          end do
+  if (JITO_exchange .and. (RIT > Zero)) then
+    write(u6,'(A,i5)') 'HITO,  interacting pair ',lp
+    do is1=1,nexch(i1)
+      do is2=1,nexch(i1)
+        do js1=1,nexch(i2)
+          write(u6,'(10(2F10.6,2x))') (HITO(lp,is1,is2,js1,js2),js2=1,nexch(i2))
         end do
       end do
-    end if
+    end do
+  end if
 
-  end do !lp
-  call prMom('SM(i1) bf Lines1',SM(i1,1:3,1:n1,1:n1),n1)
-  call prMom('SM(i2) bf Lines1',SM(i2,1:3,1:n2,1:n2),n2)
-end if !DBG
+end do !lp
+call prMom('SM(i1) bf Lines1',SM(i1,1:3,1:n1,1:n1),n1)
+call prMom('SM(i2) bf Lines1',SM(i2,1:3,1:n2,1:n2),n2)
+#endif
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 write(u6,*)

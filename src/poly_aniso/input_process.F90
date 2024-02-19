@@ -115,12 +115,10 @@ character(len=180), intent(in) :: Title
 character(len=180) fmtline
 logical :: nosym
 logical :: ab_initio_all
-logical :: DBG
 integer :: nDirTot
 integer :: i, j, k, l, m, n, iT, iH, jEnd, irank1, irank2, iproj1, iproj2
 integer :: icount_B_sites
 
-DBG = .false.
 !-----------------------------------------------------------------------
 ! print the data from this Subroutine:
 if (check_title) then
@@ -162,7 +160,9 @@ do i=1,nneq
     ab_initio_all = .false.
   end if
 end do
-if (DBG) write(u6,'(A,i3)') 'input_process:  icount_B_sites=',icount_B_sites
+#ifdef _DEBUGPRINT_
+write(u6,'(A,i3)') 'input_process:  icount_B_sites=',icount_B_sites
+#endif
 
 if (.not. nosym) then
   write(u6,'(A,A)') 'SYMM :         = ',' rotation matrices for equivalent magnetic centers:'

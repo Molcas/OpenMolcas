@@ -35,19 +35,17 @@ integer :: nind(lmax,2), intc(lmax)
 integer :: ibas(exch,lmax)
 complex(kind=8), allocatable :: pop(:,:,:,:) ! pop(exch,lmax,nmax,nmax)
 character(len=50) :: fmtline
-logical :: DBG
-DBG = .false.
 
-if (DBG) then
-  write(u6,'(A)') 'enter POPULATION ANALYSIS Subroutine'
-  write(u6,'(A, i3)') '      nmax = ',nmax
-  write(u6,'(A, i3)') '      exch = ',exch
-  write(u6,'(A, i3)') '   NmaxPop = ',NmaxPop
-  write(u6,'(A, i3)') '      lmax = ',lmax
-  write(u6,'(A, i3)') '      nneq = ',nneq
-  write(u6,'(A,8i3)') '    neq(i) = ',(neq(i),i=1,nneq)
-  write(u6,'(A,8i3)') '  nexch(i) = ',(nexch(i),i=1,nneq)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'enter POPULATION ANALYSIS Subroutine'
+write(u6,'(A, i3)') '      nmax = ',nmax
+write(u6,'(A, i3)') '      exch = ',exch
+write(u6,'(A, i3)') '   NmaxPop = ',NmaxPop
+write(u6,'(A, i3)') '      lmax = ',lmax
+write(u6,'(A, i3)') '      nneq = ',nneq
+write(u6,'(A,8i3)') '    neq(i) = ',(neq(i),i=1,nneq)
+write(u6,'(A,8i3)') '  nexch(i) = ',(nexch(i),i=1,nneq)
+#endif
 call mma_allocate(pop,exch,lmax,nmax,nmax,'pop')
 call zcopy_(exch*lmax*nmax*nmax,[cZero],0,pop,1)
 ! fill some general arrays:

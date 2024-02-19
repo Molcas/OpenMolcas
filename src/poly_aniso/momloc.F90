@@ -32,13 +32,13 @@ complex(kind=8) :: s_so(nneq,3,NL,NL)
 complex(kind=8) :: Z(N,N)
 #include "stdalloc.fh"
 ! local variables:
-integer :: L, i, j, m, k
+integer :: L, i, j, k
 integer :: nmult, isite
 integer :: icod(nsites)
 integer :: ib(N,nsites)
 integer :: nind(nsites,2)
-integer :: l_exch, jEnd
-integer :: i1, j1, iss1, jss1, nb1, nb2, iss
+integer :: l_exch
+integer :: i1, j1, iss1, jss1, nb1, nb2
 integer :: icoord(nsites)
 integer :: norder
 real(kind=8) :: gtens(3)
@@ -47,8 +47,6 @@ real(kind=8) :: st(3)
 real(kind=8) :: H
 real(kind=8) :: E_thres
 real(kind=8) :: zJ
-character(len=60) :: fmtline
-logical :: DBG
 real(kind=8), allocatable :: WM(:)     ! WM(N)
 real(kind=8), allocatable :: MM(:,:,:) ! MM(nsites,3,N)
 real(kind=8), allocatable :: LM(:,:,:) ! LM(nsites,3,N)
@@ -61,8 +59,15 @@ complex(kind=8), allocatable :: TMP(:,:) ! TMP(N,N)
 real(kind=8), allocatable :: RWORK(:)
 complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
 real(kind=8), parameter :: g_e = -gElectron
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+integer :: iss, jEnd, m
+character(len=60) :: fmtline
+#else
+#  define _DBG_ .false.
+#endif
+logical, parameter :: DBG = _DBG_
 
-DBG = .false.
 if (N > 1) return
 
 call mma_allocate(WM,N,'WM')
@@ -132,13 +137,13 @@ end do
 if (nmult < 2) nmult = 2 !minimum value needed to compute g-tensor
 ! find the main magnetic axes of this manifold:
 call atens(dipexch(1:3,1:nmult,1:nmult),nmult,gtens,maxes,1)
-if (DBG) then
-  write(u6,'(A)') 'MOMLOC2:  g tensor of the ground manifold:'
-  write(u6,*)
-  write(u6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(1),' axis X: ',(maxes(j,1),j=1,3)
-  write(u6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(2),' axis Y: ',(maxes(j,2),j=1,3)
-  write(u6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(3),' axis Z: ',(maxes(j,3),j=1,3)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'MOMLOC2:  g tensor of the ground manifold:'
+write(u6,*)
+write(u6,'((A,F12.6,A,3F12.7))') 'gX=',gtens(1),' axis X: ',(maxes(j,1),j=1,3)
+write(u6,'((A,F12.6,A,3F12.7))') 'gY=',gtens(2),' axis Y: ',(maxes(j,2),j=1,3)
+write(u6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(3),' axis Z: ',(maxes(j,3),j=1,3)
+#endif
 ! construct the Zeeman matrix in the lowest N exchange states  and diagonalize it
 st(:) = Zero
 H = 1.0e-4_wp ! tesla
@@ -146,36 +151,36 @@ zJ = Zero ! absence of intermolecular interaction
 call zeem_sa(N,H,maxes(1,3),maxes(2,3),maxes(3,3),W(1:N),dipexch(1:3,1:N,1:N),s_exch(1:3,1:N,1:N),ST,zJ,WM(1:N),ZM(1:N,1:N),DBG, &
              RWORK,HZEE,WORK,W_c)
 !cc  eigenvectors
-if (DBG) then
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,'(100a)') (('%'),i=1,96)
+write(u6,'(10x,a)') 'MOMLOC2:  EigenVectors of the Total Magnetic Interaction'
+write(u6,'(100a)') (('%'),i=1,96)
+
+write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('---------------------------|',i=1,4)
+write(fmtline,'(A,i2,A)') '(1x,',nsites,'A,39x,A,38x,A)'
+write(u6,fmtline) ('   ',m=1,nsites),'eigenvectors of the exchange matrix','|'
+do J=1,N,4
+  jEnd = min(N,J+3)
+  write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('---------------------------|',i=j,jEnd)
+
+  write(u6,'(A,5A)') 'Exch.  |',('      exchange state       |',i=j,jEnd)
+
+  write(u6,'(A,6A)') 'basis  |',('                           |',i=j,jEnd)
+  write(u6,'(A,6(a,i5,a))') 'on site|',('         ',i,'             |',i=j,jEnd)
+  write(fmtline,'(A,i2,A)') '(A,',nsites,'i3,a,6(a,f19.12,2x,a))'
+  write(u6,fmtline) ' ',(i,i=1,nsites),'|',('  E =',wm(i)-wm(1),' |',i=j,jEnd)
+
+  write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('----- Real ------- Imag ---|',i=j,jEnd)
+
+  write(fmtline,'(A,i2,A)') '(A,',nsites,'i3,A,5(2F13.9,1x,a))'
+  do iss=1,N
+    write(u6,fmtline) '<',(ib(iss,m)+1,m=1,nsites),'|',(ZM(iss,i),'|',i=j,jEnd)
+  end do  !iss
+  write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('---------------------------|',i=j,jEnd)
   write(u6,*)
-  write(u6,'(100a)') (('%'),i=1,96)
-  write(u6,'(10x,a)') 'MOMLOC2:  EigenVectors of the Total Magnetic Interaction'
-  write(u6,'(100a)') (('%'),i=1,96)
-
-  write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('---------------------------|',i=1,4)
-  write(fmtline,'(A,i2,A)') '(1x,',nsites,'A,39x,A,38x,A)'
-  write(u6,fmtline) ('   ',m=1,nsites),'eigenvectors of the exchange matrix','|'
-  do J=1,N,4
-    jEnd = min(N,J+3)
-    write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('---------------------------|',i=j,jEnd)
-
-    write(u6,'(A,5A)') 'Exch.  |',('      exchange state       |',i=j,jEnd)
-
-    write(u6,'(A,6A)') 'basis  |',('                           |',i=j,jEnd)
-    write(u6,'(A,6(a,i5,a))') 'on site|',('         ',i,'             |',i=j,jEnd)
-    write(fmtline,'(A,i2,A)') '(A,',nsites,'i3,a,6(a,f19.12,2x,a))'
-    write(u6,fmtline) ' ',(i,i=1,nsites),'|',('  E =',wm(i)-wm(1),' |',i=j,jEnd)
-
-    write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('----- Real ------- Imag ---|',i=j,jEnd)
-
-    write(fmtline,'(A,i2,A)') '(A,',nsites,'i3,A,5(2F13.9,1x,a))'
-    do iss=1,N
-      write(u6,fmtline) '<',(ib(iss,m)+1,m=1,nsites),'|',(ZM(iss,i),'|',i=j,jEnd)
-    end do  !iss
-    write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('---------------------------|',i=j,jEnd)
-    write(u6,*)
-  end do ! j
-end if !DBG
+end do ! j
+#endif
 
 ! generate the exchange basis:
 do isite=1,nsites

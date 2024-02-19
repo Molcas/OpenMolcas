@@ -12,7 +12,10 @@
 subroutine JKQPar_Naoya(N1,N2,HEXCH,Jpar)
 
 use Constants, only: cZero
-use Definitions, only: u6, wp
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer, intent(in) :: N1, N2
@@ -23,9 +26,6 @@ integer :: is1, is2, js1, js2, ms1, ms2, ns1, ns2, k1, k2, q1, q2, j1, j2
 complex(kind=8) :: QMAT(N1,N1,N2,N2), trace
 real(kind=8) :: WCG, OPER, FACT
 external :: WCG
-logical DBG
-
-DBG = .false.
 
 ! we need to project now the HEXCH: in products of ITOs
 !  HEXCH = SUM(rank1,proj1,rank2,proj2) = { B(rank1,proj1,rank2,proj2)* O1(rank1,proj1) * O2(rank2,proj2) }
@@ -60,10 +60,11 @@ do k1=0,J1
                 QMAT(is1,js1,is2,js2) = WCG(J1,ns1,2*k1,-2*q1,J1,ms1)*WCG(J2,ns2,2*k2,-2*q2,J2,ms2)/WCG(J1,J1,2*k1,0,J1,J1)/ &
                                         WCG(J2,J2,2*k2,0,J2,J2)
 
-                if (DBG .and. (abs(QMAT(is1,js1,is2,js2)) > 1.0e-12_wp)) then
+#               ifdef _DEBUGPRINT_
+                if (abs(QMAT(is1,js1,is2,js2)) > 1.0e-12_wp) &
                   write(u6,'(8(A,i3),A,2F20.14)') ' QMAT(',k1,',',q1,',',k2,',',q2,'|||',is1,',',js1,',',is2,',',js2,') = ', &
                                                   QMAT(is1,js1,is2,js2)
-                end if
+#               endif
 
               end do
             end do
@@ -81,18 +82,19 @@ do k1=0,J1
           end do
         end do
 
-        if (DBG .and. (abs(trace) > 1.0e-12_wp)) then
-          write(u6,'(4(A,i3),A,2F20.14)') 'trace(',k1,',',q1,',',k2,',',q2,') = ',trace
-        end if
+#       ifdef _DEBUGPRINT_
+        if (abs(trace) > 1.0e-12_wp) write(u6,'(4(A,i3),A,2F20.14)') 'trace(',k1,',',q1,',',k2,',',q2,') = ',trace
+#       endif
 
         OPER = WCG(J1,J1,2*k1,0,J1,J1)*WCG(J1,J1,2*k1,0,J1,J1)*WCG(J2,J2,2*k2,0,J2,J2)*WCG(J2,J2,2*k2,0,J2,J2)
         FACT = real(((-1)**(q1+q2))*((2*k1+1)*(2*k2+1)),kind=wp)/real(N1*N2,kind=wp)
 
         Jpar(k1,q1,k2,q2) = FACT*OPER*trace
 
-        if (DBG .and. (abs(Jpar(k1,q1,k2,q2)) > 0.5e-13_wp)) then
+#       ifdef _DEBUGPRINT_
+        if (abs(Jpar(k1,q1,k2,q2)) > 0.5e-13_wp) &
           write(u6,'(4(A,i3),A,2F20.14)') '    J(',k1,',',q1,',',k2,',',q2,') = ',Jpar(k1,q1,k2,q2)
-        end if
+#       endif
 
       end do
     end do

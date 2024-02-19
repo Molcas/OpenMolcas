@@ -65,7 +65,7 @@ complex(kind=8), intent(out) :: S(3,exch,exch)
 complex(kind=8), intent(out) :: M(3,exch,exch)
 !------------------------------------------------------------------
 ! local variables
-integer :: i, j, l, lp, lb1, lb2, nb, nb1, nb2, isite, is1, js1, i1, i2, j1, j2, k, ibuf, q1, q2, k1, k2, n1, n2
+integer :: i, j, l, lp, lb1, lb2, nb, nb1, nb2, isite, is1, js1, i1, i2, j1, j2, ibuf, n1, n2
 integer :: norder
 integer :: NmaxPop
 integer, allocatable :: intc(:)   !  intc(lmax)
@@ -121,91 +121,103 @@ complex(kind=8), allocatable :: MMR(:,:,:,:) ! MMR(nneq,3,2,2)
 !real(kind=8) :: J1Ex(npair,3,3)
 real(kind=8) :: mg1(3,3), mg2(3,3)
 integer :: CtoB, RtoB, ItoB, mem_local
-logical :: DBG !, testlines
+!logical :: testlines
 real(kind=8) :: dnrm2_
 external :: norder, dnrm2_  !,ilaenv
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+integer :: k, k1, k2, q1, q2
+#else
+#  define _DBG_ .false.
+#endif
+logical, parameter :: dbg = _DBG_
 
-DBG = .false.
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(riso)
+unused_var(mem)
+#endif
+
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-if (DBG) then
-  write(u6,'(A)') 'Enter EXCHCTL'
-  write(u6,'(A,  i8)') 'exch   = ',exch
-  write(u6,'(A,  i8)') 'nneq   = ',nneq
-  write(u6,'(A,  i8)') 'neqv   = ',neqv
-  write(u6,'(A,  i8)') 'nmax   = ',nmax
-  write(u6,'(A,  i8)') 'lmax   = ',lmax
-  write(u6,'(A,  i8)') 'nPair  = ',nPair
-  write(u6,'(A,  i8)') 'nPair  = ',nPair
-  write(u6,'(A,  i8)') 'MxRank1= ',MxRank1
-  write(u6,'(A,  i8)') 'MxRank2= ',MxRank2
-  write(u6,'(A,10i4)') 'neq()  = ',(neq(i),i=1,nneq)
-  write(u6,'(A,10i4)') 'nexch()= ',(nexch(i),i=1,nneq)
-  write(u6,'(A,  L2)') 'AnisoLines1  = ',AnisoLines1
-  write(u6,'(A,  L2)') 'AnisoLines3  = ',AnisoLines3
-  write(u6,'(A,  L2)') 'AnisoLines9  = ',AnisoLines9
-  write(u6,'(A,  L2)') 'DM_exchange  = ',DM_exchange
-  write(u6,'(A,  L2)') 'Dipol        = ',Dipol
-  write(u6,'(A,  L2)') 'JITO_exchange= ',JITO_exchange
-  if (AnisoLines1) then
-    do i=1,nPair
-      write(u6,'(A,2I4,F10.5)') 'LIN1',i_pair(i,1),i_pair(i,2),Jex(i)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'Enter EXCHCTL'
+write(u6,'(A,  i8)') 'exch   = ',exch
+write(u6,'(A,  i8)') 'nneq   = ',nneq
+write(u6,'(A,  i8)') 'neqv   = ',neqv
+write(u6,'(A,  i8)') 'nmax   = ',nmax
+write(u6,'(A,  i8)') 'lmax   = ',lmax
+write(u6,'(A,  i8)') 'nPair  = ',nPair
+write(u6,'(A,  i8)') 'nPair  = ',nPair
+write(u6,'(A,  i8)') 'MxRank1= ',MxRank1
+write(u6,'(A,  i8)') 'MxRank2= ',MxRank2
+write(u6,'(A,10i4)') 'neq()  = ',(neq(i),i=1,nneq)
+write(u6,'(A,10i4)') 'nexch()= ',(nexch(i),i=1,nneq)
+write(u6,'(A,  L2)') 'AnisoLines1  = ',AnisoLines1
+write(u6,'(A,  L2)') 'AnisoLines3  = ',AnisoLines3
+write(u6,'(A,  L2)') 'AnisoLines9  = ',AnisoLines9
+write(u6,'(A,  L2)') 'DM_exchange  = ',DM_exchange
+write(u6,'(A,  L2)') 'Dipol        = ',Dipol
+write(u6,'(A,  L2)') 'JITO_exchange= ',JITO_exchange
+if (AnisoLines1) then
+  do i=1,nPair
+    write(u6,'(A,2I4,F10.5)') 'LIN1',i_pair(i,1),i_pair(i,2),Jex(i)
+  end do
+end if
 
-  if (AnisoLines3) then
-    do i=1,nPair
-      write(u6,'(A,2I4,3F10.5)') 'LIN3',i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
-    end do
-  end if
+if (AnisoLines3) then
+  do i=1,nPair
+    write(u6,'(A,2I4,3F10.5)') 'LIN3',i_pair(i,1),i_pair(i,2),(JAex(i,j),j=1,3)
+  end do
+end if
 
-  if (AnisoLines9) then
-    do i=1,nPair
-      write(u6,'(A,2I4,9F10.5)') 'LIN9',i_pair(i,1),i_pair(i,2),((JAex9(i,j,k),j=1,3),k=1,3)
-    end do
-  end if
+if (AnisoLines9) then
+  do i=1,nPair
+    write(u6,'(A,2I4,9F10.5)') 'LIN9',i_pair(i,1),i_pair(i,2),((JAex9(i,j,k),j=1,3),k=1,3)
+  end do
+end if
 
-  if (DM_exchange) then
-    do i=1,nPair
-      write(u6,'(A,2I4,3F10.5)') 'DMEX',i_pair(i,1),i_pair(i,2),(JDMex(i,j),j=1,3)
-    end do
-  end if
+if (DM_exchange) then
+  do i=1,nPair
+    write(u6,'(A,2I4,3F10.5)') 'DMEX',i_pair(i,1),i_pair(i,2),(JDMex(i,j),j=1,3)
+  end do
+end if
 
-  if (Dipol) then
-    write(u6,'(A)') 'COORD(i):'
-    do i=1,nneq
-      write(u6,'(i3,3F14.8)') i,(coord(i,j),j=1,3)
-    end do
-  end if
+if (Dipol) then
+  write(u6,'(A)') 'COORD(i):'
+  do i=1,nneq
+    write(u6,'(i3,3F14.8)') i,(coord(i,j),j=1,3)
+  end do
+end if
 
-  if (JITO_exchange) then
-    do i=1,nPair
-      write(u6,'(A,4I4,3F10.5)') 'ITOJ',i_pair(i,1),i_pair(i,2),imaxrank(i,1),imaxrank(i,2)
-      do k1=1,imaxrank(i,1),2
-        do q1=-k1,k1
-          do k2=1,imaxrank(i,2),2
-            do q2=-k2,k2
-              write(u6,'(4I3,2x,2ES21.14)') k1,q1,k2,q2,JITOexR(i,k1,q1,k2,q2),JITOexI(i,k1,q1,k2,q2)
-            end do
+if (JITO_exchange) then
+  do i=1,nPair
+    write(u6,'(A,4I4,3F10.5)') 'ITOJ',i_pair(i,1),i_pair(i,2),imaxrank(i,1),imaxrank(i,2)
+    do k1=1,imaxrank(i,1),2
+      do q1=-k1,k1
+        do k2=1,imaxrank(i,2),2
+          do q2=-k2,k2
+            write(u6,'(4I3,2x,2ES21.14)') k1,q1,k2,q2,JITOexR(i,k1,q1,k2,q2),JITOexI(i,k1,q1,k2,q2)
           end do
         end do
       end do
-    end do ! ipair
-  end if
-
-  write(u6,'(A)') 'ESO(i):'
-  do i=1,nneq
-    write(u6,'(i3,90F14.8)') i,(eso(i,j),j=1,nmax)
-  end do
-  write(u6,'(90A)') 'itype()=',(itype(i),' ',i=1,nneq)
-
-  write(u6,'(A,  i8)') 'neqv   = ',neqv
-  do i=1,nneq
-    write(u6,'(A,  i8)') 'riso( site=',i,'):'
-    do j=1,3
-      write(u6,'(3ES22.14)') (riso(i,j,k),k=1,3)
     end do
+  end do ! ipair
+end if
+
+write(u6,'(A)') 'ESO(i):'
+do i=1,nneq
+  write(u6,'(i3,90F14.8)') i,(eso(i,j),j=1,nmax)
+end do
+write(u6,'(90A)') 'itype()=',(itype(i),' ',i=1,nneq)
+
+write(u6,'(A,  i8)') 'neqv   = ',neqv
+do i=1,nneq
+  write(u6,'(A,  i8)') 'riso( site=',i,'):'
+  do j=1,3
+    write(u6,'(3ES22.14)') (riso(i,j,k),k=1,3)
   end do
-end if ! dbg
+end do
+#endif
 !-----------------------------------------------------------------------
 ! allocate memory for this function:
 ItoB = 8
@@ -343,10 +355,12 @@ if (lmax >= 0) then
   call icopy(lmax,[0],0,intcR,1)
   mem_local = mem_local+lmax*ItoB
 end if
-if (dbg) write(u6,*) 'EXCHCTL:  memory allocated (local):'
-if (dbg) write(u6,*) 'mem_local=',mem_local
-if (dbg) write(u6,*) 'EXCHCTL:  memory allocated (total):'
-if (dbg) write(u6,*) 'mem_total=',mem+mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'EXCHCTL:  memory allocated (local):'
+write(u6,*) 'mem_local=',mem_local
+write(u6,*) 'EXCHCTL:  memory allocated (total):'
+write(u6,*) 'mem_total=',mem+mem_local
+#endif
 !-----------------------------------------------------------------------
 l = 0
 do i=1,nneq
@@ -370,12 +384,12 @@ do nb=1,exch
     nb1 = nb1-ibas(nb,lmax-i+1)*intc(lmax-i+1)
   end do
 end do
-if (dbg) then
-  write(u6,'(34x,A,1x,20i3)') 'site Nr.',(i,i=1,lmax)
-  do nb=1,exch
-    write(u6,'(A,i5,A,20i3)') 'COUPLING: basis set:  ibas(',nb,' ,isite) = ',(ibas(nb,i)+1,i=1,lmax)
-  end do
-end if ! dbg
+#ifdef _DEBUGPRINT_
+write(u6,'(34x,A,1x,20i3)') 'site Nr.',(i,i=1,lmax)
+do nb=1,exch
+  write(u6,'(A,i5,A,20i3)') 'COUPLING: basis set:  ibas(',nb,' ,isite) = ',(ibas(nb,i)+1,i=1,lmax)
+end do
+#endif
 
 !-----------------------------------------------------------------------
 ! Lines model of magnetic couping  -- 1 parameter
@@ -402,29 +416,27 @@ if (AnisoLines1) then
         call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,.true.)
       end if
 
-      !if (dbg)
       call prMom('SM(i1) bf Lines1',SM(i1,1:3,1:n1,1:n1),n1)
-      !if (dbg)
       call prMom('SM(i2) bf Lines1',SM(i2,1:3,1:n2,1:n2),n2)
 
       ! build the Lines exchange matrix:
       call Lines_Exchange(Jex(lp),n1,n2,SM(i1,1:3,1:n1,1:n1),SM(i2,1:3,1:n2,1:n2),HLIN1(lp,1:n1,1:n1,1:n2,1:n2))
 
-      if (dbg) then
-        call prMom('SM(i1) af Lines1',SM(i1,1:3,1:n1,1:n1),n1)
-        call prMom('SM(i2) af Lines1',SM(i2,1:3,1:n2,1:n2),n2)
-        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
-        write(u6,'(A,i2)') 'in local pseudospin basis'
-        do i=1,n1
-          do j=1,n1
-            do k=1,n2
-              do l=1,n2
-                write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN1(',i,',',j,',',k,',',l,') = ',HLIN1(lp,i,j,k,l)
-              end do
+#     ifdef _DEBUGPRINT_
+      call prMom('SM(i1) af Lines1',SM(i1,1:3,1:n1,1:n1),n1)
+      call prMom('SM(i2) af Lines1',SM(i2,1:3,1:n2,1:n2),n2)
+      write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
+      write(u6,'(A,i2)') 'in local pseudospin basis'
+      do i=1,n1
+        do j=1,n1
+          do k=1,n2
+            do l=1,n2
+              write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN1(',i,',',j,',',k,',',l,') = ',HLIN1(lp,i,j,k,l)
             end do
           end do
         end do
-      end if! dbg
+      end do
+#     endif
 
     end do
   end if ! nPair
@@ -449,28 +461,23 @@ if (AnisoLines3) then
 
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') then
-        call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
-      end if
-
-      if (itype(i2) == 'A') then
-        call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
-      end if
+      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
+      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
 
       call Aniso_Lines_Exchange3(JAex(lp,1:3),n1,n2,SM(i1,1:3,1:n1,1:n1),SM(i2,1:3,1:n2,1:n2),HLIN3(lp,1:n1,1:n1,1:n2,1:n2))
 
-      if (dbg) then
-        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
-        do i=1,n1
-          do j=1,n1
-            do k=1,n2
-              do l=1,n2
-                write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN3(',i,',',j,',',k,',',l,') = ',HLIN3(lp,i,j,k,l)
-              end do
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
+      do i=1,n1
+        do j=1,n1
+          do k=1,n2
+            do l=1,n2
+              write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN3(',i,',',j,',',k,',',l,') = ',HLIN3(lp,i,j,k,l)
             end do
           end do
         end do
-      end if ! dbg
+      end do
+#     endif
 
     end do ! lp
   end if ! nPair
@@ -495,32 +502,31 @@ if (AnisoLines9) then
 
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') then
-        call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
-      end if
-      if (itype(i2) == 'A') then
-        call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
-      end if
+      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
+      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
+
       ! rotate the input J matrix by the mg1 and mg2
-      if (dbg) call prMom('SM(i1) bf Lines9',SM(i1,1:3,1:n1,1:n1),n1)
-      if (dbg) call prMom('SM(i2) bf Lines9',SM(i2,1:3,1:n2,1:n2),n2)
+#     ifdef _DEBUGPRINT_
+      call prMom('SM(i1) bf Lines9',SM(i1,1:3,1:n1,1:n1),n1)
+      call prMom('SM(i2) bf Lines9',SM(i2,1:3,1:n2,1:n2),n2)
+#     endif
 
       call Aniso_Lines_Exchange9(JAex9(lp,1:3,1:3),n1,n2,SM(i1,1:3,1:n1,1:n1),SM(i2,1:3,1:n2,1:n2),HLIN9(lp,1:n1,1:n1,1:n2,1:n2))
 
-      if (dbg) then
-        call prMom('SM(i1) af Lines9',SM(i1,1:3,1:n1,1:n1),n1)
-        call prMom('SM(i2) af Lines9',SM(i2,1:3,1:n2,1:n2),n2)
-        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
-        do i=1,n1
-          do j=1,n1
-            do k=1,n2
-              do l=1,n2
-                write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN9(',i,',',j,',',k,',',l,') = ',HLIN9(lp,i,j,k,l)
-              end do
+#     ifdef _DEBUGPRINT_
+      call prMom('SM(i1) af Lines9',SM(i1,1:3,1:n1,1:n1),n1)
+      call prMom('SM(i2) af Lines9',SM(i2,1:3,1:n2,1:n2),n2)
+      write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
+      do i=1,n1
+        do j=1,n1
+          do k=1,n2
+            do l=1,n2
+              write(u6,'(4(a,i2),a,2ES24.14)') 'HLIN9(',i,',',j,',',k,',',l,') = ',HLIN9(lp,i,j,k,l)
             end do
           end do
         end do
-      end if! dbg
+      end do
+#     endif
 
     end do
   end if ! nPair
@@ -545,30 +551,28 @@ if (Dipol) then
       vect(1:3) = Zero
       dist = Zero
       call dirvect(coord(i1,1:3),rlg(i1,j1,1:3,1:3),coord(i2,1:3),rlg(i2,j2,1:3,1:3),vect(1:3),dist)
-      if (DBG) write(u6,'(A,i3,3ES20.12,2x,ES20.12)') 'EXCHCTL: DIPOL: lp, vect, R:',lp,(vect(i),i=1,3),dist
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i3,3ES20.12,2x,ES20.12)') 'EXCHCTL: DIPOL: lp, vect, R:',lp,(vect(i),i=1,3),dist
+#     endif
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') then
-        call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
-      end if
-      if (itype(i2) == 'A') then
-        call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
-      end if
+      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
+      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
 
       call Dipol_Exchange(n1,n2,vect(1:3),dist,MM(i1,1:3,1:n1,1:n1),MM(i2,1:3,1:n2,1:n2),HDIP(lp,1:n1,1:n1,1:n2,1:n2))
 
-      if (dbg) then
-        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
-        do i=1,n1
-          do j=1,n1
-            do k=1,n2
-              do l=1,n2
-                write(u6,'(4(a,i2),a,2ES24.14)') 'HDIP (',i,',',j,',',k,',',l,') = ',HDIP(lp,i,j,k,l)
-              end do
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
+      do i=1,n1
+        do j=1,n1
+          do k=1,n2
+            do l=1,n2
+              write(u6,'(4(a,i2),a,2ES24.14)') 'HDIP (',i,',',j,',',k,',',l,') = ',HDIP(lp,i,j,k,l)
             end do
           end do
         end do
-      end if ! dbg
+      end do
+#     endif
 
     end do ! lp
   end if
@@ -591,26 +595,22 @@ if (DM_exchange) then
       n2 = nexch(i2)
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') then
-        call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
-      end if
-      if (itype(i2) == 'A') then
-        call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
-      end if
+      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
+      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
 
       call Dzyaloshinsky_Morya_Exchange(JDMex(lp,1:3),n1,n2,SM(i1,1:3,1:n1,1:n1),SM(i2,1:3,1:n2,1:n2),HDMO(lp,1:n1,1:n1,1:n2,1:n2))
-      if (dbg) then
-        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
-        do i=1,n1
-          do j=1,n1
-            do k=1,n2
-              do l=1,n2
-                write(u6,'(4(a,i2),a,2ES24.14)') 'HDMO (',i,',',j,',',k,',',l,') = ',HDMO(lp,i,j,k,l)
-              end do
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
+      do i=1,n1
+        do j=1,n1
+          do k=1,n2
+            do l=1,n2
+              write(u6,'(4(a,i2),a,2ES24.14)') 'HDMO (',i,',',j,',',k,',',l,') = ',HDMO(lp,i,j,k,l)
             end do
           end do
         end do
-      end if! dbg
+      end do
+#     endif
 
     end do
   end if ! nPair
@@ -619,7 +619,9 @@ end if
 
 ! JITO exchange interaction
 if (JITO_exchange) then
-  if (dbg) write(u6,'(A)') 'EXCHCTL:  Entering  JITO_exchange'
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'EXCHCTL:  Entering  JITO_exchange'
+#endif
   if (nPair > 0) then
     call zcopy_(ibuf,[cZero],0,HITO,1)
     do lp=1,npair
@@ -634,33 +636,31 @@ if (JITO_exchange) then
       n2 = nexch(i2)
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') then
-        call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
-      end if
-      if (itype(i2) == 'A') then
-        call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
-      end if
+      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,dbg)
+      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,dbg)
 
       ! using Naoya's ITO:, in general coordinate system
       call JITO_Exchange_Int(MxRank1,MxRank2,imaxrank(lp,1:2),n1,n2, &
                              JITOexR(lp,1:MxRank1,-MxRank1:MxRank1,1:MxRank2,-MxRank2:MxRank2), &
                              JITOexI(lp,1:MxRank1,-MxRank1:MxRank1,1:MxRank2,-MxRank2:MxRank2),HITO(lp,1:n1,1:n1,1:n2,1:n2))
-      if (dbg) then
-        write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
-        do i=1,n1
-          do j=1,n1
-            do k=1,n2
-              do l=1,n2
-                write(u6,'(4(a,i2),a,2ES24.14)') 'HITO (',i,',',j,',',k,',',l,') = ',HITO(lp,i,j,k,l)
-              end do
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,i2)') 'Exchange matrix for pair = ',lp
+      do i=1,n1
+        do j=1,n1
+          do k=1,n2
+            do l=1,n2
+              write(u6,'(4(a,i2),a,2ES24.14)') 'HITO (',i,',',j,',',k,',',l,') = ',HITO(lp,i,j,k,l)
             end do
           end do
         end do
-      end if! dbg
+      end do
+#     endif
 
     end do
   end if ! nPair
-  if (dbg) write(u6,'(A)') 'EXCHCTL:  Exiting JITO_exchange'
+# ifdef _DEBUGPRINT_
+  write(u6,'(A)') 'EXCHCTL:  Exiting JITO_exchange'
+# endif
 end if
 !-----------------------------------------------------------------------
 
@@ -698,9 +698,9 @@ if (KE) then
       SM2(:,:,:) = cZero
       !FIXME: this call to KE_Exchange does not match at all its definition, please fix
       call WarningMessage(2,'There is surely a bug here')
-      if (.false.) call Unused_real(tpar)
-      if (.false.) call Unused_real(upar)
-      if (.false.) call Unused_integer(lant)
+      unused_var(tpar)
+      unused_var(upar)
+      unused_var(lant)
       !call KE_Exchange(n1,n2,M1(1:3,1:n1,1:n1),S1(1:3,1:n1,1:n1),M2(1:3,1:n2,1:n2),S2(1:3,1:n2,1:n2),eso(i1,1:n1),eso(i2,1:n2), &
       !                 tpar,upar,lant,KEOPT,HKEX(lp,1:n1,1:n1,1:n2,1:n2),MM1(1:3,1:n1,1:n1),SM1(1:3,1:n1,1:n1),MM2(1:3,1:n2,1:n2), &
       !                 SM2(1:3,1:n2,1:n2)
@@ -757,33 +757,33 @@ if (KE) then
           SMR(i2,l,2,2) = SM2(l,n2,n2)
         end do
 
-        if (DBG) then
-          write(u6,'(A)') 'site Ln'
-          do i=1,2
-            do j=1,2
-              write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'MMR(',i1,',L,',i,',',j,')= ',(MMR(i1,l,i,j),l=1,3)
-            end do
+#       ifdef _DEBUGPRINT_
+        write(u6,'(A)') 'site Ln'
+        do i=1,2
+          do j=1,2
+            write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'MMR(',i1,',L,',i,',',j,')= ',(MMR(i1,l,i,j),l=1,3)
           end do
-          write(u6,'(/)')
-          do i=1,2
-            do j=1,2
-              write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'SMR(',i1,',L,',i,',',j,')= ',(SMR(i1,l,i,j),l=1,3)
-            end do
+        end do
+        write(u6,'(/)')
+        do i=1,2
+          do j=1,2
+            write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'SMR(',i1,',L,',i,',',j,')= ',(SMR(i1,l,i,j),l=1,3)
           end do
-          write(u6,'(/)')
-          write(u6,'(A)') 'site Radical'
-          do i=1,2
-            do j=1,2
-              write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'MMR(',i2,',L,',i,',',j,')= ',(MMR(i2,l,i,j),l=1,3)
-            end do
+        end do
+        write(u6,'(/)')
+        write(u6,'(A)') 'site Radical'
+        do i=1,2
+          do j=1,2
+            write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'MMR(',i2,',L,',i,',',j,')= ',(MMR(i2,l,i,j),l=1,3)
           end do
-          write(u6,'(/)')
-          do i=1,2
-            do j=1,2
-              write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'SMR(',i2,',L,',i,',',j,')= ',(SMR(i2,l,i,j),l=1,3)
-            end do
+        end do
+        write(u6,'(/)')
+        do i=1,2
+          do j=1,2
+            write(u6,'(3(A,i1),A,3(2F20.14,2x))') 'SMR(',i2,',L,',i,',',j,')= ',(SMR(i2,l,i,j),l=1,3)
           end do
-        end if ! DBG
+        end do
+#       endif
 
       end if ! KEOPT
     end do ! lp
@@ -842,8 +842,8 @@ if (KE) then
                       WLIN1(1:exchR),WLIN3(1:exchR),WLIN9(1:exchR),WLIN(1:exchR),WDIP(1:exchR),WKEX(1:exchR),WDMO(1:exchR), &
                       WITO(1:exchR),WR(1:exchR),ZR(1:exchR,1:exchR))
       ! print the resulting eigenstates:
-      call pa_preigen(exchR,lmax,ibasR,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,.false.,.false.,WLIN(1:exchR),WDIP(1:exchR), &
-                      WKEX(1:exchR),WDMO(1:exchR),WITO(1:exchR),WR(1:exchR),ZR(1:exchR,1:exchR),0)
+      call pa_preigen(exchR,lmax,ibasR,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,.false.,WLIN(1:exchR),WDIP(1:exchR), &
+                      WKEX(1:exchR),WITO(1:exchR),WR(1:exchR),ZR(1:exchR,1:exchR),0)
       ! compute the moments:
       rotR(:,:,:,:) = Zero
       rotR(1,1,1,1) = One
@@ -906,47 +906,50 @@ end if !KE
 !-----------------------------------------------------------------------
 ! ALL exchange couplings for all pairs are now known.
 ! printout the Hamiltonians:
-if (DBG) then
-  write(u6,'(A,i5)') 'exch  = ',exch
-  write(u6,'(A,i5)') 'npair = ',npair
-  write(u6,'(A,i5)') 'nneq  = ',nneq
-  write(u6,'(A,i5)') 'nmax  = ',nmax
-  write(u6,'(A,i5)') 'lmax  = ',lmax
-  write(u6,'(A,i5)') 'iPrint= ',iPrint
-  write(u6,*) 'AnisoLines1 = ',AnisoLines1
-  write(u6,*) 'AnisoLines3 = ',AnisoLines3
-  write(u6,*) 'AnisoLines9 = ',AnisoLines9
-  write(u6,*) 'Dipol = ',Dipol
-  write(u6,*) 'JITO  = ',JITO_exchange
-  write(u6,*) 'KE    = ',KE
-  do i=1,npair
-    write(u6,'(A,i2,A,i3,3x,A,i2,A,i3)') 'i_pair(',i,',1) = ',i_pair(i,1),'i_pair(',i,',2) = ',i_pair(i,2)
-  end do
-  do i=1,nneq
-    write(u6,'(A,i2,A,i3)') '   neq(',i,') = ',neq(i)
-  end do
-  do i=1,nneq
-    write(u6,'(A,i2,A,i3)') ' nexch(',i,') = ',neq(i)
-  end do
-  do i=1,nneq
-    write(u6,'(A,i2,A,100F10.3)') '   eso(',i,') = ',(eso(i,j),j=1,nexch(i))
-  end do
-  call xFlush(u6)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A,i5)') 'exch  = ',exch
+write(u6,'(A,i5)') 'npair = ',npair
+write(u6,'(A,i5)') 'nneq  = ',nneq
+write(u6,'(A,i5)') 'nmax  = ',nmax
+write(u6,'(A,i5)') 'lmax  = ',lmax
+write(u6,'(A,i5)') 'iPrint= ',iPrint
+write(u6,*) 'AnisoLines1 = ',AnisoLines1
+write(u6,*) 'AnisoLines3 = ',AnisoLines3
+write(u6,*) 'AnisoLines9 = ',AnisoLines9
+write(u6,*) 'Dipol = ',Dipol
+write(u6,*) 'JITO  = ',JITO_exchange
+write(u6,*) 'KE    = ',KE
+do i=1,npair
+  write(u6,'(A,i2,A,i3,3x,A,i2,A,i3)') 'i_pair(',i,',1) = ',i_pair(i,1),'i_pair(',i,',2) = ',i_pair(i,2)
+end do
+do i=1,nneq
+  write(u6,'(A,i2,A,i3)') '   neq(',i,') = ',neq(i)
+end do
+do i=1,nneq
+  write(u6,'(A,i2,A,i3)') ' nexch(',i,') = ',neq(i)
+end do
+do i=1,nneq
+  write(u6,'(A,i2,A,100F10.3)') '   eso(',i,') = ',(eso(i,j),j=1,nexch(i))
+end do
+call xFlush(u6)
+#endif
 
-if ((iPrint > 2) .or. DBG) then
-  ! print the Exchange Hamiltonian:
+! print the Exchange Hamiltonian:
+#ifndef _DEBUGPRINT_
+if (iPrint > 2) then
+#endif
   call pa_prham(exch,npair,i_pair,nneq,neq,nexch,nmax,lmax,eso,HLIN1,HLIN3,HLIN9,HDIP,HKEX,HDMO,HITO,Dipol,AnisoLines1, &
                 AnisoLines3,AnisoLines9,KE,DM_exchange,JITO_exchange)
+#ifndef _DEBUGPRINT_
 end if
+#endif
 
 ! diagonalize the Hamiltonian:
 call pa_diagham(exch,npair,i_pair,nneq,neq,nexch,nmax,lmax,eso,HLIN1,HLIN3,HLIN9,HDIP,HKEX,HDMO,HITO,Dipol,DM_exchange, &
                 AnisoLines1,AnisoLines3,AnisoLines9,KE,JITO_exchange,WLIN1,WLIN3,WLIN9,WLIN,WDIP,WKEX,WDMO,WITO,W,Z)
 
 ! printout the resulting eigenstates:
-call pa_preigen(exch,lmax,ibas,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,DM_exchange,JITO_exchange,WLIN,WDIP,WKEX,WDMO,WITO,W, &
-                Z,iPrint)
+call pa_preigen(exch,lmax,ibas,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,JITO_exchange,WLIN,WDIP,WKEX,WITO,W,Z,iPrint)
 !Z =  exchange eigenstates:
 NmaxPop = 500
 if (NmaxPop > exch) then
@@ -965,23 +968,23 @@ if (dnrm2_(exch,W,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::     W',[dnrm2_(exch,
 ! compute the moments:
 call zcopy_(3*exch*exch,[cZero],0,M,1)
 call zcopy_(3*exch*exch,[cZero],0,S,1)
-if (dbg) then
-  write(u6,'(A)') 'Magnetic moments before the build of coupled M and S matrices'
-  if (nPair > 0) then
-    do lp=1,npair
-      lb1 = i_pair(lp,1)
-      lb2 = i_pair(lp,2)
-      i1 = nind(lb1,1) ! indices of non-equivalent sites
-      i2 = nind(lb2,1) ! indices of non-equivalent sites
-      n1 = nexch(i1)
-      n2 = nexch(i2)
-      call prMom('EXCHCTL,Before M ans S, SM(i1):',SM(i1,1:3,1:n1,1:n1),n1)
-      call prMom('EXCHCTL,Before M ans S, SM(i2):',SM(i2,1:3,1:n2,1:n2),n2)
-      call prMom('EXCHCTL,Before M ans S, MM(i1):',MM(i1,1:3,1:n1,1:n1),n1)
-      call prMom('EXCHCTL,Before M ans S, MM(i2):',MM(i2,1:3,1:n2,1:n2),n2)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'Magnetic moments before the build of coupled M and S matrices'
+if (nPair > 0) then
+  do lp=1,npair
+    lb1 = i_pair(lp,1)
+    lb2 = i_pair(lp,2)
+    i1 = nind(lb1,1) ! indices of non-equivalent sites
+    i2 = nind(lb2,1) ! indices of non-equivalent sites
+    n1 = nexch(i1)
+    n2 = nexch(i2)
+    call prMom('EXCHCTL,Before M ans S, SM(i1):',SM(i1,1:3,1:n1,1:n1),n1)
+    call prMom('EXCHCTL,Before M ans S, SM(i2):',SM(i2,1:3,1:n2,1:n2),n2)
+    call prMom('EXCHCTL,Before M ans S, MM(i1):',MM(i1,1:3,1:n1,1:n1),n1)
+    call prMom('EXCHCTL,Before M ans S, MM(i2):',MM(i2,1:3,1:n2,1:n2),n2)
+  end do
 end if
+#endif
 
 do L=1,3
   do isite=1,lmax

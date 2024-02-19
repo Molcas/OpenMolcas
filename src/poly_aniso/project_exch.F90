@@ -39,11 +39,8 @@ complex(kind=8) :: TMP(N1,N1)
 !complex(kind=8) :: SP_MOW1,SP_MOW2
 !complex(kind=8) :: QMAT(N1,N1,N2,N2) !, trace
 !real(kind=8) :: WCG ! Clebsch-Gordan Coefficients
-!logical DBG
 !external WCG
 complex(kind=8) :: Jpar(N1-1,-N1+1:N1-1,N2-1,-N2+1:N2-1)
-
-!DBG = .false.
 
 !write(u6,'(A)') 'J parameters in the initial ab intio basis:'
 !call JKQPar(N1,N2,HEXCH,Jpar)

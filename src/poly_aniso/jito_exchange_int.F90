@@ -14,7 +14,10 @@ subroutine JITO_Exchange_Int(MxR1,MxR2,imaxrank,n1,n2,JR,JI,HAM)
 ! two sites, of the one interacting pair on the basis of input ITO parameters
 
 use Constants, only: Zero, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "stdalloc.fh"
@@ -35,11 +38,9 @@ complex(kind=8) :: J(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
 complex(kind=8), allocatable :: O1(:,:), O2(:,:)
 complex(kind=8), allocatable :: W1(:,:), W2(:,:)
 complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:), OW(:,:,:,:), WO(:,:,:,:)
-logical :: dbg
 real(kind=8) :: dnrm2_
 external :: dnrm2_
 
-dbg = .false.
 ! ----  initial checks
 if ((n1 <= 0) .or. (n2 <= 0)) return
 call zcopy_(n1*n1*n2*n2,[cZero],0,HAM,1)
@@ -115,18 +116,18 @@ do k1=1,imaxrank(1),2
   end do
 end do ! k1
 
-if (dbg) then
-  write(u6,'(A)') 'JITO_Exchange_Int: generated <m1,l1|HAM|m2,l2>'
-  do m1=1,n1
-    do m2=1,n1
-      do l1=1,n2
-        do l2=1,n2
-          write(u6,'(A,i2,A,i2,A,i2,A,i2,A,2ES22.14)') '<',m1,',',l1,'| HAM |',m2,',',l2,'> = ',HAM(m1,m2,l1,l2)
-        end do
+#ifdef _DEBUGPRINT_
+write(u6,'(A)') 'JITO_Exchange_Int: generated <m1,l1|HAM|m2,l2>'
+do m1=1,n1
+  do m2=1,n1
+    do l1=1,n2
+      do l2=1,n2
+        write(u6,'(A,i2,A,i2,A,i2,A,i2,A,2ES22.14)') '<',m1,',',l1,'| HAM |',m2,',',l2,'> = ',HAM(m1,m2,l1,l2)
       end do
     end do
   end do
-end if
+end do
+#endif
 
 call mma_deallocate(OO)
 call mma_deallocate(OW)

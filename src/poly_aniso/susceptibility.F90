@@ -79,66 +79,69 @@ external dev
 integer :: i, iT, jT, ic, jc
 integer :: j, n1, n2, im, jm
 integer :: isite, info, mem_local, RtoB
-logical :: dbg
 character(len=50) :: label
 real(kind=wp), external :: dnrm2_
 real(kind=8), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm^-1*k-1
                            coeff_chi = rNAVO*mBohr**2/kBoltzmann/Ten ! = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
 
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(mem)
+#endif
+
 mem_local = 0
-dbg = .false.
 RtoB = 8
 !-----------------------------------------------------------------------
-if (dbg) then
-  write(u6,*) 'Verification of input data on entrance to PA-SUSC:'
-  write(u6,*) 'exch:         ',exch
-  write(u6,*) 'nLoc:         ',nLoc
-  write(u6,*) 'nCenter:      ',nCenter
-  write(u6,*) 'nneq:         ',nneq
-  write(u6,*) 'neqv:         ',neqv
-  write(u6,*) 'neq():        ',(neq(i),i=1,nneq)
-  write(u6,*) 'nss():        ',(nss(i),i=1,nneq)
-  write(u6,*) 'nexch():      ',(nexch(i),i=1,nneq)
-  write(u6,*) 'nT:           ',nT
-  write(u6,*) 'iopt:         ',iopt
-  write(u6,*) 'mem:          ',mem
-  write(u6,*) 'nTempMagn:    ',nTempMagn
-  write(u6,*) 'Tmin:         ',Tmin
-  write(u6,*) 'Tmax:         ',Tmax
-  write(u6,*) 'XTexp():      ',(XTexp(i),i=1,nT+nTempMagn)
-  write(u6,*) 'T():          ',(T(i),i=1,nT+nTempMagn)
-  write(u6,*) 'chit_theta(): ',(chit_theta(i),i=1,nT+nTempMagn)
-  write(u6,*) 'W()           ',(W(i),i=1,exch)
-  write(u6,*) 'zJ:           ',zJ
-  write(u6,*) 'tinput:       ',tinput
-  write(u6,*) 'doplot:       ',doplot
-  !do i=1,nneq
-  !  write(u6,*) 'eso()         ',(eso(i,j),j=1,nss(i))
-  !  call prMom('SUSC: input  s_so(i,:,:,:):',s_so(i,:,:,:),nexch(i))
-  !  call prMom('SUSC: input dipso(i,:,:,:):',dipso(i,:,:,:),nexch(i))
-  !  call atens(s_so(i,:,:,:),nexch(i),gtens,maxes,2)
-  !  call atens(dipso(i,:,:,:),nexch(i),gtens,maxes,2)
-  !End Do
-  !call prMom('SUSC: input  S_EXCH(l,i,j):',s_exch,exch)
-  !call prMom('SUSC: input DIPEXCH(l,i,j):',dipexch,exch)
-  !call atens(s_exch,exch,gtens,maxes,2)
-  !call atens(dipexch,exch,gtens,maxes,2)
-  ! change to pseudospin:
-  !call zcopy_(exch*exch,[cZero],0,Z,1)
-  !call zcopy_(3*exch*exch,[cZero],0,dipexch2,1)
-  !call zcopy_(3*exch*exch,[cZero],0,s_exch2,1)
-  !call zcopy_(3*exch*exch,dipexch,1,dipexch2,1)
-  !call zcopy_(3*exch*exch,s_exch,1,s_exch2,1)
-  !call pseudospin(dipexch2,exch,Z,3,1)
-  !
-  !call zcopy_(3*exch*exch,[cZero],0,dipexch,1)
-  !call zcopy_(3*exch*exch,[cZero],0,s_exch,1)
-  !call UTMU(exch,exch,Z,dipexch2,dipexch)
-  !call UTMU(exch,exch,Z,s_exch2,s_exch)
-  !
-  !call prMom('SUSC: input  S_EXCH2(l,i,j):',s_exch,exch)
-  !call prMom('SUSC: input DIPEXCH2(l,i,j):',dipexch,exch)
-end if ! dbg
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Verification of input data on entrance to PA-SUSC:'
+write(u6,*) 'exch:         ',exch
+write(u6,*) 'nLoc:         ',nLoc
+write(u6,*) 'nCenter:      ',nCenter
+write(u6,*) 'nneq:         ',nneq
+write(u6,*) 'neqv:         ',neqv
+write(u6,*) 'neq():        ',(neq(i),i=1,nneq)
+write(u6,*) 'nss():        ',(nss(i),i=1,nneq)
+write(u6,*) 'nexch():      ',(nexch(i),i=1,nneq)
+write(u6,*) 'nT:           ',nT
+write(u6,*) 'iopt:         ',iopt
+write(u6,*) 'mem:          ',mem
+write(u6,*) 'nTempMagn:    ',nTempMagn
+write(u6,*) 'Tmin:         ',Tmin
+write(u6,*) 'Tmax:         ',Tmax
+write(u6,*) 'XTexp():      ',(XTexp(i),i=1,nT+nTempMagn)
+write(u6,*) 'T():          ',(T(i),i=1,nT+nTempMagn)
+write(u6,*) 'chit_theta(): ',(chit_theta(i),i=1,nT+nTempMagn)
+write(u6,*) 'W()           ',(W(i),i=1,exch)
+write(u6,*) 'zJ:           ',zJ
+write(u6,*) 'tinput:       ',tinput
+write(u6,*) 'doplot:       ',doplot
+!do i=1,nneq
+!  write(u6,*) 'eso()         ',(eso(i,j),j=1,nss(i))
+!  call prMom('SUSC: input  s_so(i,:,:,:):',s_so(i,:,:,:),nexch(i))
+!  call prMom('SUSC: input dipso(i,:,:,:):',dipso(i,:,:,:),nexch(i))
+!  call atens(s_so(i,:,:,:),nexch(i),gtens,maxes,2)
+!  call atens(dipso(i,:,:,:),nexch(i),gtens,maxes,2)
+!End Do
+!call prMom('SUSC: input  S_EXCH(l,i,j):',s_exch,exch)
+!call prMom('SUSC: input DIPEXCH(l,i,j):',dipexch,exch)
+!call atens(s_exch,exch,gtens,maxes,2)
+!call atens(dipexch,exch,gtens,maxes,2)
+! change to pseudospin:
+!call zcopy_(exch*exch,[cZero],0,Z,1)
+!call zcopy_(3*exch*exch,[cZero],0,dipexch2,1)
+!call zcopy_(3*exch*exch,[cZero],0,s_exch2,1)
+!call zcopy_(3*exch*exch,dipexch,1,dipexch2,1)
+!call zcopy_(3*exch*exch,s_exch,1,s_exch2,1)
+!call pseudospin(dipexch2,exch,Z,3,1)
+!
+!call zcopy_(3*exch*exch,[cZero],0,dipexch,1)
+!call zcopy_(3*exch*exch,[cZero],0,s_exch,1)
+!call UTMU(exch,exch,Z,dipexch2,dipexch)
+!call UTMU(exch,exch,Z,s_exch2,s_exch)
+!
+!call prMom('SUSC: input  S_EXCH2(l,i,j):',s_exch,exch)
+!call prMom('SUSC: input DIPEXCH2(l,i,j):',dipexch,exch)
+#endif
 !-----------------------------------------------------------------------
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,95)
@@ -181,10 +184,12 @@ call dcopy_(3*3*(nT+nTempMagn),[Zero],0,chit_theta_tens,1)
 call dcopy_((nT+nTempMagn),[Zero],0,zstat_tot,1)
 
 if (zJ == Zero) then
-  if (dbg) write(u6,*) 'SUSC:  memory allocated (local):'
-  if (dbg) write(u6,*) 'mem_local=',mem_local
-  if (dbg) write(u6,*) 'SUSC:  memory allocated (total):'
-  if (dbg) write(u6,*) 'mem_total=',mem+mem_local
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SUSC:  memory allocated (local):'
+  write(u6,*) 'mem_local=',mem_local
+  write(u6,*) 'SUSC:  memory allocated (total):'
+  write(u6,*) 'mem_total=',mem+mem_local
+#endif
 
   do iT=1,nT+nTempMagn
     ! initialize temporary variables:
@@ -201,11 +206,13 @@ if (zJ == Zero) then
     !-------------------------------------------------------------------
     ! local susceptibility= total susceptibility coming from individual magnetic centers
     do i=1,nneq
-      if (dbg) write(u6,'(A,2I5)') 'nss(i)=',nss(i)
-      if (dbg) write(u6,'(A,2I5)') 'nexch(i)=',nexch(i)
-      if (dbg) write(u6,'(A,9F10.6)') 'eso(i,:)=',eso(i,1:nss(i))
-      if (dbg) write(u6,'(A,9F10.6)') 'W(:)    =',W(1:exch)
-      if (dbg) write(u6,'(A,9F10.6)') 'T(iT)=',T(iT)
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,2I5)') 'nss(i)=',nss(i)
+      write(u6,'(A,2I5)') 'nexch(i)=',nexch(i)
+      write(u6,'(A,9F10.6)') 'eso(i,:)=',eso(i,1:nss(i))
+      write(u6,'(A,9F10.6)') 'W(:)    =',W(1:exch)
+      write(u6,'(A,9F10.6)') 'T(iT)=',T(iT)
+#     endif
       call chi(dipso(i,1:3,1:nss(i),1:nss(i)),dipso(i,1:3,1:nss(i),1:nss(i)),eso(i,1:nss(i)),nss(i),T(it),zstat_l(i), &
                chit_tens_l(i,1:3,1:3))
 
@@ -304,10 +311,12 @@ else ! i.e. when (zJ /= 0)
   mem_local = mem_local+4*3*3*(nCenter+nneq)*RtoB
   mem_local = mem_local+7*3*3*RtoB
 
-  if (dbg) write(u6,*) 'SUSC:  memory allocated (local):'
-  if (dbg) write(u6,*) 'mem_local=',mem_local
-  if (dbg) write(u6,*) 'SUSC:  memory allocated (total):'
-  if (dbg) write(u6,*) 'mem_total=',mem+mem_local
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'SUSC:  memory allocated (local):'
+  write(u6,*) 'mem_local=',mem_local
+  write(u6,*) 'SUSC:  memory allocated (total):'
+  write(u6,*) 'mem_total=',mem+mem_local
+# endif
 
   do iT=1,nT+nTempMagn
     ! initialization:

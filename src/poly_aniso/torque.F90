@@ -91,10 +91,18 @@ integer :: mem_local, RtoB
 ! local data:
 integer :: IM, I, it
 integer :: J, IH, k, isite, l, n, iPl
-logical :: DBG
 real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical, parameter :: DBG = _DBG_
 
-DBG = .false.
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(mem)
+#endif
 
 write(u6,*)
 write(u6,'(100A)') (('%'),J=1,96)
@@ -127,27 +135,29 @@ else
   write(u6,'(2x,A)') 'The contribution of local excited states is computed approximately (by using the susceptibility data). '
 end if
 !-----------------------------------------------------------------------
-if (dbg) write(u6,*) 'nM       = ',nM
-if (dbg) write(u6,*) 'nTempMagn= ',nTempMagn
-if (dbg) write(u6,*) 'nneq     = ',nneq
-if (dbg) write(u6,*) 'nCenter  = ',nCenter
-if (dbg) write(u6,*) 'AngPoints= ',AngPoints
-if (dbg) write(u6,*) 'nPlanes  = ',nPlanes
-if (dbg) write(u6,*) 'nH       = ',nH
-if (dbg) write(u6,*) 'nLoc     = ',nLoc
-if (dbg) write(u6,*) 'nexch()  = ',(nexch(i),i=1,nneq)
-if (dbg) write(u6,*) 'neq()    = ',(neq(i),i=1,nneq)
-if (dbg) write(u6,*) 'exch     = ',exch
-if (dbg) write(u6,*) 'iopt     = ',iopt
-if (dbg) write(u6,*) 'neqv     = ',neqv
-if (dbg) write(u6,*) 'nss()    = ',(nss(i),i=1,nneq)
-if (dbg) write(u6,*) 'W()      = ',(W(i),i=1,exch)
-if (dbg) write(u6,*) 'zJ       = ',zJ
-if (dbg) write(u6,*) 'EM       = ',EM
-if (dbg) write(u6,*) 'm_paranoi= ',m_paranoid
-if (dbg) write(u6,*) 'm_accurat= ',m_accurate
-if (dbg) write(u6,*) 'smagn    = ',smagn
-if (dbg) write(u6,*) 'hinput   = ',hinput
+#ifdef _DEBUGPRINT_
+write(u6,*) 'nM       = ',nM
+write(u6,*) 'nTempMagn= ',nTempMagn
+write(u6,*) 'nneq     = ',nneq
+write(u6,*) 'nCenter  = ',nCenter
+write(u6,*) 'AngPoints= ',AngPoints
+write(u6,*) 'nPlanes  = ',nPlanes
+write(u6,*) 'nH       = ',nH
+write(u6,*) 'nLoc     = ',nLoc
+write(u6,*) 'nexch()  = ',(nexch(i),i=1,nneq)
+write(u6,*) 'neq()    = ',(neq(i),i=1,nneq)
+write(u6,*) 'exch     = ',exch
+write(u6,*) 'iopt     = ',iopt
+write(u6,*) 'neqv     = ',neqv
+write(u6,*) 'nss()    = ',(nss(i),i=1,nneq)
+write(u6,*) 'W()      = ',(W(i),i=1,exch)
+write(u6,*) 'zJ       = ',zJ
+write(u6,*) 'EM       = ',EM
+write(u6,*) 'm_paranoi= ',m_paranoid
+write(u6,*) 'm_accurat= ',m_accurate
+write(u6,*) 'smagn    = ',smagn
+write(u6,*) 'hinput   = ',hinput
+#endif
 
 ! Allocate memory for this calculation:
 mem_local = 0
@@ -157,7 +167,9 @@ call mma_allocate(Wex,nM,'Wex')
 call dcopy_(nM,[Zero],0,Wex,1)
 mem_local = mem_local+nM*RtoB
 
-if (dbg) write(u6,*) 'mem_local 1 = ',mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'mem_local 1 = ',mem_local
+#endif
 
 ! exchange statistical sum, Boltzmann distribution
 call mma_allocate(Zex,nTempMagn,'Zex')
@@ -185,7 +197,9 @@ call mma_allocate(MT,3,nTempMagn,'MT')
 call dcopy_(3*nTempMagn,[Zero],0,MT,1)
 mem_local = mem_local+3*nTempMagn*RtoB
 
-if (dbg) write(u6,*) 'mem_local 2 = ',mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'mem_local 2 = ',mem_local
+#endif
 ! local statistical sum, Boltzmann distribution
 call mma_allocate(ZL,nneq,nTempMagn,'ZL')
 call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
@@ -212,7 +226,9 @@ call mma_allocate(MR,nneq,3,nTempMagn,'MR')
 call dcopy_(nneq*3*nTempMagn,[Zero],0,MR,1)
 mem_local = mem_local+nneq*3*nTempMagn*RtoB
 
-if (dbg) write(u6,*) 'mem_local 3 = ',mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'mem_local 3 = ',mem_local
+#endif
 ! ZRT(nCenter,nTempMagn)
 call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
 call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
@@ -238,7 +254,9 @@ call mma_allocate(SLT,nCenter,3,nTempMagn,'SLT')
 call dcopy_(nCenter*3*nTempMagn,[Zero],0,SLT,1)
 mem_local = mem_local+nCenter*3*nTempMagn*RtoB
 
-if (dbg) write(u6,*) 'mem_local 4 = ',mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'mem_local 4 = ',mem_local
+#endif
 ! magnetic torque
 call mma_allocate(tx,nPlanes,AngPoints,nH,nTempMagn,'tx')
 call mma_allocate(ty,nPlanes,AngPoints,nH,nTempMagn,'ty')
@@ -253,7 +271,9 @@ call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sx,1)
 call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sy,1)
 call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sz,1)
 mem_local = mem_local+6*nPlanes*AngPoints*nH*nTempMagn*RtoB
-if (dbg) write(u6,*) 'mem_local 5 = ',mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'mem_local 5 = ',mem_local
+#endif
 
 ! Zeeman local energies
 call mma_allocate(WL,nneq,nLoc,'WL')
@@ -263,7 +283,9 @@ mem_local = mem_local+nneq*nLoc*RtoB
 call mma_allocate(WR,nneq,nLoc,'WR')
 call dcopy_(nneq*nLoc,[Zero],0,WR,1)
 mem_local = mem_local+nneq*nLoc*RtoB
-if (dbg) write(u6,*) 'mem_local 6 = ',mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'mem_local 6 = ',mem_local
+#endif
 
 call mma_allocate(Ang,AngPoints,'Ang')
 call dcopy_(AngPoints,[Zero],0,Ang,1)
@@ -275,16 +297,20 @@ call dcopy_(nPlanes*AngPoints,[Zero],0,dX,1)
 call dcopy_(nPlanes*AngPoints,[Zero],0,dY,1)
 call dcopy_(nPlanes*AngPoints,[Zero],0,dZ,1)
 mem_local = mem_local+3*nPlanes*AngPoints*RtoB
-if (dbg) write(u6,*) 'mem_local 7 = ',mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'mem_local 7 = ',mem_local
+#endif
 
 call mma_allocate(H,nH,'H')
 call dcopy_(nH,[Zero],0,H,1)
 mem_local = mem_local+nH*RtoB
 
-if (dbg) write(u6,*) 'TORQ:  memory allocated (local):'
-if (dbg) write(u6,*) 'mem_local=',mem_local
-if (dbg) write(u6,*) 'TORQ:  memory allocated (total):'
-if (dbg) write(u6,*) 'mem_total=',mem+mem_local
+#ifdef _DEBUGPRINT_
+write(u6,*) 'TORQ:  memory allocated (local):'
+write(u6,*) 'mem_local=',mem_local
+write(u6,*) 'TORQ:  memory allocated (total):'
+write(u6,*) 'mem_total=',mem+mem_local
+#endif
 
 !-----------------------------------------------------------------------
 ! set up the field points:
@@ -325,7 +351,9 @@ do IH=1,NH
 
     call hdir2(AngPoints,iPl,dX(iPl,:),dY(iPl,:),dZ(iPl,:),Ang,4)
 
-    if (dbg) write(u6,*) 'iPl, dX, dY, dZ=',iPl,dX(iPl,:),dY(iPl,:),dZ(iPl,:),Ang
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'iPl, dX, dY, dZ=',iPl,dX(iPl,:),dY(iPl,:),dZ(iPl,:),Ang
+#   endif
     do IM=1,AngPoints
       ! ///  opening the loop over different directions of the magnetic field
       call dcopy_(nM,[Zero],0,Wex,1)
@@ -348,10 +376,10 @@ do IH=1,NH
       call MAGN(EXCH,NM,dX(iPl,iM),dY(iPl,iM),dZ(iPl,iM),H(iH),W,zJ,THRS,DIPEXCH,S_EXCH,nTempMagn,TempMagn,smagn,Wex,Zex,Sex,Mex, &
                 m_paranoid,DBG)
 
-      if (iPl == 2) then
-        if (DBG) write(u6,'(A,I3,1x,F8.4,2x, 3F19.14,2x,3F19.14)') 'MEX: iM,',iM,H(iH),(Mex(l,1),l=1,3),dX(iPl,iM),dY(iPl,iM), &
-                                                                   dZ(iPl,iM)
-      end if
+#ifdef _DEBUGPRINT_
+      if (iPl == 2) &
+        write(u6,'(A,I3,1x,F8.4,2x, 3F19.14,2x,3F19.14)') 'MEX: iM,',iM,H(iH),(Mex(l,1),l=1,3),dX(iPl,iM),dY(iPl,iM),dZ(iPl,iM)
+#endif
       !iT = 1
 
       !write(u6,'(F10.4,1x,2I3,3F18.14,3x,3F20.14,2x,F20.14)') H(iH),iL,iM,dX(iM),dY(iM),dZ(iM),(Mex(j,iT),j=1,3), &
@@ -591,7 +619,9 @@ call mma_deallocate(dZ)
 
 call mma_deallocate(H)
 
-if (dbg) write(u6,*) 'TORQ: allocated memory was sucessfully deallocated'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'TORQ: allocated memory was sucessfully deallocated'
+#endif
 
 return
 

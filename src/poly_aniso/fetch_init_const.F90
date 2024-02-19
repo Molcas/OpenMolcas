@@ -39,9 +39,14 @@ character :: itype(NMAXC)
 character(len=280) :: line
 character(len=180) :: namefile_aniso
 logical :: ifHDF
-logical :: DBG
 external Isfreeunit
 logical, intent(in) :: old_aniso_format
+#ifdef _DEBUGPRINT_
+#  define _DBG_ .true.
+#else
+#  define _DBG_ .false.
+#endif
+logical, parameter :: dbg = _DBG_
 
 #include "macros.fh"
 
@@ -72,8 +77,6 @@ imaxrank(1:nmaxc,1:2) = 0
 
 !namefile_aniso = ''
 ifHDF = .false.
-
-DBG = .false.
 
 !KeyNNEQ = .false.
 KeyPair = .false.
@@ -119,7 +122,9 @@ do
       !KeyNNEQ = .true.
       read(u5,*) nneq,ab_initio_all,ifHDF
 
-      if (DBG) write(u6,*) nneq,ab_initio_all,ifHDF
+#     ifdef _DEBUGPRINT_
+      write(u6,*) nneq,ab_initio_all,ifHDF
+#     endif
 
       if (nneq < 0) then
         write(u6,'(A)') 'nneq<0! Must be positive!'
@@ -133,7 +138,9 @@ do
       end if
 
       read(u5,*) (neqA(i),i=1,nneq)
-      if (DBG) write(u6,*) (neqA(i),i=1,nneq)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) (neqA(i),i=1,nneq)
+#     endif
 
       do i=1,nneq
         if (neqA(i) < 0) then
@@ -146,7 +153,9 @@ do
       end do
 
       read(u5,*) (nexchA(i),i=1,nneq)
-      if (DBG) write(u6,*) (nexchA(i),i=1,nneq)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) (nexchA(i),i=1,nneq)
+#     endif
 
       do i=1,nneq
         if (nexchA(i) < 0) then
@@ -160,10 +169,14 @@ do
 
       neqv = 0
       neqv = maxval(neqA(1:nneq))
-      if (DBG) write(u6,*) 'neqv = ',neqv
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'neqv = ',neqv
+#     endif
       nmax = 0
       nmax = maxval(nexchA(1:nneq))
-      if (DBG) write(u6,*) 'nmax = ',nmax
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'nmax = ',nmax
+#     endif
 
       ! compute "exch"
       exch = 1
@@ -172,7 +185,9 @@ do
           exch = exch*nexchA(i)
         end do
       end do
-      if (DBG) write(u6,*) 'exch=',exch
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'exch=',exch
+#     endif
 
       if (.not. ab_initio_all) then
         read(u5,*,iostat=istatus) (itype(i),i=1,Nneq)
@@ -204,7 +219,9 @@ do
 
 #           ifdef _HDF5_
             call read_hdf5_init(NAMEFILE_ANISO,sfs_check(I),sos_check(I))
-            if (DBG) write(u6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+#           endif
 #           else
             call WarningMessage(2,'File '//trim(NAMEFILE_ANISO)//' cannot be opened. Molcas was compiled without HDF5 option.')
             call Quit_OnUserError()
@@ -222,11 +239,15 @@ do
 
             if (old_aniso_format) then
               read(LUANISO,*) sfs_check(I),sos_check(I)
-              if (DBG) write(u6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+#             ifdef _DEBUGPRINT_
+              write(u6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+#             endif
             else
               call read_nss(LUANISO,sos_check(i),dbg)
               call read_nstate(LUANISO,sfs_check(i),dbg)
-              if (DBG) write(u6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+#             ifdef _DEBUGPRINT_
+              write(u6,*) ' sfs(I) ',sfs_check(I),' sos(I) ',sos_check(I)
+#             endif
             end if
             close(LUANISO)
           end if ! ifHDF
@@ -252,7 +273,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'TEXP:: = nT_TEXP',nT_TEXP
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'TEXP:: = nT_TEXP',nT_TEXP
+#     endif
 
       LINENR = LINENR+1
 
@@ -273,8 +296,10 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'HEXP:: = nH_HEXP ',nH_HEXP
-      if (DBG) write(u6,*) 'HEXP:: = nTempMagn_HEXP ',nTempMagn_HEXP
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'HEXP:: = nH_HEXP ',nH_HEXP
+      write(u6,*) 'HEXP:: = nTempMagn_HEXP ',nTempMagn_HEXP
+#     endif
       LINENR = LINENR+2
 
     case ('HINT')
@@ -287,7 +312,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'HINT:: = nH_HINT ',nH_HINT
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'HINT:: = nH_HINT ',nH_HINT
+#     endif
       LINENR = LINENR+1
 
     case ('TINT')
@@ -300,7 +327,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'TINT:: = nT_TINT ',nT_TINT
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'TINT:: = nT_TINT ',nT_TINT
+#     endif
       LINENR = LINENR+1
 
     case ('TMAG')
@@ -313,7 +342,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'TMAG:: = nTempMagn_TMAG ',nTempMagn_TMAG
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'TMAG:: = nTempMagn_TMAG ',nTempMagn_TMAG
+#     endif
       LINENR = LINENR+1
 
     case ('MVEC')
@@ -326,7 +357,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'MVEC:: = nDir ',nDir
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'MVEC:: = nDir ',nDir
+#     endif
       LINENR = LINENR+1
 
     case ('ZEEM')
@@ -339,7 +372,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'ZEEM:: = nDirZee ',nDirZee
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'ZEEM:: = nDirZee ',nDirZee
+#     endif
       LINENR = LINENR+1
 
     case ('MLTP')
@@ -352,7 +387,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'MLTP:: =nMult ',nMult
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'MLTP:: =nMult ',nMult
+#     endif
       LINENR = LINENR+1
 
     case ('LIN9','LIN3','LIN1','ALIN','PAIR','ITOJ')
@@ -366,7 +403,9 @@ do
         call Quit_OnUserError()
       end if
 
-      if (DBG) write(u6,*) 'PAIR:: =nPair ',nPair
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'PAIR:: =nPair ',nPair
+#     endif
 
       if (LINE(1:4) == 'ITOJ') then
         iline = 0
@@ -423,23 +462,23 @@ if (nH == 0) nH = 11
 if (nTempMagn == 0) nTempMagn = 1
 
 ! preliminary check the values:
-if (DBG) then
-  write(u6,*) 'nneq     =',nneq
-  write(u6,*) 'neqv     =',neqv
-  write(u6,*) 'exch     =',exch
-  write(u6,*) 'nLoc     =',nLoc
-  write(u6,*) 'nmax     =',nmax
-  write(u6,*) 'nCenter  =',nCenter
-  write(u6,*) 'nT       =',nT
-  write(u6,*) 'nH       =',nH
-  write(u6,*) 'nTempMagn=',ntempMagn
-  write(u6,*) 'nDir     =',nDir
-  write(u6,*) 'nDirZee  =',nDirZee
-  write(u6,*) 'nMult    =',nMult
-  write(u6,*) 'nPair    =',nPair
-  write(u6,*) 'MxRank1  =',MxRank1
-  write(u6,*) 'MxRank2  =',MxRank2
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'nneq     =',nneq
+write(u6,*) 'neqv     =',neqv
+write(u6,*) 'exch     =',exch
+write(u6,*) 'nLoc     =',nLoc
+write(u6,*) 'nmax     =',nmax
+write(u6,*) 'nCenter  =',nCenter
+write(u6,*) 'nT       =',nT
+write(u6,*) 'nH       =',nH
+write(u6,*) 'nTempMagn=',ntempMagn
+write(u6,*) 'nDir     =',nDir
+write(u6,*) 'nDirZee  =',nDirZee
+write(u6,*) 'nMult    =',nMult
+write(u6,*) 'nPair    =',nPair
+write(u6,*) 'MxRank1  =',MxRank1
+write(u6,*) 'MxRank2  =',MxRank2
+#endif
 
 return
 

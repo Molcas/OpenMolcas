@@ -53,19 +53,17 @@ complex(kind=8) :: ZZ2(N2,N2)
 complex(kind=8) :: ZCR(N1,N1)
 complex(kind=8) :: TMP(N1,N1)
 real(kind=8) :: gtens(4,3), maxes(4,3,3), wcr(n1)
-logical :: DBG
 
-DBG = .false.
 ! determine the pseudospin on each site (Z1 and Z2):
 iprint = 1
 gtens(:,:) = 0.0_wp
 maxes(:,:,:) = 0.0_wp
 call pseudospin(M1,N1,Z1,3,1,iprint)
 call pseudospin(M2,N2,Z2,3,1,iprint)
-if (DBG) then
-  call pa_prMat('KE_Exchange:: Pseudospin site 1',Z1,N1)
-  call pa_prMat('KE_Exchange:: Pseudospin site 2',Z2,N2)
-end if
+#ifdef _DEBUGPRINT_
+call pa_prMat('KE_Exchange:: Pseudospin site 1',Z1,N1)
+call pa_prMat('KE_Exchange:: Pseudospin site 2',Z2,N2)
+#endif
 ! get the "traced-to-zero" local energy states on both sites:
 call rtrace(N1,eso1,eloc1)
 call rtrace(N2,eso2,eloc2)
@@ -191,10 +189,10 @@ if ((opt == 3) .or. (opt == 4)) then
   ! find the local pseudospins on both sites:
   call pseudospin(MR1,N1,ZZ1,3,1,iprint)
   call pseudospin(MR2,N2,ZZ2,3,1,iprint)
-  if (DBG) then
-    call pa_prMat('KE_Exchange:: Pseudospin site 1',ZZ1,N1)
-    call pa_prMat('KE_Exchange:: Pseudospin site 2',ZZ2,N2)
-  end if
+# ifdef _DEBUGPRINT_
+  call pa_prMat('KE_Exchange:: Pseudospin site 1',ZZ1,N1)
+  call pa_prMat('KE_Exchange:: Pseudospin site 2',ZZ2,N2)
+# endif
   ! rewrite the magnetic moments and spin moments in new local bases:
   do L=1,3
     call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1,N1,MR1(L,:,:),N1,cZero,TMP,N1)

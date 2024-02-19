@@ -44,9 +44,7 @@ real(kind=8) :: M(3), Z
 ! local variables
 integer :: i, ic
 real(kind=8) :: ZLT, ZRT, MLT(3), MRT(3)
-logical :: DBG
 
-DBG = .false.
 ZLT = One
 ZRT = One
 MLT(:) = Zero
@@ -67,10 +65,10 @@ if (iopt == 1) then
     end do
     M(ic) = Mex(ic)+MLT(ic)-MRT(ic)
   end do
-  if (DBG) then
-    write(u6,'(A,3F10.6)') 'Contribution from exchange states',(Mex(ic),ic=1,3)
-    write(u6,'(A,3F10.6)') 'Contribution from excited states ',(MLT(ic)-MRT(ic),ic=1,3)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,3F10.6)') 'Contribution from exchange states',(Mex(ic),ic=1,3)
+  write(u6,'(A,3F10.6)') 'Contribution from excited states ',(MLT(ic)-MRT(ic),ic=1,3)
+# endif
 
 else if (iopt == 2) then
   ! "thesis formula:"
