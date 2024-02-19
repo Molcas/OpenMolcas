@@ -19,7 +19,12 @@
 !--------------------------------------------*
       SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use pt2_guga_data
+      use pt2_guga_data, only: VTAB, IA0, IB0, IC0, ICASE, ICOUP, IOCP, &
+     &                         IOCSF, IOW1, ISM, LM1RAS, LM3RAS, LV1RAS,&
+     &                         LV3RAS, MIDLEV, MIDV1, MIDV2, MVR, MVL,  &
+     &                         MXEO, NICASE, NICOUP, NIPWLK, NLEV,      &
+     &                         NMIDV, NOCP, NOCSF, NOW1, NVERT, NVERT0, &
+     &                         NCSF, NVTAB, NWALK
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -32,7 +37,6 @@
      &                       ILNDW(:), SCR(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer IAC
-      Integer LV1RAS, LV3RAS, LM1RAS, LM3RAS
       Integer MXDWN, MXUP, NDAW, NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
      &        NIOCP, NIOCSF, NIOW, NLTV, NRAW, NMAW, NMVL, NMVR,        &
      &        NNICOUP, NNOCP, NNOCSF, NNOW, NNRL, NSCR, NTMP, NUP,      &
