@@ -31,7 +31,7 @@
      &                       UP(:), MAW(:), IVR(:), ISGM(:), NRL(:),    &
      &                       ILNDW(:), SCR(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer IA0, IB0, IC0, IAC
+      Integer IAC
       Integer LV1RAS, LV3RAS, LM1RAS, LM3RAS
       Integer MXDWN, MXUP, NDAW, NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
      &        NIOCP, NIOCSF, NIOW, NLTV, NRAW, NMAW, NMVL, NMVR,        &
