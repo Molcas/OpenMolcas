@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
-      use pt2_guga_data, only: ICASE, NLEV, NMIDV, MIDLEV
+      use pt2_guga_data, only: ICASE, NLEV, NMIDV, MIDLEV, ISM
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)

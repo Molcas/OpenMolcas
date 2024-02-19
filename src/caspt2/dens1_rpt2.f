@@ -22,7 +22,7 @@
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use pt2_guga_data, only: NLEV
+      use pt2_guga_data, only: NLEV, ISM
       IMPLICIT NONE
 
 #include "rasdim.fh"
