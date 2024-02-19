@@ -18,6 +18,7 @@
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
      &                  NOCSF,NRL,MVL,MVR)
+      use pt2_guga_data, only: NLEV
       IMPLICIT None
 
 #include "rasdim.fh"

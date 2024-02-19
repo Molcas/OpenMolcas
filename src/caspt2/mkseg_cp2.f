@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKSEG_CP2(IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
+      use pt2_guga_data, only: NLEV
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER(LEN=26) CC1,CC2,CTVPT,CBVPT,CSVC
 #include "pt2_guga.fh"

@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
+      use pt2_guga_data, only: NLEV
 #ifdef _ENABLE_CHEMPS2_DMRG_
       use caspt2_output, only:iPrGlb,debug
 #endif

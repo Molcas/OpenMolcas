@@ -12,7 +12,7 @@
 !     pt2_guga.fh is converted to a proper module which is address
 !     using the "only" construct in the "use" statement of the module.
       module pt2_guga_data
-      use gugx, only: IA0, IB0, IC0
+      use gugx, only: IA0, IB0, IC0, NLEV
       implicit none
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)

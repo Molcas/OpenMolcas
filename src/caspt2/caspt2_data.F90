@@ -11,6 +11,7 @@
 
 module caspt2_data
 
+      use pt2_guga_data, only: NLEV
       implicit none
 
 #include "rasdim.fh"

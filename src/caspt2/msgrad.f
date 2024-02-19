@@ -1171,6 +1171,7 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
+      use pt2_guga_data, only: NLEV
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -1220,6 +1221,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use pt2_guga_data, only: NLEV
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1693,6 +1695,7 @@ C
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
+      use pt2_guga_data, only: NLEV
       IMPLICIT NONE
 
 #include "rasdim.fh"

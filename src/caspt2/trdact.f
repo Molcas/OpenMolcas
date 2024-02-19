@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDACT(IVEC,JVEC,DTU)
+      use pt2_guga_data, only: NLEV
       IMPLICIT NONE
 
 #include "rasdim.fh"

@@ -14,14 +14,14 @@
       COMMON /dGUGA/ ETA(MXLEV),CITHR,PKPREC
       CHARACTER*8    CLAB10
       COMMON /cGUGA/ CLAB10(64)
-      INTEGER        NLEV,ISM,                                          &
+      INTEGER             ISM,                                          &
      &     L2ACT,LEVEL,NCSF,NVERT0,NVERT,MIDLEV,NMIDV,                  &
      &     MIDV1,MIDV2,NWALK,          NIPWLK,NICASE,                   &
      &                          NICOUP,MXEO,            NVTAB,          &
      &                     NSGTMP,LSGTMP,LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10,IDTAB
-      COMMON /iGUGA/ NLEV,ISM(MXLEV),                                   &
+      COMMON /iGUGA/      ISM(MXLEV),                                   &
      &     L2ACT(MXLEV),LEVEL(MXLEV),NCSF(8),NVERT0,NVERT,MIDLEV,NMIDV, &
      &     MIDV1,MIDV2,NWALK,          NIPWLK,NICASE,                   &
      &                          NICOUP,MXEO,            NVTAB,          &

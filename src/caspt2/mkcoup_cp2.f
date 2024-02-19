@@ -21,6 +21,7 @@
      &                  NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,
      &                  ISCR,VALUE)
 
+      use pt2_guga_data, only: NLEV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
