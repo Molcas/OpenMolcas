@@ -19,10 +19,11 @@
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
      &                  NOCSF,NRL,MVL,MVR)
       use pt2_guga_data, only: NLEV, NVERT, MIDV1, MIDV2, NMIDV, ISM,   &
-     &                         NICOUP, MXEO
+     &                         NICOUP, MXEO, SGTMP, NSGTMP
 #ifdef _DEBUGPRINT_
       use pt2_guga_data, only: NWALK
 #endif
+      use stdalloc, only: mma_allocate
       IMPLICIT None
 
 #include "rasdim.fh"
@@ -236,7 +237,7 @@
   552 CONTINUE
   551 CONTINUE
   550 CONTINUE
-      CALL GETMEM('LSGTMP','ALLO','REAL',LSGTMP,NSGTMP)
+      CALL mma_allocate(SGTMP,NSGTMP,Label='SGTMP')
 !
 #ifdef _DEBUGPRINT_
       NUW=NOW(1,NSYM,NMIDV)

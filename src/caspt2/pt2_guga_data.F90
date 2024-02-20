@@ -19,7 +19,7 @@
      &                NOCSF, NNOCSF, IOCSF, NIOCSF,                     &
      &                DAW, NDAW, RAW, NRAW, ISM, L2ACT, LEVEL, NCSF,    &
      &                NWALK, NNOW, NIOW, ICASE, NICASE, ICOUP, NICOUP,  &
-     &                NIPWLK, MXEO, VTAB, NVTAB
+     &                NIPWLK, MXEO, VTAB, NVTAB, SGTMP, NSGTMP
       implicit none
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)

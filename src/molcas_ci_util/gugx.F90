@@ -26,6 +26,6 @@ Integer, Allocatable, Public, Target:: DRT(:), DOWN(:)
 Integer,              Public::        NDRT,   NDOWN
 Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:)
 Integer,              Public::NDAW,   NUP,   NRAW
-Real*8,  Allocatable, Public:: VTAB(:)
-Integer,              Public::NVTAB
+Real*8,  Allocatable, Public:: VTAB(:), SGTMP(:)
+Integer,              Public::NVTAB,   NSGTMP
 End Module GUGX

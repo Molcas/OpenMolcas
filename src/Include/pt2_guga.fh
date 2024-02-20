@@ -16,10 +16,10 @@
       CHARACTER*8    CLAB10
       COMMON /cGUGA/ CLAB10(64)
 
-      INTEGER              NSGTMP,LSGTMP,LCI,MXCI,                      &
+      INTEGER                            LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10,IDTAB
-      COMMON /iGUGA/       NSGTMP,LSGTMP,LCI,MXCI,                      &
+      COMMON /iGUGA/                     LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10(64,2),IDTAB(MXL3)
 
