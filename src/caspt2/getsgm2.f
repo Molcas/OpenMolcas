@@ -17,12 +17,14 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
-      use pt2_guga_data
+      use pt2_guga_data, only: NOCSF, IOCSF, NOW1, IOW1, NOCP, IOCP,
+     &                         ICOUP, VTAB, MVL, MVR, ISM, NCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+#include "pt2_guga.fh"
       DIMENSION  CI(MXCI),SGM(MXCI)
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI

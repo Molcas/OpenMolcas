@@ -9,7 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use pt2_guga_data
+      use pt2_guga_data, only: NLEV, L2ACT, ISM, NOCSF, IOCSF, NOW1,
+     &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
+     &                         MVR
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
