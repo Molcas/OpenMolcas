@@ -817,17 +817,20 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,CI1,CI2,OVL,DTG1,DTG2,NTG3,
      *                  DTG3,CLAG1,CLAG2)
-      use pt2_guga_data
+      use pt2_guga_data, only: NLEV, L2ACT, NCSF, NOCSF, IOCSF, NOW1,
+     &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
+     &                         MVR
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
-      DIMENSION DTG1(NASHT,NASHT),DTG2(NASHT,NASHT,NASHT,NASHT)
-      DIMENSION DTG3(NTG3)
-      DIMENSION CI1(MXCI),CI2(MXCI)
-      DIMENSION CLAG1(MXCI),CLAG2(MXCI)
+      Real*8 DTG1(NASHT,NASHT),DTG2(NASHT,NASHT,NASHT,NASHT)
+      Real*8 DTG3(NTG3)
+      Real*8 CI1(MXCI),CI2(MXCI)
+      Real*8 CLAG1(MXCI),CLAG2(MXCI)
       LOGICAL   DOG3
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
