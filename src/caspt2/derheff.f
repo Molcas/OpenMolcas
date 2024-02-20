@@ -11,7 +11,7 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine DerHEff(CLag,VECROT)
-      use pt2_guga_data
+      use pt2_guga_data, only:
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -19,6 +19,7 @@ C
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
+#include "pt2_guga.fh"
 #include "eqsolv.fh"
 
       INTEGER IST,JST
