@@ -19,7 +19,7 @@ Integer, Parameter :: MXLEV=100
 Integer, Public:: ISM(MXLEV), L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:), LTV(:)
-Integer,              Public::NNOCSF,   NIOCSF
+Integer,              Public::NNOCSF,   NIOCSF,                     NLTV
 
 Integer, Allocatable, Public::  NOW1(:), IOW1(:), ICASE(:), ICOUP(:)
 Integer,              Public:: NNOW,     NIOW,   NICASE,   NICOUP
@@ -27,8 +27,8 @@ Integer,              Public:: NNOW,     NIOW,   NICASE,   NICOUP
 Integer, Allocatable, Public, Target:: DRT(:), DOWN(:)
 Integer,              Public::        NDRT,   NDOWN
 
-Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:)
-Integer,              Public::NDAW,   NUP,   NRAW
+Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:), MAW(:)
+Integer,              Public::NDAW,   NUP,   NRAW,   NMAW
 
 Real*8,  Allocatable, Public:: VTAB(:), SGTMP(:)
 Integer,              Public::NVTAB,   NSGTMP
