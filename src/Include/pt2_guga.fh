@@ -8,19 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER    MXLEV,     MXL3
-      PARAMETER (MXLEV=100 ,MXL3=(MXLEV*(MXLEV+1))/2 )
+      INTEGER, PARAMETER :: MXLEV=100 ,MXL3=(MXLEV*(MXLEV+1))/2
+
       REAL*8         ETA,       CITHR,PKPREC
       COMMON /dGUGA/ ETA(MXLEV),CITHR,PKPREC
+
       CHARACTER*8    CLAB10
       COMMON /cGUGA/ CLAB10(64)
-      INTEGER NIPWLK,                  MXEO,            NVTAB,          &
-     &                     NSGTMP,LSGTMP,LCI,MXCI,                      &
+
+      INTEGER              NSGTMP,LSGTMP,LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10,IDTAB
-      COMMON /iGUGA/ NIPWLK,           MXEO,            NVTAB,          &
-     &                     NSGTMP,LSGTMP,LCI,MXCI,                      &
+      COMMON /iGUGA/       NSGTMP,LSGTMP,LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10(64,2),IDTAB(MXL3)
+
       INTEGER      NPLBUF,IPLBUF,JPLBUF,ISYMA,NSGMA,ISYMB,NSGMB
       COMMON /BUF/ NPLBUF,IPLBUF,JPLBUF,ISYMA,NSGMA,ISYMB,NSGMB

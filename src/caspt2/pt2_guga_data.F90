@@ -18,11 +18,11 @@
      &                MIDLEV,NMIDV,MIDV1,MIDV2,                         &
      &                NOCSF, NNOCSF, IOCSF, NIOCSF,                     &
      &                DAW, NDAW, RAW, NRAW, ISM, L2ACT, LEVEL, NCSF,    &
-     &                NWALK, NNOW, NIOW, ICASE, NICASE, ICOUP, NICOUP
+     &                NWALK, NNOW, NIOW, ICASE, NICASE, ICOUP, NICOUP,  &
+     &                NIPWLK, MXEO, VTAB, NVTAB
       implicit none
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)
       Integer, Allocatable:: NOCP(:), IOCP(:)
-      Real*8,  Allocatable:: VTAB(:)
       save
       end module pt2_guga_data

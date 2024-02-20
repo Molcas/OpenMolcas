@@ -22,7 +22,7 @@
      &                  ISCR,VALUE)
 
       use pt2_guga_data, only: NLEV, NVERT, NMIDV, MIDLEV,MIDV1,MIDV2,
-     &                         ISM, NWALK, NICOUP
+     &                         ISM, NWALK, NICOUP, MXEO
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
