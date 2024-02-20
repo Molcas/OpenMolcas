@@ -14,14 +14,18 @@
 
       use caspt2_output, only:iPrGlb,verbose
       use pt2_guga_data
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+      Integer IFF
+      Real*8 CLag(nConf,nState)
+      Real*8 DEPSA(nAshT,nAshT),VECROT(*)
 
-      DIMENSION CLag(nConf,nState)
-      dimension DEPSA(nAshT,nAshT),VECROT(*)
+      Real*8, Allocatable:: DG1(:), DG2(:), DG3(:),
+     &                      DF1(:), DF2(:), DF3(:)
 
       !! reduced density matrix and fock-weighted RDM
       CALL GETMEM('G1'   ,'ALLO','REAL',LG1 ,NG1)
@@ -32,12 +36,12 @@
       CALL GETMEM('F3'   ,'ALLO','REAL',LF3 ,NG3)
 
       !! their derivative contributions
-      CALL GETMEM('DERG1','ALLO','REAL',LDG1,NG1)
-      CALL GETMEM('DERG2','ALLO','REAL',LDG2,NG2)
-      CALL GETMEM('DERG3','ALLO','REAL',LDG3,NG3)
-      CALL GETMEM('DERF1','ALLO','REAL',LDF1,NG1)
-      CALL GETMEM('DERF2','ALLO','REAL',LDF2,NG2)
-      CALL GETMEM('DERF3','ALLO','REAL',LDF3,NG3)
+      CALL mma_allocate(DG1,NG1,Label='DG1')
+      CALL mma_allocate(DG2,NG2,Label='DG2')
+      CALL mma_allocate(DG3,NG3,Label='DG3')
+      CALL mma_allocate(DF1,NG1,Label='DF1')
+      CALL mma_allocate(DF2,NG2,Label='DF2')
+      CALL mma_allocate(DF3,NG3,Label='DF3')
 
       CALL PT2_GET(NG1,' GAMMA1',WORK(LG1))
       CALL PT2_GET(NG2,' GAMMA2',WORK(LG2))
@@ -51,19 +55,19 @@ C     write(6,*) "f1"
 C     call sqprt(work(lf1),5)
 C
       !! Initialize them
-      Call DCopy_(nG1,[0.0D+00],0,Work(LDG1),1)
-      Call DCopy_(nG2,[0.0D+00],0,Work(LDG2),1)
-      Call DCopy_(nG3,[0.0D+00],0,Work(LDG3),1)
-      Call DCopy_(nG1,[0.0D+00],0,Work(LDF1),1)
-      Call DCopy_(nG2,[0.0D+00],0,Work(LDF2),1)
-      Call DCopy_(nG3,[0.0D+00],0,Work(LDF3),1)
+      DG1(:)=0.0D0
+      DG2(:)=0.0D0
+      DG3(:)=0.0D0
+      DF1(:)=0.0D0
+      DF2(:)=0.0D0
+      DF3(:)=0.0D0
       !! DEASUM is the derivative cont. of EASUM
       DEASUM = 0.0D+00
 
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       Call CLagD(Work(LG1),Work(LG2),Work(LG3),
-     *           Work(LDG1),Work(LDG2),Work(LDG3),
-     *           Work(LDF1),Work(LDF2),Work(LDF3),DEASUM,
+     *           DG1,DG2,DG3,
+     *           DF1,DF2,DF3,DEASUM,
      *           DEPSA,VECROT)
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
       IF (IPRGLB.GE.verbose) THEN
@@ -74,13 +78,13 @@ C
       END IF
 
       !! Some symmetrizations are likely required
-      Call CLagSym(nAshT,Work(LDG1),Work(LDG2),Work(LDF1),Work(LDF2),0)
+      Call CLagSym(nAshT,DG1,DG2,DF1,DF2,0)
 
       !! Do for the derivative of EASUM
       !! EASUM=EASUM+EPSA(IT)*DREF(IT,IT)
       Do iT = 1, nAsh(1)
-        Work(LDG1+iT-1+nAsh(1)*(iT-1))
-     *    = Work(LDG1+iT-1+nAsh(1)*(iT-1)) + DEASUM*EPSA(iT)
+         DG1(iT+nAsh(1)*(iT-1)) = DG1(iT+nAsh(1)*(iT-1))
+     &                          + DEASUM*EPSA(iT)
         If (ISCF.EQ.0) Then
           Do iU = 1, nAsh(1)
             DEPSA(iT,iU) = DEPSA(iT,iU)
@@ -92,8 +96,8 @@ C
       End Do
 
       Call CnstCLag(IFF,CLag(1,jState),
-     *              Work(LDG1),Work(LDG2),Work(LDG3),
-     *              Work(LDF1),Work(LDF2),Work(LDF3),
+     *              DG1,DG2,DG3,
+     *              DF1,DF2,DF3,
      *              DEPSA,
      *              Work(LG1),Work(LG2),Work(LG3))
 !     write(6,*) "depsa after cnstclag"
@@ -106,12 +110,12 @@ C
       CALL GETMEM('F2'   ,'FREE','REAL',LF2 ,NG2)
       CALL GETMEM('F3'   ,'FREE','REAL',LF3 ,NG3)
 
-      CALL GETMEM('DERG1','FREE','REAL',LDG1,NG1)
-      CALL GETMEM('DERG2','FREE','REAL',LDG2,NG2)
-      CALL GETMEM('DERG3','FREE','REAL',LDG3,NG3)
-      CALL GETMEM('DERF1','FREE','REAL',LDF1,NG1)
-      CALL GETMEM('DERF2','FREE','REAL',LDF2,NG2)
-      CALL GETMEM('DERF3','FREE','REAL',LDF3,NG3)
+      Call mma_deallocate(DG1)
+      Call mma_deallocate(DG2)
+      Call mma_deallocate(DG3)
+      Call mma_deallocate(DF1)
+      Call mma_deallocate(DF2)
+      Call mma_deallocate(DF3)
 
       End Subroutine CLagX
 C

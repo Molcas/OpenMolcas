@@ -10,22 +10,29 @@
 !***********************************************************************
 Module GUGX
 Private
-INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,                          &
+INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,NVERT,                    &
                   IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
-                  NVERT,                                            &
                   MIDLEV,NMIDV,MIDV1,MIDV2,        MXUP,MXDWN,      &
-                  NWALK,NIPWLK,NCSF(8),NNOCSF,NIOCSF, MXEO
+                  NWALK,NIPWLK,NCSF(8),MXEO
 
 Integer, Parameter :: MXLEV=100
 Integer, Public:: ISM(MXLEV), L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:), LTV(:)
+Integer,              Public::NNOCSF,   NIOCSF
+
 Integer, Allocatable, Public::  NOW1(:), IOW1(:), ICASE(:), ICOUP(:)
 Integer,              Public:: NNOW,     NIOW,   NICASE,   NICOUP
+
 Integer, Allocatable, Public, Target:: DRT(:), DOWN(:)
 Integer,              Public::        NDRT,   NDOWN
+
 Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:)
 Integer,              Public::NDAW,   NUP,   NRAW
+
 Real*8,  Allocatable, Public:: VTAB(:), SGTMP(:)
 Integer,              Public::NVTAB,   NSGTMP
+
+Integer, Allocatable, Public:: MVR(:), MVL(:)
+Integer,              Public::NMVR,   NMVL
 End Module GUGX
