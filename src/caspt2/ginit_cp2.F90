@@ -19,7 +19,7 @@
 !--------------------------------------------*
       SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use pt2_guga_data, only: VTAB, IA0, IB0, IC0, ICASE, ICOUP, IOCP, &
+      use gugx, only: VTAB, IA0, IB0, IC0, ICASE, ICOUP, IOCP, &
      &                         IOCSF, IOW1, ISM, LM1RAS, LM3RAS, LV1RAS,&
      &                         LV3RAS, MIDLEV, MIDV1, MIDV2, MVR, MVL,  &
      &                         MXEO, NICASE, NICOUP, NIPWLK, NLEV,      &

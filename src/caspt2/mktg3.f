@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
-      use pt2_guga_data, only: NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
+      use gugx, only: NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
      &                         VTAB,MVL,MVR,NLEV,NCSF,L2ACT
       IMPLICIT REAL*8 (a-h,o-z)
 

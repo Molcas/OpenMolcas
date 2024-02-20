@@ -19,7 +19,7 @@
       SUBROUTINE PCLOSE()
       use stdalloc, only: mma_deallocate
       use fciqmc_interface, only: DoFCIQMC
-      use pt2_guga_data, only: MVL, MVR, NOW1, IOW1, NOCP, IOCP, NOCSF,
+      use gugx, only: MVL, MVR, NOW1, IOW1, NOCP, IOCP, NOCSF,
      &                         IOCSF, ICASE, ICOUP, VTAB, SGTMP
       IMPLICIT REAL*8 (A-H,O-Z)
 C

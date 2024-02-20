@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
-      use pt2_guga_data, only: NLEV, NCSF, ISM,
+      use gugx, only: NLEV, NCSF, ISM,
      &                         NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
      &                         VTAB,MVL,MVR
       IMPLICIT REAL*8 (A-H,O-Z)

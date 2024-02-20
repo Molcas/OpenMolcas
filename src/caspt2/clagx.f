@@ -1118,7 +1118,7 @@ C
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_output, only: iPrGlb, verbose
-      use pt2_guga_data, only: NLEV, L2ACT
+      use gugx, only: NLEV, L2ACT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1243,7 +1243,7 @@ C
       !! From poly3
       SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG)
 C
-      use pt2_guga_data, only: NLEV
+      use gugx, only: NLEV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1413,7 +1413,7 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG)
-      use pt2_guga_data, only: NLEV
+      use gugx, only: NLEV
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -1463,7 +1463,7 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use pt2_guga_data, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: NLEV, ISM, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -2626,7 +2626,7 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
-      use pt2_guga_data, only: NOCSF, IOCSF, NOW1, IOW1
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -3148,7 +3148,7 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use pt2_guga_data, only: ISM, L2ACT, NLEV, NCSF
+      use gugx, only: ISM, L2ACT, NLEV, NCSF
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CIin(nConf,nState),CIout(nConf,nState)
@@ -3278,7 +3278,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 C
-      use pt2_guga_data, only: NLEV
+      use gugx, only: NLEV
       Implicit Real*8 (A-H,O-Z)
 C
 #include "caspt2_grad.fh"
@@ -3516,7 +3516,7 @@ C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
      *                    INT1,INT2,Fancy)
-      use pt2_guga_data, only: ICASE, NMIDV, NLEV, NIPWLK, MIDLEV, ISM
+      use gugx, only: ICASE, NMIDV, NLEV, NIPWLK, MIDLEV, ISM
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)

@@ -816,7 +816,7 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,CI1,CI2,OVL,DTG1,DTG2,NTG3,
      *                  DTG3,CLAG1,CLAG2)
-      use pt2_guga_data, only: NLEV, L2ACT, NCSF, NOCSF, IOCSF, NOW1,
+      use gugx, only: NLEV, L2ACT, NCSF, NOCSF, IOCSF, NOW1,
      &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
      &                         MVR
       IMPLICIT REAL*8 (a-h,o-z)

@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
-      use pt2_guga_data, only: NOCSF, IOCSF, NOW1, IOW1, NOCP, IOCP,
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, NOCP, IOCP,
      &                         ICOUP, VTAB, MVL, MVR, ISM, NCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 

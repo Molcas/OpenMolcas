@@ -21,7 +21,7 @@
      &                  NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,
      &                  ISCR,VALUE)
 
-      use pt2_guga_data, only: NLEV, NVERT, NMIDV, MIDLEV,MIDV1,MIDV2,
+      use gugx, only: NLEV, NVERT, NMIDV, MIDLEV,MIDV1,MIDV2,
      &                         ISM, NWALK, NICOUP, MXEO
       IMPLICIT REAL*8 (A-H,O-Z)
 

@@ -62,7 +62,7 @@ C>                   to active indices
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use pt2_guga_data, only: NLEV, ICOUP, IOCSF,
+      use gugx, only: NLEV, ICOUP, IOCSF,
      &                         NCSF,  IOCP, IOW1, MVL, MVR,  NOCP,
      &                         NOCSF, NOW1, VTAB,
      &                         ISM, L2ACT

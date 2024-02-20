@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
-      use pt2_guga_data, only: LEVEL, NOCSF,IOCSF,NOW1,IOW1,
+      use gugx, only: LEVEL, NOCSF,IOCSF,NOW1,IOW1,
      &                         NOCP,IOCP,ICOUP, VTAB,MVL,MVR
 
       IMPLICIT REAL*8 (A-H,O-Z)

@@ -18,10 +18,10 @@
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
      &                  NOCSF,NRL,MVL,MVR)
-      use pt2_guga_data, only: NLEV, NVERT, MIDV1, MIDV2, NMIDV, ISM,   &
+      use gugx, only: NLEV, NVERT, MIDV1, MIDV2, NMIDV, ISM,   &
      &                         NICOUP, MXEO, SGTMP, NSGTMP
 #ifdef _DEBUGPRINT_
-      use pt2_guga_data, only: NWALK, NCSF
+      use gugx, only: NWALK, NCSF
 #endif
       use stdalloc, only: mma_allocate
       IMPLICIT None

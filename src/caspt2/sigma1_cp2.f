@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
-      use pt2_guga_data, only: ICASE, NLEV, NMIDV, MIDLEV, ISM, NICOUP,
+      use gugx, only: ICASE, NLEV, NMIDV, MIDLEV, ISM, NICOUP,
      &                         MXEO, NIPWLK, NVTAB, SGTMP
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)

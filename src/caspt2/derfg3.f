@@ -17,7 +17,7 @@
 #endif
       use caspt2_output, only:iPrGlb,verbose,debug
       use caspt2_gradient, only: nbuf1_grad
-      use pt2_guga_data, only: NLEV,  ICOUP,  IOCP,
+      use gugx, only: NLEV,  ICOUP,  IOCP,
      &                         IOCSF, IOW1, MVL, MVR,  NOCP,
      &                         NOCSF, NOW1, VTAB, NCSF, L2ACT,
      &                         ISM
@@ -920,7 +920,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use pt2_guga_data, only: NLEV, LEVEL
+      use gugx, only: NLEV, LEVEL
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION DF1(NASHT,NASHT),DF2(NASHT,NASHT,NASHT,NASHT),DF3(*)
       DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)

@@ -19,7 +19,7 @@
       SUBROUTINE POLY0
 
       use fciqmc_interface, only: DoFCIQMC
-      use pt2_guga_data, only: NLEV, ISM, L2ACT, LEVEL, NCSF
+      use gugx, only: NLEV, ISM, L2ACT, LEVEL, NCSF
 
       IMPLICIT NONE
 

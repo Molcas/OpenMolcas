@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW)
-      use pt2_guga_data, only: NMIDV, ICASE
+      use gugx, only: NMIDV, ICASE
       IMPLICIT REAL*8 (A-H,O-Z)
 C INPUT ARRAYS:
 

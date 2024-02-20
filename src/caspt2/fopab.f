@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use pt2_guga_data, only: NLEV, L2ACT, ISM, NOCSF, IOCSF, NOW1,
+      use gugx, only: NLEV, L2ACT, ISM, NOCSF, IOCSF, NOW1,
      &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
      &                         MVR
       IMPLICIT REAL*8 (A-H,O-Z)

@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF_CP2(ISYCI,NCO,CI,THR)
-      use pt2_guga_data, only: NOCSF, IOCSF, NOW1, IOW1
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1
       IMPLICIT NONE
       INTEGER, INTENT(IN) :: ISYCI, NCO
       REAL*8, INTENT(IN) :: CI(NCO), THR
