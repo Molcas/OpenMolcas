@@ -11,12 +11,12 @@
 
 subroutine find_aniso_format(old_aniso_format)
 
-use Definitions, only: u5, u6
+use Definitions, only: iwp, u5, u6
 
 implicit none
-logical :: old_aniso_format
+logical(kind=iwp), intent(out) :: old_aniso_format
 character(len=280) :: line
-integer :: LINENR, istatus
+integer(kind=iwp) :: istatus, LINENR
 
 old_aniso_format = .false.
 

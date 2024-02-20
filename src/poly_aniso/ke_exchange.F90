@@ -13,24 +13,22 @@ subroutine KE_exchange(N1,N2,lant,t,u,OPT,HEXC)
 ! this function computes the exchange+covalent contributions to Hamiltonian of a given Lanthanide
 
 use jcoeff, only: dE, init_Jx, Jx
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cOne, auTocm, auToeV
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: N1, N2, OPT, lant
-real(kind=8), intent(in) :: t, u
-complex(kind=8), intent(out) :: HEXC(N1,N1,N2,N2)
-! local variables
-integer :: i1, j1, i2, j2, JLn, SR, ms1, ns1, ms2, ns2
-integer :: iJ, iLS
-integer :: iK, ika, iP, iph
-real(kind=8) :: HEXC1(N1,N1,N2,N2)
-real(kind=8) :: Jfinal(0:7,-5:5,0:1,-1:1)
-real(kind=8) :: WCG ! Clebsch-Gordan Coefficients
-external :: WCG
-real(kind=8), parameter :: conv = 1.0e3_wp*auToeV/auTocm ! cm-1 to meV?
+integer(kind=iwp), intent(in) :: N1, N2, lant, OPT
+real(kind=wp), intent(in) :: t, u
+complex(kind=wp), intent(out) :: HEXC(N1,N1,N2,N2)
+integer(kind=iwp) :: i1, i2, iJ, iK, ika, iLS, iP, iph, j1, j2, JLn, ms1, ms2, ns1, ns2, SR
+real(kind=wp) :: Jfinal(0:7,-5:5,0:1,-1:1)
+real(kind=wp), allocatable :: HEXC1(:,:,:,:)
+real(kind=wp), parameter :: conv = 1.0e3_wp*auToeV/auTocm ! cm-1 to meV?
+real(kind=wp), external :: WCG ! Clebsch-Gordan Coefficients
 
 call init_Jx()
+call mma_allocate(HEXC1,N1,N1,N2,N2,label='HEXC1')
 HEXC1(:,:,:,:) = Zero
 JLn = N1-1  !nexch(iLn)-1
 SR = N2-1  !nexch(iRad)-1
@@ -79,10 +77,8 @@ do i1=1,N1
 
                       end do
                     end do
-                    if (abs(Jfinal(iK,ika,iP,iph)) > 1.0e-13_wp) then
-                      ! FIXME: What is this number?
+                    if (abs(Jfinal(iK,ika,iP,iph)) > 1.0e-13_wp) &
                       write(u6,'(4i4,4x,2ES24.14)') iK,ika,iP,iph,Jfinal(iK,ika,iP,iph),Jfinal(iK,ika,iP,iph)*conv
-                    end if
                   end do
                 end do
               end do
@@ -118,6 +114,8 @@ do i1=1,N1
     end do !i2
   end do !j1
 end do !i1
+
+call mma_deallocate(HEXC1)
 
 return
 

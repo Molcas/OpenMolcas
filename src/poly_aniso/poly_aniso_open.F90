@@ -11,13 +11,13 @@
 
 subroutine poly_aniso_open(iReturn)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
 #include "warnings.h"
-integer :: nneq, exch, neqv, nmax, nLoc, nCenter, nT, nH, nTempMagn, nDir, nDirZee, nMult, nPair, MxRank1, MxRank2
-integer :: iReturn
-logical :: old_aniso_format
+integer(kind=iwp), intent(out) :: iReturn
+integer(kind=iwp) :: exch, MxRank1, MxRank2, nCenter, nDir, nDirZee, neqv, nH, nLoc, nmax, nMult, nneq, nPair, nT, nTempMagn
+logical(kind=iwp) :: old_aniso_format
 
 iReturn = 0
 

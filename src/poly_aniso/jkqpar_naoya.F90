@@ -11,21 +11,24 @@
 
 subroutine JKQPar_Naoya(N1,N2,HEXCH,Jpar)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer, intent(in) :: N1, N2
-complex(kind=8), intent(in) :: HEXCH(N1,N1,N2,N2)
-complex(kind=8), intent(out) :: Jpar(N1-1,(-N1+1):N1-1,N2-1,(-N2+1):N2-1)
-! local variables
-integer :: is1, is2, js1, js2, ms1, ms2, ns1, ns2, k1, k2, q1, q2, j1, j2
-complex(kind=8) :: QMAT(N1,N1,N2,N2), trace
-real(kind=8) :: WCG, OPER, FACT
-external :: WCG
+integer(kind=iwp), intent(in) :: N1, N2
+complex(kind=wp), intent(in) :: HEXCH(N1,N1,N2,N2)
+complex(kind=wp), intent(out) :: Jpar(N1-1,(-N1+1):N1-1,N2-1,(-N2+1):N2-1)
+integer(kind=iwp) :: is1, is2, j1, j2, js1, js2, k1, k2, ms1, ms2, ns1, ns2, q1, q2
+real(kind=wp) :: FACT, OPER
+complex(kind=wp) :: trace
+complex(kind=wp), allocatable :: QMAT(:,:,:,:)
+real(kind=wp), external :: WCG
+
+call mma_allocate(QMAT,N1,N1,N2,N2,label='QMAT')
 
 ! we need to project now the HEXCH: in products of ITOs
 !  HEXCH = SUM(rank1,proj1,rank2,proj2) = { B(rank1,proj1,rank2,proj2)* O1(rank1,proj1) * O2(rank2,proj2) }
@@ -100,6 +103,8 @@ do k1=0,J1
     end do
   end do
 end do
+
+call mma_deallocate(QMAT)
 
 return
 

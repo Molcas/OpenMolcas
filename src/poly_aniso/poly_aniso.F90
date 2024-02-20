@@ -11,157 +11,104 @@
 
 subroutine POLY_ANISO_1(nneq,neqv,nmax,exch,nLoc,nCenter,nT,nH,nTempMagn,nDir,nDirZee,nMult,nPair,MxRank1,MxRank2, &
                         old_aniso_format,iReturn)
+! definition of the cluster:
+!  nneq : number of non-equivalent sites
+!  neqv : number of equivalent sites of each type, neqv = MAXVAL(neq(:))
+!  nCenter, neq
+! definition of the local metal sites
+!  nLoc : number of spin-orbit states. nLoc = MAXVAL(nss(:));
+!  nss, nsfs, multiplicity, gtens_input, D_fact, EoverD_fact
+! definition of the main local axes in general coord system
+!  riso, R_LG, R_ROT
+! spin orbit energies on individual metal sites
+!  eso, eso_au, dipso, s_so, itype, namefile_aniso, ifHDF, old_aniso_format, DoPlot
+! definition of the exchange:
+!  exch     : total number of exchange states
+!  nPair    : number of metal pairs (number of interactions)
+!  nmax     : exchange basis, nmax = MAXVAL(nexch(:))
+!  i_pair   : index of the metal site in a given interacting pair
+!  imaxrank : index of rank ITOs for JITO exchange definition
+!  Jex      : Lines exchange    ( 1 parameter / interacting pair)
+!  JAex     : Anisotropic Lines ( 3 parameter / interacting pair)
+!  JAex9    : Anisotropic Lines full ( 9 parameters / interacting pair)
+!  JDMex    : Anisotropic Lines ( 3 parameter / interacting pair)
+!  W        : exchange spectrum
+!  Z        : exchange eigenstates
+!  dipexch  : exchange magnetic moment
+!  s_exch   : exchange spin moment
+!  MxRank1, MxRank2, nexch, AnisoLines1, AnisoLines3, AnisoLines9, Dipol, DM_exchange, decompose_exchange, JITO_exchange, JITOexR,
+!  JITOexI
+! options used in connection with KE
+!  lant, multLn, KEOPT, KE, tpar, upar
+! options used in connection with Dipol-Dipol interaction
+!  MagnCoords, nTempMagn
+! definition of g and D tensors
+!  nMult : multiplicity of each multiplet
+!  gtens : gtensor of each multiplet
+!  maxes : main axes of each multiplet
+!  compute_g_tensors, nDim
+! definition of data for susceptibility
+!  nT, compute_susceptibility, tinput, tmin, tmax, dltT0, T, XTexp, XT_no_field, chit_exp, Texp, XLM, ZLM, XRM, ZRM
+! options related to XT_MoverH
+!  Xfield
+! definition of data for magnetization:
+!  nH, nM, iopt, TempMagn, Hexp, Mexp, thrs, em, hmin, hmax, dltH0, hinput, compute_magnetization, compute_Mdir_vector,
+!  zeeman_energy, m_paranoid, m_accurate, smagn
+! options used to set up nM and EM
+!  encut_definition
+!  nK, mG     : encut_definition=1;
+!  ncut       : encut_definition=2;
+!  encut_rate : encut_definition=3;
+! magnetization torque
+!  compute_torque, AngPoints, nP
+! Zeeman energy and M vector
+!  nDir, nDirZee, nDirTot, LuZee, dirX, dirY, dirZ, dir_weight
+! definition of mean field parameter
+!  zJ
+! definition of the crystal axes:
+!  cryst(6) : a, b, c, alpha, beta, gamma
+!  coord(3) : Cartesian coordinates of the main metal site, or center
+!  Do_structure_abc
+! definitions for blocking barrier
+!  nBlock, compute_barrier
+! options for automatic fitting of parameters:
+!  fitCHI : not used so far
+!  fitM   : not used so far
+!  iPrint, imltpl, Ifunct, iReturn, i, i1, i2, j, l, l1, l2, l3, l4, l5, imanifold, ibuf, check_title, Title, GRAD, fname, LuAniso
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, auTocm
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6, CtoB, ItoB, RtoB
 
 implicit none
+integer(kind=iwp), intent(inout) :: nneq, nT, nH, nTempMagn, nDir, nDirZee, nMult, nPair
+integer(kind=iwp), intent(in) :: neqv, nmax, exch, nLoc, nCenter, MxRank1, MxRank2
+logical(kind=iwp), intent(in) :: old_aniso_format
+integer(kind=iwp), intent(out) :: iReturn
 #include "warnings.h"
-#include "stdalloc.fh"
-!======================================================================
-! definition of the cluster:
-integer :: mem, RtoB, CtoB, ItoB
-integer :: nneq ! number of non-equivalent sites
-integer :: neqv ! number of equivalent sites of each type, neqv = MAXVAL(neq(:))
-integer :: nCenter
-integer, allocatable :: neq(:)
-! definition of the local metal sites
-integer :: nLoc ! number of spin-orbit states. nLoc = MAXVAL(nss(:));
-integer, allocatable :: nss(:), nsfs(:)
-!integer :: nsfs(nneq), multiplicity(nneq,nLoc)
-real(kind=8), allocatable :: gtens_input(:,:) ! gtens_input(3,nneq)
-real(kind=8), allocatable :: D_fact(:), EoverD_fact(:)
-! definition of the main local axes in general coord system
-real(kind=8), allocatable :: riso(:,:,:)
-real(kind=8), allocatable :: R_LG(:,:,:,:) ! R_LG(nneq,neqv,3,3)
-real(kind=8), allocatable :: R_ROT(:,:,:,:) ! R_ROT(nneq,neqv,3,3)
-! spin orbit energies on individual metal sites
-real(kind=8), allocatable :: eso(:,:), eso_au(:,:)
-complex(kind=8), allocatable :: dipso(:,:,:,:)
-complex(kind=8), allocatable :: s_so(:,:,:,:)
-character(len=1) :: itype(nneq)
-character(len=180) :: namefile_aniso(nneq)
-logical :: ifHDF
-logical, intent(in) :: old_aniso_format
-logical :: DoPlot
-! definition of the exchange:
-integer :: exch ! total number of exchange states
-integer :: nPair ! number of metal pairs (number of interactions)
-integer :: nmax ! exchange basis, nmax = MAXVAL(nexch(:))
-integer, intent(in) :: MxRank1, MxRank2
-integer, allocatable :: nexch(:)
-integer, allocatable :: i_pair(:,:) ! index of the metal site in a given interacting pair
-integer, allocatable :: imaxrank(:,:) ! index of rank ITOs for JITO exchange definition
-logical :: AnisoLines1
-logical :: AnisoLines3
-logical :: AnisoLines9
-logical :: Dipol
-logical :: DM_exchange
-logical :: decompose_exchange
-logical :: JITO_exchange
-real(kind=8), allocatable :: Jex(:) ! Lines exchange    ( 1 parameter / interacting pair)
-real(kind=8), allocatable :: JAex(:,:) ! Anisotropic Lines ( 3 parameter / interacting pair)
-real(kind=8), allocatable :: JAex9(:,:,:) ! Anisotropic Lines full ( 9 parameters / interacting pair)
-real(kind=8), allocatable :: JDMex(:,:) ! Anisotropic Lines ( 3 parameter / interacting pair)
-real(kind=8), allocatable :: JITOexR(:,:,:,:,:)
-real(kind=8), allocatable :: JITOexI(:,:,:,:,:)
-real(kind=8), allocatable :: W(:) ! exchange spectrum
-complex(kind=8), allocatable :: Z(:,:) ! exchange eigenstates
-complex(kind=8), allocatable :: dipexch(:,:,:) ! exchange magnetic moment
-complex(kind=8), allocatable :: s_exch(:,:,:) ! exchange spin moment
-! options used in connection with KE
-integer :: lant, multLn, KEOPT
-logical :: KE
-real(kind=8) :: tpar, upar
-! options used in connection with Dipol-Dipol interaction
-real(kind=8), allocatable :: MagnCoords(:,:) ! MagnCoords(nneq,3)
-integer :: nTempMagn
-! definition of g and D tensors
-logical :: compute_g_tensors
-integer :: nMult ! multiplicity of each multiplet
-integer, allocatable :: nDim(:)
-real(kind=8), allocatable :: gtens(:,:) ! gtensor of each multiplet
-real(kind=8), allocatable :: maxes(:,:,:) ! main axes of each multiplet
-! definition of data for susceptibility
-integer :: nT
-logical :: compute_susceptibility
-logical :: tinput
-real(kind=8) :: tmin, tmax, dltT0
-real(kind=8), allocatable :: T(:)
-real(kind=8), allocatable :: XTexp(:)
-real(kind=8), allocatable :: XT_no_field(:)
-real(kind=8), allocatable :: chit_exp(:)
-real(kind=8), allocatable :: Texp(:)
-real(kind=8), allocatable :: XLM(:,:,:,:)
-real(kind=8), allocatable :: ZLM(:,:)
-real(kind=8), allocatable :: XRM(:,:,:,:)
-real(kind=8), allocatable :: ZRM(:,:)
-! options related to XT_MoverH
-real(kind=8) :: Xfield
-! definition of data for magnetization:
-integer :: nH, nM
-integer :: iopt
-real(kind=8), allocatable :: TempMagn(:)
-real(kind=8), allocatable :: Hexp(:), Mexp(:,:)
-real(kind=8) :: thrs, em
-real(kind=8) :: hmin, hmax, dltH0
-logical :: hinput
-logical :: compute_magnetization
-logical :: compute_Mdir_vector
-logical :: zeeman_energy
-logical :: m_paranoid
-logical :: m_accurate
-logical :: smagn
-! options used to set up nM and EM
-integer :: encut_definition
-integer :: nK, mG ! encut_definition=1;
-integer :: ncut   ! encut_definition=2;
-real(kind=8) :: encut_rate ! encut_definition=3;
-! magnetization torque
-logical :: compute_torque
-integer :: AngPoints, nP
-! Zeeman energy and M vector
-integer :: nDir, nDirZee, nDirTot
-integer, allocatable :: LuZee(:)
-real(kind=8), allocatable :: dirX(:), dirY(:), dirZ(:)
-real(kind=8), allocatable :: dir_weight(:,:)
-! definition of mean field parameter
-real(kind=8) :: zJ
-! definition of the crystal axes:
-logical :: Do_structure_abc
-real(kind=8) :: cryst(6)
-! a, b, c, alpha, beta, gamma
-real(kind=8) :: coord(3)
-! Cartesian coordinates of the main metal site, or center
-! definitions for blocking barrier
-integer :: nBlock
-logical :: compute_barrier
-! options for automatic fitting of parameters:
-logical :: fitCHI !-- not used so far
-logical :: fitM !-- not used so far
-integer :: iPrint
-integer :: idim
-integer :: imltpl
-integer :: Ifunct
-integer :: iReturn
-integer :: i, i1, i2, j, l
-integer :: l1(2), l2(2), l3(2), l4(2), l5(2)
-integer :: imanifold
-integer :: ibuf
-!integer :: nsta
-!integer :: icase, nmagmult
-logical :: check_title
-character(len=180) :: Title
-logical :: GRAD
-character(len=180) :: fname
-integer :: LuAniso
-integer, external :: IsFreeUnit
+integer(kind=iwp) :: AngPoints, encut_definition, i, i1, i2, ibuf, Ifunct, imanifold, imltpl, iopt, iPrint, j, KEOPT, l, l1(2), &
+                     l2(2), l3(2), l4(2), l5(2), lant, LuAniso, mem, mG, multLn, nBlock, ncut, nDirTot, nK, nM, nP
+real(kind=wp) :: coord(3), cryst(6), dltH0, dltT0, em, encut_rate, hmax, hmin, thrs, tmax, tmin, tpar, upar, Xfield, zJ
+logical(kind=iwp) :: AnisoLines1, AnisoLines3, AnisoLines9, check_title, compute_barrier, compute_g_tensors, &
+                     compute_magnetization, compute_Mdir_vector, compute_susceptibility, compute_torque, decompose_exchange, &
+                     Dipol, DM_exchange, Do_structure_abc, DoPlot, fitCHI, fitM, GRAD, hinput, ifHDF, JITO_exchange, KE, &
+                     m_accurate, m_paranoid, smagn, tinput, zeeman_energy
+character(len=180) :: fname, namefile_aniso(nneq), Title
+character :: itype(nneq)
+integer(kind=iwp), allocatable :: i_pair(:,:), imaxrank(:,:), LuZee(:), nDim(:), neq(:), nexch(:), nsfs(:), nss(:)
+real(kind=wp), allocatable :: chit_exp(:), D_fact(:), dir_weight(:,:), dirX(:), dirY(:), dirZ(:), EoverD_fact(:), eso(:,:), &
+                              eso_au(:,:), gtens(:,:), gtens_input(:,:), Hexp(:), JAex(:,:), JAex9(:,:,:), JDMex(:,:), Jex(:), &
+                              JITOexI(:,:,:,:,:), JITOexR(:,:,:,:,:), MagnCoords(:,:), maxes(:,:,:), Mexp(:,:), R_LG(:,:,:,:), &
+                              R_ROT(:,:,:,:), riso(:,:,:), T(:), TempMagn(:), Texp(:), W(:), XLM(:,:,:,:), XRM(:,:,:,:), &
+                              XT_no_field(:), XTexp(:), ZLM(:,:), ZRM(:,:)
+complex(kind=wp), allocatable :: dipexch(:,:,:), dipso(:,:,:,:), s_exch(:,:,:), s_so(:,:,:,:), Z(:,:)
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
 #else
 #  define _DBG_ .false.
 #endif
-logical, parameter  :: dbg = _DBG_
+logical(kind=iwp), parameter  :: dbg = _DBG_
+integer(kind=iwp), external :: IsFreeUnit
 
 !-----------------------------------------------------------------------
 ! Constants:
@@ -182,15 +129,11 @@ write(u6,*) '        nH = ',nH
 write(u6,*) '        nT = ',nT
 write(u6,*) ' nTempMagn = ',nTempMagn
 write(u6,*) 'old_format = ',old_aniso_format
-write(u6,*) 'old_format = ',old_aniso_format
 write(u6,*) '   MxRank1 = ',MxRank1
 write(u6,*) '   MxRank2 = ',MxRank2
 #endif
 
 mem = 0
-RtoB = 8
-CtoB = 16
-ItoB = 8
 
 ! exchange energy spectrum
 call mma_allocate(W,exch,'W')
@@ -425,16 +368,16 @@ mem = mem+nT*RtoB
 
 ! -- add nTempMagn points, so that all measurables are computed at once...
 ! temperature points for which XT will be computed
-call mma_allocate(T,(nTempMagn+nT),'Temperature')
-call dcopy_((nT+nTempMagn),[Zero],0,T,1)
+call mma_allocate(T,nTempMagn+nT,'Temperature')
+call dcopy_(nT+nTempMagn,[Zero],0,T,1)
 mem = mem+(nT+nTempMagn)*RtoB
 ! XT experimental tmagn XTexp+Tmagn
-call mma_allocate(XTexp,(nTempMagn+nT),'XTexp')
-call dcopy_((nT+nTempMagn),[Zero],0,XTexp,1)
+call mma_allocate(XTexp,nTempMagn+nT,'XTexp')
+call dcopy_(nT+nTempMagn,[Zero],0,XTexp,1)
 mem = mem+(nT+nTempMagn)*RtoB
 ! XT in the absence of the magnetic field
-call mma_allocate(XT_no_field,(nTempMagn+nT),'XT_no_field')
-call dcopy_((nT+nTempMagn),[Zero],0,XT_no_field,1)
+call mma_allocate(XT_no_field,nTempMagn+nT,'XT_no_field')
+call dcopy_(nT+nTempMagn,[Zero],0,XT_no_field,1)
 mem = mem+(nT+nTempMagn)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
@@ -636,9 +579,7 @@ write(u6,*) 'Exit input_process'
 !
 ! the function below optimizes the N+1 parameters:
 ! N - exchange couplings J, and one parameter for total shift of all experimental points;
-!      If (fitCHI) Then
-!      Call fitCHI()
-!      End If
+!if (fitCHI) Call fitCHI()
 !c at this point all J parameters are known; we can proceed to compute
 ! the energy spectrum and the resulting properties
 !-----------------------------------------------------------------------
@@ -699,7 +640,7 @@ if (compute_g_tensors) then
 
     end if
     Ifunct = Ifunct+ndim(imltpl)
-    if (iReturn /= 0) stop
+    if (iReturn /= 0) call Abend()
   end do ! imltpl
 end if
 
@@ -853,11 +794,11 @@ call mma_deallocate(XTexp)
 call mma_deallocate(XT_no_field)
 !-----------------------------------------------------------------------
 write(u6,*)
-write(u6,'(10A)') (('-@-#-$-%-&-*-'),idim=1,10)
+write(u6,'(10A)') (('-@-#-$-%-&-*-'),i=1,10)
 write(u6,*)
 write(u6,'(10X,A)') 'HAPPY   LANDING !!!   POLY_ANISO ENDED  OK !'
 write(u6,*)
-write(u6,'(10A)') (('-*-&-%-$-#-@-'),idim=1,10)
+write(u6,'(10A)') (('-*-&-%-$-#-@-'),i=1,10)
 call xFlush(u6)
 
 return

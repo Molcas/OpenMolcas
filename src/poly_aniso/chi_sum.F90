@@ -16,34 +16,31 @@ subroutine chi_sum(N,Xex,Zex,XL,ZL,XR,ZR,iopt,X,Z)
 !
 ! definition of the variables:
 !     N  -- total number of magnetic sites, Integer, input
-!    Xex -- susceptibility tensor arising form the exchange states only, Real(kind=8) :: , (3,3) array, input
-!    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=8) :: , input
-!    XL  -- susceptibility tensor arising from LOCAL states (all), Real(kind=8) :: , (N,3,3) array, input
+!    Xex -- susceptibility tensor arising form the exchange states only, Real(kind=wp) :: , (3,3) array, input
+!    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=wp) :: , input
+!    XL  -- susceptibility tensor arising from LOCAL states (all), Real(kind=wp) :: , (N,3,3) array, input
 !    ZL  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (all),
-!           Real(kind=8) :: , (N) array, input
-!    XR  -- susceptibility tensor arising from LOCAL states (exchange only), Real(kind=8) :: , (N,3,3) array, input
+!           Real(kind=wp) :: , (N) array, input
+!    XR  -- susceptibility tensor arising from LOCAL states (exchange only), Real(kind=wp) :: , (N,3,3) array, input
 !    ZR  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (exchange only),
-!           Real(kind=8) :: , (N) array, input
+!           Real(kind=wp) :: , (N) array, input
 !   iopt -- option allowing to choose the desired formula, (Integer, input):
 !           iopt=1  =>  formula for weak exchange limit ( new derivation)
 !           iopt=2  =>  formula for strong exchange limit
 !           iopt=3  =>  formula for strong exchange limit
-!    X   -- total susceptibility, Real(kind=8) :: , (3,3) array, output
-!    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=8) :: , output
+!    X   -- total susceptibility, Real(kind=wp) :: , (3,3) array, output
+!    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=wp) :: , output
 !---------
 
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: N, iopt
-real(kind=8), intent(in) :: Xex(3,3), Zex
-real(kind=8), intent(in) :: XL(N,3,3), ZL(N)
-real(kind=8), intent(in) :: XR(N,3,3), ZR(N)
-real(kind=8), intent(out) :: X(3,3), Z
-! local variables
-integer :: i, ic, jc
-real(kind=8) :: ZLT, ZRT, XLT(3,3), XRT(3,3)
+integer(kind=iwp), intent(in) :: N, iopt
+real(kind=wp), intent(in) :: Xex(3,3), Zex, XL(N,3,3), ZL(N), XR(N,3,3), ZR(N)
+real(kind=wp), intent(out) :: X(3,3), Z
+integer(kind=iwp) :: i, ic, jc
+real(kind=wp) :: XLT(3,3), XRT(3,3), ZLT, ZRT
 
 ZLT = One
 ZRT = One

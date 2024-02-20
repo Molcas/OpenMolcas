@@ -11,19 +11,18 @@
 
 subroutine prep_mom_exchange(n,R,S,M,mg,dbg)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: n
-real(kind=8), intent(in) :: R(3,3)
-real(kind=8), intent(out) :: mg(3,3)
-complex(kind=8), intent(inout) :: S(3,n,n), M(3,n,n)
-logical :: dbg
-! local data:
-complex(kind=8), allocatable :: Mt(:,:,:), St(:,:,:)
-!real(kind=8) :: g(3)
-!complex(kind=8), allocatable :: Z(:,:)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: R(3,3)
+complex(kind=wp), intent(inout) :: S(3,n,n), M(3,n,n)
+real(kind=wp), intent(out) :: mg(3,3)
+logical(kind=iwp), intent(in) :: dbg
+!real(kind=wp) :: g(3)
+complex(kind=wp), allocatable :: Mt(:,:,:), St(:,:,:) !, Z(:,:)
 
 !-----------------------------------------------------------------------
 call mma_allocate(Mt,3,n,n,'Mt')
@@ -55,39 +54,37 @@ call rotmom2(Mt,n,R,M)
 
 !-----------------------------------------------------------------------
 ! experimental:
-!if (.false.) then
-!  ! find local magnetic axes:
-!  call atens(M,n,g,mg,2)
-!  ! rotate the momentum using the  mg  rotation matrix --
-!  ! to the local magnetic axes:
-!  call zcopy_(3*n*n,[cZero],0,M,1)
-!  call zcopy_(3*n*n,[cZero],0,S,1)
-!  call rotmom2(St,n,mg,S)
-!  call rotmom2(Mt,n,mg,M)
+!! find local magnetic axes:
+!call atens(M,n,g,mg,2)
+!! rotate the momentum using the  mg  rotation matrix --
+!! to the local magnetic axes:
+!call zcopy_(3*n*n,[cZero],0,M,1)
+!call zcopy_(3*n*n,[cZero],0,S,1)
+!call rotmom2(St,n,mg,S)
+!call rotmom2(Mt,n,mg,M)
 !
-!  ! find local pseudospin:
-!  call zcopy_(n*n,[cZero],0,Z,1)
-!  call pseudospin(M,n,Z,3,1,1)
-!  if (dbg) call pa_prmat('PA_prep_mom_exch, Z:',Z,n)
+!! find local pseudospin:
+!call zcopy_(n*n,[cZero],0,Z,1)
+!call pseudospin(M,n,Z,3,1,1)
+!if (dbg) call pa_prmat('PA_prep_mom_exch, Z:',Z,n)
 !
-!  ! Transform the moment into their local pseudospins
-!  call UTMU2(n,n,Z,S)
-!  call UTMU2(n,n,Z,M)
-!  if (dbg) then
-!    call prMom('PA_prep_mom_exch, S:',S,n)
-!    call prMom('PA_prep_mom_exch, M:',M,n)
-!  end if
-!  ! back-up again:
-!  call zcopy_(3*n*n,M,1,Mt,1)
-!  call zcopy_(3*n*n,S,1,St,1)
-!
-!  ! rotate back the moment, so that we preserve the
-!  ! original coordinate system of the computed molecule
-!  call zcopy_(3*n*n,[cZero],0,M,1)
-!  call zcopy_(3*n*n,[cZero],0,S,1)
-!  call rotmom(St,n,mg,S)
-!  call rotmom(Mt,n,mg,M)
+!! Transform the moment into their local pseudospins
+!call UTMU2(n,n,Z,S)
+!call UTMU2(n,n,Z,M)
+!if (dbg) then
+!  call prMom('PA_prep_mom_exch, S:',S,n)
+!  call prMom('PA_prep_mom_exch, M:',M,n)
 !end if
+!! back-up again:
+!call zcopy_(3*n*n,M,1,Mt,1)
+!call zcopy_(3*n*n,S,1,St,1)
+!
+!! rotate back the moment, so that we preserve the
+!! original coordinate system of the computed molecule
+!call zcopy_(3*n*n,[cZero],0,M,1)
+!call zcopy_(3*n*n,[cZero],0,S,1)
+!call rotmom(St,n,mg,S)
+!call rotmom(Mt,n,mg,M)
 !-----------------------------------------------------------------------
 
 call mma_deallocate(Mt)

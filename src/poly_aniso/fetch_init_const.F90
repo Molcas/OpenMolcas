@@ -13,40 +13,28 @@ subroutine fetch_init_const(nneq,neqv,nmax,exch,nLoc,nCenter,nT,nH,nTempMagn,nDi
                             old_aniso_format,iReturn)
 ! this routine looks into the file "single_aniso.input" for the "RESTart" keyword
 
-use Definitions, only: iwp, u5, u6
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "warnings.h"
-integer, intent(out) :: nneq, neqv, nmax, exch, nLoc, nCenter, nT, nH, nTempMagn, nDir, nDirZee, nMult, nPair, MxRank1, MxRank2, &
-                        iReturn
-! local variables:
-integer :: NMAXC
-parameter(NMAXC=99)
-integer :: i, j, linenr, nTempMagn_HEXP, nTempMagn_TMAG, nH_HEXP, nH_HINT, nT_TEXP, nT_TINT
-integer :: neqA(NMAXC), nexchA(NMAXC)
-integer :: sfs_check(NMAXC)
-integer :: sos_check(NMAXC)
-integer :: imaxrank(NMAXC,2)
-integer :: idummy
-integer :: irank1, irank2, iline, istatus
-real(kind=8) :: rdummy
-real(kind=8) :: TempMagn(NMAXC)
-logical :: ab_initio_all
-logical :: KeyCoor, KeyPair, KeyHEXP, KeyTEXP
-!logical :: KeyHINT, KeyTINT, KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
-integer :: LUANISO, Isfreeunit
-character :: itype(NMAXC)
+integer(kind=iwp), intent(out) :: nneq, neqv, nmax, exch, nLoc, nCenter, nT, nH, nTempMagn, nDir, nDirZee, nMult, nPair, MxRank1, &
+                                  MxRank2, iReturn
+logical(kind=iwp), intent(in) :: old_aniso_format
+integer(kind=iwp), parameter :: NMAXC = 99
+integer(kind=iwp) :: i, idummy, iline, imaxrank(NMAXC,2), irank1, irank2, istatus, j, linenr, LUANISO, neqA(NMAXC), nexchA(NMAXC), &
+                     nH_HEXP, nH_HINT, nT_TEXP, nT_TINT, nTempMagn_HEXP, nTempMagn_TMAG, sfs_check(NMAXC), sos_check(NMAXC)
+real(kind=wp) :: rdummy, TempMagn(NMAXC)
+logical(kind=iwp) :: ab_initio_all, ifHDF, KeyCoor, KeyHEXP, KeyPair, KeyTEXP !, KeyHINT, KeyITOJ, KeyMLTP, KeyMVEC, KeyNNEQ, &
+                     !KeyTINT, KeyTMAG, KeyZEEM
 character(len=280) :: line
 character(len=180) :: namefile_aniso
-logical :: ifHDF
-external Isfreeunit
-logical, intent(in) :: old_aniso_format
+character :: itype(NMAXC)
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
 #else
 #  define _DBG_ .false.
 #endif
-logical, parameter :: dbg = _DBG_
+logical(kind=iwp), parameter :: dbg = _DBG_
+integer(kind=iwp), external :: Isfreeunit
 
 #include "macros.fh"
 
@@ -490,6 +478,7 @@ contains
 subroutine Error(code)
 
   integer(kind=iwp), intent(in) :: code
+# include "warnings.h"
 
   select case (code)
     case (1)

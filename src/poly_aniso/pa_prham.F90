@@ -14,43 +14,22 @@ subroutine pa_prham(exch,npair,i_pair,nneq,neq,nexch,nmax,lmax,eso,HLIN1,HLIN3,H
 ! this function prints the exchange Hamiltonian
 ! it does not compute any new infromation
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6, CtoB
 
 implicit none
-#include "stdalloc.fh"
-#include "warnings.h"
-integer, intent(in) :: exch
-integer, intent(in) :: npair
-integer, intent(in) :: i_pair(npair,2)
-integer, intent(in) :: nneq
-integer, intent(in) :: neq(nneq)
-integer, intent(in) :: nexch(nneq)
-integer, intent(in) :: nmax
-integer, intent(in) :: lmax
-real(kind=8), intent(in) :: eso(nneq,nmax)
-complex(kind=8), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HLIN3(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HLIN9(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HDIP(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HKEX(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HDMO(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HITO(npair,nmax,nmax,nmax,nmax)
-logical, intent(in) :: Dipol
-logical, intent(in) :: DM_exchange
-logical, intent(in) :: KE
-logical, intent(in) :: AnisoLines1
-logical, intent(in) :: AnisoLines3
-logical, intent(in) :: AnisoLines9
-logical, intent(in) :: JITO_exchange
-! local variables
-complex(kind=8), allocatable :: HTOT(:), H1(:), H2(:), H3(:), H4(:)
-integer :: nind(lmax,2), intc(lmax), ibas(exch,lmax), icoord(lmax), nb1, nb2, lb1, lb2, i1, i2, is1, is2, js1, js2, nb, i, j, l, &
-           lp, lb, lpr, ibuf
-integer :: CtoB, mem_local
-integer :: norder
-real(kind=8) :: dznrm2_
-external :: norder, dznrm2_
+integer(kind=iwp), intent(in) :: exch, npair, i_pair(npair,2), nneq, neq(nneq), nexch(nneq), nmax, lmax
+real(kind=wp), intent(in) :: eso(nneq,nmax)
+complex(kind=wp), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax), HLIN3(npair,nmax,nmax,nmax,nmax), &
+                                HLIN9(npair,nmax,nmax,nmax,nmax), HDIP(npair,nmax,nmax,nmax,nmax), &
+                                HKEX(npair,nmax,nmax,nmax,nmax), HDMO(npair,nmax,nmax,nmax,nmax), HITO(npair,nmax,nmax,nmax,nmax)
+logical(kind=iwp), intent(in) :: Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE, DM_exchange, JITO_exchange
+integer(kind=iwp) :: i, i1, i2, ibas(exch,lmax), ibuf, icoord(lmax), intc(lmax), is1, is2, j, js1, js2, l, lb, lb1, lb2, lp, lpr, &
+                     mem_local, nb, nb1, nb2, nind(lmax,2)
+complex(kind=wp), allocatable :: H1(:), H2(:), H3(:), H4(:), HTOT(:)
+integer(kind=iwp), external :: norder
+real(kind=wp), external :: dznrm2_
 
 !=======================================================================
 if (npair == 0) then
@@ -81,7 +60,6 @@ if (ibuf > 0) then
 end if !ibuf
 !=======================================================================
 ! allocate memory
-CtoB = 16
 mem_local = 0
 if (exch >= 0) then
   call mma_allocate(htot,exch,'htot')
@@ -255,101 +233,86 @@ do nb1=1,exch
   ! proceed to print
   if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. KE) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H3(nb2),HTOT(nb2)
-      end if
     end do
 
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. (.not. KE)) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),HTOT(nb2)
-      end if
     end do
 
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. KE) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H3(nb2),HTOT(nb2)
-      end if
     end do
 
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. KE) then
     do nb2=nb1,exch
-      if ((abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H3(nb2),HTOT(nb2)
-      end if
     end do
 
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. (.not. KE)) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H1(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),HTOT(nb2)
-      end if
     end do
 
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. (.not. KE)) then
     do nb2=nb1,exch
-      if ((abs(H2(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H2(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),HTOT(nb2)
-      end if
     end do
 
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. KE) then
     do nb2=nb1,exch
-      if ((abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H3(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H3(nb2),HTOT(nb2)
-      end if
     end do
   ! JITO is active below:
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. (.not. KE) .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H4(nb2),HTOT(nb2)
-      end if
     end do
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. (.not. KE) .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H2(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H2(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H4(nb2),HTOT(nb2)
-      end if
     end do
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. (.not. Dipol) .and. KE .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H3(nb2),H4(nb2),HTOT(nb2)
-      end if
     end do
   else if ((.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9)) .and. Dipol .and. KE .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H2(nb2),H3(nb2),H4(nb2),HTOT(nb2)
-      end if
     end do
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. (.not. KE) .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H4(nb2),HTOT(nb2)
-      end if
     end do
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. (.not. KE) .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H4(nb2),HTOT(nb2)
-      end if
     end do
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. (.not. Dipol) .and. KE .and. JITO_exchange) then
     do nb2=nb1,exch
-      if ((abs(H1(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) then
+      if ((abs(H1(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,4(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H3(nb2),H4(nb2),HTOT(nb2)
-      end if
     end do
   else if ((AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and. KE .and. JITO_exchange) then
     do nb2=nb1,exch
       if ((abs(H1(nb2)) > Zero) .or. (abs(H2(nb2)) > Zero) .or. (abs(H3(nb2)) > Zero) .or. (abs(H4(nb2)) > Zero) .or. &
-          (abs(HTOT(nb2)) > Zero)) then
+          (abs(HTOT(nb2)) > Zero)) &
         write(u6,'(A,i4,A,i4,A,5(2ES19.11,2x))') '<',nb1,'| H |',nb2,'> =',H1(nb2),H2(nb2),H3(nb2),H4(nb2),HTOT(nb2)
-      end if
     end do
   end if
 

@@ -9,16 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function distance(N,C1,C2)
+function distance(N,C1,C2)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: N
-real(kind=8), intent(in) :: C1(N), C2(N)
-! local variables
-integer :: i
-real(kind=8) :: X, R
+real(kind=wp) :: distance
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: C1(N), C2(N)
+integer(kind=iwp) :: i
+real(kind=wp) :: R, X
 
 X = Zero
 do i=1,N

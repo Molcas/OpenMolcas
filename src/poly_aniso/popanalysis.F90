@@ -12,28 +12,22 @@
 subroutine PopAnalysis(nneq,neq,exch,nexch,nmax,lmax,NmaxPop,Z)
 ! computes the density matrix of each interacting site in the coupled eigenstate Zi
 ! N - (Integer) - total number of the exchange states ( total number of basis functions )
-! Z - (Complex*16 array, size N) - contains the coupled eigenvector (a given column of the
-!      entire exchange Z array)
+! Z - (Complex array, size N) - contains the coupled eigenvector (a given column of the entire exchange Z array)
 ! Nsites - total number of interacting magnetic sites
 ! ibas(N,Nsites) - Integer array denoting the coupled basis
 ! nneq -- number of non equivalent sites
 ! neq(Nneq) number of equivalent sites of type i
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-! main input variables
-integer, intent(in) :: nneq, exch, nmax, lmax
-integer, intent(in) :: neq(nneq), nexch(nneq)
-integer, intent(in) :: NmaxPop
-complex(kind=8), intent(in) :: Z(exch,exch)
-! local variables
-integer :: i, j, l, isite, i1, i2, nb1, nb2, nb3, tmp, il, nb
-integer :: nind(lmax,2), intc(lmax)
-integer :: ibas(exch,lmax)
-complex(kind=8), allocatable :: pop(:,:,:,:) ! pop(exch,lmax,nmax,nmax)
+integer, intent(in) :: nneq, neq(nneq), exch, nexch(nneq), nmax, lmax, NmaxPop
+complex(kind=wp), intent(in) :: Z(exch,exch)
+integer(kind=iwp) :: i, i1, i2, il, isite, j, l, nb, nb1, nb2, nb3, tmp
+integer(kind=iwp), allocatable :: ibas(:,:), intc(:), nind(:,:)
+complex(kind=wp), allocatable :: pop(:,:,:,:) ! pop(exch,lmax,nmax,nmax)
 character(len=50) :: fmtline
 
 #ifdef _DEBUGPRINT_
@@ -48,9 +42,11 @@ write(u6,'(A,8i3)') '  nexch(i) = ',(nexch(i),i=1,nneq)
 #endif
 call mma_allocate(pop,exch,lmax,nmax,nmax,'pop')
 call zcopy_(exch*lmax*nmax*nmax,[cZero],0,pop,1)
+call mma_allocate(ibas,exch,lmax,label='ibas')
+call mma_allocate(intc,lmax,label='intc')
+call mma_allocate(nind,lmax,2,label='nind')
 ! fill some general arrays:
 ! generate the tables:
-nind(:,:) = 0
 l = 0
 do i=1,nneq
   do j=1,neq(i)
@@ -59,8 +55,7 @@ do i=1,nneq
     nind(l,2) = j
   end do
 end do
-intc(:) = 0
-ibas(:,:) = 0
+nind(l+1:,:) = 0
 intc(1) = 1
 if (lmax > 1) then
   do i=2,lmax
@@ -76,6 +71,7 @@ do nb=1,exch
   end do
 end do
 isite = 0
+call mma_deallocate(intc)
 
 pop(:,:,:,:) = cZero
 i = int(24+13*lmax)
@@ -130,8 +126,6 @@ do nb1=1,NmaxPop
   write(fmtline,'(A,i2,A)') '(A,',lmax,'A)'
   write(u6,fmtline) '--------|-----|',('------------|',i=1,lmax)
 end do ! nb1
-
-call mma_deallocate(pop)
 
 ! compute and print the calculated expectation values:
 !write(u6,*)
@@ -189,6 +183,10 @@ call mma_deallocate(pop)
 !  end do
 !  write(u6,'(5A)') '--------|----|',('------------------------------|',i=1,4)
 !end do
+
+call mma_deallocate(pop)
+call mma_deallocate(ibas)
+call mma_deallocate(nind)
 
 return
 

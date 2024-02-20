@@ -11,93 +11,76 @@
 
 subroutine torque_pa(nneq,nCenter,neq,neqv,nLoc,exch,nTempMagn,nH,nM,AngPoints,nexch,iopt,nss,mem,smagn,m_paranoid,m_accurate, &
                      TempMagn,w,hmin,hmax,dltH0,EM,zJ,THRS,hexp,dipexch,s_exch,dipso,s_so,eso,hinput,r_rot,XLM,ZLM,XRM,ZRM)
-
-use Constants, only: Zero, Ten, mBohr, rNAVO
-use Definitions, only: wp, u6
-
-implicit none
-#include "mgrid.fh"
-#include "stdalloc.fh"
-!-----------------------------------------------------------------------
-! INPUT VARIABLES:
-!-----------------------------------------------------------------------
-integer, intent(in) :: nneq, neq(nneq), neqv, nLoc, nexch(nneq), nH, nTempMagn, nM, exch, nCenter, AngPoints, nss(nneq), iopt, mem
-real(kind=8), intent(in) :: TempMagn(nTempMagn), hmin, hmax, dltH0, EM, zJ, THRS, Hexp(nH)
-logical, intent(in) :: m_paranoid, m_accurate, smagn, hinput
 ! correction to M from the local excited states:
-real(kind=8), intent(in) :: XLM(nCenter,nTempMagn,3,3)
-real(kind=8), intent(in) :: ZLM(nCenter,nTempMagn)
-real(kind=8), intent(in) :: XRM(nCenter,nTempMagn,3,3)
-real(kind=8), intent(in) :: ZRM(nCenter,nTempMagn)
+!  XLM, ZLM, XRM, ZRM
 ! rotation matrices for equivalent sites:
-real(kind=8), intent(in) :: R_ROT(nneq,neqv,3,3)
+!  R_ROT
 ! exchange spectum:
 ! exchange energies printed out in the previous part
-real(kind=8), intent(in) :: W(exch)
+!  W
 ! local spin-orbit spectum:
 ! spin-orbit energies from ANISO files
-real(kind=8), intent(in) :: ESO(nneq,nLoc)
+!  ESO
 ! magnetic and spin moments (i.e. the BIG matrices):
-complex(kind=8), intent(in) :: DIPEXCH(3,EXCH,EXCH)
-complex(kind=8), intent(in) :: S_EXCH(3,EXCH,EXCH)
-complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
-complex(kind=8), intent(in) :: s_so(nneq,3,nLoc,nLoc)
-!-----------------------------------------------------------------------
-! LOCAL VARIABLES:
-!-----------------------------------------------------------------------
+!  DIPEXCH, S_EXCH, dipso, s_so
 ! exchange data:
-real(kind=8), allocatable :: WEX(:)   ! WEX(NM)                ! Zeeman exchange energies
-real(kind=8), allocatable :: ZEX(:)   ! ZEX(nTempMagn)         ! exchange statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: SEX(:,:) ! SEX(3,nTempMagn)       ! spin magnetisation, from the exchange block
-real(kind=8), allocatable :: MEX(:,:) ! MEX(3,nTempMagn)       ! magnetisation, form the exchange block
+!  WEX : Zeeman exchange energies
+!  ZEX : exchange statistical sum, Boltzmann distribution
+!  SEX : spin magnetisation, from the exchange block
+!  MEX : magnetisation, form the exchange block
 ! data for individual sites (all states):
-real(kind=8), allocatable :: ZL(:,:)   ! ZL(nneq,nTempMagn)     ! local statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: WL(:,:)   ! WL(nneq,nLoc)          ! Zeeman local energies
-real(kind=8), allocatable :: SL(:,:,:) ! SL(nneq,3,nTempMagn)   ! spin magnetisation, from the local sites, using ALL states
-real(kind=8), allocatable :: ML(:,:,:) ! ML(nneq,3,nTempMagn)   ! magnetisation, from local sites, using ALL states
+!  ZL : local statistical sum, Boltzmann distribution
+!  WL : Zeeman local energies
+!  SL : spin magnetisation, from the local sites, using ALL states
+!  ML : magnetisation, from local sites, using ALL states
 ! data for individual sites (only states that enter exchange):
-real(kind=8), allocatable :: ZR(:,:)   ! ZR(nneq,nTempMagn)     ! local statistical sum, Boltzmann distribution, using only NEXCH states
-real(kind=8), allocatable :: WR(:,:)   ! WR(nneq,nLoc)          ! Zeeman local reduced energies, using only NEXCH states
-real(kind=8), allocatable :: SR(:,:,:) ! SR(nneq,3,nTempMagn)   ! spin magnetisation, from the local sites, using only NEXCH states
-real(kind=8), allocatable :: MR(:,:,:) ! MR(nneq,3,nTempMagn)   ! magnetisation, from local sites, using only NEXCH states
+!  ZR : local statistical sum, Boltzmann distribution, using only NEXCH states
+!  WR : Zeeman local reduced energies, using only NEXCH states
+!  SR : spin magnetisation, from the local sites, using only NEXCH states
+!  MR : magnetisation, from local sites, using only NEXCH states
 ! total vectors in general coordinate system:
-real(kind=8), allocatable :: ZRT(:,:)   ! ZRT(nCenter,nTempMagn)
-real(kind=8), allocatable :: ZLT(:,:)   ! ZLT(nCenter,nTempMagn)
-real(kind=8), allocatable :: MRT(:,:,:) ! MRT(nCenter,3,nTempMagn)
-real(kind=8), allocatable :: MLT(:,:,:) ! MLT(nCenter,3,nTempMagn)
-real(kind=8), allocatable :: SRT(:,:,:) ! SRT(nCenter,3,nTempMagn)
-real(kind=8), allocatable :: SLT(:,:,:) ! SLT(nCenter,3,nTempMagn)
+!  ZRT, ZLT, MRT, MLT, SRT, SLT
 ! data for total system:
-real(kind=8), allocatable :: ZT(:)   ! ZT(nTempMagn)        ! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ST(:,:) ! ST(3,nTempMagn)      ! total spin magnetisation,
-real(kind=8), allocatable :: MT(:,:) ! MT(3,nTempMagn)      ! total magnetisation
+!  ZT : total statistical sum, Boltzmann distribution
+!  ST : total spin magnetisation,
+!  MT : total magnetisation
 ! magnetic field strength and orientation data:
-integer :: nPlanes
-real(kind=8) :: dlth
-parameter(nPlanes=3)
-real(kind=8), allocatable :: H(:)    ! H(nH)
-real(kind=8), allocatable :: dX(:,:) ! dX(nPlanes,AngPoints)
-real(kind=8), allocatable :: dY(:,:) ! dY(nPlanes,AngPoints)
-real(kind=8), allocatable :: dZ(:,:) ! dZ(nPlanes,AngPoints)
-real(kind=8), allocatable :: Ang(:)  ! Ang(AngPoints)
+!  nPlanes, dlth, H, dX, dY, dZ, Ang
 ! magnetic torque
-real(kind=8), allocatable :: tx(:,:,:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, X
-real(kind=8), allocatable :: ty(:,:,:,:) ! ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, Y
-real(kind=8), allocatable :: tz(:,:,:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque, Z
-real(kind=8), allocatable :: sx(:,:,:,:) ! sx(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, X
-real(kind=8), allocatable :: sy(:,:,:,:) ! sy(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Y
-real(kind=8), allocatable :: sz(:,:,:,:) ! sz(nPlanes,AngPoints,nH,nTempMagn) ! spin magnetization torque, Z
-integer :: mem_local, RtoB
-! local data:
-integer :: IM, I, it
-integer :: J, IH, k, isite, l, n, iPl
-real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
+!  tx : magnetization torque, X
+!  ty : magnetization torque, Y
+!  tz : magnetization torque, Z
+!  sx : spin magnetization torque, X
+!  sy : spin magnetization torque, Y
+!  sz : spin magnetization torque, Z
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Ten, mBohr, rNAVO
+use Definitions, only: wp, iwp, u6, RtoB
+
+implicit none
+integer(kind=iwp), intent(in) :: nneq, nCenter, neq(nneq), neqv, nLoc, exch, nTempMagn, nH, nM, AngPoints, nexch(nneq), iopt, &
+                                 nss(nneq), mem
+logical(kind=iwp), intent(in) :: smagn, m_paranoid, m_accurate, hinput
+real(kind=wp), intent(in) :: TempMagn(nTempMagn), W(exch), hmin, hmax, dltH0, EM, zJ, THRS, Hexp(nH), ESO(nneq,nLoc), &
+                             R_ROT(nneq,neqv,3,3), XLM(nCenter,nTempMagn,3,3), ZLM(nCenter,nTempMagn), XRM(nCenter,nTempMagn,3,3), &
+                             ZRM(nCenter,nTempMagn)
+complex(kind=wp), intent(in) :: DIPEXCH(3,EXCH,EXCH), S_EXCH(3,EXCH,EXCH), dipso(nneq,3,nLoc,nLoc), s_so(nneq,3,nLoc,nLoc)
+#include "mgrid.fh"
+integer(kind=iwp) :: I, IH, IM, iPl, isite, it, J, k, l, mem_local, n
+real(kind=wp) :: dlth
+real(kind=wp), allocatable :: Ang(:), dX(:,:), dY(:,:), dZ(:,:), H(:), MEX(:,:), ML(:,:,:), MLT(:,:,:), MR(:,:,:), MRT(:,:,:), &
+                              MT(:,:), SEX(:,:), SL(:,:,:), SLT(:,:,:), SR(:,:,:), SRT(:,:,:), ST(:,:), sx(:,:,:,:), sy(:,:,:,:), &
+                              sz(:,:,:,:), tx(:,:,:,:), ty(:,:,:,:), tz(:,:,:,:), WEX(:), WL(:,:), WR(:,:), ZEX(:), ZL(:,:), &
+                              ZLT(:,:), ZR(:,:), ZRT(:,:), ZT(:)
+integer(kind=iwp), parameter :: nPlanes = 3
+real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
 #else
 #  define _DBG_ .false.
 #endif
-logical, parameter :: DBG = _DBG_
+logical(kind=iwp), parameter :: DBG = _DBG_
 
 #ifndef _DEBUGPRINT_
 #include "macros.fh"
@@ -161,7 +144,6 @@ write(u6,*) 'hinput   = ',hinput
 
 ! Allocate memory for this calculation:
 mem_local = 0
-RtoB = 8
 ! Zeeman exchange energy spectrum
 call mma_allocate(Wex,nM,'Wex')
 call dcopy_(nM,[Zero],0,Wex,1)
@@ -317,9 +299,7 @@ write(u6,*) 'mem_total=',mem+mem_local
 if (HINPUT) then
   do iH=1,nH
     H(iH) = HEXP(iH)
-    if (H(iH) == Zero) then
-      H(iH) = 0.0001_wp
-    end if
+    if (H(iH) == Zero) H(iH) = 0.0001_wp
   end do
 else
   DLTH = (HMAX-HMIN)/real(NH-1,kind=wp)
@@ -329,9 +309,7 @@ else
     else
       H(IH) = HMIN+DLTH*real(IH-1,kind=wp)
     end if
-    if (H(iH) == Zero) then
-      H(iH) = 0.0001_wp
-    end if
+    if (H(iH) == Zero) H(iH) = 0.0001_wp
   end do
 end if
 !-----------------------------------------------------------------------
@@ -444,10 +422,7 @@ do IH=1,NH
       ! to the derived formulas:
       if (m_accurate) then
         do iT=1,nTempMagn
-          if (smagn) then
-            call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLT(:,iT),SRT(:,:,iT),ZRT(:,iT),iopt,ST(:,iT),ZT(iT))
-          end if
-
+          if (smagn) call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLT(:,iT),SRT(:,:,iT),ZRT(:,iT),iopt,ST(:,iT),ZT(iT))
           call MSUM(nCenter,Mex(:,iT),Zex(iT),MLT(:,:,iT),ZLT(:,iT),MRT(:,:,iT),ZRT(:,iT),iopt,MT(:,iT),ZT(iT))
         end do
 
@@ -468,9 +443,7 @@ do IH=1,NH
             end do ! l
           end do ! isite
 
-          if (smagn) then
-            call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLM(:,iT),SRT(:,:,iT),ZRM(:,iT),iopt,ST(:,iT),ZT(iT))
-          end if
+          if (smagn) call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLM(:,iT),SRT(:,:,iT),ZRM(:,iT),iopt,ST(:,iT),ZT(iT))
           call MSUM(nCenter,Mex(:,iT),Zex(iT),MLT(:,:,iT),ZLM(:,iT),MRT(:,:,iT),ZRM(:,iT),iopt,MT(:,iT),ZT(iT))
         end do ! iT
       end if ! (m_accurate)

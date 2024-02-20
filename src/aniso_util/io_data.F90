@@ -2125,8 +2125,7 @@ do
   read(LU,'(a)',iostat=ios) line
 
   if (ios /= 0) then
-    !stop 'file_advance_to_string:: error reading line'
-    !print '(A,i0,2A)', 'file_advance_to_string:: error reading line: LU=',LU,' key=',key
+    !write(u6,'(A,i0,2A)') 'file_advance_to_string:: error reading line: LU=',LU,' key=',key
     exit
   end if
 

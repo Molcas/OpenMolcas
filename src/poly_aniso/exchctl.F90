@@ -15,122 +15,45 @@ subroutine exchctl(exch,nneq,neqv,neq,nexch,nmax,lmax,npair,i_pair,MxRank1,MxRan
 ! this Subroutine is a control Subroutine for the exchange interaction,
 ! diagonalization of total hamiltonian and computation of matrix elements
 ! of magnetic and spin moment
+! neqv : max of neq(nneq)
+! lant : (takes values from 1-7 for Gd-Yb respectively)
+! mem  : memory allocated so far
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6, CtoB, ItoB, RtoB
 
 implicit none
-#include "stdalloc.fh"
-! global variables:
-integer, intent(in) :: nneq
-integer, intent(in) :: neqv ! max of neq(nneq)
-integer, intent(in) :: neq(nneq)
-integer, intent(in) :: nexch(nneq)
-integer, intent(in) :: nmax
-integer, intent(in) :: lmax
-integer, intent(in) :: npair
-integer, intent(in) :: i_pair(npair,2)
-integer, intent(in) :: exch
-integer, intent(in) :: lant ! (takes values from 1-7 for Gd-Yb respectively)
-integer, intent(in) :: iPrint
-integer, intent(in) :: mem ! memory allocated so far
-integer, intent(in) :: MxRank1, MxRank2
-integer, intent(in) :: imaxrank(npair,2)
+integer(kind=iwp), intent(in) :: exch, nneq, neqv, neq(nneq), nexch(nneq), nmax, lmax, npair, i_pair(npair,2), MxRank1, MxRank2, &
+                                 imaxrank(npair,2), lant, KEOPT, iPrint, mem
+real(kind=wp), intent(in) :: Jex(npair), JAex(npair,3), JAex9(npair,3,3), JDMex(npair,3), &
+                             JITOexR(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), &
+                             JITOexI(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), eso(nneq,nmax), coord(nneq,3), &
+                             rot(nneq,neqv,3,3), rlg(nneq,neqv,3,3), riso(nneq,3,3), tpar, upar
+complex(kind=wp), intent(inout) :: SM(nneq,3,nmax,nmax), MM(nneq,3,nmax,nmax)
 character, intent(in) :: itype(nneq)
-real(kind=8), intent(in) :: eso(nneq,nmax)
-real(kind=8), intent(in) :: Jex(npair)
-real(kind=8), intent(in) :: JAex(npair,3)
-real(kind=8), intent(in) :: JDMex(npair,3)
-real(kind=8), intent(in) :: JAex9(npair,3,3)
-real(kind=8), intent(in) :: JITOexR(nPair,MxRank1,-MxRank1:MxRank1, MxRank2,-MxRank2:MxRank2)
-real(kind=8), intent(in) :: JITOexI(nPair,MxRank1,-MxRank1:MxRank1, MxRank2,-MxRank2:MxRank2)
-real(kind=8), intent(in) :: coord(nneq,3)
-real(kind=8), intent(in) :: rot(nneq,neqv,3,3)
-real(kind=8), intent(in) :: rlg(nneq,neqv,3,3)
-real(kind=8), intent(in) :: riso(nneq,3,3)
-real(kind=8), intent(in) :: tpar
-real(kind=8), intent(in) :: upar
-complex(kind=8), intent(inout) :: SM(nneq,3,nmax,nmax)
-complex(kind=8), intent(inout) :: MM(nneq,3,nmax,nmax)
-logical, intent(in) :: AnisoLines1
-logical, intent(in) :: AnisoLines3
-logical, intent(in) :: AnisoLines9
-logical, intent(in) :: Dipol
-logical, intent(in) :: KE
-logical, intent(in) :: DM_exchange
-logical, intent(in) :: JITO_exchange
-real(kind=8), intent(out) :: W(exch)
-complex(kind=8), intent(out) :: Z(exch,exch)
-complex(kind=8), intent(out) :: S(3,exch,exch)
-complex(kind=8), intent(out) :: M(3,exch,exch)
-!------------------------------------------------------------------
-! local variables
-integer :: i, j, l, lp, lb1, lb2, nb, nb1, nb2, isite, is1, js1, i1, i2, j1, j2, ibuf, n1, n2
-integer :: norder
-integer :: NmaxPop
-integer, allocatable :: intc(:)   !  intc(lmax)
-integer, allocatable :: ibas(:,:) !  ibas(exch,lmax)
-integer, allocatable :: icoord(:) !  icoord(lmax)
-integer, allocatable :: nind(:,:) !  nind(lmax,2)
-real(kind=8) :: vect(3)
-real(kind=8) :: dist
-real(kind=8), allocatable :: wlin(:) ! wlin(exch)
-real(kind=8), allocatable :: wlin1(:)! wlin1(exch)
-real(kind=8), allocatable :: wlin3(:)! wlin3(exch)
-real(kind=8), allocatable :: wlin9(:)! wlin9(exch)
-real(kind=8), allocatable :: wdip(:) ! wdip(exch)
-real(kind=8), allocatable :: wkex(:) ! wkex(exch)
-real(kind=8), allocatable :: wdmo(:) ! wdmo(exch)
-real(kind=8), allocatable :: wito(:) ! wito(exch)
-complex(kind=8), allocatable :: S1(:,:,:) ! S1(3,nmax,nmax)
-complex(kind=8), allocatable :: M1(:,:,:) ! M1(3,nmax,nmax)
-complex(kind=8), allocatable :: S2(:,:,:) ! S2(3,nmax,nmax)
-complex(kind=8), allocatable :: M2(:,:,:) ! M2(3,nmax,nmax)
-complex(kind=8), allocatable :: ZA1(:,:), ZA2(:,:)
-complex(kind=8), allocatable :: SM1(:,:,:) ! SM1(3,nmax,nmax)
-complex(kind=8), allocatable :: MM1(:,:,:) ! MM1(3,nmax,nmax)
-complex(kind=8), allocatable :: SM2(:,:,:) ! SM2(3,nmax,nmax)
-complex(kind=8), allocatable :: MM2(:,:,:) ! MM2(3,nmax,nmax)
-complex(kind=8), allocatable :: HLIN1(:,:,:,:,:) ! HLIN1(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), allocatable :: HLIN3(:,:,:,:,:) ! HLIN3(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), allocatable :: HLIN9(:,:,:,:,:) ! HLIN9(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), allocatable :: HDIP(:,:,:,:,:) ! HDIP(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), allocatable :: HKEX(:,:,:,:,:) ! HKEX(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), allocatable :: HDMO(:,:,:,:,:) ! HDMO(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), allocatable :: HITO(:,:,:,:,:) ! HITO(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), allocatable :: tmp(:,:) ! tmp(exch,exch)
-! two options for KE:
-integer :: KEOPT
-integer, parameter :: exchR = 8
-integer :: nmaxR
-integer :: nsta
-integer, allocatable :: nexchR(:)  ! nexchR(nneq)
-integer, allocatable :: ibasR(:,:) ! ibasR(exchR,lmax)
-integer, allocatable :: intcR(:)   ! intcR(lmax)
-real(kind=8), allocatable :: WR(:)  ! WR(exchR)
-real(kind=8), allocatable :: rotR(:,:,:,:) ! rotR(nneq,neqv,3,3)
-complex(kind=8), allocatable :: ZR(:,:) ! ZR(exchR,exchR)
-complex(kind=8), allocatable :: HKEXR(:,:,:,:,:) ! HKEXR(npair,2,2,2,2)
-complex(kind=8), allocatable :: MR(:,:,:) ! MR(3,exchR,exchR)
-complex(kind=8), allocatable :: SR(:,:,:) ! SR(3,exchR,exchR)
-complex(kind=8), allocatable :: SMR(:,:,:,:) ! SMR(nneq,3,2,2)
-complex(kind=8), allocatable :: MMR(:,:,:,:) ! MMR(nneq,3,2,2)
-!complex(kind=8) :: JAllDip(npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
-!complex(kind=8) :: JAllEx(npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
-!real(kind=8) :: J1Dip(npair,3,3)
-!real(kind=8) :: J1Ex(npair,3,3)
-real(kind=8) :: mg1(3,3), mg2(3,3)
-integer :: CtoB, RtoB, ItoB, mem_local
-!logical :: testlines
-real(kind=8) :: dnrm2_
-external :: norder, dnrm2_  !,ilaenv
+logical(kind=iwp), intent(in) :: Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE, DM_exchange, JITO_exchange
+real(kind=wp), intent(out) :: W(exch)
+complex(kind=wp), intent(out) :: Z(exch,exch), S(3,exch,exch), M(3,exch,exch)
+integer(kind=iwp) :: i, i1, i2, ibuf, is1, isite, j, j1, j2, js1, l, lb1, lb2, lp, mem_local, n1, n2, nb, nb1, nb2, NmaxPop, &
+                     nmaxR, nsta
+real(kind=wp) :: dist, mg1(3,3), mg2(3,3), vect(3)
+integer(kind=iwp), allocatable :: ibas(:,:), ibasR(:,:), icoord(:), intc(:), intcR(:), nexchR(:), nind(:,:)
+real(kind=wp), allocatable :: rotR(:,:,:,:), wdip(:), wdmo(:), wito(:), wkex(:), wlin(:), wlin1(:), wlin3(:), wlin9(:), WR(:)
+complex(kind=wp), allocatable :: HDIP(:,:,:,:,:), HDMO(:,:,:,:,:), HITO(:,:,:,:,:), HKEX(:,:,:,:,:), HKEXR(:,:,:,:,:), &
+                                 HLIN1(:,:,:,:,:), HLIN3(:,:,:,:,:), HLIN9(:,:,:,:,:), M1(:,:,:), M2(:,:,:), MM1(:,:,:), &
+                                 MM2(:,:,:), MMR(:,:,:,:), MR(:,:,:), S1(:,:,:), S2(:,:,:), SM1(:,:,:), SM2(:,:,:), SMR(:,:,:,:), &
+                                 SR(:,:,:), tmp(:,:), ZA1(:,:), ZA2(:,:), ZR(:,:)
+integer(kind=iwp), parameter :: exchR = 8
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
-integer :: k, k1, k2, q1, q2
+integer(kind=iwp) :: k, k1, k2, q1, q2
 #else
 #  define _DBG_ .false.
 #endif
-logical, parameter :: dbg = _DBG_
+logical(kind=iwp), parameter :: dbg = _DBG_
+integer(kind=iwp), external :: norder
+real(kind=wp), external :: dnrm2_
 
 #ifndef _DEBUGPRINT_
 #include "macros.fh"
@@ -220,9 +143,6 @@ end do
 #endif
 !-----------------------------------------------------------------------
 ! allocate memory for this function:
-ItoB = 8
-RtoB = 8
-CtoB = 16
 mem_local = 0
 if (lmax >= 0) then
   ! exchange energy spectrum
@@ -409,12 +329,8 @@ if (AnisoLines1) then
 
       ! find local pseudospin and rotate the spin and magnetic moment
       ! to the local pseudospin basis
-      if (itype(i1) == 'A') then
-        call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,.true.)
-      end if
-      if (itype(i2) == 'A') then
-        call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,.true.)
-      end if
+      if (itype(i1) == 'A') call prep_mom_exchange(n1,rot(i1,j1,1:3,1:3),SM(i1,1:3,1:n1,1:n1),MM(i1,1:3,1:n1,1:n1),mg1,.true.)
+      if (itype(i2) == 'A') call prep_mom_exchange(n2,rot(i2,j2,1:3,1:3),SM(i2,1:3,1:n2,1:n2),MM(i2,1:3,1:n2,1:n2),mg2,.true.)
 
       call prMom('SM(i1) bf Lines1',SM(i1,1:3,1:n1,1:n1),n1)
       call prMom('SM(i2) bf Lines1',SM(i2,1:3,1:n2,1:n2),n2)
@@ -621,7 +537,7 @@ end if
 if (JITO_exchange) then
 # ifdef _DEBUGPRINT_
   write(u6,'(A)') 'EXCHCTL:  Entering  JITO_exchange'
-#endif
+# endif
   if (nPair > 0) then
     call zcopy_(ibuf,[cZero],0,HITO,1)
     do lp=1,npair
@@ -952,9 +868,7 @@ call pa_diagham(exch,npair,i_pair,nneq,neq,nexch,nmax,lmax,eso,HLIN1,HLIN3,HLIN9
 call pa_preigen(exch,lmax,ibas,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,JITO_exchange,WLIN,WDIP,WKEX,WITO,W,Z,iPrint)
 !Z =  exchange eigenstates:
 NmaxPop = 500
-if (NmaxPop > exch) then
-  NmaxPop = exch
-end if
+if (NmaxPop > exch) NmaxPop = exch
 call PopAnalysis(nneq,neq,exch,nexch,nmax,lmax,NmaxPop,Z)
 do i=exch,1,-1
   w(i) = w(i)-w(1)
@@ -1014,12 +928,11 @@ do L=1,3
   call zgemm_('N','N',EXCH,EXCH,EXCH,cOne,TMP,EXCH,Z,EXCH,cZero,S(L,:,:),EXCH)
 end do  ! L
 
-if (npair > 0) then
-  ! ITO decomposition of the exchange and dipolar interactions:
+! ITO decomposition of the exchange and dipolar interactions:
+if (npair > 0) &
   call pr_ito_int(npair,i_pair,lmax,nexch,nneq,neqv,itype,neq,nmax,eso(1:nneq,1:nmax),MM(1:nneq,1:3,1:nmax,1:nmax), &
                   SM(1:nneq,1:3,1:nmax,1:nmax),rot,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,JITO_exchange,HLIN1, &
                   HLIN3,HLIN9,HDIP,HDMO,HITO)
-end if
 
 ! projection on the Ising Hamiltonian
 ! accessible format
@@ -1034,9 +947,7 @@ if (lmax >= 0) then
   call mma_deallocate(intc)
   call mma_deallocate(icoord)
   call mma_deallocate(nind)
-  if (exch >= 0) then
-    call mma_deallocate(ibas)
-  end if
+  if (exch >= 0) call mma_deallocate(ibas)
 end if
 if (exch >= 0) then
   call mma_deallocate(wlin)
@@ -1070,36 +981,26 @@ if (nmax >= 0) then
   end if
 end if
 
-if (exch >= 0) then
-  call mma_deallocate(tmp)
-end if
+if (exch >= 0) call mma_deallocate(tmp)
 
 if (nneq >= 0) then
   call mma_deallocate(nexchR)
   call mma_deallocate(SMR)
   call mma_deallocate(MMR)
-  if (neqv >= 0) then
-    call mma_deallocate(rotR)
-  end if
+  if (neqv >= 0) call mma_deallocate(rotR)
 end if
 
 if (exchR >= 0) then
-  if (lmax >= 0) then
-    call mma_deallocate(ibasR)
-  end if
+  if (lmax >= 0) call mma_deallocate(ibasR)
   call mma_deallocate(WR)
   call mma_deallocate(ZR)
   call mma_deallocate(MR)
   call mma_deallocate(SR)
 end if
 
-if (npair >= 0) then
-  call mma_deallocate(HKEXR)
-end if
+if (npair >= 0) call mma_deallocate(HKEXR)
 
-if (lmax >= 0) then
-  call mma_deallocate(intcR)
-end if
+if (lmax >= 0) call mma_deallocate(intcR)
 
 ! results of projection of the exchange interaction on the Ising Hamiltonian:
 

@@ -15,89 +15,70 @@ subroutine set_defaults(nneq,nTempMagn,nDir,nDirZee,nMult,neq,nexch,nK,mG,ncut,n
                         JITO_exchange,fitCHI,fitM,Do_structure_abc,doplot,compute_g_tensors,tinput,compute_susceptibility, &
                         compute_torque,compute_barrier,compute_magnetization,hinput,compute_Mdir_vector,zeeman_energy,m_paranoid, &
                         m_accurate,smagn,itype)
+! definition of the cluster
+!  nneq, neq, gtens_input, D_fact, EoverD_fact, riso, itype
+! definition of exchange interaction
+!  nexch
+! definition of g and D tensors
+!  nMult, compute_g_tensors
+! Zeeman energy and M vector
+!  nDir, nDirZee
+! definition of the exchange:
+!  AnisoLines1, AnisoLines3, AnisoLines9
+! options used in connection with Dipol-Dipol interaction
+!  Dipol
+! options used in connection with KE
+!  KE
+! option for Dzialoshinsky-Morya antisymmetric exchange
+!  DM_exchange
+! option for ITO exchange
+!  JITO_exchange
+! options for automatic fitting of parameters:
+!  fitCHI : not used so far
+!  fitM   : not used so far
+! definition of data for susceptibility
+!  tinput, compute_susceptibility, tmin, tmax, dltT0
+! options related to XT_MoverH
+!  Xfield
+! definition of data for magnetization:
+!  nTempMagn, TempMagn, iopt, dltH0, thrs, hmin, hmax, hinput, compute_magnetization, compute_Mdir_vector, zeeman_energy,
+!  m_paranoid, m_accurate, smagn
+! options used to set up nM and EM
+!  nK, mG     : encut_definition=1;
+!  ncut       : encut_definition=2;
+!  encut_rate : encut_definition=3;
+!  encut_definition
+! decompose exchange
+!  decompose_exchange
+! magnetization torque
+!  compute_torque, nP, AngPoints
+! mean field parameter
+!  zJ
+! definition of the crystal axes:
+!  cryst : a, b, c, alpha, beta, gamma
+!  Do_structure_abc
+! Cartesian coordinates of the main metal site, or center
+!  coord
+! definitions for blocking barrier
+!  nBlock, compute_barrier
+! default print level
+!  iPrint, DoPlot
 
 use Constants, only: Zero, Two, Ten, gElectron
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), intent(in) :: nneq, nTempMagn, nDir, nDirZee, nMult
+integer(kind=iwp), intent(out) :: neq(nneq), nexch(nneq), nK, mG, ncut, nP, AngPoints, nBlock, encut_definition, iopt, iPrint
+real(kind=wp), intent(out) :: dltT0, dltH0, zJ, tmin, tmax, hmin, hmax, Xfield, thrs, TempMagn(nTempMagn), cryst(6), coord(3), &
+                              encut_rate, gtens_input(3,nneq), D_fact(nneq), EoverD_fact(nneq), riso(nneq,3,3)
+logical(kind=iwp), intent(out) :: decompose_exchange, AnisoLines1, AnisoLines3, AnisoLines9, DM_exchange, Dipol, KE, &
+                                  JITO_exchange, fitCHI, fitM, Do_structure_abc, DoPlot, compute_g_tensors, tinput, &
+                                  compute_susceptibility, compute_torque, compute_barrier, compute_magnetization, hinput, &
+                                  compute_Mdir_vector, zeeman_energy, m_paranoid, m_accurate, smagn
+character, intent(out) :: itype(nneq)
 #include "mgrid.fh"
-! definition of the cluster
-integer, intent(in) :: nneq
-integer, intent(out) :: neq(nneq)
-real(kind=8), intent(out) :: gtens_input(3,nneq)
-real(kind=8), intent(out) :: D_fact(nneq)
-real(kind=8), intent(out) :: EoverD_fact(nneq)
-real(kind=8), intent(out) :: riso(nneq,3,3)
-character(len=1), intent(out) :: itype(nneq)
-! definition of exchange interaction
-integer, intent(out) :: nexch(nneq)
-! definition of g and D tensors
-integer, intent(in) :: nMult
-!integer, intent(out) :: nDim(nMult)
-logical, intent(out) :: compute_g_tensors
-! Zeeman energy and M vector
-integer, intent(in) :: nDir, nDirZee
-! definition of the exchange:
-logical, intent(out) :: AnisoLines1
-logical, intent(out) :: AnisoLines3
-logical, intent(out) :: AnisoLines9
-! options used in connection with Dipol-Dipol interaction
-logical, intent(out) :: Dipol
-! options used in connection with KE
-logical, intent(out) :: KE
-! option for Dzialoshinsky-Morya antisymmetric exchange
-logical, intent(out) :: DM_exchange
-! option for ITO exchange
-logical, intent(out) :: JITO_exchange
-! options for automatic fitting of parameters:
-logical, intent(out) :: fitCHI !-- not used so far
-logical, intent(out) :: fitM !-- not used so far
-! definition of data for susceptibility
-logical, intent(out) :: tinput, compute_susceptibility
-real(kind=8), intent(out) :: tmin, tmax, dltT0
-! options related to XT_MoverH
-real(kind=8), intent(out) :: Xfield
-! definition of data for magnetization:
-integer, intent(in) :: nTempMagn
-real(kind=8), intent(out) :: TempMagn(nTempMagn)
-integer, intent(out) :: iopt
-real(kind=8), intent(out) :: dltH0, thrs
-real(kind=8), intent(out) :: hmin, hmax
-logical, intent(out) :: hinput
-logical, intent(out) :: compute_magnetization
-logical, intent(out) :: compute_Mdir_vector
-logical, intent(out) :: zeeman_energy
-logical, intent(out) :: m_paranoid
-logical, intent(out) :: m_accurate
-logical, intent(out) :: smagn
-! options used to set up nM and EM
-integer, intent(out) :: encut_definition
-integer, intent(out) :: nK, mG ! encut_definition=1;
-integer, intent(out) :: ncut   ! encut_definition=2;
-real(kind=8), intent(out) :: encut_rate ! encut_definition=3;
-! decompose exchange
-logical, intent(out) :: decompose_exchange
-! magnetization torque
-logical, intent(out) :: compute_torque
-integer, intent(out) :: nP
-integer, intent(out) :: AngPoints
-! mean field parameter
-real(kind=8), intent(out) :: zJ
-! definition of the crystal axes:
-logical, intent(out) :: Do_structure_abc
-! a, b, c, alpha, beta, gamma
-real(kind=8), intent(out) :: cryst(6)
-! Cartesian coordinates of the main metal site, or center
-real(kind=8), intent(out) :: coord(3)
-! definitions for blocking barrier
-integer, intent(out) :: nBlock
-logical, intent(out) :: compute_barrier
-! default print level
-integer, intent(out) :: iPrint
-logical, intent(out) :: DoPlot
-!------------------------------------------------------------------
-! Local variables:
-integer :: i, j, l
+integer(kind=iwp) :: i, j, l
 
 !------------------------------------------------------------------
 ! at this point, the follwing variables have been already assigned
@@ -141,23 +122,11 @@ decompose_exchange = .false.
 JITO_exchange = .false.
 !-----------------------------------------------------------------------
 ! g and D tensors
-if (nMult > 0) then
-  compute_g_tensors = .true.
-else
-  compute_g_tensors = .false.
-end if
+compute_g_tensors = nMult > 0
 !-----------------------------------------------------------------------
 ! Magnetization vector and Zeeman energy spliting
-if (nDir > 0) then
-  compute_Mdir_vector = .true.
-else
-  compute_Mdir_vector = .false.
-end if
-if (nDirZee > 0) then
-  zeeman_energy = .true.
-else
-  zeeman_energy = .false.
-end if
+compute_Mdir_vector = nDir > 0
+zeeman_energy = nDirZee > 0
 !-----------------------------------------------------------------------
 ! powder magnetization:
 compute_magnetization = .false.

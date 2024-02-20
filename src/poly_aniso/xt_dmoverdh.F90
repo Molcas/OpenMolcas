@@ -14,139 +14,74 @@ subroutine XT_dMoverdH(exch,nLoc,nCenter,nneq,neqv,neq,nss,nexch,nTempMagn,nT,NM
 ! this Subroutine computes the XT as M/H as it is observed for most of experiments.
 ! The M is averaged over the grid for each temperature point.
 !       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
-
-use Constants, only: Zero, One, Three, Ten, mBohr, rNAVO
-use Definitions, only: wp, u6
-
-implicit none
-#include "mgrid.fh"
-#include "stdalloc.fh"
-integer, intent(in) :: exch, nLoc, nCenter, nneq, neqv
-integer, intent(in) :: nTempMagn, nT, NM, iopt, mem
-integer, intent(in) :: neq(nneq), nss(nneq), nexch(nneq)
-real(kind=8), intent(in) :: Tmin, Tmax
-real(kind=8), intent(in) :: eso(nneq,nLoc)
-real(kind=8), intent(in) :: W(exch)
-real(kind=8), intent(in) :: zJ
-real(kind=8), intent(in) :: RROT(nneq,neqv,3,3)
-real(kind=8), intent(in) :: T(nT+nTempMagn)
-real(kind=8), intent(in) :: chit_exp(nT)
-real(kind=8), intent(in) :: XT_no_field(nT+nTempMagn)
-real(kind=8), intent(in) :: Xfield
-real(kind=8), intent(in) :: THRS
-complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
-complex(kind=8), intent(in) :: s_so(nneq,3,nLoc,nLoc)
-complex(kind=8), intent(in) :: dipexch(3,exch,exch)
-complex(kind=8), intent(in) :: s_exch(3,exch,exch)
-logical, intent(in) :: tinput, smagn, m_paranoid, doplot
-!ccc local variables ccc
-integer :: nDirX
-integer :: iM, iT, jT, i, j, l, n, isite !,nP
-real(kind=8), allocatable :: WEX0(:)
-real(kind=8), allocatable :: WEX1(:)
-real(kind=8), allocatable :: WEX2(:)   ! Zeeman exchange energies
-real(kind=8), allocatable :: WL0(:,:)    ! Zeeman local energies
-real(kind=8), allocatable :: WL1(:,:)
-real(kind=8), allocatable :: WL2(:,:)    ! Zeeman local energies
+!
+!  WEX0, WEX1 WEX2 : Zeeman exchange energies
+!  WL0, WL1, WL2   : Zeeman local energies
 ! Zeeman local reduced energies, using only NEXCH states;
-real(kind=8), allocatable :: WR0(:,:)
-real(kind=8), allocatable :: WR1(:,:)
-real(kind=8), allocatable :: WR2(:,:)
+!  WR0, WR1, WR2
 ! local statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZL0(:,:)
-real(kind=8), allocatable :: ZL1(:,:)
-real(kind=8), allocatable :: ZL2(:,:)
+!  ZL0, ZL1, ZL2
 ! local statistical sum, Boltzmann distribution, using only NEXCH states
-real(kind=8), allocatable :: ZR0(:,:)
-real(kind=8), allocatable :: ZR1(:,:)
-real(kind=8), allocatable :: ZR2(:,:)
+!  ZR0, ZR1, ZR2
 ! spin magnetisation, from the local sites, using ALL states
-real(kind=8), allocatable :: SL0(:,:,:)
-real(kind=8), allocatable :: SL1(:,:,:)
-real(kind=8), allocatable :: SL2(:,:,:)
+!  SL0, SL1, SL2
 ! spin magnetisation, from the local sites, using only NEXCH states
-real(kind=8), allocatable :: SR0(:,:,:)
-real(kind=8), allocatable :: SR1(:,:,:)
-real(kind=8), allocatable :: SR2(:,:,:)
+!  SR0, SR1, SR2
 ! magnetisation, from local sites, using ALL states
-real(kind=8), allocatable :: ML0(:,:,:)
-real(kind=8), allocatable :: ML1(:,:,:)
-real(kind=8), allocatable :: ML2(:,:,:)
+!  ML0, ML1, ML2
 ! magnetisation, from local sites, using only NEXCH states
-real(kind=8), allocatable :: MR0(:,:,:)
-real(kind=8), allocatable :: MR1(:,:,:)
-real(kind=8), allocatable :: MR2(:,:,:)
+!  MR0, MR1, MR2
 ! spin magnetisation, from the exchange block
-real(kind=8), allocatable :: SEX0(:,:)
-real(kind=8), allocatable :: SEX1(:,:)
-real(kind=8), allocatable :: SEX2(:,:)
+!  SEX0, SEX1, SEX2
 ! magnetisation, form the exchange block
-real(kind=8), allocatable :: MEX0(:,:)
-real(kind=8), allocatable :: MEX1(:,:)
-real(kind=8), allocatable :: MEX2(:,:)
+!  MEX0, MEX1, MEX2
 ! exchange statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZEX0(:)
-real(kind=8), allocatable :: ZEX1(:)
-real(kind=8), allocatable :: ZEX2(:)
+!  ZEX0, ZEX1, ZEX2
 ! total vectors in general coordinate system:
-real(kind=8), allocatable :: ZRT0(:,:)
-real(kind=8), allocatable :: ZLT0(:,:)
-real(kind=8), allocatable :: ZRT1(:,:)
-real(kind=8), allocatable :: ZLT1(:,:)
-real(kind=8), allocatable :: ZRT2(:,:)
-real(kind=8), allocatable :: ZLT2(:,:)
-real(kind=8), allocatable :: MRT0(:,:,:)
-real(kind=8), allocatable :: MLT0(:,:,:)
-real(kind=8), allocatable :: SRT0(:,:,:)
-real(kind=8), allocatable :: SLT0(:,:,:)
-real(kind=8), allocatable :: MRT1(:,:,:)
-real(kind=8), allocatable :: MLT1(:,:,:)
-real(kind=8), allocatable :: SRT1(:,:,:)
-real(kind=8), allocatable :: SLT1(:,:,:)
-real(kind=8), allocatable :: MRT2(:,:,:)
-real(kind=8), allocatable :: MLT2(:,:,:)
-real(kind=8), allocatable :: SRT2(:,:,:)
-real(kind=8), allocatable :: SLT2(:,:,:)
+!  ZRT0, ZLT0, ZRT1, ZLT1, ZRT2, ZLT2, MRT0, MLT0, SRT0, SLT0, MRT1, MLT1, SRT1, SLT1, MRT2, MLT2, SRT2, SLT2
 ! data for total system:
 ! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ZT0(:)
-real(kind=8), allocatable :: ZT1(:)
-real(kind=8), allocatable :: ZT2(:)
-real(kind=8), allocatable :: MT0(:,:) ! total magnetisation
-real(kind=8), allocatable :: MT1(:,:) ! total magnetisation
-real(kind=8), allocatable :: ST0(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: ST1(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: ST2(:,:) ! total spin magnetisation,
-real(kind=8), allocatable :: MT2(:,:) ! total magnetisation
+!  MT0 : total magnetisation
+!  MT1 : total magnetisation
+!  ST0 : total spin magnetisation,
+!  ST1 : total spin magnetisation,
+!  ST2 : total spin magnetisation,
+!  MT2 : total magnetisation
+!  ZT0, ZT1, ZT2
 ! standard deviation data:
-real(kind=8) :: dev
-real(kind=8), allocatable :: XTM_MH(:)
-real(kind=8), allocatable :: XTM_dMdH(:)
-real(kind=8), allocatable :: XTtens_MH(:,:,:)
-real(kind=8), allocatable :: XTtens_dMdH(:,:,:)
-integer :: nTempTotal
-real(kind=8) :: Xfield_1, Xfield_2, dltXF, F1, F2
-!real(kind=8) :: XTS(nT+nTempMagn)
-! Zeeman energy and M vector
-!real(kind=8) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-!real(kind=8) :: dir_weight(nDirZee,3)
-real(kind=8) :: dHX(3)
-real(kind=8) :: dHY(3)
-real(kind=8) :: dHZ(3)
-integer :: RtoB, mem_local
-integer :: info, ibuf, ibuf1, ibuf3
-real(kind=8) :: wt(3), zt(3,3)
-real(kind=8) :: dnrm2_
-external :: dev, dnrm2_
-logical :: m_accurate
+!  dev
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Ten, mBohr, rNAVO
+use Definitions, only: wp, iwp, u6, RtoB
+
+implicit none
+integer(kind=iwp), intent(in) :: exch, nLoc, nCenter, nneq, neqv, neq(nneq), nss(nneq), nexch(nneq), nTempMagn, nT, NM, iopt, mem
+real(kind=wp), intent(in) :: Tmin, Tmax, chit_exp(nT), eso(nneq,nLoc), W(exch), T(nT+nTempMagn), RROT(nneq,neqv,3,3), zJ, Xfield, &
+                             THRS, XT_no_field(nT+nTempMagn)
+complex(kind=wp), intent(in) :: dipso(nneq,3,nLoc,nLoc), s_so(nneq,3,nLoc,nLoc), dipexch(3,exch,exch), s_exch(3,exch,exch)
+logical(kind=iwp), intent(in) :: tinput, smagn, m_paranoid, doplot
+#include "mgrid.fh"
+integer(kind=iwp) :: i, ibuf, ibuf1, ibuf3, iM, info, isite, iT, j, jT, l, mem_local, n, nDirX, nTempTotal
+real(kind=wp) :: dHX(3), dHY(3), dHZ(3), dltXF, F1, F2, wt(3), Xfield_1, Xfield_2, zt(3,3)
+logical(kind=iwp) :: m_accurate
 character(len=50) :: label
-real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
+real(kind=wp), allocatable :: MEX0(:,:), MEX1(:,:), MEX2(:,:), ML0(:,:,:), ML1(:,:,:), ML2(:,:,:), MLT0(:,:,:), MLT1(:,:,:), &
+                              MLT2(:,:,:), MR0(:,:,:), MR1(:,:,:), MR2(:,:,:), MRT0(:,:,:), MRT1(:,:,:), MRT2(:,:,:), MT0(:,:), &
+                              MT1(:,:), MT2(:,:), SEX0(:,:), SEX1(:,:), SEX2(:,:), SL0(:,:,:), SL1(:,:,:), SL2(:,:,:), &
+                              SLT0(:,:,:), SLT1(:,:,:), SLT2(:,:,:), SR0(:,:,:), SR1(:,:,:), SR2(:,:,:), SRT0(:,:,:), SRT1(:,:,:), &
+                              SRT2(:,:,:), ST0(:,:), ST1(:,:), ST2(:,:), WEX0(:), WEX1(:), WEX2(:), WL0(:,:), WL1(:,:), WL2(:,:), &
+                              WR0(:,:), WR1(:,:), WR2(:,:), XTM_dMdH(:), XTM_MH(:), XTtens_dMdH(:,:,:), XTtens_MH(:,:,:), ZEX0(:), &
+                              ZEX1(:), ZEX2(:), ZL0(:,:), ZL1(:,:), ZL2(:,:), ZLT0(:,:), ZLT1(:,:), ZLT2(:,:), ZR0(:,:), ZR1(:,:), &
+                              ZR2(:,:), ZRT0(:,:), ZRT1(:,:), ZRT2(:,:), ZT0(:), ZT1(:), ZT2(:)
+real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
 #else
 #  define _DBG_ .false.
 #endif
-logical, parameter :: DBG = _DBG_
+logical(kind=iwp), parameter :: DBG = _DBG_
+real(kind=wp), external :: dev, dnrm2_
 
 #ifndef _DEBUGPRINT_
 #include "macros.fh"
@@ -228,7 +163,6 @@ end if
 
 !=======================================================================
 mem_local = 0
-RtoB = 8
 call mma_allocate(WEX0,nM,'WEX0')
 call mma_allocate(WEX1,nM,'WEX1')
 call mma_allocate(WEX2,nM,'WEX2')

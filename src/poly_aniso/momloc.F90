@@ -11,62 +11,28 @@
 
 subroutine momloc2(N,NL,nneq,neq,neqv,r_rot,nsites,nexch,W,Z,dipexch,s_exch,dipso,s_so)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne, gElectron
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: N
-integer :: NL
-integer :: nneq
-integer :: neq(nneq)
-integer :: neqv  ! neqv = MAXVAL(neq(:))
-integer :: nsites
-integer :: nexch(nneq)
-real(kind=8) :: W(N)
-! assuming 10 equivalent magnetic sites, which is too much for many cases
-real(kind=8) :: R_rot(NNEQ,neqv,3,3)
-complex(kind=8) :: dipexch(3,N,N)
-complex(kind=8) :: s_exch(3,N,N)
-complex(kind=8) :: dipso(nneq,3,NL,NL)
-complex(kind=8) :: s_so(nneq,3,NL,NL)
-complex(kind=8) :: Z(N,N)
-#include "stdalloc.fh"
-! local variables:
-integer :: L, i, j, k
-integer :: nmult, isite
-integer :: icod(nsites)
-integer :: ib(N,nsites)
-integer :: nind(nsites,2)
-integer :: l_exch
-integer :: i1, j1, iss1, jss1, nb1, nb2
-integer :: icoord(nsites)
-integer :: norder
-real(kind=8) :: gtens(3)
-real(kind=8) :: maxes(3,3)
-real(kind=8) :: st(3)
-real(kind=8) :: H
-real(kind=8) :: E_thres
-real(kind=8) :: zJ
-real(kind=8), allocatable :: WM(:)     ! WM(N)
-real(kind=8), allocatable :: MM(:,:,:) ! MM(nsites,3,N)
-real(kind=8), allocatable :: LM(:,:,:) ! LM(nsites,3,N)
-real(kind=8), allocatable :: SM(:,:,:) ! SM(nsites,3,N)
-real(kind=8), allocatable :: JM(:,:,:) ! JM(nsites,3,N)
-complex(kind=8), allocatable :: ZM(:,:)  ! ZM(N,N)
-complex(kind=8), allocatable :: VL(:,:)  ! VL(N,N)
-complex(kind=8), allocatable :: TMP(:,:) ! TMP(N,N)
-! temporary data for ZEEM:
-real(kind=8), allocatable :: RWORK(:)
-complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
-real(kind=8), parameter :: g_e = -gElectron
+integer(kind=iwp), intent(in) :: N, NL, nneq, neq(nneq), neqv, nsites, nexch(nneq)
+real(kind=wp), intent(in) :: R_rot(NNEQ,neqv,3,3), W(N)
+complex(kind=wp), intent(in) :: Z(N,N), dipexch(3,N,N), s_exch(3,N,N), dipso(nneq,3,NL,NL), s_so(nneq,3,NL,NL)
+integer(kind=iwp) :: i, i1, ib(N,nsites), icod(nsites), icoord(nsites), isite, iss1, j, j1, jss1, k, L, l_exch, nb1, nb2, &
+                     nind(nsites,2), nmult, norder
+real(kind=wp) :: E_thres, gtens(3), H, maxes(3,3), st(3), zJ
+real(kind=wp), allocatable :: JM(:,:,:), LM(:,:,:), MM(:,:,:), RWORK(:), SM(:,:,:), WM(:)
+complex(kind=wp), allocatable :: HZEE(:), TMP(:,:), VL(:,:), W_c(:), WORK(:), ZM(:,:)
+real(kind=wp), parameter :: g_e = -gElectron
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
-integer :: iss, jEnd, m
+integer(kind=iwp) :: iss, jEnd, m
 character(len=60) :: fmtline
 #else
 #  define _DBG_ .false.
 #endif
-logical, parameter :: DBG = _DBG_
+logical(kind=iwp), parameter :: DBG = _DBG_
 
 if (N > 1) return
 
@@ -130,9 +96,7 @@ end do
 nmult = 0
 E_thres = 1.0e-3_wp
 do i=1,N
-  if (abs(W(i)-W(1)) < E_thres) then
-    nmult = nmult+1
-  end if
+  if (abs(W(i)-W(1)) < E_thres) nmult = nmult+1
 end do
 if (nmult < 2) nmult = 2 !minimum value needed to compute g-tensor
 ! find the main magnetic axes of this manifold:

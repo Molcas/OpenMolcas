@@ -14,20 +14,16 @@ subroutine Aniso_Lines_Exchange3(Jex,N1,N2,S1,S2,HAM)
 ! two sites, of the one interacting pair
 
 use Constants, only: Zero, cZero, cOne
+use Definitions, only: wp, iwp
 
 implicit none
-! input variables
-integer, intent(in) :: N1, N2
-real(kind=8), intent(in) :: Jex(3)
-complex(kind=8), intent(in) :: S1(3,N1,N1)
-complex(kind=8), intent(in) :: S2(3,N2,N2)
-! output variables
-complex(kind=8), intent(out) :: HAM(N1,N1,N2,N2)
-! local variables
-integer :: i1, i2, j1, j2, l
-complex(kind=8) :: Jc(3)
-real(kind=8) :: dnrm2_
-external :: dnrm2_
+real(kind=wp), intent(in) :: Jex(3)
+integer(kind=iwp), intent(in) :: N1, N2
+complex(kind=wp), intent(in) :: S1(3,N1,N1), S2(3,N2,N2)
+complex(kind=wp), intent(out) :: HAM(N1,N1,N2,N2)
+integer(kind=iwp) :: i1, i2, j1, j2, l
+complex(kind=wp) :: Jc(3)
+real(kind=wp), external :: dnrm2_
 
 if ((N1 <= 0) .or. (N2 <= 0)) return
 call zcopy_(N1*N1*N2*N2,[cZero],0,HAM,1)

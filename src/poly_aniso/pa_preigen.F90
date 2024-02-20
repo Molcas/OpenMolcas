@@ -12,28 +12,14 @@
 subroutine pa_preigen(exch,lmax,ibas,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,JITO_exchange,WLIN,WDIP,WKEX,WITO,W,Z,iPrint)
 ! this function prints the energies and eigenvectors of the interaction Hamiltonians:
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: exch
-integer, intent(in) :: lmax
-integer, intent(in) :: iPrint
-integer, intent(in) :: ibas(exch,lmax)
-! eigenstates of all Lines interactions: 1+3+9
-real(kind=8), intent(in) :: WLIN(exch)
-real(kind=8), intent(in) :: WDIP(exch)
-real(kind=8), intent(in) :: WKEX(exch)
-real(kind=8), intent(in) :: WITO(exch)
-real(kind=8), intent(in) :: W(exch)
-complex(kind=8), intent(in) :: Z(exch,exch)
-logical, intent(in) :: AnisoLines1
-logical, intent(in) :: AnisoLines3
-logical, intent(in) :: AnisoLines9
-logical, intent(in) :: Dipol
-logical, intent(in) :: KE
-logical, intent(in) :: JITO_exchange
-! local variables
-integer :: i, m, ipar, nf, j, jEnd, iss
+integer(kind=iwp), intent(in) :: exch, lmax, ibas(exch,lmax), iPrint
+logical(kind=iwp), intent(in) :: Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE, JITO_exchange
+real(kind=wp), intent(in) :: WLIN(exch), WDIP(exch), WKEX(exch), WITO(exch), W(exch)
+complex(kind=wp), intent(in) :: Z(exch,exch)
+integer(kind=iwp) :: i, ipar, iss, j, jEnd, m, nf
 character(len=80) :: fmtline
 
 write(u6,*)

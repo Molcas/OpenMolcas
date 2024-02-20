@@ -16,34 +16,31 @@ subroutine Msum(N,Mex,Zex,ML,ZL,MR,ZR,iopt,M,Z)
 !
 ! definition of the variables:
 !     N  -- total number of magnetic sites, Integer, input
-!    Mex -- magnetisation vector arising from the exchange states only, Real(kind=8) ::, (3) array, input
-!    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=8) ::, input
-!    ML  -- magnetisation vector arising from LOCAL states (all), Real(kind=8) ::, (N,3) array, input
+!    Mex -- magnetisation vector arising from the exchange states only, Real(kind=wp) ::, (3) array, input
+!    Zex -- statistical sum according to Boltzmann distribution law of the exchange states, Real(kind=wp) ::, input
+!    ML  -- magnetisation vector arising from LOCAL states (all), Real(kind=wp) ::, (N,3) array, input
 !    ZL  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (all),
-!           Real(kind=8) ::, (N) array, input
-!    MR  -- magnetisation vector arising from LOCAL states (exchange only), Real(kind=8) ::, (N,3) array, input
+!           Real(kind=wp) ::, (N) array, input
+!    MR  -- magnetisation vector arising from LOCAL states (exchange only), Real(kind=wp) ::, (N,3) array, input
 !    ZR  -- statistical sum according to Boltzmann distribution law arising from LOCAL states (exchange only),
-!           Real(kind=8) ::, (N) array, input
+!           Real(kind=wp) ::, (N) array, input
 !   iopt -- option allowing to choose the desired formula, (Integer, input):
 !           iopt=1  =>  formula for weak exchange limit ( new derivation)
 !           iopt=2  =>  formula for strong exchange limit ( simple sumation of moments),size consistent;
 !           iopt=3  =>  formula for strong exchange limit ( not to be used...)
-!    M   -- total magnwtisation, Real(kind=8) ::, (3) array, output
-!    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=8) ::, output
+!    M   -- total magnwtisation, Real(kind=wp) ::, (3) array, output
+!    Z   -- total statistical sum according to Boltzmann distribution, Real(kind=wp) ::, output
 !---------
 
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: N, iopt
-real(kind=8) :: Mex(3), Zex
-real(kind=8) :: ML(N,3), ZL(N)
-real(kind=8) :: MR(N,3), ZR(N)
-real(kind=8) :: M(3), Z
-! local variables
-integer :: i, ic
-real(kind=8) :: ZLT, ZRT, MLT(3), MRT(3)
+integer(kind=iwp), intent(in) :: N, iopt
+real(kind=wp), intent(in) :: Mex(3), Zex, ML(N,3), ZL(N), MR(N,3), ZR(N)
+real(kind=wp), intent(out) :: M(3), Z
+integer(kind=iwp) :: i, ic
+real(kind=wp) :: MLT(3), MRT(3), ZLT, ZRT
 
 ZLT = One
 ZRT = One

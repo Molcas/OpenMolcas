@@ -11,78 +11,31 @@
 
 subroutine susceptibility_pa(exch,nLoc,nCenter,nneq,neqv,neq,nss,nexch,nTempMagn,nT,Tmin,Tmax,XTexp,eso,dipso,s_so,w,dipexch, &
                              s_exch,T,R_LG,zJ,tinput,XLM,ZLM,XRM,ZRM,iopt,chiT_theta,doplot,mem)
-
-use Constants, only: Zero, Three, Ten, cLight, kBoltzmann, mBohr, rNAVO, rPlanck
-Use Definitions, only: wp, u6
-
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Three, Ten, cLight, kBoltzmann, mBohr, rNAVO, rPlanck
+use Definitions, only: wp, iwp, u6, RtoB
+
 implicit none
-integer, intent(in) :: nLoc, nCenter, nTempMagn, nT, mem
-integer, intent(in) :: exch, nneq, neqv, iopt
-integer, intent(in) :: neq(nneq), nss(nneq), nexch(nneq)
-real(kind=8), intent(in) :: T(nT+nTempMagn)
-real(kind=8), intent(in) :: W(exch)
-real(kind=8), intent(in) :: eso(nneq,nLoc)
-real(kind=8), intent(in) :: zJ
-real(kind=8), intent(in) :: Tmin, Tmax
-real(kind=8), intent(in) :: XTexp(nT+nTempMagn)
-real(kind=8), intent(in) :: R_LG(nneq,neqv,3,3)
-real(kind=8), intent(out) :: chit_theta(nT+nTempMagn)
-! contributions from local excited states, computed in the XT section:
-real(kind=8), intent(out) :: XLM(nCenter,nTempMagn,3,3)
-real(kind=8), intent(out) :: ZLM(nCenter,nTempMagn)
-real(kind=8), intent(out) :: XRM(nCenter,nTempMagn,3,3)
-real(kind=8), intent(out) :: ZRM(nCenter,nTempMagn)
-logical, intent(in) :: tinput, doplot
-! BIG matrices:
-complex(kind=8), intent(in) :: dipexch(3,exch,exch)
-complex(kind=8), intent(in) :: s_exch(3,exch,exch)
-complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
-complex(kind=8), intent(in) :: s_so(nneq,3,nLoc,nLoc)
-#include "stdalloc.fh"
-! local variables
-real(kind=8), allocatable :: chit_tens_l(:,:,:)       !chit_tens_l( nneq,3,3)
-real(kind=8), allocatable :: smu_chit_tens_l(:,:,:)   !smu_chit_tens_l( nneq,3,3)
-real(kind=8), allocatable :: ss_chit_tens_l(:,:,:)    !ss_chit_tens_l( nneq,3,3)
-real(kind=8), allocatable :: chit_tens_lr(:,:,:)      !chit_tens_lr(nneq,3,3)
-real(kind=8), allocatable :: smu_chit_tens_lr(:,:,:)  !smu_chit_tens_lr(nneq,3,3)
-real(kind=8), allocatable :: ss_chit_tens_lr(:,:,:)   !ss_chit_tens_lr(nneq,3,3)
-real(kind=8), allocatable :: chit_tens_ex(:,:)        !chit_tens_ex(3,3)
-real(kind=8), allocatable :: smu_chit_tens_ex(:,:)    !smu_chit_tens_ex(3,3)
-real(kind=8), allocatable :: ss_chit_tens_ex(:,:)     !ss_chit_tens_ex(3,3)
-real(kind=8), allocatable :: chit_tens_tot(:,:,:)     !chit_tens_tot(nT+nTempMagn,3,3)
-real(kind=8), allocatable :: smu_chit_tens_tot(:,:)   !smu_chit_tens_tot(3,3)
-real(kind=8), allocatable :: ss_chit_tens_tot(:,:)    !ss_chit_tens_tot(3,3)
-real(kind=8), allocatable :: chit_theta_tens(:,:,:)   !chit_theta_tens(nT+nTempMagn,3,3)
-real(kind=8), allocatable :: zstat_l(:)               !zstat_l( nneq)
-real(kind=8), allocatable :: zstat_lr(:)              !zstat_lr(nneq)
-real(kind=8), allocatable :: zstat_tot(:)             !zstat_tot(nT+nTempMagn)
-real(kind=8), allocatable :: chit(:)                  !chit(nT+nTempMagn)
-real(kind=8), allocatable :: chi_theta_1(:)           !chi_theta_1(nT+nTempMagn)
-real(kind=8), allocatable :: XL(:,:,:)                !XL(nCenter,3,3)
-real(kind=8), allocatable :: ZL(:)                    !ZL(nCenter)
-real(kind=8), allocatable :: XR(:,:,:)                !XR(nCenter,3,3)
-real(kind=8), allocatable :: ZR(:)                    !ZR(nCenter)
-real(kind=8), allocatable :: SMUR(:,:,:)              !SMUR(nCenter,3,3)
-real(kind=8), allocatable :: SMUL(:,:,:)              !SMUL(nCenter,3,3)
-real(kind=8), allocatable :: SSR(:,:,:)               !SSR( nCenter,3,3)
-real(kind=8), allocatable :: SSL(:,:,:)               !SSL( nCenter,3,3)
-real(kind=8), allocatable :: wt(:), zt(:,:)           !wt(3),zt(3,3)
-real(kind=8), allocatable :: A_dir(:,:)               !A_dir(3,3)
-real(kind=8), allocatable :: A_inv(:,:)               !A_inv(3,3)
-real(kind=8), allocatable :: unity(:,:)               !unity(3,3)
-real(kind=8) :: xxm
-real(kind=8) :: zstat_ex
-real(kind=8) :: det
-real(kind=8) :: dev, Fa, Fb, Fc, Fd, Fe, Ff
-external dev
-integer :: i, iT, jT, ic, jc
-integer :: j, n1, n2, im, jm
-integer :: isite, info, mem_local, RtoB
+integer(kind=iwp), intent(in) :: exch, nLoc, nCenter, nneq, neqv, neq(nneq), nss(nneq), nexch(nneq), nTempMagn, nT, iopt, mem
+real(kind=wp), intent(in) :: Tmin, Tmax, XTexp(nT+nTempMagn), eso(nneq,nLoc), W(exch), T(nT+nTempMagn), R_LG(nneq,neqv,3,3), zJ
+complex(kind=wp), intent(in) :: dipso(nneq,3,nLoc,nLoc), s_so(nneq,3,nLoc,nLoc), dipexch(3,exch,exch), s_exch(3,exch,exch)
+logical(kind=iwp), intent(in) :: tinput, doplot
+real(kind=wp), intent(out) :: XLM(nCenter,nTempMagn,3,3), ZLM(nCenter,nTempMagn), XRM(nCenter,nTempMagn,3,3), &
+                              ZRM(nCenter,nTempMagn), chit_theta(nT+nTempMagn)
+integer(kind=iwp) :: i, ic, im, info, isite, iT, j, jc, jm, jT, mem_local, n1, n2
+real(kind=wp) :: det, Fa, Fb, Fc, Fd, Fe, Ff, xxm, zstat_ex
 character(len=50) :: label
-real(kind=wp), external :: dnrm2_
-real(kind=8), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm^-1*k-1
-                           coeff_chi = rNAVO*mBohr**2/kBoltzmann/Ten ! = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
+real(kind=wp), allocatable :: A_dir(:,:), A_inv(:,:), chi_theta_1(:), chit(:), chit_tens_ex(:,:), chit_tens_l(:,:,:), &
+                              chit_tens_lr(:,:,:), chit_tens_tot(:,:,:), chit_theta_tens(:,:,:), smu_chit_tens_ex(:,:), &
+                              smu_chit_tens_l(:,:,:), smu_chit_tens_lr(:,:,:), smu_chit_tens_tot(:,:), SMUL(:,:,:), SMUR(:,:,:), &
+                              ss_chit_tens_ex(:,:), ss_chit_tens_l(:,:,:), ss_chit_tens_lr(:,:,:), ss_chit_tens_tot(:,:), &
+                              SSL(:,:,:), SSR(:,:,:), unity(:,:), wt(:), zt(:,:), XL(:,:,:), XR(:,:,:), ZL(:), ZR(:), zstat_l(:), &
+                              zstat_lr(:), zstat_tot(:)
+real(kind=wp), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm^-1*k-1
+                            coeff_chi = rNAVO*mBohr**2/kBoltzmann/Ten ! = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
+real(kind=wp), external :: dev, dnrm2_
 
 #ifndef _DEBUGPRINT_
 #include "macros.fh"
@@ -90,7 +43,6 @@ unused_var(mem)
 #endif
 
 mem_local = 0
-RtoB = 8
 !-----------------------------------------------------------------------
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Verification of input data on entrance to PA-SUSC:'
@@ -461,9 +413,7 @@ else ! i.e. when (zJ /= 0)
       chit(iT) = 1.0e-20_wp
       chit_theta(iT) = 1.0e-20_wp
     end if
-    if (abs(chit_theta(iT)) < 1.0e-20_wp) then
-      chit_theta(iT) = 1.0e-20_wp
-    end if
+    if (abs(chit_theta(iT)) < 1.0e-20_wp) chit_theta(iT) = 1.0e-20_wp
 
     chi_theta_1(iT) = t(iT)/chit_theta(iT)
 

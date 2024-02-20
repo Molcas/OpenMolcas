@@ -14,12 +14,10 @@ subroutine fetch_neq(nneq,neq,nexch)
 use Definitions, only: iwp, u5, u6
 
 implicit none
-integer, intent(inout) :: nneq
-integer, intent(inout) :: neq(nneq), nexch(nneq)
-!local variables:
-integer :: i, LineNr, istatus
+integer(kind=iwp), intent(inout) :: nneq, neq(nneq), nexch(nneq)
+integer(kind=iwp) :: i, istatus, LineNr
+logical(kind=iwp) :: ab_initio_all
 character(len=72) :: LINE
-logical :: ab_initio_all
 
 #include "macros.fh"
 

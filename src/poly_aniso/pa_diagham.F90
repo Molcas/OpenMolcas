@@ -13,64 +13,31 @@ subroutine pa_diagham(exch,npair,i_pair,nneq,neq,nexch,nmax,lmax,eso,HLIN1,HLIN3
                       AnisoLines1,AnisoLines3,AnisoLines9,KE,JITO_exchange,WLIN1,WLIN3,WLIN9,WLIN,WDIP,WKEX,WDMO,WITO,W,Z)
 ! this function builds and diagonalizes the interaction Hamiltonians
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: exch
-integer, intent(in) :: npair
-integer, intent(in) :: i_pair(npair,2)
-integer, intent(in) :: nneq
-integer, intent(in) :: neq(nneq)
-integer, intent(in) :: nexch(nneq)
-integer, intent(in) :: nmax
-integer, intent(in) :: lmax
-logical, intent(in) :: Dipol
-logical, intent(in) :: KE
-logical, intent(in) :: DM_exchange
-logical, intent(in) :: AnisoLines1
-logical, intent(in) :: AnisoLines3
-logical, intent(in) :: AnisoLines9
-logical, intent(in) :: JITO_exchange
-real(kind=8), intent(in) :: eso(nneq,nmax)
-complex(kind=8), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HLIN3(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HLIN9(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HDIP(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HKEX(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HDMO(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HITO(npair,nmax,nmax,nmax,nmax)
-! output data:
-real(kind=8), intent(out) :: wlin(exch) ! total 1+3+9
-real(kind=8), intent(out) :: wlin1(exch)
-real(kind=8), intent(out) :: wlin3(exch)
-real(kind=8), intent(out) :: wlin9(exch)
-real(kind=8), intent(out) :: wdip(exch)
-real(kind=8), intent(out) :: wkex(exch)
-real(kind=8), intent(out) :: wdmo(exch)
-real(kind=8), intent(out) :: wito(exch)
-
-real(kind=8), intent(out) :: w(exch)
-complex(kind=8), intent(out) :: Z(exch,exch)
-! local variables
-complex(kind=8), allocatable :: HTOT(:,:)
-integer, allocatable :: nind(:,:), intc(:), ibas(:,:), icoord(:)
-integer :: nb1, nb2, lb1, lb2, i1, i2, is1, is2, js1, js2, nb, i, j, l, lp, lb
-integer :: norder
-external :: norder
-! diag:
-integer :: info, lwork
-real(kind=8), allocatable :: rwork(:) !rwork(3*exch-2)
-complex(kind=8), allocatable :: work(:) !work(2*exch-1)
+integer(kind=iwp), intent(in) :: exch, npair, i_pair(npair,2), nneq, neq(nneq), nexch(nneq), nmax, lmax
+real(kind=wp), intent(in) :: eso(nneq,nmax)
+complex(kind=wp), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax), HLIN3(npair,nmax,nmax,nmax,nmax), &
+                                HLIN9(npair,nmax,nmax,nmax,nmax), HDIP(npair,nmax,nmax,nmax,nmax), &
+                                HKEX(npair,nmax,nmax,nmax,nmax), HDMO(npair,nmax,nmax,nmax,nmax), HITO(npair,nmax,nmax,nmax,nmax)
+logical(kind=iwp), intent(in) :: Dipol, DM_exchange, AnisoLines1, AnisoLines3, AnisoLines9, KE, JITO_exchange
+real(kind=wp), intent(out) :: wlin1(exch), wlin3(exch), wlin9(exch), wlin(exch), wdip(exch), wkex(exch), wdmo(exch), wito(exch), &
+                              w(exch)
+complex(kind=wp), intent(out) :: Z(exch,exch)
+integer(kind=iwp) :: i, i1, i2, info, is1, is2, j, js1, js2, l, lb, lb1, lb2, lp, lwork, nb, nb1, nb2
+integer(kind=iwp), allocatable :: ibas(:,:), icoord(:), intc(:), nind(:,:)
+real(kind=wp), allocatable :: rwork(:)
+complex(kind=wp), allocatable :: HTOT(:,:), work(:)
+integer(kind=iwp), external :: norder
 
 ! allocate memory and initialize variables:
 if (exch >= 0) then
   call mma_allocate(HTOT,exch,exch,'HTOT')
   call mma_allocate(WORK,(2*exch-1),'WORK')
-  if (lmax >= 0) then
-    call mma_allocate(ibas,exch,lmax,'ibas')
-  end if
+  if (lmax >= 0) call mma_allocate(ibas,exch,lmax,'ibas')
   call mma_allocate(rwork,(3*exch-2),'rwork')
 end if
 
@@ -532,9 +499,7 @@ end if
 if (exch >= 0) then
   call mma_deallocate(HTOT)
   call mma_deallocate(WORK)
-  if (lmax >= 0) then
-    call mma_deallocate(ibas)
-  end if
+  if (lmax >= 0) call mma_deallocate(ibas)
   call mma_deallocate(rwork)
 end if
 

@@ -12,98 +12,68 @@
 subroutine magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir,nDirZee,nDirTot,nss,nexch,iopt,LUZee,TempMagn, &
                             hexp,mexp,hmin,hmax,em,zJ,thrs,dirX,dirY,dirZ,dir_weight,w,dipexch,s_exch,dipso,s_so,eso,hinput,r_rot, &
                             XLM,ZLM,XRM,ZRM,zeeman_energy,compute_Mdir_vector,m_paranoid,m_accurate,smagn,mem,doplot)
+! constants defining the sizes
+!  NM : number of states included in the exchange Zeeman matrix, ( Nex <= exch)
+!  exch, nLoc, nH, nCenter, nTempMagn, nDir, nDirZee, nDirTot, nneq, neqv, neq, nss, nexch, iopt, mem, LUZee, hinput,
+!  zeeman_energy, compute_Mdir_vector, m_paranoid, m_accurate, smagn, doplot, R_ROT, W
+! exchange energies printed out in the previous part
+!  ESO
+! spin-orbit energies from ANISO files
+!  Hexp, Mexp, thrs, XLM, ZLM, XRM, ZRM, dirX, dirY, dirZ, dir_weight, TempMagn, zJ, hmin, hmax, em, DIPEXCH, S_EXCH, dipso, s_so
+!
+! exchange data:
+!  Wex : Zeeman exchange energies
+!  Zex : exchange statistical sum, Boltzmann distribution
+!  Sex : spin magnetisation, from the exchange block;
+!  Mex : magnetisation, from the exchange block
+! data for individual sites (all states):
+!  ZL : local statistical sum, Boltzmann distribution
+!  WL : Zeeman local energis
+!  SL : spin magnetisation, from the local sites, using ALL states ;
+!  ML : magnetisation, from local sites, using ALL states;
+! data for individual sites (only states that enter exchange):
+!  ZR : local statistical sum, Boltzmann distribution, using only Nexch states
+!  WR : Zeeman local reduced energies, using only Nexch states;
+!  SR : spin magnetisation, from the local sites, using only Nexch states ;
+!  MR : magnetisation, from local sites, using only Nexch states;
+!  ZRT, ZLT, MRT, MLT, SRT, SLT
+! data for total system:
+!  ZT : total statistical sum, Boltzmann distribution
+!  ST : total spin magnetisation,
+!  MT : total magnetisation
+! magnetic field strength and orientation data:
+!  dltH, H, dHX, dHY, dHZ, dHW
+! total average M and average S data:
+!  MAV, SAV, MVEC, SVEC
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, mBohr, rNAVO
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 #include "mgrid.fh"
-#include "stdalloc.fh"
-! constants defining the sizes
-integer, intent(in) :: exch, nLoc, nM
-integer, intent(in) :: nH, nCenter, nTempMagn
-integer, intent(in) :: nDir, nDirZee, nDirTot, nneq, neqv
-integer, intent(in) :: neq(nneq), nss(nneq), nexch(nneq)
-integer, intent(in) :: iopt, mem
-integer, intent(in) :: LUZee(nDirZee)
-logical, intent(in) :: hinput
-logical, intent(in) :: zeeman_energy
-logical, intent(in) :: compute_Mdir_vector
-logical, intent(in) :: m_paranoid
-logical, intent(in) :: m_accurate
-logical, intent(in) :: smagn
-logical, intent(in) :: doplot
-real(kind=8), intent(in) :: R_ROT(nneq,neqv,3,3)
-real(kind=8), intent(in) :: W(exch)
-! exchange energies printed out in the previous part
-real(kind=8), intent(in) :: ESO(nneq,nLoc)
-! spin-orbit energies from ANISO files
-real(kind=8), intent(in) :: Hexp(nH), Mexp(nH,nTempMagn)
-real(kind=8), intent(in) :: thrs
-real(kind=8), intent(in) :: XLM(nCenter,nTempMagn,3,3)
-real(kind=8), intent(in) :: ZLM(nCenter,nTempMagn)
-real(kind=8), intent(in) :: XRM(nCenter,nTempMagn,3,3)
-real(kind=8), intent(in) :: ZRM(nCenter,nTempMagn)
-real(kind=8), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-real(kind=8), intent(in) :: dir_weight(nDirZee,3)
-real(kind=8), intent(in) :: TempMagn(nTempMagn)
-real(kind=8), intent(in) :: zJ, hmin, hmax, em
-complex(kind=8), intent(in) :: DIPEXCH(3,exch,exch)
-complex(kind=8), intent(in) :: S_EXCH(3,exch,exch)
-complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
-complex(kind=8), intent(in) :: s_so(nneq,3,nLoc,nLoc)
-! exchange data:
-!integer :: NM ! number of states included in the exchange Zeeman matrix, ( Nex <= exch)
-real(kind=8), allocatable :: Wex(:) !WEX(NM) ! Zeeman exchange energies
-real(kind=8), allocatable :: Zex(:) !ZEX(nTempMagn) ! exchange statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: Sex(:,:) !SEX(3,nTempMagn) ! spin magnetisation, from the exchange block;
-real(kind=8), allocatable :: Mex(:,:) !MEX(3,nTempMagn) ! magnetisation, from the exchange block
-! data for individual sites (all states):
-real(kind=8), allocatable :: ZL(:,:) !ZL(nneq,nTempMagn) ! local statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: WL(:,:) !WL(nneq,nLoc) ! Zeeman local energis
-real(kind=8), allocatable :: SL(:,:,:) !SL(nneq,3,nTempMagn) ! spin magnetisation, from the local sites, using ALL states ;
-real(kind=8), allocatable :: ML(:,:,:) !ML(nneq,3,nTempMagn) ! magnetisation, from local sites, using ALL states;
-! data for individual sites (only states that enter exchange):
-real(kind=8), allocatable :: ZR(:,:) !ZR(nneq,nTempMagn) ! local statistical sum, Boltzmann distribution, using only Nexch states
-real(kind=8), allocatable :: WR(:,:) !WR(nneq,nLoc) ! Zeeman local reduced energies, using only Nexch states;
-real(kind=8), allocatable :: SR(:,:,:) !SR(nneq,3,nTempMagn) ! spin magnetisation, from the local sites, using only Nexch states ;
-real(kind=8), allocatable :: MR(:,:,:) !MR(nneq,3,nTempMagn) ! magnetisation, from local sites, using only Nexch states;
-! total vectors in general coordinate system:
-real(kind=8), allocatable :: ZRT(:,:) !ZRT(nCenter,nTempMagn)
-real(kind=8), allocatable :: ZLT(:,:) !ZLT(nCenter,nTempMagn)
-real(kind=8), allocatable :: MRT(:,:,:) !MRT(nCenter,3,nTempMagn)
-real(kind=8), allocatable :: MLT(:,:,:) !MLT(nCenter,3,nTempMagn)
-real(kind=8), allocatable :: SRT(:,:,:) !SRT(nCenter,3,nTempMagn)
-real(kind=8), allocatable :: SLT(:,:,:) !SLT(nCenter,3,nTempMagn)
-! data for total system:
-real(kind=8), allocatable :: ZT(:,:) !ZT(nH,nTempMagn) ! total statistical sum, Boltzmann distribution
-real(kind=8), allocatable :: ST(:,:,:) !ST(3,nH,nTempMagn) ! total spin magnetisation,
-real(kind=8), allocatable :: MT(:,:,:) !MT(3,nH,nTempMagn) ! total magnetisation
-! magnetic field strength and orientation data:
-real(kind=8) :: dltH
-real(kind=8), allocatable :: H(:) !H(nH)
-real(kind=8), allocatable :: dHX(:) !dHX(nDirTot)
-real(kind=8), allocatable :: dHY(:) !dHY(nDirTot)
-real(kind=8), allocatable :: dHZ(:) !dHZ(nDirTot)
-real(kind=8), allocatable :: dHW(:) !dHW(nDirTot)
-! total average M and average S data:
-real(kind=8), allocatable :: MAV(:,:) !MAV(nH,nTempMagn)
-real(kind=8), allocatable :: SAV(:,:) !SAV(nH,nTempMagn)
-real(kind=8), allocatable :: MVEC(:,:,:,:) !MVEC(nDirTot,nH,nTempMagn,3)
-real(kind=8), allocatable :: SVEC(:,:,:,:) !SVEC(nDirTot,nH,nTempMagn,3)
-
-integer :: IM, I, it, itEnd, J, iH, k, isite, l, n, nP
-integer :: iDir, rtob, ibuf, mem_local
-real(kind=8) :: dev, dnrm2_
-external :: dev, dnrm2_
+integer(kind=iwp), intent(in) :: exch, nLoc, nM, nH, nneq, neq(nneq), neqv, nCenter, nTempMagn, nDir, nDirZee, nDirTot, nss(nneq), &
+                                 nexch(nneq), iopt, LUZee(nDirZee), mem
+real(kind=wp), intent(in) :: TempMagn(nTempMagn), Hexp(nH), Mexp(nH,nTempMagn), hmin, hmax, em, zJ, thrs, dirX(nDir), dirY(nDir), &
+                             dirZ(nDir), dir_weight(nDirZee,3), W(exch), ESO(nneq,nLoc), R_ROT(nneq,neqv,3,3), &
+                             XLM(nCenter,nTempMagn,3,3), ZLM(nCenter,nTempMagn), XRM(nCenter,nTempMagn,3,3), ZRM(nCenter,nTempMagn)
+complex(kind=wp), intent(in) :: DIPEXCH(3,exch,exch), S_EXCH(3,exch,exch), dipso(nneq,3,nLoc,nLoc), s_so(nneq,3,nLoc,nLoc)
+logical(kind=iwp), intent(in) :: hinput, zeeman_energy, compute_Mdir_vector, m_paranoid, m_accurate, smagn, doplot
+integer(kind=iwp) :: I, ibuf, iDir, iH, IM, isite, it, itEnd, J, k, l, mem_local, n, nP
+real(kind=wp) :: dltH
 character(len=15) :: lbl_X, lbl_Y, lbl_Z
-real(kind=8), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
+real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), H(:), MAV(:,:), Mex(:,:), ML(:,:,:), MLT(:,:,:), MR(:,:,:), &
+                              MRT(:,:,:), MT(:,:,:), MVEC(:,:,:,:), SAV(:,:), Sex(:,:), SL(:,:,:), SLT(:,:,:), SR(:,:,:), &
+                              SRT(:,:,:), ST(:,:,:), SVEC(:,:,:,:), Wex(:), WL(:,:), WR(:,:), Zex(:), ZL(:,:), ZLT(:,:), ZR(:,:), &
+                              ZRT(:,:), ZT(:,:)
+real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
 #else
 #  define _DBG_ .false.
 #endif
-logical, parameter :: DBG = _DBG_
+logical(kind=iwp), parameter :: DBG = _DBG_
+real(kind=wp), external :: dev, dnrm2_
 
 #ifndef _DEBUGPRINT_
 #include "macros.fh"
@@ -117,7 +87,6 @@ write(u6,'(100A)') (('%'),J=1,96)
 write(u6,*)
 !----------------------------------------------------------------------
 mem_local = 0
-RtoB = 8
 #ifdef _DEBUGPRINT_
 write(u6,*) 'MAGN:        nM=',nM
 write(u6,*) 'MAGN:      exch=',exch
@@ -426,9 +395,7 @@ do iH=1,nH
           call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,1:3,1:NSS(i),1:NSS(i)), &
                     S_SO(i,1:3,1:NSS(i),1:NSS(i)),nTempMagn,TempMagn(1:nTempMagn),smagn,WL(i,1:NEXCH(i)),ZL(i,1:nTempMagn), &
                     SL(i,1:3,1:nTempMagn),ML(i,1:3,1:nTempMagn),m_paranoid,DBG)
-          if (IM == 2) then
-            call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL,1)],1,8)
-          end if
+          if (IM == 2) call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL,1)],1,8)
 
 #         ifdef _DEBUGPRINT_
           write(u6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(i,l,1),l=1,3)
@@ -486,9 +453,7 @@ do iH=1,nH
     ! compute the total magnetizations according to the derived formulas:
     if (m_accurate) then
       do iT=1,nTempMagn
-        if (smagn) then
-          call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLT(:,iT),SRT(:,:,iT),ZRT(:,iT),iopt,ST(:,iH,iT),ZT(iH,iT))
-        end if
+        if (smagn) call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLT(:,iT),SRT(:,:,iT),ZRT(:,iT),iopt,ST(:,iH,iT),ZT(iH,iT))
         call MSUM(nCenter,Mex(:,iT),Zex(iT),MLT(:,:,iT),ZLT(:,iT),MRT(:,:,iT),ZRT(:,iT),iopt,MT(:,iH,iT),ZT(iH,iT))
       end do
     else
@@ -505,9 +470,7 @@ do iH=1,nH
                               cm3tomB
           end do
         end do
-        if (smagn) then
-          call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLM(:,iT),SRT(:,:,iT),ZRM(:,iT),iopt,ST(:,iH,iT),ZT(iH,iT))
-        end if
+        if (smagn) call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLM(:,iT),SRT(:,:,iT),ZRM(:,iT),iopt,ST(:,iH,iT),ZT(iH,iT))
         call MSUM(nCenter,Mex(:,iT),Zex(iT),MLT(:,:,iT),ZLM(:,iT),MRT(:,:,iT),ZRM(:,iT),iopt,MT(:,iH,iT),ZT(iH,iT))
       end do
     end if
@@ -524,9 +487,7 @@ do iH=1,nH
         write(LuZee(iM-nDir),'(A,6x,A,1000(I4,6x) )') '# H(T)',' State =>',(i,i=1,nm)
       end if
 
-      if ((iM > nDir) .and. (iM <= nDir+nDirZee)) then
-        write(LUZee(iM-nDir),'(F8.4,1000F10.3)') H(IH),(Wex(I),I=1,NM)
-      end if
+      if ((iM > nDir) .and. (iM <= nDir+nDirZee)) write(LUZee(iM-nDir),'(F8.4,1000F10.3)') H(IH),(Wex(I),I=1,NM)
     end if !zeeman_energy
     ! ------------------------------------------------------------------
     ! computing the AVERAGE MOMENTS calculated at different temperatures

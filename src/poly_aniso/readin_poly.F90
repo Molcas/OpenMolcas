@@ -18,138 +18,101 @@ subroutine Readin_poly(nneq,neq,neqv,exch,nCenter,nT,nH,nTempMagn,nDir,nDirZee,n
                        fitCHI,fitM,compute_torque,compute_barrier,Dipol,check_title,AnisoLines1,AnisoLines3,AnisoLines9, &
                        DM_exchange,JITO_exchange)
 ! THIS ROUTINE READS THE standard input.
+! definition of the cluster:
+!  nneq, neqv, neq, nCenter, ifHDF
+! definition of the local metal sites
+!  R_LG, R_ROT, gtens_input, D_fact, EoverD_fact, riso, itype
+! definition of the exchange:
+!  exch          : total number of exchange states
+!  nPair         : number of metal pairs (number of interactions)
+!  nexch         : exchange basis, nmax= MAX(nexch(:))
+!  i_pair        : index of the metal site in a given interacting pair
+!  Jex           : Lines exchange    ( 1 parameter / interacting pair)
+!  JAex          : Anisotropic Lines ( 3 parameter / interacting pair)
+!  JAex9         : Anisotropic Lines full ( 9 parameters / interacting pair)
+!  JITO_exchange : options used in connection with ITO exchange:
+!  JDMex, AnisoLines1, AnisoLines3, AnisoLines9, Dipol, DM_exchange, MxRank1, MxRank2, imaxrank, JITOexR, JITOexI
+! options used in connection with KE
+!  lant, KEOPT, multLn, KE, tpar, upar
+! options used in connection with Dipol-Dipol interaction
+!  MagnCoords
+! definition of g and D tensors
+!  nMult, nDim, compute_g_tensors
+! definition of data for susceptibility
+!  nT, tinput, compute_susceptibility, tmin, tmax, chit_exp, Texp
+! options related to XT_MoverH
+!  Xfield
+! definition of data for magnetization:
+!  nH, nTempMagn, iopt, TempMagn, Hexp, Mexp, thrs, hmin, hmax, hinput, compute_magnetization, compute_Mdir_vector, zeeman_energy,
+!  m_paranoid, m_accurate, smagn
+! options used to set up nM and EM
+!  nK, mG     : encut_definition=1;
+!  ncut       : encut_definition=2;
+!  encut_rate : encut_definition=3;
+!  encut_definition
+! decompose exchange
+!  decompose_exchange
+! magnetization torque
+!  nP, AngPoints, compute_torque
+! Zeeman energy and M vector
+!  nDir, nDirZee, LUZee, dirX, dirY, dirZ, dir_weight
+! definition of mean field parameter
+!  zJ
+! definition of the crystal axes:
+!  cryst ! a, b, c, alpha, beta, gamma
+!  Do_structure_abc
+! Cartesian coordinates of the main metal site, or center
+!  coord
+! definitions for blocking barrier
+!  compute_barrier
+! options for automatic fitting of parameters:
+!  fitCHI : not used so far
+!  fitM   : not used so far
+! definition of print level
+!  iPrint, check_title, Title, DoPlot
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
+integer(kind=iwp), intent(inout) :: nneq, neq(nneq), nT, nH, nTempMagn, nDir, nDirZee, nMult, nPair, nexch(nneq), nDim(nMult), &
+                                    lant, multLn, iPrint, KEOPT, encut_definition, nK, mG, iopt, nP, AngPoints, ncut, &
+                                    LUZee(nDirZee), imaxrank(npair,2)
+integer(kind=iwp), intent(in) :: neqv, exch, nCenter, MxRank1, MxRank2
+integer(kind=iwp), intent(out) :: i_pair(nPair,2)
+real(kind=wp), intent(inout) :: TempMagn(nTempMagn), R_LG(nneq,neqv,3,3), R_ROT(nneq,neqv,3,3), Jex(nPair), JAex(nPair,3), &
+                                JAex9(nPair,3,3), JDMex(nPair,3), &
+                                JITOexR(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), &
+                                JITOexI(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), tpar, upar, cryst(6), coord(3), &
+                                Xfield, gtens_input(3,nneq), D_fact(nneq), EoverD_fact(nneq), riso(nneq,3,3), MagnCoords(nneq,3), &
+                                thrs, tmin, tmax, hmin, hmax, Texp(nT), chit_exp(nT), Hexp(nH), Mexp(nH,nTempMagn), encut_rate, &
+                                zJ, dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3)
+character(len=180), intent(inout) :: Title
+character, intent(inout) :: itype(nneq)
+logical(kind=iwp), intent(inout) :: ifHDF, compute_g_tensors, compute_magnetization, Do_structure_abc, DoPlot, &
+                                    compute_Mdir_vector, zeeman_energy, m_paranoid, m_accurate, smagn, compute_susceptibility, &
+                                    decompose_exchange, KE, fitCHI, fitM, compute_torque, compute_barrier, Dipol, AnisoLines1, &
+                                    AnisoLines3, AnisoLines9, DM_exchange, JITO_exchange
+logical(kind=iwp), intent(out) :: tinput, hinput, check_title
 #include "mgrid.fh"
 #include "warnings.h"
-! definition of the cluster:
-integer :: nneq, neqv, neq(nneq), nCenter
-logical :: ifHDF
-! definition of the local metal sites
-real(kind=8) :: R_LG(nneq,neqv,3,3)
-real(kind=8) :: R_ROT(nneq,neqv,3,3)
-real(kind=8) :: gtens_input(3,nneq)
-real(kind=8) :: D_fact(nneq)
-real(kind=8) :: EoverD_fact(nneq)
-real(kind=8), intent(out) :: riso(nneq,3,3)
-character(len=1) :: itype(nneq)
-! definition of the exchange:
-integer :: exch ! total number of exchange states
-integer :: nPair ! number of metal pairs (number of interactions)
-integer :: nexch(nneq) ! exchange basis, nmax= MAX(nexch(:))
-integer :: i_pair(nPair,2) ! index of the metal site in a given interacting pair
-logical :: AnisoLines1, AnisoLines3, AnisoLines9
-logical :: Dipol, DM_exchange
-real(kind=8) :: Jex(nPair) ! Lines exchange    ( 1 parameter / interacting pair)
-real(kind=8) :: JAex(nPair,3) ! Anisotropic Lines ( 3 parameter / interacting pair)
-real(kind=8) :: JAex9(nPair,3,3) ! Anisotropic Lines full ( 9 parameters / interacting pair)
-real(kind=8) :: JDMex(nPair,3)
-logical :: JITO_exchange ! options used in connection with ITO exchange:
-integer, intent(in) :: MxRank1, MxRank2
-integer, intent(out) :: imaxrank(npair,2)
-real(kind=8), intent(out) :: JITOexR(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2)
-real(kind=8), intent(out) :: JITOexI(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2)
-! options used in connection with KE
-integer :: lant, KEOPT, multLn
-logical :: KE
-real(kind=8) :: tpar, upar
-! options used in connection with Dipol-Dipol interaction
-real(kind=8) :: MagnCoords(nneq,3)
-! definition of g and D tensors
-integer :: nMult
-integer :: nDim(nMult)
-logical :: compute_g_tensors
-! definition of data for susceptibility
-integer :: nT
-logical :: tinput, compute_susceptibility
-real(kind=8) :: tmin, tmax
-real(kind=8) :: chit_exp(nT), Texp(nT)
-! options related to XT_MoverH
-real(kind=8) :: Xfield
-! definition of data for magnetization:
-integer :: nH
-integer :: nTempMagn
-integer :: iopt
-real(kind=8) :: TempMagn(nTempMagn)
-real(kind=8) :: Hexp(nH), Mexp(nH,nTempMagn)
-real(kind=8) :: thrs
-real(kind=8) :: hmin, hmax
-logical :: hinput
-logical :: compute_magnetization
-logical :: compute_Mdir_vector
-logical :: zeeman_energy
-logical :: m_paranoid
-logical :: m_accurate
-logical :: smagn
-! options used to set up nM and EM
-integer :: encut_definition
-integer :: nK, mG ! encut_definition=1;
-integer :: ncut   ! encut_definition=2;
-real(kind=8) :: encut_rate ! encut_definition=3;
-! decompose exchange
-logical :: decompose_exchange
-! magnetization torque
-integer :: nP
-integer :: AngPoints
-logical :: compute_torque
-! Zeeman energy and M vector
-integer :: nDir, nDirZee
-integer :: LUZee(nDirZee)
-real(kind=8) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-real(kind=8) :: dir_weight(nDirZee,3)
-! definition of mean field parameter
-real(kind=8) :: zJ
-! definition of the crystal axes:
-logical :: Do_structure_abc
-real(kind=8) :: cryst(6) ! a, b, c, alpha, beta, gamma
-! Cartesian coordinates of the main metal site, or center
-real(kind=8) :: coord(3)
-! definitions for blocking barrier
-logical :: compute_barrier
-! options for automatic fitting of parameters:
-logical :: fitCHI !-- not used so far
-logical :: fitM !-- not used so far
-! definition of print level
-integer :: iPrint
-logical :: check_title
-character(len=180) :: Title
-logical :: DoPlot
-!--------- LOCAL VARIABLES --------------------
-real(kind=8) :: check_dir_weight(3*nDirZee), tmp, sum
-integer :: ll, i, j, l, m, n, icount_b_sites, lp, ic, jc
-integer :: linenr, inneq, irank1, irank2, iproj1, iproj2
-integer :: duplicate_check(nPair), nind(exch,2)
-integer :: nst, ASUM, jrank1, jrank2, jproj1, jproj2
-integer :: i1, i2, lb1, lb2, istatus
-! index of the metal site in a given interacting pair
-!integer :: nind(nPair,2)
-!integer :: ind_exch(nneq)
-!real(kind=wp) :: magncoords(2*maxanisofiles,3)
-real(kind=8) :: finddetr, detR
-real(kind=8) :: tmpR(3,3)
-logical :: nosym
-external :: finddetr
-! variables connected to computation of g and d tensors
-logical :: ab_initio_all
-logical :: tcheck, hcheck, encut_check
-logical :: check_symm_presence
-logical :: checktmag
-real(kind=8) :: t2, t1
+integer(kind=iwp) :: ASUM, i, i1, i2, ic, icount_b_sites, inneq, iproj1, iproj2, irank1, irank2, istatus, j, jc, jproj1, jproj2, &
+                     jrank1, jrank2, l, lb1, lb2, linenr, ll, lp, m, n, nst
+real(kind=wp) :: check_dir_weight, detR, rsum, t1, t2, tmp, tmpR(3,3)
+logical(kind=iwp) :: ab_initio_all, check_symm_presence, checktmag, encut_check, hcheck, nosym, tcheck
 character(len=2) :: lanth
-!character(len=14) :: namefile_energy(nDirZee)
 character(len=21) :: namefile_energy
-character(len=288) :: Line, ctmp, string
-integer :: IsFreeUnit
-external :: IsFreeUnit
+character(len=288) :: ctmp, Line, string
+integer(kind=iwp), allocatable :: duplicate_check(:), nind(:,:)
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), external :: finddetr
 
 #include "macros.fh"
 
 check_title = .false.
 icount_B_sites = 0
-i_pair = 0
+i_pair(:,:) = 0
 nosym = .true.
 ENCUT_check = .false.
 TINPUT = .false.
@@ -594,19 +557,19 @@ do
       end do
       ! some processing:
       do i=1,nDir
-        sum = DirX(i)*DirX(i)+DirY(i)*DirY(i)+DirZ(i)*DirZ(i)
-        if (sum == Zero) then
+        rsum = DirX(i)*DirX(i)+DirY(i)*DirY(i)+DirZ(i)*DirZ(i)
+        if (rsum == Zero) then
           write(u6,'(a,i3,a)') 'error: MVEC  vector ',i,'has the modulus = 0.0.'
           write(u6,'(a     )') 'the program will stop now.'
           call quit(_RC_INPUT_ERROR_)
         end if
-        if (abs(sum-One) > 0.5e-13_wp) then
+        if (abs(rsum-One) > 0.5e-13_wp) then
           write(u6,'(a,i3,a)') 'the vector ',i,'was re-normalized.'
-          tmp = dirX(i)/sqrt(sum)
+          tmp = dirX(i)/sqrt(rsum)
           dirX(i) = tmp
-          tmp = dirY(i)/sqrt(sum)
+          tmp = dirY(i)/sqrt(rsum)
           dirY(i) = tmp
-          tmp = dirZ(i)/sqrt(sum)
+          tmp = dirZ(i)/sqrt(rsum)
           dirZ(i) = tmp
         end if
       end do
@@ -644,9 +607,7 @@ do
     !---  process HEXP command ----------------------------------------*
     case ('HEXP')
       compute_magnetization = .true.
-      if (checkTMAG) then
-        write(u6,'(A)') 'The data provided in TMAG will be ignored.'
-      end if
+      if (checkTMAG) write(u6,'(A)') 'The data provided in TMAG will be ignored.'
 
       if (HCHECK) then
         call Error(2)
@@ -742,9 +703,7 @@ do
         end if
       end do
       do i=1,nneq
-        if (neq(i) > 1) then
-          nosym = .false.
-        end if
+        if (neq(i) > 1) nosym = .false.
       end do
       !write(u6,'(A,i5)') 'exch = ',exch
       if (exch == 1) then
@@ -955,7 +914,7 @@ do
     case ('ZEEM')
       zeeman_energy = .true.
       compute_magnetization = .true.
-      LUZEE = 0
+      LUZEE(:) = 0
 
       read(u5,*,iostat=istatus) nDirZee
       if (istatus /= 0) call Error(4)
@@ -974,13 +933,13 @@ do
         read(u5,*,iostat=istatus) (dir_weight(i,l),l=1,3)
         if (istatus /= 0) call Error(4)
 
-        check_dir_weight(i) = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
+        check_dir_weight = sqrt(dir_weight(i,1)**2+dir_weight(i,2)**2+dir_weight(i,3)**2)
 
-        if (abs(check_dir_weight(i)-One) > 0.005_wp) then
+        if (abs(check_dir_weight-One) > 0.005_wp) then
           write(u6,'(A)') 'The directions for the magnetic field for the computation of the Zeeman splitting are wrong.'
           write(u6,'(A)') '( px^2 + py^2 + pz^2 ) must give 1.!'
           write(u6,'(A,I3,2x,A,F9.5)') 'In the present case for direction Nr.',i,' the dir_weight = px^2 + py^2 + pz^2 = ', &
-                                       check_dir_weight(i)**2
+                                       check_dir_weight**2
           LINENR = LINENR+2+i
           call Error(4)
         end if
@@ -1223,7 +1182,7 @@ if (npair > 0) then
     end do
   end if
 
-  Duplicate_check(1:nPair) = 0
+  call mma_allocate(Duplicate_check,nPair,label='Duplicate_check')
   do i=1,npair
     Duplicate_check(i) = 1000*i_pair(i,1)+i_pair(i,2)
 #   ifdef _DEBUGPRINT_
@@ -1258,6 +1217,7 @@ if (npair > 0) then
       end if
     end do
   end do
+  call mma_deallocate(Duplicate_check)
 
   ! check on the indices of the exchange couplings:
   do i=1,nPair
@@ -1275,6 +1235,7 @@ if (npair > 0) then
 
   ! check on the size of MxRank1 and MxRank2 wrt nexch(1) and nexch(2)
   if (JITO_exchange) then
+    call mma_allocate(nind,exch,2,label='nind')
     l = 0
     do i=1,nneq
       do j=1,neq(i)
@@ -1312,6 +1273,7 @@ if (npair > 0) then
         write(u6,'(100A)') ('#',i=1,100)
       end if
     end do
+    call mma_deallocate(nind)
   end if ! JITO_exchange
 end if ! nPair
 

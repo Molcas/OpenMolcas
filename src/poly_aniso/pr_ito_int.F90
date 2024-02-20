@@ -11,54 +11,29 @@
 
 subroutine pr_ito_int(npair,i_pair,lmax,nexch,nneq,neqv,itype,neq,nmax,soe,MM,SM,rot,Dipol,AnisoLines1,AnisoLines3,AnisoLines9, &
                       DM_exchange,JITO_exchange,HLIN1,HLIN3,HLIN9,HDIP,HDMO,HITO)
-! this function prints the parameters of the exchange interaction in an
-! accessible format
+! this function prints the parameters of the exchange interaction in an accessible format
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer, intent(in) :: npair
-integer, intent(in) :: nneq
-integer, intent(in) :: neqv
-integer, intent(in) :: lmax
-integer, intent(in) :: nmax
-integer, intent(in) :: nexch(nneq)
-integer, intent(in) :: neq(nneq)
-integer, intent(in) :: i_pair(npair,2)
-real(kind=8), intent(in) :: rot(nneq,neqv,3,3)
-real(kind=8), intent(in) :: soe(nneq,nmax)
-complex(kind=8), intent(in) :: MM(nneq,3,nmax,nmax)
-complex(kind=8), intent(in) :: SM(nneq,3,nmax,nmax)
-complex(kind=8), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HLIN3(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HLIN9(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HDIP(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HDMO(npair,nmax,nmax,nmax,nmax)
-complex(kind=8), intent(in) :: HITO(npair,nmax,nmax,nmax,nmax)
-logical, intent(in) :: Dipol
-logical, intent(in) :: AnisoLines1
-logical, intent(in) :: AnisoLines3
-logical, intent(in) :: AnisoLines9
-logical, intent(in) :: DM_exchange
-logical, intent(in) :: JITO_exchange
+integer(kind=iwp), intent(in) :: npair, i_pair(npair,2), lmax, nneq, nexch(nneq), neqv, neq(nneq), nmax
 character, intent(in) :: itype(nneq)
+real(kind=wp), intent(in) :: soe(nneq,nmax), rot(nneq,neqv,3,3)
+complex(kind=wp), intent(in) :: MM(nneq,3,nmax,nmax), SM(nneq,3,nmax,nmax), HLIN1(npair,nmax,nmax,nmax,nmax), &
+                               HLIN3(npair,nmax,nmax,nmax,nmax), HLIN9(npair,nmax,nmax,nmax,nmax), &
+                               HDIP(npair,nmax,nmax,nmax,nmax), HDMO(npair,nmax,nmax,nmax,nmax), HITO(npair,nmax,nmax,nmax,nmax)
+logical(kind=iwp), intent(in) :: Dipol, AnisoLines1, AnisoLines3, AnisoLines9, DM_exchange, JITO_exchange
 ! local variables
-!integer :: iopt
-integer :: i, j, l, k, lp, i1, i2, lb1, lb2, ibuf, k1, k2, q1, q2, n1, n2, nsize
-integer :: nind(lmax,2), l1(2), l2(2), l3(2), l4(2)
-real(kind=8) :: J1C(3,3), J1Cr(3,3) !, J1C_trans(3,3)
-complex(kind=8), allocatable :: JN(:,:,:,:)
-complex(kind=8), allocatable :: JB(:,:,:,:)
-complex(kind=8), allocatable :: JS(:,:,:,:)
-real(kind=8) :: dznrm2_, RL1, RL3, RL9, RDI, RDM, RIT
-real(kind=8) :: g1(3), g2(3), mg1(3,3), mg2(3,3)
-external :: dznrm2_
-!real(kind=8), parameter :: cm_to_MHz = cLight*1.0e-4_wp
+integer(kind=iwp) :: i, i1, i2, ibuf, j, k, k1, k2, l, l1(2), l2(2), l3(2), l4(2), lb1, lb2, lp, n1, n2, nind(lmax,2), nsize, q1, q2
 #ifdef _DEBUGPRINT_
-integer :: is1, is2, js1, js2
+integer(kind=iwp) :: is1, is2, js1, js2
 #endif
+real(kind=wp) :: g1(3), g2(3), J1C(3,3), J1Cr(3,3), mg1(3,3), mg2(3,3), RDI, RDM, RIT, RL1, RL3, RL9 !, J1C_trans(3,3)
+complex(kind=wp), allocatable :: JB(:,:,:,:), JN(:,:,:,:), JS(:,:,:,:)
+!real(kind=wp), parameter :: cm_to_MHz = cLight*1.0e-4_wp
+real(kind=wp), external :: dznrm2_
 
 #ifndef _DEBUGPRINT_
 #include "macros.fh"
@@ -259,7 +234,6 @@ do lp=1,npair
   n2 = nexch(i2)
   write(u6,'(A)') 'PART 1: Magnetic exchange is written in the coordinate systems of the LOCAL main magnetic axes of the '// &
                   'interacting sites.'
-  !iopt = 1
   write(u6,'(A)')
   write(u6,'(100A)') ('-',i=1,100)
   write(u6,'(A,i2)') 'Interacting pair',lp

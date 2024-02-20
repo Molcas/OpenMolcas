@@ -11,53 +11,34 @@
 
 subroutine Kinetic_Exchange(N1,N2,M1,S1,M2,S2,eso1,eso2,tpar,upar,lant,OPT,HKEX,MR1,SR1,MR2,SR2)
 ! compute KE, within various options :
+! the Ln site
+!  N1, eso1, M1, S1, MR1, SR1
+! the radical
+!  N2, eso2, M2, S2, MR2, SR2
+! exchange Hamiltonian
+!  HKEX
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: lant, OPT
-real(kind=8), intent(in) :: tpar, upar
-! the Ln site
-integer, intent(in) :: N1
-real(kind=8), intent(in) :: eso1(N1)
-complex(kind=8), intent(in) :: M1(3,N1,N1)
-complex(kind=8), intent(in) :: S1(3,N1,N1)
-complex(kind=8), intent(out) :: MR1(3,N1,N1)
-complex(kind=8), intent(out) :: SR1(3,N1,N1)
-! the radical
-integer, intent(in) :: N2
-real(kind=8), intent(in) :: eso2(N2)
-complex(kind=8), intent(in) :: M2(3,N2,N2)
-complex(kind=8), intent(in) :: S2(3,N2,N2)
-complex(kind=8), intent(out) :: MR2(3,N2,N2)
-complex(kind=8), intent(out) :: SR2(3,N2,N2)
-! exchange Hamiltonian
-complex(kind=8) :: HKEX(N1,N1,N2,N2)
-! local variables:
-integer :: i1, i2, j1, j2, i, info, j, l, is1, is2, iprint
-real(kind=8) :: eloc1(N1)
-real(kind=8) :: eloc2(N2)
-complex(kind=8) :: Z1(N1,N1)
-complex(kind=8) :: Z2(N2,N2)
-complex(kind=8) :: H1(N1,N1)
-complex(kind=8) :: H2(N2,N2)
-complex(kind=8) :: HCOV(N1,N1)
-complex(kind=8) :: H1T(N1,N1)
-complex(kind=8) :: HEXC(N1,N1,N2,N2)
-complex(kind=8) :: ABIT(N1,N1,N2,N2)
-complex(kind=8) :: MM1(3,N1,N1)
-complex(kind=8) :: SM1(3,N1,N1)
-complex(kind=8) :: ZZ1(N1,N1)
-complex(kind=8) :: ZZ2(N2,N2)
-complex(kind=8) :: ZCR(N1,N1)
-complex(kind=8) :: TMP(N1,N1)
-real(kind=8) :: gtens(4,3), maxes(4,3,3), wcr(n1)
+integer(kind=iwp), intent(in) :: N1, N2, lant, OPT
+complex(kind=wp), intent(in) :: M1(3,N1,N1), S1(3,N1,N1), M2(3,N2,N2), S2(3,N2,N2)
+real(kind=wp), intent(in) :: eso1(N1), eso2(N2), tpar, upar
+complex(kind=wp), intent(out) :: HKEX(N1,N1,N2,N2), MR1(3,N1,N1), SR1(3,N1,N1), MR2(3,N2,N2), SR2(3,N2,N2)
+integer(kind=iwp) :: i, i1, i2, info, iprint, is1, is2, j, j1, j2, l
+real(kind=wp) :: gtens(4,3), maxes(4,3,3)
+real(kind=wp), allocatable :: eloc1(:), eloc2(:), wcr(:)
+complex(kind=wp), allocatable :: ABIT(:,:,:,:), H1(:,:), H1T(:,:), H2(:,:), HCOV(:,:), HEXC(:,:,:,:), MM1(:,:,:), SM1(:,:,:), &
+                                 TMP(:,:), Z1(:,:), Z2(:,:), ZCR(:,:), ZZ1(:,:), ZZ2(:,:)
 
 ! determine the pseudospin on each site (Z1 and Z2):
 iprint = 1
 gtens(:,:) = 0.0_wp
 maxes(:,:,:) = 0.0_wp
+call mma_allocate(Z1,N1,N1,label='Z1')
+call mma_allocate(Z2,N2,N2,label='Z2')
 call pseudospin(M1,N1,Z1,3,1,iprint)
 call pseudospin(M2,N2,Z2,3,1,iprint)
 #ifdef _DEBUGPRINT_
@@ -65,8 +46,12 @@ call pa_prMat('KE_Exchange:: Pseudospin site 1',Z1,N1)
 call pa_prMat('KE_Exchange:: Pseudospin site 2',Z2,N2)
 #endif
 ! get the "traced-to-zero" local energy states on both sites:
+call mma_allocate(eloc1,N1,label='eloc1')
+call mma_allocate(eloc2,N1,label='eloc2')
 call rtrace(N1,eso1,eloc1)
 call rtrace(N2,eso2,eloc2)
+call mma_allocate(H1,N1,N1,label='H1')
+call mma_allocate(H2,N2,N2,label='H2')
 H1(:,:) = cZero
 H2(:,:) = cZero
 do I1=1,N1
@@ -83,6 +68,10 @@ do I1=1,N2
     end do
   end do
 end do
+call mma_deallocate(eloc1)
+call mma_deallocate(eloc2)
+call mma_allocate(HCOV,N1,N1,label='HCOV')
+call mma_allocate(HEXC,N1,N1,N2,N2,label='HEXC')
 if ((OPT == 1) .or. (OPT == 3) .or. (OPT > 4)) then ! full
   call KE_Covalent(N1,lant,tpar,upar,1,HCOV)
   call KE_Exchange(N1,N2,lant,tpar,upar,1,HEXC)
@@ -91,6 +80,8 @@ else if ((OPT == 2) .or. (OPT == 4)) then ! 1/U model
   call KE_Exchange(N1,N2,lant,tpar,upar,2,HEXC)
 end if
 
+call mma_allocate(H1T,N1,N1,label='H1T')
+call mma_allocate(TMP,N1,N1,label='TMP')
 H1T(:,:) = H1(:,:)+HCOV(:,:)
 ! rewrite the HCOV in the initial ab initio basis:
 call ZGEMM_('N','N',N1,N1,N1,cOne,Z1(1:N1,1:N1),N1,HCOV(1:N1,1:N1),N1,cZero,TMP(1:N1,1:N1),N1)
@@ -118,6 +109,10 @@ do is1=1,N1
   end do
 end do
 
+call mma_deallocate(Z1)
+call mma_deallocate(Z2)
+
+call mma_allocate(ABIT,N1,N1,N2,N2,label='ABIT')
 HKEX(:,:,:,:) = cZero
 do i=1,N1
   do i1=1,N2
@@ -133,7 +128,14 @@ do i1=1,N1
     end do
   end do
 end do
+call mma_deallocate(ABIT)
+call mma_deallocate(H1)
+call mma_deallocate(H2)
+call mma_deallocate(HCOV)
+call mma_deallocate(HEXC)
 ! H1T = H1 + HCOV
+call mma_allocate(wcr,N1,label='wcr')
+call mma_allocate(zcr,N1,N1,label='zcr')
 call diag_c2(H1T,N1,info,wcr,zcr)
 do i=1,N1
   write(u6,'(2(A,i2,A,F15.9))') 'ESO1(',i,')=',ESO1(i),'  ESO1+COV(',i,')=',wcr(i)-wcr(1)
@@ -143,6 +145,8 @@ do i=1,N1
     write(u6,'(A,i2,A,i2,A,2F20.14)') 'ZCR(',i,',',j,')=',ZCR(i,j)
   end do
 end do
+call mma_deallocate(wcr)
+call mma_deallocate(H1T)
 
 ! rotate to COV basis:
 if ((opt == 3) .or. (opt == 4)) then
@@ -154,6 +158,8 @@ if ((opt == 3) .or. (opt == 4)) then
   end do
 end if
 ! compute the g tensors for initial and initial+covalence:
+call mma_allocate(MM1,3,N1,N1,label='MM1')
+call mma_allocate(SM1,3,N1,N1,label='SM1')
 call atens(M1(1:3,1:2,1:2),2,gtens(1,:),maxes(1,:,:),1)
 call atens(M1(1:3,3:4,3:4),2,gtens(2,:),maxes(2,:,:),1)
 do L=1,3
@@ -162,6 +168,7 @@ do L=1,3
   call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,S1(L,:,:),N1,cZero,TMP,N1)
   call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZCR,N1,cZero,SM1(L,:,:),N1)
 end do
+call mma_deallocate(zcr)
 call atens(MM1(:,1:2,1:2),2,gtens(3,:),maxes(3,:,:),1)
 call atens(MM1(:,3:4,3:4),2,gtens(4,:),maxes(4,:,:),1)
 write(u6,'(A)') 'Initial g tensors of the ground and first excited KD'
@@ -187,6 +194,8 @@ if ((opt == 3) .or. (opt == 4)) then
   call rotmom2(S2,N2,maxes(3,:,:),SR2)
   call rotmom2(M2,N2,maxes(3,:,:),MR2)
   ! find the local pseudospins on both sites:
+  call mma_allocate(ZZ1,N1,N1,label='ZZ1')
+  call mma_allocate(ZZ2,N2,N2,label='ZZ2')
   call pseudospin(MR1,N1,ZZ1,3,1,iprint)
   call pseudospin(MR2,N2,ZZ2,3,1,iprint)
 # ifdef _DEBUGPRINT_
@@ -219,12 +228,18 @@ if ((opt == 3) .or. (opt == 4)) then
       call ZGEMM_('N','N',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,ZZ2(1:N2,1:N2),N2,cZero,HKEX(is1,is2,1:N2,1:N2),N2)
     end do
   end do
+  call mma_deallocate(ZZ1)
+  call mma_deallocate(ZZ2)
 else !opt=1, opt=2, and opt>4
   MR1(:,:,:) = M1(:,:,:)
   SR1(:,:,:) = S1(:,:,:)
   MR2(:,:,:) = M2(:,:,:)
   SR2(:,:,:) = S2(:,:,:)
 end if
+
+call mma_deallocate(MM1)
+call mma_deallocate(SM1)
+call mma_deallocate(TMP)
 
 return
 

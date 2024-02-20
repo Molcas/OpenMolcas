@@ -13,33 +13,21 @@ subroutine JITO_Exchange_Int(MxR1,MxR2,imaxrank,n1,n2,JR,JI,HAM)
 ! this Subroutine calculates the anisotropic exchange interaction between
 ! two sites, of the one interacting pair on the basis of input ITO parameters
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-#include "stdalloc.fh"
-! input variables
-integer, intent(in) :: imaxrank(2)
-integer, intent(in) :: MxR1, MxR2
-integer, intent(in) :: n1, n2
-real(kind=8), intent(in) :: JR(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
-real(kind=8), intent(in) :: JI(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
-! output variables
-complex(kind=8), intent(out) :: HAM(n1,n1,n2,n2)
-! lcoal variables:
-integer :: ibuf, k1, q1, k2, q2, m1, m2, l1, l2
-real(kind=8) :: jpar, RR, RI
-!real(kind=8) :: rK1, rK2, rQ1, rQ2, rM1, rM2, rJ1, rJ2, CGp1, CGp2, CGm1, CGm2, CG01, CG02
-real(kind=8) :: C01, C02
-complex(kind=8) :: J(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
-complex(kind=8), allocatable :: O1(:,:), O2(:,:)
-complex(kind=8), allocatable :: W1(:,:), W2(:,:)
-complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:), OW(:,:,:,:), WO(:,:,:,:)
-real(kind=8) :: dnrm2_
-external :: dnrm2_
+integer(kind=iwp), intent(in) :: MxR1, MxR2, imaxrank(2), n1, n2
+real(kind=wp), intent(in) :: JR(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2), JI(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
+complex(kind=wp), intent(out) :: HAM(n1,n1,n2,n2)
+integer(kind=iwp) :: ibuf, k1, k2, l1, l2, m1, m2, q1, q2
+real(kind=wp) :: C01, C02, jpar, RI, RR
+complex(kind=wp), allocatable :: J(:,:,:,:), O1(:,:), O2(:,:), OO(:,:,:,:), OW(:,:,:,:), W1(:,:), W2(:,:), WO(:,:,:,:), WW(:,:,:,:)
+real(kind=wp), external :: dnrm2_
 
 ! ----  initial checks
 if ((n1 <= 0) .or. (n2 <= 0)) return
@@ -50,6 +38,7 @@ if (ibuf == 0) return
 jpar = dnrm2_(ibuf,JR(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)+dnrm2_(ibuf,JI(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
 if (jpar == Zero) return
 ! ---- end initial checks
+call mma_allocate(J,[1,MxR1],[-MxR1,MxR1],[1,MxR2],[-MxR2,MxR2],label='J')
 call zcopy_(ibuf,[cZero],0,J(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
 do k1=1,MxR1,2
   do k2=1,MxR2,2
@@ -129,6 +118,7 @@ do m1=1,n1
 end do
 #endif
 
+call mma_deallocate(J)
 call mma_deallocate(OO)
 call mma_deallocate(OW)
 call mma_deallocate(WO)

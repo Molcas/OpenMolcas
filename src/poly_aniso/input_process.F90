@@ -17,113 +17,82 @@ subroutine input_process(nneq,neq,neqv,nmax,nCenter,nexch,nDir,nDirZee,nDirTot,n
                          compute_magnetization,compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,compute_g_tensors, &
                          compute_torque,compute_susceptibility,Lines,AnisoLines3,AnisoLines9,Dipol,check_title,KE,DM_exchange, &
                          JITO_exchange)
+!  nneq      : number of non-equivalent sites
+!  neq(nneq) : number of equivalent sites of each type
+!  neqv      : = MAXVAL(neq(:))
+! definition of the exchange:
+!  exch      : total number of exchange states
+!  nPair     : number of metal pairs (number of interactions)
+!  i_pair    : index of the metal site in a given interacting pair
+!  imaxrank  : index of the ITO ranks for each pair
+!  Jex       : Lines exchange    ( 1 parameter / interacting pair)
+!  JAex      : Anisotropic Lines ( 3 parameter / interacting pair)
+!  JAex9     : Anisotropic Lines full ( 9 parameters / interacting pair)
+!  JDMex     : Dzyaloshinsky-Morya exchange
+!  MxRank1, MxRank2, Lines, AnisoLines3, AnisoLines9, Dipol, DM_exchange, JITO_exchange, old_aniso_format, JITOexR, JITOexI
+! options used in connection with KE
+!  lant, KEOPT, multLn, KE, tpar, upar
+! options used in connection with Dipol-Dipol interaction
+!  MagnCoords
+! definition of data for susceptibility
+!  nT, tinput, compute_susceptibility, tmin, tmax, chit_exp, Texp
+! options related to XT_MoverH
+!  Xfield, nH, nTempMagn, iopt, TempMagn, Hexp, Mexp, thrs, hmin, hmax, hinput, compute_magnetization, compute_Mdir_vector, &
+!  zeeman_energy, m_paranoid, m_accurate, smagn
+! options used to set up nM and EM
+!  encut_definition
+!  nK, mG     : encut_definition=1;
+!  ncut       : encut_definition=2;
+!  encut_rate : encut_definition=3;
+! definition of g and D tensors
+!  nMult, nDim, compute_g_tensors
+! magnetization torque
+!  nP, AngPoints, compute_torque
+! Zeeman energy and M vector
+!  nDir, nDirZee, dirX, dirY, dirZ, dir_weight
+! definition of mean field parameter
+!  zJ
+! definition of the crystal axes:
+!  Do_structure_abc
+!  cryst : a, b, c, alpha, beta, gamma
+! Cartesian coordinates of the main metal site, or center
+!  coord
+! definitions for blocking barrier
+!  nBlock, compute_barrier
+! options for automatic fitting of parameters:
+!  fitCHI : not used so far
+!  fitM   : not used so far
+!  check_title, Title
 
 use Constants, only: Zero, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: nneq, neq(nneq), neqv, nmax, nCenter, nexch(nneq), nDir, nDirZee, nH, nT, exch, nTempMagn, iopt, &
+                                 nMult, nDim(nMult), nPair, i_pair(nPair,2), nP, AngPoints, lant, multLn, KEOPT, encut_definition, &
+                                 nK, mG, ncut, nss(nneq), nsfs(nneq), nLoc, MxRank1, MxRank2, imaxrank(nPair,2), iPrint
+integer(kind=iwp), intent(inout) :: nDirTot, nBlock
+real(kind=wp), intent(in) :: R_LG(nneq,neqv,3,3), gtens_input(3,nneq), dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3), &
+                             zJ, cryst(6), coord(3), hmin, hmax, thrs, Hexp(nH), Mexp(nH,nTempMagn), tmin, tmax, chit_exp(nT), &
+                             Texp(nT), Xfield, Jex(nPair), JAex(nPair,3), JAex9(nPair,3,3), JDMex(nPair,3), tpar, upar, &
+                             MagnCoords(nneq,3), encut_rate, eso(nneq,nLoc), &
+                             JITOexR(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), &
+                             JITOexI(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2)
+real(kind=wp), intent(inout) :: TempMagn(nTempMagn)
+character(len=180), intent(in) :: Title, namefile_aniso(nneq)
+character, intent(in) :: itype(nneq)
+logical(kind=iwp), intent(in) :: Do_structure_abc, old_aniso_format, fitCHI, fitM, hinput, tinput, compute_magnetization, &
+                                 compute_Mdir_vector, zeeman_energy, m_accurate, smagn, compute_g_tensors, compute_torque, Lines, &
+                                 AnisoLines3, AnisoLines9, Dipol, check_title, KE, DM_exchange, JITO_exchange
+logical(kind=iwp), intent(inout) :: compute_barrier, m_paranoid, compute_susceptibility
 #include "mgrid.fh"
-integer, intent(in) :: iPrint
-integer, intent(in) :: nneq ! number of non-equivalent sites
-integer, intent(in) :: neq(nneq), neqv ! number of equivalent sites of each type, neqv = MAXVAL(neq(:))
-integer, intent(in) :: nexch(nneq), nmax
-character(len=1), intent(in) :: itype(nneq)
-integer, intent(in) :: nCenter
-integer, intent(in) :: nLoc
-real(kind=8), intent(in) :: R_LG(nneq,neqv,3,3)
-real(kind=8), intent(in) :: gtens_input(3,nneq)
-real(kind=8), intent(in) :: eso(nneq,nLoc)
-integer, intent(in) :: nss(nneq), nsfs(nneq)
-character(len=180), intent(in) :: namefile_aniso(nneq)
-! definition of the exchange:
-integer, intent(in) :: exch ! total number of exchange states
-integer, intent(inout) :: nPair ! number of metal pairs (number of interactions)
-integer, intent(inout) :: i_pair(nPair,2) ! index of the metal site in a given interacting pair
-integer, intent(in) :: imaxrank(nPair,2) ! index of the ITO ranks for each pair
-integer, intent(in) :: MxRank1, MxRank2
-logical, intent(in) :: Lines, AnisoLines3, AnisoLines9
-logical, intent(in) :: Dipol, DM_exchange, JITO_exchange
-logical, intent(in) :: old_aniso_format
-real(kind=8), intent(in) :: Jex(nPair) ! Lines exchange    ( 1 parameter / interacting pair)
-real(kind=8), intent(in) :: JAex(nPair,3) ! Anisotropic Lines ( 3 parameter / interacting pair)
-real(kind=8), intent(in) :: JAex9(nPair,3,3) ! Anisotropic Lines full ( 9 parameters / interacting pair)
-real(kind=8), intent(in) :: JDMex(nPair,3) ! Dzyaloshinsky-Morya exchange
-real(kind=8), intent(in) :: JITOexR(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2), &
-                            JITOexI(nPair,MxRank1,-MxRank1:MxRank1,MxRank2,-MxRank2:MxRank2)
-! options used in connection with KE
-integer, intent(in) :: lant, KEOPT, multLn
-logical, intent(in) :: KE
-real(kind=8), intent(in) :: tpar, upar
-! options used in connection with Dipol-Dipol interaction
-real(kind=8), intent(in) :: MagnCoords(nneq,3)
-! definition of data for susceptibility
-integer, intent(inout) :: nT
-logical, intent(in) :: tinput
-logical, intent(inout) :: compute_susceptibility
-real(kind=8), intent(inout) :: tmin, tmax
-real(kind=8), intent(in) :: chit_exp(nT), Texp(nT)
-! options related to XT_MoverH
-real(kind=8), intent(in) :: Xfield
-integer, intent(in) :: nH
-integer, intent(in) :: nTempMagn
-integer, intent(in) :: iopt
-real(kind=8), intent(inout) :: TempMagn(nTempMagn)
-real(kind=8), intent(in) :: Hexp(nH), Mexp(nH,nTempMagn)
-real(kind=8), intent(in) :: thrs
-real(kind=8), intent(in) :: hmin, hmax
-logical, intent(in) :: hinput
-logical, intent(in) :: compute_magnetization
-logical, intent(in) :: compute_Mdir_vector
-logical, intent(in) :: zeeman_energy
-logical, intent(inout) :: m_paranoid
-logical, intent(in) :: m_accurate
-logical, intent(in) :: smagn
-! options used to set up nM and EM
-integer, intent(in) :: encut_definition
-integer, intent(in) :: nK, mG ! encut_definition=1;
-integer, intent(in) :: ncut   ! encut_definition=2;
-real(kind=8), intent(in) :: encut_rate ! encut_definition=3;
-! definition of g and D tensors
-integer, intent(in) :: nMult
-integer, intent(in) :: nDim(nMult)
-logical, intent(in) :: compute_g_tensors
-! magnetization torque
-integer, intent(in) :: nP
-integer, intent(in) :: AngPoints
-logical, intent(in) :: compute_torque
-! Zeeman energy and M vector
-integer, intent(in) :: nDir, nDirZee
-real(kind=8), intent(in) :: dirX(nDir), dirY(nDir), dirZ(nDir)
-real(kind=8), intent(in) :: dir_weight(nDirZee,3)
-! definition of mean field parameter
-real(kind=8), intent(in) :: zJ
-! definition of the crystal axes:
-logical, intent(in) :: Do_structure_abc
-! a, b, c, alpha, beta, gamma
-real(kind=8), intent(in) :: cryst(6)
-! Cartesian coordinates of the main metal site, or center
-real(kind=8), intent(in) :: coord(3)
-! definitions for blocking barrier
-integer, intent(inout) :: nBlock
-logical, intent(inout) :: compute_barrier
-! options for automatic fitting of parameters:
-logical, intent(in) :: fitCHI !-- not used so far
-logical, intent(in) :: fitM !-- not used so far
-logical, intent(in) :: check_title
-character(len=180), intent(in) :: Title
-! local variables
+integer(kind=iwp) :: i, icount_B_sites, iH, iproj1, iproj2, irank1, irank2, iT, j, jEnd, k, l, m, n
+logical(kind=iwp) :: ab_initio_all, nosym
 character(len=180) fmtline
-logical :: nosym
-logical :: ab_initio_all
-integer :: nDirTot
-integer :: i, j, k, l, m, n, iT, iH, jEnd, irank1, irank2, iproj1, iproj2
-integer :: icount_B_sites
 
 !-----------------------------------------------------------------------
 ! print the data from this Subroutine:
-if (check_title) then
-  write(u6,'(A,A72)') 'TITL :         = ',Title
-end if
+if (check_title) write(u6,'(A,A72)') 'TITL :         = ',Title
 ! ======================================================================
 ! INFORMATION about individual magnetic sites
 ! ======================================================================
@@ -189,9 +158,7 @@ else
   write(u6,'(17x,A,99F10.5)') 'gZ = ',(gtens_input(3,i),i=1,nneq)
 end if
 
-if (old_aniso_format) then
-  write(u6,'(A,A)') 'OLDA :         = ',' Input data files are given in OLD format'
-end if
+if (old_aniso_format) write(u6,'(A,A)') 'OLDA :         = ',' Input data files are given in OLD format'
 
 ! ======================================================================
 ! INFORMATION about exchange
@@ -448,7 +415,6 @@ if (compute_magnetization) then
     write(u6,'(A, I4)') '         ngrid = ',ngrid
     write(u6,'(A, I4)') '       nPoints = ',get_nP(nsymm,ngrid)
     !-----------------------------------------!
-    nDirTot = 0
     nDirTot = nDir+nDirZee+get_nP(nsymm,ngrid)
     write(u6,'(A,I4,A)') 'Magnetization will be computed in',nDirTot,' directions.'
     write(u6,'(A,I6,A)') 'There will be ',nDirTot*nH,' calculations in total.'
@@ -496,9 +462,8 @@ if (compute_susceptibility .or. compute_torque .or. compute_magnetization) then
   end if
 end if
 ! ======================================================================
-if ((fitCHI .or. fitM) .and. (tinput .or. hinput)) then
+if ((fitCHI .or. fitM) .and. (tinput .or. hinput)) &
   write(u6,'(A)') 'Automatic fitting of exchange parameters is yet in the development'
-end if
 ! ======================================================================
 
 return
