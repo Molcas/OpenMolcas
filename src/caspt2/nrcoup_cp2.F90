@@ -20,6 +20,9 @@
      &                  NOCSF,NRL,MVL,MVR)
       use pt2_guga_data, only: NLEV, NVERT, MIDV1, MIDV2, NMIDV, ISM,   &
      &                         NICOUP
+#ifdef _DEBUGPRINT_
+      use pt2_guga_data, only: NWALK
+#endif
       IMPLICIT None
 
 #include "rasdim.fh"
