@@ -17,6 +17,7 @@ C
      *                           idBoriMat,TraFro
       use stdalloc, only: mma_allocate
 C
+      use pt2_guga_data, only: NCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

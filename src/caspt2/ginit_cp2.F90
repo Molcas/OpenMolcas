@@ -26,7 +26,7 @@
      &                         NMIDV, NOCP, NOCSF, NOW1, NVERT, NVERT0, &
      &                         NCSF, NVTAB, NWALK, NNOW, NIOW,          &
      &                         MIDLEV,NMIDV,MIDV1,MIDV2, NNOCSF, NIOCSF,&
-     &                         RAW,DAW,NRAW,NDAW
+     &                         RAW,DAW,NRAW,NDAW,NWALK
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"

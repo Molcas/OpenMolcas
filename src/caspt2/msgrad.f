@@ -1221,7 +1221,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use pt2_guga_data, only: NLEV, ISM, L2ACT
+      use pt2_guga_data, only: NLEV, ISM, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1695,7 +1695,7 @@ C
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
-      use pt2_guga_data, only: NLEV, ISM, L2ACT
+      use pt2_guga_data, only: NLEV, ISM, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
