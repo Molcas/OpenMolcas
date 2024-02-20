@@ -35,15 +35,14 @@ character, intent(in) :: itype(nneq)
 logical(kind=iwp), intent(in) :: Dipol, AnisoLines1, AnisoLines3, AnisoLines9, KE, DM_exchange, JITO_exchange
 real(kind=wp), intent(out) :: W(exch)
 complex(kind=wp), intent(out) :: Z(exch,exch), S(3,exch,exch), M(3,exch,exch)
-integer(kind=iwp) :: i, i1, i2, ibuf, is1, isite, j, j1, j2, js1, l, lb1, lb2, lp, mem_local, n1, n2, nb, nb1, nb2, NmaxPop, &
-                     nmaxR, nsta
+integer(kind=iwp) :: i, i1, i2, is1, isite, j, j1, j2, js1, l, lb1, lb2, lp, mem_local, n1, n2, nb, nb1, nb2, NmaxPop, nmaxR, nsta
 real(kind=wp) :: dist, mg1(3,3), mg2(3,3), vect(3)
 integer(kind=iwp), allocatable :: ibas(:,:), ibasR(:,:), icoord(:), intc(:), intcR(:), nexchR(:), nind(:,:)
 real(kind=wp), allocatable :: rotR(:,:,:,:), wdip(:), wdmo(:), wito(:), wkex(:), wlin(:), wlin1(:), wlin3(:), wlin9(:), WR(:)
 complex(kind=wp), allocatable :: HDIP(:,:,:,:,:), HDMO(:,:,:,:,:), HITO(:,:,:,:,:), HKEX(:,:,:,:,:), HKEXR(:,:,:,:,:), &
                                  HLIN1(:,:,:,:,:), HLIN3(:,:,:,:,:), HLIN9(:,:,:,:,:), M1(:,:,:), M2(:,:,:), MM1(:,:,:), &
                                  MM2(:,:,:), MMR(:,:,:,:), MR(:,:,:), S1(:,:,:), S2(:,:,:), SM1(:,:,:), SM2(:,:,:), SMR(:,:,:,:), &
-                                 SR(:,:,:), tmp(:,:), ZA1(:,:), ZA2(:,:), ZR(:,:)
+                                 SR(:,:,:), tmp(:,:), ZR(:,:)
 integer(kind=iwp), parameter :: exchR = 8
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
@@ -149,14 +148,12 @@ if (lmax >= 0) then
   call mma_allocate(intc,lmax,'intc')
   call mma_allocate(icoord,lmax,'icoord')
   call mma_allocate(nind,lmax,2,'nind')
-  call icopy(lmax,[0],0,intc,1)
-  call icopy(lmax,[0],0,icoord,1)
-  call icopy(2*lmax,[0],0,nind,1)
-  mem_local = mem_local+4*lmax*ItoB
+  mem_local = mem_local+size(intc)*ItoB
+  mem_local = mem_local+size(icoord)*ItoB
+  mem_local = mem_local+size(nind)*ItoB
   if (exch >= 0) then
     call mma_allocate(ibas,exch,lmax,'ibas')
-    call icopy(exch*lmax,[0],0,ibas,1)
-    mem_local = mem_local+exch*lmax*ItoB
+    mem_local = mem_local+size(ibas)*ItoB
   end if
 end if
 if (exch >= 0) then
@@ -168,41 +165,34 @@ if (exch >= 0) then
   call mma_allocate(wkex,exch,'wkex ')
   call mma_allocate(wdmo,exch,'wdmo ')
   call mma_allocate(wito,exch,'wito ')
-  call dcopy_(exch,[Zero],0,wlin,1)
-  call dcopy_(exch,[Zero],0,wlin1,1)
-  call dcopy_(exch,[Zero],0,wlin3,1)
-  call dcopy_(exch,[Zero],0,wlin9,1)
-  call dcopy_(exch,[Zero],0,wdip,1)
-  call dcopy_(exch,[Zero],0,wkex,1)
-  call dcopy_(exch,[Zero],0,wdmo,1)
-  call dcopy_(exch,[Zero],0,wito,1)
-  mem_local = mem_local+8*exch*RtoB
+  mem_local = mem_local+size(wlin)*RtoB
+  mem_local = mem_local+size(wlin1)*RtoB
+  mem_local = mem_local+size(wlin3)*RtoB
+  mem_local = mem_local+size(wlin9)*RtoB
+  mem_local = mem_local+size(wdip)*RtoB
+  mem_local = mem_local+size(wkex)*RtoB
+  mem_local = mem_local+size(wdmo)*RtoB
+  mem_local = mem_local+size(wito)*RtoB
 end if
 if (nmax >= 0) then
   call mma_allocate(S1,3,nmax,nmax,' S1')
   call mma_allocate(M1,3,nmax,nmax,' M1')
   call mma_allocate(S2,3,nmax,nmax,' S2')
   call mma_allocate(M2,3,nmax,nmax,' M2')
-  call mma_allocate(ZA1,nmax,nmax,' Z1')
-  call mma_allocate(ZA2,nmax,nmax,' Z2')
   call mma_allocate(SM1,3,nmax,nmax,'SM1')
   call mma_allocate(SM2,3,nmax,nmax,'SM2')
   call mma_allocate(MM1,3,nmax,nmax,'MM1')
   call mma_allocate(MM2,3,nmax,nmax,'MM2')
-  call zcopy_(3*nmax*nmax,[cZero],0,S1,1)
-  call zcopy_(3*nmax*nmax,[cZero],0,M1,1)
-  call zcopy_(3*nmax*nmax,[cZero],0,S2,1)
-  call zcopy_(3*nmax*nmax,[cZero],0,M2,1)
-  call zcopy_(nmax*nmax,[cZero],0,ZA1,1)
-  call zcopy_(nmax*nmax,[cZero],0,ZA2,1)
-  call zcopy_(3*nmax*nmax,[cZero],0,SM1,1)
-  call zcopy_(3*nmax*nmax,[cZero],0,SM2,1)
-  call zcopy_(3*nmax*nmax,[cZero],0,MM1,1)
-  call zcopy_(3*nmax*nmax,[cZero],0,MM2,1)
-  mem_local = mem_local+8*3*nmax*nmax*CtoB
+  mem_local = mem_local+size(S1)*CtoB
+  mem_local = mem_local+size(M1)*CtoB
+  mem_local = mem_local+size(S2)*CtoB
+  mem_local = mem_local+size(M2)*CtoB
+  mem_local = mem_local+size(SM1)*CtoB
+  mem_local = mem_local+size(SM2)*CtoB
+  mem_local = mem_local+size(MM1)*CtoB
+  mem_local = mem_local+size(MM2)*CtoB
 
   if (npair >= 0) then
-    ibuf = npair*nmax*nmax*nmax*nmax
     call mma_allocate(HLIN1,npair,nmax,nmax,nmax,nmax,'HLIN1')
     call mma_allocate(HLIN3,npair,nmax,nmax,nmax,nmax,'HLIN3')
     call mma_allocate(HLIN9,npair,nmax,nmax,nmax,nmax,'HLIN9')
@@ -210,70 +200,66 @@ if (nmax >= 0) then
     call mma_allocate(HKEX,npair,nmax,nmax,nmax,nmax,'HKEX')
     call mma_allocate(HDMO,npair,nmax,nmax,nmax,nmax,'HDMO')
     call mma_allocate(HITO,npair,nmax,nmax,nmax,nmax,'HITO')
-    call zcopy_(ibuf,[cZero],0,HLIN1,1)
-    call zcopy_(ibuf,[cZero],0,HLIN3,1)
-    call zcopy_(ibuf,[cZero],0,HLIN9,1)
-    call zcopy_(ibuf,[cZero],0,HDIP,1)
-    call zcopy_(ibuf,[cZero],0,HKEX,1)
-    call zcopy_(ibuf,[cZero],0,HDMO,1)
-    call zcopy_(ibuf,[cZero],0,HITO,1)
-    mem_local = mem_local+7*ibuf*CtoB
+    HLIN1(:,:,:,:,:) = cZero
+    HLIN3(:,:,:,:,:) = cZero
+    HLIN9(:,:,:,:,:) = cZero
+    HDIP(:,:,:,:,:) = cZero
+    HKEX(:,:,:,:,:) = cZero
+    HDMO(:,:,:,:,:) = cZero
+    HITO(:,:,:,:,:) = cZero
+    mem_local = mem_local+size(HLIN1)*CtoB
+    mem_local = mem_local+size(HLIN3)*CtoB
+    mem_local = mem_local+size(HLIN9)*CtoB
+    mem_local = mem_local+size(HDIP)*CtoB
+    mem_local = mem_local+size(HKEX)*CtoB
+    mem_local = mem_local+size(HDMO)*CtoB
+    mem_local = mem_local+size(HITO)*CtoB
   end if
 end if
 
 if (exch >= 0) then
   call mma_allocate(tmp,exch,exch,'tmp')
-  call zcopy_(exch*exch,[cZero],0,tmp,1)
-  mem_local = mem_local+exch*exch*CtoB
+  mem_local = mem_local+size(tmp)*CtoB
 end if
 
 if (nneq >= 0) then
   call mma_allocate(nexchR,nneq,'nexchR')
-  call icopy(nneq,[0],0,nexchR,1)
-  mem_local = mem_local+nneq*ItoB
+  mem_local = mem_local+size(nexchR)*ItoB
 
   call mma_allocate(SMR,nneq,3,2,2,'SMR')
   call mma_allocate(MMR,nneq,3,2,2,'MMR')
-  call zcopy_(nneq*3*2*2,[cZero],0,SMR,1)
-  call zcopy_(nneq*3*2*2,[cZero],0,MMR,1)
-  mem_local = mem_local+2*nneq*3*2*2*CtoB
+  mem_local = mem_local+size(SMR)*CtoB
+  mem_local = mem_local+size(MMR)*CtoB
 
   if (neqv >= 0) then
     call mma_allocate(rotR,nneq,neqv,3,3,'rotR')
-    call dcopy_(nneq*neqv*3*3,[Zero],0,rotR,1)
-    mem_local = mem_local+nneq*neqv*3*3*RtoB
+    mem_local = mem_local+size(rotR)*RtoB
   end if
 end if
 
 if (exchR >= 0) then
   if (lmax >= 0) then
     call mma_allocate(ibasR,nneq,lmax,'ibasR')
-    call icopy(nneq*lmax,[0],0,ibasR,1)
-    mem_local = mem_local+nneq*lmax*ItoB
+    mem_local = mem_local+size(ibasR)*ItoB
   end if
   call mma_allocate(WR,exchR,'WR')
-  call dcopy_(exchR,[Zero],0,WR,1)
-  mem_local = mem_local+exchR*RtoB
-
   call mma_allocate(ZR,exchR,exchR,'ZR')
   call mma_allocate(MR,3,exchR,exchR,'MR')
   call mma_allocate(SR,3,exchR,exchR,'SR')
-  call zcopy_(exchR*exchR,[cZero],0,ZR,1)
-  call zcopy_(3*exchR*exchR,[cZero],0,MR,1)
-  call zcopy_(3*exchR*exchR,[cZero],0,SR,1)
-  mem_local = mem_local+7*exchR*exchR*CtoB
+  mem_local = mem_local+size(WR)*RtoB
+  mem_local = mem_local+size(ZR)*CtoB
+  mem_local = mem_local+size(MR)*CtoB
+  mem_local = mem_local+size(SR)*CtoB
 end if
 
 if (npair >= 0) then
   call mma_allocate(HKEXR,npair,2,2,2,2,'HKEXR')
-  call zcopy_(npair*2*2*2*2,[cZero],0,HKEXR,1)
-  mem_local = mem_local+npair*2*2*2*2*CtoB
+  mem_local = mem_local+size(HKEXR)*CtoB
 end if
 
 if (lmax >= 0) then
   call mma_allocate(intcR,lmax,'intcR')
-  call icopy(lmax,[0],0,intcR,1)
-  mem_local = mem_local+lmax*ItoB
+  mem_local = mem_local+size(intcR)*ItoB
 end if
 #ifdef _DEBUGPRINT_
 write(u6,*) 'EXCHCTL:  memory allocated (local):'
@@ -290,6 +276,7 @@ do i=1,nneq
     nind(l,2) = j
   end do
 end do
+nind(l+1:,:) = 0
 intc(1) = 1
 if (lmax > 1) then
   do i=2,lmax
@@ -315,7 +302,6 @@ end do
 ! Lines model of magnetic couping  -- 1 parameter
 if (AnisoLines1) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[cZero],0,HLIN1,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -363,7 +349,6 @@ end if
 ! Jxx, Jyy, Jzz
 if (AnisoLines3) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[cZero],0,HLIN3,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -404,7 +389,6 @@ end if
 ! Jxx, Jxy, Jxz, Jyx, Jyy, Jyz, Jzx, Jzy, Jzz
 if (AnisoLines9) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[cZero],0,HLIN9,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -452,7 +436,6 @@ end if
 ! dipolar couping
 if (Dipol) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[cZero],0,HDIP,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -498,7 +481,6 @@ end if
 ! Dzyaloshinsky-Morya antisymmetric couping
 if (DM_exchange) then
   if (nPair > 0) then
-    call zcopy_(ibuf,[cZero],0,HDMO,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -539,7 +521,6 @@ if (JITO_exchange) then
   write(u6,'(A)') 'EXCHCTL:  Entering  JITO_exchange'
 # endif
   if (nPair > 0) then
-    call zcopy_(ibuf,[cZero],0,HITO,1)
     do lp=1,npair
       lb1 = i_pair(lp,1)
       lb2 = i_pair(lp,2)
@@ -596,10 +577,6 @@ if (KE) then
 
       n1 = nexch(i1)
       n2 = nexch(i2)
-      call zcopy_(3*n1*n1,[cZero],0,S1,1)
-      call zcopy_(3*n2*n2,[cZero],0,S2,1)
-      call zcopy_(3*n1*n1,[cZero],0,M1,1)
-      call zcopy_(3*n2*n2,[cZero],0,M2,1)
       call rotmom2(MM(i1,1:3,1:n1,1:n1),n1,rot(i1,j1,1:3,1:3),M1(1:3,1:n1,1:n1))
       call rotmom2(SM(i1,1:3,1:n1,1:n1),n1,rot(i1,j1,1:3,1:3),S1(1:3,1:n1,1:n1))
       call rotmom2(MM(i2,1:3,1:n2,1:n2),n2,rot(i2,j2,1:3,1:3),M2(1:3,1:n2,1:n2))
@@ -622,56 +599,40 @@ if (KE) then
       !                 SM2(1:3,1:n2,1:n2)
 
       if ((KEOPT == 1) .or. (KEOPT == 2)) then
-        do is1=1,n2
-          do js1=1,n2
-            HKEXR(lp,1,1,is1,js1) = HKEX(lp,1,1,is1,js1)
-            HKEXR(lp,1,2,is1,js1) = HKEX(lp,1,2,is1,js1)
-            HKEXR(lp,2,1,is1,js1) = HKEX(lp,2,1,is1,js1)
-            HKEXR(lp,2,2,is1,js1) = HKEX(lp,2,2,is1,js1)
-          end do
-        end do
-        do l=1,3
-          do is1=1,2
-            do js1=1,2
-              MMR(i1,l,is1,js1) = MM1(l,is1,js1)
-              MMR(i2,l,is1,js1) = MM2(l,is1,js1)
-              SMR(i1,l,is1,js1) = SM1(l,is1,js1)
-              SMR(i2,l,is1,js1) = SM2(l,is1,js1)
-            end do
-          end do
-        end do
+        HKEXR(lp,1,1,:,:) = HKEX(lp,1,1,1:n2,1:n2)
+        HKEXR(lp,1,2,:,:) = HKEX(lp,1,2,1:n2,1:n2)
+        HKEXR(lp,2,1,:,:) = HKEX(lp,2,1,1:n2,1:n2)
+        HKEXR(lp,2,2,:,:) = HKEX(lp,2,2,1:n2,1:n2)
+        MMR(i1,:,:,:) = MM1(:,1:2,1:2)
+        MMR(i2,:,:,:) = MM2(:,1:2,1:2)
+        SMR(i1,:,:,:) = SM1(:,1:2,1:2)
+        SMR(i2,:,:,:) = SM2(:,1:2,1:2)
 
       else if ((KEOPT == 3) .or. (KEOPT == 4)) then
-        do is1=1,n2
-          do js1=1,n2
-            HKEXR(lp,1,1,is1,js1) = HKEX(lp,1,1,is1,js1)
-            HKEXR(lp,1,2,is1,js1) = HKEX(lp,1,n1,is1,js1)
-            HKEXR(lp,2,1,is1,js1) = HKEX(lp,n1,1,is1,js1)
-            HKEXR(lp,2,2,is1,js1) = HKEX(lp,n1,n1,is1,js1)
-          end do
-        end do
+        HKEXR(lp,1,1,:,:) = HKEX(lp,1,1,1:n2,1:n2)
+        HKEXR(lp,1,2,:,:) = HKEX(lp,1,n1,1:n2,1:n2)
+        HKEXR(lp,2,1,:,:) = HKEX(lp,n1,1,1:n2,1:n2)
+        HKEXR(lp,2,2,:,:) = HKEX(lp,n1,n1,1:n2,1:n2)
 
-        do l=1,3
-          MMR(i1,l,1,1) = MM1(l,1,1)
-          MMR(i1,l,1,2) = MM1(l,1,n1)
-          MMR(i1,l,2,1) = MM1(l,n1,1)
-          MMR(i1,l,2,2) = MM1(l,n1,n1)
+        MMR(i1,:,1,1) = MM1(:,1,1)
+        MMR(i1,:,1,2) = MM1(:,1,n1)
+        MMR(i1,:,2,1) = MM1(:,n1,1)
+        MMR(i1,:,2,2) = MM1(:,n1,n1)
 
-          MMR(i2,l,1,1) = MM2(l,1,1)
-          MMR(i2,l,1,2) = MM2(l,1,n2)
-          MMR(i2,l,2,1) = MM2(l,n2,1)
-          MMR(i2,l,2,2) = MM2(l,n2,n2)
+        MMR(i2,:,1,1) = MM2(:,1,1)
+        MMR(i2,:,1,2) = MM2(:,1,n2)
+        MMR(i2,:,2,1) = MM2(:,n2,1)
+        MMR(i2,:,2,2) = MM2(:,n2,n2)
 
-          SMR(i1,l,1,1) = SM1(l,1,1)
-          SMR(i1,l,1,2) = SM1(l,1,n1)
-          SMR(i1,l,2,1) = SM1(l,n1,1)
-          SMR(i1,l,2,2) = SM1(l,n1,n1)
+        SMR(i1,:,1,1) = SM1(:,1,1)
+        SMR(i1,:,1,2) = SM1(:,1,n1)
+        SMR(i1,:,2,1) = SM1(:,n1,1)
+        SMR(i1,:,2,2) = SM1(:,n1,n1)
 
-          SMR(i2,l,1,1) = SM2(l,1,1)
-          SMR(i2,l,1,2) = SM2(l,1,n2)
-          SMR(i2,l,2,1) = SM2(l,n2,1)
-          SMR(i2,l,2,2) = SM2(l,n2,n2)
-        end do
+        SMR(i2,:,1,1) = SM2(:,1,1)
+        SMR(i2,:,1,2) = SM2(:,1,n2)
+        SMR(i2,:,2,1) = SM2(:,n2,1)
+        SMR(i2,:,2,2) = SM2(:,n2,n2)
 
 #       ifdef _DEBUGPRINT_
         write(u6,'(A)') 'site Ln'
@@ -709,12 +670,7 @@ if (KE) then
     ! exchnew=8:
     if (KEOPT <= 4) then
       nmaxR = 2
-      nexchR(1) = 2
-      nexchR(2) = 2
-      do i=1,nneq
-        nexchR(i) = 2
-      end do
-      intcR(:) = 0
+      nexchR(:) = 2
       ibasR(:,:) = 0
       intcR(1) = 1
       if (lmax > 1) then
@@ -741,8 +697,6 @@ if (KE) then
       WLIN9(:) = Zero
       WDIP(:) = Zero
       WKEX(:) = Zero
-      WR(:) = Zero
-      ZR(:,:) = cZero
       ! print the Exchange Hamiltonian:
       call pa_prham(exchR,npair,i_pair,nneq,neq,nexchR,nmaxR,lmax,eso(1:nneq,1:nmaxR), &
                     HLIN1(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HLIN3(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
@@ -756,7 +710,7 @@ if (KE) then
                       HKEXR(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),HDMO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR), &
                       HITO(1:npair,1:nmaxR,1:nmaxR,1:nmaxR,1:nmaxR),Dipol,.false.,AnisoLines1,AnisoLines3,AnisoLines9,KE,.false., &
                       WLIN1(1:exchR),WLIN3(1:exchR),WLIN9(1:exchR),WLIN(1:exchR),WDIP(1:exchR),WKEX(1:exchR),WDMO(1:exchR), &
-                      WITO(1:exchR),WR(1:exchR),ZR(1:exchR,1:exchR))
+                      WITO(1:exchR),WR(1:exchR),Z(1:exchR,1:exchR))
       ! print the resulting eigenstates:
       call pa_preigen(exchR,lmax,ibasR,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,.false.,WLIN(1:exchR),WDIP(1:exchR), &
                       WKEX(1:exchR),WITO(1:exchR),WR(1:exchR),ZR(1:exchR,1:exchR),0)
@@ -776,9 +730,7 @@ if (KE) then
       do L=1,3
         do isite=1,lmax
           do nb1=1,exchR
-            do lp=1,lmax
-              icoord(lp) = ibasR(nb1,lp)
-            end do
+            icoord(:) = ibasR(nb1,:)
             i1 = nind(isite,1)
             j1 = nind(isite,2)
             is1 = ibasR(nb1,isite)+1
@@ -870,9 +822,7 @@ call pa_preigen(exch,lmax,ibas,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,JITO
 NmaxPop = 500
 if (NmaxPop > exch) NmaxPop = exch
 call PopAnalysis(nneq,neq,exch,nexch,nmax,lmax,NmaxPop,Z)
-do i=exch,1,-1
-  w(i) = w(i)-w(1)
-end do
+w(:) = w(:)-w(1)
 
 ! some verification
 if (dnrm2_(exch,WLIN,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::  WLIN',[dnrm2_(exch,WLIN,1)],1,8)
@@ -880,8 +830,8 @@ if (dnrm2_(exch,WDIP,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::  WDIP',[dnrm2_(ex
 if (dnrm2_(exch,WKEX,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::  WKEX',[dnrm2_(exch,WKEX,1)],1,8)
 if (dnrm2_(exch,W,1) > 1.0e-13_wp) call Add_Info('EXCHCTL::     W',[dnrm2_(exch,W,1)],1,8)
 ! compute the moments:
-call zcopy_(3*exch*exch,[cZero],0,M,1)
-call zcopy_(3*exch*exch,[cZero],0,S,1)
+M(:,:,:) = cZero
+S(:,:,:) = cZero
 #ifdef _DEBUGPRINT_
 write(u6,'(A)') 'Magnetic moments before the build of coupled M and S matrices'
 if (nPair > 0) then
@@ -903,9 +853,7 @@ end if
 do L=1,3
   do isite=1,lmax
     do nb1=1,exch
-      do lp=1,lmax
-        icoord(lp) = ibas(nb1,lp)
-      end do
+      icoord(:) = ibas(nb1,:)
       i1 = nind(isite,1)
       j1 = nind(isite,2)
       is1 = ibas(nb1,isite)+1
@@ -964,8 +912,6 @@ if (nmax >= 0) then
   call mma_deallocate(M1)
   call mma_deallocate(S2)
   call mma_deallocate(M2)
-  call mma_deallocate(ZA1)
-  call mma_deallocate(ZA2)
   call mma_deallocate(SM1)
   call mma_deallocate(SM2)
   call mma_deallocate(MM1)
@@ -1019,11 +965,7 @@ if (lmax >= 0) call mma_deallocate(intcR)
 !  end do
 !end do
 !close(77)
-!do i=1,EXCH
-!  do j=1,EXCH
-!    ZF(i,j) = cmplx(ZZR(i,j),ZZI(i,j),kind=wp)
-!  end do
-!end do
+!ZF(:,:) = cmplx(ZZR(:,:),ZZI(:,:),kind=wp)
 !call ZGEMM_('C','N',EXCH,EXCH,EXCH,cOne,Z(1:EXCH,1:EXCH),EXCH,ZF(1:EXCH,1:EXCH),EXCH,cZero,OVLP(1:EXCH,1:EXCH),EXCH)
 !do i=1,1
 !  do j=1,EXCH

@@ -67,7 +67,7 @@ real(kind=wp), intent(in) :: TempMagn(nTempMagn), W(exch), hmin, hmax, dltH0, EM
                              ZRM(nCenter,nTempMagn)
 complex(kind=wp), intent(in) :: DIPEXCH(3,EXCH,EXCH), S_EXCH(3,EXCH,EXCH), dipso(nneq,3,nLoc,nLoc), s_so(nneq,3,nLoc,nLoc)
 #include "mgrid.fh"
-integer(kind=iwp) :: I, IH, IM, iPl, isite, it, J, k, l, mem_local, n
+integer(kind=iwp) :: I, IH, IM, iPl, isite, it, J, k, mem_local, n
 real(kind=wp) :: dlth
 real(kind=wp), allocatable :: Ang(:), dX(:,:), dY(:,:), dZ(:,:), H(:), MEX(:,:), ML(:,:,:), MLT(:,:,:), MR(:,:,:), MRT(:,:,:), &
                               MT(:,:), SEX(:,:), SL(:,:,:), SLT(:,:,:), SR(:,:,:), SRT(:,:,:), ST(:,:), sx(:,:,:,:), sy(:,:,:,:), &
@@ -146,8 +146,7 @@ write(u6,*) 'hinput   = ',hinput
 mem_local = 0
 ! Zeeman exchange energy spectrum
 call mma_allocate(Wex,nM,'Wex')
-call dcopy_(nM,[Zero],0,Wex,1)
-mem_local = mem_local+nM*RtoB
+mem_local = mem_local+size(Wex)*RtoB
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'mem_local 1 = ',mem_local
@@ -155,86 +154,68 @@ write(u6,*) 'mem_local 1 = ',mem_local
 
 ! exchange statistical sum, Boltzmann distribution
 call mma_allocate(Zex,nTempMagn,'Zex')
-call dcopy_(nTempMagn,[Zero],0,Zex,1)
-mem_local = mem_local+nTempMagn*RtoB
+mem_local = mem_local+size(Zex)*RtoB
 ! spin magnetisation, from the exchange block
 call mma_allocate(SEX,3,nTempMagn,'SEX')
-call dcopy_(3*nTempMagn,[Zero],0,SEX,1)
-mem_local = mem_local+3*nTempMagn*RtoB
+mem_local = mem_local+size(SEX)*RtoB
 ! magnetisation, from the exchange block
 call mma_allocate(MEX,3,nTempMagn,'MEX')
-call dcopy_(3*nTempMagn,[Zero],0,MEX,1)
-mem_local = mem_local+3*nTempMagn*RtoB
+mem_local = mem_local+size(MEX)*RtoB
 
 ! total statistical sum, Boltzmann distribution
 call mma_allocate(ZT,nTempMagn,'ZT')
-call dcopy_(nTempMagn,[Zero],0,ZT,1)
-mem_local = mem_local+nTempMagn*RtoB
+mem_local = mem_local+size(ZT)*RtoB
 ! total spin magnetisation
 call mma_allocate(ST,3,nTempMagn,'ST')
-call dcopy_(3*nTempMagn,[Zero],0,ST,1)
-mem_local = mem_local+3*nTempMagn*RtoB
+mem_local = mem_local+size(ST)*RtoB
 ! total magnetisation
 call mma_allocate(MT,3,nTempMagn,'MT')
-call dcopy_(3*nTempMagn,[Zero],0,MT,1)
-mem_local = mem_local+3*nTempMagn*RtoB
+mem_local = mem_local+size(MT)*RtoB
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'mem_local 2 = ',mem_local
 #endif
 ! local statistical sum, Boltzmann distribution
 call mma_allocate(ZL,nneq,nTempMagn,'ZL')
-call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
-mem_local = mem_local+nneq*nTempMagn*RtoB
+mem_local = mem_local+size(ZL)*RtoB
 ! spin magnetisation, from the local sites, using ALL states
 call mma_allocate(SL,nneq,3,nTempMagn,'SL')
-call dcopy_(nneq*3*nTempMagn,[Zero],0,SL,1)
-mem_local = mem_local+nneq*3*nTempMagn*RtoB
+mem_local = mem_local+size(SL)*RtoB
 ! magnetisation, from local sites, using ALL states
 call mma_allocate(ML,nneq,3,nTempMagn,'ML')
-call dcopy_(nneq*3*nTempMagn,[Zero],0,ML,1)
-mem_local = mem_local+nneq*3*nTempMagn*RtoB
+mem_local = mem_local+size(ML)*RtoB
 
 ! local statistical sum, Boltzmann distribution
 call mma_allocate(ZR,nneq,nTempMagn,'ZR')
-call dcopy_(nneq*nTempMagn,[Zero],0,ZR,1)
-mem_local = mem_local+nneq*nTempMagn*RtoB
+mem_local = mem_local+size(ZR)*RtoB
 ! spin magnetisation, from the local sites, using only NEXCH states
 call mma_allocate(SR,nneq,3,nTempMagn,'SR')
-call dcopy_(nneq*3*nTempMagn,[Zero],0,SR,1)
-mem_local = mem_local+nneq*3*nTempMagn*RtoB
+mem_local = mem_local+size(SR)*RtoB
 ! magnetisation, from the local sites, using only NEXCH states
 call mma_allocate(MR,nneq,3,nTempMagn,'MR')
-call dcopy_(nneq*3*nTempMagn,[Zero],0,MR,1)
-mem_local = mem_local+nneq*3*nTempMagn*RtoB
+mem_local = mem_local+size(MR)*RtoB
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'mem_local 3 = ',mem_local
 #endif
 ! ZRT(nCenter,nTempMagn)
 call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
-call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
-mem_local = mem_local+nCenter*nTempMagn*RtoB
+mem_local = mem_local+size(ZT)*RtoB
 ! ZLT(nCenter,nTempMagn)
 call mma_allocate(ZLT,nCenter,nTempMagn,'ZLT')
-call dcopy_(nCenter*nTempMagn,[Zero],0,ZLT,1)
-mem_local = mem_local+nCenter*nTempMagn*RtoB
+mem_local = mem_local+size(ZLT)*RtoB
 ! MRT(nCenter,3,nTempMagn)
 call mma_allocate(MRT,nCenter,3,nTempMagn,'MRT')
-call dcopy_(nCenter*3*nTempMagn,[Zero],0,MRT,1)
-mem_local = mem_local+nCenter*3*nTempMagn*RtoB
+mem_local = mem_local+size(MRT)*RtoB
 ! MLT(nCenter,3,nTempMagn)
 call mma_allocate(MLT,nCenter,3,nTempMagn,'MLT')
-call dcopy_(nCenter*3*nTempMagn,[Zero],0,MLT,1)
-mem_local = mem_local+nCenter*3*nTempMagn*RtoB
+mem_local = mem_local+size(MLT)*RtoB
 ! SRT(nCenter,3,nTempMagn)
 call mma_allocate(SRT,nCenter,3,nTempMagn,'SRT')
-call dcopy_(nCenter*3*nTempMagn,[Zero],0,SRT,1)
-mem_local = mem_local+nCenter*3*nTempMagn*RtoB
+mem_local = mem_local+size(SRT)*RtoB
 ! SLT(nCenter,3,nTempMagn)
 call mma_allocate(SLT,nCenter,3,nTempMagn,'SLT')
-call dcopy_(nCenter*3*nTempMagn,[Zero],0,SLT,1)
-mem_local = mem_local+nCenter*3*nTempMagn*RtoB
+mem_local = mem_local+size(SLT)*RtoB
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'mem_local 4 = ',mem_local
@@ -246,46 +227,40 @@ call mma_allocate(tz,nPlanes,AngPoints,nH,nTempMagn,'tz')
 call mma_allocate(sx,nPlanes,AngPoints,nH,nTempMagn,'sx')
 call mma_allocate(sy,nPlanes,AngPoints,nH,nTempMagn,'sy')
 call mma_allocate(sz,nPlanes,AngPoints,nH,nTempMagn,'sz')
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,tx,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,ty,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,tz,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sx,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sy,1)
-call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[Zero],0,sz,1)
-mem_local = mem_local+6*nPlanes*AngPoints*nH*nTempMagn*RtoB
+mem_local = mem_local+size(tx)*RtoB
+mem_local = mem_local+size(ty)*RtoB
+mem_local = mem_local+size(tz)*RtoB
+mem_local = mem_local+size(sx)*RtoB
+mem_local = mem_local+size(sy)*RtoB
+mem_local = mem_local+size(sz)*RtoB
 #ifdef _DEBUGPRINT_
 write(u6,*) 'mem_local 5 = ',mem_local
 #endif
 
 ! Zeeman local energies
 call mma_allocate(WL,nneq,nLoc,'WL')
-call dcopy_(nneq*nLoc,[Zero],0,WL,1)
-mem_local = mem_local+nneq*nLoc*RtoB
+mem_local = mem_local+size(WL)*RtoB
 ! Zeeman local reduced energies, using only NEXCH states
 call mma_allocate(WR,nneq,nLoc,'WR')
-call dcopy_(nneq*nLoc,[Zero],0,WR,1)
-mem_local = mem_local+nneq*nLoc*RtoB
+mem_local = mem_local+size(WR)*RtoB
 #ifdef _DEBUGPRINT_
 write(u6,*) 'mem_local 6 = ',mem_local
 #endif
 
 call mma_allocate(Ang,AngPoints,'Ang')
-call dcopy_(AngPoints,[Zero],0,Ang,1)
-mem_local = mem_local+AngPoints*RtoB
+mem_local = mem_local+size(Ang)*RtoB
 call mma_allocate(dX,nPlanes,AngPoints,'dX')
 call mma_allocate(dY,nPlanes,AngPoints,'dY')
 call mma_allocate(dZ,nPlanes,AngPoints,'dZ')
-call dcopy_(nPlanes*AngPoints,[Zero],0,dX,1)
-call dcopy_(nPlanes*AngPoints,[Zero],0,dY,1)
-call dcopy_(nPlanes*AngPoints,[Zero],0,dZ,1)
-mem_local = mem_local+3*nPlanes*AngPoints*RtoB
+mem_local = mem_local+size(dX)*RtoB
+mem_local = mem_local+size(dY)*RtoB
+mem_local = mem_local+size(dZ)*RtoB
 #ifdef _DEBUGPRINT_
 write(u6,*) 'mem_local 7 = ',mem_local
 #endif
 
 call mma_allocate(H,nH,'H')
-call dcopy_(nH,[Zero],0,H,1)
-mem_local = mem_local+nH*RtoB
+mem_local = mem_local+size(H)*RtoB
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'TORQ:  memory allocated (local):'
@@ -316,16 +291,12 @@ end if
 
 do IH=1,NH
   ! ///  opening the loop over field points:
-  call dcopy_(nPlanes*AngPoints,[Zero],0,dX,1)
-  call dcopy_(nPlanes*AngPoints,[Zero],0,dY,1)
-  call dcopy_(nPlanes*AngPoints,[Zero],0,dZ,1)
   do iPl=1,nPlanes
     ! ///  opening the loop over different planes of rotation of the applied magnetic field:
     !  loop over various angular grids  (iPl = 1, 2 or 3)
     !  iPl=1 (X) , angular grid in the plane YZ ( half of the plane , 0-180 degrees)
     !  iPl=2 (Y) , angular grid in the plane XZ ( half of the plane , 0-180 degrees)
     !  iPl=3 (Z) , angular grid in the plane XY ( half of the plane , 0-180 degrees)
-    call dcopy_(AngPoints,[Zero],0,Ang,1)
 
     call hdir2(AngPoints,iPl,dX(iPl,:),dY(iPl,:),dZ(iPl,:),Ang,4)
 
@@ -334,30 +305,15 @@ do IH=1,NH
 #   endif
     do IM=1,AngPoints
       ! ///  opening the loop over different directions of the magnetic field
-      call dcopy_(nM,[Zero],0,Wex,1)
-      call dcopy_(nneq*nLoc,[Zero],0,WL,1)
-      call dcopy_(nneq*nLoc,[Zero],0,WR,1)
-      call dcopy_(nTempMagn,[Zero],0,Zex,1)
-      call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
-      call dcopy_(nneq*nTempMagn,[Zero],0,ZR,1)
-      call dcopy_(3*nTempMagn,[Zero],0,SEX,1)
-      call dcopy_(3*nTempMagn,[Zero],0,MEX,1)
-      call dcopy_(nneq*3*nTempMagn,[Zero],0,SL,1)
-      call dcopy_(nneq*3*nTempMagn,[Zero],0,ML,1)
-      call dcopy_(nneq*3*nTempMagn,[Zero],0,SR,1)
-      call dcopy_(nneq*3*nTempMagn,[Zero],0,MR,1)
-      call dcopy_(3*nTempMagn,[Zero],0,MT,1)
-      call dcopy_(3*nTempMagn,[Zero],0,ST,1)
-      call dcopy_(nTempMagn,[Zero],0,ZT,1)
 
       ! exchange magnetization:
       call MAGN(EXCH,NM,dX(iPl,iM),dY(iPl,iM),dZ(iPl,iM),H(iH),W,zJ,THRS,DIPEXCH,S_EXCH,nTempMagn,TempMagn,smagn,Wex,Zex,Sex,Mex, &
                 m_paranoid,DBG)
 
-#ifdef _DEBUGPRINT_
+#     ifdef _DEBUGPRINT_
       if (iPl == 2) &
         write(u6,'(A,I3,1x,F8.4,2x, 3F19.14,2x,3F19.14)') 'MEX: iM,',iM,H(iH),(Mex(l,1),l=1,3),dX(iPl,iM),dY(iPl,iM),dZ(iPl,iM)
-#endif
+#     endif
       !iT = 1
 
       !write(u6,'(F10.4,1x,2I3,3F18.14,3x,3F20.14,2x,F20.14)') H(iH),iL,iM,dX(iM),dY(iM),dZ(iM),(Mex(j,iT),j=1,3), &
@@ -380,37 +336,31 @@ do IH=1,NH
         end do
         ! expand the basis and rotate local vectors to the
         ! general coordinate system:
-        call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
-        call dcopy_(nCenter*nTempMagn,[Zero],0,ZLT,1)
-        call dcopy_(3*nCenter*nTempMagn,[Zero],0,MRT,1)
-        call dcopy_(3*nCenter*nTempMagn,[Zero],0,MLT,1)
-        call dcopy_(3*nCenter*nTempMagn,[Zero],0,SRT,1)
-        call dcopy_(3*nCenter*nTempMagn,[Zero],0,SLT,1)
+        MRT(:,:,:) = Zero
+        MLT(:,:,:) = Zero
+        SRT(:,:,:) = Zero
+        SLT(:,:,:) = Zero
 
         isite = 0
         do i=1,NNEQ
           do j=1,NEQ(i)
             isite = isite+1
             ! statistical distributions
-            do iT=1,nTempMagn
-              ZLT(isite,iT) = ZL(i,iT)
-              ZRT(isite,iT) = ZR(i,iT)
-            end do
+            ZLT(isite,:) = ZL(i,:)
+            ZRT(isite,:) = ZR(i,:)
             ! magnetizations:
             ! use R_rot matrices, which have determinant +1.
             !  >> note that  R_lg matrices may have arbitrary
             !  >> sign of the determinant.
             do iT=1,nTempMagn
-              do l=1,3
-                do n=1,3
-                  MLT(isite,l,iT) = MLT(isite,l,iT)+r_rot(i,j,l,n)*ML(i,n,iT)
+              do n=1,3
+                MLT(isite,:,iT) = MLT(isite,:,iT)+r_rot(i,j,:,n)*ML(i,n,iT)
 
-                  SLT(isite,l,iT) = SLT(isite,l,iT)+r_rot(i,j,l,n)*SL(i,n,iT)
+                SLT(isite,:,iT) = SLT(isite,:,iT)+r_rot(i,j,:,n)*SL(i,n,iT)
 
-                  MRT(isite,l,iT) = MRT(isite,l,iT)+r_rot(i,j,l,n)*MR(i,n,iT)
+                MRT(isite,:,iT) = MRT(isite,:,iT)+r_rot(i,j,:,n)*MR(i,n,iT)
 
-                  SRT(isite,l,iT) = SRT(isite,l,iT)+r_rot(i,j,l,n)*SR(i,n,iT)
-                end do
+                SRT(isite,:,iT) = SRT(isite,:,iT)+r_rot(i,j,:,n)*SR(i,n,iT)
               end do
             end do
 
@@ -432,15 +382,11 @@ do IH=1,NH
         ! using the approximate X*H expression:
         do iT=1,nTempMagn
           do isite=1,nCenter
-            do l=1,3
 
-              MRT(isite,l,iT) = (XRM(isite,iT,l,1)*H(iH)*dX(iPl,iM)+XRM(isite,iT,l,2)*H(iH)*dY(iPl,iM)+ &
-                  XRM(isite,iT,l,3)*H(iH)*dZ(iPl,iM))/cm3tomB
+            MRT(isite,:,iT) = H(iH)*(XRM(isite,iT,:,1)*dX(iPl,iM)+XRM(isite,iT,:,2)*dY(iPl,iM)+XRM(isite,iT,:,3)*dZ(iPl,iM))/cm3tomB
 
-              MLT(isite,l,iT) = (XLM(isite,iT,l,1)*H(iH)*dX(iPl,iM)+XLM(isite,iT,l,2)*H(iH)*dY(iPl,iM)+ &
-                  XLM(isite,iT,l,3)*H(iH)*dZ(iPl,iM))/cm3tomB
+            MLT(isite,:,iT) = H(iH)*(XLM(isite,iT,:,1)*dX(iPl,iM)+XLM(isite,iT,:,2)*dY(iPl,iM)+XLM(isite,iT,:,3)*dZ(iPl,iM))/cm3tomB
 
-            end do ! l
           end do ! isite
 
           if (smagn) call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLM(:,iT),SRT(:,:,iT),ZRM(:,iT),iopt,ST(:,iT),ZT(iT))
@@ -451,21 +397,19 @@ do IH=1,NH
       ! at this point we have MT and ST computed
       ! in the direction of applied field
       ! compute the M and S torque
-      do iT=1,nTempMagn
-        tx(iPl,iM,iH,iT) = MT(2,iT)*dZ(iPl,iM)*H(iH)-MT(3,iT)*dY(iPl,iM)*H(iH)
+      tx(iPl,iM,iH,:) = MT(2,:)*dZ(iPl,iM)*H(iH)-MT(3,:)*dY(iPl,iM)*H(iH)
 
-        ty(iPl,iM,iH,iT) = MT(3,iT)*dX(iPl,iM)*H(iH)-MT(1,iT)*dZ(iPl,iM)*H(iH)
+      ty(iPl,iM,iH,:) = MT(3,:)*dX(iPl,iM)*H(iH)-MT(1,:)*dZ(iPl,iM)*H(iH)
 
-        tz(iPl,iM,iH,iT) = MT(1,iT)*dY(iPl,iM)*H(iH)-MT(2,iT)*dX(iPl,iM)*H(iH)
+      tz(iPl,iM,iH,:) = MT(1,:)*dY(iPl,iM)*H(iH)-MT(2,:)*dX(iPl,iM)*H(iH)
 
-        if (smagn) then
-          sx(iPl,iM,iH,iT) = ST(2,iT)*dZ(iPl,iM)*H(iH)-ST(3,iT)*dY(iPl,iM)*H(iH)
+      if (smagn) then
+        sx(iPl,iM,iH,:) = ST(2,:)*dZ(iPl,iM)*H(iH)-ST(3,:)*dY(iPl,iM)*H(iH)
 
-          sy(iPl,iM,iH,iT) = ST(3,iT)*dX(iPl,iM)*H(iH)-ST(1,iT)*dZ(iPl,iM)*H(iH)
+        sy(iPl,iM,iH,:) = ST(3,:)*dX(iPl,iM)*H(iH)-ST(1,:)*dZ(iPl,iM)*H(iH)
 
-          sz(iPl,iM,iH,iT) = ST(1,iT)*dY(iPl,iM)*H(iH)-ST(2,iT)*dX(iPl,iM)*H(iH)
-        end if
-      end do !iT
+        sz(iPl,iM,iH,:) = ST(1,:)*dY(iPl,iM)*H(iH)-ST(2,:)*dX(iPl,iM)*H(iH)
+      end if
 
       ! ///  closing the loops over field strengths and directions
     end do ! iL

@@ -24,31 +24,24 @@ implicit none
 integer(kind=iwp), intent(in) :: MxR1, MxR2, imaxrank(2), n1, n2
 real(kind=wp), intent(in) :: JR(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2), JI(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
 complex(kind=wp), intent(out) :: HAM(n1,n1,n2,n2)
-integer(kind=iwp) :: ibuf, k1, k2, l1, l2, m1, m2, q1, q2
-real(kind=wp) :: C01, C02, jpar, RI, RR
+integer(kind=iwp) :: ibuf, k1, k2, l1, l2, q1, q2
+real(kind=wp) :: C01, C02, jpar
 complex(kind=wp), allocatable :: J(:,:,:,:), O1(:,:), O2(:,:), OO(:,:,:,:), OW(:,:,:,:), W1(:,:), W2(:,:), WO(:,:,:,:), WW(:,:,:,:)
 real(kind=wp), external :: dnrm2_
 
 ! ----  initial checks
 if ((n1 <= 0) .or. (n2 <= 0)) return
-call zcopy_(n1*n1*n2*n2,[cZero],0,HAM,1)
-ibuf = 0
+HAM(:,:,:,:) = cZero
 ibuf = MxR1*(2*MxR1+1)*MxR2*(2*MxR2+1)
 if (ibuf == 0) return
 jpar = dnrm2_(ibuf,JR(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)+dnrm2_(ibuf,JI(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
 if (jpar == Zero) return
 ! ---- end initial checks
 call mma_allocate(J,[1,MxR1],[-MxR1,MxR1],[1,MxR2],[-MxR2,MxR2],label='J')
-call zcopy_(ibuf,[cZero],0,J(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
+J(:,:,:,:) = cZero
 do k1=1,MxR1,2
   do k2=1,MxR2,2
-    do q1=-k1,k1
-      do q2=-k2,k2
-        RR = JR(k1,q1,k2,q2)
-        RI = JI(k1,q1,k2,q2)
-        J(k1,q1,k2,q2) = cmplx(RR,RI,kind=wp)
-      end do
-    end do
+    J(k1,:,k2,:) = cmplx(JR(k1,:,k2,:),JI(k1,:,k2,:),kind=wp)
   end do
 end do
 !-----------------------------------------------------------------------
@@ -68,37 +61,25 @@ do k1=1,imaxrank(1),2
         ! generate the operator matrix K=ik, Q=iq, dimension=na
         call ITO(n1,k1,q1,C01,O1,W1)
         call ITO(n2,k2,q2,C02,O2,W2)
-        !generate coupled operators:
-        call zcopy_(n1*n1*n2*n2,[cZero],0,OO,1)
-        call zcopy_(n1*n1*n2*n2,[cZero],0,OW,1)
-        call zcopy_(n1*n1*n2*n2,[cZero],0,WO,1)
-        call zcopy_(n1*n1*n2*n2,[cZero],0,WW,1)
-        do m1=1,n1
-          do m2=1,n1
-            do l1=1,n2
-              do l2=1,n2
-                OO(m1,m2,l1,l2) = O1(m1,m2)*O2(l1,l2)
-                OW(m1,m2,l1,l2) = O1(m1,m2)*W2(l1,l2)
-                WO(m1,m2,l1,l2) = W1(m1,m2)*O2(l1,l2)
-                WW(m1,m2,l1,l2) = W1(m1,m2)*W2(l1,l2)
-              end do
-            end do
+        ! generate coupled operators:
+        do l1=1,n2
+          do l2=1,n2
+            OO(:,:,l1,l2) = O1(:,:)*O2(l1,l2)
+            OW(:,:,l1,l2) = O1(:,:)*W2(l1,l2)
+            WO(:,:,l1,l2) = W1(:,:)*O2(l1,l2)
+            WW(:,:,l1,l2) = W1(:,:)*W2(l1,l2)
           end do
-        end do !m1
+        end do
         ! compute the exchange Hamiltonian:
         if ((q1 == 0) .and. (q2 == 0)) then
-          call zaxpy_(n1*n1*n2*n2,J(k1,0,k2,0),OO,1,HAM,1)
+          HAM(:,:,:,:) = HAM(:,:,:,:)+J(k1,0,k2,0)*OO(:,:,:,:)
         else if ((q1 == 0) .and. (q2 /= 0)) then
-          call zaxpy_(n1*n1*n2*n2,J(k1,0,k2,q2),OO,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,J(k1,0,k2,-q2),OW,1,HAM,1)
+          HAM(:,:,:,:) = HAM(:,:,:,:)+J(k1,0,k2,q2)*OO(:,:,:,:)+J(k1,0,k2,-q2)*OW(:,:,:,:)
         else if ((q1 /= 0) .and. (q2 == 0)) then
-          call zaxpy_(n1*n1*n2*n2,J(k1,q1,k2,0),OO,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,J(k1,-q1,k2,0),WO,1,HAM,1)
+          HAM(:,:,:,:) = HAM(:,:,:,:)+J(k1,q1,k2,0)*OO(:,:,:,:)+J(k1,-q1,k2,0)*WO(:,:,:,:)
         else if ((q1 /= 0) .and. (q2 /= 0)) then
-          call zaxpy_(n1*n1*n2*n2,J(k1,q1,k2,q2),OO,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,J(k1,q1,k2,-q2),OW,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,J(k1,-q1,k2,q2),WO,1,HAM,1)
-          call zaxpy_(n1*n1*n2*n2,J(k1,-q1,k2,-q2),WW,1,HAM,1)
+          HAM(:,:,:,:) = HAM(:,:,:,:)+J(k1,q1,k2,q2)*OO(:,:,:,:)+J(k1,q1,k2,-q2)*OW(:,:,:,:)+J(k1,-q1,k2,q2)*WO(:,:,:,:)+ &
+                         J(k1,-q1,k2,-q2)*WW(:,:,:,:)
         end if
       end do
     end do

@@ -77,14 +77,14 @@ call mma_allocate(HEXCH3,N1,N1,N2,N2,label='HEXCH3')
 call mma_allocate(TMP,max(N1,N2),max(N1,N2),label='TMP')
 do is1=1,N2
   do is2=1,N2
-    call ZGEMM_('C','N',N1,N1,N1,cOne,Z1(1:N1,1:N1),N1,HEXCH(1:N1,1:N1,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
-    call ZGEMM_('N','N',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1(1:N1,1:N1),N1,cZero,HEXCH2(1:N1,1:N1,is1,is2),N1)
+    call ZGEMM_('C','N',N1,N1,N1,cOne,Z1,N1,HEXCH(1:N1,1:N1,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
+    call ZGEMM_('N','N',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,HEXCH2(:,:,is1,is2),N1)
   end do
 end do
 do is1=1,N1
   do is2=1,N1
-    call ZGEMM_('C','N',N2,N2,N2,cOne,Z2(1:N2,1:N2),N2,HEXCH2(is1,is2,1:N2,1:N2),N2,cZero,TMP(1:N2,1:N2),N2)
-    call ZGEMM_('N','N',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,Z2(1:N2,1:N2),N2,cZero,HEXCH3(is1,is2,1:N2,1:N2),N2)
+    call ZGEMM_('C','N',N2,N2,N2,cOne,Z2,N2,HEXCH2(is1,is2,1:N2,1:N2),N2,cZero,TMP(1:N2,1:N2),N2)
+    call ZGEMM_('N','N',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,Z2,N2,cZero,HEXCH3(is1,is2,:,:),N2)
   end do
 end do
 call mma_deallocate(Z1)

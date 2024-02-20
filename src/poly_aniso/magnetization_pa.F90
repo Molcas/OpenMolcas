@@ -59,7 +59,7 @@ real(kind=wp), intent(in) :: TempMagn(nTempMagn), Hexp(nH), Mexp(nH,nTempMagn), 
                              XLM(nCenter,nTempMagn,3,3), ZLM(nCenter,nTempMagn), XRM(nCenter,nTempMagn,3,3), ZRM(nCenter,nTempMagn)
 complex(kind=wp), intent(in) :: DIPEXCH(3,exch,exch), S_EXCH(3,exch,exch), dipso(nneq,3,nLoc,nLoc), s_so(nneq,3,nLoc,nLoc)
 logical(kind=iwp), intent(in) :: hinput, zeeman_energy, compute_Mdir_vector, m_paranoid, m_accurate, smagn, doplot
-integer(kind=iwp) :: I, ibuf, iDir, iH, IM, isite, it, itEnd, J, k, l, mem_local, n, nP
+integer(kind=iwp) :: I, ibuf, iDir, iH, IM, isite, it, itEnd, J, k, mem_local, n, nP
 real(kind=wp) :: dltH
 character(len=15) :: lbl_X, lbl_Y, lbl_Z
 real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), H(:), MAV(:,:), Mex(:,:), ML(:,:,:), MLT(:,:,:), MR(:,:,:), &
@@ -69,6 +69,7 @@ real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), H(:), MAV(:,:), Me
 real(kind=wp), parameter :: cm3tomB = rNAVO*mBohr/Ten ! in cm3 * mol-1 * T
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
+integer(kind=iwp) :: l
 #else
 #  define _DBG_ .false.
 #endif
@@ -96,125 +97,101 @@ write(u6,*) 'MAGN: nTempMagn=',nTempMagn
 
 ! Zeeman exchange energy spectrum
 call mma_allocate(Wex,nM,'Wex')
-call dcopy_(nM,[Zero],0,Wex,1)
-mem_local = mem_local+nM*RtoB
+mem_local = mem_local+size(Wex)*RtoB
 
 ! exchange statistical sum, Boltzmann distribution
 call mma_allocate(Zex,nTempMagn,'Zex')
-call dcopy_(nTempMagn,[Zero],0,Zex,1)
-mem_local = mem_local+nTempMagn*RtoB
+mem_local = mem_local+size(Zex)*RtoB
 ! spin magnetisation, from the exchange block
 call mma_allocate(Sex,3,nTempMagn,'Sex')
-call dcopy_(3*nTempMagn,[Zero],0,Sex,1)
-mem_local = mem_local+3*nTempMagn*RtoB
+mem_local = mem_local+size(Sex)*RtoB
 ! magnetisation, from the exchange block
 call mma_allocate(Mex,3,nTempMagn,'Mex')
-call dcopy_(3*nTempMagn,[Zero],0,Mex,1)
-mem_local = mem_local+3*nTempMagn*RtoB
+mem_local = mem_local+size(Mex)*RtoB
 
 ! local statistical sum, Boltzmann distribution
 call mma_allocate(ZL,nneq,nTempMagn,'ZL')
-call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
-mem_local = mem_local+nneq*nTempMagn*RtoB
+mem_local = mem_local+size(ZL)*RtoB
 ! spin magnetisation, from the local sites, using ALL states
 call mma_allocate(SL,nneq,3,nTempMagn,'SL')
-call dcopy_(3*nneq*nTempMagn,[Zero],0,SL,1)
-mem_local = mem_local+3*nneq*nTempMagn*RtoB
+mem_local = mem_local+size(SL)*RtoB
 ! magnetisation, from local sites, using ALL states
 call mma_allocate(ML,nneq,3,nTempMagn,'ML')
-call dcopy_(3*nneq*nTempMagn,[Zero],0,ML,1)
-mem_local = mem_local+3*nneq*nTempMagn*RtoB
+mem_local = mem_local+size(ML)*RtoB
 
 ! local statistical sum, Boltzmann distribution, using only Nexch states
 call mma_allocate(ZR,nneq,nTempMagn,'ZR')
-call dcopy_(nneq*nTempMagn,[Zero],0,ZR,1)
-mem_local = mem_local+nneq*nTempMagn*RtoB
+mem_local = mem_local+size(ZR)*RtoB
 ! spin magnetisation, from the local sites, using only Nexch states
 call mma_allocate(SR,nneq,3,nTempMagn,'SR')
-call dcopy_(3*nneq*nTempMagn,[Zero],0,SR,1)
-mem_local = mem_local+3*nneq*nTempMagn*RtoB
+mem_local = mem_local+size(SR)*RtoB
 ! magnetisation, from local sites, using only Nexch states
 call mma_allocate(MR,nneq,3,nTempMagn,'MR')
-call dcopy_(3*nneq*nTempMagn,[Zero],0,MR,1)
-mem_local = mem_local+3*nneq*nTempMagn*RtoB
+mem_local = mem_local+size(MR)*RtoB
 
 ! Zeeman local energies
 call mma_allocate(WL,nneq,nLoc,'WL')
-call dcopy_(nneq*nLoc,[Zero],0,WL,1)
-mem_local = mem_local+nneq*nLoc*RtoB
+mem_local = mem_local+size(WL)*RtoB
 ! Zeeman local reduced energies, using only Nexch states
 call mma_allocate(WR,nneq,nLoc,'WR')
-call dcopy_(nneq*nLoc,[Zero],0,WR,1)
-mem_local = mem_local+nneq*nLoc*RtoB
+mem_local = mem_local+size(WR)*RtoB
 
 ! ZRT(nCenter,nTempMagn)
 call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
-call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
-mem_local = mem_local+nCenter*nTempMagn*RtoB
+mem_local = mem_local+size(ZRT)*RtoB
 ! ZLT(nCenter,nTempMagn)
 call mma_allocate(ZLT,nCenter,nTempMagn,'ZLT')
-call dcopy_(nCenter*nTempMagn,[Zero],0,ZLT,1)
-mem_local = mem_local+nCenter*nTempMagn*RtoB
+mem_local = mem_local+size(ZLT)*RtoB
 ! MRT(nCenter,3,nTempMagn)
 call mma_allocate(MRT,nCenter,3,nTempMagn,'MRT')
-call dcopy_(nCenter*3*nTempMagn,[Zero],0,MRT,1)
-mem_local = mem_local+3*nCenter*nTempMagn*RtoB
+mem_local = mem_local+size(MRT)*RtoB
 ! MLT(nCenter,3,nTempMagn)
 call mma_allocate(MLT,nCenter,3,nTempMagn,'MLT')
-call dcopy_(nCenter*3*nTempMagn,[Zero],0,MLT,1)
-mem_local = mem_local+3*nCenter*nTempMagn*RtoB
+mem_local = mem_local+size(MLT)*RtoB
 ! SRT(nCenter,3,nTempMagn)
 call mma_allocate(SRT,nCenter,3,nTempMagn,'SRT')
-call dcopy_(nCenter*3*nTempMagn,[Zero],0,SRT,1)
-mem_local = mem_local+3*nCenter*nTempMagn*RtoB
+mem_local = mem_local+size(SRT)*RtoB
 ! SLT(nCenter,3,nTempMagn)
 call mma_allocate(SLT,nCenter,3,nTempMagn,'SLT')
-call dcopy_(nCenter*3*nTempMagn,[Zero],0,SLT,1)
-mem_local = mem_local+3*nCenter*nTempMagn*RtoB
+mem_local = mem_local+size(SLT)*RtoB
 
 ! total statistical sum, Boltzmann distribution
 call mma_allocate(ZT,nH,nTempMagn,'ZT')
-call dcopy_(nH*nTempMagn,[Zero],0,ZT,1)
-mem_local = mem_local+nH*nTempMagn*RtoB
+mem_local = mem_local+size(ZT)*RtoB
 ! total spin magnetisation
 call mma_allocate(ST,3,nH,nTempMagn,'ST')
-call dcopy_(3*nH*nTempMagn,[Zero],0,ST,1)
-mem_local = mem_local+3*nH*nTempMagn*RtoB
+ST(:,:,:) = Zero
+mem_local = mem_local+size(ST)*RtoB
 ! total magnetisation
 call mma_allocate(MT,3,nH,nTempMagn,'MT')
-call dcopy_(3*nH*nTempMagn,[Zero],0,MT,1)
-mem_local = mem_local+3*nH*nTempMagn*RtoB
+mem_local = mem_local+size(MT)*RtoB
 ! total spin magnetisation
 call mma_allocate(SAV,nH,nTempMagn,'SAV')
-call dcopy_(nH*nTempMagn,[Zero],0,SAV,1)
-mem_local = mem_local+nH*nTempMagn*RtoB
+SAV(:,:) = Zero
+mem_local = mem_local+size(SAV)*RtoB
 ! total magnetisation
 call mma_allocate(MAV,nH,nTempMagn,'MAV')
-call dcopy_(nH*nTempMagn,[Zero],0,MAV,1)
-mem_local = mem_local+nH*nTempMagn*RtoB
+MAV(:,:) = Zero
+mem_local = mem_local+size(MAV)*RtoB
 ! total spin magnetisation vector
 call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
-call dcopy_(nDirTot*nH*nTempMagn*3,[Zero],0,SVEC,1)
-mem_local = mem_local+nDirTot*nH*nTempMagn*3*RtoB
+mem_local = mem_local+size(SVEC)*RtoB
 ! total magnetisation vector
 call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
-call dcopy_(nDirTot*nH*nTempMagn*3,[Zero],0,MVEC,1)
-mem_local = mem_local+nDirTot*nH*nTempMagn*3*RtoB
+mem_local = mem_local+size(MVEC)*RtoB
 
 ! orientation of the field
 call mma_allocate(dHX,nDirTot,'dHX')
 call mma_allocate(dHY,nDirTot,'dHY')
 call mma_allocate(dHZ,nDirTot,'dHZ')
 call mma_allocate(dHW,nDirTot,'dHW')
-call dcopy_(nDirTot,[Zero],0,dHX,1)
-call dcopy_(nDirTot,[Zero],0,dHY,1)
-call dcopy_(nDirTot,[Zero],0,dHZ,1)
-call dcopy_(nDirTot,[Zero],0,dHW,1)
-mem_local = mem_local+4*nDirTot*RtoB
+mem_local = mem_local+size(dHX)*RtoB
+mem_local = mem_local+size(dHY)*RtoB
+mem_local = mem_local+size(dHZ)*RtoB
+mem_local = mem_local+size(dHW)*RtoB
 
 call mma_allocate(H,nH,'H  field')
-call dcopy_(nH,[Zero],0,H,1)
-mem_local = mem_local+nH*RtoB
+mem_local = mem_local+size(H)*RtoB
 #ifdef _DEBUGPRINT_
 write(u6,*) 'MAGN:  memory allocated (local):'
 write(u6,*) 'mem_local=',mem_local
@@ -361,18 +338,12 @@ do iH=1,nH
 
   ! ///  opening the loop over different directions of the magnetic field
   do IM=1,NDIRTOT
-    call dcopy_(nM,[Zero],0,Wex,1)
-    call dcopy_(nneq*nLoc,[Zero],0,WL,1)
-    call dcopy_(nneq*nLoc,[Zero],0,WR,1)
-    call dcopy_(nTempMagn,[Zero],0,Zex,1)
-    call dcopy_(nneq*nTempMagn,[Zero],0,ZL,1)
-    call dcopy_(nneq*nTempMagn,[Zero],0,ZR,1)
-    call dcopy_(3*nTempMagn,[Zero],0,Sex,1)
-    call dcopy_(3*nTempMagn,[Zero],0,Mex,1)
-    call dcopy_(3*nneq*nTempMagn,[Zero],0,SL,1)
-    call dcopy_(3*nneq*nTempMagn,[Zero],0,ML,1)
-    call dcopy_(3*nneq*nTempMagn,[Zero],0,SR,1)
-    call dcopy_(3*nneq*nTempMagn,[Zero],0,MR,1)
+    ZL(:,:) = Zero
+    ZR(:,:) = Zero
+    SL(:,:,:) = Zero
+    ML(:,:,:) = Zero
+    SR(:,:,:) = Zero
+    MR(:,:,:) = Zero
 #   ifdef _DEBUGPRINT_
     write(u6,'(A,F20.10)') 'zJ = ',zJ
 #   endif
@@ -392,19 +363,18 @@ do iH=1,nH
         ! all states:
         if (NSS(i) > NEXCH(i)) then
           ! this check is to avoid the unnecessary computation, in cases when no local excited states are present
-          call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,1:3,1:NSS(i),1:NSS(i)), &
-                    S_SO(i,1:3,1:NSS(i),1:NSS(i)),nTempMagn,TempMagn(1:nTempMagn),smagn,WL(i,1:NEXCH(i)),ZL(i,1:nTempMagn), &
-                    SL(i,1:3,1:nTempMagn),ML(i,1:3,1:nTempMagn),m_paranoid,DBG)
-          if (IM == 2) call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL,1)],1,8)
-
+          call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,:,1:NSS(i),1:NSS(i)), &
+                    S_SO(i,:,1:NSS(i),1:NSS(i)),nTempMagn,TempMagn(1:nTempMagn),smagn,WL(i,1:NEXCH(i)),ZL(i,1:nTempMagn), &
+                    SL(i,:,1:nTempMagn),ML(i,:,1:nTempMagn),m_paranoid,DBG)
+          if (IM == 2) call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL(i,:),1)],1,8)
 #         ifdef _DEBUGPRINT_
           write(u6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(i,l,1),l=1,3)
 #         endif
           ! only local "exchange states":
-          call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,1:3,1:NEXCH(i),1:NEXCH(i)), &
-                    S_SO(i,1:3,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn,WR(i,1:Nexch(i)),ZR(i,1:nTempMagn), &
-                    SR(i,1:3,1:nTempMagn),MR(i,1:3,1:nTempMagn),m_paranoid,DBG)
-          call Add_Info('MR_MAGN  WR',[dnrm2_(nexch(i),WR,1)],1,8)
+          call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,:,1:NEXCH(i),1:NEXCH(i)), &
+                    S_SO(i,:,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn,WR(i,1:Nexch(i)),ZR(i,1:nTempMagn), &
+                    SR(i,:,1:nTempMagn),MR(i,:,1:nTempMagn),m_paranoid,DBG)
+          if (IM == 2) call Add_Info('MR_MAGN  WR',[dnrm2_(nexch(i),WR(i,:),1)],1,8)
 #         ifdef _DEBUGPRINT_
           write(u6,'(A,I2,A,3F11.7)') 'MR: site',i,' : ',(MR(i,l,1),l=1,3)
 #         endif
@@ -418,36 +388,32 @@ do iH=1,nH
 
       ! expand the basis and rotate local vectors to the general
       ! coordinate system:
-      call dcopy_(nCenter*nTempMagn,[Zero],0,ZRT,1)
-      call dcopy_(nCenter*nTempMagn,[Zero],0,ZLT,1)
-      call dcopy_(3*nCenter*nTempMagn,[Zero],0,MRT,1)
-      call dcopy_(3*nCenter*nTempMagn,[Zero],0,MLT,1)
-      call dcopy_(3*nCenter*nTempMagn,[Zero],0,SRT,1)
-      call dcopy_(3*nCenter*nTempMagn,[Zero],0,SLT,1)
+      MRT(:,:,:) = Zero
+      MLT(:,:,:) = Zero
+      SRT(:,:,:) = Zero
+      SLT(:,:,:) = Zero
       isite = 0
       do i=1,NNEQ
         do j=1,NEQ(i)
           isite = isite+1
           ! statistical distributions
+          ZLT(isite,:) = ZL(i,:)
+          ZRT(isite,:) = ZR(i,:)
+          ! magnetizations:
+          !  use R_rot matrices, which have determinant +1.
+          !  note that  R_lg matrices have arbitrary determinant.
           do iT=1,nTempMagn
-            ZLT(isite,iT) = ZL(i,iT)
-            ZRT(isite,iT) = ZR(i,iT)
-          end do
-         ! magnetizations:
-         !  use R_rot matrices, which have determinant +1.
-         !  note that  R_lg matrices have arbitrary determinant.
-          do iT=1,nTempMagn
-            do l=1,3
-              do n=1,3
-                MLT(isite,l,iT) = MLT(isite,l,iT)+r_rot(i,j,l,n)*ML(i,n,iT)
-                SLT(isite,l,iT) = SLT(isite,l,iT)+r_rot(i,j,l,n)*SL(i,n,iT)
-                MRT(isite,l,iT) = MRT(isite,l,iT)+r_rot(i,j,l,n)*MR(i,n,iT)
-                SRT(isite,l,iT) = SRT(isite,l,iT)+r_rot(i,j,l,n)*SR(i,n,iT)
-              end do
+            do n=1,3
+              MLT(isite,:,iT) = MLT(isite,:,iT)+r_rot(i,j,:,n)*ML(i,n,iT)
+              SLT(isite,:,iT) = SLT(isite,:,iT)+r_rot(i,j,:,n)*SL(i,n,iT)
+              MRT(isite,:,iT) = MRT(isite,:,iT)+r_rot(i,j,:,n)*MR(i,n,iT)
+              SRT(isite,:,iT) = SRT(isite,:,iT)+r_rot(i,j,:,n)*SR(i,n,iT)
             end do
           end do
         end do ! j, neq(i)
       end do ! i, nneq
+      ZRT(isite:,:) = Zero
+      ZLT(isite:,:) = Zero
     end if ! m_accurate
 
     ! compute the total magnetizations according to the derived formulas:
@@ -457,20 +423,17 @@ do iH=1,nH
         call MSUM(nCenter,Mex(:,iT),Zex(iT),MLT(:,:,iT),ZLT(:,iT),MRT(:,:,iT),ZRT(:,iT),iopt,MT(:,iH,iT),ZT(iH,iT))
       end do
     else
-      ! add the contribution from local excited states using the approximate
-      ! X*H expression:
-      call dcopy_(3*nCenter*nTempMagn,[Zero],0,SRT,1)
-      call dcopy_(3*nCenter*nTempMagn,[Zero],0,SLT,1)
+      ! add the contribution from local excited states using the approximate X*H expression:
       do iT=1,nTempMagn
         do isite=1,nCenter
-          do l=1,3
-            MRT(isite,l,iT) = (XRM(isite,iT,l,1)*H(iH)*dHX(iM)+XRM(isite,iT,l,2)*H(iH)*dHY(iM)+XRM(isite,iT,l,3)*H(iH)*dHZ(iM))/ &
-                              cm3tomB
-            MLT(isite,l,iT) = (XLM(isite,iT,l,1)*H(iH)*dHX(iM)+XLM(isite,iT,l,2)*H(iH)*dHY(iM)+XLM(isite,iT,l,3)*H(iH)*dHZ(iM))/ &
-                              cm3tomB
-          end do
+          MRT(isite,:,iT) = H(iH)*(XRM(isite,iT,:,1)*dHX(iM)+XRM(isite,iT,:,2)*dHY(iM)+XRM(isite,iT,:,3)*dHZ(iM))/cm3tomB
+          MLT(isite,:,iT) = H(iH)*(XLM(isite,iT,:,1)*dHX(iM)+XLM(isite,iT,:,2)*dHY(iM)+XLM(isite,iT,:,3)*dHZ(iM))/cm3tomB
         end do
-        if (smagn) call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLM(:,iT),SRT(:,:,iT),ZRM(:,iT),iopt,ST(:,iH,iT),ZT(iH,iT))
+        if (smagn) then
+          SRT(:,:,:) = Zero
+          SLT(:,:,:) = Zero
+          call MSUM(nCenter,Sex(:,iT),Zex(iT),SLT(:,:,iT),ZLM(:,iT),SRT(:,:,iT),ZRM(:,iT),iopt,ST(:,iH,iT),ZT(iH,iT))
+        end if
         call MSUM(nCenter,Mex(:,iT),Zex(iT),MLT(:,:,iT),ZLM(:,iT),MRT(:,:,iT),ZRM(:,iT),iopt,MT(:,iH,iT),ZT(iH,iT))
       end do
     end if
@@ -493,21 +456,13 @@ do iH=1,nH
     ! computing the AVERAGE MOMENTS calculated at different temperatures
     ! (TempMagn(i))
     do iT=1,nTempMagn
-      do l=1,3
-        MVEC(iM,iH,iT,l) = MT(l,iH,iT)
-        SVEC(iM,iH,iT,l) = ST(l,iH,iT)
-      end do !l
-
-      !MAV(iH,iT) = MAV(iH,iT)+MT(1,iH,iT)*dHX(iM)*dHW(iM)+MT(2,iH,iT)*dHY(iM)*dHW(iM)+MT(3,iH,iT)*dHZ(iM)*dHW(iM)
-      !SAV(iH,iT) = SAV(iH,iT)+ST(1,iH,iT)*dHX(iM)*dHW(iM)+ST(2,iH,iT)*dHY(iM)*dHW(iM)+ST(3,iH,iT)*dHZ(iM)*dHW(iM)
-      ! accumulate contributions:
-      call daxpy_(1,dHX(iM)*dHW(iM),MT(1,iH,iT),1,MAV(iH,iT),1)
-      call daxpy_(1,dHY(iM)*dHW(iM),MT(2,iH,iT),1,MAV(iH,iT),1)
-      call daxpy_(1,dHZ(iM)*dHW(iM),MT(3,iH,iT),1,MAV(iH,iT),1)
-      call daxpy_(1,dHX(iM)*dHW(iM),ST(1,iH,iT),1,SAV(iH,iT),1)
-      call daxpy_(1,dHY(iM)*dHW(iM),ST(2,iH,iT),1,SAV(iH,iT),1)
-      call daxpy_(1,dHZ(iM)*dHW(iM),ST(3,iH,iT),1,SAV(iH,iT),1)
+      MVEC(iM,iH,iT,:) = MT(:,iH,iT)
+      SVEC(iM,iH,iT,:) = ST(:,iH,iT)
     end do !iT
+
+    ! accumulate contributions:
+    MAV(iH,:) = MAV(iH,:)+dHW(iM)*(dHX(iM)*MT(1,iH,:)+dHY(iM)*MT(2,iH,:)+dHZ(iM)*MT(3,iH,:))
+    SAV(iH,:) = SAV(iH,:)+dHW(iM)*(dHX(iM)*ST(1,iH,:)+dHY(iM)*ST(2,iH,:)+dHZ(iM)*ST(3,iH,:))
     ! ///  closing the loops over field strengths and directions
   end do ! iM
 end do ! iH

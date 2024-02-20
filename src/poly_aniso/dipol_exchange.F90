@@ -21,24 +21,21 @@ real(kind=wp), intent(in) :: vec(3), dist
 complex(kind=wp), intent(in) :: M1(3,N1,N1), M2(3,N2,N2)
 complex(kind=wp), intent(out) :: HDIP(N1,N1,N2,N2)
 integer(kind=iwp) :: i1, i2, j1, j2, m
-complex(kind=wp) :: d3, HL, mb2c, p1, p2a, p2b, threeC, vec1(3)
+complex(kind=wp) :: d3, HL, mb2c, p1, p2a, p2b, vec1(3)
 real(kind=wp), parameter :: MB2 = 1.0e21_wp*mBohr**2/(cLight*rPlanck) ! -- the value of (mu_Bohr*mu_Bohr)/(angstrom^3)  in cm-1
+complex(kind=wp), parameter :: threeC = Three*cOne
 
 if ((N1 <= 0) .or. (N2 <= 0)) return
-call zcopy_(N1*N1*N2*N2,[cZero],0,HDIP,1)
 if (dist == Zero) then
+  HDIP(:,:,:,:) = cZero
   write(u6,'(A)') 'DIPOL_EXCHANGE::  dist = 0'
   write(u6,'(A)') 'this is not normal. Stop.'
   return
 end if
 ! switch to Complex arithmetic:
-! kind=8, complex double precision
-threeC = Three*cOne
 d3 = dist*dist*dist*cOne
 mb2c = MB2*cOne
-do m=1,3
-  vec1(m) = vec(m)*cOne
-end do
+vec1(:) = vec(:)*cOne
 ! calculate the dipolar coupling:
 do i1=1,N1
   do j1=1,N1

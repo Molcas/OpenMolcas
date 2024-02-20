@@ -313,7 +313,7 @@ C  is multiplied by imaginary unit to keep its hermicity
         END DO
 
         lcwork = (2*nss-1); info = 0
-        call zheev('V','U',nss,hso_tmp,nss,ensor,ccwork,lcwork,
+        call zheev_('V','U',nss,hso_tmp,nss,ensor,ccwork,lcwork,
      &             rwork,info)
 
         if(info /= 0)then

@@ -161,7 +161,10 @@ call mma_allocate(XTM_MH,nT+nTempMagn,'XTM_MH')
 call mma_allocate(XTM_dMdH,nT+nTempMagn,'XTM_dMdH')
 call mma_allocate(XTtens_MH,3,3,nT+nTempMagn,'XTtens_MH')
 call mma_allocate(XTtens_dMdH,3,3,nT+nTempMagn,'XTtens_dMdH')
-mem_local = mem_local+(2+2*3*3)*(nT+nTempMagn)*RtoB
+mem_local = mem_local+size(XTM_MH)*RtoB
+mem_local = mem_local+size(XTM_dMdH)*RtoB
+mem_local = mem_local+size(XTtens_MH)*RtoB
+mem_local = mem_local+size(XTtens_dMdH)*RtoB
 #ifdef _DEBUGPRINT_
 write(u6,*) 'XTMG:  memory allocated (local):'
 write(u6,*) 'mem_local=',mem_local

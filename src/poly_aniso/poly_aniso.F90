@@ -74,10 +74,10 @@ subroutine POLY_ANISO_1(nneq,neqv,nmax,exch,nLoc,nCenter,nT,nH,nTempMagn,nDir,nD
 ! options for automatic fitting of parameters:
 !  fitCHI : not used so far
 !  fitM   : not used so far
-!  iPrint, imltpl, Ifunct, iReturn, i, i1, i2, j, l, l1, l2, l3, l4, l5, imanifold, ibuf, check_title, Title, GRAD, fname, LuAniso
+!  iPrint, imltpl, Ifunct, iReturn, i, i1, i2, j, l, imanifold, check_title, Title, GRAD, fname, LuAniso
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, cZero, auTocm
+use Constants, only: Zero, auTocm
 use Definitions, only: wp, iwp, u6, CtoB, ItoB, RtoB
 
 implicit none
@@ -86,8 +86,8 @@ integer(kind=iwp), intent(in) :: neqv, nmax, exch, nLoc, nCenter, MxRank1, MxRan
 logical(kind=iwp), intent(in) :: old_aniso_format
 integer(kind=iwp), intent(out) :: iReturn
 #include "warnings.h"
-integer(kind=iwp) :: AngPoints, encut_definition, i, i1, i2, ibuf, Ifunct, imanifold, imltpl, iopt, iPrint, j, KEOPT, l, l1(2), &
-                     l2(2), l3(2), l4(2), l5(2), lant, LuAniso, mem, mG, multLn, nBlock, ncut, nDirTot, nK, nM, nP
+integer(kind=iwp) :: AngPoints, encut_definition, i, i1, i2, Ifunct, imanifold, imltpl, iopt, iPrint, j, KEOPT, l, lant, LuAniso, &
+                     mem, mG, multLn, nBlock, ncut, nDirTot, nK, nM, nP
 real(kind=wp) :: coord(3), cryst(6), dltH0, dltT0, em, encut_rate, hmax, hmin, thrs, tmax, tmin, tpar, upar, Xfield, zJ
 logical(kind=iwp) :: AnisoLines1, AnisoLines3, AnisoLines9, check_title, compute_barrier, compute_g_tensors, &
                      compute_magnetization, compute_Mdir_vector, compute_susceptibility, compute_torque, decompose_exchange, &
@@ -137,20 +137,16 @@ mem = 0
 
 ! exchange energy spectrum
 call mma_allocate(W,exch,'W')
-call dcopy_(exch,[Zero],0,W,1)
-mem = exch*RtoB
+mem = mem+size(W)*RtoB
 ! exchange eigenvectors:
 call mma_allocate(Z,exch,exch,'Z')
-call zcopy_(exch*exch,[cZero],0,Z,1)
-mem = mem+exch*exch*CtoB
+mem = mem+size(Z)*CtoB
 ! magnetic moment
 call mma_allocate(dipexch,3,exch,exch,'dipexch')
-call zcopy_(3*exch*exch,[cZero],0,dipexch,1)
-mem = mem+3*exch*exch*CtoB
+mem = mem+size(dipexch)*CtoB
 ! spin moment
 call mma_allocate(s_exch,3,exch,exch,'s_exch')
-call zcopy_(3*exch*exch,[cZero],0,s_exch,1)
-mem = mem+3*exch*exch*CtoB
+mem = mem+size(s_exch)*CtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 1 =',mem
@@ -158,52 +154,41 @@ write(u6,'(A,I16)') 'mem 1 =',mem
 
 ! index of metal site for each interacting pair:
 call mma_allocate(i_pair,nPair,2,'i_pair')
-call icopy(nPair*2,[0],0,i_pair,1)
-mem = mem+nPair*2*ItoB
+mem = mem+size(i_pair)*ItoB
 ! exchange Lines-1 parameter
 call mma_allocate(Jex,nPair,'Jex')
-call dcopy_(nPair,[Zero],0,Jex,1)
-mem = mem+nPair*RtoB
+Jex(:) = Zero
+mem = mem+size(Jex)*RtoB
 ! exchange Lines-3 parameter
 call mma_allocate(JAex,nPair,3,'Jex')
-call dcopy_(nPair*3,[Zero],0,JAex,1)
-mem = mem+nPair*3*RtoB
+JAex(:,:) = Zero
+mem = mem+size(JAex)*RtoB
 ! exchange Lines-9 parameter
 call mma_allocate(JAex9,nPair,3,3,'Jex')
-call dcopy_(nPair*3*3,[Zero],0,JAex9,1)
-mem = mem+nPair*3*3*RtoB
+JAex9(:,:,:) = Zero
+mem = mem+size(JAex9)*RtoB
 ! exchange Dzyaloshinsky-Morya parameter
 call mma_allocate(JDMex,nPair,3,'Jex')
-call dcopy_(nPair*3,[Zero],0,JDMex,1)
-mem = mem+nPair*3*RtoB
+JDMex(:,:) = Zero
+mem = mem+size(JDMex)*RtoB
 ! index of ITO ranks for for each interacting pair:
 call mma_allocate(imaxrank,nPair,2,'imaxrank')
-call icopy(nPair*2,[0],0,imaxrank,1)
-mem = mem+nPair*2*ItoB
+imaxrank(:,:) = 0
+mem = mem+size(imaxrank)*ItoB
 ! exchange JITO
-l1(1) = 1
-l1(2) = nPair
-l2(1) = 1
-l2(2) = MxRank1
-l3(1) = -MxRank1
-l3(2) = MxRank1
-l4(1) = 1
-l4(2) = MxRank2
-l5(1) = -MxRank2
-l5(2) = MxRank2
-ibuf = nPair*MxRank1*MxRank2*(2*MxRank1+1)*(2*MxRank2+1)
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I10)') 'nPair  =',nPair
 write(u6,'(A,I10)') 'MxRank1=',MxRank1
 write(u6,'(A,I10)') 'MxRank2=',MxRank2
-write(u6,'(A,I10)') 'ibuf   =',ibuf
-#endif
+write(u6,'(A,I10)') 'ibuf   =',nPair*MxRank1*MxRank2*(2*MxRank1+1)*(2*MxRank2+1)
 call xFlush(u6)
-call mma_allocate(JITOexR,l1,l2,l3,l4,l5,'JITOexR')
-call mma_allocate(JITOexI,l1,l2,l3,l4,l5,'JITOexI')
-call dcopy_(ibuf,[Zero],0,JITOexR,1)
-call dcopy_(ibuf,[Zero],0,JITOexI,1)
-mem = mem+2*ibuf*RtoB
+#endif
+call mma_allocate(JITOexR,[1,nPair],[1,MxRank1],[-MxRank1,MxRank1],[1,MxRank2],[-MxRank2,MxRank2],'JITOexR')
+call mma_allocate(JITOexI,[1,nPair],[1,MxRank1],[-MxRank1,MxRank1],[1,MxRank2],[-MxRank2,MxRank2],'JITOexI')
+JITOexR(:,:,:,:,:) = Zero
+JITOexI(:,:,:,:,:) = Zero
+mem = mem+size(JITOexR)*RtoB
+mem = mem+size(JITOexI)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 2 =',mem
@@ -211,16 +196,14 @@ write(u6,'(A,I16)') 'mem 2 =',mem
 
 ! index of metal site for each interacting pair:
 call mma_allocate(nDim,nMult,'nDim')
-call icopy(nMult,[0],0,nDim,1)
-mem = mem+nMult*ItoB
+nDim(:) = 0
+mem = mem+size(nDim)*ItoB
 ! g_tensor for each multiplet
 call mma_allocate(gtens,nMult,3,'gtens')
-call dcopy_(nMult*3,[Zero],0,gtens,1)
-mem = mem+nMult*3*RtoB
+mem = mem+size(gtens)*RtoB
 ! main axes of the g tensor for each multiplet
 call mma_allocate(maxes,nMult,3,3,'maxes')
-call dcopy_(nMult*3*3,[Zero],0,maxes,1)
-mem = mem+nMult*3*3*RtoB
+mem = mem+size(maxes)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 3 =',mem
@@ -228,65 +211,56 @@ write(u6,'(A,I16)') 'mem 3 =',mem
 
 ! number of equivalent centers, per type
 call mma_allocate(neq,nneq,'neq')
-call icopy(nneq,[0],0,neq,1)
-mem = mem+nneq*ItoB
+mem = mem+size(neq)*ItoB
 ! local number of spin orbit states:
 call mma_allocate(nss,nneq,'nss')
-call icopy(nneq,[0],0,nss,1)
-mem = mem+nneq*ItoB
+nss(:) = 0
+mem = mem+size(nss)*ItoB
 ! local number of spin free states:
 call mma_allocate(nsfs,nneq,'nsfs')
-call icopy(nneq,[0],0,nsfs,1)
-mem = mem+nneq*ItoB
+nsfs(:) = 0
+mem = mem+size(nsfs)*ItoB
 ! local basis for exchange:
 call mma_allocate(nexch,nneq,'nexch')
-call icopy(nneq,[0],0,nexch,1)
-mem = mem+nneq*ItoB
+mem = mem+size(nexch)*ItoB
 ! gtens_input(:,:)
 call mma_allocate(gtens_input,3,nneq,'gtens_input')
-call dcopy_(3*nneq,[Zero],0,gtens_input,1)
-mem = mem+3*nneq*RtoB
+mem = mem+size(gtens_input)*RtoB
 ! D_fact
 call mma_allocate(D_fact,nneq,'D_fact')
-call dcopy_(nneq,[Zero],0,D_fact,1)
-mem = mem+nneq*RtoB
+mem = mem+size(D_fact)*RtoB
 ! EoverD_fact
 call mma_allocate(EoverD_fact,nneq,'EoverD_fact')
-call dcopy_(nneq,[Zero],0,EoverD_fact,1)
-mem = mem+nneq*RtoB
+mem = mem+size(EoverD_fact)*RtoB
 ! MagnCoords()
 call mma_allocate(MagnCoords,nneq,3,'MagnCoords')
-call dcopy_(nneq*3,[Zero],0,MagnCoords,1)
-mem = mem+nneq*3*RtoB
+MagnCoords(:,:) = Zero
+mem = mem+size(MagnCoords)*RtoB
 ! riso
 call mma_allocate(riso,nneq,3,3,'riso')
-call dcopy_(3*3*nneq,[Zero],0,riso,1)
-mem = mem+9*nneq*RtoB
+riso(:,:,:) = Zero
+mem = mem+size(riso)*RtoB
 
 ! R_LG
 call mma_allocate(r_lg,nneq,neqv,3,3,'r_lg')
-call dcopy_(nneq*neqv*3*3,[Zero],0,r_lg,1)
-mem = mem+nneq*neqv*3*3*RtoB
+r_lg(:,:,:,:) = Zero
+mem = mem+size(r_lg)*RtoB
 ! R_ROT
 call mma_allocate(r_rot,nneq,neqv,3,3,'r_rot')
-call dcopy_(nneq*neqv*3*3,[Zero],0,r_rot,1)
-mem = mem+nneq*neqv*3*3*RtoB
+r_rot(:,:,:,:) = Zero
+mem = mem+size(r_rot)*RtoB
 
 ! local spin orbit states
 call mma_allocate(eso,nneq,nLoc,'eso')
-call dcopy_(nneq*nLoc,[Zero],0,eso,1)
-mem = mem+nneq*nLoc*RtoB
+mem = mem+size(eso)*RtoB
 call mma_allocate(eso_au,nneq,nLoc,'eso_au')
-call dcopy_(nneq*nLoc,[Zero],0,eso_au,1)
-mem = mem+nneq*nLoc*RtoB
+mem = mem+size(eso_au)*RtoB
 ! local magnetic moment
 call mma_allocate(dipso,nneq,3,nLoc,nLoc,'dipso')
-call zcopy_(3*nneq*nLoc*nLoc,[cZero],0,dipso,1)
-mem = mem+3*nneq*nLoc*nLoc*CtoB
+mem = mem+size(dipso)*CtoB
 ! local spin moment
 call mma_allocate(s_so,nneq,3,nLoc,nLoc,'s_so')
-call zcopy_(3*nneq*nLoc*nLoc,[cZero],0,s_so,1)
-mem = mem+3*nneq*nLoc*nLoc*CtoB
+mem = mem+size(s_so)*CtoB
 
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
@@ -295,12 +269,12 @@ write(u6,'(A,I16)') 'mem 4 =',mem
 
 ! unit numbers of the files containing Zeeman states
 call mma_allocate(LuZee,nDirZee,'LuZee')
-call icopy(nDirZee,[0],0,LuZee,1)
-mem = mem+nDirZee*ItoB
+LuZee(:) = 0
+mem = mem+size(LuZee)*ItoB
 ! directional vectors for the magnetic field, for computing Zeeman states
 call mma_allocate(dir_weight,nDirZee,3,'dir_weight')
-call dcopy_(3*nDirZee,[Zero],0,dir_weight,1)
-mem = mem+3*nDirZee*ItoB
+dir_weight(:,:) = Zero
+mem = mem+size(dir_weight)*ItoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 5 =',mem
@@ -310,10 +284,12 @@ write(u6,'(A,I16)') 'mem 5 =',mem
 call mma_allocate(dirX,nDir,'dirX')
 call mma_allocate(dirY,nDir,'dirY')
 call mma_allocate(dirZ,nDir,'dirZ')
-mem = mem+3*nDir*RtoB
-call dcopy_(nDir,[Zero],0,dirX,1)
-call dcopy_(nDir,[Zero],0,dirY,1)
-call dcopy_(nDir,[Zero],0,dirZ,1)
+dirX(:) = Zero
+dirY(:) = Zero
+dirZ(:) = Zero
+mem = mem+size(dirX)*RtoB
+mem = mem+size(dirY)*RtoB
+mem = mem+size(dirZ)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 6 =',mem
@@ -321,16 +297,15 @@ write(u6,'(A,I16)') 'mem 6 =',mem
 
 ! experimental field points:
 call mma_allocate(Hexp,nH,'Hexp')
-call dcopy_(nH,[Zero],0,Hexp,1)
-mem = mem+nH*RtoB
+Hexp(:) = Zero
+mem = mem+size(Hexp)*RtoB
 ! experimental magnetisation:
 call mma_allocate(Mexp,nH,nTempMagn,'Mexp')
-call dcopy_(nH*nTempMagn,[Zero],0,Mexp,1)
-mem = mem+nH*nTempMagn*RtoB
+Mexp(:,:) = Zero
+mem = mem+size(Mexp)*RtoB
 ! temperature points for magnetization:
 call mma_allocate(TempMagn,nTempMagn,'TempMagn')
-call dcopy_(nTempMagn,[Zero],0,TempMagn,1)
-mem = mem+nTempMagn*RtoB
+mem = mem+size(TempMagn)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 7 =',mem
@@ -338,57 +313,54 @@ write(u6,'(A,I16)') 'mem 7 =',mem
 
 ! XT for local centers, all states
 call mma_allocate(XLM,nCenter,nTempMagn,3,3,'XLM')
-call dcopy_(nCenter*nTempMagn*3*3,[Zero],0,XLM,1)
-mem = mem+nCenter*nTempMagn*3*3*RtoB
+XLM(:,:,:,:) = Zero
+mem = mem+size(XLM)*RtoB
 ! Statistical sum for local centers, all states
 call mma_allocate(ZLM,nCenter,nTempMagn,'ZLM')
-call dcopy_(nCenter*nTempMagn,[Zero],0,ZLM,1)
-mem = mem+nCenter*nTempMagn*RtoB
+ZLM(:,:) = Zero
+mem = mem+size(ZLM)*RtoB
 ! XT for local centers, exchange states
 call mma_allocate(XRM,nCenter,nTempMagn,3,3,'XRM')
-call dcopy_(nCenter*nTempMagn*3*3,[Zero],0,XRM,1)
-mem = mem+nCenter*nTempMagn*3*3*RtoB
+XRM(:,:,:,:) = Zero
+mem = mem+size(XRM)*RtoB
 ! Statistical sum for local centers, exchange states
 call mma_allocate(ZRM,nCenter,nTempMagn,'ZRM')
-call dcopy_(nCenter*nTempMagn,[Zero],0,ZRM,1)
-mem = mem+nCenter*nTempMagn*RtoB
+ZRM(:,:) = Zero
+mem = mem+size(ZRM)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 8 =',mem
 #endif
 
-! T expeirimental given by user in the input
+! T experimental given by user in the input
 call mma_allocate(Texp,nT,'Texp')
-call dcopy_(nT,[Zero],0,Texp,1)
-mem = mem+nT*RtoB
-! XT expeirimental given by user in the input
+Texp(:) = Zero
+mem = mem+size(Texp)*RtoB
+! XT experimental given by user in the input
 call mma_allocate(chit_exp,nT,'chit_exp')
-call dcopy_(nT,[Zero],0,chit_exp,1)
-mem = mem+nT*RtoB
+chit_exp(:) = Zero
+mem = mem+size(chit_exp)*RtoB
 
 ! -- add nTempMagn points, so that all measurables are computed at once...
 ! temperature points for which XT will be computed
 call mma_allocate(T,nTempMagn+nT,'Temperature')
-call dcopy_(nT+nTempMagn,[Zero],0,T,1)
-mem = mem+(nT+nTempMagn)*RtoB
+mem = mem+size(T)*RtoB
 ! XT experimental tmagn XTexp+Tmagn
 call mma_allocate(XTexp,nTempMagn+nT,'XTexp')
-call dcopy_(nT+nTempMagn,[Zero],0,XTexp,1)
-mem = mem+(nT+nTempMagn)*RtoB
+mem = mem+size(XTexp)*RtoB
 ! XT in the absence of the magnetic field
 call mma_allocate(XT_no_field,nTempMagn+nT,'XT_no_field')
-call dcopy_(nT+nTempMagn,[Zero],0,XT_no_field,1)
-mem = mem+(nT+nTempMagn)*RtoB
+mem = mem+size(XT_no_field)*RtoB
 ! allocated memory counter
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I16)') 'mem 9 =',mem
 #endif
 
 write(u6,'(A,I16,A)') 'The code allocated at least:',mem,' bytes of memory for this run.'
-call xFlush(u6)
 !-----------------------------------------------------------------------
 ! set default values of the main variables and arrays:
 #ifdef _DEBUGPRINT_
+call xFlush(u6)
 write(u6,*) 'Enter set_defaults'
 #endif
 call set_defaults(nneq,nTempMagn,nDir,nDirZee,nMult,neq,nexch,nK,mG,ncut,nP,AngPoints,nBlock,encut_definition,iopt,iPrint,dltT0, &
@@ -417,10 +389,10 @@ write(u6,*) 'Enter Readin_poly'
 call Readin_poly(nneq,neq,neqv,exch,nCenter,nT,nH,nTempMagn,nDir,nDirZee,nMult,nPair,nexch,nDim,i_pair,lant,multLn,iPrint,keopt, &
                  encut_definition,nK,mG,iopt,nP,AngPoints,ncut,LUZee,MxRank1,MxRank2,imaxrank,TempMagn,R_LG,R_ROT,Jex,JAex,JAex9, &
                  JDMex,JITOexR,JITOexI,tpar,upar,cryst,coord,Xfield,gtens_input,D_fact,EoverD_fact,riso,MagnCoords,thrs,tmin,tmax, &
-                 hmin,hmax,Texp(1:nT),chit_exp(1:nT),Hexp,Mexp,encut_rate,zJ,dirX,dirY,dirZ,dir_weight,Title,itype,ifHDF, &
-                 compute_g_tensors,compute_magnetization,TINPUT,HINPUT,Do_structure_abc,doplot,compute_Mdir_vector,zeeman_energy, &
-                 m_paranoid,m_accurate,smagn,compute_susceptibility,decompose_exchange,KE,fitCHI,fitM,compute_torque, &
-                 compute_barrier,Dipol,check_title,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,JITO_exchange)
+                 hmin,hmax,Texp,chit_exp,Hexp,Mexp,encut_rate,zJ,dirX,dirY,dirZ,dir_weight,Title,itype,ifHDF,compute_g_tensors, &
+                 compute_magnetization,TINPUT,HINPUT,Do_structure_abc,doplot,compute_Mdir_vector,zeeman_energy,m_paranoid, &
+                 m_accurate,smagn,compute_susceptibility,decompose_exchange,KE,fitCHI,fitM,compute_torque,compute_barrier,Dipol, &
+                 check_title,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,JITO_exchange)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Exit Readin_poly'
 call xFlush(u6)
@@ -430,13 +402,13 @@ call xFlush(u6)
 do i=1,nneq
 # ifdef _DEBUGPRINT_
   write(u6,'(A,A)') 'itype(i)=',itype(i)
-  write(u6,*) '   nss(i)=',nss(i)
-  write(u6,*) '  nsfs(i)=',nsfs(i)
+  !write(u6,*) '   nss(i)=',nss(i)
+  !write(u6,*) '  nsfs(i)=',nsfs(i)
   write(u6,*) ' nexch(i)=',nexch(i)
   write(u6,*) '     nLoc=',nLoc
   write(u6,*) ' gtens_input(1:3,i)=',(gtens_input(j,i),j=1,3)
   write(u6,*) 'D_fact(i)=',D_fact(i)
-  write(u6,*) 'eso(i,1:nexch(i))=',(eso(i,j),j=1,nexch(i))
+  !write(u6,*) 'eso(i,1:nexch(i))=',(eso(i,j),j=1,nexch(i))
   write(u6,*) 'old_aniso_format=',old_aniso_format
   call xFlush(u6)
 # endif
@@ -478,8 +450,8 @@ do i=1,nneq
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'i=',i,'nsfs(i),nss(i)=',nsfs(i),nss(i)
 #     endif
-      call read_hdf5_poly(namefile_aniso(i),nss(i),nsfs(i),eso(i,1:nss(i)),dipso(i,1:3,1:nss(i),1:nss(i)), &
-                          s_so(i,1:3,1:nss(i),1:nss(i)),iReturn)
+      call read_hdf5_poly(namefile_aniso(i),nss(i),nsfs(i),eso(i,1:nss(i)),dipso(i,:,1:nss(i),1:nss(i)), &
+                          s_so(i,:,1:nss(i),1:nss(i)),iReturn)
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Exit read_hdf5_poly'
       write(u6,*) 'ESO(i)=',(ESO(i,j),j=1,nss(i))
@@ -504,11 +476,11 @@ do i=1,nneq
         !write(u6,*) 'nss(i) =',nss(i)
         !write(u6,*) 'nsfs(i)=',nsfs(i)
         !write(u6,*) 'nLoc   =',nLoc
-#       endif
         call xFlush(u6)
+#       endif
 
-        call read_formatted_aniso_poly(namefile_aniso(i),nss(i),nsfs(i),nLoc,eso(i,1:nLoc),dipso(i,1:3,1:nLoc,1:nLoc), &
-                                       s_so(i,1:3,1:nLoc,1:nLoc),iReturn)
+        call read_formatted_aniso_poly(namefile_aniso(i),nss(i),nsfs(i),nLoc,eso(i,1:nLoc),dipso(i,:,1:nLoc,1:nLoc), &
+                                       s_so(i,:,1:nLoc,1:nLoc),iReturn)
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'Exit read_formatted_aniso_poly'
 #       endif
@@ -529,16 +501,14 @@ do i=1,nneq
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'poly_aniso: eso_au=',(eso_au(i,j),j=1,nss(i))
 #       endif
-        call read_magnetic_moment(LuAniso,nss(i),dipso(i,1:3,1:nss(i),1:nss(i)),dbg)
+        call read_magnetic_moment(LuAniso,nss(i),dipso(i,:,1:nss(i),1:nss(i)),dbg)
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'Call read_spin_moment'
-#       endif
         call xFlush(u6)
-        call read_spin_moment(LuAniso,nss(i),s_so(i,1:3,1:nss(i),1:nss(i)),dbg)
+#       endif
+        call read_spin_moment(LuAniso,nss(i),s_so(i,:,1:nss(i),1:nss(i)),dbg)
         ! compute the relative spin-orbit energies in cm-1
-        do j=1,nss(i)
-          eso(i,j) = (eso_au(i,j)-eso_au(i,1))*auTocm
-        end do
+        eso(i,1:nss(i)) = (eso_au(i,1:nss(i))-eso_au(i,1))*auTocm
         close(LuAniso)
 
       end if
@@ -635,8 +605,8 @@ if (compute_g_tensors) then
       call prmom('PA: dip_exch:',dipexch(1:3,i1:i2,i1:i2),ndim(imltpl))
 #     endif
 
-      call g_high(w(i1:i2),GRAD,s_exch(1:3,i1:i2,i1:i2),dipexch(1:3,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
-                  gtens(imltpl,1:3),maxes(imltpl,1:3,1:3),iprint)
+      call g_high(w(i1:i2),GRAD,s_exch(:,i1:i2,i1:i2),dipexch(:,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
+                  gtens(imltpl,:),maxes(imltpl,:,:),iprint)
 
     end if
     Ifunct = Ifunct+ndim(imltpl)

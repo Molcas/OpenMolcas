@@ -27,7 +27,7 @@ integer(kind=iwp), intent(in) :: N1, N2, lant, OPT
 complex(kind=wp), intent(in) :: M1(3,N1,N1), S1(3,N1,N1), M2(3,N2,N2), S2(3,N2,N2)
 real(kind=wp), intent(in) :: eso1(N1), eso2(N2), tpar, upar
 complex(kind=wp), intent(out) :: HKEX(N1,N1,N2,N2), MR1(3,N1,N1), SR1(3,N1,N1), MR2(3,N2,N2), SR2(3,N2,N2)
-integer(kind=iwp) :: i, i1, i2, info, iprint, is1, is2, j, j1, j2, l
+integer(kind=iwp) :: i, i1, i2, info, iprint, is1, is2, j, l
 real(kind=wp) :: gtens(4,3), maxes(4,3,3)
 real(kind=wp), allocatable :: eloc1(:), eloc2(:), wcr(:)
 complex(kind=wp), allocatable :: ABIT(:,:,:,:), H1(:,:), H1T(:,:), H2(:,:), HCOV(:,:), HEXC(:,:,:,:), MM1(:,:,:), SM1(:,:,:), &
@@ -54,18 +54,14 @@ call mma_allocate(H1,N1,N1,label='H1')
 call mma_allocate(H2,N2,N2,label='H2')
 H1(:,:) = cZero
 H2(:,:) = cZero
-do I1=1,N1
-  do I2=1,N1
-    do i=1,N1
-      H1(I1,I2) = H1(I1,I2)+ELOC1(i)*conjg(Z1(i,I1))*Z1(i,I2)
-    end do
+do I2=1,N1
+  do i=1,N1
+    H1(:,I2) = H1(:,I2)+ELOC1(i)*conjg(Z1(i,:))*Z1(i,I2)
   end do
 end do
-do I1=1,N2
-  do I2=1,N2
-    do i=1,N2
-      H2(I1,I2) = H2(I1,I2)+ELOC2(i)*conjg(Z2(i,I1))*Z2(i,I2)
-    end do
+do I2=1,N2
+  do i=1,N2
+    H2(:,I2) = H2(:,I2)+ELOC2(i)*conjg(Z2(i,:))*Z2(i,I2)
   end do
 end do
 call mma_deallocate(eloc1)
@@ -119,15 +115,7 @@ do i=1,N1
     ABIT(i,i,i1,i1) = H1(i,i)+H2(i1,i1)
   end do
 end do
-do i1=1,N1
-  do i2=1,N1
-    do j1=1,N2
-      do j2=1,N2
-        HKEX(i1,i2,j1,j2) = HEXC(i1,i2,j1,j2)+ABIT(i1,i2,j1,j2)
-      end do
-    end do
-  end do
-end do
+HKEX(:,:,:,:) = HEXC(:,:,:,:)+ABIT(:,:,:,:)
 call mma_deallocate(ABIT)
 call mma_deallocate(H1)
 call mma_deallocate(H2)

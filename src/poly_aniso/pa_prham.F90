@@ -67,12 +67,11 @@ if (exch >= 0) then
   call mma_allocate(h2,exch,'h2')
   call mma_allocate(h3,exch,'h3')
   call mma_allocate(h4,exch,'h4')
-  call zcopy_(exch,[cZero],0,htot,1)
-  call zcopy_(exch,[cZero],0,h1,1)
-  call zcopy_(exch,[cZero],0,h2,1)
-  call zcopy_(exch,[cZero],0,h3,1)
-  call zcopy_(exch,[cZero],0,h4,1)
-  mem_local = mem_local+5*exch*CtoB
+  mem_local = mem_local+size(htot)*CtoB
+  mem_local = mem_local+size(h1)*CtoB
+  mem_local = mem_local+size(h2)*CtoB
+  mem_local = mem_local+size(h3)*CtoB
+  mem_local = mem_local+size(h4)*CtoB
 end if
 
 !do lp=1,nPair
@@ -80,7 +79,6 @@ end if
 !  write(u6,'(A,i2,A,i3)') 'i_Pair(',lp,',2)=',i_pair(lp,2)
 !end do
 ! generate the tables:
-nind(:,:) = 0
 lpr = 0
 l = 0
 do i=1,nneq
@@ -90,8 +88,7 @@ do i=1,nneq
     nind(l,2) = j
   end do
 end do
-intc(:) = 0
-ibas(:,:) = 0
+nind(l+1:,:) = 0
 intc(1) = 1
 if (lmax > 1) then
   do i=2,lmax
@@ -177,16 +174,13 @@ end if
 write(u6,'(110A)') '-----------------',('|-----  Real  ---------  Imaginary  --| ',i=1,lpr)
 
 do nb1=1,exch
-  call zcopy_(exch,[cZero],0,H1,1)
-  call zcopy_(exch,[cZero],0,H2,1)
-  call zcopy_(exch,[cZero],0,H3,1)
-  call zcopy_(exch,[cZero],0,H4,1)
-  call zcopy_(exch,[cZero],0,HTOT,1)
+  H1(:) = cZero
+  H2(:) = cZero
+  H3(:) = cZero
+  H4(:) = cZero
+  HTOT(:) = cZero
   do lp=1,npair
-    icoord(:) = 0
-    do i=1,lmax
-      icoord(i) = ibas(nb1,i)
-    end do
+    icoord(:) = ibas(nb1,:)
 
     lb1 = i_pair(lp,1)
     lb2 = i_pair(lp,2)

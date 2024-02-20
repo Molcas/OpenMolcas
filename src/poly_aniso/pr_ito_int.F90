@@ -14,7 +14,7 @@ subroutine pr_ito_int(npair,i_pair,lmax,nexch,nneq,neqv,itype,neq,nmax,soe,MM,SM
 ! this function prints the parameters of the exchange interaction in an accessible format
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, cZero
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -26,7 +26,7 @@ complex(kind=wp), intent(in) :: MM(nneq,3,nmax,nmax), SM(nneq,3,nmax,nmax), HLIN
                                HDIP(npair,nmax,nmax,nmax,nmax), HDMO(npair,nmax,nmax,nmax,nmax), HITO(npair,nmax,nmax,nmax,nmax)
 logical(kind=iwp), intent(in) :: Dipol, AnisoLines1, AnisoLines3, AnisoLines9, DM_exchange, JITO_exchange
 ! local variables
-integer(kind=iwp) :: i, i1, i2, ibuf, j, k, k1, k2, l, l1(2), l2(2), l3(2), l4(2), lb1, lb2, lp, n1, n2, nind(lmax,2), nsize, q1, q2
+integer(kind=iwp) :: i, i1, i2, ibuf, j, k, k1, k2, l, lb1, lb2, lp, n1, n2, nind(lmax,2), q1, q2
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: is1, is2, js1, js2
 #endif
@@ -44,7 +44,6 @@ unused_var(rot)
 #endif
 
 ! some initializations:
-nind(:,:) = 0
 l = 0
 do i=1,nneq
   do j=1,neq(i)
@@ -53,6 +52,7 @@ do i=1,nneq
     nind(l,2) = j
   end do
 end do
+nind(l+1:,:) = 0
 
 ibuf = npair*nmax*nmax*nmax*nmax
 if (ibuf == 0) then
@@ -241,28 +241,14 @@ do lp=1,npair
   ! JN= exch. parameters in Naoya's ITO operators
   ! JL= exch. parameters in Liviu's ITO operators
   ! JS= exch. parameters in Stevens ESO operators
-  l1(1) = 1
-  l1(2) = n1-1
-  l2(1) = -(n1-1)
-  l2(2) = n1-1
-  l3(1) = 1
-  l3(2) = n2-1
-  l4(1) = -(n2-1)
-  l4(2) = n2-1
-  nsize = (n1-1)*(n2-1)*(2*(n1-1)+1)*(2*(n2-1)+1)
-  call mma_allocate(JN,l1,l2,l3,l4,'JN')
-  call mma_allocate(JB,l1,l2,l3,l4,'JB')
-  call mma_allocate(JS,l1,l2,l3,l4,'JS')
+  call mma_allocate(JN,[1,n1-1],[-(n1-1),n1-1],[1,n2-1],[-(n2-1),n2-1],'JN')
+  call mma_allocate(JB,[1,n1-1],[-(n1-1),n1-1],[1,n2-1],[-(n2-1),n2-1],'JB')
+  call mma_allocate(JS,[1,n1-1],[-(n1-1),n1-1],[1,n2-1],[-(n2-1),n2-1],'JS')
 
   !=====================================================================
   if (AnisoLines1 .and. (RL1 > Zero)) then
 
-    call zcopy_(nsize,[cZero],0,JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-
-    call newjkqpar(n1,n2,HLIN1(lp,1:n1,1:n1,1:n2,1:n2),JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1), &
-                   JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
+    call newjkqpar(n1,n2,HLIN1(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
 
     ! re-write the first rank tensor in cartesian representation:
     ! using Naoya's ITO parameters
@@ -273,12 +259,10 @@ do lp=1,npair
     ! the interaction matrix in the original coordinate system:
     call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
     call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
-    do i=1,3
-      do j=1,3
-        do l=1,3
-          do k=1,3
-            J1Cr(i,j) = J1Cr(i,j)+mg1(i,l)*mg2(j,k)*J1C(l,k)
-          end do
+    do j=1,3
+      do l=1,3
+        do k=1,3
+          J1Cr(:,j) = J1Cr(:,j)+mg1(:,l)*mg2(j,k)*J1C(l,k)
         end do
       end do
     end do
@@ -318,25 +302,18 @@ do lp=1,npair
     !-------------------------------------------------------------------
     ! verify the back transform for HAM!:
     !call mma_allocate(HAM,n1,n1,n2,n2,'HAM')
-    !call zcopy_(n1*n1*n2*n2,[cZero],0,HAM,1)
     !
     !S1a(:,:,:) = cZero
     !S2a(:,:,:) = cZero
-    !S1b(:,:,:) = cZero
-    !S2b(:,:,:) = cZero
     !
     !call ESO(n1,1,1,S1b(1,1:n1,1:n1),S1b(2,1:n1,1:n1),redME)
     !call ESO(n1,1,0,S1b(3,1:n1,1:n1),W1b(1:n1,1:n1),redME)
-    !call zcopy_(3*n1*n1,S1b,1,S2b,1)
+    !S2b(:,:,:) = S1b(:,:,:)
     !
     !call prmom('SM(i1) bf recover HAM',SM(i1,1:3,1:n1,1:n1),n1)
     !call prmom('SM(i2) bf recover HAM',SM(i2,1:3,1:n2,1:n2),n2)
     !
-    !do i=1,3
-    !  do j=1,3
-    !    J1C_trans(i,j) = -J1Cr(i,j)
-    !  end do
-    !end do
+    !J1C_trans(:,:) = -J1Cr(:,:)
     !write(u6,'(/)')
     !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,S1b(1:3,1:n1,1:n1),S2b(1:3,1:n2,1:n2),HAM)
     !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,SM(i1,1:3,1:n1,1:n1),SM(i2,1:3,1:n2,1:n2),HAM)
@@ -359,12 +336,7 @@ do lp=1,npair
   !====================================================================
   if (AnisoLines3 .and. (RL3 > Zero)) then
 
-    call zcopy_(nsize,[cZero],0,JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-
-    call newjkqpar(n1,n2,HLIN3(lp,1:n1,1:n1,1:n2,1:n2),JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1), &
-                   JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
+    call newjkqpar(n1,n2,HLIN3(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
 
     J1Cr(:,:) = Zero
     ! using Liviu's ITO parameters
@@ -374,12 +346,10 @@ do lp=1,npair
     ! the interaction matrix in the original coordinate system:
     call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
     call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
-    do i=1,3
-      do j=1,3
-        do l=1,3
-          do k=1,3
-            J1Cr(i,j) = J1Cr(i,j)+mg1(i,l)*mg2(j,k)*J1C(l,k)
-          end do
+    do j=1,3
+      do l=1,3
+        do k=1,3
+          J1Cr(:,j) = J1Cr(:,j)+mg1(:,l)*mg2(j,k)*J1C(l,k)
         end do
       end do
     end do
@@ -421,12 +391,7 @@ do lp=1,npair
   !=====================================================================
   if (AnisoLines9 .and. (RL9 > Zero)) then
 
-    call zcopy_(nsize,[cZero],0,JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-
-    call newjkqpar(n1,n2,HLIN9(lp,1:n1,1:n1,1:n2,1:n2),JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1), &
-                   JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
+    call newjkqpar(n1,n2,HLIN9(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
 
     J1Cr(:,:) = Zero
     call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
@@ -435,12 +400,10 @@ do lp=1,npair
     ! the interaction matrix in the original coordinate system:
     call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
     call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
-    do i=1,3
-      do j=1,3
-        do l=1,3
-          do k=1,3
-            J1Cr(i,j) = J1Cr(i,j)+mg1(i,l)*mg2(j,k)*J1C(l,k)
-          end do
+    do j=1,3
+      do l=1,3
+        do k=1,3
+          J1Cr(:,j) = J1Cr(:,j)+mg1(:,l)*mg2(j,k)*J1C(l,k)
         end do
       end do
     end do
@@ -481,12 +444,7 @@ do lp=1,npair
 
   if (Dipol .and. (RDI > Zero)) then
 
-    call zcopy_(nsize,[cZero],0,JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-
-    call newjkqpar(n1,n2,HDIP(lp,1:n1,1:n1,1:n2,1:n2),JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1), &
-                   JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
+    call newjkqpar(n1,n2,HDIP(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
 
     J1Cr(:,:) = Zero
     call tensor2cart(JB(1,-1:1,1,-1:1),J1C(1:3,1:3))
@@ -495,12 +453,10 @@ do lp=1,npair
     ! the interaction matrix in the original coordinate system:
     call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
     call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
-    do i=1,3
-      do j=1,3
-        do l=1,3
-          do k=1,3
-            J1Cr(i,j) = J1Cr(i,j)+mg1(i,l)*mg2(j,k)*J1C(l,k)
-          end do
+    do j=1,3
+      do l=1,3
+        do k=1,3
+          J1Cr(:,j) = J1Cr(:,j)+mg1(:,l)*mg2(j,k)*J1C(l,k)
         end do
       end do
     end do
@@ -535,12 +491,7 @@ do lp=1,npair
 
   if (DM_exchange .and. (RDM > Zero)) then
 
-    call zcopy_(nsize,[cZero],0,JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-
-    call newjkqpar(n1,n2,HDMO(lp,1:n1,1:n1,1:n2,1:n2),JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1), &
-                   JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
+    call newjkqpar(n1,n2,HDMO(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
 
     J1Cr(:,:) = Zero
     call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
@@ -550,12 +501,10 @@ do lp=1,npair
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    do i=1,3
-      do j=1,3
-        do l=1,3
-          do k=1,3
-            J1Cr(i,j) = J1Cr(i,j)+mg1(i,l)*mg2(j,k)*J1C(l,k)
-          end do
+    do j=1,3
+      do l=1,3
+        do k=1,3
+          J1Cr(:,j) = J1Cr(:,j)+mg1(:,l)*mg2(j,k)*J1C(l,k)
         end do
       end do
     end do
@@ -590,12 +539,7 @@ do lp=1,npair
 
   if (JITO_exchange .and. (RIT > Zero)) then
 
-    call zcopy_(nsize,[cZero],0,JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-    call zcopy_(nsize,[cZero],0,JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),1)
-
-    call newjkqpar(n1,n2,HITO(lp,1:n1,1:n1,1:n2,1:n2),JN(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1), &
-                   JB(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1),JS(1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
+    call newjkqpar(n1,n2,HITO(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
 
     call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
 
@@ -605,12 +549,10 @@ do lp=1,npair
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    do i=1,3
-      do j=1,3
-        do l=1,3
-          do k=1,3
-            J1Cr(i,j) = J1Cr(i,j)+mg1(i,l)*mg2(j,k)*J1C(l,k)
-          end do
+    do j=1,3
+      do l=1,3
+        do k=1,3
+          J1Cr(:,j) = J1Cr(:,j)+mg1(:,l)*mg2(j,k)*J1C(l,k)
         end do
       end do
     end do
@@ -709,8 +651,8 @@ do lp=1,npair
   !    do q1=-k1,k1
   !      do k2=1,N2-1,2
   !        do q2=-k2,k2
-  !          if (abs(JLinG(lp,k1,q1,k2,q2)) > 0.5e-14_wp) write(u6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)') k1,'|',q1,'|',k2,'|',q2,'|', &
-  !                                                                                                   JLinG(lp,k1,q1,k2,q2),'|'
+  !          if (abs(JLinG(lp,k1,q1,k2,q2)) > 0.5e-14_wp) &
+  !            write(u6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)') k1,'|',q1,'|',k2,'|',q2,'|',JLinG(lp,k1,q1,k2,q2),'|'
   !        end do
   !      end do
   !    end do
@@ -724,8 +666,8 @@ do lp=1,npair
   !    do q1=-k1,k1
   !      do k2=1,N2-1,2
   !        do q2=-k2,k2
-  !          if (abs(JDipG(lp,k1,q1,k2,q2)) > 0.5e-14_wp) write(u6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)') k1,'|',q1,'|',k2,'|',q2,'|', &
-  !                                                                                                   JDipG(lp,k1,q1,k2,q2),'|'
+  !          if (abs(JDipG(lp,k1,q1,k2,q2)) > 0.5e-14_wp) &
+  !            write(u6,'(4(i4,2x,A),2(1x,ES17.10),1x,A)') k1,'|',q1,'|',k2,'|',q2,'|',JDipG(lp,k1,q1,k2,q2),'|'
   !        end do
   !      end do
   !    end do
@@ -775,11 +717,7 @@ do lp=1,npair
   !  ELin(lp,1,1) = (JLinCG(lp,1,1)+JLinCG(lp,2,2)+JLinCG(lp,3,3))/Three
   !  ELin(lp,2,2) = (JLinCG(lp,1,1)+JLinCG(lp,2,2)+JLinCG(lp,3,3))/Three
   !  ELin(lp,3,3) = (JLinCG(lp,1,1)+JLinCG(lp,2,2)+JLinCG(lp,3,3))/Three
-  !  do is1=1,3
-  !    do is2=1,3
-  !      ALin(lp,is1,is2) = (JLinCG(lp,is1,is2)-JLinCG(lp,is2,is1))*Half
-  !    end do
-  !  end do
+  !  ALin(lp,:,:) = (JLinCG(lp,:,:)-JLinCG(lp,:,:))*Half
   !  tsum = Zero
   !  do l=1,3
   !    tsum = tsum+JLinCG(lp,l,l)
@@ -789,11 +727,7 @@ do lp=1,npair
   !    test(is1,is1) = tsum/OneHalf
   !  end do
   !
-  !  do is1=1,3
-  !    do is2=1,3
-  !      SLin(lp,is1,is2) = (JLinCG(lp,is1,is2)+JLinCG(lp,is2,is1)-test(is1,is2))*Half
-  !    end do
-  !  end do
+  !  SLin(lp,:,:) = (JLinCG(lp,:,:)+JLinCG(lp,:,:)-test(:,:))*Half
   !  write(u6,'(A)') 'Elin * unit'
   !  do is1=1,3
   !    write(u6,'(3F12.6)') (ELin(lp,is1,is2),is2=1,3)
@@ -825,11 +759,7 @@ do lp=1,npair
   !  EDip(lp,1,1) = (JDipCG(lp,1,1)+JDipCG(lp,2,2)+JDipCG(lp,3,3))/Three
   !  EDip(lp,2,2) = (JDipCG(lp,1,1)+JDipCG(lp,2,2)+JDipCG(lp,3,3))/Three
   !  EDip(lp,3,3) = (JDipCG(lp,1,1)+JDipCG(lp,2,2)+JDipCG(lp,3,3))/Three
-  !  do is1=1,3
-  !    do is2=1,3
-  !      ADip(lp,is1,is2) = (JDipCG(lp,is1,is2)-JDipCG(lp,is2,is1))*Half
-  !    end Do
-  !  end Do
+  !  ADip(lp,:,:) = (JDipCG(lp,:,:)-JDipCG(lp,:,:))*Half
   !  tsum = Zero
   !  do l=1,3
   !    tsum = tsum+JDipCG(lp,l,l)
@@ -838,11 +768,7 @@ do lp=1,npair
   !  do is1=1,3
   !    test(is1,is1) = tsum/OneHalf
   !  end do
-  !  do is1=1,3
-  !    do is2=1,3
-  !      SDip(lp,is1,is2) = (JDipCG(lp,is1,is2)+JDipCG(lp,is2,is1)-test(is1,is2))*Half
-  !    end do
-  !  end do
+  !  SDip(lp,:,:) = (JDipCG(lp,:,:)+JDipCG(lp,:,:)-test(:,:))*Half
   !  write(u6,'(A)') 'EDip * unit'
   !  do is1=1,3
   !    write(u6,'(3F12.6)') (EDip(lp,is1,is2),is2=1,3)

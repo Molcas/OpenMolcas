@@ -60,6 +60,11 @@ real(kind=wp) :: ST(3), zJ
 real(kind=wp), allocatable :: RWORK(:), WM(:)
 complex(kind=wp), allocatable :: HZEE(:), MZ(:,:,:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
 
+WZ(:) = Zero
+ZB(:) = Zero
+S(:,:) = Zero
+M(:,:) = Zero
+
 ! a few checks, before proceeding:
 do iT=1,nT
   if (T(iT) == Zero) return
@@ -86,7 +91,6 @@ WORK(:) = cZero
 W_c(:) = cZero
 
 ST(:) = Zero
-WZ(:) = Zero
 WM(:) = Zero
 ZM(:,:) = cZero
 SZ(:,:,:) = cZero
@@ -119,9 +123,6 @@ call UTMU(EXCH,N,ZM,sM,SZ)
 call UTMU(EXCH,N,ZM,dM,MZ)
 
 ! compute magnetization at different temperatures:
-ZB(:) = Zero
-M(:,:) = Zero
-S(:,:) = Zero
 
 if (N == EXCH) then
   do iT=1,nT

@@ -62,7 +62,6 @@ do i=1,N
         end do
       end do
     end if
-    ! kind=8, complex double precision
     HCOV(i,j) = HCOV1(i,j)*cOne
   end do !j
 end do !i

@@ -78,7 +78,7 @@ logical(kind=iwp), intent(out) :: decompose_exchange, AnisoLines1, AnisoLines3, 
                                   compute_Mdir_vector, zeeman_energy, m_paranoid, m_accurate, smagn
 character, intent(out) :: itype(nneq)
 #include "mgrid.fh"
-integer(kind=iwp) :: i, j, l
+integer(kind=iwp) :: i
 
 !------------------------------------------------------------------
 ! at this point, the follwing variables have been already assigned
@@ -98,16 +98,14 @@ integer(kind=iwp) :: i, j, l
 !-----------------------------------------------------------------------
 ! variables related to the cluster:
 if (nneq > 0) then
+  neq(:) = 1
+  nexch(:) = 1
+  itype(:) = ' '
+  D_fact(:) = Zero
+  EoverD_fact(:) = Zero
+  gtens_input(:,:) = -gElectron
   do i=1,nneq
-    neq(i) = 1
-    nexch(i) = 1
-    itype(i) = ' '
-    D_fact(i) = Zero
-    EoverD_fact(i) = Zero
     call unitmat(riso(i,:,:),3)
-    do l=1,3
-      gtens_input(l,i) = -gElectron
-    end do
   end do
 end if
 !-----------------------------------------------------------------------
@@ -163,12 +161,8 @@ HINPUT = .false.
 !-----------------------------------------------------------------------
 ! relate to crystallographic axes
 Do_structure_abc = .false.
-do i=1,6
-  Cryst(i) = Zero
-end do
-do i=1,3
-  coord(i) = Zero
-end do
+Cryst(:) = Zero
+coord(:) = Zero
 !-----------------------------------------------------------------------
 ! mean field paraemeter
 ZJ = Zero
@@ -187,11 +181,6 @@ compute_barrier = .false.
 DoPlot = .false.
 !------------------------------------------------------------------
 ! variables in "mgrid.fh"
-do i=1,32
-  do j=1,3
-    get_nP(j,i) = 0
-  end do
-end do
 nsymm = 1
 ngrid = 15
 get_nP(1,1) = 5

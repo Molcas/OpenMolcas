@@ -107,7 +107,6 @@ do i1=1,N1
 
         end if !( OPT )
 
-        ! kind=8, complex double precision
         HEXC(i1,j1,i2,j2) = HEXC1(i1,j1,i2,j2)*cOne
 
       end do !j2

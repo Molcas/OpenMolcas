@@ -21,24 +21,19 @@ real(kind=wp), intent(in) :: Jex
 integer(kind=iwp), intent(in) :: N1, N2
 complex(kind=wp), intent(in) :: S1(3,N1,N1), S2(3,N2,N2)
 complex(kind=wp), intent(out) :: HAM(N1,N1,N2,N2)
-integer(kind=iwp) :: i1, i2, j1, j2, l
+integer(kind=iwp) :: i2, j2, l
 
 if ((N1 <= 0) .or. (N2 <= 0)) return
-call zcopy_(N1*N1*N2*N2,[cZero],0,HAM,1)
+HAM(:,:,:,:) = cZero
 if (Jex == Zero) return
 
-! kind=8, complex double precision
-do i1=1,N1
-  do j1=1,N1
-    do i2=1,N2
-      do j2=1,N2
+do i2=1,N2
+  do j2=1,N2
 
-        do l=1,3
-          HAM(i1,j1,i2,j2) = HAM(i1,j1,i2,j2)-Jex*S1(l,i1,j1)*S2(l,i2,j2)
-        end do
-
-      end do
+    do l=1,3
+      HAM(:,:,i2,j2) = HAM(:,:,i2,j2)-Jex*S1(l,:,:)*S2(l,i2,j2)
     end do
+
   end do
 end do
 

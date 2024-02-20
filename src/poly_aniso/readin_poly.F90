@@ -717,10 +717,6 @@ do
         write(u6,'(3/)')
       end if
 
-      !do i=1,nCenter
-      !  ind_exch(i) = i
-      !end do
-
       ! If the EXCH is above the limit => exit with an error
       if (exch > 15000) then
         write(u6,'(A)') 'The number of exchange states is very large'
@@ -771,9 +767,7 @@ do
           end if
         end do
       else
-        do i=1,nneq
-          itype(i) = 'A'
-        end do
+        itype(:) = 'A'
       end if !ab_initio_all
       LINENR = LINENR+3+icount_B_sites
 #     ifdef _DEBUGPRINT_
@@ -988,13 +982,9 @@ do
         end do
 
         do j=1,neq(i)
-          do m=1,3
-            do n=1,3
-              tmpR(m,n) = R_lg(i,j,m,n)
-            end do
-          end do
+          tmpR(:,:) = R_lg(i,j,:,:)
 
-          detR = FindDetR(tmpR(1:3,1:3),3)
+          detR = FindDetR(tmpR,3)
 #         ifdef _DEBUGPRINT_
           write(u6,'(A,3ES20.12)') 'SYMM:  detR=',detR
 #         endif
@@ -1007,17 +997,9 @@ do
             call Error(4)
           end if
           if (detR < Zero) then
-            do m=1,3
-              do n=1,3
-                R_rot(i,j,m,n) = -R_lg(i,j,m,n)
-              end do !n
-            end do !m
+            R_rot(i,j,:,:) = -R_lg(i,j,:,:)
           else if (detR > Zero) then
-            do m=1,3
-              do n=1,3
-                R_rot(i,j,m,n) = R_lg(i,j,m,n)
-              end do !n
-            end do !m
+            R_rot(i,j,:,:) = R_lg(i,j,:,:)
           end if
         end do !neq(i)
       end do !nneq

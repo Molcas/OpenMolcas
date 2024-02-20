@@ -19,11 +19,11 @@ implicit none
 integer(kind=iwp), intent(in) :: N, NL, nneq, neq(nneq), neqv, nsites, nexch(nneq)
 real(kind=wp), intent(in) :: R_rot(NNEQ,neqv,3,3), W(N)
 complex(kind=wp), intent(in) :: Z(N,N), dipexch(3,N,N), s_exch(3,N,N), dipso(nneq,3,NL,NL), s_so(nneq,3,NL,NL)
-integer(kind=iwp) :: i, i1, ib(N,nsites), icod(nsites), icoord(nsites), isite, iss1, j, j1, jss1, k, L, l_exch, nb1, nb2, &
-                     nind(nsites,2), nmult, norder
+integer(kind=iwp) :: i, i1, ib(N,nsites), icod(nsites), icoord(nsites), isite, iss1, j, j1, jss1, k, L, nb1, nb2, nind(nsites,2), &
+                     nmult, norder
 real(kind=wp) :: E_thres, gtens(3), H, maxes(3,3), st(3), zJ
 real(kind=wp), allocatable :: JM(:,:,:), LM(:,:,:), MM(:,:,:), RWORK(:), SM(:,:,:), WM(:)
-complex(kind=wp), allocatable :: HZEE(:), TMP(:,:), VL(:,:), W_c(:), WORK(:), ZM(:,:)
+complex(kind=wp), allocatable :: aux(:,:,:), HZEE(:), TMP(:,:), VL(:,:), W_c(:), WORK(:), ZM(:,:)
 real(kind=wp), parameter :: g_e = -gElectron
 #ifdef _DEBUGPRINT_
 #  define _DBG_ .true.
@@ -49,21 +49,6 @@ call mma_allocate(RWORK,(3*N-2),'ZEEM_RWORK')
 call mma_allocate(HZEE,(N*(N+1)/2),'ZEEM_HZEE')
 call mma_allocate(WORK,(2*N-1),'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
-
-! zero everything:
-call dcopy_(N,[Zero],0,WM,1)
-call dcopy_(nsites*3*N,[Zero],0,MM,1)
-call dcopy_(nsites*3*N,[Zero],0,LM,1)
-call dcopy_(nsites*3*N,[Zero],0,SM,1)
-call dcopy_(nsites*3*N,[Zero],0,JM,1)
-call zcopy_(N*N,[cZero],0,ZM,1)
-call zcopy_(N*N,[cZero],0,VL,1)
-call zcopy_(N*N,[cZero],0,TMP,1)
-
-call dcopy_(3*N-2,[Zero],0,RWORK,1)
-call zcopy_(N*(N+1)/2,[cZero],0,HZEE,1)
-call zcopy_(2*N-1,[cZero],0,WORK,1)
-call zcopy_(N,[cZero],0,W_c,1)
 
 ! initialisations:
 isite = 0
@@ -100,7 +85,16 @@ do i=1,N
 end do
 if (nmult < 2) nmult = 2 !minimum value needed to compute g-tensor
 ! find the main magnetic axes of this manifold:
-call atens(dipexch(1:3,1:nmult,1:nmult),nmult,gtens,maxes,1)
+if (N < nmult) then
+  ! FIXME: this is a hack, atens should be made to work with size 1
+  call mma_allocate(aux,3,nmult,nmult,label='aux')
+  aux(:,:,:) = cZero
+  aux(:,1:N,1:N) = dipexch(:,:,:)
+  call atens(aux,nmult,gtens,maxes,1)
+  call mma_deallocate(aux)
+else
+  call atens(dipexch(1:3,1:nmult,1:nmult),nmult,gtens,maxes,1)
+end if
 #ifdef _DEBUGPRINT_
 write(u6,'(A)') 'MOMLOC2:  g tensor of the ground manifold:'
 write(u6,*)
@@ -149,11 +143,9 @@ end do ! j
 ! generate the exchange basis:
 do isite=1,nsites
   do L=1,3
-    call zcopy_(N*N,[cZero],0,VL,1)
+    VL(:,:) = Zero
     do nb1=1,N
-      do l_exch=1,nsites
-        icoord(l_exch) = ib(nb1,l_exch)
-      end do
+      icoord(:) = ib(nb1,:)
       i1 = nind(isite,1)
       j1 = nind(isite,2)
       iss1 = ib(nb1,isite)+1
@@ -175,11 +167,9 @@ do isite=1,nsites
       MM(isite,L,i) = real(VL(i,i))
     end do
     ! spin moment
-    call zcopy_(N*N,[cZero],0,VL,1)
+    VL(:,:) = Zero
     do nb1=1,N
-      do l_exch=1,nsites
-        icoord(l_exch) = ib(nb1,l_exch)
-      end do
+      icoord(:) = ib(nb1,:)
       i1 = nind(isite,1)
       j1 = nind(isite,2)
       iss1 = ib(nb1,isite)+1
@@ -210,13 +200,9 @@ write(u6,'(A)') 'Exchange|Site|   MAGNETIC MOMENT (M=-L-2S)  |        SPIN MOMEN
 write(u6,'(5A)') ' state  | Nr.|',('     X         Y         Z    |',i=1,4)
 write(u6,'(5A)') '--------|----|',('------------------------------|',i=1,4)
 do i=1,N
- ! we proceed to compute expectation values for this nb1 exchange state
-  do isite=1,nsites
-    do L=1,3
-      LM(isite,L,i) = -MM(isite,L,i)-g_e*SM(isite,L,i)
-      JM(isite,L,i) = LM(isite,L,i)+SM(isite,L,i)
-    end do
-  end do
+  ! we proceed to compute expectation values for this nb1 exchange state
+  LM(:,:,i) = -MM(:,:,i)-g_e*SM(:,:,i)
+  JM(:,:,i) = LM(:,:,i)+SM(:,:,i)
 
   do isite=1,nsites
     if (isite == int((nsites+1)/2)) then

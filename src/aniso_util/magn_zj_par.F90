@@ -64,6 +64,11 @@ real(kind=wp) :: ST(3), STsave(3)
 real(kind=wp), allocatable :: RWORK(:), WM(:)
 complex(kind=wp), allocatable :: HZEE(:), MZ(:,:,:), SZ(:,:,:), W_c(:), WORK(:), ZM(:,:)
 
+WZ(:) = Zero
+ZB(:) = Zero
+S(:,:) = Zero
+M(:,:) = Zero
+
 ! a few checks, before proceeding:
 do iT=1,nT
   if (T(iT) == Zero) return
@@ -96,9 +101,6 @@ W_c(:) = cZero
 
 ! start calculations:
 ! code for the case (zJ /= 0):
-ZB(:) = Zero
-M(:,:) = Zero
-S(:,:) = Zero
 
 do iT=1,nT
   ! determine first the average spin of neighboring

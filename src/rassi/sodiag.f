@@ -221,7 +221,7 @@ c  apply the magnetic field along the main iDir axis
 
 c DIAGONALIZE
       lcwork = (2*n-1); info = 0
-      call zheev('V','U',n,h_zee,n,deigval,zwork,lcwork,
+      call zheev_('V','U',n,h_zee,n,deigval,zwork,lcwork,
      &           rwork,info)
 
       !> put eigenvectors in deigvec

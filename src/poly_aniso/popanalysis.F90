@@ -41,7 +41,6 @@ write(u6,'(A,8i3)') '    neq(i) = ',(neq(i),i=1,nneq)
 write(u6,'(A,8i3)') '  nexch(i) = ',(nexch(i),i=1,nneq)
 #endif
 call mma_allocate(pop,exch,lmax,nmax,nmax,'pop')
-call zcopy_(exch*lmax*nmax*nmax,[cZero],0,pop,1)
 call mma_allocate(ibas,exch,lmax,label='ibas')
 call mma_allocate(intc,lmax,label='intc')
 call mma_allocate(nind,lmax,2,label='nind')
@@ -143,32 +142,24 @@ end do ! nb1
 !  Sx(:) = cZero
 !  Sy(:) = cZero
 !  Sz(:) = cZero
-!  Jx(:) = cZero
-!  Jy(:) = cZero
-!  Jz(:) = cZero
-!  Lx(:) = cZero
-!  Ly(:) = cZero
-!  Lz(:) = cZero
 !
-!  do l=1,lmax
-!    isite = nind(ind_exch(l),1)
-!    do i1=1,nexch(isite)
-!      do i2=1,nexch(isite)
-!        Mx(l) = Mx(l)+pop(nb1,l,i1,i2)*M(isite,1,i1,i2)
-!        My(l) = My(l)+pop(nb1,l,i1,i2)*M(isite,2,i1,i2)
-!        Mz(l) = Mz(l)+pop(nb1,l,i1,i2)*M(isite,3,i1,i2)
-!        Sx(l) = Sx(l)+pop(nb1,l,i1,i2)*S(isite,1,i1,i2)
-!        Sy(l) = Sy(l)+pop(nb1,l,i1,i2)*S(isite,2,i1,i2)
-!        Sz(l) = Sz(l)+pop(nb1,l,i1,i2)*S(isite,3,i1,i2)
-!      end do
+!  isite = nind(ind_exch(l),1)
+!  do i1=1,nexch(isite)
+!    do i2=1,nexch(isite)
+!      Mx(:) = Mx(:)+pop(nb1,:,i1,i2)*M(isite,1,i1,i2)
+!      My(:) = My(:)+pop(nb1,:,i1,i2)*M(isite,2,i1,i2)
+!      Mz(:) = Mz(:)+pop(nb1,:,i1,i2)*M(isite,3,i1,i2)
+!      Sx(:) = Sx(:)+pop(nb1,:,i1,i2)*S(isite,1,i1,i2)
+!      Sy(:) = Sy(:)+pop(nb1,:,i1,i2)*S(isite,2,i1,i2)
+!      Sz(:) = Sz(:)+pop(nb1,:,i1,i2)*S(isite,3,i1,i2)
 !    end do
-!    Lx(l) = -Mx(l)-g_e*Sx(l)
-!    Ly(l) = -My(l)-g_e*Sy(l)
-!    Lz(l) = -Mz(l)-g_e*Sz(l)
-!    Jx(l) =  Lx(l)+Sx(l)
-!    Jy(l) =  Ly(l)+Sy(l)
-!    Jz(l) =  Lz(l)+Sz(l)
 !  end do
+!  Lx(:) = -Mx(:)-g_e*Sx(:)
+!  Ly(:) = -My(:)-g_e*Sy(:)
+!  Lz(:) = -Mz(:)-g_e*Sz(:)
+!  Jx(:) =  Lx(:)+Sx(:)
+!  Jy(:) =  Ly(:)+Sy(:)
+!  Jz(:) =  Lz(:)+Sz(:)
 !
 !  do l=1,lmax
 !    if (l == int((lmax+1)/2)) then

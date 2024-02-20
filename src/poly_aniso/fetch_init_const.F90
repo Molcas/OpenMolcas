@@ -20,7 +20,7 @@ integer(kind=iwp), intent(out) :: nneq, neqv, nmax, exch, nLoc, nCenter, nT, nH,
                                   MxRank2, iReturn
 logical(kind=iwp), intent(in) :: old_aniso_format
 integer(kind=iwp), parameter :: NMAXC = 99
-integer(kind=iwp) :: i, idummy, iline, imaxrank(NMAXC,2), irank1, irank2, istatus, j, linenr, LUANISO, neqA(NMAXC), nexchA(NMAXC), &
+integer(kind=iwp) :: i, idummy, iline, imaxrank(NMAXC,2), irank1, irank2, istatus, linenr, LUANISO, neqA(NMAXC), nexchA(NMAXC), &
                      nH_HEXP, nH_HINT, nT_TEXP, nT_TINT, nTempMagn_HEXP, nTempMagn_TMAG, sfs_check(NMAXC), sos_check(NMAXC)
 real(kind=wp) :: rdummy, TempMagn(NMAXC)
 logical(kind=iwp) :: ab_initio_all, ifHDF, KeyCoor, KeyHEXP, KeyPair, KeyTEXP !, KeyHINT, KeyITOJ, KeyMLTP, KeyMVEC, KeyNNEQ, &
@@ -169,9 +169,7 @@ do
       ! compute "exch"
       exch = 1
       do i=1,nneq
-        do j=1,neqA(i)
-          exch = exch*nexchA(i)
-        end do
+        exch = exch*nexchA(i)**neqA(i)
       end do
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'exch=',exch
@@ -181,18 +179,13 @@ do
         read(u5,*,iostat=istatus) (itype(i),i=1,Nneq)
         if (istatus /= 0) call Error(1)
       else
-        do i=1,nneq
-          itype(i) = 'A'
-        end do
+        itype(1:nneq) = 'A'
       end if !ab_initio_all
 
       ! check the maximal number of local spin-orbit states
       sos_check = 0
       sfs_check = 0
-      nCenter = 0
-      do i=1,NNEQ
-        nCenter = nCenter+neqA(I)
-      end do
+      nCenter = sum(neqA(1:NNEQ))
 
       do i=1,NNEQ
         if (itype(i) == 'A') then

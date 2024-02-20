@@ -22,23 +22,19 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: P1(3), R1(3,3), P2(3), R2(3,3)
 real(kind=wp), intent(out) :: vec(3), dist
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: j
 real(kind=wp) :: C1(3), C2(3)
 real(kind=wp), external :: distance
 
 C1(:) = Zero
 C2(:) = Zero
 
-do i=1,3
-  do j=1,3
-    C1(i) = C1(i)+P1(j)*R1(i,j)
-    C2(i) = C2(i)+P2(j)*R2(i,j)
-  end do
+do j=1,3
+  C1(:) = C1(:)+P1(j)*R1(:,j)
+  C2(:) = C2(:)+P2(j)*R2(:,j)
 end do
 dist = distance(3,C1,C2)
-do i=1,3
-  vec(i) = (C1(i)-C2(i))/dist
-end do
+vec(:) = (C1(:)-C2(:))/dist
 
 return
 
