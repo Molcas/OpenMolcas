@@ -24,16 +24,24 @@
       Real*8 CLag(nConf,nState)
       Real*8 DEPSA(nAshT,nAshT),VECROT(*)
 
+      Real*8, Allocatable::  G1(:),  G2(:),  G3(:),
+     &                       F1(:),  F2(:),  F3(:)
       Real*8, Allocatable:: DG1(:), DG2(:), DG3(:),
      &                      DF1(:), DF2(:), DF3(:)
 
       !! reduced density matrix and fock-weighted RDM
-      CALL GETMEM('G1'   ,'ALLO','REAL',LG1 ,NG1)
-      CALL GETMEM('G2'   ,'ALLO','REAL',LG2 ,NG2)
-      CALL GETMEM('G3'   ,'ALLO','REAL',LG3 ,NG3)
-      CALL GETMEM('F1'   ,'ALLO','REAL',LF1 ,NG1)
-      CALL GETMEM('F2'   ,'ALLO','REAL',LF2 ,NG2)
-      CALL GETMEM('F3'   ,'ALLO','REAL',LF3 ,NG3)
+      CALL mma_allocate(G1 ,NG1, Label='G1')
+      LG1 = ip_of_Work(G1(1))
+      CALL mma_allocate(G2 ,NG2, Label='G2')
+      LG2 = ip_of_Work(G2(1))
+      CALL mma_allocate(G3 ,NG3, Label='G3')
+      LG3 = ip_of_Work(G3(1))
+      CALL mma_allocate(F1 ,NG1, Label='F1')
+      LF1 = ip_of_Work(F1(1))
+      CALL mma_allocate(F2 ,NG2, Label='F2')
+      LF2 = ip_of_Work(F2(1))
+      CALL mma_allocate(F3 ,NG3, Label='F3')
+      LF3 = ip_of_Work(F3(1))
 
       !! their derivative contributions
       CALL mma_allocate(DG1,NG1,Label='DG1')
@@ -43,12 +51,12 @@
       CALL mma_allocate(DF2,NG2,Label='DF2')
       CALL mma_allocate(DF3,NG3,Label='DF3')
 
-      CALL PT2_GET(NG1,' GAMMA1',WORK(LG1))
-      CALL PT2_GET(NG2,' GAMMA2',WORK(LG2))
-      CALL PT2_GET(NG3,' GAMMA3',WORK(LG3))
-      CALL PT2_GET(NG1,' DELTA1',WORK(LF1))
-      CALL PT2_GET(NG2,' DELTA2',WORK(LF2))
-      CALL PT2_GET(NG3,' DELTA3',WORK(LF3))
+      CALL PT2_GET(NG1,' GAMMA1',G1)
+      CALL PT2_GET(NG2,' GAMMA2',G2)
+      CALL PT2_GET(NG3,' GAMMA3',G3)
+      CALL PT2_GET(NG1,' DELTA1',F1)
+      CALL PT2_GET(NG2,' DELTA2',F2)
+      CALL PT2_GET(NG3,' DELTA3',F3)
 C     write(6,*) "G1"
 C     call sqprt(work(lg1),5)
 C     write(6,*) "f1"
@@ -65,7 +73,7 @@ C
       DEASUM = 0.0D+00
 
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-      Call CLagD(Work(LG1),Work(LG2),Work(LG3),
+      Call CLagD(G1,G2,G3,
      *           DG1,DG2,DG3,
      *           DF1,DF2,DF3,DEASUM,
      *           DEPSA,VECROT)
@@ -99,16 +107,16 @@ C
      *              DG1,DG2,DG3,
      *              DF1,DF2,DF3,
      *              DEPSA,
-     *              Work(LG1),Work(LG2),Work(LG3))
+     *              G1,G2,G3)
 !     write(6,*) "depsa after cnstclag"
 !     call sqprt(depsa,nasht)
 
-      CALL GETMEM('G1'   ,'FREE','REAL',LG1 ,NG1)
-      CALL GETMEM('G2'   ,'FREE','REAL',LG2 ,NG2)
-      CALL GETMEM('G3'   ,'FREE','REAL',LG3 ,NG3)
-      CALL GETMEM('F1'   ,'FREE','REAL',LF1 ,NG1)
-      CALL GETMEM('F2'   ,'FREE','REAL',LF2 ,NG2)
-      CALL GETMEM('F3'   ,'FREE','REAL',LF3 ,NG3)
+      Call mma_deallocate(G1)
+      Call mma_deallocate(G2)
+      Call mma_deallocate(G3)
+      Call mma_deallocate(F1)
+      Call mma_deallocate(F2)
+      Call mma_deallocate(F3)
 
       Call mma_deallocate(DG1)
       Call mma_deallocate(DG2)

@@ -26,7 +26,8 @@
      &                         NMIDV, NOCP, NOCSF, NOW1, NVERT, NVERT0, &
      &                         NCSF, NVTAB, NWALK, NNOW, NIOW,          &
      &                         MIDLEV,NMIDV,MIDV1,MIDV2, NNOCSF, NIOCSF,&
-     &                         RAW,DAW,NRAW,NDAW,NWALK, NMVR, NMVL
+     &                         RAW,DAW,NRAW,NDAW,NWALK, NMVR, NMVL,     &
+     &                         NNOCP, NIOCP
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -40,8 +41,8 @@
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer IAC
       Integer MXDWN, MXUP,       NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
-     &        NIOCP,               NLTV,       NMAW,                    &
-     &        NNICOUP, NNOCP,               NNRL, NSCR, NTMP, NUP,      &
+     &                             NLTV,       NMAW,                    &
+     &        NNICOUP,                      NNRL, NSCR, NTMP, NUP,      &
      &        NVTAB_FINAL, NVTAB_TMP
 
       Interface

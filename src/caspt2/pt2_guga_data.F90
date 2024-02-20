@@ -20,9 +20,8 @@
      &                DAW, NDAW, RAW, NRAW, ISM, L2ACT, LEVEL, NCSF,    &
      &                NWALK, NNOW, NIOW, ICASE, NICASE, ICOUP, NICOUP,  &
      &                NIPWLK, MXEO, VTAB, NVTAB, SGTMP, NSGTMP,         &
-     &                MVR, NMVR, MVL, NMVL
+     &                MVR, NMVR, MVL, NMVL, NOCP, NNOCP, IOCP, NIOCP
       implicit none
 #include "pt2_guga.fh"
-      Integer, Allocatable:: NOCP(:), IOCP(:)
       save
       end module pt2_guga_data
