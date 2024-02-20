@@ -9,11 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
-      use pt2_guga_data
+      use pt2_guga_data, only: NLEV, NCSF, ISM,
+     &                         NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
+     &                         VTAB,MVL,MVR
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
       DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
       DIMENSION CI(*),SGM(*)
