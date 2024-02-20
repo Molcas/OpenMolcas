@@ -22,6 +22,6 @@
      &                NIPWLK, MXEO, VTAB, NVTAB, SGTMP, NSGTMP,         &
      &                MVR, NMVR, MVL, NMVL, NOCP, NNOCP, IOCP, NIOCP
       implicit none
-#include "pt2_guga.fh"
+!include "pt2_guga.fh"
       save
       end module pt2_guga_data

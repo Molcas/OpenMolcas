@@ -11,7 +11,6 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine DerHEff(CLag,VECROT)
-      use pt2_guga_data, only:
 C
       Implicit Real*8 (A-H,O-Z)
 C

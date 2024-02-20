@@ -13,7 +13,6 @@
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
       use caspt2_output, only:iPrGlb,verbose
-      use pt2_guga_data, only:
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
