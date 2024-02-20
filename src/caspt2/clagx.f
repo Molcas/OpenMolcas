@@ -2627,12 +2627,13 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
-      use pt2_guga_data
+      use pt2_guga_data, only: NOCSF, IOCSF, NOW1, IOW1
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+#include "pt2_guga.fh"
 #include "caspt2_grad.fh"
 C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
@@ -3148,7 +3149,7 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use pt2_guga_data, only: ISM, L2ACT
+      use pt2_guga_data, only: ISM, L2ACT, NLEV, NCSF
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CIin(nConf,nState),CIout(nConf,nState)
@@ -3278,10 +3279,11 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 C
-      use pt2_guga_data
+      use pt2_guga_data, only: NLEV
       Implicit Real*8 (A-H,O-Z)
 C
 #include "caspt2_grad.fh"
+#include "pt2_guga.fh"
 C
       Dimension CI(nConf,nState),CIT(nConf,nState),G1(nAshT,nAshT),
      *          G2(nAshT,nAshT,nAshT,nAshT)
@@ -3515,7 +3517,7 @@ C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
      *                    INT1,INT2,Fancy)
-      use pt2_guga_data, only: ICASE
+      use pt2_guga_data, only: ICASE, NMIDV, NLEV, NIPWLK, MIDLEV, ISM
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
