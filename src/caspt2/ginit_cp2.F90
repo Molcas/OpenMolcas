@@ -19,15 +19,19 @@
 !--------------------------------------------*
       SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: VTAB, IA0, IB0, IC0, ICASE, ICOUP, IOCP, &
-     &                         IOCSF, IOW1, ISM, LM1RAS, LM3RAS, LV1RAS,&
-     &                         LV3RAS, MIDLEV, MIDV1, MIDV2, MVR, MVL,  &
+      use gugx, only: VTAB, IA0, IB0, IC0, ICASE, ICOUP, IOCP,          &
+     &                                                  NIOCP,          &
+     &                         IOCSF,       ISM, LM1RAS, LM3RAS, LV1RAS,&
+     &                        NIOCSF,                                   &
+     &                         LV3RAS,                       MVR, MVL,  &
+     &                                                      NMVR,NMVL,  &
      &                         MXEO, NICASE, NICOUP, NIPWLK, NLEV,      &
-     &                         NMIDV, NOCP, NOCSF, NOW1, NVERT, NVERT0, &
-     &                         NCSF, NVTAB, NWALK, NNOW, NIOW,          &
-     &                         MIDLEV,NMIDV,MIDV1,MIDV2, NNOCSF, NIOCSF,&
-     &                         RAW,DAW,NRAW,NDAW,NWALK, NMVR, NMVL,     &
-     &                         NNOCP, NIOCP, LTV, NLTV, MAW, NMAW
+     &                          LTV, MAW, RAW, DAW, NOW1, IOW1,         &
+     &                         NLTV,NMAW,NRAW,NDAW,NNOW, NIOW,          &
+     &                         NMIDV, NOCP, NOCSF,       NVERT, NVERT0, &
+     &                               NNOCP,NNOCSF,                      &
+     &                         NCSF, NVTAB, NWALK,                      &
+     &                         MIDLEV,NMIDV,MIDV1,MIDV2
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
