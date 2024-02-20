@@ -13,11 +13,12 @@
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
       use caspt2_output, only:iPrGlb,verbose
-      use pt2_guga_data
+      use pt2_guga_data, only:
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
       Integer IFF
       Real*8 CLag(nConf,nState)
@@ -1118,10 +1119,11 @@ C
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_output, only: iPrGlb, verbose
-      use pt2_guga_data
+      use pt2_guga_data, only: NLEV, L2ACT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
 C
@@ -1242,11 +1244,12 @@ C
       !! From poly3
       SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG)
 C
-      use pt2_guga_data
+      use pt2_guga_data, only: NLEV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+#include "pt2_guga.fh"
 #include "caspt2_grad.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*)
