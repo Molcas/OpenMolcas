@@ -35,4 +35,7 @@ Integer,              Public::NVTAB,   NSGTMP
 
 Integer, Allocatable, Public:: MVR(:), MVL(:)
 Integer,              Public::NMVR,   NMVL
+
+Integer, Allocatable, Public:: NOCP(:), IOCP(:)
+Integer,              Public::NNOCP,   NIOCP
 End Module GUGX
