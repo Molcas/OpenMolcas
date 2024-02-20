@@ -3134,7 +3134,7 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-
+      use pt2_guga_data, only: ISM, L2ACT
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CIin(nConf,nState),CIout(nConf,nState)

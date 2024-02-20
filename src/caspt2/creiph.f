@@ -14,6 +14,7 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_output, only:iPrGlb,usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
+      use gugx, only: L2ACT, LEVEL
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
 C CMO's and CI arrays of the JOBIPH, except that the CI arrays have

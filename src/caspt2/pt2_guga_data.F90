@@ -17,7 +17,7 @@
      &                NOW1, NNOW, IOW1, NIOW,                           &
      &                MIDLEV,NMIDV,MIDV1,MIDV2,                         &
      &                NOCSF, NNOCSF, IOCSF, NIOCSF,                     &
-     &                DAW, NDAW, RAW, NRAW, ISM
+     &                DAW, NDAW, RAW, NRAW, ISM, L2ACT, LEVEL
       implicit none
 #include "pt2_guga.fh"
       Integer, Allocatable:: MVL(:), MVR(:)
