@@ -14,13 +14,11 @@
       COMMON /dGUGA/ ETA(MXLEV),CITHR,PKPREC
       CHARACTER*8    CLAB10
       COMMON /cGUGA/ CLAB10(64)
-      INTEGER                          NIPWLK,NICASE,                   &
-     &                          NICOUP,MXEO,            NVTAB,          &
+      INTEGER NIPWLK,           NICOUP,MXEO,            NVTAB,          &
      &                     NSGTMP,LSGTMP,LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10,IDTAB
-      COMMON /iGUGA/                   NIPWLK,NICASE,                   &
-     &                          NICOUP,MXEO,            NVTAB,          &
+      COMMON /iGUGA/ NIPWLK,    NICOUP,MXEO,            NVTAB,          &
      &                     NSGTMP,LSGTMP,LCI,MXCI,                      &
      &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
      &     IADR10(64,2),IDTAB(MXL3)
