@@ -19,19 +19,17 @@
 !--------------------------------------------*
       SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: VTAB, IA0, IB0, IC0, ICASE, ICOUP, IOCP,          &
-     &                                                  NIOCP,          &
-     &                         IOCSF,       ISM, LM1RAS, LM3RAS, LV1RAS,&
-     &                        NIOCSF,                                   &
-     &                         LV3RAS,                       MVR, MVL,  &
-     &                                                      NMVR,NMVL,  &
-     &                         MXEO, NICASE, NICOUP, NIPWLK, NLEV,      &
+      use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
+     &               MXEO, NVERT, NVERT0,  NIPWLK, NLEV,                &
+     &                VTAB, ICASE, ICOUP, IOCP,                         &
+     &               NVTAB,NICASE,NICOUP,NIOCP,                         &
+     &                         IOCSF, MVR, MVL,                         &
+     &                        NIOCSF,NMVR,NMVL,                         &
      &                          LTV, MAW, RAW, DAW, NOW1, IOW1,         &
      &                         NLTV,NMAW,NRAW,NDAW,NNOW, NIOW,          &
-     &                         NMIDV, NOCP, NOCSF,       NVERT, NVERT0, &
+     &                                NOCP, NOCSF,                      &
      &                               NNOCP,NNOCSF,                      &
-     &                         NCSF, NVTAB, NWALK,                      &
-     &                         MIDLEV,NMIDV,MIDV1,MIDV2
+     &               NCSF, NWALK, MIDLEV,NMIDV,MIDV1,MIDV2
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -142,14 +140,6 @@
       CALL MKMID(NVERT,NLEV,DRT,DAW,RAW,LTV,MIDLEV, NMIDV, MIDV1, MIDV2,&
      &           MXUP, MXDWN)
 
-! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
-
-      NMAW=4*NVERT
-      CALL mma_allocate(MAW,NMAW,Label='MAW')
-      CALL MKMAW_CP2(DOWN,DAW,UP,RAW,MAW,NVERT, MIDV1, MIDV2)
-! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
-
-
 ! FORM VARIOUS OFFSET TABLES:
       NIPWLK=1+(MIDLEV-1)/15
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
@@ -175,6 +165,13 @@
      &             NIPWLK,ISM,DOWN,NOW1,IOW1,ICASE,SCR)
 
       Call mma_deallocate(SCR)
+
+! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
+
+      NMAW=4*NVERT
+      CALL mma_allocate(MAW,NMAW,Label='MAW')
+      CALL MKMAW_CP2(DOWN,DAW,UP,RAW,MAW,NVERT, MIDV1, MIDV2)
+! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       NIVR=2*NVERT
