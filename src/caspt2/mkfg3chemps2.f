@@ -13,6 +13,7 @@
 ************************************************************************
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Subroutine mkfg3chemps2(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+      use pt2_guga_data, only: NLEV
       IMPLICIT NONE
 
 #include "rasdim.fh"
