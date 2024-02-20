@@ -17,14 +17,15 @@
 #endif
       use caspt2_output, only:iPrGlb,verbose,debug
       use caspt2_gradient, only: nbuf1_grad
-      use pt2_guga_data, only: MXCI, NLEV, MXLEV, ICOUP,  IOCP,
+      use pt2_guga_data, only: NLEV,  ICOUP,  IOCP,
      &                         IOCSF, IOW1, MVL, MVR,  NOCP,
-     &                         NOCSF, NOW1, VTAB, NG3, NCSF, L2ACT,
+     &                         NOCSF, NOW1, VTAB, NCSF, L2ACT,
      &                         ISM
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
       LOGICAL RSV_TSK

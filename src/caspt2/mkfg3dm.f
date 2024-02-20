@@ -37,12 +37,12 @@ C
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use pt2_guga_data, only: NLEV, MXLEV, NG1, NG2, NG3, NCSF, ISM,
-     &                         L2ACT, MXCI, NMIDV
+      use pt2_guga_data, only: NLEV, MXLEV, NCSF, ISM, L2ACT, NMIDV
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
       INTEGER, INTENT(IN) :: IFF

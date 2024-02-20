@@ -16,7 +16,6 @@
       use pt2_guga_data
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
-
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
@@ -28,6 +27,8 @@
      &                       F1(:),  F2(:),  F3(:)
       Real*8, Allocatable:: DG1(:), DG2(:), DG3(:),
      &                      DF1(:), DF2(:), DF3(:)
+
+      Integer, External:: ip_of_Work
 
       !! reduced density matrix and fock-weighted RDM
       CALL mma_allocate(G1 ,NG1, Label='G1')
@@ -57,10 +58,6 @@
       CALL PT2_GET(NG1,' DELTA1',F1)
       CALL PT2_GET(NG2,' DELTA2',F2)
       CALL PT2_GET(NG3,' DELTA3',F3)
-C     write(6,*) "G1"
-C     call sqprt(work(lg1),5)
-C     write(6,*) "f1"
-C     call sqprt(work(lf1),5)
 C
       !! Initialize them
       DG1(:)=0.0D0
@@ -96,7 +93,7 @@ C
         If (ISCF.EQ.0) Then
           Do iU = 1, nAsh(1)
             DEPSA(iT,iU) = DEPSA(iT,iU)
-     *        + DEASUM*Work(LG1+iT-1+nAsh(1)*(iU-1))
+     *        + DEASUM*G1(iT+nAsh(1)*(iU-1))
           End Do
         Else
           !! ?
@@ -1414,13 +1411,14 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG)
-      use pt2_guga_data, only: MXCI, NLEV, IADR10, CLAB10
+      use pt2_guga_data, only: NLEV
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
       REAL*8, INTENT(IN) :: CI(NCONF)
@@ -1463,11 +1461,12 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use pt2_guga_data, only: MXCI, NLEV, ISM, L2ACT, NCSF
+      use pt2_guga_data, only: NLEV, ISM, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
       LOGICAL RSV_TSK
