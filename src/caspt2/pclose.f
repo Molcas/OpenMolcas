@@ -34,18 +34,15 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
       IF(DoFCIQMC) RETURN
       IF(NACTEL.EQ.0) RETURN
       IF(ISCF.NE.0) RETURN
+
+      Call MKGUGA_FREE()
+
       Call mma_deallocate(MVL)
       Call mma_deallocate(MVR)
-      Call mma_deallocate(NOW1)
-      Call mma_deallocate(IOW1)
       Call mma_deallocate(NOCP)
       Call mma_deallocate(IOCP)
-      Call mma_deallocate(NOCSF)
-      Call mma_deallocate(IOCSF)
-      Call mma_deallocate(ICASE)
       Call mma_deallocate(ICOUP)
       Call mma_deallocate(VTAB)
-
       Call mma_deallocate(SGTMP)
 
       END SUBROUTINE PCLOSE
