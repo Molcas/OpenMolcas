@@ -17,8 +17,18 @@
 ! SWEDEN                                     *
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
+#define _NEW_
       SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
+#ifdef _NEW_
+      use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
+     &               MXEO, NVERT,                  NLEV, IFCAS,         &
+     &               NCSF, NWALK,        NMIDV,MIDV1,MIDV2,             &
+     &                VTAB, DOWN,  ICOUP, IOCP, UP,    MVR, MVL,        &
+     &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
+     &                LTV, MAW, RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
+     &                    NMAW,                      NNOCP
+#else
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT, NVERT0,  NIPWLK, NLEV, IFCAS,         &
      &               NCSF, NWALK, MIDLEV,NMIDV,MIDV1,MIDV2,             &
@@ -26,22 +36,41 @@
      &               NVTAB,NICASE,NICOUP,NIOCP,NIOCSF,NMVR,NMVL,        &
      &                LTV, MAW, RAW, DAW, NOW1, IOW1, NOCP, NOCSF,      &
      &               NLTV,NMAW,NRAW,NDAW,NNOW, NIOW, NNOCP,NNOCSF
+#endif
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "segtab.fh"
+#ifdef _NEW_
+      Integer                                                NILNDW,    &
+     &        NNICOUP,                      NNRL, NSCR,                 &
+     &        NVTAB_FINAL, NVTAB_TMP
+      Integer, Allocatable::                        IVR(:), ISGM(:),    &
+     &                       NRL(:), ILNDW(:), SCR(:)
+#else
       Integer, Allocatable, Target:: DRT0(:), DRT(:)
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
-      Integer, Allocatable:: TMP(:), V11(:), UP(:), IVR(:), ISGM(:),    &
-     &                       NRL(:), ILNDW(:), SCR(:)
-      Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer IAC
       Integer MXDWN, MXUP,       NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
      &        NNICOUP,                      NNRL, NSCR, NTMP, NUP,      &
      &        NVTAB_FINAL, NVTAB_TMP
+      Integer, Allocatable:: TMP(:), V11(:), UP(:), IVR(:), ISGM(:),    &
+     &                       NRL(:), ILNDW(:), SCR(:)
+#endif
+      Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
 
       Interface
+#ifdef _NEW_
+      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      IMPLICIT None
+
+      Integer NLEV, NSYM, STSYM
+      Integer NSM(NLEV)
+      Integer NCSF(NSYM)
+      Logical, Optional:: Skip_MKSGNUM
+      End SUBROUTINE MKGUGA
+#endif
       SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
       IMPLICIT None
       Integer NVERT, MIDV1, MIDV2
@@ -69,6 +98,9 @@
       IF ((2*IA0+IB0).NE.NACTEL) GOTO 9001
       IF((IA0.LT.0).OR.(IB0.LT.0).OR.(IC0.LT.0)) GOTO 9001
 
+#ifdef _NEW_
+      CALL MKGUGA(ISM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM=.TRUE.)
+#else
       IAC=MIN(IA0,IC0)
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
       NDRT0=5*NVERT0
@@ -167,8 +199,8 @@
       CALL mma_allocate(ICASE,NICASE,Label='ICASE')
       Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,     &
      &             NIPWLK,ISM,DOWN,NOW1,IOW1,ICASE,SCR)
-
       Call mma_deallocate(SCR)
+#endif
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
