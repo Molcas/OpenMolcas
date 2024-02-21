@@ -15,7 +15,7 @@ INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,NVERT,                    &
                   MIDLEV,NMIDV,MIDV1,MIDV2,        MXUP,MXDWN,      &
                   NWALK,NIPWLK,NCSF(8),MXEO
 
-Integer, Parameter :: MXLEV=100
+Integer, Parameter, Public :: MXLEV=100
 Integer, Public:: ISM(MXLEV), L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:), LTV(:)
