@@ -17,10 +17,8 @@
 ! SWEDEN                                     *
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
-#define _NEW_
       SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
-#ifdef _NEW_
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT,                  NLEV, IFCAS,         &
      &               NCSF, NWALK,        NMIDV,MIDV1,MIDV2,             &
@@ -28,49 +26,24 @@
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                LTV, MAW, RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
      &                    NMAW,                      NNOCP
-#else
-      use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               MXEO, NVERT, NVERT0,  NIPWLK, NLEV, IFCAS,         &
-     &               NCSF, NWALK, MIDLEV,NMIDV,MIDV1,MIDV2,             &
-     &                VTAB, ICASE, ICOUP, IOCP, IOCSF, MVR, MVL,        &
-     &               NVTAB,NICASE,NICOUP,NIOCP,NIOCSF,NMVR,NMVL,        &
-     &                LTV, MAW, RAW, DAW, NOW1, IOW1, NOCP, NOCSF,      &
-     &               NLTV,NMAW,NRAW,NDAW,NNOW, NIOW, NNOCP,NNOCSF
-#endif
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "segtab.fh"
-#ifdef _NEW_
-      Integer                                                NILNDW,    &
-     &        NNICOUP,                      NNRL, NSCR,                 &
-     &        NVTAB_FINAL, NVTAB_TMP
-      Integer, Allocatable::                        IVR(:), ISGM(:),    &
-     &                       NRL(:), ILNDW(:), SCR(:)
-#else
-      Integer, Allocatable, Target:: DRT0(:), DRT(:)
-      Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
-      Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
-      Integer IAC
-      Integer MXDWN, MXUP,       NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
-     &        NNICOUP,                      NNRL, NSCR, NTMP, NUP,      &
-     &        NVTAB_FINAL, NVTAB_TMP
-      Integer, Allocatable:: TMP(:), V11(:), UP(:), IVR(:), ISGM(:),    &
-     &                       NRL(:), ILNDW(:), SCR(:)
-#endif
+      Integer NNICOUP
+      Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
+      Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
+      Integer                       NVTAB_TMP
 
       Interface
-#ifdef _NEW_
       SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
       IMPLICIT None
-
       Integer NLEV, NSYM, STSYM
       Integer NSM(NLEV)
       Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
-#endif
       SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
       IMPLICIT None
       Integer NVERT, MIDV1, MIDV2
@@ -79,7 +52,6 @@
       Integer IMAW(NVERT,0:3)
       END SUBROUTINE MKMAW_CP2
       End Interface
-
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
@@ -98,109 +70,7 @@
       IF ((2*IA0+IB0).NE.NACTEL) GOTO 9001
       IF((IA0.LT.0).OR.(IB0.LT.0).OR.(IC0.LT.0)) GOTO 9001
 
-#ifdef _NEW_
       CALL MKGUGA(ISM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM=.TRUE.)
-#else
-      IAC=MIN(IA0,IC0)
-      NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
-      NDRT0=5*NVERT0
-      NDOWN0=4*NVERT0
-      NTMP=((NLEV+1)*(NLEV+2))/2
-
-      IF((NRAS1T+NRAS3T)/=0) THEN
-        CALL mma_allocate(DRT0,NDRT0,Label='DRT0')
-        CALL mma_allocate(DOWN0,NDOWN0,Label='DOWN0')
-        DRTP=>DRT0
-        DOWNP=>DOWN0
-      ELSE
-        NDRT=NDRT0
-        NDOWN=NDOWN0
-        CALL mma_allocate(DRT,NDRT,Label='DRT')
-        CALL mma_allocate(DOWN,NDOWN,Label='DOWN')
-        DRTP=>DRT
-        DOWNP=>DOWN
-        NVERT=NVERT0
-      ENDIF
-
-      CALL mma_allocate(TMP,NTMP,Label='TMP')
-      CALL mkDRT0(IA0,IB0,IC0,NVERT0,DRTP,DOWNP,NTMP,TMP)
-      CALL mma_deallocate(TMP)
-#ifdef _DEBUGPRINT_
-      WRITE(6,*)
-      WRITE(6,*)' PALDUS DRT TABLE (UNRESTRICTED):'
-      CALL PRDRT(NVERT0,DRTP,DOWNP)
-#endif
-
-      DOWNP=>Null()
-      DRTP=>Null()
-
-! RESTRICTIONS?
-      IF((NRAS1T+NRAS3T)/=0) THEN
-!  CONSTRUCT A RESTRICTED GRAPH.
-        CALL mma_allocate(V11,NVERT0,Label='V11')
-        CALL RESTR(NVERT0,DRT0,DOWN0,V11,LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
-
-        NDRT=5*NVERT
-        NDOWN=4*NVERT
-        CALL mma_allocate(DRT,NDRT,Label='DRT')
-        CALL mma_allocate(DOWN,NDOWN,Label='DOWN')
-        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
-        CALL mma_deallocate(V11)
-        CALL mma_deallocate(DRT0)
-        CALL mma_deallocate(DOWN0)
-!
-#ifdef _DEBUGPRINT_
-        WRITE(6,*)
-        WRITE(6,*)' PALDUS DRT TABLE (RESTRICTED):'
-        CALL PRDRT(NVERT,DRT,DOWN)
-#endif
-      END IF
-
-! CALCULATE DIRECT ARC WEIGHT AND LTV TABLES.
-
-      NDAW=5*NVERT
-      CALL mma_allocate(DAW,NDAW,Label='DAW')
-      CALL MKDAW(NVERT,DOWN,DAW)
-
-! UPCHAIN INDEX TABLE AND  REVERSE ARC WEIGHT TABLE
-      NUP=4*NVERT
-      NRAW=5*NVERT
-      CALL mma_allocate(UP,NUP,Label='UP')
-      CALL mma_allocate(RAW,NRAW,Label='RAW')
-      CALL MKRAW(NVERT,DOWN,UP,RAW)
-
-! DECIDE MIDLEV AND LIMITS ON MIVERTICES
-
-      NLTV=NLEV+2
-      CALL mma_allocate(LTV,NLTV,Label='LTV')
-      CALL MKMID(NVERT,NLEV,DRT,DAW,RAW,LTV,MIDLEV, NMIDV, MIDV1, MIDV2,&
-     &           MXUP, MXDWN)
-
-! FORM VARIOUS OFFSET TABLES:
-      NIPWLK=1+(MIDLEV-1)/15
-      NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
-      NNOW=2*NMIDV*NSYM
-      NIOW=NNOW
-      NNOCSF=NMIDV*(NSYM**2)
-      NIOCSF=NNOCSF
-      NSCR=MAX(6,3*(NLEV+1))
-      CALL mma_allocate(NOW1,NNOW,Label='NOW1')
-      CALL mma_allocate(IOW1,NIOW,Label='IOW1')
-      CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
-      CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
-      CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK, &
-     &           ISM,DOWN,NOW1,IOW1,NCSF,IOCSF,NOCSF,SCR)
-
-!
-!     CONSTRUCT THE CASE LIST
-!
-      NICASE=NWALK*NIPWLK
-      CALL mma_allocate(ICASE,NICASE,Label='ICASE')
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,     &
-     &             NIPWLK,ISM,DOWN,NOW1,IOW1,ICASE,SCR)
-      Call mma_deallocate(SCR)
-#endif
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
@@ -233,19 +103,16 @@
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK
-      NNICOUP=3*NICOUP
       NVTAB_TMP=20000
       NSCR=7*(NLEV+1)
-      CALL mma_allocate(ICOUP,NNICOUP,Label='ICOUP')
+      CALL mma_allocate(ICOUP,3*NICOUP,Label='ICOUP')
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
       CALL MKCOUP_CP2(IVR,MAW,ISGM,VSGM,NOW1,     NOCP,IOCP,ILNDW,      &
-     &                ICOUP,NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,SCR,VAL)
+     &                ICOUP,NVTAB_TMP,VTAB_TMP,NVTAB,SCR,VAL)
 
-! Set NVTAB in common block /IGUGA/ in file pt2_guga.fh:
-      NVTAB=NVTAB_FINAL
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
       VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
 
@@ -258,10 +125,8 @@
       Call mma_deallocate(MAW)
       Call mma_deallocate(IVR)
 
-
       CALL mma_deallocate(DRT)
       Call mma_deallocate(DOWN)
-
       CALL mma_deallocate(DAW)
       CALL mma_deallocate(UP)
       CALL mma_deallocate(RAW)
