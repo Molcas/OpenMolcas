@@ -173,7 +173,8 @@
       use stdalloc, only: mma_deallocate
       use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW,  NOCSF,   &
      &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
-     &                 LTV
+     &                 LTV, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
+     &                 SGTMP
       IMPLICIT None
 !
       If (Allocated(DRT)) Call mma_deallocate(DRT)
@@ -193,5 +194,15 @@
 
       If (Allocated(USGN)) Call mma_deallocate(USGN)
       If (Allocated(LSGN)) Call mma_deallocate(LSGN)
+
+      If (Allocated(MVL)) Call mma_deallocate(MVL)
+      If (Allocated(MVR)) Call mma_deallocate(MVR)
+
+      If (Allocated(NOCP)) Call mma_deallocate(NOCP)
+      If (Allocated(IOCP)) Call mma_deallocate(IOCP)
+
+      If (Allocated(ICOUP)) Call mma_deallocate(ICOUP)
+      If (Allocated(VTAB)) Call mma_deallocate(VTAB)
+      If (Allocated(SGTMP)) Call mma_deallocate(SGTMP)
 
       END SUBROUTINE MKGUGA_FREE

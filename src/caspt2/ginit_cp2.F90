@@ -30,7 +30,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "segtab.fh"
-      Integer NNICOUP
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)

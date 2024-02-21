@@ -37,7 +37,8 @@ C
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, MXLEV, NCSF, ISM, L2ACT
+      use gugx, only: MXLEV
+      use gugx, only: NLEV, NCSF, ISM, L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

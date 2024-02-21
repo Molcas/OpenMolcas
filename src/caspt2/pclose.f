@@ -19,13 +19,10 @@
       SUBROUTINE PCLOSE()
       use stdalloc, only: mma_deallocate
       use fciqmc_interface, only: DoFCIQMC
-      use gugx, only: MVL, MVR, NOW1, IOW1, NOCP, IOCP, NOCSF,
-     &                         IOCSF, ICASE, ICOUP, VTAB, SGTMP
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-C  PER-AAKE MALMQUIST 92-12-07
+C  PER AAKE MALMQUIST 92-12-07
 C  Deallocates everything concerned with SGUGA, incl CI array.
-
 
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -36,13 +33,5 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
       IF(ISCF.NE.0) RETURN
 
       Call MKGUGA_FREE()
-
-      Call mma_deallocate(MVL)
-      Call mma_deallocate(MVR)
-      Call mma_deallocate(NOCP)
-      Call mma_deallocate(IOCP)
-      Call mma_deallocate(ICOUP)
-      Call mma_deallocate(VTAB)
-      Call mma_deallocate(SGTMP)
 
       END SUBROUTINE PCLOSE
