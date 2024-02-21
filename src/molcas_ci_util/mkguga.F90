@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF)
+      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
 !
 !     PURPOSE: MAKE THE GUGA TABLES
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
@@ -35,6 +35,7 @@
       Integer NLEV, NSYM, STSYM
       Integer NSM(NLEV)
       Integer NCSF(NSYM)
+      Logical, Optional:: Skip_MKSGNUM
 
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
@@ -152,6 +153,9 @@
 !
 !     SET UP ENUMERATION TABLES
 !
+      If (Present(Skip_MKSGNUM)) Then
+         If (Skip_MKSGNUM) Return
+      End If
       NUSGN=MXUP*NMIDV
       NLSGN=MXDWN*NMIDV
       CALL mma_allocate(USGN,NUSGN,Label='USGN')

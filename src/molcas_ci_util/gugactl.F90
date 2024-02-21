@@ -33,12 +33,13 @@
       Character(LEN=16), Parameter :: ROUTINE='GUGACTL '
 
       Interface
-      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF)
+      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
       Integer NSM(NLEV)
       Integer NCSF(NSYM)
+      Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
 

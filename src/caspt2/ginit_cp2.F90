@@ -20,7 +20,7 @@
       SUBROUTINE GINIT_CP2()
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               MXEO, NVERT, NVERT0,  NIPWLK, NLEV,                &
+     &               MXEO, NVERT, NVERT0,  NIPWLK, NLEV, IFCAS,         &
      &               NCSF, NWALK, MIDLEV,NMIDV,MIDV1,MIDV2,             &
      &                VTAB, ICASE, ICOUP, IOCP, IOCSF, MVR, MVL,        &
      &               NVTAB,NICASE,NICOUP,NIOCP,NIOCSF,NMVR,NMVL,        &
@@ -56,6 +56,11 @@
       LV3RAS=LV1RAS+NRAS2T
       LM1RAS=2*LV1RAS-NHOLE1
       LM3RAS=NACTEL-NELE3
+      IF ((NRAS1T+NRAS3T)/=0) Then
+         IFCAS=1
+      Else
+         IFCAS=0
+      End If
 
 ! SET UP A FULL PALDUS DRT TABLE:
       IB0=ISPIN-1
@@ -63,13 +68,14 @@
       IC0=NLEV-IA0-IB0
       IF ((2*IA0+IB0).NE.NACTEL) GOTO 9001
       IF((IA0.LT.0).OR.(IB0.LT.0).OR.(IC0.LT.0)) GOTO 9001
+
       IAC=MIN(IA0,IC0)
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
       NDRT0=5*NVERT0
       NDOWN0=4*NVERT0
       NTMP=((NLEV+1)*(NLEV+2))/2
 
-      IF((NRAS1T+NRAS3T).NE.0) THEN
+      IF((NRAS1T+NRAS3T)/=0) THEN
         CALL mma_allocate(DRT0,NDRT0,Label='DRT0')
         CALL mma_allocate(DOWN0,NDOWN0,Label='DOWN0')
         DRTP=>DRT0
@@ -92,12 +98,15 @@
       WRITE(6,*)' PALDUS DRT TABLE (UNRESTRICTED):'
       CALL PRDRT(NVERT0,DRTP,DOWNP)
 #endif
+
+      DOWNP=>Null()
+      DRTP=>Null()
+
 ! RESTRICTIONS?
-      IF((NRAS1T+NRAS3T).NE.0) THEN
+      IF((NRAS1T+NRAS3T)/=0) THEN
 !  CONSTRUCT A RESTRICTED GRAPH.
         CALL mma_allocate(V11,NVERT0,Label='V11')
-        CALL RESTR(NVERT0,DRTP,DOWN0,V11,                               &
-     &                 LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
+        CALL RESTR(NVERT0,DRT0,DOWN0,V11,LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
 
         NDRT=5*NVERT
         NDOWN=4*NVERT
@@ -217,8 +226,6 @@
       Call mma_deallocate(MAW)
       Call mma_deallocate(IVR)
 
-      DOWNP=>Null()
-      DRTP=>Null()
 
       CALL mma_deallocate(DRT)
       Call mma_deallocate(DOWN)
