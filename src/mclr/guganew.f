@@ -30,6 +30,17 @@
       Real*8 :: PRWTHR=0.05d0
       Integer ntRas1, ntRas2, ntRas3, iSym, jPrint, iBas, iOrb, iss
 *
+      Interface
+      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      IMPLICIT None
+
+      Integer NLEV, NSYM, STSYM
+      Integer NSM(NLEV)
+      Integer NCSF(NSYM)
+      Logical, Optional:: Skip_MKSGNUM
+      End SUBROUTINE MKGUGA
+      End Interface
+
 *
       ntRas1=0
       ntRas2=0
