@@ -17,7 +17,6 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PCLOSE()
-      use stdalloc, only: mma_deallocate
       use fciqmc_interface, only: DoFCIQMC
       IMPLICIT REAL*8 (A-H,O-Z)
 C
