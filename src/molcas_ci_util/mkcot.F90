@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK, &
+      SUBROUTINE MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK, &
                   ISM,IDOWN,NOW,IOW,NCSF,IOCSF,NOCSF,ISCR)
 !     PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 !     NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
@@ -24,7 +24,7 @@
 
       IMPLICIT None
 !
-      Integer NSYM, NLEV, NVERT, MIDLEV, NMIDV, MIDV1, MIDV2, NWALK,   &
+      Integer NSYM, NLEV, NVERT, MIDLEV, NMIDV, MVSta, MVEnd, NWALK,   &
               NIPWLK
       Integer ISM(NLEV),IDOWN(NVERT,0:3)
       Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
@@ -59,8 +59,8 @@
           LEV1=NLEV
           LEV2=MIDLEV
         ELSE
-          IVTSTA=MIDV1
-          IVTEND=MIDV2
+          IVTSTA=MVSta
+          IVTEND=MVEnd
           LEV1=MIDLEV
           LEV2=0
         END IF
@@ -101,7 +101,7 @@
           IF (LEV>LEV2) Cycle
 !     WE HAVE REACHED THE BOTTOM LEVEL. THE WALK IS COMPLETE.
 !     FIND MIDVERTEX NUMBER ORDERING NUMBER AND SYMMETRY OF THIS WALK
-          MV=ISCR(IVERT,MIDLEV)+1-MIDV1
+          MV=ISCR(IVERT,MIDLEV)+1-MVSta
           IWSYM=ISCR(ISYM,LEV2)
           ILND=1+NOW(IHALF,IWSYM,MV)
 !     SAVE THE MAX WALK NUMBER FOR GIVEN SYMMETRY AND MIDVERTEX

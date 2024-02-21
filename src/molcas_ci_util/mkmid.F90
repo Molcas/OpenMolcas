@@ -10,7 +10,7 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
       SUBROUTINE MKMID(NVERT,NLEV,IDRT,IDAW,IRAW,LTV,      &
-                       MIDLEV, NMIDV, MIDV1, MIDV2, MXUP, MXDWN)
+                       MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
 !     PURPOSE: FIND THE MIDLEVEL
 !
 #ifdef _DEBUGPRINT_
@@ -18,7 +18,7 @@
 #endif
       IMPLICIT None
 !
-      Integer NVERT, NLEV, MIDLEV, NMIDV, MIDV1, MIDV2, MXUP, MXDWN
+      Integer NVERT, NLEV, MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN
       Integer IDRT(NVERT,5)
       Integer IDAW(NVERT,0:4)
       Integer IRAW(NVERT,0:4)
@@ -70,16 +70,16 @@
         MIDLEV=IL
         MINW=NW
       END DO
-      MIDV1=LTV(MIDLEV)
-      MIDV2=LTV(MIDLEV-1)-1
-      NMIDV=1+MIDV2-MIDV1
+      MVSta=LTV(MIDLEV)
+      MVEnd=LTV(MIDLEV-1)-1
+      NMIDV=1+MVEnd-MVSta
 !
 !     NOW FIND THE MAX NUMBERS OF UPPER AND LOWER WALKS. RESPECTIVELY
 !     (DISREGARDING SYMMETRY)
 !
       MXUP=0
       MXDWN=0
-      DO MV=MIDV1,MIDV2
+      DO MV=MVSta,MVEnd
         if(MXUP<IRAW(MV,4)) MXUP=IRAW(MV,4)
         if(MXDWN<IDAW(MV,4)) MXDWN=IDAW(MV,4)
       END DO
@@ -88,8 +88,8 @@
       Write(LF,*)
       Write(LF,'(A,I3)')' MIDLEVEL =             ',MIDLEV
       Write(LF,'(A,I3)')' NUMBER OF MIDVERTICES =',NMIDV
-      Write(LF,'(A,I3)')' FIRST MIDVERTEX =      ',MIDV1
-      Write(LF,'(A,I3)')' LAST MIDVERTEX =       ',MIDV2
+      Write(LF,'(A,I3)')' FIRST MIDVERTEX =      ',MVSta
+      Write(LF,'(A,I3)')' LAST MIDVERTEX =       ',MVEnd
       Write(LF,'(A,I3)')' MAX. NO UPPER WALKS=   ',MXUP
       Write(LF,'(A,I3)')' MAX. NO LOWER WALKS=   ',MXDWN
       Write(LF,*)

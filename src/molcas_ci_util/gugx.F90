@@ -36,6 +36,6 @@ Integer,              Public::NNOCP,   NIOCP
 
 INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,NVERT,                    &
                   IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
-                  MIDLEV,NMIDV,MIDV1,MIDV2,        MXUP,MXDWN,      &
+                  MIDLEV,NMIDV,MVSta,MVEnd,        MXUP,MXDWN,      &
                   NWALK,NIPWLK,NCSF(8),MXEO
 End Module GUGX

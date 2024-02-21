@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function ISGNUM(NLEV,NVERT,MIDLEV,MIDV1,NMIDV,MXUP,MXDWN,     &
+function ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,     &
                 IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
@@ -17,7 +17,7 @@ function ISGNUM(NLEV,NVERT,MIDLEV,MIDV1,NMIDV,MXUP,MXDWN,     &
 use Definitions, only: iwp
 
 implicit none
-Integer NLEV,NVERT,MIDLEV,MIDV1,NMIDV,MXUP,MXDWN
+Integer NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN
 integer(kind=iwp) :: ISGNUM
 integer(kind=iwp), intent(in) :: IDOWN(NVERT,0:3), IUP(NVERT,0:3), IDAW(NVERT,0:4), IRAW(NVERT,0:4), IUSGNUM(MXUP,NMIDV), &
                                  ILSGNUM(MXDWN,NMIDV), IWALK(NLEV)
@@ -30,7 +30,7 @@ do LEV=NLEV,(MIDLEV+1),-1
   ICASE = IWALK(LEV)
   MIDV = IDOWN(MIDV,ICASE)
 end do
-MIDV = MIDV-MIDV1+1
+MIDV = MIDV-MVSta+1
 
 ! FIND REVERSE ARC WEIGHT FOR THE UPPER WALK
 

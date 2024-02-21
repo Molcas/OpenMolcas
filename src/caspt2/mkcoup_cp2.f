@@ -21,7 +21,7 @@
      &                  NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,
      &                  ISCR,VALUE)
 
-      use gugx, only: NLEV, NVERT, NMIDV, MIDLEV,MIDV1,MIDV2,
+      use gugx, only: NLEV, NVERT, NMIDV, MIDLEV,MVSta,MVEnd,
      &                         ISM, NWALK, NICOUP, MXEO
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -79,8 +79,8 @@ C COUPLING COEFFICIENT VALUE TABLE:
           LEV2=MIDLEV
           ITYPMX=0
         ELSE
-          IVTSTA=MIDV1
-          IVTEND=MIDV2
+          IVTSTA=MVSta
+          IVTEND=MVEnd
           LEV1=MIDLEV
           LEV2=0
           ITYPMX=2
@@ -129,7 +129,7 @@ C COUPLING COEFFICIENT VALUE TABLE:
           ISCR(ISEG,LEV)=0
           IF (LEV.GT.LEV2) GOTO 100
 
-          MV=ISCR(IVLFT,MIDLEV)+1-MIDV1
+          MV=ISCR(IVLFT,MIDLEV)+1-MVSta
           LFTSYM=ISCR(ILS,LEV2)
           IT=ISCR(ITYPE,MIDLEV)
           IF(IT.EQ.0) IT=3

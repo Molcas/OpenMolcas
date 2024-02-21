@@ -21,7 +21,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT,                  NLEV, IFCAS,         &
-     &               NCSF, NWALK,        NMIDV,MIDV1,MIDV2,             &
+     &               NCSF, NWALK,        NMIDV,MVSta,MVEnd,             &
      &                VTAB, DOWN,  ICOUP, IOCP, UP,    MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                LTV, MAW, RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
@@ -43,9 +43,9 @@
       Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
-      SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
+      SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MVSta, MVEnd)
       IMPLICIT None
-      Integer NVERT, MIDV1, MIDV2
+      Integer NVERT, MVSta, MVEnd
       Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
       Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
       Integer IMAW(NVERT,0:3)
@@ -75,7 +75,7 @@
 
       NMAW=4*NVERT
       CALL mma_allocate(MAW,NMAW,Label='MAW')
-      CALL MKMAW_CP2(DOWN,DAW,UP,RAW,MAW,NVERT, MIDV1, MIDV2)
+      CALL MKMAW_CP2(DOWN,DAW,UP,RAW,MAW,NVERT, MVSta, MVEnd)
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.

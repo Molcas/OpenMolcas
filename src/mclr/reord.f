@@ -13,7 +13,7 @@
 ************************************************************************
 !#define _DEBUGPRINT_
       SUBROUTINE REORD
-     &           (NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,
+     &           (NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,
      &            IDRT,IDOWN,IDAW,IUP,IRAW,IUSGN,ILSGN,
      &            NEL,NORB,NCONF,NTYP,
      &            IMODE,IPRINT,
@@ -52,7 +52,7 @@ C
       DIMENSION IWALK(50)
       Integer, External:: IPHASE
 
-      If (.FALSE.) Call Unused_Integer(MIDV2)
+      If (.FALSE.) Call Unused_Integer(MVEnd)
       If (.FALSE.) Call Unused_Integer(IPRINT)
 C
 C
@@ -90,7 +90,7 @@ C     COMPUTE STEP VECTOR
      &                   ISPIN(ICSBAS),NORB,IWALK)
 C     GET SPLIT GRAPH ORDERING NUMBER
 C     FUNCTION ISGNUM
-            ISG=ISGNUM(NLEV,NVERT,MIDLEV,MIDV1,NMIDV,MXUP,
+            ISG=ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,
      &                   MXDWN,IDOWN,IUP,IDAW,IRAW,IUSGN,ILSGN,IWALK)
 C     GET PHASE PHASE FACTOR
             IP=IPHASE(NLEV,NVERT,IDRT,IUP,IWALK)

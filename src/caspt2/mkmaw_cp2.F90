@@ -16,9 +16,9 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MIDV1, MIDV2)
+      SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MVSta, MVEnd)
       IMPLICIT None
-      Integer NVERT, MIDV1, MIDV2
+      Integer NVERT, MVSta, MVEnd
       Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
       Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
       Integer IMAW(NVERT,0:3)
@@ -26,14 +26,14 @@
       Integer IC, ID, ISUM, IU, IV
 
 ! COPY LOWER PART OF DIRECT ARC WEIGHT TABLE INTO IMAW:
-      DO 210 IV=MIDV1,NVERT
+      DO 210 IV=MVSta,NVERT
         DO 211 IC=0,3
           IMAW(IV,IC)=IDAW(IV,IC)
   211   CONTINUE
   210 CONTINUE
 ! COPY UPPER PART OF REVERSE ARC WEIGHT TABLE INTO IMAW. HOWEVER,
 !    NOTE THAT THE IMAW TABLE IS ACCESSED BY THE UPPER VERTEX.
-      DO 230 IU=1,MIDV1-1
+      DO 230 IU=1,MVSta-1
         DO 220 IC=0,3
           ID=IDOWN(IU,IC)
           IMAW(IU,IC)=0
@@ -42,7 +42,7 @@
   230 CONTINUE
 ! FINALLY, ADD AN OFFSET TO ARCS LEADING TO MIDLEVELS:
       ISUM=1
-      DO IV=MIDV1,MIDV2
+      DO IV=MVSta,MVEnd
         DO IC=0,3
           IU=IUP(IV,IC)
           IF(IU.EQ.0) Cycle
@@ -50,7 +50,7 @@
         END DO
         ISUM=ISUM+IRAW(IV,4)
       END DO
-      DO IV=MIDV1,MIDV2
+      DO IV=MVSta,MVEnd
         DO IC=0,3
           IF(IDOWN(IV,IC).EQ.0) Cycle
           IMAW(IV,IC)=ISUM+IMAW(IV,IC)

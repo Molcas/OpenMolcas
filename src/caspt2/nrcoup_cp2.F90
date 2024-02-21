@@ -18,7 +18,7 @@
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
      &                  NOCSF,NRL,MVL,MVR)
-      use gugx, only: NLEV, NVERT, MIDV1, MIDV2, NMIDV, ISM,   &
+      use gugx, only: NLEV, NVERT, MVSta, MVEnd, NMIDV, ISM,   &
      &                         NICOUP, MXEO, SGTMP, NSGTMP
 #ifdef _DEBUGPRINT_
       use gugx, only: NWALK, NCSF
@@ -50,7 +50,7 @@
 #endif
 
       DO 10 INDEO=0,MXEO
-        DO 11 IV=1,MIDV2
+        DO 11 IV=1,MVEnd
           DO 12 LFTSYM=1,NSYM
             NRL(LFTSYM,IV,INDEO)=0
   12      CONTINUE
@@ -58,7 +58,7 @@
   10  CONTINUE
       NRL(1,1,0)=1
 
-      DO 101 IVLT=1,MIDV1-1
+      DO 101 IVLT=1,MVSta-1
         LEV=IDRT(IVLT,LTAB)
         DO 102 ISGT=1,26
           IVLB=ISGMNT(IVLT,ISGT)
@@ -113,7 +113,7 @@
 
       MXUP=0
       DO 140 MV=1,NMIDV
-        IVLT=MV+MIDV1-1
+        IVLT=MV+MVSta-1
         DO 141 LFTSYM=1,NSYM
           MXUP=MAX(MXUP,NOW(1,LFTSYM,MV))
           DO 142 INDEO=1,MXEO
@@ -123,7 +123,7 @@
  140  CONTINUE
 
       DO 150 INDEO=0,MXEO
-        DO 151 IV=MIDV1,NVERT
+        DO 151 IV=MVSta,NVERT
           DO 152 LFTSYM=1,NSYM
             NRL(LFTSYM,IV,INDEO)=0
   152     CONTINUE
@@ -131,7 +131,7 @@
   150 CONTINUE
       NRL(1,NVERT,0)=1
 
-      DO 201 IVLT=NVERT-1,MIDV1,-1
+      DO 201 IVLT=NVERT-1,MVSta,-1
         LEV=IDRT(IVLT,LTAB)
         DO 202 ISGT=1,26
           IVLB=ISGMNT(IVLT,ISGT)
@@ -186,7 +186,7 @@
 
       MXDWN=0
       DO 240 MV=1,NMIDV
-        IVLT=MV+MIDV1-1
+        IVLT=MV+MVSta-1
         DO 241 LFTSYM=1,NSYM
           MXDWN=MAX(MXDWN,NOW(2,LFTSYM,MV))
           DO 242 INDEO=1,MXEO
