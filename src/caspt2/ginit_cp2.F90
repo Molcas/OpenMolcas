@@ -21,15 +21,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT, NVERT0,  NIPWLK, NLEV,                &
-     &                VTAB, ICASE, ICOUP, IOCP,                         &
-     &               NVTAB,NICASE,NICOUP,NIOCP,                         &
-     &                         IOCSF, MVR, MVL,                         &
-     &                        NIOCSF,NMVR,NMVL,                         &
-     &                          LTV, MAW, RAW, DAW, NOW1, IOW1,         &
-     &                         NLTV,NMAW,NRAW,NDAW,NNOW, NIOW,          &
-     &                                NOCP, NOCSF,                      &
-     &                               NNOCP,NNOCSF,                      &
-     &               NCSF, NWALK, MIDLEV,NMIDV,MIDV1,MIDV2
+     &               NCSF, NWALK, MIDLEV,NMIDV,MIDV1,MIDV2,             &
+     &                VTAB, ICASE, ICOUP, IOCP, IOCSF, MVR, MVL,        &
+     &               NVTAB,NICASE,NICOUP,NIOCP,NIOCSF,NMVR,NMVL,        &
+     &                LTV, MAW, RAW, DAW, NOW1, IOW1, NOCP, NOCSF,      &
+     &               NLTV,NMAW,NRAW,NDAW,NNOW, NIOW, NNOCP,NNOCSF
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -37,9 +33,8 @@
       Integer, Allocatable, Target:: DRT0(:), DRT(:)
       Integer, Allocatable, Target:: DOWN0(:), DOWN(:)
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
-      Integer, Allocatable:: TMP(:), V11(:),                            &
-     &                       UP(:), IVR(:), ISGM(:), NRL(:),            &
-     &                       ILNDW(:), SCR(:)
+      Integer, Allocatable:: TMP(:), V11(:), UP(:), IVR(:), ISGM(:),    &
+     &                       NRL(:), ILNDW(:), SCR(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer IAC
       Integer MXDWN, MXUP,       NDOWN, NDOWN0, NDRT, NDRT0, NILNDW,    &
