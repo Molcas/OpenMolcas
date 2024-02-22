@@ -36,7 +36,7 @@ C CIOLD and CINEW are obvious.
 
 CTEST      write(*,*)' SYG2SGU, LSYM=',LSYM
 C Dereference CIS and SGS       for some data:
-      NCONF =CIS%NCSF(SYM)
+      NCONF =CIS%NCSF(LSYM)
       NWALK =CIS%nWalk
       CALL GETMEM('MWS2W','ALLO','INTE',LMWS2W,NWALK)
       CALL MSTOW(SGS,CIS,IWORK(LMWS2W))
@@ -736,11 +736,10 @@ C Leading dimension=nr of upwalks in this block.
       NMIDV =CIS%nMidV
       NIPWLK=CIS%nIpWlk
       NWALK =CIS%nWalk
-      LICASE=CIS%lICase
       CALL GETMEM('ICS','ALLO','INTE',LICS,NLEV)
       CALL MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,
      &            MIDLEV,IWORK(LICS),CIS%NOW,CIS%IOW,
-     &            IWORK(LICASE),SGS%UP,SGS%DOWN,
+     &            CIS%ICase,SGS%UP,SGS%DOWN,
      &            SGS%MAW,MWS2W)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
       END SUBROUTINE MSTOW

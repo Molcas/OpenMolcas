@@ -22,7 +22,6 @@ nIpWlk=CIS%nIpWlk
 lNOCSF=CIS%lNOCSF
 lIOCSF=CIS%lIOCSF
 nWalk =CIS%nWalk
-lICase=CIS%lICase
 ! Unpack structure iXStruct:
 MxEO  =iXStruct(1)
 lNOCP =iXStruct(2)
@@ -53,8 +52,7 @@ nIOCP=nNOCP
 Call GetMem('NOCP','Free','Inte',lNOCP,nNOCP)
 Call GetMem('IOCP','Free','Inte',lIOCP,nIOCP)
 Call mma_deallocate(CIS%NCSF)
-nICase=nWalk*nIpWlk
-Call GetMem('ICASE','Free','Inte',lICase,nICase)
+Call mma_deallocate(CIS%ICase)
 nnICoup=(3*nICoup+1)/2
 Call GetMem('ICoup','Free','Inte',lICoup,nnICoup)
 Call GetMem('VTab','Free','Real',lVtab,nVtab)

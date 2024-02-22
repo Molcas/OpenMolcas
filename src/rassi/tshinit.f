@@ -88,9 +88,9 @@ C
      &               MIDLEV,MVSTA,MVEND)
           CALL CXINIT(SGS(1),CIS(1),IXSTR1)
           CALL CXSVAL(CIS(1),IXSTR1,NMIDV,NIPWLK,
-     &                LNOCSF,LIOCSF,NWALK,LICASE,
-     &               MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
-     &               LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
+     &                LNOCSF,LIOCSF,NWALK,
+     &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
+     &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
           NCI1=CIS(1)%NCSF(LSYM1)
       ELSE
@@ -175,7 +175,7 @@ C For the second wave function
      &           MIDLEV,MVSTA,MVEND)
             CALL CXINIT(SGS(2),CIS(2),IXSTR2)
             CALL CXSVAL(CIS(2),IXSTR2,NMIDV,NIPWLK,
-     &           LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
+     &           LNOCSF,LIOCSF,NWALK,MXEO,
      &           LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,LVTAB,
      &           LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C     CI sizes, as function of symmetry, are now known.
@@ -257,7 +257,7 @@ C For the second wave function
      &           MIDLEV,MVSTA,MVEND)
             CALL CXINIT(SGS(2),CIS(2),IXSTR2)
             CALL CXSVAL(CIS(2),IXSTR2,NMIDV,NIPWLK,
-     &           LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
+     &           LNOCSF,LIOCSF,NWALK,MXEO,
      &           LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,LVTAB,
      &           LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C     CI sizes, as function of symmetry, are now known.

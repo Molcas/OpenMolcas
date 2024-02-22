@@ -33,7 +33,7 @@ Type CIStruct
      Integer lNOCSF
      Integer lIOCSF
      Integer nWalk
-     Integer lICase
+     Integer, Allocatable:: ICase(:)
 End Type CIStruct
 ! Excitation operators, coupling coefficients,...
 !     iXStruct(1)=MxEO

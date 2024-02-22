@@ -36,7 +36,6 @@
       NLEV  =SGS%nLev
       MIDLEV=SGS%MidLev
       NIPWLK=CIS%nIpWlk
-      LICASE=CIS%lICase
       NT1MX =IXSTRUCT(10)
       NT2MX =IXSTRUCT(11)
       NT3MX =IXSTRUCT(12)
@@ -74,12 +73,11 @@ C IP=IQ < MIDLEV.
           NDWNSG=NOW(2,ISYDSG,MVSGM)
           IOLW=IOW(2,ISYDSG,MVSGM)
           IPSHFT=2*(IP-1)
-          LLW=LICASE+IOLW-NIPWLK+IPSHFT/30
+          LLW=1+IOLW-NIPWLK+IPSHFT/30
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO 102 J=1,NDWNSG
-            JC=IWORK(LLW+J*NIPWLK)
-CPAM96            ICS=IAND(ISHFT(JC,-IPSHFT),3)
+            JC=CIS%ICase(LLW+J*NIPWLK)
             ICS=MOD(JC/IPPOW,4)
             IF(ICS.EQ.0) GOTO 102
             X=CPQ*DBLE((1+ICS)/2)
@@ -102,12 +100,11 @@ C IP=IQ>MIDLEV
           NDWNSG=NOW(2,ISYDSG,MVSGM)
           IOUW=IOW(1,ISYUSG,MVSGM)
           IPSHFT=2*(IP-1-MIDLEV)
-          LUW=LICASE+IOUW-NIPWLK+IPSHFT/30
+          LUW=1+IOUW-NIPWLK+IPSHFT/30
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO I=1,NUPSG
-            IC=IWORK(LUW+I*NIPWLK)
-CPAM96            ICS=IAND(ISHFT(IC,-IPSHFT),3)
+            IC=CIS%ICase(LUW+I*NIPWLK)
             ICS=MOD(IC/IPPOW,4)
             IF(ICS.EQ.0) cycle
             X=CPQ*DBLE((1+ICS)/2)

@@ -82,7 +82,7 @@ C Computed in NrCoup:
 
       nICase=nWalk*nIpWlk
 CTEST      write(*,*)' NWALK:',NWALK
-      Call GetMem('ICASE','Allo','Inte',lICase,nICase)
+      Call mma_allocate(CIS%ICase,nICase,Label='CIS%ICase')
       nnICoup=3*nICoup
       Call GetMem('ICoup','Allo','Inte',lICoup,nnICoup)
       nVMax=5000
@@ -92,7 +92,6 @@ CTEST      write(*,*)' NWALK:',NWALK
       nScr=7*(nLev+1)
       Call GetMem('SCR','Allo','Inte',lScr,nScr)
       Call GetMem('VAL','Allo','Real',lVal,nLev+1)
-      CIS%lICase=lICase
       iXStruct(5)=lICoup
       iXStruct(6)=nVMax
       iXStruct(7)=lVTabTmp
@@ -102,7 +101,7 @@ CTEST      write(*,*)' NWALK:',NWALK
      &            MxEO,nICoup,nWalk,nICase,nVTab,
      &            IWork(lIVR),SGS%MAW,IWork(lISGM),
      &            WORK(lVSGM),CIS%NOW,CIS%IOW,IWork(lNOCP),
-     &     IWork(lIOCP),IWork(lILNDW),IWork(lICASE),IWork(lICOUP),
+     &     IWork(lIOCP),IWork(lILNDW),CIS%ICase,IWork(lICOUP),
      &     WORK(lVTAB),IWork(lSCR),WORK(lVAL))
 C iXStruct(10)..iXStruct(14) are set in MkCoup
 

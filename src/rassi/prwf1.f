@@ -15,7 +15,6 @@
 #include "symmul.fh"
       Type (SGStruct) SGS
       Type (CIStruct) CIS
-#include "WrkSpc.fh"
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION CI(*)
@@ -34,7 +33,6 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
 
       MIDLEV=SGS%MidLev
       NIPWLK=CIS%nIpWlk
-      LICASE=CIS%lICase
 
 C Size of occup/spin coupling part of line:
       WRITE(6,*)' Occupation of active orbitals, and spin coupling'
@@ -78,8 +76,8 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
           ISYDWN=MUL(ISYUP,ISYCI)
           NDWN=NOW(2,ISYDWN,MV)
           ICONF=IOCSF(ISYUP,MV,ISYCI)
-          IUW0=LICASE-NIPWLK+IOW(1,ISYUP,MV)
-          IDW0=LICASE-NIPWLK+IOW(2,ISYDWN,MV)
+          IUW0=1-NIPWLK+IOW(1,ISYUP,MV)
+          IDW0=1-NIPWLK+IOW(2,ISYDWN,MV)
           IDWNSV=0
           DO IDWN=1,NDWN
             DO IUP=1,NUP
@@ -89,7 +87,7 @@ C -- SKIP OR PRINT IT OUT?
               IF(ABS(COEF).LT.CITHR) cycle
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
-                ICDWN=IWORK(ICDPOS)
+                ICDWN=CIS%ICase(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
                 DO LEV=1,MIDLEV
@@ -97,7 +95,7 @@ C -- UNPACK LOWER WALK.
                   IF(NNN.EQ.16) THEN
                     NNN=1
                     ICDPOS=ICDPOS+1
-                    ICDWN=IWORK(ICDPOS)
+                    ICDWN=CIS%ICase(ICDPOS)
                   END IF
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
@@ -106,7 +104,7 @@ C -- UNPACK LOWER WALK.
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
-              ICUP=IWORK(ICUPOS)
+              ICUP=CIS%ICase(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
               DO LEV=MIDLEV+1,NLEV
@@ -114,7 +112,7 @@ C -- UNPACK UPPER WALK:
                 IF(NNN.EQ.16) THEN
                   NNN=1
                   ICUPOS=ICUPOS+1
-                  ICUP=IWORK(ICUPOS)
+                  ICUP=CIS%ICase(ICUPOS)
                 END IF
                 IC1=ICUP/4
                 ICS(LEV)=ICUP-4*IC1

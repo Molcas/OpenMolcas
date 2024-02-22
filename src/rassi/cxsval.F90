@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 SUBROUTINE CXSVAL(CIS,IXS,NMIDV,NIPWLK,LNOCSF,LIOCSF,&
-                  NWALK,LICASE,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,&
+                  NWALK,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,&
                   LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 !
 ! Purpose: Dereference the CI structure and the excitation
@@ -26,7 +26,6 @@ nIpWlk =CIS%nIpWlk
 lNOCSF =CIS%lNOCSF
 lIOCSF =CIS%lIOCSF
 nWalk  =CIS%nWalk
-lICase =CIS%lICase
 ! Excitation operators, coupling coefficients,...
 MxEO =IXS(1)
 lNOCP =IXS(2)
