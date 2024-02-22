@@ -21,8 +21,8 @@ Type SGStruct
      Integer MidLev
      Integer MVSta
      Integer MVEnd
-     Integer lMAW
-     Integer lLTV
+     Integer, Allocatable:: MAW(:)
+     Integer, Allocatable:: LTV(:)
 End Type SGStruct
 Public SGStruct
 ! CI structure, sizes, addresses...

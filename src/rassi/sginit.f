@@ -101,20 +101,19 @@ CTEST      write(*,*)' Back from DRT. NVERT=',NVERT
 
 C Direct Arc Weights table and Level-To-Vertex table:
       Call GetMem('DAW','Allo','Inte',lDAW,5*nVert)
-      Call GetMem('LTV','Allo','Inte',lLTV,nLev+2)
-      Call MkDAW_RASSI(nLev,nVert,SGS%DRT,SGS%Down,IWork(lDAW),
-     &           IWork(lLTV))
+      Call mma_allocate(SGS%LTV,nLev+2,Label='SGS%LTV')
+      Call MkDAW_RASSI(nLev,nVert,SGS%DRT,SGS%Down,IWork(lDAW),SGS%LTV)
 
 C Upchain Index table:
       Call mma_allocate(SGS%Up,4*nVert,Label='SGS%Up')
 C Reverse Arc Weights table:
       Call GetMem('RAW','Allo','Inte',lRAW,5*nVert)
 C Modified Arc Weights table:
-      Call GetMem('MAW','Allo','Inte',lMAW,4*nVert)
+      Call mma_allocate(SGS%MAW,4*nVert,Label='SGS%MAW')
       Call MkMAW(nLev,nVert,SGS%Down,IWork(lDAW),SGS%Up,
-     &           IWork(lRAW),IWork(lMAW),IWork(lLTV),MidLev)
-      MVSta=IWork(lLTV+1+MidLev)
-      MVEnd=IWork(lLTV+MidLev)-1
+     &           IWork(lRAW),SGS%MAW,SGS%LTV,MidLev)
+      MVSta=SGS%LTV(2+MidLev)
+      MVEnd=SGS%LTV(1+MidLev)-1
 C The DAW, RAW tables are no longer needed:
       Call GetMem('RAW','Free','Inte',lRAW,5*nVert)
       Call GetMem('DAW','Free','Inte',lDAW,5*nVert)
@@ -128,7 +127,5 @@ C Put sizes and addresses in structure SGS:
       SGS%MidLev =MidLev
       SGS%MVSta  =MVSta
       SGS%MVEnd  =MVEnd
-      SGS%LMAW   =lMAW
-      SGS%lLTV   =lLTV
 
       end Subroutine SGInit

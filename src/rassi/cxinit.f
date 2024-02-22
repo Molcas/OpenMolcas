@@ -22,8 +22,6 @@
       MidLev =SGS%MidLev
       MVSta  =SGS%MVSta
       MVEnd  =SGS%MVEnd
-      lMAW   =SGS%lMAW
-      lLTV   =SGS%lLTV
 
 C Calculate segment values, and MVL and MVR tables:
       nMidV=1+MVEnd-MVSta
@@ -38,7 +36,7 @@ C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       Call GetMem('VSGM','Allo','Real',lVSgm,nSgmnt)
 CTEST      write(*,*)' Calling MKSEG.'
       Call MkSeg(SGS,nLev,nVert,nMidv,
-     &        SGS%DRT,SGS%Down,IWork(lLTV),
+     &        SGS%DRT,SGS%Down,SGS%LTV,
      &        IWork(lIVR),IWork(lMVL),IWork(lMVR),
      &        IWork(lISgm),Work(lVSgm))
 CTEST      write(*,*)' Back from MKSEG.'
@@ -105,7 +103,7 @@ CTEST      write(*,*)' NWALK:',NWALK
       lVTab=lVTabTmp
       Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
      &            MxEO,nICoup,nWalk,nICase,nVTab,
-     &            IWork(lIVR),IWork(lMAW),IWork(lISGM),
+     &            IWork(lIVR),SGS%MAW,IWork(lISGM),
      &            WORK(lVSGM),IWork(lNOW),IWork(lIOW),IWork(lNOCP),
      &     IWork(lIOCP),IWork(lILNDW),IWork(lICASE),IWork(lICOUP),
      &     WORK(lVTAB),IWork(lSCR),WORK(lVAL))

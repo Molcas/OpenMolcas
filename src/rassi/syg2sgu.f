@@ -622,7 +622,6 @@ C Dereference SGS:
       nVert  =SGS%nVert
       MidLev =SGS%MidLev
       MVSta  =SGS%MVSta
-      lMAW   =SGS%lMAW
 C Dereference iCIStruct:
       nMidV =iCIStruct(1)
       NIPWLK=iCIStruct(2)
@@ -635,7 +634,7 @@ C Allocate scratch space for case numbers:
       CALL GETMEM('ICS','ALLO','INTE',LICS,NLEV)
       CALL W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,SGS%ISM,MIDLEV,
      &            MVSTA,IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &            SGS%DOWN,IWORK(LMAW),IWORK(LICS),
+     &            SGS%DOWN,SGS%MAW,IWORK(LICS),
      &            MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
       END SUBROUTINE W2SGORD
@@ -735,7 +734,6 @@ C Leading dimension=nr of upwalks in this block.
       NLEV  =SGS%nLev
       NVERT =SGS%nVert
       MIDLEV=SGS%MidLev
-      LMAW  =SGS%lMAW
 
       NMIDV =ICISTRUCT(1)
       NIPWLK=ICISTRUCT(2)
@@ -747,7 +745,7 @@ C Leading dimension=nr of upwalks in this block.
       CALL MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,
      &            MIDLEV,IWORK(LICS),IWORK(LNOW),IWORK(LIOW),
      &            IWORK(LICASE),SGS%UP,SGS%DOWN,
-     &            IWORK(LMAW),MWS2W)
+     &            SGS%MAW,MWS2W)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
       END SUBROUTINE MSTOW
 

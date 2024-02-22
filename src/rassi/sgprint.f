@@ -20,7 +20,6 @@ C Unpack structure SGS:
       MidLev =SGS%MidLev
       MVSta  =SGS%MVSta
       MVEnd  =SGS%MVEnd
-      lMAW   =SGS%lMAW
 
       Write(6,*)' Split-Graph UGA. Graph description:'
       Write(6,*)' Nr of levels:',nLev
@@ -47,6 +46,6 @@ C Unpack structure SGS:
       Write(6,*)
       Do iv=1,nVert
         Write(6,'(1x,i4,5x,4i5)')
-     &             iv,(IWork(lMAW-1+iv+nVert*ic),ic=0,3)
+     &             iv,(SGS%MAW(iv+nVert*ic),ic=0,3)
       End Do
-      end
+      end Subroutine SGPrint
