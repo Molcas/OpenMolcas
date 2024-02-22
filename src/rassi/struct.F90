@@ -54,9 +54,9 @@ Type EXStruct
      Integer NT5MX
 End Type EXStruct
 Public SGStruct, CIStruct
-integer, parameter :: nXSize=14, mxlev=100
+integer, parameter ::  mxlev=100
 integer :: LEVEL(mxlev)
 
-public :: nXSize, mxlev, LEVEL
+public :: mxlev, LEVEL
 
 end module Struct

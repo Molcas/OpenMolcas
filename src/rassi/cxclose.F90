@@ -14,13 +14,13 @@ use Struct, only: SGStruct, CIStruct, EXStruct
 Type (SGStruct) SGS
 Type (CIStruct) CIS
 Type (ExStruct) ExS
-! Unpack structure iSGStruct:
+! Unpack structure SGS:
 nSym   =SGS%nSym
-! Unpack structure iCIStruct:
+! Unpack structure CIS:
 nMidV =CIS%nMidV
 nIpWlk=CIS%nIpWlk
 nWalk =CIS%nWalk
-! Unpack structure iXStruct:
+! Unpack structure EXS:
 MxEO  =EXS%MxEO
 lNOCP =EXS%lNOCP
 lIOCP =EXS%lIOCP

@@ -29,7 +29,7 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
-      use Struct, only: nXSize, SGStruct, CIStruct, EXStruct
+      use Struct, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
@@ -49,7 +49,6 @@ C      use para_info, only: nProcs, is_real_par, king
       Type (SGStruct) :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
-      DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
       DIMENSION NGASORB(100),NGASLIM(2,10)
       DIMENSION NASHES(8)
@@ -455,7 +454,7 @@ C the SGUGA space of JOB1. General RAS:
             CALL SGPRINT(SGS(1))
           END IF
           CALL SGSVAL(SGS(1),NSYM,NASHT)
-          CALL CXINIT(SGS(1),CIS(1),IXSTR1,EXS(1))
+          CALL CXINIT(SGS(1),CIS(1),EXS(1))
 C CI sizes, as function of symmetry, are now known.
           NCONF1=CIS(1)%NCSF(LSYM1)
         else
@@ -583,7 +582,7 @@ C the SGUGA space of JOB1. General RAS:
             CALL SGPRINT(SGS(2))
           END IF
           CALL SGSVAL(SGS(2),NSYM,NASHT)
-          CALL CXINIT(SGS(2),CIS(2),IXSTR2,EXS(2))
+          CALL CXINIT(SGS(2),CIS(2),EXS(2))
 C CI sizes, as function of symmetry, are now known.
           NCONF2=CIS(2)%NCSF(LSYM2)
         else
@@ -702,7 +701,7 @@ C Read ISTATE wave function
           END IF
           CALL DCOPY_(NDET1,[Zero],0,WORK(LDET1),1)
 C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),IXSTR1,EXS(1),
+          If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),EXS(1),
      &                           LSYM1,TRA1,NCONF1,Work(LCI1))
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
@@ -790,7 +789,7 @@ C Read JSTATE wave function
           End If
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
 C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),IXSTR2,EXS(2),
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
      &                           LSYM2,TRA2,NCONF2,Work(LCI2))
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
@@ -1326,7 +1325,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
-          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),IXSTR2,EXS(2),
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
      &                           LSYM2,TRA2,NCONF2,Work(LCI2))
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),

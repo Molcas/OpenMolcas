@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SIGMA_1(SGS,CIS,IXSTRUCT,
+      SUBROUTINE SIGMA_1(SGS,CIS,EXS,
      &                 NMIDV,MXEO,NVTAB,NICOUP,ISM,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,
      &                 IOW,NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
-      use Struct, only: nXSize, SGStruct, CIStruct
+      use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ISM(*)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -25,7 +25,7 @@
 #include "symmul.fh"
       Type (SGStruct) SGS
       Type (CIStruct) CIS
-      Dimension iXStruct (nXSize)
+      Type (EXStruct) EXS
 #include "WrkSpc.fh"
       SAVE ICALL
       DATA ICALL /0/
@@ -36,10 +36,10 @@
       NLEV  =SGS%nLev
       MIDLEV=SGS%MidLev
       NIPWLK=CIS%nIpWlk
-      NT1MX =IXSTRUCT(10)
-      NT2MX =IXSTRUCT(11)
-      NT3MX =IXSTRUCT(12)
-      NT4MX =IXSTRUCT(13)
+      NT1MX =EXS%NT1MX
+      NT2MX =EXS%NT2MX
+      NT3MX =EXS%NT3MX
+      NT4MX =EXS%NT4MX
 
       IF(ABS(CPQ).LT.1.0D-12) RETURN
       ICALL=ICALL+1

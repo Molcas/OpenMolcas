@@ -12,7 +12,7 @@
       use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: nXSize, SGStruct, CIStruct, EXStruct
+      use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -21,10 +21,10 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
+      Real*8 :: Energy(nState)
       Type (SGStruct) :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
-      DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE),ENERGY(NSTATE)
       INTEGER      I,JOB1,JOB2,iRlxRoot
       CHARACTER*8  WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT
@@ -86,7 +86,7 @@ C
              CALL SGPRINT(SGS(1))
           END IF
           CALL SGSVAL(SGS(1),NSYM,NASHT)
-          CALL CXINIT(SGS(1),CIS(1),IXSTR1,EXS(1))
+          CALL CXINIT(SGS(1),CIS(1),EXS(1))
 C CI sizes, as function of symmetry, are now known.
           NCI1=CIS(1)%NCSF(LSYM1)
       ELSE
@@ -168,7 +168,7 @@ C For the second wave function
                CALL SGPRINT(SGS(2))
             END IF
             CALL SGSVAL(SGS(2),NSYM,NASHT)
-            CALL CXINIT(SGS(2),CIS(2),IXSTR2,EXS(2))
+            CALL CXINIT(SGS(2),CIS(2),EXS(2))
 C     CI sizes, as function of symmetry, are now known.
             NCI2=CIS(2)%NCSF(LSYM2)
          ELSE
@@ -245,7 +245,7 @@ C For the second wave function
                CALL SGPRINT(SGS(2))
             END IF
             CALL SGSVAL(SGS(2),NSYM,NASHT)
-            CALL CXINIT(SGS(2),CIS(2),IXSTR2,EXS(2))
+            CALL CXINIT(SGS(2),CIS(2),EXS(2))
 C     CI sizes, as function of symmetry, are now known.
             NCI2=CIS(2)%NCSF(LSYM2)
          ELSE

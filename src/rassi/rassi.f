@@ -312,7 +312,7 @@ C Plot SO-Natural Transition Orbitals if requested
 *                                                                      *
       IF (HOP) then
         Call StatusLine('RASSI:','Trajectory Surface Hopping')
-        CALL TSHinit(ENERGY)
+        CALL TSHinit(ENERGY(:))
       END IF
 *                                                                      *
 ************************************************************************

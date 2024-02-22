@@ -8,14 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CXInit(SGS,CIS,iXStruct,EXS)
+      Subroutine CXInit(SGS,CIS,EXS)
       use stdalloc, only: mma_allocate
-      use Struct, only:  nXSize, SGStruct, CIStruct, EXStruct
+      use Struct, only:  SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
-      Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
       nSym   =SGS%nSym
@@ -44,8 +43,6 @@ CTEST      write(*,*)' Calling MKSEG.'
 CTEST      write(*,*)' Back from MKSEG.'
       CIS%nMidV   =nMidV
       CIS%nIpWlk  = nIpWlk
-      iXStruct(8 )=lMVL
-      iXStruct(9 )=lMVR
       EXS%lMVL=lMVL
       EXS%lMVR=lMVR
 
@@ -67,13 +64,10 @@ CUNUSED      nIOW=nNOW
 
       Call mma_allocate(CIS%NOCSF,nNOCSF,Label='CIS%NOCSF')
       Call mma_allocate(CIS%IOCSF,nIOCSF,Label='CIS%IOCSF')
-      iXStruct(1)=MxEO
-      iXStruct(2)=lNOCP
-      iXStruct(3)=lIOCP
       EXS%MxEO =MxEO
       EXS%lNOCP=lNOCP
       EXS%lIOCP=lIOCP
-      Call NrCoup(SGS,CIS,iXStruct,EXS,
+      Call NrCoup(SGS,CIS,EXS,
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
      &         IWork(lISgm),CIS%NOW,CIS%IOW,IWork(lNOCP),
      &         IWork(lIOCP),CIS%NOCSF,CIS%IOCSF,
@@ -82,7 +76,6 @@ CTEST      write(*,*)' Back from NRCOUP.'
       Call GetMem('NRL','Free','Inte',lNRL,nNRL)
 C Computed in NrCoup:
       nWalk=CIS%nWalk
-      nICoup=IXSTRUCT(4)
       nICoup=EXS%nICoup
 
       nICase=nWalk*nIpWlk
@@ -97,9 +90,6 @@ CTEST      write(*,*)' NWALK:',NWALK
       nScr=7*(nLev+1)
       Call GetMem('SCR','Allo','Inte',lScr,nScr)
       Call GetMem('VAL','Allo','Real',lVal,nLev+1)
-      iXStruct(5)=lICoup
-      iXStruct(6)=nVMax
-      iXStruct(7)=lVTabTmp
       EXS%lICoup=lICoup
       EXS%nVTab =nVMax
       EXS%lVTab =lVTabTmp
@@ -111,12 +101,9 @@ CTEST      write(*,*)' NWALK:',NWALK
      &            WORK(lVSGM),CIS%NOW,CIS%IOW,IWork(lNOCP),
      &     IWork(lIOCP),IWork(lILNDW),CIS%ICase,IWork(lICOUP),
      &     WORK(lVTAB),IWork(lSCR),WORK(lVAL))
-C iXStruct(10)..iXStruct(14) are set in MkCoup
 
 C nVTab has now been updated to the true size. Allocate final array:
       Call GetMem('VTab','Allo','Real',lVtab,nVTab)
-      iXStruct(6)=nVTab
-      iXStruct(7)=lVTab
       EXS%nVTab=nVTab
       EXS%lVTab=lVTab
       call dcopy_(nVTab,Work(lVTabTmp),1,Work(lVTab),1)
