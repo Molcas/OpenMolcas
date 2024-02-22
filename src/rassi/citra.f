@@ -40,15 +40,15 @@
 *> @param[in]     NCO  Number of Configuration Functions
 *> @param[in,out] CI   CI Array
 ************************************************************************
-      SUBROUTINE CITRA(WFTP,SGS,ICIS,CIS,IXS,LSM,TRA,NCO,CI)
-      use Struct, only: nCISize, nXSize, SGStruct, CIStruct
+      SUBROUTINE CITRA(WFTP,SGS,CIS,IXS,LSM,TRA,NCO,CI)
+      use Struct, only: nXSize, SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION TRA(NTRA),CI(NCO)
 #include "WrkSpc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-      CHARACTER*8 WFTP
-      DIMENSION ICIS(NCISIZE),IXS(NXSIZE)
+      CHARACTER(LEN=8) WFTP
+      DIMENSION IXS(NXSIZE)
       Type (SGStruct) SGS
       Type (CIStruct) CIS
 
@@ -104,7 +104,7 @@ C The general case:
           NA=NASH(ISYM)
           NO=NOSH(ISYM)
           IF(NA.NE.0) THEN
-            CALL SSOTRA(SGS,ICIS,CIS,IXS,ISYM,LSM,NA,NO,
+            CALL SSOTRA(SGS,CIS,IXS,ISYM,LSM,NA,NO,
      *                TRA(ISTA),NCO,CI,WORK(LTMP))
           END IF
           ISTA=ISTA+NO**2

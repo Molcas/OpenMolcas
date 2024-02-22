@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE NRCOUP(SGS,ICISTRUCT,CIS,IXSTRUCT,
+      SUBROUTINE NRCOUP(SGS,CIS,IXSTRUCT,
      &                  NVERT,NMIDV,MXEO,ISM,IDRT,
      &                  ISGMNT,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,NCSF,
      &                  NRL,MVL,MVR)
 
       use rassi_aux, only: ipglob
-      use Struct, only: nCISize, nXSize, SGStruct, CIStruct
+      use Struct, only: nXSize, SGStruct, CIStruct
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "segtab.fh"
@@ -23,7 +23,6 @@ CAR   ADD MVR MVL
 #include "symmul.fh"
       Type (SGStruct) SGS
       Type (CIStruct) CIS
-      Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
       DIMENSION IDRT(NVERT,5),ISGMNT(NVERT,26)
@@ -37,11 +36,10 @@ C OUTPUT PARAMETERS:
 C SCRATCH PARAMETERS:
       DIMENSION NRL(NSYM,NVERT,0:MXEO)
 
-C Dereference SGS, ICISTRUCT for some other data
+C Dereference SGS, CIS for some other data
       NLEV  =SGS%nLev
       MVSTA =SGS%MVSta
       MVEND =SGS%MVEnd
-      NIPWLK=ICISTRUCT(2)
       NIPWLK=CIS%nIpWlk
       DO INDEO=0,MXEO
         DO IV=1,MVEND
@@ -359,7 +357,6 @@ CAR   END OF INSERT
 340     CONTINUE
       END IF
 C Put sizes in structures iCIStruct, iXStruct:
-      ICISTRUCT(8)=NWALK
       CIS%nWalk   =nWalk
       IXSTRUCT(4 )=NICOUP
       IXSTRUCT(10)=NT1MX

@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SSOTRA(SGS,ICIS,CIS,IXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
-      use Struct, only: nCISize, nXSize, SGStruct, CIStruct
+      SUBROUTINE SSOTRA(SGS,CIS,IXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
+      use Struct, only: nXSize, SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer ISYM, LSM, NA, NO, NCO
       Real*8 TRA(NO,NO),CI(NCO),TMP(NCO)
@@ -17,7 +17,6 @@
 #include "WrkSpc.fh"
       Type (SGSTruct) SGS
       Type (CISTruct) CIS
-      Integer ICIS(nCISize)
       Integer IXS (nXSize)
 
 C ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
@@ -42,12 +41,7 @@ CTEST      write(*,*)' ISYM:',ISYM
           X=0.5D0*CPK
 CTEST          write(*,*)' IP,IK,X:',IP,IK,X
           IF(ABS(X).LT.1.0D-14) cycle
-CPAM98          CALL SIGMA_1(IPLEV,IKLEV,X,LSM,CI,TMP,IWORK(LNOCSF),
-CPAM98     *                 IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-CPAM98     *                 IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-CPAM98     *                 WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-CPAM98 Replaced by more modern routine:
-          CALL SGMONE(SGS,ICIS,CIS,IXS,IPLEV,IKLEV,X,LSM,CI,TMP)
+          CALL SGMONE(SGS,CIS,IXS,IPLEV,IKLEV,X,LSM,CI,TMP)
         END DO
         CKK=TRA(NI+IK,NI+IK)
         X= 3.0D00-CKK
@@ -57,11 +51,7 @@ CPAM98 Replaced by more modern routine:
           CPK=TRA(NI+IP,NI+IK)
           IF(IP.EQ.IK) CPK=CPK-1.0D00
           IF(ABS(CPK).LT.1.0D-14) cycle
-CPAM98          CALL SIGMA_1(IPLEV,IKLEV,CPK,LSM,TMP,CI,IWORK(LNOCSF),
-CPAM98     *                 IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-CPAM98     *                 IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-CPAM98     *                 WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-          CALL SGMONE(SGS,ICIS,CIS,IXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
+          CALL SGMONE(SGS,CIS,IXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
 
         END DO
       END DO

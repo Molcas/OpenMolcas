@@ -8,12 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CXInit(SGS,iCIstruct,CIS,iXStruct)
-      use Struct, only:  nCISize, nXSize, SGStruct, CIStruct
+      Subroutine CXInit(SGS,CIS,iXStruct)
+      use Struct, only:  nXSize, SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
       Type (CIStruct) CIS
-      Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
@@ -41,8 +40,6 @@ CTEST      write(*,*)' Calling MKSEG.'
      &        IWork(lIVR),IWork(lMVL),IWork(lMVR),
      &        IWork(lISgm),Work(lVSgm))
 CTEST      write(*,*)' Back from MKSEG.'
-      iCIStruct(1)=nMidV
-      iCIStruct(2)=nIpWlk
       CIS%nMidV   =nMidV
       CIS%nIpWlk  = nIpWlk
       iXStruct(8 )=lMVL
@@ -66,11 +63,6 @@ CUNUSED      nIOW=nNOW
 
       Call GetMem('NOCSF','Allo','Inte',lNOCSF,nNOCSF)
       Call GetMem('IOCSF','Allo','Inte',lIOCSF,nIOCSF)
-      iCIStruct(3)=lNOW
-      iCIStruct(4)=lIOW
-      iCIStruct(5)=lNCSF
-      iCIStruct(6)=lNOCSF
-      iCIStruct(7)=lIOCSF
       CIS%lNow    =lNOW
       CIS%lIOW    =lIOW
       CIS%lNCSF   =lNCSF
@@ -79,7 +71,7 @@ CUNUSED      nIOW=nNOW
       iXStruct(1)=MxEO
       iXStruct(2)=lNOCP
       iXStruct(3)=lIOCP
-      Call NrCoup(SGS,iCIStruct,CIS,iXStruct,
+      Call NrCoup(SGS,CIS,iXStruct,
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
      &         IWork(lISgm),IWork(lNOW),IWork(lIOW),IWork(lNOCP),
      &         IWork(lIOCP),IWork(lNOCSF),IWork(lIOCSF),
@@ -87,7 +79,6 @@ CUNUSED      nIOW=nNOW
 CTEST      write(*,*)' Back from NRCOUP.'
       Call GetMem('NRL','Free','Inte',lNRL,nNRL)
 C Computed in NrCoup:
-      nWalk=ICISTRUCT(8)
       nWalk=CIS%nWalk
       nICoup=IXSTRUCT(4)
 
@@ -103,7 +94,6 @@ CTEST      write(*,*)' NWALK:',NWALK
       nScr=7*(nLev+1)
       Call GetMem('SCR','Allo','Inte',lScr,nScr)
       Call GetMem('VAL','Allo','Real',lVal,nLev+1)
-      iCIStruct(9)=lICase
       CIS%lICase=lICase
       iXStruct(5)=lICoup
       iXStruct(6)=nVMax

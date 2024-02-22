@@ -52,9 +52,9 @@ End Type CIStruct
 !     iXStruct(14)=NT5MX
 ! Dimensions of structures.
 Public SGStruct, CIStruct
-integer, parameter :: nCISize=9, nXSize=14, mxlev=100
+integer, parameter :: nXSize=14, mxlev=100
 integer :: LEVEL(mxlev)
 
-public :: nCISize, nXSize, mxlev, LEVEL
+public :: nXSize, mxlev, LEVEL
 
 end module Struct
