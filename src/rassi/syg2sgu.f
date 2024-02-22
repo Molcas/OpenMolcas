@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SYG2SGU(IMODE,ISGSTRUCT,SGS,ICISTRUCT,LSYM,
+      SUBROUTINE SYG2SGU(IMODE,SGS,ICISTRUCT,LSYM,
      &                   ICNFTAB,ISPNTAB,CIOLD,CINEW)
       use rassi_aux, only: ipglob
-      use Struct, only: mxlev, nSGSize, nCISize, SGStruct
+      use Struct, only: mxlev, nCISize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 
@@ -22,13 +22,12 @@
       DIMENSION CIOLD(*),CINEW(*)
       DIMENSION IFUP2CS(0:1)
 
-      DIMENSION ISGSTRUCT(NSGSIZE)
       Type (SGStruct) SGS
       DIMENSION ICISTRUCT(NCISIZE)
       INTEGER ICNFTAB(*),ISPNTAB(*)
       DATA IFUP2CS / 2,1 /
 C Input:
-C ISGSTRUCT : Data that define a Split Graph
+C SGS       : Data that define a Split Graph
 C ICISTRUCT : Data that define a CI array structure
 C IMODE=0 transforms a Symmetric Group CI array to SGUGA
 C IMODE=1 transforms a Split GUGA CI array to Symm Group
@@ -36,19 +35,17 @@ C ...Configuration and Spin Coupling tables, fill this in later.
 C CIOLD and CINEW are obvious.
 
 CTEST      write(*,*)' SYG2SGU, LSYM=',LSYM
-C Dereference ICISTRUCT and ISGSTRUCT for some data:
+C Dereference ICISTRUCT and SGS       for some data:
       LNCSF =ICISTRUCT(5)
       NCONF =IWORK(LNCSF-1+LSYM)
       NWALK =ICISTRUCT(8)
       CALL GETMEM('MWS2W','ALLO','INTE',LMWS2W,NWALK)
-      CALL MSTOW(ISGSTRUCT,SGS,ICISTRUCT,IWORK(LMWS2W))
+      CALL MSTOW(SGS,ICISTRUCT,IWORK(LMWS2W))
 CTEST      write(*,*)' NCONF=',NCONF
 C MWS2W is a table which gives the upper or lower walk
 C index as function of the MAW sum.
 
 C Inspect the top row of the DRT to find NACTEL and spin:
-      NVERT =ISGSTRUCT(4)
-      LDRT=ISGSTRUCT(5)
       NVERT =SGS%nVert
       LDRT  =SGS%lDRT
       NLEV  =IWORK(LDRT)
@@ -215,7 +212,7 @@ C Pack the walk and add it to the list.
             PHASE(NWLKLST)=PHS
             IF(NWLKLST.EQ.MXWLK) THEN
 C Translate the packed walks to a list of CSF ID-numbers
-              CALL W2SGORD(ISGSTRUCT,SGS,ICISTRUCT,
+              CALL W2SGORD(SGS,ICISTRUCT,
      &            IWORK(LMWS2W),NWLKLST,KWALK,ICNUM)
               IWLKPOS=1
 C Loop over this list.
@@ -304,7 +301,7 @@ C Pack the walk and add it to the list.
             PHASE(NWLKLST)=PHS
             IF(NWLKLST.EQ.MXWLK) THEN
 C Translate the packed walks to a list of CSF ID-numbers
-              CALL W2SGORD(ISGSTRUCT,SGS,ICISTRUCT,
+              CALL W2SGORD(SGS,ICISTRUCT,
      &            IWORK(LMWS2W),NWLKLST,KWALK,ICNUM)
               IWLKPOS=1
 C Loop over this list.
@@ -391,7 +388,7 @@ C Pack the walk and add it to the list.
             PHASE(NWLKLST)=PHS
             IF(NWLKLST.EQ.MXWLK) THEN
 C Translate the packed walks to a list of CSF ID-numbers
-              CALL W2SGORD(ISGSTRUCT,SGS,ICISTRUCT,
+              CALL W2SGORD(SGS,ICISTRUCT,
      &            IWORK(LMWS2W),NWLKLST,KWALK,ICNUM)
               IWLKPOS=1
 C Loop over this list.
@@ -486,7 +483,7 @@ C Pack the walk and add it to the list.
             PHASE(NWLKLST)=PHS
             IF(NWLKLST.EQ.MXWLK) THEN
 C Translate the packed walks to a list of CSF ID-numbers
-              CALL W2SGORD(ISGSTRUCT,SGS,ICISTRUCT,
+              CALL W2SGORD(SGS,ICISTRUCT,
      &            IWORK(LMWS2W),NWLKLST,KWALK,ICNUM)
               IWLKPOS=1
 C Loop over this list.
@@ -523,7 +520,7 @@ C End of loop over NOPEN
       END DO
 C
 C As above, processing what remains in the KWALK buffer.
-      CALL W2SGORD(ISGSTRUCT,SGS,ICISTRUCT,IWORK(LMWS2W),
+      CALL W2SGORD(SGS,ICISTRUCT,IWORK(LMWS2W),
      &                  NWLKLST,KWALK,ICNUM)
       IWLKPOS=1
       IF ( IMODE.EQ.0 ) THEN
@@ -615,26 +612,18 @@ C call parameter.
       END SUBROUTINE UPKWLK
 
 
-      SUBROUTINE W2SGORD(ISGSTRUCT,SGS,ICISTRUCT,MWS2W,
+      SUBROUTINE W2SGORD(SGS,ICISTRUCT,MWS2W,
      &                 NLIST,KWALK,ICNUM)
-      use Struct, only: nSGSize, nCISize, SGStruct
+      use Struct, only: nCISize, SGStruct
       PARAMETER (MXCPI=15)
       DIMENSION MWS2W(*),KWALK(*),ICNUM(NLIST)
-      Dimension iSGStruct(nSGSize)
       Type (SGStruct) SGS
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
 C Purpose: Given a list of bit-packed total walks,
 C translate this into a list of elements of a CI array.
 C MXCPI= Max nr of case numbers packed in one integer.
-C Dereference iSGStruct:
-      nLev   =iSGStruct(2)
-      lISm   =iSGStruct(3)
-      nVert  =iSGStruct(4)
-      lDown  =iSGStruct(6)
-      MidLev =iSGStruct(8)
-      MVSta  =iSGStruct(9)
-      lMAW   =iSGStruct(11)
+C Dereference SGS:
 
       nLev   =SGS%nLev
       lISm   =SGS%lISm
@@ -743,22 +732,13 @@ C Leading dimension=nr of upwalks in this block.
       END DO
       END SUBROUTINE W2SGORD1
 
-      SUBROUTINE MSTOW(ISGSTRUCT,SGS,ICISTRUCT,MWS2W)
-      use Struct, only: nSGSize, nCISize, SGStruct
+      SUBROUTINE MSTOW(SGS,ICISTRUCT,MWS2W)
+      use Struct, only: nCISize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION MWS2W(*)
-      Dimension iSGStruct(nSGSize)
       Type (SGStruct) SGS
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
-
-      NSYM  =ISGSTRUCT(1)
-      NLEV  =ISGSTRUCT(2)
-      NVERT =ISGSTRUCT(4)
-      LDOWN =ISGSTRUCT(6)
-      LUP   =ISGSTRUCT(7)
-      MIDLEV=ISGSTRUCT(8)
-      LMAW  =ISGSTRUCT(11)
 
       NSYM  =SGS%nSym
       NLEV  =SGS%nLev

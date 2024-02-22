@@ -8,18 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SGMONE(ISGSTRUCT,SGS,ICISTRUCT,IXSTRUCT,
+      SUBROUTINE SGMONE(SGS,ICISTRUCT,IXSTRUCT,
      &                  IP,IQ,CPQ,ISYCI,CI,SGM)
-      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
+      use Struct, only: nCISize, nXSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CI(*),SGM(*)
-      Dimension iSGStruct(nSGSize)
       Type (SGStruct) SGS
       Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
-      lISm  =iSGStruct(3)
       lISm  =SGS%lISm
       lNOCSF=iCIStruct(6)
       lIOCSF=iCIStruct(7)
@@ -35,7 +33,7 @@
       MxEO  =iXStruct(1)
       nVTab =iXStruct(6)
       nICoup=iXStruct(4)
-      CALL SIGMA_1(ISGSTRUCT,SGS,ICISTRUCT,IXSTRUCT,
+      CALL SIGMA_1(SGS,ICISTRUCT,IXSTRUCT,
      &             NMIDV,MXEO,NVTAB,NICOUP,IWORK(LISM),
      &             IP,IQ,CPQ,ISYCI,CI,SGM,IWORK(LNOCSF),
      &             IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),

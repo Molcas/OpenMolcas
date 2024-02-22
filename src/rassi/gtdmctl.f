@@ -29,7 +29,7 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
-      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
+      use Struct, only: nCISize, nXSize, SGStruct
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
@@ -47,7 +47,6 @@ C      use para_info, only: nProcs, is_real_par, king
 #include "Files.fh"
 #include "stdalloc.fh"
       Type (SGStruct) :: SGS(2)
-      DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
@@ -712,10 +711,10 @@ C Read ISTATE wave function
           END IF
           CALL DCOPY_(NDET1,[Zero],0,WORK(LDET1),1)
 C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP1,ISGSTR1,SGS(1),ICISTR1,IXSTR1,
+          If (TrOrb) CALL CITRA (WFTP1,SGS(1),ICISTR1,IXSTR1,
      &                           LSYM1,TRA1,NCONF1,Work(LCI1))
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
-          CALL PREPSD(WFTP1,ISGSTR1,SGS(1),ICISTR1,LSYM1,
+          CALL PREPSD(WFTP1,SGS(1),ICISTR1,LSYM1,
      &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
      &                WORK(LDET1),detocc,detcoeff1)
@@ -800,10 +799,10 @@ C Read JSTATE wave function
           End If
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
 C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,SGS(2),ICISTR2,IXSTR2,
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),ICISTR2,IXSTR2,
      &                           LSYM2,TRA2,NCONF2,Work(LCI2))
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
-          CALL PREPSD(WFTP2,ISGSTR2,SGS(2),ICISTR2,LSYM2,
+          CALL PREPSD(WFTP2,SGS(2),ICISTR2,LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2),detocc,detcoeff2)
@@ -1336,9 +1335,9 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           CALL READCI(JSTATE,SGS(2),ICISTR2,NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
-          If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,SGS(2),ICISTR2,IXSTR2,
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),ICISTR2,IXSTR2,
      &                           LSYM2,TRA2,NCONF2,Work(LCI2))
-          CALL PREPSD(WFTP2,ISGSTR2,SGS(2),ICISTR2,LSYM2,
+          CALL PREPSD(WFTP2,SGS(2),ICISTR2,LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2),detocc,detcoeff2)
