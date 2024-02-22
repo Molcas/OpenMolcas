@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,
-     &                  iSGStruct)
-      use Struct, only: LEVEL, nSGSize
+     &                  iSGStruct,SGS)
+      use Struct, only: LEVEL, nSGSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
+      Type (SGStruct) SGS
       dimension nRas(8,nRasPrt),nRasEl(nRasPrt)
       Dimension iSGStruct(nSGSize)
 #include "WrkSpc.fh"
@@ -134,4 +135,17 @@ C Put sizes and addresses in structure iSGStruct:
       iSGStruct(11)=lMAW
       iSGStruct(12)=lLTV
 
-      end
+      SGS%nSym   =nSym
+      SGS%nLev   =nLev
+      SGS%lISm   =lISm
+      SGS%nVert  =nVert
+      SGS%lDRT   =lDRT
+      SGS%lDown  =lDown
+      SGS%lUP    =lUp
+      SGS%MidLev =MidLev
+      SGS%MVSta  =MVSta
+      SGS%MVEnd  =MVEnd
+      SGS%LMAW   =lMAW
+      SGS%lLTV   =lLTV
+
+      end Subroutine SGInit

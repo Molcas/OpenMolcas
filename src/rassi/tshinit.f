@@ -12,7 +12,7 @@
       use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: nSGSize, nCISize, nXSize
+      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -21,6 +21,7 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
+      Type (SGStruct) :: SGS(2)
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE),ENERGY(NSTATE)
@@ -79,12 +80,13 @@ C
           NRASEL(1)=2*NRS1T-NHOL11
           NRASEL(2)=NACTE1-NELE31
           NRASEL(3)=NACTE1
-          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1)
+          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1,
+     &                SGS(1))
           IF(IPGLOB.GT.4) THEN
              WRITE(6,*)'Split-graph structure for JOB1=',JOB1
-             CALL SGPRINT(ISGSTR1)
+             CALL SGPRINT(ISGSTR1,SGS(1))
           END IF
-          CALL SGSVAL(ISGSTR1,NSYM,NASHT,LISM,NVERT,LDRT,
+          CALL SGSVAL(ISGSTR1,SGS(1),NSYM,NASHT,LISM,NVERT,LDRT,
      &               LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
           CALL CXINIT(ISGSTR1,ICISTR1,IXSTR1)
           CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
@@ -167,12 +169,12 @@ C For the second wave function
             NRASEL(2)=NACTE2-NELE32
             NRASEL(3)=NACTE2
             CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,
-     &           NRASEL,ISGSTR2)
+     &           NRASEL,ISGSTR2,SGS(2))
             IF(IPGLOB.GT.4) THEN
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
-               CALL SGPRINT(ISGSTR2)
+               CALL SGPRINT(ISGSTR2,SGS(2))
             END IF
-            CALL SGSVAL(ISGSTR2,NSYM,NASHT,LISM,NVERT,LDRT,
+            CALL SGSVAL(ISGSTR2,SGS(2),NSYM,NASHT,LISM,NVERT,LDRT,
      &           LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
             CALL CXINIT(ISGSTR2,ICISTR2,IXSTR2)
             CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,
@@ -250,12 +252,12 @@ C For the second wave function
             NRASEL(2)=NACTE2-NELE32
             NRASEL(3)=NACTE2
             CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,
-     &           NRASEL,ISGSTR2)
+     &           NRASEL,ISGSTR2,SGS(2))
             IF(IPGLOB.GT.4) THEN
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
-               CALL SGPRINT(ISGSTR2)
+               CALL SGPRINT(ISGSTR2,SGS(2))
             END IF
-            CALL SGSVAL(ISGSTR2,NSYM,NASHT,LISM,NVERT,LDRT,
+            CALL SGSVAL(ISGSTR2,SGS(2),NSYM,NASHT,LISM,NVERT,LDRT,
      &           LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
             CALL CXINIT(ISGSTR2,ICISTR2,IXSTR2)
             CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,

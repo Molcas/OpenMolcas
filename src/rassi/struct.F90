@@ -10,6 +10,21 @@
 !***********************************************************************
 module Struct
 ! Split-Graph descriptor, sizes, addresses...
+Type SGStruct
+     Integer nSym
+     Integer nLev
+     Integer lISm
+     Integer nVert
+     Integer lDRT
+     Integer lDown
+     Integer lUp
+     Integer MidLev
+     Integer MVSta
+     Integer MVEnd
+     Integer lMAW
+     Integer lLTV
+End Type SGStruct
+Public SGStruct
 !     iSGStruct(1) =nSym
 !     iSGStruct(2) =nLev
 !     iSGStruct(3) =lISm

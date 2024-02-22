@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SGSVAL(ISGS,NSYM,NLEV,LISM,NVERT,LDRT,
+      SUBROUTINE SGSVAL(ISGS,SGS,NSYM,NLEV,LISM,NVERT,LDRT,
      &              LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
-      use Struct, only: nSGSize
+      use Struct, only: nSGSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
+      Type (SGStruct) SGS
       Dimension ISGS(nSGSize)
 C Purpose: Dereference the Split Graph structure array
 C and return values and pointers.
@@ -29,4 +30,17 @@ C and return values and pointers.
       LMAW  =ISGS(11)
       LLTV  =ISGS(12)
 
-      END
+      NSYM  =SGS%nSym
+      NLEV  =SGS%nLev
+      LISM  =SGS%lISm
+      NVERT =SGS%nVert
+      LDRT  =SGS%LDRT
+      LDOWN =SGS%lDOWN
+      LUP   =SGS%lUP
+      MIDLEV=SGS%MidLev
+      MVSTA =SGS%MVSta
+      MVEND =SGS%MVEnd
+      LMAW  =SGS%lMAW
+      LLTV  =SGS%lLTV
+
+      END SUBROUTINE SGSVAL

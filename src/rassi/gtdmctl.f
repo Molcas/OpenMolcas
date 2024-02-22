@@ -29,7 +29,7 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
-      use Struct, only: nSGSize, nCISize, nXSize
+      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
@@ -46,6 +46,7 @@ C      use para_info, only: nProcs, is_real_par, king
 #include "rassiwfn.fh"
 #include "Files.fh"
 #include "stdalloc.fh"
+      Type (SGStruct) :: SGS(2)
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
@@ -448,12 +449,13 @@ C the SGUGA space of JOB1. General RAS:
         NRASEL(3)=NACTE1
 
         if(.not.doDMRG)then
-          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1)
+          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,ISGSTR1,
+     &                SGS(1))
           IF(IPGLOB.GT.4) THEN
             WRITE(6,*)'Split-graph structure for JOB1=',JOB1
-            CALL SGPRINT(ISGSTR1)
+            CALL SGPRINT(ISGSTR1,SGS(1))
           END IF
-          CALL SGSVAL(ISGSTR1,NSYM,NASHT,LISM,NVERT,LDRT,
+          CALL SGSVAL(ISGSTR1,SGS(1),NSYM,NASHT,LISM,NVERT,LDRT,
      &                LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
           CALL CXINIT(ISGSTR1,ICISTR1,IXSTR1)
           CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
@@ -581,12 +583,13 @@ C the SGUGA space of JOB1. General RAS:
         NRASEL(3)=NACTE2
 
         IF(.not.doDMRG)then
-          CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,ISGSTR2)
+          CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,ISGSTR2,
+     &                SGS(2))
           IF(IPGLOB.GT.4) THEN
             WRITE(6,*)'Split-graph structure for JOB2=',JOB2
-            CALL SGPRINT(ISGSTR2)
+            CALL SGPRINT(ISGSTR2,SGS(2))
           END IF
-          CALL SGSVAL(ISGSTR2,NSYM,NASHT,LISM,NVERT,LDRT,
+          CALL SGSVAL(ISGSTR2,SGS(2),NSYM,NASHT,LISM,NVERT,LDRT,
      &                LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
           CALL CXINIT(ISGSTR2,ICISTR2,IXSTR2)
           CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
