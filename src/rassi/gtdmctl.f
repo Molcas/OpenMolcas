@@ -29,7 +29,8 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
-      use Struct, only: nXSize, SGStruct, CIStruct
+      use Struct, only: nXSize, SGStruct, CIStruct, EXStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
@@ -45,9 +46,9 @@ C      use para_info, only: nProcs, is_real_par, king
 #include "WrkSpc.fh"
 #include "rassiwfn.fh"
 #include "Files.fh"
-#include "stdalloc.fh"
       Type (SGStruct) :: SGS(2)
       Type (CIStruct) :: CIS(2)
+      Type (EXStruct) :: EXS(2)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
       DIMENSION NGASORB(100),NGASLIM(2,10)
@@ -57,9 +58,9 @@ C      use para_info, only: nProcs, is_real_par, king
       DIMENSION IDDET1(NSTATE), IDDET2(NSTATE)
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
-      CHARACTER*8 WFTP1,WFTP2
-      CHARACTER*6 STLNE1
-      CHARACTER*48 STLNE2
+      CHARACTER(LEN=8) WFTP1,WFTP2
+      CHARACTER(LEN=6) STLNE1
+      CHARACTER(LEN=48) STLNE2
       Real*8 Energies(1:20)
       Integer IAD,LUIPHn,lThetaM,LUCITH
       Real*8 Norm_fac
@@ -454,7 +455,7 @@ C the SGUGA space of JOB1. General RAS:
             CALL SGPRINT(SGS(1))
           END IF
           CALL SGSVAL(SGS(1),NSYM,NASHT)
-          CALL CXINIT(SGS(1),CIS(1),IXSTR1)
+          CALL CXINIT(SGS(1),CIS(1),IXSTR1,EXS(1))
           CALL CXSVAL(IXSTR1,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
@@ -584,7 +585,7 @@ C the SGUGA space of JOB1. General RAS:
             CALL SGPRINT(SGS(2))
           END IF
           CALL SGSVAL(SGS(2),NSYM,NASHT)
-          CALL CXINIT(SGS(2),CIS(2),IXSTR2)
+          CALL CXINIT(SGS(2),CIS(2),IXSTR2,EXS(2))
           CALL CXSVAL(IXSTR2,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.

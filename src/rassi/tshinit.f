@@ -12,7 +12,7 @@
       use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: nXSize, SGStruct, CIStruct
+      use Struct, only: nXSize, SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -23,6 +23,7 @@
 #include "tshcntrl.fh"
       Type (SGStruct) :: SGS(2)
       Type (CIStruct) :: CIS(2)
+      Type (EXStruct) :: EXS(2)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE),ENERGY(NSTATE)
       INTEGER      I,JOB1,JOB2,iRlxRoot
       CHARACTER*8  WFTYP1,WFTYP2
@@ -85,7 +86,7 @@ C
              CALL SGPRINT(SGS(1))
           END IF
           CALL SGSVAL(SGS(1),NSYM,NASHT)
-          CALL CXINIT(SGS(1),CIS(1),IXSTR1)
+          CALL CXINIT(SGS(1),CIS(1),IXSTR1,EXS(1))
           CALL CXSVAL(IXSTR1,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
@@ -169,7 +170,7 @@ C For the second wave function
                CALL SGPRINT(SGS(2))
             END IF
             CALL SGSVAL(SGS(2),NSYM,NASHT)
-            CALL CXINIT(SGS(2),CIS(2),IXSTR2)
+            CALL CXINIT(SGS(2),CIS(2),IXSTR2,EXS(2))
             CALL CXSVAL(IXSTR2,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                  LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C     CI sizes, as function of symmetry, are now known.
@@ -248,7 +249,7 @@ C For the second wave function
                CALL SGPRINT(SGS(2))
             END IF
             CALL SGSVAL(SGS(2),NSYM,NASHT)
-            CALL CXINIT(SGS(2),CIS(2),IXSTR2)
+            CALL CXINIT(SGS(2),CIS(2),IXSTR2,EXS(2))
             CALL CXSVAL(IXSTR2,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                  LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C     CI sizes, as function of symmetry, are now known.

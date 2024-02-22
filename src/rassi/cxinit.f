@@ -8,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CXInit(SGS,CIS,iXStruct)
+      Subroutine CXInit(SGS,CIS,iXStruct,EXS)
       use stdalloc, only: mma_allocate
-      use Struct, only:  nXSize, SGStruct, CIStruct
+      use Struct, only:  nXSize, SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
       Type (CIStruct) CIS
+      Type (EXStruct) EXS
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
@@ -45,6 +46,8 @@ CTEST      write(*,*)' Back from MKSEG.'
       CIS%nIpWlk  = nIpWlk
       iXStruct(8 )=lMVL
       iXStruct(9 )=lMVR
+      EXS%lMVL=lMVL
+      EXS%lMVR=lMVR
 
 C Various offset tables:
       nNOW=2*nMidV*nSym
@@ -67,7 +70,10 @@ CUNUSED      nIOW=nNOW
       iXStruct(1)=MxEO
       iXStruct(2)=lNOCP
       iXStruct(3)=lIOCP
-      Call NrCoup(SGS,CIS,iXStruct,
+      EXS%MxEO =MxEO
+      EXS%lNOCP=lNOCP
+      EXS%lIOCP=lIOCP
+      Call NrCoup(SGS,CIS,iXStruct,EXS,
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
      &         IWork(lISgm),CIS%NOW,CIS%IOW,IWork(lNOCP),
      &         IWork(lIOCP),CIS%NOCSF,CIS%IOCSF,
@@ -77,6 +83,7 @@ CTEST      write(*,*)' Back from NRCOUP.'
 C Computed in NrCoup:
       nWalk=CIS%nWalk
       nICoup=IXSTRUCT(4)
+      nICoup=EXS%nICoup
 
       nICase=nWalk*nIpWlk
 CTEST      write(*,*)' NWALK:',NWALK
@@ -93,6 +100,9 @@ CTEST      write(*,*)' NWALK:',NWALK
       iXStruct(5)=lICoup
       iXStruct(6)=nVMax
       iXStruct(7)=lVTabTmp
+      EXS%lICoup=lICoup
+      EXS%nVTab =nVMax
+      EXS%lVTab =lVTabTmp
       nVTab=nVMax
       lVTab=lVTabTmp
       Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
@@ -107,6 +117,8 @@ C nVTab has now been updated to the true size. Allocate final array:
       Call GetMem('VTab','Allo','Real',lVtab,nVTab)
       iXStruct(6)=nVTab
       iXStruct(7)=lVTab
+      EXS%nVTab=nVTab
+      EXS%lVTab=lVTab
       call dcopy_(nVTab,Work(lVTabTmp),1,Work(lVTab),1)
       Call GetMem('VTabTmp','Free','Real',lVTabTmp,nVMax)
       Call GetMem('iLndw','Free','Inte',liLndw,niLndw)
