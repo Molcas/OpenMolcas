@@ -13,18 +13,16 @@
       use Struct, only: SGStruct
       Implicit None
       Type (SGStruct) SGS
-      Integer nLev, nVert, lDown, lUp, lMAW, lLTV
+      Integer nLev, nVert, lMAW, lLTV
 C Unpack structure iSGStruct:
       nLev   =SGS%nLev
       nVert  =SGS%nVert
-      lDown  =SGS%lDown
-      lUp    =SGS%lUp
       lMAW   =SGS%lMAW
       lLTV   =SGS%lLTV
       Call mma_deallocate(SGS%ISm)
       Call mma_deallocate(SGS%DRT)
-      Call GetMem('Down','Free','Inte',lDown,4*nVert)
-      Call GetMem('Up','Free','Inte',lUp,4*nVert)
+      Call mma_deallocate(SGS%Down)
+      Call mma_deallocate(SGS%Up)
       Call GetMem('MAW','Free','Inte',lMAW,4*nVert)
       Call GetMem('LTV','Free','Inte',lLTV,nLev+2)
       end Subroutine SGClose

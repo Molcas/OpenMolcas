@@ -16,8 +16,8 @@ Type SGStruct
      Integer, Allocatable:: ISm(:)
      Integer nVert
      Integer, Allocatable:: DRT(:)
-     Integer lDown
-     Integer lUp
+     Integer, Allocatable:: Down(:)
+     Integer, Allocatable:: Up(:)
      Integer MidLev
      Integer MVSta
      Integer MVEnd

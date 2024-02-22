@@ -19,7 +19,6 @@
       nSym   =SGS%nSym
       nLev   =SGS%nLev
       nVert  =SGS%nVert
-      lDown  =SGS%lDown
       MidLev =SGS%MidLev
       MVSta  =SGS%MVSta
       MVEnd  =SGS%MVEnd
@@ -39,7 +38,7 @@ C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       Call GetMem('VSGM','Allo','Real',lVSgm,nSgmnt)
 CTEST      write(*,*)' Calling MKSEG.'
       Call MkSeg(SGS,nLev,nVert,nMidv,
-     &        SGS%DRT,IWork(lDown),IWork(lLTV),
+     &        SGS%DRT,SGS%Down,IWork(lLTV),
      &        IWork(lIVR),IWork(lMVL),IWork(lMVR),
      &        IWork(lISgm),Work(lVSgm))
 CTEST      write(*,*)' Back from MKSEG.'

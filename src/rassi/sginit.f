@@ -91,9 +91,9 @@ CTEST      write(*,'(1x,10i5)')(IWork(llim-1+i),i=1,nlev)
 CTEST      write(*,*)' Back from RMVERT'
       Call GetMem('Lim  ','Free','Inte',lLim,nLev)
       Call mma_allocate(SGS%DRT,5*nVert,Label='SGS%DRT')
-      Call GetMem('Down','Allo','Inte',lDown,4*nVert)
+      Call mma_allocate(SGS%Down,4*nVert,Label='SGS%Down')
       Call mkDRT(nVert0,nVert,IWork(lDRT0),IWork(lDown0),IWORK(lNWV),
-     &                        SGS%DRT,IWork(lDown))
+     &                        SGS%DRT,SGS%Down)
 CTEST      write(*,*)' Back from DRT. NVERT=',NVERT
       Call GetMem('NwVer ','Free','Inte',lNWV,NVERT0)
       CALL GETMEM('      ','FREE','Inte',LDRT0,NDRT0)
@@ -102,16 +102,16 @@ CTEST      write(*,*)' Back from DRT. NVERT=',NVERT
 C Direct Arc Weights table and Level-To-Vertex table:
       Call GetMem('DAW','Allo','Inte',lDAW,5*nVert)
       Call GetMem('LTV','Allo','Inte',lLTV,nLev+2)
-      Call MkDAW_RASSI(nLev,nVert,SGS%DRT,IWork(lDown),IWork(lDAW),
+      Call MkDAW_RASSI(nLev,nVert,SGS%DRT,SGS%Down,IWork(lDAW),
      &           IWork(lLTV))
 
 C Upchain Index table:
-      Call GetMem('UP','Allo','Inte',lUp,4*nVert)
+      Call mma_allocate(SGS%Up,4*nVert,Label='SGS%Up')
 C Reverse Arc Weights table:
       Call GetMem('RAW','Allo','Inte',lRAW,5*nVert)
 C Modified Arc Weights table:
       Call GetMem('MAW','Allo','Inte',lMAW,4*nVert)
-      Call MkMAW(nLev,nVert,IWork(lDown),IWork(lDAW),iWork(lUp),
+      Call MkMAW(nLev,nVert,SGS%Down,IWork(lDAW),SGS%Up,
      &           IWork(lRAW),IWork(lMAW),IWork(lLTV),MidLev)
       MVSta=IWork(lLTV+1+MidLev)
       MVEnd=IWork(lLTV+MidLev)-1
@@ -125,8 +125,6 @@ C Put sizes and addresses in structure SGS:
       SGS%nSym   =nSym
       SGS%nLev   =nLev
       SGS%nVert  =nVert
-      SGS%lDown  =lDown
-      SGS%lUP    =lUp
       SGS%MidLev =MidLev
       SGS%MVSta  =MVSta
       SGS%MVEnd  =MVEnd
