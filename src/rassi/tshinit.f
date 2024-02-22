@@ -12,7 +12,7 @@
       use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
+      use Struct, only: nCISize, nXSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -22,7 +22,6 @@
 #include "Files.fh"
 #include "tshcntrl.fh"
       Type (SGStruct) :: SGS(2)
-      DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE),ENERGY(NSTATE)
       INTEGER      I,JOB1,JOB2,iRlxRoot

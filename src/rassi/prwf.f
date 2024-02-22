@@ -8,29 +8,27 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRWF(ISGSTRUCT,SGS,ICISTRUCT,ISYCI,CI,CITHR)
-      use Struct, only: nSGSize, nCISize, SGStruct
+      SUBROUTINE PRWF(SGS,ICISTRUCT,ISYCI,CI,CITHR)
+      use Struct, only: nCISize, SGStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CI(*)
-      Dimension iSGStruct(nSGSize)
       Type (SGStruct) SGS
       Dimension iCIStruct(nCISize)
       Integer, Allocatable:: ICS(:)
 #include "WrkSpc.fh"
 
-      NLEV  =ISGSTRUCT(2)
-      LISM  =ISGSTRUCT(3)
+      NLEV  =SGS%nLev
+      LISM  =SGS%lISm
+
       NMIDV =ICISTRUCT(1)
       LNOW  =ICISTRUCT(3)
       LIOW  =ICISTRUCT(4)
       LNOCSF=ICISTRUCT(6)
       LIOCSF=ICISTRUCT(7)
 
-      NLEV  =SGS%nLev
-      LISM  =SGS%lISm
       CALL mma_allocate(ICS,NLEV,Label='ICS')
-      CALL PRWF1(ISGSTRUCT,SGS,ICISTRUCT,NLEV,NMIDV,
+      CALL PRWF1(SGS,ICISTRUCT,NLEV,NMIDV,
      &           IWORK(LISM),ICS,IWORK(LNOCSF),
      &           IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &           ISYCI,CI,CITHR)
