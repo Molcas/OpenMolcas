@@ -24,17 +24,17 @@ Type SGStruct
      Integer, Allocatable:: MAW(:)
      Integer, Allocatable:: LTV(:)
 End Type SGStruct
-Public SGStruct
-! CI structure, sizes, addresses...
-!     iCIStruct(1)=nMidV
-!     iCIStruct(2)=nIpWlk
-!     iCIStruct(3)=lNOW
-!     iCIStruct(4)=lIOW
-!     iCIStruct(5)=lNCSF
-!     iCIStruct(6)=lNOCSF
-!     iCIStruct(7)=lIOCSF
-!     iCIStruct(8)=nWalk
-!     iCIStruct(9)=lICase
+Type CIStruct
+     Integer nMidV
+     Integer nIpWlk
+     Integer lNOW
+     Integer lIOW
+     Integer lNCSF
+     Integer lNOCSF
+     Integer LIOCSF
+     Integer nWalk
+     Integer lICase
+End Type CIStruct
 ! Excitation operators, coupling coefficients,...
 !     iXStruct(1)=MxEO
 !     iXStruct(2)=lNOCP
@@ -51,6 +51,7 @@ Public SGStruct
 !     iXStruct(13)=NT4MX
 !     iXStruct(14)=NT5MX
 ! Dimensions of structures.
+Public SGStruct, CIStruct
 integer, parameter :: nCISize=9, nXSize=14, mxlev=100
 integer :: LEVEL(mxlev)
 

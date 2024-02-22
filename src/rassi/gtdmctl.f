@@ -29,7 +29,7 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
-      use Struct, only: nCISize, nXSize, SGStruct
+      use Struct, only: nCISize, nXSize, SGStruct, CIStruct
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
@@ -47,6 +47,7 @@ C      use para_info, only: nProcs, is_real_par, king
 #include "Files.fh"
 #include "stdalloc.fh"
       Type (SGStruct) :: SGS(2)
+      Type (CIStruct) :: CIS(2)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE)
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
@@ -432,7 +433,7 @@ C Add nr of actives in earlier symmetries:
 C---------------    JOB1 wave functions: ---------------------
 C Initialize SGUGA tables for JOB1 functions.
 C These are structures stored in arrays:
-C SGS(1),ICISTR1 and IXSTR1.
+C SGS(1),CIS(1) and IXSTR1.
 
 C Set variables in /RASDEF/, used by SGUGA codes, which define
 C the SGUGA space of JOB1. General RAS:
@@ -455,7 +456,7 @@ C the SGUGA space of JOB1. General RAS:
           END IF
           CALL SGSVAL(SGS(1),NSYM,NASHT,NVERT,
      &                MIDLEV,MVSTA,MVEND)
-          CALL CXINIT(SGS(1),ICISTR1,IXSTR1)
+          CALL CXINIT(SGS(1),ICISTR1,CIS(1),IXSTR1)
           CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
      &                LNOCSF,LIOCSF,NWALK,LICASE,
      &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
@@ -565,7 +566,7 @@ C be removed. This limits the possible MAXOP:
 C---------------    JOB2 wave functions: ---------------------
 C Initialize SGUGA tables for JOB2 functions.
 C These are structures stored in arrays:
-C SGS(2),ICISTR2 and IXSTR2.
+C SGS(2),CIS(2) and IXSTR2.
 
 C Set variables in /RASDEF/, used by SGUGA codes, which define
 C the SGUGA space of JOB1. General RAS:
@@ -588,7 +589,7 @@ C the SGUGA space of JOB1. General RAS:
           END IF
           CALL SGSVAL(SGS(2),NSYM,NASHT,NVERT,
      &                MIDLEV,MVSTA,MVEND)
-          CALL CXINIT(SGS(2),ICISTR2,IXSTR2)
+          CALL CXINIT(SGS(2),ICISTR2,CIS(2),IXSTR2)
           CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
      &                LNOCSF,LIOCSF,NWALK,LICASE,
      &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,

@@ -12,7 +12,7 @@
       use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: nCISize, nXSize, SGStruct
+      use Struct, only: nCISize, nXSize, SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -22,6 +22,7 @@
 #include "Files.fh"
 #include "tshcntrl.fh"
       Type (SGStruct) :: SGS(2)
+      Type (CIStruct) :: CIS(2)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
       DIMENSION IXSTR1(NXSIZE), IXSTR2(NXSIZE),ENERGY(NSTATE)
       INTEGER      I,JOB1,JOB2,iRlxRoot
@@ -86,7 +87,7 @@ C
           END IF
           CALL SGSVAL(SGS(1),NSYM,NASHT,NVERT,
      &               MIDLEV,MVSTA,MVEND)
-          CALL CXINIT(SGS(1),ICISTR1,IXSTR1)
+          CALL CXINIT(SGS(1),ICISTR1,CIS(1),IXSTR1)
           CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
      &               LNOCSF,LIOCSF,NWALK,LICASE,
      &               MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
@@ -173,7 +174,7 @@ C For the second wave function
             END IF
             CALL SGSVAL(SGS(2),NSYM,NASHT,NVERT,
      &           MIDLEV,MVSTA,MVEND)
-            CALL CXINIT(SGS(2),ICISTR2,IXSTR2)
+            CALL CXINIT(SGS(2),ICISTR2,CIS(2),IXSTR2)
             CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,
      &           LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
      &           LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,LVTAB,
@@ -255,7 +256,7 @@ C For the second wave function
             END IF
             CALL SGSVAL(SGS(2),NSYM,NASHT,NVERT,
      &           MIDLEV,MVSTA,MVEND)
-            CALL CXINIT(SGS(2),ICISTR2,IXSTR2)
+            CALL CXINIT(SGS(2),ICISTR2,CIS(2),IXSTR2)
             CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,
      &           LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
      &           LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,LVTAB,
