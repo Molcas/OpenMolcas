@@ -8,23 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Subroutine CXClose(SGS,iCIStruct,iXStruct)
-use Struct, only: nCISize, nXSize, SGStruct
+Subroutine CXClose(SGS,CIS,iXStruct)
+use Struct, only: nXSize, SGStruct, CIStruct
 Type (SGStruct) SGS
-Dimension iCIStruct(nCISize)
+Type (CIStruct) CIS
 Dimension iXStruct (nXSize)
 ! Unpack structure iSGStruct:
 nSym   =SGS%nSym
 ! Unpack structure iCIStruct:
-nMidV =iCIStruct(1)
-nIpWlk=iCIStruct(2)
-lNOW  =iCIStruct(3)
-lIOW  =iCIStruct(4)
-lNCSF =iCIStruct(5)
-lNOCSF=iCIStruct(6)
-lIOCSF=iCIStruct(7)
-nWalk =iCIStruct(8)
-lICase=iCIStruct(9)
+nMidV =CIS%nMidV
+nIpWlk=CIS%nIpWlk
+lNOW  =CIS%lNOW
+lIOW  =CIS%lIOW
+lNCSF =CIS%lNCSF
+lNOCSF=CIS%lNOCSF
+lIOCSF=CIS%lIOCSF
+nWalk =CIS%nWalk
+lICase=CIS%lICase
 ! Unpack structure iXStruct:
 MxEO  =iXStruct(1)
 lNOCP =iXStruct(2)

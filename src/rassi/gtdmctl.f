@@ -1464,13 +1464,13 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
 
       IF(WFTP1.EQ.'GENERAL ') THEN
         if(.not.doDMRG)then
-          CALL CXCLOSE(SGS(1),ICISTR1,IXSTR1)
+          CALL CXCLOSE(SGS(1),CIS(1),IXSTR1)
           CALL SGCLOSE(SGS(1))
         end if
       END IF
       IF(WFTP2.EQ.'GENERAL ') THEN
         if(.not.doDMRG)then
-          CALL CXCLOSE(SGS(2),ICISTR2,IXSTR2)
+          CALL CXCLOSE(SGS(2),CIS(2),IXSTR2)
           CALL SGCLOSE(SGS(2))
         end if
       END IF
