@@ -457,8 +457,8 @@ C the SGUGA space of JOB1. General RAS:
           CALL SGSVAL(SGS(1),NSYM,NASHT,NVERT,
      &                MIDLEV,MVSTA,MVEND)
           CALL CXINIT(SGS(1),ICISTR1,CIS(1),IXSTR1)
-          CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
-     &                LNOCSF,LIOCSF,NWALK,LICASE,
+          CALL CXSVAL(ICISTR1,CIS(1),IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,
+     &                LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,
      &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
@@ -590,8 +590,8 @@ C the SGUGA space of JOB1. General RAS:
           CALL SGSVAL(SGS(2),NSYM,NASHT,NVERT,
      &                MIDLEV,MVSTA,MVEND)
           CALL CXINIT(SGS(2),ICISTR2,CIS(2),IXSTR2)
-          CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
-     &                LNOCSF,LIOCSF,NWALK,LICASE,
+          CALL CXSVAL(ICISTR2,CIS(2),IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,
+     &                LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,
      &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
