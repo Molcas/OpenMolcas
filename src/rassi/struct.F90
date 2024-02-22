@@ -30,8 +30,8 @@ Type CIStruct
      Integer, Allocatable:: NOW(:)
      Integer, Allocatable:: IOW(:)
      Integer, Allocatable:: NCSF(:)
-     Integer lNOCSF
-     Integer lIOCSF
+     Integer, Allocatable:: NOCSF(:)
+     Integer, Allocatable:: IOCSF(:)
      Integer nWalk
      Integer, Allocatable:: ICase(:)
 End Type CIStruct

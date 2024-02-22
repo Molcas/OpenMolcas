@@ -16,19 +16,13 @@
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Integer, Allocatable:: ICS(:)
-#include "WrkSpc.fh"
 
       NLEV  =SGS%nLev
-
       NMIDV =CIS%nMidV
-      LNOCSF=CIS%lNOCSF
-      LIOCSF=CIS%lIOCSF
 
       CALL mma_allocate(ICS,NLEV,Label='ICS')
-      CALL PRWF1(SGS,CIS,NLEV,NMIDV,
-     &           SGS%ISM,ICS,IWORK(LNOCSF),
-     &           IWORK(LIOCSF),CIS%NOW,CIS%IOW,
-     &           ISYCI,CI,CITHR)
+      CALL PRWF1(SGS,CIS,NLEV,NMIDV,SGS%ISM,ICS,CIS%NOCSF,
+     &           CIS%IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,CITHR)
       CALL mma_deallocate(ICS)
 
       END SUBROUTINE PRWF

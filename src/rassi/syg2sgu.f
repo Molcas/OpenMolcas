@@ -625,13 +625,12 @@ C Dereference CIS:
 
       nMidV =CIS%nMidV
       NIPWLK=CIS%nIpWlk
-      lIOCSF=CIS%lIOCSF
 C Nr of integers used to store each total walk:
       MIPWLK=1+(NLEV-1)/MXCPI
 C Allocate scratch space for case numbers:
       CALL GETMEM('ICS','ALLO','INTE',LICS,NLEV)
       CALL W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,SGS%ISM,MIDLEV,
-     &            MVSTA,IWORK(LIOCSF),CIS%NOW,CIS%IOW,
+     &            MVSTA,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &            SGS%DOWN,SGS%MAW,IWORK(LICS),
      &            MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)

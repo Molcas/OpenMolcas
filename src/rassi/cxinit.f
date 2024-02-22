@@ -62,17 +62,15 @@ CUNUSED      nIOW=nNOW
       nNOCSF=nMidV*(nSym**2)
       nIOCSF=nNOCSF
 
-      Call GetMem('NOCSF','Allo','Inte',lNOCSF,nNOCSF)
-      Call GetMem('IOCSF','Allo','Inte',lIOCSF,nIOCSF)
-      CIS%lNOCSF  =lNOCSF
-      CIS%lIOCSF  =lIOCSF
+      Call mma_allocate(CIS%NOCSF,nNOCSF,Label='CIS%NOCSF')
+      Call mma_allocate(CIS%IOCSF,nIOCSF,Label='CIS%IOCSF')
       iXStruct(1)=MxEO
       iXStruct(2)=lNOCP
       iXStruct(3)=lIOCP
       Call NrCoup(SGS,CIS,iXStruct,
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
      &         IWork(lISgm),CIS%NOW,CIS%IOW,IWork(lNOCP),
-     &         IWork(lIOCP),IWork(lNOCSF),IWork(lIOCSF),
+     &         IWork(lIOCP),CIS%NOCSF,CIS%IOCSF,
      &         CIS%NCSF,IWork(lNRL),IWork(lMVL),IWork(lMVR))
 CTEST      write(*,*)' Back from NRCOUP.'
       Call GetMem('NRL','Free','Inte',lNRL,nNRL)

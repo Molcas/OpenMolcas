@@ -19,8 +19,6 @@
 #include "WrkSpc.fh"
 
       nMidV =CIS%nMidV
-      lNOCSF=CIS%lNOCSF
-      lIOCSF=CIS%lIOCSF
 
       MxEO  =iXStruct(1)
       lNOCP =iXStruct(2)
@@ -31,10 +29,9 @@
       lVTab =iXStruct(7)
       lMVL  =iXStruct(8)
       lMVR  =iXStruct(9)
-      CALL SIGMA_1(SGS,CIS,IXSTRUCT,
-     &             NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
-     &             IP,IQ,CPQ,ISYCI,CI,SGM,IWORK(LNOCSF),
-     &             IWORK(LIOCSF),CIS%NOW,CIS%IOW,
+      CALL SIGMA_1(SGS,CIS,IXSTRUCT,NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
+     &             IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
+     &             CIS%IOCSF,CIS%NOW,CIS%IOW,
      &             IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &             WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 
