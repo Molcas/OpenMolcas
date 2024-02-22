@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SIGMA_1(ISGSTRUCT,ICISTRUCT,IXSTRUCT,
+      SUBROUTINE SIGMA_1(ISGSTRUCT,SGS,ICISTRUCT,IXSTRUCT,
      &                 NMIDV,MXEO,NVTAB,NICOUP,ISM,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,
      &                 IOW,NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
-      use Struct, only: nSGSize, nCISize, nXSize
+      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ISM(*)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -24,6 +24,7 @@
       DIMENSION CI(*),SGM(*)
 #include "symmul.fh"
       Dimension iSGStruct(nSGSize)
+      Type (SGStruct) SGS
       Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
@@ -35,6 +36,8 @@
 
       NLEV  =ISGSTRUCT(2)
       MIDLEV=ISGSTRUCT(8)
+      NLEV  =SGS%nLev
+      MIDLEV=SGS%MidLev
       NIPWLK=ICISTRUCT(2)
       LICASE=ICISTRUCT(9)
       NT1MX =IXSTRUCT(10)

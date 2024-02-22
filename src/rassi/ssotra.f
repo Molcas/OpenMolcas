@@ -8,18 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SSOTRA(ISGS,ICIS,IXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
-      use Struct, only: nSGSize, nCISize, nXSize
+      SUBROUTINE SSOTRA(ISGS,SGS,ICIS,IXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
+      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION TRA(NO,NO),CI(NCO),TMP(NCO)
+      Integer ISYM, LSM, NA, NO, NCO
+      Real*8 TRA(NO,NO),CI(NCO),TMP(NCO)
 #include "rassi.fh"
 #include "WrkSpc.fh"
-      Dimension ISGS(nSGSize)
-      Dimension ICIS(nCISize)
-      Dimension IXS (nXSize)
+      Integer ISGS(nSGSize)
+      Type (SGSTruct) SGS
+      Integer ICIS(nCISize)
+      Integer IXS (nXSize)
 
 C Dereference ISGS to get at ISM table:
       LISM=ISGS(3)
+      LISM=SGS%lISm
 C ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
 C OF SYMMETRY ISYM.
       CALL GETMEM('ILEV','ALLO','INTE',LILEV,NA)
@@ -47,7 +50,7 @@ CPAM98     *                 IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
 CPAM98     *                 IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
 CPAM98     *                 WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 CPAM98 Replaced by more modern routine:
-          CALL SGMONE(ISGS,ICIS,IXS,IPLEV,IKLEV,X,LSM,CI,TMP)
+          CALL SGMONE(ISGS,SGS,ICIS,IXS,IPLEV,IKLEV,X,LSM,CI,TMP)
         END DO
         CKK=TRA(NI+IK,NI+IK)
         X= 3.0D00-CKK
@@ -61,7 +64,7 @@ CPAM98          CALL SIGMA_1(IPLEV,IKLEV,CPK,LSM,TMP,CI,IWORK(LNOCSF),
 CPAM98     *                 IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
 CPAM98     *                 IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
 CPAM98     *                 WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-          CALL SGMONE(ISGS,ICIS,IXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
+          CALL SGMONE(ISGS,SGS,ICIS,IXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
 
         END DO
       END DO
