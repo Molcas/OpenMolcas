@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SGMONE(SGS,CIS,IXSTRUCT,
-     &                  IP,IQ,CPQ,ISYCI,CI,SGM)
-      use Struct, only: nXSize, SGStruct, CIStruct
+      SUBROUTINE SGMONE(SGS,CIS,IXSTRUCT,EXS,IP,IQ,CPQ,ISYCI,CI,SGM)
+      use Struct, only: nXSize, SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CI(*),SGM(*)
       Type (SGStruct) SGS
       Type (CIStruct) CIS
+      Type (EXStruct) EXS
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
@@ -29,6 +29,16 @@
       lVTab =iXStruct(7)
       lMVL  =iXStruct(8)
       lMVR  =iXStruct(9)
+
+      MxEO  =EXS%MxEO
+      lNOCP =EXS%lNOCP
+      lIOCP =EXS%lIOCP
+      nICoup=EXS%nICoup
+      lICoup=EXS%lICoup
+      nVTab =EXS%nVTab
+      lVTab =EXS%lVTab
+      lMVL  =EXS%lMVL
+      lMVR  =EXS%lMVR
       CALL SIGMA_1(SGS,CIS,IXSTRUCT,NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
      &             IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
      &             CIS%IOCSF,CIS%NOW,CIS%IOW,

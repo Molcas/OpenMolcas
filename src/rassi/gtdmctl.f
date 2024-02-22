@@ -561,7 +561,7 @@ C be removed. This limits the possible MAXOP:
 C---------------    JOB2 wave functions: ---------------------
 C Initialize SGUGA tables for JOB2 functions.
 C These are structures stored in arrays:
-C SGS(2),CIS(2) and IXSTR2.
+C SGS(2),CIS(2) and EXS(2).
 
 C Set variables in /RASDEF/, used by SGUGA codes, which define
 C the SGUGA space of JOB1. General RAS:
@@ -702,7 +702,7 @@ C Read ISTATE wave function
           END IF
           CALL DCOPY_(NDET1,[Zero],0,WORK(LDET1),1)
 C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),IXSTR1,
+          If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),IXSTR1,EXS(1),
      &                           LSYM1,TRA1,NCONF1,Work(LCI1))
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
           CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
@@ -790,7 +790,7 @@ C Read JSTATE wave function
           End If
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
 C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),IXSTR2,
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),IXSTR2,EXS(2),
      &                           LSYM2,TRA2,NCONF2,Work(LCI2))
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
@@ -1326,7 +1326,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
-          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),IXSTR2,
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),IXSTR2,EXS(2),
      &                           LSYM2,TRA2,NCONF2,Work(LCI2))
           CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
