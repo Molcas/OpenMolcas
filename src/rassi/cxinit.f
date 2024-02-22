@@ -8,9 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CXInit(iSGStruct,iCIstruct,iXStruct)
-      use Struct, only: nSGSize, nCISize, nXSize
+      Subroutine CXInit(iSGStruct,SGS,iCIstruct,iXStruct)
+      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
+      Type (SGStruct) SGS
       Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
@@ -30,13 +31,18 @@ CUNUSED      lUp    =iSGStruct(7)
       lMAW   =iSGStruct(11)
       lLTV   =iSGStruct(12)
 
-CTEST      write(*,*)' In CXINIT.'
-CTEST      write(*,*)'   NSYM:',NSYM
-CTEST      write(*,*)'   NLEV:',NLEV
-CTEST      write(*,*)'  NVERT:',NVERT
-CTEST      write(*,*)' MIDLEV:',MIDLEV
-CTEST      write(*,*)' MVSTA :',MVSTA
-CTEST      write(*,*)' MVEND :',MVEND
+      nSym   =SGS%nSym
+      nLev   =SGS%nLev
+      lISm   =SGS%lISM
+      nVert  =SGS%nVert
+      lDRT   =SGS%lDRT
+      lDown  =SGS%lDown
+      MidLev =SGS%MidLev
+      MVSta  =SGS%MVSta
+      MVEnd  =SGS%MVEnd
+      lMAW   =SGS%lMAW
+      lLTV   =SGS%lLTV
+
 C Calculate segment values, and MVL and MVR tables:
       nMidV=1+MVEnd-MVSta
 C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
