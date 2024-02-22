@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKSEG(ISGSTRUCT,NLEV,NVERT,NMIDV,IDRT,IDOWN,
+      SUBROUTINE MKSEG(SGS,NLEV,NVERT,NMIDV,IDRT,IDOWN,
      &                 LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
       use rassi_aux, only: ipglob
-      use Struct, only: nSGSize
+      use Struct, only: SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
-      Dimension iSGStruct(nSGSize)
+      Type (SGStruct) SGS
       CHARACTER*26 CC1,CC2,CTVPT,CBVPT,CSVC
       CHARACTER*20 FRML(7),TEXT
 #include "segtab.fh"
@@ -32,9 +32,9 @@ C    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
 
 
 
-C Dereference ISGSTRUCT
-      MVSTA=ISGSTRUCT(9)
-      MVEND=ISGSTRUCT(10)
+C Dereference SGS
+      MVSTA=SGS%MVSta
+      MVEND=SGS%MVEnd
 
       CC1=  '01230201011230122313230123'
       CC2=  '01231323012230112302010123'

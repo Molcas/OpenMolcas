@@ -8,28 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CXInit(iSGStruct,SGS,iCIstruct,iXStruct)
-      use Struct, only: nSGSize, nCISize, nXSize, SGStruct
+      Subroutine CXInit(SGS,iCIstruct,iXStruct)
+      use Struct, only:  nCISize, nXSize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
-      Dimension iSGStruct(nSGSize)
       Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
-
-
-      nSym   =iSGStruct(1)
-      nLev   =iSGStruct(2)
-      lISm   =iSGStruct(3)
-      nVert  =iSGStruct(4)
-      lDRT   =iSGStruct(5)
-      lDown  =iSGStruct(6)
-CUNUSED      lUp    =iSGStruct(7)
-      MidLev =iSGStruct(8)
-      MVSta  =iSGStruct(9)
-      MVEnd  =iSGStruct(10)
-      lMAW   =iSGStruct(11)
-      lLTV   =iSGStruct(12)
 
       nSym   =SGS%nSym
       nLev   =SGS%nLev
@@ -55,7 +40,7 @@ C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       Call GetMem('ISGM','Allo','Inte',lISgm,nSgmnt)
       Call GetMem('VSGM','Allo','Real',lVSgm,nSgmnt)
 CTEST      write(*,*)' Calling MKSEG.'
-      Call MkSeg(iSGStruct,nLev,nVert,nMidv,
+      Call MkSeg(SGS,nLev,nVert,nMidv,
      &        IWork(lDRT),IWork(lDown),IWork(lLTV),
      &        IWork(lIVR),IWork(lMVL),IWork(lMVR),
      &        IWork(lISgm),Work(lVSgm))
@@ -92,7 +77,7 @@ CUNUSED      nIOW=nNOW
       iXStruct(2)=lNOCP
       iXStruct(3)=lIOCP
 CTEST      write(*,*)' Calling NRCOUP.'
-      Call NrCoup(iSGStruct,iCIStruct,iXStruct,
+      Call NrCoup(SGS,iCIStruct,iXStruct,
      &         nVert,nMidV,MxEO,IWork(lISm),IWork(lDRT),
      &         IWork(lISgm),IWork(lNOW),IWork(lIOW),IWork(lNOCP),
      &         IWork(lIOCP),IWork(lNOCSF),IWork(lIOCSF),

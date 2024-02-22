@@ -8,14 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,
-     &                  iSGStruct,SGS)
-      use Struct, only: LEVEL, nSGSize, SGStruct
+      Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
+      use Struct, only: LEVEL, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
       Type (SGStruct) SGS
       dimension nRas(8,nRasPrt),nRasEl(nRasPrt)
-      Dimension iSGStruct(nSGSize)
 #include "WrkSpc.fh"
 
       NLEV=NASHT
@@ -121,19 +119,7 @@ C The DAW, RAW tables are no longer needed:
       Call GetMem('DAW','Free','Inte',lDAW,5*nVert)
       CALL GETMEM('TMP   ','FREE','INTEGER',LTMP,NTMP)
 
-C Put sizes and addresses in structure iSGStruct:
-      iSGStruct(1) =nSym
-      iSGStruct(2) =nLev
-      iSGStruct(3) =lISm
-      iSGStruct(4) =nVert
-      iSGStruct(5) =lDRT
-      iSGStruct(6) =lDown
-      iSGStruct(7) =lUp
-      iSGStruct(8) =MidLev
-      iSGStruct(9) =MVSta
-      iSGStruct(10) =MVEnd
-      iSGStruct(11)=lMAW
-      iSGStruct(12)=lLTV
+C Put sizes and addresses in structure SGS:
 
       SGS%nSym   =nSym
       SGS%nLev   =nLev

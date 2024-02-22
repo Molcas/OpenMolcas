@@ -8,20 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE NRCOUP(ISGSTRUCT,ICISTRUCT,IXSTRUCT,
+      SUBROUTINE NRCOUP(SGS,ICISTRUCT,IXSTRUCT,
      &                  NVERT,NMIDV,MXEO,ISM,IDRT,
      &                  ISGMNT,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,NCSF,
      &                  NRL,MVL,MVR)
 
       use rassi_aux, only: ipglob
-      use Struct, only: nSGSize, nCISize, nXSize
+      use Struct, only: nCISize, nXSize, SGStruct
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "segtab.fh"
 C INPUT PARAMETERS:
 CAR   ADD MVR MVL
 #include "symmul.fh"
-      Dimension iSGStruct(nSGSize)
+      Type (SGStruct) SGS
       Dimension iCIStruct(nCISize)
       Dimension iXStruct (nXSize)
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
@@ -36,10 +36,10 @@ C OUTPUT PARAMETERS:
 C SCRATCH PARAMETERS:
       DIMENSION NRL(NSYM,NVERT,0:MXEO)
 
-C Dereference ISGSTRUCT, ICISTRUCT for some other data
-      NLEV  =ISGSTRUCT(2)
-      MVSTA =ISGSTRUCT(9)
-      MVEND =ISGSTRUCT(10)
+C Dereference SGS, ICISTRUCT for some other data
+      NLEV  =SGS%nLev
+      MVSTA =SGS%MVSta
+      MVEND =SGS%MVEnd
       NIPWLK=ICISTRUCT(2)
       DO INDEO=0,MXEO
         DO IV=1,MVEND

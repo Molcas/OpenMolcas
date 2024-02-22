@@ -8,25 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SGPrint(iSGStruct,SGS)
-      use Struct, only: nSGSize, SGStruct
+      Subroutine SGPrint(SGS)
+      use Struct, only: SGStruct
       implicit real*8 (a-h,o-z)
       Type (SGStruct) SGS
-      Dimension iSGStruct(nSGSize)
 #include "WrkSpc.fh"
 
-C Unpack structure iSGStruct:
-      nLev   =iSGStruct(2)
-      lISm   =iSGStruct(3)
-      nVert  =iSGStruct(4)
-      lDRT   =iSGStruct(5)
-      lDown  =iSGStruct(6)
-      lUp    =iSGStruct(7)
-      MidLev =iSGStruct(8)
-      MVSta  =iSGStruct(9)
-      MVEnd  =iSGStruct(10)
-      lMAW   =iSGStruct(11)
-
+C Unpack structure SGS:
       nLev   =SGS%nLev
       lISm   =SGS%lISm
       nVert  =SGS%nVert
@@ -37,6 +25,7 @@ C Unpack structure iSGStruct:
       MVSta  =SGS%MVSta
       MVEnd  =SGS%MVEnd
       lMAW   =SGS%lMAW
+
       Write(6,*)' Split-Graph UGA. Graph description:'
       Write(6,*)' Nr of levels:',nLev
       Write(6,*)' Orbital symmetry labels:'
