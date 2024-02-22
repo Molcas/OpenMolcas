@@ -8,22 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-SUBROUTINE CXSVAL(CIS,IXS,NMIDV,NIPWLK,&
-                  NWALK,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,&
+SUBROUTINE CXSVAL(IXS,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,&
                   LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 !
 ! Purpose: Dereference the CI structure and the excitation
 ! structure arrays and return values and pointers.
 !
-use Struct, only: nXSize, CIStruct
+use Struct, only: nXSize
 IMPLICIT REAL*8 (A-H,O-Z)
-Type (CIStruct) CIS
 Dimension IXS(nXSize)
 
-! CI structure, sizes, addresses...
-nMidV  =CIS%nMidV
-nIpWlk =CIS%nIpWlk
-nWalk  =CIS%nWalk
 ! Excitation operators, coupling coefficients,...
 MxEO =IXS(1)
 lNOCP =IXS(2)
