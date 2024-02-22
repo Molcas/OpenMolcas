@@ -19,7 +19,6 @@ nSym   =SGS%nSym
 ! Unpack structure iCIStruct:
 nMidV =CIS%nMidV
 nIpWlk=CIS%nIpWlk
-lNCSF =CIS%lNCSF
 lNOCSF=CIS%lNOCSF
 lIOCSF=CIS%lIOCSF
 nWalk =CIS%nWalk
@@ -53,7 +52,7 @@ nNOCP=MxEO*nMidV*nSym
 nIOCP=nNOCP
 Call GetMem('NOCP','Free','Inte',lNOCP,nNOCP)
 Call GetMem('IOCP','Free','Inte',lIOCP,nIOCP)
-Call GetMem('NCSF','Free','Inte',lNCSF,nSym)
+Call mma_deallocate(CIS%NCSF)
 nICase=nWalk*nIpWlk
 Call GetMem('ICASE','Free','Inte',lICase,nICase)
 nnICoup=(3*nICoup+1)/2

@@ -29,7 +29,7 @@ Type CIStruct
      Integer nIpWlk
      Integer, Allocatable:: NOW(:)
      Integer, Allocatable:: IOW(:)
-     Integer lNCSF
+     Integer, Allocatable:: NCSF(:)
      Integer lNOCSF
      Integer lIOCSF
      Integer nWalk

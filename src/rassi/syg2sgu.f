@@ -36,8 +36,7 @@ C CIOLD and CINEW are obvious.
 
 CTEST      write(*,*)' SYG2SGU, LSYM=',LSYM
 C Dereference CIS and SGS       for some data:
-      LNCSF =CIS%lNCSF
-      NCONF =IWORK(LNCSF-1+LSYM)
+      NCONF =CIS%NCSF(SYM)
       NWALK =CIS%nWalk
       CALL GETMEM('MWS2W','ALLO','INTE',LMWS2W,NWALK)
       CALL MSTOW(SGS,CIS,IWORK(LMWS2W))

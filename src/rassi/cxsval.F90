@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-SUBROUTINE CXSVAL(CIS,IXS,NMIDV,NIPWLK,LNCSF,LNOCSF,LIOCSF,&
+SUBROUTINE CXSVAL(CIS,IXS,NMIDV,NIPWLK,LNOCSF,LIOCSF,&
                   NWALK,LICASE,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,&
                   LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 !
@@ -23,7 +23,6 @@ Dimension IXS(nXSize)
 ! CI structure, sizes, addresses...
 nMidV  =CIS%nMidV
 nIpWlk =CIS%nIpWlk
-lNCSF  =CIS%lNCSF
 lNOCSF =CIS%lNOCSF
 lIOCSF =CIS%lIOCSF
 nWalk  =CIS%nWalk

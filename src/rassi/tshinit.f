@@ -88,11 +88,11 @@ C
      &               MIDLEV,MVSTA,MVEND)
           CALL CXINIT(SGS(1),CIS(1),IXSTR1)
           CALL CXSVAL(CIS(1),IXSTR1,NMIDV,NIPWLK,
-     &                LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,
+     &                LNOCSF,LIOCSF,NWALK,LICASE,
      &               MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &               LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
-          NCI1=IWORK(LNCSF-1+LSYM1)
+          NCI1=CIS(1)%NCSF(LSYM1)
       ELSE
 * The only other cases are HISPIN, CLOSED or EMPTY.
 * NOTE: The HISPIN case is suspected to be buggy. Not used now.
@@ -175,11 +175,11 @@ C For the second wave function
      &           MIDLEV,MVSTA,MVEND)
             CALL CXINIT(SGS(2),CIS(2),IXSTR2)
             CALL CXSVAL(CIS(2),IXSTR2,NMIDV,NIPWLK,
-     &           LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
+     &           LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
      &           LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,LVTAB,
      &           LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C     CI sizes, as function of symmetry, are now known.
-            NCI2=IWORK(LNCSF-1+LSYM2)
+            NCI2=CIS(2)%NCSF(LSYM2)
          ELSE
 C     Presently, the only other cases are HISPIN, CLOSED or EMPTY.
             NCI2=1
@@ -257,11 +257,11 @@ C For the second wave function
      &           MIDLEV,MVSTA,MVEND)
             CALL CXINIT(SGS(2),CIS(2),IXSTR2)
             CALL CXSVAL(CIS(2),IXSTR2,NMIDV,NIPWLK,
-     &           LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
+     &           LNOCSF,LIOCSF,NWALK,LICASE,MXEO,
      &           LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,LVTAB,
      &           LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C     CI sizes, as function of symmetry, are now known.
-            NCI2=IWORK(LNCSF-1+LSYM2)
+            NCI2=CIS(2)%NCSF(LSYM2)
          ELSE
 C     Presently, the only other cases are HISPIN, CLOSED or EMPTY.
             NCI2=1

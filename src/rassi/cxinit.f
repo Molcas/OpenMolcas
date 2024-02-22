@@ -57,14 +57,13 @@ CUNUSED      nIOW=nNOW
       nNRL=(1+MxEO)*nVert*nSym
       Call GetMem('NOCP','Allo','Inte',lNOCP,nNOCP)
       Call GetMem('IOCP','Allo','Inte',lIOCP,nIOCP)
-      Call GetMem('NCSF','Allo','Inte',lNCSF,nSym)
+      Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
       Call GetMem('NRL','Allo','Inte',lNRL,nNRL)
       nNOCSF=nMidV*(nSym**2)
       nIOCSF=nNOCSF
 
       Call GetMem('NOCSF','Allo','Inte',lNOCSF,nNOCSF)
       Call GetMem('IOCSF','Allo','Inte',lIOCSF,nIOCSF)
-      CIS%lNCSF   =lNCSF
       CIS%lNOCSF  =lNOCSF
       CIS%lIOCSF  =lIOCSF
       iXStruct(1)=MxEO
@@ -74,7 +73,7 @@ CUNUSED      nIOW=nNOW
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
      &         IWork(lISgm),CIS%NOW,CIS%IOW,IWork(lNOCP),
      &         IWork(lIOCP),IWork(lNOCSF),IWork(lIOCSF),
-     &         IWork(lNCSF),IWork(lNRL),IWork(lMVL),IWork(lMVR))
+     &         CIS%NCSF,IWork(lNRL),IWork(lMVL),IWork(lMVR))
 CTEST      write(*,*)' Back from NRCOUP.'
       Call GetMem('NRL','Free','Inte',lNRL,nNRL)
 C Computed in NrCoup:

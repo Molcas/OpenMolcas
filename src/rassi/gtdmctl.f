@@ -457,11 +457,11 @@ C the SGUGA space of JOB1. General RAS:
      &                MIDLEV,MVSTA,MVEND)
           CALL CXINIT(SGS(1),CIS(1),IXSTR1)
           CALL CXSVAL(CIS(1),IXSTR1,NMIDV,NIPWLK,
-     &                LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,
+     &                LNOCSF,LIOCSF,NWALK,LICASE,
      &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
-          NCONF1=IWORK(LNCSF-1+LSYM1)
+          NCONF1=CIS(1)%NCSF(LSYM1)
         else
           NCONF1=1
         end if
@@ -590,11 +590,11 @@ C the SGUGA space of JOB1. General RAS:
      &                MIDLEV,MVSTA,MVEND)
           CALL CXINIT(SGS(2),CIS(2),IXSTR2)
           CALL CXSVAL(CIS(2),IXSTR2,NMIDV,NIPWLK,
-     &                LNCSF,LNOCSF,LIOCSF,NWALK,LICASE,
+     &                LNOCSF,LIOCSF,NWALK,LICASE,
      &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
      &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
-          NCONF2=IWORK(LNCSF-1+LSYM2)
+          NCONF2=CIS(2)%NCSF(LSYM2)
         else
           NCONF2=1
         end if
