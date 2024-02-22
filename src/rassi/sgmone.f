@@ -18,7 +18,6 @@
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
-      lISm  =SGS%lISm
       lNOCSF=iCIStruct(6)
       lIOCSF=iCIStruct(7)
       lNOW  =iCIStruct(3)
@@ -34,7 +33,7 @@
       nVTab =iXStruct(6)
       nICoup=iXStruct(4)
       CALL SIGMA_1(SGS,ICISTRUCT,IXSTRUCT,
-     &             NMIDV,MXEO,NVTAB,NICOUP,IWORK(LISM),
+     &             NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
      &             IP,IQ,CPQ,ISYCI,CI,SGM,IWORK(LNOCSF),
      &             IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &             IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
+      use stdalloc, only: mma_allocate
       use Struct, only: LEVEL, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
@@ -18,14 +19,14 @@
 
       NLEV=NASHT
 C Allocate Level to Symmetry table ISm:
-      Call GetMem('ISm','Allo','Integer',lISm,nLev)
+      Call mma_allocate(SGS%ISm,nLev,Label='SGS%ISm')
       ITABS=0
       IT=0
       DO ISYM=1,NSYM
         DO IT=1,NASH(ISYM)
           ITABS=ITABS+1
           ILEV=LEVEL(ITABS)
-          IWORK(LISM-1+ILEV)=ISYM
+          SGS%ISM(ILEV)=ISYM
         END DO
       END DO
 
@@ -123,7 +124,6 @@ C Put sizes and addresses in structure SGS:
 
       SGS%nSym   =nSym
       SGS%nLev   =nLev
-      SGS%lISm   =lISm
       SGS%nVert  =nVert
       SGS%lDRT   =lDRT
       SGS%lDown  =lDown

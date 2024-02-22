@@ -84,7 +84,7 @@ C
              WRITE(6,*)'Split-graph structure for JOB1=',JOB1
              CALL SGPRINT(SGS(1))
           END IF
-          CALL SGSVAL(SGS(1),NSYM,NASHT,LISM,NVERT,LDRT,
+          CALL SGSVAL(SGS(1),NSYM,NASHT,NVERT,LDRT,
      &               LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
           CALL CXINIT(SGS(1),ICISTR1,IXSTR1)
           CALL CXSVAL(ICISTR1,IXSTR1,NMIDV,NIPWLK,LNOW,LIOW,LNCSF,
@@ -171,7 +171,7 @@ C For the second wave function
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
                CALL SGPRINT(SGS(2))
             END IF
-            CALL SGSVAL(SGS(2),NSYM,NASHT,LISM,NVERT,LDRT,
+            CALL SGSVAL(SGS(2),NSYM,NASHT,NVERT,LDRT,
      &           LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
             CALL CXINIT(SGS(2),ICISTR2,IXSTR2)
             CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,
@@ -253,7 +253,7 @@ C For the second wave function
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
                CALL SGPRINT(SGS(2))
             END IF
-            CALL SGSVAL(SGS(2),NSYM,NASHT,LISM,NVERT,LDRT,
+            CALL SGSVAL(SGS(2),NSYM,NASHT,NVERT,LDRT,
      &           LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
             CALL CXINIT(SGS(2),ICISTR2,IXSTR2)
             CALL CXSVAL(ICISTR2,IXSTR2,NMIDV,NIPWLK,LNOW,LIOW,

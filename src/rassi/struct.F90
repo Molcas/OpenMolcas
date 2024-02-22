@@ -13,7 +13,7 @@ module Struct
 Type SGStruct
      Integer nSym
      Integer nLev
-     Integer lISm
+     Integer, Allocatable:: ISm(:)
      Integer nVert
      Integer lDRT
      Integer lDown

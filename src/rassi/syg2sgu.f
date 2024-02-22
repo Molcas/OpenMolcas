@@ -626,7 +626,6 @@ C MXCPI= Max nr of case numbers packed in one integer.
 C Dereference SGS:
 
       nLev   =SGS%nLev
-      lISm   =SGS%lISm
       nVert  =SGS%nVert
       lDown  =SGS%lDown
       MidLev =SGS%MidLev
@@ -642,7 +641,7 @@ C Nr of integers used to store each total walk:
       MIPWLK=1+(NLEV-1)/MXCPI
 C Allocate scratch space for case numbers:
       CALL GETMEM('ICS','ALLO','INTE',LICS,NLEV)
-      CALL W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,IWORK(LISM),MIDLEV,
+      CALL W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,SGS%ISM,MIDLEV,
      &            MVSTA,IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &            IWORK(LDOWN),IWORK(LMAW),IWORK(LICS),
      &            MWS2W,MIPWLK,NLIST,KWALK,ICNUM)

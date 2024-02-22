@@ -19,8 +19,6 @@
       Integer ICIS(nCISize)
       Integer IXS (nXSize)
 
-C Dereference SGS to get at ISM table:
-      LISM=SGS%lISm
 C ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
 C OF SYMMETRY ISYM.
       CALL GETMEM('ILEV','ALLO','INTE',LILEV,NA)
@@ -28,7 +26,7 @@ C OF SYMMETRY ISYM.
       IL=0
       DO IP=1,NA
 5       IL=IL+1
-        IF(IWORK(LISM-1+IL).NE.ISYM) GOTO 5
+        IF(SGS%ISM(IL).NE.ISYM) GOTO 5
         IWORK(LILEV-1+IP)=IL
       END DO
 CTEST      write(*,*)' Check prints in SSOTRA.'

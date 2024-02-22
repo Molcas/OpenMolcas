@@ -18,7 +18,6 @@
 
       nSym   =SGS%nSym
       nLev   =SGS%nLev
-      lISm   =SGS%lISM
       nVert  =SGS%nVert
       lDRT   =SGS%lDRT
       lDown  =SGS%lDown
@@ -78,7 +77,7 @@ CUNUSED      nIOW=nNOW
       iXStruct(3)=lIOCP
 CTEST      write(*,*)' Calling NRCOUP.'
       Call NrCoup(SGS,iCIStruct,iXStruct,
-     &         nVert,nMidV,MxEO,IWork(lISm),IWork(lDRT),
+     &         nVert,nMidV,MxEO,SGS%ISm,IWork(lDRT),
      &         IWork(lISgm),IWork(lNOW),IWork(lIOW),IWork(lNOCP),
      &         IWork(lIOCP),IWork(lNOCSF),IWork(lIOCSF),
      &         IWork(lNCSF),IWork(lNRL),IWork(lMVL),IWork(lMVR))
@@ -106,7 +105,7 @@ CTEST      write(*,*)' NWALK:',NWALK
       iXStruct(7)=lVTabTmp
       nVTab=nVMax
       lVTab=lVTabTmp
-      Call MkCoup(nLev,IWork(lIsm),nVert,MidLev,nMidV,MVSta,MVEnd,
+      Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
      &            MxEO,nICoup,nWalk,nICase,nVTab,
      &            IWork(lIVR),IWork(lMAW),IWork(lISGM),
      &            WORK(lVSGM),IWork(lNOW),IWork(lIOW),IWork(lNOCP),

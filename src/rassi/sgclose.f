@@ -9,20 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SGClose(SGS)
+      use stdalloc, only: mma_deallocate
       use Struct, only: SGStruct
       Implicit None
       Type (SGStruct) SGS
-      Integer nLev, lISm, nVert, lDRT, lDown, lUp, lMAW, lLTV
+      Integer nLev, nVert, lDRT, lDown, lUp, lMAW, lLTV
 C Unpack structure iSGStruct:
       nLev   =SGS%nLev
-      lISm   =SGS%lISm
       nVert  =SGS%nVert
       lDRT   =SGS%lDRT
       lDown  =SGS%lDown
       lUp    =SGS%lUp
       lMAW   =SGS%lMAW
       lLTV   =SGS%lLTV
-      Call GetMem('ISm','Free','Integer',lISm,nLev)
+      Call mma_deallocate(SGS%ISm)
       Call GetMem('DRT','Free','Inte',lDRT,4*nVert)
       Call GetMem('Down','Free','Inte',lDown,4*nVert)
       Call GetMem('Up','Free','Inte',lUp,4*nVert)

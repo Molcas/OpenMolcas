@@ -19,7 +19,6 @@
 #include "WrkSpc.fh"
 
       NLEV  =SGS%nLev
-      LISM  =SGS%lISm
 
       NMIDV =ICISTRUCT(1)
       LNOW  =ICISTRUCT(3)
@@ -29,7 +28,7 @@
 
       CALL mma_allocate(ICS,NLEV,Label='ICS')
       CALL PRWF1(SGS,ICISTRUCT,NLEV,NMIDV,
-     &           IWORK(LISM),ICS,IWORK(LNOCSF),
+     &           SGS%ISM,ICS,IWORK(LNOCSF),
      &           IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &           ISYCI,CI,CITHR)
       CALL mma_deallocate(ICS)

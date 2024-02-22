@@ -16,7 +16,6 @@
 
 C Unpack structure SGS:
       nLev   =SGS%nLev
-      lISm   =SGS%lISm
       nVert  =SGS%nVert
       lDRT   =SGS%lDRT
       lDown  =SGS%lDown
@@ -29,7 +28,7 @@ C Unpack structure SGS:
       Write(6,*)' Split-Graph UGA. Graph description:'
       Write(6,*)' Nr of levels:',nLev
       Write(6,*)' Orbital symmetry labels:'
-      Write(6,'(1x,30i2)')(iWork(lISm+i),i=0,nLev-1)
+      Write(6,'(1x,30i2)')(SGS%ISm(i),i=1,nLev)
       Write(6,*)' Nr of vertices:',nVert
       Write(6,*)
       Write(6,*)' Vertex    L  N    A  B  C      '//
