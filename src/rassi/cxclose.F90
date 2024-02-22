@@ -8,12 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Subroutine CXClose(SGS,CIS,iXStruct)
+Subroutine CXClose(SGS,CIS,EXS)
 use stdalloc, only: mma_deallocate
-use Struct, only: nXSize, SGStruct, CIStruct
+use Struct, only: SGStruct, CIStruct, EXStruct
 Type (SGStruct) SGS
 Type (CIStruct) CIS
-Dimension iXStruct (nXSize)
+Type (ExStruct) ExS
 ! Unpack structure iSGStruct:
 nSym   =SGS%nSym
 ! Unpack structure iCIStruct:
@@ -21,22 +21,16 @@ nMidV =CIS%nMidV
 nIpWlk=CIS%nIpWlk
 nWalk =CIS%nWalk
 ! Unpack structure iXStruct:
-MxEO  =iXStruct(1)
-lNOCP =iXStruct(2)
-lIOCP =iXStruct(3)
-nICoup=iXStruct(4)
-lICoup=iXStruct(5)
-nVTab =iXStruct(6)
-lVTab =iXStruct(7)
-lMVL  =iXStruct(8)
-lMVR  =iXStruct(9)
-!UNUSED      NT1MX =IXSTRUCT(10)
-!UNUSED      NT2MX =IXSTRUCT(11)
-!UNUSED      NT3MX =IXSTRUCT(12)
-!UNUSED      NT4MX =IXSTRUCT(13)
-!UNUSED      NT5MX =IXSTRUCT(14)
+MxEO  =EXS%MxEO
+lNOCP =EXS%lNOCP
+lIOCP =EXS%lIOCP
+nICoup=EXS%nICoup
+lICoup=EXS%lICoup
+nVTab =EXS%nVTab
+lVTab =EXS%lVTab
+lMVL  =EXS%lMVL
+lMVR  =EXS%lMVR
 nNOW=2*nMidV*nSym
-!UNUSED      nIOW=nNOW
 Call GetMem('MVR','Free','Inte',lMVR,2*nMidV)
 Call GetMem('MVL','Free','Inte',lMVL,2*nMidV)
 Call mma_deallocate(CIS%NOCSF)
