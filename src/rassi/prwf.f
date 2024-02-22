@@ -21,15 +21,13 @@
       NLEV  =SGS%nLev
 
       NMIDV =CIS%nMidV
-      LNOW  =CIS%lNOW
-      LIOW  =CIS%lIOW
       LNOCSF=CIS%lNOCSF
       LIOCSF=CIS%lIOCSF
 
       CALL mma_allocate(ICS,NLEV,Label='ICS')
       CALL PRWF1(SGS,CIS,NLEV,NMIDV,
      &           SGS%ISM,ICS,IWORK(LNOCSF),
-     &           IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &           IWORK(LIOCSF),CIS%NOW,CIS%IOW,
      &           ISYCI,CI,CITHR)
       CALL mma_deallocate(ICS)
 

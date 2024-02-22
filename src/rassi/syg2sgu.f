@@ -626,15 +626,13 @@ C Dereference CIS:
 
       nMidV =CIS%nMidV
       NIPWLK=CIS%nIpWlk
-      lNOW  =CIS%lNOW
-      lIOW  =CIS%lIOW
       lIOCSF=CIS%lIOCSF
 C Nr of integers used to store each total walk:
       MIPWLK=1+(NLEV-1)/MXCPI
 C Allocate scratch space for case numbers:
       CALL GETMEM('ICS','ALLO','INTE',LICS,NLEV)
       CALL W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,SGS%ISM,MIDLEV,
-     &            MVSTA,IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &            MVSTA,IWORK(LIOCSF),CIS%NOW,CIS%IOW,
      &            SGS%DOWN,SGS%MAW,IWORK(LICS),
      &            MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)
@@ -739,12 +737,10 @@ C Leading dimension=nr of upwalks in this block.
       NMIDV =CIS%nMidV
       NIPWLK=CIS%nIpWlk
       NWALK =CIS%nWalk
-      LNOW  =CIS%lNOW
-      LIOW  =CIS%lIOW
       LICASE=CIS%lICase
       CALL GETMEM('ICS','ALLO','INTE',LICS,NLEV)
       CALL MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,
-     &            MIDLEV,IWORK(LICS),IWORK(LNOW),IWORK(LIOW),
+     &            MIDLEV,IWORK(LICS),CIS%NOW,CIS%IOW,
      &            IWORK(LICASE),SGS%UP,SGS%DOWN,
      &            SGS%MAW,MWS2W)
       CALL GETMEM('ICS','FREE','INTE',LICS,NLEV)

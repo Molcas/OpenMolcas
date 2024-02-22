@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CXInit(SGS,CIS,iXStruct)
+      use stdalloc, only: mma_allocate
       use Struct, only:  nXSize, SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
@@ -48,8 +49,8 @@ CTEST      write(*,*)' Back from MKSEG.'
 C Various offset tables:
       nNOW=2*nMidV*nSym
 CUNUSED      nIOW=nNOW
-      Call GetMem('NOW','Allo','Inte',lNOW,nNOW)
-      Call GetMem('IOW','Allo','Inte',lIOW,nNOW)
+      Call mma_allocate(CIS%NOW,nNOW,Label='CIS%NOW')
+      Call mma_allocate(CIS%IOW,nNOW,Label='CIS%IOW')
       MxEO=(nLev*(nLev+5))/2
       nNOCP=MxEO*nMidV*nSym
       nIOCP=nNOCP
@@ -63,8 +64,6 @@ CUNUSED      nIOW=nNOW
 
       Call GetMem('NOCSF','Allo','Inte',lNOCSF,nNOCSF)
       Call GetMem('IOCSF','Allo','Inte',lIOCSF,nIOCSF)
-      CIS%lNow    =lNOW
-      CIS%lIOW    =lIOW
       CIS%lNCSF   =lNCSF
       CIS%lNOCSF  =lNOCSF
       CIS%lIOCSF  =lIOCSF
@@ -73,7 +72,7 @@ CUNUSED      nIOW=nNOW
       iXStruct(3)=lIOCP
       Call NrCoup(SGS,CIS,iXStruct,
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
-     &         IWork(lISgm),IWork(lNOW),IWork(lIOW),IWork(lNOCP),
+     &         IWork(lISgm),CIS%NOW,CIS%IOW,IWork(lNOCP),
      &         IWork(lIOCP),IWork(lNOCSF),IWork(lIOCSF),
      &         IWork(lNCSF),IWork(lNRL),IWork(lMVL),IWork(lMVR))
 CTEST      write(*,*)' Back from NRCOUP.'
@@ -103,7 +102,7 @@ CTEST      write(*,*)' NWALK:',NWALK
       Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
      &            MxEO,nICoup,nWalk,nICase,nVTab,
      &            IWork(lIVR),SGS%MAW,IWork(lISGM),
-     &            WORK(lVSGM),IWork(lNOW),IWork(lIOW),IWork(lNOCP),
+     &            WORK(lVSGM),CIS%NOW,CIS%IOW,IWork(lNOCP),
      &     IWork(lIOCP),IWork(lILNDW),IWork(lICASE),IWork(lICOUP),
      &     WORK(lVTAB),IWork(lSCR),WORK(lVAL))
 C iXStruct(10)..iXStruct(14) are set in MkCoup

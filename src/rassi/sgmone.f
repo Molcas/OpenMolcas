@@ -21,8 +21,6 @@
       nMidV =CIS%nMidV
       lNOCSF=CIS%lNOCSF
       lIOCSF=CIS%lIOCSF
-      lNOW  =CIS%lNOW
-      lIOW  =CIS%lIOW
 
       MxEO  =iXStruct(1)
       lNOCP =iXStruct(2)
@@ -36,7 +34,7 @@
       CALL SIGMA_1(SGS,CIS,IXSTRUCT,
      &             NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
      &             IP,IQ,CPQ,ISYCI,CI,SGM,IWORK(LNOCSF),
-     &             IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
+     &             IWORK(LIOCSF),CIS%NOW,CIS%IOW,
      &             IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &             WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 

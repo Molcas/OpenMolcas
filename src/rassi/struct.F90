@@ -27,11 +27,11 @@ End Type SGStruct
 Type CIStruct
      Integer nMidV
      Integer nIpWlk
-     Integer lNOW
-     Integer lIOW
+     Integer, Allocatable:: NOW(:)
+     Integer, Allocatable:: IOW(:)
      Integer lNCSF
      Integer lNOCSF
-     Integer LIOCSF
+     Integer lIOCSF
      Integer nWalk
      Integer lICase
 End Type CIStruct

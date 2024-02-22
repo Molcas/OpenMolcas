@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Subroutine CXClose(SGS,CIS,iXStruct)
+use stdalloc, only: mma_deallocate
 use Struct, only: nXSize, SGStruct, CIStruct
 Type (SGStruct) SGS
 Type (CIStruct) CIS
@@ -18,8 +19,6 @@ nSym   =SGS%nSym
 ! Unpack structure iCIStruct:
 nMidV =CIS%nMidV
 nIpWlk=CIS%nIpWlk
-lNOW  =CIS%lNOW
-lIOW  =CIS%lIOW
 lNCSF =CIS%lNCSF
 lNOCSF=CIS%lNOCSF
 lIOCSF=CIS%lIOCSF
@@ -48,8 +47,8 @@ nNOCSF=nMidV*(nSym**2)
 nIOCSF=nNOCSF
 Call GetMem('NOCSF','Free','Inte',lNOCSF,nNOCSF)
 Call GetMem('IOCSF','Free','Inte',lIOCSF,nIOCSF)
-Call GetMem('NOW','Free','Inte',lNOW,nNOW)
-Call GetMem('IOW','Free','Inte',lIOW,nNOW)
+Call mma_deallocate(CIS%NOW)
+Call mma_deallocate(CIS%IOW)
 nNOCP=MxEO*nMidV*nSym
 nIOCP=nNOCP
 Call GetMem('NOCP','Free','Inte',lNOCP,nNOCP)
