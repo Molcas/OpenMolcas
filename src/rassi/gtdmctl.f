@@ -715,7 +715,7 @@ C         Transform to bion basis, Split-Guga format
           If (TrOrb) CALL CITRA (WFTP1,SGS(1),ICISTR1,CIS(1),IXSTR1,
      &                           LSYM1,TRA1,NCONF1,Work(LCI1))
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
-          CALL PREPSD(WFTP1,SGS(1),ICISTR1,LSYM1,
+          CALL PREPSD(WFTP1,SGS(1),ICISTR1,CIS(1),LSYM1,
      &                IWORK(LCNFTAB1),IWORK(LSPNTAB1),
      &                IWORK(LSSTAB),IWORK(LFSBTAB1),NCONF1,WORK(LCI1),
      &                WORK(LDET1),detocc,detcoeff1)
@@ -803,7 +803,7 @@ C         Transform to bion basis, Split-Guga format
           If (TrOrb) CALL CITRA (WFTP2,SGS(2),ICISTR2,CIS(2),IXSTR2,
      &                           LSYM2,TRA2,NCONF2,Work(LCI2))
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
-          CALL PREPSD(WFTP2,SGS(2),ICISTR2,LSYM2,
+          CALL PREPSD(WFTP2,SGS(2),ICISTR2,CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2),detocc,detcoeff2)
@@ -1338,7 +1338,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
           If (TrOrb) CALL CITRA (WFTP2,SGS(2),ICISTR2,CIS(2),IXSTR2,
      &                           LSYM2,TRA2,NCONF2,Work(LCI2))
-          CALL PREPSD(WFTP2,SGS(2),ICISTR2,LSYM2,
+          CALL PREPSD(WFTP2,SGS(2),ICISTR2,CIS(2),LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
      &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
      &                WORK(LDET2),detocc,detcoeff2)
