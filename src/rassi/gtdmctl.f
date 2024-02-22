@@ -432,8 +432,8 @@ C Add nr of actives in earlier symmetries:
 
 C---------------    JOB1 wave functions: ---------------------
 C Initialize SGUGA tables for JOB1 functions.
-C These are structures stored in arrays:
-C SGS(1),CIS(1) and IXSTR1.
+C These are structures stored in user defined types:
+C SGS(1),CIS(1) and EXS(1).
 
 C Set variables in /RASDEF/, used by SGUGA codes, which define
 C the SGUGA space of JOB1. General RAS:
@@ -456,8 +456,6 @@ C the SGUGA space of JOB1. General RAS:
           END IF
           CALL SGSVAL(SGS(1),NSYM,NASHT)
           CALL CXINIT(SGS(1),CIS(1),IXSTR1,EXS(1))
-          CALL CXSVAL(IXSTR1,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
-     &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
           NCONF1=CIS(1)%NCSF(LSYM1)
         else
@@ -586,8 +584,6 @@ C the SGUGA space of JOB1. General RAS:
           END IF
           CALL SGSVAL(SGS(2),NSYM,NASHT)
           CALL CXINIT(SGS(2),CIS(2),IXSTR2,EXS(2))
-          CALL CXSVAL(IXSTR2,MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
-     &                LVTAB,LMVL,LMVR,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX)
 C CI sizes, as function of symmetry, are now known.
           NCONF2=CIS(2)%NCSF(LSYM2)
         else
