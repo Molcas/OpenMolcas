@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE READCI(ISTATE,ISGS,ICIS,NCI,CI)
+      SUBROUTINE READCI(ISTATE,ISGS,SGS,ICIS,NCI,CI)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: nSGSize, nCISize
+      use Struct, only: nSGSize, nCISize, SGStruct
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
@@ -31,6 +31,7 @@
 
       INTEGER ISTATE
       INTEGER ISGS(NSGSIZE), ICIS(NCISIZE)
+      Type (SGStruct) SGS
       INTEGER NCI
       REAL*8 CI(NCI)
 
@@ -96,7 +97,7 @@
         WRITE(6,*)' Its symmetry  =',IRREP(JOB)
         WRITE(6,*)' Spin multiplic=',MLTPLT(JOB)
         LSYM=IRREP(JOB)
-        CALL PRWF(ISGS,ICIS,LSYM,CI,CITHR)
+        CALL PRWF(ISGS,SGS,ICIS,LSYM,CI,CITHR)
       END IF
 
       END

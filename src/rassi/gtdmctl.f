@@ -708,7 +708,7 @@ C LWDET pointer to write WORK(LDET) to WORK(LDETTOT)
         if(.not.doDMRG)then
 C Read ISTATE wave function
           IF(WFTP1.EQ.'GENERAL ') THEN
-            CALL READCI(ISTATE,ISGSTR1,ICISTR1,NCONF1,WORK(LCI1))
+            CALL READCI(ISTATE,ISGSTR1,SGS(1),ICISTR1,NCONF1,WORK(LCI1))
           ELSE
             WORK(LCI1) = One
           END IF
@@ -793,7 +793,7 @@ C Loop over the states of JOBIPH nr JOB2
         if(.not.doDMRG)then
 C Read JSTATE wave function
           IF(WFTP2.EQ.'GENERAL ') THEN
-            CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
+            CALL READCI(JSTATE,ISGSTR2,SGS(2),ICISTR2,NCONF2,WORK(LCI2))
           ELSE
             WORK(LCI2) = One
           END IF
@@ -1335,7 +1335,7 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
         call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
         DO JST=2,NSTAT(JOB2)
           JSTATE=ISTAT(JOB2)-1+JST
-          CALL READCI(JSTATE,ISGSTR2,ICISTR2,NCONF2,WORK(LCI2))
+          CALL READCI(JSTATE,ISGSTR2,SGS(2),ICISTR2,NCONF2,WORK(LCI2))
           Call DCOPY_(NCONF2,Work(LCI2),1,Work(LCI2_o),1)
           CALL DCOPY_(NDET2,[Zero],0,WORK(LDET2),1)
           If (TrOrb) CALL CITRA (WFTP2,ISGSTR2,ICISTR2,IXSTR2,LSYM2,

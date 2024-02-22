@@ -8,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PRWF1(ISGSTRUCT,ICISTRUCT,NLEV,NMIDV,ISM,ICS,
+      SUBROUTINE PRWF1(ISGSTRUCT,SGS,ICISTRUCT,NLEV,NMIDV,ISM,ICS,
      &                 NOCSF,IOCSF,NOW,IOW,ISYCI,CI,CITHR)
-      use Struct, only: nSGSize, nCISize
+      use Struct, only: nSGSize, nCISize, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
       Dimension iSGStruct(nSGSize)
+      Type (SGStruct) SGS
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -33,6 +34,7 @@ C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
 
       MIDLEV=ISGSTRUCT(8)
+      MIDLEV=SGS%MidLev
       NIPWLK=ICISTRUCT(2)
       LICASE=ICISTRUCT(9)
 
