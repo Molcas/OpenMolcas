@@ -8,11 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE PREPSD(WFTP,ISGSTR,ICISTR,LSYM,
+      SUBROUTINE PREPSD(WFTP,ISGSTR,SGS,ICISTR,LSYM,
      &                  ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,
      &                  NCONF,CI,DET,detocc,detcoeff)
+      use Struct, only: SGStruct
       IMPLICIT NONE
       INTEGER ISGSTR(*),ICISTR(*)
+      Type (SGStruct) SGS
       INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
       INTEGER LSYM,NCONF
       REAL*8 CI(*),DET(*)
@@ -30,7 +32,7 @@ C in the general SD format, using transformed orbitals.
 C Transform SGUGA to SymmG:
         CALL GETMEM('PREPSD','ALLO','REAL',LCTMP,NCONF)
         IMODE=1
-        CALL SYG2SGU(IMODE,ISGSTR,ICISTR,LSYM,ICNFTAB,ISPNTAB,
+        CALL SYG2SGU(IMODE,ISGSTR,SGS,ICISTR,LSYM,ICNFTAB,ISPNTAB,
      &                  CI,WORK(LCTMP))
 C Transform SymmG to Slater Dets:
         CALL SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,WORK(LCTMP),DET,
