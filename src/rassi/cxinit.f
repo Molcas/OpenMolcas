@@ -19,7 +19,6 @@
       nSym   =SGS%nSym
       nLev   =SGS%nLev
       nVert  =SGS%nVert
-      lDRT   =SGS%lDRT
       lDown  =SGS%lDown
       MidLev =SGS%MidLev
       MVSta  =SGS%MVSta
@@ -40,7 +39,7 @@ C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       Call GetMem('VSGM','Allo','Real',lVSgm,nSgmnt)
 CTEST      write(*,*)' Calling MKSEG.'
       Call MkSeg(SGS,nLev,nVert,nMidv,
-     &        IWork(lDRT),IWork(lDown),IWork(lLTV),
+     &        SGS%DRT,IWork(lDown),IWork(lLTV),
      &        IWork(lIVR),IWork(lMVL),IWork(lMVR),
      &        IWork(lISgm),Work(lVSgm))
 CTEST      write(*,*)' Back from MKSEG.'
@@ -77,7 +76,7 @@ CUNUSED      nIOW=nNOW
       iXStruct(3)=lIOCP
 CTEST      write(*,*)' Calling NRCOUP.'
       Call NrCoup(SGS,iCIStruct,iXStruct,
-     &         nVert,nMidV,MxEO,SGS%ISm,IWork(lDRT),
+     &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
      &         IWork(lISgm),IWork(lNOW),IWork(lIOW),IWork(lNOCP),
      &         IWork(lIOCP),IWork(lNOCSF),IWork(lIOCSF),
      &         IWork(lNCSF),IWork(lNRL),IWork(lMVL),IWork(lMVR))

@@ -15,7 +15,7 @@ Type SGStruct
      Integer nLev
      Integer, Allocatable:: ISm(:)
      Integer nVert
-     Integer lDRT
+     Integer, Allocatable:: DRT(:)
      Integer lDown
      Integer lUp
      Integer MidLev
@@ -25,18 +25,6 @@ Type SGStruct
      Integer lLTV
 End Type SGStruct
 Public SGStruct
-!     iSGStruct(1) =nSym
-!     iSGStruct(2) =nLev
-!     iSGStruct(3) =lISm
-!     iSGStruct(4) =nVert
-!     iSGStruct(5) =lDRT
-!     iSGStruct(6) =lDown
-!     iSGStruct(7) =lUp
-!     iSGStruct(8) =MidLev
-!     iSGStruct(9) =MVSta
-!     iSGStruct(10)=MVEnd
-!     iSGStruct(11)=lMAW
-!     iSGStruct(12)=lLTV
 ! CI structure, sizes, addresses...
 !     iCIStruct(1)=nMidV
 !     iCIStruct(2)=nIpWlk

@@ -47,20 +47,13 @@ C index as function of the MAW sum.
 
 C Inspect the top row of the DRT to find NACTEL and spin:
       NVERT =SGS%nVert
-      LDRT  =SGS%lDRT
-      NLEV  =IWORK(LDRT)
+      NLEV  =SGS%DRT(1)
       IF (NLEV.GT.MXLEV) THEN
         WRITE(6,*) ' SYG2SGU: error: number of levels exceeds MXLEV'
         WRITE(6,'(1X,2(A,I4))') ' NLEV = ',NLEV,' MXLEV = ',MXLEV
         CALL AbEnd()
       END IF
-      NACTEL=IWORK(LDRT+NVERT)
-CPAM00      IB=IWORK(LDRT+3*NVERT)
-CPAM00      MLTPLC=IB+1
-CTEST      write(*,*)' SYG2SGU Test print, SG struct data:'
-CTEST      write(*,'(1x,a,8I8)')'NVERT:',NVERT
-CTEST      write(*,'(1x,a,8I8)')'NLEV  :',NLEV
-CTEST      write(*,'(1x,a,8I8)')'NACTEL:',NACTEL
+      NACTEL=SGS%DRT(1+NVERT)
 
 C Now a good bound on MINOP, the minimum number of open
 C shells, would be MLTPLC-1. This is the best bound, and it

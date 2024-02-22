@@ -90,10 +90,10 @@ CTEST      write(*,'(1x,10i5)')(IWork(llim-1+i),i=1,nlev)
      &              IWork(lLim),IWork(lNWV))
 CTEST      write(*,*)' Back from RMVERT'
       Call GetMem('Lim  ','Free','Inte',lLim,nLev)
-      Call GetMem('DRT','Allo','Inte',lDRT,5*nVert)
+      Call mma_allocate(SGS%DRT,5*nVert,Label='SGS%DRT')
       Call GetMem('Down','Allo','Inte',lDown,4*nVert)
       Call mkDRT(nVert0,nVert,IWork(lDRT0),IWork(lDown0),IWORK(lNWV),
-     &                        IWork(lDRT),IWork(lDown))
+     &                        SGS%DRT,IWork(lDown))
 CTEST      write(*,*)' Back from DRT. NVERT=',NVERT
       Call GetMem('NwVer ','Free','Inte',lNWV,NVERT0)
       CALL GETMEM('      ','FREE','Inte',LDRT0,NDRT0)
@@ -102,7 +102,7 @@ CTEST      write(*,*)' Back from DRT. NVERT=',NVERT
 C Direct Arc Weights table and Level-To-Vertex table:
       Call GetMem('DAW','Allo','Inte',lDAW,5*nVert)
       Call GetMem('LTV','Allo','Inte',lLTV,nLev+2)
-      Call MkDAW_RASSI(nLev,nVert,IWork(lDRT),IWork(lDown),IWork(lDAW),
+      Call MkDAW_RASSI(nLev,nVert,SGS%DRT,IWork(lDown),IWork(lDAW),
      &           IWork(lLTV))
 
 C Upchain Index table:
@@ -125,7 +125,6 @@ C Put sizes and addresses in structure SGS:
       SGS%nSym   =nSym
       SGS%nLev   =nLev
       SGS%nVert  =nVert
-      SGS%lDRT   =lDRT
       SGS%lDown  =lDown
       SGS%lUP    =lUp
       SGS%MidLev =MidLev

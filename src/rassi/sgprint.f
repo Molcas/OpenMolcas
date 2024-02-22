@@ -17,7 +17,6 @@
 C Unpack structure SGS:
       nLev   =SGS%nLev
       nVert  =SGS%nVert
-      lDRT   =SGS%lDRT
       lDown  =SGS%lDown
       lUp    =SGS%lUp
       MidLev =SGS%MidLev
@@ -36,7 +35,7 @@ C Unpack structure SGS:
       Write(6,*)
       Do iv=1,nVert
         Write(6,'(1x,i4,5x,2i3,2x,3i3,5x,4i4,5x,4i4)')iv,
-     &  (IWork(lDRT-1+iv+nVert*(i-1)),i=1,5),
+     &  (SGS%DRT(iv+nVert*(i-1)),i=1,5),
      &  (IWork(lDown-1+iv+nVert*ic),ic=0,3),
      &  (IWork(  lUp-1+iv+nVert*ic),ic=0,3)
       End Do

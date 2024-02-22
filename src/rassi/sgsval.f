@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SGSVAL(SGS,NSYM,NLEV,NVERT,LDRT,
+      SUBROUTINE SGSVAL(SGS,NSYM,NLEV,NVERT,
      &              LDOWN,LUP,MIDLEV,MVSTA,MVEND,LMAW,LLTV)
       use Struct, only: SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -19,7 +19,6 @@ C and return values and pointers.
       NSYM  =SGS%nSym
       NLEV  =SGS%nLev
       NVERT =SGS%nVert
-      LDRT  =SGS%LDRT
       LDOWN =SGS%lDOWN
       LUP   =SGS%lUP
       MIDLEV=SGS%MidLev
