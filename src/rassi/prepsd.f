@@ -20,8 +20,8 @@
       INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
       INTEGER LSYM,NCONF
       REAL*8 CI(*),DET(*)
-      INTEGER IMODE,LCTMP
-      CHARACTER*8 WFTP
+      INTEGER IMODE
+      CHARACTER(LEN=8) WFTP
       character(len=*), intent(out) :: detocc(*)
       real(8), intent(out) :: detcoeff(*)
       Real*8, Allocatable:: CTMP(:)
