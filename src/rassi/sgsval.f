@@ -8,19 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SGSVAL(SGS,NSYM,NLEV,NVERT,MIDLEV,MVSTA,MVEND)
+      SUBROUTINE SGSVAL(SGS,NSYM,NLEV)
       use Struct, only: SGStruct
       IMPLICIT None
       Type (SGStruct) SGS
-      Integer NSYM,NLEV,NVERT,MIDLEV,MVSTA,MVEND
+      Integer NSYM,NLEV
 C Purpose: Dereference the Split Graph structure user defined type
 C and return values.
 
       NSYM  =SGS%nSym
       NLEV  =SGS%nLev
-      NVERT =SGS%nVert
-      MIDLEV=SGS%MidLev
-      MVSTA =SGS%MVSta
-      MVEND =SGS%MVEnd
 
       END SUBROUTINE SGSVAL

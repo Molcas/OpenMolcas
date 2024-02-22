@@ -453,8 +453,7 @@ C the SGUGA space of JOB1. General RAS:
             WRITE(6,*)'Split-graph structure for JOB1=',JOB1
             CALL SGPRINT(SGS(1))
           END IF
-          CALL SGSVAL(SGS(1),NSYM,NASHT,NVERT,
-     &                MIDLEV,MVSTA,MVEND)
+          CALL SGSVAL(SGS(1),NSYM,NASHT)
           CALL CXINIT(SGS(1),CIS(1),IXSTR1)
           CALL CXSVAL(CIS(1),IXSTR1,NMIDV,NIPWLK,NWALK,
      &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
@@ -585,8 +584,7 @@ C the SGUGA space of JOB1. General RAS:
             WRITE(6,*)'Split-graph structure for JOB2=',JOB2
             CALL SGPRINT(SGS(2))
           END IF
-          CALL SGSVAL(SGS(2),NSYM,NASHT,NVERT,
-     &                MIDLEV,MVSTA,MVEND)
+          CALL SGSVAL(SGS(2),NSYM,NASHT)
           CALL CXINIT(SGS(2),CIS(2),IXSTR2)
           CALL CXSVAL(CIS(2),IXSTR2,NMIDV,NIPWLK,NWALK,
      &                MXEO,LNOCP,LIOCP,NICOUP,LICOUP,NVTAB,
