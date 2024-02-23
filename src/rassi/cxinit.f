@@ -15,10 +15,10 @@
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
-#include "WrkSpc.fh"
 
-      Integer, Allocatable:: IVR(:), ISgm(:), NRL(:)
+      Integer, Allocatable:: IVR(:), ISgm(:), NRL(:), iLndw(:), Scr(:)
       Real*8,  Allocatable::         VSgm(:)
+      Real*8,  Allocatable:: VTabTmp(:), Val(:)
 
       nSym   =SGS%nSym
       nLev   =SGS%nLev
@@ -76,30 +76,28 @@ C Computed in NrCoup:
       nnICoup=3*nICoup
       Call mma_allocate(EXS%ICoup,nnICoup,Label='EXS%ICoup')
       nVMax=5000
-      Call GetMem('VTabTmp','Allo','Real',lVTabTmp,nVMax)
+      Call mma_allocate(VTabTmp,nVMax,Label='VTabTmp')
       nILNDW=nWalk
-      Call GetMem('iLndw','Allo','Inte',liLndw,niLndw)
+      Call mma_allocate(iLndw,niLndw,Label='iLndw')
       nScr=7*(nLev+1)
-      Call GetMem('SCR','Allo','Inte',lScr,nScr)
-      Call GetMem('VAL','Allo','Real',lVal,nLev+1)
+      Call mma_allocate(Scr,nScr,Label='Scr')
+      Call mma_allocate(Val,nLev+1,Label='Val')
       EXS%nVTab =nVMax
       nVTab=nVMax
-      lVTab=lVTabTmp
       Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
      &            MxEO,nICoup,nWalk,nICase,nVTab,
-     &            IVR,SGS%MAW,ISGM,
-     &            VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,
-     &            EXS%IOCP,IWork(lILNDW),CIS%ICase,EXS%ICOUP,
-     &            WORK(lVTAB),IWork(lSCR),WORK(lVAL))
+     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,
+     &            EXS%IOCP,ILNDW,CIS%ICase,EXS%ICOUP,VTabTmp,SCR,VAL)
 
 C nVTab has now been updated to the true size. Allocate final array:
       Call mma_allocate(EXS%Vtab,nVTab,Label='EXS%VTab')
       EXS%nVTab=nVTab
-      call dcopy_(nVTab,Work(lVTabTmp),1,EXS%VTab,1)
-      Call GetMem('VTabTmp','Free','Real',lVTabTmp,nVMax)
-      Call GetMem('iLndw','Free','Inte',liLndw,niLndw)
-      Call GetMem('SCR','Free','Inte',lScr,nScr)
-      Call GetMem('VAL','Free','Real',lVal,nLev+1)
+      EXS%VTab(1:nVTab)=VTabTmp(1:nVTab)
+      Call mma_deallocate(VTabTmp)
+
+      Call mma_deallocate(iLndw)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(Val)
       Call mma_deallocate(ISgm)
       Call mma_deallocate(VSgm)
       Call mma_deallocate(IVR)
