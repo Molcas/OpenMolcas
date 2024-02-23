@@ -18,10 +18,10 @@
 *--------------------------------------------*
       SUBROUTINE MKCOUP_CP2(nSym,nLev,ISm,nVert,
      &                      MidLev,nMidV,MVSta,MVEnd,
-     &                  MxEO,nICoup,nWalk,nICase,
+     &                  MxEO,nICoup,nWalk,nICase,nVTab,
      &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
      &                  NOCP,IOCP,ILNDW,ICase,ICOUP,
-     &                  nVTab,VTab,NVTAB_FINAL,
+     &                  VTab,NVTAB_FINAL,
      &                  ISGPTH,VALUE)
 
       use Symmetry_Info, only: Mul
