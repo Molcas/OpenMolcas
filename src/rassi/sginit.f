@@ -9,13 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
-      use stdalloc, only: mma_allocate
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only: LEVEL, SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
+      Integer nSym, nActEl, iSpin, nRasPrt
       Type (SGStruct) SGS
-      dimension nRas(8,nRasPrt),nRasEl(nRasPrt)
+      Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 #include "WrkSpc.fh"
+
+      Integer, Allocatable:: DRT0(:), Down0(:), Tmp(:)
 
       NLEV=NASHT
 C Allocate Level to Symmetry table ISm:
@@ -59,12 +62,11 @@ CTEST      write(*,*)' NVERT0:',NVERT0
       NDOWN0=4*NVERT0
 
 C Compute unrestricted DRT tables:
-      CALL GETMEM('DRT0  ','ALLO','INTEGER',LDRT0,NDRT0)
-      CALL GETMEM('DOWN0 ','ALLO','INTEGER',LDOWN0,NDOWN0)
+      CALL mma_allocate(DRT0,NDRT0,Label='DRT0')
+      CALL mma_allocate(DOWN0,NDOWN0,Label='DOWN0')
       NTMP=((NLEV+1)*(NLEV+2))/2
-      CALL GETMEM('TMP   ','ALLO','INTEGER',LTMP,NTMP)
-      CALL mkDRT0 (IA0,IB0,IC0,NVERT0,IWORK(LDRT0),IWORK(LDOWN0),
-     &           NTMP,IWORK(LTMP))
+      CALL mma_allocate(TMP,NTMP,Label='TMP')
+      CALL mkDRT0 (IA0,IB0,IC0,NVERT0,DRT0,DOWN0,NTMP,TMP)
 CTEST      write(*,*)' SGINIT: Back from DRT0'
 
 C Construct a restricted graph.
@@ -72,8 +74,6 @@ C Construct a restricted graph.
       Do Lev=1,nLev
         IWork(lLim-1+Lev)=0
       End Do
-CTEST      write(*,*)' Initialize Work(LLIM):'
-CTEST      write(*,'(1x,10i5)')(IWork(llim-1+i),i=1,nlev)
 C Fill in the occupation limit table:
       Lev=0
       Do iRO=1,nRasPrt
@@ -86,18 +86,18 @@ CTEST      write(*,*)' After filling in first values, Work(LLIM):'
 CTEST      write(*,'(1x,10i5)')(IWork(llim-1+i),i=1,nlev)
       Call GetMem('NwVer ','Allo','Inte',lNWV,nVert0)
       nVert=nVert0
-      Call RmVert(nLev,nVert,IWork(lDRT0),IWork(lDown0),
+      Call RmVert(nLev,nVert,DRT0,Down0,
      &              IWork(lLim),IWork(lNWV))
 CTEST      write(*,*)' Back from RMVERT'
       Call GetMem('Lim  ','Free','Inte',lLim,nLev)
       Call mma_allocate(SGS%DRT,5*nVert,Label='SGS%DRT')
       Call mma_allocate(SGS%Down,4*nVert,Label='SGS%Down')
-      Call mkDRT(nVert0,nVert,IWork(lDRT0),IWork(lDown0),IWORK(lNWV),
+      Call mkDRT(nVert0,nVert,DRT0,Down0,IWORK(lNWV),
      &                        SGS%DRT,SGS%Down)
 CTEST      write(*,*)' Back from DRT. NVERT=',NVERT
       Call GetMem('NwVer ','Free','Inte',lNWV,NVERT0)
-      CALL GETMEM('      ','FREE','Inte',LDRT0,NDRT0)
-      CALL GETMEM('      ','FREE','Inte',LDOWN0,NDOWN0)
+      Call mma_deallocate(DRT0)
+      Call mma_deallocate(Down0)
 
 C Direct Arc Weights table and Level-To-Vertex table:
       Call GetMem('DAW','Allo','Inte',lDAW,5*nVert)
@@ -117,7 +117,7 @@ C Modified Arc Weights table:
 C The DAW, RAW tables are no longer needed:
       Call GetMem('RAW','Free','Inte',lRAW,5*nVert)
       Call GetMem('DAW','Free','Inte',lDAW,5*nVert)
-      CALL GETMEM('TMP   ','FREE','INTEGER',LTMP,NTMP)
+      CALL mma_deallocate(TMP)
 
 C Put sizes and addresses in structure SGS:
 
