@@ -18,17 +18,12 @@ Type (ExStruct) ExS
 nSym   =SGS%nSym
 ! Unpack structure CIS:
 nMidV =CIS%nMidV
-nIpWlk=CIS%nIpWlk
-nWalk =CIS%nWalk
 ! Unpack structure EXS:
 MxEO  =EXS%MxEO
-nICoup=EXS%nICoup
-lICoup=EXS%lICoup
 nVTab =EXS%nVTab
 lVTab =EXS%lVTab
 lMVL  =EXS%lMVL
 lMVR  =EXS%lMVR
-nNOW=2*nMidV*nSym
 Call GetMem('MVR','Free','Inte',lMVR,2*nMidV)
 Call GetMem('MVL','Free','Inte',lMVL,2*nMidV)
 Call mma_deallocate(CIS%NOCSF)
@@ -39,8 +34,7 @@ Call mma_deallocate(EXS%NOCP)
 Call mma_deallocate(EXS%IOCP)
 Call mma_deallocate(CIS%NCSF)
 Call mma_deallocate(CIS%ICase)
-nnICoup=(3*nICoup+1)/2
-Call GetMem('ICoup','Free','Inte',lICoup,nnICoup)
+Call mma_deallocate(EXS%ICoup)
 Call GetMem('VTab','Free','Real',lVtab,nVtab)
 
 end subroutine CXClose

@@ -21,7 +21,6 @@
 
       MxEO  =EXS%MxEO
       nICoup=EXS%nICoup
-      lICoup=EXS%lICoup
       nVTab =EXS%nVTab
       lVTab =EXS%lVTab
       lMVL  =EXS%lMVL
@@ -29,7 +28,7 @@
       CALL SIGMA_1(SGS,CIS,EXS,NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
      &             IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
      &             CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &             EXS%NOCP,EXS%IOCP,IWORK(LICOUP),
+     &             EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &             WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 
       end SUBROUTINE SGMONE

@@ -42,7 +42,7 @@ Type EXStruct
      Integer, Allocatable:: NOCP(:)
      Integer, Allocatable:: IOCP(:)
      Integer nICoup
-     Integer lICoup
+     Integer, Allocatable:: ICoup(:)
      Integer nVTab
      Integer lVTab
      Integer lMVL

@@ -80,7 +80,7 @@ C Computed in NrCoup:
 CTEST      write(*,*)' NWALK:',NWALK
       Call mma_allocate(CIS%ICase,nICase,Label='CIS%ICase')
       nnICoup=3*nICoup
-      Call GetMem('ICoup','Allo','Inte',lICoup,nnICoup)
+      Call mma_allocate(EXS%ICoup,nnICoup,Label='EXS%ICoup')
       nVMax=5000
       Call GetMem('VTabTmp','Allo','Real',lVTabTmp,nVMax)
       nILNDW=nWalk
@@ -88,7 +88,6 @@ CTEST      write(*,*)' NWALK:',NWALK
       nScr=7*(nLev+1)
       Call GetMem('SCR','Allo','Inte',lScr,nScr)
       Call GetMem('VAL','Allo','Real',lVal,nLev+1)
-      EXS%lICoup=lICoup
       EXS%nVTab =nVMax
       EXS%lVTab =lVTabTmp
       nVTab=nVMax
@@ -97,7 +96,7 @@ CTEST      write(*,*)' NWALK:',NWALK
      &            MxEO,nICoup,nWalk,nICase,nVTab,
      &            IWork(lIVR),SGS%MAW,IWork(lISGM),
      &            WORK(lVSGM),CIS%NOW,CIS%IOW,EXS%NOCP,
-     &            EXS%IOCP,IWork(lILNDW),CIS%ICase,IWork(lICOUP),
+     &            EXS%IOCP,IWork(lILNDW),CIS%ICase,EXS%ICOUP,
      &            WORK(lVTAB),IWork(lSCR),WORK(lVAL))
 
 C nVTab has now been updated to the true size. Allocate final array:
