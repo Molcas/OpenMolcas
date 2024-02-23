@@ -85,7 +85,6 @@ C
              WRITE(6,*)'Split-graph structure for JOB1=',JOB1
              CALL SGPRINT(SGS(1))
           END IF
-          CALL SGSVAL(SGS(1),NASHT)
           CALL CXINIT(SGS(1),CIS(1),EXS(1),NSYM)
 C CI sizes, as function of symmetry, are now known.
           NCI1=CIS(1)%NCSF(LSYM1)
@@ -167,7 +166,6 @@ C For the second wave function
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
                CALL SGPRINT(SGS(2))
             END IF
-            CALL SGSVAL(SGS(2),NASHT)
             CALL CXINIT(SGS(2),CIS(2),EXS(2),NSYM)
 C     CI sizes, as function of symmetry, are now known.
             NCI2=CIS(2)%NCSF(LSYM2)
@@ -244,7 +242,6 @@ C For the second wave function
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
                CALL SGPRINT(SGS(2))
             END IF
-            CALL SGSVAL(SGS(2),NASHT)
             CALL CXINIT(SGS(2),CIS(2),EXS(2),NSYM)
 C     CI sizes, as function of symmetry, are now known.
             NCI2=CIS(2)%NCSF(LSYM2)
