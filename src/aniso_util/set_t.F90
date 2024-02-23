@@ -30,15 +30,15 @@ if (TINPUT) then
   ! case 1:  T(iT) computed from input values: Texp, and nTempMagn
   !          nTempMagn = 0
   if (nTempMagn > 0) T(1:nTempMagn) = TempMagn(:)
-  T(nTempMagn+1:nTempMagn+nT) = Texp(:)
-  XTexp(nTempMagn+1:nTempMagn+nT) = chit_exp(:)
+  T(nTempMagn+1:) = Texp(:)
+  XTexp(nTempMagn+1:) = chit_exp(:)
 else
   ! case 2:  T(iT) computed from input values: Tmin, Tmax, nT
   !          and nTempMagn
   dltt = (tmax-tmin)/real(nT-1,kind=wp)
 
-  T(nTempMagn+1:nTempMagn+nT) = Texp(:)
-  XTexp(nTempMagn+1:nTempMagn+nT) = chit_exp(:)
+  T(nTempMagn+1:) = Texp(:)
+  XTexp(nTempMagn+1:) = chit_exp(:)
 
   if (nTempMagn > 0) T(1:nTempMagn) = TempMagn(:)
 

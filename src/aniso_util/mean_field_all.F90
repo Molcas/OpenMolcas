@@ -67,11 +67,11 @@ do iter=1,mxIter
   ! build and diagonalize the Zeeman Hamiltonian (size N x N)
   ! for the field direction (X,Y,Z) and strength (H)
   call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(:,1:N,1:N),sM(:,1:N,1:N),ST,zJ,WM(1:N),ZM,_DBG_,RWORK,HZEE,WORK,W_c)
-  WM(N+1:EXCH) = W(N+1:EXCH)
+  WM(N+1:) = W(N+1:)
 
   ! transform the spin momenta to the Zeeman eigenstate basis
   SZ(:,:,:) = cZero
-  call UTMU(EXCH,N,ZM(1:N,1:N),SM,SZ)
+  call UTMU(EXCH,N,ZM,SM,SZ)
   ! compute the spin magnetization vector at this temperature (T):
   if (iter == mxIter) SL(:) = S(:)
 
@@ -79,7 +79,7 @@ do iter=1,mxIter
   S(:) = Zero
   if (N == EXCH) then
     do L=1,3
-      call calcmagn1(EXCH,WM,SZ(l,1:EXCH,1:EXCH),T,S(l),ZB)
+      call calcmagn1(EXCH,WM,SZ(l,:,:),T,S(l),ZB)
     end do
   else
     do L=1,3

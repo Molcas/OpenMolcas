@@ -106,17 +106,17 @@ if (DBG) then
   write(u6,*) 'Input data:  zJ = ',zJ
   write(u6,*) 'Input data: W() = ',W(1:N)
   write(u6,*) 'Input data: ST()= ',ST(1:3)
-  call prmom('INput data dM:',dM,N)
-  call prmom('INput data sM:',sM,N)
+  call prmom('Input data dM:',dM,N)
+  call prmom('Input data sM:',sM,N)
 end if
 
 ! Build and diagonalize the Zeeman Hamiltonian
 ! most important output are: WM (energies) and ZM (eigenvectors)
-call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(1:3,1:N,1:N),sM(1:3,1:N,1:N),ST,zJ,WM(1:N),ZM,DBG,RWORK,HZEE,WORK,W_c)
+call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(:,1:N,1:N),sM(:,1:N,1:N),ST,zJ,WM(1:N),ZM,DBG,RWORK,HZEE,WORK,W_c)
 if (DBG) write(u6,*) 'Exit ZEEM::'
 
 WZ(:) = WM(1:N)
-WM(N+1:EXCH) = W(N+1:EXCH)
+WM(N+1:) = W(N+1:)
 
 ! transform the momenta
 call UTMU(EXCH,N,ZM,sM,SZ)

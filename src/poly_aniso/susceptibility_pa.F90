@@ -153,7 +153,7 @@ if (zJ == Zero) then
       write(u6,'(A,2I5)') 'nss(i)=',nss(i)
       write(u6,'(A,2I5)') 'nexch(i)=',nexch(i)
       write(u6,'(A,9F10.6)') 'eso(i,:)=',eso(i,1:nss(i))
-      write(u6,'(A,9F10.6)') 'W(:)    =',W(1:exch)
+      write(u6,'(A,9F10.6)') 'W(:)    =',W(:)
       write(u6,'(A,9F10.6)') 'T(iT)=',T(iT)
 #     endif
       call chi(dipso(i,:,1:nss(i),1:nss(i)),dipso(i,:,1:nss(i),1:nss(i)),eso(i,1:nss(i)),nss(i),T(it),zstat_l(i),chit_tens_l(i,:,:))
@@ -442,16 +442,15 @@ Fa = dnrm2_(nT+nTempMagn,zstat_tot,1)
 call Add_Info('XT: CHIT_THETA',[Fa],1,6)
 !  calcualtion of the standard deviation:
 if (tinput) &
-  write(u6,'(a,5x, f20.14)') 'ST.DEV.CHIT:',dev(nT,chit_theta((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
+  write(u6,'(a,5x, f20.14)') 'ST.DEV.CHIT:',dev(nT,chit_theta(1+nTempMagn:),XTexp(1+nTempMagn:))
 
 !-------------------------  PLOTs -------------------------------------!
 write(label,'(A)') 'no_field'
 if (DoPlot) then
   if (tinput) then
-    call plot_XT_with_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),chit_theta((1+nTempMagn):(nT+nTempMagn)), &
-                          XTexp((1+nTempMagn):(nT+nTempMagn)))
+    call plot_XT_with_Exp(label,nT,T(1+nTempMagn:),chit_theta(1+nTempMagn:),XTexp(1+nTempMagn:))
   else
-    call plot_XT_no_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),chit_theta((1+nTempMagn):(nT+nTempMagn)))
+    call plot_XT_no_Exp(label,nT,T(1+nTempMagn:),chit_theta(1+nTempMagn:))
   end if
 end if
 !---------------------- END PLOTs -------------------------------------!

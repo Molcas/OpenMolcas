@@ -104,7 +104,7 @@ W_c(:) = cZero
 
 do iT=1,nT
   ! determine first the average spin of neighboring
-  ! molecules for each temperature point ST(1:3)
+  ! molecules for each temperature point ST(:)
   if (m_paranoid) then
     ST(:) = Zero
     call mean_field(EXCH,N,H,X,Y,Z,zJ,T(iT),W,thrs,DM,SM,ST,dbg)
@@ -127,12 +127,12 @@ do iT=1,nT
   WM(:) = Zero
   ZM(:,:) = cZero
 
-  call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(1:3,1:N,1:N),sM(1:3,1:N,1:N),ST,zJ,WM(1:N),ZM(1:N,1:N),DBG,RWORK,HZEE,WORK,W_c)
+  call ZEEM_SA(N,H,X,Y,Z,W(1:N),dM(:,1:N,1:N),sM(:,1:N,1:N),ST,zJ,WM(1:N),ZM(1:N,1:N),DBG,RWORK,HZEE,WORK,W_c)
 
   ! move WM energies to WZ:
   WZ(:) = WM(:)
   ! /// calculation of matrix elements of spin momentum in the basis of Zeeman states
-  WM(N+1:EXCH) = W(N+1:EXCH)
+  WM(N+1:) = W(N+1:)
 
   ! transform the momenta
   SZ(:,:,:) = cZero
@@ -143,8 +143,8 @@ do iT=1,nT
   ! calculation of magnetizations at different temperatures:
   if (N == EXCH) then
     do l=1,3
-      if (sopt) call calcmagn1(EXCH,WM,SZ(l,1:EXCH,1:EXCH),T(iT),S(l,iT),ZB(iT))
-      call calcmagn1(EXCH,WM,MZ(l,1:EXCH,1:EXCH),T(iT),M(l,iT),ZB(iT))
+      if (sopt) call calcmagn1(EXCH,WM,SZ(l,:,:),T(iT),S(l,iT),ZB(iT))
+      call calcmagn1(EXCH,WM,MZ(l,:,:),T(iT),M(l,iT),ZB(iT))
     end do
   else
     do l=1,3

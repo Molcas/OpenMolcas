@@ -67,8 +67,8 @@ if (nss >= 2) then
   call prmom('GENERATE_SITE: MAGNETIC MOMENT:',M,nss)
 # endif
 
-  RM = dznrm2_(3*nss*nss,M(1:3,1:nss,1:nss),1)
-  RS = dznrm2_(3*nss*nss,S(1:3,1:nss,1:nss),1)
+  RM = dznrm2_(3*nss*nss,M(:,1:nss,1:nss),1)
+  RS = dznrm2_(3*nss*nss,S(:,1:nss,1:nss),1)
 # ifdef _DEBUGPRINT_
   write(u6,'(A,2ES22.14)') 'Norms of M and S:',RM,RS
 # endif

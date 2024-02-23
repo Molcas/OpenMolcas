@@ -12,7 +12,7 @@
 subroutine cart2tensor_minus(Jc,Jt)
 ! this subroutine computed tensorial parameters for Hexch= -Jcart.S1.S2
 
-use Constants, only: Half, cZero, cOne, Onei
+use Constants, only: Half, cOne, Onei
 use Definitions, only: wp
 
 implicit none
@@ -20,8 +20,6 @@ real(kind=wp), intent(in) :: Jc(3,3)
 complex(kind=wp), intent(out) :: Jt(-1:1,-1:1)
 complex(kind=wp) :: xx, xy, xz, yx, yy, yz, zx, zy, zz
 complex(kind=wp), parameter :: c2 = Half*cOne, cx2 = sqrt(Half)*cOne
-
-jt(-1:1,-1:1) = cZero
 
 xx = jc(1,1)*cOne
 xy = jc(1,2)*cOne

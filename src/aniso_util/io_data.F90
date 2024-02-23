@@ -198,23 +198,14 @@ call mma_allocate(YZ,n,n,label='YZ')
 call mma_allocate(ZY,n,n,label='ZY')
 call mma_allocate(ZX,n,n,label='ZX')
 call mma_allocate(XZ,n,n,label='XZ')
-XY(:,:) = cZero
-YX(:,:) = cZero
-call zgemm_('n','n',n,n,n,cOne,moment(1,1:n,1:n),n,moment(2,1:n,1:n),n,cZero,XY,n)
+call zgemm_('n','n',n,n,n,cOne,moment(1,:,:),n,moment(2,:,:),n,cZero,XY,n)
+call zgemm_('n','n',n,n,n,cOne,moment(2,:,:),n,moment(1,:,:),n,cZero,YX,n)
 
-call zgemm_('n','n',n,n,n,cOne,moment(2,1:n,1:n),n,moment(1,1:n,1:n),n,cZero,YX,n)
+call zgemm_('n','n',n,n,n,cOne,moment(2,:,:),n,moment(3,:,:),n,cZero,YZ,n)
+call zgemm_('n','n',n,n,n,cOne,moment(3,:,:),n,moment(2,:,:),n,cZero,ZY,n)
 
-YZ(:,:) = cZero
-ZY(:,:) = cZero
-call zgemm_('n','n',n,n,n,cOne,moment(2,1:n,1:n),n,moment(3,1:n,1:n),n,cZero,YZ,n)
-
-call zgemm_('n','n',n,n,n,cOne,moment(3,1:n,1:n),n,moment(2,1:n,1:n),n,cZero,ZY,n)
-
-ZX(:,:) = cZero
-XZ(:,:) = cZero
-call zgemm_('n','n',n,n,n,cOne,moment(3,1:n,1:n),n,moment(1,1:n,1:n),n,cZero,ZX,n)
-
-call zgemm_('n','n',n,n,n,cOne,moment(1,1:n,1:n),n,moment(3,1:n,1:n),n,cZero,XZ,n)
+call zgemm_('n','n',n,n,n,cOne,moment(3,:,:),n,moment(1,:,:),n,cZero,ZX,n)
+call zgemm_('n','n',n,n,n,cOne,moment(1,:,:),n,moment(3,:,:),n,cZero,XZ,n)
 
 if (dbg) then
   do l=1,3
@@ -286,11 +277,11 @@ call mma_allocate(Y2,n,n,label='Y2')
 call mma_allocate(Z2,n,n,label='Z2')
 call mma_allocate(S2,n,n,label='S2')
 
-call zgemm_('c','n',n,n,n,cOne,moment(1,1:n,1:n),n,moment(1,1:n,1:n),n,cZero,X2,n)
+call zgemm_('c','n',n,n,n,cOne,moment(1,:,:),n,moment(1,:,:),n,cZero,X2,n)
 
-call zgemm_('c','n',n,n,n,cOne,moment(2,1:n,1:n),n,moment(2,1:n,1:n),n,cZero,Y2,n)
+call zgemm_('c','n',n,n,n,cOne,moment(2,:,:),n,moment(2,:,:),n,cZero,Y2,n)
 
-call zgemm_('c','n',n,n,n,cOne,moment(3,1:n,1:n),n,moment(3,1:n,1:n),n,cZero,Z2,n)
+call zgemm_('c','n',n,n,n,cOne,moment(3,:,:),n,moment(3,:,:),n,cZero,Z2,n)
 
 ! matrix add:
 ! S2 = X2 + Y2 + Z2
@@ -342,7 +333,7 @@ do i=1,n
 end do
 if (dbg) write(u6,'(A,2ES22.14)') 'check_hermiticity_moment::  trace of A(i,j)-CONJG(A(j,i)) = ',c
 if (abs(c) > 1.0e-6_wp) then
-  call WarningMessage(1,'check_hermiticity_moment:: trace of M(1:3,i,j)-CONJG(A(1:3,j,i)) is larger than 1.0e-6. '// &
+  call WarningMessage(1,'check_hermiticity_moment:: trace of M(:,i,j)-CONJG(A(:,j,i)) is larger than 1.0e-6. '// &
                       'The hermiticity of input moment is not quite fulfilled')
 else
   write(u6,'(A,ES22.14)') 'check_hermiticity_moment:  The input moment passes the hermiticity test.'
@@ -431,7 +422,7 @@ if (dbg) then
   write(u6,*) 'read_magnetic_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
 end if
 moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) call check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
+if (dbg) call check_hermiticity_matrix(n,moment(1,:,:),dbg)
 ! projection Y
 rr = Zero
 ri = Zero
@@ -442,7 +433,7 @@ if (dbg) then
   write(u6,*) 'read_magnetic_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
 end if
 moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) call check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
+if (dbg) call check_hermiticity_matrix(n,moment(2,:,:),dbg)
 ! projection Z
 rr = Zero
 ri = Zero
@@ -454,7 +445,7 @@ if (dbg) then
 end if
 moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_magnetic_moment:: the norm of the read moment is zero!')
-if (dbg) call check_hermiticity_matrix(n,moment(3,1:n,1:n),dbg)
+if (dbg) call check_hermiticity_matrix(n,moment(3,:,:),dbg)
 call mma_deallocate(rr)
 call mma_deallocate(ri)
 if (dbg) then
@@ -600,7 +591,7 @@ end if
 moment(1,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dbg) then
   write(u6,*) 'ENTER read_spin_moment p6'
-  call check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
+  call check_hermiticity_matrix(n,moment(1,:,:),dbg)
   call xFlush(u6)
 end if
 ! projection Y
@@ -614,7 +605,7 @@ if (dbg) then
   call xFlush(u6)
 end if
 moment(2,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
-if (dbg) call check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
+if (dbg) call check_hermiticity_matrix(n,moment(2,:,:),dbg)
 ! projection Z
 rr = Zero
 ri = Zero
@@ -627,7 +618,7 @@ if (dbg) then
 end if
 moment(3,:,:) = cmplx(rr(:,:),ri(:,:),kind=wp)
 if (dznrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_spin:: the norm of the read moment is zero!')
-if (dbg) call check_hermiticity_matrix(n,moment(3,1:n,1:n),dbg)
+if (dbg) call check_hermiticity_matrix(n,moment(3,:,:),dbg)
 call mma_deallocate(rr)
 call mma_deallocate(ri)
 if (dbg) call check_commutation(n,moment,dbg)
@@ -834,15 +825,15 @@ integer(kind=iwp), intent(out) :: array(n)
 logical(kind=iwp), intent(in) :: dbg
 logical(kind=iwp), external :: inquire_key_presence
 
-array = 0
+array(:) = 0
 if (inquire_key_presence(DATA_FILE,'$multiplicity')) call read_1d_INTEGER_array(DATA_FILE,'$multiplicity',n,array,dbg)
-if (sum(abs(array(1:n))) == 0) then
+if (sum(abs(array)) == 0) then
   call WarningMessage(1,'read_multiplicity:: it seems that all the multiplicities in DATA_FILE are 0. Is it really the case?')
-  write(u6,*) 'read_multiplicity:: SUM(Sz) = ',sum(abs(array(1:n)))
+  write(u6,*) 'read_multiplicity:: SUM(Sz) = ',sum(abs(array))
 end if
-if (sum(array(1:n)) == 0) then
+if (sum(array) == 0) then
   call WarningMessage(1,'read_multiplicity:: it seems that all the multiplicities in DATA_FILE are 0. Is it really the case?')
-  write(u6,*) 'read_szproj:: SUM(Sz) = ',sum(array(1:n))
+  write(u6,*) 'read_szproj:: SUM(Sz) = ',sum(array)
 end if
 
 return
@@ -859,11 +850,11 @@ integer(kind=iwp), intent(out) :: array(n)
 logical(kind=iwp), intent(in) :: dbg
 logical(kind=iwp), external :: inquire_key_presence
 
-array = 0
+array(:) = 0
 if (inquire_key_presence(DATA_FILE,'$imult')) call read_1d_INTEGER_array(DATA_FILE,'$imult',n,array,dbg)
-if (sum(array(1:n)) == 0) then
+if (sum(array) == 0) then
   call WarningMessage(1,'read_imult:: it seems that all the multiplicities in DATA_FILE are 0. Is it really the case?')
-  write(u6,*) 'read_imult:: SUM(mult()) = ',sum(array(1:n))
+  write(u6,*) 'read_imult:: SUM(mult()) = ',sum(array)
 end if
 
 return
@@ -899,12 +890,12 @@ integer(kind=iwp), intent(out) :: array(n)
 logical(kind=iwp), intent(in) :: dbg
 logical(kind=iwp), external :: inquire_key_presence
 
-array = 0
+array(:) = 0
 if (inquire_key_presence(DATA_FILE,'$nroot')) call read_1d_INTEGER_array(DATA_FILE,'$nroot',n,array,dbg)
-if (sum(array(1:n)) == 0) then
+if (sum(array) == 0) then
   call WarningMessage(1,'read_nroot:: it seems that the number of roots included in spin-orbit interaction in DATA_FILE are 0. '// &
                       'Is it really the case?')
-  write(u6,*) 'read_szproj:: SUM(array()) = ',sum(array(1:n))
+  write(u6,*) 'read_szproj:: SUM(array()) = ',sum(array)
 end if
 
 return
@@ -921,15 +912,15 @@ integer(kind=iwp), intent(out) :: array(n)
 logical(kind=iwp), intent(in) :: dbg
 logical(kind=iwp), external :: inquire_key_presence
 
-array = 0
+array(:) = 0
 if (inquire_key_presence(DATA_FILE,'$szproj')) call read_1d_INTEGER_array(DATA_FILE,'$szproj',n,array,dbg)
-if (sum(abs(array(1:n))) == 0) then
+if (sum(abs(array)) == 0) then
   call WarningMessage(1,'read_szproj:: it seems that SUM(ABS(Sz)) in DATA_FILE is 0. Is it really the case?')
-  write(u6,*) 'read_szproj:: SUM(ABS(Sz)) = ',sum(abs(array(1:n)))
+  write(u6,*) 'read_szproj:: SUM(ABS(Sz)) = ',sum(abs(array))
 end if
-if (sum(array(1:n)) /= 0) then
+if (sum(array) /= 0) then
   call WarningMessage(1,'read_szproj:: it seems that SUM(Sz) in DATA_FILE is not 0. Is it really the case?')
-  write(u6,*) 'read_szproj:: SUM(Sz) = ',sum(array(1:n))
+  write(u6,*) 'read_szproj:: SUM(Sz) = ',sum(array)
 end if
 
 return
@@ -1743,8 +1734,7 @@ if ((trim(s) /= 'l') .or. (trim(s) /= 'j')) then
   return
 end if
 
-if (sum(abs(cfp(1:(n-1),-(n-1):(n-1)))) <= MINIMAL_REAL) call WarningMessage(1,'write_stev_cfp_'//trim(s)// &
-                                                                             ':: all array elements are zero = 0.')
+if (sum(abs(cfp)) <= MINIMAL_REAL) call WarningMessage(1,'write_stev_cfp_'//trim(s)//':: all array elements are zero = 0.')
 
 rewind(ANISO_FILE)
 call file_advance_to_string(ANISO_FILE,'$stev_cfp_'//trim(s),line,ierr,dbg)
@@ -3168,7 +3158,7 @@ if (n <= 0) then
   call WarningMessage(1,'write_1d_INTEGER_array:: nothing to write. Array size = 0.')
   return
 end if
-if (sum(abs(array(1:n))) == 0) call WarningMessage(1,'write_1d_INTEGER_array:: all array elements are zero = 0.')
+if (sum(abs(array)) == 0) call WarningMessage(1,'write_1d_INTEGER_array:: all array elements are zero = 0.')
 
 rewind(LU)
 call file_advance_to_string(LU,key,line,ierr,dbg)
@@ -3210,7 +3200,7 @@ if ((n1 <= 0) .or. (n2 <= 0)) then
   call WarningMessage(1,'write_2d_INTEGER_array:: nothing to write. Array size = 0.')
   return
 end if
-if (sum(abs(array(1:n1,1:n2))) == 0) call WarningMessage(1,'write_2d_INTEGER_array:: all array elements are zero = 0.')
+if (sum(abs(array)) == 0) call WarningMessage(1,'write_2d_INTEGER_array:: all array elements are zero = 0.')
 
 rewind(LU)
 call file_advance_to_string(LU,key,line,ierr,dbg)
@@ -3259,7 +3249,7 @@ if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0)) then
   call WarningMessage(1,'write_3d_INTEGER_array:: nothing to write. Array size = 0.')
   return
 end if
-if (sum(abs(array(1:n1,1:n2,1:n3))) == 0) call WarningMessage(1,'write_3d_INTEGER_array:: all array elements are zero = 0.')
+if (sum(abs(array)) == 0) call WarningMessage(1,'write_3d_INTEGER_array:: all array elements are zero = 0.')
 
 rewind(LU)
 call file_advance_to_string(LU,key,line,ierr,dbg)
@@ -3312,7 +3302,7 @@ if ((n1 <= 0) .or. (n2 <= 0) .or. (n3 <= 0) .or. (n4 <= 0)) then
   call WarningMessage(1,'write_4d_INTEGER_array:: nothing to write. Array size = 0.')
   return
 end if
-if (sum(abs(array(1:n1,1:n2,1:n3,1:n4))) == 0) call WarningMessage(1,'write_4d_INTEGER_array:: all array elements are zero = 0.')
+if (sum(abs(array)) == 0) call WarningMessage(1,'write_4d_INTEGER_array:: all array elements are zero = 0.')
 
 rewind(LU)
 call file_advance_to_string(LU,key,line,ierr,dbg)

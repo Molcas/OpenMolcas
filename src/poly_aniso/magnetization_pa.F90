@@ -203,10 +203,10 @@ write(u6,*) 'mem_total=',mem+mem_local
 nP = get_nP(nsymm,ngrid)
 
 call hdir(nDir,nDirZee,dirX,dirY,dirZ,dir_weight,nP,nsymm,ngrid,nDirTot,dHX,dHY,dHZ,dHW)
-call Add_Info('MR_MAGN  dHX',dHX(1:5),5,10)
-call Add_Info('MR_MAGN  dHY',dHY(1:5),5,10)
-call Add_Info('MR_MAGN  dHZ',dHZ(1:5),5,10)
-call Add_Info('MR_MAGN  dWX',dHW(1:5),5,10)
+call Add_Info('MR_MAGN  dHX',dHX,min(5,nDirTot),10)
+call Add_Info('MR_MAGN  dHY',dHY,min(5,nDirTot),10)
+call Add_Info('MR_MAGN  dHZ',dHZ,min(5,nDirTot),10)
+call Add_Info('MR_MAGN  dWX',dHW,min(5,nDirTot),10)
 #ifdef _DEBUGPRINT_
 write(u6,'(A,F10.6)') '        zJ = ',zJ
 write(u6,'(A,F10.6)') '      thrs = ',thrs
@@ -364,16 +364,16 @@ do iH=1,nH
         if (NSS(i) > NEXCH(i)) then
           ! this check is to avoid the unnecessary computation, in cases when no local excited states are present
           call MAGN(NSS(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NSS(i)),zJ,THRS,DIPSO(i,:,1:NSS(i),1:NSS(i)), &
-                    S_SO(i,:,1:NSS(i),1:NSS(i)),nTempMagn,TempMagn(1:nTempMagn),smagn,WL(i,1:NEXCH(i)),ZL(i,1:nTempMagn), &
-                    SL(i,:,1:nTempMagn),ML(i,:,1:nTempMagn),m_paranoid,DBG)
+                    S_SO(i,:,1:NSS(i),1:NSS(i)),nTempMagn,TempMagn,smagn,WL(i,1:NEXCH(i)),ZL(i,:),SL(i,:,:),ML(i,:,:),m_paranoid, &
+                    DBG)
           if (IM == 2) call Add_Info('MR_MAGN  WL',[dnrm2_(nexch(i),WL(i,:),1)],1,8)
 #         ifdef _DEBUGPRINT_
           write(u6,'(A,I2,A,3F11.7)') 'ML: site',i,' : ',(ML(i,l,1),l=1,3)
 #         endif
           ! only local "exchange states":
           call MAGN(NEXCH(i),NEXCH(i),dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO(i,1:NEXCH(i)),zJ,THRS,DIPSO(i,:,1:NEXCH(i),1:NEXCH(i)), &
-                    S_SO(i,:,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn,WR(i,1:Nexch(i)),ZR(i,1:nTempMagn), &
-                    SR(i,:,1:nTempMagn),MR(i,:,1:nTempMagn),m_paranoid,DBG)
+                    S_SO(i,:,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn,WR(i,1:Nexch(i)),ZR(i,:),SR(i,:,:),MR(i,:,:), &
+                    m_paranoid,DBG)
           if (IM == 2) call Add_Info('MR_MAGN  WR',[dnrm2_(nexch(i),WR(i,:),1)],1,8)
 #         ifdef _DEBUGPRINT_
           write(u6,'(A,I2,A,3F11.7)') 'MR: site',i,' : ',(MR(i,l,1),l=1,3)

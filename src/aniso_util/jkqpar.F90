@@ -57,7 +57,7 @@ ipr = 1
 !  HEXCH = SUM(rank1,proj1,rank2,proj2)=
 !         { B(rank1,proj1,rank2,proj2)* O1(rank1,proj1) * O2(rank2,proj2) }
 ! Naoya definition
-! eq.40 in DoI:10.1103/PhysRevB.91.174438
+! eq.40 in Doi:10.1103/PhysRevB.91.174438
 Jpar(:,:,:,:) = cZero
 do k1=1,N1-1
   do q1=0,k1

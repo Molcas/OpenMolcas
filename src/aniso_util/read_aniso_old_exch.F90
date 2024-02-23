@@ -36,7 +36,7 @@ call mma_allocate(tmp,nss_local,'tmp')
 ! local spin-orbit energy
 read(LuAniso,*) (tmp(j),j=1,nss_local)
 ! copy the lowest nss states to eso:
-eso(:) = tmp(1:nss)
+eso(:) = tmp(:)
 call mma_deallocate(tmp)
 !-----------------------------------------------------------------------
 read(LuAniso,*) (l,j=1,nstate_local)

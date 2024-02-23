@@ -58,8 +58,8 @@ if (iPrint > 2) then
   write(u6,*) 'Tmax       =',tmax
   write(u6,*) '  nT       =',nT
   write(u6,*) '  nTempMagn=',nTempMagn
-  write(u6,*) 'Temperature:',T(1:nT+nTempMagn)
-  write(u6,*) 'ESO:',ESO(1:nss)
+  write(u6,*) 'Temperature:',T(:)
+  write(u6,*) 'ESO:',ESO(:)
   call prMom('SUSC: input  S_SO(l,i,j):',S_SO,nss)
   call prMom('SUSC: input DIPSO(l,i,j):',DIPSO,nss)
   call atens(DIPSO,nss,gtens,maxes,2)
@@ -203,7 +203,7 @@ if (TINPUT) then
   write(u6,'(/)')
   write(u6,'(5X,A      )') 'STANDARD DEVIATION OF THE CALCULATED MAGNETIC SUSCEPTIBILITY'
   write(u6,'(5X,A,F12.7)') 'FROM EXPERIMENTAL VALUES PROVIDED IN THE INPUT FILE IS:', &
-                           dev(nT,chit_theta((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
+                           dev(nT,chit_theta(1+nTempMagn:),XTexp(1+nTempMagn:))
 
 end if
 
@@ -211,10 +211,9 @@ end if
 write(label,'(A)') 'no_field'
 if (DoPlot) then
   if (tinput) then
-    call plot_XT_with_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),chit_theta((1+nTempMagn):(nT+nTempMagn)), &
-                          XTexp((1+nTempMagn):(nT+nTempMagn)))
+    call plot_XT_with_Exp(label,nT,T(1+nTempMagn:),chit_theta(1+nTempMagn:),XTexp(1+nTempMagn:))
   else
-    call plot_XT_no_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),chit_theta((1+nTempMagn):(nT+nTempMagn)))
+    call plot_XT_no_Exp(label,nT,T(1+nTempMagn:),chit_theta(1+nTempMagn:))
   end if
 end if
 !---------------------- END PLOTs -------------------------------------!

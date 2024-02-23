@@ -34,7 +34,7 @@ if ((n1 <= 0) .or. (n2 <= 0)) return
 HAM(:,:,:,:) = cZero
 ibuf = MxR1*(2*MxR1+1)*MxR2*(2*MxR2+1)
 if (ibuf == 0) return
-jpar = dnrm2_(ibuf,JR(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)+dnrm2_(ibuf,JI(1:MxR1,-MxR1:MxR1,1:MxR2,-MxR2:MxR2),1)
+jpar = dnrm2_(ibuf,JR,1)+dnrm2_(ibuf,JI,1)
 if (jpar == Zero) return
 ! ---- end initial checks
 call mma_allocate(J,[1,MxR1],[-MxR1,MxR1],[1,MxR2],[-MxR2,MxR2],label='J')

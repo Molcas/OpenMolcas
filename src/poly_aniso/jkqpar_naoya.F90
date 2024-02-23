@@ -33,7 +33,7 @@ call mma_allocate(QMAT,N1,N1,N2,N2,label='QMAT')
 ! we need to project now the HEXCH: in products of ITOs
 !  HEXCH = SUM(rank1,proj1,rank2,proj2) = { B(rank1,proj1,rank2,proj2)* O1(rank1,proj1) * O2(rank2,proj2) }
 ! Naoya definition
-! eq.40 in DoI:10.1103/PhysRevB.91.174438
+! eq.40 in Doi:10.1103/PhysRevB.91.174438
 Jpar(:,:,:,:) = cZero
 J1 = N1-1 ! i.e. double of the dimension of the spin on site 1
 J2 = N2-1 ! i.e. double of the dimension of the spin on site 2

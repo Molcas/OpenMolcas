@@ -57,7 +57,7 @@ if (iopt == 1) then
   X(:,:) = Xex(:,:)+XLT(:,:)-XRT(:,:)
 
 else if (iopt == 2) then
-  ! "thesis formula:"
+  ! thesis formula:
   ZLT = product(ZL)
   ZRT = product(ZR)
   Z = Zex+ZLT-ZRT
@@ -68,8 +68,7 @@ else if (iopt == 2) then
   X(:,:) = (Xex(:,:)*Zex+XLT(:,:)-XRT(:,:))/Z
 
 else if (iopt == 3) then
-  ! "weird formula as implemented in some version of the
-  ! code, e.g. in the 2013 version:"
+  ! weird formula as implemented in some version of the code, e.g. in the 2013 version:
   ZLT = product(ZL)
   ZRT = product(ZR)
   ZLT = Zex*ZLT/ZRT

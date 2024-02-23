@@ -431,7 +431,7 @@ end if
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-call Add_Info('MAGN_AVERAGED',MAV(1:nH,1:nTempMagn),nH*nTempMagn,5)
+call Add_Info('MAGN_AVERAGED',MAV,nH*nTempMagn,5)
 if (compute_Mdir_vector) then
   call Add_Info('MAGN_VECT_X(2)     ',MVEC(1,2,1,1),1,4)
   call Add_Info('MAGN_VECT_X(nH/2)  ',MVEC(1,(NH-1)/2,1,1),1,4)

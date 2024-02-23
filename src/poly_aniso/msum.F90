@@ -62,7 +62,7 @@ if (iopt == 1) then
 # endif
 
 else if (iopt == 2) then
-  ! "thesis formula:"
+  ! thesis formula:
   ZLT = product(ZL)
   ZRT = product(ZR)
   Z = Zex+ZLT-ZRT

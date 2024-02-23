@@ -30,7 +30,7 @@ nM = 1
 EM = Zero
 diff = Zero
 T_High = Zero
-if (nTempMagn > 0) T_High = maxval(TempMagn(1:nTempMagn))
+if (nTempMagn > 0) T_High = maxval(TempMagn(:))
 
 if (dbg) then
   write(u6,*) 'exch             = ',exch
@@ -43,8 +43,8 @@ if (dbg) then
   write(u6,*) 'hmax             = ',hmax
   write(u6,*) 'encut_rate       = ',encut_rate
   write(u6,*) 'EM               = ',EM
-  write(u6,*) 'TempMagn()       = ',TempMagn(1:nTempMagn)
-  write(u6,*) 'W()              = ',W(1:exch)
+  write(u6,*) 'TempMagn()       = ',TempMagn(:)
+  write(u6,*) 'W()              = ',W(:)
 end if
 
 if (encut_definition == 1) then

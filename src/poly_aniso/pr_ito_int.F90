@@ -181,8 +181,8 @@ do lp=1,npair
   end if
 
 end do !lp
-call prMom('SM(i1) bf Lines1',SM(i1,1:3,1:n1,1:n1),n1)
-call prMom('SM(i2) bf Lines1',SM(i2,1:3,1:n2,1:n2),n2)
+call prMom('SM(i1) bf Lines1',SM(i1,:,1:n1,1:n1),n1)
+call prMom('SM(i2) bf Lines1',SM(i2,:,1:n2,1:n2),n2)
 #endif
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -257,8 +257,8 @@ do lp=1,npair
 
     ! rotate cartesian J1C matrix by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
+    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
     do j=1,3
       do l=1,3
         do k=1,3
@@ -310,13 +310,13 @@ do lp=1,npair
     !call ESO(n1,1,0,S1b(3,1:n1,1:n1),W1b(1:n1,1:n1),redME)
     !S2b(:,:,:) = S1b(:,:,:)
     !
-    !call prmom('SM(i1) bf recover HAM',SM(i1,1:3,1:n1,1:n1),n1)
-    !call prmom('SM(i2) bf recover HAM',SM(i2,1:3,1:n2,1:n2),n2)
+    !call prmom('SM(i1) bf recover HAM',SM(i1,:,1:n1,1:n1),n1)
+    !call prmom('SM(i2) bf recover HAM',SM(i2,:,1:n2,1:n2),n2)
     !
     !J1C_trans(:,:) = -J1Cr(:,:)
     !write(u6,'(/)')
-    !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,S1b(1:3,1:n1,1:n1),S2b(1:3,1:n2,1:n2),HAM)
-    !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,SM(i1,1:3,1:n1,1:n1),SM(i2,1:3,1:n2,1:n2),HAM)
+    !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,S1b(:,1:n1,1:n1),S2b(:,1:n2,1:n2),HAM)
+    !call Aniso_Lines_Exchange9(J1C_trans,n1,n2,SM(i1,:,1:n1,1:n1),SM(i2,:,1:n2,1:n2),HAM)
     !
     !write(u6,'(A,i5)') 'HLIN1: ORIG, REGEN, DIFF:'
     !do is1=1,n1
@@ -344,8 +344,8 @@ do lp=1,npair
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
+    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
     do j=1,3
       do l=1,3
         do k=1,3
@@ -398,8 +398,8 @@ do lp=1,npair
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
+    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
     do j=1,3
       do l=1,3
         do k=1,3
@@ -447,12 +447,12 @@ do lp=1,npair
     call newjkqpar(n1,n2,HDIP(lp,1:n1,1:n1,1:n2,1:n2),JN,JB,JS)
 
     J1Cr(:,:) = Zero
-    call tensor2cart(JB(1,-1:1,1,-1:1),J1C(1:3,1:3))
+    call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
-    call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
+    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
     do j=1,3
       do l=1,3
         do k=1,3
@@ -496,8 +496,8 @@ do lp=1,npair
     J1Cr(:,:) = Zero
     call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
 
-    call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
+    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
@@ -544,8 +544,8 @@ do lp=1,npair
     call tensor2cart(JB(1,-1:1,1,-1:1),J1C)
 
     J1Cr(:,:) = Zero
-    call atens(MM(i1,1:3,1:n1,1:n1),n1,g1,mg1,2)
-    call atens(MM(i2,1:3,1:n2,1:n2),n2,g2,mg2,2)
+    call atens(MM(i1,:,1:n1,1:n1),n1,g1,mg1,2)
+    call atens(MM(i2,:,1:n2,1:n2),n2,g2,mg2,2)
 
     ! rotate cartesian JLinC1 by mg1 and mg2, in order to represent
     ! the interaction matrix in the original coordinate system:
@@ -597,10 +597,10 @@ do lp=1,npair
   !
   !if (Lines .or. AnisoLines) then
   !
-  !  call transHam(n1,n2,unity(1:3,1:3),unity(1:3,1:3),MM(i1,1:3,1:n1,1:n1),MM(i2,1:3,1:n2,1:n2),itype(i1),itype(i2), &
-  !                HLIN(lp,1:n1,1:n1,1:n2,1:n2),HLIN3(lp,1:n1,1:n1,1:n2,1:n2),iopt)
+  !  call transHam(n1,n2,unity,unity,MM(i1,:,1:n1,1:n1),MM(i2,:,1:n2,1:n2),itype(i1),itype(i2),HLIN(lp,1:n1,1:n1,1:n2,1:n2), &
+  !                HLIN3(lp,1:n1,1:n1,1:n2,1:n2),iopt)
   !  call JKQPar(n1,n2,HLIN3(lp,1:n1,1:n1,1:n2,1:n2),JLinG(lp,1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
-  !  call tensor2cart(1,1,JLinG(lp,1,-1:1,1,-1:1),JLinCG(lp,1:3,1:3))
+  !  call tensor2cart(1,1,JLinG(lp,1,-1:1,1,-1:1),JLinCG(lp,:,:))
   !  write(u6,'(A)')
   !  write(u6,'(A)') 'Cartesian representation of the (rank-1)*(rank-1) exchange interaction: LINES'
   !  write(u6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
@@ -614,10 +614,10 @@ do lp=1,npair
   !end if
   !
   !if (Dipol) then
-  !  call transHam(n1,n2,unity(1:3,1:3),unity(1:3,1:3),MM(i1,1:3,1:n1,1:n1),MM(i2,1:3,1:n2,1:n2),itype(i1),itype(i2), &
-  !                HDIP(lp,1:n1,1:n1,1:n2,1:n2),HDIP3(lp,1:n1,1:n1,1:n2,1:n2),iopt)
+  !  call transHam(n1,n2,unity,unity,MM(i1,:,1:n1,1:n1),MM(i2,:,1:n2,1:n2),itype(i1),itype(i2),HDIP(lp,1:n1,1:n1,1:n2,1:n2), &
+  !                HDIP3(lp,1:n1,1:n1,1:n2,1:n2),iopt)
   !  call JKQPar(n1,n2,HDIP3(lp,1:n1,1:n1,1:n2,1:n2),JDipG(lp,1:n1-1,-(n1-1):n1-1,1:n2-1,-(n2-1):n2-1))
-  !  call tensor2cart(1,1,JDipG(lp,1,-1:1,1,-1:1),JDipCG(lp,1:3,1:3))
+  !  call tensor2cart(1,1,JDipG(lp,1,-1:1,1,-1:1),JDipCG(lp,:,:))
   !  write(u6,'(A)') 'Cartesian representation of the (rank-1)*(rank-1) exchange interaction: DIPOL'
   !  write(u6,'(A)') 'Anisotropic exchange interaction:  J matrix:'
   !  write(u6,'(A)') 'GENERAL COORD:::'

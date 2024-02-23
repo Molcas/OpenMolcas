@@ -73,9 +73,9 @@ else
   M2(:,:,:) = cZero
 
   do L=1,3
-    call ZGEMM_('C','N',N,N,N,cOne,Z(1:N,1:N),N,M1(L,1:N,1:N),N,cZero,TMP,N)
-    call ZGEMM_('N','N',N,N,N,cOne,TMP,N,Z(1:N,1:N),N,cZero,M2(L,1:N,1:N),N)
-    call ZGEMM_('C','N',N,EXCH,N,cOne,Z(1:N,1:N),N,M1(L,1:N,1:EXCH),N,cZero,TMP(1:N,1:EXCH),N)
+    call ZGEMM_('C','N',N,N,N,cOne,Z,N,M1(L,1:N,1:N),N,cZero,TMP,N)
+    call ZGEMM_('N','N',N,N,N,cOne,TMP,N,Z,N,cZero,M2(L,1:N,1:N),N)
+    call ZGEMM_('C','N',N,EXCH,N,cOne,Z,N,M1(L,1:N,:),N,cZero,TMP(1:N,:),N)
 
     do I=1,N
       do J=N+1,EXCH
@@ -83,7 +83,7 @@ else
         M2(L,J,I) = conjg(TMP(I,J))
       end do
     end do
-    M2(L,N+1:EXCH,N+1:EXCH) = M1(L,N+1:EXCH,N+1:EXCH)
+    M2(L,N+1:,N+1:) = M1(L,N+1:,N+1:)
   end do !L
 
 end if !N == exch

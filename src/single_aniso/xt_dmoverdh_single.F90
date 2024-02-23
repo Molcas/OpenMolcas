@@ -308,8 +308,8 @@ call xFlush(u6)
 
 ! calcualtion of the standard deviation:
 if (tinput) then
-  write(u6,'(a,5x, f20.14)') 'ST.DEV: X= dM/dH:',dev(nT,XTM_dMdH((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
-  write(u6,'(a,5x, f20.14)') 'ST.DEV: X= M/H:',dev(nT,XTM_MH((1+nTempMagn):(nT+nTempMagn)),XTexp((1+nTempMagn):(nT+nTempMagn)))
+  write(u6,'(a,5x, f20.14)') 'ST.DEV: X= dM/dH:',dev(nT,XTM_dMdH(1+nTempMagn:),XTexp(1+nTempMagn:))
+  write(u6,'(a,5x, f20.14)') 'ST.DEV: X= M/H:',dev(nT,XTM_MH(1+nTempMagn:),XTexp(1+nTempMagn:))
   write(u6,'(A)') '-----|--------------------------------------------------------------------|'
 end if !tinput
 
@@ -318,10 +318,9 @@ write(label,'(A)') 'with_field_M_over_H'
 call xFlush(u6)
 if (DoPlot) then
   if (tinput) then
-    call plot_XT_with_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),XTM_MH((1+nTempMagn):(nT+nTempMagn)), &
-                          XTexp((1+nTempMagn):(nT+nTempMagn)))
+    call plot_XT_with_Exp(label,nT,T(1+nTempMagn:),XTM_MH(1+nTempMagn:),XTexp(1+nTempMagn:))
   else
-    call plot_XT_no_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),XTM_MH((1+nTempMagn):(nT+nTempMagn)))
+    call plot_XT_no_Exp(label,nT,T(1+nTempMagn:),XTM_MH(nTempMagn:))
   end if
 end if
 
@@ -329,10 +328,9 @@ write(label,'(A)') 'with_field_dM_over_dH'
 call xFlush(u6)
 if (DoPlot) then
   if (tinput) then
-    call plot_XT_with_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),XTM_dMdH((1+nTempMagn):(nT+nTempMagn)), &
-                          XTexp((1+nTempMagn):(nT+nTempMagn)))
+    call plot_XT_with_Exp(label,nT,T(1+nTempMagn:),XTM_dMdH(1+nTempMagn:),XTexp(1+nTempMagn:))
   else
-    call plot_XT_no_Exp(label,nT,T((1+nTempMagn):(nT+nTempMagn)),XTM_dMdH((1+nTempMagn):(nT+nTempMagn)))
+    call plot_XT_no_Exp(label,nT,T(1+nTempMagn:),XTM_dMdH(1+nTempMagn:))
   end if
 end if
 !---------------------- END PLOTs -------------------------------------!

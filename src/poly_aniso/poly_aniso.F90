@@ -419,8 +419,8 @@ do i=1,nneq
     write(u6,*) 'Enter generate_isotrop_site'
     call xFlush(u6)
 #   endif
-    call generate_isotrop_site(nss(i),nsfs(i),nexch(i),gtens_input(1:3,i),riso(i,1:3,1:3),D_fact(i),EoverD_fact(i), &
-                               eso(i,1:nexch(i)),dipso(i,1:3,1:nexch(i),1:nexch(i)),s_so(i,1:3,1:nexch(i),1:nexch(i)))
+    call generate_isotrop_site(nss(i),nsfs(i),nexch(i),gtens_input(:,i),riso(i,:,:),D_fact(i),EoverD_fact(i),eso(i,1:nexch(i)), &
+                               dipso(i,:,1:nexch(i),1:nexch(i)),s_so(i,:,1:nexch(i),1:nexch(i)))
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Exit generate_isotrop_site'
     call xFlush(u6)
@@ -521,9 +521,9 @@ end do
 #ifdef _DEBUGPRINT_
 do i=1,nneq
   write(u6,*) 'MAGNETIC MOMENT  ON  SITE 1'
-  call prMom('site i',dipso(i,1:3,1:nss(i),1:nss(i)),nss(i))
+  call prMom('site i',dipso(i,:,1:nss(i),1:nss(i)),nss(i))
   write(u6,*) 'SPIN MOMENT  ON  SITE 1'
-  call prMom('site i',s_so(i,1:3,1:nss(i),1:nss(i)),nss(i))
+  call prMom('site i',s_so(i,:,1:nss(i),1:nss(i)),nss(i))
 end do
 #endif
 
@@ -569,7 +569,7 @@ write(u6,*) 'nmax          = ',nmax
 #endif
 
 call exchctl(exch,nneq,neqv,neq,nexch,nmax,nCenter,npair,i_pair,MxRank1,MxRank2,imaxrank,Jex,JAex,JAex9,JDMex,JITOexR,JITOexI, &
-             eso(1:nneq,1:nmax),s_so(1:nneq,1:3,1:nmax,1:nmax),dipso(1:nneq,1:3,1:nmax,1:nmax),MagnCoords,R_ROT,R_LG,riso,tpar, &
+             eso(1:nneq,1:nmax),s_so(1:nneq,:,1:nmax,1:nmax),dipso(1:nneq,:,1:nmax,1:nmax),MagnCoords,R_ROT,R_LG,riso,tpar, &
              upar,lant,itype,Dipol,AnisoLines1,AnisoLines3,AnisoLines9,KE,KEOPT,DM_exchange,JITO_exchange,W,Z,S_EXCH,DIPEXCH, &
              iPrint,mem)
 !-----------------------------------------------------------------------
@@ -580,8 +580,8 @@ call write_formatted_aniso_poly(fname,exch,W,dipexch,s_exch)
 ! compute the magnetic moments on individual metal sites, for
 ! the lowest NSTA exchange states;
 !   NMAX = maximal number of local states which participate into the exchange coupling
-call MOMLOC2(exch,nmax,nneq,neq,neqv,r_rot,nCenter,nExch,W,Z,dipexch,s_exch,dipso(1:nneq,1:3,1:nmax,1:nmax), &
-             s_so(1:nneq,1:3,1:nmax,1:nmax))
+call MOMLOC2(exch,nmax,nneq,neq,neqv,r_rot,nCenter,nExch,W,Z,dipexch,s_exch,dipso(1:nneq,:,1:nmax,1:nmax), &
+             s_so(1:nneq,:,1:nmax,1:nmax))
 
 !-----------------------------------------------------------------------
 if (compute_g_tensors) then
@@ -601,8 +601,8 @@ if (compute_g_tensors) then
 
 #     ifdef _DEBUGPRINT_
       write(u6,'(A,90I3)') 'ndim(imltpl)=',ndim(imltpl)
-      call prmom('PA: s_exch:',s_exch(1:3,i1:i2,i1:i2),ndim(imltpl))
-      call prmom('PA: dip_exch:',dipexch(1:3,i1:i2,i1:i2),ndim(imltpl))
+      call prmom('PA: s_exch:',s_exch(:,i1:i2,i1:i2),ndim(imltpl))
+      call prmom('PA: dip_exch:',dipexch(:,i1:i2,i1:i2),ndim(imltpl))
 #     endif
 
       call g_high(w(i1:i2),GRAD,s_exch(:,i1:i2,i1:i2),dipexch(:,i1:i2,i1:i2),imltpl,ndim(imltpl),Do_structure_abc,cryst,coord, &
@@ -631,7 +631,7 @@ if (compute_barrier) then
       end do
     end do
 
-    call BARRIER(nBlock,dipexch(1:3,1:nBlock,1:nBlock),W(1:nBlock),imanifold,nMult,nDim(1:nMult),DoPlot,iprint)
+    call BARRIER(nBlock,dipexch(:,1:nBlock,1:nBlock),W(1:nBlock),imanifold,nMult,nDim(1:nMult),DoPlot,iprint)
 
   else
     write(u6,'(A)') 'nBlock parameter is not defined. '

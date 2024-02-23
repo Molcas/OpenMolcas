@@ -77,31 +77,31 @@ else if ((OPT == 2) .or. (OPT == 4)) then ! 1/U model
 end if
 
 call mma_allocate(H1T,N1,N1,label='H1T')
-call mma_allocate(TMP,N1,N1,label='TMP')
+call mma_allocate(TMP,max(N1,N2),max(N1,N2),label='TMP')
 H1T(:,:) = H1(:,:)+HCOV(:,:)
 ! rewrite the HCOV in the initial ab initio basis:
-call ZGEMM_('N','N',N1,N1,N1,cOne,Z1(1:N1,1:N1),N1,HCOV(1:N1,1:N1),N1,cZero,TMP(1:N1,1:N1),N1)
-call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1(1:N1,1:N1),N1,cZero,HCOV(1:N1,1:N1),N1)
+call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,HCOV,N1,cZero,TMP(1:N1,1:N1),N1)
+call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,HCOV,N1)
 ! rewrite the H1 in the initial ab initio basis:
-call ZGEMM_('N','N',N1,N1,N1,cOne,Z1(1:N1,1:N1),N1,H1(1:N1,1:N1),N1,cZero,TMP(1:N1,1:N1),N1)
-call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1(1:N1,1:N1),N1,cZero,H1(1:N1,1:N1),N1)
+call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,H1,N1,cZero,TMP(1:N1,1:N1),N1)
+call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,H1,N1)
 ! rewrite the H2 in the initial ab initio basis:
-call ZGEMM_('N','N',N2,N2,N2,cOne,Z2(1:N2,1:N2),N2,H2(1:N2,1:N2),N2,cZero,TMP(1:N2,1:N2),N2)
-call ZGEMM_('N','C',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,Z2(1:N2,1:N2),N2,cZero,H2(1:N2,1:N2),N2)
+call ZGEMM_('N','N',N2,N2,N2,cOne,Z2,N2,H2,N2,cZero,TMP(1:N2,1:N2),N2)
+call ZGEMM_('N','C',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,Z2,N2,cZero,H2,N2)
 ! rewrite the H1T in the initial ab initio basis:
-call ZGEMM_('N','N',N1,N1,N1,cOne,Z1(1:N1,1:N1),N1,H1T(1:N1,1:N1),N1,cZero,TMP(1:N1,1:N1),N1)
-call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1(1:N1,1:N1),N1,cZero,H1T(1:N1,1:N1),N1)
+call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,H1T,N1,cZero,TMP(1:N1,1:N1),N1)
+call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,H1T,N1)
 ! rewrite the HEXC in the initial ab initio basis:
 do is1=1,N2
   do is2=1,N2
-    call ZGEMM_('N','N',N1,N1,N1,cOne,Z1(1:N1,1:N1),N1,HEXC(1:N1,1:N1,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
-    call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1(1:N1,1:N1),N1,cZero,HEXC(1:N1,1:N1,is1,is2),N1)
+    call ZGEMM_('N','N',N1,N1,N1,cOne,Z1,N1,HEXC(:,:,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
+    call ZGEMM_('N','C',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,Z1,N1,cZero,HEXC(:,:,is1,is2),N1)
   end do
 end do
 do is1=1,N1
   do is2=1,N1
-    call ZGEMM_('N','N',N2,N2,N2,cOne,Z2(1:N2,1:N2),N2,HEXC(is1,is2,1:N2,1:N2),N2,cZero,TMP(1:N2,1:N2),N2)
-    call ZGEMM_('N','C',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,Z2(1:N2,1:N2),N2,cZero,HEXC(is1,is2,1:N2,1:N2),N2)
+    call ZGEMM_('N','N',N2,N2,N2,cOne,Z2,N2,HEXC(is1,is2,:,:),N2,cZero,TMP(1:N2,1:N2),N2)
+    call ZGEMM_('N','C',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,Z2,N2,cZero,HEXC(is1,is2,:,:),N2)
   end do
 end do
 
@@ -140,16 +140,16 @@ call mma_deallocate(H1T)
 if ((opt == 3) .or. (opt == 4)) then
   do is1=1,N2
     do is2=1,N2
-      call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR(1:N1,1:N1),N1,HKEX(1:N1,1:N1,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
-      call ZGEMM_('N','N',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,ZCR(1:N1,1:N1),N1,cZero,HKEX(1:N1,1:N1,is1,is2),N1)
+      call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,HKEX(:,:,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
+      call ZGEMM_('N','N',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,ZCR,N1,cZero,HKEX(:,:,is1,is2),N1)
     end do
   end do
 end if
 ! compute the g tensors for initial and initial+covalence:
 call mma_allocate(MM1,3,N1,N1,label='MM1')
 call mma_allocate(SM1,3,N1,N1,label='SM1')
-call atens(M1(1:3,1:2,1:2),2,gtens(1,:),maxes(1,:,:),1)
-call atens(M1(1:3,3:4,3:4),2,gtens(2,:),maxes(2,:,:),1)
+call atens(M1(:,1:2,1:2),2,gtens(1,:),maxes(1,:,:),1)
+call atens(M1(:,3:4,3:4),2,gtens(2,:),maxes(2,:,:),1)
 do L=1,3
   call ZGEMM_('C','N',N1,N1,N1,cOne,ZCR,N1,M1(L,:,:),N1,cZero,TMP,N1)
   call ZGEMM_('N','N',N1,N1,N1,cOne,TMP,N1,ZCR,N1,cZero,MM1(L,:,:),N1)
@@ -206,14 +206,14 @@ if ((opt == 3) .or. (opt == 4)) then
   ! rewrite the exchnage matrix in the basis of local pseudospins:
   do is1=1,N2
     do is2=1,N2
-      call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1(1:N1,1:N1),N1,HKEX(1:N1,1:N1,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
-      call ZGEMM_('N','N',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,ZZ1(1:N1,1:N1),N1,cZero,HKEX(1:N1,1:N1,is1,is2),N1)
+      call ZGEMM_('C','N',N1,N1,N1,cOne,ZZ1,N1,HKEX(:,:,is1,is2),N1,cZero,TMP(1:N1,1:N1),N1)
+      call ZGEMM_('N','N',N1,N1,N1,cOne,TMP(1:N1,1:N1),N1,ZZ1,N1,cZero,HKEX(:,:,is1,is2),N1)
     end do
   end do
   do is1=1,N1
     do is2=1,N1
-      call ZGEMM_('C','N',N2,N2,N2,cOne,ZZ2(1:N2,1:N2),N2,HKEX(is1,is2,1:N2,1:N2),N2,cZero,TMP(1:N2,1:N2),N2)
-      call ZGEMM_('N','N',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,ZZ2(1:N2,1:N2),N2,cZero,HKEX(is1,is2,1:N2,1:N2),N2)
+      call ZGEMM_('C','N',N2,N2,N2,cOne,ZZ2,N2,HKEX(is1,is2,:,:),N2,cZero,TMP(1:N2,1:N2),N2)
+      call ZGEMM_('N','N',N2,N2,N2,cOne,TMP(1:N2,1:N2),N2,ZZ2,N2,cZero,HKEX(is1,is2,:,:),N2)
     end do
   end do
   call mma_deallocate(ZZ1)

@@ -54,7 +54,6 @@ call get_iArray('JBNUM_SINGLE',jbnum,nstate)
 !-----------------------------------------------------------------------
 ! prepare the szproj index table
 call mma_allocate(szproj,nss,'szproj')
-szproj(1:nss) = 0
 iss = 0
 ipar = mod(multiplicity(1),2)
 do Ist=1,nstate
@@ -65,10 +64,10 @@ do Ist=1,nstate
     szproj(iss) = I
   end do ! i
 end do ! ist
+szproj(iss+1:) = 0
 
 call get_iScalar('MXJOB_SINGLE',mxjob)
 call mma_allocate(nroot,mxjob,'nroot')
-nroot = 0
 call get_iArray('NSTAT_SINGLE',nroot,mxjob)
 
 !-----------------------------------------------------------------------

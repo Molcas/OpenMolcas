@@ -83,9 +83,9 @@ if (n == exch) then
 else
 
   do l=1,3
-    call zgemm_('c','n',n,n,n,cOne,z(1:n,1:n),n,m(l,1:n,1:n),n,cZero,tmp,n)
-    call zgemm_('n','n',n,n,n,cOne,tmp,n,z(1:n,1:n),n,cZero,m(l,1:n,1:n),n)
-    call zgemm_('c','n',n,exch,n,cOne,z(1:n,1:n),n,m(l,1:n,1:exch),n,cZero,tmp(1:n,1:exch),n)
+    call zgemm_('c','n',n,n,n,cOne,z,n,m(l,1:n,1:n),n,cZero,tmp,n)
+    call zgemm_('n','n',n,n,n,cOne,tmp,n,z,n,cZero,m(l,1:n,1:n),n)
+    call zgemm_('c','n',n,exch,n,cOne,z,n,m(l,1:n,:),n,cZero,tmp(1:n,:),n)
 
     do i=1,n
       do j=n+1,exch
@@ -93,7 +93,7 @@ else
         m(l,j,i) = conjg(tmp(i,j))
       end do
     end do
-    m(l,n+1:exch,n+1:exch) = mtmp(l,1:exch-n,1:exch-n)
+    m(l,n+1:,n+1:) = mtmp(l,1:exch-n,1:exch-n)
   end do !l
 end if !n == exch
 

@@ -93,7 +93,7 @@ if (N < nmult) then
   call atens(aux,nmult,gtens,maxes,1)
   call mma_deallocate(aux)
 else
-  call atens(dipexch(1:3,1:nmult,1:nmult),nmult,gtens,maxes,1)
+  call atens(dipexch,nmult,gtens,maxes,1)
 end if
 #ifdef _DEBUGPRINT_
 write(u6,'(A)') 'MOMLOC2:  g tensor of the ground manifold:'
@@ -106,8 +106,7 @@ write(u6,'((A,F12.6,A,3F12.7))') 'gZ=',gtens(3),' axis Z: ',(maxes(j,3),j=1,3)
 st(:) = Zero
 H = 1.0e-4_wp ! tesla
 zJ = Zero ! absence of intermolecular interaction
-call zeem_sa(N,H,maxes(1,3),maxes(2,3),maxes(3,3),W(1:N),dipexch(1:3,1:N,1:N),s_exch(1:3,1:N,1:N),ST,zJ,WM(1:N),ZM(1:N,1:N),DBG, &
-             RWORK,HZEE,WORK,W_c)
+call zeem_sa(N,H,maxes(1,3),maxes(2,3),maxes(3,3),W,dipexch,s_exch,ST,zJ,WM,ZM,DBG,RWORK,HZEE,WORK,W_c)
 !cc  eigenvectors
 #ifdef _DEBUGPRINT_
 write(u6,*)
@@ -161,8 +160,8 @@ do isite=1,nsites
     call ZGEMM_('C','N',N,N,N,cOne,Z,N,VL,N,cZero,TMP,N)
     call ZGEMM_('N','N',N,N,N,cOne,TMP,N,Z,N,cZero,VL,N)
     ! rotate this matrix to Zeeman basis:
-    call ZGEMM_('C','N',N,N,N,cOne,ZM(1:N,1:N),N,VL(1:N,1:N),N,cZero,TMP(1:N,1:N),N)
-    call ZGEMM_('N','N',N,N,N,cOne,TMP(1:N,1:N),N,ZM(1:N,1:N),N,cZero,VL(1:N,1:N),N)
+    call ZGEMM_('C','N',N,N,N,cOne,ZM,N,VL,N,cZero,TMP,N)
+    call ZGEMM_('N','N',N,N,N,cOne,TMP,N,ZM,N,cZero,VL,N)
     do i=1,N
       MM(isite,L,i) = real(VL(i,i))
     end do
@@ -182,10 +181,10 @@ do isite=1,nsites
       end do  ! jss1
     end do  ! nb1
     ! rotate this matrix to exchange basis and to Zeeman basis
-    call ZGEMM_('C','N',N,N,N,cOne,Z(1:N,1:N),N,VL(1:N,1:N),N,cZero,TMP(1:N,1:N),N)
-    call ZGEMM_('N','N',N,N,N,cOne,TMP(1:N,1:N),N,Z(1:N,1:N),N,cZero,VL(1:N,1:N),N)
-    call ZGEMM_('C','N',N,N,N,cOne,ZM(1:N,1:N),N,VL(1:N,1:N),N,cZero,TMP(1:N,1:N),N)
-    call ZGEMM_('N','N',N,N,N,cOne,TMP(1:N,1:N),N,ZM(1:N,1:N),N,cZero,VL(1:N,1:N),N)
+    call ZGEMM_('C','N',N,N,N,cOne,Z,N,VL,N,cZero,TMP,N)
+    call ZGEMM_('N','N',N,N,N,cOne,TMP,N,Z,N,cZero,VL,N)
+    call ZGEMM_('C','N',N,N,N,cOne,ZM,N,VL,N,cZero,TMP,N)
+    call ZGEMM_('N','N',N,N,N,cOne,TMP,N,ZM,N,cZero,VL,N)
     do i=1,N
       SM(isite,L,i) = real(VL(i,i))
     end do

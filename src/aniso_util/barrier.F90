@@ -79,10 +79,10 @@ if (ndim(imanifold) <= 1) then
   write(u6,'(a,i1  )') 'size = ',ndim(imanifold)
   write(u6,'(a     )') 'in this case, quantization axis will remain the original Z axis'
 else
-  dipN3(:,1:ndim(imanifold),1:ndim(imanifold)) = dipIn(:,1:ndim(imanifold),1:ndim(imanifold))
+  dipN3(:,:,:) = dipIn(:,:,:)
   call atens(dipN3,ndim(imanifold),gtens,maxes,1)
 end if
-call rotmom2(dipIn(1:3,1:nBlock,1:nBlock),nBlock,maxes(1:3,1:3),dipN(1:3,1:nBlock,1:nBlock))
+call rotmom2(dipIn,nBlock,maxes,dipN)
 if (iprint > 2) then
   write(u6,*)
   write(u6,'(10X,A)') 'Magnetic moment (dipIN) in the original coordinate system'
@@ -120,7 +120,7 @@ do il=1,nmult
     WZ(il,1) = W(Ifunct)
   else ! dimi > 1
 
-    call pseudospin(dipN(1:3,Ifunct:(Ifunct+ndim(il)-1),Ifunct:(Ifunct+ndim(il)-1)),ndim(il),CZ(il,1:ndim(il),1:ndim(il)),3,1, &
+    call pseudospin(dipN(:,Ifunct:(Ifunct+ndim(il)-1),Ifunct:(Ifunct+ndim(il)-1)),ndim(il),CZ(il,1:ndim(il),1:ndim(il)),3,1, &
                     iprint)
 
     if (iPrint > 2) call pa_prMat('barrier:  CZ',CZ(il,1:nDim(il),1:nDim(il)),nDim(il))
@@ -368,7 +368,7 @@ do il=1,nmult
   if (ndim(il) == 1) then
     write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
     write(s2,'(i2,A1,A1,A1)') il,'.','0',' '
-    call prbar(il,s1,s2,dipso5(1:3,il,1,il,1))
+    call prbar(il,s1,s2,dipso5(:,il,1,il,1))
   else
     !if (mod(ndim(il),2) == 0) then  ! even multiplicity
 
@@ -378,14 +378,14 @@ do il=1,nmult
       write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
       do j=i,int(ndim(il)/2)
         write(s2,'(i2,A1,i1,A1)') il,'.',j,'+'
-        !call prbar(il,s1,s2,dipso5(1:3,il,i,il,ndim(il)-i+1))
-        call prbar(il,s1,s2,dipso5(1:3,il,i,il,j))
+        !call prbar(il,s1,s2,dipso5(:,il,i,il,ndim(il)-i+1))
+        call prbar(il,s1,s2,dipso5(:,il,i,il,j))
       end do
 
       do j=i,int(ndim(il)/2)
         write(s2,'(i2,A1,i1,A1)') il,'.',j,'-'
-        !call prbar(il,s1,s2,dipso5(1:3,il,i,il,ndim(il)-i+1))
-        call prbar(il,s1,s2,dipso5(1:3,il,i,il,ndim(il)-j+1))
+        !call prbar(il,s1,s2,dipso5(:,il,i,il,ndim(il)-i+1))
+        call prbar(il,s1,s2,dipso5(:,il,i,il,ndim(il)-j+1))
       end do
     end do
 
@@ -413,7 +413,7 @@ do k=1,nmult-1
 
             write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
             write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'+'
-            call prbar(il,s1,s2,dipso5(1:3,il,i,il+k,j))
+            call prbar(il,s1,s2,dipso5(:,il,i,il+k,j))
 
           end do
 
@@ -421,7 +421,7 @@ do k=1,nmult-1
 
             write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
             write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'-'
-            call prbar(il,s1,s2,dipso5(1:3,il,i,il+k,ndim(il+k)-j+1))
+            call prbar(il,s1,s2,dipso5(:,il,i,il+k,ndim(il+k)-j+1))
 
           end do
 
@@ -430,26 +430,26 @@ do k=1,nmult-1
 
             write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
             write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-            call prbar(il,s1,s2,dipso5(1:3,il,i,il+k,1))
+            call prbar(il,s1,s2,dipso5(:,il,i,il+k,1))
 
           else
 
             do j=(ndim(il+k)-1)/2,1,-1
               write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
               write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'+'
-              call prbar(il,s1,s2,dipso5(1:3,il,i,il+k,j))
+              call prbar(il,s1,s2,dipso5(:,il,i,il+k,j))
             end do
 
             write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
             write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-            MM(1:3) = dipso5(1:3,il,i,il+k,(ndim(il+k)+1)/2)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,i,il+k,(ndim(il+k)+1)/2)
+            call prbar(il,s1,s2,MM)
 
             do j=1,(ndim(il+k)-1)/2
               write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
               write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-              MM(1:3) = dipso5(1:3,il,i,il+k,ndim(il+k)-j+1)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,i,il+k,ndim(il+k)-j+1)
+              call prbar(il,s1,s2,MM)
             end do
 
           end if ! ndim(il+k) = 1
@@ -465,40 +465,40 @@ do k=1,nmult-1
           do j=ndim(il+k)/2,1,-1
             write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
             write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'+'
-            MM(1:3) = dipso5(1:3,il,1,il+k,j)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,1,il+k,j)
+            call prbar(il,s1,s2,MM)
           end do
 
           do j=1,ndim(il+k)/2
             write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
             write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'-'
-            MM(1:3) = dipso5(1:3,il,1,il+k,ndim(il+k)-j+1)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,1,il+k,ndim(il+k)-j+1)
+            call prbar(il,s1,s2,MM)
           end do
 
         else !ndim(il+k) is odd
           if (ndim(il+k) == 1) then
             write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
             write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-            MM(1:3) = dipso5(1:3,il,1,il+k,1)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,1,il+k,1)
+            call prbar(il,s1,s2,MM)
           else
             do j=(ndim(il+k)-1)/2,1,-1
               write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
               write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'+'
-              MM(1:3) = dipso5(1:3,il,1,il+k,j)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,1,il+k,j)
+              call prbar(il,s1,s2,MM)
             end do
             write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
             write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-            MM(1:3) = dipso5(1:3,il,1,il+k,(ndim(il+k)+1)/2)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,1,il+k,(ndim(il+k)+1)/2)
+            call prbar(il,s1,s2,MM)
 
             do j=1,(ndim(il+k)-1)/2
               write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
               write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'-'
-              MM(1:3) = dipso5(1:3,il,1,il+k,ndim(il+k)-j+1)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,1,il+k,ndim(il+k)-j+1)
+              call prbar(il,s1,s2,MM)
             end do
           end if ! ndim(il+k) = 1
         end if ! ndim(il+k), parity
@@ -510,37 +510,37 @@ do k=1,nmult-1
             do j=ndim(il+k)/2,1,-1
               write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
               write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'+'
-              MM(1:3) = dipso5(1:3,il,i,il+k,j)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,i,il+k,j)
+              call prbar(il,s1,s2,MM)
             end do
             do j=1,ndim(il+k)/2
               write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
               write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'-'
-              MM(1:3) = dipso5(1:3,il,i,il+k,ndim(il+k)-j+1)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,i,il+k,ndim(il+k)-j+1)
+              call prbar(il,s1,s2,MM)
             end do
           else !ndim(il+k) is odd
             if (ndim(il+k) == 1) then
               write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
               write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-              MM(1:3) = dipso5(1:3,il,i,il+k,1)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,i,il+k,1)
+              call prbar(il,s1,s2,MM)
             else
               do j=(ndim(il+k)-1)/2,1,-1
                 write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
                 write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'+'
-                MM(1:3) = dipso5(1:3,il,i,il+k,j)
-                call prbar(il,s1,s2,MM(1:3))
+                MM(:) = dipso5(:,il,i,il+k,j)
+                call prbar(il,s1,s2,MM)
               end do
               write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
               write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-              MM(1:3) = dipso5(1:3,il,i,il+k,(ndim(il+k)+1)/2)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,i,il+k,(ndim(il+k)+1)/2)
+              call prbar(il,s1,s2,MM)
               do j=1,(ndim(il+k)-1)/2
                 write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
                 write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'-'
-                MM(1:3) = dipso5(1:3,il,i,il+k,ndim(il+k)-j+1)
-                call prbar(il,s1,s2,MM(1:3))
+                MM(:) = dipso5(:,il,i,il+k,ndim(il+k)-j+1)
+                call prbar(il,s1,s2,MM)
               end do
             end if ! ndim(il+k) = 1
           end if ! ndim(il+k), parity
@@ -552,37 +552,37 @@ do k=1,nmult-1
           do j=ndim(il+k)/2,1,-1
             write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
             write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'+'
-            MM(1:3) = dipso5(1:3,il,(ndim(il)+1)/2,il+k,j)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,(ndim(il)+1)/2,il+k,j)
+            call prbar(il,s1,s2,MM)
           end do
           do j=1,ndim(il+k)/2
             write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
             write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'-'
-            MM(1:3) = dipso5(1:3,il,(ndim(il)+1)/2,il+k,ndim(il+k)-j+1)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,(ndim(il)+1)/2,il+k,ndim(il+k)-j+1)
+            call prbar(il,s1,s2,MM)
           end do
         else !ndim(il+k) is odd
           if (ndim(il+k) == 1) then
             write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
             write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-            MM(1:3) = dipso5(1:3,il,(ndim(il)+1)/2,il+k,1)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,(ndim(il)+1)/2,il+k,1)
+            call prbar(il,s1,s2,MM)
           else
             do j=(ndim(il+k)-1)/2,1,-1
               write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
               write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'+'
-              MM(1:3) = dipso5(1:3,il,(ndim(il)+1)/2,il+k,j)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,(ndim(il)+1)/2,il+k,j)
+              call prbar(il,s1,s2,MM)
             end do
             write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
             write(s2,'(i2,A1,A1,A1)') il+k,'.','0',' '
-            MM(1:3) = dipso5(1:3,il,(ndim(il)+1)/2,il+k,(ndim(il+k)+1)/2)
-            call prbar(il,s1,s2,MM(1:3))
+            MM(:) = dipso5(:,il,(ndim(il)+1)/2,il+k,(ndim(il+k)+1)/2)
+            call prbar(il,s1,s2,MM)
             do j=1,(ndim(il+k)-1)/2
               write(s1,'(i2,A1,A1,A1)') il,'.','0',' '
               write(s2,'(i2,A1,i1,A1)') il+k,'.',j,'-'
-              MM(1:3) = dipso5(1:3,il,(ndim(il)+1)/2,il+k,ndim(il+k)-j+1)
-              call prbar(il,s1,s2,MM(1:3))
+              MM(:) = dipso5(:,il,(ndim(il)+1)/2,il+k,ndim(il+k)-j+1)
+              call prbar(il,s1,s2,MM)
             end do
           end if ! ndim(il+k) = 1
         end if ! ndim(il+k), parity

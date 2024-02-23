@@ -77,7 +77,7 @@ call Put_iScalar('NSTATE_SINGLE   ',NSTATE)
 
 ! read spin multiplicity of each state:
 call mma_allocate(spin_mult,nstate,'nstate')
-call mh5_fetch_attr(fileid,'STATE_SPINMULT',spin_mult(1:nstate))
+call mh5_fetch_attr(fileid,'STATE_SPINMULT',spin_mult)
 #ifdef _DEBUGPRINT_
 write(u6,'(A)') 'spin_mult'
 write(u6,'(20I4)') (spin_mult(i),i=1,nstate)

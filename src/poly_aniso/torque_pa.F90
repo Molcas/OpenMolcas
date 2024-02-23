@@ -330,8 +330,8 @@ do IH=1,NH
                       nTempMagn,TempMagn,smagn,WL(i,:),ZL(i,:),SL(i,:,:),ML(i,:,:),m_paranoid,DBG)
             ! only local "exchange states":
             call MAGN(NEXCH(i),NEXCH(i),dX(iPl,iM),dY(iPl,iM),dZ(iPl,iM),H(iH),ESO(i,1:NEXCH(i)),zJ,THRS, &
-                      DIPSO(i,1:3,1:NEXCH(i),1:NEXCH(i)),S_SO(i,1:3,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn, &
-                      WR(i,1:Nexch(i)),ZR(i,:),SR(i,:,:),MR(i,:,:),m_paranoid,DBG)
+                      DIPSO(i,:,1:NEXCH(i),1:NEXCH(i)),S_SO(i,:,1:NEXCH(i),1:NEXCH(i)),nTempMagn,TempMagn,smagn,WR(i,1:Nexch(i)), &
+                      ZR(i,:),SR(i,:,:),MR(i,:,:),m_paranoid,DBG)
           end if
         end do
         ! expand the basis and rotate local vectors to the
