@@ -110,6 +110,7 @@
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
       CALL MKCOUP_CP2(nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,          &
+     &                MxEO,nICoup,nWalk,                                &
      &                IVR,MAW,ISGM,VSGM,NOW1,     NOCP,IOCP,ILNDW,      &
      &                ICOUP,NVTAB_TMP,VTAB_TMP,NVTAB,SCR,VAL)
 

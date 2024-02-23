@@ -17,12 +17,12 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKCOUP_CP2(nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,
+     &                  MxEO,nICoup,nWalk,
      &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,
      &                  NOCP,IOCP,ILNDW,ICOUP,
      &                  nVTab,VTab,NVTAB_FINAL,
      &                  ISGPTH,VALUE)
 
-      use gugx, only: NWALK, NICOUP, MXEO
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
