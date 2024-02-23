@@ -55,8 +55,8 @@ CUNUSED      nIOW=nNOW
       nNOCP=MxEO*nMidV*nSym
       nIOCP=nNOCP
       nNRL=(1+MxEO)*nVert*nSym
-      Call GetMem('NOCP','Allo','Inte',lNOCP,nNOCP)
-      Call GetMem('IOCP','Allo','Inte',lIOCP,nIOCP)
+      Call mma_allocate(EXS%NOCP,nNOCP,Label='EXS%NOCP')
+      Call mma_allocate(EXS%IOCP,nIOCP,Label='EXS%IOCP')
       Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
       Call GetMem('NRL','Allo','Inte',lNRL,nNRL)
       nNOCSF=nMidV*(nSym**2)
@@ -65,12 +65,10 @@ CUNUSED      nIOW=nNOW
       Call mma_allocate(CIS%NOCSF,nNOCSF,Label='CIS%NOCSF')
       Call mma_allocate(CIS%IOCSF,nIOCSF,Label='CIS%IOCSF')
       EXS%MxEO =MxEO
-      EXS%lNOCP=lNOCP
-      EXS%lIOCP=lIOCP
       Call NrCoup(SGS,CIS,EXS,
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
-     &         IWork(lISgm),CIS%NOW,CIS%IOW,IWork(lNOCP),
-     &         IWork(lIOCP),CIS%NOCSF,CIS%IOCSF,
+     &         IWork(lISgm),CIS%NOW,CIS%IOW,EXS%NOCP,
+     &         EXS%IOCP,CIS%NOCSF,CIS%IOCSF,
      &         CIS%NCSF,IWork(lNRL),IWork(lMVL),IWork(lMVR))
 CTEST      write(*,*)' Back from NRCOUP.'
       Call GetMem('NRL','Free','Inte',lNRL,nNRL)
@@ -98,9 +96,9 @@ CTEST      write(*,*)' NWALK:',NWALK
       Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
      &            MxEO,nICoup,nWalk,nICase,nVTab,
      &            IWork(lIVR),SGS%MAW,IWork(lISGM),
-     &            WORK(lVSGM),CIS%NOW,CIS%IOW,IWork(lNOCP),
-     &     IWork(lIOCP),IWork(lILNDW),CIS%ICase,IWork(lICOUP),
-     &     WORK(lVTAB),IWork(lSCR),WORK(lVAL))
+     &            WORK(lVSGM),CIS%NOW,CIS%IOW,EXS%NOCP,
+     &            EXS%IOCP,IWork(lILNDW),CIS%ICase,IWork(lICOUP),
+     &            WORK(lVTAB),IWork(lSCR),WORK(lVAL))
 
 C nVTab has now been updated to the true size. Allocate final array:
       Call GetMem('VTab','Allo','Real',lVtab,nVTab)

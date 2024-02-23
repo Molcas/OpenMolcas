@@ -22,8 +22,6 @@ nIpWlk=CIS%nIpWlk
 nWalk =CIS%nWalk
 ! Unpack structure EXS:
 MxEO  =EXS%MxEO
-lNOCP =EXS%lNOCP
-lIOCP =EXS%lIOCP
 nICoup=EXS%nICoup
 lICoup=EXS%lICoup
 nVTab =EXS%nVTab
@@ -37,10 +35,8 @@ Call mma_deallocate(CIS%NOCSF)
 Call mma_deallocate(CIS%IOCSF)
 Call mma_deallocate(CIS%NOW)
 Call mma_deallocate(CIS%IOW)
-nNOCP=MxEO*nMidV*nSym
-nIOCP=nNOCP
-Call GetMem('NOCP','Free','Inte',lNOCP,nNOCP)
-Call GetMem('IOCP','Free','Inte',lIOCP,nIOCP)
+Call mma_deallocate(EXS%NOCP)
+Call mma_deallocate(EXS%IOCP)
 Call mma_deallocate(CIS%NCSF)
 Call mma_deallocate(CIS%ICase)
 nnICoup=(3*nICoup+1)/2
