@@ -39,7 +39,8 @@ C Dereference CIS and SGS       for some data:
       NCONF =CIS%NCSF(LSYM)
       NWALK =CIS%nWalk
       CALL GETMEM('MWS2W','ALLO','INTE',LMWS2W,NWALK)
-      CALL MSTOW(SGS,CIS,IWORK(LMWS2W))
+      NSYM  =ICNFTAB(7)
+      CALL MSTOW(SGS,CIS,IWORK(LMWS2W),NSYM)
 CTEST      write(*,*)' NCONF=',NCONF
 C MWS2W is a table which gives the upper or lower walk
 C index as function of the MAW sum.
@@ -719,15 +720,15 @@ C Leading dimension=nr of upwalks in this block.
       END DO
       END SUBROUTINE W2SGORD1
 
-      SUBROUTINE MSTOW(SGS,CIS,MWS2W)
+      SUBROUTINE MSTOW(SGS,CIS,MWS2W,nSym)
       use Struct, only: SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION MWS2W(*)
+      Integer nSym
+      Integer MWS2W(*)
       Type (SGStruct) SGS
       Type (CIStruct) CIS
 #include "WrkSpc.fh"
 
-      NSYM  =SGS%nSym
       NLEV  =SGS%nLev
       NVERT =SGS%nVert
       MIDLEV=SGS%MidLev

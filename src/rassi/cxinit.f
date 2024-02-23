@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CXInit(SGS,CIS,EXS)
+      Subroutine CXInit(SGS,CIS,EXS,nSym)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only:  SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -20,7 +20,6 @@
       Real*8,  Allocatable::         VSgm(:)
       Real*8,  Allocatable:: VTabTmp(:), Val(:)
 
-      nSym   =SGS%nSym
       nLev   =SGS%nLev
       nVert  =SGS%nVert
       MidLev =SGS%MidLev

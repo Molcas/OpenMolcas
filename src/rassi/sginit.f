@@ -110,7 +110,6 @@ C The DAW, RAW tables are no longer needed:
 
 C Put sizes and addresses in structure SGS:
 
-      SGS%nSym   =nSym
       SGS%nLev   =nLev
       SGS%nVert  =nVert
       SGS%MidLev =MidLev
