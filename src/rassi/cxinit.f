@@ -17,7 +17,8 @@
       Type (EXStruct) EXS
 #include "WrkSpc.fh"
 
-      Integer, Allocatable:: IVR(:)
+      Integer, Allocatable:: IVR(:), ISgm(:), NRL(:)
+      Real*8,  Allocatable::         VSgm(:)
 
       nSym   =SGS%nSym
       nLev   =SGS%nLev
@@ -35,12 +36,10 @@ C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       Call mma_allocate(EXS%MVR,2*nMidV)
       Call mma_allocate(EXS%MVL,2*nMidV)
       nSgmnt=26*nVert
-      Call GetMem('ISGM','Allo','Inte',lISgm,nSgmnt)
-      Call GetMem('VSGM','Allo','Real',lVSgm,nSgmnt)
-      Call MkSeg(SGS,nLev,nVert,nMidv,
-     &        SGS%DRT,SGS%Down,SGS%LTV,
-     &        IVR,EXS%MVL,EXS%MVR,
-     &        IWork(lISgm),Work(lVSgm))
+      Call mma_allocate(ISgm,nSgmnt,Label='ISgm')
+      Call mma_allocate(VSgm,nSgmnt,Label='VSgm')
+      Call MkSeg(SGS,nLev,nVert,nMidv,SGS%DRT,SGS%Down,SGS%LTV,
+     &           IVR,EXS%MVL,EXS%MVR,ISgm,VSgm)
       CIS%nMidV   =nMidV
       CIS%nIpWlk  = nIpWlk
 
@@ -55,7 +54,7 @@ C Various offset tables:
       Call mma_allocate(EXS%NOCP,nNOCP,Label='EXS%NOCP')
       Call mma_allocate(EXS%IOCP,nIOCP,Label='EXS%IOCP')
       Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
-      Call GetMem('NRL','Allo','Inte',lNRL,nNRL)
+      Call mma_allocate(NRL,nNRL,Label='NRL')
       nNOCSF=nMidV*(nSym**2)
       nIOCSF=nNOCSF
 
@@ -64,10 +63,10 @@ C Various offset tables:
       EXS%MxEO =MxEO
       Call NrCoup(SGS,CIS,EXS,
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
-     &         IWork(lISgm),CIS%NOW,CIS%IOW,EXS%NOCP,
+     &         ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,
      &         EXS%IOCP,CIS%NOCSF,CIS%IOCSF,
-     &         CIS%NCSF,IWork(lNRL),EXS%MVL,EXS%MVR)
-      Call GetMem('NRL','Free','Inte',lNRL,nNRL)
+     &         CIS%NCSF,NRL,EXS%MVL,EXS%MVR)
+      Call mma_deallocate(NRL)
 C Computed in NrCoup:
       nWalk=CIS%nWalk
       nICoup=EXS%nICoup
@@ -88,8 +87,8 @@ C Computed in NrCoup:
       lVTab=lVTabTmp
       Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
      &            MxEO,nICoup,nWalk,nICase,nVTab,
-     &            IVR,SGS%MAW,IWork(lISGM),
-     &            WORK(lVSGM),CIS%NOW,CIS%IOW,EXS%NOCP,
+     &            IVR,SGS%MAW,ISGM,
+     &            VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,
      &            EXS%IOCP,IWork(lILNDW),CIS%ICase,EXS%ICOUP,
      &            WORK(lVTAB),IWork(lSCR),WORK(lVAL))
 
@@ -101,8 +100,8 @@ C nVTab has now been updated to the true size. Allocate final array:
       Call GetMem('iLndw','Free','Inte',liLndw,niLndw)
       Call GetMem('SCR','Free','Inte',lScr,nScr)
       Call GetMem('VAL','Free','Real',lVal,nLev+1)
-      Call GetMem('ISGM','Free','Inte',lISgm,nSgmnt)
-      Call GetMem('VSGM','Free','Real',lVSgm,nSgmnt)
+      Call mma_deallocate(ISgm)
+      Call mma_deallocate(VSgm)
       Call mma_deallocate(IVR)
 
       end Subroutine CXInit
