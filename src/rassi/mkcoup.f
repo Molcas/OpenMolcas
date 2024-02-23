@@ -11,7 +11,7 @@
       SUBROUTINE MKCOUP(nSym,nLev,iSm,nVert,MidLev,nMidV,MVSta,MVEnd,
      &                  MxEO,nICoup,nWalk,nICase,nVTab,
      &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
-     &                  NOCP,IOCP,ILNDW,ICASE,ICOUP,VTAB,
+     &                  NOCP,IOCP,ILNDW,ICASE,ICOUP,VTAB,nVTab_Final,
      &                  ISGPTH,VALUE)
       use rassi_aux, only: ipglob
       use Symmetry_Info, only: Mul
@@ -79,7 +79,7 @@ C SIMILAR FOR THE COUPLING COEFFICIENT TABLE:
         END DO
       END DO
 C COUPLING COEFFICIENT VALUE TABLE:
-      NVTAB=2
+      NVTAB_FINAL=2
       VTAB(1)=1.0D00
       VTAB(2)=-1.0D00
       NCHECK=0
@@ -198,18 +198,18 @@ C
             C=VALUE(LEV2)
 
 C Determine value code, IVTAB:
-            DO I=1,NVTAB
+            DO I=1,NVTAB_FINAL
               IVTAB=I
               IF(ABS(C-VTAB(I)).LT.1.0D-10) GOTO 212
             END DO
-            NVTAB=NVTAB+1
-            IF(NVTAB.GT.5000)THEN
-              WRITE(6,*)' MKCOUP: NVTAB > 5000!'
+            NVTAB_FINAL=NVTAB_FINAL+1
+            IF(NVTAB_FINAL.GT.5000)THEN
+              WRITE(6,*)' MKCOUP: NVTAB_FINAL > 5000!'
               WRITE(6,*)' Need recompilation.'
               CALL ABEND()
             END IF
-            VTAB(NVTAB)=C
-            IVTAB=NVTAB
+            VTAB(NVTAB_FINAL)=C
+            IVTAB=NVTAB_FINAL
 212         CONTINUE
 
             ICOUP(1,ICOP)=ISGPTH(IAWSL,LEV2)
@@ -240,7 +240,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
       IF(IPGLOB.GE.4) THEN
         ICOP1=0
         ICOP2=0
-        WRITE(6,*)' NR OF DIFFERENT VALUES OF COUP:',NVTAB
+        WRITE(6,*)' NR OF DIFFERENT VALUES OF COUP:',NVTAB_FINAL
         DO ICOP=1,NICOUP
           I3=ICOUP(3,ICOP)
           IF(I3.EQ.1) ICOP1=ICOP1+1

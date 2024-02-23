@@ -22,7 +22,8 @@
       Real*8,  Allocatable:: VTabTmp(:), Val(:)
       Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, nSgmnt, &
      &        nNOW, MxEO, nNOCP, nIOCP, nNRL, nNOCSF, nIOCSF, nWalk,    &
-     &        nICoup, nnICoup, nVMax, niLndw, nICase, nScr, nVTab
+     &        nICoup, nnICoup, nVMax, niLndw, nICase, nScr, nVTab,      &
+     &        nVTab_final
 
       nLev   =SGS%nLev
       nVert  =SGS%nVert
@@ -88,9 +89,10 @@
       Call MkCoup(nSym,nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTab,                       &
      &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,       &
-     &            EXS%IOCP,ILNDW,CIS%ICase,EXS%ICOUP,VTabTmp,SCR,VAL)
+     &            EXS%IOCP,ILNDW,CIS%ICase,EXS%ICOUP,VTabTmp,           &
+     &            NVTAB_Final,SCR,VAL)
 
-! nVTab has now been updated to the true size. Allocate final array:
+      nVTAB=nVTAB_Final
       Call mma_allocate(EXS%Vtab,nVTab,Label='EXS%VTab')
       EXS%nVTab=nVTab
       EXS%VTab(1:nVTab)=VTabTmp(1:nVTab)
