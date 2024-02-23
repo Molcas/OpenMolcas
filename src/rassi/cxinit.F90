@@ -1,17 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine CXInit(SGS,CIS,EXS,nSym)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only:  SGStruct, CIStruct, EXStruct
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      Integer nSym
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
@@ -19,6 +20,9 @@
       Integer, Allocatable:: IVR(:), ISgm(:), NRL(:), iLndw(:), Scr(:)
       Real*8,  Allocatable::         VSgm(:)
       Real*8,  Allocatable:: VTabTmp(:), Val(:)
+      Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, nSgmnt, &
+     &        nNOW, MxEO, nNOCP, nIOCP, nNRL, nNOCSF, nIOCSF, nWalk,    &
+     &        nICoup, nnICoup, nVMax, niLndw, nICase, nScr, nVTab
 
       nLev   =SGS%nLev
       nVert  =SGS%nVert
@@ -26,9 +30,9 @@
       MVSta  =SGS%MVSta
       MVEnd  =SGS%MVEnd
 
-C Calculate segment values, and MVL and MVR tables:
+! Calculate segment values, and MVL and MVR tables:
       nMidV=1+MVEnd-MVSta
-C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
+! nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
       Call mma_allocate(IVR,2*nVert,Label='IVR')
@@ -37,12 +41,11 @@ C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       nSgmnt=26*nVert
       Call mma_allocate(ISgm,nSgmnt,Label='ISgm')
       Call mma_allocate(VSgm,nSgmnt,Label='VSgm')
-      Call MkSeg(SGS,nLev,nVert,nMidv,SGS%DRT,SGS%Down,SGS%LTV,
-     &           IVR,EXS%MVL,EXS%MVR,ISgm,VSgm)
+      Call MkSeg(SGS,nLev,nVert,nMidv,SGS%DRT,SGS%Down,SGS%LTV,IVR,EXS%MVL,EXS%MVR,ISgm,VSgm)
       CIS%nMidV   =nMidV
       CIS%nIpWlk  = nIpWlk
 
-C Various offset tables:
+! Various offset tables:
       nNOW=2*nMidV*nSym
       Call mma_allocate(CIS%NOW,nNOW,Label='CIS%NOW')
       Call mma_allocate(CIS%IOW,nNOW,Label='CIS%IOW')
@@ -60,13 +63,12 @@ C Various offset tables:
       Call mma_allocate(CIS%NOCSF,nNOCSF,Label='CIS%NOCSF')
       Call mma_allocate(CIS%IOCSF,nIOCSF,Label='CIS%IOCSF')
       EXS%MxEO =MxEO
-      Call NrCoup(SGS,CIS,EXS,
-     &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
-     &         ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,
-     &         EXS%IOCP,CIS%NOCSF,CIS%IOCSF,
-     &         CIS%NCSF,NRL,EXS%MVL,EXS%MVR)
+      Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,         &
+     &            ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                        &
+     &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
+     &            CIS%NCSF,NRL,EXS%MVL,EXS%MVR)
       Call mma_deallocate(NRL)
-C Computed in NrCoup:
+! Computed in NrCoup:
       nWalk=CIS%nWalk
       nICoup=EXS%nICoup
 
@@ -83,12 +85,12 @@ C Computed in NrCoup:
       Call mma_allocate(Val,nLev+1,Label='Val')
       EXS%nVTab =nVMax
       nVTab=nVMax
-      Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
-     &            MxEO,nICoup,nWalk,nICase,nVTab,
-     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,
+      Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,          &
+     &            MxEO,nICoup,nWalk,nICase,nVTab,                       &
+     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,       &
      &            EXS%IOCP,ILNDW,CIS%ICase,EXS%ICOUP,VTabTmp,SCR,VAL)
 
-C nVTab has now been updated to the true size. Allocate final array:
+! nVTab has now been updated to the true size. Allocate final array:
       Call mma_allocate(EXS%Vtab,nVTab,Label='EXS%VTab')
       EXS%nVTab=nVTab
       EXS%VTab(1:nVTab)=VTabTmp(1:nVTab)
