@@ -16,7 +16,6 @@
       Integer nSym, nActEl, iSpin, nRasPrt
       Type (SGStruct) SGS
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
-#include "WrkSpc.fh"
 
       Integer, Allocatable:: DRT0(:), Down0(:), Tmp(:), Lim(:), NWV(:),
      &                       DAW(:), RAW(:)

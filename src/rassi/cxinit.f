@@ -9,13 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CXInit(SGS,CIS,EXS)
-      use stdalloc, only: mma_allocate
+      use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only:  SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
 #include "WrkSpc.fh"
+
+      Integer, Allocatable:: IVR(:)
 
       nSym   =SGS%nSym
       nLev   =SGS%nLev
@@ -29,7 +31,7 @@ C Calculate segment values, and MVL and MVR tables:
 C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
-      Call GetMem('IVR','Allo','Inte',lIVR,2*nVert)
+      Call mma_allocate(IVR,2*nVert,Label='IVR')
       Call mma_allocate(EXS%MVR,2*nMidV)
       Call mma_allocate(EXS%MVL,2*nMidV)
       nSgmnt=26*nVert
@@ -37,7 +39,7 @@ C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       Call GetMem('VSGM','Allo','Real',lVSgm,nSgmnt)
       Call MkSeg(SGS,nLev,nVert,nMidv,
      &        SGS%DRT,SGS%Down,SGS%LTV,
-     &        IWork(lIVR),EXS%MVL,EXS%MVR,
+     &        IVR,EXS%MVL,EXS%MVR,
      &        IWork(lISgm),Work(lVSgm))
       CIS%nMidV   =nMidV
       CIS%nIpWlk  = nIpWlk
@@ -86,7 +88,7 @@ C Computed in NrCoup:
       lVTab=lVTabTmp
       Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
      &            MxEO,nICoup,nWalk,nICase,nVTab,
-     &            IWork(lIVR),SGS%MAW,IWork(lISGM),
+     &            IVR,SGS%MAW,IWork(lISGM),
      &            WORK(lVSGM),CIS%NOW,CIS%IOW,EXS%NOCP,
      &            EXS%IOCP,IWork(lILNDW),CIS%ICase,EXS%ICOUP,
      &            WORK(lVTAB),IWork(lSCR),WORK(lVAL))
@@ -101,6 +103,6 @@ C nVTab has now been updated to the true size. Allocate final array:
       Call GetMem('VAL','Free','Real',lVal,nLev+1)
       Call GetMem('ISGM','Free','Inte',lISgm,nSgmnt)
       Call GetMem('VSGM','Free','Real',lVSgm,nSgmnt)
-      Call GetMem('IVR','Free','Inte',lIVR,2*nVert)
+      Call mma_deallocate(IVR)
 
       end Subroutine CXInit
