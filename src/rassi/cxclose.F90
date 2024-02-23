@@ -8,17 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Subroutine CXClose(SGS,CIS,EXS)
+Subroutine CXClose(CIS,EXS)
 use stdalloc, only: mma_deallocate
-use Struct, only: SGStruct, CIStruct, EXStruct
-Type (SGStruct) SGS
+use Struct, only: CIStruct, EXStruct
 Type (CIStruct) CIS
 Type (ExStruct) ExS
-! Unpack structure SGS:
-! Unpack structure CIS:
-! Unpack structure EXS:
-nVTab =EXS%nVTab
-lVTab =EXS%lVTab
 Call mma_deallocate(EXS%MVL)
 Call mma_deallocate(EXS%MVR)
 Call mma_deallocate(CIS%NOCSF)
@@ -30,6 +24,6 @@ Call mma_deallocate(EXS%IOCP)
 Call mma_deallocate(CIS%NCSF)
 Call mma_deallocate(CIS%ICase)
 Call mma_deallocate(EXS%ICoup)
-Call GetMem('VTab','Free','Real',lVtab,nVtab)
+Call mma_deallocate(EXS%VTab)
 
 end subroutine CXClose

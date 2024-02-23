@@ -82,7 +82,6 @@ C Computed in NrCoup:
       Call GetMem('SCR','Allo','Inte',lScr,nScr)
       Call GetMem('VAL','Allo','Real',lVal,nLev+1)
       EXS%nVTab =nVMax
-      EXS%lVTab =lVTabTmp
       nVTab=nVMax
       lVTab=lVTabTmp
       Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,
@@ -93,10 +92,9 @@ C Computed in NrCoup:
      &            WORK(lVTAB),IWork(lSCR),WORK(lVAL))
 
 C nVTab has now been updated to the true size. Allocate final array:
-      Call GetMem('VTab','Allo','Real',lVtab,nVTab)
+      Call mma_allocate(EXS%Vtab,nVTab,Label='EXS%VTab')
       EXS%nVTab=nVTab
-      EXS%lVTab=lVTab
-      call dcopy_(nVTab,Work(lVTabTmp),1,Work(lVTab),1)
+      call dcopy_(nVTab,Work(lVTabTmp),1,EXS%VTab,1)
       Call GetMem('VTabTmp','Free','Real',lVTabTmp,nVMax)
       Call GetMem('iLndw','Free','Inte',liLndw,niLndw)
       Call GetMem('SCR','Free','Inte',lScr,nScr)

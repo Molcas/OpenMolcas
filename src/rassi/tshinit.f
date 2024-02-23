@@ -197,7 +197,7 @@ C     Check if the Energy gap is smaller than the threshold.
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
-           CALL CXCLOSE(SGS(2),CIS(2),EXS(2))
+           CALL CXCLOSE(CIS(2),EXS(2))
            CALL SGCLOSE(SGS(2))
          END IF
          CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCI2)
@@ -274,7 +274,7 @@ C     Check if the Energy gap is smaller than the threshold.
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
-           CALL CXCLOSE(SGS(2),CIS(2),EXS(2))
+           CALL CXCLOSE(CIS(2),EXS(2))
            CALL SGCLOSE(SGS(2))
          END IF
          CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCI2)
@@ -287,7 +287,7 @@ C         NCI2=NCI1
 C         CALL GETMEM('GTDMCI2','ALLO','REAL',LCI2,NCI2)
 C      END IF
       IF(WFTYP1.EQ.'GENERAL ') THEN
-        CALL CXCLOSE(SGS(1),CIS(1),EXS(2))
+        CALL CXCLOSE(CIS(1),EXS(2))
         CALL SGCLOSE(SGS(1))
       END IF
       CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCI1)

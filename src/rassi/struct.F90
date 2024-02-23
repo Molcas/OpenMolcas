@@ -44,7 +44,7 @@ Type EXStruct
      Integer nICoup
      Integer, Allocatable:: ICoup(:)
      Integer nVTab
-     Integer lVTab
+     Real*8,  Allocatable:: VTab(:)
      Integer, Allocatable:: MVL(:)
      Integer, Allocatable:: MVR(:)
      Integer NT1MX

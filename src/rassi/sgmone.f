@@ -15,18 +15,16 @@
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
-#include "WrkSpc.fh"
 
       nMidV =CIS%nMidV
 
       MxEO  =EXS%MxEO
       nICoup=EXS%nICoup
       nVTab =EXS%nVTab
-      lVTab =EXS%lVTab
       CALL SIGMA_1(SGS,CIS,EXS,NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
      &             IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
      &             CIS%IOCSF,CIS%NOW,CIS%IOW,
      &             EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &             WORK(LVTAB),EXS%MVL,EXS%MVR)
+     &             EXS%VTab,EXS%MVL,EXS%MVR)
 
       end SUBROUTINE SGMONE
