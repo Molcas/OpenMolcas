@@ -85,7 +85,7 @@
       Call mma_allocate(Val,nLev+1,Label='Val')
       EXS%nVTab =nVMax
       nVTab=nVMax
-      Call MkCoup(nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,          &
+      Call MkCoup(nSym,nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTab,                       &
      &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,       &
      &            EXS%IOCP,ILNDW,CIS%ICase,EXS%ICOUP,VTabTmp,SCR,VAL)

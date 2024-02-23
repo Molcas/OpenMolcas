@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKCOUP(nLev,iSm,nVert,MidLev,nMidV,MVSta,MVEnd,
+      SUBROUTINE MKCOUP(nSym,nLev,iSm,nVert,MidLev,nMidV,MVSta,MVEnd,
      &                  MxEO,nICoup,nWalk,nICase,nVTab,
      &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
      &                  NOCP,IOCP,ILNDW,ICASE,ICOUP,VTAB,
      &                  ISGPTH,VALUE)
       use rassi_aux, only: ipglob
+      use Symmetry_Info, only: Mul
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "symmul.fh"
 #include "segtab.fh"
 C Purpose: Compute and return the table ICOUP(1..3,ICOP).
 C The number of coupling coeffs is obtained from NOCP, the offset to

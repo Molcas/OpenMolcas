@@ -16,18 +16,17 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKCOUP_CP2(nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,
+      SUBROUTINE MKCOUP_CP2(nSym,nLev,ISm,nVert,
+     &                      MidLev,nMidV,MVSta,MVEnd,
      &                  MxEO,nICoup,nWalk,nICase,
      &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
      &                  NOCP,IOCP,ILNDW,ICase,ICOUP,
      &                  nVTab,VTab,NVTAB_FINAL,
      &                  ISGPTH,VALUE)
 
+      use Symmetry_Info, only: Mul
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
 #include "segtab.fh"
 C Purpose: Compute and return the table ICOUP(1..3,ICOP).
 C The number of coupling coeffs is obtained from NOCP, the offset to
