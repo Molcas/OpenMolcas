@@ -14,6 +14,7 @@ subroutine diag_c2(matrix,n,info,w,z)
 ! matrix with the dimension nbtot. the eigenvalues of the diagonalization
 ! are directed into w1 and the Complex eigenvectors are written to z1.
 
+use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne
 use Definitions, only: wp, iwp
@@ -37,7 +38,7 @@ Z(:,:) = cZero
 RM = dznrm2_(n*n,matrix,1)
 
 if (RM > Zero) then
-  call mma_allocate(ap,n*(n+1)/2,'ap')
+  call mma_allocate(ap,nTri_Elem(n),'ap')
   call mma_allocate(work,2*n-1,'work')
   call mma_allocate(rwork,3*n-2,'rwork')
   work(:) = cZero
@@ -45,7 +46,7 @@ if (RM > Zero) then
 
   do j=1,n
     do i=1,j
-      ap(i+(j-1)*j/2) = matrix(i,j)
+      ap(iTri(i,j)) = matrix(i,j)
     end do
   end do
   ! diagonalize:

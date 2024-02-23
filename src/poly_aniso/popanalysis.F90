@@ -73,16 +73,16 @@ isite = 0
 call mma_deallocate(intc)
 
 pop(:,:,:,:) = cZero
-i = int(24+13*lmax)
+i = 24+13*lmax
 write(fmtline,'(A,i3,A,i2,A)') '(',i,'A)'
 write(u6,fmtline) ('-',j=1,i)
-i = int((24+13*lmax-19)/2)
+i = (24+13*lmax-19)/2
 write(fmtline,'(A,i3,A,i3,A)') '(',i,'X,A,',i,'X)'
 write(u6,fmtline) 'POPULATION ANALYSIS'
-i = int((8+13*lmax-19)/2)
+i = (8+13*lmax-19)/2
 write(fmtline,'(A,i3,A,i3,A)') '(',i,'X,A,',i,'X)'
 write(u6,fmtline) '(i.e. diagonal value of density matrices of the interacting sites)'
-i = int(24+13*lmax)
+i = 24+13*lmax
 write(fmtline,'(A,i3,A)') '(',i,'A)'
 write(u6,fmtline) ('-',j=1,i)
 write(fmtline,'(A,i3,A)') '(A,',lmax,'A)'
@@ -162,7 +162,7 @@ end do ! nb1
 !  Jz(:) =  Lz(:)+Sz(:)
 !
 !  do l=1,lmax
-!    if (l == int((lmax+1)/2)) then
+!    if (l == (lmax+1)/2) then
 !      write(u6,'(i5,3x,A,1x,i2,1x,A,4(3(F9.5,1x),A))') nb1,'|',l,'|',real(Mx(l)),real(My(l)),real(Mz(l)),'|',real(Sx(l)), &
 !                                                       real(Sy(l)),real(Sz(l)),'|',real(Lx(l)),real(Ly(l)),real(Lz(l)),'|', &
 !                                                       real(Jx(l)),real(Jy(l)),real(Jz(l)),'|'

@@ -13,6 +13,7 @@ subroutine fetch_init_const(nneq,neqv,nmax,exch,nLoc,nCenter,nT,nH,nTempMagn,nDi
                             old_aniso_format,iReturn)
 ! this routine looks into the file "single_aniso.input" for the "RESTart" keyword
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
@@ -193,9 +194,9 @@ do
             ! generating the name of the "aniso_input file for
             ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)
             if (i < 10) then
-              write(namefile_aniso,'(4A)') 'aniso_hdf_',char(48+mod(int(i),10)),'.input'
+              write(namefile_aniso,'(4A)') 'aniso_hdf_',char(48+mod(i,10)),'.input'
             else if ((i >= 10) .and. (i <= 99)) then
-              write(namefile_aniso,'(4A)') 'aniso_hdf_',char(48+mod(int((i)/10),10)),char(48+mod(int(i),10)),'.input'
+              write(namefile_aniso,'(4A)') 'aniso_hdf_',char(48+mod(i/10,10)),char(48+mod(i,10)),'.input'
             end if
 
 #           ifdef _HDF5_
@@ -211,9 +212,9 @@ do
             ! generating the name of the "aniso_input file for
             ! each center. Maxmimum 10 centers. CHAR(48)=0 (zero)
             if (i < 10) then
-              write(namefile_aniso,'(4A)') 'aniso_',char(48+mod(int(i),10)),'.input'
+              write(namefile_aniso,'(4A)') 'aniso_',char(48+mod(i,10)),'.input'
             else if ((i >= 10) .and. (i <= 99)) then
-              write(namefile_aniso,'(4A)') 'aniso_',char(48+mod(int((i)/10),10)),char(48+mod(int(i),10)),'.input'
+              write(namefile_aniso,'(4A)') 'aniso_',char(48+mod(i/10,10)),char(48+mod(i,10)),'.input'
             end if
             LUANISO = Isfreeunit(20)
             call molcas_open(LUANISO,NAMEFILE_ANISO)
@@ -419,7 +420,7 @@ do
 
 end do
 
-if ((.not. KeyPair) .and. KeyCoor) nPair = nCenter*(nCenter-1)/2
+if ((.not. KeyPair) .and. KeyCoor) nPair = nTri_Elem(nCenter-1)
 
 if (KeyHexp) then
   nTempMagn = nTempMagn_HEXP

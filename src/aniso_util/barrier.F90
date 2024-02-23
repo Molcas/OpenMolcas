@@ -314,8 +314,8 @@ else !ipar
 
   else ! maxmult = odd
     write(string2,'(a, i2, a, i2, a)') '(A,',(maxmult-1)/2,'(a,i2,a),a,',(maxmult-1)/2,'(a,i2,a),A)'
-    write(u6,string2) ' Mult.|',('     ',i,'+     |',i=int((maxmult-1)/2),1,-1),'      0      |', &
-                      ('     ',i,'-     |',i=1,int((maxmult-1)/2),1),'    E (cm-1)   |'
+    write(u6,string2) ' Mult.|',('     ',i,'+     |',i=(maxmult-1)/2,1,-1),'      0      |', &
+                      ('     ',i,'-     |',i=1,(maxmult-1)/2,1),'    E (cm-1)   |'
     write(string2,'(a, i2, a, i2, a)')'(A,',maxmult/2,'A,A,',maxmult/2,'A,A)'
     write(u6,string2) '------|',('-------------|',i=1,maxmult/2),'-------------|',('-------------|',i=1,maxmult/2), &
                       '---------------|'
@@ -372,17 +372,17 @@ do il=1,nmult
   else
     !if (mod(ndim(il),2) == 0) then  ! even multiplicity
 
-    do i=1,int(ndim(il)/2)
+    do i=1,ndim(il)/2
       if (i > 1) write(u6,'(4A)') '      |','------------------------|','---------------------------------------|', &
                                  '-----------------------|'
       write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
-      do j=i,int(ndim(il)/2)
+      do j=i,ndim(il)/2
         write(s2,'(i2,A1,i1,A1)') il,'.',j,'+'
         !call prbar(il,s1,s2,dipso5(:,il,i,il,ndim(il)-i+1))
         call prbar(il,s1,s2,dipso5(:,il,i,il,j))
       end do
 
-      do j=i,int(ndim(il)/2)
+      do j=i,ndim(il)/2
         write(s2,'(i2,A1,i1,A1)') il,'.',j,'-'
         !call prbar(il,s1,s2,dipso5(:,il,i,il,ndim(il)-i+1))
         call prbar(il,s1,s2,dipso5(:,il,i,il,ndim(il)-j+1))

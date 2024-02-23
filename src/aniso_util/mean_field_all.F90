@@ -14,6 +14,7 @@ subroutine mean_field_all(EXCH,N,H,X,Y,Z,zJ,T,W,thrs,dM,SM,ST)
 ! for zJ /= 0.0
 ! using ONLY Zeeman basis (N)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
 use Definitions, only: wp, iwp, u6
@@ -49,7 +50,7 @@ call mma_allocate(ZM,N,N,label='ZM')
 
 ! temporary arrays used in ZEEM_SA:
 call mma_allocate(RWORK,(3*N-2),'ZEEM_RWORK')
-call mma_allocate(HZEE,N*(N+1)/2,'ZEEM_HZEE')
+call mma_allocate(HZEE,nTri_Elem(N),'ZEEM_HZEE')
 call mma_allocate(WORK,2*N-1,'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
 

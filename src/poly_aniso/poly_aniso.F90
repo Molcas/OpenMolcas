@@ -436,7 +436,7 @@ do i=1,nneq
         write(u6,'(A,i2,A,A)') 'namefile_aniso(',i,')=',namefile_aniso(i)
 #       endif
       else if ((i >= 10) .and. (i <= 99)) then
-        write(namefile_aniso(i),'(4A)') 'aniso_hdf_',char(48+mod(int((i)/10),10)),char(48+mod(int(i),10)),'.input'
+        write(namefile_aniso(i),'(4A)') 'aniso_hdf_',char(48+mod(i/10,10)),char(48+mod(i,10)),'.input'
       end if
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'PA:  namefile_aniso(i)=',trim(namefile_aniso(i))
@@ -463,9 +463,9 @@ do i=1,nneq
     else
       ! set their names:
       if (i < 10) then
-        write(namefile_aniso(i),'(4A)') 'aniso_',char(48+mod(int(i),10)),'.input'
+        write(namefile_aniso(i),'(4A)') 'aniso_',char(48+mod(i,10)),'.input'
       else if ((i >= 10) .and. (i <= 99)) then
-        write(namefile_aniso(i),'(4A)') 'aniso_',char(48+mod(int((i)/10),10)),char(48+mod(int(i),10)),'.input'
+        write(namefile_aniso(i),'(4A)') 'aniso_',char(48+mod(i/10,10)),char(48+mod(i,10)),'.input'
       end if
 
       if (old_aniso_format) then

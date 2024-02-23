@@ -167,7 +167,7 @@ field(5) = ' O2+O4+...+O10 |'
 field(6) = ' O2+O4+...+O12 |'
 field(7) = ' O2+O4+...+O14 |'
 field(8) = ' O2+O4+...+O16 |'
-nfields = int((nDIMCF-1)/2)
+nfields = (nDIMCF-1)/2
 do J=1,nfields,4
   jEnd = min(nfields,J+3)
   write(u6,'(16A)') '----------|',('---------------|',i=j,jEnd+1)
@@ -175,7 +175,7 @@ do J=1,nfields,4
   if (mod(nDIMcf,2) == 1) then
     write(u6,'(3A,I2,3x,A,5x,A,4x,A,10(5x,A,6x,A))') '  ',LJ,' =',(nDIMcf-1)/2,'|',iprog,'|',('ONLY','|',i=j,jEnd)
   else
-    write(u6,'(3A,I3,A,5x,A,4x,A,10(5x,A,6x,A))') ' ',LJ,' =',(nDIMcf-1),'/2 |',iprog,'|',('ONLY','|',i=j,jEnd)
+    write(u6,'(3A,I3,A,5x,A,4x,A,10(5x,A,6x,A))') ' ',LJ,' =',nDIMcf-1,'/2 |',iprog,'|',('ONLY','|',i=j,jEnd)
   end if
 
   write(u6,'(10x,10A)') '|     INITIAL   |',(field(i),i=j,jEnd)
@@ -208,7 +208,7 @@ field(5) = '      O10      |'
 field(6) = '      O12      |'
 field(7) = '      O14      |'
 field(8) = '      O16      |'
-nfields = int((nDIMCF-1)/2)
+nfields = (nDIMCF-1)/2
 
 do J=1,nfields,4
   jEnd = min(nfields,J+3)
@@ -217,7 +217,7 @@ do J=1,nfields,4
   if (mod(nDIMcf,2) == 1) then
     write(u6,'(3A, I2,3x,A,5x,A,4x,A,10(5x,A,6x,A))') '  ',LJ,' =',(nDIMcf-1)/2,'|',iprog,'|',('ONLY','|',i=j,jEnd)
   else
-    write(u6,'(3A,I3,a,5x,A,4x,A,10(5x,A,6x,A))') ' ',LJ,' =',(nDIMcf-1),'/2 |',iprog,'|',('ONLY','|',i=j,jEnd)
+    write(u6,'(3A,I3,a,5x,A,4x,A,10(5x,A,6x,A))') ' ',LJ,' =',nDIMcf-1,'/2 |',iprog,'|',('ONLY','|',i=j,jEnd)
   end if
 
   write(u6,'(10x,10A)') '|     INITIAL   |',(field(i),i=j,jEnd)

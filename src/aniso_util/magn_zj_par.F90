@@ -49,6 +49,7 @@ subroutine MAGN_ZJ_PAR(EXCH,N,X,Y,Z,H,W,zJ,dM,sM,nT,T,sopt,WZ,ZB,S,M,thrs,m_para
 !    iT -- labes the temperature points;
 !    ST -- value of the average spin of neighboring sites, Real(kind=wp) :: (3) array;
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero
 use Definitions, only: wp, iwp, u6
@@ -84,7 +85,7 @@ call mma_allocate(MZ,3,exch,exch,'MZ')
 
 ! temporary arrays used in ZEEM_SA:
 call mma_allocate(RWORK,3*N-2,'ZEEM_RWORK')
-call mma_allocate(HZEE,N*(N+1)/2,'ZEEM_HZEE')
+call mma_allocate(HZEE,nTri_Elem(N),'ZEEM_HZEE')
 call mma_allocate(WORK,2*N-1,'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
 

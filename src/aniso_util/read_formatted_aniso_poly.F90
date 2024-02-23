@@ -30,7 +30,6 @@ integer(kind=iwp), external :: IsFreeUnit
 
 #include "macros.fh"
 
-call mma_allocate(multiplicity,nstate,label='multiplicity')
 ! set to zero all arrays:
 iReturn = 0
 MM(:,:,:) = cZero
@@ -41,6 +40,7 @@ call molcas_open(LuAniso,input_file_name)
 ! compatibility with the present version: of aniso_i.input file
 read(LuAniso,*) nstate,nss
 read(LuAniso,*) (eso(j),j=1,nss)
+call mma_allocate(multiplicity,nstate,label='multiplicity')
 read(LuAniso,*) (multiplicity(j),j=1,nstate)
 unused_var(multiplicity)
 

@@ -14,6 +14,7 @@ subroutine DIAG_R2(MATRIX,N,INFO,W,Z)
 ! MATRIX WITH THE DIMENSION NBTOT. THE EIGENVALUES OF THE DIAGONALIZATION
 ! ARE DIRECTED INTO W1 AND THE Real EIGENVECTORS ARE WRITTEN TO Z1.
 
+use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -33,13 +34,13 @@ if (N < 1) return
 W(:) = Zero
 Z(:,:) = Zero
 
-call mma_allocate(AP,(N*(N+1)/2),'AP')
+call mma_allocate(AP,nTri_Elem(N),'AP')
 call mma_allocate(WORK,3*N,'WORK')
 WORK(:) = Zero
 
 do j=1,N
   do i=1,j
-    AP(i+(j-1)*j/2) = MATRIX(i,j)
+    AP(iTri(i,j)) = MATRIX(i,j)
   end do
 end do
 ! diagonalize:

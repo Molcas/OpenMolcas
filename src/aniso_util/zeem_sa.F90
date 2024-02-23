@@ -11,6 +11,7 @@
 
 subroutine ZEEM_SA(N,H,dX,dY,dZ,W,M,sM,S,zJ,WM,ZM,DBG,RWORK,HZEE,WORK,W_c)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Zero, cZero, cOne, cLight, mBohr, rPlanck
 use Definitions, only: wp, iwp, u6
 
@@ -19,7 +20,7 @@ integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: H, dX, dY, dZ, W(N), S(3), zJ
 complex(kind=wp), intent(in) :: M(3,N,N), sM(3,N,N)
 real(kind=wp), intent(out) :: WM(N), RWORK(3*N-2)
-complex(kind=wp), intent(out) :: ZM(N,N), HZEE(N*(N+1)/2), WORK(2*N-1), W_c(N)
+complex(kind=wp), intent(out) :: ZM(N,N), HZEE(nTri_Elem(N)), WORK(2*N-1), W_c(N)
 logical(kind=iwp), intent(in) :: DBG
 integer(kind=iwp) :: i, info, j
 complex(kind=wp) :: dX_c, dY_c, dZ_c, H_c, mB_c, P, R, RP, S_c(3), zJ_c
@@ -67,7 +68,7 @@ if (abs(zJ) < tiny(zJ)) then
     do j=1,i
       R = dX_c*M(1,j,i)+dY_c*M(2,j,i)+dZ_c*M(3,j,i)
 
-      HZEE(j+(i-1)*i/2) = HZEE(j+(i-1)*i/2)-mB_c*H_c*R
+      HZEE(iTri(i,j)) = HZEE(iTri(i,j))-mB_c*H_c*R
 
     end do
   end do
@@ -82,7 +83,7 @@ else ! zJ /= 0
 
       RP = mB_c*H_c*R+zJ_c*P
 
-      HZEE(j+(i-1)*i/2) = HZEE(j+(i-1)*i/2)-RP
+      HZEE(iTri(i,j)) = HZEE(iTri(i,j))-RP
     end do
   end do
 
@@ -90,14 +91,14 @@ end if ! zJ
 
 ! add diagonal energies:
 do i=1,N
-  HZEE(i+(i-1)*i/2) = HZEE(i+(i-1)*i/2)+W_c(i)
+  HZEE(iTri(i,i)) = HZEE(iTri(i,i))+W_c(i)
 end do
 
 if (DBG) then
   write(u6,'(A)') 'HZEE:'
   do i=1,N
     do j=1,i
-      write(u6,'(2i3,2x,100(2ES16.8,2x))') i,j,HZEE(j+(i-1)*i/2)
+      write(u6,'(2i3,2x,100(2ES16.8,2x))') i,j,HZEE(iTri(i,j))
     end do
   end do
 end if

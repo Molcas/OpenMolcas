@@ -41,11 +41,9 @@ if (exch >= 0) then
   call mma_allocate(rwork,(3*exch-2),'rwork')
 end if
 
-if (lmax >= 0) then
-  call mma_allocate(nind,lmax,2,'nind')
-  call mma_allocate(intc,lmax,'intc')
-  call mma_allocate(icoord,lmax,'icoord')
-end if
+call mma_allocate(nind,lmax,2,'nind')
+call mma_allocate(intc,lmax,'intc')
+call mma_allocate(icoord,lmax,'icoord')
 
 ! generate the tables:
 l = 0
@@ -461,11 +459,9 @@ if (exch >= 0) then
   call mma_deallocate(rwork)
 end if
 
-if (lmax >= 0) then
-  call mma_deallocate(nind)
-  call mma_deallocate(intc)
-  call mma_deallocate(icoord)
-end if
+call mma_deallocate(nind)
+call mma_deallocate(intc)
+call mma_deallocate(icoord)
 
 return
 

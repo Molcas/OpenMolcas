@@ -11,6 +11,7 @@
 
 subroutine momloc2(N,NL,nneq,neq,neqv,r_rot,nsites,nexch,W,Z,dipexch,s_exch,dipso,s_so)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, cOne, gElectron
 use Definitions, only: wp, iwp, u6
@@ -46,7 +47,7 @@ call mma_allocate(VL,N,N,'VL')
 call mma_allocate(TMP,N,N,'TMP')
 ! temporary arrays used in ZEEM_SA:
 call mma_allocate(RWORK,(3*N-2),'ZEEM_RWORK')
-call mma_allocate(HZEE,(N*(N+1)/2),'ZEEM_HZEE')
+call mma_allocate(HZEE,(nTri_Elem(N)),'ZEEM_HZEE')
 call mma_allocate(WORK,(2*N-1),'ZEEM_WORK')
 call mma_allocate(W_c,N,'ZEEM_W_c')
 
@@ -204,7 +205,7 @@ do i=1,N
   JM(:,:,i) = LM(:,:,i)+SM(:,:,i)
 
   do isite=1,nsites
-    if (isite == int((nsites+1)/2)) then
+    if (isite == (nsites+1)/2) then
       write(u6,'(i5,3x,A,1x,i2,1x,A,4(3(F9.5,1x),A))') i,'|',isite,'|',MM(isite,1,i),MM(isite,2,i),MM(isite,3,i),'|', &
                                                        SM(isite,1,i),SM(isite,2,i),SM(isite,3,i),'|',LM(isite,1,i),LM(isite,2,i), &
                                                        LM(isite,3,i),'|',JM(isite,1,i),JM(isite,2,i),JM(isite,3,i),'|'

@@ -267,8 +267,8 @@ do iH=1,nH
                                                          'the applied field:'
       if ((iH == 1) .and. (iM > nDir) .and. (iM <= nDir+nDirZee)) then
         write(u6,'(A,I3,A,3F10.6,3x,5A)') 'direction Nr.',iM-nDir,' : ',dHX(iM),dHY(iM),dHZ(iM),'written in file "zeeman_energy_', &
-                                          char(48+mod(int((iM-nDir)/100),10)),char(48+mod(int((iM-nDir)/10),10)), &
-                                          char(48+mod((iM-nDir),10)),'.txt".'
+                                          char(48+mod((iM-nDir)/100,10)),char(48+mod((iM-nDir)/10,10)), &
+                                          char(48+mod(iM-nDir,10)),'.txt".'
 
         write(LUZee(iM-nDir),'(A,3F24.15)') '# direction of the applied magnetic field:',dHX(iM),dHY(iM),dHZ(iM)
         write(LUZee(iM-nDir),'(A,6x,A,1000(I4,6x) )') '# H(T)',' State =>',(i,i=1,nm)

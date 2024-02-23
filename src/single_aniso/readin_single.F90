@@ -1181,8 +1181,7 @@ do
       do i=1,nDirZee
         ! open the zeeman_energy_xxx.txt file where Zeeman eigenstates will
         ! be further written in mangetization() subroutine
-        write(namefile_energy,'(5A)') 'zeeman_energy_',char(48+mod(int((i)/100),10)),char(48+mod(int((i)/10),10)), &
-                                      char(48+mod(int(i),10)),'.txt'
+        write(namefile_energy,'(5A)') 'zeeman_energy_',char(48+mod(i/100,10)),char(48+mod(i/10,10)),char(48+mod(i,10)),'.txt'
         !print *, 'namefile_energy: ', namefile_energy
         LUZee(i) = IsFreeUnit(30+i)
         call molcas_open(LUZee(i),namefile_energy)
