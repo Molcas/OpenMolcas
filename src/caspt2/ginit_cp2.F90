@@ -25,7 +25,8 @@
      &                VTAB, DOWN,  ICOUP, IOCP, UP,    MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                LTV, MAW, RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
-     &                    NMAW,                      NNOCP
+     &                    NMAW,           IOW1,      NNOCP,             &
+     &               ICASE, NICASE
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -110,9 +111,9 @@
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
       CALL MKCOUP_CP2(nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,          &
-     &                MxEO,nICoup,nWalk,                                &
-     &                IVR,MAW,ISGM,VSGM,NOW1,     NOCP,IOCP,ILNDW,      &
-     &                ICOUP,NVTAB_TMP,VTAB_TMP,NVTAB,SCR,VAL)
+     &                MxEO,nICoup,nWalk,nICase,                         &
+     &                IVR,MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &
+     &                ICase, ICOUP,NVTAB_TMP,VTAB_TMP,NVTAB,SCR,VAL)
 
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
       VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)

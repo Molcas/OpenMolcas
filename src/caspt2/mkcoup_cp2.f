@@ -17,9 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKCOUP_CP2(nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,
-     &                  MxEO,nICoup,nWalk,
-     &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,
-     &                  NOCP,IOCP,ILNDW,ICOUP,
+     &                  MxEO,nICoup,nWalk,nICase,
+     &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
+     &                  NOCP,IOCP,ILNDW,ICase,ICOUP,
      &                  nVTab,VTab,NVTAB_FINAL,
      &                  ISGPTH,VALUE)
 
@@ -61,8 +61,8 @@ C INPUT PARAMETERS:
       Real*8 VSGMNT(NVERT,26)
       Integer NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
 C OUTPUT PARAMETERS:
-      Integer IOCP(MXEO,NSYM,NMIDV)
-      Integer ILNDW(NWALK)
+      Integer IOW(2,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
+      Integer ILNDW(NWALK), ICASE(NICASE)
       Real*8 VTab(nVTab)
       Integer ICOUP(3,NICOUP)
 C SCRATCH PARAMETERS:
@@ -71,6 +71,10 @@ C SCRATCH PARAMETERS:
       Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
       Integer, PARAMETER :: ISEG=7
 
+
+
+      nIpWlk=1+(MidLev-1)/15
+      nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
 C NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL
 C    BE RESTORED FINALLY.
       DO IHALF=1,2
@@ -165,6 +169,15 @@ C COUPLING COEFFICIENT VALUE TABLE:
             IAWS=ISGPTH(IAWSL,LEV2)
             ILNDW(IAWS)=ILND
             NOW(IHALF,LFTSYM,MV)=ILND
+            IPOS=IOW(IHALF,LFTSYM,MV)+(ILND-1)*NIPWLK
+            DO LL=LEV2+1,LEV1,15
+              IC=0
+              DO L=MIN(LL+14,LEV1),LL,-1
+                IC=4*IC+ISGPTH(ICS,L)
+              END DO
+              IPOS=IPOS+1
+              ICASE(IPOS)=IC
+            END DO
           ELSE
             IP=0
             IQ=0
