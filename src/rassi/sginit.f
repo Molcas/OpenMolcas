@@ -18,7 +18,8 @@
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 #include "WrkSpc.fh"
 
-      Integer, Allocatable:: DRT0(:), Down0(:), Tmp(:)
+      Integer, Allocatable:: DRT0(:), Down0(:), Tmp(:), Lim(:), NWV(:),
+     &                       DAW(:), RAW(:)
 
       NLEV=NASHT
 C Allocate Level to Symmetry table ISm:
@@ -37,8 +38,6 @@ C Compute size of unrestricted DRT table:
       ib0=ispin-1
       ia0=(nActEl-ib0)/2
       ic0=nLev-ia0-ib0
-CTEST      write(*,*)' ia0, ib0, ic0:'
-CTEST      write(*,'(8i5)')ia0,ib0,ic0
 
       iErr=0
       If ((2*ia0+ib0).ne.nActEl) Then
@@ -67,56 +66,47 @@ C Compute unrestricted DRT tables:
       NTMP=((NLEV+1)*(NLEV+2))/2
       CALL mma_allocate(TMP,NTMP,Label='TMP')
       CALL mkDRT0 (IA0,IB0,IC0,NVERT0,DRT0,DOWN0,NTMP,TMP)
-CTEST      write(*,*)' SGINIT: Back from DRT0'
 
 C Construct a restricted graph.
-      Call GetMem('Lim  ','Allo','Inte',lLim,nLev)
-      Do Lev=1,nLev
-        IWork(lLim-1+Lev)=0
-      End Do
+      Call mma_allocate(Lim,nLev,Label='Lim')
+      Lim(:)=0
 C Fill in the occupation limit table:
       Lev=0
       Do iRO=1,nRasPrt
         Do iSy=1,nSym
           Lev=Lev+nRas(iSy,iRO)
         End Do
-        if(Lev.gt.0) IWork(lLim-1+Lev)=nRasEl(iRO)
+        if(Lev.gt.0) Lim(Lev)=nRasEl(iRO)
       End Do
-CTEST      write(*,*)' After filling in first values, Work(LLIM):'
-CTEST      write(*,'(1x,10i5)')(IWork(llim-1+i),i=1,nlev)
-      Call GetMem('NwVer ','Allo','Inte',lNWV,nVert0)
+      Call mma_allocate(NWV,nVert0,Label='NWV')
       nVert=nVert0
-      Call RmVert(nLev,nVert,DRT0,Down0,
-     &              IWork(lLim),IWork(lNWV))
-CTEST      write(*,*)' Back from RMVERT'
-      Call GetMem('Lim  ','Free','Inte',lLim,nLev)
+      Call RmVert(nLev,nVert,DRT0,Down0,Lim,NWV)
+      Call mma_deallocate(Lim)
       Call mma_allocate(SGS%DRT,5*nVert,Label='SGS%DRT')
       Call mma_allocate(SGS%Down,4*nVert,Label='SGS%Down')
-      Call mkDRT(nVert0,nVert,DRT0,Down0,IWORK(lNWV),
-     &                        SGS%DRT,SGS%Down)
-CTEST      write(*,*)' Back from DRT. NVERT=',NVERT
-      Call GetMem('NwVer ','Free','Inte',lNWV,NVERT0)
+      Call mkDRT(nVert0,nVert,DRT0,Down0,NWV,SGS%DRT,SGS%Down)
+      Call mma_deallocate(NWV)
       Call mma_deallocate(DRT0)
       Call mma_deallocate(Down0)
 
 C Direct Arc Weights table and Level-To-Vertex table:
-      Call GetMem('DAW','Allo','Inte',lDAW,5*nVert)
+      Call mma_allocate(DAW,5*nVert,Label='DAW')
       Call mma_allocate(SGS%LTV,nLev+2,Label='SGS%LTV')
-      Call MkDAW_RASSI(nLev,nVert,SGS%DRT,SGS%Down,IWork(lDAW),SGS%LTV)
+      Call MkDAW_RASSI(nLev,nVert,SGS%DRT,SGS%Down,DAW,SGS%LTV)
 
 C Upchain Index table:
       Call mma_allocate(SGS%Up,4*nVert,Label='SGS%Up')
 C Reverse Arc Weights table:
-      Call GetMem('RAW','Allo','Inte',lRAW,5*nVert)
+      Call mma_allocate(RAW,5*nVert,Label='RAW')
 C Modified Arc Weights table:
       Call mma_allocate(SGS%MAW,4*nVert,Label='SGS%MAW')
-      Call MkMAW(nLev,nVert,SGS%Down,IWork(lDAW),SGS%Up,
-     &           IWork(lRAW),SGS%MAW,SGS%LTV,MidLev)
+      Call MkMAW(nLev,nVert,SGS%Down,DAW,SGS%Up,
+     &           RAW,SGS%MAW,SGS%LTV,MidLev)
       MVSta=SGS%LTV(2+MidLev)
       MVEnd=SGS%LTV(1+MidLev)-1
 C The DAW, RAW tables are no longer needed:
-      Call GetMem('RAW','Free','Inte',lRAW,5*nVert)
-      Call GetMem('DAW','Free','Inte',lDAW,5*nVert)
+      CALL mma_deallocate(RAW)
+      CALL mma_deallocate(DAW)
       CALL mma_deallocate(TMP)
 
 C Put sizes and addresses in structure SGS:
