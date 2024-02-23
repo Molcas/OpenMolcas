@@ -45,8 +45,8 @@ Type EXStruct
      Integer, Allocatable:: ICoup(:)
      Integer nVTab
      Integer lVTab
-     Integer lMVL
-     Integer lMVR
+     Integer, Allocatable:: MVL(:)
+     Integer, Allocatable:: MVR(:)
      Integer NT1MX
      Integer NT2MX
      Integer NT3MX

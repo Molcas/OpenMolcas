@@ -30,25 +30,20 @@ C nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
       Call GetMem('IVR','Allo','Inte',lIVR,2*nVert)
-      Call GetMem('MVR','Allo','Inte',lMVR,2*nMidV)
-      Call GetMem('MVL','Allo','Inte',lMVL,2*nMidV)
+      Call mma_allocate(EXS%MVR,2*nMidV)
+      Call mma_allocate(EXS%MVL,2*nMidV)
       nSgmnt=26*nVert
       Call GetMem('ISGM','Allo','Inte',lISgm,nSgmnt)
       Call GetMem('VSGM','Allo','Real',lVSgm,nSgmnt)
-CTEST      write(*,*)' Calling MKSEG.'
       Call MkSeg(SGS,nLev,nVert,nMidv,
      &        SGS%DRT,SGS%Down,SGS%LTV,
-     &        IWork(lIVR),IWork(lMVL),IWork(lMVR),
+     &        IWork(lIVR),EXS%MVL,EXS%MVR,
      &        IWork(lISgm),Work(lVSgm))
-CTEST      write(*,*)' Back from MKSEG.'
       CIS%nMidV   =nMidV
       CIS%nIpWlk  = nIpWlk
-      EXS%lMVL=lMVL
-      EXS%lMVR=lMVR
 
 C Various offset tables:
       nNOW=2*nMidV*nSym
-CUNUSED      nIOW=nNOW
       Call mma_allocate(CIS%NOW,nNOW,Label='CIS%NOW')
       Call mma_allocate(CIS%IOW,nNOW,Label='CIS%IOW')
       MxEO=(nLev*(nLev+5))/2
@@ -69,15 +64,13 @@ CUNUSED      nIOW=nNOW
      &         nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,
      &         IWork(lISgm),CIS%NOW,CIS%IOW,EXS%NOCP,
      &         EXS%IOCP,CIS%NOCSF,CIS%IOCSF,
-     &         CIS%NCSF,IWork(lNRL),IWork(lMVL),IWork(lMVR))
-CTEST      write(*,*)' Back from NRCOUP.'
+     &         CIS%NCSF,IWork(lNRL),EXS%MVL,EXS%MVR)
       Call GetMem('NRL','Free','Inte',lNRL,nNRL)
 C Computed in NrCoup:
       nWalk=CIS%nWalk
       nICoup=EXS%nICoup
 
       nICase=nWalk*nIpWlk
-CTEST      write(*,*)' NWALK:',NWALK
       Call mma_allocate(CIS%ICase,nICase,Label='CIS%ICase')
       nnICoup=3*nICoup
       Call mma_allocate(EXS%ICoup,nnICoup,Label='EXS%ICoup')
@@ -112,4 +105,4 @@ C nVTab has now been updated to the true size. Allocate final array:
       Call GetMem('VSGM','Free','Real',lVSgm,nSgmnt)
       Call GetMem('IVR','Free','Inte',lIVR,2*nVert)
 
-      end
+      end Subroutine CXInit

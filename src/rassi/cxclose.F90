@@ -15,17 +15,12 @@ Type (SGStruct) SGS
 Type (CIStruct) CIS
 Type (ExStruct) ExS
 ! Unpack structure SGS:
-nSym   =SGS%nSym
 ! Unpack structure CIS:
-nMidV =CIS%nMidV
 ! Unpack structure EXS:
-MxEO  =EXS%MxEO
 nVTab =EXS%nVTab
 lVTab =EXS%lVTab
-lMVL  =EXS%lMVL
-lMVR  =EXS%lMVR
-Call GetMem('MVR','Free','Inte',lMVR,2*nMidV)
-Call GetMem('MVL','Free','Inte',lMVL,2*nMidV)
+Call mma_deallocate(EXS%MVL)
+Call mma_deallocate(EXS%MVR)
 Call mma_deallocate(CIS%NOCSF)
 Call mma_deallocate(CIS%IOCSF)
 Call mma_deallocate(CIS%NOW)
