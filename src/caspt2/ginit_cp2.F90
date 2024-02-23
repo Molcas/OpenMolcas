@@ -110,10 +110,10 @@
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
-      CALL MKCOUP_CP2(nSym,nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,     &
-     &                MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
-     &                IVR,MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &
-     &                ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
+      CALL MKCOUP(nSym,nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,     &
+     &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
+     &            IVR,MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &
+     &            ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
 
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
       VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)

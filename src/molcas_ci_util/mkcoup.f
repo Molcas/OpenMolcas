@@ -7,15 +7,25 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1994, Per Ake Malmqvist                                *
 ************************************************************************
-      SUBROUTINE MKCOUP(nSym,nLev,iSm,nVert,MidLev,nMidV,MVSta,MVEnd,
+*--------------------------------------------*
+* 1994  PER-AAKE MALMQUIST                   *
+* DEPARTMENT OF THEORETICAL CHEMISTRY        *
+* UNIVERSITY OF LUND                         *
+* SWEDEN                                     *
+*--------------------------------------------*
+      SUBROUTINE MKCOUP(nSym,nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,
      &                  MxEO,nICoup,nWalk,nICase,nVTab,
      &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
-     &                  NOCP,IOCP,ILNDW,ICASE,ICOUP,VTAB,nVTab_Final,
+     &                  NOCP,IOCP,ILNDW,ICase,ICOUP,
+     &                  VTab,NVTAB_FINAL,
      &                  ISGPTH,VALUE)
-      use rassi_aux, only: ipglob
+
       use Symmetry_Info, only: Mul
       IMPLICIT REAL*8 (A-H,O-Z)
+
 #include "segtab.fh"
 C Purpose: Compute and return the table ICOUP(1..3,ICOP).
 C The number of coupling coeffs is obtained from NOCP, the offset to
@@ -41,21 +51,23 @@ C ISGPTH(ILS  ,LEV)=Left symmetry label (accum from top or bottom).
 C ISGPTH(ICS  ,LEV)=Left coupling case number (0..3).
 C ISGPTH(ISEG ,LEV)=Segment type (1..26).
 C These indices are used to denote the columns of table ISGPTH.
-      PARAMETER (IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6)
-      PARAMETER (ISEG=7)
-C INPUT CALL PARAMETERS:
-      DIMENSION ISM(NLEV)
-      DIMENSION IVR(NVERT,2),IMAW(NVERT,0:3)
-      DIMENSION ISGMNT(NVERT,26), VSGMNT(NVERT,26)
-      DIMENSION NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
-C OUTPUT CALL PARAMETERS:
-      DIMENSION IOW(2,NSYM,NMIDV), IOCP(MXEO,NSYM,NMIDV)
-      DIMENSION ILNDW(NWALK),ICASE(NICASE)
-      DIMENSION VTAB(NVTAB)
-      DIMENSION ICOUP(3,NICOUP)
-C SCRATCH CALL PARAMETERS:
-      DIMENSION ISGPTH(7,0:NLEV), VALUE(0:NLEV)
 
+C INPUT PARAMETERS:
+      Integer ISM(nLev)
+      Integer IVR(NVERT,2),IMAW(NVERT,0:3)
+      Integer ISGMNT(NVERT,26)
+      Real*8 VSGMNT(NVERT,26)
+      Integer NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
+C OUTPUT PARAMETERS:
+      Integer IOW(2,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
+      Integer ILNDW(NWALK), ICASE(NICASE)
+      Real*8 VTab(nVTab)
+      Integer ICOUP(3,NICOUP)
+C SCRATCH PARAMETERS:
+      Integer ISGPTH(7,0:NLEV)
+      Real*8 VALUE(0:NLEV)
+      Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
+      Integer, PARAMETER :: ISEG=7
 
 
 
@@ -73,16 +85,19 @@ C    BE RESTORED FINALLY.
 C SIMILAR FOR THE COUPLING COEFFICIENT TABLE:
       DO INDEO=1,MXEO
         DO MV=1,NMIDV
-          DO  IS=1,NSYM
+          DO IS=1,NSYM
             NOCP(INDEO,IS,MV)=0
           END DO
         END DO
       END DO
+
 C COUPLING COEFFICIENT VALUE TABLE:
       NVTAB_FINAL=2
-      VTAB(1)=1.0D00
-      VTAB(2)=-1.0D00
+      VTab(1)=1.0D00
+      VTab(2)=-1.0D00
+
       NCHECK=0
+
       DO IHALF=1,2
         IF(IHALF.EQ.1) THEN
           IVTSTA=1
@@ -91,14 +106,14 @@ C COUPLING COEFFICIENT VALUE TABLE:
           LEV2=MIDLEV
           ITYPMX=0
         ELSE
-          IVTSTA=MVSTA
-          IVTEND=MVEND
+          IVTSTA=MVSta
+          IVTEND=MVEnd
           LEV1=MIDLEV
           LEV2=0
           ITYPMX=2
         END IF
         DO IVTOP=IVTSTA,IVTEND
-         DO ITYP=0,ITYPMX
+        DO ITYP=0,ITYPMX
           IVRTOP=IVTOP
           IF(ITYP.GT.0)IVRTOP=IVR(IVTOP,ITYP)
           IF(IVRTOP.EQ.0) GOTO 400
@@ -110,20 +125,20 @@ C COUPLING COEFFICIENT VALUE TABLE:
           ISGPTH(ILS,LEV)=1
           ISGPTH(ISEG,LEV)=0
           VALUE(LEV)=1.0D00
-100       CONTINUE
-           IF(LEV.GT.LEV1) GOTO 400
-           ITYPT=ISGPTH(ITYPE,LEV)
-           IVLT=ISGPTH(IVLFT,LEV)
-           DO ISGT=ISGPTH(ISEG,LEV)+1,26
-             IVLB=ISGMNT(IVLT,ISGT)
-             IF(IVLB.NE.0 .AND. ITYPT.EQ.ITVPT(ISGT)) GOTO 200
-           END DO
-           ISGPTH(ISEG,LEV)=0
-           LEV=LEV+1
+ 100      IF(LEV.GT.LEV1) GOTO 400
+          ITYPT=ISGPTH(ITYPE,LEV)
+          IVLT=ISGPTH(IVLFT,LEV)
+          DO ISGT=ISGPTH(ISEG,LEV)+1,26
+            IVLB=ISGMNT(IVLT,ISGT)
+            IF(IVLB.EQ.0) GOTO 110
+            IF(ITYPT.EQ.ITVPT(ISGT)) GOTO 200
+ 110        CONTINUE
+          END DO
+          ISGPTH(ISEG,LEV)=0
+          LEV=LEV+1
           GOTO 100
 
-200       CONTINUE
-          ISGPTH(ISEG,LEV)=ISGT
+ 200      ISGPTH(ISEG,LEV)=ISGT
           ICL=IC1(ISGT)
           ISYM=1
           IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
@@ -141,18 +156,15 @@ C COUPLING COEFFICIENT VALUE TABLE:
           ISGPTH(ISEG,LEV)=0
           IF (LEV.GT.LEV2) GOTO 100
 
-          MV=ISGPTH(IVLFT,MIDLEV)+1-MVSTA
+          MV=ISGPTH(IVLFT,MIDLEV)+1-MVSta
           LFTSYM=ISGPTH(ILS,LEV2)
           IT=ISGPTH(ITYPE,MIDLEV)
           IF(IT.EQ.0) IT=3
           IF(ISGPTH(ITYPE,LEV2).EQ.0) IT=0
+
           IF(IT.EQ.0) THEN
             ILND=1+NOW(IHALF,LFTSYM,MV)
             IAWS=ISGPTH(IAWSL,LEV2)
-            IF (IAWS.LT.1) THEN
-              CALL WARNINGMESSAGE(2,'MKCOUP: THERE SEEMS TO BE A BUG')
-              CALL ABEND()
-            END IF
             ILNDW(IAWS)=ILND
             NOW(IHALF,LFTSYM,MV)=ILND
             IPOS=IOW(IHALF,LFTSYM,MV)+(ILND-1)*NIPWLK
@@ -190,44 +202,45 @@ C COUPLING COEFFICIENT VALUE TABLE:
               WRITE(6,*)' COUP OFFSET IOCP    :',IOCP(INDEO,LFTSYM,MV)
               WRITE(6,*)' COUP SERIAL NR ICOP :',ICOP
               WRITE(6,*)' D:O, WITHOUT OFFSET :',
-     *                    ICOP-IOCP(INDEO,LFTSYM,MV)
+     &                    ICOP-IOCP(INDEO,LFTSYM,MV)
               WRITE(6,*)' CURRENT NOCP NUMBER :',NOCP(INDEO,LFTSYM,MV)
               CALL ABEND()
             END IF
 C
             C=VALUE(LEV2)
-
-C Determine value code, IVTAB:
             DO I=1,NVTAB_FINAL
               IVTAB=I
-              IF(ABS(C-VTAB(I)).LT.1.0D-10) GOTO 212
+              IF(ABS(C-VTab(I)).LT.1.0D-10) GOTO 212
             END DO
             NVTAB_FINAL=NVTAB_FINAL+1
-            IF(NVTAB_FINAL.GT.5000)THEN
-              WRITE(6,*)' MKCOUP: NVTAB_FINAL > 5000!'
-              WRITE(6,*)' Need recompilation.'
+            IF(NVTAB_FINAL.GT.nVTab) THEN
+              WRITE(6,*)'MKCOUP: NVTAB_FINAL=',NVTAB_FINAL
+              WRITE(6,*)'NVTAB_FINAL should not be allowed to grow'
+              WRITE(6,*)'beyond nVTab which was set provisionally'
+              WRITE(6,*)'in subroutine GINIT in file ginit.f.'
+              WRITE(6,*)'Now nVTab=',nVTab
+              WRITE(6,*)'This may indicate a problem with your input.'
+              WRITE(6,*)'If you do want to do this big calculation, try'
+              WRITE(6,*)'increasing nVTab in GINIT and recompile.'
               CALL ABEND()
             END IF
-            VTAB(NVTAB_FINAL)=C
+            VTab(NVTAB_FINAL)=C
             IVTAB=NVTAB_FINAL
-212         CONTINUE
-
-            ICOUP(1,ICOP)=ISGPTH(IAWSL,LEV2)
+ 212        ICOUP(1,ICOP)=ISGPTH(IAWSL,LEV2)
             ICOUP(2,ICOP)=ISGPTH(IAWSR,LEV2)
             ICOUP(3,ICOP)=IVTAB
             IF (ICOP.GT.NICOUP) THEN
-              WRITE(6,*)' ICOP > NICOUP!'
-              WRITE(6,*)' (This should never happen!)'
+              WRITE(6,*)'MKCOUP: ICOP>NICOUP!'
               CALL ABEND()
             END IF
           END IF
+
           LEV=LEV+1
           GOTO 100
-* End of long loops
-400      CONTINUE
-         END DO
+
+ 400      CONTINUE
+          END DO
         END DO
-* End of a long loop
       END DO
 C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
       DO ICOP=1,NICOUP
@@ -237,7 +250,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
         ICOUP(2,ICOP)=ILNDW(I2)
       END DO
 
-      IF(IPGLOB.GE.4) THEN
+#ifdef _DEBUGPRINT_
         ICOP1=0
         ICOP2=0
         WRITE(6,*)' NR OF DIFFERENT VALUES OF COUP:',NVTAB_FINAL
@@ -249,8 +262,6 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
         WRITE(6,*)
         WRITE(6,*)' NR OF COUPS WITH VALUE  1.0:',ICOP1
         WRITE(6,*)' NR OF COUPS WITH VALUE -1.0:',ICOP2
-      END IF
-      IF(IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' COUPLING COEFFICIENTS:'
         WRITE(6,*)'    IP    IQ    MV LFTSYM NOCP'
@@ -259,7 +270,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
           DO MV=1,NMIDV
             DO LFTSYM=1,NSYM
               N=NOCP(IP,LFTSYM,MV)
-              WRITE(6,'(6X,6(1X,I5),1X,F10.7)') IP,MV,LFTSYM,N
+              WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,N
             END DO
           END DO
         END DO
@@ -269,7 +280,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
           DO MV=1,NMIDV
             DO LFTSYM=1,NSYM
               N=NOCP(INDEO,LFTSYM,MV)
-              WRITE(6,'(6X,6(1X,I5),1X,F10.7)') IP,MV,LFTSYM,N
+              WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,N
             END DO
           END DO
         END DO
@@ -280,16 +291,14 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
           DO MV=1,NMIDV
             DO LFTSYM=1,NSYM
               N=NOCP(INDEO,LFTSYM,MV)
-              WRITE(6,'(7(1X,I5),1X,F10.7)') IP,IQ,MV,LFTSYM,N
+              WRITE(6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,N
             END DO
           END DO
          END DO
         END DO
-      END IF
-      IF(IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' COUPLING COEFFICIENTS:'
-        WRITE(6,*)'    IP    IQ    MV LFTSYM ICOP   ICOUP1&2   COUP'
+        WRITE(6,*)'    IP    IQ    MV LFTSYM ICOP ICOUP1&2   COUP'
         WRITE(6,*)' 1. OPEN LOOPS TYPE 1.'
         DO IP=1,NLEV
           DO MV=1,NMIDV
@@ -300,12 +309,12 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICOP=ICOP+1
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
-                CP=VTAB(ICOUP(3,ICOP))
-                WRITE(6,'(6X,6(1X,I5),1X,F10.7)')
-     &          IP,MV,LFTSYM,ICOP,ICP1,ICP2,CP
-              END DO
+                CP=VTab(ICOUP(3,ICOP))
+                WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,
+     &                                      ICOP,ICP1,ICP2,CP
             END DO
           END DO
+         END DO
         END DO
         WRITE(6,*)' 2. OPEN LOOPS TYPE 2.'
         DO IP=1,NLEV
@@ -318,9 +327,9 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICOP=ICOP+1
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
-                CP=VTAB(ICOUP(3,ICOP))
-                WRITE(6,'(6X,6(1X,I5),1X,F10.7)')
-     &            IP,MV,LFTSYM,ICOP,ICP1,ICP2,CP
+                CP=VTab(ICOUP(3,ICOP))
+                WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,
+     &                                      ICOP,ICP1,ICP2,CP
               END DO
             END DO
           END DO
@@ -337,16 +346,14 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICOP=ICOP+1
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
-                CP=VTAB(ICOUP(3,ICOP))
-                WRITE(6,'(7(1X,I5),1X,F10.7)')
-     &            IP,IQ,MV,LFTSYM,ICOP,ICP1,ICP2,CP
+                CP=VTab(ICOUP(3,ICOP))
+                WRITE(6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,
+     &                                      ICOP,ICP1,ICP2,CP
               END DO
             END DO
           END DO
          END DO
         END DO
-      END IF
-      IF(IPGLOB.GE.5) THEN
       WRITE(6,*)
       WRITE(6,*)' CONVENTIONAL NR OF COUPLING COEFFS, BY PAIR:'
       NRC=0
@@ -358,7 +365,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
             ISYM=LFTSYM
             DO MV=1,NMIDV
               NRCPQ=NRCPQ+NOCP(INDEO,LFTSYM,MV)*NOW(1,ISYM,MV)
-           END DO
+            END DO
           END DO
           WRITE(6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
           NRC=NRC+NRCPQ
@@ -372,7 +379,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
             DO MV=1,NMIDV
               NRCPQ=NRCPQ+NOCP(IP,LFTSYM,MV)*NOCP(IQ,ISYM,MV)
               NRCPQ=NRCPQ+NOCP(NLEV+IP,LFTSYM,MV)*NOCP(NLEV+IQ,ISYM,MV)
-           END DO
+            END DO
           END DO
           WRITE(6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
           NRC=NRC+NRCPQ
@@ -386,7 +393,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
             ISYM=LFTSYM
             DO MV=1,NMIDV
               NRCPQ=NRCPQ+NOCP(INDEO,LFTSYM,MV)*NOW(2,ISYM,MV)
-           END DO
+            END DO
           END DO
           WRITE(6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
           NRC=NRC+NRCPQ
@@ -394,6 +401,6 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
       END DO
       WRITE(6,*)
       WRITE(6,*)' TOTAL CONVENTIONAL COUPLING COEFFS:',NRC
-      END IF
+#endif
 
       END SUBROUTINE MKCOUP
