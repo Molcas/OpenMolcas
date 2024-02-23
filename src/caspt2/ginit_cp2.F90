@@ -21,7 +21,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT,                  NLEV, IFCAS,         &
-     &               NCSF, NWALK,        NMIDV,MVSta,MVEnd,             &
+     &               NCSF, NWALK, MidLev,NMIDV,MVSta,MVEnd,             &
      &                VTAB, DOWN,  ICOUP, IOCP, UP,    MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                LTV, MAW, RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
@@ -109,7 +109,8 @@
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
-      CALL MKCOUP_CP2(IVR,MAW,ISGM,VSGM,NOW1,     NOCP,IOCP,ILNDW,      &
+      CALL MKCOUP_CP2(nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,          &
+     &                IVR,MAW,ISGM,VSGM,NOW1,     NOCP,IOCP,ILNDW,      &
      &                ICOUP,NVTAB_TMP,VTAB_TMP,NVTAB,SCR,VAL)
 
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')

@@ -16,21 +16,46 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKCOUP_CP2(IVR,IMAW,ISGMNT,VSGMNT,NOW,
+      SUBROUTINE MKCOUP_CP2(nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,
+     &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,
      &                  NOCP,IOCP,ILNDW,ICOUP,
-     &                  NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,
-     &                  ISCR,VALUE)
+     &                  nVTab,VTab,NVTAB_FINAL,
+     &                  ISGPTH,VALUE)
 
-      use gugx, only: NLEV, NVERT, NMIDV, MIDLEV,MVSta,MVEnd,
-     &                         ISM, NWALK, NICOUP, MXEO
+      use gugx, only: NWALK, NICOUP, MXEO
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "segtab.fh"
+C Purpose: Compute and return the table ICOUP(1..3,ICOP).
+C The number of coupling coeffs is obtained from NOCP, the offset to
+C the ICOP numbering is given by IOCP. The numbers ICOUP(1..3,ICOP) are
+C then the ket and bra half-walks, enumerated by the Lund scheme,
+C and the index into the VTAB table (the pool of possible values of
+C coupling coefficients).
+
+C Any loop is regarded as a segment path from top to midlevel, or
+C from midlevel to bottom.
+C The segment path is described by the table ISGPTH. It is
+C essentially a list of which one of segments nr 1..26 that are
+C used at each level. The segments are of three types:
+C Type 0: Upwalk segment or top loop segment.
+C Type 1: Mid segment.
+C Type 2: Bottom segment.
+C Type 3: Downwalk segment.
+C ISGPTH(IVLFT,LEV)=Left upper vertex.
+C ISGPTH(ITYPE,LEV)=Type of segment, (0..3).
+C ISGPTH(IAWSL,LEV)=Left arc weight sum (from top, or from bottom).
+C ISGPTH(IAWSR,LEV)=Similar, right.
+C ISGPTH(ILS  ,LEV)=Left symmetry label (accum from top or bottom).
+C ISGPTH(ICS  ,LEV)=Left coupling case number (0..3).
+C ISGPTH(ISEG ,LEV)=Segment type (1..26).
+C These indices are used to denote the columns of table ISGPTH.
 
 C INPUT PARAMETERS:
+      Integer ISM(nLev)
       Integer IVR(NVERT,2),IMAW(NVERT,0:3)
       Integer ISGMNT(NVERT,26)
       Real*8 VSGMNT(NVERT,26)
@@ -38,10 +63,10 @@ C INPUT PARAMETERS:
 C OUTPUT PARAMETERS:
       Integer IOCP(MXEO,NSYM,NMIDV)
       Integer ILNDW(NWALK)
-      Real*8 VTAB_TMP(NVTAB_TMP)
+      Real*8 VTab(nVTab)
       Integer ICOUP(3,NICOUP)
 C SCRATCH PARAMETERS:
-      Integer ISCR(7,0:NLEV)
+      Integer ISGPTH(7,0:NLEV)
       Real*8 VALUE(0:NLEV)
       Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
       Integer, PARAMETER :: ISEG=7
@@ -66,8 +91,8 @@ C SIMILAR FOR THE COUPLING COEFFICIENT TABLE:
 
 C COUPLING COEFFICIENT VALUE TABLE:
       NVTAB_FINAL=2
-      VTAB_TMP(1)=1.0D00
-      VTAB_TMP(2)=-1.0D00
+      VTab(1)=1.0D00
+      VTab(2)=-1.0D00
 
       NCHECK=0
 
@@ -91,60 +116,60 @@ C COUPLING COEFFICIENT VALUE TABLE:
           IF(ITYP.GT.0)IVRTOP=IVR(IVTOP,ITYP)
           IF(IVRTOP.EQ.0) GOTO 400
           LEV=LEV1
-          ISCR(IVLFT,LEV)=IVTOP
-          ISCR(ITYPE,LEV)=ITYP
-          ISCR(IAWSL,LEV)=0
-          ISCR(IAWSR,LEV)=0
-          ISCR(ILS,LEV)=1
-          ISCR(ISEG,LEV)=0
+          ISGPTH(IVLFT,LEV)=IVTOP
+          ISGPTH(ITYPE,LEV)=ITYP
+          ISGPTH(IAWSL,LEV)=0
+          ISGPTH(IAWSR,LEV)=0
+          ISGPTH(ILS,LEV)=1
+          ISGPTH(ISEG,LEV)=0
           VALUE(LEV)=1.0D00
  100      IF(LEV.GT.LEV1) GOTO 400
-          ITYPT=ISCR(ITYPE,LEV)
-          IVLT=ISCR(IVLFT,LEV)
-          DO ISGT=ISCR(ISEG,LEV)+1,26
+          ITYPT=ISGPTH(ITYPE,LEV)
+          IVLT=ISGPTH(IVLFT,LEV)
+          DO ISGT=ISGPTH(ISEG,LEV)+1,26
             IVLB=ISGMNT(IVLT,ISGT)
             IF(IVLB.EQ.0) GOTO 110
             IF(ITYPT.EQ.ITVPT(ISGT)) GOTO 200
  110        CONTINUE
           END DO
-          ISCR(ISEG,LEV)=0
+          ISGPTH(ISEG,LEV)=0
           LEV=LEV+1
           GOTO 100
 
- 200      ISCR(ISEG,LEV)=ISGT
+ 200      ISGPTH(ISEG,LEV)=ISGT
           ICL=IC1(ISGT)
           ISYM=1
           IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
           IVRT=IVLT
           IF((ITYPT.EQ.1).OR.(ITYPT.EQ.2)) IVRT=IVR(IVLT,ITYPT)
           ICR=IC2(ISGT)
-          ISCR(ICS,LEV)=ICL
+          ISGPTH(ICS,LEV)=ICL
           LEV=LEV-1
-          ISCR(IAWSL,LEV)=ISCR(IAWSL,LEV+1)+IMAW(IVLT,ICL)
-          ISCR(IAWSR,LEV)=ISCR(IAWSR,LEV+1)+IMAW(IVRT,ICR)
+          ISGPTH(IAWSL,LEV)=ISGPTH(IAWSL,LEV+1)+IMAW(IVLT,ICL)
+          ISGPTH(IAWSR,LEV)=ISGPTH(IAWSR,LEV+1)+IMAW(IVRT,ICR)
           VALUE(LEV)=VALUE(LEV+1)*VSGMNT(IVLT,ISGT)
-          ISCR(ILS,LEV)=MUL(ISYM,ISCR(ILS,LEV+1))
-          ISCR(IVLFT,LEV)=IVLB
-          ISCR(ITYPE,LEV)=IBVPT(ISGT)
-          ISCR(ISEG,LEV)=0
+          ISGPTH(ILS,LEV)=MUL(ISYM,ISGPTH(ILS,LEV+1))
+          ISGPTH(IVLFT,LEV)=IVLB
+          ISGPTH(ITYPE,LEV)=IBVPT(ISGT)
+          ISGPTH(ISEG,LEV)=0
           IF (LEV.GT.LEV2) GOTO 100
 
-          MV=ISCR(IVLFT,MIDLEV)+1-MVSta
-          LFTSYM=ISCR(ILS,LEV2)
-          IT=ISCR(ITYPE,MIDLEV)
+          MV=ISGPTH(IVLFT,MIDLEV)+1-MVSta
+          LFTSYM=ISGPTH(ILS,LEV2)
+          IT=ISGPTH(ITYPE,MIDLEV)
           IF(IT.EQ.0) IT=3
-          IF(ISCR(ITYPE,LEV2).EQ.0) IT=0
+          IF(ISGPTH(ITYPE,LEV2).EQ.0) IT=0
 
           IF(IT.EQ.0) THEN
             ILND=1+NOW(IHALF,LFTSYM,MV)
-            IAWS=ISCR(IAWSL,LEV2)
+            IAWS=ISGPTH(IAWSL,LEV2)
             ILNDW(IAWS)=ILND
             NOW(IHALF,LFTSYM,MV)=ILND
           ELSE
             IP=0
             IQ=0
             DO L=LEV2+1,LEV1
-              ISG=ISCR(ISEG,L)
+              ISG=ISGPTH(ISEG,L)
               IF((ISG.GE.5).AND.(ISG.LE.8))IP=L
               IF((ISG.GE.19).AND.(ISG.LE.22))IQ=L
             END DO
@@ -174,24 +199,24 @@ C
             C=VALUE(LEV2)
             DO I=1,NVTAB_FINAL
               IVTAB=I
-              IF(ABS(C-VTAB_TMP(I)).LT.1.0D-10) GOTO 212
+              IF(ABS(C-VTab(I)).LT.1.0D-10) GOTO 212
             END DO
             NVTAB_FINAL=NVTAB_FINAL+1
-            IF(NVTAB_FINAL.GT.NVTAB_TMP) THEN
+            IF(NVTAB_FINAL.GT.nVTab) THEN
               WRITE(6,*)'MKCOUP: NVTAB_FINAL=',NVTAB_FINAL
               WRITE(6,*)'NVTAB_FINAL should not be allowed to grow'
-              WRITE(6,*)'beyond NVTAB_TMP which was set provisionally'
+              WRITE(6,*)'beyond nVTab which was set provisionally'
               WRITE(6,*)'in subroutine GINIT in file ginit.f.'
-              WRITE(6,*)'Now NVTAB_TMP=',NVTAB_TMP
+              WRITE(6,*)'Now nVTab=',nVTab
               WRITE(6,*)'This may indicate a problem with your input.'
               WRITE(6,*)'If you do want to do this big calculation, try'
-              WRITE(6,*)'increasing NVTAB_TMP in GINIT and recompile.'
+              WRITE(6,*)'increasing nVTab in GINIT and recompile.'
               CALL ABEND()
             END IF
-            VTAB_TMP(NVTAB_FINAL)=C
+            VTab(NVTAB_FINAL)=C
             IVTAB=NVTAB_FINAL
- 212        ICOUP(1,ICOP)=ISCR(IAWSL,LEV2)
-            ICOUP(2,ICOP)=ISCR(IAWSR,LEV2)
+ 212        ICOUP(1,ICOP)=ISGPTH(IAWSL,LEV2)
+            ICOUP(2,ICOP)=ISGPTH(IAWSR,LEV2)
             ICOUP(3,ICOP)=IVTAB
             IF (ICOP.GT.NICOUP) THEN
               WRITE(6,*)'MKCOUP: ICOP>NICOUP!'
@@ -273,7 +298,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICOP=ICOP+1
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
-                CP=VTAB_TMP(ICOUP(3,ICOP))
+                CP=VTab(ICOUP(3,ICOP))
                 WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,
      &                                      ICOP,ICP1,ICP2,CP
             END DO
@@ -291,7 +316,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICOP=ICOP+1
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
-                CP=VTAB_TMP(ICOUP(3,ICOP))
+                CP=VTab(ICOUP(3,ICOP))
                 WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,
      &                                      ICOP,ICP1,ICP2,CP
               END DO
@@ -310,7 +335,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICOP=ICOP+1
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
-                CP=VTAB_TMP(ICOUP(3,ICOP))
+                CP=VTab(ICOUP(3,ICOP))
                 WRITE(6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,
      &                                      ICOP,ICP1,ICP2,CP
               END DO
