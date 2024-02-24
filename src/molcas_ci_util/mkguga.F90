@@ -23,7 +23,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
      &                IFCAS, NVERT, NDRT,  DRT,                         &
-     &                NDOWN,  DOWN,        RAW, NRAW,               &
+     &                                     RAW, NRAW,               &
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
      &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,        &
@@ -40,7 +40,7 @@
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
-      Integer IAC, NDOWN0, NDRT0, NLSGN, NLTV, NSCR, NTMP, NUSGN
+      Integer IAC, NDOWN0, NDRT0, NLSGN, NLTV, NSCR, NTMP, NUSGN, NDOWN
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -60,9 +60,9 @@
          NDRT=NDRT0
          NDOWN=NDOWN0
          CALL mma_allocate(DRT,NDRT,Label='DRT')
-         CALL mma_allocate(DOWN,NDOWN,Label='DOWN')
+         CALL mma_allocate(SGS%DOWN,NDOWN,Label='SGS%DOWN')
          DRTP => DRT
-         DOWNP=> DOWN
+         DOWNP=> SGS%DOWN
          NVERT=NVERT0
       ENDIF
       CALL mma_allocate(TMP,NTMP,Label='TMP')
@@ -87,10 +87,9 @@
 !     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 !
         NDRT=5*NVERT
-        NDOWN=4*NVERT
         CALL mma_allocate(DRT,NDRT,Label='DRT')
-        CALL mma_allocate(DOWN,NDOWN,Label='DOWN')
-        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
+        CALL mma_allocate(SGS%DOWN,4*NVERT,Label='SGS%DOWN')
+        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,SGS%DOWN)
         CALL mma_deallocate(V11)
         CALL mma_deallocate(DRT0)
         CALL mma_deallocate(DOWN0)
@@ -98,7 +97,7 @@
 #ifdef _DEBUGPRINT_
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
-        CALL PRDRT(NVERT,DRT,DOWN)
+        CALL PRDRT(NVERT,DRT,SGS%DOWN)
 #endif
 
 !     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED
@@ -110,14 +109,14 @@
 !
       NDAW=5*NVERT
       CALL mma_allocate(DAW,NDAW,Label='DAW')
-      CALL MKDAW(NVERT,DOWN,DAW)
+      CALL MKDAW(NVERT,SGS%DOWN,DAW)
 !
 !     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
 !
       NRAW=5*NVERT
       CALL mma_allocate(SGS%UP,4*nVert,Label='SGS%UP')
       CALL mma_allocate(RAW,NRAW,Label='RAW')
-      CALL MKRAW(NVERT,DOWN,SGS%UP,RAW)
+      CALL MKRAW(NVERT,SGS%DOWN,SGS%UP,RAW)
 !
 !     COMPUTE LTV TABLES.
 !
@@ -144,13 +143,13 @@
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL MKCOT(NSYM,NLEV,NVERT,SGS%MIDLEV,NMIDV,SGS%MVSta,SGS%MVEnd,NWALK,NIPWLK,NSM,DOWN,NOW1,IOW1,NCSF,IOCSF,NOCSF,SCR)
+      CALL MKCOT(NSYM,NLEV,NVERT,SGS%MIDLEV,NMIDV,SGS%MVSta,SGS%MVEnd,NWALK,NIPWLK,NSM,SGS%DOWN,NOW1,IOW1,NCSF,IOCSF,NOCSF,SCR)
 !
 !     CONSTRUCT THE CASE LIST
 !
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(ICASE,NICASE,Label='ICASE')
-      Call MKCLIST(NSYM,NLEV,NVERT,SGS%MIDLEV,SGS%MVSta,SGS%MVEnd,NMIDV,NICASE,NIPWLK,NSM,DOWN,NOW1,IOW1,ICASE,SCR)
+      Call MKCLIST(NSYM,NLEV,NVERT,SGS%MIDLEV,SGS%MVSta,SGS%MVEnd,NMIDV,NICASE,NIPWLK,NSM,SGS%DOWN,NOW1,IOW1,ICASE,SCR)
       CALL mma_deallocate(SCR)
 !
 !     SET UP ENUMERATION TABLES
@@ -162,7 +161,7 @@
       NLSGN=MXDWN*NMIDV
       CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
-      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,SGS%MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,DOWN,SGS%UP,DAW,RAW,NOW1,IOW1,USGN,LSGN,ICASE)
+      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,SGS%MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,DAW,RAW,NOW1,IOW1,USGN,LSGN,ICASE)
 !
 !     EXIT
 !
@@ -173,14 +172,14 @@
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  DRT,  DOWN,  RAW,  DAW,  NOCSF,   &
+      use gugx, only:  DRT, RAW,  DAW,  NOCSF,   &
      &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP
       IMPLICIT None
 !
       If (Allocated(DRT)) Call mma_deallocate(DRT)
-      If (Allocated(DOWN)) Call mma_deallocate(DOWN)
+      If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
 
       If (Allocated(DAW)) Call mma_deallocate(DAW)
       If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)

@@ -12,7 +12,7 @@
 *
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
      &                NVERT,SGS,NMIDV,MXUP,MXDWN,DRT,
-     &                DOWN,DAW,RAW,USGN,LSGN,ICASE,IFCAS,
+     &                DAW,RAW,USGN,LSGN,ICASE,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF,
      &                NOW => NOW1, IOW => IOW1, NICASE, NIPWLK
       use Str_Info, only: CFTP, CNSM
@@ -133,7 +133,7 @@
       Call mma_allocate(CInew,NCONF,Label='CINew')
       Call REORD(NLEV,NVERT,SGS%MIDLEV,SGS%MVSta,SGS%MVEnd,NMIDV,MXUP,
      &           MXDWN,
-     &           DRT,DOWN,DAW,SGS%UP,RAW,USGN,LSGN,nActEl,
+     &           DRT,SGS%DOWN,DAW,SGS%UP,RAW,USGN,LSGN,nActEl,
      &           NLEV,NCONF,NTYP,
      &           iMode,jPrint,CNSM(iss)%ICONF,CFTP,NCNATS(1,kSym),
      &           NCPCNT,CIL,CInew,minop)

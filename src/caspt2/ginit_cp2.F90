@@ -23,7 +23,7 @@
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT,                  NLEV, IFCAS,         &
      &               NCSF, NWALK, NMIDV,                         &
-     &                VTAB, DOWN,  ICOUP, IOCP,        MVR, MVL,        &
+     &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                          RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
      &                                    IOW1,      NNOCP,             &
@@ -75,7 +75,7 @@
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
       CALL mma_allocate(SGS%MAW,4*NVERT,Label='MAW')
-      CALL MKMAW(DOWN,DAW,SGS%UP,RAW,SGS%MAW,NVERT, SGS%MVSta, SGS%MVEnd)
+      CALL MKMAW(SGS%DOWN,DAW,SGS%UP,RAW,SGS%MAW,NVERT, SGS%MVSta, SGS%MVEnd)
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
@@ -88,7 +88,7 @@
       CALL mma_allocate(MVR,NMVR,Label='MVR')
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
-      CALL MKSEG_CP2(DRT,DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM)
+      CALL MKSEG_CP2(DRT,SGS%DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
@@ -127,7 +127,7 @@
       Call mma_deallocate(IVR)
 
       CALL mma_deallocate(DRT)
-      Call mma_deallocate(DOWN)
+      Call mma_deallocate(SGS%DOWN)
       CALL mma_deallocate(DAW)
       CALL mma_deallocate(SGS%UP)
       CALL mma_deallocate(RAW)
