@@ -24,9 +24,9 @@
      &               NCSF, NWALK, MidLev,NMIDV,MVSta,MVEnd,             &
      &                VTAB, DOWN,  ICOUP, IOCP, UP,    MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
-     &                LTV, MAW, RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
+     &                     MAW, RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
      &                    NMAW,           IOW1,      NNOCP,             &
-     &               ICASE, NICASE
+     &               ICASE, NICASE, SGS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -89,7 +89,7 @@
       CALL mma_allocate(MVR,NMVR,Label='MVR')
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
-      CALL MKSEG_CP2(DRT,DOWN,LTV,IVR,MVL,MVR,ISGM,VSGM)
+      CALL MKSEG_CP2(DRT,DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
@@ -132,7 +132,7 @@
       CALL mma_deallocate(DAW)
       CALL mma_deallocate(UP)
       CALL mma_deallocate(RAW)
-      Call mma_deallocate(LTV)
+      Call mma_deallocate(SGS%LTV)
 
       RETURN
  9001 WRITE(6,*)' ERROR IN SUBROUTINE GINIT.'

@@ -11,7 +11,6 @@
 Module GUGX
 use struct, only: SGStruct
 Private
-Integer, Parameter, Public :: MXLEV=100
 
 Public SGStruct
 Type (SGStruct), Public:: SGS
@@ -30,10 +29,11 @@ Type (SGStruct), Public:: SGS
 !     Integer, Allocatable:: LTV(:)
 !End Type SGStruct
 
+Integer, Parameter, Public :: MXLEV=100
 Integer, Public:: ISM(MXLEV), L2ACT(MXLEV), LEVEL(MXLEV)
 
-Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:), LTV(:)
-Integer,              Public::NNOCSF,   NIOCSF,                     NLTV
+Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:)
+Integer,              Public::NNOCSF,   NIOCSF
 
 Integer, Allocatable, Public::  NOW1(:), IOW1(:), ICASE(:), ICOUP(:)
 Integer,              Public:: NNOW,     NIOW,   NICASE,   NICOUP

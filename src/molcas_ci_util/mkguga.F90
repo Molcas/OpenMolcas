@@ -28,7 +28,7 @@
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
      &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,        &
      &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
-     &                MVSta, MVEnd, LTV
+     &                MVSta, MVEnd, SGS
 
       IMPLICIT None
 !
@@ -122,13 +122,12 @@
 !
 !     COMPUTE LTV TABLES.
 !
-      NLTV=NLEV+2
-      CALL mma_allocate(LTV,NLTV,Label='LTV')
-      CALL MKLTV(NVERT,NLEV,DRT,LTV)
+      CALL mma_allocate(SGS%LTV,NLEV+2,Label='LTV')
+      CALL MKLTV(NVERT,NLEV,DRT,SGS%LTV)
 !
 !     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.
 !
-      CALL MKMID(NVERT,NLEV,DAW,RAW,LTV,MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
+      CALL MKMID(NVERT,NLEV,DAW,RAW,SGS%LTV,MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
 !
 !     FORM VARIOUS OFFSET TABLES:
 !     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
@@ -177,7 +176,7 @@
       use stdalloc, only: mma_deallocate
       use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW,  NOCSF,   &
      &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
-     &                 LTV, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
+     &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP
       IMPLICIT None
 !
@@ -187,7 +186,7 @@
       If (Allocated(DAW)) Call mma_deallocate(DAW)
       If (Allocated(UP)) Call mma_deallocate(UP)
       If (Allocated(RAW)) Call mma_deallocate(RAW)
-      If (Allocated(LTV)) Call mma_deallocate(LTV)
+      If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
 
       If (Allocated(NOW1)) Call mma_deallocate(NOW1)
       If (Allocated(IOW1)) Call mma_deallocate(IOW1)
