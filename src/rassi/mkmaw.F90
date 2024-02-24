@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-SUBROUTINE MKMAW(NLEV,NVERT,IDOWN,IDAW,IUP,IRAW,IMAW,LTV,MIDLEV)
+SUBROUTINE MKMAW_RASSI(NLEV,NVERT,IDOWN,IDAW,IUP,IRAW,IMAW,LTV,MIDLEV)
 IMPLICIT REAL*8 (A-H,O-Z)
 DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
 DIMENSION IUP(NVERT,0:3),IRAW(NVERT,0:4)
@@ -94,4 +94,4 @@ DO IV=MIDV1,MIDV2
   ISUM=ISUM+IDAW(IV,4)
 END DO
 
-END SUBROUTINE MKMAW
+END SUBROUTINE MKMAW_RASSI

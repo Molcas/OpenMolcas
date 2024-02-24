@@ -78,6 +78,7 @@ set (sources
      mkdrt0.F90
      mkguga.F90
      mkltv.F90
+     mkmaw.F90
      mkmid.F90
      mknsm.f
      mkraw.F90

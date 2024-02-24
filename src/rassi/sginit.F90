@@ -102,7 +102,7 @@
       Call mma_allocate(RAW,5*nVert,Label='RAW')
 ! Modified Arc Weights table:
       Call mma_allocate(SGS%MAW,4*nVert,Label='SGS%MAW')
-      Call MkMAW(nLev,nVert,SGS%Down,DAW,SGS%Up,RAW,SGS%MAW,SGS%LTV,MidLev)
+      Call MkMAW_RASSI(nLev,nVert,SGS%Down,DAW,SGS%Up,RAW,SGS%MAW,SGS%LTV,MidLev)
       MVSta=SGS%LTV(2+MidLev)
       MVEnd=SGS%LTV(1+MidLev)-1
 ! The DAW, RAW tables are no longer needed:
