@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKMID(NVERT,NLEV,IDRT,IDAW,IRAW,LTV,      &
+      SUBROUTINE MKMID(NVERT,NLEV,IDAW,IRAW,LTV,      &
                        MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
 !     PURPOSE: FIND THE MIDLEVEL
 !
@@ -19,30 +19,11 @@
       IMPLICIT None
 !
       Integer NVERT, NLEV, MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN
-      Integer IDRT(NVERT,5)
       Integer IDAW(NVERT,0:4)
       Integer IRAW(NVERT,0:4)
       Integer LTV(-1:NLEV)
 
-      Integer, Parameter:: LTAB=1
-      Integer IV, LEV, MINW, MV, NW, IL
-!
-!     SET UP A LEVEL-TO-VERTEX TABLE, LTV, AND IDENTIFY MIDVERTICES:
-!
-      LTV(:)=0
-!
-      DO IV=1,NVERT
-        LEV=IDRT(IV,LTAB)
-        LTV(LEV)=LTV(LEV)+1
-      End Do
-!
-      DO LEV=NLEV,0,-1
-        LTV(LEV-1)=LTV(LEV-1)+LTV(LEV)
-      End Do
-!
-      DO LEV=-1,NLEV-1
-        LTV(LEV)=1+LTV(LEV+1)
-      End Do
+      Integer IV, MINW, MV, NW, IL
 !
 !     USE IDAW,IRAW TABLES TO DETERMINE MIDLEV.
 !     THE ASSUMPTION IS THAT A BALANCED NUMBER OF UPPER/LOWER WALKS
