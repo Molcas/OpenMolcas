@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKSEG_CP2(IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
-      use gugx, only: NLEV, NVERT, NMIDV, MVSta, MVEnd
+      use gugx, only: NLEV, NVERT, NMIDV, MVSta, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER(LEN=26) CC1,CC2,CTVPT,CBVPT,CSVC
 #include "pt2_guga.fh"
@@ -82,7 +82,7 @@ C    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
   21    CONTINUE
   20  CONTINUE
 C CONSTRUCT THE MVL AND MVR TABLES:
-      DO 30 IVL=MVSta,MVEnd
+      DO 30 IVL=MVSta,SGS%MVEnd
         MVLL=IVL-MVSta+1
         MVRR=0
         IF(IVR(IVL,1).NE.0) MVRR=IVR(IVL,1)-MVSta+1

@@ -18,14 +18,15 @@
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
       SUBROUTINE GINIT_CP2()
+      use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT,                  NLEV, IFCAS,         &
-     &               NCSF, NWALK, MidLev,NMIDV,MVSta,MVEnd,             &
+     &               NCSF, NWALK, MidLev,NMIDV,MVSta,                   &
      &                VTAB, DOWN,  ICOUP, IOCP, UP,    MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
-     &                     MAW, RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
-     &                    NMAW,           IOW1,      NNOCP,             &
+     &                          RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
+     &                                    IOW1,      NNOCP,             &
      &               ICASE, NICASE, SGS
       IMPLICIT None
 #include "rasdim.fh"
@@ -67,16 +68,21 @@
       IB0=ISPIN-1
       IA0=(NACTEL-IB0)/2
       IC0=NLEV-IA0-IB0
-      IF ((2*IA0+IB0).NE.NACTEL) GOTO 9001
-      IF((IA0.LT.0).OR.(IB0.LT.0).OR.(IC0.LT.0)) GOTO 9001
+      IF ( ((2*IA0+IB0).NE.NACTEL) .or.                    &
+         ((IA0.LT.0).OR.(IB0.LT.0).OR.(IC0.LT.0)) ) Then
+         WRITE(u6,*)' ERROR IN SUBROUTINE GINIT.'
+         WRITE(u6,*)'  NR OF ACTIVE ORBITALS:',NLEV
+         WRITE(u6,*)' NR OF ACTIVE ELECTRONS:',NACTEL
+         WRITE(u6,*)'        SPIN DEGENERACY:',ISPIN
+        CALL ABEND()
+      End If
 
       CALL MKGUGA(ISM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM=.TRUE.)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
-      NMAW=4*NVERT
-      CALL mma_allocate(MAW,NMAW,Label='MAW')
-      CALL MKMAW(DOWN,DAW,UP,RAW,MAW,NVERT, MVSta, MVEnd)
+      CALL mma_allocate(SGS%MAW,4*NVERT,Label='MAW')
+      CALL MKMAW(DOWN,DAW,UP,RAW,SGS%MAW,NVERT, MVSta, SGS%MVEnd)
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
@@ -110,9 +116,9 @@
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
-      CALL MKCOUP(nSym,nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,     &
+      CALL MKCOUP(nSym,nLev,ISm,nVert,MidLev,nMidV,MVSta,SGS%MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
-     &            IVR,MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &
+     &            IVR,SGS%MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &
      &            ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
 
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
@@ -124,7 +130,7 @@
       Call mma_deallocate(VAL)
       Call mma_deallocate(ISGM)
       Call mma_deallocate(VSGM)
-      Call mma_deallocate(MAW)
+      Call mma_deallocate(SGS%MAW)
       Call mma_deallocate(IVR)
 
       CALL mma_deallocate(DRT)
@@ -135,11 +141,6 @@
       Call mma_deallocate(SGS%LTV)
 
       RETURN
- 9001 WRITE(6,*)' ERROR IN SUBROUTINE GINIT.'
-      WRITE(6,*)'  NR OF ACTIVE ORBITALS:',NLEV
-      WRITE(6,*)' NR OF ACTIVE ELECTRONS:',NACTEL
-      WRITE(6,*)'        SPIN DEGENERACY:',ISPIN
-      CALL ABEND()
 
       END SUBROUTINE GINIT_CP2
 

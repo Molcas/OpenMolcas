@@ -41,8 +41,8 @@ Integer,              Public:: NNOW,     NIOW,   NICASE,   NICOUP
 Integer, Allocatable, Public, Target:: DRT(:), DOWN(:)
 Integer,              Public::        NDRT,   NDOWN
 
-Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:), MAW(:)
-Integer,              Public::NDAW,   NUP,   NRAW,   NMAW
+Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:)
+Integer,              Public::NDAW,   NUP,   NRAW
 
 Real*8,  Allocatable, Public:: VTAB(:), SGTMP(:)
 Integer,              Public::NVTAB,   NSGTMP
@@ -55,6 +55,6 @@ Integer,              Public::NNOCP,   NIOCP
 
 INTEGER, Public:: NLEV,IA0,IB0,IC0,NVERT0,NVERT,                    &
                   IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
-                  MIDLEV,NMIDV,MVSta,MVEnd,        MXUP,MXDWN,      &
+                  MIDLEV,NMIDV,MVSta,              MXUP,MXDWN,      &
                   NWALK,NIPWLK,NCSF(8),MXEO
 End Module GUGX

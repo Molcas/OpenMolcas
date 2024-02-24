@@ -11,7 +11,7 @@
       Subroutine GugaNew(CIL,imode,ksym)
 *
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
-     &                NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,DRT,
+     &                NVERT,MIDLEV,MVSta,SGS,NMIDV,MXUP,MXDWN,DRT,
      &                DOWN,DAW,UP,RAW,USGN,LSGN,ICASE,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF,
      &                NOW => NOW1, IOW => IOW1, NICASE, NIPWLK
@@ -130,7 +130,7 @@
 *
       jPrint=iPrint
       Call mma_allocate(CInew,NCONF,Label='CINew')
-      Call REORD(NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,DRT,
+      Call REORD(NLEV,NVERT,MIDLEV,MVSta,SGS%MVEnd,NMIDV,MXUP,MXDWN,DRT,
      &           DOWN,DAW,UP,RAW,USGN,LSGN,nActEl,NLEV,NCONF,NTYP,iMode,
      &           jPrint,CNSM(iss)%ICONF,CFTP,NCNATS(1,kSym),NCPCNT,
      &           CIL,CInew,minop)
