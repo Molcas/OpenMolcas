@@ -88,10 +88,13 @@
       Call mma_deallocate(DRT0)
       Call mma_deallocate(Down0)
 
-! Direct Arc Weights table and Level-To-Vertex table:
-      Call mma_allocate(DAW,5*nVert,Label='DAW')
+! Level-To-Vertex table:
       Call mma_allocate(SGS%LTV,nLev+2,Label='SGS%LTV')
-      Call MkDAW_RASSI(nLev,nVert,SGS%DRT,SGS%Down,DAW,SGS%LTV)
+      CALL MKLTV(nVert,nLev,SGS%DRT,SGS%LTV)
+
+! Direct Arc Weights table:
+      Call mma_allocate(DAW,5*nVert,Label='DAW')
+      CALL MKDAW(nVert,SGS%DOWN,DAW)
 
 ! Upchain Index table:
       Call mma_allocate(SGS%Up,4*nVert,Label='SGS%Up')
