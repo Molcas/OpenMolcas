@@ -10,7 +10,7 @@
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
-     &                NVERT,MIDLEV,MVSta,SGS,NMIDV,MXUP,MXDWN,DRT,
+     &                NVERT,MIDLEV,SGS,NMIDV,MXUP,MXDWN,DRT,
      &                DOWN,DAW,UP,RAW,USGN,LSGN,ICASE, IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
      &                NOCSF, IOCSF, NOW => NOW1, IOW => IOW1
@@ -148,8 +148,8 @@
       jPrint=iPrint
       Call mma_allocate(CInew,NCONF,Label='CInew')
 
-      Call REORD(NLEV,NVERT,MIDLEV,MVSta,SGS%MVEnd,NMIDV,MXUP,MXDWN,DRT,
-     &           DOWN,DAW,UP,RAW,USGN,LSGN,nActEl,NLEV,NCONF,NTYP,
+      Call REORD(NLEV,NVERT,MIDLEV,SGS%MVSta,SGS%MVEnd,NMIDV,MXUP,MXDWN,
+     &           DRT,DOWN,DAW,UP,RAW,USGN,LSGN,nActEl,NLEV,NCONF,NTYP,
      &           iMode,jPrint,CNSM(1)%ICONF,CFTP,NCNATS(1,State_Sym),
      &           NCPCNT,CIL,CInew,minop)
 
