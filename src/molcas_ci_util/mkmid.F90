@@ -31,7 +31,7 @@
 !
 !hrl 980529 fix for nLev=0 (no orbitals in any active space)
 !     Since LTV(-1:nLev)  and the statement after the loop
-!     MidV1=LTV(MidLev) we have the condition MidLev>=nLev
+!     MVSta=LTV(MidLev) we have the condition MidLev>=nLev
 !     Hence MidLev=1 is inappropriate for nLev=0
 !     MIDLEV=1
 !
