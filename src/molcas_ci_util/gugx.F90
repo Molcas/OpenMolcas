@@ -13,7 +13,7 @@ use struct, only: SGStruct
 Private
 
 Public SGStruct
-Type (SGStruct), Public:: SGS
+Type (SGStruct), Public, Target:: SGS
 ! Split-Graph descriptor, sizes, addresses...
 !Type SGStruct
 !     Integer nLev
@@ -41,8 +41,8 @@ Integer,              Public:: NNOW,     NIOW,   NICASE,   NICOUP
 Integer, Allocatable, Public, Target:: DRT(:), DOWN(:)
 Integer,              Public::        NDRT,   NDOWN
 
-Integer, Allocatable, Public:: DAW(:), UP(:), RAW(:)
-Integer,              Public::NDAW,   NUP,   NRAW
+Integer, Allocatable, Public:: DAW(:), RAW(:)
+Integer,              Public::NDAW,    NRAW
 
 Real*8,  Allocatable, Public:: VTAB(:), SGTMP(:)
 Integer,              Public::NVTAB,   NSGTMP

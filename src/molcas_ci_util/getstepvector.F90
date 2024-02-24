@@ -12,7 +12,7 @@
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS)
 
 use Definitions, only: iwp
-use gugx, only: NMIDV, NLEV, ICASE, SGS, NICASE, NIPWLK, NUP, NWALK
+use gugx, only: NMIDV, NLEV, ICASE, SGS, NICASE, NIPWLK, NWALK
 
 implicit none
 #include "rasdim.fh"
@@ -21,7 +21,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(out) :: ICS(NLEV)
-integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NDWN, NNN
+integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NUP, NDWN, NNN
 
 ! RECONSTRUCT THE CASE LIST
 

@@ -23,7 +23,7 @@
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT,                  NLEV, IFCAS,         &
      &               NCSF, NWALK, NMIDV,                         &
-     &                VTAB, DOWN,  ICOUP, IOCP, UP,    MVR, MVL,        &
+     &                VTAB, DOWN,  ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                          RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
      &                                    IOW1,      NNOCP,             &
@@ -75,7 +75,7 @@
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
       CALL mma_allocate(SGS%MAW,4*NVERT,Label='MAW')
-      CALL MKMAW(DOWN,DAW,UP,RAW,SGS%MAW,NVERT, SGS%MVSta, SGS%MVEnd)
+      CALL MKMAW(DOWN,DAW,SGS%UP,RAW,SGS%MAW,NVERT, SGS%MVSta, SGS%MVEnd)
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
@@ -129,7 +129,7 @@
       CALL mma_deallocate(DRT)
       Call mma_deallocate(DOWN)
       CALL mma_deallocate(DAW)
-      CALL mma_deallocate(UP)
+      CALL mma_deallocate(SGS%UP)
       CALL mma_deallocate(RAW)
       Call mma_deallocate(SGS%LTV)
 

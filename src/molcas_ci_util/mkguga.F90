@@ -23,7 +23,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
      &                IFCAS, NVERT, NDRT,  DRT,                         &
-     &                NDOWN,  DOWN,  UP, NUP,  RAW, NRAW,               &
+     &                NDOWN,  DOWN,        RAW, NRAW,               &
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
      &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,        &
@@ -114,11 +114,10 @@
 !
 !     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
 !
-      NUP=4*NVERT
       NRAW=5*NVERT
-      CALL mma_allocate(UP,NUP,Label='UP')
+      CALL mma_allocate(SGS%UP,4*nVert,Label='SGS%UP')
       CALL mma_allocate(RAW,NRAW,Label='RAW')
-      CALL MKRAW(NVERT,DOWN,UP,RAW)
+      CALL MKRAW(NVERT,DOWN,SGS%UP,RAW)
 !
 !     COMPUTE LTV TABLES.
 !
@@ -163,7 +162,7 @@
       NLSGN=MXDWN*NMIDV
       CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
-      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,SGS%MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,DOWN,UP,DAW,RAW,NOW1,IOW1,USGN,LSGN,ICASE)
+      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,SGS%MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,DOWN,SGS%UP,DAW,RAW,NOW1,IOW1,USGN,LSGN,ICASE)
 !
 !     EXIT
 !
@@ -174,7 +173,7 @@
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW,  NOCSF,   &
+      use gugx, only:  DRT,  DOWN,  RAW,  DAW,  NOCSF,   &
      &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP
@@ -184,7 +183,7 @@
       If (Allocated(DOWN)) Call mma_deallocate(DOWN)
 
       If (Allocated(DAW)) Call mma_deallocate(DAW)
-      If (Allocated(UP)) Call mma_deallocate(UP)
+      If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)
       If (Allocated(RAW)) Call mma_deallocate(RAW)
       If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
 

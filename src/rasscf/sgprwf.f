@@ -16,7 +16,7 @@ C     NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
 C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
-      use gugx, only: NLEV,  DOWN, NUP, NMIDV, NWALK, NIPWLK,
+      use gugx, only: NLEV,  DOWN, NMIDV, NWALK, NIPWLK,
      &                NICASE,  ICASE, NOW1, IOW1, NVERT, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -32,7 +32,8 @@ C
       DIMENSION CI(NCONF)
       DIMENSION ICS(mxact)
       Integer   iSel(*)
-      Character*400 Line
+      Character(LEN=400) Line
+      Integer nUp
 C
 
       Line(1:16)='      conf/sym  '
