@@ -16,7 +16,7 @@ C     NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
 C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
-      use gugx, only: NLEV,  DOWN, NUP, MIDLEV, NMIDV, NWALK, NIPWLK,
+      use gugx, only: NLEV,  DOWN, NUP, NMIDV, NWALK, NIPWLK,
      &                NICASE,  ICASE, NOW1, IOW1, NVERT, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -53,7 +53,7 @@ C
       NSCR=3*(NLEV+1)
       NICASE=NWALK*NIPWLK
       CALL GETMEM('SCR1','ALLO','INTEG',LSCR,NSCR)
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,SGS%MVSta,SGS%MVEnd,NMIDV,
+      Call MKCLIST(NSYM,NLEV,NVERT,SGS%MIDLEV,SGS%MVSta,SGS%MVEnd,NMIDV,
      &             NICASE,NIPWLK,NSM,DOWN,NOW1,IOW1,ICASE,IWORK(LSCR))
 
       CALL GETMEM('SCR1','FREE','INTEG',LSCR,NSCR)
@@ -88,7 +88,7 @@ C -- SKIP OR PRINT IT OUT?
                 ICDWN=ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
-                DO LEV=1,MIDLEV
+                DO LEV=1,SGS%MIDLEV
                   NNN=NNN+1
                   IF(NNN.EQ.16) THEN
                     NNN=1
@@ -105,7 +105,7 @@ C -- UNPACK LOWER WALK.
               ICUP=ICASE(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
-              DO LEV=MIDLEV+1,NLEV
+              DO LEV=SGS%MIDLEV+1,NLEV
                 NNN=NNN+1
                 IF(NNN.EQ.16) THEN
                   NNN=1

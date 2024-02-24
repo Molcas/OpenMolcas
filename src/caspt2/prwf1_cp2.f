@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR)
-      use gugx, only: ICASE, NLEV, NMIDV, MIDLEV, ISM, NIPWLK
+      use gugx, only: ICASE, NLEV, NMIDV, SGS, ISM, NIPWLK
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
@@ -95,7 +95,7 @@ C -- SKIP OR PRINT IT OUT?
                 ICDWN=ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
-                DO 10 LEV=1,MIDLEV
+                DO 10 LEV=1,SGS%MIDLEV
                   NNN=NNN+1
                   IF(NNN.EQ.16) THEN
                     NNN=1
@@ -112,7 +112,7 @@ C -- UNPACK LOWER WALK.
               ICUP=ICASE(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
-              DO LEV=MIDLEV+1,NLEV
+              DO LEV=SGS%MIDLEV+1,NLEV
                 NNN=NNN+1
                 IF(NNN.EQ.16) THEN
                   NNN=1

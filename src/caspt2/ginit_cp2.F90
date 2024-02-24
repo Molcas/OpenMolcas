@@ -22,7 +22,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO, NVERT,                  NLEV, IFCAS,         &
-     &               NCSF, NWALK, MidLev,NMIDV,                         &
+     &               NCSF, NWALK, NMIDV,                         &
      &                VTAB, DOWN,  ICOUP, IOCP, UP,    MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                          RAW, DAW, NOW1, DRT,  NOCP, NOCSF,      &
@@ -45,13 +45,6 @@
       Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
-      SUBROUTINE MKMAW_CP2(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MVSta, MVEnd)
-      IMPLICIT None
-      Integer NVERT, MVSta, MVEnd
-      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
-      Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
-      Integer IMAW(NVERT,0:3)
-      END SUBROUTINE MKMAW_CP2
       End Interface
 
       LV1RAS=NRAS1T
@@ -116,7 +109,7 @@
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
-      CALL MKCOUP(nSym,nLev,ISm,nVert,MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
+      CALL MKCOUP(nSym,nLev,ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
      &            IVR,SGS%MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &
      &            ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)

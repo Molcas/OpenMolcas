@@ -12,7 +12,7 @@
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS)
 
 use Definitions, only: iwp
-use gugx, only: NMIDV, NLEV, ICASE, MIDLEV, NICASE, NIPWLK, NUP, NWALK
+use gugx, only: NMIDV, NLEV, ICASE, SGS, NICASE, NIPWLK, NUP, NWALK
 
 implicit none
 #include "rasdim.fh"
@@ -45,7 +45,7 @@ ICDPOS = IDW0+IDWN*NIPWLK
 ICDWN = ICASE(ICDPOS)
 ! unpack lower walk
 NNN = 0
-do LEV=1,MIDLEV
+do LEV=1,SGS%MIDLEV
   NNN = NNN+1
   if (NNN == 16) then
     NNN = 1
@@ -62,7 +62,7 @@ ICUPOS = IUW0+NIPWLK*IUP
 ICUP = ICASE(ICUPOS)
 ! unpack upper walk
 NNN = 0
-do LEV=MIDLEV+1,NLEV
+do LEV=SGS%MIDLEV+1,NLEV
   NNN = NNN+1
   if (NNN == 16) then
     NNN = 1
