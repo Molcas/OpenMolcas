@@ -9,8 +9,27 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module GUGX
+use struct, only: SGStruct
 Private
 Integer, Parameter, Public :: MXLEV=100
+
+Public SGStruct
+Type (SGStruct), Public:: SGS
+! Split-Graph descriptor, sizes, addresses...
+!Type SGStruct
+!     Integer nLev
+!     Integer, Allocatable:: ISm(:)
+!     Integer nVert
+!     Integer, Allocatable:: DRT(:)
+!     Integer, Allocatable:: Down(:)
+!     Integer, Allocatable:: Up(:)
+!     Integer MidLev
+!     Integer MVSta
+!     Integer MVEnd
+!     Integer, Allocatable:: MAW(:)
+!     Integer, Allocatable:: LTV(:)
+!End Type SGStruct
+
 Integer, Public:: ISM(MXLEV), L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:), LTV(:)

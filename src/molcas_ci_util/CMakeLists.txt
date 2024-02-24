@@ -114,6 +114,7 @@ set (sources
      splitcas_data.F90
      stepvec.F90
      stepvector_next.F90
+     struct.F90
      sxci.F90
      term_david.F90
      transadd.F90
@@ -126,6 +127,7 @@ set (modfile_list
      general_data.F90
      gugx.F90
      splitcas_data.F90
+     struct.F90
      sxci.F90
      wadr.F90
 )
