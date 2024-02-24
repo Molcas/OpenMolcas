@@ -19,7 +19,7 @@
 
       Integer, Allocatable:: DRT0(:), Down0(:), Tmp(:), Lim(:), NWV(:), DAW(:), RAW(:)
       Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,MidLev,  &
-     &        MVSta,MVEnd,NDown0,nDrt0,nLev,nTmp,nVert0,Lev,nVert
+     &        MVSta,MVEnd,NDown0,nDrt0,nLev,nTmp,nVert0,Lev,nVert,MxUp,MxDwn,nMidV
 
       NLEV=NASHT
 ! Allocate Level to Symmetry table ISm:
@@ -65,6 +65,7 @@
       NTMP=((NLEV+1)*(NLEV+2))/2
       CALL mma_allocate(TMP,NTMP,Label='TMP')
       CALL mkDRT0 (IA0,IB0,IC0,NVERT0,DRT0,DOWN0,NTMP,TMP)
+      CALL mma_deallocate(TMP)
 
 ! Construct a restricted graph.
       Call mma_allocate(Lim,nLev,Label='Lim')
@@ -102,13 +103,16 @@
       Call mma_allocate(RAW,5*nVert,Label='RAW')
 ! Modified Arc Weights table:
       Call mma_allocate(SGS%MAW,4*nVert,Label='SGS%MAW')
-      Call MkMAW_RASSI(nLev,nVert,SGS%Down,DAW,SGS%Up,RAW,SGS%MAW,SGS%LTV,MidLev)
-      MVSta=SGS%LTV(2+MidLev)
-      MVEnd=SGS%LTV(1+MidLev)-1
+
+      Call MKRAW(nVert,SGS%Down,SGS%Up,RAW)
+
+      Call MKMID(nVert,nLev,DAW,RAW,SGS%LTV,MidLev, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
+
+      CALL MKMAW(SGS%Down,DAW,SGS%Up,RAW,SGS%MAW,nVert, MVSta, MVEnd)
+
 ! The DAW, RAW tables are no longer needed:
       CALL mma_deallocate(RAW)
       CALL mma_deallocate(DAW)
-      CALL mma_deallocate(TMP)
 
 ! Put sizes and addresses in structure SGS:
 
