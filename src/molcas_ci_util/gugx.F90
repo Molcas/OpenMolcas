@@ -38,9 +38,6 @@ Integer,              Public::NNOCSF,   NIOCSF
 Integer, Allocatable, Public::  NOW1(:), IOW1(:), ICASE(:), ICOUP(:)
 Integer,              Public:: NNOW,     NIOW,   NICASE,   NICOUP
 
-Integer, Allocatable, Public, Target:: DRT(:)
-Integer,              Public::        NDRT
-
 Integer, Allocatable, Public:: DAW(:), RAW(:)
 Integer,              Public::NDAW,    NRAW
 

@@ -15,14 +15,14 @@
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
 !              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 !              THE COMMON /GUGA/. THESE ARE:
-!              DRT,DOWN,DAW,UP,RAW,NOW1,IOW1,NOCSF,IOCSF
+!              SGS%DRT,DOWN,DAW,UP,RAW,NOW1,IOW1,NOCSF,IOCSF
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
-     &                IFCAS, NVERT, NDRT,  DRT,                         &
+     &                IFCAS, NVERT,                        &
      &                                     RAW, NRAW,               &
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
@@ -40,7 +40,7 @@
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
-      Integer IAC, NDOWN0, NDRT0, NLSGN, NLTV, NSCR, NTMP, NUSGN, NDOWN
+      Integer IAC, NDOWN0, NDRT0, NLSGN, NLTV, NSCR, NTMP, NUSGN, NDOWN, NDRT
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -59,9 +59,9 @@
       ELSE
          NDRT=NDRT0
          NDOWN=NDOWN0
-         CALL mma_allocate(DRT,NDRT,Label='DRT')
+         CALL mma_allocate(SGS%DRT,NDRT,Label='SGS%DRT')
          CALL mma_allocate(SGS%DOWN,NDOWN,Label='SGS%DOWN')
-         DRTP => DRT
+         DRTP => SGS%DRT
          DOWNP=> SGS%DOWN
          NVERT=NVERT0
       ENDIF
@@ -86,10 +86,9 @@
 !
 !     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 !
-        NDRT=5*NVERT
-        CALL mma_allocate(DRT,NDRT,Label='DRT')
-        CALL mma_allocate(SGS%DOWN,4*NVERT,Label='SGS%DOWN')
-        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,SGS%DOWN)
+        CALL mma_allocate(SGS%DRT,5*nVert,Label='DRT')
+        CALL mma_allocate(SGS%DOWN,4*nVert,Label='SGS%DOWN')
+        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,SGS%DRT,SGS%DOWN)
         CALL mma_deallocate(V11)
         CALL mma_deallocate(DRT0)
         CALL mma_deallocate(DOWN0)
@@ -97,7 +96,7 @@
 #ifdef _DEBUGPRINT_
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
-        CALL PRDRT(NVERT,DRT,SGS%DOWN)
+        CALL PRDRT(NVERT,SGS%DRT,SGS%DOWN)
 #endif
 
 !     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED
@@ -121,7 +120,7 @@
 !     COMPUTE LTV TABLES.
 !
       CALL mma_allocate(SGS%LTV,NLEV+2,Label='LTV')
-      CALL MKLTV(NVERT,NLEV,DRT,SGS%LTV)
+      CALL MKLTV(NVERT,NLEV,SGS%DRT,SGS%LTV)
 !
 !     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.
 !
@@ -172,13 +171,13 @@
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  DRT, RAW,  DAW,  NOCSF,   &
+      use gugx, only:  RAW,  DAW,  NOCSF,   &
      &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP
       IMPLICIT None
 !
-      If (Allocated(DRT)) Call mma_deallocate(DRT)
+      If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
       If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
 
       If (Allocated(DAW)) Call mma_deallocate(DAW)
