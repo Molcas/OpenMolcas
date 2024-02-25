@@ -170,6 +170,4 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         END IF
       END IF
 
-
-      RETURN
       END

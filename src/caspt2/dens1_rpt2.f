@@ -16,13 +16,13 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS1_RPT2 (CI,SGM1,G1)
+      SUBROUTINE DENS1_RPT2 (CI,SGM1,G1,nLev)
       use caspt2_output, only:iPrGlb,debug
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -33,6 +33,7 @@
 
       LOGICAL RSV_TSK
 
+      Integer, Intent(In):: nLev
       REAL*8 CI(MXCI),SGM1(MXCI)
       REAL*8 G1(NLEV,NLEV)
 #ifdef _ENABLE_CHEMPS2_DMRG_
@@ -52,7 +53,6 @@
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
 
 * Purpose: Compute the 1-electron density matrix array G1.
-
 
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)
 

@@ -11,16 +11,16 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       SUBROUTINE DERFG3(CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,idxG3,
-     *                  DEPSA,G1,G2)
+     *                  DEPSA,G1,G2,nLev)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,verbose,debug
       use caspt2_gradient, only: nbuf1_grad
-      use gugx, only: NLEV,  ICOUP,  IOCP,
-     &                         IOCSF, IOW1, MVL, MVR,  NOCP,
-     &                         NOCSF, NOW1, VTAB, NCSF, L2ACT,
-     &                         SGS
+      use gugx, only: ICOUP,  IOCP,
+     &                IOCSF, IOW1, MVL, MVR,  NOCP,
+     &                NOCSF, NOW1, VTAB, NCSF, L2ACT,
+     &                SGS
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -30,6 +30,7 @@
 
       LOGICAL RSV_TSK
 
+      INTEGER, INTENT(IN) :: nLev
       REAL*8, INTENT(IN) :: CI(MXCI)
       INTEGER*1 idxG3(6,*)
       REAL*8 DEPSA(NLEV,NLEV)

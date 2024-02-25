@@ -10,14 +10,10 @@
 !***********************************************************************
 
 module caspt2_data
-
-      use gugx, only: NLEV
       implicit none
-
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-
 end module caspt2_data

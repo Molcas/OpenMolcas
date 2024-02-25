@@ -16,12 +16,12 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS2_RPT2 (CI,SGM1,SGM2,G1,G2)
+      SUBROUTINE DENS2_RPT2 (CI,SGM1,SGM2,G1,G2,nLev)
       use caspt2_output, only:iPrGlb,debug
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -31,7 +31,7 @@
 #include "SysDef.fh"
 
       LOGICAL RSV_TSK
-
+      Integer, Intent(In):: nLev
       REAL*8 CI(MXCI),SGM1(MXCI),SGM2(MXCI)
       REAL*8 G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
 

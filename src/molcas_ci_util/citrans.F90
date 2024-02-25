@@ -68,6 +68,7 @@ module citrans
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use gugx, only: nLev
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -169,7 +170,7 @@ subroutine citrans_sort(mode,ciold,cinew)
   iup = 1
   do icsf=1,ncsf
     ! obtain the stepvector
-    call stepvector_next(mv,idwn,iup,stepvector)
+    call stepvector_next(mv,idwn,iup,stepvector,nLev)
 
     ! determine configuration group and rank
     doub = 0

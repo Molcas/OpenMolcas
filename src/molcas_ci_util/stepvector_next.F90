@@ -9,12 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR)
+subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR,nLev)
 
 use Definitions, only: iwp, u6
-use gugx, only: NLEV, IOW1, NOW1
+use gugx, only: IOW1, NOW1
 
 implicit none
+integer(kind=iwp), intent(in) :: nLev
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
 
@@ -23,6 +24,6 @@ if (MV == 0) then
   write(u6,'(1X,A)') 'stepvector_next has been depleted'
 end if
 
-call GETSTEPVECTOR(NOW1,IOW1,MV,IDWN,IUP,STEPVECTOR)
+call GETSTEPVECTOR(NOW1,IOW1,MV,IDWN,IUP,STEPVECTOR,nLev)
 
 end subroutine STEPVECTOR_NEXT

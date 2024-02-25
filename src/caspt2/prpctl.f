@@ -160,7 +160,7 @@ C This density matrix may be approximated in several ways, see DENS.
               CALL LOADCI_XMS('N',1,WORK(LCI2),KSTATE,U0)
             END IF
             Call Dens1T_RPT2(Work(LCI1),Work(LCI2),
-     *                       Work(LSGM),Work(LTG1))
+     *                       Work(LSGM),Work(LTG1),nAshT)
             CALL DSCAL_(NASHT**2,SCAL,WORK(LTG1),1)
             DO II = 1, NASH(1)
               II2 = II+NFRO(1)+NISH(1)

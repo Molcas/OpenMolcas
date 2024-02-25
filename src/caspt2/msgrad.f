@@ -751,6 +751,7 @@ C
       Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
 C
       use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
+      use gugx, only: nLev
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -799,7 +800,7 @@ C
 C
             Call Dens2T_RPT2(Work(ipCI1),Work(ipCI2),
      *                       Work(ipSGM1),Work(ipSGM2),
-     *                       Work(ipTG1),Work(ipTG2))
+     *                       Work(ipTG1),Work(ipTG2),nAshT)
             Call DScal_(nAshT**2,0.5D+00,Work(ipTG1),1)
             Call DScal_(nAshT**4,0.5D+00,Work(ipTG2),1)
 C
@@ -917,7 +918,7 @@ C
             Call LoadCI_XMS('C',0,Work(ipCI2),jStat,U0)
 C
             Call Dens1T_RPT2(Work(ipCI1),Work(ipCI2),
-     *                       Work(ipSGM1),Work(ipTG1))
+     *                       Work(ipSGM1),Work(ipTG1),nLev)
             Scal = SLag(iStat+nState*(jStat-1))*2.0d+00
 C         write (*,*) "istat,jstat=",istat,jstat
 C         write (*,*) "scal = ", scal
@@ -1193,7 +1194,7 @@ C
       IF(NLEV.GT.0) THEN
         CALL GETMEM('LSGM1','ALLO','REAL',LSGM1 ,MXCI)
         CALL DENS1T_RPT2_CLag(CI1,CI2,WORK(LSGM1),
-     *                        CLag1,CLag2,RDMEIG,Scal)
+     *                        CLag1,CLag2,RDMEIG,Scal,nLev)
       END IF
 
 * REINITIALIZE USE OF DMAT.
@@ -1217,11 +1218,12 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE DENS1T_RPT2_CLag (CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL)
+      SUBROUTINE DENS1T_RPT2_CLag (CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL,
+     &                             nLev)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1230,12 +1232,12 @@ C
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
-      LOGICAL RSV_TSK
-
+      INTEGER, INTENT(IN):: nLev
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI)
       !! Symmetry?
       REAL*8 CLag1(nConf),CLag2(nConf),RDMEIG(NLEV,NLEV),Scal
 
+      LOGICAL RSV_TSK
 C     REAL*8 GTU
 
       INTEGER ID
@@ -1568,6 +1570,7 @@ C
       Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 C
       use caspt2_gradient, only: iRoot1, iRoot2
+      use gugx, only: nLev
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -1594,7 +1597,7 @@ C
           Call LoadCI_XMS('N',1,Work(ipCI2),jStat,U0)
 C
           Call Dens1T_RPT2(Work(ipCI1),Work(ipCI2),
-     *                     Work(ipSGM1),Work(ipTG1))
+     *                     Work(ipSGM1),Work(ipTG1),nLev)
           Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)
      *         - UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
           Scal = Scal*0.5d+00
@@ -1690,12 +1693,12 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE DENS1T_RPT2 (CI1,CI2,SGM1,G1)
+      SUBROUTINE DENS1T_RPT2 (CI1,CI2,SGM1,G1,NLEV)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
-      use gugx, only: NLEV, SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1706,6 +1709,7 @@ C
 
       LOGICAL RSV_TSK
 
+      INTEGER, INTENT(IN):: nLev
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI)
       REAL*8 G1(NLEV,NLEV)
 

@@ -52,7 +52,7 @@
         IF(.Not.DoCumulant) THEN
 #endif
           CALL DENS2_RPT2(CI,WORK(LSGM1),WORK(LSGM2),
-     &                    WORK(LG1TMP),WORK(LG2TMP))
+     &                    WORK(LG1TMP),WORK(LG2TMP),NLEV)
 #ifdef _ENABLE_BLOCK_DMRG_
         ELSE
 * this is provided by BLOCK code

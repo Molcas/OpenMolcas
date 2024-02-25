@@ -1112,8 +1112,7 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CnstCLag(IFF,CLag,
-     *                    DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
+      SUBROUTINE CnstCLag(IFF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
      *                    G1,G2,G3)
 
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -1189,7 +1188,7 @@ C
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       If (ISCF.EQ.0) Then
         CALL DERFG3(WORK(LCI),CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
-     &              idxG3,DEPSA,G1,G2)
+     &              idxG3,DEPSA,G1,G2,nLev)
       Else
         CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       End If
@@ -1433,7 +1432,7 @@ C
 
       IF(NLEV.GT.0) THEN
         CALL GETMEM('LSGM1','ALLO','REAL',LSGM1 ,MXCI)
-        CALL DENS1_RPT2_CLag(CI,WORK(LSGM1),CLag,RDMEIG)
+        CALL DENS1_RPT2_CLag(CI,WORK(LSGM1),CLag,RDMEIG,nLev)
       END IF
 C     return !! for test purpose
 
@@ -1459,11 +1458,11 @@ C     return !! for test purpose
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG)
+      SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG,nLev)
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use gugx, only: NLEV, SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1472,7 +1471,7 @@ C
 #include "WrkSpc.fh"
 
       LOGICAL RSV_TSK
-
+      INTEGER, INTENT(IN):: nLev
       REAL*8 CI(MXCI),SGM1(MXCI)
       REAL*8 CLag(nConf,nState),RDMEIG(NLEV,NLEV) !! Symmetry?
 
@@ -3321,7 +3320,7 @@ C
 C
 C  !! This is for CASSCF orbital Lagrangian, but this may not contribute
 C     Call Dens2T_RPT2(CI(1,jState),CI(1,jState),
-C    *                 Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T))
+C    *                 Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T),nLev)
 C     Call DaXpY_(NG1,-0.5D+00,Work(LG1T),1,G1,1)
 C     Call DaXpY_(NG2,-0.5D+00,Work(LG2T),1,G2,1)
 C
@@ -3331,7 +3330,8 @@ C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
 C
         !! <CI|Etu|CIT>+<CIT|Etu|CI> and the t+ u+ x v variant
         Call Dens2T_RPT2(CI(1,kState),CIT(1,kState),
-     *                   Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T))
+     *                   Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T),
+     *                   nLev)
         Call DaXpY_(NG1,WGT,Work(LG1T),1,G1,1)
         Call DaXpY_(NG2,WGT,Work(LG2T),1,G2,1)
 C
@@ -3345,7 +3345,7 @@ C         If (ilState.eq.jlState) Cycle
           If (abs(vSLag).le.1.0D-08) Cycle
           Call Dens2T_RPT2(CI(1,ilState),CI(1,jlState),
      *                     Work(LSGM1),Work(LSGM2),
-     *                     Work(LG1T),Work(LG2T))
+     *                     Work(LG1T),Work(LG2T),nLev)
           Call DaXpY_(NG1,vSLag,Work(LG1T),1,G1,1)
           Call DaXpY_(NG2,vSLag,Work(LG2T),1,G2,1)
         End Do
@@ -3368,7 +3368,7 @@ C     Call GetMem('G1  ','ALLO','REAL',LG1  ,nAshT**2)
 C     Call GetMem('G2  ','ALLO','REAL',LG2  ,nAshT**4)
 C     Do iState = 1, nState
 C       Call Dens2_RPT2(CI(1,iState),Work(LSGM1),Work(LSGM2),
-C    *                  Work(LG1),Work(LG2))
+C    *                  Work(LG1),Work(LG2),nAshT)
 C       WGT=2.0D+00/nState
 C       Call DaXpY_(nAshT**2,WGT,Work(LG1),1,G1,1)
 C       Call DaXpY_(nAshT**4,WGT,Work(LG2),1,G2,1)
