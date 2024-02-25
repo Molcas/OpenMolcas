@@ -10,7 +10,7 @@
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
-     &                NVERT,SGS,NMIDV,MXUP,MXDWN,
+     &                SGS,NMIDV,MXUP,MXDWN,
      &                     DAW,RAW,USGN,LSGN,ICASE, IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
      &                NOCSF, IOCSF, NOW => NOW1, IOW => IOW1
@@ -26,6 +26,7 @@
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
       Real*8, Allocatable:: CINew(:)
+      Integer nVert, MidLev, MVSta, MVEnd
 
       Interface
       SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -119,7 +120,11 @@
       IFCAS=1
       Call mkGUGA(OrbSym,NLEV,NSYM,State_Sym,NCSF)
       NCONF=NCSF(State_Sym)
-*
+      nVert =SGS%nVert
+      MidLev=SGS%MidLev
+      MVSta =SGS%MVSta
+      MVEnd =SGS%MVEnd
+
       If (iPrint.ge.5) Then
       PRWTHR=0.0d0
       WRITE(6,101)
@@ -132,11 +137,11 @@
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
 
 #ifdef _TEST_
-      Call SGPRWF_MCLR_E(State_sym,PRWTHR,nSym,NLEV,NCONF,SGS%MIDLEV,
+      Call SGPRWF_MCLR_E(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
      &                   NMIDV,NIPWLK,NICASE,OrbSym,NOCSF,IOCSF,NOW,
      &                   IOW,ICASE,CIL)
 #else
-      Call SGPRWF_MCLR(State_sym,PRWTHR,nSym,NLEV,NCONF,SGS%MIDLEV,
+      Call SGPRWF_MCLR(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
      &                 NMIDV,NIPWLK,NICASE,OrbSym,NOCSF,IOCSF,NOW,
      &                 IOW,ICASE,CIL)
 #endif
@@ -148,8 +153,7 @@
       jPrint=iPrint
       Call mma_allocate(CInew,NCONF,Label='CInew')
 
-      Call REORD(NLEV,NVERT,SGS%MIDLEV,SGS%MVSta,SGS%MVEnd,NMIDV,
-     &           MXUP,MXDWN,
+      Call REORD(NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,
      &           SGS%DRT,SGS%DOWN,DAW,SGS%UP,RAW,USGN,LSGN,nActEl,
      &           NLEV,NCONF,NTYP,
      &           iMode,jPrint,CNSM(1)%ICONF,CFTP,NCNATS(1,State_Sym),

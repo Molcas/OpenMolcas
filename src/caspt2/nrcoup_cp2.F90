@@ -17,8 +17,8 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
-     &                  NOCSF,NRL,MVL,MVR)
-      use gugx, only: NLEV, NVERT, SGS, NMIDV, ISM,   &
+     &                  NOCSF,NRL,MVL,MVR,nVert)
+      use gugx, only: NLEV, SGS, NMIDV, ISM,   &
      &                         NICOUP, MXEO, SGTMP, NSGTMP
 #ifdef _DEBUGPRINT_
       use gugx, only: NWALK, NCSF
@@ -31,6 +31,7 @@
 #include "pt2_guga.fh"
 #include "segtab.fh"
 ! INPUT PARAMETERS:
+      Integer nVert
       Integer MVL(NMIDV,2),MVR(NMIDV,2)
       Integer IDRT(NVERT,5),ISGMNT(NVERT,26)
       Integer, PARAMETER :: LTAB=1

@@ -22,7 +22,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
-     &                IFCAS, NVERT,                        &
+     &                IFCAS,                               &
      &                                     RAW, NRAW,               &
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
@@ -41,7 +41,7 @@
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
       Integer IAC, NDOWN0, NDRT0, NLSGN,       NSCR, NTMP, NUSGN, NDOWN, NDRT
-      Integer MidLev, MVSta, MVEnd
+      Integer nVert, MidLev, MVSta, MVEnd
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -127,6 +127,7 @@
 !
       CALL MKMID(NVERT,NLEV,DAW,RAW,SGS%LTV,MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
 
+      SGS%nVert =nVert
       SGS%MidLev=MidLev
       SGS%MVSta =MVSta
       SGS%MVEnd =MVEnd

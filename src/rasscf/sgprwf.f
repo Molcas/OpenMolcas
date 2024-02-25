@@ -17,7 +17,7 @@ C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
       use gugx, only: NLEV,  NMIDV, NWALK, NIPWLK,
-     &                NICASE,  ICASE, NOW1, IOW1, NVERT, SGS
+     &                NICASE,  ICASE, NOW1, IOW1, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -33,8 +33,12 @@ C
       DIMENSION ICS(mxact)
       Integer   iSel(*)
       Character(LEN=400) Line
-      Integer nUp
+      Integer nUp, nVert, MidLev, MVSta, MVEnd
 C
+      nVert = SGS%nVert
+      MidLev= SGS%MidLev
+      MVSta = SGS%MVSta
+      MVEnd = SGS%MVEnd
 
       Line(1:16)='      conf/sym  '
       iOff=16
@@ -54,7 +58,7 @@ C
       NSCR=3*(NLEV+1)
       NICASE=NWALK*NIPWLK
       CALL GETMEM('SCR1','ALLO','INTEG',LSCR,NSCR)
-      Call MKCLIST(NSYM,NLEV,NVERT,SGS%MIDLEV,SGS%MVSta,SGS%MVEnd,NMIDV,
+      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,
      &             NICASE,NIPWLK,NSM,SGS%DOWN,NOW1,IOW1,ICASE,
      &             IWORK(LSCR))
 
@@ -90,7 +94,7 @@ C -- SKIP OR PRINT IT OUT?
                 ICDWN=ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
-                DO LEV=1,SGS%MIDLEV
+                DO LEV=1,MIDLEV
                   NNN=NNN+1
                   IF(NNN.EQ.16) THEN
                     NNN=1
@@ -107,7 +111,7 @@ C -- UNPACK LOWER WALK.
               ICUP=ICASE(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
-              DO LEV=SGS%MIDLEV+1,NLEV
+              DO LEV=MIDLEV+1,NLEV
                 NNN=NNN+1
                 IF(NNN.EQ.16) THEN
                   NNN=1
@@ -157,5 +161,4 @@ C -- PRINT IT!
         CALL GETMEM ('LEX','FREE','INTEGER',LLEX,NLEV)
       END IF
 
-      RETURN
-      END
+      END SUBROUTINE SGPRWF

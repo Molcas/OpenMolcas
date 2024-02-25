@@ -16,8 +16,9 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKSEG_CP2(IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
-      use gugx, only: NLEV, NVERT, NMIDV, SGS
+      SUBROUTINE MKSEG_CP2(IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT,
+     &                     NVERT)
+      use gugx, only: NLEV, NMIDV, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER(LEN=26) CC1,CC2,CTVPT,CBVPT,CSVC
 #include "pt2_guga.fh"

@@ -21,7 +21,7 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               MXEO, NVERT,                  NLEV, IFCAS,         &
+     &               MXEO,                         NLEV, IFCAS,         &
      &               NCSF, NWALK, NMIDV,                         &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
@@ -35,7 +35,7 @@
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer                       NVTAB_TMP
+      Integer                       NVTAB_TMP, NVERT
 
       Interface
       SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -71,6 +71,7 @@
       End If
 
       CALL MKGUGA(ISM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM=.TRUE.)
+      nVert=SGS%nVert
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
@@ -88,7 +89,7 @@
       CALL mma_allocate(MVR,NMVR,Label='MVR')
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
-      CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM)
+      CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM,nVert)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
@@ -98,7 +99,7 @@
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(SGS%DRT,ISGM,NOW1,NOCP,IOCP,NOCSF,NRL,MVL,MVR)
+      CALL NRCOUP_CP2(SGS%DRT,ISGM,NOW1,NOCP,IOCP,NOCSF,NRL,MVL,MVR,nVert)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK
