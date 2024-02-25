@@ -11,7 +11,7 @@
       Subroutine GugaNew(CIL,imode,ksym)
 *
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,NMIDV,MXUP,MXDWN,
+     &                SGS,NMIDV,MXUP,MXDWN,ISM,
      &                DAW,RAW,USGN,LSGN,ICASE,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF,
      &                NOW => NOW1, IOW => IOW1, NICASE, NIPWLK
@@ -24,7 +24,6 @@
 #include "stdalloc.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-      Integer OrbSym(2*mxBas)
       Integer, Parameter:: iPrint=0
       Real*8, Allocatable:: CINEW(:)
       Real*8 :: PRWTHR=0.05d0
@@ -32,11 +31,10 @@
       Integer nVert, MidLev, MVSta, MVEnd
 *
       Interface
-      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
-      Integer NSM(NLEV)
       Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
@@ -84,19 +82,19 @@
       Do iSym=1,nSym
          Do iBas=1,nRs1(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs2(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs3(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
 *
@@ -107,7 +105,7 @@
       LM3RAS=nActEl-nElec3
 
       IFCAS=1
-      Call mkGUGA(OrbSym,NLEV,NSYM,kSym,NCSF)
+      Call mkGUGA(NLEV,NSYM,kSym,NCSF)
       NCONF=NCSF(kSym)
       nVert =SGS%nVert
       MidLev=SGS%MidLev
@@ -129,7 +127,7 @@
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
       Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,CIL)
+     &                 NICASE,ISM,NOCSF,IOCSF,NOW,IOW,ICASE,CIL)
       WRITE(6,103)
 103   FORMAT(/,6X,100('-'),/)
       End If
@@ -144,7 +142,7 @@
      &           NCPCNT,CIL,CInew,minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
      &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,CInew)
+     &                 NICASE,ISM,NOCSF,IOCSF,NOW,IOW,ICASE,CInew)
       Call DCopy_(nConf,CINew,1,CIL,1)
       Call mma_deallocate(CINew)
 *

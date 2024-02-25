@@ -8,16 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKNSM
+      SUBROUTINE MKNSM()
 C     PUPROSE: CREATE THE SYMMETRY INDEX VECTOR
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 C
+! to get some dimensions
 #include "rasdim.fh"
+! NSM form rasscf,fh
 #include "rasscf.fh"
+! NSYM from general.fh
 #include "general.fh"
+! NGAS and NGSSH from gas.fh
 #include "gas.fh"
 C
+      Integer IGAS, ISYM, LEV, NLEV, NSTA
+
       NLEV=0
       DO IGAS=1,NGAS
         DO ISYM=1,NSYM
@@ -28,5 +34,5 @@ C
           END DO
         END DO
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE MKNSM

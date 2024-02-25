@@ -21,7 +21,7 @@
 !
       use Definitions, only: LF => u6
       use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,       &
-     &                LM1RAS, LV3RAS, LM3RAS, NCSF
+     &                LM1RAS, LV3RAS, LM3RAS, NCSF, ISM
 
       IMPLICIT REAL*8 (A-H,O-Z)
 !
@@ -33,11 +33,10 @@
       Character(LEN=16), Parameter :: ROUTINE='GUGACTL '
 
       Interface
-      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
-      Integer NSM(NLEV)
       Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
@@ -83,6 +82,7 @@
       DO IS=1,NSYM
         NLEV=NLEV+NRS3(IS)
       END DO
+      ISM(1:nLev)=NSM(1:nLev)
 !
 !     COMPUTE RAS RESTRICTIONS ON VERTICES:
 !
@@ -120,7 +120,7 @@
 !
 !     INITIALIZE GUGA TABLES:
 !
-      CALL MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF)
+      CALL MKGUGA(NLEV,NSYM,STSYM,NCSF)
       NCONF=NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 

@@ -2051,7 +2051,7 @@ c      End If
 
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
-        Call MKGUGA_FREE
+        Call MKGUGA_FREE()
       end if
 
       if (DoFaro) then

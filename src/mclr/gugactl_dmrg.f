@@ -11,7 +11,8 @@
       Subroutine GugaCtl_dmrg()
 *
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
-     &                IFCAS, LV1RAS, LV3RAS, LM1RAS, LM3RAS
+     &                IFCAS, LV1RAS, LV3RAS, LM1RAS, LM3RAS,
+     &                ISM
       Implicit Real*8 (A-H,O-Z)
 *
 #include "Input.fh"
@@ -19,15 +20,12 @@
 #include "stdalloc.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-      Integer OrbSym(2*mxBas)
-      Integer, Parameter:: iPrint=0
 *
       Interface
-      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
-      Integer NSM(NLEV)
       Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
@@ -75,19 +73,19 @@
       Do iSym=1,nSym
          Do iBas=1,nRs1(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs2(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs3(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
 *
@@ -98,7 +96,7 @@
       LM3RAS=nActEl-nElec3
 !
       IFCAS=1
-      Call mkGUGA(OrbSym,NLEV,NSYM,State_Sym,NCSF)
+      Call mkGUGA(NLEV,NSYM,State_Sym,NCSF)
       NCONF=NCSF(State_Sym)
 
 *

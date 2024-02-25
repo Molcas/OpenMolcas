@@ -10,7 +10,7 @@
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,NMIDV,MXUP,MXDWN,
+     &                SGS,NMIDV,MXUP,MXDWN,ISM,
      &                     DAW,RAW,USGN,LSGN,ICASE, IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
      &                NOCSF, IOCSF, NOW => NOW1, IOW => IOW1
@@ -23,17 +23,15 @@
 #include "stdalloc.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-      Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
       Real*8, Allocatable:: CINew(:)
       Integer nVert, MidLev, MVSta, MVEnd
 
       Interface
-      SUBROUTINE MKGUGA(NSM,NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
-      Integer NSM(NLEV)
       Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
@@ -95,19 +93,19 @@
       Do iSym=1,nSym
          Do iBas=1,nRs1(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs2(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs3(iSym)
             iOrb=iOrb+1
-            OrbSym(iOrb)=iSym
+            ISM(iOrb)=iSym
          End Do
       End Do
 *
@@ -118,7 +116,7 @@
       LM3RAS=nActEl-nElec3
 
       IFCAS=1
-      Call mkGUGA(OrbSym,NLEV,NSYM,State_Sym,NCSF)
+      Call mkGUGA(NLEV,NSYM,State_Sym,NCSF)
       NCONF=NCSF(State_Sym)
       nVert =SGS%nVert
       MidLev=SGS%MidLev
@@ -138,11 +136,11 @@
 
 #ifdef _TEST_
       Call SGPRWF_MCLR_E(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
-     &                   NMIDV,NIPWLK,NICASE,OrbSym,NOCSF,IOCSF,NOW,
+     &                   NMIDV,NIPWLK,NICASE,ISM,NOCSF,IOCSF,NOW,
      &                   IOW,ICASE,CIL)
 #else
       Call SGPRWF_MCLR(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
-     &                 NMIDV,NIPWLK,NICASE,OrbSym,NOCSF,IOCSF,NOW,
+     &                 NMIDV,NIPWLK,NICASE,ISM,NOCSF,IOCSF,NOW,
      &                 IOW,ICASE,CIL)
 #endif
       WRITE(6,103)
