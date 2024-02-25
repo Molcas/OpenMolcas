@@ -178,11 +178,12 @@ module fciqmc_interface
     !>  @param[out]    f2        dense contraction of Fockian with 3RDM
     !>  @param[out]    f3        sparse contraction of Fockian with 4RDM
     !>  @param[in]     idxG3     Table containing the active space indices
-    subroutine mkfg3fciqmc(g1, g2, g3, f1, f2, f3, idxG3)
-        use caspt2_data, only: nG3, nLev, mState, jState
+    subroutine mkfg3fciqmc(g1, g2, g3, f1, f2, f3, idxG3,nLev)
+        use caspt2_data, only: nG3, mState, jState
         real(wp), intent(inout) :: g1(nLev, nLev), g2(nLev, nLev, nLev, nLev), g3(*), &
                                    f1(nLev, nLev), f2(nLev, nLev, nLev, nLev), f3(*)
         integer(1), intent(in) :: idxG3(6, *)
+        integer(iwp), intent(in) :: nLev
 
 #ifdef _HDF5_
         call load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, &

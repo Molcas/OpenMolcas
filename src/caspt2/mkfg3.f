@@ -576,7 +576,7 @@ C  only for the G1 and G2 replicate arrays
       CALL GADSUM(F2,NG2)
 
       if (DoFCIQMC) then
-          call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3)
+          call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3,nLev)
       else
           ! Correction to G2: It is now = <0| E_tu E_yz |0>
           do iu=1,nlev
