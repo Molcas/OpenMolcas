@@ -25,7 +25,6 @@
 ! Allocate Level to Symmetry table ISm:
       Call mma_allocate(SGS%ISm,nLev,Label='SGS%ISm')
       ITABS=0
-      IT=0
       DO ISYM=1,NSYM
         DO IT=1,NASH(ISYM)
           ITABS=ITABS+1

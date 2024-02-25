@@ -16,9 +16,10 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE POLY0
+      SUBROUTINE POLY0()
 
       use fciqmc_interface, only: DoFCIQMC
+      use stdalloc, only: mma_allocate
       use gugx, only: NLEV, ISM, L2ACT, LEVEL, NCSF
 
       IMPLICIT NONE
@@ -32,6 +33,7 @@
       INTEGER I,IT,ITABS,ILEV,ISYM, iq
 
       NLEV=NASHT
+      Call mma_allocate(ISM,NLEV,Label='ISM')
 C ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
 C PAM060612: With true RAS space, the orbitals must be ordered
 C first by RAS type, then by symmetry.
@@ -58,7 +60,7 @@ C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
       NCSF(STSYM)=1
 
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
-     &      .and. (.not. DoFCIQMC)) call ginit_cp2
+     &      .and. (.not. DoFCIQMC)) call ginit_cp2()
 
       MXCI=1
       DO I=1,NSYM
@@ -68,5 +70,4 @@ C NOTE: AT THIS POINT, WE HAVE ALLOCATED MEMORY SPACE FOR SGUGA USE:
 C MVL,MVR,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,ICASE,ICOUP,VTAB,TMP.
 
 
-      RETURN
-      END
+      END SUBROUTINE POLY0

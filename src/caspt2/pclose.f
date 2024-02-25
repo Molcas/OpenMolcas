@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PCLOSE()
       use fciqmc_interface, only: DoFCIQMC
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 C
 C  PER AAKE MALMQUIST 92-12-07
 C  Deallocates everything concerned with SGUGA, incl CI array.
@@ -26,11 +26,11 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
 #include "rasdim.fh"
 #include "caspt2.fh"
 
+      Call MKGUGA_FREE()
+
       IF(DoCumulant) RETURN
       IF(DoFCIQMC) RETURN
       IF(NACTEL.EQ.0) RETURN
       IF(ISCF.NE.0) RETURN
-
-      Call MKGUGA_FREE()
 
       END SUBROUTINE PCLOSE

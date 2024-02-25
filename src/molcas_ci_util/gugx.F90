@@ -30,7 +30,8 @@ Type (SGStruct), Public, Target:: SGS
 !End Type SGStruct
 
 Integer, Parameter, Public :: MXLEV=100
-Integer, Public:: ISM(MXLEV), L2ACT(MXLEV), LEVEL(MXLEV)
+Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
+Integer, Allocatable, Public:: ISM(:)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:)
 Integer,              Public::NNOCSF,   NIOCSF

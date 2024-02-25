@@ -9,6 +9,7 @@
 ************************************************************************
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
+      use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
      &                SGS,NMIDV,MXUP,MXDWN,ISM,
      &                     DAW,RAW,USGN,LSGN,ICASE, IFCAS,
@@ -20,7 +21,6 @@
 *
 #include "Input.fh"
 #include "Pointers.fh"
-#include "stdalloc.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
       Parameter (iPrint=0)
@@ -89,6 +89,7 @@
          Write (6,*)
       End If
 *
+      Call mma_allocate(ISM,ntAsh,Label='ISM')
       iOrb=0
       Do iSym=1,nSym
          Do iBas=1,nRs1(iSym)

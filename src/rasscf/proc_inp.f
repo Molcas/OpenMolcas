@@ -3547,7 +3547,7 @@ C Test read failed. JOBOLD cannot be used.
           end if
 #endif
         else  ! if iDoGas
-          call mknsm
+          call mknsm()
         end if
       END IF
 * ===============================================================

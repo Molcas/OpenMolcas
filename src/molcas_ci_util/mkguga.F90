@@ -180,9 +180,10 @@
       use gugx, only:  RAW,  DAW,  NOCSF,   &
      &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
-     &                 SGTMP
+     &                 SGTMP, ISM
       IMPLICIT None
 !
+      If (Allocated(ISM)) Call mma_deallocate(ISM)
       If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
       If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
 
