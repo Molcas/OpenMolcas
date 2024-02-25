@@ -21,7 +21,7 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: NLEV, SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -118,13 +118,13 @@ C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
 C     LTU=0
 C     DO 140 LT=1,NLEV
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
 C       DO 130 LU=1,LT
         LU=iWork(lTask2U+iTask-1)
 C         LTU=LTU+1
           ! LTU=iTask
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
@@ -144,12 +144,12 @@ C           G1(IU,IT)=GTU
           END IF
           LVX=0
           DO LV=1,NLEV!LT
-            ISV=ISM(LV)
+            ISV=SGS%ISM(LV)
             IV=L2ACT(LV)
             DO LX=1,NLEV!LV
               LVX=LVX+1
 C             IF(LVX.GT.LTU) GOTO 500
-              ISX=ISM(LX)
+              ISX=SGS%ISM(LX)
               ISVX=MUL(ISV,ISX)
               IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)
@@ -184,12 +184,12 @@ C             G2(IT,IU,IX,IV)=GTUXV
           END IF
           LVX=0
           DO LV=1,NLEV
-            ISV=ISM(LV)
+            ISV=SGS%ISM(LV)
             IV=L2ACT(LV)
             DO LX=1,NLEV
               LVX=LVX+1
 C             IF(LVX.GT.LTU) GOTO 500
-              ISX=ISM(LX)
+              ISX=SGS%ISM(LX)
               ISVX=MUL(ISV,ISX)
 C             IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)

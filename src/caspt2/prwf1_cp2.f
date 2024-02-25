@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR)
-      use gugx, only: ICASE, NLEV, NMIDV, SGS, ISM, NIPWLK
+      use gugx, only: ICASE, NLEV, NMIDV, SGS, NIPWLK
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
@@ -41,8 +41,8 @@ C SVC: set up a CSF string length as LENCSF
       LENCSF=0
       ISY=0
       DO LEV=1,NLEV
-        IF(ISY.NE.ISM(LEV)) THEN
-          ISY=ISM(LEV)
+        IF(ISY.NE.SGS%ISM(LEV)) THEN
+          ISY=SGS%ISM(LEV)
           LENCSF=LENCSF+1
         END IF
         LENCSF=LENCSF+1
@@ -127,8 +127,8 @@ C -- PRINT IT!
               K=0
               ISY=0
               DO LEV=1,NLEV
-                IF(ISY.NE.ISM(LEV)) THEN
-                  ISY=ISM(LEV)
+                IF(ISY.NE.SGS%ISM(LEV)) THEN
+                  ISY=SGS%ISM(LEV)
                   K=K+1
                   LINE(K:K)=' '
                 END IF

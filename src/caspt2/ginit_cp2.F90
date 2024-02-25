@@ -20,7 +20,7 @@
       SUBROUTINE GINIT_CP2()
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only:IA0, IB0, IC0, ISM, LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
+      use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO,                         NLEV, IFCAS,         &
      &               NCSF, NWALK, NMIDV,                         &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
@@ -109,7 +109,7 @@
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
-      CALL MKCOUP(nSym,nLev,ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
+      CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
      &            IVR,SGS%MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &
      &            ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)

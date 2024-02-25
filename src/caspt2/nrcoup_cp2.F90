@@ -18,7 +18,7 @@
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
      &                  NOCSF,NRL,MVL,MVR,nVert)
-      use gugx, only: NLEV, SGS, NMIDV, ISM,   &
+      use gugx, only: NLEV, SGS, NMIDV,  &
      &                         NICOUP, MXEO, SGTMP, NSGTMP
 #ifdef _DEBUGPRINT_
       use gugx, only: NWALK, NCSF
@@ -66,7 +66,7 @@
           IF(IVLB.EQ.0) GOTO 102
           ICL=IC1(ISGT)
           ISYM=1
-          IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
+          IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=SGS%ISM(LEV)
           DO 100 ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
 
@@ -139,7 +139,7 @@
           IF(IVLB.EQ.0) GOTO 202
           ICL=IC1(ISGT)
           ISYM=1
-          IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
+          IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=SGS%ISM(LEV)
           DO 200 ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
       IF(ISGT.GE.23) THEN

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use gugx, only: NLEV, L2ACT, ISM, NOCSF, IOCSF, NOW1,
+      use gugx, only: NLEV, L2ACT, SGS, NOCSF, IOCSF, NOW1,
      &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
      &                         MVR
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -118,12 +118,12 @@
       CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       DO LEVU=1,NLEV
         IUABS=L2ACT(LEVU)
-        ISU=ISM(LEVU)
+        ISU=SGS%ISM(LEVU)
         IU=IUABS-NAES(ISU)
         NI=NISH(ISU)
         IUTOT=NI+IU
         DO LEVT= 1,LEVU
-          IF(ISM(LEVT).NE.ISU) GOTO 10
+          IF(SGS%ISM(LEVT).NE.ISU) GOTO 10
           ITABS=L2ACT(LEVT)
           IST=ISU
           IT=ITABS-NAES(IST)
@@ -171,12 +171,12 @@
       CALL DCOPY_(NCONF,[0.0D0],0,WORK(LSGM),1)
       DO LEVU=2,NLEV
         IUABS=L2ACT(LEVU)
-        ISU=ISM(LEVU)
+        ISU=SGS%ISM(LEVU)
         IU=IUABS-NAES(ISU)
         NI=NISH(ISU)
         IUTOT=NI+IU
         DO LEVT= 1,LEVU-1
-          IF(ISM(LEVT).NE.ISU) GOTO 20
+          IF(SGS%ISM(LEVT).NE.ISU) GOTO 20
           ITABS=L2ACT(LEVT)
           IST=ISU
           IT=ITABS-NAES(IST)

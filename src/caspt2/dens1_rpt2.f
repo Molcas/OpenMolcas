@@ -22,7 +22,7 @@
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: NLEV, SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -109,10 +109,10 @@
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=iWork(lTask2U+iTask-1)
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)

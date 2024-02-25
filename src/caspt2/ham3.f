@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
-      use gugx, only: NLEV, NCSF, ISM,
+      use gugx, only: NLEV, NCSF, SGS,
      &                         NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
      &                         VTAB,MVL,MVR
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -60,7 +60,7 @@ C ordinal number of each active orbital.
       ITABS=0
       DO ISYM=1,NSYM
         DO I=1,NLEV
-          IF(ISM(I).EQ.ISYM) THEN
+          IF(SGS%ISM(I).EQ.ISYM) THEN
             ITABS=ITABS+1
             IATOG(ITABS)=I
           END IF

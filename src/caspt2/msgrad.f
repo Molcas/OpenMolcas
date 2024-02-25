@@ -1221,7 +1221,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: NLEV, SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1304,11 +1304,11 @@ C     ENDDO
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=iWork(lTask2U+iTask-1)
           ! LTU=iTask
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
@@ -1695,7 +1695,7 @@ C
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: NLEV, SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1777,13 +1777,13 @@ C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
 C     LTU=0
 C     DO 140 LT=1,NLEV
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
 C       DO 130 LU=1,LT
         LU=iWork(lTask2U+iTask-1)
 C         LTU=LTU+1
           ! LTU=iTask
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)

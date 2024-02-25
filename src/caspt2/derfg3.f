@@ -20,7 +20,7 @@
       use gugx, only: NLEV,  ICOUP,  IOCP,
      &                         IOCSF, IOW1, MVL, MVR,  NOCP,
      &                         NOCSF, NOW1, VTAB, NCSF, L2ACT,
-     &                         ISM
+     &                         SGS
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -434,7 +434,7 @@ C-is basically the number of buffers we fill with sigma1 vectors.
       DO ip1=1,nlev2
         itlev=idx2ij(1,ip1)
         iulev=idx2ij(2,ip1)
-        istu=mul(ism(itlev),ism(iulev))
+        istu=mul(SGS%ism(itlev),SGS%ism(iulev))
         IF (istu.EQ.isp1) THEN
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
@@ -544,7 +544,7 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
         do ip1i=ip1sta,ip1end
          itlev=idx2ij(1,ip1i)
          iulev=idx2ij(2,ip1i)
-         istu=mul(ism(itlev),ism(iulev))
+         istu=mul(SGS%ism(itlev),SGS%ism(iulev))
          it=L2ACT(itlev)
          iu=L2ACT(iulev)
          if(istu.eq.isp1) then
@@ -630,7 +630,7 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 * The indices corresponding to pair index p3:
       iylev=idx2ij(1,ip3)
       izlev=idx2ij(2,ip3)
-      isyz=mul(ism(iylev),ism(izlev))
+      isyz=mul(SGS%ism(iylev),SGS%ism(izlev))
       issg2=mul(isyz,STSYM)
       nsgm2=ncsf(issg2)
       iy=L2ACT(iylev)
@@ -700,7 +700,7 @@ C
       do ip2=ip3,ntri2
         ivlev=idx2ij(1,ip2)
         ixlev=idx2ij(2,ip2)
-        isvx=mul(ism(ivlev),ism(ixlev))
+        isvx=mul(SGS%ism(ivlev),SGS%ism(ixlev))
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
         if(isvx.ne.mul(issg1,issg2)) goto 99

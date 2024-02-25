@@ -22,7 +22,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
-     &                IFCAS, ISM,                               &
+     &                IFCAS,                               &
      &                                     RAW, NRAW,               &
      &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
@@ -147,13 +147,13 @@
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,ISM,SGS%DOWN,NOW1,IOW1,NCSF,IOCSF,NOCSF,SCR)
+      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,NOW1,IOW1,NCSF,IOCSF,NOCSF,SCR)
 !
 !     CONSTRUCT THE CASE LIST
 !
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(ICASE,NICASE,Label='ICASE')
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,ISM,SGS%DOWN,NOW1,IOW1,ICASE,SCR)
+      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,SGS%ISM,SGS%DOWN,NOW1,IOW1,ICASE,SCR)
       CALL mma_deallocate(SCR)
 !
 !     SET UP ENUMERATION TABLES
@@ -180,10 +180,10 @@
       use gugx, only:  RAW,  DAW,  NOCSF,   &
      &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
-     &                 SGTMP, ISM
+     &                 SGTMP
       IMPLICIT None
 !
-      If (Allocated(ISM)) Call mma_deallocate(ISM)
+      If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
       If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
       If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
 

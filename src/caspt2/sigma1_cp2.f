@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
-      use gugx, only: ICASE, NLEV, NMIDV, SGS, ISM, NICOUP,
+      use gugx, only: ICASE, NLEV, NMIDV, SGS, NICOUP,
      &                         MXEO, NIPWLK, NVTAB, SGTMP
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -45,8 +45,8 @@
 
       IF(ABS(CPQ).LT.1.0D-12) GOTO 999
 C SYMMETRY OF ORBITALS:
-      ISYP=ISM(IP)
-      ISYQ=ISM(IQ)
+      ISYP=SGS%ISM(IP)
+      ISYQ=SGS%ISM(IQ)
       ISYPQ=MUL(ISYP,ISYQ)
 C SYMMETRY OF SIGMA ARRAY:
       ISYSGM=MUL(ISYPQ,ISYCI)

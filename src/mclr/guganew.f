@@ -12,7 +12,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,NMIDV,MXUP,MXDWN,ISM,
+     &                SGS,NMIDV,MXUP,MXDWN,
      &                DAW,RAW,USGN,LSGN,ICASE,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF,
      &                NOW => NOW1, IOW => IOW1, NICASE, NIPWLK
@@ -78,24 +78,24 @@
          Write (6,*)
       End If
 *
-      Call mma_allocate(ISM,ntash,Label='ISM')
+      Call mma_allocate(SGS%ISM,ntash,Label='SGS%ISM')
       iOrb=0
       Do iSym=1,nSym
          Do iBas=1,nRs1(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs2(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs3(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
 *
@@ -128,7 +128,7 @@
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
       Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,ISM,NOCSF,IOCSF,NOW,IOW,ICASE,CIL)
+     &                 NICASE,SGS%ISM,NOCSF,IOCSF,NOW,IOW,ICASE,CIL)
       WRITE(6,103)
 103   FORMAT(/,6X,100('-'),/)
       End If
@@ -143,7 +143,7 @@
      &           NCPCNT,CIL,CInew,minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
      &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,ISM,NOCSF,IOCSF,NOW,IOW,ICASE,CInew)
+     &                 NICASE,SGS%ISM,NOCSF,IOCSF,NOW,IOW,ICASE,CInew)
       Call DCopy_(nConf,CINew,1,CIL,1)
       Call mma_deallocate(CINew)
 *

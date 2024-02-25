@@ -31,7 +31,6 @@ Type (SGStruct), Public, Target:: SGS
 
 Integer, Parameter, Public :: MXLEV=100
 Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
-Integer, Allocatable, Public:: ISM(:)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:)
 Integer,              Public::NNOCSF,   NIOCSF

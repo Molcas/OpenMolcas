@@ -22,7 +22,7 @@
       use Definitions, only: LF => u6
       use stdalloc, only: mma_allocate
       use gugx, only: NLEV, IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,       &
-     &                LM1RAS, LV3RAS, LM3RAS, NCSF, ISM
+     &                LM1RAS, LV3RAS, LM3RAS, NCSF, SGS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 !
@@ -84,9 +84,9 @@
         NLEV=NLEV+NRS3(IS)
       END DO
 
-      Call mma_allocate(ISM,nLev,Label='ISM')
+      Call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
 
-      ISM(1:nLev)=NSM(1:nLev)
+      SGS%ISM(1:nLev)=NSM(1:nLev)
 !
 !     COMPUTE RAS RESTRICTIONS ON VERTICES:
 !

@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use gugx, only: NOCSF, IOCSF, NOW1, IOW1, NOCP, IOCP,
-     &                         ICOUP, VTAB, MVL, MVR, ISM, NCSF
+     &                         ICOUP, VTAB, MVL, MVR, SGS, NCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -40,8 +40,8 @@ C NOTE!! THE EARLIER CALL GETSGM(ILEV,JLEV,IDARR,SGM) IS REPLACED BY
 C GETSGM2(ILEV,JLEV,CI,SGM)!!
 C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      IS=ISM(ILEV)
-      JS=ISM(JLEV)
+      IS=SGS%ISM(ILEV)
+      JS=SGS%ISM(JLEV)
       IJS=MUL(IS,JS)
       ISSG=MUL(IJS,ISYCI)
       NSGM=NCSF(ISSG)

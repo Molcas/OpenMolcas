@@ -1463,7 +1463,7 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use gugx, only: NLEV, ISM, L2ACT, NCSF
+      use gugx, only: NLEV, SGS, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1544,10 +1544,10 @@ C     ENDDO
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
       LT=iWork(lTask2T+iTask-1)
-        IST=ISM(LT)
+        IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=iWork(lTask2U+iTask-1)
-          ISU=ISM(LU)
+          ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
@@ -3148,7 +3148,7 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use gugx, only: ISM, L2ACT, NLEV, NCSF
+      use gugx, only: SGS, L2ACT, NLEV, NCSF
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CIin(nConf,nState),CIout(nConf,nState)
@@ -3187,14 +3187,14 @@ C
         LT=iWork(lTask2T+iTask-1)
         ! tras=.false.
         ! if (lt.le.nras1(1)) tras=.true.
-          IST=ISM(LT)
+          IST=SGS%ISM(LT)
           IT=L2ACT(LT)
           LU=iWork(lTask2U+iTask-1)
           ! uras=.false.
           ! if (lu.gt.nras1(1)+nras2(1)) uras=.true.
 C         if (tras.and.uras) go to 500
             ! LTU=iTask
-            ISU=ISM(LU)
+            ISU=SGS%ISM(LU)
             IU=L2ACT(LU)
             ISTU=MUL(IST,ISU)
             ISSG=MUL(ISTU,STSYM)
@@ -3210,13 +3210,13 @@ C           CALL GETSGM2(LT,LU,STSYM,CIin(1,iState),Work(LSGM1))
             END IF
             LVX=0
             DO LV=1,NLEV
-              ISV=ISM(LV)
+              ISV=SGS%ISM(LV)
               IV=L2ACT(LV)
               ! vras=.false.
               ! if (lv.le.nras1(1)) vras=.true.
               DO LX=1,NLEV
                 LVX=LVX+1
-                ISX=ISM(LX)
+                ISX=SGS%ISM(LX)
                 ISVX=MUL(ISV,ISX)
                 ! xras=.false.
                 ! if (lx.gt.nras1(1)+nras2(1)) xras=.true.
@@ -3516,7 +3516,7 @@ C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
      *                    INT1,INT2,Fancy)
-      use gugx, only: ICASE, NMIDV, NLEV, NIPWLK, SGS, ISM
+      use gugx, only: ICASE, NMIDV, NLEV, NIPWLK, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
@@ -3547,8 +3547,8 @@ C     LINE=' '
       LENCSF=0
       ISY=0
       DO LEV=1,NLEV
-        IF(ISY.NE.ISM(LEV)) THEN
-          ISY=ISM(LEV)
+        IF(ISY.NE.SGS%ISM(LEV)) THEN
+          ISY=SGS%ISM(LEV)
           LENCSF=LENCSF+1
         END IF
         LENCSF=LENCSF+1
@@ -3634,8 +3634,8 @@ C -- PRINT IT!
               ISY=0
               PRE(ICONF) = 0.0D+00
               DO LEV=1,NLEV
-                IF(ISY.NE.ISM(LEV)) THEN
-                  ISY=ISM(LEV)
+                IF(ISY.NE.SGS%ISM(LEV)) THEN
+                  ISY=SGS%ISM(LEV)
                   K=K+1
 C                 LINE(K:K)=' '
                 END IF

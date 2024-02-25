@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDACT(IVEC,JVEC,DTU)
-      use gugx, only: NLEV, ISM
+      use gugx, only: NLEV, SGS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -126,7 +126,7 @@ C ordinal number of each active orbital.
         ITABS=0
         DO ISYM=1,NSYM
           DO I=1,NLEV
-            IF(ISM(I).EQ.ISYM) THEN
+            IF(SGS%ISM(I).EQ.ISYM) THEN
               ITABS=ITABS+1
               IATOG(ITABS)=I
             END IF

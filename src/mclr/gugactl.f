@@ -11,7 +11,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,NMIDV,MXUP,MXDWN,ISM,
+     &                SGS,NMIDV,MXUP,MXDWN,
      &                     DAW,RAW,USGN,LSGN,ICASE, IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
      &                NOCSF, IOCSF, NOW => NOW1, IOW => IOW1
@@ -89,24 +89,24 @@
          Write (6,*)
       End If
 *
-      Call mma_allocate(ISM,ntAsh,Label='ISM')
+      Call mma_allocate(SGS%ISM,ntAsh,Label='SGS%ISM')
       iOrb=0
       Do iSym=1,nSym
          Do iBas=1,nRs1(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs2(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs3(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
 *
@@ -137,11 +137,11 @@
 
 #ifdef _TEST_
       Call SGPRWF_MCLR_E(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
-     &                   NMIDV,NIPWLK,NICASE,ISM,NOCSF,IOCSF,NOW,
+     &                   NMIDV,NIPWLK,NICASE,SGS%ISM,NOCSF,IOCSF,NOW,
      &                   IOW,ICASE,CIL)
 #else
       Call SGPRWF_MCLR(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
-     &                 NMIDV,NIPWLK,NICASE,ISM,NOCSF,IOCSF,NOW,
+     &                 NMIDV,NIPWLK,NICASE,SGS%ISM,NOCSF,IOCSF,NOW,
      &                 IOW,ICASE,CIL)
 #endif
       WRITE(6,103)

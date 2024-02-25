@@ -13,7 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
      &                IFCAS, LV1RAS, LV3RAS, LM1RAS, LM3RAS,
-     &                ISM
+     &                SGS
       Implicit Real*8 (A-H,O-Z)
 *
 #include "Input.fh"
@@ -69,24 +69,24 @@
          Write (6,*)
       End If
 *
-      Call mma_allocate(ISM,ntAsh,Label='ISM')
+      Call mma_allocate(SGS%ISM,ntAsh,Label='SGS%ISM')
       iOrb=0
       Do iSym=1,nSym
          Do iBas=1,nRs1(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs2(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
       Do iSym=1,nSym
          Do iBas=1,nRs3(iSym)
             iOrb=iOrb+1
-            ISM(iOrb)=iSym
+            SGS%ISM(iOrb)=iSym
          End Do
       End Do
 *
