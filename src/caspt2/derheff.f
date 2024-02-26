@@ -816,7 +816,7 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,CI1,CI2,OVL,DTG1,DTG2,NTG3,
      *                  DTG3,CLAG1,CLAG2)
-      use gugx, only: SGS, L2ACT, NCSF, NOCSF, IOCSF, NOW1,
+      use gugx, only: SGS, L2ACT, NCSF, NOCSF, IOCSF,
      &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
      &                         MVR, CIS
       IMPLICIT REAL*8 (a-h,o-z)
@@ -1135,7 +1135,7 @@ C Translate to levels in the SGUGA coupling order:
         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
-     &    NOCSF,IOCSF,NOW1,IOW1,
+     &    NOCSF,IOCSF,CIS%NOW,IOW1,
      &    NOCP,IOCP,ICOUP,
      &    VTAB,MVL,MVR,nMidV,nICoup)
         IF(ISSG2.EQ.LSYM1.AND.DTG1(IY,IZ).NE.0.0D+00) THEN
@@ -1164,7 +1164,7 @@ C Translate to levels:
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
          CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
-     &    NOCSF,IOCSF,NOW1,IOW1,
+     &    NOCSF,IOCSF,CIS%NOW,IOW1,
      &    NOCP,IOCP,ICOUP,
      &    VTAB,MVL,MVR,nMidV,nICoup)
          IF (ISSG1.EQ.LSYM1.AND.DTG1(IU,IT).NE.0.0D+00
@@ -1202,7 +1202,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           !! LTAU = EvxEyz|Psi2>
           CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
-     &     NOCSF,IOCSF,NOW1,IOW1,
+     &     NOCSF,IOCSF,CIS%NOW,IOW1,
      &     NOCP,IOCP,ICOUP,
      &     VTAB,MVL,MVR,nMidV,nICoup)
           IF(ISTAU.EQ.LSYM1.AND.DTG2(IV,IX,IY,IZ).NE.0.0D+00) THEN
@@ -1216,7 +1216,7 @@ C          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
      *                    WORK(LFROMD),1)
            ELSE
          CALL SIGMA1_CP2(JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,WORK(LFROMD),
-     &      NOCSF,IOCSF,NOW1,IOW1,
+     &      NOCSF,IOCSF,CIS%NOW,IOW1,
      &      NOCP,IOCP,ICOUP,
      &      VTAB,MVL,MVR,nMidV,nICoup)
            END IF
@@ -1298,7 +1298,7 @@ C    &                0.0D+00,WORK(LBUF1),1)
           !! Second operator for the right derivative:
           !! <Psi1|Etu Evx|I> * Dtuvxyz
           CALL SIGMA1_CP2(JL,IL,1.0D+00,ISTAU,WORK(LBUF1),WORK(LFROMD),
-     &      NOCSF,IOCSF,NOW1,IOW1,
+     &      NOCSF,IOCSF,CIS%NOW,IOW1,
      &      NOCP,IOCP,ICOUP,
      &      VTAB,MVL,MVR,nMidV,nICoup)
           END IF !! End of DOG3 clause
@@ -1321,7 +1321,7 @@ C Translate to levels:
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,WORK(LTO),CLAG1,
-     &    NOCSF,IOCSF,NOW1,IOW1,
+     &    NOCSF,IOCSF,CIS%NOW,IOW1,
      &    NOCP,IOCP,ICOUP,
      &    VTAB,MVL,MVR,nMidV,nICoup)
          LTO=LTO+MXCI
@@ -1342,7 +1342,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
         JM=IWORK(LP2LEV2-1+IP3)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1_CP2(JM,IM,1.0D00,LSYM2,WORK(LTO),CLAG2,
-     &    NOCSF,IOCSF,NOW1,IOW1,
+     &    NOCSF,IOCSF,CIS%NOW,IOW1,
      &    NOCP,IOCP,ICOUP,
      &    VTAB,MVL,MVR,nMidV,nICoup)
         LTO=LTO+MXCI

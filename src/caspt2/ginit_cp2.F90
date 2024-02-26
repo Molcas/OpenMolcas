@@ -25,7 +25,7 @@
      &               NCSF, NWALK,       CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,              NIOCP,       NMVR,NMVL,        &
-     &                          RAW, DAW, NOW1,       NOCP, NOCSF,      &
+     &                          RAW, DAW, NOCP, NOCSF,      &
      &                                    IOW1,      NNOCP,             &
      &               ICASE, SGS
       IMPLICIT None
@@ -102,7 +102,7 @@
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(SGS%DRT,ISGM,NOW1,NOCP,IOCP,NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP)
+      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,NOCP,IOCP,NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK
@@ -116,7 +116,7 @@
       NICASE=SIZE(ICASE)
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
-     &            IVR,SGS%MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &
+     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,IOW1,NOCP,IOCP,ILNDW,      &
      &            ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
 
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')

@@ -14,7 +14,7 @@
      &                SGS,CIS,MXUP,MXDWN,
      &                     DAW,RAW,USGN,LSGN,ICASE, IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
-     &                NOCSF, IOCSF, NOW => NOW1, IOW => IOW1
+     &                NOCSF, IOCSF, IOW => IOW1
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Real*8 CIL(*)
@@ -140,11 +140,11 @@
 
 #ifdef _TEST_
       Call SGPRWF_MCLR_E(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
-     &                   NMIDV,NIPWLK,NICASE,SGS%ISM,NOCSF,IOCSF,NOW,
-     &                   IOW,ICASE,CIL)
+     &                   NMIDV,NIPWLK,NICASE,SGS%ISM,NOCSF,IOCSF,
+     &                   CIS%NOW,IOW,ICASE,CIL)
 #else
       Call SGPRWF_MCLR(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
-     &                 NMIDV,NIPWLK,NICASE,SGS%ISM,NOCSF,IOCSF,NOW,
+     &                 NMIDV,NIPWLK,NICASE,SGS%ISM,NOCSF,IOCSF,CIS%NOW,
      &                 IOW,ICASE,CIL)
 #endif
       WRITE(6,103)

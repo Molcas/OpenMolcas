@@ -15,7 +15,7 @@
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
 !              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 !              THE COMMON /GUGA/. THESE ARE:
-!              SGS%DRT,DOWN,DAW,UP,RAW,NOW1,IOW1,NOCSF,IOCSF
+!              SGS%DRT,DOWN,DAW,UP,RAW,NOW,IOW1,NOCSF,IOCSF
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
@@ -26,7 +26,7 @@
      &                                     RAW, NRAW,               &
      &                CIS, MXUP, MXDWN, NWALK, DAW, NDAW,      &
      &                ICASE,       NNOCSF,       &
-     &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,        &
+     &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN,   &
      &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
      &                SGS
 
@@ -142,18 +142,18 @@
       NNOCSF=NMIDV*(NSYM**2)
       NIOCSF=NNOCSF
       NSCR=MAX(6,3*(NLEV+1))
-      CALL mma_allocate(NOW1,2*NMIDV*NSYM,Label='NOW1')
+      CALL mma_allocate(CIS%NOW,2*NMIDV*NSYM,Label='CIS%NOW')
       CALL mma_allocate(IOW1,2*NMIDV*NSYM,Label='IOW1')
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,NOW1,IOW1,NCSF,IOCSF,NOCSF,SCR)
+      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,IOW1,NCSF,IOCSF,NOCSF,SCR)
 !
 !     CONSTRUCT THE CASE LIST
 !
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(ICASE,nWalk*nIpWlk,Label='ICASE')
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,SGS%ISM,SGS%DOWN,NOW1,IOW1,ICASE,SCR)
+      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,IOW1,ICASE,SCR)
       CALL mma_deallocate(SCR)
 !
 !     SET UP ENUMERATION TABLES
@@ -165,7 +165,7 @@
       NLSGN=MXDWN*NMIDV
       CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
-      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,DAW,RAW,NOW1, &
+      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,DAW,RAW,CIS%NOW, &
                    IOW1,USGN,LSGN,ICASE)
 !
 !     EXIT
@@ -180,21 +180,22 @@
 !
       use stdalloc, only: mma_deallocate
       use gugx, only:  RAW,  DAW,  NOCSF,   &
-     &                 IOCSF,  ICASE, USGN, LSGN, NOW1, IOW1, &
+     &                 IOCSF,  ICASE, USGN, LSGN, IOW1, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
-     &                 SGTMP
+     &                 SGTMP, CIS
       IMPLICIT None
 !
       If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
       If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
       If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
 
-      If (Allocated(DAW)) Call mma_deallocate(DAW)
       If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)
-      If (Allocated(RAW)) Call mma_deallocate(RAW)
       If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
 
-      If (Allocated(NOW1)) Call mma_deallocate(NOW1)
+      If (Allocated(DAW)) Call mma_deallocate(DAW)
+      If (Allocated(RAW)) Call mma_deallocate(RAW)
+
+      If (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
       If (Allocated(IOW1)) Call mma_deallocate(IOW1)
       If (Allocated(NOCSF)) Call mma_deallocate(NOCSF)
       If (Allocated(IOCSF)) Call mma_deallocate(IOCSF)
