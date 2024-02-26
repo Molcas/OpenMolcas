@@ -22,7 +22,7 @@
       Real*8,  Allocatable:: VTabTmp(:), Val(:)
       Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, nSgmnt, &
      &        nNOW, MxEO, nNOCP, nIOCP, nNRL, nNOCSF, nIOCSF, nWalk,    &
-     &        nICoup, nnICoup, nVMax, niLndw, nICase, nScr, nVTab,      &
+     &        nICoup, nVMax, niLndw, nICase, nScr, nVTab,      &
      &        nVTab_final
 
       nLev   =SGS%nLev
@@ -67,16 +67,14 @@
       Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,         &
      &            ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                        &
      &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
-     &            CIS%NCSF,NRL,EXS%MVL,EXS%MVR)
+     &            CIS%NCSF,NRL,EXS%MVL,EXS%MVR,nICoup)
       Call mma_deallocate(NRL)
 ! Computed in NrCoup:
       nWalk=CIS%nWalk
-      nICoup=EXS%nICoup
 
       nICase=nWalk*nIpWlk
       Call mma_allocate(CIS%ICase,nICase,Label='CIS%ICase')
-      nnICoup=3*nICoup
-      Call mma_allocate(EXS%ICoup,nnICoup,Label='EXS%ICoup')
+      Call mma_allocate(EXS%ICoup,3*nICoup,Label='EXS%ICoup')
       nVMax=5000
       Call mma_allocate(VTabTmp,nVMax,Label='VTabTmp')
       nILNDW=nWalk

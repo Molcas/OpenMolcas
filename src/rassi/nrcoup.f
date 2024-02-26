@@ -11,7 +11,7 @@
       SUBROUTINE NRCOUP(SGS,CIS,EXS,
      &                  NVERT,NMIDV,MXEO,ISM,IDRT,
      &                  ISGMNT,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,NCSF,
-     &                  NRL,MVL,MVR)
+     &                  NRL,MVL,MVR,NICOUP)
 
       use rassi_aux, only: ipglob
       use Struct, only: SGStruct, CIStruct, EXStruct
@@ -21,6 +21,7 @@
 C INPUT PARAMETERS:
 CAR   ADD MVR MVL
 #include "symmul.fh"
+      Integer nVert,nMidV,MxEO, nICoup
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
@@ -359,7 +360,6 @@ CAR   END OF INSERT
 C Put sizes in structures CIS, EXSs:
       CIS%nWalk   =nWalk
 
-      EXS%nICOUP=NICOUP
       EXS%NT1MX =NT1MX
       EXS%NT2MX =NT2MX
       EXS%NT3MX =NT3MX

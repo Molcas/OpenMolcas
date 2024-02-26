@@ -11,15 +11,16 @@
       SUBROUTINE SGMONE(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM)
       use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CI(*),SGM(*)
+      Real*8 CI(*),SGM(*)
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
+      Integer nMidV, MxEO, nICoup, nVTab
 
       nMidV =CIS%nMidV
 
       MxEO  =EXS%MxEO
-      nICoup=EXS%nICoup
+      nICoup=SIZE(EXS%ICOUP)
       nVTab =EXS%nVTab
       CALL SIGMA_1(SGS,CIS,EXS,NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
      &             IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
