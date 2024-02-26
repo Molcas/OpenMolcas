@@ -722,7 +722,7 @@ C    *              0.0D+00,Work(ipRDMEIG),nAshT)
         ISAV = IDCIEX
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG))
+        Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG),nAshT)
 C
         !! Now, here is the best place to compute the true off-diagonal
         !! active density for non-invariant CASPT2
@@ -788,7 +788,7 @@ C
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG))
+          Call CLagEig(IFSSDM,Work(ipCLag),Work(ipRDMEIG),nAshT)
           !! Now, compute the state Lagrangian and do some projections
 C         Call CLagFinal(Work(ipCLag),Work(ipSLag))
         End If

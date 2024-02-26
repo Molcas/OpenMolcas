@@ -1070,7 +1070,7 @@ C
         Call CLagEigT(Work(ipCLag),Work(ipG1),SLag,EINACT)
 C
         !! 2) Implicit CI derivative
-        Call CLagEig(.False.,Work(ipCLag),Work(ipRDMEIG))
+        Call CLagEig(.False.,Work(ipCLag),Work(ipRDMEIG),nLev)
 C
         Call GetMem('RDMEIG','FREE','REAL',ipRDMEIG,nAshT**2)
         Call GetMem('G1    ','FREE','REAL',ipG1    ,nAshT**2)

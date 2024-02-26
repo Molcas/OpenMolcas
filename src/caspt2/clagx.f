@@ -14,6 +14,7 @@
 
       use caspt2_output, only:iPrGlb,verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use gugx, only: nLev
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -104,7 +105,7 @@ C
      *              DG1,DG2,DG3,
      *              DF1,DF2,DF3,
      *              DEPSA,
-     *              G1,G2,G3)
+     *              G1,G2,G3,nLev)
 !     write(6,*) "depsa after cnstclag"
 !     call sqprt(depsa,nasht)
 
@@ -1113,11 +1114,11 @@ C-----------------------------------------------------------------------
 C
       !! From poly3
       SUBROUTINE CnstCLag(IFF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
-     *                    G1,G2,G3)
+     *                    G1,G2,G3,nLev)
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_output, only: iPrGlb, verbose
-      use gugx, only: NLEV, L2ACT
+      use gugx, only: L2ACT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1125,6 +1126,7 @@ C
 #include "WrkSpc.fh"
 
 C
+      Integer, Intent(In):: nLev
       DIMENSION CLag(nConf)
       DIMENSION DG1(*),DG2(*),DG3(*),DF1(*),DF2(*),DF3(*)
       DIMENSION G1(*),G2(*),G3(*)
@@ -1240,9 +1242,8 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG)
+      SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG,nLev)
 C
-      use gugx, only: NLEV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1250,6 +1251,7 @@ C
 #include "pt2_guga.fh"
 #include "caspt2_grad.fh"
 C
+      Integer, Intent(In)::nLev
       DIMENSION CLag(nConf,nState),RDMEIG(*)
       Logical   IFSSDMloc
 C
@@ -1268,7 +1270,7 @@ C
           End If
           WGT = 1.0D+00/nState
           Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
-          Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG)
+          Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG,nLev)
           Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
         Else
           Wgt = Work(LDWgt+iState-1+nState*(jState-1))
@@ -1280,7 +1282,7 @@ C
             End If
             !! how is the numerical precision?
             Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
-            Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG)
+            Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG,nLev)
             Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
           End If
 
@@ -1411,8 +1413,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG)
-      use gugx, only: NLEV
+      SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG,nLev)
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -1421,7 +1422,7 @@ C
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-
+      INTEGER, INTENT(IN) :: nLev
       REAL*8, INTENT(IN) :: CI(NCONF)
 
       INTEGER LSGM1
@@ -2625,7 +2626,7 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
-      use gugx, only: NOCSF, IOCSF, NOW1, IOW1
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, nLev
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -2723,7 +2724,7 @@ C
       Call CnstInt(2,Work(ipINT1),Work(ipINT2))
       Call CnstPrec(NOCSF,IOCSF,NOW1,
      *              IOW1,ISYCI,Work(ipPre),work(ipcit),
-     *              Work(ipINT1),Work(ipINT2),Work(ipFancy))
+     *              Work(ipINT1),Work(ipINT2),Work(ipFancy),nLev)
       Call CnstInt(0,Work(ipINT1),Work(ipINT2))
 C
       !! Begin!
@@ -3515,9 +3516,10 @@ C-----------------------------------------------------------------------
 C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
-     *                    INT1,INT2,Fancy)
-      use gugx, only: ICASE, NMIDV, NLEV, NIPWLK, SGS
+     *                    INT1,INT2,Fancy,nLev)
+      use gugx, only: ICASE, NMIDV, NIPWLK, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
+      INTEGER, INTENT(IN) :: nLev
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION PRE(*)
