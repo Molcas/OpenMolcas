@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
       use gugx, only: NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
-     &                         VTAB,MVL,MVR,SGS,NCSF,L2ACT
+     &                         VTAB,MVL,MVR,SGS,NCSF,L2ACT, nMIDV
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
@@ -215,7 +215,7 @@ C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
      &    NOCSF,IOCSF,NOW1,IOW1,
      &    NOCP,IOCP,ICOUP,
-     &    VTAB,MVL,MVR)
+     &    VTAB,MVL,MVR,nMidV)
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
         END IF
@@ -239,7 +239,7 @@ C Translate to levels:
          CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
      &    NOCSF,IOCSF,NOW1,IOW1,
      &    NOCP,IOCP,ICOUP,
-     &    VTAB,MVL,MVR)
+     &    VTAB,MVL,MVR,nMidV)
          LTO=LTO+MXCI
         END DO
 C Now compute as many elements as possible:
@@ -267,7 +267,7 @@ C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
      &     NOCSF,IOCSF,NOW1,IOW1,
      &     NOCP,IOCP,ICOUP,
-     &     VTAB,MVL,MVR)
+     &     VTAB,MVL,MVR,nMidV)
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
           END IF

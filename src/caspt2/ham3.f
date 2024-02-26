@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
-      use gugx, only: NCSF, SGS,
+      use gugx, only: NCSF, SGS, nMidV,
      &                         NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
      &                         VTAB,MVL,MVR
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -85,7 +85,7 @@ C Compute SGM1:=E(IY,IZ) PSI
           CALL SIGMA1_CP2(LEVY,LEVZ,1.0D00,ISYCI,CI,WORK(LSGM1),
      &            NOCSF,IOCSF,NOW1,IOW1,
      &            NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR)
+     &            VTAB,MVL,MVR,nMidV)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
             X=OP1(IY,IZ)
@@ -122,7 +122,7 @@ C Compute SGM2:=E(IV,IX) SGM1
             CALL SIGMA1_CP2(LEVV,LEVX,1.0D00,ISYM1,WORK(LSGM1),
      &       WORK(LSGM2),NOCSF,IOCSF,NOW1,
      &       IOW1,NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR)
+     &            VTAB,MVL,MVR,nMidV)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
               X=OP2(IVXYZ)
@@ -157,7 +157,7 @@ C Add non-zero 3-el contribution to SGM:
               CALL SIGMA1_CP2(LEVT,LEVU,X,ISYM2,WORK(LSGM2),SGM,
      &            NOCSF,IOCSF,NOW1,IOW1,
      &            NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR)
+     &            VTAB,MVL,MVR,nMidV)
 CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)
             ELSE

@@ -16,8 +16,8 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW)
-      use gugx, only: NMIDV, ICASE
+      SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW,nMidV)
+      use gugx, only: ICASE
       IMPLICIT REAL*8 (A-H,O-Z)
 C INPUT ARRAYS:
 
@@ -25,6 +25,7 @@ C INPUT ARRAYS:
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
+      Integer, Intent(In):: nMidV
       DIMENSION DIAG(MXCI),NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
 
 C PURPOSE: FORM AN ARRAY OF DIAGONAL HAMILTONIAN MATRIX ELEMENTS

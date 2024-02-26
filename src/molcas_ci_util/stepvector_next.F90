@@ -12,7 +12,7 @@
 subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR,nLev)
 
 use Definitions, only: iwp, u6
-use gugx, only: IOW1, NOW1
+use gugx, only: IOW1, NOW1, nMidV
 
 implicit none
 integer(kind=iwp), intent(in) :: nLev
@@ -24,6 +24,6 @@ if (MV == 0) then
   write(u6,'(1X,A)') 'stepvector_next has been depleted'
 end if
 
-call GETSTEPVECTOR(NOW1,IOW1,MV,IDWN,IUP,STEPVECTOR,nLev)
+call GETSTEPVECTOR(NOW1,IOW1,MV,IDWN,IUP,STEPVECTOR,nLev,nMidV)
 
 end subroutine STEPVECTOR_NEXT

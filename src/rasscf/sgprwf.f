@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SGPRWF(iSel,NOCSF,IOCSF,NOW,IOW,CI)
+      SUBROUTINE SGPRWF(iSel,NOCSF,IOCSF,NOW,IOW,CI,nMidV)
 C
 C     PURPOSE: PRINT THE WAVEFUNCTION (SPIN COUPLING AND OCCUPATIONS)
 C
@@ -16,7 +16,7 @@ C     NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
 C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
-      use gugx, only: NMIDV, NWALK, NIPWLK,
+      use gugx, only: NWALK, NIPWLK,
      &                NICASE,  ICASE, NOW1, IOW1, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -27,6 +27,7 @@ C
 #include "output_ras.fh"
 #include "WrkSpc.fh"
 C
+      Integer, Intent(In) :: nMidV
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION CI(NCONF)

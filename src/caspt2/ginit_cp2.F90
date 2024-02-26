@@ -90,7 +90,7 @@
       CALL mma_allocate(MVR,NMVR,Label='MVR')
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
-      CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM,nVert,nLev)
+      CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM,nVert,nLev,NMIDV)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
@@ -100,7 +100,7 @@
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(SGS%DRT,ISGM,NOW1,NOCP,IOCP,NOCSF,NRL,MVL,MVR,nVert)
+      CALL NRCOUP_CP2(SGS%DRT,ISGM,NOW1,NOCP,IOCP,NOCSF,NRL,MVL,MVR,nVert,nMidV)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK

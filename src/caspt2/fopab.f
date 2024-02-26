@@ -11,7 +11,7 @@
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
       use gugx, only: SGS, L2ACT, SGS, NOCSF, IOCSF, NOW1,
      &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
-     &                         MVR
+     &                         MVR, nMidV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -137,7 +137,7 @@
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         NOCSF,IOCSF,NOW1,IOW1,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+     &         VTAB,MVL,MVR,nMidV)
   10      CONTINUE
         END DO
       END DO
@@ -190,7 +190,7 @@
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         NOCSF,IOCSF,NOW1,IOW1,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+     &         VTAB,MVL,MVR,nMidV)
   20      CONTINUE
         END DO
       END DO

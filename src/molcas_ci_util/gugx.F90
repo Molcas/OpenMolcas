@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module GUGX
-use struct, only: SGStruct
+use struct, only: SGStruct, CIStruct
 Private
 
 Public SGStruct
@@ -28,6 +28,21 @@ Type (SGStruct), Public, Target:: SGS
 !     Integer, Allocatable:: MAW(:)
 !     Integer, Allocatable:: LTV(:)
 !End Type SGStruct
+Public CIStruct
+Type (CIStruct), Public, Target:: CIS
+! CI Structures, addresses,..
+!Type CIStruct
+!     Integer nMidV
+!     Integer nIpWlk
+!     Integer, Allocatable:: NOW(:)
+!     Integer, Allocatable:: IOW(:)
+!     Integer, Allocatable:: NCSF(:)
+!     Integer, Allocatable:: NOCSF(:)
+!     Integer, Allocatable:: IOCSF(:)
+!     Integer nWalk
+!     Integer, Allocatable:: ICase(:)
+!End Type CIStruct
+
 
 Integer, Parameter, Public :: MXLEV=100
 Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)

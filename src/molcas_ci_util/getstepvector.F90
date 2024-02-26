@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS,nLev)
+subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS,nLev,nMidV)
 
 use Definitions, only: iwp
-use gugx, only: NMIDV, ICASE, SGS, NICASE, NIPWLK, NWALK
+use gugx, only: ICASE, SGS, NICASE, NIPWLK, NWALK
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-integer(kind=iwp), intent(in) :: nLev
+integer(kind=iwp), intent(in) :: nLev, nMidV
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(out) :: ICS(NLEV)

@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use gugx, only: NOCSF, IOCSF, NOW1, IOW1, NOCP, IOCP,
-     &                         ICOUP, VTAB, MVL, MVR, SGS, NCSF
+     &                         ICOUP, VTAB, MVL, MVR, SGS, NCSF, nMidV
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -50,6 +50,5 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      NOCSF,IOCSF,NOW1,IOW1,
      &      NOCP,IOCP,ICOUP,
-     &      VTAB,MVL,MVR)
-      RETURN
-      END
+     &      VTAB,MVL,MVR,nMidV)
+      END SUBROUTINE GETSGM2

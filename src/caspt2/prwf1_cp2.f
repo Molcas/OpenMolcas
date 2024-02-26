@@ -16,9 +16,10 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR)
-      use gugx, only: ICASE, NMIDV, SGS, NIPWLK
+      SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR,nMidV)
+      use gugx, only: ICASE, SGS, NIPWLK
       IMPLICIT REAL*8 (A-H,O-Z)
+      Integer, Intent(In):: nMidV
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION CI(*)

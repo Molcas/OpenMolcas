@@ -62,7 +62,7 @@ C>                   to active indices
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: ICOUP, IOCSF,
+      use gugx, only: ICOUP, IOCSF, NMIDV,
      &                         NCSF,  IOCP, IOW1, MVL, MVR,  NOCP,
      &                         NOCSF, NOW1, VTAB,
      &                         SGS, L2ACT
@@ -227,7 +227,7 @@ C-SVC20100301: calculate maximum number of tasks possible
         isp1=mul(issg1,stsym)
         if (.not. DoFCIQMC) then
           nsgm1=ncsf(issg1)
-          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1)
+          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1,NMIDV)
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -352,7 +352,7 @@ C-sigma vectors in the buffer.
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         NOCSF,IOCSF,NOW1,IOW1,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+     &         VTAB,MVL,MVR,nMidV)
           end if
          end if
         end do
@@ -416,7 +416,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         NOCSF,IOCSF,NOW1,IOW1,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR)
+     &         VTAB,MVL,MVR,nMidV)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -452,7 +452,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
      &           WORK(LTO),NOCSF,IOCSF,NOW1,
      &           IOW1,NOCP,IOCP,ICOUP,
-     &           VTAB,MVL,MVR)
+     &           VTAB,MVL,MVR,nMidV)
         end if
 *-----------
 * Max and min values of index p1:

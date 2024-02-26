@@ -2628,7 +2628,7 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
-      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, SGS
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, SGS, nMidV
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -2728,7 +2728,8 @@ C
       Call CnstInt(2,Work(ipINT1),Work(ipINT2))
       Call CnstPrec(NOCSF,IOCSF,NOW1,
      *              IOW1,ISYCI,Work(ipPre),work(ipcit),
-     *              Work(ipINT1),Work(ipINT2),Work(ipFancy),nLev)
+     *              Work(ipINT1),Work(ipINT2),Work(ipFancy),nLev,
+     *              nMidV)
       Call CnstInt(0,Work(ipINT1),Work(ipINT2))
 C
       !! Begin!
@@ -3524,8 +3525,8 @@ C-----------------------------------------------------------------------
 C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
-     *                    INT1,INT2,Fancy,nLev)
-      use gugx, only: ICASE, NMIDV, NIPWLK, SGS
+     *                    INT1,INT2,Fancy,nLev,nMidV)
+      use gugx, only: ICASE, NIPWLK, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER, INTENT(IN) :: nLev
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
