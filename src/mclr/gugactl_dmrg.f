@@ -11,7 +11,7 @@
       Subroutine GugaCtl_dmrg()
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
+      use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
      &                IFCAS, LV1RAS, LV3RAS, LM1RAS, LM3RAS,
      &                SGS
       Implicit Real*8 (A-H,O-Z)
@@ -30,6 +30,8 @@
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
+
+      Integer :: nLev
 
 *
       ntRas1=0
@@ -96,6 +98,7 @@
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
 !
+      SGS%nLev = nLev
       IFCAS=1
       Call mkGUGA(NLEV,NSYM,State_Sym,NCSF)
       NCONF=NCSF(State_Sym)

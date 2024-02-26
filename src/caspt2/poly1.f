@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY1(CI)
-      use gugx, only: NLEV
+      use gugx, only: SGS
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -33,6 +33,8 @@
       INTEGER LSGM1,LG1TMP
 
       INTEGER I
+      Integer :: nLev
+      nLev = SGS%nLev
 
 
       IF(NLEV.GT.0) THEN

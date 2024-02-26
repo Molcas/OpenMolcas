@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
-      use gugx, only: ICASE, NLEV, NMIDV, SGS, NICOUP,
+      use gugx, only: ICASE,  NMIDV, SGS, NICOUP,
      &                         MXEO, NIPWLK, NVTAB, SGTMP
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -34,6 +34,10 @@
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
       INTRINSIC MOD
+
+      Integer :: nLev
+      nLev = SGS%nLev
+
 *****************************************************************
 *  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
 *  CI AND SGM, THIS ROUTINE ADDS TO SGM THE RESULT OF ACTING ON

@@ -17,20 +17,22 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR)
-      use gugx, only: ICASE, NLEV, NMIDV, SGS, NIPWLK
+      use gugx, only: ICASE, NMIDV, SGS, NIPWLK
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION CI(*)
       CHARACTER(LEN=256) LINE
       CHARACTER(LEN=1) CODE(0:3)
+      DATA CODE /'0','u','d','2'/
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
       DIMENSION ICS(MXLEV)
-      DATA CODE /'0','u','d','2'/
+      Integer :: nLev
+      nLev = SGS%nLev
 
 C -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO

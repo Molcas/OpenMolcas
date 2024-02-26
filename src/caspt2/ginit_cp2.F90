@@ -21,7 +21,7 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               MXEO,                         NLEV, IFCAS,         &
+     &               MXEO,                               IFCAS,         &
      &               NCSF, NWALK, NMIDV,                         &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
@@ -35,7 +35,7 @@
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer                       NVTAB_TMP, NVERT
+      Integer                       NVTAB_TMP, NVERT, NLEV
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -45,6 +45,8 @@
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
+
+      nLev=SGS%nLev
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
@@ -88,7 +90,7 @@
       CALL mma_allocate(MVR,NMVR,Label='MVR')
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
-      CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM,nVert)
+      CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM,nVert,nLev)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2

@@ -13,7 +13,7 @@
 ************************************************************************
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Subroutine mkfg3chemps2(IFF,G1,F1,G2,F2,G3,F3,idxG3)
-      use gugx, only: NLEV, SGS
+      use gugx, only: GS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -31,6 +31,8 @@
       INTEGER IY,IZ,IW
       INTEGER IYSYM,IXYSYM
       INTEGER NAC4
+      Integer nLev
+      nLev = SGS%nLev
 
       If(NACTEL.GT.1) Then
         NAC4 = NLEV * NLEV * NLEV * NLEV

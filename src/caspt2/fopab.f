@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use gugx, only: NLEV, L2ACT, SGS, NOCSF, IOCSF, NOW1,
+      use gugx, only: SGS, L2ACT, SGS, NOCSF, IOCSF, NOW1,
      &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
      &                         MVR
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -22,6 +22,8 @@
       DIMENSION FIFA(NFIFA)
 * Purely local array, offsets:
       DIMENSION IOFF(8)
+      Integer :: nLev
+      nLev = SGS%nLev
 
 * Procedure for computing one matrix element of the Fock matrix in the
 * basis of the CASSCF states: <BRA|FOP|KET>

@@ -55,14 +55,14 @@ C>                   contracted with diagonal 1-el Hamiltonian
 C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
-      SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3)
+      SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
       use caspt2_output, only: iPrGlb, verbose, debug
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
       use caspt2_gradient, only: do_grad, nbuf1_grad, nStpGrd
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, ICOUP, IOCSF,
+      use gugx, only: ICOUP, IOCSF,
      &                         NCSF,  IOCP, IOW1, MVL, MVR,  NOCP,
      &                         NOCSF, NOW1, VTAB,
      &                         SGS, L2ACT
@@ -75,7 +75,7 @@ C>                   to active indices
 
       LOGICAL RSV_TSK
 
-      INTEGER, INTENT(IN) :: IFF
+      INTEGER, INTENT(IN) :: IFF, NLEV
       REAL*8, INTENT(IN) :: CI(MXCI)
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
@@ -118,7 +118,6 @@ C>                   to active indices
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
-
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999

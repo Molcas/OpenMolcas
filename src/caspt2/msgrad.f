@@ -751,7 +751,7 @@ C
       Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
 C
       use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
-      use gugx, only: nLev
+      use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -763,6 +763,8 @@ C
      *          UEFF(nState,nState)
       Dimension SLag(nState*nState)
       Dimension OMGDER(nState,nState)
+      Integer :: nLev
+      nLev = SGS%nLev
 C
 C     The XMS rotation applies to any variants: XMS-CASPT2, XDW-CASPT2,
 C     and RMS-CASPT2.
@@ -1172,7 +1174,7 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
-      use gugx, only: NLEV
+      use gugx, only: SGS
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -1189,6 +1191,9 @@ C
 
       INTEGER I
       REAL*8 :: CLag1(*), CLag2(*), RDMEIG(*),Scal
+
+      Integer :: nLev
+      nLev = SGS%nLev
 
 
       IF(NLEV.GT.0) THEN
@@ -1570,7 +1575,7 @@ C
       Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 C
       use caspt2_gradient, only: iRoot1, iRoot2
-      use gugx, only: nLev
+      use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -1579,6 +1584,8 @@ C
 #include "caspt2_grad.fh"
 C
       Dimension DPT2Canti(*),UEFF(nState,nState),U0(*)
+      Integer ::nLev
+      nLev = SGS%nLev
 C
       Call GetMem('CI1   ','ALLO','REAL',ipCI1 ,nConf)
       Call GetMem('CI2   ','ALLO','REAL',ipCI2 ,nConf)

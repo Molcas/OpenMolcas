@@ -921,7 +921,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, LEVEL
+      use gugx, only: SGS, LEVEL
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION DF1(NASHT,NASHT),DF2(NASHT,NASHT,NASHT,NASHT),DF3(*)
       DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
@@ -936,6 +936,8 @@ C OR CLOSED-SHELL SCF CASE.
 #include "caspt2.fh"
 
       LOGICAL RSV_TSK
+      Integer :: nLev
+      nLev = SGS%nLev
 
       ESUM=0.0D0
       DESUM=0.0D+00

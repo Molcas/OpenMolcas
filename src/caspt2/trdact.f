@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDACT(IVEC,JVEC,DTU)
-      use gugx, only: NLEV, SGS
+      use gugx, only: SGS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -42,6 +42,9 @@ C Local array:
       INTEGER :: ISYM, ISYMT
       INTEGER :: ITABS, ITLEV, IU, IUABS, IULEV
       REAL*8 :: OP0, OCCNUM, SCP, DDOT_
+
+      Integer :: nLev
+      nLev = SGS%nLev
 
 C Add to the active-active block of transition density matrix,
 C    D(t,u) = Add <IVEC| E(t,u) |JVEC> = <0| W1T E(t,u) W2 |0>

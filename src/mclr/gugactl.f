@@ -10,7 +10,7 @@
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: NLEV, A0 => IA0, B0 => IB0, C0 => IC0,
+      use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
      &                SGS,NMIDV,MXUP,MXDWN,
      &                     DAW,RAW,USGN,LSGN,ICASE, IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
@@ -25,7 +25,7 @@
 #include "spinfo_mclr.fh"
       Parameter (iPrint=0)
       Real*8, Allocatable:: CINew(:)
-      Integer nVert, MidLev, MVSta, MVEnd
+      Integer nVert, MidLev, MVSta, MVEnd, nLev
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -115,6 +115,7 @@
       LV3RAS=LV1RAS+ntRas2
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
+      SGS%nLev = nLev
 
       IFCAS=1
       Call mkGUGA(NLEV,NSYM,State_Sym,NCSF)

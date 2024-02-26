@@ -18,8 +18,7 @@
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
      &                  NOCSF,NRL,MVL,MVR,nVert)
-      use gugx, only: NLEV, SGS, NMIDV,  &
-     &                         NICOUP, MXEO, SGTMP, NSGTMP
+      use gugx, only: SGS, NMIDV, NICOUP, MXEO, SGTMP, NSGTMP
 #ifdef _DEBUGPRINT_
       use gugx, only: NWALK, NCSF
 #endif
@@ -49,6 +48,8 @@
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif
+      Integer :: nLev
+      nLev = SGS%nLev
 
       DO 10 INDEO=0,MXEO
         DO 11 IV=1,SGS%MVEnd

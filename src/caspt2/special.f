@@ -20,7 +20,7 @@
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, LEVEL
+      use gugx, only: SGS, LEVEL
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
       DIMENSION F1(NASHT,NASHT),F2(NASHT,NASHT,NASHT,NASHT),F3(*)
@@ -34,6 +34,8 @@ C OR CLOSED-SHELL SCF CASE.
 #include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
+      Integer :: nLev
+      nLev = SGS%nLev
 
 
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)

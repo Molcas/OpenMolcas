@@ -14,7 +14,7 @@
 
       use caspt2_output, only:iPrGlb,verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: nLev
+      use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -30,6 +30,8 @@
      &                      DF1(:), DF2(:), DF3(:)
 
       Integer, External:: ip_of_Work
+      Integer :: nLev
+      nLev=SGS%nLev
 
       !! reduced density matrix and fock-weighted RDM
       CALL mma_allocate(G1 ,NG1, Label='G1')
@@ -2626,7 +2628,7 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
-      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, nLev
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, SGS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -2638,6 +2640,8 @@ C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
      *          WRK1(nBasT,nBasT),WRK2(*),U0(nState,nState)
       Dimension Eact(nState)
+      Integer :: nLev
+      nLev = SGS%nLev
 C
       Thres = ConvInvar !! 1.0d-07
 C
@@ -3148,12 +3152,14 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use gugx, only: SGS, L2ACT, NLEV, NCSF
+      use gugx, only: SGS, L2ACT, NCSF
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CIin(nConf,nState),CIout(nConf,nState)
       Real*8    INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
       LOGICAL   RSV_TSK
+      Integer :: nLev
+      nLev=SGS%nLev
       ! logical tras,uras,vras,xras
 C
 C     --- H_{IJ}*P_J
@@ -3278,7 +3284,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 C
-      use gugx, only: NLEV
+      use gugx, only: SGS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "caspt2_grad.fh"
@@ -3287,6 +3293,8 @@ C
       Dimension CI(nConf,nState),CIT(nConf,nState),G1(nAshT,nAshT),
      *          G2(nAshT,nAshT,nAshT,nAshT)
       Real*8    INT2(nAshT,nAshT,nAshT,nAshT)
+      Integer :: nLev
+      nLev=SGS%nLev
 C
 C     LOGICAL   RSV_TSK
 C

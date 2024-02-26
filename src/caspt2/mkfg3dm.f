@@ -37,7 +37,7 @@ C
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NLEV, NCSF, SGS, L2ACT
+      use gugx, only: NCSF, SGS, L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -86,6 +86,9 @@ C
       INTEGER IDX2IJ(2,MXLEV**2)
       INTEGER ICNJ(MXLEV**2)
       INTEGER IP1_BUF(MXLEV**2)
+
+      Integer nLev
+      nLev = SGS%nLev
 
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2

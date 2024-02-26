@@ -816,7 +816,7 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,CI1,CI2,OVL,DTG1,DTG2,NTG3,
      *                  DTG3,CLAG1,CLAG2)
-      use gugx, only: NLEV, L2ACT, NCSF, NOCSF, IOCSF, NOW1,
+      use gugx, only: SGS, L2ACT, NCSF, NOCSF, IOCSF, NOW1,
      &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
      &                         MVR
       IMPLICIT REAL*8 (a-h,o-z)
@@ -831,6 +831,8 @@ C
       Real*8 CI1(MXCI),CI2(MXCI)
       Real*8 CLAG1(MXCI),CLAG2(MXCI)
       LOGICAL   DOG3
+      Integer :: nLev
+      nLev = SGS%nLev
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
 

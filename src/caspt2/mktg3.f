@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
       use gugx, only: NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
-     &                         VTAB,MVL,MVR,NLEV,NCSF,L2ACT
+     &                         VTAB,MVL,MVR,SGS,NCSF,L2ACT
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
@@ -21,6 +21,8 @@
       DIMENSION TG1(NASHT,NASHT),TG2(NASHT,NASHT,NASHT,NASHT)
       DIMENSION TG3(NTG3)
       DIMENSION CI1(MXCI),CI2(MXCI)
+      Integer :: nLev
+      nLev = SGS%nLev
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
 

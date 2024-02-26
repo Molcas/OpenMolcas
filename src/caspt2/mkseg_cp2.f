@@ -17,12 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKSEG_CP2(IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT,
-     &                     NVERT)
-      use gugx, only: NLEV, NMIDV, SGS
+     &                     NVERT,NLEV)
+      use gugx, only: NMIDV, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER(LEN=26) CC1,CC2,CTVPT,CBVPT,CSVC
 #include "pt2_guga.fh"
 #include "segtab.fh"
+      Integer nVert, nLev
       DIMENSION IVR(NVERT,2),ISGMNT(NVERT,26),VSGMNT(NVERT,26)
       DIMENSION IDRT(NVERT,5),IDOWN(NVERT,0:3),LTV(-1:NLEV)
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)

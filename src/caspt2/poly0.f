@@ -20,7 +20,7 @@
 
       use fciqmc_interface, only: DoFCIQMC
       use stdalloc, only: mma_allocate
-      use gugx, only: NLEV, SGS, L2ACT, LEVEL, NCSF
+      use gugx, only: SGS, L2ACT, LEVEL, NCSF
 
       IMPLICIT NONE
 
@@ -29,10 +29,12 @@
 #include "pt2_guga.fh"
 
 #include "SysDef.fh"
+      Integer nLev
 
       INTEGER I,IT,ITABS,ILEV,ISYM, iq
 
       NLEV=NASHT
+      SGS%nLev = NLEV
       Call mma_allocate(SGS%ISM,NLEV,Label='ISM')
 C ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
 C PAM060612: With true RAS space, the orbitals must be ordered
