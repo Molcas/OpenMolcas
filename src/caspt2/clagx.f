@@ -3527,7 +3527,7 @@ C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
      *                    INT1,INT2,Fancy,nLev,nMidV)
-      use gugx, only: ICASE, NIPWLK, SGS
+      use gugx, only: ICASE, SGS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER, INTENT(IN) :: nLev
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -3545,6 +3545,8 @@ C     CHARACTER(LEN=1) CODE(0:3)
 #include "pt2_guga.fh"
       DIMENSION ICS(MXLEV)
 C     DATA CODE /'0','u','d','2'/
+      Integer :: nIpWlk
+      nIpWlk = CIS%nIpWlk
 C
 C     Construct (approximate?) preconditioner for the active linear
 C     equation that should be solved for non-invariant CASPT2 methods

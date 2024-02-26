@@ -17,13 +17,14 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DIELMV(ICASE,JCASE,NUP,NDWN,EMU)
-      use gugx, only: SGS, NIPWLK
+      use gugx, only: SGS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ICASE(*),JCASE(*)
       DIMENSION EMU(NUP,NDWN)
 #include "pt2_guga.fh"
-      Integer nLev
-      nLev = SGS%nLev
+      Integer nLev, nIpWlk
+      nLev  = SGS%nLev
+      nIpWlk= CIS%nIpWlk
 
       DO I=1,NUP
         II=NIPWLK*(I-1)

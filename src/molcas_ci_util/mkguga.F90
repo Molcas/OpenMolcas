@@ -25,7 +25,7 @@
      &                IFCAS,                               &
      &                                     RAW, NRAW,               &
      &                CIS, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
-     &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
+     &                NIOW, NICASE,  ICASE,       NNOCSF,       &
      &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,        &
      &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
      &                SGS
@@ -40,7 +40,7 @@
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
       Integer IAC, NDOWN0, NDRT0, NLSGN,       NSCR, NTMP, NUSGN, NDOWN, NDRT
-      Integer nVert, MidLev, MVSta, MVEnd, nMidV
+      Integer nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -138,6 +138,7 @@
 !
       NIPWLK=1+(MIDLEV-1)/15
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
+      CIS%nIpWlk=nIpWlk
       NNOW=2*NMIDV*NSYM
       NIOW=NNOW
       NNOCSF=NMIDV*(NSYM**2)

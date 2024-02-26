@@ -16,8 +16,8 @@ C     NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
 C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
-      use gugx, only: NWALK, NIPWLK,
-     &                NICASE,  ICASE, NOW1, IOW1, SGS
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use gugx, only: NWALK, CIS, NICASE,  ICASE, NOW1, IOW1, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -28,19 +28,22 @@ C
 #include "WrkSpc.fh"
 C
       Integer, Intent(In) :: nMidV
+      Integer   iSel(*)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION CI(NCONF)
+
       DIMENSION ICS(mxact)
-      Integer   iSel(*)
       Character(LEN=400) Line
-      Integer nUp, nVert, MidLev, MVSta, MVEnd, nLev
+      Integer nUp, nVert, MidLev, MVSta, MVEnd, nLev, nIpWlk
+      Integer, Allocatable:: Scr(:), Lex(:)
 C
       nLev  = SGS%nLev
       nVert = SGS%nVert
       MidLev= SGS%MidLev
       MVSta = SGS%MVSta
       MVEnd = SGS%MVEnd
+      nIpWlk= CIS%nIpWlk
 
       Line(1:16)='      conf/sym  '
       iOff=16
@@ -59,17 +62,14 @@ C     RECONSTRUCT THE CASE LIST
 C
       NSCR=3*(NLEV+1)
       NICASE=NWALK*NIPWLK
-      CALL GETMEM('SCR1','ALLO','INTEG',LSCR,NSCR)
+      CALL mma_allocate(SCR,NSCR,Label='SCR')
       Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,
-     &             NICASE,NIPWLK,NSM,SGS%DOWN,NOW1,IOW1,ICASE,
-     &             IWORK(LSCR))
+     &             NICASE,NIPWLK,NSM,SGS%DOWN,NOW1,IOW1,ICASE,SCR)
 
-      CALL GETMEM('SCR1','FREE','INTEG',LSCR,NSCR)
+      CALL mma_deallocate(SCR)
 
-      IF (KeyPRSD) THEN
-        ! scratch for determinant expansion
-        CALL GETMEM ('LEX','ALLO','INTEGER',LLEX,NLEV)
-      END IF
+      ! scratch for determinant expansion
+      IF (KeyPRSD) CALL mma_allocate(LEX,NLEV,Label='LEX')
 C
 C     ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 C     WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
@@ -149,7 +149,7 @@ C -- PRINT IT!
                 ! use maximum spin projection value
                 IMS = ISPIN-1
                 WRITE(6,*)
-                CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX),coef,LuVecDet)
+                CALL EXPCSF (ICS, NLEV, IMS, LEX,coef,LuVecDet)
                 WRITE(6,*)
               ENDIF
               Line=' '
@@ -158,9 +158,7 @@ C -- PRINT IT!
         END DO
       END DO
 
-      IF (KeyPRSD) THEN
-        ! free memory for determinant expansion
-        CALL GETMEM ('LEX','FREE','INTEGER',LLEX,NLEV)
-      END IF
+      ! free memory for determinant expansion
+      IF (KeyPRSD) CALL mma_deallocate(LEX)
 
       END SUBROUTINE SGPRWF

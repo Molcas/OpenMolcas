@@ -15,7 +15,7 @@
      &                SGS,CIS,MXUP,MXDWN,
      &                DAW,RAW,USGN,LSGN,ICASE,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF,
-     &                NOW => NOW1, IOW => IOW1, NICASE, NIPWLK
+     &                NOW => NOW1, IOW => IOW1, NICASE
       use Str_Info, only: CFTP, CNSM
       Implicit None
       Integer imode, ksym
@@ -28,7 +28,7 @@
       Real*8, Allocatable:: CINEW(:)
       Real*8 :: PRWTHR=0.05d0
       Integer ntRas1, ntRas2, ntRas3, iSym, jPrint, iBas, iOrb, iss
-      Integer nVert, MidLev, MVSta, MVEnd, nLev, nMidV
+      Integer nVert, MidLev, MVSta, MVEnd, nLev, nMidV, nIpWlk
 *
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -115,6 +115,7 @@
       MidLev=SGS%MidLev
       MVSta =SGS%MVSta
       MVEnd =SGS%MVEnd
+      nIpWlk=CIS%nIpWlk
 
 
       iss=1

@@ -18,8 +18,8 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,nMidV)
-      use gugx, only: ICASE,  SGS, NICOUP,
-     &                         MXEO, NIPWLK, NVTAB, SGTMP
+      use gugx, only: ICASE,  SGS, NICOUP, CIS,
+     &                         MXEO, CIS, NVTAB, SGTMP
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In) :: nMidV
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -36,8 +36,9 @@
 #include "WrkSpc.fh"
       INTRINSIC MOD
 
-      Integer :: nLev
-      nLev = SGS%nLev
+      Integer :: nLev, nIpWlk
+      nLev   = SGS%nLev
+      nIpWlk = CIS%nIpWlk
 
 *****************************************************************
 *  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
