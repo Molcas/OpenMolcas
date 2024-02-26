@@ -24,8 +24,8 @@
       use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
      &                IFCAS,                               &
      &                                     RAW, NRAW,               &
-     &                CIS, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
-     &                NIOW, NICASE,  ICASE,       NNOCSF,       &
+     &                CIS, MXUP, MXDWN, NWALK, DAW, NDAW,      &
+     &                ICASE,       NNOCSF,       &
      &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,        &
      &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
      &                SGS
@@ -39,7 +39,8 @@
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
-      Integer IAC, NDOWN0, NDRT0, NLSGN,       NSCR, NTMP, NUSGN, NDOWN, NDRT
+      Integer IAC, NDOWN0, NDRT0, NLSGN, NSCR, NTMP, NUSGN, NDOWN, NDRT,  &
+     &        NICASE
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta, &
@@ -138,13 +139,11 @@
       NIPWLK=1+(MIDLEV-1)/15
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
       CIS%nIpWlk=nIpWlk
-      NNOW=2*NMIDV*NSYM
-      NIOW=NNOW
       NNOCSF=NMIDV*(NSYM**2)
       NIOCSF=NNOCSF
       NSCR=MAX(6,3*(NLEV+1))
-      CALL mma_allocate(NOW1,NNOW,Label='NOW1')
-      CALL mma_allocate(IOW1,NIOW,Label='IOW1')
+      CALL mma_allocate(NOW1,2*NMIDV*NSYM,Label='NOW1')
+      CALL mma_allocate(IOW1,2*NMIDV*NSYM,Label='IOW1')
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
@@ -153,7 +152,7 @@
 !     CONSTRUCT THE CASE LIST
 !
       NICASE=NWALK*NIPWLK
-      CALL mma_allocate(ICASE,NICASE,Label='ICASE')
+      CALL mma_allocate(ICASE,nWalk*nIpWlk,Label='ICASE')
       Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,SGS%ISM,SGS%DOWN,NOW1,IOW1,ICASE,SCR)
       CALL mma_deallocate(SCR)
 !

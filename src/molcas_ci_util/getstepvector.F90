@@ -12,7 +12,7 @@
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS,nLev,nMidV)
 
 use Definitions, only: iwp
-use gugx, only: ICASE, SGS, NICASE, CIS, NWALK
+use gugx, only: ICASE, SGS, CIS
 
 implicit none
 #include "rasdim.fh"
@@ -23,12 +23,13 @@ integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(out) :: ICS(NLEV)
 integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NUP, NDWN, NNN
-integer(kind=iwp) :: nIpWlk
+integer(kind=iwp) :: nIpWlk, NICASE
 
 ! RECONSTRUCT THE CASE LIST
 
+
+NICASE = Size(ICASE)
 nIpWlk = CIS%nIpWlk
-NICASE = NWALK*NIPWLK
 
 ! ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 ! WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.

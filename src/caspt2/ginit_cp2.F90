@@ -27,7 +27,7 @@
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                          RAW, DAW, NOW1,       NOCP, NOCSF,      &
      &                                    IOW1,      NNOCP,             &
-     &               ICASE, NICASE, SGS
+     &               ICASE, SGS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -35,7 +35,7 @@
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer                       NVTAB_TMP, NVERT, NLEV, nMidV
+      Integer                       NVTAB_TMP, NVERT, NLEV, nMidV, NICASE
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -113,6 +113,7 @@
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
+      NICASE=SIZE(ICASE)
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
      &            IVR,SGS%MAW,ISGM,VSGM,NOW1,IOW1,NOCP,IOCP,ILNDW,      &

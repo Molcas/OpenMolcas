@@ -17,7 +17,7 @@ C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: NWALK, CIS, NICASE,  ICASE, NOW1, IOW1, SGS
+      use gugx, only: NWALK, CIS,  ICASE, NOW1, IOW1, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -35,9 +35,11 @@ C
 
       DIMENSION ICS(mxact)
       Character(LEN=400) Line
-      Integer nUp, nVert, MidLev, MVSta, MVEnd, nLev, nIpWlk
+      Integer nUp, nVert, MidLev, MVSta, MVEnd, nLev, nIpWlk, NICASE
       Integer, Allocatable:: Scr(:), Lex(:)
 C
+      NICASE=SIZE(ICASE)
+
       nLev  = SGS%nLev
       nVert = SGS%nVert
       MidLev= SGS%MidLev
