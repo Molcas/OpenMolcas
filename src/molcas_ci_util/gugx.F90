@@ -48,7 +48,6 @@ Integer, Parameter, Public :: MXLEV=100
 Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:)
-Integer,              Public::NNOCSF,   NIOCSF
 
 Integer, Allocatable, Public:: ICASE(:), ICOUP(:)
 

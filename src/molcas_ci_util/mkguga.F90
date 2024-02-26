@@ -22,13 +22,10 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
-     &                IFCAS,                               &
-     &                                     RAW, NRAW,               &
+     &                IFCAS, RAW, NRAW,               &
      &                CIS, MXUP, MXDWN, NWALK, DAW, NDAW,      &
-     &                ICASE,       NNOCSF,       &
-     &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN,   &
-     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
-     &                SGS
+     &                NOCSF, IOCSF,  LSGN,  USGN,   &
+     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
 
       IMPLICIT None
 !
@@ -139,21 +136,19 @@
       NIPWLK=1+(MIDLEV-1)/15
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
       CIS%nIpWlk=nIpWlk
-      NNOCSF=NMIDV*(NSYM**2)
-      NIOCSF=NNOCSF
       NSCR=MAX(6,3*(NLEV+1))
       CALL mma_allocate(CIS%NOW,2*NMIDV*NSYM,Label='CIS%NOW')
       CALL mma_allocate(CIS%IOW,2*NMIDV*NSYM,Label='CIS%IOW')
-      CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
-      CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
+      CALL mma_allocate(NOCSF,NMIDV*(NSYM**2),Label='NOCSF')
+      CALL mma_allocate(IOCSF,NMIDV*(NSYM**2),Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,NCSF,IOCSF,NOCSF,SCR)
 !
 !     CONSTRUCT THE CASE LIST
 !
       NICASE=NWALK*NIPWLK
-      CALL mma_allocate(ICASE,nWalk*nIpWlk,Label='ICASE')
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,ICASE,SCR)
+      CALL mma_allocate(CIS%ICASE,nWalk*nIpWlk,Label='CIS%ICASE')
+      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,CIS%ICASE,SCR)
       CALL mma_deallocate(SCR)
 !
 !     SET UP ENUMERATION TABLES
@@ -166,7 +161,7 @@
       CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
       Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,DAW,RAW,CIS%NOW, &
-                   CIS%IOW,USGN,LSGN,ICASE)
+                   CIS%IOW,USGN,LSGN,CIS%ICASE)
 !
 !     EXIT
 !
@@ -180,7 +175,7 @@
 !
       use stdalloc, only: mma_deallocate
       use gugx, only:  RAW,  DAW,  NOCSF,   &
-     &                 IOCSF,  ICASE, USGN, LSGN, &
+     &                 IOCSF,  USGN, LSGN, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP, CIS
       IMPLICIT None
@@ -188,7 +183,6 @@
       If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
       If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
       If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
-
       If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)
       If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
 
@@ -200,7 +194,7 @@
       If (Allocated(NOCSF)) Call mma_deallocate(NOCSF)
       If (Allocated(IOCSF)) Call mma_deallocate(IOCSF)
 
-      If (Allocated(ICASE)) Call mma_deallocate(ICASE)
+      If (Allocated(CIS%ICASE)) Call mma_deallocate(CIS%ICASE)
 
       If (Allocated(USGN)) Call mma_deallocate(USGN)
       If (Allocated(LSGN)) Call mma_deallocate(LSGN)

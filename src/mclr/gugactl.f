@@ -12,7 +12,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
      &                SGS,CIS,MXUP,MXDWN,
-     &                     DAW,RAW,USGN,LSGN,ICASE, IFCAS,
+     &                     DAW,RAW,USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
      &                NOCSF, IOCSF
       use Str_Info, only: CFTP, CNSM
@@ -141,11 +141,11 @@
 #ifdef _TEST_
       Call SGPRWF_MCLR_E(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
      &                   NMIDV,NIPWLK,NICASE,SGS%ISM,NOCSF,IOCSF,
-     &                   CIS%NOW,CIS%IOW,ICASE,CIL)
+     &                   CIS%NOW,CIS%IOW,CIS%ICASE,CIL)
 #else
       Call SGPRWF_MCLR(State_sym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,
      &                 NMIDV,NIPWLK,NICASE,SGS%ISM,NOCSF,IOCSF,CIS%NOW,
-     &                 CIS%IOW,ICASE,CIL)
+     &                 CIS%IOW,CIS%ICASE,CIL)
 #endif
       WRITE(6,103)
 103   FORMAT(/,6X,100('-'),/)

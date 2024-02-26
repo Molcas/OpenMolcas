@@ -17,7 +17,7 @@ C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: NWALK, CIS,  ICASE, SGS
+      use gugx, only: NWALK, CIS, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -38,8 +38,6 @@ C
       Integer nUp, nVert, MidLev, MVSta, MVEnd, nLev, nIpWlk, NICASE
       Integer, Allocatable:: Scr(:), Lex(:)
 C
-      NICASE=SIZE(ICASE)
-
       nLev  = SGS%nLev
       nVert = SGS%nVert
       MidLev= SGS%MidLev
@@ -66,7 +64,8 @@ C
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,
-     &             NICASE,NIPWLK,NSM,SGS%DOWN,CIS%NOW,CIS%IOW,ICASE,SCR)
+     &             NICASE,NIPWLK,NSM,SGS%DOWN,CIS%NOW,CIS%IOW,
+     &             CIS%ICASE,SCR)
 
       CALL mma_deallocate(SCR)
 
@@ -95,7 +94,7 @@ C -- SKIP OR PRINT IT OUT?
               IF(ABS(COEF).LT.PRWTHR) CYCLE
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
-                ICDWN=ICASE(ICDPOS)
+                ICDWN=CIS%ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
                 DO LEV=1,MIDLEV
@@ -103,7 +102,7 @@ C -- UNPACK LOWER WALK.
                   IF(NNN.EQ.16) THEN
                     NNN=1
                     ICDPOS=ICDPOS+1
-                    ICDWN=ICASE(ICDPOS)
+                    ICDWN=CIS%ICASE(ICDPOS)
                   END IF
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
@@ -112,7 +111,7 @@ C -- UNPACK LOWER WALK.
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
-              ICUP=ICASE(ICUPOS)
+              ICUP=CIS%ICASE(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
               DO LEV=MIDLEV+1,NLEV
@@ -120,7 +119,7 @@ C -- UNPACK UPPER WALK:
                 IF(NNN.EQ.16) THEN
                   NNN=1
                   ICUPOS=ICUPOS+1
-                  ICUP=ICASE(ICUPOS)
+                  ICUP=CIS%ICASE(ICUPOS)
                 END IF
                 IC1=ICUP/4
                 ICS(LEV)=ICUP-4*IC1

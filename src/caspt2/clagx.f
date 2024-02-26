@@ -3527,7 +3527,7 @@ C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
      *                    INT1,INT2,Fancy,nLev,nMidV)
-      use gugx, only: ICASE, SGS, CIS
+      use gugx, only: SGS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER, INTENT(IN) :: nLev
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -3612,7 +3612,7 @@ C -- SKIP OR PRINT IT OUT?
 C             IF(ABS(COEF).LT.THR) GOTO  31
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
-                ICDWN=ICASE(ICDPOS)
+                ICDWN=CIS%ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
                 DO 10 LEV=1,SGS%MIDLEV
@@ -3620,7 +3620,7 @@ C -- UNPACK LOWER WALK.
                   IF(NNN.EQ.16) THEN
                     NNN=1
                     ICDPOS=ICDPOS+1
-                    ICDWN=ICASE(ICDPOS)
+                    ICDWN=CIS%ICASE(ICDPOS)
                   END IF
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
@@ -3629,7 +3629,7 @@ C -- UNPACK LOWER WALK.
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
-              ICUP=ICASE(ICUPOS)
+              ICUP=CIS%ICASE(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
               DO LEV=SGS%MIDLEV+1,NLEV
@@ -3637,7 +3637,7 @@ C -- UNPACK UPPER WALK:
                 IF(NNN.EQ.16) THEN
                   NNN=1
                   ICUPOS=ICUPOS+1
-                  ICUP=ICASE(ICUPOS)
+                  ICUP=CIS%ICASE(ICUPOS)
                 END IF
                 IC1=ICUP/4
                 ICS(LEV)=ICUP-4*IC1

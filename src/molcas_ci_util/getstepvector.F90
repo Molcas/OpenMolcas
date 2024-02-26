@@ -12,7 +12,7 @@
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS,nLev,nMidV)
 
 use Definitions, only: iwp
-use gugx, only: ICASE, SGS, CIS
+use gugx, only: SGS, CIS
 
 implicit none
 #include "rasdim.fh"
@@ -28,7 +28,7 @@ integer(kind=iwp) :: nIpWlk, NICASE
 ! RECONSTRUCT THE CASE LIST
 
 
-NICASE = Size(ICASE)
+NICASE = Size(CIS%ICASE)
 nIpWlk = CIS%nIpWlk
 
 ! ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
@@ -46,7 +46,7 @@ IDW0 = 1-NIPWLK+IOW(2,1,MV)
 ! determine the stepvector
 !        if (IDWNSV /= IDWN) then
 ICDPOS = IDW0+IDWN*NIPWLK
-ICDWN = ICASE(ICDPOS)
+ICDWN = CIS%ICASE(ICDPOS)
 ! unpack lower walk
 NNN = 0
 do LEV=1,SGS%MIDLEV
@@ -54,7 +54,7 @@ do LEV=1,SGS%MIDLEV
   if (NNN == 16) then
     NNN = 1
     ICDPOS = ICDPOS+1
-    ICDWN = ICASE(ICDPOS)
+    ICDWN = CIS%ICASE(ICDPOS)
   end if
   IC1 = ICDWN/4
   ICS(LEV) = ICDWN-4*IC1
@@ -63,7 +63,7 @@ end do
 !          IDWNSV = IDWN
 !        end if
 ICUPOS = IUW0+NIPWLK*IUP
-ICUP = ICASE(ICUPOS)
+ICUP = CIS%ICASE(ICUPOS)
 ! unpack upper walk
 NNN = 0
 do LEV=SGS%MIDLEV+1,NLEV
@@ -71,7 +71,7 @@ do LEV=SGS%MIDLEV+1,NLEV
   if (NNN == 16) then
     NNN = 1
     ICUPOS = ICUPOS+1
-    ICUP = ICASE(ICUPOS)
+    ICUP = CIS%ICASE(ICUPOS)
   end if
   IC1 = ICUP/4
   ICS(LEV) = ICUP-4*IC1
@@ -98,8 +98,5 @@ if (IUP == NUP) then
 else
   IUP = IUP+1
 end if
-
-!call mma_deallocate(ICASE)
-return
 
 end subroutine GETSTEPVECTOR

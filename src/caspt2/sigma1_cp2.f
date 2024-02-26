@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,nMidV,nICoup)
-      use gugx, only: ICASE,  SGS, CIS,MXEO, CIS, NVTAB, SGTMP
+      use gugx, only: SGS, CIS,MXEO, CIS, NVTAB, SGTMP
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In) :: nMidV, nICoup
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -85,7 +85,7 @@ C IP=IQ < MIDLEV.
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO 102 J=1,NDWNSG
-            JC=ICASE(LLW+J*NIPWLK)
+            JC=CIS%ICASE(LLW+J*NIPWLK)
             ICS=MOD(JC/IPPOW,4)
             IF(ICS.EQ.0) GOTO 102
             X=CPQ*DBLE((1+ICS)/2)
@@ -114,7 +114,7 @@ C IP=IQ>MIDLEV
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO 202 I=1,NUPSG
-            IC=ICASE(LUW+I*NIPWLK)
+            IC=CIS%ICASE(LUW+I*NIPWLK)
             ICS=MOD(IC/IPPOW,4)
             IF(ICS.EQ.0) GOTO 202
             X=CPQ*DBLE((1+ICS)/2)
