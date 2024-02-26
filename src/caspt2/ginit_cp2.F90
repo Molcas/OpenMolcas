@@ -25,9 +25,8 @@
      &               NCSF, NWALK,       CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,              NIOCP,       NMVR,NMVL,        &
-     &                          RAW, DAW, NOCP, NOCSF,      &
-     &                                    IOW1,      NNOCP,             &
-     &               ICASE, SGS
+     &               RAW, DAW, NOCP, NOCSF,      &
+     &               NNOCP, ICASE, SGS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -116,7 +115,7 @@
       NICASE=SIZE(ICASE)
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
-     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,IOW1,NOCP,IOCP,ILNDW,      &
+     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,NOCP,IOCP,ILNDW,      &
      &            ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
 
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')

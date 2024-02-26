@@ -63,7 +63,7 @@ C>                   to active indices
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
       use gugx, only: ICOUP, IOCSF, CIS,
-     &                         NCSF,  IOCP, IOW1, MVL, MVR,  NOCP,
+     &                         NCSF,  IOCP, MVL, MVR,  NOCP,
      &                         NOCSF, VTAB,
      &                         SGS, L2ACT
       IMPLICIT NONE
@@ -231,7 +231,7 @@ C-SVC20100301: calculate maximum number of tasks possible
         isp1=mul(issg1,stsym)
         if (.not. DoFCIQMC) then
           nsgm1=ncsf(issg1)
-          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),CIS%NOW,IOW1,NMIDV)
+          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),CIS%NOW,CIS%IOW,NMIDV)
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -354,7 +354,7 @@ C-sigma vectors in the buffer.
               lto=lbuf1+mxci*(ibuf1-1)
               call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         NOCSF,IOCSF,CIS%NOW,IOW1,
+     &         NOCSF,IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup)
           end if
@@ -418,7 +418,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           lto=lbuf2
           call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         NOCSF,IOCSF,CIS%NOW,IOW1,
+     &         NOCSF,IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup)
           if(issg2.eq.issg1) then
@@ -455,7 +455,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
      &           WORK(LTO),NOCSF,IOCSF,CIS%NOW,
-     &           IOW1,NOCP,IOCP,ICOUP,
+     &           CIS%IOW,NOCP,IOCP,ICOUP,
      &           VTAB,MVL,MVR,nMidV,nICoup)
         end if
 *-----------

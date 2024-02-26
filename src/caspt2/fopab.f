@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
       use gugx, only: SGS, L2ACT, NOCSF, IOCSF,
-     &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
+     &                         NOCP, IOCP, ICOUP, VTAB, MVL,
      &                         MVR, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -137,7 +137,7 @@
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
-     &         NOCSF,IOCSF,CIS%NOW,IOW1,
+     &         NOCSF,IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup)
   10      CONTINUE
@@ -190,7 +190,7 @@
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 20
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
-     &         NOCSF,IOCSF,CIS%NOW,IOW1,
+     &         NOCSF,IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup)
   20      CONTINUE

@@ -27,7 +27,7 @@
      &                CIS, MXUP, MXDWN, NWALK, DAW, NDAW,      &
      &                ICASE,       NNOCSF,       &
      &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN,   &
-     &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
+     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
      &                SGS
 
       IMPLICIT None
@@ -143,17 +143,17 @@
       NIOCSF=NNOCSF
       NSCR=MAX(6,3*(NLEV+1))
       CALL mma_allocate(CIS%NOW,2*NMIDV*NSYM,Label='CIS%NOW')
-      CALL mma_allocate(IOW1,2*NMIDV*NSYM,Label='IOW1')
+      CALL mma_allocate(CIS%IOW,2*NMIDV*NSYM,Label='CIS%IOW')
       CALL mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
       CALL mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,IOW1,NCSF,IOCSF,NOCSF,SCR)
+      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,NCSF,IOCSF,NOCSF,SCR)
 !
 !     CONSTRUCT THE CASE LIST
 !
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(ICASE,nWalk*nIpWlk,Label='ICASE')
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,IOW1,ICASE,SCR)
+      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,ICASE,SCR)
       CALL mma_deallocate(SCR)
 !
 !     SET UP ENUMERATION TABLES
@@ -166,7 +166,7 @@
       CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
       Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,DAW,RAW,CIS%NOW, &
-                   IOW1,USGN,LSGN,ICASE)
+                   CIS%IOW,USGN,LSGN,ICASE)
 !
 !     EXIT
 !
@@ -180,7 +180,7 @@
 !
       use stdalloc, only: mma_deallocate
       use gugx, only:  RAW,  DAW,  NOCSF,   &
-     &                 IOCSF,  ICASE, USGN, LSGN, IOW1, &
+     &                 IOCSF,  ICASE, USGN, LSGN, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP, CIS
       IMPLICIT None
@@ -196,7 +196,7 @@
       If (Allocated(RAW)) Call mma_deallocate(RAW)
 
       If (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
-      If (Allocated(IOW1)) Call mma_deallocate(IOW1)
+      If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
       If (Allocated(NOCSF)) Call mma_deallocate(NOCSF)
       If (Allocated(IOCSF)) Call mma_deallocate(IOCSF)
 

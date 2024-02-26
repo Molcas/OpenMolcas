@@ -17,7 +17,7 @@ C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: NWALK, CIS,  ICASE, IOW1, SGS
+      use gugx, only: NWALK, CIS,  ICASE, SGS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -66,7 +66,7 @@ C
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,
-     &             NICASE,NIPWLK,NSM,SGS%DOWN,CIS%NOW,IOW1,ICASE,SCR)
+     &             NICASE,NIPWLK,NSM,SGS%DOWN,CIS%NOW,CIS%IOW,ICASE,SCR)
 
       CALL mma_deallocate(SCR)
 
