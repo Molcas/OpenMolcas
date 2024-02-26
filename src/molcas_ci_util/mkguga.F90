@@ -40,7 +40,9 @@
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
       Integer IAC, NDOWN0, NDRT0, NLSGN,       NSCR, NTMP, NUSGN, NDOWN, NDRT
-      Integer nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk
+      Integer MidLev, MVSta, MVEnd, nMidV, nIpWlk
+
+      Associate (nVert => SGS%nVert)
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -126,7 +128,6 @@
 !
       CALL MKMID(NVERT,NLEV,DAW,RAW,SGS%LTV,MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
 
-      SGS%nVert =nVert
       SGS%MidLev=MidLev
       SGS%MVSta =MVSta
       SGS%MVEnd =MVEnd
@@ -172,6 +173,8 @@
 !
 !     EXIT
 !
+      End Associate
+
       END SUBROUTINE MKGUGA
 
       SUBROUTINE MKGUGA_FREE()
