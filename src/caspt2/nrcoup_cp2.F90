@@ -17,7 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
-     &                  NOCSF,NRL,MVL,MVR,nVert,nMidV)
+     &                  NOCSF,NRL,MVL,MVR,nVert,nMidV,nICoup)
       use gugx, only: SGS, NICOUP, MXEO, SGTMP, NSGTMP
 #ifdef _DEBUGPRINT_
       use gugx, only: NWALK, NCSF
@@ -35,6 +35,7 @@
       Integer IDRT(NVERT,5),ISGMNT(NVERT,26)
       Integer, PARAMETER :: LTAB=1
 ! OUTPUT PARAMETERS:
+      Integer, Intent(Out):: nICoup
       Integer NOW(2,NSYM,NMIDV),NOCP(MXEO,NSYM,NMIDV)
       Integer                   IOCP(MXEO,NSYM,NMIDV)
       Integer NOCSF(NSYM,NMIDV,NSYM)

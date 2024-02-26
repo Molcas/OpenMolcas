@@ -24,7 +24,7 @@
      &               MXEO,                               IFCAS,         &
      &               NCSF, NWALK,       CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
-     &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
+     &               NVTAB,              NIOCP,       NMVR,NMVL,        &
      &                          RAW, DAW, NOW1,       NOCP, NOCSF,      &
      &                                    IOW1,      NNOCP,             &
      &               ICASE, SGS
@@ -35,7 +35,7 @@
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer                       NVTAB_TMP, NVERT, NLEV, nMidV, NICASE
+      Integer NICOUP, NVTAB_TMP, NVERT, NLEV, nMidV, NICASE
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -102,7 +102,7 @@
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(SGS%DRT,ISGM,NOW1,NOCP,IOCP,NOCSF,NRL,MVL,MVR,nVert,nMidV)
+      CALL NRCOUP_CP2(SGS%DRT,ISGM,NOW1,NOCP,IOCP,NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK

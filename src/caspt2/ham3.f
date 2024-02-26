@@ -22,9 +22,10 @@
       DIMENSION CI(*),SGM(*)
 C Local arrays:
       DIMENSION IATOG(MXLEV)
-      Integer nLev, nMidV
+      Integer nLev, nMidV, nICoup
       nLev = SGS%nLev
       nMidV= CIS%nMidV
+      nICoup=Size(ICoup)/3
 
 C Purpose: Compute and add a contribution to SGM which is
 C obtained from a sum of zero- one- two- and three-electron
@@ -86,7 +87,7 @@ C Compute SGM1:=E(IY,IZ) PSI
           CALL SIGMA1_CP2(LEVY,LEVZ,1.0D00,ISYCI,CI,WORK(LSGM1),
      &            NOCSF,IOCSF,NOW1,IOW1,
      &            NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR,nMidV)
+     &            VTAB,MVL,MVR,nMidV,nICoup)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
             X=OP1(IY,IZ)
@@ -123,7 +124,7 @@ C Compute SGM2:=E(IV,IX) SGM1
             CALL SIGMA1_CP2(LEVV,LEVX,1.0D00,ISYM1,WORK(LSGM1),
      &       WORK(LSGM2),NOCSF,IOCSF,NOW1,
      &       IOW1,NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR,nMidV)
+     &            VTAB,MVL,MVR,nMidV,nICoup)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
               X=OP2(IVXYZ)
@@ -158,7 +159,7 @@ C Add non-zero 3-el contribution to SGM:
               CALL SIGMA1_CP2(LEVT,LEVU,X,ISYM2,WORK(LSGM2),SGM,
      &            NOCSF,IOCSF,NOW1,IOW1,
      &            NOCP,IOCP,ICOUP,
-     &            VTAB,MVL,MVR,nMidV)
+     &            VTAB,MVL,MVR,nMidV,nICoup)
 CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)
             ELSE

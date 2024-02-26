@@ -22,9 +22,10 @@
       DIMENSION FIFA(NFIFA)
 * Purely local array, offsets:
       DIMENSION IOFF(8)
-      Integer :: nLev, nMidV
+      Integer :: nLev, nMidV, nICoup
       nLev = SGS%nLev
       nMidV= CIS%nMidV
+      nICoup=Size(ICoup)/3
 
 * Procedure for computing one matrix element of the Fock matrix in the
 * basis of the CASSCF states: <BRA|FOP|KET>
@@ -138,7 +139,7 @@
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         NOCSF,IOCSF,NOW1,IOW1,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV)
+     &         VTAB,MVL,MVR,nMidV,nICoup)
   10      CONTINUE
         END DO
       END DO
@@ -191,7 +192,7 @@
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         NOCSF,IOCSF,NOW1,IOW1,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV)
+     &         VTAB,MVL,MVR,nMidV,nICoup)
   20      CONTINUE
         END DO
       END DO

@@ -27,8 +27,9 @@
       Integer :: ILEV, JLEV, ISYCI
       Real*8, Intent(In) ::  CI(MXCI)
       Real*8, Intent(Out)::  SGM(MXCI)
-      Integer IS, JS, IJS, ISSG, NSGM, nMidV
+      Integer IS, JS, IJS, ISSG, NSGM, nMidV, nICoup
       nMidV = CIS%nMidV
+      nICoup=Size(ICoup)/3
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
 C ILEV,JLEV ARE IN PRINCIPLE ACTIVE ORBITAL NUMBERS, BUT POSSIBLY
@@ -54,5 +55,6 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      NOCSF,IOCSF,NOW1,IOW1,
      &      NOCP,IOCP,ICOUP,
-     &      VTAB,MVL,MVR,nMidV)
+     &      VTAB,MVL,MVR,nMidV,nICoup)
+
       END SUBROUTINE GETSGM2
