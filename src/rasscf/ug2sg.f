@@ -27,7 +27,7 @@ C              INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
       use gugx, only:  RAW, DAW, LSGN, USGN,
-     &                 SGS,NMIDV,MXUP,MXDWN
+     &                 SGS,CIS,MXUP,MXDWN
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -43,10 +43,11 @@ C
       DIMENSION IWALK(mxAct)
       DIMENSION KCNF(mxAct)
       Integer, External:: IPHASE
-      Integer nVert, nLev
+      Integer nVert, nLev, nMidV
 
       nLev  = SGS%nLev
       nVert = SGS%nVert
+      nMidV = CIS%nMidV
 C
 C     JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 C     NUMBERS IN THE SYMMETRIC GROUP NUMBERING

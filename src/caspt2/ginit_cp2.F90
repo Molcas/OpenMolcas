@@ -22,7 +22,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO,                               IFCAS,         &
-     &               NCSF, NWALK, NMIDV,                         &
+     &               NCSF, NWALK,       CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,       NICOUP,NIOCP,       NMVR,NMVL,        &
      &                          RAW, DAW, NOW1,       NOCP, NOCSF,      &
@@ -35,7 +35,7 @@
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer                       NVTAB_TMP, NVERT, NLEV
+      Integer                       NVTAB_TMP, NVERT, NLEV, nMidV
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -72,7 +72,9 @@
       End If
 
       CALL MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM=.TRUE.)
+
       nVert=SGS%nVert
+      nMidV=CIS%nMidV
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 

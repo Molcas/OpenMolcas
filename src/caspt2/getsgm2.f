@@ -17,15 +17,18 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
+      use Symmetry_Info, only: Mul
       use gugx, only: NOCSF, IOCSF, NOW1, IOW1, NOCP, IOCP,
-     &                         ICOUP, VTAB, MVL, MVR, SGS, NCSF, nMidV
-      IMPLICIT REAL*8 (A-H,O-Z)
+     &                         ICOUP, VTAB, MVL, MVR, SGS, NCSF, CIS
+      IMPLICIT None
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
-      DIMENSION  CI(MXCI),SGM(MXCI)
+
+      Integer :: ILEV, JLEV, ISYCI
+      Real*8, Intent(In) ::  CI(MXCI)
+      Real*8, Intent(Out)::  SGM(MXCI)
+      Integer IS, JS, IJS, ISSG, NSGM, nMidV
+      nMidV = CIS%nMidV
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
 C ILEV,JLEV ARE IN PRINCIPLE ACTIVE ORBITAL NUMBERS, BUT POSSIBLY
@@ -46,7 +49,8 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       ISSG=MUL(IJS,ISYCI)
       NSGM=NCSF(ISSG)
       IF(NSGM.EQ.0) RETURN
-      CALL DCOPY_(NSGM,[0.0D0],0,SGM,1)
+
+      SGM(1:NSGM)=0.0D0
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      NOCSF,IOCSF,NOW1,IOW1,
      &      NOCP,IOCP,ICOUP,

@@ -2628,7 +2628,7 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
-      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, SGS, nMidV
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, SGS, CIS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -2640,8 +2640,9 @@ C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
      *          WRK1(nBasT,nBasT),WRK2(*),U0(nState,nState)
       Dimension Eact(nState)
-      Integer :: nLev
+      Integer :: nLev, nMidV
       nLev = SGS%nLev
+      nMidV= CIS%nMidV
 C
       Thres = ConvInvar !! 1.0d-07
 C

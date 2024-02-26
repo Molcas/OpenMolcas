@@ -55,7 +55,7 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 
 use Definitions, only: wp, iwp, u6
 use gugx, only:  DAW,  LSGN,  RAW,  USGN,  &
-                 SGS, NMIDV,MXUP,MXDWN
+                 SGS, CIS ,MXUP,MXDWN
 
 #include "intent.fh"
 
@@ -69,13 +69,14 @@ integer(kind=iwp), intent(out) :: KCNF(NEL)
 #include "output_ras.fh"
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
-integer(kind=iwp) :: nVert, MidLev, MVSta, nLev
+integer(kind=iwp) :: nVert, MidLev, MVSta, nLev, nMidV
 integer(kind=iwp), external :: IPHASE, ISGNUM
 
 nLev  =SGS%nLev
 nVert =SGS%nVert
 MidLev=SGS%MidLev
 MVSta =SGS%MVSta
+nMidV =CIS%nMidV
 
 IPRLEV = IPRLOC(3)
 ! LOOP OVER CONFIGURATIONS TYPES

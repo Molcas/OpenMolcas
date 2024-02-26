@@ -12,12 +12,15 @@
 subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR,nLev)
 
 use Definitions, only: iwp, u6
-use gugx, only: IOW1, NOW1, nMidV
+use gugx, only: IOW1, NOW1, CIS
 
 implicit none
 integer(kind=iwp), intent(in) :: nLev
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
+
+integer(kind=iwp) :: nMidV
+nMidV=CIS%nMidV
 
 ! stop when MV is zero
 if (MV == 0) then

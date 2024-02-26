@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
-      use gugx, only: NCSF, SGS, nMidV,
+      use gugx, only: NCSF, SGS, CIS,
      &                         NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
      &                         VTAB,MVL,MVR
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -22,8 +22,9 @@
       DIMENSION CI(*),SGM(*)
 C Local arrays:
       DIMENSION IATOG(MXLEV)
-      Integer nLev
+      Integer nLev, nMidV
       nLev = SGS%nLev
+      nMidV= CIS%nMidV
 
 C Purpose: Compute and add a contribution to SGM which is
 C obtained from a sum of zero- one- two- and three-electron

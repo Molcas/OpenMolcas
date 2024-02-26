@@ -62,7 +62,7 @@ C>                   to active indices
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: ICOUP, IOCSF, NMIDV,
+      use gugx, only: ICOUP, IOCSF, CIS,
      &                         NCSF,  IOCP, IOW1, MVL, MVR,  NOCP,
      &                         NOCSF, NOW1, VTAB,
      &                         SGS, L2ACT
@@ -118,6 +118,9 @@ C>                   to active indices
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
+
+      Integer :: nMidV
+      nMidV = CIS%nMidV
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999

@@ -17,7 +17,7 @@
 #endif
       use caspt2_output, only:iPrGlb,verbose,debug
       use caspt2_gradient, only: nbuf1_grad
-      use gugx, only: ICOUP,  IOCP, nMidV,
+      use gugx, only: ICOUP,  IOCP, CIS,
      &                IOCSF, IOW1, MVL, MVR,  NOCP,
      &                NOCSF, NOW1, VTAB, NCSF, L2ACT,
      &                SGS
@@ -80,6 +80,8 @@ C     INTEGER LFCDer1,LFCDer2
       INTEGER ialev,iblev
       REAL*8  SCAL,ScalG,ScalF
 C     REAL*8 tmp,tmp2
+      Integer :: nMidV
+      nMidV = CIS%nMidV
 C
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999

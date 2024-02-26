@@ -12,7 +12,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,NMIDV,MXUP,MXDWN,
+     &                SGS,CIS,MXUP,MXDWN,
      &                DAW,RAW,USGN,LSGN,ICASE,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF,
      &                NOW => NOW1, IOW => IOW1, NICASE, NIPWLK
@@ -28,7 +28,7 @@
       Real*8, Allocatable:: CINEW(:)
       Real*8 :: PRWTHR=0.05d0
       Integer ntRas1, ntRas2, ntRas3, iSym, jPrint, iBas, iOrb, iss
-      Integer nVert, MidLev, MVSta, MVEnd, nLev
+      Integer nVert, MidLev, MVSta, MVEnd, nLev, nMidV
 *
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
@@ -108,7 +108,9 @@
 
       IFCAS=1
       Call mkGUGA(NLEV,NSYM,kSym,NCSF)
+
       NCONF=NCSF(kSym)
+      nMidV =CIS%nMidV
       nVert =SGS%nVert
       MidLev=SGS%MidLev
       MVSta =SGS%MVSta

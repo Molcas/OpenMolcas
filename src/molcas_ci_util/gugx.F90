@@ -65,8 +65,8 @@ Integer,              Public::NMVR,   NMVL
 Integer, Allocatable, Public:: NOCP(:), IOCP(:)
 Integer,              Public::NNOCP,   NIOCP
 
-INTEGER, Public:: IA0,IB0,IC0,NVERT0,                          &
-                  IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,                &
+INTEGER, Public:: IA0,IB0,IC0,NVERT0,                        &
+                  IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,         &
                   NMIDV,                    MXUP,MXDWN,      &
                   NWALK,NIPWLK,NCSF(8),MXEO
 End Module GUGX

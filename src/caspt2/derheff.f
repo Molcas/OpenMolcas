@@ -818,7 +818,7 @@ C
      *                  DTG3,CLAG1,CLAG2)
       use gugx, only: SGS, L2ACT, NCSF, NOCSF, IOCSF, NOW1,
      &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
-     &                         MVR, nMidV
+     &                         MVR, CIS
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
@@ -831,8 +831,9 @@ C
       Real*8 CI1(MXCI),CI2(MXCI)
       Real*8 CLAG1(MXCI),CLAG2(MXCI)
       LOGICAL   DOG3
-      Integer :: nLev
+      Integer :: nLev, nMidV
       nLev = SGS%nLev
+      nMidV= CIS%nMidV
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
 

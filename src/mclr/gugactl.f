@@ -11,7 +11,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,NMIDV,MXUP,MXDWN,
+     &                SGS,CIS,MXUP,MXDWN,
      &                     DAW,RAW,USGN,LSGN,ICASE, IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
      &                NOCSF, IOCSF, NOW => NOW1, IOW => IOW1
@@ -120,10 +120,12 @@
       IFCAS=1
       Call mkGUGA(NLEV,NSYM,State_Sym,NCSF)
       NCONF=NCSF(State_Sym)
+
       nVert =SGS%nVert
       MidLev=SGS%MidLev
       MVSta =SGS%MVSta
       MVEnd =SGS%MVEnd
+      nMidV =CIS%nMidV
 
       If (iPrint.ge.5) Then
       PRWTHR=0.0d0

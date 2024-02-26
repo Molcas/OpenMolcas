@@ -24,7 +24,7 @@
       use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
      &                IFCAS,                               &
      &                                     RAW, NRAW,               &
-     &                NMIDV, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
+     &                CIS, MXUP, MXDWN, NWALK, NNOW,  DAW, NDAW,      &
      &                NIOW, NIPWLK, NICASE,  ICASE,       NNOCSF,       &
      &                NOCSF, NIOCSF,  IOCSF,  LSGN,  USGN, NOW1,        &
      &                IOW1, LV1RAS, LV3RAS, LM1RAS, LM3RAS,             &
@@ -40,7 +40,7 @@
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
       Integer IAC, NDOWN0, NDRT0, NLSGN,       NSCR, NTMP, NUSGN, NDOWN, NDRT
-      Integer nVert, MidLev, MVSta, MVEnd
+      Integer nVert, MidLev, MVSta, MVEnd, nMidV
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -130,6 +130,7 @@
       SGS%MidLev=MidLev
       SGS%MVSta =MVSta
       SGS%MVEnd =MVEnd
+      CIS%nMidV =nMidV
 !
 !     FORM VARIOUS OFFSET TABLES:
 !     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED

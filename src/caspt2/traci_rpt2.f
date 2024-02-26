@@ -9,13 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
-      use gugx, only: LEVEL, NOCSF,IOCSF,NOW1,IOW1, nMidV,
+      use gugx, only: LEVEL, NOCSF,IOCSF,NOW1,IOW1, CIS,
      &                         NOCP,IOCP,ICOUP, VTAB,MVL,MVR
 
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
       DIMENSION XMAT(NDIM,NDIM),CI(*)
 #include "WrkSpc.fh"
+      Integer :: nMidV
+      nMidV = CIS%nMidV
 
       IF (NDIM.LE.0) GOTO 999
       NDIM2=NDIM**2

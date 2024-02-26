@@ -73,7 +73,7 @@
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
-      use gugx, only: IFCAS,  NOCSF,  IOCSF, NOW1, IOW1, nMidV
+      use gugx, only: IFCAS,  NOCSF,  IOCSF, NOW1, IOW1, CIS
       use sxci, only: IDXSX
 
       Implicit Real* 8 (A-H,O-Z)
@@ -126,6 +126,8 @@ c #include "nevptp.fh"
       Dimension rdum(1)
       Real*8, Allocatable:: CIV(:)
       Integer, Allocatable:: PrSel(:)
+      Integer :: nMidV
+      nMidV = CIS%nMidV
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)
