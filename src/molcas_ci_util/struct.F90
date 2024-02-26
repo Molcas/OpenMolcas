@@ -40,7 +40,6 @@ Type EXStruct
      Integer MxEO
      Integer, Allocatable:: NOCP(:)
      Integer, Allocatable:: IOCP(:)
-     Integer nICoup
      Integer, Allocatable:: ICoup(:)
      Integer nVTab
      Real*8,  Allocatable:: VTab(:)
