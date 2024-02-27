@@ -62,7 +62,7 @@ C>                   to active indices
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: ICOUP, CIS, IOCP, MVL, MVR,  NOCP,
+      use gugx, only: ICOUP, CIS, IOCP, MVL, MVR,
      &                VTAB, SGS, L2ACT, EXS
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -355,7 +355,7 @@ C-sigma vectors in the buffer.
               call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         NOCP,IOCP,ICOUP,
+     &         EXS%NOCP,IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
           end if
          end if
@@ -419,7 +419,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         NOCP,IOCP,ICOUP,
+     &         EXS%NOCP,IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
@@ -455,7 +455,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
      &           WORK(LTO),CIS%NOCSF,CIS%IOCSF,CIS%NOW,
-     &           CIS%IOW,NOCP,IOCP,ICOUP,
+     &           CIS%IOW,EXS%NOCP,IOCP,ICOUP,
      &           VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
         end if
 *-----------

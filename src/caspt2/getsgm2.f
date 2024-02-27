@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use Symmetry_Info, only: Mul
-      use gugx, only: NOCP, IOCP, ICOUP, VTAB, MVL, MVR, SGS, CIS, EXS
+      use gugx, only: IOCP, ICOUP, VTAB, MVL, MVR, SGS, CIS, EXS
       IMPLICIT None
 
 #include "pt2_guga.fh"
@@ -55,7 +55,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       SGM(1:NSGM)=0.0D0
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &      NOCP,IOCP,ICOUP,
+     &      EXS%NOCP,IOCP,ICOUP,
      &      VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
 
       END SUBROUTINE GETSGM2
