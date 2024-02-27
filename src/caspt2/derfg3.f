@@ -17,7 +17,7 @@
 #endif
       use caspt2_output, only:iPrGlb,verbose,debug
       use caspt2_gradient, only: nbuf1_grad
-      use gugx, only: ICOUP,  IOCP, CIS, MVL, MVR,
+      use gugx, only: ICOUP, CIS, MVL, MVR,
      &                VTAB, L2ACT, SGS, EXS
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -558,7 +558,7 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
           call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &     EXS%NOCP,IOCP,ICOUP,
+     &     EXS%NOCP,EXS%IOCP,ICOUP,
      &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
          end if
         end do
@@ -643,7 +643,7 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
       CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &     EXS%NOCP,IOCP,ICOUP,
+     &     EXS%NOCP,EXS%IOCP,ICOUP,
      &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
       Call Dcopy_(nsgm1,[0.0D+00],0,Work(LDYZ),1)
       if(issg2.eq.issg1) then
@@ -697,7 +697,7 @@ C
           Call DCopy_(nsgm1,[0.0D0],0,Work(L),1)
           CALL SIGMA1_CP2(IVLEV,IXLEV0,1.0D+0,STSYM,Work(LFROM),Work(L),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,IOCP,ICOUP,
+     &         EXS%NOCP,EXS%IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
         End Do
         iG3OFF = iG3bk
@@ -800,7 +800,7 @@ C
         !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
        CALL SIGMA1_CP2(IXLEV,IVLEV,1.0D+00,STSYM,WORK(LBUF3),WORK(LDYZ),
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &      EXS%NOCP,IOCP,ICOUP,
+     &      EXS%NOCP,EXS%IOCP,ICOUP,
      &      VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
 C
         iG3OFF=iG3OFF+nb
@@ -813,7 +813,7 @@ C
       !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
       CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D+00,STSYM,WORK(LDYZ),CLAG,
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &     EXS%NOCP,IOCP,ICOUP,
+     &     EXS%NOCP,EXS%IOCP,ICOUP,
      &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
 C
       IF(iPrGlb.GE.DEBUG) THEN
@@ -841,7 +841,7 @@ C
           !! left derivative
           CALL SIGMA1_CP2(ITLEV,IULEV,1.0D00,STSYM,WORK(LTO),CLAG,
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &     EXS%NOCP,IOCP,ICOUP,
+     &     EXS%NOCP,EXS%IOCP,ICOUP,
      &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
           !! the rest is DEPSA contribution
           IBUF = LDAB + MXCI*(ib-1)
@@ -850,7 +850,7 @@ C
               Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF2),1)
        CALL SIGMA1_CP2(IALEV,IBLEV,1.0D+00,STSYM,Work(IBUF),Work(LBUF2),
      &          CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &          EXS%NOCP,IOCP,ICOUP,
+     &          EXS%NOCP,EXS%IOCP,ICOUP,
      &          VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
               DEPSA(IALEV,IBLEV) = DEPSA(IALEV,IBLEV)
      *          + DDot_(nsgm1,Work(LBUF1+MXCI*(IB-1)),1,Work(LBUF2),1)

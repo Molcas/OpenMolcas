@@ -9,8 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use gugx, only: SGS, L2ACT, IOCP, ICOUP, VTAB, MVL, MVR,
-     &                EXS, CIS
+      use gugx, only: SGS, L2ACT, ICOUP, VTAB, MVL, MVR, EXS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -139,7 +138,7 @@
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,IOCP,ICOUP,
+     &         EXS%NOCP,EXS%IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
   10      CONTINUE
         END DO
@@ -192,7 +191,7 @@
           IF(ABS(FTU).LT.1.0D-16) GOTO 20
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,IOCP,ICOUP,
+     &         EXS%NOCP,EXS%IOCP,ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
   20      CONTINUE
         END DO

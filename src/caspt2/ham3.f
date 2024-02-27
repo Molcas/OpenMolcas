@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: SGS, CIS, IOCP,ICOUP,
+      use gugx, only: SGS, CIS, ICOUP,
      &                VTAB,MVL,MVR, EXS
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -86,7 +86,7 @@ C Compute SGM1:=E(IY,IZ) PSI
           LEVZ=IATOG(IZ)
           CALL SIGMA1_CP2(LEVY,LEVZ,1.0D00,ISYCI,CI,SGM1,
      &            CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &            EXS%NOCP,IOCP,ICOUP,
+     &            EXS%NOCP,EXS%IOCP,ICOUP,
      &            VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
@@ -123,7 +123,7 @@ C Compute SGM2:=E(IV,IX) SGM1
             LEVX=IATOG(IX)
             CALL SIGMA1_CP2(LEVV,LEVX,1.0D00,ISYM1,SGM1,
      &       SGM2,CIS%NOCSF,CIS%IOCSF,CIS%NOW,
-     &       CIS%IOW,EXS%NOCP,IOCP,ICOUP,
+     &       CIS%IOW,EXS%NOCP,EXS%IOCP,ICOUP,
      &            VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
@@ -158,7 +158,7 @@ C Add non-zero 3-el contribution to SGM:
               LEVU=IATOG(IU)
               CALL SIGMA1_CP2(LEVT,LEVU,X,ISYM2,SGM2,SGM,
      &            CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &            EXS%NOCP,IOCP,ICOUP,
+     &            EXS%NOCP,EXS%IOCP,ICOUP,
      &            VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
 CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)

@@ -21,8 +21,7 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               IFCAS, CIS,                     &
-     &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
+     &               IFCAS, CIS, VTAB, ICOUP, MVR, MVL,        &
      &               RAW, DAW, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
@@ -89,10 +88,10 @@
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
       NNRL=(1+MXEO)*NVERT*NSYM
-      CALL mma_allocate(EXS%NOCP,MXEO*NMIDV*NSYM,Label='NOCP')
-      CALL mma_allocate(IOCP,MXEO*NMIDV*NSYM,Label='IOCP')
+      CALL mma_allocate(EXS%NOCP,MXEO*NMIDV*NSYM,Label='EXS%NOCP')
+      CALL mma_allocate(EXS%IOCP,MXEO*NMIDV*NSYM,Label='EXS%IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,EXS%NOCP,IOCP,CIS%NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP,MxEO)
+      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,EXS%NOCP,EXS%IOCP,CIS%NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP,MxEO)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK
@@ -106,7 +105,7 @@
       NICASE=SIZE(CIS%ICASE)
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
-     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,IOCP,ILNDW,      &
+     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,ILNDW,      &
      &            CIS%ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
 
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
