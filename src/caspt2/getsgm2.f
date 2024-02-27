@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use Symmetry_Info, only: Mul
-      use gugx, only:  VTAB, MVL, MVR, SGS, CIS, EXS
+      use gugx, only:  MVL, MVR, SGS, CIS, EXS
       IMPLICIT None
 
 #include "pt2_guga.fh"
@@ -30,7 +30,7 @@
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
       nICoup=Size(EXS%ICoup)/3
-      nVTab =Size(VTab)
+      nVTab =Size(EXS%VTab)
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
 C ILEV,JLEV ARE IN PRINCIPLE ACTIVE ORBITAL NUMBERS, BUT POSSIBLY
@@ -56,6 +56,6 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &      EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &      VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
+     &      EXS%VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
 
       END SUBROUTINE GETSGM2

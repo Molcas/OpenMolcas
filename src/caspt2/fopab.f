@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use gugx, only: SGS, L2ACT, VTAB, MVL, MVR, EXS, CIS
+      use gugx, only: SGS, L2ACT, MVL, MVR, EXS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -25,7 +25,7 @@
       nMidV= CIS%nMidV
       MxEO = EXS%MxEO
       nICoup=Size(EXS%ICoup)/3
-      nVTab =Size(VTab)
+      nVTab =Size(EXS%VTab)
 
 * Procedure for computing one matrix element of the Fock matrix in the
 * basis of the CASSCF states: <BRA|FOP|KET>
@@ -139,7 +139,7 @@
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
   10      CONTINUE
         END DO
       END DO
@@ -192,7 +192,7 @@
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
   20      CONTINUE
         END DO
       END DO

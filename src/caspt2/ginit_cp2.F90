@@ -21,7 +21,7 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               IFCAS, CIS, VTAB, MVR, MVL,        &
+     &               IFCAS, CIS, MVR, MVL,        &
      &               RAW, DAW, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
@@ -108,8 +108,8 @@
      &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,ILNDW,      &
      &            CIS%ICase, EXS%ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
 
-      CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
-      VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
+      CALL mma_allocate(EXS%VTAB,NVTAB,Label='EXS%VTAB')
+      EXS%VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
 
       Call mma_deallocate(VTAB_TMP)
       Call mma_deallocate(ILNDW)

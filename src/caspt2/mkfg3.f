@@ -62,7 +62,7 @@ C>                   to active indices
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: CIS, MVL, MVR, VTAB, SGS, L2ACT, EXS
+      use gugx, only: CIS, MVL, MVR, SGS, L2ACT, EXS
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -120,7 +120,7 @@ C>                   to active indices
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
       nICoup=Size(EXS%ICoup)/3
-      nVTab=SIZE(VTab)
+      nVTab=SIZE(EXS%VTab)
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999
@@ -355,7 +355,7 @@ C-sigma vectors in the buffer.
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
           end if
          end if
         end do
@@ -419,7 +419,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -455,7 +455,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
      &           WORK(LTO),CIS%NOCSF,CIS%IOCSF,CIS%NOW,
      &           CIS%IOW,EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &           VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
+     &           EXS%VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
         end if
 *-----------
 * Max and min values of index p1:

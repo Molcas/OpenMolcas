@@ -50,7 +50,6 @@ Type (EXStruct), Public, Target:: EXS
 !     Integer, Allocatable:: NOCP(:)
 !     Integer, Allocatable:: IOCP(:)
 !     Integer, Allocatable:: ICoup(:)
-!     Integer nVTab
 !     Real*8,  Allocatable:: VTab(:)
 !     Integer, Allocatable:: MVL(:)
 !     Integer, Allocatable:: MVR(:)
