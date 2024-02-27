@@ -12,8 +12,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,CIS,MXUP,MXDWN,
-     &                DAW,USGN,LSGN,IFCAS,
+     &                SGS,CIS,MXUP,MXDWN,USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS
       use Str_Info, only: CFTP, CNSM
       Implicit None
@@ -144,8 +143,8 @@
       jPrint=iPrint
       Call mma_allocate(CInew,NCONF,Label='CINew')
       Call REORD(NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,
-     &           SGS%DRT,SGS%DOWN,DAW,SGS%UP,SGS%RAW,USGN,LSGN,nActEl,
-     &           NLEV,NCONF,NTYP,
+     &           SGS%DRT,SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,USGN,LSGN,
+     &           nActEl,NLEV,NCONF,NTYP,
      &           iMode,jPrint,CNSM(iss)%ICONF,CFTP,NCNATS(1,kSym),
      &           NCPCNT,CIL,CInew,minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)

@@ -69,8 +69,6 @@ Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: USGN(:), LSGN(:)
 
-Integer, Allocatable, Public:: DAW(:)
-
 Real*8,  Allocatable, Public:: SGTMP(:)
 Integer,              Public:: NSGTMP
 
