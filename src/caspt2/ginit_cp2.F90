@@ -23,8 +23,7 @@
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               IFCAS, CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
-     &               NIOCP,       NMVR,NMVL,        &
-     &               RAW, DAW, NOCP, NNOCP, SGS, EXS
+     &               NMVR,NMVL, RAW, DAW, NOCP, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -91,11 +90,9 @@
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
-      NNOCP=MXEO*NMIDV*NSYM
-      NIOCP=NNOCP
       NNRL=(1+MXEO)*NVERT*NSYM
-      CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
-      CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
+      CALL mma_allocate(NOCP,MXEO*NMIDV*NSYM,Label='NOCP')
+      CALL mma_allocate(IOCP,MXEO*NMIDV*NSYM,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
       CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,NOCP,IOCP,CIS%NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP,MxEO)
       CALL mma_deallocate(NRL)
