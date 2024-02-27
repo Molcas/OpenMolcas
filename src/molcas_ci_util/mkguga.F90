@@ -21,9 +21,8 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: IA0, IB0, IC0, NVERT0, IFCAS, RAW, NRAW,       &
-     &                CIS, MXUP, MXDWN, DAW, NDAW,      &
-     &                LSGN,  USGN,   &
+      use gugx, only: IA0, IB0, IC0, NVERT0, IFCAS, RAW,  &
+     &                CIS, MXUP, MXDWN, DAW, LSGN,  USGN,   &
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
 
       IMPLICIT None
@@ -106,15 +105,13 @@
 !
 !     CALCULATE ARC WEIGHT.
 !
-      NDAW=5*NVERT
-      CALL mma_allocate(DAW,NDAW,Label='DAW')
+      CALL mma_allocate(DAW,5*nVert,Label='DAW')
       CALL MKDAW(NVERT,SGS%DOWN,DAW)
 !
 !     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
 !
-      NRAW=5*NVERT
       CALL mma_allocate(SGS%UP,4*nVert,Label='SGS%UP')
-      CALL mma_allocate(RAW,NRAW,Label='RAW')
+      CALL mma_allocate(RAW,5*nVert,Label='RAW')
       CALL MKRAW(NVERT,SGS%DOWN,SGS%UP,RAW)
 !
 !     COMPUTE LTV TABLES.

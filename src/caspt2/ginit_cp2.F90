@@ -23,7 +23,7 @@
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               IFCAS, CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
-     &               NMVR,NMVL, RAW, DAW, SGS, EXS
+     &               RAW, DAW, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -78,12 +78,10 @@
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       NIVR=2*NVERT
-      NMVL=2*NMIDV
-      NMVR=2*NMIDV
       NSGMNT=26*NVERT
       CALL mma_allocate(IVR,NIVR,Label='IVR')
-      CALL mma_allocate(MVL,NMVL,Label='MVL')
-      CALL mma_allocate(MVR,NMVR,Label='MVR')
+      CALL mma_allocate(MVL,2*NMIDV,Label='MVL')
+      CALL mma_allocate(MVR,2*NMIDV,Label='MVR')
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
       CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,MVL,MVR,ISGM,VSGM,nVert,nLev,NMIDV)

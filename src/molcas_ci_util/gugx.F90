@@ -71,13 +71,11 @@ Integer, Allocatable, Public:: USGN(:), LSGN(:)
 Integer, Allocatable, Public:: ICOUP(:)
 
 Integer, Allocatable, Public:: DAW(:), RAW(:)
-Integer,              Public::NDAW,    NRAW
 
 Real*8,  Allocatable, Public:: VTAB(:), SGTMP(:)
 Integer,              Public::         NSGTMP
 
 Integer, Allocatable, Public:: MVR(:), MVL(:)
-Integer,              Public::NMVR,   NMVL
 
 Integer, Allocatable, Public:: NOCP(:), IOCP(:)
 
