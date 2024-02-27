@@ -141,6 +141,7 @@
       CALL mma_allocate(NOCSF,NMIDV*(NSYM**2),Label='NOCSF')
       CALL mma_allocate(IOCSF,NMIDV*(NSYM**2),Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
+      Call mma_allocate(NCSF,nSym,Label='NCSF')
       CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,NCSF,IOCSF,NOCSF,SCR)
 !
 !     CONSTRUCT THE CASE LIST
@@ -174,7 +175,7 @@
 !
       use stdalloc, only: mma_deallocate
       use gugx, only:  RAW,  DAW,  NOCSF,   &
-     &                 IOCSF,  USGN, LSGN, &
+     &                 IOCSF,  USGN, LSGN, nCSF,&
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP, CIS
       IMPLICIT None
@@ -192,6 +193,7 @@
       If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
       If (Allocated(NOCSF)) Call mma_deallocate(NOCSF)
       If (Allocated(IOCSF)) Call mma_deallocate(IOCSF)
+      If (Allocated(NCSF)) Call mma_deallocate(NCSF)
 
       If (Allocated(CIS%ICASE)) Call mma_deallocate(CIS%ICASE)
 

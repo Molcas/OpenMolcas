@@ -49,7 +49,7 @@ Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:)
 
-Integer, Allocatable, Public:: ICASE(:), ICOUP(:)
+Integer, Allocatable, Public:: ICASE(:), ICOUP(:), NCSF(:)
 
 Integer, Allocatable, Public:: DAW(:), RAW(:)
 Integer,              Public::NDAW,    NRAW
@@ -66,5 +66,5 @@ Integer,              Public::NNOCP,   NIOCP
 INTEGER, Public:: IA0,IB0,IC0,NVERT0,                        &
                   IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,         &
                   NMIDV,                    MXUP,MXDWN,      &
-                  NWALK,NCSF(8),MXEO
+                  NWALK,MXEO
 End Module GUGX

@@ -55,14 +55,15 @@ C first by RAS type, then by symmetry.
         END DO
       END DO
 
-C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
-      DO I=1,8
-        NCSF(I)=0
-      END DO
-      NCSF(STSYM)=1
-
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
-     &      .and. (.not. DoFCIQMC)) call ginit_cp2()
+     &      .and. (.not. DoFCIQMC)) Then
+         call ginit_cp2()
+      else
+C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
+         Call mma_allocate(NCSF,nSym,Label='NCSF')
+         NCSF(:)=0
+         NCSF(STSYM)=1
+      endif
 
       MXCI=1
       DO I=1,NSYM
