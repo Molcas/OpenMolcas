@@ -65,5 +65,5 @@ Integer,              Public::NNOCP,   NIOCP
 
 INTEGER, Public:: IA0,IB0,IC0,NVERT0,                        &
                   IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,         &
-                  MXUP,MXDWN,NWALK,MXEO
+                  MXUP,MXDWN,MXEO
 End Module GUGX

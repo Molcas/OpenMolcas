@@ -20,7 +20,7 @@
      &                  NOCSF,NRL,MVL,MVR,nVert,nMidV,nICoup)
       use gugx, only: SGS, MXEO, SGTMP, NSGTMP
 #ifdef _DEBUGPRINT_
-      use gugx, only: NWALK, CIS
+      use gugx, only: CIS
 #endif
       use stdalloc, only: mma_allocate
       IMPLICIT None
@@ -258,7 +258,7 @@
         WRITE(6,*)
         WRITE(6,*)' TOTAL NR OF WALKS: UPPER ',NUW
         WRITE(6,*)'                    LOWER ',NLW
-        WRITE(6,*)'                     SUM  ',NWALK
+        WRITE(6,*)'                     SUM  ',CIS%NWALK
         WRITE(6,*)' TOTAL NR OF COUPL COEFFS ',NICOUP
         INDEO=2*NLEV+1
         WRITE(6,*)'         OF TYPE 1&2 ONLY:',IOCP(INDEO,1,1)

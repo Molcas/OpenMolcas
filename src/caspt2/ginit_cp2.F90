@@ -21,8 +21,7 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               MXEO,                               IFCAS,         &
-     &               NWALK,       CIS,                     &
+     &               MXEO, IFCAS, CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,              NIOCP,       NMVR,NMVL,        &
      &               RAW, DAW, NOCP, NNOCP, SGS
@@ -33,7 +32,7 @@
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer NICOUP, NVTAB_TMP, NVERT, NLEV, nMidV, NICASE
+      Integer NICOUP, NVTAB_TMP, NVERT, NLEV, nMidV, NICASE, nWalk
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
@@ -70,6 +69,7 @@
 
       CALL MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM=.TRUE.)
 
+      nWalk=CIS%nWalk
       nVert=SGS%nVert
       nMidV=CIS%nMidV
 

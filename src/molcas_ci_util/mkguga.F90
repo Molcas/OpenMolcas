@@ -22,7 +22,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: IA0, IB0, IC0, NVERT0, IFCAS, RAW, NRAW,       &
-     &                CIS, MXUP, MXDWN, NWALK, DAW, NDAW,      &
+     &                CIS, MXUP, MXDWN, DAW, NDAW,      &
      &                LSGN,  USGN,   &
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
 
@@ -38,8 +38,9 @@
      &        NICASE
 
 !Note that we do not associate the arrays here since the are not allocated yet.
-      Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta, &
-     &           MVEnd => SGS%MVEnd,  nMidV => CIS%nMidV, nIpWlk => CIS%nIpWlk )
+      Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
+     &           MVEnd => SGS%MVEnd,  nMidV => CIS%nMidV, nIpWlk => CIS%nIpWlk, &
+     &           nWalk => CIS%nWalk )
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
