@@ -26,7 +26,7 @@ C              AND ISGNUM WHICH COMPUTES THE THE PHASE FACTOR
 C              INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
-      use gugx, only:  LSGN, USGN, SGS,CIS,MXUP,MXDWN
+      use gugx, only:  LSGN, USGN, SGS,CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -42,11 +42,13 @@ C
       DIMENSION IWALK(mxAct)
       DIMENSION KCNF(mxAct)
       Integer, External:: IPHASE
-      Integer nVert, nLev, nMidV
+      Integer nVert, nLev, nMidV, MxUp, MxDwn
 
       nLev  = SGS%nLev
       nVert = SGS%nVert
       nMidV = CIS%nMidV
+      MxUp  = SGS%MxUp
+      MxDwn = SGS%MxDwn
 C
 C     JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 C     NUMBERS IN THE SYMMETRIC GROUP NUMBERING

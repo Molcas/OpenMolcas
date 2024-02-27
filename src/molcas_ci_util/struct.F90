@@ -27,6 +27,8 @@ Type SGStruct
      Integer, Allocatable:: LTV(:)
      Integer, Allocatable:: DAW(:)
      Integer, Allocatable:: RAW(:)
+     Integer MXUP
+     Integer MXDWN
 End Type SGStruct
 ! CI Structures, addresses,..
 Type CIStruct

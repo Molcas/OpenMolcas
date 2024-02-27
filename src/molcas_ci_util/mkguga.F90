@@ -21,13 +21,13 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: NVERT0, IFCAS, CIS, MXUP, MXDWN, LSGN, USGN,   &
+      use gugx, only: NVERT0, IFCAS, CIS, LSGN, USGN,   &
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
 
       IMPLICIT None
 !
       Integer NLEV, NSYM, STSYM
-      Logical, Optional:: Skip_MKSGNUM
+     Logical, Optional:: Skip_MKSGNUM
 
       Integer, Pointer:: DRTP(:)=>Null(), DOWNP(:)=>Null()
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
@@ -38,7 +38,7 @@
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
      &           MVEnd => SGS%MVEnd,  nMidV => CIS%nMidV, nIpWlk => CIS%nIpWlk, &
-     &           nWalk => CIS%nWalk,  &
+     &           nWalk => CIS%nWalk,  MxUp => SGS%MxUp, MxDwn => SGS%MxDwn, &
      &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
 !
 !     SET UP A FULL PALDUS DRT TABLE:

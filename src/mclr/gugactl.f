@@ -10,7 +10,7 @@
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: SGS,CIS,MXUP,MXDWN, USGN,LSGN,IFCAS,
+      use gugx, only: SGS,CIS, USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
@@ -49,6 +49,7 @@
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert,
      &            MidLev=>SGS%MidLev, MVSta =>SGS%MVSta,
      &            MVEnd =>SGS%MVEnd, nMidV =>CIS%nMidV,
+     &            MxUp => SGS%MxUp, MxDwn => SGS%MxDwn,
      &            A0 => SGS%IA0, B0 => SGS%IB0, C0 => SGS%IC0)
 *
       ntRas1=0

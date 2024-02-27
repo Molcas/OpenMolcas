@@ -32,6 +32,8 @@ Type (SGStruct), Public, Target:: SGS
 !     Integer, Allocatable:: LTV(:)
 !     Integer, Allocatable:: RAW(:)
 !     Integer, Allocatable:: DAW(:)
+!     Integer MXUp
+!     Integer MXDwn
 !End Type SGStruct
 Public CIStruct
 Type (CIStruct), Public, Target:: CIS
@@ -75,6 +77,5 @@ Integer, Allocatable, Public:: USGN(:), LSGN(:)
 Real*8,  Allocatable, Public:: SGTMP(:)
 Integer,              Public:: NSGTMP
 
-INTEGER, Public:: NVERT0,IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,         &
-                  MXUP,MXDWN
+INTEGER, Public:: NVERT0,IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS
 End Module GUGX
