@@ -10,8 +10,7 @@
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: SGS,CIS, USGN,LSGN,IFCAS,
-     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS
+      use gugx, only: SGS,CIS,EXS,IFCAS,LV1RAS, LV3RAS, LM1RAS, LM3RAS
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Real*8 CIL(*)
@@ -151,7 +150,8 @@
       Call mma_allocate(CInew,NCONF,Label='CInew')
 
       Call REORD(NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,
-     &           SGS%DRT,SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,USGN,LSGN,
+     &           SGS%DRT,SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,
+     &           EXS%USGN,EXS%LSGN,
      &           nActEl,NLEV,NCONF,NTYP,
      &           iMode,jPrint,CNSM(1)%ICONF,CFTP,NCNATS(1,State_Sym),
      &           NCPCNT,CIL,CInew,minop)

@@ -52,6 +52,8 @@ Type EXStruct
      Integer, Allocatable:: MVL(:)
      Integer, Allocatable:: MVR(:)
      Real*8,  Allocatable:: SGTMP(:)
+     Integer, Allocatable:: USGN(:)
+     Integer, Allocatable:: LSGN(:)
      Integer NT1MX
      Integer NT2MX
      Integer NT3MX

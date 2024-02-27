@@ -20,8 +20,7 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: IFCAS, CIS, LSGN, USGN,   &
-     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
+      use gugx, only: IFCAS, CIS, LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS, EXS
 
       IMPLICIT None
 !
@@ -155,10 +154,10 @@
       End If
       NUSGN=MXUP*NMIDV
       NLSGN=MXDWN*NMIDV
-      CALL mma_allocate(USGN,NUSGN,Label='USGN')
-      CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
+      CALL mma_allocate(EXS%USGN,NUSGN,Label='EXS%USGN')
+      CALL mma_allocate(EXS%LSGN,NLSGN,Label='EXS%LSGN')
       Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,CIS%NOW, &
-                   CIS%IOW,USGN,LSGN,CIS%ICASE)
+                   CIS%IOW,EXS%USGN,EXS%LSGN,CIS%ICASE)
 !
 !     EXIT
 !
@@ -171,7 +170,7 @@
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  USGN, LSGN, SGS, CIS, EXS
+      use gugx, only:  SGS, CIS, EXS
       IMPLICIT None
 !
       If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
@@ -190,8 +189,8 @@
       If (Allocated(CIS%NCSF)) Call mma_deallocate(CIS%NCSF)
       If (Allocated(CIS%ICASE)) Call mma_deallocate(CIS%ICASE)
 
-      If (Allocated(USGN)) Call mma_deallocate(USGN)
-      If (Allocated(LSGN)) Call mma_deallocate(LSGN)
+      If (Allocated(EXS%USGN)) Call mma_deallocate(EXS%USGN)
+      If (Allocated(EXS%LSGN)) Call mma_deallocate(EXS%LSGN)
 
       If (Allocated(EXS%NOCP)) Call mma_deallocate(EXS%NOCP)
       If (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
