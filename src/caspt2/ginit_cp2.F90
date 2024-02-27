@@ -21,7 +21,7 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               IFCAS, CIS, VTAB, ICOUP, MVR, MVL,        &
+     &               IFCAS, CIS, VTAB, MVR, MVL,        &
      &               RAW, DAW, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
@@ -97,7 +97,7 @@
       NILNDW=NWALK
       NVTAB_TMP=20000
       NSCR=7*(NLEV+1)
-      CALL mma_allocate(ICOUP,3*NICOUP,Label='ICOUP')
+      CALL mma_allocate(EXS%ICOUP,3*NICOUP,Label='EXS%ICOUP')
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
@@ -106,7 +106,7 @@
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
      &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,ILNDW,      &
-     &            CIS%ICase, ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
+     &            CIS%ICase, EXS%ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
 
       CALL mma_allocate(VTAB,NVTAB,Label='VTAB')
       VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)

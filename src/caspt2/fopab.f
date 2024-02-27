@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use gugx, only: SGS, L2ACT, ICOUP, VTAB, MVL, MVR, EXS, CIS
+      use gugx, only: SGS, L2ACT, VTAB, MVL, MVR, EXS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -24,7 +24,7 @@
       nLev = SGS%nLev
       nMidV= CIS%nMidV
       MxEO = EXS%MxEO
-      nICoup=Size(ICoup)/3
+      nICoup=Size(EXS%ICoup)/3
       nVTab =Size(VTab)
 
 * Procedure for computing one matrix element of the Fock matrix in the
@@ -138,7 +138,7 @@
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,EXS%IOCP,ICOUP,
+     &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
   10      CONTINUE
         END DO
@@ -191,7 +191,7 @@
           IF(ABS(FTU).LT.1.0D-16) GOTO 20
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,EXS%IOCP,ICOUP,
+     &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
   20      CONTINUE
         END DO

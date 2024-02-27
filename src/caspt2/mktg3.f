@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
-      use gugx, only: ICOUP, EXS, VTAB,MVL,MVR,SGS,L2ACT, CIS
+      use gugx, only: EXS, VTAB,MVL,MVR,SGS,L2ACT, CIS
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
@@ -24,7 +24,7 @@
       nLev = SGS%nLev
       nMidV= CIS%nMidV
       MxEO = EXS%MxEO
-      nICoup=Size(ICoup)/3
+      nICoup=Size(EXS%ICoup)/3
       nVTab =Size(VTab)
 
 C Procedure for computing 1-body, 2-body, and 3-body transition
@@ -218,7 +218,7 @@ C Translate to levels in the SGUGA coupling order:
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    EXS%NOCP,EXS%IOCP,ICOUP,
+     &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &    VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
@@ -242,7 +242,7 @@ C Translate to levels:
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
          CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    EXS%NOCP,EXS%IOCP,ICOUP,
+     &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &    VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
          LTO=LTO+MXCI
         END DO
@@ -270,7 +270,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &     EXS%NOCP,EXS%IOCP,ICOUP,
+     &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)

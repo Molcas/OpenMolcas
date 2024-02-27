@@ -173,7 +173,7 @@
 !
       use stdalloc, only: mma_deallocate
       use gugx, only:  RAW,  DAW, USGN, LSGN, &
-     &                 SGS, MVL, MVR, ICOUP, VTAB,&
+     &                 SGS, MVL, MVR, VTAB,&
      &                 SGTMP, CIS, EXS
       IMPLICIT None
 !
@@ -196,13 +196,13 @@
       If (Allocated(USGN)) Call mma_deallocate(USGN)
       If (Allocated(LSGN)) Call mma_deallocate(LSGN)
 
+      If (Allocated(EXS%NOCP)) Call mma_deallocate(EXS%NOCP)
+      If (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
+      If (Allocated(EXS%ICOUP)) Call mma_deallocate(EXS%ICOUP)
+
       If (Allocated(MVL)) Call mma_deallocate(MVL)
       If (Allocated(MVR)) Call mma_deallocate(MVR)
 
-      If (Allocated(EXS%NOCP)) Call mma_deallocate(EXS%NOCP)
-      If (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
-
-      If (Allocated(ICOUP)) Call mma_deallocate(ICOUP)
       If (Allocated(VTAB)) Call mma_deallocate(VTAB)
       If (Allocated(SGTMP)) Call mma_deallocate(SGTMP)
 

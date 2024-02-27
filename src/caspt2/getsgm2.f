@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use Symmetry_Info, only: Mul
-      use gugx, only: ICOUP, VTAB, MVL, MVR, SGS, CIS, EXS
+      use gugx, only:  VTAB, MVL, MVR, SGS, CIS, EXS
       IMPLICIT None
 
 #include "pt2_guga.fh"
@@ -29,7 +29,7 @@
       Integer IS, JS, IJS, ISSG, NSGM, nMidV, nICoup, MxEO, nVTab
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
-      nICoup=Size(ICoup)/3
+      nICoup=Size(EXS%ICoup)/3
       nVTab =Size(VTab)
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
@@ -55,7 +55,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       SGM(1:NSGM)=0.0D0
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &      EXS%NOCP,EXS%IOCP,ICOUP,
+     &      EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &      VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
 
       END SUBROUTINE GETSGM2

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
-      use gugx, only: LEVEL, CIS,ICOUP, VTAB,MVL,MVR, EXS
+      use gugx, only: LEVEL, CIS, VTAB,MVL,MVR, EXS
 
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
@@ -18,7 +18,7 @@
       Integer :: nMidV, nICoup, MxEO, nVTab
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
-      nICoup=Size(ICoup)/3
+      nICoup=Size(EXS%ICoup)/3
       nVTab =Size(VTab)
 
       IF (NDIM.LE.0) GOTO 999
@@ -62,7 +62,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           IF(I.EQ.J) SCL=SCL-0.5D00
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,EXS%IOCP,ICOUP,
+     &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
         END DO
         DO I=1,NDIM
@@ -72,7 +72,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           IF(I.EQ.J) SCL=SCL-1.0D00
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,EXS%IOCP,ICOUP,
+     &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &         VTAB,MVL,MVR,nMidV,nICOup,MxEO,nVTab)
         END DO
 
