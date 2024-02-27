@@ -9,8 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
-      use gugx, only: NCSF, SGS, CIS,
-     &                         NOCSF,IOCSF,NOCP,IOCP,ICOUP,
+      use gugx, only: SGS, CIS, NOCSF,IOCSF,NOCP,IOCP,ICOUP,
      &                         VTAB,MVL,MVR
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -76,7 +75,7 @@ C ordinal number of each active orbital.
         IYZ=IY+(IZ-1)*NASHT
         ISYZ=MUL(IASYM(IY),IASYM(IZ))
         ISYM1=MUL(ISYZ,ISYCI)
-        NSGM1=NCSF(ISYM1)
+        NSGM1=CIS%NCSF(ISYM1)
         IF(NSGM1.EQ.0) GOTO 30
         IF(ISCF.EQ.0) THEN
 C The general case:
@@ -113,7 +112,7 @@ C Closed-shell or hi-spin case:
           ISVXYZ=MUL(ISVX,ISYZ)
           IVXYZ=(IVX*(IVX-1))/2+IYZ
           ISYM2=MUL(ISVX,ISYM1)
-          NSGM2=NCSF(ISYM2)
+          NSGM2=CIS%NCSF(ISYM2)
           IF(NSGM2.EQ.0) GOTO 20
           IF(ISCF.EQ.0) THEN
 C The general case:

@@ -1465,7 +1465,7 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use gugx, only: SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1553,7 +1553,7 @@ C     ENDDO
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
-          NSGM=NCSF(ISSG)
+          NSGM=CIS%NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
           CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
@@ -3154,7 +3154,7 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-      use gugx, only: SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CIin(nConf,nState),CIout(nConf,nState)
@@ -3206,7 +3206,7 @@ C         if (tras.and.uras) go to 500
             IU=L2ACT(LU)
             ISTU=MUL(IST,ISU)
             ISSG=MUL(ISTU,STSYM)
-            NSGM=NCSF(ISSG)
+            NSGM=CIS%NCSF(ISSG)
             IF(NSGM.EQ.0) GOTO 500
             !! <CIin|Etu
             CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),Work(LSGM1))

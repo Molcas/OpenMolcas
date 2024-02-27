@@ -19,7 +19,7 @@
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use Symmetry_Info, only: Mul
       use gugx, only: NOCSF, IOCSF, NOCP, IOCP,
-     &                         ICOUP, VTAB, MVL, MVR, SGS, NCSF, CIS
+     &                         ICOUP, VTAB, MVL, MVR, SGS, CIS
       IMPLICIT None
 
 #include "pt2_guga.fh"
@@ -48,7 +48,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       JS=SGS%ISM(JLEV)
       IJS=MUL(IS,JS)
       ISSG=MUL(IJS,ISYCI)
-      NSGM=NCSF(ISSG)
+      NSGM=CIS%NCSF(ISSG)
       IF(NSGM.EQ.0) RETURN
 
       SGM(1:NSGM)=0.0D0

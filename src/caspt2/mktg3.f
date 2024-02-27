@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
       use gugx, only: NOCSF,IOCSF,NOCP,IOCP,ICOUP,
-     &                         VTAB,MVL,MVR,SGS,NCSF,L2ACT, CIS
+     &                         VTAB,MVL,MVR,SGS,L2ACT, CIS
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
@@ -167,7 +167,7 @@ C excitations within the RAS space.
 C But we also need the 'usual' pair index in order to use the
 C packed addressing.
 
-      NCI1=NCSF(LSYM1)
+      NCI1=CIS%NCSF(LSYM1)
 C Overlap:
       IF(LSYM1.EQ.LSYM2) OVL=DDOT_(NCI1,CI1,1,CI2,1)
 C Allocate as many vectors as possible:
@@ -264,7 +264,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           IVS=IASYM(IV)
           IXS=IASYM(IX)
           ISTAU=MUL(MUL(IVS,IXS),ISSG2)
-          NTAU=NCSF(ISTAU)
+          NTAU=CIS%NCSF(ISTAU)
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),

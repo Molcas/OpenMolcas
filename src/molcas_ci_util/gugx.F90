@@ -49,7 +49,7 @@ Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:)
 
-Integer, Allocatable, Public:: ICASE(:), ICOUP(:), NCSF(:)
+Integer, Allocatable, Public:: ICOUP(:)
 
 Integer, Allocatable, Public:: DAW(:), RAW(:)
 Integer,              Public::NDAW,    NRAW

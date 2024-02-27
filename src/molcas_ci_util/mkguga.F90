@@ -21,8 +21,7 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only:       IA0, IB0, IC0, NVERT0,                      &
-     &                IFCAS, RAW, NRAW, NCSF,         &
+      use gugx, only: IA0, IB0, IC0, NVERT0, IFCAS, RAW, NRAW,       &
      &                CIS, MXUP, MXDWN, NWALK, DAW, NDAW,      &
      &                NOCSF, IOCSF,  LSGN,  USGN,   &
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
@@ -141,8 +140,8 @@
       CALL mma_allocate(NOCSF,NMIDV*(NSYM**2),Label='NOCSF')
       CALL mma_allocate(IOCSF,NMIDV*(NSYM**2),Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
-      Call mma_allocate(NCSF,nSym,Label='NCSF')
-      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,NCSF,IOCSF,NOCSF,SCR)
+      Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
+      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,CIS%NCSF,IOCSF,NOCSF,SCR)
 !
 !     CONSTRUCT THE CASE LIST
 !
@@ -175,7 +174,7 @@
 !
       use stdalloc, only: mma_deallocate
       use gugx, only:  RAW,  DAW,  NOCSF,   &
-     &                 IOCSF,  USGN, LSGN, nCSF,&
+     &                 IOCSF,  USGN, LSGN, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP, CIS
       IMPLICIT None
@@ -193,8 +192,7 @@
       If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
       If (Allocated(NOCSF)) Call mma_deallocate(NOCSF)
       If (Allocated(IOCSF)) Call mma_deallocate(IOCSF)
-      If (Allocated(NCSF)) Call mma_deallocate(NCSF)
-
+      If (Allocated(CIS%NCSF)) Call mma_deallocate(CIS%NCSF)
       If (Allocated(CIS%ICASE)) Call mma_deallocate(CIS%ICASE)
 
       If (Allocated(USGN)) Call mma_deallocate(USGN)

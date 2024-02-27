@@ -22,7 +22,7 @@
       use Definitions, only: LF => u6
       use stdalloc, only: mma_allocate
       use gugx, only: IA0, IB0, IC0, NVERT0, IFCAS, LV1RAS,       &
-     &                LM1RAS, LV3RAS, LM3RAS, NCSF, SGS
+     &                LM1RAS, LV3RAS, LM3RAS, CIS, SGS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 !
@@ -126,7 +126,7 @@
 !     INITIALIZE GUGA TABLES:
 !
       CALL MKGUGA(NLEV,NSYM,STSYM)
-      NCONF=NCSF(STSYM)
+      NCONF=CIS%NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 
       END SUBROUTINE GUGACTL

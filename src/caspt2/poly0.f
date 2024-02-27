@@ -20,7 +20,7 @@
 
       use fciqmc_interface, only: DoFCIQMC
       use stdalloc, only: mma_allocate
-      use gugx, only: SGS, L2ACT, LEVEL, NCSF
+      use gugx, only: SGS, L2ACT, LEVEL, CIS
 
       IMPLICIT NONE
 
@@ -60,14 +60,14 @@ C first by RAS type, then by symmetry.
          call ginit_cp2()
       else
 C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
-         Call mma_allocate(NCSF,nSym,Label='NCSF')
-         NCSF(:)=0
-         NCSF(STSYM)=1
+         Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
+         CIS%NCSF(:)=0
+         CIS%NCSF(STSYM)=1
       endif
 
       MXCI=1
       DO I=1,NSYM
-        MXCI=MAX(MXCI,NCSF(I))
+        MXCI=MAX(MXCI,CIS%NCSF(I))
       END DO
 C NOTE: AT THIS POINT, WE HAVE ALLOCATED MEMORY SPACE FOR SGUGA USE:
 C MVL,MVR,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,ICASE,ICOUP,VTAB,TMP.

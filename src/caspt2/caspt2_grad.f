@@ -17,7 +17,7 @@ C
      *                           idBoriMat,TraFro
       use stdalloc, only: mma_allocate
 C
-      use gugx, only: NCSF
+      use gugx, only: CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -100,7 +100,7 @@ C
         nBasI = nBas(iSym)
         nBasTr = nBasTr + nBasI*(nBasI+1)/2
         nBasSq = nBasSq + nBasI*nBasI
-        nCLag = nCLag + nState*nCSF(iSym)
+        nCLag = nCLag + nState*CIS%nCSF(iSym)
       END DO
       nOLag = nBasSq
       nSLag = nState*nState

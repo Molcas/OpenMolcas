@@ -37,7 +37,7 @@ C
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
-      use gugx, only: NCSF, SGS, L2ACT
+      use gugx, only: CIS, SGS, L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -109,7 +109,7 @@ C Put in zeroes. Recognize special cases:
 
       IF(NACTEL.EQ.0) GOTO 999
 
-      NCI=NCSF(STSYM)
+      NCI=CIS%NCSF(STSYM)
 * This should not happen, but...
       IF(NCI.EQ.0) GOTO 999
 
@@ -192,7 +192,7 @@ C-SVC20100301: calculate maximum number of tasks possible
 *
       DO issg1=1,nsym
        isp1=mul(issg1,stsym)
-*      nsgm1=ncsf(issg1)
+*      nsgm1=CIS%ncsf(issg1)
 *      CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1,NMIDV)
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -370,7 +370,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
       izlev=idx2ij(2,ip3)
       isyz=mul(SGS%ism(iylev),SGS%ism(izlev))
       issg2=mul(isyz,stsym)
-*     nsgm2=ncsf(issg2)
+*     nsgm2=CIS%ncsf(issg2)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
 *     lto=lbuf2

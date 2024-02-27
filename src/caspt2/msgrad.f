@@ -1228,7 +1228,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use gugx, only: SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1319,7 +1319,7 @@ C     ENDDO
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
-          NSGM=NCSF(ISSG)
+          NSGM=CIS%NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
           CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
@@ -1705,7 +1705,7 @@ C
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
-      use gugx, only: SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -1798,7 +1798,7 @@ C         LTU=LTU+1
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
-          NSGM=NCSF(ISSG)
+          NSGM=CIS%NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
           CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
           IF(ISTU.EQ.1) THEN

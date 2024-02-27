@@ -19,7 +19,7 @@
       use caspt2_gradient, only: nbuf1_grad
       use gugx, only: ICOUP,  IOCP, CIS,
      &                IOCSF, MVL, MVR,  NOCP,
-     &                NOCSF, VTAB, NCSF, L2ACT,
+     &                NOCSF, VTAB, L2ACT,
      &                SGS
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -89,7 +89,7 @@ C Put in zeroes. Recognize special cases:
 
       IF(NACTEL.EQ.0) GOTO 999
 
-      NCI=NCSF(STSYM)
+      NCI=CIS%NCSF(STSYM)
 * This should not happen, but...
       IF(NCI.EQ.0) GOTO 999
 
@@ -427,7 +427,7 @@ C     write(6,*) "PREP    : CPU/WALL TIME=", cput,wallt
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
       DO issg1=1,nsym
        isp1=mul(issg1,STSYM)
-       nsgm1=ncsf(issg1)
+       nsgm1=CIS%ncsf(issg1)
        !! Work(LBufD) = \sum_t <I|E_{tt}|I>*f_{tt}
        CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),CIS%NOW,CIS%IOW,nMidV)
 
@@ -636,7 +636,7 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       izlev=idx2ij(2,ip3)
       isyz=mul(SGS%ism(iylev),SGS%ism(izlev))
       issg2=mul(isyz,STSYM)
-      nsgm2=ncsf(issg2)
+      nsgm2=CIS%ncsf(issg2)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
       lto=lbuf2

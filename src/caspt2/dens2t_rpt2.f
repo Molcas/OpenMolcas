@@ -21,7 +21,7 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
-      use gugx, only: SGS, L2ACT, NCSF
+      use gugx, only: SGS, L2ACT, CIS
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -128,7 +128,7 @@ C         LTU=LTU+1
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
           ISSG=MUL(ISTU,STSYM)
-          NSGM=NCSF(ISSG)
+          NSGM=CIS%NCSF(ISSG)
 C         IF(NSGM.EQ.0) GOTO 130
           IF(NSGM.EQ.0) GOTO 500
 C         CALL GETSGM2(LT,LU,STSYM,CI1,SGM1)

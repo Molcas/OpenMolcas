@@ -14,7 +14,7 @@
      &                SGS,CIS,MXUP,MXDWN,
      &                     DAW,RAW,USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
-     &                NOCSF, IOCSF, NCSF_GUGA => NCSF
+     &                NOCSF, IOCSF
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Real*8 CIL(*)
@@ -118,8 +118,8 @@
 
       IFCAS=1
       Call mkGUGA(NLEV,NSYM,State_Sym)
-      NCSF(1:nSym) = NCSF_GUGA(1:nSym)
-      NCONF=NCSF_GUGA(State_Sym)
+      NCSF(1:nSym) = CIS%NCSF(1:nSym)
+      NCONF=CIS%NCSF(State_Sym)
 
       nVert =SGS%nVert
       MidLev=SGS%MidLev

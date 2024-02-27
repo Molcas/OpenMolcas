@@ -12,7 +12,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,CIS,MXUP,MXDWN, NCSF_GUGA => NCSF,
+     &                SGS,CIS,MXUP,MXDWN,
      &                DAW,RAW,USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF
       use Str_Info, only: CFTP, CNSM
@@ -109,8 +109,8 @@
       IFCAS=1
       Call mkGUGA(NLEV,NSYM,kSym)
 
-      NCSF(1:nSym)=NCSF_GUGA(1:nSym)
-      NCONF=NCSF_GUGA(kSym)
+      NCSF(1:nSym)=CIS%NCSF(1:nSym)
+      NCONF=CIS%NCSF(kSym)
 
       nMidV =CIS%nMidV
       nVert =SGS%nVert
