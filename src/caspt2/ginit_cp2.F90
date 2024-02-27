@@ -21,10 +21,10 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               MXEO, IFCAS, CIS,                     &
+     &               IFCAS, CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,              NIOCP,       NMVR,NMVL,        &
-     &               RAW, DAW, NOCP, NNOCP, SGS
+     &               RAW, DAW, NOCP, NNOCP, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -32,7 +32,7 @@
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer NICOUP, NVTAB_TMP, NVERT, NLEV, nMidV, NICASE, nWalk
+      Integer NICOUP, NVTAB_TMP, NICASE
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
@@ -42,7 +42,8 @@
       End SUBROUTINE MKGUGA
       End Interface
 
-      nLev=SGS%nLev
+      Associate ( nLev => SGS%nLev, nWalk => CIS%nWalk,                 &
+     &            nVert=> SGS%nVert, nMidV=>CIS%nMidV, MXEO => EXS%MxEO)
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
@@ -69,9 +70,6 @@
 
       CALL MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM=.TRUE.)
 
-      nWalk=CIS%nWalk
-      nVert=SGS%nVert
-      nMidV=CIS%nMidV
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
@@ -99,7 +97,7 @@
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,NOCP,IOCP,CIS%NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP)
+      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,NOCP,IOCP,CIS%NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP,MxEO)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK
@@ -135,7 +133,7 @@
       CALL mma_deallocate(RAW)
       Call mma_deallocate(SGS%LTV)
 
-      RETURN
+      End Associate
 
       END SUBROUTINE GINIT_CP2
 

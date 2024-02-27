@@ -17,10 +17,10 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
-     &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,nMidV,nICoup)
-      use gugx, only: SGS, CIS,MXEO, CIS, NVTAB, SGTMP
+     &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,nMidV,nICoup,MxEO)
+      use gugx, only: SGS, CIS, NVTAB, SGTMP
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer, Intent(In) :: nMidV, nICoup
+      Integer, Intent(In) :: nMidV, nICoup, MxEO
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       Integer NOCP(MXEO,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)

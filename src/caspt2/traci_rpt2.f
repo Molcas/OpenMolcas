@@ -9,14 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
-      use gugx, only: LEVEL, CIS,NOCP,IOCP,ICOUP, VTAB,MVL,MVR
+      use gugx, only: LEVEL, CIS,NOCP,IOCP,ICOUP, VTAB,MVL,MVR, EXS
 
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
       DIMENSION XMAT(NDIM,NDIM),CI(*)
 #include "WrkSpc.fh"
-      Integer :: nMidV, nICoup
+      Integer :: nMidV, nICoup, MxEO
       nMidV = CIS%nMidV
+      MxEO  = EXS%MxEO
       nICoup=Size(ICoup)/3
 
       IF (NDIM.LE.0) GOTO 999
@@ -61,7 +62,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup)
+     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
@@ -71,7 +72,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICOup)
+     &         VTAB,MVL,MVR,nMidV,nICOup,MxEO)
         END DO
 
  100  CONTINUE

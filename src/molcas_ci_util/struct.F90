@@ -51,7 +51,7 @@ Type EXStruct
      Integer NT4MX
      Integer NT5MX
 End Type EXStruct
-Public SGStruct, CIStruct
+Public SGStruct, CIStruct, EXStruct
 integer, parameter ::  mxlev=100
 integer :: LEVEL(mxlev)
 

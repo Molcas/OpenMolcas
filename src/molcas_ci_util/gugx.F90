@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module GUGX
-use struct, only: SGStruct, CIStruct
+use struct, only: SGStruct, CIStruct, ExStruct
 Private
 
 Public SGStruct
@@ -42,6 +42,25 @@ Type (CIStruct), Public, Target:: CIS
 !     Integer nWalk
 !     Integer, Allocatable:: ICase(:)
 !End Type CIStruct
+Public EXStruct
+Type (EXStruct), Public, Target:: EXS
+! Excitation operators, coupling coefficients,...
+!Type EXStruct
+!     Integer MxEO
+!     Integer, Allocatable:: NOCP(:)
+!     Integer, Allocatable:: IOCP(:)
+!     Integer, Allocatable:: ICoup(:)
+!     Integer nVTab
+!     Real*8,  Allocatable:: VTab(:)
+!     Integer, Allocatable:: MVL(:)
+!     Integer, Allocatable:: MVR(:)
+!     Integer NT1MX
+!     Integer NT2MX
+!     Integer NT3MX
+!     Integer NT4MX
+!     Integer NT5MX
+!End Type EXStruct
+
 
 
 Integer, Parameter, Public :: MXLEV=100

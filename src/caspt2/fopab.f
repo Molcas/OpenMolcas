@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
-      use gugx, only: SGS, L2ACT, NOCP, IOCP, ICOUP, VTAB, MVL, MVR, CIS
+      use gugx, only: SGS, L2ACT, NOCP, IOCP, ICOUP, VTAB, MVL, MVR,
+     &                EXS, CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -20,9 +21,10 @@
       DIMENSION FIFA(NFIFA)
 * Purely local array, offsets:
       DIMENSION IOFF(8)
-      Integer :: nLev, nMidV, nICoup
+      Integer :: nLev, nMidV, nICoup, MxEO
       nLev = SGS%nLev
       nMidV= CIS%nMidV
+      MxEO = EXS%MxEO
       nICoup=Size(ICoup)/3
 
 * Procedure for computing one matrix element of the Fock matrix in the
@@ -137,7 +139,7 @@
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup)
+     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO)
   10      CONTINUE
         END DO
       END DO
@@ -190,7 +192,7 @@
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup)
+     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO)
   20      CONTINUE
         END DO
       END DO
