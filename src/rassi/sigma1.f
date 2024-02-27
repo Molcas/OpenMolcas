@@ -27,22 +27,17 @@
       Type (CIStruct) CIS
       Type (EXStruct) EXS
 #include "WrkSpc.fh"
-      SAVE ICALL
-      DATA ICALL /0/
-
-
-
 
       NLEV  =SGS%nLev
       MIDLEV=SGS%MidLev
       NIPWLK=CIS%nIpWlk
+
       NT1MX =EXS%NT1MX
       NT2MX =EXS%NT2MX
       NT3MX =EXS%NT3MX
       NT4MX =EXS%NT4MX
 
       IF(ABS(CPQ).LT.1.0D-12) RETURN
-      ICALL=ICALL+1
 C SYMMETRY OF ORBITALS:
       ISYP=ISM(IP)
       ISYQ=ISM(IQ)
