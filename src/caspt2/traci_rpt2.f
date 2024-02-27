@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
-      use gugx, only: LEVEL, CIS, MVL,MVR, EXS
+      use gugx, only: LEVEL, CIS, MVR, EXS
 
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
@@ -63,7 +63,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,EXS%MVL,MVR,nMidV,nICoup,MxEO,nVTab)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
@@ -73,7 +73,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,MVL,MVR,nMidV,nICOup,MxEO,nVTab)
+     &         EXS%VTAB,EXS%MVL,MVR,nMidV,nICOup,MxEO,nVTab)
         END DO
 
  100  CONTINUE

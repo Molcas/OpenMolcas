@@ -172,7 +172,7 @@
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  RAW,  DAW, USGN, LSGN, SGS, MVL, MVR, SGTMP, CIS, EXS
+      use gugx, only:  RAW,  DAW, USGN, LSGN, SGS, MVR, SGTMP, CIS, EXS
       IMPLICIT None
 !
       If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
@@ -198,7 +198,7 @@
       If (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
       If (Allocated(EXS%ICOUP)) Call mma_deallocate(EXS%ICOUP)
 
-      If (Allocated(MVL)) Call mma_deallocate(MVL)
+      If (Allocated(EXS%MVL)) Call mma_deallocate(EXS%MVL)
       If (Allocated(MVR)) Call mma_deallocate(MVR)
 
       If (Allocated(EXS%VTAB)) Call mma_deallocate(EXS%VTAB)
