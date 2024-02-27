@@ -73,7 +73,7 @@
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
-      use gugx, only: IFCAS, IOCSF, CIS
+      use gugx, only: IFCAS, CIS
       use sxci, only: IDXSX
 
       Implicit Real* 8 (A-H,O-Z)
@@ -824,7 +824,7 @@ c         end if
                 call Molcas_open(LuVecDet,filename)
                 write(LuVecDet,'(8i4)') nish
               End If
-              CALL SGPRWF(PrSel,CIS%NOCSF,IOCSF,CIS%NOW,CIS%IOW,
+              CALL SGPRWF(PrSel,CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &                    CIV,nMidV)
 !     Close GronOR vecdet file (tps/cdg 20210430)
               If (KeyPRSD) close(LuVecDet)
@@ -893,7 +893,8 @@ C.. printout of the wave function
             LuVecDet=IsFreeUnit(LuVecDet)
             call Molcas_open(LuVecDet,filename)
             write(LuVecDet,'(8i4)') nish
-            CALL SGPRWF(PrSel,CIS%NOCSF,IOCSF,CIS%NOW,CIS%IOW,CIV,nMidV)
+            CALL SGPRWF(PrSel,CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,CIV,
+     &                  nMidV)
 !     Close GronOR vecdet file (tps/cdg 20210430)
             close(LuVecDet)
           END IF

@@ -47,7 +47,7 @@ Type (CIStruct), Public, Target:: CIS
 Integer, Parameter, Public :: MXLEV=100
 Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
-Integer, Allocatable, Public:: IOCSF(:), USGN(:), LSGN(:)
+Integer, Allocatable, Public:: USGN(:), LSGN(:)
 
 Integer, Allocatable, Public:: ICOUP(:)
 

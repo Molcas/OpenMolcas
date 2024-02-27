@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
-      use gugx, only: IOCSF,NOCP,IOCP,ICOUP,
+      use gugx, only: NOCP,IOCP,ICOUP,
      &                         VTAB,MVL,MVR,SGS,L2ACT, CIS
       IMPLICIT REAL*8 (a-h,o-z)
 
@@ -216,7 +216,7 @@ C Translate to levels in the SGUGA coupling order:
         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
-     &    CIS%NOCSF,IOCSF,CIS%NOW,CIS%IOW,
+     &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &    NOCP,IOCP,ICOUP,
      &    VTAB,MVL,MVR,nMidV,nICoup)
         IF(ISSG2.EQ.LSYM1) THEN
@@ -240,7 +240,7 @@ C Translate to levels:
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
          CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
-     &    CIS%NOCSF,IOCSF,CIS%NOW,CIS%IOW,
+     &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &    NOCP,IOCP,ICOUP,
      &    VTAB,MVL,MVR,nMidV,nICoup)
          LTO=LTO+MXCI
@@ -268,7 +268,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
-     &     CIS%NOCSF,IOCSF,CIS%NOW,CIS%IOW,
+     &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     NOCP,IOCP,ICOUP,
      &     VTAB,MVL,MVR,nMidV,nICoup)
           IF(ISTAU.EQ.LSYM1) THEN
