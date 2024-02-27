@@ -27,6 +27,8 @@ Type (SGStruct), Public, Target:: SGS
 !     Integer MVEnd
 !     Integer, Allocatable:: MAW(:)
 !     Integer, Allocatable:: LTV(:)
+!     Integer, Allocatable:: RAW(:)
+!     Integer, Allocatable:: DAW(:)
 !End Type SGStruct
 Public CIStruct
 Type (CIStruct), Public, Target:: CIS
@@ -67,7 +69,7 @@ Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: USGN(:), LSGN(:)
 
-Integer, Allocatable, Public:: DAW(:), RAW(:)
+Integer, Allocatable, Public:: DAW(:)
 
 Real*8,  Allocatable, Public:: SGTMP(:)
 Integer,              Public:: NSGTMP

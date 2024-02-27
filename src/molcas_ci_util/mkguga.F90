@@ -21,7 +21,7 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: IA0, IB0, IC0, NVERT0, IFCAS, RAW,  &
+      use gugx, only: IA0, IB0, IC0, NVERT0, IFCAS,  &
      &                CIS, MXUP, MXDWN, DAW, LSGN,  USGN,   &
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
 
@@ -111,8 +111,8 @@
 !     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
 !
       CALL mma_allocate(SGS%UP,4*nVert,Label='SGS%UP')
-      CALL mma_allocate(RAW,5*nVert,Label='RAW')
-      CALL MKRAW(NVERT,SGS%DOWN,SGS%UP,RAW)
+      CALL mma_allocate(SGS%RAW,5*nVert,Label='SGS%RAW')
+      CALL MKRAW(NVERT,SGS%DOWN,SGS%UP,SGS%RAW)
 !
 !     COMPUTE LTV TABLES.
 !
@@ -121,7 +121,7 @@
 !
 !     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.
 !
-      CALL MKMID(NVERT,NLEV,DAW,RAW,SGS%LTV,MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
+      CALL MKMID(NVERT,NLEV,DAW,SGS%RAW,SGS%LTV,MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
 
       CIS%nMidV =nMidV
 !
@@ -158,7 +158,7 @@
       NLSGN=MXDWN*NMIDV
       CALL mma_allocate(USGN,NUSGN,Label='USGN')
       CALL mma_allocate(LSGN,NLSGN,Label='LSGN')
-      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,DAW,RAW,CIS%NOW, &
+      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,DAW,SGS%RAW,CIS%NOW, &
                    CIS%IOW,USGN,LSGN,CIS%ICASE)
 !
 !     EXIT
@@ -172,7 +172,7 @@
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  RAW,  DAW, USGN, LSGN, SGS, SGTMP, CIS, EXS
+      use gugx, only:  DAW, USGN, LSGN, SGS, SGTMP, CIS, EXS
       IMPLICIT None
 !
       If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
@@ -182,7 +182,7 @@
       If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
 
       If (Allocated(DAW)) Call mma_deallocate(DAW)
-      If (Allocated(RAW)) Call mma_deallocate(RAW)
+      If (Allocated(SGS%RAW)) Call mma_deallocate(SGS%RAW)
 
       If (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
       If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)

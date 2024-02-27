@@ -21,7 +21,7 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               IFCAS, CIS, RAW, DAW, SGS, EXS
+     &               IFCAS, CIS, DAW, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -71,7 +71,7 @@
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
       CALL mma_allocate(SGS%MAW,4*NVERT,Label='MAW')
-      CALL MKMAW(SGS%DOWN,DAW,SGS%UP,RAW,SGS%MAW,NVERT, SGS%MVSta, SGS%MVEnd)
+      CALL MKMAW(SGS%DOWN,DAW,SGS%UP,SGS%RAW,SGS%MAW,NVERT, SGS%MVSta, SGS%MVEnd)
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
@@ -123,7 +123,7 @@
       Call mma_deallocate(SGS%DOWN)
       CALL mma_deallocate(DAW)
       CALL mma_deallocate(SGS%UP)
-      CALL mma_deallocate(RAW)
+      CALL mma_deallocate(SGS%RAW)
       Call mma_deallocate(SGS%LTV)
 
       End Associate
