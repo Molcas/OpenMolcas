@@ -51,6 +51,7 @@ Type EXStruct
      Real*8,  Allocatable:: VTab(:)
      Integer, Allocatable:: MVL(:)
      Integer, Allocatable:: MVR(:)
+     Real*8,  Allocatable:: SGTMP(:)
      Integer NT1MX
      Integer NT2MX
      Integer NT3MX

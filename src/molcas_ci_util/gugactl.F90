@@ -21,8 +21,7 @@
 !
       use Definitions, only: LF => u6
       use stdalloc, only: mma_allocate
-      use gugx, only: NVERT0, IFCAS, LV1RAS,       &
-     &                LM1RAS, LV3RAS, LM3RAS, CIS, SGS
+      use gugx, only: IFCAS, LV1RAS, LM1RAS, LV3RAS, LM3RAS, CIS, SGS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 !
@@ -32,6 +31,7 @@
 #include "general.fh"
 #include "gas.fh"
       Character(LEN=16), Parameter :: ROUTINE='GUGACTL '
+      Integer nVert0
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)

@@ -13,15 +13,14 @@
 !
 !     PURPOSE: MAKE THE GUGA TABLES
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
-!              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
-!              THE COMMON /GUGA/. THESE ARE:
-!              SGS%DRT,DOWN,DAW,UP,RAW,NOW,IOW1,NOCSF,IOCSF
+!              THE START ADRESSES OF OF THE ARRAYS ETC. ARE STORED IN
+!              THREE USER DEFINED TYPES. Consult the struct.F90 and gugx.F90 files for the details.
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: NVERT0, IFCAS, CIS, LSGN, USGN,   &
+      use gugx, only: IFCAS, CIS, LSGN, USGN,   &
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
 
       IMPLICIT None
@@ -33,7 +32,7 @@
       Integer, Allocatable, Target:: DRT0(:), DOWN0(:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
       Integer IAC, NDOWN0, NDRT0, NLSGN, NSCR, NTMP, NUSGN, NDOWN, NDRT,  &
-     &        NICASE
+     &        NICASE, NVERT0
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
@@ -172,7 +171,7 @@
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  USGN, LSGN, SGS, SGTMP, CIS, EXS
+      use gugx, only:  USGN, LSGN, SGS, CIS, EXS
       IMPLICIT None
 !
       If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
@@ -202,6 +201,6 @@
       If (Allocated(EXS%MVR)) Call mma_deallocate(EXS%MVR)
 
       If (Allocated(EXS%VTAB)) Call mma_deallocate(EXS%VTAB)
-      If (Allocated(SGTMP)) Call mma_deallocate(SGTMP)
+      If (Allocated(EXS%SGTMP)) Call mma_deallocate(EXS%SGTMP)
 
       END SUBROUTINE MKGUGA_FREE

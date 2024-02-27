@@ -60,6 +60,7 @@ Type (EXStruct), Public, Target:: EXS
 !     Real*8,  Allocatable:: VTab(:)
 !     Integer, Allocatable:: MVL(:)
 !     Integer, Allocatable:: MVR(:)
+!     Real*8,  Allocatable:: SGTMP(:)
 !     Integer NT1MX
 !     Integer NT2MX
 !     Integer NT3MX
@@ -74,8 +75,5 @@ Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
 Integer, Allocatable, Public:: USGN(:), LSGN(:)
 
-Real*8,  Allocatable, Public:: SGTMP(:)
-Integer,              Public:: NSGTMP
-
-INTEGER, Public:: NVERT0,IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS
+INTEGER, Public:: IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS
 End Module GUGX

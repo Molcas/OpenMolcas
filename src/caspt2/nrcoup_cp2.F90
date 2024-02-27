@@ -18,7 +18,7 @@
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
      &                  NOCSF,NRL,MVL,MVR,nVert,nMidV,nICoup,MXEO)
-      use gugx, only: SGS, SGTMP, NSGTMP
+      use gugx, only: SGS, EXS
 #ifdef _DEBUGPRINT_
       use gugx, only: CIS
 #endif
@@ -45,7 +45,7 @@
       Integer IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT,     &
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
-     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1
+     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif
@@ -240,7 +240,7 @@
   552 CONTINUE
   551 CONTINUE
   550 CONTINUE
-      CALL mma_allocate(SGTMP,NSGTMP,Label='SGTMP')
+      CALL mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
 !
 #ifdef _DEBUGPRINT_
       NUW=NOW(1,NSYM,NMIDV)
