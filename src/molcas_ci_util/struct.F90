@@ -22,6 +22,8 @@ Type SGStruct
      Integer MVEnd
      Integer, Allocatable:: MAW(:)
      Integer, Allocatable:: LTV(:)
+     Integer, Allocatable:: DAW(:)
+     Integer, Allocatable:: RAW(:)
 End Type SGStruct
 ! CI Structures, addresses,..
 Type CIStruct

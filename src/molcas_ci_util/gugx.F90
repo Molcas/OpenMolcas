@@ -72,8 +72,6 @@ Integer, Allocatable, Public:: DAW(:), RAW(:)
 Real*8,  Allocatable, Public:: SGTMP(:)
 Integer,              Public:: NSGTMP
 
-Integer, Allocatable, Public:: MVR(:)
-
 INTEGER, Public:: IA0,IB0,IC0,NVERT0,                        &
                   IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,         &
                   MXUP,MXDWN,MXEO

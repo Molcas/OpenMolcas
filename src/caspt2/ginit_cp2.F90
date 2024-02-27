@@ -21,7 +21,7 @@
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               IFCAS, CIS, MVR, RAW, DAW, SGS, EXS
+     &               IFCAS, CIS, RAW, DAW, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -79,10 +79,10 @@
       NSGMNT=26*NVERT
       CALL mma_allocate(IVR,NIVR,Label='IVR')
       CALL mma_allocate(EXS%MVL,2*NMIDV,Label='EXS%MVL')
-      CALL mma_allocate(MVR,2*NMIDV,Label='MVR')
+      CALL mma_allocate(EXS%MVR,2*NMIDV,Label='EXS%MVR')
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
-      CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,EXS%MVL,MVR,ISGM,VSGM,nVert,nLev,NMIDV)
+      CALL MKSEG_CP2(SGS%DRT,SGS%DOWN,SGS%LTV,IVR,EXS%MVL,EXS%MVR,ISGM,VSGM,nVert,nLev,NMIDV)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
@@ -90,7 +90,7 @@
       CALL mma_allocate(EXS%NOCP,MXEO*NMIDV*NSYM,Label='EXS%NOCP')
       CALL mma_allocate(EXS%IOCP,MXEO*NMIDV*NSYM,Label='EXS%IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,EXS%NOCP,EXS%IOCP,CIS%NOCSF,NRL,EXS%MVL,MVR,nVert,nMidV,NICOUP,MxEO)
+      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,EXS%NOCP,EXS%IOCP,CIS%NOCSF,NRL,EXS%MVL,EXS%MVR,nVert,nMidV,NICOUP,MxEO)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK
