@@ -11,8 +11,7 @@
       Subroutine GugaCtl_dmrg()
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: IFCAS, LV1RAS, LV3RAS, LM1RAS, LM3RAS,
-     &                SGS, CIS
+      use gugx, only: IFCAS, SGS, CIS
       Implicit Real*8 (A-H,O-Z)
 *
 #include "Input.fh"
@@ -30,6 +29,8 @@
       End Interface
 
       Associate ( nLev => SGS%nLev,
+     &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,
+     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,
      &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
 *
       ntRas1=0

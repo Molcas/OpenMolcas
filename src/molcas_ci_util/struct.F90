@@ -29,6 +29,10 @@ Type SGStruct
      Integer, Allocatable:: RAW(:)
      Integer MXUP
      Integer MXDWN
+     Integer LV1RAS
+     Integer LM1RAS
+     Integer LV3RAS
+     Integer LM3RAS
 End Type SGStruct
 ! CI Structures, addresses,..
 Type CIStruct

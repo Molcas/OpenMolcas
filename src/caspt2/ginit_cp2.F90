@@ -20,8 +20,7 @@
       SUBROUTINE GINIT_CP2()
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only:LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
-     &               IFCAS, CIS, SGS, EXS
+      use gugx, only: IFCAS, CIS, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -41,6 +40,8 @@
 
       Associate ( nLev => SGS%nLev, nWalk => CIS%nWalk,                 &
      &            nVert=> SGS%nVert, nMidV=>CIS%nMidV, MXEO => EXS%MxEO, &
+     &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
+     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
      &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
 
       LV1RAS=NRAS1T

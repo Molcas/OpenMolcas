@@ -21,7 +21,7 @@
 !
       use Definitions, only: LF => u6
       use stdalloc, only: mma_allocate
-      use gugx, only: IFCAS, LV1RAS, LM1RAS, LV3RAS, LM3RAS, CIS, SGS
+      use gugx, only: IFCAS, CIS, SGS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 !
@@ -43,6 +43,8 @@
       End Interface
 
       Associate( nLev =>SGS%nLev,   &
+     &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,
+     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,
      &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
 
 ! Local print level (if any)

@@ -20,7 +20,7 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: IFCAS, CIS, LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS, EXS
+      use gugx, only: IFCAS, CIS, SGS, EXS
 
       IMPLICIT None
 !
@@ -37,6 +37,8 @@
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
      &           MVEnd => SGS%MVEnd,  nMidV => CIS%nMidV, nIpWlk => CIS%nIpWlk, &
      &           nWalk => CIS%nWalk,  MxUp => SGS%MxUp, MxDwn => SGS%MxDwn, &
+     &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
+     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
      &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
 !
 !     SET UP A FULL PALDUS DRT TABLE:
