@@ -35,11 +35,10 @@
       Integer :: nLev
 
       Interface
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
-      Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
@@ -126,7 +125,7 @@
 !
 !     INITIALIZE GUGA TABLES:
 !
-      CALL MKGUGA(NLEV,NSYM,STSYM,NCSF)
+      CALL MKGUGA(NLEV,NSYM,STSYM)
       NCONF=NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 

@@ -12,7 +12,7 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,CIS,MXUP,MXDWN,
+     &                SGS,CIS,MXUP,MXDWN, NCSF_GUGA => NCSF,
      &                DAW,RAW,USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF
       use Str_Info, only: CFTP, CNSM
@@ -30,11 +30,10 @@
       Integer nVert, MidLev, MVSta, MVEnd, nLev, nMidV, nIpWlk, NICASE
 *
       Interface
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
-      Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
@@ -108,9 +107,11 @@
       SGS%nLev = nLev
 
       IFCAS=1
-      Call mkGUGA(NLEV,NSYM,kSym,NCSF)
+      Call mkGUGA(NLEV,NSYM,kSym)
 
-      NCONF=NCSF(kSym)
+      NCSF(1:nSym)=NCSF_GUGA(1:nSym)
+      NCONF=NCSF_GUGA(kSym)
+
       nMidV =CIS%nMidV
       nVert =SGS%nVert
       MidLev=SGS%MidLev

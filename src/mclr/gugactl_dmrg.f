@@ -13,7 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
      &                IFCAS, LV1RAS, LV3RAS, LM1RAS, LM3RAS,
-     &                SGS
+     &                SGS, NCSF_Guga => NCSF
       Implicit Real*8 (A-H,O-Z)
 *
 #include "Input.fh"
@@ -22,11 +22,10 @@
 #include "spinfo_mclr.fh"
 *
       Interface
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
-      Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
@@ -100,15 +99,10 @@
 !
       SGS%nLev = nLev
       IFCAS=1
-      Call mkGUGA(NLEV,NSYM,State_Sym,NCSF)
-      NCONF=NCSF(State_Sym)
+      Call mkGUGA(NLEV,NSYM,State_Sym)
+      NCSF(1:nSym) = NCSF_GUGA(1:nSym)
+      NCONF=NCSF_GUGA(State_Sym)
 
-*
-      If ( nConf.ne.NCSF(state_sym).and.(nConf.ne.1) ) then
-         Write (6,*) "Set nConf=NCSF(state_sym)"
-         Write (6,*)
-         nConf=NCSF(state_sym)
-      End If
 *
       Call mkGUGA_Free()
 

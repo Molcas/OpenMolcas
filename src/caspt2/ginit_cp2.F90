@@ -22,7 +22,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               MXEO,                               IFCAS,         &
-     &               NCSF, NWALK,       CIS,                     &
+     &               NWALK,       CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,              NIOCP,       NMVR,NMVL,        &
      &               RAW, DAW, NOCP, NOCSF,      &
@@ -37,10 +37,9 @@
       Integer NICOUP, NVTAB_TMP, NVERT, NLEV, nMidV, NICASE
 
       Interface
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
       IMPLICIT None
       Integer NLEV, NSYM, STSYM
-      Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
@@ -70,7 +69,7 @@
         CALL ABEND()
       End If
 
-      CALL MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM=.TRUE.)
+      CALL MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM=.TRUE.)
 
       nVert=SGS%nVert
       nMidV=CIS%nMidV

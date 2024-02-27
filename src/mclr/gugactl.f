@@ -14,7 +14,7 @@
      &                SGS,CIS,MXUP,MXDWN,
      &                     DAW,RAW,USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS,
-     &                NOCSF, IOCSF
+     &                NOCSF, IOCSF, NCSF_GUGA => NCSF
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Real*8 CIL(*)
@@ -28,11 +28,10 @@
       Integer nVert, MidLev, MVSta, MVEnd, nLev
 
       Interface
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,NCSF,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
       IMPLICIT None
 
       Integer NLEV, NSYM, STSYM
-      Integer NCSF(NSYM)
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
 
@@ -118,8 +117,9 @@
       SGS%nLev = nLev
 
       IFCAS=1
-      Call mkGUGA(NLEV,NSYM,State_Sym,NCSF)
-      NCONF=NCSF(State_Sym)
+      Call mkGUGA(NLEV,NSYM,State_Sym)
+      NCSF(1:nSym) = NCSF_GUGA(1:nSym)
+      NCONF=NCSF_GUGA(State_Sym)
 
       nVert =SGS%nVert
       MidLev=SGS%MidLev
