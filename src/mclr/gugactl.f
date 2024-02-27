@@ -10,8 +10,7 @@
       Subroutine GugaCtl_MCLR(CIL,imode)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,CIS,MXUP,MXDWN, USGN,LSGN,IFCAS,
+      use gugx, only: SGS,CIS,MXUP,MXDWN, USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
@@ -23,7 +22,6 @@
 #include "spinfo_mclr.fh"
       Parameter (iPrint=0)
       Real*8, Allocatable:: CINew(:)
-      Integer nVert, MidLev, MVSta, MVEnd, nLev
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
@@ -48,6 +46,10 @@
       END SUBROUTINE SGPRWF_MCLR
       End Interface
 *
+      Associate ( nLev => SGS%nLev, nVert => SGS%nVert,
+     &            MidLev=>SGS%MidLev, MVSta =>SGS%MVSta,
+     &            MVEnd =>SGS%MVEnd, nMidV =>CIS%nMidV,
+     &            A0 => SGS%IA0, B0 => SGS%IB0, C0 => SGS%IC0)
 *
       ntRas1=0
       ntRas2=0
@@ -112,18 +114,12 @@
       LV3RAS=LV1RAS+ntRas2
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
-      SGS%nLev = nLev
 
       IFCAS=1
       Call mkGUGA(NLEV,NSYM,State_Sym)
       NCSF(1:nSym) = CIS%NCSF(1:nSym)
       NCONF=CIS%NCSF(State_Sym)
 
-      nVert =SGS%nVert
-      MidLev=SGS%MidLev
-      MVSta =SGS%MVSta
-      MVEnd =SGS%MVEnd
-      nMidV =CIS%nMidV
 
       If (iPrint.ge.5) Then
       PRWTHR=0.0d0
@@ -164,5 +160,6 @@
 *
       Call MkGUGA_Free()
 *
+      End Associate
 
       End Subroutine GugaCtl_MCLR

@@ -11,8 +11,7 @@
       Subroutine GugaNew(CIL,imode,ksym)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
-     &                SGS,CIS,MXUP,MXDWN,USGN,LSGN,IFCAS,
+      use gugx, only: SGS,CIS,MXUP,MXDWN,USGN,LSGN,IFCAS,
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS
       use Str_Info, only: CFTP, CNSM
       Implicit None
@@ -26,7 +25,7 @@
       Real*8, Allocatable:: CINEW(:)
       Real*8 :: PRWTHR=0.05d0
       Integer ntRas1, ntRas2, ntRas3, iSym, jPrint, iBas, iOrb, iss
-      Integer nVert, MidLev, MVSta, MVEnd, nLev, nMidV, nIpWlk, NICASE
+      Integer NICASE
 *
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
@@ -39,6 +38,12 @@
 
 *
       NICASE = SIZE(CIS%ICASE)
+
+      Associate ( nLev=> SGS%nLev, nMidV =>CIS%nMidV,
+     &            nVert =>SGS%nVert, MidLev=>SGS%MidLev,
+     &            MVSta =>SGS%MVSta, MVEnd =>SGS%MVEnd,
+     &            nIpWlk=>CIS%nIpWlk,
+     &            A0 => SGS%IA0, B0 => SGS%IB0, C0 => SGS%IC0)
 
       ntRas1=0
       ntRas2=0
@@ -103,7 +108,6 @@
       LV3RAS=LV1RAS+ntRas2
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
-      SGS%nLev = nLev
 
       IFCAS=1
       Call mkGUGA(NLEV,NSYM,kSym)
@@ -111,12 +115,6 @@
       NCSF(1:nSym)=CIS%NCSF(1:nSym)
       NCONF=CIS%NCSF(kSym)
 
-      nMidV =CIS%nMidV
-      nVert =SGS%nVert
-      MidLev=SGS%MidLev
-      MVSta =SGS%MVSta
-      MVEnd =SGS%MVEnd
-      nIpWlk=CIS%nIpWlk
 
 
       iss=1
@@ -155,5 +153,7 @@
       Call mma_deallocate(CINew)
 *
       Call mkGUGA_Free()
+
+      End Associate
 
       End Subroutine GugaNew

@@ -16,6 +16,9 @@ Public SGStruct
 Type (SGStruct), Public, Target:: SGS
 ! Split-Graph descriptor, sizes, addresses...
 !Type SGStruct
+!     Integer IA0
+!     Integer IB0
+!     Integer IC0
 !     Integer nLev
 !     Integer, Allocatable:: ISm(:)
 !     Integer nVert
@@ -72,7 +75,6 @@ Integer, Allocatable, Public:: USGN(:), LSGN(:)
 Real*8,  Allocatable, Public:: SGTMP(:)
 Integer,              Public:: NSGTMP
 
-INTEGER, Public:: IA0,IB0,IC0,NVERT0,                        &
-                  IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,         &
-                  MXUP,MXDWN,MXEO
+INTEGER, Public:: NVERT0,IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,         &
+                  MXUP,MXDWN
 End Module GUGX

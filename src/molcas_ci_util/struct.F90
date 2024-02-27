@@ -11,6 +11,9 @@
 module Struct
 ! Split-Graph descriptor, sizes, addresses...
 Type SGStruct
+     Integer IA0
+     Integer IB0
+     Integer IC0
      Integer nLev
      Integer, Allocatable:: ISm(:)
      Integer nVert
