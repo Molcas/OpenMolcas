@@ -25,8 +25,7 @@
      &               NWALK,       CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
      &               NVTAB,              NIOCP,       NMVR,NMVL,        &
-     &               RAW, DAW, NOCP, NOCSF,      &
-     &               NNOCP, SGS
+     &               RAW, DAW, NOCP, NNOCP, SGS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -100,7 +99,7 @@
       CALL mma_allocate(NOCP,NNOCP,Label='NOCP')
       CALL mma_allocate(IOCP,NIOCP,Label='IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
-      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,NOCP,IOCP,NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP)
+      CALL NRCOUP_CP2(SGS%DRT,ISGM,CIS%NOW,NOCP,IOCP,CIS%NOCSF,NRL,MVL,MVR,nVert,nMidV,NICOUP)
       CALL mma_deallocate(NRL)
 
       NILNDW=NWALK

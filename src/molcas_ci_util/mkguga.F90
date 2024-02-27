@@ -23,7 +23,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: IA0, IB0, IC0, NVERT0, IFCAS, RAW, NRAW,       &
      &                CIS, MXUP, MXDWN, NWALK, DAW, NDAW,      &
-     &                NOCSF, IOCSF,  LSGN,  USGN,   &
+     &                IOCSF,  LSGN,  USGN,   &
      &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, SGS
 
       IMPLICIT None
@@ -137,11 +137,12 @@
       NSCR=MAX(6,3*(NLEV+1))
       CALL mma_allocate(CIS%NOW,2*NMIDV*NSYM,Label='CIS%NOW')
       CALL mma_allocate(CIS%IOW,2*NMIDV*NSYM,Label='CIS%IOW')
-      CALL mma_allocate(NOCSF,NMIDV*(NSYM**2),Label='NOCSF')
+      CALL mma_allocate(CIS%NOCSF,NMIDV*(NSYM**2),Label='CIS%NOCSF')
       CALL mma_allocate(IOCSF,NMIDV*(NSYM**2),Label='IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
-      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,CIS%NCSF,IOCSF,NOCSF,SCR)
+      CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,CIS%NCSF, &
+                 IOCSF,CIS%NOCSF,SCR)
 !
 !     CONSTRUCT THE CASE LIST
 !
@@ -173,7 +174,7 @@
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  RAW,  DAW,  NOCSF,   &
+      use gugx, only:  RAW,  DAW,  &
      &                 IOCSF,  USGN, LSGN, &
      &                 SGS, MVL, MVR, NOCP, IOCP, ICOUP, VTAB,&
      &                 SGTMP, CIS
@@ -190,7 +191,7 @@
 
       If (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
       If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
-      If (Allocated(NOCSF)) Call mma_deallocate(NOCSF)
+      If (Allocated(CIS%NOCSF)) Call mma_deallocate(CIS%NOCSF)
       If (Allocated(IOCSF)) Call mma_deallocate(IOCSF)
       If (Allocated(CIS%NCSF)) Call mma_deallocate(CIS%NCSF)
       If (Allocated(CIS%ICASE)) Call mma_deallocate(CIS%ICASE)

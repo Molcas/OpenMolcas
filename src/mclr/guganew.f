@@ -14,7 +14,7 @@
       use gugx, only: A0 => IA0, B0 => IB0, C0 => IC0,
      &                SGS,CIS,MXUP,MXDWN,
      &                DAW,RAW,USGN,LSGN,IFCAS,
-     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, NOCSF, IOCSF
+     &                LV1RAS, LV3RAS, LM1RAS, LM3RAS, IOCSF
       use Str_Info, only: CFTP, CNSM
       Implicit None
       Integer imode, ksym
@@ -134,7 +134,7 @@
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
       Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,SGS%ISM,NOCSF,IOCSF,CIS%NOW,
+     &                 NICASE,SGS%ISM,CIS%NOCSF,IOCSF,CIS%NOW,
      &                 CIS%IOW,CIS%ICASE,CIL)
       WRITE(6,103)
 103   FORMAT(/,6X,100('-'),/)
@@ -150,7 +150,7 @@
      &           NCPCNT,CIL,CInew,minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
      &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,SGS%ISM,NOCSF,IOCSF,
+     &                 NICASE,SGS%ISM,CIS%NOCSF,IOCSF,
      &                 CIS%NOW,CIS%IOW,CIS%ICASE,CInew)
       Call DCopy_(nConf,CINew,1,CIL,1)
       Call mma_deallocate(CINew)

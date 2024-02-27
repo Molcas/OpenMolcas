@@ -2628,7 +2628,7 @@ C
 C
       use caspt2_output, only:IPrGlb,verbose
       use caspt2_gradient, only: ConvInvar
-      use gugx, only: NOCSF, IOCSF, SGS, CIS
+      use gugx, only: IOCSF, SGS, CIS
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -2727,7 +2727,7 @@ C
 C
       !! Precondition
       Call CnstInt(2,Work(ipINT1),Work(ipINT2))
-      Call CnstPrec(NOCSF,IOCSF,CIS%NOW,
+      Call CnstPrec(CIS%NOCSF,IOCSF,CIS%NOW,
      *              CIS%IOW,ISYCI,Work(ipPre),work(ipcit),
      *              Work(ipINT1),Work(ipINT2),Work(ipFancy),nLev,
      *              nMidV)

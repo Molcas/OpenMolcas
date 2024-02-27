@@ -47,7 +47,7 @@ Type (CIStruct), Public, Target:: CIS
 Integer, Parameter, Public :: MXLEV=100
 Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
-Integer, Allocatable, Public:: NOCSF(:), IOCSF(:), USGN(:), LSGN(:)
+Integer, Allocatable, Public:: IOCSF(:), USGN(:), LSGN(:)
 
 Integer, Allocatable, Public:: ICOUP(:)
 
@@ -65,6 +65,5 @@ Integer,              Public::NNOCP,   NIOCP
 
 INTEGER, Public:: IA0,IB0,IC0,NVERT0,                        &
                   IFCAS,LV1RAS,LM1RAS,LV3RAS,LM3RAS,         &
-                  NMIDV,                    MXUP,MXDWN,      &
-                  NWALK,MXEO
+                  MXUP,MXDWN,NWALK,MXEO
 End Module GUGX

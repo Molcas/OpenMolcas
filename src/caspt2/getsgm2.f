@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use Symmetry_Info, only: Mul
-      use gugx, only: NOCSF, IOCSF, NOCP, IOCP,
+      use gugx, only: IOCSF, NOCP, IOCP,
      &                         ICOUP, VTAB, MVL, MVR, SGS, CIS
       IMPLICIT None
 
@@ -53,7 +53,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       SGM(1:NSGM)=0.0D0
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
-     &      NOCSF,IOCSF,CIS%NOW,CIS%IOW,
+     &      CIS%NOCSF,IOCSF,CIS%NOW,CIS%IOW,
      &      NOCP,IOCP,ICOUP,
      &      VTAB,MVL,MVR,nMidV,nICoup)
 

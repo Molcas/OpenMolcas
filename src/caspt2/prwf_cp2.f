@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF_CP2(ISYCI,NCO,CI,THR)
-      use gugx, only: NOCSF, IOCSF, CIS
+      use gugx, only: IOCSF, CIS
       IMPLICIT NONE
       INTEGER, INTENT(IN) :: ISYCI, NCO
       REAL*8, INTENT(IN) :: CI(NCO), THR
@@ -30,6 +30,6 @@
 
       WRITE(6,'(20A4)')('----',I=1,20)
       WRITE(6,'(a,es9.2)')' CI COEFFICIENTS LARGER THAN ',THR
-      CALL PRWF1_CP2(NOCSF,IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,THR,NMIDV)
+      CALL PRWF1_CP2(CIS%NOCSF,IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,THR,NMIDV)
 
       END SUBROUTINE PRWF_CP2
