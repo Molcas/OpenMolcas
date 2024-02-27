@@ -117,10 +117,11 @@ C>                   to active indices
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
 
-      Integer :: nMidV, nICoup, MxEO
+      Integer :: nMidV, nICoup, MxEO, nVTab
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
       nICoup=Size(ICoup)/3
+      nVTab=SIZE(VTab)
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999
@@ -355,7 +356,7 @@ C-sigma vectors in the buffer.
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO)
+     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
           end if
          end if
         end do
@@ -419,7 +420,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO)
+     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -455,7 +456,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
      &           WORK(LTO),CIS%NOCSF,CIS%IOCSF,CIS%NOW,
      &           CIS%IOW,NOCP,IOCP,ICOUP,
-     &           VTAB,MVL,MVR,nMidV,nICoup,MxEO)
+     &           VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
         end if
 *-----------
 * Max and min values of index p1:

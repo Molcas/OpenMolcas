@@ -21,7 +21,7 @@
 
       MxEO  =EXS%MxEO
       nICoup=SIZE(EXS%ICOUP)/3
-      nVTab =EXS%nVTab
+      nVTab =SIZE(EXS%VTab)
       CALL SIGMA_1(SGS,CIS,EXS,NMIDV,MXEO,NVTAB,NICOUP,SGS%ISM,
      &             IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
      &             CIS%IOCSF,CIS%NOW,CIS%IOW,

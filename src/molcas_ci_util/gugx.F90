@@ -74,7 +74,7 @@ Integer, Allocatable, Public:: DAW(:), RAW(:)
 Integer,              Public::NDAW,    NRAW
 
 Real*8,  Allocatable, Public:: VTAB(:), SGTMP(:)
-Integer,              Public::NVTAB,   NSGTMP
+Integer,              Public::         NSGTMP
 
 Integer, Allocatable, Public:: MVR(:), MVL(:)
 Integer,              Public::NMVR,   NMVL

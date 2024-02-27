@@ -15,10 +15,11 @@
       Integer stSym
       DIMENSION XMAT(NDIM,NDIM),CI(*)
 #include "WrkSpc.fh"
-      Integer :: nMidV, nICoup, MxEO
+      Integer :: nMidV, nICoup, MxEO, nVTab
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
       nICoup=Size(ICoup)/3
+      nVTab =Size(VTab)
 
       IF (NDIM.LE.0) GOTO 999
       NDIM2=NDIM**2
@@ -62,7 +63,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO)
+     &         VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
@@ -72,7 +73,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         NOCP,IOCP,ICOUP,
-     &         VTAB,MVL,MVR,nMidV,nICOup,MxEO)
+     &         VTAB,MVL,MVR,nMidV,nICOup,MxEO,nVTab)
         END DO
 
  100  CONTINUE

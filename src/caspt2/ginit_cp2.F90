@@ -23,7 +23,7 @@
       use gugx, only:IA0, IB0, IC0,      LM1RAS, LM3RAS, LV1RAS, LV3RAS,&
      &               IFCAS, CIS,                     &
      &                VTAB,        ICOUP, IOCP,        MVR, MVL,        &
-     &               NVTAB,              NIOCP,       NMVR,NMVL,        &
+     &               NIOCP,       NMVR,NMVL,        &
      &               RAW, DAW, NOCP, NNOCP, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
@@ -32,7 +32,7 @@
       Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
       Integer                                NNRL,   NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
-      Integer NICOUP, NVTAB_TMP, NICASE
+      Integer NICOUP, NVTAB_TMP, NICASE, nVTab
 
       Interface
       SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)

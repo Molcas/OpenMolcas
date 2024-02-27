@@ -82,7 +82,6 @@
       nScr=7*(nLev+1)
       Call mma_allocate(Scr,nScr,Label='Scr')
       Call mma_allocate(Val,nLev+1,Label='Val')
-      EXS%nVTab =nVMax
       nVTab=nVMax
       Call MkCoup(nSym,nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTab,                       &
@@ -92,7 +91,6 @@
 
       nVTAB=nVTAB_Final
       Call mma_allocate(EXS%Vtab,nVTab,Label='EXS%VTab')
-      EXS%nVTab=nVTab
       EXS%VTab(1:nVTab)=VTabTmp(1:nVTab)
       Call mma_deallocate(VTabTmp)
 
