@@ -16,12 +16,11 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE NRCOUP_CP2(IDRT,ISGMNT,NOW,NOCP,IOCP,                  &
-     &                  NOCSF,NRL,MVL,MVR,nVert,nMidV,nICoup,MXEO)
-      use gugx, only: SGS, EXS
-#ifdef _DEBUGPRINT_
-      use gugx, only: CIS
-#endif
+      SUBROUTINE NRCOUP_CP2(  &
+     &                      IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
+     &                  NOCSF,IOCSF,NCSF,   &
+     &                  NRL,MVL,MVR,nVert,nMidV,nICoup,MXEO)
+      use gugx, only: SGS, EXS, CIS
       use stdalloc, only: mma_allocate
       IMPLICIT None
 
@@ -29,6 +28,7 @@
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "segtab.fh"
+
 ! INPUT PARAMETERS:
       Integer, Intent(In) :: nVert, nMidV, MxEO
       Integer MVL(NMIDV,2),MVR(NMIDV,2)
@@ -37,46 +37,50 @@
 ! OUTPUT PARAMETERS:
       Integer, Intent(Out):: nICoup
       Integer NOW(2,NSYM,NMIDV),NOCP(MXEO,NSYM,NMIDV)
-      Integer                   IOCP(MXEO,NSYM,NMIDV)
-      Integer NOCSF(NSYM,NMIDV,NSYM)
+      Integer IOW(2,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
+      Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
+      Integer NCSF(NSYM)
 ! SCRATCH PARAMETERS:
       Integer NRL(NSYM,NVERT,0:MXEO)
 
       Integer IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT,     &
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
-     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP
+     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP, NLW, NUW,  &
+     &        NWALK, ISYDWN, ISYTOT, ISYUP
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif
-      Integer :: nLev, MVSTA, MVEND
+      Logical, Parameter :: IF_RASSI=.FALSE.
+      Integer :: nLev, MVSTA, MVEND, NIPWLK
 
 ! Dereference SGS, CIS for some other data
-      nLev = SGS%nLev
+      nLev  =SGS%nLev
       MVSTA =SGS%MVSta
       MVEND =SGS%MVEnd
+      NIPWLK=CIS%nIpWlk
 
-      DO 10 INDEO=0,MXEO
-        DO 11 IV=1,MVEnd
-          DO 12 LFTSYM=1,NSYM
+      DO INDEO=0,MXEO
+        DO IV=1,MVEnd
+          DO LFTSYM=1,NSYM
             NRL(LFTSYM,IV,INDEO)=0
-  12      CONTINUE
-  11    CONTINUE
-  10  CONTINUE
+          END DO
+        END DO
+      END DO
       NRL(1,1,0)=1
 
       DO IVLT=1,MVSta-1
         LEV=IDRT(IVLT,LTAB)
         DO ISGT=1,26
           IVLB=ISGMNT(IVLT,ISGT)
-          IF(IVLB.EQ.0) Cycle
+          IF (IVLB.EQ.0) Cycle
           ICL=IC1(ISGT)
           ISYM=1
-          IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=SGS%ISM(LEV)
+          IF ((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=SGS%ISM(LEV)
           DO ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
 
-            IF(ISGT.LE.4) THEN
+            IF (ISGT.LE.4) THEN
 ! THIS IS AN UPPER WALK.
               NRL(IBSYM,IVLB,0)=NRL(IBSYM,IVLB,0)+NRL(ITSYM,IVLT,0)
               Cycle
@@ -87,57 +91,54 @@
               NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+NRL(ITSYM,IVLT,0)
               Cycle
             END IF
-            IF(ISGT.LE.18) THEN
+            IF (ISGT.LE.18) THEN
 ! THIS IS A MID-SEGMENT.
               DO IP=LEV+1,NLEV
-                INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
-                INDEOB=IP+(IBVPT(ISGT)-1)*NLEV
-                NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB)+                &
-     &                  NRL(ITSYM,IVLT,INDEOT)
+                INDEOT = IP+(ITVPT(ISGT)-1)*NLEV
+                INDEOB = IP+(IBVPT(ISGT)-1)*NLEV
+                NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
               END DO
               Cycle
             END IF
-            IF(ISGT.LE.22) THEN
+            IF (ISGT.LE.22) THEN
 ! THIS IS A BOTTOM SEGMENT.
               DO IP=LEV+1,NLEV
                 INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
                 IPQ=(IP*(IP-1))/2 + LEV
                 INDEOB=IPQ+2*NLEV
-                NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB) +               &
-     &                NRL(ITSYM,IVLT,INDEOT)
+                NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
               END DO
               Cycle
             END IF
 ! THIS IS A LOWER WALK.
             DO INDEO=2*NLEV+1,MXEO
-              NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+                    &
-     &               NRL(ITSYM,IVLT,INDEO)
+              NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
             END DO
-
-           END DO
-         END DO
+          END DO
+        END DO
       END DO
 
       MXUP=0
-      DO 140 MV=1,NMIDV
+      DO MV=1,NMIDV
         IVLT=MV+MVSta-1
-        DO 141 LFTSYM=1,NSYM
+        DO LFTSYM=1,NSYM
+          IF (IF_RASSI) NOW(1,LFTSYM,MV)=NRL(LFTSYM,IVLT,0)
           MXUP=MAX(MXUP,NOW(1,LFTSYM,MV))
-          DO 142 INDEO=1,MXEO
+          DO INDEO=1,MXEO
             NOCP(INDEO,LFTSYM,MV)=NRL(LFTSYM,IVLT,INDEO)
- 142      CONTINUE
- 141    CONTINUE
- 140  CONTINUE
+          END DO
+        END DO
+      END DO
 
-      DO 150 INDEO=0,MXEO
-        DO 151 IV=MVSta,NVERT
-          DO 152 LFTSYM=1,NSYM
+      DO INDEO=0,MXEO
+        DO IV=MVSta,NVERT
+          DO LFTSYM=1,NSYM
             NRL(LFTSYM,IV,INDEO)=0
-  152     CONTINUE
-  151   CONTINUE
-  150 CONTINUE
-      NRL(1,NVERT,0)=1
+          END DO
+        END DO
+      END DO
 
+      NRL(1,NVERT,0)=1
       DO 201 IVLT=NVERT-1,MVSta,-1
         LEV=IDRT(IVLT,LTAB)
         DO 202 ISGT=1,26
@@ -164,8 +165,7 @@
         DO 210 IQ=1,LEV-1
           INDEOT=IQ+(ITVPT(ISGT)-1)*NLEV
           INDEOB=IQ+(IBVPT(ISGT)-1)*NLEV
-          NRL(ITSYM,IVLT,INDEOT)=NRL(ITSYM,IVLT,INDEOT)+                &
-     &            NRL(IBSYM,IVLB,INDEOB)
+          NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
  210    CONTINUE
         GOTO 200
       END IF
@@ -175,44 +175,77 @@
           INDEOB=IQ+(IBVPT(ISGT)-1)*NLEV
           IPQ=(LEV*(LEV-1))/2+IQ
           INDEOT=IPQ+2*NLEV
-          NRL(ITSYM,IVLT,INDEOT)=NRL(ITSYM,IVLT,INDEOT) +               &
-     &          NRL(IBSYM,IVLB,INDEOB)
+          NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
  220    CONTINUE
         GOTO 200
       END IF
 ! THIS IS AN UPPER WALK.
       DO 230 IPQ=1,(LEV*(LEV-1))/2
         INDEO=2*NLEV+IPQ
-        NRL(ITSYM,IVLT,INDEO)=NRL(ITSYM,IVLT,INDEO)+                    &
-     &         NRL(IBSYM,IVLB,INDEO)
+        NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
  230  CONTINUE
 
  200  CONTINUE
- 202    CONTINUE
+ 202  CONTINUE
  201  CONTINUE
 
       MXDWN=0
-      DO 240 MV=1,NMIDV
+      DO MV=1,NMIDV
         IVLT=MV+MVSta-1
-        DO 241 LFTSYM=1,NSYM
+        DO LFTSYM=1,NSYM
+          IF (IF_RASSI) NOW(2,LFTSYM,MV)=NRL(LFTSYM,IVLT,0)
           MXDWN=MAX(MXDWN,NOW(2,LFTSYM,MV))
-          DO 242 INDEO=1,MXEO
+          DO INDEO=1,MXEO
             N=NRL(LFTSYM,IVLT,INDEO)
             IF(N.NE.0) NOCP(INDEO,LFTSYM,MV)=N
- 242      CONTINUE
- 241    CONTINUE
- 240  CONTINUE
+          END DO
+        END DO
+      END DO
+
+      IF (IF_RASSI) Then
+      NUW=0
+      DO MV=1,NMIDV
+        DO ISYM=1,NSYM
+          IOW(1,ISYM,MV)=NUW*NIPWLK
+          NUW=NUW+NOW(1,ISYM,MV)
+        END DO
+      END DO
+      NWALK=NUW
+      DO MV=1,NMIDV
+        DO ISYM=1,NSYM
+          IOW(2,ISYM,MV)=NWALK*NIPWLK
+          NWALK=NWALK+NOW(2,ISYM,MV)
+        END DO
+      END DO
+      NLW=NWALK-NUW
+      End If
 
       NICOUP=0
-      DO 260 INDEO=1,MXEO
-        DO 261 MV=1,NMIDV
-          DO 262 LFTSYM=1,NSYM
+      DO INDEO=1,MXEO
+        DO MV=1,NMIDV
+          DO LFTSYM=1,NSYM
             IOCP(INDEO,LFTSYM,MV)=NICOUP
             NICOUP=NICOUP+NOCP(INDEO,LFTSYM,MV)
- 262      CONTINUE
- 261    CONTINUE
- 260  CONTINUE
+          END DO
+        END DO
+      END DO
 
+      If (IF_RASSI) Then
+      DO ISYTOT=1,NSYM
+        NCSF(ISYTOT)=0
+        DO MV=1,NMIDV
+          DO ISYUP=1,NSYM
+            ISYDWN=MUL(ISYTOT,ISYUP)
+            N=NOW(1,ISYUP,MV)*NOW(2,ISYDWN,MV)
+            NOCSF(ISYUP,MV,ISYTOT)=N
+            IOCSF(ISYUP,MV,ISYTOT)=NCSF(ISYTOT)
+            NCSF(ISYTOT)=NCSF(ISYTOT)+N
+          END DO
+        END DO
+      END DO
+      End If
+
+!AR   INSERT FOR US IN SIGMA ROUTINE
 !
       NSGMX=1
       NSGTMP=MAX(MXUP,MXDWN)
@@ -296,7 +329,7 @@
               WRITE(6,2345) IP,MV,IS,NCP
  2345 FORMAT(' P=',I2,'  MV=',I2,' SYMM ',I1,' NOCP=',I4)
  322        CONTINUE
- 321      CNSGMXONTINUE
+ 321      CONTINUE
  320    CONTINUE
         WRITE(6,*)
         WRITE(6,*)' 2. OPEN LOOPS TYPE 2:'
