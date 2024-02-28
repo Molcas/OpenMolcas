@@ -9,18 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKDAW(NVERT,IDOWN,IDAW)
+      SUBROUTINE MKDAW(SGS)
 !     PURPOSE: CONSTRUCT DIRECT ARC WEIGHTS TABLE
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
+      use struct, only: SGStruct
       IMPLICIT None
 !
-      Integer NVERT
-      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
+      Type (SGStruct) SGS
 
       Integer IC, IV, ISUM, IDWN
+
+      Associate (nVert => SGS%nVert, iDown => SGS%Down, iDaw => SGS%Daw)
 !
 !     BEGIN TO CONSTRUCT DOWN CHAIN TABLE
 !
@@ -48,4 +50,6 @@
       END DO
       Write(LF,*)
 #endif
+
+      End Associate
       END SUBROUTINE MKDAW

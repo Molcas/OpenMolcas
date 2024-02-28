@@ -21,6 +21,9 @@
       Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,MidLev,  &
      &        MVSta,MVEnd,NDown0,nDrt0,nLev,nTmp,nVert0,Lev,nVert,MxUp,MxDwn,nMidV
 
+      Associate ( nLev => SGS%nLev, nVert => SGS%nVert, MidLev => SGS%MidLev, &
+                  MVSta => SGS%MVSta, MvEnd => SGS%MVEnd )
+
       NLEV=NASHT
 ! Allocate Level to Symmetry table ISm:
       Call mma_allocate(SGS%ISm,nLev,Label='SGS%ISm')
@@ -94,7 +97,7 @@
 
 ! Direct Arc Weights table:
       Call mma_allocate(SGS%DAW,[1,nVert],[0,4],Label='DAW')
-      CALL MKDAW(nVert,SGS%DOWN,SGS%DAW)
+      CALL MKDAW(SGS)
 
 ! Upchain Index table:
       Call mma_allocate(SGS%Up,[1,nVert],[0,3],Label='SGS%Up')
@@ -116,12 +119,6 @@
       CALL mma_deallocate(SGS%RAW)
       CALL mma_deallocate(SGS%DAW)
 
-! Put sizes and addresses in structure SGS:
-
-      SGS%nLev   =nLev
-      SGS%nVert  =nVert
-      SGS%MidLev =MidLev
-      SGS%MVSta  =MVSta
-      SGS%MVEnd  =MVEnd
+      End Associate
 
       end Subroutine SGInit
