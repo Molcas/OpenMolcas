@@ -49,11 +49,15 @@
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif
-      Integer :: nLev
+      Integer :: nLev, MVSTA, MVEND
+
+! Dereference SGS, CIS for some other data
       nLev = SGS%nLev
+      MVSTA =SGS%MVSta
+      MVEND =SGS%MVEnd
 
       DO 10 INDEO=0,MXEO
-        DO 11 IV=1,SGS%MVEnd
+        DO 11 IV=1,MVEnd
           DO 12 LFTSYM=1,NSYM
             NRL(LFTSYM,IV,INDEO)=0
   12      CONTINUE
@@ -61,62 +65,62 @@
   10  CONTINUE
       NRL(1,1,0)=1
 
-      DO 101 IVLT=1,SGS%MVSta-1
+      DO IVLT=1,MVSta-1
         LEV=IDRT(IVLT,LTAB)
-        DO 102 ISGT=1,26
+        DO ISGT=1,26
           IVLB=ISGMNT(IVLT,ISGT)
-          IF(IVLB.EQ.0) GOTO 102
+          IF(IVLB.EQ.0) Cycle
           ICL=IC1(ISGT)
           ISYM=1
           IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=SGS%ISM(LEV)
-          DO 100 ITSYM=1,NSYM
+          DO ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
 
-      IF(ISGT.LE.4) THEN
+            IF(ISGT.LE.4) THEN
 ! THIS IS AN UPPER WALK.
-        NRL(IBSYM,IVLB,0)=NRL(IBSYM,IVLB,0)+NRL(ITSYM,IVLT,0)
-        GOTO 100
-      END IF
-      IF(ISGT.LE.8) THEN
+              NRL(IBSYM,IVLB,0)=NRL(IBSYM,IVLB,0)+NRL(ITSYM,IVLT,0)
+              Cycle
+            END IF
+            IF(ISGT.LE.8) THEN
 ! THIS IS AN TOP SEGMENT.
-        INDEO=LEV+(IBVPT(ISGT)-1)*NLEV
-        NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+NRL(ITSYM,IVLT,0)
-        GOTO 100
-      END IF
-      IF(ISGT.LE.18) THEN
+              INDEO=LEV+(IBVPT(ISGT)-1)*NLEV
+              NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+NRL(ITSYM,IVLT,0)
+              Cycle
+            END IF
+            IF(ISGT.LE.18) THEN
 ! THIS IS A MID-SEGMENT.
-        DO 110 IP=LEV+1,NLEV
-          INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
-          INDEOB=IP+(IBVPT(ISGT)-1)*NLEV
-          NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB)+                &
-     &            NRL(ITSYM,IVLT,INDEOT)
- 110    CONTINUE
-        GOTO 100
-      END IF
-      IF(ISGT.LE.22) THEN
+              DO IP=LEV+1,NLEV
+                INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
+                INDEOB=IP+(IBVPT(ISGT)-1)*NLEV
+                NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB)+                &
+     &                  NRL(ITSYM,IVLT,INDEOT)
+              END DO
+              Cycle
+            END IF
+            IF(ISGT.LE.22) THEN
 ! THIS IS A BOTTOM SEGMENT.
-        DO 120 IP=LEV+1,NLEV
-          INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
-          IPQ=(IP*(IP-1))/2 + LEV
-          INDEOB=IPQ+2*NLEV
-          NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB) +               &
-     &          NRL(ITSYM,IVLT,INDEOT)
- 120    CONTINUE
-        GOTO 100
-      END IF
+              DO IP=LEV+1,NLEV
+                INDEOT=IP+(ITVPT(ISGT)-1)*NLEV
+                IPQ=(IP*(IP-1))/2 + LEV
+                INDEOB=IPQ+2*NLEV
+                NRL(IBSYM,IVLB,INDEOB)=NRL(IBSYM,IVLB,INDEOB) +               &
+     &                NRL(ITSYM,IVLT,INDEOT)
+              END DO
+              Cycle
+            END IF
 ! THIS IS A LOWER WALK.
-      DO 130 INDEO=2*NLEV+1,MXEO
-        NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+                    &
-     &         NRL(ITSYM,IVLT,INDEO)
- 130  CONTINUE
+            DO INDEO=2*NLEV+1,MXEO
+              NRL(IBSYM,IVLB,INDEO)=NRL(IBSYM,IVLB,INDEO)+                    &
+     &               NRL(ITSYM,IVLT,INDEO)
+            END DO
 
- 100  CONTINUE
- 102    CONTINUE
- 101  CONTINUE
+           END DO
+         END DO
+      END DO
 
       MXUP=0
       DO 140 MV=1,NMIDV
-        IVLT=MV+SGS%MVSta-1
+        IVLT=MV+MVSta-1
         DO 141 LFTSYM=1,NSYM
           MXUP=MAX(MXUP,NOW(1,LFTSYM,MV))
           DO 142 INDEO=1,MXEO
@@ -126,7 +130,7 @@
  140  CONTINUE
 
       DO 150 INDEO=0,MXEO
-        DO 151 IV=SGS%MVSta,NVERT
+        DO 151 IV=MVSta,NVERT
           DO 152 LFTSYM=1,NSYM
             NRL(LFTSYM,IV,INDEO)=0
   152     CONTINUE
@@ -134,7 +138,7 @@
   150 CONTINUE
       NRL(1,NVERT,0)=1
 
-      DO 201 IVLT=NVERT-1,SGS%MVSta,-1
+      DO 201 IVLT=NVERT-1,MVSta,-1
         LEV=IDRT(IVLT,LTAB)
         DO 202 ISGT=1,26
           IVLB=ISGMNT(IVLT,ISGT)
@@ -189,7 +193,7 @@
 
       MXDWN=0
       DO 240 MV=1,NMIDV
-        IVLT=MV+SGS%MVSta-1
+        IVLT=MV+MVSta-1
         DO 241 LFTSYM=1,NSYM
           MXDWN=MAX(MXDWN,NOW(2,LFTSYM,MV))
           DO 242 INDEO=1,MXEO

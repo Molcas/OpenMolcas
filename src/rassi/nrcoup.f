@@ -35,6 +35,7 @@ C OUTPUT PARAMETERS:
       DIMENSION NCSF(NSYM)
 C SCRATCH PARAMETERS:
       DIMENSION NRL(NSYM,NVERT,0:MXEO)
+      Integer :: nLev, MVSTA, MVEND
 
 C Dereference SGS, CIS for some other data
       NLEV  =SGS%nLev
@@ -49,27 +50,29 @@ C Dereference SGS, CIS for some other data
         end do
       end do
       NRL(1,1,0)=1
+
       DO IVLT=1,MVSTA-1
         LEV=IDRT(IVLT,LTAB)
         DO ISGT=1,26
           IVLB=ISGMNT(IVLT,ISGT)
-          IF (IVLB.EQ.0) CYCLE
+          IF (IVLB.EQ.0) Cycle
           ICL=IC1(ISGT)
           ISYM=1
           IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
           DO ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
+
             IF (ISGT.LE.4) THEN
 C THIS IS AN UPPER WALK.
               NRL(IBSYM,IVLB,0)=NRL(IBSYM,IVLB,0)+NRL(ITSYM,IVLT,0)
-              CYCLE
+              Cycle
             END IF
             IF(ISGT.LE.8) THEN
 C THIS IS AN TOP SEGMENT.
               INDEO=LEV+(IBVPT(ISGT)-1)*NLEV
               NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) +
      *                                NRL(ITSYM,IVLT,0)
-              CYCLE
+              Cycle
             END IF
             IF (ISGT.LE.18) THEN
 C THIS IS A MID-SEGMENT.
@@ -79,7 +82,7 @@ C THIS IS A MID-SEGMENT.
                 NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) +
      *                                   NRL(ITSYM,IVLT,INDEOT)
               END DO
-              CYCLE
+              Cycle
             END IF
             IF (ISGT.LE.22) THEN
 C THIS IS A BOTTOM SEGMENT.
@@ -90,7 +93,7 @@ C THIS IS A BOTTOM SEGMENT.
                 NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) +
      *                                   NRL(ITSYM,IVLT,INDEOT)
               END DO
-              CYCLE
+              Cycle
             END IF
 C THIS IS A LOWER WALK.
             DO INDEO=2*NLEV+1,MXEO
@@ -100,6 +103,7 @@ C THIS IS A LOWER WALK.
           END DO
         END DO
       END DO
+
       MXUP=0
       DO MV=1,NMIDV
         IVLT=MV+MVSTA-1
