@@ -292,7 +292,7 @@
               WRITE(6,2345) IP,MV,IS,NCP
  2345 FORMAT(' P=',I2,'  MV=',I2,' SYMM ',I1,' NOCP=',I4)
  322        CONTINUE
- 321      CONTINUE
+ 321      CNSGMXONTINUE
  320    CONTINUE
         WRITE(6,*)
         WRITE(6,*)' 2. OPEN LOOPS TYPE 2:'
