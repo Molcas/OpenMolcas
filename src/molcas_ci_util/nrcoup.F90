@@ -16,6 +16,7 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
+!#define _DEBUGPRINT_
       SUBROUTINE NRCOUP(SGS,CIS,EXS,  &
      &                  NVERT,NMIDV,MXEO,ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
@@ -54,7 +55,7 @@
      &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP, NLW, NUW,  &
      &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1, NT5TMP
 #ifdef _DEBUGPRINT_
-      Integer IS, IST, NCP, NLW, NUW
+      Integer IS, IST, NCP
 #endif
       Logical :: IF_RASSI=.FALSE.
       Integer :: nLev, MVSTA, MVEND, NIPWLK

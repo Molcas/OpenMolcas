@@ -13,7 +13,7 @@
 ************************************************************************
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Subroutine mkfg3chemps2(IFF,G1,F1,G2,F2,G3,F3,idxG3)
-      use gugx, only: GS
+      use gugx, only: SGS
       IMPLICIT NONE
 
 #include "rasdim.fh"
