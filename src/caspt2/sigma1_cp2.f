@@ -18,8 +18,8 @@
 *--------------------------------------------*
       SUBROUTINE SIGMA1_CP2(SGS, CIS, EXS,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
-     &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,nMidV,nICoup,MxEO,
-     &                 nVTab)
+     &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
+     &                 nMidV,nICoup,MxEO,nVTab)
       use struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In) :: nMidV, nICoup, MxEO

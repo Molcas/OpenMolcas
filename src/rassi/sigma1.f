@@ -9,11 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SIGMA_1(SGS,CIS,EXS,
-     &                 NMIDV,MXEO,NVTAB,NICOUP,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,
-     &                 IOW,NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
+     &                 IOW,NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
+     &                 NMIDV,NICOUP,MXEO,nVTab)
+
       use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
+      Integer, Intent(In) :: nMidV, nICoup, MxEO
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION NOCP(MXEO,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)

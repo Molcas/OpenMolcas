@@ -22,10 +22,12 @@
       MxEO  =EXS%MxEO
       nICoup=SIZE(EXS%ICOUP)/3
       nVTab =SIZE(EXS%VTab)
-      CALL SIGMA_1(SGS,CIS,EXS,NMIDV,MXEO,NVTAB,NICOUP,
+
+      CALL SIGMA_1(SGS,CIS,EXS,
      &             IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
      &             CIS%IOCSF,CIS%NOW,CIS%IOW,
      &             EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &             EXS%VTab,EXS%MVL,EXS%MVR)
+     &             EXS%VTab,EXS%MVL,EXS%MVR,
+     &             NMIDV,NICOUP,MXEO,nVTab)
 
       end SUBROUTINE SGMONE
