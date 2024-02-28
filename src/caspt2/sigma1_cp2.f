@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE SIGMA1_CP2(SGS, CIS, EXS,
+      SUBROUTINE SIGMA1_CP2(SGS,CIS,EXS,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
      &                 nMidV,nICoup,MxEO,nVTab)
@@ -374,4 +374,5 @@ C CASE IS: LOWER HALF, EXCITE:
  999  CONTINUE
 
       End Associate
-      END
+
+      END SUBROUTINE SIGMA1_CP2

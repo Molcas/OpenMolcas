@@ -52,7 +52,7 @@
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
      &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP, NLW, NUW,  &
-     &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1
+     &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1, NT5TMP
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif
@@ -277,21 +277,38 @@
         IF (MV1.NE.0)THEN
           NT4TMP=NUPS1*NOW(2,ISYDS1,MV1)
           NSGTMP=MAX(NSGTMP,NT4TMP)
+          If (IF_RASSI) THEN
+             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV1)
+             NSGTMP=MAX(NSGTMP,NT5TMP)
+          ENDIF
+
         ENDIF
 !
         IF (MV2.NE.0)THEN
           NT3TMP=NUPS1*NOW(2,ISYDS1,MV2)
           NSGTMP=MAX(NSGTMP,NT3TMP)
+          If (IF_RASSI) THEN
+             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV2)
+             NSGTMP=MAX(NSGTMP,NT5TMP)
+          ENDIF
         ENDIF
 !
         IF (MV4.NE.0)THEN
           NT1TMP=NUPS1*NOW(2,ISYDS1,MV4)
           NSGTMP=MAX(NSGTMP,NT1TMP)
+          If (IF_RASSI) THEN
+             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV4)
+             NSGTMP=MAX(NSGTMP,NT5TMP)
+          End IF
         ENDIF
 !
         IF (MV5.NE.0)THEN
           NT2TMP=NUPS1*NOW(2,ISYDS1,MV5)
           NSGTMP=MAX(NSGTMP,NT2TMP)
+          If (IF_RASSI) THEN
+             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV5)
+             NSGTMP=MAX(NSGTMP,NT5TMP)
+          ENDIF
         ENDIF
 !
  552 CONTINUE
