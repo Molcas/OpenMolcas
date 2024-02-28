@@ -17,6 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(  &
+     &                  ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
      &                  NRL,MVL,MVR,nVert,nMidV,nICoup,MXEO)
@@ -34,6 +35,7 @@
       Integer, Intent(In) :: nVert, nMidV, MxEO
       Integer MVL(NMIDV,2),MVR(NMIDV,2)
       Integer IDRT(NVERT,5),ISGMNT(NVERT,26)
+      Integer ISM(*)
       Integer, PARAMETER :: LTAB=1
 ! OUTPUT PARAMETERS:
       Integer, Intent(Out):: nICoup
@@ -84,7 +86,7 @@
           IF (IVLB.EQ.0) Cycle
           ICL=IC1(ISGT)
           ISYM=1
-          IF ((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=SGS%ISM(LEV)
+          IF ((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
           DO ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
 
@@ -154,7 +156,7 @@
           IF(IVLB.EQ.0) GOTO 202
           ICL=IC1(ISGT)
           ISYM=1
-          IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=SGS%ISM(LEV)
+          IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
           DO 200 ITSYM=1,NSYM
             IBSYM=MUL(ITSYM,ISYM)
       IF(ISGT.GE.23) THEN
