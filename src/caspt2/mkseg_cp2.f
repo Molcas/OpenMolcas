@@ -17,9 +17,8 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 
-      SUBROUTINE MKSEG_CP2(SGS,
-     &                   IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT,
-     &                     NVERT,NLEV,NMIDV)
+      SUBROUTINE MKSEG_CP2(SGS,NLEV,NVERT,NMIDV,
+     &                   IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
       use Struct, only: SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
