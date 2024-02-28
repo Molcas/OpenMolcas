@@ -16,7 +16,7 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE NRCOUP    (SGS,CIS,EXS,  &
+      SUBROUTINE NRCOUP(SGS,CIS,EXS,  &
      &                  NVERT,NMIDV,MXEO,ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
@@ -26,7 +26,7 @@
       use Symmetry_Info, only: MUL
       use stdalloc, only: mma_allocate
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
 #include "segtab.fh"
 
@@ -52,7 +52,7 @@
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
      &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP, NLW, NUW,  &
-     &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1
+     &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1, NT5TMP
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif
@@ -402,6 +402,5 @@
 
 ! Put sizes in structures CIS, EXSs:
       If (IF_RASSI) CIS%nWalk   =nWalk
-
 
       END SUBROUTINE NRCOUP

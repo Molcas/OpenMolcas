@@ -88,6 +88,7 @@ set (sources
      mkraw.F90
      mksgnum.f
      motrac.F90
+     nrcoup.F90
      newgs.F90
      ordstr.F90
      page_in.F90
