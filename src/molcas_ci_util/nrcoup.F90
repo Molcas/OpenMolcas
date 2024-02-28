@@ -20,11 +20,11 @@
      &                  NVERT,NMIDV,MXEO,ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
-     &                  NRL,MVL,MVR,NICOUP,NSYM)
+     &                  MVL,MVR,NICOUP,NSYM)
       use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: MUL
-      use stdalloc, only: mma_allocate
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT None
 
@@ -46,7 +46,7 @@
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       Integer NCSF(NSYM)
 ! SCRATCH PARAMETERS:
-      Integer NRL(NSYM,NVERT,0:MXEO)
+      Integer, Allocatable:: NRL(:,:,:)
 
       Integer IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT,     &
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
@@ -64,6 +64,8 @@
       MVSTA =SGS%MVSta
       MVEND =SGS%MVEnd
       NIPWLK=CIS%nIpWlk
+
+      Call mma_allocate(NRL,[1,nSym],[1,nVert],[0,MxEO],Label='NRL')
 
       Select Case (ProgName(1:6))
          Case ('rassi')
@@ -399,6 +401,8 @@
  341      CONTINUE
  340    CONTINUE
 #endif
+
+      Call mma_deallocate(NRL)
 
 ! Put sizes in structures CIS, EXSs:
       If (IF_RASSI) CIS%nWalk   =nWalk

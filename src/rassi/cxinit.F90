@@ -17,11 +17,11 @@
       Type (CIStruct) CIS
       Type (EXStruct) EXS
 
-      Integer, Allocatable:: IVR(:), ISgm(:), NRL(:), iLndw(:), Scr(:)
-      Real*8,  Allocatable::         VSgm(:)
+      Integer, Allocatable:: IVR(:), ISgm(:,:), iLndw(:), Scr(:)
+      Real*8,  Allocatable::         VSgm(:,:)
       Real*8,  Allocatable:: VTabTmp(:), Val(:)
-      Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, nSgmnt, &
-     &        MxEO, nNRL, nWalk,    &
+      Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, &
+     &        MxEO, nWalk,    &
      &        nICoup, nVMax, niLndw, nICase, nScr, nVTab,      &
      &        nVTab_final
 
@@ -39,9 +39,8 @@
       Call mma_allocate(IVR,2*nVert,Label='IVR')
       Call mma_allocate(EXS%MVR,nMidV,2,Label='EXS%MVR')
       Call mma_allocate(EXS%MVL,nMidV,2,Label='EXS%MVL')
-      nSgmnt=26*nVert
-      Call mma_allocate(ISgm,nSgmnt,Label='ISgm')
-      Call mma_allocate(VSgm,nSgmnt,Label='VSgm')
+      Call mma_allocate(ISgm,nVert,26,Label='ISgm')
+      Call mma_allocate(VSgm,nVert,26,Label='VSgm')
       Call MkSeg(SGS,nLev,nVert,nMidv,SGS%DRT,SGS%Down,SGS%LTV,IVR,EXS%MVL,EXS%MVR,ISgm,VSgm)
       CIS%nMidV   =nMidV
       CIS%nIpWlk  = nIpWlk
@@ -50,7 +49,6 @@
       Call mma_allocate(CIS%NOW,2,nSym,nMidV,Label='CIS%NOW')
       Call mma_allocate(CIS%IOW,2,nSym,nMidV,Label='CIS%IOW')
       MxEO=(nLev*(nLev+5))/2
-      nNRL=(1+MxEO)*nVert*nSym
       Call mma_allocate(EXS%NOCP,MxEO,nSym,nMidV,Label='EXS%NOCP')
       Call mma_allocate(EXS%IOCP,MxEO,nSym,nMidV,Label='EXS%IOCP')
       Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
@@ -58,12 +56,10 @@
       Call mma_allocate(CIS%NOCSF,nSym,nMidV,nSym,Label='CIS%NOCSF')
       Call mma_allocate(CIS%IOCSF,nSym,nMidV,nSym,Label='CIS%IOCSF')
       EXS%MxEO =MxEO
-      Call mma_allocate(NRL,nNRL,Label='NRL')
       Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,         &
      &            ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                        &
      &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
-     &            CIS%NCSF,NRL,EXS%MVL,EXS%MVR,nICoup,nSym)
-      Call mma_deallocate(NRL)
+     &            CIS%NCSF,EXS%MVL,EXS%MVR,nICoup,nSym)
 ! Computed in NrCoup:
       nWalk=CIS%nWalk
 

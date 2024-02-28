@@ -16,6 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
+
       SUBROUTINE SIGMA1_CP2(SGS,CIS,EXS,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
@@ -40,7 +41,8 @@
 
       Integer :: nLev, MidLev,nIpWlk
 
-      Associate ( ISM => SGS%ISM)
+      Associate (ISM => SGS%ISM)
+
       nLev   = SGS%nLev
       MidLev = SGS%MidLev
       nIpWlk = CIS%nIpWlk
@@ -53,8 +55,7 @@
 *  WERE PREPARED BY GINIT AND ITS SUBROUTINES.
 *****************************************************************
 
-
-      IF(ABS(CPQ).LT.1.0D-12) GOTO 999
+      IF(ABS(CPQ).LT.1.0D-12) RETURN
 C SYMMETRY OF ORBITALS:
       ISYP=ISM(IP)
       ISYQ=ISM(IQ)
@@ -91,7 +92,7 @@ C IP=IQ < MIDLEV.
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO 102 J=1,NDWNSG
-            JC=CIS%ICASE(LLW+J*NIPWLK)
+            JC=CIS%ICase(LLW+J*NIPWLK)
             ICS=MOD(JC/IPPOW,4)
             IF(ICS.EQ.0) GOTO 102
             X=CPQ*DBLE((1+ICS)/2)
@@ -101,15 +102,15 @@ C IP=IQ < MIDLEV.
  101    CONTINUE
  100  CONTINUE
 
-      GOTO 999
+      RETURN
 
  1200 CONTINUE
 C SPECIAL CASE: WEIGHT OPERATOR, IP=IQ.
 C IP=IQ>MIDLEV
-      DO 200 MVSGM=1,NMIDV
-        DO 201 ISYUSG=1,NSYM
+      DO MVSGM=1,NMIDV
+        DO ISYUSG=1,NSYM
           NS1=NOCSF(ISYUSG,MVSGM,ISYSGM)
-          IF(NS1.EQ.0) GOTO 201
+          IF(NS1.EQ.0) CYCLE
           ISGSTA=1+IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG=NOW(1,ISYUSG,MVSGM)
           ISYDSG=MUL(ISYUSG,ISYSGM)
@@ -119,18 +120,18 @@ C IP=IQ>MIDLEV
           LUW=1+IOUW-NIPWLK+IPSHFT/30
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
-          DO 202 I=1,NUPSG
-            IC=CIS%ICASE(LUW+I*NIPWLK)
+          DO I=1,NUPSG
+            IC=CIS%ICase(LUW+I*NIPWLK)
             ICS=MOD(IC/IPPOW,4)
-            IF(ICS.EQ.0) GOTO 202
+            IF(ICS.EQ.0) cycle
             X=CPQ*DBLE((1+ICS)/2)
             ISTA=ISGSTA-1+I
             CALL DAXPY_(NDWNSG,X,CI(ISTA),NUPSG,SGM(ISTA),NUPSG)
- 202      CONTINUE
- 201    CONTINUE
- 200  CONTINUE
+          END DO
+        END DO
+      END DO
 
-      GOTO 999
+      RETURN
 
  1300 CONTINUE
 C DEEXCITING OPERATOR, IP<IQ<=MIDLEV.
@@ -156,7 +157,7 @@ C CASE IS: LOWER HALF, DEEXCITE:
  301    CONTINUE
  300  CONTINUE
 
-      GOTO 999
+      RETURN
 
  1400 CONTINUE
 C DEEXCITING OPERATOR, MIDLEV<IP<IQ
@@ -183,7 +184,7 @@ C CASE IS: UPPER HALF, DEEXCITE:
  401    CONTINUE
  400  CONTINUE
 
-      GOTO 999
+      RETURN
 
  1500 CONTINUE
 C DEEXCITING CASE, IP<=MIDLEV<IQ.
@@ -251,7 +252,7 @@ C CASE IS: LOWER HALF, DEEXCITE:
  501    CONTINUE
  500  CONTINUE
 
-      GOTO 999
+      RETURN
 
  1600 CONTINUE
 C EXCITING CASE, IQ<IP<=MIDLEV.
@@ -277,7 +278,7 @@ C CASE IS: LOWER HALF, EXCITE:
  601    CONTINUE
  600  CONTINUE
 
-      GOTO 999
+      RETURN
 
  1700 CONTINUE
 C EXCITING CASE, MIDLEV<IQ<IP
@@ -304,11 +305,11 @@ C CASE IS: UPPER HALF, EXCITE:
  701    CONTINUE
  700  CONTINUE
 
-      GOTO 999
+      RETURN
 
  1800 CONTINUE
 C EXCITING CASE, IQ<=MIDLEV<IP
-C ALLOCATE TEMPORARY WORK AREA:
+
       DO 800 MVSGM=1,NMIDV
         MV1=MVL(MVSGM,2)
         MV2=MVL(MVSGM,1)
@@ -371,7 +372,6 @@ C CASE IS: LOWER HALF, EXCITE:
  801  CONTINUE
  800  CONTINUE
 
- 999  CONTINUE
 
       End Associate
 
