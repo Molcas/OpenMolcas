@@ -104,8 +104,8 @@ end do
 write(u6,'(//)')
 do i=1,d
   do j=1,d
-    if ((j == i-1) .or. (j == i+1)) write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =', &
-                                                                              (phs(l,i,j),l=1,3)
+    if ((j == i-1) .or. (j == i+1)) &
+      write(u6,'(A,i2,A,i2,A, 3(2ES24.14,3x))') 'SPIN-PHASE: PHS(',i,',',j,') = (x,y,z) =',(phs(l,i,j),l=1,3)
   end do
 end do
 #endif

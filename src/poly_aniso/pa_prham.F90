@@ -105,9 +105,9 @@ do nb=1,exch
 end do
 
 write(u6,*)
-write(u6,'(100a)') (('%'),j=1,100)
+write(u6,'(100a)') ('%',j=1,100)
 write(u6,'(30x,a)') 'Hamiltonian of the Total Magnetic Interaction'
-write(u6,'(100a)') (('%'),j=1,100)
+write(u6,'(100a)') ('%',j=1,100)
 
 write(u6,'(A)') 'Only matrix elements with non-zero absolute value are listed below'
 

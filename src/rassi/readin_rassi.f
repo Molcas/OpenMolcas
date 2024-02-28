@@ -16,6 +16,7 @@
      &                               DoExcitonics, DoCoul, labA, labB,
      &                               rixs
       use kVectors
+      use Lebedev_quadrature, only: available_table, rule_max
 #ifdef _DMRG_
       use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
@@ -852,6 +853,17 @@ C ------------------------------------------
 ! Set the order of the Lebedev polynomials used for the numerical
 ! isotropic integration. Current default 5.
         Read(LuIn,*,ERR=997) L_Eff
+        ! make sure it's an odd number
+        ! and find the smallest grid that supports that degree
+        if (mod(L_Eff,2) == 0) L_Eff = L_Eff+1
+        Do i=(L_Eff-1)/2,rule_max
+          if (available_table(i) == 1) exit
+          L_Eff = L_Eff+2
+        End Do
+        If (L_Eff > rule_max) then
+          call WarningMessage(2,'L_Eff too large, grid not supported')
+          call abend()
+        Endif
         Linenr=Linenr+1
         GoTo 100
       Endif

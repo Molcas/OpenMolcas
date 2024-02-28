@@ -201,9 +201,9 @@ do N=1,d-1,2
   write(u6,'(A)') '-----|-----|---|-----------------------|-----------------------|'
   do M=0,N
     if (M /= 0) write(u6,'(A)') '     |-----|---|-----------------------|-----------------------|'
-    write(u6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))')N,'|',M,'|','X','|',real(BNMC(1,N,M)),'|',real(BNMS(1,N,M)),'|'
-    write(u6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))')N,'|',M,'|','Y','|',real(BNMC(2,N,M)),'|',real(BNMS(2,N,M)),'|'
-    write(u6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))')N,'|',M,'|','Z','|',real(BNMC(3,N,M)),'|',real(BNMS(3,N,M)),'|'
+    write(u6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))') N,'|',M,'|','X','|',real(BNMC(1,N,M)),'|',real(BNMS(1,N,M)),'|'
+    write(u6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))') N,'|',M,'|','Y','|',real(BNMC(2,N,M)),'|',real(BNMS(2,N,M)),'|'
+    write(u6,'(2(1x,I2,2x,A),1x,A,1x,A,2(ES22.14,1x,A))') N,'|',M,'|','Z','|',real(BNMC(3,N,M)),'|',real(BNMS(3,N,M)),'|'
   end do
 end do
 write(u6,'(100A)') ('-',i=1,63),'|'

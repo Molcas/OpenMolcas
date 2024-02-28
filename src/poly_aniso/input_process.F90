@@ -11,12 +11,12 @@
 
 subroutine input_process(nneq,neq,neqv,nmax,nCenter,nexch,nDir,nDirZee,nDirTot,nH,nT,exch,nBlock,nTempMagn,iopt,nMult,nDim,nPair, &
                          i_pair,nP,AngPoints,lant,multLn,KEOPT,encut_definition,nK,mG,ncut,nsfs,nss,nLoc,MxRank1,MxRank2,imaxrank, &
-                         iPrint,R_LG,gtens_input,dirX,dirY,dirZ,dir_weight,zJ,cryst,coord,hmin,hmax,TempMagn,thrs,Hexp,Mexp,tmin, &
-                         tmax,chit_exp,Texp,Xfield,Jex,JAex,JAex9,JDMex,tpar,upar,MagnCoords,encut_rate,eso,JITOexR,JITOexI,Title, &
-                         itype,namefile_aniso,Do_structure_abc,old_aniso_format,compute_barrier,fitCHI,fitM,hinput,tinput, &
-                         compute_magnetization,compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,compute_g_tensors, &
-                         compute_torque,compute_susceptibility,Lines,AnisoLines3,AnisoLines9,Dipol,check_title,KE,DM_exchange, &
-                         JITO_exchange)
+                         iPrint,nsymm,ngrid,R_LG,gtens_input,dirX,dirY,dirZ,dir_weight,zJ,cryst,coord,hmin,hmax,TempMagn,thrs, &
+                         Hexp,Mexp,tmin,tmax,chit_exp,Texp,Xfield,Jex,JAex,JAex9,JDMex,tpar,upar,MagnCoords,encut_rate,eso, &
+                         JITOexR,JITOexI,Title,itype,namefile_aniso,Do_structure_abc,old_aniso_format,compute_barrier,fitCHI,fitM, &
+                         hinput,tinput,compute_magnetization,compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn, &
+                         compute_g_tensors,compute_torque,compute_susceptibility,Lines,AnisoLines3,AnisoLines9,Dipol,check_title, &
+                         KE,DM_exchange,JITO_exchange)
 !  nneq      : number of non-equivalent sites
 !  neq(nneq) : number of equivalent sites of each type
 !  neqv      : = MAXVAL(neq(:))
@@ -64,14 +64,15 @@ subroutine input_process(nneq,neq,neqv,nmax,nCenter,nexch,nDir,nDirZee,nDirTot,n
 !  fitM   : not used so far
 !  check_title, Title
 
+use Lebedev_quadrature, only: order_table
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nneq, neq(nneq), neqv, nmax, nCenter, nexch(nneq), nDir, nDirZee, nH, nT, exch, nTempMagn, iopt, &
                                  nMult, nDim(nMult), nPair, i_pair(nPair,2), nP, AngPoints, lant, multLn, KEOPT, encut_definition, &
-                                 nK, mG, ncut, nss(nneq), nsfs(nneq), nLoc, MxRank1, MxRank2, imaxrank(nPair,2), iPrint
-integer(kind=iwp), intent(inout) :: nDirTot, nBlock
+                                 nK, mG, ncut, nss(nneq), nsfs(nneq), nLoc, MxRank1, MxRank2, imaxrank(nPair,2), iPrint, nsymm
+integer(kind=iwp), intent(inout) :: nDirTot, nBlock, ngrid
 real(kind=wp), intent(in) :: R_LG(nneq,neqv,3,3), gtens_input(3,nneq), dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3), &
                              zJ, cryst(6), coord(3), hmin, hmax, thrs, Hexp(nH), Mexp(nH,nTempMagn), tmin, tmax, chit_exp(nT), &
                              Texp(nT), Xfield, Jex(nPair), JAex(nPair,3), JAex9(nPair,3,3), JDMex(nPair,3), tpar, upar, &
@@ -85,10 +86,11 @@ logical(kind=iwp), intent(in) :: Do_structure_abc, old_aniso_format, fitCHI, fit
                                  compute_Mdir_vector, zeeman_energy, m_accurate, smagn, compute_g_tensors, compute_torque, Lines, &
                                  AnisoLines3, AnisoLines9, Dipol, check_title, KE, DM_exchange, JITO_exchange
 logical(kind=iwp), intent(inout) :: compute_barrier, m_paranoid, compute_susceptibility
-#include "mgrid.fh"
 integer(kind=iwp) :: i, icount_B_sites, iH, iproj1, iproj2, irank1, irank2, iT, j, jEnd, k, l, m, n
 logical(kind=iwp) :: ab_initio_all, nosym
 character(len=180) fmtline
+integer(kind=iwp), parameter :: ngrid_map(32) = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,20,23,26,29,32,35,38,41,44,47,50,53,56,59, &
+                                                 62,65]
 
 !-----------------------------------------------------------------------
 ! print the data from this Subroutine:
@@ -351,6 +353,7 @@ end if
 
 ! ======================================================================
 ! Print out of the MAGNETIZATION
+ngrid = ngrid_map(ngrid)
 if (compute_magnetization) then
   write(u6,'(2A )') 'MAGN :         = ',' molar magnetization is computed'
   !-----------------------------------------!
@@ -413,9 +416,9 @@ if (compute_magnetization) then
     !-----------------------------------------!
     write(u6,'(A, I4)') 'MAVE :   nsymm = ',nsymm
     write(u6,'(A, I4)') '         ngrid = ',ngrid
-    write(u6,'(A, I4)') '       nPoints = ',get_nP(nsymm,ngrid)
+    write(u6,'(A, I4)') '       nPoints = ',order_table(nsymm,ngrid)
     !-----------------------------------------!
-    nDirTot = nDir+nDirZee+get_nP(nsymm,ngrid)
+    nDirTot = nDir+nDirZee+order_table(nsymm,ngrid)
     write(u6,'(A,I4,A)') 'Magnetization will be computed in',nDirTot,' directions.'
     write(u6,'(A,I6,A)') 'There will be ',nDirTot*nH,' calculations in total.'
 

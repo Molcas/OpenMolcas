@@ -23,7 +23,7 @@ logical(kind=iwp), intent(out) :: ifrestart
 integer(kind=iwp), intent(out) :: iReturn
 logical(kind=iwp), intent(in) :: GRAD
 integer(kind=iwp) :: AngPoints, axisoption, d, encut_definition, i, i1, i2, Ifunct, imanifold, imltpl, input_to_read, iprint, &
-                     lDIM, ldimcf, mem, MG, nBlock, ncut, ndimcf, nDirTot, nK, nlanth, nm, nss2, nstate2
+                     lDIM, ldimcf, mem, MG, nBlock, ncut, ndimcf, nDirTot, ngrid, nK, nlanth, nm, nss2, nstate2, nsymm
 real(kind=wp) :: coord(3), cryst(6), em, encut_rate, H_torq, HMAX, HMIN, T_torq, thrs, tmax, tmin, xfield, zJ, zmagn(3,3)
 logical(kind=iwp) :: compute_barrier, compute_cf, compute_g_tensors, compute_magnetization, compute_Mdir_vector, compute_torque, &
                      Do_structure_abc, DoPlot, hinput, m_paranoid, poly_file, smagn, tinput, zeeman_energy
@@ -180,7 +180,8 @@ call readin_single(iprint,nmult,ndim,ndimcf,ldimcf,nlanth,axisoption,poly_file,I
                    Do_structure_abc,cryst,coord,encut_definition,compute_g_tensors,compute_CF,nDirTot,nss,nstate, &
                    compute_magnetization,compute_torque,smagn,tinput,hinput,compute_Mdir_vector,zeeman_energy,LUZee,doplot, &
                    encut_rate,ncut,nTempMagn,TempMagn,m_paranoid,compute_barrier,nBlock,AngPoints,input_file_name,nT,nH,texp, &
-                   chit_exp,zJ,hexp,magn_exp,hmin,hmax,nDir,nDirZee,dirX,dirY,dirZ,dir_weight,xfield,tmin,tmax,thrs,H_torq,T_torq)
+                   chit_exp,zJ,hexp,magn_exp,hmin,hmax,nDir,nDirZee,dirX,dirY,dirZ,dir_weight,xfield,tmin,tmax,thrs,H_torq,T_torq, &
+                   nsymm,ngrid)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'SINGLE_ANISO2::  Exit readin_single'
 #endif
@@ -464,8 +465,9 @@ if (compute_magnetization) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'SINGLE_ANISO2::  Enter magnetization'
 # endif
-  call magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,mem,compute_Mdir_vector,zeeman_energy,hinput, &
-                     m_paranoid,smagn,doplot,TempMagn,eso,dirX,dirY,dirZ,dir_weight,hexp,magn_exp,zJ,hmin,hmax,EM,thrs,mm,ms,dbg)
+  call magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,mem,nsymm,ngrid,compute_Mdir_vector,zeeman_energy, &
+                     hinput,m_paranoid,smagn,doplot,TempMagn,eso,dirX,dirY,dirZ,dir_weight,hexp,magn_exp,zJ,hmin,hmax,EM,thrs,mm, &
+                     ms,dbg)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'SINGLE_ANISO2::  Exit magnetization'
 # endif

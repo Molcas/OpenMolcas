@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,mem,compute_Mdir_vector,zeeman_energy,hinput, &
-                         m_paranoid,smagn,doplot,TempMagn,eso,dirX,dirY,dirZ,dir_weight,hexp,magn_exp,zJ,hmin,hmax,EM,thrs,dipm, &
-                         sm,dbg)
+subroutine magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,mem,nsymm,ngrid,compute_Mdir_vector,zeeman_energy, &
+                         hinput,m_paranoid,smagn,doplot,TempMagn,eso,dirX,dirY,dirZ,dir_weight,hexp,magn_exp,zJ,hmin,hmax,EM,thrs, &
+                         dipm,sm,dbg)
 !***********************************************************************
 !                                                                      *
 !     MAGNETIZATION control section                                    *
@@ -45,17 +45,17 @@ subroutine magnetization(nss,nM,nTempMagn,nDirTot,nDir,nDirZee,nH,iPrint,LUZee,m
 !     Liviu Ungur, 2008-2017 various modifications                     *
 !***********************************************************************
 
+use Lebedev_quadrature, only: order_table
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-integer(kind=iwp), intent(in) :: nss, nM, nTempMagn, nDirTot, nDir, nDirZee, nH, iprint, LUZee(nDirZee), mem
+integer(kind=iwp), intent(in) :: nss, nM, nTempMagn, nDirTot, nDir, nDirZee, nH, iprint, LUZee(nDirZee), mem, nsymm, ngrid
 logical(kind=iwp), intent(in) :: compute_Mdir_vector, zeeman_energy, hinput, m_paranoid, smagn, DoPlot, dbg
 real(kind=wp), intent(in) :: TempMagn(nTempMagn), eso(nss), dirX(nDir), dirY(nDir), dirZ(nDir), dir_weight(nDirZee,3), hexp(nH), &
                              magn_exp(nH,nTempMagn), zj, hmin, hmax, EM, thrs
 complex(kind=wp), intent(in) :: dipm(3,nss,nss), sm(3,nss,nss)
-#include "mgrid.fh"
 integer(kind=iwp) :: I, IDIR, IH, IM, iT, iTemp, iTEnd, J, L, mem_local, nP
 real(kind=wp) :: DLTH, mv, sv
 character(len=99) :: STLNE1, STLNE2
@@ -115,9 +115,9 @@ if (dbg) then
 end if
 !-----------------------------------------------------------------------
 write(u6,*)
-write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(100A)') ('%',J=1,96)
 write(u6,'(40X,A)') 'CALCULATION OF THE MOLAR MAGNETIZATION'
-write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(100A)') ('%',J=1,96)
 write(u6,*)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 if (DBG .or. (iprint > 3)) then
@@ -153,7 +153,7 @@ if (DBG .or. (iprint > 3)) then
   end if
 end if
 
-nP = get_nP(nsymm,ngrid)
+nP = order_table(nsymm,ngrid)
 
 call hdir(nDir,nDirZee,dirX,dirY,dirZ,dir_weight,nP,nsymm,ngrid,nDirTot,dHX,dHY,dHZ,dHW)
 
@@ -222,7 +222,7 @@ end if
 if (zeeman_energy) then
   write(u6,'(2x,A,i2,a)') 'The Zeeman splitting for ',nDirZee,' directions of the applied magnetic field will be calculated.'
   write(u6,'(2x,a     )') 'The Zeeman energies for each direction of the applied magnetic field are written in files '// &
-                         '"zeeman_energy_xxx.txt".'
+                          '"zeeman_energy_xxx.txt".'
 else
   write(u6,'(2X,A)') 'Computation of the Zeeman splitting was not requested.'
 end if
@@ -263,8 +263,8 @@ do iH=1,nH
     end if
     !-------------------------------------------------------------------
     if (zeeman_energy) then
-      if ((iH == 1) .and. (iM == nDir+1)) write(u6,'(A)') 'Energies of the Zeeman Hamiltonian for the following directions of '// &
-                                                         'the applied field:'
+      if ((iH == 1) .and. (iM == nDir+1)) &
+        write(u6,'(A)') 'Energies of the Zeeman Hamiltonian for the following directions of the applied field:'
       if ((iH == 1) .and. (iM > nDir) .and. (iM <= nDir+nDirZee)) then
         write(u6,'(A,I3,A,3F10.6,3x,5A)') 'direction Nr.',iM-nDir,' : ',dHX(iM),dHY(iM),dHZ(iM),'written in file "zeeman_energy_', &
                                           char(48+mod((iM-nDir)/100,10)),char(48+mod((iM-nDir)/10,10)), &

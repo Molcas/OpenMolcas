@@ -61,7 +61,6 @@ real(kind=wp), intent(in) :: Tmin, Tmax, chit_exp(nT), eso(nneq,nLoc), W(exch), 
                              THRS, XT_no_field(nT+nTempMagn)
 complex(kind=wp), intent(in) :: dipso(nneq,3,nLoc,nLoc), s_so(nneq,3,nLoc,nLoc), dipexch(3,exch,exch), s_exch(3,exch,exch)
 logical(kind=iwp), intent(in) :: tinput, smagn, m_paranoid, doplot
-#include "mgrid.fh"
 integer(kind=iwp) :: i, ibuf, ibuf1, ibuf3, iM, info, isite, iT, j, jT, mem_local, n, nDirX, nTempTotal
 real(kind=wp) :: dHX(3), dHY(3), dHZ(3), dltXF, F1, F2, wt(3), Xfield_1, Xfield_2, zt(3,3)
 logical(kind=iwp) :: m_accurate
@@ -149,10 +148,10 @@ call xFlush(u6)
 #endif
 !ccc-------------------------------------------------------cccc
 write(u6,*)
-write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(100A)') ('%',J=1,95)
 write(u6,'(16X,A)') 'CALCULATION OF THE FIELD-DEPENDENT MAGNETIC SUSCEPTIBILITY'
 write(u6,'(18X,A)') 'within true (dM/dH) and "experimentalists" (M/H) models'
-write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(100A)') ('%',J=1,95)
 write(u6,*)
 write(u6,'(2x,A,F10.6,A)') 'Magnetic field strength:',Xfield,' tesla.'
 if (tinput) then

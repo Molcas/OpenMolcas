@@ -22,8 +22,8 @@ integer(kind=iwp), intent(in) :: npair, i_pair(npair,2), lmax, nneq, nexch(nneq)
 character, intent(in) :: itype(nneq)
 real(kind=wp), intent(in) :: soe(nneq,nmax), rot(nneq,neqv,3,3)
 complex(kind=wp), intent(in) :: MM(nneq,3,nmax,nmax), SM(nneq,3,nmax,nmax), HLIN1(npair,nmax,nmax,nmax,nmax), &
-                               HLIN3(npair,nmax,nmax,nmax,nmax), HLIN9(npair,nmax,nmax,nmax,nmax), &
-                               HDIP(npair,nmax,nmax,nmax,nmax), HDMO(npair,nmax,nmax,nmax,nmax), HITO(npair,nmax,nmax,nmax,nmax)
+                                HLIN3(npair,nmax,nmax,nmax,nmax), HLIN9(npair,nmax,nmax,nmax,nmax), &
+                                HDIP(npair,nmax,nmax,nmax,nmax), HDMO(npair,nmax,nmax,nmax,nmax), HITO(npair,nmax,nmax,nmax,nmax)
 logical(kind=iwp), intent(in) :: Dipol, AnisoLines1, AnisoLines3, AnisoLines9, DM_exchange, JITO_exchange
 ! local variables
 integer(kind=iwp) :: i, i1, i2, ibuf, j, k, k1, k2, l, lb1, lb2, lp, n1, n2, nind(lmax,2), q1, q2
@@ -187,7 +187,7 @@ call prMom('SM(i2) bf Lines1',SM(i2,:,1:n2,1:n2),n2)
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 write(u6,*)
-write(u6,'(100a)') (('%'),j=1,100)
+write(u6,'(100a)') ('%',j=1,100)
 if ((.not. AnisoLines1) .and. (.not. AnisoLines3) .and. (.not. AnisoLines9) .and. (.not. Dipol) .and. (.not. DM_exchange) .and. &
     (.not. JITO_exchange)) then
   write(u6,'(20x,A)') 'ITO decomposition of exchange and/or dipolar couplings.'
@@ -217,7 +217,7 @@ else if (.not. (AnisoLines1 .or. AnisoLines3 .or. AnisoLines9) .and. Dipol .and.
   write(u6,'(20x,A)') 'ITO decomposition of anisotropic exchange interaction and dipolar couplings.'
 
 end if
-write(u6,'(100a)') (('%'),j=1,100)
+write(u6,'(100a)') ('%',j=1,100)
 write(u6,*)
 
 ! decompose the exchange interaction in products of ITO

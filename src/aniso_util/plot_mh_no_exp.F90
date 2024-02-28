@@ -295,18 +295,18 @@ if (gnuplot_version < Five) then
     r = Random_Molcas(iSeed)
     ic = floor(size(color)*r)+lbound(color,1)
     if ((iTempMagn == 1) .and. (nTempMagn > 1)) then
-      write(LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik, &
-        ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
+      write(LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik,' with lines lt 1  lw  8 lc rgb "'//color(ic)// &
+                                     '"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
     else if ((iTempMagn == 1) .and. (nTempMagn == 1)) then
-      write(LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik, &
-        ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K."'
+      write(LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik,' with lines lt 1  lw  8 lc rgb "'//color(ic)// &
+                                     '"  title "Calc. M at T=',TempMagn(iTempMagn),'K."'
     end if
     if ((iTempMagn < nTempMagn) .and. (iTempMagn /= 1)) &
-      write(LuPlt,'(A,i0,A,F7.3,A)') '     "'//trim(realname_dat)//'" using 1:',ik, &
-        ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
+      write(LuPlt,'(A,i0,A,F7.3,A)') '     "'//trim(realname_dat)//'" using 1:',ik,' with lines lt 1  lw  8 lc rgb "'//color(ic)// &
+                                     '"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
     if ((iTempMagn == nTempMagn) .and. (nTempMagn > 1)) &
-      write(LuPlt,'(A,i0,A,F7.3,A)') '     "'//trim(realname_dat)//'" using 1:',ik, &
-        ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K."'
+      write(LuPlt,'(A,i0,A,F7.3,A)') '     "'//trim(realname_dat)//'" using 1:',ik,' with lines lt 1  lw  8 lc rgb "'//color(ic)// &
+                                     '"  title "Calc. M at T=',TempMagn(iTempMagn),'K."'
   end do
 
 else if ((gnuplot_version >= Five) .and. (gnuplot_version < Six)) then
@@ -341,18 +341,18 @@ else if ((gnuplot_version >= Five) .and. (gnuplot_version < Six)) then
     r = Random_Molcas(iSeed)
     ic = floor(size(color)*r)+lbound(color,1)
     if ((iTempMagn == 1) .and. (nTempMagn > 1)) then
-      write(LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik, &
-        ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
+      write(LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik,' with lines lt 1  lw  8 lc rgb "'//color(ic)// &
+                                     '"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
     else if ((iTempMagn == 1) .and. (nTempMagn == 1)) then
-      write(LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik, &
-        ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K."'
+      write(LuPlt,'(A,i0,A,F7.3,A)') 'plot "'//trim(realname_dat)//'" using 1:',ik,' with lines lt 1  lw  8 lc rgb "'//color(ic)// &
+                                     '"  title "Calc. M at T=',TempMagn(iTempMagn),'K."'
     end if
     if ((iTempMagn < nTempMagn) .and. (iTempMagn /= 1)) &
-      write(LuPlt,'(A,i0,A,F7.3,A)') '     "'//trim(realname_dat)//'" using 1:',ik, &
-        ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
+      write(LuPlt,'(A,i0,A,F7.3,A)') '     "'//trim(realname_dat)//'" using 1:',ik,' with lines lt 1  lw  8 lc rgb "'//color(ic)// &
+                                     '"  title "Calc. M at T=',TempMagn(iTempMagn),'K.", \'
     if ((iTempMagn == nTempMagn) .and. (nTempMagn > 1)) &
-      write(LuPlt,'(A,i0,A,F7.3,A)') '     "'//trim(realname_dat)//'" using 1:',ik, &
-        ' with lines lt 1  lw  8 lc rgb "'//color(ic)//'"  title "Calc. M at T=',TempMagn(iTempMagn),'K."'
+      write(LuPlt,'(A,i0,A,F7.3,A)') '     "'//trim(realname_dat)//'" using 1:',ik,' with lines lt 1  lw  8 lc rgb "'//color(ic)// &
+                                     '"  title "Calc. M at T=',TempMagn(iTempMagn),'K."'
   end do
 
 else

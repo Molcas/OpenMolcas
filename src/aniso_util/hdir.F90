@@ -13,6 +13,7 @@ subroutine hdir(nDir,nDirZee,dirX,dirY,dirZ,dir_weight,nP,nsymm,ngrid,nDirTot,dH
 ! this routine generates the directions of the applied magnetic
 ! field according to Lebedev-Laikov grids using the the given parameters (nsymm, ngrid)
 
+use Lebedev_quadrature, only: ld_by_rule
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -44,7 +45,7 @@ dHZ(nDir+1:nDir+nDirZee) = dir_weight(:,3)
 
 dHW(1:nDir+nDirZee) = Zero
 
-call Lebedev_Laikov(nSymm,nGrid,nP,X,Y,Z,W)
+call ld_by_rule(nSymm,nGrid,X,Y,Z,W)
 
 dHX(nDir+nDirZee+1:nDir+nDirZee+nP) = X(:)
 dHY(nDir+nDirZee+1:nDir+nDirZee+nP) = Y(:)

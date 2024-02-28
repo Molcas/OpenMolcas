@@ -90,9 +90,9 @@ write(u6,*) 'doplot:       ',doplot
 #endif
 !-----------------------------------------------------------------------
 write(u6,*)
-write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(100A)') ('%',J=1,95)
 write(u6,'(35X,A)') 'CALCULATION OF THE MAGNETIC SUSCEPTIBILITY'
-write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(100A)') ('%',J=1,95)
 write(u6,*)
 
 if (tinput) then
@@ -493,7 +493,6 @@ else ! zJ /= Zero
     call DIAG_R2(chit_theta_tens(jT,:,:),3,info,wt,zt)
     write(u6,'(A)') '------------|---|------- x --------- y --------- z ---|-----------------|------ x --------- y --------- '// &
                     'z ----|'
-
     write(u6,'(A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') '            | x |',(chit_theta_tens(jT,1,j),j=1,3),' |  X:',wt(1),'|', &
                                                     (zt(j,1),j=1,3),'|'
     write(u6,'(F11.6,1x,A,3F12.6,A,F12.6,1x,A,3F12.8,1x,A)') T(jT),'| y |',(chiT_theta_tens(jT,2,j),j=1,3),' |  Y:',wt(2),'|', &

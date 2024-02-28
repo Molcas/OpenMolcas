@@ -357,7 +357,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) ::fct
+real(kind=wp) :: fct
 integer(kind=iwp), intent(in) :: n
 integer(kind=iwp) :: i
 real(kind=wp) :: xct, xlim

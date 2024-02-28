@@ -14,16 +14,17 @@ subroutine readin_single(iprint,nmult,ndim,ndimcf,ldimcf,nlanth,axisoption,poly_
                          compute_magnetization,compute_torque,smagn,tinput,hinput,compute_Mdir_vector,zeeman_energy,LUZee,doplot, &
                          encut_rate,ncut,nTempMagn,TempMagn,m_paranoid,compute_barrier,nBlock,AngPoints,input_file_name,nT,nH, &
                          texp,chit_exp,zJ,hexp,magn_exp,hmin,hmax,nDir,nDirZee,dirX,dirY,dirZ,dir_weight,xfield,tmin,tmax,thrs, &
-                         H_torq,T_torq)
+                         H_torq,T_torq,nsymm,ngrid)
 ! THIS ROUTINE READS THE FILE "SINGLE_ANISO.INPUT".
 
+use Lebedev_quadrature, only: order_table
 use Constants, only: Zero, One, Two, Five, Six, Ten
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: nmult, ntempmagn, nt, nh, nDir, nDirZee
 integer(kind=iwp), intent(out) :: iprint, ndim(nMult), ndimcf, ldimcf, nlanth, axisoption, input_to_read, nk, mg, &
-                                  encut_definition, ndirtot, LUZee(nDirZee), ncut, nBlock, AngPoints
+                                  encut_definition, ndirtot, LUZee(nDirZee), ncut, nBlock, AngPoints, nsymm, ngrid
 logical(kind=iwp), intent(out) :: poly_file, Ifrestart, Do_structure_abc, compute_g_tensors, compute_cf, compute_magnetization, &
                                   compute_torque, smagn, tinput, hinput, compute_Mdir_vector, zeeman_energy, doplot, m_paranoid, &
                                   compute_barrier
@@ -32,7 +33,6 @@ real(kind=wp), intent(out) :: zmagn(3,3), cryst(6), coord(3), encut_rate, tempma
                               dir_weight(nDirZee,3), Xfield, tmin, tmax, thrs, H_torq, T_torq
 integer(kind=iwp), intent(in) :: nss, nstate
 character(len=180), intent(inout) :: input_file_name
-#include "mgrid.fh"
 integer(kind=iwp) :: I, i_OxStat, istatus, j, jEnd, l, LINENR
 real(kind=wp) :: check_dir_weight, column_check(3,3), det_zmagn, row_check(3,3), rsum, t1, t2, tmp, zr(3,3)
 logical(kind=iwp) :: checktmag, encut_check, hcheck, tcheck
@@ -40,112 +40,14 @@ character(len=280) :: LINE
 character(len=180) :: err_msg, tmpline
 character(len=21) :: namefile_energy
 character(len=2) :: cME, uME
+integer(kind=iwp), parameter :: ngrid_map(32) = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,20,23,26,29,32,35,38,41,44,47,50,53,56,59, &
+                                                 62,65]
 character(len=*), parameter :: clanth(37) = ['CE','PR','ND','PM','SM','EU','GD','TB','DY','HO','ER','TM','YB','LU', & ! lanthanides
                                              'TH','PA','U ','NP','PU','AM','CM','BK','CF','ES','FM','MD','NO','LR', & ! actinides
                                              'SC','TI','V ','CR','MN','FE','CO','NI','CU'] ! transition metals
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: FindDetR
 
-!============ Some default settings=====================================
-! variables in "mgrid.fh"
-nsymm = 1
-ngrid = 15
-get_nP(1,1) = 5
-get_nP(1,2) = 9
-get_nP(1,3) = 17
-get_nP(1,4) = 25
-get_nP(1,5) = 29
-get_nP(1,6) = 45
-get_nP(1,7) = 49
-get_nP(1,8) = 61
-get_nP(1,9) = 77
-get_nP(1,10) = 93
-get_nP(1,11) = 105
-get_nP(1,12) = 125
-get_nP(1,13) = 141
-get_nP(1,14) = 161
-get_nP(1,15) = 185
-get_nP(1,16) = 229
-get_nP(1,17) = 309
-get_nP(1,18) = 401
-get_nP(1,19) = 505
-get_nP(1,20) = 621
-get_nP(1,21) = 749
-get_nP(1,22) = 889
-get_nP(1,23) = 1041
-get_nP(1,24) = 1205
-get_nP(1,25) = 1381
-get_nP(1,26) = 1569
-get_nP(1,27) = 1769
-get_nP(1,28) = 1981
-get_nP(1,29) = 2205
-get_nP(1,30) = 2441
-get_nP(1,31) = 2689
-get_nP(1,32) = 2949
-get_nP(2,1) = 4
-get_nP(2,2) = 6
-get_nP(2,3) = 11
-get_nP(2,4) = 16
-get_nP(2,5) = 17
-get_nP(2,6) = 27
-get_nP(2,7) = 28
-get_nP(2,8) = 34
-get_nP(2,9) = 41
-get_nP(2,10) = 51
-get_nP(2,11) = 57
-get_nP(2,12) = 68
-get_nP(2,13) = 75
-get_nP(2,14) = 86
-get_nP(2,15) = 98
-get_nP(2,16) = 121
-get_nP(2,17) = 162
-get_nP(2,18) = 209
-get_nP(2,19) = 262
-get_nP(2,20) = 321
-get_nP(2,21) = 386
-get_nP(2,22) = 457
-get_nP(2,23) = 534
-get_nP(2,24) = 617
-get_nP(2,25) = 706
-get_nP(2,26) = 801
-get_nP(2,27) = 902
-get_nP(2,28) = 1009
-get_nP(2,29) = 1122
-get_nP(2,30) = 1241
-get_nP(2,31) = 1366
-get_nP(2,32) = 1497
-get_nP(3,1) = 3
-get_nP(3,2) = 4
-get_nP(3,3) = 7
-get_nP(3,4) = 10
-get_nP(3,5) = 10
-get_nP(3,6) = 16
-get_nP(3,7) = 16
-get_nP(3,8) = 19
-get_nP(3,9) = 22
-get_nP(3,10) = 28
-get_nP(3,11) = 31
-get_nP(3,12) = 37
-get_nP(3,13) = 40
-get_nP(3,14) = 46
-get_nP(3,15) = 52
-get_nP(3,16) = 64
-get_nP(3,17) = 85
-get_nP(3,18) = 109
-get_nP(3,19) = 136
-get_nP(3,20) = 166
-get_nP(3,21) = 199
-get_nP(3,22) = 235
-get_nP(3,23) = 274
-get_nP(3,24) = 316
-get_nP(3,25) = 361
-get_nP(3,26) = 409
-get_nP(3,27) = 460
-get_nP(3,28) = 514
-get_nP(3,29) = 571
-get_nP(3,30) = 631
-get_nP(3,31) = 694
-get_nP(3,32) = 760
 !========== Initializations of arrays ==================================
 DirX(:) = Zero
 DirY(:) = Zero
@@ -154,6 +56,8 @@ dir_weight(:,:) = Zero
 TempMagn(:) = Zero
 !============ Initializations of constants =============================
 
+nsymm = 1
+ngrid = 15
 IPRINT = 2
 ndim(:) = 0
 Ifrestart = .false.
@@ -401,7 +305,7 @@ do
       if (ENCUT_check) then
         write(u6,*) 'READIN_SINGLE: NCUT, ERAT and ENCU are mutually exclusive.'
         call ABEnd()
-      endif
+      end if
       ENCUT_check = .true.
       compute_magnetization = .true. ! request for computation of M(H)
       encut_definition = 1
@@ -426,7 +330,7 @@ do
       if (ENCUT_check) then
         write(u6,*) 'READIN_SINGLE: NCUT, ERAT and ENCU are mutually exclusive.'
         call ABEnd()
-      endif
+      end if
       ENCUT_check = .true.
       compute_magnetization = .true.
       encut_definition = 2
@@ -630,9 +534,9 @@ do
 
         do i=1,nTempMagn
           if (TempMagn(i) <= Zero) then
-          call WarningMessage(2,'TMAG: zero or negative temperature requested! ')
-          if (TempMagn(i) < Zero) TempMagn(i) = abs(TempMagn(i))
-          if (TempMagn(i) == Zero) TempMagn(i) = 0.0001_wp
+            call WarningMessage(2,'TMAG: zero or negative temperature requested! ')
+            if (TempMagn(i) < Zero) TempMagn(i) = abs(TempMagn(i))
+            if (TempMagn(i) == Zero) TempMagn(i) = 0.0001_wp
           end if
         end do
 
@@ -1264,9 +1168,10 @@ if (compute_CF) then
 end if ! compute_CF
 
 ! preparing the info for computation of molar magnetization
+ngrid = ngrid_map(ngrid)
 if (compute_magnetization) then
   ! calculate the total number of directions for the average procedure
-  nDirTot = get_nP(nsymm,ngrid)
+  nDirTot = order_table(nsymm,ngrid)
   if (zeeman_energy) nDirTot = nDirTot+nDirZee
   if (compute_Mdir_vector) nDirTot = nDirTot+nDir
 end if
@@ -1337,7 +1242,7 @@ if (compute_magnetization) then
   write(u6,'(A, I3)') 'HINT :      nH = ',nH
   write(u6,'(A,F7.3)') '          Hmin = ',Hmin
   write(u6,'(A,F7.3)') '          Hmax = ',Hmax
-  write(u6,'(A, I3)') 'MAVE :   nDir = ',get_nP(nsymm,ngrid)
+  write(u6,'(A, I3)') 'MAVE :   nDir = ',order_table(nsymm,ngrid)
 
   if (HINPUT) write(u6,'(A)') 'HEXP :         = the experimental field interval is read from the file "mexp.input"'
   if (encut_definition == 1) then

@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir,nDirZee,nDirTot,nss,nexch,iopt,LUZee,TempMagn, &
-                            hexp,mexp,hmin,hmax,em,zJ,thrs,dirX,dirY,dirZ,dir_weight,w,dipexch,s_exch,dipso,s_so,eso,hinput,r_rot, &
-                            XLM,ZLM,XRM,ZRM,zeeman_energy,compute_Mdir_vector,m_paranoid,m_accurate,smagn,mem,doplot)
+subroutine magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir,nDirZee,nDirTot,nss,nexch,iopt,LUZee,nsymm,ngrid, &
+                            TempMagn,hexp,mexp,hmin,hmax,em,zJ,thrs,dirX,dirY,dirZ,dir_weight,w,dipexch,s_exch,dipso,s_so,eso, &
+                            hinput,r_rot,XLM,ZLM,XRM,ZRM,zeeman_energy,compute_Mdir_vector,m_paranoid,m_accurate,smagn,mem,doplot)
 ! constants defining the sizes
 !  NM : number of states included in the exchange Zeeman matrix, ( Nex <= exch)
 !  exch, nLoc, nH, nCenter, nTempMagn, nDir, nDirZee, nDirTot, nneq, neqv, neq, nss, nexch, iopt, mem, LUZee, hinput,
@@ -46,14 +46,14 @@ subroutine magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir
 ! total average M and average S data:
 !  MAV, SAV, MVEC, SVEC
 
+use Lebedev_quadrature, only: order_table
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten, mBohr, rNAVO
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-#include "mgrid.fh"
 integer(kind=iwp), intent(in) :: exch, nLoc, nM, nH, nneq, neq(nneq), neqv, nCenter, nTempMagn, nDir, nDirZee, nDirTot, nss(nneq), &
-                                 nexch(nneq), iopt, LUZee(nDirZee), mem
+                                 nexch(nneq), iopt, LUZee(nDirZee), nsymm, ngrid, mem
 real(kind=wp), intent(in) :: TempMagn(nTempMagn), Hexp(nH), Mexp(nH,nTempMagn), hmin, hmax, em, zJ, thrs, dirX(nDir), dirY(nDir), &
                              dirZ(nDir), dir_weight(nDirZee,3), W(exch), ESO(nneq,nLoc), R_ROT(nneq,neqv,3,3), &
                              XLM(nCenter,nTempMagn,3,3), ZLM(nCenter,nTempMagn), XRM(nCenter,nTempMagn,3,3), ZRM(nCenter,nTempMagn)
@@ -82,9 +82,9 @@ unused_var(mem)
 #endif
 
 write(u6,*)
-write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(100A)') ('%',J=1,96)
 write(u6,'(40X,A)') 'CALCULATION OF THE MOLAR MAGNETIZATION'
-write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(100A)') ('%',J=1,96)
 write(u6,*)
 !----------------------------------------------------------------------
 mem_local = 0
@@ -200,7 +200,7 @@ write(u6,*) 'mem_total=',mem+mem_local
 #endif
 !-----------------------------------------------------------------------
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-nP = get_nP(nsymm,ngrid)
+nP = order_table(nsymm,ngrid)
 
 call hdir(nDir,nDirZee,dirX,dirY,dirZ,dir_weight,nP,nsymm,ngrid,nDirTot,dHX,dHY,dHZ,dHW)
 call Add_Info('MR_MAGN  dHX',dHX,min(5,nDirTot),10)
@@ -440,8 +440,8 @@ do iH=1,nH
     !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     ! print out hte Zeeman eigenstates
     if (zeeman_energy) then
-      if ((iH == 1) .and. (iM == nDir+1)) write(u6,'(A)') 'Energies of the Zeeman Hamiltonian for the following directions of '// &
-                                                          'the applied field:'
+      if ((iH == 1) .and. (iM == nDir+1)) &
+        write(u6,'(A)') 'Energies of the Zeeman Hamiltonian for the following directions of the applied field:'
       if ((iH == 1) .and. (iM > nDir) .and. (iM <= nDir+nDirZee)) then
         write(u6,'(A,I3,A,3F10.6,3x,5A)') 'direction Nr.',iM-nDir,' : ',dHX(iM),dHY(iM),dHZ(iM),'written in file "zeeman_energy_', &
                                           char(48+mod((iM-nDir)/100,10)),char(48+mod((iM-nDir)/10,10)),char(48+mod(iM-nDir,10)), &

@@ -37,9 +37,9 @@ real(kind=wp), external :: dev
 mem_local = 0
 
 write(u6,*)
-write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(100A)') ('%',J=1,95)
 write(u6,'(35X,A)') 'CALCULATION OF THE MAGNETIC SUSCEPTIBILITY'
-write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(100A)') ('%',J=1,95)
 
 write(u6,*)
 if (TINPUT) then

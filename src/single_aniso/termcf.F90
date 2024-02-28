@@ -38,7 +38,7 @@ use Constants, only: Zero, cZero, cOne, Onei, auTocm
 #ifdef _DISABLED_
 use Constants, only: One, Two, Half
 #endif
-use Definitions, only: wp, iwp,u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ldimcf, d, iopt, nlanth, iprint

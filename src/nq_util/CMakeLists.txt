@@ -13,7 +13,6 @@ set (sources
      allok2_funi.F90
      angular_grid.F90
      angular_prune.F90
-     anmesh.F90
      aoadd_full.F90
      box_on_sphere.F90
      calcorboff.F90
@@ -64,8 +63,8 @@ set (sources
      g.F90
      ggl_grid.F90
      grid_on_disk.F90
-     lebedev.F90
      lebedev_grid.F90
+     lebedev_quadrature.F90
      libxc.F90
      libxc_interface.F90
      libxc_version.F90
@@ -109,6 +108,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     lebedev_quadrature.F90
      libxc.F90
      nq_grid.F90
      nq_info.F90

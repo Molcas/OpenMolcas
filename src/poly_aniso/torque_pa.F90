@@ -66,7 +66,6 @@ real(kind=wp), intent(in) :: TempMagn(nTempMagn), W(exch), hmin, hmax, dltH0, EM
                              R_ROT(nneq,neqv,3,3), XLM(nCenter,nTempMagn,3,3), ZLM(nCenter,nTempMagn), XRM(nCenter,nTempMagn,3,3), &
                              ZRM(nCenter,nTempMagn)
 complex(kind=wp), intent(in) :: DIPEXCH(3,EXCH,EXCH), S_EXCH(3,EXCH,EXCH), dipso(nneq,3,nLoc,nLoc), s_so(nneq,3,nLoc,nLoc)
-#include "mgrid.fh"
 integer(kind=iwp) :: I, IH, IM, iPl, isite, it, J, k, mem_local, n
 real(kind=wp) :: dlth
 real(kind=wp), allocatable :: Ang(:), dX(:,:), dY(:,:), dZ(:,:), H(:), MEX(:,:), ML(:,:,:), MLT(:,:,:), MR(:,:,:), MRT(:,:,:), &
@@ -88,9 +87,9 @@ unused_var(mem)
 #endif
 
 write(u6,*)
-write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(100A)') ('%',J=1,96)
 write(u6,'(20X,A)') 'ANGULAR DEPENDENCE OF THE MAGNETIZATION TORQUE'
-write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(100A)') ('%',J=1,96)
 write(u6,*)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 write(u6,'(2X,A,i3,A)') 'Magnetization torque is calculated for the ',NH,' field points, in the field Domain:'
@@ -446,8 +445,9 @@ do iH=1,nH
                                 'rotation in the XY plane          |'
     write(u6,'(10A)') '--------|',('-- torque X --|','-- torque Y --|','-- torque Z --|',i=1,3)
     do iM=1,AngPoints
-      write(u6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))') Ang(iM),'|',(tx(iPl,iM,iH,iT),' ',ty(iPl,iM,iH,iT),' ', &
-                                                                     tz(iPl,iM,iH,iT),'|',iPl=1,3)
+      write(u6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))') Ang(iM),'|', &
+                                                                     (tx(iPl,iM,iH,iT),' ',ty(iPl,iM,iH,iT),' ',tz(iPl,iM,iH,iT), &
+                                                                      '|',iPl=1,3)
     end do
     write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
   end do !iT
@@ -484,8 +484,9 @@ if (smagn) then
                                   'rotation in the XY plane          |'
       write(u6,'(10A)') '--------|',('Spin torque X |','Spin torque Y |','Spin torque Z |',i=1,3)
       do iM=1,AngPoints
-        write(u6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))') Ang(iM),'|',(sx(iPl,iM,iH,iT),' ',sy(iPl,iM,iH,iT),' ', &
-                                                                       sz(iPl,iM,iH,iT),'|',iPl=1,3)
+        write(u6,'(F7.3,1x,A,3(ES13.6,1x,A,ES13.6,1x,A,ES13.6,1x,A))') Ang(iM),'|', &
+                                                                       (sx(iPl,iM,iH,iT),' ',sy(iPl,iM,iH,iT),' ', &
+                                                                        sz(iPl,iM,iH,iT),'|',iPl=1,3)
       end do
       write(u6,'(10A)') '--------|',('--------------------------------------------|',i=1,3)
     end do !iT

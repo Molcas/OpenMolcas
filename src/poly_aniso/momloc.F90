@@ -111,9 +111,9 @@ call zeem_sa(N,H,maxes(1,3),maxes(2,3),maxes(3,3),W,dipexch,s_exch,ST,zJ,WM,ZM,D
 !cc  eigenvectors
 #ifdef _DEBUGPRINT_
 write(u6,*)
-write(u6,'(100a)') (('%'),i=1,96)
+write(u6,'(100a)') ('%',i=1,96)
 write(u6,'(10x,a)') 'MOMLOC2:  EigenVectors of the Total Magnetic Interaction'
-write(u6,'(100a)') (('%'),i=1,96)
+write(u6,'(100a)') ('%',i=1,96)
 
 write(u6,'(A,16A)') '-',('---',m=1,nsites),'|',('---------------------------|',i=1,4)
 write(fmtline,'(A,i2,A)') '(1x,',nsites,'A,39x,A,38x,A)'

@@ -33,7 +33,6 @@ set (sources
      hdir.F90
      io_data.F90
      jkqpar.F90
-     lebedev_laikov.F90
      magn.F90
      magn_no_mf.F90
      magn_zj_par.F90

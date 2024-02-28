@@ -23,9 +23,9 @@ integer(kind=iwp) :: i, ipar, iss, j, jEnd, m, nf
 character(len=80) :: fmtline
 
 write(u6,*)
-write(u6,'(100a)') (('%'),i=1,100)
+write(u6,'(100a)') ('%',i=1,100)
 write(u6,'(10x,a)') 'EigenValues of the Magnetic Interaction'
-write(u6,'(100a)') (('%'),i=1,100)
+write(u6,'(100a)') ('%',i=1,100)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'pa_preigen:   AnisoLines1 =',AnisoLines1
@@ -225,9 +225,9 @@ end if
 if (iPrint >= 3) then
 
   write(u6,*)
-  write(u6,'(100a)') (('%'),i=1,100)
+  write(u6,'(100a)') ('%',i=1,100)
   write(u6,'(10x,a)') 'EigenVectors of the Total Magnetic Interaction'
-  write(u6,'(100a)') (('%'),i=1,100)
+  write(u6,'(100a)') ('%',i=1,100)
 
   if (exch >= 4) then
     write(u6,'(A,16A)') '-',('---',m=1,lmax),'|',('---------------------------|',i=1,4)

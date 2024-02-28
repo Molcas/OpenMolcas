@@ -80,10 +80,10 @@ call xFlush(u6)
 #endif
 !ccc-------------------------------------------------------cccc
 write(u6,*)
-write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(100A)') ('%',J=1,95)
 write(u6,'(16X,A)') 'CALCULATION OF THE FIELD-DEPENDENT MAGNETIC SUSCEPTIBILITY'
 write(u6,'(18X,A)') 'within true (dM/dH) and "experimentalists" (M/H) models'
-write(u6,'(100A)') (('%'),J=1,95)
+write(u6,'(100A)') ('%',J=1,95)
 write(u6,*)
 write(u6,'(2x,A,F10.6,A)') 'Magnetic field strength:',Xfield,' tesla.'
 write(u6,'(2x,A,F10.6,A)') 'dM/dH is computed numerically using 7 point stencil formula, with h=0.00001'

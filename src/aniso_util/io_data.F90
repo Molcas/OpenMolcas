@@ -1903,7 +1903,7 @@ if (dnrm2_(nt*nh,mav,1) <= MINIMAL_REAL) call WarningMessage(1,'write_magn :: al
 if (dnrm2_(nd*nh*nss,energy,1) <= MINIMAL_REAL) call WarningMessage(1,'write_magn :: all array energy elements are zero = 0.')
 if ((dnrm2_(nd,x,1) <= MINIMAL_REAL) .or. (dnrm2_(nd,y,1) <= MINIMAL_REAL) .or. &
     (dnrm2_(nd,z,1) <= MINIMAL_REAL) .or. (dnrm2_(nd,w,1) <= MINIMAL_REAL)) &
-    call WarningMessage(1,'write_magn :: all array of X,Y,X,W elements are zero = 0.')
+  call WarningMessage(1,'write_magn :: all array of X,Y,X,W elements are zero = 0.')
 
 rewind(ANISO_FILE)
 call file_advance_to_string(ANISO_FILE,'$magnetisation',line,ierr,dbg)

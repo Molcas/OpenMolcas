@@ -12,7 +12,7 @@
       USE RASSI_aux
       USE kVectors
       USE rassi_global_arrays, only: JBNUM
-      USE do_grid, only: Do_Lebedev_Sym
+      USE do_grid, only: Do_Lebedev
       use frenkel_global_vars, only: iTyp
 #ifdef _HDF5_
       USE Dens2HDF5
@@ -2407,10 +2407,8 @@ C                                                                      C
       Else
          Call Setup_O()
 *        In the spin-free case, oscillator and rotatory strengths for k and -k
-*        are equal, so we compute only half the quadrature points and multiply
-*        the weights by 2
-         Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
-         Rquad(4,:) = 2.0D0*Rquad(4,:)
+*        are equal, so we compute only half the quadrature points
+         Call Do_Lebedev(L_Eff,nQuad,Rquad,4)
          nVec = 1
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')

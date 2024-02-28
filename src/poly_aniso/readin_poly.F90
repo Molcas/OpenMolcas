@@ -10,10 +10,10 @@
 !***********************************************************************
 
 subroutine Readin_poly(nneq,neq,neqv,exch,nCenter,nT,nH,nTempMagn,nDir,nDirZee,nMult,nPair,nexch,nDim,i_pair,lant,multLn,iPrint, &
-                       keopt,encut_definition,nK,mG,iopt,nP,AngPoints,ncut,LUZee,MxRank1,MxRank2,imaxrank,TempMagn,R_LG,R_ROT,Jex, &
-                       JAex,JAex9,JDMex,JITOexR,JITOexI,tpar,upar,cryst,coord,Xfield,gtens_input,D_fact,EoverD_fact,riso, &
-                       MagnCoords,thrs,tmin,tmax,hmin,hmax,Texp,chit_exp,Hexp,Mexp,encut_rate,zJ,dirX,dirY,dirZ,dir_weight,Title, &
-                       itype,ifHDF,compute_g_tensors,compute_magnetization,TINPUT,HINPUT,Do_structure_abc,DoPlot, &
+                       keopt,encut_definition,nK,mG,iopt,nP,AngPoints,ncut,LUZee,MxRank1,MxRank2,imaxrank,nsymm,ngrid,TempMagn, &
+                       R_LG,R_ROT,Jex,JAex,JAex9,JDMex,JITOexR,JITOexI,tpar,upar,cryst,coord,Xfield,gtens_input,D_fact, &
+                       EoverD_fact,riso,MagnCoords,thrs,tmin,tmax,hmin,hmax,Texp,chit_exp,Hexp,Mexp,encut_rate,zJ,dirX,dirY,dirZ, &
+                       dir_weight,Title,itype,ifHDF,compute_g_tensors,compute_magnetization,TINPUT,HINPUT,Do_structure_abc,DoPlot, &
                        compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,compute_susceptibility,decompose_exchange,KE, &
                        fitCHI,fitM,compute_torque,compute_barrier,Dipol,check_title,AnisoLines1,AnisoLines3,AnisoLines9, &
                        DM_exchange,JITO_exchange)
@@ -78,7 +78,7 @@ use Definitions, only: wp, iwp, u5, u6
 implicit none
 integer(kind=iwp), intent(inout) :: nneq, neq(nneq), nT, nH, nTempMagn, nDir, nDirZee, nMult, nPair, nexch(nneq), nDim(nMult), &
                                     lant, multLn, iPrint, KEOPT, encut_definition, nK, mG, iopt, nP, AngPoints, ncut, &
-                                    LUZee(nDirZee), imaxrank(npair,2)
+                                    LUZee(nDirZee), imaxrank(npair,2), nsymm, ngrid
 integer(kind=iwp), intent(in) :: neqv, exch, nCenter, MxRank1, MxRank2
 integer(kind=iwp), intent(out) :: i_pair(nPair,2)
 real(kind=wp), intent(inout) :: TempMagn(nTempMagn), R_LG(nneq,neqv,3,3), R_ROT(nneq,neqv,3,3), Jex(nPair), JAex(nPair,3), &
@@ -95,7 +95,6 @@ logical(kind=iwp), intent(inout) :: ifHDF, compute_g_tensors, compute_magnetizat
                                     decompose_exchange, KE, fitCHI, fitM, compute_torque, compute_barrier, Dipol, AnisoLines1, &
                                     AnisoLines3, AnisoLines9, DM_exchange, JITO_exchange
 logical(kind=iwp), intent(out) :: tinput, hinput, check_title
-#include "mgrid.fh"
 #include "warnings.h"
 integer(kind=iwp) :: ASUM, i, i1, i2, ic, icount_b_sites, inneq, iproj1, iproj2, irank1, irank2, istatus, j, jc, jproj1, jproj2, &
                      jrank1, jrank2, l, lb1, lb2, linenr, ll, lp, m, n, nst
@@ -746,8 +745,9 @@ do
             write(u6,'(A,i4,A,3ES20.10, 2(A,ES20.10) )') 'gtens_input(',i,')=',(gtens_input(l,i),l=1,3),' D = ',D_fact(i), &
                                                          ' E/D =',EoverD_fact(i)
 #           endif
-            if ((itype(i) == 'C') .and. ((gtens_input(1,i) /= gtens_input(2,i)) .or. (gtens_input(1,i) /= gtens_input(3,i)) .or. &
-                (gtens_input(2,i) /= gtens_input(3,i)))) then
+            if ((itype(i) == 'C') .and. &
+                ((gtens_input(1,i) /= gtens_input(2,i)) .or. (gtens_input(1,i) /= gtens_input(3,i)) .or. &
+                 (gtens_input(2,i) /= gtens_input(3,i)))) then
               do ic=1,3
                 read(u5,*,iostat=istatus) (riso(i,jc,ic),jc=1,3)
                 if (istatus /= 0) call Error(4)
@@ -837,8 +837,8 @@ do
           do iproj1=-irank1,irank1
             do irank2=1,imaxrank(i,2),2
               do iproj2=-irank2,irank2
-                read(u5,*,iostat=istatus) jrank1,jproj1,jrank2,jproj2,JITOexR(i,jrank1,jproj1,jrank2,jproj2),JITOexI(i,jrank1, &
-                                          jproj1,jrank2,jproj2)
+                read(u5,*,iostat=istatus) jrank1,jproj1,jrank2,jproj2,JITOexR(i,jrank1,jproj1,jrank2,jproj2), &
+                                          JITOexI(i,jrank1,jproj1,jrank2,jproj2)
                 if (istatus /= 0) call Error(4)
               end do
             end do
@@ -1204,8 +1204,8 @@ if (npair > 0) then
   do i=1,nPair
     if ((i_pair(i,1) > nCenter) .or. (i_pair(i,2) > nCenter)) then
       write(u6,'(A)') 'The numbering of the magnetic centers within NPAIR keyword is wrong.'
-      write(u6,'(A,i2,a)') 'For the interaction Nr. = ',i,' you numerate individual centers with numbers larger than the total '// &
-                           'number of centers in this molecule.'
+      write(u6,'(A,i2,a)') 'For the interaction Nr. = ',i, &
+                           ' you numerate individual centers with numbers larger than the total number of centers in this molecule.'
       write(u6,'(A)') 'NPAIR keyword is wrong.'
       write(u6,'(A,I4)') 'i_pair(i,1) =',i_pair(i,1)
       write(u6,'(A,I4)') 'i_pair(i,2) =',i_pair(i,2)
@@ -1280,7 +1280,7 @@ subroutine Error(code)
 
   integer(kind=iwp), intent(in) :: code
 
-  select case(code)
+  select case (code)
     case (1)
       write(u6,*) 'READIN_POLY: THE TINT command is incompatible with TEXP'
     case (2)

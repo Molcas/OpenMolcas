@@ -183,7 +183,7 @@ if (iprint >= 2) then
   write(u6,'(A,4x,A,27x,A,21x,a,3x,a)') 'MAIN VALUES','|','MAIN ANISOTROPY AXES','|','x , y , z  -- initial Cartesian axes'
   write(u6,'(85a,3x,a)') ('-',i=1,15),'|',('-',i=1,36),'|',('-',i=1,31),'|','Xm, Ym, Zm -- main magnetic axes'
   write(u6,'(15x,a,4x,a,5x,a,8x,a,8x,a,4x,a,5x,a,9x,a,9x,a,5x,a,3x,a)') '|','|','Xm','Ym','Zm','|','x','y','z','|', &
-                                                                       'Xa, Ya, Za -- main anisotropy axes'
+                                                                        'Xa, Ya, Za -- main anisotropy axes'
   write(u6,'(90a)') ('-',i=1,15),'|',('-',i=1,4),'|',('-',i=1,31),'|',('-',i=1,31),'|'
   write(u6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dx =',dtens(1),' | Xa |',(daxes(j,1),j=1,3),'|',(ZD2(j,1),j=1,3),'|'
   write(u6,'(A,F9.3,A,3F10.6,1x,A,3F10.6,1x,A)') ' Dy =',dtens(2),' | Ya |',(daxes(j,2),j=1,3),'|',(ZD2(j,2),j=1,3),'|'

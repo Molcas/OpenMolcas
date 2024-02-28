@@ -28,7 +28,7 @@ real(kind=wp) :: RM, RS
 complex(kind=wp) :: redme
 real(kind=wp), allocatable :: W(:)
 complex(kind=wp), allocatable :: HZFS(:,:), MTMP(:,:,:), S2(:,:), STMP(:,:,:), SX2(:,:), SY2(:,:), SZ2(:,:), tmp(:,:), Wc(:,:), &
-                                Z(:,:)
+                                 Z(:,:)
 real(kind=wp), external :: dznrm2_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, j

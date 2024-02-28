@@ -20,7 +20,6 @@ integer(kind=iwp), intent(in) :: nss, nm, AngPoints, mem
 real(kind=wp), intent(in) :: EM, ESO(nss), zJ, thrs, H_torq, T_torq, ma(3,3) ! main magnetic axes
 complex(kind=wp), intent(in) :: DIPM(3,nss,nss), SM(3,nss,nss)
 logical(kind=iwp), intent(in) :: m_paranoid, smagn, DBG
-#include "mgrid.fh"
 integer(kind=iwp) :: I, IM, J, mem_local, nT_torq
 real(kind=wp) :: AngRad, AngStep, g(3), mg(3,3), MT(3), ST(3), ZT(1) !, det, dlth, ma_inv(3,3)
 character(len=99) :: STLNE1, STLNE2
@@ -29,9 +28,9 @@ complex(kind=wp), allocatable :: M(:,:,:), S(:,:,:)
 integer(kind=iwp), parameter :: nPlanes = 1
 
 write(u6,*)
-write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(100A)') ('%',J=1,96)
 write(u6,'(20X,A)') 'ANGULAR DEPENDENCE OF THE MAGNETIZATION TORQUE'
-write(u6,'(100A)') (('%'),J=1,96)
+write(u6,'(100A)') ('%',J=1,96)
 write(u6,*)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !write(u6,'(2X,A,i3,A)') 'Magnetization torque is calculated for the ',NH,' field points, in the field domain:'

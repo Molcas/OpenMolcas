@@ -88,7 +88,7 @@ if (iprint > 2) then
   write(u6,'(10X,A)') 'Magnetic moment (dipIN) in the original coordinate system'
   write(u6,*)
   write(u6,'(A,11X,A,20X,A,20X,A,15x,A)') '< I | moment | J >','projection = X','projection = Y','projection = Z', &
-                                         'ABS(< i | moment | j >)/3'
+                                          'ABS(< i | moment | j >)/3'
   write(u6,*)
   do I=1,nBlock
     do J=1,nBlock
@@ -100,7 +100,7 @@ if (iprint > 2) then
   write(u6,'(10X,A)') 'Magnetic moment (dipN) in the coordinate system of the magnetic axes'
   write(u6,*)
   write(u6,'(A,11X,A,20X,A,20X,A,15x,A)') '< I | moment | J >','projection = X','projection = Y','projection = Z', &
-                                         'ABS(< i | moment | j >)/3'
+                                          'ABS(< i | moment | j >)/3'
   write(u6,*)
   do I=1,nBlock
     do J=1,nBlock
@@ -120,8 +120,7 @@ do il=1,nmult
     WZ(il,1) = W(Ifunct)
   else ! dimi > 1
 
-    call pseudospin(dipN(:,Ifunct:(Ifunct+ndim(il)-1),Ifunct:(Ifunct+ndim(il)-1)),ndim(il),CZ(il,1:ndim(il),1:ndim(il)),3,1, &
-                    iprint)
+    call pseudospin(dipN(:,Ifunct:(Ifunct+ndim(il)-1),Ifunct:(Ifunct+ndim(il)-1)),ndim(il),CZ(il,1:ndim(il),1:ndim(il)),3,1,iprint)
 
     if (iPrint > 2) call pa_prMat('barrier:  CZ',CZ(il,1:nDim(il),1:nDim(il)),nDim(il))
   end if
@@ -163,7 +162,7 @@ if (iprint > 2) then
   write(u6,'(10X,A)') 'Magnetic moment (ML) in the coordinate system of the magnetic axes'
   write(u6,*)
   write(u6,'(A,11X,A,20X,A,20X,A,15x,A)') '< I | moment | J >','projection = X','projection = Y','projection = Z', &
-                                         'ABS(< i | moment | j >)/3'
+                                          'ABS(< i | moment | j >)/3'
   write(u6,*)
   do I=1,nBlock
     do J=1,nBlock
@@ -316,7 +315,7 @@ else !ipar
     write(string2,'(a, i2, a, i2, a)') '(A,',(maxmult-1)/2,'(a,i2,a),a,',(maxmult-1)/2,'(a,i2,a),A)'
     write(u6,string2) ' Mult.|',('     ',i,'+     |',i=(maxmult-1)/2,1,-1),'      0      |', &
                       ('     ',i,'-     |',i=1,(maxmult-1)/2,1),'    E (cm-1)   |'
-    write(string2,'(a, i2, a, i2, a)')'(A,',maxmult/2,'A,A,',maxmult/2,'A,A)'
+    write(string2,'(a, i2, a, i2, a)') '(A,',maxmult/2,'A,A,',maxmult/2,'A,A)'
     write(u6,string2) '------|',('-------------|',i=1,maxmult/2),'-------------|',('-------------|',i=1,maxmult/2), &
                       '---------------|'
 
@@ -374,7 +373,7 @@ do il=1,nmult
 
     do i=1,ndim(il)/2
       if (i > 1) write(u6,'(4A)') '      |','------------------------|','---------------------------------------|', &
-                                 '-----------------------|'
+                                  '-----------------------|'
       write(s1,'(i2,A1,i1,A1)') il,'.',i,'+'
       do j=i,ndim(il)/2
         write(s2,'(i2,A1,i1,A1)') il,'.',j,'+'

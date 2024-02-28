@@ -87,7 +87,7 @@ logical(kind=iwp), intent(in) :: old_aniso_format
 integer(kind=iwp), intent(out) :: iReturn
 #include "warnings.h"
 integer(kind=iwp) :: AngPoints, encut_definition, i, i1, i2, Ifunct, imanifold, imltpl, iopt, iPrint, j, KEOPT, l, lant, LuAniso, &
-                     mem, mG, multLn, nBlock, ncut, nDirTot, nK, nM, nP
+                     mem, mG, multLn, nBlock, ncut, nDirTot, ngrid, nK, nM, nP, nsymm
 real(kind=wp) :: coord(3), cryst(6), dltH0, dltT0, em, encut_rate, hmax, hmin, thrs, tmax, tmin, tpar, upar, Xfield, zJ
 logical(kind=iwp) :: AnisoLines1, AnisoLines3, AnisoLines9, check_title, compute_barrier, compute_g_tensors, &
                      compute_magnetization, compute_Mdir_vector, compute_susceptibility, compute_torque, decompose_exchange, &
@@ -107,7 +107,7 @@ complex(kind=wp), allocatable :: dipexch(:,:,:), dipso(:,:,:,:), s_exch(:,:,:), 
 #else
 #  define _DBG_ .false.
 #endif
-logical(kind=iwp), parameter  :: dbg = _DBG_
+logical(kind=iwp), parameter :: dbg = _DBG_
 integer(kind=iwp), external :: IsFreeUnit
 
 !-----------------------------------------------------------------------
@@ -363,11 +363,11 @@ write(u6,'(A,I16,A)') 'The code allocated at least:',mem,' bytes of memory for t
 call xFlush(u6)
 write(u6,*) 'Enter set_defaults'
 #endif
-call set_defaults(nneq,nTempMagn,nDir,nDirZee,nMult,neq,nexch,nK,mG,ncut,nP,AngPoints,nBlock,encut_definition,iopt,iPrint,dltT0, &
-                  dltH0,zJ,tmin,tmax,hmin,hmax,XField,thrs,TempMagn,cryst,coord,encut_rate,gtens_input,D_fact,EoverD_fact,riso, &
-                  decompose_exchange,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,Dipol,KE,JITO_exchange,fitCHI,fitM, &
-                  Do_structure_abc,doplot,compute_g_tensors,tinput,compute_susceptibility,compute_torque,compute_barrier, &
-                  compute_magnetization,hinput,compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,itype)
+call set_defaults(nneq,nTempMagn,nDir,nDirZee,nMult,neq,nexch,nK,mG,ncut,nP,AngPoints,nBlock,encut_definition,iopt,iPrint,nsymm, &
+                  ngrid,dltT0,dltH0,zJ,tmin,tmax,hmin,hmax,XField,thrs,TempMagn,cryst,coord,encut_rate,gtens_input,D_fact, &
+                  EoverD_fact,riso,decompose_exchange,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,Dipol,KE,JITO_exchange, &
+                  fitCHI,fitM,Do_structure_abc,doplot,compute_g_tensors,tinput,compute_susceptibility,compute_torque, &
+                  compute_barrier,compute_magnetization,hinput,compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,itype)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Exit set_defaults'
 #endif
@@ -387,12 +387,12 @@ end if
 write(u6,*) 'Enter Readin_poly'
 #endif
 call Readin_poly(nneq,neq,neqv,exch,nCenter,nT,nH,nTempMagn,nDir,nDirZee,nMult,nPair,nexch,nDim,i_pair,lant,multLn,iPrint,keopt, &
-                 encut_definition,nK,mG,iopt,nP,AngPoints,ncut,LUZee,MxRank1,MxRank2,imaxrank,TempMagn,R_LG,R_ROT,Jex,JAex,JAex9, &
-                 JDMex,JITOexR,JITOexI,tpar,upar,cryst,coord,Xfield,gtens_input,D_fact,EoverD_fact,riso,MagnCoords,thrs,tmin,tmax, &
-                 hmin,hmax,Texp,chit_exp,Hexp,Mexp,encut_rate,zJ,dirX,dirY,dirZ,dir_weight,Title,itype,ifHDF,compute_g_tensors, &
-                 compute_magnetization,TINPUT,HINPUT,Do_structure_abc,doplot,compute_Mdir_vector,zeeman_energy,m_paranoid, &
-                 m_accurate,smagn,compute_susceptibility,decompose_exchange,KE,fitCHI,fitM,compute_torque,compute_barrier,Dipol, &
-                 check_title,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,JITO_exchange)
+                 encut_definition,nK,mG,iopt,nP,AngPoints,ncut,LUZee,MxRank1,MxRank2,imaxrank,nsymm,ngrid,TempMagn,R_LG,R_ROT,Jex, &
+                 JAex,JAex9,JDMex,JITOexR,JITOexI,tpar,upar,cryst,coord,Xfield,gtens_input,D_fact,EoverD_fact,riso,MagnCoords, &
+                 thrs,tmin,tmax,hmin,hmax,Texp,chit_exp,Hexp,Mexp,encut_rate,zJ,dirX,dirY,dirZ,dir_weight,Title,itype,ifHDF, &
+                 compute_g_tensors,compute_magnetization,TINPUT,HINPUT,Do_structure_abc,doplot,compute_Mdir_vector,zeeman_energy, &
+                 m_paranoid,m_accurate,smagn,compute_susceptibility,decompose_exchange,KE,fitCHI,fitM,compute_torque, &
+                 compute_barrier,Dipol,check_title,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,JITO_exchange)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Exit Readin_poly'
 call xFlush(u6)
@@ -531,12 +531,13 @@ end do
 write(u6,*) 'Enter input_process'
 #endif
 call input_process(nneq,neq,neqv,nmax,nCenter,nexch,nDir,nDirZee,nDirTot,nH,nT,exch,nBlock,nTempMagn,iopt,nMult,nDim,nPair,i_pair, &
-                   nP,AngPoints,lant,multLn,KEOPT,encut_definition,nK,mG,ncut,nsfs,nss,nLoc,MxRank1,MxRank2,imaxrank,iPrint,R_LG, &
-                   gtens_input,dirX,dirY,dirZ,dir_weight,zJ,cryst,coord,hmin,hmax,TempMagn,thrs,Hexp,Mexp,tmin,tmax,chit_exp,Texp, &
-                   Xfield,Jex,JAex,JAex9,JDMex,tpar,upar,MagnCoords,encut_rate,eso,JITOexR,JITOexI,Title,itype,namefile_aniso, &
-                   Do_structure_abc,old_aniso_format,compute_barrier,fitCHI,fitM,hinput,tinput,compute_magnetization, &
-                   compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,compute_g_tensors,compute_torque, &
-                   compute_susceptibility,AnisoLines1,AnisoLines3,AnisoLines9,Dipol,check_title,KE,DM_exchange,JITO_exchange)
+                   nP,AngPoints,lant,multLn,KEOPT,encut_definition,nK,mG,ncut,nsfs,nss,nLoc,MxRank1,MxRank2,imaxrank,iPrint,nsymm, &
+                   ngrid,R_LG,gtens_input,dirX,dirY,dirZ,dir_weight,zJ,cryst,coord,hmin,hmax,TempMagn,thrs,Hexp,Mexp,tmin,tmax, &
+                   chit_exp,Texp,Xfield,Jex,JAex,JAex9,JDMex,tpar,upar,MagnCoords,encut_rate,eso,JITOexR,JITOexI,Title,itype, &
+                   namefile_aniso,Do_structure_abc,old_aniso_format,compute_barrier,fitCHI,fitM,hinput,tinput, &
+                   compute_magnetization,compute_Mdir_vector,zeeman_energy,m_paranoid,m_accurate,smagn,compute_g_tensors, &
+                   compute_torque,compute_susceptibility,AnisoLines1,AnisoLines3,AnisoLines9,Dipol,check_title,KE,DM_exchange, &
+                   JITO_exchange)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Exit input_process'
 #endif
@@ -699,9 +700,9 @@ if (compute_magnetization .and. (nH > 0)) then
   ! set the NM- number of states to be exactly diagonalized in Zeeman Interaction
   call set_nm(exch,ncut,encut_definition,nk,mg,nTempMagn,hmax,w,encut_rate,TempMagn,nM,EM,dbg)
 
-  call magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir,nDirZee,nDirTot,nss,nexch,iopt,LUZee,TempMagn,hexp, &
-                        mexp,hmin,hmax,em,zJ,thrs,dirX,dirY,dirZ,dir_weight,w,dipexch,s_exch,dipso,s_so,eso,hinput,r_rot,XLM,ZLM, &
-                        XRM,ZRM,zeeman_energy,compute_Mdir_vector,m_paranoid,m_accurate,smagn,mem,doplot)
+  call magnetization_pa(exch,nLoc,nM,nH,nneq,neq,neqv,nCenter,nTempMagn,nDir,nDirZee,nDirTot,nss,nexch,iopt,LUZee,nsymm,ngrid, &
+                        TempMagn,hexp,mexp,hmin,hmax,em,zJ,thrs,dirX,dirY,dirZ,dir_weight,w,dipexch,s_exch,dipso,s_so,eso,hinput, &
+                        r_rot,XLM,ZLM,XRM,ZRM,zeeman_energy,compute_Mdir_vector,m_paranoid,m_accurate,smagn,mem,doplot)
 else
   write(u6,'(A)') 'Computation of the molar magnetization ... skipped by the user'
 end if !compute_magnetization
@@ -764,11 +765,11 @@ call mma_deallocate(XTexp)
 call mma_deallocate(XT_no_field)
 !-----------------------------------------------------------------------
 write(u6,*)
-write(u6,'(10A)') (('-@-#-$-%-&-*-'),i=1,10)
+write(u6,'(10A)') ('-@-#-$-%-&-*-',i=1,10)
 write(u6,*)
 write(u6,'(10X,A)') 'HAPPY   LANDING !!!   POLY_ANISO ENDED  OK !'
 write(u6,*)
-write(u6,'(10A)') (('-*-&-%-$-#-@-'),i=1,10)
+write(u6,'(10A)') ('-*-&-%-$-#-@-',i=1,10)
 call xFlush(u6)
 
 return

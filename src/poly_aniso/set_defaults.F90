@@ -10,8 +10,8 @@
 !***********************************************************************
 
 subroutine set_defaults(nneq,nTempMagn,nDir,nDirZee,nMult,neq,nexch,nK,mG,ncut,nP,AngPoints,nBlock,encut_definition,iopt,iPrint, &
-                        dltT0,dltH0,zJ,tmin,tmax,hmin,hmax,XField,thrs,TempMagn,cryst,coord,encut_rate,gtens_input,D_fact, &
-                        EoverD_fact,riso,decompose_exchange,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,Dipol,KE, &
+                        nsymm,ngrid,dltT0,dltH0,zJ,tmin,tmax,hmin,hmax,XField,thrs,TempMagn,cryst,coord,encut_rate,gtens_input, &
+                        D_fact,EoverD_fact,riso,decompose_exchange,AnisoLines1,AnisoLines3,AnisoLines9,DM_exchange,Dipol,KE, &
                         JITO_exchange,fitCHI,fitM,Do_structure_abc,doplot,compute_g_tensors,tinput,compute_susceptibility, &
                         compute_torque,compute_barrier,compute_magnetization,hinput,compute_Mdir_vector,zeeman_energy,m_paranoid, &
                         m_accurate,smagn,itype)
@@ -69,7 +69,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nneq, nTempMagn, nDir, nDirZee, nMult
-integer(kind=iwp), intent(out) :: neq(nneq), nexch(nneq), nK, mG, ncut, nP, AngPoints, nBlock, encut_definition, iopt, iPrint
+integer(kind=iwp), intent(out) :: neq(nneq), nexch(nneq), nK, mG, ncut, nP, AngPoints, nBlock, encut_definition, iopt, iPrint, &
+                                  nsymm, ngrid
 real(kind=wp), intent(out) :: dltT0, dltH0, zJ, tmin, tmax, hmin, hmax, Xfield, thrs, TempMagn(nTempMagn), cryst(6), coord(3), &
                               encut_rate, gtens_input(3,nneq), D_fact(nneq), EoverD_fact(nneq), riso(nneq,3,3)
 logical(kind=iwp), intent(out) :: decompose_exchange, AnisoLines1, AnisoLines3, AnisoLines9, DM_exchange, Dipol, KE, &
@@ -77,7 +78,6 @@ logical(kind=iwp), intent(out) :: decompose_exchange, AnisoLines1, AnisoLines3, 
                                   compute_susceptibility, compute_torque, compute_barrier, compute_magnetization, hinput, &
                                   compute_Mdir_vector, zeeman_energy, m_paranoid, m_accurate, smagn
 character, intent(out) :: itype(nneq)
-#include "mgrid.fh"
 integer(kind=iwp) :: i
 
 !------------------------------------------------------------------
@@ -164,7 +164,7 @@ Do_structure_abc = .false.
 Cryst(:) = Zero
 coord(:) = Zero
 !-----------------------------------------------------------------------
-! mean field paraemeter
+! mean field parameter
 ZJ = Zero
 !-----------------------------------------------------------------------
 ! automatic fitting:
@@ -179,106 +179,10 @@ nBlock = 0
 compute_barrier = .false.
 !ccc
 DoPlot = .false.
-!------------------------------------------------------------------
-! variables in "mgrid.fh"
+!-----------------------------------------------------------------------
+! angular grid
 nsymm = 1
 ngrid = 15
-get_nP(1,1) = 5
-get_nP(1,2) = 9
-get_nP(1,3) = 17
-get_nP(1,4) = 25
-get_nP(1,5) = 29
-get_nP(1,6) = 45
-get_nP(1,7) = 49
-get_nP(1,8) = 61
-get_nP(1,9) = 77
-get_nP(1,10) = 93
-get_nP(1,11) = 105
-get_nP(1,12) = 125
-get_nP(1,13) = 141
-get_nP(1,14) = 161
-get_nP(1,15) = 185
-get_nP(1,16) = 229
-get_nP(1,17) = 309
-get_nP(1,18) = 401
-get_nP(1,19) = 505
-get_nP(1,20) = 621
-get_nP(1,21) = 749
-get_nP(1,22) = 889
-get_nP(1,23) = 1041
-get_nP(1,24) = 1205
-get_nP(1,25) = 1381
-get_nP(1,26) = 1569
-get_nP(1,27) = 1769
-get_nP(1,28) = 1981
-get_nP(1,29) = 2205
-get_nP(1,30) = 2441
-get_nP(1,31) = 2689
-get_nP(1,32) = 2949
-get_nP(2,1) = 4
-get_nP(2,2) = 6
-get_nP(2,3) = 11
-get_nP(2,4) = 16
-get_nP(2,5) = 17
-get_nP(2,6) = 27
-get_nP(2,7) = 28
-get_nP(2,8) = 34
-get_nP(2,9) = 41
-get_nP(2,10) = 51
-get_nP(2,11) = 57
-get_nP(2,12) = 68
-get_nP(2,13) = 75
-get_nP(2,14) = 86
-get_nP(2,15) = 98
-get_nP(2,16) = 121
-get_nP(2,17) = 162
-get_nP(2,18) = 209
-get_nP(2,19) = 262
-get_nP(2,20) = 321
-get_nP(2,21) = 386
-get_nP(2,22) = 457
-get_nP(2,23) = 534
-get_nP(2,24) = 617
-get_nP(2,25) = 706
-get_nP(2,26) = 801
-get_nP(2,27) = 902
-get_nP(2,28) = 1009
-get_nP(2,29) = 1122
-get_nP(2,30) = 1241
-get_nP(2,31) = 1366
-get_nP(2,32) = 1497
-get_nP(3,1) = 3
-get_nP(3,2) = 4
-get_nP(3,3) = 7
-get_nP(3,4) = 10
-get_nP(3,5) = 10
-get_nP(3,6) = 16
-get_nP(3,7) = 16
-get_nP(3,8) = 19
-get_nP(3,9) = 22
-get_nP(3,10) = 28
-get_nP(3,11) = 31
-get_nP(3,12) = 37
-get_nP(3,13) = 40
-get_nP(3,14) = 46
-get_nP(3,15) = 52
-get_nP(3,16) = 64
-get_nP(3,17) = 85
-get_nP(3,18) = 109
-get_nP(3,19) = 136
-get_nP(3,20) = 166
-get_nP(3,21) = 199
-get_nP(3,22) = 235
-get_nP(3,23) = 274
-get_nP(3,24) = 316
-get_nP(3,25) = 361
-get_nP(3,26) = 409
-get_nP(3,27) = 460
-get_nP(3,28) = 514
-get_nP(3,29) = 571
-get_nP(3,30) = 631
-get_nP(3,31) = 694
-get_nP(3,32) = 760
 
 return
 

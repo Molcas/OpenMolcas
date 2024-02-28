@@ -213,7 +213,7 @@ do j=1,n,2
     ! print it
     if (mod(n,2) == 1) then
       write(u6,'(1x,A,1x,i2,A,2(SP,2(1x,ES21.14,1x),a,S,F6.1,1x,a))') '|',-(n-1)/2-(1-i),' > |', &
-                                                                     (Mr(k),Mi(k),'*I |',Weight(k),'%|',k=j,jEnd)
+                                                                      (Mr(k),Mi(k),'*I |',Weight(k),'%|',k=j,jEnd)
     else
       write(u6,'(A,i3,a,a,2(SP,2(1x,ES21.14,1x),a,S,F6.1,1x,a))') '|',-(n-1)+2*(i-1),'/2> ','|', &
                                                                  (Mr(k),Mi(k),'*I |',Weight(k),'%|',k=j,jEnd)

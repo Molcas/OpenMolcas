@@ -15,7 +15,7 @@
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
       USE RASSI_AUX
       USE kVectors
-      USE do_grid, only: Do_Lebedev_Sym
+      USE do_grid, only: Do_Lebedev
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
 #endif
@@ -211,7 +211,8 @@ C printing threshold
          If (.Not.(PRRAW.Or.PRWEIGHT)) kPhase(2) = 0.0D0
       Else
          Call Setup_O()
-         Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
+         Call Do_Lebedev(L_Eff,nQuad,Rquad,4)
+         Rquad(4,:) = 0.5D0*Rquad(4,:)
          nVec = 1
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
