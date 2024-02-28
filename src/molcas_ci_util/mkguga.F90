@@ -110,7 +110,7 @@
 !
       CALL mma_allocate(SGS%UP,[1,nVert],[0,3],Label='SGS%UP')
       CALL mma_allocate(SGS%RAW,[1,nVert],[0,4],Label='SGS%RAW')
-      CALL MKRAW(NVERT,SGS%DOWN,SGS%UP,SGS%RAW)
+      CALL MKRAW(SGS)
 !
 !     COMPUTE LTV TABLES.
 !

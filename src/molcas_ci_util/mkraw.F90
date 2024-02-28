@@ -9,20 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKRAW(NVERT,IDOWN,IUP,IRAW)
+      SUBROUTINE MKRAW(SGS)
 !
 !     PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
+      use struct, only: SGStruct
       IMPLICIT None
 !
 !
-      Integer NVERT
-      Integer IDOWN(NVERT,0:3),IUP(NVERT,0:3),IRAW(NVERT,0:4)
+      Type (SGStruct) SGS
 
       Integer IU, IC, IDWN, IV, ISUM
+
+      Associate (nVert=>SGS%nVert, iDown=>SGS%Down, iUp=>SGS%UP, iRaw=>SGS%Raw)
 !
 !     BEGIN BY CONSTRUCTING THE UPCHAIN TABLE IUP:
 !
@@ -68,5 +70,6 @@
       END DO
       Write(LF,*)
 #endif
+      End Associate
 
       END SUBROUTINE MKRAW

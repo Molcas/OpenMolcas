@@ -103,7 +103,7 @@
       Call mma_allocate(SGS%Up,[1,nVert],[0,3],Label='SGS%Up')
 ! Reverse Arc Weights table:
       Call mma_allocate(SGS%RAW,[1,nVert],[0,4],Label='RAW')
-      Call MKRAW(nVert,SGS%Down,SGS%Up,SGS%RAW)
+      Call MKRAW(SGS)
 
 ! Level-To-Vertex table:
       Call mma_allocate(SGS%LTV,[-1,nLev],Label='SGS%LTV')
