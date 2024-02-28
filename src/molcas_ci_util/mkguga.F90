@@ -105,18 +105,18 @@
 !
 !     CALCULATE ARC WEIGHT.
 !
-      CALL mma_allocate(SGS%DAW,5*nVert,Label='SGS%DAW')
+      CALL mma_allocate(SGS%DAW,[1,nVert],[0,4],Label='SGS%DAW')
       CALL MKDAW(NVERT,SGS%DOWN,SGS%DAW)
 !
 !     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
 !
       CALL mma_allocate(SGS%UP,[1,nVert],[0,3],Label='SGS%UP')
-      CALL mma_allocate(SGS%RAW,5*nVert,Label='SGS%RAW')
+      CALL mma_allocate(SGS%RAW,[1,nVert],[0,4],Label='SGS%RAW')
       CALL MKRAW(NVERT,SGS%DOWN,SGS%UP,SGS%RAW)
 !
 !     COMPUTE LTV TABLES.
 !
-      CALL mma_allocate(SGS%LTV,NLEV+2,Label='LTV')
+      CALL mma_allocate(SGS%LTV,[-1,NLEV],Label='LTV')
       CALL MKLTV(NVERT,NLEV,SGS%DRT,SGS%LTV)
 !
 !     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.

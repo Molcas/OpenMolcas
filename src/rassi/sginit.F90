@@ -17,7 +17,7 @@
       Type (SGStruct) SGS
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
-      Integer, Allocatable:: DRT0(:,:), Down0(:,:), Tmp(:), Lim(:), V11(:), DAW(:), RAW(:)
+      Integer, Allocatable:: DRT0(:,:), Down0(:,:), Tmp(:), Lim(:), V11(:)
       Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,MidLev,  &
      &        MVSta,MVEnd,NDown0,nDrt0,nLev,nTmp,nVert0,Lev,nVert,MxUp,MxDwn,nMidV
 
@@ -93,28 +93,28 @@
       Call mma_deallocate(Down0)
 
 ! Direct Arc Weights table:
-      Call mma_allocate(DAW,5*nVert,Label='DAW')
-      CALL MKDAW(nVert,SGS%DOWN,DAW)
+      Call mma_allocate(SGS%DAW,[1,nVert],[0,4],Label='DAW')
+      CALL MKDAW(nVert,SGS%DOWN,SGS%DAW)
 
 ! Upchain Index table:
       Call mma_allocate(SGS%Up,[1,nVert],[0,3],Label='SGS%Up')
 ! Reverse Arc Weights table:
-      Call mma_allocate(RAW,5*nVert,Label='RAW')
-      Call MKRAW(nVert,SGS%Down,SGS%Up,RAW)
+      Call mma_allocate(SGS%RAW,[1,nVert],[0,4],Label='RAW')
+      Call MKRAW(nVert,SGS%Down,SGS%Up,SGS%RAW)
 
 ! Level-To-Vertex table:
-      Call mma_allocate(SGS%LTV,nLev+2,Label='SGS%LTV')
+      Call mma_allocate(SGS%LTV,[-1,nLev],Label='SGS%LTV')
       CALL MKLTV(nVert,nLev,SGS%DRT,SGS%LTV)
 
-      Call MKMID(nVert,nLev,DAW,RAW,SGS%LTV,MidLev, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
+      Call MKMID(nVert,nLev,SGS%DAW,SGS%RAW,SGS%LTV,MidLev, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
 
 ! Modified Arc Weights table:
-      Call mma_allocate(SGS%MAW,4*nVert,Label='SGS%MAW')
-      CALL MKMAW(SGS%Down,DAW,SGS%Up,RAW,SGS%MAW,nVert, MVSta, MVEnd)
+      Call mma_allocate(SGS%MAW,[1,nVert],[0,3],Label='SGS%MAW')
+      CALL MKMAW(SGS%Down,SGS%DAW,SGS%Up,SGS%RAW,SGS%MAW,nVert, MVSta, MVEnd)
 
 ! The DAW, RAW tables are no longer needed:
-      CALL mma_deallocate(RAW)
-      CALL mma_deallocate(DAW)
+      CALL mma_deallocate(SGS%RAW)
+      CALL mma_deallocate(SGS%DAW)
 
 ! Put sizes and addresses in structure SGS:
 

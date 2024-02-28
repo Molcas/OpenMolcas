@@ -23,10 +23,10 @@ Type SGStruct
      Integer MidLev
      Integer MVSta
      Integer MVEnd
-     Integer, Allocatable:: MAW(:)
+     Integer, Allocatable:: MAW(:,:)
      Integer, Allocatable:: LTV(:)
-     Integer, Allocatable:: DAW(:)
-     Integer, Allocatable:: RAW(:)
+     Integer, Allocatable:: DAW(:,:)
+     Integer, Allocatable:: RAW(:,:)
      Integer MXUP
      Integer MXDWN
      Integer LV1RAS

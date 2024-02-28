@@ -46,6 +46,6 @@ C Unpack structure SGS:
       Write(6,*)
       Do iv=1,nVert
         Write(6,'(1x,i4,5x,4i5)')
-     &             iv,(SGS%MAW(iv+nVert*ic),ic=0,3)
+     &             iv,(SGS%MAW(iv,ic),ic=0,3)
       End Do
       end Subroutine SGPrint
