@@ -20,6 +20,7 @@
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
      &                  NRL,MVL,MVR,nVert,nMidV,nICoup,MXEO)
+      use UNIXInfo, only: ProgName
       use gugx, only: SGS, EXS, CIS
       use stdalloc, only: mma_allocate
       IMPLICIT None
@@ -51,7 +52,7 @@
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif
-      Logical, Parameter :: IF_RASSI=.FALSE.
+      Logical :: IF_RASSI=.FALSE.
       Integer :: nLev, MVSTA, MVEND, NIPWLK
 
 ! Dereference SGS, CIS for some other data
@@ -59,6 +60,13 @@
       MVSTA =SGS%MVSta
       MVEND =SGS%MVEnd
       NIPWLK=CIS%nIpWlk
+
+      Select Case (ProgName(1:6))
+         Case ('rassi')
+            IF_RASSI = .TRUE.
+         Case Default
+            IF_RASSI = .FALSE.
+      End Select
 
       DO INDEO=0,MXEO
         DO IV=1,MVEnd

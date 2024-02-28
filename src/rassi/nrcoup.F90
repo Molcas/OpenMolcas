@@ -14,7 +14,7 @@
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
      &                  NRL,MVL,MVR,NICOUP)
-
+      use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -40,7 +40,7 @@
       Integer NCSF(NSYM)
 ! SCRATCH PARAMETERS:
       Integer NRL(NSYM,NVERT,0:MXEO)
-      Logical, Parameter :: IF_RASSI=.TRUE.
+      Logical :: IF_RASSI=.FALSE.
       Integer :: nLev, MVSTA, MVEND, NIPWLK
 
 ! Dereference SGS, CIS for some other data
@@ -48,6 +48,13 @@
       MVSTA =SGS%MVSta
       MVEND =SGS%MVEnd
       NIPWLK=CIS%nIpWlk
+
+      Select Case (ProgName(1:6))
+         Case ('rassi')
+            IF_RASSI = .TRUE.
+         Case Default
+            IF_RASSI = .FALSE.
+      End Select
 
       DO INDEO=0,MXEO
         DO IV=1,MVEnd
