@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 
-      SUBROUTINE SIGMA1_CP2(SGS,CIS,EXS,
+      SUBROUTINE SIGMA1(SGS,CIS,EXS,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
      &                 nMidV,nICoup,MxEO,nVTab,nSym)
@@ -374,4 +374,4 @@ C CASE IS: LOWER HALF, EXCITE:
 
       End Associate
 
-      END SUBROUTINE SIGMA1_CP2
+      END SUBROUTINE SIGMA1

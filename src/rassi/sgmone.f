@@ -24,11 +24,11 @@
       nICoup=SIZE(EXS%ICOUP,2)
       nVTab =SIZE(EXS%VTab)
 
-      CALL SIGMA_1(SGS,CIS,EXS,
-     &             IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
-     &             CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &             EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &             EXS%VTab,EXS%MVL,EXS%MVR,
-     &             NMIDV,NICOUP,MXEO,nVTab,nSym)
+      CALL SIGMA1(SGS,CIS,EXS,
+     &            IP,IQ,CPQ,ISYCI,CI,SGM,CIS%NOCSF,
+     &            CIS%IOCSF,CIS%NOW,CIS%IOW,
+     &            EXS%NOCP,EXS%IOCP,EXS%ICOUP,
+     &            EXS%VTab,EXS%MVL,EXS%MVR,
+     &            NMIDV,NICOUP,MXEO,nVTab,nSym)
 
       end SUBROUTINE SGMONE

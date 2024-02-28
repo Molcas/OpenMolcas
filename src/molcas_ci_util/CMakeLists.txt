@@ -113,6 +113,7 @@ set (sources
      schmidt.F90
      second_quantization.F90
      setsxci.f
+     sigma1.f
      sigmadet_cvb.F90
      simplify.F90
      sort_cdet.F90

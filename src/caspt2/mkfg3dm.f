@@ -312,7 +312,7 @@ C-sigma vectors in the buffer.
           ip1_buf(ibuf1)=ip1i
 *         lto=lbuf1+mxci*(ibuf1-1)
 *         call dcopy_(nsgm1,0.0D0,0,work(lto),1)
-*         CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
+*         CALL SIGMA1(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
 *    &     NOCSF,IOCSF,NOW1,IOW1,
 *    &     NOCP,IOCP,ICOUP,
 *    &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab,nSym)
@@ -375,7 +375,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
       iz=L2ACT(izlev)
 *     lto=lbuf2
 *     call dcopy_(nsgm2,0.0D0,0,work(lto),1)
-*     CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
+*     CALL SIGMA1(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
 *    &     NOCSF,IOCSF,NOW1,IOW1,
 *    &     NOCP,IOCP,ICOUP,
 *    &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab,nSym)
@@ -409,7 +409,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *       lfrom=lbuf2
 *       lto=lbuft
 *       call dcopy_(nsgm1,0.0D0,0,work(lto),1)
-*       CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
+*       CALL SIGMA1(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
 *    &       NOCSF,IOCSF,NOW1,IOW1,
 *    &       NOCP,IOCP,ICOUP,
 *    &       VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab,nSym)

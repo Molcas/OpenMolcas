@@ -555,7 +555,7 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
           ip1_buf(ibuf1)=ip1i
           lto=lbuf1+mxci*(ibuf1-1)
           call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-          CALL SIGMA1_CP2(SGS,CIS,EXS,
+          CALL SIGMA1(SGS,CIS,EXS,
      &     IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
@@ -641,7 +641,7 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       iz=L2ACT(izlev)
       lto=lbuf2
       call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
-      CALL SIGMA1_CP2(SGS,CIS,EXS,
+      CALL SIGMA1(SGS,CIS,EXS,
      &     IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
@@ -696,7 +696,7 @@ C
         Do ivlev = 1, nlev
           L = LBUFX + MXCI*(ivlev-1)
           Call DCopy_(nsgm1,[0.0D0],0,Work(L),1)
-          CALL SIGMA1_CP2(SGS,CIS,EXS,
+          CALL SIGMA1(SGS,CIS,EXS,
      &     IVLEV,IXLEV0,1.0D+0,STSYM,Work(LFROM),Work(L),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
@@ -800,7 +800,7 @@ C
      *      + work(lbuf4+icsf-1)*(work(lbufd+icsf-1)-epsa(iv))
         end do
         !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
-       CALL SIGMA1_CP2(SGS,CIS,EXS,
+       CALL SIGMA1(SGS,CIS,EXS,
      &     IXLEV,IVLEV,1.0D+00,STSYM,WORK(LBUF3),WORK(LDYZ),
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &      EXS%NOCP,EXS%IOCP,EXS%ICOUP,
@@ -814,7 +814,7 @@ C
 C
       !! Complete the right derivative contribution:
       !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
-      CALL SIGMA1_CP2(SGS,CIS,EXS,
+      CALL SIGMA1(SGS,CIS,EXS,
      &     IZLEV,IYLEV,1.0D+00,STSYM,WORK(LDYZ),CLAG,
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
@@ -843,7 +843,7 @@ C
           iulev=idx2ij(2,idx)
           lto=ldtu+mxci*(ib-1)
           !! left derivative
-          CALL SIGMA1_CP2(SGS,CIS,EXS,
+          CALL SIGMA1(SGS,CIS,EXS,
      &     ITLEV,IULEV,1.0D00,STSYM,WORK(LTO),CLAG,
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
@@ -853,7 +853,7 @@ C
           Do IALEV = 1, NLEV
             Do IBLEV = 1, NLEV
               Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF2),1)
-       CALL SIGMA1_CP2(SGS,CIS,EXS,
+       CALL SIGMA1(SGS,CIS,EXS,
      &     IALEV,IBLEV,1.0D+00,STSYM,Work(IBUF),Work(LBUF2),
      &          CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &          EXS%NOCP,EXS%IOCP,EXS%ICOUP,

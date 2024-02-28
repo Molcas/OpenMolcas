@@ -216,7 +216,7 @@ C Translate to levels in the SGUGA coupling order:
         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
-        CALL SIGMA1_CP2(SGS,CIS,EXS,
+        CALL SIGMA1(SGS,CIS,EXS,
      &     IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
@@ -241,7 +241,7 @@ C Translate to levels:
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
-         CALL SIGMA1_CP2(SGS,CIS,EXS,
+         CALL SIGMA1(SGS,CIS,EXS,
      &     IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
@@ -270,7 +270,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           NTAU=CIS%NCSF(ISTAU)
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
-          CALL SIGMA1_CP2(SGS,CIS,EXS,
+          CALL SIGMA1(SGS,CIS,EXS,
      &     IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
