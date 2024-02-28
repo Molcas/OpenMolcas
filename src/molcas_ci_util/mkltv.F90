@@ -9,20 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKLTV(NVERT,NLEV,IDRT,LTV)
+      SUBROUTINE MKLTV(SGS)
 !     PURPOSE: FIND THE MIDLEVEL
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
+      use struct, only: SGStruct
       IMPLICIT None
 !
-      Integer NVERT, NLEV
-      Integer IDRT(NVERT,5)
-      Integer LTV(-1:NLEV)
+      Type (SGStruct) SGS
 
       Integer, Parameter:: LTAB=1
       Integer IV, LEV
+
+      Associate (nVert=>SGS%nVert, nLev=>SGS%nLev, iDRT=>SGS%DRT, LTV=>SGS%LTV)
 !
 !     SET UP A LEVEL-TO-VERTEX TABLE, LTV, AND IDENTIFY MIDVERTICES:
 !
@@ -40,5 +41,7 @@
       DO LEV=-1,NLEV-1
         LTV(LEV)=1+LTV(LEV+1)
       End Do
+
+      End Associate
 
       END SUBROUTINE MKLTV

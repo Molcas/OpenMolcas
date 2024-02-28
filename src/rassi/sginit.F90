@@ -18,8 +18,8 @@
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
       Integer, Allocatable:: DRT0(:,:), Down0(:,:), Tmp(:), Lim(:), V11(:)
-      Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,MidLev,  &
-     &        MVSta,MVEnd,NDown0,nDrt0,nLev,nTmp,nVert0,Lev,nVert,MxUp,MxDwn,nMidV
+      Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,  &
+     &        NDown0,nDrt0,nTmp,nVert0,Lev,MxUp,MxDwn,nMidV
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert, MidLev => SGS%MidLev, &
                   MVSta => SGS%MVSta, MvEnd => SGS%MVEnd )
@@ -107,7 +107,7 @@
 
 ! Level-To-Vertex table:
       Call mma_allocate(SGS%LTV,[-1,nLev],Label='SGS%LTV')
-      CALL MKLTV(nVert,nLev,SGS%DRT,SGS%LTV)
+      CALL MKLTV(SGS)
 
       Call MKMID(nVert,nLev,SGS%DAW,SGS%RAW,SGS%LTV,MidLev, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
 
