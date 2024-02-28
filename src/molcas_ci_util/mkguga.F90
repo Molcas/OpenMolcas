@@ -27,8 +27,8 @@
       Integer NLEV, NSYM, STSYM
      Logical, Optional:: Skip_MKSGNUM
 
-      Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:)=>Null()
-      Integer, Allocatable, Target:: DRT0(:,:), DOWN0(:)
+      Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:,:)=>Null()
+      Integer, Allocatable, Target:: DRT0(:,:), DOWN0(:,:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
       Integer IAC, NDOWN0, NDRT0, NLSGN, NSCR, NTMP, NUSGN, NDOWN, NDRT,  &
      &        NICASE, NVERT0
@@ -52,7 +52,7 @@
 
       IF(IFCAS.NE.0) THEN
          CALL mma_allocate(DRT0,NVERT0,5,Label='DRT0')
-         CALL mma_allocate(DOWN0,NDOWN0,Label='DOWN0')
+         CALL mma_allocate(DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
          DRTP => DRT0
          DOWNP=> DOWN0
       ELSE
@@ -60,7 +60,7 @@
          NDRT=NDRT0
          NDOWN=NDOWN0
          CALL mma_allocate(SGS%DRT,NVERT,5,Label='SGS%DRT')
-         CALL mma_allocate(SGS%DOWN,NDOWN,Label='SGS%DOWN')
+         CALL mma_allocate(SGS%DOWN,[1,NVERT],[0,3],Label='SGS%DOWN')
          DRTP => SGS%DRT
          DOWNP=> SGS%DOWN
       ENDIF
@@ -86,7 +86,7 @@
 !     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 !
         CALL mma_allocate(SGS%DRT,nVert,5,Label='DRT')
-        CALL mma_allocate(SGS%DOWN,4*nVert,Label='SGS%DOWN')
+        CALL mma_allocate(SGS%DOWN,[1,nVert],[0,3],Label='SGS%DOWN')
         CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,SGS%DRT,SGS%DOWN)
         CALL mma_deallocate(V11)
         CALL mma_deallocate(DRT0)
@@ -110,7 +110,7 @@
 !
 !     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
 !
-      CALL mma_allocate(SGS%UP,4*nVert,Label='SGS%UP')
+      CALL mma_allocate(SGS%UP,[1,nVert],[0,3],Label='SGS%UP')
       CALL mma_allocate(SGS%RAW,5*nVert,Label='SGS%RAW')
       CALL MKRAW(NVERT,SGS%DOWN,SGS%UP,SGS%RAW)
 !

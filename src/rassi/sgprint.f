@@ -33,8 +33,8 @@ C Unpack structure SGS:
       Do iv=1,nVert
         Write(6,'(1x,i4,5x,2i3,2x,3i3,5x,4i4,5x,4i4)')iv,
      &  (SGS%DRT(iv,i-1),i=1,5),
-     &  (SGS%Down(iv+nVert*ic),ic=0,3),
-     &  (SGS%Up  (iv+nVert*ic),ic=0,3)
+     &  (SGS%Down(iv,ic),ic=0,3),
+     &  (SGS%Up  (iv,ic),ic=0,3)
       End Do
       Write(6,*)
       Write(6,*)' Mid Level:',MidLev
