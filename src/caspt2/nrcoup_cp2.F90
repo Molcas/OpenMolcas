@@ -230,6 +230,8 @@
         END DO
       END DO
       NLW=NWALK-NUW
+      ELSE
+      NWALK=CIS%nWalk
       End If
 
       NICOUP=0
@@ -271,30 +273,39 @@
       DO 552 ISYDS1=1,NSYM
         If (IF_RASSI) NDWNS1=NOW(2,ISYDS1,MV3)
         NSGMX=MAX(NSGMX,NOCSF(ISYUS1,MV3,ISYDS1))
+!
         IF (MV1.NE.0)THEN
           NT4TMP=NUPS1*NOW(2,ISYDS1,MV1)
           NSGTMP=MAX(NSGTMP,NT4TMP)
         ENDIF
+!
         IF (MV2.NE.0)THEN
           NT3TMP=NUPS1*NOW(2,ISYDS1,MV2)
           NSGTMP=MAX(NSGTMP,NT3TMP)
         ENDIF
+!
         IF (MV4.NE.0)THEN
           NT1TMP=NUPS1*NOW(2,ISYDS1,MV4)
           NSGTMP=MAX(NSGTMP,NT1TMP)
         ENDIF
+!
         IF (MV5.NE.0)THEN
           NT2TMP=NUPS1*NOW(2,ISYDS1,MV5)
           NSGTMP=MAX(NSGTMP,NT2TMP)
         ENDIF
-  552 CONTINUE
-  551 CONTINUE
-  550 CONTINUE
+!
+ 552 CONTINUE
+ 551 CONTINUE
+ 550 CONTINUE
+
       CALL mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
 !
 #ifdef _DEBUGPRINT_
-      NUW=NOW(1,NSYM,NMIDV)
-      NLW=NOW(2,NSYM,NMIDV)-NOW(1,NSYM,NMIDV)
+      If (.NOT.IF_RASSI) Then
+         NUW=NOW(1,NSYM,NMIDV)
+         NLW=NOW(2,NSYM,NMIDV)-NOW(1,NSYM,NMIDV)
+      End If
+
       WRITE(6,600)MXUP,MXDWN,                                           &
      &            NSGMX,NSGMX,NSGTMP
   600 FORMAT(/,' MAXIMUM NUMBER OF WALKS',                              &
@@ -308,13 +319,13 @@
         WRITE(6,*)
         WRITE(6,*)' TOTAL NR OF WALKS: UPPER ',NUW
         WRITE(6,*)'                    LOWER ',NLW
-        WRITE(6,*)'                     SUM  ',CIS%NWALK
+        WRITE(6,*)'                     SUM  ',NWALK
         WRITE(6,*)' TOTAL NR OF COUPL COEFFS ',NICOUP
         INDEO=2*NLEV+1
         WRITE(6,*)'         OF TYPE 1&2 ONLY:',IOCP(INDEO,1,1)
         WRITE(6,*)
         WRITE(6,*)' NR OF CONFIGURATIONS/SYMM:'
-        WRITE(6,'(8(1X,I8))')(CIS%NCSF(IS),IS=1,NSYM)
+        WRITE(6,'(8(1X,I8))')(NCSF(IS),IS=1,NSYM)
         WRITE(6,*)
 
         WRITE(6,*)
@@ -371,5 +382,8 @@
  341      CONTINUE
  340    CONTINUE
 #endif
+
+! Put sizes in structures CIS, EXSs:
+      If (IF_RASSI) CIS%nWalk   =nWalk
 
       END SUBROUTINE NRCOUP_CP2

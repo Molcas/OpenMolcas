@@ -229,6 +229,8 @@
         END DO
       END DO
       NLW=NWALK-NUW
+      ELSE
+      NWALK=CIS%nWalk
       End If
 
       NICOUP=0
@@ -307,13 +309,18 @@
           NT5MX=MAX(NT5TMP,NT5MX)
         ENDIF
 !
-552   CONTINUE
-551   CONTINUE
-550   CONTINUE
+ 552 CONTINUE
+ 551 CONTINUE
+ 550 CONTINUE
 
       NSUMTOT=2*NSGMX+NT1MX+NT2MX+NT3MX+NT4MX+NT5MX
 !
 #ifdef _DEBUGPRINT_
+      If (.NOT.IF_RASSI) Then
+         NUW=NOW(1,NSYM,NMIDV)
+         NLW=NOW(2,NSYM,NMIDV)-NOW(1,NSYM,NMIDV)
+      End If
+
      *WRITE(6,555)MXUP,MXDWN,
      *            NSGMX,NSGMX,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX,NSUMTOT
 555   FORMAT(/,' MAXIMUM NUMBER OF WALKS',
@@ -329,7 +336,6 @@
      *       /,' TOTAL          ',I7)
 !
 !AR   END OF INSERT
-      IF (IPGLOB.GE.5) THEN
         WRITE(6,*)
         WRITE(6,*)' TOTAL NR OF WALKS: UPPER ',NUW
         WRITE(6,*)'                    LOWER ',NLW
@@ -341,8 +347,7 @@
         WRITE(6,*)' NR OF CONFIGURATIONS/SYMM:'
         WRITE(6,'(8(1X,I8))')(NCSF(IS),IS=1,NSYM)
         WRITE(6,*)
-      END IF
-      IF (IPGLOB.GE.5) THEN
+
         WRITE(6,*)
         WRITE(6,*)' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
         WRITE(6,*)' BY MIDVERTEX AND SYMMETRY.'
@@ -352,11 +357,11 @@
           WRITE(6,1235)    (NOW(2,IS,MV),IS=1,NSYM)
           DO 305 IST=1,NSYM
             WRITE(6,1236)IST,(NOCSF(IS,MV,IST),IS=1,NSYM)
-305       CONTINUE
-1234  FORMAT('  MV=',I2,'    UPPER WALKS:',8I6)
-1235  FORMAT('           LOWER WALKS:',8I6)
-1236  FORMAT(' IST=',I2,'  CONFIGURATIONS:',8I6)
-310     CONTINUE
+ 305      CONTINUE
+ 1234 FORMAT('  MV=',I2,'    UPPER WALKS:',8I6)
+ 1235 FORMAT('           LOWER WALKS:',8I6)
+ 1236 FORMAT(' IST=',I2,'  CONFIGURATIONS:',8I6)
+ 310    CONTINUE
         WRITE(6,*)
         WRITE(6,*)' NR OF COUPLING COEFFICIENTS:'
         WRITE(6,*)' 1. OPEN LOOPS TYPE 1:'
@@ -366,10 +371,10 @@
               NCP=NOCP(IP,IS,MV)
               IF(NCP.EQ.0) GOTO 322
               WRITE(6,2345) IP,MV,IS,NCP
-2345  FORMAT(' P=',I2,'  MV=',I2,' SYMM ',I1,' NOCP=',I4)
-322         CONTINUE
-321       CONTINUE
-320     CONTINUE
+ 2345 FORMAT(' P=',I2,'  MV=',I2,' SYMM ',I1,' NOCP=',I4)
+ 322        CONTINUE
+ 321      CONTINUE
+ 320    CONTINUE
         WRITE(6,*)
         WRITE(6,*)' 2. OPEN LOOPS TYPE 2:'
         DO 330 IP=1,NLEV
@@ -378,9 +383,9 @@
               NCP=NOCP(NLEV+IP,IS,MV)
               IF(NCP.EQ.0) GOTO 332
               WRITE(6,2345) IP,MV,IS,NCP
-332         CONTINUE
-331       CONTINUE
-330     CONTINUE
+ 332       CONTINUE
+ 331     CONTINUE
+ 330    CONTINUE
         WRITE(6,*)
         WRITE(6,*)' 3. CLOSED LOOPS:'
         DO 340 IP=2,NLEV
@@ -391,15 +396,15 @@
                 NCP=NOCP(INDEO,IS,MV)
                 IF(NCP.EQ.0) GOTO 343
                 WRITE(6,2346) IP,IQ,MV,IS,NCP
-2346  FORMAT(' P=',I2,'  Q=',I2,'  MV=',I2,' SYMM ',I1,' NOCP=',I4)
-343           CONTINUE
-342         CONTINUE
-341       CONTINUE
-340     CONTINUE
+ 2346 FORMAT(' P=',I2,'  Q=',I2,'  MV=',I2,' SYMM ',I1,' NOCP=',I4)
+ 343          CONTINUE
+ 342        CONTINUE
+ 341      CONTINUE
+ 340    CONTINUE
 #endif
 
 ! Put sizes in structures CIS, EXSs:
-      CIS%nWalk   =nWalk
+      If (IF_RASSI) CIS%nWalk   =nWalk
 
       EXS%NT1MX =NT1MX
       EXS%NT2MX =NT2MX
