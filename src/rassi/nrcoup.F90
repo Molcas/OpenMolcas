@@ -8,8 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE NRCOUP(  &
-     &                  SGS,CIS,EXS,  &
+      SUBROUTINE NRCOUP(SGS,CIS,EXS,  &
      &                  NVERT,NMIDV,MXEO,ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
@@ -45,7 +44,7 @@
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
      &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1,         NLW, NUW,  &
-     &        NWALK, ISYDWN, ISYTOT, ISYUP
+     &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif

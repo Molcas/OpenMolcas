@@ -16,13 +16,13 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE NRCOUP_CP2(  &
+      SUBROUTINE NRCOUP_CP2(SGS,CIS,EXS,  &
      &                  NVERT,NMIDV,MXEO,ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
      &                  NRL,MVL,MVR,NICOUP)
       use UNIXInfo, only: ProgName
-      use gugx, only: SGS, EXS, CIS
+      use Struct, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate
       IMPLICIT None
 
@@ -33,6 +33,9 @@
 
 ! INPUT PARAMETERS:
       Integer, Intent(In) :: nVert, nMidV, MxEO
+      Type (SGStruct) SGS
+      Type (CIStruct) CIS
+      Type (EXStruct) EXS
       Integer MVL(NMIDV,2),MVR(NMIDV,2)
       Integer IDRT(NVERT,5),ISGMNT(NVERT,26)
       Integer ISM(*)
