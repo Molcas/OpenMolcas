@@ -16,6 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
+
       SUBROUTINE MKSEG_CP2(IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT,
      &                     NVERT,NLEV,NMIDV)
       use gugx, only: SGS
@@ -27,9 +28,9 @@
       DIMENSION IVR(NVERT,2),ISGMNT(NVERT,26),VSGMNT(NVERT,26)
       DIMENSION IDRT(NVERT,5),IDOWN(NVERT,0:3),LTV(-1:NLEV)
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
-C     PARAMETER (LTAB=1, NTAB=2, IATAB=3, IBTAB=4, ICTAB=5)
-      PARAMETER (IATAB=3, IBTAB=4)
-      PARAMETER (ZERO=0.0D0, ONE=1.0D00)
+      Integer, PARAMETER :: IATAB=3, IBTAB=4
+      Real*8, PARAMETER :: ZERO=0.0D0, ONE=1.0D00
+
 #ifdef _DEBUGPRINT_
       CHARACTER(LEN=20) FRML(7)
       CHARACTER(LEN=20) TEXT
