@@ -86,6 +86,7 @@ set (sources
      mkmid.F90
      mknsm.f
      mkraw.F90
+     mkseg.f
      mksgnum.f
      motrac.F90
      nrcoup.F90
