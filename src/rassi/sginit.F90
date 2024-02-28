@@ -17,7 +17,7 @@
       Type (SGStruct) SGS
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
-      Integer, Allocatable:: DRT0(:), Down0(:), Tmp(:), Lim(:), V11(:), DAW(:), RAW(:)
+      Integer, Allocatable:: DRT0(:,:), Down0(:), Tmp(:), Lim(:), V11(:), DAW(:), RAW(:)
       Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,MidLev,  &
      &        MVSta,MVEnd,NDown0,nDrt0,nLev,nTmp,nVert0,Lev,nVert,MxUp,MxDwn,nMidV
 
@@ -61,7 +61,7 @@
       NTMP=((NLEV+1)*(NLEV+2))/2
 
 ! Compute unrestricted DRT tables:
-      CALL mma_allocate(DRT0,NDRT0,Label='DRT0')
+      CALL mma_allocate(DRT0,NVERT0,5,Label='DRT0')
       CALL mma_allocate(DOWN0,NDOWN0,Label='DOWN0')
       nVert=nVert0
 
@@ -85,7 +85,7 @@
       Call RmVert(nLev,nVert,DRT0,Down0,Lim,V11)
       Call mma_deallocate(Lim)
 
-      Call mma_allocate(SGS%DRT,5*nVert,Label='SGS%DRT')
+      Call mma_allocate(SGS%DRT,nVert,5,Label='SGS%DRT')
       Call mma_allocate(SGS%Down,4*nVert,Label='SGS%Down')
       Call mkDRT(nVert0,nVert,DRT0,Down0,V11,SGS%DRT,SGS%Down)
       Call mma_deallocate(V11)
