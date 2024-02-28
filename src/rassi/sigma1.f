@@ -9,12 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SIGMA_1(SGS,CIS,EXS,
-     &                 NMIDV,MXEO,NVTAB,NICOUP,ISM,
+     &                 NMIDV,MXEO,NVTAB,NICOUP,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,
      &                 IOW,NOCP,IOCP,ICOUP,VTAB,MVL,MVR)
       use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ISM(*)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       DIMENSION NOCP(MXEO,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
@@ -29,6 +28,7 @@
 #include "WrkSpc.fh"
       INTRINSIC MOD
 
+      Associate (ISM => SGS%ISM)
       NLEV  =SGS%nLev
       MIDLEV=SGS%MidLev
       NIPWLK=CIS%nIpWlk
@@ -344,5 +344,7 @@ C CASE IS: LOWER HALF, EXCITE:
 801   CONTINUE
 800   CONTINUE
       CALL GETMEM('TMP   ','FREE','REAL',LTMP,NTMPMX)
+
+       End Associate
 
       END SUBROUTINE SIGMA_1

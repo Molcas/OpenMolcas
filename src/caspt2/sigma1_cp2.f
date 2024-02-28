@@ -41,6 +41,8 @@
       INTRINSIC MOD
 
       Integer :: nLev, MidLev,nIpWlk
+
+      Associate ( ISM => SGS%ISM)
       nLev   = SGS%nLev
       MidLev = SGS%MidLev
       nIpWlk = CIS%nIpWlk
@@ -56,8 +58,8 @@
 
       IF(ABS(CPQ).LT.1.0D-12) GOTO 999
 C SYMMETRY OF ORBITALS:
-      ISYP=SGS%ISM(IP)
-      ISYQ=SGS%ISM(IQ)
+      ISYP=ISM(IP)
+      ISYQ=ISM(IQ)
       ISYPQ=MUL(ISYP,ISYQ)
 C SYMMETRY OF SIGMA ARRAY:
       ISYSGM=MUL(ISYPQ,ISYCI)
@@ -372,5 +374,6 @@ C CASE IS: LOWER HALF, EXCITE:
  800  CONTINUE
 
  999  CONTINUE
-      RETURN
+
+      End Associate
       END
