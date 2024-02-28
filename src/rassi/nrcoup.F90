@@ -24,6 +24,7 @@
       use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: MUL
+      use stdalloc, only: mma_allocate
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -50,7 +51,7 @@
       Integer IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT,     &
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
-     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1,         NLW, NUW,  &
+     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP, NLW, NUW,  &
      &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
@@ -261,11 +262,7 @@
 !AR   INSERT FOR US IN SIGMA ROUTINE
 !
       NSGMX=1
-      NT1MX=MAX(MXUP,MXDWN)
-      NT2MX=MAX(MXUP,MXDWN)
-      NT3MX=MAX(MXUP,MXDWN)
-      NT4MX=MAX(MXUP,MXDWN)
-      NT5MX=MAX(MXUP,MXDWN)
+      NSGTMP=MAX(MXUP,MXDWN)
       DO 550 MV3=1,NMIDV
         MV1=MVL(MV3,2)
         MV2=MVL(MV3,1)
@@ -279,41 +276,46 @@
 !
         IF (MV1.NE.0)THEN
           NT4TMP=NUPS1*NOW(2,ISYDS1,MV1)
-          NT5TMP=NDWNS1*NOW(1,ISYUS1,MV1)
+          NSGTMP=MAX(NSGTMP,NT4TMP)
+          If (IF_RASSI) THEN
+             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV1)
+             NSGTMP=MAX(NSGTMP,NT5TMP)
+          ENDIF
 
-          NT4MX=MAX(NT4TMP,NT4Mx)
-          NT5MX=MAX(NT5TMP,NT5MX)
         ENDIF
 !
         IF (MV2.NE.0)THEN
           NT3TMP=NUPS1*NOW(2,ISYDS1,MV2)
-          NT5TMP=NDWNS1*NOW(1,ISYUS1,MV2)
-
-          NT3MX=MAX(NT3TMP,NT3MX)
-          NT5MX=MAX(NT5TMP,NT5MX)
+          NSGTMP=MAX(NSGTMP,NT3TMP)
+          If (IF_RASSI) THEN
+             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV2)
+             NSGTMP=MAX(NSGTMP,NT5TMP)
+          ENDIF
         ENDIF
 !
         IF (MV4.NE.0)THEN
           NT1TMP=NUPS1*NOW(2,ISYDS1,MV4)
-          NT5TMP=NDWNS1*NOW(1,ISYUS1,MV4)
-
-          NT1MX=MAX(NT1TMP,NT1MX)
-          NT5MX=MAX(NT5TMP,NT5MX)
+          NSGTMP=MAX(NSGTMP,NT1TMP)
+          If (IF_RASSI) THEN
+             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV4)
+             NSGTMP=MAX(NSGTMP,NT5TMP)
+          End IF
         ENDIF
 !
         IF (MV5.NE.0)THEN
           NT2TMP=NUPS1*NOW(2,ISYDS1,MV5)
-          NT5TMP=NDWNS1*NOW(1,ISYUS1,MV5)
-
-          NT2MX=MAX(NT2TMP,NT2MX)
-          NT5MX=MAX(NT5TMP,NT5MX)
+          NSGTMP=MAX(NSGTMP,NT2TMP)
+          If (IF_RASSI) THEN
+             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV5)
+             NSGTMP=MAX(NSGTMP,NT5TMP)
+          ENDIF
         ENDIF
 !
  552 CONTINUE
  551 CONTINUE
  550 CONTINUE
 
-      NSUMTOT=2*NSGMX+NT1MX+NT2MX+NT3MX+NT4MX+NT5MX
+      CALL mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
 !
 #ifdef _DEBUGPRINT_
       If (.NOT.IF_RASSI) Then
@@ -321,19 +323,14 @@
          NLW=NOW(2,NSYM,NMIDV)-NOW(1,NSYM,NMIDV)
       End If
 
-     *WRITE(6,555)MXUP,MXDWN,
-     *            NSGMX,NSGMX,NT1MX,NT2MX,NT3MX,NT4MX,NT5MX,NSUMTOT
-555   FORMAT(/,' MAXIMUM NUMBER OF WALKS',
-     *       /,' UPPER ',I6,' LOWER ',I6,
-     *       /,' LENGTH OF LARGEST WORK ARRAYS IN SUBROUTINE SIGMA',
-     *       /,' TEMPORARY SGM1 ',I7,
-     *       /,' TEMPORARY SGM2 ',I7,
-     *       /,' NT1MX          ',I7,
-     *       /,' NT2MX          ',I7,
-     *       /,' NT3MX          ',I7,
-     *       /,' NT4MX          ',I7,
-     *       /,' NT5MX          ',I7,
-     *       /,' TOTAL          ',I7)
+      WRITE(6,600)MXUP,MXDWN,                                           &
+     &            NSGMX,NSGMX,NSGTMP
+  600 FORMAT(/,' MAXIMUM NUMBER OF WALKS',                              &
+     &       /,' UPPER ',I6,' LOWER ',I6,                               &
+     &       /,' LENGTH OF LARGEST WORK ARRAYS IN SUBROUTINE SIGMA',    &
+     &       /,' TEMPORARY SGM1 ',I7,                                   &
+     &       /,' TEMPORARY SGM2 ',I7,                                   &
+     &       /,' NSGTMP         ',I7)
 !
 !AR   END OF INSERT
         WRITE(6,*)
@@ -406,10 +403,5 @@
 ! Put sizes in structures CIS, EXSs:
       If (IF_RASSI) CIS%nWalk   =nWalk
 
-      EXS%NT1MX =NT1MX
-      EXS%NT2MX =NT2MX
-      EXS%NT3MX =NT3MX
-      EXS%NT4MX =NT4MX
-      EXS%NT5MX =NT5MX
 
       END SUBROUTINE NRCOUP

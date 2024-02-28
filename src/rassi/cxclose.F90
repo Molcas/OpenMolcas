@@ -13,17 +13,18 @@ use stdalloc, only: mma_deallocate
 use Struct, only: CIStruct, EXStruct
 Type (CIStruct) CIS
 Type (ExStruct) ExS
-Call mma_deallocate(EXS%MVL)
-Call mma_deallocate(EXS%MVR)
-Call mma_deallocate(CIS%NOCSF)
-Call mma_deallocate(CIS%IOCSF)
-Call mma_deallocate(CIS%NOW)
-Call mma_deallocate(CIS%IOW)
-Call mma_deallocate(EXS%NOCP)
-Call mma_deallocate(EXS%IOCP)
-Call mma_deallocate(CIS%NCSF)
-Call mma_deallocate(CIS%ICase)
-Call mma_deallocate(EXS%ICoup)
-Call mma_deallocate(EXS%VTab)
+IF (Allocated(EXS%MVL)) Call mma_deallocate(EXS%MVL)
+IF (Allocated(EXS%MVR)) Call mma_deallocate(EXS%MVR)
+IF (Allocated(CIS%NOCSF)) Call mma_deallocate(CIS%NOCSF)
+IF (Allocated(CIS%IOCSF)) Call mma_deallocate(CIS%IOCSF)
+IF (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
+IF (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
+IF (Allocated(EXS%NOCP)) Call mma_deallocate(EXS%NOCP)
+IF (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
+IF (Allocated(CIS%NCSF)) Call mma_deallocate(CIS%NCSF)
+IF (Allocated(CIS%ICase)) Call mma_deallocate(CIS%ICase)
+IF (Allocated(EXS%ICoup)) Call mma_deallocate(EXS%ICoup)
+IF (Allocated(EXS%VTab)) Call mma_deallocate(EXS%VTab)
+IF (Allocated(EXS%SGTMP)) Call mma_deallocate(EXS%SGTMP)
 
 end subroutine CXClose

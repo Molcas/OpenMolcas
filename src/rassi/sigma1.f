@@ -7,13 +7,14 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1994, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE SIGMA_1(SGS,CIS,EXS,
-     &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,
-     &                 IOW,NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
-     &                 NMIDV,NICOUP,MXEO,nVTab)
-
-      use Struct, only: SGStruct, CIStruct, EXStruct
+     &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
+     &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
+     &                 nMidV,nICoup,MxEO,nVTab)
+      use struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: Mul
       use symmul_data, only: nSym
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -32,6 +33,7 @@
       INTRINSIC MOD
 
       Associate (ISM => SGS%ISM)
+
       NLEV  =SGS%nLev
       MIDLEV=SGS%MidLev
       NIPWLK=CIS%nIpWlk
@@ -48,6 +50,7 @@ C SYMMETRY OF ORBITALS:
       ISYPQ=MUL(ISYP,ISYQ)
 C SYMMETRY OF SIGMA ARRAY:
       ISYSGM=MUL(ISYPQ,ISYCI)
+
       IF(IP.GT.IQ) THEN
 C THEN THIS IS AN EXCITING OPERATOR.
         IF(IP.LE.MIDLEV) GOTO 1600
@@ -60,6 +63,7 @@ C THEN THIS IS A DEEXCITING OPERATOR.
         GOTO 1500
       END IF
       IF(IP.GT.MIDLEV) GOTO 1200
+
 C SPECIAL CASE: WEIGHT OPERATOR, IP=IQ.
 C IP=IQ < MIDLEV.
       DO 100 MVSGM=1,NMIDV
@@ -165,8 +169,6 @@ C CASE IS: UPPER HALF, DEEXCITE:
 1500  CONTINUE
 C DEEXCITING CASE, IP<=MIDLEV<IQ.
 C ALLOCATE TEMPORARY WORK AREA:
-        NTMPMX=MAX(NT1MX,NT2MX)
-        CALL GETMEM('TMP   ','ALLO','REAL',LTMP,NTMPMX)
       DO 500 MVSGM=1,NMIDV
         MV4=MVR(MVSGM,1)
         MV5=MVR(MVSGM,2)
@@ -187,11 +189,11 @@ C ALLOCATE TEMPORARY WORK AREA:
           NCP=NOCP(INDEO,ISYUSG,MVSGM)
           IF(NCP.EQ.0) GOTO 499
           NTMP=NUPSG*NDWNC
-          CALL FZERO(WORK(LTMP),NTMP)
+          EXS%SGTMP(1:NTMP)=0.0D0
           LICP=1+IOCP(INDEO,ISYUSG,MVSGM)
           IOC=IOCSF(ISYUC,MV4,ISYCI)
 C CASE IS: UPPER HALF, DEEXCITE:
-          CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,WORK(LTMP),
+          CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,
      *             NCP,ICOUP(1,LICP),VTAB)
           INDEO=IP
           NCP=NOCP(INDEO,ISYDSG,MVSGM)
@@ -199,7 +201,7 @@ C CASE IS: UPPER HALF, DEEXCITE:
             LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
 C CASE IS: LOWER HALF, DEEXCITE:
             X=1.0D00
-            CALL DEX1 (X,NUPSG,WORK(LTMP),SGM(ISGSTA),
+            CALL DEX1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),
      *               NCP,ICOUP(1,LICP),VTAB)
           END IF
 499       CONTINUE
@@ -212,11 +214,11 @@ C CASE IS: LOWER HALF, DEEXCITE:
           NCP=NOCP(INDEO,ISYUSG,MVSGM)
           IF(NCP.EQ.0) GOTO 501
           NTMP=NUPSG*NDWNC
-          CALL FZERO(WORK(LTMP),NTMP)
+          EXS%SGTMP(1:NTMP)=0.0D0
           LICP=1+IOCP(INDEO,ISYUSG,MVSGM)
           IOC=IOCSF(ISYUC,MV5,ISYCI)
 C CASE IS: UPPER HALF, DEEXCITE:
-          CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,WORK(LTMP),
+          CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,
      *             NCP,ICOUP(1,LICP),VTAB)
           INDEO=NLEV+IP
           NCP=NOCP(INDEO,ISYDSG,MVSGM)
@@ -224,12 +226,11 @@ C CASE IS: UPPER HALF, DEEXCITE:
             LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
 C CASE IS: LOWER HALF, DEEXCITE:
             X=1.0D00
-            CALL DEX1 (X,NUPSG,WORK(LTMP),SGM(ISGSTA),
+            CALL DEX1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),
      *               NCP,ICOUP(1,LICP),VTAB)
           END IF
 501     CONTINUE
 500   CONTINUE
-      CALL GETMEM('TMP   ','FREE','REAL',LTMP,NTMPMX)
       RETURN
 1600  CONTINUE
 C EXCITING CASE, IQ<IP<=MIDLEV.
@@ -283,8 +284,6 @@ C CASE IS: UPPER HALF, EXCITE:
 1800  CONTINUE
 C EXCITING CASE, IQ<=MIDLEV<IP
 C ALLOCATE TEMPORARY WORK AREAS:
-      NTMPMX=MAX(NT3MX,NT4MX)
-      CALL GETMEM('TMP   ','ALLO','REAL',LTMP,NTMPMX)
       DO 800 MVSGM=1,NMIDV
         MV1=MVL(MVSGM,2)
         MV2=MVL(MVSGM,1)
@@ -306,11 +305,11 @@ C ALLOCATE TEMPORARY WORK AREAS:
           NCP=NOCP(INDEO,ISYUC,MV2)
           IF(NCP.EQ.0) GOTO 799
           NTMP=NUPSG*NDWNC
-          CALL FZERO(WORK(LTMP),NTMP)
+          EXS%SGTMP(1:NTMP)=0.0D0
           LICP=1+IOCP(INDEO,ISYUC,MV2)
           IOC=IOCSF(ISYUC,MV2,ISYCI)
 C CASE IS: UPPER HALF, EXCITE:
-          CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,WORK(LTMP),
+          CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,
      *             NCP,ICOUP(1,LICP),VTAB)
           INDEO=IQ
           NCP=NOCP(INDEO,ISYDC,MV2)
@@ -318,7 +317,7 @@ C CASE IS: UPPER HALF, EXCITE:
           LICP=1+IOCP(INDEO,ISYDC,MV2)
 C CASE IS: LOWER HALF, EXCITE:
           X=1.0D00
-          CALL EXC1 (X,NUPSG,WORK(LTMP),SGM(ISGSTA),
+          CALL EXC1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),
      *               NCP,ICOUP(1,LICP),VTAB)
 799       CONTINUE
           IF(MV1.EQ.0) GOTO 801
@@ -330,11 +329,11 @@ C CASE IS: LOWER HALF, EXCITE:
           NCP=NOCP(INDEO,ISYUC,MV1)
           IF(NCP.EQ.0) GOTO 801
           NTMP=NUPSG*NDWNC
-          CALL FZERO(WORK(LTMP),NTMP)
+          EXS%SGTMP(1:NTMP)=0.0D0
           LICP=1+IOCP(INDEO,ISYUC,MV1)
           IOC=IOCSF(ISYUC,MV1,ISYCI)
 C CASE IS: UPPER HALF, EXCITE:
-          CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,WORK(LTMP),
+          CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,
      *             NCP,ICOUP(1,LICP),VTAB)
           INDEO=NLEV+IQ
           NCP=NOCP(INDEO,ISYDC,MV1)
@@ -342,12 +341,11 @@ C CASE IS: UPPER HALF, EXCITE:
           LICP=1+IOCP(INDEO,ISYDC,MV1)
 C CASE IS: LOWER HALF, EXCITE:
           X=1.0D00
-          CALL EXC1 (X,NUPSG,WORK(LTMP),SGM(ISGSTA),
+          CALL EXC1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),
      *               NCP,ICOUP(1,LICP),VTAB)
 801   CONTINUE
 800   CONTINUE
-      CALL GETMEM('TMP   ','FREE','REAL',LTMP,NTMPMX)
 
-       End Associate
+      End Associate
 
       END SUBROUTINE SIGMA_1
