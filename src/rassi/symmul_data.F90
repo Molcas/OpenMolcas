@@ -8,5 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER MUL,NSYM
-      COMMON /SYMMUL/ MUL(8,8),NSYM
+Module SymMul_Data
+#include "symmul.fh"
+Save
+End Module SymMul_Data

@@ -21,6 +21,8 @@
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
      &                 nMidV,nICoup,MxEO,nVTab)
       use struct, only: SGStruct, CIStruct, EXStruct
+      use Symmetry_Info, only: Mul
+      use caspt2_data, only: nSym
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In) :: nMidV, nICoup, MxEO
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -31,13 +33,9 @@
       Integer MVL(NMIDV,2),MVR(NMIDV,2)
       Real*8 CI(*),SGM(*)
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
-#include "WrkSpc.fh"
       INTRINSIC MOD
 
       Integer :: nLev, MidLev,nIpWlk

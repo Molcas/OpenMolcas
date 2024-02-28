@@ -14,6 +14,8 @@
      &                 NMIDV,NICOUP,MXEO,nVTab)
 
       use Struct, only: SGStruct, CIStruct, EXStruct
+      use Symmetry_Info, only: Mul
+      use symmul_data, only: nSym
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In) :: nMidV, nICoup, MxEO
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -23,7 +25,6 @@
       DIMENSION ICOUP(3,NICOUP)
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
       DIMENSION CI(*),SGM(*)
-#include "symmul.fh"
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
