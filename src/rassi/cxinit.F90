@@ -67,7 +67,7 @@
       Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,         &
      &            ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                        &
      &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
-     &            CIS%NCSF,NRL,EXS%MVL,EXS%MVR,nICoup)
+     &            CIS%NCSF,NRL,EXS%MVL,EXS%MVR,nICoup,nSym)
       Call mma_deallocate(NRL)
 ! Computed in NrCoup:
       nWalk=CIS%nWalk

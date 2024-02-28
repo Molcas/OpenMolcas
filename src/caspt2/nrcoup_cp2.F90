@@ -20,19 +20,18 @@
      &                  NVERT,NMIDV,MXEO,ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
-     &                  NRL,MVL,MVR,NICOUP)
+     &                  NRL,MVL,MVR,NICOUP,NSYM)
       use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
+      use Symmetry_Info, only: MUL
       use stdalloc, only: mma_allocate
+
       IMPLICIT None
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
 #include "segtab.fh"
 
 ! INPUT PARAMETERS:
-      Integer, Intent(In) :: nVert, nMidV, MxEO
+      Integer, Intent(In) :: nVert, nMidV, MxEO, NSYM
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS

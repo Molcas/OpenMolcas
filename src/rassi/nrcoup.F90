@@ -7,23 +7,30 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE NRCOUP(SGS,CIS,EXS,  &
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+      SUBROUTINE NRCOUP    (SGS,CIS,EXS,  &
      &                  NVERT,NMIDV,MXEO,ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
-     &                  NRL,MVL,MVR,NICOUP)
+     &                  NRL,MVL,MVR,NICOUP,NSYM)
       use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
+      use Symmetry_Info, only: MUL
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "segtab.fh"
 
 ! INPUT PARAMETERS:
-!AR   ADD MVR MVL
-#include "symmul.fh"
-      Integer, Intent(In) :: nVert, nMidV, MxEO
+      Integer, Intent(In) :: nVert, nMidV, MxEO, NSYM
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
