@@ -129,23 +129,24 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
           ISGMNT(IVLT,ISGT)=IVLB
           IB=IDRT(IVLT,IBTAB)
           GOTO (1001,1002,1003,1004,1005,1006,1007) ISVC(ISGT)
-1001      V=ONE
+ 1001     V=ONE
           GOTO 99
-1002      V=-ONE
+ 1002     V=-ONE
           GOTO 99
-1003      V=ONE/DBLE(1+IB)
+ 1003     V=ONE/DBLE(1+IB)
           GOTO 99
-1004      V=-(ONE/DBLE(1+IB))
+ 1004     V=-ONE/DBLE(1+IB)
           GOTO 99
-1005      V=SQRT(DBLE(IB)/DBLE(1+IB))
+ 1005     V=SQRT(DBLE(IB)/DBLE(1+IB))
           GOTO 99
-1006      V=SQRT(DBLE(2+IB)/DBLE(1+IB))
+ 1006     V=SQRT(DBLE(2+IB)/DBLE(1+IB))
           GOTO 99
-1007      V=SQRT(DBLE(IB*(2+IB)))/DBLE(1+IB)
-99        VSGMNT(IVLT,ISGT)=V
+ 1007     V=SQRT(DBLE(IB*(2+IB)))/DBLE(1+IB)
+  99      VSGMNT(IVLT,ISGT)=V
         END DO
       END DO
-      IF(IPGLOB.GE.5) THEN
+
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' SEGMENT TABLE IN MKSEG.'
         WRITE(6,*)' VLT SGT ICL ICR VLB       SEGMENT TYPE    ',
      *            '     FORMULA'
@@ -164,6 +165,6 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
 2345        FORMAT(1X,5I4,5X,A20,5X,A20)
           END DO
         END DO
-      END IF
+#endif
 
       END

@@ -68,17 +68,17 @@ C Dereference SGS
       READ(CTVPT,'(26I1)') ITVPT
       READ(CBVPT,'(26I1)') IBVPT
       READ(CSVC,'(26I1)') ISVC
-      DO 5 IV=1,NVERT
+      DO IV=1,NVERT
         IVR(IV,1)=0
         IVR(IV,2)=0
-   5  CONTINUE
-      DO 20 LEV=1,NLEV
+      END DO
+      DO LEV=1,NLEV
         IV1=LTV(LEV)
         IV2=LTV(LEV-1)-1
-        DO 21 IVL=IV1,IV2
+        DO IVL=IV1,IV2
           IAL=IDRT(IVL,IATAB)
           IBL=IDRT(IVL,IBTAB)
-          DO 10 IV=IVL+1,IV2
+          DO IV=IVL+1,IV2
             IA=IDRT(IV,IATAB)
             IF(IA.EQ.IAL) THEN
               IB=IDRT(IV,IBTAB)
@@ -87,9 +87,9 @@ C Dereference SGS
               IB=IDRT(IV,IBTAB)
               IF(IB.EQ.(IBL+1)) IVR(IVL,2)=IV
             END IF
-  10      CONTINUE
-  21    CONTINUE
-  20  CONTINUE
+          END DO
+        END DO
+      END DO
 C CONSTRUCT THE MVL AND MVR TABLES:
       DO IVL=MVSTA,MVEND
         MVLL=IVL-MVSTA+1
@@ -121,22 +121,22 @@ C CONSTRUCT THE MVL AND MVR TABLES:
 #endif
 
 C INITIALIZE SEGMENT TABLES, AND MARK VERTICES AS UNUSABLE:
-      DO 40 IVLT=1,NVERT
-        DO 41 ISGT=1,26
+      DO IVLT=1,NVERT
+        DO ISGT=1,26
           ISGMNT(IVLT,ISGT)=0
           VSGMNT(IVLT,ISGT)=ZERO
-  41    CONTINUE
-  40  CONTINUE
-      DO 100 IVLT=1,NVERT
-        DO 101 ISGT=1,26
+        END DO
+      END DO
+      DO IVLT=1,NVERT
+        DO ISGT=1,26
           ITT=ITVPT(ISGT)
           IVRT=IVLT
           IF((ITT.EQ.1).OR.(ITT.EQ.2)) IVRT=IVR(IVLT,ITT)
-          IF(IVRT.EQ.0) GOTO 101
+          IF(IVRT.EQ.0) cycle
           IVLB=IDOWN(IVLT,IC1(ISGT))
-          IF(IVLB.EQ.0) GOTO 101
+          IF(IVLB.EQ.0) cycle
           IVRB=IDOWN(IVRT,IC2(ISGT))
-          IF(IVRB.EQ.0) GOTO 101
+          IF(IVRB.EQ.0) cycle
 C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
 
           ISGMNT(IVLT,ISGT)=IVLB
@@ -156,17 +156,17 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
           GOTO 99
  1007     V=SQRT(DBLE(IB*(2+IB)))/DBLE(1+IB)
   99      VSGMNT(IVLT,ISGT)=V
- 101    CONTINUE
- 100  CONTINUE
+        END DO
+      END DO
 
 #ifdef _DEBUGPRINT_
         WRITE(6,*)' SEGMENT TABLE IN MKSEG.'
         WRITE(6,*)' VLT SGT ICL ICR VLB       SEGMENT TYPE    ',
-     &            '     FORMULA'
-        DO 200 IV=1,NVERT
-          DO 201 ISGT=1,26
+     *            '     FORMULA'
+        DO IV=1,NVERT
+          DO ISGT=1,26
             ID=ISGMNT(IV,ISGT)
-            IF(ID.EQ.0) GOTO 201
+            IF(ID.EQ.0) cycle
             ICL=IC1(ISGT)
             ICR=IC2(ISGT)
             IF(ISGT.LE.4) TEXT='  WALK SECTION.'
@@ -175,9 +175,9 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
             IF((ISGT.GE.19).AND.(ISGT.LE.22)) TEXT=' BOTTOM SEGMENT.'
             IF(ISGT.GT.22) TEXT=' DOWN-WALK SECTION.'
             WRITE(6,2345) IV,ISGT,ICL,ICR,ID,TEXT,FRML(ISVC(ISGT))
- 2345       FORMAT(1X,5I4,5X,A20,5X,A20)
-  201     CONTINUE
-  200   CONTINUE
+2345        FORMAT(1X,5I4,5X,A20,5X,A20)
+          END DO
+        END DO
 #endif
-      RETURN
+
       END
