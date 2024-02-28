@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKSEG(SGS,NLEV,NVERT,NMIDV,IDRT,IDOWN,
-     &                 LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
+      SUBROUTINE MKSEG(SGS,NLEV,NVERT,NMIDV,
+     &                 IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
 
       use Struct, only: SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
