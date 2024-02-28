@@ -25,8 +25,8 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "segtab.fh"
-      Integer, Allocatable:: IVR(:), ISGM(:), NRL(:), ILNDW(:), SCR(:)
-      Integer                                NNRL,   NILNDW,   NSCR
+      Integer, Allocatable:: IVR(:), ISGM(:), ILNDW(:), SCR(:)
+      Integer                                 NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer NICOUP, NVTAB_TMP, NICASE, nVTab
 
@@ -87,13 +87,10 @@
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
-      NNRL=(1+MXEO)*NVERT*NSYM
       CALL mma_allocate(EXS%NOCP,MXEO,NSYM,NMIDV,Label='EXS%NOCP')
       CALL mma_allocate(EXS%IOCP,MXEO,NSYM,NMIDV,Label='EXS%IOCP')
-      CALL mma_allocate(NRL,NNRL,Label='NRL')
       CALL NRCOUP(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISM,SGS%DRT,ISGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP, &
-                      CIS%NOCSF,CIS%IOCSF,CIS%NCSF,NRL,EXS%MVL,EXS%MVR,NICOUP,NSYM)
-      CALL mma_deallocate(NRL)
+                      CIS%NOCSF,CIS%IOCSF,CIS%NCSF,EXS%MVL,EXS%MVR,NICOUP,NSYM)
 
       NILNDW=NWALK
       NVTAB_TMP=20000
