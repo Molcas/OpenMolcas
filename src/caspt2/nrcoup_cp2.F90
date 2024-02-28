@@ -17,10 +17,10 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(  &
-     &                  ISM,  &
+     &                  NVERT,NMIDV,MXEO,ISM,  &
      &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
-     &                  NRL,MVL,MVR,nVert,nMidV,nICoup,MXEO)
+     &                  NRL,MVL,MVR,NICOUP)
       use UNIXInfo, only: ProgName
       use gugx, only: SGS, EXS, CIS
       use stdalloc, only: mma_allocate
@@ -50,7 +50,7 @@
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
      &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP, NLW, NUW,  &
-     &        NWALK, ISYDWN, ISYTOT, ISYUP
+     &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW, NUW
 #endif
@@ -267,6 +267,7 @@
       DO 551 ISYUS1=1,NSYM
         NUPS1=NOW(1,ISYUS1,MV3)
       DO 552 ISYDS1=1,NSYM
+        If (IF_RASSI) NDWNS1=NOW(2,ISYDS1,MV3)
         NSGMX=MAX(NSGMX,NOCSF(ISYUS1,MV3,ISYDS1))
         IF (MV1.NE.0)THEN
           NT4TMP=NUPS1*NOW(2,ISYDS1,MV1)

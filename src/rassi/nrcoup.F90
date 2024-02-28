@@ -40,6 +40,15 @@
       Integer NCSF(NSYM)
 ! SCRATCH PARAMETERS:
       Integer NRL(NSYM,NVERT,0:MXEO)
+
+      Integer IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT,     &
+     &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
+     &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
+     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1,         NLW, NUW,  &
+     &        NWALK, ISYDWN, ISYTOT, ISYUP
+#ifdef _DEBUGPRINT_
+      Integer IS, IST, NCP, NLW, NUW
+#endif
       Logical :: IF_RASSI=.FALSE.
       Integer :: nLev, MVSTA, MVEND, NIPWLK
 
@@ -257,9 +266,8 @@
       DO 551 ISYUS1=1,NSYM
         NUPS1=NOW(1,ISYUS1,MV3)
       DO 552 ISYDS1=1,NSYM
-        NDWNS1=NOW(2,ISYDS1,MV3)
-
-        NSGMX=MAX(NOCSF(ISYUS1,MV3,ISYDS1),NSGMX)
+        If (IF_RASSI) NDWNS1=NOW(2,ISYDS1,MV3)
+        NSGMX=MAX(NSGMX,NOCSF(ISYUS1,MV3,ISYDS1))
 !
         IF (MV1.NE.0)THEN
           NT4TMP=NUPS1*NOW(2,ISYDS1,MV1)
