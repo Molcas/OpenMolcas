@@ -21,7 +21,7 @@
       Real*8,  Allocatable::         VSgm(:)
       Real*8,  Allocatable:: VTabTmp(:), Val(:)
       Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, nSgmnt, &
-     &        MxEO, nNOCP, nIOCP, nNRL, nWalk,    &
+     &        MxEO, nNRL, nWalk,    &
      &        nICoup, nVMax, niLndw, nICase, nScr, nVTab,      &
      &        nVTab_final
 
@@ -37,8 +37,8 @@
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
       Call mma_allocate(IVR,2*nVert,Label='IVR')
-      Call mma_allocate(EXS%MVR,2*nMidV)
-      Call mma_allocate(EXS%MVL,2*nMidV)
+      Call mma_allocate(EXS%MVR,nMidV,2,Label='EXS%MVR')
+      Call mma_allocate(EXS%MVL,nMidV,2,Label='EXS%MVL')
       nSgmnt=26*nVert
       Call mma_allocate(ISgm,nSgmnt,Label='ISgm')
       Call mma_allocate(VSgm,nSgmnt,Label='VSgm')
@@ -50,17 +50,15 @@
       Call mma_allocate(CIS%NOW,2,nSym,nMidV,Label='CIS%NOW')
       Call mma_allocate(CIS%IOW,2,nSym,nMidV,Label='CIS%IOW')
       MxEO=(nLev*(nLev+5))/2
-      nNOCP=MxEO*nMidV*nSym
-      nIOCP=nNOCP
       nNRL=(1+MxEO)*nVert*nSym
-      Call mma_allocate(EXS%NOCP,nNOCP,Label='EXS%NOCP')
-      Call mma_allocate(EXS%IOCP,nIOCP,Label='EXS%IOCP')
+      Call mma_allocate(EXS%NOCP,MxEO,nSym,nMidV,Label='EXS%NOCP')
+      Call mma_allocate(EXS%IOCP,MxEO,nSym,nMidV,Label='EXS%IOCP')
       Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
-      Call mma_allocate(NRL,nNRL,Label='NRL')
 
       Call mma_allocate(CIS%NOCSF,nSym,nMidV,nSym,Label='CIS%NOCSF')
       Call mma_allocate(CIS%IOCSF,nSym,nMidV,nSym,Label='CIS%IOCSF')
       EXS%MxEO =MxEO
+      Call mma_allocate(NRL,nNRL,Label='NRL')
       Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,         &
      &            ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                        &
      &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
@@ -71,7 +69,7 @@
 
       nICase=nWalk*nIpWlk
       Call mma_allocate(CIS%ICase,nICase,Label='CIS%ICase')
-      Call mma_allocate(EXS%ICoup,3*nICoup,Label='EXS%ICoup')
+      Call mma_allocate(EXS%ICoup,3,nICoup,Label='EXS%ICoup')
       nVMax=5000
       Call mma_allocate(VTabTmp,nVMax,Label='VTabTmp')
       nILNDW=nWalk

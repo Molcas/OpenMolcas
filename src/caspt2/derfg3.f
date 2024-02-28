@@ -80,7 +80,7 @@ C     REAL*8 tmp,tmp2
       Integer :: nMidV, nICoup, MxEO, nVTab
       nMidV = CIS%nMidV
       MxEO= EXS%MxEO
-      nICoup=Size(EXS%ICoup)/3
+      nICoup=Size(EXS%ICoup,2)
       nVTab=Size(EXS%VTab)
 C
 C Put in zeroes. Recognize special cases:

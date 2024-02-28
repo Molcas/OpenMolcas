@@ -77,11 +77,10 @@
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
-      NIVR=2*NVERT
       NSGMNT=26*NVERT
-      CALL mma_allocate(IVR,NIVR,Label='IVR')
-      CALL mma_allocate(EXS%MVL,2*NMIDV,Label='EXS%MVL')
-      CALL mma_allocate(EXS%MVR,2*NMIDV,Label='EXS%MVR')
+      CALL mma_allocate(IVR,2*NVERT,Label='IVR')
+      CALL mma_allocate(EXS%MVL,NMIDV,2,Label='EXS%MVL')
+      CALL mma_allocate(EXS%MVR,NMIDV,2,Label='EXS%MVR')
       CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
       CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
       CALL MKSEG(SGS,nLev,nVert,nMidV,SGS%DRT,SGS%DOWN,SGS%LTV,IVR,EXS%MVL,EXS%MVR,ISGM,VSGM)
@@ -89,8 +88,8 @@
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
       NNRL=(1+MXEO)*NVERT*NSYM
-      CALL mma_allocate(EXS%NOCP,MXEO*NMIDV*NSYM,Label='EXS%NOCP')
-      CALL mma_allocate(EXS%IOCP,MXEO*NMIDV*NSYM,Label='EXS%IOCP')
+      CALL mma_allocate(EXS%NOCP,MXEO,NSYM,NMIDV,Label='EXS%NOCP')
+      CALL mma_allocate(EXS%IOCP,MXEO,NSYM,NMIDV,Label='EXS%IOCP')
       CALL mma_allocate(NRL,NNRL,Label='NRL')
       CALL NRCOUP(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISM,SGS%DRT,ISGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP, &
                       CIS%NOCSF,CIS%IOCSF,CIS%NCSF,NRL,EXS%MVL,EXS%MVR,NICOUP,NSYM)
@@ -99,7 +98,7 @@
       NILNDW=NWALK
       NVTAB_TMP=20000
       NSCR=7*(NLEV+1)
-      CALL mma_allocate(EXS%ICOUP,3*NICOUP,Label='EXS%ICOUP')
+      CALL mma_allocate(EXS%ICOUP,3,NICOUP,Label='EXS%ICOUP')
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
       CALL mma_allocate(SCR,NSCR,Label='SCR')

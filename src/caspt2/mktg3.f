@@ -24,7 +24,7 @@
       nLev = SGS%nLev
       nMidV= CIS%nMidV
       MxEO = EXS%MxEO
-      nICoup=Size(EXS%ICoup)/3
+      nICoup=Size(EXS%ICoup,2)
       nVTab =Size(EXS%VTab)
 
 C Procedure for computing 1-body, 2-body, and 3-body transition

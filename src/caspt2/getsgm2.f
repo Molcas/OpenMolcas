@@ -29,7 +29,7 @@
       Integer IS, JS, IJS, ISSG, NSGM, nMidV, nICoup, MxEO, nVTab
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
-      nICoup=Size(EXS%ICoup)/3
+      nICoup=Size(EXS%ICoup,2)
       nVTab =Size(EXS%VTab)
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI

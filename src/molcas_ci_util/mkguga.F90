@@ -30,7 +30,7 @@
       Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:,:)=>Null()
       Integer, Allocatable, Target:: DRT0(:,:), DOWN0(:,:)
       Integer, Allocatable:: TMP(:), V11(:), SCR(:)
-      Integer IAC, NDOWN0, NDRT0, NLSGN, NSCR, NTMP, NUSGN, NDOWN, NDRT,  &
+      Integer IAC, NSCR, NTMP, NDOWN, NDRT,  &
      &        NICASE, NVERT0
 
 !Note that we do not associate the arrays here since the are not allocated yet.
@@ -46,8 +46,6 @@
 !
       IAC=MIN(IA0,IC0)
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
-      NDRT0=5*NVERT0
-      NDOWN0=4*NVERT0
       NTMP=((NLEV+1)*(NLEV+2))/2
 
       IF(IFCAS.NE.0) THEN
@@ -57,8 +55,8 @@
          DOWNP=> DOWN0
       ELSE
          NVERT=NVERT0
-         NDRT=NDRT0
-         NDOWN=NDOWN0
+         NDRT=5*NVERT
+         NDOWN=4*NVERT
          CALL mma_allocate(SGS%DRT,NVERT,5,Label='SGS%DRT')
          CALL mma_allocate(SGS%DOWN,[1,NVERT],[0,3],Label='SGS%DOWN')
          DRTP => SGS%DRT
@@ -154,10 +152,8 @@
       If (Present(Skip_MKSGNUM)) Then
          If (Skip_MKSGNUM) Return
       End If
-      NUSGN=MXUP*NMIDV
-      NLSGN=MXDWN*NMIDV
-      CALL mma_allocate(EXS%USGN,NUSGN,Label='EXS%USGN')
-      CALL mma_allocate(EXS%LSGN,NLSGN,Label='EXS%LSGN')
+      CALL mma_allocate(EXS%USGN,MXUP,NMIDV,Label='EXS%USGN')
+      CALL mma_allocate(EXS%LSGN,MXDWN,NMIDV,Label='EXS%LSGN')
       Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,CIS%NOW, &
                    CIS%IOW,EXS%USGN,EXS%LSGN,CIS%ICASE)
 !

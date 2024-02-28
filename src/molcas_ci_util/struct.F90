@@ -49,15 +49,15 @@ End Type CIStruct
 ! Excitation operators, coupling coefficients,...
 Type EXStruct
      Integer MxEO
-     Integer, Allocatable:: NOCP(:)
-     Integer, Allocatable:: IOCP(:)
-     Integer, Allocatable:: ICoup(:)
+     Integer, Allocatable:: NOCP(:,:,:)
+     Integer, Allocatable:: IOCP(:,:,:)
+     Integer, Allocatable:: ICoup(:,:)
      Real*8,  Allocatable:: VTab(:)
-     Integer, Allocatable:: MVL(:)
-     Integer, Allocatable:: MVR(:)
+     Integer, Allocatable:: MVL(:,:)
+     Integer, Allocatable:: MVR(:,:)
      Real*8,  Allocatable:: SGTMP(:)
-     Integer, Allocatable:: USGN(:)
-     Integer, Allocatable:: LSGN(:)
+     Integer, Allocatable:: USGN(:,:)
+     Integer, Allocatable:: LSGN(:,:)
      Integer NT1MX
      Integer NT2MX
      Integer NT3MX

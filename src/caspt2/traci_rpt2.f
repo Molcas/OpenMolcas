@@ -18,7 +18,7 @@
       Integer :: nMidV, nICoup, MxEO, nVTab
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
-      nICoup=Size(EXS%ICoup)/3
+      nICoup=Size(EXS%ICoup,2)
       nVTab =Size(EXS%VTab)
 
       IF (NDIM.LE.0) GOTO 999

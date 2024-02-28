@@ -25,7 +25,7 @@ C Local arrays:
       nLev = SGS%nLev
       nMidV= CIS%nMidV
       MxEO = EXS%MxEO
-      nICoup=Size(EXS%ICoup)/3
+      nICoup=Size(EXS%ICoup,2)
       nVTab =Size(EXS%VTab)
 
 C Purpose: Compute and add a contribution to SGM which is

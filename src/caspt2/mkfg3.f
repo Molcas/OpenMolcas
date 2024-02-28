@@ -119,7 +119,7 @@ C>                   to active indices
       Integer :: nMidV, nICoup, MxEO, nVTab
       nMidV = CIS%nMidV
       MxEO  = EXS%MxEO
-      nICoup=Size(EXS%ICoup)/3
+      nICoup=Size(EXS%ICoup,2)
       nVTab=SIZE(EXS%VTab)
 
 C Put in zeroes. Recognize special cases:

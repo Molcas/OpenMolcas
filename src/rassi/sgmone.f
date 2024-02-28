@@ -20,7 +20,7 @@
       nMidV =CIS%nMidV
 
       MxEO  =EXS%MxEO
-      nICoup=SIZE(EXS%ICOUP)/3
+      nICoup=SIZE(EXS%ICOUP,2)
       nVTab =SIZE(EXS%VTab)
 
       CALL SIGMA_1(SGS,CIS,EXS,
