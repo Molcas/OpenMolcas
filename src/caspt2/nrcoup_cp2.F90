@@ -17,7 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
       SUBROUTINE NRCOUP_CP2(  &
-     &                      IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
+     &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
      &                  NRL,MVL,MVR,nVert,nMidV,nICoup,MXEO)
       use gugx, only: SGS, EXS, CIS

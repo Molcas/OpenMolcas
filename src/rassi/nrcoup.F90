@@ -30,7 +30,7 @@
       Type (EXStruct) EXS
       Integer MVL(NMIDV,2),MVR(NMIDV,2)
       Integer IDRT(NVERT,5),ISGMNT(NVERT,26)
-      DIMENSION ISM(*)
+      Integer ISM(*)
       Integer, PARAMETER :: LTAB=1
 ! OUTPUT PARAMETERS:
       Integer, Intent(Out):: nICoup
