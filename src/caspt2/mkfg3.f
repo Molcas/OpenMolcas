@@ -352,7 +352,8 @@ C-sigma vectors in the buffer.
           if (.not. DoFCIQMC) then
               lto=lbuf1+mxci*(ibuf1-1)
               call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-              CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
+              CALL SIGMA1_CP2(SGS,CIS,EXS,
+     &     IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
@@ -416,7 +417,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       if (.not. DoFCIQMC) then
           lto=lbuf2
           call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
-          CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
+          CALL SIGMA1_CP2(SGS,CIS,EXS,
+     &     IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
@@ -452,7 +454,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             lfrom=lbuf2
             lto=lbuft
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-            CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
+            CALL SIGMA1_CP2(SGS,CIS,EXS,
+     &     IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
      &           WORK(LTO),CIS%NOCSF,CIS%IOCSF,CIS%NOW,
      &           CIS%IOW,EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &           EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)

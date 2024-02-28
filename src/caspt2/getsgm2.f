@@ -53,7 +53,8 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IF(NSGM.EQ.0) RETURN
 
       SGM(1:NSGM)=0.0D0
-      CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
+      CALL SIGMA1_CP2(SGS,CIS,EXS,
+     &     ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &      EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)

@@ -96,7 +96,7 @@
      &    NBTCH,NBTCHES,                                                &
      &    NSCP,NSCQ,NBATCH_TOT,NJSCT,NJSCT_TOT,                         &
      &    IOFFRHS
-      COMMON/STRUCT/ NCASES,NASUP(8,MXCASE),NISUP(8,MXCASE),            &
+      COMMON/STRUCT_CPT2/ NCASES,NASUP(8,MXCASE),NISUP(8,MXCASE),       &
      &    NINDEP(8,MXCASE),NEXC(8,MXCASE),NEXCES(8,MXCASE),             &
      &    NBTCH(8),NBTCHES(8),                                          &
      &    NSCP,NSCQ,NBATCH_TOT,NJSCT,NJSCT_TOT,                         &

@@ -16,10 +16,11 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE SIGMA1_CP2(IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
+      SUBROUTINE SIGMA1_CP2(SGS, CIS, EXS,
+     &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,nMidV,nICoup,MxEO,
      &                 nVTab)
-      use gugx, only: SGS, CIS, EXS
+      use struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In) :: nMidV, nICoup, MxEO
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -33,11 +34,15 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
+      Type (SGStruct) SGS
+      Type (CIStruct) CIS
+      Type (EXStruct) EXS
 #include "WrkSpc.fh"
       INTRINSIC MOD
 
-      Integer :: nLev, nIpWlk
+      Integer :: nLev, MidLev,nIpWlk
       nLev   = SGS%nLev
+      MidLev = SGS%MidLev
       nIpWlk = CIS%nIpWlk
 
 *****************************************************************
@@ -59,16 +64,16 @@ C SYMMETRY OF SIGMA ARRAY:
 
       IF(IP.GT.IQ) THEN
 C THEN THIS IS AN EXCITING OPERATOR.
-        IF(IP.LE.SGS%MIDLEV) GOTO 1600
-        IF(IQ.GT.SGS%MIDLEV) GOTO 1700
+        IF(IP.LE.MIDLEV) GOTO 1600
+        IF(IQ.GT.MIDLEV) GOTO 1700
         GOTO 1800
       ELSE IF(IQ.GT.IP) THEN
 C THEN THIS IS A DEEXCITING OPERATOR.
-        IF(IQ.LE.SGS%MIDLEV) GOTO 1300
-        IF(IP.GT.SGS%MIDLEV) GOTO 1400
+        IF(IQ.LE.MIDLEV) GOTO 1300
+        IF(IP.GT.MIDLEV) GOTO 1400
         GOTO 1500
       END IF
-      IF(IP.GT.SGS%MIDLEV) GOTO 1200
+      IF(IP.GT.MIDLEV) GOTO 1200
 
 C SPECIAL CASE: WEIGHT OPERATOR, IP=IQ.
 C IP=IQ < MIDLEV.
@@ -110,7 +115,7 @@ C IP=IQ>MIDLEV
           ISYDSG=MUL(ISYUSG,ISYSGM)
           NDWNSG=NOW(2,ISYDSG,MVSGM)
           IOUW=IOW(1,ISYUSG,MVSGM)
-          IPSHFT=2*(IP-1-SGS%MIDLEV)
+          IPSHFT=2*(IP-1-MIDLEV)
           LUW=1+IOUW-NIPWLK+IPSHFT/30
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT

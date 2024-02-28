@@ -83,7 +83,8 @@ C Compute SGM1:=E(IY,IZ) PSI
           CALL DCOPY_(NSGM1,[0.0D0],0,SGM1,1)
           LEVY=IATOG(IY)
           LEVZ=IATOG(IZ)
-          CALL SIGMA1_CP2(LEVY,LEVZ,1.0D00,ISYCI,CI,SGM1,
+          CALL SIGMA1_CP2(SGS,CIS,EXS,
+     &     LEVY,LEVZ,1.0D00,ISYCI,CI,SGM1,
      &            CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &            EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
@@ -120,7 +121,8 @@ C Compute SGM2:=E(IV,IX) SGM1
             CALL DCOPY_(NSGM2,[0.0D0],0,SGM2,1)
             LEVV=IATOG(IV)
             LEVX=IATOG(IX)
-            CALL SIGMA1_CP2(LEVV,LEVX,1.0D00,ISYM1,SGM1,
+            CALL SIGMA1_CP2(SGS,CIS,EXS,
+     &     LEVV,LEVX,1.0D00,ISYM1,SGM1,
      &       SGM2,CIS%NOCSF,CIS%IOCSF,CIS%NOW,
      &       CIS%IOW,EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
@@ -155,7 +157,8 @@ C Add non-zero 3-el contribution to SGM:
             IF(ISCF.EQ.0) THEN
               LEVT=IATOG(IT)
               LEVU=IATOG(IU)
-              CALL SIGMA1_CP2(LEVT,LEVU,X,ISYM2,SGM2,SGM,
+              CALL SIGMA1_CP2(SGS,CIS,EXS,
+     &     LEVT,LEVU,X,ISYM2,SGM2,SGM,
      &            CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &            EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)

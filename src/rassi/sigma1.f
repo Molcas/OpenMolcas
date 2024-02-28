@@ -27,6 +27,7 @@
       Type (CIStruct) CIS
       Type (EXStruct) EXS
 #include "WrkSpc.fh"
+      INTRINSIC MOD
 
       NLEV  =SGS%nLev
       MIDLEV=SGS%MidLev
