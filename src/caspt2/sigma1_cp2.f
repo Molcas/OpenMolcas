@@ -20,12 +20,11 @@
       SUBROUTINE SIGMA1_CP2(SGS,CIS,EXS,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
      &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
-     &                 nMidV,nICoup,MxEO,nVTab)
+     &                 nMidV,nICoup,MxEO,nVTab,nSym)
       use struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: Mul
-      use caspt2_data, only: nSym
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer, Intent(In) :: nMidV, nICoup, MxEO
+      Integer, Intent(In) :: nMidV, nICoup, MxEO, nSym, nVTab
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       Integer NOCP(MXEO,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)

@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SGMONE(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM)
       use Struct, only: SGStruct, CIStruct, EXStruct
+      use symmul_data, only: nSym
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 CI(*),SGM(*)
       Type (SGStruct) SGS
@@ -28,6 +29,6 @@
      &             CIS%IOCSF,CIS%NOW,CIS%IOW,
      &             EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &             EXS%VTab,EXS%MVL,EXS%MVR,
-     &             NMIDV,NICOUP,MXEO,nVTab)
+     &             NMIDV,NICOUP,MXEO,nVTab,nSym)
 
       end SUBROUTINE SGMONE

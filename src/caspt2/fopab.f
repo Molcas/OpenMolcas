@@ -140,7 +140,7 @@
      &     LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
   10      CONTINUE
         END DO
       END DO
@@ -194,7 +194,7 @@
      &     LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
   20      CONTINUE
         END DO
       END DO

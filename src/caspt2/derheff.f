@@ -1138,7 +1138,7 @@ C LTO is first element of Sigma2 = E(YZ) Psi2
      &     IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
         IF(ISSG2.EQ.LSYM1.AND.DTG1(IY,IZ).NE.0.0D+00) THEN
           !! It is possible to calculate the contribution using
           !! DGEMV, but DAXPY seems to be faster than DGEMV
@@ -1168,7 +1168,7 @@ C Translate to levels:
      &     IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
          IF (ISSG1.EQ.LSYM1.AND.DTG1(IU,IT).NE.0.0D+00
      &       .AND.IP3STA.EQ.1) THEN
           Call DaXpY_(NCI1,DTG1(IU,IT),WORK(LTO),1,CLAG2,1)
@@ -1207,7 +1207,7 @@ C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
      &     IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
           IF(ISTAU.EQ.LSYM1.AND.DTG2(IV,IX,IY,IZ).NE.0.0D+00) THEN
 C          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
            !! For left derivative: <I|Evx Eyz|Psi2>
@@ -1222,7 +1222,7 @@ C          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
      &     JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,WORK(LFROMD),
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &      EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
            END IF
            DTG2(IV,IX,IY,IZ) = 0.0D+00
           END IF
@@ -1305,7 +1305,7 @@ C    &                0.0D+00,WORK(LBUF1),1)
      &     JL,IL,1.0D+00,ISTAU,WORK(LBUF1),WORK(LFROMD),
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &      EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
           END IF !! End of DOG3 clause
 C End of IP2 loop.
          END DO
@@ -1329,7 +1329,7 @@ C Translate to levels:
      &     IL,JL,1.0D00,LSYM1,WORK(LTO),CLAG1,
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
          LTO=LTO+MXCI
         END DO
 C End of IP1STA sectioning loop
@@ -1351,7 +1351,7 @@ C LTO is first element of Sigma2 = E(YZ) Psi2
      &     JM,IM,1.0D00,LSYM2,WORK(LTO),CLAG2,
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
         LTO=LTO+MXCI
        END DO
 C End of IP3STA sectioning loop

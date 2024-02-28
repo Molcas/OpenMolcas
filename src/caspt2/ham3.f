@@ -87,7 +87,7 @@ C Compute SGM1:=E(IY,IZ) PSI
      &     LEVY,LEVZ,1.0D00,ISYCI,CI,SGM1,
      &            CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &            EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
             X=OP1(IY,IZ)
@@ -125,7 +125,7 @@ C Compute SGM2:=E(IV,IX) SGM1
      &     LEVV,LEVX,1.0D00,ISYM1,SGM1,
      &       SGM2,CIS%NOCSF,CIS%IOCSF,CIS%NOW,
      &       CIS%IOW,EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
               X=OP2(IVXYZ)
@@ -161,7 +161,7 @@ C Add non-zero 3-el contribution to SGM:
      &     LEVT,LEVU,X,ISYM2,SGM2,SGM,
      &            CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &            EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &            EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
 CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)
             ELSE

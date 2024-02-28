@@ -19,6 +19,7 @@
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use Symmetry_Info, only: Mul
       use gugx, only:  SGS, CIS, EXS
+      use caspt2_data, only: nSym
       IMPLICIT None
 
 #include "pt2_guga.fh"
@@ -57,6 +58,6 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      &     ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &      EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
 
       END SUBROUTINE GETSGM2

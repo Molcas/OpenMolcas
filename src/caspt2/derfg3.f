@@ -559,7 +559,7 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
      &     IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
          end if
         end do
         myBuffer=iTask
@@ -645,7 +645,7 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
      &     IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
       Call Dcopy_(nsgm1,[0.0D+00],0,Work(LDYZ),1)
       if(issg2.eq.issg1) then
         call dcopy_(nsgm2,[0.0D0],0,work(lbuf3),1)
@@ -700,7 +700,7 @@ C
      &     IVLEV,IXLEV0,1.0D+0,STSYM,Work(LFROM),Work(L),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
         End Do
         iG3OFF = iG3bk
       do ip2=ip3,ntri2
@@ -804,7 +804,7 @@ C
      &     IXLEV,IVLEV,1.0D+00,STSYM,WORK(LBUF3),WORK(LDYZ),
      &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &      EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &      EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
 C
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb
@@ -818,7 +818,7 @@ C
      &     IZLEV,IYLEV,1.0D+00,STSYM,WORK(LDYZ),CLAG,
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
 C
       IF(iPrGlb.GE.DEBUG) THEN
         WRITE(6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
@@ -847,7 +847,7 @@ C
      &     ITLEV,IULEV,1.0D00,STSYM,WORK(LTO),CLAG,
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
           !! the rest is DEPSA contribution
           IBUF = LDAB + MXCI*(ib-1)
           Do IALEV = 1, NLEV
@@ -857,7 +857,7 @@ C
      &     IALEV,IBLEV,1.0D+00,STSYM,Work(IBUF),Work(LBUF2),
      &          CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &          EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &          EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &          EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
               DEPSA(IALEV,IBLEV) = DEPSA(IALEV,IBLEV)
      *          + DDot_(nsgm1,Work(LBUF1+MXCI*(IB-1)),1,Work(LBUF2),1)
             End Do

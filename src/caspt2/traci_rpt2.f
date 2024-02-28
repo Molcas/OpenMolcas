@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
       use gugx, only: LEVEL, SGS, CIS, EXS
-
+      use caspt2_data, only: nSym
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
       DIMENSION XMAT(NDIM,NDIM),CI(*)
@@ -64,7 +64,7 @@ C where U(I) = T(I)-Kronecker(I,J).
      &     LI,LJ,SCL,STSYM,CI,WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab)
+     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
@@ -75,7 +75,7 @@ C where U(I) = T(I)-Kronecker(I,J).
      &     LI,LJ,SCL,STSYM,WORK(LSGM),CI,
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
      &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICOup,MxEO,nVTab)
+     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICOup,MxEO,nVTab,nSym)
         END DO
 
  100  CONTINUE
