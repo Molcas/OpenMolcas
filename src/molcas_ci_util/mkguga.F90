@@ -133,10 +133,10 @@
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
       CIS%nIpWlk=nIpWlk
       NSCR=MAX(6,3*(NLEV+1))
-      CALL mma_allocate(CIS%NOW,2*NMIDV*NSYM,Label='CIS%NOW')
-      CALL mma_allocate(CIS%IOW,2*NMIDV*NSYM,Label='CIS%IOW')
-      CALL mma_allocate(CIS%NOCSF,NMIDV*(NSYM**2),Label='CIS%NOCSF')
-      CALL mma_allocate(CIS%IOCSF,NMIDV*(NSYM**2),Label='CIS%IOCSF')
+      CALL mma_allocate(CIS%NOW,2,NSYM,NMIDV,Label='CIS%NOW')
+      CALL mma_allocate(CIS%IOW,2,NSYM,NMIDV,Label='CIS%IOW')
+      CALL mma_allocate(CIS%NOCSF,NSYM,NMIDV,NSYM,Label='CIS%NOCSF')
+      CALL mma_allocate(CIS%IOCSF,NSYM,NMIDV,NSYM,Label='CIS%IOCSF')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
       CALL MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,CIS%NCSF, &

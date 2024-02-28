@@ -21,7 +21,7 @@
       Real*8,  Allocatable::         VSgm(:)
       Real*8,  Allocatable:: VTabTmp(:), Val(:)
       Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, nSgmnt, &
-     &        nNOW, MxEO, nNOCP, nIOCP, nNRL, nNOCSF, nIOCSF, nWalk,    &
+     &        MxEO, nNOCP, nIOCP, nNRL, nWalk,    &
      &        nICoup, nVMax, niLndw, nICase, nScr, nVTab,      &
      &        nVTab_final
 
@@ -47,9 +47,8 @@
       CIS%nIpWlk  = nIpWlk
 
 ! Various offset tables:
-      nNOW=2*nMidV*nSym
-      Call mma_allocate(CIS%NOW,nNOW,Label='CIS%NOW')
-      Call mma_allocate(CIS%IOW,nNOW,Label='CIS%IOW')
+      Call mma_allocate(CIS%NOW,2,nSym,nMidV,Label='CIS%NOW')
+      Call mma_allocate(CIS%IOW,2,nSym,nMidV,Label='CIS%IOW')
       MxEO=(nLev*(nLev+5))/2
       nNOCP=MxEO*nMidV*nSym
       nIOCP=nNOCP
@@ -58,11 +57,9 @@
       Call mma_allocate(EXS%IOCP,nIOCP,Label='EXS%IOCP')
       Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
       Call mma_allocate(NRL,nNRL,Label='NRL')
-      nNOCSF=nMidV*(nSym**2)
-      nIOCSF=nNOCSF
 
-      Call mma_allocate(CIS%NOCSF,nNOCSF,Label='CIS%NOCSF')
-      Call mma_allocate(CIS%IOCSF,nIOCSF,Label='CIS%IOCSF')
+      Call mma_allocate(CIS%NOCSF,nSym,nMidV,nSym,Label='CIS%NOCSF')
+      Call mma_allocate(CIS%IOCSF,nSym,nMidV,nSym,Label='CIS%IOCSF')
       EXS%MxEO =MxEO
       Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,         &
      &            ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                        &

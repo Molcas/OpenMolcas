@@ -38,11 +38,11 @@ End Type SGStruct
 Type CIStruct
      Integer nMidV
      Integer nIpWlk
-     Integer, Allocatable:: NOW(:)
-     Integer, Allocatable:: IOW(:)
+     Integer, Allocatable:: NOW(:,:,:)
+     Integer, Allocatable:: IOW(:,:,:)
      Integer, Allocatable:: NCSF(:)
-     Integer, Allocatable:: NOCSF(:)
-     Integer, Allocatable:: IOCSF(:)
+     Integer, Allocatable:: NOCSF(:,:,:)
+     Integer, Allocatable:: IOCSF(:,:,:)
      Integer nWalk
      Integer, Allocatable:: ICase(:)
 End Type CIStruct
