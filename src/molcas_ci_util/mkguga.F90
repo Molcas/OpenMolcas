@@ -37,9 +37,9 @@
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
      &           MVEnd => SGS%MVEnd,  nMidV => CIS%nMidV, nIpWlk => CIS%nIpWlk, &
      &           nWalk => CIS%nWalk,  MxUp => SGS%MxUp, MxDwn => SGS%MxDwn, &
-     &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
-     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
+     &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
+     &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
+     &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -129,7 +129,6 @@
 !
       NIPWLK=1+(MIDLEV-1)/15
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
-      CIS%nIpWlk=nIpWlk
       NSCR=MAX(6,3*(NLEV+1))
       CALL mma_allocate(CIS%NOW,2,NSYM,NMIDV,Label='CIS%NOW')
       CALL mma_allocate(CIS%IOW,2,NSYM,NMIDV,Label='CIS%IOW')
