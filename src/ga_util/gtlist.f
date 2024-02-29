@@ -51,6 +51,7 @@
       Logical Function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
       Use Para_Info, Only: nProcs, Is_Real_Par
       use TList_Mod
+      use Constants, only: One
       Implicit Real*8 (a-h,o-z)
 #ifdef _MOLCAS_MPP_
       External RsvTsk
@@ -58,7 +59,6 @@
 #endif
       Logical NewBatch
 #include "WrkSpc.fh"
-#include "real.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

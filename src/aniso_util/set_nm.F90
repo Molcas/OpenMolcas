@@ -11,7 +11,7 @@
 
 subroutine set_nm(exch,ncut,encut_definition,nk,mg,nTempMagn,hmax,w,encut_rate,TempMagn,nM,EM,dbg)
 
-use Constants, only: Zero, cLight, kBoltzmann, mBohr, rPlanck
+use Constants, only: Zero, cm_s, hPlanck, kBoltzmann, mBohr
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -23,8 +23,8 @@ logical(kind=iwp), intent(in) :: dbg
 #include "warnings.h"
 integer(kind=iwp) :: i
 real(kind=wp) :: diff, T_High
-real(kind=wp), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
-                            mu_bohr = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
+real(kind=wp), parameter :: boltz_k = kBoltzmann/(cm_s*hPlanck), & ! in cm-1*K-1
+                            mu_bohr = mBohr/(cm_s*hPlanck) ! in cm-1*T-1
 
 nM = 1
 EM = Zero

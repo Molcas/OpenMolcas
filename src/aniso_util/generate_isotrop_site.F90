@@ -32,7 +32,7 @@ complex(kind=wp), allocatable :: HZFS(:,:), MTMP(:,:,:), S2(:,:), STMP(:,:,:), S
 real(kind=wp), external :: dznrm2_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, j
-real(kind=wp) :: g(3), gtens(3), ma(3,3), maxes(3,3), RM, RS
+real(kind=wp) :: g(3), gtens(3), ma(3,3), maxes(3,3)
 real(kind=wp), external :: dnrm2_
 #endif
 !----------------------------------------------------------------------|

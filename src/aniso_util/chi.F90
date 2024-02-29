@@ -25,7 +25,7 @@ subroutine chi(M1,M2,E,N,T,Z,X)
 !    pB -- partial Boltzmann population of a given state, Real(kind=wp) ::
 !    dE -- energy diference E(i)-E(j)
 
-use Constants, only: Zero, One, Two, cLight, kBoltzmann, rPlanck
+use Constants, only: Zero, One, Two, cm_s, hPlanck, kBoltzmann
 use Definitions, only: wp, iwp
 
 implicit none
@@ -35,7 +35,7 @@ real(kind=wp), intent(in) :: E(N), T
 real(kind=wp), intent(out) :: Z, X(3,3)
 integer(kind=iwp) :: i, iS, j, jS
 real(kind=wp) :: c2(3,3), dE, F, pB, R
-real(kind=wp), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! in cm-1*K-1
+real(kind=wp), parameter :: boltz_k = kBoltzmann/(cm_s*hPlanck) ! in cm-1*K-1
 
 Z = Zero
 X(:,:) = Zero

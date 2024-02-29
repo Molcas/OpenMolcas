@@ -30,11 +30,11 @@
 #ifdef _MOLCAS_MPP_
       use Para_Info, only: Is_Real_Par
 #endif
+      use Constants, only: Zero, One, Two
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 *
 #include "standard_iounits.fh"
-#include "real.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"

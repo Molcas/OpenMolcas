@@ -13,9 +13,9 @@
       Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       use ipPage, only: W
+      use Constants, only: Zero
       Implicit Real*8(a-h,o-z)
 
-#include "real.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "disp_mclr.fh"

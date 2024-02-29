@@ -151,8 +151,8 @@
 *      Memory or disk space is allocated.
 *
        use ipPage
+       use Constants, only: Zero
        Implicit Integer (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
        Character*4 Label
 *
@@ -229,8 +229,8 @@
 *              make the vector available in memory as W(ii)%Vec
 *
        use ipPage
+       use Constants, only: Zero
        Implicit Integer (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
        Real*8, Allocatable:: Tmp(:)
 *

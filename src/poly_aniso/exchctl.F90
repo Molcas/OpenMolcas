@@ -588,6 +588,7 @@ if (KE) then
       SM2(:,:,:) = cZero
       !FIXME: this call to KE_Exchange does not match at all its definition, please fix
       call WarningMessage(2,'There is surely a bug here')
+#     include "macros.fh"
       unused_var(tpar)
       unused_var(upar)
       unused_var(lant)

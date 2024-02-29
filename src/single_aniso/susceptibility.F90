@@ -16,7 +16,7 @@ subroutine SUSCEPTIBILITY(NSS,ESO,S_SO,DIPSO,nT,nTempMagn,T,tmin,tmax,XTexp,zJ,t
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Three, Ten, cLight, kBoltzmann, mBohr, rNAVO, rPlanck
+use Constants, only: Zero, Three, Ten, cm_s, hPlanck, kBoltzmann, mBohr, rNAVO
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
@@ -30,7 +30,7 @@ real(kind=wp) :: a_dir(3,3), a_inv(3,3), det, gtens(3), maxes(3,3), WT(3), XMM(3
 character(len=50) :: label
 real(kind=wp), allocatable :: chi_theta_1(:), chit(:), chit_tens(:,:,:), chit_theta_tens(:,:,:), zstat1(:)
 real(kind=wp), parameter :: coeff_X = rNAVO*mBohr**2/kBoltzmann/Ten, &
-                            boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! boltzmann constant in cm-1*K-1
+                            boltz_k = kBoltzmann/(cm_s*hPlanck) ! boltzmann constant in cm-1*K-1
 real(kind=wp), external :: dev
 
 ! constants used in this subrutine

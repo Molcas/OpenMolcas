@@ -24,7 +24,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 
@@ -61,7 +60,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
@@ -114,7 +112,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 ***** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
@@ -161,7 +158,6 @@
 #include "cicisp_mclr.fh"
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
-#include "real.fh"
 #include "sa.fh"
 #include "crun_mclr.fh"
 

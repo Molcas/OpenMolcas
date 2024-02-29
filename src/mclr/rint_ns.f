@@ -28,10 +28,10 @@ c Fock is E*d/dx(lambda)
 c rkappa is d/dx(lambda)
 c
       use Arrays, only: G2sq, G1t
+      use Constants, only: Zero, One, Two
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "real.fh"
 #include "stdalloc.fh"
       Real*8 Fock(nDens2),rkappa(nDens2),
      &       Focki(ndens2),rMO(*)

@@ -31,7 +31,7 @@ real(kind=wp) :: F, R
 #endif
 complex(kind=wp), allocatable :: Jcc(:,:,:,:), Jcs(:,:,:,:), Jsc(:,:,:,:), Jss(:,:,:,:), O1(:,:), O1_O2(:,:,:,:), O1_W2(:,:,:,:), &
                                  O2(:,:), W1(:,:), W1_O2(:,:,:,:), W1_W2(:,:,:,:), W2(:,:)
-real(kind=wp), parameter :: THRS = 1.0e-16_wp !, cm_to_MHz = cLight*1.0e-4_wp
+real(kind=wp), parameter :: THRS = 1.0e-16_wp !, cm_to_MHz = cm_s*1.0e-6_wp
 complex(kind=wp), external :: trace, trace_exch
 !-----------------------------------------------------------------------
 

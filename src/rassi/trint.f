@@ -15,13 +15,13 @@
       USE Para_Info, ONLY: nProcs
 #endif
       use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use Constants, only: Zero
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
       Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT(1), FLT(1), KSQ,
      &                 FAO, Temp_SQ, DInAO
-#include "real.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Molcas.fh"

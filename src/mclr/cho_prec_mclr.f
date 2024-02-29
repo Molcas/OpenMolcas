@@ -30,6 +30,7 @@
       use Data_structures, only: Deallocate_DT
       use Data_structures, only: SBA_Type
       use Data_structures, only: Allocate_DT, Deallocate_DT
+      use Constants, only: One, Zero
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
 #include "warnings.h"
@@ -41,7 +42,6 @@
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
-#include "real.fh"
 #include "stdalloc.fh"
       Character*50 CFmt
       Real*8, parameter:: xone=-One
@@ -67,13 +67,13 @@
       timings=.false.
       CALL CWTIME(TCstart1,TWstart1)
       do i=1,2            ! 1 --> CPU   2 --> Wall
-         tread(i) = zero  !time read vectors
-         ttran(i) = zero  !time transform vectors
-         tform(i) = zero  !time form integrals
-         tform2(i) = zero  !time form integrals
-         tforma(i) = zero  !time form integrals
-         tforma2(i) = zero  !time form integrals
-         tMO(i)     = zero  !time for final MO transform
+         tread(i) = Zero  !time read vectors
+         ttran(i) = Zero  !time transform vectors
+         tform(i) = Zero  !time form integrals
+         tform2(i) = Zero  !time form integrals
+         tforma(i) = Zero  !time form integrals
+         tforma2(i) = Zero  !time form integrals
+         tMO(i)     = Zero  !time for final MO transform
       end do
       MaxVecPerBatch=Cho_LK_MaxVecPerBatch()
       iLoc = 3
@@ -374,7 +374,7 @@ c         !set index arrays at iLoc
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*                Let''s start the real work                            *
+*                Let's start the real work                             *
 *                                                                      *
 ************************************************************************
 *

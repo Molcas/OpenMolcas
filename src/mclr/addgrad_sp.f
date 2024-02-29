@@ -19,8 +19,8 @@
 *             a beautifull convergence of the PCG,
 *             which is just the case if E is symmetric.
 *
+      use Constants, only: Zero, One
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "Pointers.fh"
 
 #include "Input.fh"

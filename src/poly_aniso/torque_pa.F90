@@ -311,7 +311,7 @@ do IH=1,NH
 
 #     ifdef _DEBUGPRINT_
       if (iPl == 2) &
-        write(u6,'(A,I3,1x,F8.4,2x, 3F19.14,2x,3F19.14)') 'MEX: iM,',iM,H(iH),(Mex(l,1),l=1,3),dX(iPl,iM),dY(iPl,iM),dZ(iPl,iM)
+        write(u6,'(A,I3,1x,F8.4,2x, 3F19.14,2x,3F19.14)') 'MEX: iM,',iM,H(iH),(Mex(i,1),i=1,3),dX(iPl,iM),dY(iPl,iM),dZ(iPl,iM)
 #     endif
       !iT = 1
 

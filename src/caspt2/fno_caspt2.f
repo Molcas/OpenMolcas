@@ -23,7 +23,6 @@
       use ChoMP2, only: DeMP2, MP2_small, shf
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
 *
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),

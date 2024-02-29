@@ -22,7 +22,7 @@ subroutine calcmagn1(N,E,M,T,MT,Z)
 !   Z =  Boltzmann statistical sum, real scalar
 !-----------------------------------------------------------------------
 
-use Constants, only: Zero, cLight, kBoltzmann, rPlanck
+use Constants, only: Zero, cm_s, hPlanck, kBoltzmann
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,7 +31,7 @@ real(kind=wp), intent(in) :: E(N), T
 complex(kind=wp), intent(in) :: M(N,N)
 real(kind=wp), intent(out) :: MT, Z
 integer(kind=iwp) :: i, im, mp1
-real(kind=wp), parameter :: kB = kBoltzmann/(cLight*rPlanck*1.0e2_wp) ! in cm-1*K-1
+real(kind=wp), parameter :: kB = kBoltzmann/(cm_s*hPlanck) ! in cm-1*K-1
 !----------------------------------------------------------------------
 
 Z = Zero

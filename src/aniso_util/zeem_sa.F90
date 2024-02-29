@@ -12,7 +12,7 @@
 subroutine ZEEM_SA(N,H,dX,dY,dZ,W,M,sM,S,zJ,WM,ZM,DBG,RWORK,HZEE,WORK,W_c)
 
 use Index_Functions, only: iTri, nTri_Elem
-use Constants, only: Zero, cZero, cOne, cLight, mBohr, rPlanck
+use Constants, only: Zero, cZero, cOne, cm_s, hPlanck, mBohr
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,7 +24,7 @@ complex(kind=wp), intent(out) :: ZM(N,N), HZEE(nTri_Elem(N)), WORK(2*N-1), W_c(N
 logical(kind=iwp), intent(in) :: DBG
 integer(kind=iwp) :: i, info, j
 complex(kind=wp) :: dX_c, dY_c, dZ_c, H_c, mB_c, P, R, RP, S_c(3), zJ_c
-real(kind=wp), parameter :: mB = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
+real(kind=wp), parameter :: mB = mBohr/(cm_s*hPlanck) ! in cm-1*T-1
 
 ! initialization
 

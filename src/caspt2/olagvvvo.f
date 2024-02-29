@@ -281,7 +281,6 @@ C
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
-#include "real.fh"
 
       Integer nBas(8), nAsh(8), nSkipX(8), nfro(8)
       Dimension CMO(*),T2AO(*),vLag(*)
@@ -342,9 +341,9 @@ C
      *                     DIA,DI,FIFA,FIMO)
 C
       USE CHOVEC_IO
+      use Constants, only: Zero
 C
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "WrkSpc.fh"
       Real*8 T2AO(*),vLag(*),CMO(*)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)

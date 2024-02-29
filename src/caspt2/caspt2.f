@@ -22,6 +22,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
+      USE Constants, ONLY: auTocm, auToeV, auTokJmol
       IMPLICIT NONE
       INTEGER IRETURN
 *----------------------------------------------------------------------*
@@ -72,7 +73,6 @@ C
 ************************************************************************
 #include "rasdim.fh"
 #include "warnings.h"
-#include "constants.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"
@@ -450,9 +450,9 @@ C     transition density matrices.
          END DO
          DO I=1,NSTATE
           RELAU = ENERGY(I)-ENERGY(ISTATE)
-          RELEV = RELAU * CONV_AU_TO_EV_
-          RELCM = RELAU * CONV_AU_TO_CM1_
-          RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
+          RELEV = RELAU * auToeV
+          RELCM = RELAU * auTocm
+          RELKJ = RELAU * auTokJmol
           WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
      &     MSTATE(I), RELAU, RELEV, RELCM, RELKJ
          END DO
@@ -476,9 +476,9 @@ C     transition density matrices.
      &         'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
              DO I=1,NSTATE
               RELAU = ENERGY(I)-ENERGY(1)
-              RELEV = RELAU * CONV_AU_TO_EV_
-              RELCM = RELAU * CONV_AU_TO_CM1_
-              RELKJ = RELAU * CONV_AU_TO_KJ_PER_MOLE_
+              RELEV = RELAU * auToeV
+              RELCM = RELAU * auTocm
+              RELKJ = RELAU * auTokJmol
               WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
      &         I, RELAU, RELEV, RELCM, RELKJ
              END DO

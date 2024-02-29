@@ -22,6 +22,7 @@
       use Exp, only: Exp_Close
       use Arrays, only: SFock, G1m, G2mp, Int2, FIMO
       use ipPage, only: W
+      use Constants, only: Zero, One, Two
       Implicit Real*8 (a-h,o-z)
 *
 #include "stdalloc.fh"
@@ -34,7 +35,6 @@
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "spin_mclr.fh"
-#include "real.fh"
 #include "crun_mclr.fh"
       Character*8   Fmt2
       Integer iKapDisp(nDisp),isigDisp(nDisp)

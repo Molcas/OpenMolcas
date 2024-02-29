@@ -29,7 +29,6 @@ complex(kind=wp) :: c1, c12, c2, cc1, cc2, cf1, cf2
 complex(kind=wp), allocatable :: O1(:,:), O2(:,:), W1(:,:), W2(:,:)
 complex(kind=wp), external :: trace_exch2
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i2, j2
 complex(kind=wp), allocatable :: HAM(:,:,:,:)
 real(kind=wp), external :: dznrm2_
 #endif

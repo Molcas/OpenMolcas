@@ -23,8 +23,8 @@
 * which estimates the error in the SA.
 *---------------------------------------------------
 *
+      use Constants, only: One, Two
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "Input.fh"
 #include "SysDef.fh"
 #include "Pointers.fh"

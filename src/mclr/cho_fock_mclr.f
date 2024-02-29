@@ -20,13 +20,13 @@
       use Cholesky, only: InfVec, nBas, nBasSh, nDimRS, nShell, nSym,
      &                    NumCho
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use Constants, only: Zero, One, Two, Half
       Implicit Real*8 (a-h,o-z)
 #include "warnings.h"
       Character(LEN=13), Parameter :: SECNAM = 'CHO_FOCK_MCLR'
       Integer   ipLpq(8,3)
       Integer   LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
-#include "real.fh"
 #include "stdalloc.fh"
       Type (DSBA_type) CVa, JA(1), KA, Fka, CMO, Scr
       Real*8 DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), W_CMO(*)
@@ -222,8 +222,8 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                  ipLvtw = ipLpq(iSymv,2)
 
                  CALL DGEMV_('T',Nav*Naw,JNUM,
-     &                  ONE,LF(ipLvtw),Nav*Naw,
-     &                  DA,1,ZERO,LF(ipVJ),1)
+     &                  One,LF(ipLvtw),Nav*Naw,
+     &                  DA,1,Zero,LF(ipVJ),1)
 *
                  CALL DGEMV_('N',nRS,JNUM,
      &                -FactCI,Lrs,nRS,
@@ -242,13 +242,13 @@ C --------------------------------------------------------------------
                   ipLvw = ipLpq(iSymv,2) + NAv*Naw*(JVC-1)
                   ipLxy = ipLpq(iSymv,3) + NAv*Naw*(JVC-1)
                   CALL DGEMV_('N',NAv*Naw,NAv*Naw,
-     &               ONE,G2,NAv*Naw,
-     &               LF(ipLvw),1,ZERO,LF(ipLxy),1)
+     &               One,G2,NAv*Naw,
+     &               LF(ipLvw),1,Zero,LF(ipLxy),1)
 *Qpx=Lpy Lxy
                   Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                       One,LF(ipLvb),NAv,
      &                       LF(ipLxy),Naw,
-     &                      ONE,Scr%SB(iSymb)%A2,NBAS(iSymb))
+     &                      One,Scr%SB(iSymb)%A2,NBAS(iSymb))
                  End Do
 *                 CALL CWTIME(TCINT3,TWINT3)
 *                 tQmat(1) = tQmat(1) + (TCINT3 - TCINT2)
@@ -261,8 +261,8 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                    ipLvb = ipLpq(iSymv,1)+ NAv*NBAS(iSymb)*(JVC-1)
                    ipLwb = ipLpq(iSymv,2)+ NAv*NBAS(iSymb)*(JVC-1)
                    Call DGEMM_('T','N',NBAS(iSymb),Nav,Nav,
-     &                         ONE,LF(ipLvb),Nav,
-     &                         DA,Nav,ZERO,
+     &                         One,LF(ipLvb),Nav,
+     &                         DA,Nav,Zero,
      &                         LF(ipLwb),NBAS(iSymb))
                  End Do
 *                 CALL CWTIME(TCINT2,TWINT2)
@@ -275,7 +275,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
      &                      + Nav*(is-1)
                     CALL DGEMV_('N',NBAS(iSymb),Nav,
      &                   -FactXI,LF(ipLwb),NBAS(iSymb),
-     &                   LF(ipLtvb),1,ONE,KA%SB(iSymb)%A2(:,is),1)
+     &                   LF(ipLtvb),1,One,KA%SB(iSymb)%A2(:,is),1)
 
                   EndDo
                  End Do

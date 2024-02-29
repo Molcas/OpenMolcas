@@ -10,9 +10,9 @@
 ************************************************************************
       SubRoutine CIDens(response,iLS,iRS,iL,iR,iS,rP,rD)
       use ipPage, only: W
+      use Constants, only: Zero, One
       Implicit Real*8(a-h,o-z)
 
-#include "real.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "stdalloc.fh"

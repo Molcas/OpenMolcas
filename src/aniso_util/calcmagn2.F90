@@ -21,7 +21,7 @@ subroutine calcmagn2(N,NM,W,T,H,M,dX,dY,dZ,L,MT,Z)
 !         (NM <= N)
 !  W(N) -  energy of the input states
 
-use Constants, only: Zero, Two, cLight, kBoltzmann, mBohr, rPlanck
+use Constants, only: Zero, Two, cm_s, hPlanck, kBoltzmann, mBohr
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,8 +31,8 @@ complex(kind=wp), intent(in) :: M(3,N,N)
 real(kind=wp), intent(out) :: MT, Z
 integer(kind=iwp) :: i, j
 real(kind=wp) :: dltw, pB, S1, S2
-real(kind=wp), parameter :: kB = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm-1*K-1
-                            mB = mBohr/(cLight*rPlanck*1.0e2_wp) ! in cm-1*T-1
+real(kind=wp), parameter :: kB = kBoltzmann/(cm_s*hPlanck), & ! in cm-1*K-1
+                            mB = mBohr/(cm_s*hPlanck) ! in cm-1*T-1
 
 Z = Zero
 MT = Zero

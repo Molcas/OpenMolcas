@@ -12,7 +12,7 @@
 subroutine GF_Print(EVal,EVec,dDipM,iel,nDoF,nDim,ictl,IRInt,RedM,Lu_10,iOff)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, RF
+use Constants, only: Zero, Three, Four, aTokg, cLight, diel, elcharge, rNAVO
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -27,6 +27,7 @@ character(len=LenIn6) :: Label
 character(len=120) :: Line
 character(len=80) :: frmt
 character(len=LenIn6), allocatable :: ChDisp(:)
+real(kind=wp), parameter :: RF = rNAVO/(Three*cLight**2)/(Four*diel)*elcharge**2/aTokg/1.0e3_wp
 
 call Get_iScalar('nChDisp',nChDisp)
 call mma_allocate(ChDisp,nChDisp,label='ChDisp')

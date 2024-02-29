@@ -35,8 +35,8 @@
 ********************************************************************
       use ipPage, only: W
       use Arrays, only: G2sq, G1t
+      use Constants, only: Zero, One
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "Pointers.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"

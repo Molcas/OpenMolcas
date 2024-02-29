@@ -32,7 +32,7 @@ integer(kind=iwp) :: is1, is2, js1, js2
 #endif
 real(kind=wp) :: g1(3), g2(3), J1C(3,3), J1Cr(3,3), mg1(3,3), mg2(3,3), RDI, RDM, RIT, RL1, RL3, RL9 !, J1C_trans(3,3)
 complex(kind=wp), allocatable :: JB(:,:,:,:), JN(:,:,:,:), JS(:,:,:,:)
-!real(kind=wp), parameter :: cm_to_MHz = cLight*1.0e-4_wp
+!real(kind=wp), parameter :: cm_to_MHz = cm_s*1.0e-6_wp
 real(kind=wp), external :: dznrm2_
 
 #ifndef _DEBUGPRINT_

@@ -57,8 +57,8 @@ if (iopt == 1) then
   end do
   M(:) = Mex(:)+MLT(:)-MRT(:)
 # ifdef _DEBUGPRINT_
-  write(u6,'(A,3F10.6)') 'Contribution from exchange states',(Mex(ic),ic=1,3)
-  write(u6,'(A,3F10.6)') 'Contribution from excited states ',(MLT(ic)-MRT(ic),ic=1,3)
+  write(u6,'(A,3F10.6)') 'Contribution from exchange states',(Mex(i),i=1,3)
+  write(u6,'(A,3F10.6)') 'Contribution from excited states ',(MLT(i)-MRT(i),i=1,3)
 # endif
 
 else if (iopt == 2) then

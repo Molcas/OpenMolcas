@@ -22,8 +22,8 @@
 ********************************************************************
       use Arrays, only: W_CMO=>CMO, W_CMO_Inv=>CMO_Inv, Int1, G1t, G2t
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+      use Constants, only: Zero, One, Two, Half
       Implicit Real*8(a-h,o-z)
-#include "real.fh"
 #include "Pointers.fh"
 #include "standard_iounits.fh"
 #include "Input.fh"
@@ -134,7 +134,7 @@
                                  ipD=iTri(jB-nIsh(jS)+nA(jS),
      &                               iB-nIsh(is)+nA(iS))
                                  Fact=Two
-                                 If (iB.eq.jB) Fact=one
+                                 If (iB.eq.jB) Fact=One
                                  Call DaXpY_(nOrb(kS)*nOrb(lS),
      &                                      Fact*G1t(ipD),
      &                                      Temp2,1,FockA(ipCM(kS)),1)
@@ -251,7 +251,7 @@
      &                     ) Then
                           ipD=iTri(lB-nIsh(lS)+nA(lS),
      &                             jB-nIsh(js)+nA(jS))
-                          Call DaXpY_(nOrb(iS)*nOrb(kS),-half*G1t(ipD),
+                          Call DaXpY_(nOrb(iS)*nOrb(kS),-Half*G1t(ipD),
      &                               Temp2,1,FockA(ipCM(iS)),1)
                         End If
                      End If
@@ -520,8 +520,8 @@
       rin_ene=0.5d0*(rcor+rcorei)
       rcore=rCorei+rcoreA
       If (debug) Then
-         Write(6,*) 'Checking energy',0.5d0*renergy+potnuc+half*rcore
-         Write(6,*) 'Checking energy',0.5d0*renergy,potnuc,half*rcore
+         Write(6,*) 'Checking energy',0.5d0*renergy+potnuc+Half*rcore
+         Write(6,*) 'Checking energy',0.5d0*renergy,potnuc,Half*rcore
          write(6,*)
       End if
 

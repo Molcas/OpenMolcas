@@ -28,7 +28,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "constants.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "intgrl.fh"

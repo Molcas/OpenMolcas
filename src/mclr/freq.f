@@ -9,14 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FREQ(nX,H,nDeg,nrvec,Tmp3,EVec,EVal,RedM,iNeg)
+      Use Constants, only: Zero, One, auTocm, uToau
       Implicit Real*8 (a-h,o-z)
       Real*8 H(*), Tmp3(nX,nX),
      &       EVec(2*nX,nX),
      &       EVal(2*nX),
      &       RedM(nX)
 
-#include "real.fh"
-#include "constants2.fh"
 #include "stdalloc.fh"
       Integer nrvec(*),ndeg(*)
       Logical Found

@@ -14,7 +14,7 @@ subroutine susceptibility_pa(exch,nLoc,nCenter,nneq,neqv,neq,nss,nexch,nTempMagn
 ! chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Three, Ten, cLight, kBoltzmann, mBohr, rNAVO, rPlanck
+use Constants, only: Zero, Three, Ten, cm_s, hPlanck, kBoltzmann, mBohr, rNAVO
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
@@ -32,7 +32,7 @@ real(kind=wp), allocatable :: chi_theta_1(:), chit(:), chit_tens_l(:,:,:), chit_
                               chit_theta_tens(:,:,:), smu_chit_tens_l(:,:,:), smu_chit_tens_lr(:,:,:), SMUL(:,:,:), SMUR(:,:,:), &
                               ss_chit_tens_l(:,:,:), ss_chit_tens_lr(:,:,:), ss_chit_tens_tot(:,:), SSL(:,:,:), SSR(:,:,:), wt(:), &
                               zt(:,:), XL(:,:,:), XR(:,:,:), ZL(:), ZR(:), zstat_l(:), zstat_lr(:), zstat_tot(:)
-real(kind=wp), parameter :: boltz_k = kBoltzmann/(cLight*rPlanck*1.0e2_wp), & ! in cm^-1*k-1
+real(kind=wp), parameter :: boltz_k = kBoltzmann/(cm_s*hPlanck), & ! in cm^-1*k-1
                             coeff_chi = rNAVO*mBohr**2/kBoltzmann/Ten ! = n_a*mu_bohr^2/(k_boltz) in cm^3*k/mol
 real(kind=wp), external :: dev, dnrm2_
 

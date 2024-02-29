@@ -28,6 +28,7 @@
 *> @param[in] HAM
 ************************************************************************
       SUBROUTINE DQVDiabat(PROP,HAM)
+      USE Constants, ONLY: Pi
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -36,7 +37,6 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "tshcntrl.fh"
-#include "constants2.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8 TROT(NSTATE,NSTATE)
       REAL*8 TRQ(NSTATE,NSTATE)
@@ -176,17 +176,17 @@
             ROTANGF = Atan(CTERM)
 
             IF((ROTANGF .lt. 0.0D0) .and. (BTERM .gt. 0.0D0)) THEN
-             ROTANGF = ROTANGF + RPI
+             ROTANGF = ROTANGF + PI
             END IF
 
             IF((ROTANGF .gt. 0.0D0) .and. (BTERM .lt. 0.0D0)) THEN
-             ROTANGF = ROTANGF - RPI
+             ROTANGF = ROTANGF - PI
             END IF
 
             ROTANGO = ROTANGF/4.0D0
 
-            IF((ROTANGO .gt. RPI/4.0D0) .or.
-     &       (ROTANGO .lt. -RPI/4.0D0)) THEN
+            IF((ROTANGO .gt. PI/4.0D0) .or.
+     &       (ROTANGO .lt. -PI/4.0D0)) THEN
              WRITE(6,*) 'Quadrants 2 and 3'
             END IF
 

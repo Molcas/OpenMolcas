@@ -25,6 +25,9 @@ integer(kind=iwp), intent(in) :: MxR1, MxR2, imaxrank(2), n1, n2
 real(kind=wp), intent(in) :: JR(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2), JI(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
 complex(kind=wp), intent(out) :: HAM(n1,n1,n2,n2)
 integer(kind=iwp) :: ibuf, k1, k2, l1, l2, q1, q2
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: m1, m2
+#endif
 real(kind=wp) :: C01, C02, jpar
 complex(kind=wp), allocatable :: J(:,:,:,:), O1(:,:), O2(:,:), OO(:,:,:,:), OW(:,:,:,:), W1(:,:), W2(:,:), WO(:,:,:,:), WW(:,:,:,:)
 real(kind=wp), external :: dnrm2_
