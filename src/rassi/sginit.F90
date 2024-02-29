@@ -19,7 +19,7 @@
 
       Integer, Allocatable:: DRT0(:,:), Down0(:,:), Tmp(:), Lim(:), V11(:)
       Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,  &
-     &        NDown0,nDrt0,nTmp,nVert0,Lev,MxUp,MxDwn,nMidV
+     &        NDown0,nDrt0,nTmp,nVert0,Lev,nMidV
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert, MidLev => SGS%MidLev, &
                   MVSta => SGS%MVSta, MvEnd => SGS%MVEnd )
@@ -105,7 +105,9 @@
 ! Level-To-Vertex table:
       CALL MKLTV(SGS)
 
-      Call MKMID(nVert,nLev,SGS%DAW,SGS%RAW,SGS%LTV,MidLev, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
+      Call MKMID(SGS)
+
+      nMidV=MVEnd-MVSta+1
 
 ! Modified Arc Weights table:
       Call mma_allocate(SGS%MAW,[1,nVert],[0,3],Label='SGS%MAW')

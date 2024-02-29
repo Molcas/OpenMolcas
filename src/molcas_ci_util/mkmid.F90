@@ -9,21 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKMID(NVERT,NLEV,IDAW,IRAW,LTV,      &
-                       MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN)
+      SUBROUTINE MKMID(SGS)
 !     PURPOSE: FIND THE MIDLEVEL
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
+      use struct, only: SGStruct
       IMPLICIT None
 !
-      Integer NVERT, NLEV, MIDLEV, NMIDV, MVSta, MVEnd, MXUP, MXDWN
-      Integer IDAW(NVERT,0:4)
-      Integer IRAW(NVERT,0:4)
-      Integer LTV(-1:NLEV)
+      Type (SGStruct) SGS
 
       Integer IV, MINW, MV, NW, IL
+
+      Associate (nVert=>SGS%nVert, nLev=>SGS%nLev, MidLev => SGS%MidLev, &
+                 MvSta=>SGS%MVSta, MVEnd=>SGS%MVEnd,   &
+                 MxUp=>SGS%MxUP, MxDWN=>SGS%MxDwn, iDAW=>SGS%Daw,        &
+                 iRaw=>SGS%Raw, LTV=>SGS%LTV)
 !
 !     USE IDAW,IRAW TABLES TO DETERMINE MIDLEV.
 !     THE ASSUMPTION IS THAT A BALANCED NUMBER OF UPPER/LOWER WALKS
@@ -53,7 +55,6 @@
       END DO
       MVSta=LTV(MIDLEV)
       MVEnd=LTV(MIDLEV-1)-1
-      NMIDV=1+MVEnd-MVSta
 !
 !     NOW FIND THE MAX NUMBERS OF UPPER AND LOWER WALKS. RESPECTIVELY
 !     (DISREGARDING SYMMETRY)
@@ -75,5 +76,7 @@
       Write(LF,'(A,I3)')' MAX. NO LOWER WALKS=   ',MXDWN
       Write(LF,*)
 #endif
+
+      End Associate
 
       END SUBROUTINE MKMID
