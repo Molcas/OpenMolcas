@@ -170,7 +170,6 @@
       If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
       If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)
       If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
-
       If (Allocated(SGS%DAW)) Call mma_deallocate(SGS%DAW)
       If (Allocated(SGS%RAW)) Call mma_deallocate(SGS%RAW)
 
@@ -183,14 +182,11 @@
 
       If (Allocated(EXS%USGN)) Call mma_deallocate(EXS%USGN)
       If (Allocated(EXS%LSGN)) Call mma_deallocate(EXS%LSGN)
-
       If (Allocated(EXS%NOCP)) Call mma_deallocate(EXS%NOCP)
       If (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
       If (Allocated(EXS%ICOUP)) Call mma_deallocate(EXS%ICOUP)
-
       If (Allocated(EXS%MVL)) Call mma_deallocate(EXS%MVL)
       If (Allocated(EXS%MVR)) Call mma_deallocate(EXS%MVR)
-
       If (Allocated(EXS%VTAB)) Call mma_deallocate(EXS%VTAB)
       If (Allocated(EXS%SGTMP)) Call mma_deallocate(EXS%SGTMP)
 

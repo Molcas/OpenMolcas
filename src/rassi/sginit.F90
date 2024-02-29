@@ -106,12 +106,10 @@
       CALL MKLTV(SGS)
 
       Call MKMID(SGS)
-
       nMidV=MVEnd-MVSta+1
 
 ! Modified Arc Weights table:
-      Call mma_allocate(SGS%MAW,[1,nVert],[0,3],Label='SGS%MAW')
-      CALL MKMAW(SGS%Down,SGS%DAW,SGS%Up,SGS%RAW,SGS%MAW,nVert, MVSta, MVEnd)
+      CALL MKMAW(SGS)
 
 ! The DAW, RAW tables are no longer needed:
       CALL mma_deallocate(SGS%RAW)

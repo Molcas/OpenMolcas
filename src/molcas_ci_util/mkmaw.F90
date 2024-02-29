@@ -16,14 +16,19 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKMAW(IDOWN,IDAW,IUP,IRAW,IMAW,NVERT, MVSta, MVEnd)
+      SUBROUTINE MKMAW(SGS)
+      use stdalloc, only: mma_allocate
+      use struct, only: SGStruct
       IMPLICIT None
-      Integer NVERT, MVSta, MVEnd
-      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
-      Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
-      Integer IMAW(NVERT,0:3)
+      Type (SGStruct) SGS
 
       Integer IC, ID, ISUM, IU, IV
+
+      Call mma_allocate(SGS%MAW,[1,SGS%nVert],[0,3],Label='SGS%MAW')
+
+      Associate (nVert=>SGS%nVert, MVSta=>SGS%MVSta, MVEnd=>SGS%MVEnd, &
+                 iDown=>SGS%Down, iUp=>SGS%Up, iDaw=>SGS%DAW, iRaw=>SGS%Raw, &
+                 iMAW=>SGS%MAW)
 
 ! COPY LOWER PART OF DIRECT ARC WEIGHT TABLE INTO IMAW:
       DO 210 IV=MVSta,NVERT
@@ -66,4 +71,6 @@
   280   CONTINUE
         WRITE(6,*)
 #endif
+      End Associate
+
       END SUBROUTINE MKMAW
