@@ -9,8 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NIPWLK, &
-                   ISM,IDOWN,NOW,IOW,SGS,CIS)
+subroutine MKCLIST(SGS,CIS)
 ! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
 !          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
 !          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
@@ -21,10 +20,6 @@ use Symmetry_Info, only: Mul
 use struct, only: SGStruct, CIStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 implicit none
-integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, MIDLEV, MVSta, MVEnd, &
-                                 NMIDV,NIPWLK
-integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
-integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV)
 Type (SGStruct) SGS
 Type (CIStruct) CIS
 
@@ -35,7 +30,9 @@ integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 If (.NOT.Allocated(CIS%ICASE)) CALL mma_allocate(CIS%ICASE,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICASE')
 If (.NOT.Allocated(SGS%Scr)) CALL mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')
 
-Associate (iCase=>CIS%ICase, ISCR=>SGS%Scr)
+Associate (iCase=>CIS%ICase, ISCR=>SGS%Scr, nSym=>SGS%nSym, nVert=>SGS%nVert, nLev=>SGS%nLev, &
+           MidLev=>SGS%MidLev, MVSta=>SGS%MVSta, MvEnd=>SGS%MVEnd, nMidV=>CIS%nMidV, &
+           nIpWlk=>CIS%nIpWlk, Ism=>SGS%ISm, iDown=>SGS%Down, NOW=>CIS%NOW, IOW=>CIS%IOW)
 
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 

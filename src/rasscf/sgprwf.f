@@ -62,9 +62,7 @@ C
 C
 C     RECONSTRUCT THE CASE LIST
 C
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,
-     &             NIPWLK,NSM,SGS%DOWN,CIS%NOW,CIS%IOW,
-     &             SGS,CIS)
+      Call MKCLIST(SGS,CIS)
 
       ! scratch for determinant expansion
       IF (KeyPRSD) CALL mma_allocate(LEX,NLEV,Label='LEX')
