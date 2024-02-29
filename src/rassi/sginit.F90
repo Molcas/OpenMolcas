@@ -67,7 +67,7 @@
 
       NTMP=((NLEV+1)*(NLEV+2))/2
       CALL mma_allocate(TMP,NTMP,Label='TMP')
-      CALL mkDRT0 (IA0,IB0,IC0,NVERT0,SGS%DRT0,SGS%DOWN0,NTMP,TMP)
+      CALL mkDRT0(IA0,IB0,IC0,NVERT0,SGS%DRT0,SGS%DOWN0,NTMP,TMP)
       CALL mma_deallocate(TMP)
 
 ! Construct a restricted graph.

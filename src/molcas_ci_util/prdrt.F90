@@ -8,17 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRDRT(NVERT,DRT,DOWN)
+      SUBROUTINE PRDRT(SGS)
 !
 !     PURPOSE: PRINT THE DRT TABLE
 !
       use Definitions, only: LF => u6
+      use struct, only: SGStruct
       IMPLICIT None
+      Type(SGStruct) SGS
 !
-      Integer NVERT
-      Integer DRT(NVERT,5),DOWN(NVERT,0:3)
+      Integer V, I, S, nVert
 
-      Integer V, I, S
+      nVert=Size(SGS%DRTP,2)
+
+      Associate (DRT=>SGS%DRTP, DOWN=>SGS%DOWNP)
 !
       Write(LF,*)
       Write(LF,*)' VERT      L  N    A  B  C      CHAINING INDICES.'
@@ -29,4 +32,6 @@
 !
 !     EXIT
 !
+      End Associate
+
       END SUBROUTINE PRDRT

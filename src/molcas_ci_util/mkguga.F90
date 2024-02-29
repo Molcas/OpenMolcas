@@ -66,7 +66,7 @@
 #ifdef _DEBUGPRINT_
       Write(LF,*)
       Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
-      CALL PRDRT(NVERT0,SGS%DRTP,SGS%DOWNP)
+      CALL PRDRT(SGS)
 #endif
 !
 !     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
@@ -86,11 +86,11 @@
         CALL mma_deallocate(SGS%DOWN0)
 !
 #ifdef _DEBUGPRINT_
-         DOWNP=> SGS%DOWN
-         DRTP => SGS%DRT
+        DOWNP=> SGS%DOWN
+        DRTP => SGS%DRT
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
-        CALL PRDRT(NVERT,SGS%DRTP,SGS%DOWNP)
+        CALL PRDRT(SGS)
 #endif
 
 !     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED
