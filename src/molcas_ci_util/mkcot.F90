@@ -9,8 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKCOT(NSYM,NLEV,NVERT,MIDLEV,NMIDV,MVSta,MVEnd,NWALK,NIPWLK, &
-                  ISM,IDOWN,NOW,IOW,NCSF,IOCSF,NOCSF,ISCR)
+      SUBROUTINE MKCOT(NSYM,nLev,SGS,CIS,ISCR)
 !     PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 !     NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
 !              THE DOWN-CHAIN TABLE IS SCANNED TO PRODUCE ALL POSSIBLE
@@ -21,17 +20,14 @@
       use Definitions, only: LF => u6
 #endif
       use Symmetry_Info, only: Mul
-
+      use stdalloc, only: mma_allocate
+      use struct, only: SGStruct, CIStruct
       IMPLICIT None
+      Integer, Intent(In):: nSym, nLev
+      Type (SGStruct) SGS
+      Type (CIStruct) CIS
+      Integer, Intent(InOut):: ISCR(3,0:NLEV)
 !
-      Integer NSYM, NLEV, NVERT, MIDLEV, NMIDV, MVSta, MVEnd, NWALK,   &
-              NIPWLK
-      Integer ISM(NLEV),IDOWN(NVERT,0:3)
-      Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
-      Integer ISCR(3,0:NLEV)
-      Integer NCSF(NSYM)
-
       Integer, PARAMETER :: IVERT=1, ISYM=2, ISTEP=3
       Integer IHALF, IVTSTA, IVTEND, LEV1, LEV2, IVTOP, LEV, ILND, IS, ISML, ISTP, &
               ISYDWN, ISYTOT, ISYUP, IVB, IVT, IWSYM, MV, N, NUW
@@ -39,6 +35,19 @@
       Integer NLW
 #endif
       Logical Found
+
+      CIS%NIPWLK=1+(SGS%MIDLEV-1)/15
+      CIS%NIPWLK=MAX(CIS%NIPWLK,1+(SGS%NLEV-SGS%MIDLEV-1)/15)
+      CALL mma_allocate(CIS%NOW,2,NSYM,CIS%NMIDV,Label='CIS%NOW')
+      CALL mma_allocate(CIS%IOW,2,NSYM,CIS%NMIDV,Label='CIS%IOW')
+      CALL mma_allocate(CIS%NOCSF,NSYM,CIS%NMIDV,NSYM,Label='CIS%NOCSF')
+      CALL mma_allocate(CIS%IOCSF,NSYM,CIS%NMIDV,NSYM,Label='CIS%IOCSF')
+      Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
+
+      Associate(nVert=>SGS%nVert, MidLev=>SGS%MidLev, nMidV=>CIS%nMidV, MVSta=>SGS%MVSta, &
+                MVEnd=>SGS%MVEnd, nWalk=>CIS%nWalk, nIpWlk=>CIS%nIpWlk, &
+                ISm=>SGS%Ism, iDown=>SGS%DOwn, NOW=>CIS%NOW, IOW=>CIS%IOW, &
+                NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF, NCSF=>CIS%NCSF)
 !
 !     CLEAR ARRAYS IOW AND NOW
 !
@@ -171,4 +180,7 @@
         END DO
       END DO
 #endif
+
+      End Associate
+
       END SUBROUTINE MKCOT
