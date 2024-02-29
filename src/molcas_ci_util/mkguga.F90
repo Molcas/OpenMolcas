@@ -29,7 +29,7 @@
 
       Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:,:)=>Null()
       Integer, Allocatable:: TMP(:), V11(:)
-      Integer IAC, NTMP, NDOWN, NDRT, NVERT0
+      Integer IAC, NTMP, NVERT0
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
@@ -54,8 +54,6 @@
          DOWNP=> SGS%DOWN0
       ELSE
          NVERT=NVERT0
-         NDRT=5*NVERT
-         NDOWN=4*NVERT
          CALL mma_allocate(SGS%DRT,NVERT,5,Label='SGS%DRT')
          CALL mma_allocate(SGS%DOWN,[1,NVERT],[0,3],Label='SGS%DOWN')
          DRTP => SGS%DRT

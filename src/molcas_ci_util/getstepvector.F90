@@ -23,12 +23,10 @@ integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(out) :: ICS(NLEV)
 integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NUP, NDWN, NNN
-integer(kind=iwp) :: nIpWlk, NICASE
+integer(kind=iwp) :: nIpWlk
 
 ! RECONSTRUCT THE CASE LIST
 
-
-NICASE = Size(CIS%ICASE)
 nIpWlk = CIS%nIpWlk
 
 ! ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine GugaCtl_dmrg()
 *
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate
       use gugx, only: IFCAS, SGS, CIS
       Implicit Real*8 (A-H,O-Z)
 *

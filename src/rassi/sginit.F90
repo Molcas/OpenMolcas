@@ -19,7 +19,7 @@
 
       Integer, Allocatable:: Tmp(:), Lim(:), V11(:)
       Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,  &
-     &        NDown0,nDrt0,nTmp,nVert0,Lev,nMidV
+     &        nTmp,nVert0,Lev
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert, MidLev => SGS%MidLev, &
                   MVSta => SGS%MVSta, MvEnd => SGS%MVEnd )
@@ -59,8 +59,6 @@
 ! start of mkguga-like code
       IAC=MIN(IA0,IC0)
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
-      NDRT0=5*NVERT0
-      NDOWN0=4*NVERT0
       NTMP=((NLEV+1)*(NLEV+2))/2
 
 ! Compute unrestricted DRT tables:
@@ -106,7 +104,6 @@
       CALL MKLTV(SGS)
 
       Call MKMID(SGS)
-      nMidV=MVEnd-MVSta+1
 
 ! Modified Arc Weights table:
       CALL MKMAW(SGS)

@@ -52,10 +52,10 @@
       Integer IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT,     &
      &        ISYDS1, ISYM, ISYUS1, ITSYM, IV, IVLB, IVLT, LEV, LFTSYM, &
      &        MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NSGMX,       &
-     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP, NLW, NUW,  &
+     &        NT1TMP, NT2TMP, NT3TMP, NT4TMP, NUPS1, NSGTMP,      NUW,  &
      &        NWALK, ISYDWN, ISYTOT, ISYUP, NDWNS1, NT5TMP
 #ifdef _DEBUGPRINT_
-      Integer IS, IST, NCP
+      Integer IS, IST, NCP, NLW
 #endif
       Logical :: IF_RASSI=.FALSE.
       Integer :: nLev, MVSTA, MVEND, NIPWLK
@@ -232,7 +232,6 @@
           NWALK=NWALK+NOW(2,ISYM,MV)
         END DO
       END DO
-      NLW=NWALK-NUW
       ELSE
       NWALK=CIS%nWalk
       End If

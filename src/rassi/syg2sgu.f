@@ -46,7 +46,6 @@ C MWS2W is a table which gives the upper or lower walk
 C index as function of the MAW sum.
 
 C Inspect the top row of the DRT to find NACTEL and spin:
-      NVERT =SGS%nVert
       NLEV  =SGS%DRT(1,1)
       IF (NLEV.GT.MXLEV) THEN
         WRITE(6,*) ' SYG2SGU: error: number of levels exceeds MXLEV'

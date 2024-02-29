@@ -67,6 +67,7 @@
       END DO
 !
 #ifdef _DEBUGPRINT_
+      Associate (NMIDV=>CIS%NMIDV)
       Write(LF,*)
       Write(LF,'(A,I3)')' MIDLEVEL =             ',MIDLEV
       Write(LF,'(A,I3)')' NUMBER OF MIDVERTICES =',NMIDV
@@ -75,6 +76,7 @@
       Write(LF,'(A,I3)')' MAX. NO UPPER WALKS=   ',MXUP
       Write(LF,'(A,I3)')' MAX. NO LOWER WALKS=   ',MXDWN
       Write(LF,*)
+      End Associate
 #endif
 
       End Associate

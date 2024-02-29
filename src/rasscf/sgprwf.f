@@ -35,17 +35,12 @@ C
 
       DIMENSION ICS(mxact)
       Character(LEN=400) Line
-      Integer nUp, nVert, MidLev, MVSta, MVEnd, nLev, nIpWlk,
-     &        nWalk
+      Integer nUp, MidLev, nLev, nIpWlk
       Integer, Allocatable:: Lex(:)
 C
       nLev  = SGS%nLev
-      nVert = SGS%nVert
       MidLev= SGS%MidLev
-      MVSta = SGS%MVSta
-      MVEnd = SGS%MVEnd
       nIpWlk= CIS%nIpWlk
-      nWalk = CIS%nWalk
 
       Line(1:16)='      conf/sym  '
       iOff=16

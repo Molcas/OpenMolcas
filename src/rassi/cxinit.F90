@@ -30,6 +30,7 @@
       MidLev =SGS%MidLev
       MVSta  =SGS%MVSta
       MVEnd  =SGS%MVEnd
+      CIS%nMidV=MVEnd-MVSta+1
 
 ! Calculate segment values, and MVL and MVR tables:
       nMidV=1+MVEnd-MVSta
