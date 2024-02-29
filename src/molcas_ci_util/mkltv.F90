@@ -16,12 +16,15 @@
       use Definitions, only: LF => u6
 #endif
       use struct, only: SGStruct
+      use stdalloc, only: mma_allocate
       IMPLICIT None
 !
       Type (SGStruct) SGS
 
       Integer, Parameter:: LTAB=1
       Integer IV, LEV
+
+      CALL mma_allocate(SGS%LTV,[-1,SGS%NLEV],Label='LTV')
 
       Associate (nVert=>SGS%nVert, nLev=>SGS%nLev, iDRT=>SGS%DRT, LTV=>SGS%LTV)
 !

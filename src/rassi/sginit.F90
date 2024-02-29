@@ -96,17 +96,13 @@
       Call mma_deallocate(Down0)
 
 ! Direct Arc Weights table:
-      Call mma_allocate(SGS%DAW,[1,nVert],[0,4],Label='DAW')
       CALL MKDAW(SGS)
 
 ! Upchain Index table:
-      Call mma_allocate(SGS%Up,[1,nVert],[0,3],Label='SGS%Up')
 ! Reverse Arc Weights table:
-      Call mma_allocate(SGS%RAW,[1,nVert],[0,4],Label='RAW')
       Call MKRAW(SGS)
 
 ! Level-To-Vertex table:
-      Call mma_allocate(SGS%LTV,[-1,nLev],Label='SGS%LTV')
       CALL MKLTV(SGS)
 
       Call MKMID(nVert,nLev,SGS%DAW,SGS%RAW,SGS%LTV,MidLev, NMIDV, MVSta, MVEnd, MXUP, MXDWN)

@@ -42,6 +42,7 @@
      &            nVert=> SGS%nVert, nMidV=>CIS%nMidV, MXEO => EXS%MxEO, &
      &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
      &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
+     &            MVSta =>SGS%MVSta,  MVEnd=>SGS%MVEnd,                 &
      &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
 
       LV1RAS=NRAS1T
@@ -73,7 +74,7 @@
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
       CALL mma_allocate(SGS%MAW,[1,NVERT],[0,3],Label='MAW')
-      CALL MKMAW(SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,SGS%MAW,NVERT, SGS%MVSta, SGS%MVEnd)
+      CALL MKMAW(SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,SGS%MAW,NVERT, MVSta, MVEnd)
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
@@ -101,7 +102,7 @@
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
       NICASE=SIZE(CIS%ICASE)
-      CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,SGS%MVSta,SGS%MVEnd,     &
+      CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
      &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,ILNDW,      &
      &            CIS%ICase, EXS%ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
