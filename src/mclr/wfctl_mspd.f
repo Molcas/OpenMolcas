@@ -482,7 +482,7 @@
       Subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,
      & ipCiOut)
       use ipPage, only: w
-      use Constants, only: Zero, One
+      use Constants, only: One
       Implicit Real*8(a-h,o-z)
 #include "stdalloc.fh"
 #include "Pointers.fh"

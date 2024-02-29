@@ -185,7 +185,6 @@ end subroutine print_ZFS_eigenvectors
 !=!=
 subroutine print_ZFS_naoya(A,M,N)
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -386,7 +385,6 @@ end subroutine print_CFP_stev
 !=!=
 subroutine print_CFP_naoya(N,A,print_all)
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
