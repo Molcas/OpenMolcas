@@ -27,7 +27,6 @@
       Integer STSYM
      Logical, Optional:: Skip_MKSGNUM
 
-      Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:,:)=>Null()
       Integer, Allocatable:: TMP(:), V11(:)
       Integer IAC, NTMP, NVERT0
 
@@ -45,28 +44,29 @@
 !
       IAC=MIN(IA0,IC0)
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
-      NTMP=((NLEV+1)*(NLEV+2))/2
 
       IF(IFCAS.NE.0) THEN
          CALL mma_allocate(SGS%DRT0,NVERT0,5,Label='DRT0')
          CALL mma_allocate(SGS%DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
-         DRTP => SGS%DRT0
-         DOWNP=> SGS%DOWN0
+         SGS%DRTP => SGS%DRT0
+         SGS%DOWNP=> SGS%DOWN0
       ELSE
          NVERT=NVERT0
          CALL mma_allocate(SGS%DRT,NVERT,5,Label='SGS%DRT')
          CALL mma_allocate(SGS%DOWN,[1,NVERT],[0,3],Label='SGS%DOWN')
-         DRTP => SGS%DRT
-         DOWNP=> SGS%DOWN
+         SGS%DRTP => SGS%DRT
+         SGS%DOWNP=> SGS%DOWN
       ENDIF
+
+      NTMP=((NLEV+1)*(NLEV+2))/2
       CALL mma_allocate(TMP,NTMP,Label='TMP')
-      CALL mkDRT0 (IA0,IB0,IC0,NVERT0,DRTP,DOWNP,NTMP,TMP)
+      CALL mkDRT0(IA0,IB0,IC0,NVERT0,SGS%DRTP,SGS%DOWNP,NTMP,TMP)
       CALL mma_deallocate(TMP)
 !
 #ifdef _DEBUGPRINT_
       Write(LF,*)
       Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
-      CALL PRDRT(NVERT0,DRTP,DOWNP)
+      CALL PRDRT(NVERT0,SGS%DRTP,SGS%DOWNP)
 #endif
 !
 !     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
@@ -90,7 +90,7 @@
          DRTP => SGS%DRT
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
-        CALL PRDRT(NVERT,SGS%DRT,SGS%DOWN)
+        CALL PRDRT(NVERT,SGS%DRTP,SGS%DOWNP)
 #endif
 
 !     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED
@@ -98,8 +98,8 @@
 !
       ENDIF
 
-      DOWNP=> Null()
-      DRTP => Null()
+      SGS%DOWNP=> Null()
+      SGS%DRTP => Null()
 !
 !     CALCULATE ARC WEIGHT.
 !

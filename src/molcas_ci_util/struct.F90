@@ -19,9 +19,11 @@ Type SGStruct
      Integer, Allocatable:: ISm(:)
      Integer nVert
      Integer, Allocatable :: DRT(:,:)
-     Integer, Allocatable :: Down(:,:)
      Integer, Allocatable :: DRT0(:,:)
+     Integer, Pointer::      DRTP(:,:)
+     Integer, Allocatable :: Down(:,:)
      Integer, Allocatable :: Down0(:,:)
+     Integer, Pointer::      DOWNP(:,:)
      Integer, Allocatable:: Up(:,:)
      Integer MidLev
      Integer MVSta

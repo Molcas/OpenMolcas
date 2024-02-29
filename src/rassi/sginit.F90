@@ -59,13 +59,13 @@
 ! start of mkguga-like code
       IAC=MIN(IA0,IC0)
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
-      NTMP=((NLEV+1)*(NLEV+2))/2
 
 ! Compute unrestricted DRT tables:
       CALL mma_allocate(SGS%DRT0,NVERT0,5,Label='DRT0')
       CALL mma_allocate(SGS%DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
       nVert=nVert0
 
+      NTMP=((NLEV+1)*(NLEV+2))/2
       CALL mma_allocate(TMP,NTMP,Label='TMP')
       CALL mkDRT0 (IA0,IB0,IC0,NVERT0,SGS%DRT0,SGS%DOWN0,NTMP,TMP)
       CALL mma_deallocate(TMP)
