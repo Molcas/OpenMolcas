@@ -103,7 +103,6 @@
 !
 !     CALCULATE ARC WEIGHT.
 !
-      CALL mma_allocate(SGS%DAW,[1,nVert],[0,4],Label='SGS%DAW')
       CALL MKDAW(SGS)
 !
 !     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
