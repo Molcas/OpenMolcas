@@ -17,7 +17,7 @@
       Type (SGStruct) SGS
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
-      Integer, Allocatable:: DRT0(:,:), Down0(:,:), Tmp(:), Lim(:), V11(:)
+      Integer, Allocatable:: Tmp(:), Lim(:), V11(:)
       Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,  &
      &        NDown0,nDrt0,nTmp,nVert0,Lev,nMidV
 
@@ -64,12 +64,12 @@
       NTMP=((NLEV+1)*(NLEV+2))/2
 
 ! Compute unrestricted DRT tables:
-      CALL mma_allocate(DRT0,NVERT0,5,Label='DRT0')
-      CALL mma_allocate(DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
+      CALL mma_allocate(SGS%DRT0,NVERT0,5,Label='DRT0')
+      CALL mma_allocate(SGS%DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
       nVert=nVert0
 
       CALL mma_allocate(TMP,NTMP,Label='TMP')
-      CALL mkDRT0 (IA0,IB0,IC0,NVERT0,DRT0,DOWN0,NTMP,TMP)
+      CALL mkDRT0 (IA0,IB0,IC0,NVERT0,SGS%DRT0,SGS%DOWN0,NTMP,TMP)
       CALL mma_deallocate(TMP)
 
 ! Construct a restricted graph.
@@ -85,15 +85,15 @@
       End Do
 
       Call mma_allocate(V11,nVert0,Label='V11')
-      Call RmVert(nLev,nVert,DRT0,Down0,Lim,V11)
+      Call RmVert(nLev,nVert,SGS%DRT0,SGS%Down0,Lim,V11)
       Call mma_deallocate(Lim)
 
       Call mma_allocate(SGS%DRT,nVert,5,Label='SGS%DRT')
       Call mma_allocate(SGS%Down,[1,nVert],[0,3],Label='SGS%Down')
-      Call mkDRT(nVert0,nVert,DRT0,Down0,V11,SGS%DRT,SGS%Down)
+      Call mkDRT(nVert0,nVert,SGS%DRT0,SGS%Down0,V11,SGS%DRT,SGS%Down)
       Call mma_deallocate(V11)
-      Call mma_deallocate(DRT0)
-      Call mma_deallocate(Down0)
+      Call mma_deallocate(SGS%DRT0)
+      Call mma_deallocate(SGS%Down0)
 
 ! Direct Arc Weights table:
       CALL MKDAW(SGS)

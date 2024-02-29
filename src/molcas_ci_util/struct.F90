@@ -20,6 +20,8 @@ Type SGStruct
      Integer nVert
      Integer, Allocatable :: DRT(:,:)
      Integer, Allocatable :: Down(:,:)
+     Integer, Allocatable :: DRT0(:,:)
+     Integer, Allocatable :: Down0(:,:)
      Integer, Allocatable:: Up(:,:)
      Integer MidLev
      Integer MVSta

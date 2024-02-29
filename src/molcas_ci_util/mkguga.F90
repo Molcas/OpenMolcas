@@ -28,7 +28,6 @@
      Logical, Optional:: Skip_MKSGNUM
 
       Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:,:)=>Null()
-      Integer, Allocatable, Target:: DRT0(:,:), DOWN0(:,:)
       Integer, Allocatable:: TMP(:), V11(:)
       Integer IAC, NTMP, NDOWN, NDRT, NVERT0
 
@@ -49,10 +48,10 @@
       NTMP=((NLEV+1)*(NLEV+2))/2
 
       IF(IFCAS.NE.0) THEN
-         CALL mma_allocate(DRT0,NVERT0,5,Label='DRT0')
-         CALL mma_allocate(DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
-         DRTP => DRT0
-         DOWNP=> DOWN0
+         CALL mma_allocate(SGS%DRT0,NVERT0,5,Label='DRT0')
+         CALL mma_allocate(SGS%DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
+         DRTP => SGS%DRT0
+         DOWNP=> SGS%DOWN0
       ELSE
          NVERT=NVERT0
          NDRT=5*NVERT
@@ -71,26 +70,26 @@
       Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
       CALL PRDRT(NVERT0,DRTP,DOWNP)
 #endif
-      DOWNP=> Null()
-      DRTP => Null()
 !
 !     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
 !     VERTICES WHICH VIOLATE THE FORMER.
 !
       IF(IFCAS.NE.0) THEN
         CALL mma_allocate(V11,NVERT0,Label='V11')
-        CALL RESTR(NVERT0,DRT0,DOWN0,V11,LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT)
+        CALL RESTR(NVERT0,SGS%DRT0,SGS%DOWN0,V11,LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT)
 !
 !     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 !
         CALL mma_allocate(SGS%DRT,nVert,5,Label='DRT')
         CALL mma_allocate(SGS%DOWN,[1,nVert],[0,3],Label='SGS%DOWN')
-        CALL mkDRT(NVERT0,NVERT,DRT0,DOWN0,V11,SGS%DRT,SGS%DOWN)
+        CALL mkDRT(NVERT0,NVERT,SGS%DRT0,SGS%DOWN0,V11,SGS%DRT,SGS%DOWN)
         CALL mma_deallocate(V11)
-        CALL mma_deallocate(DRT0)
-        CALL mma_deallocate(DOWN0)
+        CALL mma_deallocate(SGS%DRT0)
+        CALL mma_deallocate(SGS%DOWN0)
 !
 #ifdef _DEBUGPRINT_
+         DOWNP=> SGS%DOWN
+         DRTP => SGS%DRT
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
         CALL PRDRT(NVERT,SGS%DRT,SGS%DOWN)
@@ -100,6 +99,9 @@
 !     DRT TABLE
 !
       ENDIF
+
+      DOWNP=> Null()
+      DRTP => Null()
 !
 !     CALCULATE ARC WEIGHT.
 !
@@ -151,6 +153,8 @@
       IMPLICIT None
 !
       If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
+      If (Allocated(SGS%DRT0)) Call mma_deallocate(SGS%DRT0)
+      If (Allocated(SGS%DOWN0)) Call mma_deallocate(SGS%DOWN0)
       If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
       If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
       If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)
