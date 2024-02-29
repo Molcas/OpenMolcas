@@ -35,9 +35,9 @@ C
 
       DIMENSION ICS(mxact)
       Character(LEN=400) Line
-      Integer nUp, nVert, MidLev, MVSta, MVEnd, nLev, nIpWlk, NICASE,
+      Integer nUp, nVert, MidLev, MVSta, MVEnd, nLev, nIpWlk,
      &        nWalk
-      Integer, Allocatable:: Scr(:), Lex(:)
+      Integer, Allocatable:: Lex(:)
 C
       nLev  = SGS%nLev
       nVert = SGS%nVert

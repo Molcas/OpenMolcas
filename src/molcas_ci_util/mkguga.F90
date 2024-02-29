@@ -30,7 +30,7 @@
       Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:,:)=>Null()
       Integer, Allocatable, Target:: DRT0(:,:), DOWN0(:,:)
       Integer, Allocatable:: TMP(:), V11(:)
-      Integer IAC, NTMP, NDOWN, NDRT, NICASE, NVERT0
+      Integer IAC, NTMP, NDOWN, NDRT, NVERT0
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
@@ -133,16 +133,13 @@
       If (Present(Skip_MKSGNUM)) Then
          If (Skip_MKSGNUM) Return
       End If
-      NICASE=NWALK*NIPWLK
-      CALL mma_allocate(EXS%USGN,MXUP,NMIDV,Label='EXS%USGN')
-      CALL mma_allocate(EXS%LSGN,MXDWN,NMIDV,Label='EXS%LSGN')
-      Call MKSGNUM(STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,CIS%NOW, &
-                   CIS%IOW,EXS%USGN,EXS%LSGN,CIS%ICASE)
+
+      Call MKSGNUM(STSYM,SGS,CIS,EXS)
+
+      End Associate
 !
 !     EXIT
 !
-      End Associate
-
       END SUBROUTINE MKGUGA
 
       SUBROUTINE MKGUGA_FREE()
@@ -157,25 +154,27 @@
       If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
       If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
       If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)
+      If (Allocated(SGS%MAW)) Call mma_deallocate(SGS%MAW)
       If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
       If (Allocated(SGS%DAW)) Call mma_deallocate(SGS%DAW)
       If (Allocated(SGS%RAW)) Call mma_deallocate(SGS%RAW)
+      If (Allocated(SGS%SCR)) Call mma_deallocate(SGS%SCR)
 
       If (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
       If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
+      If (Allocated(CIS%NCSF)) Call mma_deallocate(CIS%NCSF)
       If (Allocated(CIS%NOCSF)) Call mma_deallocate(CIS%NOCSF)
       If (Allocated(CIS%IOCSF)) Call mma_deallocate(CIS%IOCSF)
-      If (Allocated(CIS%NCSF)) Call mma_deallocate(CIS%NCSF)
       If (Allocated(CIS%ICASE)) Call mma_deallocate(CIS%ICASE)
 
-      If (Allocated(EXS%USGN)) Call mma_deallocate(EXS%USGN)
-      If (Allocated(EXS%LSGN)) Call mma_deallocate(EXS%LSGN)
       If (Allocated(EXS%NOCP)) Call mma_deallocate(EXS%NOCP)
       If (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
       If (Allocated(EXS%ICOUP)) Call mma_deallocate(EXS%ICOUP)
+      If (Allocated(EXS%VTAB)) Call mma_deallocate(EXS%VTAB)
       If (Allocated(EXS%MVL)) Call mma_deallocate(EXS%MVL)
       If (Allocated(EXS%MVR)) Call mma_deallocate(EXS%MVR)
-      If (Allocated(EXS%VTAB)) Call mma_deallocate(EXS%VTAB)
       If (Allocated(EXS%SGTMP)) Call mma_deallocate(EXS%SGTMP)
+      If (Allocated(EXS%USGN)) Call mma_deallocate(EXS%USGN)
+      If (Allocated(EXS%LSGN)) Call mma_deallocate(EXS%LSGN)
 
       END SUBROUTINE MKGUGA_FREE

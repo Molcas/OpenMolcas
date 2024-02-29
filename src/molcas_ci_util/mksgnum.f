@@ -9,11 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKSGNUM
-     &             (STSYM,NSYM,NLEV,NVERT,MIDLEV,NMIDV,
-     &              MXUP,MXDWN,NICASE,NIPWLK,
-     &                   IDOWN,IUP,IDAW,IRAW,NOW,IOW,
-     *                   IUSGNUM,ILSGNUM,ICASE)
+      SUBROUTINE MKSGNUM(STSYM,SGS,CIS,EXS)
+
 C     PURPOSE: FOR ALL UPPER AND LOWER WALKS
 C              COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
 C              REVERSE ARC WEIGHT SUM, RESPECTIVELY.
@@ -23,16 +20,26 @@ C
       use Definitions, only: LF => u6
 #endif
       use Symmetry_Info, only: MUL
+      use struct, only: SGStruct, CIStruct, EXStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
+      Integer STSYM
+      Type (SGStruct) SGS
+      Type (CIStruct) CIS
+      Type (EXStruct) EXS
 C
-      Integer STSYM,NSYM,NLEV,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK
-      DIMENSION IDOWN(NVERT,0:3),IUP(NVERT,0:3)
-      DIMENSION IDAW(NVERT,0:4),IRAW(NVERT,0:4)
-      DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      DIMENSION IUSGNUM(MXUP,NMIDV),ILSGNUM(MXDWN,NMIDV)
-      DIMENSION ICASE(NICASE)
-      DIMENSION ISTEPVEC(mxact)
+      Integer, Allocatable:: ISTEPVEC(:)
+
+      CALL mma_allocate(EXS%USGN,SGS%MXUP,CIS%NMIDV,Label='EXS%USGN')
+      CALL mma_allocate(EXS%LSGN,SGS%MXDWN,CIS%NMIDV,Label='EXS%LSGN')
+      Call mma_allocate(ISTEPVEC,SGS%nLev,Label='ISTEPVEC')
+
+      Associate (nSym=>SGS%nSym, nLev=>SGS%nLev, MidLev=>SGS%MidLev,
+     &           nMidV=>CIS%nMidV, MxUp=>SGS%MxUp, MxDwn=>SGS%MxDwn,
+     &           nIpWlk=>CIS%nIpWlk, iDOwn=>SGS%Down, iUp=>SGS%Up,
+     &           iDaw=>SGS%Daw, iRaw=>SGS%Raw, NOW=>CIS%NOW,
+     &           IOW=>CIS%IOW, IUSGNUM=>EXS%USGN, ILSGNUM=>EXS%LSGN,
+     &           iCASE=>CIS%iCase,nVert=>SGS%nVert)
 
 C
 C     INITIALIZE NUMBERING TABLES
@@ -134,5 +141,9 @@ C
       END DO
       Write(LF,*)
 #endif
+
+      End Associate
+
+      Call mma_deallocate(ISTEPVEC)
 
       END SUBROUTINE MKSGNUM
