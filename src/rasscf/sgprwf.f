@@ -66,8 +66,8 @@ C
       NICASE=NWALK*NIPWLK
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,
-     &             NICASE,NIPWLK,NSM,SGS%DOWN,CIS%NOW,CIS%IOW,
-     &             CIS%ICASE,SCR)
+     &             NIPWLK,NSM,SGS%DOWN,CIS%NOW,CIS%IOW,
+     &             SCR,CIS)
 
       CALL mma_deallocate(SCR)
 

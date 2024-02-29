@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK, &
-ISM,IDOWN,NOW,IOW,ICASE,ISCR)
+subroutine MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NIPWLK, &
+                   ISM,IDOWN,NOW,IOW,ISCR,CIS)
 ! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
 !          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
 !          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
@@ -18,16 +18,22 @@ ISM,IDOWN,NOW,IOW,ICASE,ISCR)
 
 use Definitions, only: iwp
 use Symmetry_Info, only: Mul
-
+use struct, only: CIStruct
+use stdalloc, only: mma_allocate
 implicit none
 integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, MIDLEV, MVSta, MVEnd, &
-                                 NMIDV,NICASE, NIPWLK
+                                 NMIDV,NIPWLK
 integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
-integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)
+integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ISCR(3,0:NLEV)
+Type (CIStruct) CIS
 
 integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
 logical(kind=iwp) :: Found
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
+
+If (.NOT.Allocated(CIS%ICASE)) CALL mma_allocate(CIS%ICASE,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICASE')
+
+Associate (iCase=>CIS%ICase)
 
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 
@@ -107,8 +113,6 @@ do IHALF=1,2
   end do
 end do
 
-! EXIT
-
-return
+End Associate
 
 end subroutine MKCLIST

@@ -58,11 +58,6 @@ Type EXStruct
      Real*8,  Allocatable:: SGTMP(:)
      Integer, Allocatable:: USGN(:,:)
      Integer, Allocatable:: LSGN(:,:)
-     Integer NT1MX
-     Integer NT2MX
-     Integer NT3MX
-     Integer NT4MX
-     Integer NT5MX
 End Type EXStruct
 Public SGStruct, CIStruct, EXStruct
 integer, parameter ::  mxlev=100
