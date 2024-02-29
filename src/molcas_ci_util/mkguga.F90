@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
 !
 !     PURPOSE: MAKE THE GUGA TABLES
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
@@ -24,7 +24,7 @@
 
       IMPLICIT None
 !
-      Integer NLEV, NSYM, STSYM
+      Integer STSYM
      Logical, Optional:: Skip_MKSGNUM
 
       Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:,:)=>Null()
@@ -39,7 +39,8 @@
      &           nWalk => CIS%nWalk,  MxUp => SGS%MxUp, MxDwn => SGS%MxDwn, &
      &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
+     &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0,       &
+     &           nLev=>SGS%nLev, nSym=>SGS%nSym)
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)

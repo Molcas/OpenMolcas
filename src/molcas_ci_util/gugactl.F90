@@ -34,10 +34,10 @@
       Integer nVert0
 
       Interface
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
       IMPLICIT None
 
-      Integer NLEV, NSYM, STSYM
+      Integer STSYM
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
@@ -128,7 +128,10 @@
 !
 !     INITIALIZE GUGA TABLES:
 !
-      CALL MKGUGA(NLEV,NSYM,STSYM)
+      SGS%nSym=nSym
+      SGS%nLev=nLev
+      CALL MKGUGA(STSYM)
+
       NCONF=CIS%NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 

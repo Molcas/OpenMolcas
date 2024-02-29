@@ -23,10 +23,10 @@
       Real*8, Allocatable:: CINew(:)
 
       Interface
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
       IMPLICIT None
 
-      Integer NLEV, NSYM, STSYM
+      Integer STSYM
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
 
@@ -118,7 +118,9 @@
       LM3RAS=nActEl-nElec3
 
       IFCAS=1
-      Call mkGUGA(NLEV,NSYM,State_Sym)
+      SGS%nSym=nSym
+      SGS%nLev=nLev
+      Call mkGUGA(State_Sym)
       NCSF(1:nSym) = CIS%NCSF(1:nSym)
       NCONF=CIS%NCSF(State_Sym)
 

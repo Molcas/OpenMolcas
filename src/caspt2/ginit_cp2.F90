@@ -31,9 +31,9 @@
       Integer NICOUP, NVTAB_TMP, NICASE, nVTab
 
       Interface
-      SUBROUTINE MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
       IMPLICIT None
-      Integer NLEV, NSYM, STSYM
+      Integer STSYM
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
@@ -68,7 +68,9 @@
         CALL ABEND()
       End If
 
-      CALL MKGUGA(NLEV,NSYM,STSYM,Skip_MKSGNUM=.TRUE.)
+      SGS%nSym=nSym
+      SGS%nLev=nLev
+      CALL MKGUGA(STSYM,Skip_MKSGNUM=.TRUE.)
 
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
