@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NIPWLK, &
-                   ISM,IDOWN,NOW,IOW,ISCR,CIS)
+                   ISM,IDOWN,NOW,IOW,SGS,CIS)
 ! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
 !          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
 !          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
@@ -18,13 +18,14 @@ subroutine MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NIPWLK, &
 
 use Definitions, only: iwp
 use Symmetry_Info, only: Mul
-use struct, only: CIStruct
-use stdalloc, only: mma_allocate
+use struct, only: SGStruct, CIStruct
+use stdalloc, only: mma_allocate, mma_deallocate
 implicit none
 integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, MIDLEV, MVSta, MVEnd, &
                                  NMIDV,NIPWLK
 integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
-integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ISCR(3,0:NLEV)
+integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV)
+Type (SGStruct) SGS
 Type (CIStruct) CIS
 
 integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
@@ -32,8 +33,9 @@ logical(kind=iwp) :: Found
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 
 If (.NOT.Allocated(CIS%ICASE)) CALL mma_allocate(CIS%ICASE,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICASE')
+If (.NOT.Allocated(SGS%Scr)) CALL mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')
 
-Associate (iCase=>CIS%ICase)
+Associate (iCase=>CIS%ICase, ISCR=>SGS%Scr)
 
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 
@@ -114,5 +116,7 @@ do IHALF=1,2
 end do
 
 End Associate
+
+Call mma_deallocate(SGS%Scr)
 
 end subroutine MKCLIST

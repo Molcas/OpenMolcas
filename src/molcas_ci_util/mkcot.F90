@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKCOT(NSYM,nLev,SGS,CIS,ISCR)
+      SUBROUTINE MKCOT(SGS,CIS)
 !     PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 !     NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
 !              THE DOWN-CHAIN TABLE IS SCANNED TO PRODUCE ALL POSSIBLE
@@ -23,10 +23,8 @@
       use stdalloc, only: mma_allocate
       use struct, only: SGStruct, CIStruct
       IMPLICIT None
-      Integer, Intent(In):: nSym, nLev
       Type (SGStruct) SGS
       Type (CIStruct) CIS
-      Integer, Intent(InOut):: ISCR(3,0:NLEV)
 !
       Integer, PARAMETER :: IVERT=1, ISYM=2, ISTEP=3
       Integer IHALF, IVTSTA, IVTEND, LEV1, LEV2, IVTOP, LEV, ILND, IS, ISML, ISTP, &
@@ -38,16 +36,18 @@
 
       CIS%NIPWLK=1+(SGS%MIDLEV-1)/15
       CIS%NIPWLK=MAX(CIS%NIPWLK,1+(SGS%NLEV-SGS%MIDLEV-1)/15)
-      CALL mma_allocate(CIS%NOW,2,NSYM,CIS%NMIDV,Label='CIS%NOW')
-      CALL mma_allocate(CIS%IOW,2,NSYM,CIS%NMIDV,Label='CIS%IOW')
-      CALL mma_allocate(CIS%NOCSF,NSYM,CIS%NMIDV,NSYM,Label='CIS%NOCSF')
-      CALL mma_allocate(CIS%IOCSF,NSYM,CIS%NMIDV,NSYM,Label='CIS%IOCSF')
-      Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
+      CALL mma_allocate(CIS%NOW,2,SGS%NSYM,CIS%NMIDV,Label='CIS%NOW')
+      CALL mma_allocate(CIS%IOW,2,SGS%NSYM,CIS%NMIDV,Label='CIS%IOW')
+      CALL mma_allocate(CIS%NOCSF,SGS%NSYM,CIS%NMIDV,SGS%NSYM,Label='CIS%NOCSF')
+      CALL mma_allocate(CIS%IOCSF,SGS%NSYM,CIS%NMIDV,SGS%NSYM,Label='CIS%IOCSF')
+      Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
+      Call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')
 
       Associate(nVert=>SGS%nVert, MidLev=>SGS%MidLev, nMidV=>CIS%nMidV, MVSta=>SGS%MVSta, &
                 MVEnd=>SGS%MVEnd, nWalk=>CIS%nWalk, nIpWlk=>CIS%nIpWlk, &
                 ISm=>SGS%Ism, iDown=>SGS%DOwn, NOW=>CIS%NOW, IOW=>CIS%IOW, &
-                NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF, NCSF=>CIS%NCSF)
+                NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF, NCSF=>CIS%NCSF, nSym=>SGS%nSym,  &
+                nLev => SGS%nLev, iSCR=>SGS%Scr)
 !
 !     CLEAR ARRAYS IOW AND NOW
 !
@@ -169,7 +169,6 @@
       Write(LF,*)' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
       Write(LF,*)' BY MIDVERTEX AND SYMMETRY.'
       DO MV=1,NMIDV
-        Write(LF,*)
         Write(LF,'(A,I2,A,8I6)') '  MV=',MV,'    UPPER WALKS:', &
                                  (NOW(1,IS,MV),IS=1,NSYM)
         Write(LF,'(A,8I6)') '           LOWER WALKS:', &

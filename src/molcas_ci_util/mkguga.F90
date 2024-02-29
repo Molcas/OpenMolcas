@@ -29,9 +29,8 @@
 
       Integer, Pointer:: DRTP(:,:)=>Null(), DOWNP(:,:)=>Null()
       Integer, Allocatable, Target:: DRT0(:,:), DOWN0(:,:)
-      Integer, Allocatable:: TMP(:), V11(:), SCR(:)
-      Integer IAC, NSCR, NTMP, NDOWN, NDRT,  &
-     &        NICASE, NVERT0
+      Integer, Allocatable:: TMP(:), V11(:)
+      Integer IAC, NTMP, NDOWN, NDRT, NICASE, NVERT0
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
@@ -123,15 +122,11 @@
 !     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
 !           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 !
-      NSCR=MAX(6,3*(NLEV+1))
-      CALL mma_allocate(SCR,NSCR,Label='SCR')
-      CALL MKCOT(NSYM,NLEV,SGS,CIS,SCR)
+      CALL MKCOT(SGS,CIS)
 !
 !     CONSTRUCT THE CASE LIST
 !
-      NICASE=NWALK*NIPWLK
-      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,SCR,CIS)
-      CALL mma_deallocate(SCR)
+      Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NIPWLK,SGS%ISM,SGS%DOWN,CIS%NOW,CIS%IOW,SGS,CIS)
 !
 !     SET UP ENUMERATION TABLES
 !

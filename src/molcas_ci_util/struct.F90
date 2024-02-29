@@ -34,6 +34,7 @@ Type SGStruct
      Integer LM1RAS
      Integer LV3RAS
      Integer LM3RAS
+     Integer, Allocatable:: SCR(:,:)
 End Type SGStruct
 ! CI Structures, addresses,..
 Type CIStruct

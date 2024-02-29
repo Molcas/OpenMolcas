@@ -62,14 +62,9 @@ C
 C
 C     RECONSTRUCT THE CASE LIST
 C
-      NSCR=3*(NLEV+1)
-      NICASE=NWALK*NIPWLK
-      CALL mma_allocate(SCR,NSCR,Label='SCR')
       Call MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,
      &             NIPWLK,NSM,SGS%DOWN,CIS%NOW,CIS%IOW,
-     &             SCR,CIS)
-
-      CALL mma_deallocate(SCR)
+     &             SGS,CIS)
 
       ! scratch for determinant expansion
       IF (KeyPRSD) CALL mma_allocate(LEX,NLEV,Label='LEX')
