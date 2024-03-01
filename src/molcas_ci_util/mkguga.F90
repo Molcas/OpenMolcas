@@ -27,8 +27,15 @@
       Integer STSYM
      Logical, Optional:: Skip_MKSGNUM
 
-      Integer, Allocatable:: V11(:)
       Integer IAC, NVERT0
+
+      Interface
+      Subroutine MKDRT0(SGS)
+      use struct, only: SGStruct
+      IMPLICIT None
+      Type(SGStruct), Target:: SGS
+      End Subroutine MKDRT0
+      End Interface
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
@@ -58,7 +65,7 @@
          SGS%DOWNP=> SGS%DOWN
       ENDIF
 
-      CALL mkDRT0(SGS,IA0,IB0,IC0,NVERT0,SGS%DRTP,SGS%DOWNP)
+      CALL mkDRT0(SGS)
 !
 #ifdef _DEBUGPRINT_
       Write(LF,*)
@@ -70,15 +77,15 @@
 !     VERTICES WHICH VIOLATE THE FORMER.
 !
       IF(IFCAS.NE.0) THEN
-        CALL mma_allocate(V11,NVERT0,Label='V11')
-        CALL RESTR(NVERT0,SGS%DRT0,SGS%DOWN0,V11,LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT)
+        CALL mma_allocate(SGS%Ver,NVERT0,Label='V11')
+        CALL RESTR(NVERT0,SGS%DRT0,SGS%DOWN0,SGS%Ver,LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT)
 !
 !     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 !
         CALL mma_allocate(SGS%DRT,nVert,5,Label='DRT')
         CALL mma_allocate(SGS%DOWN,[1,nVert],[0,3],Label='SGS%DOWN')
-        CALL mkDRT(NVERT0,NVERT,SGS%DRT0,SGS%DOWN0,V11,SGS%DRT,SGS%DOWN)
-        CALL mma_deallocate(V11)
+        CALL mkDRT(NVERT0,NVERT,SGS%DRT0,SGS%DOWN0,SGS%Ver,SGS%DRT,SGS%DOWN)
+        CALL mma_deallocate(SGS%Ver)
         CALL mma_deallocate(SGS%DRT0)
         CALL mma_deallocate(SGS%DOWN0)
 !
@@ -158,6 +165,7 @@
       If (Allocated(SGS%DAW)) Call mma_deallocate(SGS%DAW)
       If (Allocated(SGS%RAW)) Call mma_deallocate(SGS%RAW)
       If (Allocated(SGS%SCR)) Call mma_deallocate(SGS%SCR)
+      If (Allocated(SGS%Ver)) Call mma_deallocate(SGS%Ver)
 
       If (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
       If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)

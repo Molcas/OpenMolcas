@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE mkDRT0(SGS,A0,B0,C0,NVERT,DRT,DOWN)
+      SUBROUTINE mkDRT0(SGS)
 #ifdef _DEBUGPRINT_
       use Definitions, only: u6
 #endif
@@ -19,25 +19,22 @@
 !     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
 !
       IMPLICIT None
-      Type(SGStruct) SGS
+      Type(SGStruct), Target:: SGS
 !
-      Integer A0, B0, C0, NVERT
-      Integer DRT(NVERT,5),DOWN(NVERT,0:3)
-
       Integer, PARAMETER:: LTAB=1,NTAB=2,ATAB=3,BTAB=4,CTAB=5
-      Integer :: DA(0:3)=[0,0,1,1],                                     &
-                 DB(0:3)=[0,1,-1,0],                                    &
-                 DC(0:3)=[1,0,1,0]
-      Integer ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, I, NLEV,  &
+      Integer, Parameter :: DA(0:3)=[0,0, 1,1],                                     &
+                            DB(0:3)=[0,1,-1,0],                                    &
+                            DC(0:3)=[1,0, 1,0]
+      Integer ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, I,  &
               MXADDR, NACTEL, STEP, VDWN, LEV, VEND, VERT, VSTA, VUP,   &
-              VUPS
-      Integer :: NTMP
+              VUPS, nTmp
       Integer, Allocatable:: TMP(:)
 
-      NLEV=SGS%nLev
+      Associate (nVert=>SGS%nVert, DRT=>SGS%DRTP, DOWN=>SGS%DownP,                &
+                 A0=>SGS%IA0, B0=>SGS%IB0, C0=>SGS%IC0, nLev=>SGS%nLev)
+
       NTMP=((NLEV+1)*(NLEV+2))/2
       CALL mma_allocate(TMP,NTMP,Label='TMP')
-
 !
 !     SET UP TOP ROW
 !
@@ -139,5 +136,7 @@
 #endif
 !
       CALL mma_deallocate(TMP)
+
+      End Associate
 
       END SUBROUTINE mkDRT0

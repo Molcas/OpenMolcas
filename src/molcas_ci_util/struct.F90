@@ -25,6 +25,7 @@ Type SGStruct
      Integer, Allocatable :: Down0(:,:)
      Integer, Pointer::      DOWNP(:,:)
      Integer, Allocatable:: Up(:,:)
+     Integer, Allocatable:: Ver(:)
      Integer MidLev
      Integer MVSta
      Integer MVEnd

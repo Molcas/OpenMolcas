@@ -17,11 +17,20 @@
       Type (SGStruct), Target :: SGS
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
-      Integer, Allocatable:: Lim(:), V11(:)
-      Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs, nVert0,Lev
+      Integer, Allocatable:: Lim(:)
+      Integer IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs, nVert0,Lev
+
+      Interface
+      Subroutine MKDRT0(SGS)
+      use struct, only: SGStruct
+      IMPLICIT None
+      Type(SGStruct), Target:: SGS
+      End Subroutine MKDRT0
+      End Interface
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert, MidLev => SGS%MidLev, &
-                  MVSta => SGS%MVSta, MvEnd => SGS%MVEnd )
+                  MVSta => SGS%MVSta, MvEnd => SGS%MVEnd,    &
+                  IA0=>SGS%IA0, IB0=>SGS%IB0, IC0=>SGS%IC0)
 
       NLEV=NASHT
 ! Allocate Level to Symmetry table ISm:
@@ -66,7 +75,8 @@
 
       SGS%DRTP => SGS%DRT0
       SGS%DOWNP => SGS%DOWN0
-      CALL mkDRT0(SGS,IA0,IB0,IC0,NVERT0,SGS%DRTP,SGS%DOWNP)
+
+      CALL mkDRT0(SGS)
 
 ! Construct a restricted graph.
       Call mma_allocate(Lim,nLev,Label='Lim')
@@ -80,14 +90,14 @@
         if(Lev.gt.0) Lim(Lev)=nRasEl(iRO)
       End Do
 
-      Call mma_allocate(V11,nVert0,Label='V11')
-      Call RmVert(nLev,nVert,SGS%DRT0,SGS%Down0,Lim,V11)
+      Call mma_allocate(SGS%Ver,nVert0,Label='V11')
+      Call RmVert(nLev,nVert,SGS%DRT0,SGS%Down0,Lim,SGS%Ver)
       Call mma_deallocate(Lim)
 
       Call mma_allocate(SGS%DRT,nVert,5,Label='SGS%DRT')
       Call mma_allocate(SGS%Down,[1,nVert],[0,3],Label='SGS%Down')
-      Call mkDRT(nVert0,nVert,SGS%DRT0,SGS%Down0,V11,SGS%DRT,SGS%Down)
-      Call mma_deallocate(V11)
+      Call mkDRT(nVert0,nVert,SGS%DRT0,SGS%Down0,SGS%Ver,SGS%DRT,SGS%Down)
+      Call mma_deallocate(SGS%Ver)
       Call mma_deallocate(SGS%DRT0)
       Call mma_deallocate(SGS%Down0)
 
