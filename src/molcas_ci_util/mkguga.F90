@@ -27,8 +27,8 @@
       Integer STSYM
      Logical, Optional:: Skip_MKSGNUM
 
-      Integer, Allocatable:: TMP(:), V11(:)
-      Integer IAC, NTMP, NVERT0
+      Integer, Allocatable:: V11(:)
+      Integer IAC, NVERT0
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
@@ -58,10 +58,7 @@
          SGS%DOWNP=> SGS%DOWN
       ENDIF
 
-      NTMP=((NLEV+1)*(NLEV+2))/2
-      CALL mma_allocate(TMP,NTMP,Label='TMP')
-      CALL mkDRT0(IA0,IB0,IC0,NVERT0,SGS%DRTP,SGS%DOWNP,NTMP,TMP)
-      CALL mma_deallocate(TMP)
+      CALL mkDRT0(SGS,IA0,IB0,IC0,NVERT0,SGS%DRTP,SGS%DOWNP)
 !
 #ifdef _DEBUGPRINT_
       Write(LF,*)

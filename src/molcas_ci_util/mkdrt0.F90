@@ -9,17 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE mkDRT0(A0,B0,C0,NVERT,DRT,DOWN,NTMP,TMP)
+      SUBROUTINE mkDRT0(SGS,A0,B0,C0,NVERT,DRT,DOWN)
 #ifdef _DEBUGPRINT_
       use Definitions, only: u6
 #endif
+      use struct, only: SGStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
 !
 !     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
 !
       IMPLICIT None
+      Type(SGStruct) SGS
 !
-      Integer A0, B0, C0, NVERT, NTMP
-      Integer DRT(NVERT,5),DOWN(NVERT,0:3),TMP(NTMP)
+      Integer A0, B0, C0, NVERT
+      Integer DRT(NVERT,5),DOWN(NVERT,0:3)
 
       Integer, PARAMETER:: LTAB=1,NTAB=2,ATAB=3,BTAB=4,CTAB=5
       Integer :: DA(0:3)=[0,0,1,1],                                     &
@@ -28,6 +31,12 @@
       Integer ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, I, NLEV,  &
               MXADDR, NACTEL, STEP, VDWN, LEV, VEND, VERT, VSTA, VUP,   &
               VUPS
+      Integer :: NTMP
+      Integer, Allocatable:: TMP(:)
+
+      NLEV=SGS%nLev
+      NTMP=((NLEV+1)*(NLEV+2))/2
+      CALL mma_allocate(TMP,NTMP,Label='TMP')
 !
 !     SET UP TOP ROW
 !
@@ -128,4 +137,6 @@
       END DO
 #endif
 !
+      CALL mma_deallocate(TMP)
+
       END SUBROUTINE mkDRT0
