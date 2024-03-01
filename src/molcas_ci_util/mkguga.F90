@@ -67,12 +67,6 @@
 
       CALL mkDRT0(SGS)
 !
-#ifdef _DEBUGPRINT_
-      Write(LF,*)
-      Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
-      CALL PRDRT(SGS)
-#endif
-!
 !     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
 !     VERTICES WHICH VIOLATE THE FORMER.
 !
@@ -84,7 +78,7 @@
 !
         CALL mma_allocate(SGS%DRT,nVert,5,Label='DRT')
         CALL mma_allocate(SGS%DOWN,[1,nVert],[0,3],Label='SGS%DOWN')
-        CALL mkDRT(NVERT0,NVERT,SGS%DRT0,SGS%DOWN0,SGS%Ver,SGS%DRT,SGS%DOWN)
+        CALL mkDRT(SGS)
         CALL mma_deallocate(SGS%Ver)
         CALL mma_deallocate(SGS%DRT0)
         CALL mma_deallocate(SGS%DOWN0)
