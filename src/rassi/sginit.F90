@@ -95,12 +95,7 @@
       Call RmVert(nLev,nVert,SGS%DRT0,SGS%Down0,Lim,SGS%Ver)
       Call mma_deallocate(Lim)
 
-      Call mma_allocate(SGS%DRT,nVert,5,Label='SGS%DRT')
-      Call mma_allocate(SGS%Down,[1,nVert],[0,3],Label='SGS%Down')
       Call mkDRT(SGS)
-      Call mma_deallocate(SGS%Ver)
-      Call mma_deallocate(SGS%DRT0)
-      Call mma_deallocate(SGS%Down0)
 
 ! Direct Arc Weights table:
       CALL MKDAW(SGS)

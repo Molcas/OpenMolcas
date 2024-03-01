@@ -17,11 +17,15 @@
 !
 
       use Struct, only: SGStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Type(SGStruct) SGS
 !
       Integer IV, IVNEW, ITAB, IC, ID, IDNEW
 !
+      CALL mma_allocate(SGS%DRT,SGS%nVert,5,Label='DRT')
+      CALL mma_allocate(SGS%DOWN,[1,SGS%nVert],[0,3],Label='SGS%DOWN')
+
       Associate (nVert0=>SGS%nVert0, nVert=>SGS%nVert, &
                  iDRT0=>SGS%DRT0, iDOWN0=>SGS%Down0, &
                  iDRT =>SGS%DRT , iDOWN =>SGS%Down , &
@@ -42,5 +46,9 @@
       END DO
 
       End Associate
+
+      CALL mma_deallocate(SGS%Ver)
+      CALL mma_deallocate(SGS%DRT0)
+      CALL mma_deallocate(SGS%DOWN0)
 
       END SUBROUTINE mkDRT

@@ -76,12 +76,7 @@
 !
 !     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 !
-        CALL mma_allocate(SGS%DRT,nVert,5,Label='DRT')
-        CALL mma_allocate(SGS%DOWN,[1,nVert],[0,3],Label='SGS%DOWN')
         CALL mkDRT(SGS)
-        CALL mma_deallocate(SGS%Ver)
-        CALL mma_deallocate(SGS%DRT0)
-        CALL mma_deallocate(SGS%DOWN0)
 !
 #ifdef _DEBUGPRINT_
         SGS%DOWNP=> SGS%DOWN
