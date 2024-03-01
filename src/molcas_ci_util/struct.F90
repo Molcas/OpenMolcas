@@ -18,6 +18,7 @@ Type SGStruct
      Integer nLev
      Integer, Allocatable:: ISm(:)
      Integer nVert
+     Integer nVert0
      Integer, Allocatable :: DRT(:,:)
      Integer, Allocatable :: DRT0(:,:)
      Integer, Pointer::      DRTP(:,:)

@@ -27,7 +27,7 @@
       Integer STSYM
      Logical, Optional:: Skip_MKSGNUM
 
-      Integer IAC, NVERT0
+      Integer IAC
 
       Interface
       Subroutine MKDRT0(SGS)
@@ -44,7 +44,7 @@
      &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
      &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0,       &
-     &           nLev=>SGS%nLev, nSym=>SGS%nSym)
+     &           nLev=>SGS%nLev, nSym=>SGS%nSym, nVert0=>SGS%nVert0)
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)

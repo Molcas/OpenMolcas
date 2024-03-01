@@ -30,7 +30,8 @@
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert, MidLev => SGS%MidLev, &
                   MVSta => SGS%MVSta, MvEnd => SGS%MVEnd,    &
-                  IA0=>SGS%IA0, IB0=>SGS%IB0, IC0=>SGS%IC0)
+                  IA0=>SGS%IA0, IB0=>SGS%IB0, IC0=>SGS%IC0, &
+                  nVert0=>SGS%nVert0)
 
       NLEV=NASHT
 ! Allocate Level to Symmetry table ISm:
