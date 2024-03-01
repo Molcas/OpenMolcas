@@ -122,7 +122,7 @@ C     write(6,*) "iMethod:",iMethod,iCASSCF
            !> If doDMRG
            if(doDMRG.and.doMCLR)then ! yma
            else
-             Call GugaCtl_MCLR(CITmp,1)   ! transform to sym. group
+             Call GugaNew(CITmp,1,State_Sym)   ! transform to sym. group
            end if
 
 ! Here should be the position for introducing the CI(SR) coefficients

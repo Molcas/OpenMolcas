@@ -40,7 +40,7 @@
       idisk1=0
       Do i=1,lroots
        Call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
-       Call Gugactl_MCLR(OCIvec,1)
+       Call GugaNew(OCIvec,1,State_Sym)
        Call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
       End Do
 

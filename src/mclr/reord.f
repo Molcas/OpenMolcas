@@ -13,10 +13,10 @@
 ************************************************************************
 !#define _DEBUGPRINT_
       SUBROUTINE REORD
-     &           (NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,
+     &           (NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
      &            IDRT,IDOWN,IDAW,IUP,IRAW,IUSGN,ILSGN,
      &            NEL,NORB,NCONF,NTYP,
-     &            IMODE,IPRINT,
+     &            IMODE,
      &            ICONF,ISPIN,NCNFTP,NCSFTP,
      &            CIOLD,CINEW,minop)
 C
@@ -52,8 +52,6 @@ C
       DIMENSION IWALK(50)
       Integer, External:: IPHASE
 
-      If (.FALSE.) Call Unused_Integer(MVEnd)
-      If (.FALSE.) Call Unused_Integer(IPRINT)
 C
 C
 C     LOOP OVER CONFIGURATIONS TYPES
@@ -96,12 +94,12 @@ C     GET PHASE PHASE FACTOR
             IP=IPHASE(NLEV,NVERT,IDRT,IUP,IWALK)
 C     NOW REORDER THIS ELEMENT OF THE CI-VECTOR
             PHASE=DBLE(IP)
-            IF ( IMODE.EQ.0 ) THEN
+            Select Case (iMode)
+              Case (0)
                CINEW(ISG)=CIOLD(ICSFJP)*PHASE
-            END IF
-            IF ( IMODE.EQ.1 ) THEN
+              Case(1)
                CINEW(ICSFJP)=CIOLD(ISG)*PHASE
-            END IF
+            End Select
 800       CONTINUE
 900     CONTINUE
 1000  CONTINUE

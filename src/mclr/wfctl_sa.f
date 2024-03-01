@@ -241,7 +241,7 @@
           Do iR = 1, nRoots
             Call DCopy_(nConf1,W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),
      *                  1,wrk,1)
-            Call GugaCtl_MCLR(wrk,1)
+            Call GugaNew(wrk,1,State_Sym)
             Call DCopy_(nConf1,wrk,1,
      *                  W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),1)
           End Do

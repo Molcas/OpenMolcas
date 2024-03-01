@@ -43,9 +43,9 @@
       End Interface
 
       Associate( nLev =>SGS%nLev,   &
-     &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,   &
-     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,   &
-     &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
+     &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,   &
+     &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,   &
+     &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
 
 ! Local print level (if any)
 #ifdef _DEBUGPRINT_
@@ -103,6 +103,7 @@
       IB0=ISPIN-1
       IA0=(NACTEL-IB0)/2
       IC0=NLEV-IA0-IB0
+
       IF ( ((2*IA0+IB0).NE.NACTEL) .OR.                                 &
      &     (IA0.LT.0) .OR.                                              &
      &     (IB0.LT.0) .OR.                                              &

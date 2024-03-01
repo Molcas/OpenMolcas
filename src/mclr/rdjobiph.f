@@ -142,7 +142,9 @@
 
 !>  Generate the nr. of csf in each sub-sym, used in geom-opt with SA DMRG-SCF
       if(doDMRG)then  ! yma
-        Call GugaCtl_dmrg()   ! generate the Nr. of csfs in each sym
+        imode=-99
+        ! generate the Nr. of csfs in each sym
+        Call GugaNew(rdum,imode,State_Sym)
 !        do isym=1,8
 !          write(*,*)"isym_ncsf in rdjobiph ",ncsf(isym)
 !        end do

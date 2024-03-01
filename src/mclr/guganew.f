@@ -20,10 +20,9 @@
 #include "Input.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-      Integer, Parameter:: iPrint=0
       Real*8, Allocatable:: CINEW(:)
       Real*8 :: PRWTHR=0.05d0
-      Integer ntRas1, ntRas2, ntRas3, iSym, jPrint, iBas, iOrb, iss
+      Integer ntRas1, ntRas2, ntRas3, iSym, iBas, iOrb, iss
       Integer NICASE
 *
       Interface
@@ -119,13 +118,10 @@
       NCSF(1:nSym)=CIS%NCSF(1:nSym)
       NCONF=CIS%NCSF(kSym)
 
-
-
       iss=1
       if (ksym.ne.state_sym) iss=2
 *
-      If (iPrint.ge.5) Then
-      If (imode.eq.0.and.iAnd(kprint,8).eq.8) Then
+#ifdef _DEBUGPRINT_
       WRITE(6,101)
 101   FORMAT(/,6X,100('-'),/,
      &      6X,29X,'Wave function printout: Split Graph format',/,
@@ -139,16 +135,14 @@
      &                 CIS%IOW,CIS%ICASE,CIL)
       WRITE(6,103)
 103   FORMAT(/,6X,100('-'),/)
-      End If
-      End If
+#endif
 *
-      jPrint=iPrint
       Call mma_allocate(CInew,NCONF,Label='CINew')
-      Call REORD(NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,
+      Call REORD(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
      &           SGS%DRT,SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,
      &           EXS%USGN,EXS%LSGN,
      &           nActEl,NLEV,NCONF,NTYP,
-     &           iMode,jPrint,CNSM(iss)%ICONF,CFTP,NCNATS(1,kSym),
+     &           iMode,CNSM(iss)%ICONF,CFTP,NCNATS(1,kSym),
      &           NCPCNT,CIL,CInew,minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
      &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,

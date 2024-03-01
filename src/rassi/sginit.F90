@@ -18,7 +18,7 @@
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
       Integer, Allocatable:: Lim(:)
-      Integer IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs, nVert0,Lev
+      Integer IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs, Lev
 
       Interface
       Subroutine MKDRT0(SGS)
