@@ -9,22 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE RESTR(NVERT0,IDRT0,IDOWN0,IVER, LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT)
+      SUBROUTINE RESTR(SGS)
 !     PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY
 !              CREATING A MASK
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: u6
 #endif
+      use stdalloc, only: mma_allocate
+      use struct, only: SGStruct
       IMPLICIT None
-!
-      Integer NVERT0, LV1RAS, LV3RAS, LM1RAS, LM3RAS, NVERT
-      Integer IDRT0(NVERT0,5),IDOWN0(NVERT0,0:3),IVER(NVERT0)
+      Type (SGStruct) SGS
 !
       Integer, PARAMETER :: LTAB=1, NTAB=2
       Integer::  IOR(0:3,0:3)=reshape([ 0,1,2,3,1,1,3,3,2,3,2,3,3,3,3,3 ], [4,4])
       Integer:: IAND(0:3,0:3)=reshape([ 0,0,0,0,0,1,0,1,0,0,2,2,0,1,2,3 ], [4,4])
       Integer:: IV, LEV, N, IVV, IC, ID, MASK, IVD
+
+      CALL mma_allocate(SGS%Ver,SGS%NVERT0,Label='V11')
+
+      Associate(nVert0=>SGS%nVert0, iDRT0=>SGS%DRT0, iDOWN0=>SGS%DOWN0,   &
+                iVER=>SGS%Ver, LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,  &
+                LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS, nVert=>SGS%nVert)
 !
 !     LOOP OVER ALL VERTICES AND CHECK ON RAS CONDITIONS
 !     CREATE MASK
@@ -89,5 +95,6 @@
          Write (u6,*) 'IVER(:)=',IVER(IV)
       END DO
 #endif
+      End Associate
 !
       END SUBROUTINE RESTR
