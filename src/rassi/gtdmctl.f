@@ -46,7 +46,7 @@ C      use para_info, only: nProcs, is_real_par, king
 #include "WrkSpc.fh"
 #include "rassiwfn.fh"
 #include "Files.fh"
-      Type (SGStruct) :: SGS(2)
+      Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
       DIMENSION PROP(NSTATE,NSTATE,NPROP)
@@ -102,6 +102,16 @@ CC    NTO section
       real*8, Allocatable:: DCHSM(:)
       real*8 BEi,BEj,BEij
 #include "SysDef.fh"
+
+      Interface
+      Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
+      use Struct, only: SGStruct
+      IMPLICIT None
+      Integer nSym, nActEl, iSpin, nRasPrt
+      Type (SGStruct), Target :: SGS
+      Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
+      End Subroutine SGInit
+      End Interface
 
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_

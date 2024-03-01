@@ -22,12 +22,23 @@
 #include "Files.fh"
 #include "tshcntrl.fh"
       Real*8 :: Energy(nState)
-      Type (SGStruct) :: SGS(2)
+      Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
       INTEGER      I,JOB1,JOB2,iRlxRoot
       CHARACTER*8  WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT
+
+      Interface
+      Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
+      use Struct, only: SGStruct
+      IMPLICIT None
+      Integer nSym, nActEl, iSpin, nRasPrt
+      Type (SGStruct), Target :: SGS
+      Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
+      End Subroutine SGInit
+      End Interface
+
 *
 C
 C Print a banner

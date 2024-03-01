@@ -14,12 +14,11 @@
       IMPLICIT None
 #include "rassi.fh"
       Integer nSym, nActEl, iSpin, nRasPrt
-      Type (SGStruct) SGS
+      Type (SGStruct), Target :: SGS
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
-      Integer, Allocatable:: Tmp(:), Lim(:), V11(:)
-      Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs,  &
-     &        nTmp,nVert0,Lev
+      Integer, Allocatable:: Lim(:), V11(:)
+      Integer IA0,IB0,IC0,IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs, nVert0,Lev
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert, MidLev => SGS%MidLev, &
                   MVSta => SGS%MVSta, MvEnd => SGS%MVEnd )
@@ -65,10 +64,9 @@
       CALL mma_allocate(SGS%DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
       nVert=nVert0
 
-      NTMP=((NLEV+1)*(NLEV+2))/2
-      CALL mma_allocate(TMP,NTMP,Label='TMP')
-      CALL mkDRT0(IA0,IB0,IC0,NVERT0,SGS%DRT0,SGS%DOWN0,NTMP,TMP)
-      CALL mma_deallocate(TMP)
+      SGS%DRTP => SGS%DRT0
+      SGS%DOWNP => SGS%DOWN0
+      CALL mkDRT0(SGS,IA0,IB0,IC0,NVERT0,SGS%DRTP,SGS%DOWNP)
 
 ! Construct a restricted graph.
       Call mma_allocate(Lim,nLev,Label='Lim')
