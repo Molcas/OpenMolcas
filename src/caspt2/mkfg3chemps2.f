@@ -12,7 +12,7 @@
 *               2016, Quan Phung                                       *
 ************************************************************************
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Subroutine mkfg3chemps2(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+      Subroutine mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
       use gugx, only: SGS
       IMPLICIT NONE
 
@@ -22,7 +22,7 @@
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
-      INTEGER, INTENT(IN) :: IFF
+      INTEGER, INTENT(IN) :: IFF, NLEV
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: G3(*), F3(*)

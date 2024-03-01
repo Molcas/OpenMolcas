@@ -37,6 +37,7 @@
       NLEV=SGS%nLev
       NTMP=((NLEV+1)*(NLEV+2))/2
       CALL mma_allocate(TMP,NTMP,Label='TMP')
+
 !
 !     SET UP TOP ROW
 !

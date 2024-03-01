@@ -546,7 +546,7 @@ C
 #endif
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Call mkfg3chemps2(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+      Call mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
 #endif
 
       IF(iPrGlb.GE.DEBUG) THEN

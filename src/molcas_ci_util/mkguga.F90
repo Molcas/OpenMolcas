@@ -83,8 +83,8 @@
         CALL mma_deallocate(SGS%DOWN0)
 !
 #ifdef _DEBUGPRINT_
-        DOWNP=> SGS%DOWN
-        DRTP => SGS%DRT
+        SGS%DOWNP=> SGS%DOWN
+        SGS%DRTP => SGS%DRT
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
         CALL PRDRT(SGS)
