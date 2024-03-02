@@ -130,8 +130,8 @@
       END DO
 #ifdef _DEBUGPRINT_
       DO VERT=1,VEND
-        Write (6,*) 'DRT(:,LTAB)=',DRT(VERT,LTAB)
-        Write (6,*) 'DRT(:,NTAB)=',DRT(VERT,NTAB)
+        Write (6,*) 'DRT0(:,LTAB)=',DRT(VERT,LTAB)
+        Write (6,*) 'DRT0(:,NTAB)=',DRT(VERT,NTAB)
       END DO
 #endif
 !

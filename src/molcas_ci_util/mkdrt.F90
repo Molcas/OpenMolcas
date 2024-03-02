@@ -44,7 +44,11 @@
           IDOWN(IVNEW,IC)=IDNEW
         END DO
       END DO
-
+#ifdef _DEBUGPRINT_
+      DO VERT=1,nVert
+        Write (6,*) 'DRT(i,:)=',DRT(VERT,:)
+      END DO
+#endif
       End Associate
 
       CALL mma_deallocate(SGS%Ver)
