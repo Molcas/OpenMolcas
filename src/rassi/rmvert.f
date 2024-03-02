@@ -8,39 +8,38 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE RMVERT(NLEV,NVERT,IDRT,IDOWN,NLIM,NWVERT)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-      DIMENSION IDRT(NVERT,5),IDOWN(NVERT,0:3)
-      DIMENSION NWVERT(NVERT)
-      PARAMETER (LTAB=1,NTAB=2)
-      DIMENSION NLIM(NLEV)
+      SUBROUTINE RMVERT(NLEV,NVERT,IDRT,IDOWN,NLIM,VER)
 C Purpose: Remove vertices from a DRT table.
-      Integer, Allocatable:: CONN(:)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      IMPLICIT None
+      Integer :: NLEV, NVERT
+      Integer :: IDRT(NVERT,5),IDOWN(NVERT,0:3)
+      Integer :: VER(NVERT)
 
+      Integer, PARAMETER :: LTAB=1,NTAB=2
+      Integer ::  NLIM(NLEV)
+      Integer, Allocatable:: CONN(:)
       Logical Test
+      Integer IV, L, N, NCHANGES, IC, ID, NLD, NV
 
       Call mma_allocate(CONN,nVert,Label='CONN')
 
 C KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
       DO IV=1,NVERT-1
-        NWVERT(IV)=1
+        VER(IV)=1
         L=IDRT(IV,LTAB)
         N=IDRT(IV,NTAB)
-        IF(N.LT.NLIM(L)) NWVERT(IV)=0
+        IF(N.LT.NLIM(L)) VER(IV)=0
       END DO
-      NWVERT(NVERT)=1
+      VER(NVERT)=1
 
-C     OPEN(UNIT=10,STATUS='NEW',FILE='SGraph.ps')
-C     call DRAWSG(10,NLEV,NVERT,IDRT,IDOWN,NWVERT)
       NCHANGES=1 ! Initiate first loop
-      Do While (NCHANGE>0)
+      Do While (NCHANGES>0)
 C REMOVE ARCS HAVING A DEAD UPPER OR LOWER VERTEX.
 C COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
       NCHANGES=0
       DO IV=1,NVERT-1
-        IF(NWVERT(IV).EQ.0) THEN
+        IF(VER(IV).EQ.0) THEN
           DO IC=0,3
             ID=IDOWN(IV,IC)
             IF(ID.GT.0) THEN
@@ -53,7 +52,7 @@ C COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
           DO IC=0,3
             ID=IDOWN(IV,IC)
             IF(ID.GT.0) THEN
-              IF(NWVERT(ID).EQ.0) THEN
+              IF(VER(ID).EQ.0) THEN
                 IDOWN(IV,IC)=0
                 NCHANGES=NCHANGES+1
               ELSE
@@ -62,21 +61,21 @@ C COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
             END IF
           END DO
           IF(NLD.EQ.0) THEN
-            NWVERT(IV)=0
+            VER(IV)=0
             NCHANGES=NCHANGES+1
           END IF
         END IF
       END DO
 C ALSO CHECK ON CONNECTIONS FROM ABOVE:
       CONN(:)=0
-      CONN(1)=NWVERT(1)
+      CONN(1)=VER(1)
       DO IV=1,NVERT-1
-        IF(NWVERT(IV).EQ.1) THEN
+        IF(VER(IV).EQ.1) THEN
           DO IC=0,3
             ID=IDOWN(IV,IC)
             Test = ID.GT.0
             If (Test) Then
-               Test = NWVERT(ID).EQ.1
+               Test = VER(ID).EQ.1
             End If
             IF(Test) THEN
                 CONN(ID)=1
@@ -85,8 +84,8 @@ C ALSO CHECK ON CONNECTIONS FROM ABOVE:
         END IF
       END DO
       DO IV=1,NVERT
-        IF(NWVERT(IV).EQ.1 .AND. CONN(IV).EQ.0) THEN
-          NWVERT(IV)=0
+        IF(VER(IV).EQ.1 .AND. CONN(IV).EQ.0) THEN
+          VER(IV)=0
           NCHANGES=NCHANGES+1
         END IF
       END DO
@@ -102,7 +101,7 @@ C TO OTHER CONFORMING VERTICES.
 C THE PROCEDURE IS GUARANTEED TO FIND A STABLE SOLUTIONS,
 C SINCE EACH ITERATION REMOVES ARCS AND/OR VERTICES FROM THE
 C FINITE NUMBER WE STARTED WITH.
-      IF(NWVERT(1).EQ.0) THEN
+      IF(VER(1).EQ.0) THEN
         WRITE(6,*)'RASSI/RMVERT: Too severe restrictions.'
         WRITE(6,*)'Not one single configuration is left.'
         CALL ABEND()
@@ -110,9 +109,9 @@ C FINITE NUMBER WE STARTED WITH.
 
       NV=0
       DO IV=1,NVERT
-        IF(NWVERT(IV).EQ.1) THEN
+        IF(VER(IV).EQ.1) THEN
           NV=NV+1
-          NWVERT(IV)=NV
+          VER(IV)=NV
         END IF
       END DO
       NVERT=NV
