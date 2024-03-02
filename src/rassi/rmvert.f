@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RMVERT(NLEV,NVERT,IDRT,IDOWN,NLIM,NWVERT)
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
       DIMENSION IDRT(NVERT,5),IDOWN(NVERT,0:3)
@@ -16,11 +17,12 @@
       PARAMETER (LTAB=1,NTAB=2)
       DIMENSION NLIM(NLEV)
 C Purpose: Remove vertices from a DRT table.
+      Integer, Allocatable:: CONN(:)
 
       Logical Test
 
+      Call mma_allocate(CONN,nVert,Label='CONN')
 
-      CALL GETMEM('Conn','Allo','Inte',LCONN,NVERT)
 C KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
       DO IV=1,NVERT-1
         NWVERT(IV)=1
@@ -32,8 +34,8 @@ C KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
 
 C     OPEN(UNIT=10,STATUS='NEW',FILE='SGraph.ps')
 C     call DRAWSG(10,NLEV,NVERT,IDRT,IDOWN,NWVERT)
-
-  10  CONTINUE
+      NCHANGES=1 ! Initiate first loop
+      Do While (NCHANGE>0)
 C REMOVE ARCS HAVING A DEAD UPPER OR LOWER VERTEX.
 C COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
       NCHANGES=0
@@ -66,10 +68,8 @@ C COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
         END IF
       END DO
 C ALSO CHECK ON CONNECTIONS FROM ABOVE:
-      IWORK(LCONN)=NWVERT(1)
-      DO IV=2,NVERT
-        IWORK(LCONN-1+IV)=0
-      END DO
+      CONN(:)=0
+      CONN(1)=NWVERT(1)
       DO IV=1,NVERT-1
         IF(NWVERT(IV).EQ.1) THEN
           DO IC=0,3
@@ -79,22 +79,21 @@ C ALSO CHECK ON CONNECTIONS FROM ABOVE:
                Test = NWVERT(ID).EQ.1
             End If
             IF(Test) THEN
-                IWORK(LCONN-1+ID)=1
+                CONN(ID)=1
             END IF
           END DO
         END IF
       END DO
       DO IV=1,NVERT
-        IF(NWVERT(IV).EQ.1 .AND. IWORK(LCONN-1+IV).EQ.0) THEN
+        IF(NWVERT(IV).EQ.1 .AND. CONN(IV).EQ.0) THEN
           NWVERT(IV)=0
           NCHANGES=NCHANGES+1
         END IF
       END DO
-C     call DRAWSG(10,NLEV,NVERT,IDRT,IDOWN,NWVERT)
-C ANY CHANGES? RERUN.
-      IF(NCHANGES.GT.0) GOTO 10
-      CALL GETMEM('Conn','Free','Inte',LCONN,NVERT)
-C     Close(10)
+
+      End Do
+
+      Call mma_deallocate(CONN)
 
 C IF NO CHANGES, THE REMAINING GRAPH IS VALID.
 C EVERY VERTEX OBEYS THE RESTRICTIONS. EVERY VERTEX IS
@@ -118,6 +117,4 @@ C FINITE NUMBER WE STARTED WITH.
       END DO
       NVERT=NV
 
-
-      RETURN
       END
