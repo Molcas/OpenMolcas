@@ -19,7 +19,7 @@
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_allocate
       use gugx, only: IFCAS, CIS, SGS, EXS
 
       IMPLICIT None

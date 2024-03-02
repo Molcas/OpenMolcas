@@ -31,8 +31,6 @@
       INTEGER IY,IZ,IW
       INTEGER IYSYM,IXYSYM
       INTEGER NAC4
-      Integer nLev
-      nLev = SGS%nLev
 
       If(NACTEL.GT.1) Then
         NAC4 = NLEV * NLEV * NLEV * NLEV

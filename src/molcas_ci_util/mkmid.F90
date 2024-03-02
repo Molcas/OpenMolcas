@@ -21,6 +21,9 @@
       Type (SGStruct) SGS
 
       Integer IV, MINW, MV, NW, IL
+#ifdef _DEBUGPRINT_
+      Integer NMIDV
+#endif
 
       Associate (nVert=>SGS%nVert, nLev=>SGS%nLev, MidLev => SGS%MidLev, &
                  MvSta=>SGS%MVSta, MVEnd=>SGS%MVEnd,   &
@@ -67,7 +70,7 @@
       END DO
 !
 #ifdef _DEBUGPRINT_
-      Associate (NMIDV=>CIS%NMIDV)
+      NMIDV=>MVEnd-MVSta+1
       Write(LF,*)
       Write(LF,'(A,I3)')' MIDLEVEL =             ',MIDLEV
       Write(LF,'(A,I3)')' NUMBER OF MIDVERTICES =',NMIDV
@@ -76,7 +79,7 @@
       Write(LF,'(A,I3)')' MAX. NO UPPER WALKS=   ',MXUP
       Write(LF,'(A,I3)')' MAX. NO LOWER WALKS=   ',MXDWN
       Write(LF,*)
-      End Associate
+      d Associate
 #endif
 
       End Associate
