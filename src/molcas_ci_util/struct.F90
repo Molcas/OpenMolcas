@@ -15,6 +15,8 @@ Type SGStruct
      Integer IA0
      Integer IB0
      Integer IC0
+     Integer iSpin
+     Integer :: nActEl=0
      Integer nLev
      Integer, Allocatable:: ISm(:)
      Integer nVert

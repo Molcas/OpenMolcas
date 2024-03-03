@@ -46,6 +46,10 @@
      &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,
      &            A0 => SGS%IA0, B0 => SGS%IB0, C0 => SGS%IC0)
 
+      SGS%nSym=nSym
+      SGS%iSpin=iSpin
+      SGS%nActEl=nActEl
+
       ntRas1=0
       ntRas2=0
       ntRas3=0
@@ -111,7 +115,6 @@
       LM3RAS=nActEl-nElec3
 
       IFRAS=1
-      SGS%nSym=nSym
       SGS%nLev=nLev
       Call mkGUGA(kSym)
 

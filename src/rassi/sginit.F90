@@ -37,7 +37,8 @@
 
       SGS%nSym=nSym
       NLEV=NASHT ! Total number of active orbitals
-
+      SGS%iSpin=iSpin
+      SGS%nActEl=nActEl
       Call mkISM(SGS)
 
 ! Compute size of unrestricted DRT table:
