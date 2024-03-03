@@ -8,21 +8,25 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE RMVERT(NLEV,NVERT,IDRT,IDOWN,NLIM,VER)
+      SUBROUTINE RMVERT(SGS,NLEV,NLIM)
 C Purpose: Remove vertices from a DRT table.
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Struct, only: SGStruct
       IMPLICIT None
-      Integer :: NLEV, NVERT
-      Integer :: IDRT(NVERT,5),IDOWN(NVERT,0:3)
-      Integer :: VER(NVERT)
+      Type(SGStruct) SGS
+      Integer :: NLEV
+      Integer ::  NLIM(NLEV)
 
       Integer, PARAMETER :: LTAB=1,NTAB=2
-      Integer ::  NLIM(NLEV)
       Integer, Allocatable:: CONN(:)
       Logical Test
       Integer IV, L, N, NCHANGES, IC, ID, NLD, NV
 
-      Call mma_allocate(CONN,nVert,Label='CONN')
+      Call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
+      Call mma_allocate(CONN,SGS%nVert,Label='CONN')
+
+      Associate (nVert=>SGS%nVert, IDRT=>SGS%DRT0, IDOWN=>SGS%DOWN0,
+     &           VER=>SGS%Ver)
 
 C KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
       DO IV=1,NVERT-1
@@ -101,6 +105,7 @@ C TO OTHER CONFORMING VERTICES.
 C THE PROCEDURE IS GUARANTEED TO FIND A STABLE SOLUTIONS,
 C SINCE EACH ITERATION REMOVES ARCS AND/OR VERTICES FROM THE
 C FINITE NUMBER WE STARTED WITH.
+
       IF(VER(1).EQ.0) THEN
         WRITE(6,*)'RASSI/RMVERT: Too severe restrictions.'
         WRITE(6,*)'Not one single configuration is left.'
@@ -116,4 +121,6 @@ C FINITE NUMBER WE STARTED WITH.
       END DO
       NVERT=NV
 
-      END
+      End Associate
+
+      END SUBROUTINE RMVERT

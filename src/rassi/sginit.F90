@@ -91,8 +91,8 @@
         if(Lev.gt.0) Lim(Lev)=nRasEl(iRO)
       End Do
 
-      Call mma_allocate(SGS%Ver,nVert0,Label='V11')
-      Call RmVert(nLev,nVert,SGS%DRT0,SGS%Down0,Lim,SGS%Ver)
+      Call RmVert(SGS,nLev,Lim)
+
       Call mma_deallocate(Lim)
 
       Call mkDRT(SGS)
