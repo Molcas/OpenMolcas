@@ -30,12 +30,11 @@
       LOGICAL   LOWROOT, UPROOT
 
       Interface
-      Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
+      Subroutine SGInit(nSym,nActEl,iSpin,SGS)
       use Struct, only: SGStruct
       IMPLICIT None
-      Integer nSym, nActEl, iSpin, nRasPrt
+      Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
-      Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
       End Subroutine SGInit
       End Interface
 
@@ -91,7 +90,7 @@ C
           NRASEL(1)=2*NRS1T-NHOL11
           NRASEL(2)=NACTE1-NELE31
           NRASEL(3)=NACTE1
-          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,SGS(1))
+          CALL SGINIT(NSYM,NACTE1,MPLET1,SGS(1))
           IF(IPGLOB.GT.4) THEN
              WRITE(6,*)'Split-graph structure for JOB1=',JOB1
              CALL SGPRINT(SGS(1))
@@ -172,7 +171,7 @@ C For the second wave function
             NRASEL(1)=2*NRS1T-NHOL12
             NRASEL(2)=NACTE2-NELE32
             NRASEL(3)=NACTE2
-            CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,SGS(2))
+            CALL SGINIT(NSYM,NACTE2,MPLET2,SGS(2))
             IF(IPGLOB.GT.4) THEN
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
                CALL SGPRINT(SGS(2))
@@ -248,7 +247,7 @@ C For the second wave function
             NRASEL(1)=2*NRS1T-NHOL12
             NRASEL(2)=NACTE2-NELE32
             NRASEL(3)=NACTE2
-            CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,SGS(2))
+            CALL SGINIT(NSYM,NACTE2,MPLET2,SGS(2))
             IF(IPGLOB.GT.4) THEN
                WRITE(6,*)'Split-graph structure for JOB2=',JOB2
                CALL SGPRINT(SGS(2))

@@ -8,25 +8,37 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE RMVERT(SGS,NLEV,NLIM)
+      SUBROUTINE RMVERT(SGS)
 C Purpose: Remove vertices from a DRT table.
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only: SGStruct
+      use RasDef, only: nRas, nRsPrt, nRasEl
       IMPLICIT None
       Type(SGStruct) SGS
-      Integer :: NLEV
-      Integer ::  NLIM(NLEV)
 
       Integer, PARAMETER :: LTAB=1,NTAB=2
-      Integer, Allocatable:: CONN(:)
+      Integer, Allocatable:: CONN(:), Lim(:)
       Logical Test
-      Integer IV, L, N, NCHANGES, IC, ID, NLD, NV
+      Integer IV, L, N, NCHANGES, IC, ID, NLD, NV, Lev, iRO, iSy
+
+! Construct a restricted graph.
+      Call mma_allocate(Lim,SGS%nLev,Label='Lim')
+      Lim(:)=0
+! Fill in the occupation limit table:
+      Lev=0
+      Do iRO=1,nRsPrt
+        Do iSy=1,SGS%nSym
+          Lev=Lev+nRas(iSy,iRO)
+        End Do
+        if(Lev.gt.0) Lim(Lev)=nRasEl(iRO)
+      End Do
 
       Call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
-      Call mma_allocate(CONN,SGS%nVert,Label='CONN')
 
       Associate (nVert=>SGS%nVert, IDRT=>SGS%DRT0, IDOWN=>SGS%DOWN0,
-     &           VER=>SGS%Ver)
+     &           VER=>SGS%Ver, nLim => Lim)
+
+      Call mma_allocate(CONN,nVert,Label='CONN')
 
 C KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
       DO IV=1,NVERT-1
@@ -96,8 +108,6 @@ C ALSO CHECK ON CONNECTIONS FROM ABOVE:
 
       End Do
 
-      Call mma_deallocate(CONN)
-
 C IF NO CHANGES, THE REMAINING GRAPH IS VALID.
 C EVERY VERTEX OBEYS THE RESTRICTIONS. EVERY VERTEX IS
 C CONNECTED ABOVE AND BELOW (EXCEPTING THE TOP AND BOTTOM)
@@ -121,6 +131,10 @@ C FINITE NUMBER WE STARTED WITH.
       END DO
       NVERT=NV
 
+      Call mma_deallocate(CONN)
+
       End Associate
+
+      Call mma_deallocate(Lim)
 
       END SUBROUTINE RMVERT

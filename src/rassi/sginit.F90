@@ -8,18 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
+      Subroutine SGInit(nSym,nActEl,iSpin,SGS)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only: SGStruct
       IMPLICIT None
 #include "rassi.fh"
-      Integer nSym, nActEl, iSpin, nRasPrt
+      Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
-      ! nRas(iSym,iRasPrt): number of orbitals of symmetry iSym in the iRasPrt active space.
-      Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
-
-      Integer, Allocatable:: Lim(:)
-      Integer iRO,iSy,Lev
 
       Interface
       Subroutine MKDRT0(SGS)
@@ -50,21 +45,7 @@
 
       CALL mkDRT0(SGS)
 
-! Construct a restricted graph.
-      Call mma_allocate(Lim,nLev,Label='Lim')
-      Lim(:)=0
-! Fill in the occupation limit table:
-      Lev=0
-      Do iRO=1,nRasPrt
-        Do iSy=1,nSym
-          Lev=Lev+nRas(iSy,iRO)
-        End Do
-        if(Lev.gt.0) Lim(Lev)=nRasEl(iRO)
-      End Do
-
-      Call RmVert(SGS,nLev,Lim)
-
-      Call mma_deallocate(Lim)
+      Call RmVert(SGS)
 
       Call mkDRT(SGS)
 

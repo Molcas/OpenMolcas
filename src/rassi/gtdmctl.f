@@ -104,12 +104,11 @@ CC    NTO section
 #include "SysDef.fh"
 
       Interface
-      Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
+      Subroutine SGInit(nSym,nActEl,iSpin,SGS)
       use Struct, only: SGStruct
       IMPLICIT None
-      Integer nSym, nActEl, iSpin, nRasPrt
+      Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
-      Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
       End Subroutine SGInit
       End Interface
 
@@ -458,7 +457,7 @@ C the SGUGA space of JOB1. General RAS:
         NRASEL(3)=NACTE1
 
         if(.not.doDMRG)then
-          CALL SGINIT(NSYM,NACTE1,MPLET1,NRSPRT,NRAS,NRASEL,SGS(1))
+          CALL SGINIT(NSYM,NACTE1,MPLET1,SGS(1))
           IF(IPGLOB.GT.4) THEN
             WRITE(6,*)'Split-graph structure for JOB1=',JOB1
             CALL SGPRINT(SGS(1))
@@ -585,7 +584,7 @@ C the SGUGA space of JOB1. General RAS:
         NRASEL(3)=NACTE2
 
         IF(.not.doDMRG)then
-          CALL SGINIT(NSYM,NACTE2,MPLET2,NRSPRT,NRAS,NRASEL,SGS(2))
+          CALL SGINIT(NSYM,NACTE2,MPLET2,SGS(2))
           IF(IPGLOB.GT.4) THEN
             WRITE(6,*)'Split-graph structure for JOB2=',JOB2
             CALL SGPRINT(SGS(2))
