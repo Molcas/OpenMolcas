@@ -31,7 +31,7 @@
      &     (IA0.LT.0) .OR.                                              &
      &     (IB0.LT.0) .OR.                                              &
      &     (IC0.LT.0) ) then
-        Write(LF,*)'GUGACTL Error: Impossible specifications.'
+        Write(LF,*)'mknVert0 Error: Impossible specifications.'
         Write(LF,'(1x,a,3I8)')'NACTEL,NLEV,ISPIN:',NACTEL,NLEV,ISPIN
         Write(LF,'(1x,a,3I8)')'IA0,IB0,IC0:      ',IA0,IB0,IC0
         Write(LF,*)' This is a severe internal error, or possibly'

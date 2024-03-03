@@ -68,7 +68,7 @@
       LM3RAS=nActEl-nElec3
 
       IFRAS=1
-      SGS%nLev=nLev
+
       Call mkGUGA(kSym)
 
       NCSF(1:nSym)=CIS%NCSF(1:nSym)

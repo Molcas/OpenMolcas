@@ -11,6 +11,7 @@
 
 set (sources
      alloc.f
+     caspt2_data.F90
      check_invec.f
      chksplit.F90
      cidia_ci_util.F90
@@ -45,6 +46,7 @@ set (sources
      faroald.F90
      faroald_free.F90
      faroald_init.F90
+     fciqmc_interface.F90
      fndmnx.F90
      fockoc.f
      gatvcs.F90
@@ -125,6 +127,7 @@ set (sources
      sxci.F90
      term_david.F90
      transadd.F90
+     transmat.f
      wadr.F90
 )
 

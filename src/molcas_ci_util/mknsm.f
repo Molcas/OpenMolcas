@@ -22,6 +22,10 @@
 
          Call mkISm_mclr(SGS)
 
+      Else If (ProgName(1:6)=='caspt2') Then
+
+         Call mkISm_cp2(SGS)
+
       Else
 
          Call mkNSM()
@@ -91,6 +95,49 @@
          END DO
 
       END SUBROUTINE MKISM_RASSI
+
+      SUBROUTINE mkism_cp2(SGS)
+
+      use fciqmc_interface, only: DoFCIQMC
+      use stdalloc, only: mma_allocate
+      use gugx, only: L2ACT, LEVEL
+      use Struct, only: SGStruct
+
+      IMPLICIT NONE
+      Type(SGStruct) SGS
+
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "pt2_guga.fh"
+
+#include "SysDef.fh"
+      Integer nLev
+
+      INTEGER IT,ITABS,ILEV,ISYM, iq
+
+      NLEV=NASHT
+      SGS%nLev = NLEV
+      Call mma_allocate(SGS%ISM,NLEV,Label='ISM')
+! ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
+! PAM060612: With true RAS space, the orbitals must be ordered
+! first by RAS type, then by symmetry.
+      ITABS=0
+      DO ISYM=1,NSYM
+        DO IT=1,NASH(ISYM)
+          ITABS=ITABS+1
+! Quan: Bug in LEVEL(ITABS) and L2ACT
+          if (DoCumulant .or. DoFCIQMC) then
+             do iq=1,NLEV
+               LEVEL(iq)=iq
+               L2ACT(iq)=iq
+             enddo
+          endif
+          ILEV=LEVEL(ITABS)
+          SGS%ISM(ILEV)=ISYM
+        END DO
+      END DO
+
+      END SUBROUTINE mkism_cp2
 
       SUBROUTINE MKNSM()
 !     PUPROSE: CREATE THE SYMMETRY INDEX VECTOR

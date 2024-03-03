@@ -33,6 +33,13 @@
 
       INTEGER I,IT,ITABS,ILEV,ISYM, iq
 
+      if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
+     &      .and. (.not. DoFCIQMC)) Then
+
+         call sginit_cp2()
+
+      else
+
       NLEV=NASHT
       SGS%nLev = NLEV
       Call mma_allocate(SGS%ISM,NLEV,Label='ISM')
@@ -54,11 +61,6 @@ C first by RAS type, then by symmetry.
           SGS%ISM(ILEV)=ISYM
         END DO
       END DO
-
-      if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
-     &      .and. (.not. DoFCIQMC)) Then
-         call ginit_cp2()
-      else
 C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
          Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
          CIS%NCSF(:)=0

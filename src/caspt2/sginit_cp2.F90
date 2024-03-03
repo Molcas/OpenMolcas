@@ -17,7 +17,7 @@
 ! SWEDEN                                     *
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
-      SUBROUTINE GINIT_CP2()
+      SUBROUTINE SGINIT_CP2()
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: IFRAS, CIS, SGS, EXS
@@ -38,6 +38,10 @@
       End SUBROUTINE MKGUGA
       End Interface
 
+      SGS%nSym=nSym
+      SGS%iSpin=iSpin
+      SGS%nActEl=nActEl
+
       Associate ( nLev => SGS%nLev, nWalk => CIS%nWalk,                 &
      &            nVert=> SGS%nVert, nMidV=>CIS%nMidV, MXEO => EXS%MxEO, &
      &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
@@ -54,13 +58,10 @@
          IFRAS=0
       End If
 
-      SGS%nSym=nSym
-      SGS%iSpin=iSpin
-      SGS%nActEl=nActEl
+      Call mkIsm(SGS)
 
       Call mknVert0(SGS)
 
-      SGS%nLev=nLev
       CALL MKGUGA(STSYM,Skip_MKSGNUM=.TRUE.)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
@@ -120,5 +121,5 @@
 
       End Associate
 
-      END SUBROUTINE GINIT_CP2
+      END SUBROUTINE SGINIT_CP2
 
