@@ -10,6 +10,64 @@
 !***********************************************************************
       SUBROUTINE MKISM(SGS)
       use UnixInfo, only: ProgName
+      use Struct, only: SGStruct
+      Implicit None
+      Type(SGStruct) SGS
+
+      If (ProgName(1:6)=='rassi') Then
+
+         Call mkISm_Rassi(SGS)
+
+      Else If (ProgName(1:4)=='mclr') Then
+
+         Call mkISm_mclr(SGS)
+
+      Else
+
+         Call mkNSM()
+
+      End If
+
+      END SUBROUTINE MKISM
+
+      SUBROUTINE MKISM_MCLR(SGS)
+      use Struct, only: SGStruct
+      use stdalloc, only: mma_allocate
+      Implicit None
+      Type(SGStruct) SGS
+
+#include "Input.fh"
+#include "detdim.fh"
+#include "spinfo_mclr.fh"
+      Integer :: iOrb, iSym, iBas
+
+      SGS%NLEV=ntASh
+
+      Call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
+
+      iOrb=0
+      Do iSym=1,nSym
+         Do iBas=1,nRs1(iSym)
+            iOrb=iOrb+1
+            SGS%ISM(iOrb)=iSym
+         End Do
+      End Do
+      Do iSym=1,nSym
+         Do iBas=1,nRs2(iSym)
+            iOrb=iOrb+1
+            SGS%ISM(iOrb)=iSym
+         End Do
+      End Do
+      Do iSym=1,nSym
+         Do iBas=1,nRs3(iSym)
+            iOrb=iOrb+1
+            SGS%ISM(iOrb)=iSym
+         End Do
+      End Do
+
+      End SUBROUTINE MKISM_MCLR
+
+      SUBROUTINE MKISM_RASSI(SGS)
       use gugx, only: LEVEL
       use stdalloc, only: mma_allocate
       use Struct, only: SGStruct
@@ -18,7 +76,6 @@
 #include "rassi.fh"
       Integer ITABS, ISYM, IT, ILEV, nSym
 
-      If (ProgName(1:6)=='rassi') Then
 
          nSym=SGS%nSym
          SGS%NLEV=NASHT ! Total number of active orbitals
@@ -32,13 +89,8 @@
              SGS%ISM(ILEV)=ISYM
            END DO
          END DO
-      Else
 
-         Call mkNSM()
-
-      End If
-
-      END SUBROUTINE MKISM
+      END SUBROUTINE MKISM_RASSI
 
       SUBROUTINE MKNSM()
 !     PUPROSE: CREATE THE SYMMETRY INDEX VECTOR

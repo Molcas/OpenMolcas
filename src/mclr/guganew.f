@@ -22,7 +22,7 @@
 #include "spinfo_mclr.fh"
       Real*8, Allocatable:: CINEW(:)
       Real*8 :: PRWTHR=0.05d0
-      Integer ntRas1, ntRas2, ntRas3, iSym, iBas, iOrb, iss
+      Integer ntRas1, ntRas2, ntRas3, iSym, iss
       Integer NICASE
 *
       Interface
@@ -48,8 +48,11 @@
       SGS%nSym=nSym
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
-      SGS%NLEV=ntASh
+*
+      Call mkISm(SGS)
 
+      Call mknVert0(SGS)
+*
       ntRas1=0
       ntRas2=0
       ntRas3=0
@@ -58,30 +61,7 @@
          ntRas2=ntRas2+nRs2(iSym)
          ntRas3=ntRas3+nRs3(iSym)
       End Do
-*
-      Call mknVert0(SGS)
-*
-      Call mma_allocate(SGS%ISM,ntash,Label='SGS%ISM')
-      iOrb=0
-      Do iSym=1,nSym
-         Do iBas=1,nRs1(iSym)
-            iOrb=iOrb+1
-            SGS%ISM(iOrb)=iSym
-         End Do
-      End Do
-      Do iSym=1,nSym
-         Do iBas=1,nRs2(iSym)
-            iOrb=iOrb+1
-            SGS%ISM(iOrb)=iSym
-         End Do
-      End Do
-      Do iSym=1,nSym
-         Do iBas=1,nRs3(iSym)
-            iOrb=iOrb+1
-            SGS%ISM(iOrb)=iSym
-         End Do
-      End Do
-*
+
       LV1RAS=ntRas1
       LV3RAS=LV1RAS+ntRas2
       LM1RAS=2*LV1RAS-nHole1
