@@ -42,8 +42,7 @@
      &            nVert=> SGS%nVert, nMidV=>CIS%nMidV, MXEO => EXS%MxEO, &
      &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
      &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &            MVSta =>SGS%MVSta,  MVEnd=>SGS%MVEnd,                 &
-     &            IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
+     &            MVSta =>SGS%MVSta,  MVEnd=>SGS%MVEnd)
 
       LV1RAS=NRAS1T
       LV3RAS=LV1RAS+NRAS2T
@@ -55,22 +54,12 @@
          IFRAS=0
       End If
 
-! SET UP A FULL PALDUS DRT TABLE:
-      IB0=ISPIN-1
-      IA0=(NACTEL-IB0)/2
-      IC0=NLEV-IA0-IB0
-      IF ( ((2*IA0+IB0).NE.NACTEL) .or.                    &
-         ((IA0.LT.0).OR.(IB0.LT.0).OR.(IC0.LT.0)) ) Then
-         WRITE(u6,*)' ERROR IN SUBROUTINE GINIT.'
-         WRITE(u6,*)'  NR OF ACTIVE ORBITALS:',NLEV
-         WRITE(u6,*)' NR OF ACTIVE ELECTRONS:',NACTEL
-         WRITE(u6,*)'        SPIN DEGENERACY:',ISPIN
-        CALL ABEND()
-      End If
-
+      SGS%nSym=nSym
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
-      SGS%nSym=nSym
+
+      Call mknVert0(SGS)
+
       SGS%nLev=nLev
       CALL MKGUGA(STSYM,Skip_MKSGNUM=.TRUE.)
 

@@ -25,9 +25,7 @@
       IMPLICIT None
 !
       Integer STSYM
-     Logical, Optional:: Skip_MKSGNUM
-
-      Integer IAC
+      Logical, Optional:: Skip_MKSGNUM
 
       Interface
       Subroutine MKDRT0(SGS)
@@ -43,15 +41,11 @@
      &           nWalk => CIS%nWalk,  MxUp => SGS%MxUp, MxDwn => SGS%MxDwn, &
      &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0,       &
      &           nLev=>SGS%nLev, nSym=>SGS%nSym, nVert0=>SGS%nVert0)
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
 !
-      IAC=MIN(IA0,IC0)
-      NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
-
       IF(IFRAS.NE.0) THEN
          CALL mma_allocate(SGS%DRT0,NVERT0,5,Label='DRT0')
          CALL mma_allocate(SGS%DOWN0,[1,NVERT0],[0,3],Label='DOWN0')

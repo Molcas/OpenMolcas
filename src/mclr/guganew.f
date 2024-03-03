@@ -43,12 +43,12 @@
      &            nIpWlk=>CIS%nIpWlk,
      &            MxUp => SGS%MxUp, MxDwn => SGS%MxDwn,
      &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,
-     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,
-     &            A0 => SGS%IA0, B0 => SGS%IB0, C0 => SGS%IC0)
+     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS)
 
       SGS%nSym=nSym
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
+      SGS%NLEV=ntASh
 
       ntRas1=0
       ntRas2=0
@@ -59,33 +59,7 @@
          ntRas3=ntRas3+nRs3(iSym)
       End Do
 *
-      B0=iSpin-1
-      A0=(nActEl-B0)/2
-      C0=ntASh-A0-B0
-      If ( (2*A0+B0).ne.nActEl ) then
-         Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
-         Write (6,*) ' 2*A0+B0.ne.nActEl '
-         Write (6,*)
-      End If
-      If ( A0.lt.0 ) then
-         Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
-         Write (6,*) ' A0.lt.0'
-         Write (6,*)
-      End If
-      If ( B0.lt.0 ) then
-         Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
-         Write (6,*) ' B0.lt.0'
-         Write (6,*)
-      End If
-      If ( C0.lt.0 ) then
-         Write (6,*)
-         Write (6,*) ' *** Error in subroutine GUGACTL ***'
-         Write (6,*) ' C0.lt.0'
-         Write (6,*)
-      End If
+      Call mknVert0(SGS)
 *
       Call mma_allocate(SGS%ISM,ntash,Label='SGS%ISM')
       iOrb=0
@@ -108,7 +82,6 @@
          End Do
       End Do
 *
-      NLEV=ntASh
       LV1RAS=ntRas1
       LV3RAS=LV1RAS+ntRas2
       LM1RAS=2*LV1RAS-nHole1

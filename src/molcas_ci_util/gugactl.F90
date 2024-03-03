@@ -48,7 +48,6 @@
       Associate( nLev =>SGS%nLev,   &
      &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,   &
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,   &
-     &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0, &
      &           nVert0 => SGS%nVert0)
 
 ! Local print level (if any)
