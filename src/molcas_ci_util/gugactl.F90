@@ -31,7 +31,6 @@
 #include "general.fh"
 #include "gas.fh"
       Character(LEN=16), Parameter :: ROUTINE='GUGACTL '
-      Integer nVert0
 
       Interface
       SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
@@ -42,10 +41,15 @@
       End SUBROUTINE MKGUGA
       End Interface
 
+      SGS%nSym=nSym
+      SGS%iSpin=iSpin
+      SGS%nActEl=nActEl
+
       Associate( nLev =>SGS%nLev,   &
      &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,   &
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,   &
-     &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0)
+     &           IA0 => SGS%IA0, IB0 => SGS%IB0, IC0 => SGS%IC0, &
+     &           nVert0 => SGS%nVert0)
 
 ! Local print level (if any)
 #ifdef _DEBUGPRINT_
@@ -64,9 +68,6 @@
 !
 !     CREATE THE SYMMETRY INDEX VECTOR
 !
-      SGS%nSym=nSym
-      SGS%iSpin=iSpin
-      SGS%nActEl=nActEl
       CALL MKISM(SGS)
 !
 !     (IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
@@ -100,24 +101,8 @@
 !
 !     COMPUTE TOP ROW OF THE GUGA TABLE
 !
-      IB0=ISPIN-1
-      IA0=(NACTEL-IB0)/2
-      IC0=NLEV-IA0-IB0
+      Call mknVert0(SGS)
 
-      IF ( ((2*IA0+IB0).NE.NACTEL) .OR.                                 &
-     &     (IA0.LT.0) .OR.                                              &
-     &     (IB0.LT.0) .OR.                                              &
-     &     (IC0.LT.0) ) then
-        Write(LF,*)'GUGACTL Error: Impossible specifications.'
-        Write(LF,'(1x,a,3I8)')'NACTEL,NLEV,ISPIN:',NACTEL,NLEV,ISPIN
-        Write(LF,'(1x,a,3I8)')'IA0,IB0,IC0:      ',IA0,IB0,IC0
-        Write(LF,*)' This is a severe internal error, or possibly'
-        Write(LF,*)' indicates a strange input which should have been'
-        Write(LF,*)' diagnosed earlier. Please submit a bug report.'
-        Call Quit(_RC_GENERAL_ERROR_)
-      End If
-      IAC=MIN(IA0,IC0)
-      NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
       If ( NVERT0.eq.0 ) then
         NCONF=0
         Return
@@ -129,8 +114,6 @@
 !
 !     INITIALIZE GUGA TABLES:
 !
-      SGS%nSym=nSym
-      SGS%nLev=nLev
       CALL MKGUGA(STSYM)
 
       NCONF=CIS%NCSF(STSYM)

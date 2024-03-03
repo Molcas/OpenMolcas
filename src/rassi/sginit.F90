@@ -19,7 +19,7 @@
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
       Integer, Allocatable:: Lim(:)
-      Integer IAC,iErr,iRO,iSy,Lev
+      Integer iRO,iSy,Lev
 
       Interface
       Subroutine MKDRT0(SGS)
@@ -29,41 +29,18 @@
       End Subroutine MKDRT0
       End Interface
 
+      SGS%nSym=nSym
+      SGS%iSpin=iSpin
+      SGS%nActEl=nActEl
+
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert, MidLev => SGS%MidLev, &
                   MVSta => SGS%MVSta, MvEnd => SGS%MVEnd,    &
                   IA0=>SGS%IA0, IB0=>SGS%IB0, IC0=>SGS%IC0, &
                   nVert0=>SGS%nVert0)
 
-
-      SGS%nSym=nSym
-      NLEV=NASHT ! Total number of active orbitals
-      SGS%iSpin=iSpin
-      SGS%nActEl=nActEl
       Call mkISM(SGS)
 
-! Compute size of unrestricted DRT table:
-      ib0=ispin-1
-      ia0=(nActEl-ib0)/2
-      ic0=nLev-ia0-ib0
-
-      iErr=0
-      If ((2*ia0+ib0).ne.nActEl) Then
-        iErr=1
-      Else If((ia0.lt.0).or.(ib0.lt.0).or.(ic0.lt.0)) Then
-        iErr=1
-      End If
-      If(iErr.ne.0) then
-        Write(6,*)' RASSI/SGINIT: Impossible input variables.'
-        Write(6,*)'   nLev:',nLev
-        Write(6,*)' nActEl:',nActEl
-        Write(6,*)'  iSpin:',iSpin
-        Write(6,*)'Program stops, sorry.'
-        CALL ABEND()
-      End If
-
-! start of mkguga-like code
-      IAC=MIN(IA0,IC0)
-      NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
+      Call mknVert0(SGS)
 
 ! Compute unrestricted DRT tables:
       CALL mma_allocate(SGS%DRT0,NVERT0,5,Label='DRT0')

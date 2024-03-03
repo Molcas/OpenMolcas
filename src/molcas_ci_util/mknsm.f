@@ -16,15 +16,14 @@
       Implicit None
       Type(SGStruct) SGS
 #include "rassi.fh"
-      Integer nLev, ITABS, ISYM, IT, ILEV, nSym
+      Integer ITABS, ISYM, IT, ILEV, nSym
 
       If (ProgName(1:6)=='rassi') Then
 
          nSym=SGS%nSym
-         NLEV=NASHT ! Total number of active orbitals
-         SGS%nLev=nLev
+         SGS%NLEV=NASHT ! Total number of active orbitals
 ! Allocate Level to Symmetry table ISm:
-         Call mma_allocate(SGS%ISm,nLev,Label='SGS%ISm')
+         Call mma_allocate(SGS%ISm,SGS%nLev,Label='SGS%ISm')
          ITABS=0
          DO ISYM=1,NSYM
            DO IT=1,NASH(ISYM)
