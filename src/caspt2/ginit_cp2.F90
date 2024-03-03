@@ -68,6 +68,8 @@
         CALL ABEND()
       End If
 
+      SGS%iSpin=iSpin
+      SGS%nActEl=nActEl
       SGS%nSym=nSym
       SGS%nLev=nLev
       CALL MKGUGA(STSYM,Skip_MKSGNUM=.TRUE.)
