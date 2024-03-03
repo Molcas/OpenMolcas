@@ -12,7 +12,7 @@
       use rasdef, only: NRS1, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: LEVEL, mxlev
+      use gugx, only: LEVEL, mxlev
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names,

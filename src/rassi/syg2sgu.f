@@ -11,7 +11,8 @@
       SUBROUTINE SYG2SGU(IMODE,SGS,CIS,LSYM,
      &                   ICNFTAB,ISPNTAB,CIOLD,CINEW)
       use rassi_aux, only: ipglob
-      use Struct, only: mxlev, SGStruct, CIStruct
+      use Struct, only: SGStruct, CIStruct
+      use gugx, only: mxlev
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 

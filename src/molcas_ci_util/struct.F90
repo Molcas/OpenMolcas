@@ -68,9 +68,5 @@ Type EXStruct
      Integer, Allocatable:: LSGN(:,:)
 End Type EXStruct
 Public SGStruct, CIStruct, EXStruct
-integer, parameter ::  mxlev=100
-integer :: LEVEL(mxlev)
-
-public :: mxlev, LEVEL
 
 end module Struct

@@ -10,11 +10,13 @@
 !***********************************************************************
       Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Struct, only: LEVEL, SGStruct
+      use Struct, only: SGStruct
+      use gugx, only: LEVEL
       IMPLICIT None
 #include "rassi.fh"
       Integer nSym, nActEl, iSpin, nRasPrt
       Type (SGStruct), Target :: SGS
+      ! nRas(iSym,iRasPrt): number of orbitals of symmetry iSym in the iRasPrt active space.
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
       Integer, Allocatable:: Lim(:)
@@ -33,7 +35,7 @@
                   IA0=>SGS%IA0, IB0=>SGS%IB0, IC0=>SGS%IC0, &
                   nVert0=>SGS%nVert0)
 
-      NLEV=NASHT
+      NLEV=NASHT ! Total number of active orbitals
 ! Allocate Level to Symmetry table ISm:
       Call mma_allocate(SGS%ISm,nLev,Label='SGS%ISm')
       ITABS=0
