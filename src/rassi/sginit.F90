@@ -11,7 +11,6 @@
       Subroutine SGInit(nSym,nActEl,iSpin,nRasPrt,nRas,nRasEl,SGS)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only: SGStruct
-      use gugx, only: LEVEL
       IMPLICIT None
 #include "rassi.fh"
       Integer nSym, nActEl, iSpin, nRasPrt
@@ -20,7 +19,7 @@
       Integer nRas(8,nRasPrt),nRasEl(nRasPrt)
 
       Integer, Allocatable:: Lim(:)
-      Integer IAC,iErr,iLev,iRO,iSy,iSym,it,iTabs, Lev
+      Integer IAC,iErr,iRO,iSy,Lev
 
       Interface
       Subroutine MKDRT0(SGS)
@@ -35,17 +34,11 @@
                   IA0=>SGS%IA0, IB0=>SGS%IB0, IC0=>SGS%IC0, &
                   nVert0=>SGS%nVert0)
 
+
+      SGS%nSym=nSym
       NLEV=NASHT ! Total number of active orbitals
-! Allocate Level to Symmetry table ISm:
-      Call mma_allocate(SGS%ISm,nLev,Label='SGS%ISm')
-      ITABS=0
-      DO ISYM=1,NSYM
-        DO IT=1,NASH(ISYM)
-          ITABS=ITABS+1
-          ILEV=LEVEL(ITABS)
-          SGS%ISM(ILEV)=ISYM
-        END DO
-      END DO
+
+      Call mkISM(SGS)
 
 ! Compute size of unrestricted DRT table:
       ib0=ispin-1

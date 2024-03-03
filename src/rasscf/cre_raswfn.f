@@ -19,7 +19,7 @@
      &               mh5_create_attr_int, mh5_create_dset_real,
      &               mh5_create_dset_int, mh5_create_dset_str,
      &               mh5_put_dset, mh5_close_dset
-      use gugx, only: IFCAS
+      use gugx, only: IFRAS
       use sxci, only: IDXCI, IDXSX
       implicit none
 
@@ -52,7 +52,7 @@
 *     set wavefunction type
       if (iDoGAS) then
         call mh5_init_attr (wfn_fileid,'CI_TYPE', 'GAS')
-      else if (IFCAS.EQ.0) then
+      else if (IFRAS.EQ.0) then
         call mh5_init_attr (wfn_fileid,'CI_TYPE', 'CAS')
       else
         call mh5_init_attr (wfn_fileid,'CI_TYPE', 'RAS')

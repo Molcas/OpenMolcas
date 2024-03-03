@@ -23,6 +23,6 @@ Type (EXStruct), Public, Target:: EXS
 Integer, Parameter, Public :: MXLEV=100
 Integer, Public:: L2ACT(MXLEV), LEVEL(MXLEV)
 
-INTEGER, Public:: IFCAS
+INTEGER, Public:: IFRAS
 
 End Module GUGX

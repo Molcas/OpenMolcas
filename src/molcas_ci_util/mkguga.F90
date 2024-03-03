@@ -20,7 +20,7 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate
-      use gugx, only: IFCAS, CIS, SGS, EXS
+      use gugx, only: IFRAS, CIS, SGS, EXS
 
       IMPLICIT None
 !
@@ -52,7 +52,7 @@
       IAC=MIN(IA0,IC0)
       NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
 
-      IF(IFCAS.NE.0) THEN
+      IF(IFRAS.NE.0) THEN
          CALL mma_allocate(SGS%DRT0,NVERT0,5,Label='DRT0')
          CALL mma_allocate(SGS%DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
          SGS%DRTP => SGS%DRT0
@@ -70,7 +70,7 @@
 !     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
 !     VERTICES WHICH VIOLATE THE FORMER.
 !
-      IF(IFCAS.NE.0) THEN
+      IF(IFRAS.NE.0) THEN
         CALL RESTR(SGS)
 !
 !     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)

@@ -32,7 +32,7 @@ C (lots of negative denominators appear), relatively large IPEA and imaginary sh
 C are required to converge CASPT2 iteration.
 C
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
-      SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+      SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
       use caspt2_output, only:iPrGlb,verbose,debug
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
@@ -45,7 +45,7 @@ C
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
-      INTEGER, INTENT(IN) :: IFF
+      INTEGER, INTENT(IN) :: IFF, NLEV
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: G3(*), F3(*)

@@ -11,7 +11,7 @@
       Subroutine GugaNew(CIL,imode,ksym)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: SGS,CIS,EXS,IFCAS
+      use gugx, only: SGS,CIS,EXS,IFRAS
       use Str_Info, only: CFTP, CNSM
       Implicit None
       Integer imode, ksym
@@ -110,7 +110,7 @@
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
 
-      IFCAS=1
+      IFRAS=1
       SGS%nSym=nSym
       SGS%nLev=nLev
       Call mkGUGA(kSym)

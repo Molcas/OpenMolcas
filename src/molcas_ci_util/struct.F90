@@ -11,7 +11,7 @@
 module Struct
 ! Split-Graph descriptor, sizes, addresses...
 Type SGStruct
-     Integer NSym
+     Integer :: NSym=0
      Integer IA0
      Integer IB0
      Integer IC0

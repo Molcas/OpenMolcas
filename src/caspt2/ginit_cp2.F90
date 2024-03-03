@@ -20,7 +20,7 @@
       SUBROUTINE GINIT_CP2()
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: IFCAS, CIS, SGS, EXS
+      use gugx, only: IFRAS, CIS, SGS, EXS
       IMPLICIT None
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -50,9 +50,9 @@
       LM1RAS=2*LV1RAS-NHOLE1
       LM3RAS=NACTEL-NELE3
       IF ((NRAS1T+NRAS3T)/=0) Then
-         IFCAS=1
+         IFRAS=1
       Else
-         IFCAS=0
+         IFRAS=0
       End If
 
 ! SET UP A FULL PALDUS DRT TABLE:

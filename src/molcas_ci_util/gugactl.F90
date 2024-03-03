@@ -21,7 +21,7 @@
 !
       use Definitions, only: LF => u6
       use stdalloc, only: mma_allocate
-      use gugx, only: IFCAS, CIS, SGS
+      use gugx, only: IFRAS, CIS, SGS
 
       IMPLICIT REAL*8 (A-H,O-Z)
 !
@@ -52,21 +52,22 @@
       WRITE(LF,*)' Entering ',ROUTINE
 #endif
 !
-!     SET IFCAS FLAG
-!     IFCAS = 0 : THIS IS A CAS CALCULATION
-!     IFCAS = 1 : THIS IS A RAS CALCULATION
+!     SET IFRAS FLAG
+!     IFRAS = 0 : THIS IS A CAS CALCULATION
+!     IFRAS = 1 : THIS IS A RAS CALCULATION
 !
-      IFCAS=0
-      IF (NHOLE1.NE.0.OR.NELEC3.NE.0) IFCAS=1
+      IFRAS=0
+      IF (NHOLE1.NE.0.OR.NELEC3.NE.0) IFRAS=1
       DO IS=1,NSYM
-        IF (IFCAS.NE.0.AND.NASH(IS).NE.0)IFCAS=IFCAS+1
+        IF (IFRAS.NE.0.AND.NASH(IS).NE.0)IFRAS=IFRAS+1
       END DO
 !
 !     CREATE THE SYMMETRY INDEX VECTOR
 !
-      CALL MKNSM()
+      SGS%nSym=nSym
+      CALL MKISM(SGS)
 !
-!     (IFCAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+!     (IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
 !     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
 !     SET UP THE REINDEXING TABLE
 !
@@ -88,9 +89,6 @@
         NLEV=NLEV+NRS3(IS)
       END DO
 
-      Call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
-
-      SGS%ISM(1:nLev)=NSM(1:nLev)
 !
 !     COMPUTE RAS RESTRICTIONS ON VERTICES:
 !
