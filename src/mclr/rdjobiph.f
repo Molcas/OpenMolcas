@@ -23,6 +23,7 @@
 ************************************************************************
       use MckDat, only: sNew
       use Arrays, only: CMO, G2t, G1t
+      use gugx, only: SGS, CIS, EXS
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -144,7 +145,7 @@
       if(doDMRG)then  ! yma
         imode=-99
         ! generate the Nr. of csfs in each sym
-        Call GugaNew(rdum,imode,State_Sym)
+        Call GugaNew(SGS,CIS,EXS,rdum,imode,State_Sym)
 !        do isym=1,8
 !          write(*,*)"isym_ncsf in rdjobiph ",ncsf(isym)
 !        end do

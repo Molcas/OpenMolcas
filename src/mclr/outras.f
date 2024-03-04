@@ -23,6 +23,7 @@
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
       use MckDat, only: sLength
+      use gugx, only: SGS, CIS, EXS
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 
@@ -116,7 +117,7 @@
 
                If (iAnd(kprint,8).eq.8)
      &              Write(6,*) 'Perturbation ',ipert
-               If (CI) call Guganew(CIp1,0,pstate_sym)
+               If (CI) call Guganew(SGS,CIS,EXS,CIp1,0,pstate_sym)
                If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)
      &              CIp1(1)=0.0d0
                Call dWrMCk(iRC,iOpt,Label,ipert,CIp1,isyml)

@@ -25,6 +25,7 @@
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
        use MckDat, only: sLength
+       use gugx, only: SGS, CIS, EXS
        Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "Input.fh"
@@ -107,11 +108,11 @@
           If (iAnd(kprint,8).eq.8) Write(6,*) 'Perturbation ',ipert
 
           If (Timedep.and.CI) then
-            Call Guganew(CIp1(:,2),0,pstate_sym)
+            Call Guganew(SGS,CIS,EXS,CIp1(:,2),0,pstate_sym)
             Call DSCAL_(nconf1,-1.0d0,CIp1(:,2),1)
           End If
 
-          If (CI) call Guganew(CIp1(:,1),0,pstate_sym)
+          If (CI) call Guganew(SGS,CIS,EXS,CIp1(:,1),0,pstate_sym)
           If (Timedep) then
             If (CI) Then
 *              Call RecPrt(' ',' ',CIp1,nconfM,1)

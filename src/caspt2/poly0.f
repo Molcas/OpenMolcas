@@ -20,7 +20,7 @@
 
       use fciqmc_interface, only: DoFCIQMC
       use stdalloc, only: mma_allocate
-      use gugx, only: SGS, L2ACT, LEVEL, CIS
+      use gugx, only: SGS, L2ACT, LEVEL, CIS, EXS
 
       IMPLICIT NONE
 
@@ -36,7 +36,7 @@
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
      &      .and. (.not. DoFCIQMC)) Then
 
-         call sginit_cp2()
+         call sginit_cp2(SGS,CIS,EXS)
 
       else
 

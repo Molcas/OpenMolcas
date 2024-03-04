@@ -8,12 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GugaNew(CIL,imode,ksym)
+      Subroutine GugaNew(SGS,CIS,EXS,CIL,imode,ksym)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: SGS,CIS,EXS,IFRAS
+      use gugx, only: IFRAS
       use Str_Info, only: CFTP, CNSM
+      use Struct, only: SGStruct, CIStruct, EXStruct
       Implicit None
+      Type(SGStruct) SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
       Integer imode, ksym
       Real*8 CIL(*)
 *

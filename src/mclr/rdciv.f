@@ -22,6 +22,7 @@
 *                                                                      *
 ************************************************************************
       use negpre
+      use gugx, only: SGS, CIS, EXS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
@@ -40,7 +41,7 @@
       idisk1=0
       Do i=1,lroots
        Call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
-       Call GugaNew(OCIvec,1,State_Sym)
+       Call GugaNew(SGS,CIS,EXS,OCIvec,1,State_Sym)
        Call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
       End Do
 

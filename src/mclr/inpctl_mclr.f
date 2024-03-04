@@ -24,6 +24,7 @@
       use Str_Info, only: DTOC
       use negpre
       use ipPage, only: W
+      use gugx, only: SGS, CIS, EXS
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -122,7 +123,8 @@ C     write(6,*) "iMethod:",iMethod,iCASSCF
            !> If doDMRG
            if(doDMRG.and.doMCLR)then ! yma
            else
-             Call GugaNew(CITmp,1,State_Sym)   ! transform to sym. group
+             ! transform to sym. group
+             Call GugaNew(SGS,CIS,EXS,CITmp,1,State_Sym)
            end if
 
 ! Here should be the position for introducing the CI(SR) coefficients

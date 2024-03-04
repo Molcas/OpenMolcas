@@ -17,11 +17,15 @@
 ! SWEDEN                                     *
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
-      SUBROUTINE SGINIT_CP2()
+      SUBROUTINE SGINIT_CP2(SGS,CIS,EXS)
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: IFRAS, CIS, SGS, EXS
+      use Struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: IFRAS
       IMPLICIT None
+      Type(SGStruct) SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "segtab.fh"
