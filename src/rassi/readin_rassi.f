@@ -393,7 +393,6 @@ C ------------------------------------------
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HEXT') THEN
         IFHEXT=.TRUE.
-        IFHAM =.TRUE.
         Call mma_allocate(HAM,nState,nState,Label='HAM')
         Read(LuIn,*,ERR=997)((HAM(ISTATE,JSTATE),
      &                                           JSTATE=1,ISTATE),
@@ -409,19 +408,16 @@ C ------------------------------------------
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HEFF') THEN
         IFHEFF=.TRUE.
-        IFHAM =.TRUE.
         GOTO 100
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HCOM') THEN
         IFHCOM=.TRUE.
-        IFHAM =.TRUE.
         GOTO 100
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'EJOB') THEN
         IFEJOB=.TRUE.
-        IFHAM=.TRUE.
 !   Leon: Is it really needed?
 !        LINENR=LINENR+1
         GOTO 100
@@ -679,14 +675,14 @@ C*****IS 30-09/2007**************************
 C--------------------------------------------
       IF(Line(1:4).eq.'TRAC') THEN
         TRACK=.TRUE.
-        IFHAM=.FALSE.
+        NOHAM=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF
 C--------------------------------------------
       IF(Line(1:4).eq.'STOV') THEN
         ONLY_OVERLAPS=.TRUE.
-        IFHAM=.FALSE.
+        NOHAM=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF

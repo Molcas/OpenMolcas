@@ -50,6 +50,7 @@
      &          TUVX(*)
 c     Logical Exist
       Logical Do_ESPF
+      Real*8 rdum(1)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
