@@ -88,6 +88,7 @@ set (sources
      mkmid.F90
      mknvert0.F90
      mknsm.F90
+     mkras.F90
      mkraw.F90
      mkseg.f
      mksgnum.f
@@ -101,11 +102,13 @@ set (sources
      phpcsf.F90
      pmat_rasscf.f
      prttim.f
+     rasdef.F90
      rd1int.f
      rd2int_rasscf.f
      recno.F90
      restr.F90
      reord2.F90
+     rmvert.F90
      save_ci_vec.F90
      save_h_diag.F90
      save_sig_vec.F90

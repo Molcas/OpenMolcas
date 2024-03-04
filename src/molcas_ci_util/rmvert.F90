@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE RMVERT(SGS)
-C Purpose: Remove vertices from a DRT table.
+! Purpose: Remove vertices from a DRT table.
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only: SGStruct
       use RasDef, only: nRas, nRsPrt, nRasEl
@@ -35,12 +35,12 @@ C Purpose: Remove vertices from a DRT table.
 
       Call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
 
-      Associate (nVert=>SGS%nVert, IDRT=>SGS%DRT0, IDOWN=>SGS%DOWN0,
+      Associate (nVert=>SGS%nVert, IDRT=>SGS%DRT0, IDOWN=>SGS%DOWN0,    &
      &           VER=>SGS%Ver, nLim => Lim)
 
       Call mma_allocate(CONN,nVert,Label='CONN')
 
-C KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
+! KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
       DO IV=1,NVERT-1
         VER(IV)=1
         L=IDRT(IV,LTAB)
@@ -51,8 +51,8 @@ C KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
 
       NCHANGES=1 ! Initiate first loop
       Do While (NCHANGES>0)
-C REMOVE ARCS HAVING A DEAD UPPER OR LOWER VERTEX.
-C COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
+! REMOVE ARCS HAVING A DEAD UPPER OR LOWER VERTEX.
+! COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
       NCHANGES=0
       DO IV=1,NVERT-1
         IF(VER(IV).EQ.0) THEN
@@ -82,7 +82,7 @@ C COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
           END IF
         END IF
       END DO
-C ALSO CHECK ON CONNECTIONS FROM ABOVE:
+! ALSO CHECK ON CONNECTIONS FROM ABOVE:
       CONN(:)=0
       CONN(1)=VER(1)
       DO IV=1,NVERT-1
@@ -108,13 +108,13 @@ C ALSO CHECK ON CONNECTIONS FROM ABOVE:
 
       End Do
 
-C IF NO CHANGES, THE REMAINING GRAPH IS VALID.
-C EVERY VERTEX OBEYS THE RESTRICTIONS. EVERY VERTEX IS
-C CONNECTED ABOVE AND BELOW (EXCEPTING THE TOP AND BOTTOM)
-C TO OTHER CONFORMING VERTICES.
-C THE PROCEDURE IS GUARANTEED TO FIND A STABLE SOLUTIONS,
-C SINCE EACH ITERATION REMOVES ARCS AND/OR VERTICES FROM THE
-C FINITE NUMBER WE STARTED WITH.
+! IF NO CHANGES, THE REMAINING GRAPH IS VALID.
+! EVERY VERTEX OBEYS THE RESTRICTIONS. EVERY VERTEX IS
+! CONNECTED ABOVE AND BELOW (EXCEPTING THE TOP AND BOTTOM)
+! TO OTHER CONFORMING VERTICES.
+! THE PROCEDURE IS GUARANTEED TO FIND A STABLE SOLUTIONS,
+! SINCE EACH ITERATION REMOVES ARCS AND/OR VERTICES FROM THE
+! FINITE NUMBER WE STARTED WITH.
 
       IF(VER(1).EQ.0) THEN
         WRITE(6,*)'RASSI/RMVERT: Too severe restrictions.'

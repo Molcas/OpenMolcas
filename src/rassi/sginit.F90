@@ -45,7 +45,7 @@
 
       CALL mkDRT0(SGS)
 
-      Call RmVert(SGS)
+      Call mkRAS(SGS)
 
       Call mkDRT(SGS)
 
