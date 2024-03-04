@@ -32,7 +32,7 @@
 
       End If
 
-      END SUBROUTINE MKISM
+Contains
 
       SUBROUTINE MKISM_MCLR(SGS)
       use Struct, only: SGStruct
@@ -138,6 +138,8 @@
       END DO
 
       END SUBROUTINE mkism_cp2
+
+      END SUBROUTINE MKISM
 
       SUBROUTINE MKNSM()
 !     PUPROSE: CREATE THE SYMMETRY INDEX VECTOR

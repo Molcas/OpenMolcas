@@ -134,7 +134,7 @@
       Logical TwoStep
       Character(len=4) StepType
 
-      Common/dInput/ ERASSCF,ESCF,PotNuc,Coor,weight,
+      Common/dInput/ ERASSCF,ESCF,PotNuc,Coor,weight,                   &
      &               epsilon,omega,epsorb, rin_ene, umass
       Common/iInput/ nAtoms,nSym,                                       &
      &               State_sym,iSpin,                                   &

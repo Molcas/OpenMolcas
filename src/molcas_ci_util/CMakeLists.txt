@@ -87,7 +87,7 @@ set (sources
      mkmaw.F90
      mkmid.F90
      mknvert0.F90
-     mknsm.f
+     mknsm.F90
      mkraw.F90
      mkseg.f
      mksgnum.f
