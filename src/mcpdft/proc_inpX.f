@@ -30,6 +30,7 @@
       use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use lucia_interface, only: lucia_util
+      use gugx, only: SGS, CIS
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -780,7 +781,7 @@ CSVC: check if NU<NT are included in the same gas space
 *
 *     Construct the Guga tables
 *
-      call gugactl()
+      call gugactl(SGS,CIS)
 * ===============================================================
 *
 *     Construct the determinant tables

@@ -12,7 +12,7 @@
 !               Markus P. Fuelscher                                    *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE GUGACTL()
+      SUBROUTINE GUGACTL(SGS,CIS)
 !
 !     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
 !     AUTHOR:  P.-AA. MALMQVIST
@@ -21,16 +21,19 @@
 !
       use Definitions, only: LF => u6
       use stdalloc, only: mma_allocate
-      use gugx, only: IFRAS, CIS, SGS
-
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use gugx, only: IFRAS
+      use Struct, only: SGStruct, CIStruct
+      IMPLICIT None
+      Type(SGStruct) SGS
+      Type(CIStruct) CIS
 !
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-      Character(LEN=16), Parameter :: ROUTINE='GUGACTL '
+      Integer IS, nRas2
+
 
       Interface
       SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
