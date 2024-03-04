@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2021, Ignacio Fdez. Galván                             *
+# Copyright (C) 2021,2024, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 import sys
@@ -17,7 +17,7 @@ import argparse
 import numpy as np
 import h5py
 
-version = '1.0'
+version = '1.1'
 
 ################################################################################
 # FUNCTIONS
@@ -482,6 +482,8 @@ with h5py.File(args['infile'], 'r') as fi, h5py.File(args['outfile'], 'w') as fo
       fo.attrs[name] = fi.attrs[name]
       warning_item.append(name)
 
+  translate_mltpl1 = False
+
   for name in fi:
 
     if name in safe_to_copy:
@@ -504,12 +506,19 @@ with h5py.File(args['infile'], 'r') as fi, h5py.File(args['outfile'], 'w') as fo
         coor = fi[name]
         fo[name2][:] = reorder @ (coor @ R.T + T)
 
-    # Multipole centers too, but they are not reordered
+    # Multipole origins too, but they are not reordered
     elif name == 'MLTPL_ORIG':
       copy_dataset(fi, fo, name)
       if do_rot or do_trans:
         coor = fi[name]
         fo[name][:] = coor @ R.T + T
+        # Do not transform origins for order 0 and 1 multipoles if they are zero
+        if fi[name].shape[0] > 0 and not np.any(fi[name][0,:]):
+          fo[name][0,:] = fi[name][0,:]
+        if fi[name].shape[0] > 1 and not np.any(fi[name][1,:]):
+          fo[name][1,:] = fi[name][1,:]
+          # We will need to translate the integrals instead
+          translate_mltpl1 = do_trans
 
     # Other center data are reordered only
     elif name in ['CENTER_ATNUMS', 'CENTER_CHARGES', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_CHARGES']:
@@ -597,6 +606,8 @@ with h5py.File(args['infile'], 'r') as fi, h5py.File(args['outfile'], 'w') as fo
         if do_desym:
           mo = (mo @ desym)[mo_reindex]
         fo[name][:] = (mo @ U).flatten()
+      else:
+        fo[name][:] = fi[name][:]
     elif name == 'MO_ALPHA_VECTORS':
       copy_dataset(fi, fo, name, size=(nb**2,))
       if do_rot or do_desym:
@@ -604,6 +615,8 @@ with h5py.File(args['infile'], 'r') as fi, h5py.File(args['outfile'], 'w') as fo
         if do_desym:
           mo = (mo @ desym)[mo_alpha_reindex]
         fo[name][:] = (mo @ U).flatten()
+      else:
+        fo[name][:] = fi[name][:]
     elif name == 'MO_BETA_VECTORS':
       copy_dataset(fi, fo, name, size=(nb**2,))
       if do_rot or do_desym:
@@ -611,6 +624,8 @@ with h5py.File(args['infile'], 'r') as fi, h5py.File(args['outfile'], 'w') as fo
         if do_desym:
           mo = (mo @ desym)[mo_beta_reindex]
         fo[name][:] = (mo @ U).flatten()
+      else:
+        fo[name][:] = fi[name][:]
 
     # Other MO data are just reordered if desymmetrized
     elif name in ['MO_ENERGIES', 'MO_OCCUPATIONS', 'MO_TYPEINDICES', 'SUPSYM_IRREP_INDICES']:
@@ -635,6 +650,8 @@ with h5py.File(args['infile'], 'r') as fi, h5py.File(args['outfile'], 'w') as fo
       if do_rot or do_desym:
         mtrx = sblock_to_square(fi[name], nbas)
         fo[name][:] = (V @ mtrx @ V.T).flatten()
+      else:
+        fo[name][:] = fi[name][:]
 
     # Multipole AO matrices are further transformed among their components
     elif name in ['AO_MLTPL_X', 'AO_MLTPL_Y', 'AO_MLTPL_Z']:
@@ -704,6 +721,19 @@ with h5py.File(args['infile'], 'r') as fi, h5py.File(args['outfile'], 'w') as fo
     elif args['all']:
       copy_dataset(fi, fo, name)
       warning_item.append(name)
+
+  # If the origin for dipole integrals was not translated, we need to translate the integrals
+  if translate_mltpl1:
+    if 'AO_OVERLAP_MATRIX' in fo:
+      if 'AO_MLTPL_X' in fo:
+        ov = sblock_to_square(fo['AO_OVERLAP_MATRIX'], nbas)
+        fo['AO_MLTPL_X'][:] += T[0]*ov
+        fo['AO_MLTPL_Y'][:] += T[1]*ov
+        fo['AO_MLTPL_Z'][:] += T[2]*ov
+    else:
+      print('WARNING: The AO_MLTPL_X, _Y, _Z integrals need to be translated, but AO_OVERLAP_MATRIX is missing.')
+      print('         They are probably WRONG!')
+      print()
 
 # In case something unsafe was done
 if warning_item and do_smth:
