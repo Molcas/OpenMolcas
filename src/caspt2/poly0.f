@@ -36,7 +36,9 @@
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
      &      .and. (.not. DoFCIQMC)) Then
 
-         call sginit_cp2(SGS,CIS,EXS)
+         call sginit_cp2(nSym,iSpin,nActEl,nHole1,nEle3,
+     &                   nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,
+     &                   STSYM)
 
       else
 

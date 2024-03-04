@@ -8,7 +8,5 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer IC1(26),IC2(26),ITVPT(26),IBVPT(26),ISVC(26),             &
-     &                NIVR,LIVR,NSGMNT,LSGMNT
-      COMMON /SEGTAB/ IC1,IC2,ITVPT,IBVPT,ISVC,                         &
-     &                NIVR,LIVR,NSGMNT,LSGMNT
+      Integer IC1(26),IC2(26),ITVPT(26),IBVPT(26),ISVC(26)
+      COMMON /SEGTAB/ IC1,IC2,ITVPT,IBVPT,ISVC

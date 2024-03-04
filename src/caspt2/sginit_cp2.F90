@@ -17,18 +17,16 @@
 ! SWEDEN                                     *
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
-      SUBROUTINE SGINIT_CP2(SGS,CIS,EXS)
+      SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,STSYM)
       use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only: SGStruct, CIStruct, EXStruct
       use gugx, only: IFRAS
       IMPLICIT None
+      Integer nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,STSYM
       Type(SGStruct) SGS
       Type(CIStruct) CIS
       Type(EXStruct) EXS
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "segtab.fh"
       Integer, Allocatable:: IVR(:), ISGM(:), ILNDW(:), SCR(:)
       Integer                                 NILNDW,   NSCR
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
@@ -53,8 +51,8 @@
      &            MVSta =>SGS%MVSta,  MVEnd=>SGS%MVEnd)
 
       LV1RAS=NRAS1T
-      LV3RAS=LV1RAS+NRAS2T
-      LM1RAS=2*LV1RAS-NHOLE1
+      LV3RAS=nRas1T+NRAS2T
+      LM1RAS=2*nRas1T-NHOLE1
       LM3RAS=NACTEL-NELE3
       IF ((NRAS1T+NRAS3T)/=0) Then
          IFRAS=1
@@ -75,12 +73,11 @@
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
-      NSGMNT=26*NVERT
       CALL mma_allocate(IVR,2*NVERT,Label='IVR')
       CALL mma_allocate(EXS%MVL,NMIDV,2,Label='EXS%MVL')
       CALL mma_allocate(EXS%MVR,NMIDV,2,Label='EXS%MVR')
-      CALL mma_allocate(ISGM,NSGMNT,Label='ISGM')
-      CALL mma_allocate(VSGM,NSGMNT,Label='VSGM')
+      CALL mma_allocate(ISGM,26*nVert,Label='ISGM')
+      CALL mma_allocate(VSGM,26*nVert,Label='VSGM')
       CALL MKSEG(SGS,nLev,nVert,nMidV,SGS%DRT,SGS%DOWN,SGS%LTV,IVR,EXS%MVL,EXS%MVR,ISGM,VSGM)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
