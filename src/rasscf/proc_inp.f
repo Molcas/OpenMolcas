@@ -3542,7 +3542,11 @@ C Test read failed. JOBOLD cannot be used.
 #endif
             Call Timing(Eterna_1,dum1,dum2,dum3)
             If (DBG) Write(6,*)' Call GugaCtl'
-            Call GugaCtl(SGS,CIS)
+            call GUGACtl(nSym,iSpin,nActEl,nHole1,nElec3,
+     &                   nRs1,nRs2,nRs3,
+     &                   SGS,CIS,STSYM,DoBlockDMRG)
+            NCONF=CIS%NCSF(STSYM)
+
             Call Timing(Eterna_2,dum1,dum2,dum3)
 #ifdef _DMRG_
           end if

@@ -781,7 +781,10 @@ CSVC: check if NU<NT are included in the same gas space
 *
 *     Construct the Guga tables
 *
-      call gugactl(SGS,CIS)
+      call gugactl(nSym,iSpin,nActEl,nHole1,nElec3,
+     &             nRs1,nRs2,nRs3,
+     &            SGS,CIS,STSYM,DoBlockDMRG)
+      NCONF=CIS%NCSF(STSYM)
 * ===============================================================
 *
 *     Construct the determinant tables

@@ -11,29 +11,28 @@
 ! Copyright (C) Per Ake Malmqvist                                      *
 !               Markus P. Fuelscher                                    *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE GUGACTL(SGS,CIS)
+#define _DEBUGPRINT_
+      SUBROUTINE GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,STSYM,DoblockDMRG)
 !
 !     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
 !     AUTHOR:  P.-AA. MALMQVIST
 !
 !     MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 !
-      use Definitions, only: LF => u6
+#ifdef _DEBUGPRINT_
+      use Definitions, only: u6
+#endif
       use stdalloc, only: mma_allocate
       use gugx, only: IFRAS
       use Struct, only: SGStruct, CIStruct
       IMPLICIT None
+      Integer nSym,iSpin,nActEl,nHole1,nElec3,STSYM
+      Integer nRs1(nSym),nRs2(nSym),nRs3(nSym)
       Type(SGStruct) SGS
       Type(CIStruct) CIS
+      Logical DoBlockDMRG
 !
-#include "rasdim.fh"
-#include "warnings.h"
-#include "rasscf.fh"
-#include "general.fh"
-#include "gas.fh"
-      Integer IS, nRas2
-
+      Integer IS, nRas1T,nRas2T,nRas3T
 
       Interface
       SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
@@ -44,6 +43,15 @@
       End SUBROUTINE MKGUGA
       End Interface
 
+      nRas1T=Sum(nRs1(1:nSym))
+      nRas2T=Sum(nRs2(1:nSym))
+      nRas3T=Sum(nRs3(1:nSym))
+
+#ifdef _DEBUGPRINT_
+      Write (u6,*) 'nSym,iSpin,nActEl,nHole1,nElec3,nRas1T,nRas2T,nRas3T,STSYM=', &
+                   nSym,iSpin,nActEl,nHole1,nElec3,nRas1T,nRas2T,nRas3T,STSYM
+#endif
+
       SGS%nSym=nSym
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
@@ -53,52 +61,42 @@
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,   &
      &           nVert0 => SGS%nVert0)
 
+!
+!     COMPUTE RAS RESTRICTIONS ON VERTICES:
+!
+      LV1RAS=NRAS1T
+      LV3RAS=nRas1T+NRAS2T
+      LM1RAS=2*nRas1T-NHOLE1
+      LM3RAS=NACTEL-nElec3
+
 !     SET IFRAS FLAG
 !     IFRAS = 0 : THIS IS A CAS CALCULATION
 !     IFRAS = 1 : THIS IS A RAS CALCULATION
 !
-      IFRAS=0
-      IF (NHOLE1.NE.0.OR.NELEC3.NE.0) IFRAS=1
+      IF ((NRAS1T+NRAS3T)/=0) Then
+         IFRAS=1
+      Else
+         IFRAS=0
+      End If
       DO IS=1,NSYM
-        IF (IFRAS.NE.0.AND.NASH(IS).NE.0)IFRAS=IFRAS+1
+        IF (IFRAS.NE.0.AND.nRs2(IS).NE.0)IFRAS=IFRAS+1
       END DO
+
 !
 !     CREATE THE SYMMETRY INDEX VECTOR
 !
       CALL MKISM(SGS)
-!
-!     FIND TOTAL NUMBER OF VERTICES IN THE SUBSPACES
-!
-!... for RAS
-      NLEV=0
-      DO IS=1,NSYM
-        NLEV=NLEV+NRS1(IS)
-      END DO
-      LV1RAS=NLEV
-      DO IS=1,NSYM
-        NLEV=NLEV+NRS2(IS)
-      END DO
-      NRAS2=NLEV-LV1RAS
-      DO IS=1,NSYM
-        NLEV=NLEV+NRS3(IS)
-      END DO
-!
-!     COMPUTE RAS RESTRICTIONS ON VERTICES:
-!
-      LV3RAS=LV1RAS+NRAS2
-      LM1RAS=2*LV1RAS-NHOLE1
-      LM3RAS=NACTEL-NELEC3
 !
 !     COMPUTE TOP ROW OF THE GUGA TABLE
 !
       Call mknVert0(SGS)
 
       If ( NVERT0.eq.0 ) then
-        NCONF=0
+        CIS%NCSF(STSYM)=0
         Return
       End If
       If ( doBlockDMRG ) then
-        NCONF=1
+        CIS%NCSF(STSYM)=1
         Return
       End If
 !
@@ -106,8 +104,7 @@
 !
       CALL MKGUGA(STSYM)
 
-      NCONF=CIS%NCSF(STSYM)
-      If ( NAC.eq.0 ) NCONF=1
+      If ( NActEl.eq.0 ) CIS%NCSF(STSYM)=1
 
       End Associate
 !
