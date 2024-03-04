@@ -12,7 +12,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only: SGStruct
       IMPLICIT None
-#include "rassi.fh"
+!#include "rassi.fh"
       Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
 
