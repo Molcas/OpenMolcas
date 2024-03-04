@@ -242,7 +242,13 @@
           Do iR = 1, nRoots
             Call DCopy_(nConf1,W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),
      *                  1,wrk,1)
-            Call GugaNew(SGS,CIS,EXS,wrk,1,State_Sym)
+            Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,
+     &                   nRs1,nRs2,nRs3,
+     &                   SGS,CIS,EXS,wrk,1,State_Sym,State_Sym)
+            NCSF(1:nSym)=CIS%NCSF(1:nSym)
+            NCONF=CIS%NCSF(State_Sym)
+            Call mkGuga_Free()
+
             Call DCopy_(nConf1,wrk,1,
      *                  W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),1)
           End Do

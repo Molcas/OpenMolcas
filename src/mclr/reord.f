@@ -15,10 +15,8 @@
       SUBROUTINE REORD
      &           (NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
      &            IDRT,IDOWN,IDAW,IUP,IRAW,IUSGN,ILSGN,
-     &            NEL,NORB,NCONF,NTYP,
-     &            IMODE,
-     &            ICONF,ISPIN,NCNFTP,NCSFTP,
-     &            CIOLD,CINEW,minop)
+     &            NEL,NORB,NCONF,IMODE,ICONF,ISPIN,kSym,
+     &            CIOLD,CINEW)
 C
 C     AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 C              UNIV. OF LUND, SWEDEN 1990
@@ -40,9 +38,11 @@ C
 #ifdef _DEBUGPRINT_
       use Definitions, only: u6
 #endif
+      use spinfo_mclr_data, only: minop, NCSFTP=>NCPCNT, NCNFTP=>NCNATS,
+     &                            NTYP
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-      DIMENSION ICONF(*),ISPIN(*),NCNFTP(*),NCSFTP(*)
+      Integer kSym
+      DIMENSION ICONF(*),ISPIN(*)
       DIMENSION CIOLD(NCONF),CINEW(NCONF)
 C
       DIMENSION IDRT(NVERT,5)
@@ -66,7 +66,7 @@ C       BASE ADRESS FOR CONFIGURATION OF THIS TYPE
         IF( ITYP .EQ. 1 ) THEN
           ICNBS0 = 1
         ELSE
-          ICNBS0 = ICNBS0 + NCNFTP(ITYP-1)*(NEL+IOPEN-1)/2
+          ICNBS0 = ICNBS0 + NCNFTP(ITYP-1,kSym)*(NEL+IOPEN-1)/2
         END IF
 C      BASE ADRESS FOR PROTOTYPE SPIN COUPLINGS
         IF( ITYP .EQ. 1 ) THEN
@@ -78,7 +78,7 @@ C
 C     LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
 C     SPIN COUPLINGS
 C
-        DO 900  IC = 1, NCNFTP(ITYP)
+        DO 900  IC = 1, NCNFTP(ITYP,kSym)
           ICNBS = ICNBS0 + (IC-1)*(IOPEN+ICL)
           DO 800 IICSF = 1,NCSFTP(ITYP)
             ICSFJP = ICSFJP + 1

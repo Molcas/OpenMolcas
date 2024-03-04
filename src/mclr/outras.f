@@ -117,7 +117,15 @@
 
                If (iAnd(kprint,8).eq.8)
      &              Write(6,*) 'Perturbation ',ipert
-               If (CI) call Guganew(SGS,CIS,EXS,CIp1,0,pstate_sym)
+               If (CI) Then
+                  call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,
+     &                         nRs1,nRs2,nRs3,
+     &                         SGS,CIS,EXS,CIp1,0,pstate_sym,State_Sym)
+                  NCSF(1:nSym)=CIS%NCSF(1:nSym)
+                  NCONF=CIS%NCSF(pstate_sym)
+                  Call mkGuga_Free()
+               End If
+
                If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)
      &              CIp1(1)=0.0d0
                Call dWrMCk(iRC,iOpt,Label,ipert,CIp1,isyml)

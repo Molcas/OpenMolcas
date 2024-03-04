@@ -8,26 +8,29 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GugaNew(SGS,CIS,EXS,CIL,imode,ksym)
+      Subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,
+     &                   nRs1,nRs2,nRs3,SGS,CIS,EXS,CIL,imode,ksym,
+     &                   State_Sym)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: IFRAS
       use Str_Info, only: CFTP, CNSM
       use Struct, only: SGStruct, CIStruct, EXStruct
       Implicit None
+      Integer nSym,iSpin,nActEl,nHole1,nElec3
+      Integer nRs1(nSym), nRs2(nSym), nRs3(nSym)
       Type(SGStruct) SGS
       Type(CIStruct) CIS
       Type(EXStruct) EXS
-      Integer imode, ksym
       Real*8 CIL(*)
+      Integer imode, ksym, State_Sym
 *
-#include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
       Real*8, Allocatable:: CINEW(:)
+#ifdef _DEBUGPRINT_
       Real*8 :: PRWTHR=0.05d0
-      Integer ntRas1, ntRas2, ntRas3, iSym, iss
-      Integer NICASE
+#endif
+      Integer nRas1T, nRas2T, nRas3T, iss, iS
+      Integer NICASE, NCONF
 *
       Interface
       SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
@@ -37,6 +40,10 @@
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
+
+      nRas1T=Sum(nRs1(1:nSym))
+      nRas2T=Sum(nRs2(1:nSym))
+      nRas3T=Sum(nRs3(1:nSym))
 
 *
       NICASE = SIZE(CIS%ICASE)
@@ -57,26 +64,30 @@
 
       Call mknVert0(SGS)
 *
-      ntRas1=0
-      ntRas2=0
-      ntRas3=0
-      Do iSym=1,nSym
-         ntRas1=ntRas1+nRs1(iSym)
-         ntRas2=ntRas2+nRs2(iSym)
-         ntRas3=ntRas3+nRs3(iSym)
-      End Do
+!
+!     COMPUTE RAS RESTRICTIONS ON VERTICES:
+!
+      LV1RAS=NRAS1T
+      LV3RAS=nRas1T+NRAS2T
+      LM1RAS=2*nRas1T-NHOLE1
+      LM3RAS=NACTEL-nElec3
 
-      LV1RAS=ntRas1
-      LV3RAS=LV1RAS+ntRas2
-      LM1RAS=2*LV1RAS-nHole1
-      LM3RAS=nActEl-nElec3
-
-      IFRAS=1
+!     SET IFRAS FLAG
+!     IFRAS = 0 : THIS IS A CAS CALCULATION
+!     IFRAS = 1 : THIS IS A RAS CALCULATION
+!
+      IF ((NRAS1T+NRAS3T)/=0) Then
+         IFRAS=1
+      Else
+         IFRAS=0
+      End If
+      DO IS=1,NSYM
+        IF (IFRAS.NE.0.AND.nRs2(IS).NE.0)IFRAS=IFRAS+1
+      END DO
 
       Call mkGUGA(kSym)
 
-      NCSF(1:nSym)=CIS%NCSF(1:nSym)
-      NCONF=CIS%NCSF(kSym)
+      nConf = CIS%nCSF(kSym)
 
       iss=1
       if (ksym.ne.state_sym) iss=2
@@ -100,19 +111,18 @@
       Call mma_allocate(CInew,NCONF,Label='CINew')
       Call REORD(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
      &           SGS%DRT,SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,
-     &           EXS%USGN,EXS%LSGN,
-     &           nActEl,NLEV,NCONF,NTYP,
-     &           iMode,CNSM(iss)%ICONF,CFTP,NCNATS(1,kSym),
-     &           NCPCNT,CIL,CInew,minop)
-      If (imode.eq.0.and.iAnd(kprint,8).eq.8)
-     &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,SGS%ISM,CIS%NOCSF,CIS%IOCSF,
-     &                 CIS%NOW,CIS%IOW,CIS%ICASE,CInew)
+     &           EXS%USGN,EXS%LSGN,nActEl,NLEV,NCONF,
+     &           iMode,CNSM(iss)%ICONF,CFTP,kSym,
+     &           CIL,CInew)
       Call DCopy_(nConf,CINew,1,CIL,1)
       Call mma_deallocate(CINew)
-*
-      Call mkGUGA_Free()
 
+#ifdef _DEBUGPRINT_
+      Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
+     &                 NICASE,SGS%ISM,CIS%NOCSF,CIS%IOCSF,
+     &                 CIS%NOW,CIS%IOW,CIS%ICASE,CIL)
+#endif
+*
       End Associate
 
       End Subroutine GugaNew
