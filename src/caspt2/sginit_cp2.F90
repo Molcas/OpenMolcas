@@ -18,7 +18,6 @@
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
       SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,STSYM)
-      use Definitions, only: u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only: SGStruct, CIStruct, EXStruct
       use gugx, only: IFRAS

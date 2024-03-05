@@ -87,8 +87,6 @@ C
       INTEGER ICNJ(MXLEV**2)
       INTEGER IP1_BUF(MXLEV**2)
 
-      Integer nLev
-      nLev = SGS%nLev
 
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2

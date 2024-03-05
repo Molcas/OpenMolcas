@@ -11,7 +11,7 @@
 ! Copyright (C) Per Ake Malmqvist                                      *
 !               Markus P. Fuelscher                                    *
 !***********************************************************************
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
       SUBROUTINE GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,STSYM,DoblockDMRG)
 !
 !     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
@@ -22,7 +22,6 @@
 #ifdef _DEBUGPRINT_
       use Definitions, only: u6
 #endif
-      use stdalloc, only: mma_allocate
       use gugx, only: IFRAS
       use Struct, only: SGStruct, CIStruct
       IMPLICIT None
