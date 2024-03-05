@@ -366,15 +366,15 @@
       RASTYP(JOB)=WFTYPE
 
       IF (IPGLOB.GE.2) THEN
-        WRITE(6,*)'  STATE IRREP:        ',IRREP(JOB)
-        WRITE(6,*)'  SPIN MULTIPLICITY:  ',MLTPLT(JOB)
-        WRITE(6,*)'  ACTIVE ELECTRONS:   ',NACTE(JOB)
+        WRITE(6,'(A,I9)')'  STATE IRREP:        ',IRREP(JOB)
+        WRITE(6,'(A,I9)')'  SPIN MULTIPLICITY:  ',MLTPLT(JOB)
+        WRITE(6,'(A,I9)')'  ACTIVE ELECTRONS:   ',NACTE(JOB)
 #ifdef _DMRG_
         if (.not.doDMRG) then
 #endif
-        WRITE(6,*)'  MAX RAS1 HOLES:     ',NHOLE1(JOB)
-        WRITE(6,*)'  MAX RAS3 ELECTRONS: ',NELE3(JOB)
-        WRITE(6,*)'  NR OF CONFIG:       ',NCONF(JOB)
+        WRITE(6,'(A,I9)')'  MAX RAS1 HOLES:     ',NHOLE1(JOB)
+        WRITE(6,'(A,I9)')'  MAX RAS3 ELECTRONS: ',NELE3(JOB)
+        WRITE(6,'(A,I9)')'  NR OF CONFIG:       ',NCONF(JOB)
 #ifdef _DMRG_
         end if
 #endif
@@ -636,12 +636,12 @@ C AMOUNT OF TITLE LINES.
         WRITE(6,*)'  CASSCF title (first line only):'
         WRITE(6,'(7X,18A4)')((TITLE1(I,J),I=1,18),J=1,NTIT1)
         WRITE(6,*)
-        WRITE(6,*)'  STATE IRREP:        ',LSYM1
-        WRITE(6,*)'  SPIN MULTIPLICITY:  ',MPLET1
-        WRITE(6,*)'  ACTIVE ELECTRONS:   ',NACTE1
-        WRITE(6,*)'  MAX RAS1 HOLES:     ',NHOL11
-        WRITE(6,*)'  MAX RAS3 ELECTRONS: ',NELE31
-        WRITE(6,*)'  NR OF CONFIG:       ',NCONF1
+        WRITE(6,'(A,I9)')'  STATE IRREP:        ',LSYM1
+        WRITE(6,'(A,I9)')'  SPIN MULTIPLICITY:  ',MPLET1
+        WRITE(6,'(A,I9)')'  ACTIVE ELECTRONS:   ',NACTE1
+        WRITE(6,'(A,I9)')'  MAX RAS1 HOLES:     ',NHOL11
+        WRITE(6,'(A,I9)')'  MAX RAS3 ELECTRONS: ',NELE31
+        WRITE(6,'(A,I9)')'  NR OF CONFIG:       ',NCONF1
       END IF
       WFTYPE='GENERAL '
 *      IF(MPLET1.EQ.(SUM(NASH(1:NSYM))+1)) WFTYPE='HISPIN  '

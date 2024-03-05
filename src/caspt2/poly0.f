@@ -33,8 +33,9 @@
 
       INTEGER I,IT,ITABS,ILEV,ISYM, iq
 
-      if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
-     &      .and. (.not. DoFCIQMC)) Then
+!     if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
+!    &      .and. (.not. DoFCIQMC)) Then
+      if ((.NOT.DoCumulant) .and. (nactel.gt.0)) Then
 
          call sginit_cp2(nSym,iSpin,nActEl,nHole1,nEle3,
      &                   nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,
@@ -73,6 +74,7 @@ C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
       DO I=1,NSYM
         MXCI=MAX(MXCI,CIS%NCSF(I))
       END DO
+
 C NOTE: AT THIS POINT, WE HAVE ALLOCATED MEMORY SPACE FOR SGUGA USE:
 C MVL,MVR,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,ICASE,ICOUP,VTAB,TMP.
 

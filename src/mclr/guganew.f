@@ -28,9 +28,10 @@
       Real*8, Allocatable:: CINEW(:)
 #ifdef _DEBUGPRINT_
       Real*8 :: PRWTHR=0.05d0
+      Integer NICASE
 #endif
       Integer nRas1T, nRas2T, nRas3T, iss, iS
-      Integer NICASE, NCONF
+      Integer NCONF
 *
       Interface
       SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
@@ -46,7 +47,6 @@
       nRas3T=Sum(nRs3(1:nSym))
 
 *
-      NICASE = SIZE(CIS%ICASE)
 
       Associate ( nLev=> SGS%nLev, nMidV =>CIS%nMidV,
      &            nVert =>SGS%nVert, MidLev=>SGS%MidLev,
@@ -93,6 +93,7 @@
       if (ksym.ne.state_sym) iss=2
 *
 #ifdef _DEBUGPRINT_
+      NICASE = SIZE(CIS%ICASE)
       WRITE(6,101)
 101   FORMAT(/,6X,100('-'),/,
      &      6X,29X,'Wave function printout: Split Graph format',/,

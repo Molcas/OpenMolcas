@@ -137,9 +137,9 @@
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
           CALL SIGMA1(SGS,CIS,EXS,
-     &     LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
-     &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
+     &                LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
+     &                CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
+     &                EXS%NOCP,EXS%IOCP,EXS%ICOUP,
      &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
   10      CONTINUE
         END DO
