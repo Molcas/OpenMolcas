@@ -46,7 +46,7 @@
       END DO
 #ifdef _DEBUGPRINT_
       DO IV=1,nVert
-        Write (6,*) 'DRT(i,:)=',DRT(IV,:)
+        Write (6,*) 'DRT(i,:)=',iDRT(IV,:)
       END DO
 #endif
       End Associate

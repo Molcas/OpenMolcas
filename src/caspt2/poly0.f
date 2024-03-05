@@ -33,9 +33,9 @@
 
       INTEGER I,IT,ITABS,ILEV,ISYM, iq
 
-!     if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
-!    &      .and. (.not. DoFCIQMC)) Then
-      if ((.NOT.DoCumulant) .and. (nactel.gt.0)) Then
+      if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
+     &      .and. (.not. DoFCIQMC)) Then
+!     if ((.NOT.DoCumulant) .and. (nactel.gt.0)) Then
 
          call sginit_cp2(nSym,iSpin,nActEl,nHole1,nEle3,
      &                   nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,
@@ -68,6 +68,8 @@ C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
          Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
          CIS%NCSF(:)=0
          CIS%NCSF(STSYM)=1
+         Call mma_allocate(EXS%ICoup,[1,3],[1,1],Label='EXS%ICoup')
+         Call mma_allocate(EXS%VTab,[1,1],Label='EXS%VTab')
       endif
 
       MXCI=1
