@@ -18,7 +18,7 @@
       Type (EXStruct) EXS
 
       Real*8,  Allocatable:: VTabTmp(:)
-      Integer MxEO, nWalk, nICoup, nVMax, nICase, nVTab, nVTab_final
+      Integer nICoup, nVMax, nICase, nVTab, nVTab_final
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert,                 &
      &            MidLev =>SGS%MidLev, MVSta => SGS%MVSta,              &
@@ -40,10 +40,6 @@
       Call mma_allocate(EXS%NOCP,MxEO,nSym,nMidV,Label='EXS%NOCP')
       Call mma_allocate(EXS%IOCP,MxEO,nSym,nMidV,Label='EXS%IOCP')
 
-      Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
-
-      Call mma_allocate(CIS%NOCSF,nSym,nMidV,nSym,Label='CIS%NOCSF')
-      Call mma_allocate(CIS%IOCSF,nSym,nMidV,nSym,Label='CIS%IOCSF')
       Call NrCoup(SGS,CIS,EXS,nMidV,MxEO,nICoup,nSym)
 
 ! Computed in NrCoup:

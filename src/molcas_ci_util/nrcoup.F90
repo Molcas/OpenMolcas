@@ -50,6 +50,9 @@
 
       If (.Not.Allocated(CIS%NOW)) Call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
       If (.Not.Allocated(CIS%IOW)) Call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
+      If (.Not.Allocated(CIS%NCSF)) Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
+      If (.Not.Allocated(CIS%NOCSF)) Call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
+      If (.Not.Allocated(CIS%IOCSF)) Call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF')
 
 ! Dereference SGS, CIS for some other data
 
