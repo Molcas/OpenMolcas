@@ -18,15 +18,12 @@
       Type (EXStruct) EXS
 
       Real*8,  Allocatable:: VTabTmp(:)
-      Integer MidLev, MVSta, MVEnd, nMidV, nIpWlk, &
-     &        MxEO, nWalk,    &
+      Integer nMidV, nIpWlk, MxEO, nWalk,    &
      &        nICoup, nVMax, nICase, nVTab, nVTab_final
 
-      Associate ( nLev => SGS%nLev, nVert => SGS%nVert)
-
-      MidLev =SGS%MidLev
-      MVSta  =SGS%MVSta
-      MVEnd  =SGS%MVEnd
+      Associate ( nLev => SGS%nLev, nVert => SGS%nVert,                 &
+     &            MidLev =>SGS%MidLev, MVSta => SGS%MVSta,              &
+     &            MVEnd  =>SGS%MVEnd)
       CIS%nMidV=MVEnd-MVSta+1
 
 ! Calculate segment values, and MVL and MVR tables:
