@@ -17,8 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 !#define _DEBUGPRINT_
-      SUBROUTINE NRCOUP(SGS,CIS,EXS,  &
-     &                  NVERT,NMIDV,MXEO,ISM,  &
+      SUBROUTINE NRCOUP(SGS,CIS,EXS, NVERT,NMIDV,MXEO,  &
      &                  IDRT,ISGMNT,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
      &                  MVL,MVR,NICOUP,NSYM)
@@ -38,7 +37,6 @@
       Type (EXStruct) EXS
       Integer MVL(NMIDV,2),MVR(NMIDV,2)
       Integer IDRT(NVERT,5),ISGMNT(NVERT,26)
-      Integer ISM(*)
       Integer, PARAMETER :: LTAB=1
 ! OUTPUT PARAMETERS:
       Integer, Intent(Out):: nICoup
@@ -58,18 +56,14 @@
       Integer IS, IST, NCP, NLW
 #endif
       Logical :: IF_RASSI=.FALSE.
-      Integer :: nLev, MVSTA, MVEND, NIPWLK
 
       If (.Not.Allocated(CIS%NOW)) Call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
       If (.Not.Allocated(CIS%IOW)) Call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
 
 ! Dereference SGS, CIS for some other data
-      nLev  =SGS%nLev
-      MVSTA =SGS%MVSta
-      MVEND =SGS%MVEnd
-      NIPWLK=CIS%nIpWlk
 
-      Associate (NOW=> CIS%NOW, IOW=> CIS%IOW)
+      Associate (NOW=> CIS%NOW, IOW=> CIS%IOW, nLev  => SGS%nLev, MVSTA => SGS%MVSta, &
+                 MVEND => SGS%MVEnd, NIPWLK=> CIS%nIpWlk, ISM=>SGS%ISm)
 
       Call mma_allocate(NRL,[1,nSym],[1,nVert],[0,MxEO],Label='NRL')
 
