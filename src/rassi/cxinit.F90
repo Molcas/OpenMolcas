@@ -46,10 +46,9 @@
       nVMax=5000
       Call mma_allocate(VTabTmp,nVMax,Label='VTabTmp')
       nVTab=nVMax
-      Call MkCoup(nSym,nVert,MidLev,nMidV,MVSta,MVEnd,     &
+      Call MkCoup(nSym,MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nWalk,nICase,nVTab,                       &
-     &            CIS%ISGM,CIS%VSGM,                    &
-     &            CIS%NOW,CIS%IOW,EXS%NOCP,                             &
+     &            EXS%NOCP,                             &
      &            EXS%IOCP,CIS%ICase,VTabTmp,NVTAB_Final,SGS,CIS,EXS)
 
       nVTAB=nVTAB_Final

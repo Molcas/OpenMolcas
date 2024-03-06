@@ -16,9 +16,8 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKCOUP(nSym,nVert,MidLev,nMidV,MVSta,MVEnd,
+      SUBROUTINE MKCOUP(nSym,MidLev,nMidV,MVSta,MVEnd,
      &                  MxEO,nWalk,nICase,nVTab,
-     &                  ISGMNT,VSGMNT,NOW,IOW,
      &                  NOCP,IOCP,ICase,VTab,NVTAB_FINAL,SGS,CIS,EXS)
 
       use Symmetry_Info, only: Mul
@@ -53,14 +52,12 @@ C ISGPTH(ISEG ,LEV)=Segment type (1..26).
 C These indices are used to denote the columns of table ISGPTH.
 
 C INPUT PARAMETERS:
-      Integer ISGMNT(NVERT,26)
-      Real*8 VSGMNT(NVERT,26)
-      Integer NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
+      Integer NOCP(MXEO,NSYM,NMIDV)
       Type(SGStruct) SGS
       Type(CIStruct) CIS
       Type(EXStruct) EXS
 C OUTPUT PARAMETERS:
-      Integer IOW(2,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
+      Integer IOCP(MXEO,NSYM,NMIDV)
       Integer ICASE(NICASE)
       Real*8 VTab(nVTab)
 C SCRATCH PARAMETERS:
@@ -77,7 +74,9 @@ C SCRATCH PARAMETERS:
 
       Associate (ICoup=>EXS%ICoup, nICoup=>EXS%nICoup,
      &           ISm=>SGS%ISm, IVR=>CIS%IVR, iMAW=>SGS%MAW,
-     &           nLev=>SGS%nLev)
+     &           nLev=>SGS%nLev, ISGMNT=>CIS%ISGM,
+     &           VSGMNT=>CIS%VSGM, NOW=>CIS%NOW, IOW=>CIS%IOW,
+     &           nVert=>SGS%nVert)
 
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
