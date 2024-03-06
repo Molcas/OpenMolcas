@@ -17,17 +17,17 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 
-      SUBROUTINE MKSEG(SGS,NVERT,NMIDV,
-     &                 IVR,MVL,MVR,ISGMNT,VSGMNT)
+      SUBROUTINE MKSEG(SGS,CIS,EXS,NVERT,IVR,ISGMNT,VSGMNT)
 
-      use Struct, only: SGStruct
+      use Struct, only: SGStruct, CIStruct,EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
+      Type (CIStruct) CIS
+      Type (EXStruct) EXS
       CHARACTER(LEN=26) CC1,CC2,CTVPT,CBVPT,CSVC
 #include "segtab.fh"
-      Integer, Intent(In) :: nVert, nMidV
+      Integer, Intent(In) :: nVert
       DIMENSION IVR(NVERT,2),ISGMNT(NVERT,26),VSGMNT(NVERT,26)
-      DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
       Integer, PARAMETER :: IATAB=3, IBTAB=4
       Real*8, PARAMETER :: ZERO=0.0D0, ONE=1.0D00
 
@@ -46,7 +46,8 @@ C    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
 C Dereference SGS
       Associate (iDRT=>SGS%DRT, iDown=>SGS%Down, LTV=>SGS%LTV,
      &           MVSTA=>SGS%MVSta, MVEnd=>SGS%MVEnd,
-     &           nLev=>SGS%nLev)
+     &           nLev=>SGS%nLev, nMidV=>CIS%nMidV,
+     &           MVL=>EXS%MVL, MVR=>EXS%MVR)
 
       CC1=  '01230201011230122313230123'
       CC2=  '01231323012230112302010123'

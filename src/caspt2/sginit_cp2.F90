@@ -76,7 +76,7 @@
       CALL mma_allocate(EXS%MVR,NMIDV,2,Label='EXS%MVR')
       CALL mma_allocate(ISGM,26*nVert,Label='ISGM')
       CALL mma_allocate(VSGM,26*nVert,Label='VSGM')
-      CALL MKSEG(SGS,nVert,nMidV,IVR,EXS%MVL,EXS%MVR,ISGM,VSGM)
+      CALL MKSEG(SGS,CIS,EXS,nVert,IVR,ISGM,VSGM)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2

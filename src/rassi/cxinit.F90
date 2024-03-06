@@ -33,6 +33,7 @@
 
 ! Calculate segment values, and MVL and MVR tables:
       nMidV=1+MVEnd-MVSta
+      CIS%nMidV   =nMidV
 ! nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
@@ -41,9 +42,9 @@
       Call mma_allocate(EXS%MVL,nMidV,2,Label='EXS%MVL')
       Call mma_allocate(ISgm,nVert,26,Label='ISgm')
       Call mma_allocate(VSgm,nVert,26,Label='VSgm')
-      Call MkSeg(SGS,nVert,nMidv,IVR,EXS%MVL,EXS%MVR,ISgm,VSgm)
 
-      CIS%nMidV   =nMidV
+      Call MkSeg(SGS,CIS,EXS,nVert,IVR,ISgm,VSgm)
+
       CIS%nIpWlk  = nIpWlk
 
 ! Various offset tables:
