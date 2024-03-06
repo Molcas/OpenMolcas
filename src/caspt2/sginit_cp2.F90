@@ -72,10 +72,9 @@
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
       CALL mma_allocate(IVR,2*NVERT,Label='IVR')
-      CALL mma_allocate(EXS%MVL,NMIDV,2,Label='EXS%MVL')
-      CALL mma_allocate(EXS%MVR,NMIDV,2,Label='EXS%MVR')
       CALL mma_allocate(ISGM,26*nVert,Label='ISGM')
       CALL mma_allocate(VSGM,26*nVert,Label='VSGM')
+
       CALL MKSEG(SGS,CIS,EXS,nVert,IVR,ISGM,VSGM)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.

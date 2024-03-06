@@ -38,8 +38,6 @@
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
       Call mma_allocate(IVR,2*nVert,Label='IVR')
-      Call mma_allocate(EXS%MVR,nMidV,2,Label='EXS%MVR')
-      Call mma_allocate(EXS%MVL,nMidV,2,Label='EXS%MVL')
       Call mma_allocate(ISgm,nVert,26,Label='ISgm')
       Call mma_allocate(VSgm,nVert,26,Label='VSgm')
 
