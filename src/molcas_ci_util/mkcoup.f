@@ -17,8 +17,8 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKCOUP(nSym,MidLev,nMidV,MVSta,MVEnd,
-     &                  MxEO,nWalk,nICase,nVTab,
-     &                  NOCP,IOCP,ICase,VTab,NVTAB_FINAL,SGS,CIS,EXS)
+     &                  MxEO,nWalk,nVTab,
+     &                  NOCP,IOCP,VTab,NVTAB_FINAL,SGS,CIS,EXS)
 
       use Symmetry_Info, only: Mul
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -58,7 +58,6 @@ C INPUT PARAMETERS:
       Type(EXStruct) EXS
 C OUTPUT PARAMETERS:
       Integer IOCP(MXEO,NSYM,NMIDV)
-      Integer ICASE(NICASE)
       Real*8 VTab(nVTab)
 C SCRATCH PARAMETERS:
       Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
@@ -71,12 +70,14 @@ C SCRATCH PARAMETERS:
       Call mma_allocate(Value,[0,SGS%nLev],Label='Value')
 
       Call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+      If (.NOT.Allocated(CIS%ICase)) Call mma_allocate(CIS%ICase,
+     &                    CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase')
 
       Associate (ICoup=>EXS%ICoup, nICoup=>EXS%nICoup,
      &           ISm=>SGS%ISm, IVR=>CIS%IVR, iMAW=>SGS%MAW,
      &           nLev=>SGS%nLev, ISGMNT=>CIS%ISGM,
      &           VSGMNT=>CIS%VSGM, NOW=>CIS%NOW, IOW=>CIS%IOW,
-     &           nVert=>SGS%nVert)
+     &           nVert=>SGS%nVert, iCase=>CIS%ICase)
 
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
