@@ -17,7 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 !#define _DEBUGPRINT_
-      SUBROUTINE NRCOUP(SGS,CIS,EXS,NICOUP)
+      SUBROUTINE NRCOUP(SGS,CIS,EXS)
       use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: MUL
@@ -31,10 +31,9 @@
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
-      Integer, PARAMETER :: LTAB=1
-! OUTPUT PARAMETERS:
-      Integer, Intent(Out):: nICoup
+
 ! SCRATCH PARAMETERS:
+      Integer, PARAMETER :: LTAB=1
       Integer, Allocatable:: NRL(:,:,:)
 
       Integer IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT,     &
@@ -65,7 +64,7 @@
                  MVL=>EXS%MVL, MVR=>EXS%MVR, IDRT=>SGS%DRT, ISGMNT=>CIS%ISGM, &
                  nVert=>SGS%nVert, NOCP=>EXS%NOCP, IOCP=>EXS%IOCP,  &
                  NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF,NCSF=>CIS%NCSF, nSym=>SGS%nSym, &
-                 MxEO => EXS%MxEO, nMidV=>CIS%nMidV)
+                 MxEO => EXS%MxEO, nMidV=>CIS%nMidV, nICoup=>EXS%nICoup)
 
       Call mma_allocate(NRL,[1,nSym],[1,nVert],[0,MxEO],Label='NRL')
 

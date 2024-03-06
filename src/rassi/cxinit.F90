@@ -37,9 +37,10 @@
 
 ! Various offset tables:
 
-      Call NrCoup(SGS,CIS,EXS,nICoup)
+      Call NrCoup(SGS,CIS,EXS)
 
 ! Computed in NrCoup:
+      NICOUP=EXS%NICOUP
       Call mma_allocate(EXS%ICoup,3,nICoup,Label='EXS%ICoup')
 
       nICase=nWalk*nIpWlk

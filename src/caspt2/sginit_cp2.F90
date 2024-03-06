@@ -75,12 +75,14 @@
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
 
-      CALL NRCOUP(SGS,CIS,EXS,NICOUP)
+      CALL NRCOUP(SGS,CIS,EXS)
 
       NVTAB_TMP=20000
+      NICOUP=EXS%NICOUP
       CALL mma_allocate(EXS%ICOUP,3,NICOUP,Label='EXS%ICOUP')
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
       NICASE=SIZE(CIS%ICASE)
+
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
      &            CIS%IVR,SGS%MAW,CIS%ISGM,CIS%VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,     &
