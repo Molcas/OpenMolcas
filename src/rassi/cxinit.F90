@@ -18,12 +18,12 @@
       Type (EXStruct) EXS
 
       Real*8,  Allocatable:: VTabTmp(:)
-      Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, &
+      Integer MidLev, MVSta, MVEnd, nMidV, nIpWlk, &
      &        MxEO, nWalk,    &
      &        nICoup, nVMax, nICase, nVTab, nVTab_final
 
-      nLev   =SGS%nLev
-      nVert  =SGS%nVert
+      Associate ( nLev => SGS%nLev, nVert => SGS%nVert)
+
       MidLev =SGS%MidLev
       MVSta  =SGS%MVSta
       MVEnd  =SGS%MVEnd
@@ -78,5 +78,7 @@
       Call mma_deallocate(CIS%ISgm)
       Call mma_deallocate(CIS%VSgm)
       Call mma_deallocate(CIS%IVR)
+
+      End Associate
 
       end Subroutine CXInit
