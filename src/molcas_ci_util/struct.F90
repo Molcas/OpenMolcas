@@ -62,6 +62,7 @@ End Type CIStruct
 ! Excitation operators, coupling coefficients,...
 Type EXStruct
      Integer MxEO
+     Integer nICoup
      Integer, Allocatable:: NOCP(:,:,:)
      Integer, Allocatable:: IOCP(:,:,:)
      Integer, Allocatable:: ICoup(:,:)

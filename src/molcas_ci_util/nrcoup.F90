@@ -17,7 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 !#define _DEBUGPRINT_
-      SUBROUTINE NRCOUP(SGS,CIS,EXS, NMIDV,MXEO,  NICOUP,NSYM)
+      SUBROUTINE NRCOUP(SGS,CIS,EXS,NICOUP)
       use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: MUL
@@ -28,7 +28,6 @@
 #include "segtab.fh"
 
 ! INPUT PARAMETERS:
-      Integer, Intent(In) :: nMidV, MxEO, NSYM
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
@@ -54,13 +53,19 @@
       If (.Not.Allocated(CIS%NOCSF)) Call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
       If (.Not.Allocated(CIS%IOCSF)) Call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF')
 
+      EXS%MxEO=(SGS%nLev*(SGS%nLev+5))/2
+      Call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
+      Call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
+
+
 ! Dereference SGS, CIS for some other data
 
       Associate (NOW=> CIS%NOW, IOW=> CIS%IOW, nLev  => SGS%nLev, MVSTA => SGS%MVSta, &
                  MVEND => SGS%MVEnd, NIPWLK=> CIS%nIpWlk, ISM=>SGS%ISm,     &
                  MVL=>EXS%MVL, MVR=>EXS%MVR, IDRT=>SGS%DRT, ISGMNT=>CIS%ISGM, &
                  nVert=>SGS%nVert, NOCP=>EXS%NOCP, IOCP=>EXS%IOCP,  &
-                 NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF,NCSF=>CIS%NCSF)
+                 NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF,NCSF=>CIS%NCSF, nSym=>SGS%nSym, &
+                 MxEO => EXS%MxEO, nMidV=>CIS%nMidV)
 
       Call mma_allocate(NRL,[1,nSym],[1,nVert],[0,MxEO],Label='NRL')
 

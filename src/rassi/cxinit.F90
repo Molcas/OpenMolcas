@@ -36,16 +36,14 @@
 
 
 ! Various offset tables:
-      MxEO=(nLev*(nLev+5))/2
-      Call mma_allocate(EXS%NOCP,MxEO,nSym,nMidV,Label='EXS%NOCP')
-      Call mma_allocate(EXS%IOCP,MxEO,nSym,nMidV,Label='EXS%IOCP')
 
-      Call NrCoup(SGS,CIS,EXS,nMidV,MxEO,nICoup,nSym)
+      Call NrCoup(SGS,CIS,EXS,nICoup)
 
 ! Computed in NrCoup:
+      Call mma_allocate(EXS%ICoup,3,nICoup,Label='EXS%ICoup')
+
       nICase=nWalk*nIpWlk
       Call mma_allocate(CIS%ICase,nICase,Label='CIS%ICase')
-      Call mma_allocate(EXS%ICoup,3,nICoup,Label='EXS%ICoup')
       nVMax=5000
       Call mma_allocate(VTabTmp,nVMax,Label='VTabTmp')
       nVTab=nVMax
