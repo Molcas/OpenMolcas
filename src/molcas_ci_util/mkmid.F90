@@ -79,7 +79,6 @@
       Write(LF,'(A,I3)')' MAX. NO UPPER WALKS=   ',MXUP
       Write(LF,'(A,I3)')' MAX. NO LOWER WALKS=   ',MXDWN
       Write(LF,*)
-      d Associate
 #endif
 
       End Associate
