@@ -44,10 +44,9 @@
 
       Call mma_allocate(CIS%NOCSF,nSym,nMidV,nSym,Label='CIS%NOCSF')
       Call mma_allocate(CIS%IOCSF,nSym,nMidV,nSym,Label='CIS%IOCSF')
-      Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%DRT,         &
-     &            CIS%ISgm,EXS%NOCP,                    &
+      Call NrCoup(SGS,CIS,EXS,nMidV,MxEO,EXS%NOCP,                    &
      &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
-     &            CIS%NCSF,EXS%MVL,EXS%MVR,nICoup,nSym)
+     &            CIS%NCSF,nICoup,nSym)
 
 ! Computed in NrCoup:
       nICase=nWalk*nIpWlk

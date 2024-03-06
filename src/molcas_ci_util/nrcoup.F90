@@ -17,10 +17,10 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 !#define _DEBUGPRINT_
-      SUBROUTINE NRCOUP(SGS,CIS,EXS, NVERT,NMIDV,MXEO,  &
-     &                  IDRT,ISGMNT,NOCP,IOCP,                  &
+      SUBROUTINE NRCOUP(SGS,CIS,EXS, NMIDV,MXEO,  &
+     &                  NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
-     &                  MVL,MVR,NICOUP,NSYM)
+     &                  NICOUP,NSYM)
       use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: MUL
@@ -31,12 +31,10 @@
 #include "segtab.fh"
 
 ! INPUT PARAMETERS:
-      Integer, Intent(In) :: nVert, nMidV, MxEO, NSYM
+      Integer, Intent(In) :: nMidV, MxEO, NSYM
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
-      Integer MVL(NMIDV,2),MVR(NMIDV,2)
-      Integer IDRT(NVERT,5),ISGMNT(NVERT,26)
       Integer, PARAMETER :: LTAB=1
 ! OUTPUT PARAMETERS:
       Integer, Intent(Out):: nICoup
@@ -63,7 +61,9 @@
 ! Dereference SGS, CIS for some other data
 
       Associate (NOW=> CIS%NOW, IOW=> CIS%IOW, nLev  => SGS%nLev, MVSTA => SGS%MVSta, &
-                 MVEND => SGS%MVEnd, NIPWLK=> CIS%nIpWlk, ISM=>SGS%ISm)
+                 MVEND => SGS%MVEnd, NIPWLK=> CIS%nIpWlk, ISM=>SGS%ISm,     &
+                 MVL=>EXS%MVL, MVR=>EXS%MVR, IDRT=>SGS%DRT, ISGMNT=>CIS%ISGM, &
+                 nVert=>SGS%nVert)
 
       Call mma_allocate(NRL,[1,nSym],[1,nVert],[0,MxEO],Label='NRL')
 
