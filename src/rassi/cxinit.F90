@@ -23,7 +23,8 @@
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert,                 &
      &            MidLev =>SGS%MidLev, MVSta => SGS%MVSta,              &
      &            MVEnd  =>SGS%MVEnd, nMidV=>CIS%nMidV,                 &
-     &            nIpWlk => CIS%nIpWlk, MxEO=>EXS%MxEO)
+     &            nIpWlk => CIS%nIpWlk, MxEO=>EXS%MxEO,                 &
+     &            nWalk=>CIS%nWalk)
 
       nMidV=MVEnd-MVSta+1
       nIpWlk=1+(MidLev-1)/15
@@ -48,9 +49,8 @@
      &            CIS%ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                    &
      &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
      &            CIS%NCSF,EXS%MVL,EXS%MVR,nICoup,nSym)
-! Computed in NrCoup:
-      nWalk=CIS%nWalk
 
+! Computed in NrCoup:
       nICase=nWalk*nIpWlk
       Call mma_allocate(CIS%ICase,nICase,Label='CIS%ICase')
       Call mma_allocate(EXS%ICoup,3,nICoup,Label='EXS%ICoup')
