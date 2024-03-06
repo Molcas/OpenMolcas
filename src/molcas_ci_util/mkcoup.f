@@ -124,14 +124,6 @@ C COUPLING COEFFICIENT VALUE TABLE:
           ISGPTH(IAWSR,LEV)=0
           ISGPTH(ILS,LEV)=1
           ISGPTH(ISEG,LEV)=0
-          Write (6,*) 'Place 1:'
-          Write (6,*) 'ISGPTH(1,:)=',ISGPTH(1,:)
-          Write (6,*) 'ISGPTH(2,:)=',ISGPTH(2,:)
-          Write (6,*) 'ISGPTH(3,:)=',ISGPTH(3,:)
-          Write (6,*) 'ISGPTH(4,:)=',ISGPTH(4,:)
-          Write (6,*) 'ISGPTH(5,:)=',ISGPTH(5,:)
-          Write (6,*) 'ISGPTH(6,:)=',ISGPTH(7,:)
-          Write (6,*) 'ISGPTH(7,:)=',ISGPTH(7,:)
           VALUE(LEV)=1.0D00
  100      IF(LEV.GT.LEV1) GOTO 400
           ITYPT=ISGPTH(ITYPE,LEV)
@@ -144,14 +136,6 @@ C COUPLING COEFFICIENT VALUE TABLE:
           END DO
           ISGPTH(ISEG,LEV)=0
           LEV=LEV+1
-          Write (6,*) 'Place 2:'
-          Write (6,*) 'ISGPTH(1,:)=',ISGPTH(1,:)
-          Write (6,*) 'ISGPTH(2,:)=',ISGPTH(2,:)
-          Write (6,*) 'ISGPTH(3,:)=',ISGPTH(3,:)
-          Write (6,*) 'ISGPTH(4,:)=',ISGPTH(4,:)
-          Write (6,*) 'ISGPTH(5,:)=',ISGPTH(5,:)
-          Write (6,*) 'ISGPTH(6,:)=',ISGPTH(7,:)
-          Write (6,*) 'ISGPTH(7,:)=',ISGPTH(7,:)
           GOTO 100
 
  200      ISGPTH(ISEG,LEV)=ISGT
@@ -170,14 +154,6 @@ C COUPLING COEFFICIENT VALUE TABLE:
           ISGPTH(IVLFT,LEV)=IVLB
           ISGPTH(ITYPE,LEV)=IBVPT(ISGT)
           ISGPTH(ISEG,LEV)=0
-          Write (6,*) 'Place 3:'
-          Write (6,*) 'ISGPTH(1,:)=',ISGPTH(1,:)
-          Write (6,*) 'ISGPTH(2,:)=',ISGPTH(2,:)
-          Write (6,*) 'ISGPTH(3,:)=',ISGPTH(3,:)
-          Write (6,*) 'ISGPTH(4,:)=',ISGPTH(4,:)
-          Write (6,*) 'ISGPTH(5,:)=',ISGPTH(5,:)
-          Write (6,*) 'ISGPTH(6,:)=',ISGPTH(7,:)
-          Write (6,*) 'ISGPTH(7,:)=',ISGPTH(7,:)
           IF (LEV.GT.LEV2) GOTO 100
 
           MV=ISGPTH(IVLFT,MIDLEV)+1-MVSta
@@ -186,11 +162,9 @@ C COUPLING COEFFICIENT VALUE TABLE:
           IF(IT.EQ.0) IT=3
           IF(ISGPTH(ITYPE,LEV2).EQ.0) IT=0
 
-          Write (6,*) 'nWalk,IAWSl,LEV2=',nWalk,nWalk,IAWSl,LEV2
           IF(IT.EQ.0) THEN
             ILND=1+NOW(IHALF,LFTSYM,MV)
             IAWS=ISGPTH(IAWSL,LEV2)
-            Write (6,*) 'IAWS=',IAWS
             ILNDW(IAWS)=ILND
             NOW(IHALF,LFTSYM,MV)=ILND
             IPOS=IOW(IHALF,LFTSYM,MV)+(ILND-1)*NIPWLK
