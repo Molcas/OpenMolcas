@@ -17,12 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKCOUP(nSym,nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,
-     &                  MxEO,nICoup,nWalk,nICase,nVTab,
+     &                  MxEO,nWalk,nICase,nVTab,
      &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
-     &                  NOCP,IOCP,ICase,ICOUP,VTab,NVTAB_FINAL)
+     &                  NOCP,IOCP,ICase,VTab,NVTAB_FINAL,EXS)
 
       use Symmetry_Info, only: Mul
       use stdalloc, only: mma_allocate, mma_deallocate
+      use struct, only: EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "segtab.fh"
@@ -57,11 +58,11 @@ C INPUT PARAMETERS:
       Integer ISGMNT(NVERT,26)
       Real*8 VSGMNT(NVERT,26)
       Integer NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
+      Type(EXStruct) EXS
 C OUTPUT PARAMETERS:
       Integer IOW(2,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
       Integer ICASE(NICASE)
       Real*8 VTab(nVTab)
-      Integer ICOUP(3,NICOUP)
 C SCRATCH PARAMETERS:
       Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
       Integer, PARAMETER :: ISEG=7
@@ -71,6 +72,10 @@ C SCRATCH PARAMETERS:
       Call mma_allocate(ILNDW,nWalk,Label='ILNDW')
       Call mma_allocate(ISGPTH,[1,7],[0,nLev],Label='ISGPTH')
       Call mma_allocate(Value,[0,nLev],Label='Value')
+
+      Call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+
+      Associate (ICoup=>EXS%ICoup, nICoup=>EXS%nICoup)
 
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
@@ -407,5 +412,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
       WRITE(6,*)
       WRITE(6,*)' TOTAL CONVENTIONAL COUPLING COEFFS:',NRC
 #endif
+
+      End Associate
 
       END SUBROUTINE MKCOUP
