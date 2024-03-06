@@ -27,7 +27,7 @@
       Type(CIStruct) CIS
       Type(EXStruct) EXS
       Integer, Allocatable:: IVR(:), ISGM(:)
-      Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
+      Real*8, Allocatable:: VSGM(:), VTAB_TMP(:)
       Integer NICOUP, NVTAB_TMP, NICASE, nVTab
 
       Interface
@@ -76,7 +76,7 @@
       CALL mma_allocate(EXS%MVR,NMIDV,2,Label='EXS%MVR')
       CALL mma_allocate(ISGM,26*nVert,Label='ISGM')
       CALL mma_allocate(VSGM,26*nVert,Label='VSGM')
-      CALL MKSEG(SGS,nLev,nVert,nMidV,SGS%DRT,SGS%DOWN,SGS%LTV,IVR,EXS%MVL,EXS%MVR,ISGM,VSGM)
+      CALL MKSEG(SGS,nVert,nMidV,IVR,EXS%MVL,EXS%MVR,ISGM,VSGM)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2

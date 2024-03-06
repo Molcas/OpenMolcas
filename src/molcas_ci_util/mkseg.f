@@ -17,17 +17,16 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 
-      SUBROUTINE MKSEG    (SGS,NLEV,NVERT,NMIDV,
-     &                   IDRT,IDOWN,LTV,IVR,MVL,MVR,ISGMNT,VSGMNT)
+      SUBROUTINE MKSEG(SGS,NVERT,NMIDV,
+     &                 IVR,MVL,MVR,ISGMNT,VSGMNT)
 
       use Struct, only: SGStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Type (SGStruct) SGS
       CHARACTER(LEN=26) CC1,CC2,CTVPT,CBVPT,CSVC
 #include "segtab.fh"
-      Integer, Intent(In) :: nVert, nLev, nMidV
+      Integer, Intent(In) :: nVert, nMidV
       DIMENSION IVR(NVERT,2),ISGMNT(NVERT,26),VSGMNT(NVERT,26)
-      DIMENSION IDRT(NVERT,5),IDOWN(NVERT,0:3),LTV(-1:NLEV)
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
       Integer, PARAMETER :: IATAB=3, IBTAB=4
       Real*8, PARAMETER :: ZERO=0.0D0, ONE=1.0D00
@@ -44,12 +43,10 @@ C    ZERO IF THE SEGMENT IS IMPOSSIBLE IN THE GRAPH DEFINED BY
 C    THE PALDUS TABLE IDRT. ELSE IT IS THE BOTTOM LEFT VERTEX
 C    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
 
-
-
-
 C Dereference SGS
-      MVSTA=SGS%MVSta
-      MVEND=SGS%MVEnd
+      Associate (iDRT=>SGS%DRT, iDown=>SGS%Down, LTV=>SGS%LTV,
+     &           MVSTA=>SGS%MVSta, MVEnd=>SGS%MVEnd,
+     &           nLev=>SGS%nLev)
 
       CC1=  '01230201011230122313230123'
       CC2=  '01231323012230112302010123'
@@ -181,5 +178,7 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
           END DO
         END DO
 #endif
+
+      End Associate
 
       END

@@ -19,7 +19,7 @@
 
       Integer, Allocatable:: IVR(:), ISgm(:,:)
       Real*8,  Allocatable::         VSgm(:,:)
-      Real*8,  Allocatable:: VTabTmp(:), Val(:)
+      Real*8,  Allocatable:: VTabTmp(:)
       Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, &
      &        MxEO, nWalk,    &
      &        nICoup, nVMax, nICase, nVTab, nVTab_final
@@ -41,7 +41,8 @@
       Call mma_allocate(EXS%MVL,nMidV,2,Label='EXS%MVL')
       Call mma_allocate(ISgm,nVert,26,Label='ISgm')
       Call mma_allocate(VSgm,nVert,26,Label='VSgm')
-      Call MkSeg(SGS,nLev,nVert,nMidv,SGS%DRT,SGS%Down,SGS%LTV,IVR,EXS%MVL,EXS%MVR,ISgm,VSgm)
+      Call MkSeg(SGS,nVert,nMidv,IVR,EXS%MVL,EXS%MVR,ISgm,VSgm)
+
       CIS%nMidV   =nMidV
       CIS%nIpWlk  = nIpWlk
 
