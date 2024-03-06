@@ -88,18 +88,16 @@
       NVTAB_TMP=20000
       CALL mma_allocate(EXS%ICOUP,3,NICOUP,Label='EXS%ICOUP')
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
-      CALL mma_allocate(VAL,NLEV+1,Label='VAL')
       NICASE=SIZE(CIS%ICASE)
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
      &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,     &
-     &            CIS%ICase, EXS%ICOUP,VTAB_TMP,NVTAB,VAL)
+     &            CIS%ICase, EXS%ICOUP,VTAB_TMP,NVTAB)
 
       CALL mma_allocate(EXS%VTAB,NVTAB,Label='EXS%VTAB')
       EXS%VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
 
       Call mma_deallocate(VTAB_TMP)
-      Call mma_deallocate(VAL)
       Call mma_deallocate(ISGM)
       Call mma_deallocate(VSGM)
       Call mma_deallocate(SGS%MAW)

@@ -68,20 +68,17 @@
       Call mma_allocate(EXS%ICoup,3,nICoup,Label='EXS%ICoup')
       nVMax=5000
       Call mma_allocate(VTabTmp,nVMax,Label='VTabTmp')
-      Call mma_allocate(Val,nLev+1,Label='Val')
       nVTab=nVMax
       Call MkCoup(nSym,nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTab,                       &
      &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,       &
-     &            EXS%IOCP,CIS%ICase,EXS%ICOUP,VTabTmp,           &
-     &            NVTAB_Final,VAL)
+     &            EXS%IOCP,CIS%ICase,EXS%ICOUP,VTabTmp,NVTAB_Final)
 
       nVTAB=nVTAB_Final
       Call mma_allocate(EXS%Vtab,nVTab,Label='EXS%VTab')
       EXS%VTab(1:nVTab)=VTabTmp(1:nVTab)
       Call mma_deallocate(VTabTmp)
 
-      Call mma_deallocate(Val)
       Call mma_deallocate(ISgm)
       Call mma_deallocate(VSgm)
       Call mma_deallocate(IVR)

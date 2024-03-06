@@ -19,8 +19,7 @@
       SUBROUTINE MKCOUP(nSym,nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,
      &                  MxEO,nICoup,nWalk,nICase,nVTab,
      &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
-     &                  NOCP,IOCP,ICase,ICOUP,
-     &                  VTab,NVTAB_FINAL,VALUE)
+     &                  NOCP,IOCP,ICase,ICOUP,VTab,NVTAB_FINAL)
 
       use Symmetry_Info, only: Mul
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -64,13 +63,14 @@ C OUTPUT PARAMETERS:
       Real*8 VTab(nVTab)
       Integer ICOUP(3,NICOUP)
 C SCRATCH PARAMETERS:
-      Real*8 VALUE(0:NLEV)
       Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
       Integer, PARAMETER :: ISEG=7
       Integer, Allocatable:: ILNDW(:), ISGPTH(:,:)
+      Real*8, Allocatable:: Value(:)
 
       Call mma_allocate(ILNDW,nWalk,Label='ILNDW')
       Call mma_allocate(ISGPTH,[1,7],[0,nLev],Label='ISGPTH')
+      Call mma_allocate(Value,[0,nLev],Label='Value')
 
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
@@ -251,6 +251,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
         ICOUP(2,ICOP)=ILNDW(I2)
       END DO
 
+      Call mma_deallocate(Value)
       Call mma_deallocate(ISGPTH)
       Call mma_deallocate(ILNDW)
 
