@@ -26,8 +26,7 @@
       Type(SGStruct) SGS
       Type(CIStruct) CIS
       Type(EXStruct) EXS
-      Integer, Allocatable:: IVR(:), ISGM(:), ILNDW(:), SCR(:)
-      Integer                                 NILNDW,   NSCR
+      Integer, Allocatable:: IVR(:), ISGM(:)
       Real*8, Allocatable:: VSGM(:), VTAB_TMP(:), VAL(:)
       Integer NICOUP, NVTAB_TMP, NICASE, nVTab
 
@@ -86,26 +85,20 @@
       CALL NRCOUP(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISM,SGS%DRT,ISGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP, &
                       CIS%NOCSF,CIS%IOCSF,CIS%NCSF,EXS%MVL,EXS%MVR,NICOUP,NSYM)
 
-      NILNDW=NWALK
       NVTAB_TMP=20000
-      NSCR=7*(NLEV+1)
       CALL mma_allocate(EXS%ICOUP,3,NICOUP,Label='EXS%ICOUP')
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
-      CALL mma_allocate(ILNDW,NILNDW,Label='ILNDW')
-      CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(VAL,NLEV+1,Label='VAL')
       NICASE=SIZE(CIS%ICASE)
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
-     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,ILNDW,      &
-     &            CIS%ICase, EXS%ICOUP,VTAB_TMP,NVTAB,SCR,VAL)
+     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,     &
+     &            CIS%ICase, EXS%ICOUP,VTAB_TMP,NVTAB,VAL)
 
       CALL mma_allocate(EXS%VTAB,NVTAB,Label='EXS%VTAB')
       EXS%VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
 
       Call mma_deallocate(VTAB_TMP)
-      Call mma_deallocate(ILNDW)
-      Call mma_deallocate(SCR)
       Call mma_deallocate(VAL)
       Call mma_deallocate(ISGM)
       Call mma_deallocate(VSGM)

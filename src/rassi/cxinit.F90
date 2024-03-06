@@ -17,13 +17,12 @@
       Type (CIStruct) CIS
       Type (EXStruct) EXS
 
-      Integer, Allocatable:: IVR(:), ISgm(:,:), iLndw(:), Scr(:)
+      Integer, Allocatable:: IVR(:), ISgm(:,:)
       Real*8,  Allocatable::         VSgm(:,:)
       Real*8,  Allocatable:: VTabTmp(:), Val(:)
       Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, &
      &        MxEO, nWalk,    &
-     &        nICoup, nVMax, niLndw, nICase, nScr, nVTab,      &
-     &        nVTab_final
+     &        nICoup, nVMax, nICase, nVTab, nVTab_final
 
       nLev   =SGS%nLev
       nVert  =SGS%nVert
@@ -69,25 +68,19 @@
       Call mma_allocate(EXS%ICoup,3,nICoup,Label='EXS%ICoup')
       nVMax=5000
       Call mma_allocate(VTabTmp,nVMax,Label='VTabTmp')
-      nILNDW=nWalk
-      Call mma_allocate(iLndw,niLndw,Label='iLndw')
-      nScr=7*(nLev+1)
-      Call mma_allocate(Scr,nScr,Label='Scr')
       Call mma_allocate(Val,nLev+1,Label='Val')
       nVTab=nVMax
       Call MkCoup(nSym,nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTab,                       &
      &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,       &
-     &            EXS%IOCP,ILNDW,CIS%ICase,EXS%ICOUP,VTabTmp,           &
-     &            NVTAB_Final,SCR,VAL)
+     &            EXS%IOCP,CIS%ICase,EXS%ICOUP,VTabTmp,           &
+     &            NVTAB_Final,VAL)
 
       nVTAB=nVTAB_Final
       Call mma_allocate(EXS%Vtab,nVTab,Label='EXS%VTab')
       EXS%VTab(1:nVTab)=VTabTmp(1:nVTab)
       Call mma_deallocate(VTabTmp)
 
-      Call mma_deallocate(iLndw)
-      Call mma_deallocate(Scr)
       Call mma_deallocate(Val)
       Call mma_deallocate(ISgm)
       Call mma_deallocate(VSgm)
