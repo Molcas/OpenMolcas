@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 
-      SUBROUTINE MKSEG(SGS,CIS,EXS,NVERT,IVR,ISGMNT,VSGMNT)
+      SUBROUTINE MKSEG(SGS,CIS,EXS)
 
 C PURPOSE: CONSTRUCT THE TABLES ISGMNT AND VSGMNT.
 C ISGMNT(IVLT,ISGT) REFERS TO A SEGMENT OF THE SEGMENT TYPE
@@ -34,8 +34,6 @@ C    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
       Type (EXStruct) EXS
       CHARACTER(LEN=26) CC1,CC2,CTVPT,CBVPT,CSVC
 #include "segtab.fh"
-      Integer, Intent(In) :: nVert
-      DIMENSION IVR(NVERT,2),ISGMNT(NVERT,26),VSGMNT(NVERT,26)
       Integer, PARAMETER :: IATAB=3, IBTAB=4
       Real*8, PARAMETER :: ZERO=0.0D0, ONE=1.0D00
 
@@ -43,6 +41,9 @@ C    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
       CHARACTER(LEN=20) FRML(7)
       CHARACTER(LEN=20) TEXT
 #endif
+      Call mma_allocate(CIS%IVR,SGS%nVert,2,Label='CIS%IVR')
+      Call mma_allocate(CIS%ISGM,SGS%nVert,26,Label='CIS%ISGM')
+      Call mma_allocate(CIS%VSGM,SGS%nVert,26,Label='CIS%VSGM')
       Call mma_allocate(EXS%MVL,CIS%nMidV,2,Label='EXS%MVL')
       Call mma_allocate(EXS%MVR,CIS%nMidV,2,Label='EXS%MVR')
 
@@ -50,7 +51,9 @@ C Dereference SGS
       Associate (iDRT=>SGS%DRT, iDown=>SGS%Down, LTV=>SGS%LTV,
      &           MVSTA=>SGS%MVSta, MVEnd=>SGS%MVEnd,
      &           nLev=>SGS%nLev, nMidV=>CIS%nMidV,
-     &           MVL=>EXS%MVL, MVR=>EXS%MVR)
+     &           MVL=>EXS%MVL, MVR=>EXS%MVR, nVert=>SGS%nVert,
+     &           IVR=>CIS%IVR, iSGMNT => CIS%ISGM,
+     &           VSGMNT => CIS%VSGM)
 
       CC1=  '01230201011230122313230123'
       CC2=  '01231323012230112302010123'

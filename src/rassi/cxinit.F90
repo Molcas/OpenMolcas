@@ -17,8 +17,6 @@
       Type (CIStruct) CIS
       Type (EXStruct) EXS
 
-      Integer, Allocatable:: IVR(:), ISgm(:,:)
-      Real*8,  Allocatable::         VSgm(:,:)
       Real*8,  Allocatable:: VTabTmp(:)
       Integer nLev, nVert, MidLev, MVSta, MVEnd, nMidV, nIpWlk, &
      &        MxEO, nWalk,    &
@@ -37,11 +35,8 @@
 ! nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
-      Call mma_allocate(CIS%IVR,nVert,2,Label='IVR')
-      Call mma_allocate(CIS%ISgm,nVert,26,Label='ISgm')
-      Call mma_allocate(CIS%VSgm,nVert,26,Label='VSgm')
 
-      Call MkSeg(SGS,CIS,EXS,nVert,CIS%IVR,CIS%ISgm,CIS%VSgm)
+      Call MkSeg(SGS,CIS,EXS)
 
       CIS%nIpWlk  = nIpWlk
 

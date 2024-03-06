@@ -26,8 +26,7 @@
       Type(SGStruct) SGS
       Type(CIStruct) CIS
       Type(EXStruct) EXS
-      Integer, Allocatable:: IVR(:), ISGM(:)
-      Real*8, Allocatable:: VSGM(:), VTAB_TMP(:)
+      Real*8, Allocatable:: VTAB_TMP(:)
       Integer NICOUP, NVTAB_TMP, NICASE, nVTab
 
       Interface
@@ -71,11 +70,8 @@
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
-      CALL mma_allocate(CIS%IVR,NVERT,2,Label='IVR')
-      CALL mma_allocate(CIS%ISGM,nVert,26,Label='ISGM')
-      CALL mma_allocate(CIS%VSGM,nVert,26,Label='VSGM')
 
-      CALL MKSEG(SGS,CIS,EXS,nVert,CIS%IVR,CIS%ISGM,CIS%VSGM)
+      CALL MKSEG(SGS,CIS,EXS)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
