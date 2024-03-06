@@ -37,11 +37,11 @@
 ! nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
-      Call mma_allocate(IVR,2*nVert,Label='IVR')
-      Call mma_allocate(ISgm,nVert,26,Label='ISgm')
-      Call mma_allocate(VSgm,nVert,26,Label='VSgm')
+      Call mma_allocate(CIS%IVR,nVert,2,Label='IVR')
+      Call mma_allocate(CIS%ISgm,nVert,26,Label='ISgm')
+      Call mma_allocate(CIS%VSgm,nVert,26,Label='VSgm')
 
-      Call MkSeg(SGS,CIS,EXS,nVert,IVR,ISgm,VSgm)
+      Call MkSeg(SGS,CIS,EXS,nVert,CIS%IVR,CIS%ISgm,CIS%VSgm)
 
       CIS%nIpWlk  = nIpWlk
 
@@ -57,7 +57,7 @@
       Call mma_allocate(CIS%IOCSF,nSym,nMidV,nSym,Label='CIS%IOCSF')
       EXS%MxEO =MxEO
       Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,         &
-     &            ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                        &
+     &            CIS%ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                    &
      &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
      &            CIS%NCSF,EXS%MVL,EXS%MVR,nICoup,nSym)
 ! Computed in NrCoup:
@@ -71,7 +71,8 @@
       nVTab=nVMax
       Call MkCoup(nSym,nLev,SGS%Ism,nVert,MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTab,                       &
-     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,       &
+     &            CIS%IVR,SGS%MAW,CIS%ISGM,CIS%VSGM,                    &
+     &            CIS%NOW,CIS%IOW,EXS%NOCP,                             &
      &            EXS%IOCP,CIS%ICase,EXS%ICOUP,VTabTmp,NVTAB_Final)
 
       nVTAB=nVTAB_Final
@@ -79,8 +80,8 @@
       EXS%VTab(1:nVTab)=VTabTmp(1:nVTab)
       Call mma_deallocate(VTabTmp)
 
-      Call mma_deallocate(ISgm)
-      Call mma_deallocate(VSgm)
-      Call mma_deallocate(IVR)
+      Call mma_deallocate(CIS%ISgm)
+      Call mma_deallocate(CIS%VSgm)
+      Call mma_deallocate(CIS%IVR)
 
       end Subroutine CXInit

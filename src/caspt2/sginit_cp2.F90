@@ -71,17 +71,17 @@
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
-      CALL mma_allocate(IVR,2*NVERT,Label='IVR')
-      CALL mma_allocate(ISGM,26*nVert,Label='ISGM')
-      CALL mma_allocate(VSGM,26*nVert,Label='VSGM')
+      CALL mma_allocate(CIS%IVR,NVERT,2,Label='IVR')
+      CALL mma_allocate(CIS%ISGM,nVert,26,Label='ISGM')
+      CALL mma_allocate(CIS%VSGM,nVert,26,Label='VSGM')
 
-      CALL MKSEG(SGS,CIS,EXS,nVert,IVR,ISGM,VSGM)
+      CALL MKSEG(SGS,CIS,EXS,nVert,CIS%IVR,CIS%ISGM,CIS%VSGM)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       MXEO=(NLEV*(NLEV+5))/2
       CALL mma_allocate(EXS%NOCP,MXEO,NSYM,NMIDV,Label='EXS%NOCP')
       CALL mma_allocate(EXS%IOCP,MXEO,NSYM,NMIDV,Label='EXS%IOCP')
-      CALL NRCOUP(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISM,SGS%DRT,ISGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP, &
+      CALL NRCOUP(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISM,SGS%DRT,CIS%ISGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP, &
                       CIS%NOCSF,CIS%IOCSF,CIS%NCSF,EXS%MVL,EXS%MVR,NICOUP,NSYM)
 
       NVTAB_TMP=20000
@@ -90,17 +90,17 @@
       NICASE=SIZE(CIS%ICASE)
       CALL MKCOUP(nSym,nLev,SGS%ISm,nVert,SGS%MidLev,nMidV,MVSta,MVEnd,     &
      &            MxEO,nICoup,nWalk,nICase,nVTAB_TMP,               &
-     &            IVR,SGS%MAW,ISGM,VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,     &
+     &            CIS%IVR,SGS%MAW,CIS%ISGM,CIS%VSGM,CIS%NOW,CIS%IOW,EXS%NOCP,EXS%IOCP,     &
      &            CIS%ICase, EXS%ICOUP,VTAB_TMP,NVTAB)
 
       CALL mma_allocate(EXS%VTAB,NVTAB,Label='EXS%VTAB')
       EXS%VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
 
       Call mma_deallocate(VTAB_TMP)
-      Call mma_deallocate(ISGM)
-      Call mma_deallocate(VSGM)
+      Call mma_deallocate(CIS%ISGM)
+      Call mma_deallocate(CIS%VSGM)
       Call mma_deallocate(SGS%MAW)
-      Call mma_deallocate(IVR)
+      Call mma_deallocate(CIS%IVR)
 
       CALL mma_deallocate(SGS%DRT)
       Call mma_deallocate(SGS%DOWN)

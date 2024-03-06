@@ -55,6 +55,9 @@ Type CIStruct
      Integer, Allocatable:: IOCSF(:,:,:)
      Integer nWalk
      Integer, Allocatable:: ICase(:)
+     Integer, Allocatable:: IVR(:,:)
+     Integer, Allocatable:: ISGM(:,:)
+     Real*8,  Allocatable:: VSGM(:,:)
 End Type CIStruct
 ! Excitation operators, coupling coefficients,...
 Type EXStruct
