@@ -23,13 +23,11 @@
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert,                 &
      &            MidLev =>SGS%MidLev, MVSta => SGS%MVSta,              &
-     &            MVEnd  =>SGS%MVEnd)
-      CIS%nMidV=MVEnd-MVSta+1
+     &            MVEnd  =>SGS%MVEnd, nMidV=>CIS%nMidV)
+
+      nMidV=MVEnd-MVSta+1
 
 ! Calculate segment values, and MVL and MVR tables:
-      nMidV=1+MVEnd-MVSta
-      CIS%nMidV   =nMidV
-! nIpWlk: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
 
