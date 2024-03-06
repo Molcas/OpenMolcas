@@ -36,17 +36,16 @@
 
 
 ! Various offset tables:
-      Call mma_allocate(CIS%NOW,2,nSym,nMidV,Label='CIS%NOW')
-      Call mma_allocate(CIS%IOW,2,nSym,nMidV,Label='CIS%IOW')
       MxEO=(nLev*(nLev+5))/2
       Call mma_allocate(EXS%NOCP,MxEO,nSym,nMidV,Label='EXS%NOCP')
       Call mma_allocate(EXS%IOCP,MxEO,nSym,nMidV,Label='EXS%IOCP')
+
       Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
 
       Call mma_allocate(CIS%NOCSF,nSym,nMidV,nSym,Label='CIS%NOCSF')
       Call mma_allocate(CIS%IOCSF,nSym,nMidV,nSym,Label='CIS%IOCSF')
       Call NrCoup(SGS,CIS,EXS,nVert,nMidV,MxEO,SGS%ISm,SGS%DRT,         &
-     &            CIS%ISgm,CIS%NOW,CIS%IOW,EXS%NOCP,                    &
+     &            CIS%ISgm,EXS%NOCP,                    &
      &            EXS%IOCP,CIS%NOCSF,CIS%IOCSF,                         &
      &            CIS%NCSF,EXS%MVL,EXS%MVR,nICoup,nSym)
 

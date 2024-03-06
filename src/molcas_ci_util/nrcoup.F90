@@ -19,7 +19,7 @@
 !#define _DEBUGPRINT_
       SUBROUTINE NRCOUP(SGS,CIS,EXS,  &
      &                  NVERT,NMIDV,MXEO,ISM,  &
-     &                  IDRT,ISGMNT,NOW,IOW,NOCP,IOCP,                  &
+     &                  IDRT,ISGMNT,NOCP,IOCP,                  &
      &                  NOCSF,IOCSF,NCSF,   &
      &                  MVL,MVR,NICOUP,NSYM)
       use UNIXInfo, only: ProgName
@@ -42,8 +42,8 @@
       Integer, PARAMETER :: LTAB=1
 ! OUTPUT PARAMETERS:
       Integer, Intent(Out):: nICoup
-      Integer NOW(2,NSYM,NMIDV),NOCP(MXEO,NSYM,NMIDV)
-      Integer IOW(2,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
+      Integer NOCP(MXEO,NSYM,NMIDV)
+      Integer IOCP(MXEO,NSYM,NMIDV)
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       Integer NCSF(NSYM)
 ! SCRATCH PARAMETERS:
@@ -60,11 +60,16 @@
       Logical :: IF_RASSI=.FALSE.
       Integer :: nLev, MVSTA, MVEND, NIPWLK
 
+      If (.Not.Allocated(CIS%NOW)) Call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
+      If (.Not.Allocated(CIS%IOW)) Call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
+
 ! Dereference SGS, CIS for some other data
       nLev  =SGS%nLev
       MVSTA =SGS%MVSta
       MVEND =SGS%MVEnd
       NIPWLK=CIS%nIpWlk
+
+      Associate (NOW=> CIS%NOW, IOW=> CIS%IOW)
 
       Call mma_allocate(NRL,[1,nSym],[1,nVert],[0,MxEO],Label='NRL')
 
@@ -403,6 +408,8 @@
 #endif
 
       Call mma_deallocate(NRL)
+
+      End Associate
 
 ! Put sizes in structures CIS, EXSs:
       If (IF_RASSI) CIS%nWalk   =nWalk
