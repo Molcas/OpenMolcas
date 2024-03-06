@@ -18,22 +18,22 @@
       Type (EXStruct) EXS
 
       Real*8,  Allocatable:: VTabTmp(:)
-      Integer nMidV, nIpWlk, MxEO, nWalk,    &
-     &        nICoup, nVMax, nICase, nVTab, nVTab_final
+      Integer MxEO, nWalk, nICoup, nVMax, nICase, nVTab, nVTab_final
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert,                 &
      &            MidLev =>SGS%MidLev, MVSta => SGS%MVSta,              &
-     &            MVEnd  =>SGS%MVEnd, nMidV=>CIS%nMidV)
+     &            MVEnd  =>SGS%MVEnd, nMidV=>CIS%nMidV,                 &
+     &            nIpWlk => CIS%nIpWlk)
 
       nMidV=MVEnd-MVSta+1
 
 ! Calculate segment values, and MVL and MVR tables:
+
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
 
       Call MkSeg(SGS,CIS,EXS)
 
-      CIS%nIpWlk  = nIpWlk
 
 ! Various offset tables:
       Call mma_allocate(CIS%NOW,2,nSym,nMidV,Label='CIS%NOW')
