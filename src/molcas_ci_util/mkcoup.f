@@ -16,14 +16,14 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKCOUP(nSym,nLev,ISm,nVert,MidLev,nMidV,MVSta,MVEnd,
+      SUBROUTINE MKCOUP(nSym,nVert,MidLev,nMidV,MVSta,MVEnd,
      &                  MxEO,nWalk,nICase,nVTab,
-     &                  IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
-     &                  NOCP,IOCP,ICase,VTab,NVTAB_FINAL,EXS)
+     &                  ISGMNT,VSGMNT,NOW,IOW,
+     &                  NOCP,IOCP,ICase,VTab,NVTAB_FINAL,SGS,CIS,EXS)
 
       use Symmetry_Info, only: Mul
       use stdalloc, only: mma_allocate, mma_deallocate
-      use struct, only: EXStruct
+      use struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "segtab.fh"
@@ -53,11 +53,11 @@ C ISGPTH(ISEG ,LEV)=Segment type (1..26).
 C These indices are used to denote the columns of table ISGPTH.
 
 C INPUT PARAMETERS:
-      Integer ISM(nLev)
-      Integer IVR(NVERT,2),IMAW(NVERT,0:3)
       Integer ISGMNT(NVERT,26)
       Real*8 VSGMNT(NVERT,26)
       Integer NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
+      Type(SGStruct) SGS
+      Type(CIStruct) CIS
       Type(EXStruct) EXS
 C OUTPUT PARAMETERS:
       Integer IOW(2,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
@@ -70,12 +70,14 @@ C SCRATCH PARAMETERS:
       Real*8, Allocatable:: Value(:)
 
       Call mma_allocate(ILNDW,nWalk,Label='ILNDW')
-      Call mma_allocate(ISGPTH,[1,7],[0,nLev],Label='ISGPTH')
-      Call mma_allocate(Value,[0,nLev],Label='Value')
+      Call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')
+      Call mma_allocate(Value,[0,SGS%nLev],Label='Value')
 
       Call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
 
-      Associate (ICoup=>EXS%ICoup, nICoup=>EXS%nICoup)
+      Associate (ICoup=>EXS%ICoup, nICoup=>EXS%nICoup,
+     &           ISm=>SGS%ISm, IVR=>CIS%IVR, iMAW=>SGS%MAW,
+     &           nLev=>SGS%nLev)
 
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
