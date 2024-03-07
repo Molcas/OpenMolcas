@@ -81,8 +81,9 @@
 
       Call mma_deallocate(CIS%ISGM)
       Call mma_deallocate(CIS%VSGM)
-      Call mma_deallocate(SGS%MAW)
       Call mma_deallocate(CIS%IVR)
+
+      Call mma_deallocate(SGS%MAW)
 
       CALL mma_deallocate(SGS%DRT)
       Call mma_deallocate(SGS%DOWN)

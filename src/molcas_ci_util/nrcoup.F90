@@ -18,7 +18,6 @@
 !--------------------------------------------*
 !#define _DEBUGPRINT_
       SUBROUTINE NRCOUP(SGS,CIS,EXS)
-      use UNIXInfo, only: ProgName
       use Struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: MUL
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -44,8 +43,6 @@
 #ifdef _DEBUGPRINT_
       Integer IS, IST, NCP, NLW
 #endif
-      Logical :: IF_RASSI=.FALSE.
-
       If (.Not.Allocated(CIS%NOW)) Call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
       If (.Not.Allocated(CIS%IOW)) Call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
       If (.Not.Allocated(CIS%NCSF)) Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
@@ -67,13 +64,6 @@
                  MxEO => EXS%MxEO, nMidV=>CIS%nMidV, nICoup=>EXS%nICoup)
 
       Call mma_allocate(NRL,[1,nSym],[1,nVert],[0,MxEO],Label='NRL')
-
-      Select Case (ProgName(1:6))
-         Case ('rassi')
-            IF_RASSI = .TRUE.
-         Case Default
-            IF_RASSI = .FALSE.
-      End Select
 
       DO INDEO=0,MXEO
         DO IV=1,MVEnd
@@ -137,7 +127,7 @@
       DO MV=1,NMIDV
         IVLT=MV+MVSta-1
         DO LFTSYM=1,NSYM
-          IF (IF_RASSI) NOW(1,LFTSYM,MV)=NRL(LFTSYM,IVLT,0)
+          NOW(1,LFTSYM,MV)=NRL(LFTSYM,IVLT,0)
           MXUP=MAX(MXUP,NOW(1,LFTSYM,MV))
           DO INDEO=1,MXEO
             NOCP(INDEO,LFTSYM,MV)=NRL(LFTSYM,IVLT,INDEO)
@@ -208,7 +198,7 @@
       DO MV=1,NMIDV
         IVLT=MV+MVSta-1
         DO LFTSYM=1,NSYM
-          IF (IF_RASSI) NOW(2,LFTSYM,MV)=NRL(LFTSYM,IVLT,0)
+          NOW(2,LFTSYM,MV)=NRL(LFTSYM,IVLT,0)
           MXDWN=MAX(MXDWN,NOW(2,LFTSYM,MV))
           DO INDEO=1,MXEO
             N=NRL(LFTSYM,IVLT,INDEO)
@@ -217,7 +207,6 @@
         END DO
       END DO
 
-      IF (IF_RASSI) Then
       NUW=0
       DO MV=1,NMIDV
         DO ISYM=1,NSYM
@@ -232,9 +221,6 @@
           NWALK=NWALK+NOW(2,ISYM,MV)
         END DO
       END DO
-      ELSE
-      NWALK=CIS%nWalk
-      End If
 
       NICOUP=0
       DO INDEO=1,MXEO
@@ -246,7 +232,6 @@
         END DO
       END DO
 
-      If (IF_RASSI) Then
       DO ISYTOT=1,NSYM
         NCSF(ISYTOT)=0
         DO MV=1,NMIDV
@@ -259,7 +244,6 @@
           END DO
         END DO
       END DO
-      End If
 
 !AR   INSERT FOR US IN SIGMA ROUTINE
 !
@@ -274,44 +258,36 @@
       DO 551 ISYUS1=1,NSYM
         NUPS1=NOW(1,ISYUS1,MV3)
       DO 552 ISYDS1=1,NSYM
-        If (IF_RASSI) NDWNS1=NOW(2,ISYDS1,MV3)
+        NDWNS1=NOW(2,ISYDS1,MV3)
         NSGMX=MAX(NSGMX,NOCSF(ISYUS1,MV3,ISYDS1))
 !
         IF (MV1.NE.0)THEN
           NT4TMP=NUPS1*NOW(2,ISYDS1,MV1)
           NSGTMP=MAX(NSGTMP,NT4TMP)
-          If (IF_RASSI) THEN
-             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV1)
-             NSGTMP=MAX(NSGTMP,NT5TMP)
-          ENDIF
+          NT5TMP=NDWNS1*NOW(1,ISYUS1,MV1)
+          NSGTMP=MAX(NSGTMP,NT5TMP)
 
         ENDIF
 !
         IF (MV2.NE.0)THEN
           NT3TMP=NUPS1*NOW(2,ISYDS1,MV2)
           NSGTMP=MAX(NSGTMP,NT3TMP)
-          If (IF_RASSI) THEN
-             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV2)
-             NSGTMP=MAX(NSGTMP,NT5TMP)
-          ENDIF
+          NT5TMP=NDWNS1*NOW(1,ISYUS1,MV2)
+          NSGTMP=MAX(NSGTMP,NT5TMP)
         ENDIF
 !
         IF (MV4.NE.0)THEN
           NT1TMP=NUPS1*NOW(2,ISYDS1,MV4)
           NSGTMP=MAX(NSGTMP,NT1TMP)
-          If (IF_RASSI) THEN
-             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV4)
-             NSGTMP=MAX(NSGTMP,NT5TMP)
-          End IF
+          NT5TMP=NDWNS1*NOW(1,ISYUS1,MV4)
+          NSGTMP=MAX(NSGTMP,NT5TMP)
         ENDIF
 !
         IF (MV5.NE.0)THEN
           NT2TMP=NUPS1*NOW(2,ISYDS1,MV5)
           NSGTMP=MAX(NSGTMP,NT2TMP)
-          If (IF_RASSI) THEN
-             NT5TMP=NDWNS1*NOW(1,ISYUS1,MV5)
-             NSGTMP=MAX(NSGTMP,NT5TMP)
-          ENDIF
+          NT5TMP=NDWNS1*NOW(1,ISYUS1,MV5)
+          NSGTMP=MAX(NSGTMP,NT5TMP)
         ENDIF
 !
  552 CONTINUE
@@ -408,6 +384,6 @@
       End Associate
 
 ! Put sizes in structures CIS, EXSs:
-      If (IF_RASSI) CIS%nWalk   =nWalk
+      CIS%nWalk   =nWalk
 
       END SUBROUTINE NRCOUP
