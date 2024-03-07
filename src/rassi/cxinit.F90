@@ -37,7 +37,7 @@
 
 ! Computed in NrCoup:
 
-      Call MkCoup(MidLev,MVSta,MVEnd,nWalk,SGS,CIS,EXS)
+      Call MkCoup(SGS,CIS,EXS)
 
 
       Call mma_deallocate(CIS%ISgm)

@@ -1,88 +1,98 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
-      SUBROUTINE MKCOUP(MidLev,MVSta,MVEnd,nWalk,SGS,CIS,EXS)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+      SUBROUTINE MKCOUP(SGS,CIS,EXS)
 
       use Symmetry_Info, only: Mul
       use stdalloc, only: mma_allocate, mma_deallocate
       use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
 #include "segtab.fh"
-C Purpose: Compute and return the table ICOUP(1..3,ICOP).
-C The number of coupling coeffs is obtained from NOCP, the offset to
-C the ICOP numbering is given by IOCP. The numbers ICOUP(1..3,ICOP) are
-C then the ket and bra half-walks, enumerated by the Lund scheme,
-C and the index into the VTAB table (the pool of possible values of
-C coupling coefficients).
+! Purpose: Compute and return the table ICOUP(1..3,ICOP).
+! The number of coupling coeffs is obtained from NOCP, the offset to
+! the ICOP numbering is given by IOCP. The numbers ICOUP(1..3,ICOP) are
+! then the ket and bra half-walks, enumerated by the Lund scheme,
+! and the index into the VTAB table (the pool of possible values of
+! coupling coefficients).
 
-C Any loop is regarded as a segment path from top to midlevel, or
-C from midlevel to bottom.
-C The segment path is described by the table ISGPTH. It is
-C essentially a list of which one of segments nr 1..26 that are
-C used at each level. The segments are of three types:
-C Type 0: Upwalk segment or top loop segment.
-C Type 1: Mid segment.
-C Type 2: Bottom segment.
-C Type 3: Downwalk segment.
-C ISGPTH(IVLFT,LEV)=Left upper vertex.
-C ISGPTH(ITYPE,LEV)=Type of segment, (0..3).
-C ISGPTH(IAWSL,LEV)=Left arc weight sum (from top, or from bottom).
-C ISGPTH(IAWSR,LEV)=Similar, right.
-C ISGPTH(ILS  ,LEV)=Left symmetry label (accum from top or bottom).
-C ISGPTH(ICS  ,LEV)=Left coupling case number (0..3).
-C ISGPTH(ISEG ,LEV)=Segment type (1..26).
-C These indices are used to denote the columns of table ISGPTH.
+! Any loop is regarded as a segment path from top to midlevel, or
+! from midlevel to bottom.
+! The segment path is described by the table ISGPTH. It is
+! essentially a list of which one of segments nr 1..26 that are
+! used at each level. The segments are of three types:
+! Type 0: Upwalk segment or top loop segment.
+! Type 1: Mid segment.
+! Type 2: Bottom segment.
+! Type 3: Downwalk segment.
+! ISGPTH(IVLFT,LEV)=Left upper vertex.
+! ISGPTH(ITYPE,LEV)=Type of segment, (0..3).
+! ISGPTH(IAWSL,LEV)=Left arc weight sum (from top, or from bottom).
+! ISGPTH(IAWSR,LEV)=Similar, right.
+! ISGPTH(ILS  ,LEV)=Left symmetry label (accum from top or bottom).
+! ISGPTH(ICS  ,LEV)=Left coupling case number (0..3).
+! ISGPTH(ISEG ,LEV)=Segment type (1..26).
+! These indices are used to denote the columns of table ISGPTH.
 
-C INPUT PARAMETERS:
+! INPUT PARAMETERS:
       Type(SGStruct) SGS
       Type(CIStruct) CIS
       Type(EXStruct) EXS
-C OUTPUT PARAMETERS:
+! OUTPUT PARAMETERS:
       Integer, Parameter:: nVTab=5000
-C SCRATCH PARAMETERS:
+! SCRATCH PARAMETERS:
       Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
       Integer, PARAMETER :: ISEG=7
       Integer, Allocatable:: ILNDW(:), ISGPTH(:,:)
       Real*8, Allocatable:: Value(:)
       Real*8, Allocatable:: VTab(:)
 
-      Call mma_allocate(ILNDW,nWalk,Label='ILNDW')
+! local stuff
+      Integer :: nVTab_Final, i, i1, i2, IAWS, IC, ICL, ICOP, ICR,      &
+     &           IHALF, iLnd, IndEO, iP, iPos, iQ, iS, iSg, iSgt,       &
+     &           iSym, iT, iTyp, iTypMx, iTypT, iVlb, iVlt, iVrt,       &
+     &           iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1,    &
+     &           Lev2, LftSym, LL, MV, nCheck
+      Real*8 :: C
+
+      Call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
       Call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')
       Call mma_allocate(Value,[0,SGS%nLev],Label='Value')
       Call mma_allocate(VTab,nVTab,Label='VTab')
 
       Call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
-      If (.NOT.Allocated(CIS%ICase)) Call mma_allocate(CIS%ICase,
+      If (.NOT.Allocated(CIS%ICase)) Call mma_allocate(CIS%ICase,       &
      &                    CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase')
 
-      Associate (ICoup=>EXS%ICoup, nICoup=>EXS%nICoup,
-     &           ISm=>SGS%ISm, IVR=>CIS%IVR, iMAW=>SGS%MAW,
-     &           nLev=>SGS%nLev, ISGMNT=>CIS%ISGM,
-     &           VSGMNT=>CIS%VSGM, NOW=>CIS%NOW, IOW=>CIS%IOW,
-     &           nVert=>SGS%nVert, iCase=>CIS%ICase,
-     &           NOCP=>EXS%NOCP, IOCP=>EXS%IOCP, nSym=>SGS%nSym,
-     &           MxEO=>EXS%MxEO, nMidV=>CIS%nMidV)
+      Associate (ICoup=>EXS%ICoup, nICoup=>EXS%nICoup,                  &
+     &           ISm=>SGS%ISm, IVR=>CIS%IVR, iMAW=>SGS%MAW,             &
+     &           nLev=>SGS%nLev, ISGMNT=>CIS%ISGM,                      &
+     &           VSGMNT=>CIS%VSGM, NOW=>CIS%NOW, IOW=>CIS%IOW,          &
+     &           nVert=>SGS%nVert, iCase=>CIS%ICase,                    &
+     &           NOCP=>EXS%NOCP, IOCP=>EXS%IOCP, nSym=>SGS%nSym,        &
+     &           MxEO=>EXS%MxEO, nMidV=>CIS%nMidV, MidLev=>SGS%MidLev,  &
+     &           MVSta=>SGS%MVSta, MVEnd=>SGS%MVEnd,                    &
+     &           nWalk=>CIS%nWalk, nIpWlk=>CIS%nIpWlk)
 
       nIpWlk=1+(MidLev-1)/15
       nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
-C NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL
-C    BE RESTORED FINALLY.
+! NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL
+!    BE RESTORED FINALLY.
       DO IHALF=1,2
         DO MV=1,NMIDV
           DO IS=1,NSYM
@@ -90,7 +100,7 @@ C    BE RESTORED FINALLY.
           END DO
         END DO
       END DO
-C SIMILAR FOR THE COUPLING COEFFICIENT TABLE:
+! SIMILAR FOR THE COUPLING COEFFICIENT TABLE:
       DO INDEO=1,MXEO
         DO MV=1,NMIDV
           DO IS=1,NSYM
@@ -99,7 +109,7 @@ C SIMILAR FOR THE COUPLING COEFFICIENT TABLE:
         END DO
       END DO
 
-C COUPLING COEFFICIENT VALUE TABLE:
+! COUPLING COEFFICIENT VALUE TABLE:
       NVTAB_FINAL=2
       VTab(1)=1.0D00
       VTab(2)=-1.0D00
@@ -209,12 +219,12 @@ C COUPLING COEFFICIENT VALUE TABLE:
               WRITE(6,*)' LEFT SYMMETRY LFTSYM:',LFTSYM
               WRITE(6,*)' COUP OFFSET IOCP    :',IOCP(INDEO,LFTSYM,MV)
               WRITE(6,*)' COUP SERIAL NR ICOP :',ICOP
-              WRITE(6,*)' D:O, WITHOUT OFFSET :',
+              WRITE(6,*)' D:O, WITHOUT OFFSET :',                       &
      &                    ICOP-IOCP(INDEO,LFTSYM,MV)
               WRITE(6,*)' CURRENT NOCP NUMBER :',NOCP(INDEO,LFTSYM,MV)
               CALL ABEND()
             END IF
-C
+!
             C=VALUE(LEV2)
             DO I=1,NVTAB_FINAL
               IVTAB=I
@@ -250,7 +260,7 @@ C
           END DO
         END DO
       END DO
-C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
+! RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
       DO ICOP=1,NICOUP
         I1=ICOUP(1,ICOP)
         I2=ICOUP(2,ICOP)
@@ -322,7 +332,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
                 CP=VTab(ICOUP(3,ICOP))
-                WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,
+                WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,            &
      &                                      ICOP,ICP1,ICP2,CP
             END DO
           END DO
@@ -340,7 +350,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
                 CP=VTab(ICOUP(3,ICOP))
-                WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,
+                WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,            &
      &                                      ICOP,ICP1,ICP2,CP
               END DO
             END DO
@@ -359,7 +369,7 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
                 ICP1=ICOUP(1,ICOP)
                 ICP2=ICOUP(2,ICOP)
                 CP=VTab(ICOUP(3,ICOP))
-                WRITE(6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,
+                WRITE(6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,            &
      &                                      ICOP,ICP1,ICP2,CP
               END DO
             END DO

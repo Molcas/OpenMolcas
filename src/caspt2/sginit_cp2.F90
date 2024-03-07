@@ -75,8 +75,7 @@
 
       CALL NRCOUP(SGS,CIS,EXS)
 
-      CALL MKCOUP(SGS%MidLev,MVSta,MVEnd,nWalk,               &
-     &            SGS,CIS,EXS)
+      CALL MKCOUP(SGS,CIS,EXS)
 
 
       Call mma_deallocate(CIS%ISGM)
