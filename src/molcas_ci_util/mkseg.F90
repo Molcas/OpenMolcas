@@ -152,21 +152,25 @@
 
           ISGMNT(IVLT,ISGT)=IVLB
           IB=IDRT(IVLT,IBTAB)
-          GOTO (1001,1002,1003,1004,1005,1006,1007) ISVC(ISGT)
- 1001     V=ONE
-          GOTO 99
- 1002     V=-ONE
-          GOTO 99
- 1003     V=ONE/DBLE(1+IB)
-          GOTO 99
- 1004     V=-ONE/DBLE(1+IB)
-          GOTO 99
- 1005     V=SQRT(DBLE(IB)/DBLE(1+IB))
-          GOTO 99
- 1006     V=SQRT(DBLE(2+IB)/DBLE(1+IB))
-          GOTO 99
- 1007     V=SQRT(DBLE(IB*(2+IB)))/DBLE(1+IB)
-  99      VSGMNT(IVLT,ISGT)=V
+          Select Case (ISVC(ISGT))
+             Case(1)
+                V=ONE
+             Case(2)
+                V=-ONE
+             Case(3)
+                V=ONE/DBLE(1+IB)
+             Case(4)
+                V=-ONE/DBLE(1+IB)
+             Case(5)
+                V=SQRT(DBLE(IB)/DBLE(1+IB))
+             Case(6)
+                V=SQRT(DBLE(2+IB)/DBLE(1+IB))
+             Case(7)
+                V=SQRT(DBLE(IB*(2+IB)))/DBLE(1+IB)
+             Case Default
+                Call Abend()
+          End Select
+          VSGMNT(IVLT,ISGT)=V
         END DO
       END DO
 
