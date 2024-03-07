@@ -134,20 +134,7 @@
       Type(CIStruct) CIS
       Type(EXStruct) EXS
 !
-      If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
-      If (Allocated(SGS%DRT0)) Call mma_deallocate(SGS%DRT0)
-      If (Allocated(SGS%DOWN0)) Call mma_deallocate(SGS%DOWN0)
-      If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
-      If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
-      If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)
-      If (Allocated(SGS%MAW)) Call mma_deallocate(SGS%MAW)
-      If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
-      If (Allocated(SGS%DAW)) Call mma_deallocate(SGS%DAW)
-      If (Allocated(SGS%RAW)) Call mma_deallocate(SGS%RAW)
-      If (Allocated(SGS%SCR)) Call mma_deallocate(SGS%SCR)
-      If (Allocated(SGS%Ver)) Call mma_deallocate(SGS%Ver)
-      SGS%DRTP => Null()
-      SGS%DOWNP => Null()
+      Call sgclose(SGS)
 
       Call cxclose(CIS,EXS)
 
