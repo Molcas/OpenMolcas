@@ -70,7 +70,7 @@
       END DO
 !
 #ifdef _DEBUGPRINT_
-      NMIDV=>MVEnd-MVSta+1
+      NMIDV=MVEnd-MVSta+1
       Write(LF,*)
       Write(LF,'(A,I3)')' MIDLEVEL =             ',MIDLEV
       Write(LF,'(A,I3)')' NUMBER OF MIDVERTICES =',NMIDV

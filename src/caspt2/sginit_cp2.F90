@@ -27,7 +27,7 @@
       Type(CIStruct) CIS
       Type(EXStruct) EXS
       Real*8, Allocatable:: VTAB_TMP(:)
-      Integer NVTAB_TMP, NICASE, nVTab
+      Integer NVTAB_TMP, nVTab
 
       Interface
       SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)

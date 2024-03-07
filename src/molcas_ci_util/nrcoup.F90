@@ -264,6 +264,7 @@
 !AR   INSERT FOR US IN SIGMA ROUTINE
 !
       NSGMX=1
+      NDWNS1=0  ! Dummy initialization
       NSGTMP=MAX(MXUP,MXDWN)
       DO 550 MV3=1,NMIDV
         MV1=MVL(MV3,2)

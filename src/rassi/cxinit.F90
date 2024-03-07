@@ -8,11 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine CXInit(SGS,CIS,EXS,nSym)
+      Subroutine CXInit(SGS,CIS,EXS)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Struct, only:  SGStruct, CIStruct, EXStruct
       IMPLICIT None
-      Integer nSym
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
