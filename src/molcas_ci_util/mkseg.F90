@@ -1,34 +1,34 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
-
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+!#define _DEBUGPRINT_
       SUBROUTINE MKSEG(SGS,CIS,EXS)
 
-C PURPOSE: CONSTRUCT THE TABLES ISGMNT AND VSGMNT.
-C ISGMNT(IVLT,ISGT) REFERS TO A SEGMENT OF THE SEGMENT TYPE
-C    ISGT=1,..,26, WHOSE TOP LEFT VERTEX IS IVLT. ISGMNT GIVES
-C    ZERO IF THE SEGMENT IS IMPOSSIBLE IN THE GRAPH DEFINED BY
-C    THE PALDUS TABLE IDRT. ELSE IT IS THE BOTTOM LEFT VERTEX
-C    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
+! PURPOSE: CONSTRUCT THE TABLES ISGMNT AND VSGMNT.
+! ISGMNT(IVLT,ISGT) REFERS TO A SEGMENT OF THE SEGMENT TYPE
+!    ISGT=1,..,26, WHOSE TOP LEFT VERTEX IS IVLT. ISGMNT GIVES
+!    ZERO IF THE SEGMENT IS IMPOSSIBLE IN THE GRAPH DEFINED BY
+!    THE PALDUS TABLE IDRT. ELSE IT IS THE BOTTOM LEFT VERTEX
+!    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
 
       use Struct, only: SGStruct, CIStruct,EXStruct
       use stdalloc, only: mma_allocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
@@ -41,18 +41,23 @@ C    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGMNT.
       CHARACTER(LEN=20) FRML(7)
       CHARACTER(LEN=20) TEXT
 #endif
+
+! local stuff
+      Integer:: IA, IAL, IB, IBL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB,   &
+     &          IVLT, IVRB, IVRT, LEV, MV, MVLL, MVRR
+      Real*8 :: V
       Call mma_allocate(CIS%IVR,SGS%nVert,2,Label='CIS%IVR')
       Call mma_allocate(CIS%ISGM,SGS%nVert,26,Label='CIS%ISGM')
       Call mma_allocate(CIS%VSGM,SGS%nVert,26,Label='CIS%VSGM')
       Call mma_allocate(EXS%MVL,CIS%nMidV,2,Label='EXS%MVL')
       Call mma_allocate(EXS%MVR,CIS%nMidV,2,Label='EXS%MVR')
 
-C Dereference SGS
-      Associate (iDRT=>SGS%DRT, iDown=>SGS%Down, LTV=>SGS%LTV,
-     &           MVSTA=>SGS%MVSta, MVEnd=>SGS%MVEnd,
-     &           nLev=>SGS%nLev, nMidV=>CIS%nMidV,
-     &           MVL=>EXS%MVL, MVR=>EXS%MVR, nVert=>SGS%nVert,
-     &           IVR=>CIS%IVR, iSGMNT => CIS%ISGM,
+! Dereference SGS
+      Associate (iDRT=>SGS%DRT, iDown=>SGS%Down, LTV=>SGS%LTV,          &
+     &           MVSTA=>SGS%MVSta, MVEnd=>SGS%MVEnd,                    &
+     &           nLev=>SGS%nLev, nMidV=>CIS%nMidV,                      &
+     &           MVL=>EXS%MVL, MVR=>EXS%MVR, nVert=>SGS%nVert,          &
+     &           IVR=>CIS%IVR, iSGMNT => CIS%ISGM,                      &
      &           VSGMNT => CIS%VSGM)
 
       CC1=  '01230201011230122313230123'
@@ -96,7 +101,7 @@ C Dereference SGS
           END DO
         END DO
       END DO
-C CONSTRUCT THE MVL AND MVR TABLES:
+! CONSTRUCT THE MVL AND MVR TABLES:
       DO IVL=MVSTA,MVEND
         MVLL=IVL-MVSTA+1
         MVRR=0
@@ -126,7 +131,7 @@ C CONSTRUCT THE MVL AND MVR TABLES:
       WRITE(6,1234)(IVL,IVR(IVL,1),IVR(IVL,2),IVL=1,NVERT)
 #endif
 
-C INITIALIZE SEGMENT TABLES, AND MARK VERTICES AS UNUSABLE:
+! INITIALIZE SEGMENT TABLES, AND MARK VERTICES AS UNUSABLE:
       DO IVLT=1,NVERT
         DO ISGT=1,26
           ISGMNT(IVLT,ISGT)=0
@@ -143,7 +148,7 @@ C INITIALIZE SEGMENT TABLES, AND MARK VERTICES AS UNUSABLE:
           IF(IVLB.EQ.0) cycle
           IVRB=IDOWN(IVRT,IC2(ISGT))
           IF(IVRB.EQ.0) cycle
-C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
+! SEGMENT IS NOW ACCEPTED AS POSSIBLE.
 
           ISGMNT(IVLT,ISGT)=IVLB
           IB=IDRT(IVLT,IBTAB)
@@ -167,7 +172,7 @@ C SEGMENT IS NOW ACCEPTED AS POSSIBLE.
 
 #ifdef _DEBUGPRINT_
         WRITE(6,*)' SEGMENT TABLE IN MKSEG.'
-        WRITE(6,*)' VLT SGT ICL ICR VLB       SEGMENT TYPE    ',
+        WRITE(6,*)' VLT SGT ICL ICR VLB       SEGMENT TYPE    ',        &
      *            '     FORMULA'
         DO IV=1,NVERT
           DO ISGT=1,26
