@@ -149,21 +149,6 @@
       SGS%DRTP => Null()
       SGS%DOWNP => Null()
 
-      If (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
-      If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
-      If (Allocated(CIS%NCSF)) Call mma_deallocate(CIS%NCSF)
-      If (Allocated(CIS%NOCSF)) Call mma_deallocate(CIS%NOCSF)
-      If (Allocated(CIS%IOCSF)) Call mma_deallocate(CIS%IOCSF)
-      If (Allocated(CIS%ICASE)) Call mma_deallocate(CIS%ICASE)
-
-      If (Allocated(EXS%NOCP)) Call mma_deallocate(EXS%NOCP)
-      If (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
-      If (Allocated(EXS%ICOUP)) Call mma_deallocate(EXS%ICOUP)
-      If (Allocated(EXS%VTAB)) Call mma_deallocate(EXS%VTAB)
-      If (Allocated(EXS%MVL)) Call mma_deallocate(EXS%MVL)
-      If (Allocated(EXS%MVR)) Call mma_deallocate(EXS%MVR)
-      If (Allocated(EXS%SGTMP)) Call mma_deallocate(EXS%SGTMP)
-      If (Allocated(EXS%USGN)) Call mma_deallocate(EXS%USGN)
-      If (Allocated(EXS%LSGN)) Call mma_deallocate(EXS%LSGN)
+      Call cxclose(CIS,EXS)
 
       END SUBROUTINE MKGUGA_FREE

@@ -29,6 +29,7 @@ set (sources
      csfbas.F90
      cstart_ci_util.F90
      cxinit.F90
+     cxclose.F90
      davctl.F90
      davctl_mod.F90
      david5.F90
