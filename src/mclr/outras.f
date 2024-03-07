@@ -38,6 +38,17 @@
       Integer iKapDisp(nDisp),iCiDisp(nDisp)
       Logical CI
       Real*8, Allocatable:: Kap1(:), Kap2(:), Kap3(:), CIp1(:)
+
+      Interface
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      END SUBROUTINE MKGUGA_FREE
+      End Interface
+
 *
 *-------------------------------------------------------------------*
 *
@@ -123,7 +134,7 @@
      &                         SGS,CIS,EXS,CIp1,0,pstate_sym,State_Sym)
                   NCSF(1:nSym)=CIS%NCSF(1:nSym)
                   NCONF=CIS%NCSF(pstate_sym)
-                  Call mkGuga_Free()
+                  Call mkGuga_Free(SGS,CIS,EXS)
                End If
 
                If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)

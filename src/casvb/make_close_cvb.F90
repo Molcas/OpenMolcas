@@ -18,12 +18,23 @@ use wadr, only: TUVX, FockOcc, DSPN, DMAT, PMAT, PA, FI, FA, D1I, D1A, OccN, CMO
 use casvb_global, only: variat
 use Definitions, only: iwp
 use stdalloc, only: mma_deallocate
+use gugx, only: SGS, CIS, EXS
 
 implicit none
 integer(kind=iwp) :: it
 integer(kind=iwp) :: i, il, n
 character(len=8) :: vec(11)
 integer(kind=iwp), external :: find_lu
+
+Interface
+SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+use struct, only: SGStruct, CIStruct, EXStruct
+IMPLICIT None
+Type(SGStruct),Target:: SGS
+Type(CIStruct) CIS
+Type(EXStruct) EXS
+END SUBROUTINE MKGUGA_FREE
+End Interface
 
 vec(1) = 'TMP01'
 vec(2) = 'TMP02'
@@ -45,7 +56,7 @@ do i=1,il
   if (n > 0) call daclos(n)
 end do
 if (.not. variat) then
-  call mkguga_free()
+  call mkguga_free(SGS,CIS,EXS)
   call mma_deallocate(FMO)
   call mma_deallocate(TUVX)
   Call mma_deallocate(DMAT)

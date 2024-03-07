@@ -39,6 +39,17 @@
        Integer iKapDisp(nDisp),iCiDisp(nDisp)
        Logical CI
        Real*8, Allocatable:: Kap1(:), Kap2(:), Kap3(:), CIp1(:,:)
+
+      Interface
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      END SUBROUTINE MKGUGA_FREE
+      End Interface
+
 *
 *-------------------------------------------------------------------*
 *
@@ -113,7 +124,7 @@
      &                   SGS,CIS,EXS,CIp1(:,2),0,pstate_sym,State_Sym)
             NCSF(1:nSym)=CIS%NCSF(1:nSym)
             NCONF=CIS%NCSF(pstate_Sym)
-            Call mkGuga_Free()
+            Call mkGuga_Free(SGS,CIS,EXS)
             Call DSCAL_(nconf1,-1.0d0,CIp1(:,2),1)
           End If
 
@@ -123,7 +134,7 @@
      &                    SGS,CIS,EXS,CIp1(:,1),0,pstate_sym,State_Sym)
             NCSF(1:nSym)=CIS%NCSF(1:nSym)
             NCONF=CIS%NCSF(pstate_Sym)
-            Call mkGuga_Free()
+            Call mkGuga_Free(SGS,CIS,EXS)
           End If
           If (Timedep) then
             If (CI) Then

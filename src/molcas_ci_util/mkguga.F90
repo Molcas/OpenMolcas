@@ -123,13 +123,16 @@
 !
       END SUBROUTINE MKGUGA
 
-      SUBROUTINE MKGUGA_FREE()
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
 !
 !     PURPOSE: FREE THE GUGA TABLES
 !
       use stdalloc, only: mma_deallocate
-      use gugx, only:  SGS, CIS, EXS
+      use struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
 !
       If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
       If (Allocated(SGS%DRT0)) Call mma_deallocate(SGS%DRT0)
@@ -143,6 +146,8 @@
       If (Allocated(SGS%RAW)) Call mma_deallocate(SGS%RAW)
       If (Allocated(SGS%SCR)) Call mma_deallocate(SGS%SCR)
       If (Allocated(SGS%Ver)) Call mma_deallocate(SGS%Ver)
+      SGS%DRTP => Null()
+      SGS%DOWNP => Null()
 
       If (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
       If (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)

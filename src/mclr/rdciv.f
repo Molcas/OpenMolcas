@@ -29,6 +29,17 @@
 #include "stdalloc.fh"
 #include "Files_mclr.fh"
       Real*8, Allocatable:: OCIvec(:), Tmp(:)
+
+      Interface
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      END SUBROUTINE MKGUGA_FREE
+      End Interface
+
       Call DaName(LuCIV,'ROOTS')
       iDisk=0
 *----------------------------------------------------------------------*
@@ -46,7 +57,7 @@
      &              SGS,CIS,EXS,OCIvec,1,State_Sym,State_Sym)
        NCSF(1:nSym)=CIS%NCSF(1:nSym)
        NCONF=CIS%NCSF(State_Sym)
-       Call mkGuga_Free()
+       Call mkGuga_Free(SGS,CIS,EXS)
 
        Call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
       End Do

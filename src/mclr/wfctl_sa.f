@@ -66,6 +66,16 @@
         end subroutine
       end interface
 
+      Interface
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      END SUBROUTINE MKGUGA_FREE
+      End Interface
+
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
@@ -247,7 +257,7 @@
      &                   SGS,CIS,EXS,wrk,1,State_Sym,State_Sym)
             NCSF(1:nSym)=CIS%NCSF(1:nSym)
             NCONF=CIS%NCSF(State_Sym)
-            Call mkGuga_Free()
+            Call mkGuga_Free(SGS,CIS,EXS)
 
             Call DCopy_(nConf1,wrk,1,
      *                  W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),1)

@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PCLOSE()
       use fciqmc_interface, only: DoFCIQMC
+      use gugx, only: SGS, CIS, EXS
       IMPLICIT None
 C
 C  PER AAKE MALMQUIST 92-12-07
@@ -26,7 +27,18 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
 #include "rasdim.fh"
 #include "caspt2.fh"
 
-      Call MKGUGA_FREE()
+      Interface
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      END SUBROUTINE MKGUGA_FREE
+      End Interface
+
+
+      Call MKGUGA_FREE(SGS,CIS,EXS)
 
       IF(DoCumulant) RETURN
       IF(DoFCIQMC) RETURN

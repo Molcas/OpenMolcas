@@ -68,7 +68,7 @@
       use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use gugx, only: IFRAS
+      use gugx, only: SGS,CIS,EXS,IFRAS
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -103,6 +103,17 @@
 !
       real*8, allocatable :: PLWO(:), CIV(:)
       integer ivkcnf
+
+      Interface
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      END SUBROUTINE MKGUGA_FREE
+      End Interface
+
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
@@ -583,7 +594,7 @@
           CALL mma_deallocate(Pscr)
           CALL mma_deallocate(CIV)
           Call Lucia_Util('CLOSE')
-          Call MKGUGA_FREE()
+          Call MKGUGA_FREE(SGS,CIS,EXS)
        end if
 
 *

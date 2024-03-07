@@ -54,6 +54,15 @@
         Subroutine RdJobIph(CIVec)
         Real*8, Allocatable:: CIVec(:,:)
         End Subroutine RdJobIph
+
+        SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+        use struct, only: SGStruct, CIStruct, EXStruct
+        IMPLICIT None
+        Type(SGStruct),Target:: SGS
+        Type(CIStruct) CIS
+        Type(EXStruct) EXS
+        END SUBROUTINE MKGUGA_FREE
+
       End Interface
 *                                                                      *
 ************************************************************************
@@ -129,7 +138,7 @@ C     write(6,*) "iMethod:",iMethod,iCASSCF
      &                    SGS,CIS,EXS,CITmp,1,State_Sym,State_Sym)
              NCSF(1:nSym)=CIS%NCSF(1:nSym)
              NCONF=CIS%NCSF(State_Sym)
-             Call mkGuga_Free()
+             Call mkGuga_Free(SGS,CIS,EXS)
 
            end if
 

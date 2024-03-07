@@ -95,6 +95,7 @@
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO, DIAF
       use sxci
+      use gugx, only: SGS, CIS, EXS
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -159,6 +160,16 @@
       Real*8, Allocatable:: VecL(:), VecR(:)
 #endif
       Real*8, Allocatable:: Dens(:)
+
+      Interface
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      END SUBROUTINE MKGUGA_FREE
+      End Interface
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -2051,7 +2062,7 @@ c      End If
 
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
-        Call MKGUGA_FREE()
+        Call MKGUGA_FREE(SGS,CIS,EXS)
       end if
 
       if (DoFaro) then

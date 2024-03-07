@@ -43,10 +43,16 @@
       Real*8, Allocatable::  Tmp2(:)
       Real*8, Allocatable:: CIVec(:,:)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+      Interface
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      END SUBROUTINE MKGUGA_FREE
+      End Interface
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -150,7 +156,7 @@
      &               SGS,CIS,EXS,rdum,imode,State_Sym,State_Sym)
         NCSF(1:nSym)=CIS%NCSF(1:nSym)
         NCONF=CIS%NCSF(State_Sym)
-        Call mkGuga_Free()
+        Call mkGuga_Free(SGS,CIS,EXS)
 
 !        do isym=1,8
 !          write(*,*)"isym_ncsf in rdjobiph ",ncsf(isym)
