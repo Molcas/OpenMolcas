@@ -80,9 +80,7 @@
       NVTAB_TMP=20000
       CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
 
-      CALL MKCOUP(nSym,SGS%MidLev,nMidV,MVSta,MVEnd,     &
-     &            MxEO,nWalk,nVTAB_TMP,               &
-     &            EXS%NOCP,EXS%IOCP,     &
+      CALL MKCOUP(SGS%MidLev,MVSta,MVEnd,nWalk,nVTAB_TMP,               &
      &            VTAB_TMP,NVTAB,SGS,CIS,EXS)
 
       CALL mma_allocate(EXS%VTAB,NVTAB,Label='EXS%VTAB')
