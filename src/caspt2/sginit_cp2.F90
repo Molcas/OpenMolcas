@@ -18,7 +18,7 @@
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
       SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,STSYM)
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only: mma_deallocate
       use Struct, only: SGStruct, CIStruct, EXStruct
       use gugx, only: IFRAS
       IMPLICIT None
@@ -26,8 +26,6 @@
       Type(SGStruct) SGS
       Type(CIStruct) CIS
       Type(EXStruct) EXS
-      Real*8, Allocatable:: VTAB_TMP(:)
-      Integer NVTAB_TMP, nVTab
 
       Interface
       SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
@@ -77,16 +75,10 @@
 
       CALL NRCOUP(SGS,CIS,EXS)
 
-      NVTAB_TMP=20000
-      CALL mma_allocate(VTAB_TMP,NVTAB_TMP,Label='VTAB_TMP')
+      CALL MKCOUP(SGS%MidLev,MVSta,MVEnd,nWalk,               &
+     &            SGS,CIS,EXS)
 
-      CALL MKCOUP(SGS%MidLev,MVSta,MVEnd,nWalk,nVTAB_TMP,               &
-     &            VTAB_TMP,NVTAB,SGS,CIS,EXS)
 
-      CALL mma_allocate(EXS%VTAB,NVTAB,Label='EXS%VTAB')
-      EXS%VTAB(1:NVTAB)=VTAB_TMP(1:NVTAB)
-
-      Call mma_deallocate(VTAB_TMP)
       Call mma_deallocate(CIS%ISGM)
       Call mma_deallocate(CIS%VSGM)
       Call mma_deallocate(SGS%MAW)

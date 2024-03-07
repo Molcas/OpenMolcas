@@ -9,15 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine CXInit(SGS,CIS,EXS)
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use stdalloc, only:  mma_deallocate
       use Struct, only:  SGStruct, CIStruct, EXStruct
       IMPLICIT None
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
-
-      Real*8,  Allocatable:: VTabTmp(:)
-      Integer nVMax, nVTab, nVTab_final
 
       Associate ( nLev => SGS%nLev, nVert => SGS%nVert,                 &
      &            MidLev =>SGS%MidLev, MVSta => SGS%MVSta,              &
@@ -40,16 +37,8 @@
 
 ! Computed in NrCoup:
 
-      nVMax=5000
-      Call mma_allocate(VTabTmp,nVMax,Label='VTabTmp')
-      nVTab=nVMax
-      Call MkCoup(MidLev,MVSta,MVEnd,nWalk,nVTab,                       &
-     &            VTabTmp,NVTAB_Final,SGS,CIS,EXS)
+      Call MkCoup(MidLev,MVSta,MVEnd,nWalk,SGS,CIS,EXS)
 
-      nVTAB=nVTAB_Final
-      Call mma_allocate(EXS%Vtab,nVTab,Label='EXS%VTab')
-      EXS%VTab(1:nVTab)=VTabTmp(1:nVTab)
-      Call mma_deallocate(VTabTmp)
 
       Call mma_deallocate(CIS%ISgm)
       Call mma_deallocate(CIS%VSgm)

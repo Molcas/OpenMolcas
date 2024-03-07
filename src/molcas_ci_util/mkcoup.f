@@ -16,8 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKCOUP(MidLev,MVSta,MVEnd,nWalk,nVTab,
-     &                  VTab,NVTAB_FINAL,SGS,CIS,EXS)
+      SUBROUTINE MKCOUP(MidLev,MVSta,MVEnd,nWalk,SGS,CIS,EXS)
 
       use Symmetry_Info, only: Mul
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -55,16 +54,18 @@ C INPUT PARAMETERS:
       Type(CIStruct) CIS
       Type(EXStruct) EXS
 C OUTPUT PARAMETERS:
-      Real*8 VTab(nVTab)
+      Integer, Parameter:: nVTab=5000
 C SCRATCH PARAMETERS:
       Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
       Integer, PARAMETER :: ISEG=7
       Integer, Allocatable:: ILNDW(:), ISGPTH(:,:)
       Real*8, Allocatable:: Value(:)
+      Real*8, Allocatable:: VTab(:)
 
       Call mma_allocate(ILNDW,nWalk,Label='ILNDW')
       Call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')
       Call mma_allocate(Value,[0,SGS%nLev],Label='Value')
+      Call mma_allocate(VTab,nVTab,Label='VTab')
 
       Call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
       If (.NOT.Allocated(CIS%ICase)) Call mma_allocate(CIS%ICase,
@@ -415,5 +416,9 @@ C RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
 #endif
 
       End Associate
+
+      Call mma_allocate(EXS%VTab,nVTab_Final,Label='EXS%VTab')
+      EXS%VTab(1:nVTab_final) = VTab(1:nVTab_final)
+      Call mma_deallocate(VTab)
 
       END SUBROUTINE MKCOUP
