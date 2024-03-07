@@ -89,8 +89,8 @@
      &           MVSta=>SGS%MVSta, MVEnd=>SGS%MVEnd,                    &
      &           nWalk=>CIS%nWalk, nIpWlk=>CIS%nIpWlk)
 
-      nIpWlk=1+(MidLev-1)/15
-      nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
+!     nIpWlk=1+(MidLev-1)/15
+!     nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
 ! NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL
 !    BE RESTORED FINALLY.
       DO IHALF=1,2
