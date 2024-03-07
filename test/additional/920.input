@@ -63,7 +63,6 @@ Ciroot = 1 1 1
 LEVShft = 1.2
 End of input
 >> COPY $Project.JobIph JOB002
->> COPY $Project.RasOrb $CurrDir/RasOrb_2
 
 &RASSI
 Nrof JobIphs =  2 all
