@@ -21,8 +21,6 @@
 #endif
       use stdalloc, only: mma_allocate
       use struct, only: SGStruct, CIStruct, EXStruct
-      use gugx, only: IFRAS
-
       IMPLICIT None
       Type(SGStruct),Target:: SGS
       Type(CIStruct) CIS
@@ -44,7 +42,8 @@
      &           nWalk => CIS%nWalk,  MxUp => SGS%MxUp, MxDwn => SGS%MxDwn, &
      &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &           nLev=>SGS%nLev, nSym=>SGS%nSym, nVert0=>SGS%nVert0)
+     &           nLev=>SGS%nLev, nSym=>SGS%nSym, nVert0=>SGS%nVert0,    &
+     &           IFRAS=>SGS%IFRAS)
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -127,7 +126,6 @@
 !
 !     PURPOSE: FREE THE GUGA TABLES
 !
-      use stdalloc, only: mma_deallocate
       use struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
       Type(SGStruct),Target:: SGS

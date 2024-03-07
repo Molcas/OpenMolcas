@@ -13,7 +13,6 @@
      &                   State_Sym)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: IFRAS
       use Str_Info, only: CFTP, CNSM
       use Struct, only: SGStruct, CIStruct, EXStruct
       Implicit None
@@ -58,7 +57,8 @@
      &            nIpWlk=>CIS%nIpWlk,
      &            MxUp => SGS%MxUp, MxDwn => SGS%MxDwn,
      &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,
-     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS)
+     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,
+     &            IFRAS=>SGS%IFRAS)
 
       SGS%nSym=nSym
       SGS%iSpin=iSpin

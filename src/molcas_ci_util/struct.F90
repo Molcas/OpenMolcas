@@ -38,6 +38,7 @@ Type SGStruct
      Integer, Allocatable:: RAW(:,:)
      Integer MXUP
      Integer MXDWN
+     Integer :: IFRAS=0
      Integer LV1RAS
      Integer LM1RAS
      Integer LV3RAS

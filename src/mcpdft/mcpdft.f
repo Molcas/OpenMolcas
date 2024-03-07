@@ -68,7 +68,7 @@
       use lucia_interface, only: lucia_util
       use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
      &                D1I, D1A, OccN, CMO
-      use gugx, only: SGS,CIS,EXS,IFRAS
+      use gugx, only: SGS,CIS,EXS
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -476,7 +476,7 @@
           call getmem('kcnf','free','inte',ivkcnf,nactel)
           CALL Lucia_Util('Densi',
      &                    CI_Vector=CIVEC(:))
-          If (IFRAS > 2) Then
+          If (SGS%IFRAS > 2) Then
             Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
           End If
 

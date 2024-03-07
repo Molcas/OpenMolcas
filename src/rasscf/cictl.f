@@ -73,7 +73,7 @@
 #endif
       use Lucia_Interface, only: Lucia_Util
       use wadr, only: FMO
-      use gugx, only: IFRAS, CIS
+      use gugx, only: SGS, CIS
       use sxci, only: IDXSX
 
       Implicit Real* 8 (A-H,O-Z)
@@ -152,7 +152,7 @@ C Local print level (if any)
 * IFRAS = 0: This is a CAS calculation
 * IFRAS = 1: This is a RAS calculation
 *
-      if(iDoGas.or.IFRAS.gt.2) call setsxci
+      if(iDoGas.or.SGS%IFRAS.gt.2) call setsxci()
       If ( IPRLEV.gt.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' Enter CI section, CICTL routine'
@@ -316,7 +316,7 @@ C Local print level (if any)
                  Call mma_allocate(Pscr,NACPR2,Label='Pscr')
                  CALL Lucia_Util('Densi',
      &                           CI_Vector=CIVEC(:))
-                 If (IFRAS.GT.2 .OR. iDoGAS) Then
+                 If (SGS%IFRAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
                  End If
                  Call mma_deallocate(Pscr)
@@ -605,7 +605,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
          EndIf
-         IF (.not.doDMRG .and. (IFRAS.GT.2 .OR. iDoGAS))
+         IF (.not.doDMRG .and. (SGS%IFRAS.GT.2 .OR. iDoGAS))
      &   CALL CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
 ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
          if(doDMRG)then
@@ -708,7 +708,7 @@ C and for now don't bother with 2-electron active density matrices
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
         EndIf
-        IF (IDoGAS.or.IFRAS.gt.2) CALL CISX(IDXSX,Dtmp,DStmp,
+        IF (IDoGAS.or.SGS%IFRAS.gt.2) CALL CISX(IDXSX,Dtmp,DStmp,
      &              Ptmp,PAtmp,Pscr)
            If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
      &                      Call Mod_P2(Ptmp,NACPR2,

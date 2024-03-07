@@ -20,7 +20,6 @@
       SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,STSYM)
       use stdalloc, only: mma_deallocate
       use Struct, only: SGStruct, CIStruct, EXStruct
-      use gugx, only: IFRAS
       IMPLICIT None
       Integer nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,STSYM
       Type(SGStruct) SGS
@@ -47,7 +46,7 @@
      &            nVert=> SGS%nVert, nMidV=>CIS%nMidV, MXEO => EXS%MxEO, &
      &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
      &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &            MVSta =>SGS%MVSta,  MVEnd=>SGS%MVEnd)
+     &            MVSta =>SGS%MVSta,  MVEnd=>SGS%MVEnd, IFRAS=>SGS%IFRAS)
 
       LV1RAS=NRAS1T
       LV3RAS=nRas1T+NRAS2T

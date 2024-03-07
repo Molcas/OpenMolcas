@@ -22,7 +22,6 @@
 #ifdef _DEBUGPRINT_
       use Definitions, only: u6
 #endif
-      use gugx, only: IFRAS
       use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
       Integer nSym,iSpin,nActEl,nHole1,nElec3,STSYM
@@ -63,7 +62,7 @@
       Associate( nLev =>SGS%nLev,   &
      &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,   &
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,   &
-     &           nVert0 => SGS%nVert0)
+     &           nVert0 => SGS%nVert0, IFRAS=>SGS%IFRAS)
 
 !
 !     COMPUTE RAS RESTRICTIONS ON VERTICES:
