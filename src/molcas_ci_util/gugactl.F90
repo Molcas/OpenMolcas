@@ -12,7 +12,7 @@
 !               Markus P. Fuelscher                                    *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,STSYM,DoblockDMRG)
+      SUBROUTINE GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,STSYM,DoblockDMRG)
 !
 !     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
 !     AUTHOR:  P.-AA. MALMQVIST
@@ -23,20 +23,25 @@
       use Definitions, only: u6
 #endif
       use gugx, only: IFRAS
-      use Struct, only: SGStruct, CIStruct
+      use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
       Integer nSym,iSpin,nActEl,nHole1,nElec3,STSYM
       Integer nRs1(nSym),nRs2(nSym),nRs3(nSym)
       Type(SGStruct) SGS
       Type(CIStruct) CIS
+      Type(EXStruct) EXS
       Logical DoBlockDMRG
 !
       Integer IS, nRas1T,nRas2T,nRas3T
 
       Interface
-      SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM)
+      use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
 
+      Type(SGStruct), Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
       Integer STSYM
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
@@ -101,7 +106,7 @@
 !
 !     INITIALIZE GUGA TABLES:
 !
-      CALL MKGUGA(STSYM)
+      CALL MKGUGA(SGS,CIS,EXS,STSYM)
 
       If ( NActEl.eq.0 ) CIS%NCSF(STSYM)=1
 

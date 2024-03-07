@@ -34,9 +34,13 @@
       Integer NCONF
 *
       Interface
-      SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM)
+      use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
 
+      Type(SGStruct), Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
       Integer STSYM
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
@@ -85,7 +89,7 @@
         IF (IFRAS.NE.0.AND.nRs2(IS).NE.0)IFRAS=IFRAS+1
       END DO
 
-      Call mkGUGA(kSym)
+      Call mkGUGA(SGS,CIS,EXS,kSym)
 
       nConf = CIS%nCSF(kSym)
 

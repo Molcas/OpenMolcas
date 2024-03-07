@@ -28,8 +28,12 @@
       Type(EXStruct) EXS
 
       Interface
-      SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM)
+      use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
       Integer STSYM
       Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
@@ -59,7 +63,7 @@
 
       Call mknVert0(SGS)
 
-      CALL MKGUGA(STSYM,Skip_MKSGNUM=.TRUE.)
+      CALL MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM=.TRUE.)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 

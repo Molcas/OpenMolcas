@@ -55,7 +55,7 @@
       use CMS, only: iCMSOpt,CMSGiveOpt,CMSGuessFile
       use UnixInfo, only: SuperName
       use Lucia_Interface, only: Lucia_Util
-      use gugx, only: SGS, CIS
+      use gugx, only: SGS, CIS, EXS
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -3544,7 +3544,7 @@ C Test read failed. JOBOLD cannot be used.
             If (DBG) Write(6,*)' Call GugaCtl'
             call GUGACtl(nSym,iSpin,nActEl,nHole1,nElec3,
      &                   nRs1,nRs2,nRs3,
-     &                   SGS,CIS,STSYM,DoBlockDMRG)
+     &                   SGS,CIS,EXS,STSYM,DoBlockDMRG)
             NCONF=CIS%NCSF(STSYM)
 
             Call Timing(Eterna_2,dum1,dum2,dum3)

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKGUGA(STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM)
 !
 !     PURPOSE: MAKE THE GUGA TABLES
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
@@ -20,10 +20,13 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate
-      use gugx, only: IFRAS, CIS, SGS, EXS
+      use struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: IFRAS
 
       IMPLICIT None
-!
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
       Integer STSYM
       Logical, Optional:: Skip_MKSGNUM
 
