@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,TUVX,Ash,nScreen,dmpk)
+subroutine CHO_LK_RASSI_X(DLT,MSQ,FLT,KSQ,FSQ,TUVX,nTUVX,Ash,nScreen,dmpk)
 !*********************************************************************
 !  Author : F. Aquilante
 !
@@ -52,8 +52,8 @@ implicit none
 type(DSBA_Type), intent(in) :: DLT(1), Ash(2)
 type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), KSQ
 type(DSBA_Type), intent(_OUT_) :: FSQ
-real(kind=wp), intent(_OUT_) :: TUVX(*)
-integer(kind=iwp), intent(in) :: nScreen
+integer(kind=iwp), intent(in) :: nScreen, nTUVX
+real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: dmpk
 #include "warnings.h"
 #include "rassi.fh"
@@ -1033,7 +1033,7 @@ do jSym=1,nSym
 
         DoReord = (JRED == myJRED2) .and. (iBatch == nBatch)
 
-        call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,DoReord)
+        call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nTUVX,nAsh,JSYM,JNUM,DoReord)
 
         call CWTIME(TCINT2,TWINT2)
         tintg(1) = tintg(1)+(TCINT2-TCINT1)
