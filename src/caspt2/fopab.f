@@ -139,8 +139,7 @@
           CALL SIGMA1(SGS,CIS,EXS,
      &                LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &                CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &                EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+     &                nMidV,nSym)
   10      CONTINUE
         END DO
       END DO
@@ -193,8 +192,7 @@
           CALL SIGMA1(SGS,CIS,EXS,
      &     LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+     &         nMidV,nSym)
   20      CONTINUE
         END DO
       END DO

@@ -219,8 +219,7 @@ C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
      &     IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+     &    nMidV,nSym)
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
         END IF
@@ -244,8 +243,7 @@ C Translate to levels:
          CALL SIGMA1(SGS,CIS,EXS,
      &     IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
      &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &    EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+     &    nMidV,nSym)
          LTO=LTO+MXCI
         END DO
 C Now compute as many elements as possible:
@@ -273,8 +271,7 @@ C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1(SGS,CIS,EXS,
      &     IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
      &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &     EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &     EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+     &     nMidV,nSym)
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
           END IF

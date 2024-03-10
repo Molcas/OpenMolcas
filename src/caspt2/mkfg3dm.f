@@ -312,8 +312,7 @@ C-sigma vectors in the buffer.
 *         call dcopy_(nsgm1,0.0D0,0,work(lto),1)
 *         CALL SIGMA1(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
 *    &     NOCSF,IOCSF,NOW1,IOW1,
-*    &     NOCP,IOCP,ICOUP,
-*    &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+*    &     nMidV,nSym)
          end if
         end do
         myBuffer=iTask
@@ -375,8 +374,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *     call dcopy_(nsgm2,0.0D0,0,work(lto),1)
 *     CALL SIGMA1(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
 *    &     NOCSF,IOCSF,NOW1,IOW1,
-*    &     NOCP,IOCP,ICOUP,
-*    &     VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+*    &     nMidV,nSym)
 *     if(issg2.eq.issg1) then
 *       do ib=1,ibuf1
 *         idx=iwork(lip1buf-1+ib)
@@ -409,8 +407,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *       call dcopy_(nsgm1,0.0D0,0,work(lto),1)
 *       CALL SIGMA1(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
 *    &       NOCSF,IOCSF,NOW1,IOW1,
-*    &       NOCP,IOCP,ICOUP,
-*    &       VTAB,MVL,MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+*    &       nMidV,nSym)
 *-----------
 * Max and min values of index p1:
         ip1mx=ntri2

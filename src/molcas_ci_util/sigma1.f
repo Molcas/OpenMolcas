@@ -19,18 +19,13 @@
 
       SUBROUTINE SIGMA1(SGS,CIS,EXS,
      &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
-     &                 NOCP,IOCP,ICOUP,VTAB,MVL,MVR,
-     &                 nMidV,nICoup,MxEO,nVTab,nSym)
+     &                 nMidV,nSym)
       use struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: Mul
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer, Intent(In) :: nMidV, nICoup, MxEO, nSym, nVTab
+      Integer, Intent(In) :: nMidV, nSym
       Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      Integer NOCP(MXEO,NSYM,NMIDV),IOCP(MXEO,NSYM,NMIDV)
-      Real*8 VTAB(NVTAB)
-      Integer ICOUP(3,NICOUP)
-      Integer MVL(NMIDV,2),MVR(NMIDV,2)
       Real*8 CI(*),SGM(*)
 
       Type (SGStruct) SGS
@@ -40,11 +35,11 @@
 
       Integer :: nLev, MidLev,nIpWlk
 
-      Associate (ISM => SGS%ISM)
-
-      nLev   = SGS%nLev
-      MidLev = SGS%MidLev
-      nIpWlk = CIS%nIpWlk
+      Associate (ISM => SGS%ISM, nLev => SGS%nLev, MidLev => SGS%MidLev,
+     &           nIpWlk => CIS%nIpWlk, MVL => EXS%MVL,
+     &           MVR => EXS%MVR, ICOUP => EXS%ICOUP,
+     &           NOCP => EXS%NOCP, IOCP => EXS%IOCP,
+     &           VTab => EXS%VTab, ICASE => CIS%ICASE)
 
 *****************************************************************
 *  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
@@ -91,7 +86,7 @@ C IP=IQ < MIDLEV.
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO 102 J=1,NDWNSG
-            JC=CIS%ICase(LLW+J*NIPWLK)
+            JC=ICase(LLW+J*NIPWLK)
             ICS=MOD(JC/IPPOW,4)
             IF(ICS.EQ.0) GOTO 102
             X=CPQ*DBLE((1+ICS)/2)
@@ -120,7 +115,7 @@ C IP=IQ>MIDLEV
           IPSHFT=MOD(IPSHFT,30)
           IPPOW=2**IPSHFT
           DO I=1,NUPSG
-            IC=CIS%ICase(LUW+I*NIPWLK)
+            IC=ICase(LUW+I*NIPWLK)
             ICS=MOD(IC/IPPOW,4)
             IF(ICS.EQ.0) cycle
             X=CPQ*DBLE((1+ICS)/2)

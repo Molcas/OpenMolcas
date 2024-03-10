@@ -355,8 +355,7 @@ C-sigma vectors in the buffer.
               CALL SIGMA1(SGS,CIS,EXS,
      &     IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+     &         nMidV,nSym)
           end if
          end if
         end do
@@ -420,8 +419,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           CALL SIGMA1(SGS,CIS,EXS,
      &     IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
      &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &         EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+     &         nMidV,nSym)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -456,9 +454,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
             CALL SIGMA1(SGS,CIS,EXS,
      &     IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
-     &           WORK(LTO),CIS%NOCSF,CIS%IOCSF,CIS%NOW,
-     &           CIS%IOW,EXS%NOCP,EXS%IOCP,EXS%ICOUP,
-     &           EXS%VTAB,EXS%MVL,EXS%MVR,nMidV,nICoup,MxEO,nVTab,nSym)
+     &           WORK(LTO),CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
+     &           nMidV,nSym)
         end if
 *-----------
 * Max and min values of index p1:
