@@ -35,6 +35,7 @@ subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,nTUVX,Ash,nScreen,dmpk)
 !
 !*********************************************************************
 
+!#define _DEBUGPRINT_
 use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRsh, nnBstRT, nnShl, nnShl_tot, nShell, &
                     nSym, NumCho, NumChT, timings
 use Symmetry_Info, only: Mul
@@ -445,7 +446,7 @@ do jSym=1,nSym
 
         call CWTIME(TCR1,TWR1)
 
-        call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
+        call CHO_VECRD(Lrs,nRS*JNUM,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
         if ((NUMV <= 0) .or. (NUMV /= JNUM)) return
 

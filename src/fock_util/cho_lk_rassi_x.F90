@@ -412,6 +412,7 @@ do jSym=1,nSym
       end if
 
       LREAD = nRS*nVec
+      call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
 
       if (JSYM == 1) then
@@ -433,15 +434,14 @@ do jSym=1,nSym
           JNUM = nVec
         end if
 
-        call mma_allocate(Lrs,nRS,JNUM,Label='Lrs')
-        Lrs(:,:) = Zero
+        Lrs(:,1:JNUM) = Zero
 
         JVEC = nVec*(iBatch-1)+iVrs
         IVEC2 = JVEC-1+JNUM
 
         call CWTIME(TCR1,TWR1)
 
-        call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
+        call CHO_VECRD(Lrs,nRS*JNUM,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
         if ((NUMV <= 0) .or. (NUMV /= JNUM)) return
 
@@ -1045,9 +1045,10 @@ do jSym=1,nSym
 
         call Deallocate_DT(Laq(2))
         call Deallocate_DT(Laq(1))
-        call mma_deallocate(Lrs)
 
       end do ! end batch loop
+
+      call mma_deallocate(Lrs)
 
       if (JSYM == 1) then
         ! backtransform fock matrix to full storage

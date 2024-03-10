@@ -127,6 +127,7 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
   Adam%nShell = nShell
 
   call mma_allocate(Adam%A0,LFULL,Label='Adam%A0')
+  Adam%A0(:)=0.0D0
 
   call mma_allocate(Adam%SPB,nSym,nTri_Elem(nShell),2,label='Adam%SPB')
 # include "macros.fh"
@@ -244,6 +245,7 @@ subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
   Lab%nDen = nDen
   Lab%nShell = nShell
   call mma_allocate(Lab%A0,Lab_Memory,Label='Lab%A0')
+  Lab%A0(:)=0.0D0
   call mma_allocate(Lab%Keep,nShell,nDen,Label='Lab%Keep')
   call mma_allocate(Lab%SB,nShell,nSym,nDen,Label='Lab%SB')
 # include "macros.fh"

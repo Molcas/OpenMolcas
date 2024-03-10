@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-
+!#define _DEBUGPRINT_
       SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
       USE Fock_util_global, only: Fake_CMO2
 #ifdef _MOLCAS_MPP_
@@ -298,15 +298,15 @@ c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
 
-             CALL CHO_LK_RASSI(DLT,MO1,FLT,FAO,TUVX,nTUVX,Ash,nScreen,
-     &                         dmpk)
+             CALL CHO_LK_RASSI(DLT,MO1,FLT,FAO,TUVX,nGAM2,
+     &                         Ash,nScreen,dmpk)
            Else
 
              Call Allocate_DT(KSQ,nBasF,nBasF,nSym)
              KSQ%A0(:)=Zero
 
-             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,FAO,TUVX,nTUVX,Ash,
-     &                           nScreen,dmpk)
+             CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,FAO,TUVX,nGAM2,
+     &                           Ash,nScreen,dmpk)
 
              Call Deallocate_DT(KSQ)
            EndIf
