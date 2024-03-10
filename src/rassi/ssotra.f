@@ -41,7 +41,7 @@ CTEST      write(*,*)' ISYM:',ISYM
           X=0.5D0*CPK
 CTEST          write(*,*)' IP,IK,X:',IP,IK,X
           IF(ABS(X).LT.1.0D-14) cycle
-          CALL SGMONE(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
+          CALL SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
         END DO
         CKK=TRA(NI+IK,NI+IK)
         X= 3.0D00-CKK
@@ -51,7 +51,7 @@ CTEST          write(*,*)' IP,IK,X:',IP,IK,X
           CPK=TRA(NI+IP,NI+IK)
           IF(IP.EQ.IK) CPK=CPK-1.0D00
           IF(ABS(CPK).LT.1.0D-14) cycle
-          CALL SGMONE(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
+          CALL SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
 
         END DO
       END DO

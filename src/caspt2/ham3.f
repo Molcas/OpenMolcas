@@ -21,12 +21,8 @@
 C Local arrays:
       DIMENSION IATOG(MXLEV)
       Real*8, Allocatable:: SGM1(:), SGM2(:)
-      Integer nLev, nMidV, nICoup, MxEO, nVTab
+      Integer nLev
       nLev = SGS%nLev
-      nMidV= CIS%nMidV
-      MxEO = EXS%MxEO
-      nICoup=Size(EXS%ICoup,2)
-      nVTab =Size(EXS%VTab)
 
 C Purpose: Compute and add a contribution to SGM which is
 C obtained from a sum of zero- one- two- and three-electron
@@ -84,9 +80,7 @@ C Compute SGM1:=E(IY,IZ) PSI
           LEVY=IATOG(IY)
           LEVZ=IATOG(IZ)
           CALL SIGMA1(SGS,CIS,EXS,
-     &     LEVY,LEVZ,1.0D00,ISYCI,CI,SGM1,
-     &            CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &            nMidV,nSym)
+     &                LEVY,LEVZ,1.0D00,ISYCI,CI,SGM1)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
             X=OP1(IY,IZ)
@@ -121,9 +115,7 @@ C Compute SGM2:=E(IV,IX) SGM1
             LEVV=IATOG(IV)
             LEVX=IATOG(IX)
             CALL SIGMA1(SGS,CIS,EXS,
-     &     LEVV,LEVX,1.0D00,ISYM1,SGM1,
-     &       SGM2,CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &            nMidV,nSym)
+     &                  LEVV,LEVX,1.0D00,ISYM1,SGM1,SGM2)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
               X=OP2(IVXYZ)
@@ -156,9 +148,7 @@ C Add non-zero 3-el contribution to SGM:
               LEVT=IATOG(IT)
               LEVU=IATOG(IU)
               CALL SIGMA1(SGS,CIS,EXS,
-     &     LEVT,LEVU,X,ISYM2,SGM2,SGM,
-     &            CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &            nMidV,nSym)
+     &                    LEVT,LEVU,X,ISYM2,SGM2,SGM)
 CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)
             ELSE

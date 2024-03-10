@@ -69,6 +69,10 @@
      &           iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1,    &
      &           Lev2, LftSym, LL, MV, nCheck
       Real*8 :: C
+#ifdef _DEBUGPRINT_
+      Real*8 :: CP
+      Integer :: I3, ICOP1, ICOP2, ICP1, ICP2, N, NRC, NRCPQ
+#endif
 
       Call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
       Call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')

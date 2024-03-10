@@ -19,7 +19,6 @@
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use Symmetry_Info, only: Mul
       use gugx, only:  SGS, CIS, EXS
-      use caspt2_data, only: nSym
       IMPLICIT None
 
 #include "pt2_guga.fh"
@@ -27,11 +26,7 @@
       Integer :: ILEV, JLEV, ISYCI
       Real*8, Intent(In) ::  CI(MXCI)
       Real*8, Intent(Out)::  SGM(MXCI)
-      Integer IS, JS, IJS, ISSG, NSGM, nMidV, nICoup, MxEO, nVTab
-      nMidV = CIS%nMidV
-      MxEO  = EXS%MxEO
-      nICoup=Size(EXS%ICoup,2)
-      nVTab =Size(EXS%VTab)
+      Integer IS, JS, IJS, ISSG, NSGM
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
 C ILEV,JLEV ARE IN PRINCIPLE ACTIVE ORBITAL NUMBERS, BUT POSSIBLY
@@ -54,9 +49,6 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IF(NSGM.EQ.0) RETURN
 
       SGM(1:NSGM)=0.0D0
-      CALL SIGMA1(SGS,CIS,EXS,
-     &     ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
-     &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &      nMidV,nSym)
+      CALL SIGMA1(SGS,CIS,EXS,ILEV,JLEV,1.0D00,ISYCI,CI,SGM)
 
       END SUBROUTINE GETSGM2

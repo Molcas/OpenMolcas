@@ -20,12 +20,8 @@
       DIMENSION TG1(NASHT,NASHT),TG2(NASHT,NASHT,NASHT,NASHT)
       DIMENSION TG3(NTG3)
       DIMENSION CI1(MXCI),CI2(MXCI)
-      Integer :: nLev, nMidV, nICoup, MxEO, nVTab
+      Integer :: nLev
       nLev = SGS%nLev
-      nMidV= CIS%nMidV
-      MxEO = EXS%MxEO
-      nICoup=Size(EXS%ICoup,2)
-      nVTab =Size(EXS%VTab)
 
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
@@ -217,9 +213,7 @@ C Translate to levels in the SGUGA coupling order:
         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
-     &     IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
-     &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    nMidV,nSym)
+     &              IL,JL,1.0D00,LSYM2,CI2,WORK(LTO))
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
         END IF
@@ -241,9 +235,7 @@ C Translate to levels:
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
          CALL SIGMA1(SGS,CIS,EXS,
-     &     IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
-     &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    nMidV,nSym)
+     &               IL,JL,1.0D00,LSYM1,CI1,WORK(LTO))
          LTO=LTO+MXCI
         END DO
 C Now compute as many elements as possible:
@@ -269,9 +261,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1(SGS,CIS,EXS,
-     &     IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
-     &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &     nMidV,nSym)
+     &                IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU))
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
           END IF

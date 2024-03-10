@@ -116,11 +116,8 @@ C>                   to active indices
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL*8 BUFR(MXLEV**2)
 
-      Integer :: nMidV, nICoup, MxEO, nVTab
+      Integer :: nMidV
       nMidV = CIS%nMidV
-      MxEO  = EXS%MxEO
-      nICoup=Size(EXS%ICoup,2)
-      nVTab=SIZE(EXS%VTab)
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) GOTO 999
@@ -353,9 +350,7 @@ C-sigma vectors in the buffer.
               lto=lbuf1+mxci*(ibuf1-1)
               call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
               CALL SIGMA1(SGS,CIS,EXS,
-     &     IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         nMidV,nSym)
+     &                    IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO))
           end if
          end if
         end do
@@ -417,9 +412,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           lto=lbuf2
           call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
           CALL SIGMA1(SGS,CIS,EXS,
-     &     IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         nMidV,nSym)
+     &                IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO))
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -453,9 +446,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             lto=lbuft
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
             CALL SIGMA1(SGS,CIS,EXS,
-     &     IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
-     &           WORK(LTO),CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &           nMidV,nSym)
+     &                  IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO))
         end if
 *-----------
 * Max and min values of index p1:

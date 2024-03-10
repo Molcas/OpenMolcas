@@ -10,16 +10,10 @@
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
       use gugx, only: LEVEL, SGS, CIS, EXS
-      use caspt2_data, only: nSym
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
       DIMENSION XMAT(NDIM,NDIM),CI(*)
 #include "WrkSpc.fh"
-      Integer :: nMidV, nICoup, MxEO, nVTab
-      nMidV = CIS%nMidV
-      MxEO  = EXS%MxEO
-      nICoup=Size(EXS%ICoup,2)
-      nVTab =Size(EXS%VTab)
 
       IF (NDIM.LE.0) GOTO 999
       NDIM2=NDIM**2
@@ -61,9 +55,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           SCL=0.5D0*WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-0.5D00
           CALL SIGMA1(SGS,CIS,EXS,
-     &     LI,LJ,SCL,STSYM,CI,WORK(LSGM),
-     &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         nMidV,nSym)
+     &                LI,LJ,SCL,STSYM,CI,WORK(LSGM))
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
@@ -71,9 +63,7 @@ C where U(I) = T(I)-Kronecker(I,J).
           SCL=WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-1.0D00
           CALL SIGMA1(SGS,CIS,EXS,
-     &     LI,LJ,SCL,STSYM,WORK(LSGM),CI,
-     &         CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &         nMidV,nSym)
+     &                LI,LJ,SCL,STSYM,WORK(LSGM),CI)
         END DO
 
  100  CONTINUE

@@ -168,6 +168,7 @@
              Case(7)
                 V=SQRT(DBLE(IB*(2+IB)))/DBLE(1+IB)
              Case Default
+                V=0.0D0 ! Dummy assigment
                 Call Abend()
           End Select
           VSGMNT(IVLT,ISGT)=V

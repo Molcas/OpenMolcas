@@ -829,12 +829,8 @@ C
       Real*8 CI1(MXCI),CI2(MXCI)
       Real*8 CLAG1(MXCI),CLAG2(MXCI)
       LOGICAL   DOG3
-      Integer :: nLev, nMidV, nICoup, MxEO, nVTab
+      Integer :: nLev
       nLev = SGS%nLev
-      nMidV= CIS%nMidV
-      MxEO = EXS%MxEO
-      nICoup=Size(EXS%ICoup,2)
-      nVTab=Size(EXS%VTab)
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
 
@@ -1135,9 +1131,7 @@ C Translate to levels in the SGUGA coupling order:
         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
-     &     IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
-     &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    nMidV,nSym)
+     &              IL,JL,1.0D00,LSYM2,CI2,WORK(LTO))
         IF(ISSG2.EQ.LSYM1.AND.DTG1(IY,IZ).NE.0.0D+00) THEN
           !! It is possible to calculate the contribution using
           !! DGEMV, but DAXPY seems to be faster than DGEMV
@@ -1164,9 +1158,7 @@ C Translate to levels:
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
          CALL SIGMA1(SGS,CIS,EXS,
-     &     IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
-     &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    nMidV,nSym)
+     &               IL,JL,1.0D00,LSYM1,CI1,WORK(LTO))
          IF (ISSG1.EQ.LSYM1.AND.DTG1(IU,IT).NE.0.0D+00
      &       .AND.IP3STA.EQ.1) THEN
           Call DaXpY_(NCI1,DTG1(IU,IT),WORK(LTO),1,CLAG2,1)
@@ -1202,9 +1194,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           !! LTAU = EvxEyz|Psi2>
           CALL SIGMA1(SGS,CIS,EXS,
-     &     IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
-     &     CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &     nMidV,nSym)
+     &                IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU))
           IF(ISTAU.EQ.LSYM1.AND.DTG2(IV,IX,IY,IZ).NE.0.0D+00) THEN
 C          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
            !! For left derivative: <I|Evx Eyz|Psi2>
@@ -1216,9 +1206,7 @@ C          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
      *                    WORK(LFROMD),1)
            ELSE
          CALL SIGMA1(SGS,CIS,EXS,
-     &     JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,WORK(LFROMD),
-     &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &      nMidV,nSym)
+     &               JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,WORK(LFROMD))
            END IF
            DTG2(IV,IX,IY,IZ) = 0.0D+00
           END IF
@@ -1298,9 +1286,7 @@ C    &                0.0D+00,WORK(LBUF1),1)
           !! Second operator for the right derivative:
           !! <Psi1|Etu Evx|I> * Dtuvxyz
           CALL SIGMA1(SGS,CIS,EXS,
-     &     JL,IL,1.0D+00,ISTAU,WORK(LBUF1),WORK(LFROMD),
-     &      CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &      nMidV,nSym)
+     &                JL,IL,1.0D+00,ISTAU,WORK(LBUF1),WORK(LFROMD))
           END IF !! End of DOG3 clause
 C End of IP2 loop.
          END DO
@@ -1321,9 +1307,7 @@ C Translate to levels:
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL SIGMA1(SGS,CIS,EXS,
-     &     IL,JL,1.0D00,LSYM1,WORK(LTO),CLAG1,
-     &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    nMidV,nSym)
+     &               IL,JL,1.0D00,LSYM1,WORK(LTO),CLAG1)
          LTO=LTO+MXCI
         END DO
 C End of IP1STA sectioning loop
@@ -1342,9 +1326,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
         JM=IWORK(LP2LEV2-1+IP3)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
-     &     JM,IM,1.0D00,LSYM2,WORK(LTO),CLAG2,
-     &    CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &    nMidV,nSym)
+     &              JM,IM,1.0D00,LSYM2,WORK(LTO),CLAG2)
         LTO=LTO+MXCI
        END DO
 C End of IP3STA sectioning loop

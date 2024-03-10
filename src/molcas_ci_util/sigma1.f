@@ -17,29 +17,28 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 
-      SUBROUTINE SIGMA1(SGS,CIS,EXS,
-     &                 IP,IQ,CPQ,ISYCI,CI,SGM,NOCSF,IOCSF,NOW,IOW,
-     &                 nMidV,nSym)
+      SUBROUTINE SIGMA1(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM)
       use struct, only: SGStruct, CIStruct, EXStruct
       use Symmetry_Info, only: Mul
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer, Intent(In) :: nMidV, nSym
-      Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
-      Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      Real*8 CI(*),SGM(*)
-
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
-      INTRINSIC MOD
+      Integer, Intent(in):: IP, IQ, ISYCI
+      Real*8, Intent(in):: CPQ
+      Real*8 CI(*)
+      Real*8 SGM(*)
 
-      Integer :: nLev, MidLev,nIpWlk
+      INTRINSIC MOD
 
       Associate (ISM => SGS%ISM, nLev => SGS%nLev, MidLev => SGS%MidLev,
      &           nIpWlk => CIS%nIpWlk, MVL => EXS%MVL,
      &           MVR => EXS%MVR, ICOUP => EXS%ICOUP,
      &           NOCP => EXS%NOCP, IOCP => EXS%IOCP,
-     &           VTab => EXS%VTab, ICASE => CIS%ICASE)
+     &           VTab => EXS%VTab, ICASE => CIS%ICASE,
+     &           NOW => CIS%NOW, IOW => CIS%IOW,
+     &           NOCSF => CIS%NOCSF, IOCSF => CIS%IOCSF,
+     &           nSym => SGS%nSym, nMidV => CIS%nMidV)
 
 *****************************************************************
 *  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
