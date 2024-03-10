@@ -131,7 +131,7 @@ do iCnttp=1,mCnttp
         Indx = Last+1
         dbsc(nCnttp)%Bsl = trim(sBasis)
       else
-        Fname = sBasis(Indx+2:Last)
+        Fname(1:Last-(Indx+2)+1)= sBasis(Indx+2:Last)
         if (Fname == ' ') then
           write(u6,*) ' No basis set library specified for'
           write(u6,'(A,A)') 'Fname=',Fname

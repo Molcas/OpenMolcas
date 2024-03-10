@@ -32,6 +32,8 @@
       Type (SGStruct) SGS
       Type (CIStruct) CIS
       Type (EXStruct) EXS
+
+! local stuff
       CHARACTER(LEN=26) CC1,CC2,CTVPT,CBVPT,CSVC
 #include "segtab.fh"
       Integer, PARAMETER :: IATAB=3, IBTAB=4
@@ -40,9 +42,9 @@
 #ifdef _DEBUGPRINT_
       CHARACTER(LEN=20) FRML(7)
       CHARACTER(LEN=20) TEXT
+      Integer :: ICL, ICR, ID
 #endif
 
-! local stuff
       Integer:: IA, IAL, IB, IBL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB,   &
      &          IVLT, IVRB, IVRT, LEV, MV, MVLL, MVRR
       Real*8 :: V
@@ -177,8 +179,7 @@
 
 #ifdef _DEBUGPRINT_
         WRITE(6,*)' SEGMENT TABLE IN MKSEG.'
-        WRITE(6,*)' VLT SGT ICL ICR VLB       SEGMENT TYPE    ',        &
-     *            '     FORMULA'
+        WRITE(6,*)' VLT SGT ICL ICR VLB       SEGMENT TYPE         FORMULA'
         DO IV=1,NVERT
           DO ISGT=1,26
             ID=ISGMNT(IV,ISGT)
