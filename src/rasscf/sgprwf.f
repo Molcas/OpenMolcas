@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SGPRWF(iSel,NOCSF,IOCSF,NOW,IOW,CI,nMidV)
+      SUBROUTINE SGPRWF(SGS,CIS,iSel,CI,lCI)
 C
 C     PURPOSE: PRINT THE WAVEFUNCTION (SPIN COUPLING AND OCCUPATIONS)
 C
@@ -17,30 +17,30 @@ C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 C              REFERS TO THE UPPER PART OF THE WALK.
 C
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: CIS, SGS
+      use struct, only: SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
+      Type(SGStruct) SGS
+      Type(CIStruct) CIS
 C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general_mul.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
-#include "WrkSpc.fh"
 C
-      Integer, Intent(In) :: nMidV
-      Integer   iSel(*)
-      DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
-      DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      DIMENSION CI(NCONF)
+      Integer, Intent(In) :: lCI
+      Integer iSel(lCI)
+      Real*8 CI(lCI)
 
       DIMENSION ICS(mxact)
       Character(LEN=400) Line
-      Integer nUp, MidLev, nLev, nIpWlk
+      Integer nUp
       Integer, Allocatable:: Lex(:)
 C
-      nLev  = SGS%nLev
-      MidLev= SGS%MidLev
-      nIpWlk= CIS%nIpWlk
+      Associate (nLev=>SGS%nLev, MidLev=>SGS%MidLev,
+     &           nIpWlk=>CIS%nIpWlk, NOCSF=>CIS%NOCSF,
+     &           IOCSF=>CIS%IOCSF, NOW=>CIS%NOW,
+     &           IOW=>CIS%IOW, nSym=>SGS%nSym, nMidV=>CIS%nMidV)
 
       Line(1:16)='      conf/sym  '
       iOff=16
@@ -152,4 +152,5 @@ C -- PRINT IT!
       ! free memory for determinant expansion
       IF (KeyPRSD) CALL mma_deallocate(LEX)
 
+      End Associate
       END SUBROUTINE SGPRWF

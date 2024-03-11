@@ -126,8 +126,6 @@ c #include "nevptp.fh"
       Dimension rdum(1)
       Real*8, Allocatable:: CIV(:)
       Integer, Allocatable:: PrSel(:)
-      Integer :: nMidV
-      nMidV = CIS%nMidV
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)
@@ -824,8 +822,7 @@ c         end if
                 call Molcas_open(LuVecDet,filename)
                 write(LuVecDet,'(8i4)') nish
               End If
-              CALL SGPRWF(PrSel,CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,
-     &                    CIV,nMidV)
+              CALL SGPRWF(SGS,CIS,PrSel,CIV,nConf)
 !     Close GronOR vecdet file (tps/cdg 20210430)
               If (KeyPRSD) close(LuVecDet)
             End If
@@ -893,8 +890,7 @@ C.. printout of the wave function
             LuVecDet=IsFreeUnit(LuVecDet)
             call Molcas_open(LuVecDet,filename)
             write(LuVecDet,'(8i4)') nish
-            CALL SGPRWF(PrSel,CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,CIV,
-     &                  nMidV)
+            CALL SGPRWF(SGS,CIS,PrSel,CIV,nConf)
 !     Close GronOR vecdet file (tps/cdg 20210430)
             close(LuVecDet)
           END IF
