@@ -33,6 +33,9 @@
       Integer :: IC, ICODE, ICONF, IDAWSUM, ILOFF, ILW, IPOS, IRAWSUM,  &
      &           ISTEP, ISYM, IUOFF, IUW, JPOS, JSYM, LEV, LV, MIDV,    &
      &           NLW, NUW
+#ifdef _DEBUGPRINT_
+      Integer :: J
+#endif
 
       CALL mma_allocate(EXS%USGN,SGS%MXUP,CIS%NMIDV,Label='EXS%USGN')
       CALL mma_allocate(EXS%LSGN,SGS%MXDWN,CIS%NMIDV,Label='EXS%LSGN')
