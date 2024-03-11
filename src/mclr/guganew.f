@@ -59,11 +59,6 @@
       SGS%nSym=nSym
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
-*
-      Call mkISm(SGS)
-
-      Call mknVert0(SGS)
-*
 !
 !     COMPUTE RAS RESTRICTIONS ON VERTICES:
 !

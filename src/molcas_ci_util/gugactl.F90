@@ -81,15 +81,10 @@
       DO IS=1,NSYM
         IF (IFRAS.NE.0.AND.nRs2(IS).NE.0)IFRAS=IFRAS+1
       END DO
-
 !
-!     CREATE THE SYMMETRY INDEX VECTOR
+!     INITIALIZE GUGA TABLES:
 !
-      CALL MKISM(SGS)
-!
-!     COMPUTE TOP ROW OF THE GUGA TABLE
-!
-      Call mknVert0(SGS)
+      CALL MKGUGA(SGS,CIS)
 
       If ( NVERT0.eq.0 ) then
         CIS%NCSF(STSYM)=0
@@ -99,10 +94,6 @@
         CIS%NCSF(STSYM)=1
         Return
       End If
-!
-!     INITIALIZE GUGA TABLES:
-!
-      CALL MKGUGA(SGS,CIS)
 
 !     PURPOSE: FREE THE GUGA TABLES
 !     FORM VARIOUS OFFSET TABLES:

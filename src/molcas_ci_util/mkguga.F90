@@ -32,6 +32,14 @@
       Type(SGStruct), Target:: SGS
       End Subroutine MKDRT0
       End Interface
+!
+!     CREATE THE SYMMETRY INDEX VECTOR
+!
+      CALL MKISM(SGS)
+!
+!     COMPUTE TOP ROW OF THE GUGA TABLE
+!
+      Call mknVert0(SGS)
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, nVert0=>SGS%nVert0, IFRAS=>SGS%IFRAS)

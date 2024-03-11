@@ -55,10 +55,6 @@
          IFRAS=0
       End If
 
-      Call mkIsm(SGS)
-
-      Call mknVert0(SGS)
-
       CALL MKGUGA(SGS,CIS)
 
 !     FORM VARIOUS OFFSET TABLES:

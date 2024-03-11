@@ -21,10 +21,6 @@
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
 
-      Call mkISM(SGS)
-
-      Call mknVert0(SGS)
-
       Call MkGuga(SGS,CIS)
 
 ! Modified Arc Weights table:
