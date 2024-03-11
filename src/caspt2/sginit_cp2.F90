@@ -39,11 +39,9 @@
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
 
-      Associate ( nLev => SGS%nLev, nWalk => CIS%nWalk,                 &
-     &            nVert=> SGS%nVert, nMidV=>CIS%nMidV, MXEO => EXS%MxEO, &
-     &            LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
+      Associate ( LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
      &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &            MVSta =>SGS%MVSta,  MVEnd=>SGS%MVEnd, IFRAS=>SGS%IFRAS)
+     &            IFRAS=>SGS%IFRAS)
 
       LV1RAS=NRAS1T
       LV3RAS=nRas1T+NRAS2T

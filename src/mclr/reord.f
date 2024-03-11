@@ -16,7 +16,7 @@
      &           (NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
      &            IDRT,IDOWN,IDAW,IUP,IRAW,IUSGN,ILSGN,
      &            NEL,NORB,NCONF,IMODE,ICONF,ISPIN,kSym,
-     &            CIOLD,CINEW)
+     &            CIOLD)
 C
 C     AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 C              UNIV. OF LUND, SWEDEN 1990
@@ -40,19 +40,23 @@ C
 #endif
       use spinfo_mclr_data, only: minop, NCSFTP=>NCPCNT, NCNFTP=>NCNATS,
      &                            NTYP
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer kSym
-      DIMENSION ICONF(*),ISPIN(*)
-      DIMENSION CIOLD(NCONF),CINEW(NCONF)
+      Integer ICONF(*),ISPIN(*)
+      Real*8 CIOLD(NCONF)
 C
-      DIMENSION IDRT(NVERT,5)
-      DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
-      DIMENSION IUP(NVERT,0:3),IRAW(NVERT,0:4)
-      DIMENSION IUSGN(MXUP,NMIDV),ILSGN(MXDWN,NMIDV)
-      DIMENSION IWALK(50)
+      Integer IDRT(NVERT,5)
+      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
+      Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
+      Integer IUSGN(MXUP,NMIDV),ILSGN(MXDWN,NMIDV)
+
+      Real*8, Allocatable:: CINEW(:)
+      Integer IWALK(50)
       Integer, External:: IPHASE
 
 C
+      Call mma_allocate(CINEW,NCONF,Label='CINEw')
 C
 C     LOOP OVER CONFIGURATIONS TYPES
 C
@@ -114,4 +118,6 @@ C
       WRITE(u6,*)
 #endif
 C
+      CIOLD(:)=CINEW(:)
+      Call mma_deallocate(CINEW)
       END SUBROUTINE REORD

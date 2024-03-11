@@ -56,8 +56,7 @@
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
 
-      Associate( nLev =>SGS%nLev,   &
-     &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,   &
+      Associate( LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,   &
      &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,   &
      &           nVert0 => SGS%nVert0, IFRAS=>SGS%IFRAS)
 

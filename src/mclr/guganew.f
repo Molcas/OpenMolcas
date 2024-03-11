@@ -12,7 +12,6 @@
      &                   nRs1,nRs2,nRs3,SGS,CIS,EXS,CIL,imode,ksym,
      &                   State_Sym)
 *
-      use stdalloc, only: mma_allocate, mma_deallocate
       use Str_Info, only: CFTP, CNSM
       use Struct, only: SGStruct, CIStruct, EXStruct
       Implicit None
@@ -46,7 +45,6 @@
       nRas2T=Sum(nRs2(1:nSym))
       nRas3T=Sum(nRs3(1:nSym))
 
-*
       Associate ( nLev=> SGS%nLev, nMidV =>CIS%nMidV,
      &            nVert =>SGS%nVert, MidLev=>SGS%MidLev,
      &            MVSta =>SGS%MVSta, MVEnd =>SGS%MVEnd,
@@ -119,14 +117,11 @@
 103   FORMAT(/,6X,100('-'),/)
 #endif
 *
-      Call mma_allocate(CInew,NCONF,Label='CINew')
       Call REORD(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
      &           SGS%DRT,SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,
      &           EXS%USGN,EXS%LSGN,nActEl,NLEV,NCONF,
      &           iMode,CNSM(iss)%ICONF,CFTP,kSym,
-     &           CIL,CInew)
-      Call DCopy_(nConf,CINew,1,CIL,1)
-      Call mma_deallocate(CINew)
+     &           CIL)
 
 #ifdef _DEBUGPRINT_
       Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
