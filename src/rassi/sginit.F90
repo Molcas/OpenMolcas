@@ -8,13 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SGInit(nSym,nActEl,iSpin,SGS)
+      Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Struct, only: SGStruct
+      use Struct, only: SGStruct, CIStruct
       IMPLICIT None
 !#include "rassi.fh"
       Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
+      Type (CIStruct), Target :: CIS
 
       Interface
       Subroutine MKDRT0(SGS)
@@ -59,7 +60,7 @@
 ! Level-To-Vertex table:
       CALL MKLTV(SGS)
 
-      Call MKMID(SGS)
+      Call MKMID(SGS,CIS)
 
 ! Modified Arc Weights table:
       CALL MKMAW(SGS)

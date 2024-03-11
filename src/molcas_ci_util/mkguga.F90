@@ -37,13 +37,7 @@
       End Interface
 
 !Note that we do not associate the arrays here since the are not allocated yet.
-      Associate (nVert => SGS%nVert, MidLev => SGS%MidLev, MVSta => SGS%MVSta,  &
-     &           MVEnd => SGS%MVEnd,  nMidV => CIS%nMidV, nIpWlk => CIS%nIpWlk, &
-     &           nWalk => CIS%nWalk,  MxUp => SGS%MxUp, MxDwn => SGS%MxDwn, &
-     &           LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
-     &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &           nLev=>SGS%nLev, nSym=>SGS%nSym, nVert0=>SGS%nVert0,    &
-     &           IFRAS=>SGS%IFRAS)
+      Associate (nVert => SGS%nVert, nVert0=>SGS%nVert0, IFRAS=>SGS%IFRAS)
 !
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
@@ -95,8 +89,7 @@
 !
 !     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.
 !
-      CALL MKMID(SGS)
-      NMIDV=MVEnd-MVSta+1
+      CALL MKMID(SGS,CIS)
 !
 !     FORM VARIOUS OFFSET TABLES:
 !     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
