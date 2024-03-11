@@ -478,6 +478,7 @@ subroutine ChTab(iOper,nIrrep,outChTbl)
 
     ! Compute place of Irrep
 
+    jIrrep = 1  ! dummy assignment to shut the compiler up.
     if (nIrrep == 1) then
       jIrrep = 1
     else if (nIrrep == 2) then
@@ -487,13 +488,13 @@ subroutine ChTab(iOper,nIrrep,outChTbl)
     else if (nIrrep == 8) then
       jIrrep = 1+((1-iTest(2))+2*(1-iTest(3))+4*(1-iTest(5)))/2
     else
-      jIrrep = -1
       call WarningMessage(2,'ChTab: Illegal nIrrep value!')
       write(u6,*) 'nIrrep=',nIrrep
       call Abend()
     end if
+
     if (lBsFnc(jIrrep-1)(1:1) == ' ') then
-      lBsFnc(jIrrep-1) = Tmp(1:6)
+      lBsFnc(jIrrep-1) = Tmp
       outChTbl(jIrrep,1:nIrrep) = iTest(1:nIrrep)
     else
       lBsFnc(jIrrep-1) = trim(lBsFnc(jIrrep-1))//', '//trim(Tmp)

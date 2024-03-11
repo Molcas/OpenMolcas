@@ -134,14 +134,12 @@
       Write(LF,*)
       Write(LF,*)' ILSGNUM IN SUBROUTINE MKSGNUM'
       DO MIDV=1,NMIDV
-        Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,                     &
-     *       (ILSGNUM(J,MIDV),J=1,MXDWN)
+        Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,(ILSGNUM(J,MIDV),J=1,MXDWN)
       END DO
       Write(LF,*)
       Write(LF,*)' IUSGNUM IN SUBROUTINE MKSGNUM'
       DO MIDV=1,NMIDV
-        Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,                     &
-     *        (IUSGNUM(J,MIDV),J=1,MXUP)
+        Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,(IUSGNUM(J,MIDV),J=1,MXUP)
       END DO
       Write(LF,*)
 #endif
