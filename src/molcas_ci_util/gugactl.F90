@@ -34,15 +34,12 @@
       Integer IS, nRas1T,nRas2T,nRas3T
 
       Interface
-      SUBROUTINE MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM)
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      SUBROUTINE MKGUGA(SGS,CIS)
+      use Struct, only: SGStruct, CIStruct
       IMPLICIT None
 
       Type(SGStruct), Target:: SGS
       Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      Integer STSYM
-      Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
 
@@ -105,7 +102,22 @@
 !
 !     INITIALIZE GUGA TABLES:
 !
-      CALL MKGUGA(SGS,CIS,EXS,STSYM)
+      CALL MKGUGA(SGS,CIS)
+
+!     PURPOSE: FREE THE GUGA TABLES
+!     FORM VARIOUS OFFSET TABLES:
+!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+!
+      CALL MKCOT(SGS,CIS)
+!
+!     CONSTRUCT THE CASE LIST
+!
+      Call MKCLIST(SGS,CIS)
+!
+!     SET UP ENUMERATION TABLES
+!
+      Call MKSGNUM(STSYM,SGS,CIS,EXS)
 
       If ( NActEl.eq.0 ) CIS%NCSF(STSYM)=1
 

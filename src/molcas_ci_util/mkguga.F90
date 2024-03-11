@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM)
+      SUBROUTINE MKGUGA(SGS,CIS)
 !
 !     PURPOSE: MAKE THE GUGA TABLES
 !     NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
@@ -20,13 +20,10 @@
       use Definitions, only: LF => u6
 #endif
       use stdalloc, only: mma_allocate
-      use struct, only: SGStruct, CIStruct, EXStruct
+      use struct, only: SGStruct, CIStruct
       IMPLICIT None
       Type(SGStruct),Target:: SGS
       Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      Integer STSYM
-      Logical, Optional:: Skip_MKSGNUM
 
       Interface
       Subroutine MKDRT0(SGS)
@@ -91,24 +88,6 @@
 !
       CALL MKMID(SGS,CIS)
 !
-!     FORM VARIOUS OFFSET TABLES:
-!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
-!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
-!
-      CALL MKCOT(SGS,CIS)
-!
-!     CONSTRUCT THE CASE LIST
-!
-      Call MKCLIST(SGS,CIS)
-!
-!     SET UP ENUMERATION TABLES
-!
-      If (Present(Skip_MKSGNUM)) Then
-         If (Skip_MKSGNUM) Return
-      End If
-
-      Call MKSGNUM(STSYM,SGS,CIS,EXS)
-
       End Associate
 !
 !     EXIT

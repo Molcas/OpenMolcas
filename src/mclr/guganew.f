@@ -33,15 +33,12 @@
       Integer NCONF
 *
       Interface
-      SUBROUTINE MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM)
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      SUBROUTINE MKGUGA(SGS,CIS)
+      use Struct, only: SGStruct, CIStruct
       IMPLICIT None
 
       Type(SGStruct), Target:: SGS
       Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      Integer STSYM
-      Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
 
@@ -50,7 +47,6 @@
       nRas3T=Sum(nRs3(1:nSym))
 
 *
-
       Associate ( nLev=> SGS%nLev, nMidV =>CIS%nMidV,
      &            nVert =>SGS%nVert, MidLev=>SGS%MidLev,
      &            MVSta =>SGS%MVSta, MVEnd =>SGS%MVEnd,
@@ -89,7 +85,22 @@
         IF (IFRAS.NE.0.AND.nRs2(IS).NE.0)IFRAS=IFRAS+1
       END DO
 
-      Call mkGUGA(SGS,CIS,EXS,kSym)
+      Call mkGUGA(SGS,CIS)
+
+!     PURPOSE: FREE THE GUGA TABLES
+!     FORM VARIOUS OFFSET TABLES:
+!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+!
+      CALL MKCOT(SGS,CIS)
+!
+!     CONSTRUCT THE CASE LIST
+!
+      Call MKCLIST(SGS,CIS)
+!
+!     SET UP ENUMERATION TABLES
+!
+      Call MKSGNUM(kSYM,SGS,CIS,EXS)
 
       nConf = CIS%nCSF(kSym)
 

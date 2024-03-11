@@ -17,24 +17,21 @@
 ! SWEDEN                                     *
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
-      SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,STSYM)
+      SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS)
       use stdalloc, only: mma_deallocate
       use Struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
-      Integer nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,STSYM
+      Integer nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
       Type(SGStruct) SGS
       Type(CIStruct) CIS
       Type(EXStruct) EXS
 
       Interface
-      SUBROUTINE MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM)
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      SUBROUTINE MKGUGA(SGS,CIS)
+      use Struct, only: SGStruct, CIStruct
       IMPLICIT None
       Type(SGStruct),Target:: SGS
       Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      Integer STSYM
-      Logical, Optional:: Skip_MKSGNUM
       End SUBROUTINE MKGUGA
       End Interface
 
@@ -62,7 +59,17 @@
 
       Call mknVert0(SGS)
 
-      CALL MKGUGA(SGS,CIS,EXS,STSYM,Skip_MKSGNUM=.TRUE.)
+      CALL MKGUGA(SGS,CIS)
+
+!     FORM VARIOUS OFFSET TABLES:
+!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+!
+      CALL MKCOT(SGS,CIS)
+!
+!     CONSTRUCT THE CASE LIST
+!
+      Call MKCLIST(SGS,CIS)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 

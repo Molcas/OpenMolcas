@@ -38,8 +38,7 @@
 !     if ((.NOT.DoCumulant) .and. (nactel.gt.0)) Then
 
          call sginit_cp2(nSym,iSpin,nActEl,nHole1,nEle3,
-     &                   nRas1T,nRas2T,nRas3T,SGS,CIS,EXS,
-     &                   STSYM)
+     &                   nRas1T,nRas2T,nRas3T,SGS,CIS,EXS)
 
       else
 
