@@ -389,7 +389,7 @@ subroutine ChTab(iOper,nIrrep,outChTbl)
   integer(kind=iwp) :: i, i1, ia, ib, iCh, iFnc, iIrrep, iRot, iSigma = 1, iSub, iTest(8), ix, iy, iz, j, jIrrep, jx, jy, jz
   logical(kind=iwp) :: Inv, Rot, SymX, SymY, SymZ
   character(len=80) :: Tmp
-  character(len=*), parameter :: xyz(0:7) = ['      ', &
+  character(len=6), parameter :: xyz(0:7) = ['      ', &
                                              'x     ', &
                                              'y     ', &
                                              'xy, Rz', &
@@ -493,7 +493,7 @@ subroutine ChTab(iOper,nIrrep,outChTbl)
       call Abend()
     end if
     if (lBsFnc(jIrrep-1)(1:1) == ' ') then
-      lBsFnc(jIrrep-1) = Tmp
+      lBsFnc(jIrrep-1) = Tmp(1:6)
       outChTbl(jIrrep,1:nIrrep) = iTest(1:nIrrep)
     else
       lBsFnc(jIrrep-1) = trim(lBsFnc(jIrrep-1))//', '//trim(Tmp)
