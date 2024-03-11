@@ -78,6 +78,8 @@ C
       NHOL11=NHOLE1(JOB1)
       NELE31=NELE3(JOB1)
       WFTYP1=RASTYP(JOB1)
+      SGS(1)%IFRAS=1
+      SGS(2)%IFRAS=1
 C
 C Set the variables for the wave function of the current state
 C

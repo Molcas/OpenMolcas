@@ -39,13 +39,13 @@
 !     SET UP A FULL PALDUS DRT TABLE:
 !     (INITIALLY NO RESTRICTIONS ARE PUT UP)
 !
+      NVERT=NVERT0
       IF(IFRAS.NE.0) THEN
          CALL mma_allocate(SGS%DRT0,NVERT0,5,Label='DRT0')
          CALL mma_allocate(SGS%DOWN0,[1,NVERT0],[0,3],Label='DOWN0')
          SGS%DRTP => SGS%DRT0
          SGS%DOWNP=> SGS%DOWN0
       ELSE
-         NVERT=NVERT0
          CALL mma_allocate(SGS%DRT,NVERT,5,Label='SGS%DRT')
          CALL mma_allocate(SGS%DOWN,[1,NVERT],[0,3],Label='SGS%DOWN')
          SGS%DRTP => SGS%DRT
