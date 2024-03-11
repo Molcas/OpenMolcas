@@ -15,7 +15,17 @@
 !#include "rassi.fh"
       Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
-      Type (CIStruct), Target :: CIS
+      Type (CIStruct) :: CIS
+
+      Interface
+      SUBROUTINE MKGUGA(SGS,CIS)
+      use struct, only: SGStruct, CIStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      END SUBROUTINE MKGUGA
+      END Interface
+
 
       SGS%nSym=nSym
       SGS%iSpin=iSpin

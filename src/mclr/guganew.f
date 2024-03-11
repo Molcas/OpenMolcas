@@ -23,7 +23,6 @@
       Real*8 CIL(*)
       Integer imode, ksym, State_Sym
 *
-      Real*8, Allocatable:: CINEW(:)
 #ifdef _DEBUGPRINT_
       Real*8 :: PRWTHR=0.05d0
       Integer NICASE
