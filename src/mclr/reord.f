@@ -12,11 +12,7 @@
 *               1990, Jeppe Olsen                                      *
 ************************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE REORD
-     &           (NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
-     &            IDRT,IDOWN,IDAW,IUP,IRAW,IUSGN,ILSGN,
-     &            NEL,NORB,NCONF,IMODE,ICONF,ISPIN,kSym,
-     &            CIOLD)
+      SUBROUTINE REORD(SGS,CIS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
 C
 C     AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 C              UNIV. OF LUND, SWEDEN 1990
@@ -41,22 +37,27 @@ C
       use spinfo_mclr_data, only: minop, NCSFTP=>NCPCNT, NCNFTP=>NCNATS,
      &                            NTYP
       use stdalloc, only: mma_allocate, mma_deallocate
+      use struct, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
+      Type(SGStruct) SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
       Integer kSym
       Integer ICONF(*),ISPIN(*)
       Real*8 CIOLD(NCONF)
 C
-      Integer IDRT(NVERT,5)
-      Integer IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
-      Integer IUP(NVERT,0:3),IRAW(NVERT,0:4)
-      Integer IUSGN(MXUP,NMIDV),ILSGN(MXDWN,NMIDV)
-
       Real*8, Allocatable:: CINEW(:)
       Integer IWALK(50)
       Integer, External:: IPHASE
 
-C
-      Call mma_allocate(CINEW,NCONF,Label='CINEw')
+      Call mma_allocate(CINEW,NCONF,Label='CINEW')
+
+      Associate (nLev=> SGS%nLev, IDRT=>SGS%DRT, IDOWN=>SGS%Down ,
+     &           IDAW=>SGS%DAW, IUP=>SGS%Up, IRAW=>SGS%RAW,
+     &           IUSGN=>EXS%USGN, ILSGN=>EXS%LSGN, nVert=>SGS%nVert,
+     &           MidLev=>SGS%MidLev, MVSta=>SGS%MVSta,
+     &           nMidV=>CIS%nMidV, MXUP=>SGS%MxUp, MXDWN=>SGS%MxDwn,
+     &           nEl=>SGS%nActEl, NORB=>SGS%nLev)
 C
 C     LOOP OVER CONFIGURATIONS TYPES
 C
@@ -93,7 +94,7 @@ C     COMPUTE STEP VECTOR
 C     GET SPLIT GRAPH ORDERING NUMBER
 C     FUNCTION ISGNUM
             ISG=ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,
-     &                   MXDWN,IDOWN,IUP,IDAW,IRAW,IUSGN,ILSGN,IWALK)
+     &                 MXDWN,IDOWN,IUP,IDAW,IRAW,IUSGN,ILSGN,IWALK)
 C     GET PHASE PHASE FACTOR
             IP=IPHASE(NLEV,NVERT,IDRT,IUP,IWALK)
 C     NOW REORDER THIS ELEMENT OF THE CI-VECTOR
@@ -118,6 +119,8 @@ C
       WRITE(u6,*)
 #endif
 C
+      End Associate
       CIOLD(:)=CINEW(:)
       Call mma_deallocate(CINEW)
+
       END SUBROUTINE REORD

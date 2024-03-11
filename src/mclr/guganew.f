@@ -117,11 +117,7 @@
 103   FORMAT(/,6X,100('-'),/)
 #endif
 *
-      Call REORD(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
-     &           SGS%DRT,SGS%DOWN,SGS%DAW,SGS%UP,SGS%RAW,
-     &           EXS%USGN,EXS%LSGN,nActEl,NLEV,NCONF,
-     &           iMode,CNSM(iss)%ICONF,CFTP,kSym,
-     &           CIL)
+      Call REORD(SGS,CIS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,kSym,CIL)
 
 #ifdef _DEBUGPRINT_
       Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
