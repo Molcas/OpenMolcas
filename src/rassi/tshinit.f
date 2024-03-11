@@ -35,7 +35,7 @@
       IMPLICIT None
       Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
-      Type (CIStruct), Target :: CIS
+      Type (CIStruct) :: CIS
       End Subroutine SGInit
       End Interface
 

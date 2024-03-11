@@ -1,38 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE SGPRWF_MCLR
-     &           (LSYM,PRWTHR,
-     &            NSYM,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
-     &            NSM,NOCSF,IOCSF,NOW,IOW,ICASE,CI)
-C
-C     PURPOSE: PRINT THE WAVEFUNCTION (SPIN COUPLING AND OCCUPATIONS)
-C
-C     NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
-C              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
-C              REFERS TO THE UPPER PART OF THE WALK.
-C
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE SGPRWF_MCLR(SGS,CIS,LSYM,PRWTHR,NCONF,CI)
+!
+!     PURPOSE: PRINT THE WAVEFUNCTION (SPIN COUPLING AND OCCUPATIONS)
+!
+!     NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
+!              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
+!              REFERS TO THE UPPER PART OF THE WALK.
+!
+      use struct, only: SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
-C
+      Type(SGStruct) SGS
+      Type(CIStruct) CIS
       Integer  LSYM
       Real*8 PRWTHR
-      Integer  NSYM,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE
-      Integer  NSM(NSYM)
-      Integer  NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
-      Integer  NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      Integer  ICASE(NICASE)
+      Integer  NCONF
       Real*8 CI(NCONF)
 
-      DIMENSION ICS(50)
-      Character*120 Line
-C
+
+      Integer ICS(50)
+      Character(LEN=120) Line
+!
+      Associate(nSym=>SGS%nSym, nLev=>SGS%nLev, MidLev=>SGS%MidLev,
+     &           nMidV=>CIS%nMidV, nIpWlk=>CIS%nIpWlk,
+     &           NSM=>SGS%ISm, NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF,
+     &           NOW=>CIS%NOW, IOW=>CIS%IOW, ICASE=>CIS%ICASE)
+
       Line(1:16)='      conf/sym  '
       iOff=16
       iSym=nSm(1)
@@ -45,16 +46,15 @@ C
       Line(iOff:iOff+15)='   Coeff  Weight'
       Write (6,'(A)') Line(1:iOff+15)
       Line=' '
-C
-C
-C     THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
-C     WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-C
+!
+!     THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+!     WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
+!
 
-      DO 40 MV=1,NMIDV
-        DO 41 ISYUP=1,NSYM
+      DO MV=1,NMIDV
+        DO ISYUP=1,NSYM
           NCI=NOCSF(ISYUP,MV,LSYM)
-          IF(NCI.EQ.0) GOTO 41
+          IF(NCI.EQ.0) Cycle
           NUP=NOW(1,ISYUP,MV)
           ISYDWN=1+IEOR(ISYUP-1,LSYM-1)
           NDWN=NOW(2,ISYDWN,MV)
@@ -62,18 +62,18 @@ C
           IUW0=1-NIPWLK+IOW(1,ISYUP,MV)
           IDW0=1-NIPWLK+IOW(2,ISYDWN,MV)
           IDWNSV=0
-          DO 30 IDWN=1,NDWN
-            DO 31 IUP=1,NUP
+          DO IDWN=1,NDWN
+            DO IUP=1,NUP
               ICONF=ICONF+1
               COEF=CI(ICONF)
-C -- SKIP OR PRINT IT OUT?
-              IF(ABS(COEF).LT.PRWTHR) GOTO  31
+! -- SKIP OR PRINT IT OUT?
+              IF(ABS(COEF).LT.PRWTHR) Cycle
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=ICASE(ICDPOS)
-C -- UNPACK LOWER WALK.
+! -- UNPACK LOWER WALK.
                 NNN=0
-                DO 10 LEV=1,MIDLEV
+                DO LEV=1,MIDLEV
                   NNN=NNN+1
                   IF(NNN.EQ.16) THEN
                     NNN=1
@@ -83,14 +83,14 @@ C -- UNPACK LOWER WALK.
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
                   ICDWN=IC1
-10              CONTINUE
+                END DO
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
               ICUP=ICASE(ICUPOS)
-C -- UNPACK UPPER WALK:
+! -- UNPACK UPPER WALK:
               NNN=0
-              DO 20 LEV=MIDLEV+1,NLEV
+              DO LEV=MIDLEV+1,NLEV
                 NNN=NNN+1
                 IF(NNN.EQ.16) THEN
                   NNN=1
@@ -100,35 +100,38 @@ C -- UNPACK UPPER WALK:
                 IC1=ICUP/4
                 ICS(LEV)=ICUP-4*IC1
                 ICUP=IC1
-20            CONTINUE
-C -- PRINT IT!
+              END DO
+! -- PRINT IT!
               Write (Line(1:),'(I8)') iConf
               iOff=10
               iSym=nSm(1)
               Do Lev=1,nLev
                  If ( nSm(Lev).ne.iSym ) iOff=iOff+1
-                 If ( ICS(Lev).eq.3 ) then
-                    Write (Line(iOff+Lev:),'(A1)') '2'
-                 Else If (ICS(Lev).eq.2) then
-                    Write (Line(iOff+Lev:),'(A1)') 'd'
-                 Else If (ICS(Lev).eq.1) then
-                    Write (Line(iOff+Lev:),'(A1)') 'u'
-                 Else If (ICS(Lev).eq.0) then
-                    Write (Line(iOff+Lev:),'(A1)') '0'
-                 End If
+
+                 Select case (ICS(Lev))
+                    Case (3)
+                       Write (Line(iOff+Lev:),'(A1)') '2'
+                    Case (2)
+                       Write (Line(iOff+Lev:),'(A1)') 'd'
+                    Case (1)
+                       Write (Line(iOff+Lev:),'(A1)') 'u'
+                    Case (0)
+                       Write (Line(iOff+Lev:),'(A1)') '0'
+                    Case Default
+                       Call Abend()
+                 End Select
                  If ( nSm(Lev).ne.iSym ) iSym=nSm(Lev)
               End Do
               iOff=iOff+nLev+3
               Write (Line(iOff:),'(2F8.5)') COEF,COEF**2
               Write (6,'(6X,A)') Line(1:iOff+15)
               Line=' '
-31          CONTINUE
-30        CONTINUE
-41      CONTINUE
-40    CONTINUE
-C
-C
-C     EXIT
-C
-      RETURN
+            END DO
+          END DO
+        END DO
+      END DO
+!
+!     EXIT
+!
+      End Associate
       END

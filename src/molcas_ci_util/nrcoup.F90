@@ -297,10 +297,6 @@
       CALL mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
 !
 #ifdef _DEBUGPRINT_
-      If (.NOT.IF_RASSI) Then
-         NUW=NOW(1,NSYM,NMIDV)
-         NLW=NOW(2,NSYM,NMIDV)-NOW(1,NSYM,NMIDV)
-      End If
 
       WRITE(6,600)MXUP,MXDWN,                                           &
      &            NSGMX,NSGMX,NSGTMP
