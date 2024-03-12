@@ -35,14 +35,10 @@ set (sources
      david5.F90
      dblock.F90
      detstr2.F90
-     dex1.F90
-     dex2.F90
      dgmm2_molcas.F90
      diagord.F90
      dihdj_molcas.F90
      dmatdmat.f
-     exc1.F90
-     exc2.F90
      expcsf.F90
      explh2.F90
      faroald.F90
