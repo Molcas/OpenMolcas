@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SGPRWF_MCLR(SGS,CIS,LSYM,PRWTHR,NCONF,CI)
+      SUBROUTINE SGPRWF(SGS,CIS,LSYM,PRWTHR,iSpin,CI,lCI,KeyPRSD,LUVECDET)
 !
 !     PURPOSE: PRINT THE WAVEFUNCTION (SPIN COUPLING AND OCCUPATIONS)
 !
@@ -16,45 +16,63 @@
 !              CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 !              REFERS TO THE UPPER PART OF THE WALK.
 !
+      use stdalloc, only: mma_allocate, mma_deallocate
       use struct, only: SGStruct, CIStruct
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: u6
+      IMPLICIT None
       Type(SGStruct) SGS
       Type(CIStruct) CIS
-      Integer  LSYM
-      Real*8 PRWTHR
-      Integer  NCONF
-      Real*8 CI(NCONF)
-
+!
+      Integer, Intent(In) :: lCI, LSYM, iSpin, LUVECDET
+      Logical, Intent(In) :: KeyPrSD
+      Real*8, Intent(In) :: PRWTHR
+      Real*8 CI(lCI)
 
       Integer ICS(50)
-      Character(LEN=120) Line
+      Character(LEN=400) Line
+      Integer, Allocatable:: Lex(:)
+      Real*8 :: COEF
+      Integer :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN,   &
+     &           ISYM, ISYUP, IUP, IUW0, LEV, MV, NCI, NDWN, NNN, NUP,  &
+     &           IDWNSV, iOff, ISYDWN, IMS
+
 !
-      Associate(nSym=>SGS%nSym, nLev=>SGS%nLev, MidLev=>SGS%MidLev,
-     &           nMidV=>CIS%nMidV, nIpWlk=>CIS%nIpWlk,
-     &           NSM=>SGS%ISm, NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF,
-     &           NOW=>CIS%NOW, IOW=>CIS%IOW, ICASE=>CIS%ICASE)
+!     RECONSTRUCT THE CASE LIST
+!
+      If (.NOT.Allocated(CIS%ICASE)) Call MKCLIST(SGS,CIS)
+
+      ! scratch for determinant expansion
+      IF (KeyPRSD) CALL mma_allocate(LEX,SGS%NLEV,Label='LEX')
+
+!
+      Associate (nLev=>SGS%nLev, MidLev=>SGS%MidLev,                    &
+     &           nIpWlk=>CIS%nIpWlk, NOCSF=>CIS%NOCSF,                  &
+     &           IOCSF=>CIS%IOCSF, NOW=>CIS%NOW, NSM=>SGS%ISm,          &
+     &           IOW=>CIS%IOW, nSym=>SGS%nSym, nMidV=>CIS%nMidV,        &
+     &           ICASE=>CIS%ICASE)
+
+
 
       Line(1:16)='      conf/sym  '
       iOff=16
       iSym=nSm(1)
       Do Lev=1,nLev
          If ( nSm(Lev).ne.iSym ) iOff=iOff+1
-         Write (Line(iOff+Lev:),'(I1)') nSm(Lev)
+         Write(Line(iOff+Lev:),'(I1)') nSm(Lev)
          If ( nSm(Lev).ne.iSym ) iSym=nSm(Lev)
       End Do
       iOff=iOff+nLev+3
       Line(iOff:iOff+15)='   Coeff  Weight'
-      Write (6,'(A)') Line(1:iOff+15)
+      Write(u6,'(A)') Line(1:iOff+15)
       Line=' '
 !
-!     THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+!     ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 !     WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
 !
-
       DO MV=1,NMIDV
         DO ISYUP=1,NSYM
           NCI=NOCSF(ISYUP,MV,LSYM)
-          IF(NCI.EQ.0) Cycle
+          IF(NCI.EQ.0) CYCLE
           NUP=NOW(1,ISYUP,MV)
           ISYDWN=1+IEOR(ISYUP-1,LSYM-1)
           NDWN=NOW(2,ISYDWN,MV)
@@ -67,7 +85,7 @@
               ICONF=ICONF+1
               COEF=CI(ICONF)
 ! -- SKIP OR PRINT IT OUT?
-              IF(ABS(COEF).LT.PRWTHR) Cycle
+              IF(ABS(COEF).LT.PRWTHR) CYCLE
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=ICASE(ICDPOS)
@@ -102,7 +120,7 @@
                 ICUP=IC1
               END DO
 ! -- PRINT IT!
-              Write (Line(1:),'(I8)') iConf
+              Write(Line(1:),'(I8)') iConf
               iOff=10
               iSym=nSm(1)
               Do Lev=1,nLev
@@ -120,18 +138,29 @@
                     Case Default
                        Call Abend()
                  End Select
+
                  If ( nSm(Lev).ne.iSym ) iSym=nSm(Lev)
+
               End Do
               iOff=iOff+nLev+3
-              Write (Line(iOff:),'(2F8.5)') COEF,COEF**2
-              Write (6,'(6X,A)') Line(1:iOff+15)
+              Write(Line(iOff:),'(2F8.5)') COEF,COEF**2
+              Write(u6,'(6X,A)') Line(1:iOff+15)
+              IF (KeyPRSD) THEN
+                ! use maximum spin projection value
+                IMS = ISPIN-1
+                WRITE(u6,*)
+                CALL EXPCSF (ICS, NLEV, IMS, LEX,coef,LuVecDet)
+                WRITE(u6,*)
+              ENDIF
               Line=' '
             END DO
           END DO
         END DO
       END DO
-!
-!     EXIT
-!
+
       End Associate
-      END
+
+      ! free memory for determinant expansion
+      IF (KeyPRSD) CALL mma_deallocate(LEX)
+
+      END SUBROUTINE SGPRWF

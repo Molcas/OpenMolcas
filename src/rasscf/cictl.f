@@ -125,7 +125,6 @@ c #include "nevptp.fh"
 #endif
       Dimension rdum(1)
       Real*8, Allocatable:: CIV(:)
-      Integer, Allocatable:: PrSel(:)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
 C Local print level (if any)
@@ -772,8 +771,6 @@ c
         Write(6,'(6x,A)')
      &     'has been made, which may change the order of the CSFs.'
        END IF
-       Call mma_allocate(PrSel,nConf,Label='PrSel')
-       PrSel(:)=0
        Call mma_allocate(CIV,nConf,Label='CIV')
        iDisk = IADR15(4)
 
@@ -822,7 +819,8 @@ c         end if
                 call Molcas_open(LuVecDet,filename)
                 write(LuVecDet,'(8i4)') nish
               End If
-              CALL SGPRWF(SGS,CIS,PrSel,CIV,nConf)
+              CALL SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,
+     &                    KeyPRSD,LUVECDET)
 !     Close GronOR vecdet file (tps/cdg 20210430)
               If (KeyPRSD) close(LuVecDet)
             End If
@@ -844,7 +842,7 @@ C.. printout of the wave function
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
 
-            call gasprwf(PrSel,nac,nactel,stsym,conf,
+            call gasprwf(nac,nactel,stsym,conf,
      c           cftp,CIVEC,iwork(ivkcnf))
           End If
          end if
@@ -890,14 +888,14 @@ C.. printout of the wave function
             LuVecDet=IsFreeUnit(LuVecDet)
             call Molcas_open(LuVecDet,filename)
             write(LuVecDet,'(8i4)') nish
-            CALL SGPRWF(SGS,CIS,PrSel,CIV,nConf)
+            CALL SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,
+     &                  KeyPRSD,LUVECDET)
 !     Close GronOR vecdet file (tps/cdg 20210430)
             close(LuVecDet)
           END IF
         END IF
         endif
 
-        Call mma_deallocate(PrSel)
         Call mma_deallocate(CIV)
       ENDIF
 
