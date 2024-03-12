@@ -10,7 +10,7 @@
 #***********************************************************************
 
 set (sources
-     alloc.f
+     alloc.F90
      caspt2_data.F90
      check_invec.f
      chksplit.F90
