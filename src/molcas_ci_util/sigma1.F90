@@ -114,10 +114,10 @@ IF(IP.GT.IQ) THEN
       DO MVSGM=1,NMIDV
         MV1=MVL(MVSGM,2)
         MV2=MVL(MVSGM,1)
-        IF((MV1.EQ.0).AND.(MV2.EQ.0)) Cycle
+        IF((MV1==0).AND.(MV2==0)) Cycle
         DO ISYUSG=1,NSYM
           NS1=NOCSF(ISYUSG,MVSGM,ISYSGM)
-          IF(NS1.EQ.0) Cycle
+          IF(NS1==0) Cycle
           ISGSTA=1+IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG=NOW(1,ISYUSG,MVSGM)
           ISYDSG=MUL(ISYUSG,ISYSGM)
@@ -187,11 +187,11 @@ ELSE IF(IQ.GT.IP) THEN
       DO MVSGM=1,NMIDV
         DO ISYUSG=1,NSYM
           NS1=NOCSF(ISYUSG,MVSGM,ISYSGM)
-          IF(NS1.EQ.0) Cycle
+          IF(NS1==0) Cycle
           ISYDSG=MUL(ISYUSG,ISYSGM)
           ISYDC=MUL(ISYPQ,ISYDSG)
           NDWNC=NOW(2,ISYDC,MVSGM)
-          IF(NDWNC.EQ.0) Cycle
+          IF(NDWNC==0) Cycle
           ISGSTA=1+IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG=NOW(1,ISYUSG,MVSGM)
           IOC=IOCSF(ISYUSG,MVSGM,ISYCI)
@@ -210,10 +210,10 @@ ELSE IF(IQ.GT.IP) THEN
       DO MVSGM=1,NMIDV
         DO ISYUSG=1,NSYM
           NS1=NOCSF(ISYUSG,MVSGM,ISYSGM)
-          IF(NS1.EQ.0) Cycle
+          IF(NS1==0) Cycle
           ISYUC=MUL(ISYPQ,ISYUSG)
           NUPC=NOW(1,ISYUC,MVSGM)
-          IF (NUPC.EQ.0) Cycle
+          IF (NUPC==0) Cycle
           ISGSTA=1+IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG=NOW(1,ISYUSG,MVSGM)
           ISYDSG=MUL(ISYUSG,ISYSGM)
@@ -237,20 +237,20 @@ ELSE IF(IQ.GT.IP) THEN
         MV5=MVR(MVSGM,2)
         DO ISYUSG=1,NSYM
           NS1=NOCSF(ISYUSG,MVSGM,ISYSGM)
-          IF(NS1.EQ.0) Cycle
+          IF(NS1==0) Cycle
           ISGSTA=1+IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG=NOW(1,ISYUSG,MVSGM)
           ISYDSG=MUL(ISYUSG,ISYSGM)
           ISYUC=MUL(ISYQ,ISYUSG)
           ISYDC=MUL(ISYP,ISYDSG)
-          IF(MV4.EQ.0) GOTO 499
+          IF(MV4==0) GOTO 499
           NUPC=NOW(1,ISYUC,MV4)
-          IF(NUPC.EQ.0) GOTO 499
+          IF(NUPC==0) GOTO 499
           NDWNC=NOW(2,ISYDC,MV4)
-          IF(NDWNC.EQ.0) GOTO 499
+          IF(NDWNC==0) GOTO 499
           INDEO=IQ
           NCP=NOCP(INDEO,ISYUSG,MVSGM)
-          IF(NCP.EQ.0) GOTO 499
+          IF(NCP==0) GOTO 499
           NTMP=NUPSG*NDWNC
           SGTMP(1:NTMP)=0.0D0
           LICP=1+IOCP(INDEO,ISYUSG,MVSGM)
@@ -259,7 +259,7 @@ ELSE IF(IQ.GT.IP) THEN
           CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,SGTMP,NCP,ICOUP(1,LICP),VTAB)
           INDEO=IP
           NCP=NOCP(INDEO,ISYDSG,MVSGM)
-          IF(NCP.GT.0) THEN
+          IF(NCP/=0) THEN
             LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
 ! CASE IS: LOWER HALF, DEEXCITE:
             X=1.0D00
@@ -267,14 +267,14 @@ ELSE IF(IQ.GT.IP) THEN
           END IF
 
  499      CONTINUE
-          IF(MV5.EQ.0) Cycle
+          IF(MV5==0) Cycle
           NUPC=NOW(1,ISYUC,MV5)
-          IF(NUPC.EQ.0) Cycle
+          IF(NUPC==0) Cycle
           NDWNC=NOW(2,ISYDC,MV5)
-          IF(NDWNC.EQ.0) Cycle
+          IF(NDWNC==0) Cycle
           INDEO=NLEV+IQ
           NCP=NOCP(INDEO,ISYUSG,MVSGM)
-          IF(NCP.EQ.0) Cycle
+          IF(NCP==0) Cycle
           NTMP=NUPSG*NDWNC
           SGTMP(1:NTMP)=0.0D0
           LICP=1+IOCP(INDEO,ISYUSG,MVSGM)
