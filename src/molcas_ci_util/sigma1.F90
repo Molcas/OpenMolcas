@@ -101,11 +101,10 @@ IF(IP.GT.IQ) THEN
           IOC=IOCSF(ISYUC,MVSGM,ISYCI)
           INDEO=2*NLEV+(IP*(IP-1))/2+IQ
           NCP=NOCP(INDEO,ISYUC,MVSGM)
-          IF(NCP.GT.0) THEN
-            LICP=1+IOCP(INDEO,ISYUC,MVSGM)
+          IF(NCP==0) Cycle
+          LICP=1+IOCP(INDEO,ISYUC,MVSGM)
 ! CASE IS: UPPER HALF, EXCITE:
-            CALL EXC2 (CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
-          END IF
+          CALL EXC2 (CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
         End Do
       End Do
 
@@ -145,7 +144,7 @@ IF(IP.GT.IQ) THEN
 ! CASE IS: LOWER HALF, EXCITE:
                     X=1.0D00
                     CALL EXC1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
-                End If
+                  End If
                 End If
               End If
             End If
@@ -167,12 +166,11 @@ IF(IP.GT.IQ) THEN
                   CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,SGTMP,NCP,ICOUP(1,LICP),VTAB)
                   INDEO=NLEV+IQ
                   NCP=NOCP(INDEO,ISYDC,MV1)
-                  IF(NCP/=0) Then
-                    LICP=1+IOCP(INDEO,ISYDC,MV1)
+                  IF(NCP==0) Cycle
+                  LICP=1+IOCP(INDEO,ISYDC,MV1)
 ! CASE IS: LOWER HALF, EXCITE:
-                    X=1.0D00
-                    CALL EXC1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
-                  End If
+                  X=1.0D00
+                  CALL EXC1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
                 End If
               End If
             End If
@@ -199,11 +197,10 @@ ELSE IF(IQ.GT.IP) THEN
           IOC=IOCSF(ISYUSG,MVSGM,ISYCI)
           INDEO=2*NLEV+(IQ*(IQ-1))/2+IP
           NCP=NOCP(INDEO,ISYDSG,MVSGM)
-          IF(NCP.GT.0) THEN
-            LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
+          IF(NCP==0) Cycle
+          LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
 ! CASE IS: LOWER HALF, DEEXCITE:
-            CALL DEX1 (CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
-          END IF
+          CALL DEX1 (CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
         END DO
       END DO
 
@@ -224,11 +221,10 @@ ELSE IF(IQ.GT.IP) THEN
           IOC=IOCSF(ISYUC,MVSGM,ISYCI)
           INDEO=2*NLEV+(IQ*(IQ-1))/2+IP
           NCP=NOCP(INDEO,ISYUSG,MVSGM)
-          IF(NCP.GT.0) THEN
-            LICP=1+IOCP(INDEO,ISYUSG,MVSGM)
+          IF(NCP==0) Cycle
+          LICP=1+IOCP(INDEO,ISYUSG,MVSGM)
 ! CASE IS: UPPER HALF, DEEXCITE:
-            CALL DEX2 (CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
-          END IF
+          CALL DEX2 (CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
         END DO
       END DO
 
@@ -269,6 +265,7 @@ ELSE IF(IQ.GT.IP) THEN
             X=1.0D00
             CALL DEX1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
           END IF
+
  499      CONTINUE
           IF(MV5.EQ.0) Cycle
           NUPC=NOW(1,ISYUC,MV5)
@@ -286,12 +283,11 @@ ELSE IF(IQ.GT.IP) THEN
           CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,SGTMP,NCP,ICOUP(1,LICP),VTAB)
           INDEO=NLEV+IP
           NCP=NOCP(INDEO,ISYDSG,MVSGM)
-          IF(NCP.GT.0) THEN
-            LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
+          IF(NCPT==0) Cycle
+          LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
 ! CASE IS: LOWER HALF, DEEXCITE:
-            X=1.0D00
-            CALL DEX1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
-          END IF
+          X=1.0D00
+          CALL DEX1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
         END DO
       END DO
 
@@ -318,7 +314,7 @@ ELSE
           DO I=1,NUPSG
             IC=ICase(LUW+I*NIPWLK)
             ICS=MOD(IC/IPPOW,4)
-            IF(ICS.EQ.0) cycle
+            IF(ICS==0) cycle
             X=CPQ*DBLE((1+ICS)/2)
             ISTA=ISGSTA-1+I
             CALL DAXPY_(NDWNSG,X,CI(ISTA),NUPSG,SGM(ISTA),NUPSG)
@@ -346,7 +342,7 @@ ELSE
           DO J=1,NDWNSG
             JC=ICase(LLW+J*NIPWLK)
             ICS=MOD(JC/IPPOW,4)
-            IF(ICS.EQ.0) Cycle
+            IF(ICS==0) Cycle
             X=CPQ*DBLE((1+ICS)/2)
             JSTA=ISGSTA+NUPSG*(J-1)
             CALL DAXPY_(NUPSG,X,CI(JSTA),1,SGM(JSTA),1)
