@@ -29,7 +29,6 @@ set (sources
      csfbas.F90
      cstart_ci_util.F90
      cxinit.F90
-     cxclose.F90
      davctl.F90
      davctl_mod.F90
      david5.F90
@@ -119,7 +118,6 @@ set (sources
      sigma1.F90
      sigmadet_cvb.F90
      simplify.F90
-     sgclose.F90
      sgprwf.F90
      sort_cdet.F90
      splitctl.F90

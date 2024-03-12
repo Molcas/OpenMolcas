@@ -111,6 +111,13 @@ CC    NTO section
       Type (SGStruct), Target :: SGS
       Type (CIStruct) :: CIS
       End Subroutine SGInit
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      End SUBROUTINE MKGUGA_FREE
       End Interface
 
 #define _TIME_GTDM
@@ -1463,14 +1470,12 @@ C      call GetMem('Tasks','FREE','INTE',lTask,2*nTasks)
 
       IF(WFTP1.EQ.'GENERAL ') THEN
         if(.not.doDMRG)then
-          CALL CXCLOSE(CIS(1),EXS(1))
-          CALL SGCLOSE(SGS(1))
+          CALL MkGUGA_Free(SGS(1),CIS(1),EXS(1))
         end if
       END IF
       IF(WFTP2.EQ.'GENERAL ') THEN
         if(.not.doDMRG)then
-          CALL CXCLOSE(CIS(2),EXS(2))
-          CALL SGCLOSE(SGS(2))
+          CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
         end if
       END IF
 

@@ -116,4 +116,55 @@
 
       Call cxclose(CIS,EXS)
 
+contains
+
+Subroutine SGClose(SGS)
+use stdalloc, only: mma_deallocate
+use Struct, only: SGStruct
+Implicit None
+Type (SGStruct) SGS
+
+If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
+If (Allocated(SGS%DRT0)) Call mma_deallocate(SGS%DRT0)
+If (Allocated(SGS%DOWN0)) Call mma_deallocate(SGS%DOWN0)
+If (Allocated(SGS%DRT)) Call mma_deallocate(SGS%DRT)
+If (Allocated(SGS%DOWN)) Call mma_deallocate(SGS%DOWN)
+If (Allocated(SGS%UP)) Call mma_deallocate(SGS%UP)
+If (Allocated(SGS%MAW)) Call mma_deallocate(SGS%MAW)
+If (Allocated(SGS%LTV)) Call mma_deallocate(SGS%LTV)
+If (Allocated(SGS%DAW)) Call mma_deallocate(SGS%DAW)
+If (Allocated(SGS%RAW)) Call mma_deallocate(SGS%RAW)
+If (Allocated(SGS%SCR)) Call mma_deallocate(SGS%SCR)
+If (Allocated(SGS%Ver)) Call mma_deallocate(SGS%Ver)
+SGS%DRTP => Null()
+SGS%DOWNP => Null()
+
+end Subroutine SGClose
+
+Subroutine CXClose(CIS,EXS)
+use stdalloc, only: mma_deallocate
+use Struct, only: CIStruct, EXStruct
+Type (CIStruct) CIS
+Type (ExStruct) ExS
+
+IF (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
+IF (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
+IF (Allocated(CIS%NCSF)) Call mma_deallocate(CIS%NCSF)
+IF (Allocated(CIS%NOCSF)) Call mma_deallocate(CIS%NOCSF)
+IF (Allocated(CIS%IOCSF)) Call mma_deallocate(CIS%IOCSF)
+IF (Allocated(CIS%ICase)) Call mma_deallocate(CIS%ICase)
+
+IF (Allocated(EXS%NOCP)) Call mma_deallocate(EXS%NOCP)
+IF (Allocated(EXS%IOCP)) Call mma_deallocate(EXS%IOCP)
+IF (Allocated(EXS%ICoup)) Call mma_deallocate(EXS%ICoup)
+IF (Allocated(EXS%VTab)) Call mma_deallocate(EXS%VTab)
+IF (Allocated(EXS%SGTMP)) Call mma_deallocate(EXS%SGTMP)
+IF (Allocated(EXS%MVL)) Call mma_deallocate(EXS%MVL)
+IF (Allocated(EXS%MVR)) Call mma_deallocate(EXS%MVR)
+If (Allocated(EXS%USGN)) Call mma_deallocate(EXS%USGN)
+If (Allocated(EXS%LSGN)) Call mma_deallocate(EXS%LSGN)
+
+
+end subroutine CXClose
+
       END SUBROUTINE MKGUGA_FREE

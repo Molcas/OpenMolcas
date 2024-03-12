@@ -37,6 +37,14 @@
       Type (SGStruct), Target :: SGS
       Type (CIStruct) :: CIS
       End Subroutine SGInit
+      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
+      use struct, only: SGStruct, CIStruct, EXStruct
+      IMPLICIT None
+      Type(SGStruct),Target:: SGS
+      Type(CIStruct) CIS
+      Type(EXStruct) EXS
+      End SUBROUTINE MKGUGA_FREE
+
       End Interface
 
 *
@@ -208,8 +216,7 @@ C     Check if the Energy gap is smaller than the threshold.
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
-           CALL CXCLOSE(CIS(2),EXS(2))
-           CALL SGCLOSE(SGS(2))
+           CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
          END IF
          CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCI2)
          CALL KILLOBJ(LPART)
@@ -284,8 +291,7 @@ C     Check if the Energy gap is smaller than the threshold.
          WRITE(6,*)' TSHinit back from TSHop.'
 #endif
          IF(WFTYP2.EQ.'GENERAL ') THEN
-           CALL CXCLOSE(CIS(2),EXS(2))
-           CALL SGCLOSE(SGS(2))
+           CALL MkGUGA_Free(SGS(2),CIS(2),EXS(2))
          END IF
          CALL GETMEM('GTDMCI2','FREE','REAL',LCI2,NCI2)
          CALL KILLOBJ(LPART)
@@ -297,8 +303,7 @@ C         NCI2=NCI1
 C         CALL GETMEM('GTDMCI2','ALLO','REAL',LCI2,NCI2)
 C      END IF
       IF(WFTYP1.EQ.'GENERAL ') THEN
-        CALL CXCLOSE(CIS(1),EXS(1))
-        CALL SGCLOSE(SGS(1))
+        CALL MkGUGA_Free(SGS(1),CIS(1),EXS(1))
       END IF
       CALL GETMEM('GTDMCI1','FREE','REAL',LCI1,NCI1)
 *
