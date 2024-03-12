@@ -76,17 +76,9 @@ set (sources
      mkclist.F90
      mkcot.F90
      mkcoup.F90
-     mkdaw.F90
-     mkdrt.F90
-     mkdrt0.F90
      mkguga.F90
-     mkltv.F90
      mkmaw.F90
-     mkmid.F90
-     mknvert0.F90
      mknsm.F90
-     mkras.F90
-     mkraw.F90
      mkseg.F90
      mksgnum.F90
      motrac.F90

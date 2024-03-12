@@ -25,14 +25,6 @@
       Type(SGStruct),Target:: SGS
       Type(CIStruct) CIS
 
-      Interface
-      Subroutine MKDRT0(SGS)
-      use struct, only: SGStruct
-      IMPLICIT None
-      Type(SGStruct), Target:: SGS
-      End Subroutine MKDRT0
-      End Interface
-!
 !     CREATE THE SYMMETRY INDEX VECTOR
 !
       CALL MKISM(SGS)
@@ -100,6 +92,466 @@
 !
 !     EXIT
 !
+contains
+
+      Subroutine mknVert0(SGS)
+      use struct, only: SGStruct
+      use Definitions, only: LF => u6
+      Implicit None
+      Type(SGStruct) SGS
+
+      Integer IAC
+
+      Associate (iSpin=> SGS%iSpin, nActEl=>SGS%nActEl, nLev=>SGS%nLev,  &
+     &           IA0=>SGS%IA0, IB0=>SGS%IB0, IC0=>SGS%IC0, nVert0=>SGS%nVert0)
+
+      IB0=ISPIN-1
+      IA0=(NACTEL-IB0)/2
+      IC0=NLEV-IA0-IB0
+
+      IF ( ((2*IA0+IB0).NE.NACTEL) .OR.                                 &
+     &     (IA0.LT.0) .OR.                                              &
+     &     (IB0.LT.0) .OR.                                              &
+     &     (IC0.LT.0) ) then
+        Write(LF,*)'mknVert0 Error: Impossible specifications.'
+        Write(LF,'(1x,a,3I8)')'NACTEL,NLEV,ISPIN:',NACTEL,NLEV,ISPIN
+        Write(LF,'(1x,a,3I8)')'IA0,IB0,IC0:      ',IA0,IB0,IC0
+        Write(LF,*)' This is a severe internal error, or possibly'
+        Write(LF,*)' indicates a strange input which should have been'
+        Write(LF,*)' diagnosed earlier. Please submit a bug report.'
+        Call Abend()
+      End If
+      IAC=MIN(IA0,IC0)
+      NVERT0=((IA0+1)*(IC0+1)*(2*IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
+
+      End Associate
+
+      End Subroutine mknVert0
+
+      SUBROUTINE mkDRT0(SGS)
+#ifdef _DEBUGPRINT_
+      use Definitions, only: u6
+#endif
+      use struct, only: SGStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
+!
+!     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
+!
+      IMPLICIT None
+      Type(SGStruct), Target:: SGS
+!
+      Integer, PARAMETER:: LTAB=1,NTAB=2,ATAB=3,BTAB=4,CTAB=5
+      Integer, Parameter :: DA(0:3)=[0,0, 1,1],                                     &
+                            DB(0:3)=[0,1,-1,0],                                    &
+                            DC(0:3)=[1,0, 1,0]
+      Integer ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, I,  &
+              MXADDR, NACTEL, STEP, VDWN, LEV, VEND, VERT, VSTA, VUP,   &
+              VUPS, nTmp
+      Integer, Allocatable:: TMP(:)
+
+      Associate (nVert=>SGS%nVert, DRT=>SGS%DRTP, DOWN=>SGS%DownP,                &
+                 A0=>SGS%IA0, B0=>SGS%IB0, C0=>SGS%IC0, nLev=>SGS%nLev)
+
+      NTMP=((NLEV+1)*(NLEV+2))/2
+      CALL mma_allocate(TMP,NTMP,Label='TMP')
+!
+!     SET UP TOP ROW
+!
+      NACTEL=2*A0+B0
+      NLEV=A0+B0+C0
+      DRT(1,LTAB)=NLEV
+      DRT(1,NTAB)=NACTEL
+      DRT(1,ATAB)=A0
+      DRT(1,BTAB)=B0
+      DRT(1,CTAB)=C0
+      VSTA=1
+      VEND=1!
+#ifdef _DEBUGPRINT_
+      Write(u6,*) 'A0,B0,C0,NVERT=',A0,B0,C0,NVERT
+#endif
+!
+!     LOOP OVER ALL LEVELS
+!
+      DO LEV=NLEV,1,-1
+        MXADDR=((LEV+1)*(LEV+2))/2
+        DO I=1,MXADDR
+          TMP(I)=0
+        END DO
+!
+!     LOOP OVER VERTICES
+!
+        DO VUP=VSTA,VEND
+          AUP=DRT(VUP,ATAB)
+          BUP=DRT(VUP,BTAB)
+          CUP=DRT(VUP,CTAB)
+!
+!     LOOP OVER CASES
+!     AND STORE ONLY VALID CASE NUMBERS WITH ADRESSES
+!
+          DO STEP=0,3
+            DOWN(VUP,STEP)=0
+            ADWN=AUP-DA(STEP)
+            IF(ADWN.LT.0) Cycle
+            BDWN=BUP-DB(STEP)
+            IF(BDWN.LT.0) Cycle
+            CDWN=CUP-DC(STEP)
+            IF(CDWN.LT.0) Cycle
+            BC=BDWN+CDWN
+            ADDR=1+(BC*(BC+1))/2 + CDWN
+            TMP(ADDR)=4*VUP+STEP
+            DOWN(VUP,STEP)=ADDR
+          END DO
+        END DO
+        VDWN=VEND
+!
+!     NOW INSERT VALID CASES INTO DRT TABLE
+!
+        DO ADDR=1,MXADDR
+          VUPS=TMP(ADDR)
+          IF(VUPS.EQ.0) Cycle
+          VUP=VUPS/4
+          STEP=MOD(VUPS,4)
+          VDWN=VDWN+1
+          DRT(VDWN,ATAB)=DRT(VUP,ATAB)-DA(STEP)
+          DRT(VDWN,BTAB)=DRT(VUP,BTAB)-DB(STEP)
+          DRT(VDWN,CTAB)=DRT(VUP,CTAB)-DC(STEP)
+          TMP(ADDR)=VDWN
+        END DO
+!
+!     CREATE DOWN CHAIN TABLE
+!
+        DO VUP=VSTA,VEND
+          DO STEP=0,3
+            DWN=DOWN(VUP,STEP)
+            IF(DWN.NE.0) DOWN(VUP,STEP)=TMP(DWN)
+          END DO
+        END DO
+        VSTA=VEND+1
+        VEND=VDWN
+      END DO
+! End of loop over levels.
+!
+!     ADDING THE ZERO LEVEL TO DRT AND DOWNCHAIN TABLE
+!
+      DO  I=1,5
+        DRT(VEND,I)=0
+      END DO
+      DO STEP=0,3
+        DOWN(VEND,STEP)=0
+      END DO
+!
+!     COMPLETE DRT TABLE BY ADDING NO. OF ORBITALS AND ELECTRONS
+!     INTO THE FIRST AND SECOND COLUMN
+!
+      DO VERT=1,VEND
+        DRT(VERT,LTAB)=DRT(VERT,ATAB)+DRT(VERT,BTAB)+DRT(VERT,CTAB)
+        DRT(VERT,NTAB)=2*DRT(VERT,ATAB)+DRT(VERT,BTAB)
+      END DO
+#ifdef _DEBUGPRINT_
+      DO VERT=1,VEND
+        Write (6,*) 'DRT0(:,LTAB)=',DRT(VERT,LTAB)
+        Write (6,*) 'DRT0(:,NTAB)=',DRT(VERT,NTAB)
+      END DO
+#endif
+!
+      CALL mma_deallocate(TMP)
+
+      End Associate
+
+      END SUBROUTINE mkDRT0
+
+      SUBROUTINE mkRAS(SGS)
+      use Struct, only: SGStruct
+      use UnixInfo, only: ProgName
+      IMPLICIT None
+      Type(SGStruct) SGS
+
+      If (ProgName(1:5).eq.'rassi') Then
+         Call rmvert(SGS)
+      Else
+         Call RESTR(SGS)
+      End If
+
+      END SUBROUTINE mkRAS
+
+      SUBROUTINE mkDRT(SGS)
+!
+!     PURPOSE: USING THE UNRESTRICTED DRT TABLE GENERATED BY DRT0 AND
+!              THE MASKING ARRAY PRODUCED BY RESTR COPY ALL VALID
+!              VERTICES FROM THE OLD TO THE NEW DRT TABLE
+!
+
+      use Struct, only: SGStruct
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Type(SGStruct) SGS
+!
+      Integer IV, IVNEW, ITAB, IC, ID, IDNEW
+!
+      CALL mma_allocate(SGS%DRT,SGS%nVert,5,Label='DRT')
+      CALL mma_allocate(SGS%DOWN,[1,SGS%nVert],[0,3],Label='SGS%DOWN')
+
+      Associate (nVert0=>SGS%nVert0, nVert=>SGS%nVert, &
+                 iDRT0=>SGS%DRT0, iDOWN0=>SGS%Down0, &
+                 iDRT =>SGS%DRT , iDOWN =>SGS%Down , &
+                 iVer=>SGS%Ver)
+
+      DO IV=1,NVERT0
+        IVNEW=IVER(IV)
+        IF(IVNEW.EQ.0) Cycle
+        DO ITAB=1,5
+          IDRT(IVNEW,ITAB)=IDRT0(IV,ITAB)
+        END DO
+        DO IC=0,3
+          ID=IDOWN0(IV,IC)
+          IDNEW=0
+          IF(ID.NE.0) IDNEW=IVER(ID)
+          IDOWN(IVNEW,IC)=IDNEW
+        END DO
+      END DO
+#ifdef _DEBUGPRINT_
+      DO IV=1,nVert
+        Write (6,*) 'DRT(i,:)=',iDRT(IV,:)
+      END DO
+#endif
+      End Associate
+
+      CALL mma_deallocate(SGS%Ver)
+      CALL mma_deallocate(SGS%DRT0)
+      CALL mma_deallocate(SGS%DOWN0)
+
+      END SUBROUTINE mkDRT
+
+      SUBROUTINE MKDAW(SGS)
+!     PURPOSE: CONSTRUCT DIRECT ARC WEIGHTS TABLE
+!
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
+      use struct, only: SGStruct
+      use stdalloc, only: mma_allocate
+      IMPLICIT None
+!
+      Type (SGStruct) SGS
+
+      Integer IC, IV, ISUM, IDWN
+
+      CALL mma_allocate(SGS%DAW,[1,SGS%nVert],[0,4],Label='SGS%DAW')
+
+      Associate (nVert => SGS%nVert, iDown => SGS%Down, iDaw => SGS%Daw)
+!
+!     BEGIN TO CONSTRUCT DOWN CHAIN TABLE
+!
+      DO IC=0,3
+       IDAW(NVERT,IC)=0
+      END DO
+      IDAW(NVERT,4)=1
+      DO IV=NVERT-1,1,-1
+        ISUM=0
+        DO IC=0,3
+          IDAW(IV,IC)=0
+          IDWN=IDOWN(IV,IC)
+          IF(IDWN.EQ.0) Cycle
+          IDAW(IV,IC)=ISUM
+          ISUM=ISUM+IDAW(IDWN,4)
+        END DO
+        IDAW(IV,4)=ISUM
+      END DO
+!
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' DIRECT ARC WEIGHTS:'
+      DO IV=1,NVERT
+        Write(LF,'(1X,I4,5X,5(1X,I6))') IV,(IDAW(IV,IC),IC=0,4)
+      END DO
+      Write(LF,*)
+#endif
+
+      End Associate
+      END SUBROUTINE MKDAW
+
+      SUBROUTINE MKRAW(SGS)
+!
+!     PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
+!
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
+      use struct, only: SGStruct
+      use stdalloc, only: mma_allocate
+      IMPLICIT None
+!
+!
+      Type (SGStruct) SGS
+
+      Integer IU, IC, IDWN, IV, ISUM
+
+      CALL mma_allocate(SGS%UP,[1,SGS%nVert],[0,3],Label='SGS%UP')
+      CALL mma_allocate(SGS%RAW,[1,SGS%nVert],[0,4],Label='SGS%RAW')
+
+      Associate (nVert=>SGS%nVert, iDown=>SGS%Down, iUp=>SGS%UP, iRaw=>SGS%Raw)
+!
+!     BEGIN BY CONSTRUCTING THE UPCHAIN TABLE IUP:
+!
+      IUP(:,:)=0
+      DO IU=1,NVERT-1
+        DO IC=0,3
+          IDWN=IDOWN(IU,IC)
+          IF(IDWN.EQ.0) Cycle
+          IUP(IDWN,IC)=IU
+        END DO
+      END DO
+!
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' THE UPCHAIN TABLE IN MKRAW:'
+      DO IV=1,NVERT
+        Write(LF,'(1X,I4,5X,4(1X,I6))') IV,(IUP(IV,IC),IC=0,3)
+      END DO
+      Write(LF,*)
+#endif
+!
+!     USE UPCHAIN TABLE TO CALCULATE THE REVERSE ARC WEIGHT TABLE:
+!
+      IRAW(1,0:3)=0
+      IRAW(1,4)=1
+      DO IV=2,NVERT
+        ISUM=0
+        DO IC=0,3
+          IRAW(IV,IC)=0
+          IU=IUP(IV,IC)
+          IF(IU.EQ.0) Cycle
+          IRAW(IV,IC)=ISUM
+          ISUM=ISUM+IRAW(IU,4)
+        END DO
+        IRAW(IV,4)=ISUM
+      END DO
+!
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,*)' THE REVERSE ARC WEIGHT TABLE IN MKRAW:'
+      DO IV=1,NVERT
+        Write(LF,'(1X,I4,5X,5(1X,I6))') IV,(IRAW(IV,IC),IC=0,4)
+      END DO
+      Write(LF,*)
+#endif
+      End Associate
+
+      END SUBROUTINE MKRAW
+
+      SUBROUTINE MKLTV(SGS)
+!     PURPOSE: FIND THE MIDLEVEL
+!
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
+      use struct, only: SGStruct
+      use stdalloc, only: mma_allocate
+      IMPLICIT None
+!
+      Type (SGStruct) SGS
+
+      Integer, Parameter:: LTAB=1
+      Integer IV, LEV
+
+      CALL mma_allocate(SGS%LTV,[-1,SGS%NLEV],Label='LTV')
+
+      Associate (nVert=>SGS%nVert, nLev=>SGS%nLev, iDRT=>SGS%DRT, LTV=>SGS%LTV)
+!
+!     SET UP A LEVEL-TO-VERTEX TABLE, LTV, AND IDENTIFY MIDVERTICES:
+!
+      LTV(:)=0
+!
+      DO IV=1,NVERT
+        LEV=IDRT(IV,LTAB)
+        LTV(LEV)=LTV(LEV)+1
+      End Do
+!
+      DO LEV=NLEV,0,-1
+        LTV(LEV-1)=LTV(LEV-1)+LTV(LEV)
+      End Do
+!
+      DO LEV=-1,NLEV-1
+        LTV(LEV)=1+LTV(LEV+1)
+      End Do
+
+      End Associate
+
+      END SUBROUTINE MKLTV
+
+      SUBROUTINE MKMID(SGS,CIS)
+!     PURPOSE: FIND THE MIDLEVEL
+!
+#ifdef _DEBUGPRINT_
+      use Definitions, only: LF => u6
+#endif
+      use struct, only: SGStruct, CIStruct
+      IMPLICIT None
+!
+      Type (SGStruct) SGS
+      Type (CIStruct) CIS
+
+      Integer IV, MINW, MV, NW, IL
+
+      Associate (nVert=>SGS%nVert, nLev=>SGS%nLev, MidLev => SGS%MidLev, &
+                 MvSta=>SGS%MVSta, MVEnd=>SGS%MVEnd,   &
+                 MxUp=>SGS%MxUP, MxDWN=>SGS%MxDwn, iDAW=>SGS%Daw,        &
+                 iRaw=>SGS%Raw, LTV=>SGS%LTV, nMidV=>CIS%nMidV)
+!
+!     USE IDAW,IRAW TABLES TO DETERMINE MIDLEV.
+!     THE ASSUMPTION IS THAT A BALANCED NUMBER OF UPPER/LOWER WALKS
+!     IS THE BEST CHOICE.
+!
+!hrl 980529 fix for nLev=0 (no orbitals in any active space)
+!     Since LTV(-1:nLev)  and the statement after the loop
+!     MVSta=LTV(MidLev) we have the condition MidLev>=nLev
+!     Hence MidLev=1 is inappropriate for nLev=0
+!     MIDLEV=1
+!
+      If (nLev==0) Then
+         MIDLEV=0
+      Else
+         MIDLEV=1
+      End If
+      MINW=1000000
+      DO IL=1,NLEV-1
+        NW=0
+        DO IV=LTV(IL),LTV(IL-1)-1
+          NW=NW+IRAW(IV,4)-IDAW(IV,4)
+        END DO
+        NW=ABS(NW)
+        IF(NW.GE.MINW) Cycle
+        MIDLEV=IL
+        MINW=NW
+      END DO
+      MVSta=LTV(MIDLEV)
+      MVEnd=LTV(MIDLEV-1)-1
+      nMidV=MVEnd-MVSta+1
+!
+!     NOW FIND THE MAX NUMBERS OF UPPER AND LOWER WALKS. RESPECTIVELY
+!     (DISREGARDING SYMMETRY)
+!
+      MXUP=0
+      MXDWN=0
+      DO MV=MVSta,MVEnd
+        if(MXUP<IRAW(MV,4)) MXUP=IRAW(MV,4)
+        if(MXDWN<IDAW(MV,4)) MXDWN=IDAW(MV,4)
+      END DO
+!
+#ifdef _DEBUGPRINT_
+      Write(LF,*)
+      Write(LF,'(A,I3)')' MIDLEVEL =             ',MIDLEV
+      Write(LF,'(A,I3)')' NUMBER OF MIDVERTICES =',NMIDV
+      Write(LF,'(A,I3)')' FIRST MIDVERTEX =      ',MVSta
+      Write(LF,'(A,I3)')' LAST MIDVERTEX =       ',MVEnd
+      Write(LF,'(A,I3)')' MAX. NO UPPER WALKS=   ',MXUP
+      Write(LF,'(A,I3)')' MAX. NO LOWER WALKS=   ',MXDWN
+      Write(LF,*)
+#endif
+
+      End Associate
+
+      END SUBROUTINE MKMID
       END SUBROUTINE MKGUGA
 
       SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
