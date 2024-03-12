@@ -38,7 +38,8 @@
      &           VTab => EXS%VTab, ICASE => CIS%ICASE,                  &
      &           NOW => CIS%NOW, IOW => CIS%IOW,                        &
      &           NOCSF => CIS%NOCSF, IOCSF => CIS%IOCSF,                &
-     &           nSym => SGS%nSym, nMidV => CIS%nMidV)
+     &           nSym => SGS%nSym, nMidV => CIS%nMidV,                  &
+     &           SGTMP=>EXS%SGTMP)
 
 !****************************************************************
 !  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
@@ -132,18 +133,18 @@ IF(IP.GT.IQ) THEN
                 NCP=NOCP(INDEO,ISYUC,MV2)
                 IF(NCP/=0) Then
                   NTMP=NUPSG*NDWNC
-                  EXS%SGTMP(1:NTMP)=0.0D0
+                  SGTMP(1:NTMP)=0.0D0
                   LICP=1+IOCP(INDEO,ISYUC,MV2)
                   IOC=IOCSF(ISYUC,MV2,ISYCI)
 ! CASE IS: UPPER HALF, EXCITE:
-                  CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,ICOUP(1,LICP),VTAB)
+                  CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,SGTMP,NCP,ICOUP(1,LICP),VTAB)
                   INDEO=IQ
                   NCP=NOCP(INDEO,ISYDC,MV2)
                   IF(NCP/=0) Then
                     LICP=1+IOCP(INDEO,ISYDC,MV2)
 ! CASE IS: LOWER HALF, EXCITE:
                     X=1.0D00
-                    CALL EXC1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
+                    CALL EXC1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
                 End If
                 End If
               End If
@@ -159,18 +160,18 @@ IF(IP.GT.IQ) THEN
                 NCP=NOCP(INDEO,ISYUC,MV1)
                 IF(NCP/=0) Then
                   NTMP=NUPSG*NDWNC
-                  EXS%SGTMP(1:NTMP)=0.0D0
+                  SGTMP(1:NTMP)=0.0D0
                   LICP=1+IOCP(INDEO,ISYUC,MV1)
                   IOC=IOCSF(ISYUC,MV1,ISYCI)
 ! CASE IS: UPPER HALF, EXCITE:
-                  CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,ICOUP(1,LICP),VTAB)
+                  CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,SGTMP,NCP,ICOUP(1,LICP),VTAB)
                   INDEO=NLEV+IQ
                   NCP=NOCP(INDEO,ISYDC,MV1)
                   IF(NCP/=0) Then
                     LICP=1+IOCP(INDEO,ISYDC,MV1)
 ! CASE IS: LOWER HALF, EXCITE:
                     X=1.0D00
-                    CALL EXC1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
+                    CALL EXC1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
                   End If
                 End If
               End If
@@ -255,18 +256,18 @@ ELSE IF(IQ.GT.IP) THEN
           NCP=NOCP(INDEO,ISYUSG,MVSGM)
           IF(NCP.EQ.0) GOTO 499
           NTMP=NUPSG*NDWNC
-          EXS%SGTMP(1:NTMP)=0.0D0
+          SGTMP(1:NTMP)=0.0D0
           LICP=1+IOCP(INDEO,ISYUSG,MVSGM)
           IOC=IOCSF(ISYUC,MV4,ISYCI)
 ! CASE IS: UPPER HALF, DEEXCITE:
-          CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,ICOUP(1,LICP),VTAB)
+          CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,SGTMP,NCP,ICOUP(1,LICP),VTAB)
           INDEO=IP
           NCP=NOCP(INDEO,ISYDSG,MVSGM)
           IF(NCP.GT.0) THEN
             LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
 ! CASE IS: LOWER HALF, DEEXCITE:
             X=1.0D00
-            CALL DEX1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
+            CALL DEX1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
           END IF
  499      CONTINUE
           IF(MV5.EQ.0) Cycle
@@ -278,18 +279,18 @@ ELSE IF(IQ.GT.IP) THEN
           NCP=NOCP(INDEO,ISYUSG,MVSGM)
           IF(NCP.EQ.0) Cycle
           NTMP=NUPSG*NDWNC
-          EXS%SGTMP(1:NTMP)=0.0D0
+          SGTMP(1:NTMP)=0.0D0
           LICP=1+IOCP(INDEO,ISYUSG,MVSGM)
           IOC=IOCSF(ISYUC,MV5,ISYCI)
 ! CASE IS: UPPER HALF, DEEXCITE:
-          CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,ICOUP(1,LICP),VTAB)
+          CALL DEX2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,SGTMP,NCP,ICOUP(1,LICP),VTAB)
           INDEO=NLEV+IP
           NCP=NOCP(INDEO,ISYDSG,MVSGM)
           IF(NCP.GT.0) THEN
             LICP=1+IOCP(INDEO,ISYDSG,MVSGM)
 ! CASE IS: LOWER HALF, DEEXCITE:
             X=1.0D00
-            CALL DEX1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
+            CALL DEX1 (X,NUPSG,SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
           END IF
         END DO
       END DO
