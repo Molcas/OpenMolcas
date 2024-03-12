@@ -123,50 +123,59 @@ IF(IP.GT.IQ) THEN
           ISYDSG=MUL(ISYUSG,ISYSGM)
           ISYUC=MUL(ISYP,ISYUSG)
           ISYDC=MUL(ISYQ,ISYDSG)
-          IF(MV2.EQ.0) GOTO 799
-          NUPC=NOW(1,ISYUC,MV2)
-          IF(NUPC.EQ.0) GOTO 799
-          NDWNC=NOW(2,ISYDC,MV2)
-          IF(NDWNC.EQ.0) GOTO 799
-          INDEO=IP
-          NCP=NOCP(INDEO,ISYUC,MV2)
-          IF(NCP.EQ.0) GOTO 799
-          NTMP=NUPSG*NDWNC
-          EXS%SGTMP(1:NTMP)=0.0D0
-          LICP=1+IOCP(INDEO,ISYUC,MV2)
-          IOC=IOCSF(ISYUC,MV2,ISYCI)
+          IF (MV2/=0) Then
+            NUPC=NOW(1,ISYUC,MV2)
+            IF(NUPC/=0) Then
+              NDWNC=NOW(2,ISYDC,MV2)
+              IF(NDWNC/=0) Then
+                INDEO=IP
+                NCP=NOCP(INDEO,ISYUC,MV2)
+                IF(NCP/=0) Then
+                  NTMP=NUPSG*NDWNC
+                  EXS%SGTMP(1:NTMP)=0.0D0
+                  LICP=1+IOCP(INDEO,ISYUC,MV2)
+                  IOC=IOCSF(ISYUC,MV2,ISYCI)
 ! CASE IS: UPPER HALF, EXCITE:
-          CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,ICOUP(1,LICP),VTAB)
-          INDEO=IQ
-          NCP=NOCP(INDEO,ISYDC,MV2)
-          IF(NCP.EQ.0) GOTO 799
-          LICP=1+IOCP(INDEO,ISYDC,MV2)
+                  CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,ICOUP(1,LICP),VTAB)
+                  INDEO=IQ
+                  NCP=NOCP(INDEO,ISYDC,MV2)
+                  IF(NCP/=0) Then
+                    LICP=1+IOCP(INDEO,ISYDC,MV2)
 ! CASE IS: LOWER HALF, EXCITE:
-          X=1.0D00
-          CALL EXC1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
+                    X=1.0D00
+                    CALL EXC1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
+                End If
+                End If
+              End If
+            End If
+          End If
 
-  799     CONTINUE
-          IF(MV1.EQ.0) Cycle
-          NUPC=NOW(1,ISYUC,MV1)
-          IF(NUPC.EQ.0) Cycle
-          NDWNC=NOW(2,ISYDC,MV1)
-          IF(NDWNC.EQ.0) Cycle
-          INDEO=NLEV+IP
-          NCP=NOCP(INDEO,ISYUC,MV1)
-          IF(NCP.EQ.0) Cycle
-          NTMP=NUPSG*NDWNC
-          EXS%SGTMP(1:NTMP)=0.0D0
-          LICP=1+IOCP(INDEO,ISYUC,MV1)
-          IOC=IOCSF(ISYUC,MV1,ISYCI)
+          IF(MV1/=0) Then
+            NUPC=NOW(1,ISYUC,MV1)
+            IF(NUPC/=0) Then
+              NDWNC=NOW(2,ISYDC,MV1)
+              IF(NDWNC/=0) Then
+                INDEO=NLEV+IP
+                NCP=NOCP(INDEO,ISYUC,MV1)
+                IF(NCP/=0) Then
+                  NTMP=NUPSG*NDWNC
+                  EXS%SGTMP(1:NTMP)=0.0D0
+                  LICP=1+IOCP(INDEO,ISYUC,MV1)
+                  IOC=IOCSF(ISYUC,MV1,ISYCI)
 ! CASE IS: UPPER HALF, EXCITE:
-          CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,ICOUP(1,LICP),VTAB)
-          INDEO=NLEV+IQ
-          NCP=NOCP(INDEO,ISYDC,MV1)
-          IF(NCP.EQ.0) Cycle
-          LICP=1+IOCP(INDEO,ISYDC,MV1)
+                  CALL EXC2 (CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,ICOUP(1,LICP),VTAB)
+                  INDEO=NLEV+IQ
+                  NCP=NOCP(INDEO,ISYDC,MV1)
+                  IF(NCP/=0) Then
+                    LICP=1+IOCP(INDEO,ISYDC,MV1)
 ! CASE IS: LOWER HALF, EXCITE:
-          X=1.0D00
-          CALL EXC1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
+                    X=1.0D00
+                    CALL EXC1 (X,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,ICOUP(1,LICP),VTAB)
+                  End If
+                End If
+              End If
+            End If
+          End If
         END DO
       END DO
 
