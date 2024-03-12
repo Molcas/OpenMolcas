@@ -15,6 +15,7 @@
 *
       use Str_Info, only: CFTP, CNSM
       use Struct, only: SGStruct, CIStruct, EXStruct
+      use definitions, only: u6
       Implicit None
       Integer nSym,iSpin,nActEl,nHole1,nElec3
       Integer nRs1(nSym), nRs2(nSym), nRs3(nSym)
@@ -95,23 +96,23 @@
       if (ksym.ne.state_sym) iss=2
 *
 #ifdef _DEBUGPRINT_
-      WRITE(6,101)
+      WRITE(u6,101)
 101   FORMAT(/,6X,100('-'),/,
      &      6X,29X,'Wave function printout: Split Graph format',/,
-     &      6X, 8X,'in paranthesis: midvertex, upper-walk symmetry',
+     &      6X, 8X,'in parenthesis: midvertex, upper-walk symmetry',
      &             ' upper- and lower-walk serial numbers',/,
      &         6X,100('-'),/)
-      WRITE(6,102) PRWTHR
+      WRITE(u6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
-      Call SGPRWF_MCLR(SGS,EXS,ksym,PRWTHR,NCONF,CIL)
-      WRITE(6,103)
+      Call SGPRWF(SGS,CIS,ksym,PRWTHR,SGS%iSpin,CIL,nConf,.False.,-99)
+      WRITE(u6,103)
 103   FORMAT(/,6X,100('-'),/)
 #endif
 *
       Call REORD(SGS,CIS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,kSym,CIL)
 
 #ifdef _DEBUGPRINT_
-      Call SGPRWF_MCLR(SGS,EXS,ksym,PRWTHR,NCONF,CIL)
+      Call SGPRWF(SGS,CIS,ksym,PRWTHR,SGS%iSpin,CIL,nConf,.False.,-99)
 #endif
 *
       End Associate

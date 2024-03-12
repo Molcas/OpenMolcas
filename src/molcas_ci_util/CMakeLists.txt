@@ -124,6 +124,7 @@ set (sources
      sigmadet_cvb.F90
      simplify.F90
      sgclose.F90
+     sgprwf.F90
      sort_cdet.F90
      splitctl.F90
      splitcas_data.F90

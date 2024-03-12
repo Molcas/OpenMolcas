@@ -52,7 +52,6 @@
      &           ICASE=>CIS%ICASE)
 
 
-
       Line(1:16)='      conf/sym  '
       iOff=16
       iSym=nSm(1)
