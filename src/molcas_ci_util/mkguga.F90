@@ -27,11 +27,11 @@
 
 !     CREATE THE SYMMETRY INDEX VECTOR
 !
-      CALL MKISM(SGS)
+      CALL MKISM()
 !
 !     COMPUTE TOP ROW OF THE GUGA TABLE
 !
-      Call mknVert0(SGS)
+      Call mknVert0()
 
 !Note that we do not associate the arrays here since the are not allocated yet.
       Associate (nVert => SGS%nVert, nVert0=>SGS%nVert0, IFRAS=>SGS%IFRAS)
@@ -52,17 +52,17 @@
          SGS%DOWNP=> SGS%DOWN
       ENDIF
 
-      CALL mkDRT0(SGS)
+      CALL mkDRT0()
 !
 !     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
 !     VERTICES WHICH VIOLATE THE FORMER.
 !
       IF(IFRAS.NE.0) THEN
-        CALL mkRAS(SGS)
+        CALL mkRAS()
 !
 !     REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 !
-        CALL mkDRT(SGS)
+        CALL mkDRT()
 
 !     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED
 !     DRT TABLE
@@ -74,31 +74,188 @@
 !
 !     CALCULATE ARC WEIGHT.
 !
-      CALL MKDAW(SGS)
+      CALL MKDAW()
 !
 !     COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
 !
-      CALL MKRAW(SGS)
+      CALL MKRAW()
 !
 !     COMPUTE LTV TABLES.
 !
-      CALL MKLTV(SGS)
+      CALL MKLTV()
 !
 !     COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.
 !
-      CALL MKMID(SGS,CIS)
+      CALL MKMID()
 !
       End Associate
 !
 !     EXIT
 !
 contains
+      SUBROUTINE MKISM()
+      use UnixInfo, only: ProgName
+      Implicit None
 
-      Subroutine mknVert0(SGS)
-      use struct, only: SGStruct
+      If (ProgName(1:6)=='rassi') Then
+
+         Call mkISm_Rassi()
+
+      Else If (ProgName(1:4)=='mclr') Then
+
+         Call mkISm_mclr()
+
+      Else If (ProgName(1:6)=='caspt2') Then
+
+         Call mkISm_cp2()
+
+      Else
+
+         Call mkNSM()
+
+      End If
+
+      END SUBROUTINE MKISM
+
+      SUBROUTINE MKISM_MCLR()
+      use stdalloc, only: mma_allocate
+      Implicit None
+
+#include "Input.fh"
+#include "detdim.fh"
+#include "spinfo_mclr.fh"
+      Integer :: iOrb, iSym, iBas
+
+      SGS%NLEV=ntASh
+
+      Call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
+
+      iOrb=0
+      Do iSym=1,nSym
+         Do iBas=1,nRs1(iSym)
+            iOrb=iOrb+1
+            SGS%ISM(iOrb)=iSym
+         End Do
+      End Do
+      Do iSym=1,nSym
+         Do iBas=1,nRs2(iSym)
+            iOrb=iOrb+1
+            SGS%ISM(iOrb)=iSym
+         End Do
+      End Do
+      Do iSym=1,nSym
+         Do iBas=1,nRs3(iSym)
+            iOrb=iOrb+1
+            SGS%ISM(iOrb)=iSym
+         End Do
+      End Do
+
+      End SUBROUTINE MKISM_MCLR
+
+      SUBROUTINE MKISM_RASSI()
+      use gugx, only: LEVEL
+      use stdalloc, only: mma_allocate
+      Implicit None
+#include "rassi.fh"
+      Integer ITABS, ISYM, IT, ILEV, nSym
+
+
+         nSym=SGS%nSym
+         SGS%NLEV=NASHT ! Total number of active orbitals
+! Allocate Level to Symmetry table ISm:
+         Call mma_allocate(SGS%ISm,SGS%nLev,Label='SGS%ISm')
+         ITABS=0
+         DO ISYM=1,NSYM
+           DO IT=1,NASH(ISYM)
+             ITABS=ITABS+1
+             ILEV=LEVEL(ITABS)
+             SGS%ISM(ILEV)=ISYM
+           END DO
+         END DO
+
+      END SUBROUTINE MKISM_RASSI
+
+      SUBROUTINE mkism_cp2()
+
+      use fciqmc_interface, only: DoFCIQMC
+      use stdalloc, only: mma_allocate
+      use gugx, only: L2ACT, LEVEL
+
+      IMPLICIT NONE
+
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "pt2_guga.fh"
+
+#include "SysDef.fh"
+      Integer nLev
+
+      INTEGER IT,ITABS,ILEV,ISYM, iq
+
+      NLEV=NASHT
+      SGS%nLev = NLEV
+      Call mma_allocate(SGS%ISM,NLEV,Label='ISM')
+! ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
+! PAM060612: With true RAS space, the orbitals must be ordered
+! first by RAS type, then by symmetry.
+      ITABS=0
+      DO ISYM=1,NSYM
+        DO IT=1,NASH(ISYM)
+          ITABS=ITABS+1
+! Quan: Bug in LEVEL(ITABS) and L2ACT
+          if (DoCumulant .or. DoFCIQMC) then
+             do iq=1,NLEV
+               LEVEL(iq)=iq
+               L2ACT(iq)=iq
+             enddo
+          endif
+          ILEV=LEVEL(ITABS)
+          SGS%ISM(ILEV)=ISYM
+        END DO
+      END DO
+
+      END SUBROUTINE mkism_cp2
+
+      SUBROUTINE MKNSM()
+!     PUPROSE: CREATE THE SYMMETRY INDEX VECTOR
+!
+      use gugx, only: SGS
+      use stdalloc, only: mma_allocate
+      IMPLICIT None
+!
+! to get some dimensions
+#include "rasdim.fh"
+! NSM form rasscf,fh
+#include "rasscf.fh"
+! NSYM from general.fh
+#include "general.fh"
+! NGAS and NGSSH from gas.fh
+#include "gas.fh"
+!
+      Integer IGAS, ISYM, LEV, NLEV, NSTA
+
+      NLEV=0
+      DO IGAS=1,NGAS
+        DO ISYM=1,NSYM
+          NSTA=NLEV+1
+          NLEV=NLEV+NGSSH(IGAS,ISYM)
+          DO LEV=NSTA,NLEV
+            NSM(LEV)=ISYM
+          END DO
+        END DO
+      END DO
+
+      If (SGS%nSym/=0) Then
+         SGS%nLev=nLev
+         Call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
+         SGS%ISM(1:nLev)=NSM(1:nLev)
+      End If
+
+      END SUBROUTINE MKNSM
+
+      Subroutine mknVert0()
       use Definitions, only: LF => u6
       Implicit None
-      Type(SGStruct) SGS
 
       Integer IAC
 
@@ -128,17 +285,15 @@ contains
 
       End Subroutine mknVert0
 
-      SUBROUTINE mkDRT0(SGS)
+      SUBROUTINE mkDRT0()
 #ifdef _DEBUGPRINT_
       use Definitions, only: u6
 #endif
-      use struct, only: SGStruct
       use stdalloc, only: mma_allocate, mma_deallocate
 !
 !     PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
 !
       IMPLICIT None
-      Type(SGStruct), Target:: SGS
 !
       Integer, PARAMETER:: LTAB=1,NTAB=2,ATAB=3,BTAB=4,CTAB=5
       Integer, Parameter :: DA(0:3)=[0,0, 1,1],                                     &
@@ -260,11 +415,9 @@ contains
 
       END SUBROUTINE mkDRT0
 
-      SUBROUTINE mkRAS(SGS)
-      use Struct, only: SGStruct
+      SUBROUTINE mkRAS()
       use UnixInfo, only: ProgName
       IMPLICIT None
-      Type(SGStruct) SGS
 
       If (ProgName(1:5).eq.'rassi') Then
          Call rmvert(SGS)
@@ -274,17 +427,15 @@ contains
 
       END SUBROUTINE mkRAS
 
-      SUBROUTINE mkDRT(SGS)
+      SUBROUTINE mkDRT()
 !
 !     PURPOSE: USING THE UNRESTRICTED DRT TABLE GENERATED BY DRT0 AND
 !              THE MASKING ARRAY PRODUCED BY RESTR COPY ALL VALID
 !              VERTICES FROM THE OLD TO THE NEW DRT TABLE
 !
 
-      use Struct, only: SGStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-      Type(SGStruct) SGS
 !
       Integer IV, IVNEW, ITAB, IC, ID, IDNEW
 !
@@ -322,18 +473,15 @@ contains
 
       END SUBROUTINE mkDRT
 
-      SUBROUTINE MKDAW(SGS)
+      SUBROUTINE MKDAW()
 !     PURPOSE: CONSTRUCT DIRECT ARC WEIGHTS TABLE
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      use struct, only: SGStruct
       use stdalloc, only: mma_allocate
       IMPLICIT None
 !
-      Type (SGStruct) SGS
-
       Integer IC, IV, ISUM, IDWN
 
       CALL mma_allocate(SGS%DAW,[1,SGS%nVert],[0,4],Label='SGS%DAW')
@@ -370,20 +518,16 @@ contains
       End Associate
       END SUBROUTINE MKDAW
 
-      SUBROUTINE MKRAW(SGS)
+      SUBROUTINE MKRAW()
 !
 !     PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      use struct, only: SGStruct
       use stdalloc, only: mma_allocate
       IMPLICIT None
 !
-!
-      Type (SGStruct) SGS
-
       Integer IU, IC, IDWN, IV, ISUM
 
       CALL mma_allocate(SGS%UP,[1,SGS%nVert],[0,3],Label='SGS%UP')
@@ -439,17 +583,14 @@ contains
 
       END SUBROUTINE MKRAW
 
-      SUBROUTINE MKLTV(SGS)
+      SUBROUTINE MKLTV()
 !     PURPOSE: FIND THE MIDLEVEL
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      use struct, only: SGStruct
       use stdalloc, only: mma_allocate
       IMPLICIT None
-!
-      Type (SGStruct) SGS
 
       Integer, Parameter:: LTAB=1
       Integer IV, LEV
@@ -479,18 +620,14 @@ contains
 
       END SUBROUTINE MKLTV
 
-      SUBROUTINE MKMID(SGS,CIS)
+      SUBROUTINE MKMID()
 !     PURPOSE: FIND THE MIDLEVEL
 !
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      use struct, only: SGStruct, CIStruct
       IMPLICIT None
 !
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-
       Integer IV, MINW, MV, NW, IL
 
       Associate (nVert=>SGS%nVert, nLev=>SGS%nLev, MidLev => SGS%MidLev, &
@@ -564,17 +701,15 @@ contains
       Type(CIStruct) CIS
       Type(EXStruct) EXS
 !
-      Call sgclose(SGS)
+      Call sgclose()
 
-      Call cxclose(CIS,EXS)
+      Call cxclose()
 
 contains
 
-Subroutine SGClose(SGS)
+Subroutine SGClose()
 use stdalloc, only: mma_deallocate
-use Struct, only: SGStruct
 Implicit None
-Type (SGStruct) SGS
 
 If (Allocated(SGS%ISM)) Call mma_deallocate(SGS%ISM)
 If (Allocated(SGS%DRT0)) Call mma_deallocate(SGS%DRT0)
@@ -593,11 +728,8 @@ SGS%DOWNP => Null()
 
 end Subroutine SGClose
 
-Subroutine CXClose(CIS,EXS)
+Subroutine CXClose()
 use stdalloc, only: mma_deallocate
-use Struct, only: CIStruct, EXStruct
-Type (CIStruct) CIS
-Type (ExStruct) ExS
 
 IF (Allocated(CIS%NOW)) Call mma_deallocate(CIS%NOW)
 IF (Allocated(CIS%IOW)) Call mma_deallocate(CIS%IOW)
@@ -615,7 +747,6 @@ IF (Allocated(EXS%MVL)) Call mma_deallocate(EXS%MVL)
 IF (Allocated(EXS%MVR)) Call mma_deallocate(EXS%MVR)
 If (Allocated(EXS%USGN)) Call mma_deallocate(EXS%USGN)
 If (Allocated(EXS%LSGN)) Call mma_deallocate(EXS%LSGN)
-
 
 end subroutine CXClose
 
