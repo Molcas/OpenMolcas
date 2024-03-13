@@ -90,7 +90,7 @@ set (sources
      page_out.F90
      phpcsf.F90
      pmat_rasscf.F90
-     prttim.f
+     prttim.F90
      rasdef.F90
      rd1int.F90
      rd2int_rasscf.f
