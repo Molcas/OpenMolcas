@@ -28,14 +28,16 @@
       use Definitions, only: LF => u6
       use wadr, only: FockOcc
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 
-      Real*8 FOCC(*),F(*),CMO(*)
+      Real*8 :: FOCC(*),F(*),CMO(*)
       Real*8, Allocatable:: SCR1(:), SCR2(:)
+      Integer :: ISTFCK, IPQ, ISYM, NIO, NAO, NOO, NO, NP, NQ, IAD15, jFock, iCMO, ij, iBas, &
+                 jBas, kl, lk
 
 !
       ISTFCK=0
@@ -86,20 +88,18 @@
 !
 #ifdef _DEBUGPRINT_
             Write(LF,*) 'iSym=',iSym
-            Call RecPrt('F(iStFck)',' ',F(iStFck),nOrb(iSym),
-     &                                            nOrb(iSym))
-            Call RecPrt('CMO(iCMO)',' ',CMO(iCMO),nBas(iSym),
-     &                                            nBas(iSym))
+            Call RecPrt('F(iStFck)',' ',F(iStFck),nOrb(iSym),nOrb(iSym))
+            Call RecPrt('CMO(iCMO)',' ',CMO(iCMO),nBas(iSym),nBas(iSym))
 #endif
-            Call DGEMM_('N','N',
-     &                  nBas(iSym),nOrb(isym),nOrb(isym),
-     &                  1.0d0,CMO(iCMo),nBas(iSym),
-     &                  F(iStFck),nOrb(isym),
+            Call DGEMM_('N','N',  &
+     &                  nBas(iSym),nOrb(isym),nOrb(isym),  &
+     &                  1.0d0,CMO(iCMo),nBas(iSym),  &
+     &                  F(iStFck),nOrb(isym),  &
      &                  0.0d0,Scr1,nBas(iSym))
-            Call DGEMM_('N','T',
-     &                  nBas(iSym),nBas(iSym),nOrb(isym),
-     &                  1.0d0,Scr1,nBas(iSym),
-     &                  CMO(iCMo),nBas(iSym),
+            Call DGEMM_('N','T',  &
+     &                  nBas(iSym),nBas(iSym),nOrb(isym),  &
+     &                  1.0d0,Scr1,nBas(iSym),  &
+     &                  CMO(iCMo),nBas(iSym),  &
      &                  0.0d0,Scr2,nBas(iSym))
             ij = jFock
             Do iBas = 1, nBas(iSym)

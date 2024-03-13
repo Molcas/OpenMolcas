@@ -45,7 +45,7 @@ set (sources
      faroald_init.F90
      fciqmc_interface.F90
      fndmnx.F90
-     fockoc.f
+     fockoc.F90
      gatvcs.F90
      general_data.F90
      get_cm_.F90
