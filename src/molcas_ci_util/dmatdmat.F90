@@ -27,16 +27,18 @@
 #include "rasscf.fh"
 #include "general.fh"
       Real*8 Dmat(*),DDarray(*)
-      Integer iOffOrb(nSym)
 
-      Integer :: iorp, iSym,iMaxPQ, iMaxRS, iMinPQ, iMinRS, indx1, indx2, indxdpq, indxdrs, iOrbP, &
-                 iOrbQ, iOrbR, iOrbS, iPsm, iQsm, iRsm, iSmPQ, iSsm, nRS
-      Real*8 FACT
+      Integer iOffOrb(nSym)
+      Real*8 Fact
+      Integer iMaxPQ, iMaxRS, iMinPQ, iMinRS, indx1, indx2, indxDpq, indxDrs, &
+              iOrbP, iOrbQ, iOrbR, iOrbS, iorp, iPsm, iQsm, iRsm, iSsm, iSym, nRS, &
+              iSmPQ
 
 ! Initialization of variables
 
       iorp       = 0
       iOffOrb(1) = 0
+      indx1      = 0
 
       Do iSym = 2, nSym
         iOffOrb(iSym) = iOffOrb(iSym-1) + NaSh(iSym-1)
@@ -44,28 +46,27 @@
 
       call FZero(DDarray,istorp(nSym+1))
 
-      indx1 = - NASH(1)*(NASH(1)+1)/2
       DO iPsm=1, nSym
-        indx1 = indx1 + NASH(iPsm)*(NASH(iPsm)+1)/2
         Do iOrbP=1, NASh(iPsm)
           DO iQsm=1,nSym
-            If(NASh(iQsm)==0) Cycle ! next iQsm
+            If(NASh(iQsm).eq.0) goto 10  ! next iQsm
             iSmPQ = ieor(iPsm-1, iQsm -1)+1
-            indx2=-NASH(1)*(NASH(1)+1)/2
+            indx2      = 0
             DO iRsm=1,nSym
-              indx2=indx2+NASH(iRsm)*(NASH(iRsm)+1)/2
               iSsm = ieor(iSmPQ-1,iRsm-1)+1
-              If(min(NASh(iRsm),NASh(iSsm))==0.OR.iSsm>iRsm) Cycle  !next iRsm
+              If(min(NASh(iRsm),NASh(iSsm)).eq.0.OR. iSsm.gt.iRsm)  goto 20  !next iRsm
               nRS = NASh(iRsm)*NASh(iSsm)
-              if(iSsm==iRsm) nRS=NASh(iRsm)*(NASh(iRsm)+1)/2
+              if(iSsm.eq.iRsm) then
+                nRS=NASh(iRsm)*(NASh(iRsm)+1)/2
+              end if
               If(iRsm.ne.iSsm.OR.iQsm.ne.iPsm) then
                 iorp = iorp+nRS*NASh(iQsm)
-                Cycle !next iRsm
+                goto 20 !next iRsm
               End If
               Do iOrbR=1,NASH(iRsm)
                 DO iOrbS=1,iOrbR
                   FACT= 1.0d0
-                  IF(iOrbR/=iOrbS) FACT= 2.0d0
+                  IF(iOrbR.ne.iOrbS) FACT= 2.0d0
                   Do iOrbQ=1,NASH(iQsm)
                     iorp = iorp +1
                     iMaxPQ=max(iOrbP,iOrbQ)
@@ -78,10 +79,13 @@
                   End Do ! Loop over iOrbQ
                 End Do ! Loop over iOrbS
               End Do ! Loop over iOrbR
+20            CONTINUE
+              indx2=indx2+NASH(iRsm)*(NASH(iRsm)+1)/2
             End Do ! loop over iRsm
-
+10          CONTINUE
           End Do ! Loop over iQsm
         End Do ! Loop over iOrbP
+        indx1 = indx1 + NASH(iPsm)*(NASH(iPsm)+1)/2
       End Do ! Loop over iPsm
 
       END
