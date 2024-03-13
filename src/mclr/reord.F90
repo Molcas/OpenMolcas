@@ -50,6 +50,9 @@
       Integer, External:: IPHASE, ISGNUM
       Integer :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP
       Real*8 PHASE
+#ifdef _DEBUGPRINT_
+      Integer I
+#endif
 
       Call mma_allocate(CINEW,NCONF,Label='CINEW')
 
@@ -109,12 +112,11 @@
       END DO
 !
 #ifdef _DEBUGPRINT_
-      LPRINT=NCONF
       WRITE(u6,*)
       WRITE(u6,*)' OLD CI-VECTORS IN SUBROUTINE REORD'
-      WRITE(u6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
+      WRITE(u6,'(10F12.8)') (CIOLD(I),I=1,NCONF)
       WRITE(u6,*)' NEW CI-VECTORS IN SUBROUTINE REORD'
-      WRITE(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
+      WRITE(u6,'(10F12.8)') (CINEW(I),I=1,NCONF)
       WRITE(u6,*)
 #endif
 !

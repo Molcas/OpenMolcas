@@ -14,7 +14,7 @@
       Use Para_Info, Only: nProcs, Is_Real_Par
       Implicit None
       Integer, Intent(inout):: InVec
-      Integer IVec_Tot, mProcs
+      Integer InVec_Tot, mProcs
 
       If (.Not.Is_Real_Par()) Return
       InVec_Tot = InVec
