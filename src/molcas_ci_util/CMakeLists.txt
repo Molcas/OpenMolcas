@@ -92,7 +92,7 @@ set (sources
      pmat_rasscf.f
      prttim.f
      rasdef.F90
-     rd1int.f
+     rd1int.F90
      rd2int_rasscf.f
      recno.F90
      restr.F90
