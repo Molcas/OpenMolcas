@@ -11,12 +11,12 @@
       SUBROUTINE CISX(IDX,D,DS,PS,PA,SCR)
 
       IMPLICIT None
-
-      Integer IDX(NAC)
-      Real*8 D(*),DS(*),PS(*),PA(*),SCR(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
+
+      Integer IDX(NAC)
+      Real*8 D(*),DS(*),PS(*),PA(*),SCR(*)
 
       Integer I, ITR, IJO, NIJ, NIJKL, J, INEW, JNEW, IJNEW, ICASE, IJKLO, K, LLIM, L, KNEW, &
               LNEW, KLNEW, IJKLN
