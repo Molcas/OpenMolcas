@@ -29,6 +29,7 @@
       Character(LEN=16), Parameter :: ROUTINE='ALLOC   '
       Integer IORD, IORP, NSP, NOP, NAP, NSQ, NSPQ, NSR, NAQ, NSPQR, NAR, NSS, NRS, NAS
 #ifdef _DEBUGPRINT_
+      Integer I
       WRITE(LF,*)' Entering ',ROUTINE
 #endif
 !
