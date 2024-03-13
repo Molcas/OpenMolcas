@@ -30,9 +30,9 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
 use nq_Grid, only: Angular, Coor, Fact, Mem, nGridMax, nR_Eff, Pax
 use nq_structure, only: NQ_Data, Open_NQ_Data
-use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, L_Quad, LDA_type, MBC, meta_GGA_type1, &
-                   meta_GGA_type2, mRad, nAngularGrids, nAtoms, ndc, nR, ntotgp, number_of_subblocks, nx, ny, nz, Off, On, &
-                   Rotational_Invariance, T_Y, Threshold, x_min, y_min, z_min
+use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, Grid_Type, L_Quad, LDA_type, MBC, &
+                   meta_GGA_type1, meta_GGA_type2, Moving_Grid, mRad, nAngularGrids, nAtoms, ndc, nR, ntotgp, number_of_subblocks, &
+                   nx, ny, nz, Off, On, Rotational_Invariance, T_Y, Threshold, x_min, y_min, z_min
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         Not_Specified, Old_Functional_Type, Regenerate, Use_Old
 use Index_Functions, only: nTri_Elem1
@@ -47,17 +47,16 @@ integer(kind=iwp), intent(out) :: Maps2p(nShell,0:nSym-1), nNQ
 logical(kind=iwp), intent(in) :: Do_Grad, On_Top
 real(kind=wp), intent(out) :: Pck_Old, R_Min(0:nR_Min)
 logical(kind=iwp), intent(out) :: PMode_old
-integer(kind=iwp) :: iAng, iAng_, iANr, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, iNQ_MBC, &
-                     iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, mdcj, &
-                     mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, nSO, &
-                     nTerm, nxyz
+integer(kind=iwp) :: iAng, iAng_, iANr, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, iNQ_MBC, iPrim, &
+                     iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, mdcj, mExp, &
+                     nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, nSO, nTerm, nxyz
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: kR
 #endif
 real(kind=wp) :: A_high, A_low, Alpha(2), C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, ValExp, &
                  x_max, XYZ(3), y_max, z_max
-logical(kind=iwp) :: PMode
+logical(kind=iwp) :: Do_Rot, PMode
 real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), TempC(:,:), ZA(:)
 real(kind=wp), external :: Bragg_Slater, Eval_RMin
 logical(kind=iwp), external :: EQ
@@ -251,41 +250,37 @@ end do  ! iNQ
 ! compute the gradient of the rotationally invariant DFT energy.
 
 call mma_allocate(Pax,3,3,Label='Pax')
-call mma_allocate(dOdx,3,3,nNQ,3,Label='dOdx')
-dOdx(:,:,:,:) = Zero
-call mma_Allocate(ZA,nNQ,Label='ZA')
-call mma_Allocate(Crd,3,nNQ)
 
-! Collect coordinates and charges of the nuclei
+if (Rotational_Invariance == On) then
+  call mma_allocate(dOdx,3,3,nNQ,3,Label='dOdx')
+  dOdx(:,:,:,:) = Zero
+  call mma_Allocate(ZA,nNQ,Label='ZA')
+  call mma_Allocate(Crd,3,nNQ)
 
-do iNQ=1,nNQ
-  ZA(iNQ) = real(NQ_Data(iNQ)%Atom_Nr,kind=wp)
-  Crd(:,iNQ) = NQ_data(iNQ)%Coor(:)
-end do
+  ! Collect coordinates and charges of the nuclei
 
-call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Grad,.false.)
-
-! Distribute derivative of the principal axis system
-
-if (Do_Grad) then
   do iNQ=1,nNQ
-    do iCar=1,3
-      NQ_Data(iNQ)%dOdx(:,:,iCar) = dOdx(:,:,iNQ,iCar)
+    ZA(iNQ) = real(NQ_Data(iNQ)%Atom_Nr,kind=wp)
+    Crd(:,iNQ) = NQ_data(iNQ)%Coor(:)
+  end do
+
+  Do_Rot = Do_Grad .and. (Grid_Type == Moving_Grid)
+
+  call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Rot,.false.)
+
+  ! Distribute derivative of the principal axis system
+
+  if (Do_Rot) then
+    do iNQ=1,nNQ
+      NQ_Data(iNQ)%dOdx(:,:,:) = dOdx(:,:,iNQ,:)
     end do
-  end do
-end if
+  end if
 
-call mma_deallocate(dOdX)
-call mma_deallocate(Crd)
-call mma_deallocate(ZA)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-if (Rotational_Invariance == Off) then
+  call mma_deallocate(dOdX)
+  call mma_deallocate(Crd)
+  call mma_deallocate(ZA)
+else
   call unitmat(Pax,3)
-  do iNQ=1,nNQ
-    NQ_Data(iNQ)%dOdx(:,:,:) = Zero
-  end do
 end if
 !                                                                      *
 !***********************************************************************

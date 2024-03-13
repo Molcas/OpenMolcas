@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx,Px)
+subroutine Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,iAtom,iCar,dTdRAi,dMdx,dOdx,Px)
 
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
@@ -20,7 +20,6 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, iAtom, iCar
 real(kind=wp), intent(in) :: ZA(nAtoms), RA(3,nAtoms), T(3), O(3,3), EVal(3), dTdRAi
-logical(kind=iwp), intent(in) :: Rot_Corr
 real(kind=wp), intent(out) :: dMdx(3,3), dOdx(3,3), Px(3,3)
 real(kind=wp) :: Alpha, Beta, Gmma, OtMx(3,3), OtMxO(3,3)
 real(kind=wp), parameter :: Thrs = 1.0e-14_wp
@@ -28,11 +27,6 @@ real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (.not. Rot_Corr) then
-  dOdx(:,:) = Zero
-  return
-end if
-
 ! Differentiate the nuclear charge moment tensor, M.
 
 call Compute_dMdx(ZA,RA,nAtoms,T,iAtom,iCar,dTdRAi,dMdx)

@@ -36,7 +36,6 @@ real(kind=wp), intent(inout) :: dOdx(3,3,nAtoms,3), d2Odx2(3,3,nAtoms,3,nAtoms,3
 logical(kind=iwp), intent(in) :: Do_Grad, Do_Hess
 integer(kind=iwp) :: iAtom, iCar, jAtom, jCar, jCar_Max
 real(kind=wp) :: dif(3), dMdx(3,3), dMdy(3,3), dTdRAi, dTdRAj, EVal(3), Px(3,3), Py(3,3), T(3), Z_Tot
-logical(kind=iwp) :: Rot_Corr
 real(kind=wp), parameter :: Thrs = 1.0e-3_wp
 
 !                                                                      *
@@ -71,13 +70,12 @@ if (.not. Do_Grad) return
 ! Turn off rotational correction to the gradient if the eigenvectors
 ! are close to degeneracy!
 
-Rot_Corr = .true.
 dif(1) = abs((Eval(1)-Eval(2))/(EVal(1)+EVal(2)))
 dif(2) = abs((Eval(1)-Eval(3))/(EVal(1)+EVal(3)))
 dif(3) = abs((Eval(2)-Eval(3))/(EVal(2)+EVal(3)))
 if (any(dif(:) < Thrs)) then
   write(u6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
-  Rot_Corr = .false.
+  return
 end if
 !                                                                      *
 !***********************************************************************
@@ -90,7 +88,7 @@ do iAtom=1,nAtoms
 
     ! Form dO/dx
 
-    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(:,:,iAtom,iCar),Px)
+    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,iAtom,iCar,dTdRAi,dMdx,dOdx(:,:,iAtom,iCar),Px)
 
   end do
 end do
@@ -106,19 +104,18 @@ if (.not. Do_Hess) return
 do iAtom=1,nAtoms
   dTdRAi = ZA(iAtom)/Z_Tot
   do iCar=1,3
-    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dOdx(:,:,iAtom,iCar),Px)
+    call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,iAtom,iCar,dTdRAi,dMdx,dOdx(:,:,iAtom,iCar),Px)
 
     do jAtom=1,iAtom
       dTdRAj = ZA(jAtom)/Z_Tot
       jCar_Max = 3
       if (iAtom == jAtom) jCar_Max = iCar
       do jCar=1,jCar_Max
-        call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,jAtom,jCar,dTdRAj,dMdy,dOdx(:,:,jAtom,jCar),Py)
+        call Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,jAtom,jCar,dTdRAj,dMdy,dOdx(:,:,jAtom,jCar),Py)
 
         ! Form d2O/dx2
 
-        call Compute_d2Odx2(ZA,nAtoms,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py, &
-                            d2Odx2(:,:,iAtom,iCar,jAtom,jCar))
+        call Compute_d2Odx2(ZA,nAtoms,O,EVal,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py,d2Odx2(:,:,iAtom,iCar,jAtom,jCar))
 
         if ((iAtom /= jAtom) .or. (iCar /= jCar)) d2Odx2(:,:,jAtom,jCar,iAtom,iCar) = d2Odx2(:,:,iAtom,iCar,jAtom,jCar)
 
