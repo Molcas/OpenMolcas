@@ -12,7 +12,7 @@
 set (sources
      alloc.F90
      caspt2_data.F90
-     check_invec.f
+     check_invec.F90
      chksplit.F90
      cidia_ci_util.F90
      ciovlp.F90
