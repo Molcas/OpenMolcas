@@ -1,45 +1,50 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !#define _DEBUGPRINT_
       SUBROUTINE PMAT_RASSCF(P,X)
-C
-C     RASSCF version IBM-3090: SX section
-C
-c     Purpose: To construct from a canonically ordered list of
-c              2-matrix elements a list ordered as the transformed
-c              two-electron integrals. P is the input matrix and X is
-c              the output matrix. the matrix is multiplied by two and
-c              used to construct the Q-matrix in fock.
-C
-C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
-C
+!
+!     RASSCF version IBM-3090: SX section
+!
+!     Purpose: To construct from a canonically ordered list of
+!              2-matrix elements a list ordered as the transformed
+!              two-electron integrals. P is the input matrix and X is
+!              the output matrix. the matrix is multiplied by two and
+!              used to construct the Q-matrix in fock.
+!
+!          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+!
       use general_data
 #ifdef _DEBUGPRINT_
       use Definitions, only: LF => u6
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "rasscf.fh"
       Real*8 X(*),P(*)
+
+      Integer LPMAT, IAT, NSP, NAP, INDF, NUVX, LROW, IAU, NSQ, NAQ, NSPQ, IAV, NSR, NAR, NSS, NAS, &
+              IAX, NSSM, NSS1, NAV, LAV, NAXE, NAX, LAX, NAU, LAU, INDX, NAT, LAT, LAT1, LAU1, NTU, &
+              NVX, NTUVX
+      Real*8 FAC
 #ifdef _DEBUGPRINT_
       Character(LEN=16), Parameter :: ROUTINE='PMAT            '
 
-C Local print level (if any)
+! Local print level (if any)
       WRITE(LF,*)' Entering ',ROUTINE
 #endif
-C
-c     Loop over all reordered 2-matrix elements.
-C
+!
+!     Loop over all reordered 2-matrix elements.
+!
       LPMAT=ISTORP(NSYM+1)
       X(1:LPMAT)=0.0D0
-C
+!
       IAT=0
       DO NSP=1,NSYM
        NAP=NASH(NSP)
@@ -86,9 +91,9 @@ C
             DO NAT=1,NAP
              INDX=INDX+NUVX
              LAT=NAT+IAT
-C
-c            Compute canonical index ntuvx and find prefactor
-C
+!
+!            Compute canonical index ntuvx and find prefactor
+!
              LAT1=MAX(LAT,LAU)
              LAU1=MIN(LAT,LAU)
              NTU=ITRI(LAT1)+LAU1
@@ -110,7 +115,7 @@ C
        END DO
        IAT=IAT+NAP
        END DO
-C
+!
 #ifdef _DEBUGPRINT_
       Write(LF,*)' Reordered 2-matrix:'
       Write(LF,'(1X,10F10.6)') (X(I),I=1,LPMAT)
