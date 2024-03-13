@@ -63,7 +63,7 @@ if (RR_Show) then
   write(u6,*)
 end if
 
-PAx(:,:) = reshape([One,Zero,Zero,Zero,One,Zero,Zero,Zero,One],[3,3])
+call unitmat(PAx,3)
 if (TMass == Zero) then
   call FinishUp()
   return

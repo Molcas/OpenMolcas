@@ -14,6 +14,9 @@ subroutine W(R,ilist_p,Weights,list_p,nlist_p,nGrid,nRemoved)
 use NQ_Structure, only: NQ_Data
 use Constants, only: Zero, One, Three, Half, OneHalf
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: ilist_p, nlist_p, list_p(nlist_p), nGrid
@@ -32,17 +35,21 @@ P_i = Zero ! dummy initialize
 ! points belong.
 
 iNQ = list_p(ilist_p)
-!write(u6,*) 'ilist_p=',ilist_p
-!write(u6,*) 'nlist_p=',nlist_p
-!write(u6,*) 'nGrid=',nGrid
-!write(u6,*) 'iNQ=',iNQ
+#ifdef _DEBUGPRINT_
+write(u6,*) 'ilist_p=',ilist_p
+write(u6,*) 'nlist_p=',nlist_p
+write(u6,*) 'nGrid=',nGrid
+write(u6,*) 'iNQ=',iNQ
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 jGrid = 0
 nRemoved = 0
 do iGrid=1,nGrid
-  !write(u6,*) 'iGrid=',iGrid
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'iGrid=',iGrid
+# endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -93,12 +100,16 @@ do iGrid=1,nGrid
   else
     nRemoved = nRemoved+1
   end if
-  !write(u6,*) 'P_A,Z,Weights=',P_i,Sum_P_k,Weights(jGrid)
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'P_A,Z,Weights=',P_i,Sum_P_k,Weights(jGrid)
+# endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *
 end do
-!write(u6,*) 'nRemoved=',nRemoved
+#ifdef _DEBUGPRINT_
+write(u6,*) 'nRemoved=',nRemoved
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

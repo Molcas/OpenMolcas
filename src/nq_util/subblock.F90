@@ -189,12 +189,9 @@ do
           ! For shared points modify the weight.
 
           Fact = One
-          if (x == x_min_) Fact = Fact*Half
-          if (y == y_min_) Fact = Fact*Half
-          if (z == z_min_) Fact = Fact*Half
-          if (x == x_max_) Fact = Fact*Half
-          if (y == y_max_) Fact = Fact*Half
-          if (z == z_max_) Fact = Fact*Half
+          if ((x == x_min_) .or. (x == x_max_)) Fact = Fact*Half
+          if ((y == y_min_) .or. (y == y_max_)) Fact = Fact*Half
+          if ((z == z_min_) .or. (z == z_max_)) Fact = Fact*Half
 #         ifdef _DEBUGPRINT_
           write(u6,*) Info_Ang(iSet)%R(1,iPoint),Info_Ang(iSet)%R(2,iPoint),Info_Ang(iSet)%R(3,iPoint)
           write(u6,*) 'x:',xyz0(1,1),xyz0(1,2)

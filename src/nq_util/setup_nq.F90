@@ -283,7 +283,7 @@ call mma_deallocate(ZA)
 !***********************************************************************
 !                                                                      *
 if (Rotational_Invariance == Off) then
-  Pax(:,:) = reshape([One,Zero,Zero,Zero,One,Zero,Zero,Zero,One],[3,3])
+  call unitmat(Pax,3)
   do iNQ=1,nNQ
     if (.not. allocated(NQ_Data(iNQ)%dOdx)) call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
     NQ_Data(iNQ)%dOdx(:,:,:) = Zero

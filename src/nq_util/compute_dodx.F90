@@ -13,6 +13,9 @@ subroutine Compute_dOdx(ZA,RA,nAtoms,T,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,dO
 
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, iAtom, iCar
@@ -94,14 +97,13 @@ Px(3,2) = -Alpha
 
 call DGEMM_('N','N',3,3,3,One,O,3,Px,3,Zero,dOdx(1,1),3)
 #ifdef _DEBUGPRINT_
-!call RecPrt('M','(3G20.10)',M,3,3)
-!call RecPrt('RotGrd: O','(3G20.10)',O,3,3)
-!call RecPrt('RotGrd: EVal',' ',EVal,3,1)
-!call RecPrt('RotGrd: dMdx','(3G20.10)',dMdx,3,3)
-!call RecPrt('RotGrd: OtMxO','(3G20.10)',OtMxO,3,3)
-!write(u6,*) 'A,B,G=',Alpha,Beta,Gmma
-!call RecPrt('RotGrd: Px','(3G20.10)',Px,3,3)
-!call RecPrt('dOdx','(3G20.10)',dOdx,3,3)
+call RecPrt('Compute_dOdx: O','(3G20.10)',O,3,3)
+call RecPrt('Compute_dOdx: EVal',' ',EVal,3,1)
+call RecPrt('Compute_dOdx: dMdx','(3G20.10)',dMdx,3,3)
+call RecPrt('Compute_dOdx: OtMxO','(3G20.10)',OtMxO,3,3)
+write(u6,*) 'Compute_dOdx: A,B,G=',Alpha,Beta,Gmma
+call RecPrt('Compute_dOdx: Px','(3G20.10)',Px,3,3)
+call RecPrt('Compute_dOdx: dOdx','(3G20.10)',dOdx,3,3)
 #endif
 !                                                                      *
 !***********************************************************************

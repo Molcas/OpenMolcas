@@ -31,7 +31,7 @@ call Compute_M(ZA,nAtoms,RA,T,M)
 ! Diagonalize the nuclear charge momentum tensor to get
 ! the principal axis system.
 
-O = reshape([One,Zero,Zero,Zero,One,Zero,Zero,Zero,One],[3,3])
+call unitmat(O,3)
 EVal(1) = M(1,1)
 EVal(2) = M(2,1)
 EVal(3) = M(2,2)
@@ -41,8 +41,9 @@ EVal(6) = M(3,3)
 call Jacob(EVal,O,3,3)
 !call JacOrd(EVal,O,3,3)
 #ifdef _DEBUGPRINT_
-call TriPrt('RotGrd: EVal',' ',EVal,3)
-call RecPrt('RotGrd: O',' ',O,3,3)
+call RecPrt('Compute_O: M',' ',M,3,3)
+call TriPrt('Compute_O: EVal',' ',EVal,3)
+call RecPrt('Compute_O: O',' ',O,3,3)
 #endif
 !                                                                      *
 !***********************************************************************
