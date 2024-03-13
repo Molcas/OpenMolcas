@@ -204,7 +204,7 @@ do iNQ=1,nNQ
   Alpha(2) = NQ_Data(iNQ)%A_high
 
   ! Get the coordinates of the atom
-  XYZ(:) = NQ_Data(iNQ)%Coor
+  XYZ(:) = NQ_Data(iNQ)%Coor(:)
 
   ! For a special center we can increase the accuracy.
 
@@ -260,7 +260,7 @@ call mma_Allocate(Crd,3,nNQ)
 
 do iNQ=1,nNQ
   ZA(iNQ) = real(NQ_Data(iNQ)%Atom_Nr,kind=wp)
-  Crd(:,iNQ) = NQ_data(iNQ)%Coor
+  Crd(:,iNQ) = NQ_data(iNQ)%Coor(:)
 end do
 
 call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Grad,.false.)
@@ -269,7 +269,6 @@ call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Grad,.false.)
 
 if (Do_Grad) then
   do iNQ=1,nNQ
-    call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
     do iCar=1,3
       NQ_Data(iNQ)%dOdx(:,:,iCar) = dOdx(:,:,iNQ,iCar)
     end do
@@ -285,7 +284,6 @@ call mma_deallocate(ZA)
 if (Rotational_Invariance == Off) then
   call unitmat(Pax,3)
   do iNQ=1,nNQ
-    if (.not. allocated(NQ_Data(iNQ)%dOdx)) call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
     NQ_Data(iNQ)%dOdx(:,:,:) = Zero
   end do
 end if
