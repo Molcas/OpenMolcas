@@ -50,8 +50,8 @@ set (sources
      general_data.F90
      get_cm_.F90
      get_cm.F90
-     get_d1a.f
-     get_d1i.f
+     get_d1a.F90
+     get_d1i.F90
      getcnf_lucia.F90
      geth2a.F90
      getstepvector.F90
@@ -120,7 +120,7 @@ set (sources
      sxci.F90
      term_david.F90
      transadd.F90
-     transmat.f
+     transmat.F90
      wadr.F90
 )
 
