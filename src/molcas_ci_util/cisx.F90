@@ -18,8 +18,8 @@
 #include "rasscf.fh"
 #include "general.fh"
 
-      Integer I, ITR, IJO, NIJ, NIJKL, J, INEW, JNEW, IJNEWa, ICASE, IJKLO, K, LLIM, L, KNEW, &
-              LNEW, KLNEW, IJKLN, IJNEW
+      Integer I, ITR, IJO, NIJ, NIJKL, J, INEW, JNEW, IJNEW, ICASE, IJKLO, K, LLIM, L, KNEW, &
+              LNEW, KLNEW, IJKLN
       Real*8 SGN0, SGN
 !
 ! Convert from CI to SX ordering
