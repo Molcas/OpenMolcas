@@ -31,7 +31,7 @@ use nq_Structure, only: Close_NQ_Data
 use nq_Info, only: Functional_type, GGA_type, LDA_type, LMax_NQ, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
                    number_of_subblocks, Other_type
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
-                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old
+                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -103,9 +103,11 @@ end if
 NQNACPAR = (NQNAC**2+NQNAC)/2
 NQNACPR2 = (NQNACPAR**2+NQNACPAR)/2
 
-LuGridFile = 31
-LuGridFile = IsFreeUnit(LuGridFile)
-call Molcas_Open(LuGridFile,'GRIDFILE')
+WriteGrid = .false.
+if (WriteGrid) then
+  LuGridFile = IsFreeUnit(31)
+  call Molcas_Open(LuGridFile,'GRIDFILE')
+end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'l_casdft value at drvnq:',l_casdft
@@ -487,8 +489,7 @@ call mma_deallocate(GridInfo)
 !                                                                      *
 call IniPkR8(PThr,PMode)
 
-call xFlush(LuGridFile)
-close(LuGridFile)
+if (WriteGrid) close(LuGridFile)
 
 return
 

@@ -33,7 +33,7 @@ use nq_Grid, only: dRho_dR, dW_dR, Grid, IndGrd, iTab, kAO, List_G, nR_Eff, R2_t
 use NQ_Structure, only: NQ_Data
 use nq_MO, only: nMOs
 use nq_Info, only: Block_Size, Grid_Type, Moving_Grid, nPot1, nTotGP, nx, ny, nz, Off, On, Threshold, x_min, y_min, z_min
-use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, Lu_Grid, LuGridFile, nBatch, nBatch_Max, Use_Old
+use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, Lu_Grid, LuGridFile, nBatch, nBatch_Max, Use_Old, WriteGrid
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -618,10 +618,12 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       call mma_deallocate(TabAO)
 
       nTotGP = nTotGP+nogp
-      ! update the "LuGridFile":
-      do i=1,nogp
-        write(LuGridFile,'(3ES24.14,1x,ES24.14)') Grid(:,i),Weights(i)
-      end do
+      if (WriteGrid) then
+        ! update the "LuGridFile":
+        do i=1,nogp
+          write(LuGridFile,'(3ES24.14,1x,ES24.14)') Grid(:,i),Weights(i)
+        end do
+      end if
       nogp = 0
       if (.not. More_To_Come) exit
     end do
