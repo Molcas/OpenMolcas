@@ -11,7 +11,7 @@
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,Pck_Old,PMode_old,R_Min,nR_Min)
+subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,Pck_Old,PMode_old)
 !***********************************************************************
 !                                                                      *
 ! Object: to set up information for calculation of integrals via a     *
@@ -42,14 +42,15 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nShell, nSym, nR_Min
+integer(kind=iwp), intent(in) :: nShell, nSym
 integer(kind=iwp), intent(out) :: Maps2p(nShell,0:nSym-1), nNQ
 logical(kind=iwp), intent(in) :: Do_Grad, On_Top
-real(kind=wp), intent(out) :: Pck_Old, R_Min(0:nR_Min)
+real(kind=wp), intent(out) :: Pck_Old
 logical(kind=iwp), intent(out) :: PMode_old
 integer(kind=iwp) :: iAng, iAng_, iANr, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, iNQ_MBC, iPrim, &
-                     iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, mdcj, mExp, &
-                     nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, nSO, nTerm, nxyz
+                     iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, l_max, lAng, lAngular, LmbdR, lSO, mAO, mdci, mdcj, &
+                     mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, nSO, &
+                     nTerm, nxyz
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: kR
@@ -57,7 +58,7 @@ integer(kind=iwp) :: kR
 real(kind=wp) :: A_high, A_low, Alpha(2), C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, ValExp, &
                  x_max, XYZ(3), y_max, z_max
 logical(kind=iwp) :: Do_Rot, PMode
-real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), TempC(:,:), ZA(:)
+real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), R_Min(:), TempC(:,:), ZA(:)
 real(kind=wp), external :: Bragg_Slater, Eval_RMin
 logical(kind=iwp), external :: EQ
 
@@ -197,6 +198,7 @@ iNQ_MBC = 0
 iReset = 0
 Threshold_tmp = Zero
 nR_tmp = 0
+l_max = 0
 do iNQ=1,nNQ
   ! Get the extreme exponents for the atom
   Alpha(1) = NQ_Data(iNQ)%A_low
@@ -230,6 +232,7 @@ do iNQ=1,nNQ
 
   ! Max angular momentum for the atom -> rm(1)
   ! Max Relative Error -> rm(2)
+  l_max = max(l_max,NQ_Data(iNQ)%l_Max)
   rm(1) = real(NQ_Data(iNQ)%l_Max,kind=wp)
   rm(2) = Threshold
 
@@ -288,6 +291,8 @@ end if
 ! Generate the angular grid
 
 call Angular_grid()
+
+if (Angular_Pruning == On) call mma_allocate(R_Min,[0,l_max],label='R_Min')
 
 Crowding_tmp = Zero
 do iNQ=1,nNQ
@@ -352,6 +357,7 @@ do iNQ=1,nNQ
   end if
 
 end do
+if (allocated(R_Min)) call mma_deallocate(R_Min)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

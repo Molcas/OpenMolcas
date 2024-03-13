@@ -28,7 +28,7 @@ use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGr
 use nq_pdft, only: lft, lGGA
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
-use nq_Info, only: Functional_type, GGA_type, LDA_type, LMax_NQ, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
+use nq_Info, only: Functional_type, GGA_type, LDA_type, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
                    number_of_subblocks, Other_type
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         LuGridFile, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
@@ -55,7 +55,6 @@ integer(kind=iwp) :: i, iDum(1), iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, 
 real(kind=wp) :: PThr
 logical(kind=iwp) :: PMode
 integer(kind=iwp), allocatable :: List_Bas(:,:), List_Exp(:), List_P(:), List_s(:,:), Maps2p(:,:)
-real(kind=wp), allocatable :: R_Min(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -71,11 +70,8 @@ if (Do_TwoEl) Do_MO = .true.
 call Set_Basis_Mode('Valence')
 call Nr_Shells(nShell)
 call mma_allocate(Maps2p,nShell,nIrrep,Label='Maps2p')
-call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 
-call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,PThr,PMode,R_Min,LMax_NQ)
-
-call mma_deallocate(R_Min)
+call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,PThr,PMode)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

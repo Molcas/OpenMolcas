@@ -130,7 +130,7 @@ do iNQ=1,nNQ
 
     ! 2) atomic grid of this center extends inside the box.
 
-    RMax = NQ_Data(iNQ)%R_Max
+    RMax = NQ_Data(iNQ)%R_max
     t1 = max(Zero, min(One, (x_NQ-x_min_)/(x_max_-x_min_)))
     t2 = max(Zero, min(One, (y_NQ-y_min_)/(y_max_-y_min_)))
     t3 = max(Zero, min(One, (z_NQ-z_min_)/(z_max_-z_min_)))
@@ -176,7 +176,7 @@ do iShell=1,nShell
 #   endif
 
     iNQ = Maps2p(iShell,NrOpr(iSym))
-    RMax_NQ = NQ_Data(iNQ)%R_Max
+    RMax_NQ = NQ_Data(iNQ)%R_max
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iNQ=',iNQ
     write(u6,*) 'RMax_NQ=',RMax_NQ
@@ -442,7 +442,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       y_NQ = NQ_Data(iNQ)%Coor(2)
       z_NQ = NQ_Data(iNQ)%Coor(3)
       ! Get the maximum radius on which we have to integrate for the partition
-      RMax = NQ_Data(iNQ)%R_Max
+      RMax = NQ_Data(iNQ)%R_max
 
       call Box_On_Sphere(x_Min_-x_NQ,x_Max_-x_NQ,y_Min_-y_NQ,y_Max_-y_NQ,z_Min_-z_NQ,z_Max_-z_NQ,xyz0(1,1),xyz0(1,2),xyz0(2,1), &
                          xyz0(2,2),xyz0(3,1),xyz0(3,2))
