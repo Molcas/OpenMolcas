@@ -49,19 +49,23 @@
       DO iPsm=1, nSym
         Do iOrbP=1, NASh(iPsm)
           DO iQsm=1,nSym
-            If(NASh(iQsm).eq.0) goto 10  ! next iQsm
+            If(NASh(iQsm).eq.0) Cycle  ! next iQsm
             iSmPQ = ieor(iPsm-1, iQsm -1)+1
             indx2      = 0
             DO iRsm=1,nSym
               iSsm = ieor(iSmPQ-1,iRsm-1)+1
-              If(min(NASh(iRsm),NASh(iSsm)).eq.0.OR. iSsm.gt.iRsm)  goto 20  !next iRsm
+              If(min(NASh(iRsm),NASh(iSsm)).eq.0.OR. iSsm.gt.iRsm) Then !next iRsm
+                indx2=indx2+NASH(iRsm)*(NASH(iRsm)+1)/2
+                Cycle
+              End If
               nRS = NASh(iRsm)*NASh(iSsm)
               if(iSsm.eq.iRsm) then
                 nRS=NASh(iRsm)*(NASh(iRsm)+1)/2
               end if
               If(iRsm.ne.iSsm.OR.iQsm.ne.iPsm) then
                 iorp = iorp+nRS*NASh(iQsm)
-                goto 20 !next iRsm
+                indx2=indx2+NASH(iRsm)*(NASH(iRsm)+1)/2
+                Cycle !next iRsm
               End If
               Do iOrbR=1,NASH(iRsm)
                 DO iOrbS=1,iOrbR
@@ -79,10 +83,8 @@
                   End Do ! Loop over iOrbQ
                 End Do ! Loop over iOrbS
               End Do ! Loop over iOrbR
-20            CONTINUE
               indx2=indx2+NASH(iRsm)*(NASH(iRsm)+1)/2
             End Do ! loop over iRsm
-10          CONTINUE
           End Do ! Loop over iQsm
         End Do ! Loop over iOrbP
         indx1 = indx1 + NASH(iPsm)*(NASH(iPsm)+1)/2
