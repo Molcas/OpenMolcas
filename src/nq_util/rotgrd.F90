@@ -25,16 +25,17 @@ subroutine RotGrd(RA,ZA,O,dOdx,d2Odx2,nAtoms,Do_Grad,Do_Hess)
 !             Trondheim, Sept. 2003.                                   *
 !***********************************************************************
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms
 real(kind=wp), intent(in) :: RA(3,nAtoms), ZA(nAtoms)
-real(kind=wp), intent(out) :: O(3,3), dOdx(3,3,nAtoms,3)
-real(kind=wp), intent(inout) :: d2Odx2(3,3,nAtoms,3,nAtoms,3)
+real(kind=wp), intent(out) :: O(3,3)
+real(kind=wp), intent(inout) :: dOdx(3,3,nAtoms,3), d2Odx2(3,3,nAtoms,3,nAtoms,3)
 logical(kind=iwp), intent(in) :: Do_Grad, Do_Hess
 integer(kind=iwp) :: iAtom, iCar, jAtom, jCar, jCar_Max
-real(kind=wp) :: dMdx(3,3), dMdy(3,3), dTdRAi, dTdRAj, EVal(3), Px(3,3), Py(3,3), T(3), Z_Tot
+real(kind=wp) :: dif(3), dMdx(3,3), dMdy(3,3), dTdRAi, dTdRAj, EVal(3), Px(3,3), Py(3,3), T(3), Z_Tot
 logical(kind=iwp) :: Rot_Corr
 real(kind=wp), parameter :: Thrs = 1.0e-3_wp
 
@@ -71,15 +72,10 @@ if (.not. Do_Grad) return
 ! are close to degeneracy!
 
 Rot_Corr = .true.
-if (abs(Eval(1)-Eval(2))/(EVal(1)+EVal(2)) < Thrs) then
-  write(u6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
-  Rot_Corr = .false.
-end if
-if (abs(Eval(1)-Eval(3))/(EVal(1)+EVal(3)) < Thrs) then
-  write(u6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
-  Rot_Corr = .false.
-end if
-if (abs(Eval(2)-Eval(3))/(EVal(2)+EVal(3)) < Thrs) then
+dif(1) = abs((Eval(1)-Eval(2))/(EVal(1)+EVal(2)))
+dif(2) = abs((Eval(1)-Eval(3))/(EVal(1)+EVal(3)))
+dif(3) = abs((Eval(2)-Eval(3))/(EVal(2)+EVal(3)))
+if (any(dif(:) < Thrs)) then
   write(u6,*) 'Rotational correction to the DFT gradient is turned off due to close-to-degeneracy problems!'
   Rot_Corr = .false.
 end if

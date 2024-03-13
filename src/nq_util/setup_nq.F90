@@ -38,7 +38,7 @@ use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDis
 use Index_Functions, only: nTri_Elem1
 use Pack_mod, only: isPack, PkThrs
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Quart
+use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -47,16 +47,16 @@ integer(kind=iwp), intent(out) :: Maps2p(nShell,0:nSym-1), nNQ
 logical(kind=iwp), intent(in) :: Do_Grad, On_Top
 real(kind=wp), intent(out) :: Pck_Old, R_Min(0:nR_Min)
 logical(kind=iwp), intent(out) :: PMode_old
-integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, &
-                     iNQ_MBC, iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, &
-                     mdcj, mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, &
-                     nSO, nTerm, nxyz
+integer(kind=iwp) :: iAng, iAng_, iANr, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, iNQ_MBC, &
+                     iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, mdcj, &
+                     mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, nSO, &
+                     nTerm, nxyz
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: kR
 #endif
-real(kind=wp) :: A_high, A_low, Alpha(2), Box_Size, C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, &
-                 ValExp, x_max, XYZ(3), y_max, z_max
+real(kind=wp) :: A_high, A_low, Alpha(2), C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, ValExp, &
+                 x_max, XYZ(3), y_max, z_max
 logical(kind=iwp) :: PMode
 real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), TempC(:,:), ZA(:)
 real(kind=wp), external :: Bragg_Slater, Eval_RMin
@@ -385,48 +385,36 @@ write(u6,*)
 !                                                                      *
 ! Determine the spatial extension of the molecular system
 
-!Box_Size = Four      ! Angstrom
-Box_Size = Two        ! Angstrom
-!Box_Size = Half ! Angstrom
-Block_size = Box_Size
-x_min = huge(x_min)
-y_min = huge(y_min)
-z_min = huge(z_min)
-x_max = -huge(x_max)
-y_max = -huge(y_max)
-z_max = -huge(z_max)
-do iAt=1,nAtoms
-  x_min = min(x_min,Coor(1,iAt))
-  y_min = min(y_min,Coor(2,iAt))
-  z_min = min(z_min,Coor(3,iAt))
-  x_max = max(x_max,Coor(1,iAt))
-  y_max = max(y_max,Coor(2,iAt))
-  z_max = max(z_max,Coor(3,iAt))
-end do
+x_min = minval(Coor(1,:))
+y_min = minval(Coor(2,:))
+z_min = minval(Coor(3,:))
+x_max = maxval(Coor(1,:))
+y_max = maxval(Coor(2,:))
+z_max = maxval(Coor(3,:))
 
 ! Add half a box size around the whole molecule
 
-x_min = x_min-Box_Size/Two
-y_min = y_min-Box_Size/Two
-z_min = z_min-Box_Size/Two
-x_max = x_max+Box_Size/Two
-y_max = y_max+Box_Size/Two
-z_max = z_max+Box_Size/Two
+x_min = x_min-Half*Block_Size
+y_min = y_min-Half*Block_Size
+z_min = z_min-Half*Block_Size
+x_max = x_max+Half*Block_Size
+y_max = y_max+Half*Block_Size
+z_max = z_max+Half*Block_Size
 
 ! At least one finite box. Adjust to an even number of boxes.
 
-nx = int((x_max-x_min+Box_Size)/Box_Size)
+nx = max(1,nint((x_max-x_min)/Block_Size))
 nx = 2*((nx+1)/2)
-ny = int((y_max-y_min+Box_Size)/Box_Size)
+ny = max(1,nint((y_max-y_min)/Block_Size))
 ny = 2*((ny+1)/2)
-nz = int((z_max-z_min+Box_Size)/Box_Size)
+nz = max(1,nint((z_max-z_min)/Block_Size))
 nz = 2*((nz+1)/2)
 
 ! Adjust extremal values to fit exactly with the box size.
 
-dx = (real(nx,kind=wp)*Box_Size-(x_max-x_min))/Two
-dy = (real(ny,kind=wp)*Box_Size-(y_max-y_min))/Two
-dz = (real(nz,kind=wp)*Box_Size-(z_max-z_min))/Two
+dx = Half*(real(nx,kind=wp)*Block_Size-(x_max-x_min))
+dy = Half*(real(ny,kind=wp)*Block_Size-(y_max-y_min))
+dz = Half*(real(nz,kind=wp)*Block_Size-(z_max-z_min))
 
 x_min = x_min-dx
 y_min = y_min-dy

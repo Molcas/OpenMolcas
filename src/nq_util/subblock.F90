@@ -38,7 +38,7 @@ real(kind=wp), intent(in) :: x_NQ, y_NQ, z_NQ, x_min_, x_max_, y_min_, y_max_, z
 logical(kind=iwp), intent(in) :: InBox, Process
 real(kind=wp), intent(inout) :: Grid(3,mGrid), Weights(mGrid)
 integer(kind=iwp), intent(inout) :: number_of_grid_points
-integer(kind=iwp) :: iEnd_R, iPoint, iR, iR_End, iR_Start, iSet, iStart_R, iStrt, kSet, mGrid_, nGrid, nRemoved
+integer(kind=iwp) :: iEnd_R, iPoint, iR, iR_End, iR_Start, iSet, iStart_R, iStrt, kSet, mGrid_, nGrid, nRemoved, ntot
 real(kind=wp) :: Fact, R_Value, Radius, w_g, weight, x, xpt, y, ypt, z, zpt
 
 !                                                                      *
@@ -46,6 +46,7 @@ real(kind=wp) :: Fact, R_Value, Radius, w_g, weight, x, xpt, y, ypt, z, zpt
 !                                                                      *
 nGrid = (9*mGrid)/10
 iStrt = number_of_grid_points+1
+ntot = ntotgp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -244,8 +245,8 @@ do
           call dDaFile(Lu_Grid,1,Grid,3*number_of_grid_points,iDisk_Grid)
           call dDaFile(Lu_Grid,1,Weights,number_of_grid_points,iDisk_Grid)
 
-          ntotgp = ntotgp+number_of_grid_points
-          !write(u6,*) 'ntotgp=',ntotgp
+          ntot = ntot+number_of_grid_points
+          !write(u6,*) 'ntot=',ntot
           number_of_grid_points = 0
           iStrt = number_of_grid_points+1
         end if
@@ -287,8 +288,8 @@ if (Process .and. (number_of_grid_points > 0)) then
   call dDaFile(Lu_Grid,1,Grid,3*number_of_grid_points,iDisk_Grid)
   call dDaFile(Lu_Grid,1,Weights,number_of_grid_points,iDisk_Grid)
 
-  ntotgp = ntotgp+number_of_grid_points
-  !write(u6,*) 'ntotgp=',ntotgp
+  ntot = ntot+number_of_grid_points
+  !write(u6,*) 'ntot=',ntot
   number_of_grid_points = 0
 end if
 !                                                                      *

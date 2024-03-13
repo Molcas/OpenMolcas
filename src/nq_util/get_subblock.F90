@@ -53,7 +53,7 @@ integer(kind=iwp), intent(out) :: list_s(2,*), list_exp(nSym*nShell), list_bas(2
 logical(kind=iwp), intent(in) :: Do_Mo, Do_Grad
 integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, ilist_s, iNQ, iPseudo, iShell, iShll, iSkal, iSym, &
                      ix, iy, iyz, iz, jDisk_Grid, jlist_s, jNQ, jShell, jSym, klist_p, kNQ, mdci, nAOs, nAOs_Eff, nBfn, nDegi, &
-                     nExpTmp, nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, nTotGP_Save, &
+                     nExpTmp, nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, &
                      number_of_grid_points, nx_Roots, ny_Roots, nz_Roots
 real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, RMax_NQ, Roots(3,3), t1, t2, t3, ValExp, X, x_box_max, x_box_min, x_max_, x_min_, &
                  x_NQ, Xref, xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
@@ -131,15 +131,9 @@ do iNQ=1,nNQ
     ! 2) atomic grid of this center extends inside the box.
 
     RMax = NQ_Data(iNQ)%R_Max
-    t1 = (x_NQ-x_min_)/(x_max_-x_min_)
-    if (t1 < Zero) t1 = Zero
-    if (t1 > One) t1 = One
-    t2 = (y_NQ-y_min_)/(y_max_-y_min_)
-    if (t2 < Zero) t2 = Zero
-    if (t2 > One) t2 = One
-    t3 = (z_NQ-z_min_)/(z_max_-z_min_)
-    if (t3 < Zero) t3 = Zero
-    if (t3 > One) t3 = One
+    t1 = max(Zero, min(One, (x_NQ-x_min_)/(x_max_-x_min_)))
+    t2 = max(Zero, min(One, (y_NQ-y_min_)/(y_max_-y_min_)))
+    t3 = max(Zero, min(One, (z_NQ-z_min_)/(z_max_-z_min_)))
     R2_Trial(iNQ) = (x_NQ-(x_max_-x_min_)*t1-x_min_)**2+(y_NQ-(y_max_-y_min_)*t2-y_min_)**2+(z_NQ-(z_max_-z_min_)*t3-z_min_)**2
     if (R2_Trial(iNQ) <= RMax**2) then
       ilist_p = ilist_p+1
@@ -418,7 +412,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       write(u6,*) 'Get_SubBlock: iNQ=',iNQ
 #     endif
 
-      ! Select which gradient contributions that should be computed.
+      ! Select which gradient contributions should be computed.
       ! For basis functions which have the center common with the grid
       ! do not compute any contribution.
 
@@ -523,13 +517,11 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
 #     endif
 
       ! Note that in gradient calculations we process the grid points for
-      ! each atomic grid seperately in order to used the translational
+      ! each atomic grid separately in order to used the translational
       ! invariance on the atomic contributions to the gradient.
 
-      nTotGP_Save = nTotGP
       call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox(iNQ),x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,list_p,nlist_p,Grid,Weights,mGrid, &
                     .true.,number_of_grid_points,R_Box_Min,R_Box_Max,iList_p,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
-      nTotGP = nTotGP_Save
 
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Subblock ----> Get_Subblock'

@@ -11,9 +11,9 @@
 
 subroutine Funi_Init()
 
-use nq_Info, only: Angular_Pruning, Crowding, Fade, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, NQ_Direct, nR, ntotgp, Off, &
-                   On, Packing, Quadrature, Rotational_Invariance, T_Y, Threshold, R_Max
-use Constants, only: Zero, Three, Six
+use nq_Info, only: Angular_Pruning, Block_Size, Crowding, Fade, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, NQ_Direct, nR, &
+                   ntotgp, Off, On, Packing, Quadrature, Rotational_Invariance, T_Y, Threshold, R_Max
+use Constants, only: Zero, Two, Three, Six
 use Definitions, only: wp, iwp
 
 implicit none
@@ -30,6 +30,7 @@ L_Quad = 29
 Crowding = Three
 Fade = Six
 MBC = ' '
+Block_Size = Two  ! bohr
 
 ntotgp = 0
 
