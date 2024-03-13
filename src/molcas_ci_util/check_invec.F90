@@ -13,7 +13,8 @@
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: nProcs, Is_Real_Par
       Implicit None
-      Integer, Intent(in):: InVec
+      Integer, Intent(inout):: InVec
+      Integer IVec_Tot, mProcs
 
       If (.Not.Is_Real_Par()) Return
       InVec_Tot = InVec
@@ -25,13 +26,14 @@
             mProcs = InVec_Tot/InVec
          End If
          If (mProcs.ne.nProcs) Then
-            Write (6,*) 'Check_InVec: different orbital options on '
-     &                //'different nodes'
+            Write (6,*) 'Check_InVec: different orbital options on different nodes'
             Write (6,*) 'Sets InVec to 0'
             InVec=0
          End If
       End If
 #else
+      Implicit None
+      Integer, Intent(inout):: InVec
 ! Avoid unused argument warnings
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(InVec)

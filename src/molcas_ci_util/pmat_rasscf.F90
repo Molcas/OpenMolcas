@@ -34,6 +34,7 @@
               NVX, NTUVX
       Real*8 FAC
 #ifdef _DEBUGPRINT_
+      Integer I
       Character(LEN=16), Parameter :: ROUTINE='PMAT            '
 
 ! Local print level (if any)
