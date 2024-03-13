@@ -20,7 +20,7 @@ set (sources
      citrans.F90
      citrans_free.F90
      citrans_init.F90
-     cisx.f
+     cisx.F90
      cndet.F90
      cnfstr.F90
      cnhcn.F90

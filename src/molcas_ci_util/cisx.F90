@@ -1,31 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE CISX(IDX,D,DS,PS,PA,SCR)
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
       Integer IDX(NAC)
       Real*8 D(*),DS(*),PS(*),PA(*),SCR(*)
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 
-*
-* Convert from CI to SX ordering
-* Note: A factor of 2 arises because matrices are folded
-*
+      Integer I, ITR, IJO, NIJ, NIJKL, J, INEW, JNEW, IJNEWa, ICASE, IJKLO, K, LLIM, L, KNEW, &
+              LNEW, KLNEW, IJKLN, IJNEW
+      Real*8 SGN0, SGN
+!
+! Convert from CI to SX ordering
+! Note: A factor of 2 arises because matrices are folded
+!
       ITR(I)=I*(I-1)/2
 
-*     one-body density
+!     one-body density
       IJO=0
       NIJ=ITR(NAC+1)
       NIJKL=ITR(NIJ+1)
@@ -44,7 +46,7 @@
       END DO
       CALL DCOPY_(NIJ,SCR,1,D,1)
 
-*     spin density
+!     spin density
       IJO=0
       NIJ=ITR(NAC+1)
       NIJKL=ITR(NIJ+1)
@@ -63,8 +65,8 @@
       END DO
       CALL DCOPY_(NIJ,SCR,1,DS,1)
 
-*     symmetrized (iCase=1) and antisymmetrized (iCase=2)
-*     two-body density
+!     symmetrized (iCase=1) and antisymmetrized (iCase=2)
+!     two-body density
       DO  ICASE=1,2
       IJKLO=0
       CALL DCOPY_(NACPR2,[0.0D0],0,SCR,1)
@@ -123,7 +125,7 @@
         CALL DCOPY_(NIJKL,SCR,1,PA,1)
       END IF
 
-* End of long loop over ICASE.
+! End of long loop over ICASE.
       END DO
 
       END SUBROUTINE CISX
