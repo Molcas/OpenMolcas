@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine dWdR(R,ilist_p,Weights,list_p,nlist_p,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
+subroutine dWdR(R,ilist_p,Weights,list_p,nlist_p,invlist,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
 
 use NQ_Structure, only: NQ_data
 use nq_Grid, only: Pax
@@ -17,7 +17,7 @@ use Constants, only: Zero, One, Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ilist_p, nlist_p, list_p(nlist_p), nGrad_Eff, iTab(4,nGrad_Eff), nGrid
+integer(kind=iwp), intent(in) :: ilist_p, nlist_p, list_p(nlist_p), invlist(*), nGrad_Eff, iTab(4,nGrad_Eff), nGrid
 real(kind=wp), intent(in) :: R(3,nGrid), Weights(nGrid)
 real(kind=wp), intent(out) :: dW_dR(nGrad_Eff,nGrid), dW_Temp(3,nlist_p), dPB(3,nlist_p,nlist_p)
 integer(kind=iwp) :: iA, iB, iC, iCar, iD, iGrad, iGrid, iiB, iNQ, jNQ, kNQ, lNQ
@@ -211,10 +211,7 @@ do_grid: do iGrid=1,nGrid
   do iGrad=1,nGrad_Eff
     iCar = iTab(1,iGrad)
     kNQ = iTab(3,iGrad)
-    do iB=1,nlist_p
-      lNQ = list_p(iB)
-      if (kNQ == lNQ) dW_dR(iGrad,iGrid) = Fact*dW_Temp(iCar,iB)
-    end do
+    dW_dR(iGrad,iGrid) = Fact*dW_Temp(iCar,invlist(kNQ))
   end do
   !                                                                    *
   !*********************************************************************

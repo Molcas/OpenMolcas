@@ -58,7 +58,7 @@ integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, 
 real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, RMax_NQ, Roots(3,3), t1, t2, t3, ValExp, X, x_box_max, x_box_min, x_max_, x_min_, &
                  x_NQ, Xref, xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
 logical(kind=iwp) :: More_to_come
-integer(kind=iwp), allocatable :: Indx(:)
+integer(kind=iwp), allocatable :: Indx(:), invlist(:)
 real(kind=wp), allocatable :: dPB(:,:,:), dW_Temp(:,:), TabMO(:), TabSO(:)
 logical(kind=iwp), allocatable :: InBox(:)
 integer(kind=iwp), external :: nBas_Eff, NrOpr
@@ -112,6 +112,8 @@ write(u6,*) 'nNQ=',nNQ
 !                                                                      *
 ilist_p = 0
 call mma_allocate(InBox,nNQ,Label='InBox')
+call mma_allocate(invlist,nNQ,Label='invlist')
+invlist(:) = -1
 do iNQ=1,nNQ
   InBox(iNQ) = .false.
   ! Get the coordinates of the partitionning
@@ -126,6 +128,7 @@ do iNQ=1,nNQ
     InBox(iNQ) = .true.
     ilist_p = ilist_p+1
     list_p(ilist_p) = iNQ
+    invlist(iNQ) = ilist_p
   else
 
     ! 2) atomic grid of this center extends inside the box.
@@ -138,12 +141,14 @@ do iNQ=1,nNQ
     if (R2_Trial(iNQ) <= RMax**2) then
       ilist_p = ilist_p+1
       list_p(ilist_p) = iNQ
+      invlist(iNQ) = ilist_p
     end if
   end if
 end do
 nlist_p = ilist_p
 if (nlist_p == 0) then
   call mma_deallocate(InBox)
+  call mma_deallocate(invlist)
   return
 end if
 #ifdef _DEBUGPRINT_
@@ -248,6 +253,7 @@ write(u6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
 if (nList_s*nList_p == 0) then
   call mma_deallocate(InBox)
+  call mma_deallocate(invlist)
   return
 end if
 !                                                                      *
@@ -588,7 +594,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
 
           ! Generate derivative with respect to the weights if needed.
 
-          call dWdR(Grid,ilist_p,Weights,list_p,nlist_p,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,number_of_grid_points)
+          call dWdR(Grid,ilist_p,Weights,list_p,nlist_p,invlist,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,number_of_grid_points)
         end if
       end if
 
@@ -626,6 +632,7 @@ end if
 !***********************************************************************
 !                                                                      *
 call mma_deallocate(InBox)
+call mma_deallocate(invlist)
 call mma_deallocate(Indx)
 if (allocated(TabMO)) call mma_deallocate(TabMO)
 if (allocated(TabSO)) call mma_deallocate(TabSO)
