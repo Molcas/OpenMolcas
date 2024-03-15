@@ -208,9 +208,9 @@ do l=1,nInter
   Sigma2(2,2) = Variance_univariate(nInter+1) ! p(y^2)
   Det_Sigma2 = Sigma2(1,1)*Sigma2(2,2)-Sigma2(1,2)*Sigma2(2,1)  ! The determinant of the 2 x 2 sigma matrix
 # ifdef _DEBUGPRINT_
-  call RecPrt('Sigma2','(2E12.4)',Sigma2,2,2)
-  write(u6,'(A,E12.4)') 'Det(Sigma2)=           ',Det_Sigma2
-  write(u6,'(A,E12.4)') 'Sqrt(ABS(Det(Sigma2)))=',sqrt(abs(Det_Sigma2))
+  call RecPrt('Sigma2','(2ES12.4)',Sigma2,2,2)
+  write(u6,'(A,ES12.4)') 'Det(Sigma2)=           ',Det_Sigma2
+  write(u6,'(A,ES12.4)') 'Sqrt(ABS(Det(Sigma2)))=',sqrt(abs(Det_Sigma2))
 # endif
   if (Variance_univariate(l) < 1.0e-10_wp .or. abs(Det_Sigma2) < 1.0e-20_wp) then
     pxy(l,:) = One/real(nPoints,kind=wp)
@@ -219,7 +219,7 @@ do l=1,nInter
     Sigma2_Inverse(1,2) = -Sigma2(1,2)/Det_Sigma2
     Sigma2_Inverse(2,1) = -Sigma2(2,1)/Det_Sigma2
     Sigma2_Inverse(2,2) = Sigma2(1,1)/Det_Sigma2
-    !call RecPrt('Sigma2_Inverse','(2E10.2)',Sigma2_Inverse,2,2)
+    !call RecPrt('Sigma2_Inverse','(2ES10.2)',Sigma2_Inverse,2,2)
     N_norm = (Fact/sqrt(Det_Sigma2))
     do i=1,nPoints
 
@@ -268,7 +268,7 @@ end do
 write(u6,*) 'Mutual Information'
 write(u6,*) '=================='
 do i=1,nInter
-  write(u6,'(i4,E10.3)') i,MI(i)
+  write(u6,'(i4,ES10.3)') i,MI(i)
 end do
 #endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

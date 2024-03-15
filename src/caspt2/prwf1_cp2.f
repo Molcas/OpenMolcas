@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR)
+      use gugx, only: ICASE, NLEV, NMIDV, MIDLEV, ISM, NIPWLK
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
       DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
@@ -80,8 +81,8 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
           ISYDWN=MUL(ISYUP,ISYCI)
           NDWN=NOW(2,ISYDWN,MV)
           ICONF=IOCSF(ISYUP,MV,ISYCI)
-          IUW0=LICASE-NIPWLK+IOW(1,ISYUP,MV)
-          IDW0=LICASE-NIPWLK+IOW(2,ISYDWN,MV)
+          IUW0=1-NIPWLK+IOW(1,ISYUP,MV)
+          IDW0=1-NIPWLK+IOW(2,ISYDWN,MV)
           IDWNSV=0
           DO 30 IDWN=1,NDWN
             DO 31 IUP=1,NUP
@@ -91,7 +92,7 @@ C -- SKIP OR PRINT IT OUT?
               IF(ABS(COEF).LT.THR) GOTO  31
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
-                ICDWN=IWORK(ICDPOS)
+                ICDWN=ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
                 DO 10 LEV=1,MIDLEV
@@ -99,7 +100,7 @@ C -- UNPACK LOWER WALK.
                   IF(NNN.EQ.16) THEN
                     NNN=1
                     ICDPOS=ICDPOS+1
-                    ICDWN=IWORK(ICDPOS)
+                    ICDWN=ICASE(ICDPOS)
                   END IF
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
@@ -108,7 +109,7 @@ C -- UNPACK LOWER WALK.
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
-              ICUP=IWORK(ICUPOS)
+              ICUP=ICASE(ICUPOS)
 C -- UNPACK UPPER WALK:
               NNN=0
               DO LEV=MIDLEV+1,NLEV
@@ -116,7 +117,7 @@ C -- UNPACK UPPER WALK:
                 IF(NNN.EQ.16) THEN
                   NNN=1
                   ICUPOS=ICUPOS+1
-                  ICUP=IWORK(ICUPOS)
+                  ICUP=ICASE(ICUPOS)
                 END IF
                 IC1=ICUP/4
                 ICS(LEV)=ICUP-4*IC1

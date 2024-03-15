@@ -120,8 +120,6 @@ C?    write(6,*) ' IA IB ISM LBLOCK ', IA,IB,ISM,LBLOCK
         WRITE(6,*) ' Since I cannot procede I will stop '
         WRITE(6,*) ' Insufficient buffer detected in INCOOS '
         WRITE(6,*) ' Alter RAS space of raise Buffer from ', MXLNG
-        CALL MEMCHK
-*        STOP 11
         CALL SYSABENDMSG('lucia_util/incoos','Internal error',' ')
       END IF
 *

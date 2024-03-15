@@ -22,17 +22,17 @@ subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
 use csfbas, only: CTS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use lucia_interface, only: lucia_util
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
-integer(kind=iwp) :: iDummy, IPRINT, IPRL, IPRLEV
-real(kind=wp) :: dum1, dum2, dum3, Dummy(1), eCore_Hex
+integer(kind=iwp) :: IPRINT, IPRL, IPRLEV
+real(kind=wp) :: dum1, dum2, dum3, eCore_Hex
 real(kind=wp), allocatable :: DDIA(:)
 real(kind=wp), external :: Get_eCore
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
 #include "output_ras.fh"
 
@@ -41,7 +41,7 @@ IPRLEV = IPRLOC(3)
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
-call Lucia_Util('Diag',iDummy,iDummy,Dummy)
+call Lucia_Util('Diag')
 
 call mma_allocate(DDIA,NDET,label='DETDIA')
 call get_diag(DDIA,ndet)

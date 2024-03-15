@@ -35,7 +35,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "print.fh"
 integer(kind=iwp) :: iChxyz, iCnt, iCnttp, iDCRR(0:7), iDum, iFd, iM1xp, iM2xp, iR, iStb(0:7), jCnt, jCntMx, jCnttp, jCoSet(8,8), &
-                     jFd, jStb(0:7), jxyz, LmbdR, mdc, mStb, ndc, nDCRR, nStb
+                     jFd, jStb(0:7), LmbdR, mdc, mStb, ndc, nDCRR, nStb
 real(kind=wp) :: A(3), ABx, ABy, ABz, B(3), CffM1, CffM2, DAx, DAy, DAz, DBx, DBy, DBz, DRBx, DRBy, DRBz, eDD, eDQ, eDZ, eQD, eQQ, &
                  eQZ, eTot, eZD, eZQ, eZZ, fab, Fact, Gam, PNX, PXX, QAsum, QAxx, QAxy, QAxz, QAyy, QAyz, QAzz, QBsum, QBxx, QBxy, &
                  QBxz, QByy, QByz, QBzz, QRBxx, QRBxy, QRBxz, QRByy, QRByz, QRBzz, Qxx, Qxy, Qxz, Qyy, Qyz, Qzz, r12, r12_Min, &
@@ -141,8 +141,6 @@ do iCnttp=1,nCnttp
           end if
         end do
         PotNuc = PotNuc+(Fact*ZAZB*temp*real(nIrrep,kind=wp))/real(LmbdR,kind=wp)
-
-        jxyz = jxyz+3
       end do
       ndc = ndc+dbsc(jCnttp)%nCntr
     end do

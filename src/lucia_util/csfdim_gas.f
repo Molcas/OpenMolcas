@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
+      use stdalloc, only: mma_allocate
+      use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
+     &                  Z_PTDT, REO_PTDT, SDREO
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -18,23 +21,19 @@
 *
 *
 * DETERMINE BASE ADRESSES
-*             KDFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
-*             KCFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
-*             KDTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
-*             KICONF_OCC(I) : SPACE FOR STORING  NCNSM
+*             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
+*             CFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
+*             DTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
+*             ONF_OCC%I(I) : SPACE FOR STORING  NCNSM
 *                        CONFIGURATION EXPANSIONS
-* Local memory requirements : IWORK(NACTOB)
-*
 * ( Spin signaled by PSSIGN in CIINFO)
 *
 * Adapted for GAS calculations and LUCIA, Dec. 2001
 
 #include "implicit.fh"
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
-#include "glbbas.fh"
 #include "cgas.fh"
 #include "spinfo_lucia.fh"
 #include "warnings.h"
@@ -306,56 +305,33 @@ C?    WRITE(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
 C
 C. permanent memory for csf proto type arrays
 C
-      CALL GETMEM('DFTP  ','ALLO','INTE',KDFTP,LIDT)
-      CALL GETMEM('CFTP  ','ALLO','INTE',KCFTP,LICS)
-      CALL GETMEM('D_TO_C','ALLO','REAL',KDTOC,LDTOC)
-C     CALL MEMADD(KDFTP,LIDT,KFREE,1)
-C     CALL MEMADD(KCFTP,LICS,KFREE,1)
-C     CALL MEMADD(KDTOC,LDTOC,KFREE,2)
-      IF( NTEST .GE.6 ) THEN
-        WRITE(6,*) ' MEMORY ALLOCATION IN CSFDIM : '
-        WRITE(6,*) ' POINTERS FOR PROTOTYPE INFORMATION '
-        WRITE(6,'(A,3I7)') ' KDFTP KCFTP KDTOC ',KDFTP,KCFTP,KDTOC
-      END IF
+      CALL mma_allocate(DFTP,LIDT,Label='DFTP')
+      CALL mma_allocate(CFTP,LICS,Label='CFTP')
+      CALL mma_allocate(DTOC,LDTOC,Label='DTOC')
 C
 C. PERMANENT ARRAYS FOR
 C. HOLDING CONFIGURATION EXPANSIONS AND REORDER ARRAYS
 C
 *. Occupation of configurations
-      CALL GETMEM('CNFOCC','ALLO','INTE',KICONF_OCC(ISYM),LCONF)
+      CALL mma_allocate(CONF_OCC(ISYM)%I,LCONF,Label='CONF_OCC()')
 *. Reorder array for configurations
-c     CALL MEMMAN(KICONF_REO(ISYM),NCONF_ALL_SYM,'ADDL  ',1,'CNFREO')
-      CALL GETMEM('CNFREO','ALLO','INTE',KICONF_REO(ISYM),NCONF_TOT)
+      CALL mma_allocate(CONF_REO(ISYM)%I,NCONF_TOT,Label='CONF_REO()')
 *. Reorder array for determinants, index and sign
-      CALL GETMEM('SDREOI','ALLO','INTE',KSDREO_I(ISYM),NSD)
-*. Sign array is kept real for compatibility
-c.. Giovanni and Dongxia decided to delete 'SDREOS' array since it is not used
-c     CALL MEMMAN(KSDREO_S(ISYM),NSD,'ADDL  ',1,'SDREOS')
-c..
-COLD  CALL MEMADD(KICONF(ICNSM),LCONF,KFREE,1)
-COLD  CALL MEMADD(KICTS(ICNSM),LDET ,KFREE,1)
-COLD  CALL MEMADD(KSCTS(ICNSM),LDET ,KFREE,2)
-c     write(6,*)'check me!! dimensions:'
-c     write(6,*)'nconf_all_sym =',nconf_all_sym
-c     write(6,*)'nconf_tot =', nconf_tot
-C
-c     ntest=10
-      IF( NTEST .GE. 6 ) THEN
-        WRITE(6,*) ' KICONF_OCC,  kiconf_reo = ',
-     &  KICONF_OCC(ISYM), kiconf_reo(isym)
-        WRITE(6,*) ' KSDREO_I',KSDREO_I(ISYM)
-      END IF
+      CALL mma_allocate(SDREO_I(ISYM)%I,NSD,Label='SDREO_I()')
+      SDREO(1:NSD) => SDREO_I(ISYM)%I(1:NSD)
 *
 * Arrays for addressing prototype determinants for each number of orbitals
 *
+      Allocate(Z_PTDT(MINOP+1:MAXOP+1))
+      Allocate(REO_PTDT(MINOP+1:MAXOP+1))
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
 *
         IALPHA = (IOPEN+MS2)/2
         LZ = IOPEN*IALPHA
         LPTDT = IBION_LUCIA(IOPEN,IALPHA)
-        CALL GETMEM('Z_PTDT','ALLO','INTE',KZ_PTDT(ITYP),LZ)
-        CALL GETMEM('RE_PTD','ALLO','INTE',KREO_PTDT(ITYP),LPTDT)
+        CALL mma_allocate(Z_PTDT(ITYP)%I,LZ,Label='Z_PTDT()')
+        CALL mma_allocate(REO_PTDT(ITYP)%I,LPTDT,Label='REO_PTDT()')
       END DO
 *
 * Array giving first determinant with given number of electrons
@@ -375,14 +351,15 @@ c     ntest=10
       END
 
       SUBROUTINE CSFDIM_FREE(ISYM)
+      use stdalloc, only: mma_deallocate
+      use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
+     &                  Z_PTDT, REO_PTDT, SDREO
 * Free resources allocated by CSFDIM_GAS
 
 #include "implicit.fh"
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
-#include "glbbas.fh"
 #include "cgas.fh"
 #include "spinfo_lucia.fh"
 #include "warnings.h"
@@ -390,12 +367,11 @@ c     ntest=10
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
 *
-        IALPHA = (IOPEN+MS2)/2
-        LZ = IOPEN*IALPHA
-        LPTDT = IBION_LUCIA(IOPEN,IALPHA)
-        CALL GETMEM('Z_PTDT','FREE','INTE',KZ_PTDT(ITYP),LZ)
-        CALL GETMEM('RE_PTD','FREE','INTE',KREO_PTDT(ITYP),LPTDT)
+        CALL mma_deallocate(Z_PTDT(ITYP)%I)
+        CALL mma_deallocate(REO_PTDT(ITYP)%I)
       END DO
+      DEALLOCATE(Z_PTDT)
+      DEALLOCATE(REO_PTDT)
 
 c     LDET = NSD_PER_SYM(ISYM)
 c     LCONF = 0
@@ -408,11 +384,13 @@ c       LLCONF = LLCONF + NCONF_PER_OPEN(ITYP,ISYM)*(IOPEN+ICL)
 c     END DO
 c     LCONF = MAX(LCONF,LLCONF)
 
-      CALL GETMEM('DFTP  ','FREE','INTE',KDFTP,LIDT)
-      CALL GETMEM('CFTP  ','FREE','INTE',KCFTP,LICS)
-      CALL GETMEM('D_TO_C','FREE','REAL',KDTOC,LDTOC)
+      CALL mma_deallocate(DFTP)
+      CALL mma_deallocate(CFTP)
+      CALL mma_deallocate(DTOC)
 
-      CALL GETMEM('CNFOCC','FREE','INTE',KICONF_OCC(ISYM),LCONF)
-      CALL GETMEM('CNFREO','FREE','INTE',KICONF_REO(ISYM),NCONF_TOT)
-      CALL GETMEM('SDREOI','FREE','INTE',KSDREO_I(ISYM),LDET)
+      CALL mma_deallocate(CONF_OCC(ISYM)%I)
+      CALL mma_deallocate(CONF_REO(ISYM)%I)
+
+      CALL mma_deallocate(SDREO_I(ISYM)%I)
+      SDREO => Null()
       END

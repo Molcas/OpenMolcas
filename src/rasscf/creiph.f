@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CREIPH
+      SUBROUTINE CREIPH()
 C
 C     RASSCF program: version IBM 3090: input section
 C
@@ -72,12 +72,12 @@ C                 orbital indices, setup by setsxci.
 C     IADR15(19)--IADR15(30): Presently unused.
 C     ********** IBM 3090 MOLCAS Release 90 02 22 **********
 C
+      use sxci, only: IDXCI, IDXSX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "general.fh"
-#include "sxci.fh"
       Dimension Dum(1)
 
 

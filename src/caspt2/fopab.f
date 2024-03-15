@@ -9,13 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,IBRA,IKET,FOPEL)
+      use gugx, only: NLEV, L2ACT, ISM, NOCSF, IOCSF, NOW1,
+     &                         IOW1, NOCP, IOCP, ICOUP, VTAB, MVL,
+     &                         MVR
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
-#include "pt2_guga.fh"
 
       DIMENSION FIFA(NFIFA)
 * Purely local array, offsets:
@@ -131,9 +133,9 @@
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         NOCSF,IOCSF,NOW1,IOW1,
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
   10      CONTINUE
         END DO
       END DO
@@ -184,9 +186,9 @@
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 20
           CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         NOCSF,IOCSF,NOW1,IOW1,
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
   20      CONTINUE
         END DO
       END DO

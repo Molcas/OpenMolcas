@@ -57,7 +57,7 @@ integer(kind=iwp) :: indx, i
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
 !write(u6,'(2a)') 'poke_dscalar: Label is ',Label
-!write(u6,'(a,e20.8)') 'poke_dscalar: Val is ',Val
+!write(u6,'(a,es20.8)') 'poke_dscalar: Val is ',Val
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*

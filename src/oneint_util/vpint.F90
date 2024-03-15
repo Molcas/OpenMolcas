@@ -39,8 +39,8 @@ iRout = 221
 iPrint = nPrint(iRout)
 
 if (iPrint >= 99) then
-  call RecPrt(' In VpInt: Alpha','(5D20.13)',Alpha,nAlpha,1)
-  call RecPrt(' In VpInt: Beta','(5D20.13)',Beta,nBeta,1)
+  call RecPrt(' In VpInt: Alpha','(5ES20.13)',Alpha,nAlpha,1)
+  call RecPrt(' In VpInt: Beta','(5ES20.13)',Beta,nBeta,1)
 end if
 
 nRys = nHer
@@ -91,7 +91,7 @@ end if
 
 ! Assemble final integral from the derivative integrals
 
-if (iPrint >= 99) call RecPrt(' In VpInt: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
+if (iPrint >= 99) call RecPrt(' In VpInt: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
 
 call Util8(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2))
 

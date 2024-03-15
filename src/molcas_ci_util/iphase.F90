@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function IPHASE(IDRT,IUP,IWALK)
+function IPHASE(NLEV,NVERT,IDRT,IUP,IWALK)
 ! PURPOSE: THE SYMMETRIC GROUP APPROACH AND THE UNITARY GROUP
 !          APPROACH DIFFER IN THE PHASE CONVENTION. FIND THE
 !          PHASE FACTOR RELATING THE CSFS IN EITHER BASIS.
@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: IPHASE
-#include "gugx.fh"
+integer(kind=iwp), intent(in) :: NVERT, NLEV
 integer(kind=iwp), intent(in) :: IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
 integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
 
@@ -36,7 +36,5 @@ do LEV=1,NLEV
 end do
 
 ! EXIT
-
-return
 
 end function IPHASE

@@ -14,9 +14,10 @@
 
 subroutine make_close_cvb(it)
 
-use casvb_global, only: ipfocc_cvb, lcmo_cvb, ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, lfa_cvb, lfi_cvb, &
-                        loccn_cvb, lpa_cvb, lpmat_cvb, ltuvx_cvb, lw1_cvb, variat
+use wadr, only: TUVX, FockOcc, DSPN, DMAT, PMAT, PA, FI, FA, D1I, D1A, OccN, CMO, DIAF, FMO
+use casvb_global, only: variat
 use Definitions, only: iwp
+use stdalloc, only: mma_deallocate
 
 implicit none
 integer(kind=iwp) :: it
@@ -45,23 +46,20 @@ do i=1,il
 end do
 if (.not. variat) then
   call mkguga_free()
-  call getmem('CICTL1','FREE','REAL',lw1_cvb,0)
-  call getmem('TUVX','FREE','REAL',ltuvx_cvb,0)
-  call getmem('DMAT','FREE','REAL',ldmat_cvb,0)
-  call getmem('DSPN','FREE','REAL',ldspn_cvb,0)
-  call getmem('PMAT','FREE','REAL',lpmat_cvb,0)
-  call getmem('P2AS','FREE','REAL',lpa_cvb,0)
-  call getmem('DIAF','FREE','REAL',ldiaf_cvb,0)
-  call getmem('FOCC','FREE','REAL',ipfocc_cvb,0)
-  call getmem('FI','FREE','REAL',lfi_cvb,0)
-  call getmem('FA','FREE','REAL',lfa_cvb,0)
-  call getmem('D1I','FREE','REAL',ld1i_cvb,0)
-  call getmem('D1A','FREE','REAL',ld1a_cvb,0)
-  call getmem('D1tot','FREE','REAL',ld1tot_cvb,0)
-  call getmem('OCCN','FREE','REAL',loccn_cvb,0)
-  call getmem('LCMO','FREE','REAL',lcmo_cvb,0)
+  call mma_deallocate(FMO)
+  call mma_deallocate(TUVX)
+  Call mma_deallocate(DMAT)
+  Call mma_deallocate(DSPN)
+  Call mma_deallocate(PMAT)
+  Call mma_deallocate(PA)
+  Call mma_deallocate(DIAF)
+  call mma_deallocate(FockOcc)
+  call mma_deallocate(FI)
+  call mma_deallocate(FA)
+  call mma_deallocate(D1I)
+  call mma_deallocate(D1A)
+  call mma_deallocate(OccN)
+  call mma_deallocate(CMO)
 end if
-
-return
 
 end subroutine make_close_cvb

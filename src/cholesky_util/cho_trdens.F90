@@ -27,7 +27,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-type(DSBA_Type), intent(in) :: DLT, Salpha(1)
+type(DSBA_Type), intent(in) :: DLT(1), Salpha(1)
 integer(kind=iwp), intent(in) :: istate, jstate, iType
 logical(kind=iwp), intent(in) :: DoExch, labB
 integer(kind=iwp) :: dimX, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, JSYM, &
@@ -135,7 +135,7 @@ do JRED=JRED1,JRED2
   nDen = 1
   ! Transform the density to reduced storage
 
-  call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,add)
+  call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,DLT,Drs,add)
 
   nBatch = (nVrs-1)/nVec+1
 

@@ -1047,7 +1047,7 @@ C     Defining the Binding energy Ei-Ej
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
      &      IF20,IF02,NDCHSM,DCHSM)
-      Write(6,'(A,I5,I5,A,F14.5,E23.14)') '  RASSI Pair States:',
+      Write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',
      &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
      &      DCHSM(DCHIJ)
       Call mma_deallocate(DCHSM)

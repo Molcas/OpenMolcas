@@ -15,12 +15,11 @@
 subroutine cvbmn_cvb(icode)
 
 use casvb_global, only: esym, n_iter
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
+use lucia_interface, only: lucia_util
 
 implicit none
 integer(kind=iwp), intent(in) :: icode
-integer(kind=iwp) :: iDummy
-real(kind=wp) :: Dummy(1)
 
 ! ICODE=0 standard casvb calculation
 ! ICODE=1 variational calculation
@@ -29,8 +28,6 @@ real(kind=wp) :: Dummy(1)
 call cvbstart_cvb_lt9(icode)
 call main_cvb()
 call setretvals_cvb(esym,n_iter)
-call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-
-return
+call Lucia_Util('CLOSE')
 
 end subroutine cvbmn_cvb

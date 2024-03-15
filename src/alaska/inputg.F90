@@ -494,7 +494,7 @@ if (HF_Force .and. Show .and. (iPrint >= 6)) then
 end if
 if (Show .and. (iPrint >= 6)) then
   write(LuWr,*)
-  write(LuWr,'(20X,A,E10.3)') ' Threshold for contributions to the gradient:',CutGrd
+  write(LuWr,'(20X,A,ES10.3)') ' Threshold for contributions to the gradient:',CutGrd
   write(LuWr,*)
 end if
 

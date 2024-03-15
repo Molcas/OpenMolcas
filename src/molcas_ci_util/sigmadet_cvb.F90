@@ -12,24 +12,19 @@
 subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 
 use Definitions, only: wp, iwp
+use Lucia_Interface, only: Lucia_Util
 
 implicit none
 integer(kind=iwp), intent(in) :: IREFSM, NCI
 real(kind=wp), intent(in) :: C(NCI)
 real(kind=wp), intent(out) :: HC(NCI)
-integer(kind=iwp) :: IDUMMY
-real(kind=wp) :: DUMMY(1)
-#include "WrkSpc.fh"
-#include "rasscf_lucia.fh"
 
 ! Export arguments to be used in sigma_master_cvb
 
-C_POINTER = KCI_POINTER
-call DCOPY_(NCI,C,1,WORK(C_POINTER),1)
 ! Call the sigma routine
-call LUCIA_UTIL('SIGMA_CVB',IREFSM,IDUMMY,DUMMY)
-call DCOPY_(NCI,WORK(KSIGMA_POINTER),1,HC,1)
-
-return
+call LUCIA_UTIL('SIGMA_CVB',         &
+                CI_Vector=C, &
+                SIGMA_Vector=HC, &
+                iSym=iREFSM)
 
 end subroutine SIGMADET_CVB

@@ -98,6 +98,7 @@ real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhal
 character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
+integer(kind=iwp), external :: IsFreeUnit
 logical(kind=iwp), external :: Rsv_Tsk2
 
 !                                                                      *
@@ -546,7 +547,7 @@ if (Method == 'CASPT2') then
   call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
 
   call PrgmTranslate('GAMMA2',RealName,lRealName)
-  LuGAMMA2 = 62
+  LuGamma2 = isFreeUnit(67)
   call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBasA*8,'OLD',is_error)
 end if
 !                                                                      *

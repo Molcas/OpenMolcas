@@ -48,7 +48,7 @@ do j=1,n
     else
       D = Fac*log(abs(Den(i,j)))
     end if
-    write(Lu,'(1X,1P,D20.10,1X,D20.10)') Dist,D
+    write(Lu,'(1X,ES20.10,1X,ES20.10)') Dist,D
   end do
 end do
 

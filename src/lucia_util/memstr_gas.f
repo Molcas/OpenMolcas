@@ -10,7 +10,9 @@
 *                                                                      *
 * Copyright (C) 1994, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE MEMSTR_GAS
+      SUBROUTINE MEMSTR_GAS()
+      use stdalloc, only: mma_allocate
+      use strbas
 *
 *
 * Construct pointers for saving information about strings and
@@ -27,7 +29,7 @@
 *=========
 * Output
 *=========
-* Pointers stored in common block /STRBAS/
+* Pointers stored in Module STRBAS
 *
 * Jeppe Olsen , Winter of 1994
 *
@@ -35,9 +37,7 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "strbas.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "stinf.fh"
@@ -50,31 +50,32 @@
       DO IGRP = 1, NGRP
         NSTRIN = NSTFGP(IGRP)
         LSTRIN = NSTRIN*NELFGP(IGRP)
-        CALL GETMEM('OCSTR ','ALLO','INTE',KOCSTR(IGRP),LSTRIN)
-        CALL GETMEM('STREO ','ALLO','INTE',KSTREO(IGRP),NSTRIN)
+        CALL mma_allocate(OCSTR(IGRP)%I,LSTRIN,Label='OCSTR()')
+        CALL mma_allocate(STREO(IGRP)%I,NSTRIN,Label='STREO()')
       END DO
 *
 *. Number of strings per symmetry and offset for strings of given sym
 *. for groups
 *
-      CALL GETMEM('NSTSGP','ALLO','INTE',KNSTSGP(1),NSMST*NGRP)
-      CALL GETMEM('ISTSGP','ALLO','INTE',KISTSGP(1),NSMST*NGRP)
+      CALL mma_allocate(NSTSGP(1)%I,NSMST*NGRP,Label='NSTSGP(1)')
+      CALL mma_allocate(ISTSGP(1)%I,NSMST*NGRP,Label='ISTSGP(1)')
 *
 *. Number of strings per symmetry and offset for strings of given sym
 *. for types
 *
       DO  ITP  = 1, NSTTP
-        CALL GETMEM('NSTSO ','ALLO','INTE',
-     &              KNSTSO(ITP),NSPGPFTP(ITP)*NSMST)
-        CALL GETMEM('ISTSO ','ALLO','INTE',
-     &              KISTSO(ITP),NSPGPFTP(ITP)*NSMST)
+        CALL mma_allocate(NSTSO(ITP)%I,NSPGPFTP(ITP)*NSMST,
+     &                    Label='NSTSO(ITP)')
+        CALL mma_allocate(ISTSO(ITP)%I,NSPGPFTP(ITP)*NSMST,
+     &                    Label='ISTSO(ITP)')
       END DO
 *
 **. Lexical adressing of arrays : use array indices for complete active space
 *
 *. Not in use so
       DO  IGRP = 1, NGRP
-        CALL GETMEM('Zmat  ','ALLO','INTE',KZ(IGRP),NACOB*NELFGP(IGRP))
+        CALL mma_allocate(Zmat(IGRP)%I,NACOB*NELFGP(IGRP),
+     &                    Label='ZMat()')
       END DO
 *
 *. Mappings between different groups
@@ -86,43 +87,22 @@
         ISTRIN = NSTFGP(IGRP)
 *. IF creation is involve : Use full orbital notation
 *  If only annihilation is involved, compact form will be used
+        LENGTH=1
         IF(ISTAC(IGRP,2).NE.0) THEN
           LENGTH = IORB*ISTRIN
-          CALL GETMEM('ORBMAP','ALLO','INTE',KSTSTM(IGRP,1),LENGTH)
-          CALL GETMEM('STRMAP','ALLO','INTE',KSTSTM(IGRP,2),LENGTH)
         ELSE IF(ISTAC(IGRP,1).NE.0) THEN
 *. Only annihilation map so
           LENGTH = IEL*ISTRIN
-          CALL GETMEM('ORBMAP','ALLO','INTE',KSTSTM(IGRP,1),LENGTH)
-          CALL GETMEM('STRMAP','ALLO','INTE',KSTSTM(IGRP,2),LENGTH)
-        ELSE
-*. Neither annihilation nor creation (?!)
-          KSTSTM(IGRP,1) = -1
-          KSTSTM(IGRP,2) = -1
-        END IF
+        ENDIF
+        CALL mma_allocate(STSTM(IGRP,1)%I,LENGTH,LABEL='STSTM(IGRP,1)')
+        CALL mma_allocate(STSTM(IGRP,2)%I,LENGTH,LABEL='STSTM(IGRP,2)')
       END DO
-*
-*. Symmetry of conjugated orbitals and orbital excitations
-*
-*     KCOBSM,KNIFSJ,KIFSJ,KIFSJO
-      CALL GETMEM('Cobsm ','ALLO','INTE',KCOBSM,NACOB)
-      CALL GETMEM('Nifsj ','ALLO','INTE',KNIFSJ,NACOB*NSMSX)
-      CALL GETMEM('Ifsj  ','ALLO','INTE',KIFSJ,NACOB**2 )
-      CALL GETMEM('Ifsjo ','ALLO','INTE',KIFSJO,NACOB*NSMSX)
-*
-*. Symmetry of excitation connecting  strings of given symmetry
-*
-      CALL GETMEM('Ststx ','ALLO','INTE',KSTSTX,NSMST*NSMST)
 *
 *. Occupation classes
 *
-      CALL GETMEM('IOCLS ','ALLO','INTE',KIOCLS,NMXOCCLS*NGAS)
+      CALL mma_allocate(IOCLS,NMXOCCLS*NGAS,Label='IOCLS')
 *. Annihilation/Creation map of supergroup types
-      CALL GETMEM('SPGPAN','ALLO','INTE',KSPGPAN,NTSPGP*NGAS)
-      CALL GETMEM('SPGPCR','ALLO','INTE',KSPGPCR,NTSPGP*NGAS)
+      CALL mma_allocate(SPGPAN,NTSPGP*NGAS,Label='SPGPAN')
+      CALL mma_allocate(SPGPCR,NTSPGP*NGAS,Label='SPGPCR')
 *
-*. Last word of string information
-*
-*
-      RETURN
       END

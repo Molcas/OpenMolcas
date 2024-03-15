@@ -37,12 +37,13 @@ C
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
+      use gugx, only: NLEV, NCSF, ISM, L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
+#include "WrkSpc.fh"
 
       INTEGER, INTENT(IN) :: IFF
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
@@ -55,7 +56,6 @@ C
       INTEGER, PARAMETER :: I1=KIND(idxG3)
 
       REAL*8 DG1,DG2,DG3,DF1,DF2,DF3
-*     REAL*8 F1SUM,F2SUM
 
       INTEGER I,J,IDX,JDX
       INTEGER IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
@@ -70,9 +70,7 @@ C
       INTEGER ISSG1,ISSG2,ISP1
       INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
      &        LTASK_LIST,MXTASK,MYTASK,MYBUFFER
-*     INTEGER NSGM1,NSGM2
       INTEGER NTRI1,NTRI2
-*     INTEGER L1,LTO,LFROM
       INTEGER MEMMAX, MEMMAX_SAFE
       INTEGER NLEV2
 #ifdef _ENABLE_BLOCK_DMRG_
@@ -80,7 +78,6 @@ C
 #endif
       INTEGER LDUM,NDUM
       INTEGER NCI
-*     INTEGER ICSF
 
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
 
@@ -193,7 +190,7 @@ C-SVC20100301: calculate maximum number of tasks possible
       DO issg1=1,nsym
        isp1=mul(issg1,stsym)
 *      nsgm1=ncsf(issg1)
-*      CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
+*      CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1)
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
 C-is basically the number of buffers we fill with sigma1 vectors.
@@ -313,9 +310,9 @@ C-sigma vectors in the buffer.
 *         lto=lbuf1+mxci*(ibuf1-1)
 *         call dcopy_(nsgm1,0.0D0,0,work(lto),1)
 *         CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-*    &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-*    &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-*    &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+*    &     NOCSF,IOCSF,NOW1,IOW1,
+*    &     NOCP,IOCP,ICOUP,
+*    &     VTAB,MVL,MVR)
          end if
         end do
         myBuffer=iTask
@@ -376,9 +373,9 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *     lto=lbuf2
 *     call dcopy_(nsgm2,0.0D0,0,work(lto),1)
 *     CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-*    &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-*    &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-*    &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+*    &     NOCSF,IOCSF,NOW1,IOW1,
+*    &     NOCP,IOCP,ICOUP,
+*    &     VTAB,MVL,MVR)
 *     if(issg2.eq.issg1) then
 *       do ib=1,ibuf1
 *         idx=iwork(lip1buf-1+ib)
@@ -410,9 +407,9 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *       lto=lbuft
 *       call dcopy_(nsgm1,0.0D0,0,work(lto),1)
 *       CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
-*    &       IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-*    &       IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-*    &       WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+*    &       NOCSF,IOCSF,NOW1,IOW1,
+*    &       NOCP,IOCP,ICOUP,
+*    &       VTAB,MVL,MVR)
 *-----------
 * Max and min values of index p1:
         ip1mx=ntri2

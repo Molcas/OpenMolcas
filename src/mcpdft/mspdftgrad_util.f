@@ -20,8 +20,8 @@
       use definitions, only: wp
       use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
+      use wadr, only: FockOcc
 #include "WrkSpc.fh"
-#include "wadr.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 #include "input_ras_mcpdft.fh"
@@ -56,12 +56,12 @@
 
 
 **********Fock_Occ Part
-      CALL FZero(Work(ipFocc),ntot1)
+      FockOcc(:)=0.0D0
       DO JRoot=1,lRoots
       call daXpY_(ntot1,si_pdft((irlxroot-1)*lroots+jroot)**2,
-     &           Work(iFocMS+(JRoot-1)*nTot1),1,Work(ipFocc),1)
+     &           Work(iFocMS+(JRoot-1)*nTot1),1,FockOcc,1)
       END DO
-      Call Put_dArray('FockOcc',Work(ipFocc),ntot1)
+      Call Put_dArray('FockOcc',FockOcc,ntot1)
 **********Now storing the density matrix needed for computing 1RDM
 **********First rescale the off-diagonal elements as done in
 **********integral_util/prep.f

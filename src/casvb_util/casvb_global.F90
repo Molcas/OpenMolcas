@@ -144,13 +144,13 @@ integer(kind=iwp) :: i_dep_on_j(mxdep), i2s_fr(mxS,mxfrag), iact_mo(mxact_mo), i
                      initial, inp, inputmode, invec_cvb, ioffs(mxobj+1), iopt2step(0:30), ioptc_new, ioptcode(30), ioptim, &
                      ioptstep, iorbprm(mxorb_cvb), iorclos_c(mxirrep_ci), iorclos_d(mxirrep_ci), iorcore_c(mxirrep_ci), &
                      iorcore_d(mxirrep_ci), iorder(mxunits), iorocc_c(mxirrep_ci), iorocc_d(mxirrep_ci), ip, ipAnchr, ipdd, &
-                     ipfocc_cvb, ipos(mxstep), ipp10, ipp12e, ipp12s, ipp7, ipr(10), iprec, iprint, iprm, iroot, is_set = 0, &
+                     ipos(mxstep), ipp10, ipp12e, ipp12s, ipp7, ipr(10), iprec, iprint, iprm, iroot, is_set = 0, &
                      isaddle, isaddledd, isaddleo, ishstruc, istackrep(nstackrep), istms2_c(mxstsy_ci), istms2_d(mxstsy_ci), &
                      istnel_c(mxstsy_ci), istnel_d(mxstsy_ci), istsy_c(mxstsy_ci), istsy_d(mxstsy_ci), isym, isympr(mxirrep), &
                      isymv(mxirrep), iter10, iter12e, iter12s, iter7, ityp(mxorb_cvb), ivbweights, iwidth, izbuffer(lbuf), &
-                     j_dep_on_i(mxdep), joffs(mxobj+1), joptstep, jroot, kbasis, kbasiscvb, lcmo_cvb, ld1a_cvb, ld1i_cvb, &
-                     ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, lenline, lfa_cvb, lfi_cvb, lfxvb, loccn_cvb, loopstep, &
-                     loopstepmx, lpa_cvb, lpmat_cvb, lstprm(mxprm), ltuvx_cvb, lw1_cvb, lzrvb, maxd, maxdav, mcore_c, mcore_d, &
+                     j_dep_on_i(mxdep), joffs(mxobj+1), joptstep, jroot, kbasis, kbasiscvb, &
+                     lenline, lfxvb, loopstep, &
+                     loopstepmx, lstprm(mxprm), lzrvb, maxd, maxdav, mcore_c, mcore_d, &
                      mnion, mnion_fr(mxfrag), mxaobf, mxdav, mxion, mxion_fr(mxfrag), mxit, mxiter, mxnvb = 0, mxrhs, n1a, n1b, &
                      n_2el, n_applyh, n_applyt, n_cihess, n_div, n_hess, n_iter, n_orbhess, nact_mo, nalf, nalf_fr(mxMs,mxfrag), &
                      nam1, naprodvb, nbas_mo, nbasf_mo(mxirrep_mo), nbasi_mo(mxirrep_mo), nbasisq_mo, nbassqf_mo(mxirrep_mo), &
@@ -215,12 +215,12 @@ public :: aa1, aa2, absym, aikcof, alftol, ap, axc, bikcof, c, casvb_free, charo
           iconstruc, icrit, icto, idan, idelstr, idetvb, ifhamil, ifield, ifilio, ifinish, ifmos, ifnss1, ifnss2, ifollow, &
           iform_ci, ifsc_fr, ifvb, ifxorb, ifxstr, ikcoff, iline, ilv, imethod, initial, inp, inputmode, invec_cvb, ioffs, &
           iopt2step, ioptc_new, ioptcode, ioptim, ioptstep, iorbprm, iorbrel, iorclos_c, iorclos_d, iorcore_c, iorcore_d, iorder, &
-          iorocc_c, iorocc_d, iorts, ip, ipAnchr, ipdd, ipermzeta, ipfocc_cvb, ipos, ipp10, ipp12e, ipp12s, ipp7, ipr, iprec, &
+          iorocc_c, iorocc_d, iorts, ip, ipAnchr, ipdd, ipermzeta, ipos, ipp10, ipp12e, ipp12s, ipp7, ipr, iprec, &
           iprint, iprm, irels, iroot, irots, is_set, isaddle, isaddledd, isaddleo, ishstruc, istackrep, istms2_c, istms2_d, &
           istnel_c, istnel_d, istsy_c, istsy_d, isym, isympr, isymv, iter10, iter12e, iter12s, iter7, ityp, iunset, ivbweights, &
           iwidth, ixapr, ixapr1, ixbpr, ixbpr1, izbuffer, izeta, j_dep_on_i, joffs, joptstep, jroot, kbasis, kbasiscvb, lbuf, &
-          lcalccivbs, lcalcevb, lcalcsvb, lciweights, lcmo_cvb, ld1a_cvb, ld1i_cvb, ld1tot_cvb, ldiaf_cvb, ldmat_cvb, ldspn_cvb, &
-          lenline, lfa_cvb, lfi_cvb, lfxvb, line, loccn_cvb, loopstep, loopstepmx, lpa_cvb, lpmat_cvb, lstprm, ltuvx_cvb, lw1_cvb, &
+          lcalccivbs, lcalcevb, lcalcsvb, lciweights, &
+          lenline, lfxvb, line, loopstep, loopstepmx, lstprm, &
           lzrvb, max_rec, maxd, maxdav, maxize, mcore_c, mcore_d, memplenty, mnion, mnion_fr, mustdeclare, mxact_mo, mxaobf, &
           mxdav, mxdep, mxfield, mxfiles, mxfrag, mxI, mxion, mxion_fr, mxirrep, mxirrep_ci, mxirrep_mo, mxit, mxiter, mxMs, &
           mxnvb, mxobj, mxopth, mxops, mxorb_cvb, mxprm, mxrhs, mxS, mxstep, mxstsy_ci, mxstt_ci, mxsyme, mxunits, n1a, n1b, &

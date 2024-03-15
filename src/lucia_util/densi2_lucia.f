@@ -11,6 +11,10 @@
       SUBROUTINE DENSI2_LUCIA(    I12,   RHO1,   RHO2,  RHO2S,  RHO2A,
      &                              L,      R,    LUL,    LUR,  EXPS2,
      &                        IDOSRHO1, SRHO1, IPACK)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      USE GLBBAS, only: VEC3
+      use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
+      use strbas
 *
 * Density matrices between L and R
 *
@@ -55,31 +59,43 @@ c      REAL*8 INPRDD
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cicisp.fh"
-#include "strbas.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "crun.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "cprnt.fh"
 #include "spinfo_lucia.fh"
-#include "glbbas.fh"
 *
       LOGICAL IPACK
 #include "csmprd.fh"
 #include "lucinp.fh"
 #include "clunit.fh"
 *. Scratch for string information
-#include "hidscr.fh"
       INTEGER SXSTSM(1)
 *. Specific input
       REAL*8 L
       DIMENSION L(*),R(*)
 *.Output
       DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
+      Integer, Allocatable:: CONSPA(:), CONSPB(:)
+      Real*8, Allocatable:: INSCR(:)
+      Integer, Allocatable:: STSTS(:), STSTD(:)
+      Integer, Allocatable:: CIOIO(:), SIOIO(:)
+      Integer, Allocatable:: CBLTP(:), SBLTP(:)
+      Integer, Allocatable:: I1(:), I2(:), I3(:), I4(:)
+      Real*8, Allocatable:: XI1S(:), XI2S(:), XI3S(:), XI4S(:)
+      Integer, Allocatable:: LLBTL(:), LLBTR(:)
+      Integer, Allocatable:: LLEBTL(:), LLEBTR(:)
+      Integer, Allocatable:: LI1BTL(:), LI1BTR(:)
+      Integer, Allocatable:: LIBTL(:), LIBTR(:)
+      Real*8, Allocatable:: LSCLFCL(:), LSCLFCR(:)
+      Integer, Allocatable:: SVST(:)
+      Real*8, Allocatable:: RHO1S(:), RHO1P(:), XNATO(:), RHO1SM(:),
+     &                       OCCSM(:)
+
 *. Before I forget it :
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
@@ -129,37 +145,37 @@ C?     WRITE(6,*) ' ISSPC ICSPC in DENSI2 ',ISSPC,ICSPC
 
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
-      CALL GETMEM('KSTSTS','ALLO','INTE',KSTSTS,NSMST ** 2)
-      CALL GETMEM('KSTSTD','ALLO','INTE',KSTSTD,NSMST ** 2)
-      CALL STSTSM(IWORK(KSTSTS),IWORK(KSTSTD),NSMST)
+      Call mma_allocate(STSTS,NSMST**2,Label='STSTS')
+      Call mma_allocate(STSTD,NSMST**2,Label='STSTD')
+      CALL STSTSM(STSTS,STSTD,NSMST)
 *. connection matrices for supergroups
-      CALL GETMEM('CONSPA','ALLO','INTE',KCONSPA,NOCTPA**2)
-      CALL GETMEM('CONSPB','ALLO','INTE',KCONSPB,NOCTPB**2)
+      Call mma_allocate(CONSPA,NOCTPA**2,Label='CONSPA')
+      Call mma_allocate(CONSPB,NOCTPB**2,Label='CONSPB')
       CALL SPGRPCON(   IOCTPA,   NOCTPA,     NGAS,  MXPNGAS, NELFSPGP,
-     &              iWORK(KCONSPA),IPRCIX)
+     &              CONSPA,IPRCIX)
       CALL SPGRPCON(   IOCTPB,   NOCTPB,     NGAS,  MXPNGAS, NELFSPGP,
-     &              iWORK(KCONSPB),IPRCIX)
+     &              CONSPB,IPRCIX)
 *. Largest block of strings in zero order space
-      MAXA0 = IMNMX(IWORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
-      MAXB0 = IMNMX(IWORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
+      MAXA0 = IMNMX(NSTSO(IATP)%I,NSMST*NOCTYP(IATP),2)
+      MAXB0 = IMNMX(NSTSO(IBTP)%I,NSMST*NOCTYP(IBTP),2)
       MXSTBL0 = MXNSTR
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(IWORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(NSTSO(IATPM1)%I,NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(IWORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(NSTSO(IATPM2)%I,NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(IWORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(NSTSO(IBTPM1)%I,NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(IWORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(NSTSO(IBTPM2)%I,NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MAXA = MAX(MAXA,MAXA0)
@@ -201,16 +217,16 @@ c      END IF
       INTSCR = MXTSOB ** 4
       IF(IPRDEN.GE.2)
      &WRITE(6,*) ' Density scratch space ',INTSCR
-      CALL GETMEM('INSCR ','ALLO','REAL',KINSCR,INTSCR)
+      Call mma_allocate(INSCR,INTSCR,Label='INSCR')
 *
 *. Arrays giving allowed type combinations '
-      CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('CIOIO ','ALLO','INTE',KCIOIO,NOCTPA*NOCTPB)
+      Call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
+      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 *
-      CALL IAIBCM(ISSPC,iWORK(KSIOIO))
-      CALL IAIBCM(ISSPC,iWORK(KCIOIO))
+      CALL IAIBCM(ISSPC,SIOIO)
+      CALL IAIBCM(ISSPC,CIOIO)
 *. Scratch space for CJKAIB resolution matrices
-      CALL MXRESCPH(iWORK(KCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(CIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &                  NSMST,NSTFSMSPGP,MXPNSMST,   NSMOB, MXPNGAS,
      &                   NGAS,   NOBPTS,   IPRCIX,     MAXK, NELFSPGP,
      &                   MXCJ,   MXCIJA,   MXCIJB,  MXCIJAB,   MXSXBL,
@@ -229,91 +245,88 @@ c      END IF
          LSCR12 = MAX(LSCR1,LSCR2)
       END IF
 *. It is assumed that the third block already has been allocated, so
-      KC2 = KVEC3
       IF(IPRCIX.GE.2)
      &WRITE(6,*) ' Space for resolution matrices ',LSCR12
-      KSSCR = KC2
-      KCSCR = KC2 + LSCR2
       IF (ENVIRO(1:6) .EQ. 'RASSCF') THEN
-         KCSCR = KC2 + LSCR12
+         KCSCR = LSCR12
+      ELSE
+         KCSCR = LSCR2
       END IF
 *
 *. Space for annihilation/creation mappings
       MAXIK = MAX(MAXI,MAXK)
       LSCR3 = MAX(MXADKBLK,MAXIK*MXTSOB*MXTSOB,MXSTBL0)
-      CALL GETMEM('I1    ','ALLO','INTE',KI1,  LSCR3       )
-      CALL GETMEM('I2    ','ALLO','INTE',KI2,  LSCR3       )
-      CALL GETMEM('I3    ','ALLO','INTE',KI3,  LSCR3       )
-      CALL GETMEM('I4    ','ALLO','INTE',KI4,  LSCR3       )
-      CALL GETMEM('XI1S  ','ALLO','REAL',KXI1S,LSCR3       )
-      CALL GETMEM('XI2S  ','ALLO','REAL',KXI2S,LSCR3       )
-      CALL GETMEM('XI3S  ','ALLO','REAL',KXI3S,LSCR3       )
-      CALL GETMEM('XI4S  ','ALLO','REAL',KXI4S,LSCR3       )
+      Call mma_allocate(I1,LSCR3,Label='I1')
+      Call mma_allocate(I2,LSCR3,Label='I2')
+      Call mma_allocate(I3,LSCR3,Label='I3')
+      Call mma_allocate(I4,LSCR3,Label='I4')
+      Call mma_allocate(XI1S,LSCR3,Label='XI1S')
+      Call mma_allocate(XI2S,LSCR3,Label='XI2S')
+      Call mma_allocate(XI3S,LSCR3,Label='XI3S')
+      Call mma_allocate(XI4S,LSCR3,Label='XI4S')
 *. Arrays giving block type
-      CALL GETMEM('SBLTP ','ALLO','INTE',KSBLTP,NSMST)
-      CALL GETMEM('CBLTP ','ALLO','INTE',KCBLTP,NSMST)
+      Call mma_allocate(SBLTP,NSMST,Label='SBLTP')
+      Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
 c      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-c        CALL MEMMAN(KSVST,NSMST,'ADDL  ',2,'SVST  ')
-c        CALL SIGVST(WORK(KSVST),NSMST)
+c        Call mma_allocate(SVST,NSMST,Label='SVST')
+c        CALL SIGVST(SVST,NSMST)
 c      ELSE
-         KSVST = 1
+         Call mma_allocate(SVST,1,Label='SVST')
 c      END IF
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,iWORK(KSBLTP),iWORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,iWORK(KCBLTP),iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,SVST)
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,SVST)
+      Call mma_deallocate(SVST)
 * scratch space containing active one body
-      CALL GETMEM('RHO1S ','ALLO','REAL',KRHO1S,NACOB ** 2)
+      CALL mma_allocate(RHO1S,NACOB ** 2,Label='RHO1S')
 *. For natural orbitals
-      CALL GETMEM('RHO1P ','ALLO','REAL',KRHO1P,NACOB*(NACOB+1)/2)
-      CALL GETMEM('XNATO ','ALLO','REAL',KXNATO,NACOB **2)
+      CALL mma_allocate(RHO1P,NACOB*(NACOB+1)/2,Label='RHO1P')
+      CALL mma_allocate(XNATO,NACOB **2,Label='XNATO')
 *. Natural orbitals in symmetry blocks
-      CALL GETMEM('RHO1S ','ALLO','REAL',KRHO1SM,NACOB ** 2)
-      CALL GETMEM('RHO1S ','ALLO','REAL',KXNATSM,NACOB ** 2)
-      CALL GETMEM('RHO1S ','ALLO','REAL',KOCCSM,NACOB )
+      CALL mma_allocate(RHO1SM,NACOB ** 2,Label='RHO1SM')
+      CALL mma_allocate(OCCSM,NACOB,Label='OCCSM')
 *
 *. Space for one block of string occupations and two arrays of
 *. reordering arrays
       LZSCR = (MAX(NAEL,NBEL)+3)*(NOCOB+1) + 2 * NOCOB
       LZ    = (MAX(NAEL,NBEL)+2) * NOCOB
-      CALL GETMEM('KLZSCR','ALLO','INTE',KLZSCR,LZSCR)
-      DO K12 = 1, 1
-        CALL GETMEM('KLOCS ','ALLO','INTE',KLOCSTR(K12),MAX_STR_OC_BLK)
-      END DO
-      DO I1234 = 1, 2
-        CALL GETMEM('KLREO ','ALLO','INTE',KLREO(I1234),MAX_STR_SPGP)
-        CALL GETMEM('KLZ   ','ALLO','INTE',KLZ(I1234),LZ)
-      END DO
+      call mma_allocate(ZSCR,lZSCR,Label='ZSCR')
+      K12=1
+      call mma_allocate(ZOCSTR,MAX_STR_OC_BLK,K12,Label='ZOCSTR')
+      I1234=2
+      Call mma_allocate(REO,MAX_STR_SPGP,I1234,Label='REO')
+      CALL mma_allocate(Z,LZ,I1234,Label='Z')
 *. Arrays for partitioning of Left vector = sigma
       NTTS = MXNTTS
-      CALL GETMEM('LBT_L  ','ALLO','INTE',KLLBTL ,NTTS  )
-      CALL GETMEM('LEBT_L ','ALLO','INTE',KLLEBTL,NTTS  )
-      CALL GETMEM('I1BT_L ','ALLO','INTE',KLI1BTL,NTTS  )
-      CALL GETMEM('IBT_L  ','ALLO','INTE',KLIBTL ,8*NTTS)
-      CALL GETMEM('SCLF_L ','ALLO','REAL',KLSCLFCL,NTTS)
-      CALL PART_CIV2(IDC,iWORK(KSBLTP),
-     &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
+      Call mma_allocate(LLBTL,NTTS,Label='LLBTL')
+      Call mma_allocate(LLEBTL,NTTS,Label='LLEBTL')
+      Call mma_allocate(LI1BTL,NTTS,Label='LI1BTL')
+      Call mma_allocate(LIBTL,8*NTTS,Label='LIBTL')
+      Call mma_allocate(LSCLFCL,NTTS,Label='LSCLFCL')
+      CALL PART_CIV2(IDC,SBLTP,
+     &               NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &               NOCTPA,NOCTPB,
      &               NSMST, LSCR1,
-     &               iWORK(KSIOIO),ISMOST(1,ISSM),
+     &               SIOIO,ISMOST(1,ISSM),
      &               NBATCHL,
-     &               iWORK(KLLBTL),iWORK(KLLEBTL),
-     &               iWORK(KLI1BTL),iWORK(KLIBTL),
+     &               LLBTL,LLEBTL,
+     &               LI1BTL,LIBTL,
      &               0,ISIMSYM)
 *. Arrays for partitioning of Right  vector = C
       NTTS = MXNTTS
-      CALL GETMEM('LBT_R  ','ALLO','INTE',KLLBTR ,NTTS  )
-      CALL GETMEM('LEBT_R ','ALLO','INTE',KLLEBTR,NTTS  )
-      CALL GETMEM('I1BT_R ','ALLO','INTE',KLI1BTR,NTTS  )
-      CALL GETMEM('IBT_R  ','ALLO','INTE',KLIBTR ,8*NTTS)
-      CALL GETMEM('SCLF_R ','ALLO','REAL',KLSCLFCR,NTTS)
-      CALL PART_CIV2(IDC,iWORK(KCBLTP),
-     &               iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
+      Call mma_allocate(LLBTR,NTTS,Label='LLBTR')
+      Call mma_allocate(LLEBTR,NTTS,Label='LLEBTR')
+      Call mma_allocate(LI1BTR,NTTS,Label='LI1BTR')
+      Call mma_allocate(LIBTR,8*NTTS,Label='LIBTR')
+      Call mma_allocate(LSCLFCR,NTTS,Label='LSCLFCR')
+      CALL PART_CIV2(IDC,CBLTP,
+     &               NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &               NOCTPA,NOCTPB,
      &               NSMST, LSCR1,
-     &               iWORK(KCIOIO),ISMOST(1,ICSM),
+     &               CIOIO,ISMOST(1,ICSM),
      &               NBATCHR,
-     &               iWORK(KLLBTR),iWORK(KLLEBTR),
-     &               iWORK(KLI1BTR),iWORK(KLIBTR),
+     &               LLBTR,LLEBTR,
+     &               LI1BTR,LIBTR,
      &               0,ISIMSYM)
 
       IF(ICISTR.EQ.1) THEN
@@ -325,32 +338,32 @@ c      END IF
       ELSE IF(ICISTR.GE.2) THEN
         S2_TERM1 = 0.0D0
         CALL GASDN2_LUCIA(     I12,    RHO1,    RHO2,   RHO2S,   RHO2A,
-     &                           L,       R,       L,       R,WORK(KC2),
-     &                    iWORK(KCIOIO),iWORK(KSIOIO),
+     &                           L,       R,       L,     R,VEC3,
+     &                    CIOIO,SIOIO,
      &                    ISMOST(1,ICSM),ISMOST(1,ISSM),
-     &                    iWORK(KCBLTP),iWORK(KSBLTP),NACOB,
-     &                    iWORK(KNSTSO(IATP)),iWORK(KISTSO(IATP)),
-     &                    iWORK(KNSTSO(IBTP)),iWORK(KISTSO(IBTP)),
+     &                    CBLTP,SBLTP,NACOB,
+     &                    NSTSO(IATP)%I,ISTSO(IATP)%I,
+     &                    NSTSO(IBTP)%I,ISTSO(IBTP)%I,
      &                    NAEL,IATP,  NBEL,  IBTP,
      &                      IOCTPA,  IOCTPB,  NOCTPA,  NOCTPB,   NSMST,
      &                       NSMOB,   NSMSX,   NSMDX, MXPNGAS,  NOBPTS,
      &                      IOBPTS,    MAXK,    MAXI,   LSCR1,   LSCR1,
-     &                    WORK(KCSCR),WORK(KSSCR),
-     &                    SXSTSM,iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
+     &                    VEC3(1+KCSCR),VEC3,
+     &                    SXSTSM,STSTS,STSTD,SXDXSX,
      &                    ADSXA,ASXAD,NGAS,NELFSPGP,IDC,
-     &                    iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
-     &                    iWORK(KI3),WORK(KXI3S),iWORK(KI4),WORK(KXI4S),
-     &                    WORK(KINSCR),MXPOBS,IPRDEN,WORK(KRHO1S),
+     &                    I1,XI1S,I2,XI2S,
+     &                    I3,XI3S,I4,XI4S,
+     &                    INSCR,MXPOBS,IPRDEN,RHO1S,
      &                    LUL,LUR,PSSIGN,PSSIGN,
-     &                    WORK(KRHO1P),WORK(KXNATO),
+     &                    RHO1P,XNATO,
      &                    NBATCHL,
-     &                    iWORK(KLLBTL),iWORK(KLLEBTL),
-     &                    iWORK(KLI1BTL),iWORK(KLIBTL),
+     &                    LLBTL,LLEBTL,
+     &                    LI1BTL,LIBTL,
      &                    NBATCHR,
-     &                    iWORK(KLLBTR),iWORK(KLLEBTR),
-     &                    iWORK(KLI1BTR),iWORK(KLIBTR),
-     &                    iWORK(KCONSPA),iWORK(KCONSPB),
-     &                    WORK(KLSCLFCL),WORK(KLSCLFCR),
+     &                    LLBTR,LLEBTR,
+     &                    LI1BTR,LIBTR,
+     &                    CONSPA,CONSPB,
+     &                    LSCLFCL,LSCLFCR,
      &                    S2_TERM1, IUSE_PH,  IPHGAS,IDOSRHO1,   SRHO1,
      &                    IPACK)
 *
@@ -375,10 +388,8 @@ C     density matrices are given in Nijkl.
 *
 * CALL GASDN2_LUCIA --> 89
 *
-C     KLLBTR  KLLEBTR KLI1BTR KLIBTR
+C     LBTR  LLEBTR LI1BTR LIBTR
       END IF
-C?    WRITE(6,*) ' Memcheck in densi2 after GASDN2'
-C?    CALL MEMCHK
 *
 *
 *. Add terms from hole-hole commutator
@@ -390,8 +401,8 @@ c      END IF
 
 * Natural Orbitals
       CALL NATORB_LUCIA(RHO1,   NSMOB,  NTOOBS,  NACOBS,  NINOBS,IREOST,
-     &                  WORK(KXNATO),WORK(KRHO1SM),WORK(KOCCSM),NACOB,
-     &                  WORK(KRHO1P),IPRDEN)
+     &                  XNATO,RHO1SM,OCCSM,NACOB,
+     &                  RHO1P,IPRDEN)
 *
       IF(IPRDEN.GE.5) THEN
         WRITE(6,*) ' One-electron density matrix '
@@ -420,47 +431,42 @@ c      END IF
       END IF
 
 *. Eliminate local memory
-      CALL GETMEM('KSTSTS','FREE','INTE',KSTSTS,NSMST ** 2)
-      CALL GETMEM('KSTSTD','FREE','INTE',KSTSTD,NSMST ** 2)
-      CALL GETMEM('CONSPA','FREE','INTE',KCONSPA,NOCTPA**2)
-      CALL GETMEM('CONSPB','FREE','INTE',KCONSPB,NOCTPB**2)
-      CALL GETMEM('INSCR ','FREE','REAL',KINSCR,INTSCR)
-      CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('CIOIO ','FREE','INTE',KCIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('I1    ','FREE','INTE',KI1,  LSCR3       )
-      CALL GETMEM('I2    ','FREE','INTE',KI2,  LSCR3       )
-      CALL GETMEM('I3    ','FREE','INTE',KI3,  LSCR3       )
-      CALL GETMEM('I4    ','FREE','INTE',KI4,  LSCR3       )
-      CALL GETMEM('XI1S  ','FREE','REAL',KXI1S,LSCR3       )
-      CALL GETMEM('XI2S  ','FREE','REAL',KXI2S,LSCR3       )
-      CALL GETMEM('XI3S  ','FREE','REAL',KXI3S,LSCR3       )
-      CALL GETMEM('XI4S  ','FREE','REAL',KXI4S,LSCR3       )
-      CALL GETMEM('SBLTP ','FREE','INTE',KSBLTP,NSMST)
-      CALL GETMEM('CBLTP ','FREE','INTE',KCBLTP,NSMST)
-      CALL GETMEM('RHO1S ','FREE','REAL',KRHO1S,NACOB ** 2)
-      CALL GETMEM('RHO1P ','FREE','REAL',KRHO1P,NACOB*(NACOB+1)/2)
-      CALL GETMEM('XNATO ','FREE','REAL',KXNATO,NACOB **2)
-      CALL GETMEM('RHO1S ','FREE','REAL',KRHO1SM,NACOB ** 2)
-      CALL GETMEM('RHO1S ','FREE','REAL',KXNATSM,NACOB ** 2)
-      CALL GETMEM('RHO1S ','FREE','REAL',KOCCSM,NACOB )
-      CALL GETMEM('KLZSCR','FREE','INTE',KLZSCR,LZSCR)
-      DO K12 = 1, 1
-        CALL GETMEM('KLOCS ','FREE','INTE',KLOCSTR(K12),MAX_STR_OC_BLK)
-      END DO
-      DO I1234 = 1, 2
-        CALL GETMEM('KLREO ','FREE','INTE',KLREO(I1234),MAX_STR_SPGP)
-        CALL GETMEM('KLZ   ','FREE','INTE',KLZ(I1234),LZ)
-      END DO
-      CALL GETMEM('LBT_L  ','FREE','INTE',KLLBTL ,NTTS  )
-      CALL GETMEM('LEBT_L ','FREE','INTE',KLLEBTL,NTTS  )
-      CALL GETMEM('I1BT_L ','FREE','INTE',KLI1BTL,NTTS  )
-      CALL GETMEM('IBT_L  ','FREE','INTE',KLIBTL ,8*NTTS)
-      CALL GETMEM('SCLF_L ','FREE','REAL',KLSCLFCL,NTTS)
-      CALL GETMEM('LBT_R  ','FREE','INTE',KLLBTR ,NTTS  )
-      CALL GETMEM('LEBT_R ','FREE','INTE',KLLEBTR,NTTS  )
-      CALL GETMEM('I1BT_R ','FREE','INTE',KLI1BTR,NTTS  )
-      CALL GETMEM('IBT_R  ','FREE','INTE',KLIBTR ,8*NTTS)
-      CALL GETMEM('SCLF_R ','FREE','REAL',KLSCLFCR,NTTS)
+      Call mma_deallocate(STSTS)
+      Call mma_deallocate(STSTD)
+      Call mma_deallocate(CONSPA)
+      Call mma_deallocate(CONSPB)
+      Call mma_deallocate(INSCR)
+      Call mma_deallocate(SIOIO)
+      Call mma_deallocate(CIOIO)
+      Call mma_deallocate(I1)
+      Call mma_deallocate(I2)
+      Call mma_deallocate(I3)
+      Call mma_deallocate(I4)
+      Call mma_deallocate(XI1S)
+      Call mma_deallocate(XI2S)
+      Call mma_deallocate(XI3S)
+      Call mma_deallocate(XI4S)
+      Call mma_deallocate(SBLTP)
+      Call mma_deallocate(CBLTP)
+      Call mma_deallocate(RHO1S)
+      Call mma_deallocate(RHO1P)
+      Call mma_deallocate(XNATO)
+      Call mma_deallocate(RHO1SM)
+      Call mma_deallocate(OCCSM)
+      Call mma_deallocate(ZSCR)
+      Call mma_deallocate(ZOCSTR)
+      Call mma_deallocate(REO)
+      Call mma_deallocate(Z)
+      Call mma_deallocate(LLBTL)
+      Call mma_deallocate(LLEBTL)
+      Call mma_deallocate(LI1BTL)
+      Call mma_deallocate(LIBTL)
+      Call mma_deallocate(LSCLFCL)
+      Call mma_deallocate(LLBTR)
+      Call mma_deallocate(LLEBTR)
+      Call mma_deallocate(LI1BTR)
+      Call mma_deallocate(LIBTR)
+      Call mma_deallocate(LSCLFCR)
 
       RETURN
       END

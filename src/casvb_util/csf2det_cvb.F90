@@ -14,7 +14,8 @@
 
 subroutine csf2det_cvb(vec,detvec,isym_loc,iWay)
 
-use csfbas, only: cts, kdtoc
+use csfbas, only: cts
+use GLBBAS, only: DTOC
 use Definitions, only: wp, iwp
 
 implicit none
@@ -22,7 +23,6 @@ real(kind=wp), intent(inout) :: vec(*), detvec(*)
 integer(kind=iwp), intent(in) :: isym_loc, iWay
 #include "rasdim.fh"
 #include "rasscf.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: jCopy
 
 if (iWay == 1) then
@@ -32,7 +32,7 @@ if (iWay == 1) then
   end if
 
   jCopy = 0
-  call csdtvc(vec,detvec,iway,work(kdtoc),cts,isym_loc,jcopy)
+  call csdtvc(vec,detvec,iway,dtoc,cts,isym_loc,jcopy)
 else if (iWay == 2) then
   if (nac == 0) then
     vec(1) = detvec(1)
@@ -40,9 +40,7 @@ else if (iWay == 2) then
   end if
 
   jCopy = 0
-  call csdtvc(vec,detvec,iway,work(kdtoc),cts,isym_loc,jcopy)
+  call csdtvc(vec,detvec,iway,dtoc,cts,isym_loc,jcopy)
 end if
-
-return
 
 end subroutine csf2det_cvb

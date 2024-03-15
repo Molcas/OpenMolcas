@@ -16,12 +16,17 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,verbose,debug
+      use caspt2_gradient, only: nbuf1_grad
+      use gugx, only: NLEV,  ICOUP,  IOCP,
+     &                         IOCSF, IOW1, MVL, MVR,  NOCP,
+     &                         NOCSF, NOW1, VTAB, NCSF, L2ACT,
+     &                         ISM
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
+#include "WrkSpc.fh"
 
       LOGICAL RSV_TSK
 
@@ -365,13 +370,16 @@ C
 * buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
 * bufd: diagonal matrix elements to compute the F matrix
       nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+      nbuf1= nbuf1_grad
       nbuf2= 1
       nbuft= 1
       nbufd= 1
 C
       ndtu =max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+      ndtu = nbuf1
       ndyz = 1
       ndab =max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+      ndab = nbuf1
       nbuf3= 1
       nbuf4= 1
       nbufx= nlev
@@ -417,7 +425,7 @@ C     write(6,*) "PREP    : CPU/WALL TIME=", cput,wallt
        isp1=mul(issg1,STSYM)
        nsgm1=ncsf(issg1)
        !! Work(LBufD) = \sum_t <I|E_{tt}|I>*f_{tt}
-       CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
+       CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1)
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
 C-is basically the number of buffers we fill with sigma1 vectors.
@@ -545,9 +553,9 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
           lto=lbuf1+mxci*(ibuf1-1)
           call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &     NOCSF,IOCSF,NOW1,IOW1,
+     &     NOCP,IOCP,ICOUP,
+     &     VTAB,MVL,MVR)
          end if
         end do
         myBuffer=iTask
@@ -630,9 +638,9 @@ C     CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       lto=lbuf2
       call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
       CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &     NOCSF,IOCSF,NOW1,IOW1,
+     &     NOCP,IOCP,ICOUP,
+     &     VTAB,MVL,MVR)
       Call Dcopy_(nsgm1,[0.0D+00],0,Work(LDYZ),1)
       if(issg2.eq.issg1) then
         call dcopy_(nsgm2,[0.0D0],0,work(lbuf3),1)
@@ -684,9 +692,9 @@ C
           L = LBUFX + MXCI*(ivlev-1)
           Call DCopy_(nsgm1,[0.0D0],0,Work(L),1)
           CALL SIGMA1_CP2(IVLEV,IXLEV0,1.0D+0,STSYM,Work(LFROM),Work(L),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         NOCSF,IOCSF,NOW1,IOW1,
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
         End Do
         iG3OFF = iG3bk
       do ip2=ip3,ntri2
@@ -787,9 +795,9 @@ C
         end do
         !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
        CALL SIGMA1_CP2(IXLEV,IVLEV,1.0D+00,STSYM,WORK(LBUF3),WORK(LDYZ),
-     &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &      WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &      NOCSF,IOCSF,NOW1,IOW1,
+     &      NOCP,IOCP,ICOUP,
+     &      VTAB,MVL,MVR)
 C
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb
@@ -800,9 +808,9 @@ C
       !! Complete the right derivative contribution:
       !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
       CALL SIGMA1_CP2(IZLEV,IYLEV,1.0D+00,STSYM,WORK(LDYZ),CLAG,
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &     NOCSF,IOCSF,NOW1,IOW1,
+     &     NOCP,IOCP,ICOUP,
+     &     VTAB,MVL,MVR)
 C
       IF(iPrGlb.GE.DEBUG) THEN
         WRITE(6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
@@ -828,18 +836,18 @@ C
           lto=ldtu+mxci*(ib-1)
           !! left derivative
           CALL SIGMA1_CP2(ITLEV,IULEV,1.0D00,STSYM,WORK(LTO),CLAG,
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &     NOCSF,IOCSF,NOW1,IOW1,
+     &     NOCP,IOCP,ICOUP,
+     &     VTAB,MVL,MVR)
           !! the rest is DEPSA contribution
           IBUF = LDAB + MXCI*(ib-1)
           Do IALEV = 1, NLEV
             Do IBLEV = 1, NLEV
               Call DCopy_(nsgm1,[0.0D0],0,Work(LBUF2),1)
        CALL SIGMA1_CP2(IALEV,IBLEV,1.0D+00,STSYM,Work(IBUF),Work(LBUF2),
-     &          IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &          IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &          WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &          NOCSF,IOCSF,NOW1,IOW1,
+     &          NOCP,IOCP,ICOUP,
+     &          VTAB,MVL,MVR)
               DEPSA(IALEV,IBLEV) = DEPSA(IALEV,IBLEV)
      *          + DDot_(nsgm1,Work(LBUF1+MXCI*(IB-1)),1,Work(LBUF2),1)
             End Do
@@ -912,6 +920,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use gugx, only: NLEV, LEVEL
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION DF1(NASHT,NASHT),DF2(NASHT,NASHT,NASHT,NASHT),DF3(*)
       DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
@@ -922,8 +931,8 @@ C
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
 #include "rasdim.fh"
-#include "caspt2.fh"
 #include "pt2_guga.fh"
+#include "caspt2.fh"
 
       LOGICAL RSV_TSK
 

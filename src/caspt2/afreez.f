@@ -88,7 +88,7 @@
 *       nbi=nbas(isym)
 *       do ib=1,nbi
 *        write(6,*) 'orbital', isym, ib
-*        write(6,'(4E18.12)') (CMO(imo+i),i=1,nbi)
+*        write(6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo
@@ -107,7 +107,7 @@
 *       nbi=nbas(isym)
 *       do ib=1,nbi
 *        write(6,*) 'orbital', isym, ib
-*        write(6,'(4E18.12)') (CMO(imo+i),i=1,nbi)
+*        write(6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo
@@ -314,8 +314,8 @@
             CMO(ist2+np)=Swap
            Enddo
 *          write(6,*)'Orbital number',ni,ist1,ist2
-*           write(6,'(4E18.12)') (CMO(ist1+np),np=1,nbi)
-*           write(6,'(4E18.12)') (CMO(ist2+np),np=1,nbi)
+*           write(6,'(4ES19.12)') (CMO(ist1+np),np=1,nbi)
+*           write(6,'(4ES19.12)') (CMO(ist2+np),np=1,nbi)
            ndel(isym)=ndel(isym)-1
            nssh(isym)=nssh(isym)+1
           Endif
@@ -331,7 +331,7 @@
 *       nbi=nbas(isym)
 *       do ib=1,nbi
 *        write(6,*) 'orbital', isym, ib
-*        write(6,'(4E18.12)') (CMO(imo+i),i=1,nbi)
+*        write(6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo

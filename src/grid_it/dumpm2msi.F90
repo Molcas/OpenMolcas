@@ -144,13 +144,13 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
           !    in1 = int(dnum*64.0_wp)
           !    in2 = int((dnum-in1*64.0_wp)*4096.0_wp)
           !    iexpnt = iexpnt+50
-          !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') DOut(j),dnum,dexpnt,in1,in2,iexpnt
+          !    write(u6,'(1x,3(1x,es18.8),2x,3(1x,i3))') DOut(j),dnum,dexpnt,in1,in2,iexpnt
           !    if (iexpnt < 1) then
           !      iexpnt = 1
           !    else if (iexpnt > 64) then
           !      iexpnt = 64
           !    end if
-          !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') DOut(j),dnum,dexpnt,in1,in2,iexpnt
+          !    write(u6,'(1x,3(1x,es18.8),2x,3(1x,i3))') DOut(j),dnum,dexpnt,in1,in2,iexpnt
           !    !                                       cx(in1:in1),cx(in2:in2),cx(iexpnt:iexpnt)
           !    !write(u6,*) '-----------------------'
           !  end do
@@ -339,7 +339,7 @@ end if
 
 if (isLine .and. (.not. isLuscus)) then
   do i=1,mCoor
-    write(LuVal,'(3F10.6,22E20.12)') (WCoor(j,i),j=1,3),(WLine(j,i),j=1,nLine)
+    write(LuVal,'(3F10.6,22ES20.12)') (WCoor(j,i),j=1,3),(WLine(j,i),j=1,nLine)
   end do
 end if
 

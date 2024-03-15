@@ -74,7 +74,7 @@ write(Lu_Molden,*) 'energy'
 
 iEner = 0
 do iIter=1,nIter
-  write(Lu_Molden,'(E24.17)') Enrg(iIter)
+  write(Lu_Molden,'(ES24.17)') Enrg(iIter)
   iEner = iEner+1
 end do
 

@@ -332,8 +332,8 @@ end if
 !***********************************************************************
 !                                                                      *
 write(LuWr,*)
-write(LuWr,'(19X,A,E9.2)') 'Integrals are discarded if absolute value <:',ThrInt
-write(LuWr,'(19X,A,E9.2)') 'Integral cutoff threshold is set to       <:',CutInt
+write(LuWr,'(19X,A,ES9.2)') 'Integrals are discarded if absolute value <:',ThrInt
+write(LuWr,'(19X,A,ES9.2)') 'Integral cutoff threshold is set to       <:',CutInt
 !                                                                      *
 !***********************************************************************
 !                                                                      *

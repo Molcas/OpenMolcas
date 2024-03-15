@@ -14,6 +14,8 @@
       SUBROUTINE ADAST_GAS(   IOBSM,   IOBTP,   NIGRP,    IGRP, ISPGPSM,
      &                           I1,    XI1S,   NKSTR,    IEND,   IFRST,
      &                        KFRST,    KACT,  SCLFAC,     IAC)
+      use strbas
+      use distsym
 *
 *
 * Obtain creation or annihilation mapping
@@ -54,16 +56,13 @@
 *./BIGGY
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
 #include "csm.fh"
 #include "lucinp.fh"
-#include "distsym.fh"
 #include "loff.fh"
 #include "stdalloc.fh"
 *. Input
@@ -188,7 +187,7 @@
       CALL ICOPVE(IGRP,KGRP,NIGRP)
       KGRP(IACGRP) = KACGRP
 *. Number of strings and symmetry distributions of K strings
-      CALL NST_SPGRP( NIGRP,   KGRP,      KSM,iWORK(KNSTSGP(1)),NSMST,
+      CALL NST_SPGRP( NIGRP,   KGRP,      KSM,NSTSGP(1)%I,NSMST,
      &                NKSTR,   NKDIST)
       IF(NTEST.GE.1000) WRITE(6,*) 'KSM,NKSTR,NKDIST:', KSM,NKSTR,NKDIST
       IF(NKSTR.EQ.0) GOTO 9999
@@ -196,9 +195,9 @@
       NGASL = 1
       DO JGRP = 1, NIGRP
        IF(NELFGP(KGRP(JGRP)).GT.0) NGASL = JGRP
-       CALL ICOPVE2(iWORK(KNSTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
+       CALL ICOPVE2(NSTSGP(1)%I,(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              NNSTSGP(1,JGRP))
-       CALL ICOPVE2(iWORK(KISTSGP(1)),(KGRP(JGRP)-1)*NSMST+1,NSMST,
+       CALL ICOPVE2(ISTSGP(1)%I,(KGRP(JGRP)-1)*NSMST+1,NSMST,
      &              IISTSGP(1,JGRP))
       END DO
       IF(NTEST.GE.100) WRITE(6,*) 'NGASL', NGASL
@@ -217,10 +216,10 @@
       CALL TS_SYM_PNT2(    IGRP,   NIGRP,   MXVLI,   MNVLI, ISPGPSM,
      &                    IOFFI,   LOFFI)
 *. Offset and dimension for active group in I strings
-      CALL ICOPVE2(iWORK(KISTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(ISTSGP(1)%I,(IGRP(IACGRP)-1)*NSMST+1,NSMST,
      &               IACIST)
 *
-      CALL ICOPVE2(iWORK(KNSTSGP(1)),(IGRP(IACGRP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(NSTSGP(1)%I,(IGRP(IACGRP)-1)*NSMST+1,NSMST,
      &               NACIST)
 *. Last entry in IGRP with a nonvanisking number of strings
       NIGASL = 1
@@ -250,7 +249,7 @@ cGLM        ELSE
 *. Next distribution
           CALL NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,
      &                           ISMFGS,KSM,KFIRST,NONEW,
-     &                  iWork(ISMDFGP),iWork(NACTSYM),iWork(ISMSCR))
+     &                  ISMDFGP,NACTSYM,ISMSCR)
 cGLM          IF(NONEW.EQ.1) GOTO 9999
 cGLM        END IF
         IF(NTEST.GE.1000) THEN
@@ -307,10 +306,10 @@ C       DO IGAS =  IOBTP +1, NIGRP
 *
         IF(NSTA*NSTB*NIAC*NKAC.NE.0)
      &  CALL ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,
-     &                 iWORK(KSTSTM(KACGRP,1)),iWORK(KSTSTM(KACGRP,2)),
-     &                 IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
-     &                 NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
-     &                 LROW_IN,IEC)
+     &                   STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,
+     &                   IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC,
+     &                   NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,
+     &                   LROW_IN,IEC)
         KSTRBS = KSTRBS + NKSD
         GOTO 1000
 *

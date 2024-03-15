@@ -11,6 +11,7 @@
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE T_ROW_TO_H(T,H,K,TKK)
+      use GLBBAS, only: PGINT1A
 *
 * Set H integrals
 *
@@ -25,8 +26,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "mxpdim.fh"
-#include "glbbas.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
 *. Input ( in blocked form)
@@ -43,7 +42,7 @@
       ZERO = 0.0D0
       CALL SETVEC(H,ZERO,NTOOB**2)
 *
-      IOFF = IFRMR(IWORK(KPGINT1A(1)),1,KSM)
+      IOFF = IFRMR(PGINT1A(1)%I,1,KSM)
       CALL COPVEC(T(IOFF+(KREL-1)*NK),H(IOFF+(KREL-1)*NK),NK)
       TKK = H(IOFF-1+(KREL-1)*NK+KREL)
       IF(TKK .NE. 0.0D0) THEN

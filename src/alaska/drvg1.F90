@@ -67,6 +67,7 @@ character(len=8) :: Method_chk
 integer(kind=iwp), allocatable :: Ind_ij(:,:), iOffAO(:)
 real(kind=wp), allocatable :: CMOPT2(:), TMax(:,:), WRK1(:), WRK2(:)
 integer(kind=iwp), save :: MemPrm
+integer(kind=iwp), external :: IsFreeUnit
 logical(kind=iwp), external :: Rsv_GTList
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus
@@ -144,9 +145,10 @@ if (Method_chk == 'CASPT2  ') then
   !! The two MO indices in the half-transformed amplitude are
   !! not CASSCF but quasi-canonical orbitals.
   call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
+  LuCMOPT2 = isFreeUnit(66)
   call PrgmTranslate('CMOPT2',RealName,lRealName)
-  LuCMOPT2 = 61
   call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
+
   do i=1,nBasT*nBasT
     read(LuCMOPT2) CMOPT2(i)
   end do
@@ -176,7 +178,9 @@ if (Method_chk == 'CASPT2  ') then
       end do
     end do
   end if
+
   close(LuCMOPT2)
+
   write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
   write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
 
@@ -190,8 +194,8 @@ if (Method_chk == 'CASPT2  ') then
   end do
   call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
 
+  LuGAMMA = isFreeUnit(65)
   call PrgmTranslate('GAMMA',RealName,lRealName)
-  LuGamma = 60
   call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
 
   call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
@@ -417,8 +421,9 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(Pget0CPU1,Pget0WALL1)
 #             endif
-              if (Method_chk == 'CASPT2  ') call CASPT2_BTAMP(iS,jS,kS,lS,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn,iFnc(4)*lBasn, &
-                                                              iOffAO,nBasT,nOcc(1),CMOPT2(1+nbast*nfro(1)),WRK1,WRK2,G_Toc)
+              if (Method_chk == 'CASPT2  ') call CASPT2_BTAMP(LuGAMMA,iS,jS,kS,lS,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
+                                                              iFnc(4)*lBasn,iOffAO,nBasT,nOcc(1),CMOPT2(1+nbast*nfro(1)),WRK1, &
+                                                              WRK2,G_Toc)
               call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                          iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
               if (A_Int*PMax < CutInt) cycle

@@ -166,8 +166,8 @@ if (iPrint >= 99) call TriPrt(' The B Matrix',' ',B,mIter)
 call unitmat(Scrt1,mIter)
 call NIDiag_new(B,Scrt1,mIter,mIter)
 if (iPrint >= 99) then
-  call TriPrt(' The B Matrix after diagonalization','(9E10.2)',B,mIter)
-  call RecPrt(' Eigenvectors','(9E10.2)',Scrt1,mIter,mIter)
+  call TriPrt(' The B Matrix after diagonalization','(9ES10.2)',B,mIter)
+  call RecPrt(' Eigenvectors','(9ES10.2)',Scrt1,mIter,mIter)
 end if
 
 ! Renormalize the eigenvectors and eigenvalues to the
@@ -184,7 +184,7 @@ do iVec=1,mIter
 end do
 if (iPrint >= 99) then
   write(6,*) ' After normalization to C1-DIIS format'
-  call TriPrt(' The B Matrix after diagonalization','(9E10.2)',B,mIter)
+  call TriPrt(' The B Matrix after diagonalization','(9ES10.2)',B,mIter)
   call RecPrt(' Eigenvectors',' ',Scrt1,mIter,mIter)
 end if
 

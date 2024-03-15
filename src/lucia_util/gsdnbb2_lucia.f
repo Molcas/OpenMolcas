@@ -156,10 +156,6 @@ C?      WRITE(6,*) ' GSBBD1 will be called (beta)'
 *
 * CALL GSBBD1_LUCIA --> 40
 *
-C?      WRITE(6,*) ' GSBBD1 was called '
-C?      WRITE(6,*) ' Memory check '
-C?      CALL MEMCHK
-*
 * ================================
 * beta-beta contribution to RHO2
 * ================================

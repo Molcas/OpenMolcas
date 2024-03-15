@@ -218,10 +218,10 @@ else
         call FdExtr(K_Lap,T,Coeff,R,Theta,DD,StopBA)
         call FindAM(I_Dim+1,DD,DDMax,IMax)
         if (Iter == 1) write(IW,'(A,5X,A,15X,A,17X,A)') ' Iter','Max Change','Max DD','Max error'
-        write(IW,'(I3,3(2X,E23.15E3),A,I2,A)') Iter,DCofMx,VVMax,DDMax,' (',IMax,')'
+        write(IW,'(I3,3(2X,ES23.15E3),A,I2,A)') Iter,DCofMx,VVMax,DDMax,' (',IMax,')'
       else
         if (Iter == 1) write(IW,'(A,5X,A,15X,A)') ' Iter','Max Change','Max DD'
-        write(IW,'(I3,2(2X,E23.15E3))') Iter,DCofMx,VVMax
+        write(IW,'(I3,2(2X,ES23.15E3))') Iter,DCofMx,VVMax
       end if
 
       if ((VVMax < 5.0e-16_wp) .and. (DCofMx < 1.0e-5_wp)) then

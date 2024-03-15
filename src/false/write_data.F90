@@ -71,7 +71,6 @@ do
       call mma_Allocate(Energies,nRoots,label='Energies')
       read(LU,*) Energies(:)
       if (Will_Print) call RecPrt('Root energies','',Energies,nRoots,1)
-      call Put_cArray('Relax Method','EXTERNAL',8)
       if (Mode == 'ADD') then
         call mma_Allocate(mEnergies,mRoots,label='mEnergies')
         call Get_dArray('Last energies',mEnergies,mRoots)
@@ -83,6 +82,7 @@ do
         call Store_Energies(mRoots,mEnergies,nRelax)
         call mma_Deallocate(mEnergies)
       else
+        call Put_cArray('Relax Method','EXTERNAL',8)
         call Store_Energies(nRoots,Energies,nRelax)
       end if
       call mma_Deallocate(Energies)
@@ -111,9 +111,18 @@ do
             call Store_Grad(mGradient,nCart,i,0,0)
           end if
         end if
+        ! modify the runfile gradient
+        call Qpg_dArray('GRAD',Found,i)
+        if (Found .and. (i == nCart)) then
+          call Get_dArray('GRAD',mGradient,nCart)
+          mGradient(:) = mGradient(:)+Gradient(:)
+          call Put_dArray('GRAD',mGradient,nCart)
+        end if
         call mma_Deallocate(mGradient)
       else
         call Store_Grad(Gradient,nCart,i,0,0)
+        call Qpg_dArray('GRAD',Found,i)
+        if (Found .and. (i == nCart)) call Put_dArray('GRAD',Gradient,nCart)
       end if
       call mma_Deallocate(Gradient)
     case ('[NAC]')

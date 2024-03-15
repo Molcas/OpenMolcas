@@ -759,7 +759,6 @@ c Avoid unused argument warnings
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: IICL(:), IIOP(:), IIOC(:)

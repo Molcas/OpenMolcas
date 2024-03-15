@@ -126,15 +126,9 @@
 * IH_OCC_CONS =1 implies that we should employ occupation conserving
 * part of Hamiltonian
 
-
+      Call unused_integer(mxsxbl)
 *.
-C-jwk-cleanup      REAL * 8 INPROD
-*
-*
-C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
-c      IF(IH_OCC_CONS.EQ.1) THEN
-c         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
-c      END IF
+#ifdef _DEBUGPRINT_
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.10) THEN
@@ -170,6 +164,7 @@ c      END IF
          WRITE(6,*) ' Initial C vector '
          CALL WRTVCD(CB,LUC,1,-1)
       END IF
+#endif
 * ===========================
 * 1 : Arrays for accessing C
 * ============================
@@ -279,6 +274,7 @@ c      END IF
                SCLFAC(JBLOCK) = 0.0D0
             END IF
 *
+#ifdef _DEBUGPRINT_
             IF(NTEST.GE.100) THEN
                IF(INTERACT.EQ.1) THEN
                   WRITE(6,*) ' TTSS for C block read in  '
@@ -288,6 +284,7 @@ c      END IF
                   CALL IWRTMA(ICBLOCK(1,JBLOCK),4,1,4,1)
                END IF
             END IF
+#endif
 *
          END DO
 *        ^ End of loop over Blocks
@@ -365,17 +362,20 @@ c      END IF
 C. BK-like approximation stuff
              IF(INTERACT.EQ.0.OR.I_DO_EXACT_BLK.EQ.0) GOTO 10000
 
+#ifdef _DEBUGPRINT_
              IF(NTEST.GE.100) THEN
                WRITE(6,*) ' Next s block in batch : '
                write(6,*) ' ISBLK IASM IBSM IATP IBTP'
                write(6,'(5I5)')  ISBLK,IASM,IBSM,IATP,IBTP
              END IF
+#endif
 *
              IF(IDC.EQ.2.AND.IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
      &         ((LLBSM.GT.LLASM).OR.
      &         (LLASM.EQ.LLBSM).AND.(LLBTP.GT.LLATP)))
      &         GOTO 8764
 *
+#ifdef _DEBUGPRINT_
              IF(NTEST.GE.60) THEN
                WRITE(6,*) ' RSSBCB will be called for '
                WRITE(6,*) ' Sigma block : '
@@ -388,6 +388,7 @@ C. BK-like approximation stuff
                WRITE(6,*) ' ICOFF ', ICOFF
                WRITE(6,*) ' Overall scale',SCLFAC(ICBLK)
              END IF
+#endif
 *
              IF(IRESTRICT.EQ.1.AND.
      &            ((IASM.EQ.LLASM.AND.IBSM.EQ.LLBSM.AND.
@@ -424,7 +425,7 @@ C               IF(IPERTOP.NE.0) THEN
      &                         NSMDX,   NIA,   NIB,  NLLA,  NLLB,
      &                         MXPOBS,   IDC,    CJRES,
      &                         SIRES,    I3,  XI3S,    I4,  XI4S,
-     &                         MXSXBL,MXSXST, MOCAA,
+     &                         MXSXST, MOCAA,
      &                         IPRNT,IPERTOP,
      &                         XFAC,IUSE_PH,IPHGAS,
      &                         I_RES_AB,
@@ -481,11 +482,13 @@ C               IF(IPERTOP.NE.0) THEN
          END IF
       END DO
 *
+#ifdef _DEBUGPRINT_
       IF(NTEST.GE.50) THEN
          WRITE(6,*) ' output blocks from SBLOCKS '
          CALL WRTTTS(       SB,  ISBLOCK,  NSBLOCK,    NSMST,
      &                   NSSOA,    NSSOB,        1)
       END IF
+#endif
 *
       RETURN
 * Avoid unused argument warnings

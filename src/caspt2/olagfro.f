@@ -165,11 +165,12 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+#include "caspt2_grad.fh"
 C
       Dimension DPT2(*),OLag(*)
 C
-      Call GetMem('EPS','Allo','Real',ipEPS,nBasT)
-      Call Get_dArray('RASSCF OrbE',Work(ipEPS),nBasT)
+C     Call GetMem('EPS','Allo','Real',ipEPS,nBasT)
+C     Call Get_dArray('RASSCF OrbE',Work(ipEPS),nBasT)
 C
 C     write(6,*) "DPT2 before frozen orbital"
 C     call sqprt(dpt2,nbast)
@@ -179,12 +180,14 @@ C     do i = 1, nbast
 C       write(6,'(i3,f20.10)') i,work(ipeps+i-1)
 C     end do
       iMO  = 1
+C     write (*,*) "now using the fifa energies"
+C     call sqprt(work(ipfifa),nbast)
       DO iSym = 1, nSym
         nOrbI = nBas(iSym)-nDel(iSym)
         nFroI = nFro(iSym)
         If (nOrbI.gt.0.and.nFroI.gt.0) Then
           nIshI = nIsh(iSym)
-          ! nBasI = nBas(iSym)
+          nBasI = nBas(iSym)
           !! Make sure that the frozen orbital of the orbital Lagrangian
           !! is zero
           Call DCopy_(nOrbI*nFroI,[0.0D+00],0,OLag,1)
@@ -194,8 +197,10 @@ C         write(6,*) iorb,jorb,OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
 C         write(6,*) work(ipeps+iorb-1),work(ipeps+jorb-1)
               Tmp = -0.5D+00*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
      *                       -OLag(iMO+jOrb-1+nOrbI*(iOrb-1)))
-     *            /(Work(ipEPS+iOrb-1)-Work(ipEPS+jOrb-1))
+C    *            /(Work(ipEPS+iOrb-1)-Work(ipEPS+jOrb-1))
 C    *            /(Work(ipFIFA+iOrb-1+nBasI*(iOrb-1))-EPSI(jOrb-nFroI))
+     *            /(Work(ipFIFA+iOrb-1+nBasI*(iOrb-1))
+     *             -Work(ipFIFA+jOrb-1+nBasI*(jOrb-1)))
 C         write(6,*) tmp
               DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
      *          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + Tmp
@@ -209,7 +214,7 @@ C         write(6,*) tmp
 C     write(6,*) "DPT2 after frozen orbital"
 C     call sqprt(dpt2,nbast)
 C
-      Call GetMem('EPS','Free','Real',ipEPS,nBasT)
+C     Call GetMem('EPS','Free','Real',ipEPS,nBasT)
 C
       End Subroutine OLagFro1
 C

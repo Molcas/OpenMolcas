@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE LUCIA()
+      use stdalloc, only: mma_allocate
+      use GLBBAS, only: CI_VEC, SIGMA_VEC
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *. Parameters for dimensioning
 #include "mxpdim.fh"
-*.Memory
-#include "WrkSpc.fh"
 *.File numbers
 #include "clunit.fh"
 *.Print flags
@@ -26,8 +26,6 @@
 #include "oper.fh"
 #include "cgas.fh"
 
-#include "glbbas.fh"
-#include "rasscf_lucia.fh"
 #include "warnings.h"
 *.Scratch : A character line
 *
@@ -56,18 +54,17 @@ c         KBASE = 1
 c         KADD = MXPWRD
 c         CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY')
 c      ENDIF
-      CALL ALLOC_LUCIA
+      CALL ALLOC_LUCIA()
 *. Read in integrals
          IF(NOINT.EQ.0) THEN
-            CALL INTIM
+            CALL INTIM()
          ELSE
             WRITE(6,*) ' No integrals imported '
          END IF
 *. READ in MO-AO matrix
-c      IF(NOMOFL.EQ.0) CALL GET_CMOAO(WORK(KMOAOIN))
-*. Internal string information (stored in WORK, bases in /STRBAS/)
-c       CALL STRINF_GAS(WORK,IPRSTR)
-      CALL STRINF_GAS(iWORK,IPRSTR) ! really iWORK??? in master?
+c      IF(NOMOFL.EQ.0) CALL GET_CMOAO(MOAOIN)
+*. Internal string information
+      CALL STRINF_GAS(IPRSTR)
 *. Internal subspaces
       CALL LCISPC(IPRCIX)
 *
@@ -85,7 +82,7 @@ c         IF (ENVIRO(1:6).EQ.'RASSCF') THEN
       LBLOCK = MAX(INT(XISPSM(IREFSM,1)),MXSOOB)
       IF(PSSIGN.NE.0.0D0) LBLOCK = INT(2.0D0*XISPSM(IREFSM,1))
 
-      CALL GETMEM('VEC1  ','ALLO','REAL',KCI_POINTER,LBLOCK)
-      CALL GETMEM('VEC2  ','ALLO','REAL',KSIGMA_POINTER,LBLOCK)
-      RETURN
+      CALL mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
+      CALL mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
+
       END

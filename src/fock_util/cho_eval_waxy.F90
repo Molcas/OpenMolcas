@@ -15,6 +15,7 @@ use Symmetry_Info, only: Mul
 use Data_structures, only: DSBA_Type, SBA_Type, twxy_Type
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use wadr, only: nPWXY
 
 #include "intent.fh"
 
@@ -28,7 +29,6 @@ logical(kind=iwp), intent(in) :: DoTraInt
 type(DSBA_Type), intent(in) :: CMO
 #include "rasdim.fh"
 #include "general.fh"
-#include "wadr.fh"
 integer(kind=iwp) :: ijSym, iOrb, ipMpw, iS, iStack, iSyma, iSymp, iSymw, iSymx, iSymy, ixy, jAsh, kAsh, kl_Orb_pairs, lAsh, &
                      nAob_w, nBas_a, nOrb_a, Npw, Nwa, Nxy, off_PWXY(8,8,8)
 

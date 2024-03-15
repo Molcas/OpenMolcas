@@ -134,7 +134,7 @@ C     IF(NTEST.NE.0.AND.IWAY.EQ.1) THEN
 
         WRITE(6,'(A,6I4)') ' IWAY IATP IBTP IASM IBSM IDC ',
      &                   IWAY,IATP,IBTP,IASM,IBSM,IDC
-        WRITE(6,'(A,I4,3X,2E15.8)') ' IPACK FACTOR SIGN',
+        WRITE(6,'(A,I4,3X,2ES15.8)') ' IPACK FACTOR SIGN',
      &  IPACK,FACTOR,SIGN
         IF(NTEST.GE. 100 ) THEN
           WRITE(6,*) ' Slater determinant block '

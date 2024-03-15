@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTROC,  NSTR,   NEL,
      &                              NNSTSGP,IISTSGP)
+      use strbas
 *
 * Obtain all superstrings containing  strings of given sym and type
 *
@@ -34,8 +35,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
 *. General input
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
-#include "strbas.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "csm.fh"
@@ -43,7 +42,6 @@
       INTEGER ITPFGS(*), ISMFGS(*)
       INTEGER NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
 *. Local scratch
-C     INTEGER NSTFGS(MXPNGAS), IBSTFGS(MXPNGAS), ISTRNM(MXPNGAS)
       INTEGER NSTFGS(MXPNGAS), IBSTFGS(MXPNGAS)
 *. Output
       INTEGER ISTROC(NEL,*)
@@ -54,6 +52,7 @@ C?    write(6,*) ' entering problem child '
         IBSTFGS(IGAS) = IISTSGP(ISMFGS(IGAS),IGAS)
       END DO
 *
+#ifdef _DEBUGPRINT_
       NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) '  GETSTR_GASSM_SPGP speaking '
@@ -66,18 +65,17 @@ C?    write(6,*) ' entering problem child '
         CALL IWRTMA(NSTFGS,1,NGAS,1,NGAS)
         CALL IWRTMA(IBSTFGS,1,NGAS,1,NGAS)
       END IF
+#endif
 *. Last gasspace with a nonvanishing number of electrons
       IGASL = 0
       DO IGAS = 1, NGAS
         IF( NELFGP(ITPFGS(IGAS)) .NE. 0 ) IGASL = IGAS
       END DO
-C     WRITE(6,*) ' IGASL = ', IGASL
 *
       NSTRTOT = 1
       DO IGAS = 1, NGAS
         NSTRTOT = NSTRTOT*NSTFGS(IGAS)
       END DO
-C     WRITE(6,*) ' NSTRTOT = ', NSTRTOT
       IF(IGASL.EQ.0) GOTO 2810
 *
       IF(NSTRTOT.EQ.0) GOTO 1001
@@ -90,7 +88,6 @@ C     WRITE(6,*) ' NSTRTOT = ', NSTRTOT
         END IF
 *. Number of electron in IGAS
         NELI = NELFGP(ITPFGS(IGAS))
-C?      WRITE(6,*) ' NELI and NELB ', NELI,NELB
         IF(NELI.GT.0) THEN
 
 *. The order of strings corresponds to a matrix A(I(after),Igas,I(before))
@@ -108,18 +105,17 @@ C?      WRITE(6,*) ' NELI and NELB ', NELI,NELB
 *
           NSTI = NSTFGS(IGAS)
 
-C?        write(6,*) ' before call to add_str_group '
+#ifdef _DEBUGPRINT_
           IF(NTEST.GE.200) THEN
             WRITE(6,*) ' NSTI,NSTB,NSTA,NELB,NELI,NEL ',
      &                   NSTI,NSTB,NSTA,NELB,NELI,NEL
-            WRITE(6,*) ' IBSTFGS(IGAS),KOC()',
-     &                   IBSTFGS(IGAS),KOCSTR(ITPFGS(IGAS))
+            WRITE(6,*) ' IBSTFGS(IGAS)',IBSTFGS(IGAS)
           END IF
+#endif
 *
-          CALL ADD_STR_GROUP(   NSTI,
-     &                       IBSTFGS(IGAS),
-     &                       IWORK(KOCSTR(ITPFGS(IGAS))),
-     &                          NSTB,   NSTA, ISTROC, NELB+1,   NELI,
+          CALL ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),
+     &                       OCSTR(ITPFGS(IGAS))%I,
+     &                       NSTB,   NSTA, ISTROC, NELB+1,   NELI,
      &                           NEL)
 *
 *. Loop over strings in IGAS
@@ -129,6 +125,7 @@ C?        write(6,*) ' before call to add_str_group '
  2810 CONTINUE
       NSTR = NSTRTOT
 *
+#ifdef _DEBUGPRINT_
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from  GETSTR_GASSM_SPGP '
         WRITE(6,*) ' ============================='
@@ -145,6 +142,6 @@ C?        write(6,*) ' before call to add_str_group '
         WRITE(6,*) ' Strings generated '
         CALL PRTSTR(ISTROC,NEL,NSTR)
       END IF
+#endif
 *
-      RETURN
       END

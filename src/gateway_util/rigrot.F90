@@ -126,9 +126,9 @@ call mma_deallocate(Coor)
 if (RR_Show) then
   write(u6,'(19X,A)') ' The Moment of Inertia Tensor / au'
   write(u6,'(19X,14X,3A)') '    X     ','     Y    ','    Z     '
-  write(u6,'(19X,A,12X,3(E11.4))') ' X',rMI(1)
-  write(u6,'(19X,A,12X,3(E11.4))') ' Y',rMI(2),rMI(3)
-  write(u6,'(19X,A,12X,3(E11.4))') ' Z',rMI(4),rMI(5),rMI(6)
+  write(u6,'(19X,A,12X,3(ES11.4))') ' X',rMI(1)
+  write(u6,'(19X,A,12X,3(ES11.4))') ' Y',rMI(2),rMI(3)
+  write(u6,'(19X,A,12X,3(ES11.4))') ' Z',rMI(4),rMI(5),rMI(6)
   write(u6,*)
   call RecPrt('Pax',' ',Pax,3,3)
 end if
@@ -157,12 +157,12 @@ end do
 call mma_deallocate(Hess)
 if (RR_Show) then
   write(u6,'(19X,A)') ' The Principal Axes and Moments of Inertia (au)'
-  write(u6,'(19X,A,3(E11.4))') ' Eigenvalues :',(Prin(i),i=1,3)
+  write(u6,'(19X,A,3(ES11.4))') ' Eigenvalues :',(Prin(i),i=1,3)
   write(u6,'(19X,14X,3A)') '    X''    ','     Y''   ','    Z''    '
   write(u6,'(19X,A)') ' Eigenvectors:'
-  write(u6,'(19X,A,3(E11.4))') ' X            ',Pax(1,:)
-  write(u6,'(19X,A,3(E11.4))') ' Y            ',Pax(2,:)
-  write(u6,'(19X,A,3(E11.4))') ' Z            ',Pax(3,:)
+  write(u6,'(19X,A,3(ES11.4))') ' X            ',Pax(1,:)
+  write(u6,'(19X,A,3(ES11.4))') ' Y            ',Pax(2,:)
+  write(u6,'(19X,A,3(ES11.4))') ' Z            ',Pax(3,:)
   write(u6,*)
   !call Put_dArray('PAX',Pax,9)
   write(u6,'(19X,A)') ' The Rotational Constants'

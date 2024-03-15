@@ -189,7 +189,7 @@
          Else
             If (jPrint.ge.2) Then
                Write(6,*)
-               Write(6,'(6X,A,E11.4,A)')'All orbitals with orbital energies smaller than',ThrEne,' are printed'
+               Write(6,'(6X,A,ES11.4,A)')'All orbitals with orbital energies smaller than',ThrEne,' are printed'
             End If
          End If
          ThrOcc = -99999.0d+00

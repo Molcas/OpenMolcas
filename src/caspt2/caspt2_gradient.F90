@@ -15,12 +15,41 @@ module caspt2_gradient
 
   use definitions, only: iwp,wp
 
+  ! unit numbers
+  integer(kind=iwp) :: LuPT2           = 0_iwp
+  integer(kind=iwp) :: LuGAMMA         = 0_iwp
+  integer(kind=iwp) :: LuCMOPT2        = 0_iwp
+  integer(kind=iwp) :: LuSTD           = 0_iwp
+  integer(kind=iwp) :: LuAPT2          = 0_iwp
+  integer(kind=iwp) :: LuPT2GRD        = 0_iwp
+
   ! gradients and NAC switches
-  logical(kind=iwp) :: do_grad = .false.
-  logical(kind=iwp) :: do_nac  = .false.
-  logical(kind=iwp) :: do_csf  = .false. ! CSF term in deriv. coup.
-  integer(kind=iwp) :: iRoot1  = 0_iwp
-  integer(kind=iwp) :: iRoot2  = 0_iwp
-  integer(kind=iwp) :: nStpGrd = 1_iwp
+  logical(kind=iwp) :: do_grad         = .false.
+  logical(kind=iwp) :: do_nac          = .false.
+  logical(kind=iwp) :: do_csf          = .false. ! CSF term in deriv. coup.
+  integer(kind=iwp) :: iRoot1          = 0_iwp
+  integer(kind=iwp) :: iRoot2          = 0_iwp
+  integer(kind=iwp) :: nStpGrd         = 1_iwp
+
+  ! for removing the weired loop
+  integer(kind=iwp) :: iStpGrd         = 1_iwp
+  integer(kind=iwp) :: LUGRAD          = 0_iwp
+
+  ! for IPEA
+  logical(kind=iwp) :: do_lindep       = .false.
+  logical(kind=iwp) :: if_invar        = .true. ! active invariance
+  integer(kind=iwp) :: IDSAVGRD        = 0_iwp
+  integer(kind=iwp) :: idBoriMat(8,13) = 0_iwp
+  real(kind=wp)     :: ConvInvar       = 0.0_wp
+
+  ! whether PT2 energy is invariant wrt rotations among inactive
+  ! and secondary orbitals
+  logical(kind=iwp) :: if_invaria      = .true.
+
+  ! natural <-> quasi-canonical transformation of frozen orbitals
+  real(kind=wp),allocatable :: TraFro(:)
+
+  ! number of CI vectors per batch in mkfg3.f and derfg3.f
+  integer(kind=iwp) :: nbuf1_grad      = 0_iwp
 
 end module caspt2_gradient

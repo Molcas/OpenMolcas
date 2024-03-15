@@ -9,20 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MKCLIST(ISM,IDOWN,NOW,IOW,ICASE,ISCR)
+subroutine MKCLIST(NSYM,NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,NICASE,NIPWLK, &
+ISM,IDOWN,NOW,IOW,ICASE,ISCR)
 ! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
 !          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
 !          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
 !          INTO ONE INTEGER WORD.
 
 use Definitions, only: iwp
+use Symmetry_Info, only: Mul
 
 implicit none
-#include "rasdim.fh"
-#include "general_mul.fh"
-#include "gugx.fh"
+integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, MIDLEV, MVSta, MVEnd, &
+                                 NMIDV,NICASE, NIPWLK
 integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)
+
 integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
 logical(kind=iwp) :: Found
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
@@ -40,8 +42,8 @@ do IHALF=1,2
     LEV1 = NLEV
     LEV2 = MIDLEV
   else
-    IVTSTA = MIDV1
-    IVTEND = MIDV2
+    IVTSTA = MVSta
+    IVTEND = MVEnd
     LEV1 = MIDLEV
     LEV2 = 0
   end if
@@ -77,7 +79,7 @@ do IHALF=1,2
         if (LEV > LEV2) cycle
         ! WE HAVE REACHED THE LOWER LEVEL. THE WALK IS COMPLETE.
         ! MIDVERTEX NUMBER:
-        MV = ISCR(IVERT,MIDLEV)+1-MIDV1
+        MV = ISCR(IVERT,MIDLEV)+1-MVSta
         ! SYMMETRY LABEL OF THIS WALK:
         IWSYM = ISCR(ISYM,LEV2)
         ! ITS ORDERING NUMBER WITHIN THE SAME BATCH OF (IHALF,IWSYM,MV):

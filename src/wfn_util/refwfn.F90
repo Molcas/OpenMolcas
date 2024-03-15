@@ -214,6 +214,7 @@ subroutine refwfn_data
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
 # endif
+  use gugx, only: L2ACT, LEVEL
 
 # include "rasdim.fh"
 # include "caspt2.fh"

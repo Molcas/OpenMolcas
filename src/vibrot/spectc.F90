@@ -328,18 +328,18 @@ call Add_Info('VIBROT_SPECTC',[ChkSum],1,2)
 return
 
 990 format(/5x,'Rotational constants for vibrational quantum number',i3 &
-           /5x,'B=',e13.6,' cm-1     D=',e13.6,' cm-1' &
+           /5x,'B=',es13.6,' cm-1     D=',es13.6,' cm-1' &
            /5x,'Observed and computed term values (cm-1)')
-991 format(5x,i3,3e20.6)
+991 format(5x,i3,3es20.6)
 992 format(/5x,'Rotational constants B(nv) and D(nv) in cm-1')
-994 format(/5x,'Spectroscopic constants De=',e13.6,' cm-1  Betae=',e13.6,' cm-1' &
+994 format(/5x,'Spectroscopic constants De=',es13.6,' cm-1  Betae=',es13.6,' cm-1' &
            /5x,'Observed and computed D values')
 995 format(/5x,'Spectroscopic constants Be,Alphae and Gammae' &
-           /5x,'Be=',e13.6,' cm-1    Alphae=',e13.6,' cm-1    Gammae=',e13.6 &
+           /5x,'Be=',es13.6,' cm-1    Alphae=',es13.6,' cm-1    Gammae=',es13.6 &
            /5x,'Observed and computed B values')
-996 format(/5x,'Vibrational constants we  =',e13.6,' cm-1' &
-           /5x,'                      wexe=',e13.6,' cm-1' &
-           /5x,'                      weye=',e13.6,' cm-1' &
+996 format(/5x,'Vibrational constants we  =',es13.6,' cm-1' &
+           /5x,'                      wexe=',es13.6,' cm-1' &
+           /5x,'                      weye=',es13.6,' cm-1' &
            /5x,'Observed and computed band origins')
 1000 format(//5x,'Spectroscopic constants for ',2a2)
 1100 format(//5x,'Range of J-values used in fit',2i3, &
@@ -347,15 +347,15 @@ return
 1200 format(///5x,'Re(a)',15x,f8.4, &
             /5x,'De(ev)',14x,f8.4, &
             /5x,'D0(ev)',14x,f8.4, &
-            /5x,'we(cm-1)',7x,e13.6, &
-            /5x,'wexe(cm-1)',5x,e13.6, &
-            /5x,'weye(cm-1)',5x,e13.6, &
-            /5x,'Be(cm-1)',7x,e13.6, &
-            /5x,'Alphae(cm-1)',3x,e13.6, &
-            /5x,'Gammae(cm-1)',3x,e13.6, &
-            /5x,'Dele(cm-1)',5x,e13.6, &
-            /5x,'Betae(cm-1)',4x,e13.6)
-1300 format(//5x,'Max deviation in term values is',e10.2,' cm(-1)')
+            /5x,'we(cm-1)',7x,es13.6, &
+            /5x,'wexe(cm-1)',5x,es13.6, &
+            /5x,'weye(cm-1)',5x,es13.6, &
+            /5x,'Be(cm-1)',7x,es13.6, &
+            /5x,'Alphae(cm-1)',3x,es13.6, &
+            /5x,'Gammae(cm-1)',3x,es13.6, &
+            /5x,'Dele(cm-1)',5x,es13.6, &
+            /5x,'Betae(cm-1)',4x,es13.6)
+1300 format(//5x,'Max deviation in term values is',es10.2,' cm(-1)')
 1400 format(//5x,'Term values(observed and computed) in cm(-1)')
 1500 format(/1x,'J-value',7x,i3,19x,i3,19x,i3,19x,i3,19x,i3)
 1510 format(/1x,'v-value')

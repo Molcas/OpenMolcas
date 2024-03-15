@@ -70,8 +70,8 @@ if (Verbose) then
   write(u6,*)
   call Cho_Head('Cholesky Decomposition of  M(ai,bj) = (ai|bj)^2 for SOS-MP2','=',80,u6)
   write(u6,'(/,1X,A)') 'Configuration of decomposition:'
-  write(u6,'(1X,A,1P,D15.6)') 'Threshold: ',ThrMP2
-  write(u6,'(1X,A,1P,D15.6)') 'Span     : ',SpanMP2
+  write(u6,'(1X,A,ES15.6)') 'Threshold: ',ThrMP2
+  write(u6,'(1X,A,ES15.6)') 'Span     : ',SpanMP2
   if (ChkDecoMP2) then
     write(u6,'(1X,A)') 'Full decomposition check activated.'
   end if
@@ -175,13 +175,13 @@ do iSym=1,nSym
       write(u6,'(/,1X,A)') '- decomposition completed!'
       write(u6,'(1X,A,I9,A,I9,A)') 'Number of vectors needed: ',nMP2Vec(iSym),' (number of AO vectors: ',NumCho(iSym),')'
       write(u6,'(1X,A)') 'Error statistics for (ai|ai)^2 [min,max,rms]:'
-      write(u6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
+      write(u6,'(1X,3(ES15.6,1X))') XMn,XMx,RMS
     end if
     Failed = (abs(Xmn) > Thr) .or. (abs(XMx) > thr) .or. (RMS > Thr)
     if (Failed) then
       if (.not. Verbose) then
         write(u6,'(1X,A)') 'Error statistics for (ai|ai)^2 [min,max,rms]:'
-        write(u6,'(1X,1P,3(D15.6,1X))') XMn,XMx,RMS
+        write(u6,'(1X,3(ES15.6,1X))') XMn,XMx,RMS
       end if
       write(u6,*) SecNam,': (ai|bj)^2 decomposition failed!'
       irc = -9999

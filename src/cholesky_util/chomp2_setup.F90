@@ -259,7 +259,7 @@ do while ((nBatch < mBatch) .and. (.not. Accepted))
       if (lX > Zero) then
         write(LuPri,'(A)') 'This seems to be an integer overflow!'
         call Cho_RWord2Byte(lX,Byte,Unt)
-        write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)') 'In double precision, lX=',lX,' words (',Byte,Unt,')'
+        write(LuPri,'(A,ES15.6,A,ES15.6,1X,A,A)') 'In double precision, lX=',lX,' words (',Byte,Unt,')'
       end if
       irc = 1
       lAvail = 0

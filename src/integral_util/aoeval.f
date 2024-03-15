@@ -208,7 +208,7 @@
 #ifdef _DEBUGPRINT_
       Do i = 0, iAng+nRad-1
          Write (Label,'(A,I2,A)')'xyz(nCoor,nCar,',i,')'
-         Call RecPrt(Label,'(3E12.6)',xyz(1,1,i),nCoor,3)
+         Call RecPrt(Label,'(3ES13.6)',xyz(1,1,i),nCoor,3)
       End Do
 #endif
 !                                                                      *

@@ -50,7 +50,6 @@
 #include "strnum.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "gugx.fh"
 #include "gas.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"

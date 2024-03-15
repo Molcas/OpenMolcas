@@ -250,8 +250,8 @@ if (iPrint >= 5) then
     else if (lOld .and. (.not. lNmHss)) then
       write(Lu,'(1X,A)') '-Initial Hessian guess was read from a RUNFILE file.'
     else
-      write(Lu,'(1X,A,/,A,E9.2)') '-Initial Hessian guess is estimated with finite differences.', &
-                                  '    Two point symmetric formula, Delta=',Delta
+      write(Lu,'(1X,A,/,A,ES9.2)') '-Initial Hessian guess is estimated with finite differences.', &
+                                   '    Two point symmetric formula, Delta=',Delta
       if (Cubic) write(Lu,'(1X,A)') '-Cubic force constants evaluated numerically.'
     end if
   end if

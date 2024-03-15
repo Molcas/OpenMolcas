@@ -10,7 +10,9 @@
 *                                                                      *
 * Copyright (C) 1992,2001, Jeppe Olsen                                 *
 ************************************************************************
-      SUBROUTINE CSDTMT_GAS(IPDTCNF,IPCSCNF,DTOC,IPRCSF)
+      SUBROUTINE CSDTMT_GAS(IPRCSF)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use GLBBAS, only: DFTP, CFTP, DTOC, Z_PTDT, REO_PTDT
 *
 * Construct in IDTFTP list of proto type combinations in IDFTP
 * Construct in ICFTP list of proto type CSF's in ICFTP
@@ -30,12 +32,10 @@
 #include "implicit.fh"
 #include "mxpdim.fh"
 #include "spinfo_lucia.fh"
-#include "WrkSpc.fh"
 #include "cstate.fh"
-#include "glbbas.fh"
 *. Output
-      INTEGER IPDTCNF(*),IPCSCNF(*)
-      DIMENSION DTOC(*)
+      Real*8,  Allocatable:: SCR1(:)
+      Integer, Allocatable:: iSCR2(:)
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRCSF)
@@ -49,7 +49,7 @@
      &MAX_DC
       LSCR = MAX(MAX_DC,MAXOP)
                 LSCR = MAX_DC*MAXOP+MAXOP
-      CALL GETMEM('SCR_CS','ALLO','REAL',KLSCR1,LSCR)
+      Call mma_allocate(SCR1,LSCR,Label='SCR1')
 *
 *
 * .. Set up combinations and upper determinants
@@ -90,8 +90,8 @@ C
             CALL SPNCOM_LUCIA(  IOPEN,
      &                            MS2,
      &                          NNDET,
-     &                        IPDTCNF(IDTBS),
-     &                        IPCSCNF(ICSBS),
+     &                        DFTP(IDTBS),
+     &                        CFTP(ICSBS),
 *
      &                          IFLAG,
      &                         PSSIGN,
@@ -103,8 +103,8 @@ C    &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
             CALL SPNCOM_LUCIA(  IOPEN,
      &                            MS2,
      &                          NNDET,
-     &                        IPDTCNF(IDTBS),
-     &                        IPCSCNF(ICSBS),
+     &                        DFTP(IDTBS),
+     &                        CFTP(ICSBS),
 *
      &                          IFLAG,
      &                         PSSIGN,
@@ -113,8 +113,8 @@ C    &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
             CALL SPNCOM_LUCIA(  IOPEN,
      &                        MULTS-1,
      &                          NNDET,
-     &                        IPDTCNF(IDTBS),
-     &                        IPCSCNF(ICSBS),
+     &                        DFTP(IDTBS),
+     &                        CFTP(ICSBS),
 *
      &                          IFLAG,
      &                         PSSIGN,
@@ -136,7 +136,7 @@ C    &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
           LSCR = MAX(L,LSCR)
         END IF
       END DO
-      CALL GETMEM('KLSCR2','ALLO','INTE',KLSCR2,LSCR)
+      Call mma_allocate(iSCR2,LSCR,Label='iSCR2')
 *
       IDTBS = 1
 C-jwk      DO IOPEN = 0, MAXOP
@@ -153,16 +153,11 @@ C-jwk      DO IOPEN = 0, MAXOP
 C?      WRITE(6,*) ' IOPEN, IDET = ', IOPEN, IDET
         CALL REO_PTDET(   IOPEN,
      &                   IALPHA,
-     &                 IWORK(KZ_PTDT(ITP)),
-     &                 IWORK(KREO_PTDT(ITP)),
-     &                 IPDTCNF(IDTBS),
+     &                 Z_PTDT(ITP)%I,
+     &                 REO_PTDT(ITP)%I,
+     &                 DFTP(IDTBS),
 *
-     &                     IDET,
-     &                 IWORK(KLSCR2) )
-C?     WRITE(6,*) ' Z array as delivered by REO_PTDET'
-C?     CALL IWRTMA(WORK(KZ_PTDT(ITP)),IOPEN,IALPHA,IOPEN,IALPHA)
-C     REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,
-C    &                     NLIST_PTDET,ISCR)
+     &                     IDET,iSCR2)
       END DO
 
 *
@@ -201,20 +196,20 @@ C       IF(NPCMCNF(ITP)*NPCSCNF(ITP).EQ.0) GOTO 30
            DTOC(ICDCBS) = 1.0D0
         ELSE
           CALL CSFDET_LUCIA(  IOPEN,
-     &                      IPDTCNF(IDTBS),
+     &                      DFTP(IDTBS),
      &                      NPCMCNF(ITP),
-     &                      IPCSCNF(ICSBS),
+     &                      CFTP(ICSBS),
      &                      NPCSCNF(ITP),
 *
-     &                      DTOC(ICDCBS),WORK(KLSCR1),PSSIGN,IPRCSF)
+     &                      DTOC(ICDCBS),SCR1,SIZE(SCR1),PSSIGN,IPRCSF)
 C              CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,WORK,PSSIGN,
 C    &                IPRCSF)
         END IF
       END DO
 *     ^ End of loop over number of open shells
 *
-      CALL GETMEM('SCR_CS','FREE','REAL',KLSCR1,LSCR)
-      CALL GETMEM('KLSCR2','FREE','INTE',KLSCR2,LSCR)
+      Call mma_deallocate(SCR1)
+      Call mma_deallocate(iSCR2)
 *
       IF(NTEST.GE.10) THEN
         WRITE(6,*)  ' List of CSF-SD transformation matrices '

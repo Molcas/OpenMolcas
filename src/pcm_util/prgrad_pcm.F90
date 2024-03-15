@@ -75,7 +75,7 @@ else
   do iGrad=1,mGrad
     Temp = Grad(iGrad)
     if (abs(Temp) < 1.0e-15_wp) Temp = Zero
-    write(u6,'(16X,A,15X,E15.7)') Names(iGrad),Temp
+    write(u6,'(16X,A,15X,ES15.7)') Names(iGrad),Temp
   end do
 
   !if (nGrad > 21) then

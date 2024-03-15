@@ -42,7 +42,7 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-type(DSBA_Type), intent(in) :: DLT, MO1(2), MO2(2)
+type(DSBA_Type), intent(in) :: DLT(1), MO1(2), MO2(2)
 type(DSBA_Type), intent(inout) :: FLT(1), FSQ
 real(kind=wp), intent(_OUT_) :: TUVX(*)
 #include "rassi.fh"
@@ -165,7 +165,7 @@ do jSym=1,nSym
       ! Transform the density to reduced storage
       add = .false.
       mDen = 1
-      call swap_full2rs(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,add)
+      call swap_full2rs(irc,iLoc,nRS,mDen,JSYM,DLT,Drs,add)
     end if
 
     ! BATCH over the vectors ----------------------------

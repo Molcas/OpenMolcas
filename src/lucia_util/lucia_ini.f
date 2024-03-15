@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE Lucia_Ini
+      SUBROUTINE Lucia_Ini()
+      use rasscf_lucia, only: Sigma_on_disk, ini_h0
 *
       implicit real*8 (a-h,o-z)
 C Input from RASSCF
@@ -26,8 +27,6 @@ C Input from RASSCF
 #include "oper.fh"
 #include "orbinp.fh"
 #include "gasstr.fh"
-#include "WrkSpc.fh"
-#include "rasscf_lucia.fh"
 #include "memman.fh"
 C Other definitions
       PARAMETER(MXPKW = 125)
@@ -57,7 +56,7 @@ C =======================
 c      I_USE_SIMTRH = 0
 * Initialize flag to be used by densi_master to check whether the
 * sigma-vector is on disk.
-      iSigma_on_disk = 0
+      Sigma_on_disk = .FALSE.
 *
 C ===================
 C  Initialize isetkw
@@ -1221,7 +1220,7 @@ C    &  '        Allowed number of iterations    ',MAXIT
       WRITE(6,'(1X,A,I2)')
      &  '        Allowed Dimension of CI subspace',MXCIV
 *
-      WRITE(6,'(1X,A,E12.5)')
+      WRITE(6,'(1X,A,ES12.5)')
      &  '        Convergence threshold for energy',THRES_E
 *. Multispace (multigrid info )
 c      IF(MULSPC.EQ.1) THEN
@@ -1238,9 +1237,9 @@ c      END IF
 *
       WRITE(6,*)
       IF(IDIAG.EQ.2) THEN
-        WRITE(6,'(1X,A,E12.5)')
+        WRITE(6,'(1X,A,ES12.5)')
      &   '        Individual second order energy threshold',E_THRE
-        WRITE(6,'(1X,A,E12.5)')
+        WRITE(6,'(1X,A,ES12.5)')
      &   '        Individual first order wavefunction threshold',C_THRE
         IF(ICLSSEL.EQ.1) THEN
          WRITE(6,*)
@@ -1248,9 +1247,9 @@ c      END IF
      &   '         Class selection will be performed : '
          WRITE(6,'(1X,A)')
      &   '         =================================== '
-         WRITE(6,'(1X,A,E12.5)')
+         WRITE(6,'(1X,A,ES12.5)')
      &    '          Total second order energy threshold',E_CONV
-         WRITE(6,'(1X,A,E12.5)')
+         WRITE(6,'(1X,A,ES12.5)')
      &    '          Total first order wavefunction threshold',C_CONV
         ELSE
          WRITE(6,'(1X,A)')
@@ -1505,11 +1504,11 @@ c      END IF
 *
 *
       WRITE(6,*)
-      WRITE(6,'(1X,A,E18.9)') '      Core energy : ', ECORE
+      WRITE(6,'(1X,A,ES18.9)') '      Core energy : ', ECORE
 *
 c      IF(IDMPIN.EQ.1) THEN
 c        WRITE(6,'(1X,A)')
-c        WRITE(6,*) '      Integrals written in formatted form (E22.15)'
+c        WRITE(6,*) '      Integrals written in formatted form (ES22.15)'
 c        WRITE(6,*) '      on file 90 '
 c      END IF
 *

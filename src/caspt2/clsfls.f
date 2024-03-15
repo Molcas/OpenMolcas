@@ -41,7 +41,7 @@
       Call DaClos(LUDMAT)
       Call DaClos(LUSOLV)
       Call DaClos(LUSBT)
-      DO IVEC=1,6
+      DO IVEC=1,8
         CALL DaClos(LURHS(IVEC))
       END DO
       DO IMAT=1,4

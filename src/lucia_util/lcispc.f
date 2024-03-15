@@ -11,6 +11,8 @@
 * Copyright (C) 1994,1995,1999, Jeppe Olsen                            *
 ************************************************************************
       SUBROUTINE LCISPC(IPRNT)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use strbas
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -30,18 +32,18 @@
 #include "lucinp.fh"
 #include "cstate.fh"
 #include "strinp.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "stinf.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
-#include "WrkSpc.fh"
 *
 * ====================
 *. Output common block : XISPSM is calculated
 * ====================
 *
 #include "cicisp.fh"
+
+      Integer, Allocatable:: LBLTP(:), LIOIO(:), CVST(:)
 *
 *
 *. Number of spaces
@@ -54,15 +56,12 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
       NOCTPA =  NOCTYP(IATP)
       NOCTPB =  NOCTYP(IBTP)
 *.Local memory
-      CALL GETMEM('KLBLTP','ALLO','INTE',KLBLTP,NSMST)
-      KLCVST=1
-c      IF(IDC.EQ.3 .OR. IDC .EQ. 4 )
-c     &CALL MEMMAN(KLCVST,NSMST,'ADDL  ',2,'KLCVST')
-      CALL GETMEM('KLIOIO','ALLO','INTE',KLIOIO,NOCTPA*NOCTPB)
+      CALL mma_allocate(LBLTP,NSMST,Label='LBLTP')
+      Call mma_allocate(CVST,NSMST,Label='CVST')
+      CALL mma_allocate(LIOIO,NOCTPA*NOCTPB,Label='LIOIO')
 *. Obtain array giving symmetry of sigma v reflection times string
 *. symmetry.
-c      IF(IDC.EQ.3.OR.IDC.EQ.4)
-c     &CALL SIGVST(WORK(KLCVST),NSMST)
+c      IF(IDC.EQ.3.OR.IDC.EQ.4) CALL SIGVST(CVST,NSMST)
 
 *. Array defining symmetry combinations of internal strings
 *. Number of internal dets for each symmetry
@@ -74,19 +73,18 @@ c     &CALL SIGVST(WORK(KLCVST),NSMST)
       MXSOOB_AS = 0
       DO 100 ICI = 1, NICISP
 *. allowed combination of types
-      CALL IAIBCM(ICI,iWORK(KLIOIO))
+      CALL IAIBCM(ICI,LIOIO)
 
       DO  50 ISYM = 1, NSMCI
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,
-     &               iWORK(KLBLTP),iWORK(KLCVST))
+          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,LBLTP,CVST)
           CALL NGASDT(IGSOCCX(1,1,ICI),IGSOCCX(1,2,ICI),
      &                NGAS,ISYM,NSMST,NOCTPA,NOCTPB,
-     &                iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
+     &                NSTSO(IATP)%I,NSTSO(IBTP)%I,
      &                ISPGPFTP(1,IBSPGPFTP(IATP)),
      &                ISPGPFTP(1,IBSPGPFTP(IBTP)),
      &                MXPNGAS,NCOMB,XNCOMB,MXS,MXSOO,
-     &                iWORK(KLBLTP),NTTSBL,LCOL,
-     &                iWORK(KLIOIO),MXSOO_AS)
+     &                LBLTP,NTTSBL,LCOL,
+     &                LIOIO,MXSOO_AS)
 *
 
           XISPSM(ISYM,ICI) = XNCOMB
@@ -96,10 +94,12 @@ c     &CALL SIGVST(WORK(KLCVST),NSMST)
           NBLKIC(ISYM,ICI) = NTTSBL
           LCOLIC(ISYM,ICI) = LCOL
    50 CONTINUE
-      CALL GETMEM('KLBLTP','FREE','INTE',KLBLTP,NSMST)
-      CALL GETMEM('KLIOIO','FREE','INTE',KLIOIO,NOCTPA*NOCTPB)
+      Call mma_deallocate(LBLTP)
+      Call mma_deallocate(CVST)
+      Call mma_deallocate(LIOIO)
   100 CONTINUE
 *
+#ifdef _DEBUGPRINT_
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
       IF (NTEST .GE. 5) THEN
@@ -112,7 +112,7 @@ c     &CALL SIGVST(WORK(KLCVST),NSMST)
 *
          DO 200 ICI = 1, NCMBSPC
             WRITE(6,*) ' CI space ', ICI
-            WRITE(6,'(1X, 4E22.15)') (XISPSM(II,ICI),II=1,NSMCI)
+            WRITE(6,'(1X, 4ES22.15)') (XISPSM(II,ICI),II=1,NSMCI)
 C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
   200    CONTINUE
          WRITE(6,*)
@@ -131,6 +131,9 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
             CALL IWRTMA(NBLKIC(1,ICI),1,NSMCI,1,NSMCI)
         END DO
       END IF
+#else
+      Call Unused_Integer(IPRNT)
+#endif
 *. Largest number of BLOCKS in a CI expansion
       MXNTTS = 0
       DO ICI = 1,NCMBSPC
@@ -139,6 +142,7 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
        END DO
       END DO
 *
+#ifdef _DEBUGPRINT_
       IF(NTEST.GE.5) THEN
       WRITE(6,*) ' Largest number of blocks in CI expansion',
      &   MXNTTS
@@ -153,7 +157,6 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
           CALL IWRTMA(LCOLIC(1,ICI),1,NSMCI,1,NSMCI)
       END DO
       END IF
+#endif
 *
-*
-      RETURN
       END

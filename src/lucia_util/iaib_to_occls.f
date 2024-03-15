@@ -11,6 +11,7 @@
 * Copyright (C) 2001, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
+      use strbas
 *
 * Find address of the occupation class corresponding to given types
 * of alpha and beta strings
@@ -21,8 +22,6 @@
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
-#include "strbas.fh"
-#include "WrkSpc.fh"
 *. Local scratch
       INTEGER IABOCC(MXPNGAS)
 *
@@ -42,7 +41,7 @@ C  IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
 *
      &                 NGAS)
 *. And the address of this occupation class
-      CALL CMP_IVEC_ILIST(IABOCC,iWORK(KIOCLS),NGAS,NMXOCCLS,INUM)
+      CALL CMP_IVEC_ILIST(IABOCC,IOCLS,NGAS,NMXOCCLS,INUM)
 *
       IOC = INUM
 *

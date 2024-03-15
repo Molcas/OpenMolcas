@@ -706,8 +706,8 @@ c        Write(6,*)
      &  '|--- proj X ---|','--- proj Y ---|','--- proj Z ---|',
      &  '- in this dir.-|'
          Do iH=1,nH
-         Write(6,'(F7.3,1x,A, 3(E13.6,1x,A),E14.7,1x,A,1x,A, '//
-     &                       '3(E13.6,1x,A),E14.7,1x,A)')
+         Write(6,'(F7.3,1x,A, 3(ES13.6,1x,A),ES14.7,1x,A,1x,A, '//
+     &                       '3(ES13.6,1x,A),ES14.7,1x,A)')
      &   H(iH),'|',
      &     MVEC(iDir,iH,iT,1),' ',
      &     MVEC(iDir,iH,iT,2),' ',
@@ -749,7 +749,7 @@ c        Write(6,*)
      &  '--- proj X ---|','--- proj Y ---|','--- proj Z ---|',
      &  '- in this dir.-|'
          Do iH=1,nH
-            Write(6,'(F7.3,1x,A,3(E13.6,1x,A),E14.7,1x,A)')
+            Write(6,'(F7.3,1x,A,3(ES13.6,1x,A),ES14.7,1x,A)')
      &                         H(iH),'|',
      &              MVEC(iDir,iH,iT,1),' ',
      &              MVEC(iDir,iH,iT,2),' ',

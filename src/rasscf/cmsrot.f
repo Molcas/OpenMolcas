@@ -24,7 +24,6 @@
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
       Real*8,DIMENSION(NACPR2)::TUVX
       CHARACTER(len=16)::VecName
@@ -517,7 +516,6 @@ C     & IState,' is ',Vee(IState)
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
       Real*8,DIMENSION(lRoots,lRoots)::RotMat

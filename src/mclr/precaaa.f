@@ -225,7 +225,6 @@ C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "Input.fh"
-C#include "WrkSpc.fh"
 #include "Pointers.fh"
 C
       Real*8 ActInt(ntAsh,ntAsh,ntAsh,ntAsh),A_J(*),Scr(*)

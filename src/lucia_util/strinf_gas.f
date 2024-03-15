@@ -8,7 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE STRINF_GAS(STIN,IPRNT)
+      SUBROUTINE STRINF_GAS(IPRNT)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use strbas
+* modification Jeppe + Giovanni + Dongxia.
+      use distsym
 *
 * Obtain string information for GAS expansion
 *
@@ -22,7 +26,7 @@
 *.Output
 * =====
 *
-* /STRINP/,/STINF/,/STRBAS/ and string information in STIN
+* /STRINP/,/STINF/,STRBAS and string information in STIN
 *
       IMPLICIT REAL*8(A-H,O-Z)
 *. Input
@@ -31,7 +35,6 @@
 #include "orbinp.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "cstate.fh"
 #include "lucinp.fh"
@@ -39,13 +42,9 @@
 #include "strinp.fh"
 #include "irat.fh"
 #include "crun.fh"
-* modification Jeppe + Giovanni + Dongxia.
-#include "distsym.fh"
 *
-#include "WrkSpc.fh"
-*
-      INTEGER STIN(*)
       INTEGER ZERO_ARR(1), IDUM(1)
+      Integer, Allocatable:: FREEL(:)
 *. A bit of scratch
 C     DIMENSION IOCTYP(MXPNGAS)
 *
@@ -80,7 +79,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
          NACOB_EFFECTIVE = NACOB
          IF (NACOB .EQ. 0) NACOB_EFFECTIVE = 1
          MAXSCR = 2*NACOB_EFFECTIVE +(IEL+1)*(NACOB_EFFECTIVE+1) +NSMST
-         CALL GETMEM('KFREEL','ALLO','INTE',KFREEL, MAXSCR)
+         Call mma_allocate(FREEL,MAXSCR,Label='FREEL')
       DO IGRP = 1, NGRP
 *. A gas group can be considered as a RAS group with 0 electrons in
 *  RAS1, RAS3 !
@@ -99,42 +98,42 @@ C     DIMENSION IOCTYP(MXPNGAS)
         IEL = NELFGP(IGRP)
         IOCTYPX = 1
 *. Reverse lexical adresing schemes for each group of string
-        CALL WEIGHT_LUCIA(STIN(KZ(IGRP)),IEL,  NORB1,  NORB2,  NORB3,
-     &                      MNRS1X,MXRS1X, MNRS3X,  MXRS3X,STIN(KFREEL),
+        CALL WEIGHT_LUCIA(Zmat(IGRP)%I,IEL,  NORB1,  NORB2,  NORB3,
+     &                      MNRS1X,MXRS1X, MNRS3X,
+     &                      MXRS3X,FREEL,
      &                      IPRNT )
 *. Number of strings per symmetry in a given group
         CALL NSTRSO_GAS(     IEL,   NORB1,   NORB2,   NORB3,  MNRS1X,
-     &                    MXRS1X,  MNRS3X,  MXRS3X,STIN(KFREEL),NACOB,
-     &                  STIN(KNSTSGP(1)),
-     &                  STIN(KISTSGP(1)),IOCTYPX,NSMST,IGRP,IPRNT)
+     &                    MXRS1X,  MNRS3X,  MXRS3X,FREEL,NACOB,
+     &                  NSTSGP(1)%I,
+     &                  ISTSGP(1)%I,IOCTYPX,NSMST,IGRP,IPRNT)
 *. Construct the strings ordered by symmetry
         CALL GENSTR_GAS(     IEL,  MNRS1X,  MXRS1X,  MNRS3X,  MXRS3X,
-     &                  STIN(KISTSGP(1)),
-     &                   IGRP,IOCTYPX,NSMST,STIN(KZ(IGRP)),STIN(KFREEL),
-     &                  STIN(KSTREO(IGRP)),
-     &                  STIN(KOCSTR(IGRP)),
+     &                  ISTSGP(1)%I,
+     &                  IGRP,IOCTYPX,NSMST,Zmat(IGRP)%I,
+     &                  FREEL,STREO(IGRP)%I,OCSTR(IGRP)%I,
 *
-     &                  STIN(KFREEL+IOCTYPX*NSMST),IGRP,IPRNT)
+     &                  FREEL(1+IOCTYPX*NSMST),IGRP,IPRNT)
 *
-       CALL ICOPVE2(STIN(KNSTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
+       CALL ICOPVE2(NSTSGP(1)%I,1+(IGRP-1)*NSMST,NSMST,
      &              NSTFSMGP(1,IGRP))
-       CALL ICOPVE2(STIN(KISTSGP(1)),1+(IGRP-1)*NSMST,NSMST,
+       CALL ICOPVE2(ISTSGP(1)%I,1+(IGRP-1)*NSMST,NSMST,
      &              ISTFSMGP(1,IGRP))
       END DO
-      CALL GETMEM('KFREEL','FREE','INTE',KFREEL, MAXSCR)
+      Call mma_deallocate(FREEL)
 *
       INGRP_VAL = NGRP
-      CALL GETMEM('ISMDFGP','ALLO','INTE',ISMDFGP, NSMST*NGRP)
-      CALL GETMEM('NACTSYM','ALLO','INTE',NACTSYM, NGRP)
-      CALL GETMEM('ISMSCR','ALLO','INTE',ISMSCR, NGRP)
+      CALL mma_allocate(ISMDFGP, NSMST*NGRP,Label='ISMDFGP')
+      CALL mma_allocate(NACTSYM, NGRP,Label='NACTSYM')
+      CALL mma_allocate(ISMSCR, NGRP,Label='ISMSCR')
       call SMDFGP_GEN(NGRP,NSMST,MXPNSMST,NSTFSMGP,
-     &                iWork(NACTSYM),iWork(ISMDFGP))
+     &                NACTSYM,ISMDFGP)
 *
       IF(NTEST.GE.10) THEN
         write(6,*) 'NGRP', NGRP
         write(6,*) 'NSMST*NGRP', NSMST*NGRP
         WRITE(6,*) ' Number of strings per group and symmetry '
-        CALL IWRTMA10(STIN(KNSTSGP(1)),NSMST,NGRP,NSMST,NGRP)
+        CALL IWRTMA10(NSTSGP(1)%I,NSMST,NGRP,NSMST,NGRP)
         WRITE(6,*) ' Number of strings per group and symmetry(2) '
         CALL IWRTMA10(NSTFSMGP,NSMST,NGRP,MXPNSMST,NGRP)
       END IF
@@ -200,26 +199,28 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *. Zero
         IF(LAC.NE.0) THEN
           IZERO = 0
-          CALL ISETVC(STIN(KSTSTM(IGRP,1)),IZERO,LROW*NSTINI)
-          CALL ISETVC(STIN(KSTSTM(IGRP,2)),IZERO,LROW*NSTINI)
+          CALL ISETVC(STSTM(IGRP,1)%I,IZERO,LROW*NSTINI)
+          CALL ISETVC(STSTM(IGRP,2)%I,IZERO,LROW*NSTINI)
         END IF
 *
         IF(ISTAC(IGRP,2).NE.0) THEN
           JGRP = ISTAC(IGRP,2)
-          CALL CRESTR_GAS(STIN(KOCSTR(IGRP)),
+          CALL CRESTR_GAS(OCSTR(IGRP)%I,
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
-     &                    STIN(KZ(JGRP)),STIN(KSTREO(JGRP)),0,IDUM,IDUM,
-     &                    STIN(KSTSTM(IGRP,1)),
-     &                    STIN(KSTSTM(IGRP,2)),NACOB,IPRNT)
+     &                    Zmat(JGRP)%I,STREO(JGRP)%I,
+     &                    0,IDUM,IDUM,
+     &                    STSTM(IGRP,1)%I,
+     &                    STSTM(IGRP,2)%I,NACOB,IPRNT)
 *
         END IF
         IF(ISTAC(IGRP,1).NE.0) THEN
           JGRP = ISTAC(IGRP,1)
-          CALL ANNSTR_GAS(STIN(KOCSTR(IGRP)),
+          CALL ANNSTR_GAS(OCSTR(IGRP)%I,
      &                    NSTFGP(IGRP),NSTFGP(JGRP),IEL,NGSOBP,  IGSOB,
-     &                    STIN(KZ(JGRP)),STIN(KSTREO(JGRP)),0,IDUM,IDUM,
-     &                    STIN(KSTSTM(IGRP,1)),
-     &                    STIN(KSTSTM(IGRP,2)),NACOB,IEC,LROW,IPRNT)
+     &                    Zmat(JGRP)%I,STREO(JGRP)%I,
+     &                    0,IDUM,IDUM,
+     &                    STSTM(IGRP,1)%I,
+     &                    STSTM(IGRP,2)%I,NACOB,IEC,LROW,IPRNT)
 *
         END IF
       END DO
@@ -237,8 +238,8 @@ C     DIMENSION IOCTYP(MXPNGAS)
           IGRPABS = IGRP-1 + IBSPGPFTP(ITP)
           CALL NSTPTP_GAS(    NGAS,
      &                    ISPGPFTP(1,IGRPABS),
-     &                    IWORK(KNSTSGP(1)),
-     &                   NSMST,IWORK(KNSTSO(ITP)),IGRP,MXNSTRFSG,NSMCLS,
+     &                    NSTSGP(1)%I,
+     &                   NSMST,NSTSO(ITP)%I,IGRP,MXNSTRFSG,NSMCLS,
      &                     NSMCLSE,NSMCLSE1)
 *
 *
@@ -249,21 +250,20 @@ C     DIMENSION IOCTYP(MXPNGAS)
           MXNSTR = MAX(MXNSTR,MXNSTRFSG)
         END DO
 *
-        CALL ICOPMT(iWORK(KNSTSO(ITP)),
+        CALL ICOPMT(NSTSO(ITP)%I,
      &                  NSMST,
      &              NSPGPFTP(ITP),
      &              NSTFSMSPGP(1,IBSPGPFTP(ITP)),
      &               MXPNSMST,NSPGPFTP(ITP))
 *. Corresponding offset array : Each supergroup is generated individually
 *. so each supergroup starts with offset 1 !
-        CALL ZSPGPIB(iWORK(KNSTSO(ITP)),iWORK(KISTSO(ITP)),
-     &               NSPGPFTP(ITP),NSMST)
+        CALL ZSPGPIB(NSTSO(ITP)%I,ISTSO(ITP)%I,NSPGPFTP(ITP),NSMST)
 *
         IF(NTEST.GE.5) THEN
           WRITE(6,*)
      &    ' Number of strings per sym (row) and supergroup(column)',
      &    ' for type = ', ITP
-          CALL IWRTMA(iWORK(KNSTSO(ITP)),NSMST,NSPGPFTP(ITP),
+          CALL IWRTMA(NSTSO(ITP)%I,NSMST,NSPGPFTP(ITP),
      &                NSMST,NSPGPFTP(ITP))
           WRITE(6,'(A,3I6)') ' NSMCLS,NSMCLSE,NSMCLSE1=',
      &                         NSMCLS,NSMCLSE,NSMCLSE1
@@ -318,15 +318,15 @@ C?   &                     MXSMCLS,MXSMCLSE,MXSMCLSE1
 * Possible occupation classes
 *
       ZERO_ARR(1)=0
-      CALL OCCLS(         2,  NMXOCCLS,IWORK(KIOCLS),  NACTEL,    NGAS,
+      CALL OCCLS(         2,  NMXOCCLS,IOCLS,  NACTEL,    NGAS,
      &           IGSOCC(1,1),IGSOCC(1,2),       0,ZERO_ARR,   NOBPT)
 *
 * Maps creation/annihilation of given gas orb from given supergroup
 * gives new supergroup.
 *
       IZERO = 0
-      CALL ISETVC(iWORK(KSPGPCR),IZERO,NGAS*NTSPGP)
-      CALL ISETVC(iWORK(KSPGPAN),IZERO,NGAS*NTSPGP)
+      CALL ISETVC(SPGPCR,IZERO,NGAS*NTSPGP)
+      CALL ISETVC(SPGPAN,IZERO,NGAS*NTSPGP)
 *
       DO ISTTYP = 1,NSTTYP
 *. Creation map from this type
@@ -344,7 +344,7 @@ C?      WRITE(6,*) ' ISTTYP and ISTTYPC ',ISTTYP,ISTTYPC
            CALL SPGP_AC(NELFSPGP(1,1),
      &                  NSPGPFTP(ISTTYP),
      &                  NELFSPGP(1,1),NSPGPFTP(ISTTYPC),NGAS,MXPNGAS,2,
-     &                  iWORK(KSPGPCR),
+     &                  SPGPCR,
      &                  IBSPGPFTP(ISTTYP),
      &                  IBSPGPFTP(ISTTYPC))
         ELSE
@@ -360,15 +360,11 @@ C?      WRITE(6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
            CALL SPGP_AC(NELFSPGP(1,1),
      &                  NSPGPFTP(ISTTYP),
      &                  NELFSPGP(1,1),NSPGPFTP(ISTTYPA),NGAS,MXPNGAS,1,
-     &                  iWORK(KSPGPAN),
+     &                  SPGPAN,
      &                  IBSPGPFTP(ISTTYP),
      &                  IBSPGPFTP(ISTTYPA))
         END IF
         END IF
       END DO
 *
-C     WRITE(6,*) ' Memory Check at end of STRINF_GAS  '
-      CALL MEMCHK
-*
-      RETURN
       END

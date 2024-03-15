@@ -73,11 +73,11 @@ if (InitR == 31) then
   if (Demand == Milli) then
     K_Lap = 3
     ErrVal = ErLst5(K_Lap)
-    write(IW,'(/A,E11.4E2)') ' This K guarantees the error less than ',ErrVal
+    write(IW,'(/A,ES11.4E2)') ' This K guarantees the error less than ',ErrVal
   else if (Demand == Micro) then
     K_Lap = 11
     ErrVal = ErLst5(K_Lap)
-    write(IW,'(/A,E11.4E2)') ' This K guarantees the error less than ',ErrVal
+    write(IW,'(/A,ES11.4E2)') ' This K guarantees the error less than ',ErrVal
   else
     K_Lap = 20
     ErrVal = ErLst5(K_Lap)
@@ -85,16 +85,16 @@ if (InitR == 31) then
       if (R <= 3.0e4_wp) then
         K_Lap = 19
         ErrVal = ErLst3(14)
-        write(IW,'(/A,E11.4E2)') ' This K guarantees the error less than ',ErrVal
+        write(IW,'(/A,ES11.4E2)') ' This K guarantees the error less than ',ErrVal
         return
       else if (R <= 1.0e5_wp) then
         ErrVal = ErLst3(15)
-        write(IW,'(/A,E11.4E2)') ' This K guarantees the error less than ',ErrVal
+        write(IW,'(/A,ES11.4E2)') ' This K guarantees the error less than ',ErrVal
         return
       end if
     end if
     write(IW,'(/A)') '!!! Caution !!!'
-    write(IW,'(A,E11.4E2,A)') 'In this R value, we can only guarantee',ErrVal,' accuracy.'
+    write(IW,'(A,ES11.4E2,A)') 'In this R value, we can only guarantee',ErrVal,' accuracy.'
   end if
   return
 end if
@@ -111,7 +111,7 @@ if (Demand == Milli) then
     if ((R-R_Val) < Zero) IVal = IdxR
   end if
   ErrVal = ErLst1(K_Lap)
-  write(IW,'(/A,E11.4E2,A)') ' This K guarantees the error less than ',ErLst1(K_Lap),' .'
+  write(IW,'(/A,ES11.4E2,A)') ' This K guarantees the error less than ',ErLst1(K_Lap),' .'
 else if (Demand == Micro) then
   K_Lap = KList2(IVal)
   if (Trial) then
@@ -120,7 +120,7 @@ else if (Demand == Micro) then
     if ((R-R_Val) < Zero) IVal = IdxR
   end if
   ErrVal = ErLst2(K_Lap)
-  write(IW,'(/A,E11.4E2,A)') ' This K guarantees the error less than ',ErLst2(K_Lap),' .'
+  write(IW,'(/A,ES11.4E2,A)') ' This K guarantees the error less than ',ErLst2(K_Lap),' .'
 else if (Demand == Nano) then
   K_Lap = KList3(IVal)
   if (Trial) then
@@ -129,7 +129,7 @@ else if (Demand == Nano) then
     if ((R-R_Val) < Zero) IVal = IdxR
   end if
   ErrVal = ErLst3(K_Lap)
-  write(IW,'(/A,E11.4E2,A)') ' This K guarantees the error less than ',ErLst3(K_Lap),' .'
+  write(IW,'(/A,ES11.4E2,A)') ' This K guarantees the error less than ',ErLst3(K_Lap),' .'
 else if (Demand == Pico) then
   K_Lap = KList4(IVal)
   if (Trial) then
@@ -138,7 +138,7 @@ else if (Demand == Pico) then
     if ((R-R_Val) < Zero) IVal = IdxR
   end if
   ErrVal = ErLst4(K_Lap)
-  write(IW,'(/A,E11.4E2,A)') ' This K guarantees the error less than ',ErLst4(K_Lap),' .'
+  write(IW,'(/A,ES11.4E2,A)') ' This K guarantees the error less than ',ErLst4(K_Lap),' .'
 end if
 
 return

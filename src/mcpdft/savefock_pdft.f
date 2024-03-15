@@ -23,6 +23,8 @@
       use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use wadr, only: BM, FockOcc
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
@@ -37,9 +39,6 @@
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
-#include "gugx.fh"
-#include "wadr.fh"
-#include "rasscf_lucia.fh"
 !      Logical TraOnly
 
 
@@ -183,23 +182,23 @@
 !Reordering of the two-body density matrix.
       IF(ISTORP(NSYM+1).GT.0) THEN
        CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
-       CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP))
+       CALL PMAT_RASSCF(Work(iP2d),WORK(LP))
       END IF
 !Must add to existing FOCK operator (occ/act). FOCK is not empty.
-      CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
+      CALL mma_allocate(BM,NSXS,Label='BM')
       CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
-      CALL FOCK_update(WORK(LFOCK),WORK(LBM),Work(iFockI),
+      CALL FOCK_update(WORK(LFOCK),BM,Work(iFockI),
      &     Work(iFockA),Work(iD1Act),WORK(LP),
      &     WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
-      CALL DCopy_(nTot1,Work(ipFocc),1,WORK(iFocMS+(iIntS-1)*nTot1),1)
+      CALL DCopy_(nTot1,FockOcc,1,WORK(iFocMS+(iIntS-1)*nTot1),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
        write(lf,*) 'FOCC_OCC'
-       call wrtmat(Work(ipFocc),1,ntot1,1,ntot1)
+       call wrtmat(FockOcc,1,ntot1,1,ntot1)
        write(lf,*) 'DONE WITH NEW FOCK OPERATOR'
       END IF
 
-      CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)
+      Call mma_deallocate(BM)
       CALL GETMEM('SXLQ','Free','REAL',LQ,NQ) ! q-matrix(1symmblock)
       Call GetMem('ONTOPO','FREE','Real',ipTmpLOEOTP,ntot1)
       Call GetMem('ONTOPT','FREE','Real',ipTmpLTEOTP,nfint)

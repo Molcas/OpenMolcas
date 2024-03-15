@@ -54,6 +54,8 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !***********************************************************************
 
 use Definitions, only: wp, iwp, u6
+use gugx, only:  DAW,  DOWN,  DRT,  LSGN,  RAW,  UP,  USGN,  &
+                 NLEV,NVERT,MIDLEV, MVSta, NMIDV,MXUP,MXDWN
 
 #include "intent.fh"
 
@@ -64,8 +66,6 @@ real(kind=wp), intent(_OUT_) :: CINEW(*)
 integer(kind=iwp), intent(out) :: KCNF(NEL)
 #include "rasdim.fh"
 #include "spinfo.fh"
-#include "gugx.fh"
-#include "WrkSpc.fh"
 #include "output_ras.fh"
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
@@ -121,9 +121,11 @@ do ITYP=1,NTYP
       ! COMPUTE STEP VECTOR
       call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = ISGNUM(IWORK(LDOWN),IWORK(LUP),IWORK(LDAW),IWORK(LRAW),IWORK(LUSGN),IWORK(LLSGN),IWALK)
+      ISG = ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,   &
+                   DOWN,UP,DAW,RAW,USGN,LSGN,IWALK)
+
       ! GET PHASE PHASE FACTOR
-      IP = IPHASE(IWORK(LDRT),IWORK(LUP),IWALK)
+      IP = IPHASE(NLEV,NVERT,DRT,UP,IWALK)
       if (IMODE == 0) then
         CINEW(ISG) = CIOLD(ICSFJP)
         if (IP < 0) CINEW(ISG) = -CIOLD(ICSFJP)
@@ -144,7 +146,5 @@ if (IPRLEV >= DEBUG) then
   write(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
   write(u6,*)
 end if
-
-return
 
 end subroutine Reord2

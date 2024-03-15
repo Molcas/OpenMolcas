@@ -23,7 +23,6 @@
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
 ******Input
       Real*8,DIMENSION(NTOT1):: FI,FA
@@ -57,7 +56,6 @@ C     Deallocating Memory
       CALL mma_deallocate(FckS)
       CALL mma_deallocate(EigVec)
 
-      RETURN
       End Subroutine
 
 ************************************************************************
@@ -71,7 +69,6 @@ C     Deallocating Memory
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 ******Input
       Real*8,DIMENSION(NTOT1)::FI,FA
       Real*8,Dimension(NTOT2)::CMO
@@ -141,64 +138,66 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
        IOff3=IOff3+NA
       END DO
 
-      RETURN
       END Subroutine
 
 ******************************************************
 
 ******************************************************
       Subroutine GetGDMat(GDMat)
+      use rasscf_lucia, only: DStmp, Dtmp
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Lucia_Interface, only: Lucia_Util
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 *     Auxiliary qunatities
-      INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
-      INTEGER tlw6,tlw7,ldtmp,lsdtmp,NIJ2
-      REAL*8 Dummy(1)
-      tlw6=lw6
-      tlw7=lw7
-      Call GetMem('LVEC','ALLO','REAL',iVecL,NConf)
-      Call GetMem('RVEC','ALLO','REAL',iVecR,NConf)
-      Call GetMem('Dtmp','ALLO','REAL',ldtmp,NAC**2)
-      Call GetMem('SDtmp','ALLO','REAL',lsdtmp,NAC**2)
-      lw6=ldtmp
-      lw7=lsdtmp
+      INTEGER CIDisk1,CIDisk2
+      INTEGER NIJ2
+      Real*8, Allocatable:: SDtmp(:), TmpD(:)
+      Real*8, Allocatable:: VecL(:), VecR(:)
+
+
+      Call mma_allocate(VecL,NConf,Label='VecL')
+      Call mma_allocate(VecR,NConf,Label='VecR')
+      Call mma_allocate(TmpD,NAC**2,Label='TmpD')
+      Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
+      SDtmp(:)=DStmp(:)
+      DStmp(:)=0.0D0
+      TmpD(:)=Dtmp(:)
+      Dtmp(:)=0.0D0
       CIDisk1=IADR15(4)
       Do jRoot=1,lRoots
-       Call DDafile(JOBIPH,2,Work(iVecL),nConf,CIDisk1)
-       C_Pointer=iVecL
+       Call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
        CIDisk2=IADR15(4)
        Do kRoot=1,jRoot
-        Call DDafile(JOBIPH,2,Work(iVecR),nConf,CIDisk2)
+        Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
 C        write(6,*) 'VecL and VecR for states',jRoot,kRoot
-C        write(6,*)(WORK(iVecL+I),I=0,NConf-1)
-C        write(6,*)(WORK(iVecR+I),I=0,NConf-1)
-        Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
-C        Call Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
+C        write(6,*)(VecL(I),I=0,NConf-1)
+C        write(6,*)(VecR(I),I=0,NConf-1)
+        Call Lucia_Util('Densi',
+     &                  CI_Vector=VecL(:),
+     &                  RVEC=VECR(:))
 C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
           do JOrb=1,NAC
           NIJ2=jRoot*(jRoot-1)/2+kRoot
-          GDMat(NIJ2,JOrb,IOrb)=WORK(LW6+JOrb-1+(IOrb-1)*NAC)
+          GDMat(NIJ2,JOrb,IOrb)=Dtmp(JOrb+(IOrb-1)*NAC)
           end do
 C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
          eND dO
        End Do
       End DO
-      lw6=tlw6
-      lw7=tlw7
-      Call GetMem('LVEC','FREE','REAL',iVecL,NConf)
-      Call GetMem('RVEC','FREE','REAL',iVecR,NConf)
-      Call GetMem('Dtmp','FREE','REAL',ldtmp,NAC**2)
-      Call GetMem('SDtmp','Free','REAL',lsdtmp,NAC**2)
-      RETURN
+      DStmp(:)=SDtmp(:)
+      DTmp(:)=TmpD(:)
+      Call mma_deallocate(SDtmp)
+      Call mma_deallocate(TmpD)
+      Call mma_deallocate(VecL)
+      Call mma_deallocate(VecR)
       END Subroutine
 
 ******************************************************
@@ -210,7 +209,6 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 #include "SysDef.fh"
 #include "input_ras.fh"
 #include "warnings.h"
-#include "rasscf_lucia.fh"
 
 ******Input
       Real*8,DIMENSION(NAC,NAC)::FckO
@@ -358,15 +356,15 @@ C       END DO
       END IF
 
       IF(Trans.eq.'N') THEN
-       WRITE(PrtFmt,'(A1,I5,A14)')
-     & '(',NCol,'(E24.14E4,1X))'
+       WRITE(PrtFmt,'(A,I5,A)')
+     & '(',NCol,'(ES24.14E4,1X))'
        DO IRow=1,NRow
         write(LU,PrtFmt)
      &  (Matrix(IRow,ICol),ICol=1,NCol)
        END DO
       ELSE
-       WRITE(PrtFmt,'(A1,I5,A14)')
-     & '(',NRow,'(E24.14E4,1X))'
+       WRITE(PrtFmt,'(A,I5,A)')
+     & '(',NRow,'(ES24.14E4,1X))'
        DO ICol=1,NCol
         write(LU,PrtFmt)
      &  (Matrix(IRow,ICol),IRow=1,NRow)

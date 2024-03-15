@@ -57,7 +57,7 @@ if (IRED == 1) then
             call CHO_QUIT('Shell-Pair error in '//SECNAM,104)
           else
             JAB = IAB
-            write(LUPRI,'(I9,2X,I9,1X,I9,1X,1P,D16.8)') JAB,ISP2F(ISHLAB),INDRED(IAB,IRED),DIAG(JAB)
+            write(LUPRI,'(I9,2X,I9,1X,I9,1X,ES16.8)') JAB,ISP2F(ISHLAB),INDRED(IAB,IRED),DIAG(JAB)
           end if
         end do
       end do
@@ -84,7 +84,7 @@ else if (IRED == 2) then
             write(LUPRI,*) 'Shell Pair error: INDRSH,ISP2F,ISHLAB',INDRSH(JAB),ISP2F(ISHLAB),ISHLAB
             call CHO_QUIT('Shell-Pair error in '//SECNAM,104)
           else
-            write(LUPRI,'(I9,1X,I9,2X,I9,1X,I9,1X,1P,D16.8)') IAB,JAB,ISP2F(ISHLAB),INDRED(JAB,1),DIAG(JAB)
+            write(LUPRI,'(I9,1X,I9,2X,I9,1X,I9,1X,ES16.8)') IAB,JAB,ISP2F(ISHLAB),INDRED(JAB,1),DIAG(JAB)
           end if
         end do
       end do

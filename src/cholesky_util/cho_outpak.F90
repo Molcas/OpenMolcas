@@ -88,8 +88,8 @@ else
     ! use F output format
     PFMT = '(A1,I7,2X,8F15.8)'
   else
-    ! use 1PD output format
-    PFMT = '(A1,I7,2X,1P,8D15.6)'
+    ! use ES output format
+    PFMT = '(A1,I7,2X,8ES15.6)'
   end if
 
   ! LAST IS THE LAST COLUMN NUMBER IN THE ROW CURRENTLY BEING PRINTED
@@ -122,7 +122,7 @@ end if
 return
 
 1000 format(/12X,6(3X,A6,I4,2X),(3X,A6,I4))
-!2000 format(A1,'Row',I4,2X,1P,8D15.6)
-!2000 format(A1,I7,2X,1P,8D15.6)
+!2000 format(A1,'Row',I4,2X,8ES15.6)
+!2000 format(A1,I7,2X,8ES15.6)
 
 end subroutine CHO_OUTPAK

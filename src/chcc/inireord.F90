@@ -320,7 +320,7 @@ write(u6,'(A,i4)') ' Parallel Join of varios MO integrals   : ',JoinLkey
 
 write(u6,*) '---------------------------------------------------'
 
-write(u6,'(A,E9.2)') ' Convergence Threshold             : ',conv
+write(u6,'(A,ES9.2)') ' Convergence Threshold             : ',conv
 write(u6,'(A,i9)') ' Maximum number of Iterations      : ',maxiter
 
 write(u6,*) '---------------------------------------------------'

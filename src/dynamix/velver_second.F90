@@ -280,6 +280,6 @@ irc = _RC_ALL_IS_WELL_
 
 return
 
-401 format(5x,a,3x,e11.4)
+401 format(5x,a,3x,es11.4)
 
 end subroutine VelVer_Second

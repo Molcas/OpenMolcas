@@ -12,6 +12,9 @@
 ************************************************************************
       SUBROUTINE T_TO_NK_VEC(      T,   KORB,    ISM,   ISPC,  LUCIN,
      &                        LUCOUT,      C)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Local_Arrays, only: CIBT, CBLTP, Deallocate_Local_Arrays
+      use strbas
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -31,17 +34,17 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "strinp.fh"
 #include "orbinp.fh"
 #include "cicisp.fh"
-#include "strbas.fh"
 #include "gasstr.fh"
 #include "crun.fh"
 #include "csm.fh"
 
 *. Scratch block, must hold a batch of blocks
       DIMENSION C(*)
+      Integer, Allocatable:: LASTR(:), LBSTR(:)
+      Integer, Allocatable:: LKAOC(:), LKBOC(:)
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -55,36 +58,28 @@
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
 *
-      CALL Z_BLKFO(     ISPC,      ISM,     IATP,     IBTP,   KLCLBT,
-     &               KLCLEBT,  KLCI1BT,   KLCIBT,  KLCBLTP,   NBATCH,
-     &                NBLOCK)
-C           Z_BLKFO(ISPC,ISM,IATP,IBTP,KPCLBT,KPCLEBT,
+      CALL Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
 *
-      CALL GETMEM('KLASTR','ALLO','INTE',KLASTR,MXNSTR*NAEL)
-      CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NBEL)
-      CALL GETMEM('KLKAOC','ALLO','INTE',KLKAOC,MXNSTR)
-      CALL GETMEM('KLKBOC','ALLO','INTE',KLKBOC,MXNSTR)
+      Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
+      Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
+      Call mma_allocate(LKAOC,MXNSTR,Label='LKAOC')
+      Call mma_allocate(LKBOC,MXNSTR,Label='LKBOC')
 *. Orbital K in type ordering
       KKORB = IREOST(KORB)
       CALL T_TO_NK_VECS   (       T,   KKORB,       C,   LUCIN,  LUCOUT,
-     &                     IWORK(KNSTSO(IATP)),
-     &                     IWORK(KNSTSO(IBTP)),
-     &                     NBLOCK,IWORK(KLCIBT),NAEL,NBEL,IWORK(KLASTR),
-     &                     IWORK(KLBSTR),IWORK(KLCBLTP),
-     &                   NSMST,ICISTR,NTOOB,IWORK(KLKAOC),IWORK(KLKBOC))
+     &                     NSTSO(IATP)%I,
+     &                     NSTSO(IBTP)%I,
+     &                     NBLOCK,CIBT,NAEL,NBEL,LASTR,
+     &                     LBSTR,CBLTP,
+     &                     NSMST,ICISTR,NTOOB,LKAOC,LKBOC)
 
-      CALL GETMEM('KLASTR','FREE','INTE',KLASTR,MXNSTR*NAEL)
-      CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
-      CALL GETMEM('KLKAOC','FREE','INTE',KLKAOC,MXNSTR)
-      CALL GETMEM('KLKBOC','FREE','INTE',KLKBOC,MXNSTR)
+      Call mma_deallocate(LASTR)
+      Call mma_deallocate(LBSTR)
+      Call mma_deallocate(LKAOC)
+      Call mma_deallocate(LKBOC)
 
-      CALL GETMEM('CLBT  ','FREE','INTE',KLCLBT ,MXNTTS)
-      CALL GETMEM('CLEBT ','FREE','INTE',KLCLEBT,MXNTTS)
-      CALL GETMEM('CI1BT ','FREE','INTE',KLCI1BT,MXNTTS)
-      CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*MXNTTS)
-      CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
+      Call Deallocate_Local_Arrays()
 *
-      RETURN
       END

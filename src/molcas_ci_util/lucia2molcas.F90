@@ -9,22 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LUCIA2MOLCAS(KDFTP_LUCIA,KCFTP_LUCIA,KDTOC_LUCIA,KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA, &
-                        NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF,MULTS_LUCIA,KICTS_POINTER, &
+subroutine LUCIA2MOLCAS(KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA, &
+                        NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF,MULTS_LUCIA, &
                         nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
-use csfbas, only: CONF, CTS, KCFTP, KDFTP, KDTOC, maxop_lucia
+use csfbas, only: CONF, CTS, maxop_lucia
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KDFTP_LUCIA, KCFTP_LUCIA, KDTOC_LUCIA, KICONF_OCC_LUCIA(*), KSDREO_I(*), &
+integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KICONF_OCC_LUCIA(*), KSDREO_I(*), &
                                  NDET_LUCIA, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM), &
                                  NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
-integer(kind=iwp), intent(out) :: KICTS_POINTER
 integer(kind=iwp) :: I, ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, J, LCONF, LDET, LLCONF, LUCIA_TYPE, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
-integer(kind=iwp), external :: ip_of_iWork
 #include "rasdim.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
@@ -33,7 +31,6 @@ integer(kind=iwp), external :: ip_of_iWork
 #include "splitcas.fh"
 #include "strnum.fh"
 #include "lucia_ini.fh"
-#include "WrkSpc.fh"
 
 do I=1,MXCISM
   NDTASM(I) = NDTASM_LUCIA(I)
@@ -131,7 +128,6 @@ end do
 
 call mma_allocate(CONF,LCONF,label='CONF')
 call mma_allocate(CTS,LDET,label='CTS')
-KICTS_POINTER = ip_of_iWork(CTS(1))
 
 CONF(:) = KICONF_OCC_LUCIA(1:LCONF)
 
@@ -145,11 +141,5 @@ NEL1MNA = max(0,NEL1MN-min(NAEL,NORB1))
 NEL1MNB = max(0,NEL1MN-min(NBEL,NORB1))
 NOCTPA = (NORB1-NEL1MNA+1)*(NEL3MX+1)
 NOCTPB = (NORB1-NEL1MNB+1)*(NEL3MX+1)
-
-KDFTP = KDFTP_LUCIA
-KCFTP = KCFTP_LUCIA
-KDTOC = KDTOC_LUCIA
-
-return
 
 end subroutine LUCIA2MOLCAS

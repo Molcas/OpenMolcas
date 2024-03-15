@@ -251,6 +251,6 @@ Error = .false.
 
 return
 
-300 format(1X,'Iter:',I5,2X,A,1X,E11.4)
+300 format(1X,'Iter:',I5,2X,A,1X,ES11.4)
 
 end subroutine NewCar

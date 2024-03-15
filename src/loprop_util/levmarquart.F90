@@ -126,7 +126,7 @@ do
     write(u6,'(A)') ' Error in numerical fit for exponent!'
     write(u6,'(A)') '    To small derivative for parameter'
     write(u6,'(A,2I4)') '    in centre (At1,At2):',iAtom,jAtom
-    write(u6,'(A,E12.4)') '    Maximal derivative:',DerMax
+    write(u6,'(A,ES12.4)') '    Maximal derivative:',DerMax
     write(u6,*)
     write(u6,'(A)') '    Either include closer points, give a'
     write(u6,'(A)') '    better initial estimate, or increase'
@@ -261,7 +261,7 @@ return
 
 790 format('Levenberg-Marquart optimization. Iteration:',I3)
 794 format('   ',A,'          ',A,'   ',A)
-791 format(3(E13.6,' '))
+791 format(3(ES13.6,' '))
 795 format(' ',A,' ',A,'      ',A)
 792 format('       ',2F12.6)
 793 format('Convergence reached in iteration ',I2)

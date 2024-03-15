@@ -16,12 +16,11 @@ C     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 C              WITH THE CHARGE DISTRIBUTION JK
 C
 *. Modified by addition of IREOST, August 2003.
+      use wadr, only: TUVX
       IMPLICIT REAL*8 (A-H,O-Z)
 *. Input : Reorder array, symmetry => type (sic!)
       INTEGER IREOST(*)
-      DIMENSION RJ(*),RK(*)
-#include "WrkSpc.fh"
-#include "wadr.fh"
+      Real*8 RJ(*),RK(*)
 C
 C     FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
 C     THE TWO-ELECTRON INTEGRAL LIST
@@ -36,17 +35,16 @@ C
        NUT_REO = NAC*(NU_REO-1) + NT_REO
        NTUT=NTUT+1
        NTUK=(NTUT**2+NTUT)/2
-       RK(NTU_REO)=WORK(LTUVX+NTUK-1)
-       RK(NUT_REO)=WORK(LTUVX+NTUK-1)
+       RK(NTU_REO)=TUVX(NTUK)
+       RK(NUT_REO)=TUVX(NTUK)
 C
        NTT=(NT**2+NT)/2
        NTUJ=(NTT**2-NTT)/2+(NU**2+NU)/2
-       RJ(NTU_REO)=WORK(LTUVX+NTUJ-1)
-       RJ(NUT_REO)=WORK(LTUVX+NTUJ-1)
+       RJ(NTU_REO)=TUVX(NTUJ)
+       RJ(NUT_REO)=TUVX(NTUJ)
 101   CONTINUE
 100   CONTINUE
 C
 C     EXIT
 C
-      RETURN
       END

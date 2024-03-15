@@ -56,8 +56,8 @@ call appendint_cvb(formMXP3,lenfld,0)
 call appendchr_cvb(formMXP3,'.',0)
 call appendint_cvb(formMXP3,iprec,0)
 call appendchr_cvb(formMXP3,')',0)
-! iprec=8 => formMXP4='(1x,i3,8d16.8)'
-formMXP4 = '(1x,i3,8d'
+! iprec=8 => formMXP4='(1x,i3,8es16.8)'
+formMXP4 = '(1x,i3,8es'
 call appendint_cvb(formMXP4,lenfld+4,0)
 call appendchr_cvb(formMXP4,'.',0)
 call appendint_cvb(formMXP4,iprec,0)
@@ -68,8 +68,8 @@ call appendint_cvb(formMXP5,lenfld,0)
 call appendchr_cvb(formMXP5,'.',0)
 call appendint_cvb(formMXP5,iprec,0)
 call appendchr_cvb(formMXP5,')',0)
-! iprec=8 => formMXP6='(4x,8d16.8)'
-formMXP6 = '(4x,8d'
+! iprec=8 => formMXP6='(4x,8es16.8)'
+formMXP6 = '(4x,8es'
 call appendint_cvb(formMXP6,lenfld+4,0)
 call appendchr_cvb(formMXP6,'.',0)
 call appendint_cvb(formMXP6,iprec,0)
@@ -81,8 +81,8 @@ call appendint_cvb(formE,iprec+8,0)
 call appendchr_cvb(formE,'.',0)
 call appendint_cvb(formE,iprec+2,0)
 call appendchr_cvb(formE,')',0)
-! iprec=8 => formSymW='(a,i2,a,4e16.8)'
-formSymW = '(a,i2,a,4e'
+! iprec=8 => formSymW='(a,i2,a,4es16.8)'
+formSymW = '(a,i2,a,4es'
 call appendint_cvb(formSymW,iprec+8,0)
 call appendchr_cvb(formSymW,'.',0)
 call appendint_cvb(formSymW,iprec,0)
@@ -94,8 +94,8 @@ call appendchr_cvb(formVBWnorm,'.',0)
 call appendint_cvb(formVBWnorm,iprec,0)
 call appendchr_cvb(formVBWnorm,',a)',0)
 
-! iprec=8 => formChk1='(a,d16.8)'
-formChk1 = '(a,d'
+! iprec=8 => formChk1='(a,es16.8)'
+formChk1 = '(a,es'
 call appendint_cvb(formChk1,iprec+8,0)
 call appendchr_cvb(formChk1,'.',0)
 call appendint_cvb(formChk1,iprec,0)
@@ -109,20 +109,20 @@ call appendint_cvb(formChk2,ix1,0)
 call appendchr_cvb(formChk2,'x,a,',0)
 call appendint_cvb(formChk2,ix2,0)
 call appendchr_cvb(formChk2,'x))',0)
-! iprec=8 => formChk3='(5d16.8)'
-formChk3 = '(5d'
+! iprec=8 => formChk3='(5es16.8)'
+formChk3 = '(5es'
 call appendint_cvb(formChk3,iprec+8,0)
 call appendchr_cvb(formChk3,'.',0)
 call appendint_cvb(formChk3,iprec,0)
 call appendchr_cvb(formChk3,')',0)
-! iprec=8 => formcvp='(2(a,d16.8))'
-formcvp = '(2(a,d'
+! iprec=8 => formcvp='(2(a,es16.8))'
+formcvp = '(2(a,es'
 call appendint_cvb(formcvp,iprec+8,0)
 call appendchr_cvb(formcvp,'.',0)
 call appendint_cvb(formcvp,iprec,0)
 call appendchr_cvb(formcvp,'))',0)
-! iprec=8 => formAD='(a,10d16.8)'
-formAD = '(a,10d'
+! iprec=8 => formAD='(a,10es16.8)'
+formAD = '(a,10es'
 call appendint_cvb(formAD,iprec+8,0)
 call appendchr_cvb(formAD,'.',0)
 call appendint_cvb(formAD,iprec,0)
@@ -133,8 +133,8 @@ call appendint_cvb(formAF,iprec+8,0)
 call appendchr_cvb(formAF,'.',0)
 call appendint_cvb(formAF,iprec,0)
 call appendchr_cvb(formAF,')',0)
-! iprec=8 => form2AD='(2(a,d16.8))'
-form2AD = '(2(a,d'
+! iprec=8 => form2AD='(2(a,es16.8))'
+form2AD = '(2(a,es'
 call appendint_cvb(form2AD,iprec+8,0)
 call appendchr_cvb(form2AD,'.',0)
 call appendint_cvb(form2AD,iprec,0)

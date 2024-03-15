@@ -20,13 +20,13 @@
      &                        nconf_per_open,
      &                        IB_SD_FOR_OPEN,IZSCR,IZ,IOCMIN,IOCMAX,
 *
-     &                        IDET_OC,IDET_MS,IDET_VC,  iWORK,KZ_PTDT,
-     &                        KREO_PTDT,
+     &                        IDET_OC,IDET_MS,IDET_VC,
      &                          MINOP,
      &                        IBCONF_ALL_SYM_FOR_OCCLS,
      &                         PSSIGN,
 *
      &                        NPDTCNF)
+      use GLBBAS, only: Z_PTDT, REO_PTDT
 *
 * SUBROUTINE REO_GASDET_S --> 44
 *
@@ -46,12 +46,8 @@
       INTEGER NPDTCNF(*)
 *. Offset to start of configurations of given occls in list containing all symmetries
       INTEGER IBCONF_ALL_SYM_FOR_OCCLS(NOCCLS)
-*. iWORK(KZ_PTDT(IOPEN+1) gives Z  array for prototype dets with IOPEN
-*. iWORK(KREO_PTDT(IOPEN+1) gives the corresponding reorder array
-*. open orbitals
-      INTEGER KZ_PTDT(*), KREO_PTDT(*)
-*. The work array containing used for iWORK(KZ_PTDET()),iWORK(KREO_PTDT())
-      DIMENSION iWORK(*)
+*. Z_PTDT(IOPEN+1)%I gives Z  array for prototype dets with IOPEN
+*. REO_PTDT(IOPEN+1)%1 gives the corresponding reorder array open orbitals
 *. Specific input
       DIMENSION IBLOCK(8,NBLOCK)
 *. Scratch space
@@ -192,7 +188,7 @@ C                EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
            END IF
 C  IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
             IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,
-     &              iWORK(KZ_PTDT(NOPEN+1)),iWORK(KREO_PTDT(NOPEN+1)),
+     &              Z_PTDT(NOPEN+1)%I,REO_PTDT(NOPEN+1)%I,
      &              1)
 C?          WRITE(6,*) ' Number of det in list of PTDT ', IPTDT
 C?          WRITE(6,*) ' IB_SD_FOR_OPEN(NOPEN+1) = ',

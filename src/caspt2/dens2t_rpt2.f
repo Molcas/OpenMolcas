@@ -21,6 +21,7 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_output, only:iPrGlb,debug
+      use gugx, only: NLEV, ISM, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"

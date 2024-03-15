@@ -180,7 +180,7 @@ do iSet=1,nSet
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'sb,ln(det|PSI|)=',sb(iSet),detR
-  call RecPrt('[y-sb,dy]','(12(2x,E9.3))',B,1,m_t)
+  call RecPrt('[y-sb,dy]','(12(1x,ES10.3))',B,1,m_t)
 # endif
 
   Kv(:,iSet) = B(:)  ! The value vector
@@ -216,7 +216,7 @@ do iSet=1,nSet
   write(u6,*) 'Variance=',Variance(iSet)
   write(u6,*) 'Info=',Info
   write(u6,*) 'lh=',lh
-  call RecPrt('X=A^{-1}Kv','(5(E15.7,2X))',Kv(:,iSet),1,m_t)
+  call RecPrt('X=A^{-1}Kv','(5(ES15.7,2X))',Kv(:,iSet),1,m_t)
 # endif
 
 end do

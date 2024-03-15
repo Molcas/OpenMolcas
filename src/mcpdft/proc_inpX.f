@@ -29,6 +29,7 @@
       use UnixInfo, only: SuperName
       use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+      use lucia_interface, only: lucia_util
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -73,7 +74,6 @@
       Character*72 JobTit(mxTit)
       Character*256 RealName
       Logical, External :: Is_First_Iter
-      Dimension Dummy(1)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
       CHARACTER*(80) OriginalKS
@@ -780,7 +780,7 @@ CSVC: check if NU<NT are included in the same gas space
 *
 *     Construct the Guga tables
 *
-      call gugactl_m
+      call gugactl()
 * ===============================================================
 *
 *     Construct the determinant tables
@@ -817,7 +817,7 @@ CSVC: check if NU<NT are included in the same gas space
 
 *
 * And call Lucia_Ini to initialize LUCIA
-      CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
+      CALL Lucia_Util('Ini')
 * to get number of CSFs for GAS
       nconf=0
       do i=1,mxsym

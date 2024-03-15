@@ -1223,12 +1223,12 @@ if (W2L) then
 
       ! Write out the exponents
 
-      write(Lu_lib,'(5(1X,D20.13))') (Shells(iShll_)%Exp(i),i=1,nExpi)
+      write(Lu_lib,'(5(1X,ES20.13))') (Shells(iShll_)%Exp(i),i=1,nExpi)
 
       ! Write out the contraction coefficients
 
       do i=1,nExpi
-        write(Lu_lib,'(5(1X,D20.13))') (Shells(iShll_)%Cff_c(i,j,1),j=1,Shells(iShll_)%nBasis)
+        write(Lu_lib,'(5(1X,ES20.13))') (Shells(iShll_)%Cff_c(i,j,1),j=1,Shells(iShll_)%nBasis)
       end do
 
     end do

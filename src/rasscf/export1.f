@@ -46,7 +46,6 @@
 #include "rasscf.fh"
 #include "gas.fh"
 #include "general.fh"
-#include "wadr.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
       Dimension CMO(*),DA(*),PA(*),DAO(*),Focc(*)

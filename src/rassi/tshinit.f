@@ -52,8 +52,8 @@ C
       CALL Get_iScalar('Relax CASSCF root',iRlxRoot)
       IF (IPGLOB.GE.2) THEN
         WRITE(6,'(6X,A,I14)')'The current state is:',iRlxRoot
-        WRITE(6,'(6X,A,6X,E15.6,A,/)')'Its energy is:',ENERGY(iRlxRoot),
-     &                              ' a.u.'
+        WRITE(6,'(6X,A,6X,ES15.6,A,/)')'Its energy is:',
+     &                                 ENERGY(iRlxRoot),' a.u.'
       END IF
 C
 C Get wave function parameters for current state
@@ -137,9 +137,9 @@ C
          ISTATE2=ISTATE1-1
          IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,I3)') 'The lower state is:',ISTATE2
-           WRITE(6,'(6X,A,6X,E15.6,A)') 'Its energy is:',
+           WRITE(6,'(6X,A,6X,ES15.6,A)') 'Its energy is:',
      &          ENERGY(ISTATE2),' a.u.'
-           WRITE(6,'(6X,A,12X,E15.6,A,/)') 'Ediff = ',
+           WRITE(6,'(6X,A,12X,ES15.6,A,/)') 'Ediff = ',
      &          ENERGY(iRlxRoot)-ENERGY(ISTATE2),' a.u.'
          END IF
 *---------------------------------------------------------------------*
@@ -220,9 +220,9 @@ C
          ISTATE2=ISTATE1+1
          IF (IPGLOB.GE.2) THEN
            WRITE(6,'(6X,A,I3)') 'The upper state is:',ISTATE2
-           WRITE(6,'(6X,A,6X,E15.6,A)') 'Its energy is:',
+           WRITE(6,'(6X,A,6X,ES15.6,A)') 'Its energy is:',
      &          ENERGY(ISTATE2),' a.u.'
-           WRITE(6,'(6X,A,12X,E15.6,A,/)') 'Ediff = ',
+           WRITE(6,'(6X,A,12X,ES15.6,A,/)') 'Ediff = ',
      &          ENERGY(ISTATE2)-ENERGY(iRlxRoot),' a.u.'
          END IF
 *---------------------------------------------------------------------*

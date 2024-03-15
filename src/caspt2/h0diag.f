@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW)
+      use gugx, only: NMIDV, ICASE
       IMPLICIT REAL*8 (A-H,O-Z)
 C INPUT ARRAYS:
 
@@ -38,13 +39,12 @@ C FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
           ISYDWN=MUL(ISYUP,ISYCI)
           NDWN=NOW(2,ISYDWN,MV)
           IF(NDWN.EQ.0) GOTO 30
-          ICS=LICASE+IOW(1,ISYUP,MV)
-          JCS=LICASE+IOW(2,ISYDWN,MV)
+          ICS=1+IOW(1,ISYUP,MV)
+          JCS=1+IOW(2,ISYDWN,MV)
           NC=NUP*NDWN
-          CALL DIELMV(IWORK(ICS),IWORK(JCS),NUP,NDWN,DIAG(IEMU))
+          CALL DIELMV(ICASE(ICS),ICASE(JCS),NUP,NDWN,DIAG(IEMU))
           IEMU=IEMU+NC
   30      CONTINUE
         END DO
       END DO
-      RETURN
-      END
+      END SUBROUTINE H0DIAG_CASPT2

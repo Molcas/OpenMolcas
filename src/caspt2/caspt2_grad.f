@@ -12,7 +12,12 @@
 ************************************************************************
       Subroutine GrdIni
 C
-      use caspt2_gradient, only: do_nac
+      use caspt2_gradient, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,LuPT2GRD,
+     *                           do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
+     *                           idBoriMat,TraFro
+      use stdalloc, only: mma_allocate
+C
+      use gugx, only: NCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -21,20 +26,59 @@ C
 #include "caspt2_grad.fh"
 #include "pt2_guga.fh"
 C
+      character(len=128) :: FileName
+      character(len=4096) :: RealName
+      Logical is_error,Exists
 
-      ! Define logical unit numbers for gradients files
+      iStpGrd = 1
+
+      ! Define (initial) logical unit numbers for gradients files
       LUPT2    = 17 ! MCLR
-      LUGAMMA  = 60 ! ERI derivatives ALASKA
-      LUCMOPT2 = 61 ! Back-transform ALASKA
+      LUGAMMA  = 65 ! ERI derivatives ALASKA or 3-center RI/CD
+      LUCMOPT2 = 66 ! Back-transform ALASKA
+      LUSTD    = 67 ! S and T derivatives in CASPT2
+      LUAPT2   = 68 ! A_PT2, 2-center derivatives for RI/CD
+      LUPT2GRD = 69 ! CASPT2 gradient and property
 
-      ! S and T derivatives in CASPT2
-      LUSTD = 62
+      Call PrgmTranslate('GAMMA',RealName,lRealName)
+      LuGAMMA  = isFreeUnit(LuGAMMA)
+      If (IfChol) Then
+        LENGTH = nBas(1)
+      Else
+        LENGTH = nIsh(1) + nAsh(1)
+      End If
+      Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
+     &                     'DIRECT','UNFORMATTED',
+     &                      iost,.TRUE.,
+     &                      LENGTH**2*8,'REPLACE',is_error)
+      Close (LuGAMMA)
+
+      If (.not.IfChol) Then
+        Call PrgmTranslate('CMOPT2',RealName,lRealName)
+        LuCMOPT2 = isFreeUnit(LuCMOPT2)
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT',
+     &                       'UNFORMATTED',iost,.FALSE.,1,'REPLACE',
+     &                        is_error)
+        Close (LuCMOPT2)
+      End If
+
       CALL DANAME_MF_wa(LUSTD,'LUSTD')
+      If (IfChol) CALL DANAME_MF_wa(LUAPT2,'LUAPT2')
 
-      ! A_PT2, a bunch of data for MCLR
-      LUAPT2 = 77
-      CALL DANAME_MF_wa(LUAPT2,'A_PT2')
-
+      !! LUPT2GRD is the global name (in Include/caspt2.fh)
+      !! LUGRAD is the local name in the CASPT2 module
+      LUGRAD = LUPT2GRD
+      !! Check if this is not the first (MS-)CASPT2 call
+      !! If this is the first call, compute CASPT2 energies;
+      !! otherwise read many things from the PT2GRD file.
+      !! PT2GRD file is always deleted when a RASSCF is finished
+      !! This is written in Driver/rasscf.prgm.src, but I'm not sure
+      !! this is the right way to manipulate files...
+      FileName = 'PT2GRD'
+      Call f_inquire(FileName,Exists)
+      If (Exists) iStpGrd = 0
+      ! Not sure none/mf/mf_wa
+      CALL DANAME_MF_wa(LUGRAD,'LUPT2GRD')
 
       !! nStLag is the number of states involved in the Lagrangian
       !! nStLag = nState for (X)MS/XDW/RMS-CASPT2
@@ -104,11 +148,6 @@ C
         Call DCopy_(nState**2,[0.0D+00],0,Work(ipOMGDER),1)
       End If
 C
-      !! LuGamma should be 60, but this record is used in MCLR, so
-      !! have to use a different value. This number has to be consistent
-      !! with that in ALASKA (integral_util/prepp.f).
-C     LuGamma = 60
-C
       !! Some Lagrangians for each state are constructed in ipCLag or
       !! ipOLag. The full (sum over all states, in particular for
       !! MS-CASPT2) configuration and orbital Lagrangians are then
@@ -117,12 +156,53 @@ C
       ipCLagFull = ipCLag + nCLag
       ipOLagFull = ipOLag + nOLag
 
-
       If (do_nac) Then
         Call GETMEM('DPT2Canti','ALLO','REAL',ipDPT2Canti,nBasSq)
         Call DCopy_(nBasSq ,[0.0D+00],0,Work(ipDPT2Canti),1)
       End If
-
+C
+      MaxLen = 0
+      Do iCase = 1, 11
+        Do iSym = 1, nSym
+          nAS = nASUP(iSym,iCase)
+          MaxLen = Max(MaxLen,nAS*nAS)
+        End Do
+      End Do
+C
+      Call GETMEM('WRK','ALLO','REAL',ipWRK,MaxLen)
+      Call DCopy_(MaxLen,[0.0D+00],0,Work(ipWRK),1)
+C
+      idSD = 1
+C     write (*,*) "iflindep = ", iflindeplag
+      If (do_lindep) Then
+        Do iCase = 1, 11
+          DO iSym = 1, nSym
+            idBoriMat(iSym,iCase) = idSD
+            NAS=NASUP(ISYM,ICASE)
+            NS=(NAS*(NAS+1))/2
+            CALL DDAFILE(LuSTD,0,Work(ipWRK),NS,idSD)
+            idSD_ = idBoriMat(iSym,iCase)
+            CALL DDAFILE(LuSTD,1,Work(ipWRK),NS,idSD_)
+          End Do
+        End Do
+      End If
+C
+      If (MAXIT /= 0) Then
+        Do iCase = 1, 11
+          Do iSym = 1, nSym
+            idSDMat(iSym,iCase) = idSD
+            nAS = nASUP(iSym,iCase)
+            CALL DDAFILE(LuSTD,0,Work(ipWRK),nAS*nAS,idSD)
+            idSDer = idSDMat(iSym,iCase)
+            ! idSDMat(iSym,iCase))
+            CALL DDAFILE(LuSTD,1,Work(ipWRK),nAS*nAS,idSDer)
+          End Do
+        End Do
+      End If
+      Call GETMEM('WRK','FREE','REAL',ipWRK,MaxLen)
+C
+      if (nFroT /= 0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
+C
       Return
 
       End Subroutine GrdIni
@@ -132,7 +212,10 @@ C-----------------------------------------------------------------------
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
       use caspt2_output, only: iPrGlb, verbose
-      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
+      use caspt2_gradient, only: LuPT2,LuAPT2,
+     *                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
+     *                           LUSTD,TraFro
+      use stdalloc, only: mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -142,7 +225,7 @@ C
 C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
-      LOGICAL DEB
+      LOGICAL DEB,Found
 C
       Dimension HEFF1(nState,nState),WRK1(nState,nState),
      *          WRK2(nState,nState)
@@ -267,6 +350,8 @@ C
         Work(ipSLag+iloc-1) = Work(ipSLag+iloc-1) - 1.0D+00
       End If
 C
+      !! Finalize the first-order transition(-like) density matrix
+      !! for the CSF derivative term
       If (do_nac) Then
         If (do_csf) Then
           Call CnstAntiC(Work(ipDPT2Canti),UEFF,U0)
@@ -289,6 +374,10 @@ C
         Call GetMem('CI1','FREE','REAL',LCI1,nConf*nState)
       End If
 C
+      !! Compute true unrelaxed properties for MS-CASPT2
+      if ((.not.do_nac) .and. ifmscoup) CALL PRPCTL(1,UEFF,U0)
+C
+      LuPT2 = isFreeUnit(LuPT2)
       Call Molcas_Open(LuPT2,'PT2_Lag')
 
       DEB = .false.
@@ -349,8 +438,6 @@ C
 
       ! close gradient files
       Close (LuPT2)
-      Call DaClos(LUAPT2)
-      Call DaClos(LUSTD)
 C
  9000 CONTINUE
 C
@@ -380,22 +467,42 @@ C
       End If
 C
       !! Prepare for MCLR
-C     If (Method.eq.'CASPT2  ') Then
-      iGo = 0
+      iGo = 3
       Call Put_iScalar('SA ready',iGo)
-      mstate1 = '****************'
-      Call Put_cArray('MCLR Root',mstate1,16)
-
       ! overwrites whatever was set in CASSCF with the relax
       ! root that was chosen in CASPT2
-      Call Put_iScalar('Relax CASSCF root',irlxroot)
-      Call Put_iScalar('Relax Original root',irlxroot)
-C     End If
-C       write(6,*) "5"
-C     write(6,*) "LuGamma is ", LuGamma
-C     write(6,*) "bshift =", bshift
-C     Call Put_dScalar('BSHIFT',BSHIFT)
+      if (do_nac) then
+C       write (*,*) "NAC"
+C       write (*,*) "CASSCF/Original = ", iRoot1,iRoot2
+        Call Put_iScalar('Relax CASSCF root',iRoot1)
+        Call Put_iScalar('Relax Original root',iRoot2)
+        call Qpg_cArray('MCLR Root',Found,I)
+        if (Found) then
+          Call Get_cArray('MCLR Root',mstate1,16)
+          if ((mstate1(8:8).eq.'0') .and. (mstate1(16:16).eq.'0')) then
+            !! NAC states have not been specified
+            write (mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
+            Call Put_cArray('MCLR Root',mstate1,16)
+          end if
+        else
+          mstate1 = '****************'
+          Call Put_cArray('MCLR Root',mstate1,16)
+        end if
+      else
+C       write (*,*) "GRD"
+C       write (*,*) "CASSCF/Original = ", irlxroot,irlxroot
+        Call Put_iScalar('Relax CASSCF root',irlxroot)
+        Call Put_iScalar('Relax Original root',irlxroot)
+        mstate1 = '****************'
+        Call Put_cArray('MCLR Root',mstate1,16)
+      end if
 C
+      !! Close files
+      Call DaClos(LUSTD)
+      If (IfChol) Call DaClos(LUAPT2)
+      Call DaClos(LUGRAD)
+C
+      if (nFroT /= 0) call mma_deallocate(TraFro)
 C
       Return
 C
@@ -433,16 +540,17 @@ C
 C
       use caspt2_output, only:iPrGlb,usual
       use caspt2_global, only:ipea_shift
+      use caspt2_gradient, only: if_invar
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "caspt2_grad.fh"
 C
-      If (.not.INVAR .and. IPRGLB.GE.USUAL) Then
+      If ((.not.if_invar) .and. (IPRGLB >= USUAL)) Then
         Write (6,*)
         Write (6,'(3X,"This is a non-invariant CASPT2 calculation")')
-        If (ipea_shift.NE.0.0D+00)
+        If (ipea_shift /= 0.0D+00)
      *    Write (6,'(3X,"- IPEA shift is employed")')
         Write (6,'(3X,"A linear equation will be solved to obtain ",
      *                "the off-diagonal active density")')
@@ -456,7 +564,7 @@ C
      *    "This keyword is recommended with state-averaged reference"
         End If
       End If
-      If (.not.IFDORTHO .and. ipea_shift.ne.0.0D+00) Then
+      If ((.not.IFDORTHO) .and. (ipea_shift /= 0.0D+00)) Then
         write(6,*)
      *    "It seems that DORT keyword is not used, ",
      *    "even though this calculation uses the IPEA shift"
@@ -609,6 +717,8 @@ C-----------------------------------------------------------------------
 
       Subroutine CnstFIFAFIMO(MODE)
 
+      use caspt2_gradient, only: TraFro
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -673,6 +783,22 @@ C             call sqprt(work(ipfifasa+isq),nbasi)
      *                     Work(ipWRK1),Work(ipWRK2))
 C             write (*,*) "fifa in MO"
 C             call sqprt(work(ipfifa+isq),nbasi)
+              !! canonicalize frozen orbitals
+              !! still under investigation, but this is something we
+              !! should do to obtain "better" orbital enegies for
+              !! methods using state-dependent Fock operators.
+              !! We actually need to canonicalize frozen and inactive
+              !! orbitals simultaneously?
+              If (nFroT /= 0) Then
+                CALL DCOPY_(nBasI*nBasI,Work(ipWRK1),1,Work(ipWRK2),1)
+                CALL DIAFCK(NBAS(ISYM),WORK(ipFIFA),1,NFRO(ISYM),
+     &                      TraFro,NBAS(ISYM),WORK(LCMOPT2),
+     *                      WORK(ipWRK2))
+                CALL DCOPY_(NBAS(ISYM)*NFRO(ISYM),
+     *                      Work(ipWRK2),1,Work(LCMOPT2),1)
+                Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIFA+iSQ),
+     *                       Work(ipWRK1),Work(ipWRK2))
+              End If
             End If
           End If
 C
@@ -682,7 +808,6 @@ C         If (MODE.eq.0) Then
               Call SQUARE(Work(LFIMO+iTr),Work(ipFIMO+iSQ),
      *                    1,nBasI,nBasI)
             Else
-              !! FIMO will be natural basis
               Call SQUARE(Work(ipFIMO+iTr),Work(ipWRK1),1,nBasI,nBasI)
               Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIMO+iSQ),
      *                     Work(ipWRK1),Work(ipOLag))

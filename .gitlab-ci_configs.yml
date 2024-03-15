@@ -4,7 +4,8 @@
 # - linalg: use a link-time linalg library and ninja
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
-# - intel: use Intel compilers (needs access to a license)
+# - intel: use Intel compilers
+# - intel_llvm: use Intel LLVM compilers
 # - intel13: use Intel 2013 compilers (build on specific runner)
 # - nag: use NAG Fortran compiler and Garble (build on specific runner)
 # - garble: setup with Garble option and gcc compilers
@@ -109,14 +110,38 @@
       cmake -D EXTRA_FFLAGS="" .
     pre_run_script: |
       . /opt/intel/oneapi/setvars.sh intel64
-    CC: "icc"
-    CXX: "icpc"
-    FC: "ifort"
+    CC: "icx"
+    CXX: "icx"
+    FC: "ifort -diag-disable=10448"
+  tags:
+    - docker
+
+.intel_llvm:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
+  variables:
+    cache_file: |
+      set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
+      set (HDF5 "ON" CACHE STRING "turn on HDF5")
+      set (LINALG "MKL" CACHE STRING "enable MKL")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      # with -fsyntax-only and only_objs we create all interface files
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
+    pre_compile_script: |
+      . /opt/intel/oneapi/setvars.sh
+    pre_make_script: |
+      $${make} only_objs
+      cmake -D EXTRA_FFLAGS="" .
+    pre_run_script: |
+      . /opt/intel/oneapi/setvars.sh
+    CC: "icx"
+    CXX: "icx"
+    FC: "ifx"
   tags:
     - docker
 
 .intel13:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:latest
+  # "legacy" image with classic Intel compilers
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-phusion:230525
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |

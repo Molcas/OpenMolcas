@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE GETSTR2_TOTSM_SPGP(  IGRP, NIGRP,ISPGRPSM, NEL,NSTR,
      &                                ISTR, NORBT,IDOREO,    IZ,  IREO)
+      use strbas
 *
 * Obtain all super-strings of given total symmetry and given
 * occupation in each GAS space
@@ -51,10 +52,8 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *. Input
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
-#include "strbas.fh"
 #include "csm.fh"
       INTEGER IZ(NORBT,NEL)
       INTEGER IGRP(NIGRP)
@@ -103,9 +102,9 @@
       IF(NGASL.EQ.0) NGASL = 1
 *. Number of strings per GAS space and offsets for strings of given sym
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(iWORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               NNSTSGP(1,IGAS))
-        CALL ICOPVE2(iWORK(KISTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(ISTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
      &               IISTSGP(1,IGAS))
       END DO
 *

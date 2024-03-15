@@ -168,26 +168,26 @@ return
 
 602 format(/' MLR(n=',i1,'; p=',I1,', q=',I1,') Potential with:   De=',F10.3,'[cm-1]    Re=',F12.8,'[A]')
 607 format('   with exponent coefficient   beta(r)= beta{INF}*y',I1,' + [1-y',i1,']*Sum{beta_i*y',i1,'^i}'/6x, &
-           'exponent coefft. power series orders',I4,' for  R < Re  and',I4,' for  R > Re'/6x,'and',i3,' coefficients:',1PD16.8, &
-           2d16.8:/(10x,4d16.8:))
+           'exponent coefft. power series orders',I4,' for  R < Re  and',I4,' for  R > Re'/6x,'and',i3,' coefficients:',ES16.8, &
+           2es16.8:/(10x,4es16.8:))
 613 format(6x,'with radial variables  y_p & y_q  defined w.r.t.  RREF=',F10.7)
 !615 format(6x,'radial variables  y_p & y_q  defined w.r.t.  RREF= Re=' F10.7)
-!614 format(/' Potential is an SPF expansion in  (r-Re)/(',F5.2,'* r)  with   Re=',f12.9/5x,'De=',g18.10,'   b0=',1PD16.9, &
-!           '   and',i3,'  b_i  coefficients:'/(5D16.8))
-!616 format(/' Potential is an O-T expansion in  (r-Re)/[',f5.2,'*(r+Re)]  with   Re=',f12.9/5x,'De=',G18.10,'   c0=',1PD16.9, &
-!           '   and',i3,'  c_i coefficients:'/(5D16.8))
-617 format('   while betaINF=',f12.8,'  & uLR defined by  C',i1,' =',1PD13.6,'[cm-1 Ang','^',0P,I1,']')
+!614 format(/' Potential is an SPF expansion in  (r-Re)/(',F5.2,'* r)  with   Re=',f12.9/5x,'De=',g18.10,'   b0=',ES16.9, &
+!           '   and',i3,'  b_i  coefficients:'/(5ES16.8))
+!616 format(/' Potential is an O-T expansion in  (r-Re)/[',f5.2,'*(r+Re)]  with   Re=',f12.9/5x,'De=',G18.10,'   c0=',ES16.9, &
+!           '   and',i3,'  c_i coefficients:'/(5ES16.8))
+617 format('   while betaINF=',f12.8,'  & uLR defined by  C',i1,' =',ES13.6,'[cm-1 Ang','^',I1,']')
 !618 format(/' Potential is a general GPEF expansion in  (r**',i1,' - Re**',i1,')/(',SP,F5.2,'*r**',SS,i1,SP,F6.2,'*Re**',SS,i1, &
-!           ')'/5x,'with   Re=',f12.9,'   De=',g18.10,'   g0=',1PD16.9/5x,'and',i3,'  g_i coefficients:  ',3D16.8/(5D16.8:))
-619 format(50x,'C',I1,' =',1PD13.6,'[cm-1 Ang','^',0P,I1,']')
-!621 format(50x,'C',I2,'=',1PD13.6,'[cm-1 Ang','^',0P,I2,']')
+!           ')'/5x,'with   Re=',f12.9,'   De=',g18.10,'   g0=',ES16.9/5x,'and',i3,'  g_i coefficients:  ',3ES16.8/(5ES16.8:))
+619 format(50x,'C',I1,' =',ES13.6,'[cm-1 Ang','^',I1,']')
+!621 format(50x,'C',I2,'=',ES13.6,'[cm-1 Ang','^',I2,']')
 !620 format(/' Potential is a power series in  r  of  order',i3,' with   V(r=0)=',f11.4/3x,'& coefficients (from linear term):', &
-!           1P2d16.8:/(5x,4D16.8:))
-!626 format('   De=',f10.4,'[cm-1]   Re=',f9.6,'[Angst.]   and'/'     Damping function  D(r)= exp[ -',0Pf6.4,'*(',f7.4, &
-!           '/X -1.0)**',f5.2,']')
+!           2es16.8:/(5x,4ES16.8:))
+!626 format('   De=',f10.4,'[cm-1]   Re=',f9.6,'[Angst.]   and'/'     Damping function  D(r)= exp[ -',f6.4,'*(',f7.4,'/X -1.0)**', &
+!           f5.2,']')
 !636 format(3x,'where   fsw(r) = 1/[1 - exp{',f7.4,'*(r -',f7.4,')}]')
-!642 format(' where for  r < Rinn=',F7.4,'   V=',SP,F12.4,1x,1PD13.6,'/R**12' )
-!644 format('  and  for  r > Rout=',F7.3,'   V= VLIM ',(SP,1PD14.6,'/r**',SS,I2):/(39x,SP,1PD14.6,'/r**',SS,I2))
+!642 format(' where for  r < Rinn=',F7.4,'   V=',SP,F12.4,1x,ES13.6,'/R**12' )
+!644 format('  and  for  r > Rout=',F7.3,'   V= VLIM ',(SP,ES14.6,'/r**',SS,I2):/(39x,SP,ES14.6,'/r**',SS,I2))
 !652 format(6x,'where the radial variable   y_',I1,'= (r**',I1,' - RREF**',i1,')/(r**',I1,' + RREF**',i1, ')')
 !654 format(10x,'is defined w.r.t.   RREF=',F11.8)
 !656 format(10x,'is defined w.r.t.   RREF= Re= ',F11.8)

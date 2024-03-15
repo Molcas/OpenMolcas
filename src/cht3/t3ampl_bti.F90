@@ -372,8 +372,8 @@ do isp=1,1+iuhf
     times(isp) = times(isp)+TCpu-cpu0_aaa
     times(isp+4) = times(isp+4)+TWall-wall0_aaa
 
-    write(u6,'(1X,5A,D12.4,A,D12.4,A)') 'Spin case ',ich(isp),ich(isp),ich(isp),' done:',TCpu-cpu0_aaa,' CPU [s]',TWall-wall0_aaa, &
-                                        ' Wall [s]'
+    write(u6,'(1X,5A,ES12.4,A,ES12.4,A)') 'Spin case ',ich(isp),ich(isp),ich(isp),' done:',TCpu-cpu0_aaa,' CPU [s]', &
+                                          TWall-wall0_aaa,' Wall [s]'
     call xflush(u6)
     !mp
     call CWTime(TCpu,TWall)
@@ -523,8 +523,8 @@ do isp=1,1+iuhf
   call CWTime(TCpu,TWall)
   times(2+isp) = times(2+isp)+TCpu-cpu0_aab
   times(6+isp) = times(6+isp)+TWall-wall0_aab
-  write(u6,'(1X,5A,D12.4,A,D12.4,A)') 'Spin case ',ich(isp),ich(isp),ich(3-isp),' done:',TCpu-cpu0_aab,' CPU [s]',TWall-wall0_aab, &
-                                      ' Wall [s]'
+  write(u6,'(1X,5A,ES12.4,A,ES12.4,A)') 'Spin case ',ich(isp),ich(isp),ich(3-isp),' done:',TCpu-cpu0_aab,' CPU [s]', &
+                                        TWall-wall0_aab,' Wall [s]'
   call xflush(u6)
   do i=3,6
     close(LU(i))
@@ -750,10 +750,10 @@ call mma_deallocate(t1b)
 
 return
 
-9993 format(/1X,'T2-W-T3 contribution from current amplitudes ',D18.10)
-9991 format(1X,'T2-F-T3 contribution from current amplitudes ',D18.10)
-9990 format(1X,'T1-W-T3 contribution from current amplitudes ',D18.10)
-9994 format(/1X,'4th order MBPT tripleexcitation contribution ',D18.10)
-9995 format(/1X,'5th order noniterative E[5] ST correction ',D18.10/)
+9993 format(/1X,'T2-W-T3 contribution from current amplitudes ',ES18.10)
+9991 format(1X,'T2-F-T3 contribution from current amplitudes ',ES18.10)
+9990 format(1X,'T1-W-T3 contribution from current amplitudes ',ES18.10)
+9994 format(/1X,'4th order MBPT tripleexcitation contribution ',ES18.10)
+9995 format(/1X,'5th order noniterative E[5] ST correction ',ES18.10/)
 
 end subroutine T3AMPL_BTI

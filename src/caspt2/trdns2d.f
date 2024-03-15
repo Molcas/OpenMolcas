@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE TRDNS2D(IVEC,JVEC,DPT2,NDPT2,SCAL)
 
-      use caspt2_global, only: imag_shift
+      use caspt2_global, only: imag_shift, sigma_p_epsilon
       use caspt2_gradient, only: do_grad
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -42,6 +42,7 @@ C CASPT2 wave functions in vectors nr IVEC, JVEC on LUSOLV.
 
 C Inact/Inact and Virt/Virt blocks:
       DO 101 ICASE=1,13
+C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
         DO 100 ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.EQ.0) GOTO 100
@@ -62,8 +63,21 @@ C Inact/Inact and Virt/Virt blocks:
             If (do_grad) Then
               If (Scal.ne.1.0D+00)
      *          Call DScal_(NIN*NIS,Scal,Work(lg_V1),1)
-            Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
-            CALL RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
+              if (sigma_p_epsilon .ne. 0.0d+00) then
+                !! derivative of the numerator
+                nAS = nASUP(iSym,iCase)
+                Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
+                Call GETMEM('LID','ALLO','REAL',LID,nIS)
+                iD = iDBMat(iSym,iCase)
+                Call dDaFile(LUSBT,2,Work(LBD),nAS,iD)
+                Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
+                Call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,
+     *                           Work(LBD),Work(LID))
+                Call GETMEM('LBD','FREE','REAL',LBD,nAS)
+                Call GETMEM('LID','FREE','REAL',LID,nIS)
+              end if
+              Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
+              CALL RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
             End If
           END IF
 
@@ -100,7 +114,9 @@ C full array in case we are running in parallel
           CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
      &                DPT2,iWORK(LLISTS))
 #endif
-          If (do_grad .and. imag_shift .ne. 0.0d0) Then
+          If (do_grad .and. (imag_shift .ne. 0.0d0
+     *                  .or. sigma_p_epsilon .ne. 0.0d0)) Then
+            !! for sigma-p CASPT2, derivative of the denominator
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
             Call GETMEM('LID','ALLO','REAL',LID,nIS)
@@ -109,9 +125,8 @@ C full array in case we are running in parallel
             Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
 C
             CALL RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V1,Work(LBD),Work(LID))
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V2,Work(LBD),Work(LID))
+            Call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,Work(LBD),Work(LID))
 C
             Call DScal_(NDPT2,-1.0D+00,DPT2,1)
 #ifdef _MOLCAS_MPP_

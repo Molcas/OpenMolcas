@@ -301,7 +301,7 @@ C
 *********************************************************************************
 *     Calculate Fock matrix for occupied orbitals.
 *********************************************************************************
-      If (iFinal.eq.1) CALL FOCKOC(F,CMO)
+      If (iFinal.eq.1) CALL FOCKOC(Q,F,CMO)
 C
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)

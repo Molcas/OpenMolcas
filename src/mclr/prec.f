@@ -34,7 +34,6 @@
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "machine.fh"
       Real*8 rpre(*)

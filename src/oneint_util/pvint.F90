@@ -51,8 +51,8 @@ iPrint = nPrint(iRout)
 
 if (iPrint >= 99) then
   write(u6,*) 'PVInt: nIC,nComp=',nIC,nComp
-  call RecPrt(' In pvint: Alpha','(5D20.13)',Alpha,nAlpha,1)
-  call RecPrt(' In pvint: Beta','(5D20.13)',Beta,nBeta,1)
+  call RecPrt(' In pvint: Alpha','(5ES20.13)',Alpha,nAlpha,1)
+  call RecPrt(' In pvint: Beta','(5ES20.13)',Beta,nBeta,1)
 end if
 
 nip = 1
@@ -100,7 +100,7 @@ do iBeta=1,nBeta
   ipOff = ipOff+nAlpha
 end do
 if (iPrint >= 99) then
-  call RecPrt(' In pvint: Alpha (expanded)','(5D20.13)',Array(ipA),nZeta,1)
+  call RecPrt(' In pvint: Alpha (expanded)','(5ES20.13)',Array(ipA),nZeta,1)
 end if
 !                                                                      *
 !***********************************************************************

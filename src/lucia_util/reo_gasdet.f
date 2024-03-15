@@ -11,6 +11,9 @@
 * Copyright (C) 2001, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE REO_GASDET(IBLOCK,NBLOCK,ISYM,IREO)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use GLBBAS, only: DFTP, CONF_REO
+      use strbas
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -26,23 +29,24 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "strbas.fh"
 #include "cicisp.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "cprnt.fh"
 #include "spinfo_lucia.fh"
-#include "glbbas.fh"
 *
       DIMENSION IBLOCK(8,NBLOCK)
 *
 *. Output
       INTEGER IREO(*)
+      Integer, Allocatable:: LASTR(:), LBSTR(:)
+      Integer, Allocatable:: ZSCR(:), Z(:)
+      Integer, Allocatable:: LOCMIN(:), LOCMAX(:)
+      Integer, Allocatable:: DET_OC(:), DET_MS(:), DET_VC(:)
 
 c      write(6,*)'nconf_per_open in reo_gasdet'
 c      call iwrtma(nconf_per_open,1,4,1,4)
@@ -71,60 +75,55 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
 *
 *
 *Space for alpha and beta strings
-      CALL GETMEM('KLASTR','ALLO','INTE',KLASTR,MXNSTR*NAEL)
-      CALL GETMEM('KLBSTR','ALLO','INTE',KLBSTR,MXNSTR*NBEL)
+      Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
+      Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
 *. Space for constructing arc weights for configurations
-      CALL GETMEM('ZSCR  ','ALLO','INTE',KLZSCR,(NOCOB+1)*(NEL+1))
-      CALL GETMEM('Z     ','ALLO','INTE',KLZ,NOCOB*NEL*2)
-      CALL GETMEM('OCMIN ','ALLO','INTE',KLOCMIN,NOCOB)
-      CALL GETMEM('OCMAX ','ALLO','INTE',KLOCMAX,NOCOB)
+      CALL mma_allocate(ZSCR,(NOCOB+1)*(NEL+1),Label='ZSCR')
+      CALL mma_allocate(Z,NOCOB*NEL*2,Label='Z')
+      Call mma_allocate(LOCMIN,NOCOB,Label='LOCMIN')
+      Call mma_allocate(LOCMAX,NOCOB,Label='LOCMAX')
 *. Occupation and projections of a given determinant
-C??? Jesper      CALL MEMMAN(KLDET_OC,NOCOB,'ADDL  ',1,'CONF_O')
-      CALL GETMEM('CONF_O','ALLO','INTE',KLDET_OC,NAEL+NBEL)
-      CALL GETMEM('CONF_M','ALLO','INTE',KLDET_MS,NAEL+NBEL)
-C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
-      CALL GETMEM('CONF_M','ALLO','INTE',KLDET_VC,NOCOB)
+      Call mma_allocate(DET_OC,NAEL+NBEL,Label='DET_OC')
+      Call mma_allocate(DET_MS,NAEL+NBEL,Label='DET_MS')
+      Call mma_allocate(DET_VC,NOCOB,    Label='DET_VC')
 
 *
-*     KIB_OCCLS removed from the argument list, since it's not defined
-*
 *     / Jesper Wisborg Krogh, 2005-06-22
-      CALL REO_GASDET_S(    IREO,
-     &                  IWORK(KNSTSO(IATP)),
-     &                 IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB,MXPNGAS,IOCTPA,
-     &                    IOCTPB,  NBLOCK,  IBLOCK,    NAEL,    NBEL,
-     &                 IWORK(KLASTR),IWORK(KLBSTR),NSMST,NELFSPGP,
+      CALL REO_GASDET_S(IREO,
+     &                  NSTSO(IATP)%I,
+     &                  NSTSO(IBTP)%I,NOCTPA,NOCTPB,MXPNGAS,IOCTPA,
+     &                  IOCTPB,  NBLOCK,  IBLOCK,    NAEL,    NBEL,
+     &                  LASTR,LBSTR,NSMST,NELFSPGP,
 *
-     &                  NMXOCCLS,    NGAS,IWORK(KIOCLS),NTOOB,  NOBPT,
-     &                  IWORK(KDFTP),
+     &                  NMXOCCLS,    NGAS,IOCLS,NTOOB,  NOBPT,
+     &                  DFTP,
      &                  IB_CONF_REO,
-     &                  iwork(kiconf_reo(isym)),
+     &                  conf_reo(isym)%I,
      &                  nconf_tot,
 *
      &                  ib_conf_reo,
      &                     maxop,
      &                  nconf_per_open(1,isym),
      &                  IB_SD_FOR_OPEN,
-     &                  IWORK(KLZSCR),
+     &                  ZSCR,
 *
-     &                  IWORK(KLZ),
-     &                  IWORK(KLOCMIN),
-     &                  IWORK(KLOCMAX),
-     &                  IWORK(KLDET_OC),
-     &                  IWORK(KLDET_MS),
+     &                  Z(:),
+     &                  LOCMIN,
+     &                  LOCMAX,
+     &                  DET_OC,
+     &                  DET_MS,
 *
-     &                  IWORK(KLDET_VC),iWORK,KZ_PTDT,KREO_PTDT, MINOP,
+     &                  DET_VC,MINOP,
      &                  IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 *
-      CALL GETMEM('KLASTR','FREE','INTE',KLASTR,MXNSTR*NAEL)
-      CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
-      CALL GETMEM('ZSCR  ','FREE','INTE',KLZSCR,(NOCOB+1)*(NEL+1))
-      CALL GETMEM('Z     ','FREE','INTE',KLZ,NOCOB*NEL*2)
-      CALL GETMEM('OCMIN ','FREE','INTE',KLOCMIN,NOCOB)
-      CALL GETMEM('OCMAX ','FREE','INTE',KLOCMAX,NOCOB)
-      CALL GETMEM('CONF_O','FREE','INTE',KLDET_OC,NAEL+NBEL)
-      CALL GETMEM('CONF_M','FREE','INTE',KLDET_MS,NAEL+NBEL)
-      CALL GETMEM('CONF_M','FREE','INTE',KLDET_VC,NOCOB)
+      Call mma_deallocate(LASTR)
+      Call mma_deallocate(LBSTR)
+      Call mma_deallocate(ZSCR)
+      Call mma_deallocate(Z)
+      Call mma_deallocate(LOCMIN)
+      Call mma_deallocate(LOCMAX)
+      Call mma_deallocate(DET_OC)
+      Call mma_deallocate(DET_MS)
+      Call mma_deallocate(DET_VC)
 *
-      RETURN
       END

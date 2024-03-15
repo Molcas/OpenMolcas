@@ -16,11 +16,13 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKCOUP_CP2(IVR,IMAW,ISGMNT,VSGMNT,NOW,IOW,
-     &                  NOCP,IOCP,ILNDW,ICASE,ICOUP,
+      SUBROUTINE MKCOUP_CP2(IVR,IMAW,ISGMNT,VSGMNT,NOW,
+     &                  NOCP,IOCP,ILNDW,ICOUP,
      &                  NVTAB_TMP,VTAB_TMP,NVTAB_FINAL,
      &                  ISCR,VALUE)
 
+      use gugx, only: NLEV, NVERT, NMIDV, MIDLEV,MVSta,MVEnd,
+     &                         ISM, NWALK, NICOUP, MXEO
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -29,19 +31,20 @@
 #include "segtab.fh"
 
 C INPUT PARAMETERS:
-      DIMENSION IVR(NVERT,2),IMAW(NVERT,0:3)
-      DIMENSION ISGMNT(NVERT,26), VSGMNT(NVERT,26)
-      DIMENSION NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
+      Integer IVR(NVERT,2),IMAW(NVERT,0:3)
+      Integer ISGMNT(NVERT,26)
+      Real*8 VSGMNT(NVERT,26)
+      Integer NOW(2,NSYM,NMIDV), NOCP(MXEO,NSYM,NMIDV)
 C OUTPUT PARAMETERS:
-      DIMENSION IOW(2,NSYM,NMIDV), IOCP(MXEO,NSYM,NMIDV)
-      DIMENSION ILNDW(NWALK),ICASE(NICASE)
-      DIMENSION VTAB_TMP(NVTAB_TMP)
-      INTEGER ICOUP
-      DIMENSION ICOUP(3,NICOUP)
+      Integer IOCP(MXEO,NSYM,NMIDV)
+      Integer ILNDW(NWALK)
+      Real*8 VTAB_TMP(NVTAB_TMP)
+      Integer ICOUP(3,NICOUP)
 C SCRATCH PARAMETERS:
-      DIMENSION ISCR(7,0:NLEV), VALUE(0:NLEV)
-      PARAMETER (IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6)
-      PARAMETER (ISEG=7)
+      Integer ISCR(7,0:NLEV)
+      Real*8 VALUE(0:NLEV)
+      Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
+      Integer, PARAMETER :: ISEG=7
 
 C NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL
 C    BE RESTORED FINALLY.
@@ -76,8 +79,8 @@ C COUPLING COEFFICIENT VALUE TABLE:
           LEV2=MIDLEV
           ITYPMX=0
         ELSE
-          IVTSTA=MIDV1
-          IVTEND=MIDV2
+          IVTSTA=MVSta
+          IVTEND=MVEnd
           LEV1=MIDLEV
           LEV2=0
           ITYPMX=2
@@ -126,7 +129,7 @@ C COUPLING COEFFICIENT VALUE TABLE:
           ISCR(ISEG,LEV)=0
           IF (LEV.GT.LEV2) GOTO 100
 
-          MV=ISCR(IVLFT,MIDLEV)+1-MIDV1
+          MV=ISCR(IVLFT,MIDLEV)+1-MVSta
           LFTSYM=ISCR(ILS,LEV2)
           IT=ISCR(ITYPE,MIDLEV)
           IF(IT.EQ.0) IT=3
@@ -137,15 +140,6 @@ C COUPLING COEFFICIENT VALUE TABLE:
             IAWS=ISCR(IAWSL,LEV2)
             ILNDW(IAWS)=ILND
             NOW(IHALF,LFTSYM,MV)=ILND
-            IPOS=IOW(IHALF,LFTSYM,MV)+(ILND-1)*NIPWLK
-            DO LL=LEV2+1,LEV1,15
-              IC=0
-              DO L=MIN(LL+14,LEV1),LL,-1
-                IC=4*IC+ISCR(ICS,L)
-              END DO
-              IPOS=IPOS+1
-              ICASE(IPOS)=IC
-            END DO
           ELSE
             IP=0
             IQ=0

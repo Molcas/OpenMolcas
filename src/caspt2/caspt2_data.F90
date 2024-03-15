@@ -11,6 +11,7 @@
 
 module caspt2_data
 
+      use gugx, only: NLEV
       implicit none
 
 #include "rasdim.fh"

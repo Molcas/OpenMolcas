@@ -51,7 +51,7 @@ do i=1,n
 end do
 write(u6,'(A,I10,A,I10)') 'GET_PIVOT_IDX: number of negative input diagonals:',n_NegInpDiag,' out of ',n
 if (n_NegInpDiag > 0) then
-  write(u6,'(A,1P,D12.4)') 'GET_PIVOT_IDX: most negative diagonal:          ',d_NegInpDiag
+  write(u6,'(A,ES12.4)') 'GET_PIVOT_IDX: most negative diagonal:          ',d_NegInpDiag
 end if
 #endif
 

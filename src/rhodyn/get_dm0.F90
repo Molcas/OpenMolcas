@@ -258,7 +258,7 @@ if (p_style == 'FROMFILE') then
   call molcas_open(lu,'INDENS')
   do i=1,NState
     do j=1,Nstate
-      read(lu,'(E16.8)',advance='no') temp_dm(j)
+      read(lu,'(ES16.8)',advance='no') temp_dm(j)
     end do
     DM0(i,:) = temp_dm
     read(lu,*)

@@ -70,24 +70,24 @@ if (IPRINT >= INF_INIT) then
     else
       write(LUPRI,'(A)') 'Exclusion of 2-center diagonals           :           No'
     end if
-    if (CHO_SIMRI) write(LUPRI,'(A,1P,D12.4)') 'Simulation of RI, threshold               : ',THR_SIMRI
+    if (CHO_SIMRI) write(LUPRI,'(A,ES12.4)') 'Simulation of RI, threshold               : ',THR_SIMRI
   else
     write(LUPRI,'(A)') '1-center decomposition                    :           No'
   end if
-  write(LUPRI,'(A,1P,D12.4)') 'Decomposition threshold                   : ',THRCOM
-  if (CHO_PRESCREEN) write(LUPRI,'(A,1P,D12.4)') 'Initial diagonal prescreening             : ',THR_PRESCREEN
-  write(LUPRI,'(A,1P,D12.4)') 'Initial diagonal screening                : ',THRDIAG
-  write(LUPRI,'(A,1P,D12.4,1X,A)') 'First  screening damping                  : ',DAMP(1),USED(IUSE)
-  write(LUPRI,'(A,1P,D12.4,1X,A)') 'Second screening damping                  : ',DAMP(2),USED(IUSE)
+  write(LUPRI,'(A,ES12.4)') 'Decomposition threshold                   : ',THRCOM
+  if (CHO_PRESCREEN) write(LUPRI,'(A,ES12.4)') 'Initial diagonal prescreening             : ',THR_PRESCREEN
+  write(LUPRI,'(A,ES12.4)') 'Initial diagonal screening                : ',THRDIAG
+  write(LUPRI,'(A,ES12.4,1X,A)') 'First  screening damping                  : ',DAMP(1),USED(IUSE)
+  write(LUPRI,'(A,ES12.4,1X,A)') 'Second screening damping                  : ',DAMP(2),USED(IUSE)
   if (CHO_USEABS) then
     write(LUPRI,'(A)') 'Absolute values used in diagonal screening:          Yes'
   else
     write(LUPRI,'(A)') 'Absolute values used in diagonal screening:           No'
   end if
-  write(LUPRI,'(A,1P,D12.4)') 'Threshold for negative  diagonal zeroing  : ',THRNEG
-  write(LUPRI,'(A,1P,D12.4)') 'Threshold for warning about neg. diagonal : ',WARNEG
-  write(LUPRI,'(A,1P,D12.4)') 'Threshold for too negative diagonal       : ',TOONEG
-  write(LUPRI,'(A,1P,D12.4)') 'Span factor                               : ',SPAN
+  write(LUPRI,'(A,ES12.4)') 'Threshold for negative  diagonal zeroing  : ',THRNEG
+  write(LUPRI,'(A,ES12.4)') 'Threshold for warning about neg. diagonal : ',WARNEG
+  write(LUPRI,'(A,ES12.4)') 'Threshold for too negative diagonal       : ',TOONEG
+  write(LUPRI,'(A,ES12.4)') 'Span factor                               : ',SPAN
   write(LUPRI,'(A,I12)') 'Max. #Cholesky vectors per symmetry       : ',MAXVEC
   write(LUPRI,'(A,I12)') 'Max. #reduced sets (i.e., integral passes): ',MAXRED
   write(LUPRI,'(A,I12)') 'Min. #qualified required for decomposition: ',MINQUAL
@@ -127,7 +127,7 @@ if (IPRINT >= INF_INIT) then
   write(LUPRI,'(A,A13)') 'Address mode for Cholesky vector I/O      : ',ADRMODE(IADRMODE)
   XF2 = 1.0e2_wp*FRAC_CHVBUF
   write(LUPRI,'(A,5X,F7.4,A)') 'Memory fraction used as vector buffer     : ',XF2,'%'
-  if (CHO_SSCREEN) write(LUPRI,'(A,1P,D12.4)') 'Screening threshold for vector subtraction: ',SSTAU
+  if (CHO_SSCREEN) write(LUPRI,'(A,ES12.4)') 'Screening threshold for vector subtraction: ',SSTAU
   if (CHO_DECALG == 5) write(LUPRI,'(A,I12)') 'Block size (blocked Z vector array)       : ',BLOCKSIZE
 end if
 

@@ -147,7 +147,7 @@ do i=1,nQual(iSym)
     do j=i+1,nQual(iSym)
       xM = max(xM,QDiag(j))
     end do
-    write(Lupri,'(I3,3(1X,I9),2(1X,D11.3),2(1X,I4),1X,D11.3)') iSym,iVec,iVecT,iABG,xC,OlDiag,nConv,nNeg,xM
+    write(Lupri,'(I3,3(1X,I9),2(1X,ES11.3),2(1X,I4),1X,ES11.3)') iSym,iVec,iVecT,iABG,xC,OlDiag,nConv,nNeg,xM
   end if
 
 end do

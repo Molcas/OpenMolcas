@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2008, Bjorn O. Roos                                    *
 !               2008, Valera Veryazov                                  *
+!               2023, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 subroutine expbas(ireturn)
@@ -21,20 +22,28 @@ subroutine expbas(ireturn)
 !                                                                      *
 !***********************************************************************
 
-use info_expbas_mod, only: EB_FileOrb, LenIn, mxsym, n_orb_kinds
+use info_expbas_mod, only: EB_FileOrb, LenIn, n_orb_kinds, nBas1, nBas2, nSym1, nSym2
+#ifdef _HDF5_
+use info_expbas_mod, only: wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+use mh5, only: mh5_close_file, mh5_is_hdf5, mh5_open_file_r, mh5_put_dset
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, ib1, ib2, iErr, iLen, ind, ishift, ist1, ist2, iSym, Lu_, LuInpOrb, nb1, nb2, nDim1, nDim2, nSym1, nSym2, &
-                     nTot1, nTot2, nBas1(mxsym), nBas2(mxsym)
+integer(kind=iwp) :: fileorb_id, i, ib1, ib2, iErr, iLen, ind, ist1, ist2, iSym, Lu_, LuInpOrb, nb1, nb2, nDim1, nDim2, nTot1, nTot2
 character(len=80) :: VecTit
 character(len=512) :: FName
-logical(kind=iwp) :: Exist_1, Exist_2, okay
-integer(kind=iwp), allocatable :: indt1(:), indt2(:), IndType(:)
+logical(kind=iwp) :: Exist_1, Exist_2, isHDF5, okay
+integer(kind=iwp), allocatable :: indt1(:), indt2(:), IndType(:,:)
 real(kind=wp), allocatable :: CMO1(:), CMO2(:), Eorb1(:), Eorb2(:), Occ1(:), Occ2(:)
 character(len=LenIn+8), allocatable :: Bas1(:), Bas2(:)
+#ifdef _HDF5_
+logical(kind=iwp) :: Found
+integer(kind=iwp), allocatable :: IndTypeT(:,:)
+character(len=1), allocatable :: typestring(:)
+#endif
 
 !----------------------------------------------------------------------*
 !     Read information from Runfile 1                                  *
@@ -93,9 +102,23 @@ FName = EB_FileOrb
 if (len_trim(FName) == 0) FName = 'INPORB'
 iLen = len_trim(FName)
 call f_Inquire(FName(:iLen),okay)
+isHDF5 = .false.
+#ifdef _HDF5_
+if (mh5_is_hdf5(FName)) then
+  isHDF5 = .true.
+  fileorb_id = mh5_open_file_r(FName)
+end if
+#endif
 if (okay) then
-  LuInpOrb = 50
-  call RdVec(FName(:iLen),LuInpOrb,'COEI',nSym1,nBas1,nBas1,CMO1,Occ1,Eorb1,indt1,VecTit,1,iErr)
+  if (isHDF5) then
+    call RdVec_HDF5(fileorb_id,'COEI',nSym1,nBas1,CMO1,Occ1,Eorb1,indt1)
+#   ifdef _HDF5_
+    call mh5_close_file(fileorb_id)
+#   endif
+  else
+    LuInpOrb = 50
+    call RdVec(FName(:iLen),LuInpOrb,'COEI',nSym1,nBas1,nBas1,CMO1,Occ1,Eorb1,indt1,VecTit,1,iErr)
+  end if
 else
   write(u6,*) 'RdCMO: Error finding MO file'
   call Abend()
@@ -105,7 +128,7 @@ end if
 !     Print and check input information                                *
 !----------------------------------------------------------------------*
 !write(u6,910) 'Start of option expand.'
-write(u6,930) trim(Vectit)
+if (.not. isHDF5) write(u6,930) trim(Vectit)
 write(u6,910) 'Information from input runfile'
 write(u6,920) 'Number of symmetries',nSym1
 write(u6,920) 'Number of basis functions',(nBas1(i),i=1,nSym1)
@@ -149,25 +172,46 @@ call mma_deallocate(Bas2)
 !     Write the new orbitals in to the file EXPORB                     *
 !----------------------------------------------------------------------*
 ! First resort indt to standard
-call mma_allocate(IndType,nSym2*n_orb_kinds,label='IndType')
-IndType(:) = 0
+call mma_allocate(IndType,n_orb_kinds,nSym2,label='IndType')
+IndType(:,:) = 0
 ind = 0
-ishift = 0
 do isym=1,nSym2
   nb2 = nBas2(isym)
   if (nb2 /= 0) then
     do ib2=1,nb2
       ind = ind+1
-      IndType(ishift+indt2(ind)) = IndType(ishift+indt2(ind))+1
+      IndType(indt2(ind),isym) = IndType(indt2(ind),isym)+1
     end do
   end if
-  ishift = ishift+n_orb_kinds
 end do
 
 VecTit = 'Basis set expanded orbital file EXPORB'
 Lu_ = 60
 call WRVEC('EXPORB',LU_,'COEI',nSym2,nBas2,nBas2,CMO2,Occ2,Eorb2,IndType,VecTit)
 write(u6,*) 'New orbitals have been built in file EXPORB'
+!----------------------------------------------------------------------*
+!     Write the new orbitals in to the file expbas.h5                  *
+!----------------------------------------------------------------------*
+#ifdef _HDF5_
+call Qpg_iScalar('Unique Centers',Found)
+if (Found) then
+  call cre_expwfn()
+  call mma_allocate(IndTypeT,nSym2,n_orb_kinds,label='IndTypeT')
+  IndTypeT(:,:) = transpose(IndType(:,:))
+  call mma_allocate(typestring,nDim2)
+  call orb2tpstr(nSym2,nBas2,IndTypeT(:,1),IndTypeT(:,2),IndTypeT(:,3),IndTypeT(:,4),IndTypeT(:,5),IndTypeT(:,6),IndTypeT(:,7), &
+                 typestring)
+  call mh5_put_dset(wfn_tpidx,typestring)
+  call mma_deallocate(IndTypeT)
+  call mma_deallocate(typestring)
+  call mh5_put_dset(wfn_mocoef,CMO2)
+  call mh5_put_dset(wfn_occnum,Occ2)
+  call mh5_put_dset(wfn_orbene,EOrb2)
+  call cls_expwfn()
+else
+  call WarningMessage(1,'Warning:; In order to generate an expbas.h5 file, SEWARD must be run before EXPBAS')
+end if
+#endif
 !----------------------------------------------------------------------*
 !     Normal termination                                               *
 !----------------------------------------------------------------------*

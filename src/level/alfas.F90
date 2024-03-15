@@ -390,7 +390,7 @@ return
 
 602 format(/'  *** ALF ERROR ***'/4X,'Number of vib levels requested=',i4,' exceeds internal ALF array dimension  NVIBMX=',i4)
 !604 format(/' *** ALF ERROR ***   Find NO potential minima for   J=',i4)
-!606 format(/'  ALF  finds onee potential minimum of',1PD15.7,'  at  R(1)=',0Pf9.6)
+!606 format(/'  ALF  finds onee potential minimum of',ES15.7,'  at  R(1)=',f9.6)
 608 format(/'  *** ALF ERROR ***   Unable to find a potential minimum for   J=',i4)
 610 format(/'  *** ALF CAUTION ***'/4X,'The potential turns over in the short range region at  y= ',G15.8)
 !614 format(' Find',F3.5,'  potential minima:   Vmin=',8F11.3)
@@ -403,8 +403,8 @@ return
            'Check range and/or contact Nike Dattani [nike@hpqc.org,ndattani@uwaterloo.ca]')
 626 format(/' ALF successfully finds all (J=',i3,') vibrational levels up to   v= KVMAX=',I3)
 628 format(4x,'ALF fails to find level   v=',i3,', J=',i3)
-630 format(' Highest calculated level found by ALF is   E(v=',I3,')=',1PD17.9/)
+630 format(' Highest calculated level found by ALF is   E(v=',I3,')=',ES17.9/)
 632 format(' Zero point energy (measured from VLIM) approximated using a harmonic osccilator:        ',8F11.3)
-634 format(' Mult. V(R) by this factor (BFCT) for solving the SE in dimensionless units: ',E20.13)
+634 format(' Mult. V(R) by this factor (BFCT) for solving the SE in dimensionless units: ',ES20.13)
 
 end subroutine ALFas

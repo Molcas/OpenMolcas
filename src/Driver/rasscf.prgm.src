@@ -36,3 +36,4 @@
  (file)  ROT_HAM0  "$WorkDir/"H0_Rotate0.txt       ro
  (file)  ROT_VEC0  "$WorkDir/"Do_Rotate0.txt       ro
  (file)  VECDET    "$WorkDir/$Project$SubProject."VecDet     rw*st
+ (file)  LUPT2GRD  "$WorkDir/"PT2GRD                      rw*p

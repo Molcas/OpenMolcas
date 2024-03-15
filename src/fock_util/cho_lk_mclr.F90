@@ -49,7 +49,7 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-type(DSBA_Type), intent(in) :: DLT, DA, Kappa, Ash(2), CMO, CMO_Inv
+type(DSBA_Type), intent(in) :: DLT(1), DA, Kappa, Ash(2), CMO, CMO_Inv
 type(DSBA_Type), intent(inout) :: DI, JI(1), KI, JA, KA
 real(kind=wp), intent(in) :: G2(*)
 type(DSBA_Type), intent(_OUT_) :: FkI, FkA, QVec
@@ -492,7 +492,7 @@ do jSym=1,nSym
         ! Transform the density to reduced storage
         add = .false.
         nMat = 1
-        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,[DLT],Drs,add)
+        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,DLT,Drs,add)
       end if
 
       ! BATCH over the vectors ----------------------------

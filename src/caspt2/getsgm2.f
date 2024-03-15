@@ -17,6 +17,8 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1, NOCP, IOCP,
+     &                         ICOUP, VTAB, MVL, MVR, ISM, NCSF
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -46,8 +48,8 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IF(NSGM.EQ.0) RETURN
       CALL DCOPY_(NSGM,[0.0D0],0,SGM,1)
       CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
-     &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &      WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &      NOCSF,IOCSF,NOW1,IOW1,
+     &      NOCP,IOCP,ICOUP,
+     &      VTAB,MVL,MVR)
       RETURN
       END

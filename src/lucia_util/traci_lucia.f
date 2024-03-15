@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE TRACI_LUCIA(      X,  LUCIN, LUCOUT,  IXSPC,   IXSM,
      &                          VEC1,   VEC2)
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
 * A rotation matrix X is defining expansion from
 * old to new orbitals
@@ -36,14 +37,14 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
 #include "clunit.fh"
 *. Common block for communicating with sigma
 #include "cands.fh"
 *
-      DIMENSION X(*),VEC1(*),VEC2(*)
+      Real*8 X(*),VEC1(*),VEC2(*)
+      Real*8, Allocatable:: SCR(:), LT(:)
 * Some dummy initializations
       IOFF = 0 ! jwk-cleanup
 *
@@ -57,10 +58,9 @@
       END IF
 *. Memory allocation
 * for a matrix T
-      CALL GETMEM('TMAT  ','ALLO','REAL',KLT,NTOOB**2)
+      Call mma_allocate(LT,NTOOB**2,Label='LT')
 *. Scratch in PAMTMT
-      LSCR = NTOOB**2 +NTOOB*(NTOOB+1)/2
-      CALL GETMEM('KLSCR ','ALLO','REAL',KLSCR,LSCR)
+      Call mma_allocate(SCR,NTOOB**2 + NTOOB*(NTOOB+1)/2, Label='SCR')
 *. Obtain T matrix used for transformation, for each symmetry separately
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
@@ -69,7 +69,7 @@
           IOFF = IOFF + NTOOBS(ISM-1)**2
         END IF
         IF(NTOOBS(ISM).GT.0) THEN
-         CALL PAMTMT(X(IOFF),WORK(KLT-1+IOFF),WORK(KLSCR),NTOOBS(ISM))
+         CALL PAMTMT(X(IOFF),LT(IOFF),SCR,NTOOBS(ISM))
         END IF
       END DO
 *. Transform CI-vector
@@ -78,11 +78,11 @@
       ISSPC = IXSPC
       ISSM  = IXSM
 *
-      CALL TRACID(WORK(KLT),    LUCIN,   LUCOUT,    LUSC1,    LUSC2,
+      CALL TRACID(LT,    LUCIN,   LUCOUT,    LUSC1,    LUSC2,
      &                LUSC3,     VEC1,     VEC2)
 *
-      CALL GETMEM('TMAT  ','FREE','REAL',KLT,NTOOB**2)
-      CALL GETMEM('KLSCR ','FREE','REAL',KLSCR,LSCR)
+      Call mma_deallocate(SCR)
+      Call mma_deallocate(LT)
 *
 *
       RETURN

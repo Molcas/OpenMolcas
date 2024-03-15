@@ -236,9 +236,9 @@ C.. for GAS
       Write(LF,Fmt2//'A,T45,L6)')'Semistochastic algorithm',Dice_stoc
       Write(LF,Fmt2//'A,T45,L6)')'Full restart',dice_restart
       Write(LF,Fmt2//'A,T45,I6)')'Max iterations',dice_iter
-      Write(LF,Fmt2//'A,T45,E10.3)')'Epsilon1',
+      Write(LF,Fmt2//'A,T45,ES10.3)')'Epsilon1',
      &                           dice_eps1
-      Write(LF,Fmt2//'A,T45,E10.3)')'Epsilon2',
+      Write(LF,Fmt2//'A,T45,ES10.3)')'Epsilon2',
      &                           dice_eps2
       Write(LF,Fmt2//'A,T45,I6)')'SampleN',
      &                           dice_sampleN
@@ -267,13 +267,13 @@ C.. for GAS
      &                           max_sweep
       Write(LF,Fmt2//'A,T45,I6)')'Maximum number of sweeps in RDM',
      &                           max_canonical
-      Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for restarting',
+      Write(LF,Fmt2//'A,T45,ES10.3)')'Threshold for restarting',
      &                           chemps2_blb
-      Write(LF,Fmt2//'A,T45,E10.3)')'Minimum Davidson tolerance',
+      Write(LF,Fmt2//'A,T45,ES10.3)')'Minimum Davidson tolerance',
      &                           davidson_tol
-      Write(LF,Fmt2//'A,T45,E10.3)')'DMRG convergence threshold',
+      Write(LF,Fmt2//'A,T45,ES10.3)')'DMRG convergence threshold',
      &                           THRE/2.0
-      Write(LF,Fmt2//'A,T45,E10.3)')'Noise prefactor',
+      Write(LF,Fmt2//'A,T45,ES10.3)')'Noise prefactor',
      &                           chemps2_noise
       Write(LF,Fmt2//'A,T45,L6)')'Restart from previous calculation',
      &                           chemps2_restart
@@ -397,7 +397,7 @@ C.. for GAS
         if (PerSplit)
      &  write(LF,Fmt2//'A,T44,F7.1)')'Percentage sought '//
      &                            'in SplitCAS',PercSpli
-        Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for SplitCAS',
+        Write(LF,Fmt2//'A,T45,ES10.3)')'Threshold for SplitCAS',
      &                              ThrSplit
 *       write(LF,Fmt2//'A,T49,G10.3)')'Thrs over the root to be '//
 *     &                        'opt in SplitCAS', ThrSplit
@@ -521,8 +521,8 @@ C.. for GAS
           KSDFT2 = KSDFT(index(KSDFT,'T:')+2:)
           Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
      &                         'with functional: '//KSDFT
-          Write(LF,Fmt2//'A,T45,E10.3)')'Exchange scaling factor',CoefX
-          Write(LF,Fmt2//'A,T45,E10.3)')'Correlation scaling factor',
+          Write(LF,Fmt2//'A,T45,ES10.3)')'Exchange scaling factor',CoefX
+          Write(LF,Fmt2//'A,T45,ES10.3)')'Correlation scaling factor',
      &                                 CoefR
        end if
 ************************************************************************
@@ -531,14 +531,14 @@ C.. for GAS
      &                           MAXIT
        Write(LF,Fmt2//'A,T45,I6)')'Maximum number of SX iterations',
      &                           ITMAX
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for RASSCF energy',
+       Write(LF,Fmt2//'A,T45,ES10.3)')'Threshold for RASSCF energy',
      &                              THRE
        Call Put_dScalar('EThr',ThrE)
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for max MO rotation',
+       Write(LF,Fmt2//'A,T45,ES10.3)')'Threshold for max MO rotation',
      &                              THRTE
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for max BLB element',
+       Write(LF,Fmt2//'A,T45,ES10.3)')'Threshold for max BLB element',
      &                              THRSX
-       Write(LF,Fmt2//'A,T45,E10.3)')'Level shift parameter',
+       Write(LF,Fmt2//'A,T45,ES10.3)')'Level shift parameter',
      &                              LVSHFT
        If ( NQUNE.ne.0 ) THEN
         Write(LF,Fmt1)'Make Quasi-Newton update'

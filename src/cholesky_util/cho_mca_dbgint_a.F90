@@ -140,7 +140,7 @@ do ISHLAB=ISAB1,ISAB2
       write(LUPRI,'(4(I5,1X),5X,A)') ISHLC,ISHLD,ISHLA,ISHLB,' !!! nothing compared !!! '
     else
       RMS = sqrt(ERRRMS/real(NCMP,kind=wp))
-      write(LUPRI,'(4(I5,1X),1P,3(D12.4,1X))') ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS
+      write(LUPRI,'(4(I5,1X),3(ES12.4,1X))') ISHLC,ISHLD,ISHLA,ISHLB,ERRMIN,ERRMAX,RMS
     end if
 
     if (abs(ERRMAX) > abs(GLMAX)) GLMAX = ERRMAX
@@ -160,7 +160,7 @@ if (XTCMP < One) then
   write(LUPRI,'(A,23X,A)') 'Total:',' !!! nothing compared !!! '
 else
   GLRMS = sqrt(GLRMS/XTCMP)
-  write(LUPRI,'(A,18X,1P,3(D12.4,1X))') 'Total:',GLMIN,GLMAX,GLRMS
+  write(LUPRI,'(A,18X,3(ES12.4,1X))') 'Total:',GLMIN,GLMAX,GLRMS
 end if
 write(LUPRI,'(A)') '--------------------------------------------------------------'
 
@@ -194,8 +194,8 @@ if (abs(XTCMP-XPECT) > 1.0e-15_wp) then
 else
   write(LUPRI,*)
 end if
-write(LUPRI,'(A,1P,D20.10)') 'Total number of integral comparisons    :',XTCMP
-write(LUPRI,'(A,1P,D20.10)') 'Total number expected (full shell pairs):',XPECT
-write(LUPRI,'(A,1P,D20.10)') 'Total number of unique integrals        :',XNINT
+write(LUPRI,'(A,ES20.10)') 'Total number of integral comparisons    :',XTCMP
+write(LUPRI,'(A,ES20.10)') 'Total number expected (full shell pairs):',XPECT
+write(LUPRI,'(A,ES20.10)') 'Total number of unique integrals        :',XNINT
 
 end subroutine CHO_MCA_DBGINT_A

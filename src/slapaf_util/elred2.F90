@@ -37,7 +37,7 @@ real(kind=wp), parameter :: Zero_Approx = 1.0e-10_wp
 !                                                                      *
 
 #ifdef _DEBUGPRINT_
-call RecPrt('ElRed2: The u matrix','(5e21.12)',umtrx,nx,1)
+call RecPrt('ElRed2: The u matrix','(5es21.12)',umtrx,nx,1)
 #endif
 if (nq == 0) then
   nK = 0
@@ -83,7 +83,7 @@ do i=1,nq
 end do
 
 #ifdef _DEBUGPRINT_
-call RecPrt('ElRed2: The G Matrix (nq x nq)','(5e21.12)',Gmtrx,nq,nq)
+call RecPrt('ElRed2: The G Matrix (nq x nq)','(5es21.12)',Gmtrx,nq,nq)
 write(u6,*) 'Diagonal=',Diagonal
 #endif
 
@@ -152,8 +152,8 @@ do i=1,nQ
   if (g12K .and. (abs(EVal(i)) > Zero_Approx)) EVec(:,i) = EVec(:,i)/sqrt(EVal(i))
 end do
 #ifdef _DEBUGPRINT_
-call RecPrt('ElRed2: The NonRedundant eigenvectors','(5e21.12)',EVec,nQ,nK)
-call RecPrt('ElRed2: eigenvalues ','(8E12.4)',EVal,1,nK)
+call RecPrt('ElRed2: The NonRedundant eigenvectors','(5es21.12)',EVec,nQ,nK)
+call RecPrt('ElRed2: eigenvalues ','(8ES12.4)',EVal,1,nK)
 #endif
 
 return

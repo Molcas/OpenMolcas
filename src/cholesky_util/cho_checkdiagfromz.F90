@@ -117,10 +117,10 @@ if (Report) then
   write(LuPri,'(A,I8)') 'Neg. diag. that would be zeroed........',n3
   write(LuPri,'(A,I8)') 'Neg. diag. that would cause warning....',n4
   write(LuPri,'(A,I8)') 'Neg. diag. that would cause crash......',n5
-  write(LuPri,'(A,1P,D15.6)') 'Max diagonal...........................',Dmax
-  write(LuPri,'(A,1P,D15.6)') 'Min diagonal...........................',Dmin
-  write(LuPri,'(A,1P,D15.6)') 'Max abs diagonal.......................',Damax
-  write(LuPri,'(A,1P,D15.6)') 'Min abs diagonal.......................',Damin
+  write(LuPri,'(A,ES15.6)') 'Max diagonal...........................',Dmax
+  write(LuPri,'(A,ES15.6)') 'Min diagonal...........................',Dmin
+  write(LuPri,'(A,ES15.6)') 'Max abs diagonal.......................',Damax
+  write(LuPri,'(A,ES15.6)') 'Min abs diagonal.......................',Damin
 end if
 
 ! Deallocation

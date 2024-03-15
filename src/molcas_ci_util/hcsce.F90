@@ -63,7 +63,6 @@ integer(kind=iwp) :: INFO, MMAX, NSCRATCH
 real(kind=wp) :: dum1, dum2, dum3, WGronk(2)
 real(kind=wp), allocatable :: Scratch(:), Temp1(:,:), Temp2(:,:), Temp3(:,:), Temp4(:)
 !character(len=12) :: method
-#include "WrkSpc.fh"
 #include "timers.fh"
 
 call Timing(Longines_1,dum1,dum2,dum3)

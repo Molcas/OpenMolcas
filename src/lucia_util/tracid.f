@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE TRACID(       T,   LUCIN,  LUCOUT,   LUSC1,   LUSC2,
      &                     LUSC3,    VEC1,    VEC2)
+      use GLBBAS, only: INT1
 *
 * Transform CI vector on LUCIN with T matrix after
 * Docent Malmquist's recipe. Place result as next vector on LUOUT
@@ -25,8 +26,6 @@
 * each transformation is
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
-#include "glbbas.fh"
 #include "oper.fh"
 #include "intform.fh"
 #include "lucinp.fh"
@@ -54,7 +53,7 @@ C           COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
       DO K = 1, NTOOB
 *. Place (T(P,K)/S(K,K)   in one-electron integral list
 C                       T_ROW_TO_H(T,H,K)
-        CALL T_ROW_TO_H(T,WORK(KINT1),K,TKK)
+        CALL T_ROW_TO_H(T,INT1,K,TKK)
 *. T_{kk}^Nk
 C            T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
         CALL T_TO_NK_VEC(     TKK,       K,    ISSM,   ISSPC,   LUSC1,

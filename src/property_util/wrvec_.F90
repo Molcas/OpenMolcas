@@ -137,7 +137,7 @@ if (iExtras == 1) then
   write(Lu,'(A)') '#EXTRAS'
   if (iTwoE == 1) then
     write(LU,'(A)') '* ACTIVE TWO-EL ENERGY'
-    write(LU,'(E19.12)') EORB_ab(1)
+    write(LU,'(ES19.12)') EORB_ab(1)
   end if
 end if
 

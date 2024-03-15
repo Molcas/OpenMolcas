@@ -47,7 +47,7 @@ call UpCase(myModel)
 if (myModel == 'CHOL') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Cholesky localisation'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (decomposition)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (decomposition)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
@@ -77,7 +77,7 @@ if (myModel == 'CHOL') then
 else if (myModel == 'PAO ') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'PAO Cholesky localisation'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (decomposition)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (decomposition)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if

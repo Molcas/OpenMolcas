@@ -13,57 +13,66 @@
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
       use caspt2_output, only:iPrGlb,verbose
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
-
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
+#include "WrkSpc.fh"
+      Integer IFF
+      Real*8 CLag(nConf,nState)
+      Real*8 DEPSA(nAshT,nAshT),VECROT(*)
 
-      DIMENSION CLag(nConf,nState)
-      dimension DEPSA(nAshT,nAshT),VECROT(*)
+      Real*8, Allocatable::  G1(:),  G2(:),  G3(:),
+     &                       F1(:),  F2(:),  F3(:)
+      Real*8, Allocatable:: DG1(:), DG2(:), DG3(:),
+     &                      DF1(:), DF2(:), DF3(:)
+
+      Integer, External:: ip_of_Work
 
       !! reduced density matrix and fock-weighted RDM
-      CALL GETMEM('G1'   ,'ALLO','REAL',LG1 ,NG1)
-      CALL GETMEM('G2'   ,'ALLO','REAL',LG2 ,NG2)
-      CALL GETMEM('G3'   ,'ALLO','REAL',LG3 ,NG3)
-      CALL GETMEM('F1'   ,'ALLO','REAL',LF1 ,NG1)
-      CALL GETMEM('F2'   ,'ALLO','REAL',LF2 ,NG2)
-      CALL GETMEM('F3'   ,'ALLO','REAL',LF3 ,NG3)
+      CALL mma_allocate(G1 ,NG1, Label='G1')
+      LG1 = ip_of_Work(G1(1))
+      CALL mma_allocate(G2 ,NG2, Label='G2')
+      LG2 = ip_of_Work(G2(1))
+      CALL mma_allocate(G3 ,NG3, Label='G3')
+      LG3 = ip_of_Work(G3(1))
+      CALL mma_allocate(F1 ,NG1, Label='F1')
+      LF1 = ip_of_Work(F1(1))
+      CALL mma_allocate(F2 ,NG2, Label='F2')
+      LF2 = ip_of_Work(F2(1))
+      CALL mma_allocate(F3 ,NG3, Label='F3')
+      LF3 = ip_of_Work(F3(1))
 
       !! their derivative contributions
-      CALL GETMEM('DERG1','ALLO','REAL',LDG1,NG1)
-      CALL GETMEM('DERG2','ALLO','REAL',LDG2,NG2)
-      CALL GETMEM('DERG3','ALLO','REAL',LDG3,NG3)
-      CALL GETMEM('DERF1','ALLO','REAL',LDF1,NG1)
-      CALL GETMEM('DERF2','ALLO','REAL',LDF2,NG2)
-      CALL GETMEM('DERF3','ALLO','REAL',LDF3,NG3)
+      CALL mma_allocate(DG1,NG1,Label='DG1')
+      CALL mma_allocate(DG2,NG2,Label='DG2')
+      CALL mma_allocate(DG3,NG3,Label='DG3')
+      CALL mma_allocate(DF1,NG1,Label='DF1')
+      CALL mma_allocate(DF2,NG2,Label='DF2')
+      CALL mma_allocate(DF3,NG3,Label='DF3')
 
-      CALL PT2_GET(NG1,' GAMMA1',WORK(LG1))
-      CALL PT2_GET(NG2,' GAMMA2',WORK(LG2))
-      CALL PT2_GET(NG3,' GAMMA3',WORK(LG3))
-      CALL PT2_GET(NG1,' DELTA1',WORK(LF1))
-      CALL PT2_GET(NG2,' DELTA2',WORK(LF2))
-      CALL PT2_GET(NG3,' DELTA3',WORK(LF3))
-C     write(6,*) "G1"
-C     call sqprt(work(lg1),5)
-C     write(6,*) "f1"
-C     call sqprt(work(lf1),5)
+      CALL PT2_GET(NG1,' GAMMA1',G1)
+      CALL PT2_GET(NG2,' GAMMA2',G2)
+      CALL PT2_GET(NG3,' GAMMA3',G3)
+      CALL PT2_GET(NG1,' DELTA1',F1)
+      CALL PT2_GET(NG2,' DELTA2',F2)
+      CALL PT2_GET(NG3,' DELTA3',F3)
 C
       !! Initialize them
-      Call DCopy_(nG1,[0.0D+00],0,Work(LDG1),1)
-      Call DCopy_(nG2,[0.0D+00],0,Work(LDG2),1)
-      Call DCopy_(nG3,[0.0D+00],0,Work(LDG3),1)
-      Call DCopy_(nG1,[0.0D+00],0,Work(LDF1),1)
-      Call DCopy_(nG2,[0.0D+00],0,Work(LDF2),1)
-      Call DCopy_(nG3,[0.0D+00],0,Work(LDF3),1)
+      DG1(:)=0.0D0
+      DG2(:)=0.0D0
+      DG3(:)=0.0D0
+      DF1(:)=0.0D0
+      DF2(:)=0.0D0
+      DF3(:)=0.0D0
       !! DEASUM is the derivative cont. of EASUM
       DEASUM = 0.0D+00
 
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-      Call CLagD(Work(LG1),Work(LG2),Work(LG3),
-     *           Work(LDG1),Work(LDG2),Work(LDG3),
-     *           Work(LDF1),Work(LDF2),Work(LDF3),DEASUM,
+      Call CLagD(G1,G2,G3,
+     *           DG1,DG2,DG3,
+     *           DF1,DF2,DF3,DEASUM,
      *           DEPSA,VECROT)
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
       IF (IPRGLB.GE.verbose) THEN
@@ -74,17 +83,17 @@ C
       END IF
 
       !! Some symmetrizations are likely required
-      Call CLagSym(nAshT,Work(LDG1),Work(LDG2),Work(LDF1),Work(LDF2),0)
+      Call CLagSym(nAshT,DG1,DG2,DF1,DF2,0)
 
       !! Do for the derivative of EASUM
       !! EASUM=EASUM+EPSA(IT)*DREF(IT,IT)
       Do iT = 1, nAsh(1)
-        Work(LDG1+iT-1+nAsh(1)*(iT-1))
-     *    = Work(LDG1+iT-1+nAsh(1)*(iT-1)) + DEASUM*EPSA(iT)
+         DG1(iT+nAsh(1)*(iT-1)) = DG1(iT+nAsh(1)*(iT-1))
+     &                          + DEASUM*EPSA(iT)
         If (ISCF.EQ.0) Then
           Do iU = 1, nAsh(1)
             DEPSA(iT,iU) = DEPSA(iT,iU)
-     *        + DEASUM*Work(LG1+iT-1+nAsh(1)*(iU-1))
+     *        + DEASUM*G1(iT+nAsh(1)*(iU-1))
           End Do
         Else
           !! ?
@@ -92,26 +101,26 @@ C
       End Do
 
       Call CnstCLag(IFF,CLag(1,jState),
-     *              Work(LDG1),Work(LDG2),Work(LDG3),
-     *              Work(LDF1),Work(LDF2),Work(LDF3),
+     *              DG1,DG2,DG3,
+     *              DF1,DF2,DF3,
      *              DEPSA,
-     *              Work(LG1),Work(LG2),Work(LG3))
+     *              G1,G2,G3)
 !     write(6,*) "depsa after cnstclag"
 !     call sqprt(depsa,nasht)
 
-      CALL GETMEM('G1'   ,'FREE','REAL',LG1 ,NG1)
-      CALL GETMEM('G2'   ,'FREE','REAL',LG2 ,NG2)
-      CALL GETMEM('G3'   ,'FREE','REAL',LG3 ,NG3)
-      CALL GETMEM('F1'   ,'FREE','REAL',LF1 ,NG1)
-      CALL GETMEM('F2'   ,'FREE','REAL',LF2 ,NG2)
-      CALL GETMEM('F3'   ,'FREE','REAL',LF3 ,NG3)
+      Call mma_deallocate(G1)
+      Call mma_deallocate(G2)
+      Call mma_deallocate(G3)
+      Call mma_deallocate(F1)
+      Call mma_deallocate(F2)
+      Call mma_deallocate(F3)
 
-      CALL GETMEM('DERG1','FREE','REAL',LDG1,NG1)
-      CALL GETMEM('DERG2','FREE','REAL',LDG2,NG2)
-      CALL GETMEM('DERG3','FREE','REAL',LDG3,NG3)
-      CALL GETMEM('DERF1','FREE','REAL',LDF1,NG1)
-      CALL GETMEM('DERF2','FREE','REAL',LDF2,NG2)
-      CALL GETMEM('DERF3','FREE','REAL',LDF3,NG3)
+      Call mma_deallocate(DG1)
+      Call mma_deallocate(DG2)
+      Call mma_deallocate(DG3)
+      Call mma_deallocate(DF1)
+      Call mma_deallocate(DF2)
+      Call mma_deallocate(DF3)
 
       End Subroutine CLagX
 C
@@ -123,7 +132,7 @@ C
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
 
-      use caspt2_global, only:imag_shift
+      use caspt2_global, only:imag_shift, sigma_p_epsilon
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -164,6 +173,16 @@ C         write(6,*) "dimension for Vec = ", nin*nis
           !! lg_V2 = lambda (shift correction)
           Call RHS_ALLO(nIN,nIS,lg_V2)
           CALL RHS_READ_SR(lg_V2,iCase,iSym,iVecR)
+          if (sigma_p_epsilon.ne.0.0d+00) then
+            Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
+            Call GETMEM('LID','ALLO','REAL',LID,nIS)
+            iD = iDBMat(iSym,iCase)
+            Call dDaFile(LUSBT,2,Work(LBD),nAS,iD)
+            Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
+            Call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,Work(LBD),Work(LID))
+            Call GETMEM('LBD','FREE','REAL',LBD,nAS)
+            Call GETMEM('LID','FREE','REAL',LID,nIS)
+          end if
 C
           If (iCase.ne.12.and.iCase.ne.13) Then
             !! lg_V3 = RHS (in IC basis)
@@ -206,7 +225,7 @@ C
     !  *                    WORK(LVEC3),WORK(LVEC4),
     !  *                    nIN,nIS,nAS,G1,G2,G3,
     !  *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-    !  *                    VECROT,Work(lg_V5))
+    !  *                    VECROT,Work(lg_V5),lg_V2)
 
     !           ! free local buffer
     !           CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
@@ -218,7 +237,7 @@ C
     !  *                  Work(lg_V3),Work(lg_V4),
     !  *                  nIN,nIS,nAS,G1,G2,G3,
     !  *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-    !  *                  VECROT,Work(lg_V5))
+    !  *                  VECROT,Work(lg_V5),lg_V2)
     !       END IF
 ! #else
 C          write(6,*) "calling clagdx for icase = ", icase
@@ -226,10 +245,10 @@ C          write(6,*) "calling clagdx for icase = ", icase
      *                Work(lg_V3),Work(lg_V4),
      *                nIN,nIS,nAS,G1,G2,G3,
      *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                VECROT,Work(lg_V5))
+     *                VECROT,Work(lg_V5),lg_V2)
 ! #endif
 
-          If (imag_shift .ne. 0.0d0) Then
+          If (imag_shift .ne. 0.0d0 .or. sigma_p_epsilon.ne.0.0d0) Then
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
             Call GETMEM('LID','ALLO','REAL',LID,nIS)
@@ -238,12 +257,8 @@ C          write(6,*) "calling clagdx for icase = ", icase
             Call dDaFile(LUSBT,2,Work(LID),nIS,iD)
 
             CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V1,Work(LBD),Work(LID))
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V2,Work(LBD),Work(LID))
-            CALL RHS_READ_SR(lg_V4,ICASE,ISYM,iVecR)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V4,Work(LBD),Work(LID))
-!           Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
+            Call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,Work(LBD),Work(LID))
 
             Call DScal_(NG1,-1.0D+00,DG1,1)
             Call DScal_(NG2,-1.0D+00,DG2,1)
@@ -267,7 +282,7 @@ C          write(6,*) "calling clagdx for icase = ", icase
 !      *                    WORK(LVEC3),WORK(LVEC4),
 !      *                    nIN,nIS,nAS,G1,G2,G3,
 !      *                    DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-!      *                    VECROT,Work(lg_V5))
+!      *                    VECROT,Work(lg_V5),lg_V2)
 
 !               ! free local buffer
 !               CALL GETMEM('VEC1','FREE','REAL',LVEC1,nVec)
@@ -279,7 +294,7 @@ C          write(6,*) "calling clagdx for icase = ", icase
 !      *                  Work(lg_V3),Work(lg_V4),
 !      *                  nIN,nIS,nAS,G1,G2,G3,
 !      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-!      *                  VECROT,Work(lg_V5))
+!      *                  VECROT,Work(lg_V5),lg_V2)
 !           END IF
 ! #else
 C          write(6,*) "calling clagdx for icase = ", icase
@@ -287,7 +302,7 @@ C          write(6,*) "calling clagdx for icase = ", icase
      *                  Work(lg_V3),Work(lg_V4),
      *                  nIN,nIS,nAS,G1,G2,G3,
      *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                  VECROT,Work(lg_V5))
+     *                  VECROT,Work(lg_V5),lg_V2)
 ! #endif
 
             Call DScal_(NG1,-1.0D+00,DG1,1)
@@ -319,11 +334,6 @@ C         Call RHS_Save(nIN,nIS,lg_V1,iCase,iSym,iVecX)
           End If
         End Do
       End Do
-C     do i = 1, 625
-C     write(6,'(i4,2f20.10)') i,dg2(i),df2(i)
-C     end do
-C     call sqprt(dg2,25)
-C     call abend
 C
       Return
 C
@@ -333,11 +343,13 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagDX(Mode,iSym,iCase,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,
      *                  G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,
-     *                  DEASUM,DEPSA,VECROT,VEC5)
+     *                  DEASUM,DEPSA,VECROT,VEC5,lg_V2)
 C
       USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_global, only:ipea_shift, real_shift, imag_shift
+      use caspt2_global, only:ipea_shift, real_shift, imag_shift,
+     *                        sigma_p_epsilon
+      use caspt2_gradient, only:do_lindep,LUSTD
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -347,7 +359,6 @@ C
 #include "WrkSpc.fh"
 #include "sigma.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 #include "caspt2_grad.fh"
 C
       DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*),VEC5(*)
@@ -402,8 +413,10 @@ C
       End If
 C
       If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &    .OR. IFMSCOUP) Then
+     &    .OR. sigma_p_epsilon .ne. 0.0D+00 .OR. IFMSCOUP) Then
         !! Work(LWRK1) = T*T + (T*lambda+lambda*T)/2
+        !! For sigma-p CASPT2, this if branch computes the pseudo-
+        !! density that comes from the numerator of the shift.
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *              0.5D+00,VEC2,nIN,VEC1,nIN,
      *              1.0D+00,Work(LWRK1),nIN)
@@ -411,40 +424,11 @@ C
      *              0.5D+00,VEC1,nIN,VEC2,nIN,
      *              1.0D+00,Work(LWRK1),nIN)
       End If
-C
-      If (ipea_shift.NE.0.0D+00) Then
-C       write(6,*) "B derivative in internally contracted"
-C       call sqprt(Work(lWRK1),nin)
-C       Do iICB = 1, nIN
-C         Work(LWRK3+iICB-1) = Work(LWRK1+iICB-1+nIN*(iICB-1))
-C       End Do
-C       Call DGEMM_('N','T',nIN,nIN,nIS,
-C    *              1.0D+00,VEC3,nIN,VEC1,nIN,
-C    *              0.0D+00,Work(LWRK2),nIN)
-C       Call DGeSub(Work(LWRK2),nIN,'N',
-C    *              Work(LWRK2),nIN,'T',
-C    *              Work(LWRK1),nIN,
-C    *              nIN,nIN)
-C       Do iICB = 1, nIN
-C         EigI = Work(LEIG+iICB-1)
-C         Do jICB = 1, iICB-1
-C           EigJ = Work(LEIG+jICB-1)
-C           Work(LWRK1+iICB-1+nIN*(jICB-1))
-C    *        = Work(LWRK1+iICB-1+nIN*(jICB-1))/(EigJ-EigI)
-C           Work(LWRK1+jICB-1+nIN*(iICB-1))
-C    *        =-Work(LWRK1+jICB-1+nIN*(iICB-1))/(EigJ-EigI)
-C         End Do
-C         Work(LWRK1+iICB-1+nIN*(iICB-1)) = Work(LWRK3+iICB-1)
-C       End Do
-C       write(6,*) "B derivative in internally contracted"
-C       call sqprt(Work(lWRK1),nin)
-C       call abend
-      End If
-C     write(6,*) "B derivative in internally contracted"
-C     call sqprt(Work(lWRK1),nin)
-C     do i = 1, nin*nis
-C       write(6,'(i4,f20.10)') i,vec1(i)
-C     end do
+      if (sigma_p_epsilon.ne.0.0d+00 .and. mode.eq.0) then
+        !! the remaining is the derivative of 2<1|H|0>, so the unscaled
+        !! lambda is loaded
+        CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
+      end if
 C
       !! Transform the internally contracted density to
       !! active MO basis
@@ -473,31 +457,24 @@ C
      *      = -Work(LWRK1+iICB-1+nIN*(jICB-1))*(EigI+EigJ)*0.5D+00
         End Do
       End Do
-C     write(6,*) "3"
-C     call sqprt(Work(lWRK1),nin)
 C
       !! Derivative of the overlap in the IC basis.
       !! WRK1(o,p) = WRK1(o,p) - T_{o,i}^{ab}*RHS(p,i,a,b)
       !! This contribution should not be done for the imaginary
       !! shift-specific term
-      !  1) Implicit overlap derivative
+      !  1) Implicit overlap derivative of the 2<1|H|0> part
       If (Mode.eq.0) Then
         !! Work(LWRK1) = -RHS*T
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *             -1.0D+00,VEC5,nIN,VEC1,nIN,
      *              1.0D+00,Work(LWRK1),nIN)
         If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &      .OR. IFMSCOUP) Then
+     &      .OR. sigma_p_epsilon .NE. 0.0D+00 .OR. IFMSCOUP) Then
           !! Work(LWRK1) = -RHS*(T+lambda/2)
           Call DGEMM_('N','T',nIN,nIN,nIS,
      *               -0.5D+00,VEC3,nIN,VEC2,nIN,
      *                1.0D+00,Work(LWRK1),nIN)
         End If
-C       Call DGEMM_('N','T',nIN,nIN,nIS,
-C    *              2.0D+00,VEC2,nIN,VEC1,nIN,
-C    *              0.0D+00,Work(LWRK2),nIN)
-C       write(6,*) "orbital lagrangian?"
-C       call sqprt(work(lwrk2),nin)
       End If
 C
       !! Convert the IC basis to the MO basis
@@ -507,16 +484,22 @@ C
       Call DGEMM_('N','T',nAS,nAS,nIN,
      *            1.0D+00,Work(LWRK2),nAS,Work(LTRANS),nAS,
      *            0.0D+00,Work(LWRK1),nAS)
-C
-      !  2) Explicit overlap derivative
+!
+      !! Add some trivial contributions due to the dependence
+      !! on the linearly independent space
+      If (do_lindep.AND.nAS.NE.nIN) Then
+        Call LinDepLag(Work(LWRK3),Work(LWRK1),nAS,nIN,iSym,iCase)
+      End If
+!
+      !  2) Explicit overlap derivative of the 2<1|H|0> part
       !     Again, not for imaginary shift-specific terms
       If (Mode.eq.0) Then
-        !! E = 2<0|H|1> - <1|H0-E0|1>
+        !! E = 2<1|H|0> + <1|H0-E0|1>
         Call DGEMM_('N','N',nAS,nIS,nIN,
      *              SCAL,Work(LTRANS),nAS,VEC1,nIN,
      *              0.0D+00,Work(LWRK2),nAS)
         If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &      .OR. IFMSCOUP) THEN
+     &      .OR. sigma_p_epsilon .NE. 0.0D+00 .OR. IFMSCOUP) Then
           Call DGEMM_('N','N',nAS,nIS,nIN,
      *                0.5D+00,Work(LTRANS),nAS,VEC2,nIN,
      *                1.0D+00,Work(LWRK2),nAS)
@@ -530,7 +513,8 @@ C
       !! (i.e., CASPT2-N). Of course, this is not for imaginary shift-
       !! specific terms.
       If (MAXIT.NE.0.and.Mode.eq.0) Then
-        CALL DDAFILE(LuSTD,2,Work(LWRK2),nAS*nAS,idSDMat(iSym,iCase))
+        idSD = idSDMat(iSym,iCase)
+        CALL DDAFILE(LuSTD,2,Work(LWRK2),nAS*nAS,idSD)
         !! T*(T+lambda) + (T+lambda)*T is saved, so 1/2
         Call DaXpY_(nAS*nAS,0.5D+00,Work(LWRK2),1,Work(LWRK1),1)
       End If
@@ -1134,13 +1118,13 @@ C
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_output, only: iPrGlb, verbose
+      use gugx, only: NLEV, L2ACT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
+#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
-#include "pt2_guga.fh"
-#include "SysDef.fh"
 C
       DIMENSION CLag(nConf)
       DIMENSION DG1(*),DG2(*),DG3(*),DF1(*),DF2(*),DF3(*)
@@ -1259,12 +1243,12 @@ C
       !! From poly3
       SUBROUTINE CLagEig(IFSSDMloc,CLag,RDMEIG)
 C
+      use gugx, only: NLEV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
 #include "caspt2_grad.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*)
@@ -1396,6 +1380,7 @@ C
       end do
 C
       !! This projection is required to get convergence in MCLR.
+      !! also the linear equation for non-invariant CASPT2
       Do ilStat = 1, nState
         Call DCopy_(nConf,CLag(1,ilStat),1,Work(LCI1),1)
 C       do i = 1, nconf
@@ -1428,15 +1413,15 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG)
+      use gugx, only: NLEV
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
-#include "SysDef.fh"
+#include "WrkSpc.fh"
 
       REAL*8, INTENT(IN) :: CI(NCONF)
 
@@ -1478,13 +1463,13 @@ C
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
+      use gugx, only: NLEV, ISM, L2ACT, NCSF
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 
       LOGICAL RSV_TSK
 
@@ -1653,7 +1638,6 @@ C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-C#include "pt2_guga.fh"
 C
       DIMENSION CI(*)
 C
@@ -1887,7 +1871,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
       Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2098,7 +2081,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C
       Dimension BDER(*),SDER(*),
      *          DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2293,7 +2275,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
       Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2502,7 +2483,6 @@ C
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 C
       Dimension BDER(*),SDER(*),
      *          DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2635,212 +2615,33 @@ C
      *    DEPSA(iYabs,iXabs) = DEPSA(iYabs,iXabs) - ValB*G1(iVabs,iZabs)
  101    CONTINUE
  100  CONTINUE
-C     !! Btuv,xyz
-C     !! = (EatEuv)^\dagger Ew1w2 (EbxEyz) * fw1w2
-C     !! = EvuEta Ew1w2 Ebx Eyz * fw1w2
-C     !! = v+ u t+ a w1+ w2 b+ x y+ z * fw1w2
-C     !! = v+ u t+ w1+ w2 x y+ z * fw1w2 (del(ab))
-C     !!-> v+ u t+ a+ b x y+ z fab     (a,b active here)
-
-C     !! = del(ut) del(xy) F1(vz) + del(ut) del(by) G2(vxaz) fab
-C     !! + del(ut) F2(vx,yz) + del(ua) del(xy) G2(vbtz) fab
-C     !! + del(ua) del(by) G2(vztx) fab - del(ua) G3(tbvxyz) fab
-C     !! + del(xy) F2(vutz) fab - del(by) G3(tuvxaz) fab
-C     !! + del(uy) F2(vztx) + F3(tuvxyz)
-
-
-C     !! S(iap,ibp,icp,ia,ib,ic)
-C     !! = DRDM3(ICP,IBP,IA,IAP,IB,IC)=DRDM3(ICP,IBP,IA,IAP,IB,IC) +VAL
-C     !!   IF (IB.EQ.IA) DRDM2(ICP,IBP,IAP,IC)=DRDM2(ICP,IBP,IAP,IC)+VAL
-C     !!   IF (IAP.EQ.IBP) DRDM2(ICP,IA,IB,IC)=DRDM2(ICP,IA,IB,IC) +VAL
-C     !!   IF (IAP.EQ.IA) DRDM2(IBP,ICP,IB,IC)=DRDM2(IBP,ICP,IB,IC) +VAL
-C     !!   IF (IAP.EQ.IBP.AND.IB.EQ.IA) DRDM1(ICP,IC)=DRDM1(ICP,IC) +VAL
-C     !! S(tuv,xyz)
-C     !! = v+ t u+ y x+ z
-C     !! = del(tu) del(xy) Gvz - del(tu) v+ y x+ z
-C     !! - del(yx) v+ t u+ z + v+ u+ t x+ y z
-C     !! = del(tu) del(xy) Gvz - del(tu) del(yx) Gvz + del(tu) v+ x+ y z
-C     !! - del(yx) del(tu) Gvz + del(yx) v+ u+ t z
-C     !! + del(tx) v+ u+ y z - v+ u+ x+ t y z
-C     !! = -del(yx)del(tu) Gvz + del(tu) Gvx,zy + del(yx) Gvu,zt
-C     !! + del(tx) Gvu,zy - Gvux,zyt
-C     !! = -del(yx)del(tu) Gvz - del(tu) Gvx,yz - del(yx) Gvu,tz
-C     !! - del(tx) Gvu,zy - Gvux,zyt
-
-
-C     !! S(tuvxyz)
-C     !! = v+ u t+ x y+ z
-C     !! = del(ut)del(xy) Gvz - del(ut) v+ x y+ z
-C     !! - del(xy) v+ u t+ z + v+ t+ u y+ x z
-C     !! = del(ut)del(xy) Gvz - del(ut) del(xy) Gvz + del(ut) v+ y+ x z
-C     !! - del(xy)del(ut) Gvz + del(xy) v+ t+ u z
-C     !! + del(uy) v+ t+ x z - v+ t+ y+ u x z
-C     !! = -del(ut)del(xy) Gvz + del(ut) Gvy,zx + del(xy) Gvt,zu
-C     !!   + del(uy) Gvt,zx - Gvty,zxu
-
-C     !! = t+ u v+ x y+ z
-C     !! = del(uv)del(xy)Gtz - del(uv) t+ x y+ z
-C     !! - del(xy) t+ u v+ z + t+ v+ u y+ x z
-C     !! = del(uv)del(xy)Gtz - del(uv) del(xy) Gtz + del(uv) t+ y+ x z
-C     !! - del(xy) del(uv) Gtz + del(xy) t+ v+ u z
-C     !! + del(uy) t+ v+ x z - t+ v+ y+ u x z
-C     !! = -del(u
 C
       Return
 C
       End Subroutine CLagDXC_DP
-      Subroutine cnst_SA_CLag(same,G1,G2,DG1,DG2,eee)
-C
-      Use CHOVEC_IO
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-C
-      Dimension  G1(nAshT,nAshT), G2(nAshT,nAshT,nAshT,nAshT)
-      Dimension DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT)
-      Dimension wrk1(nbast,nbast),wrk2(nbast,nbast)
-      Logical   Same
-C
-      Integer Active, Inactive, Virtual
-      Parameter (Inactive=1, Active=2, Virtual=3)
-      Character(Len=8) Label
-C
-      iSym = 1
-C
-      nBasI = nBas(iSym)
-      nFroI = nFro(iSym)
-      nIshI = nIsh(iSym)
-      nCorI = nFroI+nIshI
-      eee = 0.0d+00
-C
-C     --- One-Electron Part
-C
-      !! Read H_{\mu \nu}
-      CALL GETMEM('WFLT','ALLO','REAL',LWFLT,NBTRI)
-      IRC=-1
-      IOPT=6
-      ICOMP=1
-      ISYLBL=1
-      Label='OneHam  '
-      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LWFLT),ISYLBL)
-      !! triangular -> square transformation
-      Call Square(Work(LWFLT),WRK1,1,nBasI,nBasI)
-      !! AO -> MO transformation
-      Call DGemm_('T','N',nBasT,nBasT,nBasT,
-     *            1.0D+00,Work(LCMOPT2),nBasT,WRK1,nBasT,
-     *            0.0D+00,WRK2,nBasT)
-      Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *            1.0D+00,WRK2,nBasT,Work(LCMOPT2),nBasT,
-     *            0.0D+00,WRK1,nBasT)
-      !! Put in DG1
-      If (SAME) Then
-        Do iCorI = 1, nCorI
-          eee = eee + 2.0d+00*WRK1(iCorI,iCorI)
-        End Do
-      End If
-      Do iAshI = 1, nAsh(iSym)
-        Do jAshI = 1, nAsh(iSym)
-          Val = WRK1(nCorI+iAshI,nCorI+jAshI)
-          DG1(iAshI,jAshI) = DG1(iAshI,jAshI) + Val
-          eee = eee + Val*G1(iAshI,jAshI)
-        End Do
-      End Do
-C
-C     --- Two-Electron Part
-C
-      !! Fpq = ((pq|rs)-1/2(pr|qs))*Drs
-      iSymA = 1
-      iSymI = 1
-      iSymB = 1
-      iSymJ = 1
-      If (Same) Then
-        Do iCorI = 1, nCorI
-          iOrb = iCorI
-          jOrb = iCorI
-          Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-          Do jCorI = 1, nCorI
-            eee = eee + 2.0d+00*WRK1(jCorI,jCorI)
-          End Do
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-          Do jCorI = 1, nCorI
-            eee = eee - 1.0d+00*WRK1(jCorI,jCorI)
-          End Do
-        End Do
-      End If
-C
-      If (IfChol) Then
-        Do JSYM=1,NSYM
-C         Call Get_Cholesky_Vectors(Active,Active,JSYM,
-C    &                              Work(LBRA),nBra,
-C    &                              IBSTA,IBEND)
-        END DO
-      Else
-        Do iAshI = 1, nAsh(iSym)
-          iOrb = nCorI+iAshI
-          Do jAshI = 1, nAsh(iSym)
-            jOrb = nCorI+jAshI
-C
-            Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-            !! DG1
-C           If (Same) Then
-              Do iCorI = 1, nCorI
-                DG1(iAshI,jAshI) = DG1(iAshI,jAshI)
-     *            + 2.0d+00*WRK1(iCorI,iCorI)
-                eee = eee + 2.0d+00*WRK1(iCorI,iCorI)*G1(iAshI,jAshI)
-              End Do
-C           End If
-            !! DG2
-            Do kAshI = 1, nAsh(iSym)
-              Do lAshI = 1, nAsh(iSym)
-                DG2(iAshI,jAshI,kAshI,lAshI)
-     *        = DG2(iAshI,jAshI,kAshI,lAshI)
-     *        + WRK1(nCorI+kAshI,nCorI+lAshI)*0.5d+00
-                eee = eee + 0.5d+00*G2(iAshI,jAshI,kAshI,lAshI)
-     *                             *WRK1(nCorI+kAshI,nCorI+lAshI)
-              End Do
-            End Do
-C
-C           If (Same) Then
-              Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
-              !! DG1
-              Do iCorI = 1, nCorI
-                DG1(iAshI,jAshI) = DG1(iAshI,jAshI)
-     *            - 1.0D+00*WRK1(iCorI,iCorI)
-                eee = eee - 1.0d+00*WRK1(iCorI,iCorI)*G1(iAshI,jAshI)
-              End Do
-C           End If
-          End Do
-        End Do
-      End If
-C
-      write(6,*) "energy = ", eee
-C
-      CALL GETMEM('WFLT','FREE','REAL',LWFLT,NBTRI)
-C
-      end subroutine cnst_SA_CLag
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2)
+      Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 C
-      use caspt2_output, only:iPrGlb,usual
+      use caspt2_output, only:IPrGlb,verbose
+      use caspt2_gradient, only: ConvInvar
+      use gugx, only: NOCSF, IOCSF, NOW1, IOW1
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
+#include "caspt2_grad.fh"
 C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
-     *          WRK1(nBasT,nBasT),WRK2(*)
+     *          WRK1(nBasT,nBasT),WRK2(*),U0(nState,nState)
       Dimension Eact(nState)
 C
-      Thres=1.0d-10
+      Thres = ConvInvar !! 1.0d-07
 C
-      If (IPRGLB.GE.USUAL) Then
+      If (IPRGLB.GE.verbose) Then
         Write (6,*)
         Write (6,'(3X,"Linear Equation for Non-Invariant CASPT2",
      *                " (threshold =",ES9.2,")")') Thres
@@ -2856,8 +2657,15 @@ C     active space cannot be parametrized in Z-vector, so analytic
 C     derivatives cannot be computed with the existing module. So,
 C     the active density is computed in a differnt way.
 C
-      !! Some preparation
-      !! Preconditioning
+C     See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
+C     Section II C 4 "Non-invariance with respect to active MOs"
+C     To be more specific, this subroutine solves the linear equation
+C     (Eq. (71)) and computes the second term in Eq. (70) later.
+C     CLag corresponds to the RHS in Eq. (71).
+C
+      !! Some post-processing of CI derivative
+      !! Somehow, this has to be done in the XMS basis
+      Call CLagFinalOffC(Work(ipSLag))
 C
 C     ----- Solve the linear equation -----
 C     A_{IS,JR}*X_{JR} = CLag_{IS}, where A_{IS,JR} is the CI-CI Hessian
@@ -2869,102 +2677,64 @@ C
       Call GetMem('CID ','ALLO','REAL',ipCID,nConf*nState)
       Call GetMem('CIT ','ALLO','REAL',ipCIT,nConf*nState)
       Call GetMem('S   ','ALLO','REAL',ipS  ,nState*(nState-1)/2)
+      Call GetMem('PREC','ALLO','REAL',ipPre,nConf)
+      Call GetMem('FANC','ALLO','REAL',ipFancy,nState**3)
 C
       Call GetMem('INT1','ALLO','REAL',ipINT1,nAshT**2)
       Call GetMem('INT2','ALLO','REAL',ipINT2,nAshT**4)
 C
-C     rin_ene = 0.0D+00
+      !! We do not have Cholesky vectors for frozen orbitals,
+      !! so may be it is not possible to get inactive energies?
+      !! It can be computed with TimesE2
       iSym = 1
       Call CnstInt(0,Work(ipINT1),Work(ipINT2))
-C     write(6,*) "nconf,mxci=",nconf,mxci
-C     If (nFroT.ne.0.and.IfChol) Then
-        !! We do not have Cholesky vectors for frozen orbitals,
-        !! so may be it is not possible to get inactive energies?
-        !! It can be computed with TimesE2
-        ID = IDCIEX
-        Do iState = 1, nState
-C         write(*,*) (RIn_Ene+PotNuc-REFENE(iState))
-          If (ISCF.EQ.0) Then
-            Call DDaFile(LUCIEX,2,Work(ipCIT+nConf*(iState-1)),nConf,ID)
-          Else
-            Work(ipCIT+iState-1) = 1.0D+00
-          End If
-          !! The second term should be removed
-          Eact(iState)=0.0d+00
-        End Do
-        Call TimesE2(Work(ipCIT),Work(ipS1),Work(ipINT1),Work(ipINT2))
-        Do iState = 1, nState
-          Eact(iState) = -0.5D+00*nState*
-     *      DDot_(nConf,Work(ipS1+nConf*(iState-1)),1,
-     *                  Work(ipCIT+nConf*(iState-1)),1)
-C         write(*,*) eact(istate)
-        End Do
-
-C       write(6,*) "fimo"
-C       call sqprt(fimo,nbast)
-C       write(6,*) "fifa"
-C       call sqprt(fifa,nbast)
-C       ID = IDCIEX
-C       Eact(1)=0.0d+00
-C     Call GetMem('INT22','ALLO','REAL',ipINT22,nAshT**4)
-C     Call GetMem('INT12','ALLO','REAL',ipINT12,nAshT**2)
-C       Call DDaFile(LUCIEX,2,Work(ipCIT),nConf,ID)
-C       Call TimesE2(Work(ipCIT),Work(ipS1),Work(ipINT1),Work(ipINT2))
-C       write(6,*) -0.5D+00*nState*
-C    *      DDot_(nConf,Work(ipS1),1,Work(ipCIT),1)
-C      !Call dens1_rpt2(work(ipcit),work(ipst),work(ipint22))
-C       Call dens2_rpt2(work(ipcit),work(ipst),work(ips1),
-C    *                  work(ipint12),work(ipint22))
-C       write(6,*) -1.0D+00*nState*
-C    *      DDot_(nasht**2,Work(ipINT1),1,Work(ipINT12),1)
-C    *              -1.0D+00*nState*
-C    *      DDot_(nasht**4,Work(ipINT2),1,Work(ipINT22),1)
-
-C       CALL PT2_GET(NG1,' GAMMA1',WORK(ipint1))
-C       call sqprt(work(ipint1),nasht)
-C       call sqprt(work(ipint12),nasht)
-C       CALL PT2_GET(NG2,' GAMMA2',WORK(ipint2))
-C       call sqprt(work(ipint2),nasht**2)
-C       call sqprt(work(ipint22),nasht**2)
-C       Call dens2t_rpt2(work(ipcit),work(ipcit),work(ipst),work(ips1),
-C    *                   work(ipint12),work(ipint22))
-C       call dscal_(nasht**2,0.5d+00,work(ipint12),1)
-C       call dscal_(nasht**4,0.5d+00,work(ipint22),1)
-C       call sqprt(work(ipint12),nasht)
-C       call sqprt(work(ipint22),nasht**2)
-C       do i = 1, nasht
-C       do j = 1, nasht
-C       ij = i + nasht*(j-1)
-C       do k = 1, nasht
-C       do l = 1, nasht
-C       kl = k + nasht*(l-1)
-C       write(6,'(4i3,"//",2i3,f20.10)') i,j,k,l,ij,kl,
-C    *  work(ipint22+i-1+nasht*(j-1+nasht*(k-1+nasht*(l-1))))
-C       end do
-C       end do
-C       end do
-C       end do
-C       call abend
-
-
-C     Else
-C       Do iState = 1, nState
-C         Eact(iState) = (RIn_Ene+PotNuc-REFENE(iState))
-C       End Do
-C     End If
+      ID = IDTCEX !! IDCIEX !! this parameter is hacked
+      Do iState = 1, nState
+        If (ISCF.EQ.0) Then
+          !! quasi-canonical, XMS
+          Call DDaFile(LUCIEX,2,Work(ipCIT+nConf*(iState-1)),nConf,ID)
+        Else
+          Work(ipCIT+iState-1) = 1.0D+00
+        End If
+        !! The second term should be removed
+        Eact(iState)=0.0d+00
+      End Do
+      if (ifxms.or.ifrms) then
+        !! Transform the CLag and CI vector from XMS to SCF basis
+        !! Maybe, in order to define Eact
+        Call DGEMM_('N','T',nConf,nState,nState,
+     &              1.0D+00,CLag,nConf,U0,nState,
+     &              0.0D+00,Work(ipST),nConf)
+        Call DCopy_(nConf*nState,Work(ipST),1,CLag,1)
+        Call DGEMM_('N','T',nConf,nState,nState,
+     &              1.0D+00,Work(ipCIT),nConf,U0,nState,
+     &              0.0D+00,Work(ipST),nConf)
+        Call DCopy_(nConf*nState,Work(ipST),1,Work(ipCIT),1)
+      end if
+      Call TimesE2(0,Work(ipCIT),Work(ipS1),Work(ipINT1),Work(ipINT2))
+      Do iState = 1, nState
+        !! scaling with nState is due to the division in TimesE2
+        Eact(iState) = -0.5D+00*nState*
+     *    DDot_(nConf,Work(ipS1+nConf*(iState-1)),1,
+     *                Work(ipCIT+nConf*(iState-1)),1)
+      End Do
+      isyci = 1
+C
+      !! Precondition
+      Call CnstInt(2,Work(ipINT1),Work(ipINT2))
+      Call CnstPrec(NOCSF,IOCSF,NOW1,
+     *              IOW1,ISYCI,Work(ipPre),work(ipcit),
+     *              Work(ipINT1),Work(ipINT2),Work(ipFancy))
+      Call CnstInt(0,Work(ipINT1),Work(ipINT2))
 C
       !! Begin!
       Call DCopy_(nConf*nState,CLag,1,Work(ipST),1)
-          !! asdf
-C         Call loadCI(Work(ipST),1)
-C         do i = 1, nconf
-C         write(6,'(i3,f20.10)') i,work(ipst+i-1)
-C         end do
-C     call dscal_(nconf*nstate,-1.0d+00,work(ipst),1)
 C
       !! z0 = M^{-1}*r0
 C     Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
       Call DCopy_(nConf*nState,Work(ipST),1,Work(ipS2),1)
+      Call DoPrec(Work(ipST),Work(ipS2),Work(ipS1),Work(ipPre),
+     *            Work(ipFancy))
       !! p0 = z0
       Call DCopy_(nConf*nState,Work(ipS2),1,Work(ipCId),1)
       MaxIter = 100
@@ -2981,9 +2751,8 @@ C     Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
       DeltaC = DDot_(nConf*nState,Work(ipST),1,Work(ipS2),1)
       Delta  = DeltaC
       Delta0 = Delta
-        !!
-        !!
-      If (IPRGLB.GE.USUAL) Write(6,*)
+C
+      If (IPRGLB.GE.verbose) Write(6,*)
      &      ' Iteration       Delta           Res(CI)        '//
      &      '  DeltaC'
       Call DCopy_(nConf*nState,[0.0D+00],0,Work(ipCIT),1)
@@ -2997,7 +2766,7 @@ C     Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
         End If
         !! Compute Ap
         !! ipS2 is used as a workind array
-        Call TimesE2(Work(ipCId),Work(ipS1),Work(ipINT1),Work(ipINT2))
+        Call TimesE2(1,Work(ipCId),Work(ipS1),Work(ipINT1),Work(ipINT2))
 C
         !! AlphaC = p^T*A*p
         AlphaC= DDot_(nConf*nState,Work(ipS1),1,Work(ipCId),1)
@@ -3011,6 +2780,8 @@ C
         !! z = M^{-1}*r
 C       Call DMinvCI_SA(ipST,Work(ipS2),rdum,isym,work(ipS))
         Call DCopy_(nConf*nState,Work(ipST),1,Work(ipS2),1)
+        Call DoPrec(Work(ipST),Work(ipS2),Work(ipS1),Work(ipPre),
+     *              Work(ipFancy))
 C
         !! Append new vectors
         DeltaC= Ddot_(nConf*nState,Work(ipST),1,Work(ipS2),1)
@@ -3019,7 +2790,7 @@ C
         Call DScal_(nConf*nState,   Beta,Work(ipCID),1)
         Call DaXpY_(nConf*nState,1.0D+00,Work(ipS2),1,Work(ipCID),1)
 C
-        If (IPRGLB.GE.USUAL)
+        If (IPRGLB.GE.verbose)
      *  Write(6,'(I7,4X,ES17.9,ES17.9,ES17.9)')
      &         iter,delta/delta0,resci,deltac
 C
@@ -3035,7 +2806,7 @@ C
 C
   100 CONTINUE
 C
-      If (IPRGLB.GE.USUAL) Then
+      If (IPRGLB.GE.verbose) Then
         CALL TIMING(CPTF1,CPE,TIOTF1,TIOE)
         CPUT =CPTF1-CPTF0
         WALLT=TIOTF1-TIOTF0
@@ -3045,26 +2816,38 @@ C
         Write (6,'(3X,"CPU and wall time (in s) = ",2F8.2)') CPUT,WALLT
         Write (6,*)
       End If
-C     write(6,*) "answer"
-C     do i = 1, nconf*nstate
-C       write(6,'(i3,2f20.10)') i,work(ipcit+i-1),clag(i,1)
-C     end do
+C
+      If (IFXMS.OR.IFRMS) Then
+        !! Transform back the CLag from CAS to XMS
+        Call DGEMM_('N','N',NConf,nState,nState,
+     &              1.0D+00,CLag,nConf,U0,nState,
+     &              0.0D+00,Work(ipST),nConf)
+        Call DCopy_(nConf*nState,Work(ipST),1,CLag,1)
+      End If
 C
       CALL GETMEM('S1  ','FREE','REAL',ipS1 ,nConf*nState)
       CALL GETMEM('S2  ','FREE','REAL',ipS2 ,nConf*nState)
       CALL GETMEM('CID ','FREE','REAL',ipCID,nConf*nState)
       CALL GETMEM('S   ','FREE','REAL',ipS  ,nState*(nState-1)/2)
+      CALL GETMEM('PREC','FREE','REAL',ipPre,nConf)
+      Call GetMem('FANC','FREE','REAL',ipFancy,nState**3)
 C
-C     ----- Construct the active contribution -----
+C     ----- Construct (a part of) the true active density -----
+C     Compute the second term in Eq. (70) = Eq. (72)
+C     The SCF, not XMS, basis is used
 C
-      ID = IDCIEX
+      ID = IDCIEX !! idtcex?
       Do iState = 1, nState
         If (ISCF.EQ.0) Then
-          Call LoadCI(Work(ipST+nConf*(iState-1)),iState)
+          If (IFXMS.OR.IFRMS) THen
+            !! Use unrotated (SCF) CI vector
+            Call LoadCI_XMS('C',1,Work(ipST+nConf*(iState-1)),iState,U0)
+          Else
+            Call DDaFile(LUCIEX,2,Work(ipST+nConf*(iState-1)),nConf,ID)
+          End If
         Else
           Work(ipST+iState-1) = 1.0D+00
         End If
-C       call ddafile(LUCIEX,2,Work(ipST+nConf*(iState-1)),nConf,ID)
       End Do
       Call GetMem('G2  ','ALLO','REAL',ipG2,nAshT**4)
       Call CnstInt(1,Work(ipINT1),Work(ipINT2))
@@ -3072,7 +2855,7 @@ C       call ddafile(LUCIEX,2,Work(ipST+nConf*(iState-1)),nConf,ID)
      *               Work(ipINT2))
       Call GetMem('G2  ','FREE','REAL',ipG2,nAshT**4)
 C
-      If (IPRGLB.GE.USUAL) Then
+      If (IPRGLB.GE.verbose) Then
         CALL TIMING(CPTF2,CPE,TIOTF2,TIOE)
         CPUT =CPTF2-CPTF1
         WALLT=TIOTF2-TIOTF1
@@ -3087,6 +2870,79 @@ C
       CALL GETMEM('INT2','FREE','REAL',ipINT2,nAshT**4)
 C
       Contains
+C
+C-----------------------------------------------------------------------
+C
+      Subroutine CLagFinalOffC(SLag)
+C
+C     Orthogonalize the partial derivative with respect to CI coeff
+C
+      IMPLICIT REAL*8 (A-H,O-Z)
+C
+      Dimension SLag(*)
+C
+      Call GetMem('ST  ','ALLO','REAL',ipST ,nConf*nState)
+      Call DGEMM_('N','T',nConf,nState,nState,
+     &            1.0D+00,CLag,nConf,U0,nState,
+     &            0.0D+00,Work(ipST),nConf)
+      Call DCopy_(nConf*nState,Work(ipST),1,CLag,1)
+
+      Call GetMem('LCI1','ALLO','REAL',LCI1,nConf)
+      Call GetMem('LCI2','ALLO','REAL',LCI2,nConf)
+C
+      !! Construct SLag
+      ijst = 0
+      do ilStat = 1, nState
+        If (ISCF.EQ.0) Then
+          Call LoadCI_XMS('C',1,Work(LCI1),ilStat,U0)
+        Else
+          Work(LCI1) = 1.0D+00
+        End If
+        Do jlStat = 1, ilStat !! -1
+          ijst = ilStat + nState*(jlStat-1)
+          If (ilStat.eq.jlStat) Cycle
+          If (ISCF.EQ.0) Then
+            Call LoadCI_XMS('C',1,Work(LCI2),jlStat,U0)
+          Else
+            Work(LCI2) = 1.0D+00
+          End If
+          Scal = DDOT_(nConf,Work(LCI1),1,CLag(1,jlStat),1)
+     *         - DDOT_(nConf,Work(LCI2),1,CLag(1,ilStat),1)
+          Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
+          SLag(ijst) = SLag(ijst) + Scal
+          IF (IPRGLB.GE.verbose) THEN
+            write(6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
+     *         ilstat,jlstat,slag(ijst)
+          END IF
+        end do
+      end do
+C
+      !! Projection
+      Do ilStat = 1, nState
+        Call DCopy_(nConf,CLag(1,ilStat),1,Work(LCI1),1)
+        Do jlStat = 1, nState
+          If (ISCF.EQ.0) Then
+            Call LoadCI_XMS('C',1,Work(LCI2),jlStat,U0)
+          Else
+            Work(LCI2) = 1.0D+00
+          End If
+          Ovl = DDot_(nConf,Work(LCI1),1,Work(LCI2),1)
+          Call DaXpY_(nConf,-Ovl,Work(LCI2),1,CLag(1,ilStat),1)
+        End Do
+      End Do
+C
+      Call DGEMM_('N','N',nConf,nState,nState,
+     &            1.0D+00,CLag,nConf,U0,nState,
+     &            0.0D+00,Work(ipST),nConf)
+      Call DCopy_(nConf*nState,Work(ipST),1,CLag,1)
+C
+      Call GetMem('LCI1','FREE','REAL',LCI1,nConf)
+      Call GetMem('LCI2','FREE','REAL',LCI2,nConf)
+      Call GetMem('ST  ','FREE','REAL',ipST ,nConf*nState)
+C
+      Return
+C
+      End Subroutine CLagFinalOffC
 C
 C-----------------------------------------------------------------------
 C
@@ -3271,6 +3127,7 @@ C     call sqprt(fimo,12)
       End Do
       End If
 C
+      if (mode.eq.0.or.mode.eq.1) then
       Do IT = 1, nAshT
         Do iU = 1, nAshT
           Do iX = 1, nAshT
@@ -3278,6 +3135,7 @@ C
           End Do
         End Do
       End Do
+      endif
 C
       Return
 C
@@ -3286,11 +3144,11 @@ C
 C-----------------------------------------------------------------------
 C
       !! dens2_rpt2.f
-      Subroutine TimesE2(CIin,CIout,INT1,INT2)
+      Subroutine TimesE2(Mode,CIin,CIout,INT1,INT2)
 ! #ifdef _MOLCAS_MPP_
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
-
+      use gugx, only: ISM, L2ACT, NLEV, NCSF
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CIin(nConf,nState),CIout(nConf,nState)
@@ -3321,10 +3179,6 @@ C
 C
       Call DCopy_(nConf*nState,[0.0D+00],0,CIout,1)
       Do kState = 1, nState
-C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
-        Wgt = 1.0D+00/nState
-        Call DScal_(nConf,Wgt,CIin(1,kState),1)
-C
         !! Start the actual part of dens2_rpt2
         Call Init_Tsk(ID, nTasks)
 C
@@ -3386,8 +3240,6 @@ C
  501    CONTINUE
         CALL Free_Tsk(ID)
         !! End the actual part of dens2_rpt2
-C
-        Call DScal_(nConf,1.0D+00/Wgt,CIin(1,kState),1)
       End Do
 C
       CALL GETMEM ('Tasks','FREE','INTE',lTask,2*nTasks)
@@ -3397,27 +3249,26 @@ C
 C     --- -E_{S}*CJ + zL_{KL}
 C
       Do kState = 1, nState
-C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
-        Wgt = 1.0D+00/nState
-C       EC=(rin_ene+potnuc-REFENE(iState))*Wgt
-        EC=Eact(kState)*Wgt
+        EC=Eact(kState)
         Call Daxpy_(nConf,EC,CIin(1,kState),1,CIout(1,kState),1)
       End Do
 C
-      !! Do projection
-C     Do ilStat = 1, nState
-C       Call DCopy_(nConf,CIout(1,ilStat),1,Work(LSGM1),1)
-C       Do jlStat = 1, nState
-C         Call LoadCI(Work(LSGM2),jlStat)
-C         Ovl = DDot_(nConf,Work(LSGM1),1,Work(LSGM2),1)
-C         Call DaXpY_(nConf,-Ovl,Work(LSGM2),1,CIout(1,ilStat),1)
-C       End Do
-C     End Do
+      !! Project out the reference vector, just in case
+      If (Mode.eq.1) Then
+        Do ilStat = 1, nState
+          Call DCopy_(nConf,CIout(1,ilStat),1,Work(LSGM1),1)
+          Do jlStat = 1, nState
+            Call LoadCI_XMS('C',1,Work(LSGM2),jlStat,U0)
+            Ovl = DDot_(nConf,Work(LSGM1),1,Work(LSGM2),1)
+            Call DaXpY_(nConf,-Ovl,Work(LSGM2),1,CIout(1,ilStat),1)
+          End Do
+        End Do
+      End If
 C
       Call GetMem('SGM1','FREE','REAL',LSGM1,nConf)
       Call GetMem('SGM2','FREE','REAL',LSGM2,nConf)
 C
-      Call DScal_(nConf*nState,2.0D+00,CIout,1)
+      Call DScal_(nConf*nState,2.0D+00/nState,CIout,1)
 C
       Return
 C
@@ -3427,16 +3278,21 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 C
+      use gugx, only: NLEV
       Implicit Real*8 (A-H,O-Z)
 C
-#include "pt2_guga.fh"
 #include "caspt2_grad.fh"
+#include "pt2_guga.fh"
 C
       Dimension CI(nConf,nState),CIT(nConf,nState),G1(nAshT,nAshT),
      *          G2(nAshT,nAshT,nAshT,nAshT)
       Real*8    INT2(nAshT,nAshT,nAshT,nAshT)
 C
 C     LOGICAL   RSV_TSK
+C
+C     This subroutine computes the second term in Eq. (70) or the RHS of
+C     Eq. (72) in the CASPT2-IPEA gradient paper
+C     CIT corresponds to \overline{Q}, if I remember correctly
 C
       Call DCopy_(nAshT**2,[0.0D+00],0,G1,1)
       Call DCopy_(nAshT**4,[0.0D+00],0,G2,1)
@@ -3469,7 +3325,6 @@ C    *                 Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T))
 C     Call DaXpY_(NG1,-0.5D+00,Work(LG1T),1,G1,1)
 C     Call DaXpY_(NG2,-0.5D+00,Work(LG2T),1,G2,1)
 C
-      iSLag = 0
       Do kState = 1, nState
 C       Wgt = Work(LDWgt+iState-1+nState*(iState-1))
         Wgt = 1.0D+00/nState
@@ -3484,12 +3339,13 @@ C
         !! Just add the SLag rotation contributions
         ilState = kState
         Do jlState = 1, ilState-1
-          iSLag = iSLag + 1
+C         If (ilState.eq.jlState) Cycle
+          iSLag = ilState + nState*(jlState-1)
+          vSLag = -0.5D+00*Work(ipSLag+iSLag-1)
+          If (abs(vSLag).le.1.0D-08) Cycle
           Call Dens2T_RPT2(CI(1,ilState),CI(1,jlState),
      *                     Work(LSGM1),Work(LSGM2),
      *                     Work(LG1T),Work(LG2T))
-          vSLag = Work(ipSLag+iSLag-1)/(REFENE(jlState)-REFENE(ilState))
-          vSLag = -0.5D+00*vSLag
           Call DaXpY_(NG1,vSLag,Work(LG1T),1,G1,1)
           Call DaXpY_(NG2,vSLag,Work(LG2T),1,G2,1)
         End Do
@@ -3655,6 +3511,279 @@ C
 C
       End Subroutine CnstDEPSA
 C
+C-----------------------------------------------------------------------
+C
+      !! PRWF1_CP2
+      SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
+     *                    INT1,INT2,Fancy)
+      use gugx, only: ICASE, NMIDV, NLEV, NIPWLK, MIDLEV, ISM
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
+      DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
+      DIMENSION PRE(*)
+      dimension ci(*)
+      REAL*8 INT1(NLEV,NLEV),INT2(NLEV,NLEV,NLEV,NLEV)
+C     CHARACTER(LEN=256) LINE
+C     CHARACTER(LEN=1) CODE(0:3)
+      REAL*8 Fancy(nRoots,nRoots,nRoots)
+
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "WrkSpc.fh"
+#include "pt2_guga.fh"
+      DIMENSION ICS(MXLEV)
+C     DATA CODE /'0','u','d','2'/
+C
+C     Construct (approximate?) preconditioner for the active linear
+C     equation that should be solved for non-invariant CASPT2 methods
+C     (with IPEA shift)
+C
+C -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
+C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
+C -- THE   U P P E R   PART OF THE WALK.
+
+C SVC: set up a CSF string length as LENCSF
+C     LINE=' '
+      LENCSF=0
+      ISY=0
+      DO LEV=1,NLEV
+        IF(ISY.NE.ISM(LEV)) THEN
+          ISY=ISM(LEV)
+          LENCSF=LENCSF+1
+        END IF
+        LENCSF=LENCSF+1
+      END DO
+      LENCSF=MIN(LENCSF,256)
+      LENCSF=MAX(LENCSF,10)
+
+C100  FORMAT(2X,A10,2X,A16,2X,A,2(2X,A13))
+C200  FORMAT(2X,I10,2X,'(',I2,':',I1,':',I4,'/',I4,')',
+C    &       2X,A,2(2X,F13.6))
+
+C Size of occup/spin coupling part of line:
+C     WRITE(6,*)' Occupation of active orbitals, and spin coupling'
+C     WRITE(6,*)' of open shells. (u,d: Spin up or down).'
+C     WRITE(6,*)' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
+C     LINE(1:10)='Occupation'
+C     WRITE(6,100)
+C    & 'Conf','SGUGA info      ',LINE(1:LENCSF),
+C    & 'Coefficient','Weight'
+
+C     SVC2010:
+C     allocate scratch memory for determinant expansion
+      IF (PRSD) THEN
+        CALL GETMEM ('LEX','ALLO','INTEGER',LLEX,NLEV)
+      END IF
+
+C     LINE=' '
+
+C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
+      DO 40 MV=1,NMIDV
+        DO 41 ISYUP=1,NSYM
+          NCI=NOCSF(ISYUP,MV,ISYCI)
+          IF(NCI.EQ.0) GOTO 41
+          NUP=NOW(1,ISYUP,MV)
+          ISYDWN=MUL(ISYUP,ISYCI)
+          NDWN=NOW(2,ISYDWN,MV)
+          ICONF=IOCSF(ISYUP,MV,ISYCI)
+          IUW0=1-NIPWLK+IOW(1,ISYUP,MV)
+          IDW0=1-NIPWLK+IOW(2,ISYDWN,MV)
+          IDWNSV=0
+          DO 30 IDWN=1,NDWN
+            DO 31 IUP=1,NUP
+              ICONF=ICONF+1
+C             COEF=CI(ICONF)
+C -- SKIP OR PRINT IT OUT?
+C             IF(ABS(COEF).LT.THR) GOTO  31
+              IF(IDWNSV.NE.IDWN) THEN
+                ICDPOS=IDW0+IDWN*NIPWLK
+                ICDWN=ICASE(ICDPOS)
+C -- UNPACK LOWER WALK.
+                NNN=0
+                DO 10 LEV=1,MIDLEV
+                  NNN=NNN+1
+                  IF(NNN.EQ.16) THEN
+                    NNN=1
+                    ICDPOS=ICDPOS+1
+                    ICDWN=ICASE(ICDPOS)
+                  END IF
+                  IC1=ICDWN/4
+                  ICS(LEV)=ICDWN-4*IC1
+                  ICDWN=IC1
+  10            CONTINUE
+                IDWNSV=IDWN
+              END IF
+              ICUPOS=IUW0+NIPWLK*IUP
+              ICUP=ICASE(ICUPOS)
+C -- UNPACK UPPER WALK:
+              NNN=0
+              DO LEV=MIDLEV+1,NLEV
+                NNN=NNN+1
+                IF(NNN.EQ.16) THEN
+                  NNN=1
+                  ICUPOS=ICUPOS+1
+                  ICUP=ICASE(ICUPOS)
+                END IF
+                IC1=ICUP/4
+                ICS(LEV)=ICUP-4*IC1
+                ICUP=IC1
+              END DO
+C -- PRINT IT!
+              K=0
+              ISY=0
+              PRE(ICONF) = 0.0D+00
+              DO LEV=1,NLEV
+                IF(ISY.NE.ISM(LEV)) THEN
+                  ISY=ISM(LEV)
+                  K=K+1
+C                 LINE(K:K)=' '
+                END IF
+                K=K+1
+C               LINE(K:K)=CODE(ICS(LEV))
+                IF (ICS(LEV).EQ.0) THEN
+                  VAL = 0.0D+00
+                ELSE IF (ICS(LEV).EQ.3) THEN
+                  VAL = 2.0D+00*INT1(LEV,LEV)
+C                 L=0
+C                 JSY=0
+                  DO LEV2=1,NLEV
+                    IF (ICS(LEV2).EQ.0) THEN
+                    val = val + 0.0d+00
+                    ELSE IF ((LEV.EQ.LEV2.AND.ICS(LEV2).EQ.3).OR.
+     *                       (LEV.NE.LEV2.AND.ICS(LEV2).EQ.1).OR.
+     *                       (LEV.NE.LEV2.AND.ICS(LEV2).EQ.2)) THEN
+                      val2 =  4.0d+00*int2(lev,lev ,lev2,lev2)
+     *                      - 2.0d+00*int2(lev,lev2,lev ,lev2)
+                      val = val + val2
+                    ELSE IF (LEV.NE.LEV2.AND.ICS(LEV2).EQ.3) THEN
+                      val2 =  4.0d+00*int2(lev,lev ,lev2,lev2)
+     *                      - 2.0d+00*int2(lev,lev2,lev ,lev2)
+                      val = val + val2
+                    END IF
+                  END DO
+                ELSE
+C       write (*,*) "singly occupied"
+                  VAL = INT1(LEV,LEV)
+C                 L=0
+C                 JSY=0
+                  DO LEV2=1,NLEV
+                    IF (ICS(LEV2).EQ.0.OR.LEV.EQ.LEV2) THEN
+                    ELSE IF (ICS(LEV2).EQ.3) THEN
+C      val2 =  2.0d+00*int2(lev,lev ,lev2,lev2)
+C    *       - 1.0d+00*int2(lev,lev2,lev ,lev2)
+C      val2 = 0.0d+00
+C      val = val + val2*0.5d+00
+                    ELSE
+                      val2 = int2(lev,lev ,lev2,lev2)
+     *                     + int2(lev,lev2,lev ,lev2)
+                      if (ics(lev).eq.ics(lev2)) then
+                      val2 = int2(lev,lev ,lev2,lev2)
+     *                     - int2(lev,lev2,lev ,lev2)
+                      end if
+                      val = val + val2
+                    END IF
+                  END DO
+                END IF
+                PRE(ICONF) = PRE(ICONF) + VAL
+              END DO
+C             COEF=CI(ICONF)
+C             WRITE(6,200)
+C    &               ICONF,MV,ISYUP,IUP,IDWN,
+C    &               LINE(1:LENCSF),COEF,COEF**2
+C     SVC2010 experimental: add determinant expansion
+C             IF (PRSD) THEN
+c     Specify projected spin in half integer units
+C     Default: use maximum spin projection
+C              IMS = ISPIN-1
+C              WRITE(6,*)
+C              CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX))
+C              WRITE(6,*)
+C             ENDIF
+  31        CONTINUE
+  30      CONTINUE
+  41    CONTINUE
+  40  CONTINUE
+C
+      !! mclr/sa_prec.f
+      !! Prepare so-called fancy preconditioner
+      Do iSt = 1, nRoots
+        Ene = Eact(iSt)
+        Do jSt = 1, nRoots
+          Do kSt = 1, nRoots
+            Fancy(jSt,kSt,iSt) = 0.0D+00
+            Do iConf = 1, nConf
+              dnum=PRE(iConf)+Ene
+              dnum=Sign(Max(Abs(dnum),1.0d-16),dnum)
+              Fancy(jSt,kSt,iSt) = Fancy(jSt,kSt,iSt)
+     *          + CI(iConf+nConf*(jSt-1))*CI(iConf+nConf*(kSt-1))/dnum
+            End Do
+          End Do
+        End Do
+        Call MatInvert(Fancy(1,1,iSt),nRoots)
+      End Do
+C
+C     SVC2010: free scratch for determinant expansion
+      IF (PRSD) THEN
+        CALL GETMEM ('LEX','FREE','INTEGER',LLEX,NLEV)
+      END IF
+C     WRITE(6,*)
+      RETURN
+      END SUBROUTINE CnstPrec
+C
+C-----------------------------------------------------------------------
+C
+      !! mclr/dminvci_sa.f
+      Subroutine DoPrec(VecIN,VecOUT,CI,Pre,Fancy)
+C
+C     Apply precondition to CI vectors, taken from the MCLR module
+C
+      Implicit Real*8 (A-H,O-Z)
+C
+      Dimension VecIN(*),VecOUT(*),CI(*),Pre(*),
+     *          Fancy(nRoots,nRoots,nRoots)
+      Dimension rcoeff(nRoots),alpha(nRoots)
+C
+      !! Standard inverse of the diagonal elements
+      Do iRoots = 1, nRoots
+        Do iConf = 1, nConf
+          VecOUT(iConf+nConf*(iRoots-1))
+     *      = VecIN(iConf+nConf*(iRoots-1))/(Pre(iConf)+Eact(iRoots))
+        End Do
+      End Do
+C
+      !! Construct reference CI vectors
+      Do iRoots = 1, nRoots
+        Call LoadCI_XMS('C',1,CI(1+nConf*(iRoots-1)),iRoots,U0)
+      End Do
+C
+      !! The so-called fancy precondioner
+      Do iRoots = 1, nRoots
+        Do jRoots = 1, nRoots
+          rcoeff(jRoots) = DDot_(nconf,VecOUT(1+nConf*(iRoots-1)),1,
+     *                                 CI(1+nConf*(jRoots-1)),1)
+        End Do
+C
+        Do jRoots = 1, nRoots
+          alpha(jRoots) = 0.0D+00
+          Do kRoots = 1, nRoots
+            alpha(jRoots) = alpha(jRoots)
+     *        + Fancy(jRoots,kRoots,iRoots)*rcoeff(kRoots)
+          End Do
+        End Do
+C
+        Do jRoots = 1, nRoots
+          Do iConf = 1, nConf
+            VecOUT(iConf+nConf*(iRoots-1))
+     *        = VecOUT(iConf+nConf*(iRoots-1))
+     *        - CI(iConf+nConf*(jRoots-1))*alpha(jRoots)
+     *          /(Pre(iConf)+Eact(iRoots))
+          End Do
+        End Do
+      End Do
+C
+      End Subroutine DoPrec
+C
       End Subroutine DEPSAOffC
 C
 C-----------------------------------------------------------------------
@@ -3669,6 +3798,7 @@ C
       Dimension OLag(*),DEPSA(nAshT,nAshT),FIFA(*)
 C
 C     This is much easier; similar to the frozen core approximation.
+C     Corresponds to the first term in Eq. (70)
 C
       iMO  = 1
       DO iSym = 1, nSym
@@ -3699,3 +3829,170 @@ C
       End Do
 C
       End Subroutine DEPSAOffO
+C
+C-----------------------------------------------------------------------
+C
+      Subroutine LinDepLag(BDer,SDer,nAS,nIN,iSym,iCase)
+C
+      use caspt2_gradient, only: LUSTD, idBoriMat
+C
+      Implicit Real*8 (A-H,O-Z)
+C
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "eqsolv.fh"
+#include "WrkSpc.fh"
+#include "caspt2_grad.fh"
+C
+      DIMENSION WGRONK(2)
+      Dimension BDer(*),SDer(*)
+C
+C     Compute contributions that arise from the non-invariance effect
+C     in non-orthogonal -> orthogonal ICB rotations
+C     See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
+C     Section II C 3 "Non-invariance with respect to orthogonal..."
+C
+      !! Obtain the X matrix
+      !! First, read S
+      NS = NAS*(NAS+1)/2
+      CALL GETMEM('S','ALLO','REAL',LS,NS)
+      CALL GETMEM('SS','ALLO','REAL',LSS,NAS*NAS)
+      idS = idSMAT(iSym,iCase)
+      CALL DDAFILE(LUSBT,2,WORK(LS),NS,idS)
+      IJ=0
+      DO J=1,NAS
+        DO I=1,J
+          IJ=IJ+1
+          WORK(LSS-1+NAS*(J-1)+I)=WORK(LS-1+IJ)
+          WORK(LSS-1+NAS*(I-1)+J)=WORK(LS-1+IJ)
+        END DO
+      END DO
+C
+      CALL GETMEM('LVEC','ALLO','REAL',LVEC,NAS**2)
+      CALL GETMEM('LEIG','ALLO','REAL',LEIG,NAS)
+C
+      CALL GETMEM('LSCA','ALLO','REAL',LSCA,NAS)
+      IDIAG=0
+      DO I=1,NAS
+        IDIAG=IDIAG+I
+        SD=WORK(LS-1+IDIAG)
+        If (IFDORTHO) then
+          WORK(LSCA-1+I)=1.0D+00
+        Else
+          IF(SD.GT.THRSHN) THEN
+* Small variations of the scale factor were beneficial
+              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
+          ELSE
+            WORK(LSCA-1+I)=0.0D0
+          END IF
+        End If
+      END DO
+      IJ=0
+      DO J=1,NAS
+        DO I=1,J
+          IJ=IJ+1
+          WORK(LS-1+IJ)=WORK(LS-1+IJ)*
+     &        WORK(LSCA-1+I)*WORK(LSCA-1+J)
+        END DO
+      END DO
+C
+      IJ=0
+      DO J=1,NAS
+        DO I=1,J
+          IJ=IJ+1
+          WORK(LVEC-1+NAS*(J-1)+I)=WORK(LS-1+IJ)
+        END DO
+      END DO
+      INFO=0
+      call dsyev_('V','L',NAS,WORK(LVEC),NAS,WORK(LEIG),WGRONK,-1,INFO)
+      NSCRATCH=INT(WGRONK(1))
+      CALL GETMEM('SCRATCH','ALLO','REAL',LSCRATCH,NSCRATCH)
+      call dsyev_('V','U',NAS,WORK(LVEC),NAS,WORK(LEIG),WORK(LSCRATCH),
+     &            NSCRATCH,INFO)
+      CALL GETMEM('SCRATCH','FREE','REAL',LSCRATCH,NSCRATCH)
+C
+      DO I=1,NAS
+        SCA=WORK(LSCA-1+I)
+C       CALL DSCAL_(NIN,SCA,WORK(LVEC-1+I),NAS)
+        CALL DSCAL_(NAS,SCA,WORK(LVEC-1+I),NAS)
+      END DO
+      CALL GETMEM('LSCA','FREE','REAL',LSCA,NAS)
+      CALL GETMEM('LS','FREE','REAL',LS,NS)
+C
+      !! Scale only the independent vectors to avoid
+      !! any numerically unstable computation
+      DO I=1,NAS
+        EVAL=WORK(LEIG-1+I)
+        IF(EVAL.LT.THRSHS) CYCLE
+        FACT=1.0D00/SQRT(EVAL)
+        Call DScal_(nAS,FACT,Work(LVEC+nAS*(I-1)),1)
+      END DO
+C
+      CALL GETMEM('LLAG','ALLO','REAL',LLAG,NAS**2)
+      IDB=IDBoriMat(ISYM,ICASE)
+      NB=NS
+      CALL GETMEM('LB','ALLO','REAL',LB,NB)
+      CALL DDAFILE(LUSTD,2,WORK(LB),NB,IDB)
+      CALL GETMEM('LF','ALLO','REAL',LF,NAS**2)
+      IJ=0
+      DO J=1,NAS
+        DO I=1,J
+          IJ=IJ+1
+          WORK(LF-1+NAS*(J-1)+I)=WORK(LB-1+IJ)
+          WORK(LF-1+NAS*(I-1)+J)=WORK(LB-1+IJ)
+        END DO
+      END DO
+C
+      !! Compute the partial derivative
+      !! Work(LF)  : B
+      !! BDER      : D
+      !! Work(LVEC): X^0 and X
+      Call DGEMM_('N','T',NAS,NAS,NAS,
+     *            2.0D+00,Work(LF),NAS,BDER,NAS,
+     *            0.0D+00,Work(LLAG),NAS)
+      Call DGEMM_('N','N',NAS,NAS,NAS,
+     *            1.0D+00,Work(LLAG),NAS,Work(LVEC),NAS,
+     *            0.0D+00,Work(LF),NAS)
+      Call DCopy_(NAS*NAS,Work(LF),1,Work(LLAG),1)
+C
+      CALL DGEMM_('T','N',NAS,NAS,NAS,
+     *            1.0D+00,Work(LVEC),NAS,Work(LLAG),NAS,
+     *            0.0D+00,Work(LF),NAS)
+      !! At this point,
+      !! Work(LF) = 2 \mathcal{X}^0 * B * D * \mathcal{X}
+C
+      !! remove dependent part
+      !! (linearly indep-indep and dep-dep)
+      Do I = 1, nAS-nIN
+        Do J = 1, nAS-nIN
+          Work(LF+i-1+nAS*(j-1)) = 0.0D+00
+        End Do
+      End Do
+      Do I = nAS-nIN+1, nAS
+        Do J = nAS-nIN+1, nAS
+          Work(LF+i-1+nAS*(j-1)) = 0.0D+00
+        End Do
+      End Do
+C
+      !! orthogonal -> non-orthogonal
+      !! Finalize Eq. (62)
+      CALL DGEMM_('N','N',NAS,NAS,NAS,
+     *            1.0D+00,Work(LVEC),NAS,Work(LF),NAS,
+     *            0.0D+00,Work(LLAG),NAS)
+      CALL DGEMM_('N','T',NAS,NAS,NAS,
+     *            1.0D+00,Work(LLAG),NAS,Work(LVEC),NAS,
+     *            0.0D+00,Work(LF),NAS)
+C
+      Call DaXpY_(nAS*nAS,1.0D+00,Work(LF),1,SDER,1)
+C
+      CALL GETMEM('LLAG','FREE','REAL',LLAG,NAS**2)
+      CALL GETMEM('LB','FREE','REAL',LB,NB)
+      CALL GETMEM('LF','FREE','REAL',LF,NAS**2)
+C
+      CALL GETMEM('SS','FREE','REAL',LSS,NAS*NAS)
+      CALL GETMEM('LEIG','FREE','REAL',LEIG,NAS)
+      CALL GETMEM('LVEC','FREE','REAL',LVEC,NAS**2)
+C
+      Return
+C
+      End Subroutine LinDepLag

@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DIELMV(ICASE,JCASE,NUP,NDWN,EMU)
+      use gugx, only: NLEV, MIDLEV, NIPWLK
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ICASE(*),JCASE(*)
       DIMENSION EMU(NUP,NDWN)

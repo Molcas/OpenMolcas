@@ -58,6 +58,8 @@ c determine the pseuDospin on each site (Z1 and Z2):
       Z1=(0.0_wp,0.0_wp)
       Z2=(0.0_wp,0.0_wp)
       iprint=1
+      gtens(:,:)=0.0_wp
+      maxes(:,:,:)=0.0_wp
       Call pseudospin(M1,N1,Z1,3,1,iprint)
       Call pseudospin(M2,N2,Z2,3,1,iprint)
       If (DBG) Then

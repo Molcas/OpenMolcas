@@ -34,3 +34,4 @@
  (file)  ROT_HAM  "$WorkDir/"H0_Rotate.txt                      ro
  (file)  ROT_VEC  "$WorkDir/"Do_Rotate.txt                      ro
  (file)  LUPT2    "$WorkDir/"PT2_Lag                            rw
+ (file)  CASPTINP "$WorkDir/$Project."Caspt2.Input              rwi

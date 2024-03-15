@@ -13,21 +13,22 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTR
 
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 
-use csfbas, only: CONF, CTS, KCFTP, KDTOC
+use rasscf_lucia, only: Sigma_on_disk
+use csfbas, only: CONF, CTS
+use glbbas, only: DTOC, CFTP
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use lucia_interface, only: lucia_util
 
 implicit none
 #include "rasdim.fh"
 #include "rasrc.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
 #include "timers.fh"
-#include "rasscf_lucia.fh"
 #include "output_ras.fh"
 ! lroots, maxjt in rasscf.fh
 ! nsel in general.fh
@@ -36,17 +37,17 @@ integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
-integer(kind=iwp) :: i, iConf, iConv, idelta, iDummy, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
+integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
                      kRoot, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
-real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, Dummy(1), E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, &
+real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, &
                  ThrRes, updsiz, Z
 logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: vkcnf(:)
-real(kind=wp), allocatable :: Cs(:), ctemp(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
+real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
                               sigtemp(:), sgm(:,:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
+real(kind=wp), allocatable, target:: ctemp(:)
 real(kind=wp), allocatable, target :: Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
-integer(kind=iwp), external :: ip_of_Work
 real(kind=wp), external :: dDot_, dnrm2_, GET_ECORE
 
 !-----------------------------------------------------------------------
@@ -160,7 +161,7 @@ do it_ci=1,mxItr
       call mma_allocate(psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
-      call REORD2(MY_NORB,NACTEL,1,0,CONF,IWORK(KCFTP),VEC1,VECSVC,VKCNF)
+      call REORD2(MY_NORB,NACTEL,1,0,CONF,CFTP,VEC1,VECSVC,VKCNF)
       call CITRANS_SORT('C',VECSVC,VEC2)
       PSI = Zero
       call CITRANS_CSF2SD(VEC2,PSI)
@@ -168,7 +169,7 @@ do it_ci=1,mxItr
       call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
       call CITRANS_SD2CSF(SGM,VEC2)
       call CITRANS_SORT('O',VEC2,VECSVC)
-      call Reord2(my_norb,NACTEL,1,1,CONF,iWork(KCFTP),VECSVC,VEC2,VKCNF)
+      call Reord2(my_norb,NACTEL,1,1,CONF,CFTP,VECSVC,VEC2,VKCNF)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)
@@ -179,16 +180,22 @@ do it_ci=1,mxItr
       call mma_deallocate(sgm)
       call mma_deallocate(psi)
     else
+
       ! Convert the CI-vector from CSF to Det. basis
+      ! sigtemp is scratch, converted vector is stored in ctemp
+
       ctemp(1:nConf) = Vec1(:)
       sigtemp(:) = Zero
-      call csdtvc(ctemp,sigtemp,1,work(kdtoc),cts,stSym,1)
-      c_pointer = ip_of_Work(ctemp(1))
+      call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
+
       ! Calling Lucia to determine the sigma vector
-      call Lucia_Util('Sigma',iDummy,iDummy,Dummy)
+      call Lucia_Util('Sigma',                            &
+                      CI_Vector=ctemp(:),                 &
+                      Sigma_Vector=sigtemp(:))
+
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
-      iSigma_on_disk = 1
-      call CSDTVC(Tmp,ctemp,2,work(kdtoc),cts,stSym,1)
+      Sigma_on_disk = .TRUE.
+      call CSDTVC(VEC2,sigtemp,2,dtoc,cts,stSym,1)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)
@@ -554,7 +561,5 @@ end if
 call Timing(Alfex_2,dum1,dum2,dum3)
 Alfex_2 = Alfex_2-Alfex_1
 Alfex_3 = Alfex_3+Alfex_2
-
-return
 
 end subroutine David5

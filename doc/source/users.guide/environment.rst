@@ -267,7 +267,7 @@ The most important environment variables, used in |molcas|:
   This variable should be used to run |molcas| code in parallel. It defines the
   number of computational units (cores or nodes) which will be used.
 
-  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_NPROCS" APPEAR="MPI Processes" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_NPROCS" APPEAR="MPI Processes" KIND="INT" LEVEL="BASIC">
               %%Keyword: MOLCAS_NPROCS <basic>
               <HELP>
               This variable should be used to run molcas code in parallel. It defines the
@@ -320,6 +320,18 @@ The complete list of |molcas|-related environment variables:
 
 :variable:`MOLCAS_NPROCS`
   See above
+
+:variable:`MOLCAS_THREADS`
+  This variable should be used to run |molcas| code with multithreaded capabilities.
+  It defines the number of threads that will be used for the multithreaded portions of the code (mostly linear algrebra library calls).
+
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_THREADS" APPEAR="OpenMP threads" KIND="INT" LEVEL="BASIC">
+              %%Keyword: MOLCAS_THREADS <basic>
+              <HELP>
+              This variable should be used to run molcas code with multithreaded capabilities.
+              It defines the number of threads that will be used for the multithreaded portions of the code (mostly linear algrebra library calls).
+              </HELP>
+              </KEYWORD>
 
 :variable:`MOLCAS_DEBUGGER`
   This variable can be set to the name of debugger (or another code) which will be used on top of

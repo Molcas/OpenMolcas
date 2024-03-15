@@ -63,7 +63,7 @@
      &        nBasTr,nBasSq,nStLag,jStLag,                              &
      &        ipDPT20,ipDPT2C0,ipCLag0,ipOLag0,ipSLag0,ipWLag0,         &
      &        ipOMGDER,ipFIFA,ipFIMO,ipFIFASA,ipDPT2Canti
-      LOGICAL INVAR,IFSSDM
+      LOGICAL IFSSDM
       !! maybe the dimension can be defined with 11 not 13,
       !! but tentatively 13
       INTEGER idSDMat
@@ -77,7 +77,4 @@
      &                     ipOMGDER,ipFIFA,ipFIMO,ipFIFASA,ipDPT2Canti, &
 !    &                     idSDMat(8,MXCASE)                            &
      &                     idSDMat(8,13),                               &
-     &                     INVAR,IFSSDM
-
-      INTEGER LUPT2, LUGAMMA, LUCMOPT2, LUSTD
-      COMMON/UNITS_caspt2_grad/ LUPT2, LUGAMMA, LUCMOPT2, LUSTD
+     &                     IFSSDM

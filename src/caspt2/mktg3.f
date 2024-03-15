@@ -9,13 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
+      use gugx, only: NOCSF,IOCSF,NOW1,IOW1, NOCP,IOCP,ICOUP,
+     &                         VTAB,MVL,MVR,NLEV,NCSF,L2ACT
       IMPLICIT REAL*8 (a-h,o-z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
+#include "WrkSpc.fh"
       DIMENSION TG1(NASHT,NASHT),TG2(NASHT,NASHT,NASHT,NASHT)
       DIMENSION TG3(NTG3)
       DIMENSION CI1(MXCI),CI2(MXCI)
@@ -209,9 +211,9 @@ C Translate to levels in the SGUGA coupling order:
         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
-     &    IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &    IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &    WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &    NOCSF,IOCSF,NOW1,IOW1,
+     &    NOCP,IOCP,ICOUP,
+     &    VTAB,MVL,MVR)
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
         END IF
@@ -233,9 +235,9 @@ C Translate to levels:
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
          CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
-     &    IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &    IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &    WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &    NOCSF,IOCSF,NOW1,IOW1,
+     &    NOCP,IOCP,ICOUP,
+     &    VTAB,MVL,MVR)
          LTO=LTO+MXCI
         END DO
 C Now compute as many elements as possible:
@@ -261,9 +263,9 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &     NOCSF,IOCSF,NOW1,IOW1,
+     &     NOCP,IOCP,ICOUP,
+     &     VTAB,MVL,MVR)
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
           END IF

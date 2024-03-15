@@ -11,6 +11,7 @@
 * Copyright (C) 2000, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE INTPNT(IPNT1,ISL1,IPNT2,ISL2)
+      use GLBBAS, only: PGINT1, PGINT1A
 *
 * Pointers to symmetry blocks of integrals
 * IPNT1 : Pointer to given one-electron block, total symmetric
@@ -19,7 +20,7 @@
 * ISL1  : Symmetry of last index for given first index, 1 e-
 *
 * In addition pointers to one-electron integrals with general
-* symmetry is generated in WORK(KPGINT1(ISM))
+* symmetry is generated in PGINT1(ISM%I)
 *
 * Pointers for similarity transformed Hamiltonian may also be
 * generated
@@ -32,8 +33,6 @@
 * =====
 *
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
-#include "glbbas.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "csm.fh"
@@ -52,12 +51,12 @@
 *.0 : Pointers to one-integrals, all symmetries, Lower half matrices
       DO ISM = 1, NSMOB
         CALL PNT2DM(        1,    NSMOB,    NSMSX,    ADSXA,   NTOOBS,
-     &                 NTOOBS,ISM  ,    ISL1,IWORK(KPGINT1(ISM)),MXPOBS)
+     &                 NTOOBS,ISM  ,    ISL1,PGINT1(ISM)%I,MXPOBS)
       END DO
 *.0.5 : Pointers to one-electron integrals, all symmetries, complete form
       DO ISM = 1, NSMOB
         CALL PNT2DM(        0,    NSMOB,    NSMSX,    ADSXA,   NTOOBS,
-     &                 NTOOBS,ISM  ,   ISL1,IWORK(KPGINT1A(ISM)),MXPOBS)
+     &                 NTOOBS,ISM  ,   ISL1,PGINT1A(ISM)%I,MXPOBS)
       END DO
 *.1 : Number of one-electron integrals
       CALL PNT2DM(        1,    NSMOB,    NSMSX,    ADSXA,   NTOOBS,
@@ -68,19 +67,4 @@
      &                 I12S,     I34S,   I1234S,    IPNT2,     ISL2,
      &                ADASX)
 *
-c      IF(ISIMTRH.EQ.1) THEN
-c*. Pointers for similarity transformed Hamiltonian
-c        CALL PNT2DM(0,NSMOB,NSMSX,ADSXA,NTOOBS,NTOOBS,
-c     &         1  ,ISL1,WORK(KPINT1_SIMTRH),MXPOBS)
-c        I12 = 0
-c        I34 = 0
-c        I1234 = 1
-c        CALL PNT4DM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,
-c     &              ITSDX,ADSXA,SXDXSX,I12,I34,I1234,
-c     &              WORK(KPINT2_SIMTRH),ISL2,ADASX)
-c      END IF
-C?    write(6,*) ' Memory check INTPNT 2 '
-C?    CALL MEMCHK
-      RETURN
       END
-************************************************************************

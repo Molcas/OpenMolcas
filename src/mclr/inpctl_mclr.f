@@ -77,7 +77,13 @@
 *
       PT2 = .FALSE.
       Call Get_cArray('Relax Method',Method,8)
-      If (Method.eq.'CASPT2  ') PT2 = .TRUE.
+      If (Method.eq.'CASPT2  ') Then
+        PT2 = .TRUE.
+        !! Read the states requested by CASPT2
+        !! This means that the root(s) specified in &MCLR is usually
+        !! ignored for CASPT2 gradient/NAC.
+        Call check_caspt2(1)
+      End If
 *
 C     write(6,*) "iMethod:",iMethod,iCASSCF
       If (iMethod.eq.iCASSCF) Then
@@ -180,7 +186,10 @@ C        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
 ************************************************************************
 *                                                                      *
          If (ngp) Call rdciv()
-         If (PT2) Call Molcas_Open(LuPT2,'PT2_Lag')
+         If (PT2) Then
+           LuPT2 = isFreeUnit(LuPT2)
+           Call Molcas_Open(LuPT2,'PT2_Lag')
+         End If
       End If
 *                                                                      *
 ************************************************************************

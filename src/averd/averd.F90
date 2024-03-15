@@ -303,7 +303,7 @@ write(u6,*)
 write(u6,*)
 write(u6,'(a)') ' |  Average orbital occupation.'
 write(u6,'(a)') ' |-----------------------------'
-write(u6,'(a,e18.8)') ' |    Threshold: ',ThrOcc
+write(u6,'(a,es18.8)') ' |    Threshold: ',ThrOcc
 write(u6,*)
 nOrb = 0
 iO = 0

@@ -34,11 +34,14 @@
  (file)  RHS_04   "$WorkDir/"purge.rhs04                 rw*p
  (file)  RHS_05   "$WorkDir/"purge.rhs05                 rw*p
  (file)  RHS_06   "$WorkDir/"purge.rhs06                 rw*p
+ (file)  RHS_07   "$WorkDir/"purge.rhs07                 rw*p
+ (file)  RHS_08   "$WorkDir/"purge.rhs08                 rw*p
  (file)  LUPT2    "$WorkDir/"PT2_Lag                     rw
  (file)  LUAPT2   "$WorkDir/"A_PT2                       rw
  (file)  LUGAMMA  "$WorkDir/"GAMMA                       rw
  (file)  LUCMOPT2 "$WorkDir/"CMOPT2                      rw
  (file)  LUSTD    "$WorkDir/"purge.std                   rw*p
+ (file)  LUPT2GRD "$WorkDir/"PT2GRD                      rw*
 #include "moldenfiles.inc"
 #include "espffiles.inc"
 #include "rysfiles.inc"

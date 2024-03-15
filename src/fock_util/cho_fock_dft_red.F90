@@ -33,7 +33,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: irc
-type(DSBA_Type), intent(in) :: DLT
+type(DSBA_Type), intent(in) :: DLT(1)
 type(DSBA_Type), intent(inout) :: FLT(1)
 integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, &
                      nRS, NUMV, nVec, nVrs
@@ -116,7 +116,7 @@ do JRED=JRED1,JRED2
   ! Transform the density to reduced storage
   add = .false.
   nDen = 1
-  call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,add)
+  call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,DLT,Drs,add)
 
   ! BATCH over the vectors in JSYM=1 ----------------------------
 

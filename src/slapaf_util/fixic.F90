@@ -33,7 +33,7 @@ write(u6,*)
 ! loop over all internal coordinates to be fixed
 
 do I=mInt-nFix+1,mInt
-  write(u6,'(A,A,E10.3,A)') Label(i),' with a gradient of ',SS(I),' is frozen and the gradient is annihilated'
+  write(u6,'(A,A,ES10.3,A)') Label(i),' with a gradient of ',SS(I),' is frozen and the gradient is annihilated'
   SS(i) = Zero
 end do
 

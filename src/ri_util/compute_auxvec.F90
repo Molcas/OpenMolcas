@@ -34,7 +34,7 @@ integer(kind=iwp) :: i, iADens, iAvec, iBas, iCount, iIrrep, ij, iOff, iOff2, iO
 real(kind=wp) :: Cho_thrs, tmp
 logical(kind=iwp) :: DoCAS, DoExchange, Estimate, Update
 character(len=8) :: Method
-type(DSBA_Type) :: ChM(5), DLT2, DSQ
+type(DSBA_Type) :: ChM(5), DLT2(1), DSQ
 real(kind=wp), allocatable :: Qv(:), Scr(:), TmpD(:), Zv(:)
 
 !                                                                      *
@@ -140,10 +140,9 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
     call Abend()
   end if
   if (iMp2prpt == 2) then
-    call Allocate_DT(DLT2,nBas,nBas,nSym,aCase='TRI')
-    call Get_D1AO_Var(DLT2%A0,nDens)
-    DLT2%A0(:) = DLT2%A0-DMLT(1)%A0
-  else
+    call Allocate_DT(DLT2(1),nBas,nBas,nSym,aCase='TRI')
+    call Get_D1AO_Var(DLT2(1)%A0,nDens)
+    DLT2(1)%A0(:) = DLT2(1)%A0-DMLT(1)%A0
   end if
   !*********************************************************************
   !                                                                    *
@@ -354,9 +353,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
       call deallocate_DT(ChM(i))
     end do
   end if
-  if (iMp2prpt == 2) then
-    call deallocate_DT(DLT2)
-  end if
+  if (iMp2prpt == 2) call deallocate_DT(DLT2(1))
 
 end if ! no vectors on this node
 

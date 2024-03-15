@@ -10,12 +10,13 @@
 !***********************************************************************
 
       Logical DoSplitCAS, EnerSplit, NumSplit, PerSplit, FOrdSplit
-      integer mxDimBlockA, lrootSplit, MxIterSplit
+      integer lrootSplit, MxIterSplit
       integer iDimBlockA, iDimBlockACNF, iterSplit
-      real*8 thrSplit, min_ThrSplit, GapSpli, PercSpli
+      real*8 thrSplit, GapSpli, PercSpli
       real*8 EnInSplit
-      Parameter (mxDimBlockA = 2000)
-      Parameter (min_ThrSplit = 1.0d-12)
+      Integer, Parameter :: mxDimBlockA = 2000
+      Real*8, Parameter :: min_ThrSplit = 1.0d-12
+
       COMMON /SplitCAS_Int /iDimBlockA,iDimBlockACNF,                   &
      &                      lrootSplit,MxIterSplit,iterSplit
       COMMON /SplitCAS_Log / DoSplitCAS, EnerSplit, NumSplit, PerSplit, &

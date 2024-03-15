@@ -50,15 +50,15 @@ real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(NACTOB,NACTOB), E
 integer(kind=iwp), intent(inout) :: NTEST
 logical(kind=iwp), intent(in) :: FordSplit
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
-integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, iKACONF, iKLCONF, ILAI, ILTYP, ITYP, KACONF, KLAUXD, KLCONF, &
-                     KLFREE, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
+integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, ILAI, ILTYP, ITYP, &
+                     Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
 real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_ComputeH_AB, C_computeH_AB1, C_computeH_AB2, C_Oper, C_oper1, C_oper2, &
                  W_AlphaLoop1, W_AlphaLoop2, W_ComputeH_AB, W_computeH_AB1, W_computeH_AB2, W_Oper, W_oper1, W_oper2
 real(kind=wp), allocatable :: AuxD(:), AuxGa(:), AuxGaTi(:), AuxV(:,:), Scr(:)
-integer(kind=iwp), external :: ip_of_iWork_d, ip_of_Work
 real(kind=wp), external :: ddot_
+integer(kind=iwp), allocatable:: ICNL(:), ICNR(:)
+real(kind=wp), allocatable:: CNHCNM(:)
 #include "spinfo.fh"
-#include "WrkSpc.fh"
 
 if (NTEST >= 30) then
   write(u6,*) ' Input in get_Cm'
@@ -99,13 +99,14 @@ call mma_allocate(AuxD,MXCSFC,label='AuxDia')
 call mma_allocate(AuxGa,MXCSFC,label='AuxGa')
 call mma_allocate(AuxGaTi,MXCSFC,label='AuxGaTi')
 call mma_allocate(AuxV,NPCSF,MXCSFC,label='AuxVer')
+
+Call mma_allocate(ICNL,NEL,Label='ICNL')
+Call mma_allocate(ICNR,NEL,Label='ICNR')
+Call mma_allocate(CNHCNM,MXCSFC**2,Label='CNHCNM')
+
 call mma_maxDBLE(MXXWS)
 call mma_allocate(Scr,MXXWS,label='EXHSCR')
 
-KACONF = ip_of_Work(Scr(1))
-KLCONF = KACONF+NEL
-KLAUXD = KLCONF+NEL
-KLFREE = KLAUXD+MXCSFC*MXCSFC
 
 ! Shape of matrix:
 !
@@ -136,26 +137,24 @@ W_Oper = Zero
 
 IIAB = 1
 do iAlpha=NPCNF+1,NCONF
-  !call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
+  !call FZero(CNHCNM,MXCSFC*MXCSFC)
   call cwtime(C_computeH_AB1,W_computeH_AB1)
   if (NTEST >= 30) write(u6,*) 'iAlpha = ',iAlpha
-  iKACONF = ip_of_iWork_d(Work(KACONF))
-  call GETCNF_LUCIA(iWork(iKACONF),IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
+  call GETCNF_LUCIA(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
   NCSFA = NCSFTP(IATYP)
   if (NTEST >= 30) write(u6,*) 'NCSFA = ',NCSFA
   !*********************************************************************
   !                      BB-Block DIAGONAL Elements                    *
   !*********************************************************************
-  iKACONF = ip_of_iWork_d(Work(KACONF))
-  call CNHCN(iWork(iKACONF),IATYP,iWork(iKACONF),IATYP,Work(KLAUXD),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
+  call CNHCN(ICNL,IATYP,ICNR,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
              NTEST,ExFac,IREOTS)
   if (NTEST >= 30) then
     write(u6,*) 'Alpha_Alpha elements in BB-block'
-    call wrtmat(Work(KLAUXD),MXCSFC,MXCSFC,MXCSFC,MXCSFC)
+    call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
   end if
   do IIA=1,NCSFA
     ILAI = IIA*IIA
-    AuxD(IIA) = Work(KLAUXD+ILAI-1)
+    AuxD(IIA) = CNHCNM(ILAI)
     !write(u6,*) 'ILAI =',ILAI
     if (NTEST >= 30) then
       write(u6,*) 'AuxD(IIA)',AuxD(IIA)
@@ -164,28 +163,25 @@ do iAlpha=NPCNF+1,NCONF
 
   IILB = 1
   do Mindex=1,NPCNF ! Loop over AB-Block
-    !call FZero(Work(KLAUXD),MXCSFC*MXCSFC)
+    !call FZero(CNHCNM,MXCSFC*MXCSFC)
     if (NTEST >= 30) then
       write(u6,*) 'Mindex in AB-Block',Mindex
     end if
-    iKLCONF = ip_of_iWork_d(Work(KLCONF))
-    call GETCNF_LUCIA(iWork(iKLCONF),ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
+    call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
     if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
-    iKACONF = ip_of_iWork_d(Work(KACONF))
-    iKLCONF = ip_of_iWork_d(Work(KLCONF))
-    call CNHCN(iWork(iKACONF),IATYP,iWork(iKLCONF),ILTYP,Work(KLAUXD),Work(KLFREE),NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
+    call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
                NTEST,ExFac,IREOTS)
     if (NTEST >= 30) then
       write(u6,*) 'M_Alpha elements'
-      call wrtmat(Work(KLAUXD),MXCSFC,MXCSFC,MXCSFC,MXCSFC)
+      call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
     end if
     do IIA=1,NCSFA
       do IIL=1,NCSFL
         IILACT = IILB-1+IIL
         ILAI = (IIL-1)*NCSFA+IIA
         !ILAI = (IIA-1)*MXCSFC+IIL
-        AuxV(IILACT,IIA) = Work(KLAUXD+ILAI-1)
+        AuxV(IILACT,IIA) = CNHCNM(ILAI)
         if (NTEST >= 30) then
           write(u6,*) 'ILAI, IILACT, IIA =',ILAI,IILACT,IIA
           write(u6,*) 'AuxV(IILACT,IIA)',AuxV(IILACT,IIA)
@@ -257,6 +253,9 @@ call mma_deallocate(AuxD)
 call mma_deallocate(AuxGa)
 call mma_deallocate(AuxGaTi)
 call mma_deallocate(AuxV)
+call mma_deallocate(ICNL)
+call mma_deallocate(ICNR)
+call mma_deallocate(CNHCNM)
 call mma_deallocate(Scr)
 
 return

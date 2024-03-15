@@ -170,7 +170,7 @@ do iSym=1,nSym
   call DDAFile(lUnit,iOpt,G,size(G),iDisk)
 # ifdef _DEBUGPRINT_
   call TriPrt('G-matix',' ',G,NVT(iSym))
-  write(u6,'(A,I2,A,1P,D16.7)') 'G matrix, sym.',iSym,': Norm = ',sqrt(dDot_(size(G),G,1,G,1))
+  write(u6,'(A,I2,A,ES16.7)') 'G matrix, sym.',iSym,': Norm = ',sqrt(dDot_(size(G),G,1,G,1))
 # endif
   call mma_deallocate(Wrk)
   call mma_deallocate(G)

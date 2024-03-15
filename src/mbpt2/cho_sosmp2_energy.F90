@@ -96,7 +96,7 @@ do jSym=1,nSym
       write(u6,'(A)') '---------------------------------------'
       write(u6,'(A,I2,A)') 'Orbital energy denominators CD (sym=',jSym,')'
       write(u6,'(A)') '---------------------------------------'
-      write(u6,'(1X,A,I3,A,I9,A,1P,D25.16)') 'Number of vectors needed: ',NKVec,'   ( nAocc x nAvir : ',nOV,' ), max residual:',Dmax
+      write(u6,'(1X,A,I3,A,I9,A,ES25.16)') 'Number of vectors needed: ',NKVec,'   ( nAocc x nAvir : ',nOV,' ), max residual:',Dmax
       call xFlush(u6)
     end if
 

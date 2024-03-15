@@ -12,13 +12,12 @@
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS)
 
 use Definitions, only: iwp
+use gugx, only: NMIDV, NLEV, ICASE, MIDLEV, NICASE, NIPWLK, NUP, NWALK
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "gugx.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(out) :: ICS(NLEV)
@@ -27,11 +26,6 @@ integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NDWN, NN
 ! RECONSTRUCT THE CASE LIST
 
 NICASE = NWALK*NIPWLK
-!NSCR = 3*(NLEV+1)
-!call mma_allocate(SCR,NSCR,label='SCR1')
-!call mma_allocate(ICASE,NICASE,label='CASE')
-!call MKCLIST(NSM,IWORK(LDOWN),IWORK(LNOW),IWORK(LIOW),ICASE,LSCR)
-!call mma_deallocate(SCR)
 
 ! ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 ! WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
@@ -40,15 +34,15 @@ NICASE = NWALK*NIPWLK
 !  do ISYUP=1,NSYM
 NUP = NOW(1,1,MV)
 NDWN = NOW(2,1,MV)
-IUW0 = LICASE-NIPWLK+IOW(1,1,MV)
-IDW0 = LICASE-NIPWLK+IOW(2,1,MV)
+IUW0 = 1-NIPWLK+IOW(1,1,MV)
+IDW0 = 1-NIPWLK+IOW(2,1,MV)
 !    IDWNSV = 0
 !    do IDWN=1,NDWN
 !      do IUP=1,NUP
 ! determine the stepvector
 !        if (IDWNSV /= IDWN) then
 ICDPOS = IDW0+IDWN*NIPWLK
-ICDWN = IWORK(ICDPOS)
+ICDWN = ICASE(ICDPOS)
 ! unpack lower walk
 NNN = 0
 do LEV=1,MIDLEV
@@ -56,7 +50,7 @@ do LEV=1,MIDLEV
   if (NNN == 16) then
     NNN = 1
     ICDPOS = ICDPOS+1
-    ICDWN = IWORK(ICDPOS)
+    ICDWN = ICASE(ICDPOS)
   end if
   IC1 = ICDWN/4
   ICS(LEV) = ICDWN-4*IC1
@@ -65,7 +59,7 @@ end do
 !          IDWNSV = IDWN
 !        end if
 ICUPOS = IUW0+NIPWLK*IUP
-ICUP = IWORK(ICUPOS)
+ICUP = ICASE(ICUPOS)
 ! unpack upper walk
 NNN = 0
 do LEV=MIDLEV+1,NLEV
@@ -73,7 +67,7 @@ do LEV=MIDLEV+1,NLEV
   if (NNN == 16) then
     NNN = 1
     ICUPOS = ICUPOS+1
-    ICUP = IWORK(ICUPOS)
+    ICUP = ICASE(ICUPOS)
   end if
   IC1 = ICUP/4
   ICS(LEV) = ICUP-4*IC1

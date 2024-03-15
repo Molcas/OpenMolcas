@@ -107,7 +107,6 @@ C?         WRITE(6,*) ' Number of open shells ', NOPEN
      &                + (NCONF_OP(NOPEN+1)-1)*NOCOB
 C?             WRITE(6,*) ' Offfset for storing conf =', IB_OCC
                CALL REFORM_CONF_OCC(JCONF,ICONF(IB_OCC),NEL,NOCOB,1)
-C-jwk               CALL MEMCHK2('REFORM')
                IF(IDOREO.NE.0) THEN
 C                           ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,
 C                                         IARCW,IDOREO,IREO)

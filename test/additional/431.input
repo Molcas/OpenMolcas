@@ -12,7 +12,7 @@
 > ENDIF
 
 *-------------------------------------------------------------------------------
-* 3rd excited state analytic gradient with imaginary shift
+* 2nd excited state analytic gradient with imaginary shift
 *-------------------------------------------------------------------------------
 
 &GATEWAY
@@ -51,7 +51,7 @@
 >> rm $Project.Grads
 
 *-------------------------------------------------------------------------------
-* 2nd excited state analytic gradient with real shift and properties
+* 1st excited state analytic gradient with real shift and properties
 *-------------------------------------------------------------------------------
 
 &GATEWAY

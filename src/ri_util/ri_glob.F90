@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer(kind=iwp) :: iMP2prpt, iAdrCVec(8,8,2), iOff_Ymnij(8,5), iOffA(4,0:7), iOpt, ip_Chunk = 0, iRsv, klS, Lu_A(0:7), &
+integer(kind=iwp) :: iMP2prpt, iAdrCVec(8,8,2), iOff_Ymnij(8,5), iOffA(4,0:7), iOpt, ip_Chunk = 0, iRsv, iUHF, klS, Lu_A(0:7), &
                      Lu_Q(0:7), LuAVector(2), LuBVector(2), LuCVector(8,2), MxChVInShl, nAdens, nAuxVe, nAvec, nChOrb(0:7,5), &
                      nChV(0:7), nIJ1(8,8,2), nIJR(8,8,2), nJdens, nKdens, nKvec, nScreen, nSO, nSkal_Valence, nTask, NumAuxVec(8), &
                      nYmnij(8,5)
@@ -32,7 +32,7 @@ real(kind=wp), allocatable :: A(:), AMP2(:,:), BMP2(:,:), Chunk(:)
 real(kind=wp), allocatable, target :: BklK(:), CijK(:), CilK(:), Yij(:,:,:)
 
 public :: A, AMP2, BklK, BMP2, Chunk, CijK, CilK, CMOi, DMLT, dmpK, DoCholExch, iAdrCVec, iBDsh, iMap, iMP2prpt, iOff_Ymnij, &
-          iOffA, iOpt, ip_Chunk, iRsv, iShij, iSSOff, klS, Lu_A, Lu_Q, LuAVector, LuBVector, LuCVector, MxChVInShl, nAdens, &
+          iOffA, iOpt, ip_Chunk, iRsv, iShij, iSSOff, iUHF, klS, Lu_A, Lu_Q, LuAVector, LuBVector, LuCVector, MxChVInShl, nAdens, &
           nAuxVe, nAvec, nBasSh, nChOrb, nChV, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen, nSkal_Valence, nSO, nTask, NumAuxVec, &
           nYmnij, ShlSO, SO2Ind, SOShl, tavec, tbvec, Timings_default, TskList, Yij, Ymnij
 

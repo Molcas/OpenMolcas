@@ -25,7 +25,8 @@
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
 #endif
-      use csfbas, only: CONF, KCFTP
+      use csfbas, only: CONF
+      use glbbas, only: CFTP
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
       use write_orbital_files, only: OrbFiles, write_orb_per_iter
@@ -53,6 +54,7 @@
      &                   ThrFThaw, Xsigma, dFMD
       use CMS, only: iCMSOpt,CMSGiveOpt,CMSGuessFile
       use UnixInfo, only: SuperName
+      use Lucia_Interface, only: Lucia_Util
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -71,8 +73,6 @@
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
-#include "rasscf_lucia.fh"
-*^ needed for passing kint1_pointer
 *
 *
       Character*180  Line
@@ -1146,6 +1146,39 @@ C         call fileorb(Line,CMSStartMat)
         end if
       call ChkIfKey()
       end if
+*---  Process STAV command --------------------------------------------*
+      If(KeySTAV.and.KeyCIRO) Then
+        call WarningMessage(1,
+     &    'STAVERAGE and CIROOT are incompatible.;'//
+     &    'The STAVERAGE command will be ignored.')
+        KeySTAV=.false.
+      End If
+      If(KeySTAV) Then
+       If (DBG) Write(6,*) ' STAVERAGE command was given.'
+       Call SetPos(LUInput,'STAV',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       Line=Get_Ln(LUInput)
+       ReadStatus=' Failure reading spin after STAVERAGE keyword.'
+       Read(Line,*,Err=9920) NROOTS
+       If (NROOTS.GT.MXROOT) Then
+         WRITE(6,*) "Error: number of roots exceeds maximum"
+         WRITE(6,*) "NROOTS = ", NROOTS
+         WRITE(6,*) "MXROOT = ", MXROOT
+         CALL AbEnd()
+       End If
+       ReadStatus=' O.K. reading spin after STAVERAGE keyword.'
+       LROOTS=NROOTS
+       Do i=1,NROOTS
+        iroot(i)=i
+        WEIGHT(i)=1.d0/DBLE(NROOTS)
+       END DO
+       If (DBG) Then
+        Write(6,*) ' Nr of roots in CI: LROOTS=',LROOTS
+        Write(6,*) ' Nr of roots optimized by super-CI: NROOTS=',NROOTS
+        Write(6,*) ' (Equal-weighted)'
+       End If
+       Call ChkIfKey()
+      End If
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
       IF(KeyCIRO) Then
@@ -3508,7 +3541,7 @@ C Test read failed. JOBOLD cannot be used.
 #endif
             Call Timing(Eterna_1,dum1,dum2,dum3)
             If (DBG) Write(6,*)' Call GugaCtl'
-            Call GugaCtl
+            Call GugaCtl()
             Call Timing(Eterna_2,dum1,dum2,dum3)
 #ifdef _DMRG_
           end if
@@ -3562,7 +3595,7 @@ C Test read failed. JOBOLD cannot be used.
 #endif
 * Initialize LUCIA and determinant control
           Call StatusLine('RASSCF:','Initializing Lucia...')
-          CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
+          CALL Lucia_Util('Ini')
 * to get number of CSFs for GAS
 * and number of determinants to store
           nconf=0
@@ -3592,7 +3625,7 @@ C Test read failed. JOBOLD cannot be used.
       IF (ICICH.EQ.1) THEN
         CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
         CALL UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
-     *             CONF,IWORK(KCFTP),IWORK(LUG2SG),
+     *             CONF,CFTP,IWORK(LUG2SG),
      *             ICI,JCJ,CCI,MXROOT)
         CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
       END IF

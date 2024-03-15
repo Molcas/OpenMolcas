@@ -113,12 +113,12 @@
          If (QNR) Then
             cDltNrm=' '
             If (DltNrm.gt.DltNth) cDltNrm='*'
-            Write(6,'(1X,i3,3f16.9,1x,3(e10.2,a1,1x),2e11.2,3x,A,f6.0)')     &
+            Write(6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)')     &
                   Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DltNrm,cDltNrm,FMOMax,cFMOMax,Sqrt(DNorm),Sqrt(TNorm),AccCon,CpuItr
          Else
             cDMOMax=' '
             If (Abs(DMOMax).gt.Dthr) cDMOMax='*'
-            Write(6,'(1X,i3,3f16.9,1x,3(e10.2,a1,1x),2e11.2,3x,A,f6.0)')     &
+            Write(6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)')     &
                   Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DMOMax,cDMOMax,FMOMax,cFMOMax,Sqrt(DNorm),Sqrt(TNorm),AccCon,CpuItr
 
          End If

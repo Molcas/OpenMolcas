@@ -232,7 +232,6 @@ c Avoid unused argument warnings
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 A(*)
       Integer nbas2(nsym),nbas1(nsym)

@@ -316,18 +316,18 @@ write(u6,612) NODE-1
 return
 
 600 format(/' *** ERROR in potential array ... V(I) everywhere too big to integrate with given  increment')
-602 format(' *** For  J=',I3,"  integration can't start till past"/23x,'mesh point',I5,' (yp=',0pf6.2, &
+602 format(' *** For  J=',I3,"  integration can't start till past"/23x,'mesh point',I5,' (yp=',f6.2, &
            '),  so YMIN smaller than needed')
 604 format('   NOTE:  for  J=',I3,'   V(',i3,')=',F12.4,' <= 0.0')
 606 format(/' *** ERROR *** for   J =',I3,'  Innermost turning point not found by   M = MSAVE =',I5)
-608 format(/' Calculate  SL=',1PD21.13,'   log-derivative(y=1)=',D20.12/'     with slope convergence:',D21.13/(28x,D21.13))
-610 format(/' YH=',f10.7,'  gives  SL(RE)=',1PD21.13,':  SL2=',D21.13/55x,'SL=',D21.13)
+608 format(/' Calculate  SL=',ES21.13,'   log-derivative(y=1)=',ES20.12/'     with slope convergence:',ES21.13/(28x,ES21.13))
+610 format(/' YH=',f10.7,'  gives  SL(RE)=',ES21.13,':  SL2=',ES21.13/55x,'SL=',ES21.13)
 612 format(/' Last bound level of this potential is   v=',i3////)
-614 format(' *** CAUTION *** For  J=',I3,'   WF(first)/WF(Max)=',D9.2,'  suggests  YMIN  may be too large')
-616 format(' Expectation value of  V(r) is:',1PD17.8,'   BFCT=',D17.8)
+614 format(' *** CAUTION *** For  J=',I3,'   WF(first)/WF(Max)=',ES9.2,'  suggests  YMIN  may be too large')
+616 format(' Expectation value of  V(r) is:',ES17.8,'   BFCT=',ES17.8)
 620 format(/' *** ERROR in scattlen ***  Input  PRV=',F7.3,'  /= 1')
 701 format(/2x,'For   J=',I3,',  wave function at',I6,' points.'/7x,'R(1-st)=',F12.8,'   mesh=',F12.8,'   NBEG=',I4,'   |LPRWF|=', &
            I3)
-702 format((1X,4(0Pf9.5,1PD13.5)))
+702 format((1X,4(f9.5,ES13.5)))
 
 end subroutine SCATTLEN

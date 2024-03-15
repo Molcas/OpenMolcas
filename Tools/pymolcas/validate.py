@@ -481,23 +481,6 @@ def test_custom(lines, keyword):
     else:
       return None
 
-  elif (module == 'EXTF'):
-    if (name == 'LINEAR'):
-      try:
-        n = first_int(lines[l])
-        l += 1
-        n = first_int(lines[l])
-        l += 1
-        n = fortran_float(first_word(lines[l]))
-        l += 1
-        n = first_int(lines[l])
-        assert (n in [0, 1])
-        l += 1
-      except:
-        return None
-    else:
-      return None
-
   elif (module == 'FFPT'):
     if (name in ['DIPO', 'QUAD', 'OCTU', 'EFLD', 'EFGR']):
       ll = 0

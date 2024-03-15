@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE NST_SPGRP(    NGRP,    IGRP, ISM_TOT,  NSTSGP,   NSMST,
      &                       NSTRIN,   NDIST)
+      use distsym
 *
 * Number of strings for given combination of groups and
 * symmetry.
@@ -38,8 +39,6 @@
       DIMENSION NSTSGP(NSMST,*)
 *. Scratch
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
-#include "distsym.fh"
       INTEGER ISM(MXPNGAS),MNSM(MXPNGAS),MXSM(MXPNGAS)
 *
       NTEST = 0
@@ -68,8 +67,7 @@ cGLM     &                       IFIRST,  NONEW)
 * GLMJ Giovanni Li Manni modification  Feb/March 2012
          CALL NEXT_SYM_DISTR_NEW(NSMST,INGRP_VAL,IGRP,NGRP,
      &                           ISM,ISM_TOT,IFIRST,NONEW,
-     &                           iWork(ISMDFGP),iWork(NACTSYM),
-     &                           iWork(ISMSCR))
+     &                           ISMDFGP,NACTSYM,ISMSCR)
         IF(NONEW.EQ.0) THEN
           LDIST = 1
           DO JGRP = 1, NGRP

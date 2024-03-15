@@ -50,7 +50,7 @@
 #endif
 
 
-222   FORMAT (5X,2(1X,I4),5X,3(1X,E18.8))
+222   FORMAT (5X,2(1X,I4),5X,3(1X,ES18.8))
 2     FORMAT(5X,(1x,I4,3x,I4,3x,F18.8,3x,F18.8,3x,
      &       F18.8,3x,F18.8,3x,F18.8))
 3     FORMAT(6X,A,5x,A,6x,A,6x,A,19x,A,19x,A,19x,A)
@@ -153,7 +153,7 @@
       if (debug_rassi_code) then
        write(u6,*) 'Frenkelsq:'
        do i=1,dim
-         write(u6,'(1000E18.8)') (Frenkelsq(j+(i-1)*dim),j=1,dim)
+         write(u6,'(1000ES18.8)') (Frenkelsq(j+(i-1)*dim),j=1,dim)
        enddo
       endif
       ! form a real quadratic matrix from Frenkelsq -> Frenkelquad
@@ -226,13 +226,13 @@
 
         write(u6,*) 'first trafo H*U'
         do i=1,dim
-          write(u6,'(1000E18.8)') (Freninterm(i,j),j=1,dim)
+          write(u6,'(1000ES18.8)') (Freninterm(i,j),j=1,dim)
         end do
         call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,
      &              Freninterm,dim,Zero,Freninterm2,dim)
         write(u6,*) 'second trafo U^(t)HU (should be diagonal)'
         do i=1,dim
-          write(u6,'(1000E18.8)') (Freninterm2(i,j),j=1,dim)
+          write(u6,'(1000ES18.8)') (Freninterm2(i,j),j=1,dim)
         end do
       end if
 
@@ -412,7 +412,7 @@
       if (iPL >= 3) then
         write(u6,*) 'DipFrx:'
         do i=1,dim
-          write(u6,'(100E18.8)') (DipFrx(i,j),j=1,dim)
+          write(u6,'(100ES18.8)') (DipFrx(i,j),j=1,dim)
         end do
       end if
       ! transform dipole matrix in dipole basis
@@ -425,7 +425,7 @@
       if (iPL >= 3) then
         write(u6,*) 'trafo U^(t)DU, dipole mtx in exc. basis, X'
         do i=1,dim
-          write(u6,'(100E18.8)') (DipFrintermx2(i,j),j=1,dim)
+          write(u6,'(100ES18.8)') (DipFrintermx2(i,j),j=1,dim)
         end do
       end if
       ! create y
@@ -473,7 +473,7 @@
       if (iPL >= 3) then
         write(u6,*) 'DipFry:'
         do i=1,dim
-          write(u6,'(100E18.8)') (DipFry(i,j),j=1,dim)
+          write(u6,'(100ES18.8)') (DipFry(i,j),j=1,dim)
         end do
       end if
 
@@ -486,7 +486,7 @@
       if (iPL >= 3) then
         write(u6,*) 'trafo U^(t)DU, dipole mtx in exc. basis, Y'
         do i=1,dim
-          write(u6,'(100E18.8)') (DipFrintermy2(i,j),j=1,dim)
+          write(u6,'(100ES18.8)') (DipFrintermy2(i,j),j=1,dim)
         end do
       end if
 
@@ -535,7 +535,7 @@
       if (iPL >= 3) then
         write(u6,*) 'DipFrz:'
         do i=1,dim
-          write(u6,'(100E18.8)') (DipFrz(i,j),j=1,dim)
+          write(u6,'(100ES18.8)') (DipFrz(i,j),j=1,dim)
         end do
       end if
 
@@ -548,7 +548,7 @@
       if (iPL >= 3) then
         write(u6,*) 'trafo U^(t)DU, dipole mtx in exc. basis, Z'
         do i=1,dim
-          write(u6,'(100E18.8)') (DipFrintermz2(i,j),j=1,dim)
+          write(u6,'(100ES18.8)') (DipFrintermz2(i,j),j=1,dim)
         end do
       end if
 

@@ -11,8 +11,9 @@
 * Copyright (C) 1990, Markus P. Fuelscher                              *
 *               1990, Jeppe Olsen                                      *
 ************************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE REORD
-     &           (NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,
+     &           (NLEV,NVERT,MIDLEV,MVSta,MVEnd,NMIDV,MXUP,MXDWN,
      &            IDRT,IDOWN,IDAW,IUP,IRAW,IUSGN,ILSGN,
      &            NEL,NORB,NCONF,NTYP,
      &            IMODE,IPRINT,
@@ -35,8 +36,10 @@ C              REORDERED AND, TWO MODE ARE POSSIBLE:
 C              IMODE=0 : FROM SYMMETRIC GROUP TO SPLIT GRAPH UGA ORDER
 C              IMODE=1 : FROM SPLIT GRAPH UGA TO SYMMETRIC GROUP ORDER
 C
-C iPhase and iSgnum are clones from rasscf
 C
+#ifdef _DEBUGPRINT_
+      use Definitions, only: u6
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       DIMENSION ICONF(*),ISPIN(*),NCNFTP(*),NCSFTP(*)
@@ -47,6 +50,10 @@ C
       DIMENSION IUP(NVERT,0:3),IRAW(NVERT,0:4)
       DIMENSION IUSGN(MXUP,NMIDV),ILSGN(MXDWN,NMIDV)
       DIMENSION IWALK(50)
+      Integer, External:: IPHASE
+
+      If (.FALSE.) Call Unused_Integer(MVEnd)
+      If (.FALSE.) Call Unused_Integer(IPRINT)
 C
 C
 C     LOOP OVER CONFIGURATIONS TYPES
@@ -82,11 +89,11 @@ C     COMPUTE STEP VECTOR
             CALL STEPVEC(ICONF(ICNBS),ICONF(ICNBS+ICL),ICL,IOPEN,
      &                   ISPIN(ICSBAS),NORB,IWALK)
 C     GET SPLIT GRAPH ORDERING NUMBER
-C     FUNCTION ISGNUM2
-            ISG=ISGNUM2(NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,
+C     FUNCTION ISGNUM
+            ISG=ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,
      &                   MXDWN,IDOWN,IUP,IDAW,IRAW,IUSGN,ILSGN,IWALK)
 C     GET PHASE PHASE FACTOR
-            IP=IPHASE2(NLEV,NVERT,IDRT,IUP,IWALK)
+            IP=IPHASE(NLEV,NVERT,IDRT,IUP,IWALK)
 C     NOW REORDER THIS ELEMENT OF THE CI-VECTOR
             PHASE=DBLE(IP)
             IF ( IMODE.EQ.0 ) THEN
@@ -99,16 +106,14 @@ C     NOW REORDER THIS ELEMENT OF THE CI-VECTOR
 900     CONTINUE
 1000  CONTINUE
 C
-      IF( IPRINT.GE.5 ) THEN
-        LPRINT=NCONF
-        WRITE(6,*)
-        WRITE(6,*)' OLD CI-VECTORS IN SUBROUTINE REORD'
-        WRITE(6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
-        WRITE(6,*)' NEW CI-VECTORS IN SUBROUTINE REORD'
-        WRITE(6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
-        WRITE(6,*)
-      ENDIF
+#ifdef _DEBUGPRINT_
+      LPRINT=NCONF
+      WRITE(u6,*)
+      WRITE(u6,*)' OLD CI-VECTORS IN SUBROUTINE REORD'
+      WRITE(u6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
+      WRITE(u6,*)' NEW CI-VECTORS IN SUBROUTINE REORD'
+      WRITE(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
+      WRITE(u6,*)
+#endif
 C
-C
-      RETURN
-      END
+      END SUBROUTINE REORD

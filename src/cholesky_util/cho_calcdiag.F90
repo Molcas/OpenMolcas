@@ -223,10 +223,10 @@ if (n_NegCalcDiag > 0) then
   if (n_NegCalcDiag_local > 0) then
     ll = min(n_NegCalcDiag_local,size(NegCalcDiag))
     write(LuPri,'(I5,A)') ll,' most negative elements (this node):'
-    write(LuPri,'(1P,10D12.4)') (NegCalcDiag(i),i=1,ll)
+    write(LuPri,'(10ES12.4)') (NegCalcDiag(i),i=1,ll)
   end if
   call CHO_GADGOP(NegCalcDiag,1,'min')
-  write(LuPri,'(3X,A,1P,D12.4)') 'Most negative element overall: ',NegCalcDiag(1)
+  write(LuPri,'(3X,A,ES12.4)') 'Most negative element overall: ',NegCalcDiag(1)
 end if
 call mma_deallocate(NegCalcDiag)
 
@@ -236,12 +236,12 @@ if (IPRINT >= INFO_DEBUG) then
   XMDIA = XXX*(XXX+One)*Half
   XLDIA = XLDIAG
   SAVD = 1.0e2_wp*(XMDIA-XLDIA)/XMDIA
-  write(LUPRI,'(/,2X,A,1P,D15.6)') 'Screening threshold for initial diagonal: ',THRDIAG
+  write(LUPRI,'(/,2X,A,ES15.6)') 'Screening threshold for initial diagonal: ',THRDIAG
   write(LUPRI,'(2X,A,F15.1,/,2X,A,F15.1)') 'Dimension of unscreened initial diagonal: ',XMDIA, &
                                            'Dimension of   screened initial diagonal: ',XLDIA
   write(LUPRI,'(2X,A,7X,F8.3,A)') 'Saving from screening                   : ',SAVD,'%'
   do ISYM=1,NSYM
-    write(LUPRI,'(2X,A,I2,12X,A,1P,D15.6)') 'Maximum diagonal, symmetry',ISYM,': ',DIAMAX(ISYM)
+    write(LUPRI,'(2X,A,I2,12X,A,ES15.6)') 'Maximum diagonal, symmetry',ISYM,': ',DIAMAX(ISYM)
   end do
   write(LUPRI,'(2X,A,5X,I10)') 'Number of negative diagonals computed   : ',n_NegCalcDiag
 end if

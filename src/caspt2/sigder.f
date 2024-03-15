@@ -19,6 +19,7 @@
 C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
       SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
       use Fockof
+      use caspt2_gradient, only: LUSTD
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -72,14 +73,10 @@ C
       Call GETMEM('WRK','ALLO','REAL',ipWRK,MaxLen)
       Call DCopy_(MaxLen,[0.0D+00],0,Work(ipWRK),1)
 C
-      idSD = 1
       Do iCase = 1, 11
         Do iSym = 1, nSym
-          idSDMat(iSym,iCase) = idSD
           nAS = nASUP(iSym,iCase)
-          CALL DDAFILE(LuSTD,0,Work(ipWRK),nAS*nAS,idSD)
           idSDer = idSDMat(iSym,iCase)
-          ! idSDMat(iSym,iCase))
           CALL DDAFILE(LuSTD,1,Work(ipWRK),nAS*nAS,idSDer)
         End Do
       End Do

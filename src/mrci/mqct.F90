@@ -604,9 +604,9 @@ call mma_deallocate(scr)
 
 return
 
-1234 format(1X,I4,1X,I4,1X,F15.8,9X,D9.2,1X,F6.3,2(1X,F7.1))
-1235 format(1X,I4,1X,I4,1X,F15.8,D9.2,D9.2,1X,F6.3,2(1X,F7.1))
-1236 format(11X,F15.8,9X,D9.2,1X,F6.3)
-1237 format(11X,F15.8,D9.2,D9.2,1X,F6.3)
+1234 format(1X,I4,1X,I4,1X,F15.8,9X,ES9.2,1X,F6.3,2(1X,F7.1))
+1235 format(1X,I4,1X,I4,1X,F15.8,ES9.2,ES9.2,1X,F6.3,2(1X,F7.1))
+1236 format(11X,F15.8,9X,ES9.2,1X,F6.3)
+1237 format(11X,F15.8,ES9.2,ES9.2,1X,F6.3)
 
 end subroutine MQCT

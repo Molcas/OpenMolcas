@@ -606,7 +606,7 @@ if (MPI)
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
   # MPICH and GCC > 10.0 requires explicit MPI interface
-  if (MPI_IMPLEMENTATION STREQUAL "mpich" AND
+  if ((MPI_IMPLEMENTATION STREQUAL "mpich" OR MPI_IMPLEMENTATION STREQUAL "impi") AND
       CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
       CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
     add_compile_definitions (_NEED_EXPLICIT_MPI_INTERFACE_)
@@ -686,24 +686,7 @@ if (LINALG STREQUAL "MKL")
   if (NOT MKLROOT STREQUAL MKLROOT_LAST)
     # reset MKL paths
     set (MKL_INCLUDE_PATH "${MKLROOT}/include" CACHE PATH "location of MKL include files." FORCE)
-
-    if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-      if (ADDRMODE EQUAL 64)
-        set (libpath "${MKLROOT}/lib")
-      elseif (ADDRMODE EQUAL 32)
-        message (FATAL_ERROR
-                 "PLATFORM=MacOS, but you use ADDRMODE=32. This is "
-                 "either a VERY old, unsupported platform, or "
-                 "there is a configuration error.")
-      endif ()
-    else ()
-      if (ADDRMODE EQUAL 64)
-        set (libpath "${MKLROOT}/lib/intel64")
-      elseif (ADDRMODE EQUAL 32)
-        set (libpath "${MKLROOT}/lib/ia32")
-      endif ()
-    endif ()
-    set (MKL_LIBRARY_PATH ${libpath} CACHE PATH "location of MKL libraries." FORCE)
+    set (MKL_LIBRARY_PATH "${MKLROOT}/lib" CACHE PATH "location of MKL libraries." FORCE)
     # uncache variables
     unset (LIBMKL_BLAS CACHE)
     unset (LIBMKL_LAPACK CACHE)
@@ -719,63 +702,144 @@ if (LINALG STREQUAL "MKL")
   message ("-- MKL_INCLUDE_PATH = ${MKL_INCLUDE_PATH}")
   message ("-- MKL_LIBRARY_PATH = ${MKL_LIBRARY_PATH}")
 
+  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    if (ADDRMODE EQUAL 32)
+      message (FATAL_ERROR
+               "PLATFORM=MacOS, but you use ADDRMODE=32. This is "
+               "either a VERY old, unsupported platform, or "
+               "there is a configuration error.")
+    endif ()
+  else ()
+    if (ADDRMODE EQUAL 64)
+      list (APPEND mkllibs "intel64")
+    elseif (ADDRMODE EQUAL 32)
+      list (APPEND mkllibs "ia32")
+    endif ()
+  endif ()
+
   # core library
   if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    find_library (LIBMKL_CORE NAMES "libmkl_core.a"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_CORE
+      NAMES "libmkl_core.a"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   else ()
-    find_library (LIBMKL_CORE NAMES "mkl_core"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_CORE
+       NAMES "mkl_core"
+       PATHS ${MKL_LIBRARY_PATH}
+       PATH_SUFFIXES ${mkllibs}
+       NO_DEFAULT_PATH
+    )
   endif ()
   # compiler-specific library interface
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-      find_library (LIBMKL_BLAS NAMES "libmkl_blas95_ilp64.a"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-      find_library (LIBMKL_LAPACK NAMES "libmkl_lapack95_ilp64.a"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-      find_library (LIBMKL_INTERFACE NAMES "libmkl_intel_ilp64.a"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+      find_library (LIBMKL_BLAS
+        NAMES "libmkl_blas95_ilp64.a"
+        PATHS ${MKL_LIBRARY_PATH}
+        PATH_SUFFIXES ${mkllibs}
+        NO_DEFAULT_PATH
+      )
+      find_library (LIBMKL_LAPACK
+        NAMES "libmkl_lapack95_ilp64.a"
+        PATHS ${MKL_LIBRARY_PATH}
+        PATH_SUFFIXES ${mkllibs}
+        NO_DEFAULT_PATH
+      )
+      find_library (LIBMKL_INTERFACE
+        NAMES "libmkl_intel_ilp64.a"
+        PATHS ${MKL_LIBRARY_PATH}
+        PATH_SUFFIXES ${mkllibs}
+        NO_DEFAULT_PATH
+      )
     else ()
-    find_library (LIBMKL_INTERFACE NAMES "mkl_gf_ilp64"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_INTERFACE
+      NAMES "mkl_gf_ilp64"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
     endif ()
-  elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-    find_library (LIBMKL_INTERFACE NAMES "mkl_intel_ilp64"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" OR
+          CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
+    find_library (LIBMKL_INTERFACE
+      NAMES "mkl_intel_ilp64"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI") # apparently PGI uses this too
-    find_library (LIBMKL_INTERFACE NAMES "mkl_intel_ilp64"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_INTERFACE
+      NAMES "mkl_intel_ilp64"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   endif ()
   # sequential/compiler-specific threading interface
   if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    find_library (LIBMKL_SEQUENTIAL NAMES "libmkl_sequential.a"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_SEQUENTIAL
+      NAMES "libmkl_sequential.a"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   else ()
-    find_library (LIBMKL_SEQUENTIAL NAMES "mkl_sequential"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_SEQUENTIAL
+      NAMES "mkl_sequential"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   endif ()
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (LIBMKL_OMP_LINK_FLAGS "${FFLAGS_GNU_OPENMP}")
-    find_library (LIBMKL_THREADING NAMES "mkl_gnu_thread"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
-  elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+    find_library (LIBMKL_THREADING
+      NAMES "mkl_gnu_thread"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
+  elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" OR
+          CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
     set (LIBMKL_OMP_LINK_FLAGS "${FFLAGS_Intel_OPENMP}")
-    find_library (LIBMKL_THREADING NAMES "mkl_intel_thread"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_THREADING
+      NAMES "mkl_intel_thread"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   endif ()
   # find scalapack/blacs for parallel lapack support
-  find_library (LIBMKL_SCALAPACK NAMES "mkl_scalapack_ilp64"
-                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+  find_library (LIBMKL_SCALAPACK
+    NAMES "mkl_scalapack_ilp64"
+    PATHS ${MKL_LIBRARY_PATH}
+    PATH_SUFFIXES ${mkllibs}
+    NO_DEFAULT_PATH
+  )
   if (MPI_IMPLEMENTATION STREQUAL "openmpi")
-    find_library (LIBMKL_BLACS NAMES "mkl_blacs_openmpi_ilp64"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_BLACS
+      NAMES "mkl_blacs_openmpi_ilp64"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   elseif (MPI_IMPLEMENTATION STREQUAL "impi")
-    find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_BLACS
+      NAMES "mkl_blacs_intelmpi_ilp64"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   elseif (MPI_IMPLEMENTATION STREQUAL "mpich")
-    find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+    find_library (LIBMKL_BLACS
+      NAMES "mkl_blacs_intelmpi_ilp64"
+      PATHS ${MKL_LIBRARY_PATH}
+      PATH_SUFFIXES ${mkllibs}
+      NO_DEFAULT_PATH
+    )
   endif ()
 
   # generate actual library list with paths
@@ -1093,8 +1157,14 @@ message ("Configuring Libxc:")
 
 if (EXTERNAL_LIBXC)
   message ("-- External Libxc root specified at: ${EXTERNAL_LIBXC}")
-  find_library (xc xc PATHS ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
-  find_library (xcf03 xcf03 PATHS ${EXTERNAL_LIBXC} PATH_SUFFIXES lib lib32 lib64)
+  find_library (xc xc
+    PATHS ${EXTERNAL_LIBXC}
+    PATH_SUFFIXES lib lib32 lib64
+  )
+  find_library (xcf03 xcf03
+    PATHS ${EXTERNAL_LIBXC}
+    PATH_SUFFIXES lib lib32 lib64
+  )
   if (NOT xc OR NOT xcf03)
     message (FATAL_ERROR "Libxc could not be found in ${EXTERNAL_LIBXC}.")
   endif ()
@@ -1226,6 +1296,10 @@ if (GA AND MPI)
           -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
           -D CMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE
           -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+          -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+          -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+          -D GCCROOT=${GCCROOT}
+          -D CMAKE_INSTALL_LIBDIR=lib
           -D ENABLE_FORTRAN=ON
           -D ENABLE_CXX=OFF
           -D ENABLE_TESTS=OFF
@@ -1593,7 +1667,8 @@ endif ()
 
 set (MAIN_MOD_DIR ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/mod)
 # The Intel compiler can generate automatic interfaces, in that case we want to keep them all in a single place
-if (BIGOT AND CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+if (BIGOT AND (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" OR
+               CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM"))
   set (SINGLE_MOD_DIR ON)
   set (MAIN_MOD_DIR ${MAIN_MOD_DIR}/_single)
 endif ()
@@ -1780,12 +1855,16 @@ if (EFPLIB)
     )
     set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
-    ExternalProject_Get_Property (efplib BINARY_DIR)
+    ExternalProject_Get_Property (${projname} BINARY_DIR)
     set (proj_bin ${BINARY_DIR})
     link_directories (${proj_bin})
     list (APPEND EXTERNAL_PROJECTS ${projname})
 
     list (APPEND integral_util_incs ${proj}/interface)
+
+    if (LINALG STREQUAL "Internal")
+      add_dependencies (${EP_PROJECT} ${LINALG_LIBRARIES})
+    endif ()
 
     set (EFP_LIBRARIES efp)
 
@@ -1794,7 +1873,7 @@ if (EFPLIB)
     list (APPEND EXTERNAL_LIBRARIES ${EFP_LIBRARIES})
     add_compile_definitions (_EFP_)
   else ()
-    message ("-- EFP interface ignored (source not available, run git submodule update --init ${proj}\")")
+    message ("-- EFP interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
   endif ()
 else ()
   message ("EFP interface DISABLED")
@@ -2303,7 +2382,9 @@ if (HDF5 AND HDF5_FOUND)
   foreach (prog
     caspt2
     dynamix
+    expbas
     guessorb
+    localisation
     mcpdft
     nevpt2
     poly_aniso
@@ -2430,7 +2511,8 @@ endif ()
 # netlib blas/lapack produces warnings
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   set (netlib_nowarn_flags " -w")
-elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" OR
+        CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
   set (netlib_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
   set (netlib_nowarn_flags " -erroff=%all")

@@ -12,6 +12,14 @@
 ************************************************************************
       SUBROUTINE GASCI(     ISM,    ISPC,   IPRNT,    EREF,IIUSEH0P,
      &                 MPORENP_E)
+      use stdalloc, only: mma_allocate, mma_deallocate
+!     Note that CI_VEC is used as a scratch array here and below.
+      use GLBBAS, only: VEC3, SCR => CI_VEC
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
+     &                        Allocate_Local_Arrays,
+     &                      Deallocate_Local_Arrays
+      use strbas
+      use rasscf_lucia, only: kvec3_length
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -22,7 +30,6 @@
       EXTERNAL MV7
 #include "mxpdim.fh"
 #include "cicisp.fh"
-#include "WrkSpc.fh"
 #include "orbinp.fh"
 #include "clunit.fh"
 #include "csm.fh"
@@ -30,8 +37,6 @@
 #include "crun.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "strbas.fh"
-#include "glbbas.fh"
 #include "cprnt.fh"
 #include "oper.fh"
 #include "gasstr.fh"
@@ -42,7 +47,6 @@
 
 #include "cintfo.fh"
 #include "spinfo_lucia.fh"
-#include "rasscf_lucia.fh"
 #include "io_util.fh"
 *
 *. Common block for communicating with sigma
@@ -54,6 +58,8 @@
 *     COMMON/H_OCC_CONS/IH_OCC_CONS
 *
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
+      Integer, Allocatable:: CIOIO(:)
+      Integer, Allocatable:: SVST(:)
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
@@ -75,6 +81,7 @@ c         WRITE(6,*) ' IH_OCC_CONS set to one in GASCI '
 c         IH_OCC_CONS = 1
 c      END IF
 *
+#ifdef _DEBUGPRINT_
       IF(NTEST .GE. 20) THEN
          WRITE(6,*)
          WRITE(6,*) ' ====================================='
@@ -110,6 +117,10 @@ c      END IF
          END DO
 *
       END IF
+#else
+      Call Unused_Integer(IIUSEH0P)
+      Call Unused_Integer(MPORENP_E)
+#endif
 *
       NDET = INT(XISPSM(ISM,ISPC))
       NEL = NELCI(ISPC)
@@ -170,34 +181,25 @@ c      END IF
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
       NTTS = MXNTTS
-      CALL GETMEM('CLBT  ','ALLO','INTE',KLCLBT ,NTTS  )
-      CALL GETMEM('CLEBT ','ALLO','INTE',KLCLEBT ,NTTS  )
-      CALL GETMEM('CI1BT ','ALLO','INTE',KLCI1BT,NTTS  )
-      CALL GETMEM('CIBT  ','ALLO','INTE',KLCIBT ,8*NTTS)
+      Call Allocate_Local_Arrays(NTTS,NSMST)
 *. Additional info required to construct partitioning
-      CALL GETMEM('CIOIO ','ALLO','INTE',KLCIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('CBLTP ','ALLO','INTE',KLCBLTP,NSMST)
+      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 *
-      CALL IAIBCM(ISPC,IWORK(KLCIOIO))
-*. option KSVST not active so
-      KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,IWORK(KLCBLTP),IWORK(KSVST))
+      CALL IAIBCM(ISPC,CIOIO)
+      Call mma_allocate(SVST,1,Label='SVST')
+      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,SVST)
+      Call mma_deallocate(SVST)
 *
 *. Batches  of C vector
-      CALL PART_CIV2(      IDC,
-     &               IWORK(KLCBLTP),
-     &               IWORK(KNSTSO(IATP)),
-     &               IWORK(KNSTSO(IBTP)),NOCTPA,NOCTPB, NSMST,LBLOCK,
-     &               IWORK(KLCIOIO),
+      CALL PART_CIV2(IDC,CBLTP,
+     &               NSTSO(IATP)%I,
+     &               NSTSO(IBTP)%I,NOCTPA,NOCTPB, NSMST,LBLOCK,
+     &               CIOIO,
 *
-     &               ISMOST(1,ISM),
-     &                  NBATCH,
-     &               IWORK(KLCLBT),
-     &               IWORK(KLCLEBT),IWORK(KLCI1BT),IWORK(KLCIBT),
-     &               0,ISIMSYM)
+     &               ISMOST(1,ISM),NBATCH,
+     &               CLBT,CLEBT,CI1BT,CIBT,0,ISIMSYM)
 *. Number of BLOCKS
-      NBLOCK = IFRMR(IWORK(KLCI1BT),1,NBATCH)
-     &       + IFRMR(IWORK(KLCLBT),1,NBATCH) - 1
+      NBLOCK = IFRMR(CI1BT,1,NBATCH) + IFRMR(CLBT,1,NBATCH) - 1
 *.
 *. Enabling the calculation of excited states in a new way. Lasse
 *. This can be realized for GAS1 to GASN (for the GAS version)
@@ -205,16 +207,15 @@ c      END IF
 *. in the sigma vector calculation. This to satisfy RASSI.
 *. Insert if statement
       IF(I_ELIMINATE_GAS.GE.1) THEN
-        CALL I_AM_SO_EXCITED(NBATCH,IWORK(KLCIBT),IWORK(KLCLBT),
-     &                       IWORK(KLCI1BT))
+        CALL I_AM_SO_EXCITED(NBATCH,CIBT,CLBT,CI1BT)
       END IF
 *. End of story for Lasse
 *.
-      CALL GETMEM('CLBT  ','FREE','INTE',KLCLBT ,NTTS  )
-      CALL GETMEM('CLEBT ','FREE','INTE',KLCLEBT ,NTTS  )
+      CALL mma_deallocate(CLBT)
+      CALL mma_deallocate(CLEBT)
 *. Length of each block
-      CALL EXTRROW(IWORK(KLCIBT),8,8,NBLOCK,IWORK(KLCI1BT))
-      CALL GETMEM('CI1BT ','FREE','INTE',KLCI1BT,NTTS  )
+      CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
+      CALL mma_deallocate(CI1BT)
 *.
 *. Class divisions of  dets
 *. ( Well, in principle I am against class division, but I
@@ -239,21 +240,21 @@ c      END IF
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(IWORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(NSTSO(IATPM1)%I,NSMST*NOCTYP(IATPM1),2)
 C?          WRITE(6,*) ' MAXA1 1', MAXA1
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(IWORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(NSTSO(IATPM2)%I,NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(IWORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(NSTSO(IBTPM1)%I,NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(IWORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(NSTSO(IBTPM2)%I,NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB,MXSTBL0)
@@ -268,7 +269,7 @@ C?          WRITE(6,*) ' MAXA1 1', MAXA1
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
-      CALL MXRESCPH(IWORK(KLCIOIO),IOCTPA,IOCTPB, NOCTPA, NOCTPB,
+      CALL MXRESCPH(CIOIO,IOCTPA,IOCTPB, NOCTPA, NOCTPB,
      &                    NSMST,NSTFSMSPGP,MXPNSMST, NSMOB,MXPNGAS,
      &                     NGAS,  NOBPTS,  IPRCIX,    MAXK,NELFSPGP,
      &                     MXCJ,  MXCIJA,  MXCIJB, MXCIJAB,  MXSXBL,
@@ -289,10 +290,7 @@ c         END IF
       IF(IPRCIX.GE.2)
      &     WRITE(6,*) ' Space for two resolution matrices ',2*LSCR2
       LSCR12 = MAX(LBLOCK,2*LSCR2)
-CSVC: is KVEC3 used at all before it is deallocated again?
-      CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,LSCR12)
-      KVEC1 = KCI_POINTER
-c     KVEC2 = KSIGMA_POINTER
+      Call mma_allocate(VEC3,LSCR12,Label='VEC3')
       KVEC3_LENGTH = MAX(LSCR12,2*LBLOCK,KVEC3_LENGTH)
 *
 *. CI diagonal - if required
@@ -304,25 +302,12 @@ c     KVEC2 = KSIGMA_POINTER
          IF(ICISTR.GE.2) IDISK(LUDIA)=0
          I12 = 2
          SHIFT = ECORE_ORIG-ECORE
-         CALL GASDIAT(WORK(KVEC1),  LUDIA,  SHIFT, ICISTR,    I12,
-     &                IWORK(KLCBLTP),NBLOCK,IWORK(KLCIBT))
+         CALL GASDIAT(SCR,  LUDIA,  SHIFT, ICISTR,    I12,
+     &                CBLTP,NBLOCK,CIBT)
 *
-c         IF(IIUSEH0P.EQ.1) THEN
-c*. Diagonal with F
-c            CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
-c            CALL GASDIAT(WORK(KVEC1),LUSC52,SHIFT,ICISTR,1,
-c     &           WORK(KLCBLTP),NBLOCK,WORK(KLCIBT))
-c            CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
-c*. diag of (1-Lambda) F + Lambda H
-c            FAC1 = 1.0D0 - XLAMBDA
-c            FAC2 = XLAMBDA
-c            CALL VECSMD(WORK(KVEC1),WORK(KVEC2),FAC1,FAC2,
-c     &           LUSC52,LUDIA,LUSC53,1,LBLK)
-c            CALL COPVCD(LUSC53,LUDIA,WORK(KVEC1),1,LBLK)
-c         END IF
          IF(NOCSF.EQ.1.AND.ICISTR.EQ.1) THEN
             IDISK(LUDIA)=0
-            CALL TODSC(WORK(KVEC1),NVAR,-1,LUDIA)
+            CALL TODSC(SCR,NVAR,-1,LUDIA)
          END IF
          IF(IPRCIX.GE.2) WRITE(6,*) ' Diagonal constructed  '
       ELSE
@@ -330,10 +315,9 @@ c         END IF
       END IF
 
       IDUMMY=1
-      CALL GETMEM('CIOIO ','FREE','INTE',KLCIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
-      CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*NTTS)
-      CALL GETMEM('KC2   ','FREE','REAL',KVEC3,LSCR12)
+      Call Deallocate_Local_Arrays()
+      Call mma_deallocate(CIOIO)
+      Call mma_deallocate(VEC3)
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real(EREF)

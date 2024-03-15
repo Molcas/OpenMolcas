@@ -173,7 +173,7 @@
          Write(6,'(6X,A)')'Reaction field specifications:'
          Write(6,'(6X,A)')'------------------------------'
          Write(6,*)
-         Write(6,'(6X,A)')'The Reaction field is added as a perturbation and has been determined in a previos calculation'
+         Write(6,'(6X,A)')'The Reaction field is added as a perturbation and has been determined in a previous calculation'
          Write(6,*)
       End If
 !
@@ -199,9 +199,9 @@
          End If
       End If
 !
-!---- Print out informations concerning Direct/Conventional scheeme
-      FmtI= '(6X,A,T50,I8)'
-      FmtR= '(6X,A,T50,E8.2)'
+!---- Print out informations concerning Direct/Conventional scheme
+      FmtI= '(6X,A,T50,I9)'
+      FmtR= '(6X,A,T50,ES9.2)'
       If (jPrint.ge.2) Then
          Call CollapseOutput(1,'   Optimization specifications:')
          Write(6,'(3X,A)')     '   ----------------------------'

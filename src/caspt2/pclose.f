@@ -16,33 +16,21 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PCLOSE
+      SUBROUTINE PCLOSE()
       use fciqmc_interface, only: DoFCIQMC
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-C  PER-AAKE MALMQUIST 92-12-07
+C  PER AAKE MALMQUIST 92-12-07
 C  Deallocates everything concerned with SGUGA, incl CI array.
-
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "pt2_guga.fh"
 
       IF(DoCumulant) RETURN
       IF(DoFCIQMC) RETURN
       IF(NACTEL.EQ.0) RETURN
       IF(ISCF.NE.0) RETURN
-      CALL GETMEM('MVL','FREE','INTEG',LMVL,NMVL)
-      CALL GETMEM('MVR','FREE','INTEG',LMVR,NMVR)
-      CALL GETMEM('NOW','FREE','INTEG',LNOW,NNOW)
-      CALL GETMEM('IOW','FREE','INTEG',LIOW,NIOW)
-      CALL GETMEM('NOCP','FREE','INTEG',LNOCP,NNOCP)
-      CALL GETMEM('IOCP','FREE','INTEG',LIOCP,NIOCP)
-      CALL GETMEM('NOCSF','FREE','INTEG',LNOCSF,NNOCSF)
-      CALL GETMEM('IOCSF','FREE','INTEG',LIOCSF,NIOCSF)
-      CALL GETMEM('ICASE','FREE','INTEG',LICASE,NICASE)
-      CALL GETMEM('ICOUP','FREE','INTEG',LICOUP,(3*NICOUP+1)/2)
-      CALL GETMEM('VTAB','FREE','REAL',LVTAB,NVTAB)
-      CALL GETMEM('SGTMP','FREE','REAL',LSGTMP,NSGTMP)
-      RETURN
-      END
+
+      Call MKGUGA_FREE()
+
+      END SUBROUTINE PCLOSE

@@ -79,6 +79,6 @@ end if
 return
 
 601 format(' *** CAUTION *** in LEVQAD, turning point not between points 1 & 2.   H =',F9.6,'   R1 =',F9.6,'   R2 =',F9.6)
-602 format(' *** ERROR in LEVQAD *** No turning point between 1-st two points as   Y1=',D10.3,'   Y2=',D10.3)
+602 format(' *** ERROR in LEVQAD *** No turning point between 1-st two points as   Y1=',ES10.3,'   Y2=',ES10.3)
 
 end subroutine LEVQAD

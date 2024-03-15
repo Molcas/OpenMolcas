@@ -50,10 +50,11 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
-      use csfbas, only: CONF, KCFTP
+      use csfbas, only: CONF
+      use glbbas, only: CFTP
       use Fock_util_global, only: DoCholesky
       use write_pdft_job, only: iwjob, writejob
-      use sxci_pdft, only: idxsx
+      use sxci, only: idxsx
       use mspdft_grad, only: dogradmspd
       use mspdft, only: mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
@@ -62,11 +63,16 @@
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use mspdft_util, only: replace_diag
       use rctfld_module
+      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use lucia_interface, only: lucia_util
+      use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN,
+     &                D1I, D1A, OccN, CMO
+      use gugx, only: IFCAS
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
-#include "wadr.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 #include "input_ras_mcpdft.fh"
@@ -74,9 +80,7 @@
 #include "general.fh"
 #include "gas.fh"
 #include "timers.fh"
-#include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
-#include "gugx.fh"
 #include "pamint.fh"
 #include "ciinfo.fh"
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
@@ -97,9 +101,8 @@
       integer NMAYBE,KROOT
       real*8 EAV
 !
-      real*8, allocatable :: PLWO(:)
+      real*8, allocatable :: PLWO(:), CIV(:)
       integer ivkcnf
-      Dimension Dummy(1)
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
@@ -162,8 +165,8 @@
       Call OpnFls_RASSCF_m(DSCF)
 
 * Some preliminary input data:
-      Call Rd1Int_m()
-      If ( .not.DSCF ) Call Rd2Int_MCPDFT
+      Call Rd1Int()
+      If ( .not.DSCF ) Call Rd2Int_RASSCF()
 
 * Process the input:
       Call Proc_InpX(DSCF,iRc)
@@ -196,71 +199,54 @@
 *
 * Allocate various matrices
 *
-      Call GetMem('FI','Allo','Real',LFI,NTOT1)
-      Call GetMem('FA','Allo','Real',LFA,NTOT1)
-      Call GetMem('D1I','Allo','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Allo','Real',LD1A,NTOT2)
-      Call GetMem('D1tot','Allo','Real',LD1tot,NTOT1)
-      Call GetMem('OCCN','Allo','Real',LOCCN,NTOT)
-      Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
+      Call mma_allocate(FI,NTOT1,Label='FI')
+      Call mma_allocate(FA,NTOT1,Label='FA')
+      Call mma_allocate(D1I,NTOT2,Label='D1I')
+      Call mma_allocate(D1A,NTOT2,Label='D1A')
+      Call mma_allocate(OCCN,NTOT,Label='OccN')
+      Call mma_allocate(CMO,NTOT2,Label='CMO')
       allocate(PLWO(1:NACPAR))
       PLWO(:) = 0
 !
 *
-      LTUVX=1
-      LDMAT=1
-      LDSPN=1
-      LPMAT=1
-      LPA  =1
-      If ( NAC.GT.0 ) then
-
-        Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
-        Call FZero(Work(LTUVX),NACPR2)
-        Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
-        Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
-        Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
-        Call GetMem('P2AS','Allo','Real',LPA,NACPR2)
-        call dcopy_(NACPAR,[0.0d0],0,Work(LDMAT),1)
-        call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
-      Else
-        LTUVX = ip_Dummy
-        LDMAT = ip_Dummy
-        LDSPN = ip_Dummy
-        LPMAT = ip_Dummy
-        LPA   = ip_Dummy
-      End If
+      Call mma_allocate(TUVX,NACPR2,Label='TUVX')
+      TUVX(:)=0.0D0
+      Call mma_allocate(DSPN,NACPAR,Label='DSPN')
+      Call mma_allocate(DMAT,NACPAR,Label='DMAT')
+      DMAT(:)=0.0D0
+      Call mma_allocate(PMAT,NACPR2,Label='PMAT')
+      Call mma_allocate(PA,NACPR2,Label='PA')
 *
 * Get start orbitals
 
 * Initialize OCCN array, to prevent false alarms later from
 * automated detection of using uninitialized variables:
-      call dcopy_(NTot,[0.0D0],0,Work(lOCCN),1)
+      OccN(:)=0.0D0
 
 * PAM03: Note that removal of linear dependence may change the nr
 * of secondary/deleted orbitals, affecting some of the global
 * variables: NSSH(),NDEL(),NORB(),NTOT3, etc etc
-      Call ReadVc_m(Work(LCMO),Work(lOCCN),
-     &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA))
+      Call ReadVc_m(CMO,OCCN,DMAT,DSPN,PMAT,PA)
 * Only now are such variables finally known.
       If (IPRLOC(1).GE.DEBUG) Then
         CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',Work(LDMAT),NAC)
+     &              ' ',DMAT,NAC)
         CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
-     &              ' ',Work(LDSPN),NAC)
+     &              ' ',DSPN,NAC)
         CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',WORK(LPMAT),NACPAR)
+     &              ' ',PMAT,NACPAR)
         CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',WORK(LPA),NACPAR)
+     &              ' ',PA,NACPAR)
       END IF
 *
 * Allocate core space for dynamic storage of data
 *
-      CALL ALLOC_m()
+      CALL ALLOC()
 
       Call Timing(dum1,dum2,Ebel_1,dum3)
 
       ECAS   = 0.0d0
-      Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
+      Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 
       ! I guess we spoof for the 2-electron part? Im not sure..
         KSDFT_TEMP=KSDFT
@@ -268,11 +254,11 @@
         ExFac=1.0D0
 
       Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
-      call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
+      call dcopy_(NACPAR,DMAT,1,Work(ipTmpDMAT),1)
       If (NASH(1).ne.NAC) then
-        Call DBLOCK_m(Work(ipTmpDMAT))
+        Call DBLOCK(Work(ipTmpDMAT))
       end if
-      Call Get_D1A_RASSCF_m(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
+      Call Get_D1A_RASSCF(CMO,Work(ipTmpDMAT),D1A)
       Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
 ! 413 Continue
@@ -421,16 +407,16 @@
       Call Timing(dum1,dum2,Fortis_1,dum3)
       Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
       Call FZero(Work(LPUVX),NFINT)
-      Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
+      Call Get_D1I_RASSCF(CMO,D1I)
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
       IF(IPRLOC(2).EQ.insane) IPR=10
 
-      CALL TRACTL2(WORK(LCMO),WORK(LPUVX),WORK(LTUVX),WORK(LD1I),
-     &              WORK(LFI),WORK(LD1A),WORK(LFA),IPR,lSquare,ExFac)
+      CALL TRACTL2(CMO,WORK(LPUVX),TUVX,D1I,
+     &             FI,D1A,FA,IPR,lSquare,ExFac)
 
-      Call Put_dArray('Last orbitals',Work(LCMO),ntot2)
+      Call Put_dArray('Last orbitals',CMO,ntot2)
 
       if (doGSOR) then
         Call f_Inquire('JOBOLD',Found)
@@ -452,46 +438,41 @@
         CALL Molcas_Open(LUCT,'CI_THETA')
 
         Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
-        CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
-        CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
-        CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
-        CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
-        CALL GETMEM('PAtmp','ALLO','REAL',LW9,NACPR2)
-        CALL GETMEM('Pscr','ALLO','REAL',LW10,NACPR2)
+        CALL mma_allocate(CIVEC,NCONF,Label='CIVEC')
+        CALL mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+        CALL mma_allocate(DStmp,NAC**2,Label='DStmp')
+        CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
+        CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+        CALL mma_allocate(Pscr,NACPR2,Label='Pscr')
 
-        call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
-        call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
-        call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
-        call dcopy_(NCONF,[0.0D0],0,WORK(LW4),1)
+        Dtmp(:)=0.0D0
+        DStmp(:)=0.0D0
+        Ptmp(:)=0.0D0
+        CIVEC(:)=0.0D0
         iDisk = IADR19(4)
         jDisk = IADR19(3)
 
-        Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
+        Call mma_allocate(CIV,nConf,Label='CIV')
         DO jRoot=1,lroots
           do i=1,nconf
-            read(LUCT,*) Work(LW4-1+i)
+            read(LUCT,*) CIVEC(i)
           end do
-          Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
+          Call DDafile(JOBOLD,1,CIVEC,nConf,iDisk)
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,1,
-     &                CONF,iWork(KCFTP),
-     &                Work(LW4),Work(LW11),iWork(ivkcnf))
-          Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
+     &                CONF,CFTP,CIVEC,CIV,iWork(ivkcnf))
+          Call dcopy_(nconf,CIV,1,CIVEC,1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
-          C_Pointer = Lw4
-          CALL GetMem('Lucia','Allo','Real',Lucia_Base, 1)
-!Andrew - changed here
-          CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
+          CALL Lucia_Util('Densi',
+     &                    CI_Vector=CIVEC(:))
           If (IFCAS > 2) Then
-            Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
-     &              Work(LW9),Work(LW10))
+            Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,PScr)
           End If
-          CALL GetMem('Lucia','Free','Real',Lucia_Base, 1)
 
-          Call DDafile(JOBOLD,1,Work(LW6),NACPAR,jDisk)
-          Call DDafile(JOBOLD,1,Work(LW7),NACPAR,jDisk)
-          Call DDafile(JOBOLD,1,Work(LW8),NACPR2,jDisk)
-          Call DDafile(JOBOLD,1,Work(LW9),NACPR2,jDisk)
+          Call DDafile(JOBOLD,1,Dtmp,NACPAR,jDisk)
+          Call DDafile(JOBOLD,1,DStmp,NACPAR,jDisk)
+          Call DDafile(JOBOLD,1,Ptmp,NACPR2,jDisk)
+          Call DDafile(JOBOLD,1,PAtmp,NACPR2,jDisk)
         end do
         Close(LUCT)
         Call fCopy('JOBIPH','JOBGS',ierr)
@@ -525,8 +506,7 @@
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call MSCtl(Work(LCMO),Work(LFI),Work(LFA),
-     &       Work(iRef_E))
+      Call MSCtl(CMO,FI,FA,Work(iRef_E))
 
       ! I guess iRef_E now holds the MC-PDFT energy for each state??
 
@@ -577,36 +557,33 @@
       endif
 
 *  Release  some memory allocations
-      Call GetMem('FOCC','FREE','REAL',ipFocc,NTOT1)
-      Call GetMem('FI','Free','Real',LFI,NTOT1)
-      Call GetMem('FA','Free','Real',LFA,NTOT1)
-      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
-      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
-      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
+      Call mma_deallocate(FockOcc)
+      Call mma_deallocate(FI)
+      Call mma_deallocate(FA)
+      Call mma_deallocate(D1I)
+      Call mma_deallocate(D1A)
+      Call mma_deallocate(OccN)
+      Call mma_deallocate(CMO)
       Call GetMem('REF_E','Free','REAL',iRef_E,lroots)
-      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
 
-      If ( NAC.GT.0 ) then
-        Call GetMem('DMAT','free','Real',LDMAT,NACPAR)
-        Call GetMem('DSPN','free','Real',LDSPN,NACPAR)
-        Call GetMem('PMAT','free','Real',LPMAT,NACPR2)
-        Call GetMem('P2AS','free','Real',LPA,NACPR2)
-        Call GetMem('TUVX','free','Real',LTUVX,NACPR2)
-      End if
+      Call mma_deallocate(DMAT)
+      Call mma_deallocate(DSPN)
+      Call mma_deallocate(PMAT)
+      Call mma_deallocate(PA)
+      Call mma_deallocate(TUVX)
 
 *
 *
        if (doGSOR) then
-          CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
-          CALL GETMEM('Dtmp ','FREE','REAL',LW6,NACPAR)
-          CALL GETMEM('DStmp','FREE','REAL',LW7,NACPAR)
-          CALL GETMEM('Ptmp ','FREE','REAL',LW8,NACPR2)
-          CALL GETMEM('PAtmp','FREE','REAL',LW9,NACPR2)
-          CALL GETMEM('Pscr','FREE','REAL',LW10,NACPR2)
-          Call GetMem('CIVtmp','FREE','Real',LW11,nConf)
-          Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-          Call MKGUGA_FREE_m
+          CALL mma_deallocate(CIVEC)
+          CALL mma_deallocate(Dtmp)
+          CALL mma_deallocate(DStmp)
+          CALL mma_deallocate(Ptmp)
+          CALL mma_deallocate(PAtmp)
+          CALL mma_deallocate(Pscr)
+          CALL mma_deallocate(CIV)
+          Call Lucia_Util('CLOSE')
+          Call MKGUGA_FREE()
        end if
 
 *
@@ -615,7 +592,7 @@
 
       Call Timing(dum1,dum2,Ebel_3,dum3)
       IF (IPRLEV.GE.3) THEN
-       Call PrtTim_m
+       Call PrtTim()
        Call FastIO('STATUS')
       END IF
       Call ClsFls_RASSCF_m()
@@ -638,6 +615,5 @@ C Close the one-electron integral file:
       END DO
       Close(LUInput)
 
-      return
       End
 

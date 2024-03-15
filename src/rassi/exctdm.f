@@ -25,7 +25,7 @@
 #include "cntrl.fh"
 #include "Files.fh"
 #include "SysDef.fh"
-      type(DSBA_Type) :: DLT, SDLT(1), Salpha(1), Sbeta(1)
+      type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)
       integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),
      &        iRC, NNLTD, istate, jstate, run,
      &        m(1), n(1), a
@@ -104,7 +104,7 @@
       call MKTDAB(SIJ,TRAD,TDMAB,iRC)
 !> transform to AO basis
       call MKTDZZ(CMO1,CMO2,TDMAB,TDMZZ,iRC)
-      call Allocate_DT(DLT,n,m,nSym,aCase='TRI')
+      call Allocate_DT(DLT(1),n,m,nSym,aCase='TRI')
 
       if (doexch) then
 ! for the exchange part we need the spin density
@@ -154,11 +154,11 @@
 ! fill DLT (=TDM in common basis in packed, lower trangular storage)
         do i=1,nbas_tot(1)
           do j=1,i-1
-            DLT%A00(max(i,j)*(max(i,j)-3)/2 + i + j) =
+            DLT(1)%A00(max(i,j)*(max(i,j)-3)/2 + i + j) =
      &        TDMZZ_new(nbas_tot(1)*(j-1)+i)
      &        + TDMZZ_new(nbas_tot(1)*(i-1)+j)
           end do
-          DLT%A00(j*(j-3)/2 + 2*j) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
+          DLT(1)%A00(j*(j-3)/2 + 2*j) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
         end do
 
       if (debug_rassi_code) then
@@ -171,7 +171,7 @@
         write(u6,*) 'TDMZZ:'
         k = int(sqrt(dble(nTDMZZ)))
         do i=1,k
-          write(u6,'(100E18.8)') (TDMZZ(i+(j-1)*k),j=1,k)
+          write(u6,'(100ES18.8)') (TDMZZ(i+(j-1)*k),j=1,k)
         end do
 
         write(u6,*) 'TDMZZ_new vector:'
@@ -183,19 +183,19 @@
         write(u6,*) 'TDMZZ_new:'
         k = nbas_tot(1)
         do i=1,k
-          write(u6,'(1000E18.8)') (TDMZZ_new(i+(j-1)*k),j=1,k)
+          write(u6,'(1000ES18.8)') (TDMZZ_new(i+(j-1)*k),j=1,k)
         end do
         write(u6,*) 'TDMZZ_mtx:'
         do i=1,k
-          write(u6,'(1000E18.8)') (TDMZZ_mtx(i,j),j=1,k)
+          write(u6,'(1000ES18.8)') (TDMZZ_mtx(i,j),j=1,k)
         end do
 
         write(u6,*) 'DLT:'
-        write(u6,*) DLT%A00(:)
+        write(u6,*) DLT(1)%A00(:)
         write(u6,*) 'DLT as mtx:'
         k = 0
         do i=1,nbas_tot(1)
-          write(u6,'(1000E18.8)')  (DLT%SB(1)%A1(j+k),j=1,i)
+          write(u6,'(1000ES18.8)')  (DLT(1)%SB(1)%A1(j+k),j=1,i)
           k=k+i
         end do
       endif
@@ -300,10 +300,10 @@
 ! fill DLT in packed lower triangular storage
         do i=1,nbas_tot(1)
           do j=1,i-1
-            DLT%A00(max(i,j)*(max(i,j)-3)/2 + i + j) =
+            DLT(1)%A00(max(i,j)*(max(i,j)-3)/2 + i + j) =
      & TDMZZ_new(nbas_tot(1)*(j-1)+i) + TDMZZ_new(nbas_tot(1)*(i-1)+j)
           end do
-          DLT%A00(j*(j-3)/2 + 2*j) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
+          DLT(1)%A00(j*(j-3)/2 + 2*j) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
         end do
 
         if (debug_rassi_code) then
@@ -315,7 +315,7 @@
           write(u6,*) 'TDMZZ:'
           a = int(sqrt(dble(nTDMZZ)))
           do i=1,a
-            write(u6,'(100E18.8)') (TDMZZ(i+(j-1)*a),j=1,a)
+            write(u6,'(100ES18.8)') (TDMZZ(i+(j-1)*a),j=1,a)
           end do
 
           write(u6,*) 'TDMZZ_new vector:'
@@ -327,16 +327,16 @@
           write(u6,*) 'TDMZZ_new:'
           a = nbas_tot(1)
           do i=1,a
-            write(u6,'(1000E18.8)') (TDMZZ_new(i+(j-1)*a),j=1,a)
+            write(u6,'(1000ES18.8)') (TDMZZ_new(i+(j-1)*a),j=1,a)
           end do
 
           write(u6,*) 'TDMZZ_mtx:'
           do i=1,a
-            write(u6,'(1000E18.8)') (TDMZZ_mtx(i,j),j=1,a)
+            write(u6,'(1000ES18.8)') (TDMZZ_mtx(i,j),j=1,a)
           end do
 
           write(u6,*) 'DLT:'
-          write(u6,*) DLT%A00(:)
+          write(u6,*) DLT(1)%A00(:)
         end if
 
 ! spin part
@@ -418,7 +418,7 @@
       ipNB=ISTATE*(ISTATE-1)/2+JSTATE
 
 ! calculate rho-nuc interaction (TDM with core potential)
-      eNucB(ipNB) = ddot_(NNLTD,DLT%A0,1,VNucB(1),1)
+      eNucB(ipNB) = ddot_(NNLTD,DLT(1)%A0,1,VNucB(1),1)
 
 ! change the RunFile to the one
 ! from bsse calculation to get the cholesky vectors
@@ -427,7 +427,7 @@
       call CHO_TRDENS(irc,DLT,Salpha(1),istate,jstate,
      &                iTyp,DoExch,LABB)
       call NameRun('#Pop')    ! switch back to old RUNFILE
-      call deallocate_DT(DLT)
+      call deallocate_DT(DLT(1))
       if (DOEXCH) then
         if(MLTPLT(1) == 1) then
           call deallocate_DT(Salpha(1))

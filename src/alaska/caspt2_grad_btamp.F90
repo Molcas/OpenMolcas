@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine CASPT2_BTAMP(iS,jS,kS,lS,nBasI,nBasJ,nBasK,nBasL,iOffAO,nBasT,nOcc,CMOPT2,WRK1,WRK2,G_toc)
+subroutine CASPT2_BTAMP(LuGAMMA,iS,jS,kS,lS,nBasI,nBasJ,nBasK,nBasL,iOffAO,nBasT,nOcc,CMOPT2,WRK1,WRK2,G_toc)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -19,11 +19,10 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nBasI, nBasJ, nBasK, nBasL, iOffAO(*), nBasT, nOcc
+integer(kind=iwp), intent(in) :: iS, jS, kS, lS, LuGAMMA, nBasI, nBasJ, nBasK, nBasL, iOffAO(*), nBasT, nOcc
 real(kind=wp), intent(in) :: CMOPT2(*)
 real(kind=wp), intent(_OUT_) :: WRK1(*), WRK2(*), G_toc(*)
 integer(kind=iwp) :: iBas, iBas0, iRec, jBas, jBas0, kBas, kBas0, lBas, lBas0, Loc
-integer(kind=iwp), parameter :: LuGamma = 60 ! this should not be hard-coded
 real(kind=wp), parameter :: SCAL = 0.125_wp
 
 ! Transform T_{ij}^{rho sigma} to T_{mu nu}^{rho sigma}

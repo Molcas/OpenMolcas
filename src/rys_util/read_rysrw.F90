@@ -155,7 +155,7 @@ close(lu_rysrw)
 
 return
 #ifdef _WARNING_WORKAROUND_
-if (.false.) call Unusued_real_array(Acc)
+if (.false.) call Unused_real_array(Acc)
 #endif
 
 end subroutine read_rysrw

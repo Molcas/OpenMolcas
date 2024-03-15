@@ -197,7 +197,7 @@ do
 
   dqdq = sqrt(DDot_(nInter,dq,1,dq,1))
 # ifdef _DEBUGPRINT_
-  write(Lu,'(I5,5(E12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
+  write(Lu,'(I5,5(ES12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
   !write(Lu,*) 'StepMax-dqdq=',StepMax-dqdq
   !write(Lu,*) 'Thr_RS=',Thr_RS
 # endif

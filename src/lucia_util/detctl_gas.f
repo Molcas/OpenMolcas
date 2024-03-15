@@ -8,7 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE DETCTL_GAS
+      SUBROUTINE DETCTL_GAS()
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use GLBBAS, only: SDREO_I, CONF_OCC, CONF_REO
+      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
+     &                        Allocate_Local_Arrays,
+     &                      Deallocate_Local_Arrays
+      use strbas
+      use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
+
 *
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
@@ -18,25 +26,19 @@
 #include "crun.fh"
 #include "cstate.fh"
 #include "cands.fh"
-!#include "cicisp.fh"
-      COMMON/CICISP/IDUMMY,NICISP,
-     &              NELCI(MXPICI),
-     &              XISPSM(MXPCSM,MXPICI),
-     &              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,
-     &              NBLKIC(MXPCSM,MXPICI),LCOLIC(MXPCSM,MXPICI),
-     &              MXNTTS,MXSOOB_AS
+#include "cicisp.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "spinfo_lucia.fh"
-#include "glbbas.fh"
 #include "strinp.fh"
-#include "WrkSpc.fh"
 #include "lucinp.fh"
-#include "rasscf_lucia.fh"
 
       INTEGER IOCCLS(1),IBASSPC(1)
+      Integer, Allocatable:: LCIOIO(:)
+      Integer, Allocatable:: SVST(:)
+      Integer, Allocatable:: BASSPC(:)
+      Integer, Allocatable:: KLOCCLS(:)
 
 *. Set variables in cands.fh
       JSYM = IREFSM
@@ -53,26 +55,18 @@
       IBASSPC(1)=0
       CALL OCCLS(1,NOCCLS,IOCCLS,NEL,NGAS,
      &     IGSOCC(1,1),IGSOCC(1,2),0,IBASSPC,NOBPT)
-* store the value in a global variable for later use to free the
-* KLOCCLS array. I had to rename it because otherwise it conflicts
-* with other local use of NOCCLS in other routines that include the
-* same header file
-      NOCCLS_G=NOCCLS
 *. and then the occupation classes
-      CALL GETMEM('KLOCCL','ALLO','INTE',KLOCCLS,NGAS*NOCCLS)
-      CALL GETMEM('BASSPC','ALLO','INTE',KLBASSPC,NOCCLS)
-      CALL OCCLS(2,NOCCLS,iWORK(KLOCCLS),NEL,NGAS,
-     &     IGSOCC(1,1),IGSOCC(1,2),1,iWORK(KLBASSPC),NOBPT)
-      CALL GETMEM('BASSPC','FREE','INTE',KLBASSPC,NOCCLS)
+      CALL mma_allocate(KLOCCLS,NGAS*NOCCLS,Label='KLOCCLS')
+      CALL mma_allocate(BASSPC,NOCCLS,Label='BASSPC')
+      CALL OCCLS(2,NOCCLS,KLOCCLS,NEL,NGAS,
+     &     IGSOCC(1,1),IGSOCC(1,2),1,BASSPC,NOBPT)
+      CALL mma_deallocate(BASSPC)
 C     END IF
       IF(NOCSF.EQ.0) THEN
 *. Initial information on CSF expansion
-C??         WRITE(6,*) ' CSFDIM_GAS will be called '
-         CALL CSFDIM_GAS(IWORK(KLOCCLS),NOCCLS,JSYM,IPRCIX)
-C            CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCIX)
+         CALL CSFDIM_GAS(KLOCCLS,NOCCLS,JSYM,IPRCIX)
 *. Prototype dets and csf's and CSF'SD matrices
-C            CSDTMT_GAS(IPDTCNF,IPCSCNF,DTOC,IPRCSF)
-         CALL CSDTMT_GAS(iWORK(KDFTP),iWORK(KCFTP),WORK(KDTOC),IPRCIX)
+         CALL CSDTMT_GAS(IPRCIX)
       END  IF
 *. Allocate memory for diagonalization
 c      IF(ISIMSYM.EQ.0) THEN
@@ -93,44 +87,34 @@ c      END IF
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
       NTTS = MXNTTS
-C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
-      CALL GETMEM('CLBT  ','ALLO','INTE',KLCLBT ,NTTS  )
-      CALL GETMEM('CLEBT ','ALLO','INTE',KLCLEBT ,NTTS  )
-      CALL GETMEM('CI1BT ','ALLO','INTE',KLCI1BT,NTTS  )
-      CALL GETMEM('CIBT  ','ALLO','INTE',KLCIBT ,8*NTTS)
+      Call Allocate_Local_Arrays(NTTS,NSMST)
 *. Additional info required to construct partitioning
 *
+      Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
 *
-      CALL GETMEM('CIOIO ','ALLO','INTE',KLCIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('CBLTP ','ALLO','INTE',KLCBLTP,NSMST)
-*
-      CALL IAIBCM(ICSPC,iWORK(KLCIOIO))
-*. option KSVST not active so
-      KSVST = 1
-      CALL ZBLTP(ISMOST(1,jsym),NSMST,IDC,iWORK(KLCBLTP),iWORK(KSVST))
+      CALL IAIBCM(ICSPC,LCIOIO)
+      Call mma_allocate(SVST,1,Label='SVST')
+      CALL ZBLTP(ISMOST(1,jsym),NSMST,IDC,CBLTP,SVST)
+      Call mma_deallocate(SVST)
 *
 *. Batches  of C vector
-      CALL PART_CIV2(IDC,iWORK(KLCBLTP),iWORK(KNSTSO(IATP)),
-     &     iWORK(KNSTSO(IBTP)),
-     &     NOCTPA,NOCTPB,NSMST,LBLOCK,iWORK(KLCIOIO),
+      CALL PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,
+     &     NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,
      &     ISMOST(1,jsym),
-     &     NBATCH,iWORK(KLCLBT),iWORK(KLCLEBT),
-     &     iWORK(KLCI1BT),iWORK(KLCIBT),0,ISIMSYM)
+     &     NBATCH,CLBT,CLEBT,
+     &     CI1BT,CIBT,0,ISIMSYM)
 *. Number of BLOCKS
-      NBLOCK = IFRMR(IWORK(KLCI1BT),1,NBATCH)
-     &     + IFRMR(IWORK(KLCLBT),1,NBATCH) - 1
+      NBLOCK = IFRMR(CI1BT,1,NBATCH)
+     &     + IFRMR(CLBT,1,NBATCH) - 1
 *. Length of each block
-      CALL EXTRROW(iWORK(KLCIBT),8,8,NBLOCK,iWORK(KLCI1BT))
+      CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
       IF (NEL .GT. 0)
-     &   CALL CNFORD_GAS(IWORK(KLOCCLS), NOCCLS, jsym, PSSIGN, IPRCIX,
-     &       IWORK(KICONF_OCC(jsym)), IWORK(KICONF_REO(jsym)),
-     &       IWORK(KSDREO_I(jsym)),
-     &       IWORK(KLCIBT), NBLOCK)
+     &   CALL CNFORD_GAS(KLOCCLS, NOCCLS, jsym, PSSIGN, IPRCIX,
+     &       CONF_OCC(JSYM)%I, CONF_REO(jsym)%I,
+     &       SDREO_I(jsym)%I,
+     &       CIBT, NBLOCK)
 *
-      CALL GETMEM('CLBT  ','FREE','INTE',KLCLBT ,NTTS  )
-      CALL GETMEM('CLEBT ','FREE','INTE',KLCLEBT ,NTTS  )
-      CALL GETMEM('CI1BT ','FREE','INTE',KLCI1BT,NTTS  )
-      CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*NTTS)
+      Call Deallocate_Local_Arrays()
 *. If PICO2/SBLOCK are used, three blocks are used in PICO2, so
 *...
 *. Sblock is used in general nowadays so,
@@ -151,20 +135,20 @@ C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-         MAXA1 = IMNMX(IWORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+         MAXA1 = IMNMX(NSTSO(IATPM1)%I,NSMST*NOCTYP(IATPM1),2)
          MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-         MAXA1 = IMNMX(IWORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+         MAXA1 = IMNMX(NSTSO(IATPM2)%I,NSMST*NOCTYP(IATPM2),2)
          MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-         MAXB1 = IMNMX(IWORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+         MAXB1 = IMNMX(NSTSO(IBTPM1)%I,NSMST*NOCTYP(IBTPM1),2)
          MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-         MAXB1 = IMNMX(IWORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+         MAXB1 = IMNMX(NSTSO(IBTPM2)%I,NSMST*NOCTYP(IBTPM2),2)
          MAXB = MAX(MAXB,MAXB1)
       END IF
 *
@@ -182,13 +166,16 @@ C??      WRITE(6,*) ' DETCTL : NTTS = ', NTTS
 *. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
-      CALL MXRESCPH(iWORK(KLCIOIO),IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+      CALL MXRESCPH(LCIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &        NSMST,NSTFSMSPGP,MXPNSMST,
      &        NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,
      &        NELFSPGP,
      &        MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,
      &        IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,
      &        MXADKBLK_AS,MX_NSPII)
+
+      Call mma_deallocate(LCIOIO)
+
       IF(IPRCIX.GE.2) THEN
          WRITE(6,*) 'DETCTL : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',
      &           MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
@@ -245,22 +232,18 @@ c      IF(ISIMSYM.EQ.0) THEN
          MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA + 4*MAX_STR_SPGP
 c      END IF
 *
-      KDTOC_POINTER  = KDTOC
-      KSDREO_POINTER = KSDREO_I(jsym)
-      CALL LUCIA2MOLCAS(kdftp,kcftp,kdtoc,
-     &     iwork(kiconf_occ(jsym)),iwork(KSDREO_I(jsym)),
+      CALL LUCIA2MOLCAS(
+     &     CONF_OCC(jsym)%I,SDREO_I(jsym)%I,
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
      &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
-     &     KICTS_POINTER,
      &     nCSF_HEXS)
 
-      CALL GETMEM('CIOIO ','FREE','INTE',KLCIOIO,NOCTPA*NOCTPB)
-      CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
+      CALL mma_deallocate(KLOCCLS)
 
-      RETURN
-      END
+      END SUBROUTINE DETCTL_GAS
 *
-      SUBROUTINE DETCTL_FREE
+      SUBROUTINE DETCTL_FREE()
+      use strbas
       IMPLICIT REAL*8 (A-H, O-Z)
 #include "mxpdim.fh"
 #include "gasstr.fh"
@@ -272,20 +255,15 @@ c      END IF
 #include "cicisp.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
-#include "strbas.fh"
 #include "csm.fh"
 #include "spinfo_lucia.fh"
-#include "glbbas.fh"
 #include "strinp.fh"
-#include "WrkSpc.fh"
 #include "lucinp.fh"
-#include "rasscf_lucia.fh"
 
-      CALL GETMEM('KLOCCL','FREE','INTE',KLOCCLS,NGAS*NOCCLS_G)
 
       JSYM = IREFSM
       CALL CSFDIM_FREE(JSYM)
 
-      CALL LUCIA2MOLCAS_FREE
+      CALL LUCIA2MOLCAS_FREE()
 
-      END
+      END SUBROUTINE DETCTL_FREE

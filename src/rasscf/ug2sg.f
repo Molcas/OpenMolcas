@@ -26,6 +26,8 @@ C              AND ISGNUM WHICH COMPUTES THE THE PHASE FACTOR
 C              INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
+      use gugx, only:  DRT,  DOWN,  UP,  RAW,  DAW,  LSGN, USGN,
+     &                 NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -33,8 +35,6 @@ C
 #include "strnum.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "gugx.fh"
-#include "WrkSpc.fh"
 C
       DIMENSION ICONF(*),ISPIN(*)
       DIMENSION IORD(*)
@@ -42,6 +42,7 @@ C
 C
       DIMENSION IWALK(mxAct)
       DIMENSION KCNF(mxAct)
+      Integer, External:: IPHASE
 C
 C     JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 C     NUMBERS IN THE SYMMETRIC GROUP NUMBERING
@@ -117,12 +118,11 @@ C     COMPUTE STEP VECTOR
      &                   ISPIN(ICSBAS),NORB,IWALK)
 CPAM04 End of replacement code.
 C     GET SPLIT GRAPH ORDERING NUMBER
-            ISG=ISGNUM(IWORK(LDOWN),IWORK(LUP),
-     &                 IWORK(LDAW),IWORK(LRAW),
-     &                 IWORK(LUSGN),IWORK(LLSGN),
-     &                 IWALK)
+            ISG=ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,
+     &                 DOWN,UP,DAW,RAW,USGN,LSGN,IWALK)
+
 C     GET PHASE PHASE FACTOR
-            IP=IPHASE(IWORK(LDRT),IWORK(LUP),IWALK)
+            IP=IPHASE(NLEV,NVERT,DRT,UP,IWALK)
 C     UPDATE REINDEXING TABLE
            IORD(ICSFJP) = ISG * IP
 800       CONTINUE

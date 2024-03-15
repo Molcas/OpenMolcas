@@ -177,7 +177,7 @@ module InputData
     ! SADREF    use state-averaged density even for SS-CASPT2 with
     !           SA-CASSCF reference and MS-CASPT2 (not XMS)
     Logical :: SADREF = .False.
-    ! DORT      use the conventional orthonormalization for generating
+    ! DORT      use the conventional (canonical) orthonormalization for generating
     !           internally contracted basis, rather than scaled (?)
     !           procedure by the diagonal element. This option is
     !           'sometimes' needed for analytic gradient.
@@ -186,7 +186,9 @@ module InputData
     !           orbital rotations. This is automatically set for
     !           the case with IPEA shift. Otherwise, just for debug
     !           purpose
-    ! Logical :: INVAR  = .True.
+    Logical :: INVAR  = .True.
+    ! CVIN      Convergence threshold for non-invariant CASPT2 equation
+    Real(kind=wp) :: ThrConvInvar = 1.0e-07_wp
     ! GRDT      used for single-point gradient calculation
     Logical :: GRDT = .False.
     ! NAC       compute NAC or interstate coupling vectors
@@ -194,6 +196,9 @@ module InputData
     Integer :: iNACRoot1=0, iNACRoot2=0
     ! CSF       compute CSF contributions in derivative coupling
     Logical :: CSF = .False.
+    ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
+    !           and secondary orbital rotations. Development purpose
+    Logical :: IAINVAR  = .True.
 
   end type ! end of type InputTable
 
@@ -666,9 +671,16 @@ contains
 
       case('DORT')
         Input%DORTHO = .true.
+      case('CORT') !! it is actually the canonical orthonormalization
+        Input%DORTHO = .true.
 
-      ! case('INVA')
-      ! Input%INVAR = .false.
+      case('INVA')
+        Input%INVAR = .false.
+
+      case('CVIN')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%ThrConvInvar
+        if (iError /= 0) call IOError(Line)
 
       case('GRDT')
         Input%GRDT  = .true.
@@ -691,6 +703,9 @@ contains
 
       Case('CSF ')
         Input%CSF = .true.
+
+      Case('IAIN')
+        Input%IAINVAR = .false.
 
         ! OBSOLETE KEYWORDS
 

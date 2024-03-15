@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       FUNCTION GETH1E(IORB,ITP,ISM,JORB,JTP,JSM)
+      use GLBBAS, only: INT1, PINT1, PGINT1, PGINT1A
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
@@ -17,8 +18,6 @@
 * total symmetry of the operator
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-#include "WrkSpc.fh"
-#include "glbbas.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "multd2h.fh"
@@ -32,19 +31,18 @@
         IF(IJSM.EQ.1) THEN
 C?        WRITE(6,*) ' GETH1E, old route '
           GETH1E =
-     &    GTH1ES(IREOTS,iWORK(KPINT1),WORK(KINT1),IBSO,MXPNGAS,
+     &    GTH1ES(IREOTS,PINT1,INT1,IBSO,MXPNGAS,
      &              IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)
         ELSE
           GETH1E =
-     &    GTH1ES(IREOTS,iWORK(KPGINT1(IJSM)),WORK(KINT1),IBSO,MXPNGAS,
+     &    GTH1ES(IREOTS,PGINT1(IJSM)%I,INT1,IBSO,MXPNGAS,
      &              IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)
         END IF
       ELSE
 *. Integrals are in full blocked form
         GETH1E =
-     &  GTH1ES(IREOTS,iWORK(KPGINT1A(IJSM)),WORK(KINT1),IBSO,MXPNGAS,
+     &  GTH1ES(IREOTS,PGINT1A(IJSM)%I,INT1,IBSO,MXPNGAS,
      &         IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,0)
       END IF
 *
-      RETURN
       END

@@ -213,10 +213,10 @@ call Cho_Head('MO Vector Backtransformation Check','=',80,u6)
 write(u6,'(/,2X,A,/,2X,A)') 'Symmetry  Min. Abs. Error  Max. Abs. Error    Average Error       RMS Error', &
                             '----------------------------------------------------------------------------'
 do iSym=1,nSym
-  write(u6,'(4X,I2,4X,1P,4(3X,D14.6))') iSym,(Err(i,iSym),i=1,4)
+  write(u6,'(4X,I2,4X,4(3X,ES14.6))') iSym,(Err(i,iSym),i=1,4)
 end do
 write(u6,'(2X,A)') '----------------------------------------------------------------------------'
-write(u6,'(2X,A,2X,1P,4(3X,D14.6))') 'Total:',AbsMinErr,AbsMaxErr,AvgErr,RMSErr
+write(u6,'(2X,A,2X,4(3X,ES14.6))') 'Total:',AbsMinErr,AbsMaxErr,AvgErr,RMSErr
 write(u6,'(2X,A,/)') '----------------------------------------------------------------------------'
 
 ! Free memory.

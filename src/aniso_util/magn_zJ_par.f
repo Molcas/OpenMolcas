@@ -146,7 +146,7 @@ c start calculations:
 !        --------------------------------------------------------------
 !        here  we have the value of the averaged spin for this temperature
 !        proceed with the computation of magnetism for this temperature
-         If(DBG) Write(6,'(A,3E13.5)')
+         If(DBG) Write(6,'(A,3ES13.5)')
      &                 'Average spin finished. ST on entrance to '//
      &                 'last ZEEM:',(ST(i),i=1,3)
          Call dcopy_(exch,[0.0_wp],0,WM,1)

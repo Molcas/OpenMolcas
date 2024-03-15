@@ -23,6 +23,8 @@
      &                           CJRES,  SIRES,   NORB, NTESTG, SCLFAC,
 *
      &                         S2_TERM1, IPACK)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      USE Para_Info, ONLY: MyRank, nProcs
 *
 * SUBROUTINE GSBBD2B_LUCIA --> 52
 *
@@ -78,9 +80,7 @@
 *
 *
 *
-      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "WrkSpc.fh"
 #include "loff.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
@@ -99,6 +99,7 @@
       DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
 
       DIMENSION IAOC(*),JAOC(*),IBOC(*),JBOC(*)
+      Real*8, Allocatable:: OFFI(:)
 *
 
       NTESTL = 000
@@ -117,7 +118,7 @@
 *. Symmetry of allowed excitations
       IJSM = STSTSX(IASM,JASM)
       KLSM = STSTSX(IBSM,JBSM)
-      IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
+      IF(IJSM.EQ.0.OR.KLSM.EQ.0) RETURN
       IF(NTEST.GE.600) THEN
         write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
         write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
@@ -127,12 +128,12 @@
      &                    JBOC)
       CALL SXTYP_GAS(   NIJTYP,      ITP,      JTP,     NGAS,     IAOC,
      &                    JAOC)
-      IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
+      IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) RETURN
 * Repeated allocation/deallocation inside ADSTN_GAS has been
-* outerlooped to here. KLOFFI added to call parameters of
+* outerlooped to here. OFFI added to call parameters of
 * ADSTN_GAS. PAM March 2006.
-      CALL GETMEM('KLOFFI','ALLO','REAL',KLOFFI,LOFFI)
-      Call FZero(Work(KLOFFI),LOFFI)
+      Call mma_allocate(OFFI,lOFFI,Label='OFFI')
+      OFFI(:)=0.0D0
 
       DO 2001 IJTYP = 1, NIJTYP
         ITYP = ITP(IJTYP)
@@ -149,13 +150,13 @@
           IF(NI.EQ.0.OR.NJ.EQ.0) GOTO 1940
 *. Generate annihilation mappings for all Ka strings
 *. a+j!ka> = +/-/0 * !Ja>
-          CALL ADSTN_GAS(  KLOFFI,     JSM,    JTYP,    JATP,    JASM,
+          CALL ADSTN_GAS(OFFI,     JSM,    JTYP,    JATP,    JASM,
      &                      IAGRP,      I1,    XI1S,  NKASTR,    IEND,
      &                      IFRST,   KFRST,    KACT,  SCLFAC)
           IF (NKASTR.EQ.0) GOTO 1940
 *. a+i!ka> = +/-/0 * !Ia>
           ONE    = 1.0D0
-          CALL ADSTN_GAS(  KLOFFI,     ISM,    ITYP,    IATP,    IASM,
+          CALL ADSTN_GAS(OFFI,     ISM,    ITYP,    IATP,    IASM,
      &                      IAGRP,      I3,    XI3S,  NKASTR,    IEND,
      &                      IFRST,   KFRST,    KACT,  ONE   )
           IF (NKASTR.EQ.0) GOTO 1940
@@ -222,12 +223,12 @@ C             COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
                 IF(NK.EQ.0.OR.NL.EQ.0) GOTO 1930
 *. Obtain all connections a+l!Kb> = +/-/0!Jb>
                 ONE = 1.0D0
-                CALL ADSTN_GAS( KLOFFI,    LSM,   LTYP,   JBTP,   JBSM,
+                CALL ADSTN_GAS(OFFI,    LSM,   LTYP,   JBTP,   JBSM,
      &                           IBGRP,     I2,   XI2S, NKBSTR,   IEND,
      &                           IFRST,  KFRST,   KACT, ONE   )
                 IF(NKBSTR.EQ.0) GOTO 1930
 *. Obtain all connections a+k!Kb> = +/-/0!Ib>
-                CALL ADSTN_GAS( KLOFFI,    KSM,   KTYP,   IBTP,   IBSM,
+                CALL ADSTN_GAS(OFFI,    KSM,   KTYP,   IBTP,   IBSM,
      &                           IBGRP,     I4,   XI4S, NKBSTR,   IEND,
      &                           IFRST,  KFRST,   KACT,    ONE)
                 IF(NKBSTR.EQ.0) GOTO 1930
@@ -272,10 +273,7 @@ C             COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
  1940   CONTINUE
  2001 CONTINUE
 * This 'flush' outerlooped here. Was previously inside ADSTN_GAS.
-      CALL GETMEM('KLOFFI','FREE','REAL',KLOFFI,LOFFI)
-*
- 9999 CONTINUE
-*
+      Call mma_deallocate(OFFI)
 *
       RETURN
 c Avoid unused argument warnings

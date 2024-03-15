@@ -20,7 +20,7 @@ character(len=*), intent(inout) :: TITLE
 integer(kind=iwp) :: I, IBAS, IORB, ISYM, KCMO, KOCC, NDIV
 character(len=40) :: FRMT
 
-FRMT = '(4E20.12)'
+FRMT = '(4ES20.12)'
 ! REWIND (LU)
 KCMO = 0
 NDIV = 4

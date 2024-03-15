@@ -11,7 +11,6 @@
       SUBROUTINE EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       USE RASSI_aux
       USE kVectors
-      use rassi_aux, only: ipglob
       USE rassi_global_arrays, only: JBNUM
       USE do_grid, only: Do_Lebedev_Sym
       use frenkel_global_vars, only: iTyp
@@ -2325,7 +2324,7 @@ C                                                                      C
           EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
           IF (F.GT.1.0D-36) THEN
            IF (EDIFF.GT.0.0D0) THEN
-            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',
+            WRITE(6,'(A,I8,I8,F15.3,ES22.5)') '    ',
      &       I,J,EDIFF,F
            END IF
           END IF
@@ -3082,7 +3081,7 @@ C                 Why do it when we don't do the L.S-term!
       end if
       Call mma_DeAllocate(IndexE)
 
-222    FORMAT (5X,2(1X,I4),5X,3(1X,E18.8))
+222    FORMAT (5X,2(1X,I4),5X,3(1X,ES18.8))
 30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)
 32    FORMAT (5X,95('-'))

@@ -53,10 +53,10 @@ Err(3) = Stat(1)
 Err(4) = sqrt(dDot_(nnBstRT(1),Diag,1,Diag,1)/real(nnBstRT(1),kind=wp))
 
 if (DoPrint) then
-  write(u6,'(/,1X,A,1P,D15.6)') 'Minimum error   : ',Err(1)
-  write(u6,'(1X,A,1P,D15.6)') 'Maximum error   : ',Err(2)
-  write(u6,'(1X,A,1P,D15.6)') 'Average error   : ',Err(3)
-  write(u6,'(1X,A,1P,D15.6)') 'RMS error       : ',Err(4)
+  write(u6,'(/,1X,A,ES15.6)') 'Minimum error   : ',Err(1)
+  write(u6,'(1X,A,ES15.6)') 'Maximum error   : ',Err(2)
+  write(u6,'(1X,A,ES15.6)') 'Average error   : ',Err(3)
+  write(u6,'(1X,A,ES15.6)') 'RMS error       : ',Err(4)
 end if
 
 return

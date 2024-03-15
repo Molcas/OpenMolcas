@@ -77,6 +77,7 @@ character(len=8) :: Method_chk
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: Shij(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 logical(kind=iwp), external :: Rsv_Tsk
 
 !                                                                      *
@@ -264,8 +265,9 @@ if (Method_chk == 'CASPT2  ') then
   !call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
   !read(LuCMOPT2) A_PT2(1:nBasASQ,1)
   !close(LuCMOPT2)
+
   ! Read A_PT2 from LUAPT2
-  LUAPT2 = 77
+  LuAPT2 = isFreeUnit(68)
   call daname_mf_wa(LUAPT2,'A_PT2')
   id = 0
   call ddafile(LUAPT2,2,A_PT2,nBasASq,id)

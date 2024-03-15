@@ -11,6 +11,7 @@
 * Copyright (C) 1993,1995, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
+      use strbas
 *
 * an input  supergroup is given.
 * apply an string of elementary operators to this supergroup and
@@ -36,17 +37,15 @@
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
 #include "cgas.fh"
-#include "strbas.fh"
-#include "WrkSpc.fh"
 *. Input
       INTEGER INSPGP,IACOP,ITPOP
 *. output
       INTEGER OUTSPGP
 *
       IF(IACOP.EQ.1) THEN
-        OUTSPGP = IWORK(KSPGPAN+ITPOP-1+NGAS*(INSPGP-1))
+        OUTSPGP = SPGPAN(ITPOP+NGAS*(INSPGP-1))
       ELSE
-        OUTSPGP = IWORK(KSPGPCR+ITPOP-1+NGAS*(INSPGP-1))
+        OUTSPGP = SPGPCR(ITPOP+NGAS*(INSPGP-1))
       END IF
 *
       RETURN

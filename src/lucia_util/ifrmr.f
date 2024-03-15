@@ -8,18 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION IFRMR(WORK,IROFF,IELMNT)
+      FUNCTION IFRMR(iArray,IROFF,IELMNT)
 *
-* An integer array is stored in real array WORK,
-* starting from WORK(IROFF). Obtain element
+* An integer array is stored in real array iArray,
+* starting from iArray(IROFF). Obtain element
 * IELMNT of this array
 *
-      INTEGER WORK(*)
+      INTEGER iArray(*)
 *
 #include "irat.fh"
-*. offset when work is integer array
+*. offset when iArray is integer array
       IIOFF = 1 + IRAT * (IROFF-1)
-      IFRMR = WORK(IIOFF-1+IELMNT)
+      IFRMR = iArray(IIOFF-1+IELMNT)
 *
       RETURN
       END

@@ -67,7 +67,7 @@
       use general_data, only : nSym, mXSym,
      &  nDel, nBas, nOrb,
      &  nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld,
-     &  JobIph, nSSH, maxbfn, mXAct
+     &  JobIph, nSSH, maxbfn
       use casvb_global, only: ifvb
 
       use orthonormalization, only : t_ON_scheme, ON_scheme_values,
@@ -77,6 +77,8 @@
       use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset,
      &               mh5_close_file
 #endif
+!     See comment below why this is commented out.
+!     use sxci, only: IDXCI, IDXSX
 
       implicit none
 
@@ -87,8 +89,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "warnings.h"
-#include "wadr.fh"
-#include "sxci.fh"
 
       real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
       type(t_ON_scheme), intent(in) :: scheme

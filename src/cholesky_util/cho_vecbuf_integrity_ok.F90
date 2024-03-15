@@ -46,10 +46,10 @@ if (allocated(CHVBUF) .and. allocated(CHVBFI) .and. allocated(nDimRS)) then
           nErr = nErr+1
           if (Report) then
             write(LuPri,'(A,I7,A,I2,A,I9)') 'Buffer corrupted: vector',jVec,' sym.',iSym,' dim.',n
-            write(LuPri,'(3X,1P,3(A,D25.16))') 'Norm=',Nrm,' Reference=',CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec),' Diff=', &
-                                               Nrm-CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec)
-            write(LuPri,'(3X,1P,3(A,D25.16))') 'Sum= ',Sm,' Reference=',CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec),' Diff=', &
-                                               Sm-CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec)
+            write(LuPri,'(3X,3(A,ES25.16))') 'Norm=',Nrm,' Reference=',CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec),' Diff=', &
+                                                Nrm-CHVBFI(1,ip_ChVBfI_Sym(iSym)+jVec)
+            write(LuPri,'(3X,3(A,ES25.16))') 'Sum= ',Sm,' Reference=',CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec),' Diff=', &
+                                                Sm-CHVBFI(2,ip_ChVBfI_Sym(iSym)+jVec)
           end if
         end if
         ipV = ipV+n
@@ -59,9 +59,9 @@ if (allocated(CHVBUF) .and. allocated(CHVBFI) .and. allocated(nDimRS)) then
 end if
 if (Report) then
   if (nErr /= 0) then
-    write(LuPri,'(A,I7,A,1P,D25.16)') 'Buffer corrupted for ',nErr,' vectors. Tolerance=',Tol
+    write(LuPri,'(A,I7,A,ES25.16)') 'Buffer corrupted for ',nErr,' vectors. Tolerance=',Tol
   else
-    write(LuPri,'(A,1P,D25.16)') 'Buffer integrity OK. Tolerance=',Tol
+    write(LuPri,'(A,ES25.16)') 'Buffer integrity OK. Tolerance=',Tol
   end if
 end if
 Cho_VecBuf_Integrity_OK = nErr == 0

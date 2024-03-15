@@ -35,7 +35,9 @@ if (inputmode == 2) then
   firsttime_cvb = ((joptstep == ioptstep-1) .or. ((ioptstep == 0) .and. (joptstep == 0))) .or. &
                   ((joptstep == ioptstep) .and. begbracket)
 
-  if ((ioptim > 1) .and. (iopt2step(ioptim) == iopt2step(ioptim-1))) firsttime_cvb = .false.
+  if (ioptim > 1) then
+     if (iopt2step(ioptim) == iopt2step(ioptim-1)) firsttime_cvb = .false.
+  endif
 
   if (istkprobe_cvb(istackrep)) then
     call istkpop_cvb(istackrep,nc_zeroed_l)

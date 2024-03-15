@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CSFDET_LUCIA(  NOPEN,   IDET,   NDET,   ICSF,   NCSF,
-     &                            CDC,   WORK, PSSIGN, IPRCSF)
+     &                            CDC,   SCR, nSCR, PSSIGN, IPRCSF)
 *
 * Expand csf's in terms of combinations with
 * the use of the Graebenstetter method ( I.J.Q.C.10,P142(1976) )
@@ -25,7 +25,7 @@
 *                GIVING EXPANSION FROM COMB'S TO CSF,S
 *                CSF BASIS = Comb basis *CDC
 * Scratch :
-*          WORK ,SHOULD AT LEAST BE ???
+*          SCR ,SHOULD AT LEAST BE ???
 *
 * If combinations are use ( signaled by PSSIGN .ne. 0 )
 * the factors are multiplies with sqrt(2), corresponding to
@@ -33,9 +33,10 @@
 * determinants
 *
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IDET(NOPEN,NDET),ICSF(NOPEN,NCSF)
-      DIMENSION CDC(NDET,NCSF)
-      DIMENSION WORK(*)
+      Integer nOpen, nDet, nCSF, nSCR
+      Integer IDET(NOPEN,NDET),ICSF(NOPEN,NCSF)
+      Real*8 CDC(NDET,NCSF)
+      Real*8 SCR(nSCR)
 
       NTEST = 0
       NTEST = MAX(IPRCSF,NTEST)
@@ -53,7 +54,7 @@ C
 C
 C.. OBTAIN INTERMEDIATE VALUES OF MS FOR ALL DETERMINANTS
       DO 10 JDET = 1, NDET
-        CALL MSSTRN_LUCIA(IDET(1,JDET),WORK(KLMDET+(JDET-1)*NOPEN),
+        CALL MSSTRN_LUCIA(IDET(1,JDET),SCR(KLMDET+(JDET-1)*NOPEN),
      &        NOPEN,IPRCSF)
    10 CONTINUE
 C
@@ -61,7 +62,7 @@ C
        IF( NTEST .GE. 105 ) WRITE(6,*) ' ....Output for CSF ',JCSF
 C
 C OBTAIN INTERMEDIATE COUPLINGS FOR CSF
-      CALL MSSTRN_LUCIA(ICSF(1,JCSF),WORK(KLSCSF),NOPEN,IPRCSF)
+      CALL MSSTRN_LUCIA(ICSF(1,JCSF),SCR(KLSCSF),NOPEN,IPRCSF)
 C
       DO 900 JDET = 1, NDET
 C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
@@ -73,24 +74,24 @@ C
 C + + CASE
         IF(ICSF(IOPEN,JCSF).EQ.1.AND.IDET(IOPEN,JDET).EQ.1) THEN
           COEF = COEF *
-     &    (WORK(KLSCSF-1+IOPEN)+WORK(KLMDET-1+JDADD+IOPEN) )
-     &    /(2.0D0*WORK(KLSCSF-1+IOPEN) )
+     &    (SCR(KLSCSF-1+IOPEN)+SCR(KLMDET-1+JDADD+IOPEN) )
+     &    /(2.0D0*SCR(KLSCSF-1+IOPEN) )
         ELSE IF(ICSF(IOPEN,JCSF).EQ.1.AND.IDET(IOPEN,JDET).EQ.0) THEN
 C + - CASE
           COEF = COEF *
-     &    (WORK(KLSCSF-1+IOPEN)-WORK(KLMDET-1+JDADD+IOPEN) )
-     &    /(2.0D0*WORK(KLSCSF-1+IOPEN) )
+     &    (SCR(KLSCSF-1+IOPEN)-SCR(KLMDET-1+JDADD+IOPEN) )
+     &    /(2.0D0*SCR(KLSCSF-1+IOPEN) )
         ELSE IF(ICSF(IOPEN,JCSF).EQ.0.AND.IDET(IOPEN,JDET).EQ.1) THEN
 C - + CASE
           COEF = COEF *
-     &    (WORK(KLSCSF-1+IOPEN)-WORK(KLMDET-1+JDADD+IOPEN) +1.0D0)
-     &    /(2.0D0*WORK(KLSCSF-1+IOPEN)+2.0D0 )
+     &    (SCR(KLSCSF-1+IOPEN)-SCR(KLMDET-1+JDADD+IOPEN) +1.0D0)
+     &    /(2.0D0*SCR(KLSCSF-1+IOPEN)+2.0D0 )
           SIGN  = - SIGN
         ELSE IF(ICSF(IOPEN,JCSF).EQ.0.AND.IDET(IOPEN,JDET).EQ.0) THEN
 C - - CASE
           COEF = COEF *
-     &    (WORK(KLSCSF-1+IOPEN)+WORK(KLMDET-1+JDADD+IOPEN) +1.0D0)
-     &    /(2.0D0*WORK(KLSCSF-1+IOPEN)+2.0D0 )
+     &    (SCR(KLSCSF-1+IOPEN)+SCR(KLMDET-1+JDADD+IOPEN) +1.0D0)
+     &    /(2.0D0*SCR(KLSCSF-1+IOPEN)+2.0D0 )
         END IF
   700 CONTINUE
        CDC(JDET,JCSF) = SIGN * CMBFAC * SQRT(COEF)

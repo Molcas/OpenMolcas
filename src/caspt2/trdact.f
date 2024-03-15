@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDACT(IVEC,JVEC,DTU)
+      use gugx, only: NLEV, ISM
       IMPLICIT NONE
 
 #include "rasdim.fh"

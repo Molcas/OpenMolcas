@@ -78,7 +78,7 @@ if (l_Z < 0) then
   if (xl_Z > Zero) then
     write(LuPri,'(A)') 'This seems to be an integer overflow!'
     call Cho_RWord2Byte(xl_Z,Byte,Unt)
-    write(LuPri,'(A,1P,D15.6,A,D15.6,1X,A,A)') 'In double precision, xl_Z=',xl_Z,' words (',Byte,Unt,')'
+    write(LuPri,'(A,ES15.6,A,ES15.6,1X,A,A)') 'In double precision, xl_Z=',xl_Z,' words (',Byte,Unt,')'
   end if
   irc = 1
   return

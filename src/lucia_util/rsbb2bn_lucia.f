@@ -342,19 +342,14 @@ c              END IF
                 IF(NK.EQ.0.OR.NL.EQ.0) GOTO 1930
 *. Obtain all connections a+l!Kb> = +/-/0!Jb>
 *. currently we are using creation mappings for kl
-*. (Modify to use ADAST later )
                 CALL ADAST_GAS(KL_SYM(2),KL_TYP(2),NGAS,JBSPGP,  JBSM,
      &                              I2,   XI2S, NKBSTR,   IEND,  IFRST,
      &                           KFRST,   KACT, SIGNKL,   KLAC)
-C               CALL ADSTN_GAS(LSM,LTYP,JBTP,JBSM,IBGRP,
-C    &               I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE   )
                 IF(NKBSTR.EQ.0) GOTO 1930
 *. Obtain all connections a+k!Kb> = +/-/0!Ib>
                 CALL ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,  IBSM,
      &                              I4,   XI4S, NKBSTR,   IEND,  IFRST,
      &                           KFRST,   KACT,    ONE,   KLAC)
-C               CALL ADSTN_GAS(KSM,KTYP,IBTP,IBSM,IBGRP,
-C    &               I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE   )
                 IF(NKBSTR.EQ.0) GOTO 1930
 *
 * Fetch Integrals as (iop2 iop1 |  k l )

@@ -43,11 +43,11 @@ real(kind=wp), allocatable, save :: Bonds(:), Chrg(:), D(:,:), D_blo(:), D_tmp(:
 character(len=LenIn4), allocatable :: LblCnt4(:)
 character(len=LenIn), allocatable :: CNAME(:)
 character(len=8), allocatable :: TNAME(:), TSwap(:)
-character(len=*), parameter :: AufBau(19) = ['01s', &
-                                             '02s','02p', &
-                                             '03s','03p', &
-                                             '04s','03d','04p', &
-                                             '05s','04d','05p', &
+character(len=*), parameter :: AufBau(19) = ['01s',                   &
+                                             '02s',            '02p', &
+                                             '03s',            '03p', &
+                                             '04s',      '03d','04p', &
+                                             '05s',      '04d','05p', &
                                              '06s','04f','05d','06p', &
                                              '07s','05f','06d','07p']
 integer(kind=iwp), external :: iPrintLevel

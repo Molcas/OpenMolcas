@@ -58,16 +58,20 @@ C>                   to active indices
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3)
       use caspt2_output, only: iPrGlb, verbose, debug
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
-      use caspt2_gradient, only: do_grad
+      use caspt2_gradient, only: do_grad, nbuf1_grad, nStpGrd
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
+      use gugx, only: NLEV, ICOUP, IOCSF,
+     &                         NCSF,  IOCP, IOW1, MVL, MVR,  NOCP,
+     &                         NOCSF, NOW1, VTAB,
+     &                         ISM, L2ACT
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
+#include "WrkSpc.fh"
 
       LOGICAL RSV_TSK
 
@@ -182,8 +186,15 @@ C Special pair index idx2ij allows true RAS cases to be handled:
 * bufd: diagonal matrix elements to compute the F matrix
       nbuf1=max(1,min(nlev2,(memmax_safe-3*mxci)/mxci))
       !! if gradient, nbuf1 must be consistent here and in derfg3.f
-      if (do_grad)
-     *  nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+      if (do_grad .or. nStpGrd==2) then
+        !! Compute approximate available memory in derfg3.f
+        !! allocated in DENS
+        memmax_safe = memmax_safe - 16*NBAST**2 - 3*NASHT**2
+        !! allocated in CLagX
+        memmax_safe = memmax_safe - 2*(NG1+NG2+NG3)
+        nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+        nbuf1_grad = nbuf1
+      end if
       nbuf2= 1
       nbuft= 1
       nbufd= 1
@@ -217,7 +228,7 @@ C-SVC20100301: calculate maximum number of tasks possible
         isp1=mul(issg1,stsym)
         if (.not. DoFCIQMC) then
           nsgm1=ncsf(issg1)
-          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
+          CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),NOW1,IOW1)
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -340,9 +351,9 @@ C-sigma vectors in the buffer.
               lto=lbuf1+mxci*(ibuf1-1)
               call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
               CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         NOCSF,IOCSF,NOW1,IOW1,
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
           end if
          end if
         end do
@@ -404,9 +415,9 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           lto=lbuf2
           call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
           CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         NOCSF,IOCSF,NOW1,IOW1,
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -440,9 +451,9 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             lto=lbuft
             call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
             CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),
-     &           WORK(LTO),IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),
-     &           IWORK(LIOW),IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &           WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &           WORK(LTO),NOCSF,IOCSF,NOW1,
+     &           IOW1,NOCP,IOCP,ICOUP,
+     &           VTAB,MVL,MVR)
         end if
 *-----------
 * Max and min values of index p1:
@@ -565,8 +576,7 @@ C  only for the G1 and G2 replicate arrays
       CALL GADSUM(F2,NG2)
 
       if (DoFCIQMC) then
-          call mkfg3fciqmc(WORK(LG1),WORK(LG2),WORK(LG3),
-     &               WORK(LF1),WORK(LF2),WORK(LF3),idxG3)
+          call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3)
       else
           ! Correction to G2: It is now = <0| E_tu E_yz |0>
           do iu=1,nlev

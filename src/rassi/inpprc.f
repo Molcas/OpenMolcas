@@ -893,6 +893,10 @@ C Write out various input data:
         end if
       end if
 *
+* Enable Hamiltonian if available/requested and not explicitly disabled
+      if ((.not.NOHAM).and.(IFHEXT.or.IFHEFF.or.IFHCOM.or.IFEJOB))
+     &  IFHAM=.TRUE.
+*
       IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)'  The following data are common to all the states:'

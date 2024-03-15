@@ -96,7 +96,7 @@ do iSym=1,nSym
       if ((lSym <= kSym) .and. (iAsh*jAsh*kAsh*lAsh /= 0)) then
 
         !write(LF,*) 'sym(p,w,x,y),offset= ',isym,jsym,ksym,lsym,iPUVX
-        !call recprt('(pw|xy)','(1P,5ES16.8)',PUVX(iPUVX+1),iorb*jAsh,kAsh*lAsh+Min(ijSym-2,0)*kAsh*(lAsh-1)/2)
+        !call recprt('(pw|xy)','(5ES16.8)',PUVX(iPUVX+1),iorb*jAsh,kAsh*lAsh+Min(ijSym-2,0)*kAsh*(lAsh-1)/2)
 
         do iV=1,kAsh
           lMax = lAsh

@@ -15,6 +15,8 @@
      &                          ITP,   KMIN,   KMAX,     I1,   XI1S,
      &                          LI1,     NK,   IEND,  IFRST,  KFRST,
      &                          I12,    K12, SCLFAC)
+      use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
+      use strbas
 *
 *
 *
@@ -47,16 +49,12 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-*./BIGGY
-#include "WrkSpc.fh"
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
-#include "strbas.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 *. Local scratch
-#include "hidscr.fh"
 #include "ssave.fh"
 *
 * =======
@@ -87,11 +85,8 @@ C?    END IF
 *
 *. Internal affairs
 *
-      IF(I12.LE.4.AND.K12.LE.2) THEN
-        KLLOC = KLOCSTR(K12)
-        KLLZ = KLZ(I12)
-        KLLREO = KLREO(I12)
-      ELSE
+      IF(I12.GT.SIZE(Z,2).OR.K12.GT.SIZE(ZOCSTR,2)) THEN
+        WRITE(6,*) ' ADST_GAS : Illegal value of K12 = ', K12
         WRITE(6,*) ' ADST_GAS : Illegal value of I12 = ', I12
 *        STOP' ADST_GAS : Illegal value of I12  '
         CALL SYSABENDMSG('lucia_util/adst_gas','Internal error',' ')
@@ -117,20 +112,20 @@ C?    END IF
 *.. Generate information about I strings
 *. Arc weights for ISPGP
         NTEST2 = NTEST
-        CALL WEIGHT_SPGP(iWORK(KLLZ),NGAS,NELFSPGP(1,ISPGPABS),
-     &                      NOBPT,iWORK(KLZSCR),NTEST2)
+        CALL WEIGHT_SPGP(Z(:,I12),NGAS,NELFSPGP(1,ISPGPABS),
+     &                      NOBPT,ZSCR,NTEST2)
         NELI = NELFTP(ITP)
         NELIS(I12) = NELI
 *. Reorder array for I strings
         CALL GETSTR_TOTSM_SPGP(    ITP,  ISPGP,    ISM,   NELI,  NSTRI,
-     &                         IWORK(KLLOC),NOCOB,1,
-     &                         iWORK(KLLZ),IWORK(KLLREO))
+     &                         ZOCSTR(:,K12),NOCOB,1,
+     &                         Z(:,I12),REO(:,I12))
       END IF
       NELK = NELIS(I12) - 2
       IF(KFRST.NE.0) THEN
 *. Generate occupation of K STRINGS
        CALL GETSTR_TOTSM_SPGP(      1,KSPGPABS,   KSM,  NELK, NSTRK,
-     &                        IWORK(KLLOC),NOCOB,   0,IDUM_ARR,IDUM_ARR)
+     &                        ZOCSTR(:,K12),NOCOB,  0,IDUM_ARR,IDUM_ARR)
        NSTRKS(K12) = NSTRK
       END IF
 *
@@ -139,8 +134,8 @@ C?    END IF
       IIOB = IOBPTS(IOBTP,IOBSM) + IOB - 1
       JJOB = IOBPTS(JOBTP,JOBSM) + JOB - 1
       CALL ADADS1_GAS(       NK,       I1,     XI1S,      LI1,     IIOB,
-     &                     NIOB,     JJOB,     NJOB,iWORK(KLLOC),  NELK,
-     &                    NSTRK,iWORK(KLLREO),iWORK(KLLZ),NOCOB, KMAX,
+     &                     NIOB,     JJOB,    NJOB,ZOCSTR(:,K12),  NELK,
+     &                    NSTRK,REO(:,I12),Z(:,I12),NOCOB, KMAX,
      &                     KMIN,     IEND,   SCLFAC)
 *
       RETURN

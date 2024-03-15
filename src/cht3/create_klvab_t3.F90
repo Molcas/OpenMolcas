@@ -333,7 +333,7 @@ do isp=1,IUHF+1
             RAD = RAD+adim*nstep
           end do      ! IADR
         end do        ! A
-        !!write(u6,'(A,4I5,4x,D15.10)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,ddot_(N*vblock*vblock,G(IX),1,G(IX),1)
+        !!write(u6,'(A,4I5,4x,ES15.8)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,ddot_(N*vblock*vblock,G(IX),1,G(IX),1)
         !mp call multi_wridir(G(IX),N*vblock*vblock,LU,IAS,last)
 
         !mp
@@ -529,8 +529,8 @@ do isp=1,IUHF+1
         end do     ! A
       end do       ! J
     end do         ! K
-    !!write(u6,'(A,2I5,4x,D15.10)') 'block-w:a1,IAS,ddot',a1,ias,ddot_(N*vblock*nnoab(3),g(ix),1,g(ix),1)
-    !!write(u6,'(a,a,2I4,D16.8)') 'block-w',ich(isp),(A1/vblock)+1,IAS,ddot_(N*nnoab(3)*NSTEP,g(ix),1,g(ix),1)
+    !!write(u6,'(A,2I5,4x,ES15.8)') 'block-w:a1,IAS,ddot',a1,ias,ddot_(N*vblock*nnoab(3),g(ix),1,g(ix),1)
+    !!write(u6,'(a,a,2I4,ES16.8)') 'block-w',ich(isp),(A1/vblock)+1,IAS,ddot_(N*nnoab(3)*NSTEP,g(ix),1,g(ix),1)
     !mp call multi_wridir(G(IX),N*nstep*nnoab(3),LU,IAS,last)
     !mp
     !mp !!do jjj=1,N*nstep*nnoab(3)

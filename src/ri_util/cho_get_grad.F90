@@ -116,7 +116,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: nDen, nTxy, ipTxy(8,8,2), nChOrb_(8,5), nAorb(8), nV_k, nZ_p_k, nnP(8), npos(8,3)
-type(DSBA_Type), intent(in) :: DLT(5), DLT2, MSQ(nDen), AOrb(*)
+type(DSBA_Type), intent(in) :: DLT(5), DLT2(1), MSQ(nDen), AOrb(*)
 real(kind=wp), intent(in) :: Txy(nTxy)
 logical(kind=iwp), intent(in) :: DoExchange, lSA, DoCAS, Estimate, Update
 real(kind=wp), intent(_OUT_) :: V_k(nV_k,*), U_k(*)
@@ -596,7 +596,7 @@ do jSym=1,nSym
           call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,DLT(jDen),Drs(:,jDen),add)
         end do
         if (iMp2prpt == 2) then
-          call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,[DLT2],Drs2(:,1),add)
+          call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,DLT2,Drs2(:,1),add)
         end if
       end if
 

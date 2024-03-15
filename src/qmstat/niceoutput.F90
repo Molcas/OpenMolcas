@@ -134,8 +134,8 @@ return
 15 format('    ',A,2(I8,'         '))
 16 format('    ',2(I5,'                '))
 17 format('    ',I5)
-18 format('     ',2(E11.4,'         '),' ')
-19 format('    ',A,'               ',E11.4)
-20 format('     ',E11.4,'           ',A)
+18 format('     ',2(ES11.4,'         '),' ')
+19 format('    ',A,'               ',ES11.4)
+20 format('     ',ES11.4,'           ',A)
 
 end subroutine NiceOutPut

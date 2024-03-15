@@ -67,7 +67,7 @@ if (HRSO) then
     do k=1,Nmode
       write(u6,*) 'k=',k
       do j=1,Nstate
-        read(lu,'(E16.8)',advance='no') temp_gk(j)
+        read(lu,'(ES16.8)',advance='no') temp_gk(j)
         write(u6,*) temp_gk(j)
         G_SO(k,i,j) = cmplx(temp_gk(j),kind=wp)
       end do

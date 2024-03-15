@@ -36,6 +36,8 @@
      &                  D1AOMS, D1SAOMS
       use mcpdft_output, only: debug, lf, iPrLoc
       use rctfld_module
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use wadr, only: BM, FockOcc, TUVX
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -49,9 +51,6 @@
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
-#include "gugx.fh"
-#include "wadr.fh"
-#include "rasscf_lucia.fh"
 !      Logical TraOnly
 
 *
@@ -178,7 +177,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 
 !Here we calculate the D1 Inactive matrix (AO).
       Call GetMem('D1Inact','Allo','Real',iD1I,NTOT2)
-      Call Get_D1I_RASSCF_m(CMO,Work(iD1I))
+      Call Get_D1I_RASSCF(CMO,Work(iD1I))
 
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'iD1inact'
@@ -303,14 +302,14 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
 * Generate total density
 ***********************************************************
 
-         If(NASH(1).ne.NAC) Call DBLOCK_m(Work(iD1Act))
+         If(NASH(1).ne.NAC) Call DBLOCK(Work(iD1Act))
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'd1act'
         do i=1,NACPAR
           write(6,*) work(iD1Act-1+i)
         end do
       end if
-         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
+         Call Get_D1A_RASSCF(CMO,Work(iD1Act),Work(iD1ActAO))
 
 !ANDREW _ RIGHT HERE
       if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
@@ -353,8 +352,8 @@ cPS         call xflush(6)
          if(iSpin.eq.1) then
            Call dcopy_(NACPAR,[0.0d0],0,Work(iD1SpinAO),1)
          end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Spin))
-         Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
+         Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
@@ -576,8 +575,8 @@ c         call xflush(6)
           Call DDaFile(JOBOLD,0,Work(iP2d),NACPR2,itsDisk)
         end do
         Call DDaFile(JOBOLD,2,Work(iD1Act_FA),NACPAR,itsDisk)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Act_FA))
-        Call Get_D1A_RASSCF_m(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
+        IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Act_FA))
+        Call Get_D1A_RASSCF(CMO,Work(iD1Act_FA),Work(iD1ActAO_FA))
 *****
         Call GetMem('lcmo','ALLO','Real',lcmo,ntot2)
         CALL DCOPY_(NTOT2,CMO,1,WORK(LCMO),1)
@@ -590,9 +589,9 @@ c         call xflush(6)
             do i=1,nfint
               write(6,*) work(lpuvx-1+i)
             end do
-            write(6,*) 'ltuvx after tractl'
+            write(6,*) 'tuvx after tractl'
             do i=1,nacpr2
-              write(6,*) work(ltuvx-1+i)
+              write(6,*) tuvx(i)
             end do
             write(6,*) 'id1act_fa before tractl'
             do i=1,nacpar
@@ -643,7 +642,7 @@ c         call xflush(6)
 *
       CALL DCOPY_(nacpr2,[Zero],0,WORK(ltuvx_tmp),1)
       if (iprlev.ge.debug) then
-            write(6,*) 'ltuvx before !!! tractl'
+            write(6,*) 'ltuvx_tmp before !!! tractl'
             do i=1, nacpr2
               write(6,*) work(ltuvx_tmp-1+i)
             end do
@@ -682,9 +681,9 @@ c         call xflush(6)
             do i=1,nfint
               write(6,*) work(lpuvx-1+i)
             end do
-            write(6,*) 'ltuvx after tractl'
+            write(6,*) 'tuvx after tractl'
             do i=1,nacpr2
-              write(6,*) work(ltuvx-1+i)
+              write(6,*) tuvx(i)
             end do
            write(6,*) 'id1act_FA after tractl'
             do i=1,nacpar
@@ -761,9 +760,9 @@ c         call xflush(6)
 *
          IF(ISTORP(NSYM+1).GT.0) THEN
            CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
-           CALL DmatDmat_m(Work(iD1Act),WORK(LP))
+           CALL DmatDmat(Work(iD1Act),WORK(LP))
            CALL GETMEM('ISTRP','ALLO','REAL',LP1,ISTORP(NSYM+1))
-           CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP1))
+           CALL PMAT_RASSCF(Work(iP2d),WORK(LP1))
          END IF
 
        if(iprlev.ge.debug) then
@@ -783,13 +782,13 @@ c         call xflush(6)
          if(NQ.lt.NIAIA) NQ=NIAIA
 
          CALL GETMEM('FOCK','ALLO','REAL',LFOCK,NTOT4)
-         CALL GETMEM('SXBM','ALLO','REAL',LBM,NSXS)
+         CALL mma_allocate(BM,NSXS,Label='BM')
          CALL GETMEM('SXLQ','ALLO','REAL',LQ,NQ) ! q-matrix(1symmblock)
          IFINAL = 1
-         CALL FOCK_m(WORK(LFOCK),WORK(LBM),Work(iFockI),Work(iFockA),
+         CALL FOCK_m(WORK(LFOCK),BM,Work(iFockI),Work(iFockA),
      &         Work(iD1Act),WORK(LP),WORK(LQ),WORK(LPUVX),IFINAL,CMO)
 !TMP TEST
-!         Call Put_Darray('fock_tempo',Work(ipFocc),ntot1)
+!         Call Put_Darray('fock_tempo',FockOcc,ntot1)
 !END TMP TEST
 
 
@@ -824,7 +823,7 @@ c         call xflush(6)
          END IF
 
 
-         CALL GETMEM('SXBM','FREE','REAL',LBM,NSXS)
+         Call mma_deallocate(BM)
          CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)
 !At this point, the energy calculation is done.  Now I need to build the
 !fock matrix if this root corresponds to the relaxation root.
@@ -1115,7 +1114,7 @@ cPS         call xflush(6)
        IF(ISTORP(NSYM+1).GT.0) THEN
       CALL DCOPY_(ISTORP(NSYM+1),[0.0D0],0,WORK(LP),1)
 !p = work(iP2d)
-         CALL PMAT_RASSCF_M(Work(iP2d),WORK(LP))
+         CALL PMAT_RASSCF(Work(iP2d),WORK(LP))
       END IF
 !test comment add
 !      Call FZero(Work(iptmplteotp),nfint)
@@ -1128,10 +1127,10 @@ cPS         call xflush(6)
      &        Work(iFockA),Work(iD1Act),WORK(LP),
      &        WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
-         Call Put_dArray('FockOcc',Work(ipFocc),ntot1)
+         Call Put_dArray('FockOcc',FockOcc,ntot1)
         If ( IPRLEV.ge.DEBUG ) then
         write(6,*) 'FOCC_OCC'
-        call wrtmat(Work(ipFocc),1,ntot1,1,ntot1)
+        call wrtmat(FockOcc,1,ntot1,1,ntot1)
 
 
       write(6,*) 'DONE WITH NEW FOCK OPERATOR'
@@ -1230,8 +1229,8 @@ cPS         call xflush(6)
 *          write(6,*) Work(ip2d-1+i)
 *        end do
 
-         If(NASH(1).ne.NAC) Call DBLOCK_m(Work(iD1Act))
-         Call Get_D1A_RASSCF_m(CMO,Work(iD1Act),Work(iD1ActAO))
+         If(NASH(1).ne.NAC) Call DBLOCK(Work(iD1Act))
+         Call Get_D1A_RASSCF(CMO,Work(iD1Act),Work(iD1ActAO))
 
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
@@ -1251,8 +1250,8 @@ cPS         call xflush(6)
          !if(iSpin.eq.1) then
            Call dcopy_(NACPAR,[Zero],0,Work(iD1SpinAO),1)
          !end if
-         IF ( NASH(1).NE.NAC ) CALL DBLOCK_m(Work(iD1Spin))
-         Call Get_D1A_RASSCF_m(CMO,Work(iD1Spin),
+         IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(iD1Spin))
+         Call Get_D1A_RASSCF(CMO,Work(iD1Spin),
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))

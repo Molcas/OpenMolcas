@@ -15,6 +15,8 @@
      &                          ISPGP,    ISM,    ITP,   KMIN,   KMAX,
      &                             I1,   XI1S,    LI1,     NK,   IEND,
      &                          IFRST,  KFRST,    I12,    K12, SCLFAC)
+      use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
+      use strbas
 *
 *
 * Obtain two-operator mappings
@@ -53,17 +55,12 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "mxpdim.fh"
-*./BIGGY
-#include "WrkSpc.fh"
-!      COMMON/BIGGY/WORK(MXPWRD)
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
-#include "strbas.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 *. Local scratch
-#include "hidscr.fh"
 #include "ssave.fh"
       SAVE NSTRI_
 C-jwk-cleanup      INTEGER KELFGRP(MXPNGAS)
@@ -97,20 +94,13 @@ c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
 *
 *. Internal affairs
 *
-      IF(I12.LE.4.AND.K12.LE.1) THEN
-        KLLOC = KLOCSTR(K12)
-        KLLZ = KLZ(I12)
-        KLLREO = KLREO(I12)
-      ELSE
+      IF(I12.GT.SIZE(Z,2).OR.K12.GT.SIZE(ZOCSTR,2)) THEN
         WRITE(6,*)
      &  ' ADST_GAS : Illegal value of I12 or K12 ', I12, K12
 *        STOP' ADST_GAS : Illegal value of I12 or K12  '
         CALL SYSABENDMSG('lucia_util/adst_gas',
      &                    'Internal error',' ')
         RETURN
-      END IF
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' KLLOC KLLREO',KLLOC,KLLREO
       END IF
 
 *
@@ -195,35 +185,30 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
 *.. Generate information about I strings
 *. Arc weights for ISPGP
         NTEST2 = NTEST
-        CALL WEIGHT_SPGP(iWORK(KLLZ),
-     &                       NGAS,
-     &                   NELFSPGP(1,ISPGPABS),
-     &                      NOBPT,
-     &                   iWORK(KLZSCR),
-*
-     &                     NTEST2)
+        CALL WEIGHT_SPGP(Z(:,I12),NGAS,
+     &                   NELFSPGP(1,ISPGPABS),NOBPT,ZSCR,NTEST2)
         NELI = NELFTP(ITP)
         NELIS(I12) = NELI
 *. Reorder array for I strings
         CALL GETSTR_TOTSM_SPGP(    ITP,  ISPGP,    ISM,   NELI,  NSTRI,
-     &                         IWORK(KLLOC),
+     &                         ZOCSTR(:,K12),
      &                           NOCOB,
      &                               1,
-     &                         IWORK(KLLZ),
+     &                         Z(:,I12),
 *
-     &                         IWORK(KLLREO))
+     &                         REO(:,I12))
         IF(NTEST.GE.1000) THEN
          write(6,*) ' Info on I strings generated '
          write(6,*) ' NSTRI = ', NSTRI
          WRITE(6,*) ' REORDER array '
-         CALL IWRTMA(iWORK(KLLREO),1,NSTRI,1,NSTRI)
+         CALL IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
        END IF
        NSTRI_ = NSTRI
 *
       END IF
       IF(NTEST.GE.1000) THEN
        WRITE(6,*) ' REORDER array for I STRINGS'
-       CALL IWRTMA(iWORK(KLLREO),1,NSTRI,1,NSTRI)
+       CALL IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
       END IF
 *
       IF(ITRIVIAL.EQ.1) GOTO 9999
@@ -243,14 +228,14 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
 *. Generate occupation of K STRINGS
        IDUM(1)=0
        CALL GETSTR2_TOTSM_SPGP(   KGRP,   NGAS,    KSM,   NELK,  NSTRK,
-     &                         iWORK(KLLOC),NOCOB,    0, IDUM, IDUM)
+     &                         ZOCSTR(:,K12),NOCOB,    0, IDUM, IDUM)
 C     GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,
 C    &                              NORBT,IDOREO,IZ,IREO)
        NSTRKS(K12) = NSTRK
        IF(NTEST.GE.1000) THEN
          WRITE(6,*) ' K strings generated '
          WRITE(6,*) ' Reorder array after generation of K strings'
-         CALL IWRTMA(iWORK(KLLREO),1,NSTRI,1,NSTRI)
+         CALL IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
        END IF
       END IF
 *
@@ -266,19 +251,16 @@ COLD  CALL SETVEC(XI1S,ZERO ,LI1*NIOB*NJOB)
 *
       CALL ADAADAS1_GAS(      NK,      I1,    XI1S,     LI1,    IIOB,
      &                      NIOB,     IAC,    JJOB,    NJOB,     JAC,
-     &                  iWORK(KLLOC), NELK,NSTRK,
-     &                  iWORK(KLLREO),iWORK(KLLZ),
+     &                  ZOCSTR(:,K12), NELK,NSTRK,
+     &                  REO(:,I12),Z(:,I12),
      &                     NOCOB,    KMAX,    KMIN,    IEND,  SCLFAC,
      &                  NSTRI_)
 *
 *
        IF(NTEST.GE.1000) THEN
          WRITE(6,*) ' Reorder array after ADAADAS1'
-         CALL IWRTMA(iWORK(KLLREO),1,NSTRI,1,NSTRI)
+         CALL IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
        END IF
  9999 CONTINUE
 *
-C     WRITE(6,*) ' Memcheck at end of ADAADAS1 '
-C     CALL MEMCHK
-      RETURN
       END

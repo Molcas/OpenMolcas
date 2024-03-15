@@ -103,9 +103,9 @@ else
   RMSw = sqrt(dDot_(N,tmlw,1,tmlw,1)/real(N,kind=wp))
   RMSt = sqrt(dDot_(N,tmlt,1,tmlt,1)/real(N,kind=wp))
   if (Verbose) then
-    write(u6,'(A,1P,D25.16)') 'Weight RMS error=    ',RMSw
-    write(u6,'(A,1P,D25.16)') 'Grid point RMS error=',RMSt
-    write(u6,'(A,1P,D25.16)') 'Tolerance=           ',Tol
+    write(u6,'(A,ES25.16)') 'Weight RMS error=    ',RMSw
+    write(u6,'(A,ES25.16)') 'Grid point RMS error=',RMSt
+    write(u6,'(A,ES25.16)') 'Tolerance=           ',Tol
     call xFlush(u6)
   end if
   irc = 0

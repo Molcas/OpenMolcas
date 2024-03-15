@@ -126,7 +126,7 @@ subroutine fmm_generate_I(LMAX,vector,I_sh)
 
   !FIXME;
   if (r_2 < ZERO_VECT_TOL) then
-    write(LUPRI,'(3E25.15)') vector
+    write(LUPRI,'(3ES25.15)') vector
     call fmm_quit('Why do we try to do a zero T_vector?')
   end if
 

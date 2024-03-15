@@ -198,6 +198,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
   ! iGo = -1 non-equivalent multi state SA-CASSCF
   ! iGo = 0  equivalent multi state SA-CASSCF
   ! iGo = 2  single root SA-CASSCF
+  ! iGo = 3  CASPT2 density has been computed, but MCLR has not
   mstate2 = ''
   if (iGo /= 2) then
     call Get_cArray('MCLR Root',mstate2,16)
@@ -219,7 +220,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
   mstate1(1:1) = mstate2(1:1)
   MCLR_Ready = (iGO == 1) .and. (mstate1 == mstate2)
 
-  if (MCLR_Ready .or. (iGO > 1)) then
+  if (MCLR_Ready .or. ((iGO == 1) .or. (iGo == 2))) then
     call Alaska(LuSpool,iRC)
 
     ! Add ESPF contribution
@@ -236,6 +237,11 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
     ! Reset iGO to 0 to allow for new MCLR/ALASKA calculations
     if (iGo == 1) iGo = 0
     call Put_iScalar('SA ready',iGo)
+    if (Method == 'CASPT2  ') then
+      !! Reset MCLR Root so as not to use leftover states
+      write(mstate2,'(1X,I7,1X,I7)') 0,0
+      call Put_cArray('MCLR Root',mstate2,16)
+    end if
   else if (iGO == -1) then
     call WarningMessage(2,'Error in Alaska_Super_Driver')
     write(u6,*) 'Gradients not implemented for SA-CASSCF with non-equivalent weights!'
@@ -295,6 +301,20 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
     write(LuInput,'(A)') '>export MOLCAS_TRAP=$AL_OLD_TRAP'
     write(LuInput,'(A)') '>ECHO ON'
     close(LuInput)
+
+    if (Method == 'CASPT2  ') then
+      !! if states computed in CASPT2 and MCLR are inconsistent,
+      !! do CASPT2 again
+      if ((iGo == 1) .and. (mstate1 /= mstate2)) then
+        iGo = 0
+        call Put_iScalar('SA ready',iGo)
+      end if
+      !! use "@" temporarily to distinguish the module (either ALASKA
+      !! or MCLR) specifying the states
+      !! @: ALASKA, comma: MCLR
+      mstate1(9:9) = '@'
+      call Put_cArray('MCLR Root',mstate1,16)
+    end if
     call Finish(_RC_INVOKED_OTHER_MODULE_)
 
   end if

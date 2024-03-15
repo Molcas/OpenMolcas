@@ -11,6 +11,7 @@
 * Copyright (C) 1997,1998, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE MINMAX_FOR_SYM_DIST(NIGRP,IGRP,MNVAL,MXVAL,NDIST)
+      use strbas
 *
 * A combination of NIGRP groups are given (IGRP)
 *. Find MIN and MAX for symmetry in each group
@@ -22,11 +23,9 @@
       IMPLICIT REAL*8(A-H,O-Z)
 *. Include blocks
 #include "mxpdim.fh"
-#include "strbas.fh"
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 *. Input
       DIMENSION IGRP(NIGRP)
 *.Output
@@ -44,7 +43,7 @@ C-jwk-cleanup      DIMENSION LSMGP(MXPOBS,MXPNGAS)
 
 *. Number of strings per sym and group
 C     DO JGRP = 1, NIGRP
-C       CALL ICOPVE2(WORK(KNSTSGP(1)),(IGRP(JGRP)-1)*NSMST+1,
+C       CALL ICOPVE2(NSTSGP(1)%I,(IGRP(JGRP)-1)*NSMST+1,
 C    &               NSMST,LSMGP(1,JGRP))
 C     END DO
 C     IF(NTEST.GE.1000) THEN

@@ -9,10 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
+      use gugx, only: LEVEL, NOCSF,IOCSF,NOW1,IOW1,
+     &                         NOCP,IOCP,ICOUP, VTAB,MVL,MVR
+
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer stSym
       DIMENSION XMAT(NDIM,NDIM),CI(*)
-#include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
       IF (NDIM.LE.0) GOTO 999
@@ -55,9 +57,9 @@ C where U(I) = T(I)-Kronecker(I,J).
           SCL=0.5D0*WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-0.5D00
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,CI,WORK(LSGM),
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         NOCSF,IOCSF,NOW1,IOW1,
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
@@ -65,9 +67,9 @@ C where U(I) = T(I)-Kronecker(I,J).
           SCL=WORK(LTVEC-1+I)
           IF(I.EQ.J) SCL=SCL-1.0D00
           CALL SIGMA1_CP2(LI,LJ,SCL,STSYM,WORK(LSGM),CI,
-     &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+     &         NOCSF,IOCSF,NOW1,IOW1,
+     &         NOCP,IOCP,ICOUP,
+     &         VTAB,MVL,MVR)
         END DO
 
  100  CONTINUE

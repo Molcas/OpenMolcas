@@ -103,7 +103,8 @@ C usually print info on the total number of parameters
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
       use caspt2_output, only: iPrGlb, insane
-      use caspt2_gradient, only: do_grad
+      use caspt2_gradient, only: do_grad, do_lindep, nStpGrd, LUSTD,
+     *                           idBoriMat
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -113,6 +114,7 @@ C usually print info on the total number of parameters
 
 #include "SysDef.fh"
 #include "pt2_guga.fh"
+#include "caspt2_grad.fh"
 
 * For fooling some compilers:
       DIMENSION WGRONK(2)
@@ -152,7 +154,7 @@ C for temporary storage.
       END IF
 
       IDTMP0 = 0
-      If (do_grad) Then
+      If (do_grad.or.nStpGrd.EQ.2) Then
         !! correct?
         iPad = ItoB - Mod(6*NG3,ItoB)
         IDTMP0=6*NG3+iPad
@@ -355,6 +357,11 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY WORK(LVEC)
       NB=NS
       CALL GETMEM('LB','ALLO','REAL',LB,NB)
       CALL DDAFILE(LUSBT,2,WORK(LB),NB,IDB)
+      If ((do_grad.or.nStpGrd.eq.2).and.do_lindep) Then
+        !! The original B matrix is needed in the LinDepLag subroutine
+        IDB2 = idBoriMat(ISYM,ICASE)
+        CALL DDAFILE(LUSTD,1,WORK(LB),NB,IDB2)
+      End If
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NB,WORK(LB),1)
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM: ', FP
