@@ -243,7 +243,7 @@ nlist_s = ilist_s
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
-if (nList_s*nList_p == 0) then
+if (nlist_s*nlist_p == 0) then
   call mma_deallocate(R2_Trial)
   call mma_deallocate(invlist)
   return
@@ -291,7 +291,7 @@ write(u6,*) 'Exp:',(list_exp(ilist_s),ilist_s=1,nlist_s)
 #endif
 
 nBfn = 0
-do iList_s=1,nList_s
+do ilist_s=1,nlist_s
   iSkal = list_s(1,ilist_s)
   NrBas_Eff = list_bas(1,ilist_s)
   iCmp = iSD(2,iSkal)
@@ -380,7 +380,7 @@ if (Do_Grad) then
 
   if (Grid_Type == Moving_Grid) then
     call mma_allocate(dW_dR,nGrad_Eff,mGrid,Label='dW_dR')
-    call mma_allocate(dW_Temp,3,nList_P,Label='dW_Temp')
+    call mma_allocate(dW_Temp,3,nlist_p,Label='dW_Temp')
     call mma_allocate(dPB,3,nlist_p,nlist_p,Label='dPB')
   end if
 end if
@@ -515,8 +515,8 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       ! invariance on the atomic contributions to the gradient.
 
       InBox = R2_Trial(iNQ) == Zero
-      call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,list_p,nlist_p,Grid,Weights,mGrid,.true., &
-                    number_of_grid_points,R_Box_Min,R_Box_Max,iList_p,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
+      call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,nNQ,Grid,Weights,mGrid,.true., &
+                    number_of_grid_points,R_Box_Min,R_Box_Max,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
 
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Subblock ----> Get_Subblock'
@@ -554,7 +554,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
 #     endif
       ilist_p = -1
       do klist_p=1,nlist_p
-        if (List_p(klist_p) == iNQ) ilist_p = klist_p
+        if (list_p(klist_p) == iNQ) ilist_p = klist_p
       end do
 
       if (nogp+number_of_grid_points <= mGrid) then
@@ -596,7 +596,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
         call mma_allocate(dRho_dR,1,1,1,Label='dRho_dR')
       end if
 
-      call Do_Batch(Kernel,Func,nogp,list_s,nlist_s,List_Exp,List_Bas,Indx,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_Mo, &
+      call Do_Batch(Kernel,Func,nogp,list_s,nlist_s,list_exp,list_bas,Indx,nIndex,FckInt,nFckDim,nFckInt,mAO,nD,nP2_ontop,Do_Mo, &
                     TabMO,TabSO,nMOs,Do_Grad,Grad,nGrad,mdRho_dR,nGrad_Eff,iNQ,EG_OT,nTmpPUVX,PDFTPot1,PDFTFocI,PDFTFocA)
 
       if (allocated(dRho_dR)) call mma_deallocate(dRho_dR)

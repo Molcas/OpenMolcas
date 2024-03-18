@@ -11,8 +11,8 @@
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,list_p,nlist_p,Grid,Weights,mGrid,Process, &
-                    number_of_grid_points,R_box_min,R_box_max,ilist_p,xyz0,iAngular_Grid,nR_Eff)
+subroutine Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,nNQ,Grid,Weights,mGrid,Process, &
+                    number_of_grid_points,R_box_min,R_box_max,xyz0,iAngular_Grid,nR_Eff)
 !***********************************************************************
 !                                                                      *
 ! Object:                                                              *
@@ -33,7 +33,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: iNQ, nlist_p, list_p(nlist_p), mGrid, ilist_p, nR_Eff, iAngular_Grid(nR_Eff)
+integer(kind=iwp), intent(in) :: iNQ, nNQ, mGrid, nR_Eff, iAngular_Grid(nR_Eff)
 real(kind=wp), intent(in) :: x_NQ, y_NQ, z_NQ, x_min_, x_max_, y_min_, y_max_, z_min_, z_max_, R_box_min, R_box_max, xyz0(3,2)
 logical(kind=iwp), intent(in) :: InBox, Process
 real(kind=wp), intent(inout) :: Grid(3,mGrid), Weights(mGrid)
@@ -235,7 +235,7 @@ do
           ! Generate weights
 
           mGrid_ = number_of_grid_points-iStrt+1
-          call W(Grid(1,iStrt),ilist_p,Weights(iStrt),list_p,nList_p,mGrid_,nRemoved)
+          call W(Grid(1,iStrt),iNQ,Weights(iStrt),nNQ,mGrid_,nRemoved)
           number_of_grid_points = number_of_grid_points-nRemoved
 
           iBatchInfo(1,nBatch) = iDisk_Grid
@@ -269,7 +269,7 @@ end do
 !write(u6,*) 'iStrt=',iStrt
 if (number_of_grid_points-iStrt+1 > 0) then
   mGrid_ = number_of_grid_points-iStrt+1
-  call W(Grid(1,iStrt),ilist_p,Weights(iStrt),list_p,nList_p,mGrid_,nRemoved)
+  call W(Grid(1,iStrt),iNQ,Weights(iStrt),nNQ,mGrid_,nRemoved)
   number_of_grid_points = number_of_grid_points-nRemoved
 end if
 !                                                                      *
