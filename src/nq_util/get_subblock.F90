@@ -18,7 +18,7 @@ subroutine Get_Subblock(Kernel,Func,ixyz,Maps2p,list_s,list_exp,list_bas,nShell,
 ! Object: to generate the list of the shell and exponent that have an  *
 !         influence on a subblock                                      *
 !                                                                      *
-!     Called from: Drvnq_                                              *
+!     Called from: Drvnq_inner                                         *
 !                                                                      *
 !     Author: Roland Lindh,                                            *
 !             Dept of Chemical Physics,                                *
@@ -29,13 +29,13 @@ subroutine Get_Subblock(Kernel,Func,ixyz,Maps2p,list_s,list_exp,list_bas,nShell,
 use iSD_data, only: iSD
 use Basis_Info, only: Shells
 use Center_Info, only: dc
-use nq_Grid, only: dRho_dR, dW_dR, Grid, IndGrd, iTab, kAO, List_G, nR_Eff, R2_trial, TabAO, TabAO_Pack, TabAO_Short, Weights
+use nq_Grid, only: dRho_dR, dW_dR, Grid, IndGrd, iTab, kAO, List_G, nR_Eff, TabAO, TabAO_Pack, TabAO_Short, Weights
 use NQ_Structure, only: NQ_Data
 use nq_MO, only: nMOs
 use nq_Info, only: Block_Size, Grid_Type, Moving_Grid, nPot1, nTotGP, nx, ny, nz, Off, On, Threshold, x_min, y_min, z_min
 use Grid_On_Disk, only: Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, Lu_Grid, LuGridFile, nBatch, nBatch_Max, Use_Old, WriteGrid
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 !#define _DEBUGPRINT_
 !#define _ANALYSIS_
@@ -49,18 +49,17 @@ integer(kind=iwp), intent(in) :: ixyz, nShell, nSym, Maps2p(nShell,0:nSym-1), nN
                                  mAO, mdRho_dR, nTmpPUVX
 real(kind=wp), intent(inout) :: Func, FckInt(nFckInt,nFckDim), Grad(nGrad), EG_OT(nTmpPUVX), PDFTPot1(nPot1), PDFTFocI(nPot1), &
                                 PDFTFocA(nPot1)
-integer(kind=iwp), intent(out) :: list_s(2,*), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)
+integer(kind=iwp), intent(out) :: list_s(2,nSym*nShell), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)
 logical(kind=iwp), intent(in) :: Do_Mo, Do_Grad
 integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, ilist_s, iNQ, iPseudo, iShell, iShll, iSkal, iSym, &
                      ix, iy, iyz, iz, jDisk_Grid, jlist_s, jNQ, jShell, jSym, klist_p, kNQ, mdci, nAOs, nAOs_Eff, nBfn, nDegi, &
                      nExpTmp, nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, &
                      number_of_grid_points, nx_Roots, ny_Roots, nz_Roots
-real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, RMax_NQ, Roots(3,3), t1, t2, t3, ValExp, X, x_box_max, x_box_min, x_max_, x_min_, &
+real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, RMax_NQ, Roots(3,3), ValExp, X, x_box_max, x_box_min, x_max_, x_min_, &
                  x_NQ, Xref, xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
-logical(kind=iwp) :: More_to_come
+logical(kind=iwp) :: InBox, More_to_come
 integer(kind=iwp), allocatable :: Indx(:), invlist(:)
-real(kind=wp), allocatable :: dPB(:,:,:), dW_Temp(:,:), TabMO(:), TabSO(:)
-logical(kind=iwp), allocatable :: InBox(:)
+real(kind=wp), allocatable :: dPB(:,:,:), dW_Temp(:,:), R2_Trial(:), TabMO(:), TabSO(:)
 integer(kind=iwp), external :: nBas_Eff, NrOpr
 real(kind=wp), external :: Eval_RMax
 
@@ -111,43 +110,36 @@ write(u6,*) 'nNQ=',nNQ
 !***********************************************************************
 !                                                                      *
 ilist_p = 0
-call mma_allocate(InBox,nNQ,Label='InBox')
+call mma_allocate(R2_Trial,nNQ,Label='R2_Trial')
 call mma_allocate(invlist,nNQ,Label='invlist')
 invlist(:) = -1
 do iNQ=1,nNQ
-  InBox(iNQ) = .false.
-  ! Get the coordinates of the partitionning
+  ! Get the coordinates of the partitioning
   x_NQ = NQ_Data(iNQ)%Coor(1)
   y_NQ = NQ_Data(iNQ)%Coor(2)
   z_NQ = NQ_Data(iNQ)%Coor(3)
 
-  ! 1) center is in the box
+  R2_Trial(iNQ) = Zero
+  if (x_NQ < x_min_) R2_Trial(iNQ) = R2_Trial(iNQ)+(x_NQ-x_min_)**2
+  if (x_NQ > x_max_) R2_Trial(iNQ) = R2_Trial(iNQ)+(x_max_-x_NQ)**2
+  if (y_NQ < y_min_) R2_Trial(iNQ) = R2_Trial(iNQ)+(y_NQ-y_min_)**2
+  if (y_NQ > y_max_) R2_Trial(iNQ) = R2_Trial(iNQ)+(y_max_-y_NQ)**2
+  if (z_NQ < z_min_) R2_Trial(iNQ) = R2_Trial(iNQ)+(z_NQ-z_min_)**2
+  if (z_NQ > z_max_) R2_Trial(iNQ) = R2_Trial(iNQ)+(z_max_-z_NQ)**2
 
-  if ((x_NQ >= x_min_) .and. (x_NQ <= x_max_) .and. (y_NQ >= y_min_) .and. (y_NQ <= y_max_) .and. &
-      (z_NQ >= z_min_) .and. (z_NQ <= z_max_)) then
-    InBox(iNQ) = .true.
+  ! 1) R2_Trial == 0      : center is in the box
+  ! 2) R2_Trial < RMax**2 : atomic grid of this center extends inside the box.
+
+  RMax = NQ_Data(iNQ)%R_max
+  if (R2_Trial(iNQ) <= RMax**2) then
     ilist_p = ilist_p+1
     list_p(ilist_p) = iNQ
     invlist(iNQ) = ilist_p
-  else
-
-    ! 2) atomic grid of this center extends inside the box.
-
-    RMax = NQ_Data(iNQ)%R_max
-    t1 = max(Zero, min(One, (x_NQ-x_min_)/(x_max_-x_min_)))
-    t2 = max(Zero, min(One, (y_NQ-y_min_)/(y_max_-y_min_)))
-    t3 = max(Zero, min(One, (z_NQ-z_min_)/(z_max_-z_min_)))
-    R2_Trial(iNQ) = (x_NQ-(x_max_-x_min_)*t1-x_min_)**2+(y_NQ-(y_max_-y_min_)*t2-y_min_)**2+(z_NQ-(z_max_-z_min_)*t3-z_min_)**2
-    if (R2_Trial(iNQ) <= RMax**2) then
-      ilist_p = ilist_p+1
-      list_p(ilist_p) = iNQ
-      invlist(iNQ) = ilist_p
-    end if
   end if
 end do
 nlist_p = ilist_p
 if (nlist_p == 0) then
-  call mma_deallocate(InBox)
+  call mma_deallocate(R2_Trial)
   call mma_deallocate(invlist)
   return
 end if
@@ -185,12 +177,12 @@ do iShell=1,nShell
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iNQ=',iNQ
     write(u6,*) 'RMax_NQ=',RMax_NQ
-    write(u6,*) 'InBox(iNQ)=',InBox(iNQ)
+    write(u6,*) 'InBox(iNQ)=',R2_Trial(iNQ) == Zero
 #   endif
 
     ! 1) the center of this shell is inside the box
 
-    if (InBox(iNQ)) then
+    if (R2_Trial(iNQ) == Zero) then
       ilist_s = ilist_s+1
       list_s(1,ilist_s) = iShell
       list_s(2,ilist_s) = iSym
@@ -205,16 +197,16 @@ do iShell=1,nShell
       write(u6,*) 'Threshold:',Threshold
 #     endif
 
-      ! 2) the Gaussian has a grid point which extends inside the
-      !    box. The Gaussians are ordered from the most diffuse to
-      !    the most contracted.
+      ! 2) the Gaussian has a grid point that extends inside the box.
+      !    The Gaussians are ordered from the most diffuse to the most
+      !    contracted.
 
       nExpTmp = 0
       do iExp=1,NrExp
         ! Get the value of the exponent
         ValExp = Shells(iShll)%Exp(iExp)
         ! If the exponent has an influence then increase the
-        ! number of actives exponents for this shell, else
+        ! number of active exponents for this shell, else
         ! there is no other active exponent (they are ordered)
         RMax = min(Eval_RMax(ValExp,iAng,Threshold),RMax_NQ)
 #       ifdef _DEBUGPRINT_
@@ -252,7 +244,7 @@ nlist_s = ilist_s
 write(u6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
 if (nList_s*nList_p == 0) then
-  call mma_deallocate(InBox)
+  call mma_deallocate(R2_Trial)
   call mma_deallocate(invlist)
   return
 end if
@@ -358,9 +350,7 @@ if (Do_Grad) then
 
         do jlist_s=ilist_s+1,nlist_s
           jShell = list_s(1,jlist_s)
-          if ((iSD(16+iCar,iShell) == iSD(16+iCar,jShell)) .and. (iSym == list_s(2,jlist_s))) then
-            List_G(1+iCar,jlist_s) = nGrad_Eff
-          end if
+          if ((iSD(16+iCar,iShell) == iSD(16+iCar,jShell)) .and. (iSym == list_s(2,jlist_s))) List_G(1+iCar,jlist_s) = nGrad_Eff
         end do
 
       else if ((iSD(16+iCar,iShell) == 0) .and. (List_G(1+iCar,ilist_s) == 0)) then
@@ -382,9 +372,7 @@ if (Do_Grad) then
           jShell = list_s(1,jlist_s)
           jSym = list_s(2,jlist_s)
           jNQ = Maps2p(jShell,NrOpr(jSym))
-          if (iNQ == jNQ) then
-            List_G(1+iCar,jlist_s) = nGrad_Eff
-          end if
+          if (iNQ == jNQ) List_G(1+iCar,jlist_s) = nGrad_Eff
         end do
       end if
     end do
@@ -526,8 +514,9 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       ! each atomic grid separately in order to used the translational
       ! invariance on the atomic contributions to the gradient.
 
-      call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox(iNQ),x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,list_p,nlist_p,Grid,Weights,mGrid, &
-                    .true.,number_of_grid_points,R_Box_Min,R_Box_Max,iList_p,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
+      InBox = R2_Trial(iNQ) == Zero
+      call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,list_p,nlist_p,Grid,Weights,mGrid,.true., &
+                    number_of_grid_points,R_Box_Min,R_Box_Max,iList_p,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
 
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Subblock ----> Get_Subblock'
@@ -631,7 +620,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_deallocate(InBox)
+call mma_deallocate(R2_Trial)
 call mma_deallocate(invlist)
 call mma_deallocate(Indx)
 if (allocated(TabMO)) call mma_deallocate(TabMO)

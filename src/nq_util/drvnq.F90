@@ -24,7 +24,7 @@ subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGr
 
 use Symmetry_Info, only: nIrrep
 use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGrd, iTab, kAO, l_CASDFT, Lapl, List_G, Mem, &
-                   nGridMax, nR_Eff, nRho, Pax, R2_trial, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
+                   nGridMax, nR_Eff, nRho, Pax, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
 use nq_pdft, only: lft, lGGA
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
@@ -311,7 +311,6 @@ call mma_allocate(List_S,2,nIrrep*nShell,Label='List_S')
 call mma_allocate(List_Exp,nIrrep*nShell,Label='List_Exp')
 call mma_allocate(List_Bas,2,nIrrep*nShell,Label='List_Bas')
 call mma_allocate(List_P,nNQ,Label='List_P')
-call mma_allocate(R2_trial,nNQ,Label='R2_trial')
 
 if (Do_MO) then
   if (NQNAC /= 0) then
@@ -404,7 +403,6 @@ if (Do_Grad) then
   call mma_deallocate(IndGrd)
   call mma_deallocate(List_G)
 end if
-call mma_deallocate(R2_trial)
 call mma_deallocate(List_P)
 call mma_deallocate(List_Bas)
 call mma_deallocate(List_Exp)

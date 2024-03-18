@@ -32,7 +32,7 @@ use nq_Grid, only: Angular, Coor, Fact, Mem, nGridMax, nR_Eff, Pax
 use nq_structure, only: NQ_Data, Open_NQ_Data
 use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, Grid_Type, L_Quad, LDA_type, MBC, &
                    meta_GGA_type1, meta_GGA_type2, Moving_Grid, mRad, nAngularGrids, nAtoms, ndc, nR, ntotgp, number_of_subblocks, &
-                   nx, ny, nz, Off, On, Rotational_Invariance, T_Y, Threshold, x_min, y_min, z_min
+                   nx, ny, nz, On, Rotational_Invariance, T_Y, Threshold, x_min, y_min, z_min
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         Not_Specified, Old_Functional_Type, Regenerate, Use_Old
 use Index_Functions, only: nTri_Elem1
@@ -167,6 +167,8 @@ do iShell=1,nShell
         NQ_Data(iNQ)%A_high = max(NQ_Data(iNQ)%A_high,A_High)
         NQ_Data(iNQ)%A_low = min(NQ_Data(iNQ)%A_low,A_low)
 
+        NQ_Data(iNQ)%Shell_idx(1) = iShell
+        NQ_Data(iNQ)%Shell_idx(2) = iIrrep
         Maps2p(iShell,iIrrep) = iNQ
         cycle outer
       end if

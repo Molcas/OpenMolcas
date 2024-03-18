@@ -21,8 +21,8 @@ integer(kind=iwp), intent(in) :: ilist_p, nlist_p, list_p(nlist_p), invlist(*), 
 real(kind=wp), intent(in) :: R(3,nGrid), Weights(nGrid)
 real(kind=wp), intent(out) :: dW_dR(nGrad_Eff,nGrid), dW_Temp(3,nlist_p), dPB(3,nlist_p,nlist_p)
 integer(kind=iwp) :: iA, iB, iC, iCar, iD, iGrad, iGrid, iiB, iNQ, jNQ, kNQ, lNQ
-real(kind=wp) :: dmu_BC_dA(3), dmu_BC_dB(3), dmu_BC_dC(3), dOdxs(3), dZ_dB(3), Fact, Osxyz(3), p1, p2, p3, P_A, P_B, r_B, R_BC, &
-                 R_BCxyz(3), r_Bxyz(3), r_C, r_Cxyz(3), rMU_BC, s_MU_BC, sxyz(3), temp, tMU_BC, xdiff0, xdiff1, xdiff2, Z
+real(kind=wp) :: dmu_BC_dA(3), dmu_BC_dB(3), dmu_BC_dC(3), dOdxs(3), dZ_dB(3), Fact, Osxyz(3), P_A, P_B, r_B, R_BC, R_BCxyz(3), &
+                 r_Bxyz(3), r_C, r_Cxyz(3), rMU_BC, s_MU_BC, sxyz(3), temp, tMU_BC, xdiff0, xdiff1, xdiff2, xdiff3, Z
 real(kind=wp), parameter :: Thrs = 1.0e-20_wp
 
 !                                                                      *
@@ -32,8 +32,7 @@ real(kind=wp), parameter :: Thrs = 1.0e-20_wp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! iNQ is the index of the current atomic grid to which these grid
-! points belong.
+! iNQ is the index of the current atomic grid to which these grid points belong.
 
 iNQ = list_p(ilist_p)
 iA = ilist_p
@@ -90,23 +89,24 @@ do_grid: do iGrid=1,nGrid
 
         rMU_BC = (r_B-r_C)/R_BC
         if (rMU_BC <= Half) then
-          p1 = (rMU_BC*Half)*(Three-rMU_BC**2)
-          p2 = (p1*Half)*(Three-p1**2)
-          p3 = (p2*Half)*(Three-p2**2)
+          xdiff0 = rMU_BC
+          xdiff1 = (xdiff0*Half)*(Three-xdiff0**2)
+          xdiff2 = (xdiff1*Half)*(Three-xdiff1**2)
+          xdiff3 = (xdiff2*Half)*(Three-xdiff2**2)
 
           ! Eq. B4
 
-          s_MU_BC = Half*(One-p3)
+          s_MU_BC = Half*(One-xdiff3)
 
           P_B = P_B*s_MU_BC
           if (P_B <= Thrs) exit
-          tMU_BC = -27.0_wp*(One-p2**2)*(One-p1**2)*(One-rMU_BC**2)/(16.0_wp*max(s_MU_BC,1.0e-99_wp))
+          tMU_BC = -27.0_wp*(One-xdiff2**2)*(One-xdiff1**2)*(One-rMU_BC**2)/(16.0_wp*max(s_MU_BC,1.0e-99_wp))
         else
           xdiff0 = rMU_BC-One
           xdiff1 = (-OneHalf-Half*xdiff0)*xdiff0**2
           xdiff2 = (-OneHalf-Half*xdiff1)*xdiff1**2
-          p3 = (OneHalf+Half*xdiff2)*xdiff2**2
-          s_MU_BC = Half*p3
+          xdiff3 = (-OneHalf-Half*xdiff2)*xdiff2**2
+          s_MU_BC = -Half*xdiff3
 
           P_B = P_B*s_MU_BC
           if (P_B <= Thrs) exit

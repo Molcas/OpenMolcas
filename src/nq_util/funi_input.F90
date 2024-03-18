@@ -12,8 +12,8 @@
 subroutine Funi_Input(LuRd)
 
 use nq_Grid, only: nGridMax
-use nq_Info, only: Angular_Pruning, Crowding, Fade, Fixed_Grid, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, NQ_Direct, nR, &
-                   Off, On, Quadrature, Rotational_Invariance, T_Y, Threshold
+use nq_Info, only: Angular_Pruning, Block_Size, Crowding, Fade, Fixed_Grid, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, &
+                   NQ_Direct, nR, Off, On, Quadrature, Rotational_Invariance, T_Y, Threshold
 use Constants, only: Zero, One, Three, Five, Six, Ten
 use Definitions, only: wp, iwp, u6
 
@@ -256,7 +256,7 @@ do
 
     case ('FADE')
       !                                                                *
-      !***** T_Y  ******************************************************
+      !***** FADE ******************************************************
       !                                                                *
       ! Fading factor for angular pruning.
 
@@ -272,6 +272,15 @@ do
       KWord = Get_Ln(LuRd)
       MBC = KWord(1:8)
       call UpCase(MBC)
+
+    case ('BLOC')
+      !                                                                *
+      !***** BLOC ******************************************************
+      !                                                                *
+      ! Block size
+
+      KWord = Get_Ln(LuRd)
+      call Get_F1(1,Block_Size)
 
     case ('END ')
       !                                                                *

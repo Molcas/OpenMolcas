@@ -12,7 +12,8 @@
 subroutine W(R,ilist_p,Weights,list_p,nlist_p,nGrid,nRemoved)
 
 use NQ_Structure, only: NQ_Data
-use Constants, only: Zero, One, Three, Half, OneHalf
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -23,18 +24,19 @@ integer(kind=iwp), intent(in) :: ilist_p, nlist_p, list_p(nlist_p), nGrid
 real(kind=wp), intent(inout) :: R(3,nGrid), Weights(nGrid)
 integer(kind=iwp), intent(out) :: nRemoved
 integer(kind=iwp) :: iGrid, iNQ, jGrid, klist_p, kNQ, llist_p, lNQ
-real(kind=wp) :: p1, p2, p3, P_i, P_k, r_k, R_kl, r_l, rMU_kl, s, Sum_P_k, xdiff
+real(kind=wp) :: r_k, R_kl, r_l, rMU_kl, s, Sum_P_k, xdiff
+real(kind=wp), allocatable :: P(:)
 real(kind=wp), parameter :: Thrs = 1.0e-14_wp
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-P_i = Zero ! dummy initialize
-
-! iNQ is the index of the current atomic grid to which these grid
-! points belong.
+! iNQ is the index of the current atomic grid to which these grid points belong.
 
 iNQ = list_p(ilist_p)
+
+call mma_allocate(P,nlist_p,label='P')
+
 #ifdef _DEBUGPRINT_
 write(u6,*) 'ilist_p=',ilist_p
 write(u6,*) 'nlist_p=',nlist_p
@@ -55,40 +57,50 @@ do iGrid=1,nGrid
   !                                                                    *
   ! Becke's partitioning
 
-  Sum_P_k = Zero
+  P(:) = One
   do klist_p=1,nlist_p
     kNQ = list_p(klist_p)
     r_k = sqrt((R(1,iGrid)-NQ_Data(kNQ)%Coor(1))**2+(R(2,iGrid)-NQ_Data(kNQ)%Coor(2))**2+(R(3,iGrid)-NQ_Data(kNQ)%Coor(3))**2)
-    P_k = One
-    do llist_p=1,nlist_p
+    do llist_p=1,klist_p-1
       lNQ = list_p(llist_p)
-
-      if (kNQ /= lNQ) then
-
-        r_l = sqrt((R(1,iGrid)-NQ_Data(lNQ)%Coor(1))**2+(R(2,iGrid)-NQ_Data(lNQ)%Coor(2))**2+(R(3,iGrid)-NQ_Data(lNQ)%Coor(3))**2)
-        R_kl = sqrt((NQ_Data(kNQ)%Coor(1)-NQ_Data(lNQ)%Coor(1))**2+(NQ_Data(kNQ)%Coor(2)-NQ_Data(lNQ)%Coor(2))**2+ &
-                    (NQ_Data(kNQ)%Coor(3)-NQ_Data(lNQ)%Coor(3))**2)
-        rMU_kl = (r_k-r_l)/R_kl
+      r_l = sqrt((R(1,iGrid)-NQ_Data(lNQ)%Coor(1))**2+(R(2,iGrid)-NQ_Data(lNQ)%Coor(2))**2+(R(3,iGrid)-NQ_Data(lNQ)%Coor(3))**2)
+      R_kl = sqrt((NQ_Data(kNQ)%Coor(1)-NQ_Data(lNQ)%Coor(1))**2+(NQ_Data(kNQ)%Coor(2)-NQ_Data(lNQ)%Coor(2))**2+ &
+                  (NQ_Data(kNQ)%Coor(3)-NQ_Data(lNQ)%Coor(3))**2)
+      rMU_kl = (r_k-r_l)/R_kl
+      ! for abs(mu) > 0.986, s is 0 or 1 within ~1.0e-14
+      if (abs(rMU_kl) <= 0.986_wp) then
         if (rMU_kl <= Half) then
-          p1 = (rMU_kl*Half)*(Three-rMU_kl**2)
-          p2 = (p1*Half)*(Three-p1**2)
-          p3 = (p2*Half)*(Three-p2**2)
-          s = Half*(One-p3)
+          ! p(x) = 3/2*x-1/2*x**3
+          ! p_i = p(...(p(mu)))
+          xdiff = rMU_kl
+          xdiff = (xdiff*Half)*(Three-xdiff**2) ! p_1
+          xdiff = (xdiff*Half)*(Three-xdiff**2) ! p_2
+          xdiff = (xdiff*Half)*(Three-xdiff**2) ! p_3
+          s = Half*(One-xdiff)
         else
+          ! q(x) = -3/2*x**2-1/2*x**3
+          ! q_i = q(...(q(mu-1)))
+          ! p_i = 1+q_i
           xdiff = rMU_kl-One
-          xdiff = (-OneHalf-Half*xdiff)*xdiff**2
-          xdiff = (-OneHalf-Half*xdiff)*xdiff**2
-          p3 = (OneHalf+Half*xdiff)*xdiff**2
-          s = Half*p3
+          xdiff = -(Three+xdiff)*(Half*xdiff**2) ! q_1
+          xdiff = -(Three+xdiff)*(Half*xdiff**2) ! q_2
+          xdiff = -(Three+xdiff)*(Half*xdiff**2) ! q_3
+          s = -Half*xdiff
         end if
-        P_k = P_k*s
+        P(klist_p) = P(klist_p)*s
+        P(llist_p) = P(llist_p)*(One-s)
+      else if (rMU_kl > Zero) then
+        ! s = Zero
+        P(klist_p) = Zero
+      else   ! rMU_kl < Zero
+        ! s = One
+        P(llist_p) = Zero
       end if
     end do
 
-    if (kNQ == iNQ) P_i = P_k
-    Sum_P_k = Sum_P_k+P_k
   end do
-  Weights(iGrid) = Weights(iGrid)*P_i/Sum_P_k
+  Sum_P_k = sum(P(:))
+  Weights(iGrid) = Weights(iGrid)*P(ilist_p)/Sum_P_k
   if (Weights(iGrid) >= Thrs) then
     jGrid = jGrid+1
     if (jGrid /= iGrid) then
@@ -101,7 +113,7 @@ do iGrid=1,nGrid
     nRemoved = nRemoved+1
   end if
 # ifdef _DEBUGPRINT_
-  write(u6,*) 'P_A,Z,Weights=',P_i,Sum_P_k,Weights(jGrid)
+  write(u6,*) 'P_A,Z,Weights=',P(ilist_p),Sum_P_k,Weights(jGrid)
 # endif
   !                                                                    *
   !*********************************************************************
@@ -110,6 +122,7 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nRemoved=',nRemoved
 #endif
+call mma_deallocate(P)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

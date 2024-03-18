@@ -293,7 +293,10 @@ if (Grid_Type == Moving_Grid) then
   do ixyz=1,3
     iGrad = 0
     do jGrad=1,nGrad_Eff
-      if ((iTab(1,jGrad) == ixyz) .and. (iTab(2,jGrad) == Off) .and. (IndGrd(jGrad) > 0)) iGrad = jGrad
+      if ((iTab(1,jGrad) == ixyz) .and. (iTab(2,jGrad) == Off) .and. (IndGrd(jGrad) > 0)) then
+        iGrad = jGrad
+        exit
+      end if
     end do
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iGrad=',iGrad

@@ -21,7 +21,7 @@ subroutine FckAcc_Mck(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,kOp,nijkl,AOI
 !***********************************************************************
 !                                                                      *
 !  Object: to accumulate contributions from the AO integrals directly  *
-!          to the symmatry adapted Fock matrix.                        *
+!          to the symmetry adapted Fock matrix.                        *
 !                                                                      *
 !          The indices has been scrambled before calling this routine. *
 !          Hence we must take special care in order to regain the can- *
@@ -534,7 +534,7 @@ return
 !***********************************************************************
 !                                                                      *
 !  Object: to accumulate contributions from the AO integrals directly  *
-!          to the symmatry adapted Fock matrix.                        *
+!          to the symmetry adapted Fock matrix.                        *
 !                                                                      *
 !          The indices has been scrambled before calling this routine. *
 !          Hence we must take special care in order to regain the can- *
