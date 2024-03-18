@@ -11,7 +11,6 @@
 
 subroutine Compute_O(ZA,RA,nAtoms,T,O,Lambda)
 
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 integer(kind=iwp), intent(in) :: nAtoms

@@ -25,7 +25,6 @@ subroutine RotGrd(RA,ZA,O,dOdx,d2Odx2,nAtoms,Do_Grad,Do_Hess)
 !             Trondheim, Sept. 2003.                                   *
 !***********************************************************************
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine dWdR(R,ilist_p,Weights,list_p,nlist_p,invlist,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
+subroutine dWdR(R,iNQ,Weights,list_p,nlist_p,invlist,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,nGrid)
 
 use NQ_Structure, only: NQ_data
 use nq_Grid, only: Pax
@@ -17,10 +17,10 @@ use Constants, only: Zero, One, Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ilist_p, nlist_p, list_p(nlist_p), invlist(*), nGrad_Eff, iTab(4,nGrad_Eff), nGrid
+integer(kind=iwp), intent(in) :: iNQ, nlist_p, list_p(nlist_p), invlist(*), nGrad_Eff, iTab(4,nGrad_Eff), nGrid
 real(kind=wp), intent(in) :: R(3,nGrid), Weights(nGrid)
 real(kind=wp), intent(out) :: dW_dR(nGrad_Eff,nGrid), dW_Temp(3,nlist_p), dPB(3,nlist_p,nlist_p)
-integer(kind=iwp) :: iA, iB, iC, iCar, iD, iGrad, iGrid, iiB, iNQ, jNQ, kNQ, lNQ
+integer(kind=iwp) :: iA, iB, iC, iCar, iD, iGrad, iGrid, iiB, jNQ, kNQ, lNQ
 real(kind=wp) :: dmu_BC_dA(3), dmu_BC_dB(3), dmu_BC_dC(3), dOdxs(3), dZ_dB(3), Fact, Osxyz(3), P_A, P_B, r_B, R_BC, R_BCxyz(3), &
                  r_Bxyz(3), r_C, r_Cxyz(3), rMU_BC, s_MU_BC, sxyz(3), temp, tMU_BC, xdiff0, xdiff1, xdiff2, xdiff3, Z
 real(kind=wp), parameter :: Thrs = 1.0e-20_wp
@@ -34,8 +34,7 @@ real(kind=wp), parameter :: Thrs = 1.0e-20_wp
 !                                                                      *
 ! iNQ is the index of the current atomic grid to which these grid points belong.
 
-iNQ = list_p(ilist_p)
-iA = ilist_p
+iA = invlist(iNQ)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

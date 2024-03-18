@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1999, Roland Lindh                                     *
+!               2024, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 subroutine Get_Subblock(Kernel,Func,ixyz,Maps2p,list_s,list_exp,list_bas,nShell,nSym,list_p,nNQ,FckInt,nFckDim,nFckInt,nD,mGrid, &
@@ -52,12 +53,12 @@ real(kind=wp), intent(inout) :: Func, FckInt(nFckInt,nFckDim), Grad(nGrad), EG_O
 integer(kind=iwp), intent(out) :: list_s(2,nSym*nShell), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)
 logical(kind=iwp), intent(in) :: Do_Mo, Do_Grad
 integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, ilist_s, iNQ, iPseudo, iShell, iShll, iSkal, iSym, &
-                     ix, iy, iyz, iz, jDisk_Grid, jlist_s, jNQ, jShell, jSym, klist_p, kNQ, mdci, nAOs, nAOs_Eff, nBfn, nDegi, &
-                     nExpTmp, nGrad_Eff, nIndex, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, &
+                     ix, iy, iyz, iz, jDisk_Grid, jlist_s, jNQ, jShell, jSym, kNQ, mdci, nAOs, nAOs_Eff, nBfn, nDegi, nExpTmp, &
+                     nGrad_Eff, nIndex, nlist_d, nlist_p, nlist_s, nogp, NrBas, NrBas_Eff, NrExp, nTabMO, nTabSO, &
                      number_of_grid_points, nx_Roots, ny_Roots, nz_Roots
-real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, RMax_NQ, Roots(3,3), ValExp, X, x_box_max, x_box_min, x_max_, x_min_, &
-                 x_NQ, Xref, xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
-logical(kind=iwp) :: InBox, More_to_come
+real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, Roots(3,3), ValExp, X, x_box_max, x_box_min, x_max_, x_min_, x_NQ, Xref, &
+                 xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
+logical(kind=iwp) :: Added, InBox, More_to_come
 integer(kind=iwp), allocatable :: Indx(:), invlist(:)
 real(kind=wp), allocatable :: dPB(:,:,:), dW_Temp(:,:), R2_Trial(:), TabMO(:), TabSO(:)
 integer(kind=iwp), external :: nBas_Eff, NrOpr
@@ -111,8 +112,6 @@ write(u6,*) 'nNQ=',nNQ
 !                                                                      *
 ilist_p = 0
 call mma_allocate(R2_Trial,nNQ,Label='R2_Trial')
-call mma_allocate(invlist,nNQ,Label='invlist')
-invlist(:) = -1
 do iNQ=1,nNQ
   ! Get the coordinates of the partitioning
   x_NQ = NQ_Data(iNQ)%Coor(1)
@@ -134,13 +133,14 @@ do iNQ=1,nNQ
   if (R2_Trial(iNQ) <= RMax**2) then
     ilist_p = ilist_p+1
     list_p(ilist_p) = iNQ
-    invlist(iNQ) = ilist_p
   end if
 end do
+! nlist_p is the number of centers with a grid extending into this subblock
+! nlist_d is the number of centers that affect the density or weights on the grid points in this subbblock (for derivatives)
 nlist_p = ilist_p
+nlist_d = nlist_p
 if (nlist_p == 0) then
   call mma_deallocate(R2_Trial)
-  call mma_deallocate(invlist)
   return
 end if
 #ifdef _DEBUGPRINT_
@@ -173,12 +173,12 @@ do iShell=1,nShell
 #   endif
 
     iNQ = Maps2p(iShell,NrOpr(iSym))
-    RMax_NQ = NQ_Data(iNQ)%R_max
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iNQ=',iNQ
-    write(u6,*) 'RMax_NQ=',RMax_NQ
     write(u6,*) 'InBox(iNQ)=',R2_Trial(iNQ) == Zero
 #   endif
+
+    Added = .false.
 
     ! 1) the center of this shell is inside the box
 
@@ -188,6 +188,7 @@ do iShell=1,nShell
       list_s(2,ilist_s) = iSym
       list_exp(ilist_s) = NrExp
       list_bas(1,ilist_s) = NrBas
+      Added = .true.
 #     ifdef _ANALYSIS_
       write(u6,*) ' Shell is in box, ilist_s: ',ilist_s
 #     endif
@@ -208,11 +209,10 @@ do iShell=1,nShell
         ! If the exponent has an influence then increase the
         ! number of active exponents for this shell, else
         ! there is no other active exponent (they are ordered)
-        RMax = min(Eval_RMax(ValExp,iAng,Threshold),RMax_NQ)
+        RMax = Eval_RMax(ValExp,iAng,Threshold)
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'iShell,iNQ=',iShell,iNQ
         write(u6,*) 'ValExp,iExp=',ValExp,iExp
-        write(u6,*) 'RMax_NQ=',RMax_NQ
         write(u6,*) 'RMax_Exp=',Eval_RMax(ValExp,iAng,Threshold)
         write(u6,*) 'RMax=',RMax
         write(u6,*) 'R2_Trial(iNQ),RMax**2=',R2_Trial(iNQ),RMax**2
@@ -225,6 +225,7 @@ do iShell=1,nShell
         list_s(1,ilist_s) = iShell
         list_s(2,ilist_s) = iSym
         list_exp(ilist_s) = nExpTmp
+        Added = .true.
 
         ! Examine if contracted basis functions can be ignored.
         ! This will be the case for segmented basis sets.
@@ -237,15 +238,25 @@ do iShell=1,nShell
 #       endif
       end if
     end if
+    ! We may need to increase the number of centers considered for derivatives
+    if (Added .and. Do_Grad .and. (Grid_Type == Moving_Grid)) then
+      do ilist_p=1,nlist_d
+        if (list_p(ilist_p) == iNQ) exit
+      end do
+      if (ilist_p == nlist_d+1) then
+        ! If this center is not found in the current list_p, add it
+        nlist_d = ilist_p
+        list_p(ilist_p) = iNQ
+      end if
+    end if
   end do ! iSym
 end do   ! iShell
 nlist_s = ilist_s
 #ifdef _DEBUGPRINT_
-write(u6,*) 'nList_s,nList_p=',nList_s,nList_p
+write(u6,*) 'nList_s,nList_p,nList_d=',nList_s,nList_p,nList_d
 #endif
-if (nlist_s*nlist_p == 0) then
+if (nlist_s == 0) then
   call mma_deallocate(R2_Trial)
-  call mma_deallocate(invlist)
   return
 end if
 !                                                                      *
@@ -285,6 +296,9 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Contribution to the subblock :'
 write(u6,*) 'NQ :',(list_p(ilist_p),ilist_p=1,nlist_p)
+if (nlist_d > nlist_p) then
+  write(u6,*) '   :',(list_p(ilist_p),ilist_p=nlist_p+1,nlist_d)
+end if
 write(u6,*) 'Sh :',(list_s(1,ilist_s),ilist_s=1,nlist_s)
 write(u6,*) '   :',(list_s(2,ilist_s),ilist_s=1,nlist_s)
 write(u6,*) 'Exp:',(list_exp(ilist_s),ilist_s=1,nlist_s)
@@ -307,6 +321,134 @@ else
 end if
 call mma_allocate(TabMO,nTabMO,Label='TabMO')
 call mma_allocate(TabSO,nTabSO,Label='TabSO')
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call mma_allocate(invlist,nNQ,Label='invlist')
+invlist(:) = -1
+do ilist_p=1,nlist_d
+  invlist(list_p(ilist_p)) = ilist_p
+end do
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+if (Grid_Status /= Use_Old) then
+  call mma_allocate(iBatchInfo,3,nBatch_Max,label='iBatchInfo')
+  iBatchInfo(:,:) = 0
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! For each partition active in the subblock create the grid
+  ! and perform the integration on it.
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  number_of_grid_points = 0
+  nBatch = 0
+  do ilist_p=1,nlist_p
+    iNQ = list_p(ilist_p)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'ilist_p=',ilist_p
+    write(u6,*) 'Get_SubBlock: iNQ=',iNQ
+#   endif
+
+    ! Get the coordinates of the partition
+    x_NQ = NQ_Data(iNQ)%Coor(1)
+    y_NQ = NQ_Data(iNQ)%Coor(2)
+    z_NQ = NQ_Data(iNQ)%Coor(3)
+    ! Get the maximum radius on which we have to integrate for the partition
+    RMax = NQ_Data(iNQ)%R_max
+
+    call Box_On_Sphere(x_Min_-x_NQ,x_Max_-x_NQ,y_Min_-y_NQ,y_Max_-y_NQ,z_Min_-z_NQ,z_Max_-z_NQ,xyz0(1,1),xyz0(1,2),xyz0(2,1), &
+                       xyz0(2,2),xyz0(3,1),xyz0(3,2))
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Establish R_Box_Max and R_Box_Min, the longest and the shortest
+    ! distance from the origin of the atomic grid to a point in the box
+
+    R_Box_Max = Zero
+    R_Box_Min = RMax
+
+    x_box_min = x_min_-x_NQ
+    x_box_max = x_max_-x_NQ
+    y_box_min = y_min_-y_NQ
+    y_box_max = y_max_-y_NQ
+    z_box_min = z_min_-z_NQ
+    z_box_max = z_max_-z_NQ
+
+    Roots(1,1) = x_box_min
+    Roots(2,1) = x_box_max
+    if (x_box_max*x_box_min < Zero) then
+      nx_Roots = 3
+      Roots(3,1) = Zero
+    else
+      nx_Roots = 2
+    end if
+
+    Roots(1,2) = y_box_min
+    Roots(2,2) = y_box_max
+    if (y_box_max*y_box_min < Zero) then
+      ny_Roots = 3
+      Roots(3,2) = Zero
+    else
+      ny_Roots = 2
+    end if
+
+    Roots(1,3) = z_box_min
+    Roots(2,3) = z_box_max
+    if (z_box_max*z_box_min < Zero) then
+      nz_Roots = 3
+      Roots(3,3) = Zero
+    else
+      nz_Roots = 2
+    end if
+
+    ! Check all stationary points
+
+    do ix=1,nx_Roots
+      x = Roots(ix,1)
+      do iy=1,ny_Roots
+        y = Roots(iy,2)
+        do iz=1,nz_Roots
+          z = Roots(iz,3)
+
+          r = sqrt(x**2+y**2+z**2)
+
+          R_Box_Max = max(R_Box_Max,r)
+          R_Box_Min = min(R_Box_Min,r)
+
+        end do
+      end do
+    end do
+
+    if (abs(R_Box_Min) < 1.0e-12_wp) R_Box_Min = Zero
+    R_Box_Max = R_Box_Max+1.0e-15_wp
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Get_Subblock ----> Subblock'
+#   endif
+
+    ! Note that in gradient calculations we process the grid points for
+    ! each atomic grid separately in order to used the translational
+    ! invariance on the atomic contributions to the gradient.
+
+    InBox = R2_Trial(iNQ) == Zero
+    call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,nNQ,Grid,Weights,mGrid,.true., &
+                  number_of_grid_points,R_Box_Min,R_Box_Max,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
+
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Subblock ----> Get_Subblock'
+#   endif
+  end do
+  GridInfo(1,ixyz) = iDisk_Grid
+  GridInfo(2,ixyz) = nBatch
+  call iDaFile(Lu_Grid,1,iBatchInfo,3*nBatch,iDisk_Grid)
+  call mma_deallocate(iBatchInfo)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -380,157 +522,18 @@ if (Do_Grad) then
 
   if (Grid_Type == Moving_Grid) then
     call mma_allocate(dW_dR,nGrad_Eff,mGrid,Label='dW_dR')
-    call mma_allocate(dW_Temp,3,nlist_p,Label='dW_Temp')
-    call mma_allocate(dPB,3,nlist_p,nlist_p,Label='dPB')
+    call mma_allocate(dW_Temp,3,nlist_d,Label='dW_Temp')
+    call mma_allocate(dPB,3,nlist_d,nlist_d,Label='dPB')
   end if
 end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
-  if (Grid_Status /= Use_Old) then
-    call mma_allocate(iBatchInfo,3,nBatch_Max,label='iBatchInfo')
-    iBatchInfo(:,:) = 0
-    !                                                                  *
-    !*******************************************************************
-    !*******************************************************************
-    !                                                                  *
-    ! For each partition active in the subblock create the grid
-    ! and perform the integration on it.
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    number_of_grid_points = 0
-    nBatch = 0
-    do ilist_p=1,nlist_p
-      iNQ = list_p(ilist_p)
-#     ifdef _DEBUGPRINT_
-      write(u6,*) 'ilist_p=',ilist_p
-      write(u6,*) 'Get_SubBlock: iNQ=',iNQ
-#     endif
-
-      ! Select which gradient contributions should be computed.
-      ! For basis functions which have the center common with the grid
-      ! do not compute any contribution.
-
-      if (Do_Grad) then
-        iTab(2,1:nGrad_Eff) = On
-        if (Grid_Type == Moving_Grid) then
-          do iGrad=1,nGrad_Eff
-            jNQ = iTab(3,iGrad)
-            if (iNQ == jNQ) iTab(2,iGrad) = Off
-          end do
-        end if
-#       ifdef _DEBUGPRINT_
-        write(u6,*)
-        write(u6,'(A,24I3)') '       i =',(i,i=1,nGrad_Eff)
-        write(u6,'(A,24I3)') 'iTab(1,i)=',(iTab(1,i),i=1,nGrad_Eff)
-        write(u6,'(A,24I3)') 'iTab(2,i)=',(iTab(2,i),i=1,nGrad_Eff)
-        write(u6,'(A,24I3)') 'iTab(3,i)=',(iTab(3,i),i=1,nGrad_Eff)
-        write(u6,'(A,24I3)') 'iTab(4,i)=',(iTab(4,i),i=1,nGrad_Eff)
-        write(u6,*) 'IndGrd=',IndGrd
-        write(u6,*)
-#       endif
-
-      end if
-
-      ! Get the coordinates of the partition
-      x_NQ = NQ_Data(iNQ)%Coor(1)
-      y_NQ = NQ_Data(iNQ)%Coor(2)
-      z_NQ = NQ_Data(iNQ)%Coor(3)
-      ! Get the maximum radius on which we have to integrate for the partition
-      RMax = NQ_Data(iNQ)%R_max
-
-      call Box_On_Sphere(x_Min_-x_NQ,x_Max_-x_NQ,y_Min_-y_NQ,y_Max_-y_NQ,z_Min_-z_NQ,z_Max_-z_NQ,xyz0(1,1),xyz0(1,2),xyz0(2,1), &
-                         xyz0(2,2),xyz0(3,1),xyz0(3,2))
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-      ! Establish R_Box_Max and R_Box_Min, the longest and the shortest
-      ! distance from the origin of the atomic grid to a point in the box
-
-      R_Box_Max = Zero
-      R_Box_Min = RMax
-
-      x_box_min = x_min_-x_NQ
-      x_box_max = x_max_-x_NQ
-      y_box_min = y_min_-y_NQ
-      y_box_max = y_max_-y_NQ
-      z_box_min = z_min_-z_NQ
-      z_box_max = z_max_-z_NQ
-
-      Roots(1,1) = x_box_min
-      Roots(2,1) = x_box_max
-      if (x_box_max*x_box_min < Zero) then
-        nx_Roots = 3
-        Roots(3,1) = Zero
-      else
-        nx_Roots = 2
-      end if
-
-      Roots(1,2) = y_box_min
-      Roots(2,2) = y_box_max
-      if (y_box_max*y_box_min < Zero) then
-        ny_Roots = 3
-        Roots(3,2) = Zero
-      else
-        ny_Roots = 2
-      end if
-
-      Roots(1,3) = z_box_min
-      Roots(2,3) = z_box_max
-      if (z_box_max*z_box_min < Zero) then
-        nz_Roots = 3
-        Roots(3,3) = Zero
-      else
-        nz_Roots = 2
-      end if
-
-      ! Check all stationary points
-
-      do ix=1,nx_Roots
-        x = Roots(ix,1)
-        do iy=1,ny_Roots
-          y = Roots(iy,2)
-          do iz=1,nz_Roots
-            z = Roots(iz,3)
-
-            r = sqrt(x**2+y**2+z**2)
-
-            R_Box_Max = max(R_Box_Max,r)
-            R_Box_Min = min(R_Box_Min,r)
-
-          end do
-        end do
-      end do
-
-      if (abs(R_Box_Min) < 1.0e-12_wp) R_Box_Min = Zero
-      R_Box_Max = R_Box_Max+1.0e-15_wp
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-#     ifdef _DEBUGPRINT_
-      write(u6,*) 'Get_Subblock ----> Subblock'
-#     endif
-
-      ! Note that in gradient calculations we process the grid points for
-      ! each atomic grid separately in order to used the translational
-      ! invariance on the atomic contributions to the gradient.
-
-      InBox = R2_Trial(iNQ) == Zero
-      call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,nNQ,Grid,Weights,mGrid,.true., &
-                    number_of_grid_points,R_Box_Min,R_Box_Max,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
-
-#     ifdef _DEBUGPRINT_
-      write(u6,*) 'Subblock ----> Get_Subblock'
-#     endif
-    end do
-    GridInfo(1,ixyz) = iDisk_Grid
-    GridInfo(2,ixyz) = nBatch
-    call iDaFile(Lu_Grid,1,iBatchInfo,3*nBatch,iDisk_Grid)
-    call mma_deallocate(iBatchInfo)
-  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ! Process grid points on file
+  ! Process grid points
 
   iDisk_Grid = GridInfo(1,ixyz)
   nBatch = GridInfo(2,ixyz)
@@ -552,10 +555,6 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       write(u6,*) 'iNQ=',iNQ
       write(u6,*)
 #     endif
-      ilist_p = -1
-      do klist_p=1,nlist_p
-        if (list_p(klist_p) == iNQ) ilist_p = klist_p
-      end do
 
       if (nogp+number_of_grid_points <= mGrid) then
         call dDaFile(Lu_Grid,2,Grid(1,nogp+1),3*number_of_grid_points,jDisk_Grid)
@@ -583,7 +582,7 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
 
           ! Generate derivative with respect to the weights if needed.
 
-          call dWdR(Grid,ilist_p,Weights,list_p,nlist_p,invlist,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,number_of_grid_points)
+          call dWdR(Grid,iNQ,Weights,list_p,nlist_d,invlist,dW_dR,nGrad_Eff,iTab,dW_Temp,dPB,number_of_grid_points)
         end if
       end if
 
