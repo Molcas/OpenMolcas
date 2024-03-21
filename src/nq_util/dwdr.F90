@@ -165,7 +165,7 @@ do_grid: do iGrid=1,nGrid
               dOdxs(3) = sum(NQ_Data(jNQ)%dOdx(3,:,iCar)*sxyz(:))
               temp = tMU_BC*sum(dmu_BC_dA(:)*dOdxs(:))
 
-              dPB(iCar,iD,iB) = dPB(iCar,iD,iB)-temp
+              dPB(iCar,iD,iB) = dPB(iCar,iD,iB)+temp
             end do
           end if
 

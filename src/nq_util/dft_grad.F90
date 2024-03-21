@@ -361,7 +361,7 @@ if (Grid_Type == Moving_Grid) then
       call RecPrt('dOdx',' ',NQ_Data(jNQ)%dOdx(:,:,iCar),3,3)
       write(u6,*) 'Tmp=',Tmp
 #     endif
-      Temp(i_Eff) = Temp(i_Eff)-Tmp
+      Temp(i_Eff) = Temp(i_Eff)+Tmp
     end do
   end if
 
