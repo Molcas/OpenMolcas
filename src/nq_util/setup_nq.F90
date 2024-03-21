@@ -47,10 +47,10 @@ integer(kind=iwp), intent(out) :: Maps2p(nShell,0:nSym-1), nNQ
 logical(kind=iwp), intent(in) :: Do_Grad, On_Top
 real(kind=wp), intent(out) :: Pck_Old
 logical(kind=iwp), intent(out) :: PMode_old
-integer(kind=iwp) :: iAng, iAng_, iANr, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, iNQ_MBC, iPrim, &
-                     iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, l_max, lAng, lAngular, LmbdR, lSO, mAO, mdci, mdcj, &
-                     mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, nSO, &
-                     nTerm, nxyz
+integer(kind=iwp) :: iAng, iAng_, iANr, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, iNQ_MBC, &
+                     iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, l_max, lAng, lAngular, LmbdR, lSO, mAO, mdci, &
+                     mdcj, mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, &
+                     nSO, nTerm, nxyz
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: kR
@@ -153,7 +153,7 @@ do iShell=1,nShell
     call OA(iOper(iIrrep),C,XYZ)
     do iNQ=1,nNQ
 
-      if (EQ(NQ_data(iNQ)%Coor,XYZ)) then
+      if (EQ(NQ_Data(iNQ)%Coor,XYZ)) then
 
         NQ_Data(iNQ)%Atom_Nr = iANR
 
@@ -167,8 +167,20 @@ do iShell=1,nShell
         NQ_Data(iNQ)%A_high = max(NQ_Data(iNQ)%A_high,A_High)
         NQ_Data(iNQ)%A_low = min(NQ_Data(iNQ)%A_low,A_low)
 
-        NQ_Data(iNQ)%Shell_idx(1) = iShell
-        NQ_Data(iNQ)%Shell_idx(2) = iIrrep
+        ! Information for gradients
+        do iCar=1,3
+          if (iSD(12,iShell) == 1) then
+            NQ_Data(iNQ)%Grad_idx(iCar) = -1
+          else if (iSD(15+iCar,iShell) /= 0) then
+            NQ_Data(iNQ)%Grad_idx(iCar) = iSD(15+iCar,iShell)
+          end if
+          if (XYZ(iCar) == C(iCar)) then
+            NQ_Data(iNQ)%Fact = dc(iSD(10,iShell))%nStab
+          else
+            NQ_Data(iNQ)%Fact = -dc(iSD(10,iShell))%nStab
+          end if
+        end do
+
         Maps2p(iShell,iIrrep) = iNQ
         cycle outer
       end if
@@ -266,7 +278,7 @@ if (Rotational_Invariance == On) then
 
   do iNQ=1,nNQ
     ZA(iNQ) = real(NQ_Data(iNQ)%Atom_Nr,kind=wp)
-    Crd(:,iNQ) = NQ_data(iNQ)%Coor(:)
+    Crd(:,iNQ) = NQ_Data(iNQ)%Coor(:)
   end do
 
   Do_Rot = Do_Grad .and. (Grid_Type == Moving_Grid)

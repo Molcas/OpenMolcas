@@ -13,6 +13,7 @@ subroutine dWdR(R,iNQ,Weights,list_p,nlist_p,invlist,dW_dR,nGrad_Eff,iTab,dW_Tem
 
 use NQ_Structure, only: NQ_data
 use nq_Grid, only: Pax
+use nq_Info, only: On, Rotational_Invariance
 use Constants, only: Zero, One, Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp
 
@@ -156,15 +157,17 @@ do_grid: do iGrid=1,nGrid
 
           if (iD == iA) dPB(:,iA,iB) = dPB(:,iA,iB)+tMU_BC*dmu_BC_dA(:)
 
-          jNQ = list_p(iD)
-          do iCar=1,3
-            dOdxs(1) = sum(NQ_Data(jNQ)%dOdx(1,:,iCar)*sxyz(:))
-            dOdxs(2) = sum(NQ_Data(jNQ)%dOdx(2,:,iCar)*sxyz(:))
-            dOdxs(3) = sum(NQ_Data(jNQ)%dOdx(3,:,iCar)*sxyz(:))
-            temp = tMU_BC*sum(dmu_BC_dA(:)*dOdxs(:))
+          if (Rotational_Invariance == On) then
+            jNQ = list_p(iD)
+            do iCar=1,3
+              dOdxs(1) = sum(NQ_Data(jNQ)%dOdx(1,:,iCar)*sxyz(:))
+              dOdxs(2) = sum(NQ_Data(jNQ)%dOdx(2,:,iCar)*sxyz(:))
+              dOdxs(3) = sum(NQ_Data(jNQ)%dOdx(3,:,iCar)*sxyz(:))
+              temp = tMU_BC*sum(dmu_BC_dA(:)*dOdxs(:))
 
-            dPB(iCar,iD,iB) = dPB(iCar,iD,iB)-temp
-          end do
+              dPB(iCar,iD,iB) = dPB(iCar,iD,iB)-temp
+            end do
+          end if
 
         end do ! iD
 
@@ -207,10 +210,13 @@ do_grid: do iGrid=1,nGrid
   !                                                                    *
   ! Pick up the relevant gradients
 
-  do iGrad=1,nGrad_Eff
-    iCar = iTab(1,iGrad)
-    kNQ = iTab(3,iGrad)
-    dW_dR(iGrad,iGrid) = Fact*dW_Temp(iCar,invlist(kNQ))
+  do iB=1,nlist_p
+    kNQ = list_p(iB)
+    do iGrad=1,nGrad_Eff
+      if (iTab(3,iGrad) /= kNQ) cycle
+      iCar = iTab(1,iGrad)
+      dW_dR(iGrad,iGrid) = Fact*dW_Temp(iCar,invlist(kNQ))
+    end do
   end do
   !                                                                    *
   !*********************************************************************

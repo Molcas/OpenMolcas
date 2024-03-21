@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine W(R,iNQ,Weights,nNQ,nGrid,nRemoved)
+subroutine W(R,iNQ,Weights,nNQ,invlist,nGrid,nRemoved)
 
 use NQ_Structure, only: NQ_Data
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,6 +22,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: iNQ, nNQ, nGrid
 real(kind=wp), intent(inout) :: R(3,nGrid), Weights(nGrid)
+integer(kind=iwp), intent(inout) :: invlist(nNQ)
 integer(kind=iwp), intent(out) :: nRemoved
 integer(kind=iwp) :: iGrid, jGrid, kNQ, lNQ
 real(kind=wp) :: r_k, R_kl, r_l, rMU_kl, s, Sum_P_k, xdiff
@@ -103,6 +104,11 @@ do iGrid=1,nGrid
       R(2,jGrid) = R(2,iGrid)
       R(3,jGrid) = R(3,iGrid)
     end if
+    ! The centers that contribute to the weights are marked with invlist(i) = 0
+    ! (all values are -1 initially)
+    do kNQ=1,nNQ
+      if (P(kNQ)/Sum_P_k > Thrs) invlist(kNQ) = 0
+    end do
   else
     nRemoved = nRemoved+1
   end if

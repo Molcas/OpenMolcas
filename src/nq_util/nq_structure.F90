@@ -39,7 +39,8 @@ type NQ_data_t
   integer(kind=iwp), allocatable :: Angular(:)
   integer(kind=iwp) :: Atom_Nr = -1
   real(kind=wp) :: dOdx(3,3,3) = Zero
-  integer(kind=iwp) :: Shell_idx(2) = -1
+  integer(kind=iwp) :: Grad_idx(3) = 0
+  integer(kind=iwp) :: Fact = 0
 end type NQ_data_t
 
 type(Info_Ang_t) Info_Ang(LMax_NQ)

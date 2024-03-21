@@ -1,4 +1,4 @@
-!**********************************************************************
+!***********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -31,6 +31,7 @@ use iSD_data, only: iSD
 use Basis_Info, only: Shells
 use Center_Info, only: dc
 use nq_Grid, only: dRho_dR, dW_dR, Grid, IndGrd, iTab, kAO, List_G, nR_Eff, TabAO, TabAO_Pack, TabAO_Short, Weights
+use nq_Info, only: On, Rotational_Invariance
 use NQ_Structure, only: NQ_Data
 use nq_MO, only: nMOs
 use nq_Info, only: Block_Size, Grid_Type, Moving_Grid, nPot1, nTotGP, nx, ny, nz, Off, On, Threshold, x_min, y_min, z_min
@@ -59,7 +60,7 @@ integer(kind=iwp) :: i, iAng, iBatch, iCar, iCmp, iExp, iGrad, iIndex, ilist_p, 
 real(kind=wp) :: r, R_Box_Max, R_Box_Min, RMax, Roots(3,3), ValExp, X, x_box_max, x_box_min, x_max_, x_min_, x_NQ, Xref, &
                  xyz0(3,2), y, y_box_max, y_box_min, y_max_, y_min_, y_NQ, z, z_box_max, z_box_min, z_max_, z_min_, z_NQ
 logical(kind=iwp) :: Added, InBox, More_to_come
-integer(kind=iwp), allocatable :: Indx(:), invlist(:)
+integer(kind=iwp), allocatable :: Indx(:), invlist(:), invlist_g(:,:)
 real(kind=wp), allocatable :: dPB(:,:,:), dW_Temp(:,:), R2_Trial(:), TabMO(:), TabSO(:)
 integer(kind=iwp), external :: nBas_Eff, NrOpr
 real(kind=wp), external :: Eval_RMax
@@ -118,13 +119,7 @@ do iNQ=1,nNQ
   y_NQ = NQ_Data(iNQ)%Coor(2)
   z_NQ = NQ_Data(iNQ)%Coor(3)
 
-  R2_Trial(iNQ) = Zero
-  if (x_NQ < x_min_) R2_Trial(iNQ) = R2_Trial(iNQ)+(x_NQ-x_min_)**2
-  if (x_NQ > x_max_) R2_Trial(iNQ) = R2_Trial(iNQ)+(x_max_-x_NQ)**2
-  if (y_NQ < y_min_) R2_Trial(iNQ) = R2_Trial(iNQ)+(y_NQ-y_min_)**2
-  if (y_NQ > y_max_) R2_Trial(iNQ) = R2_Trial(iNQ)+(y_max_-y_NQ)**2
-  if (z_NQ < z_min_) R2_Trial(iNQ) = R2_Trial(iNQ)+(z_NQ-z_min_)**2
-  if (z_NQ > z_max_) R2_Trial(iNQ) = R2_Trial(iNQ)+(z_max_-z_NQ)**2
+  R2_Trial(iNQ) = max(Zero,x_NQ-x_max_,x_min_-x_NQ)**2+max(Zero,y_NQ-y_max_,y_min_-y_NQ)**2+max(Zero,z_NQ-z_max_,z_min_-z_NQ)**2
 
   ! 1) R2_Trial == 0      : center is in the box
   ! 2) R2_Trial < RMax**2 : atomic grid of this center extends inside the box.
@@ -326,9 +321,12 @@ call mma_allocate(TabSO,nTabSO,Label='TabSO')
 !                                                                      *
 call mma_allocate(invlist,nNQ,Label='invlist')
 invlist(:) = -1
-do ilist_p=1,nlist_d
-  invlist(list_p(ilist_p)) = ilist_p
-end do
+! With rotational invariance, *all* centers with nonzero charge affect the grid, because they affect the orientation
+if (Rotational_Invariance == On) then
+  do iNQ=1,nNQ
+    if (NQ_Data(iNQ)%Atom_Nr /= 0) invlist(iNQ) = 0
+  end do
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -437,7 +435,7 @@ if (Grid_Status /= Use_Old) then
     ! invariance on the atomic contributions to the gradient.
 
     InBox = R2_Trial(iNQ) == Zero
-    call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,nNQ,Grid,Weights,mGrid,.true., &
+    call Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,nNQ,invlist,Grid,Weights,mGrid,.true., &
                   number_of_grid_points,R_Box_Min,R_Box_Max,xyz0,NQ_Data(iNQ)%Angular,nR_Eff(iNQ))
 
 #   ifdef _DEBUGPRINT_
@@ -447,8 +445,17 @@ if (Grid_Status /= Use_Old) then
   GridInfo(1,ixyz) = iDisk_Grid
   GridInfo(2,ixyz) = nBatch
   call iDaFile(Lu_Grid,1,iBatchInfo,3*nBatch,iDisk_Grid)
+  call iDaFile(Lu_Grid,1,invlist,nNQ,iDisk_Grid)
   call mma_deallocate(iBatchInfo)
 end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+iDisk_Grid = GridInfo(1,ixyz)
+nBatch = GridInfo(2,ixyz)
+call mma_allocate(iBatchInfo,3,nBatch,label='iBatchInfo')
+call iDaFile(Lu_Grid,2,iBatchInfo,3*nBatch,iDisk_Grid)
+call iDaFile(Lu_Grid,2,invlist,nNQ,iDisk_Grid)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -457,31 +464,35 @@ end if
 
 nGrad_Eff = 0
 if (Do_Grad) then
+  call mma_allocate(invlist_g,3,nNQ,label='invlist_g')
+  invlist_g(:,:) = -1
   List_G(:,:) = 0
   do ilist_s=1,nlist_s
     iShell = list_s(1,ilist_s)
     iSym = list_s(2,ilist_s)
     mdci = iSD(10,iShell)
     iNQ = Maps2p(iShell,NrOpr(iSym))
-    do iCar=0,2
-      if (((iSD(16+iCar,iShell) /= 0) .or. (iSD(12,iShell) == 1)) .and. (List_G(1+iCar,ilist_s) == 0)) then
+    do iCar=1,3
+      if (List_G(iCar,ilist_s) /= 0) cycle
+      iPseudo = iSD(12,iShell)
+      if ((iSD(15+iCar,iShell) /= 0) .or. (iPseudo == 1)) then
         nGrad_Eff = nGrad_Eff+1
 
         ! For pseudo centers note that there will not be a
         ! gradient computed for this center.
 
-        iPseudo = iSD(12,iShell)
         if (iPseudo == 0) then
-          IndGrd(nGrad_Eff) = iSD(16+iCar,iShell)
+          IndGrd(nGrad_Eff) = iSD(15+iCar,iShell)
         else
           IndGrd(nGrad_Eff) = -1
         end if
-        List_G(1+iCar,ilist_s) = nGrad_Eff
-        iTab(1,nGrad_Eff) = iCar+1
+        List_G(iCar,ilist_s) = nGrad_Eff
+        iTab(1,nGrad_Eff) = iCar
         iTab(3,nGrad_Eff) = iNQ
+        invlist_g(iCar,iNQ) = nGrad_Eff
         kNQ = Maps2p(iShell,0)
-        Xref = NQ_Data(kNQ)%Coor(iCar+1)
-        X = NQ_Data(iNQ)%Coor(iCar+1)
+        Xref = NQ_Data(kNQ)%Coor(iCar)
+        X = NQ_Data(iNQ)%Coor(iCar)
         if (X == Xref) then
           iTab(4,nGrad_Eff) = dc(mdci)%nStab
         else
@@ -492,10 +503,10 @@ if (Do_Grad) then
 
         do jlist_s=ilist_s+1,nlist_s
           jShell = list_s(1,jlist_s)
-          if ((iSD(16+iCar,iShell) == iSD(16+iCar,jShell)) .and. (iSym == list_s(2,jlist_s))) List_G(1+iCar,jlist_s) = nGrad_Eff
+          if ((iSD(15+iCar,iShell) == iSD(15+iCar,jShell)) .and. (iSym == list_s(2,jlist_s))) List_G(iCar,jlist_s) = nGrad_Eff
         end do
 
-      else if ((iSD(16+iCar,iShell) == 0) .and. (List_G(1+iCar,ilist_s) == 0)) then
+      else if (iSD(15+iCar,iShell) == 0) then
 
         ! Include derivatives which will be used for
         ! the translational invariance equation but which do not
@@ -503,9 +514,10 @@ if (Do_Grad) then
 
         nGrad_Eff = nGrad_Eff+1
         IndGrd(nGrad_Eff) = -1
-        List_G(1+iCar,ilist_s) = nGrad_Eff
-        iTab(1,nGrad_Eff) = iCar+1
+        List_G(iCar,ilist_s) = nGrad_Eff
+        iTab(1,nGrad_Eff) = iCar
         iTab(3,nGrad_Eff) = iNQ
+        invlist_g(iCar,iNQ) = nGrad_Eff
         iTab(4,nGrad_Eff) = dc(mdci)%nStab
 
         ! Find all other shells which contribute to the same gradient.
@@ -514,17 +526,47 @@ if (Do_Grad) then
           jShell = list_s(1,jlist_s)
           jSym = list_s(2,jlist_s)
           jNQ = Maps2p(jShell,NrOpr(jSym))
-          if (iNQ == jNQ) List_G(1+iCar,jlist_s) = nGrad_Eff
+          if (iNQ == jNQ) List_G(iCar,jlist_s) = nGrad_Eff
         end do
       end if
     end do
   end do
 
   if (Grid_Type == Moving_Grid) then
+    ! Add the centers that contribute through modification of the weights
+    ! (i.e. those for which invlist is 0)
+    ! Unfortunately, with rotational invariance this probably includes all centers
+    ! (This should be revised with symmetry)
+    do ilist_p=1,nlist_d
+      invlist(list_p(ilist_p)) = ilist_p
+    end do
+    do iNQ=1,nNQ
+      if (invlist(iNQ) < 0) cycle
+      if (invlist(iNQ) == 0) then
+        nlist_d = nlist_d+1
+        list_p(nlist_d) = iNQ
+        invlist(iNQ) = nlist_d
+      end if
+      do iCar=1,3
+        if (invlist_g(iCar,iNQ) > 0) cycle
+        nGrad_Eff = nGrad_Eff+1
+        if (NQ_Data(iNQ)%Grad_idx(iCar) /= 0) then
+          IndGrd(nGrad_Eff) = NQ_Data(iNQ)%Grad_idx(iCar)
+        else
+          IndGrd(nGrad_Eff) = -1
+        end if
+        iTab(1,nGrad_Eff) = iCar
+        iTab(3,nGrad_Eff) = iNQ
+        iTab(4,nGrad_Eff) = NQ_Data(iNQ)%Fact
+        invlist_g(iCar,iNQ) = nGrad_Eff
+      end do
+    end do
+
     call mma_allocate(dW_dR,nGrad_Eff,mGrid,Label='dW_dR')
     call mma_allocate(dW_Temp,3,nlist_d,Label='dW_Temp')
     call mma_allocate(dPB,3,nlist_d,nlist_d,Label='dPB')
   end if
+  call mma_deallocate(invlist_g)
 end if
 !                                                                      *
 !***********************************************************************
@@ -534,11 +576,6 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
   !*********************************************************************
   !                                                                    *
   ! Process grid points
-
-  iDisk_Grid = GridInfo(1,ixyz)
-  nBatch = GridInfo(2,ixyz)
-  call mma_allocate(iBatchInfo,3,nBatch,label='iBatchInfo')
-  call iDaFile(Lu_Grid,2,iBatchInfo,3*nBatch,iDisk_Grid)
 
   iBatch = 0
   nogp = 0
@@ -614,8 +651,8 @@ if ((.not. Do_Grad) .or. (nGrad_Eff /= 0)) then
       if (.not. More_To_Come) exit
     end do
   end do outer
-  call mma_deallocate(iBatchInfo)
 end if
+call mma_deallocate(iBatchInfo)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
