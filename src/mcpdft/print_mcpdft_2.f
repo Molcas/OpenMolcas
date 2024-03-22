@@ -105,7 +105,7 @@
      &'Total MC-PDFT energy for intermediate state', jroot,CASDFT_E
       ELSE
       call PrintResult(6,Fmt2//'A,2X,I4,A,26X,F18.8)',
-     & 'Total MC-PDFT energy for state',jroot,'',CASDFT_E,1)
+     & 'Total MC-PDFT energy for state',jroot,'',[CASDFT_E],1)
       END IF
       if ((CoefX*CoefR.ne.0.0).and.(CoefX.ne.1.0.or.CoefR.ne.1.0)) Then
          Funcaa1 = Funcaa/CoefX
