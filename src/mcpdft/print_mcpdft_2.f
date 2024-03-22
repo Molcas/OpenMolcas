@@ -26,27 +26,33 @@
       use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
       use mspdft, only: mspdftmethod, do_rotate
+      use mcpdft_output, only: iPrGlb, usual
 
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot
       Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
       Dimension Ref_Ener(*)
-      integer jroot
+      integer jroot, left
+      character*6 Fmt2
+      character*120 Line
 #include "WrkSpc.fh"
 
-      write(6,'(6X,80A)')
-      write(6,'(6X,80A)') ('*',i=1,80)
-      write(6,'(6X,80A)') ('*',i=1,80)
+      if (iPrGlb >= usual) then
+
+      left=6
+      Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+      Line=''
       IF(Do_Rotate) Then
-      write(6,'(6X,2A,1X,I4.4,1X,A)')'**                      '//
-     &    MSpdftMethod,' INTERMEDIATE STATE', jroot,
-     & '                     ** '
+      Write(Line(left-2:),'(2A,1X,I4.4)') MSpdftMethod,
+     & ' INTERMEDIATE STATE',jroot
       ELSE
-      write(6,'(6X,A,1X,I4.4,1X,A)')'**                        '//
-     &    ' MC-PDFT RESULTS, STATE', jroot,
-     & '                       ** '
+      Write(Line(left-2:),'(A,1X,I4.4)') 'MC-PDFT RESULTS, STATE',jroot
       ENDIF
-      write(6,'(6X,80A)') ('*',i=1,80)
+      write(6,'(6X,80A)')
+      Call CollapseOutput(1,Line)
+      Write(6,Fmt2//'80A)') ('-',i=1,len_trim(Line)-3)
+      write(6,'(6X,80A)')
+
       write(6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',
      &                           Ref_Ener(jroot)
       write(6,'(6X,80A)')
@@ -98,8 +104,8 @@
       write(6,'(6X,A,2X,I4,13X,F18.8)')
      &'Total MC-PDFT energy for intermediate state', jroot,CASDFT_E
       ELSE
-      write(6,'(6X,A,2X,I4,26X,F18.8)')
-     &'Total MC-PDFT energy for state',jroot,CASDFT_E
+      call PrintResult(6,Fmt2//'A,2X,I4,A,26X,F18.8)',
+     & 'Total MC-PDFT energy for state',jroot,'',CASDFT_E,1)
       END IF
       if ((CoefX*CoefR.ne.0.0).and.(CoefX.ne.1.0.or.CoefR.ne.1.0)) Then
          Funcaa1 = Funcaa/CoefX
@@ -126,9 +132,9 @@
      &         CASDFT_E_1
       end if
 
+      Call CollapseOutput(0,Line)
       write(6,'(6X,80A)')
-      write(6,'(6X,80A)') ('*',i=1,80)
-      write(6,'(6X,80A)')
+      end if
 
       Call Add_Info('dens_tt',[Dens_I],1,6)
       Call Add_Info('dens_a1',[Dens_a1],1,6)

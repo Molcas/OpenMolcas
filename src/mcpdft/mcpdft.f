@@ -60,7 +60,7 @@
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS, doNACMSPD, cmsNACstates, doMECIMSPD,
      &                  mspdft_finalize
-      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+      use mcpdft_output, only: terse, debug, insane, usual, lf, iPrLoc
       use mspdft_util, only: replace_diag
       use rctfld_module
       use rasscf_lucia, only: PAtmp, Pscr, CIVEC, Ptmp, DStmp, Dtmp
@@ -305,14 +305,17 @@
 
       IF(iMSPDFT==1) Then
        call f_inquire('ROT_HAM',Do_Rotate)
+       IF(IPRLEV.ge.USUAL) THEN
        If(.not.Do_Rotate) Then
         write(lf,'(6X,A,A)')'keyword "MSPD" is used but ',
      &  'the file of rotated Hamiltonian is not found.'
         write(lf,'(6X,2a)')'Performing regular (state-',
      &   'specific) MC-PDFT calculation'
        End If
+       END IF
       End IF
       IF(Do_Rotate) Then
+        IF(IPRLEV.ge.USUAL) THEN
         write(lf,'(6X,80A)') ('=',i=1,80)
         write(lf,*)
         write(lf,'(6X,A,A)')'keyword "MSPD" is used and ',
@@ -323,6 +326,7 @@
      &  'Functional Theory (MS-PDFT) '
         write(lf,'(6X,A)')'calculation.'
         write(lf,*)
+        END IF
         NHRot=lroots**2
         CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
         LUMS=12
@@ -334,6 +338,7 @@
         End Do
         Read(LUMS,'(A18)') MatInfo
         MSPDFTMethod=' MS-PDFT'
+        IF(IPRLEV.ge.USUAL) THEN
         IF(trim(adjustl(MatInfo)).eq.'an unknown method') THEN
          write(lf,'(6X,A,A)')'The MS-PDFT calculation is ',
      & 'based on a user-supplied rotation matrix.'
@@ -348,6 +353,7 @@
         write(lf,*)
         write(lf,'(6X,80A)') ('=',i=1,80)
         write(lf,*)
+        END IF
         Close(LUMS)
         do KROOT=1,lROOTS
           ENER(IROOT(KROOT),1)=Work((LHRot+(Kroot-1)*lroots+
@@ -365,12 +371,14 @@
       End IF!End IF for Do_Rotate=.true.
 
       IF(doNACMSPD) Then
+        IF(IPRLEV.ge.USUAL) THEN
         write(6,'(6X,80A)') ('=',i=1,80)
         write(6,*)
         write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
      & cmsNACstates(1), cmsNACstates(2)
         write(6,*)
         write(6,'(6X,80A)') ('=',i=1,80)
+        END IF
         call Put_lScalar('isCMSNAC        ', doNACMSPD)
         call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
       ELSE
@@ -381,11 +389,13 @@
       End IF!End IF for doNACMSPD=.true.
 
       IF(doMECIMSPD) Then
+        IF(IPRLEV.ge.USUAL) THEN
         write(6,'(6X,80A)') ('=',i=1,80)
         write(6,*)
         write(6,'(6X,A,I3,I3)')'keyword MECI is used for states:'
         write(6,*)
         write(6,'(6X,80A)') ('=',i=1,80)
+        END IF
         call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
       ELSE
         call Put_lScalar('isMECIMSPD      ', doMECIMSPD)

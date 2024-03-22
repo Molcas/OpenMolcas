@@ -51,7 +51,7 @@ module mcpdft_output
       iPrGlb = max(iPrGlb - usual, silent)
     end if
 
-    iPrLoc = iPrGlb
+    iPrLoc(:) = iPrGlb
 
     if (iPrGlb >= debug) then
       write(lf, *) ' set_print_level: Print levels have been set to'

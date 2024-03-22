@@ -23,7 +23,7 @@
 !              EDIIS optimization:                                     *
 !                   K. N. Kudin, G. E. Scuseria, and E. Cances         *
 !                   JCP, 116, , 8255 (2002)                            *
-!                   doi: 10.1063/1.1470195                             *
+!                   doi:10.1063/1.1470195                              *
 !                                                                      *
 !     input:                                                           *
 !       TrDh    : Traces of D(i)*h of size (nTr)                       *
