@@ -342,7 +342,8 @@ if (Grid_Type == Moving_Grid) then
   if (Rotational_Invariance == On) then
     ! First transform back to the cartesian coordinates system.
 
-    Fact = real(2-(nD/2),kind=wp)
+    !Fact = real(2-(nD/2),kind=wp)
+    Fact = Two
     call DGEMM_('N','N',3,3,3,Fact,OV,3,Pax,3,Zero,V,3)
 #   ifdef _DEBUGPRINT_
     call RecPrt('V',' ',V,3,3)
