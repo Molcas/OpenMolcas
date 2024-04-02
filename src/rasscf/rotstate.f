@@ -38,6 +38,10 @@
       Integer rcidisk
       INTEGER JRoot,IPRLEV
       CHARACTER(Len=18)::MatInfo
+
+      IPRLEV=IPRLOC(3)
+
+      IF(IPRLEV.ge.USUAL) THEN
       write(LF,*)
       write(LF,*) ('=',i=1,71)
       write(LF,*)
@@ -54,6 +58,7 @@
        write(LF,'(11X,A)')
      & ' obtained from the user-supplied rotation matrix'
       ENDIF
+      ENDIF
 
       NRState=lRoots**2
       NHRot=NRState
@@ -65,8 +70,6 @@
       CALL GETMEM('RState','ALLO','REAL',LRState,NRState)
       CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
 
-
-      IPRLEV=IPRLOC(3)
 
 *JB   read rotation matrix in Do_Rotate.txt
       CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),lRoots,lRoots,
@@ -127,8 +130,10 @@ C     updating final energies as those for rotated states
       CALL GETMEM('RCIVEC','FREE','REAL',LRCIVec,NRCIVec)
       CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
 
+      IF(IPRLEV.ge.USUAL) THEN
       write(LF,*)
       write(LF,*) ('=',i=1,71)
+      END IF
 
       Return
       End Subroutine

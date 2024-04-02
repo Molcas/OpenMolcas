@@ -3065,7 +3065,7 @@ C start loop over the states ISTATE:
               GOTO 690
       END IF
 
-C print seperate contributions if verbose
+C print separate contributions if verbose
       IF (IPGLOB.GE.3) THEN
        WRITE(6,*)
        WRITE(6,*) 'contributions from the SOS expansion'//

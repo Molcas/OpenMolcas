@@ -35,7 +35,7 @@ if (iPL >= 3) then
   write(u6,'(6X,A,T56,G17.10)') 'Integrated number of electrons',Dens_I
   if (Grad_I /= Zero) write(u6,'(6X,A,T56,G17.10)') 'Integrated |grad|             ',Grad_I
   if (Tau_I /= Zero) write(u6,'(6X,A,T56,G17.10)') 'Integrated tau                ',Tau_I
-  write(u6,'(6X,A,T54,I13)') 'Total number of prunned grid points  ',nTotGP
+  write(u6,'(6X,A,T54,I13)') 'Total number of pruned grid points  ',nTotGP
   write(u6,*)
 end if
 !                                                                      *

@@ -13,7 +13,7 @@
 !----------------------------------------!
 !  knm( rank, projection )
 !  are proportionality coefficients between
-!    ITO ( JCP 137, 064112 (2012); doi: 10.1063/1.4739763 ) and
+!    ITO ( JCP 137, 064112 (2012); doi:10.1063/1.4739763 ) and
 !    Extended Stevens Operators (ESO)
 !
 ! were obtained by direct comparison the matrix elements

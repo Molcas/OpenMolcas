@@ -174,7 +174,7 @@ return
 end function embPotEneMODensities
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Just to be clean this is in a seperate subroutine          !
+! Just to be clean this is in a separate subroutine          !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !subroutine transAOtoMO (coefficientMatrix,inMatrix,outMatrix,nBasFunc,nFrozenOrbs)
 !

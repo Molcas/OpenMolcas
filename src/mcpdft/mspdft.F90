@@ -12,6 +12,7 @@
 !***********************************************************************
 
 module mspdft
+  use mcpdft_output, only: iPrLoc, usual
   implicit none
   private
 
@@ -67,15 +68,18 @@ module mspdft
 
     real(kind=wp), dimension(nroots) :: e_mspdft
     real(kind=wp), dimension(nroots**2) :: si_pdft
-    integer :: i, info, dim_scratch
+    integer :: i, info, dim_scratch, iprlev
     real(kind=wp), dimension(1) :: wgronk
     real(kind=wp), dimension(:), allocatable :: scratch
+    character(len=120) :: Line
 
-    write(lf, '(6X,80a)') ('*',i=1,80)
+    iprlev=iprloc(1)
+
+    if (iprlev >= usual) then
     write(lf,*)
-    write(lf,'(34X,2A)')MSPDFTMethod,' FINAL RESULTS'
-    write(lf,*)
-    write(lf,'(6X,80a)') ('*',i=1,80)
+    write(Line,'(6X,2A)') MSPDFTMethod,' FINAL RESULTS'
+    call CollapseOutput(1,Line)
+    write(lf,'(6X,80A)') ('-',i=1,len_trim(Line)-3)
     write(lf,*)
 
     if(do_hybrid) then
@@ -84,6 +88,7 @@ module mspdft
       write(lf, '(6X,2A)') mspdftmethod, ' Effective Hamiltonian'
     end if
     call print_effective_ham(heff, nroots, 10)
+    end if
 
     ! Now we diagonalize the final MS-PDFT H-matrix
     ! Eigenvectors will be stored in heff.
@@ -102,23 +107,28 @@ module mspdft
     call dsyev_('V', 'U', nroots, si_pdft, nroots, e_mspdft, scratch, dim_scratch, info)
     call mma_deallocate(scratch)
 
-    call print_final_energies(e_mspdft, nroots, mspdftmethod)
+    if (iprlev >= usual) call print_final_energies(e_mspdft, nroots, mspdftmethod)
 
     ! Update information on the runfile for possible gradient calculations.
     call put_dArray('Last energies', e_mspdft, nroots)
     call Put_dScalar('Last energy', e_mspdft(iRlxRoot))
 
+    if (iprlev >= usual) then
     if(do_hybrid) then
       write(lf, '(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
     else
         write(lf,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
     end if
     call print_mspdft_vectors(si_pdft, nroots)
+    end if
 
     ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
     if (iwjob==1) call writejob(iadr19, e_mspdft=e_mspdft, si_pdft=si_pdft)
 
-    write(lf,'(6X,80a)') ('*',i=1,80)
+    if (iprlev >= usual) then
+    call CollapseOutput(0,Line)
+    write(lf,*)
+    end if
 
     if (dogradmspd) then
       if (doNACMSPD) then

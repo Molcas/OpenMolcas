@@ -137,11 +137,11 @@ C       End If
       write(6,'(4X,A35)')
      & 'CMS INTERMEDIATE-STATE OPTIMIZATION'
       IF(CMSSFile.eq.'XMS') THEN
-       write(6,'(5X,A11,9X,A25)')
-     &'START MATRX','XMS INTERMEDIATE STATES'
+       write(6,'(5X,A12,8X,A25)')
+     &'START MATRIX','XMS INTERMEDIATE STATES'
       ELSE
-       write(6,'(5X,A11,9X,A25)')
-     &'START MATRX',CMSGuessFile
+       write(6,'(5X,A12,8X,A25)')
+     &'START MATRIX',CMSGuessFile
       END IF
       IF(iCMSOpt.eq.1) THEN
        write(6,'(5X,A8,12X,A25)')

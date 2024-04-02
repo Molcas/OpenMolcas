@@ -23,7 +23,8 @@ subroutine DFT_Grad(Grad,nGrad,nD,Grid,mGrid,dRho_dR,ndRho_dR,nGrad_Eff,Weights,
 
 use nq_Grid, only: dW_dR, F_xc, GradRho, IndGrd, iTab, Pax, Temp, vLapl, vRho, vSigma, vTau
 use nq_Structure, only: NQ_data
-use nq_Info, only: Functional_type, GGA_Type, Grid_Type, LDA_Type, meta_GGA_type1, meta_GGA_type2, Moving_Grid, Off
+use nq_Info, only: Functional_type, GGA_Type, Grid_Type, LDA_Type, meta_GGA_type1, meta_GGA_type2, Moving_Grid, Off, On, &
+                   Rotational_Invariance
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
@@ -49,12 +50,14 @@ R_Grid(:) = NQ_Data(iNQ)%Coor(:)
 call RecPrt('R_Grid',' ',R_Grid,1,3)
 call RecPrt('Grid',' ',Grid,3,mGrid)
 call RecPrt('Weights',' ',Weights,1,mGrid)
-call RecPrt('dW_dR',' ',dW_dR,nGrad_Eff,mGrid)
-call RecPrt('dRho_dR(1)',' ',dRho_dR,ndRho_dR,mGrid)
-do i_Eff=1,nGrad_Eff
-  write(u6,*) 'iTab=',iTab(1,i_Eff),iTab(2,i_Eff),iTab(3,i_Eff),iTab(3,i_Eff)
-  write(u6,*) 'IndGrd=',IndGrd(i_Eff)
-end do
+if (Grid_Type == Moving_Grid) then
+  call RecPrt('dW_dR',' ',dW_dR,nGrad_Eff,mGrid)
+  call RecPrt('dRho_dR(1)',' ',dRho_dR,ndRho_dR,mGrid)
+  do i_Eff=1,nGrad_Eff
+    write(u6,*) 'iTab=',iTab(1,i_Eff),iTab(2,i_Eff),iTab(3,i_Eff),iTab(3,i_Eff)
+    write(u6,*) 'IndGrd=',IndGrd(i_Eff)
+  end do
+end if
 #endif
 !                                                                      *
 !***********************************************************************
@@ -254,11 +257,12 @@ do i_Eff=1,nGrad_Eff
     tmp = tmp+dF_dr
 
     ! Accumulate stuff for rotational invariance
-
-    OVT(:) = OVT(:)+dF_dr*Grid(:,j)
+    if (Rotational_Invariance == On) OVT(:) = OVT(:)+dF_dr*Grid(:,j)
   end do
-  ixyz = iTab(1,i_Eff)
-  OV(ixyz,:) = OV(ixyz,:)+OVT(:)-tmp*R_Grid(:)
+  if (Rotational_Invariance == On) then
+    ixyz = iTab(1,i_Eff)
+    OV(ixyz,:) = OV(ixyz,:)+OVT(:)-tmp*R_Grid(:)
+  end if
   Temp(i_Eff) = -tmp
 end do
 
@@ -289,7 +293,10 @@ if (Grid_Type == Moving_Grid) then
   do ixyz=1,3
     iGrad = 0
     do jGrad=1,nGrad_Eff
-      if ((iTab(1,jGrad) == ixyz) .and. (iTab(2,jGrad) == Off) .and. (IndGrd(jGrad) > 0)) iGrad = jGrad
+      if ((iTab(1,jGrad) == ixyz) .and. (iTab(2,jGrad) == Off) .and. (IndGrd(jGrad) > 0)) then
+        iGrad = jGrad
+        exit
+      end if
     end do
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iGrad=',iGrad
@@ -331,30 +338,33 @@ if (Grid_Type == Moving_Grid) then
   !*********************************************************************
   !                                                                    *
   ! Add the rotational invariance term
-  !
-  ! First transform back to the cartesian coordinates system.
 
-  Fact = real(2-(nD/2),kind=wp)
-  call DGEMM_('N','N',3,3,3,Fact,OV,3,Pax,3,Zero,V,3)
-# ifdef _DEBUGPRINT_
-  call RecPrt('V',' ',V,3,3)
-# endif
+  if (Rotational_Invariance == On) then
+    ! First transform back to the cartesian coordinates system.
 
-  do i_Eff=1,nGrad_Eff
-    iCar = iTab(1,i_Eff)
-    jNQ = iTab(3,i_Eff)
-
-    ! Compute < nabla_r f * r^x > as Tr (O^x V)
-
-    Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Half
+    !Fact = real(2-(nD/2),kind=wp)
+    Fact = Two
+    call DGEMM_('N','N',3,3,3,Fact,OV,3,Pax,3,Zero,V,3)
 #   ifdef _DEBUGPRINT_
-    write(u6,*)
-    write(u6,*) 'iCar,jNQ=',iCar,jNQ
-    call RecPrt('dOdx',' ',NQ_Data(jNQ)%dOdx(:,:,iCar),3,3)
-    write(u6,*) 'Tmp=',Tmp
+    call RecPrt('V',' ',V,3,3)
 #   endif
-    Temp(i_Eff) = Temp(i_Eff)-Tmp
-  end do
+
+    do i_Eff=1,nGrad_Eff
+      iCar = iTab(1,i_Eff)
+      jNQ = iTab(3,i_Eff)
+
+      ! Compute < nabla_r f * r^x > as Tr (O^x V)
+
+      Tmp = DDot_(9,NQ_Data(jNQ)%dOdx(:,:,iCar),1,V,1)*Half
+#     ifdef _DEBUGPRINT_
+      write(u6,*)
+      write(u6,*) 'iCar,jNQ=',iCar,jNQ
+      call RecPrt('dOdx',' ',NQ_Data(jNQ)%dOdx(:,:,iCar),3,3)
+      write(u6,*) 'Tmp=',Tmp
+#     endif
+      Temp(i_Eff) = Temp(i_Eff)+Tmp
+    end do
+  end if
 
 end if !moving grid
 #ifdef _DEBUGPRINT_

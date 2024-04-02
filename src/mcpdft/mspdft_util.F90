@@ -52,14 +52,12 @@ module mspdft_util
     if(.not.do_hybrid) then
       write(lf,'(6X,2A)') method, ' Energies:'
       do root=1, nroots
-        write(lf, '(6X,3A,1X,I4,3X,A13,F18.8)') '::    ', method, &
-                ' Root', root, 'Total energy:', e_mspdft(root)
+        call PrintResult(lf,'(6X,A,1X,I4,3X,A13,F18.8)',method//' Root',root,'Total energy:',e_mspdft(root),1)
       end do
     else
       write(lf ,'(6X,3A)') 'Hybrid ', method, ' Energies:'
       do root=1, nroots
-          write(lf,'(6X,4A,1X,I4,3X,A13,F18.8)') '::    ', 'Hybrid ', &
-                  method, ' Root', root, 'Total energy:', e_mspdft(root)
+        call PrintResult(lf,'(6X,A,1X,I4,3X,A13,F18.8)','Hybrid '//method//' Root',root,'Total energy:',e_mspdft(root),1)
       end do
     end if
   end subroutine print_final_energies

@@ -256,13 +256,14 @@ c You don't have to be beautiful to turn me on
 * transformed Cholesky vectors (if IfChol), so these are computed here
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
-      if (IfChol) then
+
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices
+* TRACTL(0) computes transformed 2-body MO integrals
+      if (IfChol) then
           call TRACHO3(WORK(LCMO))
       else
-* TRACTL(0) computes transformed 2-body MO integrals
-          call TRACTL(0)
+          if (.not. DoFCIQMC) call TRACTL(0)
       end if
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0

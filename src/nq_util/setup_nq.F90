@@ -11,7 +11,7 @@
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,Pck_Old,PMode_old,R_Min,nR_Min)
+subroutine Setup_NQ(Maps2p,nShell,nSym,nNQ,Do_Grad,On_Top,Pck_Old,PMode_old)
 !***********************************************************************
 !                                                                      *
 ! Object: to set up information for calculation of integrals via a     *
@@ -30,35 +30,35 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
 use nq_Grid, only: Angular, Coor, Fact, Mem, nGridMax, nR_Eff, Pax
 use nq_structure, only: NQ_Data, Open_NQ_Data
-use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, L_Quad, LDA_type, MBC, meta_GGA_type1, &
-                   meta_GGA_type2, mRad, nAngularGrids, nAtoms, ndc, nR, ntotgp, number_of_subblocks, nx, ny, nz, Off, On, &
-                   Rotational_Invariance, T_Y, Threshold, x_min, y_min, z_min
+use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type, GGA_type, Grid_Type, L_Quad, LDA_type, MBC, &
+                   meta_GGA_type1, meta_GGA_type2, Moving_Grid, mRad, nAngularGrids, nAtoms, ndc, nR, ntotgp, number_of_subblocks, &
+                   nx, ny, nz, On, Rotational_Invariance, T_Y, Threshold, x_min, y_min, z_min
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         Not_Specified, Old_Functional_Type, Regenerate, Use_Old
 use Index_Functions, only: nTri_Elem1
 use Pack_mod, only: isPack, PkThrs
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Quart
+use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nShell, nSym, nR_Min
+integer(kind=iwp), intent(in) :: nShell, nSym
 integer(kind=iwp), intent(out) :: Maps2p(nShell,0:nSym-1), nNQ
 logical(kind=iwp), intent(in) :: Do_Grad, On_Top
-real(kind=wp), intent(out) :: Pck_Old, R_Min(0:nR_Min)
+real(kind=wp), intent(out) :: Pck_Old
 logical(kind=iwp), intent(out) :: PMode_old
-integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, &
-                     iNQ_MBC, iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, lAng, lAngular, LmbdR, lSO, mAO, mdci, &
+integer(kind=iwp) :: iAng, iAng_, iANr, iBas, iCar, iCmp, iCnt, iCnttp, iDCRR(0:7), iDrv, iDum(1), iIrrep, iNQ, iNQ_, iNQ_MBC, &
+                     iPrim, iReset, iS, iSet, ish, iShell, iShll, iSym, iuv, kAO, l_max, lAng, lAngular, LmbdR, lSO, mAO, mdci, &
                      mdcj, mExp, nAngular, nCntrc, nDCRR, nDegi, nDegj, nDrv, nFOrd, nForm, nMem, nR_tmp, nRad, nRadial, NrExp, &
                      nSO, nTerm, nxyz
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: kR
 #endif
-real(kind=wp) :: A_high, A_low, Alpha(2), Box_Size, C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, &
-                 ValExp, x_max, XYZ(3), y_max, z_max
-logical(kind=iwp) :: PMode
-real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), TempC(:,:), ZA(:)
+real(kind=wp) :: A_high, A_low, Alpha(2), C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, ValExp, &
+                 x_max, XYZ(3), y_max, z_max
+logical(kind=iwp) :: Do_Rot, PMode
+real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), R_Min(:), TempC(:,:), ZA(:)
 real(kind=wp), external :: Bragg_Slater, Eval_RMin
 logical(kind=iwp), external :: EQ
 
@@ -153,7 +153,7 @@ do iShell=1,nShell
     call OA(iOper(iIrrep),C,XYZ)
     do iNQ=1,nNQ
 
-      if (EQ(NQ_data(iNQ)%Coor,XYZ)) then
+      if (EQ(NQ_Data(iNQ)%Coor,XYZ)) then
 
         NQ_Data(iNQ)%Atom_Nr = iANR
 
@@ -166,6 +166,20 @@ do iShell=1,nShell
         ! Get the extreme exponents for the atom
         NQ_Data(iNQ)%A_high = max(NQ_Data(iNQ)%A_high,A_High)
         NQ_Data(iNQ)%A_low = min(NQ_Data(iNQ)%A_low,A_low)
+
+        ! Information for gradients
+        do iCar=1,3
+          if (iSD(12,iShell) == 1) then
+            NQ_Data(iNQ)%Grad_idx(iCar) = -1
+          else if (iSD(15+iCar,iShell) /= 0) then
+            NQ_Data(iNQ)%Grad_idx(iCar) = iSD(15+iCar,iShell)
+          end if
+          if (XYZ(iCar) == C(iCar)) then
+            NQ_Data(iNQ)%Fact = dc(iSD(10,iShell))%nStab
+          else
+            NQ_Data(iNQ)%Fact = -dc(iSD(10,iShell))%nStab
+          end if
+        end do
 
         Maps2p(iShell,iIrrep) = iNQ
         cycle outer
@@ -198,13 +212,14 @@ iNQ_MBC = 0
 iReset = 0
 Threshold_tmp = Zero
 nR_tmp = 0
+l_max = 0
 do iNQ=1,nNQ
   ! Get the extreme exponents for the atom
   Alpha(1) = NQ_Data(iNQ)%A_low
   Alpha(2) = NQ_Data(iNQ)%A_high
 
   ! Get the coordinates of the atom
-  XYZ(:) = NQ_Data(iNQ)%Coor
+  XYZ(:) = NQ_Data(iNQ)%Coor(:)
 
   ! For a special center we can increase the accuracy.
 
@@ -231,6 +246,7 @@ do iNQ=1,nNQ
 
   ! Max angular momentum for the atom -> rm(1)
   ! Max Relative Error -> rm(2)
+  l_max = max(l_max,NQ_Data(iNQ)%l_Max)
   rm(1) = real(NQ_Data(iNQ)%l_Max,kind=wp)
   rm(2) = Threshold
 
@@ -251,43 +267,37 @@ end do  ! iNQ
 ! compute the gradient of the rotationally invariant DFT energy.
 
 call mma_allocate(Pax,3,3,Label='Pax')
-call mma_allocate(dOdx,3,3,nNQ,3,Label='dOdx')
-dOdx(:,:,:,:) = Zero
-call mma_Allocate(ZA,nNQ,Label='ZA')
-call mma_Allocate(Crd,3,nNQ)
 
-! Collect coordinates and charges of the nuclei
+if (Rotational_Invariance == On) then
+  call mma_allocate(dOdx,3,3,nNQ,3,Label='dOdx')
+  dOdx(:,:,:,:) = Zero
+  call mma_Allocate(ZA,nNQ,Label='ZA')
+  call mma_Allocate(Crd,3,nNQ)
 
-do iNQ=1,nNQ
-  ZA(iNQ) = real(NQ_Data(iNQ)%Atom_Nr,kind=wp)
-  Crd(:,iNQ) = NQ_data(iNQ)%Coor
-end do
+  ! Collect coordinates and charges of the nuclei
 
-call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Grad,.false.)
-
-! Distribute derivative of the principal axis system
-
-if (Do_Grad) then
   do iNQ=1,nNQ
-    call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
-    do iCar=1,3
-      NQ_Data(iNQ)%dOdx(:,:,iCar) = dOdx(:,:,iNQ,iCar)
+    ZA(iNQ) = real(NQ_Data(iNQ)%Atom_Nr,kind=wp)
+    Crd(:,iNQ) = NQ_Data(iNQ)%Coor(:)
+  end do
+
+  Do_Rot = Do_Grad .and. (Grid_Type == Moving_Grid)
+
+  call RotGrd(Crd,ZA,Pax,dOdx,Dummy,nNQ,Do_Rot,.false.)
+
+  ! Distribute derivative of the principal axis system
+
+  if (Do_Rot) then
+    do iNQ=1,nNQ
+      NQ_Data(iNQ)%dOdx(:,:,:) = dOdx(:,:,iNQ,:)
     end do
-  end do
-end if
+  end if
 
-call mma_deallocate(dOdX)
-call mma_deallocate(Crd)
-call mma_deallocate(ZA)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-if (Rotational_Invariance == Off) then
-  Pax(:,:) = reshape([One,Zero,Zero,Zero,One,Zero,Zero,Zero,One],[3,3])
-  do iNQ=1,nNQ
-    if (.not. allocated(NQ_Data(iNQ)%dOdx)) call mma_allocate(NQ_Data(iNQ)%dOdx,3,3,3,Label='dOdx')
-    NQ_Data(iNQ)%dOdx(:,:,:) = Zero
-  end do
+  call mma_deallocate(dOdX)
+  call mma_deallocate(Crd)
+  call mma_deallocate(ZA)
+else
+  call unitmat(Pax,3)
 end if
 !                                                                      *
 !***********************************************************************
@@ -295,6 +305,8 @@ end if
 ! Generate the angular grid
 
 call Angular_grid()
+
+if (Angular_Pruning == On) call mma_allocate(R_Min,[0,l_max],label='R_Min')
 
 Crowding_tmp = Zero
 do iNQ=1,nNQ
@@ -359,6 +371,7 @@ do iNQ=1,nNQ
   end if
 
 end do
+if (allocated(R_Min)) call mma_deallocate(R_Min)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -387,48 +400,36 @@ write(u6,*)
 !                                                                      *
 ! Determine the spatial extension of the molecular system
 
-!Box_Size = Four      ! Angstrom
-Box_Size = Two        ! Angstrom
-!Box_Size = Half ! Angstrom
-Block_size = Box_Size
-x_min = huge(x_min)
-y_min = huge(y_min)
-z_min = huge(z_min)
-x_max = -huge(x_max)
-y_max = -huge(y_max)
-z_max = -huge(z_max)
-do iAt=1,nAtoms
-  x_min = min(x_min,Coor(1,iAt))
-  y_min = min(y_min,Coor(2,iAt))
-  z_min = min(z_min,Coor(3,iAt))
-  x_max = max(x_max,Coor(1,iAt))
-  y_max = max(y_max,Coor(2,iAt))
-  z_max = max(z_max,Coor(3,iAt))
-end do
+x_min = minval(Coor(1,:))
+y_min = minval(Coor(2,:))
+z_min = minval(Coor(3,:))
+x_max = maxval(Coor(1,:))
+y_max = maxval(Coor(2,:))
+z_max = maxval(Coor(3,:))
 
 ! Add half a box size around the whole molecule
 
-x_min = x_min-Box_Size/Two
-y_min = y_min-Box_Size/Two
-z_min = z_min-Box_Size/Two
-x_max = x_max+Box_Size/Two
-y_max = y_max+Box_Size/Two
-z_max = z_max+Box_Size/Two
+x_min = x_min-Half*Block_Size
+y_min = y_min-Half*Block_Size
+z_min = z_min-Half*Block_Size
+x_max = x_max+Half*Block_Size
+y_max = y_max+Half*Block_Size
+z_max = z_max+Half*Block_Size
 
 ! At least one finite box. Adjust to an even number of boxes.
 
-nx = int((x_max-x_min+Box_Size)/Box_Size)
+nx = max(1,nint((x_max-x_min)/Block_Size))
 nx = 2*((nx+1)/2)
-ny = int((y_max-y_min+Box_Size)/Box_Size)
+ny = max(1,nint((y_max-y_min)/Block_Size))
 ny = 2*((ny+1)/2)
-nz = int((z_max-z_min+Box_Size)/Box_Size)
+nz = max(1,nint((z_max-z_min)/Block_Size))
 nz = 2*((nz+1)/2)
 
 ! Adjust extremal values to fit exactly with the box size.
 
-dx = (real(nx,kind=wp)*Box_Size-(x_max-x_min))/Two
-dy = (real(ny,kind=wp)*Box_Size-(y_max-y_min))/Two
-dz = (real(nz,kind=wp)*Box_Size-(z_max-z_min))/Two
+dx = Half*(real(nx,kind=wp)*Block_Size-(x_max-x_min))
+dy = Half*(real(ny,kind=wp)*Block_Size-(y_max-y_min))
+dz = Half*(real(nz,kind=wp)*Block_Size-(z_max-z_min))
 
 x_min = x_min-dx
 y_min = y_min-dy

@@ -23,6 +23,7 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
+#include "output_ras.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX
@@ -37,17 +38,22 @@ C     Allocating Memory
       CALL mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
       CALL mma_allocate(DDG,lRoots,lRoots,lRoots,lRoots)
 
+      IPRLEV=IPRLOC(6)
+
 *     printing header
+      IF(IPRLEV.ge.USUAL) THEN
       write(6,*)
       write(6,*)
       write(6,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
+      END IF
       IF(trim(CMSStartMat).eq.'XMS') THEN
        CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
       ELSE
        CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,
      &              len_trim(CMSStartMat),16,'N')
       END IF
-      CALL CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
+      IF(IPRLEV.ge.USUAL)
+     &  CALL CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
 
 
       CALL LoadGtuvx(TUVX,Gtuvx)
@@ -89,6 +95,7 @@ C     Deallocating Memory
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
+#include "output_ras.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RotMat
@@ -101,6 +108,8 @@ C     Deallocating Memory
       Logical Converged
       Real*8 CalcNSumVee
       External CalcNSumVee
+
+      IPRLEV=IPRLOC(6)
 
       CALL mma_allocate(StatePair,LRoots*(LRoots-1)/2,2)
       CALL mma_allocate(theta,LRoots*(LRoots-1)/2)
@@ -125,6 +134,7 @@ C     Deallocating Memory
        End Do
        ICMSIter=ICMSIter+1
        CALL ThetaOpt(FRot,theta,VeeSumNew,StatePair,NPairs,DDg)
+       IF(IPRLEV.ge.USUAL) THEN
        IF(lRoots.gt.2) THEN
        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
      & ICMSIter,VeeSumNew,VeeSumNew-VeeSumOld
@@ -133,10 +143,11 @@ C     Deallocating Memory
      & ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew
      & ,VeeSumNew-VeeSumOld
        END IF
+       END IF
        IF(ABS(VeeSumNew-VeeSumOld).lt.Threshold) THEN
         If(ICMSIter.ge.ICMSIterMin) Then
          Converged=.true.
-         write(6,'(4X,A)')'CONVERGENCE REACHED'
+         IF(IPRLEV.ge.USUAL) write(6,'(4X,A)')'CONVERGENCE REACHED'
         End If
        ELSE
         if(ICMSIter.ge.ICMSIterMax) then
@@ -148,7 +159,7 @@ C     Deallocating Memory
        END IF
        VeeSumOld=VeeSumNew
       END DO
-      write(6,*)('=',i=1,71)
+      IF(IPRLEV.ge.USUAL) write(6,*)('=',i=1,71)
       CALL Copy2DMat(RotMat,FRot,lRoots,lRoots)
       CALL mma_deallocate(StatePair)
       CALL mma_deallocate(theta)
@@ -515,6 +526,7 @@ C     & IState,' is ',Vee(IState)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
+#include "output_ras.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
@@ -530,6 +542,8 @@ C     & IState,' is ',Vee(IState)
       Logical Converged
       Real*8 SumArray
       External SumArray
+
+      IPRLEV=IPRLOC(6)
 
       CALL mma_allocate(StatePair,LRoots*(LRoots-1)/2,2)
       CALL mma_allocate(theta,LRoots*(LRoots-1)/2)
@@ -561,6 +575,7 @@ C     & IState,' is ',Vee(IState)
        CALL ThetaOpt2
      & (FRot,theta,VeeSumChange,StatePair,NPairs,GDMat,Vee,Gtuvx)
        VeeSumNew=VeeSumOld+VeeSumChange
+       IF(IPRLEV.ge.USUAL) THEN
        IF(lRoots.gt.2) THEN
         write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
      &  ICMSIter,VeeSumNew,VeeSumChange
@@ -573,10 +588,11 @@ C     & IState,' is ',Vee(IState)
 *       CALL RecPrt(' ',' ',Vee,lRoots,1)
 *       write(6,*) SumArray(Vee,lRoots)
        END IF
+       END IF
        IF(ABS(VeeSumChange).lt.Threshold) THEN
         If(ICMSIter.ge.ICMSIterMin) Then
          Converged=.true.
-         write(6,'(4X,A)')'CONVERGENCE REACHED'
+         IF(IPRLEV.ge.USUAL) write(6,'(4X,A)')'CONVERGENCE REACHED'
         End If
        ELSE
         if(ICMSIter.ge.ICMSIterMax) then
@@ -589,7 +605,7 @@ C     & IState,' is ',Vee(IState)
 *         Converged=.true.
        VeeSumOld=VeeSumNew
       END DO
-      write(6,*)('=',i=1,71)
+      IF(IPRLEV.ge.USUAL) write(6,*)('=',i=1,71)
 
       CALL Copy2DMat(RotMat,FRot,lRoots,lRoots)
       CALL mma_deallocate(StatePair)
