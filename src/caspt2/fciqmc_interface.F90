@@ -257,27 +257,6 @@ contains
                 end do
             end subroutine transform_six_index
 
-            ! pure subroutine apply_12fold_symmetry(array, t, u, v, x, y, z, val)
-            !     ! G3 has 12 permutational symmetries, since the spin indices of
-            !     ! the (t,u), (v,x) and (y,z) indices have to match up.
-            !     real(wp), intent(inout) :: array(:,:,:,:,:,:)
-            !     integer(iwp), intent(in) :: t, u, v, x, y, z
-            !     real(wp), intent(in) :: val
-
-            !     array(t, u, v, x, y, z) = val
-            !     array(t, u, y, z, v, x) = val
-            !     array(v, x, t, u, y, z) = val
-            !     array(v, x, y, z, t, u) = val
-            !     array(y, z, t, u, v, x) = val
-            !     array(y, z, v, x, t, u) = val
-            !     array(u, t, x, v, z, y) = val
-            !     array(u, t, z, y, x, v) = val
-            !     array(x, v, u, t, z, y) = val
-            !     array(x, v, z, y, u, t) = val
-            !     array(z, y, u, t, x, v) = val
-            !     array(z, y, x, v, u, t) = val
-            ! end subroutine apply_12fold_symmetry
-
             pure subroutine calc_f2_and_g2(f3_temp, g3_temp, f2, g2)
                 real(wp), intent(in) :: f3_temp(nLev, nLev, nLev, nLev, nLev, nLev), &
                                         g3_temp(nLev, nLev, nLev, nLev, nLev, nLev)
@@ -368,12 +347,57 @@ contains
             y = indices(3,i) + 1; z = indices(6,i) + 1
             tensor(t, u, v, x, y, z) = values(i)
             ! pre-contracted F4RDM is no longer hermitian
-            ! call apply_12fold_symmetry(tensor, t, u, v, x, y, z, values(i))
+            if (dataset == '/spinfree/4400f/' .and. TransformToNormalOrder) then
+                call apply_6fold_symmetry(tensor, t, u, v, x, y, z, values(i))
+            else
+                call apply_12fold_symmetry(tensor, t, u, v, x, y, z, values(i))
+            end if
         end do
 
         call mma_deallocate(indices)
         call mma_deallocate(values)
         call mh5_close_file(hdf5_file)
+
+        contains
+
+            pure subroutine apply_12fold_symmetry(array, t, u, v, x, y, z, val)
+                ! G3 has 12 permutational symmetries, since the spin indices of
+                ! the (t,u), (v,x) and (y,z) indices have to match up.
+                real(wp), intent(inout) :: array(:,:,:,:,:,:)
+                integer(iwp), intent(in) :: t, u, v, x, y, z
+                real(wp), intent(in) :: val
+
+                array(t, u, v, x, y, z) = val
+                array(t, u, y, z, v, x) = val
+                array(v, x, t, u, y, z) = val
+                array(v, x, y, z, t, u) = val
+                array(y, z, t, u, v, x) = val
+                array(y, z, v, x, t, u) = val
+                array(u, t, x, v, z, y) = val
+                array(u, t, z, y, x, v) = val
+                array(x, v, u, t, z, y) = val
+                array(x, v, z, y, u, t) = val
+                array(z, y, u, t, x, v) = val
+                array(z, y, x, v, u, t) = val
+            end subroutine apply_12fold_symmetry
+
+            pure subroutine apply_6fold_symmetry(array, t, u, v, x, y, z, val)
+                ! If F4RDM is calculated from a histogrammed wave function,
+                ! the 4RDM is rewritten as
+                !     <e_pq,rs,tu E_vx>
+                ! such that E_vx can be precontracted with |hist>. This change voids
+                ! the hermiticity property.
+                real(wp), intent(inout) :: array(:,:,:,:,:,:)
+                integer(iwp), intent(in) :: t, u, v, x, y, z
+                real(wp), intent(in) :: val
+
+                array(t, u, v, x, y, z) = val
+                array(t, u, y, z, v, x) = val
+                array(v, x, t, u, y, z) = val
+                array(v, x, y, z, t, u) = val
+                array(y, z, t, u, v, x) = val
+                array(y, z, v, x, t, u) = val
+            end subroutine apply_6fold_symmetry
     end subroutine load_six_tensor
 
     subroutine user_barrier()
