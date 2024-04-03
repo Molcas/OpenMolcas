@@ -307,7 +307,7 @@ call mma_Allocate(Grid_AO,kAO,mGrid,nBfn,nD,Label='Grid_AO')
 !                                                                      *
 if (Do_MO) then
 
-  ! First, symmatry adapt the AOs
+  ! First, symmetry adapt the AOs
   TabSO(:,:,:) = Zero
   jlist_s = 0
   call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,jlist_s)

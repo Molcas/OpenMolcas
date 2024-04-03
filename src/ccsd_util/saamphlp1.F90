@@ -27,12 +27,13 @@ subroutine saamphlp1(t24a,t24b,t22b,noa,nob,nva,nvb,key)
 !        4 - full T2 without SDVS (only for doublets)
 
 use Index_Functions, only: nTri_Elem
-use Constants, only: Zero, Two, Six, Half, Quart
+use Constants, only: Zero, Two, Six, Twelve, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: noa, nob, nva, nvb, key
-real(kind=wp), intent(inout) :: t24a(nTri_Elem(nva),nTri_Elem(noa)), t24b(nTri_Elem(nvb),nTri_Elem(nob)), t22b(nva,nvb,noa,nob)
+real(kind=wp), intent(inout) :: t24a(nTri_Elem(nva-1),nTri_Elem(noa-1)), t24b(nTri_Elem(nvb-1),nTri_Elem(nob-1)), &
+                                t22b(nva,nvb,noa,nob)
 integer(kind=iwp) :: a, ab, ab1, b, i, ij, j, nd, nsa, nsi, nv
 real(kind=wp) :: t1, t2, taaaa, tabab, tabba, tbaab, tbaba, tbbbb
 
@@ -84,7 +85,7 @@ do a=2,nv
         tbaba = t22b(b,a+nsa,j,i)
 
         t1 = Quart*(tabab+tbaba-tabba-tbaab)
-        t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
+        t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/Twelve
 
         t24a(ab,ij) = Two*t2
         t24b(ab1,ij) = Two*t2
@@ -114,7 +115,7 @@ do a=2,nv
       tbaba = t22b(b,a+nsa,j,i)
 
       t1 = Quart*(tabab+tbaba-tabba-tbaab)
-      !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
+      !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/Twelve
       t2 = Zero
 
       !t24a(ab,ij) = Two*t2
@@ -144,7 +145,7 @@ do a=1,nv
       tbaba = t22b(b,a+nsa,j,i)
 
       t1 = Quart*(tabab+tbaba-tabba-tbaab)
-      !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
+      !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/Twelve
       t2 = Zero
 
       !t24a(ab,ij) = Two*t2
@@ -174,7 +175,7 @@ do a=1,nv
     tbaba = t22b(b,a+nsa,j,i)
 
     t1 = Quart*(tabab+tbaba-tabba-tbaab)
-    !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
+    !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/Twelve
     t2 = Zero
 
     !t24a(ab,ij) = Two*t2

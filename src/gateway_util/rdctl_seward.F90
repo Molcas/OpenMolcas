@@ -3686,7 +3686,7 @@ if (nTtl > 0) call Put_cArray('SewardXTitle',Title(1),nTtl*80)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Run_Mode == G_Mode) call Put_iScalar('DNG',iDNG)
+if (Run_Mode /= S_Mode) call Put_iScalar('DNG',iDNG)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

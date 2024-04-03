@@ -43,7 +43,7 @@ call Compute_M(ZA,nAtoms,dRA,T,M)
 dRA(iCar,iAtom) = RA(iCar,iAtom)-Delta
 call Compute_M(ZA,nAtoms,dRA,T,dMdx)
 
-dRA(iCar,iAtom) = RA(iCar,iAtom)
+call mma_deallocate(dRA)
 
 dMdx(:,:) = (M-dMdx)/(Two*Delta)
 call RecPrt('dMdx(Numerical)',' ',dMdx,3,3)

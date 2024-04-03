@@ -23,14 +23,24 @@
       use KSDFT_Info, only: Funcaa, Funcbb, Funccc
       use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
       Implicit Real*8 (A-H,O-Z)
+      integer left
+      character*6 Fmt2
+      character*120 Line
+#include "output_ras.fh"
 #include "WrkSpc.fh"
 
+      IPRLEV=IPRLOC(6)
+      IF(IPRLEV.ge.USUAL) THEN
+
+      left=6
+      Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+      Line=''
+      Write(Line(left-2:),'(A)') 'MC-PDFT run print out'
       write(6,'(6X,80A)')
-      write(6,'(6X,80A)') ('*',i=1,80)
-      write(6,'(6X,80A)') ('*',i=1,80)
-      write(6,'(6X,80A)')'**',(' ',i=1,27),' MC-PDFT run print out',
-     &(' ',i=1,27),'**'
-      write(6,'(6X,80A)') ('*',i=1,80)
+      Call CollapseOutput(1,Line)
+      Write(6,Fmt2//'80A)') ('-',i=1,len_trim(Line)-3)
+      write(6,'(6X,80A)')
+
       write(6,'(6X,A25,45X,F10.3)') 'Integrated total density:',Dens_I
       write(6,'(6X,A58,12X,F10.3)') 'Integrated alpha density '//
      &           'before functional transformation:', Dens_a1
@@ -51,9 +61,9 @@
       write(6,'(6X,A20,42X,F18.8)') 'Total CAS-DFT energy',
      &         CASDFT_E
 
+      Call CollapseOutput(0,Line)
       write(6,'(6X,80A)')
-      write(6,'(6X,80A)') ('*',i=1,80)
-      write(6,'(6X,80A)')
+      END IF
 
       Call Add_Info('dens_tt',[Dens_I],1,6)
       Call Add_Info('dens_a1',[Dens_a1],1,6)

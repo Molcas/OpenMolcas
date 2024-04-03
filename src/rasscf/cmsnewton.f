@@ -25,6 +25,7 @@
 #include "general.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
+#include "output_ras.fh"
 #include "warnings.h"
       INTEGER nGD
       Real*8 R(lRoots**2),
@@ -39,6 +40,8 @@
      &        nSPair,nSPair2,nScr
       Real*8 Qnew,Qold
       Logical Saved
+
+      IPRLEV=IPRLOC(6)
 
 *     preparation
       lRoots2=lRoots**2
@@ -113,7 +116,7 @@
      &                  nSPair,lRoots2,nGD,NAC2,nDDg,Saved)
         End If
        END IF
-       CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
+       IF(IPRLEV.ge.USUAL) CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
        CALL AntiOneDFoil(RotMat,R,lRoots,lRoots)
        CALL PrintMat('ROT_VEC','CMS-PDFT temp',
      &                RotMat,lroots,lroots,7,13,'T')
@@ -133,7 +136,7 @@
         CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
         CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
        ELSE
-        write(6,'(4X,A)')'CONVERGENCE REACHED'
+        IF(IPRLEV.ge.USUAL) write(6,'(4X,A)')'CONVERGENCE REACHED'
        END IF
       END DO
 

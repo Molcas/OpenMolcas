@@ -24,14 +24,14 @@ subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGr
 
 use Symmetry_Info, only: nIrrep
 use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGrd, iTab, kAO, l_CASDFT, Lapl, List_G, Mem, &
-                   nGridMax, nR_Eff, nRho, Pax, R2_trial, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
+                   nGridMax, nR_Eff, nRho, Pax, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
 use nq_pdft, only: lft, lGGA
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
-use nq_Info, only: Functional_type, GGA_type, LDA_type, LMax_NQ, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
+use nq_Info, only: Functional_type, GGA_type, LDA_type, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
                    number_of_subblocks, Other_type
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
-                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old
+                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -55,7 +55,6 @@ integer(kind=iwp) :: i, iDum(1), iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, 
 real(kind=wp) :: PThr
 logical(kind=iwp) :: PMode
 integer(kind=iwp), allocatable :: List_Bas(:,:), List_Exp(:), List_P(:), List_s(:,:), Maps2p(:,:)
-real(kind=wp), allocatable :: R_Min(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -71,11 +70,8 @@ if (Do_TwoEl) Do_MO = .true.
 call Set_Basis_Mode('Valence')
 call Nr_Shells(nShell)
 call mma_allocate(Maps2p,nShell,nIrrep,Label='Maps2p')
-call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 
-call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,PThr,PMode,R_Min,LMax_NQ)
-
-call mma_deallocate(R_Min)
+call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,PThr,PMode)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -103,9 +99,11 @@ end if
 NQNACPAR = (NQNAC**2+NQNAC)/2
 NQNACPR2 = (NQNACPAR**2+NQNACPAR)/2
 
-LuGridFile = 31
-LuGridFile = IsFreeUnit(LuGridFile)
-call Molcas_Open(LuGridFile,'GRIDFILE')
+WriteGrid = .false.
+if (WriteGrid) then
+  LuGridFile = IsFreeUnit(31)
+  call Molcas_Open(LuGridFile,'GRIDFILE')
+end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'l_casdft value at drvnq:',l_casdft
@@ -313,7 +311,6 @@ call mma_allocate(List_S,2,nIrrep*nShell,Label='List_S')
 call mma_allocate(List_Exp,nIrrep*nShell,Label='List_Exp')
 call mma_allocate(List_Bas,2,nIrrep*nShell,Label='List_Bas')
 call mma_allocate(List_P,nNQ,Label='List_P')
-call mma_allocate(R2_trial,nNQ,Label='R2_trial')
 
 if (Do_MO) then
   if (NQNAC /= 0) then
@@ -406,7 +403,6 @@ if (Do_Grad) then
   call mma_deallocate(IndGrd)
   call mma_deallocate(List_G)
 end if
-call mma_deallocate(R2_trial)
 call mma_deallocate(List_P)
 call mma_deallocate(List_Bas)
 call mma_deallocate(List_Exp)
@@ -487,8 +483,7 @@ call mma_deallocate(GridInfo)
 !                                                                      *
 call IniPkR8(PThr,PMode)
 
-call xFlush(LuGridFile)
-close(LuGridFile)
+if (WriteGrid) close(LuGridFile)
 
 return
 

@@ -22,13 +22,12 @@ logical(kind=iwp) :: l_CASDFT = .false.
 integer(kind=iwp), allocatable :: Angular(:), iBfn_Index(:,:), IndGrd(:), iTab(:,:), List_G(:,:), nR_Eff(:)
 real(kind=wp), allocatable :: Coor(:,:), D1Unzip(:,:), Dens_AO(:,:,:), dRho_dR(:,:,:), dW_dR(:,:), F_xc(:), F_xca(:), F_xcb(:), &
                               Fact(:,:), GradRho(:,:), Grid(:,:), Grid_AO(:,:,:,:), Lapl(:,:), Mem(:), P2Unzip(:,:,:,:), Pax(:,:), &
-                              R2_trial(:), Rho(:,:), Sigma(:,:), Tau(:,:), Temp(:), vLapl(:,:), vRho(:,:), vSigma(:,:), vTau(:,:), &
-                              Weights(:)
+                              Rho(:,:), Sigma(:,:), Tau(:,:), Temp(:), vLapl(:,:), vRho(:,:), vSigma(:,:), vTau(:,:), Weights(:)
 real(kind=wp), allocatable, target :: TabAO(:,:,:), TabAO_Short(:,:,:)
 real(kind=wp), pointer :: TabAO_pack(:) => null()
 
 public :: Angular, Coor, D1Unzip, Dens_AO, dRho_dR, dW_dR, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, Grid_AO, iBfn_Index, IndGrd, &
-          iTab, kAO, l_CASDFT, Lapl, List_G, Mem, nGridMax, nR_Eff, nRho, P2Unzip, Pax, R2_trial, Rho, Sigma, TabAO, TabAO_pack, &
+          iTab, kAO, l_CASDFT, Lapl, List_G, Mem, nGridMax, nR_Eff, nRho, P2Unzip, Pax, Rho, Sigma, TabAO, TabAO_pack, &
           TabAO_Short, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
 
 end module nq_Grid

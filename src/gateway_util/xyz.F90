@@ -238,7 +238,9 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 # endif
 
   ! Obtain/read transformation matrix and transform the geometry in this file
-  Mat = reshape([One,One,One,One,Zero,Zero,Zero,One,Zero,Zero,Zero,One,Zero,Zero,Zero],shape(Mat))
+  Mat(:,1) = One
+  call unitmat(Mat(:,2:4),3)
+  Mat(:,5) = Zero
   Idx = index(' '//Line,' SCALE ')
   if (Idx > 0) then
     read(Line(Idx+5:),*,iostat=Error) Mat(1,1)

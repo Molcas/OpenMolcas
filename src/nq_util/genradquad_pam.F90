@@ -11,7 +11,7 @@
 
 subroutine GenRadQuad_PAM(nR_Eff,mr,Alpha,Process,QuadR,nQuadR)
 
-use nq_Info, only: R_Max
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Ten, Pi
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -30,6 +30,7 @@ real(kind=wp) :: a, Alpha_Max, Alpha_Min, C1, C2, Correction, D_m, Dr, Gmma, ggg
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: h0
 #endif
+real(kind=wp), allocatable :: R_Max(:)
 real(kind=wp), external :: G
 
 ! Last point at infinity is eliminated
@@ -99,6 +100,7 @@ end do
 !                                                                      *
 ! Compute table of R_Max as a function of l
 
+call mma_allocate(R_Max,[0,l_Max],label='R_Max')
 do i=l_Max,0,-2
   D_m = -Four
   if (l_Max == 4) D_m = -2.3_wp
@@ -120,7 +122,7 @@ write(u6,*) 'h0,h=',h0,h
 #endif
 
 ! For hybrid grid use R_Max for l=0 and h for l=l_max
-! r1=R_Max(l_Max)
+!r1 = R_Max(l_Max)
 r1 = R_Max(0)
 ln_rn = 1.7_wp-log(Alpha_Min)/Two
 rn = exp(ln_rn)
@@ -132,6 +134,7 @@ write(u6,*) 'r1,Alpha_Min    =',r1,Alpha_Min
 write(u6,*) 'rn,Alpha_Max    =',rn,Alpha_MAx
 write(u6,*) 'h,Dr,n_High     =',h,Dr,n_High
 #endif
+call mma_deallocate(R_Max)
 
 ! Store the radius and the associated weights
 
