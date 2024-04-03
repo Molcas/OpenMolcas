@@ -15,7 +15,9 @@
 *
       use Str_Info, only: CFTP, CNSM
       use Struct, only: SGStruct, CIStruct, EXStruct
+#ifdef _DEBUGPRINT_
       use definitions, only: u6
+#endif
       Implicit None
       Integer nSym,iSpin,nActEl,nHole1,nElec3
       Integer nRs1(nSym), nRs2(nSym), nRs3(nSym)
