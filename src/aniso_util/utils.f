@@ -272,7 +272,6 @@ c------------------------------------------------------------------------
       ! local variables:
       Integer       :: k,i,j,jEnd
       Real(kind=8) :: Mr(n), Mi(n), Weight(n)
-      Character(Len=1)  :: cRsign(n), cIsign(n)
 
       Write(6,'(/)')
       Do j=1,n,2
@@ -295,29 +294,20 @@ c------------------------------------------------------------------------
                Mr(k)=DBLE( M(i,k))
                Mi(k)=AIMAG(M(i,k))
                Weight(k)=100.0_wp*( Mr(k)*Mr(k) + Mi(k)*Mi(k) )
-
-               If (Mr(k) >= 0.0_wp) Then
-                  cRsign(k)='+'
-               Else
-                  cRsign(k)='-'
-               End If
-               If (Mi(k) >= 0.0_wp) Then
-                  cIsign(k)='+'
-               Else
-                  cIsign(k)='-'
-               End If
             End Do
 
           ! print it
           If(MOD(n,2)==1) Then
-            Write(6,'(1x,A,1x,i2,A, 2(2(1x,A,ES20.14,1x),a,F6.1,1x,a))')
+            Write(6,'(1x,A,1x,i2,A,'//
+     &              '2(SP,2(1x,ES21.14,1x),a,S,F6.1,1x,a))')
      &                '|',-(n-1)/2-(1-i),' > |',
-     &         (cRsign(k),ABS(Mr(k)), cIsign(k),ABS(Mi(k)), '*I |',
+     &         (Mr(k), Mi(k), '*I |',
      &                Weight(k),'%|',k=j,jEnd)
           Else
-            Write(6,'(A,i3,a,a,     2(2(1x,A,ES20.14,1x),a,F6.1,1x,a))')
+            Write(6,'(A,i3,a,a,'//
+     &              '2(SP,2(1x,ES21.14,1x),a,S,F6.1,1x,a))')
      &                '|',-(n-1)+2*(i-1),'/2> ','|',
-     &         (cRsign(k),ABS(Mr(k)), cIsign(k),ABS(Mi(k)), '*I |',
+     &         (Mr(k), Mi(k), '*I |',
      &                Weight(k),'%|',k=j,jEnd)
           End If
         End Do  !i
@@ -549,7 +539,6 @@ c------------------------------------------------------------------------
       ! local variables:
       Integer       :: k,q,i
       Real(kind=8) :: Ar, Ai
-      Character(Len=1)  :: cRsign, cIsign
 
 
       Write(6,'(/)')
@@ -586,20 +575,10 @@ c------------------------------------------------------------------------
             Do q=-k,k
                Ar=DBLE( A(k,q))
                Ai=AIMAG(A(k,q))
-               If (Ar.ge.0.0_wp) Then
-                  cRsign='+'
-               Else
-                  cRsign='-'
-               End If
-               If (Ai.ge.0.0_wp) Then
-                  cIsign='+'
-               Else
-                  cIsign='-'
-               End If
 
                Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),'//
-     &                   'A,ES20.14,1x,A,ES20.14,A)')
-     &                   k,'|',q,'| ', cRsign,ABS(Ar), cIsign,ABS(Ai),
+     &                   'SP,ES21.14,1x,ES21.14,A)')
+     &                   k,'|',q,'| ', Ar, Ai,
      &                   ' *I |'
 
             End Do
@@ -612,20 +591,10 @@ c------------------------------------------------------------------------
             Do q=-k,k
                Ar=DBLE( A(k,q))
                Ai=AIMAG(A(k,q))
-               If (Ar.ge.0.0_wp) Then
-                  cRsign='+'
-               Else
-                  cRsign='-'
-               End If
-               If (Ai.ge.0.0_wp) Then
-                  cIsign='+'
-               Else
-                  cIsign='-'
-               End If
 
                Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),'//
-     &                   'A,ES20.14,1x,A,ES20.14,A)')
-     &                   k,'|',q,'| ', cRsign,ABS(Ar), cIsign,ABS(Ai),
+     &                   'SP,ES21.14,1x,ES21.14,A)')
+     &                   k,'|',q,'| ', Ar, Ai,
      &                   ' *I |'
 
             End Do
