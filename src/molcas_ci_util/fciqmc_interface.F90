@@ -50,9 +50,6 @@ module fciqmc_interface
     !>  @param[inout]  g1        dense redundant 1RDM
     !>  @param[in]     iroot     CASSCF root number
     subroutine load_fciqmc_g1(nLev, g1, iroot)
-#ifdef NAGFOR
-        use f90_unix_proc, only: sleep
-#endif
         use caspt2_data, only: mState, jState
         integer(iwp), intent(in) :: nLev
         real(wp), intent(inout) :: g1(nLev, nLev)
@@ -89,7 +86,7 @@ module fciqmc_interface
         write(u6, '(8x,a)') 'touch ' // trim(WorkDir) // '/PROCEED'
 
         do while(.not. proceed_found)
-            call sleep(1)
+            call sleepf(1)
             if (myrank == 0) call f_Inquire('PROCEED', proceed_found)
 #ifdef _MOLCAS_MPP_
             if (is_real_par()) then

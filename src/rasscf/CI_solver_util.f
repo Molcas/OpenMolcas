@@ -46,16 +46,13 @@
 
 
       subroutine wait_and_read(filename, energy)
-#ifdef NAGFOR
-      use f90_unix_proc, only: sleep
-#endif
         character(len=*), intent(in) :: filename
         real(wp), intent(out) :: energy(nroots)
         logical :: newcycle_found
         integer :: LuNewC, i
         newcycle_found = .false.
         do while(.not. newcycle_found)
-          call sleep(1)
+          call sleepf(1)
           if (myrank == 0) call f_Inquire(trim(filename),newcycle_found)
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then

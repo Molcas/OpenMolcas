@@ -48,6 +48,7 @@ set (sources
      set_sighandlers.c
      settim.F90
      sighandler.c
+     sleepf.F90
      start.F90
      startlight.F90
      statusline.F90
