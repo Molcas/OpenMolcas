@@ -44,21 +44,19 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
+integer(kind=iwp), intent(in) :: MXPDIM, IPCSF(MXPDIM), NCONF, IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
                                  NEL, NAEL, NBEL, IREOTS(NACTOB)
 real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: NTEST
 logical(kind=iwp), intent(in) :: FordSplit
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
-integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, ILAI, ILTYP, ITYP, &
-                     Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
+#include "spinfo.fh"
+integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, ILAI, ILTYP, ITYP, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
 real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_ComputeH_AB, C_computeH_AB1, C_computeH_AB2, C_Oper, C_oper1, C_oper2, &
                  W_AlphaLoop1, W_AlphaLoop2, W_ComputeH_AB, W_computeH_AB1, W_computeH_AB2, W_Oper, W_oper1, W_oper2
-real(kind=wp), allocatable :: AuxD(:), AuxGa(:), AuxGaTi(:), AuxV(:,:), Scr(:)
+integer(kind=iwp), allocatable :: ICNL(:), ICNR(:)
+real(kind=wp), allocatable :: AuxD(:), AuxGa(:), AuxGaTi(:), AuxV(:,:), CNHCNM(:), Scr(:)
 real(kind=wp), external :: ddot_
-integer(kind=iwp), allocatable:: ICNL(:), ICNR(:)
-real(kind=wp), allocatable:: CNHCNM(:)
-#include "spinfo.fh"
 
 if (NTEST >= 30) then
   write(u6,*) ' Input in get_Cm'
@@ -100,13 +98,12 @@ call mma_allocate(AuxGa,MXCSFC,label='AuxGa')
 call mma_allocate(AuxGaTi,MXCSFC,label='AuxGaTi')
 call mma_allocate(AuxV,NPCSF,MXCSFC,label='AuxVer')
 
-Call mma_allocate(ICNL,NEL,Label='ICNL')
-Call mma_allocate(ICNR,NEL,Label='ICNR')
-Call mma_allocate(CNHCNM,MXCSFC**2,Label='CNHCNM')
+call mma_allocate(ICNL,NEL,Label='ICNL')
+call mma_allocate(ICNR,NEL,Label='ICNR')
+call mma_allocate(CNHCNM,MXCSFC**2,Label='CNHCNM')
 
 call mma_maxDBLE(MXXWS)
 call mma_allocate(Scr,MXXWS,label='EXHSCR')
-
 
 ! Shape of matrix:
 !
@@ -137,7 +134,7 @@ W_Oper = Zero
 
 IIAB = 1
 do iAlpha=NPCNF+1,NCONF
-  !call FZero(CNHCNM,MXCSFC*MXCSFC)
+  !CNHCNM(:) = Zero
   call cwtime(C_computeH_AB1,W_computeH_AB1)
   if (NTEST >= 30) write(u6,*) 'iAlpha = ',iAlpha
   call GETCNF_LUCIA(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
@@ -146,8 +143,7 @@ do iAlpha=NPCNF+1,NCONF
   !*********************************************************************
   !                      BB-Block DIAGONAL Elements                    *
   !*********************************************************************
-  call CNHCN(ICNL,IATYP,ICNR,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
-             NTEST,ExFac,IREOTS)
+  call CNHCN(ICNL,IATYP,ICNR,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
   if (NTEST >= 30) then
     write(u6,*) 'Alpha_Alpha elements in BB-block'
     call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
@@ -156,22 +152,19 @@ do iAlpha=NPCNF+1,NCONF
     ILAI = IIA*IIA
     AuxD(IIA) = CNHCNM(ILAI)
     !write(u6,*) 'ILAI =',ILAI
-    if (NTEST >= 30) then
-      write(u6,*) 'AuxD(IIA)',AuxD(IIA)
-    end if
+    if (NTEST >= 30) write(u6,*) 'AuxD(IIA)',AuxD(IIA)
   end do
 
   IILB = 1
   do Mindex=1,NPCNF ! Loop over AB-Block
-    !call FZero(CNHCNM,MXCSFC*MXCSFC)
+    !CNHCNM(:) = Zero
     if (NTEST >= 30) then
       write(u6,*) 'Mindex in AB-Block',Mindex
     end if
     call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
     if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
-    call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
-               NTEST,ExFac,IREOTS)
+    call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
     if (NTEST >= 30) then
       write(u6,*) 'M_Alpha elements'
       call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SGPrint(SGS)
-      use Struct, only: SGStruct
+      use gugx, only: SGStruct
       implicit real*8 (a-h,o-z)
       Type (SGStruct) SGS
 #include "WrkSpc.fh"

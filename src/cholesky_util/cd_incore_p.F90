@@ -52,10 +52,9 @@ real(kind=wp), parameter :: DefThr = 1.0e-6_wp, ThrFail = -1.0e-8_wp, ThrNeg = -
 irc = 0
 NumCho = 0
 if (n >= 1) then
-  Thr_ = Thr
-  if (Thr_ < Zero) Thr_ = DefThr
-
   if (MxVec > 0) then
+    Thr_ = Thr
+    if (Thr_ < Zero) Thr_ = DefThr
     call CD_InCore_1p(X,n,Vec,MxVec,NumCho,Thr_,ThrNeg,ThrFail,iD,irc)
   else
     irc = -1

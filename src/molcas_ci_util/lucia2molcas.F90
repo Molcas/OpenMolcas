@@ -9,40 +9,35 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LUCIA2MOLCAS(KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA, &
-                        NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF,MULTS_LUCIA, &
-                        nCSF_HEXS_LUCIA)
+subroutine LUCIA2MOLCAS(KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN, &
+                        NPDTCNF,NPCSCNF,MULTS_LUCIA,nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
 use csfbas, only: CONF, CTS, maxop_lucia
+use splitcas_data, only: iDimBlockA
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPCSM, MXPORB, KICONF_OCC_LUCIA(*), KSDREO_I(*), &
-                                 NDET_LUCIA, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM), &
-                                 NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
-integer(kind=iwp) :: I, ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, J, LCONF, LDET, LLCONF, LUCIA_TYPE, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
+integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
+                                 NCNASM_LUCIA(MXPCSM), MXPORB, NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), &
+                                 NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
 #include "rasdim.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "splitcas.fh"
 #include "strnum.fh"
 #include "lucia_ini.fh"
+integer(kind=iwp) :: ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, LCONF, LDET, LLCONF, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
 
-do I=1,MXCISM
-  NDTASM(I) = NDTASM_LUCIA(I)
-  NCSASM(I) = NCSASM_LUCIA(I)
-  NCNASM(I) = NCNASM_LUCIA(I)
-end do
+NDTASM(1:MXCISM) = NDTASM_LUCIA(1:MXCISM)
+NCSASM(1:MXCISM) = NCSASM_LUCIA(1:MXCISM)
+NCNASM(1:MXCISM) = NCNASM_LUCIA(1:MXCISM)
 if (NSEL > NCSASM(STSYM)) NSEL = NCSASM(STSYM)
 ! For small calculations - Lasse/MGD
 nCSF_HEXS = nCSF_HEXS_LUCIA
-if ((I_ELIMINATE_GAS_MOLCAS > 0) .and. (NSEL > nCSF_HEXS)) then
-  NSEL = nCSF_HEXS
-end if
+if ((I_ELIMINATE_GAS_MOLCAS > 0) .and. (NSEL > nCSF_HEXS)) NSEL = nCSF_HEXS
 
 if (iDimBlockA > NCSASM(STSYM)) then
   write(u6,*) ''
@@ -64,14 +59,9 @@ end if
 
 ! TOTAL NO. ORBITALS
 MS2 = iSpin-1
-NORB1 = 0
-NORB2 = 0
-NORB3 = 0
-do ISYM=1,NSYM
-  NORB1 = NORB1+NRS1(ISYM)
-  NORB2 = NORB2+NRS2(ISYM)
-  NORB3 = NORB3+NRS3(ISYM)
-end do
+NORB1 = sum(NRS1(1:NSYM))
+NORB2 = sum(NRS2(1:NSYM))
+NORB3 = sum(NRS3(1:NSYM))
 ! FIRST AND LAST ORBITAL OF RAS1, RAS2 AND RAS3 SPACE
 IORB1F = 1
 IORB1L = IORB1F+NORB1-1
@@ -96,14 +86,9 @@ MINOP = abs(MS2)
 maxop = maxop_lucia
 
 NTYP = MAXOP-MINOP+1
-do J=1,MXSM
-  do ITYP=1,NTYP
-    LUCIA_TYPE = ITYP+MINOP
-    NCNFTP(ITYP,J) = NCONF_PER_OPEN(LUCIA_TYPE,J)
-    NDTFTP(ITYP) = NPDTCNF(LUCIA_TYPE)
-    NCSFTP(ITYP) = NPCSCNF(LUCIA_TYPE)
-  end do
-end do
+NCNFTP(1:NTYP,1:MXSM) = NCONF_PER_OPEN(MINOP+1:MAXOP+1,1:MXSM)
+NDTFTP(1:NTYP) = NPDTCNF(MINOP+1:MAXOP+1)
+NCSFTP(1:NTYP) = NPCSCNF(MINOP+1:MAXOP+1)
 
 ! MIN. NO. OF EL. IN ALPHA AND BETA STRING
 NL1MNA = max(0,NEL1MN-min(NBEL,NORB1))

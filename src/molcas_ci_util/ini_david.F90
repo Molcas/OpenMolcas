@@ -48,10 +48,10 @@ subroutine Ini_David(nRoots,nConf,nDet,nSel,n_keep,ntAsh,LuDavid)
 
 use davctl_mod, only: disk_address, in_core, istart, LblStk, memory_vectors, mixed_mode_1, mixed_mode_2, mxDiskStk, mxMemStk, &
                       n_Roots, nDiskStk, nkeep, nMemStk, nvec, on_disk, save_in_memory, save_mode
+use rasscf_lucia, only: Memory_Needed_Lucia
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rasscf_lucia, only: Memory_Needed_Lucia
 
 implicit none
 integer(kind=iwp), intent(in) :: nRoots, nConf, nDet, nSel, n_keep, ntAsh, LuDavid

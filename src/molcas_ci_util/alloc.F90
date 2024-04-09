@@ -8,62 +8,65 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE ALLOC()
+
+subroutine ALLOC()
+! RASSCF: allocation of core memory
 !
-!     RASSCF: allocation of core memory
+! Called from inpctl
 !
-!     Called from inpctl
+! No subroutine calls
 !
-!     No subroutine calls
-!
-!     ********** IBM-3090 Release 88 10 11 **********
-!
+! ********** IBM-3090 Release 88 10 11 **********
+
+use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
-      use Definitions, only: LF => u6
+use Definitions, only: u6
 #endif
-      IMPLICIT None
+
+implicit none
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Character(LEN=16), Parameter :: ROUTINE='ALLOC   '
-      Integer IORD, IORP, NSP, NOP, NAP, NSQ, NSPQ, NSR, NAQ, NSPQR, NAR, NSS, NRS, NAS
+integer(kind=iwp) :: IORD, IORP, NAP, NAQ, NAR, NAS, NOP, NRS, NSP, NSPQ, NSPQR, NSQ, NSR, NSS
+
 #ifdef _DEBUGPRINT_
-      Integer I
-      WRITE(LF,*)' Entering ',ROUTINE
+write(u6,*) ' Entering ALLOC'
 #endif
-!
-!     Compute space needed for transformed two-electron integrals
-!
-      ISTORD(1)=0
-      ISTORP(1)=0
-      IORD=0
-      IORP=0
-      DO NSP=1,NSYM
-       NOP=NORB(NSP)
-       NAP=NASH(NSP)
-       DO NSQ=1,NSYM
-        NAQ=NASH(NSQ)
-        NSPQ=IEOR(NSP-1,NSQ-1)
-        DO NSR=1,NSYM
-         NSPQR=IEOR(NSPQ,NSR-1)+1
-         NAR=NASH(NSR)
-         DO NSS=1,NSR
-          IF(NSPQR.NE.NSS) Cycle
-          NAS=NASH(NSS)
-          NRS=NAR*NAS
-          IF(NSS.EQ.NSR) NRS=(NAR+NAR**2)/2
-          IORD=IORD+NOP*NAQ*NRS
-          IORP=IORP+NAP*NAQ*NRS
-         END DO
-        END DO
-       END DO
-       ISTORD(NSP+1)=IORD
-       ISTORP(NSP+1)=IORP
-      END DO
-      NFINT=ISTORD(NSYM+1)
-!
+
+! Compute space needed for transformed two-electron integrals
+
+ISTORD(1) = 0
+ISTORP(1) = 0
+IORD = 0
+IORP = 0
+do NSP=1,NSYM
+  NOP = NORB(NSP)
+  NAP = NASH(NSP)
+  do NSQ=1,NSYM
+    NAQ = NASH(NSQ)
+    NSPQ = Mul(NSP,NSQ)
+    do NSR=1,NSYM
+      NSPQR = Mul(NSPQ,NSR)
+      NAR = NASH(NSR)
+      do NSS=1,NSR
+        if (NSPQR /= NSS) cycle
+        NAS = NASH(NSS)
+        NRS = NAR*NAS
+        if (NSS == NSR) NRS = nTri_Elem(NAR)
+        IORD = IORD+NOP*NAQ*NRS
+        IORP = IORP+NAP*NAQ*NRS
+      end do
+    end do
+  end do
+  ISTORD(NSP+1) = IORD
+  ISTORP(NSP+1) = IORP
+end do
+NFINT = ISTORD(NSYM+1)
+
 #ifdef _DEBUGPRINT_
-      Write(LF,'(1X,A,5X,9I5)')'ISTORD-vector:',(ISTORD(I),I=1,NSYM+1)
+write(u6,'(1X,A,5X,9I5)') 'ISTORD-vector:',ISTORD(1:NSYM+1)
 #endif
-      END SUBROUTINE ALLOC
+
+end subroutine ALLOC

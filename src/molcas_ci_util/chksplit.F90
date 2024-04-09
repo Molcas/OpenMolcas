@@ -22,14 +22,13 @@ subroutine ChkSplit()
 !     history: none                                                    *
 !***********************************************************************
 
+use general_data, only: nConf
+use splitcas_data, only: iDimBlockA, lRootSplit, min_ThrSplit, MxDimBlockA, ThrSplit
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: IERR
-#include "rasdim.fh"
 #include "output_ras.fh"
-#include "general.fh"
-#include "splitcas.fh"
 #include "warnings.h"
 
 !if (DoSplitCAS) then

@@ -11,112 +11,100 @@
 ! Copyright (C) Per Ake Malmqvist                                      *
 !               Markus P. Fuelscher                                    *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,STSYM,DoblockDMRG)
+
+subroutine GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,STSYM,DoblockDMRG)
+! PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
+! AUTHOR:  P.-AA. MALMQVIST
 !
-!     PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
-!     AUTHOR:  P.-AA. MALMQVIST
-!
-!     MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
-!
+! MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
+
+use gugx, only: CIStruct, EXStruct, SGStruct
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
-      use Definitions, only: u6
-#endif
-      use Struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Integer nSym,iSpin,nActEl,nHole1,nElec3,STSYM
-      Integer nRs1(nSym),nRs2(nSym),nRs3(nSym)
-      Type(SGStruct) SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      Logical DoBlockDMRG
-!
-      Integer IS, nRas1T,nRas2T,nRas3T
-
-      Interface
-      SUBROUTINE MKGUGA(SGS,CIS)
-      use Struct, only: SGStruct, CIStruct
-      IMPLICIT None
-
-      Type(SGStruct), Target:: SGS
-      Type(CIStruct) CIS
-      End SUBROUTINE MKGUGA
-      End Interface
-
-      nRas1T=Sum(nRs1(1:nSym))
-      nRas2T=Sum(nRs2(1:nSym))
-      nRas3T=Sum(nRs3(1:nSym))
-
-#ifdef _DEBUGPRINT_
-      Write (u6,*) 'nSym,iSpin,nActEl,nHole1,nElec3,nRas1T,nRas2T,nRas3T,STSYM=', &
-                   nSym,iSpin,nActEl,nHole1,nElec3,nRas1T,nRas2T,nRas3T,STSYM
+use Definitions, only: u6
 #endif
 
-      SGS%nSym=nSym
-      SGS%iSpin=iSpin
-      SGS%nActEl=nActEl
+implicit none
+integer(kind=iwp), intent(in) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), STSYM
+type(SGStruct), intent(out) :: SGS
+type(CIStruct), intent(out) :: CIS
+type(EXStruct), intent(out) :: EXS
+logical(kind=iwp), intent(in) :: DoBlockDMRG
+integer(kind=iwp) :: IS, nRas1T, nRas2T, nRas3T
+interface
+  subroutine MKGUGA(SGS,CIS)
+    use gugx, only: SGStruct, CIStruct
+    type(SGStruct), target :: SGS
+    type(CIStruct) :: CIS
+  end subroutine MKGUGA
+end interface
 
-      Associate( LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,   &
-     &           LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,   &
-     &           nVert0 => SGS%nVert0, IFRAS=>SGS%IFRAS)
+nRas1T = sum(nRs1(1:nSym))
+nRas2T = sum(nRs2(1:nSym))
+nRas3T = sum(nRs3(1:nSym))
 
-!
-!     COMPUTE RAS RESTRICTIONS ON VERTICES:
-!
-      LV1RAS=NRAS1T
-      LV3RAS=nRas1T+NRAS2T
-      LM1RAS=2*nRas1T-NHOLE1
-      LM3RAS=NACTEL-nElec3
+#ifdef _DEBUGPRINT_
+write(u6,*) 'nSym,iSpin,nActEl,nHole1,nElec3,nRas1T,nRas2T,nRas3T,STSYM=',nSym,iSpin,nActEl,nHole1,nElec3,nRas1T,nRas2T,nRas3T,STSYM
+#endif
 
-!     SET IFRAS FLAG
-!     IFRAS = 0 : THIS IS A CAS CALCULATION
-!     IFRAS = 1 : THIS IS A RAS CALCULATION
-!
-      IF ((NRAS1T+NRAS3T)/=0) Then
-         IFRAS=1
-      Else
-         IFRAS=0
-      End If
-      DO IS=1,NSYM
-        IF (IFRAS.NE.0.AND.nRs2(IS).NE.0)IFRAS=IFRAS+1
-      END DO
-!
-!     INITIALIZE GUGA TABLES:
-!
-      CALL MKGUGA(SGS,CIS)
+SGS%nSym = nSym
+SGS%iSpin = iSpin
+SGS%nActEl = nActEl
 
-      If ( NVERT0.eq.0 ) then
-        CIS%NCSF(STSYM)=0
-        Return
-      End If
-      If ( doBlockDMRG ) then
-        CIS%NCSF(STSYM)=1
-        Return
-      End If
+! COMPUTE RAS RESTRICTIONS ON VERTICES:
 
-!     PURPOSE: FREE THE GUGA TABLES
-!     FORM VARIOUS OFFSET TABLES:
-!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
-!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
-!
-      CALL MKCOT(SGS,CIS)
-!
-!     CONSTRUCT THE CASE LIST
-!
-      Call MKCLIST(SGS,CIS)
-!
-!     SET UP ENUMERATION TABLES
-!
-      Call MKSGNUM(STSYM,SGS,CIS,EXS)
+SGS%LV1RAS = NRAS1T
+SGS%LV3RAS = nRas1T+NRAS2T
+SGS%LM1RAS = 2*nRas1T-NHOLE1
+SGS%LM3RAS = NACTEL-nElec3
 
-      If ( NActEl.eq.0 ) CIS%NCSF(STSYM)=1
+! SET IFRAS FLAG
+! IFRAS = 0 : THIS IS A CAS CALCULATION
+! IFRAS = 1 : THIS IS A RAS CALCULATION
 
-      End Associate
-!
-!     (IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
-!     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
-!     SET UP THE REINDEXING TABLE
-!
-      CALL SETSXCI()
+if (NRAS1T+NRAS3T /= 0) then
+  SGS%IFRAS = 1
+else
+  SGS%IFRAS = 0
+end if
+do IS=1,NSYM
+  if ((SGS%IFRAS /= 0) .and. (nRs2(IS) /= 0)) SGS%IFRAS = SGS%IFRAS+1
+end do
 
-      END SUBROUTINE GUGACTL
+! INITIALIZE GUGA TABLES:
+
+call MKGUGA(SGS,CIS)
+
+if (SGS%NVERT0 == 0) then
+  CIS%NCSF(STSYM) = 0
+  return
+end if
+if (doBlockDMRG) then
+  CIS%NCSF(STSYM) = 1
+  return
+end if
+
+! PURPOSE: FREE THE GUGA TABLES
+! FORM VARIOUS OFFSET TABLES:
+! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+!       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+
+call MKCOT(SGS,CIS)
+
+! CONSTRUCT THE CASE LIST
+
+call MKCLIST(SGS,CIS)
+
+! SET UP ENUMERATION TABLES
+
+call MKSGNUM(STSYM,SGS,CIS,EXS)
+
+if (NActEl == 0) CIS%NCSF(STSYM) = 1
+
+! (IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+! IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
+! SET UP THE REINDEXING TABLE
+
+call SETSXCI()
+
+end subroutine GUGACTL

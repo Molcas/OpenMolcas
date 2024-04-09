@@ -8,147 +8,126 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE MKSGNUM(STSYM,SGS,CIS,EXS)
 
-!     PURPOSE: FOR ALL UPPER AND LOWER WALKS
-!              COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
-!              REVERSE ARC WEIGHT SUM, RESPECTIVELY.
-!              STORE THE DATA IN THE TABLES IUSGNUM AND ILSGNUM
-!
+subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
+! PURPOSE: FOR ALL UPPER AND LOWER WALKS
+!          COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
+!          REVERSE ARC WEIGHT SUM, RESPECTIVELY.
+!          STORE THE DATA IN THE TABLES USGN AND LSGN
+
+use Symmetry_Info, only: Mul
+use gugx, only: CIStruct, EXStruct, SGStruct
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
-      use Definitions, only: LF => u6
-#endif
-      use Symmetry_Info, only: MUL
-      use struct, only: SGStruct, CIStruct, EXStruct
-      use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT None
-      Integer STSYM
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      Type (EXStruct) EXS
-!
-! local stuff
-      Integer, Allocatable:: ISTEPVEC(:)
-      Integer :: IC, ICODE, ICONF, IDAWSUM, ILOFF, ILW, IPOS, IRAWSUM,  &
-     &           ISTEP, ISYM, IUOFF, IUW, JPOS, JSYM, LEV, LV, MIDV,    &
-     &           NLW, NUW
-#ifdef _DEBUGPRINT_
-      Integer :: J
+use Definitions, only: u6
 #endif
 
-      CALL mma_allocate(EXS%USGN,SGS%MXUP,CIS%NMIDV,Label='EXS%USGN')
-      CALL mma_allocate(EXS%LSGN,SGS%MXDWN,CIS%NMIDV,Label='EXS%LSGN')
-      Call mma_allocate(ISTEPVEC,SGS%nLev,Label='ISTEPVEC')
+implicit none
+integer(kind=iwp), intent(in) :: STSYM
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(in) :: CIS
+type(EXStruct), intent(inout) :: EXS
+integer(kind=iwp) :: IC, ICODE, ICONF, IDAWSUM, ILOFF, ILW, IPOS, IRAWSUM, ISTEP, ISYM, IUOFF, IUW, JPOS, JSYM, LEV, LV, MIDV, &
+                     NLW, NUW
+integer(kind=iwp), allocatable :: ISTEPVEC(:)
 
-      Associate (nSym=>SGS%nSym, nLev=>SGS%nLev, MidLev=>SGS%MidLev,    &
-     &           nMidV=>CIS%nMidV, MxUp=>SGS%MxUp, MxDwn=>SGS%MxDwn,    &
-     &           nIpWlk=>CIS%nIpWlk, iDOwn=>SGS%Down, iUp=>SGS%Up,      &
-     &           iDaw=>SGS%Daw, iRaw=>SGS%Raw, NOW=>CIS%NOW,            &
-     &           IOW=>CIS%IOW, IUSGNUM=>EXS%USGN, ILSGNUM=>EXS%LSGN,    &
-     &           iCASE=>CIS%iCase,nVert=>SGS%nVert)
+call mma_allocate(EXS%USGN,SGS%MxUp,CIS%nMidV,Label='EXS%USGN')
+call mma_allocate(EXS%LSGN,SGS%MxDwn,CIS%nMidV,Label='EXS%LSGN')
+call mma_allocate(ISTEPVEC,SGS%nLev,Label='ISTEPVEC')
 
-!
-!     INITIALIZE NUMBERING TABLES
-!
-      DO MIDV=1,NMIDV
-        DO IUW=1,MXUP
-           IUSGNUM(IUW,MIDV)=0
-        END DO
-        DO ILW=1,MXDWN
-           ILSGNUM(ILW,MIDV)=0
-        END DO
-      END DO
-!
-!     MAIN LOOP RUNS OVER MIDVERTICES AND SYMMETRIES
-!
-      ICONF=0
-      DO MIDV=1,NMIDV
-        DO ISYM=1,NSYM
-          IUOFF=1+IOW(1,ISYM,MIDV)
-          NUW=NOW(1,ISYM,MIDV)
-          JSYM=MUL(ISYM,STSYM)
-          ILOFF=1+IOW(2,JSYM,MIDV)
-          NLW=NOW(2,JSYM,MIDV)
-          IF( NUW.EQ.0 .OR. NLW.EQ.0 ) Cycle
-!
-!         LOOP OVER ALL UPPER WALKS
-!
-          DO IUW=1,NUW
-            IPOS=IUOFF+NIPWLK*(IUW-1)
-!     UNPACK THE UPPER WALK STEP VECTOR
-            ICODE=ICASE(IPOS)
-            JPOS=0
-            DO LEV=(MIDLEV+1),NLEV
-              JPOS=JPOS+1
-              IF( JPOS.EQ.16 ) THEN
-                JPOS=1
-                IPOS=IPOS+1
-                ICODE=ICASE(IPOS)
-              ENDIF
-              ISTEP=MOD(ICODE,4)
-              ISTEPVEC(LEV)=ISTEP
-              ICODE=ICODE/4
-            END DO
-!     GET REVERSE ARC WEIGHT FOR UPPER WALK
-            IRAWSUM=1
-            LV=1
-            DO LEV=NLEV,(MIDLEV+1),-1
-              IC=ISTEPVEC(LEV)
-              LV=IDOWN(LV,IC)
-              IRAWSUM=IRAWSUM+IRAW(LV,IC)
-            END DO
-            IUSGNUM(IRAWSUM,MIDV)=IUW
-          END DO
-!
-!         LOOP OVER ALL LOWER WALKS
-!
-          DO ILW=1,NLW
-            IPOS=ILOFF+NIPWLK*(ILW-1)
-!     UNPACK WALK STEP VECTOR
-            ICODE=ICASE(IPOS)
-            JPOS=0
-            DO LEV=1,MIDLEV
-              JPOS=JPOS+1
-              IF( JPOS.EQ.16 ) THEN
-                JPOS=1
-                IPOS=IPOS+1
-                ICODE=ICASE(IPOS)
-              ENDIF
-              ISTEP=MOD(ICODE,4)
-              ISTEPVEC(LEV)=ISTEP
-              ICODE=ICODE/4
-            END DO
-!     GET DIRECT ARC WEIGHT FOR THE LOWER WALK
-            IDAWSUM=1
-            LV=NVERT
-            DO LEV=1,MIDLEV
-              IC=ISTEPVEC(LEV)
-              LV=IUP(LV,IC)
-              IDAWSUM=IDAWSUM+IDAW(LV,IC)
-            END DO
-            ILSGNUM(IDAWSUM,MIDV)=ICONF
-            ICONF=ICONF+NUW
-          END DO
-!
-        END DO
-      END DO
+! INITIALIZE NUMBERING TABLES
+
+EXS%USGN(:,:) = 0
+EXS%LSGN(:,:) = 0
+
+! MAIN LOOP RUNS OVER MIDVERTICES AND SYMMETRIES
+
+ICONF = 0
+do MIDV=1,CIS%nMidV
+  do ISYM=1,SGS%nSym
+    IUOFF = 1+CIS%IOW(1,ISYM,MIDV)
+    NUW = CIS%NOW(1,ISYM,MIDV)
+    JSYM = Mul(ISYM,STSYM)
+    ILOFF = 1+CIS%IOW(2,JSYM,MIDV)
+    NLW = CIS%NOW(2,JSYM,MIDV)
+    if ((NUW == 0) .or. (NLW == 0)) cycle
+
+    ! LOOP OVER ALL UPPER WALKS
+
+    do IUW=1,NUW
+      IPOS = IUOFF+CIS%nIpWlk*(IUW-1)
+      ! UNPACK THE UPPER WALK STEP VECTOR
+      ICODE = CIS%iCase(IPOS)
+      JPOS = 0
+      do LEV=SGS%MidLev+1,SGS%nLev
+        JPOS = JPOS+1
+        if (JPOS == 16) then
+          JPOS = 1
+          IPOS = IPOS+1
+          ICODE = CIS%iCase(IPOS)
+        end if
+        ISTEP = mod(ICODE,4)
+        ISTEPVEC(LEV) = ISTEP
+        ICODE = ICODE/4
+      end do
+      ! GET REVERSE ARC WEIGHT FOR UPPER WALK
+      IRAWSUM = 1
+      LV = 1
+      do LEV=SGS%nLev,SGS%MidLev+1,-1
+        IC = ISTEPVEC(LEV)
+        LV = SGS%Down(LV,IC)
+        IRAWSUM = IRAWSUM+SGS%Raw(LV,IC)
+      end do
+      EXS%USGN(IRAWSUM,MIDV) = IUW
+    end do
+
+    ! LOOP OVER ALL LOWER WALKS
+
+    do ILW=1,NLW
+      IPOS = ILOFF+CIS%nIpWlk*(ILW-1)
+      ! UNPACK WALK STEP VECTOR
+      ICODE = CIS%iCase(IPOS)
+      JPOS = 0
+      do LEV=1,SGS%MidLev
+        JPOS = JPOS+1
+        if (JPOS == 16) then
+          JPOS = 1
+          IPOS = IPOS+1
+          ICODE = CIS%iCase(IPOS)
+        end if
+        ISTEP = mod(ICODE,4)
+        ISTEPVEC(LEV) = ISTEP
+        ICODE = ICODE/4
+      end do
+      ! GET DIRECT ARC WEIGHT FOR THE LOWER WALK
+      IDAWSUM = 1
+      LV = SGS%nVert
+      do LEV=1,SGS%MidLev
+        IC = ISTEPVEC(LEV)
+        LV = SGS%Up(LV,IC)
+        IDAWSUM = IDAWSUM+SGS%Daw(LV,IC)
+      end do
+      EXS%LSGN(IDAWSUM,MIDV) = ICONF
+      ICONF = ICONF+NUW
+    end do
+
+  end do
+end do
 #ifdef _DEBUGPRINT_
-      Write(LF,*)
-      Write(LF,*)' ILSGNUM IN SUBROUTINE MKSGNUM'
-      DO MIDV=1,NMIDV
-        Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,(ILSGNUM(J,MIDV),J=1,MXDWN)
-      END DO
-      Write(LF,*)
-      Write(LF,*)' IUSGNUM IN SUBROUTINE MKSGNUM'
-      DO MIDV=1,NMIDV
-        Write(LF,'(1X,''MIDV='',I3,/,(20I6))')MIDV,(IUSGNUM(J,MIDV),J=1,MXUP)
-      END DO
-      Write(LF,*)
+write(u6,*)
+write(u6,*) ' LSGN IN SUBROUTINE MKSGNUM'
+do MIDV=1,CIS%nMidV
+  write(u6,'(1X,''MIDV='',I3,/,(20I6))') MIDV,EXS%LSGN(:,MIDV)
+end do
+write(u6,*)
+write(u6,*) ' USGN IN SUBROUTINE MKSGNUM'
+do MIDV=1,CIS%nMidV
+  write(u6,'(1X,''MIDV='',I3,/,(20I6))') MIDV,EXS%USGN(:,MIDV)
+end do
+write(u6,*)
 #endif
 
-      End Associate
+call mma_deallocate(ISTEPVEC)
 
-      Call mma_deallocate(ISTEPVEC)
-
-      END SUBROUTINE MKSGNUM
+end subroutine MKSGNUM

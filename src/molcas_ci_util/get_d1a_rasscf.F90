@@ -27,7 +27,7 @@
 !>  @param[in] CMO The MO-coefficients
 !>  @param[in] D1A_MO The active one-body density matrix in MO-space
 !>  @param[out] D1A_AO The active one-body density matrix in AO-space
-      subroutine Get_D1A_RASSCF(CMO,D1A_MO,D1A_AO)
+subroutine Get_D1A_RASSCF(CMO,D1A_MO,D1A_AO)
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -39,44 +39,46 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      use general_data, only : nBas, nSym, nFro, nIsh, nAsh
-      use stdalloc, only: mma_allocate, mma_deallocate
-      implicit none
-      real*8, intent(in) :: CMO(*) , D1A_MO(*)
-      real*8, intent(out) :: D1A_AO(*)
-      real*8, parameter :: Zero = 0.0d0
-      integer :: iOff1, iOff2, iOff3, iSym, iBas, iAsh, iIsh, iFro
-      Real*8, Allocatable:: Tmp1(:), Tmp2(:)
 
-      iOff1 = 1
-      iOff2 = 1
-      iOff3 = 1
-      Do iSym = 1,nSym
-        iBas = nBas(iSym)
-        iAsh = nAsh(iSym)
-        iIsh = nIsh(iSym)
-        iFro = nFro(iSym)
-        Call dCopy_(iBas*iBas,[Zero],0,D1A_AO(iOff3),1)
-        If ( iAsh /= 0 ) then
-          Call mma_allocate(Tmp1,iAsh*iAsh,Label='Tmp1')
-          Call mma_allocate(Tmp2,iAsh*iBas,Label='Tmp2')
-          Call Square(D1A_MO(iOff1),Tmp1,1,iAsh,iAsh)
-          Call DGEMM_('N','T', &
-     &                iBas,iAsh,iAsh, &
-     &                1.0d0,CMO(iOff2+(iFro+iIsh)*iBas),iBas, &
-     &                      Tmp1,iAsh, &
-     &                0.0d0,Tmp2,iBas)
-          Call DGEMM_('N','T', &
-     &                iBas,iBas,iAsh, &
-     &                1.0d0,Tmp2,iBas, &
-     &                      CMO(iOff2+(iFro+iIsh)*iBas),iBas, &
-     &                0.0d0,D1A_AO(iOff3),iBas)
-          Call mma_deallocate(Tmp2)
-          Call mma_deallocate(Tmp1)
-        End If
-        iOff1 = iOff1 + (iAsh*iAsh+iAsh)/2
-        iOff2 = iOff2 + iBas*iBas
-        iOff3 = iOff3 + iBas*iBas
-      End Do
+use Index_Functions, only: nTri_Elem
+use general_data, only: nAsh, nBas, nFro, nIsh, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-      End subroutine Get_D1A_RASSCF
+#include "intent.fh"
+
+implicit none
+real(kind=wp), intent(in) :: CMO(*), D1A_MO(*)
+real(kind=wp), intent(_OUT_) :: D1A_AO(*)
+integer(kind=iwp) :: iAsh, iBas, iFro, iIsh, iOff1, iOff2, iSym
+real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
+
+iOff1 = 1
+iOff2 = 1
+do iSym=1,nSym
+  iBas = nBas(iSym)
+  iAsh = nAsh(iSym)
+  iIsh = nIsh(iSym)
+  iFro = nFro(iSym)
+  D1A_AO(iOff2:iOff2+iBas*iBas-1) = Zero
+  if (iAsh /= 0) then
+    call mma_allocate(Tmp1,iAsh*iAsh,Label='Tmp1')
+    call mma_allocate(Tmp2,iAsh*iBas,Label='Tmp2')
+    call Square(D1A_MO(iOff1),Tmp1,1,iAsh,iAsh)
+    call DGEMM_('N','T',iBas,iAsh,iAsh, &
+                One,CMO(iOff2+(iFro+iIsh)*iBas),iBas, &
+                Tmp1,iAsh, &
+                Zero,Tmp2,iBas)
+    call DGEMM_('N','T',iBas,iBas,iAsh, &
+                One,Tmp2,iBas, &
+                CMO(iOff2+(iFro+iIsh)*iBas),iBas, &
+                Zero,D1A_AO(iOff2),iBas)
+    call mma_deallocate(Tmp2)
+    call mma_deallocate(Tmp1)
+  end if
+  iOff1 = iOff1+nTri_Elem(iAsh)
+  iOff2 = iOff2+iBas*iBas
+end do
+
+end subroutine Get_D1A_RASSCF

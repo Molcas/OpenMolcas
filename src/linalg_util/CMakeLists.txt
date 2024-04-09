@@ -33,6 +33,7 @@ set (sources
      nidiag_new.F90
      not_dgeev.F90
      schur_skew.F90
+     transmat.F90
      unitmat.F90
      vecphase.F90
      xeigen.F90

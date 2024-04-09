@@ -43,6 +43,7 @@ subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,N
 ! adapted to DETRAS by M.P. Fuelscher, October 1989
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Index_Functions, only: nTri_Elem
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -50,7 +51,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(NACTOB)
-real(kind=wp), intent(out) :: PHP(MXPDIM*(MXPDIM+1)/2)
+real(kind=wp), intent(out) :: PHP(nTri_Elem(MXPDIM))
 integer(kind=iwp), intent(out) :: IPCSF(MXPDIM), IPCNF(NCONF)
 real(kind=wp), intent(in) :: DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, DIAG(*), TUVX(*), ExFac
 real(kind=wp), intent(_OUT_) :: SCR(*)
@@ -205,7 +206,7 @@ subroutine PHPCSF_INTERNAL(SCR)
           IIRACT = IIRB-1+IIR
           IILACT = IILB-1+IIL
           ILRI = (IIR-1)*NCSFL+IIL
-          ILRO = ((IILACT*IILACT-IILACT)/2)+IIRACT
+          ILRO = nTri_Elem(IILACT-1)+IIRACT
           PHP(ILRO) = SCR(KLPHPS-1+ILRI)
         end do
       end do

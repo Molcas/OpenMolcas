@@ -12,7 +12,7 @@
       use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
 #include "rassi.fh"
@@ -31,20 +31,12 @@
 
       Interface
       Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT None
       Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
       Type (CIStruct) :: CIS
       End Subroutine SGInit
-      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type(SGStruct),Target:: SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      End SUBROUTINE MKGUGA_FREE
-
       End Interface
 
 *

@@ -144,24 +144,23 @@ integer(kind=iwp) :: i_dep_on_j(mxdep), i2s_fr(mxS,mxfrag), iact_mo(mxact_mo), i
                      initial, inp, inputmode, invec_cvb, ioffs(mxobj+1), iopt2step(0:30), ioptc_new, ioptcode(30), ioptim, &
                      ioptstep, iorbprm(mxorb_cvb), iorclos_c(mxirrep_ci), iorclos_d(mxirrep_ci), iorcore_c(mxirrep_ci), &
                      iorcore_d(mxirrep_ci), iorder(mxunits), iorocc_c(mxirrep_ci), iorocc_d(mxirrep_ci), ip, ipAnchr, ipdd, &
-                     ipos(mxstep), ipp10, ipp12e, ipp12s, ipp7, ipr(10), iprec, iprint, iprm, iroot, is_set = 0, &
-                     isaddle, isaddledd, isaddleo, ishstruc, istackrep(nstackrep), istms2_c(mxstsy_ci), istms2_d(mxstsy_ci), &
+                     ipos(mxstep), ipp10, ipp12e, ipp12s, ipp7, ipr(10), iprec, iprint, iprm, iroot, is_set = 0, isaddle, &
+                     isaddledd, isaddleo, ishstruc, istackrep(nstackrep), istms2_c(mxstsy_ci), istms2_d(mxstsy_ci), &
                      istnel_c(mxstsy_ci), istnel_d(mxstsy_ci), istsy_c(mxstsy_ci), istsy_d(mxstsy_ci), isym, isympr(mxirrep), &
                      isymv(mxirrep), iter10, iter12e, iter12s, iter7, ityp(mxorb_cvb), ivbweights, iwidth, izbuffer(lbuf), &
-                     j_dep_on_i(mxdep), joffs(mxobj+1), joptstep, jroot, kbasis, kbasiscvb, &
-                     lenline, lfxvb, loopstep, &
-                     loopstepmx, lstprm(mxprm), lzrvb, maxd, maxdav, mcore_c, mcore_d, &
-                     mnion, mnion_fr(mxfrag), mxaobf, mxdav, mxion, mxion_fr(mxfrag), mxit, mxiter, mxnvb = 0, mxrhs, n1a, n1b, &
-                     n_2el, n_applyh, n_applyt, n_cihess, n_div, n_hess, n_iter, n_orbhess, nact_mo, nalf, nalf_fr(mxMs,mxfrag), &
-                     nam1, naprodvb, nbas_mo, nbasf_mo(mxirrep_mo), nbasi_mo(mxirrep_mo), nbasisq_mo, nbassqf_mo(mxirrep_mo), &
-                     nbassqi_mo(mxirrep_mo), nbet, nbet_fr(mxMs,mxfrag), nbm1, nbprodvb, nbuf, ncivb(mxirrep), ncnt, nconf, &
-                     nconf_fr(mxfrag), nconfion_fr(0:mxI,mxfrag), nconstr, nda, nda_fr(mxMs,mxfrag), ndb, ndb_fr(mxMs,mxfrag), &
-                     ndep_ij, ndep_ji, ndet, ndetvb, ndetvb_fr(mxfrag), ndetvb2_fr(mxfrag), ndimrel, ndres, ndrot, nel, &
-                     nel_fr(mxfrag), nfield, nfold, nfr, nfrag, nfrdim, nfrorb, nfrvb, nfxorb, nfxvb, nijrel, niorth, nirrep, &
-                     nline = 0, nlold = 0, nmcscf, nMs_fr(mxfrag), nobj, noe, nopth1(2), nopth2(2), noptim, noptstep, norb, &
-                     norbrel, nort, nortiter, nortiterdd, nparm, npcf, npr, nprorb, nprvb, npvb, nrec, nroot, nS_fr(mxfrag), &
-                     nstats_c(mxstsy_ci), nstats_d(mxstsy_ci), nstsym_c, nstsym_d, nsym, nsym_mo, nsyme, nv, nvb, nvb_fr(mxfrag), &
-                     nvbinp, nvbr_fr(mxfrag), nvecmx, nvguess, nvrestart, nvrhs, nvtot, nword, nzeta, nzrvb
+                     j_dep_on_i(mxdep), joffs(mxobj+1), joptstep, jroot, kbasis, kbasiscvb, lenline, lfxvb, loopstep, loopstepmx, &
+                     lstprm(mxprm), lzrvb, maxd, maxdav, mcore_c, mcore_d, mnion, mnion_fr(mxfrag), mxaobf, mxdav, mxion, &
+                     mxion_fr(mxfrag), mxit, mxiter, mxnvb = 0, mxrhs, n1a, n1b, n_2el, n_applyh, n_applyt, n_cihess, n_div, &
+                     n_hess, n_iter, n_orbhess, nact_mo, nalf, nalf_fr(mxMs,mxfrag), nam1, naprodvb, nbas_mo, &
+                     nbasf_mo(mxirrep_mo), nbasi_mo(mxirrep_mo), nbasisq_mo, nbassqf_mo(mxirrep_mo), nbassqi_mo(mxirrep_mo), nbet, &
+                     nbet_fr(mxMs,mxfrag), nbm1, nbprodvb, nbuf, ncivb(mxirrep), ncnt, nconf, nconf_fr(mxfrag), &
+                     nconfion_fr(0:mxI,mxfrag), nconstr, nda, nda_fr(mxMs,mxfrag), ndb, ndb_fr(mxMs,mxfrag), ndep_ij, ndep_ji, &
+                     ndet, ndetvb, ndetvb_fr(mxfrag), ndetvb2_fr(mxfrag), ndimrel, ndres, ndrot, nel, nel_fr(mxfrag), nfield, &
+                     nfold, nfr, nfrag, nfrdim, nfrorb, nfrvb, nfxorb, nfxvb, nijrel, niorth, nirrep, nline = 0, nlold = 0, &
+                     nmcscf, nMs_fr(mxfrag), nobj, noe, nopth1(2), nopth2(2), noptim, noptstep, norb, norbrel, nort, nortiter, &
+                     nortiterdd, nparm, npcf, npr, nprorb, nprvb, npvb, nrec, nroot, nS_fr(mxfrag), nstats_c(mxstsy_ci), &
+                     nstats_d(mxstsy_ci), nstsym_c, nstsym_d, nsym, nsym_mo, nsyme, nv, nvb, nvb_fr(mxfrag), nvbinp, &
+                     nvbr_fr(mxfrag), nvecmx, nvguess, nvrestart, nvrhs, nvtot, nword, nzeta, nzrvb
 real(kind=wp) :: aa1, aa2, alftol, cnrm, cnrmtol, corenrg, cpropt(mxopth), cpu0, cpu_prev, cvbnrm, cvbnrm_fr(mxfrag), delopth1(2), &
                  delopth2(2), dfx(6), dfxmin(2), dfxtol, dx(3,6), eigwrngtol, esym(mxirrep), evb, exp12tol, expct, f1, f2, f3, f4, &
                  file_id, fileids(max_rec), fxbest, grd(3,6), grdwrngtol, hh, hhaccfac(5,2), hhkeep, hhmax(2), hhopt(mxopth), &
@@ -215,29 +214,28 @@ public :: aa1, aa2, absym, aikcof, alftol, ap, axc, bikcof, c, casvb_free, charo
           iconstruc, icrit, icto, idan, idelstr, idetvb, ifhamil, ifield, ifilio, ifinish, ifmos, ifnss1, ifnss2, ifollow, &
           iform_ci, ifsc_fr, ifvb, ifxorb, ifxstr, ikcoff, iline, ilv, imethod, initial, inp, inputmode, invec_cvb, ioffs, &
           iopt2step, ioptc_new, ioptcode, ioptim, ioptstep, iorbprm, iorbrel, iorclos_c, iorclos_d, iorcore_c, iorcore_d, iorder, &
-          iorocc_c, iorocc_d, iorts, ip, ipAnchr, ipdd, ipermzeta, ipos, ipp10, ipp12e, ipp12s, ipp7, ipr, iprec, &
-          iprint, iprm, irels, iroot, irots, is_set, isaddle, isaddledd, isaddleo, ishstruc, istackrep, istms2_c, istms2_d, &
-          istnel_c, istnel_d, istsy_c, istsy_d, isym, isympr, isymv, iter10, iter12e, iter12s, iter7, ityp, iunset, ivbweights, &
-          iwidth, ixapr, ixapr1, ixbpr, ixbpr1, izbuffer, izeta, j_dep_on_i, joffs, joptstep, jroot, kbasis, kbasiscvb, lbuf, &
-          lcalccivbs, lcalcevb, lcalcsvb, lciweights, &
-          lenline, lfxvb, line, loopstep, loopstepmx, lstprm, &
-          lzrvb, max_rec, maxd, maxdav, maxize, mcore_c, mcore_d, memplenty, mnion, mnion_fr, mustdeclare, mxact_mo, mxaobf, &
-          mxdav, mxdep, mxfield, mxfiles, mxfrag, mxI, mxion, mxion_fr, mxirrep, mxirrep_ci, mxirrep_mo, mxit, mxiter, mxMs, &
-          mxnvb, mxobj, mxopth, mxops, mxorb_cvb, mxprm, mxrhs, mxS, mxstep, mxstsy_ci, mxstt_ci, mxsyme, mxunits, n1a, n1b, &
-          n_2el, n_applyh, n_applyt, n_cihess, n_div, n_hess, n_iter, n_orbhess, nact_mo, nalf, nalf_fr, nam1, naprodvb, nbas_mo, &
-          nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nbet, nbet_fr, nbm1, nbprodvb, nbuf, ncivb, ncnt, nconf, &
-          nconf_fr, nconfion_fr, nconstr, nda, nda_fr, ndb, ndb_fr, ndep_ij, ndep_ji, ndet, ndetvb, ndetvb_fr, ndetvb2_fr, &
-          ndetvbs, ndimrel, ndres, ndres_ok, ndrot, nel, nel_fr, nfield, nfold, nfr, nfrag, nfrdim, nfrorb, nfrvb, nfxorb, nfxvb, &
-          nijrel, niorth, nirrep, nline, nlold, nmcscf, nMs_fr, nobj, noe, nopth1, nopth2, noptim, noptstep, norb, norbrel, nort, &
-          north, nortiter, nortiterdd, nparm, npcf, npr, nprorb, nprvb, npvb, nrec, nroot, nS_fr, nspinb, nstackrep, nstats_c, &
-          nstats_d, nstsym_c, nstsym_d, nsym, nsym_mo, nsyme, nv, nvb, nvb_fr, nvbinp, nvbr_fr, nvecmx, nvguess, nvrestart, nvrhs, &
-          nvtot, nword, nzeta, nzrvb, oaa2, oaa3, odx, odxp, ograd, ogradp, orbfr_is_unit, orbinv, orbopt, orbs, orbstry, orththr, &
-          orththrdd, ovraa, ovraa_try, ovrab, ovrab_try, owrk, owrk2, phato, phbto, phcto, plc_const, ploc, proj, projcas, &
-          projsym, recinp, recinp_old, recn, recn_jobiph, recn_jobold, recn_oneint, recn_tmp01, recn_tmp02, recn_tmp03, &
-          recn_tmp04, recn_vbwfn, release, relorb, res, resthr, resthrdd, rhs, rhsp, savvb, savvbci, safety, sc, scalesmall, &
-          service, sgn, signtol, sij, singul, solp, solp_res, sorbs, span, spinb, spinbkw, sstruc, sstruc2, strtci, strtint, &
-          strtmo, strtvb, strucopt, svb, sxc, sym, symelm, tags, tconstr, thresh_io, trprm, up2date, variat, vbdet, vec1, wdx, &
-          weight_c, weight_d, ww, ww_try, zzacclim, zzmax, zzmin, zzrejmax, zzrejmin
+          iorocc_c, iorocc_d, iorts, ip, ipAnchr, ipdd, ipermzeta, ipos, ipp10, ipp12e, ipp12s, ipp7, ipr, iprec, iprint, iprm, &
+          irels, iroot, irots, is_set, isaddle, isaddledd, isaddleo, ishstruc, istackrep, istms2_c, istms2_d, istnel_c, istnel_d, &
+          istsy_c, istsy_d, isym, isympr, isymv, iter10, iter12e, iter12s, iter7, ityp, iunset, ivbweights, iwidth, ixapr, ixapr1, &
+          ixbpr, ixbpr1, izbuffer, izeta, j_dep_on_i, joffs, joptstep, jroot, kbasis, kbasiscvb, lbuf, lcalccivbs, lcalcevb, &
+          lcalcsvb, lciweights, lenline, lfxvb, line, loopstep, loopstepmx, lstprm, lzrvb, max_rec, maxd, maxdav, maxize, mcore_c, &
+          mcore_d, memplenty, mnion, mnion_fr, mustdeclare, mxact_mo, mxaobf, mxdav, mxdep, mxfield, mxfiles, mxfrag, mxI, mxion, &
+          mxion_fr, mxirrep, mxirrep_ci, mxirrep_mo, mxit, mxiter, mxMs, mxnvb, mxobj, mxopth, mxops, mxorb_cvb, mxprm, mxrhs, &
+          mxS, mxstep, mxstsy_ci, mxstt_ci, mxsyme, mxunits, n1a, n1b, n_2el, n_applyh, n_applyt, n_cihess, n_div, n_hess, n_iter, &
+          n_orbhess, nact_mo, nalf, nalf_fr, nam1, naprodvb, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, &
+          nbet, nbet_fr, nbm1, nbprodvb, nbuf, ncivb, ncnt, nconf, nconf_fr, nconfion_fr, nconstr, nda, nda_fr, ndb, ndb_fr, &
+          ndep_ij, ndep_ji, ndet, ndetvb, ndetvb_fr, ndetvb2_fr, ndetvbs, ndimrel, ndres, ndres_ok, ndrot, nel, nel_fr, nfield, &
+          nfold, nfr, nfrag, nfrdim, nfrorb, nfrvb, nfxorb, nfxvb, nijrel, niorth, nirrep, nline, nlold, nmcscf, nMs_fr, nobj, &
+          noe, nopth1, nopth2, noptim, noptstep, norb, norbrel, nort, north, nortiter, nortiterdd, nparm, npcf, npr, nprorb, &
+          nprvb, npvb, nrec, nroot, nS_fr, nspinb, nstackrep, nstats_c, nstats_d, nstsym_c, nstsym_d, nsym, nsym_mo, nsyme, nv, &
+          nvb, nvb_fr, nvbinp, nvbr_fr, nvecmx, nvguess, nvrestart, nvrhs, nvtot, nword, nzeta, nzrvb, oaa2, oaa3, odx, odxp, &
+          ograd, ogradp, orbfr_is_unit, orbinv, orbopt, orbs, orbstry, orththr, orththrdd, ovraa, ovraa_try, ovrab, ovrab_try, &
+          owrk, owrk2, phato, phbto, phcto, plc_const, ploc, proj, projcas, projsym, recinp, recinp_old, recn, recn_jobiph, &
+          recn_jobold, recn_oneint, recn_tmp01, recn_tmp02, recn_tmp03, recn_tmp04, recn_vbwfn, release, relorb, res, resthr, &
+          resthrdd, rhs, rhsp, savvb, savvbci, safety, sc, scalesmall, service, sgn, signtol, sij, singul, solp, solp_res, sorbs, &
+          span, spinb, spinbkw, sstruc, sstruc2, strtci, strtint, strtmo, strtvb, strucopt, svb, sxc, sym, symelm, tags, tconstr, &
+          thresh_io, trprm, up2date, variat, vbdet, vec1, wdx, weight_c, weight_d, ww, ww_try, zzacclim, zzmax, zzmin, zzrejmax, &
+          zzrejmin
 
 contains
 

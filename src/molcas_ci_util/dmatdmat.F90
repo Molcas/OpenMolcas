@@ -11,83 +11,85 @@
 ! Copyright (C) 2013, Giovanni Li Manni                                *
 !               2013, Dongxia Ma                                       *
 !***********************************************************************
-      SUBROUTINE DmatDmat(Dmat,DDarray)
-! *******************************************************************
-!     Purpose: To construct an array containing Dpq*Drs elements
-!              (product of one-body density matrix elements) ordered
-!              according to the ordering of the 2-electron integrals
-!              elements g(pqrs).
-!
-!     Author : Giovanni Li Manni and Dongxia Ma
-!     Date   : June 21st 2013 ... When Minnesotan summer seems to arrive!
-! *******************************************************************
 
-      IMPLICIT None
+subroutine DmatDmat(Dmat,DDarray)
+!***********************************************************************
+! Purpose: To construct an array containing Dpq*Drs elements
+!          (product of one-body density matrix elements) ordered
+!          according to the ordering of the 2-electron integrals
+!          elements g(pqrs).
+!
+! Author : Giovanni Li Manni and Dongxia Ma
+! Date   : June 21st 2013 ... When Minnesotan summer seems to arrive!
+!***********************************************************************
+
+use Symmetry_Info, only: Mul
+use Index_Functions, only: i_Tri => iTri, nTri_Elem
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+real(kind=wp), intent(in) :: Dmat(*)
+real(kind=wp), intent(_OUT_) :: DDarray(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Real*8 Dmat(*),DDarray(*)
-
-      Integer iOffOrb(nSym)
-      Real*8 Fact
-      Integer iMaxPQ, iMaxRS, iMinPQ, iMinRS, indx1, indx2, indxDpq, indxDrs, &
-              iOrbP, iOrbQ, iOrbR, iOrbS, iorp, iPsm, iQsm, iRsm, iSsm, iSym, nRS, &
-              iSmPQ
+integer(kind=iwp) :: indx1, indx2, indxDpq, indxDrs, iOffOrb(nSym), iOrbP, iOrbQ, iOrbR, iOrbS, iorp, iPsm, iQsm, iRsm, iSmPQ, &
+                     iSsm, iSym, nRS
+real(kind=wp) :: FACT
 
 ! Initialization of variables
 
-      iorp       = 0
-      iOffOrb(1) = 0
-      indx1      = 0
+iorp = 0
+indx1 = 0
+iOffOrb(1) = 0
 
-      Do iSym = 2, nSym
-        iOffOrb(iSym) = iOffOrb(iSym-1) + NaSh(iSym-1)
-      End do
+do iSym=2,nSym
+  iOffOrb(iSym) = iOffOrb(iSym-1)+NaSh(iSym-1)
+end do
 
-      call FZero(DDarray,istorp(nSym+1))
+DDarray(1:istorp(nSym+1)) = Zero
 
-      DO iPsm=1, nSym
-        Do iOrbP=1, NASh(iPsm)
-          DO iQsm=1,nSym
-            If(NASh(iQsm).eq.0) Cycle  ! next iQsm
-            iSmPQ = ieor(iPsm-1, iQsm -1)+1
-            indx2      = 0
-            DO iRsm=1,nSym
-              iSsm = ieor(iSmPQ-1,iRsm-1)+1
-              If(min(NASh(iRsm),NASh(iSsm)).eq.0.OR. iSsm.gt.iRsm) Then !next iRsm
-                indx2=indx2+NASH(iRsm)*(NASH(iRsm)+1)/2
-                Cycle
-              End If
-              nRS = NASh(iRsm)*NASh(iSsm)
-              if(iSsm.eq.iRsm) then
-                nRS=NASh(iRsm)*(NASh(iRsm)+1)/2
-              end if
-              If(iRsm.ne.iSsm.OR.iQsm.ne.iPsm) then
-                iorp = iorp+nRS*NASh(iQsm)
-                indx2=indx2+NASH(iRsm)*(NASH(iRsm)+1)/2
-                Cycle !next iRsm
-              End If
-              Do iOrbR=1,NASH(iRsm)
-                DO iOrbS=1,iOrbR
-                  FACT= 1.0d0
-                  IF(iOrbR.ne.iOrbS) FACT= 2.0d0
-                  Do iOrbQ=1,NASH(iQsm)
-                    iorp = iorp +1
-                    iMaxPQ=max(iOrbP,iOrbQ)
-                    iminPQ=min(iOrbP,iOrbQ)
-                    iMaxRS=max(iOrbR,iOrbS)
-                    iminRS=min(iOrbR,iOrbS)
-                    indxDpq = indx1+iMaxPQ*(iMaxPQ-1)/2 + iminPQ
-                    indxDrs = indx2+iMaxRS*(iMaxRS-1)/2 + iminRS
-                    DDarray(iorp)=Dmat(indxDpq)*Dmat(indxDrs)*FACT
-                  End Do ! Loop over iOrbQ
-                End Do ! Loop over iOrbS
-              End Do ! Loop over iOrbR
-              indx2=indx2+NASH(iRsm)*(NASH(iRsm)+1)/2
-            End Do ! loop over iRsm
-          End Do ! Loop over iQsm
-        End Do ! Loop over iOrbP
-        indx1 = indx1 + NASH(iPsm)*(NASH(iPsm)+1)/2
-      End Do ! Loop over iPsm
+do iPsm=1,nSym
+  do iOrbP=1,NASh(iPsm)
+    do iQsm=1,nSym
+      if (NASh(iQsm) == 0) cycle  ! next iQsm
+      iSmPQ = Mul(iPsm,iQsm)
+      indx2 = 0
+      do iRsm=1,nSym
+        iSsm = Mul(iSmPQ,iRsm)
+        if ((min(NASh(iRsm),NASh(iSsm)) /= 0) .and. (iSsm <= iRsm)) then
+          nRS = NASh(iRsm)*NASh(iSsm)
+          if (iSsm == iRsm) then
+            nRS = nTri_Elem(NASh(iRsm))
+          end if
+          if ((iRsm /= iSsm) .or. (iQsm /= iPsm)) then
+            iorp = iorp+nRS*NASh(iQsm)
+          else
+            do iOrbR=1,NASH(iRsm)
+              do iOrbS=1,iOrbR
+                if (iOrbR /= iOrbS) then
+                  FACT = Two
+                else
+                  FACT = One
+                end if
+                do iOrbQ=1,NASH(iQsm)
+                  iorp = iorp+1
+                  indxDpq = indx1+i_Tri(iOrbP,iOrbQ)
+                  indxDrs = indx2+i_Tri(iOrbR,iOrbS)
+                  DDarray(iorp) = Dmat(indxDpq)*Dmat(indxDrs)*FACT
+                end do ! Loop over iOrbQ
+              end do ! Loop over iOrbS
+            end do ! Loop over iOrbR
+          end if
+        end if
+        indx2 = indx2+nTri_Elem(NASH(iRsm))
+      end do ! loop over iRsm
+    end do ! Loop over iQsm
+  end do ! Loop over iOrbP
+  indx1 = indx1+nTri_Elem(NASH(iPsm))
+end do ! Loop over iPsm
 
-      END
+end subroutine DmatDmat

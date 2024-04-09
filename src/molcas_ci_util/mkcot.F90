@@ -8,178 +8,160 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE MKCOT(SGS,CIS)
-!     PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
-!     NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
-!              THE DOWN-CHAIN TABLE IS SCANNED TO PRODUCE ALL POSSIBLE
-!              WALKS. POSSIBLY, THERE ARE MORE EFFICIENT WAYS, BUT
-!              SINCE ONLY UPPER AND LOWER WALKS ARE REQUIRED
-!              THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
-#ifdef _DEBUGPRINT_
-      use Definitions, only: LF => u6
-#endif
-      use Symmetry_Info, only: Mul
-      use stdalloc, only: mma_allocate
-      use struct, only: SGStruct, CIStruct
-      IMPLICIT None
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-!
-      Integer, PARAMETER :: IVERT=1, ISYM=2, ISTEP=3
-      Integer IHALF, IVTSTA, IVTEND, LEV1, LEV2, IVTOP, LEV, ILND, IS, ISML, ISTP, &
-              ISYDWN, ISYTOT, ISYUP, IVB, IVT, IWSYM, MV, N, NUW
-#ifdef _DEBUGPRINT_
-      Integer NLW
-#endif
-      Logical Found
 
-      CIS%NIPWLK=1+(SGS%MIDLEV-1)/15
-      CIS%NIPWLK=MAX(CIS%NIPWLK,1+(SGS%NLEV-SGS%MIDLEV-1)/15)
-      CALL mma_allocate(CIS%NOW,2,SGS%NSYM,CIS%NMIDV,Label='CIS%NOW')
-      CALL mma_allocate(CIS%IOW,2,SGS%NSYM,CIS%NMIDV,Label='CIS%IOW')
-      CALL mma_allocate(CIS%NOCSF,SGS%NSYM,CIS%NMIDV,SGS%NSYM,Label='CIS%NOCSF')
-      CALL mma_allocate(CIS%IOCSF,SGS%NSYM,CIS%NMIDV,SGS%NSYM,Label='CIS%IOCSF')
-      Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
-      Call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')
+subroutine MKCOT(SGS,CIS)
+! PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
+! NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
+!          THE DOWN-CHAIN TABLE IS SCANNED TO PRODUCE ALL POSSIBLE
+!          WALKS. POSSIBLY, THERE ARE MORE EFFICIENT WAYS, BUT
+!          SINCE ONLY UPPER AND LOWER WALKS ARE REQUIRED
+!          THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
 
-      Associate(nVert=>SGS%nVert, MidLev=>SGS%MidLev, nMidV=>CIS%nMidV, MVSta=>SGS%MVSta, &
-                MVEnd=>SGS%MVEnd, nWalk=>CIS%nWalk, nIpWlk=>CIS%nIpWlk, &
-                ISm=>SGS%Ism, iDown=>SGS%DOwn, NOW=>CIS%NOW, IOW=>CIS%IOW, &
-                NOCSF=>CIS%NOCSF, IOCSF=>CIS%IOCSF, NCSF=>CIS%NCSF, nSym=>SGS%nSym,  &
-                nLev => SGS%nLev, iSCR=>SGS%Scr)
-!
-!     CLEAR ARRAYS IOW AND NOW
-!
-      NOW(:,:,:)=0
-      IOW(:,:,:)=0
-!
-!     CLEAR ARRAYS IOCSF AND NOCSF
-!
-      IOCSF(:,:,:)=0
-      NOCSF(:,:,:)=0
-!
-!     START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
-!
-      DO IHALF=1,2
-        IF(IHALF==1) THEN
-          IVTSTA=1
-          IVTEND=1
-          LEV1=NLEV
-          LEV2=MIDLEV
-        ELSE
-          IVTSTA=MVSta
-          IVTEND=MVEnd
-          LEV1=MIDLEV
-          LEV2=0
-        END IF
-!
-!     LOOP OVER VERTICES STARTING AT TOP OF SUBGRAPH
-!
-        DO IVTOP=IVTSTA,IVTEND
-!     SET CURRENT LEVEL=TOP LEVEL OF SUBGRAPH
-          LEV=LEV1
-          ISCR(IVERT,LEV)=IVTOP
-          ISCR(ISYM,LEV)=1
-          ISCR(ISTEP,LEV)=-1
-          DO WHILE(LEV<=LEV1)
-!     FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX
-          IVT=ISCR(IVERT,LEV)
-          Found=.FALSE.
-          DO ISTP=ISCR(ISTEP,LEV)+1,3
-            IVB=IDOWN(IVT,ISTP)
-            IF(IVB.NE.0) Then
-              FOUND=.TRUE.
-              EXIT
-            END IF
-          END DO
-!     NO SUCH ARC WAS POSSIBLE. GO UP ONE STEP AND TRY AGAIN.
-          IF(.NOT.Found) THEN
-          ISCR(ISTEP,LEV)=-1
-          LEV=LEV+1
-          Cycle
-          END IF
-!     SUCH AN ARC WAS FOUND. WALK DOWN:
-          ISCR(ISTEP,LEV)=ISTP
-          ISML=1
-          IF((ISTP==1).OR.(ISTP==2)) ISML=ISM(LEV)
-          LEV=LEV-1
-          ISCR(ISYM,LEV)=MUL(ISML,ISCR(ISYM,LEV+1))
-          ISCR(IVERT,LEV)=IVB
-          ISCR(ISTEP,LEV)=-1
-          IF (LEV>LEV2) Cycle
-!     WE HAVE REACHED THE BOTTOM LEVEL. THE WALK IS COMPLETE.
-!     FIND MIDVERTEX NUMBER ORDERING NUMBER AND SYMMETRY OF THIS WALK
-          MV=ISCR(IVERT,MIDLEV)+1-MVSta
-          IWSYM=ISCR(ISYM,LEV2)
-          ILND=1+NOW(IHALF,IWSYM,MV)
-!     SAVE THE MAX WALK NUMBER FOR GIVEN SYMMETRY AND MIDVERTEX
-          NOW(IHALF,IWSYM,MV)=ILND
-!     BACK UP ONE LEVEL AND TRY AGAIN:
-          LEV=LEV+1
-          END DO
-        END DO
-      END DO
-!
-!     NOW,CONSTRUCT OFFSET TABLES FOR UPPER AND LOWER WALKS
-!     SEPARATED FOR EACH MIDVERTEX AND SYMMETRY
-!
-      NUW=0
-      DO MV=1,NMIDV
-        DO IS=1,NSYM
-          IOW(1,IS,MV)=NUW*NIPWLK
-          NUW=NUW+NOW(1,IS,MV)
-        END DO
-      END DO
-      NWALK=NUW
-      DO MV=1,NMIDV
-        DO IS=1,NSYM
-          IOW(2,IS,MV)=NWALK*NIPWLK
-          NWALK=NWALK+NOW(2,IS,MV)
-        END DO
-      END DO
-!
-!     FINALLY, CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
-!     SEPARATED BY MIDVERTICES AND SYMMETRY.
-!     FORM ALSO CONTRACTED SUMS OVER MIDVERTICES.
-!
-      NCSF(:)=0
-      DO ISYTOT=1,NSYM
-        DO MV=1,NMIDV
-          DO ISYUP=1,NSYM
-            ISYDWN=MUL(ISYTOT,ISYUP)
-            N=NOW(1,ISYUP,MV)*NOW(2,ISYDWN,MV)
-            NOCSF(ISYUP,MV,ISYTOT)=N
-            IOCSF(ISYUP,MV,ISYTOT)=NCSF(ISYTOT)
-            NCSF(ISYTOT)=NCSF(ISYTOT)+N
-          END DO
-        END DO
-      END DO
+use Symmetry_Info, only: Mul
+use gugx, only: CIStruct, SGStruct
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
-      NLW=NWALK-NUW
-      Write(LF,*)
-      Write(LF,*)' TOTAL NR OF WALKS: UPPER ',NUW
-      Write(LF,*)'                    LOWER ',NLW
-      Write(LF,*)'                     SUM  ',NWALK
-      Write(LF,*)
-      Write(LF,*)' NR OF CONFIGURATIONS/SYMM:'
-      Write(LF,'(8(1X,I8))')(NCSF(IS),IS=1,NSYM)
-      Write(LF,*)
-      Write(LF,*)
-      Write(LF,*)' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
-      Write(LF,*)' BY MIDVERTEX AND SYMMETRY.'
-      DO MV=1,NMIDV
-        Write(LF,'(A,I2,A,8I6)') '  MV=',MV,'    UPPER WALKS:', &
-                                 (NOW(1,IS,MV),IS=1,NSYM)
-        Write(LF,'(A,8I6)') '           LOWER WALKS:', &
-                                 (NOW(2,IS,MV),IS=1,NSYM)
-        DO ISTP=1,NSYM
-        Write(LF,'(A,I2,A,8I6)') ' ISTP=',ISTP,'  CONFIGURATIONS:', &
-                               (NOCSF(IS,MV,ISTP),IS=1,NSYM)
-        END DO
-      END DO
+use Definitions, only: u6
 #endif
 
-      End Associate
+implicit none
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
+integer(kind=iwp) :: IHALF, ILND, IS, ISML, ISTP, ISYDWN, ISYTOT, ISYUP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, &
+                     MV, N, NUW
+integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 
-      END SUBROUTINE MKCOT
+CIS%nIpWlk = 1+(SGS%MidLev-1)/15
+CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/15)
+call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
+call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
+call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
+call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF')
+call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
+call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')
+
+! CLEAR ARRAYS IOW AND NOW
+
+CIS%NOW(:,:,:) = 0
+CIS%IOW(:,:,:) = 0
+
+! CLEAR ARRAYS IOCSF AND NOCSF
+
+CIS%IOCSF(:,:,:) = 0
+CIS%NOCSF(:,:,:) = 0
+
+! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
+
+do IHALF=1,2
+  if (IHALF == 1) then
+    IVTSTA = 1
+    IVTEND = 1
+    LEV1 = SGS%nLev
+    LEV2 = SGS%MidLev
+  else
+    IVTSTA = SGS%MVSta
+    IVTEND = SGS%MVEnd
+    LEV1 = SGS%MidLev
+    LEV2 = 0
+  end if
+
+  ! LOOP OVER VERTICES STARTING AT TOP OF SUBGRAPH
+
+  do IVTOP=IVTSTA,IVTEND
+    ! SET CURRENT LEVEL=TOP LEVEL OF SUBGRAPH
+    LEV = LEV1
+    SGS%Scr(IVERT,LEV) = IVTOP
+    SGS%Scr(ISYM,LEV) = 1
+    SGS%Scr(ISTEP,LEV) = -1
+    do while (LEV <= LEV1)
+      ! FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX
+      IVT = SGS%Scr(IVERT,LEV)
+      do ISTP=SGS%Scr(ISTEP,LEV)+1,3
+        IVB = SGS%Down(IVT,ISTP)
+        if (IVB /= 0) exit
+      end do
+      ! NO SUCH ARC WAS POSSIBLE. GO UP ONE STEP AND TRY AGAIN.
+      if (ISTP > 3) then
+        SGS%Scr(ISTEP,LEV) = -1
+        LEV = LEV+1
+        cycle
+      end if
+      ! SUCH AN ARC WAS FOUND. WALK DOWN:
+      SGS%Scr(ISTEP,LEV) = ISTP
+      ISML = 1
+      if ((ISTP == 1) .or. (ISTP == 2)) ISML = SGS%ISm(LEV)
+      LEV = LEV-1
+      SGS%Scr(ISYM,LEV) = MUL(ISML,SGS%Scr(ISYM,LEV+1))
+      SGS%Scr(IVERT,LEV) = IVB
+      SGS%Scr(ISTEP,LEV) = -1
+      if (LEV > LEV2) cycle
+      ! WE HAVE REACHED THE BOTTOM LEVEL. THE WALK IS COMPLETE.
+      ! FIND MIDVERTEX NUMBER ORDERING NUMBER AND SYMMETRY OF THIS WALK
+      MV = SGS%Scr(IVERT,SGS%MidLev)+1-SGS%MVSta
+      IWSYM = SGS%Scr(ISYM,LEV2)
+      ILND = 1+CIS%NOW(IHALF,IWSYM,MV)
+      ! SAVE THE MAX WALK NUMBER FOR GIVEN SYMMETRY AND MIDVERTEX
+      CIS%NOW(IHALF,IWSYM,MV) = ILND
+      ! BACK UP ONE LEVEL AND TRY AGAIN:
+      LEV = LEV+1
+    end do
+  end do
+end do
+
+! NOW, CONSTRUCT OFFSET TABLES FOR UPPER AND LOWER WALKS
+! SEPARATED FOR EACH MIDVERTEX AND SYMMETRY
+
+NUW = 0
+do MV=1,CIS%nMidV
+  do IS=1,SGS%nSym
+    CIS%IOW(1,IS,MV) = NUW*CIS%nIpWlk
+    NUW = NUW+CIS%NOW(1,IS,MV)
+  end do
+end do
+CIS%nWalk = NUW
+do MV=1,CIS%nMidV
+  do IS=1,SGS%nSym
+    CIS%IOW(2,IS,MV) = CIS%nWalk*CIS%nIpWlk
+    CIS%nWalk = CIS%nWalk+CIS%NOW(2,IS,MV)
+  end do
+end do
+
+! FINALLY, CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
+! SEPARATED BY MIDVERTICES AND SYMMETRY.
+! FORM ALSO CONTRACTED SUMS OVER MIDVERTICES.
+
+CIS%NCSF(:) = 0
+do ISYTOT=1,SGS%nSym
+  do MV=1,CIS%nMidV
+    do ISYUP=1,SGS%nSym
+      ISYDWN = MUL(ISYTOT,ISYUP)
+      N = CIS%NOW(1,ISYUP,MV)*CIS%NOW(2,ISYDWN,MV)
+      CIS%NOCSF(ISYUP,MV,ISYTOT) = N
+      CIS%IOCSF(ISYUP,MV,ISYTOT) = CIS%NCSF(ISYTOT)
+      CIS%NCSF(ISYTOT) = CIS%NCSF(ISYTOT)+N
+    end do
+  end do
+end do
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
+write(u6,*) '                    LOWER ',CIS%nWalk-NUW
+write(u6,*) '                     SUM  ',CIS%nWalk
+write(u6,*)
+write(u6,*) ' NR OF CONFIGURATIONS/SYMM:'
+write(u6,'(8(1X,I8))') (CIS%NCSF(IS),IS=1,SGS%nSym)
+write(u6,*)
+write(u6,*)
+write(u6,*) ' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
+write(u6,*) ' BY MIDVERTEX AND SYMMETRY.'
+do MV=1,CIS%nMidV
+  write(u6,'(A,I2,A,8I6)') '  MV=',MV,'    UPPER WALKS:',(CIS%NOW(1,IS,MV),IS=1,SGS%nSym)
+  write(u6,'(A,8I6)') '           LOWER WALKS:',(CIS%NOW(2,IS,MV),IS=1,SGS%nSym)
+  do ISTP=1,SGS%nSym
+    write(u6,'(A,I2,A,8I6)') ' ISTP=',ISTP,'  CONFIGURATIONS:',(CIS%NOCSF(IS,MV,ISTP),IS=1,SGS%nSym)
+  end do
+end do
+#endif
+
+end subroutine MKCOT

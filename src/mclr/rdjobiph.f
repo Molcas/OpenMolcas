@@ -43,16 +43,6 @@
       Real*8, Allocatable::  Tmp2(:)
       Real*8, Allocatable:: CIVec(:,:)
 
-      Interface
-      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type(SGStruct),Target:: SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      END SUBROUTINE MKGUGA_FREE
-      End Interface
-
 *                                                                      *
 ************************************************************************
 *                                                                      *

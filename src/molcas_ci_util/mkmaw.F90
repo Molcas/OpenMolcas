@@ -10,67 +10,63 @@
 !                                                                      *
 ! Copyright (C) 1994, Per Ake Malmqvist                                *
 !***********************************************************************
+
 !--------------------------------------------*
 ! 1994  PER-AAKE MALMQUIST                   *
 ! DEPARTMENT OF THEORETICAL CHEMISTRY        *
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKMAW(SGS)
-      use stdalloc, only: mma_allocate
-      use struct, only: SGStruct
-      IMPLICIT None
-      Type (SGStruct) SGS
+subroutine MKMAW(SGS)
 
-      Integer IC, ID, ISUM, IU, IV
-
-      Call mma_allocate(SGS%MAW,[1,SGS%nVert],[0,3],Label='SGS%MAW')
-
-      Associate (nVert=>SGS%nVert, MVSta=>SGS%MVSta, MVEnd=>SGS%MVEnd, &
-                 iDown=>SGS%Down, iUp=>SGS%Up, iDaw=>SGS%DAW, iRaw=>SGS%Raw, &
-                 iMAW=>SGS%MAW)
-
-! COPY LOWER PART OF DIRECT ARC WEIGHT TABLE INTO IMAW:
-      DO 210 IV=MVSta,NVERT
-        DO 211 IC=0,3
-          IMAW(IV,IC)=IDAW(IV,IC)
-  211   CONTINUE
-  210 CONTINUE
-! COPY UPPER PART OF REVERSE ARC WEIGHT TABLE INTO IMAW. HOWEVER,
-!    NOTE THAT THE IMAW TABLE IS ACCESSED BY THE UPPER VERTEX.
-      DO 230 IU=1,MVSta-1
-        DO 220 IC=0,3
-          ID=IDOWN(IU,IC)
-          IMAW(IU,IC)=0
-          IF(ID.NE.0) IMAW(IU,IC)=IRAW(ID,IC)
-  220   CONTINUE
-  230 CONTINUE
-! FINALLY, ADD AN OFFSET TO ARCS LEADING TO MIDLEVELS:
-      ISUM=1
-      DO IV=MVSta,MVEnd
-        DO IC=0,3
-          IU=IUP(IV,IC)
-          IF(IU.EQ.0) Cycle
-          IMAW(IU,IC)=ISUM+IMAW(IU,IC)
-        END DO
-        ISUM=ISUM+IRAW(IV,4)
-      END DO
-      DO IV=MVSta,MVEnd
-        DO IC=0,3
-          IF(IDOWN(IV,IC).EQ.0) Cycle
-          IMAW(IV,IC)=ISUM+IMAW(IV,IC)
-        END DO
-        ISUM=ISUM+IDAW(IV,4)
-      END DO
+use gugx, only: SGStruct
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
- 1010 FORMAT(1X,I4,5X,5(1X,I6))
-        WRITE(6,*)
-        WRITE(6,*)' THE MODIFIED ARC WEIGHT TABLE IN MKMAW:'
-        DO 280 IV=1,NVERT
-          WRITE(6,1010) IV,(IMAW(IV,IC),IC=0,3)
-  280   CONTINUE
-        WRITE(6,*)
+use Definitions, only: u6
 #endif
-      End Associate
 
-      END SUBROUTINE MKMAW
+implicit none
+type(SGStruct), intent(inout) :: SGS
+integer(kind=iwp) :: IC, ID, ISUM, IU, IV
+
+call mma_allocate(SGS%MAW,[1,SGS%nVert],[0,3],Label='SGS%MAW')
+
+! COPY LOWER PART OF DIRECT ARC WEIGHT TABLE INTO MAW:
+SGS%MAW(SGS%MVSta:SGS%nVert,0:3) = SGS%DAW(SGS%MVSta:SGS%nVert,0:3)
+! COPY UPPER PART OF REVERSE ARC WEIGHT TABLE INTO MAW. HOWEVER,
+!    NOTE THAT THE MAW TABLE IS ACCESSED BY THE UPPER VERTEX.
+SGS%MAW(1:SGS%MVSta-1,0:3) = 0
+do IU=1,SGS%MVSta-1
+  do IC=0,3
+    ID = SGS%Down(IU,IC)
+    if (ID /= 0) SGS%MAW(IU,IC) = SGS%Raw(ID,IC)
+  end do
+end do
+! FINALLY, ADD AN OFFSET TO ARCS LEADING TO MIDLEVELS:
+ISUM = 1
+do IV=SGS%MVSta,SGS%MVEnd
+  do IC=0,3
+    IU = SGS%Up(IV,IC)
+    if (IU == 0) cycle
+    SGS%MAW(IU,IC) = ISUM+SGS%MAW(IU,IC)
+  end do
+  ISUM = ISUM+SGS%Raw(IV,4)
+end do
+do IV=SGS%MVSta,SGS%MVEnd
+  do IC=0,3
+    if (SGS%Down(IV,IC) == 0) cycle
+    SGS%MAW(IV,IC) = ISUM+SGS%MAW(IV,IC)
+  end do
+  ISUM = ISUM+SGS%DAW(IV,4)
+end do
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' THE MODIFIED ARC WEIGHT TABLE IN MKMAW:'
+do IV=1,SGS%nVert
+  write(u6,'(1X,I4,5X,5(1X,I6))') IV,SGS%MAW(IV,0:3)
+end do
+write(u6,*)
+#endif
+
+end subroutine MKMAW

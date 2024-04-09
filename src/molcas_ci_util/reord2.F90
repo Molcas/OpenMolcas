@@ -53,8 +53,8 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !                                                                      *
 !***********************************************************************
 
+use gugx, only: CIS, EXS, SGS
 use Definitions, only: wp, iwp, u6
-use gugx, only:  SGS, CIS, EXS
 
 #include "intent.fh"
 
@@ -68,16 +68,7 @@ integer(kind=iwp), intent(out) :: KCNF(NEL)
 #include "output_ras.fh"
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
-integer(kind=iwp) :: nVert, MidLev, MVSta, nLev, nMidV, MxUp, MxDwn
 integer(kind=iwp), external :: IPHASE, ISGNUM
-
-nLev  =SGS%nLev
-nVert =SGS%nVert
-MidLev=SGS%MidLev
-MVSta =SGS%MVSta
-nMidV =CIS%nMidV
-MxUp  =SGS%MxUp
-MxDwn =SGS%MxDwn
 
 IPRLEV = IPRLOC(3)
 ! LOOP OVER CONFIGURATIONS TYPES
@@ -129,11 +120,11 @@ do ITYP=1,NTYP
       ! COMPUTE STEP VECTOR
       call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,   &
-                   SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,EXS%USGN,EXS%LSGN,IWALK)
+      ISG = ISGNUM(SGS%nLev,SGS%nVert,SGS%MidLev,SGS%MVSta,CIS%nMidV,SGS%MxUp,SGS%MxDwn,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,EXS%USGN, &
+                   EXS%LSGN,IWALK)
 
       ! GET PHASE PHASE FACTOR
-      IP = IPHASE(NLEV,NVERT,SGS%DRT,SGS%UP,IWALK)
+      IP = IPHASE(SGS%nLev,SGS%nVert,SGS%DRT,SGS%UP,IWALK)
       if (IMODE == 0) then
         CINEW(ISG) = CIOLD(ICSFJP)
         if (IP < 0) CINEW(ISG) = -CIOLD(ICSFJP)

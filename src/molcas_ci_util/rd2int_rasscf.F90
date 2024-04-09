@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine Rd2Int_RASSCF()
+
+subroutine Rd2Int_RASSCF()
 !***********************************************************************
 !                                                                      *
 !     Read header of the two-electron integral file                    *
@@ -26,46 +27,54 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      use Definitions, only: LF => u6
-      use UnixInfo, only: ProgName
-      use General_data
-      Implicit None
+
+use UnixInfo, only: ProgName
+use Definitions, only: iwp, u6
+
+implicit none
+#include "rasdim.fh"
+#include "general.fh"
 #include "rasscf.fh"
-      Integer nSymX,nBasX(8),iRc,i,IERR,iSym
+integer(kind=iwp) :: i, IERR, iRc, iSym, nBasX(8), nSymX
+
 !----------------------------------------------------------------------*
-!     Start                                                            *
+! Start                                                                *
 !----------------------------------------------------------------------*
-      iRc=-1
-      Call GetOrd(iRc,lSquare,nSymX,nBasX,nSkipX)
-      If (iRc/=0) Then
-        Write(LF,*)'RD2INT Error: Failed to read from ORDINT file.'
-        Write(LF,*) Progname,' tried to read two-electron integrals from'
-        Write(LF,*)'the ORDINT file, but failed. Something is wrong'
-        Write(LF,*)'with the file. Perhaps it is missing?'
-        Call Quit_OnUserError()
-      End If
-      If ( nSymX/=nSym ) Then
-        Write(LF,*)'RD2INT Error: Wrong size of symmetry group.'
-        Write(LF,*)ProgName,' tried to use two-electron integrals from'
-        Write(LF,*)'a file that was evidently created for some other'
-        Write(LF,*)'program run.'
-        Write(LF,'(1x,a,2i8)')'nSymX,nSym:',nSymX,nSym
-        Call Quit_OnUserError()
-      End If
-      IERR=0
-      Do iSym=1,nSym
-         If ( nBas(iSym).ne.nBasX(iSym) ) IERR=1
-      End Do
-      If ( IERR==1 ) Then
-        Write(LF,*)'RD2INT Error: Wrong nr of basis functions.'
-        Write(LF,*)'RASSCF tried to use two-electron integrals from'
-        Write(LF,*)'a file that was evidently created for some other'
-        Write(LF,*)'program run.'
-        Write(LF,'(1x,a,8i8)')'nBas :',(nBas(i),i=1,nSym)
-        Write(LF,'(1x,a,8i8)')'nBasX:',(nBasX(i),i=1,nSym)
-        Call Quit_OnUserError()
-      End If
+iRc = -1
+call GetOrd(iRc,lSquare,nSymX,nBasX,nSkipX)
+if (iRc /= 0) then
+  write(u6,*) 'RD2INT Error: Failed to read from ORDINT file.'
+  write(u6,*) Progname,' tried to read two-electron integrals from'
+  write(u6,*) 'the ORDINT file, but failed. Something is wrong'
+  write(u6,*) 'with the file. Perhaps it is missing?'
+  call Quit_OnUserError()
+end if
+if (nSymX /= nSym) then
+  write(u6,*) 'RD2INT Error: Wrong size of symmetry group.'
+  write(u6,*) ProgName,' tried to use two-electron integrals from'
+  write(u6,*) 'a file that was evidently created for some other'
+  write(u6,*) 'program run.'
+  write(u6,'(1x,a,2i8)') 'nSymX,nSym:',nSymX,nSym
+  call Quit_OnUserError()
+end if
+IERR = 0
+do iSym=1,nSym
+  if (nBas(iSym) /= nBasX(iSym)) then
+    IERR = 1
+    exit
+  end if
+end do
+if (IERR == 1) then
+  write(u6,*) 'RD2INT Error: Wrong nr of basis functions.'
+  write(u6,*) 'RASSCF tried to use two-electron integrals from'
+  write(u6,*) 'a file that was evidently created for some other'
+  write(u6,*) 'program run.'
+  write(u6,'(1x,a,8i8)') 'nBas :',(nBas(i),i=1,nSym)
+  write(u6,'(1x,a,8i8)') 'nBasX:',(nBasX(i),i=1,nSym)
+  call Quit_OnUserError()
+end if
 !----------------------------------------------------------------------*
-!     Exit                                                             *
+! Exit                                                                 *
 !----------------------------------------------------------------------*
-      End Subroutine Rd2Int_RASSCF
+
+end subroutine Rd2Int_RASSCF

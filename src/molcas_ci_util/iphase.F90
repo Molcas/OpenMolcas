@@ -18,8 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: IPHASE
-integer(kind=iwp), intent(in) :: NVERT, NLEV
-integer(kind=iwp), intent(in) :: IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
+integer(kind=iwp), intent(in) :: NLEV, NVERT, IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
 integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY

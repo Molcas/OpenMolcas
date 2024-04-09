@@ -8,105 +8,100 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE RMVERT(SGS)
-! Purpose: Remove vertices from a DRT table.
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Struct, only: SGStruct
-      use RasDef, only: nRas, nRsPrt, nRasEl
-      IMPLICIT None
-      Type(SGStruct) SGS
 
-      Integer, PARAMETER :: LTAB=1,NTAB=2
-      Integer, Allocatable:: CONN(:), Lim(:)
-      Logical Test
-      Integer IV, L, N, NCHANGES, IC, ID, NLD, NV, Lev, iRO, iSy
+subroutine RMVERT(SGS)
+! Purpose: Remove vertices from a DRT table.
+
+use gugx, only: SGStruct
+use RasDef, only: nRas, nRsPrt, nRasEl
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
+
+implicit none
+type(SGStruct), intent(inout) :: SGS
+integer(kind=iwp) :: IC, ID, iRO, iSy, IV, L, Lev, N, NCHANGES, NLD, NV
+logical(kind=iwp) :: Test
+integer(kind=iwp), allocatable :: CONN(:), Lim(:)
+integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2
 
 ! Construct a restricted graph.
-      Call mma_allocate(Lim,SGS%nLev,Label='Lim')
-      Lim(:)=0
+call mma_allocate(Lim,SGS%nLev,Label='Lim')
+Lim(:) = 0
 ! Fill in the occupation limit table:
-      Lev=0
-      Do iRO=1,nRsPrt
-        Do iSy=1,SGS%nSym
-          Lev=Lev+nRas(iSy,iRO)
-        End Do
-        if(Lev.gt.0) Lim(Lev)=nRasEl(iRO)
-      End Do
+Lev = 0
+do iRO=1,nRsPrt
+  do iSy=1,SGS%nSym
+    Lev = Lev+nRas(iSy,iRO)
+  end do
+  if (Lev > 0) Lim(Lev) = nRasEl(iRO)
+end do
 
-      Call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
-
-      Associate (nVert=>SGS%nVert, IDRT=>SGS%DRT0, IDOWN=>SGS%DOWN0,    &
-     &           VER=>SGS%Ver, nLim => Lim)
-
-      Call mma_allocate(CONN,nVert,Label='CONN')
+call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
+call mma_allocate(CONN,SGS%nVert,Label='CONN')
 
 ! KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
-      DO IV=1,NVERT-1
-        VER(IV)=1
-        L=IDRT(IV,LTAB)
-        N=IDRT(IV,NTAB)
-        IF(N.LT.NLIM(L)) VER(IV)=0
-      END DO
-      VER(NVERT)=1
+do IV=1,SGS%nVert-1
+  SGS%Ver(IV) = 1
+  L = SGS%DRT0(IV,LTAB)
+  N = SGS%DRT0(IV,NTAB)
+  if (N < Lim(L)) SGS%Ver(IV) = 0
+end do
+SGS%Ver(SGS%nVert) = 1
 
-      NCHANGES=1 ! Initiate first loop
-      Do While (NCHANGES>0)
-! REMOVE ARCS HAVING A DEAD UPPER OR LOWER VERTEX.
-! COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
-      NCHANGES=0
-      DO IV=1,NVERT-1
-        IF(VER(IV).EQ.0) THEN
-          DO IC=0,3
-            ID=IDOWN(IV,IC)
-            IF(ID.GT.0) THEN
-              IDOWN(IV,IC)=0
-              NCHANGES=NCHANGES+1
-            END IF
-          END DO
-        ELSE
-          NLD=0
-          DO IC=0,3
-            ID=IDOWN(IV,IC)
-            IF(ID.GT.0) THEN
-              IF(VER(ID).EQ.0) THEN
-                IDOWN(IV,IC)=0
-                NCHANGES=NCHANGES+1
-              ELSE
-                NLD=NLD+1
-              END IF
-            END IF
-          END DO
-          IF(NLD.EQ.0) THEN
-            VER(IV)=0
-            NCHANGES=NCHANGES+1
-          END IF
-        END IF
-      END DO
-! ALSO CHECK ON CONNECTIONS FROM ABOVE:
-      CONN(:)=0
-      CONN(1)=VER(1)
-      DO IV=1,NVERT-1
-        IF(VER(IV).EQ.1) THEN
-          DO IC=0,3
-            ID=IDOWN(IV,IC)
-            Test = ID.GT.0
-            If (Test) Then
-               Test = VER(ID).EQ.1
-            End If
-            IF(Test) THEN
-                CONN(ID)=1
-            END IF
-          END DO
-        END IF
-      END DO
-      DO IV=1,NVERT
-        IF(VER(IV).EQ.1 .AND. CONN(IV).EQ.0) THEN
-          VER(IV)=0
-          NCHANGES=NCHANGES+1
-        END IF
-      END DO
+NCHANGES = 1 ! Initiate first loop
+do while (NCHANGES > 0)
+  ! REMOVE ARCS HAVING A DEAD UPPER OR LOWER VERTEX.
+  ! COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
+  NCHANGES = 0
+  do IV=1,SGS%nVert-1
+    if (SGS%Ver(IV) == 0) then
+      do IC=0,3
+        ID = SGS%Down0(IV,IC)
+        if (ID > 0) then
+          SGS%Down0(IV,IC) = 0
+          NCHANGES = NCHANGES+1
+        end if
+      end do
+    else
+      NLD = 0
+      do IC=0,3
+        ID = SGS%Down0(IV,IC)
+        if (ID > 0) then
+          if (SGS%Ver(ID) == 0) then
+            SGS%Down0(IV,IC) = 0
+            NCHANGES = NCHANGES+1
+          else
+            NLD = NLD+1
+          end if
+        end if
+      end do
+      if (NLD == 0) then
+        SGS%Ver(IV) = 0
+        NCHANGES = NCHANGES+1
+      end if
+    end if
+  end do
+  ! ALSO CHECK ON CONNECTIONS FROM ABOVE:
+  CONN(:) = 0
+  CONN(1) = SGS%Ver(1)
+  do IV=1,SGS%nVert-1
+    if (SGS%Ver(IV) == 1) then
+      do IC=0,3
+        ID = SGS%Down0(IV,IC)
+        Test = ID > 0
+        if (Test) Test = SGS%Ver(ID) == 1
+        if (Test) CONN(ID) = 1
+      end do
+    end if
+  end do
+  do IV=1,SGS%nVert
+    if ((SGS%Ver(IV) == 1) .and. (CONN(IV) == 0)) then
+      SGS%Ver(IV) = 0
+      NCHANGES = NCHANGES+1
+    end if
+  end do
 
-      End Do
+end do
 
 ! IF NO CHANGES, THE REMAINING GRAPH IS VALID.
 ! EVERY VERTEX OBEYS THE RESTRICTIONS. EVERY VERTEX IS
@@ -116,25 +111,22 @@
 ! SINCE EACH ITERATION REMOVES ARCS AND/OR VERTICES FROM THE
 ! FINITE NUMBER WE STARTED WITH.
 
-      IF(VER(1).EQ.0) THEN
-        WRITE(6,*)'RASSI/RMVERT: Too severe restrictions.'
-        WRITE(6,*)'Not one single configuration is left.'
-        CALL ABEND()
-      END IF
+if (SGS%Ver(1) == 0) then
+  write(u6,*) 'RASSI/RMVERT: Too severe restrictions.'
+  write(u6,*) 'Not one single configuration is left.'
+  call ABEND()
+end if
 
-      NV=0
-      DO IV=1,NVERT
-        IF(VER(IV).EQ.1) THEN
-          NV=NV+1
-          VER(IV)=NV
-        END IF
-      END DO
-      NVERT=NV
+NV = 0
+do IV=1,SGS%nVert
+  if (SGS%Ver(IV) == 1) then
+    NV = NV+1
+    SGS%Ver(IV) = NV
+  end if
+end do
+SGS%nVert = NV
 
-      Call mma_deallocate(CONN)
+call mma_deallocate(CONN)
+call mma_deallocate(Lim)
 
-      End Associate
-
-      Call mma_deallocate(Lim)
-
-      END SUBROUTINE RMVERT
+end subroutine RMVERT

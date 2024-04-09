@@ -210,11 +210,11 @@ subroutine refwfn_data
 !***********************************************************************
 !SVC: initialize the reference wavefunction data
 
+  use gugx, only: L2ACT, LEVEL
   use stdalloc, only: mma_allocate, mma_deallocate
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
 # endif
-  use gugx, only: L2ACT, LEVEL
 
 # include "rasdim.fh"
 # include "caspt2.fh"

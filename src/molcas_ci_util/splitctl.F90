@@ -33,6 +33,8 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 
 use csfbas, only: CONF
 use GLBBAS, only: DFTP, DTOC, CFTP
+use splitcas_data, only: EnInSplit, EnerSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
+                         NumSplit, percSpli, PerSplit, ThrSplit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
@@ -52,7 +54,6 @@ real(kind=wp), allocatable :: AABlock(:), CIVEC(:), DHAM(:), Diag(:), DiagCNF(:)
 real(kind=wp), external :: ddot_
 #include "rasdim.fh"
 #include "rasscf.fh"
-#include "splitcas.fh"
 #include "general.fh"
 #include "ciinfo.fh"
 #include "output_ras.fh"

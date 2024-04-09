@@ -12,7 +12,7 @@
      &                  ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,
      &                  NCONF,CI,DET,detocc,detcoeff)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT NONE
       Type (SGStruct) SGS
       Type (CIStruct) CIS

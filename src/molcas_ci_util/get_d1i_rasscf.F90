@@ -26,7 +26,7 @@
 !>
 !>  @param[in] CMO The MO-coefficients
 !>  @param[out] D1I_AO The inactive one-body density matrix in AO-space
-      Subroutine Get_D1I_RASSCF(CMO, D1I_AO)
+subroutine Get_D1I_RASSCF(CMO,D1I_AO)
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -38,26 +38,31 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      use general_data, only : nBas, nSym, nFro, nIsh
-      implicit none
-      real*8, intent(in) :: CMO(*)
-      real*8, intent(out) :: D1I_AO(*)
-      real*8, parameter :: Zero = 0.0d0, Two = 2.0d0
-      integer :: ista, iSym, nb, nbsq, nfi
 
-      ista=1
-      do isym=1,nsym
-        nb=nbas(isym)
-        nbsq=nb**2
-        nfi=nfro(isym)+nish(isym)
-        if(nb==0) Cycle
-        call dcopy_(nbsq,[0.0d0],0,d1i_AO(ista),1)
-        if(nfi>0) &
-          call DGEMM_('n','t',nb,nb,nfi, &
-                      two,cmo(ista),nb, &
-                          cmo(ista),nb, &
-                      zero,d1i_AO(ista),nb)
-        ista=ista+nbsq
-      end do
+use general_data, only: nBas, nFro, nIsh, nSym
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-      End
+#include "intent.fh"
+
+implicit none
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: D1I_AO(*)
+integer(kind=iwp) :: ista, iSym, nb, nbsq, nfi
+
+ista = 1
+do isym=1,nsym
+  nb = nbas(isym)
+  nbsq = nb**2
+  nfi = nfro(isym)+nish(isym)
+  if (nb > 0) then
+    d1i_AO(ista:ista+nbsq-1) = Zero
+    if (nfi > 0) call DGEMM_('N','T',nb,nb,nfi, &
+                             Two,cmo(ista),nb, &
+                             cmo(ista),nb, &
+                             Zero,d1i_AO(ista),nb)
+    ista = ista+nbsq
+  end if
+end do
+
+end subroutine Get_D1I_RASSCF

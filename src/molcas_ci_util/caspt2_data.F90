@@ -10,10 +10,14 @@
 !***********************************************************************
 
 module caspt2_data
-      implicit none
+
+implicit none
+private
+
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
 #include "pt2_guga.fh"
+
+public :: jState, mState, nActEl, nG3
+
 end module caspt2_data

@@ -49,9 +49,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N
-integer(kind=iwp), intent(out) :: M
 real(kind=wp), intent(in) :: S(N,N)
 real(kind=wp), intent(out) :: C(N,N), Temp(N)
+integer(kind=iwp), intent(out) :: M
 integer(kind=iwp) :: i, j, k
 real(kind=wp) :: Alpha, rSum
 logical(kind=iwp), parameter :: forward = .true.

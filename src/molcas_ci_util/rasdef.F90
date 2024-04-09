@@ -9,13 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 !***********************************************************************
+
 module rasdef
+
 ! NRSPRT = Nr of RAS partitions
 ! NRAS(ISYM,IP)=Nr of orbitals with symmetry ISYM in each part.
 ! NRASEL(IP)=Min nr of accumulated electrons
-integer, parameter :: MXRSPRT = 3
-integer :: NRS1(8), NRS2(8), NRS3(8), NRS1T, NRS2T, NRS3T, NRSPRT, NRAS(8,MXRSPRT), NRASEL(MXRSPRT)
 
-public :: NRS1, NRS2, NRS3, NRS1T, NRS2T, NRS3T, NRSPRT, NRAS, NRASEL
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: MXRSPRT = 3
+integer(kind=iwp) :: NRAS(8,MXRSPRT), NRASEL(MXRSPRT), NRS1(8), NRS1T, NRS2(8), NRS2T, NRS3(8), NRS3T, NRSPRT
+
+public :: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 
 end module rasdef

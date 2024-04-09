@@ -22,12 +22,11 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(inout) :: irc
-integer(kind=iwp), intent(in) :: nAorb(*), JSYM, NUMV, nTUVX
 type(twxy_type), intent(inout) :: Scr
 type(SBA_Type), intent(in) :: ChoV
+integer(kind=iwp), intent(in) :: nTUVX, nAorb(*), JSYM, NUMV
 real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 logical(kind=iwp), intent(in) :: DoReord
-
 integer(kind=iwp) :: iAorb(8), iRes, iSym, iSymt, iSymw, iSymx, iSymy, it, itG, itw, itwG, iw, iwG, ix, ixG, ixy, ixyG, iy, iyG, &
                      nTA, Ntw, Nxy
 
@@ -135,7 +134,7 @@ if (DoReord) then
 
   end do
 
-!Call RecPrt('Twxy',' ',TUVX,1,nTUVX)
+!call RecPrt('Twxy',' ',TUVX,1,nTUVX)
 end if
 
 irc = 0

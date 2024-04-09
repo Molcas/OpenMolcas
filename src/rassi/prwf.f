@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PRWF(SGS,CIS,ISYCI,CI,CITHR)
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CI(*)

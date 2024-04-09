@@ -41,7 +41,7 @@
 *> @param[in,out] CI   CI Array
 ************************************************************************
       SUBROUTINE CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION TRA(NTRA),CI(NCO)
 #include "WrkSpc.fh"

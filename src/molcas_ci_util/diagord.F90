@@ -48,6 +48,7 @@ subroutine DiagOrd(PHPCSF,PHPCNF,IPORDCSF,IPORDCNF,MXPDIM,condition,iter,DTOC,IP
 !     adapted to DETRAS by M.P. Fuelscher, October 1989
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use splitcas_data, only: EnerSplit, iDimBlockA, iDimBlockACNF, PerSplit
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -66,7 +67,6 @@ integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, iTmp
 real(kind=wp) :: Acc, RefSplit, XMAX, XMIN
 real(kind=wp), external :: FNDMNX
 #include "spinfo.fh"
-#include "splitcas.fh"
 
 call DIAGORD_INTERNAL(SCR)
 
@@ -221,8 +221,8 @@ subroutine DIAGORD_INTERNAL(SCR)
     SCR(KLCSFO+i) = PHPCSF(IPORDCSF(i+1))
   end do
 
-  call dcopy_(NCONF,SCR(KLCNFO),1,PHPCNF,1)
-  call dcopy_(MXPDIM,SCR(KLCSFO),1,PHPCSF,1)
+  PHPCNF(:) = SCR(KLCNFO:KLCNFO+NCONF-1)
+  PHPCSF(:) = SCR(KLCSFO:KLCSFO+MXPDIM-1)
 
   !write(u6,*) ' OUTPUT from DiagOrd'
   !write(u6,*) ' =================='

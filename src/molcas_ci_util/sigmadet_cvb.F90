@@ -11,8 +11,8 @@
 
 subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 
-use Definitions, only: wp, iwp
 use Lucia_Interface, only: Lucia_Util
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IREFSM, NCI
@@ -22,7 +22,7 @@ real(kind=wp), intent(out) :: HC(NCI)
 ! Export arguments to be used in sigma_master_cvb
 
 ! Call the sigma routine
-call LUCIA_UTIL('SIGMA_CVB',         &
+call LUCIA_UTIL('SIGMA_CVB', &
                 CI_Vector=C, &
                 SIGMA_Vector=HC, &
                 iSym=iREFSM)

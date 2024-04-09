@@ -10,20 +10,14 @@
 !                                                                      *
 ! Copyright (C) 1994, Per Ake Malmqvist                                *
 !***********************************************************************
+
+subroutine MKCOUP(SGS,CIS,EXS)
 !--------------------------------------------*
 ! 1994  PER-AAKE MALMQUIST                   *
 ! DEPARTMENT OF THEORETICAL CHEMISTRY        *
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKCOUP(SGS,CIS,EXS)
-
-      use Symmetry_Info, only: Mul
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-
-#include "segtab.fh"
 ! Purpose: Compute and return the table ICOUP(1..3,ICOP).
 ! The number of coupling coeffs is obtained from NOCP, the offset to
 ! the ICOP numbering is given by IOCP. The numbers ICOUP(1..3,ICOP) are
@@ -49,390 +43,371 @@
 ! ISGPTH(ISEG ,LEV)=Segment type (1..26).
 ! These indices are used to denote the columns of table ISGPTH.
 
-! INPUT PARAMETERS:
-      Type(SGStruct) SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-! OUTPUT PARAMETERS:
-      Integer, Parameter:: nVTab=5000
-! SCRATCH PARAMETERS:
-      Integer, PARAMETER :: IVLFT=1,ITYPE=2,IAWSL=3,IAWSR=4,ILS=5,ICS=6
-      Integer, PARAMETER :: ISEG=7
-      Integer, Allocatable:: ILNDW(:), ISGPTH(:,:)
-      Real*8, Allocatable:: Value(:)
-      Real*8, Allocatable:: VTab(:)
+use Symmetry_Info, only: Mul
+use gugx, only: CIStruct, EXStruct, SGStruct
+use segtab, only: IBVPT, IC1, IC2, ITVPT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-! local stuff
-      Integer :: nVTab_Final, i, i1, i2, IAWS, IC, ICL, ICOP, ICR,      &
-     &           IHALF, iLnd, IndEO, iP, iPos, iQ, iS, iSg, iSgt,       &
-     &           iSym, iT, iTyp, iTypMx, iTypT, iVlb, iVlt, iVrt,       &
-     &           iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1,    &
-     &           Lev2, LftSym, LL, MV, nCheck
-      Real*8 :: C
+implicit none
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(inout) :: CIS
+type(EXStruct), intent(inout) :: EXS
+integer(kind=iwp) :: i, i1, i2, IAWS, IC, ICL, ICOP, ICR, IHALF, iLnd, IndEO, iP, iPos, iQ, iS, iSg, iSgt, iSym, iT, iTyp, iTypMx, &
+                     iTypT, iVlb, iVlt, iVrt, iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1, Lev2, LftSym, LL, MV, nCheck, &
+                     nVTab_Final
+real(kind=wp) :: C
 #ifdef _DEBUGPRINT_
-      Real*8 :: CP
-      Integer :: I3, ICOP1, ICOP2, ICP1, ICP2, N, NRC, NRCPQ
+integer(kind=iwp) :: I3, ICOP1, ICOP2, ICP1, ICP2, N, NRC, NRCPQ
+real(kind=wp) :: CP
 #endif
+integer(kind=iwp), allocatable :: ILNDW(:), ISGPTH(:,:)
+real(kind=wp), allocatable :: val(:), VTab(:)
+integer(kind=iwp), parameter :: IVLFT = 1, ITYPE = 2, IAWSL = 3, IAWSR = 4, ILS = 5, ICS = 6, ISEG = 7, nVTab = 5000
 
-      Call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
-      Call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')
-      Call mma_allocate(Value,[0,SGS%nLev],Label='Value')
-      Call mma_allocate(VTab,nVTab,Label='VTab')
+call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
+call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')
+call mma_allocate(val,[0,SGS%nLev],Label='val')
+call mma_allocate(VTab,nVTab,Label='VTab')
 
-      Call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
-      If (.NOT.Allocated(CIS%ICase)) Call mma_allocate(CIS%ICase,       &
-     &                    CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase')
+call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+if (.not. allocated(CIS%ICase)) call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase')
 
-      Associate (ICoup=>EXS%ICoup, nICoup=>EXS%nICoup,                  &
-     &           ISm=>SGS%ISm, IVR=>CIS%IVR, iMAW=>SGS%MAW,             &
-     &           nLev=>SGS%nLev, ISGMNT=>CIS%ISGM,                      &
-     &           VSGMNT=>CIS%VSGM, NOW=>CIS%NOW, IOW=>CIS%IOW,          &
-     &           nVert=>SGS%nVert, iCase=>CIS%ICase,                    &
-     &           NOCP=>EXS%NOCP, IOCP=>EXS%IOCP, nSym=>SGS%nSym,        &
-     &           MxEO=>EXS%MxEO, nMidV=>CIS%nMidV, MidLev=>SGS%MidLev,  &
-     &           MVSta=>SGS%MVSta, MVEnd=>SGS%MVEnd,                    &
-     &           nWalk=>CIS%nWalk, nIpWlk=>CIS%nIpWlk)
-
-!     nIpWlk=1+(MidLev-1)/15
-!     nIpWlk=max(nIpWlk,1+(nLev-MidLev-1)/15)
-! NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL
-!    BE RESTORED FINALLY.
-      DO IHALF=1,2
-        DO MV=1,NMIDV
-          DO IS=1,NSYM
-            NOW(IHALF,IS,MV)=0
-          END DO
-        END DO
-      END DO
+!CIS%nIpWlk = 1+(SGS%MidLev-1)/15
+!CIS%nIpWlk = max(CIS%nIpWlk,1+(nLev-SGS%MidLev-1)/15)
+! NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL BE RESTORED FINALLY.
+do IHALF=1,2
+  do MV=1,CIS%nMidV
+    do IS=1,SGS%nSym
+      CIS%NOW(IHALF,IS,MV) = 0
+    end do
+  end do
+end do
 ! SIMILAR FOR THE COUPLING COEFFICIENT TABLE:
-      DO INDEO=1,MXEO
-        DO MV=1,NMIDV
-          DO IS=1,NSYM
-            NOCP(INDEO,IS,MV)=0
-          END DO
-        END DO
-      END DO
+do INDEO=1,EXS%MxEO
+  do MV=1,CIS%nMidV
+    do IS=1,SGS%nSym
+      EXS%NOCP(INDEO,IS,MV) = 0
+    end do
+  end do
+end do
 
 ! COUPLING COEFFICIENT VALUE TABLE:
-      NVTAB_FINAL=2
-      VTab(1)=1.0D00
-      VTab(2)=-1.0D00
+NVTAB_FINAL = 2
+VTab(1) = One
+VTab(2) = -One
 
-      NCHECK=0
+NCHECK = 0
 
-      DO IHALF=1,2
-        IF(IHALF.EQ.1) THEN
-          IVTSTA=1
-          IVTEND=1
-          LEV1=NLEV
-          LEV2=MIDLEV
-          ITYPMX=0
-        ELSE
-          IVTSTA=MVSta
-          IVTEND=MVEnd
-          LEV1=MIDLEV
-          LEV2=0
-          ITYPMX=2
-        END IF
-        DO IVTOP=IVTSTA,IVTEND
-        DO ITYP=0,ITYPMX
-          IVRTOP=IVTOP
-          IF(ITYP.GT.0)IVRTOP=IVR(IVTOP,ITYP)
-          IF(IVRTOP.EQ.0) GOTO 400
-          LEV=LEV1
-          ISGPTH(IVLFT,LEV)=IVTOP
-          ISGPTH(ITYPE,LEV)=ITYP
-          ISGPTH(IAWSL,LEV)=0
-          ISGPTH(IAWSR,LEV)=0
-          ISGPTH(ILS,LEV)=1
-          ISGPTH(ISEG,LEV)=0
-          VALUE(LEV)=1.0D00
- 100      IF(LEV.GT.LEV1) GOTO 400
-          ITYPT=ISGPTH(ITYPE,LEV)
-          IVLT=ISGPTH(IVLFT,LEV)
-          DO ISGT=ISGPTH(ISEG,LEV)+1,26
-            IVLB=ISGMNT(IVLT,ISGT)
-            IF(IVLB.EQ.0) GOTO 110
-            IF(ITYPT.EQ.ITVPT(ISGT)) GOTO 200
- 110        CONTINUE
-          END DO
-          ISGPTH(ISEG,LEV)=0
-          LEV=LEV+1
-          GOTO 100
+do IHALF=1,2
+  if (IHALF == 1) then
+    IVTSTA = 1
+    IVTEND = 1
+    LEV1 = SGS%nLev
+    LEV2 = SGS%MidLev
+    ITYPMX = 0
+  else
+    IVTSTA = SGS%MVSta
+    IVTEND = SGS%MVEnd
+    LEV1 = SGS%MidLev
+    LEV2 = 0
+    ITYPMX = 2
+  end if
+  do IVTOP=IVTSTA,IVTEND
+    do ITYP=0,ITYPMX
+      IVRTOP = IVTOP
+      if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
+      if (IVRTOP == 0) cycle
+      LEV = LEV1
+      ISGPTH(IVLFT,LEV) = IVTOP
+      ISGPTH(ITYPE,LEV) = ITYP
+      ISGPTH(IAWSL,LEV) = 0
+      ISGPTH(IAWSR,LEV) = 0
+      ISGPTH(ILS,LEV) = 1
+      ISGPTH(ISEG,LEV) = 0
+      val(LEV) = One
+      do while (LEV <= LEV1)
+        ITYPT = ISGPTH(ITYPE,LEV)
+        IVLT = ISGPTH(IVLFT,LEV)
+        do ISGT=ISGPTH(ISEG,LEV)+1,26
+          IVLB = CIS%ISGM(IVLT,ISGT)
+          if (IVLB == 0) cycle
+          if (ITYPT == ITVPT(ISGT)) exit
+        end do
+        if (ISGT > 26) then
+          ISGPTH(ISEG,LEV) = 0
+          LEV = LEV+1
+        else
+          ISGPTH(ISEG,LEV) = ISGT
+          ICL = IC1(ISGT)
+          ISYM = 1
+          if ((ICL == 1) .or. (ICL == 2)) ISYM = SGS%ISm(LEV)
+          IVRT = IVLT
+          if ((ITYPT == 1) .or. (ITYPT == 2)) IVRT = CIS%IVR(IVLT,ITYPT)
+          ICR = IC2(ISGT)
+          ISGPTH(ICS,LEV) = ICL
+          LEV = LEV-1
+          ISGPTH(IAWSL,LEV) = ISGPTH(IAWSL,LEV+1)+SGS%MAW(IVLT,ICL)
+          ISGPTH(IAWSR,LEV) = ISGPTH(IAWSR,LEV+1)+SGS%MAW(IVRT,ICR)
+          val(LEV) = val(LEV+1)*CIS%VSGM(IVLT,ISGT)
+          ISGPTH(ILS,LEV) = MUL(ISYM,ISGPTH(ILS,LEV+1))
+          ISGPTH(IVLFT,LEV) = IVLB
+          ISGPTH(ITYPE,LEV) = IBVPT(ISGT)
+          ISGPTH(ISEG,LEV) = 0
+          if (LEV > LEV2) cycle
 
- 200      ISGPTH(ISEG,LEV)=ISGT
-          ICL=IC1(ISGT)
-          ISYM=1
-          IF((ICL.EQ.1).OR.(ICL.EQ.2)) ISYM=ISM(LEV)
-          IVRT=IVLT
-          IF((ITYPT.EQ.1).OR.(ITYPT.EQ.2)) IVRT=IVR(IVLT,ITYPT)
-          ICR=IC2(ISGT)
-          ISGPTH(ICS,LEV)=ICL
-          LEV=LEV-1
-          ISGPTH(IAWSL,LEV)=ISGPTH(IAWSL,LEV+1)+IMAW(IVLT,ICL)
-          ISGPTH(IAWSR,LEV)=ISGPTH(IAWSR,LEV+1)+IMAW(IVRT,ICR)
-          VALUE(LEV)=VALUE(LEV+1)*VSGMNT(IVLT,ISGT)
-          ISGPTH(ILS,LEV)=MUL(ISYM,ISGPTH(ILS,LEV+1))
-          ISGPTH(IVLFT,LEV)=IVLB
-          ISGPTH(ITYPE,LEV)=IBVPT(ISGT)
-          ISGPTH(ISEG,LEV)=0
-          IF (LEV.GT.LEV2) GOTO 100
+          MV = ISGPTH(IVLFT,SGS%MidLev)+1-SGS%MVSta
+          LFTSYM = ISGPTH(ILS,LEV2)
+          IT = ISGPTH(ITYPE,SGS%MidLev)
+          if (IT == 0) IT = 3
+          if (ISGPTH(ITYPE,LEV2) == 0) IT = 0
 
-          MV=ISGPTH(IVLFT,MIDLEV)+1-MVSta
-          LFTSYM=ISGPTH(ILS,LEV2)
-          IT=ISGPTH(ITYPE,MIDLEV)
-          IF(IT.EQ.0) IT=3
-          IF(ISGPTH(ITYPE,LEV2).EQ.0) IT=0
+          if (IT == 0) then
+            ILND = 1+CIS%NOW(IHALF,LFTSYM,MV)
+            IAWS = ISGPTH(IAWSL,LEV2)
+            ILNDW(IAWS) = ILND
+            CIS%NOW(IHALF,LFTSYM,MV) = ILND
+            IPOS = CIS%IOW(IHALF,LFTSYM,MV)+(ILND-1)*CIS%nIpWlk
+            do LL=LEV2+1,LEV1,15
+              IC = 0
+              do L=min(LL+14,LEV1),LL,-1
+                IC = 4*IC+ISGPTH(ICS,L)
+              end do
+              IPOS = IPOS+1
+              CIS%ICase(IPOS) = IC
+            end do
+          else
+            IP = 0
+            IQ = 0
+            do L=LEV2+1,LEV1
+              ISG = ISGPTH(ISEG,L)
+              if ((ISG >= 5) .and. (ISG <= 8)) IP = L
+              if ((ISG >= 19) .and. (ISG <= 22)) IQ = L
+            end do
+            if (IP == 0) IP = IQ
+            INDEO = SGS%nLev*(IT-1)+IP
+            if (IT == 3) INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
+            ICOP = 1+EXS%NOCP(INDEO,LFTSYM,MV)
+            EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
+            ICOP = EXS%IOCP(INDEO,LFTSYM,MV)+ICOP
+            NCHECK = NCHECK+1
+            if (ICOP > EXS%nICoup) then
+              write(u6,*) ' ERROR: NICOUP=',EXS%nICoup
+              write(u6,*) ' NR OF COUPS PRODUCED:',NCHECK
+              write(u6,*) '           TYPE NR IT:',IT
+              write(u6,*) '            IP,IQ    :',IP,IQ
+              write(u6,*) '            INDEO    :',INDEO
+              write(u6,*) '        MIDVERTEX MV :',MV
+              write(u6,*) ' LEFT SYMMETRY LFTSYM:',LFTSYM
+              write(u6,*) ' COUP OFFSET IOCP    :',EXS%IOCP(INDEO,LFTSYM,MV)
+              write(u6,*) ' COUP SERIAL NR ICOP :',ICOP
+              write(u6,*) ' D:O, WITHOUT OFFSET :',ICOP-EXS%IOCP(INDEO,LFTSYM,MV)
+              write(u6,*) ' CURRENT NOCP NUMBER :',EXS%NOCP(INDEO,LFTSYM,MV)
+              call ABEND()
+            end if
 
-          IF(IT.EQ.0) THEN
-            ILND=1+NOW(IHALF,LFTSYM,MV)
-            IAWS=ISGPTH(IAWSL,LEV2)
-            ILNDW(IAWS)=ILND
-            NOW(IHALF,LFTSYM,MV)=ILND
-            IPOS=IOW(IHALF,LFTSYM,MV)+(ILND-1)*NIPWLK
-            DO LL=LEV2+1,LEV1,15
-              IC=0
-              DO L=MIN(LL+14,LEV1),LL,-1
-                IC=4*IC+ISGPTH(ICS,L)
-              END DO
-              IPOS=IPOS+1
-              ICASE(IPOS)=IC
-            END DO
-          ELSE
-            IP=0
-            IQ=0
-            DO L=LEV2+1,LEV1
-              ISG=ISGPTH(ISEG,L)
-              IF((ISG.GE.5).AND.(ISG.LE.8))IP=L
-              IF((ISG.GE.19).AND.(ISG.LE.22))IQ=L
-            END DO
-            IF(IP.EQ.0) IP=IQ
-            INDEO=NLEV*(IT-1)+IP
-            IF(IT.EQ.3) INDEO=2*NLEV+(IP*(IP-1))/2+IQ
-            ICOP=1+NOCP(INDEO,LFTSYM,MV)
-            NOCP(INDEO,LFTSYM,MV)=ICOP
-            ICOP=IOCP(INDEO,LFTSYM,MV)+ICOP
-            NCHECK=NCHECK+1
-            IF (ICOP.GT.NICOUP) THEN
-              WRITE(6,*)' ERROR: NICOUP=',NICOUP
-              WRITE(6,*)' NR OF COUPS PRODUCED:',NCHECK
-              WRITE(6,*)'           TYPE NR IT:',IT
-              WRITE(6,*)'            IP,IQ    :',IP,IQ
-              WRITE(6,*)'            INDEO    :',INDEO
-              WRITE(6,*)'        MIDVERTEX MV :',MV
-              WRITE(6,*)' LEFT SYMMETRY LFTSYM:',LFTSYM
-              WRITE(6,*)' COUP OFFSET IOCP    :',IOCP(INDEO,LFTSYM,MV)
-              WRITE(6,*)' COUP SERIAL NR ICOP :',ICOP
-              WRITE(6,*)' D:O, WITHOUT OFFSET :',                       &
-     &                    ICOP-IOCP(INDEO,LFTSYM,MV)
-              WRITE(6,*)' CURRENT NOCP NUMBER :',NOCP(INDEO,LFTSYM,MV)
-              CALL ABEND()
-            END IF
-!
-            C=VALUE(LEV2)
-            DO I=1,NVTAB_FINAL
-              IVTAB=I
-              IF(ABS(C-VTab(I)).LT.1.0D-10) GOTO 212
-            END DO
-            NVTAB_FINAL=NVTAB_FINAL+1
-            IF(NVTAB_FINAL.GT.nVTab) THEN
-              WRITE(6,*)'MKCOUP: NVTAB_FINAL=',NVTAB_FINAL
-              WRITE(6,*)'NVTAB_FINAL should not be allowed to grow'
-              WRITE(6,*)'beyond nVTab which was set provisionally'
-              WRITE(6,*)'in subroutine GINIT in file ginit.f.'
-              WRITE(6,*)'Now nVTab=',nVTab
-              WRITE(6,*)'This may indicate a problem with your input.'
-              WRITE(6,*)'If you do want to do this big calculation, try'
-              WRITE(6,*)'increasing nVTab in GINIT and recompile.'
-              CALL ABEND()
-            END IF
-            VTab(NVTAB_FINAL)=C
-            IVTAB=NVTAB_FINAL
- 212        ICOUP(1,ICOP)=ISGPTH(IAWSL,LEV2)
-            ICOUP(2,ICOP)=ISGPTH(IAWSR,LEV2)
-            ICOUP(3,ICOP)=IVTAB
-            IF (ICOP.GT.NICOUP) THEN
-              WRITE(6,*)'MKCOUP: ICOP>NICOUP!'
-              CALL ABEND()
-            END IF
-          END IF
+            C = val(LEV2)
+            do I=1,NVTAB_FINAL
+              IVTAB = I
+              if (abs(C-VTab(I)) < 1.0e-10_wp) exit
+            end do
+            if (I > NVTAB_FINAL) then
+              NVTAB_FINAL = NVTAB_FINAL+1
+              if (NVTAB_FINAL > nVTab) then
+                write(u6,*) 'MKCOUP: NVTAB_FINAL=',NVTAB_FINAL
+                write(u6,*) 'NVTAB_FINAL should not be allowed to grow'
+                write(u6,*) 'beyond nVTab which was set provisionally'
+                write(u6,*) 'in subroutine GINIT in file ginit.f.'
+                write(u6,*) 'Now nVTab=',nVTab
+                write(u6,*) 'This may indicate a problem with your input.'
+                write(u6,*) 'If you do want to do this big calculation, try'
+                write(u6,*) 'increasing nVTab in GINIT and recompile.'
+                call ABEND()
+              end if
+              VTab(NVTAB_FINAL) = C
+              IVTAB = NVTAB_FINAL
+            end if
+            EXS%ICoup(1,ICOP) = ISGPTH(IAWSL,LEV2)
+            EXS%ICoup(2,ICOP) = ISGPTH(IAWSR,LEV2)
+            EXS%ICoup(3,ICOP) = IVTAB
+            if (ICOP > EXS%nICoup) then
+              write(u6,*) 'MKCOUP: ICOP>NICOUP!'
+              call ABEND()
+            end if
+          end if
 
-          LEV=LEV+1
-          GOTO 100
+          LEV = LEV+1
+        end if
+      end do
 
- 400      CONTINUE
-          END DO
-        END DO
-      END DO
+    end do
+  end do
+end do
 ! RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
-      DO ICOP=1,NICOUP
-        I1=ICOUP(1,ICOP)
-        I2=ICOUP(2,ICOP)
-        ICOUP(1,ICOP)=ILNDW(I1)
-        ICOUP(2,ICOP)=ILNDW(I2)
-      END DO
+do ICOP=1,EXS%nICoup
+  I1 = EXS%ICoup(1,ICOP)
+  I2 = EXS%ICoup(2,ICOP)
+  EXS%ICoup(1,ICOP) = ILNDW(I1)
+  EXS%ICoup(2,ICOP) = ILNDW(I2)
+end do
 
-      Call mma_deallocate(Value)
-      Call mma_deallocate(ISGPTH)
-      Call mma_deallocate(ILNDW)
+call mma_deallocate(val)
+call mma_deallocate(ISGPTH)
+call mma_deallocate(ILNDW)
 
 #ifdef _DEBUGPRINT_
-        ICOP1=0
-        ICOP2=0
-        WRITE(6,*)' NR OF DIFFERENT VALUES OF COUP:',NVTAB_FINAL
-        DO ICOP=1,NICOUP
-          I3=ICOUP(3,ICOP)
-          IF(I3.EQ.1) ICOP1=ICOP1+1
-          IF(I3.EQ.2) ICOP2=ICOP2+1
-        END DO
-        WRITE(6,*)
-        WRITE(6,*)' NR OF COUPS WITH VALUE  1.0:',ICOP1
-        WRITE(6,*)' NR OF COUPS WITH VALUE -1.0:',ICOP2
-        WRITE(6,*)
-        WRITE(6,*)' COUPLING COEFFICIENTS:'
-        WRITE(6,*)'    IP    IQ    MV LFTSYM NOCP'
-        WRITE(6,*)' 1. OPEN LOOPS TYPE 1.'
-        DO IP=1,NLEV
-          DO MV=1,NMIDV
-            DO LFTSYM=1,NSYM
-              N=NOCP(IP,LFTSYM,MV)
-              WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,N
-            END DO
-          END DO
-        END DO
-        WRITE(6,*)' 2. OPEN LOOPS TYPE 2.'
-        DO IP=1,NLEV
-          INDEO=NLEV+IP
-          DO MV=1,NMIDV
-            DO LFTSYM=1,NSYM
-              N=NOCP(INDEO,LFTSYM,MV)
-              WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,N
-            END DO
-          END DO
-        END DO
-        WRITE(6,*)' 3. CLOSED LOOPS.'
-        DO IP=1,NLEV
-         DO IQ=1,IP
-          INDEO=2*NLEV+(IP*(IP-1))/2+IQ
-          DO MV=1,NMIDV
-            DO LFTSYM=1,NSYM
-              N=NOCP(INDEO,LFTSYM,MV)
-              WRITE(6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,N
-            END DO
-          END DO
-         END DO
-        END DO
-        WRITE(6,*)
-        WRITE(6,*)' COUPLING COEFFICIENTS:'
-        WRITE(6,*)'    IP    IQ    MV LFTSYM ICOP ICOUP1&2   COUP'
-        WRITE(6,*)' 1. OPEN LOOPS TYPE 1.'
-        DO IP=1,NLEV
-          DO MV=1,NMIDV
-            DO LFTSYM=1,NSYM
-              N=NOCP(IP,LFTSYM,MV)
-              ICOP=IOCP(IP,LFTSYM,MV)
-              DO I=1,N
-                ICOP=ICOP+1
-                ICP1=ICOUP(1,ICOP)
-                ICP2=ICOUP(2,ICOP)
-                CP=VTab(ICOUP(3,ICOP))
-                WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,            &
-     &                                      ICOP,ICP1,ICP2,CP
-            END DO
-          END DO
-         END DO
-        END DO
-        WRITE(6,*)' 2. OPEN LOOPS TYPE 2.'
-        DO IP=1,NLEV
-          INDEO=NLEV+IP
-          DO MV=1,NMIDV
-            DO LFTSYM=1,NSYM
-              N=NOCP(INDEO,LFTSYM,MV)
-              ICOP=IOCP(INDEO,LFTSYM,MV)
-              DO I=1,N
-                ICOP=ICOP+1
-                ICP1=ICOUP(1,ICOP)
-                ICP2=ICOUP(2,ICOP)
-                CP=VTab(ICOUP(3,ICOP))
-                WRITE(6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,            &
-     &                                      ICOP,ICP1,ICP2,CP
-              END DO
-            END DO
-          END DO
-        END DO
-        WRITE(6,*)' 3. CLOSED LOOPS.'
-        DO IP=1,NLEV
-         DO IQ=1,IP
-          INDEO=2*NLEV+(IP*(IP-1))/2+IQ
-          DO MV=1,NMIDV
-            DO LFTSYM=1,NSYM
-              N=NOCP(INDEO,LFTSYM,MV)
-              ICOP=IOCP(INDEO,LFTSYM,MV)
-              DO I=1,N
-                ICOP=ICOP+1
-                ICP1=ICOUP(1,ICOP)
-                ICP2=ICOUP(2,ICOP)
-                CP=VTab(ICOUP(3,ICOP))
-                WRITE(6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,            &
-     &                                      ICOP,ICP1,ICP2,CP
-              END DO
-            END DO
-          END DO
-         END DO
-        END DO
-      WRITE(6,*)
-      WRITE(6,*)' CONVENTIONAL NR OF COUPLING COEFFS, BY PAIR:'
-      NRC=0
-      DO IP=2,MIDLEV
-        DO IQ=1,IP-1
-          NRCPQ=0
-          INDEO=2*NLEV+(IP*(IP-1))/2+IQ
-          DO LFTSYM=1,NSYM
-            ISYM=LFTSYM
-            DO MV=1,NMIDV
-              NRCPQ=NRCPQ+NOCP(INDEO,LFTSYM,MV)*NOW(1,ISYM,MV)
-            END DO
-          END DO
-          WRITE(6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
-          NRC=NRC+NRCPQ
-        END DO
-      END DO
-      DO IP=MIDLEV+1,NLEV
-        DO IQ=1,MIDLEV
-          NRCPQ=0
-          DO LFTSYM=1,NSYM
-            ISYM=LFTSYM
-            DO MV=1,NMIDV
-              NRCPQ=NRCPQ+NOCP(IP,LFTSYM,MV)*NOCP(IQ,ISYM,MV)
-              NRCPQ=NRCPQ+NOCP(NLEV+IP,LFTSYM,MV)*NOCP(NLEV+IQ,ISYM,MV)
-            END DO
-          END DO
-          WRITE(6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
-          NRC=NRC+NRCPQ
-        END DO
-      END DO
-      DO IP=MIDLEV+2,NLEV
-        DO IQ=MIDLEV+1,IP-1
-          NRCPQ=0
-          INDEO=2*NLEV+(IP*(IP-1))/2+IQ
-          DO LFTSYM=1,NSYM
-            ISYM=LFTSYM
-            DO MV=1,NMIDV
-              NRCPQ=NRCPQ+NOCP(INDEO,LFTSYM,MV)*NOW(2,ISYM,MV)
-            END DO
-          END DO
-          WRITE(6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
-          NRC=NRC+NRCPQ
-        END DO
-      END DO
-      WRITE(6,*)
-      WRITE(6,*)' TOTAL CONVENTIONAL COUPLING COEFFS:',NRC
+ICOP1 = 0
+ICOP2 = 0
+write(u6,*) ' NR OF DIFFERENT VALUES OF COUP:',NVTAB_FINAL
+do ICOP=1,EXS%nICoup
+  I3 = EXS%ICoup(3,ICOP)
+  if (I3 == 1) ICOP1 = ICOP1+1
+  if (I3 == 2) ICOP2 = ICOP2+1
+end do
+write(u6,*)
+write(u6,*) ' NR OF COUPS WITH VALUE  1.0:',ICOP1
+write(u6,*) ' NR OF COUPS WITH VALUE -1.0:',ICOP2
+write(u6,*)
+write(u6,*) ' COUPLING COEFFICIENTS:'
+write(u6,*) '    IP    IQ    MV LFTSYM NOCP'
+write(u6,*) ' 1. OPEN LOOPS TYPE 1.'
+do IP=1,SGS%nLev
+  do MV=1,CIS%nMidV
+    do LFTSYM=1,SGS%nSym
+      N = EXS%NOCP(IP,LFTSYM,MV)
+      write(u6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,N
+    end do
+  end do
+end do
+write(u6,*) ' 2. OPEN LOOPS TYPE 2.'
+do IP=1,SGS%nLev
+  INDEO = SGS%nLev+IP
+  do MV=1,CIS%nMidV
+    do LFTSYM=1,SGS%nSym
+      N = EXS%NOCP(INDEO,LFTSYM,MV)
+      write(u6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,N
+    end do
+  end do
+end do
+write(u6,*) ' 3. CLOSED LOOPS.'
+do IP=1,SGS%nLev
+  do IQ=1,IP
+    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
+    do MV=1,CIS%nMidV
+      do LFTSYM=1,SGS%nSym
+        N = EXS%NOCP(INDEO,LFTSYM,MV)
+        write(u6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,N
+      end do
+    end do
+  end do
+end do
+write(u6,*)
+write(u6,*) ' COUPLING COEFFICIENTS:'
+write(u6,*) '    IP    IQ    MV LFTSYM ICOP ICOUP1&2   COUP'
+write(u6,*) ' 1. OPEN LOOPS TYPE 1.'
+do IP=1,SGS%nLev
+  do MV=1,CIS%nMidV
+    do LFTSYM=1,SGS%nSym
+      N = EXS%NOCP(IP,LFTSYM,MV)
+      ICOP = EXS%IOCP(IP,LFTSYM,MV)
+      do I=1,N
+        ICOP = ICOP+1
+        ICP1 = EXS%ICoup(1,ICOP)
+        ICP2 = EXS%ICoup(2,ICOP)
+        CP = VTab(EXS%ICoup(3,ICOP))
+        write(u6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,ICOP,ICP1,ICP2,CP
+      end do
+    end do
+  end do
+end do
+write(u6,*) ' 2. OPEN LOOPS TYPE 2.'
+do IP=1,SGS%nLev
+  INDEO = SGS%nLev+IP
+  do MV=1,CIS%nMidV
+    do LFTSYM=1,SGS%nSym
+      N = EXS%NOCP(INDEO,LFTSYM,MV)
+      ICOP = EXS%IOCP(INDEO,LFTSYM,MV)
+      do I=1,N
+        ICOP = ICOP+1
+        ICP1 = EXS%ICoup(1,ICOP)
+        ICP2 = EXS%ICoup(2,ICOP)
+        CP = VTab(EXS%ICoup(3,ICOP))
+        write(u6,'(6X,6(1X,I5),F10.7)') IP,MV,LFTSYM,ICOP,ICP1,ICP2,CP
+      end do
+    end do
+  end do
+end do
+write(u6,*) ' 3. CLOSED LOOPS.'
+do IP=1,SGS%nLev
+  do IQ=1,IP
+    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
+    do MV=1,CIS%nMidV
+      do LFTSYM=1,SGS%nSym
+        N = EXS%NOCP(INDEO,LFTSYM,MV)
+        ICOP = EXS%IOCP(INDEO,LFTSYM,MV)
+        do I=1,N
+          ICOP = ICOP+1
+          ICP1 = EXS%ICoup(1,ICOP)
+          ICP2 = EXS%ICoup(2,ICOP)
+          CP = VTab(EXS%ICoup(3,ICOP))
+          write(u6,'(7(1X,I5),F10.7)') IP,IQ,MV,LFTSYM,ICOP,ICP1,ICP2,CP
+        end do
+      end do
+    end do
+  end do
+end do
+write(u6,*)
+write(u6,*) ' CONVENTIONAL NR OF COUPLING COEFFS, BY PAIR:'
+NRC = 0
+do IP=2,SGS%MidLev
+  do IQ=1,IP-1
+    NRCPQ = 0
+    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
+    do LFTSYM=1,SGS%nSym
+      ISYM = LFTSYM
+      do MV=1,CIS%nMidV
+        NRCPQ = NRCPQ+EXS%NOCP(INDEO,LFTSYM,MV)*CIS%NOW(1,ISYM,MV)
+      end do
+    end do
+    write(u6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
+    NRC = NRC+NRCPQ
+  end do
+end do
+do IP=SGS%MidLev+1,SGS%nLev
+  do IQ=1,SGS%MidLev
+    NRCPQ = 0
+    do LFTSYM=1,SGS%nSym
+      ISYM = LFTSYM
+      do MV=1,CIS%nMidV
+        NRCPQ = NRCPQ+EXS%NOCP(IP,LFTSYM,MV)*EXS%NOCP(IQ,ISYM,MV)
+        NRCPQ = NRCPQ+EXS%NOCP(SGS%nLev+IP,LFTSYM,MV)*EXS%NOCP(SGS%nLev+IQ,ISYM,MV)
+      end do
+    end do
+    write(u6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
+    NRC = NRC+NRCPQ
+  end do
+end do
+do IP=SGS%MidLev+2,SGS%nLev
+  do IQ=SGS%MidLev+1,IP-1
+    NRCPQ = 0
+    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
+    do LFTSYM=1,SGS%nSym
+      ISYM = LFTSYM
+      do MV=1,CIS%nMidV
+        NRCPQ = NRCPQ+EXS%NOCP(INDEO,LFTSYM,MV)*CIS%NOW(2,ISYM,MV)
+      end do
+    end do
+    write(u6,'(1X,2I5,5X,I9)') IP,IQ,NRCPQ
+    NRC = NRC+NRCPQ
+  end do
+end do
+write(u6,*)
+write(u6,*) ' TOTAL CONVENTIONAL COUPLING COEFFS:',NRC
 #endif
 
-      End Associate
+call mma_allocate(EXS%VTab,nVTab_Final,Label='EXS%VTab')
+EXS%VTab(1:nVTab_final) = VTab(1:nVTab_final)
+call mma_deallocate(VTab)
 
-      Call mma_allocate(EXS%VTab,nVTab_Final,Label='EXS%VTab')
-      EXS%VTab(1:nVTab_final) = VTab(1:nVTab_final)
-      Call mma_deallocate(VTab)
-
-      END SUBROUTINE MKCOUP
+end subroutine MKCOUP

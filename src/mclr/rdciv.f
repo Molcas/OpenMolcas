@@ -30,16 +30,6 @@
 #include "Files_mclr.fh"
       Real*8, Allocatable:: OCIvec(:), Tmp(:)
 
-      Interface
-      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type(SGStruct),Target:: SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      END SUBROUTINE MKGUGA_FREE
-      End Interface
-
       Call DaName(LuCIV,'ROOTS')
       iDisk=0
 *----------------------------------------------------------------------*

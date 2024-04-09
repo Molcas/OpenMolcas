@@ -40,16 +40,6 @@
        Logical CI
        Real*8, Allocatable:: Kap1(:), Kap2(:), Kap3(:), CIp1(:,:)
 
-      Interface
-      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type(SGStruct),Target:: SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      END SUBROUTINE MKGUGA_FREE
-      End Interface
-
 *
 *-------------------------------------------------------------------*
 *

@@ -104,16 +104,6 @@
       real*8, allocatable :: PLWO(:), CIV(:)
       integer ivkcnf
 
-      Interface
-      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type(SGStruct),Target:: SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      END SUBROUTINE MKGUGA_FREE
-      End Interface
-
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)

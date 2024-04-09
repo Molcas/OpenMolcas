@@ -10,7 +10,7 @@
 !***********************************************************************
       Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
       use stdalloc, only: mma_deallocate
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT None
 !#include "rassi.fh"
       Integer nSym, nActEl, iSpin
@@ -19,7 +19,7 @@
 
       Interface
       SUBROUTINE MKGUGA(SGS,CIS)
-      use struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT None
       Type(SGStruct),Target:: SGS
       Type(CIStruct) CIS

@@ -8,53 +8,50 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE SETSXCI()
 
+subroutine SETSXCI()
+
+use sxci, only: IDXCI, IDXSX
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
-      use Definitions, only: u6
+use Definitions, only: u6
 #endif
-      use sxci, only: IDXCI, IDXSX
 
-      IMPLICIT None
-
+implicit none
 #include "rasdim.fh"
-#include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
+integer(kind=iwp) :: I, IGAS, IGSSH, IOFF_GSSH(mxgas), ISTOT, ISYM, NGSSHT
 
-      Integer IOFF_GSSH(mxgas)
-      Integer I, IGAS, IGSSH, ISTOT, ISYM, NGSSHT
-!
-! ---------------------------------------------------------
-! --  SET INDEX VECTORS FOR CI/SX INTEGRAL ORDERING
-! ---------------------------------------------------------
-!
+!---------------------------------------------------------
+!--  SET INDEX VECTORS FOR CI/SX INTEGRAL ORDERING
+!---------------------------------------------------------
 
-      NGSSHT=0
-      DO IGAS=1,NGAS
-        IOFF_GSSH(IGAS)=NGSSHT
-        NGSSHT=NGSSHT+SUM(NGSSH(IGAS,1:NSYM))
-      END DO
-      ISTOT=0
-      DO ISYM=1,NSYM
-        DO IGAS=1,NGAS
-          DO IGSSH=1,NGSSH(IGAS,ISYM)
-            IOFF_GSSH(IGAS)=IOFF_GSSH(IGAS)+1
-            ISTOT=ISTOT+1
-            IDXCI(ISTOT)=IOFF_GSSH(IGAS)
-          END DO
-        END DO
-      END DO
+NGSSHT = 0
+do IGAS=1,NGAS
+  IOFF_GSSH(IGAS) = NGSSHT
+  NGSSHT = NGSSHT+sum(NGSSH(IGAS,1:NSYM))
+end do
+ISTOT = 0
+do ISYM=1,NSYM
+  do IGAS=1,NGAS
+    do IGSSH=1,NGSSH(IGAS,ISYM)
+      IOFF_GSSH(IGAS) = IOFF_GSSH(IGAS)+1
+      ISTOT = ISTOT+1
+      IDXCI(ISTOT) = IOFF_GSSH(IGAS)
+    end do
+  end do
+end do
 
-      DO I=1,ISTOT
-        IDXSX(IDXCI(I))=I
-      END DO
+do I=1,ISTOT
+  IDXSX(IDXCI(I)) = I
+end do
 
 #ifdef _DEBUGPRINT_
-      WRITE(u6,'(1X,A)') 'REORDERING VECTOR FOR CI'
-      WRITE(u6,'(1X,12I5)') (IDXCI(I),I=1,ISTOT)
-      WRITE(u6,'(1X,A)') 'REORDERING VECTOR FOR SX'
-      WRITE(u6,'(1X,12I5)') (IDXSX(I),I=1,ISTOT)
+write(u6,'(1X,A)') 'REORDERING VECTOR FOR CI'
+write(u6,'(1X,12I5)') (IDXCI(I),I=1,ISTOT)
+write(u6,'(1X,A)') 'REORDERING VECTOR FOR SX'
+write(u6,'(1X,12I5)') (IDXSX(I),I=1,ISTOT)
 #endif
-      END
+
+end subroutine SETSXCI

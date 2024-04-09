@@ -7,31 +7,21 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2019, Stefano Battaglia                                *
 !***********************************************************************
-      subroutine transmat(A,U,N)
-      implicit none
-#include "stdalloc.fh"
-!**
-! This subroutine carries out the following transformation:
-!       U^T * A * U
-! where A and U are NxN matrices
-!**
-      integer N
-      real(8) A(N,N)
-      real(8) U(N,N)
-      real(8),allocatable :: B(:,:)
 
-! Allocate temporary array B
-      call mma_allocate(B,N,N,Label='B')
-      B=0.0d0
+module segtab
 
-! B = U^T * A
-      call dgemm_('T', 'N', N, N, N, 1.0d0, U, N, A, N, 0.0d0, B, N)
-! A = B * U
-      call dgemm_('N', 'N', N, N, N, 1.0d0, B, N, U, N, 0.0d0, A, N)
+use Definitions, only: iwp
 
-      call mma_deallocate(B)
+implicit none
+private
 
-      end
+integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
+                                IC1(26) = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
+                                IC2(26) = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
+                                ISVC(26) = [1,1,1,1,1,6,1,5,1,2,4,7,2,1,7,3,2,2,1,5,1,6,1,1,1,1], &
+                                ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
+
+public :: IBVPT, IC1, IC2, ISVC, ITVPT
+
+end module segtab

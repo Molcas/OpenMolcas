@@ -11,7 +11,7 @@
       SUBROUTINE READCI(ISTATE,SGS,CIS,NCI,CI)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file

@@ -14,27 +14,17 @@
 
 subroutine make_close_cvb(it)
 
-use wadr, only: TUVX, FockOcc, DSPN, DMAT, PMAT, PA, FI, FA, D1I, D1A, OccN, CMO, DIAF, FMO
 use casvb_global, only: variat
-use Definitions, only: iwp
+use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FMO, FockOcc, OccN, PA, PMAT, TUVX
+use gugx, only: CIS, EXS, SGS
 use stdalloc, only: mma_deallocate
-use gugx, only: SGS, CIS, EXS
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: it
+integer(kind=iwp), intent(in) :: it
 integer(kind=iwp) :: i, il, n
 character(len=8) :: vec(11)
 integer(kind=iwp), external :: find_lu
-
-Interface
-SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-use struct, only: SGStruct, CIStruct, EXStruct
-IMPLICIT None
-Type(SGStruct),Target:: SGS
-Type(CIStruct) CIS
-Type(EXStruct) EXS
-END SUBROUTINE MKGUGA_FREE
-End Interface
 
 vec(1) = 'TMP01'
 vec(2) = 'TMP02'
@@ -59,11 +49,11 @@ if (.not. variat) then
   call mkguga_free(SGS,CIS,EXS)
   call mma_deallocate(FMO)
   call mma_deallocate(TUVX)
-  Call mma_deallocate(DMAT)
-  Call mma_deallocate(DSPN)
-  Call mma_deallocate(PMAT)
-  Call mma_deallocate(PA)
-  Call mma_deallocate(DIAF)
+  call mma_deallocate(DMAT)
+  call mma_deallocate(DSPN)
+  call mma_deallocate(PMAT)
+  call mma_deallocate(PA)
+  call mma_deallocate(DIAF)
   call mma_deallocate(FockOcc)
   call mma_deallocate(FI)
   call mma_deallocate(FA)

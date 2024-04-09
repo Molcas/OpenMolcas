@@ -52,7 +52,7 @@ implicit none
 type(DSBA_Type), intent(in) :: DLT(1), Ash(2)
 type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), KSQ
 type(DSBA_Type), intent(_OUT_) :: FSQ
-integer(kind=iwp), intent(in) :: nScreen, nTUVX
+integer(kind=iwp), intent(in) :: nTUVX, nScreen
 real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: dmpk
 #include "warnings.h"

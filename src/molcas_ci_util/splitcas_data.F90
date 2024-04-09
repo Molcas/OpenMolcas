@@ -10,12 +10,12 @@
 !***********************************************************************
 
 ! This is just an encapsulation of the common block in
-! src/Include/rasdim.fh
-! src/Include/general.fh
+! src/Include/splitcas.fh
 ! into a data module
 
-      module splitcas_data
-      implicit none
+module splitcas_data
+
+implicit none
 #include "splitcas.fh"
-      save
-      end module splitcas_data
+
+end module splitcas_data

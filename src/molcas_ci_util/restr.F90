@@ -8,93 +8,87 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE RESTR(SGS)
-!     PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY
-!              CREATING A MASK
-!
-#ifdef _DEBUGPRINT_
-      use Definitions, only: u6
-#endif
-      use stdalloc, only: mma_allocate
-      use struct, only: SGStruct
-      IMPLICIT None
-      Type (SGStruct) SGS
-!
-      Integer, PARAMETER :: LTAB=1, NTAB=2
-      Integer::  IOR(0:3,0:3)=reshape([ 0,1,2,3,1,1,3,3,2,3,2,3,3,3,3,3 ], [4,4])
-      Integer:: IAND(0:3,0:3)=reshape([ 0,0,0,0,0,1,0,1,0,0,2,2,0,1,2,3 ], [4,4])
-      Integer:: IV, LEV, N, IVV, IC, ID, MASK, IVD
 
-      CALL mma_allocate(SGS%Ver,SGS%NVERT0,Label='V11')
+subroutine RESTR(SGS)
+! PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY CREATING A MASK
 
-      Associate(nVert0=>SGS%nVert0, iDRT0=>SGS%DRT0, iDOWN0=>SGS%DOWN0,   &
-                iVER=>SGS%Ver, LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,  &
-                LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS, nVert=>SGS%nVert)
-!
-!     LOOP OVER ALL VERTICES AND CHECK ON RAS CONDITIONS
-!     CREATE MASK
-!
-      DO IV=1,NVERT0
-        LEV=IDRT0(IV,LTAB)
-        N=IDRT0(IV,NTAB)
-        IVER(IV)=0
-        IF((LEV.EQ.LV1RAS).AND.(N.GE.LM1RAS)) IVER(IV)=1
-        IF((LEV.EQ.LV3RAS).AND.(N.GE.LM3RAS)) IVER(IV)=IVER(IV)+2
-      END DO
-!
-!     NOW LOOP FORWARDS, MARKING THOSE VERTICES CONNECTED FROM ABOVE.
-!     SINCE IVER WAS INITIALIZED TO ZERO, NO CHECKING IS NEEDED.
-!
-      DO IV=1,NVERT0-1
-        IVV=IVER(IV)
-        DO IC=0,3
-          ID=IDOWN0(IV,IC)
-          IF(ID.EQ.0) Cycle
-          IVER(ID)=IOR(IVER(ID),IVV)
-        END DO
-      END DO
-!
-!     THEN LOOP BACKWARDS. SAME RULES, EXCEPT THAT CONNECTIVITY
-!     SHOULD BE PROPAGATED ONLY ABOVE THE RESTRICTION LEVELS.
-!
-      DO IV=NVERT0-1,1,-1
-        LEV=IDRT0(IV,LTAB)
-        MASK=0
-        IF(LEV.GT.LV1RAS) MASK=1
-        IF(LEV.GT.LV3RAS) MASK=MASK+2
-        IVV=IVER(IV)
-        DO IC=0,3
-          ID=IDOWN0(IV,IC)
-          IF(ID.EQ.0) Cycle
-          IVD=IVER(ID)
-          IVV=IOR(IVV,IAND(MASK,IVD))
-        END DO
-        IVER(IV)=IVV
-      END DO
-!
-!     WE ARE NOW INTERESTED ONLY IN VERTICES CONNECTED BOTH TO
-!     ALLOWED VERTICES FOR RAS-SPACE 1 AND RAS-SPACE 3.
-!     THOSE ARE NUMBERED IN ASCENDING ORDER, THE REST ARE ZEROED.
-!
-      NVERT=0
-      DO IV=1,NVERT0
-        IF(IVER(IV).EQ.3) THEN
-          NVERT=NVERT+1
-          IVER(IV)=NVERT
-        ELSE
-          IVER(IV)=0
-        ENDIF
-      END DO
-      IF (NVERT.eq.0) Call SysAbendMsg('Restr','No configuration was found\n',    &
-                                       'Check NACTEL, RAS1, RAS2, RAS3 values')
+use gugx, only: SGStruct
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
-      Write (u6,*) 'RESTR:'
-      Write (u6,*)  'LV1RAS, LV3RAS, LM1RAS, LM3RAS=',LV1RAS, LV3RAS, LM1RAS, LM3RAS
-      DO IV=1,NVERT0
-         Write (u6,*) 'IVER(:)=',IVER(IV)
-      END DO
+use Definitions, only: u6
 #endif
-      End Associate
-!
-      END SUBROUTINE RESTR
+
+implicit none
+type(SGStruct), intent(inout) :: SGS
+integer(kind=iwp) :: IC, ID, IV, IVD, IVV, LEV, MASK, N
+integer(kind=iwp), parameter :: i_and(0:3,0:3) = reshape([0,0,0,0,0,1,0,1,0,0,2,2,0,1,2,3],[4,4]), &
+                                i_or(0:3,0:3) = reshape([0,1,2,3,1,1,3,3,2,3,2,3,3,3,3,3],[4,4]), &
+                                LTAB = 1, NTAB = 2
+
+call mma_allocate(SGS%Ver,SGS%nVert0,Label='V11')
+
+! LOOP OVER ALL VERTICES AND CHECK ON RAS CONDITIONS
+! CREATE MASK
+
+do IV=1,SGS%nVert0
+  LEV = SGS%DRT0(IV,LTAB)
+  N = SGS%DRT0(IV,NTAB)
+  SGS%Ver(IV) = 0
+  if ((LEV == SGS%LV1RAS) .and. (N >= SGS%LM1RAS)) SGS%Ver(IV) = 1
+  if ((LEV == SGS%LV3RAS) .and. (N >= SGS%LM3RAS)) SGS%Ver(IV) = SGS%Ver(IV)+2
+end do
+
+! NOW LOOP FORWARDS, MARKING THOSE VERTICES CONNECTED FROM ABOVE.
+! SINCE VER WAS INITIALIZED TO ZERO, NO CHECKING IS NEEDED.
+
+do IV=1,SGS%nVert0-1
+  IVV = SGS%Ver(IV)
+  do IC=0,3
+    ID = SGS%Down0(IV,IC)
+    if (ID /= 0) SGS%Ver(ID) = i_or(SGS%Ver(ID),IVV)
+  end do
+end do
+
+! THEN LOOP BACKWARDS. SAME RULES, EXCEPT THAT CONNECTIVITY
+! SHOULD BE PROPAGATED ONLY ABOVE THE RESTRICTION LEVELS.
+
+do IV=SGS%nVert0-1,1,-1
+  LEV = SGS%DRT0(IV,LTAB)
+  MASK = 0
+  if (LEV > SGS%LV1RAS) MASK = 1
+  if (LEV > SGS%LV3RAS) MASK = MASK+2
+  IVV = SGS%Ver(IV)
+  do IC=0,3
+    ID = SGS%Down0(IV,IC)
+    if (ID /= 0) then
+      IVD = SGS%Ver(ID)
+      IVV = i_or(IVV,i_and(MASK,IVD))
+    end if
+  end do
+  SGS%Ver(IV) = IVV
+end do
+
+! WE ARE NOW INTERESTED ONLY IN VERTICES CONNECTED BOTH TO
+! ALLOWED VERTICES FOR RAS-SPACE 1 AND RAS-SPACE 3.
+! THOSE ARE NUMBERED IN ASCENDING ORDER, THE REST ARE ZEROED.
+
+SGS%nVert = 0
+do IV=1,SGS%nVert0
+  if (SGS%Ver(IV) == 3) then
+    SGS%nVert = SGS%nVert+1
+    SGS%Ver(IV) = SGS%nVert
+  else
+    SGS%Ver(IV) = 0
+  end if
+end do
+if (SGS%nVert == 0) call SysAbendMsg('Restr','No configuration was found\n','Check NACTEL, RAS1, RAS2, RAS3 values')
+#ifdef _DEBUGPRINT_
+write(u6,*) 'RESTR:'
+write(u6,*) 'LV1RAS, LV3RAS, LM1RAS, LM3RAS=',SGS%LV1RAS,SGS%LV3RAS,SGS%LM1RAS,SGS%LM3RAS
+do IV=1,SGS%nVert0
+  write(u6,*) 'VER(:)=',SGS%Ver(IV)
+end do
+#endif
+
+end subroutine RESTR

@@ -57,24 +57,11 @@
           Real*8 Fock(*)
           real*8, optional :: SLag_pt2(*)
         end subroutine
-      end interface
-
-      interface
         subroutine rhs_sa(Fock,SLag_pt2)
           Real*8 Fock(*)
           real*8, optional :: SLag_pt2(*)
         end subroutine
       end interface
-
-      Interface
-      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type(SGStruct),Target:: SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      END SUBROUTINE MKGUGA_FREE
-      End Interface
 
 *----------------------------------------------------------------------*
 *     Start                                                            *

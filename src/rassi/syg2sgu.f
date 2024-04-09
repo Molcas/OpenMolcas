@@ -11,8 +11,7 @@
       SUBROUTINE SYG2SGU(IMODE,SGS,CIS,LSYM,
      &                   ICNFTAB,ISPNTAB,CIOLD,CINEW)
       use rassi_aux, only: ipglob
-      use Struct, only: SGStruct, CIStruct
-      use gugx, only: mxlev
+      use gugx, only: SGStruct, CIStruct, mxlev
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 
@@ -607,7 +606,7 @@ C call parameter.
 
       SUBROUTINE W2SGORD(SGS,CIS,MWS2W,
      &                 NLIST,KWALK,ICNUM)
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       PARAMETER (MXCPI=15)
       DIMENSION MWS2W(*),KWALK(*),ICNUM(NLIST)
       Type (SGStruct) SGS
@@ -721,7 +720,7 @@ C Leading dimension=nr of upwalks in this block.
       END SUBROUTINE W2SGORD1
 
       SUBROUTINE MSTOW(SGS,CIS,MWS2W,nSym)
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer nSym
       Integer MWS2W(*)

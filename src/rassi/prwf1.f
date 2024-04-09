@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE PRWF1(SGS,CIS,NLEV,NMIDV,ISM,ICS,
      &                 NOCSF,IOCSF,NOW,IOW,ISYCI,CI,CITHR)
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "symmul.fh"
       Type (SGStruct) SGS

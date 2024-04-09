@@ -19,7 +19,7 @@
 !--------------------------------------------*
       SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS)
       use stdalloc, only: mma_deallocate
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
       Integer nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
       Type(SGStruct) SGS
@@ -28,7 +28,7 @@
 
       Interface
       SUBROUTINE MKGUGA(SGS,CIS)
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT None
       Type(SGStruct),Target:: SGS
       Type(CIStruct) CIS

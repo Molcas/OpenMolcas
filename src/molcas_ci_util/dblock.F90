@@ -8,36 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DBLOCK(D)
+
+subroutine DBLOCK(D)
+! RASSCF program version IBM-3090: SX section
 !
-!     RASSCF program version IBM-3090: SX section
+! Purpose: To symmetry-block a full matrix d over the active orbital
+!          the result is overlaid on the input matrix.
 !
-!     Purpose: To symmetry-block a full matrix d over the active orbital
-!              the result is overlaid on the input matrix.
-!
-!     ********** IBM-3090 release 88 10 10 **********
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
+! ********** IBM-3090 release 88 10 10 **********
+
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(inout) :: D(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Real*8 D(*)
+integer(kind=iwp) :: IA, ISYM, ITU, NA, NAT, NAU, NTU
 
-      Integer IA, NTU, ISYM, NA, NAT, ITU
-!
-      IA=NASH(1)
-      NTU=ITRI(IA+1)
-      DO ISYM=2,NSYM
-       NA=NASH(ISYM)
-       IF(NA.EQ.0) Cycle
-       DO NAT=1,NA
-        DO NAU=1,NAT
-         NTU=NTU+1
-         ITU=ITRI(NAT+IA)+NAU+IA
-         D(NTU)=D(ITU)
-        END DO
-       END DO
-       IA=IA+NASH(ISYM)
-      END DO
-!
-      END SUBROUTINE DBLOCK
+IA = NASH(1)
+NTU = ITRI(IA+1)
+do ISYM=2,NSYM
+  NA = NASH(ISYM)
+  if (NA == 0) cycle
+  do NAT=1,NA
+    do NAU=1,NAT
+      NTU = NTU+1
+      ITU = ITRI(NAT+IA)+NAU+IA
+      D(NTU) = D(ITU)
+    end do
+  end do
+  IA = IA+NASH(ISYM)
+end do
+
+end subroutine DBLOCK

@@ -43,6 +43,7 @@ subroutine ipcsfsplit(PHPCSF,IPCSF,IPCNF,MXPDIM,MXSPLI,DTOC,IPRODT,ICONF,IREFSM,
 ! adapted to DETRAS by M.P. Fuelscher, October 1989
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use splitcas_data, only: iDimBlockA, iDimBlockACNF
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -60,7 +61,6 @@ integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, KLCO
 real(kind=wp) :: Acc, XMAX, XMIN
 real(kind=wp), external :: FNDMNX
 #include "spinfo.fh"
-#include "splitcas.fh"
 
 #include "macros.fh"
 unused_var(MXPDIM)
@@ -162,7 +162,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
     call IWRTMA(IPCSF,1,NPCSF,1,NPCSF)
   end if
 
- ! construct the diagonal array out of the Hamiltonian matrix
+  ! construct the diagonal array out of the Hamiltonian matrix
 
   MXCSFC = 0
   do ITYP=1,NTYP

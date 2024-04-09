@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine Rd1Int()
+
+subroutine Rd1Int()
 !***********************************************************************
 !                                                                      *
 !     Read header and matrices from the one-electron integral file     *
@@ -26,31 +27,33 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit None
+
+use Definitions, only: iwp
+
+implicit none
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-Integer nBas_Tot, iSym
+integer(kind=iwp) :: nBas_tot
+
 !----------------------------------------------------------------------*
-!     Start                                                            *
+! Start                                                                *
 !----------------------------------------------------------------------*
 !---  read file header  -----------------------------------------------*
-      Call Get_cArray('Seward Title',Header,144)
+call Get_cArray('Seward Title',Header,144)
 !---  read number of symm. species ------------------------------------*
-      Call Get_iScalar('nSym',nSym)
+call Get_iScalar('nSym',nSym)
 !---  read number of basis functions per symmetry species -------------*
-      Call Get_iArray('nBas',nBas,nSym)
+call Get_iArray('nBas',nBas,nSym)
 !---  read nuclear potential ------------------------------------------*
 ! Get POTNUC from the runfile, where it was set by seward.
-! ( Do not trust reading it from JOBIPH).
-      Call Get_dScalar('potNuc',PotNuc)
+! (Do not trust reading it from JOBIPH).
+call Get_dScalar('potNuc',PotNuc)
 !---  read basis function labels --------------------------------------*
-      nBas_tot=0
-      Do iSym = 1, nSym
-         nBas_tot=nBas_tot+nBas(iSym)
-      End Do
-      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas_tot)
+nBas_tot = sum(nBas(1:nSym))
+call Get_cArray('Unique Basis Names',Name,LenIn8*nBas_tot)
 !----------------------------------------------------------------------*
-!     Exit                                                             *
+! Exit                                                                 *
 !----------------------------------------------------------------------*
-      End Subroutine Rd1Int
+
+end subroutine Rd1Int

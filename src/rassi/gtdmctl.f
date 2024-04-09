@@ -29,7 +29,7 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
 C      use para_info, only: nProcs, is_real_par, king
@@ -105,19 +105,12 @@ CC    NTO section
 
       Interface
       Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT None
       Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
       Type (CIStruct) :: CIS
       End Subroutine SGInit
-      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type(SGStruct),Target:: SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      End SUBROUTINE MKGUGA_FREE
       End Interface
 
 #define _TIME_GTDM

@@ -36,7 +36,7 @@
 #endif
       use spinfo_mclr_data, only: minop, NCSFTP=>NCPCNT, NCNFTP=>NCNATS, NTYP
       use stdalloc, only: mma_allocate, mma_deallocate
-      use struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None
       Type(SGStruct) SGS
       Type(CIStruct) CIS

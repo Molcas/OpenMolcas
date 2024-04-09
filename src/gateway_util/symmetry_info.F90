@@ -389,7 +389,7 @@ subroutine ChTab(iOper,nIrrep,outChTbl)
   integer(kind=iwp) :: i, i1, ia, ib, iCh, iFnc, iIrrep, iRot, iSigma = 1, iSub, iTest(8), ix, iy, iz, j, jIrrep, jx, jy, jz
   logical(kind=iwp) :: Inv, Rot, SymX, SymY, SymZ
   character(len=80) :: Tmp
-  character(len=6), parameter :: xyz(0:7) = ['      ', &
+  character(len=*), parameter :: xyz(0:7) = ['      ', &
                                              'x     ', &
                                              'y     ', &
                                              'xy, Rz', &
@@ -478,7 +478,6 @@ subroutine ChTab(iOper,nIrrep,outChTbl)
 
     ! Compute place of Irrep
 
-    jIrrep = 1  ! dummy assignment to shut the compiler up.
     if (nIrrep == 1) then
       jIrrep = 1
     else if (nIrrep == 2) then
@@ -491,6 +490,7 @@ subroutine ChTab(iOper,nIrrep,outChTbl)
       call WarningMessage(2,'ChTab: Illegal nIrrep value!')
       write(u6,*) 'nIrrep=',nIrrep
       call Abend()
+      jIrrep = 1  ! dummy assignment to shut the compiler up.
     end if
 
     if (lBsFnc(jIrrep-1)(1:1) == ' ') then

@@ -7,24 +7,35 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Stefano Battaglia                                *
 !***********************************************************************
 
-module wadr
+subroutine transmat(A,U,N)
+!**
+! This subroutine carries out the following transformation:
+!       U^T * A * U
+! where A and U are NxN matrices
+!**
 
-! These arrays are used for the SXCTL part of the code:
-!   BM, DIA, DIAF, F1, F2, SXG, SXH, SXN
-! These arrays are used for the TRACTL2 part of the code:
-!   CMO, D1A, D1I, FA, FI, OccN
-
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-private
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(inout) :: A(N,N)
+real(kind=wp), intent(in) :: U(N,N)
+real(kind=wp), allocatable :: B(:,:)
 
-integer(kind=iwp) :: NLX, nPWXY
-real(kind=wp), allocatable :: BM(:), CMO(:), D1A(:), D1I(:), DIA(:), DIAF(:), DMAT(:), DSPN(:), F1(:), F2(:), FA(:), FI(:), &
-                              FMO(:), FockOcc(:), OccN(:), PA(:), PMAT(:), SXG(:), SXH(:), SXN(:), TUVX(:)
+! Allocate temporary array B
+call mma_allocate(B,N,N,Label='B')
 
-public :: BM, CMO, D1A, D1I, DIA, DIAF, DMAT, DSPN, F1, F2, FA, FI, FMO, FockOcc, NLX, nPWXY, OccN, PA, PMAT, SXG, SXH, SXN, TUVX
+! B = U^T * A
+call dgemm_('T','N',N,N,N,One,U,N,A,N,Zero,B,N)
+! A = B * U
+call dgemm_('N','N',N,N,N,One,B,N,U,N,Zero,A,N)
 
-end module wadr
+call mma_deallocate(B)
+
+end subroutine transmat

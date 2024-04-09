@@ -8,117 +8,119 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
-      SUBROUTINE PMAT_RASSCF(P,X)
+
+subroutine PMAT_RASSCF(P,X)
+! RASSCF version IBM-3090: SX section
 !
-!     RASSCF version IBM-3090: SX section
+! Purpose: To construct from a canonically ordered list of
+!          2-matrix elements a list ordered as the transformed
+!          two-electron integrals. P is the input matrix and X is
+!          the output matrix. the matrix is multiplied by two and
+!          used to construct the Q-matrix in fock.
 !
-!     Purpose: To construct from a canonically ordered list of
-!              2-matrix elements a list ordered as the transformed
-!              two-electron integrals. P is the input matrix and X is
-!              the output matrix. the matrix is multiplied by two and
-!              used to construct the Q-matrix in fock.
-!
-!          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
-!
-      use general_data
+! ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+
+use Symmetry_Info, only: Mul
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-      use Definitions, only: LF => u6
+use Definitions, only: u6
 #endif
-      IMPLICIT None
+
+#include "intent.fh"
+
+implicit none
+real(kind=wp), intent(in) :: P(*)
+real(kind=wp), intent(_OUT_) :: X(*)
+#include "rasdim.fh"
+#include "general.fh"
 #include "rasscf.fh"
-      Real*8 X(*),P(*)
+integer(kind=iwp) :: IAT, IAU, IAV, IAX, INDF, INDX, LAT, LAT1, LAU, LAU1, LAV, LAX, LPMAT, LROW, NAP, NAQ, NAR, NAS, NAT, NAU, &
+                     NAV, NAX, NAXE, NSP, NSPQ, NSQ, NSR, NSS, NSS1, NSSM, NTU, NTUVX, NUVX, NVX
+real(kind=wp) :: FAC
 
-      Integer LPMAT, IAT, NSP, NAP, INDF, NUVX, LROW, IAU, NSQ, NAQ, NSPQ, IAV, NSR, NAR, NSS, NAS, &
-              IAX, NSSM, NSS1, NAV, LAV, NAXE, NAX, LAX, NAU, LAU, INDX, NAT, LAT, LAT1, LAU1, NTU, &
-              NVX, NTUVX
-      Real*8 FAC
 #ifdef _DEBUGPRINT_
-      Integer I
-      Character(LEN=16), Parameter :: ROUTINE='PMAT            '
+write(u6,*) ' Entering PMAT_RASSCF'
+#endif
 
-! Local print level (if any)
-      WRITE(LF,*)' Entering ',ROUTINE
-#endif
-!
-!     Loop over all reordered 2-matrix elements.
-!
-      LPMAT=ISTORP(NSYM+1)
-      X(1:LPMAT)=0.0D0
-!
-      IAT=0
-      DO NSP=1,NSYM
-       NAP=NASH(NSP)
-       IF(NAP.EQ.0) Cycle
-       INDF=ISTORP(NSP)
-       NUVX=(ISTORP(NSP+1)-INDF)/NAP
-       LROW=0
-       IAU=0
-       DO NSQ=1,NSYM
-        NAQ=NASH(NSQ)
-        IF(NAQ.EQ.0) Cycle
-        NSPQ=IEOR(NSP-1,NSQ-1)
-        IAV=0
-        DO NSR=1,NSYM
-         NAR=NASH(NSR)
-         IF(NAR.EQ.0) Cycle
-         NSS=IEOR(NSPQ,NSR-1)+1
-         IF(NSS.GT.NSR) Then
-           IAV=IAV+NAR
-           Cycle
-         ENDIF
-         NAS=NASH(NSS)
-         IF(NAS.EQ.0) Then
-           IAV=IAV+NAR
-           Cycle
-         ENDIF
-         IAX=0
-         IF(NSS.NE.1) THEN
-          NSSM=NSS-1
-          DO NSS1=1,NSSM
-           IAX=IAX+NASH(NSS1)
-          END DO
-         ENDIF
-         DO NAV=1,NAR
-          LAV=NAV+IAV
-          NAXE=NAS
-          IF(NSR.EQ.NSS) NAXE=NAV
-          DO NAX=1,NAXE
-           LAX=NAX+IAX
-           DO NAU=1,NAQ
-            LAU=NAU+IAU
-            LROW=LROW+1
-            INDX=INDF+LROW-NUVX
-            DO NAT=1,NAP
-             INDX=INDX+NUVX
-             LAT=NAT+IAT
-!
-!            Compute canonical index ntuvx and find prefactor
-!
-             LAT1=MAX(LAT,LAU)
-             LAU1=MIN(LAT,LAU)
-             NTU=ITRI(LAT1)+LAU1
-             NVX=ITRI(LAV)+LAX
-             NTUVX=ITRI(MAX(NTU,NVX))+MIN(NTU,NVX)
-             FAC=2.0D0
-             IF(NTU.LT.NVX) THEN
-              IF(LAT1.EQ.LAU1.AND.LAV.NE.LAX) FAC=4.0D0
-              IF(LAT1.NE.LAU1.AND.LAV.EQ.LAX) FAC=1.0D0
-             ENDIF
-             X(INDX)=FAC*P(NTUVX)
-            END DO
-           END DO
-          END DO
-         END DO
-         IAV=IAV+NAR
-        END DO
-        IAU=IAU+NAQ
-       END DO
-       IAT=IAT+NAP
-       END DO
-!
+! Loop over all reordered 2-matrix elements.
+
+LPMAT = ISTORP(NSYM+1)
+X(1:LPMAT) = Zero
+
+IAT = 0
+do NSP=1,NSYM
+  NAP = NASH(NSP)
+  if (NAP == 0) cycle
+  INDF = ISTORP(NSP)
+  NUVX = (ISTORP(NSP+1)-INDF)/NAP
+  LROW = 0
+  IAU = 0
+  do NSQ=1,NSYM
+    NAQ = NASH(NSQ)
+    if (NAQ == 0) cycle
+    NSPQ = Mul(NSP,NSQ)
+    IAV = 0
+    do NSR=1,NSYM
+      NAR = NASH(NSR)
+      if (NAR == 0) cycle
+      NSS = Mul(NSPQ,NSR)
+      if (NSS <= NSR) then
+        NAS = NASH(NSS)
+        if (NAS /= 0) then
+          IAX = 0
+          if (NSS /= 1) then
+            NSSM = NSS-1
+            do NSS1=1,NSSM
+              IAX = IAX+NASH(NSS1)
+            end do
+          end if
+          do NAV=1,NAR
+            LAV = NAV+IAV
+            NAXE = NAS
+            if (NSR == NSS) NAXE = NAV
+            do NAX=1,NAXE
+              LAX = NAX+IAX
+              do NAU=1,NAQ
+                LAU = NAU+IAU
+                LROW = LROW+1
+                INDX = INDF+LROW-NUVX
+                do NAT=1,NAP
+                  INDX = INDX+NUVX
+                  LAT = NAT+IAT
+
+                  ! Compute canonical index ntuvx and find prefactor
+
+                  LAT1 = max(LAT,LAU)
+                  LAU1 = min(LAT,LAU)
+                  NTU = ITRI(LAT1)+LAU1
+                  NVX = ITRI(LAV)+LAX
+                  NTUVX = ITRI(max(NTU,NVX))+min(NTU,NVX)
+                  FAC = Two
+                  if (NTU < NVX) then
+                    if ((LAT1 == LAU1) .and. (LAV /= LAX)) then
+                      FAC = Four
+                    else if ((LAT1 /= LAU1) .and. (LAV == LAX)) then
+                      FAC = One
+                    end if
+                  end if
+                  X(INDX) = FAC*P(NTUVX)
+                end do
+              end do
+            end do
+          end do
+        end if
+      end if
+      IAV = IAV+NAR
+    end do
+    IAU = IAU+NAQ
+  end do
+  IAT = IAT+NAP
+end do
+
 #ifdef _DEBUGPRINT_
-      Write(LF,*)' Reordered 2-matrix:'
-      Write(LF,'(1X,10F10.6)') (X(I),I=1,LPMAT)
+write(u6,*) ' Reordered 2-matrix:'
+write(u6,'(1X,10F10.6)') X(1:LPMAT)
 #endif
-      END SUBROUTINE PMAT_RASSCF
+
+end subroutine PMAT_RASSCF

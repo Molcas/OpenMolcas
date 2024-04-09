@@ -14,7 +14,7 @@
      &                   State_Sym)
 *
       use Str_Info, only: CFTP, CNSM
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: SGStruct, CIStruct, EXStruct
 #ifdef _DEBUGPRINT_
       use definitions, only: u6
 #endif
@@ -35,7 +35,7 @@
 *
       Interface
       SUBROUTINE MKGUGA(SGS,CIS)
-      use Struct, only: SGStruct, CIStruct
+      use gugx, only: SGStruct, CIStruct
       IMPLICIT None
 
       Type(SGStruct), Target:: SGS

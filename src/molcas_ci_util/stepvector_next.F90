@@ -11,22 +11,17 @@
 
 subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR,nLev)
 
-use Definitions, only: iwp, u6
 use gugx, only: CIS
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nLev
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
+integer(kind=iwp), intent(in) :: nLev
 integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
 
-integer(kind=iwp) :: nMidV
-nMidV=CIS%nMidV
-
 ! stop when MV is zero
-if (MV == 0) then
-  write(u6,'(1X,A)') 'stepvector_next has been depleted'
-end if
+if (MV == 0) write(u6,'(1X,A)') 'stepvector_next has been depleted'
 
-call GETSTEPVECTOR(CIS%NOW,CIS%IOW,MV,IDWN,IUP,STEPVECTOR,nLev,nMidV)
+call GETSTEPVECTOR(CIS%NOW,CIS%IOW,MV,IDWN,IUP,STEPVECTOR,nLev,CIS%nMidV)
 
 end subroutine STEPVECTOR_NEXT

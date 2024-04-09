@@ -54,15 +54,6 @@
         Subroutine RdJobIph(CIVec)
         Real*8, Allocatable:: CIVec(:,:)
         End Subroutine RdJobIph
-
-        SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-        use struct, only: SGStruct, CIStruct, EXStruct
-        IMPLICIT None
-        Type(SGStruct),Target:: SGS
-        Type(CIStruct) CIS
-        Type(EXStruct) EXS
-        END SUBROUTINE MKGUGA_FREE
-
       End Interface
 *                                                                      *
 ************************************************************************

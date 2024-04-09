@@ -8,42 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine CXInit(SGS,CIS,EXS)
-      use stdalloc, only:  mma_deallocate
-      use Struct, only:  SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      Type (EXStruct) EXS
 
-      Associate ( nLev => SGS%nLev, nVert => SGS%nVert,                 &
-     &            MidLev =>SGS%MidLev, MVSta => SGS%MVSta,              &
-     &            MVEnd  =>SGS%MVEnd, nMidV=>CIS%nMidV,                 &
-     &            nIpWlk => CIS%nIpWlk, MxEO=>EXS%MxEO,                 &
-     &            nWalk=>CIS%nWalk)
+subroutine CXInit(SGS,CIS,EXS)
 
-      nMidV=MVEnd-MVSta+1
-      nIpWlk=1+(MidLev-1)/15
-      nIpWlk=MAX(nIpWlk,1+(nLev-MidLev-1)/15)
+use gugx, only: CIStruct, EXStruct, SGStruct
+use stdalloc, only: mma_deallocate
+
+implicit none
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(out) :: CIS
+type(EXStruct), intent(out) :: EXS
+
+CIS%nMidV = SGS%MVEnd-SGS%MVSta+1
+CIS%nIpWlk = 1+(SGS%MidLev-1)/15
+CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/15)
 
 ! Calculate segment values, and MVL and MVR tables:
 
-      Call MkSeg(SGS,CIS,EXS)
-
+call MkSeg(SGS,CIS,EXS)
 
 ! Various offset tables:
 
-      Call NrCoup(SGS,CIS,EXS)
+call NrCoup(SGS,CIS,EXS)
 
 ! Computed in NrCoup:
 
-      Call MkCoup(SGS,CIS,EXS)
+call MkCoup(SGS,CIS,EXS)
 
+call mma_deallocate(CIS%ISgm)
+call mma_deallocate(CIS%VSgm)
+call mma_deallocate(CIS%IVR)
 
-      Call mma_deallocate(CIS%ISgm)
-      Call mma_deallocate(CIS%VSgm)
-      Call mma_deallocate(CIS%IVR)
-
-      End Associate
-
-      end Subroutine CXInit
+end subroutine CXInit

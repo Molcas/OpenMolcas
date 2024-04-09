@@ -173,17 +173,6 @@ C     Cholesky return code
 C     size of idsct array
       INTEGER NIDSCT
 
-      Interface
-      SUBROUTINE MKGUGA_FREE(SGS,CIS,EXS)
-      use struct, only: SGStruct, CIStruct, EXStruct
-      IMPLICIT None
-      Type(SGStruct),Target:: SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      END SUBROUTINE MKGUGA_FREE
-      End Interface
-
-
       If (IfChol) then
 *---  Finalize Cholesky information
          Call Cho_X_Final(irc)

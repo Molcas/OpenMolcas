@@ -19,10 +19,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N
-integer(kind=iwp), intent(out) :: M
 real(kind=wp), intent(in) :: S(N,N)
 real(kind=wp), intent(inout) :: C(N,N)
 real(kind=wp), intent(out) :: Temp(N)
+integer(kind=iwp), intent(out) :: M
 integer(kind=iwp) :: i, isfail, k, Loop
 real(kind=wp) :: ovl, X, xn2, Y
 real(kind=wp), external :: DDOT_

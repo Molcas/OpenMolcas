@@ -39,26 +39,24 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICO
 ! Ctot       : Vector of all nConf CI-coeff for a single root (Output)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
+integer(kind=iwp), intent(in) :: MXPDIM, IPCSF(MXPDIM), NCONF, IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
                                  NEL, NAEL, NBEL, IREOTS(NACTOB)
 real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: NTEST
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
-integer(kind=iwp) :: iAlpha, IATYP, IBblockV, IIA, IIAB, IIL, IILACT, IILB, ILAI, ILTYP, ITYP, &
-                     Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
+#include "spinfo.fh"
+integer(kind=iwp) :: iAlpha, IATYP, IBblockV, IIA, IIAB, IIL, IILACT, IILB, ILAI, ILTYP, ITYP, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
 real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_computeH_AB, C_computeH_AB1, C_computeH_AB2, C_ComputeH_BB, C_computeH_BB1, &
                  C_computeH_BB2, C_last1, C_last2, C_Oper, C_oper1, C_oper2, W_AlphaLoop1, W_AlphaLoop2, W_ComputeH_AB, &
                  W_computeH_AB1, W_computeH_AB2, W_ComputeH_BB, W_computeH_BB1, W_computeH_BB2, W_last1, W_last2, W_Oper, W_oper1, &
                  W_oper2, xmaxGaTi
-real(kind=wp), allocatable :: AuxBB(:,:), AuxD(:), AuxGa(:), AuxGaTi(:), AuxV(:,:), Scr(:)
+integer(kind=iwp), allocatable :: ICNL(:), ICNR(:)
+real(kind=wp), allocatable :: AuxBB(:,:), AuxD(:), AuxGa(:), AuxGaTi(:), AuxV(:,:), CNHCNM(:), Scr(:)
 real(kind=wp), external :: ddot_
-integer(kind=iwp), allocatable:: ICNL(:), ICNR(:)
-real(kind=wp), allocatable:: CNHCNM(:)
-#include "spinfo.fh"
 
 if (NTEST >= 30) then
   write(u6,*) ' Input in get_Cm_'
@@ -96,7 +94,6 @@ call mma_allocate(CNHCNM,MXCSFC**2,Label='CNHCNM')
 call mma_maxDBLE(MXXWS)
 call mma_allocate(Scr,MXXWS,label='EXHSCR')
 
-
 ! Shape of matrix:
 !
 !           CNFL (n)
@@ -128,7 +125,7 @@ W_Oper = Zero
 
 IIAB = 1
 do iAlpha=NPCNF+1,NCONF
-  !call FZero(CNHCNM,MXCSFC*MXCSFC)
+  !CNHCNM(:) = Zero
   call cwtime(C_computeH_AB1,W_computeH_AB1)
   if (NTEST >= 30) write(u6,*) 'iAlpha = ',iAlpha
   call GETCNF_LUCIA(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
@@ -137,8 +134,7 @@ do iAlpha=NPCNF+1,NCONF
   !*********************************************************************
   !                      BB-Block DIAGONAL Elements                    *
   !*********************************************************************
-  call CNHCN(ICNL,IATYP,ICNL,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
-             NTEST,ExFac,IREOTS)
+  call CNHCN(ICNL,IATYP,ICNL,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
   if (NTEST >= 30) then
     write(u6,*) 'Alpha_Alpha elements in BB-block'
     call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
@@ -147,22 +143,17 @@ do iAlpha=NPCNF+1,NCONF
     ILAI = IIA*IIA
     AuxD(IIA) = CNHCNM(ILAI)
     !write(u6,*) 'ILAI =',ILAI
-    if (NTEST >= 30) then
-      write(u6,*) 'AuxD(IIA)',AuxD(IIA)
-    end if
+    if (NTEST >= 30) write(u6,*) 'AuxD(IIA)',AuxD(IIA)
   end do
 
   IILB = 1
   do Mindex=1,NPCNF ! Loop over AB-Block
-    !call FZero(CNHCNM,MXCSFC*MXCSFC)
-    if (NTEST >= 30) then
-      write(u6,*) 'Mindex in AB-Block',Mindex
-    end if
+    !CNHCNM(:) = ZEro
+    if (NTEST >= 30) write(u6,*) 'Mindex in AB-Block',Mindex
     call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
     if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
-    call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
-               NTEST,ExFac,IREOTS)
+    call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
     if (NTEST >= 30) then
       write(u6,*) 'M_Alpha elements'
       call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
@@ -222,13 +213,12 @@ do iAlpha=NPCNF+1,NCONF
     AuxBB(:,:) = Zero
     IILB = 1
     do Mindex=NPCNF+1,NCONF ! Loop over BB-Block
-      !call FZero(CNHCNM,MXCSFC*MXCSFC)
+      !CNHCNM(:) = Zero
       !if (NTEST >= 30) write(u6,*) 'Mindex in BB-Block',Mindex
       call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
       NCSFL = NCSFTP(ILTYP)
       !if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
-      call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB, &
-                 TUVX,NTEST,ExFac,IREOTS)
+      call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
       !if (NTEST >= 30) then
       !  write(u6,*) 'M_Alpha elements in BB-block'
       !  call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
@@ -245,9 +235,7 @@ do iAlpha=NPCNF+1,NCONF
             AuxBB(IILACT,IIA) = Zero
           end if
           !write(u6,*) 'ILAI, IILACT, IIA =',ILAI,IILACT,IIA
-          !if (NTEST >= 30) then
-          !  write(u6,*) 'AuxBB(IILACT,IIA)',AuxBB(IILACT,IIA)
-          !end if
+          !if (NTEST >= 30) write(u6,*) 'AuxBB(IILACT,IIA)',AuxBB(IILACT,IIA)
         end do
       end do
       IILB = IILB+NCSFL
@@ -267,7 +255,7 @@ do iAlpha=NPCNF+1,NCONF
         write(u6,*) 'BB-Block Vertical Vector times Ga'
         call wrtmat(AuxBB,iBblockV,NCSFA,iBblockV,NCSFA)
       end if
-      call daxpy_(iBblockV,One,AuxBB(:,IIA),1,Ctot(NPCSF+1),1)
+      Ctot(NPCSF+1:NPCSF+iBblockV) = Ctot(NPCSF+1:NPCSF+iBblockV)+AuxBB(1:iBblockV,IIA)
       if (NTEST >= 30) then
         write(u6,*) 'Ctot correction'
         call wrtmat(Ctot,MXPDIM,1,MXPDIM,1)
@@ -310,13 +298,12 @@ end if
 call cwtime(C_last1,W_last1)
 IIAB = 1
 do Mindex=NPCNF+1,NCONF
-  !call FZero(CNHCNM,MXCSFC*MXCSFC)
+  !CNHCNM(:) = Zero
   if (NTEST >= 30) write(u6,*) 'Mindex last do loop = ',Mindex
   call GETCNF_LUCIA(ICNL,IATYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
   NCSFA = NCSFTP(IATYP)
   if (NTEST >= 30) write(u6,*) 'NCSFA = ',NCSFA
-  call CNHCN(ICNL,IATYP,ICNL,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX, &
-             NTEST,ExFac,IREOTS)
+  call CNHCN(ICNL,IATYP,ICNL,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
   if (NTEST >= 30) then
     write(u6,*) 'Alpha_Alpha elements in BB-block'
     call wrtmat(CNHCNM,MXCSFC,MXCSFC,MXCSFC,MXCSFC)
@@ -324,9 +311,7 @@ do Mindex=NPCNF+1,NCONF
   do IIA=1,NCSFA
     ILAI = IIA*IIA
     !AuxD(IIA) = CNHCNM(ILAI1)
-    if (NTEST >= 30) then
-      write(u6,*) 'CNHCNM(ILAI)',CNHCNM(ILAI)
-    end if
+    if (NTEST >= 30) write(u6,*) 'CNHCNM(ILAI)',CNHCNM(ILAI)
     !AuxD(IIA) = One/(EnFin-CNHCNM(ILAI))
     Ctot(NPCSF+IIAB+IIA-1) = Ctot(NPCSF+IIAB+IIA-1)/(EnFin-CNHCNM(ILAI))
   end do

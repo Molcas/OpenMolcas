@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
-      use Struct, only: SGStruct, CIStruct, EXStruct
+      use gugx, only: SGStruct, CIStruct, EXStruct
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer ISYM, LSM, NA, NO, NCO
       Real*8 TRA(NO,NO),CI(NCO),TMP(NCO)
