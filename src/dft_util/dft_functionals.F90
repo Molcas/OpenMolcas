@@ -8,27 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-      use stdalloc, only: mma_deallocate
-      use gugx, only: SGStruct, CIStruct
-      use MkGUGA_mod, only: MKGUGA
-      IMPLICIT None
-!#include "rassi.fh"
-      Integer nSym, nActEl, iSpin
-      Type (SGStruct), Target :: SGS
-      Type (CIStruct) :: CIS
 
-      SGS%nSym=nSym
-      SGS%iSpin=iSpin
-      SGS%nActEl=nActEl
+module DFT_Functionals
 
-      Call MkGuga(SGS,CIS)
+use Definitions, only: iwp
 
-! Modified Arc Weights table:
-      CALL MKMAW(SGS)
+implicit none
+private
 
-! The DAW, RAW tables are no longer needed:
-      CALL mma_deallocate(SGS%RAW)
-      CALL mma_deallocate(SGS%DAW)
+abstract interface
+  subroutine DFT_FUNCTIONAL( &
+#                           define _CALLING_
+#                           include "dft_functional.fh"
+                           )
+    import :: iwp
+#   include "dft_functional.fh"
+  end subroutine DFT_FUNCTIONAL
+end interface
 
-      end Subroutine SGInit
+public :: DFT_FUNCTIONAL, NDSD_Ts, NucAtt, Overlap
+
+contains
+
+#define _IN_MODULE_
+#include "overlap.F90"
+#include "nucatt.F90"
+#include "ndsd_ts.F90"
+
+end module DFT_Functionals

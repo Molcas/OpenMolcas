@@ -15,6 +15,7 @@
 *
       use Str_Info, only: CFTP, CNSM
       use gugx, only: SGStruct, CIStruct, EXStruct
+      use MkGUGA_mod, only: MKGUGA
 #ifdef _DEBUGPRINT_
       use definitions, only: u6
 #endif
@@ -33,16 +34,6 @@
       Integer nRas1T, nRas2T, nRas3T, iss, iS
       Integer NCONF
 *
-      Interface
-      SUBROUTINE MKGUGA(SGS,CIS)
-      use gugx, only: SGStruct, CIStruct
-      IMPLICIT None
-
-      Type(SGStruct), Target:: SGS
-      Type(CIStruct) CIS
-      End SUBROUTINE MKGUGA
-      End Interface
-
       nRas1T=Sum(nRs1(1:nSym))
       nRas2T=Sum(nRs2(1:nSym))
       nRas3T=Sum(nRs3(1:nSym))

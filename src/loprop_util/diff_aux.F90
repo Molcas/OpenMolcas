@@ -9,8 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+module Diff_Aux
+
+! This module contains a single function, to avoid explicit interfaces
+
+implicit none
+private
+
+public :: Diff_Aux1
+
+contains
+
 subroutine Diff_Aux1(nEPotPoints,EPCo,nB,OneFile)
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -29,8 +41,7 @@ integer(kind=iwp), external :: IsFreeUnit
 ! Open One-electron file.
 
 irc = -1
-Lu_One = 49
-Lu_One = IsFreeUnit(Lu_One)
+Lu_One = IsFreeUnit(49)
 iopt = 0
 call OpnOne(irc,iopt,OneFile,Lu_One)
 if (irc /= 0) then
@@ -44,7 +55,7 @@ end if
 nEPotPoints = 0
 maxCen = 99999
 call mma_allocate(Tmp,3,maxCen,label='Temporary')
-call mma_allocate(idiot,nB*(nB+1)/2+4,label='Idiot')
+call mma_allocate(idiot,nTri_Elem(nB)+4,label='Idiot')
 do i=1,maxCen
   write(Label,'(A3,I5)') 'EF0',i
   irc = -1
@@ -74,3 +85,5 @@ call mma_deallocate(idiot)
 return
 
 end subroutine Diff_Aux1
+
+end module Diff_Aux

@@ -24,10 +24,13 @@ set (sources
      dqk51.F90
      dqk61.F90
      dqpsrt.F90
+     fx.F90
      xerror.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     fx.F90
+    )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

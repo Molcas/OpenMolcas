@@ -12,6 +12,7 @@
 subroutine WeGotThis(nAt,nB,MP,nij,EC,lMax,iPrint,Pot_Expo,Pot_Point,Pot_Fac,Diffed)
 
 use Index_Functions, only: nTri3_Elem1
+use Diff_Aux, only: Diff_Aux1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -28,15 +29,6 @@ character(len=10) :: OneFile, Label
 real(kind=wp), allocatable :: D1ao(:), dMullig(:), ElP(:), EPCo(:,:)
 character(len=10), parameter :: DistType(2) = ['Monopole  ','Dipole    ']
 real(kind=wp) :: Ddot_, ElPot
-interface
-  subroutine Diff_Aux1(nEPotPoints,EPCo,nB,OneFile)
-    import :: wp, iwp
-    integer(kind=iwp), intent(out) :: nEPotPoints
-    real(kind=wp), allocatable, intent(out) :: EPCo(:,:)
-    integer(kind=iwp), intent(in) :: nB
-    character(len=10), intent(in) :: OneFile
-  end subroutine Diff_Aux1
-end interface
 
 ! Print exponents and factors.
 

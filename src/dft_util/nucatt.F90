@@ -11,7 +11,15 @@
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine NucAtt(mGrid,iSpin)
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
+subroutine NucAtt( &
+#                 define _CALLING_
+#                 include "dft_functional.fh"
+                 )
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
@@ -23,7 +31,7 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mGrid, iSpin
+#include "dft_functional.fh"
 integer(kind=iwp) :: i, iGrid, iOff, mCenter, n, nCenter, nSym
 real(kind=wp) :: Attr, d_alpha, d_beta, DTot, Fact, x, y, z
 integer(kind=iwp), allocatable :: nStab(:)
@@ -57,7 +65,7 @@ call mma_deallocate(nStab)
 !                                                                      *
 
 vRho(:,:) = Zero
-if (iSpin == 1) then
+if (nD == 1) then
   ! iSpin=1
   !                                                                    *
   !*********************************************************************

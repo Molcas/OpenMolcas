@@ -76,7 +76,7 @@ set (sources
      mkclist.F90
      mkcot.F90
      mkcoup.F90
-     mkguga.F90
+     mkguga_mod.F90
      mkguga_free.F90
      mkmaw.F90
      mknsm.F90

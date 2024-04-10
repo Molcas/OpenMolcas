@@ -21,6 +21,7 @@
 !                                                                      *
 ! Author: K.Pfingst 21/5/93                                            *
 !***********************************************************************
+      use fx, only: f_interface
       use Constants, only: Zero
       use rmat, only: l, ExpSum, QuadPack, TestInt, NagInt, EpsAbs,
      &                EpsRel, KeyR, RMatR
@@ -28,7 +29,7 @@
       Integer nZeta, lSum
       Real*8 Zeta(nZeta), Rnr(nZeta,0:lsum)
 
-      Real*8, external :: fradf
+      procedure(f_interface) :: fradf
       Integer, Parameter :: limit=200, lenw=4*limit
 #ifdef _DEBUGPRINT_
       Character(LEN=80) Label

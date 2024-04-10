@@ -19,6 +19,7 @@ subroutine GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ST
 ! MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 
 use gugx, only: CIStruct, EXStruct, SGStruct
+use MkGUGA_mod, only: MKGUGA
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -31,13 +32,6 @@ type(CIStruct), intent(out) :: CIS
 type(EXStruct), intent(out) :: EXS
 logical(kind=iwp), intent(in) :: DoBlockDMRG
 integer(kind=iwp) :: IS, nRas1T, nRas2T, nRas3T
-interface
-  subroutine MKGUGA(SGS,CIS)
-    use gugx, only: SGStruct, CIStruct
-    type(SGStruct), target :: SGS
-    type(CIStruct) :: CIS
-  end subroutine MKGUGA
-end interface
 
 nRas1T = sum(nRs1(1:nSym))
 nRas2T = sum(nRs2(1:nSym))
