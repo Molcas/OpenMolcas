@@ -39,8 +39,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n, MxVec
-real(kind=wp), intent(inout) :: X(n,n)
-real(kind=wp), intent(out) :: Vec(n,MxVec)
+real(kind=wp), intent(inout) :: X(n,n), Vec(n,MxVec)
 integer(kind=iwp), intent(out) :: NumCho, irc
 real(kind=wp), intent(in) :: Thr
 real(kind=wp) :: Thr_
@@ -49,10 +48,9 @@ real(kind=wp), parameter :: DefThr = 1.0e-6_wp, ThrFail = -1.0e-8_wp, ThrNeg = -
 irc = 0
 NumCho = 0
 if (n >= 1) then
-  Thr_ = Thr
-  if (Thr_ < Zero) Thr_ = DefThr
-
   if (MxVec > 0) then
+    Thr_ = Thr
+    if (Thr_ < Zero) Thr_ = DefThr
     call CD_InCore_1(X,n,Vec,MxVec,NumCho,Thr_,ThrNeg,ThrFail,irc)
   else
     irc = -1

@@ -33,7 +33,9 @@ integer(kind=iwp), parameter :: Info_Debug = 4
 logical(kind=iwp), parameter :: Debug = _DBG_
 character(len=*), parameter :: SecNam = 'Cho_SetAtomShl'
 
-if (Debug) write(Lupri,*) '>>> Enter ',SecNam
+#ifdef _DEBUGPRINT_
+write(Lupri,*) '>>> Enter ',SecNam
+#endif
 
 ! Check.
 ! ------
@@ -41,7 +43,9 @@ if (Debug) write(Lupri,*) '>>> Enter ',SecNam
 irc = 0
 if (nSym /= 1) then ! does not work with symmetry
   irc = 1
-  if (Debug) write(Lupri,*) '>>> Exit ',SecNam,' (error exit: symmetry not allowed!)'
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) '>>> Exit ',SecNam,' (error exit: symmetry not allowed!)'
+# endif
   return
 end if
 if (n < nShell) call Cho_Quit(SecNam//': iAtomShl not allocated correctly!',104)
@@ -108,6 +112,8 @@ end if
 call mma_deallocate(nBas_Start)
 call mma_deallocate(nBas_per_Atom)
 
-if (Debug) write(Lupri,*) '>>> Exit ',SecNam
+#ifdef _DEBUGPRINT_
+write(Lupri,*) '>>> Exit ',SecNam
+#endif
 
 end subroutine Cho_SetAtomShl

@@ -14,23 +14,26 @@ subroutine Cho_X_Init_Par_DF(irc)
 ! Purpose: setup for parallel DF.
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: Is_Real_Par, MyRank, nProcs
+use Para_Info, only: Is_Real_Par, nProcs
+#ifdef _DEBUGPRINT_
+use Para_Info, only: MyRank
+#endif
 use Cholesky, only: nSym, NumCho, NumChT
 #endif
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: LocDbg = _DBG_
 character(len=*), parameter :: SecNam = 'Cho_X_Init_Par_DF'
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: iSym, nV(8)
+integer(kind=iwp) :: nV(8)
 logical(kind=iwp) :: isSerial
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iSym
+#endif
 
 irc = 0
 
@@ -39,16 +42,16 @@ irc = 0
 
 isSerial = (nProcs == 1) .or. (.not. Is_Real_Par())
 if (isSerial) then
-  if (LocDbg) then
-    write(u6,*) SecNam,': serial run, nothing to do...'
-    write(u6,*) '#nodes: ',nProcs,'  myRank: ',myRank
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) SecNam,': serial run, nothing to do...'
+  write(u6,*) '#nodes: ',nProcs,'  myRank: ',myRank
+# endif
   return
+# ifdef _DEBUGPRINT_
 else
-  if (LocDbg) then
-    write(u6,*) SecNam,': parallel run...'
-    write(u6,*) '#nodes: ',nProcs,'  myRank: ',myRank
-  end if
+  write(u6,*) SecNam,': parallel run...'
+  write(u6,*) '#nodes: ',nProcs,'  myRank: ',myRank
+# endif
 end if
 
 ! Reset number of vectors to the number on this node as stored on
@@ -59,20 +62,22 @@ nV(1:nSym) = NumCho(1:nSym)
 call Get_iArray('nVec_RI',NumCho,nSym)
 NumChT = sum(NumCho(1:nSym))
 
+#ifdef _DEBUGPRINT_
 ! Debug print.
 ! ------------
 
-if (LocDbg) then
-  write(u6,*)
-  write(u6,*) 'Output from ',SecNam,':'
-  write(u6,*) 'NumCho before: ',(nV(iSym),iSym=1,nSym)
-  write(u6,*) 'NumCho after : ',(NumCho(iSym),iSym=1,nSym)
-end if
+write(u6,*)
+write(u6,*) 'Output from ',SecNam,':'
+write(u6,*) 'NumCho before: ',(nV(iSym),iSym=1,nSym)
+write(u6,*) 'NumCho after : ',(NumCho(iSym),iSym=1,nSym)
+#endif
 
 #else
 
 irc = 0
-if (LocDbg) write(u6,*) SecNam,': serial run, nothing to do...'
+#ifdef _DEBUGPRINT_
+write(u6,*) SecNam,': serial run, nothing to do...'
+#endif
 
 #endif
 

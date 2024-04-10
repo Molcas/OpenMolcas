@@ -70,12 +70,6 @@ integer(kind=iwp), intent(out) :: lU_AO(*), irc
 integer(kind=iwp) :: iClose, iCount, iOpen, iSym, iSyma, iSymb
 character(len=4) :: FullName_AO
 real(kind=wp), allocatable :: COcc(:), CVir(:)
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: Debug = _DBG_
 character(len=*), parameter :: SecNam = 'ChoMP2_VectorMO2AO'
 
 ! Initializations.
@@ -124,10 +118,12 @@ do iSym=1,nSym
   call daName_MF_WA(lU_AO(iSym),FullName_AO)
 end do
 
+#ifdef _DEBUGPRINT_
 ! Debug: check backtransformation.
 ! --------------------------------
 
-if (Debug) call ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
+call ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
+#endif
 
 ! Delete MO files if requested.
 ! -----------------------------

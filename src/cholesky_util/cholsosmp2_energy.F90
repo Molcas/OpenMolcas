@@ -29,18 +29,16 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(out) :: EMP2
 real(kind=wp), intent(inout) :: EOcc(*), EVir(*)
 logical(kind=iwp), intent(in) :: Sorted, DelOrig
-integer(kind=iwp) :: CheckDenomRange, i, iSym, l_w
-logical(kind=iwp) :: FermiShift, Verb
+integer(kind=iwp) :: i, iSym, l_w
+logical(kind=iwp) :: FermiShift
 real(kind=wp) :: EFermi, EHOMO, EHUMO, ELOMO, ELUMO, xmax, xmin
 real(kind=wp), allocatable :: W(:), T(:)
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: Debug = _DBG_
 character(len=*), parameter :: SecNam = 'ChoLSOSMP2_Energy'
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: CheckDenomRange
+logical(kind=iwp) :: Verb
 integer(kind=iwp), external :: TestMinimaxLaplace
+#endif
 
 !================
 ! Initializations
@@ -62,16 +60,16 @@ if (.not. Laplace) then
   return
 end if
 
+#ifdef _DEBUGPRINT_
 ! Debug: test minimax Laplace grid generation
-if (Debug) then
-  Verb = .false.
-  irc = TestMinimaxLaplace(1.0e-7_wp,Verb)
-  if (irc /= 0) then
-    call WarningMessage(2,SecNam//': error detected in numerical Laplace transformation')
-    write(u6,'(A,I6)') 'irc=',irc
-    call Abend()
-  end if
+Verb = .false.
+irc = TestMinimaxLaplace(1.0e-7_wp,Verb)
+if (irc /= 0) then
+  call WarningMessage(2,SecNam//': error detected in numerical Laplace transformation')
+  write(u6,'(A,I6)') 'irc=',irc
+  call Abend()
 end if
+#endif
 
 !================================================
 ! Parameters for numerical Laplace transformation
@@ -137,15 +135,15 @@ FermiShift = .true.
 ! compute range of orbital energy denominator
 xmin = Two*(ELUMO-EHOMO)
 xmax = Two*(EHUMO-ELOMO)
+#ifdef _DEBUGPRINT_
 ! Debug: check range
-if (Debug) then
-  irc = CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,iVir,nVir)
-  if (irc /= 0) then
-    call WarningMessage(2,SecNam//': error detected in orbital energy denominator range')
-    write(u6,'(A,I6)') 'irc=',irc
-    call Abend()
-  end if
+irc = CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,iOcc,nOcc,iVir,nVir)
+if (irc /= 0) then
+  call WarningMessage(2,SecNam//': error detected in orbital energy denominator range')
+  write(u6,'(A,I6)') 'irc=',irc
+  call Abend()
 end if
+#endif
 
 ! get weights and grid points for numerical Laplace transform
 if (Laplace_nGridPoints == 0) then

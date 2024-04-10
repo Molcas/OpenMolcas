@@ -42,8 +42,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n, MxVec
-real(kind=wp), intent(inout) :: X(n,n)
-real(kind=wp), intent(out) :: Vec(n,MxVec)
+real(kind=wp), intent(inout) :: X(n,n), Vec(n,MxVec)
 integer(kind=iwp), intent(inout) :: iD(MxVec)
 integer(kind=iwp), intent(out) :: NumCho, irc
 real(kind=wp), intent(in) :: Thr

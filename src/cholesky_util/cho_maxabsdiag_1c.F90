@@ -23,12 +23,6 @@ real(kind=wp), intent(in) :: Diag(*)
 integer(kind=iwp), intent(in) :: iLoc
 real(kind=wp), intent(out) :: DGMax
 integer(kind=iwp) :: i, i1, i2, iShlA, iShlAB, iShlB, iSym
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: LocDbg = _DBG_
 character(len=*), parameter :: SecNam = 'Cho_MaxAbsDiag_1C'
 
 if (iLoc == 1) then
@@ -81,11 +75,11 @@ do iSym=2,nSym
   DGMax = max(DGMax,DiaMax(iSym))
 end do
 
-if (LocDbg) then
-  write(LuPri,*) SecNam,': in reduced set ',iLoc,':'
-  write(LuPri,*) 'DiaMax  = ',(DiaMax(iSym),iSym=1,nSym)
-  write(LuPri,*) 'DiaMaxT = ',(DiaMaxT(iSym),iSym=1,nSym)
-  write(LuPri,*) 'DGMax   = ',DGMax
-end if
+#ifdef _DEBUGPRINT_
+write(LuPri,*) SecNam,': in reduced set ',iLoc,':'
+write(LuPri,*) 'DiaMax  = ',(DiaMax(iSym),iSym=1,nSym)
+write(LuPri,*) 'DiaMaxT = ',(DiaMaxT(iSym),iSym=1,nSym)
+write(LuPri,*) 'DGMax   = ',DGMax
+#endif
 
 end subroutine Cho_MaxAbsDiag_1C

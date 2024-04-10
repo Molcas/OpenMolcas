@@ -22,8 +22,11 @@ subroutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
 ! DoTime: time as vector subtraction.
 ! DpStat: update statistics info (#calls to dGeMM).
 
-use Cholesky, only: Cho_SScreen, CHVBUF, DSPNm, DSubScr, iiBstR, iiBstRSh, ip_CHVBUF_SYM, iQuAB, l_CHVBUF_SYM, LQ, LuPri, &
-                    nDGM_call, nnBstR, nnBstRSh, nnShl, nQual, nVec_in_Buf, SSNorm, SSTau, SubScrStat, TDECOM
+use Cholesky, only: Cho_SScreen, CHVBUF, DSPNm, DSubScr, iiBstR, iiBstRSh, ip_CHVBUF_SYM, iQuAB, l_CHVBUF_SYM, LQ, nDGM_call, &
+                    nnBstR, nnBstRSh, nnShl, nQual, nVec_in_Buf, SSNorm, SSTau, SubScrStat, TDECOM
+#ifdef _DEBUGPRINT_
+use Cholesky, only: LuPri
+#endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -35,43 +38,37 @@ logical(kind=iwp), intent(in) :: DoTime, DoStat
 integer(kind=iwp) :: iAB, iBatch, iE, iGD, iS, iShGD, iVec0, jAB, jVec, lCol, lRow, nBatch, nGD, NumV, nVec
 real(kind=wp) :: C1, C2, Tst, W1, W2, xDon, xTot
 real(kind=wp), pointer :: U(:,:), V(:,:), W(:,:)
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: LocDbg = _DBG_
 character(len=*), parameter :: SecNam = 'Cho_VecBuf_Subtr'
 
 ! Return if nothing to do.
 ! ------------------------
 
 if (l_ChVBuf_Sym(iSym) < 1) then
-  if (LocDbg) then
-    write(Lupri,*) SecNam,': returns immediately!'
-    write(Lupri,*) ' -- no buffer allocated for sym. ',iSym
-  end if
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returns immediately!'
+  write(Lupri,*) ' -- no buffer allocated for sym. ',iSym
+# endif
   return
 end if
 if (nVec_in_Buf(iSym) < 1) then
-  if (LocDbg) then
-    write(Lupri,*) SecNam,': returns immediately!'
-    write(Lupri,*) ' -- buffer is empty for sym. ',iSym
-  end if
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returns immediately!'
+  write(Lupri,*) ' -- buffer is empty for sym. ',iSym
+# endif
   return
 end if
 if (nQual(iSym) < 1) then
-  if (LocDbg) then
-    write(Lupri,*) SecNam,': returns immediately!'
-    write(Lupri,*) ' -- no qualified columns of sym. ',iSym
-  end if
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returns immediately!'
+  write(Lupri,*) ' -- no qualified columns of sym. ',iSym
+# endif
   return
 end if
 if (nnBstR(iSym,2) < 1) then
-  if (LocDbg) then
-    write(Lupri,*) SecNam,': returns immediately!'
-    write(Lupri,*) ' -- empty symmetry block (sym. ',iSym,')'
-  end if
+# ifdef _DEBUGPRINT_
+  write(Lupri,*) SecNam,': returns immediately!'
+  write(Lupri,*) ' -- empty symmetry block (sym. ',iSym,')'
+# endif
   return
 end if
 

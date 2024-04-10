@@ -13,8 +13,11 @@ subroutine Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank, nProcs
-use Cholesky, only: Cho_AdrVec, Cho_Real_Par, iiBstR, iiBstR_G, iL2G, IndRed, InfVec_G, IndRed, LuCho_G, LuPri, MaxVec, myNumCho, &
-                    nnBstR, nnBstR_G
+use Cholesky, only: Cho_AdrVec, Cho_Real_Par, iiBstR, iiBstR_G, iL2G, IndRed, InfVec_G, IndRed, LuCho_G, MaxVec, myNumCho, nnBstR, &
+                    nnBstR_G
+#ifdef _DEBUGPRINT_
+use Cholesky, only: LuPri
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: u6
 #endif
@@ -33,12 +36,6 @@ integer(kind=iwp) :: g_a, i, i1, iAdr, iCount, iNode, iOpt, irc, iRSL, iStart, i
 logical(kind=iwp) :: ok
 integer(kind=iwp), allocatable :: iAdrLG(:,:), iVecR(:), Map(:), MapRS2RS(:), nRSL(:)
 real(kind=wp), allocatable :: VecR(:,:)
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: LocDbg = _DBG_
 logical(kind=iwp), external :: ga_create_irreg, ga_destroy
 #ifndef _GA_
 !VVP:2014 DGA is here
@@ -49,10 +46,10 @@ logical(kind=iwp), external :: ga_create_local
 #endif
 
 if (.not. Cho_Real_Par) then
-  if (LocDbg) then
-    write(u6,'(A,A,A)') 'Illegal call to ',SecNam,':'
-    write(u6,*) 'Should only be called in parallel, but Cho_Real_Par = ',Cho_Real_Par
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,'(A,A,A)') 'Illegal call to ',SecNam,':'
+  write(u6,*) 'Should only be called in parallel, but Cho_Real_Par = ',Cho_Real_Par
+# endif
   call Cho_Quit('Illegal call to '//SecNam,103)
 end if
 
@@ -96,20 +93,20 @@ do i=1,nProcs
   end if
 end do
 
-if (LocDbg) then
-  write(LuPri,*)
-  write(LuPri,*) SecNam,': debug info.'
-  write(LuPri,*) '#nodes: ',nProcs,'  myRank: ',myRank
-  write(LuPri,*) '#contributing nodes: ',nProcs_eff
-  write(LuPri,*) 'Symmetry block: ',iSym
-  write(LuPri,*) 'On this node:'
-  write(LuPri,*) 'Vector dimension : ',nRS_l
-  write(LuPri,*) 'Number of vectors: ',nV,' (',Jin,'-',Jfi,')'
-  write(LuPri,*) 'Global vector dimension : ',nRS_g
-  write(LuPri,*) 'Number of global vectors: ',nVR
-  write(Lupri,*) 'MAP:'
-  write(LuPri,*) (map(i),i=1,nProcs_eff)
-end if
+#ifdef _DEBUGPRINT_
+write(LuPri,*)
+write(LuPri,*) SecNam,': debug info.'
+write(LuPri,*) '#nodes: ',nProcs,'  myRank: ',myRank
+write(LuPri,*) '#contributing nodes: ',nProcs_eff
+write(LuPri,*) 'Symmetry block: ',iSym
+write(LuPri,*) 'On this node:'
+write(LuPri,*) 'Vector dimension : ',nRS_l
+write(LuPri,*) 'Number of vectors: ',nV,' (',Jin,'-',Jfi,')'
+write(LuPri,*) 'Global vector dimension : ',nRS_g
+write(LuPri,*) 'Number of global vectors: ',nVR
+write(Lupri,*) 'MAP:'
+write(LuPri,*) (map(i),i=1,nProcs_eff)
+#endif
 !VVP:2014 Local rather than Global
 #ifdef _GA_
 ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,nProcs_eff,1,1,g_a)
@@ -170,10 +167,10 @@ call Cho_GAIGOP(iAdrLG,size(iAdrLG),'+')
 
 call mma_deallocate(MapRS2RS)
 
-if (LocDbg) then
-  iCount = sum(nRSL(1:nProcs))
-  if (iCount /= nRS_g) call Cho_Quit('nRSL error in '//SecNam,104)
-end if
+#ifdef _DEBUGPRINT_
+iCount = sum(nRSL(1:nProcs))
+if (iCount /= nRS_g) call Cho_Quit('nRSL error in '//SecNam,104)
+#endif
 
 do j=1,nVR
   VecR(:,nVr+1) = VecR(:,j)

@@ -23,12 +23,6 @@ real(kind=wp), intent(in) :: Diag(*)
 integer(kind=iwp), intent(in) :: IRED
 real(kind=wp), intent(out) :: DGMax
 integer(kind=iwp) :: AB, AB1, AB2, IAB, ISYM
-#ifdef _DEBUGPRINT_
-#define _DBG_ .true.
-#else
-#define _DBG_ .false.
-#endif
-logical(kind=iwp), parameter :: LOCDBG = _DBG_
 character(len=*), parameter :: SECNAM = 'CHO_MAXABSDIAG'
 
 if (CHO_1CENTER) then ! specialization for 1-center approximation
@@ -85,11 +79,11 @@ do ISYM=2,NSYM
   DGMAX = max(DGMAX,DIAMAX(ISYM))
 end do
 
-if (LOCDBG) then
-  write(LUPRI,*) SECNAM,': in reduced set ',IRED,':'
-  write(LUPRI,*) 'DIAMAX  = ',(DIAMAX(ISYM),ISYM=1,NSYM)
-  write(LUPRI,*) 'DIAMAXT = ',(DIAMAXT(ISYM),ISYM=1,NSYM)
-  write(LUPRI,*) 'DGMAX   = ',DGMAX
-end if
+#ifdef _DEBUGPRINT_
+write(LUPRI,*) SECNAM,': in reduced set ',IRED,':'
+write(LUPRI,*) 'DIAMAX  = ',(DIAMAX(ISYM),ISYM=1,NSYM)
+write(LUPRI,*) 'DIAMAXT = ',(DIAMAXT(ISYM),ISYM=1,NSYM)
+write(LUPRI,*) 'DGMAX   = ',DGMAX
+#endif
 
 end subroutine CHO_MAXABSDIAG
