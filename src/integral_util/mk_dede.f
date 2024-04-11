@@ -49,6 +49,7 @@
 #ifdef _DEBUGPRINT_
       use define_af, only: AngTp
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: ChOper
 #endif
       Implicit None
       Integer nDeDe, nFD, mFD, nOffD
@@ -73,8 +74,6 @@
       Real*8 FactND, Temp
 #ifdef _DEBUGPRINT_
       Integer iIrrep, jFD
-      Character ChOper(0:7)*3
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 #endif
 !                                                                      *
 !***********************************************************************

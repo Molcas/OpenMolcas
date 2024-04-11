@@ -36,7 +36,7 @@ character(len=88) :: ModLine
 character(len=72) :: Line, Title(mxTit)
 character(len=4) :: Command
 integer(kind=iwp), allocatable :: IOCR(:), JREFX(:)
-character(len=4), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','MCPF','CPF ', &
+character(len=*), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','MCPF','CPF ', &
                                           'SDCI','ACPF','LOW ','END ']
 
 !---  Initialize arrays and variables ---------------------------------*

@@ -45,7 +45,7 @@ character(len=7) :: Fnam
 type(SBA_Type), target :: ChoT(1)
 real(kind=wp), allocatable :: Lpq(:,:), Lpq_J(:), Lrs(:)
 logical(kind=iwp), parameter :: DoRead = .false.
-character(len=10), parameter :: SECNAM = 'CHO_TR_drv'
+character(len=*), parameter :: SECNAM = 'CHO_TR_drv'
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: ddot_
 

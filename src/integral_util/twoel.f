@@ -53,6 +53,7 @@
       use Breit, only: nOrdOp, nComp
       use Constants
 #ifdef _DEBUGPRINT_
+      use Symmetry_Info, only: ChOper
 #endif
       use k2_structure, only: k2_type
       Implicit None
@@ -95,10 +96,6 @@
      &        Batch_On_Disk,
      &         DoAOBatch, All_Spherical
       Integer iStb, jStb, kStb, lStb
-#ifdef _DEBUGPRINT_
-      Character(LEN=3) :: ChOper(0:7)=[' E ',' x ',' y ',' xy',' z ',
-     &                                 ' xz',' yz','xyz']
-#endif
       Logical :: Copy=.True., NoCopy=.False.
       Integer :: jOp(6)=[0,0,0,0,0,0]
 #include "SysDef.fh"

@@ -41,7 +41,6 @@ integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ip
                      nDiff, nip, nStb
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
-!character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: NrOpr
 external :: Fake, TNAI1, XCff2D
 #include "print.fh"

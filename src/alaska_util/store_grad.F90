@@ -44,7 +44,7 @@ integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nRoots, TOC(5
 logical(kind=iwp) :: Found, BadFile
 integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 integer(kind=iwp), external :: AixRm
-character(len=5), parameter :: Filename = 'GRADS'
+character(len=*), parameter :: Filename = 'GRADS'
 
 ! Create GRADS file if it does not exist
 

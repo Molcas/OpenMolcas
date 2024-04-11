@@ -42,7 +42,7 @@ real(kind=wp), intent(out) :: Grad(nGrad)
 integer(kind=iwp) :: iAd, iDum(1), idx, iSt, jSt, LuGrad, nCoup, nRoots, TOC(5)
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
-character(len=5), parameter :: Filename = 'GRADS'
+character(len=*), parameter :: Filename = 'GRADS'
 
 ! If the GRADS file does not exist, there is no gradient
 

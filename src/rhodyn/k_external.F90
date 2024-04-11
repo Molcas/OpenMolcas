@@ -27,7 +27,7 @@ integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, iii, jjj, lu, max_i, max_j, n_s
 real(kind=wp) :: max_k
 real(kind=wp), allocatable :: omega_ab(:,:), kab_real(:,:)
 complex(kind=wp), allocatable :: k_ab(:,:)
-character(len=256), parameter :: format1 = '(2(i8),2(g15.8,1x))'
+character(len=*), parameter :: format1 = '(2(i8),2(g15.8,1x))'
 integer(kind=iwp), external :: isFreeUnit
 
 n_sf = sum(lroots)

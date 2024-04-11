@@ -18,7 +18,7 @@ integer(kind=iwp), intent(in) :: nCMOs, ihdf5
 real(kind=wp), intent(in) :: CMO(nCMOs)
 logical(kind=iwp), intent(in) :: Do_int
 integer(kind=iwp) :: nAsh(8), nBas(8), nDel(8), nFro(8), nIsh(8), nSsh(8), nSym
-character(len=6), parameter :: BName = '_CHMOT'
+character(len=*), parameter :: BName = '_CHMOT'
 logical(kind=iwp), parameter :: InitChoEnv = .true.
 
 call Get_iScalar('nSym',nSym)

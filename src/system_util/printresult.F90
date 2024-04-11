@@ -22,7 +22,7 @@ integer(kind=iwp), intent(in) :: iUnit, iCount, iRank
 character(len=*), intent(in) :: FRMT, STR, STR2
 real(kind=wp), intent(in) :: Val(iRank)
 character(len=120) :: TMP
-character(len=2), parameter :: Marker = '::'
+character(len=*), parameter :: Marker = '::'
 #include "print.fh"
 
 if (icolorize == 1) then

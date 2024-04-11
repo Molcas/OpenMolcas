@@ -229,112 +229,112 @@ integer(kind=iwp), parameter :: ichargemax = 103, &
                                                                            0,0,0,0,  & !102
                                                                            0,0,1,0   & !103
                                                                           ],shape(iopocc))
-character(len=35), parameter :: txt = '  SO-integrals were calculated for '
-character(len=30), parameter :: occtxt(0:ichargemax) = ['dummy atom (no integrals)     ', &
-                                                        ' H: no mean-field             ', &
-                                                        'He: 1s^2                      ', &
-                                                        'Li: [He]2s^1                  ', &
-                                                        'Be: [He]2s^2                  ', &
-                                                        ' B: [He]2s^2 2p^1             ', &
-                                                        ' C: [He]2s^2 2p^2             ', &
-                                                        ' N: [He]2s^2 2p^3             ', &
-                                                        ' O: [He]2s^2 2p^4             ', &
-                                                        ' F: [He]2s^2 2p^5             ', &
-                                                        'Ne: [He]2s^2 2p^6             ', &
-                                                        'Na: [Ne]3s^1                  ', &
-                                                        'Mg: [Ne]3s^2                  ', &
-                                                        'Al: [Ne]3s^2 3p^1             ', &
-                                                        'Si: [Ne]3s^2 3p^2             ', &
-                                                        ' P: [Ne]3s^2 3p^3             ', &
-                                                        ' S: [Ne]3s^2 3p^4             ', &
-                                                        'Cl: [Ne]3s^2 3p^5             ', &
-                                                        'Ar: [Ne]3s^2 3p^6             ', &
-                                                        ' K: [Ar]4s^1                  ', &
-                                                        'Ca: [Ar]4s^2                  ', &
-                                                        'Sc: [Ar]4s^2 3d^1             ', &
-                                                        'Ti: [Ar]4s^2 3d^2             ', &
-                                                        ' V: [Ar]4s^2 3d^3             ', &
-                                                        'Cr: [Ar]4s^2 3d^4             ', &
-                                                        'Mn: [Ar]4s^2 3d^5             ', &
-                                                        'Fe: [Ar]4s^2 3d^6             ', &
-                                                        'Co: [Ar]4s^2 3d^7             ', &
-                                                        'Ni: [Ar]4s^2 3d^8             ', &
-                                                        'Cu: [Ar]4s^1 3d^10            ', &
-                                                        'Zn: [Ar]4s^2 3d^10            ', &
-                                                        'Ga: [Ar]4s^2 3d^10 4p^1       ', &
-                                                        'Ge: [Ar]4s^2 3d^10 4p^2       ', &
-                                                        'As: [Ar]4s^2 3d^10 4p^3       ', &
-                                                        'Se: [Ar]4s^2 3d^10 4p^4       ', &
-                                                        'Br: [Ar]4s^2 3d^10 4p^5       ', &
-                                                        'Kr: [Ar]4s^2 3d^10 4p^6       ', &
-                                                        'Rb: [Kr]5s^1                  ', &
-                                                        'Sr: [Kr]5s^2                  ', &
-                                                        ' Y: [Kr]5s^2 4d^1             ', &
-                                                        'Zr: [Kr]5s^2 4d^2             ', &
-                                                        'Nb: [Kr]5s^2 4d^3             ', &
-                                                        'Mo: [Kr]5s^2 4d^4             ', &
-                                                        'Tc: [Kr]5s^2 4d^5             ', &
-                                                        'Ru: [Kr]5s^2 4d^6             ', &
-                                                        'Rh: [Kr]5s^2 4d^7             ', &
-                                                        'Pd: [Kr]5s^2 4d^8             ', &
-                                                        'Ag: [Kr]5s^1 4d^10            ', &
-                                                        'Cd: [Kr]5s^2 4d^10            ', &
-                                                        'In: [Kr]5s^2 4d^10 5p^1       ', &
-                                                        'Sn: [Kr]5s^2 4d^10 5p^2       ', &
-                                                        'Sb: [Kr]5s^2 4d^10 5p^3       ', &
-                                                        'Te: [Kr]5s^2 4d^10 5p^4       ', &
-                                                        ' I: [Kr]5s^2 4d^10 5p^5       ', &
-                                                        'Xe: [Kr]5s^2 4d^10 5p^6       ', &
-                                                        'Cs: [Xe]6s^1                  ', &
-                                                        'Ba: [Xe]6s^2                  ', &
-                                                        'La: [Xe]6s^2 5d^1             ', &
-                                                        'Ce: [Xe]6s^2 4f^2             ', &
-                                                        'Pr: [Xe]6s^2 4f^3             ', &
-                                                        'Nd: [Xe]6s^2 4f^4             ', &
-                                                        'Pm: [Xe]6s^2 4f^5             ', &
-                                                        'Sm: [Xe]6s^2 4f^6             ', &
-                                                        'Eu: [Xe]6s^2 4f^7             ', &
-                                                        'Gd: [Xe]6s^2 4f^8             ', &
-                                                        'Tb: [Xe]6s^2 4f^9             ', &
-                                                        'Dy: [Xe]6s^2 4f^10            ', &
-                                                        'Ho: [Xe]6s^2 4f^11            ', &
-                                                        'Er: [Xe]6s^2 4f^12            ', &
-                                                        'Tm: [Xe]6s^2 4f^13            ', &
-                                                        'Yb: [Xe]6s^2 4f^14            ', &
-                                                        'Lu: [Xe+4f^14]6s^2 5d^1       ', &
-                                                        'Hf: [Xe+4f^14]6s^2 5d^2       ', &
-                                                        'Ta: [Xe+4f^14]6s^2 5d^3       ', &
-                                                        ' W: [Xe+4f^14]6s^2 5d^4       ', &
-                                                        'Re: [Xe+4f^14]6s^2 5d^5       ', &
-                                                        'Os: [Xe+4f^14]6s^2 5d^6       ', &
-                                                        'Ir: [Xe+4f^14]6s^2 5d^7       ', &
-                                                        'Pt: [Xe+4f^14]6s^1 5d^9       ', &
-                                                        'Au: [Xe+4f^14]6s^1 5d^10      ', &
-                                                        'Hg: [Xe+4f^14]6s^2 5d^10      ', &
-                                                        'Tl: [Xe+4f^14+5d^10]6s^2 6p^1 ', &
-                                                        'Pb: [Xe+4f^14+5d^10]6s^2 6p^2 ', &
-                                                        'Bi: [Xe+4f^14+5d^10]6s^2 6p^3 ', &
-                                                        'Po: [Xe+4f^14+5d^10]6s^2 6p^4 ', &
-                                                        'At: [Xe+4f^14+5d^10]6s^2 6p^5 ', &
-                                                        'Rn: [Xe+4f^14+5d^10]6s^2 6p^6 ', &
-                                                        'Fr: [Rn]7s^1                  ', &
-                                                        'Ra: [Rn]7s^2                  ', &
-                                                        'Ac: [Rn]7s^2 6d^1             ', &
-                                                        'Th: [Rn]7s^2 6d^2             ', &
-                                                        'Pa: [Rn]7s^2 6d^1 5f^2        ', &
-                                                        ' U: [Rn]7s^2 6d^1 5f^3        ', &
-                                                        'Np: [Rn]7s^2 6d^1 5f^4        ', &
-                                                        'Pu: [Rn]7s^2 6d^0 5f^6        ', &
-                                                        'Am: [Rn]7s^2 6d^0 5f^7        ', &
-                                                        'Cm: [Rn]7s^2 6d^0 5f^8        ', &
-                                                        'Bk: [Rn]7s^2 6d^0 5f^9        ', &
-                                                        'Cf: [Rn]7s^2 6d^0 5f^10       ', &
-                                                        'Es: [Rn]7s^2 6d^0 5f^11       ', &
-                                                        'Fm: [Rn]7s^2 6d^0 5f^12       ', &
-                                                        'Md: [Rn]7s^2 6d^0 5f^13       ', &
-                                                        'No: [Rn]7s^2 6d^0 5f^14       ', &
-                                                        'Lr: [Rn]7s^2 6d^1 5f^14       '  &
-                                                       ]
+character(len=*), parameter :: occtxt(0:ichargemax) = ['dummy atom (no integrals)     ', &
+                                                       ' H: no mean-field             ', &
+                                                       'He: 1s^2                      ', &
+                                                       'Li: [He]2s^1                  ', &
+                                                       'Be: [He]2s^2                  ', &
+                                                       ' B: [He]2s^2 2p^1             ', &
+                                                       ' C: [He]2s^2 2p^2             ', &
+                                                       ' N: [He]2s^2 2p^3             ', &
+                                                       ' O: [He]2s^2 2p^4             ', &
+                                                       ' F: [He]2s^2 2p^5             ', &
+                                                       'Ne: [He]2s^2 2p^6             ', &
+                                                       'Na: [Ne]3s^1                  ', &
+                                                       'Mg: [Ne]3s^2                  ', &
+                                                       'Al: [Ne]3s^2 3p^1             ', &
+                                                       'Si: [Ne]3s^2 3p^2             ', &
+                                                       ' P: [Ne]3s^2 3p^3             ', &
+                                                       ' S: [Ne]3s^2 3p^4             ', &
+                                                       'Cl: [Ne]3s^2 3p^5             ', &
+                                                       'Ar: [Ne]3s^2 3p^6             ', &
+                                                       ' K: [Ar]4s^1                  ', &
+                                                       'Ca: [Ar]4s^2                  ', &
+                                                       'Sc: [Ar]4s^2 3d^1             ', &
+                                                       'Ti: [Ar]4s^2 3d^2             ', &
+                                                       ' V: [Ar]4s^2 3d^3             ', &
+                                                       'Cr: [Ar]4s^2 3d^4             ', &
+                                                       'Mn: [Ar]4s^2 3d^5             ', &
+                                                       'Fe: [Ar]4s^2 3d^6             ', &
+                                                       'Co: [Ar]4s^2 3d^7             ', &
+                                                       'Ni: [Ar]4s^2 3d^8             ', &
+                                                       'Cu: [Ar]4s^1 3d^10            ', &
+                                                       'Zn: [Ar]4s^2 3d^10            ', &
+                                                       'Ga: [Ar]4s^2 3d^10 4p^1       ', &
+                                                       'Ge: [Ar]4s^2 3d^10 4p^2       ', &
+                                                       'As: [Ar]4s^2 3d^10 4p^3       ', &
+                                                       'Se: [Ar]4s^2 3d^10 4p^4       ', &
+                                                       'Br: [Ar]4s^2 3d^10 4p^5       ', &
+                                                       'Kr: [Ar]4s^2 3d^10 4p^6       ', &
+                                                       'Rb: [Kr]5s^1                  ', &
+                                                       'Sr: [Kr]5s^2                  ', &
+                                                       ' Y: [Kr]5s^2 4d^1             ', &
+                                                       'Zr: [Kr]5s^2 4d^2             ', &
+                                                       'Nb: [Kr]5s^2 4d^3             ', &
+                                                       'Mo: [Kr]5s^2 4d^4             ', &
+                                                       'Tc: [Kr]5s^2 4d^5             ', &
+                                                       'Ru: [Kr]5s^2 4d^6             ', &
+                                                       'Rh: [Kr]5s^2 4d^7             ', &
+                                                       'Pd: [Kr]5s^2 4d^8             ', &
+                                                       'Ag: [Kr]5s^1 4d^10            ', &
+                                                       'Cd: [Kr]5s^2 4d^10            ', &
+                                                       'In: [Kr]5s^2 4d^10 5p^1       ', &
+                                                       'Sn: [Kr]5s^2 4d^10 5p^2       ', &
+                                                       'Sb: [Kr]5s^2 4d^10 5p^3       ', &
+                                                       'Te: [Kr]5s^2 4d^10 5p^4       ', &
+                                                       ' I: [Kr]5s^2 4d^10 5p^5       ', &
+                                                       'Xe: [Kr]5s^2 4d^10 5p^6       ', &
+                                                       'Cs: [Xe]6s^1                  ', &
+                                                       'Ba: [Xe]6s^2                  ', &
+                                                       'La: [Xe]6s^2 5d^1             ', &
+                                                       'Ce: [Xe]6s^2 4f^2             ', &
+                                                       'Pr: [Xe]6s^2 4f^3             ', &
+                                                       'Nd: [Xe]6s^2 4f^4             ', &
+                                                       'Pm: [Xe]6s^2 4f^5             ', &
+                                                       'Sm: [Xe]6s^2 4f^6             ', &
+                                                       'Eu: [Xe]6s^2 4f^7             ', &
+                                                       'Gd: [Xe]6s^2 4f^8             ', &
+                                                       'Tb: [Xe]6s^2 4f^9             ', &
+                                                       'Dy: [Xe]6s^2 4f^10            ', &
+                                                       'Ho: [Xe]6s^2 4f^11            ', &
+                                                       'Er: [Xe]6s^2 4f^12            ', &
+                                                       'Tm: [Xe]6s^2 4f^13            ', &
+                                                       'Yb: [Xe]6s^2 4f^14            ', &
+                                                       'Lu: [Xe+4f^14]6s^2 5d^1       ', &
+                                                       'Hf: [Xe+4f^14]6s^2 5d^2       ', &
+                                                       'Ta: [Xe+4f^14]6s^2 5d^3       ', &
+                                                       ' W: [Xe+4f^14]6s^2 5d^4       ', &
+                                                       'Re: [Xe+4f^14]6s^2 5d^5       ', &
+                                                       'Os: [Xe+4f^14]6s^2 5d^6       ', &
+                                                       'Ir: [Xe+4f^14]6s^2 5d^7       ', &
+                                                       'Pt: [Xe+4f^14]6s^1 5d^9       ', &
+                                                       'Au: [Xe+4f^14]6s^1 5d^10      ', &
+                                                       'Hg: [Xe+4f^14]6s^2 5d^10      ', &
+                                                       'Tl: [Xe+4f^14+5d^10]6s^2 6p^1 ', &
+                                                       'Pb: [Xe+4f^14+5d^10]6s^2 6p^2 ', &
+                                                       'Bi: [Xe+4f^14+5d^10]6s^2 6p^3 ', &
+                                                       'Po: [Xe+4f^14+5d^10]6s^2 6p^4 ', &
+                                                       'At: [Xe+4f^14+5d^10]6s^2 6p^5 ', &
+                                                       'Rn: [Xe+4f^14+5d^10]6s^2 6p^6 ', &
+                                                       'Fr: [Rn]7s^1                  ', &
+                                                       'Ra: [Rn]7s^2                  ', &
+                                                       'Ac: [Rn]7s^2 6d^1             ', &
+                                                       'Th: [Rn]7s^2 6d^2             ', &
+                                                       'Pa: [Rn]7s^2 6d^1 5f^2        ', &
+                                                       ' U: [Rn]7s^2 6d^1 5f^3        ', &
+                                                       'Np: [Rn]7s^2 6d^1 5f^4        ', &
+                                                       'Pu: [Rn]7s^2 6d^0 5f^6        ', &
+                                                       'Am: [Rn]7s^2 6d^0 5f^7        ', &
+                                                       'Cm: [Rn]7s^2 6d^0 5f^8        ', &
+                                                       'Bk: [Rn]7s^2 6d^0 5f^9        ', &
+                                                       'Cf: [Rn]7s^2 6d^0 5f^10       ', &
+                                                       'Es: [Rn]7s^2 6d^0 5f^11       ', &
+                                                       'Fm: [Rn]7s^2 6d^0 5f^12       ', &
+                                                       'Md: [Rn]7s^2 6d^0 5f^13       ', &
+                                                       'No: [Rn]7s^2 6d^0 5f^14       ', &
+                                                       'Lr: [Rn]7s^2 6d^1 5f^14       '  &
+                                                      ], &
+                               txt = '  SO-integrals were calculated for '
 integer(kind=iwp), external :: iPrintLevel
 
 if (icharge > ichargemax) then

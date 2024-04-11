@@ -33,7 +33,7 @@ logical(kind=iwp), intent(out) :: Exists
 integer(kind=iwp), intent(out) :: nRoots, nGrad
 integer(kind=iwp) :: iAd, iDum(1), LuGrad, TOC(5)
 logical(kind=iwp) :: Found
-character(len=5), parameter :: Filename = 'GRADS'
+character(len=*), parameter :: Filename = 'GRADS'
 
 call f_Inquire(Filename,Found)
 if (.not. Found) then

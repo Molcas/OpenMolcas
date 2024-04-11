@@ -39,9 +39,10 @@ integer(kind=iwp), parameter :: Mul(8,8) = reshape([1,2,3,4,5,6,7,8, &
                                                          1,-1, 1,-1,-1, 1,-1, 1, &
                                                          1, 1,-1,-1,-1,-1, 1, 1, &
                                                          1,-1,-1, 1,-1, 1, 1,-1],[8,8])
+character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 
-public :: iChBas, iChCar, iChTbl, iOper, iSkip, lBsFnc, lIrrep, Mul, nIrrep, Prmt, SymLab, Symmetry_Info_Dmp, Symmetry_Info_Free, &
-          Symmetry_Info_Get, Symmetry_Info_Set, Symmetry_Info_Setup, VarR, VarT
+public :: ChOper, iChBas, iChCar, iChTbl, iOper, iSkip, lBsFnc, lIrrep, Mul, nIrrep, Prmt, SymLab, Symmetry_Info_Dmp, &
+          Symmetry_Info_Free, Symmetry_Info_Get, Symmetry_Info_Set, Symmetry_Info_Setup, VarR, VarT
 
 !***********************************************************************
 !***********************************************************************

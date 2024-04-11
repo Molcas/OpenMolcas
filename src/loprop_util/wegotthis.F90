@@ -27,7 +27,7 @@ real(kind=wp) :: chP, CorrCoeff, DeNom, Dif1, Dif2, ElPot_APP, ElPot_MP, ElPot_R
 logical(kind=iwp) :: D1, D2, Found, Que
 character(len=10) :: OneFile, Label
 real(kind=wp), allocatable :: D1ao(:), dMullig(:), ElP(:), EPCo(:,:)
-character(len=10), parameter :: DistType(2) = ['Monopole  ','Dipole    ']
+character(len=*), parameter :: DistType(2) = ['Monopole  ','Dipole    ']
 real(kind=wp) :: Ddot_, ElPot
 
 ! Print exponents and factors.

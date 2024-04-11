@@ -65,7 +65,6 @@ integer(kind=iwp) :: i, iAng, iAO, iAtom, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0
                      nTasks
 real(kind=wp) :: A(3), B(3), FactNd, RB(3)
 logical(kind=iwp) :: AeqB, Chck, ifgrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2)
-!character(len=3) :: ChOper(0:7)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Fnl(:), Kappa(:), Kern(:), PCoor(:,:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 logical(kind=iwp), external :: EQ, TF, TstFnc

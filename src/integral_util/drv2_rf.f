@@ -50,6 +50,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _DEBUGPRINT_
       use define_af, only: Angtp
+      use Symmetry_Info, only: ChOper
 #endif
       Implicit None
       Integer llOper, nOrdOp, lMax, nh0
@@ -73,8 +74,6 @@
       Integer, External:: n2Tri, MemSO1
       Real*8 Fact
 #ifdef _DEBUGPRINT_
-      Character ChOper(0:7)*3
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
       Integer i, ii
 #endif
 !

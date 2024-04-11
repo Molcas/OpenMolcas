@@ -87,7 +87,7 @@ integer(kind=iwp) :: iErr
 integer(kind=iwp) :: i, myJRED1, NNBSTMX, ntv0
 real(kind=wp), allocatable :: DiagJ(:)
 #endif
-character(LEN=14), parameter :: SECNAM = 'CHO_LK_RASSI_X'
+character(len=*), parameter :: SECNAM = 'CHO_LK_RASSI_X'
 logical(kind=iwp), parameter :: DoRead = .false.
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch

@@ -27,6 +27,7 @@ subroutine XFdGrd( &
 use external_centers, only: iXPolType, nOrd_XF, nXF, XF
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
+use Symmetry_Info, only: ChOper
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -37,7 +38,6 @@ integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7),
                      mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3)
 logical(kind=iwp) :: JfGrad(3,4), NoLoop
-character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: iChAtm, NrOpr
 external :: Fake, TNAI1, XCff2D
 #include "print.fh"

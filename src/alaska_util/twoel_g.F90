@@ -42,6 +42,7 @@ use k2_structure, only: k2_type
 use k2_arrays, only: BraKet
 use Disp, only: CutGrd, l2DI
 #ifdef _DEBUGPRINT_
+use Symmetry_Info, only: ChOper
 use Disp, only: ChDisp
 #endif
 use Constants, only: One
@@ -71,7 +72,6 @@ logical(kind=iwp), external :: EQ, lEmpty
 external :: ModU2, TERI1, vCff2D
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, iPrint, iRout
-character(len=3), parameter :: ChOper(0:7) = [' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz']
 #include "print.fh"
 #endif
 

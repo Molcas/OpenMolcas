@@ -35,7 +35,7 @@ character(len=88) :: ModLine
 character(len=72) :: Line, Title(10)
 character(len=4) :: Command
 integer(kind=iwp), allocatable :: IOCR(:)
-character(len=4), parameter :: Cmd(19) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
+character(len=*), parameter :: Cmd(19) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
                                           'PROR','REFC','SELE','NRRO','MXVE','TRAN','END ']
 
 ! Initialize data and set defaults
