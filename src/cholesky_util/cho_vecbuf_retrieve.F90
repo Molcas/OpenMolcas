@@ -186,7 +186,6 @@ end if
 ! ----------------
 
 mUsed = lTot
-write(6,*) 'IFG',jnum,mused
 
 ! Debug: print.
 ! -------------

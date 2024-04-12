@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iel, nDoF, nDim, ictl, Lu_10, iOff
-real(kind=wp), intent(in) :: EVal(nDim), EVec(2,nDoF,nDim), dDipM(nDim,iel), RedM(nDim)
+real(kind=wp), intent(in) :: EVal(nDim), EVec(nDoF,nDim), dDipM(nDim,iel), RedM(nDim)
 real(kind=wp), intent(out) :: IRInt(nDim)
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: Inc = 6
@@ -26,7 +26,6 @@ real(kind=wp) :: Tmp(Inc)
 character(len=LenIn6) :: Label
 character(len=120) :: Line
 character(len=80) :: frmt
-real(kind=wp), allocatable :: T(:,:)
 character(len=LenIn6), allocatable :: ChDisp(:)
 
 call Get_iScalar('nChDisp',nChDisp)
@@ -75,18 +74,15 @@ do iHarm=1,nDim,Inc
 
   write(frmt,'(A,I3,A)') '(5X,A,1x,',Jnc,'F10.5)'
   do iInt=1,nDoF
-    write(u6,frmt) ChDisp(iInt+iOff),(EVec(1,iInt,i),i=iHarm,iHarm+Jnc-1)
+    write(u6,frmt) ChDisp(iInt+iOff),(EVec(iInt,i),i=iHarm,iHarm+Jnc-1)
   end do
   write(u6,*)
   write(u6,*)
 end do
 call mma_deallocate(ChDisp)
 
-call mma_allocate(T,nDoF,nDim,label='Temp')
-T(:,:) = Evec(1,:,:)
 Line = '*FREQUENCIES'
-call WRH(Lu_10,1,[nDoF],[nDim],T,EVAL,1,Line)
-call mma_deallocate(T)
+call WRH(Lu_10,1,[nDoF],[nDim],EVec,EVal,1,Line)
 
 if (ictl /= 0) then
   !write(Lu_10,*) '*BEGIN PROJECTED DIPOLE TRANSITIONS'

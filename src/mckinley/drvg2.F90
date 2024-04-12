@@ -382,7 +382,7 @@ call Init_Tsk(id_Tsk,nijS)
 !***********************************************************************
 !                                                                      *
 call mma_MaxDBLE(MemMax)
-if (MemMax > 1000) MemMax = MemMax-1000
+if (MemMax > 8000) MemMax = MemMax-8000
 call mma_allocate(Sew_Scr,MemMax-iii,Label='Sew_Scr')
 ipMem = 1
 memmax = memmax-iii

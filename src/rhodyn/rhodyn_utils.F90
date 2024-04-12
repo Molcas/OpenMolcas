@@ -289,7 +289,7 @@ subroutine sortci(N1,A,WR,C,print_level)
   if (print_level > 3) then
     call mma_allocate(B,N1,N1,label='B')
     call mma_allocate(diag,N1,N1,label='diag')
-    B(:,:) = A
+    B(:,:) = A(:,:)
   end if
   LWORK = 2*N1
   call mma_allocate(WORK,LWORK,label='WORK')
@@ -300,7 +300,7 @@ subroutine sortci(N1,A,WR,C,print_level)
   end if
   call dsyev_('V','U',N1,A,N1,WR,WORK,LWORK,INFO)
   call mma_deallocate(WORK)
-  C = A
+  C(:,:) = A(:,:)
   if (print_level > 3) then
     call transform(B,C,diag)
     call dashes()

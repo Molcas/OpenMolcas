@@ -38,11 +38,13 @@ if (is_real_par()) then
 else
 #endif
 
-#if defined (__GNUC__) || defined (__INTEL_COMPILER)
+# if defined (__GNUC__)
   call abort()
-#else
+# elif defined (__INTEL_COMPILER)
+  call abort('Molcas aborted...')
+# else
   stop 'Molcas aborted...'
-#endif
+# endif
 
 #ifdef _MOLCAS_MPP_
 end if

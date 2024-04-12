@@ -24,8 +24,7 @@
 
 subroutine gxWrRun(iRc,Label,cData,nData,iOpt,RecTyp)
 
-use RunFile_data, only: icRd, icWr, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr, &
-                        TypUnk
+use RunFile_data, only: icWr, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr, TypUnk
 use Definitions, only: iwp
 
 implicit none
@@ -73,16 +72,7 @@ end if
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-iDisk = RunHdr%DaLab
-call cDaFile(Lu,icRd,Toc(:)%Lab,lw*nToc,iDisk)
-iDisk = RunHdr%DaPtr
-call iDaFile(Lu,icRd,Toc(:)%Ptr,nToc,iDisk)
-iDisk = RunHdr%DaLen
-call iDaFile(Lu,icRd,Toc(:)%Len,nToc,iDisk)
-iDisk = RunHdr%DaMaxLen
-call iDaFile(Lu,icRd,Toc(:)%MaxLen,nToc,iDisk)
-iDisk = RunHdr%DaTyp
-call iDaFile(Lu,icRd,Toc(:)%Typ,nToc,iDisk)
+call rdToc(Lu)
 !----------------------------------------------------------------------*
 ! Reuse old field?                                                     *
 !----------------------------------------------------------------------*
@@ -142,16 +132,7 @@ if (iDisk > RunHdr%Next) RunHdr%Next = iDisk
 iDisk = 0
 call RunHdr2Arr(Hdr)
 call iDaFile(Lu,icWr,Hdr,nHdrSz,iDisk)
-iDisk = RunHdr%DaLab
-call cDaFile(Lu,icWr,Toc(:)%Lab,lw*nToc,iDisk)
-iDisk = RunHdr%DaPtr
-call iDaFile(Lu,icWr,Toc(:)%Ptr,nToc,iDisk)
-iDisk = RunHdr%DaLen
-call iDaFile(Lu,icWr,Toc(:)%Len,nToc,iDisk)
-iDisk = RunHdr%DaMaxLen
-call iDaFile(Lu,icWr,Toc(:)%MaxLen,nToc,iDisk)
-iDisk = RunHdr%DaTyp
-call iDaFile(Lu,icWr,Toc(:)%Typ,nToc,iDisk)
+call wrToc(Lu)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
